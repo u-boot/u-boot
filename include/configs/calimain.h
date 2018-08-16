@@ -122,8 +122,6 @@
 /* memtest will be run on 16MB */
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (16 << 20))
 
-#define CONFIG_NR_DRAM_BANKS	1 /* we have 1 bank of DRAM */
-
 /*
  * Serial Driver info
  */

@@ -48,7 +48,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(MEM_BASE)
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			(MEM_BASE)	  /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE		(0x80000000-MEM_BASE)	/* 2048 MB */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1

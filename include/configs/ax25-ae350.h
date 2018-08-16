@@ -45,7 +45,6 @@
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	2
 #define PHYS_SDRAM_0	0x00000000		/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1	\
 	(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)	/* SDRAM Bank #2 */

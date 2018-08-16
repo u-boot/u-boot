@@ -9,8 +9,6 @@
 #ifndef __IGEP00X0_H
 #define __IGEP00X0_H
 
-#define CONFIG_NR_DRAM_BANKS            2
-
 #include <configs/ti_omap3_common.h>
 
 /*

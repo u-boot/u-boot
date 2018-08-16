@@ -12,8 +12,6 @@
 
 /* High Level Configuration Options */
 
-#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
-
 #include <configs/ti_omap3_common.h>
 
 /*

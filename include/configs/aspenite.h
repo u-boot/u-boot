@@ -22,7 +22,6 @@
  * TBD: dcache to be used for this
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - 0x00200000)
-#define CONFIG_NR_DRAM_BANKS_MAX	2
 
 /*
  * Commands configuration

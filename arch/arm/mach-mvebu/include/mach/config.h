@@ -47,7 +47,6 @@
 
 /* end of 16M scrubbed by training in bootrom */
 #define CONFIG_SYS_INIT_SP_ADDR		0x00FF0000
-#define CONFIG_NR_DRAM_BANKS_MAX	2
 
 #define MV_UART_CONSOLE_BASE		MVEBU_UART0_BASE
 

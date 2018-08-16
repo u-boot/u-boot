@@ -172,7 +172,6 @@
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	1	/* CS1 is never populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
 
 /*-----------------------------------------------------------------------

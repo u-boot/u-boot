@@ -14,7 +14,6 @@
 #include <linux/sizes.h>
 
 /* DRAM banks */
-#define CONFIG_NR_DRAM_BANKS			2
 
 /* SYS */
 #define CONFIG_SYS_BOOTM_LEN			SZ_64M

@@ -65,7 +65,6 @@
 #define CONFIG_JFFS2_PART_SIZE		(256 * 1024 * 1024) /* partition */
 
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			0x70000000
 #define PHYS_SDRAM_SIZE			0x08000000	/* 128 megs */
 

@@ -12,7 +12,6 @@
 
 /* SDRAM Definitions */
 #define CONFIG_SYS_SDRAM_BASE		0x0
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_SIZE		0x80000000
 
 /* Generic Timer Definitions */

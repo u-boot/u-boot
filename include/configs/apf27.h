@@ -48,7 +48,6 @@
  * Memory configurations
  */
 #define CONFIG_NR_DRAM_POPULATED 1
-#define CONFIG_NR_DRAM_BANKS	2
 
 #define ACFG_SDRAM_MBYTE_SYZE 64
 

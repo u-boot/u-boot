@@ -172,7 +172,6 @@
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	1	/* CM-T3517 DRAM is only on CS0 */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
 #define CONFIG_SYS_CS0_SIZE		(256 << 20)
 

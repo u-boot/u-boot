@@ -28,7 +28,6 @@
 
 /* Physical Memory Map */
 
-#define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		0x80000000
 #define PHYS_SDRAM_1_SIZE	(64 * 1024 * 1024)
 

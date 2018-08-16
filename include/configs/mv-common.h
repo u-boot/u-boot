@@ -70,17 +70,6 @@
 /* ====> Include platform Common Definitions */
 #include <asm/arch/config.h>
 
-/*
- * DRAM Banks configuration, Custom config can be done in <board>.h
- */
-#ifndef CONFIG_NR_DRAM_BANKS
-#define CONFIG_NR_DRAM_BANKS	CONFIG_NR_DRAM_BANKS_MAX
-#else
-#if (CONFIG_NR_DRAM_BANKS > CONFIG_NR_DRAM_BANKS_MAX)
-#error CONFIG_NR_DRAM_BANKS Configurated more than available
-#endif
-#endif /* CONFIG_NR_DRAM_BANKS */
-
 /* ====> Include driver Common Definitions */
 /*
  * Common NAND configuration

@@ -126,11 +126,8 @@
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
 
 #ifdef CONFIG_TARGET_VEXPRESS64_JUNO
-#define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_2			(0x880000000)
 #define PHYS_SDRAM_2_SIZE		0x180000000
-#else
-#define CONFIG_NR_DRAM_BANKS		1
 #endif
 
 /* Enable memtest */

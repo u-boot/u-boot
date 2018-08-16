@@ -39,8 +39,6 @@
  * DRAM
  */
 
-#define CONFIG_NR_DRAM_BANKS	1
-
 /*
  * Memory
  */

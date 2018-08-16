@@ -322,7 +322,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			OMAP34XX_SDRC_CS0
 
 /*

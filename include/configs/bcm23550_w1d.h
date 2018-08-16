@@ -20,7 +20,6 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_SYS_SDRAM_SIZE		0x20000000
-#define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_SYS_MALLOC_LEN		SZ_4M	/* see armv7/start.S. */
 

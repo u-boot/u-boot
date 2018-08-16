@@ -64,9 +64,6 @@
  * initial stack pointer in our SRAM. Otherwise, we can define
  * CONFIG_NR_DRAM_BANKS before including this file.
  */
-#ifndef CONFIG_NR_DRAM_BANKS
-#define CONFIG_NR_DRAM_BANKS		1
-#endif
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 
 #ifndef CONFIG_SYS_INIT_SP_ADDR

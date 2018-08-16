@@ -19,7 +19,6 @@
 
 #define TZPC_BASE_OFFSET		0x10000
 
-#define CONFIG_NR_DRAM_BANKS	8
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
 /* Reserve the last 22 MiB for the secure firmware */
 #define CONFIG_SYS_MEM_TOP_HIDE		(22UL << 20UL)

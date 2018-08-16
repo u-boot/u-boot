@@ -37,7 +37,6 @@
 #define CONFIG_POWER_TPS65090_EC
 
 /* DRAM Memory Banks */
-#define CONFIG_NR_DRAM_BANKS	7
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
 
 #endif	/* __CONFIG_PEACH_PI_H */

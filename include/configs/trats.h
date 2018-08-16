@@ -22,7 +22,6 @@
 #endif
 
 /* TRATS has 4 banks of DRAM */
-#define CONFIG_NR_DRAM_BANKS		4
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 #define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */

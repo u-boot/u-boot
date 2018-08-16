@@ -10,8 +10,6 @@
 #ifndef __CONFIG_CL_SOM_AM57X_H
 #define __CONFIG_CL_SOM_AM57X_H
 
-#define CONFIG_NR_DRAM_BANKS		2
-
 #define CONSOLEDEV			"ttyO2"
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE	/* UART3 */
 

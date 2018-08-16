@@ -84,7 +84,6 @@
 /*
  * DRAM Map
  */
-#define	CONFIG_NR_DRAM_BANKS		1		/* We have 1 bank of DRAM */
 #define	PHYS_SDRAM_1			0xa0000000	/* SDRAM Bank #1 */
 #define	PHYS_SDRAM_1_SIZE		0x04000000	/* 64 MB */
 

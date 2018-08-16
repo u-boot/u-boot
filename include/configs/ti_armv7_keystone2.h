@@ -20,7 +20,6 @@
 #define CONFIG_SYS_DCACHE_OFF
 
 /* Memory Configuration */
-#define CONFIG_NR_DRAM_BANKS		2
 #define CONFIG_SYS_LPAE_SDRAM_BASE	0x800000000
 #define CONFIG_MAX_RAM_BANK_SIZE	(2 << 30)       /* 2GB */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SPL_TEXT_BASE - \

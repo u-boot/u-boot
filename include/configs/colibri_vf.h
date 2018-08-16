@@ -133,7 +133,6 @@
 #define CONFIG_SYS_HZ			1000
 
 /* Physical memory map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			(0x80000000)
 #define PHYS_SDRAM_SIZE			(256 * 1024 * 1024)
 

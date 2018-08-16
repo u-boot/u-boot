@@ -189,7 +189,6 @@
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
 /* Physical memory map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			(0x80000000)
 #define PHYS_SDRAM_SIZE			(CONFIG_PCM052_DDR_SIZE * 1024 * 1024)
 

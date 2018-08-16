@@ -20,7 +20,6 @@
 /*
  * Configuration of the external SDRAM memory
  */
-#define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_SYS_MAX_FLASH_SECT	8
 #define CONFIG_SYS_MAX_FLASH_BANKS	1

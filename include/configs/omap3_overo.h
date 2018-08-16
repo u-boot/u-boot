@@ -6,8 +6,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
-
 #include <configs/ti_omap3_common.h>
 /*
  * We are only ever GP parts and will utilize all of the "downloaded image"

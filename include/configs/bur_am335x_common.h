@@ -63,7 +63,6 @@
  * always, even when we have more.  We always start at 0x80000000,
  * and we place the initial stack pointer in our SRAM.
  */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_SYS_INIT_SP_ADDR		(NON_SECURE_SRAM_END - \
 					GENERATED_GBL_DATA_SIZE)

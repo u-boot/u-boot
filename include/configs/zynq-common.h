@@ -227,10 +227,6 @@
 #define CONFIG_CLOCKS
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 
-#ifndef CONFIG_NR_DRAM_BANKS
-# define CONFIG_NR_DRAM_BANKS		1
-#endif
-
 #define CONFIG_SYS_MEMTEST_START	0
 #define CONFIG_SYS_MEMTEST_END		0x1000
 

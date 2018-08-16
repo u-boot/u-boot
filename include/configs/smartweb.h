@@ -62,7 +62,6 @@
  * SDRAM: 1 bank, 64 MB, base address 0x20000000
  * Already initialized before u-boot gets started.
  */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
 #define CONFIG_SYS_SDRAM_SIZE		(64 * SZ_1M)
 

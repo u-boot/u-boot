@@ -20,7 +20,6 @@
 /*
  * Memory configurations
  */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x0
 #define CONFIG_SYS_MALLOC_LEN		(64 * 1024 * 1024)
 #define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1

@@ -10,7 +10,6 @@
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
 
 /* ram memory-related information */
-#define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM_1				0x00000000
 #define CONFIG_SYS_SDRAM_BASE			PHYS_SDRAM_1
 #define PHYS_SDRAM_1_SIZE			0x00198000

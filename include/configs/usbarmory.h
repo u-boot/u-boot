@@ -82,7 +82,6 @@
 #endif
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			CSD0_BASE_ADDR
 #define PHYS_SDRAM_SIZE			(gd->ram_size)
 

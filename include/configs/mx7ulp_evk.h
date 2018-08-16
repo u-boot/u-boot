@@ -73,7 +73,6 @@
 #define CONFIG_SYS_MAXARGS		256
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 
 #define PHYS_SDRAM			0x60000000
 #define PHYS_SDRAM_SIZE			SZ_1G

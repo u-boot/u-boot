@@ -26,8 +26,6 @@
 
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 
-#define CONFIG_NR_DRAM_BANKS		1
-
 #define CONFIG_SYS_MALLOC_LEN		0x1400000
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000

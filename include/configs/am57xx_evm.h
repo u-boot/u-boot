@@ -16,8 +16,6 @@
 
 #define CONFIG_IODELAY_RECALIBRATION
 
-#define CONFIG_NR_DRAM_BANKS		2
-
 /* MMC ENV related defines */
 #define CONFIG_SYS_MMC_ENV_DEV		1		/* eMMC */
 #define CONFIG_SYS_MMC_ENV_PART		0

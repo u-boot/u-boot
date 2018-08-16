@@ -165,7 +165,6 @@
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM_1				0x00000000
 #define PHYS_SDRAM_1_MAXSIZE			0x40000000
 

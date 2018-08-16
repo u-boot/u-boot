@@ -9,8 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
-
 /* override base for compatibility with MLO the device ships with */
 
 #include <configs/ti_omap3_common.h>

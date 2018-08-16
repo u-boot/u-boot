@@ -194,8 +194,6 @@
 #define PHYS_SDRAM_1 \
 	(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)	/* SDRAM Bank #2 */
 
-#define CONFIG_NR_DRAM_BANKS	2		/* we have 2 bank of DRAM */
-
 #ifdef CONFIG_SKIP_LOWLEVEL_INIT
 #define PHYS_SDRAM_0_SIZE	0x20000000	/* 512 MB */
 #define PHYS_SDRAM_1_SIZE	0x20000000	/* 512 MB */

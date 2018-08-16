@@ -64,7 +64,6 @@
 #define CONFIG_SF_DEFAULT_SPEED		(75000000)
 
  /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1		/*  1 bank of DRAM */
 #define PHYS_DRAM_1			0x80000000	/* DRAM Bank #1 */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_DRAM_1

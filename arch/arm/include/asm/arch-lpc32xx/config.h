@@ -12,8 +12,6 @@
 /* Basic CPU architecture */
 #define CONFIG_ARCH_CPU_INIT
 
-#define CONFIG_NR_DRAM_BANKS_MAX	2
-
 /* UART configuration */
 #if	(CONFIG_SYS_LPC32XX_UART == 1) || (CONFIG_SYS_LPC32XX_UART == 2) || \
 	(CONFIG_SYS_LPC32XX_UART == 7)

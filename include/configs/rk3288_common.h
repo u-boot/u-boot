@@ -10,7 +10,6 @@
 #include "rockchip-common.h"
 
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 
@@ -41,7 +40,6 @@
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
 #define CONFIG_SYS_SDRAM_BASE		0
-#define CONFIG_NR_DRAM_BANKS		1
 #define SDRAM_BANK_SIZE			(2UL << 30)
 #define SDRAM_MAX_SIZE			0xfe000000
 

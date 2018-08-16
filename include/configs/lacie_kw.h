@@ -47,7 +47,6 @@
 /*
  * SDRAM configuration
  */
-#define CONFIG_NR_DRAM_BANKS		1
 
 /*
  * Different SDRAM configuration and size for some of the boards derived

@@ -28,7 +28,6 @@
 /* FAT sd card locations. */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SYS_SDRAM_BASE		0
-#define CONFIG_NR_DRAM_BANKS		1
 #define SDRAM_MAX_SIZE			0xff000000
 
 #define CONFIG_SPI_FLASH

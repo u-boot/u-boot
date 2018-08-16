@@ -151,7 +151,6 @@
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			(V2M_BASE)	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_2			(((unsigned int)V2M_BASE) + \
 					((unsigned int)0x20000000))

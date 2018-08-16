@@ -163,8 +163,6 @@ unsigned long long get_qixis_addr(void);
 /* fixme: these need to be checked against the board */
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
-#define CONFIG_NR_DRAM_BANKS		3
-
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 

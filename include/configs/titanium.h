@@ -124,7 +124,6 @@
 #define CONFIG_BOOTCOMMAND		"run nand_ubifs"
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 #define PHYS_SDRAM_SIZE			(512 << 20)
 

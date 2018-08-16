@@ -23,7 +23,6 @@
 #define ATMEL_PMC_UHP			(1 <<  6)
 
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE           0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x10000000
 

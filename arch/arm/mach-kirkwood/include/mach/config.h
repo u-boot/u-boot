@@ -38,7 +38,6 @@
 
 /* Kirkwood has 2k of Security SRAM, use it for SP */
 #define CONFIG_SYS_INIT_SP_ADDR		0xC8012000
-#define CONFIG_NR_DRAM_BANKS_MAX	2
 
 #define CONFIG_I2C_MVTWSI_BASE0	KW_TWSI_BASE
 #define MV_UART_CONSOLE_BASE	KW_UART0_BASE

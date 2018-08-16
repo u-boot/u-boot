@@ -73,7 +73,6 @@
 #endif /* CONFIG_CMD_USB */
 
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM		0x80000000	/* start address of LPDDRRAM */
 #define PHYS_SDRAM_SIZE		0x04000000	/* 64 megs */
 

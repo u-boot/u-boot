@@ -85,8 +85,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MONITOR_LEN		0x80000
 #endif
 
-#define CONFIG_NR_DRAM_BANKS		1
-
 #define CONFIG_DDR_SPD
 #define SPD_EEPROM_ADDRESS		0x51
 #define CONFIG_SYS_SPD_BUS_NUM		0

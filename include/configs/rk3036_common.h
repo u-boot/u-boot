@@ -8,7 +8,6 @@
 #include <asm/arch/hardware.h>
 #include "rockchip-common.h"
 
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -29,7 +28,6 @@
 #define CONFIG_BOUNCE_BUFFER
 
 #define CONFIG_SYS_SDRAM_BASE		0x60000000
-#define CONFIG_NR_DRAM_BANKS		1
 #define SDRAM_BANK_SIZE			(512UL << 20UL)
 #define SDRAM_MAX_SIZE                  (CONFIG_NR_DRAM_BANKS * SDRAM_BANK_SIZE)
 
