@@ -1,5 +1,8 @@
 menu "MTD Support"
 
+config MTD_PARTITIONS
+	bool
+
 config MTD
 	bool "Enable Driver Model for MTD drivers"
 	depends on DM
