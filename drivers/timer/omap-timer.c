@@ -61,7 +61,8 @@ static int omap_timer_probe(struct udevice *dev)
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct omap_timer_priv *priv = dev_get_priv(dev);
 
-	uc_priv->clock_rate = TIMER_CLOCK;
+	if (!uc_priv->clock_rate)
+		uc_priv->clock_rate = TIMER_CLOCK;
 
 	/* start the counter ticking up, reload value on overflow */
 	writel(0, &priv->regs->tldr);
