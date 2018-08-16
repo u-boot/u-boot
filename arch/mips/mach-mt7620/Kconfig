@@ -21,6 +21,17 @@ endchoice
 choice
 	prompt "Board select"
 
+config BOARD_LINKIT_SMART_7688
+	bool "LinkIt Smart 7688"
+	depends on SOC_MT7620
+	select SUPPORTS_BOOT_RAM
+	help
+	  Seeed LinkIt Smart 7688 boards have a MT7688 SoC with 128 MiB of RAM
+	  and 32 MiB of flash (SPI).
+	  Between its different peripherals there's an integrated switch with 4
+	  ethernet ports, 1 USB port, 1 UART, GPIO buttons and LEDs, and
+	  a MT7688 (PCIe).
+
 endchoice
 
 choice
@@ -109,5 +120,7 @@ endchoice
 
 config SUPPORTS_BOOT_RAM
 	bool
+
+source "board/seeed/linkit-smart-7688/Kconfig"
 
 endmenu
