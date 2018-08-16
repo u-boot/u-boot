@@ -417,8 +417,10 @@ static struct mtd_part *allocate_partition(struct mtd_info *master,
 	slave->mtd.dev.parent = master->dev.parent;
 #endif
 
-	slave->mtd._read = part_read;
-	slave->mtd._write = part_write;
+	if (master->_read)
+		slave->mtd._read = part_read;
+	if (master->_write)
+		slave->mtd._write = part_write;
 
 	if (master->_panic_write)
 		slave->mtd._panic_write = part_panic_write;
