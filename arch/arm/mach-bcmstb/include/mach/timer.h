@@ -8,6 +8,6 @@
 #ifndef _BCMSTB_TIMER_H
 #define _BCMSTB_TIMER_H
 
-unsigned long timer_read_counter(void);
+uint64_t get_ticks(void);
 
 #endif /* _BCMSTB_TIMER_H */
