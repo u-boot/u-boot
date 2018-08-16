@@ -33,11 +33,6 @@ extern phys_addr_t prior_stage_fdt_address;
 #endif /* __ASSEMBLY__ */
 
 /*
- * Generic board configuration.
- */
-#define CONFIG_SYS_GENERIC_BOARD
-
-/*
  * CPU configuration.
  */
 #define CONFIG_SKIP_LOWLEVEL_INIT

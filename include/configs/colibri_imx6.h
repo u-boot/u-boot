@@ -12,8 +12,6 @@
 
 #undef CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_SYS_GENERIC_BOARD
-
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 

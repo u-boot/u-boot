@@ -14,8 +14,6 @@
 
 #define CONFIG_MACH_TYPE		4886
 
-#define CONFIG_SYS_GENERIC_BOARD
-
 #include <asm/arch/imx-regs.h>
 #include <asm/mach-imx/gpio.h>
 
