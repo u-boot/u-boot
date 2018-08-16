@@ -27,11 +27,6 @@
 #undef ubi_msg
 #define ubi_msg(fmt, ...) printf("UBI: " fmt "\n", ##__VA_ARGS__)
 
-#define DEV_TYPE_NONE		0
-#define DEV_TYPE_NAND		1
-#define DEV_TYPE_ONENAND	2
-#define DEV_TYPE_NOR		3
-
 /* Private own data */
 static struct ubi_device *ubi;
 static char buffer[80];
