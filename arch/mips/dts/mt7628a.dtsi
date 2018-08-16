@@ -41,6 +41,13 @@
 			reg = <0x0 0x100>;
 		};
 
+		syscon-reboot {
+			compatible = "syscon-reboot";
+			regmap = <&sysc>;
+			offset = <0x34>;
+			mask = <0x1>;
+		};
+
 		intc: interrupt-controller@200 {
 			compatible = "ralink,rt2880-intc";
 			reg = <0x200 0x100>;

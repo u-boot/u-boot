@@ -83,6 +83,7 @@ config ARCH_MT7620
 	select SUPPORTS_CPU_MIPS32_R1
 	select SUPPORTS_CPU_MIPS32_R2
 	select SUPPORTS_LITTLE_ENDIAN
+	select SYSRESET
 
 config MACH_PIC32
 	bool "Support Microchip PIC32"
