@@ -362,6 +362,8 @@ int del_mtd_partitions(struct mtd_info *master)
 	struct mtd_part *slave, *next;
 	int ret, err = 0;
 
+	debug("Deleting MTD partitions on \"%s\":\n", master->name);
+
 	mutex_lock(&mtd_partitions_mutex);
 	list_for_each_entry_safe(slave, next, &mtd_partitions, list)
 		if (slave->master == master) {
