@@ -78,11 +78,25 @@ static int dwapb_gpio_set_value(struct udevice *dev, unsigned pin, int val)
 	return 0;
 }
 
+static int dwapb_gpio_get_function(struct udevice *dev, unsigned offset)
+{
+	struct gpio_dwapb_platdata *plat = dev_get_platdata(dev);
+	u32 gpio;
+
+	gpio = readl(plat->base + GPIO_SWPORT_DDR(plat->bank));
+
+	if (gpio & BIT(offset))
+		return GPIOF_OUTPUT;
+	else
+		return GPIOF_INPUT;
+}
+
 static const struct dm_gpio_ops gpio_dwapb_ops = {
 	.direction_input	= dwapb_gpio_direction_input,
 	.direction_output	= dwapb_gpio_direction_output,
 	.get_value		= dwapb_gpio_get_value,
 	.set_value		= dwapb_gpio_set_value,
+	.get_function		= dwapb_gpio_get_function,
 };
 
 static int gpio_dwapb_probe(struct udevice *dev)
