@@ -139,7 +139,7 @@ S:	Maintained
 F:	arch/arm/cpu/armv8/hisilicon
 F:	arch/arm/include/asm/arch-hi6220/
 
-ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X
+ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX
 M:	Prafulla Wadaskar <prafulla@marvell.com>
 M:	Luka Perkov <luka.perkov@sartura.hr>
 M:	Stefan Roese <sr@denx.de>
@@ -148,6 +148,7 @@ T:	git git://git.denx.de/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
 F:	arch/arm/mach-mvebu/
 F:	drivers/ata/ahci_mvebu.c
+F:	drivers/phy/marvell/
 
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>

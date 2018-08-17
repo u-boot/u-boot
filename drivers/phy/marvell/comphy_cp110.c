@@ -9,7 +9,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
-#include "comphy.h"
+#include "comphy_core.h"
 #include "comphy_hpipe.h"
 #include "sata.h"
 #include "utmi_phy.h"

@@ -6,7 +6,7 @@
 #ifndef _COMPHY_A3700_H_
 #define _COMPHY_A3700_H_
 
-#include "comphy.h"
+#include "comphy_core.h"
 #include "comphy_hpipe.h"
 
 #define MVEBU_REG(offs)			\

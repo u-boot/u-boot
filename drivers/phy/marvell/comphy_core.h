@@ -3,11 +3,11 @@
  * Copyright (C) 2015-2016 Marvell International Ltd.
  */
 
-#ifndef _COMPHY_H_
-#define _COMPHY_H_
+#ifndef _COMPHY_CORE_H_
+#define _COMPHY_CORE_H_
 
-#include <dt-bindings/comphy/comphy_data.h>
 #include <fdtdec.h>
+#include <mvebu/comphy.h>
 
 #if defined(DEBUG)
 #define debug_enter()	printf("----> Enter %s\n", __func__);
@@ -78,14 +78,6 @@ struct comphy_mux_options {
 struct comphy_mux_data {
 	u32 max_lane_values;
 	struct comphy_mux_options mux_values[MAX_LANE_OPTIONS];
-};
-
-struct comphy_map {
-	u32 type;
-	u32 speed;
-	u32 invert;
-	bool clk_src;
-	bool end_point;
 };
 
 struct chip_serdes_phy_config {
@@ -183,5 +175,5 @@ void comphy_pcie_config_detect(u32 comphy_max_count,
 			       struct comphy_map *serdes_map);
 void comphy_pcie_unit_general_config(u32 pex_index);
 
-#endif /* _COMPHY_H_ */
+#endif /* _COMPHY_CORE_H_ */
 
