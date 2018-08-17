@@ -224,9 +224,19 @@ static const struct clk_periph clks_sb[] = {
 	{ },
 };
 
-static inline int get_mux(struct a37xx_periphclk *priv, int shift)
+static int get_mux(struct a37xx_periphclk *priv, int shift)
 {
 	return (readl(priv->reg + TBG_SEL) >> shift) & 3;
+}
+
+static void set_mux(struct a37xx_periphclk *priv, int shift, int val)
+{
+	u32 reg;
+
+	reg = readl(priv->reg + TBG_SEL);
+	reg &= ~(3 << shift);
+	reg |= (val & 3) << shift;
+	writel(reg, priv->reg + TBG_SEL);
 }
 
 static ulong periph_clk_get_rate(struct a37xx_periphclk *priv, int id);
@@ -275,6 +285,17 @@ static ulong get_div(struct a37xx_periphclk *priv,
 			return i->div;
 
 	return 0;
+}
+
+static void set_div_val(struct a37xx_periphclk *priv,
+			const struct clk_periph *clk, int idx, int val)
+{
+	u32 reg;
+
+	reg = readl(priv->reg + clk->div_reg_off[idx]);
+	reg &= ~(clk->div_mask[idx] << clk->div_shift[idx]);
+	reg |= (val & clk->div_mask[idx]) << clk->div_shift[idx];
+	writel(reg, priv->reg + clk->div_reg_off[idx]);
 }
 
 static ulong periph_clk_get_rate(struct a37xx_periphclk *priv, int id)
@@ -335,6 +356,111 @@ static int armada_37xx_periph_clk_enable(struct clk *clk)
 static int armada_37xx_periph_clk_disable(struct clk *clk)
 {
 	return periph_clk_enable(clk, 0);
+}
+
+#define diff(a, b) abs((long)(a) - (long)(b))
+
+static ulong find_best_div(const struct clk_div_table *t0,
+			   const struct clk_div_table *t1, ulong parent_rate,
+			   ulong req_rate, int *v0, int *v1)
+{
+	const struct clk_div_table *i, *j;
+	ulong rate, best_rate = 0;
+
+	for (i = t0; i && i->div; ++i) {
+		for (j = t1; j && j->div; ++j) {
+			rate = DIV_ROUND_UP(parent_rate, i->div * j->div);
+
+			if (!best_rate ||
+			    diff(rate, req_rate) < diff(best_rate, req_rate)) {
+				best_rate = rate;
+				*v0 = i->val;
+				*v1 = j->val;
+			}
+		}
+	}
+
+	return best_rate;
+}
+
+static ulong armada_37xx_periph_clk_set_rate(struct clk *clk, ulong req_rate)
+{
+	struct a37xx_periphclk *priv = dev_get_priv(clk->dev);
+	const struct clk_periph *periph_clk = &priv->clks[clk->id];
+	ulong rate, old_rate, parent_rate;
+	int div_val0 = 0, div_val1 = 0;
+	const struct clk_div_table *t1;
+	static const struct clk_div_table empty_table[2] = {
+		{ 1, 0 },
+		{ 0, 0 }
+	};
+
+	if (clk->id > priv->count)
+		return -EINVAL;
+
+	old_rate = periph_clk_get_rate(priv, clk->id);
+	if (old_rate == -EINVAL)
+		return -EINVAL;
+
+	if (old_rate == req_rate)
+		return old_rate;
+
+	if (!periph_clk->can_gate || !periph_clk->dividers)
+		return -ENOTSUPP;
+
+	parent_rate = get_parent_rate(priv, clk->id);
+	if (parent_rate == -EINVAL)
+		return -EINVAL;
+
+	t1 = empty_table;
+	if (periph_clk->dividers > 1)
+		t1 = periph_clk->div_table[1];
+
+	rate = find_best_div(periph_clk->div_table[0], t1, parent_rate,
+			     req_rate, &div_val0, &div_val1);
+
+	periph_clk_enable(clk, 0);
+
+	set_div_val(priv, periph_clk, 0, div_val0);
+	if (periph_clk->dividers > 1)
+		set_div_val(priv, periph_clk, 1, div_val1);
+
+	periph_clk_enable(clk, 1);
+
+	return rate;
+}
+
+static int armada_37xx_periph_clk_set_parent(struct clk *clk,
+					     struct clk *parent)
+{
+	struct a37xx_periphclk *priv = dev_get_priv(clk->dev);
+	const struct clk_periph *periph_clk = &priv->clks[clk->id];
+	struct clk check_parent;
+	int ret;
+
+	/* We also check if parent is our TBG clock */
+	if (clk->id > priv->count || parent->id >= MAX_TBG_PARENTS)
+		return -EINVAL;
+
+	if (!periph_clk->can_mux || !periph_clk->can_gate)
+		return -ENOTSUPP;
+
+	ret = clk_get_by_index(clk->dev, 0, &check_parent);
+	if (ret < 0)
+		return ret;
+
+	if (parent->dev != check_parent.dev)
+		ret = -EINVAL;
+
+	clk_free(&check_parent);
+	if (ret < 0)
+		return ret;
+
+	periph_clk_enable(clk, 0);
+	set_mux(priv, periph_clk->mux_shift, parent->id);
+	periph_clk_enable(clk, 1);
+
+	return 0;
 }
 
 #if defined(CONFIG_CMD_CLK) && defined(CONFIG_CLK_ARMADA_3720)
@@ -473,6 +599,8 @@ static int armada_37xx_periph_clk_probe(struct udevice *dev)
 
 static const struct clk_ops armada_37xx_periph_clk_ops = {
 	.get_rate = armada_37xx_periph_clk_get_rate,
+	.set_rate = armada_37xx_periph_clk_set_rate,
+	.set_parent = armada_37xx_periph_clk_set_parent,
 	.enable = armada_37xx_periph_clk_enable,
 	.disable = armada_37xx_periph_clk_disable,
 };
