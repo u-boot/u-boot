@@ -13,6 +13,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/davinci_misc.h>
+#include <dt-bindings/gpio/gpio.h>
 
 #ifndef CONFIG_DM_GPIO
 static struct gpio_registry {
@@ -429,20 +430,27 @@ int gpio_set_value(unsigned int gpio, int value)
 static struct davinci_gpio *davinci_get_gpio_bank(struct udevice *dev, unsigned int offset)
 {
 	struct davinci_gpio_bank *bank = dev_get_priv(dev);
+	unsigned int addr;
 
-	/* The device tree is not broken into banks but the infrastructure is
+	/*
+	 * The device tree is not broken into banks but the infrastructure is
 	 * expecting it this way, so we'll first include the 0x10 offset, then
 	 * calculate the bank manually based on the offset.
+	 * Casting 'addr' as Unsigned long is needed to make the math work.
 	 */
-
-	return ((struct davinci_gpio *)bank->base) + 0x10 + (offset >> 5);
+	addr = ((unsigned long)(struct davinci_gpio *)bank->base) +
+			0x10 + (0x28 * (offset >> 5));
+	return (struct davinci_gpio *)addr;
 }
 
 static int davinci_gpio_direction_input(struct udevice *dev, unsigned int offset)
 {
 	struct davinci_gpio *base = davinci_get_gpio_bank(dev, offset);
 
-	_gpio_direction_input(base, offset);
+	/*
+	 * Fetch the address based on GPIO, but only pass the masked low 32-bits
+	 */
+	_gpio_direction_input(base, (offset & 0x1f));
 	return 0;
 }
 
@@ -451,7 +459,7 @@ static int davinci_gpio_direction_output(struct udevice *dev, unsigned int offse
 {
 	struct davinci_gpio *base = davinci_get_gpio_bank(dev, offset);
 
-	_gpio_direction_output(base, offset, value);
+	_gpio_direction_output(base, (offset & 0x1f), value);
 	return 0;
 }
 
@@ -459,7 +467,7 @@ static int davinci_gpio_get_value(struct udevice *dev, unsigned int offset)
 {
 	struct davinci_gpio *base = davinci_get_gpio_bank(dev, offset);
 
-	return _gpio_get_value(base, offset);
+	return _gpio_get_value(base, (offset & 0x1f));
 }
 
 static int davinci_gpio_set_value(struct udevice *dev, unsigned int offset,
@@ -467,7 +475,7 @@ static int davinci_gpio_set_value(struct udevice *dev, unsigned int offset,
 {
 	struct davinci_gpio *base = davinci_get_gpio_bank(dev, offset);
 
-	_gpio_set_value(base, offset, value);
+	_gpio_set_value(base, (offset & 0x1f), value);
 
 	return 0;
 }
