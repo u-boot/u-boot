@@ -28,6 +28,16 @@ static u32 get_boot_device(void)
 	if (boot_device == BOOTROM_ERR_MODE_UART)
 		return BOOT_DEVICE_UART;
 
+#ifdef CONFIG_ARMADA_38X
+	/*
+	 * If the bootrom error code contains any other than zeros it's an
+	 * error condition and the bootROM has fallen back to UART boot
+	 */
+	boot_device = (val & BOOTROM_ERR_CODE_MASK) >> BOOTROM_ERR_CODE_OFFS;
+	if (boot_device)
+		return BOOT_DEVICE_UART;
+#endif
+
 	/*
 	 * Now check the SAR register for the strapped boot-device
 	 */
