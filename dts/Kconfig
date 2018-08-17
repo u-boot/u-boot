@@ -61,7 +61,7 @@ config OF_LIVE
 	help
 	  Normally U-Boot uses a flat device tree which saves space and
 	  avoids the need to unpack the tree before use. However a flat
-	  tree does not support modifcation from within U-Boot since it
+	  tree does not support modification from within U-Boot since it
 	  can invalidate driver-model device tree offsets. This option
 	  enables a live tree which is available after relocation,
 	  and can be adjusted as needed.
