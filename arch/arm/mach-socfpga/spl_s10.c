@@ -136,7 +136,7 @@ void board_init_f(ulong dummy)
 	socfpga_per_reset(SOCFPGA_RESET(OSC1TIMER0), 0);
 	timer_init();
 
-	populate_sysmgr_pinmux();
+	sysmgr_pinmux_init();
 
 	/* configuring the HPS clocks */
 	cm_basic_init(cm_default_cfg);
