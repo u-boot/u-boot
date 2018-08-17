@@ -90,18 +90,12 @@ struct socfpga_clock_manager {
 };
 
 void cm_use_intosc(void);
-unsigned int cm_get_noc_clk_hz(void);
-unsigned int cm_get_l4_noc_hz(unsigned int nocdivshift);
 int cm_basic_init(const void *blob);
 
 unsigned int cm_get_l4_sp_clk_hz(void);
-unsigned int cm_get_main_vco_clk_hz(void);
-unsigned int cm_get_per_vco_clk_hz(void);
 unsigned long cm_get_mpu_clk_hz(void);
 
 unsigned int cm_get_qspi_controller_clk_hz(void);
-unsigned int cm_get_mmc_controller_clk_hz(void);
-unsigned int cm_get_spi_controller_clk_hz(void);
 
 #endif /* __ASSEMBLER__ */
 

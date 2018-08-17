@@ -38,3 +38,20 @@
 			     <48 IRQ_TYPE_LEVEL_HIGH>;
 	};
 };
+
+/* Clock available early */
+&main_sdmmc_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&peri_sdmmc_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc_free_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc_clk {
+	u-boot,dm-pre-reloc;
+};

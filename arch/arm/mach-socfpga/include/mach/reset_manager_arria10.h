@@ -10,12 +10,8 @@
 
 void socfpga_watchdog_disable(void);
 void socfpga_reset_deassert_noc_ddr_scheduler(void);
-int socfpga_is_wdt_in_reset(void);
-void socfpga_emac_manage_reset(ulong emacbase, u32 state);
 int socfpga_reset_deassert_bridges_handoff(void);
-void socfpga_reset_assert_fpga_connected_peripherals(void);
 void socfpga_reset_deassert_osc1wd0(void);
-void socfpga_reset_uart(int assert);
 int socfpga_bridges_reset(void);
 
 struct socfpga_reset_manager {

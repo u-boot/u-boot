@@ -11,6 +11,7 @@
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
+		stdout-path = "serial0:115200n8";
 	};
 
 	memory {
@@ -98,4 +99,8 @@
 		cdns,tchsh-ns = <4>;
 		cdns,tslch-ns = <4>;
 	};
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
 };

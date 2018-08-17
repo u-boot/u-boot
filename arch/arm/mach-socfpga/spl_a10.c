@@ -17,6 +17,7 @@
 #include <asm/arch/scan_manager.h>
 #include <asm/arch/sdram.h>
 #include <asm/arch/scu.h>
+#include <asm/arch/misc.h>
 #include <asm/arch/nic301.h>
 #include <asm/sections.h>
 #include <fdtdec.h>
@@ -74,11 +75,13 @@ void spl_board_init(void)
 	config_dedicated_pins(gd->fdt_blob);
 	WATCHDOG_RESET();
 
-	/* Release UART from reset */
-	socfpga_reset_uart(0);
-
 	/* enable console uart printing */
 	preloader_console_init();
+
+	WATCHDOG_RESET();
+
+	/* Add device descriptor to FPGA device table */
+	socfpga_fpga_add();
 }
 
 void board_init_f(ulong dummy)

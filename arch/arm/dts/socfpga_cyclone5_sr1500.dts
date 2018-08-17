@@ -11,6 +11,7 @@
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
+		stdout-path = "serial0:115200n8";
 	};
 
 	aliases {
@@ -67,6 +68,7 @@
 
 &uart0 {
 	status = "okay";
+	u-boot,dm-pre-reloc;
 };
 
 &usb1 {

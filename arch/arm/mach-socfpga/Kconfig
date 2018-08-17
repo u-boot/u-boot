@@ -11,6 +11,16 @@ config TARGET_SOCFPGA_ARRIA10
 	bool
 	select ALTERA_SDRAM
 	select SPL_BOARD_INIT if SPL
+	select CLK
+	select SPL_CLK if SPL
+	select DM_I2C
+	select DM_RESET
+	select SPL_DM_RESET if SPL
+	select REGMAP
+	select SPL_REGMAP if SPL
+	select SYSCON
+	select SPL_SYSCON if SPL
+	select ETH_DESIGNWARE_SOCFPGA
 
 config TARGET_SOCFPGA_CYCLONE5
 	bool

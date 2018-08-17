@@ -11,6 +11,7 @@ obj-y += tegra/
 obj-$(CONFIG_ARCH_ASPEED) += aspeed/
 obj-$(CONFIG_ARCH_MESON) += clk_meson.o
 obj-$(CONFIG_ARCH_ROCKCHIP) += rockchip/
+obj-$(CONFIG_ARCH_SOCFPGA) += altera/
 obj-$(CONFIG_CLK_AT91) += at91/
 obj-$(CONFIG_CLK_MVEBU) += mvebu/
 obj-$(CONFIG_CLK_BCM6345) += clk_bcm6345.o

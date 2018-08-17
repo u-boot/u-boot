@@ -23,6 +23,7 @@
 	aliases {
 		ethernet0 = &gmac0;
 		serial0 = &uart1;
+		i2c0 = &i2c1;
 	};
 
 	chosen {
@@ -165,4 +166,29 @@
 
 &watchdog1 {
 	status = "okay";
+};
+
+/* Clock available early */
+&main_noc_base_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&main_periph_ref_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&peri_noc_base_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&noc_free_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&l4_mp_clk {
+	u-boot,dm-pre-reloc;
+};
+
+&l4_sp_clk {
+	u-boot,dm-pre-reloc;
 };

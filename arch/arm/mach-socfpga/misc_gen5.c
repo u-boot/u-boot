@@ -175,6 +175,22 @@ static void socfpga_nic301_slave_ns(void)
 	writel(0x1, &nic301_regs->sdrdata);
 }
 
+void socfpga_sdram_remap_zero(void)
+{
+	socfpga_nic301_slave_ns();
+
+	/*
+	 * Private components security:
+	 * U-Boot : configure private timer, global timer and cpu component
+	 * access as non secure for kernel stage (as required by Linux)
+	 */
+	setbits_le32(&scu_regs->sacr, 0xfff);
+
+	/* Configure the L2 controller to make SDRAM start at 0 */
+	writel(0x1, &nic301_regs->remap);	/* remap.mpuzero */
+	writel(0x1, &pl310->pl310_addr_filter_start);
+}
+
 static u32 iswgrp_handoff[8];
 
 int arch_early_init_r(void)
@@ -195,18 +211,7 @@ int arch_early_init_r(void)
 
 	socfpga_bridges_reset(1);
 
-	socfpga_nic301_slave_ns();
-
-	/*
-	 * Private components security:
-	 * U-Boot : configure private timer, global timer and cpu component
-	 * access as non secure for kernel stage (as required by Linux)
-	 */
-	setbits_le32(&scu_regs->sacr, 0xfff);
-
-	/* Configure the L2 controller to make SDRAM start at 0 */
-	writel(0x1, &nic301_regs->remap);	/* remap.mpuzero */
-	writel(0x1, &pl310->pl310_addr_filter_start);
+	socfpga_sdram_remap_zero();
 
 	/* Add device descriptor to FPGA device table */
 	socfpga_fpga_add();

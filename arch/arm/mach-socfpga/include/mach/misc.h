@@ -21,10 +21,8 @@ void socfpga_fpga_add(void);
 static inline void socfpga_fpga_add(void) {}
 #endif
 
-#if defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
-unsigned int dedicated_uart_com_port(const void *blob);
-unsigned int shared_uart_com_port(const void *blob);
-unsigned int uart_com_port(const void *blob);
+#ifdef CONFIG_TARGET_SOCFPGA_GEN5
+void socfpga_sdram_remap_zero(void);
 #endif
 
 void do_bridge_reset(int enable);
