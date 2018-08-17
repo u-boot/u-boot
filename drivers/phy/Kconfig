@@ -110,6 +110,14 @@ config STI_USB_PHY
 	  used by USB2 and USB3 Host controllers available on
 	  STiH407 SoC families.
 
+config PHY_RCAR_GEN2
+	tristate "Renesas R-Car Gen2 USB PHY"
+	depends on PHY && RCAR_GEN2
+	help
+	  Support for the Renesas R-Car Gen2 USB PHY. This driver operates the
+	  PHY connected to USBHS module, PCI EHCI module and USB3.0 module and
+	  allows configuring the module multiplexing.
+
 config PHY_STM32_USBPHYC
 	tristate "STMicroelectronics STM32 SoC USB HS PHY driver"
 	depends on PHY && ARCH_STM32MP

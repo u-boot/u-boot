@@ -6,6 +6,8 @@ config ARCH_RMOBILE_BOARD_STRING
 
 config RCAR_GEN2
 	bool "Renesas RCar Gen2"
+	select PHY
+	select PHY_RCAR_GEN2
 
 config R8A7740
 	bool "Renesas SoC R8A7740"
