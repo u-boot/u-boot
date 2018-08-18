@@ -21,6 +21,11 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 
+	chosen {
+		tick-timer = &timer2;
+		u-boot,dm-pre-reloc;
+	};
+
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -147,6 +152,7 @@
 							compatible = "altr,socfpga-a10-perip-clk";
 							clocks = <&main_pll>;
 							div-reg = <0x144 0 11>;
+							u-boot,dm-pre-reloc;
 						};
 
 						main_emaca_clk: main_emaca_clk@68 {
@@ -236,6 +242,7 @@
 							compatible = "altr,socfpga-a10-perip-clk";
 							clocks = <&periph_pll>;
 							div-reg = <0x144 16 11>;
+							u-boot,dm-pre-reloc;
 						};
 
 						peri_emaca_clk: peri_emaca_clk@e8 {
@@ -311,6 +318,7 @@
 							 <&osc1>, <&cb_intosc_hs_div2_clk>,
 							 <&f2s_free_clk>;
 						reg = <0x64>;
+						u-boot,dm-pre-reloc;
 					};
 
 					s2f_user1_free_clk: s2f_user1_free_clk@104 {
@@ -337,6 +345,7 @@
 						compatible = "altr,socfpga-a10-perip-clk";
 						clocks = <&noc_free_clk>;
 						fixed-divider = <4>;
+						u-boot,dm-pre-reloc;
 					};
 
 					l4_main_clk: l4_main_clk {
@@ -800,6 +809,7 @@
 			reg = <0xffd00000 0x100>;
 			clocks = <&l4_sys_free_clk>;
 			clock-names = "timer";
+			u-boot,dm-pre-reloc;
 		};
 
 		timer3: timer3@ffd00100 {
