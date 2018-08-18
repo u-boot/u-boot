@@ -462,7 +462,7 @@ you sign.
    cd $UBOOT
    make O=b/am335x_boneblack_vboot EXT_DTB=${WORK}/am335x-boneblack-pubkey.dtb
 
-Here we are overrriding the normal device tree file with our one, which
+Here we are overriding the normal device tree file with our one, which
 contains the public key.
 
 Now you have a special U-Boot image with the public key. It can verify can
