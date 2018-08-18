@@ -89,8 +89,9 @@ struct socfpga_clock_manager {
 	struct socfpga_clock_manager_altera altera;
 };
 
-void cm_use_intosc(void);
+#ifdef CONFIG_SPL_BUILD
 int cm_basic_init(const void *blob);
+#endif
 
 unsigned int cm_get_l4_sp_clk_hz(void);
 unsigned long cm_get_mpu_clk_hz(void);

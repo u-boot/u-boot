@@ -28,17 +28,14 @@
 #define PINMUX_UART1_TX_SHARED_IO_OFFSET_Q3_7	0x78
 #define PINMUX_UART1_TX_SHARED_IO_OFFSET_Q4_3	0x98
 
+static struct socfpga_system_manager *sysmgr_regs =
+	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 #if defined(CONFIG_SPL_BUILD)
 static struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 static const struct socfpga_noc_fw_ocram *noc_fw_ocram_base =
 	(void *)SOCFPGA_SDR_FIREWALL_OCRAM_ADDRESS;
-#endif
 
-static struct socfpga_system_manager *sysmgr_regs =
-	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
-
-#if defined(CONFIG_SPL_BUILD)
 /*
 + * This function initializes security policies to be consistent across
 + * all logic units in the Arria 10.
@@ -46,7 +43,7 @@ static struct socfpga_system_manager *sysmgr_regs =
 + * The idea is to set all security policies to be normal, nonsecure
 + * for all units.
 + */
-static void initialize_security_policies(void)
+void socfpga_init_security_policies(void)
 {
 	/* Put OCRAM in non-secure */
 	writel(0x003f0000, &noc_fw_ocram_base->region0);
@@ -66,24 +63,20 @@ static void initialize_security_policies(void)
 	writel(0x0007FFFF, &sysmgr_regs->ecc_intmask_set);
 }
 
-int arch_early_init_r(void)
+void socfpga_sdram_remap_zero(void)
 {
-	initialize_security_policies();
-
 	/* Configure the L2 controller to make SDRAM start at 0 */
 	writel(0x1, &pl310->pl310_addr_filter_start);
-
-	/* assert reset to all except L4WD0 and L4TIMER0 */
-	socfpga_per_reset_all();
-
-	return 0;
-}
-#else
-int arch_early_init_r(void)
-{
-	return 0;
 }
 #endif
+
+int arch_early_init_r(void)
+{
+	/* Add device descriptor to FPGA device table */
+	socfpga_fpga_add();
+
+	return 0;
+}
 
 /*
  * Print CPU information

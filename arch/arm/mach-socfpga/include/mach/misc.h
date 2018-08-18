@@ -25,6 +25,11 @@ static inline void socfpga_fpga_add(void) {}
 void socfpga_sdram_remap_zero(void);
 #endif
 
+#ifdef CONFIG_TARGET_SOCFPGA_ARRIA10
+void socfpga_init_security_policies(void);
+void socfpga_sdram_remap_zero(void);
+#endif
+
 void do_bridge_reset(int enable);
 
 #endif /* _MISC_H_ */
