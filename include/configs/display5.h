@@ -166,7 +166,7 @@
 		      "rootwait rootfstype=ext4 rw; " \
 	"run set_kernel_part;" \
 	"part start mmc ${mmcdev} ${kernel_part} lba_start; " \
-	"mmc read ${loadaddr} ${lba_start} 0x2000; " \
+	"mmc read ${loadaddr} ${lba_start} ${fitImg_fw_sz}; " \
 	"setenv fdt_conf imx6q-${board}-${display}.dtb; "
 
 /* All the numbers are in LBAs */
@@ -273,6 +273,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"kernel_file=fitImage\0" \
+	"fitImg_fw_sz=0x2200\0" \
 	"up=run tftp_sf_SPL; run tftp_sf_uboot\0" \
 	"download_kernel=" \
 		"tftpboot ${loadaddr} ${kernel_file};\0" \
