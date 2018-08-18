@@ -26,7 +26,6 @@ obj-y	+= clock_manager_arria10.o
 obj-y	+= misc_arria10.o
 obj-y	+= pinmux_arria10.o
 obj-y	+= reset_manager_arria10.o
-obj-y	+= timer.o
 endif
 
 ifdef CONFIG_TARGET_SOCFPGA_STRATIX10
