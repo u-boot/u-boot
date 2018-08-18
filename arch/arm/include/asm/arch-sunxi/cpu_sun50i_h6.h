@@ -20,7 +20,7 @@
 #define SUNXI_DMA_BASE			0x03002000
 /* SID address space starts at 0x03006000, but e-fuse is at offset 0x200 */
 #define SUNXI_SIDC_BASE			0x03006000
-#define SNUXI_SID_BASE			0x03006200
+#define SUNXI_SID_BASE			0x03006200
 #define SUNXI_TIMER_BASE		0x03009000
 #define SUNXI_PIO_BASE			0x0300B000
 #define SUNXI_PSI_BASE			0x0300C000
