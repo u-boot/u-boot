@@ -115,7 +115,10 @@ static unsigned long load_elf64_image_shdr(unsigned long addr)
 			memcpy((void *)(uintptr_t)shdr->sh_addr,
 			       (const void *)image, shdr->sh_size);
 		}
-		flush_cache((ulong)shdr->sh_addr, shdr->sh_size);
+		flush_cache(rounddown(shdr->sh_addr, ARCH_DMA_MINALIGN),
+			    roundup((shdr->sh_addr + shdr->sh_size),
+				     ARCH_DMA_MINALIGN) -
+			            rounddown(shdr->sh_addr, ARCH_DMA_MINALIGN));
 	}
 
 	if (ehdr->e_machine == EM_PPC64 && (ehdr->e_flags &
