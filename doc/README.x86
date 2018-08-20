@@ -47,21 +47,6 @@ on other architectures, like below:
 $ make coreboot_defconfig
 $ make all
 
-Note this default configuration will build a U-Boot payload for the QEMU board.
-To build a coreboot payload against another board, you can change the build
-configuration during the 'make menuconfig' process.
-
-x86 architecture  --->
-	...
-	(qemu-x86) Board configuration file
-	(qemu-x86_i440fx) Board Device Tree Source (dts) file
-	(0x01920000) Board specific Cache-As-RAM (CAR) address
-	(0x4000) Board specific Cache-As-RAM (CAR) size
-
-Change the 'Board configuration file' and 'Board Device Tree Source (dts) file'
-to point to a new board. You can also change the Cache-As-RAM (CAR) related
-settings here if the default values do not fit your new board.
-
 Build Instructions for U-Boot as main bootloader
 ------------------------------------------------
 
@@ -427,16 +412,9 @@ To enable video you must enable these options in coreboot:
    - Set framebuffer graphics resolution (1280x1024 32k-color (1:5:5))
    - Keep VESA framebuffer
 
-And include coreboot_fb.dtsi in your board's device tree source file, like:
-
-   /include/ "coreboot_fb.dtsi"
-
 At present it seems that for Minnowboard Max, coreboot does not pass through
 the video information correctly (it always says the resolution is 0x0). This
 works correctly for link though.
-
-Note: coreboot framebuffer driver does not work on QEMU. The reason is unknown
-at this point. Patches are welcome if you figure out anything wrong.
 
 Test with QEMU for bare mode
 ----------------------------

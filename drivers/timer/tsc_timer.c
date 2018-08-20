@@ -341,16 +341,12 @@ static int tsc_timer_get_count(struct udevice *dev, u64 *count)
 	return 0;
 }
 
-static void tsc_timer_ensure_setup(void)
+static void tsc_timer_ensure_setup(bool stop)
 {
 	if (gd->arch.tsc_base)
 		return;
 	gd->arch.tsc_base = rdtsc();
 
-	/*
-	 * If there is no clock frequency specified in the device tree,
-	 * calibrate it by ourselves.
-	 */
 	if (!gd->arch.clock_rate) {
 		unsigned long fast_calibrate;
 
@@ -366,7 +362,10 @@ static void tsc_timer_ensure_setup(void)
 		if (fast_calibrate)
 			goto done;
 
-		panic("TSC frequency is ZERO");
+		if (stop)
+			panic("TSC frequency is ZERO");
+		else
+			return;
 
 done:
 		gd->arch.clock_rate = fast_calibrate * 1000000;
@@ -377,11 +376,17 @@ static int tsc_timer_probe(struct udevice *dev)
 {
 	struct timer_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
-	if (!uc_priv->clock_rate) {
-		tsc_timer_ensure_setup();
-		uc_priv->clock_rate = gd->arch.clock_rate;
+	/* Try hardware calibration first */
+	tsc_timer_ensure_setup(false);
+	if (!gd->arch.clock_rate) {
+		/*
+		 * Use the clock frequency specified in the
+		 * device tree as last resort
+		 */
+		if (!uc_priv->clock_rate)
+			panic("TSC frequency is ZERO");
 	} else {
-		gd->arch.tsc_base = rdtsc();
+		uc_priv->clock_rate = gd->arch.clock_rate;
 	}
 
 	return 0;
@@ -394,7 +399,7 @@ unsigned long notrace timer_early_get_rate(void)
 	 * clock rate can only be calibrated via some hardware ways. Specifying
 	 * it in the device tree won't work for the early timer.
 	 */
-	tsc_timer_ensure_setup();
+	tsc_timer_ensure_setup(true);
 
 	return gd->arch.clock_rate;
 }

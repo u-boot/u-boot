@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
  *
- * Generic EFI payload device tree for x86 targets
+ * Generic coreboot payload device tree for x86 targets
  */
 
 /dts-v1/;
@@ -15,8 +15,8 @@
 /include/ "tsc_timer.dtsi"
 
 / {
-	model = "EFI x86 Payload";
-	compatible = "efi,x86-payload";
+	model = "coreboot x86 payload";
+	compatible = "coreboot,x86-payload";
 
 	aliases {
 		serial0 = &serial;
@@ -39,7 +39,7 @@
 		u-boot,dm-pre-reloc;
 	};
 
-	efi-fb {
-		compatible = "efi-fb";
+	coreboot-fb {
+		compatible = "coreboot-fb";
 	};
 };

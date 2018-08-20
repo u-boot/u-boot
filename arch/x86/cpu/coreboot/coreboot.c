@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <usb.h>
 #include <asm/io.h>
 #include <asm/msr.h>
 #include <asm/mtrr.h>
@@ -75,12 +76,10 @@ int last_stage_init(void)
 	if (gd->flags & GD_FLG_COLD_BOOT)
 		timestamp_add_to_bootstage();
 
+	/* start usb so that usb keyboard can be used as input device */
+	usb_init();
+
 	board_final_cleanup();
 
-	return 0;
-}
-
-int misc_init_r(void)
-{
 	return 0;
 }
