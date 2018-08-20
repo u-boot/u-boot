@@ -376,6 +376,33 @@ struct device_node *of_find_compatible_node(struct device_node *from,
 	return np;
 }
 
+static int of_device_has_prop_value(const struct device_node *device,
+				    const char *propname, const void *propval,
+				    int proplen)
+{
+	struct property *prop = of_find_property(device, propname, NULL);
+
+	if (!prop || !prop->value || prop->length != proplen)
+		return 0;
+	return !memcmp(prop->value, propval, proplen);
+}
+
+struct device_node *of_find_node_by_prop_value(struct device_node *from,
+					       const char *propname,
+					       const void *propval, int proplen)
+{
+	struct device_node *np;
+
+	for_each_of_allnodes_from(from, np) {
+		if (of_device_has_prop_value(np, propname, propval, proplen) &&
+		    of_node_get(np))
+			break;
+	}
+	of_node_put(from);
+
+	return np;
+}
+
 struct device_node *of_find_node_by_phandle(phandle handle)
 {
 	struct device_node *np;

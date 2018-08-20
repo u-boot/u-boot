@@ -703,6 +703,20 @@ int ofnode_read_resource_byname(ofnode node, const char *name,
 ofnode ofnode_by_compatible(ofnode from, const char *compat);
 
 /**
+ * ofnode_by_prop_value() - Find the next node with given property value
+ *
+ * Find the next node after @from that has a @propname with a value
+ * @propval and a length @proplen.
+ *
+ * @from: ofnode to start from (use ofnode_null() to start at the
+ * beginning) @propname: property name to check @propval: property value to
+ * search for @proplen: length of the value in propval @return ofnode
+ * found, or ofnode_null() if none
+ */
+ofnode ofnode_by_prop_value(ofnode from, const char *propname,
+			    const void *propval, int proplen);
+
+/**
  * ofnode_for_each_subnode() - iterate over all subnodes of a parent
  *
  * @node:       child node (ofnode, lvalue)
