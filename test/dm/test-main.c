@@ -94,7 +94,7 @@ static int dm_do_test(struct unit_test_state *uts, struct unit_test *test,
 		ut_assertok(dm_extended_scan_fdt(gd->fdt_blob, false));
 
 	/*
-	 * Silence the console and rely on console reocrding to get
+	 * Silence the console and rely on console recording to get
 	 * our output.
 	 */
 	console_record_reset();
