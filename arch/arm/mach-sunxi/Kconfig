@@ -417,7 +417,6 @@ config DRAM_ZQ
 
 config DRAM_ODT_EN
 	bool "sunxi dram odt enable"
-	default n if !MACH_SUN8I_A23
 	default y if MACH_SUN8I_A23
 	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I

@@ -503,7 +503,6 @@ static void mmc_pinmux_setup(int sdc)
 int board_mmc_init(bd_t *bis)
 {
 	__maybe_unused struct mmc *mmc0, *mmc1;
-	__maybe_unused char buf[512];
 
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
 	mmc0 = sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT);
@@ -759,7 +758,6 @@ static void setup_environment(const void *fdt)
 
 int misc_init_r(void)
 {
-	__maybe_unused int ret;
 	uint boot;
 
 	env_set("fel_booted", NULL);
