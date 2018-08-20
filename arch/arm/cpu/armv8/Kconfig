@@ -144,6 +144,13 @@ config ARMV8_PSCI_CPUS_PER_CLUSTER
 	  A value 0 or no definition of it works for single cluster system.
 	  System with multi-cluster should difine their own exact value.
 
+config ARMV8_EA_EL3_FIRST
+	bool "External aborts and SError interrupt exception are taken in EL3"
+	default n
+	help
+	  Exception handling at all exception levels for External Abort and
+	  SError interrupt exception are taken in EL3.
+
 if SYS_HAS_ARMV8_SECURE_BASE
 
 config ARMV8_SECURE_BASE
