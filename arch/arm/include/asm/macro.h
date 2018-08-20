@@ -193,6 +193,10 @@ lr	.req	x30
 			SCR_EL3_SMD_DIS | SCR_EL3_RES1 |\
 			SCR_EL3_NS_EN)
 #endif
+
+#ifdef CONFIG_ARMV8_EA_EL3_FIRST
+	orr	\tmp, \tmp, #SCR_EL3_EA_EN
+#endif
 	msr	scr_el3, \tmp
 
 	/* Return to the EL2_SP2 mode from EL3 */
