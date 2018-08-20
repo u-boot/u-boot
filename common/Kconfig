@@ -557,7 +557,7 @@ config VERSION_VARIABLE
 	  next reset.
 
 config BOARD_LATE_INIT
-	bool
+	bool "Execute Board late init"
 	help
 	  Sometimes board require some initialization code that might
 	  require once the actual init done, example saving board specific env,
