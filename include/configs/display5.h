@@ -115,27 +115,6 @@
 	"name=rootfs2,size=512M,uuid=${uuid_gpt_rootfs2};" \
 	"name=data,size=-,uuid=${uuid_gpt_data}\0"
 
-#define FACTORY_PROCEDURE \
-	"echo '#######################';" \
-	"echo '# Factory Boot        #';" \
-	"echo '#######################';" \
-	"env default -a;" \
-	"saveenv;" \
-	"gpt write mmc ${mmcdev} ${partitions};" \
-	"run tftp_sf_SPL;" \
-	"run tftp_sf_uboot;" \
-	TFTP_UPDATE_KERNEL \
-	"run tftp_sf_fitImg_SWU;" \
-	"run tftp_sf_initramfs_SWU;" \
-	TFTP_UPDATE_ROOTFS \
-	"echo '#######################';" \
-	"echo '# END - OK            #';" \
-	"echo '#######################';" \
-	"setenv bootcmd 'env default -a; saveenv; run falcon_setup; reset';" \
-	"setenv boot_os 'n';" \
-	"saveenv;" \
-	"reset;"
-
 #define SWUPDATE_RECOVERY_PROCEDURE \
 	"echo '#######################';" \
 	"echo '# RECOVERY SWUupdate  #';" \
@@ -261,7 +240,6 @@
 	"bootdelay=1\0" \
 	"baudrate=115200\0" \
 	"bootcmd=" CONFIG_BOOTCOMMAND "\0" \
-	"factory=" FACTORY_PROCEDURE "\0" \
 	"ethact=FEC\0" \
 	"netdev=eth0\0" \
 	"boot_os=y\0" \
