@@ -23,13 +23,11 @@ endif
 
 ifeq ($(IS_32BIT),y)
 PLATFORM_CPPFLAGS += -march=i386 -m32
-# TODO: These break on x86_64; need to debug further
-PLATFORM_RELFLAGS += -fdata-sections
 else
 PLATFORM_CPPFLAGS += $(if $(CONFIG_SPL_BUILD),,-fpic) -fno-common -m64
 endif
 
-PLATFORM_RELFLAGS += -ffunction-sections -fvisibility=hidden
+PLATFORM_RELFLAGS += -fdata-sections -ffunction-sections -fvisibility=hidden
 
 PLATFORM_LDFLAGS += -Bsymbolic -Bsymbolic-functions
 PLATFORM_LDFLAGS += -m $(if $(IS_32BIT),elf_i386,elf_x86_64)
