@@ -394,6 +394,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory_banks(blob, base, size, 2);
 
+	fdt_fsl_mc_fixup_iommu_map_entry(blob);
+
 	fsl_fdt_fixup_dr_usb(blob, bd);
 
 	fsl_fdt_fixup_flash(blob);
