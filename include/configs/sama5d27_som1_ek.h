@@ -41,9 +41,6 @@
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 at91-sama5d27_som1_ek.dtb; " \
 				"fatload mmc 0:1 0x22000000 zImage; " \
 				"bootz 0x22000000 - 0x21000000"
-#undef CONFIG_BOOTARGS
-#define CONFIG_BOOTARGS \
-	"console=ttyS0,115200 earlyprintk root=/dev/mmcblk0p2 rw rootwait"
 #endif
 
 #ifdef CONFIG_QSPI_BOOT
