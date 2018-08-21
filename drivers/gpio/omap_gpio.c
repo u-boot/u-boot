@@ -335,6 +335,7 @@ static int omap_gpio_bind(struct udevice *dev)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id omap_gpio_ids[] = {
 	{ .compatible = "ti,omap3-gpio" },
 	{ .compatible = "ti,omap4-gpio" },
@@ -342,7 +343,6 @@ static const struct udevice_id omap_gpio_ids[] = {
 	{ }
 };
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 static int omap_gpio_ofdata_to_platdata(struct udevice *dev)
 {
 	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
@@ -361,14 +361,15 @@ U_BOOT_DRIVER(gpio_omap) = {
 	.name	= "gpio_omap",
 	.id	= UCLASS_GPIO,
 #if CONFIG_IS_ENABLED(OF_CONTROL)
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	.of_match = omap_gpio_ids,
 	.ofdata_to_platdata = of_match_ptr(omap_gpio_ofdata_to_platdata),
-	.bind	= dm_scan_fdt_dev,
 	.platdata_auto_alloc_size = sizeof(struct omap_gpio_platdata),
+#endif
 #else
 	.bind   = omap_gpio_bind,
 #endif
 	.ops	= &gpio_omap_ops,
-	.of_match = omap_gpio_ids,
 	.probe	= omap_gpio_probe,
 	.priv_auto_alloc_size = sizeof(struct gpio_bank),
 	.flags = DM_FLAG_PRE_RELOC,
