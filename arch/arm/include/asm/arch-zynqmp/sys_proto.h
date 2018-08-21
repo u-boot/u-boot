@@ -34,6 +34,8 @@
 
 #define ZYNQMP_PM_VERSION_INVALID	~0
 
+#define PMUFW_V1_0	((1 << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | 0)
+
 enum {
 	IDCODE,
 	VERSION,
