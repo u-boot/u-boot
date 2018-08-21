@@ -36,8 +36,8 @@
 /* bootstrap + u-boot + env in sd card */
 #undef CONFIG_BOOTCOMMAND
 
-#define CONFIG_BOOTCOMMAND	"fatload mmc 1:1 0x21000000 at91-sama5d2_xplained.dtb; " \
-				"fatload mmc 1:1 0x22000000 zImage; " \
+#define CONFIG_BOOTCOMMAND	"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x21000000 at91-sama5d2_xplained.dtb; " \
+				"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x22000000 zImage; " \
 				"bootz 0x22000000 - 0x21000000"
 
 #elif CONFIG_SPI_BOOT
