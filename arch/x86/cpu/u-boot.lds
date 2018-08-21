@@ -94,7 +94,7 @@ SECTIONS
 
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
-		*(.bss)
+		*(.bss*)
 		*(COM*)
 		. = ALIGN(4);
 		__bss_end = .;

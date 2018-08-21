@@ -46,7 +46,7 @@ SECTIONS
 		*(.sbss)
 		*(.scommon)
 		*(.dynbss)
-		*(.bss)
+		*(.bss*)
 		*(COMMON)
 
 		/* U-Boot lists and device tree */

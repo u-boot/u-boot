@@ -154,18 +154,6 @@ const char *__efi_nesting_dec(void)
 }
 
 /**
- * efi_update_table_header_crc32() - Update CRC32 in table header
- *
- * @table:	EFI table
- */
-static void efi_update_table_header_crc32(struct efi_table_hdr *table)
-{
-	table->crc32 = 0;
-	table->crc32 = crc32(0, (const unsigned char *)table,
-			     table->headersize);
-}
-
-/**
  * efi_queue_event() - queue an EFI event
  * @event:     event to signal
  * @check_tpl: check the TPL level
@@ -627,7 +615,8 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 		return EFI_INVALID_PARAMETER;
 	}
 
-	if (is_valid_tpl(notify_tpl) != EFI_SUCCESS)
+	if ((type & (EVT_NOTIFY_WAIT | EVT_NOTIFY_SIGNAL)) &&
+	    (is_valid_tpl(notify_tpl) != EFI_SUCCESS))
 		return EFI_INVALID_PARAMETER;
 
 	evt = calloc(1, sizeof(struct efi_event));

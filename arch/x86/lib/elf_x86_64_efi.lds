@@ -44,7 +44,7 @@ SECTIONS
 		*(.sbss)
 		*(.scommon)
 		*(.dynbss)
-		*(.bss)
+		*(.bss*)
 		*(COMMON)
 		*(.rel.local)
 

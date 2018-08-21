@@ -105,14 +105,6 @@ static int term_read_reply(int *n, int num, char end_char)
 	return 0;
 }
 
-static efi_status_t EFIAPI efi_cout_reset(
-			struct efi_simple_text_output_protocol *this,
-			char extended_verification)
-{
-	EFI_ENTRY("%p, %d", this, extended_verification);
-	return EFI_EXIT(EFI_UNSUPPORTED);
-}
-
 static efi_status_t EFIAPI efi_cout_output_string(
 			struct efi_simple_text_output_protocol *this,
 			const efi_string_t string)
@@ -337,6 +329,20 @@ static efi_status_t EFIAPI efi_cout_clear_screen(
 	printf(ESC"[2J");
 	efi_con_mode.cursor_column = 0;
 	efi_con_mode.cursor_row = 0;
+
+	return EFI_EXIT(EFI_SUCCESS);
+}
+
+static efi_status_t EFIAPI efi_cout_reset(
+			struct efi_simple_text_output_protocol *this,
+			char extended_verification)
+{
+	EFI_ENTRY("%p, %d", this, extended_verification);
+
+	/* Clear screen */
+	EFI_CALL(efi_cout_clear_screen(this));
+	/* Set default colors */
+	printf(ESC "[0;37;40m");
 
 	return EFI_EXIT(EFI_SUCCESS);
 }

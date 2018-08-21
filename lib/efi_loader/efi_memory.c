@@ -178,14 +178,13 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 	switch (memory_type) {
 	case EFI_RUNTIME_SERVICES_CODE:
 	case EFI_RUNTIME_SERVICES_DATA:
-		newlist->desc.attribute = (1 << EFI_MEMORY_WB_SHIFT) |
-					  (1ULL << EFI_MEMORY_RUNTIME_SHIFT);
+		newlist->desc.attribute = EFI_MEMORY_WB | EFI_MEMORY_RUNTIME;
 		break;
 	case EFI_MMAP_IO:
-		newlist->desc.attribute = 1ULL << EFI_MEMORY_RUNTIME_SHIFT;
+		newlist->desc.attribute = EFI_MEMORY_RUNTIME;
 		break;
 	default:
-		newlist->desc.attribute = 1 << EFI_MEMORY_WB_SHIFT;
+		newlist->desc.attribute = EFI_MEMORY_WB;
 		break;
 	}
 
@@ -305,7 +304,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
-		addr = efi_find_free_memory(len, -1ULL);
+		addr = efi_find_free_memory(len, gd->start_addr_sp);
 		if (!addr) {
 			r = EFI_NOT_FOUND;
 			break;
@@ -457,10 +456,12 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 	efi_uintn_t map_size = 0;
 	int map_entries = 0;
 	struct list_head *lhandle;
-	efi_uintn_t provided_map_size = *memory_map_size;
+	efi_uintn_t provided_map_size;
 
 	if (!memory_map_size)
 		return EFI_INVALID_PARAMETER;
+
+	provided_map_size = *memory_map_size;
 
 	list_for_each(lhandle, &efi_mem)
 		map_entries++;

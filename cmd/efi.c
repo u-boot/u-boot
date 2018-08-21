@@ -28,18 +28,21 @@ static const char *const type_name[] = {
 };
 
 static struct attr_info {
-	int shift;
+	u64 val;
 	const char *name;
 } mem_attr[] = {
-	{ EFI_MEMORY_UC_SHIFT, "uncached" },
-	{ EFI_MEMORY_WC_SHIFT, "write-coalescing" },
-	{ EFI_MEMORY_WT_SHIFT, "write-through" },
-	{ EFI_MEMORY_WB_SHIFT, "write-back" },
-	{ EFI_MEMORY_UCE_SHIFT, "uncached & exported" },
-	{ EFI_MEMORY_WP_SHIFT, "write-protect" },
-	{ EFI_MEMORY_RP_SHIFT, "read-protect" },
-	{ EFI_MEMORY_XP_SHIFT, "execute-protect" },
-	{ EFI_MEMORY_RUNTIME_SHIFT, "needs runtime mapping" }
+	{ EFI_MEMORY_UC, "uncached" },
+	{ EFI_MEMORY_WC, "write-coalescing" },
+	{ EFI_MEMORY_WT, "write-through" },
+	{ EFI_MEMORY_WB, "write-back" },
+	{ EFI_MEMORY_UCE, "uncached & exported" },
+	{ EFI_MEMORY_WP, "write-protect" },
+	{ EFI_MEMORY_RP, "read-protect" },
+	{ EFI_MEMORY_XP, "execute-protect" },
+	{ EFI_MEMORY_NV, "non-volatile" },
+	{ EFI_MEMORY_MORE_RELIABLE, "higher reliability" },
+	{ EFI_MEMORY_RO, "read-only" },
+	{ EFI_MEMORY_RUNTIME, "needs runtime mapping" }
 };
 
 /* Maximum different attribute values we can track */
@@ -170,10 +173,10 @@ static void efi_print_mem_table(struct efi_entry_memmap *map,
 		bool first;
 		int j;
 
-		printf("%c%llx: ", attr & EFI_MEMORY_RUNTIME ? 'r' : ' ',
+		printf("%c%llx: ", (attr & EFI_MEMORY_RUNTIME) ? 'r' : ' ',
 		       attr & ~EFI_MEMORY_RUNTIME);
 		for (j = 0, first = true; j < ARRAY_SIZE(mem_attr); j++) {
-			if (attr & (1ULL << mem_attr[j].shift)) {
+			if (attr & mem_attr[j].val) {
 				if (first)
 					first = false;
 				else
