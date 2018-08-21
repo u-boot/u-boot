@@ -24,6 +24,7 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <asm/omap_mmc.h>
 #include <asm/mach-types.h>
 #include <linux/mtd/rawnand.h>
 #include <asm/omap_musb.h>
@@ -38,6 +39,36 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* This is only needed until SPL gets OF support */
+#ifdef CONFIG_SPL_BUILD
+static const struct ns16550_platdata omap3logic_serial = {
+	.base = OMAP34XX_UART1,
+	.reg_shift = 2,
+	.clock = V_NS16550_CLK,
+	.fcr = UART_FCR_DEFVAL,
+};
+
+U_BOOT_DEVICE(omap3logic_uart) = {
+	"ns16550_serial",
+	&omap3logic_serial
+};
+
+static const struct omap_hsmmc_plat omap3_logic_mmc0_platdata = {
+	.base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE,
+	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_4BIT,
+	.cfg.f_min = 400000,
+	.cfg.f_max = 52000000,
+	.cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195,
+	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
+};
+
+U_BOOT_DEVICE(am335x_mmc0) = {
+	.name = "omap_hsmmc",
+	.platdata = &omap3_logic_mmc0_platdata,
+};
+
+#endif
 
 /*
  * two dimensional array of strucures containining board name and Linux
