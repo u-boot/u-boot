@@ -168,6 +168,7 @@ static int env_ubi_load(void)
 
 U_BOOT_ENV_LOCATION(ubi) = {
 	.location	= ENVL_UBI,
+	ENV_NAME("UBI")
 	.load		= env_ubi_load,
 	.save		= env_save_ptr(env_ubi_save),
 };
