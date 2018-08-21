@@ -177,26 +177,27 @@ int __maybe_unused invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2,
 }
 
 #if defined(CONFIG_CLK_ZYNQMP)
-void zynqmp_pmufw_version(void)
+unsigned int zynqmp_pmufw_version(void)
 {
 	int ret;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
-	u32 pm_api_version;
+	static u32 pm_api_version = ZYNQMP_PM_VERSION_INVALID;
 
-	ret = invoke_smc(ZYNQMP_SIP_SVC_GET_API_VERSION, 0, 0, 0, 0,
-			 ret_payload);
-	pm_api_version = ret_payload[1];
+	/*
+	 * Get PMU version only once and later
+	 * just return stored values instead of
+	 * asking PMUFW again.
+	 */
+	if (pm_api_version == ZYNQMP_PM_VERSION_INVALID) {
+		ret = invoke_smc(ZYNQMP_SIP_SVC_GET_API_VERSION, 0, 0, 0, 0,
+				 ret_payload);
+		pm_api_version = ret_payload[1];
 
-	if (ret)
-		panic("PMUFW is not found - Please load it!\n");
+		if (ret)
+			panic("PMUFW is not found - Please load it!\n");
+	}
 
-	printf("PMUFW:\tv%d.%d\n",
-	       pm_api_version >> ZYNQMP_PM_VERSION_MAJOR_SHIFT,
-	       pm_api_version & ZYNQMP_PM_VERSION_MINOR_MASK);
-
-	if (pm_api_version < ZYNQMP_PM_VERSION)
-		panic("PMUFW version error. Expected: v%d.%d\n",
-		      ZYNQMP_PM_VERSION_MAJOR, ZYNQMP_PM_VERSION_MINOR);
+	return pm_api_version;
 }
 #endif
 
