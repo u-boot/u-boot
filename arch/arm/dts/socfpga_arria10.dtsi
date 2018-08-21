@@ -673,6 +673,7 @@
 			interrupts = <0 99 4>;
 			dma-mask = <0xffffffff>;
 			clocks = <&nand_clk>;
+			resets = <&rst NAND_RESET>;
 			status = "disabled";
 		};
 
