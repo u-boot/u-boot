@@ -114,7 +114,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Serial console configuration.
  */
-
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600, \
 					 115200}
@@ -151,10 +150,7 @@ extern phys_addr_t prior_stage_fdt_address;
  * Environment configuration.
  */
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-
-#define CONFIG_ENV_OFFSET		0x1e0000
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64 KiB */
-#define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_OVERWRITE
 
