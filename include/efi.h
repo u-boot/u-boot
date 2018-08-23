@@ -248,6 +248,7 @@ enum efi_entry_t {
 	EFIET_END,	/* Signals this is the last (empty) entry */
 	EFIET_MEMORY_MAP,
 	EFIET_GOP_MODE,
+	EFIET_SYS_TABLE,
 
 	/* Number of entries */
 	EFIET_MEMORY_COUNT,
@@ -336,6 +337,15 @@ struct efi_entry_gopmode {
 		u32 pixel_bitmask[4];
 		u32 pixels_per_scanline;
 	} info[];
+};
+
+/**
+ * struct efi_entry_systable - system table passed to U-Boot
+ *
+ * @sys_table:	EFI system table address
+ */
+struct efi_entry_systable {
+	efi_physical_addr_t sys_table;
 };
 
 static inline struct efi_mem_desc *efi_get_next_mem_desc(
