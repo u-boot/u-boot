@@ -41,6 +41,9 @@
 #define efi_va_end va_end
 #endif /* __x86_64__ */
 
+#define EFI32_LOADER_SIGNATURE	"EL32"
+#define EFI64_LOADER_SIGNATURE	"EL64"
+
 struct efi_device_path;
 
 typedef struct {

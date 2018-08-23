@@ -295,6 +295,10 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 	setup_device_tree(hdr, (const void *)env_get_hex("fdtaddr", 0));
 	setup_video(&setup_base->screen_info);
 
+#ifdef CONFIG_EFI_STUB
+	setup_efi_info(&setup_base->efi_info);
+#endif
+
 	return 0;
 }
 

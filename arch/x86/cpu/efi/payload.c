@@ -8,6 +8,7 @@
 #include <efi.h>
 #include <errno.h>
 #include <usb.h>
+#include <asm/bootparam.h>
 #include <asm/e820.h>
 #include <asm/post.h>
 
@@ -249,4 +250,40 @@ unsigned int install_e820_map(unsigned int max_entries,
 	}
 
 	return num_entries;
+}
+
+void setup_efi_info(struct efi_info *efi_info)
+{
+	struct efi_entry_systable *table;
+	struct efi_entry_memmap *map;
+	char *signature;
+	int size, ret;
+
+	memset(efi_info, 0, sizeof(struct efi_info));
+
+	ret = efi_info_get(EFIET_SYS_TABLE, (void **)&table, &size);
+	if (ret) {
+		printf("Cannot find EFI system table, ret=%d\n", ret);
+		return;
+	}
+	efi_info->efi_systab = (u32)(table->sys_table);
+
+	ret = efi_info_get(EFIET_MEMORY_MAP, (void **)&map, &size);
+	if (ret) {
+		printf("Cannot find EFI memory map tables, ret=%d\n", ret);
+		return;
+	}
+	efi_info->efi_memdesc_size = map->desc_size;
+	efi_info->efi_memdesc_version = map->version;
+	efi_info->efi_memmap = (u32)(map->desc);
+	efi_info->efi_memmap_size = size - sizeof(struct efi_entry_memmap);
+
+#ifdef CONFIG_EFI_STUB_64BIT
+	efi_info->efi_systab_hi = table->sys_table >> 32;
+	efi_info->efi_memmap_hi = (u64)(u32)(map->desc) >> 32;
+	signature = EFI64_LOADER_SIGNATURE;
+#else
+	signature = EFI32_LOADER_SIGNATURE;
+#endif
+	memcpy(&efi_info->efi_loader_signature, signature, 4);
 }
