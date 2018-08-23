@@ -289,6 +289,19 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
 void spl_invoke_atf(struct spl_image_info *spl_image);
 
 /**
+ * spl_optee_entry - entry function for optee
+ *
+ * args defind in op-tee project
+ * https://github.com/OP-TEE/optee_os/
+ * core/arch/arm/kernel/generic_entry_a32.S
+ * @arg0: pagestore
+ * @arg1: (ARMv7 standard bootarg #1)
+ * @arg2: device tree address, (ARMv7 standard bootarg #2)
+ * @arg3: non-secure entry address (ARMv7 bootarg #0)
+ */
+void spl_optee_entry(void *arg0, void *arg1, void *arg2, void *arg3);
+
+/**
  * board_return_to_bootrom - allow for boards to continue with the boot ROM
  *
  * If a board (e.g. the Rockchip RK3368 boards) provide some
