@@ -608,6 +608,84 @@ static struct clk_synth cdce913_data = {
 };
 #endif
 
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_CONTROL) && \
+	defined(CONFIG_DM_ETH) && defined(CONFIG_DRIVER_TI_CPSW)
+
+#define MAX_CPSW_SLAVES	2
+
+/* At the moment, we do not want to stop booting for any failures here */
+int ft_board_setup(void *fdt, bd_t *bd)
+{
+	const char *slave_path, *enet_name;
+	int enetnode, slavenode, phynode;
+	struct udevice *ethdev;
+	char alias[16];
+	u32 phy_id[2];
+	int phy_addr;
+	int i, ret;
+
+	/* phy address fixup needed only on beagle bone family */
+	if (!board_is_beaglebonex())
+		goto done;
+
+	for (i = 0; i < MAX_CPSW_SLAVES; i++) {
+		sprintf(alias, "ethernet%d", i);
+
+		slave_path = fdt_get_alias(fdt, alias);
+		if (!slave_path)
+			continue;
+
+		slavenode = fdt_path_offset(fdt, slave_path);
+		if (slavenode < 0)
+			continue;
+
+		enetnode = fdt_parent_offset(fdt, slavenode);
+		enet_name = fdt_get_name(fdt, enetnode, NULL);
+
+		ethdev = eth_get_dev_by_name(enet_name);
+		if (!ethdev)
+			continue;
+
+		phy_addr = cpsw_get_slave_phy_addr(ethdev, i);
+
+		/* check for phy_id as well as phy-handle properties */
+		ret = fdtdec_get_int_array_count(fdt, slavenode, "phy_id",
+						 phy_id, 2);
+		if (ret == 2) {
+			if (phy_id[1] != phy_addr) {
+				printf("fixing up phy_id for %s, old: %d, new: %d\n",
+				       alias, phy_id[1], phy_addr);
+
+				phy_id[0] = cpu_to_fdt32(phy_id[0]);
+				phy_id[1] = cpu_to_fdt32(phy_addr);
+				do_fixup_by_path(fdt, slave_path, "phy_id",
+						 phy_id, sizeof(phy_id), 0);
+			}
+		} else {
+			phynode = fdtdec_lookup_phandle(fdt, slavenode,
+							"phy-handle");
+			if (phynode < 0)
+				continue;
+
+			ret = fdtdec_get_int(fdt, phynode, "reg", -ENOENT);
+			if (ret < 0)
+				continue;
+
+			if (ret != phy_addr) {
+				printf("fixing up phy-handle for %s, old: %d, new: %d\n",
+				       alias, ret, phy_addr);
+
+				fdt_setprop_u32(fdt, phynode, "reg",
+						cpu_to_fdt32(phy_addr));
+			}
+		}
+	}
+
+done:
+	return 0;
+}
+#endif
+
 /*
  * Basic board specific setup.  Pinmux has been handled already.
  */
