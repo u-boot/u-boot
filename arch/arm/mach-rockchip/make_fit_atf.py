@@ -34,7 +34,7 @@ DT_HEADER="""// SPDX-License-Identifier: GPL-2.0+ OR X11
 	#address-cells = <1>;
 
 	images {
-		uboot@1 {
+		uboot {
 			description = "U-Boot (64-bit)";
 			data = /incbin/("u-boot-nodtb.bin");
 			type = "standalone";
@@ -58,7 +58,7 @@ def append_atf_node(file, atf_index, phy_addr):
     Append ATF DT node to input FIT dts file.
     """
     data = 'bl31_0x%08x.bin' % phy_addr
-    print >> file, '\t\tatf@%d {' % atf_index
+    print >> file, '\t\tatf_%d {' % atf_index
     print >> file, '\t\t\tdescription = \"ARM Trusted Firmware\";'
     print >> file, '\t\t\tdata = /incbin/("%s");' % data
     print >> file, '\t\t\ttype = "firmware";'
@@ -78,7 +78,7 @@ def append_fdt_node(file, dtbs):
     cnt = 1
     for dtb in dtbs:
         dtname = os.path.basename(dtb)
-        print >> file, '\t\tfdt@%d {' % cnt
+        print >> file, '\t\tfdt_%d {' % cnt
         print >> file, '\t\t\tdescription = "%s";' % dtname
         print >> file, '\t\t\tdata = /incbin/("%s");' % dtb
         print >> file, '\t\t\ttype = "flat_dt";'
@@ -88,17 +88,17 @@ def append_fdt_node(file, dtbs):
         cnt = cnt + 1
 
 def append_conf_section(file, cnt, dtname, atf_cnt):
-    print >> file, '\t\tconfig@%d {' % cnt
+    print >> file, '\t\tconfig_%d {' % cnt
     print >> file, '\t\t\tdescription = "%s";' % dtname
-    print >> file, '\t\t\tfirmware = "atf@1";'
-    print >> file, '\t\t\tloadables = "uboot@1",',
+    print >> file, '\t\t\tfirmware = "atf_1";'
+    print >> file, '\t\t\tloadables = "uboot",',
     for i in range(1, atf_cnt):
-        print >> file, '"atf@%d"' % (i+1),
+        print >> file, '"atf_%d"' % (i+1),
         if i != (atf_cnt - 1):
             print >> file, ',',
         else:
             print >> file, ';'
-    print >> file, '\t\t\tfdt = "fdt@1";'
+    print >> file, '\t\t\tfdt = "fdt_1";'
     print >> file, '\t\t};'
     print >> file, ''
 
@@ -108,7 +108,7 @@ def append_conf_node(file, dtbs, atf_cnt):
     """
     cnt = 1
     print >> file, '\tconfigurations {'
-    print >> file, '\t\tdefault = "config@1";'
+    print >> file, '\t\tdefault = "config_1";'
     for dtb in dtbs:
         dtname = os.path.basename(dtb)
         append_conf_section(file, cnt, dtname, atf_cnt)
