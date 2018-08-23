@@ -8,6 +8,7 @@
 #include <efi.h>
 #include <errno.h>
 #include <usb.h>
+#include <asm/e820.h>
 #include <asm/post.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -167,4 +168,85 @@ int last_stage_init(void)
 	usb_init();
 
 	return 0;
+}
+
+unsigned int install_e820_map(unsigned int max_entries,
+			      struct e820_entry *entries)
+{
+	struct efi_mem_desc *desc, *end;
+	struct efi_entry_memmap *map;
+	int size, ret;
+	efi_physical_addr_t last_end_addr = 0;
+	struct e820_entry *last_entry = NULL;
+	__u32 e820_type;
+	unsigned int num_entries = 0;
+
+	ret = efi_info_get(EFIET_MEMORY_MAP, (void **)&map, &size);
+	if (ret) {
+		printf("Cannot find EFI memory map tables, ret=%d\n", ret);
+
+		return -ENODEV;
+	}
+
+	end = (struct efi_mem_desc *)((ulong)map + size);
+	for (desc = map->desc; desc < end;
+	     desc = efi_get_next_mem_desc(map, desc)) {
+		if (desc->num_pages == 0)
+			continue;
+
+		switch (desc->type) {
+		case EFI_LOADER_CODE:
+		case EFI_LOADER_DATA:
+		case EFI_BOOT_SERVICES_CODE:
+		case EFI_BOOT_SERVICES_DATA:
+		case EFI_CONVENTIONAL_MEMORY:
+			e820_type = E820_RAM;
+			break;
+
+		case EFI_RESERVED_MEMORY_TYPE:
+		case EFI_RUNTIME_SERVICES_CODE:
+		case EFI_RUNTIME_SERVICES_DATA:
+		case EFI_MMAP_IO:
+		case EFI_MMAP_IO_PORT:
+		case EFI_PAL_CODE:
+			e820_type = E820_RESERVED;
+			break;
+
+		case EFI_ACPI_RECLAIM_MEMORY:
+			e820_type = E820_ACPI;
+			break;
+
+		case EFI_ACPI_MEMORY_NVS:
+			e820_type = E820_NVS;
+			break;
+
+		case EFI_UNUSABLE_MEMORY:
+			e820_type = E820_UNUSABLE;
+			break;
+
+		default:
+			printf("Invalid EFI memory descriptor type (0x%x)!\n",
+			       desc->type);
+			continue;
+		}
+
+		if (last_entry != NULL && last_entry->type == e820_type &&
+		    desc->physical_start == last_end_addr) {
+			last_entry->size += (desc->num_pages << EFI_PAGE_SHIFT);
+			last_end_addr += (desc->num_pages << EFI_PAGE_SHIFT);
+		} else {
+			if (num_entries >= E820MAX)
+				break;
+
+			entries[num_entries].addr = desc->physical_start;
+			entries[num_entries].size = desc->num_pages;
+			entries[num_entries].size <<= EFI_PAGE_SHIFT;
+			entries[num_entries].type = e820_type;
+			last_entry = &entries[num_entries];
+			last_end_addr = last_entry->addr + last_entry->size;
+			num_entries++;
+		}
+	}
+
+	return num_entries;
 }
