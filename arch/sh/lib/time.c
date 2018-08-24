@@ -13,7 +13,48 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <sh_tmu.h>
+
+#if defined(CONFIG_CPU_SH3)
+struct tmu_regs {
+	u8	tocr;
+	u8	reserved0;
+	u8	tstr;
+	u8	reserved1;
+	u32	tcor0;
+	u32	tcnt0;
+	u16	tcr0;
+	u16	reserved2;
+	u32	tcor1;
+	u32	tcnt1;
+	u16	tcr1;
+	u16	reserved3;
+	u32	tcor2;
+	u32	tcnt2;
+	u16	tcr2;
+	u16	reserved4;
+	u32	tcpr2;
+};
+#endif /* CONFIG_CPU_SH3 */
+
+#if defined(CONFIG_CPU_SH4) || defined(CONFIG_ARCH_RMOBILE)
+struct tmu_regs {
+	u32	reserved;
+	u8	tstr;
+	u8	reserved2[3];
+	u32	tcor0;
+	u32	tcnt0;
+	u16	tcr0;
+	u16	reserved3;
+	u32	tcor1;
+	u32	tcnt1;
+	u16	tcr1;
+	u16	reserved4;
+	u32	tcor2;
+	u32	tcnt2;
+	u16	tcr2;
+	u16	reserved5;
+};
+#endif /* CONFIG_CPU_SH4 */
 
 #define TCR_TPSC 0x07
 #define TSTR_STR0	BIT(0)
