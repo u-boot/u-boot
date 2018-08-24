@@ -59,6 +59,13 @@ config CADENCE_TTC_TIMER
 	  Enables support for the cadence ttc driver. This driver is present
 	  on Xilinx Zynq and ZynqMP SoCs.
 
+config DESIGNWARE_APB_TIMER
+	bool "Designware APB Timer"
+	depends on TIMER
+	help
+	  Enables support for the Designware APB Timer driver. This timer is
+	  present on Altera SoCFPGA SoCs.
+
 config SANDBOX_TIMER
 	bool "Sandbox timer support"
 	depends on SANDBOX && TIMER

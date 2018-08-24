@@ -154,7 +154,6 @@
 };
 
 &uart1 {
-	clock-frequency = <50000000>;
 	u-boot,dm-pre-reloc;
 	status = "okay";
 };
@@ -169,19 +168,7 @@
 };
 
 /* Clock available early */
-&main_noc_base_clk {
-	u-boot,dm-pre-reloc;
-};
-
 &main_periph_ref_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&peri_noc_base_clk {
-	u-boot,dm-pre-reloc;
-};
-
-&noc_free_clk {
 	u-boot,dm-pre-reloc;
 };
 

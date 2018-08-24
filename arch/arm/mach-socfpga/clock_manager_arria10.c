@@ -11,8 +11,7 @@
 #include <dm/device-internal.h>
 #include <asm/arch/clock_manager.h>
 
-static const struct socfpga_clock_manager *clock_manager_base =
-	(struct socfpga_clock_manager *)SOCFPGA_CLKMGR_ADDRESS;
+#ifdef CONFIG_SPL_BUILD
 
 static u32 eosc1_hz;
 static u32 cb_intosc_hz;
@@ -231,6 +230,9 @@ static int of_get_clk_cfg(const void *blob, struct mainpll_cfg *main_cfg,
 
 	return 0;
 }
+
+static const struct socfpga_clock_manager *clock_manager_base =
+	(struct socfpga_clock_manager *)SOCFPGA_CLKMGR_ADDRESS;
 
 /* calculate the intended main VCO frequency based on handoff */
 static unsigned int cm_calc_handoff_main_vco_clk_hz
@@ -897,7 +899,7 @@ static int cm_full_cfg(struct mainpll_cfg *main_cfg, struct perpll_cfg *per_cfg)
 	return 0;
 }
 
-void cm_use_intosc(void)
+static void cm_use_intosc(void)
 {
 	setbits_le32(&clock_manager_base->ctrl,
 		     CLKMGR_CLKMGR_CTL_BOOTCLK_INTOSC_SET_MSK);
@@ -917,8 +919,11 @@ int cm_basic_init(const void *blob)
 	if (rval)
 		return rval;
 
+	cm_use_intosc();
+
 	return cm_full_cfg(&main_cfg, &per_cfg);
 }
+#endif
 
 static u32 cm_get_rate_dm(char *name)
 {

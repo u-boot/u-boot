@@ -5,6 +5,7 @@
 obj-y += timer-uclass.o
 obj-$(CONFIG_ALTERA_TIMER)	+= altera_timer.o
 obj-$(CONFIG_CADENCE_TTC_TIMER)	+= cadence-ttc.o
+obj-$(CONFIG_DESIGNWARE_APB_TIMER)	+= dw-apb-timer.o
 obj-$(CONFIG_SANDBOX_TIMER)	+= sandbox_timer.o
 obj-$(CONFIG_X86_TSC_TIMER)	+= tsc_timer.o
 obj-$(CONFIG_OMAP_TIMER)	+= omap-timer.o
