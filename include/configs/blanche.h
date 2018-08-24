@@ -52,7 +52,6 @@
 /* Board Clock */
 #define RMOBILE_XTAL_CLK	20000000u
 #define CONFIG_SYS_CLK_FREQ	RMOBILE_XTAL_CLK
-#define CONFIG_SH_TMU_CLK_FREQ	(CONFIG_SYS_CLK_FREQ / 2) /* EXT / 2 */
 
 /* ENV setting */
 #if !defined(CONFIG_MTD_NOR_FLASH)

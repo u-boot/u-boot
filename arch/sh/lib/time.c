@@ -22,7 +22,11 @@ static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
 
 unsigned long get_tbclk(void)
 {
-	return CONFIG_SH_TMU_CLK_FREQ / 4;
+#ifdef CONFIG_RCAR_GEN2
+	return CONFIG_SYS_CLK_FREQ / 8;
+#else
+	return CONFIG_SYS_CLK_FREQ / 4;
+#endif
 }
 
 unsigned long timer_read_counter(void)

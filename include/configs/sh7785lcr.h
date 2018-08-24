@@ -126,7 +126,6 @@
 /* Board Clock */
 /* The SCIF used external clock. system clock only used timer. */
 #define CONFIG_SYS_CLK_FREQ	50000000
-#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
 
 #endif	/* __SH7785LCR_H */
