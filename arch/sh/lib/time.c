@@ -16,14 +16,12 @@
 #include <sh_tmu.h>
 
 #define TCR_TPSC 0x07
-#define CONFIG_SYS_TMU_CLK_DIV	4
 
 static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
 
 unsigned long get_tbclk(void)
 {
-	u16 tmu_bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
-	return get_tmu0_clk_rate() >> ((tmu_bit + 1) * 2);
+	return get_tmu0_clk_rate() >> 2;
 }
 
 unsigned long timer_read_counter(void)
@@ -47,8 +45,7 @@ static void tmu_timer_stop(unsigned int timer)
 
 int timer_init(void)
 {
-	u16 tmu_bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
-	writew((readw(&tmu->tcr0) & ~TCR_TPSC) | tmu_bit, &tmu->tcr0);
+	writew(readw(&tmu->tcr0) & ~TCR_TPSC, &tmu->tcr0);
 
 	tmu_timer_stop(0);
 	tmu_timer_start(0);
