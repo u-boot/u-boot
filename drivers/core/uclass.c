@@ -171,6 +171,27 @@ enum uclass_id uclass_get_by_name(const char *name)
 	return UCLASS_INVALID;
 }
 
+int dev_get_uclass_index(struct udevice *dev, struct uclass **ucp)
+{
+	struct udevice *iter;
+	struct uclass *uc = dev->uclass;
+	int i = 0;
+
+	if (list_empty(&uc->dev_head))
+		return -ENODEV;
+
+	list_for_each_entry(iter, &uc->dev_head, uclass_node) {
+		if (iter == dev) {
+			if (ucp)
+				*ucp = uc;
+			return i;
+		}
+		i++;
+	}
+
+	return -ENODEV;
+}
+
 int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 {
 	struct uclass *uc;

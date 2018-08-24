@@ -61,6 +61,17 @@
 		reg = <2 1>;
 	};
 
+	bind-test {
+		bind-test-child1 {
+			compatible = "sandbox,phy";
+			#phy-cells = <1>;
+		};
+
+		bind-test-child2 {
+			compatible = "simple-bus";
+		};
+	};
+
 	b-test {
 		reg = <3 1>;
 		compatible = "denx,u-boot-fdt-test";

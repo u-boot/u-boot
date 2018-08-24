@@ -19,6 +19,7 @@ obj-$(CONFIG_SOURCE) += source.o
 obj-$(CONFIG_CMD_SOURCE) += source.o
 obj-$(CONFIG_CMD_BDI) += bdinfo.o
 obj-$(CONFIG_CMD_BEDBUG) += bedbug.o
+obj-$(CONFIG_CMD_BIND) += bind.o
 obj-$(CONFIG_CMD_BINOP) += binop.o
 obj-$(CONFIG_CMD_BLOCK_CACHE) += blkcache.o
 obj-$(CONFIG_CMD_BMP) += bmp.o
