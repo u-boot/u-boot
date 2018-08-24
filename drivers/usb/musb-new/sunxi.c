@@ -76,18 +76,23 @@
  * From usbc/usbc.c
  ******************************************************************************/
 
+#define OFF_SUN6I_AHB_RESET0	0x2c0
+
 struct sunxi_musb_config {
 	struct musb_hdrc_config *config;
+	bool has_reset;
 	u8 rst_bit;
 	u8 clkgate_bit;
+	u32 off_reset0;
 };
 
 struct sunxi_glue {
 	struct musb_host_data mdata;
 	struct sunxi_ccm_reg *ccm;
+	u32 *reg_reset0;
 	struct sunxi_musb_config *cfg;
 	struct device dev;
-	struct phy *phy;
+	struct phy phy;
 };
 #define to_sunxi_glue(d)	container_of(d, struct sunxi_glue, dev)
 
@@ -235,19 +240,19 @@ static int sunxi_musb_enable(struct musb *musb)
 	musb_writeb(musb->mregs, USBC_REG_o_VEND0, 0);
 
 	if (is_host_enabled(musb)) {
-		ret = sun4i_usb_phy_vbus_detect(glue->phy);
+		ret = sun4i_usb_phy_vbus_detect(&glue->phy);
 		if (ret == 1) {
 			printf("A charger is plugged into the OTG: ");
 			return -ENODEV;
 		}
 
-		ret = sun4i_usb_phy_id_detect(glue->phy);
+		ret = sun4i_usb_phy_id_detect(&glue->phy);
 		if (ret == 1) {
 			printf("No host cable detected: ");
 			return -ENODEV;
 		}
 
-		ret = generic_phy_power_on(glue->phy);
+		ret = generic_phy_power_on(&glue->phy);
 		if (ret) {
 			pr_err("failed to power on USB PHY\n");
 			return ret;
@@ -271,7 +276,7 @@ static void sunxi_musb_disable(struct musb *musb)
 		return;
 
 	if (is_host_enabled(musb)) {
-		ret = generic_phy_power_off(glue->phy);
+		ret = generic_phy_power_off(&glue->phy);
 		if (ret) {
 			pr_err("failed to power off USB PHY\n");
 			return;
@@ -291,7 +296,7 @@ static int sunxi_musb_init(struct musb *musb)
 
 	pr_debug("%s():\n", __func__);
 
-	ret = generic_phy_init(glue->phy);
+	ret = generic_phy_init(&glue->phy);
 	if (ret) {
 		pr_err("failed to init USB PHY\n");
 		return ret;
@@ -303,12 +308,12 @@ static int sunxi_musb_init(struct musb *musb)
 	if (glue->cfg->clkgate_bit)
 		setbits_le32(&glue->ccm->ahb_gate0,
 			     BIT(glue->cfg->clkgate_bit));
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	setbits_le32(&glue->ccm->ahb_reset0_cfg, BIT(AHB_GATE_OFFSET_USB0));
+
+	if (glue->cfg->has_reset)
+		setbits_le32(glue->reg_reset0, BIT(AHB_GATE_OFFSET_USB0));
+
 	if (glue->cfg->rst_bit)
-		setbits_le32(&glue->ccm->ahb_reset0_cfg,
-			     BIT(glue->cfg->rst_bit));
-#endif
+		setbits_le32(glue->reg_reset0, BIT(glue->cfg->rst_bit));
 
 	USBC_ConfigFIFO_Base();
 	USBC_EnableDpDmPullUp(musb->mregs);
@@ -326,22 +331,50 @@ static int sunxi_musb_init(struct musb *musb)
 	return 0;
 }
 
+static int sunxi_musb_exit(struct musb *musb)
+{
+	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
+	int ret = 0;
+
+	if (generic_phy_valid(&glue->phy)) {
+		ret = generic_phy_exit(&glue->phy);
+		if (ret) {
+			dev_err(dev, "failed to power off usb phy\n");
+			return ret;
+		}
+	}
+
+	if (glue->cfg->has_reset)
+		clrbits_le32(glue->reg_reset0, BIT(AHB_GATE_OFFSET_USB0));
+
+	if (glue->cfg->rst_bit)
+		clrbits_le32(glue->reg_reset0, BIT(glue->cfg->rst_bit));
+
+	clrbits_le32(&glue->ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_USB0));
+	if (glue->cfg->clkgate_bit)
+		clrbits_le32(&glue->ccm->ahb_gate0,
+			     BIT(glue->cfg->clkgate_bit));
+
+	return 0;
+}
+
 static void sunxi_musb_pre_root_reset_end(struct musb *musb)
 {
 	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
 
-	sun4i_usb_phy_set_squelch_detect(glue->phy, false);
+	sun4i_usb_phy_set_squelch_detect(&glue->phy, false);
 }
 
 static void sunxi_musb_post_root_reset_end(struct musb *musb)
 {
 	struct sunxi_glue *glue = to_sunxi_glue(musb->controller);
 
-	sun4i_usb_phy_set_squelch_detect(glue->phy, true);
+	sun4i_usb_phy_set_squelch_detect(&glue->phy, true);
 }
 
 static const struct musb_platform_ops sunxi_musb_ops = {
 	.init		= sunxi_musb_init,
+	.exit		= sunxi_musb_exit,
 	.enable		= sunxi_musb_enable,
 	.disable	= sunxi_musb_disable,
 	.pre_root_reset_end = sunxi_musb_pre_root_reset_end,
@@ -405,7 +438,6 @@ static int musb_usb_probe(struct udevice *dev)
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct musb_hdrc_platform_data pdata;
 	void *base = dev_read_addr_ptr(dev);
-	struct phy phy;
 	int ret;
 
 	if (!base)
@@ -419,13 +451,14 @@ static int musb_usb_probe(struct udevice *dev)
 	if (IS_ERR(glue->ccm))
 		return PTR_ERR(glue->ccm);
 
-	ret = generic_phy_get_by_name(dev, "usb", &phy);
+	glue->reg_reset0 = (void *)glue->ccm + glue->cfg->off_reset0;
+
+	ret = generic_phy_get_by_name(dev, "usb", &glue->phy);
 	if (ret) {
 		pr_err("failed to get usb PHY\n");
 		return ret;
 	}
 
-	glue->phy = &phy;
 	priv->desc_before_addr = true;
 
 	memset(&pdata, 0, sizeof(pdata));
@@ -444,9 +477,11 @@ static int musb_usb_probe(struct udevice *dev)
 		printf("Allwinner mUSB OTG (Host)\n");
 #else
 	pdata.mode = MUSB_PERIPHERAL;
-	ret = musb_register(&pdata, &glue->dev, base);
-	if (!ret)
-		printf("Allwinner mUSB OTG (Peripheral)\n");
+	host->host = musb_register(&pdata, &glue->dev, base);
+	if (!host->host)
+		return -EIO;
+
+	printf("Allwinner mUSB OTG (Peripheral)\n");
 #endif
 
 	return ret;
@@ -456,29 +491,8 @@ static int musb_usb_remove(struct udevice *dev)
 {
 	struct sunxi_glue *glue = dev_get_priv(dev);
 	struct musb_host_data *host = &glue->mdata;
-	int ret;
-
-	if (generic_phy_valid(glue->phy)) {
-		ret = generic_phy_exit(glue->phy);
-		if (ret) {
-			pr_err("failed to exit %s USB PHY\n", dev->name);
-			return ret;
-		}
-	}
 
 	musb_stop(host->host);
-
-#ifdef CONFIG_SUNXI_GEN_SUN6I
-	clrbits_le32(&glue->ccm->ahb_reset0_cfg, BIT(AHB_GATE_OFFSET_USB0));
-	if (glue->cfg->rst_bit)
-		clrbits_le32(&glue->ccm->ahb_reset0_cfg,
-			     BIT(glue->cfg->rst_bit));
-#endif
-	clrbits_le32(&glue->ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_USB0));
-	if (glue->cfg->clkgate_bit)
-		clrbits_le32(&glue->ccm->ahb_gate0,
-			     BIT(glue->cfg->clkgate_bit));
-
 	free(host->host);
 	host->host = NULL;
 
@@ -487,21 +501,30 @@ static int musb_usb_remove(struct udevice *dev)
 
 static const struct sunxi_musb_config sun4i_a10_cfg = {
 	.config = &musb_config,
+	.has_reset = false,
+};
+
+static const struct sunxi_musb_config sun6i_a31_cfg = {
+	.config = &musb_config,
+	.has_reset = true,
+	.off_reset0 = OFF_SUN6I_AHB_RESET0,
 };
 
 static const struct sunxi_musb_config sun8i_h3_cfg = {
 	.config = &musb_config_h3,
+	.has_reset = true,
 	.rst_bit = 23,
 	.clkgate_bit = 23,
+	.off_reset0 = OFF_SUN6I_AHB_RESET0,
 };
 
 static const struct udevice_id sunxi_musb_ids[] = {
 	{ .compatible = "allwinner,sun4i-a10-musb",
 			.data = (ulong)&sun4i_a10_cfg },
 	{ .compatible = "allwinner,sun6i-a31-musb",
-			.data = (ulong)&sun4i_a10_cfg },
+			.data = (ulong)&sun6i_a31_cfg },
 	{ .compatible = "allwinner,sun8i-a33-musb",
-			.data = (ulong)&sun4i_a10_cfg },
+			.data = (ulong)&sun6i_a31_cfg },
 	{ .compatible = "allwinner,sun8i-h3-musb",
 			.data = (ulong)&sun8i_h3_cfg },
 	{ }

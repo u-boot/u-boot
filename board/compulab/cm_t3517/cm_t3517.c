@@ -74,8 +74,8 @@ static void cm_t3517_musb_init(void)
 			CONF2_REFFREQ_13MHZ | CONF2_SESENDEN |
 			CONF2_VBDTCTEN | CONF2_DATPOL);
 
-	if (musb_register(&cm_t3517_musb_pdata, &cm_t3517_musb_board_data,
-			  (void *)AM35XX_IPSS_USBOTGSS_BASE))
+	if (!musb_register(&cm_t3517_musb_pdata, &cm_t3517_musb_board_data,
+			   (void *)AM35XX_IPSS_USBOTGSS_BASE))
 		printf("Failed initializing AM35x MUSB!\n");
 }
 #else
