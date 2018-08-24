@@ -16,32 +16,16 @@
 
 #if defined(CONFIG_CPU_SH3)
 #define TSTR	0x2
-#define TCNT0	0x8
 #define TCR0	0xc
 #endif /* CONFIG_CPU_SH3 */
 
 #if defined(CONFIG_CPU_SH4) || defined(CONFIG_ARCH_RMOBILE)
 #define TSTR	0x4
-#define TCNT0	0xc
 #define TCR0	0x10
 #endif /* CONFIG_CPU_SH4 */
 
 #define TCR_TPSC	0x07
 #define TSTR_STR0	BIT(0)
-
-unsigned long get_tbclk(void)
-{
-#ifdef CONFIG_RCAR_GEN2
-	return CONFIG_SYS_CLK_FREQ / 8;
-#else
-	return CONFIG_SYS_CLK_FREQ / 4;
-#endif
-}
-
-unsigned long timer_read_counter(void)
-{
-	return ~readl(TMU_BASE + TCNT0);
-}
 
 int timer_init(void)
 {

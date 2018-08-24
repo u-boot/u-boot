@@ -22,7 +22,6 @@
 
 #define CONFIG_ARCH_CPU_INIT
 
-#define CONFIG_TMU_TIMER
 #ifndef CONFIG_PINCTRL_PFC
 #define CONFIG_SH_GPIO_PFC
 #endif
@@ -56,5 +55,11 @@
 #else
 #undef CONFIG_SPI_FLASH_MTD
 #endif
+
+/* Timer */
+#define CONFIG_TMU_TIMER
+#define CONFIG_SYS_TIMER_COUNTS_DOWN
+#define CONFIG_SYS_TIMER_COUNTER	(TMU_BASE + 0xc)	/* TCNT0 */
+#define CONFIG_SYS_TIMER_RATE		(CONFIG_SYS_CLK_FREQ / 8)
 
 #endif	/* __RCAR_GEN2_COMMON_H */
