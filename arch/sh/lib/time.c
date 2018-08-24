@@ -16,6 +16,7 @@
 #include <sh_tmu.h>
 
 #define TCR_TPSC 0x07
+#define CONFIG_SYS_TMU_CLK_DIV	4
 
 static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
 
