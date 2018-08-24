@@ -69,7 +69,6 @@ struct setup_header {
 	__u64	pref_address;
 	__u32	init_size;
 	__u32	handover_offset;
-	__u64   acpi_rsdp_addr;
 } __attribute__((packed));
 
 struct sys_desc_table {
