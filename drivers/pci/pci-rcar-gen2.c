@@ -97,7 +97,7 @@ static int rcar_gen2_pci_addr_valid(pci_dev_t d, uint offset)
 
 	/* Only one EHCI/OHCI device built-in */
 	slot = PCI_DEV(d);
-	if (slot > 2)
+	if (slot != 1 && slot != 2)
 		return -EINVAL;
 
 	/* bridge logic only has registers to 0x40 */
