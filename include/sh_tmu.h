@@ -67,9 +67,4 @@ struct tmu_regs {
 };
 #endif /* CONFIG_CPU_SH4 */
 
-static inline unsigned long get_tmu0_clk_rate(void)
-{
-	return CONFIG_SH_TMU_CLK_FREQ;
-}
-
 #endif	/* __SH_TMU_H */
