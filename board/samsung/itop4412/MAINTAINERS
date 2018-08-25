@@ -1,0 +1,6 @@
+iTOP4412 BOARD
+M:	Wang Xinlu <wangkartx@gmail.com>
+S:	Maintained
+F:	board/samsung/itop4412/
+F:	include/configs/itop4412.h
+F:	configs/itop4412_defconfig

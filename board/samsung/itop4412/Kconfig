@@ -1,0 +1,20 @@
+if TARGET_ITOP4412
+
+config SYS_BOARD
+	default "itop4412"
+
+config SYS_VENDOR
+	default "samsung"
+
+config SYS_CONFIG_NAME
+	default "itop4412"
+
+config ITOP4412
+    bool "TOPEET's iTOP4412 board"
+    default y
+
+config EXYNOS4x12
+    bool "Belong to exynos4x12 SoC"
+    default y
+
+endif
