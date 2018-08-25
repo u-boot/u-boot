@@ -1,0 +1,6 @@
+X4412 BOARD
+M:	Wang Xinlu <wangkartx@gmail.com>
+S:	Maintained
+F:	board/samsung/x4412/
+F:	include/configs/x4412.h
+F:	configs/x4412_defconfig
