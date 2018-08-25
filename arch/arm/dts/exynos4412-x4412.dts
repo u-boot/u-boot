@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * refer to exynos4210-origen.dts
+ *
+ * Samsung's Exynos4412 based X4412 board device tree source
+ *
+ * Copyright (c) 2018 Wang Xinlu <wangkartx@gmail.com>
+ *
+ */
+
+/dts-v1/;
+#include "exynos4412.dtsi"
+
+/ {
+	model = "9tripod X4412 board based on Exynos4412";
+	compatible = "9tripod,x4412", "samsung,exynos4412";
+
+    chose {
+        stdout-path = "/serial@13830000";
+    };
+
+	aliases {
+		serial3 = "/serial@13830000";
+		console = "/serial@13830000";
+	};
+
+    serial@13800000 {
+        status = "disabled";
+    };
+
+    serial@13810000 {
+        status = "disabled";
+    };
+
+    serial@13820000 {
+        status = "disabled";
+    };
+
+    serial@13830000 {
+        status = "okay";
+    };
+};
+
+&sdhci2 {
+	samsung,bus-width = <4>;
+	samsung,timing = <1 2 3>;
+	cd-gpios = <&gpk2 2 0>;
+	status = "okay";
+};
