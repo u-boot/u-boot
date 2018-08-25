@@ -20,23 +20,6 @@
 #define CONFIG_SYS_DEVICE_NULLDEV	1
 
 /*
- * Hardware drivers
- */
-
-/* TWL4030 LED */
-
-/*
- * NS16550 Configuration
- */
-#undef CONFIG_SYS_NS16550_CLK
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
-#define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-
-/* commands to include */
-
-/*
  * Board NAND Info.
  */
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_SW

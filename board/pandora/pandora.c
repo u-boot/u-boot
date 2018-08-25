@@ -13,6 +13,8 @@
  * Texas Instruments, <www.ti.com>
  */
 #include <common.h>
+#include <dm.h>
+#include <ns16550.h>
 #include <twl4030.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
@@ -32,6 +34,18 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONTROL_WKUP_CTRL		0x48002a5c
 #define GPIO_IO_PWRDNZ			(1 << 6)
 #define PBIASLITEVMODE1			(1 << 8)
+
+static const struct ns16550_platdata pandora_serial = {
+	.base = OMAP34XX_UART3,
+	.reg_shift = 2,
+	.clock = V_NS16550_CLK,
+	.fcr = UART_FCR_DEFVAL,
+};
+
+U_BOOT_DEVICE(pandora_uart) = {
+	"ns16550_serial",
+	&pandora_serial
+};
 
 /*
  * Routine: board_init
