@@ -1492,6 +1492,7 @@ efi_status_t efi_setup_loaded_image(
 
 	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
 	info->file_path = file_path;
+	info->system_table = &systab;
 
 	if (device_path) {
 		info->device_handle = efi_dp_find_obj(device_path, NULL);
