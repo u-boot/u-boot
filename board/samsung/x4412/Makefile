@@ -4,7 +4,7 @@
 
 ifdef CONFIG_SPL_BUILD
 # necessary to create built-in.o
-obj-y += exynos_smc.c
+obj-y += exynos_smc.o
 
 hostprogs-y := tools/mkx4412spl
 always := $(hostprogs-y)

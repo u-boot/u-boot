@@ -28,6 +28,14 @@
 #define DMC_OFFSET	0x10000
 
 /*
+ * debug led before debug uart
+ *
+ * @param led   change the state of the led
+ */
+void led_on_early_debug(unsigned int led);
+void led_off_early_debug(unsigned int led);
+
+/*
  * Memory initialization
  *
  * @param reset     Reset PHY during initialization.

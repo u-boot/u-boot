@@ -1,3 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+/*
+ * refer to samsung's uboot-2010.12 source code
+ *
+ * SMC command
+ */
+
 #include <common.h>
 #include <asm/arch/smc.h>
 
@@ -55,17 +62,6 @@ struct ld_image_info {
     union boot_device bootdev;
 };
 
-#define CONFIG_PHY_SDRAM_BASE   (CONFIG_SYS_SDRAM_BASE)
-#define CONFIG_PHY_IRAM_BASE    (0x02020000)
-#define SMC_SECURE_CONTEXT_BASE (CONFIG_PHY_IRAM_BASE + 0x4C00)
-#define CONFIG_PHY_TZSW_BASE    (CONFIG_PHY_IRAM_BASE + 0x8000)
-
-#define SMC_CMD_LOAD_UBOOT  (-230)
-#define SMC_CMD_COLD_BOOT   (-231)
-#define SMC_CMD_WARM_BOOT   (-232)
-
-#define CONFIG_IMAGE_INFO_BASE  (CONFIG_PHY_SDRAM_BASE)
-
 static inline u32 exynos_smc(u32 cmd, u32 arg1, u32 arg2, u32 arg3)
 {
     register u32 reg0 __asm__("r0") = cmd;
@@ -85,11 +81,11 @@ void load_uboot_image(u32 boot_device)
 {
     struct ld_image_info *info_image;
     info_image = (struct ld_image_info *)CONFIG_IMAGE_INFO_BASE;
-    info_image->bootdev.sdmmc.images_pos = UBOOT_POSITION;
-    info_image->bootdev.sdmmc.block_count = UBOOT_BLOCKS;
+    info_image->bootdev.sdmmc.images_pos = UBOOT_START_OFFSET;
+    info_image->bootdev.sdmmc.block_count = UBOOT_SIZE_BLOC_COUNT;
     info_image->bootdev.sdmmc.base_addr = CONFIG_SYS_TEXT_BASE;
     info_image->image_base_addr = CONFIG_SYS_TEXT_BASE;
-    info_image->size = UBOOT_SIZE;
+    info_image->size = COPY_UBOOT_SIZE;
     info_image->secure_context_base = SMC_SECURE_CONTEXT_BASE;
     info_image->signature_size = 0;
 
@@ -100,13 +96,14 @@ void cold_boot(u32 boot_device)
 {
     struct ld_image_info *info_image;
     info_image = (struct ld_image_info *)CONFIG_IMAGE_INFO_BASE;
-    info_image->bootdev.sdmmc.images_pos = TZSW_POSITION;
-    info_image->bootdev.sdmmc.block_count = TZSW_BLOCKS;
-    info_image->bootdev.sdmmc.base_addr = CONFIG_PHY_TZSW_BASE;
-    info_image->image_base_addr = CONFIG_PHY_TZSW_BASE;
-    info_image->size = TZSW_SIZE;
+    info_image->bootdev.sdmmc.images_pos = TZSW_START_OFFSET;
+    info_image->bootdev.sdmmc.block_count = TZSW_SIZE_BLOC_COUNT;
+    info_image->bootdev.sdmmc.base_addr = CONFIG_SYS_TZSW_BASE;
+    info_image->image_base_addr = CONFIG_SYS_TZSW_BASE;
+    info_image->size = COPY_TZSW_SIZE;
     info_image->secure_context_base = SMC_SECURE_CONTEXT_BASE;
     info_image->signature_size = 0;
 
-    exynos_smc(SMC_CMD_COLD_BOOT, boot_device, CONFIG_IMAGE_INFO_BASE, CONFIG_SYS_LOAD_ADDR);
+    exynos_smc(SMC_CMD_COLD_BOOT, boot_device, CONFIG_IMAGE_INFO_BASE,
+            CONFIG_SYS_LOAD_ADDR);
 }

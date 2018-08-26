@@ -26,7 +26,11 @@
 #include <config.h>
 #include <asm/arch/dmc.h>
 #include "common_setup.h"
+#ifdef CONFIG_EXYNOS4x12
+#include "exynos4x12_setup.h"
+#else
 #include "exynos4_setup.h"
+#endif
 
 struct mem_timings mem = {
 	.direct_cmd_msr = {
@@ -92,7 +96,11 @@ static void dmc_init(struct exynos4_dmc *dmc)
 	 * Auto Calibration Start: Enable
 	 */
 	writel(mem.zqcontrol, &dmc->phyzqcontrol);
+#ifdef CONFIG_EXYNOS4x12
+    sdelay(0x100);
+#else
 	sdelay(0x100000);
+#endif
 
 	/*
 	 * Update DLL Information:
@@ -137,29 +145,57 @@ static void dmc_init(struct exynos4_dmc *dmc)
 
 	/* Chip0: NOP Command: Assert and Hold CKE to high level */
 	writel(DIRECT_CMD_NOP, &dmc->directcmd);
+#ifdef CONFIG_EXYNOS4x12
+    sdelay(0x20000);
+#else
 	sdelay(0x100000);
+#endif
 
 	/* Chip0: EMRS2, EMRS3, EMRS, MRS Commands Using Direct Command */
 	dmc_config_mrs(dmc, 0);
+#ifdef CONFIG_EXYNOS4x12
+    sdelay(0x200);
+#else
 	sdelay(0x100000);
+#endif
 
 	/* Chip0: ZQINIT */
 	writel(DIRECT_CMD_ZQ, &dmc->directcmd);
+#ifdef CONFIG_EXYNOS4x12
+    sdelay(0x200);
+#else
 	sdelay(0x100000);
+#endif
 
 	writel((DIRECT_CMD_NOP | DIRECT_CMD_CHIP1_SHIFT), &dmc->directcmd);
+#ifdef CONFIG_EXYNOS4x12
+    sdelay(0x20000);
+#else
 	sdelay(0x100000);
+#endif
 
 	/* Chip1: EMRS2, EMRS3, EMRS, MRS Commands Using Direct Command */
 	dmc_config_mrs(dmc, 1);
+#ifdef CONFIG_EXYNOS4x12
+    sdelay(0x200);
+#else
 	sdelay(0x100000);
+#endif
 
 	/* Chip1: ZQINIT */
 	writel((DIRECT_CMD_ZQ | DIRECT_CMD_CHIP1_SHIFT), &dmc->directcmd);
+#ifdef CONFIG_EXYNOS4x12
+    sdelay(0x200);
+#else
 	sdelay(0x100000);
+#endif
 
 	phy_control_reset(1, dmc);
+#ifdef CONFIG_EXYNOS4x12
+    sdelay(0x200);
+#else
 	sdelay(0x100000);
+#endif
 
 	/* turn on DREX0, DREX1 */
 	writel((mem.concontrol | AREF_EN), &dmc->concontrol);
@@ -175,7 +211,7 @@ void mem_ctrl_init(int reset)
 	 * 0: full_sync
 	 */
 	writel(1, ASYNC_CONFIG);
-#ifdef CONFIG_ORIGEN
+#if defined CONFIG_ORIGEN || defined CONFIG_EXYNOS4x12
 	/* Interleave: 2Bit, Interleave_bit1: 0x15, Interleave_bit0: 0x7 */
 	writel(APB_SFR_INTERLEAVE_CONF_VAL, EXYNOS4_MIU_BASE +
 		APB_SFR_INTERLEAVE_CONF_OFFSET);

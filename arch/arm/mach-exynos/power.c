@@ -162,6 +162,18 @@ static void exynos5_set_ps_hold_ctrl(void)
 			EXYNOS_PS_HOLD_CONTROL_DATA_HIGH);
 }
 
+#ifdef CONFIG_EXYNOS4x12
+static void exynos4x12_set_ps_hold_ctrl(void)
+{
+    struct exynos4x12_power *power =
+        (struct exynos4x12_power *)samsung_get_base_power();
+
+    /* Set PS-Hold high */
+    setbits_le32(&power->ps_hold_control,
+            EXYNOS_PS_HOLD_CONTROL_DATA_HIGH);
+}
+#endif
+
 /*
  * Set ps_hold data driving value high
  * This enables the machine to stay powered on
@@ -172,6 +184,10 @@ void set_ps_hold_ctrl(void)
 {
 	if (cpu_is_exynos5())
 		exynos5_set_ps_hold_ctrl();
+    if (cpu_is_exynos4()) {
+        if (proid_is_exynos4412())
+            exynos4x12_set_ps_hold_ctrl();
+    }
 }
 
 

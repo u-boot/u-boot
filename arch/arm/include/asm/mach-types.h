@@ -5057,4 +5057,6 @@
 #define MACH_TYPE_NASM25               5112
 #define MACH_TYPE_TOMATO               5113
 #define MACH_TYPE_OMAP3_MRC3D          5114
+#define MACH_TYPE_X4412                5115
+#define MACH_TYPE_ITOP4412             5116
 #endif

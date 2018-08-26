@@ -14,6 +14,10 @@
 #include <asm/arch/power.h>
 #include <asm/arch/spl.h>
 #include <asm/arch/spi.h>
+#include <asm/io.h>
+#ifdef CONFIG_X4412
+#include <asm/arch/smc.h>
+#endif
 
 #include "common_setup.h"
 #include "clock_init.h"
@@ -43,6 +47,24 @@ void *get_irom_func(int index)
 {
 	return (void *)*(u32 *)irom_ptr_table[index];
 }
+
+#ifdef CONFIG_X4412
+/*
+ * With secure service, copy uboot ro RAM and coldboot
+ */
+static void copy_uboot_and_coldboot(void)
+{
+    unsigned int bootmode = get_boot_mode();
+    switch (bootmode) {
+        case BOOT_MODE_SD:
+            load_uboot_image(SDMMC_CH2);
+            cold_boot(SDMMC_CH2);
+            break;
+        default:
+            break;
+    }
+}
+#endif
 
 #ifdef CONFIG_USB_BOOTING
 /*
@@ -175,6 +197,7 @@ static void exynos_spi_copy(unsigned int uboot_size, unsigned int uboot_addr)
 }
 #endif
 
+#ifndef CONFIG_X4412
 /*
 * Copy U-Boot from mmc to RAM:
 * COPY_BL2_FNPTR_ADDR: Address in iRAM, which Contains
@@ -256,6 +279,7 @@ void copy_uboot_to_ram(void)
 	if (copy_bl2)
 		copy_bl2(offset, size, CONFIG_SYS_TEXT_BASE);
 }
+#endif
 
 void memzero(void *s, size_t n)
 {
@@ -285,19 +309,25 @@ static void setup_global_data(gd_t *gdp)
 void board_init_f(unsigned long bootflag)
 {
 	__aligned(8) gd_t local_gd;
+#ifndef CONFIG_X4412
 	__attribute__((noreturn)) void (*uboot)(void);
+#endif
 
 	setup_global_data(&local_gd);
 
 	if (do_lowlevel_init())
 		power_exit_wakeup();
 
+#ifdef CONFIG_X4412
+    copy_uboot_and_coldboot();
+#else
 	copy_uboot_to_ram();
 
 	/* Jump to U-Boot image */
 	uboot = (void *)CONFIG_SYS_TEXT_BASE;
 	(*uboot)();
 	/* Never returns Here */
+#endif
 }
 
 /* Place Holders */
@@ -308,3 +338,41 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	while (1)
 		;
 }
+
+#ifdef CONFIG_X4412
+#define GPX1CON     (0x11000C20)
+#define GPX1DAT     (0x11000C24)
+#define GPX2CON     (0x11000C40)
+#define GPX2DAT     (0x11000C44)
+#define DEBUG_LED1  (24)
+#define DEBUG_LED2  (28)
+
+void led_on_early_debug(unsigned int led)
+{
+    uint8_t val;
+
+    val = led & 0x01;
+    if (val) {
+        clrsetbits_le32(GPX1CON, 0xf << DEBUG_LED1, 0x01 << DEBUG_LED1);
+        clrbits_8(GPX1DAT, 1 << (DEBUG_LED1/4));
+    }
+
+    val = led & 0x02;
+    if (val) {
+        clrsetbits_le32(GPX1CON, 0xf << DEBUG_LED2, 0x01 << DEBUG_LED2);
+        clrbits_8(GPX1DAT, 1 << (DEBUG_LED2/4));
+    }
+
+    val = led & 0x04;
+    if (val) {
+        clrsetbits_le32(GPX2CON, 0xf << DEBUG_LED1, 0x01 << DEBUG_LED1);
+        clrbits_8(GPX2DAT, 1 << (DEBUG_LED1/4));
+    }
+
+    val = led & 0x08;
+    if(val) {
+        clrsetbits_le32(GPX2CON, 0xf << DEBUG_LED2, 0x1 << DEBUG_LED2);
+        clrbits_8(GPX2DAT, 1 << (DEBUG_LED2/4));
+    }
+}
+#endif
