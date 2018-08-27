@@ -430,6 +430,14 @@ config SPL_LIBGENERIC_SUPPORT
 	  boards. Enable this option to build the code in lib/ as part of an
 	  SPL build.
 
+config SPL_DM_MAILBOX
+	bool "Support Mailbox"
+	help
+	  Enable support for Mailbox within SPL. This enable the inter
+	  processor communication protocols tobe used within SPL. Enable
+	  this option to build the drivers in drivers/mailbox as part of
+	  SPL build.
+
 config SPL_MMC_SUPPORT
 	bool "Support MMC"
 	depends on MMC
