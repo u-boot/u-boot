@@ -15,7 +15,7 @@ struct unit_test;
  * @name:	Category name
  * @tests:	List of tests to run
  * @n_ents:	Number of tests in @tests
- * @argc:	Argument count provided. Must be <= 1. If this is 1 then all
+ * @argc:	Argument count provided. Must be >= 1. If this is 1 then all
  *		tests are run, otherwise only the one named @argv[1] is run.
  * @argv:	Arguments: argv[1] is the test to run (if @argc >= 2)
  * @return 0 if OK, CMD_RET_FAILURE on failure
