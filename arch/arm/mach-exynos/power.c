@@ -171,6 +171,17 @@ static void exynos4x12_set_ps_hold_ctrl(void)
     /* Set PS-Hold high */
     setbits_le32(&power->ps_hold_control,
             EXYNOS_PS_HOLD_CONTROL_DATA_HIGH);
+
+#ifdef CONFIG_ITOP4412
+    /*
+     * 0x0 = Disables Pull-up/Pull-down
+     * 0x1 = Enables Pull-down
+     * 0x2 = Reserved
+     * 0x3 = Enables Pull-up
+     */
+    /* except GPX0_0, all disables PU/PD */
+    writel(0x3, (unsigned int *)0x11000C08);
+#endif
 }
 #endif
 
@@ -184,10 +195,12 @@ void set_ps_hold_ctrl(void)
 {
 	if (cpu_is_exynos5())
 		exynos5_set_ps_hold_ctrl();
+#ifdef CONFIG_EXYNOS4x12
     if (cpu_is_exynos4()) {
         if (proid_is_exynos4412())
             exynos4x12_set_ps_hold_ctrl();
     }
+#endif
 }
 
 

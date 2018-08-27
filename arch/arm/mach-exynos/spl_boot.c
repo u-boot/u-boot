@@ -207,7 +207,11 @@ void copy_uboot_to_ram(void)
 {
 	unsigned int bootmode = BOOT_MODE_OM;
 
+#ifdef CONFIG_EXYNOS4x12
+    u32 (*copy_uboot)(u32 offset, u32 nblock, u32 dst) = NULL;
+#else
 	u32 (*copy_bl2)(u32 offset, u32 nblock, u32 dst) = NULL;
+#endif
 	u32 offset = 0, size = 0;
 #ifdef CONFIG_SPI_BOOTING
 	struct spl_machine_param *param = spl_get_machine_params();
@@ -244,9 +248,15 @@ void copy_uboot_to_ram(void)
 		break;
 #endif
 	case BOOT_MODE_SD:
+#ifdef CONFIG_EXYNOS4x12
+        offset = UBOOT_START_OFFSET;
+        size = UBOOT_SIZE_BLOC_COUNT;
+        copy_uboot = get_irom_func(MMC_INDEX);
+#else
 		offset = BL2_START_OFFSET;
 		size = BL2_SIZE_BLOC_COUNT;
 		copy_bl2 = get_irom_func(MMC_INDEX);
+#endif
 		break;
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	case BOOT_MODE_EMMC:
@@ -276,8 +286,13 @@ void copy_uboot_to_ram(void)
 		break;
 	}
 
+#ifdef CONFIG_EXYNOS4x12
+    if (copy_uboot)
+        copy_uboot(offset, size, CONFIG_SYS_TEXT_BASE);
+#else
 	if (copy_bl2)
 		copy_bl2(offset, size, CONFIG_SYS_TEXT_BASE);
+#endif
 }
 #endif
 
