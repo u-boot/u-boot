@@ -22,6 +22,15 @@ config K3_SYSTEM_CONTROLLER
 	help
 	  Say 'y' here to add support for TI' K3 System Controller.
 
+config REMOTEPROC_K3
+	bool "Support for TI's K3 based remoteproc driver"
+	select REMOTEPROC
+	depends on DM
+	depends on ARCH_K3
+	depends on OF_CONTROL
+	help
+	  Say 'y' here to add support for TI' K3 remoteproc driver.
+
 config REMOTEPROC_SANDBOX
 	bool "Support for Test processor for Sandbox"
 	select REMOTEPROC
