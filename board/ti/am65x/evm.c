@@ -54,3 +54,15 @@ int dram_init_banksize(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+#ifdef CONFIG_TARGET_AM654_A53_EVM
+	if (!strcmp(name, "k3-am654-base-board"))
+		return 0;
+#endif
+
+	return -1;
+}
+#endif

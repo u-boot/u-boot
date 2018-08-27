@@ -552,6 +552,8 @@ dtb-$(CONFIG_TARGET_STM32MP1) += \
 	stm32mp157c-ed1.dtb \
 	stm32mp157c-ev1.dtb
 
+dtb-$(CONFIG_SOC_K3_AM6) += k3-am654-base-board.dtb
+
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here
