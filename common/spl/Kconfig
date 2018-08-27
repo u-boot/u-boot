@@ -642,6 +642,12 @@ config SPL_RAM_DEVICE
 	  be already in memory when SPL takes over, e.g. loaded by the boot
 	  ROM.
 
+config SPL_REMOTEPROC
+	bool "Support REMOTEPROCS"
+	help
+	  Enable support for REMOTEPROCs in SPL. This permits to load
+	  a remote processor firmware in SPL.
+
 config SPL_RTC_SUPPORT
 	bool "Support RTC drivers"
 	help
