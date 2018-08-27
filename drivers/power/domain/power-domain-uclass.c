@@ -28,7 +28,8 @@ static int power_domain_of_xlate_default(struct power_domain *power_domain,
 	return 0;
 }
 
-int power_domain_get(struct udevice *dev, struct power_domain *power_domain)
+int power_domain_get_by_index(struct udevice *dev,
+			      struct power_domain *power_domain, int index)
 {
 	struct ofnode_phandle_args args;
 	int ret;
@@ -38,7 +39,8 @@ int power_domain_get(struct udevice *dev, struct power_domain *power_domain)
 	debug("%s(dev=%p, power_domain=%p)\n", __func__, dev, power_domain);
 
 	ret = dev_read_phandle_with_args(dev, "power-domains",
-					 "#power-domain-cells", 0, 0, &args);
+					 "#power-domain-cells", 0, index,
+					 &args);
 	if (ret) {
 		debug("%s: dev_read_phandle_with_args failed: %d\n",
 		      __func__, ret);
@@ -71,6 +73,11 @@ int power_domain_get(struct udevice *dev, struct power_domain *power_domain)
 	}
 
 	return 0;
+}
+
+int power_domain_get(struct udevice *dev, struct power_domain *power_domain)
+{
+	return power_domain_get_by_index(dev, power_domain, 0);
 }
 
 int power_domain_free(struct power_domain *power_domain)
