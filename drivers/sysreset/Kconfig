@@ -36,6 +36,13 @@ config SYSRESET_PSCI
 	  Enable PSCI SYSTEM_RESET function call.  To use this, PSCI firmware
 	  must be running on your system.
 
+config SYSRESET_TI_SCI
+	bool "TI System Control Interface (TI SCI) system reset driver"
+	depends on TI_SCI_PROTOCOL
+	help
+	  This enables the system reset driver support over TI System Control
+	  Interface available on some new TI's SoCs.
+
 endif
 
 config SYSRESET_SYSCON
