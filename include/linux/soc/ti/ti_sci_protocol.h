@@ -30,10 +30,48 @@ struct ti_sci_version_info {
 struct ti_sci_handle;
 
 /**
+ * struct ti_sci_board_ops - Board config operations
+ * @board_config: Command to set the board configuration
+ *		  Returns 0 for successful exclusive request, else returns
+ *		  corresponding error message.
+ * @board_config_rm: Command to set the board resource management
+ *		  configuration
+ *		  Returns 0 for successful exclusive request, else returns
+ *		  corresponding error message.
+ * @board_config_security: Command to set the board security configuration
+ *		  Returns 0 for successful exclusive request, else returns
+ *		  corresponding error message.
+ * @board_config_pm: Command to trigger and set the board power and clock
+ *		  management related configuration
+ *		  Returns 0 for successful exclusive request, else returns
+ *		  corresponding error message.
+ */
+struct ti_sci_board_ops {
+	int (*board_config)(const struct ti_sci_handle *handle,
+			    u64 addr, u32 size);
+	int (*board_config_rm)(const struct ti_sci_handle *handle,
+			       u64 addr, u32 size);
+	int (*board_config_security)(const struct ti_sci_handle *handle,
+				     u64 addr, u32 size);
+	int (*board_config_pm)(const struct ti_sci_handle *handle,
+			       u64 addr, u32 size);
+};
+
+/**
+ * struct ti_sci_ops - Function support for TI SCI
+ * @board_ops:	Miscellaneous operations
+ */
+struct ti_sci_ops {
+	struct ti_sci_board_ops board_ops;
+};
+
+/**
  * struct ti_sci_handle - Handle returned to TI SCI clients for usage.
+ * @ops:	operations that are made available to TI SCI clients
  * @version:	structure containing version information
  */
 struct ti_sci_handle {
+	struct ti_sci_ops ops;
 	struct ti_sci_version_info version;
 };
 

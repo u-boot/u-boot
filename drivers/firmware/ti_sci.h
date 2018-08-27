@@ -22,6 +22,9 @@
 #define TI_SCI_MSG_GOODBYE		0x0004
 #define TI_SCI_MSG_SYS_RESET		0x0005
 #define TI_SCI_MSG_BOARD_CONFIG		0x000b
+#define TI_SCI_MSG_BOARD_CONFIG_RM	0x000c
+#define TI_SCI_MSG_BOARD_CONFIG_SECURITY  0x000d
+#define TI_SCI_MSG_BOARD_CONFIG_PM	0x000e
 
 /**
  * struct ti_sci_msg_hdr - Generic Message Header for All messages and responses
@@ -75,6 +78,24 @@ struct ti_sci_msg_resp_version {
 	u16 firmware_revision;
 	u8 abi_major;
 	u8 abi_minor;
+} __packed;
+
+/**
+ * struct ti_sci_msg_board_config - Board configuration message
+ * @hdr:		Generic Header
+ * @boardcfgp_low:	Lower 32 bit of the pointer pointing to the board
+ *			configuration data
+ * @boardcfgp_high:	Upper 32 bit of the pointer pointing to the board
+ *			configuration data
+ * @boardcfg_size:	Size of board configuration data object
+ * Request type is TI_SCI_MSG_BOARD_CONFIG, responded with a generic
+ * ACK/NACK message.
+ */
+struct ti_sci_msg_board_config {
+	struct ti_sci_msg_hdr hdr;
+	u32 boardcfgp_low;
+	u32 boardcfgp_high;
+	u16 boardcfg_size;
 } __packed;
 
 #endif /* __TI_SCI_H */

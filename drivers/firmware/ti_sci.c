@@ -276,6 +276,142 @@ static inline bool ti_sci_is_response_ack(void *r)
 }
 
 /**
+ * cmd_set_board_config_using_msg() - Common command to send board configuration
+ *                                    message
+ * @handle:	pointer to TI SCI handle
+ * @msg_type:	One of the TISCI message types to set board configuration
+ * @addr:	Address where the board config structure is located
+ * @size:	Size of the board config structure
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static int cmd_set_board_config_using_msg(const struct ti_sci_handle *handle,
+					  u16 msg_type, u64 addr, u32 size)
+{
+	struct ti_sci_msg_board_config req;
+	struct ti_sci_msg_hdr *resp;
+	struct ti_sci_info *info;
+	struct ti_sci_xfer *xfer;
+	int ret = 0;
+
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+	if (!handle)
+		return -EINVAL;
+
+	info = handle_to_ti_sci_info(handle);
+
+	xfer = ti_sci_setup_one_xfer(info, msg_type,
+				     TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				     (u32 *)&req, sizeof(req), sizeof(*resp));
+	if (IS_ERR(xfer)) {
+		ret = PTR_ERR(xfer);
+		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
+		return ret;
+	}
+	req.boardcfgp_high = (addr >> 32) & 0xffffffff;
+	req.boardcfgp_low = addr & 0xffffffff;
+	req.boardcfg_size = size;
+
+	ret = ti_sci_do_xfer(info, xfer);
+	if (ret) {
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
+		return ret;
+	}
+
+	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
+
+	if (!ti_sci_is_response_ack(resp))
+		return -ENODEV;
+
+	return ret;
+}
+
+/**
+ * ti_sci_cmd_set_board_config() - Command to send board configuration message
+ * @handle:	pointer to TI SCI handle
+ * @addr:	Address where the board config structure is located
+ * @size:	Size of the board config structure
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static int ti_sci_cmd_set_board_config(const struct ti_sci_handle *handle,
+				       u64 addr, u32 size)
+{
+	return cmd_set_board_config_using_msg(handle,
+					      TI_SCI_MSG_BOARD_CONFIG,
+					      addr, size);
+}
+
+/**
+ * ti_sci_cmd_set_board_config_rm() - Command to send board resource
+ *				      management configuration
+ * @handle:	pointer to TI SCI handle
+ * @addr:	Address where the board RM config structure is located
+ * @size:	Size of the RM config structure
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static
+int ti_sci_cmd_set_board_config_rm(const struct ti_sci_handle *handle,
+				   u64 addr, u32 size)
+{
+	return cmd_set_board_config_using_msg(handle,
+					      TI_SCI_MSG_BOARD_CONFIG_RM,
+					      addr, size);
+}
+
+/**
+ * ti_sci_cmd_set_board_config_security() - Command to send board security
+ *					    configuration message
+ * @handle:	pointer to TI SCI handle
+ * @addr:	Address where the board security config structure is located
+ * @size:	Size of the security config structure
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static
+int ti_sci_cmd_set_board_config_security(const struct ti_sci_handle *handle,
+					 u64 addr, u32 size)
+{
+	return cmd_set_board_config_using_msg(handle,
+					      TI_SCI_MSG_BOARD_CONFIG_SECURITY,
+					      addr, size);
+}
+
+/**
+ * ti_sci_cmd_set_board_config_pm() - Command to send board power and clock
+ *				      configuration message
+ * @handle:	pointer to TI SCI handle
+ * @addr:	Address where the board PM config structure is located
+ * @size:	Size of the PM config structure
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static int ti_sci_cmd_set_board_config_pm(const struct ti_sci_handle *handle,
+					  u64 addr, u32 size)
+{
+	return cmd_set_board_config_using_msg(handle,
+					      TI_SCI_MSG_BOARD_CONFIG_PM,
+					      addr, size);
+}
+
+/*
+ * ti_sci_setup_ops() - Setup the operations structures
+ * @info:	pointer to TISCI pointer
+ */
+static void ti_sci_setup_ops(struct ti_sci_info *info)
+{
+	struct ti_sci_ops *ops = &info->handle.ops;
+	struct ti_sci_board_ops *bops = &ops->board_ops;
+
+	bops->board_config = ti_sci_cmd_set_board_config;
+	bops->board_config_rm = ti_sci_cmd_set_board_config_rm;
+	bops->board_config_security = ti_sci_cmd_set_board_config_security;
+	bops->board_config_pm = ti_sci_cmd_set_board_config_pm;
+}
+
+/**
  * ti_sci_get_handle_from_sysfw() - Get the TI SCI handle of the SYSFW
  * @dev:	Pointer to the SYSFW device
  *
@@ -418,6 +554,7 @@ static int ti_sci_probe(struct udevice *dev)
 	info->seq = 0xA;
 
 	list_add_tail(&info->list, &ti_sci_list);
+	ti_sci_setup_ops(info);
 
 	ret = ti_sci_cmd_get_revision(&info->handle);
 
