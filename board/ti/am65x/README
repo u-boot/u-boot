@@ -1,0 +1,141 @@
+Introduction:
+-------------
+The AM65x family of SoCs is the first device family from K3 Multicore
+SoC architecture, targeted for broad market and industrial control with
+aim to meet the complex processing needs of modern embedded products.
+
+The device is built over three domains, each containing specific processing
+cores, voltage domains and peripherals:
+1. Wake-up (WKUP) domain:
+	- Device Management and Security Controller (DMSC)
+2. Microcontroller (MCU) domain:
+	- Dual Core ARM Cortex-R5F processor
+3. MAIN domain:
+	- Quad core 64-bit ARM Cortex-A53
+
+More info can be found in TRM: http://www.ti.com/lit/pdf/spruid7
+
+Boot Flow:
+----------
+On AM65x family devices, ROM supports boot only via MCU(R5). This means that
+bootloader has to run on R5 core. In order to meet this constraint, and for
+the following reasons the boot flow is designed as mentioned:
+1. Need to move away from R5 asap, so that we want to start *any*
+firmware on the r5 cores like.... autosar can be loaded to receive CAN
+response and other safety operations to be started. This operation is
+very time critical and is applicable for all automotive use cases.
+2. U-Boot on A53 should start other remotecores for various
+applications. This should happen before running Linux.
+3. In production boot flow, we might not like to use full u-boot,
+instead use Flacon boot flow to reduce boot time.
+
++------------------------------------------------------------------------+
+|        DMSC            |         R5            |        A53            |
++------------------------------------------------------------------------+
+|    +--------+          |                       |                       |
+|    |  Reset |          |                       |                       |
+|    +--------+          |                       |                       |
+|         :              |                       |                       |
+|    +--------+          |   +-----------+       |                       |
+|    | *rom*  |----------|-->| Reset rls |       |                       |
+|    +--------+          |   +-----------+       |                       |
+|    |        |          |         :             |                       |
+|    |  rom   |          |         :             |                       |
+|    |services|          |         :             |                       |
+|    |        |          |   +-------------+     |                       |
+|    |        |          |   |  *R5 rom*   |     |                       |
+|    |        |          |   +-------------+     |                       |
+|    |        |<---------|---|Load and auth|     |                       |
+|    |        |          |   | tiboot3.bin |     |                       |
+|    |        |          |   +-------------+     |                       |
+|    |        |          |         :             |                       |
+|    |        |          |         :             |                       |
+|    |        |          |         :             |                       |
+|    |        |          |   +-------------+     |                       |
+|    | Start  |          |   |  *R5 SPL*   |     |                       |
+|    | System |          |   +-------------+     |                       |
+|    |Firmware|<---------|---|Load and auth|     |                       |
+|    +--------+          |   |  sysfw bin  |     |                       |
+|        :               |   +-------------+     |                       |
+|    +---------+         |   |     DDR     |     |                       |
+|    | *SYSFW* |         |   |    config   |     |                       |
+|    +---------+         |   +-------------+     |                       |
+|    |         |<--------|---|    Load     |     |                       |
+|    |         |         |   |  tispl.bin  |     |                       |
+|    |         |         |   +-------------+     |                       |
+|    |         |<--------|---| Start A53   |     |                       |
+|    |         |         |   |  and Reset  |     |                       |
+|    |         |         |   +-------------+     |                       |
+|    |         |         |                       |     +-----------+     |
+|    |         |---------|-----------------------|---->| Reset rls |     |
+|    |         |         |                       |     +-----------+     |
+|    |  DMSC   |         |                       |          :            |
+|    |Services |         |                       |     +-----------+     |
+|    |         |<--------|-----------------------|---->|*ATF/OPTEE*|     |
+|    |         |         |                       |     +-----------+     |
+|    |         |         |                       |          :            |
+|    |         |         |                       |     +-----------+     |
+|    |         |<--------|-----------------------|---->| *A53 SPL* |     |
+|    |         |         |                       |     +-----------+     |
+|    |         |         |                       |     |   Load    |     |
+|    |         |         |                       |     | u-boot.img|     |
+|    |         |         |                       |     +-----------+     |
+|    |         |         |                       |          :            |
+|    |         |         |                       |     +-----------+     |
+|    |         |<--------|-----------------------|---->| *u-boot*  |     |
+|    |         |         |                       |     +-----------+     |
+|    |         |         |                       |     |  prompt   |     |
+|    |         |         |                       |     +-----------+     |
+|    +---------+         |                       |                       |
+|                        |                       |                       |
++------------------------------------------------------------------------+
+
+- Here DMSC acts as master and provides all the critical services. R5/A53
+requests DMSC to get these services done as shown in the above diagram.
+
+Sources:
+--------
+1. SYSFW:
+	System Firmware repo is closed source and the binaries are delivered
+	to users with NDA. Please contact TI to get the System Firmware
+	Binary named ti-sci-firmware-am6x.bin that runs on AM65x SoC.
+
+2. ATF:
+	Tree: https://github.com/ARM-software/arm-trusted-firmware.git
+	Branch: master
+
+3. OPTEE:
+	Tree: https://github.com/OP-TEE/optee_os.git
+	Branch: master
+
+4. U-Boot:
+	Tree: http://git.denx.de/u-boot.git
+	Branch: master
+
+Build procedure:
+----------------
+1. SYSFW:
+	ROM expects a signed binary that contains the X509 certificate. So
+the binary ti-sci-firmware-am6x.bin cannot be uses as-is and needs to be signed.
+Contact TI on the procedure to sign the system firmware binary.
+
+2. ATF:
+$ make CROSS_COMPILE=aarch64-linux-gnu- ARCH=aarch64 PLAT=k3 TARGET_BOARD=generic SPD=opteed
+
+3. OPTEE:
+$ make PLATFORM=k3-am65x CFG_ARM64_core=y
+
+4. U-Boot:
+
+4.1. R5:
+	TBD.
+
+4.2. A53:
+$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- am65x_evm_a53_defconfig O=/tmp/a53
+$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu-  ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager.bin O=/tmp/a53
+
+Target Images
+--------------
+Copy the below images to an SD card and boot:
+- tiboot3.bin from step 4.1
+- tispl.bin, u-boot.img from 4.2

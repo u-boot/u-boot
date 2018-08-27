@@ -47,4 +47,5 @@ config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	  Address at which ROM stores the value which determines if SPL
 	  is booted up by primary boot media or secondary boot media.
 
+source "board/ti/am65x/Kconfig"
 endif
