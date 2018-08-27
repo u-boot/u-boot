@@ -207,6 +207,15 @@ int reset_deassert(struct reset_ctl *reset_ctl);
 int reset_deassert_bulk(struct reset_ctl_bulk *bulk);
 
 /**
+ * rst_status - Check reset signal status.
+ *
+ * @reset_ctl:	The reset signal to check.
+ * @return 0 if deasserted, positive if asserted, or a negative
+ *           error code.
+ */
+int reset_status(struct reset_ctl *reset_ctl);
+
+/**
  * reset_release_all - Assert/Free an array of previously requested resets.
  *
  * For each reset contained in the reset array, this function will check if
@@ -277,6 +286,11 @@ static inline int reset_deassert(struct reset_ctl *reset_ctl)
 static inline int reset_deassert_bulk(struct reset_ctl_bulk *bulk)
 {
 	return 0;
+}
+
+static inline int reset_status(struct reset_ctl *reset_ctl)
+{
+	return -ENOTSUPP;
 }
 
 static inline int reset_release_all(struct reset_ctl *reset_ctl, int count)

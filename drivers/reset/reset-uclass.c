@@ -192,6 +192,15 @@ int reset_deassert_bulk(struct reset_ctl_bulk *bulk)
 	return 0;
 }
 
+int reset_status(struct reset_ctl *reset_ctl)
+{
+	struct reset_ops *ops = reset_dev_ops(reset_ctl->dev);
+
+	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
+
+	return ops->rst_status(reset_ctl);
+}
+
 int reset_release_all(struct reset_ctl *reset_ctl, int count)
 {
 	int i, ret;
