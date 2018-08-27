@@ -13,6 +13,15 @@ config REMOTEPROC
 	depends on DM
 
 # Please keep the configuration alphabetically sorted.
+config K3_SYSTEM_CONTROLLER
+	bool "Support for TI' K3 System Controller"
+	select REMOTEPROC
+	depends on DM
+	depends on ARCH_K3
+	depends on OF_CONTROL
+	help
+	  Say 'y' here to add support for TI' K3 System Controller.
+
 config REMOTEPROC_SANDBOX
 	bool "Support for Test processor for Sandbox"
 	select REMOTEPROC
