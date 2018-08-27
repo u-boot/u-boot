@@ -68,6 +68,10 @@ void fdt_fixup_icid(void *blob);
 #define SET_DEBUG_ICID(streamid) \
 	SET_SCFG_ICID(NULL, streamid, debug_icid, 0)
 
+#define SET_QE_ICID(streamid) \
+	SET_SCFG_ICID("fsl,qe", streamid, qe_icid,\
+		QE_BASE_ADDR)
+
 #define SET_QMAN_ICID(streamid) \
 	SET_ICID_ENTRY("fsl,qman", streamid, streamid, \
 		offsetof(struct ccsr_qman, liodnr) + \
