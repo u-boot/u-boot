@@ -19,7 +19,11 @@
  * for the non-boot0 case or by a boot0-header.
  */
         .macro ARM_VECTORS
+#ifdef CONFIG_ARCH_K3
+	ldr     pc, _reset
+#else
 	b	reset
+#endif
 	ldr	pc, _undefined_instruction
 	ldr	pc, _software_interrupt
 	ldr	pc, _prefetch_abort
@@ -94,6 +98,7 @@ _start:
  *************************************************************************
  */
 
+	.globl  _reset
 	.globl	_undefined_instruction
 	.globl	_software_interrupt
 	.globl	_prefetch_abort
@@ -102,6 +107,9 @@ _start:
 	.globl	_irq
 	.globl	_fiq
 
+#ifdef CONFIG_ARCH_K3
+_reset:			.word reset
+#endif
 _undefined_instruction:	.word undefined_instruction
 _software_interrupt:	.word software_interrupt
 _prefetch_abort:	.word prefetch_abort
