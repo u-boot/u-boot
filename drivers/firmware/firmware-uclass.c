@@ -7,4 +7,7 @@
 UCLASS_DRIVER(firmware) = {
 	.id		= UCLASS_FIRMWARE,
 	.name		= "firmware",
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	.post_bind	= dm_scan_fdt_dev,
+#endif
 };
