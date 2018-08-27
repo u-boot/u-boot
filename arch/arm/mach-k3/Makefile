@@ -4,3 +4,4 @@
 #	Lokesh Vutla <lokeshvutla@ti.com>
 
 obj-$(CONFIG_SOC_K3_AM6) += am6_init.o
+obj-$(CONFIG_ARM64) += arm64-mmu.o
