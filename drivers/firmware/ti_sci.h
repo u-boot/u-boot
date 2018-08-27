@@ -96,6 +96,17 @@ struct ti_sci_msg_resp_version {
 } __packed;
 
 /**
+ * struct ti_sci_msg_req_reboot - Reboot the SoC
+ * @hdr:	Generic Header
+ *
+ * Request type is TI_SCI_MSG_SYS_RESET, responded with a generic
+ * ACK/NACK message.
+ */
+struct ti_sci_msg_req_reboot {
+	struct ti_sci_msg_hdr hdr;
+} __packed;
+
+/**
  * struct ti_sci_msg_board_config - Board configuration message
  * @hdr:		Generic Header
  * @boardcfgp_low:	Lower 32 bit of the pointer pointing to the board

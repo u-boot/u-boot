@@ -213,15 +213,27 @@ struct ti_sci_clk_ops {
 };
 
 /**
+ * struct ti_sci_core_ops - SoC Core Operations
+ * @reboot_device: Reboot the SoC
+ *		Returns 0 for successful request(ideally should never return),
+ *		else returns corresponding error value.
+ */
+struct ti_sci_core_ops {
+	int (*reboot_device)(const struct ti_sci_handle *handle);
+};
+
+/**
  * struct ti_sci_ops - Function support for TI SCI
  * @board_ops:	Miscellaneous operations
  * @dev_ops:	Device specific operations
  * @clk_ops:	Clock specific operations
+ * @core_ops:	Core specific operations
  */
 struct ti_sci_ops {
 	struct ti_sci_board_ops board_ops;
 	struct ti_sci_dev_ops dev_ops;
 	struct ti_sci_clk_ops clk_ops;
+	struct ti_sci_core_ops core_ops;
 };
 
 /**
