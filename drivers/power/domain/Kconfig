@@ -38,4 +38,11 @@ config TEGRA186_POWER_DOMAIN
 	  Enable support for manipulating Tegra's on-SoC power domains via IPC
 	  requests to the BPMP (Boot and Power Management Processor).
 
+config TI_SCI_POWER_DOMAIN
+	bool "Enable the TI SCI-based power domain driver"
+	depends on POWER_DOMAIN && TI_SCI_PROTOCOL
+	help
+	  Generic power domain implementation for TI devices implementing the
+	  TI SCI protocol.
+
 endmenu
