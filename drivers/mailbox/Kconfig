@@ -24,4 +24,14 @@ config TEGRA_HSP
 	  This enables support for the NVIDIA Tegra HSP Hw module, which
 	  implements doorbells, mailboxes, semaphores, and shared interrupts.
 
+config K3_SEC_PROXY
+	bool "Texas Instruments K3 Secure Proxy Driver"
+	depends on DM_MAILBOX && ARCH_K3
+	help
+	  An implementation of Secure proxy slave driver for K3 SoCs from
+	  Texas Instruments. Secure proxy is a communication entity mainly
+	  used for communication between multiple processors with the SoC.
+	  Select this driver if your platform has support for this hardware
+	  block.
+
 endmenu
