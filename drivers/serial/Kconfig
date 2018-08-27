@@ -625,6 +625,15 @@ config MSM_SERIAL
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
 
+config OMAP_SERIAL
+	bool "Support for OMAP specific UART"
+	depends on DM_SERIAL
+	default y if ARCH_OMAP2PLUS
+	select SYS_NS16550
+	help
+	  If you have an TI based SoC and want to use the on-chip serial
+	  port, say Y to this option. If unsure say N.
+
 config OWL_SERIAL
 	bool "Actions Semi OWL UART"
 	depends on DM_SERIAL && ARCH_OWL
