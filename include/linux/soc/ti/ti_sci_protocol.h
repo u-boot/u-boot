@@ -223,17 +223,54 @@ struct ti_sci_core_ops {
 };
 
 /**
+ * struct ti_sci_proc_ops - Processor specific operations.
+ *
+ * @proc_request: Request for controlling a physical processor.
+ *		The requesting host should be in the processor access list.
+ * @proc_release: Relinquish a physical processor control
+ * @proc_handover: Handover a physical processor control to another host
+ *		   in the permitted list.
+ * @set_proc_boot_cfg: Base configuration of the processor
+ * @set_proc_boot_ctrl: Setup limited control flags in specific cases.
+ * @proc_auth_boot_image:
+ * @get_proc_boot_status: Get the state of physical processor
+ *
+ * NOTE: for all these functions, the following parameters are generic in
+ * nature:
+ * -handle:	Pointer to TISCI handle as retrieved by *ti_sci_get_handle
+ * -pid:	Processor ID
+ *
+ */
+struct ti_sci_proc_ops {
+	int (*proc_request)(const struct ti_sci_handle *handle, u8 pid);
+	int (*proc_release)(const struct ti_sci_handle *handle, u8 pid);
+	int (*proc_handover)(const struct ti_sci_handle *handle, u8 pid,
+			     u8 hid);
+	int (*set_proc_boot_cfg)(const struct ti_sci_handle *handle, u8 pid,
+				 u64 bv, u32 cfg_set, u32 cfg_clr);
+	int (*set_proc_boot_ctrl)(const struct ti_sci_handle *handle, u8 pid,
+				  u32 ctrl_set, u32 ctrl_clr);
+	int (*proc_auth_boot_image)(const struct ti_sci_handle *handle, u8 pid,
+				    u64 caddr);
+	int (*get_proc_boot_status)(const struct ti_sci_handle *handle, u8 pid,
+				    u64 *bv, u32 *cfg_flags, u32 *ctrl_flags,
+				    u32 *sts_flags);
+};
+
+/**
  * struct ti_sci_ops - Function support for TI SCI
  * @board_ops:	Miscellaneous operations
  * @dev_ops:	Device specific operations
  * @clk_ops:	Clock specific operations
  * @core_ops:	Core specific operations
+ * @proc_ops:	Processor specific operations
  */
 struct ti_sci_ops {
 	struct ti_sci_board_ops board_ops;
 	struct ti_sci_dev_ops dev_ops;
 	struct ti_sci_clk_ops clk_ops;
 	struct ti_sci_core_ops core_ops;
+	struct ti_sci_proc_ops proc_ops;
 };
 
 /**

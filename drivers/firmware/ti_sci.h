@@ -41,6 +41,15 @@
 #define TI_SCI_MSG_QUERY_CLOCK_FREQ	0x010d
 #define TI_SCI_MSG_GET_CLOCK_FREQ	0x010e
 
+/* Processor Control Messages */
+#define TISCI_MSG_PROC_REQUEST		0xc000
+#define TISCI_MSG_PROC_RELEASE		0xc001
+#define TISCI_MSG_PROC_HANDOVER		0xc005
+#define TISCI_MSG_SET_PROC_BOOT_CONFIG	0xc100
+#define TISCI_MSG_SET_PROC_BOOT_CTRL	0xc101
+#define TISCI_MSG_PROC_AUTH_BOOT_IMIAGE	0xc120
+#define TISCI_MSG_GET_PROC_BOOT_STATUS	0xc400
+
 /**
  * struct ti_sci_msg_hdr - Generic Message Header for All messages and responses
  * @type:	Type of messages: One of TI_SCI_MSG* values
@@ -494,6 +503,178 @@ struct ti_sci_msg_req_get_clock_freq {
 struct ti_sci_msg_resp_get_clock_freq {
 	struct ti_sci_msg_hdr hdr;
 	u64 freq_hz;
+} __packed;
+
+#define TISCI_ADDR_LOW_MASK		GENMASK_ULL(31, 0)
+#define TISCI_ADDR_HIGH_MASK		GENMASK_ULL(63, 32)
+#define TISCI_ADDR_HIGH_SHIFT		32
+
+/**
+ * struct ti_sci_msg_req_proc_request - Request a processor
+ *
+ * @hdr:		Generic Header
+ * @processor_id:	ID of processor
+ *
+ * Request type is TISCI_MSG_PROC_REQUEST, response is a generic ACK/NACK
+ * message.
+ */
+struct ti_sci_msg_req_proc_request {
+	struct ti_sci_msg_hdr hdr;
+	u8 processor_id;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_proc_release - Release a processor
+ *
+ * @hdr:		Generic Header
+ * @processor_id:	ID of processor
+ *
+ * Request type is TISCI_MSG_PROC_RELEASE, response is a generic ACK/NACK
+ * message.
+ */
+struct ti_sci_msg_req_proc_release {
+	struct ti_sci_msg_hdr hdr;
+	u8 processor_id;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_proc_handover - Handover a processor to a host
+ *
+ * @hdr:		Generic Header
+ * @processor_id:	ID of processor
+ * @host_id:		New Host we want to give control to
+ *
+ * Request type is TISCI_MSG_PROC_HANDOVER, response is a generic ACK/NACK
+ * message.
+ */
+struct ti_sci_msg_req_proc_handover {
+	struct ti_sci_msg_hdr hdr;
+	u8 processor_id;
+	u8 host_id;
+} __packed;
+
+/* A53 Config Flags */
+#define PROC_BOOT_CFG_FLAG_ARMV8_DBG_EN         0x00000001
+#define PROC_BOOT_CFG_FLAG_ARMV8_DBG_NIDEN      0x00000002
+#define PROC_BOOT_CFG_FLAG_ARMV8_DBG_SPIDEN     0x00000004
+#define PROC_BOOT_CFG_FLAG_ARMV8_DBG_SPNIDEN    0x00000008
+#define PROC_BOOT_CFG_FLAG_ARMV8_AARCH32        0x00000100
+
+/* R5 Config Flags */
+#define PROC_BOOT_CFG_FLAG_R5_DBG_EN            0x00000001
+#define PROC_BOOT_CFG_FLAG_R5_DBG_NIDEN         0x00000002
+#define PROC_BOOT_CFG_FLAG_R5_LOCKSTEP          0x00000100
+#define PROC_BOOT_CFG_FLAG_R5_TEINIT            0x00000200
+#define PROC_BOOT_CFG_FLAG_R5_NMFI_EN           0x00000400
+#define PROC_BOOT_CFG_FLAG_R5_TCM_RSTBASE       0x00000800
+#define PROC_BOOT_CFG_FLAG_R5_BTCM_EN           0x00001000
+#define PROC_BOOT_CFG_FLAG_R5_ATCM_EN           0x00002000
+
+/**
+ * struct ti_sci_msg_req_set_proc_boot_config - Set Processor boot configuration
+ * @hdr:		Generic Header
+ * @processor_id:	ID of processor
+ * @bootvector_low:	Lower 32bit (Little Endian) of boot vector
+ * @bootvector_high:	Higher 32bit (Little Endian) of boot vector
+ * @config_flags_set:	Optional Processor specific Config Flags to set.
+ *			Setting a bit here implies required bit sets to 1.
+ * @config_flags_clear:	Optional Processor specific Config Flags to clear.
+ *			Setting a bit here implies required bit gets cleared.
+ *
+ * Request type is TISCI_MSG_SET_PROC_BOOT_CONFIG, response is a generic
+ * ACK/NACK message.
+ */
+struct ti_sci_msg_req_set_proc_boot_config {
+	struct ti_sci_msg_hdr hdr;
+	u8 processor_id;
+	u32 bootvector_low;
+	u32 bootvector_high;
+	u32 config_flags_set;
+	u32 config_flags_clear;
+} __packed;
+
+/* R5 Control Flags */
+#define PROC_BOOT_CTRL_FLAG_R5_CORE_HALT                0x00000001
+
+/**
+ * struct ti_sci_msg_req_set_proc_boot_ctrl - Set Processor boot control flags
+ * @hdr:		Generic Header
+ * @processor_id:	ID of processor
+ * @control_flags_set:	Optional Processor specific Control Flags to set.
+ *			Setting a bit here implies required bit sets to 1.
+ * @control_flags_clear:Optional Processor specific Control Flags to clear.
+ *			Setting a bit here implies required bit gets cleared.
+ *
+ * Request type is TISCI_MSG_SET_PROC_BOOT_CTRL, response is a generic ACK/NACK
+ * message.
+ */
+struct ti_sci_msg_req_set_proc_boot_ctrl {
+	struct ti_sci_msg_hdr hdr;
+	u8 processor_id;
+	u32 control_flags_set;
+	u32 control_flags_clear;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_proc_auth_start_image - Authenticate and start image
+ * @hdr:		Generic Header
+ * @processor_id:	ID of processor
+ * @cert_addr_low:	Lower 32bit (Little Endian) of certificate
+ * @cert_addr_high:	Higher 32bit (Little Endian) of certificate
+ *
+ * Request type is TISCI_MSG_PROC_AUTH_BOOT_IMAGE, response is a generic
+ * ACK/NACK message.
+ */
+struct ti_sci_msg_req_proc_auth_boot_image {
+	struct ti_sci_msg_hdr hdr;
+	u8 processor_id;
+	u32 cert_addr_low;
+	u32 cert_addr_high;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_get_proc_boot_status - Get processor boot status
+ * @hdr:		Generic Header
+ * @processor_id:	ID of processor
+ *
+ * Request type is TISCI_MSG_GET_PROC_BOOT_STATUS, response is appropriate
+ * message, or NACK in case of inability to satisfy request.
+ */
+struct ti_sci_msg_req_get_proc_boot_status {
+	struct ti_sci_msg_hdr hdr;
+	u8 processor_id;
+} __packed;
+
+/* ARMv8 Status Flags */
+#define PROC_BOOT_STATUS_FLAG_ARMV8_WFE			0x00000001
+#define PROC_BOOT_STATUS_FLAG_ARMV8_WFI			0x00000002
+
+/* R5 Status Flags */
+#define PROC_BOOT_STATUS_FLAG_R5_WFE			0x00000001
+#define PROC_BOOT_STATUS_FLAG_R5_WFI			0x00000002
+#define PROC_BOOT_STATUS_FLAG_R5_CLK_GATED		0x00000004
+#define PROC_BOOT_STATUS_FLAG_R5_LOCKSTEP_PERMITTED	0x00000100
+
+/**
+ * struct ti_sci_msg_resp_get_proc_boot_status - Processor boot status response
+ * @hdr:		Generic Header
+ * @processor_id:	ID of processor
+ * @bootvector_low:	Lower 32bit (Little Endian) of boot vector
+ * @bootvector_high:	Higher 32bit (Little Endian) of boot vector
+ * @config_flags:	Optional Processor specific Config Flags set.
+ * @control_flags:	Optional Processor specific Control Flags.
+ * @status_flags:	Optional Processor specific Status Flags set.
+ *
+ * Response to TISCI_MSG_GET_PROC_BOOT_STATUS.
+ */
+struct ti_sci_msg_resp_get_proc_boot_status {
+	struct ti_sci_msg_hdr hdr;
+	u8 processor_id;
+	u32 bootvector_low;
+	u32 bootvector_high;
+	u32 config_flags;
+	u32 control_flags;
+	u32 status_flags;
 } __packed;
 
 #endif /* __TI_SCI_H */
