@@ -1,0 +1,12 @@
+if ARCH_K3
+
+choice
+	prompt "Texas Instruments' K3 based SoC select"
+	optional
+
+endchoice
+
+config SYS_SOC
+	default "k3"
+
+endif

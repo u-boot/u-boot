@@ -272,6 +272,7 @@ M:	Tom Rini <trini@konsulko.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-ti.git
 F:	arch/arm/mach-davinci/
+F:	arch/arm/mach-k3/
 F:	arch/arm/mach-keystone/
 F:	arch/arm/include/asm/arch-omap*/
 F:	arch/arm/include/asm/ti-common/

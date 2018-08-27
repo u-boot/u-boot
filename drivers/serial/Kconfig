@@ -628,7 +628,7 @@ config MSM_SERIAL
 config OMAP_SERIAL
 	bool "Support for OMAP specific UART"
 	depends on DM_SERIAL
-	default y if ARCH_OMAP2PLUS
+	default y if (ARCH_OMAP2PLUS || ARCH_K3)
 	select SYS_NS16550
 	help
 	  If you have an TI based SoC and want to use the on-chip serial

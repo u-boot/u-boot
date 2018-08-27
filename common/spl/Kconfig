@@ -171,7 +171,7 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR
 	default 0x140 if ARCH_MVEBU
 	default 0x200 if ARCH_SOCFPGA || ARCH_AT91
 	default 0x300 if ARCH_ZYNQ || ARCH_KEYSTONE || OMAP34XX || OMAP44XX || \
-		         OMAP54XX || AM33XX || AM43XX
+		         OMAP54XX || AM33XX || AM43XX || ARCH_K3
 	default 0x4000 if ARCH_ROCKCHIP
 	help
 	  Address on the MMC to load U-Boot from, when the MMC is being used

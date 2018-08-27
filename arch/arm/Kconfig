@@ -646,6 +646,12 @@ config ARCH_KEYSTONE
 	imply CMD_SAVES
 	imply FIT
 
+config ARCH_K3
+	bool "Texas Instruments' K3 Architecture"
+	select SPL
+	select SUPPORT_SPL
+	select FIT
+
 config ARCH_OMAP2PLUS
 	bool "TI OMAP2+"
 	select CPU_V7A
@@ -1376,6 +1382,8 @@ source "arch/arm/mach-exynos/Kconfig"
 source "arch/arm/mach-highbank/Kconfig"
 
 source "arch/arm/mach-integrator/Kconfig"
+
+source "arch/arm/mach-k3/Kconfig"
 
 source "arch/arm/mach-keystone/Kconfig"
 
