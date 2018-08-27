@@ -12,6 +12,41 @@
 #include <asm/arch/hardware.h>
 
 #ifdef CONFIG_SPL_BUILD
+static void mmr_unlock(u32 base, u32 partition)
+{
+	/* Translate the base address */
+	phys_addr_t part_base = base + partition * CTRL_MMR0_PARTITION_SIZE;
+
+	/* Unlock the requested partition if locked using two-step sequence */
+	writel(CTRLMMR_LOCK_KICK0_UNLOCK_VAL, part_base + CTRLMMR_LOCK_KICK0);
+	writel(CTRLMMR_LOCK_KICK1_UNLOCK_VAL, part_base + CTRLMMR_LOCK_KICK1);
+}
+
+static void ctrl_mmr_unlock(void)
+{
+	/* Unlock all WKUP_CTRL_MMR0 module registers */
+	mmr_unlock(WKUP_CTRL_MMR0_BASE, 0);
+	mmr_unlock(WKUP_CTRL_MMR0_BASE, 1);
+	mmr_unlock(WKUP_CTRL_MMR0_BASE, 2);
+	mmr_unlock(WKUP_CTRL_MMR0_BASE, 3);
+	mmr_unlock(WKUP_CTRL_MMR0_BASE, 6);
+	mmr_unlock(WKUP_CTRL_MMR0_BASE, 7);
+
+	/* Unlock all MCU_CTRL_MMR0 module registers */
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 0);
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 1);
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 2);
+	mmr_unlock(MCU_CTRL_MMR0_BASE, 6);
+
+	/* Unlock all CTRL_MMR0 module registers */
+	mmr_unlock(CTRL_MMR0_BASE, 0);
+	mmr_unlock(CTRL_MMR0_BASE, 1);
+	mmr_unlock(CTRL_MMR0_BASE, 2);
+	mmr_unlock(CTRL_MMR0_BASE, 3);
+	mmr_unlock(CTRL_MMR0_BASE, 6);
+	mmr_unlock(CTRL_MMR0_BASE, 7);
+}
+
 static void store_boot_index_from_rom(void)
 {
 	u32 *boot_index = (u32 *)K3_BOOT_PARAM_TABLE_INDEX_VAL;
@@ -26,6 +61,9 @@ void board_init_f(ulong dummy)
 	 * K3_BOOT_PARAM_TABLE_INDEX can be over written by SPL MALLOC section.
 	 */
 	store_boot_index_from_rom();
+
+	/* Make all control module registers accessible */
+	ctrl_mmr_unlock();
 
 	/* Init DM early in-order to invoke system controller */
 	spl_early_init();
