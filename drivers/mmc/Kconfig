@@ -415,6 +415,15 @@ config MMC_SDHCI_CADENCE
 
 	  If unsure, say N.
 
+config MMC_SDHCI_K3_ARASAN
+	bool "Arasan SDHCI controller for TI's K3 based SoCs"
+	depends on ARCH_K3
+	depends on MMC_SDHCI
+	depends on DM_MMC && OF_CONTROL && BLK
+	help
+	  Support for Arasan SDHCI host controller on Texas Instruments'
+	  K3 family based SoC platforms
+
 config MMC_SDHCI_KONA
 	bool "SDHCI support on Broadcom KONA platform"
 	depends on MMC_SDHCI
