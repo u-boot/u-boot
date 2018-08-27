@@ -49,6 +49,14 @@ config TEGRA186_RESET
 	  Enable support for manipulating Tegra's on-SoC reset signals via IPC
 	  requests to the BPMP (Boot and Power Management Processor).
 
+config RESET_TI_SCI
+	bool "TI System Control Interface (TI SCI) reset driver"
+	depends on DM_RESET && TI_SCI_PROTOCOL
+	help
+	  This enables the reset driver support over TI System Control Interface
+	  available on some new TI's SoCs. If you wish to use reset resources
+	  managed by the TI System Controller, say Y here. Otherwise, say N.
+
 config RESET_BCM6345
 	bool "Reset controller driver for BCM6345"
 	depends on DM_RESET && ARCH_BMIPS
