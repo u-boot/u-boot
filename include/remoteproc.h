@@ -86,6 +86,14 @@ struct dm_rproc_ops {
 int rproc_init(void);
 
 /**
+ * rproc_dev_init() - Initialize a remote proc device based on id
+ * @id:		id of the remote processor
+ *
+ * Return: 0 if all ok, else appropriate error value.
+ */
+int rproc_dev_init(int id);
+
+/**
  * rproc_is_initialized() - check to see if remoteproc devices are initialized
  *
  * Return: 0 if all devices are initialized, else appropriate error value.
@@ -150,6 +158,7 @@ int rproc_ping(int id);
 int rproc_is_running(int id);
 #else
 static inline int rproc_init(void) { return -ENOSYS; }
+static inline int rproc_dev_init(int id) { return -ENOSYS; }
 static inline bool rproc_is_initialized(void) { return false; }
 static inline int rproc_load(int id, ulong addr, ulong size) { return -ENOSYS; }
 static inline int rproc_start(int id) { return -ENOSYS; }
