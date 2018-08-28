@@ -203,9 +203,6 @@
 #define PYDR        0xA405016A
 #define PZDR        0xA405016C
 
-/* Ether */
-#define EDMR		0xA4600000
-
 /* UBC */
 /* H-UDI */
 
