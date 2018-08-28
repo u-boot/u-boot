@@ -350,7 +350,7 @@ static void rk3328_gmac_set_to_rgmii(struct gmac_rockchip_platdata *pdata)
 		     RK3328_RXCLK_DLY_ENA_GMAC_MASK |
 		     RK3328_TXCLK_DLY_ENA_GMAC_MASK,
 		     RK3328_GMAC_PHY_INTF_SEL_RGMII |
-		     RK3328_RXCLK_DLY_ENA_GMAC_MASK |
+		     RK3328_RXCLK_DLY_ENA_GMAC_ENABLE |
 		     RK3328_TXCLK_DLY_ENA_GMAC_ENABLE);
 
 	rk_clrsetreg(&grf->mac_con[0],
