@@ -93,6 +93,9 @@
 
 #define DP83867_IO_MUX_CFG_IO_IMPEDANCE_MAX	0x0
 #define DP83867_IO_MUX_CFG_IO_IMPEDANCE_MIN	0x1f
+#define DP83867_IO_MUX_CFG_CLK_O_SEL_SHIFT	8
+#define DP83867_IO_MUX_CFG_CLK_O_SEL_MASK	\
+		GENMASK(0x1f, DP83867_IO_MUX_CFG_CLK_O_SEL_SHIFT)
 
 /* CFG4 bits */
 #define DP83867_CFG4_PORT_MIRROR_EN		BIT(0)
@@ -110,6 +113,7 @@ struct dp83867_private {
 	int io_impedance;
 	bool rxctrl_strap_quirk;
 	int port_mirroring;
+	int clk_output_sel;
 };
 
 /**
@@ -208,6 +212,18 @@ static int dp83867_of_init(struct phy_device *phydev)
 {
 	struct dp83867_private *dp83867 = phydev->priv;
 	ofnode node;
+	u16 val;
+
+	/* Optional configuration */
+
+	/*
+	 * Keep the default value if ti,clk-output-sel is not set
+	 * or to high
+	 */
+
+	dp83867->clk_output_sel =
+		ofnode_read_u32_default(node, "ti,clk-output-sel",
+					DP83867_CLK_O_SEL_REF_CLK);
 
 	node = phy_get_ofnode(phydev);
 	if (!ofnode_valid(node))
@@ -238,6 +254,17 @@ static int dp83867_of_init(struct phy_device *phydev)
 	if (ofnode_read_bool(node, "enet-phy-lane-no-swap"))
 		dp83867->port_mirroring = DP83867_PORT_MIRRORING_DIS;
 
+
+	/* Clock output selection if muxing property is set */
+	if (dp83867->clk_output_sel != DP83867_CLK_O_SEL_REF_CLK) {
+		val = phy_read_mmd_indirect(phydev, DP83867_IO_MUX_CFG,
+					    DP83867_DEVADDR, phydev->addr);
+		val &= ~DP83867_IO_MUX_CFG_CLK_O_SEL_MASK;
+		val |= (dp83867->clk_output_sel <<
+			DP83867_IO_MUX_CFG_CLK_O_SEL_SHIFT);
+		phy_write_mmd_indirect(phydev, DP83867_IO_MUX_CFG,
+				       DP83867_DEVADDR, phydev->addr, val);
+	}
 
 	return 0;
 }

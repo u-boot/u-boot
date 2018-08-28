@@ -12,6 +12,8 @@ Required properties:
 		compensate for the board being designed with the lanes swapped.
 	- enet-phy-no-lane-swap - Indicates that PHY will disable swap of the
 		TX/RX lanes.
+	- ti,clk-output-sel - Clock output select - see dt-bindings/net/ti-dp83867.h
+		for applicable values
 
 Default child nodes are standard Ethernet PHY device
 nodes as described in doc/devicetree/bindings/net/ethernet.txt
@@ -24,6 +26,7 @@ Example:
 		ti,tx-internal-delay = <DP83867_RGMIIDCTL_2_75_NS>;
 		ti,fifo-depth = <DP83867_PHYCR_FIFO_DEPTH_4_B_NIB>;
 		enet-phy-lane-no-swap;
+		ti,clk-output-sel = <DP83867_CLK_O_SEL_CHN_A_TCLK>;
 	};
 
 Datasheet can be found:
