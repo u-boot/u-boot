@@ -19,8 +19,6 @@
 
 	keys: gpio-keys {
 		compatible = "gpio-keys";
-		#address-cells = <1>;
-		#size-cells = <0>;
 
 		button@0 {
 			gpio-key,wakeup = <1>;

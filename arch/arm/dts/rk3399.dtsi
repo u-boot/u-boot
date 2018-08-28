@@ -1015,8 +1015,6 @@
 		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3399-pmugrf", "syscon", "simple-mfd";
 		reg = <0x0 0xff320000 0x0 0x1000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
 
 		pmu_io_domains: io-domains {
 			compatible = "rockchip,rk3399-pmu-io-voltage-domain";
@@ -1493,8 +1491,6 @@
 		#size-cells = <0>;
 		status = "disabled";
 		ports {
-			#address-cells = <1>;
-			#size-cells = <0>;
 			reg = <1>;
 			mipi_in: port {
 				#address-cells = <1>;
