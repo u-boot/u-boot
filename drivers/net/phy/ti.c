@@ -24,6 +24,7 @@
 /* Extended Registers */
 #define DP83867_CFG4		0x0031
 #define DP83867_RGMIICTL	0x0032
+#define DP83867_STRAP_STS1	0x006E
 #define DP83867_RGMIIDCTL	0x0086
 #define DP83867_IO_MUX_CFG	0x0170
 
@@ -48,8 +49,12 @@
 #define DP83867_RGMII_TX_CLK_DELAY_EN		BIT(1)
 #define DP83867_RGMII_RX_CLK_DELAY_EN		BIT(0)
 
+/* STRAP_STS1 bits */
+#define DP83867_STRAP_STS1_RESERVED		BIT(11)
+
 /* PHY CTRL bits */
 #define DP83867_PHYCR_FIFO_DEPTH_SHIFT		14
+#define DP83867_PHYCR_RESERVED_MASK	BIT(11)
 #define DP83867_MDI_CROSSOVER		5
 #define DP83867_MDI_CROSSOVER_AUTO	2
 #define DP83867_MDI_CROSSOVER_MDIX	2
@@ -254,7 +259,7 @@ static int dp83867_config(struct phy_device *phydev)
 {
 	struct dp83867_private *dp83867;
 	unsigned int val, delay, cfg2;
-	int ret;
+	int ret, bs;
 
 	if (!phydev->priv) {
 		dp83867 = kzalloc(sizeof(*dp83867), GFP_KERNEL);
@@ -289,6 +294,26 @@ static int dp83867_config(struct phy_device *phydev)
 			(dp83867->fifo_depth << DP83867_PHYCR_FIFO_DEPTH_SHIFT));
 		if (ret)
 			goto err_out;
+
+		/* The code below checks if "port mirroring" N/A MODE4 has been
+		 * enabled during power on bootstrap.
+		 *
+		 * Such N/A mode enabled by mistake can put PHY IC in some
+		 * internal testing mode and disable RGMII transmission.
+		 *
+		 * In this particular case one needs to check STRAP_STS1
+		 * register's bit 11 (marked as RESERVED).
+		 */
+
+		bs = phy_read_mmd_indirect(phydev, DP83867_STRAP_STS1,
+					   DP83867_DEVADDR, phydev->addr);
+		val = phy_read(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL);
+		if (bs & DP83867_STRAP_STS1_RESERVED) {
+			val &= ~DP83867_PHYCR_RESERVED_MASK;
+			phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL,
+				  val);
+		}
+
 	} else if (phy_interface_is_sgmii(phydev)) {
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR,
 			  (BMCR_ANENABLE | BMCR_FULLDPLX | BMCR_SPEED1000));
