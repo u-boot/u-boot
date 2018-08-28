@@ -89,12 +89,22 @@
 #define DP83867_IO_MUX_CFG_IO_IMPEDANCE_MAX	0x0
 #define DP83867_IO_MUX_CFG_IO_IMPEDANCE_MIN	0x1f
 
+/* CFG4 bits */
+#define DP83867_CFG4_PORT_MIRROR_EN		BIT(0)
+
+enum {
+	DP83867_PORT_MIRRORING_KEEP,
+	DP83867_PORT_MIRRORING_EN,
+	DP83867_PORT_MIRRORING_DIS,
+};
+
 struct dp83867_private {
 	int rx_id_delay;
 	int tx_id_delay;
 	int fifo_depth;
 	int io_impedance;
 	bool rxctrl_strap_quirk;
+	int port_mirroring;
 };
 
 /**
@@ -163,6 +173,26 @@ void phy_write_mmd_indirect(struct phy_device *phydev, int prtad,
 	phy_write(phydev, addr, MII_MMD_DATA, data);
 }
 
+static int dp83867_config_port_mirroring(struct phy_device *phydev)
+{
+	struct dp83867_private *dp83867 =
+		(struct dp83867_private *)phydev->priv;
+	u16 val;
+
+	val = phy_read_mmd_indirect(phydev, DP83867_CFG4, DP83867_DEVADDR,
+				    phydev->addr);
+
+	if (dp83867->port_mirroring == DP83867_PORT_MIRRORING_EN)
+		val |= DP83867_CFG4_PORT_MIRROR_EN;
+	else
+		val &= ~DP83867_CFG4_PORT_MIRROR_EN;
+
+	phy_write_mmd_indirect(phydev, DP83867_CFG4, DP83867_DEVADDR,
+			       phydev->addr, val);
+
+	return 0;
+}
+
 #if defined(CONFIG_DM_ETH)
 /**
  * dp83867_data_init - Convenience function for setting PHY specific data
@@ -197,6 +227,12 @@ static int dp83867_of_init(struct phy_device *phydev)
 
 	dp83867->fifo_depth = ofnode_read_u32_default(node, "ti,fifo-depth",
 						      -1);
+	if (ofnode_read_bool(node, "enet-phy-lane-swap"))
+		dp83867->port_mirroring = DP83867_PORT_MIRRORING_EN;
+
+	if (ofnode_read_bool(node, "enet-phy-lane-no-swap"))
+		dp83867->port_mirroring = DP83867_PORT_MIRRORING_DIS;
+
 
 	return 0;
 }
@@ -314,6 +350,9 @@ static int dp83867_config(struct phy_device *phydev)
 					       val);
 		}
 	}
+
+	if (dp83867->port_mirroring != DP83867_PORT_MIRRORING_KEEP)
+		dp83867_config_port_mirroring(phydev);
 
 	genphy_config_aneg(phydev);
 	return 0;
