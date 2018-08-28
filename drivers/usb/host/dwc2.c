@@ -15,6 +15,7 @@
 #include <wait_bit.h>
 #include <asm/io.h>
 #include <power/regulator.h>
+#include <reset.h>
 
 #include "dwc2.h"
 
@@ -49,6 +50,8 @@ struct dwc2_priv {
 	 */
 	bool hnp_srp_disable;
 	bool oc_disable;
+
+	struct reset_ctl_bulk	resets;
 };
 
 #ifndef CONFIG_DM_USB
@@ -1124,11 +1127,43 @@ int _submit_int_msg(struct dwc2_priv *priv, struct usb_device *dev,
 	}
 }
 
+static int dwc2_reset(struct udevice *dev)
+{
+	int ret;
+	struct dwc2_priv *priv = dev_get_priv(dev);
+
+	ret = reset_get_bulk(dev, &priv->resets);
+	if (ret) {
+		dev_warn(dev, "Can't get reset: %d\n", ret);
+		/* Return 0 if error due to !CONFIG_DM_RESET and reset
+		 * DT property is not present.
+		 */
+		if (ret == -ENOENT || ret == -ENOTSUPP)
+			return 0;
+		else
+			return ret;
+	}
+
+	ret = reset_deassert_bulk(&priv->resets);
+	if (ret) {
+		reset_release_bulk(&priv->resets);
+		dev_err(dev, "Failed to reset: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 static int dwc2_init_common(struct udevice *dev, struct dwc2_priv *priv)
 {
 	struct dwc2_core_regs *regs = priv->regs;
 	uint32_t snpsid;
 	int i, j;
+	int ret;
+
+	ret = dwc2_reset(dev);
+	if (ret)
+		return ret;
 
 	snpsid = readl(&regs->gsnpsid);
 	dev_info(dev, "Core Release: %x.%03x\n",
@@ -1302,6 +1337,8 @@ static int dwc2_usb_remove(struct udevice *dev)
 		return ret;
 
 	dwc2_uninit_common(priv->regs);
+
+	reset_release_bulk(&priv->resets);
 
 	return 0;
 }
