@@ -668,6 +668,9 @@ static irqreturn_t pxa3xx_nand_irq(struct pxa3xx_nand_info *info)
 		cmd_done        = NDSR_CS1_CMDD;
 	}
 
+	/* TODO - find out why we need the delay during write operation. */
+	ndelay(1);
+
 	status = nand_readl(info, NDSR);
 
 	if (status & NDSR_UNCORERR)
