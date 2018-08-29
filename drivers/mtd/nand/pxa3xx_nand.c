@@ -1256,7 +1256,7 @@ static void pxa3xx_nand_config_tail(struct pxa3xx_nand_info *info)
 	info->reg_ndcr |= (mtd->writesize == 2048) ? NDCR_PAGE_SZ : 0;
 }
 
-static int pxa3xx_nand_detect_config(struct pxa3xx_nand_info *info)
+static void pxa3xx_nand_detect_config(struct pxa3xx_nand_info *info)
 {
 	struct pxa3xx_nand_platform_data *pdata = info->pdata;
 	uint32_t ndcr = nand_readl(info, NDCR);
@@ -1268,7 +1268,6 @@ static int pxa3xx_nand_detect_config(struct pxa3xx_nand_info *info)
 	info->reg_ndcr |= (pdata->enable_arbiter) ? NDCR_ND_ARB_EN : 0;
 	info->ndtr0cs0 = nand_readl(info, NDTR0CS0);
 	info->ndtr1cs0 = nand_readl(info, NDTR1CS0);
-	return 0;
 }
 
 static int pxa3xx_nand_init_buff(struct pxa3xx_nand_info *info)
@@ -1388,22 +1387,21 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 	int ret;
 	uint16_t ecc_strength, ecc_step;
 
-	if (pdata->keep_config && !pxa3xx_nand_detect_config(info))
-		goto KEEP_CONFIG;
-
-	ret = pxa3xx_nand_config_ident(info);
-	if (ret)
-		return ret;
-
-	ret = pxa3xx_nand_sensing(host);
-	if (ret) {
-		dev_info(&info->pdev->dev, "There is no chip on cs %d!\n",
-			 info->cs);
-
-		return ret;
+	if (pdata->keep_config) {
+		pxa3xx_nand_detect_config(info);
+	} else {
+		ret = pxa3xx_nand_config_ident(info);
+		if (ret)
+			return ret;
+		ret = pxa3xx_nand_sensing(host);
+		if (ret) {
+			dev_info(&info->pdev->dev,
+				 "There is no chip on cs %d!\n",
+				 info->cs);
+			return ret;
+		}
 	}
 
-KEEP_CONFIG:
 	/* Device detection must be done with ECC disabled */
 	if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370)
 		nand_writel(info, NDECCCTRL, 0x0);
