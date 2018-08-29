@@ -349,9 +349,9 @@ static void pxa3xx_nand_set_sdr_timing(struct pxa3xx_nand_host *host,
 	u32 tCH_min = DIV_ROUND_UP(t->tCH_min, 1000);
 	u32 tCS_min = DIV_ROUND_UP(t->tCS_min, 1000);
 	u32 tWH_min = DIV_ROUND_UP(t->tWH_min, 1000);
-	u32 tWP_min = DIV_ROUND_UP(t->tWC_min - tWH_min, 1000);
+	u32 tWP_min = DIV_ROUND_UP(t->tWC_min - t->tWH_min, 1000);
 	u32 tREH_min = DIV_ROUND_UP(t->tREH_min, 1000);
-	u32 tRP_min = DIV_ROUND_UP(t->tRC_min - tREH_min, 1000);
+	u32 tRP_min = DIV_ROUND_UP(t->tRC_min - t->tREH_min, 1000);
 	u32 tR = chip->chip_delay * 1000;
 	u32 tWHR_min = DIV_ROUND_UP(t->tWHR_min, 1000);
 	u32 tAR_min = DIV_ROUND_UP(t->tAR_min, 1000);
