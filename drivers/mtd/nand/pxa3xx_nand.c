@@ -201,14 +201,43 @@ struct pxa3xx_nand_info {
 	int			use_spare;	/* use spare ? */
 	int			need_wait;
 
-	unsigned int		data_size;	/* data to be read from FIFO */
-	unsigned int		chunk_size;	/* split commands chunk size */
-	unsigned int		oob_size;
+	/* Amount of real data per full chunk */
+	unsigned int		chunk_size;
+
+	/* Amount of spare data per full chunk */
 	unsigned int		spare_size;
+
+	/* Number of full chunks (i.e chunk_size + spare_size) */
+	unsigned int            nfullchunks;
+
+	/*
+	 * Total number of chunks. If equal to nfullchunks, then there
+	 * are only full chunks. Otherwise, there is one last chunk of
+	 * size (last_chunk_size + last_spare_size)
+	 */
+	unsigned int            ntotalchunks;
+
+	/* Amount of real data in the last chunk */
+	unsigned int		last_chunk_size;
+
+	/* Amount of spare data in the last chunk */
+	unsigned int		last_spare_size;
+
 	unsigned int		ecc_size;
 	unsigned int		ecc_err_cnt;
 	unsigned int		max_bitflips;
 	int			retcode;
+
+	/*
+	 * Variables only valid during command
+	 * execution. step_chunk_size and step_spare_size is the
+	 * amount of real data and spare data in the current
+	 * chunk. cur_chunk is the current chunk being
+	 * read/programmed.
+	 */
+	unsigned int		step_chunk_size;
+	unsigned int		step_spare_size;
+	unsigned int            cur_chunk;
 
 	/* cached register value */
 	uint32_t		reg_ndcr;
@@ -436,25 +465,6 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
 	return 0;
 }
 
-/*
- * Set the data and OOB size, depending on the selected
- * spare and ECC configuration.
- * Only applicable to READ0, READOOB and PAGEPROG commands.
- */
-static void pxa3xx_set_datasize(struct pxa3xx_nand_info *info,
-				struct mtd_info *mtd)
-{
-	int oob_enable = info->reg_ndcr & NDCR_SPARE_EN;
-
-	info->data_size = mtd->writesize;
-	if (!oob_enable)
-		return;
-
-	info->oob_size = info->spare_size;
-	if (!info->use_ecc)
-		info->oob_size += info->ecc_size;
-}
-
 /**
  * NOTE: it is a must to set ND_RUN first, then write
  * command buffer, otherwise, it does not work.
@@ -535,39 +545,38 @@ static void drain_fifo(struct pxa3xx_nand_info *info, void *data, int len)
 
 static void handle_data_pio(struct pxa3xx_nand_info *info)
 {
-	unsigned int do_bytes = min(info->data_size, info->chunk_size);
-
 	switch (info->state) {
 	case STATE_PIO_WRITING:
-		writesl(info->mmio_base + NDDB,
-			info->data_buff + info->data_buff_pos,
-			DIV_ROUND_UP(do_bytes, 4));
+		if (info->step_chunk_size)
+			writesl(info->mmio_base + NDDB,
+				info->data_buff + info->data_buff_pos,
+				DIV_ROUND_UP(info->step_chunk_size, 4));
 
-		if (info->oob_size > 0)
+		if (info->step_spare_size)
 			writesl(info->mmio_base + NDDB,
 				info->oob_buff + info->oob_buff_pos,
-				DIV_ROUND_UP(info->oob_size, 4));
+				DIV_ROUND_UP(info->step_spare_size, 4));
 		break;
 	case STATE_PIO_READING:
-		drain_fifo(info,
-			   info->data_buff + info->data_buff_pos,
-			   DIV_ROUND_UP(do_bytes, 4));
+		if (info->step_chunk_size)
+			drain_fifo(info,
+				   info->data_buff + info->data_buff_pos,
+				   DIV_ROUND_UP(info->step_chunk_size, 4));
 
-		if (info->oob_size > 0)
+		if (info->step_spare_size)
 			drain_fifo(info,
 				   info->oob_buff + info->oob_buff_pos,
-				   DIV_ROUND_UP(info->oob_size, 4));
+				   DIV_ROUND_UP(info->step_spare_size, 4));
 		break;
 	default:
 		dev_err(&info->pdev->dev, "%s: invalid state %d\n", __func__,
-			info->state);
+				info->state);
 		BUG();
 	}
 
 	/* Update buffer pointers for multi-page read/write */
-	info->data_buff_pos += do_bytes;
-	info->oob_buff_pos += info->oob_size;
-	info->data_size -= do_bytes;
+	info->data_buff_pos += info->step_chunk_size;
+	info->oob_buff_pos += info->step_spare_size;
 }
 
 static void pxa3xx_nand_irq_thread(struct pxa3xx_nand_info *info)
@@ -701,9 +710,11 @@ static void prepare_start_command(struct pxa3xx_nand_info *info, int command)
 	/* reset data and oob column point to handle data */
 	info->buf_start		= 0;
 	info->buf_count		= 0;
-	info->oob_size		= 0;
 	info->data_buff_pos	= 0;
 	info->oob_buff_pos	= 0;
+	info->step_chunk_size   = 0;
+	info->step_spare_size   = 0;
+	info->cur_chunk         = 0;
 	info->use_ecc		= 0;
 	info->use_spare		= 1;
 	info->retcode		= ERR_NONE;
@@ -715,8 +726,6 @@ static void prepare_start_command(struct pxa3xx_nand_info *info, int command)
 	case NAND_CMD_READ0:
 	case NAND_CMD_PAGEPROG:
 		info->use_ecc = 1;
-	case NAND_CMD_READOOB:
-		pxa3xx_set_datasize(info, mtd);
 		break;
 	case NAND_CMD_PARAM:
 		info->use_spare = 0;
@@ -773,6 +782,14 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 		if (command == NAND_CMD_READOOB)
 			info->buf_start += mtd->writesize;
 
+		if (info->cur_chunk < info->nfullchunks) {
+			info->step_chunk_size = info->chunk_size;
+			info->step_spare_size = info->spare_size;
+		} else {
+			info->step_chunk_size = info->last_chunk_size;
+			info->step_spare_size = info->last_spare_size;
+		}
+
 		/*
 		 * Multiple page read needs an 'extended command type' field,
 		 * which is either naked-read or last-read according to the
@@ -784,8 +801,8 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 			info->ndcb0 |= NDCB0_DBC | (NAND_CMD_READSTART << 8)
 					| NDCB0_LEN_OVRD
 					| NDCB0_EXT_CMD_TYPE(ext_cmd_type);
-			info->ndcb3 = info->chunk_size +
-				      info->oob_size;
+			info->ndcb3 = info->step_chunk_size +
+				info->step_spare_size;
 		}
 
 		set_command_address(info, mtd->writesize, column, page_addr);
@@ -805,8 +822,6 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 				| NDCB0_EXT_CMD_TYPE(ext_cmd_type)
 				| addr_cycle
 				| command;
-			/* No data transfer in this case */
-			info->data_size = 0;
 			exec_cmd = 1;
 		}
 		break;
@@ -816,6 +831,14 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 				 (mtd->writesize + mtd->oobsize))) {
 			exec_cmd = 0;
 			break;
+		}
+
+		if (info->cur_chunk < info->nfullchunks) {
+			info->step_chunk_size = info->chunk_size;
+			info->step_spare_size = info->spare_size;
+		} else {
+			info->step_chunk_size = info->last_chunk_size;
+			info->step_spare_size = info->last_spare_size;
 		}
 
 		/* Second command setting for large pages */
@@ -828,14 +851,14 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 			info->ndcb0 |= NDCB0_CMD_TYPE(0x1)
 					| NDCB0_LEN_OVRD
 					| NDCB0_EXT_CMD_TYPE(ext_cmd_type);
-			info->ndcb3 = info->chunk_size +
-				      info->oob_size;
+			info->ndcb3 = info->step_chunk_size +
+				      info->step_spare_size;
 
 			/*
 			 * This is the command dispatch that completes a chunked
 			 * page program operation.
 			 */
-			if (info->data_size == 0) {
+			if (info->cur_chunk == info->ntotalchunks) {
 				info->ndcb0 = NDCB0_CMD_TYPE(0x1)
 					| NDCB0_EXT_CMD_TYPE(ext_cmd_type)
 					| command;
@@ -862,7 +885,7 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 				| command;
 		info->ndcb1 = (column & 0xFF);
 		info->ndcb3 = INIT_BUFFER_SIZE;
-		info->data_size = INIT_BUFFER_SIZE;
+		info->step_chunk_size = INIT_BUFFER_SIZE;
 		break;
 
 	case NAND_CMD_READID:
@@ -872,7 +895,7 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 				| command;
 		info->ndcb1 = (column & 0xFF);
 
-		info->data_size = 8;
+		info->step_chunk_size = 8;
 		break;
 	case NAND_CMD_STATUS:
 		info->buf_count = 1;
@@ -880,7 +903,7 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 				| NDCB0_ADDR_CYC(1)
 				| command;
 
-		info->data_size = 8;
+		info->step_chunk_size = 8;
 		break;
 
 	case NAND_CMD_ERASE1:
@@ -1064,22 +1087,31 @@ static void nand_cmdfunc_extended(struct mtd_info *mtd,
 			}
 		}
 
+		/* Only a few commands need several steps */
+		if (command != NAND_CMD_PAGEPROG &&
+		    command != NAND_CMD_READ0    &&
+		    command != NAND_CMD_READOOB)
+			break;
+
+		info->cur_chunk++;
+
 		/* Check if the sequence is complete */
-		if (info->data_size == 0 && command != NAND_CMD_PAGEPROG)
+		if (info->cur_chunk == info->ntotalchunks &&
+		    command != NAND_CMD_PAGEPROG)
 			break;
 
 		/*
 		 * After a splitted program command sequence has issued
 		 * the command dispatch, the command sequence is complete.
 		 */
-		if (info->data_size == 0 &&
+		if (info->cur_chunk == (info->ntotalchunks + 1) &&
 		    command == NAND_CMD_PAGEPROG &&
 		    ext_cmd_type == EXT_CMD_TYPE_DISPATCH)
 			break;
 
 		if (command == NAND_CMD_READ0 || command == NAND_CMD_READOOB) {
 			/* Last read: issue a 'last naked read' */
-			if (info->data_size == info->chunk_size)
+			if (info->cur_chunk == info->ntotalchunks - 1)
 				ext_cmd_type = EXT_CMD_TYPE_LAST_RW;
 			else
 				ext_cmd_type = EXT_CMD_TYPE_NAKED_RW;
@@ -1089,7 +1121,7 @@ static void nand_cmdfunc_extended(struct mtd_info *mtd,
 		 * the command dispatch must be issued to complete.
 		 */
 		} else if (command == NAND_CMD_PAGEPROG &&
-			   info->data_size == 0) {
+			   info->cur_chunk == info->ntotalchunks) {
 				ext_cmd_type = EXT_CMD_TYPE_DISPATCH;
 		}
 	} while (1);
@@ -1316,6 +1348,8 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 			int strength, int ecc_stepsize, int page_size)
 {
 	if (strength == 1 && ecc_stepsize == 512 && page_size == 2048) {
+		info->nfullchunks = 1;
+		info->ntotalchunks = 1;
 		info->chunk_size = 2048;
 		info->spare_size = 40;
 		info->ecc_size = 24;
@@ -1324,6 +1358,8 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 		ecc->strength = 1;
 
 	} else if (strength == 1 && ecc_stepsize == 512 && page_size == 512) {
+		info->nfullchunks = 1;
+		info->ntotalchunks = 1;
 		info->chunk_size = 512;
 		info->spare_size = 8;
 		info->ecc_size = 8;
@@ -1337,6 +1373,8 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 	 */
 	} else if (strength == 4 && ecc_stepsize == 512 && page_size == 2048) {
 		info->ecc_bch = 1;
+		info->nfullchunks = 1;
+		info->ntotalchunks = 1;
 		info->chunk_size = 2048;
 		info->spare_size = 32;
 		info->ecc_size = 32;
@@ -1347,6 +1385,8 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 
 	} else if (strength == 4 && ecc_stepsize == 512 && page_size == 4096) {
 		info->ecc_bch = 1;
+		info->nfullchunks = 2;
+		info->ntotalchunks = 2;
 		info->chunk_size = 2048;
 		info->spare_size = 32;
 		info->ecc_size = 32;
@@ -1361,8 +1401,12 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 	 */
 	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 4096) {
 		info->ecc_bch = 1;
+		info->nfullchunks = 4;
+		info->ntotalchunks = 5;
 		info->chunk_size = 1024;
 		info->spare_size = 0;
+		info->last_chunk_size = 0;
+		info->last_spare_size = 64;
 		info->ecc_size = 32;
 		ecc->mode = NAND_ECC_HW;
 		ecc->size = info->chunk_size;
