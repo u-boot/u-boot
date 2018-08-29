@@ -112,6 +112,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define EXT_CMD_TYPE_LAST_RW	1 /* Last naked read/write */
 #define EXT_CMD_TYPE_MONO	0 /* Monolithic read/write */
 
+/*
+ * This should be large enough to read 'ONFI' and 'JEDEC'.
+ * Let's use 7 bytes, which is the maximum ID count supported
+ * by the controller (see NDCR_RD_ID_CNT_MASK).
+ */
+#define READ_ID_BYTES		7
+
 /* macros for registers read/write */
 #define nand_writel(info, off, val)	\
 	writel((val), (info)->mmio_base + (off))
@@ -158,8 +165,6 @@ struct pxa3xx_nand_host {
 	/* calculated from pxa3xx_nand_flash data */
 	unsigned int		col_addr_cycles;
 	unsigned int		row_addr_cycles;
-	size_t			read_id_bytes;
-
 };
 
 struct pxa3xx_nand_info {
@@ -860,7 +865,7 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 		break;
 
 	case NAND_CMD_READID:
-		info->buf_count = host->read_id_bytes;
+		info->buf_count = READ_ID_BYTES;
 		info->ndcb0 |= NDCB0_CMD_TYPE(3)
 				| NDCB0_ADDR_CYC(1)
 				| command;
@@ -1240,23 +1245,10 @@ static int pxa3xx_nand_config_flash(struct pxa3xx_nand_info *info)
 
 static int pxa3xx_nand_detect_config(struct pxa3xx_nand_info *info)
 {
-	/*
-	 * We set 0 by hard coding here, for we don't support keep_config
-	 * when there is more than one chip attached to the controller
-	 */
-	struct pxa3xx_nand_host *host = info->host[0];
 	uint32_t ndcr = nand_readl(info, NDCR);
 
-	if (ndcr & NDCR_PAGE_SZ) {
-		/* Controller's FIFO size */
-		info->chunk_size = 2048;
-		host->read_id_bytes = 4;
-	} else {
-		info->chunk_size = 512;
-		host->read_id_bytes = 2;
-	}
-
 	/* Set an initial chunk size */
+	info->chunk_size = ndcr & NDCR_PAGE_SZ ? 2048 : 512;
 	info->reg_ndcr = ndcr & ~NDCR_INT_MASK;
 	info->ndtr0cs0 = nand_readl(info, NDTR0CS0);
 	info->ndtr1cs0 = nand_readl(info, NDTR1CS0);
@@ -1286,7 +1278,7 @@ static int pxa3xx_nand_sensing(struct pxa3xx_nand_host *host)
 	/* configure default flash values */
 	info->reg_ndcr = 0x0; /* enable all interrupts */
 	info->reg_ndcr |= (pdata->enable_arbiter) ? NDCR_ND_ARB_EN : 0;
-	info->reg_ndcr |= NDCR_RD_ID_CNT(host->read_id_bytes);
+	info->reg_ndcr |= NDCR_RD_ID_CNT(READ_ID_BYTES);
 	info->reg_ndcr |= NDCR_SPARE_EN; /* enable spare by default */
 
 	/* use the common timing to make a try */
@@ -1503,7 +1495,6 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 		info->host[cs] = host;
 		host->cs = cs;
 		host->info_data = info;
-		host->read_id_bytes = 4;
 		mtd->owner = THIS_MODULE;
 
 		nand_set_controller_data(chip, host);
