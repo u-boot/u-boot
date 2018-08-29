@@ -61,7 +61,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define NDCR_NAND_MODE		(0x0)
 #define NDCR_CLR_PG_CNT		(0x1 << 20)
 #define NFCV1_NDCR_ARB_CNTL	(0x1 << 19)
-#define NFCV2_NDCR_STOP_ON_UNCOR	(0x1 << 19)
 #define NDCR_RD_ID_CNT_MASK	(0x7 << 16)
 #define NDCR_RD_ID_CNT(x)	(((x) << 16) & NDCR_RD_ID_CNT_MASK)
 
@@ -251,6 +250,17 @@ struct pxa3xx_nand_info {
 };
 
 static struct pxa3xx_nand_timing timing[] = {
+	/*
+	 * tCH	Enable signal hold time
+	 * tCS	Enable signal setup time
+	 * tWH	ND_nWE high duration
+	 * tWP	ND_nWE pulse time
+	 * tRH	ND_nRE high duration
+	 * tRP	ND_nRE pulse width
+	 * tR	ND_nWE high to ND_nRE low for read
+	 * tWHR	ND_nWE high to ND_nRE low for status read
+	 * tAR	ND_ALE low to ND_nRE low delay
+	 */
 	/*ch  cs  wh  wp   rh  rp   r      whr  ar */
 	{ 40, 80, 60, 100, 80, 100, 90000, 400, 40, },
 	{ 10,  0, 20,  40, 30,  40, 11123, 110, 10, },
@@ -260,6 +270,13 @@ static struct pxa3xx_nand_timing timing[] = {
 };
 
 static struct pxa3xx_nand_flash builtin_flash_types[] = {
+	/*
+	 * chip_id
+	 * flash_width	Width of Flash memory (DWIDTH_M)
+	 * dfc_width	Width of flash controller(DWIDTH_C)
+	 * *timing
+	 * http://www.linux-mtd.infradead.org/nand-data/nanddata.html
+	 */
 	{ 0x46ec, 16, 16, &timing[1] },
 	{ 0xdaec,  8,  8, &timing[1] },
 	{ 0xd7ec,  8,  8, &timing[1] },
@@ -1428,6 +1445,7 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 		ecc->size = info->chunk_size;
 		ecc->layout = &ecc_layout_4KB_bch8bit;
 		ecc->strength = 16;
+
 	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 2048) {
 		info->ecc_bch = 1;
 		info->nfullchunks = 1;
@@ -1441,6 +1459,7 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 		ecc->size = info->chunk_size;
 		ecc->layout = &ecc_layout_2KB_bch8bit;
 		ecc->strength = 16;
+
 	} else {
 		dev_err(&info->pdev->dev,
 			"ECC strength %d at page size %d is not supported\n",
