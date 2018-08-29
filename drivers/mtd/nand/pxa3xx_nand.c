@@ -24,7 +24,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define TIMEOUT_DRAIN_FIFO	5	/* in ms */
 #define	CHIP_DELAY_TIMEOUT	200
 #define NAND_STOP_DELAY		40
-#define PAGE_CHUNK_SIZE		(2048)
 
 /*
  * Define a buffer size for the initial command that detects the flash device:
@@ -703,7 +702,7 @@ static void set_command_address(struct pxa3xx_nand_info *info,
 		unsigned int page_size, uint16_t column, int page_addr)
 {
 	/* small page addr setting */
-	if (page_size < PAGE_CHUNK_SIZE) {
+	if (page_size < info->chunk_size) {
 		info->ndcb1 = ((page_addr & 0xFFFFFF) << 8)
 				| (column & 0xFF);
 
@@ -813,9 +812,9 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 		 * which is either naked-read or last-read according to the
 		 * state.
 		 */
-		if (mtd->writesize == PAGE_CHUNK_SIZE) {
+		if (mtd->writesize == info->chunk_size) {
 			info->ndcb0 |= NDCB0_DBC | (NAND_CMD_READSTART << 8);
-		} else if (mtd->writesize > PAGE_CHUNK_SIZE) {
+		} else if (mtd->writesize > info->chunk_size) {
 			info->ndcb0 |= NDCB0_DBC | (NAND_CMD_READSTART << 8)
 					| NDCB0_LEN_OVRD
 					| NDCB0_EXT_CMD_TYPE(ext_cmd_type);
@@ -835,7 +834,7 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 		 * Multiple page programming needs to execute the initial
 		 * SEQIN command that sets the page address.
 		 */
-		if (mtd->writesize > PAGE_CHUNK_SIZE) {
+		if (mtd->writesize > info->chunk_size) {
 			info->ndcb0 |= NDCB0_CMD_TYPE(0x1)
 				| NDCB0_EXT_CMD_TYPE(ext_cmd_type)
 				| addr_cycle
@@ -860,7 +859,7 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 		}
 
 		/* Second command setting for large pages */
-		if (mtd->writesize > PAGE_CHUNK_SIZE) {
+		if (mtd->writesize > info->chunk_size) {
 			/*
 			 * Multiple page write uses the 'extended command'
 			 * field. This can be used to issue a command dispatch
@@ -1286,7 +1285,6 @@ static int pxa3xx_nand_config_ident(struct pxa3xx_nand_info *info)
 	struct pxa3xx_nand_platform_data *pdata = info->pdata;
 
 	/* Configure default flash values */
-	info->chunk_size = PAGE_CHUNK_SIZE;
 	info->reg_ndcr = 0x0; /* enable all interrupts */
 	info->reg_ndcr |= (pdata->enable_arbiter) ? NDCR_ND_ARB_EN : 0;
 	info->reg_ndcr |= NDCR_RD_ID_CNT(READ_ID_BYTES);
@@ -1503,21 +1501,6 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 	chip->bbt_md = &bbt_mirror_descr;
 #endif
 
-	/*
-	 * If the page size is bigger than the FIFO size, let's check
-	 * we are given the right variant and then switch to the extended
-	 * (aka splitted) command handling,
-	 */
-	if (mtd->writesize > PAGE_CHUNK_SIZE) {
-		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370) {
-			chip->cmdfunc = nand_cmdfunc_extended;
-		} else {
-			dev_err(&info->pdev->dev,
-				"unsupported page size on this variant\n");
-			return -ENODEV;
-		}
-	}
-
 	if (pdata->ecc_strength && pdata->ecc_step_size) {
 		ecc_strength = pdata->ecc_strength;
 		ecc_step = pdata->ecc_step_size;
@@ -1536,6 +1519,21 @@ static int pxa3xx_nand_scan(struct mtd_info *mtd)
 			   ecc_step, mtd->writesize);
 	if (ret)
 		return ret;
+
+	/*
+	 * If the page size is bigger than the FIFO size, let's check
+	 * we are given the right variant and then switch to the extended
+	 * (aka split) command handling,
+	 */
+	if (mtd->writesize > info->chunk_size) {
+		if (info->variant == PXA3XX_NAND_VARIANT_ARMADA370) {
+			chip->cmdfunc = nand_cmdfunc_extended;
+		} else {
+			dev_err(&info->pdev->dev,
+				"unsupported page size on this variant\n");
+			return -ENODEV;
+		}
+	}
 
 	/* calculate addressing information */
 	if (mtd->writesize >= 2048)
