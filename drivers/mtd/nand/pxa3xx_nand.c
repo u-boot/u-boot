@@ -149,7 +149,6 @@ enum pxa3xx_nand_variant {
 
 struct pxa3xx_nand_host {
 	struct nand_chip	chip;
-	struct mtd_info         *mtd;
 	void			*info_data;
 
 	/* page size of attached chip */
@@ -384,16 +383,17 @@ static int pxa3xx_nand_init_timings(struct pxa3xx_nand_host *host)
 	struct nand_chip *chip = &host->chip;
 	struct pxa3xx_nand_info *info = host->info_data;
 	const struct pxa3xx_nand_flash *f = NULL;
+	struct mtd_info *mtd = nand_to_mtd(&host->chip);
 	int mode, id, ntypes, i;
 
 	mode = onfi_get_async_timing_mode(chip);
 	if (mode == ONFI_TIMING_MODE_UNKNOWN) {
 		ntypes = ARRAY_SIZE(builtin_flash_types);
 
-		chip->cmdfunc(host->mtd, NAND_CMD_READID, 0x00, -1);
+		chip->cmdfunc(mtd, NAND_CMD_READID, 0x00, -1);
 
-		id = chip->read_byte(host->mtd);
-		id |= chip->read_byte(host->mtd) << 0x8;
+		id = chip->read_byte(mtd);
+		id |= chip->read_byte(mtd) << 0x8;
 
 		for (i = 0; i < ntypes; i++) {
 			f = &builtin_flash_types[i];
@@ -686,7 +686,7 @@ static void set_command_address(struct pxa3xx_nand_info *info,
 static void prepare_start_command(struct pxa3xx_nand_info *info, int command)
 {
 	struct pxa3xx_nand_host *host = info->host[info->cs];
-	struct mtd_info *mtd = host->mtd;
+	struct mtd_info *mtd = nand_to_mtd(&host->chip);
 
 	/* reset data and oob column point to handle data */
 	info->buf_start		= 0;
@@ -737,7 +737,7 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 	struct mtd_info *mtd;
 
 	host = info->host[info->cs];
-	mtd = host->mtd;
+	mtd = nand_to_mtd(&host->chip);
 	addr_cycle = 0;
 	exec_cmd = 1;
 
@@ -1224,7 +1224,7 @@ static int pxa3xx_nand_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
 static int pxa3xx_nand_config_flash(struct pxa3xx_nand_info *info)
 {
 	struct pxa3xx_nand_host *host = info->host[info->cs];
-	struct mtd_info *mtd = host->mtd;
+	struct mtd_info *mtd = nand_to_mtd(&host->chip);
 	struct nand_chip *chip = mtd_to_nand(mtd);
 
 	info->reg_ndcr |= (host->col_addr_cycles == 2) ? NDCR_RA_START : 0;
@@ -1276,7 +1276,7 @@ static int pxa3xx_nand_sensing(struct pxa3xx_nand_host *host)
 	const struct nand_sdr_timings *timings;
 	int ret;
 
-	mtd = info->host[info->cs]->mtd;
+	mtd = nand_to_mtd(&info->host[info->cs]->chip);
 	chip = mtd_to_nand(mtd);
 
 	/* configure default flash values */
@@ -1497,7 +1497,6 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 		mtd = nand_to_mtd(chip);
 		host = (struct pxa3xx_nand_host *)chip;
 		info->host[cs] = host;
-		host->mtd = mtd;
 		host->cs = cs;
 		host->info_data = info;
 		host->read_id_bytes = 4;
@@ -1615,7 +1614,7 @@ static int pxa3xx_nand_probe(struct pxa3xx_nand_info *info)
 
 	probe_success = 0;
 	for (cs = 0; cs < pdata->num_cs; cs++) {
-		struct mtd_info *mtd = info->host[cs]->mtd;
+		struct mtd_info *mtd = nand_to_mtd(&info->host[cs]->chip);
 
 		/*
 		 * The mtd name matches the one used in 'mtdparts' kernel
