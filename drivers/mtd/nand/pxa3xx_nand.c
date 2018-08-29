@@ -252,10 +252,12 @@ struct pxa3xx_nand_info {
 };
 
 static struct pxa3xx_nand_timing timing[] = {
+	/*ch  cs  wh  wp   rh  rp   r      whr  ar */
 	{ 40, 80, 60, 100, 80, 100, 90000, 400, 40, },
 	{ 10,  0, 20,  40, 30,  40, 11123, 110, 10, },
 	{ 10, 25, 15,  25, 15,  30, 25000,  60, 10, },
 	{ 10, 35, 15,  25, 15,  25, 25000,  60, 10, },
+	{  5, 20, 10,  12, 10,  12, 25000,  60, 10, },
 };
 
 static struct pxa3xx_nand_flash builtin_flash_types[] = {
@@ -267,6 +269,7 @@ static struct pxa3xx_nand_flash builtin_flash_types[] = {
 	{ 0xdc2c,  8,  8, &timing[2] },
 	{ 0xcc2c, 16, 16, &timing[2] },
 	{ 0xba20, 16, 16, &timing[3] },
+	{ 0xda98,  8,  8, &timing[4] },
 };
 
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
