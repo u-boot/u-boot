@@ -304,6 +304,20 @@ static struct nand_ecclayout ecc_layout_2KB_bch4bit = {
 	.oobfree = { {2, 30} }
 };
 
+static struct nand_ecclayout ecc_layout_2KB_bch8bit = {
+	.eccbytes = 64,
+	.eccpos = {
+		64,  65,  66,  67,  68,  69,  70,  71,
+		72,  73,  74,  75,  76,  77,  78,  79,
+		80,  81,  82,  83,  84,  85,  86,  87,
+		88,  89,  90,  91,  92,  93,  94,  95,
+		96,  97,  98,  99,  100, 101, 102, 103,
+		104, 105, 106, 107, 108, 109, 110, 111,
+		112, 113, 114, 115, 116, 117, 118, 119,
+		120, 121, 122, 123, 124, 125, 126, 127},
+	.oobfree = { {1, 4}, {6, 26} }
+};
+
 static struct nand_ecclayout ecc_layout_4KB_bch4bit = {
 	.eccbytes = 64,
 	.eccpos = {
@@ -1412,6 +1426,19 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 		ecc->mode = NAND_ECC_HW;
 		ecc->size = info->chunk_size;
 		ecc->layout = &ecc_layout_4KB_bch8bit;
+		ecc->strength = 16;
+	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 2048) {
+		info->ecc_bch = 1;
+		info->nfullchunks = 1;
+		info->ntotalchunks = 2;
+		info->chunk_size = 1024;
+		info->spare_size = 0;
+		info->last_chunk_size = 1024;
+		info->last_spare_size = 64;
+		info->ecc_size = 32;
+		ecc->mode = NAND_ECC_HW;
+		ecc->size = info->chunk_size;
+		ecc->layout = &ecc_layout_2KB_bch8bit;
 		ecc->strength = 16;
 	} else {
 		dev_err(&info->pdev->dev,
