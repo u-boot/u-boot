@@ -352,6 +352,33 @@ static struct nand_ecclayout ecc_layout_4KB_bch4bit = {
 	.oobfree = { {6, 26}, { 64, 32} }
 };
 
+static struct nand_ecclayout ecc_layout_8KB_bch4bit = {
+	.eccbytes = 128,
+	.eccpos = {
+		32,  33,  34,  35,  36,  37,  38,  39,
+		40,  41,  42,  43,  44,  45,  46,  47,
+		48,  49,  50,  51,  52,  53,  54,  55,
+		56,  57,  58,  59,  60,  61,  62,  63,
+
+		96,  97,  98,  99,  100, 101, 102, 103,
+		104, 105, 106, 107, 108, 109, 110, 111,
+		112, 113, 114, 115, 116, 117, 118, 119,
+		120, 121, 122, 123, 124, 125, 126, 127,
+
+		160, 161, 162, 163, 164, 165, 166, 167,
+		168, 169, 170, 171, 172, 173, 174, 175,
+		176, 177, 178, 179, 180, 181, 182, 183,
+		184, 185, 186, 187, 188, 189, 190, 191,
+
+		224, 225, 226, 227, 228, 229, 230, 231,
+		232, 233, 234, 235, 236, 237, 238, 239,
+		240, 241, 242, 243, 244, 245, 246, 247,
+		248, 249, 250, 251, 252, 253, 254, 255},
+
+	/* Bootrom looks in bytes 0 & 5 for bad blocks */
+	.oobfree = { {1, 4}, {6, 26}, { 64, 32}, {128, 32}, {192, 32} }
+};
+
 static struct nand_ecclayout ecc_layout_4KB_bch8bit = {
 	.eccbytes = 128,
 	.eccpos = {
@@ -360,6 +387,13 @@ static struct nand_ecclayout ecc_layout_4KB_bch8bit = {
 		48,  49,  50,  51,  52,  53,  54,  55,
 		56,  57,  58,  59,  60,  61,  62,  63},
 	.oobfree = { }
+};
+
+static struct nand_ecclayout ecc_layout_8KB_bch8bit = {
+	.eccbytes = 256,
+	.eccpos = {},
+	/* HW ECC handles all ECC data and all spare area is free for OOB */
+	.oobfree = {{0, 160} }
 };
 
 #define NDTR0_tCH(c)	(min((c), 7) << 19)
@@ -1428,10 +1462,36 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 		ecc->layout = &ecc_layout_4KB_bch4bit;
 		ecc->strength = 16;
 
+	} else if (strength == 4 && ecc_stepsize == 512 && page_size == 8192) {
+		info->ecc_bch = 1;
+		info->nfullchunks = 4;
+		info->ntotalchunks = 4;
+		info->chunk_size = 2048;
+		info->spare_size = 32;
+		info->ecc_size = 32;
+		ecc->mode = NAND_ECC_HW;
+		ecc->size = info->chunk_size;
+		ecc->layout = &ecc_layout_8KB_bch4bit;
+		ecc->strength = 16;
+
 	/*
 	 * Required ECC: 8-bit correction per 512 bytes
 	 * Select: 16-bit correction per 1024 bytes
 	 */
+	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 2048) {
+		info->ecc_bch = 1;
+		info->nfullchunks = 1;
+		info->ntotalchunks = 2;
+		info->chunk_size = 1024;
+		info->spare_size = 0;
+		info->last_chunk_size = 1024;
+		info->last_spare_size = 64;
+		info->ecc_size = 32;
+		ecc->mode = NAND_ECC_HW;
+		ecc->size = info->chunk_size;
+		ecc->layout = &ecc_layout_2KB_bch8bit;
+		ecc->strength = 16;
+
 	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 4096) {
 		info->ecc_bch = 1;
 		info->nfullchunks = 4;
@@ -1446,18 +1506,18 @@ static int pxa_ecc_init(struct pxa3xx_nand_info *info,
 		ecc->layout = &ecc_layout_4KB_bch8bit;
 		ecc->strength = 16;
 
-	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 2048) {
+	} else if (strength == 8 && ecc_stepsize == 512 && page_size == 8192) {
 		info->ecc_bch = 1;
-		info->nfullchunks = 1;
-		info->ntotalchunks = 2;
+		info->nfullchunks = 8;
+		info->ntotalchunks = 9;
 		info->chunk_size = 1024;
 		info->spare_size = 0;
-		info->last_chunk_size = 1024;
-		info->last_spare_size = 64;
+		info->last_chunk_size = 0;
+		info->last_spare_size = 160;
 		info->ecc_size = 32;
 		ecc->mode = NAND_ECC_HW;
 		ecc->size = info->chunk_size;
-		ecc->layout = &ecc_layout_2KB_bch8bit;
+		ecc->layout = &ecc_layout_8KB_bch8bit;
 		ecc->strength = 16;
 
 	} else {
