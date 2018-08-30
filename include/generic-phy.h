@@ -7,6 +7,7 @@
 #ifndef __GENERIC_PHY_H
 #define __GENERIC_PHY_H
 
+struct ofnode_phandle_args;
 
 /**
  * struct phy - A handle to (allowing control of) a single phy port.
