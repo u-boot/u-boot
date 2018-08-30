@@ -135,7 +135,7 @@ remove_psci_node:
 
 	fdt_add_mem_rsv(blob, (uintptr_t)&secondary_boot_code,
 			*boot_code_size);
-#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(EFI_LOADER)
 	efi_add_memory_map((uintptr_t)&secondary_boot_code,
 			   ALIGN(*boot_code_size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
 			   EFI_RESERVED_MEMORY_TYPE, false);

@@ -13,7 +13,7 @@
 #include <efi_api.h>
 
 /* No need for efi loader support in SPL */
-#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(EFI_LOADER)
 
 #include <linux/list.h>
 
@@ -460,7 +460,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
 void *efi_bootmgr_load(struct efi_device_path **device_path,
 		       struct efi_device_path **file_path);
 
-#else /* defined(EFI_LOADER) && !defined(CONFIG_SPL_BUILD) */
+#else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 #define __efi_runtime_data
@@ -477,6 +477,6 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 static inline void efi_print_image_infos(void *pc) { }
 
-#endif /* CONFIG_EFI_LOADER && !CONFIG_SPL_BUILD */
+#endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 #endif /* _EFI_LOADER_H */
