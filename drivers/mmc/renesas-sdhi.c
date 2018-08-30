@@ -374,7 +374,7 @@ static int renesas_sdhi_probe(struct udevice *dev)
 	ret = tmio_sd_probe(dev, quirks);
 #if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
 	if (!ret)
-		renesas_sdhi_reset_tuning(dev_get_priv(dev));
+		renesas_sdhi_reset_tuning(priv);
 #endif
 	return ret;
 }
