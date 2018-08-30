@@ -841,8 +841,6 @@
 		#size-cells = <0>;
 		status = "disabled";
 		ports {
-			#address-cells = <1>;
-			#size-cells = <0>;
 			reg = <1>;
 			mipi_in: port {
 				#address-cells = <1>;
