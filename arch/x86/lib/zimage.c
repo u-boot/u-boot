@@ -287,13 +287,12 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 		hdr->hardware_subarch = X86_SUBARCH_INTEL_MID;
 #endif
 
-#ifdef CONFIG_GENERATE_ACPI_TABLE
-	if (bootproto >= 0x020e)
-		hdr->acpi_rsdp_addr = acpi_get_rsdp_addr();
-#endif
-
 	setup_device_tree(hdr, (const void *)env_get_hex("fdtaddr", 0));
 	setup_video(&setup_base->screen_info);
+
+#ifdef CONFIG_EFI_STUB
+	setup_efi_info(&setup_base->efi_info);
+#endif
 
 	return 0;
 }
