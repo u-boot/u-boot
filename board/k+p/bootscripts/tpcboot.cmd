@@ -65,7 +65,7 @@ fi"
 #
 # Provide 'boot_nfs' command
 #------------------------------------------------------------
-setenv nfsargs "setenv bootargs root=/dev/nfs rw nfsroot='${serverip}':'${rootpath}',nolock,nfsvers=3"
+setenv nfsargs "setenv bootargs root=/dev/nfs rw nfsroot='${rootpath}',nolock,nfsvers=3"
 setenv addip "setenv bootargs '${bootargs}' ip='${ipaddr}':'${serverip}':'${gatewayip}':'${netmask}':'${hostname}':eth0:on"
 
 setenv boot_nfs "
