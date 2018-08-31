@@ -274,6 +274,8 @@ static char *string(char *buf, char *end, char *s, int field_width,
 	return buf;
 }
 
+/* U-Boot uses UTF-16 strings in the EFI context only. */
+#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
 static char *string16(char *buf, char *end, u16 *s, int field_width,
 		int precision, int flags)
 {
@@ -294,8 +296,6 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
 	return buf;
 }
 
-/* Device paths only exist in the EFI context. */
-#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
 static char *device_path_string(char *buf, char *end, void *dp, int field_width,
 				int precision, int flags)
 {
@@ -612,10 +612,14 @@ repeat:
 			continue;
 
 		case 's':
-			if (qualifier == 'l' && !IS_ENABLED(CONFIG_SPL_BUILD)) {
+/* U-Boot uses UTF-16 strings in the EFI context only. */
+#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
+			if (qualifier == 'l') {
 				str = string16(str, end, va_arg(args, u16 *),
 					       field_width, precision, flags);
-			} else {
+			} else
+#endif
+			{
 				str = string(str, end, va_arg(args, char *),
 					     field_width, precision, flags);
 			}

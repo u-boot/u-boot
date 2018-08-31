@@ -19,7 +19,10 @@ obj-$(CONFIG_ARCH_AT91) += at91/
 obj-$(CONFIG_OPTEE) += optee/
 
 obj-$(CONFIG_AES) += aes.o
-obj-y += charset.o
+
+ifndef API_BUILD
+obj-$(CONFIG_EFI_LOADER) += charset.o
+endif
 obj-$(CONFIG_USB_TTY) += circbuf.o
 obj-y += crc7.o
 obj-y += crc8.o
