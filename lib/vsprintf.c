@@ -294,8 +294,8 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
 	return buf;
 }
 
-#if defined(CONFIG_EFI_LOADER) && \
-	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
+/* Device paths only exist in the EFI context. */
+#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
 static char *device_path_string(char *buf, char *end, void *dp, int field_width,
 				int precision, int flags)
 {
@@ -450,8 +450,8 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 #endif
 
 	switch (*fmt) {
-#if defined(CONFIG_EFI_LOADER) && \
-	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
+/* Device paths only exist in the EFI context. */
+#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
 	case 'D':
 		return device_path_string(buf, end, ptr, field_width,
 					  precision, flags);
