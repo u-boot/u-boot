@@ -139,9 +139,6 @@ here:
 	mov	r2, #0x00000000		/* prepare zero to clear BSS */
 
 clbss_l:cmp	r0, r1			/* while not at end of BSS */
-#if defined(CONFIG_CPU_V7M)
-	itt	lo
-#endif
 	strlo	r2, [r0]		/* clear 32-bit BSS word */
 	addlo	r0, r0, #4		/* move to next */
 	blo	clbss_l
