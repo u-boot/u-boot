@@ -449,6 +449,15 @@ The driver model tree is intended to mirror that of the device tree. The
 root driver is at device tree offset 0 (the root node, '/'), and its
 children are the children of the root node.
 
+In order for a device tree to be valid, the content must be correct with
+respect to either device tree specification
+(https://www.devicetree.org/specifications/) or the device tree bindings that
+are found in the doc/device-tree-bindings directory.  When not U-Boot specific
+the bindings in this directory tend to come from the Linux Kernel.  As such
+certain design decisions may have been made already for us in terms of how
+specific devices are described and bound.  In most circumstances we wish to
+retain compatibility without additional changes being made to the device tree
+source files.
 
 Declaring Uclasses
 ------------------
