@@ -111,16 +111,21 @@ static efi_status_t EFIAPI efi_cout_output_string(
 {
 	struct simple_text_output_mode *con = &efi_con_mode;
 	struct cout_mode *mode = &efi_cout_modes[con->mode];
+	char *buf, *pos;
+	u16 *p;
+	efi_status_t ret = EFI_SUCCESS;
 
 	EFI_ENTRY("%p, %p", this, string);
 
-	unsigned int n16 = u16_strlen(string);
-	char buf[MAX_UTF8_PER_UTF16 * n16 + 1];
-	u16 *p;
-
-	*utf16_to_utf8((u8 *)buf, string, n16) = '\0';
-
+	buf = malloc(utf16_utf8_strlen(string) + 1);
+	if (!buf) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+	pos = buf;
+	utf16_utf8_strcpy(&pos, string);
 	fputs(stdout, buf);
+	free(buf);
 
 	/*
 	 * Update the cursor position.
@@ -158,7 +163,8 @@ static efi_status_t EFIAPI efi_cout_output_string(
 		con->cursor_row = min(con->cursor_row, (s32)mode->rows - 1);
 	}
 
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI efi_cout_test_string(
