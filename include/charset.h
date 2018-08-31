@@ -168,16 +168,6 @@ size_t u16_strlen(const u16 *in);
 size_t u16_strnlen(const u16 *in, size_t count);
 
 /**
- * utf16_strcpy() - UTF16 equivalent of strcpy()
- */
-uint16_t *utf16_strcpy(uint16_t *dest, const uint16_t *src);
-
-/**
- * utf16_strdup() - UTF16 equivalent of strdup()
- */
-uint16_t *utf16_strdup(const uint16_t *s);
-
-/**
  * utf16_to_utf8() - Convert an utf16 string to utf8
  *
  * Converts 'size' characters of the utf16 string 'src' to utf8
@@ -192,18 +182,5 @@ uint16_t *utf16_strdup(const uint16_t *s);
  * @return the pointer to the first unwritten byte in 'dest'
  */
 uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size);
-
-/**
- * utf8_to_utf16() - Convert an utf8 string to utf16
- *
- * Converts up to 'size' characters of the utf16 string 'src' to utf8
- * written to the 'dest' buffer. Stops at 0x00.
- *
- * @dest   the destination buffer to write the utf8 characters
- * @src    the source utf16 string
- * @size   maximum number of utf16 characters to convert
- * @return the pointer to the first unwritten byte in 'dest'
- */
-uint16_t *utf8_to_utf16(uint16_t *dest, const uint8_t *src, size_t size);
 
 #endif /* __CHARSET_H_ */
