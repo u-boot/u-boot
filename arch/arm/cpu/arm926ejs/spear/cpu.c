@@ -52,6 +52,9 @@ int arch_cpu_init(void)
 #if defined(CONFIG_SPEAR_GPIO)
 	periph1_clken |= MISC_GPIO3ENB | MISC_GPIO4ENB;
 #endif
+#if defined(CONFIG_PL022_SPI)
+	periph1_clken |= MISC_SSP1ENB | MISC_SSP2ENB | MISC_SSP3ENB;
+#endif
 
 	writel(periph1_clken, &misc_p->periph1_clken);
 
