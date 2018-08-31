@@ -280,18 +280,13 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
 		int precision, int flags)
 {
 	u16 *str = s ? s : L"<NULL>";
-	int utf16_len = u16_strnlen(str, precision);
-	u8 utf8[utf16_len * MAX_UTF8_PER_UTF16];
-	int utf8_len, i;
-
-	utf8_len = utf16_to_utf8(utf8, str, utf16_len) - utf8;
+	ssize_t len = utf16_strnlen(str, precision);
 
 	if (!(flags & LEFT))
-		while (utf8_len < field_width--)
+		for (; len < field_width; --field_width)
 			ADDCH(buf, ' ');
-	for (i = 0; i < utf8_len; ++i)
-		ADDCH(buf, utf8[i]);
-	while (utf8_len < field_width--)
+	utf16_utf8_strncpy(&buf, str, len);
+	for (; len < field_width; --field_width)
 		ADDCH(buf, ' ');
 	return buf;
 }
