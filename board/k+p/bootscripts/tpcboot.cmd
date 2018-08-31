@@ -65,7 +65,6 @@ fi"
 #
 # Provide 'boot_nfs' command
 #------------------------------------------------------------
-setenv rootpath "/srv/tftp/KP/rootfs"
 setenv nfsargs "setenv bootargs root=/dev/nfs rw \
        nfsroot=${serverip}:${rootpath},nolock,nfsvers=3"
 setenv addip "setenv bootargs ${bootargs} \
