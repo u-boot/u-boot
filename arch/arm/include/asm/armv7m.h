@@ -10,11 +10,6 @@
 #ifndef ARMV7M_H
 #define ARMV7M_H
 
-#if defined(__ASSEMBLY__)
-.syntax unified
-.thumb
-#endif
-
 /* armv7m fixed base addresses */
 #define V7M_SCS_BASE		0xE000E000
 #define V7M_NVIC_BASE		(V7M_SCS_BASE + 0x0100)

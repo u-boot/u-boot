@@ -8,9 +8,7 @@
 #include <config.h>
 #include <asm-offsets.h>
 #include <linux/linkage.h>
-#ifdef CONFIG_CPU_V7M
-#include <asm/armv7m.h>
-#endif
+#include <asm/assembler.h>
 
 /*
  * This file handles the target-independent stages of the U-Boot
