@@ -50,6 +50,49 @@ static const char j1[] = {0x6a, 0x31, 0xa1, 0x6c, 0x00};
 static const char j2[] = {0x6a, 0x32, 0xc3, 0xc3, 0x6c, 0x00};
 static const char j3[] = {0x6a, 0x33, 0xf0, 0x90, 0xf0, 0x00};
 
+/* U-Boot uses UTF-16 strings in the EFI context only. */
+#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
+static int ut_string16(struct unit_test_state *uts)
+{
+	char buf[20];
+
+	/* Test length and precision */
+	memset(buf, 0xff, sizeof(buf));
+	sprintf(buf, "%8.6ls", c2);
+	ut_asserteq(' ', buf[1]);
+	ut_assert(!strncmp(&buf[2], d2, 7));
+	ut_assert(!buf[9]);
+
+	memset(buf, 0xff, sizeof(buf));
+	sprintf(buf, "%8.6ls", c4);
+	ut_asserteq(' ', buf[4]);
+	ut_assert(!strncmp(&buf[5], d4, 12));
+	ut_assert(!buf[17]);
+
+	memset(buf, 0xff, sizeof(buf));
+	sprintf(buf, "%-8.2ls", c4);
+	ut_asserteq(' ', buf[8]);
+	ut_assert(!strncmp(buf, d4, 8));
+	ut_assert(!buf[14]);
+
+	/* Test handling of illegal utf-16 sequences */
+	memset(buf, 0xff, sizeof(buf));
+	sprintf(buf, "%ls", i1);
+	ut_asserteq_str("i1?l", buf);
+
+	memset(buf, 0xff, sizeof(buf));
+	sprintf(buf, "%ls", i2);
+	ut_asserteq_str("i2?l", buf);
+
+	memset(buf, 0xff, sizeof(buf));
+	sprintf(buf, "%ls", i3);
+	ut_asserteq_str("i3?", buf);
+
+	return 0;
+}
+UNICODE_TEST(ut_string16);
+#endif
+
 static int ut_utf8_get(struct unit_test_state *uts)
 {
 	const char *s;
