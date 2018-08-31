@@ -52,7 +52,7 @@ fi;"
 #
 # Provide 'boot_tftp_kernel' command
 #------------------------------------------------------------
-setenv download_kernel "tftpboot ${loadaddr} ${kernel_file}"
+setenv download_kernel "dhcp ${loadaddr} ${kernel_file}"
 
 setenv boot_tftp_kernel "
 if run download_kernel; then
