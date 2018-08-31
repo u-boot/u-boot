@@ -21,7 +21,9 @@ obj-$(CONFIG_OPTEE) += optee/
 obj-$(CONFIG_AES) += aes.o
 
 ifndef API_BUILD
-obj-$(CONFIG_EFI_LOADER) += charset.o
+ifneq ($(CONFIG_UT_UNICODE)$(CONFIG_EFI_LOADER),)
+obj-y += charset.o
+endif
 endif
 obj-$(CONFIG_USB_TTY) += circbuf.o
 obj-y += crc7.o

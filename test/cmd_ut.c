@@ -49,6 +49,9 @@ static cmd_tbl_t cmd_ut_sub[] = {
 #ifdef CONFIG_UT_TIME
 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
 #endif
+#if CONFIG_IS_ENABLED(UT_UNICODE) && !defined(API_BUILD)
+	U_BOOT_CMD_MKENT(unicode, CONFIG_SYS_MAXARGS, 1, do_ut_unicode, "", ""),
+#endif
 #ifdef CONFIG_SANDBOX
 	U_BOOT_CMD_MKENT(compression, CONFIG_SYS_MAXARGS, 1, do_ut_compression,
 			 "", ""),
@@ -93,6 +96,9 @@ static int do_ut(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_LONGHELP
 static char ut_help_text[] =
 	"all - execute all enabled tests\n"
+#ifdef CONFIG_SANDBOX
+	"ut compression - Test compressors and bootm decompression\n"
+#endif
 #ifdef CONFIG_UT_DM
 	"ut dm [test-name]\n"
 #endif
@@ -105,11 +111,12 @@ static char ut_help_text[] =
 #ifdef CONFIG_UT_TIME
 	"ut time - Very basic test of time functions\n"
 #endif
-#ifdef CONFIG_SANDBOX
-	"ut compression - Test compressors and bootm decompression\n"
+#if defined(CONFIG_UT_UNICODE) && \
+	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
+	"ut unicode [test-name] - test Unicode functions\n"
 #endif
 	;
-#endif
+#endif /* CONFIG_SYS_LONGHELP */
 
 U_BOOT_CMD(
 	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
