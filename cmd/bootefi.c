@@ -116,18 +116,20 @@ static void set_load_options(struct efi_loaded_image *loaded_image_info,
 {
 	size_t size;
 	const char *env = env_get(env_var);
+	u16 *pos;
 
 	loaded_image_info->load_options = NULL;
 	loaded_image_info->load_options_size = 0;
 	if (!env)
 		return;
-	size = strlen(env) + 1;
+	size = utf8_utf16_strlen(env) + 1;
 	loaded_image_info->load_options = calloc(size, sizeof(u16));
 	if (!loaded_image_info->load_options) {
 		printf("ERROR: Out of memory\n");
 		return;
 	}
-	utf8_to_utf16(loaded_image_info->load_options, (u8 *)env, size);
+	pos = loaded_image_info->load_options;
+	utf8_utf16_strcpy(&pos, env);
 	loaded_image_info->load_options_size = size * 2;
 }
 
