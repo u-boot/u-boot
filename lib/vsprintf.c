@@ -280,7 +280,7 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
 		int precision, int flags)
 {
 	u16 *str = s ? s : L"<NULL>";
-	int utf16_len = utf16_strnlen(str, precision);
+	int utf16_len = u16_strnlen(str, precision);
 	u8 utf8[utf16_len * MAX_UTF8_PER_UTF16];
 	int utf8_len, i;
 

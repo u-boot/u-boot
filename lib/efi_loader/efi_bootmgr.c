@@ -60,7 +60,7 @@ static void parse_load_option(struct load_option *lo, void *ptr)
 	ptr += sizeof(u16);
 
 	lo->label = ptr;
-	ptr += (utf16_strlen(lo->label) + 1) * 2;
+	ptr += (u16_strlen(lo->label) + 1) * 2;
 
 	lo->file_path = ptr;
 	ptr += lo->file_path_length;

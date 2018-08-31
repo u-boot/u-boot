@@ -12,14 +12,14 @@
  * utf8/utf16 conversion mostly lifted from grub
  */
 
-size_t utf16_strlen(const uint16_t *in)
+size_t u16_strlen(const u16 *in)
 {
 	size_t i;
 	for (i = 0; in[i]; i++);
 	return i;
 }
 
-size_t utf16_strnlen(const uint16_t *in, size_t count)
+size_t u16_strnlen(const u16 *in, size_t count)
 {
 	size_t i;
 	for (i = 0; count-- && in[i]; i++);
@@ -39,7 +39,11 @@ uint16_t *utf16_strcpy(uint16_t *dest, const uint16_t *src)
 uint16_t *utf16_strdup(const uint16_t *s)
 {
 	uint16_t *new;
-	if (!s || !(new = malloc((utf16_strlen(s) + 1) * 2)))
+
+	if (!s)
+		return NULL;
+	new = malloc((u16_strlen(s) + 1) * 2);
+	if (!new)
 		return NULL;
 	utf16_strcpy(new, s);
 	return new;

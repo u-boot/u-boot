@@ -13,29 +13,29 @@
 #define MAX_UTF8_PER_UTF16 3
 
 /**
- * utf16_strlen() - Get the length of an utf16 string
+ * u16_strlen - count non-zero words
  *
- * Returns the number of 16 bit characters in an utf16 string, not
- * including the terminating NULL character.
+ * This function matches wsclen() if the -fshort-wchar compiler flag is set.
+ * In the EFI context we explicitly need a function handling u16 strings.
  *
- * @in     the string to measure
- * @return the string length
+ * @in:			null terminated u16 string
+ * ReturnValue:		number of non-zero words.
+ *			This is not the number of utf-16 letters!
  */
-size_t utf16_strlen(const uint16_t *in);
+size_t u16_strlen(const u16 *in);
 
 /**
- * utf16_strnlen() - Get the length of a fixed-size utf16 string.
+ * u16_strlen - count non-zero words
  *
- * Returns the number of 16 bit characters in an utf16 string,
- * not including the terminating NULL character, but at most
- * 'count' number of characters.  In doing this, utf16_strnlen()
- * looks at only the first 'count' characters.
+ * This function matches wscnlen_s() if the -fshort-wchar compiler flag is set.
+ * In the EFI context we explicitly need a function handling u16 strings.
  *
- * @in     the string to measure
- * @count  the maximum number of characters to count
- * @return the string length, up to a maximum of 'count'
+ * @in:			null terminated u16 string
+ * @count:		maximum number of words to count
+ * ReturnValue:		number of non-zero words.
+ *			This is not the number of utf-16 letters!
  */
-size_t utf16_strnlen(const uint16_t *in, size_t count);
+size_t u16_strnlen(const u16 *in, size_t count);
 
 /**
  * utf16_strcpy() - UTF16 equivalent of strcpy()

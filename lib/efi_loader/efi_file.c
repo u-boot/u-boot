@@ -140,7 +140,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 
 	if (file_name) {
 		utf16_to_utf8((u8 *)f0, (u16 *)file_name, 1);
-		flen = utf16_strlen((u16 *)file_name);
+		flen = u16_strlen((u16 *)file_name);
 	}
 
 	/* we could have a parent, but also an absolute path: */

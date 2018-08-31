@@ -106,7 +106,7 @@ static efi_status_t efi_to_native(char *native, u16 *variable_name,
 {
 	size_t len;
 
-	len = utf16_strlen((u16 *)variable_name);
+	len = u16_strlen((u16 *)variable_name);
 	if (len >= MAX_VAR_NAME)
 		return EFI_DEVICE_ERROR;
 

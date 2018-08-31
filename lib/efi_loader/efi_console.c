@@ -114,7 +114,7 @@ static efi_status_t EFIAPI efi_cout_output_string(
 
 	EFI_ENTRY("%p, %p", this, string);
 
-	unsigned int n16 = utf16_strlen(string);
+	unsigned int n16 = u16_strlen(string);
 	char buf[MAX_UTF8_PER_UTF16 * n16 + 1];
 	u16 *p;
 
