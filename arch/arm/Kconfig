@@ -1266,7 +1266,6 @@ config STM32
 	select CPU_V7M
 	select DM
 	select DM_SERIAL
-	select SYS_THUMB_BUILD
 	imply CMD_DM
 
 config ARCH_STI
