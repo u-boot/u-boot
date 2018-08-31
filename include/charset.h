@@ -8,9 +8,139 @@
 #ifndef __CHARSET_H_
 #define __CHARSET_H_
 
+#include <linux/kernel.h>
 #include <linux/types.h>
 
 #define MAX_UTF8_PER_UTF16 3
+
+/**
+ * utf8_get() - get next UTF-8 code point from buffer
+ *
+ * @src:		pointer to current byte, updated to point to next byte
+ * Return:		code point, or 0 for end of string, or -1 if no legal
+ *			code point is found. In case of an error src points to
+ *			the incorrect byte.
+ */
+s32 utf8_get(const char **src);
+
+/**
+ * utf8_put() - write UTF-8 code point to buffer
+ *
+ * @code:		code point
+ * @dst:		pointer to destination buffer, updated to next position
+ * Return:		-1 if the input parameters are invalid
+ */
+int utf8_put(s32 code, char **dst);
+
+/**
+ * utf8_utf16_strnlen() - length of a truncated utf-8 string after conversion
+ *			  to utf-16
+ *
+ * @src:		utf-8 string
+ * @count:		maximum number of code points to convert
+ * Return:		length in bytes after conversion to utf-16 without the
+ *			trailing \0. If an invalid UTF-8 sequence is hit one
+ *			word will be reserved for a replacement character.
+ */
+size_t utf8_utf16_strnlen(const char *src, size_t count);
+
+/**
+ * utf8_utf16_strlen() - length of a utf-8 string after conversion to utf-16
+ *
+ * @src:		utf-8 string
+ * Return:		length in bytes after conversion to utf-16 without the
+ *			trailing \0. -1 if the utf-8 string is not valid.
+ */
+#define utf8_utf16_strlen(a) utf8_utf16_strnlen((a), SIZE_MAX)
+
+/**
+ * utf8_utf16_strncpy() - copy utf-8 string to utf-16 string
+ *
+ * @dst:		destination buffer
+ * @src:		source buffer
+ * @count:		maximum number of code points to copy
+ * Return:		-1 if the input parameters are invalid
+ */
+int utf8_utf16_strncpy(u16 **dst, const char *src, size_t count);
+
+/**
+ * utf8_utf16_strcpy() - copy utf-8 string to utf-16 string
+ *
+ * @dst:		destination buffer
+ * @src:		source buffer
+ * Return:		-1 if the input parameters are invalid
+ */
+#define utf8_utf16_strcpy(d, s) utf8_utf16_strncpy((d), (s), SIZE_MAX)
+
+/**
+ * utf16_get() - get next UTF-16 code point from buffer
+ *
+ * @src:		pointer to current word, updated to point to next word
+ * Return:		code point, or 0 for end of string, or -1 if no legal
+ *			code point is found. In case of an error src points to
+ *			the incorrect word.
+ */
+s32 utf16_get(const u16 **src);
+
+/**
+ * utf16_put() - write UTF-16 code point to buffer
+ *
+ * @code:		code point
+ * @dst:		pointer to destination buffer, updated to next position
+ * Return:		-1 if the input parameters are invalid
+ */
+int utf16_put(s32 code, u16 **dst);
+
+/**
+ * utf16_strnlen() - length of a truncated utf-16 string
+ *
+ * @src:		utf-16 string
+ * @count:		maximum number of code points to convert
+ * Return:		length in code points. If an invalid UTF-16 sequence is
+ *			hit one position will be reserved for a replacement
+ *			character.
+ */
+size_t utf16_strnlen(const u16 *src, size_t count);
+
+/**
+ * utf16_utf8_strnlen() - length of a truncated utf-16 string after conversion
+ *			  to utf-8
+ *
+ * @src:		utf-16 string
+ * @count:		maximum number of code points to convert
+ * Return:		length in bytes after conversion to utf-8 without the
+ *			trailing \0. If an invalid UTF-16 sequence is hit one
+ *			byte will be reserved for a replacement character.
+ */
+size_t utf16_utf8_strnlen(const u16 *src, size_t count);
+
+/**
+ * utf16_utf8_strlen() - length of a utf-16 string after conversion to utf-8
+ *
+ * @src:		utf-16 string
+ * Return:		length in bytes after conversion to utf-8 without the
+ *			trailing \0. -1 if the utf-16 string is not valid.
+ */
+#define utf16_utf8_strlen(a) utf16_utf8_strnlen((a), SIZE_MAX)
+
+/**
+ * utf16_utf8_strncpy() - copy utf-16 string to utf-8 string
+ *
+ * @dst:		destination buffer
+ * @src:		source buffer
+ * @count:		maximum number of code points to copy
+ * Return:		-1 if the input parameters are invalid
+ */
+int utf16_utf8_strncpy(char **dst, const u16 *src, size_t count);
+
+/**
+ * utf16_utf8_strcpy() - copy utf-16 string to utf-8 string
+ *
+ * @dst:		destination buffer
+ * @src:		source buffer
+ * Return:		-1 if the input parameters are invalid
+ */
+#define utf16_utf8_strcpy(d, s) utf16_utf8_strncpy((d), (s), SIZE_MAX)
 
 /**
  * u16_strlen - count non-zero words
