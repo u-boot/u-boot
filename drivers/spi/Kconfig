@@ -125,6 +125,14 @@ config PIC32_SPI
 	  to access the SPI NOR flash, MMC-over-SPI on platforms based on
 	  Microchip PIC32 family devices.
 
+config PL022_SPI
+	bool "ARM AMBA PL022 SSP controller driver"
+	depends on ARM
+	help
+	  This selects the ARM(R) AMBA(R) PrimeCell PL022 SSP
+	  controller. If you have an embedded system with an AMBA(R)
+	  bus and a PL022 controller, say Y or M here.
+
 config RENESAS_RPC_SPI
 	bool "Renesas RPC SPI driver"
 	depends on RCAR_GEN3
