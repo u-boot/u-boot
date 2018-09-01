@@ -27,7 +27,7 @@
 #define CONFIG_BAUDRATE 115200
 
 /* Console configuration */
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC3,115200n8\0"
+#define CONFIG_DEFAULT_CONSOLE		"ttySAC3,115200n8"
 
 #define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
 
@@ -48,7 +48,7 @@
 	"rdaddr=0x48000000\0" \
 	"kerneladdr=0x40007000\0" \
 	"ramdiskaddr=0x48000000\0" \
-	"console=ttySAC3,115200n8\0" \
+	"console=" CONFIG_DEFAULT_CONSOLE "\0" \
 	"mmcdev=0\0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
@@ -91,4 +91,5 @@
 #define CONFIG_ENV_OFFSET		(RESERVE_BLOCK_SIZE + BL1_SIZE + BL2_SZIE \
                                     + COPY_UBOOT_SIZE + COPY_TZSW_SIZE)
 
+#define CONFIG_EXYNOS_FB
 #endif	/* __CONFIG_H */
