@@ -22,6 +22,7 @@
 	aliases {
 		serial3 = "/serial@13830000";
 		console = "/serial@13830000";
+        pinctrl_exynos0 = "/pinctrl_exynos@0";
 	};
 
     serial@13800000 {
@@ -47,10 +48,9 @@
         status = "okay";
     };
 
-    pinctrl@11400000 {
+    pinctrl_exynos@0 {
         compatible = "samsung,exynos4412-pinctrl";
         reg = <0x11400000 0x1000>;
-        u-boot,dm-pre-reloc;
 
         lcd_data: lcd {
             samsung,pins = "gpf0-0", "gpf0-1", "gpf0-2", "gpf0-3",
@@ -63,7 +63,6 @@
             samsung,pin-function = <2>;
             samsung,pin-pud = <0>;
             samsung,pin-drv = <3>;
-            u-boot,dm-pre-reloc;
         };
     };
 
