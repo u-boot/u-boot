@@ -790,6 +790,26 @@ static void exynos4x12_uart_config(int peripheral)
 	}
 }
 
+static void exynos4x12_pwm_config(int peripheral)
+{
+    switch (peripheral) {
+    case PERIPH_ID_PWM0:
+        gpio_cfg_pin(EXYNOS4X12_GPIO_D00, S5P_GPIO_FUNC(0x2));
+        break;
+    case PERIPH_ID_PWM1:
+        gpio_cfg_pin(EXYNOS4X12_GPIO_D01, S5P_GPIO_FUNC(0x2));
+        break;
+    case PERIPH_ID_PWM2:
+        gpio_cfg_pin(EXYNOS4X12_GPIO_D02, S5P_GPIO_FUNC(0x2));
+        break;
+    case PERIPH_ID_PWM3:
+        gpio_cfg_pin(EXYNOS4X12_GPIO_D03, S5P_GPIO_FUNC(0x2));
+    default:
+        debug("%s: invalid peripheral %d", __func__, peripheral);
+        return;
+    }
+}
+
 static int exynos4_pinmux_config(int peripheral, int flags)
 {
 	switch (peripheral) {
@@ -852,6 +872,12 @@ static int exynos4x12_pinmux_config(int peripheral, int flags)
 	case PERIPH_ID_SDMMC3:
 		debug("SDMMC device %d not implemented\n", peripheral);
 		return -1;
+    case PERIPH_ID_PWM0:
+    case PERIPH_ID_PWM1:
+    case PERIPH_ID_PWM2:
+    case PERIPH_ID_PWM3:
+        exynos4x12_pwm_config(peripheral);
+        break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
 		return -1;
