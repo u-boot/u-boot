@@ -30,6 +30,9 @@ config TPL_TIMER
 config TIMER_EARLY
 	bool "Allow timer to be used early in U-Boot"
 	depends on TIMER
+	# initr_bootstage() requires a timer and is called before initr_dm()
+	# so only the early timer is available
+	default y if X86 && BOOTSTAGE
 	help
 	  In some cases the timer must be accessible before driver model is
 	  active. Examples include when using CONFIG_TRACE to trace U-Boot's
