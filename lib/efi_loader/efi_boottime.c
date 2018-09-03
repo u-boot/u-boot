@@ -105,8 +105,8 @@ void efi_save_gd(void)
 
 /*
  * Special case handler for error/abort that just forces things back to u-boot
- * world so we can dump out an abort msg, without any care about returning back
- * to UEFI world.
+ * world so we can dump out an abort message, without any care about returning
+ * back to UEFI world.
  */
 void efi_restore_gd(void)
 {
@@ -183,7 +183,7 @@ static void efi_queue_event(struct efi_event *event, bool check_tpl)
  * is_valid_tpl() - check if the task priority level is valid
  *
  * @tpl:		TPL level to check
- * ReturnValue:		status code
+ * Return:		status code
  */
 efi_status_t is_valid_tpl(efi_uintn_t tpl)
 {
@@ -626,7 +626,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	evt->notify_function = notify_function;
 	evt->notify_context = notify_context;
 	evt->group = group;
-	/* Disable timers on bootup */
+	/* Disable timers on boot up */
 	evt->trigger_next = -1ULL;
 	evt->is_queued = false;
 	evt->is_signaled = false;
@@ -732,7 +732,7 @@ void efi_timer_check(void)
  * efi_set_timer() - set the trigger time for a timer event or stop the event
  * @event:        event for which the timer is set
  * @type:         type of the timer
- * @trigger_time: trigger period in multiples of 100ns
+ * @trigger_time: trigger period in multiples of 100 ns
  *
  * This is the function for internal usage in U-Boot. For the API function
  * implementing the SetTimer service see efi_set_timer_ext.
@@ -747,8 +747,8 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 		return EFI_INVALID_PARAMETER;
 
 	/*
-	 * The parameter defines a multiple of 100ns.
-	 * We use multiples of 1000ns. So divide by 10.
+	 * The parameter defines a multiple of 100 ns.
+	 * We use multiples of 1000 ns. So divide by 10.
 	 */
 	do_div(trigger_time, 10);
 
@@ -774,7 +774,7 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
  *                       event
  * @event:        event for which the timer is set
  * @type:         type of the timer
- * @trigger_time: trigger period in multiples of 100ns
+ * @trigger_time: trigger period in multiples of 100 ns
  *
  * This function implements the SetTimer service.
  *
@@ -1061,7 +1061,7 @@ out:
 /**
  * efi_get_drivers() - get all drivers associated to a controller
  * @efiobj:               handle of the controller
- * @protocol:             protocol guid (optional)
+ * @protocol:             protocol GUID (optional)
  * @number_of_drivers:    number of child controllers
  * @driver_handle_buffer: handles of the the drivers
  *
@@ -1126,7 +1126,7 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
 /**
  * efi_disconnect_all_drivers() - disconnect all drivers from a controller
  * @efiobj:       handle of the controller
- * @protocol:     protocol guid (optional)
+ * @protocol:     protocol GUID (optional)
  * @child_handle: handle of the child to destroy
  *
  * This function implements the DisconnectController service.
@@ -1408,7 +1408,7 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 	if (!guid)
 		return EFI_INVALID_PARAMETER;
 
-	/* Check for guid override */
+	/* Check for GUID override */
 	for (i = 0; i < systab.nr_tables; i++) {
 		if (!guidcmp(guid, &systab.tables[i].guid)) {
 			if (table)
@@ -1432,7 +1432,7 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 	systab.nr_tables = i + 1;
 
 out:
-	/* systab.nr_tables may have changed. So we need to update the crc32 */
+	/* systab.nr_tables may have changed. So we need to update the CRC32 */
 	efi_update_table_header_crc32(&systab.hdr);
 
 	/* Notify that the configuration table was changed */
@@ -1648,7 +1648,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		if (ret != EFI_SUCCESS)
 			goto failure;
 	} else {
-		/* In this case, file_path is the "device" path, ie.
+		/* In this case, file_path is the "device" path, i.e.
 		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
 		 */
 		ret = efi_setup_loaded_image(info, obj, file_path, NULL);
@@ -1672,7 +1672,7 @@ error:
 }
 
 /**
- * efi_start_image() - dall the entry point of an image
+ * efi_start_image() - call the entry point of an image
  * @image_handle:   handle of the image
  * @exit_data_size: size of the buffer
  * @exit_data:      buffer to receive the exit data of the called image
@@ -1731,7 +1731,7 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 
 	/*
 	 * Usually UEFI applications call Exit() instead of returning.
-	 * But because the world doesn not consist of ponies and unicorns,
+	 * But because the world doesn't consist of ponies and unicorns,
 	 * we're happy to emulate that behavior on behalf of a payload
 	 * that forgot.
 	 */
@@ -1875,7 +1875,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 		}
 	}
 
-	/* TODO Should persist EFI variables here */
+	/* TODO: Should persist EFI variables here */
 
 	board_quiesce_devices();
 
@@ -1885,7 +1885,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	/* This stops all lingering devices */
 	bootm_disable_interrupts();
 
-	/* Disable boottime services */
+	/* Disable boot time services */
 	systab.con_in_handle = NULL;
 	systab.con_in = NULL;
 	systab.con_out_handle = NULL;
@@ -2119,7 +2119,7 @@ static efi_status_t EFIAPI efi_protocols_per_handle(
 		++*protocol_buffer_count;
 	}
 
-	/* Copy guids */
+	/* Copy GUIDs */
 	if (*protocol_buffer_count) {
 		size_t j = 0;
 
@@ -2710,7 +2710,7 @@ static efi_status_t efi_bind_controller(
  * efi_connect_single_controller() - connect a single driver to a controller
  * @controller_handle:   controller
  * @driver_image_handle: driver
- * @remain_device_path:  remainting path
+ * @remain_device_path:  remaining path
  *
  * Return: status code
  */
@@ -2791,7 +2791,7 @@ static efi_status_t efi_connect_single_controller(
  * details.
  *
  * First all driver binding protocol handles are tried for binding drivers.
- * Afterwards all handles that have openened a protocol of the controller
+ * Afterwards all handles that have opened a protocol of the controller
  * with EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER are connected to drivers.
  *
  * Return: status code
@@ -3136,7 +3136,7 @@ efi_status_t efi_initialize_system_table(void)
 				sizeof(struct efi_configuration_table),
 				(void **)&systab.tables);
 
-	/* Set crc32 field in table headers */
+	/* Set CRC32 field in table headers */
 	efi_update_table_header_crc32(&systab.hdr);
 	efi_update_table_header_crc32(&efi_runtime_services.hdr);
 	efi_update_table_header_crc32(&efi_boot_services.hdr);
