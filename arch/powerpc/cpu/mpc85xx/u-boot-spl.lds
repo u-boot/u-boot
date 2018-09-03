@@ -55,6 +55,7 @@ SECTIONS
 	. = ALIGN(8);
 	__init_begin = .;
 	__init_end = .;
+	_end = .;
 #ifdef CONFIG_SPL_SKIP_RELOCATE
 	. = ALIGN(4);
 	__bss_start = .;

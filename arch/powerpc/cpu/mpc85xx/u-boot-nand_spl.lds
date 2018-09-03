@@ -42,6 +42,7 @@ SECTIONS
 	. = ALIGN(8);
 	__init_begin = .;
 	__init_end = .;
+	_end = .;
 #if defined(CONFIG_FSL_IFC) /* Restrict bootpg at 4K boundry for IFC */
 	.bootpg ADDR(.text) + 0x1000 :
 	{

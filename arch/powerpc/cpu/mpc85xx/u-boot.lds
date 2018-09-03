@@ -81,6 +81,7 @@ SECTIONS
   .data.init : { *(.data.init) }
   . = ALIGN(256);
   __init_end = .;
+  _end = .;
 
 #ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
   .bootpg ADDR(.text) - 0x1000 :
