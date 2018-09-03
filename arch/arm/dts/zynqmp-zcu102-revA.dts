@@ -485,21 +485,6 @@
 			#size-cells = <0>;
 			reg = <3>;
 			/* DDR4 SODIMM */
-			dev@19 {
-				reg = <0x19>;
-			};
-			dev@30 {
-				reg = <0x30>;
-			};
-			dev@35 {
-				reg = <0x35>;
-			};
-			dev@36 {
-				reg = <0x36>;
-			};
-			dev@51 {
-				reg = <0x51>;
-			};
 		};
 		i2c@4 {
 			#address-cells = <1>;
