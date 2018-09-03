@@ -3,6 +3,7 @@
 
 PLATFORM_CPPFLAGS += -D__SANDBOX__ -U_FORTIFY_SOURCE
 PLATFORM_CPPFLAGS += -DCONFIG_ARCH_MAP_SYSMEM
+PLATFORM_CPPFLAGS += -fPIC
 PLATFORM_LIBS += -lrt
 
 # Define this to avoid linking with SDL, which requires SDL libraries
