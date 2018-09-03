@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <dm.h>
+#include <dm/platform_data/spi_davinci.h>
 
 /* SPIGCR0 */
 #define SPIGCR0_SPIENA_MASK	0x1
@@ -529,28 +530,6 @@ static int davinci_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return __davinci_spi_xfer(ds, bitlen, dout, din, flags);
 }
 
-static int davinci_spi_probe(struct udevice *bus)
-{
-	/* Nothing to do */
-	return 0;
-}
-
-static int davinci_ofdata_to_platadata(struct udevice *bus)
-{
-	struct davinci_spi_slave *ds = dev_get_priv(bus);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(bus);
-
-	ds->regs = devfdt_map_physmem(bus, sizeof(struct davinci_spi_regs));
-	if (!ds->regs) {
-		printf("%s: could not map device address\n", __func__);
-		return -EINVAL;
-	}
-	ds->num_cs = fdtdec_get_int(blob, node, "num-cs", 4);
-
-	return 0;
-}
-
 static const struct dm_spi_ops davinci_spi_ops = {
 	.claim_bus	= davinci_spi_claim_bus,
 	.release_bus	= davinci_spi_release_bus,
@@ -559,20 +538,50 @@ static const struct dm_spi_ops davinci_spi_ops = {
 	.set_mode	= davinci_spi_set_mode,
 };
 
+static int davinci_spi_probe(struct udevice *bus)
+{
+	struct davinci_spi_slave *ds = dev_get_priv(bus);
+	struct davinci_spi_platdata *plat = bus->platdata;
+	ds->regs = plat->regs;
+	ds->num_cs = plat->num_cs;
+
+	return 0;
+}
+
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+static int davinci_ofdata_to_platadata(struct udevice *bus)
+{
+	struct davinci_spi_platdata *plat = bus->platdata;
+	fdt_addr_t addr;
+
+	addr = devfdt_get_addr(bus);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->regs = (struct davinci_spi_regs *)addr;
+	plat->num_cs = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus), "num-cs", 4);
+
+	return 0;
+}
+
 static const struct udevice_id davinci_spi_ids[] = {
 	{ .compatible = "ti,keystone-spi" },
 	{ .compatible = "ti,dm6441-spi" },
 	{ .compatible = "ti,da830-spi" },
 	{ }
 };
+#endif
 
 U_BOOT_DRIVER(davinci_spi) = {
 	.name = "davinci_spi",
 	.id = UCLASS_SPI,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = davinci_spi_ids,
-	.ops = &davinci_spi_ops,
 	.ofdata_to_platdata = davinci_ofdata_to_platadata,
-	.priv_auto_alloc_size = sizeof(struct davinci_spi_slave),
+        .platdata_auto_alloc_size = sizeof(struct davinci_spi_platdata),
+#endif
 	.probe = davinci_spi_probe,
+	.ops = &davinci_spi_ops,
+	.priv_auto_alloc_size = sizeof(struct davinci_spi_slave),
 };
 #endif
