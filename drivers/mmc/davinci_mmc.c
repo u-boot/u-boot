@@ -15,6 +15,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/sdmmc_defs.h>
+#include <asm-generic/gpio.h>
 
 #define DAVINCI_MAX_BLOCKS	(32)
 #define WATCHDOG_COUNT		(100000)
@@ -35,6 +36,8 @@ struct davinci_mmc_priv {
 	struct davinci_mmc_regs *reg_base;	/* Register base address */
 	uint input_clk;		/* Input clock to MMC controller */
 	uint version;		/* MMC Controller version */
+	struct gpio_desc cd_gpio;       /* Card Detect GPIO */
+	struct gpio_desc wp_gpio;       /* Write Protect GPIO */
 };
 
 struct davinci_mmc_plat
@@ -425,9 +428,41 @@ static const struct mmc_ops dmmc_ops = {
        .init           = dmmc_init,
 };
 #else
+
+static int davinci_mmc_getcd(struct udevice *dev)
+{
+	int value = -1;
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	struct davinci_mmc_priv *priv = dev_get_priv(dev);
+	value = dm_gpio_get_value(&priv->cd_gpio);
+#endif
+	/* if no CD return as 1 */
+	if (value < 0)
+		return 1;
+
+	return value;
+}
+
+static int davinci_mmc_getwp(struct udevice *dev)
+{
+	int value = -1;
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	struct davinci_mmc_priv *priv = dev_get_priv(dev);
+
+	value = dm_gpio_get_value(&priv->wp_gpio);
+#endif
+	/* if no WP return as 0 */
+	if (value < 0)
+		return 0;
+
+	return value;
+}
+
 static const struct dm_mmc_ops davinci_mmc_ops = {
 	.send_cmd	= davinci_mmc_send_cmd,
 	.set_ios	= davinci_mmc_set_ios,
+	.get_cd		= davinci_mmc_getcd,
+	.get_wp		= davinci_mmc_getwp,
 };
 #endif
 
@@ -474,6 +509,12 @@ static int davinci_mmc_probe(struct udevice *dev)
 
 	priv->reg_base = (struct davinci_mmc_regs *)dev_read_addr(dev);
 	priv->input_clk = clk_get(DAVINCI_MMCSD_CLKID);
+
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	/* These GPIOs are optional */
+	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio, GPIOD_IS_IN);
+	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio, GPIOD_IS_IN);
+#endif
 
 	upriv->mmc = &plat->mmc;
 
