@@ -3124,7 +3124,7 @@ struct efi_system_table __efi_runtime_data systab = {
 /**
  * efi_initialize_system_table() - Initialize system table
  *
- * Return Value:        status code
+ * Return:	status code
  */
 efi_status_t efi_initialize_system_table(void)
 {
