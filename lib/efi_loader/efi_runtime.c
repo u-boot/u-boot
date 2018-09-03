@@ -608,7 +608,7 @@ efi_status_t __efi_runtime EFIAPI efi_update_capsule(
  *
  * @capsule_header_array:	pointer to array of virtual pointers
  * @capsule_count:		number of pointers in capsule_header_array
- * @capsule_size:		maximum capsule size
+ * @maximum_capsule_size:	maximum capsule size
  * @reset_type:			type of reset needed for capsule update
  * Returns:			status code
  */
