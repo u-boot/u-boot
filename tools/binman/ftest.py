@@ -711,6 +711,14 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Section '/binman': Section size must be provided when "
                       "using end-at-4gb", str(e.exception))
 
+    def test4gbAndSkipAtStartTogether(self):
+        """Test that the end-at-4gb and skip-at-size property can't be used
+        together"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('80_4gb_and_skip_at_start_together.dts')
+        self.assertIn("Section '/binman': Provide either 'end-at-4gb' or "
+                      "'skip-at-start'", str(e.exception))
+
     def testPackX86RomOutside(self):
         """Test that the end-at-4gb property checks for offset boundaries"""
         with self.assertRaises(ValueError) as e:

@@ -59,7 +59,7 @@ class Section(object):
         self._pad_after = 0
         self._pad_byte = 0
         self._sort = False
-        self._skip_at_start = 0
+        self._skip_at_start = None
         self._end_4gb = False
         self._name_prefix = ''
         self._entries = OrderedDict()
@@ -79,10 +79,17 @@ class Section(object):
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._sort = fdt_util.GetBool(self._node, 'sort-by-offset')
         self._end_4gb = fdt_util.GetBool(self._node, 'end-at-4gb')
-        if self._end_4gb and not self._size:
-            self._Raise("Section size must be provided when using end-at-4gb")
+        self._skip_at_start = fdt_util.GetInt(self._node, 'skip-at-start')
         if self._end_4gb:
-            self._skip_at_start = 0x100000000 - self._size
+            if not self._size:
+                self._Raise("Section size must be provided when using end-at-4gb")
+            if self._skip_at_start is not None:
+                self._Raise("Provide either 'end-at-4gb' or 'skip-at-start'")
+            else:
+                self._skip_at_start = 0x100000000 - self._size
+        else:
+            if self._skip_at_start is None:
+                self._skip_at_start = 0
         self._name_prefix = fdt_util.GetString(self._node, 'name-prefix')
 
     def _ReadEntries(self):
