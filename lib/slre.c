@@ -703,8 +703,6 @@ int main(int argc, char *argv[])
 
 		(void) memset(caps, 0, sizeof(caps));
 
-		res = 0;
-
 		res = slre_match(&slre, data, len, caps);
 		printf("Result [%d]: %d\n", i, res);
 
