@@ -15,6 +15,7 @@
 #include <dm/lists.h>
 #include <dm/root.h>
 #include <errno.h>
+#include <reset.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -28,6 +29,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_PORTA_DEBOUNCE	0x48
 #define GPIO_PORTA_EOI		0x4c
 #define GPIO_EXT_PORT(p)	(0x50 + (p) * 4)
+
+struct gpio_dwapb_priv {
+	struct reset_ctl_bulk	resets;
+};
 
 struct gpio_dwapb_platdata {
 	const char	*name;
@@ -99,13 +104,42 @@ static const struct dm_gpio_ops gpio_dwapb_ops = {
 	.get_function		= dwapb_gpio_get_function,
 };
 
+static int gpio_dwapb_reset(struct udevice *dev)
+{
+	int ret;
+	struct gpio_dwapb_priv *priv = dev_get_priv(dev);
+
+	ret = reset_get_bulk(dev, &priv->resets);
+	if (ret) {
+		/* Return 0 if error due to !CONFIG_DM_RESET and reset
+		 * DT property is not present.
+		 */
+		if (ret == -ENOENT || ret == -ENOTSUPP)
+			return 0;
+
+		dev_warn(dev, "Can't get reset: %d\n", ret);
+		return ret;
+	}
+
+	ret = reset_deassert_bulk(&priv->resets);
+	if (ret) {
+		reset_release_bulk(&priv->resets);
+		dev_err(dev, "Failed to reset: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 static int gpio_dwapb_probe(struct udevice *dev)
 {
 	struct gpio_dev_priv *priv = dev_get_uclass_priv(dev);
 	struct gpio_dwapb_platdata *plat = dev->platdata;
 
-	if (!plat)
-		return 0;
+	if (!plat) {
+		/* Reset on parent device only */
+		return gpio_dwapb_reset(dev);
+	}
 
 	priv->gpio_count = plat->pins;
 	priv->bank_name = plat->name;
@@ -166,6 +200,17 @@ err:
 	return ret;
 }
 
+static int gpio_dwapb_remove(struct udevice *dev)
+{
+	struct gpio_dwapb_platdata *plat = dev_get_platdata(dev);
+	struct gpio_dwapb_priv *priv = dev_get_priv(dev);
+
+	if (!plat && priv)
+		return reset_release_bulk(&priv->resets);
+
+	return 0;
+}
+
 static const struct udevice_id gpio_dwapb_ids[] = {
 	{ .compatible = "snps,dw-apb-gpio" },
 	{ }
@@ -178,4 +223,6 @@ U_BOOT_DRIVER(gpio_dwapb) = {
 	.ops		= &gpio_dwapb_ops,
 	.bind		= gpio_dwapb_bind,
 	.probe		= gpio_dwapb_probe,
+	.remove		= gpio_dwapb_remove,
+	.priv_auto_alloc_size   = sizeof(struct gpio_dwapb_priv),
 };
