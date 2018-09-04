@@ -22,13 +22,14 @@ If the eMMC has already a U-Boot flashed with DFU support then
 the user can go to step 2 below in order to update U-Boot.
 
 Put pico board in USB download mode (refer to the document
-http://www.wandboard.org/images/hobbit/hobbitboard-imx6ul-reva1.pdf page 15)
+http://www.wandboard.org/images/hobbit/hobbitboard-imx6ul-reva1.pdf
+page 15).
 
-Connect a USB to serial adapter between the host PC and pico
+Connect a USB to serial adapter between the host PC and pico.
 
-Connect a USB cable between the OTG pico port and the host PC
+Connect a USB cable between the OTG pico port and the host PC.
 
-Open a terminal program such as minicom
+Open a terminal program such as minicom.
 
 Copy SPL and u-boot.img to the imx_usb_loader folder.
 
@@ -40,7 +41,7 @@ Load the u-boot.img binary via USB:
 
 $ sudo ./imx_usb u-boot.img
 
-Then U-Boot should start and its messages will appear in the console program.
+Then U-Boot starts and its messages appear in the console program.
 
 Use the default environment variables:
 
@@ -49,7 +50,8 @@ Use the default environment variables:
 
 2. Flashing U-Boot into the eMMC
 
-Run the DFU command:
+Run the DFU agent so we can flash the new images using dfu-util tool:
+
 => dfu 0 mmc 0
 
 Flash SPL and u-boot.img into the eMMC running the following commands on a PC:
@@ -58,14 +60,8 @@ $ sudo dfu-util -D SPL -a spl
 
 $ sudo dfu-util -D u-boot.img -a u-boot
 
-Then on the U-Boot prompt the following message should be seen after a
-successful upgrade:
-
-#DOWNLOAD ... OK
-Ctrl+C to exit ...
-
 Remove power from the pico board.
 
-Put pico board into normal boot mode
+Put pico board into normal boot mode.
 
 Power up the board and the new updated U-Boot should boot from eMMC.
