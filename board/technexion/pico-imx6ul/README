@@ -13,7 +13,13 @@ $ make mrproper
 $ make pico-imx6ul_defconfig
 $ make
 
-This will generate the U-Boot binary called u-boot.imx.
+This generates the SPL and u-boot.img binaries.
+
+1. Loading U-Boot via USB Serial Download Protocol
+
+Note: This method is convenient for development purposes.
+If the eMMC has already a U-Boot flashed with DFU support then
+the user can go to step 2 below in order to update U-Boot.
 
 Put pico board in USB download mode (refer to the document
 http://www.wandboard.org/images/hobbit/hobbitboard-imx6ul-reva1.pdf page 15)
@@ -24,11 +30,15 @@ Connect a USB cable between the OTG pico port and the host PC
 
 Open a terminal program such as minicom
 
-Copy u-boot.imx to the imx_usb_loader folder.
+Copy SPL and u-boot.img to the imx_usb_loader folder.
 
-Load u-boot.imx via USB:
+Load the SPL binary via USB:
 
-$ sudo ./imx_usb u-boot.imx
+$ sudo ./imx_usb SPL
+
+Load the u-boot.img binary via USB:
+
+$ sudo ./imx_usb u-boot.img
 
 Then U-Boot should start and its messages will appear in the console program.
 
@@ -37,12 +47,16 @@ Use the default environment variables:
 => env default -f -a
 => saveenv
 
+2. Flashing U-Boot into the eMMC
+
 Run the DFU command:
 => dfu 0 mmc 0
 
-Transfer u-boot.imx that will be flashed into the eMMC:
+Flash SPL and u-boot.img into the eMMC running the following commands on a PC:
 
-$ sudo dfu-util -D u-boot.imx -a boot
+$ sudo dfu-util -D SPL -a spl
+
+$ sudo dfu-util -D u-boot.img -a u-boot
 
 Then on the U-Boot prompt the following message should be seen after a
 successful upgrade:
