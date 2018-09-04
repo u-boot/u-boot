@@ -31,6 +31,7 @@ efi_selftest_snp.o \
 efi_selftest_textinput.o \
 efi_selftest_textoutput.o \
 efi_selftest_tpl.o \
+efi_selftest_unicode_collation.o \
 efi_selftest_util.o \
 efi_selftest_variables.o \
 efi_selftest_watchdog.o
