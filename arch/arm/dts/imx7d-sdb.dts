@@ -11,11 +11,15 @@
 	model = "Freescale i.MX7 SabreSD Board";
 	compatible = "fsl,imx7d-sdb", "fsl,imx7d";
 
+	aliases {
+		spi5 = &soft_spi;
+	};
+
 	memory {
 		reg = <0x80000000 0x80000000>;
 	};
 
-	spi4 {
+	soft_spi: soft-spi {
 		compatible = "spi-gpio";
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_spi1>;

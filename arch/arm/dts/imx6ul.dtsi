@@ -39,14 +39,15 @@
 		sai1 = &sai1;
 		sai2 = &sai2;
 		sai3 = &sai3;
-		spi0 = &ecspi1;
-		spi1 = &ecspi2;
-		spi2 = &ecspi3;
-		spi3 = &ecspi4;
-		usbotg0 = &usbotg1;
-		usbotg1 = &usbotg2;
+		spi0 = &qspi;
+		spi1 = &ecspi1;
+		spi2 = &ecspi2;
+		spi3 = &ecspi3;
+		spi4 = &ecspi4;
 		usbphy0 = &usbphy1;
 		usbphy1 = &usbphy2;
+		usb0 = &usbotg1;
+		usb1 = &usbotg2;
 	};
 
 	cpus {

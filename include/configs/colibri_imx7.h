@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2016 Toradex AG
+ * Copyright 2016-2018 Toradex AG
  *
  * Configuration settings for the Colibri iMX7 module.
  *
@@ -14,7 +14,7 @@
 #include "mx7_common.h"
 
 /*#define CONFIG_DBG_MONITOR*/
-#define PHYS_SDRAM_SIZE			SZ_512M
+#define PHYS_SDRAM_SIZE			SZ_1G
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
@@ -34,7 +34,13 @@
 
 /* MMC Config*/
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
+#ifdef CONFIG_TARGET_COLIBRI_IMX7_NAND
 #define CONFIG_SYS_FSL_USDHC_NUM	1
+#elif CONFIG_TARGET_COLIBRI_IMX7_EMMC
+#define CONFIG_SYS_FSL_USDHC_NUM	2
+
+#define CONFIG_SUPPORT_EMMC_BOOT
+#endif
 
 #undef CONFIG_BOOTM_PLAN9
 #undef CONFIG_BOOTM_RTEMS
@@ -47,6 +53,16 @@
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1
 
+#define EMMC_BOOTCMD \
+	"emmcargs=ip=off root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait\0" \
+	"emmcboot=run setup; " \
+		"setenv bootargs ${defargs} ${emmcargs} ${setupargs} " \
+		"${vidargs}; echo Booting from internal eMMC chip...; " \
+		"run m4boot && " \
+		"load mmc 0:1 ${fdt_addr_r} ${soc}-colibri-emmc-${fdt_board}.dtb && " \
+		"load mmc 0:1 ${kernel_addr_r} ${boot_file} && " \
+		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0"
+
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
 	"fdt_addr_r=0x82000000\0" \
@@ -55,22 +71,34 @@
 	"kernel_addr_r=0x81000000\0" \
 	"ramdisk_addr_r=0x82100000\0"
 
+#if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
 #define SD_BOOTCMD \
-	"sdargs=root=/dev/mmcblk0p2 rw rootwait\0"	\
+	"sdargs=root=/dev/mmcblk0p2 ro rootwait\0" \
 	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} " \
 	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
 	"run m4boot && " \
 	"load mmc 0:1 ${kernel_addr_r} ${kernel_file} && " \
 	"load mmc 0:1 ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
-	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0"
+#elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
+#define SD_BOOTCMD \
+	"sdargs=root=/dev/mmcblk1p2 ro rootwait\0" \
+	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} " \
+	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
+	"run m4boot && " \
+	"load mmc 1:1 ${kernel_addr_r} ${kernel_file} && " \
+	"load mmc 1:1 ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
+	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0"
+#endif
+
 
 #define NFS_BOOTCMD \
-	"nfsargs=ip=:::::eth0: root=/dev/nfs\0"	\
+	"nfsargs=ip=:::::eth0: root=/dev/nfs\0" \
 	"nfsboot=run setup; " \
 		"setenv bootargs ${defargs} ${nfsargs} " \
 		"${setupargs} ${vidargs}; echo Booting from NFS...;" \
-		"dhcp ${kernel_addr_r} && "	\
-		"tftp ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
+		"dhcp ${kernel_addr_r} && " \
+		"tftp ${fdt_addr_r} ${soc}-colibri${variant}-${fdt_board}.dtb && " \
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define UBI_BOOTCMD	\
@@ -84,13 +112,40 @@
 		"ubi read ${fdt_addr_r} dtb && " \
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
-#define CONFIG_BOOTCOMMAND "run ubiboot; run sdboot; run nfsboot"
+#if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
+#define CONFIG_BOOTCOMMAND "run emmcboot ; echo ; echo emmcboot failed ; " \
+	"setenv fdtfile ${soc}-colibri-${fdt_board}.dtb && run distro_bootcmd;"
+#define MODULE_EXTRA_ENV_SETTINGS \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	UBI_BOOTCMD
+#elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
+#define CONFIG_BOOTCOMMAND "run ubiboot ; echo ; echo ubiboot failed ; " \
+	"setenv fdtfile ${soc}-colibri-emmc-${fdt_board}.dtb && run distro_bootcmd;"
+#define MODULE_EXTRA_ENV_SETTINGS \
+	"variant=-emmc\0" \
+	EMMC_BOOTCMD
+#endif
+
+#if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
+#elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(MMC, mmc, 1) \
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
+#endif
+#include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	BOOTENV \
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
 	SD_BOOTCMD \
-	UBI_BOOTCMD \
+	MODULE_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0\0" \
 	"defargs=\0" \
 	"fdt_board=eval-v3\0" \
@@ -98,7 +153,6 @@
 	"m4boot=;\0" \
 	"ip_dyn=yes\0" \
 	"kernel_file=zImage\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \
 		"${board}/flash_eth.img && source ${loadaddr}\0" \
@@ -139,26 +193,26 @@
 /* environment organization */
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_SYS_MMC_ENV_DEV		0   /* USDHC1 */
-#define CONFIG_SYS_MMC_ENV_PART		0	/* user area */
-#define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
-#define CONFIG_ENV_OFFSET		(8 * SZ_64K)
+/* Environment in eMMC, before config block at the end of 1st "boot sector" */
+#define CONFIG_ENV_SIZE			(8 * 1024)
+#define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE + \
+					 CONFIG_TDX_CFG_BLOCK_OFFSET)
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_PART		1
 #elif defined(CONFIG_ENV_IS_IN_NAND)
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)
 #define CONFIG_ENV_OFFSET		(28 * CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
 #endif
 
+#ifdef CONFIG_TARGET_COLIBRI_IMX7_NAND
 /* NAND stuff */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_NAND_MX7_GPMI_62_ECC_BYTES
-
-/* Dynamic MTD partition support */
-
-/* DMA stuff, needed for GPMI/MXS NAND support */
+#endif
 
 /* USB Configs */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET

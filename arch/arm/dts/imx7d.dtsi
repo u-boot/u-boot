@@ -86,6 +86,18 @@
 	};
 };
 
+&aips2 {
+	epdc: epdc@306f0000 {
+		compatible = "fsl,imx7d-epdc";
+		interrupts = <GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>;
+		reg = <0x306f0000 0x10000>;
+		clocks = <&clks IMX7D_CLK_DUMMY>, <&clks IMX7D_EPDC_PIXEL_ROOT_CLK>;
+		clock-names = "epdc_axi", "epdc_pix";
+		epdc-ram = <&gpr 0x4 30>;
+		status = "disabled";
+	};
+};
+
 &aips3 {
 	usbotg2: usb@30b20000 {
 		compatible = "fsl,imx7d-usb", "fsl,imx27-usb";
