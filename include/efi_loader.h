@@ -98,6 +98,9 @@ extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 /* implementation of the EFI_DEVICE_PATH_UTILITIES_PROTOCOL */
 extern const struct efi_device_path_utilities_protocol
 					efi_device_path_utilities;
+/* Implementation of the EFI_UNICODE_COLLATION_PROTOCOL */
+extern const struct efi_unicode_collation_protocol
+					efi_unicode_collation_protocol;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
@@ -127,6 +130,8 @@ extern const efi_guid_t efi_file_info_guid;
 /* GUID for file system information */
 extern const efi_guid_t efi_file_system_info_guid;
 extern const efi_guid_t efi_guid_device_path_utilities_protocol;
+/* GUID of the Unicode collation protocol */
+extern const efi_guid_t efi_guid_unicode_collation_protocol;
 
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;

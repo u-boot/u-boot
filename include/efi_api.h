@@ -31,6 +31,7 @@ enum efi_timer_delay {
 	EFI_TIMER_RELATIVE = 2
 };
 
+#define efi_intn_t ssize_t
 #define efi_uintn_t size_t
 typedef uint16_t *efi_string_t;
 
@@ -956,6 +957,26 @@ struct efi_driver_binding_protocol {
 	u32 version;
 	efi_handle_t image_handle;
 	efi_handle_t driver_binding_handle;
+};
+
+#define EFI_UNICODE_COLLATION_PROTOCOL2_GUID \
+	EFI_GUID(0xa4c751fc, 0x23ae, 0x4c3e, \
+		 0x92, 0xe9, 0x49, 0x64, 0xcf, 0x63, 0xf3, 0x49)
+struct efi_unicode_collation_protocol {
+	efi_intn_t (EFIAPI *stri_coll)(
+		struct efi_unicode_collation_protocol *this, u16 *s1, u16 *s2);
+	bool (EFIAPI *metai_match)(struct efi_unicode_collation_protocol *this,
+				   const u16 *string, const u16 *patter);
+	void (EFIAPI *str_lwr)(struct efi_unicode_collation_protocol
+			       *this, u16 *string);
+	void (EFIAPI *str_upr)(struct efi_unicode_collation_protocol *this,
+			       u16 *string);
+	void (EFIAPI *fat_to_str)(struct efi_unicode_collation_protocol *this,
+				  efi_uintn_t fat_size, char *fat, u16 *string);
+	bool (EFIAPI *str_to_fat)(struct efi_unicode_collation_protocol *this,
+				  const u16 *string, efi_uintn_t fat_size,
+				  char *fat);
+	char *supported_languages;
 };
 
 #endif

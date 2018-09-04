@@ -1526,6 +1526,12 @@ efi_status_t efi_setup_loaded_image(
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
+	ret = efi_add_protocol(obj->handle,
+			       &efi_guid_unicode_collation_protocol,
+			       (void *)&efi_unicode_collation_protocol);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
 	return ret;
 failure:
 	printf("ERROR: Failure to install protocols for loaded image\n");

@@ -384,6 +384,8 @@ F:	doc/README.uefi
 F:	doc/README.iscsi
 F:	Documentation/efi.rst
 F:	include/capitalization.h
+F:	include/cp1250.h
+F:	include/cp437.h
 F:	include/efi*
 F:	include/pe.h
 F:	include/asm-generic/pe.h
