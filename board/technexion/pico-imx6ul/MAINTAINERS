@@ -5,3 +5,8 @@ S:	Maintained
 F:	board/technexion/pico-imx6ul/
 F:	include/configs/pico-imx6ul.h
 F:	configs/pico-imx6ul_defconfig
+
+Technexion PICO-HOBBIT-IMX6UL
+M:	Otavio Salvador <otavio@ossystems.com.br>
+S:	Maintained
+F:	configs/pico-hobbit-imx6ul_defconfig
