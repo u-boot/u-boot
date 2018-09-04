@@ -44,11 +44,12 @@
 #define DFU_DEFAULT_POLL_TIMEOUT 300
 
 #define CONFIG_DFU_ENV_SETTINGS \
-	"dfu_alt_info=uboot raw 0x2 0x400 mmcpart 1;" \
-		"boot part 0 1;" \
-		"/zImage ext4 0 1;" \
-		"/imx6ul-pico-hobbit.dtb ext4 0 1;" \
-		"rootfs part 0 2\0" \
+	"dfu_alt_info=" \
+		"spl raw 0x2 0x400 mmcpart 1;" \
+		"u-boot raw 0x8a 0x400 mmcpart 1;" \
+		"/boot/zImage ext4 0 1;" \
+		"/boot/imx6ul-pico-hobbit.dtb ext4 0 1;" \
+		"rootfs part 0 1\0" \
 
 #define BOOTMENU_ENV \
 	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
