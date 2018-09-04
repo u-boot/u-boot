@@ -500,6 +500,40 @@ int ut_utf16_utf8_strncpy(struct unit_test_state *uts)
 }
 UNICODE_TEST(ut_utf16_utf8_strncpy);
 
+int ut_utf_to_lower(struct unit_test_state *uts)
+{
+	ut_asserteq('@', utf_to_lower('@'));
+	ut_asserteq('a', utf_to_lower('A'));
+	ut_asserteq('z', utf_to_lower('Z'));
+	ut_asserteq('[', utf_to_lower('['));
+	ut_asserteq('m', utf_to_lower('m'));
+	/* Latin letter O with diaresis (umlaut) */
+	ut_asserteq(0x00f6, utf_to_lower(0x00d6));
+#ifdef CONFIG_EFI_UNICODE_CAPITALIZATION
+	/* Cyrillic letter I*/
+	ut_asserteq(0x0438, utf_to_lower(0x0418));
+#endif
+	return 0;
+}
+UNICODE_TEST(ut_utf_to_lower);
+
+int ut_utf_to_upper(struct unit_test_state *uts)
+{
+	ut_asserteq('`', utf_to_upper('`'));
+	ut_asserteq('A', utf_to_upper('a'));
+	ut_asserteq('Z', utf_to_upper('z'));
+	ut_asserteq('{', utf_to_upper('{'));
+	ut_asserteq('M', utf_to_upper('M'));
+	/* Latin letter O with diaresis (umlaut) */
+	ut_asserteq(0x00d6, utf_to_upper(0x00f6));
+#ifdef CONFIG_EFI_UNICODE_CAPITALIZATION
+	/* Cyrillic letter I */
+	ut_asserteq(0x0418, utf_to_upper(0x0438));
+#endif
+	return 0;
+}
+UNICODE_TEST(ut_utf_to_upper);
+
 int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct unit_test *tests = ll_entry_start(struct unit_test, unicode_test);
