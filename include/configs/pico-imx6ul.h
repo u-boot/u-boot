@@ -12,6 +12,7 @@
 #include <linux/sizes.h>
 #include "mx6_common.h"
 #include <asm/mach-imx/gpio.h>
+#include "imx6_spl.h"
 
 /* Network support */
 
