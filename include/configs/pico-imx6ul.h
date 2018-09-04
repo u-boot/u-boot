@@ -50,6 +50,10 @@
 		"/imx6ul-pico-hobbit.dtb ext4 0 1;" \
 		"rootfs part 0 2\0" \
 
+#define BOOTMENU_ENV \
+	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
+		"setenv fdtfile imx6ul-pico-hobbit.dtb\0" \
+
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -59,6 +63,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	BOOTMENU_ENV \
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
@@ -68,6 +73,11 @@
 	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
 	"mmcautodetect=yes\0" \
 	CONFIG_DFU_ENV_SETTINGS \
+	"findfdt=" \
+		"if test $fdtfile = ask ; then " \
+			"bootmenu -1; fi;" \
+		"if test $fdtfile != ask ; then " \
+			"saveenv; fi;\0" \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
 	"partitions=" \
 		"uuid_disk=${uuid_gpt_disk};" \
