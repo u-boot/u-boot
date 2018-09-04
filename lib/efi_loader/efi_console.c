@@ -604,17 +604,23 @@ int efi_console_register(void)
 	r = efi_create_handle((efi_handle_t *)&efi_console_output_obj);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
+
 	r = efi_add_protocol(efi_console_output_obj->handle,
 			     &efi_guid_text_output_protocol, &efi_con_out);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
+	systab.con_out_handle = efi_console_output_obj->handle;
+	systab.stderr_handle = efi_console_output_obj->handle;
+
 	r = efi_create_handle((efi_handle_t *)&efi_console_input_obj);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
+
 	r = efi_add_protocol(efi_console_input_obj->handle,
 			     &efi_guid_text_input_protocol, &efi_con_in);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
+	systab.con_in_handle = efi_console_input_obj->handle;
 
 	/* Create console events */
 	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,
