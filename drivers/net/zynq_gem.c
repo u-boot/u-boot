@@ -716,7 +716,8 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	}
 	priv->interface = pdata->phy_interface;
 
-	priv->max_speed = dev_read_u32_default(dev, "max-speed", SPEED_1000);
+	priv->max_speed = ofnode_read_u32_default(phandle_args.node,
+						  "max-speed", SPEED_1000);
 	priv->int_pcs = dev_read_bool(dev, "is-internal-pcspma");
 
 	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,
