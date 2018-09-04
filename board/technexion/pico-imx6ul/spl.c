@@ -70,7 +70,6 @@ static struct mx6_ddr3_cfg mem_ddr = {
 	.density = 2,
 	.width = 16,
 	.banks = 8,
-	.rowaddr = 14,
 	.coladdr = 10,
 	.pagesz = 2,
 	.trcd = 1350,
@@ -91,10 +90,32 @@ static void ccgr_init(void)
 	writel(0xFFFFFFFF, &ccm->CCGR6);
 }
 
-static void spl_dram_init(void)
+static void imx6ul_spl_dram_cfg_size(u32 ram_size)
 {
+	if (ram_size == SZ_256M)
+		mem_ddr.rowaddr = 14;
+	else
+		mem_ddr.rowaddr = 15;
+
 	mx6ul_dram_iocfg(mem_ddr.width, &mx6_ddr_ioregs, &mx6_grp_ioregs);
 	mx6_dram_cfg(&ddr_sysinfo, &mx6_mmcd_calib, &mem_ddr);
+}
+
+static void imx6ul_spl_dram_cfg(void)
+{
+	ulong ram_size_test, ram_size = 0;
+
+	for (ram_size = SZ_512M; ram_size >= SZ_256M; ram_size >>= 1) {
+		imx6ul_spl_dram_cfg_size(ram_size);
+		ram_size_test = get_ram_size((long int *)PHYS_SDRAM, ram_size);
+		if (ram_size_test == ram_size)
+			break;
+	}
+
+	if (ram_size < SZ_256M) {
+		puts("ERROR: DRAM size detection failed\n");
+		hang();
+	}
 }
 
 void board_init_f(ulong dummy)
@@ -104,7 +125,7 @@ void board_init_f(ulong dummy)
 	board_early_init_f();
 	timer_init();
 	preloader_console_init();
-	spl_dram_init();
+	imx6ul_spl_dram_cfg();
 	memset(__bss_start, 0, __bss_end - __bss_start);
 	board_init_r(NULL, 0);
 }
