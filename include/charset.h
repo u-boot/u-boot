@@ -143,6 +143,22 @@ int utf16_utf8_strncpy(char **dst, const u16 *src, size_t count);
 #define utf16_utf8_strcpy(d, s) utf16_utf8_strncpy((d), (s), SIZE_MAX)
 
 /**
+ * utf_to_lower() - convert a Unicode letter to lower case
+ *
+ * @code:		letter to convert
+ * Return:		lower case letter or unchanged letter
+ */
+s32 utf_to_lower(const s32 code);
+
+/**
+ * utf_to_upper() - convert a Unicode letter to upper case
+ *
+ * @code:		letter to convert
+ * Return:		upper case letter or unchanged letter
+ */
+s32 utf_to_upper(const s32 code);
+
+/**
  * u16_strlen - count non-zero words
  *
  * This function matches wsclen() if the -fshort-wchar compiler flag is set.

@@ -15,6 +15,16 @@ config EFI_LOADER
 	  interfaces to a loaded EFI application, enabling it to reuse U-Boot's
 	  device drivers.
 
+config EFI_UNICODE_CAPITALIZATION
+	bool "Support Unicode capitalization"
+	depends on EFI_LOADER
+	default y
+	help
+	  Select this option to enable correct handling of the capitalization of
+	  Unicode codepoints in the range 0x0000-0xffff. If this option is not
+	  set, only the the correct handling of the letters of the codepage
+	  used by the FAT file system is ensured.
+
 config EFI_LOADER_BOUNCE_BUFFER
 	bool "EFI Applications use bounce buffers for DMA operations"
 	depends on EFI_LOADER && ARM64

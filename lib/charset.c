@@ -6,7 +6,17 @@
  */
 
 #include <charset.h>
+#include <capitalization.h>
 #include <malloc.h>
+
+static struct capitalization_table capitalization_table[] =
+#ifdef CONFIG_EFI_UNICODE_CAPITALIZATION
+	UNICODE_CAPITALIZATION_TABLE;
+#elif CONFIG_FAT_DEFAULT_CODEPAGE == 1250
+	CP1250_CAPITALIZATION_TABLE;
+#else
+	CP437_CAPITALIZATION_TABLE;
+#endif
 
 s32 utf8_get(const char **src)
 {
@@ -241,6 +251,43 @@ int utf16_utf8_strncpy(char **dst, const u16 *src, size_t count)
 	return 0;
 }
 
+s32 utf_to_lower(const s32 code)
+{
+	struct capitalization_table *pos = capitalization_table;
+	s32 ret = code;
+
+	if (code <= 0x7f) {
+		if (code >= 'A' && code <= 'Z')
+			ret += 0x20;
+		return ret;
+	}
+	for (; pos->upper; ++pos) {
+		if (pos->upper == code) {
+			ret = pos->lower;
+			break;
+		}
+	}
+	return ret;
+}
+
+s32 utf_to_upper(const s32 code)
+{
+	struct capitalization_table *pos = capitalization_table;
+	s32 ret = code;
+
+	if (code <= 0x7f) {
+		if (code >= 'a' && code <= 'z')
+			ret -= 0x20;
+		return ret;
+	}
+	for (; pos->lower; ++pos) {
+		if (pos->lower == code) {
+			ret = pos->upper;
+			break;
+		}
+	}
+	return ret;
+}
 
 size_t u16_strlen(const u16 *in)
 {
