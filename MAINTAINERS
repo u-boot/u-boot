@@ -383,6 +383,7 @@ T:	git git://github.com/agraf/u-boot.git
 F:	doc/README.uefi
 F:	doc/README.iscsi
 F:	Documentation/efi.rst
+F:	include/capitalization.h
 F:	include/efi*
 F:	include/pe.h
 F:	include/asm-generic/pe.h
