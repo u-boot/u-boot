@@ -30,7 +30,8 @@
 #define CONFIG_ENV_SIZE				SZ_64K
 
 #define BOOT_TARGET_DEVICES(func) \
-	func(SCSI, scsi, 0)
+	func(SCSI, scsi, 0) \
+	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
 
