@@ -216,6 +216,10 @@ static unsigned char mmc_board_init(struct mmc *mmc)
 	/* for cairo board, we need to set up 1.8 Volt bias level on MMC1 */
 	pbias_lite &= ~PBIASLITEVMODE0;
 #endif
+#ifdef CONFIG_TARGET_OMAP3_LOGIC
+	/* For Logic PD board, 1.8V bias to go enable gpio127 for mmc_cd */
+	pbias_lite &= ~PBIASLITEVMODE1;
+#endif
 #ifdef CONFIG_MMC_OMAP36XX_PINS
 	if (get_cpu_family() == CPU_OMAP36XX) {
 		/* Disable extended drain IO before changing PBIAS */
