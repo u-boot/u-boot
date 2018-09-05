@@ -1,0 +1,113 @@
+menu "MediaTek MIPS platforms"
+	depends on ARCH_MT7620
+
+config SYS_MALLOC_F_LEN
+	default 0x1000
+
+config SYS_SOC
+	default "mt7620" if SOC_MT7620
+
+choice
+	prompt "MediaTek MIPS SoC select"
+
+config SOC_MT7620
+	bool "MT7620/8"
+	select MIPS_L1_CACHE_SHIFT_5
+	help
+	  This supports MediaTek MIPS MT7620 family.
+
+endchoice
+
+choice
+	prompt "Board select"
+
+endchoice
+
+choice
+	prompt "Boot mode"
+
+config BOOT_RAM
+	bool "RAM boot"
+	depends on SUPPORTS_BOOT_RAM
+	help
+	  This builds an image that is linked to a RAM address. It can be used
+	  for booting from CFE via TFTP using an ELF image, but it can also be
+	  booted from RAM by other bootloaders using a BIN image.
+
+config BOOT_ROM
+	bool "ROM boot"
+	depends on SUPPORTS_BOOT_RAM
+	help
+	  This builds an image that is linked to a ROM address. It can be
+	  used as main bootloader image which is programmed onto the onboard
+	  flash storage (SPI NOR).
+
+endchoice
+
+choice
+	prompt "DDR2 size"
+
+config ONBOARD_DDR2_SIZE_256MBIT
+	bool "256MBit (32MByte) total size"
+	depends on BOOT_ROM
+	help
+	  Use 256MBit (32MByte) of DDR total size
+
+config ONBOARD_DDR2_SIZE_512MBIT
+	bool "512MBit (64MByte) total size"
+	depends on BOOT_ROM
+	help
+	  Use 512MBit (64MByte) of DDR total size
+
+config ONBOARD_DDR2_SIZE_1024MBIT
+	bool "1024MBit (128MByte) total size"
+	depends on BOOT_ROM
+	help
+	  Use 1024MBit (128MByte) of DDR total size
+
+config ONBOARD_DDR2_SIZE_2048MBIT
+	bool "2048MBit (256MByte) total size"
+	depends on BOOT_ROM
+	help
+	  Use 2048MBit (256MByte) of DDR total size
+
+endchoice
+
+choice
+	prompt "DDR2 chip width"
+
+config ONBOARD_DDR2_CHIP_WIDTH_8BIT
+	bool "8bit DDR chip width"
+	depends on BOOT_ROM
+	help
+	  Use DDR chips with 8bit width
+
+config ONBOARD_DDR2_CHIP_WIDTH_16BIT
+	bool "16bit DDR chip width"
+	depends on BOOT_ROM
+	help
+	  Use DDR chips with 16bit width
+
+endchoice
+
+choice
+	prompt "DDR2 bus width"
+
+config ONBOARD_DDR2_BUS_WIDTH_16BIT
+	bool "16bit DDR bus width"
+	depends on BOOT_ROM
+	help
+	  Use 16bit DDR bus width
+
+config ONBOARD_DDR2_BUS_WIDTH_32BIT
+	bool "32bit DDR bus width"
+	depends on BOOT_ROM
+	help
+	  Use 32bit DDR bus width
+
+endchoice
+
+config SUPPORTS_BOOT_RAM
+	bool
+
+endmenu

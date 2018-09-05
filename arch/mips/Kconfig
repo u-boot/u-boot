@@ -69,6 +69,21 @@ config ARCH_BMIPS
 	select SYSRESET
 	imply CMD_DM
 
+config ARCH_MT7620
+	bool "Support MT7620/7688 SoCs"
+	imply CMD_DM
+	select DISPLAY_CPUINFO
+	select DM
+	select DM_SERIAL
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	select MIPS_TUNE_24KC
+	select OF_CONTROL
+	select ROM_EXCEPTION_VECTORS
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
+	select SUPPORTS_LITTLE_ENDIAN
+
 config MACH_PIC32
 	bool "Support Microchip PIC32"
 	select DM
@@ -121,6 +136,7 @@ source "board/qemu-mips/Kconfig"
 source "arch/mips/mach-ath79/Kconfig"
 source "arch/mips/mach-bmips/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
+source "arch/mips/mach-mt7620/Kconfig"
 
 if MIPS
 
