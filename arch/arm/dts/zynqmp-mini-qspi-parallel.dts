@@ -10,5 +10,8 @@
 
 &qspi {
 	is-dual = <1>;
+};
+
+&flash0 {
 	spi-rx-bus-width = <4>;
 };
