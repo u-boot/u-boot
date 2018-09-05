@@ -6,6 +6,8 @@ config MESON64_COMMON
 	select CLK
 	select DM
 	select DM_SERIAL
+	select SYSCON
+	select REGMAP
 	imply CMD_DM
 
 config MESON_GX
@@ -33,6 +35,12 @@ config MESON_GXM
 	select MESON_GX
 	help
 	  Select this if your SoC is an S912
+
+config MESON_AXG
+	bool "AXG"
+	select MESON64_COMMON
+	help
+		Select this if your SoC is an A113X/D
 
 endchoice
 

@@ -8,8 +8,13 @@
 #define __MESON64_CONFIG_H
 
 /* Generic Interrupt Controller Definitions */
+#if defined(CONFIG_MESON_AXG)
+#define GICD_BASE			0xffc01000
+#define GICC_BASE			0xffc02000
+#else /* MESON GXL and GXBB */
 #define GICD_BASE			0xc4301000
 #define GICC_BASE			0xc4302000
+#endif
 
 #define CONFIG_CPU_ARMV8
 #define CONFIG_REMAKE_ELF
