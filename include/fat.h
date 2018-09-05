@@ -128,14 +128,10 @@ typedef struct volume_info
 	/* Boot sign comes last, 2 bytes */
 } volume_info;
 
-/* see dir_entry::lcase: */
-#define CASE_LOWER_BASE	8	/* base (name) is lower case */
-#define CASE_LOWER_EXT	16	/* extension is lower case */
-
 typedef struct dir_entry {
 	char	name[8],ext[3];	/* Name and extension */
 	__u8	attr;		/* Attribute bits */
-	__u8	lcase;		/* Case for name and ext (CASE_LOWER_x) */
+	__u8	lcase;		/* Case for base and extension */
 	__u8	ctime_ms;	/* Creation time, milliseconds */
 	__u16	ctime;		/* Creation time */
 	__u16	cdate;		/* Creation date */
