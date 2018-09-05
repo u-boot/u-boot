@@ -1028,6 +1028,38 @@ int file_fat_detectfs(void)
 	return 0;
 }
 
+int file_fat_ls(const char *dir)
+{
+	fsdata fsdata;
+	fat_itr itrblock, *itr = &itrblock;
+	int files = 0, dirs = 0;
+	int ret;
+
+	ret = fat_itr_root(itr, &fsdata);
+	if (ret)
+		return ret;
+
+	ret = fat_itr_resolve(itr, dir, TYPE_DIR);
+	if (ret)
+		return ret;
+
+	while (fat_itr_next(itr)) {
+		if (fat_itr_isdir(itr)) {
+			printf("            %s/\n", itr->name);
+			dirs++;
+		} else {
+			printf(" %8u   %s\n",
+			       FAT2CPU32(itr->dent->size),
+			       itr->name);
+			files++;
+		}
+	}
+
+	printf("\n%d file(s), %d dir(s)\n\n", files, dirs);
+
+	return 0;
+}
+
 int fat_exists(const char *filename)
 {
 	fsdata fsdata;

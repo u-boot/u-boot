@@ -38,35 +38,6 @@ static inline int fs_ls_unsupported(const char *dirname)
 	return -1;
 }
 
-/* generic implementation of ls in terms of opendir/readdir/closedir */
-__maybe_unused
-static int fs_ls_generic(const char *dirname)
-{
-	struct fs_dir_stream *dirs;
-	struct fs_dirent *dent;
-	int nfiles = 0, ndirs = 0;
-
-	dirs = fs_opendir(dirname);
-	if (!dirs)
-		return -errno;
-
-	while ((dent = fs_readdir(dirs))) {
-		if (dent->type == FS_DT_DIR) {
-			printf("            %s/\n", dent->name);
-			ndirs++;
-		} else {
-			printf(" %8lld   %s\n", dent->size, dent->name);
-			nfiles++;
-		}
-	}
-
-	fs_closedir(dirs);
-
-	printf("\n%d file(s), %d dir(s)\n\n", nfiles, ndirs);
-
-	return 0;
-}
-
 static inline int fs_exists_unsupported(const char *filename)
 {
 	return 0;
@@ -153,7 +124,7 @@ static struct fstype_info fstypes[] = {
 		.null_dev_desc_ok = false,
 		.probe = fat_set_blk_dev,
 		.close = fat_close,
-		.ls = fs_ls_generic,
+		.ls = file_fat_ls,
 		.exists = fat_exists,
 		.size = fat_size,
 		.read = fat_read_file,
@@ -163,9 +134,7 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_unsupported,
 #endif
 		.uuid = fs_uuid_unsupported,
-		.opendir = fat_opendir,
-		.readdir = fat_readdir,
-		.closedir = fat_closedir,
+		.opendir = fs_opendir_unsupported,
 	},
 #endif
 #ifdef CONFIG_FS_EXT4

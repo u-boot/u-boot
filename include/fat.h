@@ -11,7 +11,6 @@
 #define _FAT_H_
 
 #include <asm/byteorder.h>
-#include <fs.h>
 
 #define CONFIG_SUPPORT_VFAT
 /* Maximum Long File Name length supported here is 128 UTF-16 code units */
@@ -184,6 +183,7 @@ static inline u32 sect_to_clust(fsdata *fsdata, u32 sect)
 }
 
 int file_fat_detectfs(void);
+int file_fat_ls(const char *dir);
 int fat_exists(const char *filename);
 int fat_size(const char *filename, loff_t *size);
 int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
@@ -196,8 +196,5 @@ int file_fat_write(const char *filename, void *buf, loff_t offset, loff_t len,
 		   loff_t *actwrite);
 int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
 		  loff_t *actread);
-int fat_opendir(const char *filename, struct fs_dir_stream **dirsp);
-int fat_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
-void fat_closedir(struct fs_dir_stream *dirs);
 void fat_close(void);
 #endif /* _FAT_H_ */
