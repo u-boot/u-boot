@@ -58,6 +58,12 @@
  */
 #define LAST_LONG_ENTRY_MASK	0x40
 
+/* Flags telling whether we should read a file or list a directory */
+#define LS_NO		0
+#define LS_YES		1
+#define LS_DIR		1
+#define LS_ROOT		2
+
 #define ISDIRDELIM(c)	((c) == '/' || (c) == '\\')
 
 #define FSTYPE_NONE	(-1)
