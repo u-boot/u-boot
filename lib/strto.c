@@ -85,14 +85,13 @@ long simple_strtol(const char *cp, char **endp, unsigned int base)
 unsigned long ustrtoul(const char *cp, char **endp, unsigned int base)
 {
 	unsigned long result = simple_strtoul(cp, endp, base);
-	switch (**endp) {
-	case 'G':
+	switch (tolower(**endp)) {
+	case 'g':
 		result *= 1024;
 		/* fall through */
-	case 'M':
+	case 'm':
 		result *= 1024;
 		/* fall through */
-	case 'K':
 	case 'k':
 		result *= 1024;
 		if ((*endp)[1] == 'i') {
@@ -108,14 +107,13 @@ unsigned long ustrtoul(const char *cp, char **endp, unsigned int base)
 unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base)
 {
 	unsigned long long result = simple_strtoull(cp, endp, base);
-	switch (**endp) {
-	case 'G':
+	switch (tolower(**endp)) {
+	case 'g':
 		result *= 1024;
 		/* fall through */
-	case 'M':
+	case 'm':
 		result *= 1024;
 		/* fall through */
-	case 'K':
 	case 'k':
 		result *= 1024;
 		if ((*endp)[1] == 'i') {
