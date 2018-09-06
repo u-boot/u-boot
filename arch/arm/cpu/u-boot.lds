@@ -68,11 +68,11 @@ SECTIONS
 #ifdef CONFIG_ARMV7_NONSEC
 
 	/* Align the secure section only if we're going to use it in situ */
-	.__secure_start :
+	.__secure_start
 #ifndef CONFIG_ARMV7_SECURE_BASE
 		ALIGN(CONSTANT(COMMONPAGESIZE))
 #endif
-	{
+	: {
 		KEEP(*(.__secure_start))
 	}
 
