@@ -16,7 +16,7 @@ def test_efi_selftest(u_boot_console):
 	u_boot_console.run_command(cmd='bootefi selftest', wait_for_prompt=False)
 	m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
 	if m != 0:
-		raise Exception('Failures occured during the EFI selftest')
+		raise Exception('Failures occurred during the EFI selftest')
 	u_boot_console.run_command(cmd='', wait_for_echo=False, wait_for_prompt=False);
 	m = u_boot_console.p.expect(['resetting', 'U-Boot'])
 	if m != 0:
