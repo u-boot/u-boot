@@ -15,9 +15,12 @@
 #define MTD_DEV_TYPE_NOR	0x0001
 #define MTD_DEV_TYPE_NAND	0x0002
 #define MTD_DEV_TYPE_ONENAND	0x0004
+#define MTD_DEV_TYPE_SPINAND	0x0008
 
-#define MTD_DEV_TYPE(type) ((type == MTD_DEV_TYPE_NAND) ? "nand" :	\
-			(type == MTD_DEV_TYPE_ONENAND) ? "onenand" : "nor")
+#define MTD_DEV_TYPE(type) (type == MTD_DEV_TYPE_NAND ? "nand" :	\
+			    (type == MTD_DEV_TYPE_NOR ? "nor" :		\
+			     (type == MTD_DEV_TYPE_ONENAND ? "onenand" : \
+			      "spi-nand")))				\
 
 struct mtd_device {
 	struct list_head link;
