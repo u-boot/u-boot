@@ -94,12 +94,11 @@ unsigned long ustrtoul(const char *cp, char **endp, unsigned int base)
 		/* fall through */
 	case 'k':
 		result *= 1024;
-		if ((*endp)[1] == 'i') {
-			if ((*endp)[2] == 'B')
-				(*endp) += 3;
-			else
-				(*endp) += 2;
-		}
+		(*endp)++;
+		if (**endp == 'i')
+			(*endp)++;
+		if (**endp == 'B')
+			(*endp)++;
 	}
 	return result;
 }
@@ -116,12 +115,11 @@ unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base)
 		/* fall through */
 	case 'k':
 		result *= 1024;
-		if ((*endp)[1] == 'i') {
-			if ((*endp)[2] == 'B')
-				(*endp) += 3;
-			else
-				(*endp) += 2;
-		}
+		(*endp)++;
+		if (**endp == 'i')
+			(*endp)++;
+		if (**endp == 'B')
+			(*endp)++;
 	}
 	return result;
 }
