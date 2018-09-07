@@ -528,20 +528,6 @@ The following options need to be configured:
 		pointer. This is needed for the temporary stack before
 		relocation.
 
-		CONFIG_SYS_MIPS_CACHE_MODE
-
-		Cache operation mode for the MIPS CPU.
-		See also arch/mips/include/asm/mipsregs.h.
-		Possible values are:
-			CONF_CM_CACHABLE_NO_WA
-			CONF_CM_CACHABLE_WA
-			CONF_CM_UNCACHED
-			CONF_CM_CACHABLE_NONCOHERENT
-			CONF_CM_CACHABLE_CE
-			CONF_CM_CACHABLE_COW
-			CONF_CM_CACHABLE_CUW
-			CONF_CM_CACHABLE_ACCELERATED
-
 		CONFIG_XWAY_SWAP_BYTES
 
 		Enable compilation of tools/xway-swap-bytes needed for Lantiq

@@ -14,10 +14,6 @@
 #include <asm/cacheops.h>
 #include <asm/cm.h>
 
-#ifndef CONFIG_SYS_MIPS_CACHE_MODE
-#define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
-#endif
-
 	.macro	f_fill64 dst, offset, val
 	LONG_S	\val, (\offset +  0 * LONGSIZE)(\dst)
 	LONG_S	\val, (\offset +  1 * LONGSIZE)(\dst)
@@ -331,7 +327,7 @@ l1_init:
 	and		t0, t0, t1
 	PTR_LI		t1, CKSEG1
 	or		t0, t0, t1
-	li		a0, CONFIG_SYS_MIPS_CACHE_MODE
+	li		a0, CONF_CM_CACHABLE_NONCOHERENT
 	jalr.hb		t0
 
 	/*
