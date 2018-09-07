@@ -272,7 +272,7 @@ int btrfs_next_slot(struct btrfs_path *p)
 {
 	struct btrfs_leaf *leaf = &p->nodes[0]->leaf;
 
-	if (p->slots[0] >= leaf->header.nritems)
+	if (p->slots[0] + 1 >= leaf->header.nritems)
 		return jump_leaf(p, 1);
 
 	p->slots[0]++;
