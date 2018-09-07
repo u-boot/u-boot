@@ -542,11 +542,6 @@ The following options need to be configured:
 			CONF_CM_CACHABLE_CUW
 			CONF_CM_CACHABLE_ACCELERATED
 
-		CONFIG_SYS_XWAY_EBU_BOOTCFG
-
-		Special option for Lantiq XWAY SoCs for booting from NOR flash.
-		See also arch/mips/cpu/mips32/start.S.
-
 		CONFIG_XWAY_SWAP_BYTES
 
 		Enable compilation of tools/xway-swap-bytes needed for Lantiq

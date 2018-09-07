@@ -28,6 +28,7 @@ config TARGET_MALTA
 	select DM_SERIAL
 	select DYNAMIC_IO_PORT_BASE
 	select MIPS_CM
+	select MIPS_INSERT_BOOT_CONFIG
 	select MIPS_L1_CACHE_SHIFT_6
 	select MIPS_L2_CACHE
 	select OF_CONTROL
@@ -389,6 +390,28 @@ config MIPS_CM
 	  Select this if your system contains a MIPS Coherence Manager and you
 	  wish U-Boot to configure it or make use of it to retrieve system
 	  information such as cache configuration.
+
+config MIPS_INSERT_BOOT_CONFIG
+	bool
+	default n
+	help
+	  Enable this to insert some board-specific boot configuration in
+	  the U-Boot binary at offset 0x10.
+
+config MIPS_BOOT_CONFIG_WORD0
+	hex
+	depends on MIPS_INSERT_BOOT_CONFIG
+	default 0x420 if TARGET_MALTA
+	default 0x0
+	help
+	  Value which is inserted as boot config word 0.
+
+config MIPS_BOOT_CONFIG_WORD1
+	hex
+	depends on MIPS_INSERT_BOOT_CONFIG
+	default 0x0
+	help
+	  Value which is inserted as boot config word 1.
 
 endif
 
