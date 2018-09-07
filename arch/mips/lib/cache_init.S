@@ -18,8 +18,6 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
-#define INDEX_BASE	CKSEG0
-
 	.macro	f_fill64 dst, offset, val
 	LONG_S	\val, (\offset +  0 * LONGSIZE)(\dst)
 	LONG_S	\val, (\offset +  1 * LONGSIZE)(\dst)
@@ -256,7 +254,7 @@ l2_probe_done:
 	/*
 	 * Now clear that much memory starting from zero.
 	 */
-	PTR_LI		a0, CKSEG1
+	PTR_LI		a0, CKSEG1ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	PTR_ADDU	a1, a0, v0
 2:	PTR_ADDIU	a0, 64
 	f_fill64	a0, -64, zero
@@ -272,7 +270,7 @@ l2_probe_done:
 	bnez		R_L2_BYPASSED, l1_init
 
 l2_init:
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	PTR_ADDU	t1, t0, R_L2_SIZE
 1:	cache		INDEX_STORE_TAG_SD, 0(t0)
 	PTR_ADDU	t0, t0, R_L2_LINE
@@ -308,16 +306,16 @@ l1_init:
 	 * Initialize the I-cache first,
 	 */
 	blez		R_IC_SIZE, 1f
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	PTR_ADDU	t1, t0, R_IC_SIZE
 	/* clear tag to invalidate */
 	cache_loop	t0, t1, R_IC_LINE, INDEX_STORE_TAG_I
 #ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* fill once, so data field parity is correct */
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	cache_loop	t0, t1, R_IC_LINE, FILL
 	/* invalidate again - prudent but not strictly neccessary */
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	cache_loop	t0, t1, R_IC_LINE, INDEX_STORE_TAG_I
 #endif
 	sync
@@ -340,18 +338,18 @@ l1_init:
 	 * then initialize D-cache.
 	 */
 1:	blez		R_DC_SIZE, 3f
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	PTR_ADDU	t1, t0, R_DC_SIZE
 	/* clear all tags */
 	cache_loop	t0, t1, R_DC_LINE, INDEX_STORE_TAG_D
 #ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* load from each line (in cached space) */
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 2:	LONG_L		zero, 0(t0)
 	PTR_ADDU	t0, R_DC_LINE
 	bne		t0, t1, 2b
 	/* clear all tags */
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	cache_loop	t0, t1, R_DC_LINE, INDEX_STORE_TAG_D
 #endif
 3:

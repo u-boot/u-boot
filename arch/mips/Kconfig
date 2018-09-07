@@ -219,6 +219,18 @@ config MIPS_CM_BASE
 	  the GCRs occupy a region of the physical address space which is
 	  otherwise unused, or at minimum that software doesn't need to access.
 
+config MIPS_CACHE_INDEX_BASE
+	hex "Index base address for cache initialisation"
+	default 0x80000000 if CPU_MIPS32
+	default 0xffffffff80000000 if CPU_MIPS64
+	help
+	  This is the base address for a memory block, which is used for
+	  initialising the cache lines. This is also the base address of a memory
+	  block which is used for loading and filling cache lines when
+	  SYS_MIPS_CACHE_INIT_RAM_LOAD is selected.
+	  Normally this is CKSEG0. If the MIPS system needs to move this block
+	  to some SRAM or ScratchPad RAM, adapt this option accordingly.
+
 endmenu
 
 menu "OS boot interface"
