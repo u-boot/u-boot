@@ -189,7 +189,7 @@ matrix:
     - name: "buildman sun6i"
       env:
         - BUILDMAN="sun6i"
-    - name: "builman sun7i"
+    - name: "buildman sun7i"
       env:
         - BUILDMAN="sun7i"
     - name: "buildman sun8i"
