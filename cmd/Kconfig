@@ -1338,6 +1338,12 @@ config CMD_CACHE
 	help
 	  Enable the "icache" and "dcache" commands
 
+config CMD_CONITRACE
+	bool "conitrace - trace console input codes"
+	help
+	  Enable the 'conitrace' command which displays the codes received
+	  from the console input as hexadecimal numbers.
+
 config CMD_DISPLAY
 	bool "Enable the 'display' command, for character displays"
 	help

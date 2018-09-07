@@ -34,6 +34,7 @@ obj-$(CONFIG_CMD_CACHE) += cache.o
 obj-$(CONFIG_CMD_CBFS) += cbfs.o
 obj-$(CONFIG_CMD_CLK) += clk.o
 obj-$(CONFIG_CMD_CONFIG) += config.o
+obj-$(CONFIG_CMD_CONITRACE) += conitrace.o
 obj-$(CONFIG_CMD_CONSOLE) += console.o
 obj-$(CONFIG_CMD_CPU) += cpu.o
 obj-$(CONFIG_DATAFLASH_MMC_SELECT) += dataflash_mmc_mux.o
