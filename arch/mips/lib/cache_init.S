@@ -84,6 +84,7 @@
 10:
 	.set	pop
 	.endm
+
 /*
  * mips_cache_reset - low level initialisation of the primary caches
  *
@@ -319,19 +320,21 @@ l1_init:
 	PTR_LI		t0, INDEX_BASE
 	cache_loop	t0, t1, R_IC_LINE, INDEX_STORE_TAG_I
 #endif
-
-	/* Enable use of the I-cache by setting Config.K0 */
 	sync
-	mfc0		t0, CP0_CONFIG
-	li		t1, CONFIG_SYS_MIPS_CACHE_MODE
-#if __mips_isa_rev >= 2
-	ins		t0, t1, 0, 3
-#else
-	ori		t0, t0, CONF_CM_CMASK
-	xori		t0, t0, CONF_CM_CMASK
+
+	/*
+	 * Enable use of the I-cache by setting Config.K0. The code for this
+	 * must be executed from KSEG1. Jump from KSEG0 to KSEG1 to do this.
+	 * Jump back to KSEG0 after caches are enabled and insert an
+	 * instruction hazard barrier.
+	 */
+	PTR_LA		t0, change_k0_cca
+	li		t1, CPHYSADDR(~0)
+	and		t0, t0, t1
+	PTR_LI		t1, CKSEG1
 	or		t0, t0, t1
-#endif
-	mtc0		t0, CP0_CONFIG
+	li		a0, CONFIG_SYS_MIPS_CACHE_MODE
+	jalr.hb		t0
 
 	/*
 	 * then initialize D-cache.
@@ -391,16 +394,9 @@ l2_unbypass:
 	beqz		t0, 2f
 
 	/* Change Config.K0 to a coherent CCA */
-	mfc0		t0, CP0_CONFIG
-	li		t1, CONF_CM_CACHABLE_COW
-#if __mips_isa_rev >= 2
-	ins		t0, t1, 0, 3
-#else
-	ori		t0, t0, CONF_CM_CMASK
-	xori		t0, t0, CONF_CM_CMASK
-	or		t0, t0, t1
-#endif
-	mtc0		t0, CP0_CONFIG
+	PTR_LA		t0, change_k0_cca
+	li		a0, CONF_CM_CACHABLE_COW
+	jalr		t0
 
 	/*
 	 * Join the coherent domain such that the caches of this core are kept
@@ -421,5 +417,19 @@ l2_unbypass:
 return:
 	/* Ensure all cache operations complete before returning */
 	sync
-	jr	ra
+	jr	R_RETURN
 	END(mips_cache_reset)
+
+LEAF(change_k0_cca)
+	mfc0		t0, CP0_CONFIG
+#if __mips_isa_rev >= 2
+	ins		t0, a0, 0, 3
+#else
+	xor		a0, a0, t0
+	andi		a0, a0, CONF_CM_CMASK
+	xor		a0, a0, t0
+#endif
+	mtc0		a0, CP0_CONFIG
+
+	jr.hb		ra
+	END(change_k0_cca)
