@@ -90,7 +90,7 @@ static int do_part_list(int argc, char * const argv[])
 		char str[512] = { '\0', };
 		disk_partition_t info;
 
-		for (p = 1; p < 128; p++) {
+		for (p = 1; p < MAX_SEARCH_PARTITIONS; p++) {
 			char t[5];
 			int r = part_get_info(desc, p, &info);
 
