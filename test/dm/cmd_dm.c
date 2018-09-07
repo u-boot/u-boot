@@ -82,7 +82,7 @@ static int do_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	dm,	3,	1,	do_dm,
 	"Driver model low level access",
-	"tree         Dump driver model tree ('*' = activated)\n"
+	"tree          Dump driver model tree ('*' = activated)\n"
 	"dm uclass        Dump list of instances for each uclass\n"
 	"dm devres        Dump list of device resources for each device"
 );
