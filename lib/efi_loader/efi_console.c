@@ -132,7 +132,7 @@ static efi_status_t EFIAPI efi_cout_output_string(
 	 *
 	 * The UEFI spec provides advance rules for U+0000, U+0008, U+000A,
 	 * and U000D. All other characters, including control characters
-	 * U+0007 (bel) and U+0009 (tab), have to increase the column by one.
+	 * U+0007 (BEL) and U+0009 (TAB), have to increase the column by one.
 	 */
 	for (p = string; *p; ++p) {
 		switch (*p) {
@@ -304,8 +304,8 @@ static const struct {
 	{ 36, 46 },     /* 3: cyan */
 	{ 31, 41 },     /* 4: red */
 	{ 35, 45 },     /* 5: magenta */
-	{ 33, 43 },     /* 6: brown, map to yellow as edk2 does*/
-	{ 37, 47 },     /* 7: light grey, map to white */
+	{ 33, 43 },     /* 6: brown, map to yellow as EDK2 does*/
+	{ 37, 47 },     /* 7: light gray, map to white */
 };
 
 /* See EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.SetAttribute(). */
@@ -642,6 +642,6 @@ int efi_console_register(void)
 		printf("ERROR: Failed to set console timer\n");
 	return r;
 out_of_memory:
-	printf("ERROR: Out of meemory\n");
+	printf("ERROR: Out of memory\n");
 	return r;
 }
