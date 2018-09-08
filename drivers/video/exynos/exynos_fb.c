@@ -146,7 +146,11 @@ static void exynos_fimd_set_par(struct exynos_fb_priv *priv,
 	/* DATAPATH is DMA */
 	cfg |= EXYNOS_WINCON_DATAPATH_DMA;
 
+#ifdef CONFIG_EXYNOS4x12
+    cfg |= EXYNOS_WINCON_WSWP_ENABLE;
+#else
 	cfg |= EXYNOS_WINCON_HAWSWP_ENABLE;
+#endif
 
 	/* dma burst is 16 */
 	cfg |= EXYNOS_WINCON_BURSTLEN_16WORD;

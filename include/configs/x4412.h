@@ -92,4 +92,5 @@
                                     + COPY_UBOOT_SIZE + COPY_TZSW_SIZE)
 
 #define CONFIG_EXYNOS_FB
+#define CONFIG_BMP_24BPP
 #endif	/* __CONFIG_H */

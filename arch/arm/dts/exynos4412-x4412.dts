@@ -76,13 +76,10 @@
         samsung,vl-freq = <60>;
         samsung,vl-col = <1024>;
         samsung,vl-row = <600>;
-        smasung,vl-width = <1024>;
-        smasung,vl-height = <600>;
 
         samsung,vl-clkp = <0>;
-        samsung,vl-oep = <0>;
-        samsung,vl-hsp = <1>;
-        samsung,vl-vsp = <1>;
+        samsung,vl-hsp = <0>;
+        samsung,vl-vsp = <0>;
         samsung,vl-dp = <0>;
         samsung,vl-bpix = <5>;
 
@@ -95,8 +92,6 @@
 
         samsung,winid = <0>;
         samsung,interface-mode = <1>;
-
-        samsung,logo-on = <1>;
         samsung,rgb-mode = <0>;
     };
 
