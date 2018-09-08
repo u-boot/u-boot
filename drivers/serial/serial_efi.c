@@ -17,7 +17,7 @@
 
 /* Information about the efi console */
 struct serial_efi_priv {
-	struct efi_simple_input_interface *con_in;
+	struct efi_simple_text_input_protocol *con_in;
 	struct efi_simple_text_output_protocol *con_out;
 	struct efi_input_key key;
 	bool have_key;

@@ -53,7 +53,7 @@ enum efi_test_phase {
 };
 
 extern struct efi_simple_text_output_protocol *con_out;
-extern struct efi_simple_input_interface *con_in;
+extern struct efi_simple_text_input_protocol *con_in;
 
 /*
  * Exit the boot services.

@@ -391,7 +391,7 @@ struct efi_simple_text_output_protocol efi_con_out = {
 };
 
 static efi_status_t EFIAPI efi_cin_reset(
-			struct efi_simple_input_interface *this,
+			struct efi_simple_text_input_protocol *this,
 			bool extended_verification)
 {
 	EFI_ENTRY("%p, %d", this, extended_verification);
@@ -446,7 +446,7 @@ out:
 }
 
 static efi_status_t EFIAPI efi_cin_read_key_stroke(
-			struct efi_simple_input_interface *this,
+			struct efi_simple_text_input_protocol *this,
 			struct efi_input_key *key)
 {
 	struct efi_input_key pressed_key = {
@@ -558,7 +558,7 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-struct efi_simple_input_interface efi_con_in = {
+struct efi_simple_text_input_protocol efi_con_in = {
 	.reset = efi_cin_reset,
 	.read_key_stroke = efi_cin_read_key_stroke,
 	.wait_for_key = NULL,

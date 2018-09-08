@@ -308,7 +308,7 @@ struct efi_system_table {
 	u16 *fw_vendor;   /* physical addr of wchar_t vendor string */
 	u32 fw_revision;
 	efi_handle_t con_in_handle;
-	struct efi_simple_input_interface *con_in;
+	struct efi_simple_text_input_protocol *con_in;
 	efi_handle_t con_out_handle;
 	struct efi_simple_text_output_protocol *con_out;
 	efi_handle_t stderr_handle;
@@ -598,11 +598,11 @@ struct efi_input_key {
 	EFI_GUID(0x387477c1, 0x69c7, 0x11d2, \
 		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 
-struct efi_simple_input_interface {
-	efi_status_t(EFIAPI *reset)(struct efi_simple_input_interface *this,
-			bool ExtendedVerification);
+struct efi_simple_text_input_protocol {
+	efi_status_t(EFIAPI *reset)(struct efi_simple_text_input_protocol *this,
+				    bool extended_verification);
 	efi_status_t(EFIAPI *read_key_stroke)(
-			struct efi_simple_input_interface *this,
+			struct efi_simple_text_input_protocol *this,
 			struct efi_input_key *key);
 	struct efi_event *wait_for_key;
 };

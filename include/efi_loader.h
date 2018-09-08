@@ -92,7 +92,7 @@ extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
 
 extern struct efi_simple_text_output_protocol efi_con_out;
-extern struct efi_simple_input_interface efi_con_in;
+extern struct efi_simple_text_input_protocol efi_con_in;
 extern struct efi_console_control_protocol efi_console_control;
 extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 /* implementation of the EFI_DEVICE_PATH_UTILITIES_PROTOCOL */
