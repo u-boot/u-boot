@@ -83,7 +83,6 @@ struct omap_hsmmc_data {
 #if CONFIG_IS_ENABLED(DM_MMC)
 	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
 	struct gpio_desc wp_gpio;	/* Write Protect GPIO */
-	bool cd_inverted;
 #else
 	int cd_gpio;
 	int wp_gpio;
@@ -1368,17 +1367,15 @@ static int omap_hsmmc_set_ios(struct udevice *dev)
 #if CONFIG_IS_ENABLED(DM_MMC)
 static int omap_hsmmc_getcd(struct udevice *dev)
 {
-	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	int value = -1;
 #if CONFIG_IS_ENABLED(DM_GPIO)
+	struct omap_hsmmc_data *priv = dev_get_priv(dev);
 	value = dm_gpio_get_value(&priv->cd_gpio);
 #endif
 	/* if no CD return as 1 */
 	if (value < 0)
 		return 1;
 
-	if (priv->cd_inverted)
-		return !value;
 	return value;
 }
 
@@ -1860,10 +1857,6 @@ static int omap_hsmmc_ofdata_to_platdata(struct udevice *dev)
 	}
 #endif
 
-#ifdef OMAP_HSMMC_USE_GPIO
-	plat->cd_inverted = fdtdec_get_bool(fdt, node, "cd-inverted");
-#endif
-
 	return 0;
 }
 #endif
@@ -1892,9 +1885,6 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	priv->base_addr = plat->base_addr;
 	priv->controller_flags = plat->controller_flags;
 	priv->hw_rev = plat->hw_rev;
-#ifdef OMAP_HSMMC_USE_GPIO
-	priv->cd_inverted = plat->cd_inverted;
-#endif
 
 #ifdef CONFIG_BLK
 	mmc = plat->mmc;
