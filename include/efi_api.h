@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Extensible Firmware Interface
  * Based on 'Extensible Firmware Interface Specification' version 0.9,
@@ -295,8 +296,7 @@ struct efi_runtime_services {
 	EFI_GUID(0xeb9d2d31, 0x2d88, 0x11d3,  \
 		 0x9a, 0x16, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
 
-struct efi_configuration_table
-{
+struct efi_configuration_table {
 	efi_guid_t guid;
 	void *table;
 };
@@ -351,7 +351,7 @@ struct efi_loaded_image {
 
 #define DEVICE_PATH_GUID \
 	EFI_GUID(0x09576e91, 0x6d3f, 0x11d2, \
-		 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b )
+		 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 
 #define DEVICE_PATH_TYPE_END			0x7f
 #  define DEVICE_PATH_SUB_TYPE_INSTANCE_END	0x01
@@ -476,8 +476,7 @@ struct efi_device_path_file_path {
 	EFI_GUID(0x964e5b21, 0x6459, 0x11d2, \
 		 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 
-struct efi_block_io_media
-{
+struct efi_block_io_media {
 	u32 media_id;
 	char removable_media;
 	char media_present;
@@ -521,7 +520,6 @@ struct simple_text_output_mode {
 	s32 cursor_row;
 	bool cursor_visible;
 };
-
 
 #define EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID \
 	EFI_GUID(0x387477c2, 0x69c7, 0x11d2, \
@@ -611,8 +609,7 @@ struct efi_simple_text_input_protocol {
 	EFI_GUID(0x8b843e20, 0x8132, 0x4852, \
 		 0x90, 0xcc, 0x55, 0x1a, 0x4e, 0x4a, 0x7f, 0x1c)
 
-struct efi_device_path_to_text_protocol
-{
+struct efi_device_path_to_text_protocol {
 	uint16_t *(EFIAPI *convert_device_node_to_text)(
 			struct efi_device_path *device_node,
 			bool display_only,
@@ -660,8 +657,7 @@ struct efi_device_path_utilities_protocol {
 #define EFI_GOT_BGRA8		1
 #define EFI_GOT_BITMASK		2
 
-struct efi_gop_mode_info
-{
+struct efi_gop_mode_info {
 	u32 version;
 	u32 width;
 	u32 height;
@@ -670,8 +666,7 @@ struct efi_gop_mode_info
 	u32 pixels_per_scanline;
 };
 
-struct efi_gop_mode
-{
+struct efi_gop_mode {
 	u32 max_mode;
 	u32 mode;
 	struct efi_gop_mode_info *info;
@@ -692,8 +687,7 @@ struct efi_gop_pixel {
 #define EFI_BLT_BUFFER_TO_VIDEO		2
 #define EFI_BLT_VIDEO_TO_VIDEO		3
 
-struct efi_gop
-{
+struct efi_gop {
 	efi_status_t (EFIAPI *query_mode)(struct efi_gop *this, u32 mode_number,
 					  efi_uintn_t *size_of_info,
 					  struct efi_gop_mode_info **info);
@@ -763,8 +757,7 @@ struct efi_simple_network_mode {
 /* revision of the simple network protocol */
 #define EFI_SIMPLE_NETWORK_PROTOCOL_REVISION	0x00010000
 
-struct efi_simple_network
-{
+struct efi_simple_network {
 	u64 revision;
 	efi_status_t (EFIAPI *start)(struct efi_simple_network *this);
 	efi_status_t (EFIAPI *stop)(struct efi_simple_network *this);
@@ -809,8 +802,7 @@ struct efi_pxe_packet {
 	u8 packet[1472];
 };
 
-struct efi_pxe_mode
-{
+struct efi_pxe_mode {
 	u8 started;
 	u8 ipv6_available;
 	u8 ipv6_supported;
