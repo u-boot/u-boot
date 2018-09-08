@@ -11,10 +11,6 @@
 	};
 };
 
-&mmc1 {
-	cd-inverted;
-};
-
 &uart1 {
 	reg-shift = <2>;
 };
