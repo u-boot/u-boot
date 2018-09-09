@@ -1182,10 +1182,8 @@ int fdtdec_setup_mem_size_base(void)
 
 #if defined(CONFIG_NR_DRAM_BANKS)
 
-static int get_next_memory_node(const void *blob, int startoffset)
+static int get_next_memory_node(const void *blob, int mem)
 {
-	int mem = -1;
-
 	do {
 		mem = fdt_node_offset_by_prop_value(gd->fdt_blob, mem,
 						    "device_type", "memory", 7);
