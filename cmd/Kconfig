@@ -304,11 +304,6 @@ config CMD_XIMG
 	help
 	  Extract a part of a multi-image.
 
-config CMD_POWEROFF
-	bool "poweroff"
-	help
-	  Poweroff/Shutdown the system
-
 config CMD_SPL
 	bool "spl export - Export boot information for Falcon boot"
 	depends on SPL
@@ -943,6 +938,11 @@ config CMD_PCMCIA
 	  Card International Association) device. This is an old standard from
 	  about 1990. These devices are typically removable memory or network
 	  cards using a standard 68-pin connector.
+
+config CMD_POWEROFF
+	bool "poweroff"
+	help
+	  Poweroff/Shutdown the system
 
 config CMD_READ
 	bool "read - Read binary data from a partition"
