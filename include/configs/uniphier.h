@@ -60,7 +60,7 @@
 
 #define CONFIG_SYS_MAX_FLASH_SECT	256
 #define CONFIG_SYS_MONITOR_BASE		0
-#define CONFIG_SYS_MONITOR_LEN		0x00090000	/* 576KB */
+#define CONFIG_SYS_MONITOR_LEN		0x000d0000	/* 832KB */
 #define CONFIG_SYS_FLASH_BASE		0
 
 /*
@@ -218,7 +218,7 @@
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x20000
 
 /* subtract sizeof(struct image_header) */
-#define CONFIG_SYS_UBOOT_BASE			(0x70000 - 0x40)
+#define CONFIG_SYS_UBOOT_BASE			(0x130000 - 0x40)
 
 #define CONFIG_SPL_TARGET			"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_FOOTPRINT		0x10000
