@@ -21,6 +21,8 @@ static dma_addr_t dma_map_single(void *dev, void *ptr, size_t size,
 {
 	unsigned long addr = (unsigned long)ptr;
 
+	size = ALIGN(size, ARCH_DMA_MINALIGN);
+
 	if (dir == DMA_FROM_DEVICE)
 		invalidate_dcache_range(addr, addr + size);
 	else
@@ -32,6 +34,8 @@ static dma_addr_t dma_map_single(void *dev, void *ptr, size_t size,
 static void dma_unmap_single(void *dev, dma_addr_t addr, size_t size,
 			     enum dma_data_direction dir)
 {
+	size = ALIGN(size, ARCH_DMA_MINALIGN);
+
 	if (dir != DMA_TO_DEVICE)
 		invalidate_dcache_range(addr, addr + size);
 }
