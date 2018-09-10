@@ -985,6 +985,11 @@ spl/u-boot-spl.srec: spl/u-boot-spl FORCE
 OBJCOPYFLAGS_u-boot-nodtb.bin := -O binary \
 		$(if $(CONFIG_X86_16BIT_INIT),-R .start16 -R .resetvec)
 
+OBJCOPYFLAGS_u-boot-spl.hex = $(OBJCOPYFLAGS_u-boot.hex)
+
+spl/u-boot-spl.hex: spl/u-boot-spl FORCE
+	$(call if_changed,objcopy)
+
 binary_size_check: u-boot-nodtb.bin FORCE
 	@file_size=$(shell wc -c u-boot-nodtb.bin | awk '{print $$1}') ; \
 	map_size=$(shell cat u-boot.map | \
