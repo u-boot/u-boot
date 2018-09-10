@@ -42,7 +42,6 @@
 #define SC_RSTCTRL_NRST_USB3B0		(0x1 << 17)	/* USB3 #0 bus */
 #define SC_RSTCTRL_NRST_USB3C0		(0x1 << 16)	/* USB3 #0 core */
 #define SC_RSTCTRL_NRST_ETHER		(0x1 << 12)
-#define SC_RSTCTRL_NRST_STDMAC		(0x1 << 10)
 #define SC_RSTCTRL_NRST_GIO		(0x1 <<  6)
 /* Pro4 or older */
 #define SC_RSTCTRL_NRST_UMC1		(0x1 <<  5)
@@ -73,8 +72,6 @@
 #define SC_CLKCTRL_CEN_USB31		(0x1 << 17)	/* USB3 #1 */
 #define SC_CLKCTRL_CEN_USB30		(0x1 << 16)	/* USB3 #0 */
 #define SC_CLKCTRL_CEN_ETHER		(0x1 << 12)
-#define SC_CLKCTRL_CEN_MIO		(0x1 << 11)
-#define SC_CLKCTRL_CEN_STDMAC		(0x1 << 10)
 #define SC_CLKCTRL_CEN_GIO		(0x1 <<  6)
 /* Pro4 or older */
 #define SC_CLKCTRL_CEN_UMC		(0x1 <<  4)

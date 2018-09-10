@@ -39,9 +39,6 @@ void uniphier_pro4_clk_init(void)
 	tmp |= SC_CLKCTRL_CEN_USB31 | SC_CLKCTRL_CEN_USB30 |
 		SC_CLKCTRL_CEN_GIO;
 #endif
-#ifdef CONFIG_USB_EHCI_HCD
-	tmp |= SC_CLKCTRL_CEN_MIO | SC_CLKCTRL_CEN_STDMAC;
-#endif
 #ifdef CONFIG_NAND_DENALI
 	tmp |= SC_CLKCTRL_CEN_NAND;
 #endif
