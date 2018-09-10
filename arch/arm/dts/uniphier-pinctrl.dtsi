@@ -56,11 +56,6 @@
 		function = "emmc";
 	};
 
-	pinctrl_emmc_1v8: emmc-1v8 {
-		groups = "emmc", "emmc_dat8";
-		function = "emmc";
-	};
-
 	pinctrl_ether_mii: ether-mii {
 		groups = "ether_mii";
 		function = "ether_mii";

@@ -407,7 +407,7 @@
 			reg = <0x5a000000 0x400>;
 			interrupts = <0 78 4>;
 			pinctrl-names = "default";
-			pinctrl-0 = <&pinctrl_emmc_1v8>;
+			pinctrl-0 = <&pinctrl_emmc>;
 			clocks = <&sys_clk 4>;
 			resets = <&sys_rst 4>;
 			bus-width = <8>;

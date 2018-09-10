@@ -281,9 +281,8 @@
 			status = "disabled";
 			reg = <0x5a500000 0x200>;
 			interrupts = <0 78 4>;
-			pinctrl-names = "default", "1.8v";
+			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_emmc>;
-			pinctrl-1 = <&pinctrl_emmc_1v8>;
 			clocks = <&mio_clk 1>;
 			reset-names = "host", "bridge";
 			resets = <&mio_rst 1>, <&mio_rst 4>;
