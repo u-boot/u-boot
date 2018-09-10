@@ -19,6 +19,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define ZYNQ_IMAGE_PHDR_OFFSET		0x09C
+#define ZYNQ_IMAGE_HDR_OFFSET		0x098
 #define ZYNQ_IMAGE_FSBL_LEN_OFFSET	0x040
 
 #define ZYNQ_PART_HDR_CHKSUM_WORD_COUNT	0x0F
@@ -48,6 +49,15 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ZYNQ_MAXIMUM_IMAGE_WORD_LEN	0x40000000
 
 #define MD5_CHECKSUM_SIZE	16
+
+#define ZYNQ_IMAGE_HDR_SIZE		64
+#define ZYNQ_IMAGE_HDR_TABLE_SIZE	64
+#define ZYNQ_TOTAL_IMAGE_HDR_SIZE	(ZYNQ_MAX_PARTITION_NUMBER * \
+					 ZYNQ_IMAGE_HDR_SIZE)
+#define ZYNQ_TOTAL_PART_HDR_SIZE	ZYNQ_TOTAL_IMAGE_HDR_SIZE
+#define ZYNQ_TOTAL_HDR_SIZE		(ZYNQ_IMAGE_HDR_TABLE_SIZE + \
+					 ZYNQ_TOTAL_IMAGE_HDR_SIZE + \
+					 ZYNQ_TOTAL_PART_HDR_SIZE + 64)
 
 static u8 *ppkmodular;
 static u8 *ppkmodularex;
@@ -390,6 +400,20 @@ static int zynq_authenticate_part(u8 *buffer, u32 size)
 }
 
 /*
+ * Read the image headers
+ */
+static void zynq_get_imghdr_info(u32 image_base_addr, u32 *offset)
+{
+	u32 imghdroffset;
+
+	imghdroffset = *((u32 *)(image_base_addr + ZYNQ_IMAGE_HDR_OFFSET));
+	imghdroffset += image_base_addr;
+
+	memcpy((u32 *)offset, (u32 *)imghdroffset,
+	       (ZYNQ_TOTAL_HDR_SIZE + ZYNQ_RSA_SIGNATURE_SIZE));
+}
+
+/*
  * Parses the partition header and verfies the authenticated and
  * encrypted image.
  */
@@ -403,6 +427,8 @@ static int do_zynq_verify_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	u32 efuseval;
 	u32 srcaddr;
 	u32 size;
+	u32 hdr_size;
+	u32 *temp_addr;
 	struct partition_hdr *hdr_ptr;
 	u32 part_data_len;
 	u32 part_img_len;
@@ -440,10 +466,27 @@ static int do_zynq_verify_image(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/* Extract ppk if efuse was blown Otherwise return error */
 	efuseval = readl(&efuse_base->status);
-	if (efuseval & ZYNQ_EFUSE_RSA_ENABLE_MASK)
+	if (efuseval & ZYNQ_EFUSE_RSA_ENABLE_MASK) {
 		zynq_extract_ppk();
-	else
+		temp_addr = (u32 *)malloc(sizeof(ZYNQ_TOTAL_HDR_SIZE +
+					  ZYNQ_RSA_SIGNATURE_SIZE));
+		if (!temp_addr) {
+			printf("malloc failed\n");
+			return -ENOMEM;
+		}
+
+		zynq_get_imghdr_info(image_base_addr, temp_addr);
+
+		hdr_size = ZYNQ_TOTAL_HDR_SIZE + ZYNQ_RSA_SIGNATURE_SIZE;
+		status = zynq_authenticate_part((u8 *)temp_addr, hdr_size);
+		free(temp_addr);
+		if (status) {
+			printf("AUTHENTICATION_FAIL\n");
+			return status;
+		}
+	} else {
 		return -1;
+	}
 
 	partitioncount = zynq_get_part_count(&part_hdr[0]);
 
