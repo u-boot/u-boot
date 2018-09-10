@@ -48,10 +48,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SDHCI_OTAPDLYSEL_MMC_HS200_B2	0x00000002
 
 #define MMC_BANK2			0x2
-#define SD_HS_BUS_SPEED			6
-#define MMC_DDR52_BUS_SPEED		7
-#define MMC_HS_BUS_SPEED		8
-#define MMC_MAX_BUS_SPEED		9
 
 struct arasan_sdhci_plat {
 	struct mmc_config cfg;

@@ -312,6 +312,10 @@
 #define MMC_TIMING_UHS_DDR50	4
 #define MMC_TIMING_HS200	5
 #define MMC_TIMING_HS		1
+#define SD_HS_BUS_SPEED		6
+#define MMC_DDR52_BUS_SPEED	7
+#define MMC_HS_BUS_SPEED	8
+#define MMC_MAX_BUS_SPEED	9
 
 /* Driver model support */
 
