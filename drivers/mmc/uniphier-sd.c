@@ -25,7 +25,9 @@ static const struct dm_mmc_ops uniphier_sd_ops = {
 };
 
 static const struct udevice_id uniphier_sd_match[] = {
-	{ .compatible = "socionext,uniphier-sdhc", .data = 0 },
+	{ .compatible = "socionext,uniphier-sd-v2.91" },
+	{ .compatible = "socionext,uniphier-sd-v3.1" },
+	{ .compatible = "socionext,uniphier-sd-v3.1.1" },
 	{ /* sentinel */ }
 };
 

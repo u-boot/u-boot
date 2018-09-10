@@ -121,17 +121,12 @@
 		function = "sd";
 	};
 
-	pinctrl_sd_1v8: sd-1v8 {
+	pinctrl_sd_uhs: sd-uhs {
 		groups = "sd";
 		function = "sd";
 	};
 
 	pinctrl_sd1: sd1 {
-		groups = "sd1";
-		function = "sd1";
-	};
-
-	pinctrl_sd1_1v8: sd1-1v8 {
 		groups = "sd1";
 		function = "sd1";
 	};

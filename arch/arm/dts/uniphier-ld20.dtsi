@@ -529,7 +529,7 @@
 		};
 
 		sd: sdhc@5a400000 {
-			compatible = "socionext,uniphier-sdhc";
+			compatible = "socionext,uniphier-sd-v3.1.1";
 			status = "disabled";
 			reg = <0x5a400000 0x800>;
 			interrupts = <0 76 4>;
