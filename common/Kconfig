@@ -259,6 +259,11 @@ config CONSOLE_RECORD_IN_SIZE
 	  The buffer is allocated immediately after the malloc() region is
 	  ready.
 
+config DISABLE_CONSOLE
+	bool "Add functionality to disable console completely"
+	help
+		Disable console (in & out).
+
 config IDENT_STRING
 	string "Board specific string to be added to uboot version string"
 	help
