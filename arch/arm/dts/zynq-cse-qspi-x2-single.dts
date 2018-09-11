@@ -8,6 +8,6 @@
 
 #include "zynq-cse-qspi.dtsi"
 
-&qspi {
+&flash0 {
 	spi-rx-bus-width = <2>;
 };
