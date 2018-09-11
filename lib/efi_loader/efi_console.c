@@ -396,6 +396,29 @@ static bool key_available;
 static struct efi_key_data next_key;
 
 /**
+ * set_shift_mask() - set shift mask
+ *
+ * @mod:	Xterm shift mask
+ */
+void set_shift_mask(int mod, struct efi_key_state *key_state)
+{
+	key_state->key_shift_state = EFI_SHIFT_STATE_VALID;
+	if (mod) {
+		--mod;
+		if (mod & 1)
+			key_state->key_shift_state |= EFI_LEFT_SHIFT_PRESSED;
+		if (mod & 2)
+			key_state->key_shift_state |= EFI_LEFT_ALT_PRESSED;
+		if (mod & 4)
+			key_state->key_shift_state |= EFI_LEFT_CONTROL_PRESSED;
+		if (mod & 8)
+			key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
+	} else {
+		key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
+	}
+}
+
+/**
  * analyze_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
  *
  * This gets called when we have already parsed CSI.
@@ -429,19 +452,7 @@ static int analyze_modifiers(struct efi_key_state *key_state)
 		}
 	}
 out:
-	if (mod)
-		--mod;
-	key_state->key_shift_state = EFI_SHIFT_STATE_VALID;
-	if (mod) {
-		if (mod & 1)
-			key_state->key_shift_state |= EFI_LEFT_SHIFT_PRESSED;
-		if (mod & 2)
-			key_state->key_shift_state |= EFI_LEFT_ALT_PRESSED;
-		if (mod & 4)
-			key_state->key_shift_state |= EFI_LEFT_CONTROL_PRESSED;
-		if (mod & 8)
-			key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
-	}
+	set_shift_mask(mod, key_state);
 	if (!ret)
 		ret = c;
 	return ret;
@@ -455,15 +466,13 @@ out:
  */
 static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 {
-	efi_status_t ret;
 	struct efi_input_key pressed_key = {
 		.scan_code = 0,
 		.unicode_char = 0,
 	};
 	s32 ch;
 
-	ret = console_read_unicode(&ch);
-	if (ret)
+	if (console_read_unicode(&ch))
 		return EFI_NOT_READY;
 
 	key->key_state.key_shift_state = EFI_SHIFT_STATE_INVALID;
@@ -472,7 +481,9 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 	/* We do not support multi-word codes */
 	if (ch >= 0x10000)
 		ch = '?';
-	if (ch == cESC) {
+
+	switch (ch) {
+	case 0x1b:
 		/*
 		 * Xterm Control Sequences
 		 * https://www.xfree86.org/4.8.0/ctlseqs.html
@@ -484,13 +495,12 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 			break;
 		case 'O': /* F1 - F4 */
 			ch = getc();
-			/* skip modifiers */
-			if (ch <= '9')
+			/* consider modifiers */
+			if (ch < 'P') {
+				set_shift_mask(ch - '0', &key->key_state);
 				ch = getc();
+			}
 			pressed_key.scan_code = ch - 'P' + 11;
-			break;
-		case 'a'...'z':
-			ch = ch - 'a';
 			break;
 		case '[':
 			ch = getc();
@@ -550,10 +560,14 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 				pressed_key.scan_code = 10;
 				analyze_modifiers(&key->key_state);
 				break;
-			}
+			} /* [ */
 			break;
+		default:
+			/* ALT key */
+			set_shift_mask(3, &key->key_state);
 		}
-	} else if (ch == 0x7f) {
+		break;
+	case 0x7f:
 		/* Backspace */
 		ch = 0x08;
 	}
@@ -567,7 +581,7 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 		 * entered using the control key.
 		 */
 		if (ch >= 0x01 && ch <= 0x1f) {
-			key->key_state.key_shift_state =
+			key->key_state.key_shift_state |=
 					EFI_SHIFT_STATE_VALID;
 			switch (ch) {
 			case 0x01 ... 0x07:
