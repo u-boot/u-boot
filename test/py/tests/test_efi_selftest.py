@@ -100,6 +100,13 @@ def test_efi_selftest_text_input(u_boot_console):
 	if m != 0:
 		raise Exception('UP failed in \'text input\' test')
 	u_boot_console.drain_console()
+	# Euro sign
+	u_boot_console.run_command(cmd='\xe2\x82\xac', wait_for_echo=False,
+				   send_nl=False, wait_for_prompt=False)
+	m = u_boot_console.p.expect(['Unicode char 8364'])
+	if m != 0:
+		raise Exception('Euro sign failed in \'text input\' test')
+	u_boot_console.drain_console()
 	u_boot_console.run_command(cmd='x', wait_for_echo=False, send_nl=False,
 				   wait_for_prompt=False)
 	m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
