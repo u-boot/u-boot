@@ -131,7 +131,8 @@ static int sanitize_path(char *path)
  * With windoze style backlashes, ofc.
  */
 static struct efi_file_handle *file_open(struct file_system *fs,
-		struct file_handle *parent, s16 *file_name, u64 mode)
+		struct file_handle *parent, s16 *file_name, u64 mode,
+		u64 attributes)
 {
 	struct file_handle *fh;
 	char f0[MAX_UTF8_PER_UTF16] = {0};
@@ -174,7 +175,12 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 		if (set_blk_dev(fh))
 			goto error;
 
-		if (!((mode & EFI_FILE_MODE_CREATE) || fs_exists(fh->path)))
+		if ((mode & EFI_FILE_MODE_CREATE) &&
+		    (attributes & EFI_FILE_DIRECTORY)) {
+			if (fs_mkdir(fh->path))
+				goto error;
+		} else if (!((mode & EFI_FILE_MODE_CREATE) ||
+			     fs_exists(fh->path)))
 			goto error;
 
 		/* figure out if file is a directory: */
@@ -200,7 +206,7 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 	EFI_ENTRY("%p, %p, \"%ls\", %llx, %llu", file, new_handle, file_name,
 		  open_mode, attributes);
 
-	*new_handle = file_open(fh->fs, fh, file_name, open_mode);
+	*new_handle = file_open(fh->fs, fh, file_name, open_mode, attributes);
 	if (!*new_handle)
 		return EFI_EXIT(EFI_NOT_FOUND);
 
@@ -601,7 +607,7 @@ efi_open_volume(struct efi_simple_file_system_protocol *this,
 
 	EFI_ENTRY("%p, %p", this, root);
 
-	*root = file_open(fs, NULL, NULL, 0);
+	*root = file_open(fs, NULL, NULL, 0, 0);
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
