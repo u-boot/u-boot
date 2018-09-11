@@ -899,6 +899,44 @@ static dir_entry *find_directory_entry(fsdata *mydata, int startsect,
 	return NULL;
 }
 
+static int normalize_longname(char *l_filename, const char *filename)
+{
+	const char *p, legal[] = "!#$%&\'()-.@^`_{}~";
+	char c;
+	int name_len;
+
+	/* Check that the filename is valid */
+	for (p = filename; p < filename + strlen(filename); p++) {
+		c = *p;
+
+		if (('0' <= c) && (c <= '9'))
+			continue;
+		if (('A' <= c) && (c <= 'Z'))
+			continue;
+		if (('a' <= c) && (c <= 'z'))
+			continue;
+		if (strchr(legal, c))
+			continue;
+		/* extended code */
+		if ((0x80 <= c) && (c <= 0xff))
+			continue;
+
+		return -1;
+	}
+
+	/* Normalize it */
+	name_len = strlen(filename);
+	if (name_len >= VFAT_MAXLEN_BYTES)
+		/* should return an error? */
+		name_len = VFAT_MAXLEN_BYTES - 1;
+
+	memcpy(l_filename, filename, name_len);
+	l_filename[name_len] = 0; /* terminate the string */
+	downcase(l_filename, INT_MAX);
+
+	return 0;
+}
+
 static int do_fat_write(const char *filename, void *buffer, loff_t size,
 			loff_t *actwrite)
 {
@@ -910,7 +948,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 	fsdata datablock;
 	fsdata *mydata = &datablock;
 	int cursect;
-	int ret = -1, name_len;
+	int ret = -1;
 	char l_filename[VFAT_MAXLEN_BYTES];
 
 	*actwrite = size;
@@ -971,13 +1009,11 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 	}
 	dentptr = (dir_entry *) do_fat_read_at_block;
 
-	name_len = strlen(filename);
-	if (name_len >= VFAT_MAXLEN_BYTES)
-		name_len = VFAT_MAXLEN_BYTES - 1;
-
-	memcpy(l_filename, filename, name_len);
-	l_filename[name_len] = 0; /* terminate the string */
-	downcase(l_filename, INT_MAX);
+	if (normalize_longname(l_filename, filename)) {
+		printf("FAT: illegal filename (%s)\n", filename);
+		ret = -EINVAL;
+		goto exit;
+	}
 
 	startsect = mydata->rootdir_sect;
 	retdent = find_directory_entry(mydata, startsect,
