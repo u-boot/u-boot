@@ -392,8 +392,23 @@ struct efi_simple_text_output_protocol efi_con_out = {
 	.mode = (void*)&efi_con_mode,
 };
 
+/**
+ * struct efi_cin_notify_function - registered console input notify function
+ *
+ * @link:	link to list
+ * @data:	key to notify
+ * @function:	function to call
+ */
+struct efi_cin_notify_function {
+	struct list_head link;
+	struct efi_key_data key;
+	efi_status_t (EFIAPI *function)
+		(struct efi_key_data *key_data);
+};
+
 static bool key_available;
 static struct efi_key_data next_key;
+static LIST_HEAD(cin_notify_functions);
 
 /**
  * set_shift_mask() - set shift mask
@@ -598,6 +613,34 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 }
 
 /**
+ * efi_cin_notify() - notify registered functions
+ */
+static void efi_cin_notify(void)
+{
+	struct efi_cin_notify_function *item;
+
+	list_for_each_entry(item, &cin_notify_functions, link) {
+		bool match = true;
+
+		/* We do not support toggle states */
+		if (item->key.key.unicode_char || item->key.key.scan_code) {
+			if (item->key.key.unicode_char !=
+			    next_key.key.unicode_char ||
+			    item->key.key.scan_code != next_key.key.scan_code)
+				match = false;
+		}
+		if (item->key.key_state.key_shift_state &&
+		    item->key.key_state.key_shift_state !=
+		    next_key.key_state.key_shift_state)
+			match = false;
+
+		if (match)
+			/* We don't bother about the return code */
+			EFI_CALL(item->function(&next_key));
+	}
+}
+
+/**
  * efi_cin_check() - check if keyboard input is available
  */
 static void efi_cin_check(void)
@@ -614,8 +657,12 @@ static void efi_cin_check(void)
 		if (ret == EFI_SUCCESS) {
 			key_available = true;
 
+			/* Notify registered functions */
+			efi_cin_notify();
+
 			/* Queue the wait for key event */
-			efi_signal_event(efi_con_in.wait_for_key, true);
+			if (key_available)
+				efi_signal_event(efi_con_in.wait_for_key, true);
 		}
 	}
 }
@@ -757,9 +804,35 @@ static efi_status_t EFIAPI efi_cin_register_key_notify(
 			struct efi_key_data *key_data),
 		void **notify_handle)
 {
+	efi_status_t ret = EFI_SUCCESS;
+	struct efi_cin_notify_function *notify_function;
+
 	EFI_ENTRY("%p, %p, %p, %p",
 		  this, key_data, key_notify_function, notify_handle);
-	return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+
+	/* Check parameters */
+	if (!this || !key_data || !key_notify_function || !notify_handle) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	EFI_PRINT("u+%04x, sc %04x, sh %08x, tg %02x\n",
+		  key_data->key.unicode_char,
+	       key_data->key.scan_code,
+	       key_data->key_state.key_shift_state,
+	       key_data->key_state.key_toggle_state);
+
+	notify_function = calloc(1, sizeof(struct efi_cin_notify_function));
+	if (!notify_function) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+	notify_function->key = *key_data;
+	notify_function->function = key_notify_function;
+	list_add_tail(&notify_function->link, &cin_notify_functions);
+	*notify_handle = notify_function;
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -779,8 +852,30 @@ static efi_status_t EFIAPI efi_cin_unregister_key_notify(
 		struct efi_simple_text_input_ex_protocol *this,
 		void *notification_handle)
 {
+	efi_status_t ret = EFI_INVALID_PARAMETER;
+	struct efi_cin_notify_function *item, *notify_function =
+			notification_handle;
+
 	EFI_ENTRY("%p, %p", this, notification_handle);
-	return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	/* Check parameters */
+	if (!this || !notification_handle)
+		goto out;
+
+	list_for_each_entry(item, &cin_notify_functions, link) {
+		if (item == notify_function) {
+			ret = EFI_SUCCESS;
+			break;
+		}
+	}
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/* Remove the notify function */
+	list_del(&notify_function->link);
+	free(notify_function);
+out:
+	return EFI_EXIT(ret);
 }
 
 
