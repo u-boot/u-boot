@@ -522,7 +522,7 @@ function check_results() {
 		"TC11: 1MB write to $3.w - content verified"
 
 	# Check lookup of 'dot' directory
-	grep -A4 "Test Case 12 " "$1" | grep -q 'Unable to write file'
+	grep -A4 "Test Case 12 " "$1" | grep -q 'Unable to write'
 	pass_fail "TC12: 1MB write to . - write denied"
 
 	# Check directory traversal
