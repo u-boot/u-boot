@@ -1,0 +1,10 @@
+# SPDX-License-Identifier:      GPL-2.0+
+
+# $SMALL_FILE is the name of the 1MB file in the file system image
+SMALL_FILE='1MB.file'
+
+# $BIG_FILE is the name of the 2.5GB file in the file system image
+BIG_FILE='2.5GB.file'
+
+ADDR=0x01000008
+LENGTH=0x00100000
