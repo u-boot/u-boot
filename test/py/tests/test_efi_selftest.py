@@ -130,7 +130,7 @@ def test_efi_selftest_text_input_ex(u_boot_console):
 	u_boot_console.run_command(cmd='setenv efi_selftest extended text input')
 	output = u_boot_console.run_command(cmd='bootefi selftest',
 					    wait_for_prompt=False)
-	m = u_boot_console.p.expect(['To terminate type \'x\''])
+	m = u_boot_console.p.expect(['To terminate type \'CTRL\+x\''])
 	if m != 0:
 		raise Exception('No prompt for \'text input\' test')
 	u_boot_console.drain_console()
@@ -191,7 +191,7 @@ def test_efi_selftest_text_input_ex(u_boot_console):
 	if m != 0:
 		raise Exception('SHIFT+ALT+FN 5 failed in \'text input\' test')
 	u_boot_console.drain_console()
-	u_boot_console.run_command(cmd='x', wait_for_echo=False, send_nl=False,
+	u_boot_console.run_command(cmd=chr(24), wait_for_echo=False, send_nl=False,
 				   wait_for_prompt=False)
 	m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
 	if m != 0:

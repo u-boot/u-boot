@@ -21,6 +21,25 @@ static struct efi_simple_text_input_ex_protocol *con_in_ex;
 
 static struct efi_boot_services *boottime;
 
+static void *efi_key_notify_handle;
+static bool efi_running;
+
+/**
+ * efi_key_notify_function() - key notification function
+ *
+ * This function is called when the registered key is hit.
+ *
+ * @key_data:		next key
+ * Return:		status code
+ */
+static efi_status_t EFIAPI efi_key_notify_function
+				(struct efi_key_data *key_data)
+{
+	efi_running = false;
+
+	return EFI_SUCCESS;
+}
+
 /*
  * Setup unit test.
  *
@@ -32,6 +51,17 @@ static int setup(const efi_handle_t handle,
 		 const struct efi_system_table *systable)
 {
 	efi_status_t ret;
+	struct efi_key_data key_data = {
+		.key = {
+			.scan_code = 0,
+			.unicode_char = 0x18
+		},
+		.key_state = {
+			.key_shift_state = EFI_SHIFT_STATE_VALID |
+					   EFI_LEFT_CONTROL_PRESSED,
+			.key_toggle_state = EFI_TOGGLE_STATE_INVALID,
+		},
+	};
 
 	boottime = systable->boottime;
 
@@ -44,9 +74,41 @@ static int setup(const efi_handle_t handle,
 		return EFI_ST_FAILURE;
 	}
 
+	ret = con_in_ex->register_key_notify(con_in_ex, &key_data,
+					     efi_key_notify_function,
+					     &efi_key_notify_handle);
+	if (ret != EFI_SUCCESS) {
+		efi_key_notify_handle = NULL;
+		efi_st_error
+			("Notify function could not be registered.\n");
+		return EFI_ST_FAILURE;
+	}
+	efi_running = true;
+
 	return EFI_ST_SUCCESS;
 }
 
+/*
+ * Tear down unit test.
+ *
+ * Unregister notify function.
+ *
+ * @return:	EFI_ST_SUCCESS for success
+ */
+static int teardown(void)
+{
+	efi_status_t ret;
+
+	ret = con_in_ex->unregister_key_notify
+			(con_in_ex, efi_key_notify_handle);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error
+			("Notify function could not be registered.\n");
+		return EFI_ST_FAILURE;
+	}
+
+	return EFI_ST_SUCCESS;
+}
 /*
  * Execute unit test.
  *
@@ -76,9 +138,9 @@ static int execute(void)
 	}
 
 	efi_st_printf("Waiting for your input\n");
-	efi_st_printf("To terminate type 'x'\n");
+	efi_st_printf("To terminate type 'CTRL+x'\n");
 
-	for (;;) {
+	while (efi_running) {
 		/* Wait for next key */
 		ret = boottime->wait_for_event(1, &con_in_ex->wait_for_key_ex,
 					       &index);
@@ -122,12 +184,8 @@ static int execute(void)
 		efi_st_printf("%ps)\n",
 			      efi_st_translate_code(input_key.key.scan_code));
 
-		switch (input_key.key.unicode_char) {
-		case 'x':
-		case 'X':
-			return EFI_ST_SUCCESS;
-		}
 	}
+	return EFI_ST_SUCCESS;
 }
 
 EFI_UNIT_TEST(textinputex) = {
@@ -135,5 +193,6 @@ EFI_UNIT_TEST(textinputex) = {
 	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
 	.setup = setup,
 	.execute = execute,
+	.teardown = teardown,
 	.on_request = true,
 };
