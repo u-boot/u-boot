@@ -116,3 +116,10 @@
 	cd-gpios = <&gpk2 2 0>;
 	status = "okay";
 };
+
+&mshc_0 {
+    samsung,bus-width = <8>;
+    index = <4>;
+    samsung,timing = <1 1 0>;
+    status ="okay";
+};
