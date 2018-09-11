@@ -230,9 +230,21 @@ static efi_status_t EFIAPI efi_file_close(struct efi_file_handle *file)
 static efi_status_t EFIAPI efi_file_delete(struct efi_file_handle *file)
 {
 	struct file_handle *fh = to_fh(file);
+	efi_status_t ret = EFI_SUCCESS;
+
 	EFI_ENTRY("%p", file);
+
+	if (set_blk_dev(fh)) {
+		ret = EFI_DEVICE_ERROR;
+		goto error;
+	}
+
+	if (fs_unlink(fh->path))
+		ret = EFI_DEVICE_ERROR;
 	file_close(fh);
-	return EFI_EXIT(EFI_WARN_DELETE_FAILURE);
+
+error:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
