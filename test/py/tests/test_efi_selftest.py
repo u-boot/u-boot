@@ -68,42 +68,47 @@ def test_efi_selftest_text_input(u_boot_console):
 	# EOT
 	u_boot_console.run_command(cmd=chr(4), wait_for_echo=False,
 				   send_nl=False, wait_for_prompt=False)
-	m = u_boot_console.p.expect(['Unicode char 4'])
+	m = u_boot_console.p.expect(
+		['Unicode char 4 \(unknown\), scan code 0 \(Null\)'])
 	if m != 0:
 		raise Exception('EOT failed in \'text input\' test')
 	u_boot_console.drain_console()
 	# BS
 	u_boot_console.run_command(cmd=chr(8), wait_for_echo=False,
 				   send_nl=False, wait_for_prompt=False)
-	m = u_boot_console.p.expect(['(BS)'])
+	m = u_boot_console.p.expect(
+		['Unicode char 8 \(BS\), scan code 0 \(Null\)'])
 	if m != 0:
 		raise Exception('BS failed in \'text input\' test')
 	u_boot_console.drain_console()
 	# TAB
 	u_boot_console.run_command(cmd=chr(9), wait_for_echo=False,
 				   send_nl=False, wait_for_prompt=False)
-	m = u_boot_console.p.expect(['(TAB)'])
+	m = u_boot_console.p.expect(
+		['Unicode char 9 \(TAB\), scan code 0 \(Null\)'])
 	if m != 0:
 		raise Exception('BS failed in \'text input\' test')
 	u_boot_console.drain_console()
 	# a
 	u_boot_console.run_command(cmd='a', wait_for_echo=False, send_nl=False,
 				   wait_for_prompt=False)
-	m = u_boot_console.p.expect(['(\'a\')'])
+	m = u_boot_console.p.expect(
+		['Unicode char 97 \(\'a\'\), scan code 0 \(Null\)'])
 	if m != 0:
 		raise Exception('\'a\' failed in \'text input\' test')
 	u_boot_console.drain_console()
 	# UP escape sequence
 	u_boot_console.run_command(cmd=chr(27) + '[A', wait_for_echo=False,
 				   send_nl=False, wait_for_prompt=False)
-	m = u_boot_console.p.expect(['(Up)'])
+	m = u_boot_console.p.expect(
+		['Unicode char 0 \(Null\), scan code 1 \(Up\)'])
 	if m != 0:
 		raise Exception('UP failed in \'text input\' test')
 	u_boot_console.drain_console()
 	# Euro sign
 	u_boot_console.run_command(cmd='\xe2\x82\xac', wait_for_echo=False,
 				   send_nl=False, wait_for_prompt=False)
-	m = u_boot_console.p.expect(['Unicode char 8364'])
+	m = u_boot_console.p.expect(['Unicode char 8364 \(\''])
 	if m != 0:
 		raise Exception('Euro sign failed in \'text input\' test')
 	u_boot_console.drain_console()
