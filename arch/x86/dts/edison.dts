@@ -90,4 +90,26 @@
 		compatible = "intel,reset-tangier";
 		u-boot,dm-pre-reloc;
 	};
+
+	pinctrl {
+		compatible = "intel,pinctrl-tangier";
+		reg = <0xff0c0000 0x8000>;
+
+		/*
+		 * Initial configuration came from the firmware.
+		 * Which quite likely has been used in the phones, where I2C #8,
+		 * that is not part of Atom peripheral, is in use.
+		 * Thus we need to override the leftover.
+		 */
+		i2c6_scl@0 {
+			pad-offset = <111>;
+			mode-func = <1>;
+			protected;
+		};
+		i2c6_sda@0 {
+			pad-offset = <112>;
+			mode-func = <1>;
+			protected;
+		};
+	};
 };
