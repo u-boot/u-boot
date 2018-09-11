@@ -178,7 +178,7 @@ static int ut_utf8_utf16_strlen(struct unit_test_state *uts)
 
 	/* illegal utf-8 sequences */
 	ut_asserteq(4, utf8_utf16_strlen(j1));
-	ut_asserteq(5, utf8_utf16_strlen(j2));
+	ut_asserteq(4, utf8_utf16_strlen(j2));
 	ut_asserteq(3, utf8_utf16_strlen(j3));
 
 	return 0;
@@ -196,7 +196,7 @@ static int ut_utf8_utf16_strnlen(struct unit_test_state *uts)
 
 	/* illegal utf-8 sequences */
 	ut_asserteq(4, utf8_utf16_strnlen(j1, 16));
-	ut_asserteq(5, utf8_utf16_strnlen(j2, 16));
+	ut_asserteq(4, utf8_utf16_strnlen(j2, 16));
 	ut_asserteq(3, utf8_utf16_strnlen(j3, 16));
 
 	return 0;
@@ -255,8 +255,8 @@ static int ut_utf8_utf16_strcpy(struct unit_test_state *uts)
 
 	pos = buf;
 	utf8_utf16_strcpy(&pos, j2);
-	ut_asserteq(5, pos - buf);
-	ut_assert(!ut_u16_strcmp(buf, L"j2??l", SIZE_MAX));
+	ut_asserteq(4, pos - buf);
+	ut_assert(!ut_u16_strcmp(buf, L"j2?l", SIZE_MAX));
 
 	pos = buf;
 	utf8_utf16_strcpy(&pos, j3);

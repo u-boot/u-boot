@@ -449,23 +449,24 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 			struct efi_simple_text_input_protocol *this,
 			struct efi_input_key *key)
 {
+	efi_status_t ret;
 	struct efi_input_key pressed_key = {
 		.scan_code = 0,
 		.unicode_char = 0,
 	};
-	char ch;
+	s32 ch;
 
 	EFI_ENTRY("%p, %p", this, key);
 
 	/* We don't do interrupts, so check for timers cooperatively */
 	efi_timer_check();
 
-	if (!tstc()) {
-		/* No key pressed */
+	ret = console_read_unicode(&ch);
+	if (ret)
 		return EFI_EXIT(EFI_NOT_READY);
-	}
-
-	ch = getc();
+	/* We do not support multi-word codes */
+	if (ch >= 0x10000)
+		ch = '?';
 	if (ch == cESC) {
 		/*
 		 * Xterm Control Sequences

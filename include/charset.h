@@ -14,6 +14,14 @@
 #define MAX_UTF8_PER_UTF16 3
 
 /**
+ * console_read_unicode() - read Unicode code point from console
+ *
+ * @code:	pointer to store Unicode code point
+ * Return:	0 = success
+ */
+int console_read_unicode(s32 *code);
+
+/**
  * utf8_get() - get next UTF-8 code point from buffer
  *
  * @src:		pointer to current byte, updated to point to next byte

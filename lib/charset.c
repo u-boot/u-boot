@@ -5,6 +5,7 @@
  *  Copyright (c) 2017 Rob Clark
  */
 
+#include <common.h>
 #include <charset.h>
 #include <capitalization.h>
 #include <malloc.h>
@@ -18,67 +19,107 @@ static struct capitalization_table capitalization_table[] =
 	CP437_CAPITALIZATION_TABLE;
 #endif
 
-s32 utf8_get(const char **src)
+/**
+ * get_code() - read Unicode code point from UTF-8 stream
+ *
+ * @read_u8:	- stream reader
+ * @src:	- string buffer passed to stream reader, optional
+ * Return:	- Unicode code point
+ */
+static int get_code(u8 (*read_u8)(void *data), void *data)
 {
-	s32 code = 0;
-	unsigned char c;
+	s32 ch = 0;
 
-	if (!src || !*src)
-		return -1;
-	if (!**src)
+	ch = read_u8(data);
+	if (!ch)
 		return 0;
-	c = **src;
-	if (c >= 0x80) {
-		++*src;
-		if (!**src)
-			return -1;
-		/*
-		 * We do not expect a continuation byte (0x80 - 0xbf).
-		 * 0x80 is coded as 0xc2 0x80, so we cannot have less then 0xc2
-		 * here.
-		 * The highest code point is 0x10ffff which is coded as
-		 * 0xf4 0x8f 0xbf 0xbf. So we cannot have a byte above 0xf4.
-		 */
-		if (c < 0xc2 || code > 0xf4)
-			return -1;
-		if (c >= 0xe0) {
-			if (c >= 0xf0) {
+	if (ch >= 0xc2 && ch <= 0xf4) {
+		int code = 0;
+
+		if (ch >= 0xe0) {
+			if (ch >= 0xf0) {
 				/* 0xf0 - 0xf4 */
-				c &= 0x07;
-				code = c << 18;
-				c = **src;
-				++*src;
-				if (!**src)
-					return -1;
-				if (c < 0x80 || c > 0xbf)
-					return -1;
-				c &= 0x3f;
+				ch &= 0x07;
+				code = ch << 18;
+				ch = read_u8(data);
+				if (ch < 0x80 || ch > 0xbf)
+					goto error;
+				ch &= 0x3f;
 			} else {
 				/* 0xe0 - 0xef */
-				c &= 0x0f;
+				ch &= 0x0f;
 			}
-			code += c << 12;
+			code += ch << 12;
 			if ((code >= 0xD800 && code <= 0xDFFF) ||
 			    code >= 0x110000)
-				return -1;
-			c = **src;
-			++*src;
-			if (!**src)
-				return -1;
-			if (c < 0x80 || c > 0xbf)
-				return -1;
+				goto error;
+			ch = read_u8(data);
+			if (ch < 0x80 || ch > 0xbf)
+				goto error;
 		}
 		/* 0xc0 - 0xdf or continuation byte (0x80 - 0xbf) */
-		c &= 0x3f;
-		code += c << 6;
-		c = **src;
-		if (c < 0x80 || c > 0xbf)
-			return -1;
-		c &= 0x3f;
+		ch &= 0x3f;
+		code += ch << 6;
+		ch = read_u8(data);
+		if (ch < 0x80 || ch > 0xbf)
+			goto error;
+		ch &= 0x3f;
+		ch += code;
+	} else if (ch >= 0x80) {
+		goto error;
 	}
-	code += c;
+	return ch;
+error:
+	return '?';
+}
+
+/**
+ * read_string() - read byte from character string
+ *
+ * @data:	- pointer to string
+ * Return:	- byte read
+ *
+ * The string pointer is incremented if it does not point to '\0'.
+ */
+static u8 read_string(void *data)
+
+{
+	const char **src = (const char **)data;
+	u8 c;
+
+	if (!src || !*src || !**src)
+		return 0;
+	c = **src;
 	++*src;
-	return code;
+	return c;
+}
+
+/**
+ * read_console() - read byte from console
+ *
+ * @src		- not used, needed to match interface
+ * Return:	- byte read
+ */
+static u8 read_console(void *data)
+{
+	return getc();
+}
+
+int console_read_unicode(s32 *code)
+{
+	if (!tstc()) {
+		/* No input available */
+		return 1;
+	}
+
+	/* Read Unicode code */
+	*code = get_code(read_console, NULL);
+	return 0;
+}
+
+s32 utf8_get(const char **src)
+{
+	return get_code(read_string, src);
 }
 
 int utf8_put(s32 code, char **dst)
