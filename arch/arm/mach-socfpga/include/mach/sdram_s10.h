@@ -7,7 +7,7 @@
 #ifndef	_SDRAM_S10_H_
 #define	_SDRAM_S10_H_
 
-unsigned long sdram_calculate_size(void);
+phys_size_t sdram_calculate_size(void);
 int sdram_mmr_init_full(unsigned int sdr_phy_reg);
 int sdram_calibration_full(void);
 
