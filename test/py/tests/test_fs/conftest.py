@@ -12,6 +12,7 @@ from fstest_defs import *
 supported_fs_basic = ['fat16', 'fat32', 'ext4']
 supported_fs_ext = ['fat16', 'fat32']
 supported_fs_mkdir = ['fat16', 'fat32']
+supported_fs_unlink = ['fat16', 'fat32']
 
 #
 # Filesystem test specific setup
@@ -24,6 +25,7 @@ def pytest_configure(config):
     global supported_fs_basic
     global supported_fs_ext
     global supported_fs_mkdir
+    global supported_fs_unlink
 
     def intersect(listA, listB):
         return  [x for x in listA if x in listB]
@@ -34,6 +36,7 @@ def pytest_configure(config):
         supported_fs_basic =  intersect(supported_fs, supported_fs_basic)
         supported_fs_ext =  intersect(supported_fs, supported_fs_ext)
         supported_fs_mkdir =  intersect(supported_fs, supported_fs_mkdir)
+        supported_fs_unlink =  intersect(supported_fs, supported_fs_unlink)
 
 def pytest_generate_tests(metafunc):
     if 'fs_obj_basic' in metafunc.fixturenames:
@@ -44,6 +47,9 @@ def pytest_generate_tests(metafunc):
             indirect=True, scope='module')
     if 'fs_obj_mkdir' in metafunc.fixturenames:
         metafunc.parametrize('fs_obj_mkdir', supported_fs_mkdir,
+            indirect=True, scope='module')
+    if 'fs_obj_unlink' in metafunc.fixturenames:
+        metafunc.parametrize('fs_obj_unlink', supported_fs_unlink,
             indirect=True, scope='module')
 
 #
@@ -326,5 +332,61 @@ def fs_obj_mkdir(request, u_boot_config):
     else:
         yield [fs_ubtype, fs_img]
     finally:
+        if fs_img:
+            call('rm -f %s' % fs_img, shell=True)
+
+#
+# Fixture for unlink test
+#
+# NOTE: yield_fixture was deprecated since pytest-3.0
+@pytest.yield_fixture()
+def fs_obj_unlink(request, u_boot_config):
+    fs_type = request.param
+    fs_img = ''
+
+    fs_ubtype = fstype_to_ubname(fs_type)
+    check_ubconfig(u_boot_config, fs_ubtype)
+
+    mount_dir = u_boot_config.persistent_data_dir + '/mnt'
+
+    try:
+
+        # 128MiB volume
+        fs_img = mk_fs(u_boot_config, fs_type, 0x8000000, '128MB')
+
+        # Mount the image so we can populate it.
+        check_call('mkdir -p %s' % mount_dir, shell=True)
+        mount_fs(fs_type, fs_img, mount_dir)
+
+        # Test Case 1 & 3
+        check_call('mkdir %s/dir1' % mount_dir, shell=True)
+        check_call('dd if=/dev/urandom of=%s/dir1/file1 bs=1K count=1'
+                                    % mount_dir, shell=True)
+        check_call('dd if=/dev/urandom of=%s/dir1/file2 bs=1K count=1'
+                                    % mount_dir, shell=True)
+
+        # Test Case 2
+        check_call('mkdir %s/dir2' % mount_dir, shell=True)
+	for i in range(0, 20):
+	    check_call('mkdir %s/dir2/0123456789abcdef%02x'
+                                    % (mount_dir, i), shell=True)
+
+        # Test Case 4
+        check_call('mkdir %s/dir4' % mount_dir, shell=True)
+
+        # Test Case 5, 6 & 7
+        check_call('mkdir %s/dir5' % mount_dir, shell=True)
+        check_call('dd if=/dev/urandom of=%s/dir5/file1 bs=1K count=1'
+                                    % mount_dir, shell=True)
+
+        umount_fs(fs_type, mount_dir)
+    except CalledProcessError:
+        pytest.skip('Setup failed for filesystem: ' + fs_type)
+        return
+    else:
+        yield [fs_ubtype, fs_img]
+    finally:
+        umount_fs(fs_type, mount_dir)
+        call('rmdir %s' % mount_dir, shell=True)
         if fs_img:
             call('rm -f %s' % fs_img, shell=True)
