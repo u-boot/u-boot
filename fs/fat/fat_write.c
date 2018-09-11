@@ -529,35 +529,78 @@ static int clear_fatent(fsdata *mydata, __u32 entry)
 }
 
 /*
+ * Set start cluster in directory entry
+ */
+static void set_start_cluster(const fsdata *mydata, dir_entry *dentptr,
+			      __u32 start_cluster)
+{
+	if (mydata->fatsize == 32)
+		dentptr->starthi =
+			cpu_to_le16((start_cluster & 0xffff0000) >> 16);
+	dentptr->start = cpu_to_le16(start_cluster & 0xffff);
+}
+
+/*
+ * Check whether adding a file makes the file system to
+ * exceed the size of the block device
+ * Return -1 when overflow occurs, otherwise return 0
+ */
+static int check_overflow(fsdata *mydata, __u32 clustnum, loff_t size)
+{
+	__u32 startsect, sect_num, offset;
+
+	if (clustnum > 0)
+		startsect = clust_to_sect(mydata, clustnum);
+	else
+		startsect = mydata->rootdir_sect;
+
+	sect_num = div_u64_rem(size, mydata->sect_size, &offset);
+
+	if (offset != 0)
+		sect_num++;
+
+	if (startsect + sect_num > total_sector)
+		return -1;
+	return 0;
+}
+
+/*
  * Write at most 'maxsize' bytes from 'buffer' into
  * the file associated with 'dentptr'
  * Update the number of bytes written in *gotsize and return 0
  * or return -1 on fatal errors.
  */
 static int
-set_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
-	      loff_t maxsize, loff_t *gotsize)
+set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
+	     loff_t maxsize, loff_t *gotsize)
 {
-	loff_t filesize = FAT2CPU32(dentptr->size);
+	loff_t filesize;
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
 	__u32 curclust = START(dentptr);
 	__u32 endclust = 0, newclust = 0;
 	loff_t actsize;
 
 	*gotsize = 0;
-	debug("Filesize: %llu bytes\n", filesize);
-
-	if (maxsize > 0 && filesize > maxsize)
-		filesize = maxsize;
+	filesize = maxsize;
 
 	debug("%llu bytes\n", filesize);
 
-	if (!curclust) {
-		if (filesize) {
-			debug("error: nonempty clusterless file!\n");
+	if (curclust) {
+		/*
+		 * release already-allocated clusters anyway
+		 */
+		if (clear_fatent(mydata, curclust)) {
+			printf("Error: clearing FAT entries\n");
 			return -1;
 		}
-		return 0;
+	}
+
+	curclust = find_empty_cluster(mydata);
+	set_start_cluster(mydata, dentptr, curclust);
+
+	if (check_overflow(mydata, curclust, filesize)) {
+		printf("Error: no space left: %llu\n", filesize);
+		return -1;
 	}
 
 	actsize = bytesperclust;
@@ -568,6 +611,7 @@ set_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
 			newclust = determine_fatent(mydata, endclust);
 
 			if ((newclust - 1) != endclust)
+				/* write to <curclust..endclust> */
 				goto getit;
 
 			if (CHECK_CLUST(newclust, mydata->fatsize)) {
@@ -614,18 +658,8 @@ getit:
 		actsize = bytesperclust;
 		curclust = endclust = newclust;
 	} while (1);
-}
 
-/*
- * Set start cluster in directory entry
- */
-static void set_start_cluster(const fsdata *mydata, dir_entry *dentptr,
-				__u32 start_cluster)
-{
-	if (mydata->fatsize == 32)
-		dentptr->starthi =
-			cpu_to_le16((start_cluster & 0xffff0000) >> 16);
-	dentptr->start = cpu_to_le16(start_cluster & 0xffff);
+	return 0;
 }
 
 /*
@@ -640,31 +674,6 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
 	dentptr->attr = attr;
 
 	set_name(dentptr, filename);
-}
-
-/*
- * Check whether adding a file makes the file system to
- * exceed the size of the block device
- * Return -1 when overflow occurs, otherwise return 0
- */
-static int check_overflow(fsdata *mydata, __u32 clustnum, loff_t size)
-{
-	__u32 startsect, sect_num, offset;
-
-	if (clustnum > 0) {
-		startsect = clust_to_sect(mydata, clustnum);
-	} else {
-		startsect = mydata->rootdir_sect;
-	}
-
-	sect_num = div_u64_rem(size, mydata->sect_size, &offset);
-
-	if (offset != 0)
-		sect_num++;
-
-	if (startsect + sect_num > total_sector)
-		return -1;
-	return 0;
 }
 
 /*
@@ -784,17 +793,18 @@ static int normalize_longname(char *l_filename, const char *filename)
 	return 0;
 }
 
-static int do_fat_write(const char *filename, void *buffer, loff_t size,
-			loff_t *actwrite)
+int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+		      loff_t size, loff_t *actwrite)
 {
 	dir_entry *retdent;
-	__u32 start_cluster;
 	fsdata datablock = { .fatbuf = NULL, };
 	fsdata *mydata = &datablock;
 	fat_itr *itr = NULL;
 	int ret = -1;
 	char *filename_copy, *parent, *basename;
 	char l_filename[VFAT_MAXLEN_BYTES];
+
+	debug("writing %s\n", filename);
 
 	filename_copy = strdup(filename);
 	if (!filename_copy)
@@ -839,47 +849,8 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 			goto exit;
 		}
 
-		/* Update file size and start_cluster in a directory entry */
-		retdent->size = cpu_to_le32(size);
-		start_cluster = START(retdent);
-
-		if (start_cluster) {
-			if (size) {
-				ret = check_overflow(mydata, start_cluster,
-							size);
-				if (ret) {
-					printf("Error: %llu overflow\n", size);
-					ret = -ENOSPC;
-					goto exit;
-				}
-			}
-
-			ret = clear_fatent(mydata, start_cluster);
-			if (ret) {
-				printf("Error: clearing FAT entries\n");
-				ret = -EIO;
-				goto exit;
-			}
-
-			if (!size)
-				set_start_cluster(mydata, retdent, 0);
-		} else if (size) {
-			ret = start_cluster = find_empty_cluster(mydata);
-			if (ret < 0) {
-				printf("Error: finding empty cluster\n");
-				ret = -ENOSPC;
-				goto exit;
-			}
-
-			ret = check_overflow(mydata, start_cluster, size);
-			if (ret) {
-				printf("Error: %llu overflow\n", size);
-				ret = -ENOSPC;
-				goto exit;
-			}
-
-			set_start_cluster(mydata, retdent, start_cluster);
-		}
+		/* Update file size in a directory entry */
+		retdent->size = cpu_to_le32(pos + size);
 	} else {
 		/* Create a new file */
 
@@ -907,32 +878,13 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 			goto exit;
 		}
 
-		if (size) {
-			ret = start_cluster = find_empty_cluster(mydata);
-			if (ret < 0) {
-				printf("Error: finding empty cluster\n");
-				ret = -ENOSPC;
-				goto exit;
-			}
-
-			ret = check_overflow(mydata, start_cluster, size);
-			if (ret) {
-				printf("Error: %llu overflow\n", size);
-				ret = -ENOSPC;
-				goto exit;
-			}
-		} else {
-			start_cluster = 0;
-		}
-
 		/* Set attribute as archive for regular file */
-		fill_dentry(itr->fsdata, itr->dent, filename,
-			    start_cluster, size, 0x20);
+		fill_dentry(itr->fsdata, itr->dent, filename, 0, size, 0x20);
 
 		retdent = itr->dent;
 	}
 
-	ret = set_contents(mydata, retdent, buffer, size, actwrite);
+	ret = set_contents(mydata, retdent, pos, buffer, size, actwrite);
 	if (ret < 0) {
 		printf("Error: writing contents\n");
 		ret = -EIO;
@@ -971,6 +923,5 @@ int file_fat_write(const char *filename, void *buffer, loff_t offset,
 		return -EINVAL;
 	}
 
-	printf("writing %s\n", filename);
-	return do_fat_write(filename, buffer, maxsize, actwrite);
+	return file_fat_write_at(filename, offset, buffer, maxsize, actwrite);
 }
