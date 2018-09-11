@@ -180,6 +180,17 @@ int scu_ipc_simple_command(u32 cmd, u32 sub)
 	return scu_ipc_check_status(scu->regs);
 }
 
+/**
+ *  scu_ipc_command - command with data
+ *  @cmd: command
+ *  @sub: sub type
+ *  @in: input data
+ *  @inlen: input length in dwords
+ *  @out: output data
+ *  @outlen: output length in dwords
+ *
+ *  Issue a command to the SCU which involves data transfers.
+ */
 int scu_ipc_command(u32 cmd, u32 sub, u32 *in, int inlen, u32 *out, int outlen)
 {
 	struct scu *scu;
