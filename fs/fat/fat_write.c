@@ -1184,6 +1184,138 @@ int file_fat_write(const char *filename, void *buffer, loff_t offset,
 	return file_fat_write_at(filename, offset, buffer, maxsize, actwrite);
 }
 
+static int fat_dir_entries(fat_itr *itr)
+{
+	fat_itr *dirs;
+	fsdata fsdata = { .fatbuf = NULL, }, *mydata = &fsdata;
+						/* for FATBUFSIZE */
+	int count;
+
+	dirs = malloc_cache_aligned(sizeof(fat_itr));
+	if (!dirs) {
+		debug("Error: allocating memory\n");
+		count = -ENOMEM;
+		goto exit;
+	}
+
+	/* duplicate fsdata */
+	fat_itr_child(dirs, itr);
+	fsdata = *dirs->fsdata;
+
+	/* allocate local fat buffer */
+	fsdata.fatbuf = malloc_cache_aligned(FATBUFSIZE);
+	if (!fsdata.fatbuf) {
+		debug("Error: allocating memory\n");
+		count = -ENOMEM;
+		goto exit;
+	}
+	fsdata.fatbufnum = -1;
+	dirs->fsdata = &fsdata;
+
+	for (count = 0; fat_itr_next(dirs); count++)
+		;
+
+exit:
+	free(fsdata.fatbuf);
+	free(dirs);
+	return count;
+}
+
+static int delete_dentry(fat_itr *itr)
+{
+	fsdata *mydata = itr->fsdata;
+	dir_entry *dentptr = itr->dent;
+
+	/* free cluster blocks */
+	clear_fatent(mydata, START(dentptr));
+	if (flush_dirty_fat_buffer(mydata) < 0) {
+		printf("Error: flush fat buffer\n");
+		return -EIO;
+	}
+
+	/*
+	 * update a directory entry
+	 * TODO:
+	 *  - long file name support
+	 *  - find and mark the "new" first invalid entry as name[0]=0x00
+	 */
+	memset(dentptr, 0, sizeof(*dentptr));
+	dentptr->name[0] = 0xe5;
+
+	if (set_cluster(mydata, itr->clust, itr->block,
+			mydata->clust_size * mydata->sect_size) != 0) {
+		printf("error: writing directory entry\n");
+		return -EIO;
+	}
+
+	return 0;
+}
+
+int fat_unlink(const char *filename)
+{
+	fsdata fsdata = { .fatbuf = NULL, };
+	fat_itr *itr = NULL;
+	int n_entries, ret;
+	char *filename_copy, *dirname, *basename;
+
+	filename_copy = strdup(filename);
+	split_filename(filename_copy, &dirname, &basename);
+
+	if (!strcmp(dirname, "/") && !strcmp(basename, "")) {
+		printf("Error: cannot remove root\n");
+		ret = -EINVAL;
+		goto exit;
+	}
+
+	itr = malloc_cache_aligned(sizeof(fat_itr));
+	if (!itr) {
+		printf("Error: allocating memory\n");
+		return -ENOMEM;
+	}
+
+	ret = fat_itr_root(itr, &fsdata);
+	if (ret)
+		goto exit;
+
+	total_sector = fsdata.total_sect;
+
+	ret = fat_itr_resolve(itr, dirname, TYPE_DIR);
+	if (ret) {
+		printf("%s: doesn't exist (%d)\n", dirname, ret);
+		ret = -ENOENT;
+		goto exit;
+	}
+
+	if (!find_directory_entry(itr, basename)) {
+		printf("%s: doesn't exist\n", basename);
+		ret = -ENOENT;
+		goto exit;
+	}
+
+	if (fat_itr_isdir(itr)) {
+		n_entries = fat_dir_entries(itr);
+		if (n_entries < 0) {
+			ret = n_entries;
+			goto exit;
+		}
+		if (n_entries > 2) {
+			printf("Error: directory is not empty: %d\n",
+			       n_entries);
+			ret = -EINVAL;
+			goto exit;
+		}
+	}
+
+	ret = delete_dentry(itr);
+
+exit:
+	free(fsdata.fatbuf);
+	free(itr);
+	free(filename_copy);
+
+	return ret;
+}
+
 int fat_mkdir(const char *new_dirname)
 {
 	dir_entry *retdent;

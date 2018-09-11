@@ -170,16 +170,17 @@ static struct fstype_info fstypes[] = {
 		.read = fat_read_file,
 #ifdef CONFIG_FAT_WRITE
 		.write = file_fat_write,
+		.unlink = fat_unlink,
 		.mkdir = fat_mkdir,
 #else
 		.write = fs_write_unsupported,
+		.unlink = fs_unlink_unsupported,
 		.mkdir = fs_mkdir_unsupported,
 #endif
 		.uuid = fs_uuid_unsupported,
 		.opendir = fat_opendir,
 		.readdir = fat_readdir,
 		.closedir = fat_closedir,
-		.unlink = fs_unlink_unsupported,
 	},
 #endif
 #ifdef CONFIG_FS_EXT4
