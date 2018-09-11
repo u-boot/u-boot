@@ -76,6 +76,22 @@ void efi_st_exit_boot_services(void);
 void efi_st_printc(int color, const char *fmt, ...)
 		 __attribute__ ((format (__printf__, 2, 3)));
 
+/**
+ * efi_st_translate_char() - translate a unicode character to a string
+ *
+ * @code:	unicode character
+ * Return:	string
+ */
+u16 *efi_st_translate_char(u16 code);
+
+/**
+ * efi_st_translate_code() - translate a scan code to a human readable string
+ *
+ * @code:	unicode character
+ * Return:	string
+ */
+u16 *efi_st_translate_code(u16 code);
+
 /*
  * Compare memory.
  * We cannot use lib/string.c due to different CFLAGS values.
