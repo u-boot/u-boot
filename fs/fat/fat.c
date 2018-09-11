@@ -641,6 +641,7 @@ static int get_fs_info(fsdata *mydata)
 typedef struct {
 	fsdata    *fsdata;        /* filesystem parameters */
 	unsigned   clust;         /* current cluster */
+	unsigned   next_clust;    /* next cluster if remaining == 0 */
 	int        last_cluster;  /* set once we've read last cluster */
 	int        is_root;       /* is iterator at root directory */
 	int        remaining;     /* remaining dent's in current cluster */
@@ -672,6 +673,7 @@ static int fat_itr_root(fat_itr *itr, fsdata *fsdata)
 
 	itr->fsdata = fsdata;
 	itr->clust = fsdata->root_cluster;
+	itr->next_clust = fsdata->root_cluster;
 	itr->dent = NULL;
 	itr->remaining = 0;
 	itr->last_cluster = 0;
@@ -707,9 +709,11 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
 	itr->fsdata = parent->fsdata;
 	if (clustnum > 0) {
 		itr->clust = clustnum;
+		itr->next_clust = clustnum;
 		itr->is_root = 0;
 	} else {
 		itr->clust = parent->fsdata->root_cluster;
+		itr->next_clust = parent->fsdata->root_cluster;
 		itr->is_root = 1;
 	}
 	itr->dent = NULL;
@@ -727,7 +731,7 @@ static void *next_cluster(fat_itr *itr)
 	if (itr->last_cluster)
 		return NULL;
 
-	sect = clust_to_sect(itr->fsdata, itr->clust);
+	sect = clust_to_sect(itr->fsdata, itr->next_clust);
 
 	debug("FAT read(sect=%d), clust_size=%d, DIRENTSPERBLOCK=%zd\n",
 	      sect, itr->fsdata->clust_size, DIRENTSPERBLOCK);
@@ -748,18 +752,19 @@ static void *next_cluster(fat_itr *itr)
 		return NULL;
 	}
 
+	itr->clust = itr->next_clust;
 	if (itr->is_root && itr->fsdata->fatsize != 32) {
-		itr->clust++;
-		sect = clust_to_sect(itr->fsdata, itr->clust);
+		itr->next_clust++;
+		sect = clust_to_sect(itr->fsdata, itr->next_clust);
 		if (sect - itr->fsdata->rootdir_sect >=
 		    itr->fsdata->rootdir_size) {
-			debug("cursect: 0x%x\n", itr->clust);
+			debug("nextclust: 0x%x\n", itr->next_clust);
 			itr->last_cluster = 1;
 		}
 	} else {
-		itr->clust = get_fatent(itr->fsdata, itr->clust);
-		if (CHECK_CLUST(itr->clust, itr->fsdata->fatsize)) {
-			debug("cursect: 0x%x\n", itr->clust);
+		itr->next_clust = get_fatent(itr->fsdata, itr->next_clust);
+		if (CHECK_CLUST(itr->next_clust, itr->fsdata->fatsize)) {
+			debug("nextclust: 0x%x\n", itr->next_clust);
 			itr->last_cluster = 1;
 		}
 	}
@@ -775,8 +780,11 @@ static dir_entry *next_dent(fat_itr *itr)
 			itr->fsdata->clust_size;
 
 		/* have we reached the last cluster? */
-		if (!dent)
+		if (!dent) {
+			/* a sign for no more entries left */
+			itr->dent = NULL;
 			return NULL;
+		}
 
 		itr->remaining = nbytes / sizeof(dir_entry) - 1;
 		itr->dent = dent;
@@ -937,6 +945,7 @@ static int fat_itr_resolve(fat_itr *itr, const char *path, unsigned type)
 		    (((next - path) == 2) && !strncmp(path, "..", 2))) {
 			/* point back to itself */
 			itr->clust = itr->fsdata->root_cluster;
+			itr->next_clust = itr->fsdata->root_cluster;
 			itr->dent = NULL;
 			itr->remaining = 0;
 			itr->last_cluster = 0;
