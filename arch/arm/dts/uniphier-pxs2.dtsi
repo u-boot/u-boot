@@ -36,6 +36,7 @@
 			enable-method = "psci";
 			next-level-cache = <&l2>;
 			operating-points-v2 = <&cpu_opp>;
+			#cooling-cells = <2>;
 		};
 
 		cpu2: cpu@2 {
@@ -46,6 +47,7 @@
 			enable-method = "psci";
 			next-level-cache = <&l2>;
 			operating-points-v2 = <&cpu_opp>;
+			#cooling-cells = <2>;
 		};
 
 		cpu3: cpu@3 {
@@ -56,6 +58,7 @@
 			enable-method = "psci";
 			next-level-cache = <&l2>;
 			operating-points-v2 = <&cpu_opp>;
+			#cooling-cells = <2>;
 		};
 	};
 
@@ -420,30 +423,29 @@
 		};
 
 		emmc: sdhc@5a000000 {
-			compatible = "socionext,uniphier-sdhc";
+			compatible = "socionext,uniphier-sd-v3.1.1";
 			status = "disabled";
 			reg = <0x5a000000 0x800>;
 			interrupts = <0 78 4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_emmc>;
 			clocks = <&sd_clk 1>;
-			reset-names = "host";
-			resets = <&sd_rst 1>;
+			reset-names = "host", "hw";
+			resets = <&sd_rst 1>, <&sd_rst 6>;
 			bus-width = <8>;
-			non-removable;
 			cap-mmc-highspeed;
 			cap-mmc-hw-reset;
-			no-3-3-v;
+			non-removable;
 		};
 
 		sd: sdhc@5a400000 {
-			compatible = "socionext,uniphier-sdhc";
+			compatible = "socionext,uniphier-sd-v3.1.1";
 			status = "disabled";
 			reg = <0x5a400000 0x800>;
 			interrupts = <0 76 4>;
-			pinctrl-names = "default", "1.8v";
+			pinctrl-names = "default", "uhs";
 			pinctrl-0 = <&pinctrl_sd>;
-			pinctrl-1 = <&pinctrl_sd_1v8>;
+			pinctrl-1 = <&pinctrl_sd_uhs>;
 			clocks = <&sd_clk 0>;
 			reset-names = "host";
 			resets = <&sd_rst 0>;

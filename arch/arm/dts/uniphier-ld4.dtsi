@@ -225,13 +225,13 @@
 		};
 
 		sd: sdhc@5a400000 {
-			compatible = "socionext,uniphier-sdhc";
+			compatible = "socionext,uniphier-sd-v2.91";
 			status = "disabled";
 			reg = <0x5a400000 0x200>;
 			interrupts = <0 76 4>;
-			pinctrl-names = "default", "1.8v";
+			pinctrl-names = "default", "uhs";
 			pinctrl-0 = <&pinctrl_sd>;
-			pinctrl-1 = <&pinctrl_sd_1v8>;
+			pinctrl-1 = <&pinctrl_sd_uhs>;
 			clocks = <&mio_clk 0>;
 			reset-names = "host", "bridge";
 			resets = <&mio_rst 0>, <&mio_rst 3>;
@@ -243,20 +243,19 @@
 		};
 
 		emmc: sdhc@5a500000 {
-			compatible = "socionext,uniphier-sdhc";
+			compatible = "socionext,uniphier-sd-v2.91";
 			status = "disabled";
 			reg = <0x5a500000 0x200>;
 			interrupts = <0 78 4>;
-			pinctrl-names = "default", "1.8v";
+			pinctrl-names = "default";
 			pinctrl-0 = <&pinctrl_emmc>;
-			pinctrl-1 = <&pinctrl_emmc_1v8>;
 			clocks = <&mio_clk 1>;
-			reset-names = "host", "bridge";
-			resets = <&mio_rst 1>, <&mio_rst 4>;
+			reset-names = "host", "bridge", "hw";
+			resets = <&mio_rst 1>, <&mio_rst 4>, <&mio_rst 6>;
 			bus-width = <8>;
-			non-removable;
 			cap-mmc-highspeed;
 			cap-mmc-hw-reset;
+			non-removable;
 		};
 
 		usb0: usb@5a800100 {
