@@ -558,10 +558,17 @@ static int get_fs_info(fsdata *mydata)
 
 	if (mydata->fatsize == 32) {
 		mydata->fatlength = bs.fat32_length;
+		mydata->total_sect = bs.total_sect;
 	} else {
 		mydata->fatlength = bs.fat_length;
+		mydata->total_sect = (bs.sectors[1] << 8) + bs.sectors[0];
+		if (!mydata->total_sect)
+			mydata->total_sect = bs.total_sect;
 	}
+	if (!mydata->total_sect) /* unlikely */
+		mydata->total_sect = (u32)cur_part_info.size;
 
+	mydata->fats = bs.fats;
 	mydata->fat_sect = bs.reserved;
 
 	mydata->rootdir_sect = mydata->fat_sect + mydata->fatlength * bs.fats;
