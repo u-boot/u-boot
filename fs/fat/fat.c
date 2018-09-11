@@ -631,6 +631,7 @@ static int get_fs_info(fsdata *mydata)
 
 typedef struct {
 	fsdata    *fsdata;        /* filesystem parameters */
+	unsigned   start_clust;   /* first cluster */
 	unsigned   clust;         /* current cluster */
 	unsigned   next_clust;    /* next cluster if remaining == 0 */
 	int        last_cluster;  /* set once we've read last cluster */
@@ -663,6 +664,7 @@ static int fat_itr_root(fat_itr *itr, fsdata *fsdata)
 		return -ENXIO;
 
 	itr->fsdata = fsdata;
+	itr->start_clust = 0;
 	itr->clust = fsdata->root_cluster;
 	itr->next_clust = fsdata->root_cluster;
 	itr->dent = NULL;
@@ -698,6 +700,7 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
 	assert(fat_itr_isdir(parent));
 
 	itr->fsdata = parent->fsdata;
+	itr->start_clust = clustnum;
 	if (clustnum > 0) {
 		itr->clust = clustnum;
 		itr->next_clust = clustnum;
