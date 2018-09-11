@@ -931,6 +931,27 @@ static int fat_itr_resolve(fat_itr *itr, const char *path, unsigned type)
 	while (next[0] && !ISDIRDELIM(next[0]))
 		next++;
 
+	if (itr->is_root) {
+		/* root dir doesn't have "." nor ".." */
+		if ((((next - path) == 1) && !strncmp(path, ".", 1)) ||
+		    (((next - path) == 2) && !strncmp(path, "..", 2))) {
+			/* point back to itself */
+			itr->clust = itr->fsdata->root_cluster;
+			itr->dent = NULL;
+			itr->remaining = 0;
+			itr->last_cluster = 0;
+
+			if (next[0] == 0) {
+				if (type & TYPE_DIR)
+					return 0;
+				else
+					return -ENOENT;
+			}
+
+			return fat_itr_resolve(itr, next, type);
+		}
+	}
+
 	while (fat_itr_next(itr)) {
 		int match = 0;
 		unsigned n = max(strlen(itr->name), (size_t)(next - path));
