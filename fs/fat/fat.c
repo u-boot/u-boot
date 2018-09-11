@@ -465,15 +465,6 @@ static __u8 mkcksum(const char name[8], const char ext[3])
 }
 
 /*
- * TODO these should go away once fat_write is reworked to use the
- * directory iterator
- */
-__u8 get_dentfromdir_block[MAX_CLUSTSIZE]
-	__aligned(ARCH_DMA_MINALIGN);
-__u8 do_fat_read_at_block[MAX_CLUSTSIZE]
-	__aligned(ARCH_DMA_MINALIGN);
-
-/*
  * Read boot sector and volume info from a FAT filesystem
  */
 static int
