@@ -10,6 +10,7 @@ from subprocess import call, check_call, check_output, CalledProcessError
 from fstest_defs import *
 
 supported_fs_basic = ['fat16', 'fat32', 'ext4']
+supported_fs_ext = ['fat16', 'fat32']
 
 #
 # Filesystem test specific setup
@@ -20,6 +21,7 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     global supported_fs_basic
+    global supported_fs_ext
 
     def intersect(listA, listB):
         return  [x for x in listA if x in listB]
@@ -28,10 +30,14 @@ def pytest_configure(config):
     if supported_fs:
         print("*** FS TYPE modified: %s" % supported_fs)
         supported_fs_basic =  intersect(supported_fs, supported_fs_basic)
+        supported_fs_ext =  intersect(supported_fs, supported_fs_ext)
 
 def pytest_generate_tests(metafunc):
     if 'fs_obj_basic' in metafunc.fixturenames:
         metafunc.parametrize('fs_obj_basic', supported_fs_basic,
+            indirect=True, scope='module')
+    if 'fs_obj_ext' in metafunc.fixturenames:
+        metafunc.parametrize('fs_obj_ext', supported_fs_ext,
             indirect=True, scope='module')
 
 #
@@ -205,6 +211,83 @@ def fs_obj_basic(request, u_boot_config):
 	    % big_file, shell=True)
         md5val.append(out.split()[0])
 
+        umount_fs(fs_type, mount_dir)
+    except CalledProcessError:
+        pytest.skip('Setup failed for filesystem: ' + fs_type)
+        return
+    else:
+        yield [fs_ubtype, fs_img, md5val]
+    finally:
+        umount_fs(fs_type, mount_dir)
+        call('rmdir %s' % mount_dir, shell=True)
+        if fs_img:
+            call('rm -f %s' % fs_img, shell=True)
+
+#
+# Fixture for extended fs test
+#
+# NOTE: yield_fixture was deprecated since pytest-3.0
+@pytest.yield_fixture()
+def fs_obj_ext(request, u_boot_config):
+    fs_type = request.param
+    fs_img = ''
+
+    fs_ubtype = fstype_to_ubname(fs_type)
+    check_ubconfig(u_boot_config, fs_ubtype)
+
+    mount_dir = u_boot_config.persistent_data_dir + '/mnt'
+
+    min_file = mount_dir + '/' + MIN_FILE
+    tmp_file = mount_dir + '/tmpfile'
+
+    try:
+
+        # 128MiB volume
+        fs_img = mk_fs(u_boot_config, fs_type, 0x8000000, '128MB')
+
+        # Mount the image so we can populate it.
+        check_call('mkdir -p %s' % mount_dir, shell=True)
+        mount_fs(fs_type, fs_img, mount_dir)
+
+        # Create a test directory
+        check_call('mkdir %s/dir1' % mount_dir, shell=True)
+
+        # Create a small file and calculate md5
+        check_call('dd if=/dev/urandom of=%s bs=1K count=20'
+            % min_file, shell=True)
+        out = check_output(
+            'dd if=%s bs=1K 2> /dev/null | md5sum'
+            % min_file, shell=True)
+        md5val = [ out.split()[0] ]
+
+        # Calculate md5sum of Test Case 4
+        check_call('dd if=%s of=%s bs=1K count=20'
+            % (min_file, tmp_file), shell=True)
+        check_call('dd if=%s of=%s bs=1K seek=5 count=20'
+            % (min_file, tmp_file), shell=True)
+        out = check_output('dd if=%s bs=1K 2> /dev/null | md5sum'
+            % tmp_file, shell=True)
+        md5val.append(out.split()[0])
+
+        # Calculate md5sum of Test Case 5
+        check_call('dd if=%s of=%s bs=1K count=20'
+            % (min_file, tmp_file), shell=True)
+        check_call('dd if=%s of=%s bs=1K seek=5 count=5'
+            % (min_file, tmp_file), shell=True)
+        out = check_output('dd if=%s bs=1K 2> /dev/null | md5sum'
+            % tmp_file, shell=True)
+        md5val.append(out.split()[0])
+
+        # Calculate md5sum of Test Case 7
+        check_call('dd if=%s of=%s bs=1K count=20'
+            % (min_file, tmp_file), shell=True)
+        check_call('dd if=%s of=%s bs=1K seek=20 count=20'
+            % (min_file, tmp_file), shell=True)
+        out = check_output('dd if=%s bs=1K 2> /dev/null | md5sum'
+            % tmp_file, shell=True)
+        md5val.append(out.split()[0])
+
+        check_call('rm %s' % tmp_file, shell=True)
         umount_fs(fs_type, mount_dir)
     except CalledProcessError:
         pytest.skip('Setup failed for filesystem: ' + fs_type)
