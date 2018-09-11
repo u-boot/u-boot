@@ -11,6 +11,7 @@ from fstest_defs import *
 
 supported_fs_basic = ['fat16', 'fat32', 'ext4']
 supported_fs_ext = ['fat16', 'fat32']
+supported_fs_mkdir = ['fat16', 'fat32']
 
 #
 # Filesystem test specific setup
@@ -22,6 +23,7 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     global supported_fs_basic
     global supported_fs_ext
+    global supported_fs_mkdir
 
     def intersect(listA, listB):
         return  [x for x in listA if x in listB]
@@ -31,6 +33,7 @@ def pytest_configure(config):
         print("*** FS TYPE modified: %s" % supported_fs)
         supported_fs_basic =  intersect(supported_fs, supported_fs_basic)
         supported_fs_ext =  intersect(supported_fs, supported_fs_ext)
+        supported_fs_mkdir =  intersect(supported_fs, supported_fs_mkdir)
 
 def pytest_generate_tests(metafunc):
     if 'fs_obj_basic' in metafunc.fixturenames:
@@ -38,6 +41,9 @@ def pytest_generate_tests(metafunc):
             indirect=True, scope='module')
     if 'fs_obj_ext' in metafunc.fixturenames:
         metafunc.parametrize('fs_obj_ext', supported_fs_ext,
+            indirect=True, scope='module')
+    if 'fs_obj_mkdir' in metafunc.fixturenames:
+        metafunc.parametrize('fs_obj_mkdir', supported_fs_mkdir,
             indirect=True, scope='module')
 
 #
@@ -297,5 +303,28 @@ def fs_obj_ext(request, u_boot_config):
     finally:
         umount_fs(fs_type, mount_dir)
         call('rmdir %s' % mount_dir, shell=True)
+        if fs_img:
+            call('rm -f %s' % fs_img, shell=True)
+
+#
+# Fixture for mkdir test
+#
+# NOTE: yield_fixture was deprecated since pytest-3.0
+@pytest.yield_fixture()
+def fs_obj_mkdir(request, u_boot_config):
+    fs_type = request.param
+    fs_img = ''
+
+    fs_ubtype = fstype_to_ubname(fs_type)
+    check_ubconfig(u_boot_config, fs_ubtype)
+
+    try:
+        # 128MiB volume
+        fs_img = mk_fs(u_boot_config, fs_type, 0x8000000, '128MB')
+    except:
+        pytest.skip('Setup failed for filesystem: ' + fs_type)
+    else:
+        yield [fs_ubtype, fs_img]
+    finally:
         if fs_img:
             call('rm -f %s' % fs_img, shell=True)
