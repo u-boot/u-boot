@@ -41,6 +41,10 @@
         status = "okay";
     };
 
+    serial@13840000 {
+        status = "disabled";
+    };
+
     pwm: pwm@139d0000 {
         compatible = "samsung,exynos4210-pwm";
         reg = <0x139d0000 0x100>;
