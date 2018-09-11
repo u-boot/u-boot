@@ -450,6 +450,121 @@ set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
 	return 0;
 }
 
+static __u8 tmpbuf_cluster[MAX_CLUSTSIZE] __aligned(ARCH_DMA_MINALIGN);
+
+/*
+ * Read and modify data on existing and consecutive cluster blocks
+ */
+static int
+get_set_cluster(fsdata *mydata, __u32 clustnum, loff_t pos, __u8 *buffer,
+		loff_t size, loff_t *gotsize)
+{
+	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
+	__u32 startsect;
+	loff_t wsize;
+	int clustcount, i, ret;
+
+	*gotsize = 0;
+	if (!size)
+		return 0;
+
+	assert(pos < bytesperclust);
+	startsect = clust_to_sect(mydata, clustnum);
+
+	debug("clustnum: %d, startsect: %d, pos: %lld\n",
+	      clustnum, startsect, pos);
+
+	/* partial write at beginning */
+	if (pos) {
+		wsize = min(bytesperclust - pos, size);
+		ret = disk_read(startsect, mydata->clust_size, tmpbuf_cluster);
+		if (ret != mydata->clust_size) {
+			debug("Error reading data (got %d)\n", ret);
+			return -1;
+		}
+
+		memcpy(tmpbuf_cluster + pos, buffer, wsize);
+		ret = disk_write(startsect, mydata->clust_size, tmpbuf_cluster);
+		if (ret != mydata->clust_size) {
+			debug("Error writing data (got %d)\n", ret);
+			return -1;
+		}
+
+		size -= wsize;
+		buffer += wsize;
+		*gotsize += wsize;
+
+		startsect += mydata->clust_size;
+
+		if (!size)
+			return 0;
+	}
+
+	/* full-cluster write */
+	if (size >= bytesperclust) {
+		clustcount = lldiv(size, bytesperclust);
+
+		if (!((unsigned long)buffer & (ARCH_DMA_MINALIGN - 1))) {
+			wsize = clustcount * bytesperclust;
+			ret = disk_write(startsect,
+					 clustcount * mydata->clust_size,
+					 buffer);
+			if (ret != clustcount * mydata->clust_size) {
+				debug("Error writing data (got %d)\n", ret);
+				return -1;
+			}
+
+			size -= wsize;
+			buffer += wsize;
+			*gotsize += wsize;
+
+			startsect += clustcount * mydata->clust_size;
+		} else {
+			for (i = 0; i < clustcount; i++) {
+				memcpy(tmpbuf_cluster, buffer, bytesperclust);
+				ret = disk_write(startsect,
+						 mydata->clust_size,
+						 tmpbuf_cluster);
+				if (ret != mydata->clust_size) {
+					debug("Error writing data (got %d)\n",
+					      ret);
+					return -1;
+				}
+
+				size -= bytesperclust;
+				buffer += bytesperclust;
+				*gotsize += bytesperclust;
+
+				startsect += mydata->clust_size;
+			}
+		}
+	}
+
+	/* partial write at end */
+	if (size) {
+		wsize = size;
+		ret = disk_read(startsect, mydata->clust_size, tmpbuf_cluster);
+		if (ret != mydata->clust_size) {
+			debug("Error reading data (got %d)\n", ret);
+			return -1;
+		}
+		memcpy(tmpbuf_cluster, buffer, wsize);
+		ret = disk_write(startsect, mydata->clust_size, tmpbuf_cluster);
+		if (ret != mydata->clust_size) {
+			debug("Error writing data (got %d)\n", ret);
+			return -1;
+		}
+
+		size -= wsize;
+		buffer += wsize;
+		*gotsize += wsize;
+	}
+
+	assert(!size);
+
+	return 0;
+}
+
 /*
  * Find the first empty cluster
  */
@@ -578,26 +693,158 @@ set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
 	__u32 curclust = START(dentptr);
 	__u32 endclust = 0, newclust = 0;
-	loff_t actsize;
+	loff_t cur_pos, offset, actsize, wsize;
 
 	*gotsize = 0;
-	filesize = maxsize;
+	filesize = pos + maxsize;
 
 	debug("%llu bytes\n", filesize);
 
-	if (curclust) {
-		/*
-		 * release already-allocated clusters anyway
-		 */
-		if (clear_fatent(mydata, curclust)) {
-			printf("Error: clearing FAT entries\n");
+	if (!filesize) {
+		if (!curclust)
+			return 0;
+		if (!CHECK_CLUST(curclust, mydata->fatsize) ||
+		    IS_LAST_CLUST(curclust, mydata->fatsize)) {
+			clear_fatent(mydata, curclust);
+			set_start_cluster(mydata, dentptr, 0);
+			return 0;
+		}
+		debug("curclust: 0x%x\n", curclust);
+		debug("Invalid FAT entry\n");
+		return -1;
+	}
+
+	if (!curclust) {
+		assert(pos == 0);
+		goto set_clusters;
+	}
+
+	/* go to cluster at pos */
+	cur_pos = bytesperclust;
+	while (1) {
+		if (pos <= cur_pos)
+			break;
+		if (IS_LAST_CLUST(curclust, mydata->fatsize))
+			break;
+
+		newclust = get_fatent(mydata, curclust);
+		if (!IS_LAST_CLUST(newclust, mydata->fatsize) &&
+		    CHECK_CLUST(newclust, mydata->fatsize)) {
+			debug("curclust: 0x%x\n", curclust);
+			debug("Invalid FAT entry\n");
+			return -1;
+		}
+
+		cur_pos += bytesperclust;
+		curclust = newclust;
+	}
+	if (IS_LAST_CLUST(curclust, mydata->fatsize)) {
+		assert(pos == cur_pos);
+		goto set_clusters;
+	}
+
+	assert(pos < cur_pos);
+	cur_pos -= bytesperclust;
+
+	/* overwrite */
+	assert(IS_LAST_CLUST(curclust, mydata->fatsize) ||
+	       !CHECK_CLUST(curclust, mydata->fatsize));
+
+	while (1) {
+		/* search for allocated consecutive clusters */
+		actsize = bytesperclust;
+		endclust = curclust;
+		while (1) {
+			if (filesize <= (cur_pos + actsize))
+				break;
+
+			newclust = get_fatent(mydata, endclust);
+
+			if (IS_LAST_CLUST(newclust, mydata->fatsize))
+				break;
+			if (CHECK_CLUST(newclust, mydata->fatsize)) {
+				debug("curclust: 0x%x\n", curclust);
+				debug("Invalid FAT entry\n");
+				return -1;
+			}
+
+			actsize += bytesperclust;
+			endclust = newclust;
+		}
+
+		/* overwrite to <curclust..endclust> */
+		if (pos < cur_pos)
+			offset = 0;
+		else
+			offset = pos - cur_pos;
+		wsize = min(cur_pos + actsize, filesize) - pos;
+		if (get_set_cluster(mydata, curclust, offset,
+				    buffer, wsize, &actsize)) {
+			printf("Error get-and-setting cluster\n");
+			return -1;
+		}
+		buffer += wsize;
+		*gotsize += wsize;
+		cur_pos += offset + wsize;
+
+		if (filesize <= cur_pos)
+			break;
+
+		/* CHECK: newclust = get_fatent(mydata, endclust); */
+
+		if (IS_LAST_CLUST(newclust, mydata->fatsize))
+			/* no more clusters */
+			break;
+
+		curclust = newclust;
+	}
+
+	if (filesize <= cur_pos) {
+		/* no more write */
+		newclust = get_fatent(mydata, endclust);
+		if (!IS_LAST_CLUST(newclust, mydata->fatsize)) {
+			/* truncate the rest */
+			clear_fatent(mydata, newclust);
+
+			/* Mark end of file in FAT */
+			if (mydata->fatsize == 12)
+				newclust = 0xfff;
+			else if (mydata->fatsize == 16)
+				newclust = 0xffff;
+			else if (mydata->fatsize == 32)
+				newclust = 0xfffffff;
+			set_fatent_value(mydata, endclust, newclust);
+		}
+
+		return 0;
+	}
+
+	curclust = endclust;
+	filesize -= cur_pos;
+	assert(!(cur_pos % bytesperclust));
+
+set_clusters:
+	/* allocate and write */
+	assert(!pos);
+
+	/* Assure that curclust is valid */
+	if (!curclust) {
+		curclust = find_empty_cluster(mydata);
+		set_start_cluster(mydata, dentptr, curclust);
+	} else {
+		newclust = get_fatent(mydata, curclust);
+
+		if (IS_LAST_CLUST(newclust, mydata->fatsize)) {
+			newclust = determine_fatent(mydata, curclust);
+			set_fatent_value(mydata, curclust, newclust);
+			curclust = newclust;
+		} else {
+			debug("error: something wrong\n");
 			return -1;
 		}
 	}
 
-	curclust = find_empty_cluster(mydata);
-	set_start_cluster(mydata, dentptr, curclust);
-
+	/* TODO: already partially written */
 	if (check_overflow(mydata, curclust, filesize)) {
 		printf("Error: no space left: %llu\n", filesize);
 		return -1;
@@ -849,6 +1096,16 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 			goto exit;
 		}
 
+		/* A file exists */
+		if (pos == -1)
+			/* Append to the end */
+			pos = FAT2CPU32(retdent->size);
+		if (pos > retdent->size) {
+			/* No hole allowed */
+			ret = -EINVAL;
+			goto exit;
+		}
+
 		/* Update file size in a directory entry */
 		retdent->size = cpu_to_le32(pos + size);
 	} else {
@@ -866,6 +1123,12 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 		if (!itr->dent) {
 			printf("Error: allocating new dir entry\n");
 			ret = -EIO;
+			goto exit;
+		}
+
+		if (pos) {
+			/* No hole allowed */
+			ret = -EINVAL;
 			goto exit;
 		}
 
@@ -918,10 +1181,5 @@ exit:
 int file_fat_write(const char *filename, void *buffer, loff_t offset,
 		   loff_t maxsize, loff_t *actwrite)
 {
-	if (offset != 0) {
-		printf("Error: non zero offset is currently not supported.\n");
-		return -EINVAL;
-	}
-
 	return file_fat_write_at(filename, offset, buffer, maxsize, actwrite);
 }
