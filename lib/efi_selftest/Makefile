@@ -29,6 +29,7 @@ efi_selftest_manageprotocols.o \
 efi_selftest_rtc.o \
 efi_selftest_snp.o \
 efi_selftest_textinput.o \
+efi_selftest_textinputex.o \
 efi_selftest_textoutput.o \
 efi_selftest_tpl.o \
 efi_selftest_unicode_collation.o \
