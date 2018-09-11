@@ -956,7 +956,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 
 	if (read_bootsectandvi(&bs, &volinfo, &mydata->fatsize)) {
 		debug("error: reading boot sector\n");
-		return -1;
+		return -EIO;
 	}
 
 	total_sector = bs.total_sect;
@@ -997,7 +997,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 	mydata->fatbuf = memalign(ARCH_DMA_MINALIGN, FATBUFSIZE);
 	if (mydata->fatbuf == NULL) {
 		debug("Error: allocating memory\n");
-		return -1;
+		return -ENOMEM;
 	}
 
 	if (disk_read(cursect,
@@ -1005,6 +1005,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 		(mydata->clust_size) :
 		PREFETCH_BLOCKS, do_fat_read_at_block) < 0) {
 		debug("Error: reading rootdir block\n");
+		ret = -EIO;
 		goto exit;
 	}
 	dentptr = (dir_entry *) do_fat_read_at_block;
@@ -1029,6 +1030,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 							size);
 				if (ret) {
 					printf("Error: %llu overflow\n", size);
+					ret = -ENOSPC;
 					goto exit;
 				}
 			}
@@ -1036,6 +1038,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 			ret = clear_fatent(mydata, start_cluster);
 			if (ret) {
 				printf("Error: clearing FAT entries\n");
+				ret = -EIO;
 				goto exit;
 			}
 
@@ -1045,12 +1048,14 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 			ret = start_cluster = find_empty_cluster(mydata);
 			if (ret < 0) {
 				printf("Error: finding empty cluster\n");
+				ret = -ENOSPC;
 				goto exit;
 			}
 
 			ret = check_overflow(mydata, start_cluster, size);
 			if (ret) {
 				printf("Error: %llu overflow\n", size);
+				ret = -ENOSPC;
 				goto exit;
 			}
 
@@ -1065,12 +1070,14 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 			ret = start_cluster = find_empty_cluster(mydata);
 			if (ret < 0) {
 				printf("Error: finding empty cluster\n");
+				ret = -ENOSPC;
 				goto exit;
 			}
 
 			ret = check_overflow(mydata, start_cluster, size);
 			if (ret) {
 				printf("Error: %llu overflow\n", size);
+				ret = -ENOSPC;
 				goto exit;
 			}
 		} else {
@@ -1087,6 +1094,7 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 	ret = set_contents(mydata, retdent, buffer, size, actwrite);
 	if (ret < 0) {
 		printf("Error: writing contents\n");
+		ret = -EIO;
 		goto exit;
 	}
 	debug("attempt to write 0x%llx bytes\n", *actwrite);
@@ -1095,14 +1103,17 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
 	ret = flush_dirty_fat_buffer(mydata);
 	if (ret) {
 		printf("Error: flush fat buffer\n");
+		ret = -EIO;
 		goto exit;
 	}
 
 	/* Write directory table to device */
 	ret = set_cluster(mydata, dir_curclust, get_dentfromdir_block,
 			mydata->clust_size * mydata->sect_size);
-	if (ret)
+	if (ret) {
 		printf("Error: writing directory entry\n");
+		ret = -EIO;
+	}
 
 exit:
 	free(mydata->fatbuf);
@@ -1114,7 +1125,7 @@ int file_fat_write(const char *filename, void *buffer, loff_t offset,
 {
 	if (offset != 0) {
 		printf("Error: non zero offset is currently not supported.\n");
-		return -1;
+		return -EINVAL;
 	}
 
 	printf("writing %s\n", filename);
