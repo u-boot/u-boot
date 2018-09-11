@@ -42,10 +42,12 @@ static struct cout_mode efi_cout_modes[] = {
 	},
 };
 
-const efi_guid_t efi_guid_text_output_protocol =
-			EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID;
+const efi_guid_t efi_guid_text_input_ex_protocol =
+			EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID;
 const efi_guid_t efi_guid_text_input_protocol =
 			EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID;
+const efi_guid_t efi_guid_text_output_protocol =
+			EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID;
 
 #define cESC '\x1b'
 #define ESC "\x1b"
@@ -391,19 +393,19 @@ struct efi_simple_text_output_protocol efi_con_out = {
 };
 
 static bool key_available;
-static struct efi_input_key next_key;
+static struct efi_key_data next_key;
 
 /**
- * skip_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
+ * analyze_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
  *
  * This gets called when we have already parsed CSI.
  *
  * @modifiers:  bitmask (shift, alt, ctrl)
  * @return:	the unmodified code
  */
-static char skip_modifiers(int *modifiers)
+static int analyze_modifiers(struct efi_key_state *key_state)
 {
-	char c, mod = 0, ret = 0;
+	int c, mod = 0, ret = 0;
 
 	c = getc();
 
@@ -429,8 +431,17 @@ static char skip_modifiers(int *modifiers)
 out:
 	if (mod)
 		--mod;
-	if (modifiers)
-		*modifiers = mod;
+	key_state->key_shift_state = EFI_SHIFT_STATE_VALID;
+	if (mod) {
+		if (mod & 1)
+			key_state->key_shift_state |= EFI_LEFT_SHIFT_PRESSED;
+		if (mod & 2)
+			key_state->key_shift_state |= EFI_LEFT_ALT_PRESSED;
+		if (mod & 4)
+			key_state->key_shift_state |= EFI_LEFT_CONTROL_PRESSED;
+		if (mod & 8)
+			key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
+	}
 	if (!ret)
 		ret = c;
 	return ret;
@@ -442,7 +453,7 @@ out:
  * @key:	- key received
  * Return:	- status code
  */
-static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 {
 	efi_status_t ret;
 	struct efi_input_key pressed_key = {
@@ -454,6 +465,10 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
 	ret = console_read_unicode(&ch);
 	if (ret)
 		return EFI_NOT_READY;
+
+	key->key_state.key_shift_state = EFI_SHIFT_STATE_INVALID;
+	key->key_state.key_toggle_state = EFI_TOGGLE_STATE_INVALID;
+
 	/* We do not support multi-word codes */
 	if (ch >= 0x10000)
 		ch = '?';
@@ -490,7 +505,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
 				pressed_key.scan_code = 5;
 				break;
 			case '1':
-				ch = skip_modifiers(NULL);
+				ch = analyze_modifiers(&key->key_state);
 				switch (ch) {
 				case '1'...'5': /* F1 - F5 */
 					pressed_key.scan_code = ch - '1' + 11;
@@ -510,7 +525,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
 				}
 				break;
 			case '2':
-				ch = skip_modifiers(NULL);
+				ch = analyze_modifiers(&key->key_state);
 				switch (ch) {
 				case '0'...'1': /* F9 - F10 */
 					pressed_key.scan_code = ch - '0' + 19;
@@ -525,15 +540,15 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
 				break;
 			case '3': /* DEL */
 				pressed_key.scan_code = 8;
-				skip_modifiers(NULL);
+				analyze_modifiers(&key->key_state);
 				break;
 			case '5': /* PG UP */
 				pressed_key.scan_code = 9;
-				skip_modifiers(NULL);
+				analyze_modifiers(&key->key_state);
 				break;
 			case '6': /* PG DOWN */
 				pressed_key.scan_code = 10;
-				skip_modifiers(NULL);
+				analyze_modifiers(&key->key_state);
 				break;
 			}
 			break;
@@ -542,9 +557,28 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
 		/* Backspace */
 		ch = 0x08;
 	}
-	if (!pressed_key.scan_code)
+	if (pressed_key.scan_code) {
+		key->key_state.key_shift_state |= EFI_SHIFT_STATE_VALID;
+	} else {
 		pressed_key.unicode_char = ch;
-	*key = pressed_key;
+
+		/*
+		 * Assume left control key for control characters typically
+		 * entered using the control key.
+		 */
+		if (ch >= 0x01 && ch <= 0x1f) {
+			key->key_state.key_shift_state =
+					EFI_SHIFT_STATE_VALID;
+			switch (ch) {
+			case 0x01 ... 0x07:
+			case 0x0b ... 0x0c:
+			case 0x0e ... 0x1f:
+				key->key_state.key_shift_state |=
+						EFI_LEFT_CONTROL_PRESSED;
+			}
+		}
+	}
+	key->key = pressed_key;
 
 	return EFI_SUCCESS;
 }
@@ -573,6 +607,170 @@ static void efi_cin_check(void)
 }
 
 /**
+ * efi_cin_empty_buffer() - empty input buffer
+ */
+static void efi_cin_empty_buffer(void)
+{
+	while (tstc())
+		getc();
+	key_available = false;
+}
+
+/**
+ * efi_cin_reset_ex() - reset console input
+ *
+ * @this:			- the extended simple text input protocol
+ * @extended_verification:	- extended verification
+ *
+ * This function implements the reset service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * Return: old value of the task priority level
+ */
+static efi_status_t EFIAPI efi_cin_reset_ex(
+		struct efi_simple_text_input_ex_protocol *this,
+		bool extended_verification)
+{
+	efi_status_t ret = EFI_SUCCESS;
+
+	EFI_ENTRY("%p, %d", this, extended_verification);
+
+	/* Check parameters */
+	if (!this) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	efi_cin_empty_buffer();
+out:
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_cin_read_key_stroke_ex() - read key stroke
+ *
+ * @this:	instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @key_data:	key read from console
+ * Return:	status code
+ *
+ * This function implements the ReadKeyStrokeEx service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_read_key_stroke_ex(
+		struct efi_simple_text_input_ex_protocol *this,
+		struct efi_key_data *key_data)
+{
+	efi_status_t ret = EFI_SUCCESS;
+
+	EFI_ENTRY("%p, %p", this, key_data);
+
+	/* Check parameters */
+	if (!this || !key_data) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/* We don't do interrupts, so check for timers cooperatively */
+	efi_timer_check();
+
+	/* Enable console input after ExitBootServices */
+	efi_cin_check();
+
+	if (!key_available) {
+		ret = EFI_NOT_READY;
+		goto out;
+	}
+	*key_data = next_key;
+	key_available = false;
+	efi_con_in.wait_for_key->is_signaled = false;
+out:
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_cin_set_state() - set toggle key state
+ *
+ * @this:		instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @key_toggle_state:	key toggle state
+ * Return:		status code
+ *
+ * This function implements the SetState service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_set_state(
+		struct efi_simple_text_input_ex_protocol *this,
+		u8 key_toggle_state)
+{
+	EFI_ENTRY("%p, %u", this, key_toggle_state);
+	/*
+	 * U-Boot supports multiple console input sources like serial and
+	 * net console for which a key toggle state cannot be set at all.
+	 *
+	 * According to the UEFI specification it is allowable to not implement
+	 * this service.
+	 */
+	return EFI_EXIT(EFI_UNSUPPORTED);
+}
+
+/**
+ * efi_cin_register_key_notify() - register key notification function
+ *
+ * @this:			instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @key_data:			key to be notified
+ * @key_notify_function:	function to be called if the key is pressed
+ * @notify_handle:		handle for unregistering the notification
+ * Return:			status code
+ *
+ * This function implements the SetState service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_register_key_notify(
+		struct efi_simple_text_input_ex_protocol *this,
+		struct efi_key_data *key_data,
+		efi_status_t (EFIAPI *key_notify_function)(
+			struct efi_key_data *key_data),
+		void **notify_handle)
+{
+	EFI_ENTRY("%p, %p, %p, %p",
+		  this, key_data, key_notify_function, notify_handle);
+	return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+}
+
+/**
+ * efi_cin_unregister_key_notify() - unregister key notification function
+ *
+ * @this:			instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @notification_handle:	handle received when registering
+ * Return:			status code
+ *
+ * This function implements the SetState service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_unregister_key_notify(
+		struct efi_simple_text_input_ex_protocol *this,
+		void *notification_handle)
+{
+	EFI_ENTRY("%p, %p", this, notification_handle);
+	return EFI_EXIT(EFI_INVALID_PARAMETER);
+}
+
+
+/**
  * efi_cin_reset() - drain the input buffer
  *
  * @this:			instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
@@ -599,16 +797,13 @@ static efi_status_t EFIAPI efi_cin_reset
 		goto out;
 	}
 
-	/* Empty input buffer */
-	while (tstc())
-		getc();
-	key_available = false;
+	efi_cin_empty_buffer();
 out:
 	return EFI_EXIT(ret);
 }
 
 /**
- * efi_cin_reset() - drain the input buffer
+ * efi_cin_read_key_stroke() - read key stroke
  *
  * @this:	instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
  * @key:	key read from console
@@ -644,12 +839,21 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke
 		ret = EFI_NOT_READY;
 		goto out;
 	}
-	*key = next_key;
+	*key = next_key.key;
 	key_available = false;
 	efi_con_in.wait_for_key->is_signaled = false;
 out:
 	return EFI_EXIT(ret);
 }
+
+static struct efi_simple_text_input_ex_protocol efi_con_in_ex = {
+	.reset = efi_cin_reset_ex,
+	.read_key_stroke_ex = efi_cin_read_key_stroke_ex,
+	.wait_for_key_ex = NULL,
+	.set_state = efi_cin_set_state,
+	.register_key_notify = efi_cin_register_key_notify,
+	.unregister_key_notify = efi_cin_unregister_key_notify,
+};
 
 struct efi_simple_text_input_protocol efi_con_in = {
 	.reset = efi_cin_reset,
@@ -721,6 +925,10 @@ int efi_console_register(void)
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
 	systab.con_in_handle = efi_console_input_obj->handle;
+	r = efi_add_protocol(efi_console_input_obj->handle,
+			     &efi_guid_text_input_ex_protocol, &efi_con_in_ex);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
 
 	/* Create console events */
 	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,
@@ -729,6 +937,7 @@ int efi_console_register(void)
 		printf("ERROR: Failed to register WaitForKey event\n");
 		return r;
 	}
+	efi_con_in_ex.wait_for_key_ex = efi_con_in.wait_for_key;
 	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
 			     efi_console_timer_notify, NULL, NULL,
 			     &console_timer_event);

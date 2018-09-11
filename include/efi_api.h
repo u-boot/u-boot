@@ -587,9 +587,65 @@ struct efi_simple_text_output_protocol {
 	struct simple_text_output_mode *mode;
 };
 
+#define EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID \
+	EFI_GUID(0xdd9e7534, 0x7762, 0x4698, \
+		 0x8c, 0x14, 0xf5, 0x85, 0x17, 0xa6, 0x25, 0xaa)
+
 struct efi_input_key {
 	u16 scan_code;
 	s16 unicode_char;
+};
+
+#define EFI_SHIFT_STATE_INVALID		0x00000000
+#define EFI_RIGHT_SHIFT_PRESSED		0x00000001
+#define EFI_LEFT_SHIFT_PRESSED		0x00000002
+#define EFI_RIGHT_CONTROL_PRESSED	0x00000004
+#define EFI_LEFT_CONTROL_PRESSED	0x00000008
+#define EFI_RIGHT_ALT_PRESSED		0x00000010
+#define EFI_LEFT_ALT_PRESSED		0x00000020
+#define EFI_RIGHT_LOGO_PRESSED		0x00000040
+#define EFI_LEFT_LOGO_PRESSED		0x00000080
+#define EFI_MENU_KEY_PRESSED		0x00000100
+#define EFI_SYS_REQ_PRESSED		0x00000200
+#define EFI_SHIFT_STATE_VALID		0x80000000
+
+#define EFI_TOGGLE_STATE_INVALID	0x00
+#define EFI_SCROLL_LOCK_ACTIVE		0x01
+#define EFI_NUM_LOCK_ACTIVE		0x02
+#define EFI_CAPS_LOCK_ACTIVE		0x04
+#define EFI_KEY_STATE_EXPOSED		0x40
+#define EFI_TOGGLE_STATE_VALID		0x80
+
+struct efi_key_state {
+	u32 key_shift_state;
+	u8 key_toggle_state;
+};
+
+struct efi_key_data {
+	struct efi_input_key key;
+	struct efi_key_state key_state;
+};
+
+struct efi_simple_text_input_ex_protocol {
+	efi_status_t (EFIAPI *reset) (
+		struct efi_simple_text_input_ex_protocol *this,
+		bool extended_verification);
+	efi_status_t (EFIAPI *read_key_stroke_ex) (
+		struct efi_simple_text_input_ex_protocol *this,
+		struct efi_key_data *key_data);
+	struct efi_event *wait_for_key_ex;
+	efi_status_t (EFIAPI *set_state) (
+		struct efi_simple_text_input_ex_protocol *this,
+		u8 key_toggle_state);
+	efi_status_t (EFIAPI *register_key_notify) (
+		struct efi_simple_text_input_ex_protocol *this,
+		struct efi_key_data *key_data,
+		efi_status_t (EFIAPI *key_notify_function)(
+			struct efi_key_data *key_data),
+		void **notify_handle);
+	efi_status_t (EFIAPI *unregister_key_notify) (
+		struct efi_simple_text_input_ex_protocol *this,
+		void *notification_handle);
 };
 
 #define EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID \
