@@ -168,6 +168,10 @@ static void secondary_cores_configure(void)
 extern void relocate_wait_code(void);
 #endif
 
+#ifdef CONFIG_X4412
+extern void relocate_wait_code(void);
+#endif
+
 int do_lowlevel_init(void)
 {
 	uint32_t reset_status;
@@ -193,6 +197,10 @@ int do_lowlevel_init(void)
 
 	/* Reconfigure secondary cores */
 	secondary_cores_configure();
+#endif
+
+#ifdef CONFIG_X4412
+    relocate_wait_code();
 #endif
 
 	reset_status = get_reset_status();

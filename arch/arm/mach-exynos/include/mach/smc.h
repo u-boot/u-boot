@@ -21,8 +21,11 @@
 #define CONFIG_SYS_TZSW_BASE    (CONFIG_SYS_IRAM_BASE + 0x8000)
 #define SMC_SECURE_CONTEXT_BASE (CONFIG_SYS_IRAM_BASE + 0x4C00)
 #define CONFIG_IMAGE_INFO_BASE  (CONFIG_SYS_SDRAM_BASE)
+#define CONFIG_CPU_WAIT_ADDR    (CONFIG_SYS_TZSW_BASE + 0x27000)
 
+#ifndef __ASSEMBLY__
 /* use secure service to copy uboot to ram */
 void load_uboot_image(unsigned int boot_device);
 void cold_boot(unsigned int boot_devicev);
+#endif
 #endif /* __ASM_ARCH_SMC_H_ */

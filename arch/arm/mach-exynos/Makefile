@@ -17,4 +17,7 @@ obj-y	+= dmc_init_exynos4.o clock_init_exynos4.o
 endif
 obj-y	+= spl_boot.o tzpc.o
 obj-y	+= lowlevel_init.o
+ifdef CONFIG_X4412
+obj-y	+= sec_boot.o
+endif
 endif
