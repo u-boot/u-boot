@@ -40,15 +40,36 @@ static int execute(void)
 {
 	struct efi_input_key input_key = {0};
 	efi_status_t ret;
+	efi_uintn_t index;
+
+	/* Drain the console input */
+	ret = con_in->reset(con_in, true);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Reset failed\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = con_in->read_key_stroke(con_in, &input_key);
+	if (ret != EFI_NOT_READY) {
+		efi_st_error("Empty buffer not reported\n");
+		return EFI_ST_FAILURE;
+	}
 
 	efi_st_printf("Waiting for your input\n");
 	efi_st_printf("To terminate type 'x'\n");
 
 	for (;;) {
 		/* Wait for next key */
-		do {
-			ret = con_in->read_key_stroke(con_in, &input_key);
-		} while (ret == EFI_NOT_READY);
+		ret = boottime->wait_for_event(1, &con_in->wait_for_key,
+					       &index);
+		if (ret != EFI_ST_SUCCESS) {
+			efi_st_error("WaitForEvent failed\n");
+			return EFI_ST_FAILURE;
+		}
+		ret = con_in->read_key_stroke(con_in, &input_key);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("ReadKeyStroke failed\n");
+			return EFI_ST_FAILURE;
+		}
 
 		/* Allow 5 minutes until time out */
 		boottime->set_watchdog_timer(300, 0, 0, NULL);
