@@ -152,6 +152,18 @@ U_BOOT_CMD(
 	"      to 'dev' on 'interface'"
 );
 
+static int do_fat_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	return do_rm(cmdtp, flag, argc, argv, FS_TYPE_FAT);
+}
+
+U_BOOT_CMD(
+	fatrm,	4,	1,	do_fat_rm,
+	"delete a file",
+	"<interface> [<dev[:part]>] <filename>\n"
+	"    - delete a file from 'dev' on 'interface'"
+);
+
 static int do_fat_mkdir(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
