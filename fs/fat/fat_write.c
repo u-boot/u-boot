@@ -1183,3 +1183,139 @@ int file_fat_write(const char *filename, void *buffer, loff_t offset,
 {
 	return file_fat_write_at(filename, offset, buffer, maxsize, actwrite);
 }
+
+int fat_mkdir(const char *new_dirname)
+{
+	dir_entry *retdent;
+	fsdata datablock = { .fatbuf = NULL, };
+	fsdata *mydata = &datablock;
+	fat_itr *itr = NULL;
+	char *dirname_copy, *parent, *dirname;
+	char l_dirname[VFAT_MAXLEN_BYTES];
+	int ret = -1;
+	loff_t actwrite;
+	unsigned int bytesperclust;
+	dir_entry *dotdent = NULL;
+
+	dirname_copy = strdup(new_dirname);
+	if (!dirname_copy)
+		goto exit;
+
+	split_filename(dirname_copy, &parent, &dirname);
+	if (!strlen(dirname)) {
+		ret = -EINVAL;
+		goto exit;
+	}
+
+	if (normalize_longname(l_dirname, dirname)) {
+		printf("FAT: illegal filename (%s)\n", dirname);
+		ret = -EINVAL;
+		goto exit;
+	}
+
+	itr = malloc_cache_aligned(sizeof(fat_itr));
+	if (!itr) {
+		ret = -ENOMEM;
+		goto exit;
+	}
+
+	ret = fat_itr_root(itr, &datablock);
+	if (ret)
+		goto exit;
+
+	total_sector = datablock.total_sect;
+
+	ret = fat_itr_resolve(itr, parent, TYPE_DIR);
+	if (ret) {
+		printf("%s: doesn't exist (%d)\n", parent, ret);
+		goto exit;
+	}
+
+	retdent = find_directory_entry(itr, l_dirname);
+
+	if (retdent) {
+		printf("%s: already exists\n", l_dirname);
+		ret = -EEXIST;
+		goto exit;
+	} else {
+		if (itr->is_root) {
+			/* root dir cannot have "." or ".." */
+			if (!strcmp(l_dirname, ".") ||
+			    !strcmp(l_dirname, "..")) {
+				ret = -EINVAL;
+				goto exit;
+			}
+		}
+
+		if (!itr->dent) {
+			printf("Error: allocating new dir entry\n");
+			ret = -EIO;
+			goto exit;
+		}
+
+		memset(itr->dent, 0, sizeof(*itr->dent));
+
+		/* Set short name to set alias checksum field in dir_slot */
+		set_name(itr->dent, dirname);
+		fill_dir_slot(itr, dirname);
+
+		/* Set attribute as archive for regular file */
+		fill_dentry(itr->fsdata, itr->dent, dirname, 0, 0,
+			    ATTR_DIR | ATTR_ARCH);
+
+		retdent = itr->dent;
+	}
+
+	/* Default entries */
+	bytesperclust = mydata->clust_size * mydata->sect_size;
+	dotdent = malloc_cache_aligned(bytesperclust);
+	if (!dotdent) {
+		ret = -ENOMEM;
+		goto exit;
+	}
+	memset(dotdent, 0, bytesperclust);
+
+	memcpy(dotdent[0].name, ".       ", 8);
+	memcpy(dotdent[0].ext, "   ", 3);
+	dotdent[0].attr = ATTR_DIR | ATTR_ARCH;
+
+	memcpy(dotdent[1].name, "..      ", 8);
+	memcpy(dotdent[1].ext, "   ", 3);
+	dotdent[1].attr = ATTR_DIR | ATTR_ARCH;
+	set_start_cluster(mydata, &dotdent[1], itr->start_clust);
+
+	ret = set_contents(mydata, retdent, 0, (__u8 *)dotdent,
+			   bytesperclust, &actwrite);
+	if (ret < 0) {
+		printf("Error: writing contents\n");
+		goto exit;
+	}
+	/* Write twice for "." */
+	set_start_cluster(mydata, &dotdent[0], START(retdent));
+	ret = set_contents(mydata, retdent, 0, (__u8 *)dotdent,
+			   bytesperclust, &actwrite);
+	if (ret < 0) {
+		printf("Error: writing contents\n");
+		goto exit;
+	}
+
+	/* Flush fat buffer */
+	ret = flush_dirty_fat_buffer(mydata);
+	if (ret) {
+		printf("Error: flush fat buffer\n");
+		goto exit;
+	}
+
+	/* Write directory table to device */
+	ret = set_cluster(mydata, itr->clust, itr->block,
+			  mydata->clust_size * mydata->sect_size);
+	if (ret)
+		printf("Error: writing directory entry\n");
+
+exit:
+	free(dirname_copy);
+	free(mydata->fatbuf);
+	free(itr);
+	free(dotdent);
+	return ret;
+}
