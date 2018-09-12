@@ -216,6 +216,6 @@ unsigned int cm_get_l4_sys_free_clk_hz(void);
 
 /* SPL SDMMC boot support */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot-dtb.img"
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
 #endif	/* __CONFIG_H */
