@@ -202,15 +202,37 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 		s16 *file_name, u64 open_mode, u64 attributes)
 {
 	struct file_handle *fh = to_fh(file);
+	efi_status_t ret;
 
 	EFI_ENTRY("%p, %p, \"%ls\", %llx, %llu", file, new_handle, file_name,
 		  open_mode, attributes);
 
-	*new_handle = file_open(fh->fs, fh, file_name, open_mode, attributes);
-	if (!*new_handle)
-		return EFI_EXIT(EFI_NOT_FOUND);
+	/* Check parameters */
+	if (!file || !file || !file_name) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	if (open_mode != EFI_FILE_MODE_READ &&
+	    open_mode != (EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE) &&
+	    open_mode != (EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE |
+			 EFI_FILE_MODE_CREATE)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	if ((!(open_mode & EFI_FILE_MODE_CREATE) && attributes) ||
+	    (attributes & (EFI_FILE_READ_ONLY | ~EFI_FILE_VALID_ATTR))) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
-	return EFI_EXIT(EFI_SUCCESS);
+	/* Open file */
+	*new_handle = file_open(fh->fs, fh, file_name, open_mode, attributes);
+	if (*new_handle)
+		ret = EFI_SUCCESS;
+	else
+		ret = EFI_NOT_FOUND;
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t file_close(struct file_handle *fh)
