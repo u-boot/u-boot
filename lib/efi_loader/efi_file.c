@@ -127,8 +127,18 @@ static int sanitize_path(char *path)
 	return 0;
 }
 
-/* NOTE: despite what you would expect, 'file_name' is actually a path.
- * With windoze style backlashes, ofc.
+/**
+ * file_open() - open a file handle
+ *
+ * @fs:			file system
+ * @parent:		directory relative to which the file is to be opened
+ * @file_name:		path of the file to be opened. '\', '.', or '..' may
+ *			be used as modifiers. A leading backslash indicates an
+ *			absolute path.
+ * @mode:		bit mask indicating the access mode (read, write,
+ *			create)
+ * @attributes:		attributes for newly created file
+ * Returns:		handle to the opened file or NULL
  */
 static struct efi_file_handle *file_open(struct file_system *fs,
 		struct file_handle *parent, s16 *file_name, u64 mode,
