@@ -980,7 +980,7 @@ static int ahci_start_ports(struct ahci_uc_priv *uc_priv)
 
 	linkmap = uc_priv->link_port_map;
 
-	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
+	for (i = 0; i < uc_priv->n_ports; i++) {
 		if (((linkmap >> i) & 0x01)) {
 			if (ahci_port_start(uc_priv, (u8) i)) {
 				printf("Can not start port %d\n", i);
