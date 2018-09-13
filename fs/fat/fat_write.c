@@ -409,7 +409,7 @@ set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
 	if ((unsigned long)buffer & (ARCH_DMA_MINALIGN - 1)) {
 		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);
 
-		printf("FAT: Misaligned buffer address (%p)\n", buffer);
+		debug("FAT: Misaligned buffer address (%p)\n", buffer);
 
 		while (size >= mydata->sect_size) {
 			memcpy(tmpbuf, buffer, mydata->sect_size);
