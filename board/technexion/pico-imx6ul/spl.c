@@ -14,6 +14,14 @@
 #include <spl.h>
 
 #if defined(CONFIG_SPL_BUILD)
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	return 0;
+}
+#endif
+
 #include <asm/arch/mx6-ddr.h>
 
 static struct mx6ul_iomux_grp_regs mx6_grp_ioregs = {
