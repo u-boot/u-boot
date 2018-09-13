@@ -229,7 +229,16 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
-	if ((!(open_mode & EFI_FILE_MODE_CREATE) && attributes) ||
+	/*
+	 * The UEFI spec requires that attributes are only set in create mode.
+	 * The SCT does not care about this and sets EFI_FILE_DIRECTORY in
+	 * read mode. EDK2 does not check that attributes are zero if not in
+	 * create mode.
+	 *
+	 * So here we only check attributes in create mode and do not check
+	 * that they are zero otherwise.
+	 */
+	if ((open_mode & EFI_FILE_MODE_CREATE) &&
 	    (attributes & (EFI_FILE_READ_ONLY | ~EFI_FILE_VALID_ATTR))) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
