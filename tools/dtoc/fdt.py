@@ -472,6 +472,20 @@ class Fdt:
             with open(self._fname) as fd:
                 self._fdt_obj = libfdt.Fdt(fd.read())
 
+    @staticmethod
+    def FromData(data):
+        """Create a new Fdt object from the given data
+
+        Args:
+            data: Device-tree data blob
+
+        Returns:
+            Fdt object containing the data
+        """
+        fdt = Fdt(None)
+        fdt._fdt_obj = libfdt.Fdt(bytearray(data))
+        return fdt
+
     def LookupPhandle(self, phandle):
         """Look up a phandle
 

@@ -407,6 +407,14 @@ class TestProp(unittest.TestCase):
         self.node.SetData('empty', '123')
         self.assertEqual('123', prop.bytes)
 
+    def testFromData(self):
+        dtb2 = fdt.Fdt.FromData(self.dtb.GetContents())
+        self.assertEqual(dtb2.GetContents(), self.dtb.GetContents())
+
+        self.node.AddEmptyProp('empty', 5)
+        self.dtb.Sync(auto_resize=True)
+        self.assertTrue(dtb2.GetContents() != self.dtb.GetContents())
+
 
 class TestFdtUtil(unittest.TestCase):
     """Tests for the fdt_util module
