@@ -54,6 +54,7 @@ CROS_EC_RW_DATA       = 'ecrw'
 GBB_DATA              = 'gbbd'
 BMPBLK_DATA           = 'bmp'
 VBLOCK_DATA           = 'vblk'
+COMPRESS_DATA         = 'data to compress'
 
 
 class TestFunctional(unittest.TestCase):
@@ -115,6 +116,8 @@ class TestFunctional(unittest.TestCase):
         # Intel flash descriptor file
         with open(self.TestFile('descriptor.bin')) as fd:
             TestFunctional._MakeInputFile('descriptor.bin', fd.read())
+
+        TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
 
     @classmethod
     def tearDownClass(self):
@@ -1504,6 +1507,34 @@ class TestFunctional(unittest.TestCase):
                 start += size
         finally:
             self._ResetDtbs()
+
+    def _decompress(self, data):
+        out = os.path.join(self._indir, 'lz4.tmp')
+        with open(out, 'wb') as fd:
+            fd.write(data)
+        return tools.Run('lz4', '-dc', out)
+        '''
+        try:
+            orig = lz4.frame.decompress(data)
+        except AttributeError:
+            orig = lz4.decompress(data)
+        '''
+
+    def testCompress(self):
+        """Test compression of blobs"""
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('83_compress.dts',
+                                            use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['size', 'uncomp-size'])
+        orig = self._decompress(data)
+        self.assertEquals(COMPRESS_DATA, orig)
+        expected = {
+            'blob:uncomp-size': len(COMPRESS_DATA),
+            'blob:size': len(data),
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
 
 
 if __name__ == "__main__":

@@ -593,6 +593,22 @@ the device tree. These can be used by U-Boot at run-time to find the location
 of each entry.
 
 
+Compression
+-----------
+
+Binman support compression for 'blob' entries (those of type 'blob' and
+derivatives). To enable this for an entry, add a 'compression' property:
+
+    blob {
+        filename = "datafile";
+        compression = "lz4";
+    };
+
+The entry will then contain the compressed data, using the 'lz4' compression
+algorithm. Currently this is the only one that is supported.
+
+
+
 Map files
 ---------
 
