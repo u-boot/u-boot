@@ -104,6 +104,7 @@ static const struct udevice_id omap_serial_ids[] = {
 	{ .compatible = "ti,am3352-uart", },
 	{ .compatible = "ti,am4372-uart", },
 	{ .compatible = "ti,dra742-uart", },
+	{ .compatible = "ti,am654-uart", },
 	{}
 };
 #endif /* OF_CONTROL && !OF_PLATDATA */
