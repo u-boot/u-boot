@@ -168,13 +168,13 @@ class Entry(object):
         """Add new properties to the device tree as needed for this entry"""
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
-                self._node.AddZeroProp(prop)
+                state.AddZeroProp(self._node, prop)
 
     def SetCalculatedProperties(self):
         """Set the value of device-tree properties calculated by binman"""
-        self._node.SetInt('offset', self.offset)
-        self._node.SetInt('size', self.size)
-        self._node.SetInt('image-pos', self.image_pos)
+        state.SetInt(self._node, 'offset', self.offset)
+        state.SetInt(self._node, 'size', self.size)
+        state.SetInt(self._node, 'image-pos', self.image_pos)
 
     def ProcessFdt(self, fdt):
         return True

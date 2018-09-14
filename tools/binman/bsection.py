@@ -12,6 +12,7 @@ import sys
 
 import fdt_util
 import re
+import state
 import tools
 
 class Section(object):
@@ -98,14 +99,14 @@ class Section(object):
         """Add new properties to the device tree as needed for this entry"""
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
-                self._node.AddZeroProp(prop)
+                state.AddZeroProp(self._node, prop)
         for entry in self._entries.values():
             entry.AddMissingProperties()
 
     def SetCalculatedProperties(self):
-        self._node.SetInt('offset', self._offset)
-        self._node.SetInt('size', self._size)
-        self._node.SetInt('image-pos', self._image_pos)
+        state.SetInt(self._node, 'offset', self._offset)
+        state.SetInt(self._node, 'size', self._size)
+        state.SetInt(self._node, 'image-pos', self._image_pos)
         for entry in self._entries.values():
             entry.SetCalculatedProperties()
 

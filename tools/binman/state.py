@@ -118,3 +118,38 @@ def GetFdts():
     """
     yield main_dtb
 
+def GetUpdateNodes(node):
+    """Yield all the nodes that need to be updated in all device trees
+
+    The property referenced by this node is added to any device trees which
+    have the given node. Due to removable of unwanted notes, SPL and TPL may
+    not have this node.
+
+    Args:
+        node: Node object in the main device tree to look up
+
+    Yields:
+        Node objects in each device tree that is in use (U-Boot proper, which
+            is node, SPL and TPL)
+    """
+    yield node
+
+def AddZeroProp(node, prop):
+    """Add a new property to affected device trees with an integer value of 0.
+
+    Args:
+        prop_name: Name of property
+    """
+    for n in GetUpdateNodes(node):
+        n.AddZeroProp(prop)
+
+def SetInt(node, prop, value):
+    """Update an integer property in affected device trees with an integer value
+
+    This is not allowed to change the size of the FDT.
+
+    Args:
+        prop_name: Name of property
+    """
+    for n in GetUpdateNodes(node):
+        n.SetInt(prop, value)
