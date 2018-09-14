@@ -18,6 +18,15 @@ fdt_files = {}
 # Arguments passed to binman to provide arguments to entries
 entry_args = {}
 
+# Set of all device tree files references by images
+fdt_set = Set()
+
+# Same as above, but excluding the main one
+fdt_subset = Set()
+
+# The DTB which contains the full image information
+main_dtb = None
+
 def GetFdt(fname):
     """Get the Fdt object for a particular device-tree filename
 
@@ -75,3 +84,37 @@ def GetEntryArg(name):
         String value of argument
     """
     return entry_args.get(name)
+
+def Prepare(dtb):
+    """Get device tree files ready for use
+
+    This sets up a set of device tree files that can be retrieved by GetFdts().
+    At present there is only one, that for U-Boot proper.
+
+    Args:
+        dtb: Main dtb
+    """
+    global fdt_set, fdt_subset, fdt_files, main_dtb
+    # Import these here in case libfdt.py is not available, in which case
+    # the above help option still works.
+    import fdt
+    import fdt_util
+
+    # If we are updating the DTBs we need to put these updated versions
+    # where Entry_blob_dtb can find them. We can ignore 'u-boot.dtb'
+    # since it is assumed to be the one passed in with options.dt, and
+    # was handled just above.
+    main_dtb = dtb
+    fdt_files.clear()
+    fdt_files['u-boot.dtb'] = dtb
+    fdt_set = Set()
+    fdt_subset = Set()
+
+def GetFdts():
+    """Yield all device tree files being used by binman
+
+    Yields:
+        Device trees being used (U-Boot proper, SPL, TPL)
+    """
+    yield main_dtb
+

@@ -121,8 +121,6 @@ def Binman(options, args):
                     outfd.write(infd.read())
             dtb = fdt.FdtScan(fname)
 
-            # Note the file so that GetFdt() can find it
-            state.fdt_files['u-boot.dtb'] = dtb
             node = _FindBinmanNode(dtb)
             if not node:
                 raise ValueError("Device tree '%s' does not have a 'binman' "
@@ -139,6 +137,8 @@ def Binman(options, args):
                 if skip:
                     print 'Skipping images: %s\n' % ', '.join(skip)
 
+            state.Prepare(dtb)
+
             # Prepare the device tree by making sure that any missing
             # properties are added (e.g. 'pos' and 'size'). The values of these
             # may not be correct yet, but we add placeholders so that the
@@ -151,9 +151,10 @@ def Binman(options, args):
                     image.AddMissingProperties()
                 image.ProcessFdt(dtb)
 
-            dtb.Sync(auto_resize=True)
-            dtb.Pack()
-            dtb.Flush()
+            for dtb_item in state.GetFdts():
+                dtb_item.Sync(auto_resize=True)
+                dtb_item.Pack()
+                dtb_item.Flush()
 
             for image in images.values():
                 # Perform all steps for this image, including checking and
@@ -168,14 +169,18 @@ def Binman(options, args):
                 image.SetImagePos()
                 if options.update_fdt:
                     image.SetCalculatedProperties()
-                    dtb.Sync()
+                    for dtb_item in state.GetFdts():
+                        dtb_item.Sync()
                 image.ProcessEntryContents()
                 image.WriteSymbols()
                 image.BuildImage()
                 if options.map:
                     image.WriteMap()
-            with open(fname, 'wb') as outfd:
-                outfd.write(dtb.GetContents())
+
+            # Write the updated FDTs to our output files
+            for dtb_item in state.GetFdts():
+                tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
+
         finally:
             tools.FinaliseOutputDir()
     finally:
