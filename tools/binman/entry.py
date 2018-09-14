@@ -17,10 +17,11 @@ try:
 except:
     have_importlib = False
 
-import fdt_util
-import control
 import os
 import sys
+
+import fdt_util
+import state
 import tools
 
 modules = {}
@@ -393,7 +394,7 @@ class Entry(object):
         Raises:
             ValueError if the argument cannot be converted to in
         """
-        value = control.GetEntryArg(name)
+        value = state.GetEntryArg(name)
         if value is not None:
             if datatype == int:
                 try:

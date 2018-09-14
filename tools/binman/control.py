@@ -7,26 +7,18 @@
 
 from collections import OrderedDict
 import os
-import re
 import sys
 import tools
 
 import command
 import elf
 from image import Image
+import state
 import tout
 
 # List of images we plan to create
 # Make this global so that it can be referenced from tests
 images = OrderedDict()
-
-# Records the device-tree files known to binman, keyed by filename (e.g.
-# 'u-boot-spl.dtb')
-fdt_files = {}
-
-# Arguments passed to binman to provide arguments to entries
-entry_args = {}
-
 
 def _ReadImageDesc(binman_node):
     """Read the image descriptions from the /binman node
@@ -60,39 +52,15 @@ def _FindBinmanNode(dtb):
             return node
     return None
 
-def GetFdt(fname):
-    """Get the Fdt object for a particular device-tree filename
-
-    Binman keeps track of at least one device-tree file called u-boot.dtb but
-    can also have others (e.g. for SPL). This function looks up the given
-    filename and returns the associated Fdt object.
+def WriteEntryDocs(modules, test_missing=None):
+    """Write out documentation for all entries
 
     Args:
-        fname: Filename to look up (e.g. 'u-boot.dtb').
-
-    Returns:
-        Fdt object associated with the filename
+        modules: List of Module objects to get docs for
+        test_missing: Used for testing only, to force an entry's documeentation
+            to show as missing even if it is present. Should be set to None in
+            normal use.
     """
-    return fdt_files[fname]
-
-def GetFdtPath(fname):
-    return fdt_files[fname]._fname
-
-def SetEntryArgs(args):
-    global entry_args
-
-    entry_args = {}
-    if args:
-        for arg in args:
-            m = re.match('([^=]*)=(.*)', arg)
-            if not m:
-                raise ValueError("Invalid entry arguemnt '%s'" % arg)
-            entry_args[m.group(1)] = m.group(2)
-
-def GetEntryArg(name):
-    return entry_args.get(name)
-
-def WriteEntryDocs(modules, test_missing=None):
     from entry import Entry
     Entry.WriteDocs(modules, test_missing)
 
@@ -141,7 +109,7 @@ def Binman(options, args):
         try:
             tools.SetInputDirs(options.indir)
             tools.PrepareOutputDir(options.outdir, options.preserve)
-            SetEntryArgs(options.entry_arg)
+            state.SetEntryArgs(options.entry_arg)
 
             # Get the device tree ready by compiling it and copying the compiled
             # output into a file in our output directly. Then scan it for use
@@ -154,7 +122,7 @@ def Binman(options, args):
             dtb = fdt.FdtScan(fname)
 
             # Note the file so that GetFdt() can find it
-            fdt_files['u-boot.dtb'] = dtb
+            state.fdt_files['u-boot.dtb'] = dtb
             node = _FindBinmanNode(dtb)
             if not node:
                 raise ValueError("Device tree '%s' does not have a 'binman' "

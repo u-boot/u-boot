@@ -5,9 +5,9 @@
 # Entry-type module for U-Boot device tree with the microcode removed
 #
 
-import control
 from entry import Entry
 from blob import Entry_blob
+import state
 import tools
 
 class Entry_u_boot_dtb_with_ucode(Entry_blob):
@@ -51,7 +51,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
 
         # Remove the microcode
         fname = self.GetDefaultFilename()
-        fdt = control.GetFdt(fname)
+        fdt = state.GetFdt(fname)
         self.ucode = fdt.GetNode('/microcode')
         if not self.ucode:
             raise self.Raise("No /microcode node found in '%s'" % fname)
@@ -70,7 +70,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
     def ObtainContents(self):
         # Call the base class just in case it does something important.
         Entry_blob.ObtainContents(self)
-        self._pathname = control.GetFdtPath(self._filename)
+        self._pathname = state.GetFdtPath(self._filename)
         self.ReadBlobContents()
         if self.ucode:
             for node in self.ucode.subnodes:

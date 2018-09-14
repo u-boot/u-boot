@@ -23,6 +23,7 @@ import fdt
 import fdt_util
 import fmap_util
 import test_util
+import state
 import tools
 import tout
 
@@ -258,7 +259,7 @@ class TestFunctional(unittest.TestCase):
             retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
                                        entry_args=entry_args)
             self.assertEqual(0, retcode)
-            out_dtb_fname = control.GetFdtPath('u-boot.dtb')
+            out_dtb_fname = state.GetFdtPath('u-boot.dtb')
 
             # Find the (only) image, read it and return its contents
             image = control.images['image']
