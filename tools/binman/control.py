@@ -162,6 +162,15 @@ def Binman(options, args):
 
             images = _ReadImageDesc(node)
 
+            if options.image:
+                skip = []
+                for name, image in images.iteritems():
+                    if name not in options.image:
+                        del images[name]
+                        skip.append(name)
+                if skip:
+                    print 'Skipping images: %s\n' % ', '.join(skip)
+
             # Prepare the device tree by making sure that any missing
             # properties are added (e.g. 'pos' and 'size'). The values of these
             # may not be correct yet, but we add placeholders so that the

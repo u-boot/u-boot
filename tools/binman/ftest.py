@@ -171,7 +171,7 @@ class TestFunctional(unittest.TestCase):
         return control.Binman(options, args)
 
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
-                    entry_args=None):
+                    entry_args=None, images=None):
         """Run binman with a given test file
 
         Args:
@@ -180,6 +180,10 @@ class TestFunctional(unittest.TestCase):
             map: True to output map files for the images
             update_dtb: Update the offset and size of each entry in the device
                 tree before packing it into the image
+            entry_args: Dict of entry args to supply to binman
+                key: arg name
+                value: value of that arg
+            images: List of image names to build
         """
         args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
         if debug:
@@ -191,6 +195,9 @@ class TestFunctional(unittest.TestCase):
         if entry_args:
             for arg, value in entry_args.iteritems():
                 args.append('-a%s=%s' % (arg, value))
+        if images:
+            for image in images:
+                args += ['-i', image]
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
@@ -1383,6 +1390,16 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with an x86 start16 TPL region can be created"""
         data = self._DoReadFile('81_x86-start16-tpl.dts')
         self.assertEqual(X86_START16_TPL_DATA, data[:len(X86_START16_TPL_DATA)])
+
+    def testSelectImage(self):
+        """Test that we can select which images to build"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            retcode = self._DoTestFile('06_dual_image.dts', images=['image2'])
+        self.assertEqual(0, retcode)
+        self.assertIn('Skipping images: image1', stdout.getvalue())
+
+        self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
+        self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
 
 
 if __name__ == "__main__":
