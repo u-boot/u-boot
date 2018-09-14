@@ -337,6 +337,7 @@ class TestProp(unittest.TestCase):
         self.node.AddZeroProp('one')
         self.node.AddZeroProp('two')
         self.node.AddZeroProp('three')
+        self.dtb.Sync(auto_resize=True)
 
         # Updating existing properties should be OK, since the device-tree size
         # does not change
@@ -344,11 +345,16 @@ class TestProp(unittest.TestCase):
         self.node.SetInt('one', 1)
         self.node.SetInt('two', 2)
         self.node.SetInt('three', 3)
+        self.dtb.Sync(auto_resize=False)
 
         # This should fail since it would need to increase the device-tree size
+        self.node.AddZeroProp('four')
         with self.assertRaises(libfdt.FdtException) as e:
-            self.node.SetInt('four', 4)
+            self.dtb.Sync(auto_resize=False)
         self.assertIn('FDT_ERR_NOSPACE', str(e.exception))
+
+    def testAddNode(self):
+        self.fdt.pack()
 
 
 class TestFdtUtil(unittest.TestCase):

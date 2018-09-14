@@ -43,6 +43,7 @@ class Prop:
         self.name = name
         self.value = None
         self.bytes = str(bytes)
+        self.dirty = False
         if not bytes:
             self.type = TYPE_BOOL
             self.value = True
@@ -159,6 +160,45 @@ class Prop:
         """
         self._node._fdt.CheckCache()
         return self._node._fdt.GetStructOffset(self._offset)
+
+    def SetInt(self, val):
+        """Set the integer value of the property
+
+        The device tree is marked dirty so that the value will be written to
+        the block on the next sync.
+
+        Args:
+            val: Integer value (32-bit, single cell)
+        """
+        self.bytes = struct.pack('>I', val);
+        self.value = val
+        self.type = TYPE_INT
+        self.dirty = True
+
+    def Sync(self, auto_resize=False):
+        """Sync property changes back to the device tree
+
+        This updates the device tree blob with any changes to this property
+        since the last sync.
+
+        Args:
+            auto_resize: Resize the device tree automatically if it does not
+                have enough space for the update
+
+        Raises:
+            FdtException if auto_resize is False and there is not enough space
+        """
+        if self._offset is None or self.dirty:
+            node = self._node
+            fdt_obj = node._fdt._fdt_obj
+            if auto_resize:
+                while fdt_obj.setprop(node.Offset(), self.name, self.bytes,
+                                    (libfdt.NOSPACE,)) == -libfdt.NOSPACE:
+                    fdt_obj.resize(fdt_obj.totalsize() + 1024)
+                    fdt_obj.setprop(node.Offset(), self.name, self.bytes)
+            else:
+                fdt_obj.setprop(node.Offset(), self.name, self.bytes)
+
 
 class Node:
     """A device tree node
@@ -284,13 +324,7 @@ class Node:
         Args:
             prop_name: Name of property
         """
-        fdt_obj = self._fdt._fdt_obj
-        if fdt_obj.setprop_u32(self.Offset(), prop_name, 0,
-                               (libfdt.NOSPACE,)) == -libfdt.NOSPACE:
-            fdt_obj.resize(fdt_obj.totalsize() + 1024)
-            fdt_obj.setprop_u32(self.Offset(), prop_name, 0)
-        self.props[prop_name] = Prop(self, -1, prop_name, '\0' * 4)
-        self._fdt.Invalidate()
+        self.props[prop_name] = Prop(self, None, prop_name, '\0' * 4)
 
     def SetInt(self, prop_name, val):
         """Update an integer property int the device tree.
@@ -301,8 +335,34 @@ class Node:
             prop_name: Name of property
             val: Value to set
         """
-        fdt_obj = self._fdt._fdt_obj
-        fdt_obj.setprop_u32(self.Offset(), prop_name, val)
+        self.props[prop_name].SetInt(val)
+
+    def Sync(self, auto_resize=False):
+        """Sync node changes back to the device tree
+
+        This updates the device tree blob with any changes to this node and its
+        subnodes since the last sync.
+
+        Args:
+            auto_resize: Resize the device tree automatically if it does not
+                have enough space for the update
+
+        Raises:
+            FdtException if auto_resize is False and there is not enough space
+        """
+        # Sync subnodes in reverse so that we don't disturb node offsets for
+        # nodes that are earlier in the DT. This avoids an O(n^2) rescan of
+        # node offsets.
+        for node in reversed(self.subnodes):
+            node.Sync(auto_resize)
+
+        # Sync properties now, whose offsets should not have been disturbed.
+        # We do this after subnodes, since this disturbs the offsets of these
+        # properties.
+        prop_list = sorted(self.props.values(), key=lambda prop: prop._offset,
+                           reverse=True)
+        for prop in prop_list:
+            prop.Sync(auto_resize)
 
 
 class Fdt:
@@ -380,6 +440,19 @@ class Fdt:
         """
         with open(self._fname, 'wb') as fd:
             fd.write(self._fdt_obj.as_bytearray())
+
+    def Sync(self, auto_resize=False):
+        """Make sure any DT changes are written to the blob
+
+        Args:
+            auto_resize: Resize the device tree automatically if it does not
+                have enough space for the update
+
+        Raises:
+            FdtException if auto_resize is False and there is not enough space
+        """
+        self._root.Sync(auto_resize)
+        self.Invalidate()
 
     def Pack(self):
         """Pack the device tree down to its minimum size

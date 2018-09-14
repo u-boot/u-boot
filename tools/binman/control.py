@@ -183,6 +183,7 @@ def Binman(options, args):
                     image.AddMissingProperties()
                 image.ProcessFdt(dtb)
 
+            dtb.Sync(auto_resize=True)
             dtb.Pack()
             dtb.Flush()
 
@@ -199,6 +200,7 @@ def Binman(options, args):
                 image.SetImagePos()
                 if options.update_fdt:
                     image.SetCalculatedProperties()
+                    dtb.Sync()
                 image.ProcessEntryContents()
                 image.WriteSymbols()
                 image.BuildImage()
