@@ -391,9 +391,16 @@ class Entry(object):
         pass
 
     @staticmethod
+    def GetStr(value):
+        if value is None:
+            return '<none>  '
+        return '%08x' % value
+
+    @staticmethod
     def WriteMapLine(fd, indent, name, offset, size, image_pos):
-        print('%08x  %s%08x  %08x  %s' % (image_pos, ' ' * indent, offset,
-                                          size, name), file=fd)
+        print('%s  %s%s  %s  %s' % (Entry.GetStr(image_pos), ' ' * indent,
+                                    Entry.GetStr(offset), Entry.GetStr(size),
+                                    name), file=fd)
 
     def WriteMap(self, fd, indent):
         """Write a map of the entry to a .map file

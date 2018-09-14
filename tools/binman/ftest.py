@@ -1607,8 +1607,9 @@ class TestFunctional(unittest.TestCase):
 
     def testExpandSizeBad(self):
         """Test an expanding entry which fails to provide contents"""
-        with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('89_expand_size_bad.dts', map=True)
+        with test_util.capture_sys_output() as (stdout, stderr):
+            with self.assertRaises(ValueError) as e:
+                self._DoReadFileDtb('89_expand_size_bad.dts', map=True)
         self.assertIn("Node '/binman/_testing': Cannot obtain contents when "
                       'expanding entry', str(e.exception))
 
@@ -1723,6 +1724,25 @@ class TestFunctional(unittest.TestCase):
         with open(self.TestFile('bss_data')) as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('97_elf_strip.dts')
+
+    def testPackOverlapMap(self):
+        """Test that overlapping regions are detected"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            with self.assertRaises(ValueError) as e:
+                self._DoTestFile('14_pack_overlap.dts', map=True)
+        map_fname = tools.GetOutputFilename('image.map')
+        self.assertEqual("Wrote map file '%s' to show errors\n" % map_fname,
+                         stdout.getvalue())
+
+        # We should not get an inmage, but there should be a map file
+        self.assertFalse(os.path.exists(tools.GetOutputFilename('image.bin')))
+        self.assertTrue(os.path.exists(map_fname))
+        map_data = tools.ReadFile(map_fname)
+        self.assertEqual('''ImagePos    Offset      Size  Name
+<none>    00000000  00000007  main-section
+<none>     00000000  00000004  u-boot
+<none>     00000003  00000004  u-boot-align
+''', map_data)
 
 
 if __name__ == "__main__":

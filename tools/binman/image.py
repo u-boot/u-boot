@@ -139,10 +139,15 @@ class Image:
         return self._section.GetEntries()
 
     def WriteMap(self):
-        """Write a map of the image to a .map file"""
+        """Write a map of the image to a .map file
+
+        Returns:
+            Filename of map file written
+        """
         filename = '%s.map' % self._name
         fname = tools.GetOutputFilename(filename)
         with open(fname, 'w') as fd:
             print('%8s  %8s  %8s  %s' % ('ImagePos', 'Offset', 'Size', 'Name'),
                   file=fd)
             self._section.WriteMap(fd, 0)
+        return fname

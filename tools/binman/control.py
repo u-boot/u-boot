@@ -163,9 +163,15 @@ def Binman(options, args):
                 # completed and written, but that does not seem important.
                 image.GetEntryContents()
                 image.GetEntryOffsets()
-                image.PackEntries()
-                image.CheckSize()
-                image.CheckEntries()
+                try:
+                    image.PackEntries()
+                    image.CheckSize()
+                    image.CheckEntries()
+                except Exception as e:
+                    if options.map:
+                        fname = image.WriteMap()
+                        print "Wrote map file '%s' to show errors"  % fname
+                    raise
                 image.SetImagePos()
                 if options.update_fdt:
                     image.SetCalculatedProperties()
