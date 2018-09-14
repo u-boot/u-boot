@@ -60,11 +60,14 @@
 		"u-boot raw 0x8a 0x400 mmcpart 1;" \
 		"/boot/zImage ext4 0 1;" \
 		"/boot/imx6ul-pico-hobbit.dtb ext4 0 1;" \
+		"/boot/imx6ul-pico-pi.dtb ext4 0 1;" \
 		"rootfs part 0 1\0" \
 
 #define BOOTMENU_ENV \
 	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
 		"setenv fdtfile imx6ul-pico-hobbit.dtb\0" \
+	"bootmenu_1=Boot using PICO-Pi baseboard=" \
+		"setenv fdtfile imx6ul-pico-pi.dtb\0" \
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
