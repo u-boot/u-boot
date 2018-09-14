@@ -160,6 +160,9 @@ class Entry(object):
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.offset_unset = fdt_util.GetBool(self._node, 'offset-unset')
 
+    def GetDefaultFilename(self):
+        return None
+
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
         for prop in ['offset', 'size', 'image-pos']:

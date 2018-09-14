@@ -65,6 +65,11 @@ class TestEntry(unittest.TestCase):
         sub_entry = entry.Entry(None, None, sub_node, read_node=False)
         self.assertEqual('root.subnode', sub_entry.GetUniqueName())
 
+    def testGetDefaultFilename(self):
+        """Trivial test for this base class function"""
+        import entry
+        base_entry = entry.Entry(None, None, None, read_node=False)
+        self.assertIsNone(base_entry.GetDefaultFilename())
 
 if __name__ == "__main__":
     unittest.main()
