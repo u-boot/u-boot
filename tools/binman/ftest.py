@@ -1708,6 +1708,22 @@ class TestFunctional(unittest.TestCase):
                          fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
         self.assertEqual('FMAP', fentries[2].name)
 
+    def testElf(self):
+        """Basic test of ELF entries"""
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('-boot', fd.read())
+        data = self._DoReadFile('96_elf.dts')
+
+    def testElfStripg(self):
+        """Basic test of ELF entries"""
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('-boot', fd.read())
+        data = self._DoReadFile('97_elf_strip.dts')
+
 
 if __name__ == "__main__":
     unittest.main()

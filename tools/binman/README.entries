@@ -361,6 +361,17 @@ it available to u_boot_ucode.
 
 
 
+Entry: u-boot-elf: U-Boot ELF image
+-----------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of u-boot (default 'u-boot')
+
+This is the U-Boot ELF image. It does not include a device tree but can be
+relocated to any address for execution.
+
+
+
 Entry: u-boot-img: U-Boot legacy image
 --------------------------------------
 
@@ -441,6 +452,17 @@ Properties / Entry arguments:
 This is the SPL device tree, containing configuration information for
 SPL. SPL needs this to know what devices are present and which drivers
 to activate.
+
+
+
+Entry: u-boot-spl-elf: U-Boot SPL ELF image
+-------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of SPL u-boot (default 'spl/u-boot')
+
+This is the U-Boot SPL ELF image. It does not include a device tree but can
+be relocated to any address for execution.
 
 
 
