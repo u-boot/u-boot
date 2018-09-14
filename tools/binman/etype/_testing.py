@@ -48,6 +48,8 @@ class Entry__testing(Entry):
                                                      'return-unknown-contents')
         self.bad_update_contents = fdt_util.GetBool(self._node,
                                                     'bad-update-contents')
+        self.return_contents_once = fdt_util.GetBool(self._node,
+                                                     'return-contents-once')
 
         # Set to True when the entry is ready to process the FDT.
         self.process_fdt_ready = False
@@ -68,12 +70,15 @@ class Entry__testing(Entry):
             EntryArg('test-existing-prop', str)], self.require_args)
         if self.force_bad_datatype:
             self.GetEntryArgsOrProps([EntryArg('test-bad-datatype-arg', bool)])
+        self.return_contents = True
 
     def ObtainContents(self):
-        if self.return_unknown_contents:
+        if self.return_unknown_contents or not self.return_contents:
             return False
         self.data = 'a'
         self.contents_size = len(self.data)
+        if self.return_contents_once:
+            self.return_contents = False
         return True
 
     def GetOffsets(self):

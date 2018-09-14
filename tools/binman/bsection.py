@@ -253,10 +253,26 @@ class Section(object):
         for entry in entries:
             self._entries[entry._node.name] = entry
 
+    def _ExpandEntries(self):
+        """Expand any entries that are permitted to"""
+        exp_entry = None
+        for entry in self._entries.values():
+            if exp_entry:
+                exp_entry.ExpandToLimit(entry.offset)
+                exp_entry = None
+            if entry.expand_size:
+                exp_entry = entry
+        if exp_entry:
+            exp_entry.ExpandToLimit(self._size)
+
     def CheckEntries(self):
-        """Check that entries do not overlap or extend outside the section"""
+        """Check that entries do not overlap or extend outside the section
+
+        This also sorts entries, if needed and expands
+        """
         if self._sort:
             self._SortEntries()
+        self._ExpandEntries()
         offset = 0
         prev_name = 'None'
         for entry in self._entries.values():
@@ -419,3 +435,7 @@ class Section(object):
                     return None
                 return entry.data
         source_entry.Raise("Cannot find entry for node '%s'" % node.name)
+
+    def ExpandSize(self, size):
+        if size != self._size:
+            self._size = size

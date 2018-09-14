@@ -76,6 +76,7 @@ class Entry(object):
         self.pad_after = 0
         self.offset_unset = False
         self.image_pos = None
+        self._expand_size = False
         if read_node:
             self.ReadNode()
 
@@ -161,6 +162,7 @@ class Entry(object):
                              "of two" % (self._node.path, self.align_size))
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.offset_unset = fdt_util.GetBool(self._node, 'offset-unset')
+        self.expand_size = fdt_util.GetBool(self._node, 'expand-size')
 
     def GetDefaultFilename(self):
         return None
@@ -507,3 +509,12 @@ features to produce new behaviours.
                 break
             name = '%s.%s' % (node.name, name)
         return name
+
+    def ExpandToLimit(self, limit):
+        """Expand an entry so that it ends at the given offset limit"""
+        if self.offset + self.size < limit:
+            self.size = limit - self.offset
+            # Request the contents again, since changing the size requires that
+            # the data grows. This should not fail, but check it to be sure.
+            if not self.ObtainContents():
+                self.Raise('Cannot obtain contents when expanding entry')

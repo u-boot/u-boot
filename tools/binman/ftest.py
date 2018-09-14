@@ -1579,6 +1579,35 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Node '/binman/files': Missing 'pattern' property",
                       str(e.exception))
 
+    def testExpandSize(self):
+        """Test an expanding entry"""
+        data, _, map_data, _ = self._DoReadFileDtb('88_expand_size.dts',
+                                                   map=True)
+        expect = ('a' * 8 + U_BOOT_DATA +
+                  MRC_DATA + 'b' * 1 + U_BOOT_DATA +
+                  'c' * 8 + U_BOOT_DATA +
+                  'd' * 8)
+        self.assertEqual(expect, data)
+        self.assertEqual('''ImagePos    Offset      Size  Name
+00000000  00000000  00000028  main-section
+00000000   00000000  00000008  fill
+00000008   00000008  00000004  u-boot
+0000000c   0000000c  00000004  section
+0000000c    00000000  00000003  intel-mrc
+00000010   00000010  00000004  u-boot2
+00000014   00000014  0000000c  section2
+00000014    00000000  00000008  fill
+0000001c    00000008  00000004  u-boot
+00000020   00000020  00000008  fill2
+''', map_data)
+
+    def testExpandSizeBad(self):
+        """Test an expanding entry which fails to provide contents"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('89_expand_size_bad.dts', map=True)
+        self.assertIn("Node '/binman/_testing': Cannot obtain contents when "
+                      'expanding entry', str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

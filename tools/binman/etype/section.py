@@ -40,6 +40,10 @@ class Entry_section(Entry):
     def ProcessFdt(self, fdt):
         return self._section.ProcessFdt(fdt)
 
+    def ExpandEntries(self):
+        Entry.ExpandEntries(self)
+        self._section.ExpandEntries()
+
     def AddMissingProperties(self):
         Entry.AddMissingProperties(self)
         self._section.AddMissingProperties()
@@ -95,3 +99,7 @@ class Entry_section(Entry):
 
     def GetEntries(self):
         return self._section.GetEntries()
+
+    def ExpandToLimit(self, limit):
+        super(Entry_section, self).ExpandToLimit(limit)
+        self._section.ExpandSize(self.size)
