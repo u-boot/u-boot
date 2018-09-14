@@ -466,6 +466,28 @@ see README.entries. This is generated from the source code using:
 	binman -E >tools/binman/README.entries
 
 
+Hashing Entries
+---------------
+
+It is possible to ask binman to hash the contents of an entry and write that
+value back to the device-tree node. For example:
+
+	binman {
+		u-boot {
+			hash {
+				algo = "sha256";
+			};
+		};
+	};
+
+Here, a new 'value' property will be written to the 'hash' node containing
+the hash of the 'u-boot' entry. Only SHA256 is supported at present. Whole
+sections can be hased if desired, by adding the 'hash' node to the section.
+
+The has value can be chcked at runtime by hashing the data actually read and
+comparing this has to the value in the device tree.
+
+
 Order of image creation
 -----------------------
 

@@ -5,6 +5,7 @@
 # Holds and modifies the state information held by binman
 #
 
+import hashlib
 import re
 from sets import Set
 
@@ -226,3 +227,27 @@ def SetInt(node, prop, value):
     """
     for n in GetUpdateNodes(node):
         n.SetInt(prop, value)
+
+def CheckAddHashProp(node):
+    hash_node = node.FindNode('hash')
+    if hash_node:
+        algo = hash_node.props.get('algo')
+        if not algo:
+            return "Missing 'algo' property for hash node"
+        if algo.value == 'sha256':
+            size = 32
+        else:
+            return "Unknown hash algorithm '%s'" % algo
+        for n in GetUpdateNodes(hash_node):
+            n.AddEmptyProp('value', size)
+
+def CheckSetHashValue(node, get_data_func):
+    hash_node = node.FindNode('hash')
+    if hash_node:
+        algo = hash_node.props.get('algo').value
+        if algo == 'sha256':
+            m = hashlib.sha256()
+            m.update(get_data_func())
+            data = m.digest()
+        for n in GetUpdateNodes(hash_node):
+            n.SetData('value', data)

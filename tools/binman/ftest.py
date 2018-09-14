@@ -6,6 +6,7 @@
 #
 #    python -m unittest func_test.TestFunctional.testHelp
 
+import hashlib
 from optparse import OptionParser
 import os
 import shutil
@@ -1607,6 +1608,41 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFileDtb('89_expand_size_bad.dts', map=True)
         self.assertIn("Node '/binman/_testing': Cannot obtain contents when "
                       'expanding entry', str(e.exception))
+
+    def testHash(self):
+        """Test hashing of the contents of an entry"""
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('90_hash.dts',
+                use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        hash_node = dtb.GetNode('/binman/u-boot/hash').props['value']
+        m = hashlib.sha256()
+        m.update(U_BOOT_DATA)
+        self.assertEqual(m.digest(), ''.join(hash_node.value))
+
+    def testHashNoAlgo(self):
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('91_hash_no_algo.dts', update_dtb=True)
+        self.assertIn("Node \'/binman/u-boot\': Missing \'algo\' property for "
+                      'hash node', str(e.exception))
+
+    def testHashBadAlgo(self):
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('92_hash_bad_algo.dts', update_dtb=True)
+        self.assertIn("Node '/binman/u-boot': Unknown hash algorithm",
+                      str(e.exception))
+
+    def testHashSection(self):
+        """Test hashing of the contents of an entry"""
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('99_hash_section.dts',
+                use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        hash_node = dtb.GetNode('/binman/section/hash').props['value']
+        m = hashlib.sha256()
+        m.update(U_BOOT_DATA)
+        m.update(16 * 'a')
+        self.assertEqual(m.digest(), ''.join(hash_node.value))
 
 
 if __name__ == "__main__":

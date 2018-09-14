@@ -189,12 +189,16 @@ class Entry(object):
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
                 state.AddZeroProp(self._node, prop)
+        err = state.CheckAddHashProp(self._node)
+        if err:
+            self.Raise(err)
 
     def SetCalculatedProperties(self):
         """Set the value of device-tree properties calculated by binman"""
         state.SetInt(self._node, 'offset', self.offset)
         state.SetInt(self._node, 'size', self.size)
         state.SetInt(self._node, 'image-pos', self.image_pos)
+        state.CheckSetHashValue(self._node, self.GetData)
 
     def ProcessFdt(self, fdt):
         """Allow entries to adjust the device tree

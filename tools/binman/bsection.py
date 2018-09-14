@@ -89,6 +89,8 @@ class Section(object):
 
     def _ReadEntries(self):
         for node in self._node.subnodes:
+            if node.name == 'hash':
+                continue
             entry = Entry.Create(self, node)
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
@@ -112,6 +114,7 @@ class Section(object):
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
                 state.AddZeroProp(self._node, prop)
+        state.CheckAddHashProp(self._node)
         for entry in self._entries.values():
             entry.AddMissingProperties()
 
