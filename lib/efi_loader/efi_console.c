@@ -359,13 +359,31 @@ static efi_status_t EFIAPI efi_cout_set_cursor_position(
 			struct efi_simple_text_output_protocol *this,
 			unsigned long column, unsigned long row)
 {
+	efi_status_t ret = EFI_SUCCESS;
+	struct simple_text_output_mode *con = &efi_con_mode;
+	struct cout_mode *mode = &efi_cout_modes[con->mode];
+
 	EFI_ENTRY("%p, %ld, %ld", this, column, row);
 
-	printf(ESC"[%d;%df", (int)row, (int)column);
+	/* Check parameters */
+	if (!this) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	if (row >= mode->rows || column >= mode->columns) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
+	/*
+	 * Set cursor position by sending CSI H.
+	 * EFI origin is [0, 0], terminal origin is [1, 1].
+	 */
+	printf(ESC "[%d;%dH", (int)row + 1, (int)column + 1);
 	efi_con_mode.cursor_column = column;
 	efi_con_mode.cursor_row = row;
-
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI efi_cout_enable_cursor(
