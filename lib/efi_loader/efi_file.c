@@ -498,7 +498,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
 
-	EFI_ENTRY("%p, %p, %p, %p", file, info_type, buffer_size, buffer);
+	EFI_ENTRY("%p, %pUl, %p, %p", file, info_type, buffer_size, buffer);
 
 	if (!guidcmp(info_type, &efi_file_info_guid)) {
 		struct efi_file_info *info = buffer;
