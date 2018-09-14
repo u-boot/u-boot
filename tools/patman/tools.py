@@ -4,6 +4,7 @@
 #
 
 import command
+import glob
 import os
 import shutil
 import tempfile
@@ -122,6 +123,23 @@ def GetInputFilename(fname):
 
     raise ValueError("Filename '%s' not found in input path (%s) (cwd='%s')" %
                      (fname, ','.join(indir), os.getcwd()))
+
+def GetInputFilenameGlob(pattern):
+    """Return a list of filenames for use as input.
+
+    Args:
+        pattern: Filename pattern to search for
+
+    Returns:
+        A list of matching files in all input directories
+    """
+    if not indir:
+        return glob.glob(fname)
+    files = []
+    for dirname in indir:
+        pathname = os.path.join(dirname, pattern)
+        files += glob.glob(pathname)
+    return sorted(files)
 
 def Align(pos, align):
     if align:

@@ -189,6 +189,33 @@ def AddZeroProp(node, prop):
     for n in GetUpdateNodes(node):
         n.AddZeroProp(prop)
 
+def AddSubnode(node, name):
+    """Add a new subnode to a node in affected device trees
+
+    Args:
+        node: Node to add to
+        name: name of node to add
+
+    Returns:
+        New subnode that was created in main tree
+    """
+    first = None
+    for n in GetUpdateNodes(node):
+        subnode = n.AddSubnode(name)
+        if not first:
+            first = subnode
+    return first
+
+def AddString(node, prop, value):
+    """Add a new string property to affected device trees
+
+    Args:
+        prop_name: Name of property
+        value: String value (which will be \0-terminated in the DT)
+    """
+    for n in GetUpdateNodes(node):
+        n.AddString(prop, value)
+
 def SetInt(node, prop, value):
     """Update an integer property in affected device trees with an integer value
 

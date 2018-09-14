@@ -179,6 +179,9 @@ class Entry(object):
             return Set([fname])
         return Set()
 
+    def ExpandEntries(self):
+        pass
+
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
         for prop in ['offset', 'size', 'image-pos']:

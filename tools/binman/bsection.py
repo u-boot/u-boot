@@ -103,6 +103,10 @@ class Section(object):
     def SetOffset(self, offset):
         self._offset = offset
 
+    def ExpandEntries(self):
+        for entry in self._entries.values():
+            entry.ExpandEntries()
+
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
         for prop in ['offset', 'size', 'image-pos']:

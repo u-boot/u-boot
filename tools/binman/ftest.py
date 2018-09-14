@@ -54,6 +54,8 @@ CROS_EC_RW_DATA       = 'ecrw'
 GBB_DATA              = 'gbbd'
 BMPBLK_DATA           = 'bmp'
 VBLOCK_DATA           = 'vblk'
+FILES_DATA            = ("sorry I'm late\nOh, don't bother apologising, I'm " +
+                         "sorry you're alive\n")
 COMPRESS_DATA         = 'data to compress'
 
 
@@ -116,6 +118,9 @@ class TestFunctional(unittest.TestCase):
         # Intel flash descriptor file
         with open(self.TestFile('descriptor.bin')) as fd:
             TestFunctional._MakeInputFile('descriptor.bin', fd.read())
+
+        shutil.copytree(self.TestFile('files'),
+                        os.path.join(self._indir, 'files'))
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
 
@@ -1535,6 +1540,44 @@ class TestFunctional(unittest.TestCase):
             'size': len(data),
             }
         self.assertEqual(expected, props)
+
+    def testFiles(self):
+        """Test bringing in multiple files"""
+        data = self._DoReadFile('84_files.dts')
+        self.assertEqual(FILES_DATA, data)
+
+    def testFilesCompress(self):
+        """Test bringing in multiple files and compressing them"""
+        data = self._DoReadFile('85_files_compress.dts')
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        files = entries['files']
+        entries = files._section._entries
+
+        orig = ''
+        for i in range(1, 3):
+            key = '%d.dat' % i
+            start = entries[key].image_pos
+            len = entries[key].size
+            chunk = data[start:start + len]
+            orig += self._decompress(chunk)
+
+        self.assertEqual(FILES_DATA, orig)
+
+    def testFilesMissing(self):
+        """Test missing files"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('86_files_none.dts')
+        self.assertIn("Node '/binman/files': Pattern \'files/*.none\' matched "
+                      'no files', str(e.exception))
+
+    def testFilesNoPattern(self):
+        """Test missing files"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('87_files_no_pattern.dts')
+        self.assertIn("Node '/binman/files': Missing 'pattern' property",
+                      str(e.exception))
 
 
 if __name__ == "__main__":

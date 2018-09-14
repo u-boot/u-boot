@@ -58,6 +58,15 @@ class Image:
         """Get the set of device tree files used by this image"""
         return self._section.GetFdtSet()
 
+    def ExpandEntries(self):
+        """Expand out any entries which have calculated sub-entries
+
+        Some entries are expanded out at runtime, e.g. 'files', which produces
+        a section containing a list of files. Process these entries so that
+        this information is added to the device tree.
+        """
+        self._section.ExpandEntries()
+
     def AddMissingProperties(self):
         """Add properties that are not present in the device tree
 
