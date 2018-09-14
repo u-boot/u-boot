@@ -175,6 +175,16 @@ class Prop:
         self.type = TYPE_INT
         self.dirty = True
 
+    def SetData(self, bytes):
+        """Set the value of a property as bytes
+
+        Args:
+            bytes: New property value to set
+        """
+        self.bytes = str(bytes)
+        self.type, self.value = self.BytesToValue(bytes)
+        self.dirty = True
+
     def Sync(self, auto_resize=False):
         """Sync property changes back to the device tree
 
@@ -326,10 +336,26 @@ class Node:
         """
         self.props[prop_name] = Prop(self, None, prop_name, '\0' * 4)
 
+    def AddEmptyProp(self, prop_name, len):
+        """Add a property with a fixed data size, for filling in later
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property
+            len: Length of data in property
+        """
+        value = chr(0) * len
+        self.props[prop_name] = Prop(self, None, prop_name, value)
+
     def SetInt(self, prop_name, val):
         """Update an integer property int the device tree.
 
         This is not allowed to change the size of the FDT.
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
 
         Args:
             prop_name: Name of property
@@ -337,7 +363,51 @@ class Node:
         """
         self.props[prop_name].SetInt(val)
 
+    def SetData(self, prop_name, val):
+        """Set the data value of a property
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property to set
+            val: Data value to set
+        """
+        self.props[prop_name].SetData(val)
+
+    def SetString(self, prop_name, val):
+        """Set the string value of a property
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property to set
+            val: String value to set (will be \0-terminated in DT)
+        """
+        self.props[prop_name].SetData(val + chr(0))
+
+    def AddString(self, prop_name, val):
+        """Add a new string property to a node
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property to add
+            val: String value of property
+        """
+        self.props[prop_name] = Prop(self, None, prop_name, val + chr(0))
+
     def AddSubnode(self, name):
+        """Add a new subnode to the node
+
+        Args:
+            name: name of node to add
+
+        Returns:
+            New subnode that was created
+        """
         path = self.path + '/' + name
         subnode = Node(self._fdt, self, None, name, path)
         self.subnodes.append(subnode)
