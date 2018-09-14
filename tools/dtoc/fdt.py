@@ -146,7 +146,7 @@ class Prop:
         if type == TYPE_BYTE:
             return chr(0)
         elif type == TYPE_INT:
-            return struct.pack('<I', 0);
+            return struct.pack('>I', 0);
         elif type == TYPE_STRING:
             return ''
         else:
