@@ -30,6 +30,8 @@ def ParseArgs(argv):
             help='Enabling debugging (provides a full traceback on error)')
     parser.add_option('-E', '--entry-docs', action='store_true',
             help='Write out entry documentation (see README.entries)')
+    parser.add_option('--fake-dtb', action='store_true',
+            help='Use fake device tree contents (for testing only)')
     parser.add_option('-i', '--image', type='string', action='append',
             help='Image filename to build (if not specified, build all)')
     parser.add_option('-I', '--indir', action='append',

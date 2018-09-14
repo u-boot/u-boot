@@ -106,6 +106,7 @@ def Binman(options, args):
 
         tout.Init(options.verbosity)
         elf.debug = options.debug
+        state.use_fake_dtb = options.fake_dtb
         try:
             tools.SetInputDirs(options.indir)
             tools.PrepareOutputDir(options.outdir, options.preserve)

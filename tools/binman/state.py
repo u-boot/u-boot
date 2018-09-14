@@ -20,7 +20,7 @@ entry_args = {}
 
 # True to use fake device-tree files for testing (see U_BOOT_DTB_DATA in
 # ftest.py)
-use_fake_dtb = True
+use_fake_dtb = False
 
 # Set of all device tree files references by images
 fdt_set = Set()
