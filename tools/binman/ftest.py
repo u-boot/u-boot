@@ -1316,7 +1316,7 @@ class TestFunctional(unittest.TestCase):
         """Fake calls to the futility utility"""
         if pipe_list[0][0] == 'futility':
             fname = pipe_list[0][3]
-            with open(fname, 'w') as fd:
+            with open(fname, 'wb') as fd:
                 fd.write(VBLOCK_DATA)
             return command.CommandResult()
 

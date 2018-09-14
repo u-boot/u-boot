@@ -456,3 +456,21 @@ features to produce new behaviours.
         if missing:
             raise ValueError('Documentation is missing for modules: %s' %
                              ', '.join(missing))
+
+    def GetUniqueName(self):
+        """Get a unique name for a node
+
+        Returns:
+            String containing a unique name for a node, consisting of the name
+            of all ancestors (starting from within the 'binman' node) separated
+            by a dot ('.'). This can be useful for generating unique filesnames
+            in the output directory.
+        """
+        name = self.name
+        node = self._node
+        while node.parent:
+            node = node.parent
+            if node.name == 'binman':
+                break
+            name = '%s.%s' % (node.name, name)
+        return name

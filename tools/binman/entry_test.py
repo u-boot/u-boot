@@ -54,6 +54,17 @@ class TestEntry(unittest.TestCase):
         self.assertIn("Unknown entry type 'invalid-name' in node "
                       "'invalid-path'", str(e.exception))
 
+    def testUniqueName(self):
+        """Test Entry.GetUniqueName"""
+        import entry
+        Node = collections.namedtuple('Node', ['name', 'parent'])
+        base_node = Node('root', None)
+        base_entry = entry.Entry(None, None, base_node, read_node=False)
+        self.assertEqual('root', base_entry.GetUniqueName())
+        sub_node = Node('subnode', base_node)
+        sub_entry = entry.Entry(None, None, sub_node, read_node=False)
+        self.assertEqual('root.subnode', sub_entry.GetUniqueName())
+
 
 if __name__ == "__main__":
     unittest.main()
