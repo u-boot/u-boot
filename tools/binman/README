@@ -335,8 +335,8 @@ expand-size:
 	limited by the size of the image/section and the position of the next
 	entry.
 
-The attributes supported for images are described below. Several are similar
-to those for entries.
+The attributes supported for images and sections are described below. Several
+are similar to those for entries.
 
 size:
 	Sets the image size in bytes, for example 'size = <0x100000>' for a
