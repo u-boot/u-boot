@@ -258,7 +258,7 @@ class Section(object):
         for entry in self._entries.values():
             entry.CheckOffset()
             if (entry.offset < self._skip_at_start or
-                entry.offset >= self._skip_at_start + self._size):
+                entry.offset + entry.size > self._skip_at_start + self._size):
                 entry.Raise("Offset %#x (%d) is outside the section starting "
                             "at %#x (%d)" %
                             (entry.offset, entry.offset, self._skip_at_start,
