@@ -1369,6 +1369,13 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('80_fill_empty.dts')
         self.assertEqual(chr(0) * 16, data)
 
+    def testTextMissing(self):
+        """Test for a text entry type where there is no text"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('66_text.dts',)
+        self.assertIn("Node '/binman/text': No value provided for text label "
+                      "'test-id'", str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
