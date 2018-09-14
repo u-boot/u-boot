@@ -225,8 +225,26 @@ class TestFunctional(unittest.TestCase):
             TestFunctional._MakeInputFile(outfile, data)
             return data
 
+    def _GetDtbContentsForSplTpl(self, dtb_data, name):
+        """Create a version of the main DTB for SPL or SPL
+
+        For testing we don't actually have different versions of the DTB. With
+        U-Boot we normally run fdtgrep to remove unwanted nodes, but for tests
+        we don't normally have any unwanted nodes.
+
+        We still want the DTBs for SPL and TPL to be different though, since
+        otherwise it is confusing to know which one we are looking at. So add
+        an 'spl' or 'tpl' property to the top-level node.
+        """
+        dtb = fdt.Fdt.FromData(dtb_data)
+        dtb.Scan()
+        dtb.GetNode('/binman').AddZeroProp(name)
+        dtb.Sync(auto_resize=True)
+        dtb.Pack()
+        return dtb.GetContents()
+
     def _DoReadFileDtb(self, fname, use_real_dtb=False, map=False,
-                       update_dtb=False, entry_args=None):
+                       update_dtb=False, entry_args=None, reset_dtbs=True):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -256,12 +274,21 @@ class TestFunctional(unittest.TestCase):
         # Use the compiled test file as the u-boot-dtb input
         if use_real_dtb:
             dtb_data = self._SetupDtb(fname)
+            infile = os.path.join(self._indir, 'u-boot.dtb')
+
+            # For testing purposes, make a copy of the DT for SPL and TPL. Add
+            # a node indicating which it is, so aid verification.
+            for name in ['spl', 'tpl']:
+                dtb_fname = '%s/u-boot-%s.dtb' % (name, name)
+                outfile = os.path.join(self._indir, dtb_fname)
+                TestFunctional._MakeInputFile(dtb_fname,
+                        self._GetDtbContentsForSplTpl(dtb_data, name))
 
         try:
             retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
-                                       entry_args=entry_args)
+                    entry_args=entry_args, use_real_dtb=use_real_dtb)
             self.assertEqual(0, retcode)
-            out_dtb_fname = state.GetFdtPath('u-boot.dtb')
+            out_dtb_fname = tools.GetOutputFilename('u-boot.dtb.out')
 
             # Find the (only) image, read it and return its contents
             image = control.images['image']
@@ -277,7 +304,7 @@ class TestFunctional(unittest.TestCase):
                 return fd.read(), dtb_data, map_data, out_dtb_fname
         finally:
             # Put the test file back
-            if use_real_dtb:
+            if reset_dtbs and use_real_dtb:
                 self._ResetDtbs()
 
     def _DoReadFile(self, fname, use_real_dtb=False):
@@ -1403,6 +1430,80 @@ class TestFunctional(unittest.TestCase):
 
         self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
         self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
+
+    def testUpdateFdtAll(self):
+        """Test that all device trees are updated with offset/size info"""
+        data, _, _, _ = self._DoReadFileDtb('82_fdt_update_all.dts',
+                                            use_real_dtb=True, update_dtb=True)
+
+        base_expected = {
+            'section:image-pos': 0,
+            'u-boot-tpl-dtb:size': 513,
+            'u-boot-spl-dtb:size': 513,
+            'u-boot-spl-dtb:offset': 493,
+            'image-pos': 0,
+            'section/u-boot-dtb:image-pos': 0,
+            'u-boot-spl-dtb:image-pos': 493,
+            'section/u-boot-dtb:size': 493,
+            'u-boot-tpl-dtb:image-pos': 1006,
+            'section/u-boot-dtb:offset': 0,
+            'section:size': 493,
+            'offset': 0,
+            'section:offset': 0,
+            'u-boot-tpl-dtb:offset': 1006,
+            'size': 1519
+        }
+
+        # We expect three device-tree files in the output, one after the other.
+        # Read them in sequence. We look for an 'spl' property in the SPL tree,
+        # and 'tpl' in the TPL tree, to make sure they are distinct from the
+        # main U-Boot tree. All three should have the same postions and offset.
+        start = 0
+        for item in ['', 'spl', 'tpl']:
+            dtb = fdt.Fdt.FromData(data[start:])
+            dtb.Scan()
+            props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos',
+                                            'spl', 'tpl'])
+            expected = dict(base_expected)
+            if item:
+                expected[item] = 0
+            self.assertEqual(expected, props)
+            start += dtb._fdt_obj.totalsize()
+
+    def testUpdateFdtOutput(self):
+        """Test that output DTB files are updated"""
+        try:
+            data, dtb_data, _, _ = self._DoReadFileDtb('82_fdt_update_all.dts',
+                    use_real_dtb=True, update_dtb=True, reset_dtbs=False)
+
+            # Unfortunately, compiling a source file always results in a file
+            # called source.dtb (see fdt_util.EnsureCompiled()). The test
+            # source file (e.g. test/75_fdt_update_all.dts) thus does not enter
+            # binman as a file called u-boot.dtb. To fix this, copy the file
+            # over to the expected place.
+            #tools.WriteFile(os.path.join(self._indir, 'u-boot.dtb'),
+                    #tools.ReadFile(tools.GetOutputFilename('source.dtb')))
+            start = 0
+            for fname in ['u-boot.dtb.out', 'spl/u-boot-spl.dtb.out',
+                          'tpl/u-boot-tpl.dtb.out']:
+                dtb = fdt.Fdt.FromData(data[start:])
+                size = dtb._fdt_obj.totalsize()
+                pathname = tools.GetOutputFilename(os.path.split(fname)[1])
+                outdata = tools.ReadFile(pathname)
+                name = os.path.split(fname)[0]
+
+                if name:
+                    orig_indata = self._GetDtbContentsForSplTpl(dtb_data, name)
+                else:
+                    orig_indata = dtb_data
+                self.assertNotEqual(outdata, orig_indata,
+                        "Expected output file '%s' be updated" % pathname)
+                self.assertEqual(outdata, data[start:start + size],
+                        "Expected output file '%s' to match output image" %
+                        pathname)
+                start += size
+        finally:
+            self._ResetDtbs()
 
 
 if __name__ == "__main__":

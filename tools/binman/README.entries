@@ -26,6 +26,15 @@ example the 'u_boot' entry which provides the filename 'u-boot.bin'.
 
 
 
+Entry: blob-dtb: A blob that holds a device tree
+------------------------------------------------
+
+This is a blob containing a device tree. The contents of the blob are
+obtained from the list of available device-tree files, managed by the
+'state' module.
+
+
+
 Entry: blob-named-by-arg: A blob entry which gets its filename property from its subclass
 -----------------------------------------------------------------------------------------
 
@@ -308,6 +317,9 @@ Properties / Entry arguments:
 This is the U-Boot device tree, containing configuration information for
 U-Boot. U-Boot needs this to know what devices are present and which drivers
 to activate.
+
+Note: This is mostly an internal entry type, used by others. This allows
+binman to know which entries contain a device tree.
 
 
 

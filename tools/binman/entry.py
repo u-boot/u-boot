@@ -192,6 +192,17 @@ class Entry(object):
         state.SetInt(self._node, 'image-pos', self.image_pos)
 
     def ProcessFdt(self, fdt):
+        """Allow entries to adjust the device tree
+
+        Some entries need to adjust the device tree for their purposes. This
+        may involve adding or deleting properties.
+
+        Returns:
+            True if processing is complete
+            False if processing could not be completed due to a dependency.
+                This will cause the entry to be retried after others have been
+                called
+        """
         return True
 
     def SetPrefix(self, prefix):

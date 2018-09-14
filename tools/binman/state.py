@@ -59,6 +59,29 @@ def GetFdtPath(fname):
     """
     return fdt_files[fname]._fname
 
+def GetFdtContents(fname):
+    """Looks up the FDT pathname and contents
+
+    This is used to obtain the Fdt pathname and contents when needed by an
+    entry. It supports a 'fake' dtb, allowing tests to substitute test data for
+    the real dtb.
+
+    Args:
+        fname: Filename to look up (e.g. 'u-boot.dtb').
+
+    Returns:
+        tuple:
+            pathname to Fdt
+            Fdt data (as bytes)
+    """
+    if fname in fdt_files and not use_fake_dtb:
+        pathname = GetFdtPath(fname)
+        data = GetFdt(fname).GetContents()
+    else:
+        pathname = tools.GetInputFilename(fname)
+        data = tools.ReadFile(pathname)
+    return pathname, data
+
 def SetEntryArgs(args):
     """Set the value of the entry args
 
@@ -133,6 +156,8 @@ def GetFdts():
         Device trees being used (U-Boot proper, SPL, TPL)
     """
     yield main_dtb
+    for other_fname in fdt_subset:
+        yield fdt_files[other_fname]
 
 def GetUpdateNodes(node):
     """Yield all the nodes that need to be updated in all device trees
@@ -149,6 +174,11 @@ def GetUpdateNodes(node):
             is node, SPL and TPL)
     """
     yield node
+    for dtb in fdt_files.values():
+        if dtb != node.GetFdt():
+            other_node = dtb.GetNode(node.path)
+            if other_node:
+                yield other_node
 
 def AddZeroProp(node, prop):
     """Add a new property to affected device trees with an integer value of 0.

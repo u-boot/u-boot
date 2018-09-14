@@ -70,6 +70,11 @@ class Image:
         self._section.AddMissingProperties()
 
     def ProcessFdt(self, fdt):
+        """Allow entries to adjust the device tree
+
+        Some entries need to adjust the device tree for their purposes. This
+        may involve adding or deleting properties.
+        """
         return self._section.ProcessFdt(fdt)
 
     def GetEntryContents(self):

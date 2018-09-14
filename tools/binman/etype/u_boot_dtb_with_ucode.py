@@ -6,11 +6,11 @@
 #
 
 from entry import Entry
-from blob import Entry_blob
+from blob_dtb import Entry_blob_dtb
 import state
 import tools
 
-class Entry_u_boot_dtb_with_ucode(Entry_blob):
+class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
     """A U-Boot device tree file, with the microcode removed
 
     Properties / Entry arguments:
@@ -25,7 +25,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
     it available to u_boot_ucode.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        Entry_blob_dtb.__init__(self, section, etype, node)
         self.ucode_data = ''
         self.collate = False
         self.ucode_offset = None
@@ -69,7 +69,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
 
     def ObtainContents(self):
         # Call the base class just in case it does something important.
-        Entry_blob.ObtainContents(self)
+        Entry_blob_dtb.ObtainContents(self)
         self._pathname = state.GetFdtPath(self._filename)
         self.ReadBlobContents()
         if self.ucode:

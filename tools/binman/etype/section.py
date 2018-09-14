@@ -34,6 +34,9 @@ class Entry_section(Entry):
         Entry.__init__(self, section, etype, node)
         self._section = bsection.Section(node.name, node)
 
+    def GetFdtSet(self):
+        return self._section.GetFdtSet()
+
     def ProcessFdt(self, fdt):
         return self._section.ProcessFdt(fdt)
 

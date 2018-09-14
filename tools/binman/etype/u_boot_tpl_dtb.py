@@ -6,9 +6,9 @@
 #
 
 from entry import Entry
-from blob import Entry_blob
+from blob_dtb import Entry_blob_dtb
 
-class Entry_u_boot_tpl_dtb(Entry_blob):
+class Entry_u_boot_tpl_dtb(Entry_blob_dtb):
     """U-Boot TPL device tree
 
     Properties / Entry arguments:
@@ -19,7 +19,7 @@ class Entry_u_boot_tpl_dtb(Entry_blob):
     to activate.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        Entry_blob_dtb.__init__(self, section, etype, node)
 
     def GetDefaultFilename(self):
         return 'tpl/u-boot-tpl.dtb'

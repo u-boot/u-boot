@@ -116,10 +116,8 @@ def Binman(options, args):
             # output into a file in our output directly. Then scan it for use
             # in binman.
             dtb_fname = fdt_util.EnsureCompiled(dtb_fname)
-            fname = tools.GetOutputFilename('u-boot-out.dtb')
-            with open(dtb_fname) as infd:
-                with open(fname, 'wb') as outfd:
-                    outfd.write(infd.read())
+            fname = tools.GetOutputFilename('u-boot.dtb.out')
+            tools.WriteFile(fname, tools.ReadFile(dtb_fname))
             dtb = fdt.FdtScan(fname)
 
             node = _FindBinmanNode(dtb)
