@@ -68,6 +68,7 @@ class Section(object):
         self._end_4gb = False
         self._name_prefix = ''
         self._entries = OrderedDict()
+        self._image_pos = None
         if not test:
             self._ReadNode()
             self._ReadEntries()
@@ -124,7 +125,10 @@ class Section(object):
     def SetCalculatedProperties(self):
         state.SetInt(self._node, 'offset', self._offset)
         state.SetInt(self._node, 'size', self._size)
-        state.SetInt(self._node, 'image-pos', self._image_pos)
+        image_pos = self._image_pos
+        if self._parent_section:
+            image_pos -= self._parent_section.GetRootSkipAtStart()
+        state.SetInt(self._node, 'image-pos', image_pos)
         for entry in self._entries.values():
             entry.SetCalculatedProperties()
 
@@ -437,11 +441,17 @@ class Section(object):
             source_entry.Raise("Cannot find node for phandle %d" % phandle)
         for entry in self._entries.values():
             if entry._node == node:
-                if entry.data is None:
-                    return None
-                return entry.data
+                return entry.GetData()
         source_entry.Raise("Cannot find entry for node '%s'" % node.name)
 
     def ExpandSize(self, size):
         if size != self._size:
             self._size = size
+
+    def GetRootSkipAtStart(self):
+        if self._parent_section:
+            return self._parent_section.GetRootSkipAtStart()
+        return self._skip_at_start
+
+    def GetImageSize(self):
+        return self._image._size

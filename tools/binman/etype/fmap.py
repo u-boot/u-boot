@@ -42,14 +42,17 @@ class Entry_fmap(Entry):
                 for subentry in entries.values():
                     _AddEntries(areas, subentry)
             else:
-                areas.append(fmap_util.FmapArea(entry.image_pos or 0,
-                                                entry.size or 0, entry.name, 0))
+                pos = entry.image_pos
+                if pos is not None:
+                    pos -= entry.section.GetRootSkipAtStart()
+                areas.append(fmap_util.FmapArea(pos or 0, entry.size or 0,
+                                                entry.name, 0))
 
-        entries = self.section.GetEntries()
+        entries = self.section._image.GetEntries()
         areas = []
         for entry in entries.values():
             _AddEntries(areas, entry)
-        return fmap_util.EncodeFmap(self.section.GetSize() or 0, self.name,
+        return fmap_util.EncodeFmap(self.section.GetImageSize() or 0, self.name,
                                     areas)
 
     def ObtainContents(self):

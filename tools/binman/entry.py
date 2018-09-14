@@ -197,7 +197,8 @@ class Entry(object):
         """Set the value of device-tree properties calculated by binman"""
         state.SetInt(self._node, 'offset', self.offset)
         state.SetInt(self._node, 'size', self.size)
-        state.SetInt(self._node, 'image-pos', self.image_pos)
+        state.SetInt(self._node, 'image-pos',
+                       self.image_pos - self.section.GetRootSkipAtStart())
         state.CheckSetHashValue(self._node, self.GetData)
 
     def ProcessFdt(self, fdt):

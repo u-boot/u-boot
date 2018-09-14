@@ -1663,6 +1663,51 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('tplnodtb with microc' + pos_and_size +
                          'ter somewhere in here', first)
 
+    def testFmapX86(self):
+        """Basic test of generation of a flashrom fmap"""
+        data = self._DoReadFile('94_fmap_x86.dts')
+        fhdr, fentries = fmap_util.DecodeFmap(data[32:])
+        expected = U_BOOT_DATA + MRC_DATA + 'a' * (32 - 7)
+        self.assertEqual(expected, data[:32])
+        fhdr, fentries = fmap_util.DecodeFmap(data[32:])
+
+        self.assertEqual(0x100, fhdr.image_size)
+
+        self.assertEqual(0, fentries[0].offset)
+        self.assertEqual(4, fentries[0].size)
+        self.assertEqual('U_BOOT', fentries[0].name)
+
+        self.assertEqual(4, fentries[1].offset)
+        self.assertEqual(3, fentries[1].size)
+        self.assertEqual('INTEL_MRC', fentries[1].name)
+
+        self.assertEqual(32, fentries[2].offset)
+        self.assertEqual(fmap_util.FMAP_HEADER_LEN +
+                         fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
+        self.assertEqual('FMAP', fentries[2].name)
+
+    def testFmapX86Section(self):
+        """Basic test of generation of a flashrom fmap"""
+        data = self._DoReadFile('95_fmap_x86_section.dts')
+        expected = U_BOOT_DATA + MRC_DATA + 'b' * (32 - 7)
+        self.assertEqual(expected, data[:32])
+        fhdr, fentries = fmap_util.DecodeFmap(data[36:])
+
+        self.assertEqual(0x100, fhdr.image_size)
+
+        self.assertEqual(0, fentries[0].offset)
+        self.assertEqual(4, fentries[0].size)
+        self.assertEqual('U_BOOT', fentries[0].name)
+
+        self.assertEqual(4, fentries[1].offset)
+        self.assertEqual(3, fentries[1].size)
+        self.assertEqual('INTEL_MRC', fentries[1].name)
+
+        self.assertEqual(36, fentries[2].offset)
+        self.assertEqual(fmap_util.FMAP_HEADER_LEN +
+                         fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
+        self.assertEqual('FMAP', fentries[2].name)
+
 
 if __name__ == "__main__":
     unittest.main()
