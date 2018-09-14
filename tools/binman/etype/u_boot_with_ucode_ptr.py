@@ -19,6 +19,9 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
 
     Properties / Entry arguments:
         - filename: Filename of u-boot-nodtb.dtb (default 'u-boot-nodtb.dtb')
+        - optional-ucode: boolean property to make microcode optional. If the
+            u-boot.bin image does not include microcode, no error will
+            be generated.
 
     See Entry_u_boot_ucode for full details of the three entries involved in
     this process. This entry updates U-Boot with the offset and size of the

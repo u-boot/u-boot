@@ -462,17 +462,6 @@ see README.entries. This is generated from the source code using:
 	binman -E >tools/binman/README.entries
 
 
-Special properties
-------------------
-
-Some entries support special properties, documented here:
-
-u-boot-with-ucode-ptr:
-	optional-ucode: boolean property to make microcode optional. If the
-		u-boot.bin image does not include microcode, no error will
-		be generated.
-
-
 Order of image creation
 -----------------------
 
