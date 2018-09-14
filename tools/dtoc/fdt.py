@@ -337,6 +337,12 @@ class Node:
         """
         self.props[prop_name].SetInt(val)
 
+    def AddSubnode(self, name):
+        path = self.path + '/' + name
+        subnode = Node(self._fdt, self, None, name, path)
+        self.subnodes.append(subnode)
+        return subnode
+
     def Sync(self, auto_resize=False):
         """Sync node changes back to the device tree
 
@@ -350,6 +356,20 @@ class Node:
         Raises:
             FdtException if auto_resize is False and there is not enough space
         """
+        if self._offset is None:
+            # The subnode doesn't exist yet, so add it
+            fdt_obj = self._fdt._fdt_obj
+            if auto_resize:
+                while True:
+                    offset = fdt_obj.add_subnode(self.parent._offset, self.name,
+                                                (libfdt.NOSPACE,))
+                    if offset != -libfdt.NOSPACE:
+                        break
+                    fdt_obj.resize(fdt_obj.totalsize() + 1024)
+            else:
+                offset = fdt_obj.add_subnode(self.parent._offset, self.name)
+            self._offset = offset
+
         # Sync subnodes in reverse so that we don't disturb node offsets for
         # nodes that are earlier in the DT. This avoids an O(n^2) rescan of
         # node offsets.

@@ -355,6 +355,14 @@ class TestProp(unittest.TestCase):
 
     def testAddNode(self):
         self.fdt.pack()
+        self.node.AddSubnode('subnode')
+        with self.assertRaises(libfdt.FdtException) as e:
+            self.dtb.Sync(auto_resize=False)
+        self.assertIn('FDT_ERR_NOSPACE', str(e.exception))
+
+        self.dtb.Sync(auto_resize=True)
+        offset = self.fdt.path_offset('/spl-test/subnode')
+        self.assertTrue(offset > 0)
 
 
 class TestFdtUtil(unittest.TestCase):
