@@ -137,7 +137,7 @@ def Binman(options, args):
                 if skip:
                     print 'Skipping images: %s\n' % ', '.join(skip)
 
-            state.Prepare(dtb)
+            state.Prepare(images, dtb)
 
             # Prepare the device tree by making sure that any missing
             # properties are added (e.g. 'pos' and 'size'). The values of these

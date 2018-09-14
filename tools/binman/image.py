@@ -54,6 +54,10 @@ class Image:
             self._filename = filename
         self._section = bsection.Section('main-section', self._node)
 
+    def GetFdtSet(self):
+        """Get the set of device tree files used by this image"""
+        return self._section.GetFdtSet()
+
     def AddMissingProperties(self):
         """Add properties that are not present in the device tree
 

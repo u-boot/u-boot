@@ -18,6 +18,7 @@ except:
     have_importlib = False
 
 import os
+from sets import Set
 import sys
 
 import fdt_util
@@ -163,6 +164,20 @@ class Entry(object):
 
     def GetDefaultFilename(self):
         return None
+
+    def GetFdtSet(self):
+        """Get the set of device trees used by this entry
+
+        Returns:
+            Set containing the filename from this entry, if it is a .dtb, else
+            an empty set
+        """
+        fname = self.GetDefaultFilename()
+        # It would be better to use isinstance(self, Entry_blob_dtb) here but
+        # we cannot access Entry_blob_dtb
+        if fname and fname.endswith('.dtb'):
+            return Set([fname])
+        return Set()
 
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""

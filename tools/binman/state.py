@@ -18,6 +18,10 @@ fdt_files = {}
 # Arguments passed to binman to provide arguments to entries
 entry_args = {}
 
+# True to use fake device-tree files for testing (see U_BOOT_DTB_DATA in
+# ftest.py)
+use_fake_dtb = True
+
 # Set of all device tree files references by images
 fdt_set = Set()
 
@@ -85,13 +89,14 @@ def GetEntryArg(name):
     """
     return entry_args.get(name)
 
-def Prepare(dtb):
+def Prepare(images, dtb):
     """Get device tree files ready for use
 
     This sets up a set of device tree files that can be retrieved by GetFdts().
     At present there is only one, that for U-Boot proper.
 
     Args:
+        images: List of images being used
         dtb: Main dtb
     """
     global fdt_set, fdt_subset, fdt_files, main_dtb
@@ -107,8 +112,19 @@ def Prepare(dtb):
     main_dtb = dtb
     fdt_files.clear()
     fdt_files['u-boot.dtb'] = dtb
-    fdt_set = Set()
     fdt_subset = Set()
+    if not use_fake_dtb:
+        for image in images.values():
+            fdt_subset.update(image.GetFdtSet())
+        fdt_subset.discard('u-boot.dtb')
+        for other_fname in fdt_subset:
+            infile = tools.GetInputFilename(other_fname)
+            other_fname_dtb = fdt_util.EnsureCompiled(infile)
+            out_fname = tools.GetOutputFilename('%s.out' %
+                    os.path.split(other_fname)[1])
+            tools.WriteFile(out_fname, tools.ReadFile(other_fname_dtb))
+            other_dtb = fdt.FdtScan(out_fname)
+            fdt_files[other_fname] = other_dtb
 
 def GetFdts():
     """Yield all device tree files being used by binman
