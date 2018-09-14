@@ -74,13 +74,16 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
 
         # Get the microcode, either from u-boot-ucode or u-boot-dtb-with-ucode.
         # If we have left the microcode in the device tree, then it will be
-        # in the former. If we extracted the microcode from the device tree
-        # and collated it in one place, it will be in the latter.
+        # in the latter. If we extracted the microcode from the device tree
+        # and collated it in one place, it will be in the former.
         if ucode_entry.size:
             offset, size = ucode_entry.offset, ucode_entry.size
         else:
             dtb_entry = self.section.FindEntryType('u-boot-dtb-with-ucode')
-            if not dtb_entry or not dtb_entry.ready:
+            if not dtb_entry:
+                dtb_entry = self.section.FindEntryType(
+                        'u-boot-tpl-dtb-with-ucode')
+            if not dtb_entry:
                 self.Raise('Cannot find microcode region u-boot-dtb-with-ucode')
             offset = dtb_entry.offset + dtb_entry.ucode_offset
             size = dtb_entry.ucode_size

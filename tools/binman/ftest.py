@@ -44,6 +44,7 @@ X86_START16_SPL_DATA  = 'start16spl'
 X86_START16_TPL_DATA  = 'start16tpl'
 U_BOOT_NODTB_DATA     = 'nodtb with microcode pointer somewhere in here'
 U_BOOT_SPL_NODTB_DATA = 'splnodtb with microcode pointer somewhere in here'
+U_BOOT_TPL_NODTB_DATA = 'tplnodtb with microcode pointer somewhere in here'
 FSP_DATA              = 'fsp'
 CMC_DATA              = 'cmc'
 VBT_DATA              = 'vbt'
@@ -103,6 +104,8 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl-nodtb.bin',
                                       U_BOOT_SPL_NODTB_DATA)
+        TestFunctional._MakeInputFile('tpl/u-boot-tpl-nodtb.bin',
+                                      U_BOOT_TPL_NODTB_DATA)
         TestFunctional._MakeInputFile('fsp.bin', FSP_DATA)
         TestFunctional._MakeInputFile('cmc.bin', CMC_DATA)
         TestFunctional._MakeInputFile('vbt.bin', VBT_DATA)
@@ -1643,6 +1646,22 @@ class TestFunctional(unittest.TestCase):
         m.update(U_BOOT_DATA)
         m.update(16 * 'a')
         self.assertEqual(m.digest(), ''.join(hash_node.value))
+
+    def testPackUBootTplMicrocode(self):
+        """Test that x86 microcode can be handled correctly in TPL
+
+        We expect to see the following in the image, in order:
+            u-boot-tpl-nodtb.bin with a microcode pointer inserted at the correct
+                place
+            u-boot-tpl.dtb with the microcode removed
+            the microcode
+        """
+        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
+            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
+        first, pos_and_size = self._RunMicrocodeTest('93_x86_tpl_ucode.dts',
+                                                     U_BOOT_TPL_NODTB_DATA)
+        self.assertEqual('tplnodtb with microc' + pos_and_size +
+                         'ter somewhere in here', first)
 
 
 if __name__ == "__main__":

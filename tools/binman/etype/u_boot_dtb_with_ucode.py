@@ -45,6 +45,9 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
             'u-boot-spl-with-ucode-ptr')
         if not ucode_dest_entry or not ucode_dest_entry.target_offset:
             ucode_dest_entry = self.section.FindEntryType(
+                'u-boot-tpl-with-ucode-ptr')
+        if not ucode_dest_entry or not ucode_dest_entry.target_offset:
+            ucode_dest_entry = self.section.FindEntryType(
                 'u-boot-with-ucode-ptr')
         if not ucode_dest_entry or not ucode_dest_entry.target_offset:
             return True
@@ -70,14 +73,14 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
     def ObtainContents(self):
         # Call the base class just in case it does something important.
         Entry_blob_dtb.ObtainContents(self)
-        self._pathname = state.GetFdtPath(self._filename)
-        self.ReadBlobContents()
-        if self.ucode:
+        if self.ucode and not self.collate:
             for node in self.ucode.subnodes:
                 data_prop = node.props.get('data')
-                if data_prop and not self.collate:
+                if data_prop:
                     # Find the offset in the device tree of the ucode data
                     self.ucode_offset = data_prop.GetOffset() + 12
                     self.ucode_size = len(data_prop.bytes)
-        self.ready = True
-        return True
+                    self.ready = True
+        else:
+            self.ready = True
+        return self.ready

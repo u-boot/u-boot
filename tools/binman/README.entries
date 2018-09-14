@@ -462,6 +462,8 @@ both SPL and the device tree).
 Entry: u-boot-spl-with-ucode-ptr: U-Boot SPL with embedded microcode pointer
 ----------------------------------------------------------------------------
 
+This is used when SPL must set up the microcode for U-Boot.
+
 See Entry_u_boot_ucode for full details of the entries involved in this
 process.
 
@@ -500,6 +502,24 @@ Properties / Entry arguments:
 This is the TPL device tree, containing configuration information for
 TPL. TPL needs this to know what devices are present and which drivers
 to activate.
+
+
+
+Entry: u-boot-tpl-dtb-with-ucode: U-Boot TPL with embedded microcode pointer
+----------------------------------------------------------------------------
+
+This is used when TPL must set up the microcode for U-Boot.
+
+See Entry_u_boot_ucode for full details of the entries involved in this
+process.
+
+
+
+Entry: u-boot-tpl-with-ucode-ptr: U-Boot TPL with embedded microcode pointer
+----------------------------------------------------------------------------
+
+See Entry_u_boot_ucode for full details of the entries involved in this
+process.
 
 
 
