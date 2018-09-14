@@ -1364,6 +1364,11 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Node '/binman/u-boot': Please use 'offset' instead of "
                       "'pos'", str(e.exception))
 
+    def testFillZero(self):
+        """Test for an fill entry type with a size of 0"""
+        data = self._DoReadFile('80_fill_empty.dts')
+        self.assertEqual(chr(0) * 16, data)
+
 
 if __name__ == "__main__":
     unittest.main()
