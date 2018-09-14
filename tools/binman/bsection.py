@@ -24,6 +24,7 @@ class Section(object):
 
     Attributes:
         _node: Node object that contains the section definition in device tree
+        _parent_section: Parent Section object which created this Section
         _size: Section size in bytes, or None if not known yet
         _align_size: Section size alignment, or None
         _pad_before: Number of bytes before the first entry starts. This
@@ -46,14 +47,16 @@ class Section(object):
             section
         _entries: OrderedDict() of entries
     """
-    def __init__(self, name, node, test=False):
+    def __init__(self, name, parent_section, node, image, test=False):
         global entry
         global Entry
         import entry
         from entry import Entry
 
+        self._parent_section = parent_section
         self._name = name
         self._node = node
+        self._image = image
         self._offset = 0
         self._size = None
         self._align_size = None

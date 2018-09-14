@@ -32,7 +32,8 @@ class Entry_section(Entry):
     """
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)
-        self._section = bsection.Section(node.name, node)
+        self._section = bsection.Section(node.name, section, node,
+                                         section._image)
 
     def GetFdtSet(self):
         return self._section.GetFdtSet()

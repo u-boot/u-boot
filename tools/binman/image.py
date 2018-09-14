@@ -42,7 +42,8 @@ class Image:
         self._size = None
         self._filename = '%s.bin' % self._name
         if test:
-            self._section = bsection.Section('main-section', self._node, True)
+            self._section = bsection.Section('main-section', None, self._node,
+                                             self, True)
         else:
             self._ReadNode()
 
@@ -52,7 +53,7 @@ class Image:
         filename = fdt_util.GetString(self._node, 'filename')
         if filename:
             self._filename = filename
-        self._section = bsection.Section('main-section', self._node)
+        self._section = bsection.Section('main-section', None, self._node, self)
 
     def GetFdtSet(self):
         """Get the set of device tree files used by this image"""
