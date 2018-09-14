@@ -39,6 +39,7 @@ U_BOOT_SPL_DTB_DATA   = 'spldtb'
 U_BOOT_TPL_DTB_DATA   = 'tpldtb'
 X86_START16_DATA      = 'start16'
 X86_START16_SPL_DATA  = 'start16spl'
+X86_START16_TPL_DATA  = 'start16tpl'
 U_BOOT_NODTB_DATA     = 'nodtb with microcode pointer somewhere in here'
 U_BOOT_SPL_NODTB_DATA = 'splnodtb with microcode pointer somewhere in here'
 FSP_DATA              = 'fsp'
@@ -92,6 +93,8 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
                                       X86_START16_SPL_DATA)
+        TestFunctional._MakeInputFile('tpl/u-boot-x86-16bit-tpl.bin',
+                                      X86_START16_TPL_DATA)
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl-nodtb.bin',
                                       U_BOOT_SPL_NODTB_DATA)
@@ -964,7 +967,7 @@ class TestFunctional(unittest.TestCase):
                       str(e.exception))
 
     def testPackStart16Spl(self):
-        """Test that an image with an x86 start16 region can be created"""
+        """Test that an image with an x86 start16 SPL region can be created"""
         data = self._DoReadFile('48_x86-start16-spl.dts')
         self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
 
@@ -1375,6 +1378,11 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFileDtb('66_text.dts',)
         self.assertIn("Node '/binman/text': No value provided for text label "
                       "'test-id'", str(e.exception))
+
+    def testPackStart16Tpl(self):
+        """Test that an image with an x86 start16 TPL region can be created"""
+        data = self._DoReadFile('81_x86-start16-tpl.dts')
+        self.assertEqual(X86_START16_TPL_DATA, data[:len(X86_START16_TPL_DATA)])
 
 
 if __name__ == "__main__":
