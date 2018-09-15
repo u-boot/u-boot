@@ -292,10 +292,8 @@ static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
 		void *buffer)
 {
 	loff_t actread;
-	/* fs_read expects buffer address, not pointer */
-	uintptr_t buffer_addr = (uintptr_t)map_to_sysmem(buffer);
 
-	if (fs_read(fh->path, buffer_addr, fh->offset,
+	if (fs_read(fh->path, map_to_sysmem(buffer), fh->offset,
 		    *buffer_size, &actread))
 		return EFI_DEVICE_ERROR;
 
@@ -425,7 +423,7 @@ static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
 		goto error;
 	}
 
-	if (fs_write(fh->path, (ulong)buffer, fh->offset, *buffer_size,
+	if (fs_write(fh->path, map_to_sysmem(buffer), fh->offset, *buffer_size,
 		     &actwrite)) {
 		ret = EFI_DEVICE_ERROR;
 		goto error;
