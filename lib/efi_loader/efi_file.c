@@ -218,7 +218,7 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 		  open_mode, attributes);
 
 	/* Check parameters */
-	if (!file || !file || !file_name) {
+	if (!file || !new_handle || !file_name) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
