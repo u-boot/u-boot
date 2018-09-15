@@ -810,6 +810,40 @@ static void exynos4x12_pwm_config(int peripheral)
     }
 }
 
+static void exynos4x12_sromc_config(int peripheral, int bank)
+{
+    int i;
+
+    /* chip select */
+    switch (bank) {
+    case 0:
+        gpio_cfg_pin(EXYNOS4X12_GPIO_Y00, S5P_GPIO_FUNC(0x2));
+        break;
+    case 1:
+        gpio_cfg_pin(EXYNOS4X12_GPIO_Y01, S5P_GPIO_FUNC(0x2));
+        break;
+    case 2:
+        gpio_cfg_pin(EXYNOS4X12_GPIO_Y02, S5P_GPIO_FUNC(0x2));
+        break;
+    case 3:
+        gpio_cfg_pin(EXYNOS4X12_GPIO_Y03, S5P_GPIO_FUNC(0x2));
+        break;
+    default:
+        debug("%s: invalid bank %d\n", __func__, bank);
+        return;
+    }
+
+    for (i = EXYNOS4X12_GPIO_Y04; i < EXYNOS4X12_GPIO_Y13; i++) {
+        gpio_cfg_pin(i, S5P_GPIO_FUNC(0x2));
+    }
+
+    /* address bus and data bus */
+    for (i = EXYNOS4X12_GPIO_Y30; i < EXYNOS4X12_GPIO_Y67; i++) {
+        gpio_set_pull(i, S5P_GPIO_PULL_UP);
+        gpio_cfg_pin(i, S5P_GPIO_FUNC(0x2));
+    }
+}
+
 static int exynos4_pinmux_config(int peripheral, int flags)
 {
 	switch (peripheral) {
@@ -877,6 +911,9 @@ static int exynos4x12_pinmux_config(int peripheral, int flags)
     case PERIPH_ID_PWM2:
     case PERIPH_ID_PWM3:
         exynos4x12_pwm_config(peripheral);
+        break;
+    case PERIPH_ID_SROMC:
+        exynos4x12_sromc_config(peripheral, flags);
         break;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);

@@ -3,6 +3,7 @@
  * (C) Copyright 2013 SAMSUNG Electronics
  * Rajeshwari Shinde <rajeshwari.s@samsung.com>
  */
+#define DEBUG
 
 #include <common.h>
 #include <cros_ec.h>
@@ -245,6 +246,51 @@ int board_eth_init(bd_t *bis)
 	exynos_pinmux_config(PERIPH_ID_SROMC, config.bank);
 	s5p_config_sromc(config.bank, smc_bw_conf, smc_bc_conf);
 	return smc911x_initialize(0, base_addr);
+#elif defined CONFIG_DRIVER_DM9000
+    u32 smc_bw_conf, smc_bc_conf;
+    struct fdt_sromc config;
+    int node;
+    int err;
+
+    node = fdt_node_offset_by_compatible(gd->fdt_blob, 0, "samsung,exynos-sromc");
+    if (node < 0) {
+        debug("Could not find SROMC node\n");
+        return -1;
+    }
+
+    config.bank = fdtdec_get_int(gd->fdt_blob, node, "bank", 0);
+    config.width = fdtdec_get_int(gd->fdt_blob, node, "width", 2);
+
+     err = fdtdec_get_int_array(gd->fdt_blob, node, "srom-timing",
+             config.timing, FDT_SROM_TIMING_COUNT);
+     if (err < 0) {
+         debug("Could not get SROMC configuration Error: %s\n",
+                 fdt_strerror(err));
+         return -FDT_ERR_NOTFOUND;
+     }
+
+     if (config.width != 2) {
+         debug("%s: Unsupported bus width %d\n", __func__,
+                 config.width);
+         return -1;
+     }
+     smc_bw_conf = SROMC_DATA16_WIDTH(config.bank)
+         | SROMC_BYTE_ENABLE(config.bank)
+         | SROMC_BYTE_ADDR_MODE(config.bank)
+         | SROMC_WAIT_ENABLE(config.bank);
+
+     smc_bc_conf = SROMC_BC_TACS(config.timing[FDT_SROM_TACS])   |
+         SROMC_BC_TCOS(config.timing[FDT_SROM_TCOS]) |
+         SROMC_BC_TACC(config.timing[FDT_SROM_TACC]) |
+         SROMC_BC_TCOH(config.timing[FDT_SROM_TCOH]) |
+         SROMC_BC_TAH(config.timing[FDT_SROM_TAH])   |
+         SROMC_BC_TACP(config.timing[FDT_SROM_TACP]) |
+         SROMC_BC_PMC(config.timing[FDT_SROM_PMC]);
+
+     /* Select and configure the SROMC bank */
+     exynos_pinmux_config(PERIPH_ID_SROMC, config.bank);
+     s5p_config_sromc(config.bank, smc_bw_conf, smc_bc_conf);
+     return dm9000_initialize(bis);
 #endif
 	return 0;
 }

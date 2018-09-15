@@ -85,6 +85,7 @@
  *	We want:	- magic packet or timeout
  *	Next step:	none
  */
+#define  DEBUG
 
 
 #include <common.h>

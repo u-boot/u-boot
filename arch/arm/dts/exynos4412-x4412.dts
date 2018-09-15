@@ -112,6 +112,12 @@
         backlight = <&backlight>;
     };
 
+    sromc {
+        compatible = "samsung,exynos-sromc";
+        bank = <3>;
+        width = <2>;
+        srom-timing = <0 0 0 1 3 0 0>;
+    };
 };
 
 &sdhci2 {
