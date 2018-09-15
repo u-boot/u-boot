@@ -116,7 +116,7 @@ static int teardown(void)
  */
 static int execute(void)
 {
-	struct efi_key_data input_key = {0,};
+	struct efi_key_data input_key = { {0, 0}, {0, 0} };
 	efi_status_t ret;
 	efi_uintn_t index;
 
