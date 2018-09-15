@@ -652,3 +652,8 @@ void os_longjmp(ulong *jmp, int ret)
 {
 	longjmp((struct __jmp_buf_tag *)jmp, ret);
 }
+
+void os_abort(void)
+{
+	abort();
+}

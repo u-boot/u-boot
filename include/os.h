@@ -351,4 +351,8 @@ int os_setjmp(ulong *jmp, int size);
  */
 void os_longjmp(ulong *jmp, int ret);
 
+/**
+ * os_abort() - Raise SIGABRT to exit sandbox (e.g. to debugger)
+ */
+void os_abort(void);
 #endif
