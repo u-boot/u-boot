@@ -325,7 +325,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 {
 	struct efi_loaded_image loaded_image_info = {};
 	struct efi_object loaded_image_info_obj = {};
-	struct efi_object mem_obj = {};
+	efi_handle_t mem_handle = NULL;
 	struct efi_device_path *memdp = NULL;
 	efi_status_t ret;
 
@@ -335,16 +335,21 @@ static efi_status_t do_bootefi_exec(void *efi,
 	/*
 	 * Special case for efi payload not loaded from disk, such as
 	 * 'bootefi hello' or for example payload loaded directly into
-	 * memory via jtag/etc:
+	 * memory via jtag, etc:
 	 */
 	if (!device_path && !image_path) {
 		printf("WARNING: using memory device/image path, this may confuse some payloads!\n");
 		/* actual addresses filled in after efi_load_pe() */
 		memdp = efi_dp_from_mem(0, 0, 0);
 		device_path = image_path = memdp;
-		efi_add_handle(&mem_obj);
-
-		ret = efi_add_protocol(mem_obj.handle, &efi_guid_device_path,
+		/*
+		 * Grub expects that the device path of the loaded image is
+		 * installed on a handle.
+		 */
+		ret = efi_create_handle(&mem_handle);
+		if (ret != EFI_SUCCESS)
+			goto exit;
+		ret = efi_add_protocol(mem_handle, &efi_guid_device_path,
 				       device_path);
 		if (ret != EFI_SUCCESS)
 			goto exit;
@@ -428,8 +433,8 @@ static efi_status_t do_bootefi_exec(void *efi,
 exit:
 	/* image has returned, loaded-image obj goes *poof*: */
 	list_del(&loaded_image_info_obj.link);
-	if (mem_obj.handle)
-		list_del(&mem_obj.link);
+	if (mem_handle)
+		efi_delete_handle(mem_handle);
 
 	return ret;
 }
