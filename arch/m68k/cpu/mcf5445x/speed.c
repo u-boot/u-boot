@@ -120,6 +120,8 @@ void setup_5441x_clocks(void)
 	temp = ((pdr & PLL_DR_OUTDIV2_BITS) >> 5) + 1;
 	gd->bus_clk = vco / temp;	/* bus clock */
 
+	temp = ((pdr & PLL_DR_OUTDIV3_BITS) >> 10) + 1;
+	gd->arch.sdhc_clk = vco / temp;
 }
 #endif
 
