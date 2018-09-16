@@ -33,10 +33,6 @@
 /* USB Host support */
 #define CONFIG_USB_EHCI_TEGRA
 
-/* USB networking support */
-
-/* General networking support */
-
 /* Tag support */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS

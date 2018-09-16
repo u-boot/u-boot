@@ -18,10 +18,6 @@
  */
 #define CONFIG_STACKBASE	0x82800000	/* 40MB */
 
-/*-----------------------------------------------------------------------
- * Physical Memory Map
- */
-
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *

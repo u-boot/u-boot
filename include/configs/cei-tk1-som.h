@@ -38,12 +38,6 @@
 /* USB Host support */
 #define CONFIG_USB_EHCI_TEGRA
 
-/* USB networking support */
-
-/* PCI host support */
-
-/* General networking support */
-
 #include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 

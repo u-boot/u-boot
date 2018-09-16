@@ -39,14 +39,8 @@
  */
 #define CONFIG_SYS_MMC_MAX_DEVICE 4
 
-/*
- * select serial console configuration
- */
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-
-/* turn on command-line edit/hist/auto */
 
 /*
  * Increasing the size of the IO buffer as default nfsargs size is more

@@ -37,8 +37,6 @@
 /* USB Host support */
 #define CONFIG_USB_EHCI_TEGRA
 
-/* USB networking support */
-
 /* Enable keyboard */
 #define CONFIG_TEGRA_KEYBOARD
 #define CONFIG_KEYBOARD

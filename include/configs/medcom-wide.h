@@ -28,8 +28,6 @@
 /* USB host support */
 #define CONFIG_USB_EHCI_TEGRA
 
-/* USB networking support */
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

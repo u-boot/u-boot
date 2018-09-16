@@ -37,10 +37,6 @@
 /* USB Host support */
 #define CONFIG_USB_EHCI_TEGRA
 
-/* USB networking support */
-
-/* General networking support */
-
 #define CONFIG_KEYBOARD
 
 #undef CONFIG_LOADADDR

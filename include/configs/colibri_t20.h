@@ -10,8 +10,6 @@
 
 #include "tegra20-common.h"
 
-/* High-level configuration options */
-
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_TEGRA_UARTA_SDIO1
@@ -26,8 +24,6 @@
 #define CONFIG_USB_EHCI_TEGRA
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	3
 
-/* USB networking support */
-
 /* General networking support */
 #define CONFIG_IP_DEFRAG
 #define CONFIG_TFTP_BLOCKSIZE		1536
@@ -39,8 +35,6 @@
 /* NAND support */
 #define CONFIG_TEGRA_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-
-/* Dynamic MTD partition support */
 
 /* Environment in NAND, 64K is a bit excessive but erase block is 512K anyway */
 #define CONFIG_ENV_OFFSET		(SZ_2M)

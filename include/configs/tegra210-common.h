@@ -14,10 +14,6 @@
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
-/*-----------------------------------------------------------------------
- * Physical Memory Map
- */
-
 /* Generic Interrupt Controller */
 #define CONFIG_GICV2
 
