@@ -33,9 +33,6 @@
 /* Board Clock */
 #define RMOBILE_XTAL_CLK	20000000u
 #define CONFIG_SYS_CLK_FREQ	RMOBILE_XTAL_CLK
-#define CONFIG_SH_TMU_CLK_FREQ	(CONFIG_SYS_CLK_FREQ / 2)
-
-#define CONFIG_SYS_TMU_CLK_DIV	4
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"fdt_high=0xffffffff\0"		\

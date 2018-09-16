@@ -13,44 +13,25 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <sh_tmu.h>
 
-#define TCR_TPSC 0x07
+#if defined(CONFIG_CPU_SH3)
+#define TSTR	0x2
+#define TCR0	0xc
+#endif /* CONFIG_CPU_SH3 */
 
-static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
+#if defined(CONFIG_CPU_SH4) || defined(CONFIG_ARCH_RMOBILE)
+#define TSTR	0x4
+#define TCR0	0x10
+#endif /* CONFIG_CPU_SH4 */
 
-unsigned long get_tbclk(void)
-{
-	u16 tmu_bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
-	return get_tmu0_clk_rate() >> ((tmu_bit + 1) * 2);
-}
-
-unsigned long timer_read_counter(void)
-{
-	return ~readl(&tmu->tcnt0);
-}
-
-static void tmu_timer_start(unsigned int timer)
-{
-	if (timer > 2)
-		return;
-	writeb(readb(&tmu->tstr) | (1 << timer), &tmu->tstr);
-}
-
-static void tmu_timer_stop(unsigned int timer)
-{
-	if (timer > 2)
-		return;
-	writeb(readb(&tmu->tstr) & ~(1 << timer), &tmu->tstr);
-}
+#define TCR_TPSC	0x07
+#define TSTR_STR0	BIT(0)
 
 int timer_init(void)
 {
-	u16 tmu_bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
-	writew((readw(&tmu->tcr0) & ~TCR_TPSC) | tmu_bit, &tmu->tcr0);
-
-	tmu_timer_stop(0);
-	tmu_timer_start(0);
+	writew(readw(TMU_BASE + TCR0) & ~TCR_TPSC, TMU_BASE + TCR0);
+	writeb(readb(TMU_BASE + TSTR) & ~TSTR_STR0, TMU_BASE + TSTR);
+	writeb(readb(TMU_BASE + TSTR) | TSTR_STR0, TMU_BASE + TSTR);
 
 	return 0;
 }
