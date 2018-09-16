@@ -603,6 +603,13 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 	char filename[32] = { 0 }; /* dp->str is u16[32] long */
 	char *s;
 
+	/* efi_set_bootdev is typically called repeatedly, recover memory */
+	efi_free_pool(bootefi_device_path);
+	efi_free_pool(bootefi_image_path);
+	/* If blk_get_device_part_str fails, avoid duplicate free. */
+	bootefi_device_path = NULL;
+	bootefi_image_path = NULL;
+
 	if (strcmp(dev, "Net")) {
 		struct blk_desc *desc;
 		disk_partition_t fs_partition;
