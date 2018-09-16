@@ -78,7 +78,7 @@
  * parameter, the default (2) causes occasional Data Buffer Errors in OUT
  * packets depending on the buffer address and size.
  */
-#define CONFIG_USB_EHCI_TXFIFO_THRESH	10
+#define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
 #define CONFIG_EHCI_IS_TDI
 
 #define CONFIG_SYS_NAND_SELF_INIT
