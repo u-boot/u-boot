@@ -202,6 +202,7 @@ unsigned int cm_get_l4_sys_free_clk_hz(void);
  * 0x8000_0000 ...... End of SDRAM_1 (assume 2GB)
  *
  */
+#define CONFIG_SPL_TARGET		"spl/u-boot-spl.hex"
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_INIT_RAM_SIZE
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
@@ -215,6 +216,6 @@ unsigned int cm_get_l4_sys_free_clk_hz(void);
 
 /* SPL SDMMC boot support */
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
-#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot-dtb.img"
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
 #endif	/* __CONFIG_H */
