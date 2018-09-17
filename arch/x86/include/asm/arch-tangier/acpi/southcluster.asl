@@ -221,6 +221,16 @@ Device (PCI0)
         }
     }
 
+    Device (I2C6)
+    {
+        Name (_ADR, 0x00090001)
+
+        Method (_STA, 0, NotSerialized)
+        {
+            Return (STA_VISIBLE)
+        }
+    }
+
     Device (GPIO)
     {
         Name (_ADR, 0x000c0000)
