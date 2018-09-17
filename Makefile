@@ -1139,6 +1139,7 @@ OBJCOPYFLAGS_u-boot-with-spl.bin = -I binary -O binary \
 u-boot-with-spl.bin: spl/u-boot-spl.bin $(SPL_PAYLOAD) FORCE
 	$(call if_changed,pad_cat)
 
+ifeq ($(CONFIG_ARCH_LPC32XX)$(CONFIG_SPL),yy)
 MKIMAGEFLAGS_lpc32xx-spl.img = -T lpc32xximage -a $(CONFIG_SPL_TEXT_BASE)
 
 lpc32xx-spl.img: spl/u-boot-spl.bin FORCE
@@ -1158,6 +1159,7 @@ lpc32xx-full.bin: lpc32xx-boot-0.bin lpc32xx-boot-1.bin u-boot.img FORCE
 	$(call if_changed,cat)
 
 CLEAN_FILES += lpc32xx-*
+endif
 
 OBJCOPYFLAGS_u-boot-with-tpl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_TPL_PAD_TO)
