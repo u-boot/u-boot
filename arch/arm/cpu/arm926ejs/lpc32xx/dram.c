@@ -8,9 +8,6 @@
  * This is called by SPL to gain access to the SDR DRAM.
  *
  * This code runs from SRAM.
- *
- * Actual CONFIG_LPC32XX_SDRAM_* parameters must be provided
- * by the board configuration file.
  */
 
 #include <common.h>
