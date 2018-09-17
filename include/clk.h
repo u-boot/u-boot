@@ -21,7 +21,7 @@
  *
  * A driver that implements UCLASS_CLOCK is a clock provider. A provider will
  * often implement multiple separate clocks, since the hardware it manages
- * often has this capability. clock_uclass.h describes the interface which
+ * often has this capability. clk-uclass.h describes the interface which
  * clock providers must implement.
  *
  * Clock consumers/clients are the HW modules driven by the clock signals. This
