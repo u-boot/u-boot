@@ -168,22 +168,22 @@
 };
 
 &gem0 {
-	clocks = <&clk 31>, <&clk 49>, <&clk 45>, <&clk 49>, <&clk 44>;
+	clocks = <&clk 31>, <&clk 104>, <&clk 45>, <&clk 49>, <&clk 44>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gem1 {
-	clocks = <&clk 31>, <&clk 50>, <&clk 46>, <&clk 50>, <&clk 44>;
+	clocks = <&clk 31>, <&clk 105>, <&clk 46>, <&clk 50>, <&clk 44>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gem2 {
-	clocks = <&clk 31>, <&clk 51>, <&clk 47>, <&clk 51>, <&clk 44>;
+	clocks = <&clk 31>, <&clk 106>, <&clk 47>, <&clk 51>, <&clk 44>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gem3 {
-	clocks = <&clk 31>, <&clk 52>, <&clk 48>, <&clk 52>, <&clk 44>;
+	clocks = <&clk 31>, <&clk 107>, <&clk 48>, <&clk 52>, <&clk 44>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
