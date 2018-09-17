@@ -13,7 +13,6 @@
 #include "mx6_common.h"
 #define CONFIG_IOMUX_LPSR
 
-/* #define CONFIG_DBG_MONITOR*/
 #define PHYS_SDRAM_SIZE			SZ_512M
 
 /* Size of malloc() pool */
