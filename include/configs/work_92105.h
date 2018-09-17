@@ -25,9 +25,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
-/* generate LPC32XX-specific SPL image */
-#define CONFIG_LPC32XX_SPL
-
 /*
  * Memory configurations
  */
