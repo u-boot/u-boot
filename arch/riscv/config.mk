@@ -31,7 +31,7 @@ CONFIG_STANDALONE_LOAD_ADDR = 0x00000000 \
 			      -T $(srctree)/examples/standalone/riscv.lds
 
 PLATFORM_CPPFLAGS	+= -ffixed-gp -fpic
-PLATFORM_RELFLAGS += -fno-strict-aliasing -fno-common -gdwarf-2 -ffunction-sections
+PLATFORM_RELFLAGS += -fno-common -gdwarf-2 -ffunction-sections
 LDFLAGS_u-boot += --gc-sections -static -pie
 
 EFI_CRT0		:= crt0_riscv_efi.o

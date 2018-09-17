@@ -15,7 +15,7 @@ endif
 CONFIG_STANDALONE_LOAD_ADDR = 0x300000 \
 			      -T $(srctree)/examples/standalone/nds32.lds
 
-PLATFORM_RELFLAGS	+= -fno-strict-aliasing -fno-common -mrelax
+PLATFORM_RELFLAGS	+= -fno-common -mrelax
 PLATFORM_RELFLAGS	+= -gdwarf-2
 PLATFORM_CPPFLAGS	+= -D__nds32__ -G0 -ffixed-10 -fpie
 
