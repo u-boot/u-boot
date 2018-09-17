@@ -11,6 +11,7 @@
 #include <mapmem.h>
 #include <watchdog.h>
 #include <linux/list_sort.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -602,6 +603,7 @@ __weak void efi_add_known_memory(void)
 static void add_u_boot_and_runtime(void)
 {
 	unsigned long runtime_start, runtime_end, runtime_pages;
+	unsigned long runtime_mask = EFI_PAGE_MASK;
 	unsigned long uboot_start, uboot_pages;
 	unsigned long uboot_stack_size = 16 * 1024 * 1024;
 
@@ -610,10 +612,22 @@ static void add_u_boot_and_runtime(void)
 	uboot_pages = (gd->ram_top - uboot_start) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map(uboot_start, uboot_pages, EFI_LOADER_DATA, false);
 
-	/* Add Runtime Services */
-	runtime_start = (ulong)&__efi_runtime_start & ~EFI_PAGE_MASK;
+#if defined(__aarch64__)
+	/*
+	 * Runtime Services must be 64KiB aligned according to the
+	 * "AArch64 Platforms" section in the UEFI spec (2.7+).
+	 */
+
+	runtime_mask = SZ_64K - 1;
+#endif
+
+	/*
+	 * Add Runtime Services. We mark surrounding boottime code as runtime as
+	 * well to fulfill the runtime alignment constraints but avoid padding.
+	 */
+	runtime_start = (ulong)&__efi_runtime_start & ~runtime_mask;
 	runtime_end = (ulong)&__efi_runtime_stop;
-	runtime_end = (runtime_end + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
+	runtime_end = (runtime_end + runtime_mask) & ~runtime_mask;
 	runtime_pages = (runtime_end - runtime_start) >> EFI_PAGE_SHIFT;
 	efi_add_memory_map(runtime_start, runtime_pages,
 			   EFI_RUNTIME_SERVICES_CODE, false);
