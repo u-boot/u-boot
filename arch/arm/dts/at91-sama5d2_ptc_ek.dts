@@ -56,6 +56,18 @@
 		stdout-path = &uart0;
 	};
 
+	onewire_tm: onewire {
+		gpios = <&pioA PIN_PB31 0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_onewire_tm_default>;
+		status = "okay";
+
+		w1_eeprom: w1_eeprom@0 {
+			compatible = "maxim,ds24b33";
+			status = "okay";
+		};
+	};
+
 	ahb {
 		usb0: gadget@00300000 {
 			atmel,vbus-gpio = <&pioA PIN_PA27 GPIO_ACTIVE_HIGH>;
@@ -207,6 +219,11 @@
 					pinctrl_usba_vbus: usba_vbus {
 						pinmux = <PIN_PB11__GPIO>;
 						bias-disable;
+					};
+
+					pinctrl_onewire_tm_default: onewire_tm_default {
+						pinmux = <PIN_PB31__GPIO>;
+						bias-pull-up;
 					};
 				};
 			};
