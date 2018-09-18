@@ -13,6 +13,7 @@
 #include <common.h>
 #include <dm.h>
 #include <w1.h>
+#include <w1-eeprom.h>
 
 #include <dm/device-internal.h>
 
@@ -98,6 +99,9 @@ static int w1_enumerate(struct udevice *bus)
 
 			debug("%s: Detected new device 0x%llx (family 0x%x)\n",
 			      bus->name, rn, (u8)(rn & 0xff));
+
+			/* attempt to register as w1-eeprom device */
+			w1_eeprom_register_new_device(rn);
 		}
 	}
 
