@@ -832,6 +832,13 @@ config CMD_I2C
 	help
 	  I2C support.
 
+config CMD_W1
+	depends on W1
+	default y if W1
+	bool "w1 - Support for Dallas 1-Wire protocol"
+	help
+	  Dallas 1-wire protocol support
+
 config CMD_LOADB
 	bool "loadb"
 	default y
