@@ -582,8 +582,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
-#define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_AQUANTIA
 #define CONFIG_PHY_CORTINA
 #define CONFIG_PHY_REALTEK
 #define CONFIG_CORTINA_FW_LENGTH	0x40000

@@ -9,10 +9,6 @@
 #include <dm.h>
 #include <phy.h>
 
-#ifndef CONFIG_PHYLIB_10G
-#error The Aquantia PHY needs 10G support
-#endif
-
 #define AQUNTIA_10G_CTL		0x20
 #define AQUNTIA_VENDOR_P1	0xc400
 

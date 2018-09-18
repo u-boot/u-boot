@@ -66,6 +66,8 @@ config PHYLIB_10G
 
 config PHY_AQUANTIA
 	bool "Aquantia Ethernet PHYs support"
+	select PHY_GIGE
+	select PHYLIB_10G
 
 config PHY_ATHEROS
 	bool "Atheros Ethernet PHYs support"
