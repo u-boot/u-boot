@@ -140,7 +140,8 @@ static int spl_mmc_find_device(struct mmc **mmcp, u32 boot_device)
 #endif
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		printf("spl: could not find mmc device. error: %d\n", err);
+		printf("spl: could not find mmc device %d. error: %d\n",
+		       mmc_dev, err);
 #endif
 		return err;
 	}
