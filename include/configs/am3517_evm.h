@@ -23,8 +23,8 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
 #include <configs/ti_omap3_common.h>
-#undef CONFIG_SDRC	/* Disable SDRC since we have EMIF4 */
 
+#undef CONFIG_DM_I2C_COMPAT
 #define CONFIG_REVISION_TAG
 
 /* Hardware drivers */

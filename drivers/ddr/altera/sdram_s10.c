@@ -371,11 +371,11 @@ int sdram_mmr_init_full(unsigned int unused)
  * Calculate SDRAM device size based on SDRAM controller parameters.
  * Size is specified in bytes.
  */
-unsigned long sdram_calculate_size(void)
+phys_size_t sdram_calculate_size(void)
 {
 	u32 dramaddrw = hmc_readl(DRAMADDRW);
 
-	u32 size = 1 << (DRAMADDRW_CFG_CS_ADDR_WIDTH(dramaddrw) +
+	phys_size_t size = 1 << (DRAMADDRW_CFG_CS_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_BANK_GRP_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_BANK_ADDR_WIDTH(dramaddrw) +
 			 DRAMADDRW_CFG_ROW_ADDR_WIDTH(dramaddrw) +

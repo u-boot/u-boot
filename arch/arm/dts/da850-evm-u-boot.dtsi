@@ -6,17 +6,6 @@
  * Copyright (C) Adam Ford
  */
 
-/ {
-	chosen {
-		stdout-path = &serial2;
-	};
-
-	aliases {
-		i2c0 = &i2c0;
-		spi0 = &spi1;
-	};
-};
-
 &flash {
 	compatible = "m25p64", "spi-flash";
 };

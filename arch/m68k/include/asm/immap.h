@@ -362,7 +362,7 @@
 #endif
 
 #define CONFIG_SYS_INTR_BASE		(MMAP_INTC0)
-#define CONFIG_SYS_NUM_IRQS		(128)
+#define CONFIG_SYS_NUM_IRQS		(192)
 
 #endif				/* CONFIG_M54418 */
 

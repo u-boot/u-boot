@@ -1365,9 +1365,10 @@ static int omap_hsmmc_set_ios(struct udevice *dev)
 static int omap_hsmmc_getcd(struct udevice *dev)
 {
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
-	int value;
-
+	int value = -1;
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	value = dm_gpio_get_value(&priv->cd_gpio);
+#endif
 	/* if no CD return as 1 */
 	if (value < 0)
 		return 1;
@@ -1379,10 +1380,11 @@ static int omap_hsmmc_getcd(struct udevice *dev)
 
 static int omap_hsmmc_getwp(struct udevice *dev)
 {
+	int value = 0;
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct omap_hsmmc_data *priv = dev_get_priv(dev);
-	int value;
-
 	value = dm_gpio_get_value(&priv->wp_gpio);
+#endif
 	/* if no WP return as 0 */
 	if (value < 0)
 		return 0;
@@ -1901,9 +1903,11 @@ static int omap_hsmmc_probe(struct udevice *dev)
 	device_get_supply_regulator(dev, "pbias-supply",
 				    &priv->pbias_supply);
 #endif
-#if defined(OMAP_HSMMC_USE_GPIO) && CONFIG_IS_ENABLED(OF_CONTROL)
+#if defined(OMAP_HSMMC_USE_GPIO)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_GPIO)
 	gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio, GPIOD_IS_IN);
 	gpio_request_by_name(dev, "wp-gpios", 0, &priv->wp_gpio, GPIOD_IS_IN);
+#endif
 #endif
 
 	mmc->dev = dev;

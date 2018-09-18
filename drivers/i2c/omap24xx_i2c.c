@@ -890,6 +890,7 @@ static int omap_i2c_probe(struct udevice *bus)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int omap_i2c_ofdata_to_platdata(struct udevice *bus)
 {
 	struct omap_i2c *priv = dev_get_priv(bus);
@@ -901,23 +902,26 @@ static int omap_i2c_ofdata_to_platdata(struct udevice *bus)
 	return 0;
 }
 
+static const struct udevice_id omap_i2c_ids[] = {
+	{ .compatible = "ti,omap3-i2c" },
+	{ .compatible = "ti,omap4-i2c" },
+	{ }
+};
+#endif
+
 static const struct dm_i2c_ops omap_i2c_ops = {
 	.xfer		= omap_i2c_xfer,
 	.probe_chip	= omap_i2c_probe_chip,
 	.set_bus_speed	= omap_i2c_set_bus_speed,
 };
 
-static const struct udevice_id omap_i2c_ids[] = {
-	{ .compatible = "ti,omap3-i2c" },
-	{ .compatible = "ti,omap4-i2c" },
-	{ }
-};
-
 U_BOOT_DRIVER(i2c_omap) = {
 	.name	= "i2c_omap",
 	.id	= UCLASS_I2C,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_i2c_ids,
 	.ofdata_to_platdata = omap_i2c_ofdata_to_platdata,
+#endif
 	.probe	= omap_i2c_probe,
 	.priv_auto_alloc_size = sizeof(struct omap_i2c),
 	.ops	= &omap_i2c_ops,

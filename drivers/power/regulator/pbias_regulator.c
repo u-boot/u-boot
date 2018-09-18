@@ -108,6 +108,10 @@ static struct dm_pmic_ops pbias_ops = {
 
 static const struct udevice_id pbias_ids[] = {
 	{ .compatible = "ti,pbias-dra7" },
+	{ .compatible = "ti,pbias-omap2" },
+	{ .compatible = "ti,pbias-omap3" },
+	{ .compatible = "ti,pbias-omap4" },
+	{ .compatible = "ti,pbias-omap5" },
 	{ }
 };
 
