@@ -153,6 +153,7 @@
 
 	pinctrl {
 		compatible = "sandbox,pinctrl";
+		status = "okay";
 
 		pinctrl_i2c0: i2c0 {
 			groups = "i2c";
@@ -163,6 +164,12 @@
 		pinctrl_serial0: uart0 {
 			groups = "serial_a";
 			function = "serial";
+		};
+
+		pinctrl_onewire0: onewire0 {
+			groups = "w1";
+			function = "w1";
+			bias-pull-up;
 		};
 	};
 
@@ -320,6 +327,19 @@
 		store@0 {
 			compatible = "sandbox,sandbox_store";
 			reg = <0x0 0x400>;
+		};
+	};
+
+	onewire0: onewire {
+		compatible = "w1-gpio";
+		gpios = <&gpio_a 8>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_onewire0>;
+		status = "okay";
+
+		sandbox_eeprom0: sandbox_eeprom@0 {
+			compatible = "sandbox,w1-eeprom";
+			status = "okay";
 		};
 	};
 };
