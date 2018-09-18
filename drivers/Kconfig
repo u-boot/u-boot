@@ -108,6 +108,8 @@ source "drivers/video/Kconfig"
 
 source "drivers/w1/Kconfig"
 
+source "drivers/w1-eeprom/Kconfig"
+
 source "drivers/watchdog/Kconfig"
 
 config PHYS_TO_BUS

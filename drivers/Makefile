@@ -106,6 +106,7 @@ obj-y += soc/
 obj-y += thermal/
 obj-y += axi/
 obj-$(CONFIG_W1) += w1/
+obj-$(CONFIG_W1_EEPROM) += w1-eeprom/
 
 obj-$(CONFIG_MACH_PIC32) += ddr/microchip/
 endif
