@@ -14,6 +14,7 @@ static const char * const sandbox_pins[] = {
 	"SDA",
 	"TX",
 	"RX",
+	"W1"
 };
 
 static const char * const sandbox_groups[] = {
@@ -21,12 +22,14 @@ static const char * const sandbox_groups[] = {
 	"serial_a",
 	"serial_b",
 	"spi",
+	"w1",
 };
 
 static const char * const sandbox_functions[] = {
 	"i2c",
 	"serial",
 	"spi",
+	"w1",
 };
 
 static const struct pinconf_param sandbox_conf_params[] = {
