@@ -236,18 +236,34 @@ done:
 #else
 static int aquantia_upload_firmware(struct phy_device *phydev)
 {
-	return 0;
+	printf("ERROR %s firmware loading disabled.\n", phydev->dev->name);
+	return -1;
 }
 #endif
 
 int aquantia_config(struct phy_device *phydev)
 {
-	u32 val;
-	int ret;
+	u32 val, id, rstatus, fault;
 
-	ret = aquantia_upload_firmware(phydev);
-	if (ret != 0)
-		return ret;
+	id = phy_read(phydev, MDIO_MMD_VEND1, GLOBAL_FIRMWARE_ID);
+	rstatus = phy_read(phydev, MDIO_MMD_VEND1, GLOBAL_RSTATUS_1);
+	fault = phy_read(phydev, MDIO_MMD_VEND1, GLOBAL_FAULT);
+
+	if (id != 0)
+		printf("%s running firmware version %X.%X.%X\n",
+		       phydev->dev->name, (id >> 8), id & 0xff,
+		       (rstatus >> 4) & 0xf);
+
+	if (fault != 0)
+		printf("%s fault 0x%04x detected\n", phydev->dev->name, fault);
+
+	if (id == 0 || fault != 0) {
+		int ret;
+
+		ret = aquantia_upload_firmware(phydev);
+		if (ret != 0)
+			return ret;
+	}
 
 	val = phy_read(phydev, MDIO_MMD_PMAPMD, MII_BMCR);
 
