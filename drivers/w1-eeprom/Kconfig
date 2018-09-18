@@ -18,6 +18,12 @@ config W1_EEPROM_DS24XXX
 	help
 	  Maxim DS24 EEPROMs 1-Wire EEPROM support
 
+config W1_EEPROM_SANDBOX
+	bool "Enable sandbox onewire EEPROM driver"
+	depends on W1
+	help
+	  Sandbox driver for a onewire EEPROM memory
+
 endif
 
 endmenu
