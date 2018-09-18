@@ -12,6 +12,12 @@ config W1_EEPROM
 
 if W1_EEPROM
 
+config W1_EEPROM_DS24XXX
+	bool "Enable Maxim DS24 families EEPROM support"
+	depends on W1
+	help
+	  Maxim DS24 EEPROMs 1-Wire EEPROM support
+
 endif
 
 endmenu

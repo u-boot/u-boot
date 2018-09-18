@@ -1,2 +1,4 @@
 obj-$(CONFIG_W1_EEPROM) += w1-eeprom-uclass.o
 
+obj-$(CONFIG_W1_EEPROM_DS24XXX) += ds24xxx.o
+
