@@ -18,6 +18,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern void at91_pda_detect(void);
+
 #ifdef CONFIG_NAND_ATMEL
 void sama5d3_xplained_nand_hw_init(void)
 {
@@ -69,6 +71,14 @@ static void sama5d3_xplained_mci0_hw_init(void)
 void board_debug_uart_init(void)
 {
 	at91_seriald_hw_init();
+}
+#endif
+
+#ifdef CONFIG_BOARD_LATE_INIT
+int board_late_init(void)
+{
+	at91_pda_detect();
+	return 0;
 }
 #endif
 
