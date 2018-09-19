@@ -1065,7 +1065,7 @@ if NET
 
 menuconfig CMD_NET
 	bool "Network commands"
-    default y
+    	default y
 
 if CMD_NET
 
