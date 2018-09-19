@@ -171,8 +171,7 @@ static int gpio_dwapb_bind(struct udevice *dev)
 		if (!fdtdec_get_bool(blob, node, "gpio-controller"))
 			continue;
 
-		plat = NULL;
-		plat = calloc(1, sizeof(*plat));
+		plat = devm_kcalloc(dev, 1, sizeof(*plat), GFP_KERNEL);
 		if (!plat)
 			return -ENOMEM;
 
@@ -181,23 +180,17 @@ static int gpio_dwapb_bind(struct udevice *dev)
 		plat->pins = fdtdec_get_int(blob, node, "snps,nr-gpios", 0);
 		plat->name = fdt_stringlist_get(blob, node, "bank-name", 0,
 						NULL);
-		if (ret)
-			goto err;
 
 		ret = device_bind(dev, dev->driver, plat->name,
 				  plat, -1, &subdev);
 		if (ret)
-			goto err;
+			return ret;
 
 		dev_set_of_offset(subdev, node);
 		bank++;
 	}
 
 	return 0;
-
-err:
-	free(plat);
-	return ret;
 }
 
 static int gpio_dwapb_remove(struct udevice *dev)
