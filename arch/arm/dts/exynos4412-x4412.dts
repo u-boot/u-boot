@@ -116,8 +116,21 @@
         compatible = "samsung,exynos-sromc";
         bank = <3>;
         width = <2>;
-        srom-timing = <0 0 0 1 3 0 0>;
+        srom-timing = <0 0 1 1 12 1 1>;
     };
+
+    ehci@12580000 {
+        status = "okay";
+        compatible = "samsung,exynos-ehci";
+        reg = <0x12580000 0x100>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+        phy {
+            compatible = "samsung,exynos-usb-phy";
+            reg = <0x125B0000 0x100>;
+        };
+    };
+
 };
 
 &sdhci2 {

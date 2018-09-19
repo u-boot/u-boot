@@ -149,11 +149,15 @@ static void dm9000_outblk_8bit(volatile void *data_ptr, int count)
 
 static void dm9000_outblk_16bit(volatile void *data_ptr, int count)
 {
+    /*
 	int i;
 	u32 tmplen = (count + 1) / 2;
 
 	for (i = 0; i < tmplen; i++)
 		DM9000_outw(((u16 *) data_ptr)[i], DM9000_DATA);
+    */
+
+    writesw(DM9000_DATA, data_ptr, (count+1)>>1);
 }
 static void dm9000_outblk_32bit(volatile void *data_ptr, int count)
 {
@@ -222,8 +226,7 @@ static void dm9000_rx_status_8bit(u16 *RxStatus, u16 *RxLen)
 /*
   Search DM9000 board, allocate space and register it
 */
-int
-dm9000_probe(void)
+int dm9000_probe(void)
 {
 	u32 id_val;
 	id_val = DM9000_ior(DM9000_VIDL);
@@ -233,12 +236,15 @@ dm9000_probe(void)
 	if (id_val == DM9000_ID) {
 		printf("dm9000 i/o: 0x%x, id: 0x%x \n", CONFIG_DM9000_BASE,
 		       id_val);
-		return 0;
 	} else {
 		printf("dm9000 not found at 0x%08x id: 0x%08x\n",
 		       CONFIG_DM9000_BASE, id_val);
 		return -1;
 	}
+
+    id_val = DM9000_ior(DM9000_CHIPR);
+    printf("DM9000 revision 0x%02x\n", id_val);
+    return 0;
 }
 
 /* General Purpose dm9000 reset routine */
@@ -251,24 +257,24 @@ dm9000_reset(void)
 	   see DM9000 Application Notes V1.22 Jun 11, 2004 page 29 */
 
 	/* DEBUG: Make all GPIO0 outputs, all others inputs */
-	DM9000_iow(DM9000_GPCR, GPCR_GPIO0_OUT);
+//	DM9000_iow(DM9000_GPCR, GPCR_GPIO0_OUT);
 	/* Step 1: Power internal PHY by writing 0 to GPIO0 pin */
-	DM9000_iow(DM9000_GPR, 0);
+//	DM9000_iow(DM9000_GPR, 0);
 	/* Step 2: Software reset */
-	DM9000_iow(DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST));
+	DM9000_iow(DM9000_NCR,  0x03);
 
 	do {
 		DM9000_DBG("resetting the DM9000, 1st reset\n");
-		udelay(25); /* Wait at least 20 us */
+		udelay(100); /* Wait at least 20 us */
 	} while (DM9000_ior(DM9000_NCR) & 1);
 
-	DM9000_iow(DM9000_NCR, 0);
-	DM9000_iow(DM9000_NCR, (NCR_LBK_INT_MAC | NCR_RST)); /* Issue a second reset */
+//	DM9000_iow(DM9000_NCR, 0);
+//	DM9000_iow(DM9000_NCR,  NCR_RST); /* Issue a second reset */
 
-	do {
-		DM9000_DBG("resetting the DM9000, 2nd reset\n");
-		udelay(25); /* Wait at least 20 us */
-	} while (DM9000_ior(DM9000_NCR) & 1);
+//	do {
+//		DM9000_DBG("resetting the DM9000, 2nd reset\n");
+//		udelay(100); /* Wait at least 20 us */
+//	} while (DM9000_ior(DM9000_NCR) & 1);
 
 	/* Check whether the ethernet controller is present */
 	if ((DM9000_ior(DM9000_PIDL) != 0x0) ||
@@ -286,8 +292,25 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
 
 	DM9000_DBG("%s\n", __func__);
 
+    if (!(DM9000_ior(DM9000_NSR) & 0x40)) {
+        DM9000_iow(DM9000_GPCR, 1);
+        DM9000_iow(DM9000_GPR, 0);
+        udelay(100);
+
+        do {
+            udelay(500);
+        }while(0x46 != DM9000_ior(DM9000_VIDL));
+    }
+
 	/* RESET device */
 	dm9000_reset();
+
+    dm9000_phy_write(0, 0x8000);
+    udelay(100);
+
+    dm9000_phy_write(0x14, 0x200);
+    dm9000_phy_write(0x1b, 0xe100);
+
 
 	if (dm9000_probe() < 0)
 		return -1;
@@ -323,22 +346,26 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
 		break;
 	}
 
+
 	/* Program operating register, only internal phy supported */
-	DM9000_iow(DM9000_NCR, 0x0);
+    DM9000_iow(DM9000_IMR, 0x80);
 	/* TX Polling clear */
 	DM9000_iow(DM9000_TCR, 0);
 	/* Less 3Kb, 200us */
-	DM9000_iow(DM9000_BPTR, BPTR_BPHW(3) | BPTR_JPT_600US);
+	DM9000_iow(DM9000_BPTR, 0x3f);
 	/* Flow Control : High/Low Water */
-	DM9000_iow(DM9000_FCTR, FCTR_HWOT(3) | FCTR_LWOT(8));
+//	DM9000_iow(DM9000_FCTR, FCTR_HWOT(3) | FCTR_LWOT(8));
 	/* SH FIXME: This looks strange! Flow Control */
-	DM9000_iow(DM9000_FCR, 0x0);
+	DM9000_iow(DM9000_FCR, 0xff);
 	/* Special Mode */
 	DM9000_iow(DM9000_SMCR, 0);
+//    DM9000_iow(0x38, 0x6b);
 	/* clear TX status */
 	DM9000_iow(DM9000_NSR, NSR_WAKEST | NSR_TX2END | NSR_TX1END);
 	/* Clear interrupt status */
 	DM9000_iow(DM9000_ISR, ISR_ROOS | ISR_ROS | ISR_PTS | ISR_PRS);
+
+    DM9000_iow(DM9000_TCR, 0x80);
 
 	printf("MAC: %pM\n", dev->enetaddr);
 	if (!is_valid_ethaddr(dev->enetaddr)) {
@@ -360,7 +387,8 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
 	/* RX enable */
 	DM9000_iow(DM9000_RCR, RCR_DIS_LONG | RCR_DIS_CRC | RCR_RXEN);
 	/* Enable TX/RX interrupt mask */
-	DM9000_iow(DM9000_IMR, IMR_PAR);
+	DM9000_iow(DM9000_IMR, IMR_PAR | IMR_PTM | IMR_PRM);
+
 
 	i = 0;
 	while (!(dm9000_phy_read(1) & 0x20)) {	/* autonegation complete bit */
@@ -409,29 +437,32 @@ static int dm9000_send(struct eth_device *netdev, void *packet, int length)
 
 	DM9000_iow(DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
 
+    DM9000_ior(0xfa);
+    DM9000_ior(0xfb);
+
+	/* Set TX length to DM9000 */
+	DM9000_iow(DM9000_TXPLL, length & 0xff);
+	DM9000_iow(DM9000_TXPLH, (length >> 8) & 0xff);
+
 	/* Move data to DM9000 TX RAM */
 	DM9000_outb(DM9000_MWCMD, DM9000_IO); /* Prepare for TX-data */
 
 	/* push the data to the TX-fifo */
 	(db->outblk)(packet, length);
 
-	/* Set TX length to DM9000 */
-	DM9000_iow(DM9000_TXPLL, length & 0xff);
-	DM9000_iow(DM9000_TXPLH, (length >> 8) & 0xff);
-
-	/* Issue TX polling command */
+    /* Issue TX polling command */
 	DM9000_iow(DM9000_TCR, TCR_TXREQ); /* Cleared after TX complete */
 
 	/* wait for end of transmission */
 	tmo = get_timer(0) + 5 * CONFIG_SYS_HZ;
 	while ( !(DM9000_ior(DM9000_NSR) & (NSR_TX1END | NSR_TX2END)) ||
-		!(DM9000_ior(DM9000_ISR) & IMR_PTM) ) {
+		!(DM9000_ior(DM9000_ISR) & ISR_PTS) ) {
 		if (get_timer(0) >= tmo) {
 			printf("transmission timeout\n");
 			break;
 		}
 	}
-	DM9000_iow(DM9000_ISR, IMR_PTM); /* Clear Tx bit in ISR */
+	DM9000_iow(DM9000_ISR, ISR_PTS); /* Clear Tx bit in ISR */
 
 	DM9000_DBG("transmit done\n\n");
 	return 0;
@@ -446,8 +477,8 @@ static void dm9000_halt(struct eth_device *netdev)
 	DM9000_DBG("%s\n", __func__);
 
 	/* RESET devie */
-	dm9000_phy_write(0, 0x8000);	/* PHY RESET */
-	DM9000_iow(DM9000_GPR, 0x01);	/* Power-Down PHY */
+//	dm9000_phy_write(0, 0x8000);	/* PHY RESET */
+//	DM9000_iow(DM9000_GPR, 0x01);	/* Power-Down PHY */
 	DM9000_iow(DM9000_IMR, 0x80);	/* Disable all interrupt */
 	DM9000_iow(DM9000_RCR, 0x00);	/* Disable RX */
 }
