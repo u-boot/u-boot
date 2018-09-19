@@ -372,6 +372,11 @@
 	clock-frequency = <400000>;
 };
 
+&i2c6 {
+	status = "okay";
+	clock-frequency = <400000>;
+};
+
 &sata0 {
 	status = "okay";
 };
