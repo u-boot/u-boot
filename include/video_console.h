@@ -45,7 +45,7 @@ enum color_idx {
  *
  * @sdev:	stdio device, acting as an output sink
  * @xcur_frac:	Current X position, in fractional units (VID_TO_POS(x))
- * @curr_row:	Current Y position in pixels (0=top)
+ * @ycur:	Current Y position in pixels (0=top)
  * @rows:	Number of text rows
  * @cols:	Number of text columns
  * @x_charsize:	Character width in pixels
