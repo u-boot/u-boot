@@ -636,6 +636,7 @@ T:	git git://git.denx.de/u-boot-video.git
 F:	drivers/video/
 F:	common/lcd*.c
 F:	include/lcd*.h
+F:	include/video*.h
 
 X86
 M:	Simon Glass <sjg@chromium.org>
