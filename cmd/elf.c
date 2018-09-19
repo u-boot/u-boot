@@ -219,7 +219,10 @@ static unsigned long load_elf_image_shdr(unsigned long addr)
 			memcpy((void *)(uintptr_t)shdr->sh_addr,
 			       (const void *)image, shdr->sh_size);
 		}
-		flush_cache(shdr->sh_addr, shdr->sh_size);
+		flush_cache(rounddown(shdr->sh_addr, ARCH_DMA_MINALIGN),
+			    roundup((shdr->sh_addr + shdr->sh_size),
+				    ARCH_DMA_MINALIGN) -
+			    rounddown(shdr->sh_addr, ARCH_DMA_MINALIGN));
 	}
 
 	return ehdr->e_entry;
