@@ -1,5 +1,5 @@
 config FIRMWARE
-	bool
+	bool "Enable Firmware driver support"
 
 config ARM_PSCI_FW
 	bool
