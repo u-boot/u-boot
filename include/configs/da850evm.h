@@ -116,7 +116,7 @@
  * Serial Driver info
  */
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_DIRECT_NOR_BOOT)
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4	/* NS16550 register size */
 #define CONFIG_SYS_NS16550_COM1	DAVINCI_UART2_BASE /* Base address of UART2 */
