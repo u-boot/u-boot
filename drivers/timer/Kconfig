@@ -140,4 +140,11 @@ config STM32_TIMER
 	  Select this to enable support for the timer found on
 	  STM32 devices.
 
+config MPC83XX_TIMER
+        bool "MPC83xx timer support"
+	depends on TIMER
+	help
+	  Select this to enable support for the timer found on
+	  devices based on the MPC83xx family of SoCs.
+
 endmenu

@@ -30,6 +30,9 @@ struct arch_global_data {
 #endif
 	/* TODO: sjg@chromium.org: Should these be unslgned long? */
 #if defined(CONFIG_MPC83xx)
+#ifdef CONFIG_CLK_MPC83XX
+	u32 core_clk;
+#else
 	/* There are other clocks in the MPC83XX */
 	u32 csb_clk;
 # if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
@@ -61,6 +64,7 @@ struct arch_global_data {
 # if defined(CONFIG_MPC8360)
 	u32 mem_sec_clk;
 # endif /* CONFIG_MPC8360 */
+#endif
 #endif
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	u32 lbc_clk;

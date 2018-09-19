@@ -24,6 +24,16 @@ int sysreset_request(struct udevice *dev, enum sysreset_t type)
 	return ops->request(dev, type);
 }
 
+int sysreset_get_status(struct udevice *dev, char *buf, int size)
+{
+	struct sysreset_ops *ops = sysreset_get_ops(dev);
+
+	if (!ops->get_status)
+		return -ENOSYS;
+
+	return ops->get_status(dev, buf, size);
+}
+
 int sysreset_walk(enum sysreset_t type)
 {
 	struct udevice *dev;

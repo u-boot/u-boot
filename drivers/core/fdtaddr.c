@@ -138,7 +138,7 @@ void *devfdt_get_addr_ptr(struct udevice *dev)
 
 void *devfdt_remap_addr_index(struct udevice *dev, int index)
 {
-	fdt_addr_t addr = devfdt_get_addr(dev);
+	fdt_addr_t addr = devfdt_get_addr_index(dev, index);
 
 	if (addr == FDT_ADDR_T_NONE)
 		return NULL;

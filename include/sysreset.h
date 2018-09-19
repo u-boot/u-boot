@@ -28,6 +28,14 @@ struct sysreset_ops {
 	 *		(in which case this method will not actually return)
 	 */
 	int (*request)(struct udevice *dev, enum sysreset_t type);
+	/**
+	 * get_status() - get printable reset status information
+	 *
+	 * @buf:	Buffer to receive the textual reset information
+	 * @size:	Size of the passed buffer
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*get_status)(struct udevice *dev, char *buf, int size);
 };
 
 #define sysreset_get_ops(dev)        ((struct sysreset_ops *)(dev)->driver->ops)
@@ -39,6 +47,15 @@ struct sysreset_ops {
  * @return 0 if OK, -EPROTONOSUPPORT if not supported by this device
  */
 int sysreset_request(struct udevice *dev, enum sysreset_t type);
+
+/**
+ * get_status() - get printable reset status information
+ *
+ * @buf:	Buffer to receive the textual reset information
+ * @size:	Size of the passed buffer
+ * @return 0 if OK, -ve on error
+ */
+int sysreset_get_status(struct udevice *dev, char *buf, int size);
 
 /**
  * sysreset_walk() - cause a system reset

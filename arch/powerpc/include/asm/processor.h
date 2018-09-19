@@ -1325,7 +1325,9 @@ void ll_puts(const char *);
 /* In misc.c */
 void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 
+#ifndef CONFIG_CPU_MPC83XX
 int prt_83xx_rsr(void);
+#endif
 
 #endif /* ndef ASSEMBLY*/
 

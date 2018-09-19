@@ -519,6 +519,17 @@ POWERPC MPC83XX
 M:	Mario Six <mario.six@gdsys.cc>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-mpc83xx.git
+F:	drivers/ram/mpc83xx_sdram.c
+F:	include/dt-bindings/memory/mpc83xx-sdram.h
+F:	drivers/sysreset/sysreset_mpc83xx.c
+F:	drivers/sysreset/sysreset_mpc83xx.h
+F:	drivers/clk/mpc83xx_clk.c
+F:	drivers/clk/mpc83xx_clk.h
+F:	include/dt-bindings/clk/mpc83xx-clk.h
+F:	drivers/timer/mpc83xx_timer.c
+F:	drivers/cpu/mpc83xx_cpu.c
+F:	drivers/cpu/mpc83xx_cpu.h
+F:	drivers/misc/mpc83xx_serdes.c
 F:	arch/powerpc/cpu/mpc83xx/
 F:	arch/powerpc/include/asm/arch-mpc83xx/
 

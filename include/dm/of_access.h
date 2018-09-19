@@ -194,6 +194,22 @@ struct device_node *of_find_compatible_node(struct device_node *from,
 				const char *type, const char *compatible);
 
 /**
+ * of_find_node_by_prop_value() - find a node with a given property value
+ *
+ * Find a node based on a property value.
+ * @from: Node to start searching from or NULL. the node you pass will not be
+ *	searched, only the next one will; typically, you pass what the previous
+ *	call returned.
+ * @propname: property name to check
+ * @propval: property value to search for
+ * @proplen: length of the value in propval
+ * @return node pointer or NULL if not found
+ */
+struct device_node *of_find_node_by_prop_value(struct device_node *from,
+					       const char *propname,
+					       const void *propval,
+					       int proplen);
+/**
  * of_find_node_by_phandle() - Find a node given a phandle
  *
  * @handle:	phandle of the node to find

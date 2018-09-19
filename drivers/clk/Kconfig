@@ -107,4 +107,10 @@ config ICS8N3QV01
 	  Crystal Oscillator). The output frequency can be programmed via an
 	  I2C interface.
 
+config CLK_MPC83XX
+	bool "Enable MPC83xx clock driver"
+	depends on CLK
+	help
+	  Support for the clock driver of the MPC83xx series of SoCs.
+
 endmenu

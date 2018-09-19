@@ -777,3 +777,17 @@ ofnode ofnode_by_compatible(ofnode from, const char *compat)
 				gd->fdt_blob, ofnode_to_offset(from), compat));
 	}
 }
+
+ofnode ofnode_by_prop_value(ofnode from, const char *propname,
+			    const void *propval, int proplen)
+{
+	if (of_live_active()) {
+		return np_to_ofnode(of_find_node_by_prop_value(
+			(struct device_node *)ofnode_to_np(from), propname,
+			propval, proplen));
+	} else {
+		return offset_to_ofnode(fdt_node_offset_by_prop_value(
+				gd->fdt_blob, ofnode_to_offset(from),
+				propname, propval, proplen));
+	}
+}

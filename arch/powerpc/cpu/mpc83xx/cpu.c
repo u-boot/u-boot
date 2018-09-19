@@ -25,6 +25,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_CPU_MPC83XX
 int checkcpu(void)
 {
 	volatile immap_t *immr;
@@ -114,7 +115,9 @@ int checkcpu(void)
 
 	return 0;
 }
+#endif
 
+#ifndef CONFIG_SYSRESET
 int
 do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
@@ -169,17 +172,17 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	return 1;
 }
-
+#endif
 
 /*
  * Get timebase clock frequency (like cpu_clk in Hz)
  */
-
+#ifndef CONFIG_TIMER
 unsigned long get_tbclk(void)
 {
 	return (gd->bus_clk + 3L) / 4L;
 }
-
+#endif
 
 #if defined(CONFIG_WATCHDOG)
 void watchdog_reset (void)

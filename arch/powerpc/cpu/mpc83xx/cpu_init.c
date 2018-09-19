@@ -464,6 +464,7 @@ static int print_83xx_arb_event(int force)
 }
 #endif /* CONFIG_DISPLAY_AER_xxxx */
 
+#ifndef CONFIG_CPU_MPC83XX
 /*
  * Figure out the cause of the reset
  */
@@ -505,3 +506,4 @@ int prt_83xx_rsr(void)
 
 	return 0;
 }
+#endif

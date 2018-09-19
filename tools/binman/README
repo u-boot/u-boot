@@ -130,9 +130,9 @@ called from the U-Boot build system for this reason.
 
 Binman considers the output files created by mkimage to be binary blobs
 which it can place in an image. Binman does not replace the mkimage tool or
-this purpose. It would be possible in some situtions to create a new entry
+this purpose. It would be possible in some situations to create a new entry
 type for the images in mkimage, but this would not add functionality. It
-seems better to use the mkiamge tool to generate binaries and avoid blurring
+seems better to use the mkimage tool to generate binaries and avoid blurring
 the boundaries between building input files (mkimage) and packaging then
 into a final image (binman).
 
@@ -169,7 +169,7 @@ Example use of binman for x86
 In most cases x86 images have a lot of binary blobs, 'black-box' code
 provided by Intel which must be run for the platform to work. Typically
 these blobs are not relocatable and must be placed at fixed areas in the
-firmare image.
+firmware image.
 
 Currently this is handled by ifdtool, which places microcode, FSP, MRC, VGA
 BIOS, reference code and Intel ME binaries into a u-boot.rom file.
@@ -406,7 +406,7 @@ either by using a unit number suffix (u-boot@0, u-boot@1) or by using a
 different name for each and specifying the type with the 'type' attribute.
 
 
-Sections and hiearchical images
+Sections and hierachical images
 -------------------------------
 
 Sometimes it is convenient to split an image into several pieces, each of which

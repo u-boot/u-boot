@@ -11,6 +11,29 @@
 #include <dm/lists.h>
 #include <dm/root.h>
 
+int cpu_probe_all(void)
+{
+	struct udevice *cpu;
+	int ret;
+
+	ret = uclass_first_device(UCLASS_CPU, &cpu);
+	if (ret) {
+		debug("%s: No CPU found (err = %d)\n", __func__, ret);
+		return ret;
+	}
+
+	while (cpu) {
+		ret = uclass_next_device(&cpu);
+		if (ret) {
+			debug("%s: Error while probing CPU (err = %d)\n",
+			      __func__, ret);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
 int cpu_get_desc(struct udevice *dev, char *buf, int size)
 {
 	struct cpu_ops *ops = cpu_get_ops(dev);
