@@ -196,5 +196,9 @@ unsigned int imx_ddr_size(void)
 	if (field_val <= 29)
 		bits++;
 
+	/* cap to max 2 GB */
+	if (bits > 31)
+		bits = 31;
+
 	return 1 << bits;
 }
