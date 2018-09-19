@@ -89,6 +89,7 @@ config SANDBOX
 	imply CMD_SF_TEST
 	imply CRC32_VERIFY
 	imply FAT_WRITE
+	imply FIRMWARE
 	imply HASH_VERIFY
 	imply LZMA
 	imply SCSI
