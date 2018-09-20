@@ -49,6 +49,11 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	/* Initialize root node */
+	ret = efi_root_node_register();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	/* Initialize EFI driver uclass */
 	ret = efi_driver_init();
 	if (ret != EFI_SUCCESS)

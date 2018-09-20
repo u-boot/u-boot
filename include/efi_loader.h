@@ -20,6 +20,11 @@
 /* Maximum number of configuration tables */
 #define EFI_MAX_CONFIGURATION_TABLES 16
 
+/* GUID used by the root node */
+#define U_BOOT_GUID \
+	EFI_GUID(0xe61d73b9, 0xa384, 0x4acc, \
+		 0xae, 0xab, 0x82, 0xe8, 0x28, 0xf3, 0x62, 0x8b)
+
 int __efi_entry_check(void);
 int __efi_exit_check(void);
 const char *__efi_nesting(void);
@@ -104,6 +109,8 @@ extern const struct efi_unicode_collation_protocol
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
+/* GUID of the U-Boot root node */
+extern const efi_guid_t efi_u_boot_guid;
 /* GUID of the EFI_BLOCK_IO_PROTOCOL */
 extern const efi_guid_t efi_block_io_guid;
 extern const efi_guid_t efi_global_variable_guid;
@@ -210,6 +217,8 @@ extern struct list_head efi_obj_list;
 /* List of all events */
 extern struct list_head efi_events;
 
+/* Called by bootefi to initialize root node */
+efi_status_t efi_root_node_register(void);
 /* Called by bootefi to initialize runtime */
 efi_status_t efi_initialize_system_table(void);
 /* Called by bootefi to make console interface available */

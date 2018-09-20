@@ -26,6 +26,7 @@ obj-y += efi_device_path_utilities.o
 obj-y += efi_file.o
 obj-y += efi_image_loader.o
 obj-y += efi_memory.o
+obj-y += efi_root_node.o
 obj-y += efi_runtime.o
 obj-y += efi_unicode_collation.o
 obj-y += efi_variable.o
