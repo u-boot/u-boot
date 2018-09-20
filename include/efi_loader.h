@@ -411,7 +411,15 @@ efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
 
-/* Convert strings from normal C strings to uEFI strings */
+/**
+ * ascii2unicode() - convert ASCII string to UTF-16 string
+ *
+ * A zero terminated ASCII string is converted to a zero terminated UTF-16
+ * string. The output buffer must be preassigned.
+ *
+ * @unicode:	preassigned output buffer for UTF-16 string
+ * @ascii:	ASCII string to be converted
+ */
 static inline void ascii2unicode(u16 *unicode, const char *ascii)
 {
 	while (*ascii)
