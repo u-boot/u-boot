@@ -1,11 +1,16 @@
-Technexion PICO-IMX7D board
+TechNexion PICO-IMX7D board
 M:	Vanessa Maegima <vanessa.maegima@nxp.com>
 S:	Maintained
 F:	board/technexion/pico-imx7d/
 F:	include/configs/pico-imx7d.h
 F:	configs/pico-imx7d_defconfig
 
-Technexion PICO-PI-IMX7
+TechNexion PICO-HOBBIT-IMX7
+M:	Otavio Salvador <otavio@ossystems.com.br>
+S:	Maintained
+F:	configs/pico-hobbit-imx7d_defconfig
+
+TechNexion PICO-PI-IMX7
 M:	Otavio Salvador <otavio@ossystems.com.br>
 S:	Maintained
 F:	configs/pico-pi-imx7d_defconfig

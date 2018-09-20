@@ -48,11 +48,14 @@
 		"spl raw 0x2 0x400 mmcpart 1;" \
 		"u-boot raw 0x8a 0x400 mmcpart 1;" \
 		"/boot/zImage ext4 0 1;" \
+		"/boot/imx7d-pico-hobbit.dtb ext4 0 1;" \
 		"/boot/imx7d-pico-pi.dtb ext4 0 1;" \
 		"rootfs part 0 1\0" \
 
 #define BOOTMENU_ENV \
-	"bootmenu_0=Boot using PICO-PI baseboard=" \
+	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
+		"setenv fdtfile imx7d-pico-hobbit.dtb\0" \
+	"bootmenu_1=Boot using PICO-Pi baseboard=" \
 		"setenv fdtfile imx7d-pico-pi.dtb\0" \
 
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */

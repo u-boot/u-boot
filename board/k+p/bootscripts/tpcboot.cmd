@@ -52,7 +52,7 @@ fi;"
 #
 # Provide 'boot_tftp_kernel' command
 #------------------------------------------------------------
-setenv download_kernel "tftpboot ${loadaddr} ${kernel_file}"
+setenv download_kernel "dhcp ${loadaddr} ${kernel_file}"
 
 setenv boot_tftp_kernel "
 if run download_kernel; then
@@ -65,18 +65,14 @@ fi"
 #
 # Provide 'boot_nfs' command
 #------------------------------------------------------------
-setenv rootpath "/srv/tftp/KP/rootfs"
-setenv nfsargs "setenv bootargs root=/dev/nfs rw \
-       nfsroot=${serverip}:${rootpath},nolock,nfsvers=3"
-setenv addip "setenv bootargs ${bootargs} \
-       ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:\
-       ${hostname}:eth0:on"
+setenv nfsargs "setenv bootargs root=/dev/nfs rw nfsroot='${rootpath}',nolock,nfsvers=3"
+setenv addip "setenv bootargs '${bootargs}' ip='${ipaddr}':'${serverip}':'${gatewayip}':'${netmask}':'${hostname}':eth0:on"
 
 setenv boot_nfs "
 if run download_kernel; then
 	run nfsargs;
 	run addip;
-	setenv bootargs ${bootargs} console=${console};
+	setenv bootargs '${bootargs}' console=${console};
 
 	run boot_fitImage;
 fi"
