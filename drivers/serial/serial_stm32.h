@@ -37,7 +37,7 @@ struct stm32_uart_info stm32f4_info = {
 struct stm32_uart_info stm32f7_info = {
 	.uart_enable_bit = 0,
 	.stm32f4 = false,
-	.has_fifo = false,
+	.has_fifo = true,
 };
 
 struct stm32_uart_info stm32h7_info = {
