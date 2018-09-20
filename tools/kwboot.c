@@ -286,6 +286,7 @@ kwboot_bootmsg(int tty, void *msg)
 {
 	int rc;
 	char c;
+	int count;
 
 	if (msg == NULL)
 		kwboot_printv("Please reboot the target into UART boot mode...");
@@ -297,10 +298,12 @@ kwboot_bootmsg(int tty, void *msg)
 		if (rc)
 			break;
 
-		rc = kwboot_tty_send(tty, msg, 8);
-		if (rc) {
-			usleep(msg_req_delay * 1000);
-			continue;
+		for (count = 0; count < 128; count++) {
+			rc = kwboot_tty_send(tty, msg, 8);
+			if (rc) {
+				usleep(msg_req_delay * 1000);
+				continue;
+			}
 		}
 
 		rc = kwboot_tty_recv(tty, &c, 1, msg_rsp_timeo);
@@ -425,6 +428,9 @@ kwboot_xmodem(int tty, const void *_data, size_t size)
 	N = 0;
 
 	kwboot_printv("Sending boot image...\n");
+
+	sleep(2); /* flush isn't effective without it */
+	tcflush(tty, TCIOFLUSH);
 
 	do {
 		struct kwboot_block block;

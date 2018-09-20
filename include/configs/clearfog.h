@@ -29,6 +29,10 @@
  */
 #define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
 
+#ifdef CONFIG_CMD_MMC
+#define CONFIG_SUPPORT_EMMC_BOOT
+#endif
+
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 

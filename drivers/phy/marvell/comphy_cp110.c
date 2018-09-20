@@ -9,7 +9,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
-#include "comphy.h"
+#include "comphy_core.h"
 #include "comphy_hpipe.h"
 #include "sata.h"
 #include "utmi_phy.h"
@@ -641,7 +641,8 @@ static int comphy_usb3_power_up(u32 lane, void __iomem *hpipe_base,
 }
 
 static int comphy_sata_power_up(u32 lane, void __iomem *hpipe_base,
-				void __iomem *comphy_base, int cp_index)
+				void __iomem *comphy_base, int cp_index,
+				u32 invert)
 {
 	u32 mask, data, i, ret = 1;
 	void __iomem *hpipe_addr = HPIPE_ADDR(hpipe_base, lane);
@@ -927,6 +928,19 @@ static int comphy_sata_power_up(u32 lane, void __iomem *hpipe_base,
 	reg_set(hpipe_addr + HPIPE_PWR_CTR_REG,
 		0x0 << HPIPE_PWR_CTR_RST_DFE_OFFSET,
 		HPIPE_PWR_CTR_RST_DFE_MASK);
+
+	/* Set RX / TX swaps */
+	data = mask = 0;
+	if (invert & PHY_POLARITY_TXD_INVERT) {
+		data |= (1 << HPIPE_SYNC_PATTERN_TXD_SWAP_OFFSET);
+		mask |= HPIPE_SYNC_PATTERN_TXD_SWAP_MASK;
+	}
+	if (invert & PHY_POLARITY_RXD_INVERT) {
+		data |= (1 << HPIPE_SYNC_PATTERN_RXD_SWAP_OFFSET);
+		mask |= HPIPE_SYNC_PATTERN_RXD_SWAP_MASK;
+	}
+	reg_set(hpipe_addr + HPIPE_SYNC_PATTERN_REG, data, mask);
+
 	/* SW reset for interupt logic */
 	reg_set(hpipe_addr + HPIPE_PWR_CTR_REG,
 		0x1 << HPIPE_PWR_CTR_SFT_RST_OFFSET,
@@ -2006,7 +2020,8 @@ int comphy_cp110_init(struct chip_serdes_phy_config *ptr_chip_cfg,
 		case PHY_TYPE_SATA3:
 			ret = comphy_sata_power_up(
 				lane, hpipe_base_addr, comphy_base_addr,
-				ptr_chip_cfg->cp_index);
+				ptr_chip_cfg->cp_index,
+				serdes_map[lane].invert);
 			break;
 		case PHY_TYPE_USB3_HOST0:
 		case PHY_TYPE_USB3_HOST1:

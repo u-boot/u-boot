@@ -4,18 +4,100 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <dm.h>
 #include <clk.h>
 #include <spi.h>
 #include <linux/string.h>
+#include <linux/libfdt.h>
+#include <fdt_support.h>
 
-#ifdef CONFIG_WDT_ARMADA_3720
+#ifdef CONFIG_WDT_ARMADA_37XX
 #include <wdt.h>
 #endif
 
+#define MAX_MOX_MODULES		10
+
+#define MOX_MODULE_SFP		0x1
+#define MOX_MODULE_PCI		0x2
+#define MOX_MODULE_TOPAZ	0x3
+#define MOX_MODULE_PERIDOT	0x4
+#define MOX_MODULE_USB3		0x5
+#define MOX_MODULE_PASSPCI	0x6
+
+#define ARMADA_37XX_NB_GPIO_SEL	0xd0013830
+#define ARMADA_37XX_SPI_CTRL	0xd0010600
+#define ARMADA_37XX_SPI_CFG	0xd0010604
+#define ARMADA_37XX_SPI_DOUT	0xd0010608
+#define ARMADA_37XX_SPI_DIN	0xd001060c
+
+#define PCIE_PATH	"/soc/pcie@d0070000"
+
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_WDT_ARMADA_3720
+#if defined(CONFIG_OF_BOARD_FIXUP)
+int board_fix_fdt(void *blob)
+{
+	u8 topology[MAX_MOX_MODULES];
+	int i, size, node;
+	bool enable;
+
+	/*
+	 * SPI driver is not loaded in driver model yet, but we have to find out
+	 * if pcie should be enabled in U-Boot's device tree. Therefore we have
+	 * to read SPI by reading/writing SPI registers directly
+	 */
+
+	writel(0x563fa, ARMADA_37XX_NB_GPIO_SEL);
+	writel(0x10df, ARMADA_37XX_SPI_CFG);
+	writel(0x2005b, ARMADA_37XX_SPI_CTRL);
+
+	while (!(readl(ARMADA_37XX_SPI_CTRL) & 0x2))
+		udelay(1);
+
+	for (i = 0; i < MAX_MOX_MODULES; ++i) {
+		writel(0x0, ARMADA_37XX_SPI_DOUT);
+
+		while (!(readl(ARMADA_37XX_SPI_CTRL) & 0x2))
+			udelay(1);
+
+		topology[i] = readl(ARMADA_37XX_SPI_DIN) & 0xff;
+		if (topology[i] == 0xff)
+			break;
+
+		topology[i] &= 0xf;
+	}
+
+	size = i;
+
+	writel(0x5b, ARMADA_37XX_SPI_CTRL);
+
+	if (size > 1 && (topology[1] == MOX_MODULE_PCI ||
+			 topology[1] == MOX_MODULE_USB3 ||
+			 topology[1] == MOX_MODULE_PASSPCI))
+		enable = true;
+	else
+		enable = false;
+
+	node = fdt_path_offset(blob, PCIE_PATH);
+
+	if (node < 0) {
+		printf("Cannot find PCIe node in U-Boot's device tree!\n");
+		return 0;
+	}
+
+	if (fdt_setprop_string(blob, node, "status",
+			       enable ? "okay" : "disabled") < 0) {
+		printf("Cannot %s PCIe in U-Boot's device tree!\n",
+		       enable ? "enable" : "disable");
+		return 0;
+	}
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_WDT_ARMADA_37XX
 static struct udevice *watchdog_dev;
 
 void watchdog_reset(void)
@@ -41,7 +123,7 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-#ifdef CONFIG_WDT_ARMADA_3720
+#ifdef CONFIG_WDT_ARMADA_37XX
 	if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
 		printf("Cannot find Armada 3720 watchdog!\n");
 	} else {

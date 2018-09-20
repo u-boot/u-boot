@@ -69,7 +69,6 @@
 	"0x500000@0xc0000(uimage),"\
 	"0x1a40000@0x5c0000(rootfs)\0" \
 	"mtdids=nand0=orion_nand\0"\
-	"bootdelay=-1\0"\
 	"autostart=no\0"\
 	"autoload=no\0"
 

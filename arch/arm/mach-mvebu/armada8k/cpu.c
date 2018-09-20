@@ -18,6 +18,10 @@
 #define RFU_GLOBAL_SW_RST		(MVEBU_RFU_BASE + 0x84)
 #define RFU_SW_RESET_OFFSET		0
 
+#define SAR0_REG			(MVEBU_REGISTER(0x2400200))
+#define BOOT_MODE_MASK			0x3f
+#define BOOT_MODE_OFFSET		4
+
 /*
  * The following table includes all memory regions for Armada 7k and
  * 8k SoCs. The Armada 7k is missing the CP110 slave regions here. Lets
@@ -124,4 +128,24 @@ u32 mvebu_get_nand_clock(void)
 		return 400 * 1000000;
 	else
 		return 250 * 1000000;
+}
+
+int mmc_get_env_dev(void)
+{
+	u32 reg;
+	unsigned int boot_mode;
+
+	reg = readl(SAR0_REG);
+	boot_mode = (reg >> BOOT_MODE_OFFSET) & BOOT_MODE_MASK;
+
+	switch (boot_mode) {
+	case 0x28:
+	case 0x2a:
+		return 0;
+	case 0x29:
+	case 0x2b:
+		return 1;
+	}
+
+	return CONFIG_SYS_MMC_ENV_DEV;
 }

@@ -25,17 +25,18 @@ static u32 get_boot_device(void)
 	val = readl(CONFIG_BOOTROM_ERR_REG);
 	boot_device = (val & BOOTROM_ERR_MODE_MASK) >> BOOTROM_ERR_MODE_OFFS;
 	debug("BOOTROM_REG=0x%08x boot_device=0x%x\n", val, boot_device);
-#if defined(CONFIG_ARMADA_38X)
-	/*
-	 * If the bootrom error register contains any else than zeros
-	 * in the first 8 bits it's an error condition. And in that case
-	 * try to boot from UART.
-	 */
-	if (boot_device)
-#else
 	if (boot_device == BOOTROM_ERR_MODE_UART)
-#endif
 		return BOOT_DEVICE_UART;
+
+#ifdef CONFIG_ARMADA_38X
+	/*
+	 * If the bootrom error code contains any other than zeros it's an
+	 * error condition and the bootROM has fallen back to UART boot
+	 */
+	boot_device = (val & BOOTROM_ERR_CODE_MASK) >> BOOTROM_ERR_CODE_OFFS;
+	if (boot_device)
+		return BOOT_DEVICE_UART;
+#endif
 
 	/*
 	 * Now check the SAR register for the strapped boot-device

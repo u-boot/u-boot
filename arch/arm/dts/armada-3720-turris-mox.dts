@@ -94,17 +94,13 @@
 	};
 };
 
-&pinctrl_sb {
-	smi_pins: smi-pins {
-		groups = "smi";
-		function = "smi";
-	};
-};
-
 &spi0 {
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi_cs1_pins>;
+	assigned-clocks = <&nb_periph_clk 7>;
+	assigned-clock-parents = <&tbg 1>;
+	assigned-clock-rates = <20000000>;
 
 	spi-flash@0 {
 		#address-cells = <1>;
@@ -129,4 +125,11 @@
 &usb3 {
 	vbus-supply = <&reg_usb3_vbus>;
 	status = "okay";
+};
+
+&pcie0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pcie_pins>;
+	reset-gpio = <&gpiosb 3 GPIO_ACTIVE_HIGH>;
+	status = "disabled";
 };
