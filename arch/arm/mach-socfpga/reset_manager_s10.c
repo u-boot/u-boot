@@ -93,41 +93,6 @@ void socfpga_bridges_reset(int enable)
 	}
 }
 
-/* of_reset_id: emac reset id
- * state: 0 - disable reset, !0 - enable reset
- */
-void socfpga_emac_manage_reset(const unsigned int of_reset_id, u32 state)
-{
-	u32 reset_emac;
-	u32 reset_emacocp;
-
-	/* hardcode this now */
-	switch (of_reset_id) {
-	case EMAC0_RESET:
-		reset_emac = SOCFPGA_RESET(EMAC0);
-		reset_emacocp = SOCFPGA_RESET(EMAC0_OCP);
-		break;
-	case EMAC1_RESET:
-		reset_emac = SOCFPGA_RESET(EMAC1);
-		reset_emacocp = SOCFPGA_RESET(EMAC1_OCP);
-		break;
-	case EMAC2_RESET:
-		reset_emac = SOCFPGA_RESET(EMAC2);
-		reset_emacocp = SOCFPGA_RESET(EMAC2_OCP);
-		break;
-	default:
-		printf("GMAC: Invalid reset ID (%i)!\n", of_reset_id);
-		hang();
-		break;
-	}
-
-	/* Reset ECC OCP first */
-	socfpga_per_reset(reset_emacocp, state);
-
-	/* Release the EMAC controller from reset */
-	socfpga_per_reset(reset_emac, state);
-}
-
 /*
  * Release peripherals from reset based on handoff
  */
