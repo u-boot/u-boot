@@ -44,7 +44,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-int board_prepare_usb(enum usb_init_type type)
+int board_usb_init(int index, enum usb_init_type init)
 {
 	static struct udevice *pmic_gpio;
 	static struct gpio_desc hub_reset, usb_sel;
@@ -93,7 +93,7 @@ int board_prepare_usb(enum usb_init_type type)
 		}
 	}
 
-	if (type == USB_INIT_HOST) {
+	if (init == USB_INIT_HOST) {
 		/* Start USB Hub */
 		dm_gpio_set_dir_flags(&hub_reset,
 				      GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);

@@ -38,11 +38,6 @@ struct msm_ehci_priv {
 	struct ulpi_viewport ulpi_vp; /* ULPI Viewport */
 };
 
-int __weak board_prepare_usb(enum usb_init_type type)
-{
-	return 0;
-}
-
 static void setup_usb_phy(struct msm_ehci_priv *priv)
 {
 	/* Select and enable external configuration with USB PHY */
@@ -102,7 +97,7 @@ static int ehci_usb_probe(struct udevice *dev)
 	hcor = (struct ehci_hcor *)((phys_addr_t)hccr +
 			HC_LENGTH(ehci_readl(&(hccr)->cr_capbase)));
 
-	ret = board_prepare_usb(USB_INIT_HOST);
+	ret = board_usb_init(0, USB_INIT_HOST);
 	if (ret < 0)
 		return ret;
 
@@ -124,7 +119,7 @@ static int ehci_usb_remove(struct udevice *dev)
 
 	reset_usb_phy(p);
 
-	ret = board_prepare_usb(USB_INIT_DEVICE); /* Board specific hook */
+	ret = board_usb_init(0, USB_INIT_DEVICE); /* Board specific hook */
 	if (ret < 0)
 		return ret;
 
