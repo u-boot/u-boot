@@ -97,6 +97,13 @@
 		ehci@78d9000 {
 			compatible = "qcom,ehci-host";
 			reg = <0x78d9000 0x400>;
+			phys = <&ehci_phy>;
+		};
+
+		ehci_phy: ehci_phy@78d9000 {
+			compatible = "qcom,apq8016-usbphy";
+			reg = <0x78d9000 0x400>;
+			#phy-cells = <0>;
 		};
 
 		sdhci@07824000 {
