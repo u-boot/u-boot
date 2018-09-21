@@ -151,6 +151,16 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+	char serial[16];
+
+	memset(serial, 0, 16);
+	snprintf(serial, 13, "%x", msm_board_serial());
+	env_set("serial#", serial);
+	return 0;
+}
+
 /* Fixup of DTB for Linux Kernel
  * 1. Fixup installed DRAM.
  * 2. Fixup WLAN/BT Mac address:

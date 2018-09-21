@@ -14,6 +14,7 @@ choice
 
 config TARGET_DRAGONBOARD410C
 	bool "96Boards Dragonboard 410C"
+	select BOARD_LATE_INIT
 	help
 	  Support for 96Boards Dragonboard 410C. This board complies with
 	  96Board Open Platform Specifications. Features:
