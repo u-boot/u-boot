@@ -92,6 +92,24 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 	dwmci_writel(host, DWMCI_BYTCNT, data->blocksize * data->blocks);
 }
 
+static int dwmci_fifo_ready(struct dwmci_host *host, u32 bit, u32 *len)
+{
+	u32 timeout = 20000;
+
+	*len = dwmci_readl(host, DWMCI_STATUS);
+	while (--timeout && (*len & bit)) {
+		udelay(200);
+		*len = dwmci_readl(host, DWMCI_STATUS);
+	}
+
+	if (!timeout) {
+		debug("%s: FIFO underflow timeout\n", __func__);
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
 static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 {
 	int ret = 0;
@@ -122,7 +140,12 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 			if (data->flags == MMC_DATA_READ &&
 			    (mask & DWMCI_INTMSK_RXDR)) {
 				while (size) {
-					len = dwmci_readl(host, DWMCI_STATUS);
+					ret = dwmci_fifo_ready(host,
+							DWMCI_FIFO_EMPTY,
+							&len);
+					if (ret < 0)
+						break;
+
 					len = (len >> DWMCI_FIFO_SHIFT) &
 						    DWMCI_FIFO_MASK;
 					len = min(size, len);
@@ -136,7 +159,12 @@ static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 			} else if (data->flags == MMC_DATA_WRITE &&
 				   (mask & DWMCI_INTMSK_TXDR)) {
 				while (size) {
-					len = dwmci_readl(host, DWMCI_STATUS);
+					ret = dwmci_fifo_ready(host,
+							DWMCI_FIFO_FULL,
+							&len);
+					if (ret < 0)
+						break;
+
 					len = fifo_depth - ((len >>
 						   DWMCI_FIFO_SHIFT) &
 						   DWMCI_FIFO_MASK);
