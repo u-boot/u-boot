@@ -49,6 +49,7 @@ static int ehci_usb_probe(struct udevice *dev)
 {
 	struct msm_ehci_priv *p = dev_get_priv(dev);
 	struct usb_ehci *ehci = p->ehci;
+	struct usb_platdata *plat = dev_get_platdata(dev);
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
 	int ret;
@@ -61,11 +62,12 @@ static int ehci_usb_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
-	ret = board_usb_init(0, USB_INIT_HOST);
+	ret = board_usb_init(0, plat->init_type);
 	if (ret < 0)
 		return ret;
 
-	return ehci_register(dev, hccr, hcor, &msm_ehci_ops, 0, USB_INIT_HOST);
+	return ehci_register(dev, hccr, hcor, &msm_ehci_ops, 0,
+			     plat->init_type);
 }
 
 static int ehci_usb_remove(struct udevice *dev)
