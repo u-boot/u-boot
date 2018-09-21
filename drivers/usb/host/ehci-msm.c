@@ -21,59 +21,19 @@
 #include <linux/compat.h>
 #include "ehci.h"
 
-/* PHY viewport regs */
-#define ULPI_MISC_A_READ         0x96
-#define ULPI_MISC_A_SET          0x97
-#define ULPI_MISC_A_CLEAR        0x98
-#define ULPI_MISC_A_VBUSVLDEXTSEL    (1 << 1)
-#define ULPI_MISC_A_VBUSVLDEXT       (1 << 0)
-
-#define GEN2_SESS_VLD_CTRL_EN (1 << 7)
-
-#define SESS_VLD_CTRL         (1 << 25)
-
 struct msm_ehci_priv {
 	struct ehci_ctrl ctrl; /* Needed by EHCI */
 	struct usb_ehci *ehci; /* Start of IP core*/
 	struct ulpi_viewport ulpi_vp; /* ULPI Viewport */
+	struct phy phy;
 };
-
-static void setup_usb_phy(struct msm_ehci_priv *priv)
-{
-	/* Select and enable external configuration with USB PHY */
-	ulpi_write(&priv->ulpi_vp, (u8 *)ULPI_MISC_A_SET,
-		   ULPI_MISC_A_VBUSVLDEXTSEL | ULPI_MISC_A_VBUSVLDEXT);
-}
-
-static void reset_usb_phy(struct msm_ehci_priv *priv)
-{
-	/* Disable VBUS mimicing in the controller. */
-	ulpi_write(&priv->ulpi_vp, (u8 *)ULPI_MISC_A_CLEAR,
-		   ULPI_MISC_A_VBUSVLDEXTSEL | ULPI_MISC_A_VBUSVLDEXT);
-}
-
 
 static int msm_init_after_reset(struct ehci_ctrl *dev)
 {
 	struct msm_ehci_priv *p = container_of(dev, struct msm_ehci_priv, ctrl);
 	struct usb_ehci *ehci = p->ehci;
 
-	/* select ULPI phy */
-	writel(PORT_PTS_ULPI, &ehci->portsc);
-	setup_usb_phy(p);
-
-	/* Enable sess_vld */
-	setbits_le32(&ehci->genconfig2, GEN2_SESS_VLD_CTRL_EN);
-
-	/* Enable external vbus configuration in the LINK */
-	setbits_le32(&ehci->usbcmd, SESS_VLD_CTRL);
-
-	/* USB_OTG_HS_AHB_BURST */
-	writel(0x0, &ehci->sbuscfg);
-
-	/* USB_OTG_HS_AHB_MODE: HPROT_MODE */
-	/* Bus access related config. */
-	writel(0x08, &ehci->sbusmode);
+	generic_phy_reset(&p->phy);
 
 	/* set mode to host controller */
 	writel(CM_HOST, &ehci->usbmode);
@@ -97,6 +57,10 @@ static int ehci_usb_probe(struct udevice *dev)
 	hcor = (struct ehci_hcor *)((phys_addr_t)hccr +
 			HC_LENGTH(ehci_readl(&(hccr)->cr_capbase)));
 
+	ret = ehci_setup_phy(dev, &p->phy, 0);
+	if (ret)
+		return ret;
+
 	ret = board_usb_init(0, USB_INIT_HOST);
 	if (ret < 0)
 		return ret;
@@ -117,7 +81,9 @@ static int ehci_usb_remove(struct udevice *dev)
 	/* Stop controller. */
 	clrbits_le32(&ehci->usbcmd, CMD_RUN);
 
-	reset_usb_phy(p);
+	ret = ehci_shutdown_phy(dev, &p->phy);
+	if (ret)
+		return ret;
 
 	ret = board_usb_init(0, USB_INIT_DEVICE); /* Board specific hook */
 	if (ret < 0)
