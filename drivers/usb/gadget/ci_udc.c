@@ -906,7 +906,8 @@ static int ci_pullup(struct usb_gadget *gadget, int is_on)
 		writel(0xffffffff, &udc->epflush);
 
 		/* Turn on the USB connection by enabling the pullup resistor */
-		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RUN, &udc->usbcmd);
+		setbits_le32(&udc->usbcmd, USBCMD_ITC(MICRO_8FRAME) |
+			     USBCMD_RUN);
 	} else {
 		udc_disconnect();
 	}
