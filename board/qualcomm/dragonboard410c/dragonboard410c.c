@@ -140,7 +140,8 @@ int misc_init_r(void)
 
 	if (dm_gpio_get_value(&resin)) {
 		env_set("bootdelay", "-1");
-		printf("Power button pressed - dropping to console.\n");
+		env_set("bootcmd", "fastboot 0");
+		printf("key_vol_down pressed - Starting fastboot.\n");
 	}
 
 	return 0;
