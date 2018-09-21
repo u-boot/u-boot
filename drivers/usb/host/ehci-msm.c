@@ -121,6 +121,18 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+#if defined(CONFIG_CI_UDC)
+/* Little quirk that MSM needs with Chipidea controller
+ * Must reinit phy after reset
+ */
+void ci_init_after_reset(struct ehci_ctrl *ctrl)
+{
+	struct msm_ehci_priv *p = ctrl->priv;
+
+	generic_phy_reset(&p->phy);
+}
+#endif
+
 static const struct udevice_id ehci_usb_ids[] = {
 	{ .compatible = "qcom,ehci-host", },
 	{ }
