@@ -6,6 +6,7 @@
  */
 
 #include "btrfs.h"
+#include <memalign.h>
 
 #define BTRFS_SUPER_FLAG_SUPP	(BTRFS_HEADER_FLAG_WRITTEN	\
 				 | BTRFS_HEADER_FLAG_RELOC	\
@@ -179,7 +180,7 @@ int btrfs_read_superblock(void)
 		0x4000000000ull,
 		0x4000000000000ull
 	};
-	char raw_sb[BTRFS_SUPER_INFO_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(char, raw_sb, BTRFS_SUPER_INFO_SIZE);
 	struct btrfs_super_block *sb = (struct btrfs_super_block *) raw_sb;
 	u64 dev_total_bytes;
 	int i;

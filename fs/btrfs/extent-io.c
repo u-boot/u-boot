@@ -7,6 +7,7 @@
 
 #include "btrfs.h"
 #include <malloc.h>
+#include <memalign.h>
 
 u64 btrfs_read_extent_inline(struct btrfs_path *path,
 			     struct btrfs_file_extent_item *extent, u64 offset,
@@ -89,7 +90,7 @@ u64 btrfs_read_extent_reg(struct btrfs_path *path,
 		return size;
 	}
 
-	cbuf = malloc(dlen > size ? clen + dlen : clen);
+	cbuf = malloc_cache_aligned(dlen > size ? clen + dlen : clen);
 	if (!cbuf)
 		return -1ULL;
 
