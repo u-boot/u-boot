@@ -62,11 +62,11 @@ quiet_cmd_link_elf = LD      $@
 $(ELF): $(obj)/%: $(obj)/%.o $(LIB) FORCE
 	$(call if_changed,link_elf)
 
-$(obj)/%.srec: OBJCOPYFLAGS := -O srec
+$(obj)/%.srec: OBJCOPYFLAGS += -O srec
 $(obj)/%.srec: $(obj)/% FORCE
 	$(call if_changed,objcopy)
 
-$(obj)/%.bin: OBJCOPYFLAGS := -O binary
+$(obj)/%.bin: OBJCOPYFLAGS += -O binary
 $(obj)/%.bin: $(obj)/% FORCE
 	$(call if_changed,objcopy)
 
