@@ -26,14 +26,6 @@ LIST_HEAD(efi_obj_list);
 /* List of all events */
 LIST_HEAD(efi_events);
 
-/*
- * If we're running on nasty systems (32bit ARM booting into non-EFI Linux)
- * we need to do trickery with caches. Since we don't want to break the EFI
- * aware boot path, only apply hacks when loading exiting directly (breaking
- * direct Linux EFI booting along the way - oh well).
- */
-static bool efi_is_direct_boot = true;
-
 #ifdef CONFIG_ARM
 /*
  * The "gd" pointer lives in a register on ARM and AArch64 that we declare
@@ -1684,8 +1676,6 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
 	entry = info->reserved;
 
-	efi_is_direct_boot = false;
-
 	/* call the image! */
 	if (setjmp(&info->exit_jmp)) {
 		/*
@@ -1800,21 +1790,6 @@ static efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
 }
 
 /**
- * efi_exit_caches() - fix up caches for EFI payloads if necessary
- */
-static void efi_exit_caches(void)
-{
-#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
-	/*
-	 * Grub on 32bit ARM needs to have caches disabled before jumping into
-	 * a zImage, but does not know of all cache layers. Give it a hand.
-	 */
-	if (efi_is_direct_boot)
-		cleanup_before_linux();
-#endif
-}
-
-/**
  * efi_exit_boot_services() - stop all boot services
  * @image_handle: handle of the loaded image
  * @map_key:      key of the memory map
@@ -1866,9 +1841,6 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	/* TODO: Should persist EFI variables here */
 
 	board_quiesce_devices();
-
-	/* Fix up caches for EFI payloads if necessary */
-	efi_exit_caches();
 
 	/* This stops all lingering devices */
 	bootm_disable_interrupts();
