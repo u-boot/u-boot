@@ -28,6 +28,7 @@ config TARGET_MALTA
 	select DM_SERIAL
 	select DYNAMIC_IO_PORT_BASE
 	select MIPS_CM
+	select MIPS_INSERT_BOOT_CONFIG
 	select MIPS_L1_CACHE_SHIFT_6
 	select MIPS_L2_CACHE
 	select OF_CONTROL
@@ -67,6 +68,22 @@ config ARCH_BMIPS
 	select RAM
 	select SYSRESET
 	imply CMD_DM
+
+config ARCH_MT7620
+	bool "Support MT7620/7688 SoCs"
+	imply CMD_DM
+	select DISPLAY_CPUINFO
+	select DM
+	select DM_SERIAL
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	select MIPS_TUNE_24KC
+	select OF_CONTROL
+	select ROM_EXCEPTION_VECTORS
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
+	select SUPPORTS_LITTLE_ENDIAN
+	select SYSRESET
 
 config MACH_PIC32
 	bool "Support Microchip PIC32"
@@ -120,6 +137,7 @@ source "board/qemu-mips/Kconfig"
 source "arch/mips/mach-ath79/Kconfig"
 source "arch/mips/mach-bmips/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
+source "arch/mips/mach-mt7620/Kconfig"
 
 if MIPS
 
@@ -217,6 +235,18 @@ config MIPS_CM_BASE
 	  Global Configuration Registers (GCRs). This should be set such that
 	  the GCRs occupy a region of the physical address space which is
 	  otherwise unused, or at minimum that software doesn't need to access.
+
+config MIPS_CACHE_INDEX_BASE
+	hex "Index base address for cache initialisation"
+	default 0x80000000 if CPU_MIPS32
+	default 0xffffffff80000000 if CPU_MIPS64
+	help
+	  This is the base address for a memory block, which is used for
+	  initialising the cache lines. This is also the base address of a memory
+	  block which is used for loading and filling cache lines when
+	  SYS_MIPS_CACHE_INIT_RAM_LOAD is selected.
+	  Normally this is CKSEG0. If the MIPS system needs to move this block
+	  to some SRAM or ScratchPad RAM, adapt this option accordingly.
 
 endmenu
 
@@ -389,6 +419,28 @@ config MIPS_CM
 	  Select this if your system contains a MIPS Coherence Manager and you
 	  wish U-Boot to configure it or make use of it to retrieve system
 	  information such as cache configuration.
+
+config MIPS_INSERT_BOOT_CONFIG
+	bool
+	default n
+	help
+	  Enable this to insert some board-specific boot configuration in
+	  the U-Boot binary at offset 0x10.
+
+config MIPS_BOOT_CONFIG_WORD0
+	hex
+	depends on MIPS_INSERT_BOOT_CONFIG
+	default 0x420 if TARGET_MALTA
+	default 0x0
+	help
+	  Value which is inserted as boot config word 0.
+
+config MIPS_BOOT_CONFIG_WORD1
+	hex
+	depends on MIPS_INSERT_BOOT_CONFIG
+	default 0x0
+	help
+	  Value which is inserted as boot config word 1.
 
 endif
 

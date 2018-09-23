@@ -14,12 +14,6 @@
 #include <asm/cacheops.h>
 #include <asm/cm.h>
 
-#ifndef CONFIG_SYS_MIPS_CACHE_MODE
-#define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
-#endif
-
-#define INDEX_BASE	CKSEG0
-
 	.macro	f_fill64 dst, offset, val
 	LONG_S	\val, (\offset +  0 * LONGSIZE)(\dst)
 	LONG_S	\val, (\offset +  1 * LONGSIZE)(\dst)
@@ -84,6 +78,7 @@
 10:
 	.set	pop
 	.endm
+
 /*
  * mips_cache_reset - low level initialisation of the primary caches
  *
@@ -255,7 +250,7 @@ l2_probe_done:
 	/*
 	 * Now clear that much memory starting from zero.
 	 */
-	PTR_LI		a0, CKSEG1
+	PTR_LI		a0, CKSEG1ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	PTR_ADDU	a1, a0, v0
 2:	PTR_ADDIU	a0, 64
 	f_fill64	a0, -64, zero
@@ -271,7 +266,7 @@ l2_probe_done:
 	bnez		R_L2_BYPASSED, l1_init
 
 l2_init:
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	PTR_ADDU	t1, t0, R_L2_SIZE
 1:	cache		INDEX_STORE_TAG_SD, 0(t0)
 	PTR_ADDU	t0, t0, R_L2_LINE
@@ -307,48 +302,50 @@ l1_init:
 	 * Initialize the I-cache first,
 	 */
 	blez		R_IC_SIZE, 1f
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	PTR_ADDU	t1, t0, R_IC_SIZE
 	/* clear tag to invalidate */
 	cache_loop	t0, t1, R_IC_LINE, INDEX_STORE_TAG_I
 #ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* fill once, so data field parity is correct */
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	cache_loop	t0, t1, R_IC_LINE, FILL
 	/* invalidate again - prudent but not strictly neccessary */
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	cache_loop	t0, t1, R_IC_LINE, INDEX_STORE_TAG_I
 #endif
-
-	/* Enable use of the I-cache by setting Config.K0 */
 	sync
-	mfc0		t0, CP0_CONFIG
-	li		t1, CONFIG_SYS_MIPS_CACHE_MODE
-#if __mips_isa_rev >= 2
-	ins		t0, t1, 0, 3
-#else
-	ori		t0, t0, CONF_CM_CMASK
-	xori		t0, t0, CONF_CM_CMASK
+
+	/*
+	 * Enable use of the I-cache by setting Config.K0. The code for this
+	 * must be executed from KSEG1. Jump from KSEG0 to KSEG1 to do this.
+	 * Jump back to KSEG0 after caches are enabled and insert an
+	 * instruction hazard barrier.
+	 */
+	PTR_LA		t0, change_k0_cca
+	li		t1, CPHYSADDR(~0)
+	and		t0, t0, t1
+	PTR_LI		t1, CKSEG1
 	or		t0, t0, t1
-#endif
-	mtc0		t0, CP0_CONFIG
+	li		a0, CONF_CM_CACHABLE_NONCOHERENT
+	jalr.hb		t0
 
 	/*
 	 * then initialize D-cache.
 	 */
 1:	blez		R_DC_SIZE, 3f
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	PTR_ADDU	t1, t0, R_DC_SIZE
 	/* clear all tags */
 	cache_loop	t0, t1, R_DC_LINE, INDEX_STORE_TAG_D
 #ifdef CONFIG_SYS_MIPS_CACHE_INIT_RAM_LOAD
 	/* load from each line (in cached space) */
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 2:	LONG_L		zero, 0(t0)
 	PTR_ADDU	t0, R_DC_LINE
 	bne		t0, t1, 2b
 	/* clear all tags */
-	PTR_LI		t0, INDEX_BASE
+	PTR_LI		t0, CKSEG0ADDR(CONFIG_MIPS_CACHE_INDEX_BASE)
 	cache_loop	t0, t1, R_DC_LINE, INDEX_STORE_TAG_D
 #endif
 3:
@@ -391,16 +388,9 @@ l2_unbypass:
 	beqz		t0, 2f
 
 	/* Change Config.K0 to a coherent CCA */
-	mfc0		t0, CP0_CONFIG
-	li		t1, CONF_CM_CACHABLE_COW
-#if __mips_isa_rev >= 2
-	ins		t0, t1, 0, 3
-#else
-	ori		t0, t0, CONF_CM_CMASK
-	xori		t0, t0, CONF_CM_CMASK
-	or		t0, t0, t1
-#endif
-	mtc0		t0, CP0_CONFIG
+	PTR_LA		t0, change_k0_cca
+	li		a0, CONF_CM_CACHABLE_COW
+	jalr		t0
 
 	/*
 	 * Join the coherent domain such that the caches of this core are kept
@@ -421,51 +411,19 @@ l2_unbypass:
 return:
 	/* Ensure all cache operations complete before returning */
 	sync
-	jr	ra
+	jr	R_RETURN
 	END(mips_cache_reset)
 
-/*
- * dcache_status - get cache status
- *
- * RETURNS: 0 - cache disabled; 1 - cache enabled
- *
- */
-LEAF(dcache_status)
-	mfc0	t0, CP0_CONFIG
-	li	t1, CONF_CM_UNCACHED
-	andi	t0, t0, CONF_CM_CMASK
-	move	v0, zero
-	beq	t0, t1, 2f
-	li	v0, 1
-2:	jr	ra
-	END(dcache_status)
+LEAF(change_k0_cca)
+	mfc0		t0, CP0_CONFIG
+#if __mips_isa_rev >= 2
+	ins		t0, a0, 0, 3
+#else
+	xor		a0, a0, t0
+	andi		a0, a0, CONF_CM_CMASK
+	xor		a0, a0, t0
+#endif
+	mtc0		a0, CP0_CONFIG
 
-/*
- * dcache_disable - disable cache
- *
- * RETURNS: N/A
- *
- */
-LEAF(dcache_disable)
-	mfc0	t0, CP0_CONFIG
-	li	t1, -8
-	and	t0, t0, t1
-	ori	t0, t0, CONF_CM_UNCACHED
-	mtc0	t0, CP0_CONFIG
-	jr	ra
-	END(dcache_disable)
-
-/*
- * dcache_enable - enable cache
- *
- * RETURNS: N/A
- *
- */
-LEAF(dcache_enable)
-	mfc0	t0, CP0_CONFIG
-	ori	t0, CONF_CM_CMASK
-	xori	t0, CONF_CM_CMASK
-	ori	t0, CONFIG_SYS_MIPS_CACHE_MODE
-	mtc0	t0, CP0_CONFIG
-	jr	ra
-	END(dcache_enable)
+	jr.hb		ra
+	END(change_k0_cca)

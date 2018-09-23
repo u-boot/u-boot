@@ -84,25 +84,14 @@ ENTRY(_start)
 	b	reset
 	 mtc0	zero, CP0_COUNT	# clear cp0 count for most accurate boot timing
 
-#if defined(CONFIG_SYS_XWAY_EBU_BOOTCFG)
+#if defined(CONFIG_MIPS_INSERT_BOOT_CONFIG)
 	/*
-	 * Almost all Lantiq XWAY SoC devices have an external bus unit (EBU) to
-	 * access external NOR flashes. If the board boots from NOR flash the
-	 * internal BootROM does a blind read at address 0xB0000010 to read the
-	 * initial configuration for that EBU in order to access the flash
-	 * device with correct parameters. This config option is board-specific.
+	 * Store some board-specific boot configuration. This is used by some
+	 * MIPS systems like Malta.
 	 */
 	.org 0x10
-	.word CONFIG_SYS_XWAY_EBU_BOOTCFG
-	.word 0x0
-#endif
-#if defined(CONFIG_MALTA)
-	/*
-	 * Linux expects the Board ID here.
-	 */
-	.org 0x10
-	.word 0x00000420	# 0x420 (Malta Board with CoreLV)
-	.word 0x00000000
+	.word CONFIG_MIPS_BOOT_CONFIG_WORD0
+	.word CONFIG_MIPS_BOOT_CONFIG_WORD1
 #endif
 
 #if defined(CONFIG_ROM_EXCEPTION_VECTORS)
