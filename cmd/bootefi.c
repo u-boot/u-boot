@@ -408,7 +408,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 
 		/* Move into EL2 and keep running there */
 		armv8_switch_to_el2((ulong)entry,
-				    (ulong)&loaded_image_info_obj.handle,
+				    (ulong)loaded_image_info_obj.handle,
 				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
 				    ES_TO_AARCH64);
 
