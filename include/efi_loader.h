@@ -184,6 +184,20 @@ struct efi_object {
 };
 
 /**
+ * struct efi_loaded_image_obj - handle of a loaded image
+ */
+struct efi_loaded_image_obj {
+	/* Generic EFI object parent class data */
+	struct efi_object parent;
+	void *reloc_base;
+	aligned_u64 reloc_size;
+	efi_status_t exit_status;
+	struct jmp_buf_data exit_jmp;
+	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
+				     struct efi_system_table *st);
+};
+
+/**
  * struct efi_event
  *
  * @link:		Link to list of all events
@@ -264,7 +278,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
 /* Called from places to check whether a timer expired */
 void efi_timer_check(void);
 /* PE loader implementation */
-void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info);
+void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+		  struct efi_loaded_image *loaded_image_info);
 /* Called once to store the pristine gd pointer */
 void efi_save_gd(void);
 /* Special case handler for error/abort that just tries to dtrt to get
@@ -345,14 +360,12 @@ int efi_memory_init(void);
 /* Adds new or overrides configuration table entry to the system table */
 efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table);
 /* Sets up a loaded image */
-efi_status_t efi_setup_loaded_image(
-			struct efi_loaded_image *info, struct efi_object *obj,
-			struct efi_device_path *device_path,
-			struct efi_device_path *file_path);
+efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+				    struct efi_device_path *file_path,
+				    struct efi_loaded_image_obj **handle_ptr,
+				    struct efi_loaded_image **info_ptr);
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 				      void **buffer);
-/* Print information about a loaded image */
-efi_status_t efi_print_image_info(struct efi_loaded_image *image, void *pc);
 /* Print information about all loaded images */
 void efi_print_image_infos(void *pc);
 

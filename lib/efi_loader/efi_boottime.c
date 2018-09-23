@@ -1470,17 +1470,31 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
  *
  * Return: status code
  */
-efi_status_t efi_setup_loaded_image(
-			struct efi_loaded_image *info, struct efi_object *obj,
-			struct efi_device_path *device_path,
-			struct efi_device_path *file_path)
+efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+				    struct efi_device_path *file_path,
+				    struct efi_loaded_image_obj **handle_ptr,
+				    struct efi_loaded_image **info_ptr)
 {
 	efi_status_t ret;
+	struct efi_loaded_image *info;
+	struct efi_loaded_image_obj *obj;
+
+	info = calloc(1, sizeof(*info));
+	if (!info)
+		return EFI_OUT_OF_RESOURCES;
+	obj = calloc(1, sizeof(*obj));
+	if (!obj) {
+		free(info);
+		return EFI_OUT_OF_RESOURCES;
+	}
 
 	/* Add internal object to object list */
-	efi_add_handle(obj);
-	/* efi_exit() assumes that the handle points to the info */
-	obj->handle = info;
+	efi_add_handle(&obj->parent);
+
+	if (info_ptr)
+		*info_ptr = info;
+	if (handle_ptr)
+		*handle_ptr = obj;
 
 	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
 	info->file_path = file_path;
@@ -1492,8 +1506,8 @@ efi_status_t efi_setup_loaded_image(
 		 * When asking for the device path interface, return
 		 * bootefi_device_path
 		 */
-		ret = efi_add_protocol(obj->handle, &efi_guid_device_path,
-				       device_path);
+		ret = efi_add_protocol(obj->parent.handle,
+				       &efi_guid_device_path, device_path);
 		if (ret != EFI_SUCCESS)
 			goto failure;
 	}
@@ -1502,7 +1516,8 @@ efi_status_t efi_setup_loaded_image(
 	 * When asking for the loaded_image interface, just
 	 * return handle which points to loaded_image_info
 	 */
-	ret = efi_add_protocol(obj->handle, &efi_guid_loaded_image, info);
+	ret = efi_add_protocol(obj->parent.handle,
+			       &efi_guid_loaded_image, info);
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
@@ -1585,7 +1600,8 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  efi_handle_t *image_handle)
 {
 	struct efi_loaded_image *info;
-	struct efi_object *obj;
+	struct efi_loaded_image_obj **image_obj =
+		(struct efi_loaded_image_obj **)image_handle;
 	efi_status_t ret;
 
 	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
@@ -1601,18 +1617,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		goto error;
 	}
 
-	info = calloc(1, sizeof(*info));
-	if (!info) {
-		ret = EFI_OUT_OF_RESOURCES;
-		goto error;
-	}
-	obj = calloc(1, sizeof(*obj));
-	if (!obj) {
-		free(info);
-		ret = EFI_OUT_OF_RESOURCES;
-		goto error;
-	}
-
 	if (!source_buffer) {
 		struct efi_device_path *dp, *fp;
 
@@ -1624,29 +1628,29 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		 * file parts:
 		 */
 		efi_dp_split_file_path(file_path, &dp, &fp);
-		ret = efi_setup_loaded_image(info, obj, dp, fp);
+		ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
 		if (ret != EFI_SUCCESS)
 			goto failure;
 	} else {
 		/* In this case, file_path is the "device" path, i.e.
 		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
 		 */
-		ret = efi_setup_loaded_image(info, obj, file_path, NULL);
+		ret = efi_setup_loaded_image(file_path, NULL, image_obj, &info);
 		if (ret != EFI_SUCCESS)
-			goto failure;
+			goto error;
 	}
-	info->reserved = efi_load_pe(source_buffer, info);
-	if (!info->reserved) {
+	(*image_obj)->entry = efi_load_pe(*image_obj, source_buffer, info);
+	if (!(*image_obj)->entry) {
 		ret = EFI_UNSUPPORTED;
 		goto failure;
 	}
 	info->system_table = &systab;
 	info->parent_handle = parent_image;
-	*image_handle = obj->handle;
 	return EFI_EXIT(EFI_SUCCESS);
 failure:
+	efi_delete_handle(*image_handle);
+	*image_handle = NULL;
 	free(info);
-	efi_delete_handle(obj);
 error:
 	return EFI_EXIT(ret);
 }
@@ -1668,16 +1672,14 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 					   unsigned long *exit_data_size,
 					   s16 **exit_data)
 {
-	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
-				     struct efi_system_table *st);
-	struct efi_loaded_image *info = image_handle;
+	struct efi_loaded_image_obj *image_obj =
+		(struct efi_loaded_image_obj *)image_handle;
 	efi_status_t ret;
 
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
-	entry = info->reserved;
 
 	/* call the image! */
-	if (setjmp(&info->exit_jmp)) {
+	if (setjmp(&image_obj->exit_jmp)) {
 		/*
 		 * We called the entry point of the child image with EFI_CALL
 		 * in the lines below. The child image called the Exit() boot
@@ -1700,12 +1702,12 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		assert(__efi_entry_check());
 		debug("%sEFI: %lu returned by started image\n",
 		      __efi_nesting_dec(),
-		      (unsigned long)((uintptr_t)info->exit_status &
+		      (unsigned long)((uintptr_t)image_obj->exit_status &
 				      ~EFI_ERROR_MASK));
-		return EFI_EXIT(info->exit_status);
+		return EFI_EXIT(image_obj->exit_status);
 	}
 
-	ret = EFI_CALL(entry(image_handle, &systab));
+	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
 
 	/*
 	 * Usually UEFI applications call Exit() instead of returning.
@@ -1736,17 +1738,11 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 				    int16_t *exit_data)
 {
 	/*
-	 * We require that the handle points to the original loaded
-	 * image protocol interface.
-	 *
-	 * For getting the longjmp address this is safer than locating
-	 * the protocol because the protocol may have been reinstalled
-	 * pointing to another memory location.
-	 *
 	 * TODO: We should call the unload procedure of the loaded
 	 *	 image protocol.
 	 */
-	struct efi_loaded_image *loaded_image_info = (void *)image_handle;
+	struct efi_loaded_image_obj *image_obj =
+		(struct efi_loaded_image_obj *)image_handle;
 
 	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
@@ -1760,8 +1756,8 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	 */
 	efi_restore_gd();
 
-	loaded_image_info->exit_status = exit_status;
-	longjmp(&loaded_image_info->exit_jmp, 1);
+	image_obj->exit_status = exit_status;
+	longjmp(&image_obj->exit_jmp, 1);
 
 	panic("EFI application exited");
 }

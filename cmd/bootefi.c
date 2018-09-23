@@ -320,19 +320,26 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
 	return ret;
 }
 
-/*
- * Load an EFI payload into a newly allocated piece of memory, register all
- * EFI objects it would want to access and jump to it.
+/**
+ * do_bootefi_exec() - execute EFI binary
+ *
+ * @efi:		address of the binary
+ * @device_path:	path of the device from which the binary was loaded
+ * @image_path:		device path of the binary
+ * Return:		status code
+ *
+ * Load the EFI binary into a newly assigned memory unwinding the relocation
+ * information, install the loaded image protocol, and call the binary.
  */
 static efi_status_t do_bootefi_exec(void *efi,
 				    struct efi_device_path *device_path,
 				    struct efi_device_path *image_path)
 {
-	struct efi_loaded_image loaded_image_info = {};
-	struct efi_object loaded_image_info_obj = {};
 	efi_handle_t mem_handle = NULL;
 	struct efi_device_path *memdp = NULL;
 	efi_status_t ret;
+	struct efi_loaded_image_obj *image_handle = NULL;
+	struct efi_loaded_image *loaded_image_info = NULL;
 
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
@@ -362,8 +369,10 @@ static efi_status_t do_bootefi_exec(void *efi,
 		assert(device_path && image_path);
 	}
 
-	efi_setup_loaded_image(&loaded_image_info, &loaded_image_info_obj,
-			       device_path, image_path);
+	ret = efi_setup_loaded_image(device_path, image_path, &image_handle,
+				     &loaded_image_info);
+	if (ret != EFI_SUCCESS)
+		goto exit;
 
 	/*
 	 * gd lives in a fixed register which may get clobbered while we execute
@@ -372,9 +381,9 @@ static efi_status_t do_bootefi_exec(void *efi,
 	efi_save_gd();
 
 	/* Transfer environment variable bootargs as load options */
-	set_load_options(&loaded_image_info, "bootargs");
+	set_load_options(loaded_image_info, "bootargs");
 	/* Load the EFI payload */
-	entry = efi_load_pe(efi, &loaded_image_info);
+	entry = efi_load_pe(image_handle, efi, loaded_image_info);
 	if (!entry) {
 		ret = EFI_LOAD_ERROR;
 		goto exit;
@@ -382,10 +391,10 @@ static efi_status_t do_bootefi_exec(void *efi,
 
 	if (memdp) {
 		struct efi_device_path_memory *mdp = (void *)memdp;
-		mdp->memory_type = loaded_image_info.image_code_type;
-		mdp->start_address = (uintptr_t)loaded_image_info.image_base;
+		mdp->memory_type = loaded_image_info->image_code_type;
+		mdp->start_address = (uintptr_t)loaded_image_info->image_base;
 		mdp->end_address = mdp->start_address +
-				loaded_image_info.image_size;
+				loaded_image_info->image_size;
 	}
 
 	/* we don't support much: */
@@ -395,8 +404,8 @@ static efi_status_t do_bootefi_exec(void *efi,
 	/* Call our payload! */
 	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
 
-	if (setjmp(&loaded_image_info.exit_jmp)) {
-		ret = loaded_image_info.exit_status;
+	if (setjmp(&image_handle->exit_jmp)) {
+		ret = image_handle->exit_status;
 		goto exit;
 	}
 
@@ -408,7 +417,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 
 		/* Move into EL2 and keep running there */
 		armv8_switch_to_el2((ulong)entry,
-				    (ulong)loaded_image_info_obj.handle,
+				    (ulong)image_handle,
 				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
 				    ES_TO_AARCH64);
 
@@ -425,7 +434,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 		secure_ram_addr(_do_nonsec_entry)(
 					efi_run_in_hyp,
 					(uintptr_t)entry,
-					(uintptr_t)loaded_image_info_obj.handle,
+					(uintptr_t)image_handle,
 					(uintptr_t)&systab);
 
 		/* Should never reach here, efi exits with longjmp */
@@ -433,11 +442,12 @@ static efi_status_t do_bootefi_exec(void *efi,
 	}
 #endif
 
-	ret = efi_do_enter(loaded_image_info_obj.handle, &systab, entry);
+	ret = efi_do_enter(image_handle, &systab, entry);
 
 exit:
 	/* image has returned, loaded-image obj goes *poof*: */
-	list_del(&loaded_image_info_obj.link);
+	if (image_handle)
+		efi_delete_handle(&image_handle->parent);
 	if (mem_handle)
 		efi_delete_handle(mem_handle);
 
@@ -522,8 +532,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 	if (!strcmp(argv[1], "selftest")) {
-		struct efi_loaded_image loaded_image_info = {};
-		struct efi_object loaded_image_info_obj = {};
+		struct efi_loaded_image_obj *image_handle;
+		struct efi_loaded_image *loaded_image_info;
 
 		/* Construct a dummy device path. */
 		bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
@@ -531,9 +541,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 						      (uintptr_t)&efi_selftest);
 		bootefi_image_path = efi_dp_from_file(NULL, 0, "\\selftest");
 
-		efi_setup_loaded_image(&loaded_image_info,
-				       &loaded_image_info_obj,
-				       bootefi_device_path, bootefi_image_path);
+		r = efi_setup_loaded_image(bootefi_device_path,
+					   bootefi_image_path, &image_handle,
+					   &loaded_image_info);
+		if (r != EFI_SUCCESS)
+			return CMD_RET_FAILURE;
+
 		/*
 		 * gd lives in a fixed register which may get clobbered while we
 		 * execute the payload. So save it here and restore it on every
@@ -541,12 +554,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 */
 		efi_save_gd();
 		/* Transfer environment variable efi_selftest as load options */
-		set_load_options(&loaded_image_info, "efi_selftest");
+		set_load_options(loaded_image_info, "efi_selftest");
 		/* Execute the test */
-		r = efi_selftest(loaded_image_info_obj.handle, &systab);
+		r = efi_selftest(image_handle, &systab);
 		efi_restore_gd();
-		free(loaded_image_info.load_options);
-		list_del(&loaded_image_info_obj.link);
+		free(loaded_image_info->load_options);
+		efi_delete_handle(&image_handle->parent);
 		return r != EFI_SUCCESS;
 	} else
 #endif
