@@ -44,7 +44,7 @@
  * converted to utf16?
  */
 
-#define PREFIX_LEN (strlen("efi_xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxxxxxx_"))
+#define PREFIX_LEN (strlen("efi_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_"))
 
 static int hex(int ch)
 {
