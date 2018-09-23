@@ -45,6 +45,8 @@ endif
 # source file.
 ccflags-y += $(call cc-option,-fno-toplevel-reorder)
 
+LDFLAGS_STANDALONE	+= -Ttext $(CONFIG_STANDALONE_LOAD_ADDR)
+
 #########################################################################
 
 quiet_cmd_link_lib = LD      $@
@@ -54,7 +56,7 @@ $(LIB):	$(LIBOBJS) FORCE
 	$(call if_changed,link_lib)
 
 quiet_cmd_link_elf = LD      $@
-      cmd_link_elf = $(LD) $(LDFLAGS) -g -Ttext $(CONFIG_STANDALONE_LOAD_ADDR) \
+      cmd_link_elf = $(LD) $(LDFLAGS) $(LDFLAGS_STANDALONE) -g  \
 		     -o $@ -e $(SYM_PREFIX)$(@F) $< $(LIB) $(PLATFORM_LIBGCC)
 
 $(ELF): $(obj)/%: $(obj)/%.o $(LIB) FORCE

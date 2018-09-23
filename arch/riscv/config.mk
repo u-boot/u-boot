@@ -27,8 +27,8 @@ CFLAGS_EFI		+= -march=rv64ima -mabi=lp64
 EFI_LDS			:= elf_riscv64_efi.lds
 endif
 
-CONFIG_STANDALONE_LOAD_ADDR = 0x00000000 \
-			      -T $(srctree)/examples/standalone/riscv.lds
+CONFIG_STANDALONE_LOAD_ADDR = 0x00000000
+LDFLAGS_STANDALONE += -T $(srctree)/examples/standalone/riscv.lds
 
 PLATFORM_CPPFLAGS	+= -ffixed-gp -fpic
 PLATFORM_RELFLAGS	+= -fno-common -gdwarf-2 -ffunction-sections
