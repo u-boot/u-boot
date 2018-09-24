@@ -2414,7 +2414,8 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 	}
 	efi_va_end(argptr);
 
-	return EFI_EXIT(r);
+	/* In case of an error always return EFI_INVALID_PARAMETER */
+	return EFI_EXIT(EFI_INVALID_PARAMETER);
 }
 
 /**
