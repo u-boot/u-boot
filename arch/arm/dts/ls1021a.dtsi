@@ -96,7 +96,6 @@
 			sdhci,auto-cmd12;
 			big-endian;
 			bus-width = <4>;
-			status = "disabled";
 		};
 
 		scfg: scfg@1570000 {
