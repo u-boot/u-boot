@@ -315,6 +315,13 @@ static u32 do_call_with_arg(struct udevice *dev, struct optee_msg_arg *arg)
 			param.a3 = res.a3;
 			handle_rpc(dev, &param, &page_list);
 		} else {
+			/*
+			 * In case we've accessed RPMB to serve an RPC
+			 * request we need to restore the previously
+			 * selected partition as the caller may expect it
+			 * to remain unchanged.
+			 */
+			optee_suppl_rpmb_release(dev);
 			return call_err_to_res(res.a0);
 		}
 	}
@@ -651,4 +658,5 @@ U_BOOT_DRIVER(optee) = {
 	.probe = optee_probe,
 	.ops = &optee_ops,
 	.platdata_auto_alloc_size = sizeof(struct optee_pdata),
+	.priv_auto_alloc_size = sizeof(struct optee_private),
 };

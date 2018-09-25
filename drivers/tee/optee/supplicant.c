@@ -85,6 +85,9 @@ void optee_suppl_cmd(struct udevice *dev, struct tee_shm *shm_arg,
 		debug("OPTEE_MSG_RPC_CMD_FS not implemented\n");
 		arg->ret = TEE_ERROR_NOT_IMPLEMENTED;
 		break;
+	case OPTEE_MSG_RPC_CMD_RPMB:
+		optee_suppl_cmd_rpmb(dev, arg);
+		break;
 	default:
 		arg->ret = TEE_ERROR_NOT_IMPLEMENTED;
 	}
