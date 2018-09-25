@@ -9,3 +9,13 @@ config TEE
 	  environment, for example, TrustZone on ARM cpus, or a separate
 	  secure co-processor etc. See also:
 	  https://en.wikipedia.org/wiki/Trusted_execution_environment
+
+if TEE
+
+menu "TEE drivers"
+
+source "drivers/tee/optee/Kconfig"
+
+endmenu
+
+endif
