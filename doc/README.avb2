@@ -18,6 +18,13 @@ Integrity of the bootloader (U-boot BLOB and environment) is out of scope.
 For additional details check:
 https://android.googlesource.com/platform/external/avb/+/master/README.md
 
+1.1. AVB using OP-TEE (optional)
+---------------------------------
+If AVB is configured to use OP-TEE (see 4. below) rollback indexes and
+device lock state are stored in RPMB. The RPMB partition is managed by
+OP-TEE (https://www.op-tee.org/) which is a secure OS leveraging ARM
+TrustZone.
+
 
 2. AVB 2.0 U-BOOT SHELL COMMANDS
 -----------------------------------
@@ -61,6 +68,12 @@ CONFIG_LIBAVB=y
 CONFIG_AVB_VERIFY=y
 CONFIG_CMD_AVB=y
 
+In addtion optionally if storing rollback indexes in RPMB with help of
+OP-TEE:
+CONFIG_TEE=y
+CONFIG_OPTEE=y
+CONFIG_OPTEE_TA_AVB=y
+CONFIG_SUPPORT_EMMC_RPMB=y
 
 Then add `avb verify` invocation to your android boot sequence of commands,
 e.g.:

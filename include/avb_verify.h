@@ -27,6 +27,10 @@ struct AvbOpsData {
 	struct AvbOps ops;
 	int mmc_dev;
 	enum avb_boot_state boot_state;
+#ifdef CONFIG_OPTEE_TA_AVB
+	struct udevice *tee;
+	u32 session;
+#endif
 };
 
 struct mmc_part {

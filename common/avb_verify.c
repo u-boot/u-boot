@@ -10,6 +10,8 @@
 #include <image.h>
 #include <malloc.h>
 #include <part.h>
+#include <tee.h>
+#include <tee/optee_ta_avb.h>
 
 static const unsigned char avb_root_pub[1032] = {
 	0x0, 0x0, 0x10, 0x0, 0x55, 0xd9, 0x4, 0xad, 0xd8, 0x4,
@@ -600,6 +602,65 @@ static AvbIOResult validate_vbmeta_public_key(AvbOps *ops,
 	return AVB_IO_RESULT_OK;
 }
 
+#ifdef CONFIG_OPTEE_TA_AVB
+static int get_open_session(struct AvbOpsData *ops_data)
+{
+	struct udevice *tee = NULL;
+
+	while (!ops_data->tee) {
+		const struct tee_optee_ta_uuid uuid = TA_AVB_UUID;
+		struct tee_open_session_arg arg;
+		int rc;
+
+		tee = tee_find_device(tee, NULL, NULL, NULL);
+		if (!tee)
+			return -ENODEV;
+
+		memset(&arg, 0, sizeof(arg));
+		tee_optee_ta_uuid_to_octets(arg.uuid, &uuid);
+		rc = tee_open_session(tee, &arg, 0, NULL);
+		if (!rc) {
+			ops_data->tee = tee;
+			ops_data->session = arg.session;
+		}
+	}
+
+	return 0;
+}
+
+static AvbIOResult invoke_func(struct AvbOpsData *ops_data, u32 func,
+			       ulong num_param, struct tee_param *param)
+{
+	struct tee_invoke_arg arg;
+
+	if (get_open_session(ops_data))
+		return AVB_IO_RESULT_ERROR_IO;
+
+	memset(&arg, 0, sizeof(arg));
+	arg.func = func;
+	arg.session = ops_data->session;
+
+	if (tee_invoke_func(ops_data->tee, &arg, num_param, param))
+		return AVB_IO_RESULT_ERROR_IO;
+	switch (arg.ret) {
+	case TEE_SUCCESS:
+		return AVB_IO_RESULT_OK;
+	case TEE_ERROR_OUT_OF_MEMORY:
+		return AVB_IO_RESULT_ERROR_OOM;
+	case TEE_ERROR_TARGET_DEAD:
+		/*
+		 * The TA has paniced, close the session to reload the TA
+		 * for the next request.
+		 */
+		tee_close_session(ops_data->tee, ops_data->session);
+		ops_data->tee = NULL;
+		return AVB_IO_RESULT_ERROR_IO;
+	default:
+		return AVB_IO_RESULT_ERROR_IO;
+	}
+}
+#endif
+
 /**
  * read_rollback_index() - gets the rollback index corresponding to the
  * location of given by @out_rollback_index.
@@ -615,6 +676,7 @@ static AvbIOResult read_rollback_index(AvbOps *ops,
 				       size_t rollback_index_slot,
 				       u64 *out_rollback_index)
 {
+#ifndef CONFIG_OPTEE_TA_AVB
 	/* For now we always return 0 as the stored rollback index. */
 	printf("%s not supported yet\n", __func__);
 
@@ -622,6 +684,27 @@ static AvbIOResult read_rollback_index(AvbOps *ops,
 		*out_rollback_index = 0;
 
 	return AVB_IO_RESULT_OK;
+#else
+	AvbIOResult rc;
+	struct tee_param param[2];
+
+	if (rollback_index_slot >= TA_AVB_MAX_ROLLBACK_LOCATIONS)
+		return AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+
+	memset(param, 0, sizeof(param));
+	param[0].attr = TEE_PARAM_ATTR_TYPE_VALUE_INPUT;
+	param[0].u.value.a = rollback_index_slot;
+	param[1].attr = TEE_PARAM_ATTR_TYPE_VALUE_OUTPUT;
+
+	rc = invoke_func(ops->user_data, TA_AVB_CMD_READ_ROLLBACK_INDEX,
+			 ARRAY_SIZE(param), param);
+	if (rc)
+		return rc;
+
+	*out_rollback_index = (u64)param[1].u.value.a << 32 |
+			      (u32)param[1].u.value.b;
+	return AVB_IO_RESULT_OK;
+#endif
 }
 
 /**
@@ -639,10 +722,27 @@ static AvbIOResult write_rollback_index(AvbOps *ops,
 					size_t rollback_index_slot,
 					u64 rollback_index)
 {
+#ifndef CONFIG_OPTEE_TA_AVB
 	/* For now this is a no-op. */
 	printf("%s not supported yet\n", __func__);
 
 	return AVB_IO_RESULT_OK;
+#else
+	struct tee_param param[2];
+
+	if (rollback_index_slot >= TA_AVB_MAX_ROLLBACK_LOCATIONS)
+		return AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+
+	memset(param, 0, sizeof(param));
+	param[0].attr = TEE_PARAM_ATTR_TYPE_VALUE_INPUT;
+	param[0].u.value.a = rollback_index_slot;
+	param[1].attr = TEE_PARAM_ATTR_TYPE_VALUE_INPUT;
+	param[1].u.value.a = (u32)(rollback_index >> 32);
+	param[1].u.value.b = (u32)rollback_index;
+
+	return invoke_func(ops->user_data, TA_AVB_CMD_WRITE_ROLLBACK_INDEX,
+			   ARRAY_SIZE(param), param);
+#endif
 }
 
 /**
@@ -658,6 +758,7 @@ static AvbIOResult write_rollback_index(AvbOps *ops,
  */
 static AvbIOResult read_is_device_unlocked(AvbOps *ops, bool *out_is_unlocked)
 {
+#ifndef CONFIG_OPTEE_TA_AVB
 	/* For now we always return that the device is unlocked. */
 
 	printf("%s not supported yet\n", __func__);
@@ -665,6 +766,16 @@ static AvbIOResult read_is_device_unlocked(AvbOps *ops, bool *out_is_unlocked)
 	*out_is_unlocked = true;
 
 	return AVB_IO_RESULT_OK;
+#else
+	AvbIOResult rc;
+	struct tee_param param = { .attr = TEE_PARAM_ATTR_TYPE_VALUE_OUTPUT };
+
+	rc = invoke_func(ops->user_data, TA_AVB_CMD_READ_LOCK_STATE, 1, &param);
+	if (rc)
+		return rc;
+	*out_is_unlocked = !param.u.value.a;
+	return AVB_IO_RESULT_OK;
+#endif
 }
 
 /**
@@ -774,6 +885,11 @@ void avb_ops_free(AvbOps *ops)
 
 	ops_data = ops->user_data;
 
-	if (ops_data)
+	if (ops_data) {
+#ifdef CONFIG_OPTEE_TA_AVB
+		if (ops_data->tee)
+			tee_close_session(ops_data->tee, ops_data->session);
+#endif
 		avb_free(ops_data);
+	}
 }
