@@ -265,9 +265,15 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 	for (offset = fdt_first_subnode(blob, offset);
 	     offset > 0;
 	     offset = fdt_next_subnode(blob, offset)) {
-		/* "chosen" node isn't a device itself but may contain some: */
-		if (!strcmp(fdt_get_name(blob, offset, NULL), "chosen")) {
-			pr_debug("parsing subnodes of \"chosen\"\n");
+		const char *node_name = fdt_get_name(blob, offset, NULL);
+
+		/*
+		 * The "chosen" and "firmware" nodes aren't devices
+		 * themselves but may contain some:
+		 */
+		if (!strcmp(node_name, "chosen") ||
+		    !strcmp(node_name, "firmware")) {
+			pr_debug("parsing subnodes of \"%s\"\n", node_name);
 
 			err = dm_scan_fdt_node(parent, blob, offset,
 					       pre_reloc_only);
@@ -286,8 +292,7 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 		err = lists_bind_fdt(parent, offset_to_ofnode(offset), NULL);
 		if (err && !ret) {
 			ret = err;
-			debug("%s: ret=%d\n", fdt_get_name(blob, offset, NULL),
-			      ret);
+			debug("%s: ret=%d\n", node_name, ret);
 		}
 	}
 
