@@ -36,7 +36,8 @@ static u32 socfpga_phymode_setup(u32 gmac_index, const char *phymode)
 	if (!phymode)
 		return -EINVAL;
 
-	if (!strcmp(phymode, "mii") || !strcmp(phymode, "gmii"))
+	if (!strcmp(phymode, "mii") || !strcmp(phymode, "gmii") ||
+	    !strcmp(phymode, "sgmii"))
 		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII;
 	else if (!strcmp(phymode, "rgmii"))
 		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII;
@@ -58,7 +59,7 @@ static int socfpga_set_phymode(void)
 	struct fdtdec_phandle_args args;
 	const char *phy_mode;
 	u32 gmac_index;
-	int nodes[2];	/* Max. 3 GMACs */
+	int nodes[3];	/* Max. 3 GMACs */
 	int ret, count;
 	int i, node;
 
