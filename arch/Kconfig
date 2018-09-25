@@ -106,6 +106,10 @@ config SANDBOX
 	imply LZMA
 	imply SCSI
 	imply TEE
+	imply AVB_VERIFY
+	imply LIBAVB
+	imply CMD_AVB
+	imply UDP_FUNCTION_FASTBOOT
 
 config SH
 	bool "SuperH architecture"
