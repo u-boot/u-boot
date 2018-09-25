@@ -27,21 +27,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CPGWPCR	0xE6150904
-#define CPGWPR  0xE6150900
-
-#define CLK2MHZ(clk)	(clk / 1000 / 1000)
 void s_init(void)
 {
-	struct rcar_rwdt *rwdt = (struct rcar_rwdt *)RWDT_BASE;
-	struct rcar_swdt *swdt = (struct rcar_swdt *)SWDT_BASE;
-
-	/* Watchdog init */
-	writel(0xA5A5A500, &rwdt->rwtcsra);
-	writel(0xA5A5A500, &swdt->swtcsra);
-
-	writel(0x5A5AFFFF, CPGWPR);
-	writel(0xA5A50000, CPGWPCR);
 }
 
 #define GSX_MSTP112		BIT(12)	/* 3DG */
