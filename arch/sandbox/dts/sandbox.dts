@@ -342,6 +342,10 @@
 			status = "okay";
 		};
 	};
+
+	sandbox_tee {
+		compatible = "sandbox,tee";
+	};
 };
 
 #include "cros-ec-keyboard.dtsi"
