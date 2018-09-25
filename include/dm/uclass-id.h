@@ -85,6 +85,7 @@ enum uclass_id {
 	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_SYSCON,		/* System configuration device */
 	UCLASS_SYSRESET,	/* System reset device */
+	UCLASS_TEE,		/* Trusted Execution Environment device */
 	UCLASS_THERMAL,		/* Thermal sensor */
 	UCLASS_TIMER,		/* Timer device */
 	UCLASS_TPM,		/* Trusted Platform Module TIS interface */

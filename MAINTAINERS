@@ -629,6 +629,12 @@ TQ GROUP
 S:	Orphaned (Since 2016-02)
 T:	git git://git.denx.de/u-boot-tq-group.git
 
+TEE
+M:	Jens Wiklander <jens.wiklander@linaro.org>
+S:	Maintained
+F:	drivers/tee/
+F:	include/tee.h
+
 UBI
 M:	Kyungmin Park <kmpark@infradead.org>
 M:	Heiko Schocher <hs@denx.de>

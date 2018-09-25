@@ -1,0 +1,11 @@
+# Generic Trusted Execution Environment Configuration
+config TEE
+	bool "Trusted Execution Environment support"
+	depends on ARM && (ARM64 || CPU_V7A)
+	select ARM_SMCCC
+	help
+	  This implements a generic interface towards a Trusted Execution
+	  Environment (TEE). A TEE is a trusted OS running in some secure
+	  environment, for example, TrustZone on ARM cpus, or a separate
+	  secure co-processor etc. See also:
+	  https://en.wikipedia.org/wiki/Trusted_execution_environment
