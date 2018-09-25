@@ -321,3 +321,163 @@ int mmc_rpmb_write(struct mmc *mmc, void *addr, unsigned short blk,
 	}
 	return i;
 }
+
+static int send_write_mult_block(struct mmc *mmc, const struct s_rpmb *frm,
+				 unsigned short cnt)
+{
+	struct mmc_cmd cmd = {
+		.cmdidx = MMC_CMD_WRITE_MULTIPLE_BLOCK,
+		.resp_type = MMC_RSP_R1b,
+	};
+	struct mmc_data data = {
+		.src = (const void *)frm,
+		.blocks = cnt,
+		.blocksize = sizeof(*frm),
+		.flags = MMC_DATA_WRITE,
+	};
+
+	return mmc_send_cmd(mmc, &cmd, &data);
+}
+
+static int send_read_mult_block(struct mmc *mmc, struct s_rpmb *frm,
+				unsigned short cnt)
+{
+	struct mmc_cmd cmd = {
+		.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK,
+		.resp_type = MMC_RSP_R1,
+	};
+	struct mmc_data data = {
+		.dest = (void *)frm,
+		.blocks = cnt,
+		.blocksize = sizeof(*frm),
+		.flags = MMC_DATA_READ,
+	};
+
+	return mmc_send_cmd(mmc, &cmd, &data);
+}
+
+static int rpmb_route_write_req(struct mmc *mmc, struct s_rpmb *req,
+				unsigned short req_cnt, struct s_rpmb *rsp,
+				unsigned short rsp_cnt)
+{
+	int ret;
+
+	/*
+	 * Send the write request.
+	 */
+	ret = mmc_set_blockcount(mmc, req_cnt, true);
+	if (ret)
+		return ret;
+
+	ret = send_write_mult_block(mmc, req, req_cnt);
+	if (ret)
+		return ret;
+
+	/*
+	 * Read the result of the request.
+	 */
+	ret = mmc_set_blockcount(mmc, 1, false);
+	if (ret)
+		return ret;
+
+	memset(rsp, 0, sizeof(*rsp));
+	rsp->request = cpu_to_be16(RPMB_REQ_STATUS);
+	ret = send_write_mult_block(mmc, rsp, 1);
+	if (ret)
+		return ret;
+
+	ret = mmc_set_blockcount(mmc, 1, false);
+	if (ret)
+		return ret;
+
+	return send_read_mult_block(mmc, rsp, 1);
+}
+
+static int rpmb_route_read_req(struct mmc *mmc, struct s_rpmb *req,
+			       unsigned short req_cnt, struct s_rpmb *rsp,
+			       unsigned short rsp_cnt)
+{
+	int ret;
+
+	/*
+	 * Send the read request.
+	 */
+	ret = mmc_set_blockcount(mmc, 1, false);
+	if (ret)
+		return ret;
+
+	ret = send_write_mult_block(mmc, req, 1);
+	if (ret)
+		return ret;
+
+	/*
+	 * Read the result of the request.
+	 */
+
+	ret = mmc_set_blockcount(mmc, rsp_cnt, false);
+	if (ret)
+		return ret;
+
+	return send_read_mult_block(mmc, rsp, rsp_cnt);
+}
+
+static int rpmb_route_frames(struct mmc *mmc, struct s_rpmb *req,
+			     unsigned short req_cnt, struct s_rpmb *rsp,
+			     unsigned short rsp_cnt)
+{
+	unsigned short n;
+
+	/*
+	 * If multiple request frames are provided, make sure that all are
+	 * of the same type.
+	 */
+	for (n = 1; n < req_cnt; n++)
+		if (req[n].request != req->request)
+			return -EINVAL;
+
+	switch (be16_to_cpu(req->request)) {
+	case RPMB_REQ_KEY:
+		if (req_cnt != 1 || rsp_cnt != 1)
+			return -EINVAL;
+		return rpmb_route_write_req(mmc, req, req_cnt, rsp, rsp_cnt);
+
+	case RPMB_REQ_WRITE_DATA:
+		if (!req_cnt || rsp_cnt != 1)
+			return -EINVAL;
+		return rpmb_route_write_req(mmc, req, req_cnt, rsp, rsp_cnt);
+
+	case RPMB_REQ_WCOUNTER:
+		if (req_cnt != 1 || rsp_cnt != 1)
+			return -EINVAL;
+		return rpmb_route_read_req(mmc, req, req_cnt, rsp, rsp_cnt);
+
+	case RPMB_REQ_READ_DATA:
+		if (req_cnt != 1 || !req_cnt)
+			return -EINVAL;
+		return rpmb_route_read_req(mmc, req, req_cnt, rsp, rsp_cnt);
+
+	default:
+		debug("Unsupported message type: %d\n",
+		      be16_to_cpu(req->request));
+		return -EINVAL;
+	}
+}
+
+int mmc_rpmb_route_frames(struct mmc *mmc, void *req, unsigned long reqlen,
+			  void *rsp, unsigned long rsplen)
+{
+	/*
+	 * Whoever crafted the data supplied to this function knows how to
+	 * format the PRMB frames and which response is expected. If
+	 * there's some unexpected mismatch it's more helpful to report an
+	 * error immediately than trying to guess what was the intention
+	 * and possibly just delay an eventual error which will be harder
+	 * to track down.
+	 */
+
+	if (reqlen % sizeof(struct s_rpmb) || rsplen % sizeof(struct s_rpmb))
+		return -EINVAL;
+
+	return rpmb_route_frames(mmc, req, reqlen / sizeof(struct s_rpmb),
+				 rsp, rsplen / sizeof(struct s_rpmb));
+}
