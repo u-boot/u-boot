@@ -218,7 +218,7 @@ void u_qe_init(void)
 		printf("\nMMC read: dev # %u, block # %u, count %u ...\n",
 		       dev, blk, cnt);
 		mmc_init(mmc);
-		(void)mmc->block_dev.block_read(&mmc->block_dev, blk, cnt,
+		(void)blk_dread(mmc_get_blk_desc(mmc), blk, cnt,
 						addr);
 	}
 #endif
