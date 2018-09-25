@@ -105,6 +105,7 @@ config SANDBOX
 	imply HASH_VERIFY
 	imply LZMA
 	imply SCSI
+	imply TEE
 
 config SH
 	bool "SuperH architecture"
