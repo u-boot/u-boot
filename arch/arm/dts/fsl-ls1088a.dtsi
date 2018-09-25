@@ -74,6 +74,15 @@
 		reg-names = "QuadSPI", "QuadSPI-memory";
 		num-cs = <4>;
 	};
+
+	esdhc: esdhc@2140000 {
+		compatible = "fsl,esdhc";
+		reg = <0x0 0x2140000 0x0 0x10000>;
+		interrupts = <0 28 0x4>; /* Level high type */
+		little-endian;
+		bus-width = <4>;
+	};
+
 	ifc: ifc@1530000 {
 		compatible = "fsl,ifc", "simple-bus";
 		reg = <0x0 0x2240000 0x0 0x20000>;
