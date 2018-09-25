@@ -35,6 +35,8 @@ int do_avb_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (avb_ops)
 		return CMD_RET_SUCCESS;
 
+	printf("Failed to initialize avb2\n");
+
 	return CMD_RET_FAILURE;
 }
 
@@ -64,6 +66,8 @@ int do_avb_read_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("Read %zu bytes\n", bytes_read);
 		return CMD_RET_SUCCESS;
 	}
+
+	printf("Failed to read from partition\n");
 
 	return CMD_RET_FAILURE;
 }
@@ -108,6 +112,8 @@ int do_avb_read_part_hex(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_SUCCESS;
 	}
 
+	printf("Failed to read from partition\n");
+
 	free(buffer);
 	return CMD_RET_FAILURE;
 }
@@ -138,6 +144,8 @@ int do_avb_write_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_SUCCESS;
 	}
 
+	printf("Failed to write in partition\n");
+
 	return CMD_RET_FAILURE;
 }
 
@@ -161,6 +169,9 @@ int do_avb_read_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("Rollback index: %llx\n", rb_idx);
 		return CMD_RET_SUCCESS;
 	}
+
+	printf("Failed to read rollback index\n");
+
 	return CMD_RET_FAILURE;
 }
 
@@ -183,6 +194,8 @@ int do_avb_write_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (avb_ops->write_rollback_index(avb_ops, index, rb_idx) ==
 	    AVB_IO_RESULT_OK)
 		return CMD_RET_SUCCESS;
+
+	printf("Failed to write rollback index\n");
 
 	return CMD_RET_FAILURE;
 }
@@ -209,6 +222,8 @@ int do_avb_get_uuid(cmd_tbl_t *cmdtp, int flag,
 		printf("'%s' UUID: %s\n", part, buffer);
 		return CMD_RET_SUCCESS;
 	}
+
+	printf("Failed to read UUID\n");
 
 	return CMD_RET_FAILURE;
 }
@@ -319,6 +334,8 @@ int do_avb_is_unlocked(cmd_tbl_t *cmdtp, int flag,
 		printf("Unlocked = %d\n", unlock);
 		return CMD_RET_SUCCESS;
 	}
+
+	printf("Can't determine device lock state.\n");
 
 	return CMD_RET_FAILURE;
 }
