@@ -10,7 +10,7 @@ config OPTEE
 	  handle Remote Procedure Calls (RPC) from OP-TEE needed to
 	  execute a service. For more information see: https://www.op-tee.org
 
-if OPTEE
+if OPTEE || SANDBOX
 
 menu "OP-TEE options"
 
