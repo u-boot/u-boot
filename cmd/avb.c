@@ -158,7 +158,7 @@ int do_avb_read_rb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (avb_ops->read_rollback_index(avb_ops, index, &rb_idx) ==
 	    AVB_IO_RESULT_OK) {
-		printf("Rollback index: %llu\n", rb_idx);
+		printf("Rollback index: %llx\n", rb_idx);
 		return CMD_RET_SUCCESS;
 	}
 	return CMD_RET_FAILURE;
