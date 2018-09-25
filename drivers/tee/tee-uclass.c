@@ -207,3 +207,27 @@ UCLASS_DRIVER(tee) = {
 	.pre_probe = tee_pre_probe,
 	.pre_remove = tee_pre_remove,
 };
+
+void tee_optee_ta_uuid_from_octets(struct tee_optee_ta_uuid *d,
+				   const u8 s[TEE_UUID_LEN])
+{
+	d->time_low = ((u32)s[0] << 24) | ((u32)s[1] << 16) |
+		      ((u32)s[2] << 8) | s[3],
+	d->time_mid = ((u32)s[4] << 8) | s[5];
+	d->time_hi_and_version = ((u32)s[6] << 8) | s[7];
+	memcpy(d->clock_seq_and_node, s + 8, sizeof(d->clock_seq_and_node));
+}
+
+void tee_optee_ta_uuid_to_octets(u8 d[TEE_UUID_LEN],
+				 const struct tee_optee_ta_uuid *s)
+{
+	d[0] = s->time_low >> 24;
+	d[1] = s->time_low >> 16;
+	d[2] = s->time_low >> 8;
+	d[3] = s->time_low;
+	d[4] = s->time_mid >> 8;
+	d[5] = s->time_mid;
+	d[6] = s->time_hi_and_version >> 8;
+	d[7] = s->time_hi_and_version;
+	memcpy(d + 8, s->clock_seq_and_node, sizeof(s->clock_seq_and_node));
+}

@@ -634,6 +634,7 @@ M:	Jens Wiklander <jens.wiklander@linaro.org>
 S:	Maintained
 F:	drivers/tee/
 F:	include/tee.h
+F:	include/tee/
 
 UBI
 M:	Kyungmin Park <kmpark@infradead.org>

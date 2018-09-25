@@ -9,3 +9,19 @@ config OPTEE
 	  mechanism. This driver can request services from OP-TEE, but also
 	  handle Remote Procedure Calls (RPC) from OP-TEE needed to
 	  execute a service. For more information see: https://www.op-tee.org
+
+if OPTEE
+
+menu "OP-TEE options"
+
+config OPTEE_TA_AVB
+	bool "Support AVB TA"
+	default y
+	help
+	  Enables support for the AVB Trusted Application (TA) in OP-TEE.
+	  The TA can support the "avb" subcommands "read_rb", "write"rb"
+	  and "is_unlocked".
+
+endmenu
+
+endif

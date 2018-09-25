@@ -49,6 +49,22 @@
 #define TEE_ORIGIN_TRUSTED_APP		0x00000004
 
 struct udevice;
+
+/**
+ * struct tee_optee_ta_uuid - OP-TEE Trusted Application (TA) UUID format
+ *
+ * Used to identify an OP-TEE TA and define suitable to initialize structs
+ * of this format is distributed with the interface of the TA. The
+ * individual fields of this struct doesn't have any special meaning in
+ * OP-TEE. See RFC4122 for details on the format.
+ */
+struct tee_optee_ta_uuid {
+	u32 time_low;
+	u16 time_mid;
+	u16 time_hi_and_version;
+	u8 clock_seq_and_node[8];
+};
+
 /**
  * struct tee_shm - memory shared with the TEE
  * @dev:	The TEE device
@@ -332,5 +348,27 @@ int tee_close_session(struct udevice *dev, u32 session);
  */
 int tee_invoke_func(struct udevice *dev, struct tee_invoke_arg *arg,
 		    uint num_param, struct tee_param *param);
+
+/**
+ * tee_optee_ta_uuid_from_octets() - Converts to struct tee_optee_ta_uuid
+ * @d:	Destination struct
+ * @s:	Source UUID octets
+ *
+ * Conversion to a struct tee_optee_ta_uuid represantion from binary octet
+ * representation.
+ */
+void tee_optee_ta_uuid_from_octets(struct tee_optee_ta_uuid *d,
+				   const u8 s[TEE_UUID_LEN]);
+
+/**
+ * tee_optee_ta_uuid_to_octets() - Converts from struct tee_optee_ta_uuid
+ * @d:	Destination UUID octets
+ * @s:	Source struct
+ *
+ * Conversion from a struct tee_optee_ta_uuid represantion to binary octet
+ * representation.
+ */
+void tee_optee_ta_uuid_to_octets(u8 d[TEE_UUID_LEN],
+				 const struct tee_optee_ta_uuid *s);
 
 #endif /* __TEE_H */
