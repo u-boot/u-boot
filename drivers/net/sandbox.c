@@ -71,11 +71,15 @@ int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
 	if (ntohs(arp->ar_op) != ARPOP_REQUEST)
 		return -EAGAIN;
 
+	/* Don't allow the buffer to overrun */
+	if (priv->recv_packets >= PKTBUFSRX)
+		return 0;
+
 	/* store this as the assumed IP of the fake host */
 	priv->fake_host_ipaddr = net_read_ip(&arp->ar_tpa);
 
 	/* Formulate a fake response */
-	eth_recv = (void *)priv->recv_packet_buffer;
+	eth_recv = (void *)priv->recv_packet_buffer[priv->recv_packets];
 	memcpy(eth_recv->et_dest, eth->et_src, ARP_HLEN);
 	memcpy(eth_recv->et_src, priv->fake_host_hwaddr, ARP_HLEN);
 	eth_recv->et_protlen = htons(PROT_ARP);
@@ -91,7 +95,9 @@ int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
 	memcpy(&arp_recv->ar_tha, &arp->ar_sha, ARP_HLEN);
 	net_copy_ip(&arp_recv->ar_tpa, &arp->ar_spa);
 
-	priv->recv_packet_length = ETHER_HDR_SIZE + ARP_HDR_SIZE;
+	priv->recv_packet_length[priv->recv_packets] =
+		ETHER_HDR_SIZE + ARP_HDR_SIZE;
+	++priv->recv_packets;
 
 	return 0;
 }
@@ -127,8 +133,12 @@ int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 	if (icmp->type != ICMP_ECHO_REQUEST)
 		return -EAGAIN;
 
+	/* Don't allow the buffer to overrun */
+	if (priv->recv_packets >= PKTBUFSRX)
+		return 0;
+
 	/* reply to the ping */
-	eth_recv = (void *)priv->recv_packet_buffer;
+	eth_recv = (void *)priv->recv_packet_buffer[priv->recv_packets];
 	memcpy(eth_recv, packet, len);
 	ipr = (void *)eth_recv + ETHER_HDR_SIZE;
 	icmpr = (struct icmp_hdr *)&ipr->udp_src;
@@ -144,7 +154,8 @@ int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 	icmpr->checksum = 0;
 	icmpr->checksum = compute_ip_checksum(icmpr, ICMP_HDR_SIZE);
 
-	priv->recv_packet_length = len;
+	priv->recv_packet_length[priv->recv_packets] = len;
+	++priv->recv_packets;
 
 	return 0;
 }
@@ -201,7 +212,11 @@ static int sb_eth_start(struct udevice *dev)
 
 	debug("eth_sandbox: Start\n");
 
-	priv->recv_packet_buffer = net_rx_packets[0];
+	priv->recv_packets = 0;
+	for (int i = 0; i < PKTBUFSRX; i++) {
+		priv->recv_packet_buffer[i] = net_rx_packets[i];
+		priv->recv_packet_length[i] = 0;
+	}
 
 	return 0;
 }
@@ -227,15 +242,34 @@ static int sb_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 		skip_timeout = false;
 	}
 
-	if (priv->recv_packet_length) {
-		int lcl_recv_packet_length = priv->recv_packet_length;
+	if (priv->recv_packets) {
+		int lcl_recv_packet_length = priv->recv_packet_length[0];
 
-		debug("eth_sandbox: received packet %d\n",
-		      priv->recv_packet_length);
-		priv->recv_packet_length = 0;
-		*packetp = priv->recv_packet_buffer;
+		debug("eth_sandbox: received packet[%d], %d waiting\n",
+		      lcl_recv_packet_length, priv->recv_packets - 1);
+		*packetp = priv->recv_packet_buffer[0];
 		return lcl_recv_packet_length;
 	}
+	return 0;
+}
+
+static int sb_eth_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+	int i;
+
+	if (!priv->recv_packets)
+		return 0;
+
+	--priv->recv_packets;
+	for (i = 0; i < priv->recv_packets; i++) {
+		priv->recv_packet_length[i] = priv->recv_packet_length[i + 1];
+		memcpy(priv->recv_packet_buffer[i],
+		       priv->recv_packet_buffer[i + 1],
+		       priv->recv_packet_length[i + 1]);
+	}
+	priv->recv_packet_length[priv->recv_packets] = 0;
+
 	return 0;
 }
 
@@ -257,6 +291,7 @@ static const struct eth_ops sb_eth_ops = {
 	.start			= sb_eth_start,
 	.send			= sb_eth_send,
 	.recv			= sb_eth_recv,
+	.free_pkt		= sb_eth_free_pkt,
 	.stop			= sb_eth_stop,
 	.write_hwaddr		= sb_eth_write_hwaddr,
 };

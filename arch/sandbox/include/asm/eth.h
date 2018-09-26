@@ -55,16 +55,18 @@ typedef int sandbox_eth_tx_hand_f(struct udevice *dev, void *pkt,
  * fake_host_hwaddr - MAC address of mocked machine
  * fake_host_ipaddr - IP address of mocked machine
  * disabled - Will not respond
- * recv_packet_buffer - buffer of the packet returned as received
- * recv_packet_length - length of the packet returned as received
+ * recv_packet_buffer - buffers of the packet returned as received
+ * recv_packet_length - lengths of the packet returned as received
+ * recv_packets - number of packets returned
  * tx_handler - function to generate responses to sent packets
  */
 struct eth_sandbox_priv {
 	uchar fake_host_hwaddr[ARP_HLEN];
 	struct in_addr fake_host_ipaddr;
 	bool disabled;
-	uchar *recv_packet_buffer;
-	int recv_packet_length;
+	uchar * recv_packet_buffer[PKTBUFSRX];
+	int recv_packet_length[PKTBUFSRX];
+	int recv_packets;
 	sandbox_eth_tx_hand_f *tx_handler;
 };
 
