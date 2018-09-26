@@ -11,6 +11,7 @@
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
+#include <asm/csr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -57,9 +58,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	printf("\nStarting kernel ...\n\n");
 
 	cleanup_before_linux();
-	/* TODO: hardcode the hart id to zero for now */
+
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
-		kernel(0, images->ft_addr);
+		kernel(csr_read(mhartid), images->ft_addr);
 
 	/* does not return */
 
