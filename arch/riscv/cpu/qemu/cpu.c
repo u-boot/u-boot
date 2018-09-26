@@ -4,7 +4,6 @@
  */
 
 #include <common.h>
-#include <command.h>
 
 /*
  * cleanup_before_linux() is called just before we call linux
@@ -17,13 +16,6 @@ int cleanup_before_linux(void)
 	disable_interrupts();
 
 	/* turn off I/D-cache */
-
-	return 0;
-}
-
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	printf("reset unsupported yet\n");
 
 	return 0;
 }

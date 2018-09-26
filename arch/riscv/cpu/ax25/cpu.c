@@ -6,9 +6,6 @@
 
 /* CPU specific code */
 #include <common.h>
-#include <command.h>
-#include <watchdog.h>
-#include <asm/cache.h>
 
 /*
  * cleanup_before_linux() is called just before we call linux
@@ -23,10 +20,4 @@ int cleanup_before_linux(void)
 	/* turn off I/D-cache */
 
 	return 0;
-}
-
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	disable_interrupts();
-	panic("ax25-ae350 wdt not support yet.\n");
 }
