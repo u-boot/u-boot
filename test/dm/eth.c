@@ -332,10 +332,9 @@ static int dm_test_eth_async_arp_reply(struct unit_test_state *uts)
 	sandbox_eth_set_tx_handler(0, sb_with_async_arp_handler);
 	/* Used by all of the ut_assert macros in the tx_handler */
 	sandbox_eth_set_priv(0, uts);
-	sandbox_eth_skip_timeout();
 
 	env_set("ethact", "eth@10002000");
-	ut_assert(net_loop(PING) == -ETIMEDOUT);
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", env_get("ethact"));
 
 	sandbox_eth_set_tx_handler(0, NULL);
@@ -418,10 +417,9 @@ static int dm_test_eth_async_ping_reply(struct unit_test_state *uts)
 	sandbox_eth_set_tx_handler(0, sb_with_async_ping_handler);
 	/* Used by all of the ut_assert macros in the tx_handler */
 	sandbox_eth_set_priv(0, uts);
-	sandbox_eth_skip_timeout();
 
 	env_set("ethact", "eth@10002000");
-	ut_assert(net_loop(PING) == -ETIMEDOUT);
+	ut_assertok(net_loop(PING));
 	ut_asserteq_str("eth@10002000", env_get("ethact"));
 
 	sandbox_eth_set_tx_handler(0, NULL);

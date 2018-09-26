@@ -799,6 +799,14 @@ void net_set_timeout_handler(ulong iv, thand_f *f)
 	}
 }
 
+uchar *net_get_async_tx_pkt_buf(void)
+{
+	if (arp_is_waiting())
+		return arp_tx_packet; /* If we are waiting, we already sent */
+	else
+		return net_tx_packet;
+}
+
 int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 		int payload_len)
 {

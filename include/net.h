@@ -655,6 +655,14 @@ static inline void net_set_state(enum net_loop_state state)
 	net_state = state;
 }
 
+/*
+ * net_get_async_tx_pkt_buf - Get a packet buffer that is not in use for
+ *			      sending an asynchronous reply
+ *
+ * returns - ptr to packet buffer
+ */
+uchar * net_get_async_tx_pkt_buf(void);
+
 /* Transmit a packet */
 static inline void net_send_packet(uchar *pkt, int len)
 {
