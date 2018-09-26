@@ -106,7 +106,6 @@
 
 #if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_NAND_BOOT) && \
 	!defined(CONFIG_QSPI_BOOT)
-#define CONFIG_U_QE
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #endif
 

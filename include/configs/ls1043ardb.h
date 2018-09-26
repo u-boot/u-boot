@@ -268,13 +268,6 @@
 #endif
 #endif
 
-/* QE */
-#ifndef SPL_NO_QE
-#if !defined(CONFIG_NAND_BOOT) && !defined(CONFIG_QSPI_BOOT)
-#define CONFIG_U_QE
-#endif
-#endif
-
 /* SATA */
 #ifndef SPL_NO_SATA
 #ifndef CONFIG_CMD_EXT2

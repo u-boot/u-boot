@@ -669,7 +669,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_TARGET_T1024RDB
 #define CONFIG_QE
-#define CONFIG_U_QE
 #endif
 /* Default address of microcode for the Linux FMan driver */
 #if defined(CONFIG_SPIFLASH)
