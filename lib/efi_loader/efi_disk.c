@@ -258,18 +258,18 @@ static efi_status_t efi_disk_add_dev(
 		diskobj->dp = efi_dp_from_part(desc, part);
 	}
 	diskobj->part = part;
-	ret = efi_add_protocol(diskobj->parent.handle, &efi_block_io_guid,
+	ret = efi_add_protocol(&diskobj->parent, &efi_block_io_guid,
 			       &diskobj->ops);
 	if (ret != EFI_SUCCESS)
 		return ret;
-	ret = efi_add_protocol(diskobj->parent.handle, &efi_guid_device_path,
+	ret = efi_add_protocol(&diskobj->parent, &efi_guid_device_path,
 			       diskobj->dp);
 	if (ret != EFI_SUCCESS)
 		return ret;
 	if (part >= 1) {
 		diskobj->volume = efi_simple_file_system(desc, part,
 							 diskobj->dp);
-		ret = efi_add_protocol(diskobj->parent.handle,
+		ret = efi_add_protocol(&diskobj->parent,
 				       &efi_simple_file_system_protocol_guid,
 				       diskobj->volume);
 		if (ret != EFI_SUCCESS)
@@ -381,7 +381,7 @@ efi_status_t efi_disk_register(void)
 
 		/* Partitions show up as block devices in EFI */
 		disks += efi_disk_create_partitions(
-					disk->parent.handle, desc, if_typename,
+					&disk->parent, desc, if_typename,
 					desc->devnum, dev->name);
 	}
 #else
@@ -426,9 +426,9 @@ efi_status_t efi_disk_register(void)
 			disks++;
 
 			/* Partitions show up as block devices in EFI */
-			disks += efi_disk_create_partitions(
-						disk->parent.handle, desc,
-						if_typename, i, devname);
+			disks += efi_disk_create_partitions
+						(&disk->parent, desc,
+						 if_typename, i, devname);
 		}
 	}
 #endif

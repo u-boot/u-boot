@@ -442,7 +442,7 @@ efi_status_t efi_gop_register(void)
 	efi_add_handle(&gopobj->parent);
 
 	/* Fill in object data */
-	ret = efi_add_protocol(gopobj->parent.handle, &efi_gop_guid,
+	ret = efi_add_protocol(&gopobj->parent, &efi_gop_guid,
 			       &gopobj->ops);
 	if (ret != EFI_SUCCESS) {
 		printf("ERROR: Failure adding gop protocol\n");

@@ -150,7 +150,7 @@ static struct efi_object *find_obj(struct efi_device_path *dp, bool short_path,
 		struct efi_device_path *obj_dp;
 		efi_status_t ret;
 
-		ret = efi_search_protocol(efiobj->handle,
+		ret = efi_search_protocol(efiobj,
 					  &efi_guid_device_path, &handler);
 		if (ret != EFI_SUCCESS)
 			continue;

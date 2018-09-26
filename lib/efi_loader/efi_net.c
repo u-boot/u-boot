@@ -328,15 +328,15 @@ efi_status_t efi_net_register(void)
 	efi_add_handle(&netobj->parent);
 
 	/* Fill in object data */
-	r = efi_add_protocol(netobj->parent.handle, &efi_net_guid,
+	r = efi_add_protocol(&netobj->parent, &efi_net_guid,
 			     &netobj->net);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
-	r = efi_add_protocol(netobj->parent.handle, &efi_guid_device_path,
+	r = efi_add_protocol(&netobj->parent, &efi_guid_device_path,
 			     efi_dp_from_eth());
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
-	r = efi_add_protocol(netobj->parent.handle, &efi_pxe_guid,
+	r = efi_add_protocol(&netobj->parent, &efi_pxe_guid,
 			     &netobj->pxe);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;

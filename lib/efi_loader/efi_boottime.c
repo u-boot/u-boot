@@ -416,13 +416,12 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
  *
  * The protocols list is initialized. The object handle is set.
  */
-void efi_add_handle(struct efi_object *obj)
+void efi_add_handle(efi_handle_t handle)
 {
-	if (!obj)
+	if (!handle)
 		return;
-	INIT_LIST_HEAD(&obj->protocols);
-	obj->handle = obj;
-	list_add_tail(&obj->link, &efi_obj_list);
+	INIT_LIST_HEAD(&handle->protocols);
+	list_add_tail(&handle->link, &efi_obj_list);
 }
 
 /**
@@ -440,7 +439,7 @@ efi_status_t efi_create_handle(efi_handle_t *handle)
 		return EFI_OUT_OF_RESOURCES;
 
 	efi_add_handle(obj);
-	*handle = obj->handle;
+	*handle = obj;
 
 	return EFI_SUCCESS;
 }
@@ -536,13 +535,13 @@ efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
  *
  * @obj: handle to delete
  */
-void efi_delete_handle(struct efi_object *obj)
+void efi_delete_handle(efi_handle_t handle)
 {
-	if (!obj)
+	if (!handle)
 		return;
-	efi_remove_all_protocols(obj->handle);
-	list_del(&obj->link);
-	free(obj);
+	efi_remove_all_protocols(handle);
+	list_del(&handle->link);
+	free(handle);
 }
 
 /**
@@ -927,7 +926,7 @@ struct efi_object *efi_search_obj(const efi_handle_t handle)
 	struct efi_object *efiobj;
 
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		if (efiobj->handle == handle)
+		if (efiobj == handle)
 			return efiobj;
 	}
 
@@ -1052,7 +1051,7 @@ out:
 
 /**
  * efi_get_drivers() - get all drivers associated to a controller
- * @efiobj:               handle of the controller
+ * @handle:               handle of the controller
  * @protocol:             protocol GUID (optional)
  * @number_of_drivers:    number of child controllers
  * @driver_handle_buffer: handles of the the drivers
@@ -1061,7 +1060,7 @@ out:
  *
  * Return: status code
  */
-static efi_status_t efi_get_drivers(struct efi_object *efiobj,
+static efi_status_t efi_get_drivers(efi_handle_t handle,
 				    const efi_guid_t *protocol,
 				    efi_uintn_t *number_of_drivers,
 				    efi_handle_t **driver_handle_buffer)
@@ -1072,7 +1071,7 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
 	bool duplicate;
 
 	/* Count all driver associations */
-	list_for_each_entry(handler, &efiobj->protocols, link) {
+	list_for_each_entry(handler, &handle->protocols, link) {
 		if (protocol && guidcmp(handler->guid, protocol))
 			continue;
 		list_for_each_entry(item, &handler->open_infos, link) {
@@ -1090,7 +1089,7 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
 	if (!*driver_handle_buffer)
 		return EFI_OUT_OF_RESOURCES;
 	/* Collect unique driver handles */
-	list_for_each_entry(handler, &efiobj->protocols, link) {
+	list_for_each_entry(handler, &handle->protocols, link) {
 		if (protocol && guidcmp(handler->guid, protocol))
 			continue;
 		list_for_each_entry(item, &handler->open_infos, link) {
@@ -1117,7 +1116,7 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
 
 /**
  * efi_disconnect_all_drivers() - disconnect all drivers from a controller
- * @efiobj:       handle of the controller
+ * @handle:       handle of the controller
  * @protocol:     protocol GUID (optional)
  * @child_handle: handle of the child to destroy
  *
@@ -1128,16 +1127,16 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
  *
  * Return: status code
  */
-static efi_status_t efi_disconnect_all_drivers(
-				struct efi_object *efiobj,
-				const efi_guid_t *protocol,
-				efi_handle_t child_handle)
+static efi_status_t efi_disconnect_all_drivers
+				(efi_handle_t handle,
+				 const efi_guid_t *protocol,
+				 efi_handle_t child_handle)
 {
 	efi_uintn_t number_of_drivers;
 	efi_handle_t *driver_handle_buffer;
 	efi_status_t r, ret;
 
-	ret = efi_get_drivers(efiobj, protocol, &number_of_drivers,
+	ret = efi_get_drivers(handle, protocol, &number_of_drivers,
 			      &driver_handle_buffer);
 	if (ret != EFI_SUCCESS)
 		return ret;
@@ -1145,7 +1144,7 @@ static efi_status_t efi_disconnect_all_drivers(
 	ret = EFI_NOT_FOUND;
 	while (number_of_drivers) {
 		r = EFI_CALL(efi_disconnect_controller(
-				efiobj->handle,
+				handle,
 				driver_handle_buffer[--number_of_drivers],
 				child_handle));
 		if (r == EFI_SUCCESS)
@@ -1270,7 +1269,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
  * @search_type: selection criterion
  * @protocol:    GUID of the protocol
  * @search_key:  registration key
- * @efiobj:      handle
+ * @handle:      handle
  *
  * See the documentation of the LocateHandle service in the UEFI specification.
  *
@@ -1278,7 +1277,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
  */
 static int efi_search(enum efi_locate_search_type search_type,
 		      const efi_guid_t *protocol, void *search_key,
-		      struct efi_object *efiobj)
+		      efi_handle_t handle)
 {
 	efi_status_t ret;
 
@@ -1289,7 +1288,7 @@ static int efi_search(enum efi_locate_search_type search_type,
 		/* TODO: RegisterProtocolNotify is not implemented yet */
 		return -1;
 	case BY_PROTOCOL:
-		ret = efi_search_protocol(efiobj->handle, protocol, NULL);
+		ret = efi_search_protocol(handle, protocol, NULL);
 		return (ret != EFI_SUCCESS);
 	default:
 		/* Invalid search type */
@@ -1361,7 +1360,7 @@ static efi_status_t efi_locate_handle(
 	/* Then fill the array */
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		if (!efi_search(search_type, protocol, search_key, efiobj))
-			*buffer++ = efiobj->handle;
+			*buffer++ = efiobj;
 	}
 
 	return EFI_SUCCESS;
@@ -1536,7 +1535,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 		 * When asking for the device path interface, return
 		 * bootefi_device_path
 		 */
-		ret = efi_add_protocol(obj->parent.handle,
+		ret = efi_add_protocol(&obj->parent,
 				       &efi_guid_device_path, device_path);
 		if (ret != EFI_SUCCESS)
 			goto failure;
@@ -1546,7 +1545,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	 * When asking for the loaded_image interface, just
 	 * return handle which points to loaded_image_info
 	 */
-	ret = efi_add_protocol(obj->parent.handle,
+	ret = efi_add_protocol(&obj->parent,
 			       &efi_guid_loaded_image, info);
 	if (ret != EFI_SUCCESS)
 		goto failure;
@@ -2206,7 +2205,7 @@ static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
 
 		efiobj = list_entry(lhandle, struct efi_object, link);
 
-		ret = efi_search_protocol(efiobj->handle, protocol, &handler);
+		ret = efi_search_protocol(efiobj, protocol, &handler);
 		if (ret == EFI_SUCCESS) {
 			*protocol_interface = handler->protocol_interface;
 			return EFI_EXIT(EFI_SUCCESS);

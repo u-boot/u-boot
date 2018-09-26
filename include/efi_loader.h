@@ -167,20 +167,28 @@ struct efi_handler {
 	struct list_head open_infos;
 };
 
-/*
- * UEFI has a poor man's OO model where one "object" can be polymorphic and have
- * multiple different protocols (classes) attached to it.
+/**
+ * struct efi_object - dereferenced EFI handle
  *
- * This struct is the parent struct for all of our actual implementation objects
- * that can include it to make themselves an EFI object
+ * @link:	pointers to put the handle into a linked list
+ * @protocols:	linked list with the protocol interfaces installed on this
+ *		handle
+ *
+ * UEFI offers a flexible and expandable object model. The objects in the UEFI
+ * API are devices, drivers, and loaded images. struct efi_object is our storage
+ * structure for these objects.
+ *
+ * When including this structure into a larger structure always put it first so
+ * that when deleting a handle the whole encompassing structure can be freed.
+ *
+ * A pointer to this structure is referred to as a handle. Typedef efi_handle_t
+ * has been created for such pointers.
  */
 struct efi_object {
 	/* Every UEFI object is part of a global object list */
 	struct list_head link;
 	/* The list of protocols */
 	struct list_head protocols;
-	/* The object spawner can either use this for data or as identifier */
-	void *handle;
 };
 
 /**
@@ -290,11 +298,11 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 /* Add a new object to the object list. */
-void efi_add_handle(struct efi_object *obj);
+void efi_add_handle(efi_handle_t obj);
 /* Create handle */
 efi_status_t efi_create_handle(efi_handle_t *handle);
 /* Delete handle */
-void efi_delete_handle(struct efi_object *obj);
+void efi_delete_handle(efi_handle_t obj);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(const efi_handle_t handle);
 /* Find a protocol on a handle */
