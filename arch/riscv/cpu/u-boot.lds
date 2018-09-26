@@ -3,28 +3,27 @@
  * Copyright (C) 2017 Andes Technology Corporation
  * Rick Chen, Andes Technology Corporation <rick@andestech.com>
  */
+
 OUTPUT_ARCH("riscv")
 ENTRY(_start)
 
 SECTIONS
 {
 	. = ALIGN(4);
-	.text :
-	{
+	.text : {
 		arch/riscv/cpu/ax25/start.o	(.text)
 	}
 
 	/* This needs to come before *(.text*) */
 	.efi_runtime : {
-                __efi_runtime_start = .;
+		__efi_runtime_start = .;
 		*(.text.efi_runtime*)
 		*(.rodata.efi_runtime*)
 		*(.data.efi_runtime*)
-                __efi_runtime_stop = .;
+		__efi_runtime_stop = .;
 	}
 
-	.text_rest :
-	{
+	.text_rest : {
 		*(.text*)
 	}
 
@@ -39,10 +38,10 @@ SECTIONS
 	. = ALIGN(4);
 
 	.got : {
-	   __got_start = .;
-	   *(.got.plt) *(.got)
-	   __got_end = .;
-    }
+		__got_start = .;
+		*(.got.plt) *(.got)
+		__got_end = .;
+	}
 
 	. = ALIGN(4);
 
@@ -50,41 +49,40 @@ SECTIONS
 		KEEP(*(SORT(.u_boot_list*)));
 	}
 
-    . = ALIGN(4);
+	. = ALIGN(4);
 
 	.efi_runtime_rel : {
-                __efi_runtime_rel_start = .;
+		__efi_runtime_rel_start = .;
 		*(.rel*.efi_runtime)
 		*(.rel*.efi_runtime.*)
-                __efi_runtime_rel_stop = .;
+		__efi_runtime_rel_stop = .;
 	}
 
-    . = ALIGN(4);
+	. = ALIGN(4);
 
-    /DISCARD/ : { *(.rela.plt*) }
-    .rela.dyn : {
-        __rel_dyn_start = .;
-        *(.rela*)
-        __rel_dyn_end = .;
-    }
+	/DISCARD/ : { *(.rela.plt*) }
+	.rela.dyn : {
+		__rel_dyn_start = .;
+		*(.rela*)
+		__rel_dyn_end = .;
+	}
 
-    . = ALIGN(4);
+	. = ALIGN(4);
 
-    .dynsym : {
-        __dyn_sym_start = .;
-        *(.dynsym)
-        __dyn_sym_end = .;
-    }
+	.dynsym : {
+		__dyn_sym_start = .;
+		*(.dynsym)
+		__dyn_sym_end = .;
+	}
 
-    . = ALIGN(4);
+	. = ALIGN(4);
 
 	_end = .;
 
 	.bss : {
-        __bss_start = .;
-        *(.bss*)
+		__bss_start = .;
+		*(.bss*)
 		. = ALIGN(4);
 		__bss_end = .;
 	}
-
 }
