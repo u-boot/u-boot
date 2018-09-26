@@ -64,6 +64,15 @@ config RISCV
 	select SUPPORT_OF_CONTROL
 	select OF_CONTROL
 	select DM
+	imply DM_SERIAL
+	imply DM_ETH
+	imply DM_MMC
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	imply BLK
+	imply CLK
+	imply MTD
+	imply TIMER
 	imply CMD_DM
 
 config SANDBOX
