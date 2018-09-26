@@ -21,6 +21,7 @@ efi_selftest_devicepath.o \
 efi_selftest_devicepath_util.o \
 efi_selftest_events.o \
 efi_selftest_event_groups.o \
+efi_selftest_exception.o \
 efi_selftest_exitbootservices.o \
 efi_selftest_fdt.o \
 efi_selftest_gop.o \
