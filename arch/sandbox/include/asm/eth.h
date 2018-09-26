@@ -59,6 +59,7 @@ typedef int sandbox_eth_tx_hand_f(struct udevice *dev, void *pkt,
  * recv_packet_length - lengths of the packet returned as received
  * recv_packets - number of packets returned
  * tx_handler - function to generate responses to sent packets
+ * priv - a pointer to some structure a test may want to keep track of
  */
 struct eth_sandbox_priv {
 	uchar fake_host_hwaddr[ARP_HLEN];
@@ -68,6 +69,7 @@ struct eth_sandbox_priv {
 	int recv_packet_length[PKTBUFSRX];
 	int recv_packets;
 	sandbox_eth_tx_hand_f *tx_handler;
+	void *priv;
 };
 
 /*
@@ -76,5 +78,12 @@ struct eth_sandbox_priv {
  * handler - The func ptr to call on send. If NULL, set to default handler
  */
 void sandbox_eth_set_tx_handler(int index, sandbox_eth_tx_hand_f *handler);
+
+/*
+ * Set priv ptr
+ *
+ * priv - priv void ptr to store in the device
+ */
+void sandbox_eth_set_priv(int index, void *priv);
 
 #endif /* __ETH_H */

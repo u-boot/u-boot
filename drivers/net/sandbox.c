@@ -206,6 +206,26 @@ void sandbox_eth_set_tx_handler(int index, sandbox_eth_tx_hand_f *handler)
 		priv->tx_handler = sb_default_handler;
 }
 
+/*
+ * Set priv ptr
+ *
+ * priv - priv void ptr to store in the device
+ */
+void sandbox_eth_set_priv(int index, void *priv)
+{
+	struct udevice *dev;
+	struct eth_sandbox_priv *dev_priv;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_ETH, index, &dev);
+	if (ret)
+		return;
+
+	dev_priv = dev_get_priv(dev);
+
+	dev_priv->priv = priv;
+}
+
 static int sb_eth_start(struct udevice *dev)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
