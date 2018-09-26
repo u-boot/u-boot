@@ -63,6 +63,108 @@ void sandbox_eth_skip_timeout(void)
 	skip_timeout = true;
 }
 
+/*
+ * sandbox_eth_arp_req_to_reply()
+ *
+ * Check for an arp request to be sent. If so, inject a reply
+ *
+ * returns 0 if injected, -EAGAIN if not
+ */
+int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
+				 unsigned int len)
+{
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+	struct ethernet_hdr *eth = packet;
+	struct arp_hdr *arp;
+	struct ethernet_hdr *eth_recv;
+	struct arp_hdr *arp_recv;
+
+	if (ntohs(eth->et_protlen) != PROT_ARP)
+		return -EAGAIN;
+
+	arp = packet + ETHER_HDR_SIZE;
+
+	if (ntohs(arp->ar_op) != ARPOP_REQUEST)
+		return -EAGAIN;
+
+	/* store this as the assumed IP of the fake host */
+	priv->fake_host_ipaddr = net_read_ip(&arp->ar_tpa);
+
+	/* Formulate a fake response */
+	eth_recv = (void *)priv->recv_packet_buffer;
+	memcpy(eth_recv->et_dest, eth->et_src, ARP_HLEN);
+	memcpy(eth_recv->et_src, priv->fake_host_hwaddr, ARP_HLEN);
+	eth_recv->et_protlen = htons(PROT_ARP);
+
+	arp_recv = (void *)eth_recv + ETHER_HDR_SIZE;
+	arp_recv->ar_hrd = htons(ARP_ETHER);
+	arp_recv->ar_pro = htons(PROT_IP);
+	arp_recv->ar_hln = ARP_HLEN;
+	arp_recv->ar_pln = ARP_PLEN;
+	arp_recv->ar_op = htons(ARPOP_REPLY);
+	memcpy(&arp_recv->ar_sha, priv->fake_host_hwaddr, ARP_HLEN);
+	net_write_ip(&arp_recv->ar_spa, priv->fake_host_ipaddr);
+	memcpy(&arp_recv->ar_tha, &arp->ar_sha, ARP_HLEN);
+	net_copy_ip(&arp_recv->ar_tpa, &arp->ar_spa);
+
+	priv->recv_packet_length = ETHER_HDR_SIZE + ARP_HDR_SIZE;
+
+	return 0;
+}
+
+/*
+ * sandbox_eth_ping_req_to_reply()
+ *
+ * Check for a ping request to be sent. If so, inject a reply
+ *
+ * returns 0 if injected, -EAGAIN if not
+ */
+int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
+				  unsigned int len)
+{
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+	struct ethernet_hdr *eth = packet;
+	struct ip_udp_hdr *ip;
+	struct icmp_hdr *icmp;
+	struct ethernet_hdr *eth_recv;
+	struct ip_udp_hdr *ipr;
+	struct icmp_hdr *icmpr;
+
+	if (ntohs(eth->et_protlen) != PROT_IP)
+		return -EAGAIN;
+
+	ip = packet + ETHER_HDR_SIZE;
+
+	if (ip->ip_p != IPPROTO_ICMP)
+		return -EAGAIN;
+
+	icmp = (struct icmp_hdr *)&ip->udp_src;
+
+	if (icmp->type != ICMP_ECHO_REQUEST)
+		return -EAGAIN;
+
+	/* reply to the ping */
+	eth_recv = (void *)priv->recv_packet_buffer;
+	memcpy(eth_recv, packet, len);
+	ipr = (void *)eth_recv + ETHER_HDR_SIZE;
+	icmpr = (struct icmp_hdr *)&ipr->udp_src;
+	memcpy(eth_recv->et_dest, eth->et_src, ARP_HLEN);
+	memcpy(eth_recv->et_src, priv->fake_host_hwaddr, ARP_HLEN);
+	ipr->ip_sum = 0;
+	ipr->ip_off = 0;
+	net_copy_ip((void *)&ipr->ip_dst, &ip->ip_src);
+	net_write_ip((void *)&ipr->ip_src, priv->fake_host_ipaddr);
+	ipr->ip_sum = compute_ip_checksum(ipr, IP_HDR_SIZE);
+
+	icmpr->type = ICMP_ECHO_REPLY;
+	icmpr->checksum = 0;
+	icmpr->checksum = compute_ip_checksum(icmpr, ICMP_HDR_SIZE);
+
+	priv->recv_packet_length = len;
+
+	return 0;
+}
+
 static int sb_eth_start(struct udevice *dev)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
@@ -77,86 +179,16 @@ static int sb_eth_start(struct udevice *dev)
 static int sb_eth_send(struct udevice *dev, void *packet, int length)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
-	struct ethernet_hdr *eth = packet;
 
 	debug("eth_sandbox: Send packet %d\n", length);
 
 	if (priv->disabled)
 		return 0;
 
-	if (ntohs(eth->et_protlen) == PROT_ARP) {
-		struct arp_hdr *arp = packet + ETHER_HDR_SIZE;
-
-		if (ntohs(arp->ar_op) == ARPOP_REQUEST) {
-			struct ethernet_hdr *eth_recv;
-			struct arp_hdr *arp_recv;
-
-			/* store this as the assumed IP of the fake host */
-			priv->fake_host_ipaddr = net_read_ip(&arp->ar_tpa);
-			/* Formulate a fake response */
-			eth_recv = (void *)priv->recv_packet_buffer;
-			memcpy(eth_recv->et_dest, eth->et_src, ARP_HLEN);
-			memcpy(eth_recv->et_src, priv->fake_host_hwaddr,
-			       ARP_HLEN);
-			eth_recv->et_protlen = htons(PROT_ARP);
-
-			arp_recv = (void *)priv->recv_packet_buffer +
-				ETHER_HDR_SIZE;
-			arp_recv->ar_hrd = htons(ARP_ETHER);
-			arp_recv->ar_pro = htons(PROT_IP);
-			arp_recv->ar_hln = ARP_HLEN;
-			arp_recv->ar_pln = ARP_PLEN;
-			arp_recv->ar_op = htons(ARPOP_REPLY);
-			memcpy(&arp_recv->ar_sha, priv->fake_host_hwaddr,
-			       ARP_HLEN);
-			net_write_ip(&arp_recv->ar_spa, priv->fake_host_ipaddr);
-			memcpy(&arp_recv->ar_tha, &arp->ar_sha, ARP_HLEN);
-			net_copy_ip(&arp_recv->ar_tpa, &arp->ar_spa);
-
-			priv->recv_packet_length = ETHER_HDR_SIZE +
-				ARP_HDR_SIZE;
-		}
-	} else if (ntohs(eth->et_protlen) == PROT_IP) {
-		struct ip_udp_hdr *ip = packet + ETHER_HDR_SIZE;
-
-		if (ip->ip_p == IPPROTO_ICMP) {
-			struct icmp_hdr *icmp = (struct icmp_hdr *)&ip->udp_src;
-
-			if (icmp->type == ICMP_ECHO_REQUEST) {
-				struct ethernet_hdr *eth_recv;
-				struct ip_udp_hdr *ipr;
-				struct icmp_hdr *icmpr;
-
-				/* reply to the ping */
-				memcpy(priv->recv_packet_buffer, packet,
-				       length);
-				eth_recv = (void *)priv->recv_packet_buffer;
-				ipr = (void *)priv->recv_packet_buffer +
-					ETHER_HDR_SIZE;
-				icmpr = (struct icmp_hdr *)&ipr->udp_src;
-				memcpy(eth_recv->et_dest, eth->et_src,
-				       ARP_HLEN);
-				memcpy(eth_recv->et_src, priv->fake_host_hwaddr,
-				       ARP_HLEN);
-				ipr->ip_sum = 0;
-				ipr->ip_off = 0;
-				net_copy_ip((void *)&ipr->ip_dst, &ip->ip_src);
-				net_write_ip((void *)&ipr->ip_src,
-					     priv->fake_host_ipaddr);
-				ipr->ip_sum = compute_ip_checksum(ipr,
-					IP_HDR_SIZE);
-
-				icmpr->type = ICMP_ECHO_REPLY;
-				icmpr->checksum = 0;
-				icmpr->checksum = compute_ip_checksum(icmpr,
-					ICMP_HDR_SIZE);
-
-				priv->recv_packet_length = length;
-			}
-		}
-	}
-
-	return 0;
+	if (!sandbox_eth_arp_req_to_reply(dev, packet, length))
+		return 0;
+	if (!sandbox_eth_ping_req_to_reply(dev, packet, length))
+		return 0;
 }
 
 static int sb_eth_recv(struct udevice *dev, int flags, uchar **packetp)
