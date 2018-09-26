@@ -100,7 +100,7 @@ int arp_timeout_check(void)
 {
 	ulong t;
 
-	if (!net_arp_wait_packet_ip.s_addr)
+	if (!arp_is_waiting())
 		return 0;
 
 	t = get_timer(0);
@@ -187,8 +187,8 @@ void arp_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		return;
 
 	case ARPOP_REPLY:		/* arp reply */
-		/* are we waiting for a reply */
-		if (!net_arp_wait_packet_ip.s_addr)
+		/* are we waiting for a reply? */
+		if (!arp_is_waiting())
 			break;
 
 #ifdef CONFIG_KEEP_SERVERADDR
@@ -232,4 +232,9 @@ void arp_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		      ntohs(arp->ar_op));
 		return;
 	}
+}
+
+bool arp_is_waiting(void)
+{
+	return !!net_arp_wait_packet_ip.s_addr;
 }
