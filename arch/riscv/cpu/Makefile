@@ -2,4 +2,6 @@
 #
 # Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
 
+extra-y = start.o
+
 obj-y += cpu.o
