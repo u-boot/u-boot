@@ -15,25 +15,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/**
- * struct eth_sandbox_priv - memory for sandbox mock driver
- *
- * fake_host_hwaddr: MAC address of mocked machine
- * fake_host_ipaddr: IP address of mocked machine
- * disabled: Will not respond
- * recv_packet_buffer: buffer of the packet returned as received
- * recv_packet_length: length of the packet returned as received
- * tx_handler - function to generate responses to sent packets
- */
-struct eth_sandbox_priv {
-	uchar fake_host_hwaddr[ARP_HLEN];
-	struct in_addr fake_host_ipaddr;
-	bool disabled;
-	uchar *recv_packet_buffer;
-	int recv_packet_length;
-	sandbox_eth_tx_hand_f *tx_handler;
-};
-
 static bool skip_timeout;
 
 /*
