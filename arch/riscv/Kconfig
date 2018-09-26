@@ -1,4 +1,4 @@
-menu "RISCV architecture"
+menu "RISC-V architecture"
 	depends on RISCV
 
 config SYS_ARCH
@@ -20,13 +20,13 @@ choice
 	default CPU_RISCV_32
 
 config CPU_RISCV_32
-	bool "RISCV 32 bit"
+	bool "RISC-V 32-bit"
 	select 32BIT
 	help
 	  Choose this option to build an U-Boot for RISCV32 architecture.
 
 config CPU_RISCV_64
-	bool "RISCV 64 bit"
+	bool "RISC-V 64-bit"
 	select 64BIT
 	help
 	  Choose this option to build an U-Boot for RISCV64 architecture.

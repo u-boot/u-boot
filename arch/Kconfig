@@ -60,7 +60,7 @@ config PPC
 	select SYS_BOOT_GET_KBD
 
 config RISCV
-	bool "riscv architecture"
+	bool "RISC-V architecture"
 	select SUPPORT_OF_CONTROL
 
 config SANDBOX
