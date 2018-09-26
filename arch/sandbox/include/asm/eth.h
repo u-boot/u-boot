@@ -39,6 +39,16 @@ int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
 int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 				  unsigned int len);
 
+/*
+ * sandbox_eth_recv_arp_req()
+ *
+ * Inject an ARP request for this target
+ *
+ * @dev: device that received the packet
+ * @return 0 if injected, -EOVERFLOW if not
+ */
+int sandbox_eth_recv_arp_req(struct udevice *dev);
+
 /**
  * A packet handler
  *

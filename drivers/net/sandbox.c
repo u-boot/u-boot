@@ -161,6 +161,47 @@ int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 }
 
 /*
+ * sandbox_eth_recv_arp_req()
+ *
+ * Inject an ARP request for this target
+ *
+ * returns 0 if injected, -EOVERFLOW if not
+ */
+int sandbox_eth_recv_arp_req(struct udevice *dev)
+{
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+	struct ethernet_hdr *eth_recv;
+	struct arp_hdr *arp_recv;
+
+	/* Don't allow the buffer to overrun */
+	if (priv->recv_packets >= PKTBUFSRX)
+		return -EOVERFLOW;
+
+	/* Formulate a fake request */
+	eth_recv = (void *)priv->recv_packet_buffer[priv->recv_packets];
+	memcpy(eth_recv->et_dest, net_bcast_ethaddr, ARP_HLEN);
+	memcpy(eth_recv->et_src, priv->fake_host_hwaddr, ARP_HLEN);
+	eth_recv->et_protlen = htons(PROT_ARP);
+
+	arp_recv = (void *)eth_recv + ETHER_HDR_SIZE;
+	arp_recv->ar_hrd = htons(ARP_ETHER);
+	arp_recv->ar_pro = htons(PROT_IP);
+	arp_recv->ar_hln = ARP_HLEN;
+	arp_recv->ar_pln = ARP_PLEN;
+	arp_recv->ar_op = htons(ARPOP_REQUEST);
+	memcpy(&arp_recv->ar_sha, priv->fake_host_hwaddr, ARP_HLEN);
+	net_write_ip(&arp_recv->ar_spa, priv->fake_host_ipaddr);
+	memcpy(&arp_recv->ar_tha, net_null_ethaddr, ARP_HLEN);
+	net_write_ip(&arp_recv->ar_tpa, net_ip);
+
+	priv->recv_packet_length[priv->recv_packets] =
+		ETHER_HDR_SIZE + ARP_HDR_SIZE;
+	++priv->recv_packets;
+
+	return 0;
+}
+
+/*
  * sb_default_handler()
  *
  * perform typical responses to simple ping
