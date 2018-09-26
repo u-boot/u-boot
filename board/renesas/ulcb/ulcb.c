@@ -39,7 +39,7 @@ int board_early_init_f(void)
 {
 #if defined(CONFIG_SYS_I2C) && defined(CONFIG_SYS_I2C_SH)
 	/* DVFS for reset */
-	mstp_clrbits_le32(MSTPSR9, SMSTPCR9, DVFS_MSTP926);
+	mstp_clrbits_le32(SMSTPCR9, SMSTPCR9, DVFS_MSTP926);
 #endif
 	return 0;
 }
@@ -60,7 +60,7 @@ int board_init(void)
 	setbits_le32(PFC_PUEN6, PUEN_USB1_OVC | PUEN_USB1_PWEN);
 
 	/* Configure the HSUSB block */
-	mstp_clrbits_le32(MSTPSR7, SMSTPCR7, HSUSB_MSTP704);
+	mstp_clrbits_le32(SMSTPCR7, SMSTPCR7, HSUSB_MSTP704);
 	/* Choice USB0SEL */
 	clrsetbits_le32(HSUSB_REG_UGCTRL2, HSUSB_REG_UGCTRL2_USB0SEL,
 			HSUSB_REG_UGCTRL2_USB0SEL_EHCI);
