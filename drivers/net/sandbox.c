@@ -202,6 +202,57 @@ int sandbox_eth_recv_arp_req(struct udevice *dev)
 }
 
 /*
+ * sandbox_eth_recv_ping_req()
+ *
+ * Inject a ping request for this target
+ *
+ * returns 0 if injected, -EOVERFLOW if not
+ */
+int sandbox_eth_recv_ping_req(struct udevice *dev)
+{
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+	struct ethernet_hdr *eth_recv;
+	struct ip_udp_hdr *ipr;
+	struct icmp_hdr *icmpr;
+
+	/* Don't allow the buffer to overrun */
+	if (priv->recv_packets >= PKTBUFSRX)
+		return -EOVERFLOW;
+
+	/* Formulate a fake ping */
+	eth_recv = (void *)priv->recv_packet_buffer[priv->recv_packets];
+
+	memcpy(eth_recv->et_dest, net_ethaddr, ARP_HLEN);
+	memcpy(eth_recv->et_src, priv->fake_host_hwaddr, ARP_HLEN);
+	eth_recv->et_protlen = htons(PROT_IP);
+
+	ipr = (void *)eth_recv + ETHER_HDR_SIZE;
+	ipr->ip_hl_v = 0x45;
+	ipr->ip_len = htons(IP_ICMP_HDR_SIZE);
+	ipr->ip_off = htons(IP_FLAGS_DFRAG);
+	ipr->ip_p = IPPROTO_ICMP;
+	ipr->ip_sum = 0;
+	net_write_ip(&ipr->ip_src, priv->fake_host_ipaddr);
+	net_write_ip(&ipr->ip_dst, net_ip);
+	ipr->ip_sum = compute_ip_checksum(ipr, IP_HDR_SIZE);
+
+	icmpr = (struct icmp_hdr *)&ipr->udp_src;
+
+	icmpr->type = ICMP_ECHO_REQUEST;
+	icmpr->code = 0;
+	icmpr->checksum = 0;
+	icmpr->un.echo.id = 0;
+	icmpr->un.echo.sequence = htons(1);
+	icmpr->checksum = compute_ip_checksum(icmpr, ICMP_HDR_SIZE);
+
+	priv->recv_packet_length[priv->recv_packets] =
+		ETHER_HDR_SIZE + IP_ICMP_HDR_SIZE;
+	++priv->recv_packets;
+
+	return 0;
+}
+
+/*
  * sb_default_handler()
  *
  * perform typical responses to simple ping
