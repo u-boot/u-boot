@@ -19,17 +19,18 @@ DECLARE_GLOBAL_DATA_PTR;
  *
  * fake_host_hwaddr: MAC address of mocked machine
  * fake_host_ipaddr: IP address of mocked machine
+ * disabled: Will not respond
  * recv_packet_buffer: buffer of the packet returned as received
  * recv_packet_length: length of the packet returned as received
  */
 struct eth_sandbox_priv {
 	uchar fake_host_hwaddr[ARP_HLEN];
 	struct in_addr fake_host_ipaddr;
+	bool disabled;
 	uchar *recv_packet_buffer;
 	int recv_packet_length;
 };
 
-static bool disabled[8] = {false};
 static bool skip_timeout;
 
 /*
@@ -40,7 +41,16 @@ static bool skip_timeout;
  */
 void sandbox_eth_disable_response(int index, bool disable)
 {
-	disabled[index] = disable;
+	struct udevice *dev;
+	struct eth_sandbox_priv *priv;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_ETH, index, &dev);
+	if (ret)
+		return;
+
+	priv = dev_get_priv(dev);
+	priv->disabled = disable;
 }
 
 /*
@@ -71,8 +81,7 @@ static int sb_eth_send(struct udevice *dev, void *packet, int length)
 
 	debug("eth_sandbox: Send packet %d\n", length);
 
-	if (dev->seq >= 0 && dev->seq < ARRAY_SIZE(disabled) &&
-	    disabled[dev->seq])
+	if (priv->disabled)
 		return 0;
 
 	if (ntohs(eth->et_protlen) == PROT_ARP) {
@@ -212,6 +221,7 @@ static int sb_eth_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 	memcpy(priv->fake_host_hwaddr, mac, ARP_HLEN);
+	priv->disabled = false;
 
 	return 0;
 }
