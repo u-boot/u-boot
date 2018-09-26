@@ -8,44 +8,188 @@
 #ifndef __CHARSET_H_
 #define __CHARSET_H_
 
+#include <linux/kernel.h>
 #include <linux/types.h>
 
 #define MAX_UTF8_PER_UTF16 3
 
 /**
- * utf16_strlen() - Get the length of an utf16 string
+ * console_read_unicode() - read Unicode code point from console
  *
- * Returns the number of 16 bit characters in an utf16 string, not
- * including the terminating NULL character.
- *
- * @in     the string to measure
- * @return the string length
+ * @code:	pointer to store Unicode code point
+ * Return:	0 = success
  */
-size_t utf16_strlen(const uint16_t *in);
+int console_read_unicode(s32 *code);
 
 /**
- * utf16_strnlen() - Get the length of a fixed-size utf16 string.
+ * utf8_get() - get next UTF-8 code point from buffer
  *
- * Returns the number of 16 bit characters in an utf16 string,
- * not including the terminating NULL character, but at most
- * 'count' number of characters.  In doing this, utf16_strnlen()
- * looks at only the first 'count' characters.
- *
- * @in     the string to measure
- * @count  the maximum number of characters to count
- * @return the string length, up to a maximum of 'count'
+ * @src:		pointer to current byte, updated to point to next byte
+ * Return:		code point, or 0 for end of string, or -1 if no legal
+ *			code point is found. In case of an error src points to
+ *			the incorrect byte.
  */
-size_t utf16_strnlen(const uint16_t *in, size_t count);
+s32 utf8_get(const char **src);
 
 /**
- * utf16_strcpy() - UTF16 equivalent of strcpy()
+ * utf8_put() - write UTF-8 code point to buffer
+ *
+ * @code:		code point
+ * @dst:		pointer to destination buffer, updated to next position
+ * Return:		-1 if the input parameters are invalid
  */
-uint16_t *utf16_strcpy(uint16_t *dest, const uint16_t *src);
+int utf8_put(s32 code, char **dst);
 
 /**
- * utf16_strdup() - UTF16 equivalent of strdup()
+ * utf8_utf16_strnlen() - length of a truncated utf-8 string after conversion
+ *			  to utf-16
+ *
+ * @src:		utf-8 string
+ * @count:		maximum number of code points to convert
+ * Return:		length in bytes after conversion to utf-16 without the
+ *			trailing \0. If an invalid UTF-8 sequence is hit one
+ *			word will be reserved for a replacement character.
  */
-uint16_t *utf16_strdup(const uint16_t *s);
+size_t utf8_utf16_strnlen(const char *src, size_t count);
+
+/**
+ * utf8_utf16_strlen() - length of a utf-8 string after conversion to utf-16
+ *
+ * @src:		utf-8 string
+ * Return:		length in bytes after conversion to utf-16 without the
+ *			trailing \0. -1 if the utf-8 string is not valid.
+ */
+#define utf8_utf16_strlen(a) utf8_utf16_strnlen((a), SIZE_MAX)
+
+/**
+ * utf8_utf16_strncpy() - copy utf-8 string to utf-16 string
+ *
+ * @dst:		destination buffer
+ * @src:		source buffer
+ * @count:		maximum number of code points to copy
+ * Return:		-1 if the input parameters are invalid
+ */
+int utf8_utf16_strncpy(u16 **dst, const char *src, size_t count);
+
+/**
+ * utf8_utf16_strcpy() - copy utf-8 string to utf-16 string
+ *
+ * @dst:		destination buffer
+ * @src:		source buffer
+ * Return:		-1 if the input parameters are invalid
+ */
+#define utf8_utf16_strcpy(d, s) utf8_utf16_strncpy((d), (s), SIZE_MAX)
+
+/**
+ * utf16_get() - get next UTF-16 code point from buffer
+ *
+ * @src:		pointer to current word, updated to point to next word
+ * Return:		code point, or 0 for end of string, or -1 if no legal
+ *			code point is found. In case of an error src points to
+ *			the incorrect word.
+ */
+s32 utf16_get(const u16 **src);
+
+/**
+ * utf16_put() - write UTF-16 code point to buffer
+ *
+ * @code:		code point
+ * @dst:		pointer to destination buffer, updated to next position
+ * Return:		-1 if the input parameters are invalid
+ */
+int utf16_put(s32 code, u16 **dst);
+
+/**
+ * utf16_strnlen() - length of a truncated utf-16 string
+ *
+ * @src:		utf-16 string
+ * @count:		maximum number of code points to convert
+ * Return:		length in code points. If an invalid UTF-16 sequence is
+ *			hit one position will be reserved for a replacement
+ *			character.
+ */
+size_t utf16_strnlen(const u16 *src, size_t count);
+
+/**
+ * utf16_utf8_strnlen() - length of a truncated utf-16 string after conversion
+ *			  to utf-8
+ *
+ * @src:		utf-16 string
+ * @count:		maximum number of code points to convert
+ * Return:		length in bytes after conversion to utf-8 without the
+ *			trailing \0. If an invalid UTF-16 sequence is hit one
+ *			byte will be reserved for a replacement character.
+ */
+size_t utf16_utf8_strnlen(const u16 *src, size_t count);
+
+/**
+ * utf16_utf8_strlen() - length of a utf-16 string after conversion to utf-8
+ *
+ * @src:		utf-16 string
+ * Return:		length in bytes after conversion to utf-8 without the
+ *			trailing \0. -1 if the utf-16 string is not valid.
+ */
+#define utf16_utf8_strlen(a) utf16_utf8_strnlen((a), SIZE_MAX)
+
+/**
+ * utf16_utf8_strncpy() - copy utf-16 string to utf-8 string
+ *
+ * @dst:		destination buffer
+ * @src:		source buffer
+ * @count:		maximum number of code points to copy
+ * Return:		-1 if the input parameters are invalid
+ */
+int utf16_utf8_strncpy(char **dst, const u16 *src, size_t count);
+
+/**
+ * utf16_utf8_strcpy() - copy utf-16 string to utf-8 string
+ *
+ * @dst:		destination buffer
+ * @src:		source buffer
+ * Return:		-1 if the input parameters are invalid
+ */
+#define utf16_utf8_strcpy(d, s) utf16_utf8_strncpy((d), (s), SIZE_MAX)
+
+/**
+ * utf_to_lower() - convert a Unicode letter to lower case
+ *
+ * @code:		letter to convert
+ * Return:		lower case letter or unchanged letter
+ */
+s32 utf_to_lower(const s32 code);
+
+/**
+ * utf_to_upper() - convert a Unicode letter to upper case
+ *
+ * @code:		letter to convert
+ * Return:		upper case letter or unchanged letter
+ */
+s32 utf_to_upper(const s32 code);
+
+/**
+ * u16_strlen - count non-zero words
+ *
+ * This function matches wsclen() if the -fshort-wchar compiler flag is set.
+ * In the EFI context we explicitly need a function handling u16 strings.
+ *
+ * @in:			null terminated u16 string
+ * ReturnValue:		number of non-zero words.
+ *			This is not the number of utf-16 letters!
+ */
+size_t u16_strlen(const u16 *in);
+
+/**
+ * u16_strlen - count non-zero words
+ *
+ * This function matches wscnlen_s() if the -fshort-wchar compiler flag is set.
+ * In the EFI context we explicitly need a function handling u16 strings.
+ *
+ * @in:			null terminated u16 string
+ * @count:		maximum number of words to count
+ * ReturnValue:		number of non-zero words.
+ *			This is not the number of utf-16 letters!
+ */
+size_t u16_strnlen(const u16 *in, size_t count);
 
 /**
  * utf16_to_utf8() - Convert an utf16 string to utf8
@@ -62,18 +206,5 @@ uint16_t *utf16_strdup(const uint16_t *s);
  * @return the pointer to the first unwritten byte in 'dest'
  */
 uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size);
-
-/**
- * utf8_to_utf16() - Convert an utf8 string to utf16
- *
- * Converts up to 'size' characters of the utf16 string 'src' to utf8
- * written to the 'dest' buffer. Stops at 0x00.
- *
- * @dest   the destination buffer to write the utf8 characters
- * @src    the source utf16 string
- * @size   maximum number of utf16 characters to convert
- * @return the pointer to the first unwritten byte in 'dest'
- */
-uint16_t *utf8_to_utf16(uint16_t *dest, const uint8_t *src, size_t size);
 
 #endif /* __CHARSET_H_ */

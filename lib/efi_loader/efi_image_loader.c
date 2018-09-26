@@ -48,20 +48,21 @@ static int machines[] = {
  * If the program counter is located within the image the offset to the base
  * address is shown.
  *
+ * @obj:	EFI object
  * @image:	loaded image
  * @pc:		program counter (use NULL to suppress offset output)
  * @return:	status code
  */
-efi_status_t efi_print_image_info(struct efi_loaded_image *image, void *pc)
+static efi_status_t efi_print_image_info(struct efi_loaded_image_obj *obj,
+					 struct efi_loaded_image *image,
+					 void *pc)
 {
-	if (!image)
-		return EFI_INVALID_PARAMETER;
 	printf("UEFI image");
 	printf(" [0x%p:0x%p]",
-	       image->reloc_base, image->reloc_base + image->reloc_size - 1);
-	if (pc && pc >= image->reloc_base &&
-	    pc < image->reloc_base + image->reloc_size)
-		printf(" pc=0x%zx", pc - image->reloc_base);
+	       obj->reloc_base, obj->reloc_base + obj->reloc_size - 1);
+	if (pc && pc >= obj->reloc_base &&
+	    pc < obj->reloc_base + obj->reloc_size)
+		printf(" pc=0x%zx", pc - obj->reloc_base);
 	if (image->file_path)
 		printf(" '%pD'", image->file_path);
 	printf("\n");
@@ -82,6 +83,7 @@ void efi_print_image_infos(void *pc)
 		list_for_each_entry(handler, &efiobj->protocols, link) {
 			if (!guidcmp(handler->guid, &efi_guid_loaded_image)) {
 				efi_print_image_info(
+					(struct efi_loaded_image_obj *)efiobj,
 					handler->protocol_interface, pc);
 			}
 		}
@@ -196,7 +198,8 @@ static void efi_set_code_and_data_type(
  * piece of memory. On successful load it then returns the entry point for
  * the binary. Otherwise NULL.
  */
-void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
+void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+		  struct efi_loaded_image *loaded_image_info)
 {
 	IMAGE_NT_HEADERS32 *nt;
 	IMAGE_DOS_HEADER *dos;
@@ -314,8 +317,8 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
 	/* Populate the loaded image interface bits */
 	loaded_image_info->image_base = efi;
 	loaded_image_info->image_size = image_size;
-	loaded_image_info->reloc_base = efi_reloc;
-	loaded_image_info->reloc_size = virt_size;
+	handle->reloc_base = efi_reloc;
+	handle->reloc_size = virt_size;
 
 	return entry;
 }

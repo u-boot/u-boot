@@ -747,6 +747,8 @@ config ARCH_QEMU
 	select OF_CONTROL
 	select PL01X_SERIAL
 	imply CMD_DM
+	imply DM_RTC
+	imply RTC_PL031
 
 config ARCH_RMOBILE
 	bool "Renesas ARM SoCs"

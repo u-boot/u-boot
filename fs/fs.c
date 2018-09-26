@@ -105,6 +105,16 @@ static inline int fs_opendir_unsupported(const char *filename,
 	return -EACCES;
 }
 
+static inline int fs_unlink_unsupported(const char *filename)
+{
+	return -1;
+}
+
+static inline int fs_mkdir_unsupported(const char *dirname)
+{
+	return -1;
+}
+
 struct fstype_info {
 	int fstype;
 	char *name;
@@ -142,6 +152,8 @@ struct fstype_info {
 	int (*readdir)(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
 	/* see fs_closedir() */
 	void (*closedir)(struct fs_dir_stream *dirs);
+	int (*unlink)(const char *filename);
+	int (*mkdir)(const char *dirname);
 };
 
 static struct fstype_info fstypes[] = {
@@ -158,8 +170,12 @@ static struct fstype_info fstypes[] = {
 		.read = fat_read_file,
 #ifdef CONFIG_FAT_WRITE
 		.write = file_fat_write,
+		.unlink = fat_unlink,
+		.mkdir = fat_mkdir,
 #else
 		.write = fs_write_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
 #endif
 		.uuid = fs_uuid_unsupported,
 		.opendir = fat_opendir,
@@ -185,6 +201,8 @@ static struct fstype_info fstypes[] = {
 #endif
 		.uuid = ext4fs_uuid,
 		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
 	},
 #endif
 #ifdef CONFIG_SANDBOX
@@ -201,6 +219,8 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_sandbox,
 		.uuid = fs_uuid_unsupported,
 		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
 	},
 #endif
 #ifdef CONFIG_CMD_UBIFS
@@ -217,6 +237,8 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_unsupported,
 		.uuid = fs_uuid_unsupported,
 		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
 	},
 #endif
 #ifdef CONFIG_FS_BTRFS
@@ -233,6 +255,8 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_unsupported,
 		.uuid = btrfs_uuid,
 		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
 	},
 #endif
 	{
@@ -248,6 +272,8 @@ static struct fstype_info fstypes[] = {
 		.write = fs_write_unsupported,
 		.uuid = fs_uuid_unsupported,
 		.opendir = fs_opendir_unsupported,
+		.unlink = fs_unlink_unsupported,
+		.mkdir = fs_mkdir_unsupported,
 	},
 };
 
@@ -497,6 +523,33 @@ void fs_closedir(struct fs_dir_stream *dirs)
 	fs_close();
 }
 
+int fs_unlink(const char *filename)
+{
+	int ret;
+
+	struct fstype_info *info = fs_get_info(fs_type);
+
+	ret = info->unlink(filename);
+
+	fs_type = FS_TYPE_ANY;
+	fs_close();
+
+	return ret;
+}
+
+int fs_mkdir(const char *dirname)
+{
+	int ret;
+
+	struct fstype_info *info = fs_get_info(fs_type);
+
+	ret = info->mkdir(dirname);
+
+	fs_type = FS_TYPE_ANY;
+	fs_close();
+
+	return ret;
+}
 
 int do_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype)
@@ -700,3 +753,37 @@ int do_fs_type(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return CMD_RET_SUCCESS;
 }
 
+int do_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+	  int fstype)
+{
+	if (argc != 4)
+		return CMD_RET_USAGE;
+
+	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+		return 1;
+
+	if (fs_unlink(argv[3]))
+		return 1;
+
+	return 0;
+}
+
+int do_mkdir(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+	     int fstype)
+{
+	int ret;
+
+	if (argc != 4)
+		return CMD_RET_USAGE;
+
+	if (fs_set_blk_dev(argv[1], argv[2], fstype))
+		return 1;
+
+	ret = fs_mkdir(argv[3]);
+	if (ret) {
+		printf("** Unable to create a directory \"%s\" **\n", argv[3]);
+		return 1;
+	}
+
+	return 0;
+}

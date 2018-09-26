@@ -57,14 +57,104 @@ int cleanup_before_linux_select(int flags)
 	return 0;
 }
 
-void *phys_to_virt(phys_addr_t paddr)
+/**
+ * is_in_sandbox_mem() - Checks if a pointer is within sandbox's emulated DRAM
+ *
+ * This provides a way to check if a pointer is owned by sandbox (and is within
+ * its RAM) or not. Sometimes pointers come from a test which conceptually runs
+ * output sandbox, potentially with direct access to the C-library malloc()
+ * function, or the sandbox stack (which is not actually within the emulated
+ * DRAM.
+ *
+ * Such pointers obviously cannot be mapped into sandbox's DRAM, so we must
+ * detect them an process them separately, by recording a mapping to a tag,
+ * which we can use to map back to the pointer later.
+ *
+ * @ptr: Pointer to check
+ * @return true if this is within sandbox emulated DRAM, false if not
+ */
+static bool is_in_sandbox_mem(const void *ptr)
 {
-	return (void *)(gd->arch.ram_buf + paddr);
+	return (const uint8_t *)ptr >= gd->arch.ram_buf &&
+		(const uint8_t *)ptr < gd->arch.ram_buf + gd->ram_size;
 }
 
-phys_addr_t virt_to_phys(void *vaddr)
+/**
+ * phys_to_virt() - Converts a sandbox RAM address to a pointer
+ *
+ * Sandbox uses U-Boot addresses from 0 to the size of DRAM. These index into
+ * the emulated DRAM buffer used by sandbox. This function converts such an
+ * address to a pointer into this buffer, which can be used to access the
+ * memory.
+ *
+ * If the address is outside this range, it is assumed to be a tag
+ */
+void *phys_to_virt(phys_addr_t paddr)
 {
-	return (phys_addr_t)((uint8_t *)vaddr - gd->arch.ram_buf);
+	struct sandbox_mapmem_entry *mentry;
+	struct sandbox_state *state;
+
+	/* If the address is within emulated DRAM, calculate the value */
+	if (paddr < gd->ram_size)
+		return (void *)(gd->arch.ram_buf + paddr);
+
+	/*
+	 * Otherwise search out list of tags for the correct pointer previously
+	 * created by map_to_sysmem()
+	 */
+	state = state_get_current();
+	list_for_each_entry(mentry, &state->mapmem_head, sibling_node) {
+		if (mentry->tag == paddr) {
+			printf("%s: Used map from %lx to %p\n", __func__,
+			       (ulong)paddr, mentry->ptr);
+			return mentry->ptr;
+		}
+	}
+
+	printf("%s: Cannot map sandbox address %lx (SDRAM from 0 to %lx)\n",
+	       __func__, (ulong)paddr, (ulong)gd->ram_size);
+	os_abort();
+
+	/* Not reached */
+	return NULL;
+}
+
+struct sandbox_mapmem_entry *find_tag(const void *ptr)
+{
+	struct sandbox_mapmem_entry *mentry;
+	struct sandbox_state *state = state_get_current();
+
+	list_for_each_entry(mentry, &state->mapmem_head, sibling_node) {
+		if (mentry->ptr == ptr) {
+			debug("%s: Used map from %p to %lx\n", __func__, ptr,
+			      mentry->tag);
+			return mentry;
+		}
+	}
+	return NULL;
+}
+
+phys_addr_t virt_to_phys(void *ptr)
+{
+	struct sandbox_mapmem_entry *mentry;
+
+	/*
+	 * If it is in emulated RAM, don't bother looking for a tag. Just
+	 * calculate the pointer using the provides offset into the RAM buffer.
+	 */
+	if (is_in_sandbox_mem(ptr))
+		return (phys_addr_t)((uint8_t *)ptr - gd->arch.ram_buf);
+
+	mentry = find_tag(ptr);
+	if (!mentry) {
+		/* Abort so that gdb can be used here */
+		printf("%s: Cannot map sandbox address %p (SDRAM from 0 to %lx)\n",
+		       __func__, ptr, (ulong)gd->ram_size);
+		os_abort();
+	}
+	printf("%s: Used map from %p to %lx\n", __func__, ptr, mentry->tag);
+
+	return mentry->tag;
 }
 
 void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
@@ -87,24 +177,57 @@ void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 	return phys_to_virt(paddr);
 }
 
-void unmap_physmem(const void *vaddr, unsigned long flags)
+void unmap_physmem(const void *ptr, unsigned long flags)
 {
 #ifdef CONFIG_PCI
 	if (map_dev) {
-		pci_unmap_physmem(vaddr, map_len, map_dev);
+		pci_unmap_physmem(ptr, map_len, map_dev);
 		map_dev = NULL;
 	}
 #endif
 }
 
+phys_addr_t map_to_sysmem(const void *ptr)
+{
+	struct sandbox_mapmem_entry *mentry;
+
+	/*
+	 * If it is in emulated RAM, don't bother creating a tag. Just return
+	 * the offset into the RAM buffer.
+	 */
+	if (is_in_sandbox_mem(ptr))
+		return (u8 *)ptr - gd->arch.ram_buf;
+
+	/*
+	 * See if there is an existing tag with this pointer. If not, set up a
+	 * new one.
+	 */
+	mentry = find_tag(ptr);
+	if (!mentry) {
+		struct sandbox_state *state = state_get_current();
+
+		mentry = malloc(sizeof(*mentry));
+		if (!mentry) {
+			printf("%s: Error: Out of memory\n", __func__);
+			os_exit(ENOMEM);
+		}
+		mentry->tag = state->next_tag++;
+		mentry->ptr = (void *)ptr;
+		list_add_tail(&mentry->sibling_node, &state->mapmem_head);
+		debug("%s: Added map from %p to %lx\n", __func__, ptr,
+		      (ulong)mentry->tag);
+	}
+
+	/*
+	 * Return the tag as the address to use. A later call to map_sysmem()
+	 * will return ptr
+	 */
+	return mentry->tag;
+}
+
 void sandbox_set_enable_pci_map(int enable)
 {
 	enable_pci_map = enable;
-}
-
-phys_addr_t map_to_sysmem(const void *ptr)
-{
-	return (u8 *)ptr - gd->arch.ram_buf;
 }
 
 void flush_dcache_range(unsigned long start, unsigned long stop)
@@ -164,16 +287,4 @@ ulong timer_get_boot_us(void)
 		base_count = count;
 
 	return (count - base_count) / 1000;
-}
-
-int setjmp(jmp_buf jmp)
-{
-	return os_setjmp((ulong *)jmp, sizeof(*jmp));
-}
-
-void longjmp(jmp_buf jmp, int ret)
-{
-	os_longjmp((ulong *)jmp, ret);
-	while (1)
-		;
 }

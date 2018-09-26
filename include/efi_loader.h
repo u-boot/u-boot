@@ -13,12 +13,17 @@
 #include <efi_api.h>
 
 /* No need for efi loader support in SPL */
-#if defined(CONFIG_EFI_LOADER) && !defined(CONFIG_SPL_BUILD)
+#if CONFIG_IS_ENABLED(EFI_LOADER)
 
 #include <linux/list.h>
 
 /* Maximum number of configuration tables */
 #define EFI_MAX_CONFIGURATION_TABLES 16
+
+/* GUID used by the root node */
+#define U_BOOT_GUID \
+	EFI_GUID(0xe61d73b9, 0xa384, 0x4acc, \
+		 0xae, 0xab, 0x82, 0xe8, 0x28, 0xf3, 0x62, 0x8b)
 
 int __efi_entry_check(void);
 int __efi_exit_check(void);
@@ -92,15 +97,20 @@ extern struct efi_runtime_services efi_runtime_services;
 extern struct efi_system_table systab;
 
 extern struct efi_simple_text_output_protocol efi_con_out;
-extern struct efi_simple_input_interface efi_con_in;
+extern struct efi_simple_text_input_protocol efi_con_in;
 extern struct efi_console_control_protocol efi_console_control;
 extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
 /* implementation of the EFI_DEVICE_PATH_UTILITIES_PROTOCOL */
 extern const struct efi_device_path_utilities_protocol
 					efi_device_path_utilities;
+/* Implementation of the EFI_UNICODE_COLLATION_PROTOCOL */
+extern const struct efi_unicode_collation_protocol
+					efi_unicode_collation_protocol;
 
 uint16_t *efi_dp_str(struct efi_device_path *dp);
 
+/* GUID of the U-Boot root node */
+extern const efi_guid_t efi_u_boot_guid;
 /* GUID of the EFI_BLOCK_IO_PROTOCOL */
 extern const efi_guid_t efi_block_io_guid;
 extern const efi_guid_t efi_global_variable_guid;
@@ -127,6 +137,8 @@ extern const efi_guid_t efi_file_info_guid;
 /* GUID for file system information */
 extern const efi_guid_t efi_file_system_info_guid;
 extern const efi_guid_t efi_guid_device_path_utilities_protocol;
+/* GUID of the Unicode collation protocol */
+extern const efi_guid_t efi_guid_unicode_collation_protocol;
 
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
@@ -172,6 +184,20 @@ struct efi_object {
 };
 
 /**
+ * struct efi_loaded_image_obj - handle of a loaded image
+ */
+struct efi_loaded_image_obj {
+	/* Generic EFI object parent class data */
+	struct efi_object parent;
+	void *reloc_base;
+	aligned_u64 reloc_size;
+	efi_status_t exit_status;
+	struct jmp_buf_data exit_jmp;
+	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
+				     struct efi_system_table *st);
+};
+
+/**
  * struct efi_event
  *
  * @link:		Link to list of all events
@@ -205,6 +231,8 @@ extern struct list_head efi_obj_list;
 /* List of all events */
 extern struct list_head efi_events;
 
+/* Called by bootefi to initialize root node */
+efi_status_t efi_root_node_register(void);
 /* Called by bootefi to initialize runtime */
 efi_status_t efi_initialize_system_table(void);
 /* Called by bootefi to make console interface available */
@@ -250,7 +278,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
 /* Called from places to check whether a timer expired */
 void efi_timer_check(void);
 /* PE loader implementation */
-void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info);
+void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+		  struct efi_loaded_image *loaded_image_info);
 /* Called once to store the pristine gd pointer */
 void efi_save_gd(void);
 /* Special case handler for error/abort that just tries to dtrt to get
@@ -331,14 +360,12 @@ int efi_memory_init(void);
 /* Adds new or overrides configuration table entry to the system table */
 efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table);
 /* Sets up a loaded image */
-efi_status_t efi_setup_loaded_image(
-			struct efi_loaded_image *info, struct efi_object *obj,
-			struct efi_device_path *device_path,
-			struct efi_device_path *file_path);
+efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+				    struct efi_device_path *file_path,
+				    struct efi_loaded_image_obj **handle_ptr,
+				    struct efi_loaded_image **info_ptr);
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 				      void **buffer);
-/* Print information about a loaded image */
-efi_status_t efi_print_image_info(struct efi_loaded_image *image, void *pc);
 /* Print information about all loaded images */
 void efi_print_image_infos(void *pc);
 
@@ -397,7 +424,15 @@ efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
 
-/* Convert strings from normal C strings to uEFI strings */
+/**
+ * ascii2unicode() - convert ASCII string to UTF-16 string
+ *
+ * A zero terminated ASCII string is converted to a zero terminated UTF-16
+ * string. The output buffer must be preassigned.
+ *
+ * @unicode:	preassigned output buffer for UTF-16 string
+ * @ascii:	ASCII string to be converted
+ */
 static inline void ascii2unicode(u16 *unicode, const char *ascii)
 {
 	while (*ascii)
@@ -460,7 +495,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
 void *efi_bootmgr_load(struct efi_device_path **device_path,
 		       struct efi_device_path **file_path);
 
-#else /* defined(EFI_LOADER) && !defined(CONFIG_SPL_BUILD) */
+#else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 #define __efi_runtime_data
@@ -477,6 +512,6 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
 static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
 static inline void efi_print_image_infos(void *pc) { }
 
-#endif /* CONFIG_EFI_LOADER && !CONFIG_SPL_BUILD */
+#endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
 
 #endif /* _EFI_LOADER_H */

@@ -26,14 +26,6 @@ LIST_HEAD(efi_obj_list);
 /* List of all events */
 LIST_HEAD(efi_events);
 
-/*
- * If we're running on nasty systems (32bit ARM booting into non-EFI Linux)
- * we need to do trickery with caches. Since we don't want to break the EFI
- * aware boot path, only apply hacks when loading exiting directly (breaking
- * direct Linux EFI booting along the way - oh well).
- */
-static bool efi_is_direct_boot = true;
-
 #ifdef CONFIG_ARM
 /*
  * The "gd" pointer lives in a register on ARM and AArch64 that we declare
@@ -105,8 +97,8 @@ void efi_save_gd(void)
 
 /*
  * Special case handler for error/abort that just forces things back to u-boot
- * world so we can dump out an abort msg, without any care about returning back
- * to UEFI world.
+ * world so we can dump out an abort message, without any care about returning
+ * back to UEFI world.
  */
 void efi_restore_gd(void)
 {
@@ -183,7 +175,7 @@ static void efi_queue_event(struct efi_event *event, bool check_tpl)
  * is_valid_tpl() - check if the task priority level is valid
  *
  * @tpl:		TPL level to check
- * ReturnValue:		status code
+ * Return:		status code
  */
 efi_status_t is_valid_tpl(efi_uintn_t tpl)
 {
@@ -626,7 +618,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	evt->notify_function = notify_function;
 	evt->notify_context = notify_context;
 	evt->group = group;
-	/* Disable timers on bootup */
+	/* Disable timers on boot up */
 	evt->trigger_next = -1ULL;
 	evt->is_queued = false;
 	evt->is_signaled = false;
@@ -732,7 +724,7 @@ void efi_timer_check(void)
  * efi_set_timer() - set the trigger time for a timer event or stop the event
  * @event:        event for which the timer is set
  * @type:         type of the timer
- * @trigger_time: trigger period in multiples of 100ns
+ * @trigger_time: trigger period in multiples of 100 ns
  *
  * This is the function for internal usage in U-Boot. For the API function
  * implementing the SetTimer service see efi_set_timer_ext.
@@ -747,8 +739,8 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 		return EFI_INVALID_PARAMETER;
 
 	/*
-	 * The parameter defines a multiple of 100ns.
-	 * We use multiples of 1000ns. So divide by 10.
+	 * The parameter defines a multiple of 100 ns.
+	 * We use multiples of 1000 ns. So divide by 10.
 	 */
 	do_div(trigger_time, 10);
 
@@ -774,7 +766,7 @@ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
  *                       event
  * @event:        event for which the timer is set
  * @type:         type of the timer
- * @trigger_time: trigger period in multiples of 100ns
+ * @trigger_time: trigger period in multiples of 100 ns
  *
  * This function implements the SetTimer service.
  *
@@ -1061,7 +1053,7 @@ out:
 /**
  * efi_get_drivers() - get all drivers associated to a controller
  * @efiobj:               handle of the controller
- * @protocol:             protocol guid (optional)
+ * @protocol:             protocol GUID (optional)
  * @number_of_drivers:    number of child controllers
  * @driver_handle_buffer: handles of the the drivers
  *
@@ -1126,7 +1118,7 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
 /**
  * efi_disconnect_all_drivers() - disconnect all drivers from a controller
  * @efiobj:       handle of the controller
- * @protocol:     protocol guid (optional)
+ * @protocol:     protocol GUID (optional)
  * @child_handle: handle of the child to destroy
  *
  * This function implements the DisconnectController service.
@@ -1408,7 +1400,7 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 	if (!guid)
 		return EFI_INVALID_PARAMETER;
 
-	/* Check for guid override */
+	/* Check for GUID override */
 	for (i = 0; i < systab.nr_tables; i++) {
 		if (!guidcmp(guid, &systab.tables[i].guid)) {
 			if (table)
@@ -1432,7 +1424,7 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
 	systab.nr_tables = i + 1;
 
 out:
-	/* systab.nr_tables may have changed. So we need to update the crc32 */
+	/* systab.nr_tables may have changed. So we need to update the CRC32 */
 	efi_update_table_header_crc32(&systab.hdr);
 
 	/* Notify that the configuration table was changed */
@@ -1478,20 +1470,35 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
  *
  * Return: status code
  */
-efi_status_t efi_setup_loaded_image(
-			struct efi_loaded_image *info, struct efi_object *obj,
-			struct efi_device_path *device_path,
-			struct efi_device_path *file_path)
+efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+				    struct efi_device_path *file_path,
+				    struct efi_loaded_image_obj **handle_ptr,
+				    struct efi_loaded_image **info_ptr)
 {
 	efi_status_t ret;
+	struct efi_loaded_image *info;
+	struct efi_loaded_image_obj *obj;
+
+	info = calloc(1, sizeof(*info));
+	if (!info)
+		return EFI_OUT_OF_RESOURCES;
+	obj = calloc(1, sizeof(*obj));
+	if (!obj) {
+		free(info);
+		return EFI_OUT_OF_RESOURCES;
+	}
 
 	/* Add internal object to object list */
-	efi_add_handle(obj);
-	/* efi_exit() assumes that the handle points to the info */
-	obj->handle = info;
+	efi_add_handle(&obj->parent);
+
+	if (info_ptr)
+		*info_ptr = info;
+	if (handle_ptr)
+		*handle_ptr = obj;
 
 	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
 	info->file_path = file_path;
+	info->system_table = &systab;
 
 	if (device_path) {
 		info->device_handle = efi_dp_find_obj(device_path, NULL);
@@ -1499,8 +1506,8 @@ efi_status_t efi_setup_loaded_image(
 		 * When asking for the device path interface, return
 		 * bootefi_device_path
 		 */
-		ret = efi_add_protocol(obj->handle, &efi_guid_device_path,
-				       device_path);
+		ret = efi_add_protocol(obj->parent.handle,
+				       &efi_guid_device_path, device_path);
 		if (ret != EFI_SUCCESS)
 			goto failure;
 	}
@@ -1509,19 +1516,8 @@ efi_status_t efi_setup_loaded_image(
 	 * When asking for the loaded_image interface, just
 	 * return handle which points to loaded_image_info
 	 */
-	ret = efi_add_protocol(obj->handle, &efi_guid_loaded_image, info);
-	if (ret != EFI_SUCCESS)
-		goto failure;
-
-	ret = efi_add_protocol(obj->handle,
-			       &efi_guid_device_path_to_text_protocol,
-			       (void *)&efi_device_path_to_text);
-	if (ret != EFI_SUCCESS)
-		goto failure;
-
-	ret = efi_add_protocol(obj->handle,
-			       &efi_guid_device_path_utilities_protocol,
-			       (void *)&efi_device_path_utilities);
+	ret = efi_add_protocol(obj->parent.handle,
+			       &efi_guid_loaded_image, info);
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
@@ -1604,7 +1600,8 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  efi_handle_t *image_handle)
 {
 	struct efi_loaded_image *info;
-	struct efi_object *obj;
+	struct efi_loaded_image_obj **image_obj =
+		(struct efi_loaded_image_obj **)image_handle;
 	efi_status_t ret;
 
 	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
@@ -1620,18 +1617,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		goto error;
 	}
 
-	info = calloc(1, sizeof(*info));
-	if (!info) {
-		ret = EFI_OUT_OF_RESOURCES;
-		goto error;
-	}
-	obj = calloc(1, sizeof(*obj));
-	if (!obj) {
-		free(info);
-		ret = EFI_OUT_OF_RESOURCES;
-		goto error;
-	}
-
 	if (!source_buffer) {
 		struct efi_device_path *dp, *fp;
 
@@ -1643,35 +1628,35 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		 * file parts:
 		 */
 		efi_dp_split_file_path(file_path, &dp, &fp);
-		ret = efi_setup_loaded_image(info, obj, dp, fp);
+		ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
 		if (ret != EFI_SUCCESS)
 			goto failure;
 	} else {
-		/* In this case, file_path is the "device" path, ie.
+		/* In this case, file_path is the "device" path, i.e.
 		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
 		 */
-		ret = efi_setup_loaded_image(info, obj, file_path, NULL);
+		ret = efi_setup_loaded_image(file_path, NULL, image_obj, &info);
 		if (ret != EFI_SUCCESS)
-			goto failure;
+			goto error;
 	}
-	info->reserved = efi_load_pe(source_buffer, info);
-	if (!info->reserved) {
+	(*image_obj)->entry = efi_load_pe(*image_obj, source_buffer, info);
+	if (!(*image_obj)->entry) {
 		ret = EFI_UNSUPPORTED;
 		goto failure;
 	}
 	info->system_table = &systab;
 	info->parent_handle = parent_image;
-	*image_handle = obj->handle;
 	return EFI_EXIT(EFI_SUCCESS);
 failure:
+	efi_delete_handle(*image_handle);
+	*image_handle = NULL;
 	free(info);
-	efi_delete_handle(obj);
 error:
 	return EFI_EXIT(ret);
 }
 
 /**
- * efi_start_image() - dall the entry point of an image
+ * efi_start_image() - call the entry point of an image
  * @image_handle:   handle of the image
  * @exit_data_size: size of the buffer
  * @exit_data:      buffer to receive the exit data of the called image
@@ -1687,18 +1672,14 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 					   unsigned long *exit_data_size,
 					   s16 **exit_data)
 {
-	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
-				     struct efi_system_table *st);
-	struct efi_loaded_image *info = image_handle;
+	struct efi_loaded_image_obj *image_obj =
+		(struct efi_loaded_image_obj *)image_handle;
 	efi_status_t ret;
 
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
-	entry = info->reserved;
-
-	efi_is_direct_boot = false;
 
 	/* call the image! */
-	if (setjmp(&info->exit_jmp)) {
+	if (setjmp(&image_obj->exit_jmp)) {
 		/*
 		 * We called the entry point of the child image with EFI_CALL
 		 * in the lines below. The child image called the Exit() boot
@@ -1721,16 +1702,16 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		assert(__efi_entry_check());
 		debug("%sEFI: %lu returned by started image\n",
 		      __efi_nesting_dec(),
-		      (unsigned long)((uintptr_t)info->exit_status &
+		      (unsigned long)((uintptr_t)image_obj->exit_status &
 				      ~EFI_ERROR_MASK));
-		return EFI_EXIT(info->exit_status);
+		return EFI_EXIT(image_obj->exit_status);
 	}
 
-	ret = EFI_CALL(entry(image_handle, &systab));
+	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
 
 	/*
 	 * Usually UEFI applications call Exit() instead of returning.
-	 * But because the world doesn not consist of ponies and unicorns,
+	 * But because the world doesn't consist of ponies and unicorns,
 	 * we're happy to emulate that behavior on behalf of a payload
 	 * that forgot.
 	 */
@@ -1757,17 +1738,11 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 				    int16_t *exit_data)
 {
 	/*
-	 * We require that the handle points to the original loaded
-	 * image protocol interface.
-	 *
-	 * For getting the longjmp address this is safer than locating
-	 * the protocol because the protocol may have been reinstalled
-	 * pointing to another memory location.
-	 *
 	 * TODO: We should call the unload procedure of the loaded
 	 *	 image protocol.
 	 */
-	struct efi_loaded_image *loaded_image_info = (void *)image_handle;
+	struct efi_loaded_image_obj *image_obj =
+		(struct efi_loaded_image_obj *)image_handle;
 
 	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
@@ -1781,8 +1756,8 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	 */
 	efi_restore_gd();
 
-	loaded_image_info->exit_status = exit_status;
-	longjmp(&loaded_image_info->exit_jmp, 1);
+	image_obj->exit_status = exit_status;
+	longjmp(&image_obj->exit_jmp, 1);
 
 	panic("EFI application exited");
 }
@@ -1808,21 +1783,6 @@ static efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
 		list_del(&efiobj->link);
 
 	return EFI_EXIT(EFI_SUCCESS);
-}
-
-/**
- * efi_exit_caches() - fix up caches for EFI payloads if necessary
- */
-static void efi_exit_caches(void)
-{
-#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
-	/*
-	 * Grub on 32bit ARM needs to have caches disabled before jumping into
-	 * a zImage, but does not know of all cache layers. Give it a hand.
-	 */
-	if (efi_is_direct_boot)
-		cleanup_before_linux();
-#endif
 }
 
 /**
@@ -1874,17 +1834,14 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 		}
 	}
 
-	/* TODO Should persist EFI variables here */
+	/* TODO: Should persist EFI variables here */
 
 	board_quiesce_devices();
-
-	/* Fix up caches for EFI payloads if necessary */
-	efi_exit_caches();
 
 	/* This stops all lingering devices */
 	bootm_disable_interrupts();
 
-	/* Disable boottime services */
+	/* Disable boot time services */
 	systab.con_in_handle = NULL;
 	systab.con_in = NULL;
 	systab.con_out_handle = NULL;
@@ -2118,7 +2075,7 @@ static efi_status_t EFIAPI efi_protocols_per_handle(
 		++*protocol_buffer_count;
 	}
 
-	/* Copy guids */
+	/* Copy GUIDs */
 	if (*protocol_buffer_count) {
 		size_t j = 0;
 
@@ -2709,7 +2666,7 @@ static efi_status_t efi_bind_controller(
  * efi_connect_single_controller() - connect a single driver to a controller
  * @controller_handle:   controller
  * @driver_image_handle: driver
- * @remain_device_path:  remainting path
+ * @remain_device_path:  remaining path
  *
  * Return: status code
  */
@@ -2790,7 +2747,7 @@ static efi_status_t efi_connect_single_controller(
  * details.
  *
  * First all driver binding protocol handles are tried for binding drivers.
- * Afterwards all handles that have openened a protocol of the controller
+ * Afterwards all handles that have opened a protocol of the controller
  * with EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER are connected to drivers.
  *
  * Return: status code
@@ -3123,7 +3080,7 @@ struct efi_system_table __efi_runtime_data systab = {
 /**
  * efi_initialize_system_table() - Initialize system table
  *
- * Return Value:        status code
+ * Return:	status code
  */
 efi_status_t efi_initialize_system_table(void)
 {
@@ -3135,7 +3092,7 @@ efi_status_t efi_initialize_system_table(void)
 				sizeof(struct efi_configuration_table),
 				(void **)&systab.tables);
 
-	/* Set crc32 field in table headers */
+	/* Set CRC32 field in table headers */
 	efi_update_table_header_crc32(&systab.hdr);
 	efi_update_table_header_crc32(&efi_runtime_services.hdr);
 	efi_update_table_header_crc32(&efi_boot_services.hdr);

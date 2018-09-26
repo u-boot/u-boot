@@ -20,9 +20,6 @@
 /* For timer, QEMU emulates an ARMv7/ARMv8 architected timer */
 #define CONFIG_SYS_HZ                       1000
 
-/* QEMU emulates the ARM AMBA PL031 RTC */
-#define CONFIG_SYS_RTC_PL031_BASE	0x09010000
-
 /* Environment options */
 #define CONFIG_ENV_SIZE				SZ_64K
 

@@ -104,6 +104,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	int ret;
 	unsigned long addr;
 	unsigned long count;
+	long offset;
 	struct blk_desc *dev_desc = NULL;
 	disk_partition_t info;
 	int dev = 0;
@@ -126,9 +127,11 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	}
 	addr = simple_strtoul(argv[3], NULL, 16);
 	count = (argc <= 5) ? 0 : simple_strtoul(argv[5], NULL, 16);
+	/* offset should be a hex, but "-1" is allowed */
+	offset = (argc <= 6) ? 0 : simple_strtol(argv[6], NULL, 16);
 
 	buf = map_sysmem(addr, count);
-	ret = file_fat_write(argv[4], buf, 0, count, &size);
+	ret = file_fat_write(argv[4], buf, offset, count, &size);
 	unmap_sysmem(buf);
 	if (ret < 0) {
 		printf("\n** Unable to write \"%s\" from %s %d:%d **\n",
@@ -142,10 +145,35 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 }
 
 U_BOOT_CMD(
-	fatwrite,	6,	0,	do_fat_fswrite,
+	fatwrite,	7,	0,	do_fat_fswrite,
 	"write file into a dos filesystem",
-	"<interface> <dev[:part]> <addr> <filename> [<bytes>]\n"
+	"<interface> <dev[:part]> <addr> <filename> [<bytes> [<offset>]]\n"
 	"    - write file 'filename' from the address 'addr' in RAM\n"
 	"      to 'dev' on 'interface'"
+);
+
+static int do_fat_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	return do_rm(cmdtp, flag, argc, argv, FS_TYPE_FAT);
+}
+
+U_BOOT_CMD(
+	fatrm,	4,	1,	do_fat_rm,
+	"delete a file",
+	"<interface> [<dev[:part]>] <filename>\n"
+	"    - delete a file from 'dev' on 'interface'"
+);
+
+static int do_fat_mkdir(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	return do_mkdir(cmdtp, flag, argc, argv, FS_TYPE_FAT);
+}
+
+U_BOOT_CMD(
+	fatmkdir,	4,	1,	do_fat_mkdir,
+	"create a directory",
+	"<interface> [<dev[:part]>] <directory>\n"
+	"    - create a directory in 'dev' on 'interface'"
 );
 #endif

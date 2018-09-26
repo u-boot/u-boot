@@ -1,6 +1,6 @@
 config CMD_BOOTEFI_SELFTEST
 	bool "Allow booting an EFI efi_selftest"
-	depends on CMD_BOOTEFI
+	depends on CMD_BOOTEFI && !SANDBOX
 	imply FAT
 	imply FAT_WRITE
 	help

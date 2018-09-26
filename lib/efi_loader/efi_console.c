@@ -42,10 +42,12 @@ static struct cout_mode efi_cout_modes[] = {
 	},
 };
 
-const efi_guid_t efi_guid_text_output_protocol =
-			EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID;
+const efi_guid_t efi_guid_text_input_ex_protocol =
+			EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID;
 const efi_guid_t efi_guid_text_input_protocol =
 			EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID;
+const efi_guid_t efi_guid_text_output_protocol =
+			EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID;
 
 #define cESC '\x1b'
 #define ESC "\x1b"
@@ -111,23 +113,28 @@ static efi_status_t EFIAPI efi_cout_output_string(
 {
 	struct simple_text_output_mode *con = &efi_con_mode;
 	struct cout_mode *mode = &efi_cout_modes[con->mode];
+	char *buf, *pos;
+	u16 *p;
+	efi_status_t ret = EFI_SUCCESS;
 
 	EFI_ENTRY("%p, %p", this, string);
 
-	unsigned int n16 = utf16_strlen(string);
-	char buf[MAX_UTF8_PER_UTF16 * n16 + 1];
-	u16 *p;
-
-	*utf16_to_utf8((u8 *)buf, string, n16) = '\0';
-
+	buf = malloc(utf16_utf8_strlen(string) + 1);
+	if (!buf) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+	pos = buf;
+	utf16_utf8_strcpy(&pos, string);
 	fputs(stdout, buf);
+	free(buf);
 
 	/*
 	 * Update the cursor position.
 	 *
 	 * The UEFI spec provides advance rules for U+0000, U+0008, U+000A,
 	 * and U000D. All other characters, including control characters
-	 * U+0007 (bel) and U+0009 (tab), have to increase the column by one.
+	 * U+0007 (BEL) and U+0009 (TAB), have to increase the column by one.
 	 */
 	for (p = string; *p; ++p) {
 		switch (*p) {
@@ -158,7 +165,8 @@ static efi_status_t EFIAPI efi_cout_output_string(
 		con->cursor_row = min(con->cursor_row, (s32)mode->rows - 1);
 	}
 
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI efi_cout_test_string(
@@ -177,32 +185,56 @@ static bool cout_mode_matches(struct cout_mode *mode, int rows, int cols)
 	return (mode->rows == rows) && (mode->columns == cols);
 }
 
+/**
+ * query_console_serial() - query console size
+ *
+ * @rows	pointer to return number of rows
+ * @columns	pointer to return number of columns
+ * Returns	0 on success
+ */
 static int query_console_serial(int *rows, int *cols)
 {
-	/* Ask the terminal about its size */
-	int n[3];
+	int ret = 0;
+	int n[2];
 	u64 timeout;
 
 	/* Empty input buffer */
 	while (tstc())
 		getc();
 
-	printf(ESC"[18t");
+	/*
+	 * Not all terminals understand CSI [18t for querying the console size.
+	 * We should adhere to escape sequences documented in the console_codes
+	 * manpage and the ECMA-48 standard.
+	 *
+	 * So here we follow a different approach. We position the cursor to the
+	 * bottom right and query its position. Before leaving the function we
+	 * restore the original cursor position.
+	 */
+	printf(ESC "7"		/* Save cursor position */
+	       ESC "[r"		/* Set scrolling region to full window */
+	       ESC "[999;999H"	/* Move to bottom right corner */
+	       ESC "[6n");	/* Query cursor position */
 
-	/* Check if we have a terminal that understands */
+	/* Allow up to one second for a response */
 	timeout = timer_get_us() + 1000000;
 	while (!tstc())
-		if (timer_get_us() > timeout)
-			return -1;
+		if (timer_get_us() > timeout) {
+			ret = -1;
+			goto out;
+		}
 
-	/* Read {depth,rows,cols} */
-	if (term_read_reply(n, 3, 't'))
-		return -1;
+	/* Read {rows,cols} */
+	if (term_read_reply(n, 2, 'R')) {
+		ret = 1;
+		goto out;
+	}
 
-	*cols = n[2];
-	*rows = n[1];
-
-	return 0;
+	*cols = n[1];
+	*rows = n[0];
+out:
+	printf(ESC "8");	/* Restore cursor position */
+	return ret;
 }
 
 /*
@@ -298,8 +330,8 @@ static const struct {
 	{ 36, 46 },     /* 3: cyan */
 	{ 31, 41 },     /* 4: red */
 	{ 35, 45 },     /* 5: magenta */
-	{ 33, 43 },     /* 6: brown, map to yellow as edk2 does*/
-	{ 37, 47 },     /* 7: light grey, map to white */
+	{ 33, 43 },     /* 6: brown, map to yellow as EDK2 does*/
+	{ 37, 47 },     /* 7: light gray, map to white */
 };
 
 /* See EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.SetAttribute(). */
@@ -351,13 +383,31 @@ static efi_status_t EFIAPI efi_cout_set_cursor_position(
 			struct efi_simple_text_output_protocol *this,
 			unsigned long column, unsigned long row)
 {
+	efi_status_t ret = EFI_SUCCESS;
+	struct simple_text_output_mode *con = &efi_con_mode;
+	struct cout_mode *mode = &efi_cout_modes[con->mode];
+
 	EFI_ENTRY("%p, %ld, %ld", this, column, row);
 
-	printf(ESC"[%d;%df", (int)row, (int)column);
+	/* Check parameters */
+	if (!this) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	if (row >= mode->rows || column >= mode->columns) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
+	/*
+	 * Set cursor position by sending CSI H.
+	 * EFI origin is [0, 0], terminal origin is [1, 1].
+	 */
+	printf(ESC "[%d;%dH", (int)row + 1, (int)column + 1);
 	efi_con_mode.cursor_column = column;
 	efi_con_mode.cursor_row = row;
-
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI efi_cout_enable_cursor(
@@ -384,29 +434,58 @@ struct efi_simple_text_output_protocol efi_con_out = {
 	.mode = (void*)&efi_con_mode,
 };
 
-static efi_status_t EFIAPI efi_cin_reset(
-			struct efi_simple_input_interface *this,
-			bool extended_verification)
+/**
+ * struct efi_cin_notify_function - registered console input notify function
+ *
+ * @link:	link to list
+ * @data:	key to notify
+ * @function:	function to call
+ */
+struct efi_cin_notify_function {
+	struct list_head link;
+	struct efi_key_data key;
+	efi_status_t (EFIAPI *function)
+		(struct efi_key_data *key_data);
+};
+
+static bool key_available;
+static struct efi_key_data next_key;
+static LIST_HEAD(cin_notify_functions);
+
+/**
+ * set_shift_mask() - set shift mask
+ *
+ * @mod:	Xterm shift mask
+ */
+void set_shift_mask(int mod, struct efi_key_state *key_state)
 {
-	EFI_ENTRY("%p, %d", this, extended_verification);
-
-	/* Empty input buffer */
-	while (tstc())
-		getc();
-
-	return EFI_EXIT(EFI_SUCCESS);
+	key_state->key_shift_state = EFI_SHIFT_STATE_VALID;
+	if (mod) {
+		--mod;
+		if (mod & 1)
+			key_state->key_shift_state |= EFI_LEFT_SHIFT_PRESSED;
+		if (mod & 2)
+			key_state->key_shift_state |= EFI_LEFT_ALT_PRESSED;
+		if (mod & 4)
+			key_state->key_shift_state |= EFI_LEFT_CONTROL_PRESSED;
+		if (mod & 8)
+			key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
+	} else {
+		key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
+	}
 }
 
-/*
- * Analyze modifiers (shift, alt, ctrl) for function keys.
+/**
+ * analyze_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
+ *
  * This gets called when we have already parsed CSI.
  *
  * @modifiers:  bitmask (shift, alt, ctrl)
  * @return:	the unmodified code
  */
-static char skip_modifiers(int *modifiers)
+static int analyze_modifiers(struct efi_key_state *key_state)
 {
-	char c, mod = 0, ret = 0;
+	int c, mod = 0, ret = 0;
 
 	c = getc();
 
@@ -430,37 +509,38 @@ static char skip_modifiers(int *modifiers)
 		}
 	}
 out:
-	if (mod)
-		--mod;
-	if (modifiers)
-		*modifiers = mod;
+	set_shift_mask(mod, key_state);
 	if (!ret)
 		ret = c;
 	return ret;
 }
 
-static efi_status_t EFIAPI efi_cin_read_key_stroke(
-			struct efi_simple_input_interface *this,
-			struct efi_input_key *key)
+/**
+ * efi_cin_read_key() - read a key from the console input
+ *
+ * @key:	- key received
+ * Return:	- status code
+ */
+static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 {
 	struct efi_input_key pressed_key = {
 		.scan_code = 0,
 		.unicode_char = 0,
 	};
-	char ch;
+	s32 ch;
 
-	EFI_ENTRY("%p, %p", this, key);
+	if (console_read_unicode(&ch))
+		return EFI_NOT_READY;
 
-	/* We don't do interrupts, so check for timers cooperatively */
-	efi_timer_check();
+	key->key_state.key_shift_state = EFI_SHIFT_STATE_INVALID;
+	key->key_state.key_toggle_state = EFI_TOGGLE_STATE_INVALID;
 
-	if (!tstc()) {
-		/* No key pressed */
-		return EFI_EXIT(EFI_NOT_READY);
-	}
+	/* We do not support multi-word codes */
+	if (ch >= 0x10000)
+		ch = '?';
 
-	ch = getc();
-	if (ch == cESC) {
+	switch (ch) {
+	case 0x1b:
 		/*
 		 * Xterm Control Sequences
 		 * https://www.xfree86.org/4.8.0/ctlseqs.html
@@ -472,13 +552,12 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 			break;
 		case 'O': /* F1 - F4 */
 			ch = getc();
-			/* skip modifiers */
-			if (ch <= '9')
+			/* consider modifiers */
+			if (ch < 'P') {
+				set_shift_mask(ch - '0', &key->key_state);
 				ch = getc();
+			}
 			pressed_key.scan_code = ch - 'P' + 11;
-			break;
-		case 'a'...'z':
-			ch = ch - 'a';
 			break;
 		case '[':
 			ch = getc();
@@ -493,7 +572,7 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 				pressed_key.scan_code = 5;
 				break;
 			case '1':
-				ch = skip_modifiers(NULL);
+				ch = analyze_modifiers(&key->key_state);
 				switch (ch) {
 				case '1'...'5': /* F1 - F5 */
 					pressed_key.scan_code = ch - '1' + 11;
@@ -513,7 +592,7 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 				}
 				break;
 			case '2':
-				ch = skip_modifiers(NULL);
+				ch = analyze_modifiers(&key->key_state);
 				switch (ch) {
 				case '0'...'1': /* F9 - F10 */
 					pressed_key.scan_code = ch - '0' + 19;
@@ -528,31 +607,406 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
 				break;
 			case '3': /* DEL */
 				pressed_key.scan_code = 8;
-				skip_modifiers(NULL);
+				analyze_modifiers(&key->key_state);
 				break;
 			case '5': /* PG UP */
 				pressed_key.scan_code = 9;
-				skip_modifiers(NULL);
+				analyze_modifiers(&key->key_state);
 				break;
 			case '6': /* PG DOWN */
 				pressed_key.scan_code = 10;
-				skip_modifiers(NULL);
+				analyze_modifiers(&key->key_state);
 				break;
-			}
+			} /* [ */
 			break;
+		default:
+			/* ALT key */
+			set_shift_mask(3, &key->key_state);
 		}
-	} else if (ch == 0x7f) {
+		break;
+	case 0x7f:
 		/* Backspace */
 		ch = 0x08;
 	}
-	if (!pressed_key.scan_code)
+	if (pressed_key.scan_code) {
+		key->key_state.key_shift_state |= EFI_SHIFT_STATE_VALID;
+	} else {
 		pressed_key.unicode_char = ch;
-	*key = pressed_key;
 
-	return EFI_EXIT(EFI_SUCCESS);
+		/*
+		 * Assume left control key for control characters typically
+		 * entered using the control key.
+		 */
+		if (ch >= 0x01 && ch <= 0x1f) {
+			key->key_state.key_shift_state |=
+					EFI_SHIFT_STATE_VALID;
+			switch (ch) {
+			case 0x01 ... 0x07:
+			case 0x0b ... 0x0c:
+			case 0x0e ... 0x1f:
+				key->key_state.key_shift_state |=
+						EFI_LEFT_CONTROL_PRESSED;
+			}
+		}
+	}
+	key->key = pressed_key;
+
+	return EFI_SUCCESS;
 }
 
-struct efi_simple_input_interface efi_con_in = {
+/**
+ * efi_cin_notify() - notify registered functions
+ */
+static void efi_cin_notify(void)
+{
+	struct efi_cin_notify_function *item;
+
+	list_for_each_entry(item, &cin_notify_functions, link) {
+		bool match = true;
+
+		/* We do not support toggle states */
+		if (item->key.key.unicode_char || item->key.key.scan_code) {
+			if (item->key.key.unicode_char !=
+			    next_key.key.unicode_char ||
+			    item->key.key.scan_code != next_key.key.scan_code)
+				match = false;
+		}
+		if (item->key.key_state.key_shift_state &&
+		    item->key.key_state.key_shift_state !=
+		    next_key.key_state.key_shift_state)
+			match = false;
+
+		if (match)
+			/* We don't bother about the return code */
+			EFI_CALL(item->function(&next_key));
+	}
+}
+
+/**
+ * efi_cin_check() - check if keyboard input is available
+ */
+static void efi_cin_check(void)
+{
+	efi_status_t ret;
+
+	if (key_available) {
+		efi_signal_event(efi_con_in.wait_for_key, true);
+		return;
+	}
+
+	if (tstc()) {
+		ret = efi_cin_read_key(&next_key);
+		if (ret == EFI_SUCCESS) {
+			key_available = true;
+
+			/* Notify registered functions */
+			efi_cin_notify();
+
+			/* Queue the wait for key event */
+			if (key_available)
+				efi_signal_event(efi_con_in.wait_for_key, true);
+		}
+	}
+}
+
+/**
+ * efi_cin_empty_buffer() - empty input buffer
+ */
+static void efi_cin_empty_buffer(void)
+{
+	while (tstc())
+		getc();
+	key_available = false;
+}
+
+/**
+ * efi_cin_reset_ex() - reset console input
+ *
+ * @this:			- the extended simple text input protocol
+ * @extended_verification:	- extended verification
+ *
+ * This function implements the reset service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * Return: old value of the task priority level
+ */
+static efi_status_t EFIAPI efi_cin_reset_ex(
+		struct efi_simple_text_input_ex_protocol *this,
+		bool extended_verification)
+{
+	efi_status_t ret = EFI_SUCCESS;
+
+	EFI_ENTRY("%p, %d", this, extended_verification);
+
+	/* Check parameters */
+	if (!this) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	efi_cin_empty_buffer();
+out:
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_cin_read_key_stroke_ex() - read key stroke
+ *
+ * @this:	instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @key_data:	key read from console
+ * Return:	status code
+ *
+ * This function implements the ReadKeyStrokeEx service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_read_key_stroke_ex(
+		struct efi_simple_text_input_ex_protocol *this,
+		struct efi_key_data *key_data)
+{
+	efi_status_t ret = EFI_SUCCESS;
+
+	EFI_ENTRY("%p, %p", this, key_data);
+
+	/* Check parameters */
+	if (!this || !key_data) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/* We don't do interrupts, so check for timers cooperatively */
+	efi_timer_check();
+
+	/* Enable console input after ExitBootServices */
+	efi_cin_check();
+
+	if (!key_available) {
+		ret = EFI_NOT_READY;
+		goto out;
+	}
+	*key_data = next_key;
+	key_available = false;
+	efi_con_in.wait_for_key->is_signaled = false;
+out:
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_cin_set_state() - set toggle key state
+ *
+ * @this:		instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @key_toggle_state:	key toggle state
+ * Return:		status code
+ *
+ * This function implements the SetState service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_set_state(
+		struct efi_simple_text_input_ex_protocol *this,
+		u8 key_toggle_state)
+{
+	EFI_ENTRY("%p, %u", this, key_toggle_state);
+	/*
+	 * U-Boot supports multiple console input sources like serial and
+	 * net console for which a key toggle state cannot be set at all.
+	 *
+	 * According to the UEFI specification it is allowable to not implement
+	 * this service.
+	 */
+	return EFI_EXIT(EFI_UNSUPPORTED);
+}
+
+/**
+ * efi_cin_register_key_notify() - register key notification function
+ *
+ * @this:			instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @key_data:			key to be notified
+ * @key_notify_function:	function to be called if the key is pressed
+ * @notify_handle:		handle for unregistering the notification
+ * Return:			status code
+ *
+ * This function implements the SetState service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_register_key_notify(
+		struct efi_simple_text_input_ex_protocol *this,
+		struct efi_key_data *key_data,
+		efi_status_t (EFIAPI *key_notify_function)(
+			struct efi_key_data *key_data),
+		void **notify_handle)
+{
+	efi_status_t ret = EFI_SUCCESS;
+	struct efi_cin_notify_function *notify_function;
+
+	EFI_ENTRY("%p, %p, %p, %p",
+		  this, key_data, key_notify_function, notify_handle);
+
+	/* Check parameters */
+	if (!this || !key_data || !key_notify_function || !notify_handle) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	EFI_PRINT("u+%04x, sc %04x, sh %08x, tg %02x\n",
+		  key_data->key.unicode_char,
+	       key_data->key.scan_code,
+	       key_data->key_state.key_shift_state,
+	       key_data->key_state.key_toggle_state);
+
+	notify_function = calloc(1, sizeof(struct efi_cin_notify_function));
+	if (!notify_function) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+	notify_function->key = *key_data;
+	notify_function->function = key_notify_function;
+	list_add_tail(&notify_function->link, &cin_notify_functions);
+	*notify_handle = notify_function;
+out:
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_cin_unregister_key_notify() - unregister key notification function
+ *
+ * @this:			instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @notification_handle:	handle received when registering
+ * Return:			status code
+ *
+ * This function implements the SetState service of the
+ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_unregister_key_notify(
+		struct efi_simple_text_input_ex_protocol *this,
+		void *notification_handle)
+{
+	efi_status_t ret = EFI_INVALID_PARAMETER;
+	struct efi_cin_notify_function *item, *notify_function =
+			notification_handle;
+
+	EFI_ENTRY("%p, %p", this, notification_handle);
+
+	/* Check parameters */
+	if (!this || !notification_handle)
+		goto out;
+
+	list_for_each_entry(item, &cin_notify_functions, link) {
+		if (item == notify_function) {
+			ret = EFI_SUCCESS;
+			break;
+		}
+	}
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/* Remove the notify function */
+	list_del(&notify_function->link);
+	free(notify_function);
+out:
+	return EFI_EXIT(ret);
+}
+
+
+/**
+ * efi_cin_reset() - drain the input buffer
+ *
+ * @this:			instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @extended_verification:	allow for exhaustive verification
+ * Return:			status code
+ *
+ * This function implements the Reset service of the
+ * EFI_SIMPLE_TEXT_INPUT_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_reset
+			(struct efi_simple_text_input_protocol *this,
+			 bool extended_verification)
+{
+	efi_status_t ret = EFI_SUCCESS;
+
+	EFI_ENTRY("%p, %d", this, extended_verification);
+
+	/* Check parameters */
+	if (!this) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	efi_cin_empty_buffer();
+out:
+	return EFI_EXIT(ret);
+}
+
+/**
+ * efi_cin_read_key_stroke() - read key stroke
+ *
+ * @this:	instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
+ * @key:	key read from console
+ * Return:	status code
+ *
+ * This function implements the ReadKeyStroke service of the
+ * EFI_SIMPLE_TEXT_INPUT_PROTOCOL.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ */
+static efi_status_t EFIAPI efi_cin_read_key_stroke
+			(struct efi_simple_text_input_protocol *this,
+			 struct efi_input_key *key)
+{
+	efi_status_t ret = EFI_SUCCESS;
+
+	EFI_ENTRY("%p, %p", this, key);
+
+	/* Check parameters */
+	if (!this || !key) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	/* We don't do interrupts, so check for timers cooperatively */
+	efi_timer_check();
+
+	/* Enable console input after ExitBootServices */
+	efi_cin_check();
+
+	if (!key_available) {
+		ret = EFI_NOT_READY;
+		goto out;
+	}
+	*key = next_key.key;
+	key_available = false;
+	efi_con_in.wait_for_key->is_signaled = false;
+out:
+	return EFI_EXIT(ret);
+}
+
+static struct efi_simple_text_input_ex_protocol efi_con_in_ex = {
+	.reset = efi_cin_reset_ex,
+	.read_key_stroke_ex = efi_cin_read_key_stroke_ex,
+	.wait_for_key_ex = NULL,
+	.set_state = efi_cin_set_state,
+	.register_key_notify = efi_cin_register_key_notify,
+	.unregister_key_notify = efi_cin_unregister_key_notify,
+};
+
+struct efi_simple_text_input_protocol efi_con_in = {
 	.reset = efi_cin_reset,
 	.read_key_stroke = efi_cin_read_key_stroke,
 	.wait_for_key = NULL,
@@ -560,31 +1014,38 @@ struct efi_simple_input_interface efi_con_in = {
 
 static struct efi_event *console_timer_event;
 
-static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
-{
-}
-
 /*
- * Notification function of the console timer event.
+ * efi_console_timer_notify() - notify the console timer event
  *
- * event:	console timer event
- * context:	not used
+ * @event:	console timer event
+ * @context:	not used
  */
 static void EFIAPI efi_console_timer_notify(struct efi_event *event,
 					    void *context)
 {
 	EFI_ENTRY("%p, %p", event, context);
-
-	/* Check if input is available */
-	if (tstc()) {
-		/* Queue the wait for key event */
-		efi_con_in.wait_for_key->is_signaled = true;
-		efi_signal_event(efi_con_in.wait_for_key, true);
-	}
+	efi_cin_check();
 	EFI_EXIT(EFI_SUCCESS);
 }
 
-/* This gets called from do_bootefi_exec(). */
+/**
+ * efi_key_notify() - notify the wait for key event
+ *
+ * @event:	wait for key event
+ * @context:	not used
+ */
+static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
+{
+	EFI_ENTRY("%p, %p", event, context);
+	efi_cin_check();
+	EFI_EXIT(EFI_SUCCESS);
+}
+
+/**
+ * efi_console_register() - install the console protocols
+ *
+ * This function is called from do_bootefi_exec().
+ */
 int efi_console_register(void)
 {
 	efi_status_t r;
@@ -598,15 +1059,25 @@ int efi_console_register(void)
 	r = efi_create_handle((efi_handle_t *)&efi_console_output_obj);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
+
 	r = efi_add_protocol(efi_console_output_obj->handle,
 			     &efi_guid_text_output_protocol, &efi_con_out);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
+	systab.con_out_handle = efi_console_output_obj->handle;
+	systab.stderr_handle = efi_console_output_obj->handle;
+
 	r = efi_create_handle((efi_handle_t *)&efi_console_input_obj);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
+
 	r = efi_add_protocol(efi_console_input_obj->handle,
 			     &efi_guid_text_input_protocol, &efi_con_in);
+	if (r != EFI_SUCCESS)
+		goto out_of_memory;
+	systab.con_in_handle = efi_console_input_obj->handle;
+	r = efi_add_protocol(efi_console_input_obj->handle,
+			     &efi_guid_text_input_ex_protocol, &efi_con_in_ex);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
 
@@ -617,6 +1088,7 @@ int efi_console_register(void)
 		printf("ERROR: Failed to register WaitForKey event\n");
 		return r;
 	}
+	efi_con_in_ex.wait_for_key_ex = efi_con_in.wait_for_key;
 	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
 			     efi_console_timer_notify, NULL, NULL,
 			     &console_timer_event);
@@ -630,6 +1102,6 @@ int efi_console_register(void)
 		printf("ERROR: Failed to set console timer\n");
 	return r;
 out_of_memory:
-	printf("ERROR: Out of meemory\n");
+	printf("ERROR: Out of memory\n");
 	return r;
 }

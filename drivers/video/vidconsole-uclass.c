@@ -213,6 +213,14 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 		s++;    /* ; */
 		s = parsenum(s, &col);
 
+		/*
+		 * Ensure we stay in the bounds of the screen.
+		 */
+		if (row >= priv->rows)
+			row = priv->rows - 1;
+		if (col >= priv->cols)
+			col = priv->cols - 1;
+
 		priv->ycur = row * priv->y_charsize;
 		priv->xcur_frac = priv->xstart_frac +
 			VID_TO_POS(col * priv->x_charsize);

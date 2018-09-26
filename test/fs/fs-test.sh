@@ -7,18 +7,20 @@
 # It currently tests the fs/sb and native commands for ext4 and fat partitions
 # Expected results are as follows:
 # EXT4 tests:
-# fs-test.sb.ext4.out: Summary: PASS: 24 FAIL: 0
-# fs-test.ext4.out: Summary: PASS: 24 FAIL: 0
-# fs-test.fs.ext4.out: Summary: PASS: 24 FAIL: 0
+# fs-test.sb.ext4	Summary: PASS: 24 FAIL: 0
+# fs-test.nonfs.ext4	Summary: PASS: 24 FAIL: 0
+# fs-test.fs.ext4	Summary: PASS: 24 FAIL: 0
 # FAT16 tests:
-# fs-test.sb.fat16.out: Summary: PASS: 24 FAIL: 0
-# fs-test.fat16.out: Summary: PASS: 20 FAIL: 4
-# fs-test.fs.fat16.out: Summary: PASS: 20 FAIL: 4
+# fs-test.sb.fat16	Summary: PASS: 24 FAIL: 0
+# fs-test.nonfs.fat16	Summary: PASS: 24 FAIL: 0
+# fs-test.fs.fat16	Summary: PASS: 24 FAIL: 0
 # FAT32 tests:
-# fs-test.sb.fat32.out: Summary: PASS: 24 FAIL: 0
-# fs-test.fat32.out: Summary: PASS: 20 FAIL: 4
-# fs-test.fs.fat32.out: Summary: PASS: 20 FAIL: 4
-# Total Summary: TOTAL PASS: 200 TOTAL FAIL: 16
+# fs-test.sb.fat32	Summary: PASS: 24 FAIL: 0
+# fs-test.nonfs.fat32	Summary: PASS: 24 FAIL: 0
+# fs-test.fs.fat32	Summary: PASS: 24 FAIL: 0
+# --------------------------------------------
+# Total Summary: TOTAL PASS: 216 TOTAL FAIL: 0
+# --------------------------------------------
 
 # pre-requisite binaries list.
 PREREQ_BINS="md5sum mkfs mount umount dd fallocate mkdir"
@@ -522,7 +524,7 @@ function check_results() {
 		"TC11: 1MB write to $3.w - content verified"
 
 	# Check lookup of 'dot' directory
-	grep -A4 "Test Case 12 " "$1" | grep -q 'Unable to write file'
+	grep -A4 "Test Case 12 " "$1" | grep -q 'Unable to write'
 	pass_fail "TC12: 1MB write to . - write denied"
 
 	# Check directory traversal

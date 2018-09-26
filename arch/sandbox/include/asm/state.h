@@ -9,6 +9,7 @@
 #include <config.h>
 #include <sysreset.h>
 #include <stdbool.h>
+#include <linux/list.h>
 #include <linux/stringify.h>
 
 /**
@@ -45,6 +46,23 @@ struct sandbox_wdt_info {
 	bool running;
 };
 
+/**
+ * struct sandbox_mapmem_entry - maps pointers to/from U-Boot addresses
+ *
+ * When map_to_sysmem() is called with an address outside sandbox's emulated
+ * RAM, a record is created with a tag that can be used to reference that
+ * pointer. When map_sysmem() is called later with that tag, the pointer will
+ * be returned, just as it would for a normal sandbox address.
+ *
+ * @tag: Address tag (a value which U-Boot uses to refer to the address)
+ * @ptr: Associated pointer for that tag
+ */
+struct sandbox_mapmem_entry {
+	ulong tag;
+	void *ptr;
+	struct list_head sibling_node;
+};
+
 /* The complete state of the test system */
 struct sandbox_state {
 	const char *cmd;		/* Command to execute */
@@ -78,6 +96,9 @@ struct sandbox_state {
 
 	/* Information about Watchdog */
 	struct sandbox_wdt_info wdt;
+
+	ulong next_tag;			/* Next address tag to allocate */
+	struct list_head mapmem_head;	/* struct sandbox_mapmem_entry */
 };
 
 /* Minimum space we guarantee in the state FDT when calling read/write*/

@@ -9,7 +9,7 @@
 #include <vsprintf.h>
 
 struct efi_simple_text_output_protocol *con_out;
-struct efi_simple_input_interface *con_in;
+struct efi_simple_text_input_protocol *con_in;
 
 /*
  * Print a MAC address to an u16 string

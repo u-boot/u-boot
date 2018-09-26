@@ -173,6 +173,8 @@ typedef struct {
 	int	fatbufnum;	/* Used by get_fatent, init to -1 */
 	int	rootdir_size;	/* Size of root dir for non-FAT32 */
 	__u32	root_cluster;	/* First cluster of root dir for FAT32 */
+	u32	total_sect;	/* Number of sectors */
+	int	fats;		/* Number of FATs */
 } fsdata;
 
 static inline u32 clust_to_sect(fsdata *fsdata, u32 clust)
@@ -201,5 +203,7 @@ int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
 int fat_opendir(const char *filename, struct fs_dir_stream **dirsp);
 int fat_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
 void fat_closedir(struct fs_dir_stream *dirs);
+int fat_unlink(const char *filename);
+int fat_mkdir(const char *dirname);
 void fat_close(void);
 #endif /* _FAT_H_ */

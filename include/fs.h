@@ -156,6 +156,24 @@ struct fs_dirent *fs_readdir(struct fs_dir_stream *dirs);
 void fs_closedir(struct fs_dir_stream *dirs);
 
 /*
+ * fs_unlink - delete a file or directory
+ *
+ * If a given name is a directory, it will be deleted only if it's empty
+ *
+ * @filename: Name of file or directory to delete
+ * @return 0 on success, -1 on error conditions
+ */
+int fs_unlink(const char *filename);
+
+/*
+ * fs_mkdir - Create a directory
+ *
+ * @filename: Name of directory to create
+ * @return 0 on success, -1 on error conditions
+ */
+int fs_mkdir(const char *filename);
+
+/*
  * Common implementation for various filesystem commands, optionally limited
  * to a specific filesystem type via the fstype parameter.
  */
@@ -168,6 +186,10 @@ int do_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 int file_exists(const char *dev_type, const char *dev_part, const char *file,
 		int fstype);
 int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+		int fstype);
+int do_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+		int fstype);
+int do_mkdir(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);
 
 /*

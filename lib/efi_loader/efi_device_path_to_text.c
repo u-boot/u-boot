@@ -17,6 +17,15 @@
 const efi_guid_t efi_guid_device_path_to_text_protocol =
 		EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID;
 
+/**
+ * efi_str_to_u16() - convert ASCII string to UTF-16
+ *
+ * A u16 buffer is allocated from pool. The ASCII string is copied to the u16
+ * buffer.
+ *
+ * @str:	ASCII string
+ * Return:	UTF-16 string. NULL if out of memory.
+ */
 static u16 *efi_str_to_u16(char *str)
 {
 	efi_uintn_t len;
@@ -29,7 +38,6 @@ static u16 *efi_str_to_u16(char *str)
 	if (ret != EFI_SUCCESS)
 		return NULL;
 	ascii2unicode(out, str);
-	out[len - 1] = 0;
 	return out;
 }
 

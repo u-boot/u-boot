@@ -30,8 +30,9 @@ static efi_status_t __efi_runtime EFIAPI efi_device_error(void);
 static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
 
 /*
- * TODO(sjg@chromium.org): These defines and structs should come from the elf
- * header for each arch (or a generic header) rather than being repeated here.
+ * TODO(sjg@chromium.org): These defines and structures should come from the ELF
+ * header for each architecture (or a generic header) rather than being repeated
+ * here.
  */
 #if defined(__aarch64__)
 #define R_RELATIVE	R_AARCH64_RELATIVE
@@ -79,7 +80,7 @@ struct elf_rela {
 };
 
 /*
- * EFI Runtime code lives in 2 stages. In the first stage, U-Boot and an EFI
+ * EFI runtime code lives in two stages. In the first stage, U-Boot and an EFI
  * payload are running concurrently at the same time. In this mode, we can
  * handle a good number of runtime callbacks
  */
@@ -97,7 +98,7 @@ void __efi_runtime efi_update_table_header_crc32(struct efi_table_hdr *table)
 }
 
 /**
- * efi_reset_system_boottime() - reset system at boottime
+ * efi_reset_system_boottime() - reset system at boot time
  *
  * This function implements the ResetSystem() runtime service before
  * SetVirtualAddressMap() is called.
@@ -144,7 +145,7 @@ static void EFIAPI efi_reset_system_boottime(
 }
 
 /**
- * efi_get_time_boottime() - get current time at boottime
+ * efi_get_time_boottime() - get current time at boot time
  *
  * This function implements the GetTime runtime service before
  * SetVirtualAddressMap() is called.
@@ -335,7 +336,7 @@ static void efi_runtime_detach(ulong offset)
 		*p = newaddr;
 	}
 
-	/* Update crc32 */
+	/* Update CRC32 */
 	efi_update_table_header_crc32(&efi_runtime_services.hdr);
 }
 
@@ -489,7 +490,7 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
  * available at runtime.
  *
  * @mmio_ptr:		address of the memory-mapped IO region
- * @len:		size of thememory-mapped IO region
+ * @len:		size of the memory-mapped IO region
  * Returns:		status code
  */
 efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
@@ -607,7 +608,7 @@ efi_status_t __efi_runtime EFIAPI efi_update_capsule(
  *
  * @capsule_header_array:	pointer to array of virtual pointers
  * @capsule_count:		number of pointers in capsule_header_array
- * @capsule_size:		maximum capsule size
+ * @maximum_capsule_size:	maximum capsule size
  * @reset_type:			type of reset needed for capsule update
  * Returns:			status code
  */

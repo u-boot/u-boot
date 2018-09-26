@@ -65,9 +65,54 @@ static int efi_mem_cmp(void *priv, struct list_head *a, struct list_head *b)
 		return -1;
 }
 
+static uint64_t desc_get_end(struct efi_mem_desc *desc)
+{
+	return desc->physical_start + (desc->num_pages << EFI_PAGE_SHIFT);
+}
+
 static void efi_mem_sort(void)
 {
+	struct list_head *lhandle;
+	struct efi_mem_list *prevmem = NULL;
+	bool merge_again = true;
+
 	list_sort(NULL, &efi_mem, efi_mem_cmp);
+
+	/* Now merge entries that can be merged */
+	while (merge_again) {
+		merge_again = false;
+		list_for_each(lhandle, &efi_mem) {
+			struct efi_mem_list *lmem;
+			struct efi_mem_desc *prev = &prevmem->desc;
+			struct efi_mem_desc *cur;
+			uint64_t pages;
+
+			lmem = list_entry(lhandle, struct efi_mem_list, link);
+			if (!prevmem) {
+				prevmem = lmem;
+				continue;
+			}
+
+			cur = &lmem->desc;
+
+			if ((desc_get_end(cur) == prev->physical_start) &&
+			    (prev->type == cur->type) &&
+			    (prev->attribute == cur->attribute)) {
+				/* There is an existing map before, reuse it */
+				pages = cur->num_pages;
+				prev->num_pages += pages;
+				prev->physical_start -= pages << EFI_PAGE_SHIFT;
+				prev->virtual_start -= pages << EFI_PAGE_SHIFT;
+				list_del(&lmem->link);
+				free(lmem);
+
+				merge_again = true;
+				break;
+			}
+
+			prevmem = lmem;
+		}
+	}
 }
 
 /** efi_mem_carve_out - unmap memory region
@@ -303,7 +348,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	switch (type) {
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
-		addr = efi_find_free_memory(len, gd->start_addr_sp);
+		addr = efi_find_free_memory(len, -1ULL);
 		if (!addr) {
 			r = EFI_NOT_FOUND;
 			break;

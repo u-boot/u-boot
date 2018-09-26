@@ -44,10 +44,7 @@
  * converted to utf16?
  */
 
-#define MAX_VAR_NAME 31
-#define MAX_NATIVE_VAR_NAME \
-	(strlen("efi_xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxxxxxx_") + \
-		(MAX_VAR_NAME * MAX_UTF8_PER_UTF16))
+#define PREFIX_LEN (strlen("efi_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_"))
 
 static int hex(int ch)
 {
@@ -101,18 +98,20 @@ static char *mem2hex(char *hexstr, const u8 *mem, int count)
 	return hexstr;
 }
 
-static efi_status_t efi_to_native(char *native, u16 *variable_name,
+static efi_status_t efi_to_native(char **native, const u16 *variable_name,
 				  efi_guid_t *vendor)
 {
 	size_t len;
+	char *pos;
 
-	len = utf16_strlen((u16 *)variable_name);
-	if (len >= MAX_VAR_NAME)
-		return EFI_DEVICE_ERROR;
+	len = PREFIX_LEN + utf16_utf8_strlen(variable_name) + 1;
+	*native = malloc(len);
+	if (!*native)
+		return EFI_OUT_OF_RESOURCES;
 
-	native += sprintf(native, "efi_%pUl_", vendor);
-	native  = (char *)utf16_to_utf8((u8 *)native, (u16 *)variable_name, len);
-	*native = '\0';
+	pos = *native;
+	pos += sprintf(pos, "efi_%pUl_", vendor);
+	utf16_utf8_strcpy(&pos, variable_name);
 
 	return EFI_SUCCESS;
 }
@@ -168,7 +167,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
 				     u32 *attributes, efi_uintn_t *data_size,
 				     void *data)
 {
-	char native_name[MAX_NATIVE_VAR_NAME + 1];
+	char *native_name;
 	efi_status_t ret;
 	unsigned long in_size;
 	const char *val, *s;
@@ -180,13 +179,14 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
 	if (!variable_name || !vendor || !data_size)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	ret = efi_to_native(native_name, variable_name, vendor);
+	ret = efi_to_native(&native_name, variable_name, vendor);
 	if (ret)
 		return EFI_EXIT(ret);
 
 	debug("%s: get '%s'\n", __func__, native_name);
 
 	val = env_get(native_name);
+	free(native_name);
 	if (!val)
 		return EFI_EXIT(EFI_NOT_FOUND);
 
@@ -256,35 +256,41 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
 				     u32 attributes, efi_uintn_t data_size,
 				     void *data)
 {
-	char native_name[MAX_NATIVE_VAR_NAME + 1];
+	char *native_name = NULL, *val = NULL, *s;
 	efi_status_t ret = EFI_SUCCESS;
-	char *val, *s;
 	u32 attr;
 
 	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
 		  data_size, data);
 
-	if (!variable_name || !vendor)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	if (!variable_name || !vendor) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
-	ret = efi_to_native(native_name, variable_name, vendor);
+	ret = efi_to_native(&native_name, variable_name, vendor);
 	if (ret)
-		return EFI_EXIT(ret);
+		goto out;
 
 #define ACCESS_ATTR (EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_BOOTSERVICE_ACCESS)
 
 	if ((data_size == 0) || !(attributes & ACCESS_ATTR)) {
 		/* delete the variable: */
 		env_set(native_name, NULL);
-		return EFI_EXIT(EFI_SUCCESS);
+		ret = EFI_SUCCESS;
+		goto out;
 	}
 
 	val = env_get(native_name);
 	if (val) {
 		parse_attr(val, &attr);
 
-		if (attr & READ_ONLY)
-			return EFI_EXIT(EFI_WRITE_PROTECTED);
+		if (attr & READ_ONLY) {
+			/* We should not free val */
+			val = NULL;
+			ret = EFI_WRITE_PROTECTED;
+			goto out;
+		}
 	}
 
 	val = malloc(2 * data_size + strlen("{ro,run,boot}(blob)") + 1);
@@ -320,6 +326,8 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
 	if (env_set(native_name, val))
 		ret = EFI_DEVICE_ERROR;
 
+out:
+	free(native_name);
 	free(val);
 
 	return EFI_EXIT(ret);

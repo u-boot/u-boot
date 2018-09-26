@@ -1,6 +1,6 @@
 config EFI_LOADER
 	bool "Support running EFI Applications in U-Boot"
-	depends on (ARM || X86 || RISCV) && OF_LIBFDT
+	depends on (ARM || X86 || RISCV || SANDBOX) && OF_LIBFDT
 	# We need EFI_STUB_64BIT to be set on x86_64 with EFI_STUB
 	depends on !EFI_STUB || !X86_64 || EFI_STUB_64BIT
 	# We need EFI_STUB_32BIT to be set on x86_32 with EFI_STUB
@@ -14,6 +14,16 @@ config EFI_LOADER
 	  on top of U-Boot. If this option is enabled, U-Boot will expose EFI
 	  interfaces to a loaded EFI application, enabling it to reuse U-Boot's
 	  device drivers.
+
+config EFI_UNICODE_CAPITALIZATION
+	bool "Support Unicode capitalization"
+	depends on EFI_LOADER
+	default y
+	help
+	  Select this option to enable correct handling of the capitalization of
+	  Unicode codepoints in the range 0x0000-0xffff. If this option is not
+	  set, only the the correct handling of the letters of the codepage
+	  used by the FAT file system is ensured.
 
 config EFI_LOADER_BOUNCE_BUFFER
 	bool "EFI Applications use bounce buffers for DMA operations"

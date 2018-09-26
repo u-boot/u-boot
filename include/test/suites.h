@@ -23,10 +23,11 @@ struct unit_test;
 int cmd_ut_category(const char *name, struct unit_test *tests, int n_ents,
 		    int argc, char * const argv[]);
 
+int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ut_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 #endif /* __TEST_SUITES_H__ */

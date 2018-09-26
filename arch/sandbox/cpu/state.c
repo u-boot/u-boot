@@ -359,6 +359,14 @@ void state_reset_for_test(struct sandbox_state *state)
 
 	memset(&state->wdt, '\0', sizeof(state->wdt));
 	memset(state->spi, '\0', sizeof(state->spi));
+
+	/*
+	 * Set up the memory tag list. Use the top of emulated SDRAM for the
+	 * first tag number, since that address offset is outside the legal
+	 * range, and can be assumed to be a tag.
+	 */
+	INIT_LIST_HEAD(&state->mapmem_head);
+	state->next_tag = state->ram_size;
 }
 
 int state_init(void)

@@ -9,6 +9,7 @@
 #include <charset.h>
 #include <efi_loader.h>
 #include <malloc.h>
+#include <mapmem.h>
 #include <fs.h>
 
 /* GUID for file system information */
@@ -126,11 +127,22 @@ static int sanitize_path(char *path)
 	return 0;
 }
 
-/* NOTE: despite what you would expect, 'file_name' is actually a path.
- * With windoze style backlashes, ofc.
+/**
+ * file_open() - open a file handle
+ *
+ * @fs:			file system
+ * @parent:		directory relative to which the file is to be opened
+ * @file_name:		path of the file to be opened. '\', '.', or '..' may
+ *			be used as modifiers. A leading backslash indicates an
+ *			absolute path.
+ * @mode:		bit mask indicating the access mode (read, write,
+ *			create)
+ * @attributes:		attributes for newly created file
+ * Returns:		handle to the opened file or NULL
  */
 static struct efi_file_handle *file_open(struct file_system *fs,
-		struct file_handle *parent, s16 *file_name, u64 mode)
+		struct file_handle *parent, s16 *file_name, u64 mode,
+		u64 attributes)
 {
 	struct file_handle *fh;
 	char f0[MAX_UTF8_PER_UTF16] = {0};
@@ -139,7 +151,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 
 	if (file_name) {
 		utf16_to_utf8((u8 *)f0, (u16 *)file_name, 1);
-		flen = utf16_strlen((u16 *)file_name);
+		flen = u16_strlen((u16 *)file_name);
 	}
 
 	/* we could have a parent, but also an absolute path: */
@@ -173,7 +185,12 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 		if (set_blk_dev(fh))
 			goto error;
 
-		if (!((mode & EFI_FILE_MODE_CREATE) || fs_exists(fh->path)))
+		if ((mode & EFI_FILE_MODE_CREATE) &&
+		    (attributes & EFI_FILE_DIRECTORY)) {
+			if (fs_mkdir(fh->path))
+				goto error;
+		} else if (!((mode & EFI_FILE_MODE_CREATE) ||
+			     fs_exists(fh->path)))
 			goto error;
 
 		/* figure out if file is a directory: */
@@ -195,15 +212,46 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 		s16 *file_name, u64 open_mode, u64 attributes)
 {
 	struct file_handle *fh = to_fh(file);
+	efi_status_t ret;
 
 	EFI_ENTRY("%p, %p, \"%ls\", %llx, %llu", file, new_handle, file_name,
 		  open_mode, attributes);
 
-	*new_handle = file_open(fh->fs, fh, file_name, open_mode);
-	if (!*new_handle)
-		return EFI_EXIT(EFI_NOT_FOUND);
+	/* Check parameters */
+	if (!file || !new_handle || !file_name) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	if (open_mode != EFI_FILE_MODE_READ &&
+	    open_mode != (EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE) &&
+	    open_mode != (EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE |
+			 EFI_FILE_MODE_CREATE)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	/*
+	 * The UEFI spec requires that attributes are only set in create mode.
+	 * The SCT does not care about this and sets EFI_FILE_DIRECTORY in
+	 * read mode. EDK2 does not check that attributes are zero if not in
+	 * create mode.
+	 *
+	 * So here we only check attributes in create mode and do not check
+	 * that they are zero otherwise.
+	 */
+	if ((open_mode & EFI_FILE_MODE_CREATE) &&
+	    (attributes & (EFI_FILE_READ_ONLY | ~EFI_FILE_VALID_ATTR))) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
-	return EFI_EXIT(EFI_SUCCESS);
+	/* Open file */
+	*new_handle = file_open(fh->fs, fh, file_name, open_mode, attributes);
+	if (*new_handle)
+		ret = EFI_SUCCESS;
+	else
+		ret = EFI_NOT_FOUND;
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t file_close(struct file_handle *fh)
@@ -223,9 +271,21 @@ static efi_status_t EFIAPI efi_file_close(struct efi_file_handle *file)
 static efi_status_t EFIAPI efi_file_delete(struct efi_file_handle *file)
 {
 	struct file_handle *fh = to_fh(file);
+	efi_status_t ret = EFI_SUCCESS;
+
 	EFI_ENTRY("%p", file);
+
+	if (set_blk_dev(fh)) {
+		ret = EFI_DEVICE_ERROR;
+		goto error;
+	}
+
+	if (fs_unlink(fh->path))
+		ret = EFI_DEVICE_ERROR;
 	file_close(fh);
-	return EFI_EXIT(EFI_WARN_DELETE_FAILURE);
+
+error:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
@@ -233,7 +293,7 @@ static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
 {
 	loff_t actread;
 
-	if (fs_read(fh->path, (ulong)buffer, fh->offset,
+	if (fs_read(fh->path, map_to_sysmem(buffer), fh->offset,
 		    *buffer_size, &actread))
 		return EFI_DEVICE_ERROR;
 
@@ -363,7 +423,7 @@ static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
 		goto error;
 	}
 
-	if (fs_write(fh->path, (ulong)buffer, fh->offset, *buffer_size,
+	if (fs_write(fh->path, map_to_sysmem(buffer), fh->offset, *buffer_size,
 		     &actwrite)) {
 		ret = EFI_DEVICE_ERROR;
 		goto error;
@@ -438,7 +498,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
 
-	EFI_ENTRY("%p, %p, %p, %p", file, info_type, buffer_size, buffer);
+	EFI_ENTRY("%p, %pUl, %p, %p", file, info_type, buffer_size, buffer);
 
 	if (!guidcmp(info_type, &efi_file_info_guid)) {
 		struct efi_file_info *info = buffer;
@@ -598,7 +658,7 @@ efi_open_volume(struct efi_simple_file_system_protocol *this,
 
 	EFI_ENTRY("%p, %p", this, root);
 
-	*root = file_open(fs, NULL, NULL, 0);
+	*root = file_open(fs, NULL, NULL, 0, 0);
 
 	return EFI_EXIT(EFI_SUCCESS);
 }

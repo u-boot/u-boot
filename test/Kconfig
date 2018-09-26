@@ -15,6 +15,14 @@ config UT_TIME
 	  problems. But if you are having problems with udelay() and the like,
 	  this is a good place to start.
 
+config UT_UNICODE
+	bool "Unit tests for Unicode functions"
+	depends on UNIT_TEST
+	default y
+	help
+	  Enables the 'ut unicode' command which tests that the functions for
+	  manipulating Unicode strings work correctly.
+
 source "test/dm/Kconfig"
 source "test/env/Kconfig"
 source "test/overlay/Kconfig"
