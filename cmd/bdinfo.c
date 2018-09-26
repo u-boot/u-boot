@@ -426,6 +426,8 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	print_bi_boot_params(bd);
 	print_bi_dram(bd);
+	print_num("relocaddr", gd->relocaddr);
+	print_num("reloc off", gd->reloc_off);
 	print_eth_ip_addr();
 	print_baudrate();
 
