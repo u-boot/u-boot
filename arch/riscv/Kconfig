@@ -11,9 +11,13 @@ choice
 config TARGET_AX25_AE350
 	bool "Support ax25-ae350"
 
+config TARGET_QEMU_VIRT
+	bool "Support QEMU Virt Board"
+
 endchoice
 
 source "board/AndesTech/ax25-ae350/Kconfig"
+source "board/emulation/qemu-riscv/Kconfig"
 
 choice
 	prompt "CPU selection"
