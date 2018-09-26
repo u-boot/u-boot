@@ -85,10 +85,10 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *check_event)(struct efi_event *event);
 #define EFI_NATIVE_INTERFACE	0x00000000
 	efi_status_t (EFIAPI *install_protocol_interface)(
-			void **handle, const efi_guid_t *protocol,
+			efi_handle_t *handle, const efi_guid_t *protocol,
 			int protocol_interface_type, void *protocol_interface);
 	efi_status_t (EFIAPI *reinstall_protocol_interface)(
-			void *handle, const efi_guid_t *protocol,
+			efi_handle_t handle, const efi_guid_t *protocol,
 			void *old_interface, void *new_interface);
 	efi_status_t (EFIAPI *uninstall_protocol_interface)(
 			efi_handle_t handle, const efi_guid_t *protocol,
@@ -164,9 +164,9 @@ struct efi_boot_services {
 	efi_status_t (EFIAPI *locate_protocol)(const efi_guid_t *protocol,
 			void *registration, void **protocol_interface);
 	efi_status_t (EFIAPI *install_multiple_protocol_interfaces)(
-			void **handle, ...);
+			efi_handle_t *handle, ...);
 	efi_status_t (EFIAPI *uninstall_multiple_protocol_interfaces)(
-			void *handle, ...);
+			efi_handle_t handle, ...);
 	efi_status_t (EFIAPI *calculate_crc32)(const void *data,
 					       efi_uintn_t data_size,
 					       u32 *crc32);

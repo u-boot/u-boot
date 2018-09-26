@@ -1019,7 +1019,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
  * Return: status code
  */
 static efi_status_t EFIAPI efi_install_protocol_interface(
-			void **handle, const efi_guid_t *protocol,
+			efi_handle_t *handle, const efi_guid_t *protocol,
 			int protocol_interface_type, void *protocol_interface)
 {
 	efi_status_t r;
@@ -2309,8 +2309,8 @@ out:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
-			void **handle, ...)
+static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
+				(efi_handle_t *handle, ...)
 {
 	EFI_ENTRY("%p", handle);
 
@@ -2346,7 +2346,7 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 	for (; i; --i) {
 		protocol = efi_va_arg(argptr, efi_guid_t*);
 		protocol_interface = efi_va_arg(argptr, void*);
-		EFI_CALL(efi_uninstall_protocol_interface(handle, protocol,
+		EFI_CALL(efi_uninstall_protocol_interface(*handle, protocol,
 							  protocol_interface));
 	}
 	efi_va_end(argptr);
@@ -2369,7 +2369,7 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
  * Return: status code
  */
 static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
-			void *handle, ...)
+			efi_handle_t handle, ...)
 {
 	EFI_ENTRY("%p", handle);
 
@@ -2588,10 +2588,10 @@ out:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_open_protocol(
-			void *handle, const efi_guid_t *protocol,
-			void **protocol_interface, void *agent_handle,
-			void *controller_handle, uint32_t attributes)
+static efi_status_t EFIAPI efi_open_protocol
+			(efi_handle_t handle, const efi_guid_t *protocol,
+			 void **protocol_interface, efi_handle_t agent_handle,
+			 efi_handle_t controller_handle, uint32_t attributes)
 {
 	struct efi_handler *handler;
 	efi_status_t r = EFI_INVALID_PARAMETER;
