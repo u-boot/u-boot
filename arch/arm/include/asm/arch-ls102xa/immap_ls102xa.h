@@ -86,6 +86,8 @@ struct sys_info {
 	unsigned long freq_localbus;
 };
 
+#define CCSR_DEVDISR1_QE	0x00000001
+
 /* Device Configuration and Pin Control */
 struct ccsr_gur {
 	u32     porsr1;         /* POR status 1 */
