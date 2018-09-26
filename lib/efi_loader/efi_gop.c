@@ -16,15 +16,22 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static const efi_guid_t efi_gop_guid = EFI_GOP_GUID;
 
+/**
+ * struct efi_gop_obj - graphical output protocol object
+ *
+ * @header:	EFI object header
+ * @ops:	graphical output protocol interface
+ * @info:	graphical output mode information
+ * @mode:	graphical output mode
+ * @bpix:	bits per pixel
+ * @fb:		frame buffer
+ */
 struct efi_gop_obj {
-	/* Generic EFI object parent class data */
-	struct efi_object parent;
-	/* EFI Interface callback struct for gop */
+	struct efi_object header;
 	struct efi_gop ops;
-	/* The only mode we support */
 	struct efi_gop_mode_info info;
 	struct efi_gop_mode mode;
-	/* Fields we only have acces to during init */
+	/* Fields we only have access to during init */
 	u32 bpix;
 	void *fb;
 };
@@ -439,10 +446,10 @@ efi_status_t efi_gop_register(void)
 	}
 
 	/* Hook up to the device list */
-	efi_add_handle(&gopobj->parent);
+	efi_add_handle(&gopobj->header);
 
 	/* Fill in object data */
-	ret = efi_add_protocol(&gopobj->parent, &efi_gop_guid,
+	ret = efi_add_protocol(&gopobj->header, &efi_gop_guid,
 			       &gopobj->ops);
 	if (ret != EFI_SUCCESS) {
 		printf("ERROR: Failure adding gop protocol\n");

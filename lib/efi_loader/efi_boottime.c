@@ -1518,7 +1518,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	}
 
 	/* Add internal object to object list */
-	efi_add_handle(&obj->parent);
+	efi_add_handle(&obj->header);
 
 	if (info_ptr)
 		*info_ptr = info;
@@ -1535,7 +1535,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 		 * When asking for the device path interface, return
 		 * bootefi_device_path
 		 */
-		ret = efi_add_protocol(&obj->parent,
+		ret = efi_add_protocol(&obj->header,
 				       &efi_guid_device_path, device_path);
 		if (ret != EFI_SUCCESS)
 			goto failure;
@@ -1545,7 +1545,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	 * When asking for the loaded_image interface, just
 	 * return handle which points to loaded_image_info
 	 */
-	ret = efi_add_protocol(&obj->parent,
+	ret = efi_add_protocol(&obj->header,
 			       &efi_guid_loaded_image, info);
 	if (ret != EFI_SUCCESS)
 		goto failure;

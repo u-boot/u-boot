@@ -418,7 +418,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 
 		/* Move into EL2 and keep running there */
 		armv8_switch_to_el2((ulong)entry,
-				    (ulong)&image_obj->parent,
+				    (ulong)&image_obj->header,
 				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
 				    ES_TO_AARCH64);
 
@@ -435,7 +435,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 		secure_ram_addr(_do_nonsec_entry)(
 					efi_run_in_hyp,
 					(uintptr_t)entry,
-					(uintptr_t)&image_obj->parent,
+					(uintptr_t)&image_obj->header,
 					(uintptr_t)&systab);
 
 		/* Should never reach here, efi exits with longjmp */
@@ -443,12 +443,12 @@ static efi_status_t do_bootefi_exec(void *efi,
 	}
 #endif
 
-	ret = efi_do_enter(&image_obj->parent, &systab, entry);
+	ret = efi_do_enter(&image_obj->header, &systab, entry);
 
 exit:
 	/* image has returned, loaded-image obj goes *poof*: */
 	if (image_obj)
-		efi_delete_handle(&image_obj->parent);
+		efi_delete_handle(&image_obj->header);
 	if (mem_handle)
 		efi_delete_handle(mem_handle);
 
@@ -546,10 +546,10 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* Transfer environment variable efi_selftest as load options */
 		set_load_options(loaded_image_info, "efi_selftest");
 		/* Execute the test */
-		r = efi_selftest(&image_obj->parent, &systab);
+		r = efi_selftest(&image_obj->header, &systab);
 		efi_restore_gd();
 		free(loaded_image_info->load_options);
-		efi_delete_handle(&image_obj->parent);
+		efi_delete_handle(&image_obj->header);
 		return r != EFI_SUCCESS;
 	} else
 #endif

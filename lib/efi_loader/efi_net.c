@@ -24,13 +24,19 @@ static struct efi_event *network_timer_event;
  */
 static struct efi_event *wait_for_packet;
 
+/**
+ * struct efi_net_obj - EFI object representing a network interface
+ *
+ * @header:	EFI object header
+ * @net:	simple network protocol interface
+ * @net_mode:	status of the network interface
+ * @pxe:	PXE base code protocol interface
+ * @pxe_mode:	status of the PXE base code protocol
+ */
 struct efi_net_obj {
-	/* Generic EFI object parent class data */
-	struct efi_object parent;
-	/* EFI Interface callback struct for network */
+	struct efi_object header;
 	struct efi_simple_network net;
 	struct efi_simple_network_mode net_mode;
-	/* PXE struct to transmit dhcp data */
 	struct efi_pxe pxe;
 	struct efi_pxe_mode pxe_mode;
 };
@@ -325,18 +331,18 @@ efi_status_t efi_net_register(void)
 	}
 
 	/* Hook net up to the device list */
-	efi_add_handle(&netobj->parent);
+	efi_add_handle(&netobj->header);
 
 	/* Fill in object data */
-	r = efi_add_protocol(&netobj->parent, &efi_net_guid,
+	r = efi_add_protocol(&netobj->header, &efi_net_guid,
 			     &netobj->net);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
-	r = efi_add_protocol(&netobj->parent, &efi_guid_device_path,
+	r = efi_add_protocol(&netobj->header, &efi_guid_device_path,
 			     efi_dp_from_eth());
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
-	r = efi_add_protocol(&netobj->parent, &efi_pxe_guid,
+	r = efi_add_protocol(&netobj->header, &efi_pxe_guid,
 			     &netobj->pxe);
 	if (r != EFI_SUCCESS)
 		goto failure_to_add_protocol;
