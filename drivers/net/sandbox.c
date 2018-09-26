@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <malloc.h>
 #include <net.h>
+#include <asm/eth.h>
 #include <asm/test.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -22,6 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * disabled: Will not respond
  * recv_packet_buffer: buffer of the packet returned as received
  * recv_packet_length: length of the packet returned as received
+ * tx_handler - function to generate responses to sent packets
  */
 struct eth_sandbox_priv {
 	uchar fake_host_hwaddr[ARP_HLEN];
@@ -29,6 +31,7 @@ struct eth_sandbox_priv {
 	bool disabled;
 	uchar *recv_packet_buffer;
 	int recv_packet_length;
+	sandbox_eth_tx_hand_f *tx_handler;
 };
 
 static bool skip_timeout;
@@ -165,6 +168,52 @@ int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 	return 0;
 }
 
+/*
+ * sb_default_handler()
+ *
+ * perform typical responses to simple ping
+ *
+ * dev - device pointer
+ * pkt - "sent" packet buffer
+ * len - length of packet
+ */
+static int sb_default_handler(struct udevice *dev, void *packet,
+			      unsigned int len)
+{
+	if (!sandbox_eth_arp_req_to_reply(dev, packet, len))
+		return 0;
+	if (!sandbox_eth_ping_req_to_reply(dev, packet, len))
+		return 0;
+
+	return 0;
+}
+
+/*
+ * sandbox_eth_set_tx_handler()
+ *
+ * Set a custom response to a packet being sent through the sandbox eth test
+ *	driver
+ *
+ * index - interface to set the handler for
+ * handler - The func ptr to call on send. If NULL, set to default handler
+ */
+void sandbox_eth_set_tx_handler(int index, sandbox_eth_tx_hand_f *handler)
+{
+	struct udevice *dev;
+	struct eth_sandbox_priv *priv;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_ETH, index, &dev);
+	if (ret)
+		return;
+
+	priv = dev_get_priv(dev);
+	if (handler)
+		priv->tx_handler = handler;
+	else
+		priv->tx_handler = sb_default_handler;
+}
+
 static int sb_eth_start(struct udevice *dev)
 {
 	struct eth_sandbox_priv *priv = dev_get_priv(dev);
@@ -185,10 +234,7 @@ static int sb_eth_send(struct udevice *dev, void *packet, int length)
 	if (priv->disabled)
 		return 0;
 
-	if (!sandbox_eth_arp_req_to_reply(dev, packet, length))
-		return 0;
-	if (!sandbox_eth_ping_req_to_reply(dev, packet, length))
-		return 0;
+	return priv->tx_handler(dev, packet, length);
 }
 
 static int sb_eth_recv(struct udevice *dev, int flags, uchar **packetp)
@@ -254,6 +300,7 @@ static int sb_eth_ofdata_to_platdata(struct udevice *dev)
 	}
 	memcpy(priv->fake_host_hwaddr, mac, ARP_HLEN);
 	priv->disabled = false;
+	priv->tx_handler = sb_default_handler;
 
 	return 0;
 }

@@ -39,4 +39,21 @@ int sandbox_eth_arp_req_to_reply(struct udevice *dev, void *packet,
 int sandbox_eth_ping_req_to_reply(struct udevice *dev, void *packet,
 				  unsigned int len);
 
+/**
+ * A packet handler
+ *
+ * dev - device pointer
+ * pkt - pointer to the "sent" packet
+ * len - packet length
+ */
+typedef int sandbox_eth_tx_hand_f(struct udevice *dev, void *pkt,
+				   unsigned int len);
+
+/*
+ * Set packet handler
+ *
+ * handler - The func ptr to call on send. If NULL, set to default handler
+ */
+void sandbox_eth_set_tx_handler(int index, sandbox_eth_tx_hand_f *handler);
+
 #endif /* __ETH_H */
