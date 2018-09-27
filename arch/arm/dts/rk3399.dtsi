@@ -1598,14 +1598,19 @@
 			drive-strength = <12>;
 		};
 
-		pcfg_pull_up_8ma: pcfg-pull-up-8ma {
-			bias-pull-up;
-			drive-strength = <8>;
+		pcfg_pull_none_13ma: pcfg-pull-none-13ma {
+			bias-disable;
+			drive-strength = <13>;
 		};
 
-		pcfg_pull_down_4ma: pcfg-pull-down-4ma {
-			bias-pull-down;
-			drive-strength = <4>;
+		pcfg_pull_none_18ma: pcfg-pull-none-18ma {
+			bias-disable;
+			drive-strength = <18>;
+		};
+
+		pcfg_pull_none_20ma: pcfg-pull-none-20ma {
+			bias-disable;
+			drive-strength = <20>;
 		};
 
 		pcfg_pull_up_2ma: pcfg-pull-up-2ma {
@@ -1613,14 +1618,52 @@
 			drive-strength = <2>;
 		};
 
+		pcfg_pull_up_8ma: pcfg-pull-up-8ma {
+			bias-pull-up;
+			drive-strength = <8>;
+		};
+
+		pcfg_pull_up_18ma: pcfg-pull-up-18ma {
+			bias-pull-up;
+			drive-strength = <18>;
+		};
+
+		pcfg_pull_up_20ma: pcfg-pull-up-20ma {
+			bias-pull-up;
+			drive-strength = <20>;
+		};
+
+		pcfg_pull_down_4ma: pcfg-pull-down-4ma {
+			bias-pull-down;
+			drive-strength = <4>;
+		};
+
+		pcfg_pull_down_8ma: pcfg-pull-down-8ma {
+			bias-pull-down;
+			drive-strength = <8>;
+		};
+
 		pcfg_pull_down_12ma: pcfg-pull-down-12ma {
 			bias-pull-down;
 			drive-strength = <12>;
 		};
 
-		pcfg_pull_none_13ma: pcfg-pull-none-13ma {
-			bias-disable;
-			drive-strength = <13>;
+		pcfg_pull_down_18ma: pcfg-pull-down-18ma {
+			bias-pull-down;
+			drive-strength = <18>;
+		};
+
+		pcfg_pull_down_20ma: pcfg-pull-down-20ma {
+			bias-pull-down;
+			drive-strength = <20>;
+		};
+
+		pcfg_output_high: pcfg-output-high {
+			output-high;
+		};
+
+		pcfg_output_low: pcfg-output-low {
+			output-low;
 		};
 
 		clock {
