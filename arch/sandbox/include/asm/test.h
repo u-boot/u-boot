@@ -90,4 +90,12 @@ long sandbox_i2c_rtc_get_set_base_time(struct udevice *dev, long base_time);
 
 int sandbox_usb_keyb_add_string(struct udevice *dev, const char *str);
 
+/**
+ * sandbox_osd_get_mem() - get the internal memory of a sandbox OSD
+ *
+ * @dev:	OSD device for which to access the internal memory for
+ * @buf:	pointer to buffer to receive the OSD memory data
+ * @buflen:	length of buffer in bytes
+ */
+int sandbox_osd_get_mem(struct udevice *dev, u8 *buf, size_t buflen);
 #endif

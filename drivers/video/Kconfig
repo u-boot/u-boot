@@ -692,6 +692,12 @@ config OSD
 	   is a (usually text-oriented) graphics buffer to show information on
 	   a display.
 
+config SANDBOX_OSD
+	bool "Enable sandbox OSD"
+	depends on OSD
+	help
+	  Enable support for sandbox OSD device used for testing purposes.
+
 config IHS_VIDEO_OUT
 	bool "Enable IHS video out driver"
 	depends on OSD

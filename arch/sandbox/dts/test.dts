@@ -37,6 +37,7 @@
 		usb1 = &usb_1;
 		usb2 = &usb_2;
 		axi0 = &axi;
+		osd0 = "/osd";
 	};
 
 	a-test {
@@ -641,6 +642,10 @@
 				reg = <0x42>;
 			};
 		};
+	};
+
+	osd {
+		compatible = "sandbox,sandbox_osd";
 	};
 };
 
