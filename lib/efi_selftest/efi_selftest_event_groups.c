@@ -19,7 +19,7 @@ static efi_guid_t event_group =
 		 0x0e, 0x5b, 0x45, 0xc0, 0x56, 0x91);
 
 /*
- * Notification function, increments the notfication count if parameter
+ * Notification function, increments the notification count if parameter
  * context is provided.
  *
  * @event	notified event
@@ -114,7 +114,7 @@ static int execute(void)
 					      (unsigned int)i, (unsigned int)j,
 					      (unsigned int)counter[j]);
 				efi_st_error(
-					"Nofification function not called\n");
+					"Notification function not called\n");
 				return EFI_ST_FAILURE;
 			}
 		}

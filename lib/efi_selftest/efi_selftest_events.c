@@ -17,7 +17,7 @@ static unsigned int timer_ticks;
 static struct efi_boot_services *boottime;
 
 /*
- * Notification function, increments the notfication count if parameter
+ * Notification function, increments the notification count if parameter
  * context is provided.
  *
  * @event	notified event

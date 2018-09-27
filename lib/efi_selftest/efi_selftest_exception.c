@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
  *
- * Test the handling of execptions by trying to execute an undefined
+ * Test the handling of exceptions by trying to execute an undefined
  * instruction.
  */
 
@@ -37,7 +37,7 @@ static int execute(void)
 {
 	undefined_instruction();
 
-	efi_st_error("An undefined instruction exeption was not raised\n");
+	efi_st_error("An undefined instruction exception was not raised\n");
 
 	return EFI_ST_FAILURE;
 }

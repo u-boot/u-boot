@@ -4,10 +4,8 @@
  *
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
  *
- * This unit test checks the following protocol services:
- * ConnectController, DisconnectController,
- * InstallProtocol, ReinstallProtocol, UninstallProtocol,
- * OpenProtocol, CloseProtcol, OpenProtocolInformation
+ * This unit test checks the runtime services for variables:
+ * GetVariable, GetNextVariableName, SetVariable, QueryVariableInfo.
  */
 
 #include <efi_selftest.h>
