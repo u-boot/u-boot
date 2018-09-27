@@ -683,4 +683,12 @@ config VIDEO_DT_SIMPLEFB
 	  The video output is initialized by U-Boot, and kept by the
 	  kernel.
 
+config OSD
+	bool "Enable OSD support"
+	depends on DM
+	default n
+	help
+	   This supports drivers that provide a OSD (on-screen display), which
+	   is a (usually text-oriented) graphics buffer to show information on
+	   a display.
 endmenu
