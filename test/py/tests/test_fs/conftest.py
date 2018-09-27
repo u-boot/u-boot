@@ -129,7 +129,7 @@ def mount_fs(fs_type, device, mount_point):
     except CalledProcessError:
         raise
 
-def umount_fs(fs_type, mount_point):
+def umount_fs(mount_point):
     if fuse_mounted:
         call('sync')
         call('guestunmount %s' % mount_point, shell=True)
@@ -223,14 +223,14 @@ def fs_obj_basic(request, u_boot_config):
 	    % big_file, shell=True)
         md5val.append(out.split()[0])
 
-        umount_fs(fs_type, mount_dir)
+        umount_fs(mount_dir)
     except CalledProcessError:
         pytest.skip('Setup failed for filesystem: ' + fs_type)
         return
     else:
         yield [fs_ubtype, fs_img, md5val]
     finally:
-        umount_fs(fs_type, mount_dir)
+        umount_fs(mount_dir)
         call('rmdir %s' % mount_dir, shell=True)
         if fs_img:
             call('rm -f %s' % fs_img, shell=True)
@@ -300,14 +300,14 @@ def fs_obj_ext(request, u_boot_config):
         md5val.append(out.split()[0])
 
         check_call('rm %s' % tmp_file, shell=True)
-        umount_fs(fs_type, mount_dir)
+        umount_fs(mount_dir)
     except CalledProcessError:
         pytest.skip('Setup failed for filesystem: ' + fs_type)
         return
     else:
         yield [fs_ubtype, fs_img, md5val]
     finally:
-        umount_fs(fs_type, mount_dir)
+        umount_fs(mount_dir)
         call('rmdir %s' % mount_dir, shell=True)
         if fs_img:
             call('rm -f %s' % fs_img, shell=True)
@@ -379,14 +379,14 @@ def fs_obj_unlink(request, u_boot_config):
         check_call('dd if=/dev/urandom of=%s/dir5/file1 bs=1K count=1'
                                     % mount_dir, shell=True)
 
-        umount_fs(fs_type, mount_dir)
+        umount_fs(mount_dir)
     except CalledProcessError:
         pytest.skip('Setup failed for filesystem: ' + fs_type)
         return
     else:
         yield [fs_ubtype, fs_img]
     finally:
-        umount_fs(fs_type, mount_dir)
+        umount_fs(mount_dir)
         call('rmdir %s' % mount_dir, shell=True)
         if fs_img:
             call('rm -f %s' % fs_img, shell=True)
