@@ -691,4 +691,13 @@ config OSD
 	   This supports drivers that provide a OSD (on-screen display), which
 	   is a (usually text-oriented) graphics buffer to show information on
 	   a display.
+
+config IHS_VIDEO_OUT
+	bool "Enable IHS video out driver"
+	depends on OSD
+	help
+	  Enable support for the gdsys Integrated Hardware Systems (IHS) video
+	  out On-screen Display (OSD) used on gdsys FPGAs to control dynamic
+	  textual overlays of the display outputs.
+
 endmenu
