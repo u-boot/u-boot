@@ -18,10 +18,32 @@ supported_fs_unlink = ['fat16', 'fat32']
 # Filesystem test specific setup
 #
 def pytest_addoption(parser):
+    """Enable --fs-type option.
+
+    See pytest_configure() about how it works.
+
+    Args:
+        parser: Pytest command-line parser.
+
+    Returns:
+        Nothing.
+    """
     parser.addoption('--fs-type', action='append', default=None,
         help='Targeting Filesystem Types')
 
 def pytest_configure(config):
+    """Restrict a file system(s) to be tested.
+
+    A file system explicitly named with --fs-type option is selected
+    if it belongs to a default supported_fs_xxx list.
+    Multiple options can be specified.
+
+    Args:
+        config: Pytest configuration.
+
+    Returns:
+        Nothing.
+    """
     global supported_fs_basic
     global supported_fs_ext
     global supported_fs_mkdir
@@ -39,6 +61,17 @@ def pytest_configure(config):
         supported_fs_unlink =  intersect(supported_fs, supported_fs_unlink)
 
 def pytest_generate_tests(metafunc):
+    """Parametrize fixtures, fs_obj_xxx
+
+    Each fixture will be parametrized with a corresponding support_fs_xxx
+    list.
+
+    Args:
+        metafunc: Pytest test function.
+
+    Returns:
+        Nothing.
+    """
     if 'fs_obj_basic' in metafunc.fixturenames:
         metafunc.parametrize('fs_obj_basic', supported_fs_basic,
             indirect=True, scope='module')
@@ -56,12 +89,36 @@ def pytest_generate_tests(metafunc):
 # Helper functions
 #
 def fstype_to_ubname(fs_type):
+    """Convert a file system type to an U-boot specific string
+
+    A generated string can be used as part of file system related commands
+    or a config name in u-boot. Currently fat16 and fat32 are handled
+    specifically.
+
+    Args:
+        fs_type: File system type.
+
+    Return:
+        A corresponding string for file system type.
+    """
     if re.match('fat', fs_type):
         return 'fat'
     else:
         return fs_type
 
 def check_ubconfig(config, fs_type):
+    """Check whether a file system is enabled in u-boot configuration.
+
+    This function is assumed to be called in a fixture function so that
+    the whole test cases will be skipped if a given file system is not
+    enabled.
+
+    Args:
+        fs_type: File system type.
+
+    Return:
+        Nothing.
+    """
     if not config.buildconfig.get('config_cmd_%s' % fs_type, None):
         pytest.skip('.config feature "CMD_%s" not enabled' % fs_type.upper())
     if not config.buildconfig.get('config_%s_write' % fs_type, None):
@@ -69,6 +126,16 @@ def check_ubconfig(config, fs_type):
         % fs_type.upper())
 
 def mk_fs(config, fs_type, size, id):
+    """Create a file system volume.
+
+    Args:
+        fs_type: File system type.
+        size: Size of file system in MiB.
+        id: Prefix string of volume's file name.
+
+    Return:
+        Nothing.
+    """
     fs_img = '%s.%s.img' % (id, fs_type)
     fs_img = config.persistent_data_dir + '/' + fs_img
 
@@ -99,6 +166,14 @@ def mk_fs(config, fs_type, size, id):
 
 # from test/py/conftest.py
 def tool_is_in_path(tool):
+    """Check whether a given command is available on host.
+
+    Args:
+        tool: Command name.
+
+    Return:
+        True if available, False if not.
+    """
     for path in os.environ["PATH"].split(os.pathsep):
         fn = os.path.join(path, tool)
         if os.path.isfile(fn) and os.access(fn, os.X_OK):
@@ -108,6 +183,16 @@ def tool_is_in_path(tool):
 fuse_mounted = False
 
 def mount_fs(fs_type, device, mount_point):
+    """Mount a volume.
+
+    Args:
+        fs_type: File system type.
+        device: Volume's file name.
+        mount_point: Mount point.
+
+    Return:
+        Nothing.
+    """
     global fuse_mounted
 
     fuse_mounted = False
@@ -130,6 +215,14 @@ def mount_fs(fs_type, device, mount_point):
         raise
 
 def umount_fs(mount_point):
+    """Unmount a volume.
+
+    Args:
+        mount_point: Mount point.
+
+    Return:
+        Nothing.
+    """
     if fuse_mounted:
         call('sync')
         call('guestunmount %s' % mount_point, shell=True)
@@ -143,6 +236,16 @@ def umount_fs(mount_point):
 # NOTE: yield_fixture was deprecated since pytest-3.0
 @pytest.yield_fixture()
 def fs_obj_basic(request, u_boot_config):
+    """Set up a file system to be used in basic fs test.
+
+    Args:
+        request: Pytest request object.
+	u_boot_config: U-boot configuration.
+
+    Return:
+        A fixture for basic fs test, i.e. a triplet of file system type,
+        volume file name and  a list of MD5 hashes.
+    """
     fs_type = request.param
     fs_img = ''
 
@@ -241,6 +344,16 @@ def fs_obj_basic(request, u_boot_config):
 # NOTE: yield_fixture was deprecated since pytest-3.0
 @pytest.yield_fixture()
 def fs_obj_ext(request, u_boot_config):
+    """Set up a file system to be used in extended fs test.
+
+    Args:
+        request: Pytest request object.
+	u_boot_config: U-boot configuration.
+
+    Return:
+        A fixture for extended fs test, i.e. a triplet of file system type,
+        volume file name and  a list of MD5 hashes.
+    """
     fs_type = request.param
     fs_img = ''
 
@@ -318,6 +431,16 @@ def fs_obj_ext(request, u_boot_config):
 # NOTE: yield_fixture was deprecated since pytest-3.0
 @pytest.yield_fixture()
 def fs_obj_mkdir(request, u_boot_config):
+    """Set up a file system to be used in mkdir test.
+
+    Args:
+        request: Pytest request object.
+	u_boot_config: U-boot configuration.
+
+    Return:
+        A fixture for mkdir test, i.e. a duplet of file system type and
+        volume file name.
+    """
     fs_type = request.param
     fs_img = ''
 
@@ -341,6 +464,16 @@ def fs_obj_mkdir(request, u_boot_config):
 # NOTE: yield_fixture was deprecated since pytest-3.0
 @pytest.yield_fixture()
 def fs_obj_unlink(request, u_boot_config):
+    """Set up a file system to be used in unlink test.
+
+    Args:
+        request: Pytest request object.
+	u_boot_config: U-boot configuration.
+
+    Return:
+        A fixture for unlink test, i.e. a duplet of file system type and
+        volume file name.
+    """
     fs_type = request.param
     fs_img = ''
 
