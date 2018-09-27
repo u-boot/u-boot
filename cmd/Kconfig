@@ -913,6 +913,14 @@ config CMD_ONENAND
 	  and erasing blocks. It allso provides a way to show and change
 	  bad blocks, and test the device.
 
+config CMD_OSD
+	bool "osd"
+	help
+	  Enable the 'osd' command which allows to query information from and
+	  write text data to a on-screen display (OSD) device; a virtual device
+	  associated with a display capable of displaying a text overlay on the
+	  display it's associated with..
+
 config CMD_PART
 	bool "part"
 	select HAVE_BLOCK_DEVICE
