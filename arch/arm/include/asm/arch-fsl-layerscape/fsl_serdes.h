@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+ * Copyright 2018 NXP
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
 
@@ -57,6 +58,7 @@ enum srds_prtcl {
 enum srds {
 	FSL_SRDS_1  = 0,
 	FSL_SRDS_2  = 1,
+	NXP_SRDS_3  = 2,
 };
 #elif defined(CONFIG_FSL_LSCH2)
 enum srds_prtcl {

@@ -348,6 +348,9 @@ config SYS_FSL_SRDS_1
 config SYS_FSL_SRDS_2
 	bool
 
+config SYS_NXP_SRDS_3
+	bool
+
 config SYS_HAS_SERDES
 	bool
 

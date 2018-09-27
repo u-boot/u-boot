@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * Copyright 2016-2018 NXP
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  */
 
@@ -15,6 +16,9 @@ static u8 serdes1_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
 #ifdef CONFIG_SYS_FSL_SRDS_2
 static u8 serdes2_prtcl_map[SERDES_PRCTL_COUNT];
+#endif
+#ifdef CONFIG_SYS_NXP_SRDS_3
+static u8 serdes3_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
 
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
@@ -57,6 +61,12 @@ int is_serdes_configured(enum srds_prtcl device)
 
 	ret |= serdes2_prtcl_map[device];
 #endif
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	if (!serdes3_prtcl_map[NONE])
+		fsl_serdes_init();
+
+	ret |= serdes3_prtcl_map[device];
+#endif
 
 	return !!ret;
 }
@@ -80,6 +90,13 @@ int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 		cfg = gur_in32(&gur->rcwsr[FSL_CHASSIS3_SRDS2_REGSR - 1]);
 		cfg &= FSL_CHASSIS3_SRDS2_PRTCL_MASK;
 		cfg >>= FSL_CHASSIS3_SRDS2_PRTCL_SHIFT;
+		break;
+#endif
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	case NXP_SRDS_3:
+		cfg = gur_in32(&gur->rcwsr[FSL_CHASSIS3_SRDS3_REGSR - 1]);
+		cfg &= FSL_CHASSIS3_SRDS3_PRTCL_MASK;
+		cfg >>= FSL_CHASSIS3_SRDS3_PRTCL_SHIFT;
 		break;
 #endif
 	default:
@@ -199,6 +216,12 @@ struct serdes_prctl_info srds_prctl_info[] = {
 	{.id = 2,
 	 .mask = FSL_CHASSIS3_SRDS2_PRTCL_MASK,
 	 .shift = FSL_CHASSIS3_SRDS2_PRTCL_SHIFT
+	},
+#endif
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	{.id = 3,
+	 .mask = FSL_CHASSIS3_SRDS3_PRTCL_MASK,
+	 .shift = FSL_CHASSIS3_SRDS3_PRTCL_SHIFT
 	},
 #endif
 	{} /* NULL ENTRY */
@@ -341,6 +364,11 @@ int setup_serdes_volt(u32 svdd)
 			(void *)(CONFIG_SYS_FSL_LSCH3_SERDES_ADDR + 0x10000);
 	u32 cfg_rcwsrds2 = gur_in32(&gur->rcwsr[FSL_CHASSIS3_SRDS2_REGSR - 1]);
 #endif
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	struct ccsr_serdes __iomem *serdes3_base =
+			(void *)(CONFIG_SYS_FSL_LSCH3_SERDES_ADDR + 0x20000);
+	u32 cfg_rcwsrds3 = gur_in32(&gur->rcwsr[FSL_CHASSIS3_SRDS3_REGSR - 1]);
+#endif
 	u32 cfg_tmp;
 	int svdd_cur, svdd_tar;
 	int ret = 1;
@@ -370,6 +398,9 @@ int setup_serdes_volt(u32 svdd)
 #ifdef CONFIG_SYS_FSL_SRDS_2
 	do_enabled_lanes_reset(2, cfg_rcwsrds2, serdes2_base, false);
 #endif
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	do_enabled_lanes_reset(3, cfg_rcwsrds3, serdes3_base, false);
+#endif
 
 	/* Put the all enabled PLL in reset */
 #ifdef CONFIG_SYS_FSL_SRDS_1
@@ -383,6 +414,12 @@ int setup_serdes_volt(u32 svdd)
 	do_pll_reset(cfg_tmp, serdes2_base);
 #endif
 
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	cfg_tmp = cfg_rcwsrds3 & 0x30;
+	cfg_tmp >>= 4;
+	do_pll_reset(cfg_tmp, serdes3_base);
+#endif
+
 	/* Put the Rx/Tx calibration into reset */
 #ifdef CONFIG_SYS_FSL_SRDS_1
 	do_rx_tx_cal_reset(serdes1_base);
@@ -390,6 +427,10 @@ int setup_serdes_volt(u32 svdd)
 
 #ifdef CONFIG_SYS_FSL_SRDS_2
 	do_rx_tx_cal_reset(serdes2_base);
+#endif
+
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	do_rx_tx_cal_reset(serdes3_base);
 #endif
 
 	ret = set_serdes_volt(svdd);
@@ -408,6 +449,11 @@ int setup_serdes_volt(u32 svdd)
 	cfg_tmp >>= 2;
 	do_serdes_enable(cfg_tmp, serdes2_base);
 #endif
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	cfg_tmp = cfg_rcwsrds3 & 0x30;
+	cfg_tmp >>= 4;
+	do_serdes_enable(cfg_tmp, serdes3_base);
+#endif
 
 	/* Wait for at at least 625us, ensure the PLLs being reset are locked */
 	udelay(800);
@@ -422,12 +468,23 @@ int setup_serdes_volt(u32 svdd)
 	cfg_tmp >>= 2;
 	do_pll_lock(cfg_tmp, serdes2_base);
 #endif
+
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	cfg_tmp = cfg_rcwsrds3 & 0x30;
+	cfg_tmp >>= 4;
+	do_pll_lock(cfg_tmp, serdes3_base);
+#endif
+
 	/* Take the all enabled lanes out of reset */
 #ifdef CONFIG_SYS_FSL_SRDS_1
 	do_enabled_lanes_reset(1, cfg_rcwsrds1, serdes1_base, true);
 #endif
 #ifdef CONFIG_SYS_FSL_SRDS_2
 	do_enabled_lanes_reset(2, cfg_rcwsrds2, serdes2_base, true);
+#endif
+
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	do_enabled_lanes_reset(3, cfg_rcwsrds3, serdes3_base, true);
 #endif
 
 	/* For each PLL being reset, and achieved PLL lock set RST_DONE */
@@ -439,6 +496,12 @@ int setup_serdes_volt(u32 svdd)
 	cfg_tmp = cfg_rcwsrds1 & 0xC;
 	cfg_tmp >>= 2;
 	do_pll_reset_done(cfg_tmp, serdes2_base);
+#endif
+
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	cfg_tmp = cfg_rcwsrds3 & 0x30;
+	cfg_tmp >>= 4;
+	do_pll_reset_done(cfg_tmp, serdes3_base);
 #endif
 
 	return ret;
@@ -471,5 +534,13 @@ void fsl_serdes_init(void)
 		    FSL_CHASSIS3_SRDS2_PRTCL_MASK,
 		    FSL_CHASSIS3_SRDS2_PRTCL_SHIFT,
 		    serdes2_prtcl_map);
+#endif
+#ifdef CONFIG_SYS_NXP_SRDS_3
+	serdes_init(NXP_SRDS_3,
+		    CONFIG_SYS_FSL_LSCH3_SERDES_ADDR + NXP_SRDS_3 * 0x10000,
+		    FSL_CHASSIS3_SRDS3_REGSR,
+		    FSL_CHASSIS3_SRDS3_PRTCL_MASK,
+		    FSL_CHASSIS3_SRDS3_PRTCL_SHIFT,
+		    serdes3_prtcl_map);
 #endif
 }
