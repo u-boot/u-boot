@@ -112,6 +112,7 @@ struct environment {
 	unsigned char *flags;
 	char *data;
 	enum flag_scheme flag_scheme;
+	int dirty;
 };
 
 static struct environment environment = {
@@ -506,6 +507,9 @@ int fw_env_flush(struct env_opts *opts)
 	if (!opts)
 		opts = &default_opts;
 
+	if (!environment.dirty)
+		return 0;
+
 	/*
 	 * Update CRC
 	 */
@@ -551,7 +555,8 @@ int fw_env_write(char *name, char *value)
 
 	deleting = (oldval && !(value && strlen(value)));
 	creating = (!oldval && (value && strlen(value)));
-	overwriting = (oldval && (value && strlen(value)));
+	overwriting = (oldval && (value && strlen(value) &&
+				  strcmp(oldval, value)));
 
 	/* check for permission */
 	if (deleting) {
@@ -591,6 +596,7 @@ int fw_env_write(char *name, char *value)
 		/* Nothing to do */
 		return 0;
 
+	environment.dirty = 1;
 	if (deleting || overwriting) {
 		if (*++nxt == '\0') {
 			*env = '\0';
@@ -1440,6 +1446,7 @@ int fw_env_open(struct env_opts *opts)
 				"Warning: Bad CRC, using default environment\n");
 			memcpy(environment.data, default_environment,
 			       sizeof(default_environment));
+			environment.dirty = 1;
 		}
 	} else {
 		flag0 = *environment.flags;
@@ -1493,6 +1500,16 @@ int fw_env_open(struct env_opts *opts)
 		crc1_ok = (crc1 == redundant->crc);
 		flag1 = redundant->flags;
 
+		/*
+		 * environment.data still points to ((struct
+		 * env_image_redundant *)addr0)->data. If the two
+		 * environments differ, or one has bad crc, force a
+		 * write-out by marking the environment dirty.
+		 */
+		if (memcmp(environment.data, redundant->data, ENV_SIZE) ||
+		    !crc0_ok || !crc1_ok)
+			environment.dirty = 1;
+
 		if (crc0_ok && !crc1_ok) {
 			dev_current = 0;
 		} else if (!crc0_ok && crc1_ok) {
@@ -1502,6 +1519,7 @@ int fw_env_open(struct env_opts *opts)
 				"Warning: Bad CRC, using default environment\n");
 			memcpy(environment.data, default_environment,
 			       sizeof(default_environment));
+			environment.dirty = 1;
 			dev_current = 0;
 		} else {
 			switch (environment.flag_scheme) {
