@@ -78,6 +78,24 @@ void ut_failf(struct unit_test_state *uts, const char *fname, int line,
 	}								\
 }
 
+/* Assert that two memory areas are equal */
+#define ut_asserteq_mem(expr1, expr2, len) {				\
+	const u8 *val1 = (u8 *)(expr1), *val2 = (u8 *)(expr2);		\
+	const uint __len = len;						\
+									\
+	if (memcmp(val1, val2, __len)) {				\
+		char __buf1[64 + 1] = "\0";				\
+		char __buf2[64 + 1] = "\0";				\
+		bin2hex(__buf1, val1, min(__len, (uint)32));		\
+		bin2hex(__buf2, val2, min(__len, (uint)32));		\
+		ut_failf(uts, __FILE__, __LINE__, __func__,		\
+			 #expr1 " = " #expr2,				\
+			 "Expected \"%s\", got \"%s\"",			\
+			 __buf1, __buf2);				\
+		return CMD_RET_FAILURE;					\
+	}								\
+}
+
 /* Assert that two pointers are equal */
 #define ut_asserteq_ptr(expr1, expr2) {					\
 	const void *val1 = (expr1), *val2 = (expr2);			\
