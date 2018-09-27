@@ -463,7 +463,6 @@ extern unsigned long get_sdram_size(void);
 #if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH) || \
 	defined(CONFIG_RAMBOOT_NAND)
 #define CONFIG_SYS_RAMBOOT
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #else
 #undef CONFIG_SYS_RAMBOOT
 #endif

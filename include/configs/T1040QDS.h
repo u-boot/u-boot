@@ -66,7 +66,6 @@
 
 #ifdef CONFIG_MTD_NOR_FLASH
 #if defined(CONFIG_SPIFLASH)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_SPI_BUS              0
 #define CONFIG_ENV_SPI_CS               0
 #define CONFIG_ENV_SPI_MAX_HZ           10000000
@@ -75,12 +74,10 @@
 #define CONFIG_ENV_OFFSET               0x100000        /* 1MB */
 #define CONFIG_ENV_SECT_SIZE            0x10000
 #elif defined(CONFIG_SDCARD)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_SYS_MMC_ENV_DEV          0
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET		(512 * 1658)
 #elif defined(CONFIG_NAND)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_SIZE			CONFIG_SYS_NAND_BLOCK_SIZE
 #define CONFIG_ENV_OFFSET		(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else

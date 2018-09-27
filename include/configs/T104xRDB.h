@@ -170,12 +170,10 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 #if defined(CONFIG_SPIFLASH)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_SIZE                 0x2000          /* 8KB */
 #define CONFIG_ENV_OFFSET               0x100000        /* 1MB */
 #define CONFIG_ENV_SECT_SIZE            0x10000
 #elif defined(CONFIG_SDCARD)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_SYS_MMC_ENV_DEV          0
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET		(512 * 0x800)
@@ -184,7 +182,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_RAMBOOT_NAND
 #define CONFIG_BOOTSCRIPT_COPY_RAM
 #endif
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET		(3 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else

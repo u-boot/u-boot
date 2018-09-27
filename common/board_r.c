@@ -140,15 +140,12 @@ static int initr_reloc_global_data(void)
 	 */
 	fixup_cpu();
 #endif
-#ifdef CONFIG_SYS_EXTRA_ENV_RELOC
+#if !defined(CONFIG_ENV_ADDR) || defined(ENV_IS_EMBEDDED)
 	/*
-	 * Some systems need to relocate the env_addr pointer early because the
-	 * location it points to will get invalidated before env_relocate is
-	 * called.  One example is on systems that might use a L2 or L3 cache
-	 * in SRAM mode and initialize that cache from SRAM mode back to being
-	 * a cache in cpu_init_r.
+	 * Relocate the early env_addr pointer unless we know it is not inside
+	 * the binary. Some systems need this and for the rest, it doesn't hurt.
 	 */
-	gd->env_addr += gd->relocaddr - CONFIG_SYS_MONITOR_BASE;
+	gd->env_addr += gd->reloc_off;
 #endif
 #ifdef CONFIG_OF_EMBED
 	/*

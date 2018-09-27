@@ -298,8 +298,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #endif
 
-#define CONFIG_SYS_EXTRA_ENV_RELOC
-
 /*
  * Command line configuration.
  */
