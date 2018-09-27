@@ -127,8 +127,6 @@
 /* Boot configuration */
 #define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
-/* Distro boot enablement */
-
 #ifdef CONFIG_SPL_BUILD
 #define BOOTENV
 #else
@@ -244,10 +242,6 @@
 
 #define CONFIG_SYS_LDSCRIPT  "arch/arm/mach-zynq/u-boot.lds"
 
-/* Commands */
-
-/* SPL part */
-
 /* MMC support */
 #ifdef CONFIG_MMC_SDHCI_ZYNQ
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1
@@ -278,8 +272,6 @@
 #define CONFIG_SYS_SPI_KERNEL_OFFS	(CONFIG_SYS_SPI_ARGS_OFFS + \
 					CONFIG_SYS_SPI_ARGS_SIZE)
 #endif
-
-/* for booting directly linux */
 
 /* SP location before relocation, must use scratch RAM */
 #define CONFIG_SPL_TEXT_BASE	0x0

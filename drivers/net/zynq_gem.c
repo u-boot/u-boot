@@ -699,14 +699,17 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	/* Hardcode for now */
 	priv->phyaddr = -1;
 
-	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
-				       &phandle_args)) {
-		debug("phy-handle does not exist %s\n", dev->name);
-		return -ENOENT;
+	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+					&phandle_args)) {
+		debug("phy-handle does exist %s\n", dev->name);
+		priv->phyaddr = ofnode_read_u32_default(phandle_args.node,
+							"reg", -1);
+		priv->phy_of_node = phandle_args.node;
+		priv->max_speed = ofnode_read_u32_default(phandle_args.node,
+							  "max-speed",
+							  SPEED_1000);
 	}
 
-	priv->phyaddr = ofnode_read_u32_default(phandle_args.node, "reg", -1);
-	priv->phy_of_node = phandle_args.node;
 	phy_mode = dev_read_prop(dev, "phy-mode", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
@@ -716,7 +719,6 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	}
 	priv->interface = pdata->phy_interface;
 
-	priv->max_speed = dev_read_u32_default(dev, "max-speed", SPEED_1000);
 	priv->int_pcs = dev_read_bool(dev, "is-internal-pcspma");
 
 	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,

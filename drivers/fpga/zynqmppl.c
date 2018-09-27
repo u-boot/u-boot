@@ -150,7 +150,8 @@ static ulong zynqmp_align_dma_buffer(u32 *buf, u32 len, u32 swap)
 			new_buf[i] = load_word(&buf[i], swap);
 
 		buf = new_buf;
-	} else if (swap != SWAP_DONE) {
+	} else if ((swap != SWAP_DONE) &&
+		   (zynqmp_pmufw_version() <= PMUFW_V1_0)) {
 		/* For bitstream which are aligned */
 		u32 *new_buf = (u32 *)buf;
 
@@ -196,27 +197,41 @@ static int zynqmp_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		     bitstream_type bstype)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(u32, bsizeptr, 1);
-	u32 swap;
+	u32 swap = 0;
 	ulong bin_buf;
 	int ret;
 	u32 buf_lo, buf_hi;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
+	bool xilfpga_old = false;
 
-	if (zynqmp_validate_bitstream(desc, buf, bsize, bsize, &swap))
-		return FPGA_FAIL;
+	if (zynqmp_pmufw_version() <= PMUFW_V1_0) {
+		puts("WARN: PMUFW v1.0 or less is detected\n");
+		puts("WARN: Not all bitstream formats are supported\n");
+		puts("WARN: Please upgrade PMUFW\n");
+		xilfpga_old = true;
+		if (zynqmp_validate_bitstream(desc, buf, bsize, bsize, &swap))
+			return FPGA_FAIL;
+		bsizeptr = (u32 *)&bsize;
+		flush_dcache_range((ulong)bsizeptr,
+				   (ulong)bsizeptr + sizeof(size_t));
+		bstype |= BIT(ZYNQMP_FPGA_BIT_NS);
+	}
 
 	bin_buf = zynqmp_align_dma_buffer((u32 *)buf, bsize, swap);
-	bsizeptr = (u32 *)&bsize;
 
 	debug("%s called!\n", __func__);
 	flush_dcache_range(bin_buf, bin_buf + bsize);
-	flush_dcache_range((ulong)bsizeptr, (ulong)bsizeptr + sizeof(size_t));
 
 	buf_lo = (u32)bin_buf;
 	buf_hi = upper_32_bits(bin_buf);
-	bstype |= BIT(ZYNQMP_FPGA_BIT_NS);
-	ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
-			 (u32)(uintptr_t)bsizeptr, bstype, ret_payload);
+
+	if (xilfpga_old)
+		ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
+				 (u32)(uintptr_t)bsizeptr, bstype, ret_payload);
+	else
+		ret = invoke_smc(ZYNQMP_SIP_SVC_PM_FPGA_LOAD, buf_lo, buf_hi,
+				 (u32)bsize, 0, ret_payload);
+
 	if (ret)
 		debug("PL FPGA LOAD fail\n");
 

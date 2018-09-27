@@ -257,10 +257,7 @@ static int spl_load_fit_image(struct spl_load_info *info, ulong sector,
 	board_fit_image_post_process(&src, &length);
 #endif
 
-	if (IS_ENABLED(CONFIG_SPL_OS_BOOT)	&&
-	    IS_ENABLED(CONFIG_SPL_GZIP)		&&
-	    image_comp == IH_COMP_GZIP		&&
-	    type == IH_TYPE_KERNEL) {
+	if (IS_ENABLED(CONFIG_SPL_GZIP) && image_comp == IH_COMP_GZIP) {
 		size = length;
 		if (gunzip((void *)load_addr, CONFIG_SYS_BOOTM_LEN,
 			   src, &size)) {

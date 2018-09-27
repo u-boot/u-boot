@@ -863,7 +863,6 @@ config ARCH_VF610
 config ARCH_ZYNQ
 	bool "Xilinx Zynq based platform"
 	select BOARD_EARLY_INIT_F if WDT
-	select BOARD_LATE_INIT
 	select CLK
 	select CLK_ZYNQ
 	select CPU_V7A
@@ -883,6 +882,7 @@ config ARCH_ZYNQ
 	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
 	imply ARCH_EARLY_INIT_R
+	imply BOARD_LATE_INIT
 	imply CMD_CLK
 	imply CMD_DM
 	imply CMD_SPL
@@ -900,7 +900,6 @@ config ARCH_ZYNQMP_R5
 config ARCH_ZYNQMP
 	bool "Xilinx ZynqMP based platform"
 	select ARM64
-	select BOARD_LATE_INIT
 	select CLK
 	select DM
 	select DM_SERIAL
@@ -909,6 +908,7 @@ config ARCH_ZYNQMP
 	select SPL_BOARD_INIT if SPL
 	select SPL_CLK if SPL
 	select SUPPORT_SPL
+	imply BOARD_LATE_INIT
 	imply CMD_DM
 	imply FAT_WRITE
 

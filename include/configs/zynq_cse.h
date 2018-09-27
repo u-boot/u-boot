@@ -17,7 +17,6 @@
 
 /* Undef unneeded configs */
 #undef CONFIG_EXTRA_ENV_SETTINGS
-#undef CONFIG_BOARD_LATE_INIT
 #undef CONFIG_ZLIB
 #undef CONFIG_GZIP
 

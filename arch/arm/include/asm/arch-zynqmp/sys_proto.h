@@ -21,6 +21,21 @@
 
 #define ZYNQMP_FPGA_AUTH_DDR	1
 
+#define ZYNQMP_SIP_SVC_GET_API_VERSION		0xC2000001
+
+#define ZYNQMP_PM_VERSION_MAJOR		1
+#define ZYNQMP_PM_VERSION_MINOR		0
+#define ZYNQMP_PM_VERSION_MAJOR_SHIFT	16
+#define ZYNQMP_PM_VERSION_MINOR_MASK	0xFFFF
+
+#define ZYNQMP_PM_VERSION	\
+	((ZYNQMP_PM_VERSION_MAJOR << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | \
+				 ZYNQMP_PM_VERSION_MINOR)
+
+#define ZYNQMP_PM_VERSION_INVALID	~0
+
+#define PMUFW_V1_0	((1 << ZYNQMP_PM_VERSION_MAJOR_SHIFT) | 0)
+
 enum {
 	IDCODE,
 	VERSION,
@@ -44,7 +59,7 @@ unsigned int zynqmp_get_silicon_version(void);
 
 void handoff_setup(void);
 
-void zynqmp_pmufw_version(void);
+unsigned int zynqmp_pmufw_version(void);
 int zynqmp_mmio_write(const u32 address, const u32 mask, const u32 value);
 int zynqmp_mmio_read(const u32 address, u32 *value);
 int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,
