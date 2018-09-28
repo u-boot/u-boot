@@ -41,6 +41,14 @@ config ROCKCHIP_EFUSE
 	  extended (by porting the read function from the Linux kernel sources)
 	  to support other recent Rockchip devices.
 
+config VEXPRESS_CONFIG
+	bool "Enable support for Arm Versatile Express config bus"
+	depends on MISC
+	help
+	  If you say Y here, you will get support for accessing the
+	  configuration bus on the Arm Versatile Express boards via
+	  a sysreg driver.
+
 config CMD_CROS_EC
 	bool "Enable crosec command"
 	depends on CROS_EC

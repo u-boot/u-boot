@@ -287,6 +287,13 @@ F:	arch/arm/mach-uniphier/
 F:	configs/uniphier_*_defconfig
 N:	uniphier
 
+ARM VERSATILE EXPRESS DRIVERS
+M:	Liviu Dudau <liviu.dudau@foss.arm.com>
+S:	Maintained
+T:	git git://github.com/ARM-software/u-boot.git
+F:	drivers/misc/vexpress_config.c
+N:	vexpress
+
 ARM ZYNQ
 M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
