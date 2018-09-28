@@ -134,6 +134,8 @@ static efi_status_t EFIAPI start(
 
 	/* Create child controllers */
 	for (i = 0; i < NUMBER_OF_CHILD_CONTROLLERS; ++i) {
+		/* Creating a new handle for the child controller */
+		handle_child_controller[i] = 0;
 		ret = boottime->install_protocol_interface(
 			&handle_child_controller[i], &guid_child_controller,
 			EFI_NATIVE_INTERFACE, NULL);
