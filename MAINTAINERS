@@ -440,6 +440,12 @@ F:	cmd/log.c
 F:	test/log/log_test.c
 F:	test/py/tests/test_log.py
 
+MALI DISPLAY PROCESSORS
+M:	Liviu Dudau <liviu.dudau@foss.arm.com>
+S:	Supported
+T:	git git://github.com/ARM-software/u-boot.git
+F:	drivers/video/mali_dp.c
+
 MICROBLAZE
 M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
