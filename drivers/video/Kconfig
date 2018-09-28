@@ -431,6 +431,14 @@ config DISPLAY
 	   The devices provide a simple interface to start up the display,
 	   read display information and enable it.
 
+config NXP_TDA19988
+	bool "Enable NXP TDA19988 support"
+	depends on DISPLAY
+	default n
+	help
+	  This enables support for the NXP TDA19988 HDMI encoder. This encoder
+	  will convert RGB data streams into HDMI-encoded signals.
+
 config ATMEL_HLCD
 	bool "Enable ATMEL video support using HLCDC"
 	depends on DM_VIDEO

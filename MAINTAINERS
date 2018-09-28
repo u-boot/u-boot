@@ -589,6 +589,11 @@ S:	Maintained
 F:	drivers/spmi/
 F:	include/spmi/
 
+TDA19988 HDMI ENCODER
+M:	Liviu Dudau <liviu.dudau@foss.arm.com>
+S:	Maintained
+F:	drivers/video/tda19988.c
+
 TI SYSTEM SECURITY
 M:	Andrew F. Davis <afd@ti.com>
 S:	Supported
