@@ -180,7 +180,7 @@ int dev_get_uclass_index(struct udevice *dev, struct uclass **ucp)
 	if (list_empty(&uc->dev_head))
 		return -ENODEV;
 
-	list_for_each_entry(iter, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(iter, uc) {
 		if (iter == dev) {
 			if (ucp)
 				*ucp = uc;
@@ -205,7 +205,7 @@ int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 	if (list_empty(&uc->dev_head))
 		return -ENODEV;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		if (!index--) {
 			*devp = dev;
 			return 0;
@@ -259,7 +259,7 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		if (!strncmp(dev->name, name, strlen(name))) {
 			*devp = dev;
 			return 0;
@@ -284,7 +284,7 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		debug("   - %d %d '%s'\n", dev->req_seq, dev->seq, dev->name);
 		if ((find_req_seq ? dev->req_seq : dev->seq) ==
 				seq_or_req_seq) {
@@ -312,7 +312,7 @@ int uclass_find_device_by_of_offset(enum uclass_id id, int node,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		if (dev_of_offset(dev) == node) {
 			*devp = dev;
 			return 0;
@@ -337,7 +337,7 @@ int uclass_find_device_by_ofnode(enum uclass_id id, ofnode node,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		log(LOGC_DM, LOGL_DEBUG_CONTENT, "      - checking %s\n",
 		    dev->name);
 		if (ofnode_equal(dev_ofnode(dev), node)) {
@@ -372,7 +372,7 @@ static int uclass_find_device_by_phandle(enum uclass_id id,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		uint phandle;
 
 		phandle = dev_read_phandle(dev);
@@ -399,7 +399,7 @@ int uclass_get_device_by_driver(enum uclass_id id,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		if (dev->driver == find_drv)
 			return uclass_get_device_tail(dev, 0, devp);
 	}
@@ -499,7 +499,7 @@ int uclass_get_device_by_phandle_id(enum uclass_id id, uint phandle_id,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		uint phandle;
 
 		phandle = dev_read_phandle(dev);
