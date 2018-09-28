@@ -282,7 +282,34 @@ int checkboard(void)
 	return 0;
 }
 
+static iomux_v3_cfg_t const usb_otg2_pads[] = {
+	MX7D_PAD_UART3_CTS_B__USB_OTG2_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+int board_ehci_hcd_init(int port)
+{
+	switch (port) {
+	case 0:
+		break;
+	case 1:
+		imx_iomux_v3_setup_multiple_pads(usb_otg2_pads,
+						 ARRAY_SIZE(usb_otg2_pads));
+		break;
+	default:
+		return -EINVAL;
+	}
+	return 0;
+}
+
 int board_usb_phy_mode(int port)
 {
-	return USB_INIT_DEVICE;
+	switch (port) {
+	case 0:
+		return USB_INIT_DEVICE;
+	case 1:
+		return USB_INIT_HOST;
+	default:
+		return -EINVAL;
+	}
+	return 0;
 }
