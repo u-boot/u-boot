@@ -1156,29 +1156,25 @@ static efi_status_t efi_disconnect_all_drivers(
 }
 
 /**
- * efi_uninstall_protocol_interface() - uninstall protocol interface
+ * efi_uninstall_protocol() - uninstall protocol interface
+ *
  * @handle:             handle from which the protocol shall be removed
  * @protocol:           GUID of the protocol to be removed
  * @protocol_interface: interface to be removed
  *
- * This function implements the UninstallProtocolInterface service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
+ * This function DOES NOT delete a handle without installed protocol.
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_uninstall_protocol_interface(
-				efi_handle_t handle, const efi_guid_t *protocol,
-				void *protocol_interface)
+static efi_status_t efi_uninstall_protocol
+			(efi_handle_t handle, const efi_guid_t *protocol,
+			 void *protocol_interface)
 {
 	struct efi_object *efiobj;
 	struct efi_handler *handler;
 	struct efi_open_protocol_info_item *item;
 	struct efi_open_protocol_info_item *pos;
 	efi_status_t r;
-
-	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
 
 	/* Check handle */
 	efiobj = efi_search_obj(handle);
@@ -1210,7 +1206,41 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface(
 	}
 	r = efi_remove_protocol(handle, protocol, protocol_interface);
 out:
-	return EFI_EXIT(r);
+	return r;
+}
+
+/**
+ * efi_uninstall_protocol_interface() - uninstall protocol interface
+ * @handle:             handle from which the protocol shall be removed
+ * @protocol:           GUID of the protocol to be removed
+ * @protocol_interface: interface to be removed
+ *
+ * This function implements the UninstallProtocolInterface service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * Return: status code
+ */
+static efi_status_t EFIAPI efi_uninstall_protocol_interface
+			(efi_handle_t handle, const efi_guid_t *protocol,
+			 void *protocol_interface)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
+
+	ret = efi_uninstall_protocol(handle, protocol, protocol_interface);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/* If the last protocol has been removed, delete the handle. */
+	if (list_empty(&handle->protocols)) {
+		list_del(&handle->link);
+		free(handle);
+	}
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -2358,16 +2388,21 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 		if (!protocol)
 			break;
 		protocol_interface = efi_va_arg(argptr, void*);
-		r = EFI_CALL(efi_uninstall_protocol_interface(
-						handle, protocol,
-						protocol_interface));
+		r = efi_uninstall_protocol(handle, protocol,
+					   protocol_interface);
 		if (r != EFI_SUCCESS)
 			break;
 		i++;
 	}
 	efi_va_end(argptr);
-	if (r == EFI_SUCCESS)
+	if (r == EFI_SUCCESS) {
+		/* If the last protocol has been removed, delete the handle. */
+		if (list_empty(&handle->protocols)) {
+			list_del(&handle->link);
+			free(handle);
+		}
 		return EFI_EXIT(r);
+	}
 
 	/* If an error occurred undo all changes. */
 	efi_va_start(argptr, handle);
@@ -2828,13 +2863,19 @@ static efi_status_t EFIAPI efi_reinstall_protocol_interface(
 
 	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, old_interface,
 		  new_interface);
-	ret = EFI_CALL(efi_uninstall_protocol_interface(handle, protocol,
-							old_interface));
+
+	/* Uninstall protocol but do not delete handle */
+	ret = efi_uninstall_protocol(handle, protocol, old_interface);
 	if (ret != EFI_SUCCESS)
 		goto out;
-	ret = EFI_CALL(efi_install_protocol_interface(&handle, protocol,
-						      EFI_NATIVE_INTERFACE,
-						      new_interface));
+
+	/* Install the new protocol */
+	ret = efi_add_protocol(handle, protocol, new_interface);
+	/*
+	 * The UEFI spec does not specify what should happen to the handle
+	 * if in case of an error no protocol interface remains on the handle.
+	 * So let's do nothing here.
+	 */
 	if (ret != EFI_SUCCESS)
 		goto out;
 	/*
