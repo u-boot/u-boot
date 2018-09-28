@@ -45,8 +45,8 @@
 
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=" \
-		"spl raw 0x2 0x400 mmcpart 1;" \
-		"u-boot raw 0x8a 0x400 mmcpart 1;" \
+		"spl raw 0x2 0x400;" \
+		"u-boot raw 0x8a 0x400;" \
 		"/boot/zImage ext4 0 1;" \
 		"/boot/imx7d-pico-hobbit.dtb ext4 0 1;" \
 		"/boot/imx7d-pico-pi.dtb ext4 0 1;" \
