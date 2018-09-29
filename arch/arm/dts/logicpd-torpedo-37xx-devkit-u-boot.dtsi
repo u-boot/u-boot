@@ -4,14 +4,6 @@
  * Logic PD - http://www.logicpd.com
  */
 
-/ {
-	model = "LogicPD Zoom OMAP3 Development Kit";
-
-	chosen {
-		stdout-path = &uart1;
-	};
-};
-
 &i2c1 {
 	clock-frequency = <400000>;
 };
@@ -26,17 +18,5 @@
 
 &mmc3 {
       status = "disabled";
-};
-
-&uart1 {
-	reg-shift = <2>;
-};
-
-&uart2 {
-	reg-shift = <2>;
-};
-
-&uart3 {
-	reg-shift = <2>;
 };
 
