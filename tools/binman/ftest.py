@@ -39,6 +39,7 @@ U_BOOT_SPL_DTB_DATA   = 'spldtb'
 U_BOOT_TPL_DTB_DATA   = 'tpldtb'
 X86_START16_DATA      = 'start16'
 X86_START16_SPL_DATA  = 'start16spl'
+PPC_MPC85XX_BR_DATA   = 'ppcmpc85xxbr'
 U_BOOT_NODTB_DATA     = 'nodtb with microcode pointer somewhere in here'
 U_BOOT_SPL_NODTB_DATA = 'splnodtb with microcode pointer somewhere in here'
 FSP_DATA              = 'fsp'
@@ -90,6 +91,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('vga.bin', VGA_DATA)
         self._ResetDtbs()
         TestFunctional._MakeInputFile('u-boot-x86-16bit.bin', X86_START16_DATA)
+        TestFunctional._MakeInputFile('u-boot-br.bin', PPC_MPC85XX_BR_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
                                       X86_START16_SPL_DATA)
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
@@ -711,6 +713,14 @@ class TestFunctional(unittest.TestCase):
         self.assertIn("Section '/binman': Section size must be provided when "
                       "using end-at-4gb", str(e.exception))
 
+    def test4gbAndSkipAtStartTogether(self):
+        """Test that the end-at-4gb and skip-at-size property can't be used
+        together"""
+        with self.assertRaises(ValueError) as e:
+            self._DoTestFile('80_4gb_and_skip_at_start_together.dts')
+        self.assertIn("Section '/binman': Provide either 'end-at-4gb' or "
+                      "'skip-at-start'", str(e.exception))
+
     def testPackX86RomOutside(self):
         """Test that the end-at-4gb property checks for offset boundaries"""
         with self.assertRaises(ValueError) as e:
@@ -755,6 +765,12 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with an x86 start16 region can be created"""
         data = self._DoReadFile('33_x86-start16.dts')
         self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
+
+    def testPackPowerpcMpc85xxBootpgResetvec(self):
+        """Test that an image with powerpc-mpc85xx-bootpg-resetvec can be
+        created"""
+        data = self._DoReadFile('81_powerpc_mpc85xx_bootpg_resetvec.dts')
+        self.assertEqual(PPC_MPC85XX_BR_DATA, data[:len(PPC_MPC85XX_BR_DATA)])
 
     def _RunMicrocodeTest(self, dts_fname, nodtb_data, ucode_second=False):
         """Handle running a test for insertion of microcode

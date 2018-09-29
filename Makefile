@@ -861,6 +861,10 @@ ifneq ($(CONFIG_SYS_INIT_SP_BSS_OFFSET),)
 ALL-y += init_sp_bss_offset_check
 endif
 
+ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
+ALL-y += u-boot-with-dtb.bin
+endif
+
 LDFLAGS_u-boot += $(LDFLAGS_FINAL)
 
 # Avoid 'Not enough room for program headers' error on binutils 2.28 onwards.
@@ -983,7 +987,8 @@ spl/u-boot-spl.srec: spl/u-boot-spl FORCE
 	$(call if_changed,objcopy)
 
 OBJCOPYFLAGS_u-boot-nodtb.bin := -O binary \
-		$(if $(CONFIG_X86_16BIT_INIT),-R .start16 -R .resetvec)
+		$(if $(CONFIG_X86_16BIT_INIT),-R .start16 -R .resetvec) \
+		$(if $(CONFIG_MPC85XX_HAVE_RESET_VECTOR),-R .bootpg -R .resetvec)
 
 OBJCOPYFLAGS_u-boot-spl.hex = $(OBJCOPYFLAGS_u-boot.hex)
 
@@ -1207,6 +1212,18 @@ u-boot-with-spl.sfp: spl/u-boot-spl.sfp u-boot.img FORCE
 	$(call if_changed,socboot)
 endif
 
+ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
+u-boot-with-dtb.bin: u-boot.bin u-boot.dtb \
+	$(if $(CONFIG_MPC85XX_HAVE_RESET_VECTOR), u-boot-br.bin) FORCE
+	$(call if_changed,binman)
+
+ifeq ($(CONFIG_MPC85XX_HAVE_RESET_VECTOR),y)
+OBJCOPYFLAGS_u-boot-br.bin := -O binary -j .bootpg -j .resetvec
+u-boot-br.bin: u-boot FORCE
+	$(call if_changed,objcopy)
+endif
+endif
+
 # x86 uses a large ROM. We fill it with 0xff, put the 16-bit stuff (including
 # reset vector) at the top, Intel ME descriptor at the bottom, and U-Boot in
 # the middle. This is handled by binman based on an image description in the
@@ -1301,7 +1318,11 @@ spl/u-boot-spl.pbl: spl/u-boot-spl.bin FORCE
 ifeq ($(ARCH),arm)
 UBOOT_BINLOAD := u-boot.img
 else
+ifeq ($(CONFIG_MPC85xx)$(CONFIG_OF_SEPARATE),yy)
+UBOOT_BINLOAD := u-boot-with-dtb.bin
+else
 UBOOT_BINLOAD := u-boot.bin
+endif
 endif
 
 OBJCOPYFLAGS_u-boot-with-spl-pbl.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \

@@ -397,6 +397,15 @@ end-at-4gb:
 	8MB ROM, the offset of the first entry would be 0xfff80000 with
 	this option, instead of 0 without this option.
 
+skip-at-start:
+	This property specifies the entry offset of the first entry.
+
+	For PowerPC mpc85xx based CPU, CONFIG_SYS_TEXT_BASE is the entry
+	offset of the first entry. It can be 0xeff40000 or 0xfff40000 for
+	nor flash boot, 0x201000 for sd boot etc.
+
+	'end-at-4gb' property is not applicable where CONFIG_SYS_TEXT_BASE +
+	Image size != 4gb.
 
 Examples of the above options can be found in the tests. See the
 tools/binman/test directory.
