@@ -116,6 +116,7 @@
 		"ip=${ipaddr}:${tftpserver}:${gatewayip}:${netmask}::eth0:off\0" \
 	"nfsrootpath=/opt/nfs-exports/omap\0" \
 	"autoload=no\0" \
+	"fdtimage=" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	"loadfdt=mmc rescan; " \
 		"load mmc ${mmcdev} ${fdtaddr} ${fdtimage}\0" \
 	"mmcbootcommon=echo Booting with DT from mmc${mmcdev} ...; " \
