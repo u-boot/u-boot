@@ -8,4 +8,6 @@
 
 #include <linux/mtd/mtd.h>
 
+int mtd_probe(struct udevice *dev);
+
 #endif	/* _MTD_H_ */
