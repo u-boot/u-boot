@@ -1840,6 +1840,8 @@ config CMD_UBI
 	  capabilities. Please, consult the MTD web site for more details
 	  (www.linux-mtd.infradead.org). Activate this option if you want
 	  to use U-Boot UBI commands.
+	  It is also strongly encouraged to also enable CONFIG_MTD to get full
+	  partition support.
 
 config CMD_UBIFS
 	tristate "Enable UBIFS - Unsorted block images filesystem commands"

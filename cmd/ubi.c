@@ -15,6 +15,7 @@
 #include <command.h>
 #include <exports.h>
 #include <memalign.h>
+#include <mtd.h>
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <linux/mtd/mtd.h>
@@ -29,17 +30,6 @@
 
 /* Private own data */
 static struct ubi_device *ubi;
-static char buffer[80];
-static int ubi_initialized;
-
-struct selected_dev {
-	char part_name[80];
-	int selected;
-	int nr;
-	struct mtd_info *mtd_info;
-};
-
-static struct selected_dev ubi_dev;
 
 #ifdef CONFIG_CMD_UBIFS
 int ubifs_is_mounted(void);
@@ -404,43 +394,24 @@ int ubi_volume_read(char *volume, char *buf, size_t size)
 	return err;
 }
 
-static int ubi_dev_scan(struct mtd_info *info, char *ubidev,
-		const char *vid_header_offset)
+static int ubi_dev_scan(struct mtd_info *info, const char *vid_header_offset)
 {
-	struct mtd_device *dev;
-	struct part_info *part;
-	struct mtd_partition mtd_part;
 	char ubi_mtd_param_buffer[80];
-	u8 pnum;
 	int err;
 
-	if (find_dev_and_part(ubidev, &dev, &pnum, &part) != 0)
-		return 1;
+	if (!vid_header_offset)
+		sprintf(ubi_mtd_param_buffer, "%s", info->name);
+	else
+		sprintf(ubi_mtd_param_buffer, "%s,%s", info->name,
+			vid_header_offset);
 
-	sprintf(buffer, "mtd=%d", pnum);
-	memset(&mtd_part, 0, sizeof(mtd_part));
-	mtd_part.name = buffer;
-	mtd_part.size = part->size;
-	mtd_part.offset = part->offset;
-	add_mtd_partitions(info, &mtd_part, 1);
-
-	strcpy(ubi_mtd_param_buffer, buffer);
-	if (vid_header_offset)
-		sprintf(ubi_mtd_param_buffer, "mtd=%d,%s", pnum,
-				vid_header_offset);
 	err = ubi_mtd_param_parse(ubi_mtd_param_buffer, NULL);
-	if (err) {
-		del_mtd_partitions(info);
+	if (err)
 		return -err;
-	}
 
 	err = ubi_init();
-	if (err) {
-		del_mtd_partitions(info);
+	if (err)
 		return -err;
-	}
-
-	ubi_initialized = 1;
 
 	return 0;
 }
@@ -465,50 +436,33 @@ int ubi_detach(void)
 	/*
 	 * Call ubi_exit() before re-initializing the UBI subsystem
 	 */
-	if (ubi_initialized) {
+	if (ubi)
 		ubi_exit();
-		del_mtd_partitions(ubi_dev.mtd_info);
-		ubi_initialized = 0;
-	}
 
-	ubi_dev.selected = 0;
+	ubi = NULL;
+
 	return 0;
 }
 
 int ubi_part(char *part_name, const char *vid_header_offset)
 {
+	struct mtd_info *mtd;
 	int err = 0;
-	char mtd_dev[16];
-	struct mtd_device *dev;
-	struct part_info *part;
-	u8 pnum;
 
 	ubi_detach();
-	/*
-	 * Search the mtd device number where this partition
-	 * is located
-	 */
-	if (find_dev_and_part(part_name, &dev, &pnum, &part)) {
+
+	mtd_probe_devices();
+	mtd = get_mtd_device_nm(part_name);
+	if (IS_ERR(mtd)) {
 		printf("Partition %s not found!\n", part_name);
 		return 1;
 	}
-	sprintf(mtd_dev, "%s%d", MTD_DEV_TYPE(dev->id->type), dev->id->num);
-	ubi_dev.mtd_info = get_mtd_device_nm(mtd_dev);
-	if (IS_ERR(ubi_dev.mtd_info)) {
-		printf("Partition %s not found on device %s!\n", part_name,
-		       mtd_dev);
-		return 1;
-	}
+	put_mtd_device(mtd);
 
-	ubi_dev.selected = 1;
-
-	strcpy(ubi_dev.part_name, part_name);
-	err = ubi_dev_scan(ubi_dev.mtd_info, ubi_dev.part_name,
-			vid_header_offset);
+	err = ubi_dev_scan(mtd, vid_header_offset);
 	if (err) {
 		printf("UBI init error %d\n", err);
 		printf("Please check, if the correct MTD partition is used (size big enough?)\n");
-		ubi_dev.selected = 0;
 		return err;
 	}
 
@@ -539,13 +493,13 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		/* Print current partition */
 		if (argc == 2) {
-			if (!ubi_dev.selected) {
-				printf("Error, no UBI device/partition selected!\n");
+			if (!ubi) {
+				printf("Error, no UBI device selected!\n");
 				return 1;
 			}
 
-			printf("Device %d: %s, partition %s\n",
-			       ubi_dev.nr, ubi_dev.mtd_info->name, ubi_dev.part_name);
+			printf("Device %d: %s, MTD partition %s\n",
+			       ubi->ubi_num, ubi->ubi_name, ubi->mtd->name);
 			return 0;
 		}
 
@@ -558,8 +512,8 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return ubi_part(argv[2], vid_header_offset);
 	}
 
-	if ((strcmp(argv[1], "part") != 0) && (!ubi_dev.selected)) {
-		printf("Error, no UBI device/partition selected!\n");
+	if ((strcmp(argv[1], "part") != 0) && !ubi) {
+		printf("Error, no UBI device selected!\n");
 		return 1;
 	}
 
