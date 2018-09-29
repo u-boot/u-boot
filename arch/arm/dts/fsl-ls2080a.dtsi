@@ -75,6 +75,14 @@
 		num-cs = <4>;
 	};
 
+	esdhc: esdhc@0 {
+		compatible = "fsl,esdhc";
+		reg = <0x0 0x2140000 0x0 0x10000>;
+		interrupts = <0 28 0x4>; /* Level high type */
+		little-endian;
+		bus-width = <4>;
+	};
+
 	usb0: usb3@3100000 {
 		compatible = "fsl,layerscape-dwc3";
 		reg = <0x0 0x3100000 0x0 0x10000>;

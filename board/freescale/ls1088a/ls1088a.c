@@ -575,6 +575,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory_banks(blob, base, size, CONFIG_NR_DRAM_BANKS);
 
+	fdt_fsl_mc_fixup_iommu_map_entry(blob);
+
 	fsl_fdt_fixup_flash(blob);
 
 #ifdef CONFIG_FSL_MC_ENET

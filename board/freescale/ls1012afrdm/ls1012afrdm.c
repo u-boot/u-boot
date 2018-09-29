@@ -24,11 +24,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static inline int get_board_version(void)
 {
-	struct ccsr_gpio *pgpio = (void *)(GPIO1_BASE_ADDR);
-	int val;
+	uint32_t val;
+#ifdef CONFIG_TARGET_LS1012AFRDM
+	val = 0;
+#else
+	struct ccsr_gpio *pgpio = (void *)(GPIO2_BASE_ADDR);
 
-	val = in_be32(&pgpio->gpdat);
+	val = in_be32(&pgpio->gpdat) & BOARD_REV_MASK;/*Get GPIO2 11,12,14*/
 
+#endif
 	return val;
 }
 
@@ -46,11 +50,11 @@ int checkboard(void)
 	puts("Version");
 
 	switch (rev) {
-	case BOARD_REV_A:
-		puts(": RevA ");
+	case BOARD_REV_A_B:
+		puts(": RevA/B ");
 		break;
-	case BOARD_REV_B:
-		puts(": RevB ");
+	case BOARD_REV_C:
+		puts(": RevC ");
 		break;
 	default:
 		puts(": unknown");
@@ -100,7 +104,7 @@ int dram_init(void)
 #ifdef CONFIG_TARGET_LS1012AFRWY
 	board_rev = get_board_version();
 
-	if (board_rev & BOARD_REV_B) {
+	if (board_rev == BOARD_REV_C) {
 		mparam.mdctl = 0x05180000;
 		gd->ram_size = SYS_SDRAM_SIZE_1024;
 	} else {

@@ -81,13 +81,24 @@
 #define CEVA_TRANS_CFG	0x08000029
 #define CEVA_AXICC_CFG	0x3fffffff
 
+/* for ls1021a */
+#define LS1021_AHCI_VEND_AXICC 0xC0
+#define LS1021_CEVA_PHY2_CFG	0x28183414
+#define LS1021_CEVA_PHY3_CFG	0x0e080e06
+#define LS1021_CEVA_PHY4_CFG	0x064a080b
+#define LS1021_CEVA_PHY5_CFG	0x2aa86470
+
 /* ecc addr-val pair */
 #define ECC_DIS_ADDR_CH2	0x80000000
-#define ECC_DIS_VAL_CH2	0x20140520
+#define ECC_DIS_VAL_CH2		0x20140520
+#define SATA_ECC_REG_ADDR	0x20220520
+#define SATA_ECC_DISABLE	0x00020000
 
 enum ceva_soc {
 	CEVA_1V84,
 	CEVA_LS1012A,
+	CEVA_LS1021A,
+	CEVA_LS1043A,
 };
 
 struct ceva_sata_priv {
@@ -113,7 +124,20 @@ static int ceva_init_sata(struct ceva_sata_priv *priv)
 		writel(tmp, base + AHCI_VEND_PTC);
 		break;
 
+	case CEVA_LS1021A:
+		writel(SATA_ECC_DISABLE, SATA_ECC_REG_ADDR);
+		writel(CEVA_PHY1_CFG, base + AHCI_VEND_PPCFG);
+		writel(LS1021_CEVA_PHY2_CFG, base + AHCI_VEND_PP2C);
+		writel(LS1021_CEVA_PHY3_CFG, base + AHCI_VEND_PP3C);
+		writel(LS1021_CEVA_PHY4_CFG, base + AHCI_VEND_PP4C);
+		writel(LS1021_CEVA_PHY5_CFG, base + AHCI_VEND_PP5C);
+		writel(CEVA_TRANS_CFG, base + AHCI_VEND_PTC);
+		if (priv->flag & FLAG_COHERENT)
+			writel(CEVA_AXICC_CFG, base + LS1021_AHCI_VEND_AXICC);
+		break;
+
 	case CEVA_LS1012A:
+	case CEVA_LS1043A:
 		writel(ECC_DIS_ADDR_CH2, ECC_DIS_VAL_CH2);
 		writel(CEVA_PHY1_CFG, base + AHCI_VEND_PPCFG);
 		writel(CEVA_TRANS_CFG, base + AHCI_VEND_PTC);
@@ -144,6 +168,8 @@ static int sata_ceva_probe(struct udevice *dev)
 static const struct udevice_id sata_ceva_ids[] = {
 	{ .compatible = "ceva,ahci-1v84", .data = CEVA_1V84 },
 	{ .compatible = "fsl,ls1012a-ahci", .data = CEVA_LS1012A },
+	{ .compatible = "fsl,ls1021a-ahci", .data = CEVA_LS1021A },
+	{ .compatible = "fsl,ls1043a-ahci", .data = CEVA_LS1043A },
 	{ }
 };
 

@@ -86,6 +86,8 @@ struct sys_info {
 	unsigned long freq_localbus;
 };
 
+#define CCSR_DEVDISR1_QE	0x00000001
+
 /* Device Configuration and Pin Control */
 struct ccsr_gur {
 	u32     porsr1;         /* POR status 1 */
@@ -387,33 +389,6 @@ struct ccsr_serdes {
 		u32	tcsr3;
 	} lane[4];	/* Lane A, B, C, D, E, F, G, H */
 	u8	res_a00[0x1000-0xa00];	/* from 0xa00 to 0xfff */
-};
-
-
-
-/* AHCI (sata) register map */
-struct ccsr_ahci {
-	u32 res1[0xa4/4];	/* 0x0 - 0xa4 */
-	u32 pcfg;	/* port config */
-	u32 ppcfg;	/* port phy1 config */
-	u32 pp2c;	/* port phy2 config */
-	u32 pp3c;	/* port phy3 config */
-	u32 pp4c;	/* port phy4 config */
-	u32 pp5c;	/* port phy5 config */
-	u32 paxic;	/* port AXI config */
-	u32 axicc;	/* AXI cache control */
-	u32 axipc;	/* AXI PROT control */
-	u32 ptc;	/* port Trans Config */
-	u32 pts;	/* port Trans Status */
-	u32 plc;	/* port link config */
-	u32 plc1;	/* port link config1 */
-	u32 plc2;	/* port link config2 */
-	u32 pls;	/* port link status */
-	u32 pls1;	/* port link status1 */
-	u32 pcmdc;	/* port CMD config */
-	u32 ppcs;	/* port phy control status */
-	u32 pberr;	/* port 0/1 BIST error */
-	u32 cmds;	/* port 0/1 CMD status error */
 };
 
 #define RCPM_POWMGTCSR			0x130

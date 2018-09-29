@@ -9,9 +9,9 @@
 #include "ls1012a_common.h"
 
 /* Board Rev*/
-#define BOARD_REV_A			0x0
-#define BOARD_REV_B			0x200
-
+#define BOARD_REV_A_B			0x0
+#define BOARD_REV_C			0x00080000
+#define BOARD_REV_MASK			0x001A0000
 /* DDR */
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1

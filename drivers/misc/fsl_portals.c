@@ -49,7 +49,7 @@ void setup_qbman_portals(void)
 		out_be32(&qman->qcsp[i].qcsp_io_cfg, (sdest << 16) | fliodn);
 	}
 #else
-#ifdef CONFIG_ARCH_LS1046A
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 	int i;
 
 	for (i = 0; i < CONFIG_SYS_QMAN_NUM_PORTALS; i++) {
@@ -197,7 +197,7 @@ void fdt_fixup_qportals(void *blob)
 	char compat[64];
 	int compat_len;
 
-#ifdef CONFIG_ARCH_LS1046A
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 	int smmu_ph = fdt_get_smmu_phandle(blob);
 #endif
 
@@ -211,7 +211,8 @@ void fdt_fixup_qportals(void *blob)
 
 	off = fdt_node_offset_by_compatible(blob, -1, "fsl,qman-portal");
 	while (off != -FDT_ERR_NOTFOUND) {
-#if defined(CONFIG_PPC) || defined(CONFIG_ARCH_LS1046A)
+#if defined(CONFIG_PPC) || defined(CONFIG_ARCH_LS1043A) || \
+defined(CONFIG_ARCH_LS1046A)
 #ifdef CONFIG_FSL_CORENET
 		u32 liodns[2];
 #endif
@@ -226,7 +227,7 @@ void fdt_fixup_qportals(void *blob)
 		int j;
 #endif
 
-#endif /* CONFIG_PPC || CONFIG_ARCH_LS1046A */
+#endif /* CONFIG_PPC || CONFIG_ARCH_LS1043A || CONFIG_ARCH_LS1046A */
 		err = fdt_setprop(blob, off, "compatible", compat, compat_len);
 		if (err < 0)
 			goto err;
@@ -275,7 +276,7 @@ void fdt_fixup_qportals(void *blob)
 			goto err;
 #endif
 #else
-#ifdef CONFIG_ARCH_LS1046A
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 		if (smmu_ph >= 0) {
 			u32 icids[3];
 

@@ -51,6 +51,7 @@ struct mc_ccsr_registers {
 	u32 reg_error[];
 };
 
+void fdt_fsl_mc_fixup_iommu_map_entry(void *blob);
 int get_mc_boot_status(void);
 int get_dpl_apply_status(void);
 #ifdef CONFIG_SYS_LS_MC_DRAM_AIOP_IMG_OFFSET

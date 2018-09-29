@@ -35,6 +35,9 @@
  *  -DPAA2
  *     -u-boot will allocate a range of stream IDs to be used by the Management
  *      Complex for containers and will set these values in the MC DPC image.
+ *     -u-boot will fixup the iommu-map property in the fsl-mc node in the
+ *      device tree (see Documentation/devicetree/bindings/misc/fsl,qoriq-mc.txt
+ *      for more info on the msi-map definition)
  *     -the MC is responsible for allocating and setting up 'isolation context
  *      IDs (ICIDs) based on the allocated stream IDs for all DPAA2 devices.
  *

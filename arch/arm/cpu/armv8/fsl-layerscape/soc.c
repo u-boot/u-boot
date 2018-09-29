@@ -634,7 +634,7 @@ void fsl_lsch2_early_init_f(void)
 	erratum_a008997();
 	erratum_a009007();
 
-#ifdef CONFIG_ARCH_LS1046A
+#if defined(CONFIG_ARCH_LS1043A) || defined(CONFIG_ARCH_LS1046A)
 	set_icids();
 #endif
 }
