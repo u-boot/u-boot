@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2017 Priit Laes <plaes@plaes.org>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -35,100 +35,19 @@
  *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
  *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-#include "sun5i-a10s.dtsi"
-#include "sunxi-common-regulators.dtsi"
+#ifndef _DT_BINDINGS_CLK_SUN7I_A20_H_
+#define _DT_BINDINGS_CLK_SUN7I_A20_H_
 
-#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/clock/sun4i-a10-ccu.h>
 
-/ {
-	model = "R7 A10s hdmi tv-stick";
-	compatible = "allwinner,r7-tv-dongle", "allwinner,sun5i-a10s";
+#define CLK_MBUS		166
+#define CLK_HDMI1_SLOW		167
+#define CLK_HDMI1		168
+#define CLK_OUT_A		169
+#define CLK_OUT_B		170
 
-	aliases {
-		serial0 = &uart0;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-
-	leds {
-		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_r7>;
-
-		green {
-			label = "r7-tv-dongle:green:usr";
-			gpios = <&pio 1 2 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-	};
-};
-
-&ehci0 {
-	status = "okay";
-};
-
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_r7>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 6 1 GPIO_ACTIVE_LOW>; /* PG1 */
-	status = "okay";
-};
-
-&mmc1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc1_pins_a>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	non-removable;
-	status = "okay";
-};
-
-&ohci0 {
-	status = "okay";
-};
-
-&pio {
-	mmc0_cd_pin_r7: mmc0_cd_pin@0 {
-		pins = "PG1";
-		function = "gpio_in";
-		bias-pull-up;
-	};
-
-	led_pins_r7: led_pins@0 {
-		pins = "PB2";
-		function = "gpio_out";
-		drive-strength = <20>;
-	};
-
-	usb1_vbus_pin_r7: usb1_vbus_pin@0 {
-		pins = "PG13";
-		function = "gpio_out";
-	};
-};
-
-&reg_usb1_vbus {
-	pinctrl-0 = <&usb1_vbus_pin_r7>;
-	gpio = <&pio 6 13 GPIO_ACTIVE_HIGH>;
-	status = "okay";
-};
-
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pins_a>;
-	status = "okay";
-};
-
-&usbphy {
-	usb1_vbus-supply = <&reg_usb1_vbus>;
-	status = "okay";
-};
+#endif /* _DT_BINDINGS_CLK_SUN7I_A20_H_ */

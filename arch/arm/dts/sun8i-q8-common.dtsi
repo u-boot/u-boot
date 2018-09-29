@@ -49,13 +49,6 @@
 		ethernet0 = &sdio_wifi;
 	};
 
-	q8_hardwaremgr {
-		compatible = "allwinner,sunxi-q8-hardwaremgr";
-		touchscreen-i2c-bus = <&i2c0>;
-		touchscreen-supply = <&reg_ldo_io1>;
-		touchscreen-power-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>; /* PH1 */
-	};
-
 	wifi_pwrseq: wifi_pwrseq {
 		compatible = "mmc-pwrseq-simple";
 		/*
@@ -90,32 +83,17 @@
 };
 
 &mmc1_pins_a {
-	allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	bias-pull-up;
 };
 
 &r_pio {
 	wifi_pwrseq_pin_q8: wifi_pwrseq_pin@0 {
-		allwinner,pins = "PL6", "PL7", "PL11";
-		allwinner,function = "gpio_in";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+		pins = "PL6", "PL7", "PL11";
+		function = "gpio_in";
+		bias-pull-up;
 	};
 };
 
 &usbphy {
 	usb1_vbus-supply = <&reg_dldo1>;
-};
-
-&gsl1680 {
-	touchscreen-size-x = <1024>;
-	touchscreen-size-y = <600>;
-	touchscreen-fw-name = "silead/gsl1680-q8-700.fw";
-	status = "okay";
-};
-
-&reg_ldo_io1 {
-	regulator-min-microvolt = <3300000>;
-	regulator-max-microvolt = <3300000>;
-	regulator-name = "vcc-touchscreen";
-	status = "okay";
 };

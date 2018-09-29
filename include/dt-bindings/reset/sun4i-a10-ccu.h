@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2017 Priit Laes <plaes@plaes.org>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -40,95 +40,30 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-#include "sun5i-a10s.dtsi"
-#include "sunxi-common-regulators.dtsi"
+#ifndef _DT_BINDINGS_RST_SUN4I_A10_H
+#define _DT_BINDINGS_RST_SUN4I_A10_H
 
-#include <dt-bindings/gpio/gpio.h>
+#define	RST_USB_PHY0		1
+#define	RST_USB_PHY1		2
+#define	RST_USB_PHY2		3
+#define	RST_GPS			4
+#define	RST_DE_BE0		5
+#define	RST_DE_BE1		6
+#define	RST_DE_FE0		7
+#define	RST_DE_FE1		8
+#define	RST_DE_MP		9
+#define	RST_TVE0		10
+#define	RST_TCON0		11
+#define	RST_TVE1		12
+#define	RST_TCON1		13
+#define	RST_CSI0		14
+#define	RST_CSI1		15
+#define	RST_VE			16
+#define	RST_ACE			17
+#define	RST_LVDS		18
+#define	RST_GPU			19
+#define	RST_HDMI_H		20
+#define	RST_HDMI_SYS		21
+#define	RST_HDMI_AUDIO_DMA	22
 
-/ {
-	model = "R7 A10s hdmi tv-stick";
-	compatible = "allwinner,r7-tv-dongle", "allwinner,sun5i-a10s";
-
-	aliases {
-		serial0 = &uart0;
-	};
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-
-	leds {
-		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_r7>;
-
-		green {
-			label = "r7-tv-dongle:green:usr";
-			gpios = <&pio 1 2 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-	};
-};
-
-&ehci0 {
-	status = "okay";
-};
-
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_r7>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 6 1 GPIO_ACTIVE_LOW>; /* PG1 */
-	status = "okay";
-};
-
-&mmc1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc1_pins_a>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	non-removable;
-	status = "okay";
-};
-
-&ohci0 {
-	status = "okay";
-};
-
-&pio {
-	mmc0_cd_pin_r7: mmc0_cd_pin@0 {
-		pins = "PG1";
-		function = "gpio_in";
-		bias-pull-up;
-	};
-
-	led_pins_r7: led_pins@0 {
-		pins = "PB2";
-		function = "gpio_out";
-		drive-strength = <20>;
-	};
-
-	usb1_vbus_pin_r7: usb1_vbus_pin@0 {
-		pins = "PG13";
-		function = "gpio_out";
-	};
-};
-
-&reg_usb1_vbus {
-	pinctrl-0 = <&usb1_vbus_pin_r7>;
-	gpio = <&pio 6 13 GPIO_ACTIVE_HIGH>;
-	status = "okay";
-};
-
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pins_a>;
-	status = "okay";
-};
-
-&usbphy {
-	usb1_vbus-supply = <&reg_usb1_vbus>;
-	status = "okay";
-};
+#endif /* DT_BINDINGS_RST_SUN4I_A10_H */

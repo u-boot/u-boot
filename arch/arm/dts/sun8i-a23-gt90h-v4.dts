@@ -53,9 +53,10 @@
 	status = "okay";
 };
 
-&gsl1680 {
+&touchscreen {
+	reg = <0x40>;
 	compatible = "silead,gsl3675";
-	touchscreen-fw-name = "silead/gsl3675-gt90h.fw";
+	firmware-name = "gsl3675-gt90h.fw";
 	touchscreen-size-x = <1792>;
 	touchscreen-size-y = <1024>;
 	status = "okay";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Hans de Goede <hdegoede@redhat.com>
+ * Copyright (C) 2016 Chen-Yu Tsai <wens@csie.org>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -40,95 +40,67 @@
  *     OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/dts-v1/;
-#include "sun5i-a10s.dtsi"
-#include "sunxi-common-regulators.dtsi"
+#ifndef _DT_BINDINGS_RST_SUN6I_A31_H_
+#define _DT_BINDINGS_RST_SUN6I_A31_H_
 
-#include <dt-bindings/gpio/gpio.h>
+#define RST_USB_PHY0		0
+#define RST_USB_PHY1		1
+#define RST_USB_PHY2		2
 
-/ {
-	model = "R7 A10s hdmi tv-stick";
-	compatible = "allwinner,r7-tv-dongle", "allwinner,sun5i-a10s";
+#define RST_AHB1_MIPI_DSI	3
+#define RST_AHB1_SS		4
+#define RST_AHB1_DMA		5
+#define RST_AHB1_MMC0		6
+#define RST_AHB1_MMC1		7
+#define RST_AHB1_MMC2		8
+#define RST_AHB1_MMC3		9
+#define RST_AHB1_NAND1		10
+#define RST_AHB1_NAND0		11
+#define RST_AHB1_SDRAM		12
+#define RST_AHB1_EMAC		13
+#define RST_AHB1_TS		14
+#define RST_AHB1_HSTIMER	15
+#define RST_AHB1_SPI0		16
+#define RST_AHB1_SPI1		17
+#define RST_AHB1_SPI2		18
+#define RST_AHB1_SPI3		19
+#define RST_AHB1_OTG		20
+#define RST_AHB1_EHCI0		21
+#define RST_AHB1_EHCI1		22
+#define RST_AHB1_OHCI0		23
+#define RST_AHB1_OHCI1		24
+#define RST_AHB1_OHCI2		25
+#define RST_AHB1_VE		26
+#define RST_AHB1_LCD0		27
+#define RST_AHB1_LCD1		28
+#define RST_AHB1_CSI		29
+#define RST_AHB1_HDMI		30
+#define RST_AHB1_BE0		31
+#define RST_AHB1_BE1		32
+#define RST_AHB1_FE0		33
+#define RST_AHB1_FE1		34
+#define RST_AHB1_MP		35
+#define RST_AHB1_GPU		36
+#define RST_AHB1_DEU0		37
+#define RST_AHB1_DEU1		38
+#define RST_AHB1_DRC0		39
+#define RST_AHB1_DRC1		40
+#define RST_AHB1_LVDS		41
 
-	aliases {
-		serial0 = &uart0;
-	};
+#define RST_APB1_CODEC		42
+#define RST_APB1_SPDIF		43
+#define RST_APB1_DIGITAL_MIC	44
+#define RST_APB1_DAUDIO0	45
+#define RST_APB1_DAUDIO1	46
+#define RST_APB2_I2C0		47
+#define RST_APB2_I2C1		48
+#define RST_APB2_I2C2		49
+#define RST_APB2_I2C3		50
+#define RST_APB2_UART0		51
+#define RST_APB2_UART1		52
+#define RST_APB2_UART2		53
+#define RST_APB2_UART3		54
+#define RST_APB2_UART4		55
+#define RST_APB2_UART5		56
 
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-
-	leds {
-		compatible = "gpio-leds";
-		pinctrl-names = "default";
-		pinctrl-0 = <&led_pins_r7>;
-
-		green {
-			label = "r7-tv-dongle:green:usr";
-			gpios = <&pio 1 2 GPIO_ACTIVE_HIGH>;
-			default-state = "on";
-		};
-	};
-};
-
-&ehci0 {
-	status = "okay";
-};
-
-&mmc0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc0_pins_a>, <&mmc0_cd_pin_r7>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	cd-gpios = <&pio 6 1 GPIO_ACTIVE_LOW>; /* PG1 */
-	status = "okay";
-};
-
-&mmc1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&mmc1_pins_a>;
-	vmmc-supply = <&reg_vcc3v3>;
-	bus-width = <4>;
-	non-removable;
-	status = "okay";
-};
-
-&ohci0 {
-	status = "okay";
-};
-
-&pio {
-	mmc0_cd_pin_r7: mmc0_cd_pin@0 {
-		pins = "PG1";
-		function = "gpio_in";
-		bias-pull-up;
-	};
-
-	led_pins_r7: led_pins@0 {
-		pins = "PB2";
-		function = "gpio_out";
-		drive-strength = <20>;
-	};
-
-	usb1_vbus_pin_r7: usb1_vbus_pin@0 {
-		pins = "PG13";
-		function = "gpio_out";
-	};
-};
-
-&reg_usb1_vbus {
-	pinctrl-0 = <&usb1_vbus_pin_r7>;
-	gpio = <&pio 6 13 GPIO_ACTIVE_HIGH>;
-	status = "okay";
-};
-
-&uart0 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart0_pins_a>;
-	status = "okay";
-};
-
-&usbphy {
-	usb1_vbus-supply = <&reg_usb1_vbus>;
-	status = "okay";
-};
+#endif /* _DT_BINDINGS_RST_SUN6I_A31_H_ */
