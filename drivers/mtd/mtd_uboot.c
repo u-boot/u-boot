@@ -5,7 +5,70 @@
  */
 #include <common.h>
 #include <linux/mtd/mtd.h>
-#include <jffs2/jffs2.h>
+#include <jffs2/jffs2.h> /* Legacy */
+
+/**
+ * mtd_search_alternate_name - Search an alternate name for @mtdname thanks to
+ *                             the mtdids legacy environment variable.
+ *
+ * The mtdids string is a list of comma-separated 'dev_id=mtd_id' tupples.
+ * Check if one of the mtd_id matches mtdname, in this case save dev_id in
+ * altname.
+ *
+ * @mtdname: Current MTD device name
+ * @altname: Alternate name to return
+ * @max_len: Length of the alternate name buffer
+ *
+ * @return 0 on success, an error otherwise.
+ */
+int mtd_search_alternate_name(const char *mtdname, char *altname,
+			      unsigned int max_len)
+{
+	const char *mtdids, *equal, *comma, *dev_id, *mtd_id;
+	int dev_id_len, mtd_id_len;
+
+	mtdids = env_get("mtdids");
+	if (!mtdids)
+		return -EINVAL;
+
+	do {
+		/* Find the '=' sign */
+		dev_id = mtdids;
+		equal = strchr(dev_id, '=');
+		if (!equal)
+			break;
+		dev_id_len = equal - mtdids;
+		mtd_id = equal + 1;
+
+		/* Find the end of the tupple */
+		comma = strchr(mtdids, ',');
+		if (comma)
+			mtd_id_len = comma - mtd_id;
+		else
+			mtd_id_len = &mtdids[strlen(mtdids)] - mtd_id + 1;
+
+		if (!dev_id_len || !mtd_id_len)
+			return -EINVAL;
+
+		if (dev_id_len + 1 > max_len)
+			continue;
+
+		/* Compare the name we search with the current mtd_id */
+		if (!strncmp(mtdname, mtd_id, mtd_id_len)) {
+			strncpy(altname, dev_id, dev_id_len);
+			altname[dev_id_len] = 0;
+
+			return 0;
+		}
+
+		/* Go to the next tupple */
+		mtdids = comma + 1;
+	} while (comma);
+
+	return -EINVAL;
+}
+
+/* Legacy */
 
 static int get_part(const char *partname, int *idx, loff_t *off, loff_t *size,
 		loff_t *maxsize, int devtype)
