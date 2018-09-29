@@ -87,4 +87,25 @@ int mtd_add_partition(struct mtd_info *master, const char *name,
 int mtd_del_partition(struct mtd_info *master, int partno);
 uint64_t mtd_get_device_size(const struct mtd_info *mtd);
 
+#if defined(CONFIG_MTD_PARTITIONS)
+int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
+			 struct mtd_partition **_parts, int *_nparts);
+void mtd_free_parsed_partitions(struct mtd_partition *parts,
+				unsigned int nparts);
+#else
+static inline int
+mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
+		     struct mtd_partition **_parts, int *_nparts)
+{
+	*_nparts = 0;
+
+	return 0;
+}
+static inline void
+mtd_free_parsed_partitions(struct mtd_partition *parts, unsigned int nparts)
+{
+	return;
+}
+#endif /* defined(MTD_PARTITIONS) */
+
 #endif

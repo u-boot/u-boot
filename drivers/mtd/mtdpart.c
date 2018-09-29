@@ -26,6 +26,7 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 #include <linux/err.h>
+#include <linux/sizes.h>
 
 #include "mtdcore.h"
 
@@ -75,6 +76,215 @@ char *kstrdup(const char *s, gfp_t gfp)
 	return buf;
 }
 #endif
+
+#define MTD_SIZE_REMAINING		(~0LLU)
+#define MTD_OFFSET_NOT_SPECIFIED	(~0LLU)
+
+/**
+ * mtd_parse_partition - Parse @mtdparts partition definition, fill @partition
+ *                       with it and update the @mtdparts string pointer.
+ *
+ * The partition name is allocated and must be freed by the caller.
+ *
+ * This function is widely inspired from part_parse (mtdparts.c).
+ *
+ * @mtdparts: String describing the partition with mtdparts command syntax
+ * @partition: MTD partition structure to fill
+ *
+ * @return 0 on success, an error otherwise.
+ */
+static int mtd_parse_partition(const char **_mtdparts,
+			       struct mtd_partition *partition)
+{
+	const char *mtdparts = *_mtdparts;
+	const char *name = NULL;
+	int name_len;
+	char *buf;
+
+	/* Ensure the partition structure is empty */
+	memset(partition, 0, sizeof(struct mtd_partition));
+
+	/* Fetch the partition size */
+	if (*mtdparts == '-') {
+		/* Assign all remaining space to this partition */
+		partition->size = MTD_SIZE_REMAINING;
+		mtdparts++;
+	} else {
+		partition->size = ustrtoull(mtdparts, (char **)&mtdparts, 0);
+		if (partition->size < SZ_4K) {
+			printf("Minimum partition size 4kiB, %lldB requested\n",
+			       partition->size);
+			return -EINVAL;
+		}
+	}
+
+	/* Check for the offset */
+	partition->offset = MTD_OFFSET_NOT_SPECIFIED;
+	if (*mtdparts == '@') {
+		mtdparts++;
+		partition->offset = ustrtoull(mtdparts, (char **)&mtdparts, 0);
+	}
+
+	/* Now look for the name */
+	if (*mtdparts == '(') {
+		name = ++mtdparts;
+		mtdparts = strchr(name, ')');
+		if (!mtdparts) {
+			printf("No closing ')' found in partition name\n");
+			return -EINVAL;
+		}
+		name_len = mtdparts - name + 1;
+		if ((name_len - 1) == 0) {
+			printf("Empty partition name\n");
+			return -EINVAL;
+		}
+		mtdparts++;
+	} else {
+		/* Name will be of the form size@offset */
+		name_len = 22;
+	}
+
+	/* Check if the partition is read-only */
+	if (strncmp(mtdparts, "ro", 2) == 0) {
+		partition->mask_flags |= MTD_WRITEABLE;
+		mtdparts += 2;
+	}
+
+	/* Check for a potential next partition definition */
+	if (*mtdparts == ',') {
+		if (partition->size == MTD_SIZE_REMAINING) {
+			printf("No partitions allowed after a fill-up\n");
+			return -EINVAL;
+		}
+		++mtdparts;
+	} else if ((*mtdparts == ';') || (*mtdparts == '\0')) {
+		/* NOP */
+	} else {
+		printf("Unexpected character '%c' in mtdparts\n", *mtdparts);
+		return -EINVAL;
+	}
+
+	/*
+	 * Allocate a buffer for the name and either copy the provided name or
+	 * auto-generate it with the form 'size@offset'.
+	 */
+	buf = malloc(name_len);
+	if (!buf)
+		return -ENOMEM;
+
+	if (name)
+		strncpy(buf, name, name_len - 1);
+	else
+		snprintf(buf, name_len, "0x%08llx@0x%08llx",
+			 partition->size, partition->offset);
+
+	buf[name_len - 1] = '\0';
+	partition->name = buf;
+
+	*_mtdparts = mtdparts;
+
+	return 0;
+}
+
+/**
+ * mtd_parse_partitions - Create a partition array from an mtdparts definition
+ *
+ * Stateless function that takes a @parent MTD device, a string @_mtdparts
+ * describing the partitions (with the "mtdparts" command syntax) and creates
+ * the corresponding MTD partition structure array @_parts. Both the name and
+ * the structure partition itself must be freed freed, the caller may use
+ * @mtd_free_parsed_partitions() for this purpose.
+ *
+ * @parent: MTD device which contains the partitions
+ * @_mtdparts: Pointer to a string describing the partitions with "mtdparts"
+ *             command syntax.
+ * @_parts: Allocated array containing the partitions, must be freed by the
+ *          caller.
+ * @_nparts: Size of @_parts array.
+ *
+ * @return 0 on success, an error otherwise.
+ */
+int mtd_parse_partitions(struct mtd_info *parent, const char **_mtdparts,
+			 struct mtd_partition **_parts, int *_nparts)
+{
+	struct mtd_partition partition = {}, *parts;
+	const char *mtdparts = *_mtdparts;
+	int cur_off = 0, cur_sz = 0;
+	int nparts = 0;
+	int ret, idx;
+	u64 sz;
+
+	/* First, iterate over the partitions until we know their number */
+	while (mtdparts[0] != '\0' && mtdparts[0] != ';') {
+		ret = mtd_parse_partition(&mtdparts, &partition);
+		if (ret)
+			return ret;
+
+		free((char *)partition.name);
+		nparts++;
+	}
+
+	/* Allocate an array of partitions to give back to the caller */
+	parts = malloc(sizeof(*parts) * nparts);
+	if (!parts) {
+		printf("Not enough space to save partitions meta-data\n");
+		return -ENOMEM;
+	}
+
+	/* Iterate again over each partition to save the data in our array */
+	for (idx = 0; idx < nparts; idx++) {
+		ret = mtd_parse_partition(_mtdparts, &parts[idx]);
+		if (ret)
+			return ret;
+
+		if (parts[idx].size == MTD_SIZE_REMAINING)
+			parts[idx].size = parent->size - cur_sz;
+		cur_sz += parts[idx].size;
+
+		sz = parts[idx].size;
+		if (sz < parent->writesize || do_div(sz, parent->writesize)) {
+			printf("Partition size must be a multiple of %d\n",
+			       parent->writesize);
+			return -EINVAL;
+		}
+
+		if (parts[idx].offset == MTD_OFFSET_NOT_SPECIFIED)
+			parts[idx].offset = cur_off;
+		cur_off += parts[idx].size;
+
+		parts[idx].ecclayout = parent->ecclayout;
+	}
+
+	/* Offset by one mtdparts to point to the next device if any */
+	if (*_mtdparts[0] == ';')
+		(*_mtdparts)++;
+
+	*_parts = parts;
+	*_nparts = nparts;
+
+	return 0;
+}
+
+/**
+ * mtd_free_parsed_partitions - Free dynamically allocated partitions
+ *
+ * Each successful call to @mtd_parse_partitions must be followed by a call to
+ * @mtd_free_parsed_partitions to free any allocated array during the parsing
+ * process.
+ *
+ * @parts: Array containing the partitions that will be freed.
+ * @nparts: Size of @parts array.
+ */
+void mtd_free_parsed_partitions(struct mtd_partition *parts,
+				unsigned int nparts)
+{
+	int i;
+
+	for (i = 0; i < nparts; i++)
+		free((char *)parts[i].name);
+
+	free(parts);
+}
 
 /*
  * MTD methods which simply translate the effective address and pass through
