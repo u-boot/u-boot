@@ -1699,7 +1699,11 @@ config CMD_MTDPARTS
 	bool "MTD partition support"
 	select MTD_DEVICE if (CMD_NAND || NAND)
 	help
-	  MTD partition support
+	  MTD partitioning tool support.
+	  It is strongly encouraged to avoid using this command
+	  anymore along with 'sf', 'nand', 'onenand'. One can still
+	  declare the partitions in the mtdparts environment variable
+	  but better use the MTD stack and the 'mtd' command instead.
 
 config MTDIDS_DEFAULT
 	string "Default MTD IDs"
