@@ -4,8 +4,15 @@
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  */
 #include <common.h>
+#include <dm/device.h>
+#include <dm/uclass-internal.h>
+#include <jffs2/jffs2.h> /* LEGACY */
 #include <linux/mtd/mtd.h>
-#include <jffs2/jffs2.h> /* Legacy */
+#include <linux/mtd/partitions.h>
+#include <mtd.h>
+
+#define MTD_NAME_MAX_LEN 20
+
 
 /**
  * mtd_search_alternate_name - Search an alternate name for @mtdname thanks to
@@ -67,6 +74,158 @@ int mtd_search_alternate_name(const char *mtdname, char *altname,
 
 	return -EINVAL;
 }
+
+#if IS_ENABLED(CONFIG_MTD)
+static void mtd_probe_uclass_mtd_devs(void)
+{
+	struct udevice *dev;
+	int idx = 0;
+
+	/* Probe devices with DM compliant drivers */
+	while (!uclass_find_device(UCLASS_MTD, idx, &dev) && dev) {
+		mtd_probe(dev);
+		idx++;
+	}
+}
+#else
+static void mtd_probe_uclass_mtd_devs(void) { }
+#endif
+
+#if defined(CONFIG_MTD_PARTITIONS)
+int mtd_probe_devices(void)
+{
+	static char *old_mtdparts;
+	static char *old_mtdids;
+	const char *mtdparts = env_get("mtdparts");
+	const char *mtdids = env_get("mtdids");
+	bool remaining_partitions = true;
+	struct mtd_info *mtd;
+
+	mtd_probe_uclass_mtd_devs();
+
+	/* Check if mtdparts/mtdids changed since last call, otherwise: exit */
+	if (!strcmp(mtdparts, old_mtdparts) && !strcmp(mtdids, old_mtdids))
+		return 0;
+
+	/* Update the local copy of mtdparts */
+	free(old_mtdparts);
+	free(old_mtdids);
+	old_mtdparts = strdup(mtdparts);
+	old_mtdids = strdup(mtdids);
+
+	/* If at least one partition is still in use, do not delete anything */
+	mtd_for_each_device(mtd) {
+		if (mtd->usecount) {
+			printf("Partition \"%s\" already in use, aborting\n",
+			       mtd->name);
+			return -EACCES;
+		}
+	}
+
+	/*
+	 * Everything looks clear, remove all partitions. It is not safe to
+	 * remove entries from the mtd_for_each_device loop as it uses idr
+	 * indexes and the partitions removal is done in bulk (all partitions of
+	 * one device at the same time), so break and iterate from start each
+	 * time a new partition is found and deleted.
+	 */
+	while (remaining_partitions) {
+		remaining_partitions = false;
+		mtd_for_each_device(mtd) {
+			if (!mtd_is_partition(mtd) && mtd_has_partitions(mtd)) {
+				del_mtd_partitions(mtd);
+				remaining_partitions = true;
+				break;
+			}
+		}
+	}
+
+	/* Start the parsing by ignoring the extra 'mtdparts=' prefix, if any */
+	if (strstr(mtdparts, "mtdparts="))
+		mtdparts += 9;
+
+	/* For each MTD device in mtdparts */
+	while (mtdparts[0] != '\0') {
+		char mtd_name[MTD_NAME_MAX_LEN], *colon;
+		struct mtd_partition *parts;
+		int mtd_name_len, nparts;
+		int ret;
+
+		colon = strchr(mtdparts, ':');
+		if (!colon) {
+			printf("Wrong mtdparts: %s\n", mtdparts);
+			return -EINVAL;
+		}
+
+		mtd_name_len = colon - mtdparts;
+		strncpy(mtd_name, mtdparts, mtd_name_len);
+		mtd_name[mtd_name_len] = '\0';
+		/* Move the pointer forward (including the ':') */
+		mtdparts += mtd_name_len + 1;
+		mtd = get_mtd_device_nm(mtd_name);
+		if (IS_ERR_OR_NULL(mtd)) {
+			char linux_name[MTD_NAME_MAX_LEN];
+
+			/*
+			 * The MTD device named "mtd_name" does not exist. Try
+			 * to find a correspondance with an MTD device having
+			 * the same type and number as defined in the mtdids.
+			 */
+			debug("No device named %s\n", mtd_name);
+			ret = mtd_search_alternate_name(mtd_name, linux_name,
+							MTD_NAME_MAX_LEN);
+			if (!ret)
+				mtd = get_mtd_device_nm(linux_name);
+
+			/*
+			 * If no device could be found, move the mtdparts
+			 * pointer forward until the next set of partitions.
+			 */
+			if (ret || IS_ERR_OR_NULL(mtd)) {
+				printf("Could not find a valid device for %s\n",
+				       mtd_name);
+				mtdparts = strchr(mtdparts, ';');
+				if (mtdparts)
+					mtdparts++;
+
+				continue;
+			}
+		}
+
+		/*
+		 * Parse the MTD device partitions. It will update the mtdparts
+		 * pointer, create an array of parts (that must be freed), and
+		 * return the number of partition structures in the array.
+		 */
+		ret = mtd_parse_partitions(mtd, &mtdparts, &parts, &nparts);
+		if (ret) {
+			printf("Could not parse device %s\n", mtd->name);
+			put_mtd_device(mtd);
+			return -EINVAL;
+		}
+
+		if (!nparts)
+			continue;
+
+		/* Create the new MTD partitions */
+		add_mtd_partitions(mtd, parts, nparts);
+
+		/* Free the structures allocated during the parsing */
+		mtd_free_parsed_partitions(parts, nparts);
+
+		put_mtd_device(mtd);
+	}
+
+	return 0;
+}
+#else
+int mtd_probe_devices(void)
+{
+	mtd_probe_uclass_mtd_devs();
+
+	return 0;
+}
+#endif /* defined(CONFIG_MTD_PARTITIONS) */
 
 /* Legacy */
 
