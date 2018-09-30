@@ -1599,7 +1599,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  efi_uintn_t source_size,
 					  efi_handle_t *image_handle)
 {
-	struct efi_loaded_image *info;
+	struct efi_loaded_image *info = NULL;
 	struct efi_loaded_image_obj **image_obj =
 		(struct efi_loaded_image_obj **)image_handle;
 	efi_status_t ret;
