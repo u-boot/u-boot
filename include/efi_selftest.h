@@ -16,7 +16,7 @@
 
 #define EFI_ST_SUCCESS 0
 #define EFI_ST_FAILURE 1
-
+#define EFI_ST_SUCCESS_STR L"SUCCESS"
 /*
  * Prints a message.
  */
