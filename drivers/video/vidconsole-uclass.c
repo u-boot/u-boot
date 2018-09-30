@@ -165,6 +165,43 @@ static char *parsenum(char *s, int *num)
 	return end;
 }
 
+/**
+ * set_cursor_position() - set cursor position
+ *
+ * @priv:	private data of the video console
+ * @row:	new row
+ * @col:	new column
+ */
+static void set_cursor_position(struct vidconsole_priv *priv, int row, int col)
+{
+	/*
+	 * Ensure we stay in the bounds of the screen.
+	 */
+	if (row >= priv->rows)
+		row = priv->rows - 1;
+	if (col >= priv->cols)
+		col = priv->cols - 1;
+
+	priv->ycur = row * priv->y_charsize;
+	priv->xcur_frac = priv->xstart_frac +
+			  VID_TO_POS(col * priv->x_charsize);
+}
+
+/**
+ * get_cursor_position() - get cursor position
+ *
+ * @priv:	private data of the video console
+ * @row:	row
+ * @col:	column
+ */
+static void get_cursor_position(struct vidconsole_priv *priv,
+				int *row, int *col)
+{
+	*row = priv->ycur / priv->y_charsize;
+	*col = VID_TO_PIXEL(priv->xcur_frac - priv->xstart_frac) /
+	       priv->x_charsize;
+}
+
 /*
  * Process a character while accumulating an escape string.  Chars are
  * accumulated into escape_buf until the end of escape sequence is
@@ -180,8 +217,30 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 	/* Sanity checking for bogus ESC sequences: */
 	if (priv->escape_len >= sizeof(priv->escape_buf))
 		goto error;
-	if (priv->escape_len == 0 && ch != '[')
-		goto error;
+	if (priv->escape_len == 0) {
+		switch (ch) {
+		case '7':
+			/* Save cursor position */
+			get_cursor_position(priv, &priv->row_saved,
+					    &priv->col_saved);
+			priv->escape = 0;
+
+			return;
+		case '8': {
+			/* Restore cursor position */
+			int row = priv->row_saved;
+			int col = priv->col_saved;
+
+			set_cursor_position(priv, row, col);
+			priv->escape = 0;
+			return;
+		}
+		case '[':
+			break;
+		default:
+			goto error;
+		}
+	}
 
 	priv->escape_buf[priv->escape_len++] = ch;
 
@@ -213,17 +272,7 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 		s++;    /* ; */
 		s = parsenum(s, &col);
 
-		/*
-		 * Ensure we stay in the bounds of the screen.
-		 */
-		if (row >= priv->rows)
-			row = priv->rows - 1;
-		if (col >= priv->cols)
-			col = priv->cols - 1;
-
-		priv->ycur = row * priv->y_charsize;
-		priv->xcur_frac = priv->xstart_frac +
-			VID_TO_POS(col * priv->x_charsize);
+		set_cursor_position(priv, row, col);
 
 		break;
 	}

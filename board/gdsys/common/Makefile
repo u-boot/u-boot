@@ -15,3 +15,7 @@ obj-$(CONFIG_STRIDER) += mclink.o dp501.o phy.o ioep-fpga.o adv7611.o ch7301.o
 obj-$(CONFIG_STRIDER) += fanctrl.o
 obj-$(CONFIG_STRIDER_CON) += osd.o
 obj-$(CONFIG_STRIDER_CON_DP) += osd.o
+
+ifdef CONFIG_OSD
+obj-$(CONFIG_GDSYS_LEGACY_OSD_CMDS) += osd_cmd.o
+endif

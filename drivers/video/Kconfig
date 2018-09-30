@@ -431,6 +431,14 @@ config DISPLAY
 	   The devices provide a simple interface to start up the display,
 	   read display information and enable it.
 
+config NXP_TDA19988
+	bool "Enable NXP TDA19988 support"
+	depends on DISPLAY
+	default n
+	help
+	  This enables support for the NXP TDA19988 HDMI encoder. This encoder
+	  will convert RGB data streams into HDMI-encoded signals.
+
 config ATMEL_HLCD
 	bool "Enable ATMEL video support using HLCDC"
 	depends on DM_VIDEO
@@ -488,6 +496,14 @@ config VIDEO_FSL_DCU_MAX_FB_SIZE_MB
 	 Controller Unit (DCU4).
 
 source "drivers/video/rockchip/Kconfig"
+
+config VIDEO_ARM_MALIDP
+	bool "Enable Arm Mali Display Processor support"
+	depends on DM_VIDEO && OF_CONTROL
+	select VEXPRESS_CLK
+	help
+	  This enables support for Arm Ltd Mali Display Processors from
+	  the DP500, DP550 and DP650 family.
 
 config VIDEO_SANDBOX_SDL
 	bool "Enable sandbox video console using SDL"
@@ -682,5 +698,28 @@ config VIDEO_DT_SIMPLEFB
 	  simple framebuffer in the device tree.
 	  The video output is initialized by U-Boot, and kept by the
 	  kernel.
+
+config OSD
+	bool "Enable OSD support"
+	depends on DM
+	default n
+	help
+	   This supports drivers that provide a OSD (on-screen display), which
+	   is a (usually text-oriented) graphics buffer to show information on
+	   a display.
+
+config SANDBOX_OSD
+	bool "Enable sandbox OSD"
+	depends on OSD
+	help
+	  Enable support for sandbox OSD device used for testing purposes.
+
+config IHS_VIDEO_OUT
+	bool "Enable IHS video out driver"
+	depends on OSD
+	help
+	  Enable support for the gdsys Integrated Hardware Systems (IHS) video
+	  out On-screen Display (OSD) used on gdsys FPGAs to control dynamic
+	  textual overlays of the display outputs.
 
 endmenu

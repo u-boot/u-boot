@@ -440,6 +440,12 @@ F:	cmd/log.c
 F:	test/log/log_test.c
 F:	test/py/tests/test_log.py
 
+MALI DISPLAY PROCESSORS
+M:	Liviu Dudau <liviu.dudau@foss.arm.com>
+S:	Supported
+T:	git git://github.com/ARM-software/u-boot.git
+F:	drivers/video/mali_dp.c
+
 MICROBLAZE
 M:	Michal Simek <monstr@monstr.eu>
 S:	Maintained
@@ -589,6 +595,11 @@ S:	Maintained
 F:	drivers/spmi/
 F:	include/spmi/
 
+TDA19988 HDMI ENCODER
+M:	Liviu Dudau <liviu.dudau@foss.arm.com>
+S:	Maintained
+F:	drivers/video/tda19988.c
+
 TI SYSTEM SECURITY
 M:	Andrew F. Davis <afd@ti.com>
 S:	Supported
@@ -636,6 +647,7 @@ T:	git git://git.denx.de/u-boot-video.git
 F:	drivers/video/
 F:	common/lcd*.c
 F:	include/lcd*.h
+F:	include/video*.h
 
 X86
 M:	Simon Glass <sjg@chromium.org>
