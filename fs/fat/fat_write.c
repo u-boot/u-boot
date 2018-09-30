@@ -1012,7 +1012,7 @@ again:
 static int normalize_longname(char *l_filename, const char *filename)
 {
 	const char *p, legal[] = "!#$%&\'()-.@^`_{}~";
-	char c;
+	unsigned char c;
 	int name_len;
 
 	/* Check that the filename is valid */
