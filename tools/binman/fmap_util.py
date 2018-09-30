@@ -49,6 +49,9 @@ FmapHeader = collections.namedtuple('FmapHeader', FMAP_HEADER_NAMES)
 FmapArea = collections.namedtuple('FmapArea', FMAP_AREA_NAMES)
 
 
+def NameToFmap(name):
+    return name.replace('\0', '').replace('-', '_').upper()
+
 def ConvertName(field_names, fields):
     """Convert a name to something flashrom likes
 
@@ -62,7 +65,7 @@ def ConvertName(field_names, fields):
             value: value of that field (string for the ones we support)
     """
     name_index = field_names.index('name')
-    fields[name_index] = fields[name_index].replace('\0', '').replace('-', '_').upper()
+    fields[name_index] = NameToFmap(fields[name_index])
 
 def DecodeFmap(data):
     """Decode a flashmap into a header and list of areas
@@ -100,6 +103,7 @@ def EncodeFmap(image_size, name, areas):
     """
     def _FormatBlob(fmt, names, obj):
         params = [getattr(obj, name) for name in names]
+        ConvertName(names, params)
         return struct.pack(fmt, *params)
 
     values = FmapHeader(FMAP_SIGNATURE, 1, 0, 0, image_size, name, len(areas))

@@ -14,6 +14,8 @@
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <dm/util.h>
+#include <dm/lists.h>
+#include <dm/of_access.h>
 #include <test/ut.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -503,3 +505,83 @@ static int dm_test_fdt_remap_addr_live(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_fdt_remap_addr_live,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_fdt_livetree_writing(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	ofnode node;
+
+	if (!of_live_active()) {
+		printf("Live tree not active; ignore test\n");
+		return 0;
+	}
+
+	/* Test enabling devices */
+
+	node = ofnode_path("/usb@2");
+
+	ut_assert(!of_device_is_available(ofnode_to_np(node)));
+	ofnode_set_enabled(node, true);
+	ut_assert(of_device_is_available(ofnode_to_np(node)));
+
+	device_bind_driver_to_node(dm_root(), "usb_sandbox", "usb@2", node,
+				   &dev);
+	ut_assertok(uclass_find_device_by_seq(UCLASS_USB, 2, true, &dev));
+
+	/* Test string property setting */
+
+	ut_assert(device_is_compatible(dev, "sandbox,usb"));
+	ofnode_write_string(node, "compatible", "gdsys,super-usb");
+	ut_assert(device_is_compatible(dev, "gdsys,super-usb"));
+	ofnode_write_string(node, "compatible", "sandbox,usb");
+	ut_assert(device_is_compatible(dev, "sandbox,usb"));
+
+	/* Test setting generic properties */
+
+	/* Non-existent in DTB */
+	ut_asserteq(FDT_ADDR_T_NONE, dev_read_addr(dev));
+	/* reg = 0x42, size = 0x100 */
+	ut_assertok(ofnode_write_prop(node, "reg", 8,
+				      "\x00\x00\x00\x42\x00\x00\x01\x00"));
+	ut_asserteq(0x42, dev_read_addr(dev));
+
+	/* Test disabling devices */
+
+	device_remove(dev, DM_REMOVE_NORMAL);
+	device_unbind(dev);
+
+	ut_assert(of_device_is_available(ofnode_to_np(node)));
+	ofnode_set_enabled(node, false);
+	ut_assert(!of_device_is_available(ofnode_to_np(node)));
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_livetree_writing, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+static int dm_test_fdt_disable_enable_by_path(struct unit_test_state *uts)
+{
+	ofnode node;
+
+	if (!of_live_active()) {
+		printf("Live tree not active; ignore test\n");
+		return 0;
+	}
+
+	node = ofnode_path("/usb@2");
+
+	/* Test enabling devices */
+
+	ut_assert(!of_device_is_available(ofnode_to_np(node)));
+	dev_enable_by_path("/usb@2");
+	ut_assert(of_device_is_available(ofnode_to_np(node)));
+
+	/* Test disabling devices */
+
+	ut_assert(of_device_is_available(ofnode_to_np(node)));
+	dev_disable_by_path("/usb@2");
+	ut_assert(!of_device_is_available(ofnode_to_np(node)));
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_disable_enable_by_path, DM_TESTF_SCAN_PDATA |
+					    DM_TESTF_SCAN_FDT);

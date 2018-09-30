@@ -4,6 +4,7 @@
 #
 
 import command
+import glob
 import os
 import shutil
 import tempfile
@@ -22,6 +23,10 @@ chroot_path = None
 # Search paths to use for Filename(), used to find files
 search_paths = []
 
+# Tools and the packages that contain them, on debian
+packages = {
+    'lz4': 'liblz4-tool',
+    }
 
 def PrepareOutputDir(dirname, preserve=False):
     """Select an output directory, ensuring it exists.
@@ -119,6 +124,23 @@ def GetInputFilename(fname):
     raise ValueError("Filename '%s' not found in input path (%s) (cwd='%s')" %
                      (fname, ','.join(indir), os.getcwd()))
 
+def GetInputFilenameGlob(pattern):
+    """Return a list of filenames for use as input.
+
+    Args:
+        pattern: Filename pattern to search for
+
+    Returns:
+        A list of matching files in all input directories
+    """
+    if not indir:
+        return glob.glob(fname)
+    files = []
+    for dirname in indir:
+        pathname = os.path.join(dirname, pattern)
+        files += glob.glob(pathname)
+    return sorted(files)
+
 def Align(pos, align):
     if align:
         mask = align - 1
@@ -128,8 +150,31 @@ def Align(pos, align):
 def NotPowerOfTwo(num):
     return num and (num & (num - 1))
 
+def PathHasFile(fname):
+    """Check if a given filename is in the PATH
+
+    Args:
+        fname: Filename to check
+
+    Returns:
+        True if found, False if not
+    """
+    for dir in os.environ['PATH'].split(':'):
+        if os.path.exists(os.path.join(dir, fname)):
+            return True
+    return False
+
 def Run(name, *args):
-    command.Run(name, *args, cwd=outdir)
+    try:
+        return command.Run(name, *args, cwd=outdir, capture=True)
+    except:
+        if not PathHasFile(name):
+            msg = "Plesae install tool '%s'" % name
+            package = packages.get(name)
+            if package:
+                 msg += " (e.g. from package '%s')" % package
+            raise ValueError(msg)
+        raise
 
 def Filename(fname):
     """Resolve a file path to an absolute path.

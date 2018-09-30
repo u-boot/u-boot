@@ -27,6 +27,7 @@ addons:
     - wget
     - device-tree-compiler
     - lzop
+    - liblz4-tool
 
 before_install:
  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y

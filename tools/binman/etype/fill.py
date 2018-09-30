@@ -23,7 +23,7 @@ class Entry_fill(Entry):
     """
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)
-        if not self.size:
+        if self.size is None:
             self.Raise("'fill' entry must have a size property")
         self.fill_value = fdt_util.GetByte(self._node, 'fill-byte', 0)
 

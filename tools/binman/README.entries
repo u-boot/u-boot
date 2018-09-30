@@ -19,10 +19,26 @@ class by other entry types.
 
 Properties / Entry arguments:
     - filename: Filename of file to read into entry
+    - compress: Compression algorithm to use:
+        none: No compression
+        lz4: Use lz4 compression (via 'lz4' command-line utility)
 
 This entry reads data from a file and places it in the entry. The
 default filename is often specified specified by the subclass. See for
 example the 'u_boot' entry which provides the filename 'u-boot.bin'.
+
+If compression is enabled, an extra 'uncomp-size' property is written to
+the node (if enabled with -u) which provides the uncompressed size of the
+data.
+
+
+
+Entry: blob-dtb: A blob that holds a device tree
+------------------------------------------------
+
+This is a blob containing a device tree. The contents of the blob are
+obtained from the list of available device-tree files, managed by the
+'state' module.
 
 
 
@@ -52,6 +68,21 @@ Properties / Entry arguments:
 
 This entry holds a Chromium OS EC (embedded controller) image, for use in
 updating the EC on startup via software sync.
+
+
+
+Entry: files: Entry containing a set of files
+---------------------------------------------
+
+Properties / Entry arguments:
+    - pattern: Filename pattern to match the files to include
+    - compress: Compression algorithm to use:
+        none: No compression
+        lz4: Use lz4 compression (via 'lz4' command-line utility)
+
+This entry reads a number of files and places each in a separate sub-entry
+within this entry. To access these you need to enable device-tree updates
+at run-time so you can obtain the file positions.
 
 
 
@@ -321,6 +352,9 @@ This is the U-Boot device tree, containing configuration information for
 U-Boot. U-Boot needs this to know what devices are present and which drivers
 to activate.
 
+Note: This is mostly an internal entry type, used by others. This allows
+binman to know which entries contain a device tree.
+
 
 
 Entry: u-boot-dtb-with-ucode: A U-Boot device tree file, with the microcode removed
@@ -336,6 +370,17 @@ place then the offset and size of the microcode is recorded by this entry,
 for use by u_boot_with_ucode_ptr. If it is being collated, then this
 entry deletes the microcode from the device tree (to save space) and makes
 it available to u_boot_ucode.
+
+
+
+Entry: u-boot-elf: U-Boot ELF image
+-----------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of u-boot (default 'u-boot')
+
+This is the U-Boot ELF image. It does not include a device tree but can be
+relocated to any address for execution.
 
 
 
@@ -422,6 +467,17 @@ to activate.
 
 
 
+Entry: u-boot-spl-elf: U-Boot SPL ELF image
+-------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of SPL u-boot (default 'spl/u-boot')
+
+This is the U-Boot SPL ELF image. It does not include a device tree but can
+be relocated to any address for execution.
+
+
+
 Entry: u-boot-spl-nodtb: SPL binary without device tree appended
 ----------------------------------------------------------------
 
@@ -439,6 +495,8 @@ both SPL and the device tree).
 
 Entry: u-boot-spl-with-ucode-ptr: U-Boot SPL with embedded microcode pointer
 ----------------------------------------------------------------------------
+
+This is used when SPL must set up the microcode for U-Boot.
 
 See Entry_u_boot_ucode for full details of the entries involved in this
 process.
@@ -478,6 +536,24 @@ Properties / Entry arguments:
 This is the TPL device tree, containing configuration information for
 TPL. TPL needs this to know what devices are present and which drivers
 to activate.
+
+
+
+Entry: u-boot-tpl-dtb-with-ucode: U-Boot TPL with embedded microcode pointer
+----------------------------------------------------------------------------
+
+This is used when TPL must set up the microcode for U-Boot.
+
+See Entry_u_boot_ucode for full details of the entries involved in this
+process.
+
+
+
+Entry: u-boot-tpl-with-ucode-ptr: U-Boot TPL with embedded microcode pointer
+----------------------------------------------------------------------------
+
+See Entry_u_boot_ucode for full details of the entries involved in this
+process.
 
 
 
@@ -536,6 +612,9 @@ Entry: u-boot-with-ucode-ptr: U-Boot with embedded microcode pointer
 
 Properties / Entry arguments:
     - filename: Filename of u-boot-nodtb.dtb (default 'u-boot-nodtb.dtb')
+    - optional-ucode: boolean property to make microcode optional. If the
+        u-boot.bin image does not include microcode, no error will
+        be generated.
 
 See Entry_u_boot_ucode for full details of the three entries involved in
 this process. This entry updates U-Boot with the offset and size of the
@@ -554,6 +633,11 @@ Properties / Entry arguments:
     - version: Version number of the vblock (typically 1)
     - kernelkey: Name of the kernel key to use (inside keydir)
     - preamble-flags: Value of the vboot preamble flags (typically 0)
+
+Output files:
+    - input.<unique_name> - input file passed to futility
+    - vblock.<unique_name> - output file generated by futility (which is
+        used as the entry contents)
 
 Chromium OS signs the read-write firmware and kernel, writing the signature
 in this block. This allows U-Boot to verify that the next firmware stage
@@ -592,6 +676,23 @@ for changing to 32-bit mode and starting SPL, which in turn changes to
 64-bit mode and jumps to U-Boot (for 64-bit U-Boot).
 
 For 32-bit U-Boot, the 'x86_start16' entry type is used instead.
+
+
+
+Entry: x86-start16-tpl: x86 16-bit start-up code for TPL
+--------------------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of tpl/u-boot-x86-16bit-tpl.bin (default
+        'tpl/u-boot-x86-16bit-tpl.bin')
+
+x86 CPUs start up in 16-bit mode, even if they are 64-bit CPUs. This code
+must be placed at a particular address. This entry holds that code. It is
+typically placed at offset CONFIG_SYS_X86_START16. The code is responsible
+for changing to 32-bit mode and starting TPL, which in turn jumps to SPL.
+
+If TPL is not being used, the 'x86_start16_spl or 'x86_start16' entry types
+may be used instead.
 
 
 

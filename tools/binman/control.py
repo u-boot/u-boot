@@ -7,26 +7,18 @@
 
 from collections import OrderedDict
 import os
-import re
 import sys
 import tools
 
 import command
 import elf
 from image import Image
+import state
 import tout
 
 # List of images we plan to create
 # Make this global so that it can be referenced from tests
 images = OrderedDict()
-
-# Records the device-tree files known to binman, keyed by filename (e.g.
-# 'u-boot-spl.dtb')
-fdt_files = {}
-
-# Arguments passed to binman to provide arguments to entries
-entry_args = {}
-
 
 def _ReadImageDesc(binman_node):
     """Read the image descriptions from the /binman node
@@ -60,39 +52,15 @@ def _FindBinmanNode(dtb):
             return node
     return None
 
-def GetFdt(fname):
-    """Get the Fdt object for a particular device-tree filename
-
-    Binman keeps track of at least one device-tree file called u-boot.dtb but
-    can also have others (e.g. for SPL). This function looks up the given
-    filename and returns the associated Fdt object.
+def WriteEntryDocs(modules, test_missing=None):
+    """Write out documentation for all entries
 
     Args:
-        fname: Filename to look up (e.g. 'u-boot.dtb').
-
-    Returns:
-        Fdt object associated with the filename
+        modules: List of Module objects to get docs for
+        test_missing: Used for testing only, to force an entry's documeentation
+            to show as missing even if it is present. Should be set to None in
+            normal use.
     """
-    return fdt_files[fname]
-
-def GetFdtPath(fname):
-    return fdt_files[fname]._fname
-
-def SetEntryArgs(args):
-    global entry_args
-
-    entry_args = {}
-    if args:
-        for arg in args:
-            m = re.match('([^=]*)=(.*)', arg)
-            if not m:
-                raise ValueError("Invalid entry arguemnt '%s'" % arg)
-            entry_args[m.group(1)] = m.group(2)
-
-def GetEntryArg(name):
-    return entry_args.get(name)
-
-def WriteEntryDocs(modules, test_missing=None):
     from entry import Entry
     Entry.WriteDocs(modules, test_missing)
 
@@ -138,29 +106,37 @@ def Binman(options, args):
 
         tout.Init(options.verbosity)
         elf.debug = options.debug
+        state.use_fake_dtb = options.fake_dtb
         try:
             tools.SetInputDirs(options.indir)
             tools.PrepareOutputDir(options.outdir, options.preserve)
-            SetEntryArgs(options.entry_arg)
+            state.SetEntryArgs(options.entry_arg)
 
             # Get the device tree ready by compiling it and copying the compiled
             # output into a file in our output directly. Then scan it for use
             # in binman.
             dtb_fname = fdt_util.EnsureCompiled(dtb_fname)
-            fname = tools.GetOutputFilename('u-boot-out.dtb')
-            with open(dtb_fname) as infd:
-                with open(fname, 'wb') as outfd:
-                    outfd.write(infd.read())
+            fname = tools.GetOutputFilename('u-boot.dtb.out')
+            tools.WriteFile(fname, tools.ReadFile(dtb_fname))
             dtb = fdt.FdtScan(fname)
 
-            # Note the file so that GetFdt() can find it
-            fdt_files['u-boot.dtb'] = dtb
             node = _FindBinmanNode(dtb)
             if not node:
                 raise ValueError("Device tree '%s' does not have a 'binman' "
                                  "node" % dtb_fname)
 
             images = _ReadImageDesc(node)
+
+            if options.image:
+                skip = []
+                for name, image in images.iteritems():
+                    if name not in options.image:
+                        del images[name]
+                        skip.append(name)
+                if skip:
+                    print 'Skipping images: %s\n' % ', '.join(skip)
+
+            state.Prepare(images, dtb)
 
             # Prepare the device tree by making sure that any missing
             # properties are added (e.g. 'pos' and 'size'). The values of these
@@ -170,12 +146,15 @@ def Binman(options, args):
             # without changing the device-tree size, thus ensuring that our
             # entry offsets remain the same.
             for image in images.values():
+                image.ExpandEntries()
                 if options.update_fdt:
                     image.AddMissingProperties()
                 image.ProcessFdt(dtb)
 
-            dtb.Pack()
-            dtb.Flush()
+            for dtb_item in state.GetFdts():
+                dtb_item.Sync(auto_resize=True)
+                dtb_item.Pack()
+                dtb_item.Flush()
 
             for image in images.values():
                 # Perform all steps for this image, including checking and
@@ -184,19 +163,30 @@ def Binman(options, args):
                 # completed and written, but that does not seem important.
                 image.GetEntryContents()
                 image.GetEntryOffsets()
-                image.PackEntries()
-                image.CheckSize()
-                image.CheckEntries()
+                try:
+                    image.PackEntries()
+                    image.CheckSize()
+                    image.CheckEntries()
+                except Exception as e:
+                    if options.map:
+                        fname = image.WriteMap()
+                        print "Wrote map file '%s' to show errors"  % fname
+                    raise
                 image.SetImagePos()
                 if options.update_fdt:
                     image.SetCalculatedProperties()
+                    for dtb_item in state.GetFdts():
+                        dtb_item.Sync()
                 image.ProcessEntryContents()
                 image.WriteSymbols()
                 image.BuildImage()
                 if options.map:
                     image.WriteMap()
-            with open(fname, 'wb') as outfd:
-                outfd.write(dtb.GetContents())
+
+            # Write the updated FDTs to our output files
+            for dtb_item in state.GetFdts():
+                tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
+
         finally:
             tools.FinaliseOutputDir()
     finally:

@@ -16,6 +16,8 @@ import tools
 class Entry_u_boot_spl_with_ucode_ptr(Entry_u_boot_with_ucode_ptr):
     """U-Boot SPL with embedded microcode pointer
 
+    This is used when SPL must set up the microcode for U-Boot.
+
     See Entry_u_boot_ucode for full details of the entries involved in this
     process.
     """

@@ -6,6 +6,7 @@
 #
 #    python -m unittest func_test.TestFunctional.testHelp
 
+import hashlib
 from optparse import OptionParser
 import os
 import shutil
@@ -23,6 +24,7 @@ import fdt
 import fdt_util
 import fmap_util
 import test_util
+import state
 import tools
 import tout
 
@@ -39,9 +41,11 @@ U_BOOT_SPL_DTB_DATA   = 'spldtb'
 U_BOOT_TPL_DTB_DATA   = 'tpldtb'
 X86_START16_DATA      = 'start16'
 X86_START16_SPL_DATA  = 'start16spl'
+X86_START16_TPL_DATA  = 'start16tpl'
 PPC_MPC85XX_BR_DATA   = 'ppcmpc85xxbr'
 U_BOOT_NODTB_DATA     = 'nodtb with microcode pointer somewhere in here'
 U_BOOT_SPL_NODTB_DATA = 'splnodtb with microcode pointer somewhere in here'
+U_BOOT_TPL_NODTB_DATA = 'tplnodtb with microcode pointer somewhere in here'
 FSP_DATA              = 'fsp'
 CMC_DATA              = 'cmc'
 VBT_DATA              = 'vbt'
@@ -53,6 +57,9 @@ CROS_EC_RW_DATA       = 'ecrw'
 GBB_DATA              = 'gbbd'
 BMPBLK_DATA           = 'bmp'
 VBLOCK_DATA           = 'vblk'
+FILES_DATA            = ("sorry I'm late\nOh, don't bother apologising, I'm " +
+                         "sorry you're alive\n")
+COMPRESS_DATA         = 'data to compress'
 
 
 class TestFunctional(unittest.TestCase):
@@ -94,9 +101,13 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('u-boot-br.bin', PPC_MPC85XX_BR_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-x86-16bit-spl.bin',
                                       X86_START16_SPL_DATA)
+        TestFunctional._MakeInputFile('tpl/u-boot-x86-16bit-tpl.bin',
+                                      X86_START16_TPL_DATA)
         TestFunctional._MakeInputFile('u-boot-nodtb.bin', U_BOOT_NODTB_DATA)
         TestFunctional._MakeInputFile('spl/u-boot-spl-nodtb.bin',
                                       U_BOOT_SPL_NODTB_DATA)
+        TestFunctional._MakeInputFile('tpl/u-boot-tpl-nodtb.bin',
+                                      U_BOOT_TPL_NODTB_DATA)
         TestFunctional._MakeInputFile('fsp.bin', FSP_DATA)
         TestFunctional._MakeInputFile('cmc.bin', CMC_DATA)
         TestFunctional._MakeInputFile('vbt.bin', VBT_DATA)
@@ -113,6 +124,11 @@ class TestFunctional(unittest.TestCase):
         # Intel flash descriptor file
         with open(self.TestFile('descriptor.bin')) as fd:
             TestFunctional._MakeInputFile('descriptor.bin', fd.read())
+
+        shutil.copytree(self.TestFile('files'),
+                        os.path.join(self._indir, 'files'))
+
+        TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
 
     @classmethod
     def tearDownClass(self):
@@ -170,7 +186,7 @@ class TestFunctional(unittest.TestCase):
         return control.Binman(options, args)
 
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
-                    entry_args=None):
+                    entry_args=None, images=None, use_real_dtb=False):
         """Run binman with a given test file
 
         Args:
@@ -179,6 +195,10 @@ class TestFunctional(unittest.TestCase):
             map: True to output map files for the images
             update_dtb: Update the offset and size of each entry in the device
                 tree before packing it into the image
+            entry_args: Dict of entry args to supply to binman
+                key: arg name
+                value: value of that arg
+            images: List of image names to build
         """
         args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
         if debug:
@@ -187,9 +207,14 @@ class TestFunctional(unittest.TestCase):
             args.append('-m')
         if update_dtb:
             args.append('-up')
+        if not use_real_dtb:
+            args.append('--fake-dtb')
         if entry_args:
             for arg, value in entry_args.iteritems():
                 args.append('-a%s=%s' % (arg, value))
+        if images:
+            for image in images:
+                args += ['-i', image]
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
@@ -214,8 +239,26 @@ class TestFunctional(unittest.TestCase):
             TestFunctional._MakeInputFile(outfile, data)
             return data
 
+    def _GetDtbContentsForSplTpl(self, dtb_data, name):
+        """Create a version of the main DTB for SPL or SPL
+
+        For testing we don't actually have different versions of the DTB. With
+        U-Boot we normally run fdtgrep to remove unwanted nodes, but for tests
+        we don't normally have any unwanted nodes.
+
+        We still want the DTBs for SPL and TPL to be different though, since
+        otherwise it is confusing to know which one we are looking at. So add
+        an 'spl' or 'tpl' property to the top-level node.
+        """
+        dtb = fdt.Fdt.FromData(dtb_data)
+        dtb.Scan()
+        dtb.GetNode('/binman').AddZeroProp(name)
+        dtb.Sync(auto_resize=True)
+        dtb.Pack()
+        return dtb.GetContents()
+
     def _DoReadFileDtb(self, fname, use_real_dtb=False, map=False,
-                       update_dtb=False, entry_args=None):
+                       update_dtb=False, entry_args=None, reset_dtbs=True):
         """Run binman and return the resulting image
 
         This runs binman with a given test file and then reads the resulting
@@ -245,12 +288,21 @@ class TestFunctional(unittest.TestCase):
         # Use the compiled test file as the u-boot-dtb input
         if use_real_dtb:
             dtb_data = self._SetupDtb(fname)
+            infile = os.path.join(self._indir, 'u-boot.dtb')
+
+            # For testing purposes, make a copy of the DT for SPL and TPL. Add
+            # a node indicating which it is, so aid verification.
+            for name in ['spl', 'tpl']:
+                dtb_fname = '%s/u-boot-%s.dtb' % (name, name)
+                outfile = os.path.join(self._indir, dtb_fname)
+                TestFunctional._MakeInputFile(dtb_fname,
+                        self._GetDtbContentsForSplTpl(dtb_data, name))
 
         try:
             retcode = self._DoTestFile(fname, map=map, update_dtb=update_dtb,
-                                       entry_args=entry_args)
+                    entry_args=entry_args, use_real_dtb=use_real_dtb)
             self.assertEqual(0, retcode)
-            out_dtb_fname = control.GetFdtPath('u-boot.dtb')
+            out_dtb_fname = tools.GetOutputFilename('u-boot.dtb.out')
 
             # Find the (only) image, read it and return its contents
             image = control.images['image']
@@ -266,7 +318,7 @@ class TestFunctional(unittest.TestCase):
                 return fd.read(), dtb_data, map_data, out_dtb_fname
         finally:
             # Put the test file back
-            if use_real_dtb:
+            if reset_dtbs and use_real_dtb:
                 self._ResetDtbs()
 
     def _DoReadFile(self, fname, use_real_dtb=False):
@@ -980,7 +1032,7 @@ class TestFunctional(unittest.TestCase):
                       str(e.exception))
 
     def testPackStart16Spl(self):
-        """Test that an image with an x86 start16 region can be created"""
+        """Test that an image with an x86 start16 SPL region can be created"""
         data = self._DoReadFile('48_x86-start16-spl.dts')
         self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
 
@@ -1329,7 +1381,7 @@ class TestFunctional(unittest.TestCase):
         """Fake calls to the futility utility"""
         if pipe_list[0][0] == 'futility':
             fname = pipe_list[0][3]
-            with open(fname, 'w') as fd:
+            with open(fname, 'wb') as fd:
                 fd.write(VBLOCK_DATA)
             return command.CommandResult()
 
@@ -1379,6 +1431,334 @@ class TestFunctional(unittest.TestCase):
            data = self._DoReadFile('79_uses_pos.dts')
         self.assertIn("Node '/binman/u-boot': Please use 'offset' instead of "
                       "'pos'", str(e.exception))
+
+    def testFillZero(self):
+        """Test for an fill entry type with a size of 0"""
+        data = self._DoReadFile('80_fill_empty.dts')
+        self.assertEqual(chr(0) * 16, data)
+
+    def testTextMissing(self):
+        """Test for a text entry type where there is no text"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('66_text.dts',)
+        self.assertIn("Node '/binman/text': No value provided for text label "
+                      "'test-id'", str(e.exception))
+
+    def testPackStart16Tpl(self):
+        """Test that an image with an x86 start16 TPL region can be created"""
+        data = self._DoReadFile('81_x86-start16-tpl.dts')
+        self.assertEqual(X86_START16_TPL_DATA, data[:len(X86_START16_TPL_DATA)])
+
+    def testSelectImage(self):
+        """Test that we can select which images to build"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            retcode = self._DoTestFile('06_dual_image.dts', images=['image2'])
+        self.assertEqual(0, retcode)
+        self.assertIn('Skipping images: image1', stdout.getvalue())
+
+        self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
+        self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
+
+    def testUpdateFdtAll(self):
+        """Test that all device trees are updated with offset/size info"""
+        data, _, _, _ = self._DoReadFileDtb('82_fdt_update_all.dts',
+                                            use_real_dtb=True, update_dtb=True)
+
+        base_expected = {
+            'section:image-pos': 0,
+            'u-boot-tpl-dtb:size': 513,
+            'u-boot-spl-dtb:size': 513,
+            'u-boot-spl-dtb:offset': 493,
+            'image-pos': 0,
+            'section/u-boot-dtb:image-pos': 0,
+            'u-boot-spl-dtb:image-pos': 493,
+            'section/u-boot-dtb:size': 493,
+            'u-boot-tpl-dtb:image-pos': 1006,
+            'section/u-boot-dtb:offset': 0,
+            'section:size': 493,
+            'offset': 0,
+            'section:offset': 0,
+            'u-boot-tpl-dtb:offset': 1006,
+            'size': 1519
+        }
+
+        # We expect three device-tree files in the output, one after the other.
+        # Read them in sequence. We look for an 'spl' property in the SPL tree,
+        # and 'tpl' in the TPL tree, to make sure they are distinct from the
+        # main U-Boot tree. All three should have the same postions and offset.
+        start = 0
+        for item in ['', 'spl', 'tpl']:
+            dtb = fdt.Fdt.FromData(data[start:])
+            dtb.Scan()
+            props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos',
+                                            'spl', 'tpl'])
+            expected = dict(base_expected)
+            if item:
+                expected[item] = 0
+            self.assertEqual(expected, props)
+            start += dtb._fdt_obj.totalsize()
+
+    def testUpdateFdtOutput(self):
+        """Test that output DTB files are updated"""
+        try:
+            data, dtb_data, _, _ = self._DoReadFileDtb('82_fdt_update_all.dts',
+                    use_real_dtb=True, update_dtb=True, reset_dtbs=False)
+
+            # Unfortunately, compiling a source file always results in a file
+            # called source.dtb (see fdt_util.EnsureCompiled()). The test
+            # source file (e.g. test/75_fdt_update_all.dts) thus does not enter
+            # binman as a file called u-boot.dtb. To fix this, copy the file
+            # over to the expected place.
+            #tools.WriteFile(os.path.join(self._indir, 'u-boot.dtb'),
+                    #tools.ReadFile(tools.GetOutputFilename('source.dtb')))
+            start = 0
+            for fname in ['u-boot.dtb.out', 'spl/u-boot-spl.dtb.out',
+                          'tpl/u-boot-tpl.dtb.out']:
+                dtb = fdt.Fdt.FromData(data[start:])
+                size = dtb._fdt_obj.totalsize()
+                pathname = tools.GetOutputFilename(os.path.split(fname)[1])
+                outdata = tools.ReadFile(pathname)
+                name = os.path.split(fname)[0]
+
+                if name:
+                    orig_indata = self._GetDtbContentsForSplTpl(dtb_data, name)
+                else:
+                    orig_indata = dtb_data
+                self.assertNotEqual(outdata, orig_indata,
+                        "Expected output file '%s' be updated" % pathname)
+                self.assertEqual(outdata, data[start:start + size],
+                        "Expected output file '%s' to match output image" %
+                        pathname)
+                start += size
+        finally:
+            self._ResetDtbs()
+
+    def _decompress(self, data):
+        out = os.path.join(self._indir, 'lz4.tmp')
+        with open(out, 'wb') as fd:
+            fd.write(data)
+        return tools.Run('lz4', '-dc', out)
+        '''
+        try:
+            orig = lz4.frame.decompress(data)
+        except AttributeError:
+            orig = lz4.decompress(data)
+        '''
+
+    def testCompress(self):
+        """Test compression of blobs"""
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('83_compress.dts',
+                                            use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['size', 'uncomp-size'])
+        orig = self._decompress(data)
+        self.assertEquals(COMPRESS_DATA, orig)
+        expected = {
+            'blob:uncomp-size': len(COMPRESS_DATA),
+            'blob:size': len(data),
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
+
+    def testFiles(self):
+        """Test bringing in multiple files"""
+        data = self._DoReadFile('84_files.dts')
+        self.assertEqual(FILES_DATA, data)
+
+    def testFilesCompress(self):
+        """Test bringing in multiple files and compressing them"""
+        data = self._DoReadFile('85_files_compress.dts')
+
+        image = control.images['image']
+        entries = image.GetEntries()
+        files = entries['files']
+        entries = files._section._entries
+
+        orig = ''
+        for i in range(1, 3):
+            key = '%d.dat' % i
+            start = entries[key].image_pos
+            len = entries[key].size
+            chunk = data[start:start + len]
+            orig += self._decompress(chunk)
+
+        self.assertEqual(FILES_DATA, orig)
+
+    def testFilesMissing(self):
+        """Test missing files"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('86_files_none.dts')
+        self.assertIn("Node '/binman/files': Pattern \'files/*.none\' matched "
+                      'no files', str(e.exception))
+
+    def testFilesNoPattern(self):
+        """Test missing files"""
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('87_files_no_pattern.dts')
+        self.assertIn("Node '/binman/files': Missing 'pattern' property",
+                      str(e.exception))
+
+    def testExpandSize(self):
+        """Test an expanding entry"""
+        data, _, map_data, _ = self._DoReadFileDtb('88_expand_size.dts',
+                                                   map=True)
+        expect = ('a' * 8 + U_BOOT_DATA +
+                  MRC_DATA + 'b' * 1 + U_BOOT_DATA +
+                  'c' * 8 + U_BOOT_DATA +
+                  'd' * 8)
+        self.assertEqual(expect, data)
+        self.assertEqual('''ImagePos    Offset      Size  Name
+00000000  00000000  00000028  main-section
+00000000   00000000  00000008  fill
+00000008   00000008  00000004  u-boot
+0000000c   0000000c  00000004  section
+0000000c    00000000  00000003  intel-mrc
+00000010   00000010  00000004  u-boot2
+00000014   00000014  0000000c  section2
+00000014    00000000  00000008  fill
+0000001c    00000008  00000004  u-boot
+00000020   00000020  00000008  fill2
+''', map_data)
+
+    def testExpandSizeBad(self):
+        """Test an expanding entry which fails to provide contents"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            with self.assertRaises(ValueError) as e:
+                self._DoReadFileDtb('89_expand_size_bad.dts', map=True)
+        self.assertIn("Node '/binman/_testing': Cannot obtain contents when "
+                      'expanding entry', str(e.exception))
+
+    def testHash(self):
+        """Test hashing of the contents of an entry"""
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('90_hash.dts',
+                use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        hash_node = dtb.GetNode('/binman/u-boot/hash').props['value']
+        m = hashlib.sha256()
+        m.update(U_BOOT_DATA)
+        self.assertEqual(m.digest(), ''.join(hash_node.value))
+
+    def testHashNoAlgo(self):
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('91_hash_no_algo.dts', update_dtb=True)
+        self.assertIn("Node \'/binman/u-boot\': Missing \'algo\' property for "
+                      'hash node', str(e.exception))
+
+    def testHashBadAlgo(self):
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileDtb('92_hash_bad_algo.dts', update_dtb=True)
+        self.assertIn("Node '/binman/u-boot': Unknown hash algorithm",
+                      str(e.exception))
+
+    def testHashSection(self):
+        """Test hashing of the contents of an entry"""
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('99_hash_section.dts',
+                use_real_dtb=True, update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        hash_node = dtb.GetNode('/binman/section/hash').props['value']
+        m = hashlib.sha256()
+        m.update(U_BOOT_DATA)
+        m.update(16 * 'a')
+        self.assertEqual(m.digest(), ''.join(hash_node.value))
+
+    def testPackUBootTplMicrocode(self):
+        """Test that x86 microcode can be handled correctly in TPL
+
+        We expect to see the following in the image, in order:
+            u-boot-tpl-nodtb.bin with a microcode pointer inserted at the correct
+                place
+            u-boot-tpl.dtb with the microcode removed
+            the microcode
+        """
+        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
+            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
+        first, pos_and_size = self._RunMicrocodeTest('93_x86_tpl_ucode.dts',
+                                                     U_BOOT_TPL_NODTB_DATA)
+        self.assertEqual('tplnodtb with microc' + pos_and_size +
+                         'ter somewhere in here', first)
+
+    def testFmapX86(self):
+        """Basic test of generation of a flashrom fmap"""
+        data = self._DoReadFile('94_fmap_x86.dts')
+        fhdr, fentries = fmap_util.DecodeFmap(data[32:])
+        expected = U_BOOT_DATA + MRC_DATA + 'a' * (32 - 7)
+        self.assertEqual(expected, data[:32])
+        fhdr, fentries = fmap_util.DecodeFmap(data[32:])
+
+        self.assertEqual(0x100, fhdr.image_size)
+
+        self.assertEqual(0, fentries[0].offset)
+        self.assertEqual(4, fentries[0].size)
+        self.assertEqual('U_BOOT', fentries[0].name)
+
+        self.assertEqual(4, fentries[1].offset)
+        self.assertEqual(3, fentries[1].size)
+        self.assertEqual('INTEL_MRC', fentries[1].name)
+
+        self.assertEqual(32, fentries[2].offset)
+        self.assertEqual(fmap_util.FMAP_HEADER_LEN +
+                         fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
+        self.assertEqual('FMAP', fentries[2].name)
+
+    def testFmapX86Section(self):
+        """Basic test of generation of a flashrom fmap"""
+        data = self._DoReadFile('95_fmap_x86_section.dts')
+        expected = U_BOOT_DATA + MRC_DATA + 'b' * (32 - 7)
+        self.assertEqual(expected, data[:32])
+        fhdr, fentries = fmap_util.DecodeFmap(data[36:])
+
+        self.assertEqual(0x100, fhdr.image_size)
+
+        self.assertEqual(0, fentries[0].offset)
+        self.assertEqual(4, fentries[0].size)
+        self.assertEqual('U_BOOT', fentries[0].name)
+
+        self.assertEqual(4, fentries[1].offset)
+        self.assertEqual(3, fentries[1].size)
+        self.assertEqual('INTEL_MRC', fentries[1].name)
+
+        self.assertEqual(36, fentries[2].offset)
+        self.assertEqual(fmap_util.FMAP_HEADER_LEN +
+                         fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
+        self.assertEqual('FMAP', fentries[2].name)
+
+    def testElf(self):
+        """Basic test of ELF entries"""
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('-boot', fd.read())
+        data = self._DoReadFile('96_elf.dts')
+
+    def testElfStripg(self):
+        """Basic test of ELF entries"""
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        with open(self.TestFile('bss_data')) as fd:
+            TestFunctional._MakeInputFile('-boot', fd.read())
+        data = self._DoReadFile('97_elf_strip.dts')
+
+    def testPackOverlapMap(self):
+        """Test that overlapping regions are detected"""
+        with test_util.capture_sys_output() as (stdout, stderr):
+            with self.assertRaises(ValueError) as e:
+                self._DoTestFile('14_pack_overlap.dts', map=True)
+        map_fname = tools.GetOutputFilename('image.map')
+        self.assertEqual("Wrote map file '%s' to show errors\n" % map_fname,
+                         stdout.getvalue())
+
+        # We should not get an inmage, but there should be a map file
+        self.assertFalse(os.path.exists(tools.GetOutputFilename('image.bin')))
+        self.assertTrue(os.path.exists(map_fname))
+        map_data = tools.ReadFile(map_fname)
+        self.assertEqual('''ImagePos    Offset      Size  Name
+<none>    00000000  00000007  main-section
+<none>     00000000  00000004  u-boot
+<none>     00000003  00000004  u-boot-align
+''', map_data)
 
 
 if __name__ == "__main__":

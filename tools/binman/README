@@ -330,9 +330,13 @@ image-pos:
 	for each entry. This makes it easy to find out exactly where the entry
 	ended up in the image, regardless of parent sections, etc.
 
+expand-size:
+	Expand the size of this entry to fit available space. This space is only
+	limited by the size of the image/section and the position of the next
+	entry.
 
-The attributes supported for images are described below. Several are similar
-to those for entries.
+The attributes supported for images and sections are described below. Several
+are similar to those for entries.
 
 size:
 	Sets the image size in bytes, for example 'size = <0x100000>' for a
@@ -471,15 +475,26 @@ see README.entries. This is generated from the source code using:
 	binman -E >tools/binman/README.entries
 
 
-Special properties
-------------------
+Hashing Entries
+---------------
 
-Some entries support special properties, documented here:
+It is possible to ask binman to hash the contents of an entry and write that
+value back to the device-tree node. For example:
 
-u-boot-with-ucode-ptr:
-	optional-ucode: boolean property to make microcode optional. If the
-		u-boot.bin image does not include microcode, no error will
-		be generated.
+	binman {
+		u-boot {
+			hash {
+				algo = "sha256";
+			};
+		};
+	};
+
+Here, a new 'value' property will be written to the 'hash' node containing
+the hash of the 'u-boot' entry. Only SHA256 is supported at present. Whole
+sections can be hased if desired, by adding the 'hash' node to the section.
+
+The has value can be chcked at runtime by hashing the data actually read and
+comparing this has to the value in the device tree.
 
 
 Order of image creation
@@ -611,6 +626,22 @@ are set correctly for every entry. Since it is not necessary to specify these in
 the image definition, binman calculates the final values and writes these to
 the device tree. These can be used by U-Boot at run-time to find the location
 of each entry.
+
+
+Compression
+-----------
+
+Binman support compression for 'blob' entries (those of type 'blob' and
+derivatives). To enable this for an entry, add a 'compression' property:
+
+    blob {
+        filename = "datafile";
+        compression = "lz4";
+    };
+
+The entry will then contain the compressed data, using the 'lz4' compression
+algorithm. Currently this is the only one that is supported.
+
 
 
 Map files

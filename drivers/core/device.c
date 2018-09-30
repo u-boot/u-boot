@@ -516,6 +516,33 @@ static int device_get_device_tail(struct udevice *dev, int ret,
 	return 0;
 }
 
+/**
+ * device_find_by_ofnode() - Return device associated with given ofnode
+ *
+ * The returned device is *not* activated.
+ *
+ * @node: The ofnode for which a associated device should be looked up
+ * @devp: Pointer to structure to hold the found device
+ * Return: 0 if OK, -ve on error
+ */
+static int device_find_by_ofnode(ofnode node, struct udevice **devp)
+{
+	struct uclass *uc;
+	struct udevice *dev;
+	int ret;
+
+	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
+		ret = uclass_find_device_by_ofnode(uc->uc_drv->id, node,
+						   &dev);
+		if (!ret || dev) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
 int device_get_child(struct udevice *parent, int index, struct udevice **devp)
 {
 	struct udevice *dev;
@@ -738,4 +765,55 @@ bool of_machine_is_compatible(const char *compat)
 	const void *fdt = gd->fdt_blob;
 
 	return !fdt_node_check_compatible(fdt, 0, compat);
+}
+
+int dev_disable_by_path(const char *path)
+{
+	struct uclass *uc;
+	ofnode node = ofnode_path(path);
+	struct udevice *dev;
+	int ret = 1;
+
+	if (!of_live_active())
+		return -ENOSYS;
+
+	list_for_each_entry(uc, &gd->uclass_root, sibling_node) {
+		ret = uclass_find_device_by_ofnode(uc->uc_drv->id, node, &dev);
+		if (!ret)
+			break;
+	}
+
+	if (ret)
+		return ret;
+
+	ret = device_remove(dev, DM_REMOVE_NORMAL);
+	if (ret)
+		return ret;
+
+	ret = device_unbind(dev);
+	if (ret)
+		return ret;
+
+	return ofnode_set_enabled(node, false);
+}
+
+int dev_enable_by_path(const char *path)
+{
+	ofnode node = ofnode_path(path);
+	ofnode pnode = ofnode_get_parent(node);
+	struct udevice *parent;
+	int ret = 1;
+
+	if (!of_live_active())
+		return -ENOSYS;
+
+	ret = device_find_by_ofnode(pnode, &parent);
+	if (ret)
+		return ret;
+
+	ret = ofnode_set_enabled(node, true);
+	if (ret)
+		return ret;
+
+	return lists_bind_fdt(parent, node, NULL);
 }

@@ -51,6 +51,9 @@ class Entry_text(Entry):
         self.text_label, = self.GetEntryArgsOrProps(
             [EntryArg('text-label', str)])
         self.value, = self.GetEntryArgsOrProps([EntryArg(self.text_label, str)])
+        if not self.value:
+            self.Raise("No value provided for text label '%s'" %
+                       self.text_label)
 
     def ObtainContents(self):
         self.SetContents(self.value)

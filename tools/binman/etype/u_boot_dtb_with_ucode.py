@@ -5,12 +5,12 @@
 # Entry-type module for U-Boot device tree with the microcode removed
 #
 
-import control
 from entry import Entry
-from blob import Entry_blob
+from blob_dtb import Entry_blob_dtb
+import state
 import tools
 
-class Entry_u_boot_dtb_with_ucode(Entry_blob):
+class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
     """A U-Boot device tree file, with the microcode removed
 
     Properties / Entry arguments:
@@ -25,7 +25,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
     it available to u_boot_ucode.
     """
     def __init__(self, section, etype, node):
-        Entry_blob.__init__(self, section, etype, node)
+        Entry_blob_dtb.__init__(self, section, etype, node)
         self.ucode_data = ''
         self.collate = False
         self.ucode_offset = None
@@ -45,13 +45,16 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
             'u-boot-spl-with-ucode-ptr')
         if not ucode_dest_entry or not ucode_dest_entry.target_offset:
             ucode_dest_entry = self.section.FindEntryType(
+                'u-boot-tpl-with-ucode-ptr')
+        if not ucode_dest_entry or not ucode_dest_entry.target_offset:
+            ucode_dest_entry = self.section.FindEntryType(
                 'u-boot-with-ucode-ptr')
         if not ucode_dest_entry or not ucode_dest_entry.target_offset:
             return True
 
         # Remove the microcode
         fname = self.GetDefaultFilename()
-        fdt = control.GetFdt(fname)
+        fdt = state.GetFdt(fname)
         self.ucode = fdt.GetNode('/microcode')
         if not self.ucode:
             raise self.Raise("No /microcode node found in '%s'" % fname)
@@ -69,15 +72,15 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob):
 
     def ObtainContents(self):
         # Call the base class just in case it does something important.
-        Entry_blob.ObtainContents(self)
-        self._pathname = control.GetFdtPath(self._filename)
-        self.ReadBlobContents()
-        if self.ucode:
+        Entry_blob_dtb.ObtainContents(self)
+        if self.ucode and not self.collate:
             for node in self.ucode.subnodes:
                 data_prop = node.props.get('data')
-                if data_prop and not self.collate:
+                if data_prop:
                     # Find the offset in the device tree of the ucode data
                     self.ucode_offset = data_prop.GetOffset() + 12
                     self.ucode_size = len(data_prop.bytes)
-        self.ready = True
-        return True
+                    self.ready = True
+        else:
+            self.ready = True
+        return self.ready

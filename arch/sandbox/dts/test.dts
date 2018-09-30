@@ -191,6 +191,12 @@
 		fake-host-hwaddr = [00 00 66 44 22 22];
 	};
 
+	firmware {
+		sandbox_firmware: sandbox-firmware {
+			compatible = "sandbox,firmware";
+		};
+	};
+
 	gpio_a: base-gpios {
 		compatible = "sandbox,gpio";
 		gpio-controller;
@@ -646,6 +652,10 @@
 
 	osd {
 		compatible = "sandbox,sandbox_osd";
+	};
+
+	board {
+		compatible = "sandbox,board_sandbox";
 	};
 };
 

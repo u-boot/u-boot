@@ -8,10 +8,12 @@
 from __future__ import print_function
 
 from collections import OrderedDict
+from sets import Set
 import sys
 
 import fdt_util
 import re
+import state
 import tools
 
 class Section(object):
@@ -22,6 +24,7 @@ class Section(object):
 
     Attributes:
         _node: Node object that contains the section definition in device tree
+        _parent_section: Parent Section object which created this Section
         _size: Section size in bytes, or None if not known yet
         _align_size: Section size alignment, or None
         _pad_before: Number of bytes before the first entry starts. This
@@ -44,14 +47,16 @@ class Section(object):
             section
         _entries: OrderedDict() of entries
     """
-    def __init__(self, name, node, test=False):
+    def __init__(self, name, parent_section, node, image, test=False):
         global entry
         global Entry
         import entry
         from entry import Entry
 
+        self._parent_section = parent_section
         self._name = name
         self._node = node
+        self._image = image
         self._offset = 0
         self._size = None
         self._align_size = None
@@ -63,6 +68,7 @@ class Section(object):
         self._end_4gb = False
         self._name_prefix = ''
         self._entries = OrderedDict()
+        self._image_pos = None
         if not test:
             self._ReadNode()
             self._ReadEntries()
@@ -94,25 +100,42 @@ class Section(object):
 
     def _ReadEntries(self):
         for node in self._node.subnodes:
+            if node.name == 'hash':
+                continue
             entry = Entry.Create(self, node)
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
 
+    def GetFdtSet(self):
+        """Get the set of device tree files used by this image"""
+        fdt_set = Set()
+        for entry in self._entries.values():
+            fdt_set.update(entry.GetFdtSet())
+        return fdt_set
+
     def SetOffset(self, offset):
         self._offset = offset
+
+    def ExpandEntries(self):
+        for entry in self._entries.values():
+            entry.ExpandEntries()
 
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
-                self._node.AddZeroProp(prop)
+                state.AddZeroProp(self._node, prop)
+        state.CheckAddHashProp(self._node)
         for entry in self._entries.values():
             entry.AddMissingProperties()
 
     def SetCalculatedProperties(self):
-        self._node.SetInt('offset', self._offset)
-        self._node.SetInt('size', self._size)
-        self._node.SetInt('image-pos', self._image_pos)
+        state.SetInt(self._node, 'offset', self._offset)
+        state.SetInt(self._node, 'size', self._size)
+        image_pos = self._image_pos
+        if self._parent_section:
+            image_pos -= self._parent_section.GetRootSkipAtStart()
+        state.SetInt(self._node, 'image-pos', image_pos)
         for entry in self._entries.values():
             entry.SetCalculatedProperties()
 
@@ -247,16 +270,32 @@ class Section(object):
         for entry in entries:
             self._entries[entry._node.name] = entry
 
+    def _ExpandEntries(self):
+        """Expand any entries that are permitted to"""
+        exp_entry = None
+        for entry in self._entries.values():
+            if exp_entry:
+                exp_entry.ExpandToLimit(entry.offset)
+                exp_entry = None
+            if entry.expand_size:
+                exp_entry = entry
+        if exp_entry:
+            exp_entry.ExpandToLimit(self._size)
+
     def CheckEntries(self):
-        """Check that entries do not overlap or extend outside the section"""
+        """Check that entries do not overlap or extend outside the section
+
+        This also sorts entries, if needed and expands
+        """
         if self._sort:
             self._SortEntries()
+        self._ExpandEntries()
         offset = 0
         prev_name = 'None'
         for entry in self._entries.values():
             entry.CheckOffset()
             if (entry.offset < self._skip_at_start or
-                entry.offset >= self._skip_at_start + self._size):
+                entry.offset + entry.size > self._skip_at_start + self._size):
                 entry.Raise("Offset %#x (%d) is outside the section starting "
                             "at %#x (%d)" %
                             (entry.offset, entry.offset, self._skip_at_start,
@@ -409,7 +448,17 @@ class Section(object):
             source_entry.Raise("Cannot find node for phandle %d" % phandle)
         for entry in self._entries.values():
             if entry._node == node:
-                if entry.data is None:
-                    return None
-                return entry.data
+                return entry.GetData()
         source_entry.Raise("Cannot find entry for node '%s'" % node.name)
+
+    def ExpandSize(self, size):
+        if size != self._size:
+            self._size = size
+
+    def GetRootSkipAtStart(self):
+        if self._parent_section:
+            return self._parent_section.GetRootSkipAtStart()
+        return self._skip_at_start
+
+    def GetImageSize(self):
+        return self._image._size

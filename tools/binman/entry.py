@@ -17,10 +17,12 @@ try:
 except:
     have_importlib = False
 
-import fdt_util
-import control
 import os
+from sets import Set
 import sys
+
+import fdt_util
+import state
 import tools
 
 modules = {}
@@ -74,6 +76,7 @@ class Entry(object):
         self.pad_after = 0
         self.offset_unset = False
         self.image_pos = None
+        self._expand_size = False
         if read_node:
             self.ReadNode()
 
@@ -159,20 +162,57 @@ class Entry(object):
                              "of two" % (self._node.path, self.align_size))
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.offset_unset = fdt_util.GetBool(self._node, 'offset-unset')
+        self.expand_size = fdt_util.GetBool(self._node, 'expand-size')
+
+    def GetDefaultFilename(self):
+        return None
+
+    def GetFdtSet(self):
+        """Get the set of device trees used by this entry
+
+        Returns:
+            Set containing the filename from this entry, if it is a .dtb, else
+            an empty set
+        """
+        fname = self.GetDefaultFilename()
+        # It would be better to use isinstance(self, Entry_blob_dtb) here but
+        # we cannot access Entry_blob_dtb
+        if fname and fname.endswith('.dtb'):
+            return Set([fname])
+        return Set()
+
+    def ExpandEntries(self):
+        pass
 
     def AddMissingProperties(self):
         """Add new properties to the device tree as needed for this entry"""
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
-                self._node.AddZeroProp(prop)
+                state.AddZeroProp(self._node, prop)
+        err = state.CheckAddHashProp(self._node)
+        if err:
+            self.Raise(err)
 
     def SetCalculatedProperties(self):
         """Set the value of device-tree properties calculated by binman"""
-        self._node.SetInt('offset', self.offset)
-        self._node.SetInt('size', self.size)
-        self._node.SetInt('image-pos', self.image_pos)
+        state.SetInt(self._node, 'offset', self.offset)
+        state.SetInt(self._node, 'size', self.size)
+        state.SetInt(self._node, 'image-pos',
+                       self.image_pos - self.section.GetRootSkipAtStart())
+        state.CheckSetHashValue(self._node, self.GetData)
 
     def ProcessFdt(self, fdt):
+        """Allow entries to adjust the device tree
+
+        Some entries need to adjust the device tree for their purposes. This
+        may involve adding or deleting properties.
+
+        Returns:
+            True if processing is complete
+            False if processing could not be completed due to a dependency.
+                This will cause the entry to be retried after others have been
+                called
+        """
         return True
 
     def SetPrefix(self, prefix):
@@ -351,9 +391,16 @@ class Entry(object):
         pass
 
     @staticmethod
+    def GetStr(value):
+        if value is None:
+            return '<none>  '
+        return '%08x' % value
+
+    @staticmethod
     def WriteMapLine(fd, indent, name, offset, size, image_pos):
-        print('%08x  %s%08x  %08x  %s' % (image_pos, ' ' * indent, offset,
-                                          size, name), file=fd)
+        print('%s  %s%s  %s  %s' % (Entry.GetStr(image_pos), ' ' * indent,
+                                    Entry.GetStr(offset), Entry.GetStr(size),
+                                    name), file=fd)
 
     def WriteMap(self, fd, indent):
         """Write a map of the entry to a .map file
@@ -390,7 +437,7 @@ class Entry(object):
         Raises:
             ValueError if the argument cannot be converted to in
         """
-        value = control.GetEntryArg(name)
+        value = state.GetEntryArg(name)
         if value is not None:
             if datatype == int:
                 try:
@@ -456,3 +503,30 @@ features to produce new behaviours.
         if missing:
             raise ValueError('Documentation is missing for modules: %s' %
                              ', '.join(missing))
+
+    def GetUniqueName(self):
+        """Get a unique name for a node
+
+        Returns:
+            String containing a unique name for a node, consisting of the name
+            of all ancestors (starting from within the 'binman' node) separated
+            by a dot ('.'). This can be useful for generating unique filesnames
+            in the output directory.
+        """
+        name = self.name
+        node = self._node
+        while node.parent:
+            node = node.parent
+            if node.name == 'binman':
+                break
+            name = '%s.%s' % (node.name, name)
+        return name
+
+    def ExpandToLimit(self, limit):
+        """Expand an entry so that it ends at the given offset limit"""
+        if self.offset + self.size < limit:
+            self.size = limit - self.offset
+            # Request the contents again, since changing the size requires that
+            # the data grows. This should not fail, but check it to be sure.
+            if not self.ObtainContents():
+                self.Raise('Cannot obtain contents when expanding entry')

@@ -62,19 +62,24 @@ class Entry_u_boot_ucode(Entry_blob):
 
     def ObtainContents(self):
         # If the section does not need microcode, there is nothing to do
-        ucode_dest_entry = self.section.FindEntryType('u-boot-with-ucode-ptr')
-        ucode_dest_entry_spl = self.section.FindEntryType(
-            'u-boot-spl-with-ucode-ptr')
-        if ((not ucode_dest_entry or not ucode_dest_entry.target_offset) and
-            (not ucode_dest_entry_spl or not ucode_dest_entry_spl.target_offset)):
+        found = False
+        for suffix in ['', '-spl', '-tpl']:
+            name = 'u-boot%s-with-ucode-ptr' % suffix
+            entry = self.section.FindEntryType(name)
+            if entry and entry.target_offset:
+                found = True
+        if not found:
             self.data = ''
             return True
-
         # Get the microcode from the device tree entry. If it is not available
         # yet, return False so we will be called later. If the section simply
         # doesn't exist, then we may as well return True, since we are going to
         # get an error anyway.
-        fdt_entry = self.section.FindEntryType('u-boot-dtb-with-ucode')
+        for suffix in ['', '-spl', '-tpl']:
+            name = 'u-boot%s-dtb-with-ucode' % suffix
+            fdt_entry = self.section.FindEntryType(name)
+            if fdt_entry:
+                break
         if not fdt_entry:
             return True
         if not fdt_entry.ready:
@@ -86,12 +91,9 @@ class Entry_u_boot_ucode(Entry_blob):
             return True
 
         # Write it out to a file
-        dtb_name = 'u-boot-ucode.bin'
-        fname = tools.GetOutputFilename(dtb_name)
-        with open(fname, 'wb') as fd:
-            fd.write(fdt_entry.ucode_data)
+        self._pathname = tools.GetOutputFilename('u-boot-ucode.bin')
+        tools.WriteFile(self._pathname, fdt_entry.ucode_data)
 
-        self._pathname = fname
         self.ReadBlobContents()
 
         return True

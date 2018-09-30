@@ -30,6 +30,7 @@ enum uclass_id {
 	UCLASS_ADC,		/* Analog-to-digital converter */
 	UCLASS_AHCI,		/* SATA disk controller */
 	UCLASS_BLK,		/* Block device */
+	UCLASS_BOARD,		/* Device information from hardware */
 	UCLASS_CLK,		/* Clock source, e.g. used by peripherals */
 	UCLASS_CPU,		/* CPU, typically part of an SoC */
 	UCLASS_CROS_EC,		/* Chrome OS EC */

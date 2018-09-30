@@ -19,6 +19,9 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
 
     Properties / Entry arguments:
         - filename: Filename of u-boot-nodtb.dtb (default 'u-boot-nodtb.dtb')
+        - optional-ucode: boolean property to make microcode optional. If the
+            u-boot.bin image does not include microcode, no error will
+            be generated.
 
     See Entry_u_boot_ucode for full details of the three entries involved in
     this process. This entry updates U-Boot with the offset and size of the
@@ -63,28 +66,31 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
         # the U-Boot region must start at offset 7MB in the section. In this
         # case the ROM starts at 0xff800000, so the offset of the first
         # entry in the section corresponds to that.
-        if (self.target_offset < self.offset or
-                self.target_offset >= self.offset + self.size):
-            self.Raise('Microcode pointer _dt_ucode_base_size at %08x is '
-                'outside the section ranging from %08x to %08x' %
-                (self.target_offset, self.offset, self.offset + self.size))
+        if (self.target_offset < self.image_pos or
+                self.target_offset >= self.image_pos + self.size):
+            self.Raise('Microcode pointer _dt_ucode_base_size at %08x is outside the section ranging from %08x to %08x' %
+                (self.target_offset, self.image_pos,
+                 self.image_pos + self.size))
 
         # Get the microcode, either from u-boot-ucode or u-boot-dtb-with-ucode.
         # If we have left the microcode in the device tree, then it will be
-        # in the former. If we extracted the microcode from the device tree
-        # and collated it in one place, it will be in the latter.
+        # in the latter. If we extracted the microcode from the device tree
+        # and collated it in one place, it will be in the former.
         if ucode_entry.size:
             offset, size = ucode_entry.offset, ucode_entry.size
         else:
             dtb_entry = self.section.FindEntryType('u-boot-dtb-with-ucode')
-            if not dtb_entry or not dtb_entry.ready:
+            if not dtb_entry:
+                dtb_entry = self.section.FindEntryType(
+                        'u-boot-tpl-dtb-with-ucode')
+            if not dtb_entry:
                 self.Raise('Cannot find microcode region u-boot-dtb-with-ucode')
             offset = dtb_entry.offset + dtb_entry.ucode_offset
             size = dtb_entry.ucode_size
 
         # Write the microcode offset and size into the entry
         offset_and_size = struct.pack('<2L', offset, size)
-        self.target_offset -= self.offset
+        self.target_offset -= self.image_pos
         self.ProcessContentsUpdate(self.data[:self.target_offset] +
                                    offset_and_size +
                                    self.data[self.target_offset + 8:])
