@@ -2506,7 +2506,7 @@ static efi_status_t efi_protocol_open(
 			if (item->info.attributes & EFI_OPEN_PROTOCOL_BY_DRIVER)
 				opened_by_driver = true;
 		}
-		/* Only one controller can be conncected */
+		/* Only one controller can be connected */
 		if (opened_by_driver)
 			return EFI_ACCESS_DENIED;
 	}
