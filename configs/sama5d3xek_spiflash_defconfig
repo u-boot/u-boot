@@ -23,6 +23,7 @@ CONFIG_BOOTDELAY=3
 CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk mtdparts=atmel_nand:256k(bootstrap)ro,768k(uboot)ro,256K(env_redundant),256k(env),512k(dtb),6M(kernel)ro,-(rootfs) rootfstype=ubifs ubi.mtd=6 root=ubi0:rootfs"
 # CONFIG_DISPLAY_BOARDINFO is not set
+CONFIG_SPL_TEXT_BASE=0x300000
 CONFIG_SPL_SPI_LOAD=y
 CONFIG_HUSH_PARSER=y
 CONFIG_CMD_BOOTZ=y

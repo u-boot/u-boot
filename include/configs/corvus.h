@@ -103,7 +103,6 @@
 				SZ_4M, 0x1000)
 
 /* Defines for SPL */
-#define CONFIG_SPL_TEXT_BASE		0x300000
 #define CONFIG_SPL_MAX_SIZE		(12 * SZ_1K)
 #define CONFIG_SPL_STACK		(SZ_16K)
 

@@ -23,11 +23,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		0x00100000
 #define CONFIG_SYS_LOAD_ADDR		0x00800800
 #define CONFIG_SPL_STACK		0xff718000
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_TPL_BOOTROM_SUPPORT)
-# define CONFIG_SPL_TEXT_BASE		0x0
-#else
-# define CONFIG_SPL_TEXT_BASE		0xff704000
-#endif
 
 /* RAW SD card / eMMC locations. */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)

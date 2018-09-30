@@ -229,9 +229,6 @@
 /* only for SPL */
 #if defined(CONFIG_ARCH_UNIPHIER_LD4) || \
 	defined(CONFIG_ARCH_UNIPHIER_SLD8)
-#define CONFIG_SPL_TEXT_BASE		0x00040000
-#else
-#define CONFIG_SPL_TEXT_BASE		0x00100000
 #endif
 
 #define CONFIG_SPL_STACK		(0x00200000)

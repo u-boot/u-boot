@@ -175,7 +175,6 @@
  * NAND SPL
  */
 #define CONFIG_SPL_TARGET		"u-boot-with-nand-spl.imx"
-#define CONFIG_SPL_TEXT_BASE		0x70008000
 #define CONFIG_SPL_PAD_TO		0x8000
 #define CONFIG_SPL_STACK		0x70004000
 

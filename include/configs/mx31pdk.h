@@ -25,8 +25,6 @@
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
 #define CONFIG_SPL_MAX_SIZE	2048
 
-#define CONFIG_SPL_TEXT_BASE	0x87dc0000
-
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif

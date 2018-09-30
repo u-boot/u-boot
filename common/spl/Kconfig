@@ -56,6 +56,13 @@ config SPL_LDSCRIPT
 	  U-Boot stage.	 Set this to the path of the linker-script to
 	  be used for SPL.
 
+config SPL_TEXT_BASE
+	hex "SPL Text Base"
+	default ISW_ENTRY_ADDR if AM43XX || AM33XX || OMAP54XX || ARCH_KEYSTONE
+	default 0x0
+	help
+	  The address in memory that SPL will be running from.
+
 config SPL_BOARD_INIT
 	bool "Call board-specific initialization in SPL"
 	help

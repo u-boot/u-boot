@@ -19,8 +19,6 @@
  * area in SRAM which starts at 0x40200000 and ends at 0x4020FFFF (64KB) in
  * order to allow for BCH8 to fit in.
  */
-#undef CONFIG_SPL_TEXT_BASE
-#define CONFIG_SPL_TEXT_BASE		0x40200000
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS

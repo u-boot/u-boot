@@ -59,7 +59,6 @@
 /* SPL */
 #define CONFIG_SPL_STACK		0xf4008000 /* only max. 2KB spare! */
 
-#define CONFIG_SPL_TEXT_BASE		0xf4000a00
 #define CONFIG_SPL_MAX_SIZE		((14 * 1024) - 0xa00)
 
 #define CONFIG_SPL_BSS_START_ADDR	0xf4004000

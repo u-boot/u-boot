@@ -50,7 +50,6 @@
 #define CONFIG_ENV_SIZE			(64 << 10)
 
 /* SPL */
-#define CONFIG_SPL_TEXT_BASE		0x300000
 #define CONFIG_SPL_MAX_SIZE		0x7000
 #define CONFIG_SPL_STACK		0x308000
 

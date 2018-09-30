@@ -174,7 +174,6 @@
 #endif
 
 /* Defines for SPL */
-#define CONFIG_SPL_TEXT_BASE		0x0
 #define CONFIG_SPL_MAX_SIZE		(SZ_4K)
 
 #define CONFIG_SPL_BSS_START_ADDR	CONFIG_SYS_SDRAM_BASE

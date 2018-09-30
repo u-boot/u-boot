@@ -19,11 +19,6 @@
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
 
 /* SPL Loader Configuration */
-#ifdef CONFIG_TARGET_AM654_A53_EVM
-#define CONFIG_SPL_TEXT_BASE		0x80080000
-#else
-#define CONFIG_SPL_TEXT_BASE		0x41c00000
-#endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"tispl.bin"

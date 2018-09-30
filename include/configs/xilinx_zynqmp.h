@@ -211,7 +211,6 @@
 	"dfu_bufsiz=0x1000\0"
 #endif
 
-#define CONFIG_SPL_TEXT_BASE		0xfffc0000
 #define CONFIG_SPL_STACK		0xfffffffc
 #define CONFIG_SPL_MAX_SIZE		0x40000
 

@@ -18,6 +18,7 @@ CONFIG_SPL_LOAD_FIT=y
 CONFIG_OF_BOARD_SETUP=y
 CONFIG_BOOTCOMMAND="run findfdt; run envboot; run init_${boot}; run get_kern_${boot}; run get_fdt_${boot}; run run_kern"
 # CONFIG_DISPLAY_CPUINFO is not set
+CONFIG_SPL_TEXT_BASE=0x80080000
 CONFIG_SPL_SYS_MALLOC_SIMPLE=y
 CONFIG_SPL_STACK_R=y
 CONFIG_SPL_SEPARATE_BSS=y

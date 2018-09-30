@@ -18,6 +18,7 @@ CONFIG_USE_BOOTARGS=y
 CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,256k(env),256k(env_redundant),256k(spare),512k(dtb),6M(kernel)ro,-(rootfs) root=/dev/mtdblock7 rw rootfstype=jffs2"
 # CONFIG_DISPLAY_BOARDINFO is not set
 CONFIG_BOARD_EARLY_INIT_F=y
+CONFIG_SPL_TEXT_BASE=0x300000
 CONFIG_SPL_SYS_MALLOC_SIMPLE=y
 CONFIG_SPL_NAND_SUPPORT=y
 CONFIG_HUSH_PARSER=y

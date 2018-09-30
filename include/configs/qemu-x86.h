@@ -35,8 +35,6 @@
 
 /* SPI is not supported */
 
-#define CONFIG_SPL_TEXT_BASE		0xfffd0000
-
 #define BOOT_DEVICE_SPI			10
 
 #define CONFIG_SPL_BOARD_LOAD_IMAGE

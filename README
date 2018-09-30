@@ -2423,9 +2423,6 @@ FIT uImage format:
 		When defined, the linker checks that the actual size does
 		not exceed it.
 
-		CONFIG_SPL_TEXT_BASE
-		TEXT_BASE for linking the SPL binary.
-
 		CONFIG_SPL_RELOC_TEXT_BASE
 		Address to relocate to.  If unspecified, this is equal to
 		CONFIG_SPL_TEXT_BASE (i.e. no relocation is done).

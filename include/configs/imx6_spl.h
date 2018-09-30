@@ -20,7 +20,6 @@
  *    and some padding thus 'our' max size is really 0x00908000 - 0x00918000
  *    or 64KB
  */
-#define CONFIG_SPL_TEXT_BASE		0x00908000
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_STACK		0x0091FFB8
 /*

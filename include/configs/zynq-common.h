@@ -310,7 +310,6 @@
 #endif
 
 /* SP location before relocation, must use scratch RAM */
-#define CONFIG_SPL_TEXT_BASE	0x0
 
 /* 3 * 64kB blocks of OCM - one is on the top because of bootrom */
 #define CONFIG_SPL_MAX_SIZE	0x30000

@@ -54,7 +54,6 @@
 	"ramdisk_addr_r=0x83100000\0"
 
 /* Defines for SPL */
-#define CONFIG_SPL_TEXT_BASE		0x80108000
 #define CONFIG_SYS_SPL_MALLOC_START	0x80090000
 #define CONFIG_SPL_STACK		0x800ffffc
 

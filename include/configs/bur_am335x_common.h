@@ -41,7 +41,6 @@
  * Y-MODEM to load u-boot.img, when booted over UART.  We must also include
  * the scratch space that U-Boot uses in SRAM.
  */
-#define CONFIG_SPL_TEXT_BASE		0x402F0400
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
 

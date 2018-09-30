@@ -138,7 +138,6 @@
  */
 
 /* SPL will be executed at offset 0 */
-#define CONFIG_SPL_TEXT_BASE 0x00000000
 /* SPL will use SRAM as stack */
 #define CONFIG_SPL_STACK     0x0000FFF8
 /* Use the framework and generic lib */

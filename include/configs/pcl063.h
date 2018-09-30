@@ -21,8 +21,6 @@
  *
  * Tweak the SPL text base address to avoid this.
  */
-#undef CONFIG_SPL_TEXT_BASE
-#define CONFIG_SPL_TEXT_BASE            0x00909000
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
