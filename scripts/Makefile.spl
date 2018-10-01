@@ -45,6 +45,13 @@ SPL_ :=
 SPL_TPL_ :=
 endif
 
+ifeq ($(obj)$(CONFIG_SUPPORT_SPL),spl)
+$(error You cannot build SPL without enabling CONFIG_SUPPORT_SPL)
+endif
+ifeq ($(obj)$(CONFIG_SUPPORT_TPL),tpl)
+$(error You cannot build TPL without enabling CONFIG_SUPPORT_TPL)
+endif
+
 include $(srctree)/config.mk
 include $(srctree)/arch/$(ARCH)/Makefile
 
