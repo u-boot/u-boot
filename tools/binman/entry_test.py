@@ -25,7 +25,7 @@ class TestEntry(unittest.TestCase):
     def GetNode(self):
         binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
         fname = fdt_util.EnsureCompiled(
-            os.path.join(binman_dir,('test/05_simple.dts')))
+            os.path.join(binman_dir,('test/005_simple.dts')))
         dtb = fdt.FdtScan(fname)
         return dtb.GetNode('/binman/u-boot')
 
