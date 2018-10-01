@@ -39,17 +39,17 @@ enum log_level_t {
 enum log_category_t {
 	LOGC_FIRST = 0,	/* First part mirrors UCLASS_... */
 
-	LOGC_NONE = UCLASS_COUNT,
-	LOGC_ARCH,
-	LOGC_BOARD,
-	LOGC_CORE,
+	LOGC_NONE = UCLASS_COUNT,	/* First number is after all uclasses */
+	LOGC_ARCH,	/* Related to arch-specific code */
+	LOGC_BOARD,	/* Related to board-specific code */
+	LOGC_CORE,	/* Related to core features (non-driver-model) */
 	LOGC_DM,	/* Core driver-model */
 	LOGC_DT,	/* Device-tree */
 	LOGC_EFI,	/* EFI implementation */
 	LOGC_ALLOC,	/* Memory allocation */
 
-	LOGC_COUNT,
-	LOGC_END,
+	LOGC_COUNT,	/* Number of log categories */
+	LOGC_END,	/* Sentinel value for a list of log categories */
 };
 
 /* Helper to cast a uclass ID to a log category */
