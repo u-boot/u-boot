@@ -4,6 +4,8 @@
  * Written by Simon Glass <sjg@chromium.org>
  */
 
+#define LOG_CATEGORY UCLASS_SYSRESET
+
 #include <common.h>
 #include <sysreset.h>
 #include <dm.h>
@@ -64,7 +66,7 @@ void sysreset_walk_halt(enum sysreset_t type)
 		mdelay(100);
 
 	/* Still no reset? Give up */
-	debug("System reset not supported on this platform\n");
+	log_err("System reset not supported on this platform\n");
 	hang();
 }
 

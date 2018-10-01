@@ -62,7 +62,6 @@ static int dm_test_sysreset_get_status(struct unit_test_state *uts)
 
 	return 0;
 }
-
 DM_TEST(dm_test_sysreset_get_status, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Test that we can walk through the sysreset devices */

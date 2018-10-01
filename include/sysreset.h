@@ -31,6 +31,7 @@ struct sysreset_ops {
 	/**
 	 * get_status() - get printable reset status information
 	 *
+	 * @dev:	Device to check
 	 * @buf:	Buffer to receive the textual reset information
 	 * @size:	Size of the passed buffer
 	 * @return 0 if OK, -ve on error
@@ -49,8 +50,9 @@ struct sysreset_ops {
 int sysreset_request(struct udevice *dev, enum sysreset_t type);
 
 /**
- * get_status() - get printable reset status information
+ * sysreset_get_status() - get printable reset status information
  *
+ * @dev:	Device to check
  * @buf:	Buffer to receive the textual reset information
  * @size:	Size of the passed buffer
  * @return 0 if OK, -ve on error
