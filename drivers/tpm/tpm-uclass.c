@@ -129,5 +129,8 @@ UCLASS_DRIVER(tpm) = {
 	.id		= UCLASS_TPM,
 	.name		= "tpm",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+	.post_bind	= dm_scan_fdt_dev,
+#endif
 	.per_device_auto_alloc_size	= sizeof(struct tpm_chip_priv),
 };
