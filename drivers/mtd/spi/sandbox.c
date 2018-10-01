@@ -101,14 +101,12 @@ struct sandbox_spi_flash_plat_data {
 /**
  * This is a very strange probe function. If it has platform data (which may
  * have come from the device tree) then this function gets the filename and
- * device type from there. Failing that it looks at the command line
- * parameter.
+ * device type from there.
  */
 static int sandbox_sf_probe(struct udevice *dev)
 {
 	/* spec = idcode:file */
 	struct sandbox_spi_flash *sbsf = dev_get_priv(dev);
-	const char *file;
 	size_t len, idname_len;
 	const struct spi_flash_info *data;
 	struct sandbox_spi_flash_plat_data *pdata = dev_get_platdata(dev);
@@ -134,36 +132,15 @@ static int sandbox_sf_probe(struct udevice *dev)
 	debug("found at cs %d\n", cs);
 
 	if (!pdata->filename) {
-		struct sandbox_state *state = state_get_current();
-
-		assert(bus->seq != -1);
-		if (bus->seq < CONFIG_SANDBOX_SPI_MAX_BUS)
-			spec = state->spi[bus->seq][cs].spec;
-		if (!spec) {
-			debug("%s:  No spec found for bus %d, cs %d\n",
-			      __func__, bus->seq, cs);
-			ret = -ENOENT;
-			goto error;
-		}
-
-		file = strchr(spec, ':');
-		if (!file) {
-			printf("%s: unable to parse file\n", __func__);
-			ret = -EINVAL;
-			goto error;
-		}
-		idname_len = file - spec;
-		pdata->filename = file + 1;
-		pdata->device_name = spec;
-		++file;
-	} else {
-		spec = strchr(pdata->device_name, ',');
-		if (spec)
-			spec++;
-		else
-			spec = pdata->device_name;
-		idname_len = strlen(spec);
+		printf("Error: No filename available\n");
+		return -EINVAL;
 	}
+	spec = strchr(pdata->device_name, ',');
+	if (spec)
+		spec++;
+	else
+		spec = pdata->device_name;
+	idname_len = strlen(spec);
 	debug("%s: device='%s'\n", __func__, spec);
 
 	for (data = spi_flash_ids; data->name; data++) {
@@ -530,31 +507,6 @@ static const struct dm_spi_emul_ops sandbox_sf_emul_ops = {
 };
 
 #ifdef CONFIG_SPI_FLASH
-static int sandbox_cmdline_cb_spi_sf(struct sandbox_state *state,
-				     const char *arg)
-{
-	unsigned long bus, cs;
-	const char *spec = sandbox_spi_parse_spec(arg, &bus, &cs);
-
-	if (!spec)
-		return 1;
-
-	/*
-	 * It is safe to not make a copy of 'spec' because it comes from the
-	 * command line.
-	 *
-	 * TODO(sjg@chromium.org): It would be nice if we could parse the
-	 * spec here, but the problem is that no U-Boot init has been done
-	 * yet. Perhaps we can figure something out.
-	 */
-	state->spi[bus][cs].spec = spec;
-	debug("%s:  Setting up spec '%s' for bus %ld, cs %ld\n", __func__,
-	      spec, bus, cs);
-
-	return 0;
-}
-SANDBOX_CMDLINE_OPT(spi_sf, 1, "connect a SPI flash: <bus>:<cs>:<id>:<file>");
-
 int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
 			 struct udevice *bus, ofnode node, const char *spec)
 {
@@ -597,33 +549,6 @@ void sandbox_sf_unbind_emul(struct sandbox_state *state, int busnum, int cs)
 	state->spi[busnum][cs].emul = NULL;
 }
 
-static int sandbox_sf_bind_bus_cs(struct sandbox_state *state, int busnum,
-				  int cs, const char *spec)
-{
-	struct udevice *bus, *slave;
-	int ret;
-
-	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, true, &bus);
-	if (ret) {
-		printf("Invalid bus %d for spec '%s' (err=%d)\n", busnum,
-		       spec, ret);
-		return ret;
-	}
-	ret = spi_find_chip_select(bus, cs, &slave);
-	if (!ret) {
-		printf("Chip select %d already exists for spec '%s'\n", cs,
-		       spec);
-		return -EEXIST;
-	}
-
-	ret = device_bind_driver(bus, "spi_flash_std", spec, &slave);
-	if (ret)
-		return ret;
-
-	return sandbox_sf_bind_emul(state, busnum, cs, bus, ofnode_null(),
-				    spec);
-}
-
 int sandbox_spi_get_emul(struct sandbox_state *state,
 			 struct udevice *bus, struct udevice *slave,
 			 struct udevice **emulp)
@@ -647,35 +572,6 @@ int sandbox_spi_get_emul(struct sandbox_state *state,
 		debug("OK\n");
 	}
 	*emulp = info->emul;
-
-	return 0;
-}
-
-int dm_scan_other(bool pre_reloc_only)
-{
-	struct sandbox_state *state = state_get_current();
-	int busnum, cs;
-
-	if (pre_reloc_only)
-		return 0;
-	for (busnum = 0; busnum < CONFIG_SANDBOX_SPI_MAX_BUS; busnum++) {
-		for (cs = 0; cs < CONFIG_SANDBOX_SPI_MAX_CS; cs++) {
-			const char *spec = state->spi[busnum][cs].spec;
-			int ret;
-
-			if (spec) {
-				ret = sandbox_sf_bind_bus_cs(state, busnum,
-							     cs, spec);
-				if (ret) {
-					debug("%s: Bind failed for bus %d, cs %d\n",
-					      __func__, busnum, cs);
-					return ret;
-				}
-				debug("%s:  Setting up spec '%s' for bus %d, cs %d\n",
-				      __func__, spec, busnum, cs);
-			}
-		}
-	}
 
 	return 0;
 }
