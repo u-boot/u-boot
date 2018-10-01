@@ -1,5 +1,5 @@
 SAMA5D27 SOM1 EK BOARD
-M:	Wenyou Yang <wenyou.yang@microchip.com>
+M:	Eugen Hristev <eugen.hristev@microchip.com>
 S:	Maintained
 F:	board/atmel/sama5d27_som1_ek/
 F:	include/configs/sama5d27_som1_ek.h
