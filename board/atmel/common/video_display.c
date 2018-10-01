@@ -18,6 +18,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int at91_video_show_board_info(void)
 {
+	struct vidconsole_priv *priv;
 	ulong dram_size, nand_size;
 	int i;
 	u32 len = 0;
@@ -63,7 +64,9 @@ int at91_video_show_board_info(void)
 	if (ret)
 		return ret;
 
-	vidconsole_position_cursor(con, 0, logo_info.logo_height);
+	priv = dev_get_uclass_priv(con);
+	vidconsole_position_cursor(con, 0, (logo_info.logo_height +
+				   priv->y_charsize - 1) / priv->y_charsize);
 	for (s = buf, i = 0; i < len; s++, i++)
 		vidconsole_put_char(con, *s);
 

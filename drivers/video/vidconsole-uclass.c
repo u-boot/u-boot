@@ -511,6 +511,8 @@ void vidconsole_position_cursor(struct udevice *dev, unsigned col, unsigned row)
 	struct udevice *vid_dev = dev->parent;
 	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
 
+	col *= priv->x_charsize;
+	row *= priv->y_charsize;
 	priv->xcur_frac = VID_TO_POS(min_t(short, col, vid_priv->xsize - 1));
 	priv->ycur = min_t(short, row, vid_priv->ysize - 1);
 }
