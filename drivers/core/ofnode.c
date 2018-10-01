@@ -699,6 +699,8 @@ bool ofnode_pre_reloc(ofnode node)
 {
 	if (ofnode_read_bool(node, "u-boot,dm-pre-reloc"))
 		return true;
+	if (ofnode_read_bool(node, "u-boot,dm-pre-proper"))
+		return true;
 
 #ifdef CONFIG_TPL_BUILD
 	if (ofnode_read_bool(node, "u-boot,dm-tpl"))
