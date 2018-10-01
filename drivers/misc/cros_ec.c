@@ -263,8 +263,8 @@ static int send_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
  * @return number of bytes in response, or -ve on error
  */
 static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
-		int cmd_version, const void *dout, int dout_len, uint8_t **dinp,
-		int din_len)
+			    int cmd_version, const void *dout, int dout_len,
+			    uint8_t **dinp, int din_len)
 {
 	uint8_t *din = NULL;
 	int len;
@@ -409,7 +409,7 @@ int cros_ec_read_build_info(struct cros_ec_dev *dev, char **strp)
 }
 
 int cros_ec_read_current_image(struct cros_ec_dev *dev,
-		enum ec_current_image *image)
+			       enum ec_current_image *image)
 {
 	struct ec_response_get_version *r;
 
@@ -422,7 +422,7 @@ int cros_ec_read_current_image(struct cros_ec_dev *dev,
 }
 
 static int cros_ec_wait_on_hash_done(struct cros_ec_dev *dev,
-				  struct ec_response_vboot_hash *hash)
+				     struct ec_response_vboot_hash *hash)
 {
 	struct ec_params_vboot_hash p;
 	ulong start;
@@ -446,7 +446,7 @@ static int cros_ec_wait_on_hash_done(struct cros_ec_dev *dev,
 
 
 int cros_ec_read_hash(struct cros_ec_dev *dev,
-		struct ec_response_vboot_hash *hash)
+		      struct ec_response_vboot_hash *hash)
 {
 	struct ec_params_vboot_hash p;
 	int rv;
@@ -515,7 +515,7 @@ static int cros_ec_invalidate_hash(struct cros_ec_dev *dev)
 }
 
 int cros_ec_reboot(struct cros_ec_dev *dev, enum ec_reboot_cmd cmd,
-		uint8_t flags)
+		   uint8_t flags)
 {
 	struct ec_params_reboot_ec p;
 
@@ -601,8 +601,8 @@ int cros_ec_clear_host_events(struct cros_ec_dev *dev, uint32_t events)
 }
 
 int cros_ec_flash_protect(struct cros_ec_dev *dev,
-		       uint32_t set_mask, uint32_t set_flags,
-		       struct ec_response_flash_protect *resp)
+			  uint32_t set_mask, uint32_t set_flags,
+			  struct ec_response_flash_protect *resp)
 {
 	struct ec_params_flash_protect params;
 
@@ -742,7 +742,8 @@ int cros_ec_flash_erase(struct cros_ec_dev *dev, uint32_t offset, uint32_t size)
  * @return 0 if ok, -1 on error
  */
 static int cros_ec_flash_write_block(struct cros_ec_dev *dev,
-		const uint8_t *data, uint32_t offset, uint32_t size)
+				     const uint8_t *data, uint32_t offset,
+				     uint32_t size)
 {
 	struct ec_params_flash_write *p;
 	int ret;
@@ -802,7 +803,7 @@ static int cros_ec_data_is_erased(const uint32_t *data, int size)
  * @param info Pointer to output flash info struct
  */
 int cros_ec_read_flashinfo(struct cros_ec_dev *dev,
-			  struct ec_response_flash_info *info)
+			   struct ec_response_flash_info *info)
 {
 	int ret;
 
@@ -815,7 +816,7 @@ int cros_ec_read_flashinfo(struct cros_ec_dev *dev,
 }
 
 int cros_ec_flash_write(struct cros_ec_dev *dev, const uint8_t *data,
-		     uint32_t offset, uint32_t size)
+			uint32_t offset, uint32_t size)
 {
 	uint32_t burst = cros_ec_flash_write_burst_size(dev);
 	uint32_t end, off;
@@ -832,7 +833,7 @@ int cros_ec_flash_write(struct cros_ec_dev *dev, const uint8_t *data,
 		/* If the data is empty, there is no point in programming it */
 		todo = min(end - off, burst);
 		if (dev->optimise_flash_write &&
-				cros_ec_data_is_erased((uint32_t *)data, todo))
+		    cros_ec_data_is_erased((uint32_t *)data, todo))
 			continue;
 
 		ret = cros_ec_flash_write_block(dev, data, off, todo);
@@ -859,7 +860,7 @@ int cros_ec_flash_write(struct cros_ec_dev *dev, const uint8_t *data,
  * @return 0 if ok, -1 on error
  */
 static int cros_ec_flash_read_block(struct cros_ec_dev *dev, uint8_t *data,
-				 uint32_t offset, uint32_t size)
+				    uint32_t offset, uint32_t size)
 {
 	struct ec_params_flash_read p;
 
@@ -871,7 +872,7 @@ static int cros_ec_flash_read_block(struct cros_ec_dev *dev, uint8_t *data,
 }
 
 int cros_ec_flash_read(struct cros_ec_dev *dev, uint8_t *data, uint32_t offset,
-		    uint32_t size)
+		       uint32_t size)
 {
 	uint32_t burst = cros_ec_flash_write_burst_size(dev);
 	uint32_t end, off;
@@ -888,8 +889,8 @@ int cros_ec_flash_read(struct cros_ec_dev *dev, uint8_t *data, uint32_t offset,
 	return 0;
 }
 
-int cros_ec_flash_update_rw(struct cros_ec_dev *dev,
-			 const uint8_t *image, int image_size)
+int cros_ec_flash_update_rw(struct cros_ec_dev *dev, const uint8_t *image,
+			    int image_size)
 {
 	uint32_t rw_offset, rw_size;
 	int ret;
