@@ -208,11 +208,9 @@ int cros_ec_flash_update_rw(struct udevice *dev, const uint8_t  *image,
 /**
  * Return a pointer to the board's CROS-EC device
  *
- * This should be implemented by board files.
- *
  * @return pointer to CROS-EC device, or NULL if none is available
  */
-struct cros_ec_dev *board_get_cros_ec_dev(void);
+struct udevice *board_get_cros_ec_dev(void);
 
 struct dm_cros_ec_ops {
 	int (*check_version)(struct udevice *dev);
