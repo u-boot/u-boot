@@ -86,7 +86,7 @@ static int vidconsole_back(struct udevice *dev)
 		if (priv->ycur < 0)
 			priv->ycur = 0;
 	}
-	video_sync(dev->parent);
+	video_sync(dev->parent, false);
 
 	return 0;
 }
@@ -113,7 +113,7 @@ static void vidconsole_newline(struct udevice *dev)
 	}
 	priv->last_ch = 0;
 
-	video_sync(dev->parent);
+	video_sync(dev->parent, false);
 }
 
 static const struct vid_rgb colors[VID_COLOR_COUNT] = {
@@ -293,7 +293,7 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 
 		if (mode == 2) {
 			video_clear(dev->parent);
-			video_sync(dev->parent);
+			video_sync(dev->parent, false);
 			priv->ycur = 0;
 			priv->xcur_frac = priv->xstart_frac;
 		} else {
@@ -449,7 +449,7 @@ static void vidconsole_putc(struct stdio_dev *sdev, const char ch)
 	struct udevice *dev = sdev->priv;
 
 	vidconsole_put_char(dev, ch);
-	video_sync(dev->parent);
+	video_sync(dev->parent, false);
 }
 
 static void vidconsole_puts(struct stdio_dev *sdev, const char *s)
@@ -458,7 +458,7 @@ static void vidconsole_puts(struct stdio_dev *sdev, const char *s)
 
 	while (*s)
 		vidconsole_put_char(dev, *s++);
-	video_sync(dev->parent);
+	video_sync(dev->parent, false);
 }
 
 /* Set up the number of rows and colours (rotated drivers override this) */
@@ -547,7 +547,7 @@ static int do_video_puts(cmd_tbl_t *cmdtp, int flag, int argc,
 	for (s = argv[1]; *s; s++)
 		vidconsole_put_char(dev, *s);
 
-	video_sync(dev->parent);
+	video_sync(dev->parent, false);
 
 	return 0;
 }

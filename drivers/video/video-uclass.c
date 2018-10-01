@@ -128,7 +128,7 @@ void video_set_default_colors(struct video_priv *priv)
 }
 
 /* Flush video activity to the caches */
-void video_sync(struct udevice *vid)
+void video_sync(struct udevice *vid, bool force)
 {
 	/*
 	 * flush_dcache_range() is declared in common.h but it seems that some
@@ -147,7 +147,7 @@ void video_sync(struct udevice *vid)
 	struct video_priv *priv = dev_get_uclass_priv(vid);
 	static ulong last_sync;
 
-	if (get_timer(last_sync) > 10) {
+	if (force || get_timer(last_sync) > 10) {
 		sandbox_sdl_sync(priv->fb);
 		last_sync = get_timer(0);
 	}
@@ -162,7 +162,7 @@ void video_sync_all(void)
 	     dev;
 	     uclass_find_next_device(&dev)) {
 		if (device_active(dev))
-			video_sync(dev);
+			video_sync(dev, true);
 	}
 }
 

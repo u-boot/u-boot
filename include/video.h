@@ -131,8 +131,10 @@ void video_clear(struct udevice *dev);
  * buffer are displayed to the user.
  *
  * @dev:	Device to sync
+ * @force:	True to force a sync even if there was one recently (this is
+ *		very expensive on sandbox)
  */
-void video_sync(struct udevice *vid);
+void video_sync(struct udevice *vid, bool force);
 
 /**
  * video_sync_all() - Sync all devices' frame buffers with there hardware
