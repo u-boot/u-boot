@@ -60,6 +60,7 @@ VBLOCK_DATA           = 'vblk'
 FILES_DATA            = ("sorry I'm late\nOh, don't bother apologising, I'm " +
                          "sorry you're alive\n")
 COMPRESS_DATA         = 'data to compress'
+REFCODE_DATA          = 'refcode'
 
 
 class TestFunctional(unittest.TestCase):
@@ -115,6 +116,7 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('ecrw.bin', CROS_EC_RW_DATA)
         TestFunctional._MakeInputDir('devkeys')
         TestFunctional._MakeInputFile('bmpblk.bin', BMPBLK_DATA)
+        TestFunctional._MakeInputFile('refcode.bin', REFCODE_DATA)
 
         # ELF file with a '_dt_ucode_base_size' symbol
         with open(self.TestFile('u_boot_ucode_ptr')) as fd:
@@ -1763,6 +1765,11 @@ class TestFunctional(unittest.TestCase):
 <none>     00000000  00000004  u-boot
 <none>     00000003  00000004  u-boot-align
 ''', map_data)
+
+    def testPacRefCode(self):
+        """Test that an image with an Intel Reference code binary works"""
+        data = self._DoReadFile('100_intel_refcode.dts')
+        self.assertEqual(REFCODE_DATA, data[:len(REFCODE_DATA)])
 
 
 if __name__ == "__main__":
