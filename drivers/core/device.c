@@ -681,6 +681,24 @@ int device_find_next_child(struct udevice **devp)
 	return 0;
 }
 
+int device_find_first_inactive_child(struct udevice *parent,
+				     enum uclass_id uclass_id,
+				     struct udevice **devp)
+{
+	struct udevice *dev;
+
+	*devp = NULL;
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		if (!device_active(dev) &&
+		    device_get_uclass_id(dev) == uclass_id) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
 struct udevice *dev_get_parent(const struct udevice *child)
 {
 	return child->parent;

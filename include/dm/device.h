@@ -520,6 +520,21 @@ int device_find_first_child(struct udevice *parent, struct udevice **devp);
 int device_find_next_child(struct udevice **devp);
 
 /**
+ * device_find_first_inactive_child() - Find the first inactive child
+ *
+ * This is used to locate an existing child of a device which is of a given
+ * uclass.
+ *
+ * @parent:	Parent device to search
+ * @uclass_id:	Uclass to look for
+ * @devp:	Returns device found, if any
+ * @return 0 if found, else -ENODEV
+ */
+int device_find_first_inactive_child(struct udevice *parent,
+				     enum uclass_id uclass_id,
+				     struct udevice **devp);
+
+/**
  * device_has_children() - check if a device has any children
  *
  * @dev:	Device to check
