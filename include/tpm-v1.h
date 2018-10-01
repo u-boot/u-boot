@@ -525,4 +525,32 @@ u32 tpm_find_key_sha1(const u8 auth[20], const u8 pubkey_digest[20],
  */
 u32 tpm_get_random(void *data, u32 count);
 
+/**
+ * tpm_finalise_physical_presence() - Finalise physical presence
+ *
+ * @return return code of the operation (0 = success)
+ */
+u32 tpm_finalise_physical_presence(void);
+
+/**
+ * tpm_nv_set_locked() - lock the non-volatile space
+ *
+ * @return return code of the operation (0 = success)
+ */
+u32 tpm_nv_set_locked(void);
+
+/**
+ * tpm_set_global_lock() - set the global lock
+ *
+ * @return return code of the operation (0 = success)
+ */
+u32 tpm_set_global_lock(void);
+
+/**
+ * tpm_resume() - start up the TPM from resume (after suspend)
+ *
+ * @return return code of the operation (0 = success)
+ */
+u32 tpm_resume(void);
+
 #endif /* __TPM_V1_H */
