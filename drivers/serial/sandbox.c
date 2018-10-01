@@ -126,7 +126,7 @@ static int sandbox_serial_pending(struct udevice *dev, bool input)
 	if (next_index == serial_buf_read)
 		return 1;	/* buffer full */
 
-	count = os_read_no_block(0, &serial_buf[serial_buf_write], 1);
+	count = os_read(0, &serial_buf[serial_buf_write], 1);
 	if (count == 1)
 		serial_buf_write = next_index;
 

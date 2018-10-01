@@ -38,14 +38,6 @@ ssize_t os_read(int fd, void *buf, size_t count)
 	return read(fd, buf, count);
 }
 
-ssize_t os_read_no_block(int fd, void *buf, size_t count)
-{
-	const int flags = fcntl(fd, F_GETFL, 0);
-
-	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-	return os_read(fd, buf, count);
-}
-
 ssize_t os_write(int fd, const void *buf, size_t count)
 {
 	return write(fd, buf, count);
@@ -129,11 +121,18 @@ int os_write_file(const char *name, const void *buf, int size)
 /* Restore tty state when we exit */
 static struct termios orig_term;
 static bool term_setup;
+static bool term_nonblock;
 
 void os_fd_restore(void)
 {
 	if (term_setup) {
+		int flags;
+
 		tcsetattr(0, TCSANOW, &orig_term);
+		if (term_nonblock) {
+			flags = fcntl(0, F_GETFL, 0);
+			fcntl(0, F_SETFL, flags & ~O_NONBLOCK);
+		}
 		term_setup = false;
 	}
 }
@@ -142,6 +141,7 @@ void os_fd_restore(void)
 void os_tty_raw(int fd, bool allow_sigs)
 {
 	struct termios term;
+	int flags;
 
 	if (term_setup)
 		return;
@@ -157,6 +157,13 @@ void os_tty_raw(int fd, bool allow_sigs)
 	term.c_lflag = allow_sigs ? ISIG : 0;
 	if (tcsetattr(fd, TCSANOW, &term))
 		return;
+
+	flags = fcntl(fd, F_GETFL, 0);
+	if (!(flags & O_NONBLOCK)) {
+		if (fcntl(fd, F_SETFL, flags | O_NONBLOCK))
+			return;
+		term_nonblock = true;
+	}
 
 	term_setup = true;
 	atexit(os_fd_restore);
