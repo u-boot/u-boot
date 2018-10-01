@@ -491,9 +491,9 @@ int cros_ec_sandbox_packet(struct udevice *udev, int out_bytes, int in_bytes)
 	return in_bytes;
 }
 
-void cros_ec_check_keyboard(struct cros_ec_dev *dev)
+void cros_ec_check_keyboard(struct udevice *dev)
 {
-	struct ec_state *ec = dev_get_priv(dev->dev);
+	struct ec_state *ec = dev_get_priv(dev);
 	ulong start;
 
 	printf("Press keys for EC to detect on reset (ESC=recovery)...");

@@ -126,8 +126,8 @@ int tpm_xfer(struct udevice *dev, const uint8_t *sendbuf, size_t send_size,
 }
 
 UCLASS_DRIVER(tpm) = {
-	.id             = UCLASS_TPM,
-	.name           = "tpm",
-	.flags          = DM_UC_FLAG_SEQ_ALIAS,
+	.id		= UCLASS_TPM,
+	.name		= "tpm",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.per_device_auto_alloc_size	= sizeof(struct tpm_chip_priv),
 };

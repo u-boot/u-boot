@@ -49,7 +49,7 @@ static int cros_ec_decode_region(int argc, char * const argv[])
  * @return 0 for ok, 1 for a usage error or -ve for ec command error
  *	(negative EC_RES_...)
  */
-static int do_read_write(struct cros_ec_dev *dev, int is_write, int argc,
+static int do_read_write(struct udevice *dev, int is_write, int argc,
 			 char * const argv[])
 {
 	uint32_t offset, size = -1U, region_size;
@@ -94,8 +94,7 @@ static int do_read_write(struct cros_ec_dev *dev, int is_write, int argc,
 
 static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	struct cros_ec_dev *dev;
-	struct udevice *udev;
+	struct udevice *dev;
 	const char *cmd;
 	int ret = 0;
 
@@ -105,10 +104,10 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	cmd = argv[1];
 	if (0 == strcmp("init", cmd)) {
 		/* Remove any existing device */
-		ret = uclass_find_device(UCLASS_CROS_EC, 0, &udev);
+		ret = uclass_find_device(UCLASS_CROS_EC, 0, &dev);
 		if (!ret)
-			device_remove(udev, DM_REMOVE_NORMAL);
-		ret = uclass_get_device(UCLASS_CROS_EC, 0, &udev);
+			device_remove(dev, DM_REMOVE_NORMAL);
+		ret = uclass_get_device(UCLASS_CROS_EC, 0, &dev);
 		if (ret) {
 			printf("Could not init cros_ec device (err %d)\n", ret);
 			return 1;
@@ -116,12 +115,11 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 
-	ret = uclass_get_device(UCLASS_CROS_EC, 0, &udev);
+	ret = uclass_get_device(UCLASS_CROS_EC, 0, &dev);
 	if (ret) {
 		printf("Cannot get cros-ec device (err=%d)\n", ret);
 		return 1;
 	}
-	dev = dev_get_uclass_priv(udev);
 	if (0 == strcmp("id", cmd)) {
 		char id[MSG_BYTES];
 
@@ -262,7 +260,8 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		unsigned long result;
 
 		if (argc <= 2) {
-			ret = cros_ec_read_vbnvcontext(dev, block);
+			ret = cros_ec_read_nvdata(dev, block,
+						  EC_VBNV_BLOCK_SIZE);
 			if (!ret) {
 				printf("vbnv_block: ");
 				for (i = 0; i < EC_VBNV_BLOCK_SIZE; i++)
@@ -288,7 +287,8 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				strict_strtoul(buf, 16, &result);
 				block[i] = result;
 			}
-			ret = cros_ec_write_vbnvcontext(dev, block);
+			ret = cros_ec_write_nvdata(dev, block,
+						   EC_VBNV_BLOCK_SIZE);
 		}
 		if (ret) {
 			debug("%s: Could not %s VbNvContext\n", __func__,
@@ -336,9 +336,9 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			state = simple_strtoul(argv[3], &endp, 10);
 			if (*argv[3] == 0 || *endp != 0)
 				return CMD_RET_USAGE;
-			ret = cros_ec_set_ldo(udev, index, state);
+			ret = cros_ec_set_ldo(dev, index, state);
 		} else {
-			ret = cros_ec_get_ldo(udev, index, &state);
+			ret = cros_ec_get_ldo(dev, index, &state);
 			if (!ret) {
 				printf("LDO%d: %s\n", index,
 				       state == EC_LDO_STATE_ON ?
