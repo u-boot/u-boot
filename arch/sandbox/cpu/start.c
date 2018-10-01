@@ -177,7 +177,7 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 
 	err = os_read_ram_buf(arg);
 	if (err) {
-		printf("Failed to read RAM buffer\n");
+		printf("Failed to read RAM buffer '%s': %d\n", arg, err);
 		return err;
 	}
 
@@ -313,10 +313,6 @@ int main(int argc, char *argv[])
 	ret = sandbox_read_state(state, state->state_fname);
 	if (ret)
 		goto err;
-
-	/* Remove old memory file if required */
-	if (state->ram_buf_rm && state->ram_buf_fname)
-		os_unlink(state->ram_buf_fname);
 
 	memset(&data, '\0', sizeof(data));
 	gd = &data;
