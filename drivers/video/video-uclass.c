@@ -86,7 +86,7 @@ int video_reserve(ulong *addrp)
 	return 0;
 }
 
-void video_clear(struct udevice *dev)
+int video_clear(struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 
@@ -111,6 +111,8 @@ void video_clear(struct udevice *dev)
 		memset(priv->fb, priv->colour_bg, priv->fb_size);
 		break;
 	}
+
+	return 0;
 }
 
 void video_set_default_colors(struct video_priv *priv)

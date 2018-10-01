@@ -120,8 +120,9 @@ int video_reserve(ulong *addrp);
  * video_clear() - Clear a device's frame buffer to background color.
  *
  * @dev:	Device to clear
+ * @return 0
  */
-void video_clear(struct udevice *dev);
+int video_clear(struct udevice *dev);
 
 /**
  * video_sync() - Sync a device's frame buffer with its hardware
