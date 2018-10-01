@@ -11,6 +11,8 @@
 		eth0 = "/eth@10002000";
 		eth3 = &eth_3;
 		eth5 = &eth_5;
+		gpio1 = &gpio_a;
+		gpio2 = &gpio_b;
 		i2c0 = "/i2c@0";
 		mmc0 = "/mmc0";
 		mmc1 = "/mmc1";
@@ -89,6 +91,15 @@
 
 	no-compatible {
 		reg = <2 1>;
+	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		enable-gpios = <&gpio_a 1>;
+		power-supply = <&ldo_1>;
+		pwms = <&pwm 0 1000>;
+		default-brightness-level = <5>;
+		brightness-levels = <0 16 32 64 128 170 202 234 255>;
 	};
 
 	bind-test {
@@ -441,12 +452,14 @@
 		power-domains = <&pwrdom 2>;
 	};
 
-	pwm {
+	pwm: pwm {
 		compatible = "sandbox,pwm";
+		#pwm-cells = <2>;
 	};
 
 	pwm2 {
 		compatible = "sandbox,pwm";
+		#pwm-cells = <2>;
 	};
 
 	ram {
@@ -481,6 +494,11 @@
 		compatible = "sandbox,test-processor";
 		internal-memory-mapped;
 		remoteproc-name = "remoteproc-test-dev2";
+	};
+
+	panel {
+		compatible = "simple-panel";
+		backlight = <&backlight 0 100>;
 	};
 
 	smem@0 {
