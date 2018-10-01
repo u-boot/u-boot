@@ -106,6 +106,26 @@ void os_exit(int exit_code)
 	exit(exit_code);
 }
 
+int os_write_file(const char *name, const void *buf, int size)
+{
+	char fname[256];
+	int fd;
+
+	fd = os_open(fname, OS_O_WRONLY | OS_O_CREAT | OS_O_TRUNC);
+	if (fd < 0) {
+		printf("Cannot open file '%s'\n", fname);
+		return -EIO;
+	}
+	if (os_write(fd, buf, size) != size) {
+		printf("Cannot write to file '%s'\n", fname);
+		return -EIO;
+	}
+	os_close(fd);
+	printf("Write '%s', size %#x (%d)\n", name, size, size);
+
+	return 0;
+}
+
 /* Restore tty state when we exit */
 static struct termios orig_term;
 static bool term_setup;

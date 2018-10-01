@@ -347,4 +347,17 @@ void os_abort(void);
  */
 int os_mprotect_allow(void *start, size_t len);
 
+/**
+ * os_write_file() - Write a file to the host filesystem
+ *
+ * This can be useful when debugging for writing data out of sandbox for
+ * inspection by external tools.
+ *
+ * @name:	File path to write to
+ * @buf:	Data to write
+ * @size:	Size of data to write
+ * @return 0 if OK, -ve on error
+ */
+int os_write_file(const char *name, const void *buf, int size);
+
 #endif
