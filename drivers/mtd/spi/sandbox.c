@@ -115,24 +115,22 @@ static int sandbox_sf_probe(struct udevice *dev)
 	const struct spi_flash_info *data;
 	struct sandbox_spi_flash_plat_data *pdata = dev_get_platdata(dev);
 	struct sandbox_state *state = state_get_current();
+	struct dm_spi_slave_platdata *slave_plat;
 	struct udevice *bus = dev->parent;
 	const char *spec = NULL;
+	struct udevice *emul;
 	int ret = 0;
 	int cs = -1;
-	int i;
 
 	debug("%s: bus %d, looking for emul=%p: ", __func__, bus->seq, dev);
-	if (bus->seq >= 0 && bus->seq < CONFIG_SANDBOX_SPI_MAX_BUS) {
-		for (i = 0; i < CONFIG_SANDBOX_SPI_MAX_CS; i++) {
-			if (state->spi[bus->seq][i].emul == dev)
-				cs = i;
-		}
-	}
-	if (cs == -1) {
+	ret = sandbox_spi_get_emul(state, bus, dev, &emul);
+	if (ret) {
 		printf("Error: Unknown chip select for device '%s'\n",
-		       dev->name);
-		return -EINVAL;
+			dev->name);
+		return ret;
 	}
+	slave_plat = dev_get_parent_platdata(dev);
+	cs = slave_plat->cs;
 	debug("found at cs %d\n", cs);
 
 	if (!pdata->filename) {
