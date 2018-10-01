@@ -315,7 +315,8 @@ int log_init(void)
 		drv++;
 	}
 	gd->flags |= GD_FLG_LOG_READY;
-	gd->default_log_level = LOGL_INFO;
+	if (!gd->default_log_level)
+		gd->default_log_level = LOGL_INFO;
 	gd->log_fmt = LOGF_DEFAULT;
 
 	return 0;
