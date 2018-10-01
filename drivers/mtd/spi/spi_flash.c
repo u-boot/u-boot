@@ -471,14 +471,14 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 	u8 cmdsz;
 	u32 remain_len, read_len, read_addr;
 	int bank_sel = 0;
-	int ret = -1;
+	int ret = 0;
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map) {
 		ret = spi_claim_bus(spi);
 		if (ret) {
 			debug("SF: unable to claim SPI bus\n");
-			return ret;
+			return log_ret(ret);
 		}
 		spi_xfer(spi, 0, NULL, NULL, SPI_XFER_MMAP);
 		spi_flash_copy_mmap(data, flash->memory_map + offset, len);
@@ -501,7 +501,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = write_bar(flash, read_addr);
 		if (ret < 0)
-			return ret;
+			return log_ret(ret);
 		bank_sel = flash->bank_curr;
 #endif
 		remain_len = ((SPI_FLASH_16MB_BOUN << flash->shift) *
@@ -531,7 +531,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 	ret = clean_bar(flash);
 #endif
 
-	return ret;
+	return log_ret(ret);
 }
 
 #ifdef CONFIG_SPI_FLASH_SST
