@@ -68,4 +68,12 @@ config RTC_S35392A
 	help
 	  Enable s35392a driver which provides rtc get and set function.
 
+config RTC_MC146818
+	bool "Enable MC146818 driver"
+	help
+	  This is a widely used real-time clock chip originally by Motorola
+	  and now available from NXP. It includes a battery-backed real-time
+	  clock with a wide array of features and 50 bytes of general-purpose,
+	  battery-backed RAM. The driver supports access to the clock and RAM.
+
 endmenu
