@@ -331,7 +331,8 @@ int device_probe(struct udevice *dev)
 	/* Allocate private data if requested and not reentered */
 	size = dev->uclass->uc_drv->per_device_auto_alloc_size;
 	if (size && !dev->uclass_priv) {
-		dev->uclass_priv = calloc(1, size);
+		dev->uclass_priv = alloc_priv(size,
+					      dev->uclass->uc_drv->flags);
 		if (!dev->uclass_priv) {
 			ret = -ENOMEM;
 			goto fail;
