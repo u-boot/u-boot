@@ -245,6 +245,40 @@ struct tpm_permanent_flags {
 	u8	disable_full_da_logic_info;
 } __packed;
 
+#define TPM_SHA1_160_HASH_LEN	0x14
+
+struct __packed tpm_composite_hash {
+	u8	digest[TPM_SHA1_160_HASH_LEN];
+};
+
+struct __packed tpm_pcr_selection {
+	__be16	size_of_select;
+	u8	pcr_select[3];	/* matches vboot's struct */
+};
+
+struct __packed tpm_pcr_info_short {
+	struct tpm_pcr_selection pcr_selection;
+	u8	locality_at_release;
+	struct tpm_composite_hash digest_at_release;
+};
+
+struct __packed tpm_nv_attributes {
+	__be16	tag;
+	__be32	attributes;
+};
+
+struct __packed tpm_nv_data_public {
+	__be16	tag;
+	__be32	nv_index;
+	struct tpm_pcr_info_short pcr_info_read;
+	struct tpm_pcr_info_short pcr_info_write;
+	struct tpm_nv_attributes permission;
+	u8	read_st_clear;
+	u8	write_st_clear;
+	u8	write_define;
+	__be32	data_size;
+};
+
 /**
  * Issue a TPM_Startup command.
  *
