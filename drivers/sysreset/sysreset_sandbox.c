@@ -36,6 +36,11 @@ int sandbox_warm_sysreset_get_status(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
+int sandbox_warm_sysreset_get_last(struct udevice *dev)
+{
+	return SYSRESET_WARM;
+}
+
 static int sandbox_sysreset_request(struct udevice *dev, enum sysreset_t type)
 {
 	struct sandbox_state *state = state_get_current();
@@ -58,6 +63,9 @@ static int sandbox_sysreset_request(struct udevice *dev, enum sysreset_t type)
 			return -EACCES;
 		sandbox_exit();
 		break;
+	case SYSRESET_POWER_OFF:
+		if (!state->sysreset_allowed[type])
+			return -EACCES;
 	default:
 		return -ENOSYS;
 	}
@@ -74,9 +82,15 @@ int sandbox_sysreset_get_status(struct udevice *dev, char *buf, int size)
 	return 0;
 }
 
+int sandbox_sysreset_get_last(struct udevice *dev)
+{
+	return SYSRESET_COLD;
+}
+
 static struct sysreset_ops sandbox_sysreset_ops = {
 	.request	= sandbox_sysreset_request,
 	.get_status	= sandbox_sysreset_get_status,
+	.get_last	= sandbox_sysreset_get_last,
 };
 
 static const struct udevice_id sandbox_sysreset_ids[] = {
@@ -94,6 +108,7 @@ U_BOOT_DRIVER(sysreset_sandbox) = {
 static struct sysreset_ops sandbox_warm_sysreset_ops = {
 	.request	= sandbox_warm_sysreset_request,
 	.get_status	= sandbox_warm_sysreset_get_status,
+	.get_last	= sandbox_warm_sysreset_get_last,
 };
 
 static const struct udevice_id sandbox_warm_sysreset_ids[] = {
