@@ -543,7 +543,11 @@ fdt_addr_t ofnode_get_addr_size(ofnode node, const char *property,
 		na = of_n_addr_cells(np);
 		ns = of_n_size_cells(np);
 		*sizep = of_read_number(prop + na, ns);
-		return of_read_number(prop, na);
+
+		if (IS_ENABLED(CONFIG_OF_TRANSLATE) && ns > 0)
+			return of_translate_address(np, prop);
+		else
+			return of_read_number(prop, na);
 	} else {
 		return fdtdec_get_addr_size(gd->fdt_blob,
 					    ofnode_to_offset(node), property,
