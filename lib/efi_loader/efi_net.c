@@ -7,7 +7,6 @@
 
 #include <common.h>
 #include <efi_loader.h>
-#include <lcd.h>
 #include <malloc.h>
 
 static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_GUID;
