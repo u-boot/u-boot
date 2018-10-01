@@ -26,6 +26,7 @@ static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
 #error "Serial is required before relocation - define CONFIG_$(SPL_)SYS_MALLOC_F_LEN to make this work"
 #endif
 
+#if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 static int serial_check_stdout(const void *blob, struct udevice **devp)
 {
 	int node;
@@ -150,12 +151,15 @@ static void serial_find_console_or_panic(void)
 	panic_str("No serial driver found");
 #endif
 }
+#endif /* CONFIG_SERIAL_PRESENT */
 
 /* Called prior to relocation */
 int serial_init(void)
 {
+#if CONFIG_IS_ENABLED(SERIAL_PRESENT)
 	serial_find_console_or_panic();
 	gd->flags |= GD_FLG_SERIAL_READY;
+#endif
 
 	return 0;
 }
