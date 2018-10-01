@@ -541,7 +541,7 @@ fdt_addr_t ofnode_get_addr_size(ofnode node, const char *property,
 		if (!prop)
 			return FDT_ADDR_T_NONE;
 		na = of_n_addr_cells(np);
-		ns = of_n_addr_cells(np);
+		ns = of_n_size_cells(np);
 		*sizep = of_read_number(prop + na, ns);
 		return of_read_number(prop, na);
 	} else {
