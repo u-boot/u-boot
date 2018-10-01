@@ -8,6 +8,8 @@
  * Licensed under the GPL-2 or later.
  */
 
+#define LOG_CATEGORY UCLASS_SPI_FLASH
+
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
@@ -41,6 +43,7 @@ enum sandbox_sf_state {
 	SF_WRITE_STATUS, /* write the flash's status register */
 };
 
+#if CONFIG_IS_ENABLED(LOG)
 static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
 {
 	static const char * const states[] = {
@@ -49,6 +52,7 @@ static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
 	};
 	return states[state];
 }
+#endif /* LOG */
 
 /* Bits for the status register */
 #define STAT_WIP	(1 << 0)
@@ -191,7 +195,7 @@ static void sandbox_sf_cs_activate(struct udevice *dev)
 {
 	struct sandbox_spi_flash *sbsf = dev_get_priv(dev);
 
-	debug("sandbox_sf: CS activated; state is fresh!\n");
+	log_content("sandbox_sf: CS activated; state is fresh!\n");
 
 	/* CS is asserted, so reset state */
 	sbsf->off = 0;
@@ -203,7 +207,7 @@ static void sandbox_sf_cs_activate(struct udevice *dev)
 
 static void sandbox_sf_cs_deactivate(struct udevice *dev)
 {
-	debug("sandbox_sf: CS deactivated; cmd done processing!\n");
+	log_content("sandbox_sf: CS deactivated; cmd done processing!\n");
 }
 
 /*
@@ -279,8 +283,8 @@ static int sandbox_sf_process_cmd(struct sandbox_spi_flash *sbsf, const u8 *rx,
 	}
 
 	if (oldstate != sbsf->state)
-		debug(" cmd: transition to %s state\n",
-		      sandbox_sf_state_name(sbsf->state));
+		log_content(" cmd: transition to %s state\n",
+			    sandbox_sf_state_name(sbsf->state));
 
 	return 0;
 }
@@ -311,8 +315,8 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 	int bytes = bitlen / 8;
 	int ret;
 
-	debug("sandbox_sf: state:%x(%s) bytes:%u\n", sbsf->state,
-	      sandbox_sf_state_name(sbsf->state), bytes);
+	log_content("sandbox_sf: state:%x(%s) bytes:%u\n", sbsf->state,
+		    sandbox_sf_state_name(sbsf->state), bytes);
 
 	if ((flags & SPI_XFER_BEGIN))
 		sandbox_sf_cs_activate(dev);
@@ -331,7 +335,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 		case SF_ID: {
 			u8 id;
 
-			debug(" id: off:%u tx:", sbsf->off);
+			log_content(" id: off:%u tx:", sbsf->off);
 			if (sbsf->off < IDCODE_LEN) {
 				/* Extract correct byte from ID 0x00aabbcc */
 				id = ((JEDEC_MFR(sbsf->data) << 16) |
@@ -340,18 +344,18 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			} else {
 				id = 0;
 			}
-			debug("%d %02x\n", sbsf->off, id);
+			log_content("%d %02x\n", sbsf->off, id);
 			tx[pos++] = id;
 			++sbsf->off;
 			break;
 		}
 		case SF_ADDR:
-			debug(" addr: bytes:%u rx:%02x ", sbsf->addr_bytes,
-			      rx[pos]);
+			log_content(" addr: bytes:%u rx:%02x ",
+				    sbsf->addr_bytes, rx[pos]);
 
 			if (sbsf->addr_bytes++ < SF_ADDR_LEN)
 				sbsf->off = (sbsf->off << 8) | rx[pos];
-			debug("addr:%06x\n", sbsf->off);
+			log_content("addr:%06x\n", sbsf->off);
 
 			if (tx)
 				sandbox_spi_tristate(&tx[pos], 1);
@@ -380,8 +384,8 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 				sbsf->state = SF_ERASE;
 				goto case_sf_erase;
 			}
-			debug(" cmd: transition to %s state\n",
-			      sandbox_sf_state_name(sbsf->state));
+			log_content(" cmd: transition to %s state\n",
+				    sandbox_sf_state_name(sbsf->state));
 			break;
 		case SF_READ:
 			/*
@@ -390,7 +394,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			 */
 
 			cnt = bytes - pos;
-			debug(" tx: read(%u)\n", cnt);
+			log_content(" tx: read(%u)\n", cnt);
 			assert(tx);
 			ret = os_read(sbsf->fd, tx + pos, cnt);
 			if (ret < 0) {
@@ -400,19 +404,19 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			pos += ret;
 			break;
 		case SF_READ_STATUS:
-			debug(" read status: %#x\n", sbsf->status);
+			log_content(" read status: %#x\n", sbsf->status);
 			cnt = bytes - pos;
 			memset(tx + pos, sbsf->status, cnt);
 			pos += cnt;
 			break;
 		case SF_READ_STATUS1:
-			debug(" read status: %#x\n", sbsf->status);
+			log_content(" read status: %#x\n", sbsf->status);
 			cnt = bytes - pos;
 			memset(tx + pos, sbsf->status >> 8, cnt);
 			pos += cnt;
 			break;
 		case SF_WRITE_STATUS:
-			debug(" write status: %#x (ignored)\n", rx[pos]);
+			log_content(" write status: %#x (ignored)\n", rx[pos]);
 			pos = bytes;
 			break;
 		case SF_WRITE:
@@ -428,7 +432,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			}
 
 			cnt = bytes - pos;
-			debug(" rx: write(%u)\n", cnt);
+			log_content(" rx: write(%u)\n", cnt);
 			if (tx)
 				sandbox_spi_tristate(&tx[pos], cnt);
 			ret = os_write(sbsf->fd, rx + pos, cnt);
@@ -448,15 +452,15 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 
 			/* verify address is aligned */
 			if (sbsf->off & (sbsf->erase_size - 1)) {
-				debug(" sector erase: cmd:%#x needs align:%#x, but we got %#x\n",
-				      sbsf->cmd, sbsf->erase_size,
-				      sbsf->off);
+				log_content(" sector erase: cmd:%#x needs align:%#x, but we got %#x\n",
+					    sbsf->cmd, sbsf->erase_size,
+					    sbsf->off);
 				sbsf->status &= ~STAT_WEL;
 				goto done;
 			}
 
-			debug(" sector erase addr: %u, size: %u\n", sbsf->off,
-			      sbsf->erase_size);
+			log_content(" sector erase addr: %u, size: %u\n",
+				    sbsf->off, sbsf->erase_size);
 
 			cnt = bytes - pos;
 			if (tx)
@@ -470,13 +474,13 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			ret = sandbox_erase_part(sbsf, sbsf->erase_size);
 			sbsf->status &= ~STAT_WEL;
 			if (ret) {
-				debug("sandbox_sf: Erase failed\n");
+				log_content("sandbox_sf: Erase failed\n");
 				goto done;
 			}
 			goto done;
 		}
 		default:
-			debug(" ??? no idea what to do ???\n");
+			log_content(" ??? no idea what to do ???\n");
 			goto done;
 		}
 	}
