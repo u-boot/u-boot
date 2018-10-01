@@ -81,6 +81,12 @@ enum tpm_capability_areas {
 	TPM_CAP_VERSION_VAL	= 0x0000001A,
 };
 
+enum tmp_cap_flag {
+	TPM_CAP_FLAG_PERMANENT	= 0x108,
+};
+
+#define TPM_TAG_PERMANENT_FLAGS		0x001f
+
 #define TPM_NV_PER_GLOBALLOCK		BIT(15)
 #define TPM_NV_PER_PPREAD		BIT(16)
 #define TPM_NV_PER_PPWRITE		BIT(0)
@@ -91,6 +97,14 @@ enum tpm_capability_areas {
 
 enum {
 	TPM_PUBEK_SIZE			= 256,
+};
+
+enum {
+	TPM_CMD_EXTEND			= 0x14,
+	TPM_CMD_GET_CAPABILITY		= 0x65,
+	TPM_CMD_NV_DEFINE_SPACE		= 0xcc,
+	TPM_CMD_NV_WRITE_VALUE		= 0xcd,
+	TPM_CMD_NV_READ_VALUE		= 0xcf,
 };
 
 /**

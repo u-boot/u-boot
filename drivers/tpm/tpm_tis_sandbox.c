@@ -151,10 +151,10 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 	       *recv_len, code);
 	print_buffer(0, sendbuf, 1, send_size, 0);
 	switch (code) {
-	case 0x65: /* get flags */
+	case TPM_CMD_GET_CAPABILITY:
 		type = get_unaligned_be32(sendbuf + 14);
 		switch (type) {
-		case 4:
+		case TPM_CAP_FLAG:
 			index = get_unaligned_be32(sendbuf + 18);
 			printf("Get flags index %#02x\n", index);
 			*recv_len = 22;
@@ -173,7 +173,7 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 				break;
 			}
 			break;
-		case 0x11: /* TPM_CAP_NV_INDEX */
+		case TPM_CAP_NV_INDEX:
 			index = get_unaligned_be32(sendbuf + 18);
 			printf("Get cap nv index %#02x\n", index);
 			put_unaligned_be32(22, recvbuf +
@@ -182,26 +182,26 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 		default:
 			printf("   ** Unknown 0x65 command type %#02x\n",
 			       type);
-			return -1;
+			return -ENOSYS;
 		}
 		break;
-	case 0xcd: /* nvwrite */
+	case TPM_CMD_NV_WRITE_VALUE:
 		index = get_unaligned_be32(sendbuf + 10);
 		length = get_unaligned_be32(sendbuf + 18);
 		seq = index_to_seq(index);
 		if (seq < 0)
-			return -1;
+			return -EINVAL;
 		printf("tpm: nvwrite index=%#02x, len=%#02x\n", index, length);
 		memcpy(&tpm->nvdata[seq], sendbuf + 22, length);
 		*recv_len = 12;
 		memset(recvbuf, '\0', *recv_len);
 		break;
-	case 0xcf: /* nvread */
+	case TPM_CMD_NV_READ_VALUE: /* nvread */
 		index = get_unaligned_be32(sendbuf + 10);
 		length = get_unaligned_be32(sendbuf + 18);
 		seq = index_to_seq(index);
 		if (seq < 0)
-			return -1;
+			return -EINVAL;
 		printf("tpm: nvread index=%#02x, len=%#02x\n", index, length);
 		*recv_len = TPM_RESPONSE_HEADER_LENGTH + sizeof(uint32_t) +
 					length;
@@ -225,7 +225,7 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 			       sizeof(uint32_t), &tpm->nvdata[seq], length);
 		}
 		break;
-	case 0x14: /* tpm extend */
+	case TPM_CMD_EXTEND: /* tpm extend */
 	case 0x15: /* pcr read */
 	case 0x5d: /* force clear */
 	case 0x6f: /* physical enable */
@@ -237,7 +237,7 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 		break;
 	default:
 		printf("Unknown tpm command %02x\n", code);
-		return -1;
+		return -ENOSYS;
 	}
 
 	return 0;
