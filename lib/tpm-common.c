@@ -4,6 +4,8 @@
  * Coypright (c) 2013 Guntermann & Drunck GmbH
  */
 
+#define LOG_CATEGORY UCLASS_TPM
+
 #include <common.h>
 #include <dm.h>
 #include <asm/unaligned.h>
@@ -110,6 +112,8 @@ int unpack_byte_string(const u8 *str, size_t size, const char *format, ...)
 
 		if (offset + length > size) {
 			va_end(args);
+			log_err("Failed to read: size=%d, offset=%x, len=%x\n",
+				size, offset, length);
 			return -1;
 		}
 
@@ -176,10 +180,10 @@ u32 tpm_sendrecv_command(const void *command, void *response, size_t *size_ptr)
 
 	ret = tpm_return_code(response);
 
-	log(LOGC_NONE, LOGL_DEBUG, "TPM response [ret:%d]: ", ret);
+	log_debug("TPM response [ret:%d]: ", ret);
 	for (i = 0; i < response_length; i++)
-		log(LOGC_NONE, LOGL_DEBUG, "%02x ", ((u8 *)response)[i]);
-	log(LOGC_NONE, LOGL_DEBUG, "\n");
+		log_debug("%02x ", ((u8 *)response)[i]);
+	log_debug("\n");
 
 	return ret;
 }
