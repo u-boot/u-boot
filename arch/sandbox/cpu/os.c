@@ -591,15 +591,40 @@ int os_find_u_boot(char *fname, int maxlen)
 	struct sandbox_state *state = state_get_current();
 	const char *progname = state->argv[0];
 	int len = strlen(progname);
+	const char *suffix;
 	char *p;
 	int fd;
 
 	if (len >= maxlen || len < 4)
 		return -ENOSPC;
 
-	/* Look for 'u-boot' in the same directory as 'u-boot-spl' */
 	strcpy(fname, progname);
-	if (!strcmp(fname + len - 4, "-spl")) {
+	suffix = fname + len - 4;
+
+	/* If we are TPL, boot to SPL */
+	if (!strcmp(suffix, "-tpl")) {
+		fname[len - 3] = 's';
+		fd = os_open(fname, O_RDONLY);
+		if (fd >= 0) {
+			close(fd);
+			return 0;
+		}
+
+		/* Look for 'u-boot-tpl' in the tpl/ directory */
+		p = strstr(fname, "/tpl/");
+		if (p) {
+			p[1] = 's';
+			fd = os_open(fname, O_RDONLY);
+			if (fd >= 0) {
+				close(fd);
+				return 0;
+			}
+		}
+		return -ENOENT;
+	}
+
+	/* Look for 'u-boot' in the same directory as 'u-boot-spl' */
+	if (!strcmp(suffix, "-spl")) {
 		fname[len - 4] = '\0';
 		fd = os_open(fname, O_RDONLY);
 		if (fd >= 0) {
