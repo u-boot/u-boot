@@ -149,7 +149,7 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		struct ec_response_vboot_hash hash;
 		int i;
 
-		if (cros_ec_read_hash(dev, &hash)) {
+		if (cros_ec_read_hash(dev, EC_VBOOT_HASH_OFFSET_ACTIVE, &hash)) {
 			debug("%s: Could not read KBC hash\n", __func__);
 			return 1;
 		}

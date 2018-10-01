@@ -96,10 +96,12 @@ int cros_ec_read_current_image(struct udevice *dev,
  * Read the hash of the CROS-EC device firmware.
  *
  * @param dev		CROS-EC device
+ * @param hash_offset	Offset in flash to read from
  * @param hash		Destination for hash information
  * @return 0 if ok, <0 on error
  */
-int cros_ec_read_hash(struct udevice *dev, struct ec_response_vboot_hash *hash);
+int cros_ec_read_hash(struct udevice *dev, uint hash_offset,
+		      struct ec_response_vboot_hash *hash);
 
 /**
  * Send a reboot command to the CROS-EC device.

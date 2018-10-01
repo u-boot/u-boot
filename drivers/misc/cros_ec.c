@@ -444,13 +444,14 @@ static int cros_ec_wait_on_hash_done(struct udevice *dev,
 	return 0;
 }
 
-
-int cros_ec_read_hash(struct udevice *dev, struct ec_response_vboot_hash *hash)
+int cros_ec_read_hash(struct udevice *dev, uint hash_offset,
+		      struct ec_response_vboot_hash *hash)
 {
 	struct ec_params_vboot_hash p;
 	int rv;
 
 	p.cmd = EC_VBOOT_HASH_GET;
+	p.offset = hash_offset;
 	if (ec_command(dev, EC_CMD_VBOOT_HASH, 0, &p, sizeof(p),
 		       hash, sizeof(*hash)) < 0)
 		return -1;
@@ -473,7 +474,7 @@ int cros_ec_read_hash(struct udevice *dev, struct ec_response_vboot_hash *hash)
 	p.cmd = EC_VBOOT_HASH_START;
 	p.hash_type = EC_VBOOT_HASH_TYPE_SHA256;
 	p.nonce_size = 0;
-	p.offset = EC_VBOOT_HASH_OFFSET_ACTIVE;
+	p.offset = hash_offset;
 
 	if (ec_command(dev, EC_CMD_VBOOT_HASH, 0, &p, sizeof(p),
 		       hash, sizeof(*hash)) < 0)
