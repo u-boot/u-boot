@@ -22,6 +22,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+
 /*
  *
  *   serial_buf: A buffer that holds keyboard characters for the
@@ -142,6 +144,7 @@ static int sandbox_serial_getc(struct udevice *dev)
 	serial_buf_read = increment_buffer_index(serial_buf_read);
 	return result;
 }
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
 
 #ifdef CONFIG_DEBUG_UART_SANDBOX
 
@@ -173,6 +176,7 @@ static int sandbox_serial_setconfig(struct udevice *dev, uint serial_config)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static const char * const ansi_colour[] = {
 	"black", "red", "green", "yellow", "blue", "megenta", "cyan",
 	"white",
@@ -232,3 +236,4 @@ U_BOOT_DEVICE(serial_sandbox_non_fdt) = {
 	.name = "serial_sandbox",
 	.platdata = &platdata_non_fdt,
 };
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
