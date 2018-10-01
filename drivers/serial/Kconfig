@@ -324,6 +324,15 @@ config DEBUG_UART_MXC
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_SANDBOX
+	bool "sandbox"
+	depends on SANDBOX_SERIAL
+	help
+	  Select this to enable the debug UART using the sandbox driver. This
+	  provides basic serial output from the console without needing to
+	  start up driver model. The driver will be available until the real
+	  driver model serial is running.
+
 config DEBUG_UART_STM32
 	bool "STMicroelectronics STM32"
 	depends on STM32_SERIAL
@@ -354,6 +363,7 @@ endchoice
 config DEBUG_UART_BASE
 	hex "Base address of UART"
 	depends on DEBUG_UART
+	default 0 if DEBUG_UART_SANDBOX
 	help
 	  This is the base address of your UART for memory-mapped UARTs.
 
@@ -363,6 +373,7 @@ config DEBUG_UART_BASE
 config DEBUG_UART_CLOCK
 	int "UART input clock"
 	depends on DEBUG_UART
+	default 0 if DEBUG_UART_SANDBOX
 	help
 	  The UART input clock determines the speed of the internal UART
 	  circuitry. The baud rate is derived from this by dividing the input

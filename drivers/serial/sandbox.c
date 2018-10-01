@@ -143,6 +143,23 @@ static int sandbox_serial_getc(struct udevice *dev)
 	return result;
 }
 
+#ifdef CONFIG_DEBUG_UART_SANDBOX
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
+{
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	os_putc(ch);
+}
+
+DEBUG_UART_FUNCS
+
+#endif /* CONFIG_DEBUG_UART_SANDBOX */
+
 static int sandbox_serial_setconfig(struct udevice *dev, uint serial_config)
 {
 	u8 parity = SERIAL_GET_PARITY(serial_config);
