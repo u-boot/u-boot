@@ -55,7 +55,7 @@ enum video_log2_bpp {
  * @xsize:	Number of pixel columns (e.g. 1366)
  * @ysize:	Number of pixels rows (e.g.. 768)
  * @rot:	Display rotation (0=none, 1=90 degrees clockwise, etc.)
- * @bpix:	Encoded bits per pixel
+ * @bpix:	Encoded bits per pixel (enum video_log2_bpp)
  * @vidconsole_drv_name:	Driver to use for the text console, NULL to
  *		select automatically
  * @font_size:	Font size in pixels (0 to use a default value)
@@ -269,6 +269,6 @@ int lg4573_spi_startup(unsigned int bus, unsigned int cs,
  */
 void video_get_info_str(int line_number, char *info);
 
-#endif /* CONFIG_DM_VIDEO */
+#endif /* !CONFIG_DM_VIDEO */
 
 #endif
