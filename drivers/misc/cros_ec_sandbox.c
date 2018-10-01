@@ -365,7 +365,7 @@ static int process_cmd(struct ec_state *ec,
 		struct fmap_entry *entry;
 		int ret, size;
 
-		entry = &ec->ec_config.region[EC_FLASH_REGION_RW];
+		entry = &ec->ec_config.region[EC_FLASH_REGION_ACTIVE];
 
 		switch (req->cmd) {
 		case EC_VBOOT_HASH_RECALC:
@@ -420,7 +420,7 @@ static int process_cmd(struct ec_state *ec,
 
 		switch (req->region) {
 		case EC_FLASH_REGION_RO:
-		case EC_FLASH_REGION_RW:
+		case EC_FLASH_REGION_ACTIVE:
 		case EC_FLASH_REGION_WP_RO:
 			entry = &ec->ec_config.region[req->region];
 			resp->offset = entry->offset;

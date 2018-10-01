@@ -27,7 +27,7 @@ static int cros_ec_decode_region(int argc, char * const argv[])
 {
 	if (argc > 0) {
 		if (0 == strcmp(*argv, "rw"))
-			return EC_FLASH_REGION_RW;
+			return EC_FLASH_REGION_ACTIVE;
 		else if (0 == strcmp(*argv, "ro"))
 			return EC_FLASH_REGION_RO;
 
@@ -137,7 +137,6 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		printf("rows     = %u\n", info.rows);
 		printf("cols     = %u\n", info.cols);
-		printf("switches = %#x\n", info.switches);
 	} else if (0 == strcmp("curimage", cmd)) {
 		enum ec_current_image image;
 
@@ -177,7 +176,7 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			region = cros_ec_decode_region(argc - 2, argv + 2);
 			if (region == EC_FLASH_REGION_RO)
 				cmd = EC_REBOOT_JUMP_RO;
-			else if (region == EC_FLASH_REGION_RW)
+			else if (region == EC_FLASH_REGION_ACTIVE)
 				cmd = EC_REBOOT_JUMP_RW;
 			else
 				return CMD_RET_USAGE;

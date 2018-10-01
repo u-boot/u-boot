@@ -473,7 +473,7 @@ int cros_ec_read_hash(struct udevice *dev, struct ec_response_vboot_hash *hash)
 	p.cmd = EC_VBOOT_HASH_START;
 	p.hash_type = EC_VBOOT_HASH_TYPE_SHA256;
 	p.nonce_size = 0;
-	p.offset = EC_VBOOT_HASH_OFFSET_RW;
+	p.offset = EC_VBOOT_HASH_OFFSET_ACTIVE;
 
 	if (ec_command(dev, EC_CMD_VBOOT_HASH, 0, &p, sizeof(p),
 		       hash, sizeof(*hash)) < 0)
@@ -894,7 +894,8 @@ int cros_ec_flash_update_rw(struct udevice *dev, const uint8_t *image,
 	uint32_t rw_offset, rw_size;
 	int ret;
 
-	if (cros_ec_flash_offset(dev, EC_FLASH_REGION_RW, &rw_offset, &rw_size))
+	if (cros_ec_flash_offset(dev, EC_FLASH_REGION_ACTIVE, &rw_offset,
+		&rw_size))
 		return -1;
 	if (image_size > (int)rw_size)
 		return -1;
@@ -1045,7 +1046,7 @@ int cros_ec_decode_ec_flash(struct udevice *dev, struct fdt_cros_ec *config)
 		if (0 == strcmp(name, "ro")) {
 			region = EC_FLASH_REGION_RO;
 		} else if (0 == strcmp(name, "rw")) {
-			region = EC_FLASH_REGION_RW;
+			region = EC_FLASH_REGION_ACTIVE;
 		} else if (0 == strcmp(name, "wp-ro")) {
 			region = EC_FLASH_REGION_WP_RO;
 		} else {
