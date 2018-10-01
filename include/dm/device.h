@@ -270,7 +270,7 @@ struct driver {
  * @dev		Device to check
  * @return platform data, or NULL if none
  */
-void *dev_get_platdata(struct udevice *dev);
+void *dev_get_platdata(const struct udevice *dev);
 
 /**
  * dev_get_parent_platdata() - Get the parent platform data for a device
@@ -280,7 +280,7 @@ void *dev_get_platdata(struct udevice *dev);
  * @dev		Device to check
  * @return parent's platform data, or NULL if none
  */
-void *dev_get_parent_platdata(struct udevice *dev);
+void *dev_get_parent_platdata(const struct udevice *dev);
 
 /**
  * dev_get_uclass_platdata() - Get the uclass platform data for a device
@@ -290,7 +290,7 @@ void *dev_get_parent_platdata(struct udevice *dev);
  * @dev		Device to check
  * @return uclass's platform data, or NULL if none
  */
-void *dev_get_uclass_platdata(struct udevice *dev);
+void *dev_get_uclass_platdata(const struct udevice *dev);
 
 /**
  * dev_get_priv() - Get the private data for a device
@@ -300,7 +300,7 @@ void *dev_get_uclass_platdata(struct udevice *dev);
  * @dev		Device to check
  * @return private data, or NULL if none
  */
-void *dev_get_priv(struct udevice *dev);
+void *dev_get_priv(const struct udevice *dev);
 
 /**
  * dev_get_parent_priv() - Get the parent private data for a device
@@ -314,7 +314,7 @@ void *dev_get_priv(struct udevice *dev);
  * @dev		Device to check
  * @return parent data, or NULL if none
  */
-void *dev_get_parent_priv(struct udevice *dev);
+void *dev_get_parent_priv(const struct udevice *dev);
 
 /**
  * dev_get_uclass_priv() - Get the private uclass data for a device
@@ -324,7 +324,7 @@ void *dev_get_parent_priv(struct udevice *dev);
  * @dev		Device to check
  * @return private uclass data for this device, or NULL if none
  */
-void *dev_get_uclass_priv(struct udevice *dev);
+void *dev_get_uclass_priv(const struct udevice *dev);
 
 /**
  * struct dev_get_parent() - Get the parent of a device
@@ -332,7 +332,7 @@ void *dev_get_uclass_priv(struct udevice *dev);
  * @child:	Child to check
  * @return parent of child, or NULL if this is the root device
  */
-struct udevice *dev_get_parent(struct udevice *child);
+struct udevice *dev_get_parent(const struct udevice *child);
 
 /**
  * dev_get_driver_data() - get the driver data used to bind a device
@@ -359,7 +359,7 @@ struct udevice *dev_get_parent(struct udevice *child);
  * @dev:	Device to check
  * @return driver data (0 if none is provided)
  */
-ulong dev_get_driver_data(struct udevice *dev);
+ulong dev_get_driver_data(const struct udevice *dev);
 
 /**
  * dev_get_driver_ops() - get the device's driver's operations
@@ -370,7 +370,7 @@ ulong dev_get_driver_data(struct udevice *dev);
  * @dev:	Device to check
  * @return void pointer to driver's operations or NULL for NULL-dev or NULL-ops
  */
-const void *dev_get_driver_ops(struct udevice *dev);
+const void *dev_get_driver_ops(const struct udevice *dev);
 
 /**
  * device_get_uclass_id() - return the uclass ID of a device
@@ -378,7 +378,7 @@ const void *dev_get_driver_ops(struct udevice *dev);
  * @dev:	Device to check
  * @return uclass ID for the device
  */
-enum uclass_id device_get_uclass_id(struct udevice *dev);
+enum uclass_id device_get_uclass_id(const struct udevice *dev);
 
 /**
  * dev_get_uclass_name() - return the uclass name of a device
@@ -388,7 +388,7 @@ enum uclass_id device_get_uclass_id(struct udevice *dev);
  * @dev:	Device to check
  * @return  pointer to the uclass name for the device
  */
-const char *dev_get_uclass_name(struct udevice *dev);
+const char *dev_get_uclass_name(const struct udevice *dev);
 
 /**
  * device_get_child() - Get the child of a device by index
@@ -525,7 +525,7 @@ int device_find_next_child(struct udevice **devp);
  * @dev:	Device to check
  * @return true if the device has one or more children
  */
-bool device_has_children(struct udevice *dev);
+bool device_has_children(const struct udevice *dev);
 
 /**
  * device_has_active_children() - check if a device has any active children
