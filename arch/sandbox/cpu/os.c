@@ -85,6 +85,8 @@ int os_open(const char *pathname, int os_flags)
 
 	if (os_flags & OS_O_CREAT)
 		flags |= O_CREAT;
+	if (os_flags & OS_O_TRUNC)
+		flags |= O_TRUNC;
 
 	return open(pathname, flags, 0777);
 }

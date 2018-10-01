@@ -75,6 +75,7 @@ int os_open(const char *pathname, int flags);
 #define OS_O_RDWR	2
 #define OS_O_MASK	3	/* Mask for read/write flags */
 #define OS_O_CREAT	0100
+#define OS_O_TRUNC	01000
 
 /**
  * Access to the OS close() system call
