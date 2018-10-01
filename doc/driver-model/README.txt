@@ -832,7 +832,8 @@ Pre-Relocation Support
 For pre-relocation we simply call the driver model init function. Only
 drivers marked with DM_FLAG_PRE_RELOC or the device tree
 'u-boot,dm-pre-reloc' flag are initialised prior to relocation. This helps
-to reduce the driver model overhead.
+to reduce the driver model overhead. This flag applies to SPL and TPL as
+well, if device tree is enabled there.
 
 It is possible to limit this to specific relocation steps, by using
 the more specialized 'u-boot,dm-spl' and 'u-boot,dm-tpl' flags
