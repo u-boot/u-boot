@@ -368,6 +368,16 @@ class TestFunctional(unittest.TestCase):
         return pathname
 
     @classmethod
+    def _SetupSplElf(self, src_fname='bss_data'):
+        """Set up an ELF file with a '_dt_ucode_base_size' symbol
+
+        Args:
+            Filename of ELF file to use as SPL
+        """
+        with open(self.TestFile(src_fname)) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+
+    @classmethod
     def TestFile(self, fname):
         return os.path.join(self._binman_dir, 'test', fname)
 
@@ -715,8 +725,7 @@ class TestFunctional(unittest.TestCase):
 
     def testImagePadByte(self):
         """Test that the image pad byte can be specified"""
-        with open(self.TestFile('bss_data')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf()
         data = self._DoReadFile('21_image_pad.dts')
         self.assertEqual(U_BOOT_SPL_DATA + (chr(0xff) * 1) + U_BOOT_DATA, data)
 
@@ -739,6 +748,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackSorted(self):
         """Test that entries can be sorted"""
+        self._SetupSplElf()
         data = self._DoReadFile('24_sorted.dts')
         self.assertEqual(chr(0) * 1 + U_BOOT_SPL_DATA + chr(0) * 2 +
                          U_BOOT_DATA, data)
@@ -781,6 +791,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackX86Rom(self):
         """Test that a basic x86 ROM can be created"""
+        self._SetupSplElf()
         data = self._DoReadFile('29_x86-rom.dts')
         self.assertEqual(U_BOOT_DATA + chr(0) * 7 + U_BOOT_SPL_DATA +
                          chr(0) * 2, data)
@@ -1017,15 +1028,13 @@ class TestFunctional(unittest.TestCase):
     def testSplBssPad(self):
         """Test that we can pad SPL's BSS with zeros"""
         # ELF file with a '__bss_size' symbol
-        with open(self.TestFile('bss_data')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf()
         data = self._DoReadFile('47_spl_bss_pad.dts')
         self.assertEqual(U_BOOT_SPL_DATA + (chr(0) * 10) + U_BOOT_DATA, data)
 
     def testSplBssPadMissing(self):
         """Test that a missing symbol is detected"""
-        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf('u_boot_ucode_ptr')
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('47_spl_bss_pad.dts')
         self.assertIn('Expected __bss_size symbol in spl/u-boot-spl',
@@ -1050,9 +1059,7 @@ class TestFunctional(unittest.TestCase):
             ucode_second: True if the microsecond entry is second instead of
                 third
         """
-        # ELF file with a '_dt_ucode_base_size' symbol
-        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf('u_boot_ucode_ptr')
         first, pos_and_size = self._RunMicrocodeTest(dts, U_BOOT_SPL_NODTB_DATA,
                                                      ucode_second=ucode_second)
         self.assertEqual('splnodtb with microc' + pos_and_size +
@@ -1094,8 +1101,7 @@ class TestFunctional(unittest.TestCase):
         addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
         self.assertEqual(syms['_binman_u_boot_spl_prop_offset'].address, addr)
 
-        with open(self.TestFile('u_boot_binman_syms')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf('u_boot_binman_syms')
         data = self._DoReadFile('53_symbols.dts')
         sym_values = struct.pack('<LQL', 0x24 + 0, 0x24 + 24, 0x24 + 20)
         expected = (sym_values + U_BOOT_SPL_DATA[16:] + chr(0xff) +
@@ -1727,16 +1733,14 @@ class TestFunctional(unittest.TestCase):
 
     def testElf(self):
         """Basic test of ELF entries"""
-        with open(self.TestFile('bss_data')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf()
         with open(self.TestFile('bss_data')) as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('96_elf.dts')
 
     def testElfStripg(self):
         """Basic test of ELF entries"""
-        with open(self.TestFile('bss_data')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf()
         with open(self.TestFile('bss_data')) as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('97_elf_strip.dts')

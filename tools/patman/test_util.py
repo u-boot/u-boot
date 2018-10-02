@@ -43,7 +43,7 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
     glob_list += exclude_list
     glob_list += ['*libfdt.py', '*site-packages*']
     cmd = ('PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools python-coverage run '
-           '--omit "%s" %s -t' % (build_dir, ','.join(glob_list), prog))
+           '--omit "%s" %s -P1 -t' % (build_dir, ','.join(glob_list), prog))
     os.system(cmd)
     stdout = command.Output('python-coverage', 'report')
     lines = stdout.splitlines()

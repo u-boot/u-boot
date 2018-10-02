@@ -46,6 +46,8 @@ def ParseArgs(argv):
     parser.add_option('-p', '--preserve', action='store_true',\
         help='Preserve temporary output directory even if option -O is not '
              'given')
+    parser.add_option('-P', '--processes', type=int,
+                      help='set number of processes to use for running tests')
     parser.add_option('-t', '--test', action='store_true',
                     default=False, help='run tests')
     parser.add_option('-T', '--test-coverage', action='store_true',

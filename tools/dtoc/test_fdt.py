@@ -547,6 +547,8 @@ if __name__ != '__main__':
 parser = OptionParser()
 parser.add_option('-B', '--build-dir', type='string', default='b',
         help='Directory containing the build output')
+parser.add_option('-P', '--processes', type=int,
+                  help='set number of processes to use for running tests')
 parser.add_option('-t', '--test', action='store_true', dest='test',
                   default=False, help='run tests')
 parser.add_option('-T', '--test-coverage', action='store_true',

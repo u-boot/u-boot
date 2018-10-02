@@ -13,6 +13,8 @@ import fdt
 import fdt_util
 import tools
 
+entry = None
+
 class TestEntry(unittest.TestCase):
     def setUp(self):
         tools.PrepareOutputDir(None)
@@ -38,7 +40,10 @@ class TestEntry(unittest.TestCase):
     def test2EntryImportLib(self):
         del sys.modules['importlib']
         global entry
-        reload(entry)
+        if entry:
+            reload(entry)
+        else:
+            import entry
         entry.Entry.Create(None, self.GetNode(), 'u-boot-spl')
         del entry
 
