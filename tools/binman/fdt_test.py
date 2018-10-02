@@ -21,6 +21,10 @@ class TestFdt(unittest.TestCase):
         self._indir = tempfile.mkdtemp(prefix='binmant.')
         tools.PrepareOutputDir(self._indir, True)
 
+    @classmethod
+    def tearDownClass(self):
+        tools._FinaliseForTest()
+
     def TestFile(self, fname):
         return os.path.join(self._binman_dir, 'test', fname)
 

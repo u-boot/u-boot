@@ -10,6 +10,7 @@ import unittest
 
 import elf
 import test_util
+import tools
 
 binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
@@ -46,6 +47,10 @@ class FakeSection:
 
 
 class TestElf(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
+        tools.SetInputDirs(['.'])
+
     def testAllSymbols(self):
         """Test that we can obtain a symbol from the ELF file"""
         fname = os.path.join(binman_dir, 'test', 'u_boot_ucode_ptr')

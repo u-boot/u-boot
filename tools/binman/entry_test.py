@@ -14,9 +14,14 @@ import fdt_util
 import tools
 
 class TestEntry(unittest.TestCase):
+    def setUp(self):
+        tools.PrepareOutputDir(None)
+
+    def tearDown(self):
+        tools.FinaliseOutputDir()
+
     def GetNode(self):
         binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
-        tools.PrepareOutputDir(None)
         fname = fdt_util.EnsureCompiled(
             os.path.join(binman_dir,('test/05_simple.dts')))
         dtb = fdt.FdtScan(fname)
@@ -35,7 +40,6 @@ class TestEntry(unittest.TestCase):
         global entry
         reload(entry)
         entry.Entry.Create(None, self.GetNode(), 'u-boot-spl')
-        tools._RemoveOutputDir()
         del entry
 
     def testEntryContents(self):

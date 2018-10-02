@@ -115,7 +115,6 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('ecrw.bin', CROS_EC_RW_DATA)
         TestFunctional._MakeInputDir('devkeys')
         TestFunctional._MakeInputFile('bmpblk.bin', BMPBLK_DATA)
-        self._output_setup = False
 
         # ELF file with a '_dt_ucode_base_size' symbol
         with open(self.TestFile('u_boot_ucode_ptr')) as fd:
@@ -230,14 +229,13 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Contents of device-tree binary
         """
-        if not self._output_setup:
-            tools.PrepareOutputDir(self._indir, True)
-            self._output_setup = True
+        tools.PrepareOutputDir(None)
         dtb = fdt_util.EnsureCompiled(self.TestFile(fname))
         with open(dtb) as fd:
             data = fd.read()
             TestFunctional._MakeInputFile(outfile, data)
-            return data
+        tools.FinaliseOutputDir()
+        return data
 
     def _GetDtbContentsForSplTpl(self, dtb_data, name):
         """Create a version of the main DTB for SPL or SPL

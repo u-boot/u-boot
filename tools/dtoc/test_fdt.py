@@ -60,7 +60,7 @@ class TestFdt(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        tools._FinaliseForTest()
+        tools.FinaliseOutputDir()
 
     def setUp(self):
         self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
@@ -128,7 +128,7 @@ class TestNode(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        tools._FinaliseForTest()
+        tools.FinaliseOutputDir()
 
     def setUp(self):
         self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
@@ -209,7 +209,7 @@ class TestProp(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        tools._FinaliseForTest()
+        tools.FinaliseOutputDir()
 
     def setUp(self):
         self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
@@ -426,6 +426,10 @@ class TestFdtUtil(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         tools.PrepareOutputDir(None)
+
+    @classmethod
+    def tearDownClass(cls):
+        tools.FinaliseOutputDir()
 
     def setUp(self):
         self.dtb = fdt.FdtScan('tools/dtoc/dtoc_test_simple.dts')
