@@ -636,3 +636,14 @@ void os_abort(void)
 {
 	abort();
 }
+
+int os_mprotect_allow(void *start, size_t len)
+{
+	int page_size = getpagesize();
+
+	/* Move start to the start of a page, len to the end */
+	start = (void *)(((ulong)start) & ~(page_size - 1));
+	len = (len + page_size * 2) & ~(page_size - 1);
+
+	return mprotect(start, len, PROT_READ | PROT_WRITE);
+}

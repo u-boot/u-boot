@@ -334,4 +334,16 @@ void os_localtime(struct rtc_time *rt);
  * os_abort() - Raise SIGABRT to exit sandbox (e.g. to debugger)
  */
 void os_abort(void);
+
+/**
+ * os_mprotect_allow() - Remove write-protection on a region of memory
+ *
+ * The start and length will be page-aligned before use.
+ *
+ * @start:	Region start
+ * @len:	Region length in bytes
+ * @return 0 if OK, -1 on error from mprotect()
+ */
+int os_mprotect_allow(void *start, size_t len);
+
 #endif

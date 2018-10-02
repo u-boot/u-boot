@@ -4,6 +4,9 @@
  */
 
 #include <common.h>
+#ifdef CONFIG_SANDBOX
+#include <os.h>
+#endif
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/test.h>
@@ -297,6 +300,11 @@ static int dm_test_bus_parent_data_uclass(struct unit_test_state *uts)
 	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
 	drv = (struct driver *)bus->driver;
 	size = drv->per_child_auto_alloc_size;
+
+#ifdef CONFIG_SANDBOX
+	os_mprotect_allow(bus->uclass->uc_drv, sizeof(*bus->uclass->uc_drv));
+	os_mprotect_allow(drv, sizeof(*drv));
+#endif
 	bus->uclass->uc_drv->per_child_auto_alloc_size = size;
 	drv->per_child_auto_alloc_size = 0;
 	ret = test_bus_parent_data(uts);
@@ -440,6 +448,10 @@ static int dm_test_bus_parent_platdata_uclass(struct unit_test_state *uts)
 	ut_assertok(uclass_find_device(UCLASS_TEST_BUS, 0, &bus));
 	drv = (struct driver *)bus->driver;
 	size = drv->per_child_platdata_auto_alloc_size;
+#ifdef CONFIG_SANDBOX
+	os_mprotect_allow(bus->uclass->uc_drv, sizeof(*bus->uclass->uc_drv));
+	os_mprotect_allow(drv, sizeof(*drv));
+#endif
 	bus->uclass->uc_drv->per_child_platdata_auto_alloc_size = size;
 	drv->per_child_platdata_auto_alloc_size = 0;
 	ret = test_bus_parent_platdata(uts);
