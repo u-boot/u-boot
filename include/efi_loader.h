@@ -236,7 +236,7 @@ efi_status_t efi_root_node_register(void);
 /* Called by bootefi to initialize runtime */
 efi_status_t efi_initialize_system_table(void);
 /* Called by bootefi to make console interface available */
-int efi_console_register(void);
+efi_status_t efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
 efi_status_t efi_disk_register(void);
 /* Create handles and protocols for the partitions of a block device */
