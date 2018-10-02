@@ -379,6 +379,12 @@ static bool tmio_sd_addr_is_dmaable(const char *src)
 	if (!IS_ALIGNED(addr, TMIO_SD_DMA_MINALIGN))
 		return false;
 
+#if defined(CONFIG_RCAR_GEN3)
+	/* Gen3 DMA has 32bit limit */
+	if (addr >> 32)
+		return false;
+#endif
+
 #if defined(CONFIG_ARCH_UNIPHIER) && !defined(CONFIG_ARM64) && \
 	defined(CONFIG_SPL_BUILD)
 	/*
