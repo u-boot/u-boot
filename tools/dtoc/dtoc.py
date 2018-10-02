@@ -34,6 +34,11 @@ import unittest
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '../patman'))
 
+# Bring in the libfdt module
+sys.path.insert(0, 'scripts/dtc/pylibfdt')
+sys.path.insert(0, os.path.join(our_path,
+                '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
+
 import dtb_platdata
 import test_util
 

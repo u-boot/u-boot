@@ -22,6 +22,8 @@ for dirname in ['../patman', '../dtoc', '..']:
 
 # Bring in the libfdt module
 sys.path.insert(0, 'scripts/dtc/pylibfdt')
+sys.path.insert(0, os.path.join(our_path,
+                '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
 
 import cmdline
 import command
