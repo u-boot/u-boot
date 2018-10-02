@@ -1022,10 +1022,12 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('47_spl_bss_pad.dts')
         self.assertEqual(U_BOOT_SPL_DATA + (chr(0) * 10) + U_BOOT_DATA, data)
 
+    def testSplBssPadMissing(self):
+        """Test that a missing symbol is detected"""
         with open(self.TestFile('u_boot_ucode_ptr')) as fd:
             TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('47_spl_bss_pad.dts')
+            self._DoReadFile('47_spl_bss_pad.dts')
         self.assertIn('Expected __bss_size symbol in spl/u-boot-spl',
                       str(e.exception))
 
