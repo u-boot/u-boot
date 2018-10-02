@@ -314,8 +314,9 @@ $(document).ready(function () {
 
     # The set of characters that should be represented as hexadecimal codes in
     # the log file.
-    _nonprint = ('%' + ''.join(chr(c) for c in range(0, 32) if c not in (9, 10)) +
-                 ''.join(chr(c) for c in range(127, 256)))
+    _nonprint = {ord('%')}
+    _nonprint.update({c for c in range(0, 32) if c not in (9, 10)})
+    _nonprint.update({c for c in range(127, 256)})
 
     def _escape(self, data):
         """Render data format suitable for inclusion in an HTML document.
@@ -331,7 +332,7 @@ $(document).ready(function () {
         """
 
         data = data.replace(chr(13), '')
-        data = ''.join((c in self._nonprint) and ('%%%02x' % ord(c)) or
+        data = ''.join((ord(c) in self._nonprint) and ('%%%02x' % ord(c)) or
                        c for c in data)
         data = cgi.escape(data)
         return data
