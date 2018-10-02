@@ -1698,6 +1698,10 @@ help:
 	@echo  'Configuration targets:'
 	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
 	@echo  ''
+	@echo  'Test targets:'
+	@echo  ''
+	@echo  '  check           - Run all automated tests that use sandbox'
+	@echo  ''
 	@echo  'Other generic targets:'
 	@echo  '  all		  - Build all necessary images depending on configuration'
 	@echo  '  tests		  - Build U-Boot for sandbox and run tests'
@@ -1736,7 +1740,7 @@ help:
 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
 	@echo  'For further info see the ./README file'
 
-tests:
+tests check:
 	$(srctree)/test/run
 
 # Documentation targets
