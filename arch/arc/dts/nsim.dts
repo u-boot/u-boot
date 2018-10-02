@@ -7,6 +7,8 @@
 #include "skeleton.dtsi"
 
 / {
+	model = "snps,nsim";
+
 	aliases {
 		console = &arcuart0;
 	};
