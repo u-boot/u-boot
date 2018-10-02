@@ -387,16 +387,22 @@ static __u32 determine_fatent(fsdata *mydata, __u32 entry)
 	return next_entry;
 }
 
-/*
- * Write at most 'size' bytes from 'buffer' into the specified cluster.
- * Return 0 on success, -1 otherwise.
+/**
+ * set_cluster() - write data to cluster
+ *
+ * Write 'size' bytes from 'buffer' into the specified cluster.
+ *
+ * @mydata:	data to be written
+ * @clustnum:	cluster to be written to
+ * @buffer:	data to be written
+ * @size:	bytes to be written (but not more than the size of a cluster)
+ * Return:	0 on success, -1 otherwise
  */
 static int
-set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
-	     unsigned long size)
+set_cluster(fsdata *mydata, u32 clustnum, u8 *buffer, u32 size)
 {
-	__u32 idx = 0;
-	__u32 startsect;
+	u32 idx = 0;
+	u32 startsect;
 	int ret;
 
 	if (clustnum > 0)
@@ -438,7 +444,8 @@ set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
 
 	if (size) {
 		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);
-
+		/* Do not leak content of stack */
+		memset(tmpbuf, 0, mydata->sect_size);
 		memcpy(tmpbuf, buffer, size);
 		ret = disk_write(startsect, 1, tmpbuf);
 		if (ret != 1) {
@@ -872,7 +879,7 @@ set_clusters:
 
 		/* set remaining bytes */
 		actsize = filesize;
-		if (set_cluster(mydata, curclust, buffer, (int)actsize) != 0) {
+		if (set_cluster(mydata, curclust, buffer, (u32)actsize) != 0) {
 			debug("error: writing cluster\n");
 			return -1;
 		}
@@ -889,7 +896,7 @@ set_clusters:
 
 		return 0;
 getit:
-		if (set_cluster(mydata, curclust, buffer, (int)actsize) != 0) {
+		if (set_cluster(mydata, curclust, buffer, (u32)actsize) != 0) {
 			debug("error: writing cluster\n");
 			return -1;
 		}
