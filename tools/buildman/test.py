@@ -20,6 +20,7 @@ import control
 import command
 import commit
 import terminal
+import test_util
 import toolchain
 
 use_network = True
@@ -422,7 +423,8 @@ class TestBuild(unittest.TestCase):
     def testToolchainDownload(self):
         """Test that we can download toolchains"""
         if use_network:
-            url = self.toolchains.LocateArchUrl('arm')
+            with test_util.capture_sys_output() as (stdout, stderr):
+                url = self.toolchains.LocateArchUrl('arm')
             self.assertRegexpMatches(url, 'https://www.kernel.org/pub/tools/'
                     'crosstool/files/bin/x86_64/.*/'
                     'x86_64-gcc-.*-nolibc_arm-.*linux-gnueabi.tar.xz')
