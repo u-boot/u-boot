@@ -372,8 +372,10 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 }
 
 /* check if the address is DMA'able */
-static bool tmio_sd_addr_is_dmaable(unsigned long addr)
+static bool tmio_sd_addr_is_dmaable(const char *src)
 {
+	uintptr_t addr = (uintptr_t)src;
+
 	if (!IS_ALIGNED(addr, TMIO_SD_DMA_MINALIGN))
 		return false;
 
@@ -486,7 +488,7 @@ int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	if (data) {
 		/* use DMA if the HW supports it and the buffer is aligned */
 		if (priv->caps & TMIO_SD_CAP_DMA_INTERNAL &&
-		    tmio_sd_addr_is_dmaable((long)data->src))
+		    tmio_sd_addr_is_dmaable(data->src))
 			ret = tmio_sd_dma_xfer(dev, data);
 		else
 			ret = tmio_sd_pio_xfer(dev, data);
