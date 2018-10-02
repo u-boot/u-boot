@@ -52,11 +52,18 @@ static int set_blk_dev(struct file_handle *fh)
 	return fs_set_blk_dev_with_part(fh->fs->desc, fh->fs->part);
 }
 
+/**
+ * is_dir() - check if file handle points to directory
+ *
+ * We assume that set_blk_dev(fh) has been called already.
+ *
+ * @fh:		file handle
+ * Return:	true if file handle points to a directory
+ */
 static int is_dir(struct file_handle *fh)
 {
 	struct fs_dir_stream *dirs;
 
-	set_blk_dev(fh);
 	dirs = fs_opendir(fh->path);
 	if (!dirs)
 		return 0;
