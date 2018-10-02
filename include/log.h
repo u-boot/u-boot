@@ -175,7 +175,7 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 	})
 #else
 #define log_ret(_ret) (_ret)
-#define log_msg_ret(_ret) (_ret)
+#define log_msg_ret(_msg, _ret) (_ret)
 #endif
 
 /**
