@@ -25,7 +25,8 @@ run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build \
 # build which does not enable CONFIG_OF_LIVE for the live device tree, so we can
 # check that functionality is the same. The standard sandbox build (above) uses
 # CONFIG_OF_LIVE.
-run_test "sandbox_flattree" ./test/py/test.py --bd sandbox_flattree --build
+run_test "sandbox_flattree" ./test/py/test.py --bd sandbox_flattree --build \
+	-k test_ut
 
 # Set up a path to dtc (device-tree compiler) and libfdt.py, a library it
 # provides and which is built by the sandbox_spl config.
