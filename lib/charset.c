@@ -97,12 +97,17 @@ static u8 read_string(void *data)
 /**
  * read_console() - read byte from console
  *
- * @src		- not used, needed to match interface
- * Return:	- byte read
+ * @data	- not used, needed to match interface
+ * Return:	- byte read or 0 on error
  */
 static u8 read_console(void *data)
 {
-	return getc();
+	int ch;
+
+	ch = getc();
+	if (ch < 0)
+		ch = 0;
+	return ch;
 }
 
 int console_read_unicode(s32 *code)
