@@ -487,7 +487,7 @@ config SPL_NAND_SUPPORT
 	help
 	  Enable support for NAND (Negative AND) flash in SPL. NAND flash
 	  can be used to allow SPL to load U-Boot from supported devices.
-	  This enables the drivers in drivers/mtd/nand as part of an SPL
+	  This enables the drivers in drivers/mtd/nand/raw as part of an SPL
 	  build.
 
 config SPL_NET_SUPPORT

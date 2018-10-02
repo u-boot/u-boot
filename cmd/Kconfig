@@ -866,6 +866,12 @@ config CMD_MMC_SWRITE
 	  Enable support for the "mmc swrite" command to write Android sparse
 	  images to eMMC.
 
+config CMD_MTD
+	bool "mtd"
+	select MTD_PARTITIONS
+	help
+	  MTD commands support.
+
 config CMD_NAND
 	bool "nand"
 	default y if NAND_SUNXI
@@ -1714,18 +1720,22 @@ config CMD_MTDPARTS
 	bool "MTD partition support"
 	select MTD_DEVICE if (CMD_NAND || NAND)
 	help
-	  MTD partition support
+	  MTD partitioning tool support.
+	  It is strongly encouraged to avoid using this command
+	  anymore along with 'sf', 'nand', 'onenand'. One can still
+	  declare the partitions in the mtdparts environment variable
+	  but better use the MTD stack and the 'mtd' command instead.
 
 config MTDIDS_DEFAULT
 	string "Default MTD IDs"
-	depends on CMD_MTDPARTS || CMD_NAND || CMD_FLASH
+	depends on CMD_MTD || CMD_MTDPARTS || CMD_NAND || CMD_FLASH
 	help
 	  Defines a default MTD IDs list for use with MTD partitions in the
 	  Linux MTD command line partitions format.
 
 config MTDPARTS_DEFAULT
 	string "Default MTD partition scheme"
-	depends on CMD_MTDPARTS || CMD_NAND || CMD_FLASH
+	depends on CMD_MTD || CMD_MTDPARTS || CMD_NAND || CMD_FLASH
 	help
 	  Defines a default MTD partitioning scheme in the Linux MTD command
 	  line partitions format
@@ -1855,6 +1865,8 @@ config CMD_UBI
 	  capabilities. Please, consult the MTD web site for more details
 	  (www.linux-mtd.infradead.org). Activate this option if you want
 	  to use U-Boot UBI commands.
+	  It is also strongly encouraged to also enable CONFIG_MTD to get full
+	  partition support.
 
 config CMD_UBIFS
 	tristate "Enable UBIFS - Unsorted block images filesystem commands"

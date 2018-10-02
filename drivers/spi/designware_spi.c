@@ -17,6 +17,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <fdtdec.h>
+#include <reset.h>
 #include <linux/compat.h>
 #include <linux/iopoll.h>
 #include <asm/io.h>
@@ -111,6 +112,8 @@ struct dw_spi_priv {
 	void *tx_end;
 	void *rx;
 	void *rx_end;
+
+	struct reset_ctl_bulk	resets;
 };
 
 static inline u32 dw_read(struct dw_spi_priv *priv, u32 offset)
@@ -231,6 +234,34 @@ err_rate:
 	return -EINVAL;
 }
 
+static int dw_spi_reset(struct udevice *bus)
+{
+	int ret;
+	struct dw_spi_priv *priv = dev_get_priv(bus);
+
+	ret = reset_get_bulk(bus, &priv->resets);
+	if (ret) {
+		/*
+		 * Return 0 if error due to !CONFIG_DM_RESET and reset
+		 * DT property is not present.
+		 */
+		if (ret == -ENOENT || ret == -ENOTSUPP)
+			return 0;
+
+		dev_warn(bus, "Can't get reset: %d\n", ret);
+		return ret;
+	}
+
+	ret = reset_deassert_bulk(&priv->resets);
+	if (ret) {
+		reset_release_bulk(&priv->resets);
+		dev_err(bus, "Failed to reset: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 static int dw_spi_probe(struct udevice *bus)
 {
 	struct dw_spi_platdata *plat = dev_get_platdata(bus);
@@ -241,6 +272,10 @@ static int dw_spi_probe(struct udevice *bus)
 	priv->freq = plat->frequency;
 
 	ret = dw_spi_get_clk(bus, &priv->bus_clk_rate);
+	if (ret)
+		return ret;
+
+	ret = dw_spi_reset(bus);
 	if (ret)
 		return ret;
 
@@ -478,6 +513,13 @@ static int dw_spi_set_mode(struct udevice *bus, uint mode)
 	return 0;
 }
 
+static int dw_spi_remove(struct udevice *bus)
+{
+	struct dw_spi_priv *priv = dev_get_priv(bus);
+
+	return reset_release_bulk(&priv->resets);
+}
+
 static const struct dm_spi_ops dw_spi_ops = {
 	.xfer		= dw_spi_xfer,
 	.set_speed	= dw_spi_set_speed,
@@ -502,4 +544,5 @@ U_BOOT_DRIVER(dw_spi) = {
 	.platdata_auto_alloc_size = sizeof(struct dw_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct dw_spi_priv),
 	.probe = dw_spi_probe,
+	.remove = dw_spi_remove,
 };

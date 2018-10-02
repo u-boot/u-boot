@@ -299,7 +299,7 @@ F:	drivers/i2c/i2c-cdns.c
 F:	drivers/i2c/muxes/pca954x.c
 F:	drivers/i2c/zynq_i2c.c
 F:	drivers/mmc/zynq_sdhci.c
-F:	drivers/mtd/nand/zynq_nand.c
+F:	drivers/mtd/nand/raw/zynq_nand.c
 F:	drivers/net/phy/xilinx_phy.c
 F:	drivers/net/zynq_gem.c
 F:	drivers/serial/serial_zynq.c
@@ -323,7 +323,7 @@ F:	drivers/i2c/i2c-cdns.c
 F:	drivers/i2c/muxes/pca954x.c
 F:	drivers/i2c/zynq_i2c.c
 F:	drivers/mmc/zynq_sdhci.c
-F:	drivers/mtd/nand/zynq_nand.c
+F:	drivers/mtd/nand/raw/zynq_nand.c
 F:	drivers/net/phy/xilinx_phy.c
 F:	drivers/net/zynq_gem.c
 F:	drivers/serial/serial_zynq.c
@@ -478,7 +478,7 @@ NAND FLASH
 #M:	Scott Wood <oss@buserror.net>
 S:	Orphaned (Since 2018-07)
 T:	git git://git.denx.de/u-boot-nand-flash.git
-F:	drivers/mtd/nand/
+F:	drivers/mtd/nand/raw/
 
 NDS32
 M:	Macpaul Lin <macpaul@andestech.com>

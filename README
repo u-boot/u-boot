@@ -3237,8 +3237,8 @@ Low Level (hardware related) configuration options:
 		a 16 bit bus.
 		Not all NAND drivers use this symbol.
 		Example of drivers that use it:
-		- drivers/mtd/nand/ndfc.c
-		- drivers/mtd/nand/mxc_nand.c
+		- drivers/mtd/nand/raw/ndfc.c
+		- drivers/mtd/nand/raw/mxc_nand.c
 
 - CONFIG_SYS_NDFC_EBC0_CFG
 		Sets the EBC0_CFG register for the NDFC. If not defined
@@ -3355,7 +3355,7 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
 		Option to disable subpage write in NAND driver
 		driver that uses this:
-		drivers/mtd/nand/davinci_nand.c
+		drivers/mtd/nand/raw/davinci_nand.c
 
 Freescale QE/FMAN Firmware Support:
 -----------------------------------

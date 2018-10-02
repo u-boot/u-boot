@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2011 OMICRON electronics GmbH
  *
- * based on drivers/mtd/nand/nand_spl_load.c
+ * based on drivers/mtd/nand/raw/nand_spl_load.c
  *
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.

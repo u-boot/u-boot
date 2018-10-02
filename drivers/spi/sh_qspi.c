@@ -67,14 +67,11 @@ struct sh_qspi_regs {
 };
 
 struct sh_qspi_slave {
+#ifndef CONFIG_DM_SPI
 	struct spi_slave	slave;
+#endif
 	struct sh_qspi_regs	*regs;
 };
-
-static inline struct sh_qspi_slave *to_sh_qspi(struct spi_slave *slave)
-{
-	return container_of(slave, struct sh_qspi_slave, slave);
-}
 
 static void sh_qspi_init(struct sh_qspi_slave *ss)
 {
@@ -119,15 +116,8 @@ static void sh_qspi_init(struct sh_qspi_slave *ss)
 	setbits_8(&ss->regs->spcr, SPCR_SPE);
 }
 
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+static void sh_qspi_cs_activate(struct sh_qspi_slave *ss)
 {
-	return 1;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	struct sh_qspi_slave *ss = to_sh_qspi(slave);
-
 	/* Set master mode only */
 	writeb(SPCR_MSTR, &ss->regs->spcr);
 
@@ -147,61 +137,15 @@ void spi_cs_activate(struct spi_slave *slave)
 	setbits_8(&ss->regs->spcr, SPCR_SPE);
 }
 
-void spi_cs_deactivate(struct spi_slave *slave)
+static void sh_qspi_cs_deactivate(struct sh_qspi_slave *ss)
 {
-	struct sh_qspi_slave *ss = to_sh_qspi(slave);
-
 	/* Disable SPI Function */
 	clrbits_8(&ss->regs->spcr, SPCR_SPE);
 }
 
-void spi_init(void)
+static int sh_qspi_xfer_common(struct sh_qspi_slave *ss, unsigned int bitlen,
+			       const void *dout, void *din, unsigned long flags)
 {
-	/* nothing to do */
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
-{
-	struct sh_qspi_slave *ss;
-
-	if (!spi_cs_is_valid(bus, cs))
-		return NULL;
-
-	ss = spi_alloc_slave(struct sh_qspi_slave, bus, cs);
-	if (!ss) {
-		printf("SPI_error: Fail to allocate sh_qspi_slave\n");
-		return NULL;
-	}
-
-	ss->regs = (struct sh_qspi_regs *)SH_QSPI_BASE;
-
-	/* Init SH QSPI */
-	sh_qspi_init(ss);
-
-	return &ss->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct sh_qspi_slave *spi = to_sh_qspi(slave);
-
-	free(spi);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	return 0;
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
-	     void *din, unsigned long flags)
-{
-	struct sh_qspi_slave *ss = to_sh_qspi(slave);
 	u32 nbyte, chunk;
 	int i, ret = 0;
 	u8 dtdata = 0, drdata;
@@ -210,7 +154,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 	if (dout == NULL && din == NULL) {
 		if (flags & SPI_XFER_END)
-			spi_cs_deactivate(slave);
+			sh_qspi_cs_deactivate(ss);
 		return 0;
 	}
 
@@ -222,7 +166,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	nbyte = bitlen / 8;
 
 	if (flags & SPI_XFER_BEGIN) {
-		spi_cs_activate(slave);
+		sh_qspi_cs_activate(ss);
 
 		/* Set 1048576 byte */
 		writel(0x100000, spbmul0);
@@ -273,7 +217,148 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	}
 
 	if (flags & SPI_XFER_END)
-		spi_cs_deactivate(slave);
+		sh_qspi_cs_deactivate(ss);
 
 	return ret;
 }
+
+#ifndef CONFIG_DM_SPI
+static inline struct sh_qspi_slave *to_sh_qspi(struct spi_slave *slave)
+{
+	return container_of(slave, struct sh_qspi_slave, slave);
+}
+
+int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+{
+	return 1;
+}
+
+void spi_cs_activate(struct spi_slave *slave)
+{
+	struct sh_qspi_slave *ss = to_sh_qspi(slave);
+
+	sh_qspi_cs_activate(ss);
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	struct sh_qspi_slave *ss = to_sh_qspi(slave);
+
+	sh_qspi_cs_deactivate(ss);
+}
+
+void spi_init(void)
+{
+	/* nothing to do */
+}
+
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+		unsigned int max_hz, unsigned int mode)
+{
+	struct sh_qspi_slave *ss;
+
+	if (!spi_cs_is_valid(bus, cs))
+		return NULL;
+
+	ss = spi_alloc_slave(struct sh_qspi_slave, bus, cs);
+	if (!ss) {
+		printf("SPI_error: Fail to allocate sh_qspi_slave\n");
+		return NULL;
+	}
+
+	ss->regs = (struct sh_qspi_regs *)SH_QSPI_BASE;
+
+	/* Init SH QSPI */
+	sh_qspi_init(ss);
+
+	return &ss->slave;
+}
+
+void spi_free_slave(struct spi_slave *slave)
+{
+	struct sh_qspi_slave *spi = to_sh_qspi(slave);
+
+	free(spi);
+}
+
+int spi_claim_bus(struct spi_slave *slave)
+{
+	return 0;
+}
+
+void spi_release_bus(struct spi_slave *slave)
+{
+}
+
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+	     const void *dout, void *din, unsigned long flags)
+{
+	struct sh_qspi_slave *ss = to_sh_qspi(slave);
+
+	return sh_qspi_xfer_common(ss, bitlen, dout, din, flags);
+}
+
+#else
+
+#include <dm.h>
+
+static int sh_qspi_xfer(struct udevice *dev, unsigned int bitlen,
+			const void *dout, void *din, unsigned long flags)
+{
+	struct udevice *bus = dev->parent;
+	struct sh_qspi_slave *ss = dev_get_platdata(bus);
+
+	return sh_qspi_xfer_common(ss, bitlen, dout, din, flags);
+}
+
+static int sh_qspi_set_speed(struct udevice *dev, uint speed)
+{
+	/* This is a SPI NOR controller, do nothing. */
+	return 0;
+}
+
+static int sh_qspi_set_mode(struct udevice *dev, uint mode)
+{
+	/* This is a SPI NOR controller, do nothing. */
+	return 0;
+}
+
+static int sh_qspi_probe(struct udevice *dev)
+{
+	struct sh_qspi_slave *ss = dev_get_platdata(dev);
+
+	sh_qspi_init(ss);
+
+	return 0;
+}
+
+static int sh_qspi_ofdata_to_platdata(struct udevice *dev)
+{
+	struct sh_qspi_slave *plat = dev_get_platdata(dev);
+
+	plat->regs = (struct sh_qspi_regs *)dev_read_addr(dev);
+
+	return 0;
+}
+
+static const struct dm_spi_ops sh_qspi_ops = {
+	.xfer		= sh_qspi_xfer,
+	.set_speed	= sh_qspi_set_speed,
+	.set_mode	= sh_qspi_set_mode,
+};
+
+static const struct udevice_id sh_qspi_ids[] = {
+	{ .compatible = "renesas,qspi" },
+	{ }
+};
+
+U_BOOT_DRIVER(sh_qspi) = {
+	.name		= "sh_qspi",
+	.id		= UCLASS_SPI,
+	.of_match	= sh_qspi_ids,
+	.ops		= &sh_qspi_ops,
+	.ofdata_to_platdata = sh_qspi_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct sh_qspi_slave),
+	.probe		= sh_qspi_probe,
+};
+#endif

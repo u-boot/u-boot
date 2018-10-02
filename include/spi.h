@@ -9,6 +9,8 @@
 #ifndef _SPI_H_
 #define _SPI_H_
 
+#include <common.h>
+
 /* SPI mode flags */
 #define SPI_CPHA	BIT(0)			/* clock phase */
 #define SPI_CPOL	BIT(1)			/* clock polarity */
@@ -401,6 +403,15 @@ struct dm_spi_ops {
 	 */
 	int (*xfer)(struct udevice *dev, unsigned int bitlen, const void *dout,
 		    void *din, unsigned long flags);
+
+	/**
+	 * Optimized handlers for SPI memory-like operations.
+	 *
+	 * Optimized/dedicated operations for interactions with SPI memory. This
+	 * field is optional and should only be implemented if the controller
+	 * has native support for memory like operations.
+	 */
+	const struct spi_controller_mem_ops *mem_ops;
 
 	/**
 	 * Set transfer speed.
