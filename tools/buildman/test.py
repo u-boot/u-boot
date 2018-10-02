@@ -422,8 +422,10 @@ class TestBuild(unittest.TestCase):
     def testToolchainDownload(self):
         """Test that we can download toolchains"""
         if use_network:
-            self.assertEqual('https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.9.0/x86_64-gcc-4.9.0-nolibc_arm-unknown-linux-gnueabi.tar.xz',
-                self.toolchains.LocateArchUrl('arm'))
+            url = self.toolchains.LocateArchUrl('arm')
+            self.assertRegexpMatches(url, 'https://www.kernel.org/pub/tools/'
+                    'crosstool/files/bin/x86_64/.*/'
+                    'x86_64-gcc-.*-nolibc_arm-.*linux-gnueabi.tar.xz')
 
 
 if __name__ == "__main__":
