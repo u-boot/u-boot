@@ -140,6 +140,13 @@ kernel <path>	    - if this label is chosen, use tftp to retrieve the kernel
 		      (or FIT image) at <path>. it will be stored at the address
 		      indicated in the kernel_addr_r environment variable, and
 		      that address will be passed to bootm to boot this kernel.
+		      For FIT image, The configuration specification can be
+		      appended to the file name, with the format:
+		        <path>#<conf>[#<extra-conf[#...]]
+		      It will passed to bootm with that address.
+		      (see: doc/uImage.FIT/command_syntax_extensions.txt)
+		      It useful for overlay selection in pxe file
+		      (see: doc/uImage.FIT/overlay-fdt-boot.txt)
 
 append <string>	    - use <string> as the kernel command line when booting this
 		      label.
