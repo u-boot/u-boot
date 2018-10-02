@@ -1259,6 +1259,11 @@ int fat_unlink(const char *filename)
 	char *filename_copy, *dirname, *basename;
 
 	filename_copy = strdup(filename);
+	if (!filename_copy) {
+		printf("Error: allocating memory\n");
+		ret = -ENOMEM;
+		goto exit;
+	}
 	split_filename(filename_copy, &dirname, &basename);
 
 	if (!strcmp(dirname, "/") && !strcmp(basename, "")) {
@@ -1270,7 +1275,8 @@ int fat_unlink(const char *filename)
 	itr = malloc_cache_aligned(sizeof(fat_itr));
 	if (!itr) {
 		printf("Error: allocating memory\n");
-		return -ENOMEM;
+		ret = -ENOMEM;
+		goto exit;
 	}
 
 	ret = fat_itr_root(itr, &fsdata);
