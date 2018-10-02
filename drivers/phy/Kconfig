@@ -118,6 +118,14 @@ config PHY_RCAR_GEN2
 	  PHY connected to USBHS module, PCI EHCI module and USB3.0 module and
 	  allows configuring the module multiplexing.
 
+config PHY_RCAR_GEN3
+	tristate "Renesas R-Car Gen3 USB PHY"
+	depends on PHY && RCAR_GEN3 && CLK && DM_REGULATOR
+	default y if RCAR_GEN3
+	help
+	  Support for the Renesas R-Car Gen3 USB PHY. This driver operates the
+	  PHY connected to EHCI USB module and controls USB OTG operation.
+
 config PHY_STM32_USBPHYC
 	tristate "STMicroelectronics STM32 SoC USB HS PHY driver"
 	depends on PHY && ARCH_STM32MP
