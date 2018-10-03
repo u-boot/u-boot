@@ -146,14 +146,10 @@ int ft_board_setup(void *blob, bd_t *bd)
 	int nbanks;
 	u64 size[2];
 	u64 start[2];
-	int nodeoffset;
 	u32 ddr3a_size;
-	int unitrd_fixup = 0;
 
 	env = env_get("mem_lpae");
 	lpae = env && simple_strtol(env, NULL, 0);
-	env = env_get("uinitrd_fixup");
-	unitrd_fixup = env && simple_strtol(env, NULL, 0);
 
 	ddr3a_size = 0;
 	if (lpae) {
@@ -191,24 +187,41 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory_banks(blob, start, size, nbanks);
 
+	return 0;
+}
+
+void ft_board_setup_ex(void *blob, bd_t *bd)
+{
+	int lpae;
+	u64 size;
+	char *env;
+	u64 *reserve_start;
+	int unitrd_fixup = 0;
+
+	env = env_get("mem_lpae");
+	lpae = env && simple_strtol(env, NULL, 0);
+	env = env_get("uinitrd_fixup");
+	unitrd_fixup = env && simple_strtol(env, NULL, 0);
+
 	/* Fix up the initrd */
 	if (lpae && unitrd_fixup) {
+		int nodeoffset;
 		int err;
-		u32 *prop1, *prop2;
+		u64 *prop1, *prop2;
 		u64 initrd_start, initrd_end;
 
 		nodeoffset = fdt_path_offset(blob, "/chosen");
 		if (nodeoffset >= 0) {
-			prop1 = (u32 *)fdt_getprop(blob, nodeoffset,
+			prop1 = (u64 *)fdt_getprop(blob, nodeoffset,
 					    "linux,initrd-start", NULL);
-			prop2 = (u32 *)fdt_getprop(blob, nodeoffset,
+			prop2 = (u64 *)fdt_getprop(blob, nodeoffset,
 					    "linux,initrd-end", NULL);
 			if (prop1 && prop2) {
-				initrd_start = __be32_to_cpu(*prop1);
+				initrd_start = __be64_to_cpu(*prop1);
 				initrd_start -= CONFIG_SYS_SDRAM_BASE;
 				initrd_start += CONFIG_SYS_LPAE_SDRAM_BASE;
 				initrd_start = __cpu_to_be64(initrd_start);
-				initrd_end = __be32_to_cpu(*prop2);
+				initrd_end = __be64_to_cpu(*prop2);
 				initrd_end -= CONFIG_SYS_SDRAM_BASE;
 				initrd_end += CONFIG_SYS_LPAE_SDRAM_BASE;
 				initrd_end = __cpu_to_be64(initrd_end);
@@ -239,19 +252,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 			}
 		}
 	}
-
-	return 0;
-}
-
-void ft_board_setup_ex(void *blob, bd_t *bd)
-{
-	int lpae;
-	u64 size;
-	char *env;
-	u64 *reserve_start;
-
-	env = env_get("mem_lpae");
-	lpae = env && simple_strtol(env, NULL, 0);
 
 	if (lpae) {
 		/*
