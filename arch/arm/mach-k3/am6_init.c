@@ -85,7 +85,13 @@ static u32 __get_backup_bootmedia(u32 devstat)
 	case BACKUP_BOOT_DEVICE_ETHERNET:
 		return BOOT_DEVICE_ETHERNET;
 	case BACKUP_BOOT_DEVICE_MMC2:
+	{
+		u32 port = (devstat & CTRLMMR_MAIN_DEVSTAT_BKUP_MMC_PORT_MASK) >>
+			    CTRLMMR_MAIN_DEVSTAT_BKUP_MMC_PORT_SHIFT;
+		if (port == 0x0)
+			return BOOT_DEVICE_MMC1;
 		return BOOT_DEVICE_MMC2;
+	}
 	case BACKUP_BOOT_DEVICE_SPI:
 		return BOOT_DEVICE_SPI;
 	case BACKUP_BOOT_DEVICE_HYPERFLASH:
@@ -99,10 +105,23 @@ static u32 __get_backup_bootmedia(u32 devstat)
 
 static u32 __get_primary_bootmedia(u32 devstat)
 {
-	u32 bootmode = devstat & CTRLMMR_MAIN_DEVSTAT_BOOTMODE_MASK;
+	u32 bootmode = (devstat & CTRLMMR_MAIN_DEVSTAT_BOOTMODE_MASK) >>
+			CTRLMMR_MAIN_DEVSTAT_BOOTMODE_SHIFT;
 
 	if (bootmode == BOOT_DEVICE_OSPI || bootmode ==	BOOT_DEVICE_QSPI)
 		bootmode = BOOT_DEVICE_SPI;
+
+	if (bootmode == BOOT_DEVICE_MMC2) {
+		u32 port = (devstat & CTRLMMR_MAIN_DEVSTAT_MMC_PORT_MASK) >>
+			    CTRLMMR_MAIN_DEVSTAT_MMC_PORT_SHIFT;
+		if (port == 0x0)
+			bootmode = BOOT_DEVICE_MMC1;
+	} else if (bootmode == BOOT_DEVICE_MMC1) {
+		u32 port = (devstat & CTRLMMR_MAIN_DEVSTAT_EMMC_PORT_MASK) >>
+			    CTRLMMR_MAIN_DEVSTAT_EMMC_PORT_SHIFT;
+		if (port == 0x1)
+			bootmode = BOOT_DEVICE_MMC2;
+	}
 
 	return bootmode;
 }
