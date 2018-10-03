@@ -72,6 +72,29 @@ void board_init_f(ulong dummy)
 	preloader_console_init();
 }
 
+u32 spl_boot_mode(const u32 boot_device)
+{
+#if defined(CONFIG_SUPPORT_EMMC_BOOT)
+	u32 devstat = readl(CTRLMMR_MAIN_DEVSTAT);
+	u32 bootindex = readl(K3_BOOT_PARAM_TABLE_INDEX_VAL);
+
+	u32 bootmode = (devstat & CTRLMMR_MAIN_DEVSTAT_BOOTMODE_MASK) >>
+			CTRLMMR_MAIN_DEVSTAT_BOOTMODE_SHIFT;
+
+	/* eMMC boot0 mode is only supported for primary boot */
+	if (bootindex == K3_PRIMARY_BOOTMODE &&
+	    bootmode == BOOT_DEVICE_MMC1)
+		return MMCSD_MODE_EMMCBOOT;
+#endif
+
+	/* Everything else use filesystem if available */
+#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+	return MMCSD_MODE_FS;
+#else
+	return MMCSD_MODE_RAW;
+#endif
+}
+
 static u32 __get_backup_bootmedia(u32 devstat)
 {
 	u32 bkup_boot = (devstat & CTRLMMR_MAIN_DEVSTAT_BKUP_BOOTMODE_MASK) >>
