@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017 Andes Technology Corporation
- * Rick Chen, Andes Technology Corporation <rick@andestech.com>
+ * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
  */
 
-/* CPU specific code */
 #include <common.h>
 
 /*

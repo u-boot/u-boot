@@ -4,7 +4,6 @@
  * Rick Chen, Andes Technology Corporation <rick@andestech.com>
  */
 
-#include <asm/mach-types.h>
 #include <common.h>
 #if defined(CONFIG_FTMAC100) && !defined(CONFIG_DM_ETH)
 #include <netdev.h>
@@ -21,7 +20,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	gd->bd->bi_arch_number = MACH_TYPE_AE350;
 	gd->bd->bi_boot_params = PHYS_SDRAM_0 + 0x400;
 
 	return 0;

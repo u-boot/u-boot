@@ -11,7 +11,7 @@
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
-#include <asm/bootm.h>
+#include <asm/csr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -26,10 +26,7 @@ int arch_fixup_fdt(void *blob)
 
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
-	bd_t	*bd = gd->bd;
-	char	*s;
-	int	machid = bd->bi_arch_number;
-	void	(*theKernel)(int arch, uint params);
+	void	(*kernel)(ulong hart, void *dtb);
 
 	/*
 	 * allow the PREP bootm subcommand, it is required for bootm to work
@@ -40,18 +37,12 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
-	theKernel = (void (*)(int, uint))images->ep;
-
-	s = env_get("machid");
-	if (s) {
-		machid = simple_strtoul(s, NULL, 16);
-		printf("Using machid 0x%x from environment\n", machid);
-	}
+	kernel = (void (*)(ulong, void *))images->ep;
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
-	       (ulong)theKernel);
+	       (ulong)kernel);
 
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
 #ifdef CONFIG_OF_LIBFDT
@@ -67,8 +58,9 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	printf("\nStarting kernel ...\n\n");
 
 	cleanup_before_linux();
+
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
-		theKernel(machid, (unsigned long)images->ft_addr);
+		kernel(csr_read(mhartid), images->ft_addr);
 
 	/* does not return */
 

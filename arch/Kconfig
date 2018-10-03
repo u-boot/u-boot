@@ -60,8 +60,20 @@ config PPC
 	select SYS_BOOT_GET_KBD
 
 config RISCV
-	bool "riscv architecture"
+	bool "RISC-V architecture"
 	select SUPPORT_OF_CONTROL
+	select OF_CONTROL
+	select DM
+	imply DM_SERIAL
+	imply DM_ETH
+	imply DM_MMC
+	imply DM_SPI
+	imply DM_SPI_FLASH
+	imply BLK
+	imply CLK
+	imply MTD
+	imply TIMER
+	imply CMD_DM
 
 config SANDBOX
 	bool "Sandbox"
