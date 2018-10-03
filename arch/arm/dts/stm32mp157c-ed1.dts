@@ -361,6 +361,10 @@
 	status = "okay";
 };
 
+&usbotg_hs {
+	usb33d-supply = <&usb33>;
+};
+
 &usbphyc_port0 {
 	phy-supply = <&vdd_usb>;
 	vdda1v1-supply = <&reg11>;
