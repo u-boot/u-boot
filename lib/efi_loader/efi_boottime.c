@@ -2023,7 +2023,7 @@ static efi_status_t EFIAPI efi_open_protocol_information(
 
 	/* Copy entries */
 	buffer_size = count * sizeof(struct efi_open_protocol_info_entry);
-	r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, buffer_size,
+	r = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, buffer_size,
 			      (void **)entry_buffer);
 	if (r != EFI_SUCCESS)
 		goto out;
@@ -2080,7 +2080,7 @@ static efi_status_t EFIAPI efi_protocols_per_handle(
 		size_t j = 0;
 
 		buffer_size = sizeof(efi_guid_t *) * *protocol_buffer_count;
-		r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, buffer_size,
+		r = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, buffer_size,
 				      (void **)protocol_buffer);
 		if (r != EFI_SUCCESS)
 			return EFI_EXIT(r);
@@ -2133,7 +2133,7 @@ static efi_status_t EFIAPI efi_locate_handle_buffer(
 			      *buffer);
 	if (r != EFI_BUFFER_TOO_SMALL)
 		goto out;
-	r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, buffer_size,
+	r = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, buffer_size,
 			      (void **)buffer);
 	if (r != EFI_SUCCESS)
 		goto out;
