@@ -596,6 +596,9 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			       fdt_strerror(err));
 			return CMD_RET_FAILURE;
 		}
+#ifdef CONFIG_SOC_KEYSTONE
+		ft_board_setup_ex(working_fdt, gd->bd);
+#endif
 	}
 #endif
 	/* Create a chosen node */
