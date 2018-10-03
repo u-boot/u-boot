@@ -1,0 +1,12 @@
+if TARGET_KHADAS_VIM2
+
+config SYS_BOARD
+	default "khadas-vim2"
+
+config SYS_VENDOR
+	default "amlogic"
+
+config SYS_CONFIG_NAME
+	default "khadas-vim2"
+
+endif
