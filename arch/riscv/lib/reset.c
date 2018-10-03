@@ -10,7 +10,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf("resetting ...\n");
 
-	printf("reset unsupported yet\n");
+	printf("reset not supported yet\n");
 	hang();
 
 	return 0;
