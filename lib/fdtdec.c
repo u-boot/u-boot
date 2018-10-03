@@ -15,7 +15,6 @@
 #include <serial.h>
 #include <asm/sections.h>
 #include <linux/ctype.h>
-#include <linux/ioport.h>
 #include <linux/lzo.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -1099,34 +1098,41 @@ int fdtdec_setup_mem_size_base(void)
 
 #if defined(CONFIG_NR_DRAM_BANKS)
 
-static ofnode get_next_memory_node(ofnode mem)
+static int get_next_memory_node(const void *blob, int mem)
 {
 	do {
-		mem = ofnode_by_prop_value(mem, "device_type", "memory", 7);
-	} while (ofnode_valid(mem) && !ofnode_is_available(mem));
+		mem = fdt_node_offset_by_prop_value(gd->fdt_blob, mem,
+						    "device_type", "memory", 7);
+	} while (!fdtdec_get_is_enabled(blob, mem));
 
 	return mem;
 }
 
 int fdtdec_setup_memory_banksize(void)
 {
-	int bank, reg = 0;
-	struct resource res;
-	ofnode mem;
+	int bank, ret, mem, reg = 0;
+	struct fdt_resource res;
 
-	mem = get_next_memory_node(ofnode_null());
-	if (!ofnode_valid(mem))
-		goto missing_node;
+	mem = get_next_memory_node(gd->fdt_blob, -1);
+	if (mem < 0) {
+		debug("%s: Missing /memory node\n", __func__);
+		return -EINVAL;
+	}
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		while (ofnode_read_resource(mem, reg++, &res)) {
+		ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
+		if (ret == -FDT_ERR_NOTFOUND) {
 			reg = 0;
-			mem = get_next_memory_node(mem);
-			if (!ofnode_valid(mem)) {
-				if (bank)
-					return 0;
-				goto missing_node;
-			}
+			mem = get_next_memory_node(gd->fdt_blob, mem);
+			if (mem == -FDT_ERR_NOTFOUND)
+				break;
+
+			ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
+			if (ret == -FDT_ERR_NOTFOUND)
+				break;
+		}
+		if (ret != 0) {
+			return -EINVAL;
 		}
 
 		gd->bd->bi_dram[bank].start = (phys_addr_t)res.start;
@@ -1140,10 +1146,6 @@ int fdtdec_setup_memory_banksize(void)
 	}
 
 	return 0;
-
-missing_node:
-	debug("%s: Missing /memory node\n", __func__);
-	return -EINVAL;
 }
 #endif
 
