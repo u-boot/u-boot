@@ -22,6 +22,7 @@
 #include <asm/arch/pinmux_defs.h>
 #include <asm/arch/davinci_misc.h>
 #include <asm/arch/timer_defs.h>
+#include "../../../drivers/gpio/da8xx_gpio.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
