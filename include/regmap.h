@@ -21,8 +21,8 @@ struct regmap_range {
 /**
  * struct regmap - a way of accessing hardware/bus registers
  *
- * @range_count: Number of ranges available within the map
- * @ranges:	Array of ranges
+ * @range_count:	Number of ranges available within the map
+ * @ranges:		Array of ranges
  */
 struct regmap {
 	int range_count;
@@ -33,7 +33,28 @@ struct regmap {
  * Interface to provide access to registers either through a direct memory
  * bus or through a peripheral bus like I2C, SPI.
  */
+
+/**
+ * regmap_write() - Write a 32-bit value to a regmap
+ *
+ * @map:	Regmap to write to
+ * @offset:	Offset in the regmap to write to
+ * @val:	Data to write to the regmap at the specified offset
+ *
+ * Return: 0 if OK, -ve on error
+ */
 int regmap_write(struct regmap *map, uint offset, uint val);
+
+/**
+ * regmap_read() - Read a 32-bit value from a regmap
+ *
+ * @map:	Regmap to read from
+ * @offset:	Offset in the regmap to read from
+ * @valp:	Pointer to the buffer to receive the data read from the regmap
+ *		at the specified offset
+ *
+ * Return: 0 if OK, -ve on error
+ */
 int regmap_read(struct regmap *map, uint offset, uint *valp);
 
 #define regmap_write32(map, ptr, member, val) \
@@ -49,31 +70,36 @@ int regmap_read(struct regmap *map, uint offset, uint *valp);
  * @offset:	Offset of the memory
  * @mask:	Mask to apply to the read value
  * @val:	Value to apply to the value to write
+ * Return: 0 if OK, -ve on error
  */
 int regmap_update_bits(struct regmap *map, uint offset, uint mask, uint val);
 
 /**
  * regmap_init_mem() - Set up a new register map that uses memory access
  *
- * Use regmap_uninit() to free it.
- *
  * @node:	Device node that uses this map
  * @mapp:	Returns allocated map
+ * Return: 0 if OK, -ve on error
+ *
+ * Use regmap_uninit() to free it.
  */
 int regmap_init_mem(ofnode node, struct regmap **mapp);
 
 /**
- * regmap_init_mem_platdata() - Set up a new memory register map for of-platdata
+ * regmap_init_mem_platdata() - Set up a new memory register map for
+ *				of-platdata
+ *
+ * @dev:	Device that uses this map
+ * @reg:	List of address, size pairs
+ * @count:	Number of pairs (e.g. 1 if the regmap has a single entry)
+ * @mapp:	Returns allocated map
+ * Return: 0 if OK, -ve on error
  *
  * This creates a new regmap with a list of regions passed in, rather than
  * using the device tree. It only supports 32-bit machines.
  *
  * Use regmap_uninit() to free it.
  *
- * @dev:	Device that uses this map
- * @reg:	List of address, size pairs
- * @count:	Number of pairs (e.g. 1 if the regmap has a single entry)
- * @mapp:	Returns allocated map
  */
 int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
 			     struct regmap **mapp);
@@ -83,11 +109,15 @@ int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
  *
  * @map:	Regmap to query
  * @range_num:	Range to look up
+ * Return: Pointer to the range in question if OK, NULL on error
  */
 void *regmap_get_range(struct regmap *map, unsigned int range_num);
 
 /**
  * regmap_uninit() - free a previously inited regmap
+ *
+ * @map:	Regmap to free
+ * Return: 0 if OK, -ve on error
  */
 int regmap_uninit(struct regmap *map);
 
