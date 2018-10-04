@@ -17,6 +17,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/**
+ * regmap_alloc() - Allocate a regmap with a given number of ranges.
+ *
+ * @count: Number of ranges to be allocated for the regmap.
+ * Return: A pointer to the newly allocated regmap, or NULL on error.
+ */
 static struct regmap *regmap_alloc(int count)
 {
 	struct regmap *map;
