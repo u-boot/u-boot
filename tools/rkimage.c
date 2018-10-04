@@ -15,8 +15,7 @@ static uint32_t header;
 static void rkimage_set_header(void *buf, struct stat *sbuf, int ifd,
 			       struct image_tool_params *params)
 {
-	memcpy(buf + RK_SPL_HDR_START, rkcommon_get_spl_hdr(params),
-	       RK_SPL_HDR_SIZE);
+	memcpy(buf, rkcommon_get_spl_hdr(params), RK_SPL_HDR_SIZE);
 
 	if (rkcommon_need_rc4_spl(params))
 		rkcommon_rc4_encode_spl(buf, 4, params->file_size);
@@ -36,7 +35,7 @@ static int rkimage_check_image_type(uint8_t type)
 U_BOOT_IMAGE_TYPE(
 	rkimage,
 	"Rockchip Boot Image support",
-	4,
+	0,
 	&header,
 	rkcommon_check_params,
 	NULL,
