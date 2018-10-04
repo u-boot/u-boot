@@ -116,6 +116,14 @@ config ICH_SPI
 	  access the SPI NOR flash on platforms embedding this Intel
 	  ICH IP core.
 
+config MT7621_SPI
+	bool "MediaTek MT7621 SPI driver"
+	depends on ARCH_MT7620
+	help
+	  Enable the MT7621 SPI driver. This driver can be used to access
+	  the SPI NOR flash on platforms embedding this Ralink / MediaTek
+	  SPI core, like MT7621/7628/7688.
+
 config MVEBU_A3700_SPI
 	bool "Marvell Armada 3700 SPI driver"
 	select CLK_ARMADA_3720
