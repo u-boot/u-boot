@@ -1312,8 +1312,27 @@ static int fecmxc_probe(struct udevice *dev)
 	}
 
 	priv->bus = bus;
-	priv->xcv_type = CONFIG_FEC_XCV_TYPE;
 	priv->interface = pdata->phy_interface;
+	switch (priv->interface) {
+	case PHY_INTERFACE_MODE_MII:
+		priv->xcv_type = MII100;
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		priv->xcv_type = RMII;
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		priv->xcv_type = RGMII;
+		break;
+	default:
+		priv->xcv_type = CONFIG_FEC_XCV_TYPE;
+		printf("Unsupported interface type %d defaulting to %d\n",
+		       priv->interface, priv->xcv_type);
+		break;
+	}
+
 	ret = fec_phy_init(priv, dev);
 	if (ret)
 		goto err_phy;
