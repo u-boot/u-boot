@@ -67,8 +67,25 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 	struct resource r;
 
 	addr_len = ofnode_read_simple_addr_cells(ofnode_get_parent(node));
+	if (addr_len < 0) {
+		debug("%s: Error while reading the addr length (ret = %d)\n",
+		      ofnode_get_name(node), addr_len);
+		return addr_len;
+	}
+
 	size_len = ofnode_read_simple_size_cells(ofnode_get_parent(node));
+	if (size_len < 0) {
+		debug("%s: Error while reading the size length: (ret = %d)\n",
+		      ofnode_get_name(node), size_len);
+		return size_len;
+	}
+
 	both_len = addr_len + size_len;
+	if (!both_len) {
+		debug("%s: Both addr and size length are zero\n",
+		      ofnode_get_name(node));
+		return -EINVAL;
+	}
 
 	len = ofnode_read_size(node, "reg");
 	if (len < 0)
