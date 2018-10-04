@@ -529,7 +529,7 @@
 
 	syscon@0 {
 		compatible = "sandbox,syscon0";
-		reg = <0x10 4>;
+		reg = <0x10 16>;
 	};
 
 	syscon@1 {

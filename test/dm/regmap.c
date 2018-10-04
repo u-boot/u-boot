@@ -25,7 +25,7 @@ static int dm_test_regmap_base(struct unit_test_state *uts)
 	ut_assertok_ptr(map);
 	ut_asserteq(1, map->range_count);
 	ut_asserteq(0x10, map->ranges[0].start);
-	ut_asserteq(4, map->ranges[0].size);
+	ut_asserteq(16, map->ranges[0].size);
 	ut_asserteq(0x10, map_to_sysmem(regmap_get_range(map, 0)));
 
 	ut_assertok(uclass_get_device(UCLASS_SYSCON, 1, &dev));
