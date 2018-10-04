@@ -15,6 +15,7 @@
 #include <miiphy.h>
 #include <net.h>
 #include <netdev.h>
+#include <power/regulator.h>
 
 #include <asm/io.h>
 #include <linux/errno.h>
@@ -1272,6 +1273,16 @@ static int fecmxc_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_DM_REGULATOR
+	if (priv->phy_supply) {
+		ret = regulator_autoset(priv->phy_supply);
+		if (ret) {
+			printf("%s: Error enabling phy supply\n", dev->name);
+			return ret;
+		}
+	}
+#endif
+
 #ifdef CONFIG_DM_GPIO
 	fec_gpio_reset(priv);
 #endif
@@ -1327,6 +1338,11 @@ static int fecmxc_remove(struct udevice *dev)
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
 
+#ifdef CONFIG_DM_REGULATOR
+	if (priv->phy_supply)
+		regulator_set_enable(priv->phy_supply, false);
+#endif
+
 	return 0;
 }
 
@@ -1349,6 +1365,10 @@ static int fecmxc_ofdata_to_platdata(struct udevice *dev)
 		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
+
+#ifdef CONFIG_DM_REGULATOR
+	device_get_supply_regulator(dev, "phy-supply", &priv->phy_supply);
+#endif
 
 #ifdef CONFIG_DM_GPIO
 	ret = gpio_request_by_name(dev, "phy-reset-gpios", 0,

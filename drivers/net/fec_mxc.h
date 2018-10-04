@@ -250,6 +250,9 @@ struct fec_priv {
 	int phy_id;
 	int (*mii_postcall)(int);
 #endif
+#ifdef CONFIG_DM_REGULATOR
+	struct udevice *phy_supply;
+#endif
 #ifdef CONFIG_DM_GPIO
 	struct gpio_desc phy_reset_gpio;
 	uint32_t reset_delay;
