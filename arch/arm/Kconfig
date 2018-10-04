@@ -919,6 +919,7 @@ config ARCH_ZYNQMP
 	imply BOARD_LATE_INIT
 	imply CMD_DM
 	imply FAT_WRITE
+	imply MP
 
 config TEGRA
 	bool "NVIDIA Tegra"
