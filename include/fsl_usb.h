@@ -87,6 +87,7 @@ struct ccsr_usb_phy {
 /* USB Erratum Checking code */
 #if defined(CONFIG_PPC) || defined(CONFIG_ARM)
 bool has_dual_phy(void);
+bool has_erratum_a005275(void);
 bool has_erratum_a006261(void);
 bool has_erratum_a007075(void);
 bool has_erratum_a007798(void);
