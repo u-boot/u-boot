@@ -8,6 +8,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 
@@ -175,11 +176,37 @@ static int do_zynqmp_aes(cmd_tbl_t *cmdtp, int flag, int argc,
 	return ret;
 }
 
+#ifdef CONFIG_DEFINE_TCM_OCM_MMAP
+static int do_zynqmp_tcm_init(cmd_tbl_t *cmdtp, int flag, int argc,
+			      char * const argv[])
+{
+	u8 mode;
+
+	if (argc != cmdtp->maxargs)
+		return CMD_RET_USAGE;
+
+	mode = simple_strtoul(argv[2], NULL, 16);
+	if (mode != TCM_LOCK && mode != TCM_SPLIT) {
+		printf("Mode should be either 0(lock)/1(split)\n");
+		return CMD_RET_FAILURE;
+	}
+
+	dcache_disable();
+	tcm_init(mode);
+	dcache_enable();
+
+	return CMD_RET_SUCCESS;
+}
+#endif
+
 static cmd_tbl_t cmd_zynqmp_sub[] = {
 	U_BOOT_CMD_MKENT(secure, 5, 0, do_zynqmp_verify_secure, "", ""),
 	U_BOOT_CMD_MKENT(mmio_read, 3, 0, do_zynqmp_mmio_read, "", ""),
 	U_BOOT_CMD_MKENT(mmio_write, 5, 0, do_zynqmp_mmio_write, "", ""),
 	U_BOOT_CMD_MKENT(aes, 9, 0, do_zynqmp_aes, "", ""),
+#ifdef CONFIG_DEFINE_TCM_OCM_MMAP
+	U_BOOT_CMD_MKENT(tcminit, 3, 0, do_zynqmp_tcm_init, "", ""),
+#endif
 };
 
 /**
@@ -227,7 +254,15 @@ static char zynqmp_help_text[] =
 	"	has to be used, it can be User/Device/PUF key. A value of 0\n"
 	"	for KUP(user key),1 for DeviceKey and 2 for PUF key. The\n"
 	"	aesop value specifies the operation which can be 0 for\n"
-	"	decrypt and 1 for encrypt operation\n";
+	"	decrypt and 1 for encrypt operation\n"
+#ifdef CONFIG_DEFINE_TCM_OCM_MMAP
+	"zynqmp tcminit  mode - Initialize the TCM with zeros. TCM needs to be\n"
+	"		        initialized before accessing to avoid ECC\n"
+	"			errors. mode specifies in which mode TCM has\n"
+	"			to be initialized. Supported modes will be\n"
+	"			lock(0)/split(1)\n"
+#endif
+	;
 #endif
 
 U_BOOT_CMD(
