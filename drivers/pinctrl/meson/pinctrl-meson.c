@@ -20,15 +20,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static const char *meson_pinctrl_dummy_name = "_dummy";
 
-static int meson_pinctrl_get_groups_count(struct udevice *dev)
+int meson_pinctrl_get_groups_count(struct udevice *dev)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev);
 
 	return priv->data->num_groups;
 }
 
-static const char *meson_pinctrl_get_group_name(struct udevice *dev,
-						unsigned selector)
+const char *meson_pinctrl_get_group_name(struct udevice *dev,
+					 unsigned int selector)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev);
 
@@ -38,86 +38,20 @@ static const char *meson_pinctrl_get_group_name(struct udevice *dev,
 	return priv->data->groups[selector].name;
 }
 
-static int meson_pinmux_get_functions_count(struct udevice *dev)
+int meson_pinmux_get_functions_count(struct udevice *dev)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev);
 
 	return priv->data->num_funcs;
 }
 
-static const char *meson_pinmux_get_function_name(struct udevice *dev,
-						  unsigned selector)
+const char *meson_pinmux_get_function_name(struct udevice *dev,
+					   unsigned int selector)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev);
 
 	return priv->data->funcs[selector].name;
 }
-
-static void meson_pinmux_disable_other_groups(struct meson_pinctrl *priv,
-					      unsigned int pin, int sel_group)
-{
-	struct meson_pmx_group *group;
-	void __iomem *addr;
-	int i, j;
-
-	for (i = 0; i < priv->data->num_groups; i++) {
-		group = &priv->data->groups[i];
-		if (group->is_gpio || i == sel_group)
-			continue;
-
-		for (j = 0; j < group->num_pins; j++) {
-			if (group->pins[j] == pin) {
-				/* We have found a group using the pin */
-				debug("pinmux: disabling %s\n", group->name);
-				addr = priv->reg_mux + group->reg * 4;
-				writel(readl(addr) & ~BIT(group->bit), addr);
-			}
-		}
-	}
-}
-
-static int meson_pinmux_group_set(struct udevice *dev,
-				  unsigned group_selector,
-				  unsigned func_selector)
-{
-	struct meson_pinctrl *priv = dev_get_priv(dev);
-	const struct meson_pmx_group *group;
-	const struct meson_pmx_func *func;
-	void __iomem *addr;
-	int i;
-
-	group = &priv->data->groups[group_selector];
-	func = &priv->data->funcs[func_selector];
-
-	debug("pinmux: set group %s func %s\n", group->name, func->name);
-
-	/*
-	 * Disable groups using the same pins.
-	 * The selected group is not disabled to avoid glitches.
-	 */
-	for (i = 0; i < group->num_pins; i++) {
-		meson_pinmux_disable_other_groups(priv,
-						  group->pins[i],
-						  group_selector);
-	}
-
-	/* Function 0 (GPIO) doesn't need any additional setting */
-	if (func_selector) {
-		addr = priv->reg_mux + group->reg * 4;
-		writel(readl(addr) | BIT(group->bit), addr);
-	}
-
-	return 0;
-}
-
-const struct pinctrl_ops meson_pinctrl_ops = {
-	.get_groups_count = meson_pinctrl_get_groups_count,
-	.get_group_name = meson_pinctrl_get_group_name,
-	.get_functions_count = meson_pinmux_get_functions_count,
-	.get_function_name = meson_pinmux_get_function_name,
-	.pinmux_group_set = meson_pinmux_group_set,
-	.set_state = pinctrl_generic_set_state,
-};
 
 static int meson_gpio_calc_reg_and_bit(struct udevice *dev, unsigned int offset,
 				       enum meson_reg_type reg_type,
@@ -149,7 +83,7 @@ static int meson_gpio_calc_reg_and_bit(struct udevice *dev, unsigned int offset,
 	return 0;
 }
 
-static int meson_gpio_get(struct udevice *dev, unsigned int offset)
+int meson_gpio_get(struct udevice *dev, unsigned int offset)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev->parent);
 	unsigned int reg, bit;
@@ -162,7 +96,7 @@ static int meson_gpio_get(struct udevice *dev, unsigned int offset)
 	return !!(readl(priv->reg_gpio + reg) & BIT(bit));
 }
 
-static int meson_gpio_set(struct udevice *dev, unsigned int offset, int value)
+int meson_gpio_set(struct udevice *dev, unsigned int offset, int value)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev->parent);
 	unsigned int reg, bit;
@@ -177,7 +111,7 @@ static int meson_gpio_set(struct udevice *dev, unsigned int offset, int value)
 	return 0;
 }
 
-static int meson_gpio_get_direction(struct udevice *dev, unsigned int offset)
+int meson_gpio_get_direction(struct udevice *dev, unsigned int offset)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev->parent);
 	unsigned int reg, bit, val;
@@ -192,7 +126,7 @@ static int meson_gpio_get_direction(struct udevice *dev, unsigned int offset)
 	return (val & BIT(bit)) ? GPIOF_INPUT : GPIOF_OUTPUT;
 }
 
-static int meson_gpio_direction_input(struct udevice *dev, unsigned int offset)
+int meson_gpio_direction_input(struct udevice *dev, unsigned int offset)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev->parent);
 	unsigned int reg, bit;
@@ -207,8 +141,8 @@ static int meson_gpio_direction_input(struct udevice *dev, unsigned int offset)
 	return 0;
 }
 
-static int meson_gpio_direction_output(struct udevice *dev,
-				       unsigned int offset, int value)
+int meson_gpio_direction_output(struct udevice *dev,
+				unsigned int offset, int value)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev->parent);
 	unsigned int reg, bit;
@@ -229,7 +163,7 @@ static int meson_gpio_direction_output(struct udevice *dev,
 	return 0;
 }
 
-static int meson_gpio_probe(struct udevice *dev)
+int meson_gpio_probe(struct udevice *dev)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev->parent);
 	struct gpio_dev_priv *uc_priv;
@@ -240,21 +174,6 @@ static int meson_gpio_probe(struct udevice *dev)
 
 	return 0;
 }
-
-static const struct dm_gpio_ops meson_gpio_ops = {
-	.set_value = meson_gpio_set,
-	.get_value = meson_gpio_get,
-	.get_function = meson_gpio_get_direction,
-	.direction_input = meson_gpio_direction_input,
-	.direction_output = meson_gpio_direction_output,
-};
-
-static struct driver meson_gpio_driver = {
-	.name	= "meson-gpio",
-	.id	= UCLASS_GPIO,
-	.probe	= meson_gpio_probe,
-	.ops	= &meson_gpio_ops,
-};
 
 static fdt_addr_t parse_address(int offset, const char *name, int na, int ns)
 {
@@ -334,7 +253,7 @@ int meson_pinctrl_probe(struct udevice *dev)
 	sprintf(name, "meson-gpio");
 
 	/* Create child device UCLASS_GPIO and bind it */
-	device_bind(dev, &meson_gpio_driver, name, NULL, gpio, &gpio_dev);
+	device_bind(dev, priv->data->gpio_driver, name, NULL, gpio, &gpio_dev);
 	dev_set_of_offset(gpio_dev, gpio);
 
 	return 0;
