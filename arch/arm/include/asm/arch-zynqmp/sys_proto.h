@@ -68,5 +68,8 @@ int invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2, u32 arg3,
 void initialize_tcm(bool mode);
 void mem_map_fill(void);
 int chip_id(unsigned char id);
+#if defined(CONFIG_SYS_MEM_RSVD_FOR_MMU) || defined(CONFIG_DEFINE_TCM_OCM_MMAP)
+void tcm_init(u8 mode);
+#endif
 
 #endif /* _ASM_ARCH_SYS_PROTO_H */

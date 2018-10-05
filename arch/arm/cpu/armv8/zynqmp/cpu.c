@@ -104,14 +104,16 @@ u64 get_page_table_size(void)
 	return 0x14000;
 }
 
-#ifdef CONFIG_SYS_MEM_RSVD_FOR_MMU
-static void tcm_init(u8 mode)
+#if defined(CONFIG_SYS_MEM_RSVD_FOR_MMU) || defined(CONFIG_DEFINE_TCM_OCM_MMAP)
+void tcm_init(u8 mode)
 {
 	puts("WARNING: Initializing TCM overwrites TCM content\n");
 	initialize_tcm(mode);
 	memset((void *)ZYNQMP_TCM_BASE_ADDR, 0, ZYNQMP_TCM_SIZE);
 }
+#endif
 
+#ifdef CONFIG_SYS_MEM_RSVD_FOR_MMU
 int reserve_mmu(void)
 {
 	tcm_init(TCM_LOCK);
