@@ -536,6 +536,13 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		spl_invoke_atf(&spl_image);
 		break;
 #endif
+#if CONFIG_IS_ENABLED(OPTEE)
+	case IH_OS_TEE:
+		debug("Jumping to U-Boot via OP-TEE\n");
+		spl_optee_entry(NULL, NULL, spl_image.fdt_addr,
+				(void *)spl_image.entry_point);
+		break;
+#endif
 #ifdef CONFIG_SPL_OS_BOOT
 	case IH_OS_LINUX:
 		debug("Jumping to Linux\n");
