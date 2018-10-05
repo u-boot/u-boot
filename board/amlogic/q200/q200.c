@@ -29,7 +29,7 @@ int misc_init_r(void)
 	char serial[EFUSE_SN_SIZE];
 	ssize_t len;
 
-	meson_gx_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
+	meson_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
 
 	/* Reset PHY on GPIOZ_14 */
 	clrbits_le32(GX_GPIO_EN(3), BIT(14));
@@ -56,7 +56,7 @@ int misc_init_r(void)
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	meson_gx_init_reserved_memory(blob);
+	meson_init_reserved_memory(blob);
 
 	return 0;
 }

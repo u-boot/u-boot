@@ -1,64 +1,24 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Beniamino Galvani <b.galvani@gmail.com>
+ * (C) Copyright 2018 Neil Armstrong <narmstrong@baylibre.com>
  */
 
 #include <common.h>
-#include <linux/libfdt.h>
-#include <linux/err.h>
+#include <asm/arch/eth.h>
 #include <asm/arch/gx.h>
-#include <asm/arch/sm.h>
-#include <asm/armv8/mmu.h>
-#include <asm/unaligned.h>
-#include <linux/sizes.h>
-#include <efi_loader.h>
+#include <asm/arch/mem.h>
 #include <asm/io.h>
+#include <asm/armv8/mmu.h>
+#include <linux/sizes.h>
+#include <phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int dram_init(void)
-{
-	const fdt64_t *val;
-	int offset;
-	int len;
-
-	offset = fdt_path_offset(gd->fdt_blob, "/memory");
-	if (offset < 0)
-		return -EINVAL;
-
-	val = fdt_getprop(gd->fdt_blob, offset, "reg", &len);
-	if (len < sizeof(*val) * 2)
-		return -EINVAL;
-
-	/* Use unaligned access since cache is still disabled */
-	gd->ram_size = get_unaligned_be64(&val[1]);
-
-	return 0;
-}
-
-phys_size_t get_effective_memsize(void)
-{
-	/* Size is reported in MiB, convert it in bytes */
-	return ((readl(GX_AO_SEC_GP_CFG0) & GX_AO_MEM_SIZE_MASK)
-			>> GX_AO_MEM_SIZE_SHIFT) * SZ_1M;
-}
-
-static void meson_board_add_reserved_memory(void *fdt, u64 start, u64 size)
-{
-	int ret;
-
-	ret = fdt_add_mem_rsv(fdt, start, size);
-	if (ret)
-		printf("Could not reserve zone @ 0x%llx\n", start);
-
-	if (IS_ENABLED(CONFIG_EFI_LOADER)) {
-		efi_add_memory_map(start,
-				   ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
-				   EFI_RESERVED_MEMORY_TYPE, false);
-	}
-}
-
-void meson_gx_init_reserved_memory(void *fdt)
+/* Configure the reserved memory zones exported by the secure registers
+ * into EFI and DTB reserved memory entries.
+ */
+void meson_init_reserved_memory(void *fdt)
 {
 	u64 bl31_size, bl31_start;
 	u64 bl32_size, bl32_start;
@@ -70,7 +30,6 @@ void meson_gx_init_reserved_memory(void *fdt)
 	 * - AO_SEC_GP_CFG5: bl31 physical start address, can be NULL
 	 * - AO_SEC_GP_CFG4: bl32 physical start address, can be NULL
 	 */
-
 	reg = readl(GX_AO_SEC_GP_CFG3);
 
 	bl31_size = ((reg & GX_AO_BL31_RSVMEM_SIZE_MASK)
@@ -102,9 +61,11 @@ void meson_gx_init_reserved_memory(void *fdt)
 		meson_board_add_reserved_memory(fdt, bl32_start, bl32_size);
 }
 
-void reset_cpu(ulong addr)
+phys_size_t get_effective_memsize(void)
 {
-	psci_system_reset();
+	/* Size is reported in MiB, convert it in bytes */
+	return ((readl(GX_AO_SEC_GP_CFG0) & GX_AO_MEM_SIZE_MASK)
+			>> GX_AO_MEM_SIZE_SHIFT) * SZ_1M;
 }
 
 static struct mm_region gx_mem_map[] = {
@@ -128,3 +89,44 @@ static struct mm_region gx_mem_map[] = {
 };
 
 struct mm_region *mem_map = gx_mem_map;
+
+/* Configure the Ethernet MAC with the requested interface mode
+ * with some optional flags.
+ */
+void meson_eth_init(phy_interface_t mode, unsigned int flags)
+{
+	switch (mode) {
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		/* Set RGMII mode */
+		setbits_le32(GX_ETH_REG_0, GX_ETH_REG_0_PHY_INTF |
+			     GX_ETH_REG_0_TX_PHASE(1) |
+			     GX_ETH_REG_0_TX_RATIO(4) |
+			     GX_ETH_REG_0_PHY_CLK_EN |
+			     GX_ETH_REG_0_CLK_EN);
+		break;
+
+	case PHY_INTERFACE_MODE_RMII:
+		/* Set RMII mode */
+		out_le32(GX_ETH_REG_0, GX_ETH_REG_0_INVERT_RMII_CLK |
+					 GX_ETH_REG_0_CLK_EN);
+
+		/* Use GXL RMII Internal PHY */
+		if (IS_ENABLED(CONFIG_MESON_GXL) &&
+		    (flags & MESON_USE_INTERNAL_RMII_PHY)) {
+			writel(0x10110181, GX_ETH_REG_2);
+			writel(0xe40908ff, GX_ETH_REG_3);
+		}
+
+		break;
+
+	default:
+		printf("Invalid Ethernet interface mode\n");
+		return;
+	}
+
+	/* Enable power gate */
+	clrbits_le32(GX_MEM_PD_REG_0, GX_MEM_PD_REG_0_ETH_MASK);
+}

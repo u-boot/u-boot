@@ -3,8 +3,8 @@
  * Copyright 2016 - AmLogic, Inc.
  * Copyright 2018 - Beniamino Galvani <b.galvani@gmail.com>
  */
-#ifndef _ARCH_MESON_CLOCK_H_
-#define _ARCH_MESON_CLOCK_H_
+#ifndef _ARCH_MESON_CLOCK_GX_H_
+#define _ARCH_MESON_CLOCK_GX_H_
 
 /*
  * Clock controller register offsets

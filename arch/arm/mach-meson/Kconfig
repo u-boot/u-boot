@@ -8,25 +8,29 @@ config MESON64_COMMON
 	select DM_SERIAL
 	imply CMD_DM
 
+config MESON_GX
+	bool
+	select MESON64_COMMON
+
 choice
 	prompt "Platform select"
 	default MESON_GXBB
 
 config MESON_GXBB
 	bool "GXBB"
-	select MESON64_COMMON
+	select MESON_GX
 	help
 	  Select this if your SoC is an S905
 
 config MESON_GXL
 	bool "GXL"
-	select MESON64_COMMON
+	select MESON_GX
 	help
 	  Select this if your SoC is an S905X/D or S805X
 
 config MESON_GXM
 	bool "GXM"
-	select MESON64_COMMON
+	select MESON_GX
 	help
 	  Select this if your SoC is an S912
 

@@ -28,7 +28,7 @@ int misc_init_r(void)
 	char serial[EFUSE_SN_SIZE];
 	ssize_t len;
 
-	meson_gx_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
+	meson_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
 
 	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
@@ -40,7 +40,7 @@ int misc_init_r(void)
 	if (!env_get("serial#")) {
 		len = meson_sm_read_efuse(EFUSE_SN_OFFSET, serial,
 			EFUSE_SN_SIZE);
-		if (len == EFUSE_SN_SIZE) 
+		if (len == EFUSE_SN_SIZE)
 			env_set("serial#", serial);
 	}
 
@@ -49,7 +49,7 @@ int misc_init_r(void)
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	meson_gx_init_reserved_memory(blob);
+	meson_init_reserved_memory(blob);
 
 	return 0;
 }
