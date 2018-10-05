@@ -39,7 +39,6 @@ int	arch_early_init_r(void);
 int	board_init(void);
 
 /* cpu/.../interrupt.c */
-int	arch_interrupt_init	(void);
 void	reset_timer_masked	(void);
 ulong	get_timer_masked	(void);
 void	udelay_masked		(unsigned long usec);
