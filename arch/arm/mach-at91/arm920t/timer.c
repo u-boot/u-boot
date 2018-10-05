@@ -58,11 +58,6 @@ ulong get_timer(ulong base)
 	return get_timer_masked() - base;
 }
 
-void __udelay(unsigned long usec)
-{
-	udelay_masked(usec);
-}
-
 ulong get_timer_raw(void)
 {
 	at91_tc_t *tc = (at91_tc_t *) ATMEL_BASE_TC;
@@ -87,7 +82,7 @@ ulong get_timer_masked(void)
 	return get_timer_raw()/TIMER_LOAD_VAL;
 }
 
-void udelay_masked(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	u32 tmo;
 	u32 endtime;

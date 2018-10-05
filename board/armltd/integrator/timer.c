@@ -138,12 +138,6 @@ ulong get_timer_masked (void)
 	return timestamp;
 }
 
-/* waits specified delay value and resets timestamp */
-void udelay_masked (unsigned long usec)
-{
-	udelay(usec);
-}
-
 /*
  * This function is derived from PowerPC code (read timebase as long long).
  * On ARM it just returns the timer value.

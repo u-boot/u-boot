@@ -40,7 +40,6 @@ int	board_init(void);
 
 /* cpu/.../interrupt.c */
 ulong	get_timer_masked	(void);
-void	udelay_masked		(unsigned long usec);
 
 /* calls to c from vectors.S */
 struct pt_regs;

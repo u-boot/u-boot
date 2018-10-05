@@ -17,17 +17,12 @@ ulong get_timer (ulong base)
 	return get_timer_masked ();
 }
 
-void __udelay (unsigned long usec)
-{
-	udelay_masked (usec);
-}
-
 ulong get_timer_masked (void)
 {
 	return OSCR;
 }
 
-void udelay_masked (unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	ulong tmo;
 	ulong endtime;
