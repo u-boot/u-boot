@@ -105,10 +105,16 @@ u64 get_page_table_size(void)
 }
 
 #ifdef CONFIG_SYS_MEM_RSVD_FOR_MMU
+static void tcm_init(u8 mode)
+{
+	puts("WARNING: Initializing TCM overwrites TCM content\n");
+	initialize_tcm(mode);
+	memset((void *)ZYNQMP_TCM_BASE_ADDR, 0, ZYNQMP_TCM_SIZE);
+}
+
 int reserve_mmu(void)
 {
-	initialize_tcm(TCM_LOCK);
-	memset((void *)ZYNQMP_TCM_BASE_ADDR, 0, ZYNQMP_TCM_SIZE);
+	tcm_init(TCM_LOCK);
 	gd->arch.tlb_size = PGTABLE_SIZE;
 	gd->arch.tlb_addr = ZYNQMP_TCM_BASE_ADDR;
 
