@@ -38,9 +38,6 @@ int	arch_early_init_r(void);
 /* board/.../... */
 int	board_init(void);
 
-/* cpu/.../interrupt.c */
-ulong	get_timer_masked	(void);
-
 /* calls to c from vectors.S */
 struct pt_regs;
 

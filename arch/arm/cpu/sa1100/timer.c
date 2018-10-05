@@ -12,14 +12,14 @@
 #include <common.h>
 #include <SA-1100.h>
 
+static ulong get_timer_masked (void)
+{
+	return OSCR;
+}
+
 ulong get_timer (ulong base)
 {
 	return get_timer_masked ();
-}
-
-ulong get_timer_masked (void)
-{
-	return OSCR;
 }
 
 void __udelay (unsigned long usec)

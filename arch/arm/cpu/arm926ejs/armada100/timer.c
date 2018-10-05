@@ -61,7 +61,7 @@ ulong read_timer(void)
 	return(readl(&armd1timers->cvwr));
 }
 
-ulong get_timer_masked(void)
+static ulong get_timer_masked(void)
 {
 	ulong now = read_timer();
 

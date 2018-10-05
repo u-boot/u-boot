@@ -78,7 +78,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define timestamp gd->arch.tbl
 #define lastdec gd->arch.lastinc
 
-ulong get_timer_masked(void)
+static ulong get_timer_masked(void)
 {
 	ulong now = read_timer();
 

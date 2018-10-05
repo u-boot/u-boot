@@ -110,14 +110,9 @@ unsigned long long get_ticks(void)
 	return timestamp;
 }
 
-ulong get_timer_masked(void)
-{
-	return tick_to_time(get_ticks());
-}
-
 ulong get_timer(ulong base)
 {
-	return get_timer_masked() - base;
+	return tick_to_time(get_ticks()) - base;
 }
 
 /* We use the HW_DIGCTL_MICROSECONDS register for sub-millisecond timer. */

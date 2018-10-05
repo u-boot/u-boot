@@ -36,14 +36,14 @@ int timer_init (void)
 /*
  * timer without interrupts
  */
+static ulong get_timer_masked (void)
+{
+	return TCN1;
+}
+
 ulong get_timer (ulong base)
 {
 	return get_timer_masked() - base;
-}
-
-ulong get_timer_masked (void)
-{
-	return TCN1;
 }
 
 void __udelay (unsigned long usec)
