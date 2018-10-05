@@ -7,6 +7,8 @@
 #include "skeleton.dtsi"
 
 / {
+	model = "abilis,tb100";
+
 	aliases {
 		console = &uart0;
 	};

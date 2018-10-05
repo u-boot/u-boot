@@ -573,7 +573,7 @@ config BOARD_LATE_INIT
 
 config DISPLAY_CPUINFO
 	bool "Display information about the CPU during start up"
-	default y if ARM || NIOS2 || X86 || XTENSA || M68K
+	default y if ARC|| ARM || NIOS2 || X86 || XTENSA || M68K
 	help
 	  Display information about the CPU that U-Boot is running on
 	  when U-Boot starts up. The function print_cpuinfo() is called
@@ -581,7 +581,7 @@ config DISPLAY_CPUINFO
 
 config DISPLAY_BOARDINFO
 	bool "Display information about the board during early start up"
-	default y if ARM || M68K || MIPS || PPC || SANDBOX || XTENSA
+	default y if ARC || ARM || M68K || MIPS || PPC || SANDBOX || XTENSA
 	help
 	  Display information about the board that U-Boot is running on
 	  when U-Boot starts up. The board function checkboard() is called

@@ -157,6 +157,10 @@ config TARGET_EMDK
 config TARGET_HSDK
 	bool "Support Synpsys HS DevelopmentKit board"
 
+config TARGET_IOT_DEVKIT
+	bool "Synopsys Brite IoT Development kit"
+	select CPU_ARCEM6
+
 endchoice
 
 source "board/abilis/tb100/Kconfig"
@@ -164,5 +168,6 @@ source "board/synopsys/Kconfig"
 source "board/synopsys/axs10x/Kconfig"
 source "board/synopsys/emdk/Kconfig"
 source "board/synopsys/hsdk/Kconfig"
+source "board/synopsys/iot_devkit/Kconfig"
 
 endmenu
