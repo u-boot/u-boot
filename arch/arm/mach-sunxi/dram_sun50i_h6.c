@@ -299,6 +299,8 @@ static void mctl_sys_init(struct dram_para *para)
 
 	/* Put all DRAM-related blocks to reset state */
 	clrbits_le32(&ccm->mbus_cfg, MBUS_ENABLE | MBUS_RESET);
+	clrbits_le32(&ccm->dram_gate_reset, BIT(0));
+	udelay(5);
 	writel(0, &ccm->dram_gate_reset);
 	clrbits_le32(&ccm->pll5_cfg, CCM_PLL5_CTRL_EN);
 	clrbits_le32(&ccm->dram_clk_cfg, DRAM_MOD_RESET);
@@ -313,7 +315,9 @@ static void mctl_sys_init(struct dram_para *para)
 	/* Configure DRAM mod clock */
 	writel(DRAM_CLK_SRC_PLL5, &ccm->dram_clk_cfg);
 	setbits_le32(&ccm->dram_clk_cfg, DRAM_CLK_UPDATE);
-	writel(BIT(0) | BIT(RESET_SHIFT), &ccm->dram_gate_reset);
+	writel(BIT(RESET_SHIFT), &ccm->dram_gate_reset);
+	udelay(5);
+	setbits_le32(&ccm->dram_gate_reset, BIT(0));
 
 	/* Disable all channels */
 	writel(0, &mctl_com->maer0);
