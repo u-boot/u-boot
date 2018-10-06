@@ -11,6 +11,7 @@ config RCAR_32
 config RCAR_GEN3
 	bool "Renesas ARM SoCs R-Car Gen3 (64bit)"
 	select ARM64
+	select PHY
 
 endchoice
 
