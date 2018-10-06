@@ -108,8 +108,6 @@ struct socfpga_reset_manager {
 #define RSTMGR_GPIO1		RSTMGR_DEFINE(2, 25)
 #define RSTMGR_SDR		RSTMGR_DEFINE(3, 6)
 
-void socfpga_emac_manage_reset(const unsigned int of_reset_id, u32 state);
-
 /* Create a human-readable reference to SoCFPGA reset. */
 #define SOCFPGA_RESET(_name)	RSTMGR_##_name
 
