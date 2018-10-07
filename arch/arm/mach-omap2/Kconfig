@@ -136,6 +136,7 @@ endchoice
 
 config SYS_MPUCLK
 	int "MPU CLK speed"
+	depends on AM33XX
 	default 500
 	help
 	  Defines the MPU clock speed (in MHz).
