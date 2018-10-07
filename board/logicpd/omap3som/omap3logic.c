@@ -50,7 +50,7 @@ static const struct ns16550_platdata omap3logic_serial = {
 };
 
 U_BOOT_DEVICE(omap3logic_uart) = {
-	"ns16550_serial",
+	"omap_serial",
 	&omap3logic_serial
 };
 
