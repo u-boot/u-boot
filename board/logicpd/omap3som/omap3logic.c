@@ -63,7 +63,7 @@ static const struct omap_hsmmc_plat omap3_logic_mmc0_platdata = {
 	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
 
-U_BOOT_DEVICE(am335x_mmc0) = {
+U_BOOT_DEVICE(omap3_logic_mmc0) = {
 	.name = "omap_hsmmc",
 	.platdata = &omap3_logic_mmc0_platdata,
 };
