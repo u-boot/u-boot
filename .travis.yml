@@ -10,6 +10,9 @@ language: c
 
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-trusty-7
     packages:
     - cppcheck
     - sloccount
@@ -28,11 +31,8 @@ addons:
     - device-tree-compiler
     - lzop
     - liblz4-tool
-
-before_install:
- - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
- - sudo apt-get update -q
- - sudo apt-get install libisl15 -y
+    - libisl15
+    - clang-7
 
 install:
  # Clone uboot-test-hooks
@@ -105,8 +105,16 @@ script:
  # Comments must be outside the command strings below, or the Travis parser
  # will get confused.
  #
- # Exit code 129 means warnings only.
- - if [[ "${BUILDMAN}" != "" ]]; then
+ # From buildman, exit code 129 means warnings only.  If we've been asked to
+ # use clang only do one configuration.
+ - if [[ "${TOOLCHAIN}" == "clang" ]]; then
+     ret=0;
+     make O=../.bm-work/${TEST_PY_BD} HOSTCC=clang-7 CC=clang-7 -j$(nproc)
+       KCFLAGS=-Werror sandbox_config all || ret=$?;
+     if [[ $ret -ne 0 ]]; then
+       exit $ret;
+     fi;
+   elif [[ "${BUILDMAN}" != "" ]]; then
      ret=0;
      tools/buildman/buildman -P -E ${BUILDMAN} || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
@@ -322,6 +330,11 @@ matrix:
         - TEST_PY_BD="sandbox"
           BUILDMAN="^sandbox$"
           TOOLCHAIN="i386"
+    - name: "test/py sandbox with clang"
+      env:
+        - TEST_PY_BD="sandbox"
+          BUILDMAN="^sandbox$"
+          TOOLCHAIN="clang"
     - name: "test/py sandbox_spl"
       env:
         - TEST_PY_BD="sandbox_spl"
