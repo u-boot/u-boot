@@ -148,6 +148,7 @@ void spl_board_prepare_for_linux(void)
 }
 #endif
 
+#if !CONFIG_IS_ENABLED(DM_USB)
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
 static struct musb_hdrc_config musb_config = {
 	.multipoint     = 1,
@@ -201,7 +202,7 @@ int ehci_hcd_stop(int index)
 }
 
 #endif /* CONFIG_USB_EHCI_HCD */
-
+#endif /* !DM_USB*/
 /*
  * Routine: misc_init_r
  * Description: Configure board specific parts
@@ -211,10 +212,11 @@ int misc_init_r(void)
 	twl4030_power_init();
 	omap_die_id_display();
 
+#if !CONFIG_IS_ENABLED(DM_USB)
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
 	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
 #endif
-
+#endif
 	return 0;
 }
 
