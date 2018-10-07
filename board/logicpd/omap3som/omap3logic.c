@@ -89,11 +89,21 @@ int spl_start_uboot(void)
 void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
 	timings->mr = MICRON_V_MR_165;
-	/* 256MB DDR */
-	timings->mcfg = MICRON_V_MCFG_200(256 << 20);
-	timings->ctrla = MICRON_V_ACTIMA_200;
-	timings->ctrlb = MICRON_V_ACTIMB_200;
-	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+
+	if (get_cpu_family() == CPU_OMAP36XX) {
+		/* 200 MHz works for OMAP36/DM37 */
+		/* 256MB DDR */
+		timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_200;
+		timings->ctrlb = MICRON_V_ACTIMB_200;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+	} else {
+		/* 165 MHz works for OMAP35 */
+		timings->mcfg = MICRON_V_MCFG_165(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	}
 }
 
 #define GPMC_NAND_COMMAND_0 (OMAP34XX_GPMC_BASE + 0x7c)
