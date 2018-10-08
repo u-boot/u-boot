@@ -103,6 +103,16 @@ void board_init_f(ulong dummy)
 
 	/* Example code showing how to enable the debug UART on RK3188 */
 #ifdef EARLY_UART
+	enum {
+		GPIO1B1_SHIFT		= 2,
+		GPIO1B1_MASK		= 3,
+		GPIO1B1_UART2_SOUT	= 1,
+
+		GPIO1B0_SHIFT		= 0,
+		GPIO1B0_MASK		= 3,
+		GPIO1B0_UART2_SIN	= 1,
+	};
+
 	/* Enable early UART on the RK3188 */
 	rk_clrsetreg(&grf->gpio1b_iomux,
 		     GPIO1B1_MASK << GPIO1B1_SHIFT |
