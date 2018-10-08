@@ -104,7 +104,10 @@ int mtd_probe_devices(void)
 	mtd_probe_uclass_mtd_devs();
 
 	/* Check if mtdparts/mtdids changed since last call, otherwise: exit */
-	if (!strcmp(mtdparts, old_mtdparts) && !strcmp(mtdids, old_mtdids))
+	if ((!mtdparts && !old_mtdparts && !mtdids && !old_mtdids) ||
+	    (mtdparts && old_mtdparts && mtdids && old_mtdids &&
+	     !strcmp(mtdparts, old_mtdparts) &&
+	     !strcmp(mtdids, old_mtdids)))
 		return 0;
 
 	/* Update the local copy of mtdparts */
@@ -139,6 +142,10 @@ int mtd_probe_devices(void)
 			}
 		}
 	}
+
+	/* If either mtdparts or mtdids is empty, then exit */
+	if (!mtdparts || !mtdids)
+		return 0;
 
 	/* Start the parsing by ignoring the extra 'mtdparts=' prefix, if any */
 	if (strstr(mtdparts, "mtdparts="))
