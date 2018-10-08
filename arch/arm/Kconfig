@@ -775,6 +775,7 @@ config ARCH_ZYNQMP
 	select SPL_CLK if SPL
 	select DM_USB if USB
 	imply FAT_WRITE
+	imply MP
 
 config TEGRA
 	bool "NVIDIA Tegra"

@@ -35,6 +35,7 @@ CONFIG_SYS_PROMPT="ZynqMP> "
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_NET is not set
 # CONFIG_CMD_NFS is not set
+# CONFIG_MP is not set
 # CONFIG_PARTITIONS is not set
 CONFIG_OF_EMBED=y
 # CONFIG_DM_WARN is not set
