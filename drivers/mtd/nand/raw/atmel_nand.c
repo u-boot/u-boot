@@ -249,7 +249,7 @@ static void pmecc_get_sigma(struct mtd_info *mtd)
 	int diff;
 
 	/* Init the Sigma(x) */
-	memset(smu, 0, sizeof(int16_t) * ARRAY_SIZE(smu));
+	memset(smu, 0, sizeof(int16_t) * num * (cap + 2));
 
 	dmu_0_count = 0;
 
