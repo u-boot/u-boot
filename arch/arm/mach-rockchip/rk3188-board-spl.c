@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <asm/arch/bootrom.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/grf_rk3188.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
 #include <asm/arch/pmu_rk3188.h>
@@ -92,18 +93,17 @@ static int setup_arm_clock(void)
 	return ret;
 }
 
+#define GRF_BASE	0x20008000
+
 void board_init_f(ulong dummy)
 {
+	__maybe_unused struct rk3188_grf * const grf = (void *)GRF_BASE;
 	struct udevice *pinctrl, *dev;
 	int ret;
 
 	/* Example code showing how to enable the debug UART on RK3188 */
 #ifdef EARLY_UART
-#include <asm/arch/grf_rk3188.h>
 	/* Enable early UART on the RK3188 */
-#define GRF_BASE	0x20008000
-	struct rk3188_grf * const grf = (void *)GRF_BASE;
-
 	rk_clrsetreg(&grf->gpio1b_iomux,
 		     GPIO1B1_MASK << GPIO1B1_SHIFT |
 		     GPIO1B0_MASK << GPIO1B0_SHIFT,
@@ -122,6 +122,25 @@ void board_init_f(ulong dummy)
 	printch('p');
 	printch('l');
 	printch('\n');
+#endif
+
+#ifdef CONFIG_ROCKCHIP_USB_UART
+	rk_clrsetreg(&grf->uoc0_con[0],
+		     SIDDQ_MASK | UOC_DISABLE_MASK | COMMON_ON_N_MASK,
+		     1 << SIDDQ_SHIFT | 1 << UOC_DISABLE_SHIFT |
+		     1 << COMMON_ON_N_SHIFT);
+	rk_clrsetreg(&grf->uoc0_con[2],
+		     SOFT_CON_SEL_MASK, 1 << SOFT_CON_SEL_SHIFT);
+	rk_clrsetreg(&grf->uoc0_con[3],
+		     OPMODE_MASK | XCVRSELECT_MASK |
+		     TERMSEL_FULLSPEED_MASK | SUSPENDN_MASK,
+		     OPMODE_NODRIVING << OPMODE_SHIFT |
+		     XCVRSELECT_FSTRANSC << XCVRSELECT_SHIFT |
+		     1 << TERMSEL_FULLSPEED_SHIFT |
+		     1 << SUSPENDN_SHIFT);
+	rk_clrsetreg(&grf->uoc0_con[0],
+		     BYPASSSEL_MASK | BYPASSDMEN_MASK,
+		     1 << BYPASSSEL_SHIFT | 1 << BYPASSDMEN_SHIFT);
 #endif
 
 	ret = spl_early_init();
