@@ -28,7 +28,6 @@ CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk root=/dev/mmcblk1p2 rw rootwai
 CONFIG_SPL_SEPARATE_BSS=y
 CONFIG_HUSH_PARSER=y
 CONFIG_CMD_BOOTZ=y
-# CONFIG_CMD_IMI is not set
 # CONFIG_CMD_FLASH is not set
 CONFIG_CMD_I2C=y
 # CONFIG_CMD_LOADS is not set

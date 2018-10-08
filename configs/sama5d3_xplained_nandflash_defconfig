@@ -24,7 +24,6 @@ CONFIG_BOOTARGS="console=ttyS0,115200 earlyprintk mtdparts=atmel_nand:256k(boots
 CONFIG_SPL_NAND_SUPPORT=y
 CONFIG_HUSH_PARSER=y
 CONFIG_CMD_BOOTZ=y
-# CONFIG_CMD_IMI is not set
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_LOADS is not set
 CONFIG_CMD_MMC=y
