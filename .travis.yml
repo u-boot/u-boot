@@ -67,7 +67,6 @@ before_script:
   - if [[ "${TOOLCHAIN}" == *m68k* ]]; then ./tools/buildman/buildman --fetch-arch m68k ; fi
   - if [[ "${TOOLCHAIN}" == *microblaze* ]]; then ./tools/buildman/buildman --fetch-arch microblaze ; fi
   - if [[ "${TOOLCHAIN}" == *mips* ]]; then ./tools/buildman/buildman --fetch-arch mips ; fi
-  - if [[ "${TOOLCHAIN}" == *or32* ]]; then ./tools/buildman/buildman --fetch-arch or32 ; fi
   - if [[ "${TOOLCHAIN}" == *sh* ]]; then ./tools/buildman/buildman --fetch-arch sh2 ; fi
   - if [[ "${TOOLCHAIN}" == *x86_64* ]]; then
       ./tools/buildman/buildman --fetch-arch x86_64;
