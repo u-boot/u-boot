@@ -369,7 +369,13 @@ static int poll_transfer(struct dw_spi_priv *priv)
 	return 0;
 }
 
-static void external_cs_manage(struct udevice *dev, bool on)
+/*
+ * We define external_cs_manage function as 'weak' as some targets
+ * (like MSCC Ocelot) don't control the external CS pin using a GPIO
+ * controller. These SoCs use specific registers to control by
+ * software the SPI pins (and especially the CS).
+ */
+__weak void external_cs_manage(struct udevice *dev, bool on)
 {
 #if defined(CONFIG_DM_GPIO) && !defined(CONFIG_SPL_BUILD)
 	struct dw_spi_priv *priv = dev_get_priv(dev->parent);
