@@ -618,8 +618,13 @@
 	cd-gpios = <&gpio3 12 GPIO_ACTIVE_LOW>;
 	wp-gpios = <&gpio3 13 GPIO_ACTIVE_HIGH>;
 	bus-width = <4>;
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
 	sd-uhs-sdr50;
+	sd-uhs-sdr104;
 	status = "okay";
+
+	max-frequency = <208000000>;
 };
 
 &sdhi2 {
@@ -635,6 +640,7 @@
 	non-removable;
 	fixed-emmc-driver-type = <1>;
 	status = "okay";
+	max-frequency = <200000000>;
 };
 
 &sdhi3 {
@@ -647,8 +653,12 @@
 	cd-gpios = <&gpio4 15 GPIO_ACTIVE_LOW>;
 	wp-gpios = <&gpio4 16 GPIO_ACTIVE_HIGH>;
 	bus-width = <4>;
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
 	sd-uhs-sdr50;
+	sd-uhs-sdr104;
 	status = "okay";
+	max-frequency = <208000000>;
 };
 
 &ssi1 {
