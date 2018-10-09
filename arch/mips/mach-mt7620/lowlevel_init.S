@@ -108,6 +108,12 @@ CPLL_READY:
 	sw	t3, 0(t0)
 
 CPLL_DONE:
+	/* Reset MC */
+	lw	t2, 0x34(s0)
+	ori	t2, BIT(10)
+	sw	t2, 0x34(s0)
+	nop
+
 	/*
 	 * SDR and DDR initialization: delay 200us
 	 */
