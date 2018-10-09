@@ -118,4 +118,14 @@ config IMX_WATCHDOG
 	   Select this to enable the IMX and LSCH2 of Layerscape watchdog
 	   driver.
 
+config WDT_AT91
+	bool "AT91 watchdog timer support"
+	depends on WDT
+	help
+	   Select this to enable Microchip watchdog timer, which can be found on
+	   some AT91 devices.
+
+config AT91_HW_WDT_TIMEOUT
+	bool "AT91 watchdog timeout specified"
+	depends on WDT_AT91
 endmenu

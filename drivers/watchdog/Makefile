@@ -3,7 +3,7 @@
 # (C) Copyright 2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-$(CONFIG_AT91SAM9_WATCHDOG) += at91sam9_wdt.o
+obj-$(CONFIG_WDT_AT91) += at91sam9_wdt.o
 obj-$(CONFIG_FTWDT010_WATCHDOG) += ftwdt010_wdt.o
 ifneq (,$(filter $(SOC), mx25 mx31 mx35 mx5 mx6 mx7 vf610))
 obj-y += imx_watchdog.o
