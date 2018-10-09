@@ -332,7 +332,6 @@
 
 &watchdog0 {
 	status = "okay";
-	reset-on-timeout;
 };
 
 &xilinx_ams {
