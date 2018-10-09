@@ -120,6 +120,14 @@
 		};
 	};
 
+	eth@10110000 {
+		compatible = "mediatek,mt7622-eth";
+		reg = <0x10100000 0x10000
+		       0x10110000 0x8000>;
+
+		syscon = <&sysc>;
+	};
+
 	usb_phy: usb-phy@10120000 {
 		compatible = "mediatek,mt7628-usbphy";
 		reg = <0x10120000 0x1000>;
