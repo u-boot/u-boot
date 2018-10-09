@@ -79,6 +79,7 @@ config ARCH_MT7620
 	select DM_SERIAL
 	imply DM_SPI
 	imply DM_SPI_FLASH
+	select ARCH_MISC_INIT if WATCHDOG
 	select MIPS_TUNE_24KC
 	select OF_CONTROL
 	select ROM_EXCEPTION_VECTORS
