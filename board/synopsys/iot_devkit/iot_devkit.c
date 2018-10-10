@@ -17,6 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define AHBCKDIV	(void *)(SYSCON_BASE + 0x04)
 #define APBCKDIV	(void *)(SYSCON_BASE + 0x08)
 #define APBCKEN		(void *)(SYSCON_BASE + 0x0C)
+#define RESET_REG	(void *)(SYSCON_BASE + 0x18)
 #define CLKSEL		(void *)(SYSCON_BASE + 0x24)
 #define CLKSTAT		(void *)(SYSCON_BASE + 0x28)
 #define PLLCON		(void *)(SYSCON_BASE + 0x2C)
@@ -159,6 +160,13 @@ int board_mmc_init(bd_t *bis)
 	add_dwmci(host, host->bus_hz / 2, 400000);
 
 	return 0;
+}
+
+#define IOTDK_RESET_SEQ		0x55AA6699
+
+void reset_cpu(ulong addr)
+{
+	writel(IOTDK_RESET_SEQ, RESET_REG);
 }
 
 int checkboard(void)
