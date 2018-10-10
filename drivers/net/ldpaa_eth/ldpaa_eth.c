@@ -413,7 +413,7 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 		if (err) {
 			printf("%s: Could not initialize\n",
 			       priv->phydev->dev->name);
-			goto err_dpamc_bind;
+			goto err_dpmac_bind;
 		}
 	}
 #else
@@ -441,13 +441,13 @@ static int ldpaa_eth_open(struct eth_device *net_dev, bd_t *bd)
 	if (!priv->phydev->link) {
 		printf("%s: No link.\n", priv->phydev->dev->name);
 		err = -1;
-		goto err_dpamc_bind;
+		goto err_dpmac_bind;
 	}
 
 	/* DPMAC binding DPNI */
 	err = ldpaa_dpmac_bind(priv);
 	if (err)
-		goto err_dpamc_bind;
+		goto err_dpmac_bind;
 
 	/* DPNI initialization */
 	err = ldpaa_dpni_setup(priv);
@@ -540,7 +540,7 @@ err_dpni_bind:
 err_dpbp_setup:
 	dpni_close(dflt_mc_io, MC_CMD_NO_FLAGS, dflt_dpni->dpni_handle);
 err_dpni_setup:
-err_dpamc_bind:
+err_dpmac_bind:
 	dpmac_close(dflt_mc_io, MC_CMD_NO_FLAGS, priv->dpmac_handle);
 	dpmac_destroy(dflt_mc_io,
 		      dflt_dprc_handle,
