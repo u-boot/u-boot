@@ -127,4 +127,10 @@ config SYS_BOOTCOUNT_ADDR
 	help
 	  Set the address used for reading and writing the boot counter.
 
+config SYS_BOOTCOUNT_MAGIC
+	hex "Magic value for the boot counter"
+	default 0xB001C041
+	help
+	  Set the magic value used for the boot counter.
+
 endif

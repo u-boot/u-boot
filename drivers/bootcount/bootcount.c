@@ -16,13 +16,13 @@ __weak void bootcount_store(ulong a)
 	uintptr_t flush_end;
 
 #if defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD)
-	raw_bootcount_store(reg, (BOOTCOUNT_MAGIC & 0xffff0000) | a);
+	raw_bootcount_store(reg, (CONFIG_SYS_BOOTCOUNT_MAGIC & 0xffff0000) | a);
 
 	flush_end = roundup(CONFIG_SYS_BOOTCOUNT_ADDR + 4,
 			    CONFIG_SYS_CACHELINE_SIZE);
 #else
 	raw_bootcount_store(reg, a);
-	raw_bootcount_store(reg + 4, BOOTCOUNT_MAGIC);
+	raw_bootcount_store(reg + 4, CONFIG_SYS_BOOTCOUNT_MAGIC);
 
 	flush_end = roundup(CONFIG_SYS_BOOTCOUNT_ADDR + 8,
 			    CONFIG_SYS_CACHELINE_SIZE);
@@ -37,12 +37,12 @@ __weak ulong bootcount_load(void)
 #if defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD)
 	u32 tmp = raw_bootcount_load(reg);
 
-	if ((tmp & 0xffff0000) != (BOOTCOUNT_MAGIC & 0xffff0000))
+	if ((tmp & 0xffff0000) != (CONFIG_SYS_BOOTCOUNT_MAGIC & 0xffff0000))
 		return 0;
 	else
 		return (tmp & 0x0000ffff);
 #else
-	if (raw_bootcount_load(reg + 4) != BOOTCOUNT_MAGIC)
+	if (raw_bootcount_load(reg + 4) != CONFIG_SYS_BOOTCOUNT_MAGIC)
 		return 0;
 	else
 		return raw_bootcount_load(reg);
