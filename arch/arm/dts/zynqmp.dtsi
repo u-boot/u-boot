@@ -396,6 +396,10 @@
 		compatible = "xlnx,zynqmp-keccak-384";
 	};
 
+	xlnx_aes: zynqmp_aes {
+		compatible = "xlnx,zynqmp-aes";
+	};
+
 	amba_apu: amba_apu@0 {
 		compatible = "simple-bus";
 		#address-cells = <2>;
