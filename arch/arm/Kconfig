@@ -848,6 +848,7 @@ config ARCH_SUNXI
 	imply CMD_UBI if NAND
 	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
+	imply FIT
 	imply OF_LIBFDT_OVERLAY
 	imply PRE_CONSOLE_BUFFER
 	imply SPL_GPIO_SUPPORT
