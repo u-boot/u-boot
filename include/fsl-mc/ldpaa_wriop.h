@@ -41,7 +41,6 @@ struct wriop_dpmac_info {
 	u8 id;
 	u8 board_mux;
 	int phy_addr;
-	void *phy_regs;
 	phy_interface_t enet_if;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
