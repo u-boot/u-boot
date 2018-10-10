@@ -23,6 +23,7 @@ static int init_phy(struct eth_device *dev)
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)dev->priv;
 	struct phy_device *phydev = NULL;
 	struct mii_dev *bus;
+	int ret;
 
 	bus = wriop_get_mdio(priv->dpmac_id);
 	if (bus == NULL)
@@ -37,7 +38,14 @@ static int init_phy(struct eth_device *dev)
 
 	wriop_set_phy_dev(priv->dpmac_id, phydev);
 
-	return phy_config(phydev);
+	ret = phy_config(phydev);
+
+	if (ret) {
+		free(phydev);
+		wriop_set_phy_dev(priv->dpmac_id, NULL);
+	}
+
+	return ret;
 }
 #endif
 
