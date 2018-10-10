@@ -68,6 +68,14 @@ static int set_cpu_freq(unsigned int clk)
 		writel((readl(PLLCON) & PLL_MASK_2) | 0x200191, PLLCON);
 		break;
 
+	case 136:
+		writel(readl(PLLCON) & PLL_MASK_0, PLLCON);
+		/* pll_off=1, M=17, N=1, OD=1, PLL_OUT_CLK=136M */
+		writel((readl(PLLCON) & PLL_MASK_1) | 0x100111, PLLCON);
+		/* pll_off=0, M=17, N=1, OD=1, PLL_OUT_CLK=136M */
+		writel((readl(PLLCON) & PLL_MASK_2) | 0x100111, PLLCON);
+		break;
+
 	case 144:
 		writel(readl(PLLCON) & PLL_MASK_0, PLLCON);
 		/* pll_off=1, M=18, N=1, OD=1, PLL_OUT_CLK=144M */
