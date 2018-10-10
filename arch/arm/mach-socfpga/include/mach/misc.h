@@ -6,6 +6,8 @@
 #ifndef _MISC_H_
 #define _MISC_H_
 
+#include <asm/sections.h>
+
 void dwmac_deassert_reset(const unsigned int of_reset_id, const u32 phymode);
 
 struct bsel {
@@ -23,6 +25,13 @@ static inline void socfpga_fpga_add(void) {}
 
 #ifdef CONFIG_TARGET_SOCFPGA_GEN5
 void socfpga_sdram_remap_zero(void);
+static inline bool socfpga_is_booting_from_fpga(void)
+{
+	if ((__image_copy_start >= (char *)SOCFPGA_FPGA_SLAVES_ADDRESS) &&
+	    (__image_copy_start < (char *)SOCFPGA_STM_ADDRESS))
+		return true;
+	return false;
+}
 #endif
 
 #ifdef CONFIG_TARGET_SOCFPGA_ARRIA10
