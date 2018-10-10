@@ -247,7 +247,7 @@ int usb_init(void)
 
 	asynch_allowed = 1;
 
-	ret = uclass_get(UCLASS_USB, &uc);
+    ret = uclass_get(UCLASS_USB, &uc);
 	if (ret)
 		return ret;
 

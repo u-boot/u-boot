@@ -3,7 +3,6 @@
 # Copyright (C) 2011 Samsung Electronics
 
 ifdef CONFIG_SPL_BUILD
-# necessary to create built-in.o
 obj-y += exynos_smc.o
 
 hostprogs-y := tools/mkx4412spl

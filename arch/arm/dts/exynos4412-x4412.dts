@@ -10,20 +10,21 @@
 
 /dts-v1/;
 #include "exynos4412.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
-	model = "9tripod X4412 board based on Exynos4412";
-	compatible = "9tripod,x4412", "samsung,exynos4412";
+    model = "9tripod X4412 board based on Exynos4412";
+    compatible = "9tripod,x4412", "samsung,exynos4412";
 
     chose {
         stdout-path = "/serial@13830000";
     };
 
-	aliases {
-		serial3 = "/serial@13830000";
-		console = "/serial@13830000";
+    aliases {
+        serial3 = "/serial@13830000";
+        console = "/serial@13830000";
         pinctrl_exynos0 = "/pinctrl_exynos@0";
-	};
+    };
 
     serial@13800000 {
         status = "disabled";
@@ -128,6 +129,16 @@
         phy {
             compatible = "samsung,exynos-usb-phy";
             reg = <0x125B0000 0x100>;
+        };
+    };
+
+    leds {
+        compatible = "gpio-leds";
+
+        led1 {
+            label = "gpx2_7";
+            gpios = <&gpx2 7 GPIO_ACTIVE_LOW>;
+            default-state = "on";
         };
     };
 
