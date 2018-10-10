@@ -108,7 +108,7 @@ extern u8 __ram_end[];
  */
 int mach_cpu_init(void)
 {
-	int offset, freq;
+	int offset;
 
 	/* Don't relocate U-Boot */
 	gd->flags |= GD_FLG_SKIP_RELOC;
@@ -129,12 +129,12 @@ int mach_cpu_init(void)
 	if (offset < 0)
 		return offset;
 
-	freq = fdtdec_get_int(gd->fdt_blob, offset, "clock-frequency", 0);
-	if (!freq)
+	gd->cpu_clk = fdtdec_get_int(gd->fdt_blob, offset, "clock-frequency", 0);
+	if (!gd->cpu_clk)
 		return -EINVAL;
 
 	/* If CPU freq > 100 MHz, divide eFLASH clock by 2 */
-	if (freq > 100000000) {
+	if (gd->cpu_clk > 100000000) {
 		u32 reg = readl(AHBCKDIV);
 
 		reg &= ~(0xF << 8);
@@ -142,7 +142,7 @@ int mach_cpu_init(void)
 		writel(reg, AHBCKDIV);
 	}
 
-	return set_cpu_freq(freq);
+	return set_cpu_freq(gd->cpu_clk);
 }
 
 #define ARC_PERIPHERAL_BASE	0xF0000000
@@ -186,7 +186,9 @@ int checkboard(void)
 #ifdef CONFIG_DISPLAY_CPUINFO
 int print_cpuinfo(void)
 {
-	printf("CPU:   ARC EM9D\n");
+	char mhz[8];
+
+	printf("CPU:   ARC EM9D at %s MHz\n", strmhz(mhz, gd->cpu_clk));
 	return 0;
 }
 #endif /* CONFIG_DISPLAY_CPUINFO */
