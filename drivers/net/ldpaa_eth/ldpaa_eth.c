@@ -23,26 +23,40 @@ static int init_phy(struct eth_device *dev)
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)dev->priv;
 	struct phy_device *phydev = NULL;
 	struct mii_dev *bus;
-	int ret;
+	int phy_addr, phy_num;
+	int ret = 0;
 
 	bus = wriop_get_mdio(priv->dpmac_id);
 	if (bus == NULL)
 		return 0;
 
-	phydev = phy_connect(bus, wriop_get_phy_address(priv->dpmac_id),
-			     dev, wriop_get_enet_if(priv->dpmac_id));
-	if (!phydev) {
-		printf("Failed to connect\n");
-		return -1;
+	for (phy_num = 0; phy_num < WRIOP_MAX_PHY_NUM; phy_num++) {
+		phy_addr = wriop_get_phy_address(priv->dpmac_id, phy_num);
+		if (phy_addr < 0)
+			continue;
+
+		phydev = phy_connect(bus, phy_addr, dev,
+				     wriop_get_enet_if(priv->dpmac_id));
+		if (!phydev) {
+			printf("Failed to connect\n");
+			ret = -ENODEV;
+			break;
+		}
+		wriop_set_phy_dev(priv->dpmac_id, phy_num, phydev);
+		ret = phy_config(phydev);
+		if (ret)
+			break;
 	}
 
-	wriop_set_phy_dev(priv->dpmac_id, phydev);
-
-	ret = phy_config(phydev);
-
 	if (ret) {
-		free(phydev);
-		wriop_set_phy_dev(priv->dpmac_id, NULL);
+		for (phy_num = 0; phy_num < WRIOP_MAX_PHY_NUM; phy_num++) {
+			phydev = wriop_get_phy_dev(priv->dpmac_id, phy_num);
+			if (!phydev)
+				continue;
+
+			free(phydev);
+			wriop_set_phy_dev(priv->dpmac_id, phy_num, NULL);
+		}
 	}
 
 	return ret;
@@ -390,10 +404,10 @@ static int ldpaa_get_dpmac_state(struct ldpaa_eth_priv *priv,
 {
 	struct phy_device *phydev = NULL;
 	phy_interface_t enet_if;
+	int phy_num, phys_detected;
 	int err;
 
-	/* let's start off with maximum capabilities
-	 */
+	/* let's start off with maximum capabilities */
 	enet_if = wriop_get_enet_if(priv->dpmac_id);
 	switch (enet_if) {
 	case PHY_INTERFACE_MODE_XGMII:
@@ -405,15 +419,22 @@ static int ldpaa_get_dpmac_state(struct ldpaa_eth_priv *priv,
 	}
 	state->up = 1;
 
+	phys_detected = 0;
 #ifdef CONFIG_PHYLIB
 	state->options |= DPMAC_LINK_OPT_AUTONEG;
 
-	phydev = wriop_get_phy_dev(priv->dpmac_id);
-	if (phydev) {
+	/* start the phy devices one by one and update the dpmac state */
+	for (phy_num = 0; phy_num < WRIOP_MAX_PHY_NUM; phy_num++) {
+		phydev = wriop_get_phy_dev(priv->dpmac_id, phy_num);
+		if (!phydev)
+			continue;
+
+		phys_detected++;
 		err = phy_startup(phydev);
 		if (err) {
 			printf("%s: Could not initialize\n", phydev->dev->name);
 			state->up = 0;
+			break;
 		}
 		if (phydev->link) {
 			state->rate = min(state->rate, (uint32_t)phydev->speed);
@@ -422,11 +443,13 @@ static int ldpaa_get_dpmac_state(struct ldpaa_eth_priv *priv,
 			if (!phydev->autoneg)
 				state->options &= ~DPMAC_LINK_OPT_AUTONEG;
 		} else {
+			/* break out of loop even if one phy is down */
 			state->up = 0;
+			break;
 		}
 	}
 #endif
-	if (!phydev)
+	if (!phys_detected)
 		state->options &= ~DPMAC_LINK_OPT_AUTONEG;
 
 	if (!state->up) {
@@ -568,6 +591,7 @@ static void ldpaa_eth_stop(struct eth_device *net_dev)
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 	int err = 0;
 	struct phy_device *phydev = NULL;
+	int phy_num;
 
 	if ((net_dev->state == ETH_STATE_PASSIVE) ||
 	    (net_dev->state == ETH_STATE_INIT))
@@ -600,9 +624,11 @@ static void ldpaa_eth_stop(struct eth_device *net_dev)
 		printf("dpni_disable() failed\n");
 
 #ifdef CONFIG_PHYLIB
-	phydev = wriop_get_phy_dev(priv->dpmac_id);
-	if (phydev)
-		phy_shutdown(phydev);
+	for (phy_num = 0; phy_num < WRIOP_MAX_PHY_NUM; phy_num++) {
+		phydev = wriop_get_phy_dev(priv->dpmac_id, phy_num);
+		if (phydev)
+			phy_shutdown(phydev);
+	}
 #endif
 
 	/* Free DPBP handle and reset. */
