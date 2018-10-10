@@ -185,6 +185,28 @@ config TPM
 	  for the low-level TPM interface, but only one TPM is supported at
 	  a time by the TPM library.
 
+config SPL_TPM
+	bool "Trusted Platform Module (TPM) Support in SPL"
+	depends on SPL_DM
+	help
+	  This enables support for TPMs which can be used to provide security
+	  features for your board. The TPM can be connected via LPC or I2C
+	  and a sandbox TPM is provided for testing purposes. Use the 'tpm'
+	  command to interactive the TPM. Driver model support is provided
+	  for the low-level TPM interface, but only one TPM is supported at
+	  a time by the TPM library.
+
+config TPL_TPM
+	bool "Trusted Platform Module (TPM) Support in TPL"
+	depends on TPL_DM
+	help
+	  This enables support for TPMs which can be used to provide security
+	  features for your board. The TPM can be connected via LPC or I2C
+	  and a sandbox TPM is provided for testing purposes. Use the 'tpm'
+	  command to interactive the TPM. Driver model support is provided
+	  for the low-level TPM interface, but only one TPM is supported at
+	  a time by the TPM library.
+
 endmenu
 
 menu "Android Verified Boot"
@@ -324,6 +346,16 @@ config OF_LIBFDT_OVERLAY
 config SPL_OF_LIBFDT
 	bool "Enable the FDT library for SPL"
 	default y if SPL_OF_CONTROL
+	help
+	  This enables the FDT library (libfdt). It provides functions for
+	  accessing binary device tree images in memory, such as adding and
+	  removing nodes and properties, scanning through the tree and finding
+	  particular compatible nodes. The library operates on a flattened
+	  version of the device tree.
+
+config TPL_OF_LIBFDT
+	bool "Enable the FDT library for TPL"
+	default y if TPL_OF_CONTROL
 	help
 	  This enables the FDT library (libfdt). It provides functions for
 	  accessing binary device tree images in memory, such as adding and

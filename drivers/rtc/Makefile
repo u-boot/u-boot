@@ -4,7 +4,7 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #ccflags-y += -DDEBUG
 
-obj-$(CONFIG_DM_RTC) += rtc-uclass.o
+obj-$(CONFIG_$(SPL_TPL_)DM_RTC) += rtc-uclass.o
 
 obj-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
 obj-y += date.o

@@ -11,7 +11,7 @@
 
 enum fmap_compress_t {
 	FMAP_COMPRESS_NONE,
-	FMAP_COMPRESS_LZO,
+	FMAP_COMPRESS_LZ4,
 };
 
 enum fmap_hash_t {
@@ -26,6 +26,7 @@ struct fmap_entry {
 	uint32_t length;
 	uint32_t used;			/* Number of bytes used in region */
 	enum fmap_compress_t compress_algo;	/* Compression type */
+	uint32_t unc_length;			/* Uncompressed length */
 	enum fmap_hash_t hash_algo;		/* Hash algorithm */
 	const uint8_t *hash;			/* Hash value */
 	int hash_size;				/* Hash size */

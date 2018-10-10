@@ -533,7 +533,8 @@ static int tegra_dc_sor_power_up(struct udevice *dev, int is_lvds)
 #if DEBUG_SOR
 static void dump_sor_reg(struct tegra_dc_sor_data *sor)
 {
-#define DUMP_REG(a) printk(BIOS_INFO, "%-32s  %03x  %08x\n",		\
+#define DUMP_REG(a) printk(BIOS_INFO, \
+		"%-32s  %03x  %08x\n",		\
 		#a, a, tegra_sor_readl(sor, a));
 
 	DUMP_REG(SUPER_STATE0);

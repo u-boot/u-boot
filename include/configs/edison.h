@@ -48,6 +48,5 @@
 
 /* RTC */
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS	0
-#define CONFIG_RTC_MC146818
 
 #endif

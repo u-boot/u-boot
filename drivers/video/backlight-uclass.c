@@ -18,6 +18,16 @@ int backlight_enable(struct udevice *dev)
 	return ops->enable(dev);
 }
 
+int backlight_set_brightness(struct udevice *dev, int percent)
+{
+	const struct backlight_ops *ops = backlight_get_ops(dev);
+
+	if (!ops->set_brightness)
+		return -ENOSYS;
+
+	return ops->set_brightness(dev, percent);
+}
+
 UCLASS_DRIVER(backlight) = {
 	.id		= UCLASS_PANEL_BACKLIGHT,
 	.name		= "backlight",

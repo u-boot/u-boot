@@ -98,4 +98,19 @@ int sandbox_usb_keyb_add_string(struct udevice *dev, const char *str);
  * @buflen:	length of buffer in bytes
  */
 int sandbox_osd_get_mem(struct udevice *dev, u8 *buf, size_t buflen);
+
+/**
+ * sandbox_pwm_get_config() - get the PWM config for a channel
+ *
+ * @dev: Device to check
+ * @channel: Channel number to check
+ * @period_ns: Period of the PWM in nanoseconds
+ * @duty_ns: Current duty cycle of the PWM in nanoseconds
+ * @enable: true if the PWM is enabled
+ * @polarity: true if the PWM polarity is active high
+ * @return 0 if OK, -ENOSPC if the PWM number is invalid
+ */
+int sandbox_pwm_get_config(struct udevice *dev, uint channel, uint *period_nsp,
+			   uint *duty_nsp, bool *enablep, bool *polarityp);
+
 #endif

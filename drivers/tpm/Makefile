@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 
-obj-$(CONFIG_TPM) += tpm-uclass.o
+obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm-uclass.o
 
 obj-$(CONFIG_TPM_ATMEL_TWI) += tpm_atmel_twi.o
 obj-$(CONFIG_TPM_TIS_INFINEON) += tpm_tis_infineon.o

@@ -45,12 +45,16 @@ obj-$(CONFIG_PHYSMEM) += physmem.o
 obj-y += qsort.o
 obj-y += rc4.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += sha256.o
-obj-$(CONFIG_TPM) += tpm-common.o
-obj-$(CONFIG_TPM_V1) += tpm-v1.o
-obj-$(CONFIG_TPM_V2) += tpm-v2.o
 obj-$(CONFIG_RBTREE)	+= rbtree.o
 obj-$(CONFIG_BITREVERSE) += bitrev.o
 obj-y += list_sort.o
+endif
+
+obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm-common.o
+ifeq ($(CONFIG_$(SPL_TPL_)TPM),y)
+obj-y += crc8.o
+obj-$(CONFIG_TPM_V1) += tpm-v1.o
+obj-$(CONFIG_TPM_V2) += tpm-v2.o
 endif
 
 obj-$(CONFIG_RSA) += rsa/

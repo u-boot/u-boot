@@ -81,6 +81,12 @@ enum tpm_capability_areas {
 	TPM_CAP_VERSION_VAL	= 0x0000001A,
 };
 
+enum tmp_cap_flag {
+	TPM_CAP_FLAG_PERMANENT	= 0x108,
+};
+
+#define TPM_TAG_PERMANENT_FLAGS		0x001f
+
 #define TPM_NV_PER_GLOBALLOCK		BIT(15)
 #define TPM_NV_PER_PPREAD		BIT(16)
 #define TPM_NV_PER_PPWRITE		BIT(0)
@@ -91,6 +97,14 @@ enum tpm_capability_areas {
 
 enum {
 	TPM_PUBEK_SIZE			= 256,
+};
+
+enum {
+	TPM_CMD_EXTEND			= 0x14,
+	TPM_CMD_GET_CAPABILITY		= 0x65,
+	TPM_CMD_NV_DEFINE_SPACE		= 0xcc,
+	TPM_CMD_NV_WRITE_VALUE		= 0xcd,
+	TPM_CMD_NV_READ_VALUE		= 0xcf,
 };
 
 /**
@@ -230,6 +244,40 @@ struct tpm_permanent_flags {
 	u8	maintenance_done;
 	u8	disable_full_da_logic_info;
 } __packed;
+
+#define TPM_SHA1_160_HASH_LEN	0x14
+
+struct __packed tpm_composite_hash {
+	u8	digest[TPM_SHA1_160_HASH_LEN];
+};
+
+struct __packed tpm_pcr_selection {
+	__be16	size_of_select;
+	u8	pcr_select[3];	/* matches vboot's struct */
+};
+
+struct __packed tpm_pcr_info_short {
+	struct tpm_pcr_selection pcr_selection;
+	u8	locality_at_release;
+	struct tpm_composite_hash digest_at_release;
+};
+
+struct __packed tpm_nv_attributes {
+	__be16	tag;
+	__be32	attributes;
+};
+
+struct __packed tpm_nv_data_public {
+	__be16	tag;
+	__be32	nv_index;
+	struct tpm_pcr_info_short pcr_info_read;
+	struct tpm_pcr_info_short pcr_info_write;
+	struct tpm_nv_attributes permission;
+	u8	read_st_clear;
+	u8	write_st_clear;
+	u8	write_define;
+	__be32	data_size;
+};
 
 /**
  * Issue a TPM_Startup command.
@@ -476,5 +524,33 @@ u32 tpm_find_key_sha1(const u8 auth[20], const u8 pubkey_digest[20],
  * @return return code of the operation
  */
 u32 tpm_get_random(void *data, u32 count);
+
+/**
+ * tpm_finalise_physical_presence() - Finalise physical presence
+ *
+ * @return return code of the operation (0 = success)
+ */
+u32 tpm_finalise_physical_presence(void);
+
+/**
+ * tpm_nv_set_locked() - lock the non-volatile space
+ *
+ * @return return code of the operation (0 = success)
+ */
+u32 tpm_nv_set_locked(void);
+
+/**
+ * tpm_set_global_lock() - set the global lock
+ *
+ * @return return code of the operation (0 = success)
+ */
+u32 tpm_set_global_lock(void);
+
+/**
+ * tpm_resume() - start up the TPM from resume (after suspend)
+ *
+ * @return return code of the operation (0 = success)
+ */
+u32 tpm_resume(void);
 
 #endif /* __TPM_V1_H */

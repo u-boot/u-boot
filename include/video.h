@@ -55,7 +55,7 @@ enum video_log2_bpp {
  * @xsize:	Number of pixel columns (e.g. 1366)
  * @ysize:	Number of pixels rows (e.g.. 768)
  * @rot:	Display rotation (0=none, 1=90 degrees clockwise, etc.)
- * @bpix:	Encoded bits per pixel
+ * @bpix:	Encoded bits per pixel (enum video_log2_bpp)
  * @vidconsole_drv_name:	Driver to use for the text console, NULL to
  *		select automatically
  * @font_size:	Font size in pixels (0 to use a default value)
@@ -120,8 +120,9 @@ int video_reserve(ulong *addrp);
  * video_clear() - Clear a device's frame buffer to background color.
  *
  * @dev:	Device to clear
+ * @return 0
  */
-void video_clear(struct udevice *dev);
+int video_clear(struct udevice *dev);
 
 /**
  * video_sync() - Sync a device's frame buffer with its hardware
@@ -131,8 +132,10 @@ void video_clear(struct udevice *dev);
  * buffer are displayed to the user.
  *
  * @dev:	Device to sync
+ * @force:	True to force a sync even if there was one recently (this is
+ *		very expensive on sandbox)
  */
-void video_sync(struct udevice *vid);
+void video_sync(struct udevice *vid, bool force);
 
 /**
  * video_sync_all() - Sync all devices' frame buffers with there hardware
@@ -266,6 +269,6 @@ int lg4573_spi_startup(unsigned int bus, unsigned int cs,
  */
 void video_get_info_str(int line_number, char *info);
 
-#endif /* CONFIG_DM_VIDEO */
+#endif /* !CONFIG_DM_VIDEO */
 
 #endif

@@ -22,6 +22,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+
 /*
  *
  *   serial_buf: A buffer that holds keyboard characters for the
@@ -124,7 +126,7 @@ static int sandbox_serial_pending(struct udevice *dev, bool input)
 	if (next_index == serial_buf_read)
 		return 1;	/* buffer full */
 
-	count = os_read_no_block(0, &serial_buf[serial_buf_write], 1);
+	count = os_read(0, &serial_buf[serial_buf_write], 1);
 	if (count == 1)
 		serial_buf_write = next_index;
 
@@ -142,6 +144,24 @@ static int sandbox_serial_getc(struct udevice *dev)
 	serial_buf_read = increment_buffer_index(serial_buf_read);
 	return result;
 }
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */
+
+#ifdef CONFIG_DEBUG_UART_SANDBOX
+
+#include <debug_uart.h>
+
+static inline void _debug_uart_init(void)
+{
+}
+
+static inline void _debug_uart_putc(int ch)
+{
+	os_putc(ch);
+}
+
+DEBUG_UART_FUNCS
+
+#endif /* CONFIG_DEBUG_UART_SANDBOX */
 
 static int sandbox_serial_setconfig(struct udevice *dev, uint serial_config)
 {
@@ -156,6 +176,7 @@ static int sandbox_serial_setconfig(struct udevice *dev, uint serial_config)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static const char * const ansi_colour[] = {
 	"black", "red", "green", "yellow", "blue", "megenta", "cyan",
 	"white",
@@ -215,3 +236,4 @@ U_BOOT_DEVICE(serial_sandbox_non_fdt) = {
 	.name = "serial_sandbox",
 	.platdata = &platdata_non_fdt,
 };
+#endif /* CONFIG_IS_ENABLED(OF_CONTROL) */

@@ -331,7 +331,8 @@ int device_probe(struct udevice *dev)
 	/* Allocate private data if requested and not reentered */
 	size = dev->uclass->uc_drv->per_device_auto_alloc_size;
 	if (size && !dev->uclass_priv) {
-		dev->uclass_priv = calloc(1, size);
+		dev->uclass_priv = alloc_priv(size,
+					      dev->uclass->uc_drv->flags);
 		if (!dev->uclass_priv) {
 			ret = -ENOMEM;
 			goto fail;
@@ -441,7 +442,7 @@ fail:
 	return ret;
 }
 
-void *dev_get_platdata(struct udevice *dev)
+void *dev_get_platdata(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
@@ -451,7 +452,7 @@ void *dev_get_platdata(struct udevice *dev)
 	return dev->platdata;
 }
 
-void *dev_get_parent_platdata(struct udevice *dev)
+void *dev_get_parent_platdata(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
@@ -461,7 +462,7 @@ void *dev_get_parent_platdata(struct udevice *dev)
 	return dev->parent_platdata;
 }
 
-void *dev_get_uclass_platdata(struct udevice *dev)
+void *dev_get_uclass_platdata(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
@@ -471,7 +472,7 @@ void *dev_get_uclass_platdata(struct udevice *dev)
 	return dev->uclass_platdata;
 }
 
-void *dev_get_priv(struct udevice *dev)
+void *dev_get_priv(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
@@ -481,7 +482,7 @@ void *dev_get_priv(struct udevice *dev)
 	return dev->priv;
 }
 
-void *dev_get_uclass_priv(struct udevice *dev)
+void *dev_get_uclass_priv(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
@@ -491,7 +492,7 @@ void *dev_get_uclass_priv(struct udevice *dev)
 	return dev->uclass_priv;
 }
 
-void *dev_get_parent_priv(struct udevice *dev)
+void *dev_get_parent_priv(const struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device\n", __func__);
@@ -680,17 +681,35 @@ int device_find_next_child(struct udevice **devp)
 	return 0;
 }
 
-struct udevice *dev_get_parent(struct udevice *child)
+int device_find_first_inactive_child(struct udevice *parent,
+				     enum uclass_id uclass_id,
+				     struct udevice **devp)
+{
+	struct udevice *dev;
+
+	*devp = NULL;
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		if (!device_active(dev) &&
+		    device_get_uclass_id(dev) == uclass_id) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
+struct udevice *dev_get_parent(const struct udevice *child)
 {
 	return child->parent;
 }
 
-ulong dev_get_driver_data(struct udevice *dev)
+ulong dev_get_driver_data(const struct udevice *dev)
 {
 	return dev->driver_data;
 }
 
-const void *dev_get_driver_ops(struct udevice *dev)
+const void *dev_get_driver_ops(const struct udevice *dev)
 {
 	if (!dev || !dev->driver->ops)
 		return NULL;
@@ -698,12 +717,12 @@ const void *dev_get_driver_ops(struct udevice *dev)
 	return dev->driver->ops;
 }
 
-enum uclass_id device_get_uclass_id(struct udevice *dev)
+enum uclass_id device_get_uclass_id(const struct udevice *dev)
 {
 	return dev->uclass->uc_drv->id;
 }
 
-const char *dev_get_uclass_name(struct udevice *dev)
+const char *dev_get_uclass_name(const struct udevice *dev)
 {
 	if (!dev)
 		return NULL;
@@ -711,7 +730,7 @@ const char *dev_get_uclass_name(struct udevice *dev)
 	return dev->uclass->uc_drv->name;
 }
 
-bool device_has_children(struct udevice *dev)
+bool device_has_children(const struct udevice *dev)
 {
 	return !list_empty(&dev->child_head);
 }

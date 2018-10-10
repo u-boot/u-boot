@@ -56,7 +56,11 @@ In case you are wondering, OF stands for Open Firmware.
 Tools
 -----
 
-To use this feature you will need to get the device tree compiler here:
+To use this feature you will need to get the device tree compiler. This is
+provided by U-Boot automatically. If you have a system version of dtc
+(typically in the 'device-tree-compiler' package), it is currently not used.
+
+If you want to build your own dtc, it is kept here:
 
 	git://git.kernel.org/pub/scm/utils/dtc/dtc.git
 
@@ -168,6 +172,16 @@ After board configuration is done, fdt supported u-boot can be build in two ways
     $ make
 2)  build the user specified dts file
     $ make DEVICE_TREE=<dts-file-name>
+
+
+Relocation, SPL and TPL
+-----------------------
+
+U-Boot can be divided into three phases: TPL, SPL and U-Boot proper.
+
+The full device tree is available to U-Boot proper, but normally only a subset
+(or none at all) is available to TPL and SPL. See 'Pre-Relocation Support' and
+'SPL Support' in doc/driver-model/README.txt for more details.
 
 
 Limitations

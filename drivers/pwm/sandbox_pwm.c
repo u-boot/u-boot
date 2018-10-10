@@ -14,6 +14,14 @@ enum {
 	NUM_CHANNELS	= 3,
 };
 
+/**
+ * struct sandbox_pwm_chan - a sandbox PWM channel
+ *
+ * @period_ns: Period of the PWM in nanoseconds
+ * @duty_ns: Current duty cycle of the PWM in nanoseconds
+ * @enable: true if the PWM is enabled
+ * @polarity: true if the PWM polarity is active high
+ */
 struct sandbox_pwm_chan {
 	uint period_ns;
 	uint duty_ns;
@@ -24,6 +32,23 @@ struct sandbox_pwm_chan {
 struct sandbox_pwm_priv {
 	struct sandbox_pwm_chan chan[NUM_CHANNELS];
 };
+
+int sandbox_pwm_get_config(struct udevice *dev, uint channel, uint *period_nsp,
+			   uint *duty_nsp, bool *enablep, bool *polarityp)
+{
+	struct sandbox_pwm_priv *priv = dev_get_priv(dev);
+	struct sandbox_pwm_chan *chan;
+
+	if (channel >= NUM_CHANNELS)
+		return -ENOSPC;
+	chan = &priv->chan[channel];
+	*period_nsp = chan->period_ns;
+	*duty_nsp = chan->duty_ns;
+	*enablep = chan->enable;
+	*polarityp = chan->polarity;
+
+	return 0;
+}
 
 static int sandbox_pwm_set_config(struct udevice *dev, uint channel,
 				  uint period_ns, uint duty_ns)

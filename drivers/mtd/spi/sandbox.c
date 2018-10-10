@@ -8,6 +8,8 @@
  * Licensed under the GPL-2 or later.
  */
 
+#define LOG_CATEGORY UCLASS_SPI_FLASH
+
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
@@ -41,6 +43,7 @@ enum sandbox_sf_state {
 	SF_WRITE_STATUS, /* write the flash's status register */
 };
 
+#if CONFIG_IS_ENABLED(LOG)
 static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
 {
 	static const char * const states[] = {
@@ -49,6 +52,7 @@ static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
 	};
 	return states[state];
 }
+#endif /* LOG */
 
 /* Bits for the status register */
 #define STAT_WIP	(1 << 0)
@@ -101,69 +105,44 @@ struct sandbox_spi_flash_plat_data {
 /**
  * This is a very strange probe function. If it has platform data (which may
  * have come from the device tree) then this function gets the filename and
- * device type from there. Failing that it looks at the command line
- * parameter.
+ * device type from there.
  */
 static int sandbox_sf_probe(struct udevice *dev)
 {
 	/* spec = idcode:file */
 	struct sandbox_spi_flash *sbsf = dev_get_priv(dev);
-	const char *file;
 	size_t len, idname_len;
 	const struct spi_flash_info *data;
 	struct sandbox_spi_flash_plat_data *pdata = dev_get_platdata(dev);
 	struct sandbox_state *state = state_get_current();
+	struct dm_spi_slave_platdata *slave_plat;
 	struct udevice *bus = dev->parent;
 	const char *spec = NULL;
+	struct udevice *emul;
 	int ret = 0;
 	int cs = -1;
-	int i;
 
 	debug("%s: bus %d, looking for emul=%p: ", __func__, bus->seq, dev);
-	if (bus->seq >= 0 && bus->seq < CONFIG_SANDBOX_SPI_MAX_BUS) {
-		for (i = 0; i < CONFIG_SANDBOX_SPI_MAX_CS; i++) {
-			if (state->spi[bus->seq][i].emul == dev)
-				cs = i;
-		}
-	}
-	if (cs == -1) {
+	ret = sandbox_spi_get_emul(state, bus, dev, &emul);
+	if (ret) {
 		printf("Error: Unknown chip select for device '%s'\n",
-		       dev->name);
-		return -EINVAL;
+			dev->name);
+		return ret;
 	}
+	slave_plat = dev_get_parent_platdata(dev);
+	cs = slave_plat->cs;
 	debug("found at cs %d\n", cs);
 
 	if (!pdata->filename) {
-		struct sandbox_state *state = state_get_current();
-
-		assert(bus->seq != -1);
-		if (bus->seq < CONFIG_SANDBOX_SPI_MAX_BUS)
-			spec = state->spi[bus->seq][cs].spec;
-		if (!spec) {
-			debug("%s:  No spec found for bus %d, cs %d\n",
-			      __func__, bus->seq, cs);
-			ret = -ENOENT;
-			goto error;
-		}
-
-		file = strchr(spec, ':');
-		if (!file) {
-			printf("%s: unable to parse file\n", __func__);
-			ret = -EINVAL;
-			goto error;
-		}
-		idname_len = file - spec;
-		pdata->filename = file + 1;
-		pdata->device_name = spec;
-		++file;
-	} else {
-		spec = strchr(pdata->device_name, ',');
-		if (spec)
-			spec++;
-		else
-			spec = pdata->device_name;
-		idname_len = strlen(spec);
+		printf("Error: No filename available\n");
+		return -EINVAL;
 	}
+	spec = strchr(pdata->device_name, ',');
+	if (spec)
+		spec++;
+	else
+		spec = pdata->device_name;
+	idname_len = strlen(spec);
 	debug("%s: device='%s'\n", __func__, spec);
 
 	for (data = spi_flash_ids; data->name; data++) {
@@ -214,7 +193,7 @@ static void sandbox_sf_cs_activate(struct udevice *dev)
 {
 	struct sandbox_spi_flash *sbsf = dev_get_priv(dev);
 
-	debug("sandbox_sf: CS activated; state is fresh!\n");
+	log_content("sandbox_sf: CS activated; state is fresh!\n");
 
 	/* CS is asserted, so reset state */
 	sbsf->off = 0;
@@ -226,7 +205,7 @@ static void sandbox_sf_cs_activate(struct udevice *dev)
 
 static void sandbox_sf_cs_deactivate(struct udevice *dev)
 {
-	debug("sandbox_sf: CS deactivated; cmd done processing!\n");
+	log_content("sandbox_sf: CS deactivated; cmd done processing!\n");
 }
 
 /*
@@ -302,8 +281,8 @@ static int sandbox_sf_process_cmd(struct sandbox_spi_flash *sbsf, const u8 *rx,
 	}
 
 	if (oldstate != sbsf->state)
-		debug(" cmd: transition to %s state\n",
-		      sandbox_sf_state_name(sbsf->state));
+		log_content(" cmd: transition to %s state\n",
+			    sandbox_sf_state_name(sbsf->state));
 
 	return 0;
 }
@@ -334,8 +313,8 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 	int bytes = bitlen / 8;
 	int ret;
 
-	debug("sandbox_sf: state:%x(%s) bytes:%u\n", sbsf->state,
-	      sandbox_sf_state_name(sbsf->state), bytes);
+	log_content("sandbox_sf: state:%x(%s) bytes:%u\n", sbsf->state,
+		    sandbox_sf_state_name(sbsf->state), bytes);
 
 	if ((flags & SPI_XFER_BEGIN))
 		sandbox_sf_cs_activate(dev);
@@ -354,7 +333,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 		case SF_ID: {
 			u8 id;
 
-			debug(" id: off:%u tx:", sbsf->off);
+			log_content(" id: off:%u tx:", sbsf->off);
 			if (sbsf->off < IDCODE_LEN) {
 				/* Extract correct byte from ID 0x00aabbcc */
 				id = ((JEDEC_MFR(sbsf->data) << 16) |
@@ -363,18 +342,18 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			} else {
 				id = 0;
 			}
-			debug("%d %02x\n", sbsf->off, id);
+			log_content("%d %02x\n", sbsf->off, id);
 			tx[pos++] = id;
 			++sbsf->off;
 			break;
 		}
 		case SF_ADDR:
-			debug(" addr: bytes:%u rx:%02x ", sbsf->addr_bytes,
-			      rx[pos]);
+			log_content(" addr: bytes:%u rx:%02x ",
+				    sbsf->addr_bytes, rx[pos]);
 
 			if (sbsf->addr_bytes++ < SF_ADDR_LEN)
 				sbsf->off = (sbsf->off << 8) | rx[pos];
-			debug("addr:%06x\n", sbsf->off);
+			log_content("addr:%06x\n", sbsf->off);
 
 			if (tx)
 				sandbox_spi_tristate(&tx[pos], 1);
@@ -403,8 +382,8 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 				sbsf->state = SF_ERASE;
 				goto case_sf_erase;
 			}
-			debug(" cmd: transition to %s state\n",
-			      sandbox_sf_state_name(sbsf->state));
+			log_content(" cmd: transition to %s state\n",
+				    sandbox_sf_state_name(sbsf->state));
 			break;
 		case SF_READ:
 			/*
@@ -413,7 +392,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			 */
 
 			cnt = bytes - pos;
-			debug(" tx: read(%u)\n", cnt);
+			log_content(" tx: read(%u)\n", cnt);
 			assert(tx);
 			ret = os_read(sbsf->fd, tx + pos, cnt);
 			if (ret < 0) {
@@ -423,19 +402,19 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			pos += ret;
 			break;
 		case SF_READ_STATUS:
-			debug(" read status: %#x\n", sbsf->status);
+			log_content(" read status: %#x\n", sbsf->status);
 			cnt = bytes - pos;
 			memset(tx + pos, sbsf->status, cnt);
 			pos += cnt;
 			break;
 		case SF_READ_STATUS1:
-			debug(" read status: %#x\n", sbsf->status);
+			log_content(" read status: %#x\n", sbsf->status);
 			cnt = bytes - pos;
 			memset(tx + pos, sbsf->status >> 8, cnt);
 			pos += cnt;
 			break;
 		case SF_WRITE_STATUS:
-			debug(" write status: %#x (ignored)\n", rx[pos]);
+			log_content(" write status: %#x (ignored)\n", rx[pos]);
 			pos = bytes;
 			break;
 		case SF_WRITE:
@@ -451,7 +430,7 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			}
 
 			cnt = bytes - pos;
-			debug(" rx: write(%u)\n", cnt);
+			log_content(" rx: write(%u)\n", cnt);
 			if (tx)
 				sandbox_spi_tristate(&tx[pos], cnt);
 			ret = os_write(sbsf->fd, rx + pos, cnt);
@@ -471,15 +450,15 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 
 			/* verify address is aligned */
 			if (sbsf->off & (sbsf->erase_size - 1)) {
-				debug(" sector erase: cmd:%#x needs align:%#x, but we got %#x\n",
-				      sbsf->cmd, sbsf->erase_size,
-				      sbsf->off);
+				log_content(" sector erase: cmd:%#x needs align:%#x, but we got %#x\n",
+					    sbsf->cmd, sbsf->erase_size,
+					    sbsf->off);
 				sbsf->status &= ~STAT_WEL;
 				goto done;
 			}
 
-			debug(" sector erase addr: %u, size: %u\n", sbsf->off,
-			      sbsf->erase_size);
+			log_content(" sector erase addr: %u, size: %u\n",
+				    sbsf->off, sbsf->erase_size);
 
 			cnt = bytes - pos;
 			if (tx)
@@ -493,13 +472,13 @@ static int sandbox_sf_xfer(struct udevice *dev, unsigned int bitlen,
 			ret = sandbox_erase_part(sbsf, sbsf->erase_size);
 			sbsf->status &= ~STAT_WEL;
 			if (ret) {
-				debug("sandbox_sf: Erase failed\n");
+				log_content("sandbox_sf: Erase failed\n");
 				goto done;
 			}
 			goto done;
 		}
 		default:
-			debug(" ??? no idea what to do ???\n");
+			log_content(" ??? no idea what to do ???\n");
 			goto done;
 		}
 	}
@@ -530,31 +509,6 @@ static const struct dm_spi_emul_ops sandbox_sf_emul_ops = {
 };
 
 #ifdef CONFIG_SPI_FLASH
-static int sandbox_cmdline_cb_spi_sf(struct sandbox_state *state,
-				     const char *arg)
-{
-	unsigned long bus, cs;
-	const char *spec = sandbox_spi_parse_spec(arg, &bus, &cs);
-
-	if (!spec)
-		return 1;
-
-	/*
-	 * It is safe to not make a copy of 'spec' because it comes from the
-	 * command line.
-	 *
-	 * TODO(sjg@chromium.org): It would be nice if we could parse the
-	 * spec here, but the problem is that no U-Boot init has been done
-	 * yet. Perhaps we can figure something out.
-	 */
-	state->spi[bus][cs].spec = spec;
-	debug("%s:  Setting up spec '%s' for bus %ld, cs %ld\n", __func__,
-	      spec, bus, cs);
-
-	return 0;
-}
-SANDBOX_CMDLINE_OPT(spi_sf, 1, "connect a SPI flash: <bus>:<cs>:<id>:<file>");
-
 int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
 			 struct udevice *bus, ofnode node, const char *spec)
 {
@@ -597,33 +551,6 @@ void sandbox_sf_unbind_emul(struct sandbox_state *state, int busnum, int cs)
 	state->spi[busnum][cs].emul = NULL;
 }
 
-static int sandbox_sf_bind_bus_cs(struct sandbox_state *state, int busnum,
-				  int cs, const char *spec)
-{
-	struct udevice *bus, *slave;
-	int ret;
-
-	ret = uclass_find_device_by_seq(UCLASS_SPI, busnum, true, &bus);
-	if (ret) {
-		printf("Invalid bus %d for spec '%s' (err=%d)\n", busnum,
-		       spec, ret);
-		return ret;
-	}
-	ret = spi_find_chip_select(bus, cs, &slave);
-	if (!ret) {
-		printf("Chip select %d already exists for spec '%s'\n", cs,
-		       spec);
-		return -EEXIST;
-	}
-
-	ret = device_bind_driver(bus, "spi_flash_std", spec, &slave);
-	if (ret)
-		return ret;
-
-	return sandbox_sf_bind_emul(state, busnum, cs, bus, ofnode_null(),
-				    spec);
-}
-
 int sandbox_spi_get_emul(struct sandbox_state *state,
 			 struct udevice *bus, struct udevice *slave,
 			 struct udevice **emulp)
@@ -647,35 +574,6 @@ int sandbox_spi_get_emul(struct sandbox_state *state,
 		debug("OK\n");
 	}
 	*emulp = info->emul;
-
-	return 0;
-}
-
-int dm_scan_other(bool pre_reloc_only)
-{
-	struct sandbox_state *state = state_get_current();
-	int busnum, cs;
-
-	if (pre_reloc_only)
-		return 0;
-	for (busnum = 0; busnum < CONFIG_SANDBOX_SPI_MAX_BUS; busnum++) {
-		for (cs = 0; cs < CONFIG_SANDBOX_SPI_MAX_CS; cs++) {
-			const char *spec = state->spi[busnum][cs].spec;
-			int ret;
-
-			if (spec) {
-				ret = sandbox_sf_bind_bus_cs(state, busnum,
-							     cs, spec);
-				if (ret) {
-					debug("%s: Bind failed for bus %d, cs %d\n",
-					      __func__, busnum, cs);
-					return ret;
-				}
-				debug("%s:  Setting up spec '%s' for bus %d, cs %d\n",
-				      __func__, spec, busnum, cs);
-			}
-		}
-	}
 
 	return 0;
 }

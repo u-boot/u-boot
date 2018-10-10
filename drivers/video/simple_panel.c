@@ -32,6 +32,21 @@ static int simple_panel_enable_backlight(struct udevice *dev)
 	return 0;
 }
 
+static int simple_panel_set_backlight(struct udevice *dev, int percent)
+{
+	struct simple_panel_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	debug("%s: start, backlight = '%s'\n", __func__, priv->backlight->name);
+	dm_gpio_set_value(&priv->enable, 1);
+	ret = backlight_set_brightness(priv->backlight, percent);
+	debug("%s: done, ret = %d\n", __func__, ret);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int simple_panel_ofdata_to_platdata(struct udevice *dev)
 {
 	struct simple_panel_priv *priv = dev_get_priv(dev);
@@ -51,7 +66,7 @@ static int simple_panel_ofdata_to_platdata(struct udevice *dev)
 					   "backlight", &priv->backlight);
 	if (ret) {
 		debug("%s: Cannot get backlight: ret=%d\n", __func__, ret);
-		return ret;
+		return log_ret(ret);
 	}
 	ret = gpio_request_by_name(dev, "enable-gpios", 0, &priv->enable,
 				   GPIOD_IS_OUT);
@@ -59,7 +74,7 @@ static int simple_panel_ofdata_to_platdata(struct udevice *dev)
 		debug("%s: Warning: cannot get enable GPIO: ret=%d\n",
 		      __func__, ret);
 		if (ret != -ENOENT)
-			return ret;
+			return log_ret(ret);
 	}
 
 	return 0;
@@ -82,6 +97,7 @@ static int simple_panel_probe(struct udevice *dev)
 
 static const struct panel_ops simple_panel_ops = {
 	.enable_backlight	= simple_panel_enable_backlight,
+	.set_backlight		= simple_panel_set_backlight,
 };
 
 static const struct udevice_id simple_panel_ids[] = {

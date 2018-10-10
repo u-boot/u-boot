@@ -13,19 +13,30 @@
 int ofnode_read_fmap_entry(ofnode node, struct fmap_entry *entry)
 {
 	const char *prop;
-	u32 reg[2];
 
-	if (ofnode_read_u32_array(node, "reg", reg, 2)) {
-		debug("Node '%s' has bad/missing 'reg' property\n",
+	if (ofnode_read_u32(node, "image-pos", &entry->offset)) {
+		debug("Node '%s' has bad/missing 'image-pos' property\n",
 		      ofnode_get_name(node));
-		return -log_ret(ENOENT);
+		return log_ret(-ENOENT);
 	}
-	entry->offset = reg[0];
-	entry->length = reg[1];
+	if (ofnode_read_u32(node, "size", &entry->length)) {
+		debug("Node '%s' has bad/missing 'size' property\n",
+		      ofnode_get_name(node));
+		return log_ret(-ENOENT);
+	}
 	entry->used = ofnode_read_s32_default(node, "used", entry->length);
 	prop = ofnode_read_string(node, "compress");
-	entry->compress_algo = prop && !strcmp(prop, "lzo") ?
-		FMAP_COMPRESS_LZO : FMAP_COMPRESS_NONE;
+	if (prop) {
+		if (!strcmp(prop, "lz4"))
+			entry->compress_algo = FMAP_COMPRESS_LZ4;
+		else
+			return log_msg_ret("Unknown compression algo",
+					   -EINVAL);
+	} else {
+		entry->compress_algo = FMAP_COMPRESS_NONE;
+	}
+	entry->unc_length = ofnode_read_s32_default(node, "uncomp-size",
+						    entry->length);
 	prop = ofnode_read_string(node, "hash");
 	if (prop)
 		entry->hash_size = strlen(prop);

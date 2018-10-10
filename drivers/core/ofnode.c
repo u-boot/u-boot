@@ -541,9 +541,13 @@ fdt_addr_t ofnode_get_addr_size(ofnode node, const char *property,
 		if (!prop)
 			return FDT_ADDR_T_NONE;
 		na = of_n_addr_cells(np);
-		ns = of_n_addr_cells(np);
+		ns = of_n_size_cells(np);
 		*sizep = of_read_number(prop + na, ns);
-		return of_read_number(prop, na);
+
+		if (IS_ENABLED(CONFIG_OF_TRANSLATE) && ns > 0)
+			return of_translate_address(np, prop);
+		else
+			return of_read_number(prop, na);
 	} else {
 		return fdtdec_get_addr_size(gd->fdt_blob,
 					    ofnode_to_offset(node), property,
@@ -694,6 +698,8 @@ int ofnode_read_simple_size_cells(ofnode node)
 bool ofnode_pre_reloc(ofnode node)
 {
 	if (ofnode_read_bool(node, "u-boot,dm-pre-reloc"))
+		return true;
+	if (ofnode_read_bool(node, "u-boot,dm-pre-proper"))
 		return true;
 
 #ifdef CONFIG_TPL_BUILD

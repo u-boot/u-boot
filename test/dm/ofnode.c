@@ -2,6 +2,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/of_extra.h>
 #include <dm/test.h>
 #include <test/ut.h>
 
@@ -42,3 +43,18 @@ static int dm_test_ofnode_by_prop_value(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_ofnode_by_prop_value, DM_TESTF_SCAN_FDT);
+
+static int dm_test_ofnode_fmap(struct unit_test_state *uts)
+{
+	struct fmap_entry entry;
+	ofnode node;
+
+	node = ofnode_path("/cros-ec/flash");
+	ut_assert(ofnode_valid(node));
+	ut_assertok(ofnode_read_fmap_entry(node, &entry));
+	ut_asserteq(0x08000000, entry.offset);
+	ut_asserteq(0x20000, entry.length);
+
+	return 0;
+}
+DM_TEST(dm_test_ofnode_fmap, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

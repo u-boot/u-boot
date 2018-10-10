@@ -28,6 +28,9 @@ packages = {
     'lz4': 'liblz4-tool',
     }
 
+# List of paths to use when looking for an input file
+indir = []
+
 def PrepareOutputDir(dirname, preserve=False):
     """Select an output directory, ensuring it exists.
 

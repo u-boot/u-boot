@@ -13,7 +13,7 @@
 #include <dm.h>
 #include <errno.h>
 
-struct cros_ec_dev *board_get_cros_ec_dev(void)
+struct udevice *board_get_cros_ec_dev(void)
 {
 	struct udevice *dev;
 	int ret;
@@ -23,7 +23,7 @@ struct cros_ec_dev *board_get_cros_ec_dev(void)
 		debug("%s: Error %d\n", __func__, ret);
 		return NULL;
 	}
-	return dev_get_uclass_priv(dev);
+	return dev;
 }
 
 int cros_ec_get_error(void)

@@ -83,15 +83,15 @@ int cros_ec_calc_checksum(const uint8_t *data, int size)
  * @param dout_len      Size of output data in bytes
  * @return packet size in bytes, or <0 if error.
  */
-static int create_proto3_request(struct cros_ec_dev *dev,
+static int create_proto3_request(struct cros_ec_dev *cdev,
 				 int cmd, int cmd_version,
 				 const void *dout, int dout_len)
 {
-	struct ec_host_request *rq = (struct ec_host_request *)dev->dout;
+	struct ec_host_request *rq = (struct ec_host_request *)cdev->dout;
 	int out_bytes = dout_len + sizeof(*rq);
 
 	/* Fail if output size is too big */
-	if (out_bytes > (int)sizeof(dev->dout)) {
+	if (out_bytes > (int)sizeof(cdev->dout)) {
 		debug("%s: Cannot send %d bytes\n", __func__, dout_len);
 		return -EC_RES_REQUEST_TRUNCATED;
 	}
@@ -108,9 +108,9 @@ static int create_proto3_request(struct cros_ec_dev *dev,
 	memcpy(rq + 1, dout, dout_len);
 
 	/* Write checksum field so the entire packet sums to 0 */
-	rq->checksum = (uint8_t)(-cros_ec_calc_checksum(dev->dout, out_bytes));
+	rq->checksum = (uint8_t)(-cros_ec_calc_checksum(cdev->dout, out_bytes));
 
-	cros_ec_dump_data("out", cmd, dev->dout, out_bytes);
+	cros_ec_dump_data("out", cmd, cdev->dout, out_bytes);
 
 	/* Return size of request packet */
 	return out_bytes;
@@ -123,12 +123,12 @@ static int create_proto3_request(struct cros_ec_dev *dev,
  * @param din_len       Maximum size of response in bytes
  * @return maximum expected number of bytes in response, or <0 if error.
  */
-static int prepare_proto3_response_buffer(struct cros_ec_dev *dev, int din_len)
+static int prepare_proto3_response_buffer(struct cros_ec_dev *cdev, int din_len)
 {
 	int in_bytes = din_len + sizeof(struct ec_host_response);
 
 	/* Fail if input size is too big */
-	if (in_bytes > (int)sizeof(dev->din)) {
+	if (in_bytes > (int)sizeof(cdev->din)) {
 		debug("%s: Cannot receive %d bytes\n", __func__, din_len);
 		return -EC_RES_RESPONSE_TOO_BIG;
 	}
@@ -197,7 +197,7 @@ static int handle_proto3_response(struct cros_ec_dev *dev,
 	return rs->data_len;
 }
 
-static int send_command_proto3(struct cros_ec_dev *dev,
+static int send_command_proto3(struct cros_ec_dev *cdev,
 			       int cmd, int cmd_version,
 			       const void *dout, int dout_len,
 			       uint8_t **dinp, int din_len)
@@ -207,23 +207,24 @@ static int send_command_proto3(struct cros_ec_dev *dev,
 	int rv;
 
 	/* Create request packet */
-	out_bytes = create_proto3_request(dev, cmd, cmd_version,
+	out_bytes = create_proto3_request(cdev, cmd, cmd_version,
 					  dout, dout_len);
 	if (out_bytes < 0)
 		return out_bytes;
 
 	/* Prepare response buffer */
-	in_bytes = prepare_proto3_response_buffer(dev, din_len);
+	in_bytes = prepare_proto3_response_buffer(cdev, din_len);
 	if (in_bytes < 0)
 		return in_bytes;
 
-	ops = dm_cros_ec_get_ops(dev->dev);
-	rv = ops->packet ? ops->packet(dev->dev, out_bytes, in_bytes) : -ENOSYS;
+	ops = dm_cros_ec_get_ops(cdev->dev);
+	rv = ops->packet ? ops->packet(cdev->dev, out_bytes, in_bytes) :
+			-ENOSYS;
 	if (rv < 0)
 		return rv;
 
 	/* Process the response */
-	return handle_proto3_response(dev, dinp, din_len);
+	return handle_proto3_response(cdev, dinp, din_len);
 }
 
 static int send_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
@@ -262,15 +263,16 @@ static int send_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
  * @param din_len       Maximum size of response in bytes
  * @return number of bytes in response, or -ve on error
  */
-static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
-		int cmd_version, const void *dout, int dout_len, uint8_t **dinp,
-		int din_len)
+static int ec_command_inptr(struct udevice *dev, uint8_t cmd,
+			    int cmd_version, const void *dout, int dout_len,
+			    uint8_t **dinp, int din_len)
 {
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	uint8_t *din = NULL;
 	int len;
 
-	len = send_command(dev, cmd, cmd_version, dout, dout_len,
-				&din, din_len);
+	len = send_command(cdev, cmd, cmd_version, dout, dout_len, &din,
+			   din_len);
 
 	/* If the command doesn't complete, wait a while */
 	if (len == -EC_RES_IN_PROGRESS) {
@@ -283,9 +285,9 @@ static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
 			int ret;
 
 			mdelay(50);	/* Insert some reasonable delay */
-			ret = send_command(dev, EC_CMD_GET_COMMS_STATUS, 0,
-					NULL, 0,
-					(uint8_t **)&resp, sizeof(*resp));
+			ret = send_command(cdev, EC_CMD_GET_COMMS_STATUS, 0,
+					   NULL, 0,
+					   (uint8_t **)&resp, sizeof(*resp));
 			if (ret < 0)
 				return ret;
 
@@ -298,8 +300,8 @@ static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
 
 		/* OK it completed, so read the status response */
 		/* not sure why it was 0 for the last argument */
-		len = send_command(dev, EC_CMD_RESEND_RESPONSE, 0,
-				NULL, 0, &din, din_len);
+		len = send_command(cdev, EC_CMD_RESEND_RESPONSE, 0, NULL, 0,
+				   &din, din_len);
 	}
 
 	debug("%s: len=%d, din=%p\n", __func__, len, din);
@@ -328,7 +330,7 @@ static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
  * @param din_len       Maximum size of response in bytes
  * @return number of bytes in response, or -ve on error
  */
-static int ec_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
+static int ec_command(struct udevice *dev, uint8_t cmd, int cmd_version,
 		      const void *dout, int dout_len,
 		      void *din, int din_len)
 {
@@ -337,7 +339,7 @@ static int ec_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 
 	assert((din_len == 0) || din);
 	len = ec_command_inptr(dev, cmd, cmd_version, dout, dout_len,
-			&in_buffer, din_len);
+			       &in_buffer, din_len);
 	if (len > 0) {
 		/*
 		 * If we were asked to put it somewhere, do so, otherwise just
@@ -353,16 +355,14 @@ static int ec_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 
 int cros_ec_scan_keyboard(struct udevice *dev, struct mbkp_keyscan *scan)
 {
-	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
-
-	if (ec_command(cdev, EC_CMD_MKBP_STATE, 0, NULL, 0, scan,
+ 	if (ec_command(dev, EC_CMD_MKBP_STATE, 0, NULL, 0, scan,
 		       sizeof(scan->data)) != sizeof(scan->data))
 		return -1;
 
 	return 0;
 }
 
-int cros_ec_read_id(struct cros_ec_dev *dev, char *id, int maxlen)
+int cros_ec_read_id(struct udevice *dev, char *id, int maxlen)
 {
 	struct ec_response_get_version *r;
 
@@ -388,8 +388,8 @@ int cros_ec_read_id(struct cros_ec_dev *dev, char *id, int maxlen)
 	return 0;
 }
 
-int cros_ec_read_version(struct cros_ec_dev *dev,
-		       struct ec_response_get_version **versionp)
+int cros_ec_read_version(struct udevice *dev,
+			 struct ec_response_get_version **versionp)
 {
 	if (ec_command_inptr(dev, EC_CMD_GET_VERSION, 0, NULL, 0,
 			(uint8_t **)versionp, sizeof(**versionp))
@@ -399,7 +399,7 @@ int cros_ec_read_version(struct cros_ec_dev *dev,
 	return 0;
 }
 
-int cros_ec_read_build_info(struct cros_ec_dev *dev, char **strp)
+int cros_ec_read_build_info(struct udevice *dev, char **strp)
 {
 	if (ec_command_inptr(dev, EC_CMD_GET_BUILD_INFO, 0, NULL, 0,
 			(uint8_t **)strp, EC_PROTO2_MAX_PARAM_SIZE) < 0)
@@ -408,8 +408,8 @@ int cros_ec_read_build_info(struct cros_ec_dev *dev, char **strp)
 	return 0;
 }
 
-int cros_ec_read_current_image(struct cros_ec_dev *dev,
-		enum ec_current_image *image)
+int cros_ec_read_current_image(struct udevice *dev,
+			       enum ec_current_image *image)
 {
 	struct ec_response_get_version *r;
 
@@ -421,8 +421,8 @@ int cros_ec_read_current_image(struct cros_ec_dev *dev,
 	return 0;
 }
 
-static int cros_ec_wait_on_hash_done(struct cros_ec_dev *dev,
-				  struct ec_response_vboot_hash *hash)
+static int cros_ec_wait_on_hash_done(struct udevice *dev,
+				     struct ec_response_vboot_hash *hash)
 {
 	struct ec_params_vboot_hash p;
 	ulong start;
@@ -444,14 +444,14 @@ static int cros_ec_wait_on_hash_done(struct cros_ec_dev *dev,
 	return 0;
 }
 
-
-int cros_ec_read_hash(struct cros_ec_dev *dev,
-		struct ec_response_vboot_hash *hash)
+int cros_ec_read_hash(struct udevice *dev, uint hash_offset,
+		      struct ec_response_vboot_hash *hash)
 {
 	struct ec_params_vboot_hash p;
 	int rv;
 
 	p.cmd = EC_VBOOT_HASH_GET;
+	p.offset = hash_offset;
 	if (ec_command(dev, EC_CMD_VBOOT_HASH, 0, &p, sizeof(p),
 		       hash, sizeof(*hash)) < 0)
 		return -1;
@@ -474,7 +474,7 @@ int cros_ec_read_hash(struct cros_ec_dev *dev,
 	p.cmd = EC_VBOOT_HASH_START;
 	p.hash_type = EC_VBOOT_HASH_TYPE_SHA256;
 	p.nonce_size = 0;
-	p.offset = EC_VBOOT_HASH_OFFSET_RW;
+	p.offset = hash_offset;
 
 	if (ec_command(dev, EC_CMD_VBOOT_HASH, 0, &p, sizeof(p),
 		       hash, sizeof(*hash)) < 0)
@@ -489,7 +489,7 @@ int cros_ec_read_hash(struct cros_ec_dev *dev,
 	return 0;
 }
 
-static int cros_ec_invalidate_hash(struct cros_ec_dev *dev)
+static int cros_ec_invalidate_hash(struct udevice *dev)
 {
 	struct ec_params_vboot_hash p;
 	struct ec_response_vboot_hash *hash;
@@ -514,8 +514,7 @@ static int cros_ec_invalidate_hash(struct cros_ec_dev *dev)
 	return 0;
 }
 
-int cros_ec_reboot(struct cros_ec_dev *dev, enum ec_reboot_cmd cmd,
-		uint8_t flags)
+int cros_ec_reboot(struct udevice *dev, enum ec_reboot_cmd cmd, uint8_t flags)
 {
 	struct ec_params_reboot_ec p;
 
@@ -555,7 +554,7 @@ int cros_ec_interrupt_pending(struct udevice *dev)
 	return dm_gpio_get_value(&cdev->ec_int);
 }
 
-int cros_ec_info(struct cros_ec_dev *dev, struct ec_response_mkbp_info *info)
+int cros_ec_info(struct udevice *dev, struct ec_response_mkbp_info *info)
 {
 	if (ec_command(dev, EC_CMD_MKBP_INFO, 0, NULL, 0, info,
 		       sizeof(*info)) != sizeof(*info))
@@ -564,7 +563,7 @@ int cros_ec_info(struct cros_ec_dev *dev, struct ec_response_mkbp_info *info)
 	return 0;
 }
 
-int cros_ec_get_host_events(struct cros_ec_dev *dev, uint32_t *events_ptr)
+int cros_ec_get_host_events(struct udevice *dev, uint32_t *events_ptr)
 {
 	struct ec_response_host_event_mask *resp;
 
@@ -583,7 +582,7 @@ int cros_ec_get_host_events(struct cros_ec_dev *dev, uint32_t *events_ptr)
 	return 0;
 }
 
-int cros_ec_clear_host_events(struct cros_ec_dev *dev, uint32_t events)
+int cros_ec_clear_host_events(struct udevice *dev, uint32_t events)
 {
 	struct ec_params_host_event_mask params;
 
@@ -600,9 +599,9 @@ int cros_ec_clear_host_events(struct cros_ec_dev *dev, uint32_t events)
 	return 0;
 }
 
-int cros_ec_flash_protect(struct cros_ec_dev *dev,
-		       uint32_t set_mask, uint32_t set_flags,
-		       struct ec_response_flash_protect *resp)
+int cros_ec_flash_protect(struct udevice *dev, uint32_t set_mask,
+			  uint32_t set_flags,
+			  struct ec_response_flash_protect *resp)
 {
 	struct ec_params_flash_protect params;
 
@@ -617,17 +616,18 @@ int cros_ec_flash_protect(struct cros_ec_dev *dev,
 	return 0;
 }
 
-static int cros_ec_check_version(struct cros_ec_dev *dev)
+static int cros_ec_check_version(struct udevice *dev)
 {
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	struct ec_params_hello req;
 	struct ec_response_hello *resp;
 
 	struct dm_cros_ec_ops *ops;
 	int ret;
 
-	ops = dm_cros_ec_get_ops(dev->dev);
+	ops = dm_cros_ec_get_ops(dev);
 	if (ops->check_version) {
-		ret = ops->check_version(dev->dev);
+		ret = ops->check_version(dev);
 		if (ret)
 			return ret;
 	}
@@ -647,7 +647,7 @@ static int cros_ec_check_version(struct cros_ec_dev *dev)
 	 */
 
 	/* Try sending a version 3 packet */
-	dev->protocol_version = 3;
+	cdev->protocol_version = 3;
 	req.in_data = 0;
 	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
 			     (uint8_t **)&resp, sizeof(*resp)) > 0) {
@@ -655,9 +655,9 @@ static int cros_ec_check_version(struct cros_ec_dev *dev)
 	}
 
 	/* Try sending a version 2 packet */
-	dev->protocol_version = 2;
+	cdev->protocol_version = 2;
 	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
-		       (uint8_t **)&resp, sizeof(*resp)) > 0) {
+			     (uint8_t **)&resp, sizeof(*resp)) > 0) {
 		return 0;
 	}
 
@@ -667,12 +667,12 @@ static int cros_ec_check_version(struct cros_ec_dev *dev)
 	 * version is no longer supported, and we don't know about any new
 	 * protocol versions.
 	 */
-	dev->protocol_version = 0;
+	cdev->protocol_version = 0;
 	printf("%s: ERROR: old EC interface not supported\n", __func__);
 	return -1;
 }
 
-int cros_ec_test(struct cros_ec_dev *dev)
+int cros_ec_test(struct udevice *dev)
 {
 	struct ec_params_hello req;
 	struct ec_response_hello *resp;
@@ -691,7 +691,7 @@ int cros_ec_test(struct cros_ec_dev *dev)
 	return 0;
 }
 
-int cros_ec_flash_offset(struct cros_ec_dev *dev, enum ec_flash_region region,
+int cros_ec_flash_offset(struct udevice *dev, enum ec_flash_region region,
 		      uint32_t *offset, uint32_t *size)
 {
 	struct ec_params_flash_region_info p;
@@ -713,7 +713,7 @@ int cros_ec_flash_offset(struct cros_ec_dev *dev, enum ec_flash_region region,
 	return 0;
 }
 
-int cros_ec_flash_erase(struct cros_ec_dev *dev, uint32_t offset, uint32_t size)
+int cros_ec_flash_erase(struct udevice *dev, uint32_t offset, uint32_t size)
 {
 	struct ec_params_flash_erase p;
 
@@ -741,8 +741,8 @@ int cros_ec_flash_erase(struct cros_ec_dev *dev, uint32_t offset, uint32_t size)
  * @param size		Number of bytes to write
  * @return 0 if ok, -1 on error
  */
-static int cros_ec_flash_write_block(struct cros_ec_dev *dev,
-		const uint8_t *data, uint32_t offset, uint32_t size)
+static int cros_ec_flash_write_block(struct udevice *dev, const uint8_t *data,
+				     uint32_t offset, uint32_t size)
 {
 	struct ec_params_flash_write *p;
 	int ret;
@@ -767,7 +767,7 @@ static int cros_ec_flash_write_block(struct cros_ec_dev *dev,
 /**
  * Return optimal flash write burst size
  */
-static int cros_ec_flash_write_burst_size(struct cros_ec_dev *dev)
+static int cros_ec_flash_write_burst_size(struct udevice *dev)
 {
 	return EC_FLASH_WRITE_VER0_SIZE;
 }
@@ -801,8 +801,8 @@ static int cros_ec_data_is_erased(const uint32_t *data, int size)
  * @param dev  Pointer to device
  * @param info Pointer to output flash info struct
  */
-int cros_ec_read_flashinfo(struct cros_ec_dev *dev,
-			  struct ec_response_flash_info *info)
+int cros_ec_read_flashinfo(struct udevice *dev,
+			   struct ec_response_flash_info *info)
 {
 	int ret;
 
@@ -814,9 +814,10 @@ int cros_ec_read_flashinfo(struct cros_ec_dev *dev,
 	return ret < sizeof(*info) ? -1 : 0;
 }
 
-int cros_ec_flash_write(struct cros_ec_dev *dev, const uint8_t *data,
-		     uint32_t offset, uint32_t size)
+int cros_ec_flash_write(struct udevice *dev, const uint8_t *data,
+			uint32_t offset, uint32_t size)
 {
+	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	uint32_t burst = cros_ec_flash_write_burst_size(dev);
 	uint32_t end, off;
 	int ret;
@@ -831,8 +832,8 @@ int cros_ec_flash_write(struct cros_ec_dev *dev, const uint8_t *data,
 
 		/* If the data is empty, there is no point in programming it */
 		todo = min(end - off, burst);
-		if (dev->optimise_flash_write &&
-				cros_ec_data_is_erased((uint32_t *)data, todo))
+		if (cdev->optimise_flash_write &&
+		    cros_ec_data_is_erased((uint32_t *)data, todo))
 			continue;
 
 		ret = cros_ec_flash_write_block(dev, data, off, todo);
@@ -858,8 +859,8 @@ int cros_ec_flash_write(struct cros_ec_dev *dev, const uint8_t *data,
  * @param size		Number of bytes to read
  * @return 0 if ok, -1 on error
  */
-static int cros_ec_flash_read_block(struct cros_ec_dev *dev, uint8_t *data,
-				 uint32_t offset, uint32_t size)
+static int cros_ec_flash_read_block(struct udevice *dev, uint8_t *data,
+				    uint32_t offset, uint32_t size)
 {
 	struct ec_params_flash_read p;
 
@@ -870,8 +871,8 @@ static int cros_ec_flash_read_block(struct cros_ec_dev *dev, uint8_t *data,
 			  &p, sizeof(p), data, size) >= 0 ? 0 : -1;
 }
 
-int cros_ec_flash_read(struct cros_ec_dev *dev, uint8_t *data, uint32_t offset,
-		    uint32_t size)
+int cros_ec_flash_read(struct udevice *dev, uint8_t *data, uint32_t offset,
+		       uint32_t size)
 {
 	uint32_t burst = cros_ec_flash_write_burst_size(dev);
 	uint32_t end, off;
@@ -888,13 +889,14 @@ int cros_ec_flash_read(struct cros_ec_dev *dev, uint8_t *data, uint32_t offset,
 	return 0;
 }
 
-int cros_ec_flash_update_rw(struct cros_ec_dev *dev,
-			 const uint8_t *image, int image_size)
+int cros_ec_flash_update_rw(struct udevice *dev, const uint8_t *image,
+			    int image_size)
 {
 	uint32_t rw_offset, rw_size;
 	int ret;
 
-	if (cros_ec_flash_offset(dev, EC_FLASH_REGION_RW, &rw_offset, &rw_size))
+	if (cros_ec_flash_offset(dev, EC_FLASH_REGION_ACTIVE, &rw_offset,
+		&rw_size))
 		return -1;
 	if (image_size > (int)rw_size)
 		return -1;
@@ -927,26 +929,31 @@ int cros_ec_flash_update_rw(struct cros_ec_dev *dev,
 	return 0;
 }
 
-int cros_ec_read_vbnvcontext(struct cros_ec_dev *dev, uint8_t *block)
+int cros_ec_read_nvdata(struct udevice *dev, uint8_t *block, int size)
 {
 	struct ec_params_vbnvcontext p;
 	int len;
+
+	if (size != EC_VBNV_BLOCK_SIZE)
+		return -EINVAL;
 
 	p.op = EC_VBNV_CONTEXT_OP_READ;
 
 	len = ec_command(dev, EC_CMD_VBNV_CONTEXT, EC_VER_VBNV_CONTEXT,
 			&p, sizeof(p), block, EC_VBNV_BLOCK_SIZE);
 	if (len < EC_VBNV_BLOCK_SIZE)
-		return -1;
+		return -EIO;
 
 	return 0;
 }
 
-int cros_ec_write_vbnvcontext(struct cros_ec_dev *dev, const uint8_t *block)
+int cros_ec_write_nvdata(struct udevice *dev, const uint8_t *block, int size)
 {
 	struct ec_params_vbnvcontext p;
 	int len;
 
+	if (size != EC_VBNV_BLOCK_SIZE)
+		return -EINVAL;
 	p.op = EC_VBNV_CONTEXT_OP_WRITE;
 	memcpy(p.block, block, sizeof(p.block));
 
@@ -960,13 +967,12 @@ int cros_ec_write_vbnvcontext(struct cros_ec_dev *dev, const uint8_t *block)
 
 int cros_ec_set_ldo(struct udevice *dev, uint8_t index, uint8_t state)
 {
-	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	struct ec_params_ldo_set params;
 
 	params.index = index;
 	params.state = state;
 
-	if (ec_command_inptr(cdev, EC_CMD_LDO_SET, 0, &params, sizeof(params),
+	if (ec_command_inptr(dev, EC_CMD_LDO_SET, 0, &params, sizeof(params),
 			     NULL, 0))
 		return -1;
 
@@ -975,13 +981,12 @@ int cros_ec_set_ldo(struct udevice *dev, uint8_t index, uint8_t state)
 
 int cros_ec_get_ldo(struct udevice *dev, uint8_t index, uint8_t *state)
 {
-	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	struct ec_params_ldo_get params;
 	struct ec_response_ldo_get *resp;
 
 	params.index = index;
 
-	if (ec_command_inptr(cdev, EC_CMD_LDO_GET, 0, &params, sizeof(params),
+	if (ec_command_inptr(dev, EC_CMD_LDO_GET, 0, &params, sizeof(params),
 			     (uint8_t **)&resp, sizeof(*resp)) !=
 			     sizeof(*resp))
 		return -1;
@@ -1001,12 +1006,12 @@ int cros_ec_register(struct udevice *dev)
 			     GPIOD_IS_IN);
 	cdev->optimise_flash_write = dev_read_bool(dev, "optimise-flash-write");
 
-	if (cros_ec_check_version(cdev)) {
+	if (cros_ec_check_version(dev)) {
 		debug("%s: Could not detect CROS-EC version\n", __func__);
 		return -CROS_EC_ERR_CHECK_VERSION;
 	}
 
-	if (cros_ec_read_id(cdev, id, sizeof(id))) {
+	if (cros_ec_read_id(dev, id, sizeof(id))) {
 		debug("%s: Could not read KBC ID\n", __func__);
 		return -CROS_EC_ERR_READ_ID;
 	}
@@ -1042,7 +1047,7 @@ int cros_ec_decode_ec_flash(struct udevice *dev, struct fdt_cros_ec *config)
 		if (0 == strcmp(name, "ro")) {
 			region = EC_FLASH_REGION_RO;
 		} else if (0 == strcmp(name, "rw")) {
-			region = EC_FLASH_REGION_RW;
+			region = EC_FLASH_REGION_ACTIVE;
 		} else if (0 == strcmp(name, "wp-ro")) {
 			region = EC_FLASH_REGION_WP_RO;
 		} else {
@@ -1062,7 +1067,6 @@ int cros_ec_decode_ec_flash(struct udevice *dev, struct fdt_cros_ec *config)
 int cros_ec_i2c_tunnel(struct udevice *dev, int port, struct i2c_msg *in,
 		       int nmsgs)
 {
-	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
 	union {
 		struct ec_params_i2c_passthru p;
 		uint8_t outbuf[EC_PROTO2_MAX_PARAM_SIZE];
@@ -1112,7 +1116,7 @@ int cros_ec_i2c_tunnel(struct udevice *dev, int port, struct i2c_msg *in,
 		}
 	}
 
-	rv = ec_command(cdev, EC_CMD_I2C_PASSTHRU, 0, p, pdata - (uint8_t *)p,
+	rv = ec_command(dev, EC_CMD_I2C_PASSTHRU, 0, p, pdata - (uint8_t *)p,
 			r, sizeof(*r) + read_len);
 	if (rv < 0)
 		return rv;

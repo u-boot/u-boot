@@ -4,6 +4,8 @@
  * Coypright (c) 2013 Guntermann & Drunck GmbH
  */
 
+#define LOG_CATEGORY UCLASS_TPM
+
 #include <common.h>
 #include <dm.h>
 #include <asm/unaligned.h>
@@ -45,6 +47,11 @@ u32 tpm_startup(enum tpm_startup_type mode)
 	return tpm_sendrecv_command(buf, NULL, NULL);
 }
 
+u32 tpm_resume(void)
+{
+	return tpm_startup(TPM_ST_STATE);
+}
+
 u32 tpm_self_test_full(void)
 {
 	const u8 command[10] = {
@@ -59,6 +66,34 @@ u32 tpm_continue_self_test(void)
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x53,
 	};
 	return tpm_sendrecv_command(command, NULL, NULL);
+}
+
+u32 tpm_clear_and_reenable(void)
+{
+	u32 ret;
+
+	log_info("TPM: Clear and re-enable\n");
+	ret = tpm_force_clear();
+	if (ret != TPM_SUCCESS) {
+		log_err("Can't initiate a force clear\n");
+		return ret;
+	}
+
+#if IS_ENABLED(CONFIG_TPM_V1)
+	ret = tpm_physical_enable();
+	if (ret != TPM_SUCCESS) {
+		log_err("TPM: Can't set enabled state\n");
+		return ret;
+	}
+
+	ret = tpm_physical_set_deactivated(0);
+	if (ret != TPM_SUCCESS) {
+		log_err("TPM: Can't set deactivated state\n");
+		return ret;
+	}
+#endif
+
+	return TPM_SUCCESS;
 }
 
 u32 tpm_nv_define_space(u32 index, u32 perm, u32 size)
@@ -102,6 +137,11 @@ u32 tpm_nv_define_space(u32 index, u32 perm, u32 size)
 		return TPM_LIB_ERROR;
 
 	return tpm_sendrecv_command(buf, NULL, NULL);
+}
+
+u32 tpm_nv_set_locked(void)
+{
+	return tpm_nv_define_space(TPM_NV_INDEX_LOCK, 0, 0);
 }
 
 u32 tpm_nv_read_value(u32 index, void *data, u32 count)
@@ -166,6 +206,13 @@ u32 tpm_nv_write_value(u32 index, const void *data, u32 length)
 		return err;
 
 	return 0;
+}
+
+uint32_t tpm_set_global_lock(void)
+{
+	u32 x;
+
+	return tpm_nv_write_value(TPM_NV_INDEX_0, (uint8_t *)&x, 0);
 }
 
 u32 tpm_extend(u32 index, const void *in_digest, void *out_digest)
@@ -241,6 +288,15 @@ u32 tpm_tsc_physical_presence(u16 presence)
 		return TPM_LIB_ERROR;
 
 	return tpm_sendrecv_command(buf, NULL, NULL);
+}
+
+u32 tpm_finalise_physical_presence(void)
+{
+	const u8 command[12] = {
+		0x0, 0xc1, 0x0, 0x0, 0x0, 0xc, 0x40, 0x0, 0x0, 0xa, 0x2, 0xa0,
+	};
+
+	return tpm_sendrecv_command(command, NULL, NULL);
 }
 
 u32 tpm_read_pubek(void *data, size_t count)
@@ -377,13 +433,19 @@ u32 tpm_get_permanent_flags(struct tpm_permanent_flags *pflags)
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "d",
-			       data_size_offset, &data_size))
+			       data_size_offset, &data_size)) {
+		log_err("Cannot unpack data size\n");
 		return TPM_LIB_ERROR;
-	if (data_size < sizeof(*pflags))
+	}
+	if (data_size < sizeof(*pflags)) {
+		log_err("Data size too small\n");
 		return TPM_LIB_ERROR;
+	}
 	if (unpack_byte_string(response, response_length, "s",
-			       data_offset, pflags, sizeof(*pflags)))
+			       data_offset, pflags, sizeof(*pflags))) {
+		log_err("Cannot unpack pflags\n");
 		return TPM_LIB_ERROR;
+	}
 
 	return 0;
 }

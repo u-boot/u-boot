@@ -171,7 +171,7 @@ class Prop:
             val: Integer value (32-bit, single cell)
         """
         self.bytes = struct.pack('>I', val);
-        self.value = val
+        self.value = self.bytes
         self.type = TYPE_INT
         self.dirty = True
 

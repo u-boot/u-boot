@@ -60,7 +60,7 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
-	ldo1 {
+	ldo_1: ldo1 {
 		regulator-name = "VDD_EMMC_1.8V";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;

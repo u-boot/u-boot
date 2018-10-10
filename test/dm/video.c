@@ -169,7 +169,7 @@ static int dm_test_video_ansi(struct unit_test_state *uts)
 
 	/* reference clear: */
 	video_clear(con->parent);
-	video_sync(con->parent);
+	video_sync(con->parent, false);
 	ut_asserteq(46, compress_frame_buffer(dev));
 
 	/* test clear escape sequence: [2J */

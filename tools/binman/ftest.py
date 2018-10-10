@@ -115,7 +115,6 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('ecrw.bin', CROS_EC_RW_DATA)
         TestFunctional._MakeInputDir('devkeys')
         TestFunctional._MakeInputFile('bmpblk.bin', BMPBLK_DATA)
-        self._output_setup = False
 
         # ELF file with a '_dt_ucode_base_size' symbol
         with open(self.TestFile('u_boot_ucode_ptr')) as fd:
@@ -190,7 +189,7 @@ class TestFunctional(unittest.TestCase):
         """Run binman with a given test file
 
         Args:
-            fname: Device-tree source filename to use (e.g. 05_simple.dts)
+            fname: Device-tree source filename to use (e.g. 005_simple.dts)
             debug: True to enable debugging output
             map: True to output map files for the images
             update_dtb: Update the offset and size of each entry in the device
@@ -230,14 +229,13 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Contents of device-tree binary
         """
-        if not self._output_setup:
-            tools.PrepareOutputDir(self._indir, True)
-            self._output_setup = True
+        tools.PrepareOutputDir(None)
         dtb = fdt_util.EnsureCompiled(self.TestFile(fname))
         with open(dtb) as fd:
             data = fd.read()
             TestFunctional._MakeInputFile(outfile, data)
-            return data
+        tools.FinaliseOutputDir()
+        return data
 
     def _GetDtbContentsForSplTpl(self, dtb_data, name):
         """Create a version of the main DTB for SPL or SPL
@@ -268,7 +266,7 @@ class TestFunctional(unittest.TestCase):
         Raises an assertion failure if binman returns a non-zero exit code.
 
         Args:
-            fname: Device-tree source filename to use (e.g. 05_simple.dts)
+            fname: Device-tree source filename to use (e.g. 005_simple.dts)
             use_real_dtb: True to use the test file as the contents of
                 the u-boot-dtb entry. Normally this is not needed and the
                 test contents (the U_BOOT_DTB_DATA string) can be used.
@@ -325,7 +323,7 @@ class TestFunctional(unittest.TestCase):
         """Helper function which discards the device-tree binary
 
         Args:
-            fname: Device-tree source filename to use (e.g. 05_simple.dts)
+            fname: Device-tree source filename to use (e.g. 005_simple.dts)
             use_real_dtb: True to use the test file as the contents of
                 the u-boot-dtb entry. Normally this is not needed and the
                 test contents (the U_BOOT_DTB_DATA string) can be used.
@@ -368,6 +366,16 @@ class TestFunctional(unittest.TestCase):
         if not os.path.exists(pathname):
             os.makedirs(pathname)
         return pathname
+
+    @classmethod
+    def _SetupSplElf(self, src_fname='bss_data'):
+        """Set up an ELF file with a '_dt_ucode_base_size' symbol
+
+        Args:
+            Filename of ELF file to use as SPL
+        """
+        with open(self.TestFile(src_fname)) as fd:
+            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
 
     @classmethod
     def TestFile(self, fname):
@@ -456,7 +464,7 @@ class TestFunctional(unittest.TestCase):
 
     def testBoard(self):
         """Test that we can run it with a specific board"""
-        self._SetupDtb('05_simple.dts', 'sandbox/u-boot.dtb')
+        self._SetupDtb('005_simple.dts', 'sandbox/u-boot.dtb')
         TestFunctional._MakeInputFile('sandbox/u-boot.bin', U_BOOT_DATA)
         result = self._DoBinman('-b', 'sandbox')
         self.assertEqual(0, result)
@@ -483,19 +491,19 @@ class TestFunctional(unittest.TestCase):
         will come from the device-tree compiler (dtc).
         """
         with self.assertRaises(Exception) as e:
-            self._RunBinman('-d', self.TestFile('01_invalid.dts'))
+            self._RunBinman('-d', self.TestFile('001_invalid.dts'))
         self.assertIn("FATAL ERROR: Unable to parse input tree",
                 str(e.exception))
 
     def testMissingNode(self):
         """Test that a device tree without a 'binman' node generates an error"""
         with self.assertRaises(Exception) as e:
-            self._DoBinman('-d', self.TestFile('02_missing_node.dts'))
+            self._DoBinman('-d', self.TestFile('002_missing_node.dts'))
         self.assertIn("does not have a 'binman' node", str(e.exception))
 
     def testEmpty(self):
         """Test that an empty binman node works OK (i.e. does nothing)"""
-        result = self._RunBinman('-d', self.TestFile('03_empty.dts'))
+        result = self._RunBinman('-d', self.TestFile('003_empty.dts'))
         self.assertEqual(0, len(result.stderr))
         self.assertEqual(0, result.return_code)
 
@@ -503,25 +511,25 @@ class TestFunctional(unittest.TestCase):
         """Test that an invalid entry is flagged"""
         with self.assertRaises(Exception) as e:
             result = self._RunBinman('-d',
-                                     self.TestFile('04_invalid_entry.dts'))
+                                     self.TestFile('004_invalid_entry.dts'))
         self.assertIn("Unknown entry type 'not-a-valid-type' in node "
                 "'/binman/not-a-valid-type'", str(e.exception))
 
     def testSimple(self):
         """Test a simple binman with a single file"""
-        data = self._DoReadFile('05_simple.dts')
+        data = self._DoReadFile('005_simple.dts')
         self.assertEqual(U_BOOT_DATA, data)
 
     def testSimpleDebug(self):
         """Test a simple binman run with debugging enabled"""
-        data = self._DoTestFile('05_simple.dts', debug=True)
+        data = self._DoTestFile('005_simple.dts', debug=True)
 
     def testDual(self):
         """Test that we can handle creating two images
 
         This also tests image padding.
         """
-        retcode = self._DoTestFile('06_dual_image.dts')
+        retcode = self._DoTestFile('006_dual_image.dts')
         self.assertEqual(0, retcode)
 
         image = control.images['image1']
@@ -545,13 +553,13 @@ class TestFunctional(unittest.TestCase):
     def testBadAlign(self):
         """Test that an invalid alignment value is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('07_bad_align.dts')
+            self._DoTestFile('007_bad_align.dts')
         self.assertIn("Node '/binman/u-boot': Alignment 23 must be a power "
                       "of two", str(e.exception))
 
     def testPackSimple(self):
         """Test that packing works as expected"""
-        retcode = self._DoTestFile('08_pack.dts')
+        retcode = self._DoTestFile('008_pack.dts')
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
@@ -593,7 +601,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackExtra(self):
         """Test that extra packing feature works as expected"""
-        retcode = self._DoTestFile('09_pack_extra.dts')
+        retcode = self._DoTestFile('009_pack_extra.dts')
 
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
@@ -638,35 +646,35 @@ class TestFunctional(unittest.TestCase):
     def testPackAlignPowerOf2(self):
         """Test that invalid entry alignment is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('10_pack_align_power2.dts')
+            self._DoTestFile('010_pack_align_power2.dts')
         self.assertIn("Node '/binman/u-boot': Alignment 5 must be a power "
                       "of two", str(e.exception))
 
     def testPackAlignSizePowerOf2(self):
         """Test that invalid entry size alignment is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('11_pack_align_size_power2.dts')
+            self._DoTestFile('011_pack_align_size_power2.dts')
         self.assertIn("Node '/binman/u-boot': Alignment size 55 must be a "
                       "power of two", str(e.exception))
 
     def testPackInvalidAlign(self):
         """Test detection of an offset that does not match its alignment"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('12_pack_inv_align.dts')
+            self._DoTestFile('012_pack_inv_align.dts')
         self.assertIn("Node '/binman/u-boot': Offset 0x5 (5) does not match "
                       "align 0x4 (4)", str(e.exception))
 
     def testPackInvalidSizeAlign(self):
         """Test that invalid entry size alignment is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('13_pack_inv_size_align.dts')
+            self._DoTestFile('013_pack_inv_size_align.dts')
         self.assertIn("Node '/binman/u-boot': Size 0x5 (5) does not match "
                       "align-size 0x4 (4)", str(e.exception))
 
     def testPackOverlap(self):
         """Test that overlapping regions are detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('14_pack_overlap.dts')
+            self._DoTestFile('014_pack_overlap.dts')
         self.assertIn("Node '/binman/u-boot-align': Offset 0x3 (3) overlaps "
                       "with previous entry '/binman/u-boot' ending at 0x4 (4)",
                       str(e.exception))
@@ -674,20 +682,20 @@ class TestFunctional(unittest.TestCase):
     def testPackEntryOverflow(self):
         """Test that entries that overflow their size are detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('15_pack_overflow.dts')
+            self._DoTestFile('015_pack_overflow.dts')
         self.assertIn("Node '/binman/u-boot': Entry contents size is 0x4 (4) "
                       "but entry size is 0x3 (3)", str(e.exception))
 
     def testPackImageOverflow(self):
         """Test that entries which overflow the image size are detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('16_pack_image_overflow.dts')
+            self._DoTestFile('016_pack_image_overflow.dts')
         self.assertIn("Section '/binman': contents size 0x4 (4) exceeds section "
                       "size 0x3 (3)", str(e.exception))
 
     def testPackImageSize(self):
         """Test that the image size can be set"""
-        retcode = self._DoTestFile('17_pack_image_size.dts')
+        retcode = self._DoTestFile('017_pack_image_size.dts')
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
@@ -695,7 +703,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackImageSizeAlign(self):
         """Test that image size alignemnt works as expected"""
-        retcode = self._DoTestFile('18_pack_image_align.dts')
+        retcode = self._DoTestFile('018_pack_image_align.dts')
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
@@ -704,27 +712,26 @@ class TestFunctional(unittest.TestCase):
     def testPackInvalidImageAlign(self):
         """Test that invalid image alignment is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('19_pack_inv_image_align.dts')
+            self._DoTestFile('019_pack_inv_image_align.dts')
         self.assertIn("Section '/binman': Size 0x7 (7) does not match "
                       "align-size 0x8 (8)", str(e.exception))
 
     def testPackAlignPowerOf2(self):
         """Test that invalid image alignment is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('20_pack_inv_image_align_power2.dts')
+            self._DoTestFile('020_pack_inv_image_align_power2.dts')
         self.assertIn("Section '/binman': Alignment size 131 must be a power of "
                       "two", str(e.exception))
 
     def testImagePadByte(self):
         """Test that the image pad byte can be specified"""
-        with open(self.TestFile('bss_data')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
-        data = self._DoReadFile('21_image_pad.dts')
+        self._SetupSplElf()
+        data = self._DoReadFile('021_image_pad.dts')
         self.assertEqual(U_BOOT_SPL_DATA + (chr(0xff) * 1) + U_BOOT_DATA, data)
 
     def testImageName(self):
         """Test that image files can be named"""
-        retcode = self._DoTestFile('22_image_name.dts')
+        retcode = self._DoTestFile('022_image_name.dts')
         self.assertEqual(0, retcode)
         image = control.images['image1']
         fname = tools.GetOutputFilename('test-name')
@@ -736,32 +743,33 @@ class TestFunctional(unittest.TestCase):
 
     def testBlobFilename(self):
         """Test that generic blobs can be provided by filename"""
-        data = self._DoReadFile('23_blob.dts')
+        data = self._DoReadFile('023_blob.dts')
         self.assertEqual(BLOB_DATA, data)
 
     def testPackSorted(self):
         """Test that entries can be sorted"""
-        data = self._DoReadFile('24_sorted.dts')
+        self._SetupSplElf()
+        data = self._DoReadFile('024_sorted.dts')
         self.assertEqual(chr(0) * 1 + U_BOOT_SPL_DATA + chr(0) * 2 +
                          U_BOOT_DATA, data)
 
     def testPackZeroOffset(self):
         """Test that an entry at offset 0 is not given a new offset"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('25_pack_zero_size.dts')
+            self._DoTestFile('025_pack_zero_size.dts')
         self.assertIn("Node '/binman/u-boot-spl': Offset 0x0 (0) overlaps "
                       "with previous entry '/binman/u-boot' ending at 0x4 (4)",
                       str(e.exception))
 
     def testPackUbootDtb(self):
         """Test that a device tree can be added to U-Boot"""
-        data = self._DoReadFile('26_pack_u_boot_dtb.dts')
+        data = self._DoReadFile('026_pack_u_boot_dtb.dts')
         self.assertEqual(U_BOOT_NODTB_DATA + U_BOOT_DTB_DATA, data)
 
     def testPackX86RomNoSize(self):
         """Test that the end-at-4gb property requires a size property"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('27_pack_4gb_no_size.dts')
+            self._DoTestFile('027_pack_4gb_no_size.dts')
         self.assertIn("Section '/binman': Section size must be provided when "
                       "using end-at-4gb", str(e.exception))
 
@@ -776,14 +784,15 @@ class TestFunctional(unittest.TestCase):
     def testPackX86RomOutside(self):
         """Test that the end-at-4gb property checks for offset boundaries"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('28_pack_4gb_outside.dts')
+            self._DoTestFile('028_pack_4gb_outside.dts')
         self.assertIn("Node '/binman/u-boot': Offset 0x0 (0) is outside "
                       "the section starting at 0xffffffe0 (4294967264)",
                       str(e.exception))
 
     def testPackX86Rom(self):
         """Test that a basic x86 ROM can be created"""
-        data = self._DoReadFile('29_x86-rom.dts')
+        self._SetupSplElf()
+        data = self._DoReadFile('029_x86-rom.dts')
         self.assertEqual(U_BOOT_DATA + chr(0) * 7 + U_BOOT_SPL_DATA +
                          chr(0) * 2, data)
 
@@ -791,31 +800,31 @@ class TestFunctional(unittest.TestCase):
         """Test that an invalid Intel descriptor entry is detected"""
         TestFunctional._MakeInputFile('descriptor.bin', '')
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('31_x86-rom-me.dts')
+            self._DoTestFile('031_x86-rom-me.dts')
         self.assertIn("Node '/binman/intel-descriptor': Cannot find FD "
                       "signature", str(e.exception))
 
     def testPackX86RomBadDesc(self):
         """Test that the Intel requires a descriptor entry"""
         with self.assertRaises(ValueError) as e:
-            self._DoTestFile('30_x86-rom-me-no-desc.dts')
+            self._DoTestFile('030_x86-rom-me-no-desc.dts')
         self.assertIn("Node '/binman/intel-me': No offset set with "
                       "offset-unset: should another entry provide this correct "
                       "offset?", str(e.exception))
 
     def testPackX86RomMe(self):
         """Test that an x86 ROM with an ME region can be created"""
-        data = self._DoReadFile('31_x86-rom-me.dts')
+        data = self._DoReadFile('031_x86-rom-me.dts')
         self.assertEqual(ME_DATA, data[0x1000:0x1000 + len(ME_DATA)])
 
     def testPackVga(self):
         """Test that an image with a VGA binary can be created"""
-        data = self._DoReadFile('32_intel-vga.dts')
+        data = self._DoReadFile('032_intel-vga.dts')
         self.assertEqual(VGA_DATA, data[:len(VGA_DATA)])
 
     def testPackStart16(self):
         """Test that an image with an x86 start16 region can be created"""
-        data = self._DoReadFile('33_x86-start16.dts')
+        data = self._DoReadFile('033_x86-start16.dts')
         self.assertEqual(X86_START16_DATA, data[:len(X86_START16_DATA)])
 
     def testPackPowerpcMpc85xxBootpgResetvec(self):
@@ -884,7 +893,7 @@ class TestFunctional(unittest.TestCase):
             u-boot.dtb with the microcode removed
             the microcode
         """
-        first, pos_and_size = self._RunMicrocodeTest('34_x86_ucode.dts',
+        first, pos_and_size = self._RunMicrocodeTest('034_x86_ucode.dts',
                                                      U_BOOT_NODTB_DATA)
         self.assertEqual('nodtb with microcode' + pos_and_size +
                          ' somewhere in here', first)
@@ -901,7 +910,7 @@ class TestFunctional(unittest.TestCase):
         # We need the libfdt library to run this test since only that allows
         # finding the offset of a property. This is required by
         # Entry_u_boot_dtb_with_ucode.ObtainContents().
-        data = self._DoReadFile('35_x86_single_ucode.dts', True)
+        data = self._DoReadFile('035_x86_single_ucode.dts', True)
 
         second = data[len(U_BOOT_NODTB_DATA):]
 
@@ -928,27 +937,27 @@ class TestFunctional(unittest.TestCase):
 
     def testUBootImg(self):
         """Test that u-boot.img can be put in a file"""
-        data = self._DoReadFile('36_u_boot_img.dts')
+        data = self._DoReadFile('036_u_boot_img.dts')
         self.assertEqual(U_BOOT_IMG_DATA, data)
 
     def testNoMicrocode(self):
         """Test that a missing microcode region is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('37_x86_no_ucode.dts', True)
+            self._DoReadFile('037_x86_no_ucode.dts', True)
         self.assertIn("Node '/binman/u-boot-dtb-with-ucode': No /microcode "
                       "node found in ", str(e.exception))
 
     def testMicrocodeWithoutNode(self):
         """Test that a missing u-boot-dtb-with-ucode node is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('38_x86_ucode_missing_node.dts', True)
+            self._DoReadFile('038_x86_ucode_missing_node.dts', True)
         self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Cannot find "
                 "microcode region u-boot-dtb-with-ucode", str(e.exception))
 
     def testMicrocodeWithoutNode2(self):
         """Test that a missing u-boot-ucode node is detected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('39_x86_ucode_missing_node2.dts', True)
+            self._DoReadFile('039_x86_ucode_missing_node2.dts', True)
         self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Cannot find "
             "microcode region u-boot-ucode", str(e.exception))
 
@@ -972,7 +981,7 @@ class TestFunctional(unittest.TestCase):
     def testMicrocodeNotInImage(self):
         """Test that microcode must be placed within the image"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('40_x86_ucode_not_in_image.dts', True)
+            self._DoReadFile('040_x86_ucode_not_in_image.dts', True)
         self.assertIn("Node '/binman/u-boot-with-ucode-ptr': Microcode "
                 "pointer _dt_ucode_base_size at fffffe14 is outside the "
                 "section ranging from 00000000 to 0000002e", str(e.exception))
@@ -981,7 +990,7 @@ class TestFunctional(unittest.TestCase):
         """Test that we can cope with an image without microcode (e.g. qemu)"""
         with open(self.TestFile('u_boot_no_ucode_ptr')) as fd:
             TestFunctional._MakeInputFile('u-boot', fd.read())
-        data, dtb, _, _ = self._DoReadFileDtb('44_x86_optional_ucode.dts', True)
+        data, dtb, _, _ = self._DoReadFileDtb('044_x86_optional_ucode.dts', True)
 
         # Now check the device tree has no microcode
         self.assertEqual(U_BOOT_NODTB_DATA, data[:len(U_BOOT_NODTB_DATA)])
@@ -997,43 +1006,43 @@ class TestFunctional(unittest.TestCase):
     def testUnknownPosSize(self):
         """Test that microcode must be placed within the image"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('41_unknown_pos_size.dts', True)
+            self._DoReadFile('041_unknown_pos_size.dts', True)
         self.assertIn("Section '/binman': Unable to set offset/size for unknown "
                 "entry 'invalid-entry'", str(e.exception))
 
     def testPackFsp(self):
         """Test that an image with a FSP binary can be created"""
-        data = self._DoReadFile('42_intel-fsp.dts')
+        data = self._DoReadFile('042_intel-fsp.dts')
         self.assertEqual(FSP_DATA, data[:len(FSP_DATA)])
 
     def testPackCmc(self):
         """Test that an image with a CMC binary can be created"""
-        data = self._DoReadFile('43_intel-cmc.dts')
+        data = self._DoReadFile('043_intel-cmc.dts')
         self.assertEqual(CMC_DATA, data[:len(CMC_DATA)])
 
     def testPackVbt(self):
         """Test that an image with a VBT binary can be created"""
-        data = self._DoReadFile('46_intel-vbt.dts')
+        data = self._DoReadFile('046_intel-vbt.dts')
         self.assertEqual(VBT_DATA, data[:len(VBT_DATA)])
 
     def testSplBssPad(self):
         """Test that we can pad SPL's BSS with zeros"""
         # ELF file with a '__bss_size' symbol
-        with open(self.TestFile('bss_data')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
-        data = self._DoReadFile('47_spl_bss_pad.dts')
+        self._SetupSplElf()
+        data = self._DoReadFile('047_spl_bss_pad.dts')
         self.assertEqual(U_BOOT_SPL_DATA + (chr(0) * 10) + U_BOOT_DATA, data)
 
-        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+    def testSplBssPadMissing(self):
+        """Test that a missing symbol is detected"""
+        self._SetupSplElf('u_boot_ucode_ptr')
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('47_spl_bss_pad.dts')
+            self._DoReadFile('047_spl_bss_pad.dts')
         self.assertIn('Expected __bss_size symbol in spl/u-boot-spl',
                       str(e.exception))
 
     def testPackStart16Spl(self):
         """Test that an image with an x86 start16 SPL region can be created"""
-        data = self._DoReadFile('48_x86-start16-spl.dts')
+        data = self._DoReadFile('048_x86-start16-spl.dts')
         self.assertEqual(X86_START16_SPL_DATA, data[:len(X86_START16_SPL_DATA)])
 
     def _PackUbootSplMicrocode(self, dts, ucode_second=False):
@@ -1050,9 +1059,7 @@ class TestFunctional(unittest.TestCase):
             ucode_second: True if the microsecond entry is second instead of
                 third
         """
-        # ELF file with a '_dt_ucode_base_size' symbol
-        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf('u_boot_ucode_ptr')
         first, pos_and_size = self._RunMicrocodeTest(dts, U_BOOT_SPL_NODTB_DATA,
                                                      ucode_second=ucode_second)
         self.assertEqual('splnodtb with microc' + pos_and_size +
@@ -1060,7 +1067,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackUbootSplMicrocode(self):
         """Test that x86 microcode can be handled correctly in SPL"""
-        self._PackUbootSplMicrocode('49_x86_ucode_spl.dts')
+        self._PackUbootSplMicrocode('049_x86_ucode_spl.dts')
 
     def testPackUbootSplMicrocodeReorder(self):
         """Test that order doesn't matter for microcode entries
@@ -1069,22 +1076,22 @@ class TestFunctional(unittest.TestCase):
         u-boot-ucode entry we have not yet seen the u-boot-dtb-with-ucode
         entry, so we reply on binman to try later.
         """
-        self._PackUbootSplMicrocode('58_x86_ucode_spl_needs_retry.dts',
+        self._PackUbootSplMicrocode('058_x86_ucode_spl_needs_retry.dts',
                                     ucode_second=True)
 
     def testPackMrc(self):
         """Test that an image with an MRC binary can be created"""
-        data = self._DoReadFile('50_intel_mrc.dts')
+        data = self._DoReadFile('050_intel_mrc.dts')
         self.assertEqual(MRC_DATA, data[:len(MRC_DATA)])
 
     def testSplDtb(self):
         """Test that an image with spl/u-boot-spl.dtb can be created"""
-        data = self._DoReadFile('51_u_boot_spl_dtb.dts')
+        data = self._DoReadFile('051_u_boot_spl_dtb.dts')
         self.assertEqual(U_BOOT_SPL_DTB_DATA, data[:len(U_BOOT_SPL_DTB_DATA)])
 
     def testSplNoDtb(self):
         """Test that an image with spl/u-boot-spl-nodtb.bin can be created"""
-        data = self._DoReadFile('52_u_boot_spl_nodtb.dts')
+        data = self._DoReadFile('052_u_boot_spl_nodtb.dts')
         self.assertEqual(U_BOOT_SPL_NODTB_DATA, data[:len(U_BOOT_SPL_NODTB_DATA)])
 
     def testSymbols(self):
@@ -1094,9 +1101,8 @@ class TestFunctional(unittest.TestCase):
         addr = elf.GetSymbolAddress(elf_fname, '__image_copy_start')
         self.assertEqual(syms['_binman_u_boot_spl_prop_offset'].address, addr)
 
-        with open(self.TestFile('u_boot_binman_syms')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
-        data = self._DoReadFile('53_symbols.dts')
+        self._SetupSplElf('u_boot_binman_syms')
+        data = self._DoReadFile('053_symbols.dts')
         sym_values = struct.pack('<LQL', 0x24 + 0, 0x24 + 24, 0x24 + 20)
         expected = (sym_values + U_BOOT_SPL_DATA[16:] + chr(0xff) +
                     U_BOOT_DATA +
@@ -1105,19 +1111,19 @@ class TestFunctional(unittest.TestCase):
 
     def testPackUnitAddress(self):
         """Test that we support multiple binaries with the same name"""
-        data = self._DoReadFile('54_unit_address.dts')
+        data = self._DoReadFile('054_unit_address.dts')
         self.assertEqual(U_BOOT_DATA + U_BOOT_DATA, data)
 
     def testSections(self):
         """Basic test of sections"""
-        data = self._DoReadFile('55_sections.dts')
+        data = self._DoReadFile('055_sections.dts')
         expected = (U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12 +
                     U_BOOT_DATA + '&' * 4)
         self.assertEqual(expected, data)
 
     def testMap(self):
         """Tests outputting a map of the images"""
-        _, _, map_data, _ = self._DoReadFileDtb('55_sections.dts', map=True)
+        _, _, map_data, _ = self._DoReadFileDtb('055_sections.dts', map=True)
         self.assertEqual('''ImagePos    Offset      Size  Name
 00000000  00000000  00000028  main-section
 00000000   00000000  00000010  section@0
@@ -1130,7 +1136,7 @@ class TestFunctional(unittest.TestCase):
 
     def testNamePrefix(self):
         """Tests that name prefixes are used"""
-        _, _, map_data, _ = self._DoReadFileDtb('56_name_prefix.dts', map=True)
+        _, _, map_data, _ = self._DoReadFileDtb('056_name_prefix.dts', map=True)
         self.assertEqual('''ImagePos    Offset      Size  Name
 00000000  00000000  00000028  main-section
 00000000   00000000  00000010  section@0
@@ -1142,7 +1148,7 @@ class TestFunctional(unittest.TestCase):
     def testUnknownContents(self):
         """Test that obtaining the contents works as expected"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('57_unknown_contents.dts', True)
+            self._DoReadFile('057_unknown_contents.dts', True)
         self.assertIn("Section '/binman': Internal error: Could not complete "
                 "processing of contents: remaining [<_testing.Entry__testing ",
                 str(e.exception))
@@ -1150,13 +1156,13 @@ class TestFunctional(unittest.TestCase):
     def testBadChangeSize(self):
         """Test that trying to change the size of an entry fails"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('59_change_size.dts', True)
+            self._DoReadFile('059_change_size.dts', True)
         self.assertIn("Node '/binman/_testing': Cannot update entry size from "
                       '2 to 1', str(e.exception))
 
     def testUpdateFdt(self):
         """Test that we can update the device tree with offset/size info"""
-        _, _, _, out_dtb_fname = self._DoReadFileDtb('60_fdt_update.dts',
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('060_fdt_update.dts',
                                                      update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -1186,7 +1192,7 @@ class TestFunctional(unittest.TestCase):
     def testUpdateFdtBad(self):
         """Test that we detect when ProcessFdt never completes"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('61_fdt_update_bad.dts', update_dtb=True)
+            self._DoReadFileDtb('061_fdt_update_bad.dts', update_dtb=True)
         self.assertIn('Could not complete processing of Fdt: remaining '
                       '[<_testing.Entry__testing', str(e.exception))
 
@@ -1196,7 +1202,7 @@ class TestFunctional(unittest.TestCase):
             'test-str-arg': 'test1',
             'test-int-arg': '456',
         }
-        self._DoReadFileDtb('62_entry_args.dts', entry_args=entry_args)
+        self._DoReadFileDtb('062_entry_args.dts', entry_args=entry_args)
         self.assertIn('image', control.images)
         entry = control.images['image'].GetEntries()['_testing']
         self.assertEqual('test0', entry.test_str_fdt)
@@ -1209,7 +1215,7 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'test-int-arg': '456',
         }
-        self._DoReadFileDtb('63_entry_args_missing.dts', entry_args=entry_args)
+        self._DoReadFileDtb('063_entry_args_missing.dts', entry_args=entry_args)
         entry = control.images['image'].GetEntries()['_testing']
         self.assertEqual('test0', entry.test_str_fdt)
         self.assertEqual(None, entry.test_str_arg)
@@ -1222,14 +1228,14 @@ class TestFunctional(unittest.TestCase):
             'test-int-arg': '456',
         }
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('64_entry_args_required.dts')
+            self._DoReadFileDtb('064_entry_args_required.dts')
         self.assertIn("Node '/binman/_testing': Missing required "
             'properties/entry args: test-str-arg, test-int-fdt, test-int-arg',
             str(e.exception))
 
     def testEntryArgsInvalidFormat(self):
         """Test that an invalid entry-argument format is detected"""
-        args = ['-d', self.TestFile('64_entry_args_required.dts'), '-ano-value']
+        args = ['-d', self.TestFile('064_entry_args_required.dts'), '-ano-value']
         with self.assertRaises(ValueError) as e:
             self._DoBinman(*args)
         self.assertIn("Invalid entry arguemnt 'no-value'", str(e.exception))
@@ -1240,7 +1246,7 @@ class TestFunctional(unittest.TestCase):
             'test-int-arg': 'abc',
         }
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('62_entry_args.dts', entry_args=entry_args)
+            self._DoReadFileDtb('062_entry_args.dts', entry_args=entry_args)
         self.assertIn("Node '/binman/_testing': Cannot convert entry arg "
                       "'test-int-arg' (value 'abc') to integer",
             str(e.exception))
@@ -1256,7 +1262,7 @@ class TestFunctional(unittest.TestCase):
             'test-bad-datatype-arg': '12',
         }
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('65_entry_args_unknown_datatype.dts',
+            self._DoReadFileDtb('065_entry_args_unknown_datatype.dts',
                                 entry_args=entry_args)
         self.assertIn('GetArg() internal error: Unknown data type ',
                       str(e.exception))
@@ -1268,7 +1274,7 @@ class TestFunctional(unittest.TestCase):
             'test-id2': TEXT_DATA2,
             'test-id3': TEXT_DATA3,
         }
-        data, _, _, _ = self._DoReadFileDtb('66_text.dts',
+        data, _, _, _ = self._DoReadFileDtb('066_text.dts',
                                             entry_args=entry_args)
         expected = (TEXT_DATA + chr(0) * (8 - len(TEXT_DATA)) + TEXT_DATA2 +
                     TEXT_DATA3 + 'some text')
@@ -1290,7 +1296,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFmap(self):
         """Basic test of generation of a flashrom fmap"""
-        data = self._DoReadFile('67_fmap.dts')
+        data = self._DoReadFile('067_fmap.dts')
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
         expected = U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12
         self.assertEqual(expected, data[:32])
@@ -1324,19 +1330,19 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'cros-ec-rw-path': 'ecrw.bin',
         }
-        data, _, _, _ = self._DoReadFileDtb('68_blob_named_by_arg.dts',
+        data, _, _, _ = self._DoReadFileDtb('068_blob_named_by_arg.dts',
                                             entry_args=entry_args)
 
     def testFill(self):
         """Test for an fill entry type"""
-        data = self._DoReadFile('69_fill.dts')
+        data = self._DoReadFile('069_fill.dts')
         expected = 8 * chr(0xff) + 8 * chr(0)
         self.assertEqual(expected, data)
 
     def testFillNoSize(self):
         """Test for an fill entry type with no size"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('70_fill_no_size.dts')
+            self._DoReadFile('070_fill_no_size.dts')
         self.assertIn("'fill' entry must have a size property",
                       str(e.exception))
 
@@ -1357,7 +1363,7 @@ class TestFunctional(unittest.TestCase):
             'keydir': 'devkeys',
             'bmpblk': 'bmpblk.bin',
         }
-        data, _, _, _ = self._DoReadFileDtb('71_gbb.dts', entry_args=entry_args)
+        data, _, _, _ = self._DoReadFileDtb('071_gbb.dts', entry_args=entry_args)
 
         # Since futility
         expected = GBB_DATA + GBB_DATA + 8 * chr(0) + (0x2180 - 16) * chr(0)
@@ -1366,14 +1372,14 @@ class TestFunctional(unittest.TestCase):
     def testGbbTooSmall(self):
         """Test for the Chromium OS Google Binary Block being large enough"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('72_gbb_too_small.dts')
+            self._DoReadFileDtb('072_gbb_too_small.dts')
         self.assertIn("Node '/binman/gbb': GBB is too small",
                       str(e.exception))
 
     def testGbbNoSize(self):
         """Test for the Chromium OS Google Binary Block having a size"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('73_gbb_no_size.dts')
+            self._DoReadFileDtb('073_gbb_no_size.dts')
         self.assertIn("Node '/binman/gbb': GBB must have a fixed size",
                       str(e.exception))
 
@@ -1391,7 +1397,7 @@ class TestFunctional(unittest.TestCase):
         entry_args = {
             'keydir': 'devkeys',
         }
-        data, _, _, _ = self._DoReadFileDtb('74_vblock.dts',
+        data, _, _, _ = self._DoReadFileDtb('074_vblock.dts',
                                             entry_args=entry_args)
         expected = U_BOOT_DATA + VBLOCK_DATA + U_BOOT_DTB_DATA
         self.assertEqual(expected, data)
@@ -1399,21 +1405,21 @@ class TestFunctional(unittest.TestCase):
     def testVblockNoContent(self):
         """Test we detect a vblock which has no content to sign"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('75_vblock_no_content.dts')
+            self._DoReadFile('075_vblock_no_content.dts')
         self.assertIn("Node '/binman/vblock': Vblock must have a 'content' "
                       'property', str(e.exception))
 
     def testVblockBadPhandle(self):
         """Test that we detect a vblock with an invalid phandle in contents"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('76_vblock_bad_phandle.dts')
+            self._DoReadFile('076_vblock_bad_phandle.dts')
         self.assertIn("Node '/binman/vblock': Cannot find node for phandle "
                       '1000', str(e.exception))
 
     def testVblockBadEntry(self):
         """Test that we detect an entry that points to a non-entry"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFile('77_vblock_bad_entry.dts')
+            self._DoReadFile('077_vblock_bad_entry.dts')
         self.assertIn("Node '/binman/vblock': Cannot find entry for node "
                       "'other'", str(e.exception))
 
@@ -1422,37 +1428,37 @@ class TestFunctional(unittest.TestCase):
         # ELF file with a '__bss_size' symbol
         with open(self.TestFile('bss_data')) as fd:
             TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
-        data = self._DoReadFile('78_u_boot_tpl.dts')
+        data = self._DoReadFile('078_u_boot_tpl.dts')
         self.assertEqual(U_BOOT_TPL_DATA + U_BOOT_TPL_DTB_DATA, data)
 
     def testUsesPos(self):
         """Test that the 'pos' property cannot be used anymore"""
         with self.assertRaises(ValueError) as e:
-           data = self._DoReadFile('79_uses_pos.dts')
+           data = self._DoReadFile('079_uses_pos.dts')
         self.assertIn("Node '/binman/u-boot': Please use 'offset' instead of "
                       "'pos'", str(e.exception))
 
     def testFillZero(self):
         """Test for an fill entry type with a size of 0"""
-        data = self._DoReadFile('80_fill_empty.dts')
+        data = self._DoReadFile('080_fill_empty.dts')
         self.assertEqual(chr(0) * 16, data)
 
     def testTextMissing(self):
         """Test for a text entry type where there is no text"""
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('66_text.dts',)
+            self._DoReadFileDtb('066_text.dts',)
         self.assertIn("Node '/binman/text': No value provided for text label "
                       "'test-id'", str(e.exception))
 
     def testPackStart16Tpl(self):
         """Test that an image with an x86 start16 TPL region can be created"""
-        data = self._DoReadFile('81_x86-start16-tpl.dts')
+        data = self._DoReadFile('081_x86-start16-tpl.dts')
         self.assertEqual(X86_START16_TPL_DATA, data[:len(X86_START16_TPL_DATA)])
 
     def testSelectImage(self):
         """Test that we can select which images to build"""
         with test_util.capture_sys_output() as (stdout, stderr):
-            retcode = self._DoTestFile('06_dual_image.dts', images=['image2'])
+            retcode = self._DoTestFile('006_dual_image.dts', images=['image2'])
         self.assertEqual(0, retcode)
         self.assertIn('Skipping images: image1', stdout.getvalue())
 
@@ -1461,7 +1467,7 @@ class TestFunctional(unittest.TestCase):
 
     def testUpdateFdtAll(self):
         """Test that all device trees are updated with offset/size info"""
-        data, _, _, _ = self._DoReadFileDtb('82_fdt_update_all.dts',
+        data, _, _, _ = self._DoReadFileDtb('082_fdt_update_all.dts',
                                             use_real_dtb=True, update_dtb=True)
 
         base_expected = {
@@ -1501,12 +1507,12 @@ class TestFunctional(unittest.TestCase):
     def testUpdateFdtOutput(self):
         """Test that output DTB files are updated"""
         try:
-            data, dtb_data, _, _ = self._DoReadFileDtb('82_fdt_update_all.dts',
+            data, dtb_data, _, _ = self._DoReadFileDtb('082_fdt_update_all.dts',
                     use_real_dtb=True, update_dtb=True, reset_dtbs=False)
 
             # Unfortunately, compiling a source file always results in a file
             # called source.dtb (see fdt_util.EnsureCompiled()). The test
-            # source file (e.g. test/75_fdt_update_all.dts) thus does not enter
+            # source file (e.g. test/075_fdt_update_all.dts) thus does not enter
             # binman as a file called u-boot.dtb. To fix this, copy the file
             # over to the expected place.
             #tools.WriteFile(os.path.join(self._indir, 'u-boot.dtb'),
@@ -1547,7 +1553,7 @@ class TestFunctional(unittest.TestCase):
 
     def testCompress(self):
         """Test compression of blobs"""
-        data, _, _, out_dtb_fname = self._DoReadFileDtb('83_compress.dts',
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('083_compress.dts',
                                             use_real_dtb=True, update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -1563,12 +1569,12 @@ class TestFunctional(unittest.TestCase):
 
     def testFiles(self):
         """Test bringing in multiple files"""
-        data = self._DoReadFile('84_files.dts')
+        data = self._DoReadFile('084_files.dts')
         self.assertEqual(FILES_DATA, data)
 
     def testFilesCompress(self):
         """Test bringing in multiple files and compressing them"""
-        data = self._DoReadFile('85_files_compress.dts')
+        data = self._DoReadFile('085_files_compress.dts')
 
         image = control.images['image']
         entries = image.GetEntries()
@@ -1588,20 +1594,20 @@ class TestFunctional(unittest.TestCase):
     def testFilesMissing(self):
         """Test missing files"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('86_files_none.dts')
+            data = self._DoReadFile('086_files_none.dts')
         self.assertIn("Node '/binman/files': Pattern \'files/*.none\' matched "
                       'no files', str(e.exception))
 
     def testFilesNoPattern(self):
         """Test missing files"""
         with self.assertRaises(ValueError) as e:
-            data = self._DoReadFile('87_files_no_pattern.dts')
+            data = self._DoReadFile('087_files_no_pattern.dts')
         self.assertIn("Node '/binman/files': Missing 'pattern' property",
                       str(e.exception))
 
     def testExpandSize(self):
         """Test an expanding entry"""
-        data, _, map_data, _ = self._DoReadFileDtb('88_expand_size.dts',
+        data, _, map_data, _ = self._DoReadFileDtb('088_expand_size.dts',
                                                    map=True)
         expect = ('a' * 8 + U_BOOT_DATA +
                   MRC_DATA + 'b' * 1 + U_BOOT_DATA +
@@ -1625,13 +1631,13 @@ class TestFunctional(unittest.TestCase):
         """Test an expanding entry which fails to provide contents"""
         with test_util.capture_sys_output() as (stdout, stderr):
             with self.assertRaises(ValueError) as e:
-                self._DoReadFileDtb('89_expand_size_bad.dts', map=True)
+                self._DoReadFileDtb('089_expand_size_bad.dts', map=True)
         self.assertIn("Node '/binman/_testing': Cannot obtain contents when "
                       'expanding entry', str(e.exception))
 
     def testHash(self):
         """Test hashing of the contents of an entry"""
-        _, _, _, out_dtb_fname = self._DoReadFileDtb('90_hash.dts',
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('090_hash.dts',
                 use_real_dtb=True, update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -1642,19 +1648,19 @@ class TestFunctional(unittest.TestCase):
 
     def testHashNoAlgo(self):
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('91_hash_no_algo.dts', update_dtb=True)
+            self._DoReadFileDtb('091_hash_no_algo.dts', update_dtb=True)
         self.assertIn("Node \'/binman/u-boot\': Missing \'algo\' property for "
                       'hash node', str(e.exception))
 
     def testHashBadAlgo(self):
         with self.assertRaises(ValueError) as e:
-            self._DoReadFileDtb('92_hash_bad_algo.dts', update_dtb=True)
+            self._DoReadFileDtb('092_hash_bad_algo.dts', update_dtb=True)
         self.assertIn("Node '/binman/u-boot': Unknown hash algorithm",
                       str(e.exception))
 
     def testHashSection(self):
         """Test hashing of the contents of an entry"""
-        _, _, _, out_dtb_fname = self._DoReadFileDtb('99_hash_section.dts',
+        _, _, _, out_dtb_fname = self._DoReadFileDtb('099_hash_section.dts',
                 use_real_dtb=True, update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
@@ -1675,14 +1681,14 @@ class TestFunctional(unittest.TestCase):
         """
         with open(self.TestFile('u_boot_ucode_ptr')) as fd:
             TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
-        first, pos_and_size = self._RunMicrocodeTest('93_x86_tpl_ucode.dts',
+        first, pos_and_size = self._RunMicrocodeTest('093_x86_tpl_ucode.dts',
                                                      U_BOOT_TPL_NODTB_DATA)
         self.assertEqual('tplnodtb with microc' + pos_and_size +
                          'ter somewhere in here', first)
 
     def testFmapX86(self):
         """Basic test of generation of a flashrom fmap"""
-        data = self._DoReadFile('94_fmap_x86.dts')
+        data = self._DoReadFile('094_fmap_x86.dts')
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
         expected = U_BOOT_DATA + MRC_DATA + 'a' * (32 - 7)
         self.assertEqual(expected, data[:32])
@@ -1705,7 +1711,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFmapX86Section(self):
         """Basic test of generation of a flashrom fmap"""
-        data = self._DoReadFile('95_fmap_x86_section.dts')
+        data = self._DoReadFile('095_fmap_x86_section.dts')
         expected = U_BOOT_DATA + MRC_DATA + 'b' * (32 - 7)
         self.assertEqual(expected, data[:32])
         fhdr, fentries = fmap_util.DecodeFmap(data[36:])
@@ -1727,25 +1733,23 @@ class TestFunctional(unittest.TestCase):
 
     def testElf(self):
         """Basic test of ELF entries"""
-        with open(self.TestFile('bss_data')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf()
         with open(self.TestFile('bss_data')) as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
-        data = self._DoReadFile('96_elf.dts')
+        data = self._DoReadFile('096_elf.dts')
 
     def testElfStripg(self):
         """Basic test of ELF entries"""
-        with open(self.TestFile('bss_data')) as fd:
-            TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
+        self._SetupSplElf()
         with open(self.TestFile('bss_data')) as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
-        data = self._DoReadFile('97_elf_strip.dts')
+        data = self._DoReadFile('097_elf_strip.dts')
 
     def testPackOverlapMap(self):
         """Test that overlapping regions are detected"""
         with test_util.capture_sys_output() as (stdout, stderr):
             with self.assertRaises(ValueError) as e:
-                self._DoTestFile('14_pack_overlap.dts', map=True)
+                self._DoTestFile('014_pack_overlap.dts', map=True)
         map_fname = tools.GetOutputFilename('image.map')
         self.assertEqual("Wrote map file '%s' to show errors\n" % map_fname,
                          stdout.getvalue())

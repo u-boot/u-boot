@@ -12,7 +12,8 @@
 /* Optimization barrier */
 
 /* The "volatile" is due to gcc bugs */
-#define barrier() __asm__ __volatile__("": : :"memory")
+#define barrier() \
+	__asm__ __volatile__("": : :"memory")
 /*
  * This version is i.e. to prevent dead stores elimination on @ptr
  * where gcc and llvm may behave differently when otherwise using
@@ -26,7 +27,8 @@
  * the compiler that the inline asm absolutely may see the contents
  * of @ptr. See also: https://llvm.org/bugs/show_bug.cgi?id=15495
  */
-#define barrier_data(ptr) __asm__ __volatile__("": :"r"(ptr) :"memory")
+#define barrier_data(ptr) \
+	__asm__ __volatile__("": :"r"(ptr) :"memory")
 
 /*
  * This macro obfuscates arithmetic on a variable address so that gcc

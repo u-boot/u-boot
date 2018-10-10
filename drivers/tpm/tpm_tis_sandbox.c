@@ -13,6 +13,10 @@
 /* TPM NVRAM location indices. */
 #define FIRMWARE_NV_INDEX		0x1007
 #define KERNEL_NV_INDEX			0x1008
+#define BACKUP_NV_INDEX                 0x1009
+#define FWMP_NV_INDEX                   0x100a
+#define REC_HASH_NV_INDEX               0x100b
+#define REC_HASH_NV_SIZE                VB2_SHA256_DIGEST_SIZE
 
 #define NV_DATA_PUBLIC_PERMISSIONS_OFFSET	60
 
@@ -45,18 +49,28 @@ enum {
 	NV_GLOBAL_LOCK,
 	NV_SEQ_FIRMWARE,
 	NV_SEQ_KERNEL,
+	NV_SEQ_BACKUP,
+	NV_SEQ_FWMP,
+	NV_SEQ_REC_HASH,
+
 	NV_SEQ_COUNT,
 };
 
 /* Size of each non-volatile space */
 #define NV_DATA_SIZE		0x20
 
+struct nvdata_state {
+	bool present;
+	u8 data[NV_DATA_SIZE];
+};
+
 /*
  * Information about our TPM emulation. This is preserved in the sandbox
  * state file if enabled.
  */
 static struct tpm_state {
-	uint8_t nvdata[NV_SEQ_COUNT][NV_DATA_SIZE];
+	bool valid;
+	struct nvdata_state nvdata[NV_SEQ_COUNT];
 } g_state;
 
 /**
@@ -82,9 +96,12 @@ static int sandbox_tpm_read_state(const void *blob, int node)
 
 		sprintf(prop_name, "nvdata%d", i);
 		prop = fdt_getprop(blob, node, prop_name, &len);
-		if (prop && len == NV_DATA_SIZE)
-			memcpy(g_state.nvdata[i], prop, NV_DATA_SIZE);
+		if (prop && len == NV_DATA_SIZE) {
+			memcpy(g_state.nvdata[i].data, prop, NV_DATA_SIZE);
+			g_state.nvdata[i].present = true;
+		}
 	}
+	g_state.valid = true;
 
 	return 0;
 }
@@ -110,9 +127,11 @@ static int sandbox_tpm_write_state(void *blob, int node)
 	for (i = 0; i < NV_SEQ_COUNT; i++) {
 		char prop_name[20];
 
-		sprintf(prop_name, "nvdata%d", i);
-		fdt_setprop(blob, node, prop_name, g_state.nvdata[i],
-			    NV_DATA_SIZE);
+		if (g_state.nvdata[i].present) {
+			sprintf(prop_name, "nvdata%d", i);
+			fdt_setprop(blob, node, prop_name,
+				    g_state.nvdata[i].data, NV_DATA_SIZE);
+		}
 	}
 
 	return 0;
@@ -128,12 +147,33 @@ static int index_to_seq(uint32_t index)
 		return NV_SEQ_FIRMWARE;
 	case KERNEL_NV_INDEX:
 		return NV_SEQ_KERNEL;
+	case BACKUP_NV_INDEX:
+		return NV_SEQ_BACKUP;
+	case FWMP_NV_INDEX:
+		return NV_SEQ_FWMP;
+	case REC_HASH_NV_INDEX:
+		return NV_SEQ_REC_HASH;
 	case 0:
 		return NV_GLOBAL_LOCK;
 	}
 
 	printf("Invalid nv index %#x\n", index);
 	return -1;
+}
+
+static void handle_cap_flag_space(u8 **datap, uint index)
+{
+	struct tpm_nv_data_public pub;
+
+	/* TPM_NV_PER_PPWRITE */
+	memset(&pub, '\0', sizeof(pub));
+	pub.nv_index = __cpu_to_be32(index);
+	pub.pcr_info_read.pcr_selection.size_of_select = __cpu_to_be16(
+		sizeof(pub.pcr_info_read.pcr_selection.pcr_select));
+	pub.permission.attributes = __cpu_to_be32(1);
+	pub.pcr_info_write = pub.pcr_info_read;
+	memcpy(*datap, &pub, sizeof(pub));
+	*datap += sizeof(pub);
 }
 
 static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
@@ -151,29 +191,45 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 	       *recv_len, code);
 	print_buffer(0, sendbuf, 1, send_size, 0);
 	switch (code) {
-	case 0x65: /* get flags */
+	case TPM_CMD_GET_CAPABILITY:
 		type = get_unaligned_be32(sendbuf + 14);
 		switch (type) {
-		case 4:
+		case TPM_CAP_FLAG:
 			index = get_unaligned_be32(sendbuf + 18);
 			printf("Get flags index %#02x\n", index);
 			*recv_len = 22;
 			memset(recvbuf, '\0', *recv_len);
-			put_unaligned_be32(22, recvbuf +
-					   TPM_RESPONSE_HEADER_LENGTH);
 			data = recvbuf + TPM_RESPONSE_HEADER_LENGTH +
 					sizeof(uint32_t);
 			switch (index) {
 			case FIRMWARE_NV_INDEX:
 				break;
 			case KERNEL_NV_INDEX:
-				/* TPM_NV_PER_PPWRITE */
-				put_unaligned_be32(1, data +
-					NV_DATA_PUBLIC_PERMISSIONS_OFFSET);
+				handle_cap_flag_space(&data, index);
+				*recv_len = data - recvbuf -
+					TPM_RESPONSE_HEADER_LENGTH -
+					sizeof(uint32_t);
+				break;
+			case TPM_CAP_FLAG_PERMANENT: {
+				struct tpm_permanent_flags *pflags;
+
+				pflags = (struct tpm_permanent_flags *)data;
+				memset(pflags, '\0', sizeof(*pflags));
+				put_unaligned_be32(TPM_TAG_PERMANENT_FLAGS,
+						   &pflags->tag);
+				*recv_len = TPM_HEADER_SIZE + 4 +
+						sizeof(*pflags);
 				break;
 			}
+			default:
+				printf("   ** Unknown flags index %x\n", index);
+				return -ENOSYS;
+			}
+			put_unaligned_be32(*recv_len,
+					   recvbuf +
+					   TPM_RESPONSE_HEADER_LENGTH);
 			break;
-		case 0x11: /* TPM_CAP_NV_INDEX */
+		case TPM_CAP_NV_INDEX:
 			index = get_unaligned_be32(sendbuf + 18);
 			printf("Get cap nv index %#02x\n", index);
 			put_unaligned_be32(22, recvbuf +
@@ -182,27 +238,29 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 		default:
 			printf("   ** Unknown 0x65 command type %#02x\n",
 			       type);
-			return -1;
+			return -ENOSYS;
 		}
 		break;
-	case 0xcd: /* nvwrite */
+	case TPM_CMD_NV_WRITE_VALUE:
 		index = get_unaligned_be32(sendbuf + 10);
 		length = get_unaligned_be32(sendbuf + 18);
 		seq = index_to_seq(index);
 		if (seq < 0)
-			return -1;
+			return -EINVAL;
 		printf("tpm: nvwrite index=%#02x, len=%#02x\n", index, length);
-		memcpy(&tpm->nvdata[seq], sendbuf + 22, length);
+		memcpy(&tpm->nvdata[seq].data, sendbuf + 22, length);
+		tpm->nvdata[seq].present = true;
 		*recv_len = 12;
 		memset(recvbuf, '\0', *recv_len);
 		break;
-	case 0xcf: /* nvread */
+	case TPM_CMD_NV_READ_VALUE: /* nvread */
 		index = get_unaligned_be32(sendbuf + 10);
 		length = get_unaligned_be32(sendbuf + 18);
 		seq = index_to_seq(index);
 		if (seq < 0)
-			return -1;
-		printf("tpm: nvread index=%#02x, len=%#02x\n", index, length);
+			return -EINVAL;
+		printf("tpm: nvread index=%#02x, len=%#02x, seq=%#02x\n", index,
+		       length, seq);
 		*recv_len = TPM_RESPONSE_HEADER_LENGTH + sizeof(uint32_t) +
 					length;
 		memset(recvbuf, '\0', *recv_len);
@@ -220,24 +278,33 @@ static int sandbox_tpm_xfer(struct udevice *dev, const uint8_t *sendbuf,
 					offsetof(struct rollback_space_kernel,
 						 crc8));
 			memcpy(data, &rsk, sizeof(rsk));
+		} else if (!tpm->nvdata[seq].present) {
+			put_unaligned_be32(TPM_BADINDEX, recvbuf +
+					   sizeof(uint16_t) + sizeof(uint32_t));
 		} else {
 			memcpy(recvbuf + TPM_RESPONSE_HEADER_LENGTH +
-			       sizeof(uint32_t), &tpm->nvdata[seq], length);
+			       sizeof(uint32_t), &tpm->nvdata[seq].data,
+			       length);
 		}
 		break;
-	case 0x14: /* tpm extend */
+	case TPM_CMD_EXTEND:
+		*recv_len = 30;
+		memset(recvbuf, '\0', *recv_len);
+		break;
+	case TPM_CMD_NV_DEFINE_SPACE:
 	case 0x15: /* pcr read */
 	case 0x5d: /* force clear */
 	case 0x6f: /* physical enable */
 	case 0x72: /* physical set deactivated */
 	case 0x99: /* startup */
+	case 0x50: /* self test full */
 	case 0x4000000a:  /* assert physical presence */
 		*recv_len = 12;
 		memset(recvbuf, '\0', *recv_len);
 		break;
 	default:
 		printf("Unknown tpm command %02x\n", code);
-		return -1;
+		return -ENOSYS;
 	}
 
 	return 0;

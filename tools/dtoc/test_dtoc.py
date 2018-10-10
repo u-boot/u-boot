@@ -385,7 +385,8 @@ U_BOOT_DEVICE(phandle_source2) = {
 
     def test_phandle_bad(self):
         """Test a node containing an invalid phandle fails"""
-        dtb_file = get_dtb_file('dtoc_test_phandle_bad.dts')
+        dtb_file = get_dtb_file('dtoc_test_phandle_bad.dts',
+                                capture_stderr=True)
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
             dtb_platdata.run_steps(['struct'], dtb_file, False, output)
@@ -394,7 +395,8 @@ U_BOOT_DEVICE(phandle_source2) = {
 
     def test_phandle_bad2(self):
         """Test a phandle target missing its #*-cells property"""
-        dtb_file = get_dtb_file('dtoc_test_phandle_bad2.dts')
+        dtb_file = get_dtb_file('dtoc_test_phandle_bad2.dts',
+                                capture_stderr=True)
         output = tools.GetOutputFilename('output')
         with self.assertRaises(ValueError) as e:
             dtb_platdata.run_steps(['struct'], dtb_file, False, output)

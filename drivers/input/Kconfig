@@ -1,3 +1,16 @@
+config INPUT
+	bool "Enable input subsystem"
+	depends on DM
+	default y
+
+config SPL_INPUT
+	bool "Enable input subsystem for SPL"
+	depends on SPL_DM
+
+config TPL_INPUT
+	bool "Enable input subsystem for TPL"
+	depends on TPL_DM
+
 config DM_KEYBOARD
 	bool "Enable driver model keyboard support"
 	depends on DM
@@ -7,8 +20,43 @@ config DM_KEYBOARD
 	  includes methods to start/stop the device, check for available
 	  input and update LEDs if the keyboard has them.
 
+config SPL_DM_KEYBOARD
+	bool "Enable driver model keyboard support"
+	depends on SPL_DM
+	help
+	  This adds a uclass for keyboards and implements keyboard support
+	  using driver model. The API is implemented by keyboard.h and
+	  includes methods to start/stop the device, check for available
+	  input and update LEDs if the keyboard has them.
+
+config TPL_DM_KEYBOARD
+	bool "Enable driver model keyboard support"
+	depends on TPL_DM
+	help
+	  This adds a uclass for keyboards and implements keyboard support
+	  using driver model. The API is implemented by keyboard.h and
+	  includes methods to start/stop the device, check for available
+	  input and update LEDs if the keyboard has them.
+
 config CROS_EC_KEYB
 	bool "Enable Chrome OS EC keyboard support"
+	depends on INPUT
+	help
+	  Most ARM Chromebooks use an EC to provide access to the keyboard.
+	  Messages are used to request key scans from the EC and these are
+	  then decoded into keys by this driver.
+
+config SPL_CROS_EC_KEYB
+	bool "Enable Chrome OS EC keyboard support in SPL"
+	depends on SPL_INPUT
+	help
+	  Most ARM Chromebooks use an EC to provide access to the keyboard.
+	  Messages are used to request key scans from the EC and these are
+	  then decoded into keys by this driver.
+
+config TPL_CROS_EC_KEYB
+	bool "Enable Chrome OS EC keyboard support in TPL"
+	depends on TPL_INPUT
 	help
 	  Most ARM Chromebooks use an EC to provide access to the keyboard.
 	  Messages are used to request key scans from the EC and these are

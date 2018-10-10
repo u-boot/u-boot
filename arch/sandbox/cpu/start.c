@@ -177,7 +177,7 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 
 	err = os_read_ram_buf(arg);
 	if (err) {
-		printf("Failed to read RAM buffer\n");
+		printf("Failed to read RAM buffer '%s': %d\n", arg, err);
 		return err;
 	}
 
@@ -273,6 +273,16 @@ static int sandbox_cmdline_cb_verbose(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT_SHORT(verbose, 'v', 0, "Show test output");
 
+static int sandbox_cmdline_cb_log_level(struct sandbox_state *state,
+					const char *arg)
+{
+	state->default_log_level = simple_strtol(arg, NULL, 10);
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(log_level, 'L', 1,
+			  "Set log level (0=panic, 7=debug)");
+
 int board_run_command(const char *cmdline)
 {
 	printf("## Commands are disabled. Please enable CONFIG_CMDLINE.\n");
@@ -304,14 +314,13 @@ int main(int argc, char *argv[])
 	if (ret)
 		goto err;
 
-	/* Remove old memory file if required */
-	if (state->ram_buf_rm && state->ram_buf_fname)
-		os_unlink(state->ram_buf_fname);
-
 	memset(&data, '\0', sizeof(data));
 	gd = &data;
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
+#endif
+#if CONFIG_IS_ENABLED(LOG)
+	gd->default_log_level = state->default_log_level;
 #endif
 	setup_ram_buf(state);
 

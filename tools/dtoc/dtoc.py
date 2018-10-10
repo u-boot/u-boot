@@ -34,6 +34,11 @@ import unittest
 our_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(our_path, '../patman'))
 
+# Bring in the libfdt module
+sys.path.insert(0, 'scripts/dtc/pylibfdt')
+sys.path.insert(0, os.path.join(our_path,
+                '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
+
 import dtb_platdata
 import test_util
 
@@ -84,6 +89,8 @@ parser.add_option('--include-disabled', action='store_true',
                   help='Include disabled nodes')
 parser.add_option('-o', '--output', action='store', default='-',
                   help='Select output filename')
+parser.add_option('-P', '--processes', type=int,
+                  help='set number of processes to use for running tests')
 parser.add_option('-t', '--test', action='store_true', dest='test',
                   default=False, help='run tests')
 parser.add_option('-T', '--test-coverage', action='store_true',

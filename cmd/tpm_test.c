@@ -62,26 +62,11 @@ static uint32_t tpm_get_flags(uint8_t *disable, uint8_t *deactivated,
 	return 0;
 }
 
-static uint32_t tpm_set_global_lock(void)
-{
-	uint32_t x;
-
-	debug("TPM: Set global lock\n");
-	return tpm_nv_write_value(INDEX0, (uint8_t *)&x, 0);
-}
-
 static uint32_t tpm_nv_write_value_lock(uint32_t index)
 {
 	debug("TPM: Write lock 0x%x\n", index);
 
 	return tpm_nv_write_value(index, NULL, 0);
-}
-
-static uint32_t tpm_nv_set_locked(void)
-{
-	debug("TPM: Set NV locked\n");
-
-	return tpm_nv_define_space(TPM_NV_INDEX_LOCK, 0, 0);
 }
 
 static int tpm_is_owned(void)

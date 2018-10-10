@@ -247,7 +247,7 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 	}
 
 	if (!board_should_load_oprom(dev))
-		return -ENXIO;
+		return log_msg_ret("Should not load OPROM", -ENXIO);
 
 	ret = pci_rom_probe(dev, &rom);
 	if (ret)
@@ -328,7 +328,7 @@ int vbe_setup_video_priv(struct vesa_mode_info *vesa,
 			 struct video_uc_platdata *plat)
 {
 	if (!vesa->x_resolution)
-		return -ENXIO;
+		return log_msg_ret("No x resolution", -ENXIO);
 	uc_priv->xsize = vesa->x_resolution;
 	uc_priv->ysize = vesa->y_resolution;
 	switch (vesa->bits_per_pixel) {

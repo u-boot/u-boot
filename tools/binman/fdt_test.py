@@ -21,6 +21,10 @@ class TestFdt(unittest.TestCase):
         self._indir = tempfile.mkdtemp(prefix='binmant.')
         tools.PrepareOutputDir(self._indir, True)
 
+    @classmethod
+    def tearDownClass(self):
+        tools._FinaliseForTest()
+
     def TestFile(self, fname):
         return os.path.join(self._binman_dir, 'test', fname)
 
@@ -32,12 +36,12 @@ class TestFdt(unittest.TestCase):
         node.DeleteProp('data')
 
     def testFdtNormal(self):
-        fname = self.GetCompiled('34_x86_ucode.dts')
+        fname = self.GetCompiled('034_x86_ucode.dts')
         dt = FdtScan(fname)
         self._DeleteProp(dt)
 
     def testFdtNormalProp(self):
-        fname = self.GetCompiled('45_prop_test.dts')
+        fname = self.GetCompiled('045_prop_test.dts')
         dt = FdtScan(fname)
         node = dt.GetNode('/binman/intel-me')
         self.assertEquals('intel-me', node.name)
