@@ -16,14 +16,19 @@ protocols allow to access a USB device without OS specific drivers. The
 U-Boot implementation has primarly been tested using the open source
 imx_loader utility (https://github.com/boundarydevices/imx_usb_loader).
 
+imx_usb_loader is a very nice tool by Boundary Devices that allow to
+install U-Boot without a JTAG debugger, using the USB boot mode as
+described in the manual. It is a replacement for Freescale's
+MFGTOOLS.
+
 The host side utilities are typically capable to interpret the i.MX
 specific image header (see doc/README.imximage). There are extensions
 for imx_loader's imx_usb utility which allow to interpret the U-Boot
 specific legacy image format (see mkimage(1)). Also the U-Boot side
 support beside the i.MX specific header the U-Boot legacy header.
 
-Usage
------
+1. Using imx_usb_loader for first install with SPL
+--------------------------------------------------
 
 This implementation can be started in U-Boot using the sdp command
 (CONFIG_CMD_USB_SDP) or in SPL if Serial Downloader boot mode has been
@@ -98,3 +103,16 @@ With that SPL and U-Boot can be downloaded with a single invocation
 of imx_usb without arguments:
 
   # imx_usb
+
+2. Using imx_usb_loader non-SPL images
+---------------------------------------
+
+Booting in USB mode, the i.MX6 announces itself to the Linux Host as:
+
+Bus 001 Device 111: ID 15a2:0061 Freescale Semiconductor, Inc.
+
+imx_usb_loader is able to download a single file (u-boot.imx)
+to the board. For boards without SPL support, it is enough to
+issue the command:
+
+	sudo ../imx_usb_loader/imx_usb -v u-boot.imx

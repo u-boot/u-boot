@@ -88,28 +88,3 @@ Reading bank 4:
 
 Word 0x00000002: 9f027772 00000004
 
-2. Using imx_usb_loader for first install with SPL
---------------------------------------------------
-
-imx_usb_loader is a very nice tool by Boundary Devices that
-allow to install U-Boot without a JTAG debugger, using
-the USB boot mode as described in the manual. It is
-a replacement for Freescale's MFGTOOLS.
-
-The sources can be found here:
-
-	https://github.com/boundarydevices/imx_usb_loader.git
-
-Booting in USB mode, the i.MX6 announces itself to the Linux Host as:
-
-Bus 001 Device 111: ID 15a2:0061 Freescale Semiconductor, Inc.
-
-imx_usb_loader is able to download a single file (u-boot.imx)
-to the board. For boards without SPL support, it is enough to
-issue the command:
-
-	sudo ../imx_usb_loader/imx_usb -v u-boot.imx
-
-In order to load SPL and u-boot.img via imx_usb_loader tool,
-please refer to doc/README.sdp.
-
