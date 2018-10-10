@@ -166,3 +166,11 @@ int checkboard(void)
 	puts("Board: Synopsys IoT Development Kit\n");
 	return 0;
 };
+
+#ifdef CONFIG_DISPLAY_CPUINFO
+int print_cpuinfo(void)
+{
+	printf("CPU:   ARC EM9D\n");
+	return 0;
+}
+#endif /* CONFIG_DISPLAY_CPUINFO */
