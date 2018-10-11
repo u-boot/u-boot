@@ -222,6 +222,16 @@ static int dm_scan_fdt_live(struct udevice *parent,
 	int ret = 0, err;
 
 	for (np = node_parent->child; np; np = np->sibling) {
+		/* "chosen" node isn't a device itself but may contain some: */
+		if (!strcmp(np->name, "chosen")) {
+			pr_debug("parsing subnodes of \"chosen\"\n");
+
+			err = dm_scan_fdt_live(parent, np, pre_reloc_only);
+			if (err && !ret)
+				ret = err;
+			continue;
+		}
+
 		if (!of_device_is_available(np)) {
 			pr_debug("   - ignoring disabled device\n");
 			continue;
