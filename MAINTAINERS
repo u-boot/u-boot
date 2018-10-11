@@ -453,6 +453,7 @@ M:	Liviu Dudau <liviu.dudau@foss.arm.com>
 S:	Supported
 T:	git git://github.com/ARM-software/u-boot.git
 F:	drivers/video/mali_dp.c
+F:	drivers/i2c/i2c-versatile.c
 
 MICROBLAZE
 M:	Michal Simek <monstr@monstr.eu>
