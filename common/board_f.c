@@ -187,7 +187,7 @@ static int print_cpuinfo(void)
 		return ret;
 	}
 
-	printf("%s", desc);
+	printf("CPU:   %s\n", desc);
 
 	return 0;
 }
