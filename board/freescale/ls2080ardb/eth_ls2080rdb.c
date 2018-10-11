@@ -50,21 +50,21 @@ int board_eth_init(bd_t *bis)
 
 	switch (srds_s1) {
 	case 0x2A:
-		wriop_set_phy_address(WRIOP1_DPMAC1, CORTINA_PHY_ADDR1);
-		wriop_set_phy_address(WRIOP1_DPMAC2, CORTINA_PHY_ADDR2);
-		wriop_set_phy_address(WRIOP1_DPMAC3, CORTINA_PHY_ADDR3);
-		wriop_set_phy_address(WRIOP1_DPMAC4, CORTINA_PHY_ADDR4);
-		wriop_set_phy_address(WRIOP1_DPMAC5, AQ_PHY_ADDR1);
-		wriop_set_phy_address(WRIOP1_DPMAC6, AQ_PHY_ADDR2);
-		wriop_set_phy_address(WRIOP1_DPMAC7, AQ_PHY_ADDR3);
-		wriop_set_phy_address(WRIOP1_DPMAC8, AQ_PHY_ADDR4);
+		wriop_set_phy_address(WRIOP1_DPMAC1, 0, CORTINA_PHY_ADDR1);
+		wriop_set_phy_address(WRIOP1_DPMAC2, 0, CORTINA_PHY_ADDR2);
+		wriop_set_phy_address(WRIOP1_DPMAC3, 0, CORTINA_PHY_ADDR3);
+		wriop_set_phy_address(WRIOP1_DPMAC4, 0, CORTINA_PHY_ADDR4);
+		wriop_set_phy_address(WRIOP1_DPMAC5, 0, AQ_PHY_ADDR1);
+		wriop_set_phy_address(WRIOP1_DPMAC6, 0, AQ_PHY_ADDR2);
+		wriop_set_phy_address(WRIOP1_DPMAC7, 0, AQ_PHY_ADDR3);
+		wriop_set_phy_address(WRIOP1_DPMAC8, 0, AQ_PHY_ADDR4);
 
 		break;
 	case 0x4B:
-		wriop_set_phy_address(WRIOP1_DPMAC1, CORTINA_PHY_ADDR1);
-		wriop_set_phy_address(WRIOP1_DPMAC2, CORTINA_PHY_ADDR2);
-		wriop_set_phy_address(WRIOP1_DPMAC3, CORTINA_PHY_ADDR3);
-		wriop_set_phy_address(WRIOP1_DPMAC4, CORTINA_PHY_ADDR4);
+		wriop_set_phy_address(WRIOP1_DPMAC1, 0, CORTINA_PHY_ADDR1);
+		wriop_set_phy_address(WRIOP1_DPMAC2, 0, CORTINA_PHY_ADDR2);
+		wriop_set_phy_address(WRIOP1_DPMAC3, 0, CORTINA_PHY_ADDR3);
+		wriop_set_phy_address(WRIOP1_DPMAC4, 0, CORTINA_PHY_ADDR4);
 
 		break;
 	default:

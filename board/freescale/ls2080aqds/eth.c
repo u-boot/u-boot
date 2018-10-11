@@ -623,7 +623,7 @@ void ls2080a_handle_phy_interface_sgmii(int dpmac_id)
 		switch (++slot) {
 		case 1:
 			/* Slot housing a SGMII riser card? */
-			wriop_set_phy_address(dpmac_id,
+			wriop_set_phy_address(dpmac_id, 0,
 					      riser_phy_addr[dpmac_id - 1]);
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT1;
 			bus = mii_dev_for_muxval(EMI1_SLOT1);
@@ -631,7 +631,7 @@ void ls2080a_handle_phy_interface_sgmii(int dpmac_id)
 			break;
 		case 2:
 			/* Slot housing a SGMII riser card? */
-			wriop_set_phy_address(dpmac_id,
+			wriop_set_phy_address(dpmac_id, 0,
 					      riser_phy_addr[dpmac_id - 1]);
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT2;
 			bus = mii_dev_for_muxval(EMI1_SLOT2);
@@ -641,18 +641,18 @@ void ls2080a_handle_phy_interface_sgmii(int dpmac_id)
 			if (slot == EMI_NONE)
 				return;
 			if (serdes1_prtcl == 0x39) {
-				wriop_set_phy_address(dpmac_id,
+				wriop_set_phy_address(dpmac_id, 0,
 					riser_phy_addr[dpmac_id - 2]);
 				if (dpmac_id >= 6 && hwconfig_f("xqsgmii",
 								env_hwconfig))
-					wriop_set_phy_address(dpmac_id,
+					wriop_set_phy_address(dpmac_id, 0,
 						riser_phy_addr[dpmac_id - 3]);
 			} else {
-				wriop_set_phy_address(dpmac_id,
+				wriop_set_phy_address(dpmac_id, 0,
 					riser_phy_addr[dpmac_id - 2]);
 				if (dpmac_id >= 7 && hwconfig_f("xqsgmii",
 								env_hwconfig))
-					wriop_set_phy_address(dpmac_id,
+					wriop_set_phy_address(dpmac_id, 0,
 						riser_phy_addr[dpmac_id - 3]);
 			}
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT3;
@@ -691,7 +691,7 @@ serdes2:
 			break;
 		case 4:
 			/* Slot housing a SGMII riser card? */
-			wriop_set_phy_address(dpmac_id,
+			wriop_set_phy_address(dpmac_id, 0,
 					      riser_phy_addr[dpmac_id - 9]);
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT4;
 			bus = mii_dev_for_muxval(EMI1_SLOT4);
@@ -701,14 +701,14 @@ serdes2:
 			if (slot == EMI_NONE)
 				return;
 			if (serdes2_prtcl == 0x47) {
-				wriop_set_phy_address(dpmac_id,
+				wriop_set_phy_address(dpmac_id, 0,
 					      riser_phy_addr[dpmac_id - 10]);
 				if (dpmac_id >= 14 && hwconfig_f("xqsgmii",
 								 env_hwconfig))
-					wriop_set_phy_address(dpmac_id,
+					wriop_set_phy_address(dpmac_id, 0,
 						riser_phy_addr[dpmac_id - 11]);
 			} else {
-				wriop_set_phy_address(dpmac_id,
+				wriop_set_phy_address(dpmac_id, 0,
 					riser_phy_addr[dpmac_id - 11]);
 			}
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT5;
@@ -717,7 +717,7 @@ serdes2:
 			break;
 		case 6:
 			/* Slot housing a SGMII riser card? */
-			wriop_set_phy_address(dpmac_id,
+			wriop_set_phy_address(dpmac_id, 0,
 					      riser_phy_addr[dpmac_id - 13]);
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT6;
 			bus = mii_dev_for_muxval(EMI1_SLOT6);
@@ -775,7 +775,7 @@ void ls2080a_handle_phy_interface_qsgmii(int dpmac_id)
 		switch (++slot) {
 		case 1:
 			/* Slot housing a QSGMII riser card? */
-			wriop_set_phy_address(dpmac_id, dpmac_id - 1);
+			wriop_set_phy_address(dpmac_id, 0, dpmac_id - 1);
 			dpmac_info[dpmac_id].board_mux = EMI1_SLOT1;
 			bus = mii_dev_for_muxval(EMI1_SLOT1);
 			wriop_set_mdio(dpmac_id, bus);
@@ -819,7 +819,7 @@ void ls2080a_handle_phy_interface_xsgmii(int i)
 		 * the XAUI card is used for the XFI MAC, which will cause
 		 * error.
 		 */
-		wriop_set_phy_address(i, i + 4);
+		wriop_set_phy_address(i, 0, i + 4);
 		ls2080a_qds_enable_SFP_TX(SFP_TX);
 
 		break;

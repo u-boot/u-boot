@@ -799,8 +799,24 @@ void net_set_timeout_handler(ulong iv, thand_f *f)
 	}
 }
 
+uchar *net_get_async_tx_pkt_buf(void)
+{
+	if (arp_is_waiting())
+		return arp_tx_packet; /* If we are waiting, we already sent */
+	else
+		return net_tx_packet;
+}
+
 int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 		int payload_len)
+{
+	return net_send_ip_packet(ether, dest, dport, sport, payload_len,
+				  IPPROTO_UDP, 0, 0, 0);
+}
+
+int net_send_ip_packet(uchar *ether, struct in_addr dest, int dport, int sport,
+		       int payload_len, int proto, u8 action, u32 tcp_seq_num,
+		       u32 tcp_ack_num)
 {
 	uchar *pkt;
 	int eth_hdr_size;
@@ -822,9 +838,16 @@ int net_send_udp_packet(uchar *ether, struct in_addr dest, int dport, int sport,
 	pkt = (uchar *)net_tx_packet;
 
 	eth_hdr_size = net_set_ether(pkt, ether, PROT_IP);
-	pkt += eth_hdr_size;
-	net_set_udp_header(pkt, dest, dport, sport, payload_len);
-	pkt_hdr_size = eth_hdr_size + IP_UDP_HDR_SIZE;
+
+	switch (proto) {
+	case IPPROTO_UDP:
+		net_set_udp_header(pkt + eth_hdr_size, dest, dport, sport,
+				   payload_len);
+		pkt_hdr_size = eth_hdr_size + IP_UDP_HDR_SIZE;
+		break;
+	default:
+		return -EINVAL;
+	}
 
 	/* if MAC address was not discovered yet, do an ARP request */
 	if (memcmp(ether, net_null_ethaddr, 6) == 0) {
@@ -1455,7 +1478,8 @@ int net_update_ether(struct ethernet_hdr *et, uchar *addr, uint prot)
 	}
 }
 
-void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source)
+void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source,
+		       u16 pkt_len, u8 proto)
 {
 	struct ip_udp_hdr *ip = (struct ip_udp_hdr *)pkt;
 
@@ -1465,7 +1489,8 @@ void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source)
 	/* IP_HDR_SIZE / 4 (not including UDP) */
 	ip->ip_hl_v  = 0x45;
 	ip->ip_tos   = 0;
-	ip->ip_len   = htons(IP_HDR_SIZE);
+	ip->ip_len   = htons(pkt_len);
+	ip->ip_p     = proto;
 	ip->ip_id    = htons(net_ip_id++);
 	ip->ip_off   = htons(IP_FLAGS_DFRAG);	/* Don't fragment */
 	ip->ip_ttl   = 255;
@@ -1474,6 +1499,8 @@ void net_set_ip_header(uchar *pkt, struct in_addr dest, struct in_addr source)
 	net_copy_ip((void *)&ip->ip_src, &source);
 	/* already in network byte order */
 	net_copy_ip((void *)&ip->ip_dst, &dest);
+
+	ip->ip_sum   = compute_ip_checksum(ip, IP_HDR_SIZE);
 }
 
 void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
@@ -1489,10 +1516,8 @@ void net_set_udp_header(uchar *pkt, struct in_addr dest, int dport, int sport,
 	if (len & 1)
 		pkt[IP_UDP_HDR_SIZE + len] = 0;
 
-	net_set_ip_header(pkt, dest, net_ip);
-	ip->ip_len   = htons(IP_UDP_HDR_SIZE + len);
-	ip->ip_p     = IPPROTO_UDP;
-	ip->ip_sum   = compute_ip_checksum(ip, IP_HDR_SIZE);
+	net_set_ip_header(pkt, dest, net_ip, IP_UDP_HDR_SIZE + len,
+			  IPPROTO_UDP);
 
 	ip->udp_src  = htons(sport);
 	ip->udp_dst  = htons(dport);

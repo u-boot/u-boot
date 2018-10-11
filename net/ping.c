@@ -22,14 +22,9 @@ static void set_icmp_header(uchar *pkt, struct in_addr dest)
 	/*
 	 *	Construct an IP and ICMP header.
 	 */
-	struct ip_hdr *ip = (struct ip_hdr *)pkt;
 	struct icmp_hdr *icmp = (struct icmp_hdr *)(pkt + IP_HDR_SIZE);
 
-	net_set_ip_header(pkt, dest, net_ip);
-
-	ip->ip_len   = htons(IP_ICMP_HDR_SIZE);
-	ip->ip_p     = IPPROTO_ICMP;
-	ip->ip_sum   = compute_ip_checksum(ip, IP_HDR_SIZE);
+	net_set_ip_header(pkt, dest, net_ip, IP_ICMP_HDR_SIZE, IPPROTO_ICMP);
 
 	icmp->type = ICMP_ECHO_REQUEST;
 	icmp->code = 0;
@@ -84,6 +79,7 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 	struct icmp_hdr *icmph = (struct icmp_hdr *)&ip->udp_src;
 	struct in_addr src_ip;
 	int eth_hdr_size;
+	uchar *tx_packet;
 
 	switch (icmph->type) {
 	case ICMP_ECHO_REPLY:
@@ -107,8 +103,10 @@ void ping_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
 		icmph->type = ICMP_ECHO_REPLY;
 		icmph->checksum = 0;
 		icmph->checksum = compute_ip_checksum(icmph, len - IP_HDR_SIZE);
-		memcpy(net_tx_packet, et, eth_hdr_size + len);
-		net_send_packet(net_tx_packet, eth_hdr_size + len);
+
+		tx_packet = net_get_async_tx_pkt_buf();
+		memcpy(tx_packet, et, eth_hdr_size + len);
+		net_send_packet(tx_packet, eth_hdr_size + len);
 		return;
 /*	default:
 		return;*/

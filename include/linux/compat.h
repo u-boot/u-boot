@@ -43,6 +43,25 @@ extern struct p_current *current;
 #define dev_warn(dev, fmt, args...)		\
 	printf(fmt, ##args)
 
+#define netdev_emerg(dev, fmt, args...)		\
+	printf(fmt, ##args)
+#define netdev_alert(dev, fmt, args...)		\
+	printf(fmt, ##args)
+#define netdev_crit(dev, fmt, args...)		\
+	printf(fmt, ##args)
+#define netdev_err(dev, fmt, args...)		\
+	printf(fmt, ##args)
+#define netdev_warn(dev, fmt, args...)		\
+	printf(fmt, ##args)
+#define netdev_notice(dev, fmt, args...)	\
+	printf(fmt, ##args)
+#define netdev_info(dev, fmt, args...)		\
+	printf(fmt, ##args)
+#define netdev_dbg(dev, fmt, args...)		\
+	debug(fmt, ##args)
+#define netdev_vdbg(dev, fmt, args...)		\
+	debug(fmt, ##args)
+
 #define GFP_ATOMIC ((gfp_t) 0)
 #define GFP_KERNEL ((gfp_t) 0)
 #define GFP_NOFS ((gfp_t) 0)
