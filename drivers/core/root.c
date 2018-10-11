@@ -222,14 +222,12 @@ static int dm_scan_fdt_live(struct udevice *parent,
 	int ret = 0, err;
 
 	for (np = node_parent->child; np; np = np->sibling) {
-		if (pre_reloc_only &&
-		    !of_find_property(np, "u-boot,dm-pre-reloc", NULL))
-			continue;
 		if (!of_device_is_available(np)) {
 			pr_debug("   - ignoring disabled device\n");
 			continue;
 		}
-		err = lists_bind_fdt(parent, np_to_ofnode(np), NULL);
+		err = lists_bind_fdt(parent, np_to_ofnode(np), NULL,
+				     pre_reloc_only);
 		if (err && !ret) {
 			ret = err;
 			debug("%s: ret=%d\n", np->name, ret);
@@ -282,14 +280,12 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 			continue;
 		}
 
-		if (pre_reloc_only &&
-		    !dm_fdt_pre_reloc(blob, offset))
-			continue;
 		if (!fdtdec_get_is_enabled(blob, offset)) {
 			pr_debug("   - ignoring disabled device\n");
 			continue;
 		}
-		err = lists_bind_fdt(parent, offset_to_ofnode(offset), NULL);
+		err = lists_bind_fdt(parent, offset_to_ofnode(offset), NULL,
+				     pre_reloc_only);
 		if (err && !ret) {
 			ret = err;
 			debug("%s: ret=%d\n", node_name, ret);
