@@ -203,15 +203,11 @@ struct efi_object {
  * struct efi_loaded_image_obj - handle of a loaded image
  *
  * @header:		EFI object header
- * @reloc_base:		base address for the relocated image
- * @reloc_size:		size of the relocated image
  * @exit_jmp:		long jump buffer for returning form started image
  * @entry:		entry address of the relocated image
  */
 struct efi_loaded_image_obj {
 	struct efi_object header;
-	void *reloc_base;
-	aligned_u64 reloc_size;
 	efi_status_t exit_status;
 	struct jmp_buf_data exit_jmp;
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
