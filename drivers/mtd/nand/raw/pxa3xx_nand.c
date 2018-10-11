@@ -195,6 +195,7 @@ struct pxa3xx_nand_info {
 
 	int			cs;
 	int			use_ecc;	/* use HW ECC ? */
+	int			force_raw;	/* prevent use_ecc to be set */
 	int			ecc_bch;	/* using BCH ECC? */
 	int			use_spare;	/* use spare ? */
 	int			need_wait;
@@ -579,7 +580,7 @@ static void disable_int(struct pxa3xx_nand_info *info, uint32_t int_mask)
 
 static void drain_fifo(struct pxa3xx_nand_info *info, void *data, int len)
 {
-	if (info->ecc_bch) {
+	if (info->ecc_bch && !info->force_raw) {
 		u32 ts;
 
 		/*
@@ -612,12 +613,22 @@ static void drain_fifo(struct pxa3xx_nand_info *info, void *data, int len)
 
 static void handle_data_pio(struct pxa3xx_nand_info *info)
 {
+	int data_len = info->step_chunk_size;
+
+	/*
+	 * In raw mode, include the spare area and the ECC bytes that are not
+	 * consumed by the controller in the data section. Do not reorganize
+	 * here, do it in the ->read_page_raw() handler instead.
+	 */
+	if (info->force_raw)
+		data_len += info->step_spare_size + info->ecc_size;
+
 	switch (info->state) {
 	case STATE_PIO_WRITING:
 		if (info->step_chunk_size)
 			writesl(info->mmio_base + NDDB,
 				info->data_buff + info->data_buff_pos,
-				DIV_ROUND_UP(info->step_chunk_size, 4));
+				DIV_ROUND_UP(data_len, 4));
 
 		if (info->step_spare_size)
 			writesl(info->mmio_base + NDDB,
@@ -628,7 +639,10 @@ static void handle_data_pio(struct pxa3xx_nand_info *info)
 		if (info->step_chunk_size)
 			drain_fifo(info,
 				   info->data_buff + info->data_buff_pos,
-				   DIV_ROUND_UP(info->step_chunk_size, 4));
+				   DIV_ROUND_UP(data_len, 4));
+
+		if (info->force_raw)
+			break;
 
 		if (info->step_spare_size)
 			drain_fifo(info,
@@ -642,7 +656,7 @@ static void handle_data_pio(struct pxa3xx_nand_info *info)
 	}
 
 	/* Update buffer pointers for multi-page read/write */
-	info->data_buff_pos += info->step_chunk_size;
+	info->data_buff_pos += data_len;
 	info->oob_buff_pos += info->step_spare_size;
 }
 
@@ -796,7 +810,8 @@ static void prepare_start_command(struct pxa3xx_nand_info *info, int command)
 	case NAND_CMD_READ0:
 	case NAND_CMD_READOOB:
 	case NAND_CMD_PAGEPROG:
-		info->use_ecc = 1;
+		if (!info->force_raw)
+			info->use_ecc = 1;
 		break;
 	case NAND_CMD_PARAM:
 		info->use_spare = 0;
@@ -866,7 +881,13 @@ static int prepare_set_command(struct pxa3xx_nand_info *info, int command,
 		 * which is either naked-read or last-read according to the
 		 * state.
 		 */
-		if (mtd->writesize == info->chunk_size) {
+		if (info->force_raw) {
+			info->ndcb0 |= NDCB0_DBC | (NAND_CMD_READSTART << 8) |
+				       NDCB0_LEN_OVRD |
+				       NDCB0_EXT_CMD_TYPE(ext_cmd_type);
+			info->ndcb3 = info->step_chunk_size +
+				      info->step_spare_size + info->ecc_size;
+		} else if (mtd->writesize == info->chunk_size) {
 			info->ndcb0 |= NDCB0_DBC | (NAND_CMD_READSTART << 8);
 		} else if (mtd->writesize > info->chunk_size) {
 			info->ndcb0 |= NDCB0_DBC | (NAND_CMD_READSTART << 8)
@@ -1236,6 +1257,69 @@ static int pxa3xx_nand_read_page_hwecc(struct mtd_info *mtd,
 	}
 
 	return info->max_bitflips;
+}
+
+static int pxa3xx_nand_read_page_raw(struct mtd_info *mtd,
+				     struct nand_chip *chip, uint8_t *buf,
+				     int oob_required, int page)
+{
+	struct pxa3xx_nand_host *host = chip->priv;
+	struct pxa3xx_nand_info *info = host->info_data;
+	int chunk, ecc_off_buf;
+
+	if (!info->ecc_bch)
+		return -ENOTSUPP;
+
+	/*
+	 * Set the force_raw boolean, then re-call ->cmdfunc() that will run
+	 * pxa3xx_nand_start(), which will actually disable the ECC engine.
+	 */
+	info->force_raw = true;
+	chip->cmdfunc(mtd, NAND_CMD_READ0, 0x00, page);
+
+	ecc_off_buf = (info->nfullchunks * info->spare_size) +
+		      info->last_spare_size;
+	for (chunk = 0; chunk < info->nfullchunks; chunk++) {
+		chip->read_buf(mtd,
+			       buf + (chunk * info->chunk_size),
+			       info->chunk_size);
+		chip->read_buf(mtd,
+			       chip->oob_poi +
+			       (chunk * (info->spare_size)),
+			       info->spare_size);
+		chip->read_buf(mtd,
+			       chip->oob_poi + ecc_off_buf +
+			       (chunk * (info->ecc_size)),
+			       info->ecc_size - 2);
+	}
+
+	if (info->ntotalchunks > info->nfullchunks) {
+		chip->read_buf(mtd,
+			       buf + (info->nfullchunks * info->chunk_size),
+			       info->last_chunk_size);
+		chip->read_buf(mtd,
+			       chip->oob_poi +
+			       (info->nfullchunks * (info->spare_size)),
+			       info->last_spare_size);
+		chip->read_buf(mtd,
+			       chip->oob_poi + ecc_off_buf +
+			       (info->nfullchunks * (info->ecc_size)),
+			       info->ecc_size - 2);
+	}
+
+	info->force_raw = false;
+
+	return 0;
+}
+
+static int pxa3xx_nand_read_oob_raw(struct mtd_info *mtd,
+				    struct nand_chip *chip, int page)
+{
+	/* Invalidate page cache */
+	chip->pagebuf = -1;
+
+	return chip->ecc.read_page_raw(mtd, chip, chip->buffers->databuf, true,
+				       page);
 }
 
 static uint8_t pxa3xx_nand_read_byte(struct mtd_info *mtd)
@@ -1669,6 +1753,8 @@ static int alloc_nand_resource(struct pxa3xx_nand_info *info)
 
 		nand_set_controller_data(chip, host);
 		chip->ecc.read_page	= pxa3xx_nand_read_page_hwecc;
+		chip->ecc.read_page_raw	= pxa3xx_nand_read_page_raw;
+		chip->ecc.read_oob_raw	= pxa3xx_nand_read_oob_raw;
 		chip->ecc.write_page	= pxa3xx_nand_write_page_hwecc;
 		chip->controller        = &info->controller;
 		chip->waitfunc		= pxa3xx_nand_waitfunc;
