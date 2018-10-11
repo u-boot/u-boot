@@ -1237,6 +1237,7 @@ static int pxa3xx_nand_read_page_hwecc(struct mtd_info *mtd,
 {
 	struct pxa3xx_nand_host *host = nand_get_controller_data(chip);
 	struct pxa3xx_nand_info *info = host->info_data;
+	int bf;
 
 	chip->read_buf(mtd, buf, mtd->writesize);
 	chip->read_buf(mtd, chip->oob_poi, mtd->oobsize);
@@ -1244,12 +1245,30 @@ static int pxa3xx_nand_read_page_hwecc(struct mtd_info *mtd,
 	if (info->retcode == ERR_CORERR && info->use_ecc) {
 		mtd->ecc_stats.corrected += info->ecc_err_cnt;
 
-	} else if (info->retcode == ERR_UNCORERR) {
+	} else if (info->retcode == ERR_UNCORERR && info->ecc_bch) {
 		/*
-		 * for blank page (all 0xff), HW will calculate its ECC as
-		 * 0, which is different from the ECC information within
-		 * OOB, ignore such uncorrectable errors
+		 * Empty pages will trigger uncorrectable errors. Re-read the
+		 * entire page in raw mode and check for bits not being "1".
+		 * If there are more than the supported strength, then it means
+		 * this is an actual uncorrectable error.
 		 */
+		chip->ecc.read_page_raw(mtd, chip, buf, oob_required, page);
+		bf = nand_check_erased_ecc_chunk(buf, mtd->writesize,
+						 chip->oob_poi, mtd->oobsize,
+						 NULL, 0, chip->ecc.strength);
+		if (bf < 0) {
+			mtd->ecc_stats.failed++;
+		} else if (bf) {
+			mtd->ecc_stats.corrected += bf;
+			info->max_bitflips = max_t(unsigned int,
+						   info->max_bitflips, bf);
+			info->retcode = ERR_CORERR;
+		} else {
+			info->retcode = ERR_NONE;
+		}
+
+	} else if (info->retcode == ERR_UNCORERR && !info->ecc_bch) {
+		/* Raw read is not supported with Hamming ECC engine */
 		if (is_buf_blank(buf, mtd->writesize))
 			info->retcode = ERR_NONE;
 		else
