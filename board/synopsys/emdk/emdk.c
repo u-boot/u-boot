@@ -34,6 +34,13 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
+int board_mmc_getcd(struct mmc *mmc)
+{
+	struct dwmci_host *host = mmc->priv;
+
+	return !(dwmci_readl(host, DWMCI_CDETECT) & 1);
+}
+
 #define CREG_BASE		0xF0001000
 #define CREG_BOOT_OFFSET	0
 #define CREG_BOOT_WP_OFFSET	8

@@ -33,6 +33,13 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
+int board_mmc_getcd(struct mmc *mmc)
+{
+	struct dwmci_host *host = mmc->priv;
+
+	return !(dwmci_readl(host, DWMCI_CDETECT) & 1);
+}
+
 #define AXS_MB_CREG	0xE0011000
 
 int board_early_init_f(void)

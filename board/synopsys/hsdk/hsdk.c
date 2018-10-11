@@ -1019,6 +1019,13 @@ int board_late_init(void)
 	return 0;
 }
 
+int board_mmc_getcd(struct mmc *mmc)
+{
+	struct dwmci_host *host = mmc->priv;
+
+	return !(dwmci_readl(host, DWMCI_CDETECT) & 1);
+}
+
 int board_mmc_init(bd_t *bis)
 {
 	struct dwmci_host *host = NULL;

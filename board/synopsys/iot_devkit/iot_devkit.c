@@ -170,6 +170,13 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
+int board_mmc_getcd(struct mmc *mmc)
+{
+	struct dwmci_host *host = mmc->priv;
+
+	return !(dwmci_readl(host, DWMCI_CDETECT) & 1);
+}
+
 #define IOTDK_RESET_SEQ		0x55AA6699
 
 void reset_cpu(ulong addr)
