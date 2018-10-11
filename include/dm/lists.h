@@ -39,8 +39,8 @@ struct uclass_driver *lists_uclass_lookup(enum uclass_id id);
  * each one. The devices will have @parent as their parent.
  *
  * @parent: parent device (root)
- * @early_only: If true, bind only drivers with the DM_INIT_F flag. If false
- * bind all drivers.
+ * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC flag.
+ * If false bind all drivers.
  */
 int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only);
 
