@@ -291,5 +291,13 @@
 			ranges = <0x81000000 0x0 0x00000000 0x50 0x00020000 0x0 0x00010000   /* downstream I/O */
 				  0x82000000 0x0 0x40000000 0x50 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 		};
+
+		sata: sata@3200000 {
+			compatible = "fsl,ls1046a-ahci";
+			reg = <0x0 0x3200000 0x0 0x10000>;
+			interrupts = <0 69 4>;
+			clocks = <&clockgen 4 1>;
+			status = "disabled";
+		};
 	};
 };
