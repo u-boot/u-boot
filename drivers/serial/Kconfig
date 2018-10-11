@@ -500,6 +500,12 @@ config BCM6345_SERIAL
 	help
 	  Select this to enable UART on BCM6345 SoCs.
 
+config BCM6858_SERIAL
+	bool "Support for BCM6858 UART"
+	depends on DM_SERIAL && ARCH_BCM6858
+	help
+	  Select this to enable UART on BCM6358 SoCs.
+
 config FSL_LINFLEXUART
 	bool "Freescale Linflex UART support"
 	depends on DM_SERIAL
