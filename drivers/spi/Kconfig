@@ -132,6 +132,13 @@ config MT7621_SPI
 	  the SPI NOR flash on platforms embedding this Ralink / MediaTek
 	  SPI core, like MT7621/7628/7688.
 
+config MTK_QSPI
+	bool "Mediatek QSPI driver"
+	help
+	  Enable the Mediatek QSPI driver. This driver can be
+	  used to access the SPI NOR flash on platforms embedding this
+	  Mediatek QSPI IP core.
+
 config MVEBU_A3700_SPI
 	bool "Marvell Armada 3700 SPI driver"
 	select CLK_ARMADA_3720
