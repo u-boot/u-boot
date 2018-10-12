@@ -854,18 +854,21 @@ void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev)
 	debug("%s connected to %s\n", dev->name, phydev->drv->name);
 }
 
+#ifdef CONFIG_PHY_FIXED
 #ifdef CONFIG_DM_ETH
-struct phy_device *phy_connect(struct mii_dev *bus, int addr,
-		struct udevice *dev, phy_interface_t interface)
+static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
+					    struct udevice *dev,
+					    phy_interface_t interface)
 #else
-struct phy_device *phy_connect(struct mii_dev *bus, int addr,
-		struct eth_device *dev, phy_interface_t interface)
+static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
+					    struct eth_device *dev,
+					    phy_interface_t interface)
 #endif
 {
 	struct phy_device *phydev = NULL;
-#ifdef CONFIG_PHY_FIXED
 	int sn;
 	const char *name;
+
 	sn = fdt_first_subnode(gd->fdt_blob, dev_of_offset(dev));
 	while (sn > 0) {
 		name = fdt_get_name(gd->fdt_blob, sn, NULL);
@@ -876,7 +879,26 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 		}
 		sn = fdt_next_subnode(gd->fdt_blob, sn);
 	}
+
+	return phydev;
+}
 #endif
+
+#ifdef CONFIG_DM_ETH
+struct phy_device *phy_connect(struct mii_dev *bus, int addr,
+			       struct udevice *dev, phy_interface_t interface)
+#else
+struct phy_device *phy_connect(struct mii_dev *bus, int addr,
+			       struct eth_device *dev,
+			       phy_interface_t interface)
+#endif
+{
+	struct phy_device *phydev = NULL;
+
+#ifdef CONFIG_PHY_FIXED
+	phydev = phy_connect_fixed(bus, dev, interface);
+#endif
+
 	if (phydev == NULL)
 		phydev = phy_find_by_mask(bus, 1 << addr, interface);
 
