@@ -1091,6 +1091,7 @@ static int set_quad_mode(struct spi_flash *flash,
 #endif
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	case SPI_FLASH_CFI_MFR_STMICRO:
+	case SPI_FLASH_CFI_MFR_MICRON:
 		debug("SF: QEB is volatile for %02x flash\n", JEDEC_MFR(info));
 		return 0;
 #endif
@@ -1178,6 +1179,7 @@ int spi_flash_scan(struct spi_flash *flash)
 #if defined(CONFIG_SPI_FLASH_STMICRO) || defined(CONFIG_SPI_FLASH_SST)
 	/* NOR protection support for STmicro/Micron chips and similar */
 	if (JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_STMICRO ||
+	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_MICRON ||
 	    JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SST) {
 		flash->flash_lock = stm_lock;
 		flash->flash_unlock = stm_unlock;

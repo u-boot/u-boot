@@ -32,6 +32,7 @@ enum spi_nor_option_flags {
 /* CFI Manufacture ID's */
 #define SPI_FLASH_CFI_MFR_SPANSION	0x01
 #define SPI_FLASH_CFI_MFR_STMICRO	0x20
+#define SPI_FLASH_CFI_MFR_MICRON	0x2C
 #define SPI_FLASH_CFI_MFR_MACRONIX	0xc2
 #define SPI_FLASH_CFI_MFR_SST		0xbf
 #define SPI_FLASH_CFI_MFR_WINBOND	0xef
