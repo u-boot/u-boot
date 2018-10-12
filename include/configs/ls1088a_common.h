@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2017 NXP
+ * Copyright 2017-2018 NXP
  */
 
 #ifndef __LS1088_COMMON_H
@@ -27,6 +27,7 @@
 #include <asm/arch/config.h>
 #include <asm/arch/soc.h>
 
+#define LS1088ARDB_PB_BOARD            0x4A
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
 
