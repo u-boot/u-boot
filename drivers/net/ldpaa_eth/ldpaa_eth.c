@@ -402,10 +402,12 @@ error:
 static int ldpaa_get_dpmac_state(struct ldpaa_eth_priv *priv,
 				 struct dpmac_link_state *state)
 {
-	struct phy_device *phydev = NULL;
 	phy_interface_t enet_if;
-	int phy_num, phys_detected;
-	int err;
+	int phys_detected;
+#ifdef CONFIG_PHYLIB
+	struct phy_device *phydev = NULL;
+	int err, phy_num;
+#endif
 
 	/* let's start off with maximum capabilities */
 	enet_if = wriop_get_enet_if(priv->dpmac_id);
@@ -590,8 +592,10 @@ static void ldpaa_eth_stop(struct eth_device *net_dev)
 {
 	struct ldpaa_eth_priv *priv = (struct ldpaa_eth_priv *)net_dev->priv;
 	int err = 0;
+#ifdef CONFIG_PHYLIB
 	struct phy_device *phydev = NULL;
 	int phy_num;
+#endif
 
 	if ((net_dev->state == ETH_STATE_PASSIVE) ||
 	    (net_dev->state == ETH_STATE_INIT))
