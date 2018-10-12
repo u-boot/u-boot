@@ -22,6 +22,7 @@
 		serial1 = &dcc;
 		spi0 = &qspi;
 		mmc0 = &sdhci1;
+		ethernet0 = &gem1;
 	};
 
 	chosen {
@@ -37,6 +38,20 @@
 
 &dcc {
 	status = "okay";
+};
+
+&gem1 {
+	status = "okay";
+	phy-mode = "gmii";
+	phy-handle = <&gmiitorgmii>;
+	phy: ethernet-phy@0 {
+		reg = <0x0>;
+	};
+	gmiitorgmii: gmiitorgmii@8 {
+		compatible = "xlnx,gmii-to-rgmii-1.0";
+		reg = <8>;
+		phy-handle = <&phy>;
+	};
 };
 
 &qspi {
