@@ -97,7 +97,7 @@ before_script:
        git clone git://git.qemu.org/qemu.git /tmp/qemu;
        pushd /tmp/qemu;
        git submodule update --init dtc &&
-       git checkout v2.8.0-rc3 &&
+       git checkout v3.0.0 &&
        ./configure --prefix=/tmp/qemu-install --target-list=${QEMU_TARGET} &&
        make -j4 all install;
        popd;
