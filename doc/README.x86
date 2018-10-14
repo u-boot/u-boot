@@ -32,7 +32,7 @@ are supported:
    - Link (Chromebook Pixel)
    - Minnowboard MAX
    - Samus (Chromebook Pixel 2015)
-   - QEMU x86
+   - QEMU x86 (32-bit & 64-bit)
 
 As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
 Linux kernel as part of a FIT image. It also supports a compressed zImage.
@@ -376,7 +376,9 @@ QEMU x86 target instructions for bare mode:
 
 To build u-boot.rom for QEMU x86 targets, just simply run
 
-$ make qemu-x86_defconfig
+$ make qemu-x86_defconfig (for 32-bit)
+or
+$ make qemu-x86_64_defconfig (for 64-bit)
 $ make all
 
 Note this default configuration will build a U-Boot for the QEMU x86 i440FX
@@ -478,6 +480,19 @@ Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then,
 'zboot' can be used to boot the kernel:
 
 => zboot 01000000 - 04000000 1b1ab50
+
+To run 64-bit U-Boot, qemu-system-x86_64 should be used instead, e.g.:
+$ qemu-system-x86_64 -nographic -bios path/to/u-boot.rom
+
+A specific CPU can be specified via the '-cpu' parameter but please make
+sure the specified CPU supports 64-bit like '-cpu core2duo'. Conversely
+'-cpu pentium' won't work for obvious reasons that the processor only
+supports 32-bit.
+
+Note 64-bit support is very preliminary at this point. Lots of features
+are missing in the 64-bit world. One notable feature is the VGA console
+support which is currently missing, so that you must specify '-nographic'
+to get 64-bit U-Boot up and running.
 
 Updating U-Boot on Edison
 -------------------------
