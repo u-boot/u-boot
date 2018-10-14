@@ -248,6 +248,7 @@ DHCP
 ....
 
 setenv autoload no
+setenv ethrotate no
 setenv ethact eth1
 dhcp
 
@@ -255,6 +256,7 @@ PING
 ....
 
 setenv autoload no
+setenv ethrotate no
 setenv ethact eth1
 dhcp
 ping $gatewayip
@@ -263,6 +265,7 @@ TFTP
 ....
 
 setenv autoload no
+setenv ethrotate no
 setenv ethact eth1
 dhcp
 setenv serverip WWW.XXX.YYY.ZZZ
@@ -287,6 +290,7 @@ operation being tested on the lo interface.
 TFTP
 ....
 
+setenv ethrotate no
 setenv ethact eth5
 tftpboot u-boot.bin
 
