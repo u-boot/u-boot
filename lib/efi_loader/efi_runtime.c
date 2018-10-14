@@ -41,9 +41,13 @@ static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
 #elif defined(__arm__)
 #define R_RELATIVE	R_ARM_RELATIVE
 #define R_MASK		0xffULL
-#elif defined(__x86_64__) || defined(__i386__)
+#elif defined(__i386__)
 #define R_RELATIVE	R_386_RELATIVE
 #define R_MASK		0xffULL
+#elif defined(__x86_64__)
+#define R_RELATIVE	R_X86_64_RELATIVE
+#define R_MASK		0xffffffffULL
+#define IS_RELA		1
 #elif defined(__riscv)
 #define R_RELATIVE	R_RISCV_RELATIVE
 #define R_MASK		0xffULL
@@ -358,7 +362,8 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 
 		p = (void*)((ulong)rel->offset - base) + gd->relocaddr;
 
-		debug("%s: rel->info=%#lx *p=%#lx rel->offset=%p\n", __func__, rel->info, *p, rel->offset);
+		debug("%s: rel->info=%#lx *p=%#lx rel->offset=%p\n", __func__,
+		      rel->info, *p, rel->offset);
 
 		switch (rel->info & R_MASK) {
 		case R_RELATIVE:
@@ -377,6 +382,9 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 		}
 #endif
 		default:
+			if (!efi_runtime_tobedetached(p))
+				printf("%s: Unknown relocation type %llx\n",
+				       __func__, rel->info & R_MASK);
 			continue;
 		}
 
@@ -385,8 +393,8 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 		    newaddr > (map->virtual_start +
 			      (map->num_pages << EFI_PAGE_SHIFT)))) {
 			if (!efi_runtime_tobedetached(p))
-				printf("U-Boot EFI: Relocation at %p is out of "
-				       "range (%lx)\n", p, newaddr);
+				printf("%s: Relocation at %p is out of "
+				       "range (%lx)\n", __func__, p, newaddr);
 			continue;
 		}
 
