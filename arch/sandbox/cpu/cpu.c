@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  */
-#define DEBUG
+
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
@@ -105,8 +105,8 @@ void *phys_to_virt(phys_addr_t paddr)
 	state = state_get_current();
 	list_for_each_entry(mentry, &state->mapmem_head, sibling_node) {
 		if (mentry->tag == paddr) {
-			printf("%s: Used map from %lx to %p\n", __func__,
-			       (ulong)paddr, mentry->ptr);
+			debug("%s: Used map from %lx to %p\n", __func__,
+			      (ulong)paddr, mentry->ptr);
 			return mentry->ptr;
 		}
 	}
@@ -152,7 +152,7 @@ phys_addr_t virt_to_phys(void *ptr)
 		       __func__, ptr, (ulong)gd->ram_size);
 		os_abort();
 	}
-	printf("%s: Used map from %p to %lx\n", __func__, ptr, mentry->tag);
+	debug("%s: Used map from %p to %lx\n", __func__, ptr, mentry->tag);
 
 	return mentry->tag;
 }
