@@ -7,8 +7,14 @@
 #include <common.h>
 #include <debug_uart.h>
 
-/* Global declaration of gd */
-struct global_data *global_data_ptr;
+/*
+ * Global declaration of gd.
+ *
+ * As we write to it before relocation we have to make sure it is not put into
+ * a .bss section which may overlap a .rela section. Initialization forces it
+ * into a .data section which cannot overlap any .rela section.
+ */
+struct global_data *global_data_ptr = (struct global_data *)~0;
 
 void arch_setup_gd(gd_t *new_gd)
 {
