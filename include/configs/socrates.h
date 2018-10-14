@@ -109,9 +109,6 @@
 #define CONFIG_SYS_BR1_PRELIM		0xfc001001	/* port size 16bit	*/
 #define CONFIG_SYS_OR1_PRELIM		0xfe000030	/* 32MB Flash		*/
 
-#define CONFIG_SYS_FLASH_CFI				/* flash is CFI compat.	*/
-#define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver*/
-
 #define CONFIG_SYS_MAX_FLASH_BANKS	2		/* number of banks	*/
 #define CONFIG_SYS_MAX_FLASH_SECT	256		/* sectors per device	*/
 #undef	CONFIG_SYS_FLASH_CHECKSUM

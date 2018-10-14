@@ -151,8 +151,6 @@ extern unsigned long get_clock_freq(void);
 
 #undef CONFIG_SYS_RAMBOOT
 
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
 /* Chip select 3 - NAND */

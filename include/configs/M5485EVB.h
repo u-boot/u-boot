@@ -177,14 +177,10 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_SYS_FLASH_CFI
 #ifdef CONFIG_SYS_FLASH_CFI
 #	define CONFIG_SYS_FLASH_BASE		(CONFIG_SYS_CS0_BASE)
-#	define CONFIG_FLASH_CFI_DRIVER	1
 #	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CONFIG_SYS_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
-#	define CONFIG_SYS_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
-#	define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #ifdef CONFIG_SYS_NOR1SZ
 #	define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of memory banks */
 #	define CONFIG_SYS_FLASH_SIZE		((CONFIG_SYS_NOR1SZ + CONFIG_SYS_BOOTSZ) << 20)

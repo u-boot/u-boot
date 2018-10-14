@@ -90,8 +90,6 @@
  * FLASH configuration
  */
 
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_MAX_FLASH_BANKS	1  /* max num of flash banks       */
 #define CONFIG_SYS_MAX_FLASH_SECT	11 /* max num of sects on one chip */
 #define CONFIG_SYS_FLASH_BASE		0xfff80000

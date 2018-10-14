@@ -220,8 +220,6 @@
 #endif
 #endif
 
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
 /* Nand Flash */
@@ -507,7 +505,6 @@
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#define CONFIG_FLASH_CFI_MTD
 
 /*
  * Environment

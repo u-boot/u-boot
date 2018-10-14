@@ -163,12 +163,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-#endif
-
 #if defined(CONFIG_SPIFLASH)
 #define CONFIG_ENV_SIZE                 0x2000          /* 8KB */
 #define CONFIG_ENV_OFFSET               0x100000        /* 1MB */
@@ -756,9 +750,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_FLASH_CFI_MTD
-#endif
 
 /*
  * Environment Configuration

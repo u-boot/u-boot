@@ -254,10 +254,8 @@
 /* FLASH organization */
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
 
-#undef CONFIG_SYS_FLASH_CFI
 #ifdef CONFIG_SYS_FLASH_CFI
 
-#define CONFIG_FLASH_CFI_DRIVER	1
 /* Max size that the board might have */
 #define CONFIG_SYS_FLASH_SIZE		0x1000000
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
@@ -266,7 +264,6 @@
 /* max number of sectors on one chip */
 #define CONFIG_SYS_MAX_FLASH_SECT	270
 /* "Real" (hardware) sectors protection */
-#define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_CS0_BASE }
 #else

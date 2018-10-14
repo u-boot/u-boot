@@ -58,13 +58,10 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
-#define CONFIG_FLASH_CFI_DRIVER		/* use the CFI driver */
 #undef CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_BASE		0x80000000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_SIZE		8		/* FLASH size in MB */
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* print 'E' for empty sectors */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 /*
  * FLASH bank number detection
@@ -474,7 +471,6 @@
  * JFFS2 partitions
  */
 /* mtdparts command line support */
-#define CONFIG_FLASH_CFI_MTD
 
 /* default mtd partition table */
 #endif	/* __CONFIG_H */

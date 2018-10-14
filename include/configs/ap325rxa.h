@@ -57,8 +57,6 @@
 #define CONFIG_SYS_BOOTMAPSZ	(8 * 1024 * 1024)
 
 /* FLASH */
-#define CONFIG_FLASH_CFI_DRIVER 1
-#define CONFIG_SYS_FLASH_CFI
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
 /* print 'E' for empty sector on flinfo */
 #define CONFIG_SYS_FLASH_EMPTY_INFO
@@ -98,7 +96,6 @@
  * Use hardware flash sectors protection instead
  * of U-Boot software protection
  */
-#undef  CONFIG_SYS_FLASH_PROTECTION
 #undef  CONFIG_SYS_DIRECT_FLASH_TFTP
 
 /* ENV setting */

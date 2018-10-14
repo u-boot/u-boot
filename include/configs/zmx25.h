@@ -92,9 +92,6 @@
 /*
  * CFI FLASH driver setup
  */
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	/* ~10x faster */
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
 

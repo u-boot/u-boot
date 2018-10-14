@@ -116,8 +116,6 @@
 /*
  * CFI driver settings
  */
-#define CONFIG_SYS_FLASH_CFI			/* The flash is CFI compatible	*/
-#define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 #define CONFIG_SYS_FLASH_CFI_AMD_RESET	1	/* Use AMD (Spansion) reset cmd */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT	/* no byte writes on IXP4xx	*/
 

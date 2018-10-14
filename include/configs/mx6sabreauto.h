@@ -44,9 +44,6 @@
 #define CONFIG_SYS_FLASH_SECT_SIZE      (128 * 1024)
 #define CONFIG_SYS_MAX_FLASH_BANKS 1    /* max number of memory banks */
 #define CONFIG_SYS_MAX_FLASH_SECT 256   /* max number of sectors on one chip */
-#define CONFIG_SYS_FLASH_CFI            /* Flash memory is CFI compliant */
-#define CONFIG_FLASH_CFI_DRIVER         /* Use drivers/cfi_flash.c */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* Use buffered writes*/
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #endif

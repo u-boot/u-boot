@@ -20,7 +20,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
 
 #define CONFIG_ENV_SIZE		0x04000		/* Size of Environment */
-#define CONFIG_FLASH_CFI_MTD
 
 #define CONFIG_SYS_MEMTEST_START 0x00100000	/* memtest works on */
 

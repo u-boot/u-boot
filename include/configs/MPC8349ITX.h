@@ -186,8 +186,6 @@
  *Flash on the Local Bus
  */
 
-#define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
-#define CONFIG_FLASH_CFI_DRIVER		/* use the CFI driver */
 #define CONFIG_SYS_FLASH_BASE		0xFE000000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 /* 127 64KB sectors + 8 8KB sectors per device */
@@ -203,7 +201,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_FLASH_BANKS_LIST	\
 		{CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE + 0x800000}
 #define CONFIG_SYS_FLASH_SIZE		16	/* FLASH size in MB */
-#define CONFIG_SYS_FLASH_PROTECTION	1	/* Use h/w Flash protection. */
 
 /* Vitesse 7385 */
 
@@ -443,7 +440,6 @@ boards, we say we have two, but don't display a message if we find only one. */
   #define CONFIG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) for environment */
   #define CONFIG_ENV_SIZE	0x2000
 #else
-  #undef  CONFIG_FLASH_CFI_DRIVER
   #define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - 0x1000)
   #define CONFIG_ENV_SIZE	0x2000
 #endif

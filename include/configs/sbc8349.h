@@ -119,11 +119,8 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
-#define CONFIG_FLASH_CFI_DRIVER		/* use the CFI driver */
 #define CONFIG_SYS_FLASH_BASE		0xFF800000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_SIZE		8		/* flash size in MB */
-/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE \
 					| BR_PS_16	/* 16 bit port */ \

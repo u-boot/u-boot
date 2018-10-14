@@ -254,7 +254,6 @@ int get_scl(void);
 	""
 
 #if !defined(CONFIG_MTD_NOR_FLASH)
-#undef	CONFIG_FLASH_CFI_MTD
 #undef	CONFIG_JFFS2_CMDLINE
 #endif
 

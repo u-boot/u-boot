@@ -280,13 +280,6 @@
 	"setenv bootargs config-addr=0x60000000; "	\
 	"bootm 0x01000000 - 0x00f00000"
 
-#ifndef CONFIG_MTD_NOR_FLASH
-#else
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-#endif
-
 #if defined(CONFIG_SPIFLASH)
 #define CONFIG_ENV_SPI_BUS              0
 #define CONFIG_ENV_SPI_CS               0

@@ -169,11 +169,7 @@
  * 0x600C0000 - 0x00FFFFFF    unused                 unused
  * 0x61000000 - 0x01FFFFFF    not present            unused
  */
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
-#define CONFIG_SYS_FLASH_PROTECTION
-#define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	(256+8)
 

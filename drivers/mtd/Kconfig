@@ -28,6 +28,16 @@ config MTD_PARTITIONS
 	  Adds the MTD partitioning infrastructure from the Linux
 	  kernel. Needed for UBI support.
 
+config FLASH_CFI_DRIVER
+	bool "Enable CFI Flash driver"
+	help
+	  The Common Flash Interface specification was developed by Intel,
+	  AMD and other flash manufactures. It provides a universal method
+	  for probing the capabilities of flash devices. If you wish to
+	  support any device that is CFI-compliant, you need to enable this
+	  option. Visit <http://www.amd.com/products/nvd/overview/cfi.html>
+	  for more information on CFI.
+
 config CFI_FLASH
 	bool "Enable Driver Model for CFI Flash driver"
 	depends on MTD
@@ -38,6 +48,34 @@ config CFI_FLASH
 	  support any device that is CFI-compliant, you need to enable this
 	  option. Visit <http://www.amd.com/products/nvd/overview/cfi.html>
 	  for more information on CFI.
+
+config SYS_FLASH_USE_BUFFER_WRITE
+	bool "Enable buffered writes to flash"
+	depends on FLASH_CFI_DRIVER
+	help
+	  Use buffered writes to flash.
+
+config FLASH_CFI_MTD
+	bool "Enable CFI MTD driver"
+	depends on FLASH_CFI_DRIVER
+	help
+	  This option enables the building of the cfi_mtd driver
+	  in the drivers directory. The driver exports CFI flash
+	  to the MTD layer.
+
+config SYS_FLASH_PROTECTION
+	bool "Use hardware flash protection"
+	depends on FLASH_CFI_DRIVER
+	help
+	  If defined, hardware flash sectors protection is used
+	  instead of U-Boot software protection.
+
+config SYS_FLASH_CFI
+	bool "Define extra elements in CFI for flash geometry"
+	depends on FLASH_CFI_DRIVER
+	help
+	  Define if the flash driver uses extra elements in the
+	  common flash structure for storing flash geometry.
 
 config ALTERA_QSPI
 	bool "Altera Generic Quad SPI Controller"
