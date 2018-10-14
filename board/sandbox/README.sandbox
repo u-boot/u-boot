@@ -247,25 +247,25 @@ sudo /path/to/u-boot -D
 DHCP
 ....
 
-set autoload no
-set ethact eth1
+setenv autoload no
+setenv ethact eth1
 dhcp
 
 PING
 ....
 
-set autoload no
-set ethact eth1
+setenv autoload no
+setenv ethact eth1
 dhcp
 ping $gatewayip
 
 TFTP
 ....
 
-set autoload no
-set ethact eth1
+setenv autoload no
+setenv ethact eth1
 dhcp
-set serverip WWW.XXX.YYY.ZZZ
+setenv serverip WWW.XXX.YYY.ZZZ
 tftpboot u-boot.bin
 
 The bridge also supports (to a lesser extent) the localhost interface, 'lo'.
@@ -287,7 +287,7 @@ operation being tested on the lo interface.
 TFTP
 ....
 
-set ethact eth5
+setenv ethact eth5
 tftpboot u-boot.bin
 
 
