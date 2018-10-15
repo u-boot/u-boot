@@ -471,15 +471,6 @@ unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
 	return ops->erase(dev, start, blkcnt);
 }
 
-int blk_prepare_device(struct udevice *dev)
-{
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
-
-	part_init(desc);
-
-	return 0;
-}
-
 int blk_get_from_parent(struct udevice *parent, struct udevice **devp)
 {
 	struct udevice *dev;

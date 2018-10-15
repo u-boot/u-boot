@@ -357,16 +357,6 @@ int blk_create_devicef(struct udevice *parent, const char *drv_name,
 		       lbaint_t lba, struct udevice **devp);
 
 /**
- * blk_prepare_device() - Prepare a block device for use
- *
- * This reads partition information from the device if supported.
- *
- * @dev:	Device to prepare
- * @return 0 if ok, -ve on error
- */
-int blk_prepare_device(struct udevice *dev);
-
-/**
  * blk_unbind_all() - Unbind all device of the given interface type
  *
  * The devices are removed and then unbound.
