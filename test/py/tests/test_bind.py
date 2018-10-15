@@ -13,7 +13,7 @@ def in_tree(response, name, uclass, drv, depth, last_child):
 	else:
 		leaf = leaf + '`'
 	leaf = leaf + '-- ' + name
-	line = ' *{:10.10}  [0-9]*  \[ [ +] \]   {:10.10}  {}$'.format(uclass, drv,leaf)
+	line = ' *{:10.10}  [0-9]*  \[ [ +] \]   {:20.20}  {}$'.format(uclass, drv, leaf)
 	prog = re.compile(line)
 	for l in lines:
 		if prog.match(l):
@@ -28,31 +28,31 @@ def test_bind_unbind_with_node(u_boot_console):
 	response = u_boot_console.run_command("bind  /bind-test generic_simple_bus")
 	assert response == ''
 	tree = u_boot_console.run_command("dm tree")
-	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple", 0, True)
+	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple_bus", 0, True)
 	assert in_tree(tree, "bind-test-child1", "phy", "phy_sandbox", 1, False)
-	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple", 1, True)
+	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple_bus", 1, True)
 
 	#Unbind child #1. No error expected and all devices should be there except for bind-test-child1
 	response = u_boot_console.run_command("unbind  /bind-test/bind-test-child1")
 	assert response == ''
 	tree = u_boot_console.run_command("dm tree")
-	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple", 0, True)
+	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple_bus", 0, True)
 	assert "bind-test-child1" not in tree
-	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple", 1, True)
+	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple_bus", 1, True)
 
 	#bind child #1. No error expected and all devices should be there
 	response = u_boot_console.run_command("bind  /bind-test/bind-test-child1 phy_sandbox")
 	assert response == ''
 	tree = u_boot_console.run_command("dm tree")
-	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple", 0, True)
+	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple_bus", 0, True)
 	assert in_tree(tree, "bind-test-child1", "phy", "phy_sandbox", 1, True)
-	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple", 1, False)
+	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple_bus", 1, False)
 
 	#Unbind child #2. No error expected and all devices should be there except for bind-test-child2
 	response = u_boot_console.run_command("unbind  /bind-test/bind-test-child2")
 	assert response == ''
 	tree = u_boot_console.run_command("dm tree")
-	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple", 0, True)
+	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple_bus", 0, True)
 	assert in_tree(tree, "bind-test-child1", "phy", "phy_sandbox", 1, True)
 	assert "bind-test-child2" not in tree
 
@@ -61,9 +61,9 @@ def test_bind_unbind_with_node(u_boot_console):
 	response = u_boot_console.run_command("bind /bind-test/bind-test-child2 generic_simple_bus")
 	assert response == ''
 	tree = u_boot_console.run_command("dm tree")
-	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple", 0, True)
+	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple_bus", 0, True)
 	assert in_tree(tree, "bind-test-child1", "phy", "phy_sandbox", 1, False)
-	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple", 1, True)
+	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple_bus", 1, True)
 
 	#Unbind parent. No error expected. All devices should be removed and unbound
 	response = u_boot_console.run_command("unbind  /bind-test")
@@ -89,9 +89,9 @@ def test_bind_unbind_with_node(u_boot_console):
 	response = u_boot_console.run_command("bind  /bind-test generic_simple_bus")
 	assert response == ''
 	tree = u_boot_console.run_command("dm tree")
-	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple", 0, True)
+	assert in_tree(tree, "bind-test", "simple_bus", "generic_simple_bus", 0, True)
 	assert in_tree(tree, "bind-test-child1", "phy", "phy_sandbox", 1, False)
-	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple", 1, True)
+	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple_bus", 1, True)
 
 	response = u_boot_console.run_command("unbind  /bind-test")
 	assert response == ''
@@ -138,7 +138,7 @@ def test_bind_unbind_with_uclass(u_boot_console):
 	response = u_boot_console.run_command("unbind  simple_bus {}".format(child_of_child2_index))
 	assert response == ''
 	tree = u_boot_console.run_command("dm tree")
-	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple", 1, True)
+	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple_bus", 1, True)
 	assert not in_tree(tree, "generic_simple_bus", "simple_bus", "generic_simple_bus", 2, True)
 	child_of_child2_line = get_next_line(tree, "bind-test-child2")
 	assert child_of_child2_line == ""
@@ -161,7 +161,7 @@ def test_bind_unbind_with_uclass(u_boot_console):
 	assert response == ''
 
 	tree = u_boot_console.run_command("dm tree")
-	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple", 1, True)
+	assert in_tree(tree, "bind-test-child2", "simple_bus", "generic_simple_bus", 1, True)
 
 	child_of_child2_line = get_next_line(tree, "bind-test-child2")
 	assert child_of_child2_line == ""
