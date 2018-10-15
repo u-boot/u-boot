@@ -379,6 +379,17 @@ int blk_unbind_all(int if_type);
 int blk_find_max_devnum(enum if_type if_type);
 
 /**
+ * blk_next_free_devnum() - get the next device number for an interface type
+ *
+ * Finds the next number that is safe to use for a newly allocated device for
+ * an interface type @if_type.
+ *
+ * @if_type:	Interface type to scan
+ * @return next device number safe to use, or -ve on error
+ */
+int blk_next_free_devnum(enum if_type if_type);
+
+/**
  * blk_select_hwpart() - select a hardware partition
  *
  * Select a hardware partition if the device supports it (typically MMC does)
