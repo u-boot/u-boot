@@ -29,6 +29,14 @@ config VIRTIO_MMIO
 	  This driver provides support for memory mapped virtio
 	  platform device driver.
 
+config VIRTIO_PCI
+	bool "PCI driver for virtio devices"
+	depends on DM_PCI
+	select VIRTIO
+	help
+	  This driver provides support for virtio based paravirtual device
+	  drivers over PCI.
+
 config VIRTIO_NET
 	bool "virtio net driver"
 	depends on VIRTIO
