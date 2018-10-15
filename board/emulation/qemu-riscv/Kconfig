@@ -18,5 +18,8 @@ config SYS_TEXT_BASE
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	imply SYS_NS16550
+	imply VIRTIO_MMIO
+	imply VIRTIO_NET
+	imply VIRTIO_BLK
 
 endif

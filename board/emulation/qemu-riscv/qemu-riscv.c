@@ -4,12 +4,21 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <fdtdec.h>
+#include <virtio_types.h>
+#include <virtio.h>
 
 #define MROM_FDT_ADDR	0x1020
 
 int board_init(void)
 {
+	/*
+	 * Make sure virtio bus is enumerated so that peripherals
+	 * on the virtio bus can be discovered by their drivers
+	 */
+	virtio_init();
+
 	return 0;
 }
 
