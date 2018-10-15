@@ -17,6 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define AHBCKDIV	(void *)(SYSCON_BASE + 0x04)
 #define APBCKDIV	(void *)(SYSCON_BASE + 0x08)
 #define APBCKEN		(void *)(SYSCON_BASE + 0x0C)
+#define RESET_REG	(void *)(SYSCON_BASE + 0x18)
 #define CLKSEL		(void *)(SYSCON_BASE + 0x24)
 #define CLKSTAT		(void *)(SYSCON_BASE + 0x28)
 #define PLLCON		(void *)(SYSCON_BASE + 0x2C)
@@ -67,6 +68,14 @@ static int set_cpu_freq(unsigned int clk)
 		writel((readl(PLLCON) & PLL_MASK_2) | 0x200191, PLLCON);
 		break;
 
+	case 136:
+		writel(readl(PLLCON) & PLL_MASK_0, PLLCON);
+		/* pll_off=1, M=17, N=1, OD=1, PLL_OUT_CLK=136M */
+		writel((readl(PLLCON) & PLL_MASK_1) | 0x100111, PLLCON);
+		/* pll_off=0, M=17, N=1, OD=1, PLL_OUT_CLK=136M */
+		writel((readl(PLLCON) & PLL_MASK_2) | 0x100111, PLLCON);
+		break;
+
 	case 144:
 		writel(readl(PLLCON) & PLL_MASK_0, PLLCON);
 		/* pll_off=1, M=18, N=1, OD=1, PLL_OUT_CLK=144M */
@@ -99,7 +108,7 @@ extern u8 __ram_end[];
  */
 int mach_cpu_init(void)
 {
-	int offset, freq;
+	int offset;
 
 	/* Don't relocate U-Boot */
 	gd->flags |= GD_FLG_SKIP_RELOC;
@@ -120,12 +129,12 @@ int mach_cpu_init(void)
 	if (offset < 0)
 		return offset;
 
-	freq = fdtdec_get_int(gd->fdt_blob, offset, "clock-frequency", 0);
-	if (!freq)
+	gd->cpu_clk = fdtdec_get_int(gd->fdt_blob, offset, "clock-frequency", 0);
+	if (!gd->cpu_clk)
 		return -EINVAL;
 
 	/* If CPU freq > 100 MHz, divide eFLASH clock by 2 */
-	if (freq > 100000000) {
+	if (gd->cpu_clk > 100000000) {
 		u32 reg = readl(AHBCKDIV);
 
 		reg &= ~(0xF << 8);
@@ -133,7 +142,7 @@ int mach_cpu_init(void)
 		writel(reg, AHBCKDIV);
 	}
 
-	return set_cpu_freq(freq);
+	return set_cpu_freq(gd->cpu_clk);
 }
 
 #define ARC_PERIPHERAL_BASE	0xF0000000
@@ -161,8 +170,32 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
+int board_mmc_getcd(struct mmc *mmc)
+{
+	struct dwmci_host *host = mmc->priv;
+
+	return !(dwmci_readl(host, DWMCI_CDETECT) & 1);
+}
+
+#define IOTDK_RESET_SEQ		0x55AA6699
+
+void reset_cpu(ulong addr)
+{
+	writel(IOTDK_RESET_SEQ, RESET_REG);
+}
+
 int checkboard(void)
 {
 	puts("Board: Synopsys IoT Development Kit\n");
 	return 0;
 };
+
+#ifdef CONFIG_DISPLAY_CPUINFO
+int print_cpuinfo(void)
+{
+	char mhz[8];
+
+	printf("CPU:   ARC EM9D at %s MHz\n", strmhz(mhz, gd->cpu_clk));
+	return 0;
+}
+#endif /* CONFIG_DISPLAY_CPUINFO */

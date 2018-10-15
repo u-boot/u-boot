@@ -60,7 +60,7 @@ const char *decode_identity(void)
 	}
 }
 
-int print_cpuinfo(void)
+__weak int print_cpuinfo(void)
 {
 	printf("CPU:   %s\n", decode_identity());
 	return 0;
