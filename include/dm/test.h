@@ -69,6 +69,7 @@ struct dm_test_priv {
 	int op_count[DM_TEST_OP_COUNT];
 	int uclass_flag;
 	int uclass_total;
+	int uclass_postp;
 };
 
 /**

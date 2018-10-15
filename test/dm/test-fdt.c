@@ -55,10 +55,13 @@ static int testfdt_drv_probe(struct udevice *dev)
 
 	/*
 	 * If this device is on a bus, the uclass_flag will be set before
-	 * calling this function. This is used by
-	 * dm_test_bus_child_pre_probe_uclass().
+	 * calling this function. In the meantime the uclass_postp is
+	 * initlized to a value -1. These are used respectively by
+	 * dm_test_bus_child_pre_probe_uclass() and
+	 * dm_test_bus_child_post_probe_uclass().
 	 */
 	priv->uclass_total += priv->uclass_flag;
+	priv->uclass_postp = -1;
 
 	return 0;
 }
