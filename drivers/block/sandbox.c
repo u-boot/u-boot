@@ -142,7 +142,7 @@ int host_dev_bind(int devnum, char *filename)
 		goto err_file;
 	}
 
-	return blk_prepare_device(dev);
+	return 0;
 err_file:
 	os_close(fd);
 err:

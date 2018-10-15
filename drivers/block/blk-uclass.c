@@ -644,8 +644,20 @@ int blk_unbind_all(int if_type)
 	return 0;
 }
 
+static int blk_post_probe(struct udevice *dev)
+{
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT)
+	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+	part_init(desc);
+#endif
+
+	return 0;
+}
+
 UCLASS_DRIVER(blk) = {
 	.id		= UCLASS_BLK,
 	.name		= "blk",
+	.post_probe	= blk_post_probe,
 	.per_device_platdata_auto_alloc_size = sizeof(struct blk_desc),
 };

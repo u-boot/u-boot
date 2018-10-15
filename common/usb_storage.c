@@ -226,9 +226,7 @@ static int usb_stor_probe_device(struct usb_device *udev)
 		blkdev->lun = lun;
 
 		ret = usb_stor_get_info(udev, data, blkdev);
-		if (ret == 1)
-			ret = blk_prepare_device(dev);
-		if (!ret) {
+		if (ret == 1) {
 			usb_max_devs++;
 			debug("%s: Found device %p\n", __func__, udev);
 		} else {
