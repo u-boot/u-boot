@@ -16,7 +16,7 @@
 #include <linux/io.h>
 #include "virtio_pci.h"
 
-#define VIRTIO_PCI_DRV_NAME	"virtio-pci"
+#define VIRTIO_PCI_DRV_NAME	"virtio-pci.l"
 
 /* PCI device ID in the range 0x1000 to 0x103f */
 #define VIRTIO_PCI_VENDOR_ID	0x1af4
@@ -341,7 +341,7 @@ static const struct dm_virtio_ops virtio_pci_ops = {
 	.notify		= virtio_pci_notify,
 };
 
-U_BOOT_DRIVER(virtio_pci) = {
+U_BOOT_DRIVER(virtio_pci_legacy) = {
 	.name	= VIRTIO_PCI_DRV_NAME,
 	.id	= UCLASS_VIRTIO,
 	.ops	= &virtio_pci_ops,
@@ -418,4 +418,4 @@ static struct pci_device_id virtio_pci_supported[] = {
 	{},
 };
 
-U_BOOT_PCI_DEVICE(virtio_pci, virtio_pci_supported);
+U_BOOT_PCI_DEVICE(virtio_pci_legacy, virtio_pci_supported);
