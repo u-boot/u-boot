@@ -687,8 +687,19 @@ int uclass_pre_probe_device(struct udevice *dev)
 
 int uclass_post_probe_device(struct udevice *dev)
 {
-	struct uclass_driver *uc_drv = dev->uclass->uc_drv;
+	struct uclass_driver *uc_drv;
+	int ret;
 
+	if (dev->parent) {
+		uc_drv = dev->parent->uclass->uc_drv;
+		if (uc_drv->child_post_probe) {
+			ret = uc_drv->child_post_probe(dev);
+			if (ret)
+				return ret;
+		}
+	}
+
+	uc_drv = dev->uclass->uc_drv;
 	if (uc_drv->post_probe)
 		return uc_drv->post_probe(dev);
 
