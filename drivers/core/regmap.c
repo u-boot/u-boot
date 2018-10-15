@@ -56,6 +56,58 @@ int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
 	return 0;
 }
 #else
+/**
+ * init_range() - Initialize a single range of a regmap
+ * @node:     Device node that will use the map in question
+ * @range:    Pointer to a regmap_range structure that will be initialized
+ * @addr_len: The length of the addr parts of the reg property
+ * @size_len: The length of the size parts of the reg property
+ * @index:    The index of the range to initialize
+ *
+ * This function will read the necessary 'reg' information from the device tree
+ * (the 'addr' part, and the 'length' part), and initialize the range in
+ * quesion.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+static int init_range(ofnode node, struct regmap_range *range, int addr_len,
+		      int size_len, int index)
+{
+	fdt_size_t sz;
+	struct resource r;
+
+	if (of_live_active()) {
+		int ret;
+
+		ret = of_address_to_resource(ofnode_to_np(node),
+					     index, &r);
+		if (ret) {
+			debug("%s: Could not read resource of range %d (ret = %d)\n",
+			      ofnode_get_name(node), index, ret);
+			return ret;
+		}
+
+		range->start = r.start;
+		range->size = r.end - r.start + 1;
+	} else {
+		int offset = ofnode_to_offset(node);
+
+		range->start = fdtdec_get_addr_size_fixed(gd->fdt_blob, offset,
+							  "reg", index,
+							  addr_len, size_len,
+							  &sz, true);
+		if (range->start == FDT_ADDR_T_NONE) {
+			debug("%s: Could not read start of range %d\n",
+			      ofnode_get_name(node), index);
+			return -EINVAL;
+		}
+
+		range->size = sz;
+	}
+
+	return 0;
+}
+
 int regmap_init_mem(ofnode node, struct regmap **mapp)
 {
 	struct regmap_range *range;
@@ -64,7 +116,6 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 	int addr_len, size_len, both_len;
 	int len;
 	int index;
-	struct resource r;
 
 	addr_len = ofnode_read_simple_addr_cells(ofnode_get_parent(node));
 	if (addr_len < 0) {
@@ -101,17 +152,10 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 
 	for (range = map->ranges, index = 0; count > 0;
 	     count--, range++, index++) {
-		fdt_size_t sz;
-		if (of_live_active()) {
-			of_address_to_resource(ofnode_to_np(node), index, &r);
-			range->start = r.start;
-			range->size = r.end - r.start + 1;
-		} else {
-			range->start = fdtdec_get_addr_size_fixed(gd->fdt_blob,
-					ofnode_to_offset(node), "reg", index,
-					addr_len, size_len, &sz, true);
-			range->size = sz;
-		}
+		int ret = init_range(node, range, addr_len, size_len, index);
+
+		if (ret)
+			return ret;
 	}
 
 	*mapp = map;
