@@ -164,6 +164,15 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 			return ret;
 	}
 
+	if (ofnode_read_bool(node, "little-endian"))
+		map->endianness = REGMAP_LITTLE_ENDIAN;
+	else if (ofnode_read_bool(node, "big-endian"))
+		map->endianness = REGMAP_BIG_ENDIAN;
+	else if (ofnode_read_bool(node, "native-endian"))
+		map->endianness = REGMAP_NATIVE_ENDIAN;
+	else /* Default: native endianness */
+		map->endianness = REGMAP_NATIVE_ENDIAN;
+
 	*mapp = map;
 
 	return 0;
@@ -188,6 +197,55 @@ int regmap_uninit(struct regmap *map)
 	return 0;
 }
 
+static inline u8 __read_8(u8 *addr, enum regmap_endianness_t endianness)
+{
+	return readb(addr);
+}
+
+static inline u16 __read_16(u16 *addr, enum regmap_endianness_t endianness)
+{
+	switch (endianness) {
+	case REGMAP_LITTLE_ENDIAN:
+		return in_le16(addr);
+	case REGMAP_BIG_ENDIAN:
+		return in_be16(addr);
+	case REGMAP_NATIVE_ENDIAN:
+		return readw(addr);
+	}
+
+	return readw(addr);
+}
+
+static inline u32 __read_32(u32 *addr, enum regmap_endianness_t endianness)
+{
+	switch (endianness) {
+	case REGMAP_LITTLE_ENDIAN:
+		return in_le32(addr);
+	case REGMAP_BIG_ENDIAN:
+		return in_be32(addr);
+	case REGMAP_NATIVE_ENDIAN:
+		return readl(addr);
+	}
+
+	return readl(addr);
+}
+
+#if defined(in_le64) && defined(in_be64) && defined(readq)
+static inline u64 __read_64(u64 *addr, enum regmap_endianness_t endianness)
+{
+	switch (endianness) {
+	case REGMAP_LITTLE_ENDIAN:
+		return in_le64(addr);
+	case REGMAP_BIG_ENDIAN:
+		return in_be64(addr);
+	case REGMAP_NATIVE_ENDIAN:
+		return readq(addr);
+	}
+
+	return readq(addr);
+}
+#endif
+
 int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 			  void *valp, size_t val_len)
 {
@@ -210,17 +268,17 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 
 	switch (val_len) {
 	case REGMAP_SIZE_8:
-		*((u8 *)valp) = readb((u8 *)ptr);
+		*((u8 *)valp) = __read_8(ptr, map->endianness);
 		break;
 	case REGMAP_SIZE_16:
-		*((u16 *)valp) = readw((u16 *)ptr);
+		*((u16 *)valp) = __read_16(ptr, map->endianness);
 		break;
 	case REGMAP_SIZE_32:
-		*((u32 *)valp) = readl((u32 *)ptr);
+		*((u32 *)valp) = __read_32(ptr, map->endianness);
 		break;
-#if defined(readq)
+#if defined(in_le64) && defined(in_be64) && defined(readq)
 	case REGMAP_SIZE_64:
-		*((u64 *)valp) = readq((u64 *)ptr);
+		*((u64 *)valp) = __read_64(ptr, map->endianness);
 		break;
 #endif
 	default:
@@ -240,6 +298,62 @@ int regmap_read(struct regmap *map, uint offset, uint *valp)
 {
 	return regmap_raw_read(map, offset, valp, REGMAP_SIZE_32);
 }
+
+static inline void __write_8(u8 *addr, const u8 *val,
+			     enum regmap_endianness_t endianness)
+{
+	writeb(*val, addr);
+}
+
+static inline void __write_16(u16 *addr, const u16 *val,
+			      enum regmap_endianness_t endianness)
+{
+	switch (endianness) {
+	case REGMAP_NATIVE_ENDIAN:
+		writew(*val, addr);
+		break;
+	case REGMAP_LITTLE_ENDIAN:
+		out_le16(addr, *val);
+		break;
+	case REGMAP_BIG_ENDIAN:
+		out_be16(addr, *val);
+		break;
+	}
+}
+
+static inline void __write_32(u32 *addr, const u32 *val,
+			      enum regmap_endianness_t endianness)
+{
+	switch (endianness) {
+	case REGMAP_NATIVE_ENDIAN:
+		writel(*val, addr);
+		break;
+	case REGMAP_LITTLE_ENDIAN:
+		out_le32(addr, *val);
+		break;
+	case REGMAP_BIG_ENDIAN:
+		out_be32(addr, *val);
+		break;
+	}
+}
+
+#if defined(out_le64) && defined(out_be64) && defined(writeq)
+static inline void __write_64(u64 *addr, const u64 *val,
+			      enum regmap_endianness_t endianness)
+{
+	switch (endianness) {
+	case REGMAP_NATIVE_ENDIAN:
+		writeq(*val, addr);
+		break;
+	case REGMAP_LITTLE_ENDIAN:
+		out_le64(addr, *val);
+		break;
+	case REGMAP_BIG_ENDIAN:
+		out_be64(addr, *val);
+		break;
+	}
+}
+#endif
 
 int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
 			   const void *val, size_t val_len)
@@ -263,17 +377,17 @@ int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
 
 	switch (val_len) {
 	case REGMAP_SIZE_8:
-		writeb(*((u8 *)val), (u8 *)ptr);
+		__write_8(ptr, val, map->endianness);
 		break;
 	case REGMAP_SIZE_16:
-		writew(*((u16 *)val), (u16 *)ptr);
+		__write_16(ptr, val, map->endianness);
 		break;
 	case REGMAP_SIZE_32:
-		writel(*((u32 *)val), (u32 *)ptr);
+		__write_32(ptr, val, map->endianness);
 		break;
-#if defined(writeq)
+#if defined(out_le64) && defined(out_be64) && defined(writeq)
 	case REGMAP_SIZE_64:
-		writeq(*((u64 *)val), (u64 *)ptr);
+		__write_64(ptr, val, map->endianness);
 		break;
 #endif
 	default:

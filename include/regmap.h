@@ -23,6 +23,19 @@ enum regmap_size_t {
 };
 
 /**
+ * enum regmap_endianness_t - Endianness for regmap reads and writes
+ *
+ * @REGMAP_NATIVE_ENDIAN: Native endian read/write accesses
+ * @REGMAP_LITTLE_ENDIAN: Little endian read/write accesses
+ * @REGMAP_BIG_ENDIAN: Big endian read/write accesses
+ */
+enum regmap_endianness_t {
+	REGMAP_NATIVE_ENDIAN,
+	REGMAP_LITTLE_ENDIAN,
+	REGMAP_BIG_ENDIAN,
+};
+
+/**
  * struct regmap_range - a register map range
  *
  * @start:	Start address
@@ -40,6 +53,7 @@ struct regmap_range {
  * @ranges:		Array of ranges
  */
 struct regmap {
+	enum regmap_endianness_t endianness;
 	int range_count;
 	struct regmap_range ranges[0];
 };
