@@ -716,6 +716,14 @@
 	sandbox_tee {
 		compatible = "sandbox,tee";
 	};
+
+	sandbox_virtio1 {
+		compatible = "sandbox,virtio1";
+	};
+
+	sandbox_virtio2 {
+		compatible = "sandbox,virtio2";
+	};
 };
 
 #include "sandbox_pmic.dtsi"

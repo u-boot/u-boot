@@ -110,6 +110,11 @@ config SANDBOX
 	imply LIBAVB
 	imply CMD_AVB
 	imply UDP_FUNCTION_FASTBOOT
+	imply VIRTIO_MMIO
+	imply VIRTIO_PCI
+	imply VIRTIO_SANDBOX
+	imply VIRTIO_BLK
+	imply VIRTIO_NET
 
 config SH
 	bool "SuperH architecture"
