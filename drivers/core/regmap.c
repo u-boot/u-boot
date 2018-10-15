@@ -188,11 +188,25 @@ int regmap_uninit(struct regmap *map)
 	return 0;
 }
 
-int regmap_raw_read(struct regmap *map, uint offset, void *valp, size_t val_len)
+int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
+			  void *valp, size_t val_len)
 {
+	struct regmap_range *range;
 	void *ptr;
 
-	ptr = map_physmem(map->ranges[0].start + offset, val_len, MAP_NOCACHE);
+	if (range_num >= map->range_count) {
+		debug("%s: range index %d larger than range count\n",
+		      __func__, range_num);
+		return -ERANGE;
+	}
+	range = &map->ranges[range_num];
+
+	ptr = map_physmem(range->start + offset, val_len, MAP_NOCACHE);
+
+	if (offset + val_len > range->size) {
+		debug("%s: offset/size combination invalid\n", __func__);
+		return -ERANGE;
+	}
 
 	switch (val_len) {
 	case REGMAP_SIZE_8:
@@ -213,7 +227,13 @@ int regmap_raw_read(struct regmap *map, uint offset, void *valp, size_t val_len)
 		debug("%s: regmap size %zu unknown\n", __func__, val_len);
 		return -EINVAL;
 	}
+
 	return 0;
+}
+
+int regmap_raw_read(struct regmap *map, uint offset, void *valp, size_t val_len)
+{
+	return regmap_raw_read_range(map, 0, offset, valp, val_len);
 }
 
 int regmap_read(struct regmap *map, uint offset, uint *valp)
@@ -221,12 +241,25 @@ int regmap_read(struct regmap *map, uint offset, uint *valp)
 	return regmap_raw_read(map, offset, valp, REGMAP_SIZE_32);
 }
 
-int regmap_raw_write(struct regmap *map, uint offset, const void *val,
-		     size_t val_len)
+int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
+			   const void *val, size_t val_len)
 {
+	struct regmap_range *range;
 	void *ptr;
 
-	ptr = map_physmem(map->ranges[0].start + offset, val_len, MAP_NOCACHE);
+	if (range_num >= map->range_count) {
+		debug("%s: range index %d larger than range count\n",
+		      __func__, range_num);
+		return -ERANGE;
+	}
+	range = &map->ranges[range_num];
+
+	ptr = map_physmem(range->start + offset, val_len, MAP_NOCACHE);
+
+	if (offset + val_len > range->size) {
+		debug("%s: offset/size combination invalid\n", __func__);
+		return -ERANGE;
+	}
 
 	switch (val_len) {
 	case REGMAP_SIZE_8:
@@ -249,6 +282,12 @@ int regmap_raw_write(struct regmap *map, uint offset, const void *val,
 	}
 
 	return 0;
+}
+
+int regmap_raw_write(struct regmap *map, uint offset, const void *val,
+		     size_t val_len)
+{
+	return regmap_raw_write_range(map, 0, offset, val, val_len);
 }
 
 int regmap_write(struct regmap *map, uint offset, uint val)

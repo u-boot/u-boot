@@ -115,6 +115,37 @@ int regmap_raw_write(struct regmap *map, uint offset, const void *val,
 int regmap_raw_read(struct regmap *map, uint offset, void *valp,
 		    size_t val_len);
 
+/**
+ * regmap_raw_write_range() - Write a value of specified length to a range of a
+ *			      regmap
+ *
+ * @map:	Regmap to write to
+ * @range_num:	Number of the range in the regmap to write to
+ * @offset:	Offset in the regmap to write to
+ * @val:	Value to write to the regmap at the specified offset
+ * @val_len:	Length of the data to be written to the regmap
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
+			   const void *val, size_t val_len);
+
+/**
+ * regmap_raw_read_range() - Read a value of specified length from a range of a
+ *			     regmap
+ *
+ * @map:	Regmap to read from
+ * @range_num:	Number of the range in the regmap to write to
+ * @offset:	Offset in the regmap to read from
+ * @valp:	Pointer to the buffer to receive the data read from the regmap
+ *		at the specified offset
+ * @val_len:	Length of the data to be read from the regmap
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
+			  void *valp, size_t val_len);
+
 #define regmap_write32(map, ptr, member, val) \
 	regmap_write(map, (uint32_t *)(ptr)->member - (uint32_t *)(ptr), val)
 
