@@ -8,6 +8,21 @@
 #define __REGMAP_H
 
 /**
+ * enum regmap_size_t - Access sizes for regmap reads and writes
+ *
+ * @REGMAP_SIZE_8: 8-bit read/write access size
+ * @REGMAP_SIZE_16: 16-bit read/write access size
+ * @REGMAP_SIZE_32: 32-bit read/write access size
+ * @REGMAP_SIZE_64: 64-bit read/write access size
+ */
+enum regmap_size_t {
+	REGMAP_SIZE_8 = 1,
+	REGMAP_SIZE_16 = 2,
+	REGMAP_SIZE_32 = 4,
+	REGMAP_SIZE_64 = 8,
+};
+
+/**
  * struct regmap_range - a register map range
  *
  * @start:	Start address
@@ -41,6 +56,10 @@ struct regmap {
  * @offset:	Offset in the regmap to write to
  * @val:	Data to write to the regmap at the specified offset
  *
+ * Note that this function will only write values of 32 bit width to the
+ * regmap; if the size of data to be read is different, the regmap_raw_write
+ * function can be used.
+ *
  * Return: 0 if OK, -ve on error
  */
 int regmap_write(struct regmap *map, uint offset, uint val);
@@ -53,9 +72,48 @@ int regmap_write(struct regmap *map, uint offset, uint val);
  * @valp:	Pointer to the buffer to receive the data read from the regmap
  *		at the specified offset
  *
+ * Note that this function will only read values of 32 bit width from the
+ * regmap; if the size of data to be read is different, the regmap_raw_read
+ * function can be used.
+ *
  * Return: 0 if OK, -ve on error
  */
 int regmap_read(struct regmap *map, uint offset, uint *valp);
+
+/**
+ * regmap_raw_write() - Write a value of specified length to a regmap
+ *
+ * @map:	Regmap to write to
+ * @offset:	Offset in the regmap to write to
+ * @val:	Value to write to the regmap at the specified offset
+ * @val_len:	Length of the data to be written to the regmap
+ *
+ * Note that this function will, as opposed to regmap_write, write data of
+ * arbitrary length to the regmap, and not just 32-bit values, and is thus a
+ * generalized version of regmap_write.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int regmap_raw_write(struct regmap *map, uint offset, const void *val,
+		     size_t val_len);
+
+/**
+ * regmap_raw_read() - Read a value of specified length from a regmap
+ *
+ * @map:	Regmap to read from
+ * @offset:	Offset in the regmap to read from
+ * @valp:	Pointer to the buffer to receive the data read from the regmap
+ *		at the specified offset
+ * @val_len:	Length of the data to be read from the regmap
+ *
+ * Note that this function will, as opposed to regmap_read, read data of
+ * arbitrary length from the regmap, and not just 32-bit values, and is thus a
+ * generalized version of regmap_read.
+ *
+ * Return: 0 if OK, -ve on error
+ */
+int regmap_raw_read(struct regmap *map, uint offset, void *valp,
+		    size_t val_len);
 
 #define regmap_write32(map, ptr, member, val) \
 	regmap_write(map, (uint32_t *)(ptr)->member - (uint32_t *)(ptr), val)
