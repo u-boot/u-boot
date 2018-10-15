@@ -4793,7 +4793,7 @@ static void mvpp2_gpio_init(struct mvpp2_port *port)
 {
 	if (dm_gpio_is_valid(&port->phy_reset_gpio)) {
 		dm_gpio_set_value(&port->phy_reset_gpio, 1);
-		udelay(1000);
+		mdelay(10);
 		dm_gpio_set_value(&port->phy_reset_gpio, 0);
 	}
 
