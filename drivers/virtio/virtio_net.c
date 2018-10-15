@@ -32,6 +32,7 @@ struct virtio_net_priv {
 
 	char rx_buff[VIRTIO_NET_NUM_RX_BUFS][VIRTIO_NET_RX_BUF_SIZE];
 	bool rx_running;
+	int net_hdr_len;
 };
 
 /*
@@ -77,12 +78,19 @@ static int virtio_net_send(struct udevice *dev, void *packet, int length)
 {
 	struct virtio_net_priv *priv = dev_get_priv(dev);
 	struct virtio_net_hdr hdr;
-	struct virtio_sg hdr_sg = { &hdr, sizeof(hdr) };
+	struct virtio_net_hdr_v1 hdr_v1;
+	struct virtio_sg hdr_sg;
 	struct virtio_sg data_sg = { packet, length };
 	struct virtio_sg *sgs[] = { &hdr_sg, &data_sg };
 	int ret;
 
-	memset(&hdr, 0, sizeof(struct virtio_net_hdr));
+	if (priv->net_hdr_len == sizeof(struct virtio_net_hdr))
+		hdr_sg.addr = &hdr;
+	else
+		hdr_sg.addr = &hdr_v1;
+	hdr_sg.length = priv->net_hdr_len;
+
+	memset(hdr_sg.addr, 0, priv->net_hdr_len);
 
 	ret = virtqueue_add(priv->tx_vq, sgs, 2, 0);
 	if (ret)
@@ -108,14 +116,14 @@ static int virtio_net_recv(struct udevice *dev, int flags, uchar **packetp)
 	if (!buf)
 		return -EAGAIN;
 
-	*packetp = buf + sizeof(struct virtio_net_hdr);
-	return len - sizeof(struct virtio_net_hdr);
+	*packetp = buf + priv->net_hdr_len;
+	return len - priv->net_hdr_len;
 }
 
 static int virtio_net_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct virtio_net_priv *priv = dev_get_priv(dev);
-	void *buf = packet - sizeof(struct virtio_net_hdr);
+	void *buf = packet - priv->net_hdr_len;
 	struct virtio_sg sg = { buf, VIRTIO_NET_RX_BUF_SIZE };
 	struct virtio_sg *sgs[] = { &sg };
 
@@ -186,11 +194,24 @@ static int virtio_net_bind(struct udevice *dev)
 static int virtio_net_probe(struct udevice *dev)
 {
 	struct virtio_net_priv *priv = dev_get_priv(dev);
+	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(dev->parent);
 	int ret;
 
 	ret = virtio_find_vqs(dev, 2, priv->vqs);
 	if (ret < 0)
 		return ret;
+
+	/*
+	 * For v1.0 compliant device, it always assumes the member
+	 * 'num_buffers' exists in the struct virtio_net_hdr while
+	 * the legacy driver only presented 'num_buffers' when
+	 * VIRTIO_NET_F_MRG_RXBUF was negotiated. Without that feature
+	 * the structure was 2 bytes shorter.
+	 */
+	if (uc_priv->legacy)
+		priv->net_hdr_len = sizeof(struct virtio_net_hdr);
+	else
+		priv->net_hdr_len = sizeof(struct virtio_net_hdr_v1);
 
 	return 0;
 }
