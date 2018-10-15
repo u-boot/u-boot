@@ -139,12 +139,18 @@ int regmap_init_mem(ofnode node, struct regmap **mapp)
 	}
 
 	len = ofnode_read_size(node, "reg");
-	if (len < 0)
+	if (len < 0) {
+		debug("%s: Error while reading reg size (ret = %d)\n",
+		      ofnode_get_name(node), len);
 		return len;
+	}
 	len /= sizeof(fdt32_t);
 	count = len / both_len;
-	if (!count)
+	if (!count) {
+		debug("%s: Not enough data in reg property\n",
+		      ofnode_get_name(node));
 		return -EINVAL;
+	}
 
 	map = regmap_alloc(count);
 	if (!map)
