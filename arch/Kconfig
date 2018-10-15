@@ -120,6 +120,7 @@ config X86
 	select CREATE_ARCH_SYMLINK
 	select DM
 	select DM_PCI
+	select HAVE_ARCH_IOMAP
 	select HAVE_PRIVATE_LIBGCC
 	select OF_CONTROL
 	select PCI
