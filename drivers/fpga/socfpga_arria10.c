@@ -453,7 +453,7 @@ int fpgamgr_program_finish(void)
  */
 int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 {
-	unsigned long status;
+	int status;
 
 	/* disable all signals from hps peripheral controller to fpga */
 	writel(0, &system_manager_base->fpgaintf_en_global);
