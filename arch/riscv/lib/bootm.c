@@ -9,9 +9,11 @@
 #include <common.h>
 #include <command.h>
 #include <image.h>
-#include <u-boot/zlib.h>
 #include <asm/byteorder.h>
 #include <asm/csr.h>
+#include <dm/device.h>
+#include <dm/root.h>
+#include <u-boot/zlib.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,6 +58,13 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	/* we assume that the kernel is in place */
 	printf("\nStarting kernel ...\n\n");
+
+	/*
+	 * Call remove function of all devices with a removal flag set.
+	 * This may be useful for last-stage operations, like cancelling
+	 * of DMA operation or releasing device internal buffers.
+	 */
+	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
 
 	cleanup_before_linux();
 
