@@ -1,0 +1,9 @@
+if TARGET_QEMU_ARM_32BIT || TARGET_QEMU_ARM_64BIT
+
+config SYS_TEXT_BASE
+	default 0x00000000
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+
+endif
