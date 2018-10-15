@@ -6,3 +6,4 @@
 obj-y += virtio-uclass.o virtio_ring.o
 obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
 obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
+obj-$(CONFIG_VIRTIO_BLK) += virtio_blk.o

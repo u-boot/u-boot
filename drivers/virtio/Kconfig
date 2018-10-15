@@ -36,4 +36,11 @@ config VIRTIO_NET
 	  This is the virtual net driver for virtio. It can be used with
 	  QEMU based targets.
 
+config VIRTIO_BLK
+	bool "virtio block driver"
+	depends on VIRTIO
+	help
+	  This is the virtual block driver for virtio. It can be used with
+	  QEMU based targets.
+
 endmenu
