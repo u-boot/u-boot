@@ -146,11 +146,57 @@ int regmap_raw_write_range(struct regmap *map, uint range_num, uint offset,
 int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 			  void *valp, size_t val_len);
 
-#define regmap_write32(map, ptr, member, val) \
-	regmap_write(map, (uint32_t *)(ptr)->member - (uint32_t *)(ptr), val)
+/**
+ * regmap_range_set() - Set a value in a regmap range described by a struct
+ * @map:    Regmap in which a value should be set
+ * @range:  Range of the regmap in which a value should be set
+ * @type:   Structure type that describes the memory layout of the regmap range
+ * @member: Member of the describing structure that should be set in the regmap
+ *          range
+ * @val:    Value which should be written to the regmap range
+ */
+#define regmap_range_set(map, range, type, member, val) \
+	do { \
+		typeof(((type *)0)->member) __tmp = val; \
+		regmap_raw_write_range(map, range, offsetof(type, member), \
+				       &__tmp, sizeof(((type *)0)->member)); \
+	} while (0)
 
-#define regmap_read32(map, ptr, member, valp) \
-	regmap_read(map, (uint32_t *)(ptr)->member - (uint32_t *)(ptr), valp)
+/**
+ * regmap_set() - Set a value in a regmap described by a struct
+ * @map:    Regmap in which a value should be set
+ * @type:   Structure type that describes the memory layout of the regmap
+ * @member: Member of the describing structure that should be set in the regmap
+ * @val:    Value which should be written to the regmap
+ */
+#define regmap_set(map, type, member, val) \
+	regmap_range_set(map, 0, type, member, val)
+
+/**
+ * regmap_range_get() - Get a value from a regmap range described by a struct
+ * @map:    Regmap from which a value should be read
+ * @range:  Range of the regmap from which a value should be read
+ * @type:   Structure type that describes the memory layout of the regmap
+ *          range
+ * @member: Member of the describing structure that should be read in the
+ *          regmap range
+ * @valp:   Variable that receives the value read from the regmap range
+ */
+#define regmap_range_get(map, range, type, member, valp) \
+	regmap_raw_read_range(map, range, offsetof(type, member), \
+			      (void *)valp, sizeof(((type *)0)->member))
+
+/**
+ * regmap_get() - Get a value from a regmap described by a struct
+ * @map:    Regmap from which a value should be read
+ * @type:   Structure type that describes the memory layout of the regmap
+ *          range
+ * @member: Member of the describing structure that should be read in the
+ *          regmap
+ * @valp:   Variable that receives the value read from the regmap
+ */
+#define regmap_get(map, type, member, valp) \
+	regmap_range_get(map, 0, type, member, valp)
 
 /**
  * regmap_update_bits() - Perform a read/modify/write using a mask
