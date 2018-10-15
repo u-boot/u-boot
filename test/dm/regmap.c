@@ -116,3 +116,31 @@ static int dm_test_regmap_rw(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_regmap_rw, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Get/Set test */
+static int dm_test_regmap_getset(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct regmap *map;
+	uint reg;
+	struct layout {
+		u32 val0;
+		u32 val1;
+		u32 val2;
+		u32 val3;
+	};
+
+	ut_assertok(uclass_get_device(UCLASS_SYSCON, 0, &dev));
+	map = syscon_get_regmap(dev);
+	ut_assertok_ptr(map);
+
+	regmap_set(map, struct layout, val0, 0xcacafafa);
+	regmap_set(map, struct layout, val3, 0x55aa2211);
+
+	ut_assertok(regmap_get(map, struct layout, val0, &reg));
+	ut_assertok(regmap_get(map, struct layout, val3, &reg));
+
+	return 0;
+}
+
+DM_TEST(dm_test_regmap_getset, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
