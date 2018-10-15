@@ -8,6 +8,33 @@
 #define __REGMAP_H
 
 /**
+ * DOC: Overview
+ *
+ * Regmaps are an abstraction mechanism that allows device drivers to access
+ * register maps irrespective of the underlying bus architecture. This entails
+ * that for devices that support multiple busses (e.g. I2C and SPI for a GPIO
+ * expander chip) only one driver has to be written. This driver will
+ * instantiate a regmap with a backend depending on the bus the device is
+ * attached to, and use the regmap API to access the register map through that
+ * bus transparently.
+ *
+ * Read and write functions are supplied, which can read/write data of
+ * arbitrary length from/to the regmap.
+ *
+ * The endianness of regmap accesses is selectable for each map through device
+ * tree settings via the boolean "little-endian", "big-endian", and
+ * "native-endian" properties.
+ *
+ * Furthermore, the register map described by a regmap can be split into
+ * multiple disjoint areas called ranges. In this way, register maps with
+ * "holes", i.e. areas of addressable memory that are not part of the register
+ * map, can be accessed in a concise manner.
+ *
+ * Currently, only a bare "mem" backend for regmaps is supported, which
+ * accesses the register map as regular IO-mapped memory.
+ */
+
+/**
  * enum regmap_size_t - Access sizes for regmap reads and writes
  *
  * @REGMAP_SIZE_8: 8-bit read/write access size
