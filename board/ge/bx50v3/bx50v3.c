@@ -809,6 +809,8 @@ int board_late_init(void)
 
 	if (is_b850v3())
 		env_set("videoargs", "video=DP-1:1024x768@60 video=HDMI-A-1:1024x768@60");
+	else
+		env_set("videoargs", "video=LVDS-1:1024x768@65");
 
 	/* board specific pmic init */
 	pmic_init();
