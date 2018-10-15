@@ -112,6 +112,8 @@ source "drivers/usb/Kconfig"
 
 source "drivers/video/Kconfig"
 
+source "drivers/virtio/Kconfig"
+
 source "drivers/w1/Kconfig"
 
 source "drivers/w1-eeprom/Kconfig"
