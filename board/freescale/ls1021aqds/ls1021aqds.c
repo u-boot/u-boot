@@ -244,6 +244,7 @@ void board_init_f(ulong dummy)
 	if (major == SOC_MAJOR_VER_1_0)
 		out_le32(&cci->ctrl_ord, CCI400_CTRLORD_TERM_BARRIER);
 
+	timer_init();
 	dram_init();
 
 	/* Allow OCRAM access permission as R/W */
