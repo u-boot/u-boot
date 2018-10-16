@@ -853,6 +853,14 @@ config ARCH_SUNXI
 	imply SPL_SERIAL_SUPPORT
 	imply USB_GADGET
 
+config ARCH_VERSAL
+	bool "Support Xilinx Versal Platform"
+	select ARM64
+	select CLK
+	select DM
+	select DM_SERIAL
+	select OF_CONTROL
+
 config ARCH_VF610
 	bool "Freescale Vybrid"
 	select CPU_V7A
@@ -911,6 +919,7 @@ config ARCH_ZYNQMP
 	imply BOARD_LATE_INIT
 	imply CMD_DM
 	imply FAT_WRITE
+	imply MP
 
 config TEGRA
 	bool "NVIDIA Tegra"
@@ -1448,6 +1457,8 @@ source "arch/arm/mach-uniphier/Kconfig"
 source "arch/arm/cpu/armv7/vf610/Kconfig"
 
 source "arch/arm/mach-zynq/Kconfig"
+
+source "arch/arm/mach-versal/Kconfig"
 
 source "arch/arm/mach-zynqmp-r5/Kconfig"
 

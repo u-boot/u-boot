@@ -431,7 +431,7 @@ config ENV_EXT4_FILE
 	  It's a string of the EXT4 file name. This file use to store the
 	  environment (explicit path to the file)
 
-if ARCH_ROCKCHIP || ARCH_SUNXI || ARCH_ZYNQ || ARCH_ZYNQMP
+if ARCH_ROCKCHIP || ARCH_SUNXI || ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
 
 config ENV_OFFSET
 	hex "Environment Offset"
@@ -448,7 +448,7 @@ config ENV_SIZE
 	hex "Environment Size"
 	default 0x40000 if ENV_IS_IN_SPI_FLASH && ARCH_ZYNQMP
 	default 0x20000 if ARCH_SUNXI || ARCH_ZYNQ
-	default 0x8000 if ARCH_ROCKCHIP || ARCH_ZYNQMP
+	default 0x8000 if ARCH_ROCKCHIP || ARCH_ZYNQMP || ARCH_VERSAL
 	help
 	  Size of the environment storage area
 

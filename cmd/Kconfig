@@ -1811,6 +1811,7 @@ config CMD_IRQ
 
 config CMD_KGDB
 	bool "kgdb - Allow debugging of U-Boot with gdb"
+	depends on PPC
 	help
 	  This enables a 'kgdb' command which allows gdb to connect to U-Boot
 	  over a serial link for debugging purposes. This allows

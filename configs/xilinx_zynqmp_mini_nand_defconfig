@@ -39,6 +39,7 @@ CONFIG_SYS_PROMPT="ZynqMP> "
 # CONFIG_CMD_ITEST is not set
 # CONFIG_CMD_SOURCE is not set
 # CONFIG_CMD_SETEXPR is not set
+# CONFIG_MP is not set
 # CONFIG_PARTITIONS is not set
 CONFIG_OF_EMBED=y
 CONFIG_DEFAULT_DEVICE_TREE="zynqmp-mini-nand"
