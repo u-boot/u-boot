@@ -416,6 +416,13 @@ config SYS_I2C_UNIPHIER_F
 	  Support for UniPhier FIFO-builtin I2C controller driver.
 	  This I2C controller is used on PH1-Pro4 or newer UniPhier SoCs.
 
+config SYS_I2C_VERSATILE
+	bool "Arm Ltd Versatile I2C bus driver"
+	depends on DM_I2C && (TARGET_VEXPRESS_CA15_TC2 || TARGET_VEXPRESS64_JUNO)
+	help
+	  Add support for the Arm Ltd Versatile Express I2C driver. The I2C host
+	  controller is present in the development boards manufactured by Arm Ltd.
+
 config SYS_I2C_MVTWSI
 	bool "Marvell I2C driver"
 	depends on DM_I2C
