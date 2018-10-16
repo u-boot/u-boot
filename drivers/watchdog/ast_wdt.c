@@ -50,6 +50,7 @@ static int ast_wdt_stop(struct udevice *dev)
 
 	clrbits_le32(&priv->regs->ctrl, WDT_CTRL_EN);
 
+	writel(WDT_RESET_DEFAULT, &priv->regs->reset_mask);
 	return 0;
 }
 
