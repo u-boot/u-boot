@@ -69,6 +69,14 @@ config PCI_RCAR_GEN2
 	  Renesas RCar Gen2 SoCs. The PCIe controller on RCar Gen2 is
 	  also used to access EHCI USB controller on the SoC.
 
+config PCI_RCAR_GEN3
+	bool "Renesas RCar Gen3 PCIe driver"
+	depends on DM_PCI
+	depends on RCAR_GEN3
+	help
+	  Say Y here if you want to enable PCIe controller support on
+	  Renesas RCar Gen3 SoCs.
+
 config PCI_SANDBOX
 	bool "Sandbox PCI support"
 	depends on SANDBOX && DM_PCI
