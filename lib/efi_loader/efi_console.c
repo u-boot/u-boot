@@ -1045,8 +1045,10 @@ static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
  * efi_console_register() - install the console protocols
  *
  * This function is called from do_bootefi_exec().
+ *
+ * Return:	status code
  */
-int efi_console_register(void)
+efi_status_t efi_console_register(void)
 {
 	efi_status_t r;
 	struct efi_object *efi_console_output_obj;

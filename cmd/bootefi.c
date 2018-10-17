@@ -40,6 +40,13 @@ efi_status_t efi_init_obj_list(void)
 {
 	efi_status_t ret = EFI_SUCCESS;
 
+	/*
+	 * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
+	 * As this register may be overwritten by an EFI payload we save it here
+	 * and restore it on every callback entered.
+	 */
+	efi_save_gd();
+
 	/* Initialize once only */
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
 		return efi_obj_list_initialized;
@@ -374,12 +381,6 @@ static efi_status_t do_bootefi_exec(void *efi,
 	if (ret != EFI_SUCCESS)
 		goto exit;
 
-	/*
-	 * gd lives in a fixed register which may get clobbered while we execute
-	 * the payload. So save it here and restore it on every callback entry
-	 */
-	efi_save_gd();
-
 	/* Transfer environment variable bootargs as load options */
 	set_load_options(loaded_image_info, "bootargs");
 	/* Load the EFI payload */
@@ -459,12 +460,6 @@ static int do_bootefi_bootmgr_exec(void)
 	struct efi_device_path *device_path, *file_path;
 	void *addr;
 	efi_status_t r;
-
-	/*
-	 * gd lives in a fixed register which may get clobbered while we execute
-	 * the payload. So save it here and restore it on every callback entry
-	 */
-	efi_save_gd();
 
 	addr = efi_bootmgr_load(&device_path, &file_path);
 	if (!addr)
@@ -547,11 +542,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (r != EFI_SUCCESS)
 			return CMD_RET_FAILURE;
 
-		/*
-		 * gd lives in a fixed register which may get clobbered while we
-		 * execute the payload. So save it here and restore it on every
-		 * callback entry
-		 */
 		efi_save_gd();
 		/* Transfer environment variable efi_selftest as load options */
 		set_load_options(loaded_image_info, "efi_selftest");

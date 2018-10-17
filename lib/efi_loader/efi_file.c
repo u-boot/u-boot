@@ -52,11 +52,18 @@ static int set_blk_dev(struct file_handle *fh)
 	return fs_set_blk_dev_with_part(fh->fs->desc, fh->fs->part);
 }
 
+/**
+ * is_dir() - check if file handle points to directory
+ *
+ * We assume that set_blk_dev(fh) has been called already.
+ *
+ * @fh:		file handle
+ * Return:	true if file handle points to a directory
+ */
 static int is_dir(struct file_handle *fh)
 {
 	struct fs_dir_stream *dirs;
 
-	set_blk_dev(fh);
 	dirs = fs_opendir(fh->path);
 	if (!dirs)
 		return 0;
@@ -436,28 +443,51 @@ error:
 	return EFI_EXIT(ret);
 }
 
+/**
+ * efi_file_getpos() - get current position in file
+ *
+ * This function implements the GetPosition service of the EFI file protocol.
+ * See the UEFI spec for details.
+ *
+ * @file:	file handle
+ * @pos:	pointer to file position
+ * Return:	status code
+ */
 static efi_status_t EFIAPI efi_file_getpos(struct efi_file_handle *file,
-					   efi_uintn_t *pos)
+					   u64 *pos)
 {
+	efi_status_t ret = EFI_SUCCESS;
 	struct file_handle *fh = to_fh(file);
 
 	EFI_ENTRY("%p, %p", file, pos);
 
-	if (fh->offset <= SIZE_MAX) {
-		*pos = fh->offset;
-		return EFI_EXIT(EFI_SUCCESS);
-	} else {
-		return EFI_EXIT(EFI_DEVICE_ERROR);
+	if (fh->isdir) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
 	}
+
+	*pos = fh->offset;
+out:
+	return EFI_EXIT(ret);
 }
 
+/**
+ * efi_file_setpos() - set current position in file
+ *
+ * This function implements the SetPosition service of the EFI file protocol.
+ * See the UEFI spec for details.
+ *
+ * @file:	file handle
+ * @pos:	new file position
+ * Return:	status code
+ */
 static efi_status_t EFIAPI efi_file_setpos(struct efi_file_handle *file,
-		efi_uintn_t pos)
+					   u64 pos)
 {
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret = EFI_SUCCESS;
 
-	EFI_ENTRY("%p, %zu", file, pos);
+	EFI_ENTRY("%p, %llu", file, pos);
 
 	if (fh->isdir) {
 		if (pos != 0) {

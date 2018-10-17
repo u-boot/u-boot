@@ -294,8 +294,10 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
 	}
 
 	val = malloc(2 * data_size + strlen("{ro,run,boot}(blob)") + 1);
-	if (!val)
-		return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+	if (!val) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
 
 	s = val;
 
