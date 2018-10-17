@@ -332,11 +332,11 @@ u32 get_cpu_speed_grade_hz(void)
 	case OCOTP_TESTER3_SPEED_GRADE0:
 		return 800000000;
 	case OCOTP_TESTER3_SPEED_GRADE1:
-		return is_mx7() ? 500000000 : 1000000000;
+		return (is_mx7() ? 500000000 : (is_imx8mq() ? 1000000000 : 1200000000));
 	case OCOTP_TESTER3_SPEED_GRADE2:
-		return is_mx7() ? 1000000000 : 1300000000;
+		return (is_mx7() ? 1000000000 : (is_imx8mq() ? 1300000000 : 1600000000));
 	case OCOTP_TESTER3_SPEED_GRADE3:
-		return is_mx7() ? 1200000000 : 1500000000;
+		return (is_mx7() ? 1200000000 : (is_imx8mq() ? 1500000000 : 1800000000));
 	}
 
 	return 0;
