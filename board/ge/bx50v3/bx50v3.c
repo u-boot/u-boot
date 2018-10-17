@@ -38,15 +38,6 @@ struct vpd_cache;
 static int confidx = 3;  /* Default to b850v3. */
 static struct vpd_cache vpd;
 
-#ifndef CONFIG_SYS_I2C_EEPROM_ADDR
-# define CONFIG_SYS_I2C_EEPROM_ADDR     0x50
-# define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
-#endif
-
-#ifndef CONFIG_SYS_I2C_EEPROM_BUS
-#define CONFIG_SYS_I2C_EEPROM_BUS       4
-#endif
-
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
 	PAD_CTL_HYS)
@@ -634,11 +625,11 @@ static void process_vpd(struct vpd_cache *vpd)
 static int read_vpd(void)
 {
 	int res;
-	int size = 1024;
+	static const int size = CONFIG_SYS_VPD_EEPROM_SIZE;
 	uint8_t *data;
 	unsigned int current_i2c_bus = i2c_get_bus_num();
 
-	res = i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
+	res = i2c_set_bus_num(CONFIG_SYS_VPD_EEPROM_I2C_BUS);
 	if (res < 0)
 		return res;
 
@@ -646,8 +637,8 @@ static int read_vpd(void)
 	if (!data)
 		return -ENOMEM;
 
-	res = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,
-			CONFIG_SYS_I2C_EEPROM_ADDR_LEN, data, size);
+	res = i2c_read(CONFIG_SYS_VPD_EEPROM_I2C_ADDR, 0,
+		       CONFIG_SYS_VPD_EEPROM_I2C_ADDR_LEN, data, size);
 
 	if (res == 0) {
 		memset(&vpd, 0, sizeof(vpd));

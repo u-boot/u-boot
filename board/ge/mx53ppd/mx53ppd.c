@@ -40,13 +40,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Index of I2C1, SEGMENT 1 (see CONFIG_SYS_I2C_BUSES). */
-#define VPD_EEPROM_BUS 2
-
-/* Address of 24C08 EEPROM. */
-#define VPD_EEPROM_ADDR		0x50
-#define VPD_EEPROM_ADDR_LEN	1
-
 static u32 mx53_dram_size[2];
 
 phys_size_t get_effective_memsize(void)
@@ -332,11 +325,11 @@ static int read_vpd(void)
 {
 	struct vpd_cache vpd;
 	int res;
-	int size = 1024;
+	static const int size = CONFIG_SYS_VPD_EEPROM_SIZE;
 	u8 *data;
 	unsigned int current_i2c_bus = i2c_get_bus_num();
 
-	res = i2c_set_bus_num(VPD_EEPROM_BUS);
+	res = i2c_set_bus_num(CONFIG_SYS_VPD_EEPROM_I2C_BUS);
 	if (res < 0)
 		return res;
 
@@ -344,7 +337,8 @@ static int read_vpd(void)
 	if (!data)
 		return -ENOMEM;
 
-	res = i2c_read(VPD_EEPROM_ADDR, 0, VPD_EEPROM_ADDR_LEN, data, size);
+	res = i2c_read(CONFIG_SYS_VPD_EEPROM_I2C_ADDR, 0,
+		       CONFIG_SYS_VPD_EEPROM_I2C_ADDR_LEN, data, size);
 	if (res == 0) {
 		memset(&vpd, 0, sizeof(vpd));
 		vpd_reader(size, data, &vpd, vpd_callback);
