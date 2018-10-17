@@ -631,14 +631,14 @@ static void process_vpd(struct vpd_cache *vpd)
 		eth_env_set_enetaddr_by_index("eth", i210_index, vpd->mac2);
 }
 
-static int read_vpd(uint eeprom_bus)
+static int read_vpd(void)
 {
 	int res;
 	int size = 1024;
 	uint8_t *data;
 	unsigned int current_i2c_bus = i2c_get_bus_num();
 
-	res = i2c_set_bus_num(eeprom_bus);
+	res = i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
 	if (res < 0)
 		return res;
 
@@ -718,7 +718,7 @@ int board_init(void)
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
 
-	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
+	read_vpd();
 
 	set_confidx(&vpd);
 

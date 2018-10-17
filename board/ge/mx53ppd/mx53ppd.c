@@ -328,7 +328,7 @@ static void process_vpd(struct vpd_cache *vpd)
 		eth_env_set_enetaddr("ethaddr", vpd->mac1);
 }
 
-static int read_vpd(uint eeprom_bus)
+static int read_vpd(void)
 {
 	struct vpd_cache vpd;
 	int res;
@@ -336,7 +336,7 @@ static int read_vpd(uint eeprom_bus)
 	u8 *data;
 	unsigned int current_i2c_bus = i2c_get_bus_num();
 
-	res = i2c_set_bus_num(eeprom_bus);
+	res = i2c_set_bus_num(VPD_EEPROM_BUS);
 	if (res < 0)
 		return res;
 
@@ -390,7 +390,7 @@ int board_late_init(void)
 {
 	int res;
 
-	read_vpd(VPD_EEPROM_BUS);
+	read_vpd();
 
 	res = clock_1GHz();
 	if (res != 0)
