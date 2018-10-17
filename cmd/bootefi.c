@@ -608,45 +608,19 @@ U_BOOT_CMD(
 
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 {
-	char filename[32] = { 0 }; /* dp->str is u16[32] long */
-	char *s;
+	struct efi_device_path *device, *image;
+	efi_status_t ret;
 
 	/* efi_set_bootdev is typically called repeatedly, recover memory */
 	efi_free_pool(bootefi_device_path);
 	efi_free_pool(bootefi_image_path);
-	/* If blk_get_device_part_str fails, avoid duplicate free. */
-	bootefi_device_path = NULL;
-	bootefi_image_path = NULL;
 
-	if (strcmp(dev, "Net")) {
-		struct blk_desc *desc;
-		disk_partition_t fs_partition;
-		int part;
-
-		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
-					       1);
-		if (part < 0)
-			return;
-
-		bootefi_device_path = efi_dp_from_part(desc, part);
+	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
+	if (ret == EFI_SUCCESS) {
+		bootefi_device_path = device;
+		bootefi_image_path = image;
 	} else {
-#ifdef CONFIG_NET
-		bootefi_device_path = efi_dp_from_eth();
-#endif
+		bootefi_device_path = NULL;
+		bootefi_image_path = NULL;
 	}
-
-	if (!path)
-		return;
-
-	if (strcmp(dev, "Net")) {
-		/* Add leading / to fs paths, because they're absolute */
-		snprintf(filename, sizeof(filename), "/%s", path);
-	} else {
-		snprintf(filename, sizeof(filename), "%s", path);
-	}
-	/* DOS style file path: */
-	s = filename;
-	while ((s = strchr(s, '/')))
-		*s++ = '\\';
-	bootefi_image_path = efi_dp_from_file(NULL, 0, filename);
 }

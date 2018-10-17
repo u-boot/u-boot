@@ -941,3 +941,50 @@ efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 	*file_path = fp;
 	return EFI_SUCCESS;
 }
+
+efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
+			      const char *path,
+			      struct efi_device_path **device,
+			      struct efi_device_path **file)
+{
+	int is_net;
+	struct blk_desc *desc = NULL;
+	disk_partition_t fs_partition;
+	int part = 0;
+	char filename[32] = { 0 }; /* dp->str is u16[32] long */
+	char *s;
+
+	if (!device || (path && !file))
+		return EFI_INVALID_PARAMETER;
+
+	is_net = !strcmp(dev, "Net");
+	if (!is_net) {
+		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
+					       1);
+		if (part < 0)
+			return EFI_INVALID_PARAMETER;
+
+		*device = efi_dp_from_part(desc, part);
+	} else {
+#ifdef CONFIG_NET
+		*device = efi_dp_from_eth();
+#endif
+	}
+
+	if (!path)
+		return EFI_SUCCESS;
+
+	if (!is_net) {
+		/* Add leading / to fs paths, because they're absolute */
+		snprintf(filename, sizeof(filename), "/%s", path);
+	} else {
+		snprintf(filename, sizeof(filename), "%s", path);
+	}
+	/* DOS style file path: */
+	s = filename;
+	while ((s = strchr(s, '/')))
+		*s++ = '\\';
+	*file = efi_dp_from_file(NULL, 0, filename);
+
+	return EFI_SUCCESS;
+}

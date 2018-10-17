@@ -432,6 +432,10 @@ const struct efi_device_path *efi_dp_last_node(
 efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 				    struct efi_device_path **device_path,
 				    struct efi_device_path **file_path);
+efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
+			      const char *path,
+			      struct efi_device_path **device,
+			      struct efi_device_path **file);
 
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
