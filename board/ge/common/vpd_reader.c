@@ -5,6 +5,7 @@
 
 #include "vpd_reader.h"
 
+#include <i2c.h>
 #include <linux/bch.h>
 #include <stdlib.h>
 
@@ -105,9 +106,9 @@ static const size_t HEADER_BLOCK_ECC_LEN = 4;
 
 static const u8 ECC_BLOCK_ID = 0xFF;
 
-int vpd_reader(size_t size, u8 *data, void *userdata,
-	       int (*fn)(void *userdata, u8 id, u8 version, u8 type,
-			 size_t size, u8 const *data))
+static int vpd_reader(size_t size, u8 *data, struct vpd_cache *userdata,
+		      int (*fn)(struct vpd_cache *, u8 id, u8 version, u8 type,
+				size_t size, u8 const *data))
 {
 	if (size < HEADER_BLOCK_LEN || !data || !fn)
 		return -EINVAL;
@@ -193,4 +194,34 @@ int vpd_reader(size_t size, u8 *data, void *userdata,
 		if (ret)
 			return ret;
 	}
+}
+
+int read_vpd(struct vpd_cache *cache,
+	     int (*process_block)(struct vpd_cache *, u8 id, u8 version,
+				  u8 type, size_t size, u8 const *data))
+{
+	static const size_t size = CONFIG_SYS_VPD_EEPROM_SIZE;
+
+	int res;
+	u8 *data;
+	unsigned int current_i2c_bus = i2c_get_bus_num();
+
+	res = i2c_set_bus_num(CONFIG_SYS_VPD_EEPROM_I2C_BUS);
+	if (res < 0)
+		return res;
+
+	data = malloc(size);
+	if (!data)
+		return -ENOMEM;
+
+	res = i2c_read(CONFIG_SYS_VPD_EEPROM_I2C_ADDR, 0,
+		       CONFIG_SYS_VPD_EEPROM_I2C_ADDR_LEN,
+		       data, size);
+	if (res == 0)
+		res = vpd_reader(size, data, cache, process_block);
+
+	free(data);
+
+	i2c_set_bus_num(current_i2c_bus);
+	return res;
 }

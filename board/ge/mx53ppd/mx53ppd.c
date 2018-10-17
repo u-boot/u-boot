@@ -321,36 +321,6 @@ static void process_vpd(struct vpd_cache *vpd)
 		eth_env_set_enetaddr("ethaddr", vpd->mac1);
 }
 
-static int read_vpd(void)
-{
-	struct vpd_cache vpd;
-	int res;
-	static const int size = CONFIG_SYS_VPD_EEPROM_SIZE;
-	u8 *data;
-	unsigned int current_i2c_bus = i2c_get_bus_num();
-
-	res = i2c_set_bus_num(CONFIG_SYS_VPD_EEPROM_I2C_BUS);
-	if (res < 0)
-		return res;
-
-	data = malloc(size);
-	if (!data)
-		return -ENOMEM;
-
-	res = i2c_read(CONFIG_SYS_VPD_EEPROM_I2C_ADDR, 0,
-		       CONFIG_SYS_VPD_EEPROM_I2C_ADDR_LEN, data, size);
-	if (res == 0) {
-		memset(&vpd, 0, sizeof(vpd));
-		vpd_reader(size, data, &vpd, vpd_callback);
-		process_vpd(&vpd);
-	}
-
-	free(data);
-
-	i2c_set_bus_num(current_i2c_bus);
-	return res;
-}
-
 int board_init(void)
 {
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
@@ -383,8 +353,14 @@ int misc_init_r(void)
 int board_late_init(void)
 {
 	int res;
+	struct vpd_cache vpd;
 
-	read_vpd();
+	memset(&vpd, 0, sizeof(vpd));
+	res = read_vpd(&vpd, vpd_callback);
+	if (!res)
+		process_vpd(&vpd);
+	else
+		printf("Can't read VPD");
 
 	res = clock_1GHz();
 	if (res != 0)
