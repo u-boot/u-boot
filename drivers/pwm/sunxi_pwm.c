@@ -74,7 +74,7 @@ static int sunxi_pwm_set_config(struct udevice *dev, uint channel,
 
 	debug("%s: period_ns=%u, duty_ns=%u\n", __func__, period_ns, duty_ns);
 
-	for (prescaler = 0; prescaler < SUNXI_PWM_CTRL_PRESCALE0_MASK;
+	for (prescaler = 0; prescaler <= SUNXI_PWM_CTRL_PRESCALE0_MASK;
 	     prescaler++) {
 		if (!prescaler_table[prescaler])
 			continue;
