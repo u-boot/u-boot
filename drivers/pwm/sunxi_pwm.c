@@ -97,7 +97,7 @@ static int sunxi_pwm_set_config(struct udevice *dev, uint channel,
 		v &= ~SUNXI_PWM_CTRL_CLK_GATE;
 		writel(v, &regs->ctrl);
 		v &= ~SUNXI_PWM_CTRL_PRESCALE0_MASK;
-		v |= (priv->prescaler & SUNXI_PWM_CTRL_PRESCALE0_MASK);
+		v |= (prescaler & SUNXI_PWM_CTRL_PRESCALE0_MASK);
 		writel(v, &regs->ctrl);
 		v |= SUNXI_PWM_CTRL_CLK_GATE;
 		writel(v, &regs->ctrl);
