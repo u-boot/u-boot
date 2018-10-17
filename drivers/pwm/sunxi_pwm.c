@@ -67,49 +67,55 @@ static int sunxi_pwm_set_config(struct udevice *dev, uint channel,
 {
 	struct sunxi_pwm_priv *priv = dev_get_priv(dev);
 	struct sunxi_pwm *regs = priv->regs;
-	int prescaler;
-	u32 v, period = 0, duty;
-	u64 scaled_freq = 0;
+	int best_prescaler = 0;
+	u32 v, best_period = 0, duty;
+	u64 best_scaled_freq = 0;
 	const u32 nsecs_per_sec = 1000000000U;
 
 	debug("%s: period_ns=%u, duty_ns=%u\n", __func__, period_ns, duty_ns);
 
-	for (prescaler = 0; prescaler <= SUNXI_PWM_CTRL_PRESCALE0_MASK;
+	for (int prescaler = 0; prescaler <= SUNXI_PWM_CTRL_PRESCALE0_MASK;
 	     prescaler++) {
+		u32 period = 0;
+		u64 scaled_freq = 0;
 		if (!prescaler_table[prescaler])
 			continue;
 		scaled_freq = lldiv(OSC_24MHZ, prescaler_table[prescaler]);
 		period = lldiv(scaled_freq * period_ns, nsecs_per_sec);
-		if (period - 1 <= SUNXI_PWM_CH0_PERIOD_MAX)
-			break;
+		if ((period - 1 <= SUNXI_PWM_CH0_PERIOD_MAX) &&
+		    best_period < period) {
+			best_period = period;
+			best_scaled_freq = scaled_freq;
+			best_prescaler = prescaler;
+		}
 	}
 
-	if (period - 1 > SUNXI_PWM_CH0_PERIOD_MAX) {
+	if (best_period - 1 > SUNXI_PWM_CH0_PERIOD_MAX) {
 		debug("%s: failed to find prescaler value\n", __func__);
 		return -EINVAL;
 	}
 
-	duty = lldiv(scaled_freq * duty_ns, nsecs_per_sec);
+	duty = lldiv(best_scaled_freq * duty_ns, nsecs_per_sec);
 
-	if (priv->prescaler != prescaler) {
+	if (priv->prescaler != best_prescaler) {
 		/* Mask clock to update prescaler */
 		v = readl(&regs->ctrl);
 		v &= ~SUNXI_PWM_CTRL_CLK_GATE;
 		writel(v, &regs->ctrl);
 		v &= ~SUNXI_PWM_CTRL_PRESCALE0_MASK;
-		v |= (prescaler & SUNXI_PWM_CTRL_PRESCALE0_MASK);
+		v |= (best_prescaler & SUNXI_PWM_CTRL_PRESCALE0_MASK);
 		writel(v, &regs->ctrl);
 		v |= SUNXI_PWM_CTRL_CLK_GATE;
 		writel(v, &regs->ctrl);
-		priv->prescaler = prescaler;
+		priv->prescaler = best_prescaler;
 	}
 
-	writel(SUNXI_PWM_CH0_PERIOD_PRD(period) |
+	writel(SUNXI_PWM_CH0_PERIOD_PRD(best_period) |
 	       SUNXI_PWM_CH0_PERIOD_DUTY(duty), &regs->ch0_period);
 
 	debug("%s: prescaler: %d, period: %d, duty: %d\n",
 	      __func__, priv->prescaler,
-	      period, duty);
+	      best_period, duty);
 
 	return 0;
 }
