@@ -82,7 +82,7 @@ struct efi_device_path *efi_dp_next(const struct efi_device_path *dp)
 
 /*
  * Compare two device-paths, stopping when the shorter of the two hits
- * an End* node.  This is useful to, for example, compare a device-path
+ * an End* node. This is useful to, for example, compare a device-path
  * representing a device with one representing a file on the device, or
  * a device with a parent device.
  */
@@ -109,16 +109,17 @@ int efi_dp_match(const struct efi_device_path *a,
 }
 
 /*
- * See UEFI spec (section 3.1.2, about short-form device-paths..
- * tl;dr: we can have a device-path that starts with a USB WWID
- * or USB Class node, and a few other cases which don't encode
- * the full device path with bus hierarchy:
+ * We can have device paths that start with a USB WWID or a USB Class node,
+ * and a few other cases which don't encode the full device path with bus
+ * hierarchy:
  *
  *   - MESSAGING:USB_WWID
  *   - MESSAGING:USB_CLASS
  *   - MEDIA:FILE_PATH
  *   - MEDIA:HARD_DRIVE
  *   - MESSAGING:URI
+ *
+ * See UEFI spec (section 3.1.2, about short-form device-paths)
  */
 static struct efi_device_path *shorten_path(struct efi_device_path *dp)
 {
@@ -644,7 +645,7 @@ static unsigned dp_part_size(struct blk_desc *desc, int part)
 /*
  * Create a device node for a block device partition.
  *
- * @buf		buffer to which the device path is wirtten
+ * @buf		buffer to which the device path is written
  * @desc	block device descriptor
  * @part	partition number, 0 identifies a block device
  */
@@ -709,7 +710,7 @@ static void *dp_part_node(void *buf, struct blk_desc *desc, int part)
 /*
  * Create a device path for a block device or one of its partitions.
  *
- * @buf		buffer to which the device path is wirtten
+ * @buf		buffer to which the device path is written
  * @desc	block device descriptor
  * @part	partition number, 0 identifies a block device
  */
@@ -728,7 +729,7 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 	/*
 	 * We *could* make a more accurate path, by looking at if_type
 	 * and handling all the different cases like we do for non-
-	 * legacy (ie CONFIG_BLK=y) case.  But most important thing
+	 * legacy (i.e. CONFIG_BLK=y) case. But most important thing
 	 * is just to have a unique device-path for if_type+devnum.
 	 * So map things to a fictitious USB device.
 	 */
@@ -752,7 +753,7 @@ static void *dp_part_fill(void *buf, struct blk_desc *desc, int part)
 	return dp_part_node(buf, desc, part);
 }
 
-/* Construct a device-path from a partition on a blk device: */
+/* Construct a device-path from a partition on a block device: */
 struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
 {
 	void *buf, *start;
@@ -771,7 +772,7 @@ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part)
 /*
  * Create a device node for a block device partition.
  *
- * @buf		buffer to which the device path is wirtten
+ * @buf		buffer to which the device path is written
  * @desc	block device descriptor
  * @part	partition number, 0 identifies a block device
  */
@@ -791,7 +792,7 @@ struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part)
 	return buf;
 }
 
-/* convert path to an UEFI style path (ie. DOS style backslashes and utf16) */
+/* convert path to an UEFI style path (i.e. DOS style backslashes and UTF-16) */
 static void path_to_uefi(u16 *uefi, const char *path)
 {
 	while (*path) {
