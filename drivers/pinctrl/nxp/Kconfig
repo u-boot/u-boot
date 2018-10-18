@@ -1,6 +1,9 @@
 config PINCTRL_IMX
 	bool
 
+config PINCTRL_IMX_SCU
+	bool
+
 config PINCTRL_IMX5
 	bool "IMX5 pinctrl driver"
 	depends on ARCH_MX5 && PINCTRL_FULL
@@ -55,4 +58,19 @@ config PINCTRL_IMX7ULP
 	  This feature depends on device tree configuration. This driver
 	  is different from the linux one, this is a simple implementation,
 	  only parses the 'fsl,pins' property and configure related
+	  registers.
+
+config PINCTRL_IMX8
+	bool "IMX8 pinctrl driver"
+	depends on ARCH_IMX8 && PINCTRL_FULL
+	select DEVRES
+	select PINCTRL_IMX
+	select PINCTRL_IMX_SCU
+	help
+	  Say Y here to enable the imx8 pinctrl driver
+
+	  This provides a simple pinctrl driver for i.MX8 SoC familiy.
+	  This feature depends on device tree configuration. This driver
+	  is different from the linux one, this is a simple implementation,
+	  only parses the 'fsl,pins' property and configures related
 	  registers.
