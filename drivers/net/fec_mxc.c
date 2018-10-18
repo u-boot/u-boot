@@ -123,6 +123,32 @@ static int fec_mdio_read(struct ethernet_regs *eth, uint8_t phyaddr,
 	return val;
 }
 
+static int fec_get_clk_rate(void *udev, int idx)
+{
+#if IS_ENABLED(CONFIG_IMX8)
+	struct fec_priv *fec;
+	struct udevice *dev;
+	int ret;
+
+	dev = udev;
+	if (!dev) {
+		ret = uclass_get_device(UCLASS_ETH, idx, &dev);
+		if (ret < 0) {
+			debug("Can't get FEC udev: %d\n", ret);
+			return ret;
+		}
+	}
+
+	fec = dev_get_priv(dev);
+	if (fec)
+		return fec->clk_rate;
+
+	return -EINVAL;
+#else
+	return imx_get_fecclk();
+#endif
+}
+
 static void fec_mii_setspeed(struct ethernet_regs *eth)
 {
 	/*
@@ -140,9 +166,20 @@ static void fec_mii_setspeed(struct ethernet_regs *eth)
 	 * Given that ceil(clkrate / 5000000) <= 64, the calculation for
 	 * holdtime cannot result in a value greater than 3.
 	 */
-	u32 pclk = imx_get_fecclk();
-	u32 speed = DIV_ROUND_UP(pclk, 5000000);
-	u32 hold = DIV_ROUND_UP(pclk, 100000000) - 1;
+	u32 pclk;
+	u32 speed;
+	u32 hold;
+	int ret;
+
+	ret = fec_get_clk_rate(NULL, 0);
+	if (ret < 0) {
+		printf("Can't find FEC0 clk rate: %d\n", ret);
+		return;
+	}
+	pclk = ret;
+	speed = DIV_ROUND_UP(pclk, 5000000);
+	hold = DIV_ROUND_UP(pclk, 100000000) - 1;
+
 #ifdef FEC_QUIRK_ENET_MAC
 	speed--;
 #endif
@@ -1269,6 +1306,21 @@ static int fecmxc_probe(struct udevice *dev)
 	uint32_t start;
 	int ret;
 
+	if (IS_ENABLED(CONFIG_IMX8)) {
+		ret = clk_get_by_name(dev, "ipg", &priv->ipg_clk);
+		if (ret < 0) {
+			debug("Can't get FEC ipg clk: %d\n", ret);
+			return ret;
+		}
+		ret = clk_enable(&priv->ipg_clk);
+		if (ret < 0) {
+			debug("Can't enable FEC ipg clk: %d\n", ret);
+			return ret;
+		}
+
+		priv->clk_rate = clk_get_rate(&priv->ipg_clk);
+	}
+
 	ret = fec_alloc_descs(priv);
 	if (ret)
 		return ret;
@@ -1412,6 +1464,7 @@ static const struct udevice_id fecmxc_ids[] = {
 	{ .compatible = "fsl,imx6sx-fec" },
 	{ .compatible = "fsl,imx6ul-fec" },
 	{ .compatible = "fsl,imx53-fec" },
+	{ .compatible = "fsl,imx7d-fec" },
 	{ }
 };
 
