@@ -368,8 +368,6 @@
 /* Commands */
 
 /* Watchdog */
-#define CONFIG_HW_WATCHDOG
-#define CONFIG_IMX_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT_MSECS   15000
 
 /* ENV config */
