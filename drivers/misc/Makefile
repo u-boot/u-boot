@@ -20,6 +20,7 @@ obj-$(CONFIG_FSL_IIM) += fsl_iim.o
 obj-$(CONFIG_LED_STATUS_GPIO) += gpio_led.o
 obj-$(CONFIG_$(SPL_)I2C_EEPROM) += i2c_eeprom.o
 obj-$(CONFIG_FSL_MC9SDZ60) += mc9sdz60.o
+obj-$(CONFIG_IMX8) += imx8/
 obj-$(CONFIG_MXC_OCOTP) += mxc_ocotp.o
 obj-$(CONFIG_MXS_OCOTP) += mxs_ocotp.o
 obj-$(CONFIG_NUVOTON_NCT6102D) += nuvoton_nct6102d.o
