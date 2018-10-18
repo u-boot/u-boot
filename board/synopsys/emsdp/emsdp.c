@@ -55,7 +55,7 @@ void reset_cpu(ulong addr)
 		; /* loop forever till reset */
 }
 
-static int do_emdk_rom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_emsdp_rom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	u32 creg_boot = readl((u32 *)(CREG_BASE + CREG_BOOT_OFFSET));
 
@@ -71,17 +71,17 @@ static int do_emdk_rom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	return CMD_RET_SUCCESS;
 }
 
-cmd_tbl_t cmd_emdk[] = {
-	U_BOOT_CMD_MKENT(rom, 2, 0, do_emdk_rom, "", ""),
+cmd_tbl_t cmd_emsdp[] = {
+	U_BOOT_CMD_MKENT(rom, 2, 0, do_emsdp_rom, "", ""),
 };
 
-static int do_emdk(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_emsdp(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	cmd_tbl_t *c;
 
-	c = find_cmd_tbl(argv[1], cmd_emdk, ARRAY_SIZE(cmd_emdk));
+	c = find_cmd_tbl(argv[1], cmd_emsdp, ARRAY_SIZE(cmd_emsdp));
 
-	/* Strip off leading 'emdk' command */
+	/* Strip off leading 'emsdp' command */
 	argc--;
 	argv++;
 
@@ -92,8 +92,8 @@ static int do_emdk(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 }
 
 U_BOOT_CMD(
-	emdk, CONFIG_SYS_MAXARGS, 0, do_emdk,
-	"Synopsys EMDK specific commands",
+	emsdp, CONFIG_SYS_MAXARGS, 0, do_emsdp,
+	"Synopsys EMSDP specific commands",
 	"rom unlock - Unlock non-volatile memory for writing\n"
-	"emdk rom lock - Lock non-volatile memory to prevent writing\n"
+	"emsdp rom lock - Lock non-volatile memory to prevent writing\n"
 );
