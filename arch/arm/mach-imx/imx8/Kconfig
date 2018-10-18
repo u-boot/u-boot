@@ -1,0 +1,13 @@
+if ARCH_IMX8
+
+config IMX8
+	bool
+
+config IMX8QXP
+	select IMX8
+	bool
+
+config SYS_SOC
+	default "imx8"
+
+endif
