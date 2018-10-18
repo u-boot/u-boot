@@ -10,4 +10,17 @@ config IMX8QXP
 config SYS_SOC
 	default "imx8"
 
+choice
+	prompt "i.MX8 board select"
+	optional
+
+config TARGET_IMX8QXP_MEK
+	bool "Support i.MX8QXP MEK board"
+	select BOARD_LATE_INIT
+	select IMX8QXP
+
+endchoice
+
+source "board/freescale/imx8qxp_mek/Kconfig"
+
 endif
