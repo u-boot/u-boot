@@ -176,3 +176,35 @@ enum boot_device get_boot_device(void)
 
 	return boot_dev;
 }
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+__weak int board_mmc_get_env_dev(int devno)
+{
+	return CONFIG_SYS_MMC_ENV_DEV;
+}
+
+int mmc_get_env_dev(void)
+{
+	sc_rsrc_t dev_rsrc;
+	int devno;
+
+	sc_misc_get_boot_dev(-1, &dev_rsrc);
+
+	switch (dev_rsrc) {
+	case SC_R_SDHC_0:
+		devno = 0;
+		break;
+	case SC_R_SDHC_1:
+		devno = 1;
+		break;
+	case SC_R_SDHC_2:
+		devno = 2;
+		break;
+	default:
+		/* If not boot from sd/mmc, use default value */
+		return CONFIG_SYS_MMC_ENV_DEV;
+	}
+
+	return board_mmc_get_env_dev(devno);
+}
+#endif
