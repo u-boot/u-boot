@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <clk.h>
+#include <cpu.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -18,82 +19,6 @@
 #include <asm/mach-imx/boot_mode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-u32 get_cpu_rev(void)
-{
-	u32 id = 0, rev = 0;
-	int ret;
-
-	ret = sc_misc_get_control(-1, SC_R_SYSTEM, SC_C_ID, &id);
-	if (ret)
-		return 0;
-
-	rev = (id >> 5)  & 0xf;
-	id = (id & 0x1f) + MXC_SOC_IMX8;  /* Dummy ID for chip */
-
-	return (id << 12) | rev;
-}
-
-#ifdef CONFIG_DISPLAY_CPUINFO
-const char *get_imx8_type(u32 imxtype)
-{
-	switch (imxtype) {
-	case MXC_CPU_IMX8QXP:
-		return "8QXP";
-	default:
-		return "??";
-	}
-}
-
-const char *get_imx8_rev(u32 rev)
-{
-	switch (rev) {
-	case CHIP_REV_A:
-		return "A";
-	case CHIP_REV_B:
-		return "B";
-	default:
-		return "?";
-	}
-}
-
-const char *get_core_name(void)
-{
-	if (is_cortex_a35())
-		return "A35";
-	else
-		return "?";
-}
-
-int print_cpuinfo(void)
-{
-	struct udevice *dev;
-	struct clk cpu_clk;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_CPU, 0, &dev);
-	if (ret)
-		return 0;
-
-	ret = clk_get_by_index(dev, 0, &cpu_clk);
-	if (ret) {
-		dev_err(dev, "failed to clk\n");
-		return 0;
-	}
-
-	u32 cpurev;
-
-	cpurev = get_cpu_rev();
-
-	printf("CPU:   Freescale i.MX%s rev%s %s at %ld MHz\n",
-	       get_imx8_type((cpurev & 0xFF000) >> 12),
-	       get_imx8_rev((cpurev & 0xFFF)),
-	       get_core_name(),
-	       clk_get_rate(&cpu_clk) / 1000000);
-
-	return 0;
-}
-#endif
 
 #define BT_PASSOVER_TAG	0x504F
 struct pass_over_info_t *get_pass_over_info(void)
@@ -581,3 +506,141 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 err:
 	printf("%s: fuse %d, err: %d\n", __func__, word[i], ret);
 }
+
+#if CONFIG_IS_ENABLED(CPU)
+struct cpu_imx_platdata {
+	const char *name;
+	const char *rev;
+	const char *type;
+	u32 cpurev;
+	u32 freq_mhz;
+};
+
+u32 get_cpu_rev(void)
+{
+	u32 id = 0, rev = 0;
+	int ret;
+
+	ret = sc_misc_get_control(-1, SC_R_SYSTEM, SC_C_ID, &id);
+	if (ret)
+		return 0;
+
+	rev = (id >> 5)  & 0xf;
+	id = (id & 0x1f) + MXC_SOC_IMX8;  /* Dummy ID for chip */
+
+	return (id << 12) | rev;
+}
+
+const char *get_imx8_type(u32 imxtype)
+{
+	switch (imxtype) {
+	case MXC_CPU_IMX8QXP:
+	case MXC_CPU_IMX8QXP_A0:
+		return "QXP";
+	default:
+		return "??";
+	}
+}
+
+const char *get_imx8_rev(u32 rev)
+{
+	switch (rev) {
+	case CHIP_REV_A:
+		return "A";
+	case CHIP_REV_B:
+		return "B";
+	default:
+		return "?";
+	}
+}
+
+const char *get_core_name(void)
+{
+	if (is_cortex_a35())
+		return "A35";
+	else if (is_cortex_a53())
+		return "A53";
+	else if (is_cortex_a72())
+		return "A72";
+	else
+		return "?";
+}
+
+int cpu_imx_get_desc(struct udevice *dev, char *buf, int size)
+{
+	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+
+	if (size < 100)
+		return -ENOSPC;
+
+	snprintf(buf, size, "CPU:   Freescale i.MX8%s Rev%s %s at %u MHz\n",
+		 plat->type, plat->rev, plat->name, plat->freq_mhz);
+
+	return 0;
+}
+
+static int cpu_imx_get_info(struct udevice *dev, struct cpu_info *info)
+{
+	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+
+	info->cpu_freq = plat->freq_mhz * 1000;
+	info->features = BIT(CPU_FEAT_L1_CACHE) | BIT(CPU_FEAT_MMU);
+	return 0;
+}
+
+static int cpu_imx_get_count(struct udevice *dev)
+{
+	return 4;
+}
+
+static int cpu_imx_get_vendor(struct udevice *dev,  char *buf, int size)
+{
+	snprintf(buf, size, "NXP");
+	return 0;
+}
+
+static const struct cpu_ops cpu_imx8_ops = {
+	.get_desc	= cpu_imx_get_desc,
+	.get_info	= cpu_imx_get_info,
+	.get_count	= cpu_imx_get_count,
+	.get_vendor	= cpu_imx_get_vendor,
+};
+
+static const struct udevice_id cpu_imx8_ids[] = {
+	{ .compatible = "arm,cortex-a35" },
+	{ }
+};
+
+static int imx8_cpu_probe(struct udevice *dev)
+{
+	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	struct clk cpu_clk;
+	u32 cpurev;
+	int ret;
+
+	cpurev = get_cpu_rev();
+	plat->cpurev = cpurev;
+	plat->name = get_core_name();
+	plat->rev = get_imx8_rev(cpurev & 0xFFF);
+	plat->type = get_imx8_type((cpurev & 0xFF000) >> 12);
+
+	ret = clk_get_by_index(dev, 0, &cpu_clk);
+	if (ret) {
+		debug("%s: Failed to get CPU clk: %d\n", __func__, ret);
+		return 0;
+	}
+
+	plat->freq_mhz = clk_get_rate(&cpu_clk) / 1000000;
+	return 0;
+}
+
+U_BOOT_DRIVER(cpu_imx8_drv) = {
+	.name		= "imx8x_cpu",
+	.id		= UCLASS_CPU,
+	.of_match	= cpu_imx8_ids,
+	.ops		= &cpu_imx8_ops,
+	.probe		= imx8_cpu_probe,
+	.platdata_auto_alloc_size = sizeof(struct cpu_imx_platdata),
+	.flags		= DM_FLAG_PRE_RELOC,
+};
+#endif
