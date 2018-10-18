@@ -11,6 +11,7 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <clk.h>
 #include <errno.h>
 #include <hwconfig.h>
 #include <mmc.h>
@@ -121,6 +122,7 @@ struct esdhc_soc_data {
 struct fsl_esdhc_priv {
 	struct fsl_esdhc *esdhc_regs;
 	unsigned int sdhc_clk;
+	struct clk per_clk;
 	unsigned int clock;
 	unsigned int mode;
 	unsigned int bus_width;
@@ -1496,10 +1498,26 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 	init_clk_usdhc(dev->seq);
 
-	priv->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK + dev->seq);
-	if (priv->sdhc_clk <= 0) {
-		dev_err(dev, "Unable to get clk for %s\n", dev->name);
-		return -EINVAL;
+	if (IS_ENABLED(CONFIG_CLK)) {
+		/* Assigned clock already set clock */
+		ret = clk_get_by_name(dev, "per", &priv->per_clk);
+		if (ret) {
+			printf("Failed to get per_clk\n");
+			return ret;
+		}
+		ret = clk_enable(&priv->per_clk);
+		if (ret) {
+			printf("Failed to enable per_clk\n");
+			return ret;
+		}
+
+		priv->sdhc_clk = clk_get_rate(&priv->per_clk);
+	} else {
+		priv->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK + dev->seq);
+		if (priv->sdhc_clk <= 0) {
+			dev_err(dev, "Unable to get clk for %s\n", dev->name);
+			return -EINVAL;
+		}
 	}
 
 	ret = fsl_esdhc_init(priv, plat);
