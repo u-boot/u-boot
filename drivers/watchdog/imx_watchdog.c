@@ -16,10 +16,12 @@
 #ifdef CONFIG_IMX_WATCHDOG
 void hw_watchdog_reset(void)
 {
+#ifndef CONFIG_WATCHDOG_RESET_DISABLE
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 
 	writew(0x5555, &wdog->wsr);
 	writew(0xaaaa, &wdog->wsr);
+#endif /* CONFIG_WATCHDOG_RESET_DISABLE*/
 }
 
 void hw_watchdog_init(void)
