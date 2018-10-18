@@ -11,8 +11,10 @@
 #include <dm/uclass.h>
 #include <errno.h>
 #include <asm/arch/sci/sci.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/armv8/cpu.h>
+#include <asm/mach-imx/boot_mode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -91,3 +93,86 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif
+
+int print_bootinfo(void)
+{
+	enum boot_device bt_dev = get_boot_device();
+
+	puts("Boot:  ");
+	switch (bt_dev) {
+	case SD1_BOOT:
+		puts("SD0\n");
+		break;
+	case SD2_BOOT:
+		puts("SD1\n");
+		break;
+	case SD3_BOOT:
+		puts("SD2\n");
+		break;
+	case MMC1_BOOT:
+		puts("MMC0\n");
+		break;
+	case MMC2_BOOT:
+		puts("MMC1\n");
+		break;
+	case MMC3_BOOT:
+		puts("MMC2\n");
+		break;
+	case FLEXSPI_BOOT:
+		puts("FLEXSPI\n");
+		break;
+	case SATA_BOOT:
+		puts("SATA\n");
+		break;
+	case NAND_BOOT:
+		puts("NAND\n");
+		break;
+	case USB_BOOT:
+		puts("USB\n");
+		break;
+	default:
+		printf("Unknown device %u\n", bt_dev);
+		break;
+	}
+
+	return 0;
+}
+
+enum boot_device get_boot_device(void)
+{
+	enum boot_device boot_dev = SD1_BOOT;
+
+	sc_rsrc_t dev_rsrc;
+
+	sc_misc_get_boot_dev(-1, &dev_rsrc);
+
+	switch (dev_rsrc) {
+	case SC_R_SDHC_0:
+		boot_dev = MMC1_BOOT;
+		break;
+	case SC_R_SDHC_1:
+		boot_dev = SD2_BOOT;
+		break;
+	case SC_R_SDHC_2:
+		boot_dev = SD3_BOOT;
+		break;
+	case SC_R_NAND:
+		boot_dev = NAND_BOOT;
+		break;
+	case SC_R_FSPI_0:
+		boot_dev = FLEXSPI_BOOT;
+		break;
+	case SC_R_SATA_0:
+		boot_dev = SATA_BOOT;
+		break;
+	case SC_R_USB_0:
+	case SC_R_USB_1:
+	case SC_R_USB_2:
+		boot_dev = USB_BOOT;
+		break;
+	default:
+		break;
+	}
+
+	return boot_dev;
+}
