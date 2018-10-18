@@ -543,3 +543,41 @@ u64 get_page_table_size(void)
 	return size;
 }
 #endif
+
+#define FUSE_MAC0_WORD0 708
+#define FUSE_MAC0_WORD1 709
+#define FUSE_MAC1_WORD0 710
+#define FUSE_MAC1_WORD1 711
+
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
+{
+	u32 word[2], val[2] = {};
+	int i, ret;
+
+	if (dev_id == 0) {
+		word[0] = FUSE_MAC0_WORD0;
+		word[1] = FUSE_MAC0_WORD1;
+	} else {
+		word[0] = FUSE_MAC1_WORD0;
+		word[1] = FUSE_MAC1_WORD1;
+	}
+
+	for (i = 0; i < 2; i++) {
+		ret = sc_misc_otp_fuse_read(-1, word[i], &val[i]);
+		if (ret < 0)
+			goto err;
+	}
+
+	mac[0] = val[0];
+	mac[1] = val[0] >> 8;
+	mac[2] = val[0] >> 16;
+	mac[3] = val[0] >> 24;
+	mac[4] = val[1];
+	mac[5] = val[1] >> 8;
+
+	debug("%s: MAC%d: %02x.%02x.%02x.%02x.%02x.%02x\n",
+	      __func__, dev_id, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	return;
+err:
+	printf("%s: fuse %d, err: %d\n", __func__, word[i], ret);
+}
