@@ -8,6 +8,9 @@
 #include <asm/io.h>
 #include <watchdog.h>
 #include <asm/arch/imx-regs.h>
+#ifdef CONFIG_FSL_LSCH2
+#include <asm/arch/immap_lsch2.h>
+#endif
 #include <fsl_wdog.h>
 
 #ifdef CONFIG_IMX_WATCHDOG
@@ -33,8 +36,12 @@ void hw_watchdog_init(void)
 #define CONFIG_WATCHDOG_TIMEOUT_MSECS 128000
 #endif
 	timeout = (CONFIG_WATCHDOG_TIMEOUT_MSECS / 500) - 1;
+#ifdef CONFIG_FSL_LSCH2
+	writew((WCR_WDA | WCR_SRS | WCR_WDE) << 8 | timeout, &wdog->wcr);
+#else
 	writew(WCR_WDZST | WCR_WDBG | WCR_WDE | WCR_WDT | WCR_SRS |
 		WCR_WDA | SET_WCR_WT(timeout), &wdog->wcr);
+#endif /* CONFIG_FSL_LSCH2*/
 	hw_watchdog_reset();
 }
 #endif
