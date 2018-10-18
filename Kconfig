@@ -86,6 +86,7 @@ config DISTRO_DEFAULTS
 	select SUPPORT_RAW_INITRD
 	select SYS_LONGHELP
 	imply CMD_MII if NET
+	imply USB_STORAGE
 	imply USE_BOOTCOMMAND
 	help
 	  Select this to enable various options and commands which are suitable
