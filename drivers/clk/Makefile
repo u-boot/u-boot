@@ -7,6 +7,7 @@
 
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o clk_fixed_rate.o
 
+obj-y += imx/
 obj-y += tegra/
 obj-$(CONFIG_ARCH_ASPEED) += aspeed/
 obj-$(CONFIG_ARCH_MESON) += clk_meson.o
