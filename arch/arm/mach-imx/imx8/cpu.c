@@ -14,6 +14,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
 #include <asm/armv8/cpu.h>
+#include <asm/armv8/mmu.h>
 #include <asm/mach-imx/boot_mode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -206,5 +207,288 @@ int mmc_get_env_dev(void)
 	}
 
 	return board_mmc_get_env_dev(devno);
+}
+#endif
+
+#define MEMSTART_ALIGNMENT  SZ_2M /* Align the memory start with 2MB */
+
+static int get_owned_memreg(sc_rm_mr_t mr, sc_faddr_t *addr_start,
+			    sc_faddr_t *addr_end)
+{
+	sc_faddr_t start, end;
+	int ret;
+	bool owned;
+
+	owned = sc_rm_is_memreg_owned(-1, mr);
+	if (owned) {
+		ret = sc_rm_get_memreg_info(-1, mr, &start, &end);
+		if (ret) {
+			printf("Memreg get info failed, %d\n", ret);
+			return -EINVAL;
+		}
+		debug("0x%llx -- 0x%llx\n", start, end);
+		*addr_start = start;
+		*addr_end = end;
+
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
+phys_size_t get_effective_memsize(void)
+{
+	sc_rm_mr_t mr;
+	sc_faddr_t start, end, end1;
+	int err;
+
+	end1 = (sc_faddr_t)PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE;
+
+	for (mr = 0; mr < 64; mr++) {
+		err = get_owned_memreg(mr, &start, &end);
+		if (!err) {
+			start = roundup(start, MEMSTART_ALIGNMENT);
+			/* Too small memory region, not use it */
+			if (start > end)
+				continue;
+
+			/* Find the memory region runs the u-boot */
+			if (start >= PHYS_SDRAM_1 && start <= end1 &&
+			    (start <= CONFIG_SYS_TEXT_BASE &&
+			    end >= CONFIG_SYS_TEXT_BASE)) {
+				if ((end + 1) <= ((sc_faddr_t)PHYS_SDRAM_1 +
+				    PHYS_SDRAM_1_SIZE))
+					return (end - PHYS_SDRAM_1 + 1);
+				else
+					return PHYS_SDRAM_1_SIZE;
+			}
+		}
+	}
+
+	return PHYS_SDRAM_1_SIZE;
+}
+
+int dram_init(void)
+{
+	sc_rm_mr_t mr;
+	sc_faddr_t start, end, end1, end2;
+	int err;
+
+	end1 = (sc_faddr_t)PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE;
+	end2 = (sc_faddr_t)PHYS_SDRAM_2 + PHYS_SDRAM_2_SIZE;
+	for (mr = 0; mr < 64; mr++) {
+		err = get_owned_memreg(mr, &start, &end);
+		if (!err) {
+			start = roundup(start, MEMSTART_ALIGNMENT);
+			/* Too small memory region, not use it */
+			if (start > end)
+				continue;
+
+			if (start >= PHYS_SDRAM_1 && start <= end1) {
+				if ((end + 1) <= end1)
+					gd->ram_size += end - start + 1;
+				else
+					gd->ram_size += end1 - start;
+			} else if (start >= PHYS_SDRAM_2 && start <= end2) {
+				if ((end + 1) <= end2)
+					gd->ram_size += end - start + 1;
+				else
+					gd->ram_size += end2 - start;
+			}
+		}
+	}
+
+	/* If error, set to the default value */
+	if (!gd->ram_size) {
+		gd->ram_size = PHYS_SDRAM_1_SIZE;
+		gd->ram_size += PHYS_SDRAM_2_SIZE;
+	}
+	return 0;
+}
+
+static void dram_bank_sort(int current_bank)
+{
+	phys_addr_t start;
+	phys_size_t size;
+
+	while (current_bank > 0) {
+		if (gd->bd->bi_dram[current_bank - 1].start >
+		    gd->bd->bi_dram[current_bank].start) {
+			start = gd->bd->bi_dram[current_bank - 1].start;
+			size = gd->bd->bi_dram[current_bank - 1].size;
+
+			gd->bd->bi_dram[current_bank - 1].start =
+				gd->bd->bi_dram[current_bank].start;
+			gd->bd->bi_dram[current_bank - 1].size =
+				gd->bd->bi_dram[current_bank].size;
+
+			gd->bd->bi_dram[current_bank].start = start;
+			gd->bd->bi_dram[current_bank].size = size;
+		}
+		current_bank--;
+	}
+}
+
+int dram_init_banksize(void)
+{
+	sc_rm_mr_t mr;
+	sc_faddr_t start, end, end1, end2;
+	int i = 0;
+	int err;
+
+	end1 = (sc_faddr_t)PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE;
+	end2 = (sc_faddr_t)PHYS_SDRAM_2 + PHYS_SDRAM_2_SIZE;
+
+	for (mr = 0; mr < 64 && i < CONFIG_NR_DRAM_BANKS; mr++) {
+		err = get_owned_memreg(mr, &start, &end);
+		if (!err) {
+			start = roundup(start, MEMSTART_ALIGNMENT);
+			if (start > end) /* Small memory region, no use it */
+				continue;
+
+			if (start >= PHYS_SDRAM_1 && start <= end1) {
+				gd->bd->bi_dram[i].start = start;
+
+				if ((end + 1) <= end1)
+					gd->bd->bi_dram[i].size =
+						end - start + 1;
+				else
+					gd->bd->bi_dram[i].size = end1 - start;
+
+				dram_bank_sort(i);
+				i++;
+			} else if (start >= PHYS_SDRAM_2 && start <= end2) {
+				gd->bd->bi_dram[i].start = start;
+
+				if ((end + 1) <= end2)
+					gd->bd->bi_dram[i].size =
+						end - start + 1;
+				else
+					gd->bd->bi_dram[i].size = end2 - start;
+
+				dram_bank_sort(i);
+				i++;
+			}
+		}
+	}
+
+	/* If error, set to the default value */
+	if (!i) {
+		gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+		gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+		gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+		gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
+	}
+
+	return 0;
+}
+
+static u64 get_block_attrs(sc_faddr_t addr_start)
+{
+	u64 attr = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_NON_SHARE |
+		PTE_BLOCK_PXN | PTE_BLOCK_UXN;
+
+	if ((addr_start >= PHYS_SDRAM_1 &&
+	     addr_start <= ((sc_faddr_t)PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE)) ||
+	    (addr_start >= PHYS_SDRAM_2 &&
+	     addr_start <= ((sc_faddr_t)PHYS_SDRAM_2 + PHYS_SDRAM_2_SIZE)))
+		return (PTE_BLOCK_MEMTYPE(MT_NORMAL) | PTE_BLOCK_OUTER_SHARE);
+
+	return attr;
+}
+
+static u64 get_block_size(sc_faddr_t addr_start, sc_faddr_t addr_end)
+{
+	sc_faddr_t end1, end2;
+
+	end1 = (sc_faddr_t)PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE;
+	end2 = (sc_faddr_t)PHYS_SDRAM_2 + PHYS_SDRAM_2_SIZE;
+
+	if (addr_start >= PHYS_SDRAM_1 && addr_start <= end1) {
+		if ((addr_end + 1) > end1)
+			return end1 - addr_start;
+	} else if (addr_start >= PHYS_SDRAM_2 && addr_start <= end2) {
+		if ((addr_end + 1) > end2)
+			return end2 - addr_start;
+	}
+
+	return (addr_end - addr_start + 1);
+}
+
+#define MAX_PTE_ENTRIES 512
+#define MAX_MEM_MAP_REGIONS 16
+
+static struct mm_region imx8_mem_map[MAX_MEM_MAP_REGIONS];
+struct mm_region *mem_map = imx8_mem_map;
+
+void enable_caches(void)
+{
+	sc_rm_mr_t mr;
+	sc_faddr_t start, end;
+	int err, i;
+
+	/* Create map for registers access from 0x1c000000 to 0x80000000*/
+	imx8_mem_map[0].virt = 0x1c000000UL;
+	imx8_mem_map[0].phys = 0x1c000000UL;
+	imx8_mem_map[0].size = 0x64000000UL;
+	imx8_mem_map[0].attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN;
+
+	i = 1;
+	for (mr = 0; mr < 64 && i < MAX_MEM_MAP_REGIONS; mr++) {
+		err = get_owned_memreg(mr, &start, &end);
+		if (!err) {
+			imx8_mem_map[i].virt = start;
+			imx8_mem_map[i].phys = start;
+			imx8_mem_map[i].size = get_block_size(start, end);
+			imx8_mem_map[i].attrs = get_block_attrs(start);
+			i++;
+		}
+	}
+
+	if (i < MAX_MEM_MAP_REGIONS) {
+		imx8_mem_map[i].size = 0;
+		imx8_mem_map[i].attrs = 0;
+	} else {
+		puts("Error, need more MEM MAP REGIONS reserved\n");
+		icache_enable();
+		return;
+	}
+
+	for (i = 0; i < MAX_MEM_MAP_REGIONS; i++) {
+		debug("[%d] vir = 0x%llx phys = 0x%llx size = 0x%llx attrs = 0x%llx\n",
+		      i, imx8_mem_map[i].virt, imx8_mem_map[i].phys,
+		      imx8_mem_map[i].size, imx8_mem_map[i].attrs);
+	}
+
+	icache_enable();
+	dcache_enable();
+}
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+u64 get_page_table_size(void)
+{
+	u64 one_pt = MAX_PTE_ENTRIES * sizeof(u64);
+	u64 size = 0;
+
+	/*
+	 * For each memory region, the max table size:
+	 * 2 level 3 tables + 2 level 2 tables + 1 level 1 table
+	 */
+	size = (2 + 2 + 1) * one_pt * MAX_MEM_MAP_REGIONS + one_pt;
+
+	/*
+	 * We need to duplicate our page table once to have an emergency pt to
+	 * resort to when splitting page tables later on
+	 */
+	size *= 2;
+
+	/*
+	 * We may need to split page tables later on if dcache settings change,
+	 * so reserve up to 4 (random pick) page tables for that.
+	 */
+	size += one_pt * 4;
+
+	return size;
 }
 #endif
