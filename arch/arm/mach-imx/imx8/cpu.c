@@ -95,6 +95,57 @@ int print_cpuinfo(void)
 }
 #endif
 
+#define BT_PASSOVER_TAG	0x504F
+struct pass_over_info_t *get_pass_over_info(void)
+{
+	struct pass_over_info_t *p =
+		(struct pass_over_info_t *)PASS_OVER_INFO_ADDR;
+
+	if (p->barker != BT_PASSOVER_TAG ||
+	    p->len != sizeof(struct pass_over_info_t))
+		return NULL;
+
+	return p;
+}
+
+int arch_cpu_init(void)
+{
+	struct pass_over_info_t *pass_over = get_pass_over_info();
+
+	if (pass_over && pass_over->g_ap_mu == 0) {
+		/*
+		 * When ap_mu is 0, means the U-Boot booted
+		 * from first container
+		 */
+		sc_misc_boot_status(-1, SC_MISC_BOOT_STATUS_SUCCESS);
+	}
+
+	return 0;
+}
+
+int arch_cpu_init_dm(void)
+{
+	struct udevice *devp;
+	int node, ret;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "fsl,imx8-mu");
+	ret = device_bind_driver_to_node(gd->dm_root, "imx8_scu", "imx8_scu",
+					 offset_to_ofnode(node), &devp);
+
+	if (ret) {
+		printf("could not find scu %d\n", ret);
+		return ret;
+	}
+
+	ret = device_probe(devp);
+	if (ret) {
+		printf("scu probe failed %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 int print_bootinfo(void)
 {
 	enum boot_device bt_dev = get_boot_device();
@@ -252,7 +303,7 @@ phys_size_t get_effective_memsize(void)
 			if (start > end)
 				continue;
 
-			/* Find the memory region runs the u-boot */
+			/* Find the memory region runs the U-Boot */
 			if (start >= PHYS_SDRAM_1 && start <= end1 &&
 			    (start <= CONFIG_SYS_TEXT_BASE &&
 			    end >= CONFIG_SYS_TEXT_BASE)) {
