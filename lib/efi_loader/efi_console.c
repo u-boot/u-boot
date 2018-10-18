@@ -205,7 +205,7 @@ static int query_console_serial(int *rows, int *cols)
 	/*
 	 * Not all terminals understand CSI [18t for querying the console size.
 	 * We should adhere to escape sequences documented in the console_codes
-	 * manpage and the ECMA-48 standard.
+	 * man page and the ECMA-48 standard.
 	 *
 	 * So here we follow a different approach. We position the cursor to the
 	 * bottom right and query its position. Before leaving the function we
@@ -480,7 +480,7 @@ void set_shift_mask(int mod, struct efi_key_state *key_state)
  *
  * This gets called when we have already parsed CSI.
  *
- * @modifiers:  bitmask (shift, alt, ctrl)
+ * @modifiers:  bit mask (shift, alt, ctrl)
  * @return:	the unmodified code
  */
 static int analyze_modifiers(struct efi_key_state *key_state)

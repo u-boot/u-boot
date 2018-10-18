@@ -269,7 +269,7 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
 	if (protocol)
 		*protocol = protlen;
 	if (*buffer_size < net_rx_packet_len) {
-		/* Packet doesn't fit, try again with bigger buf */
+		/* Packet doesn't fit, try again with bigger buffer */
 		*buffer_size = net_rx_packet_len;
 		return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
 	}
@@ -319,11 +319,11 @@ efi_status_t efi_net_register(void)
 	efi_status_t r;
 
 	if (!eth_get_dev()) {
-		/* No eth device active, don't expose any */
+		/* No network device active, don't expose any */
 		return EFI_SUCCESS;
 	}
 
-	/* We only expose the "active" eth device, so one is enough */
+	/* We only expose the "active" network device, so one is enough */
 	netobj = calloc(1, sizeof(*netobj));
 	if (!netobj) {
 		printf("ERROR: Out of memory\n");
@@ -397,7 +397,7 @@ efi_status_t efi_net_register(void)
 		printf("ERROR: Failed to register network event\n");
 		return r;
 	}
-	/* Network is time critical, create event in every timer cyle */
+	/* Network is time critical, create event in every timer cycle */
 	r = efi_set_timer(network_timer_event, EFI_TIMER_PERIODIC, 0);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to set network timer\n");

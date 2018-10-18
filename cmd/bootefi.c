@@ -354,7 +354,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 	/*
 	 * Special case for efi payload not loaded from disk, such as
 	 * 'bootefi hello' or for example payload loaded directly into
-	 * memory via jtag, etc:
+	 * memory via JTAG, etc:
 	 */
 	if (!device_path && !image_path) {
 		printf("WARNING: using memory device/image path, this may confuse some payloads!\n");

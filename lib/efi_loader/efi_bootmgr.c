@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  EFI utils
+ *  EFI boot manager
  *
  *  Copyright (c) 2017 Rob Clark
  */

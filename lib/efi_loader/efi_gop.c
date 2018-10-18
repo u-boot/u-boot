@@ -243,12 +243,12 @@ static efi_uintn_t gop_get_bpp(struct efi_gop *this)
 }
 
 /*
- * Gcc can't optimize our BLT function well, but we need to make sure that
+ * GCC can't optimize our BLT function well, but we need to make sure that
  * our 2-dimensional loop gets executed very quickly, otherwise the system
  * will feel slow.
  *
  * By manually putting all obvious branch targets into functions which call
- * our generic blt function with constants, the compiler can successfully
+ * our generic BLT function with constants, the compiler can successfully
  * optimize for speed.
  */
 static efi_status_t gop_blt_video_fill(struct efi_gop *this,
@@ -452,7 +452,7 @@ efi_status_t efi_gop_register(void)
 	ret = efi_add_protocol(&gopobj->header, &efi_gop_guid,
 			       &gopobj->ops);
 	if (ret != EFI_SUCCESS) {
-		printf("ERROR: Failure adding gop protocol\n");
+		printf("ERROR: Failure adding GOP protocol\n");
 		return ret;
 	}
 	gopobj->ops.query_mode = gop_query_mode;
@@ -470,7 +470,10 @@ efi_status_t efi_gop_register(void)
 	if (bpix == LCD_COLOR32)
 #endif
 	{
-		/* With 32bit color space we can directly expose the fb */
+		/*
+		 * With 32bit color space we can directly expose the frame
+		 * buffer
+		 */
 		gopobj->mode.fb_base = fb_base;
 		gopobj->mode.fb_size = fb_size;
 	}
