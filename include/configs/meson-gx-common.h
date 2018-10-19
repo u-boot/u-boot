@@ -44,7 +44,7 @@
 	"kernel_addr_r=0x01080000\0" \
 	"pxefile_addr_r=0x01080000\0" \
 	"ramdisk_addr_r=0x13000000\0" \
-	MESON_FDTFILE_SETTING \
+	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	BOOTENV
 
 #define CONFIG_SYS_BOOTM_LEN    (64 << 20)      /* 64 MiB */
