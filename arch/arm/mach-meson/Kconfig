@@ -47,22 +47,8 @@ config TARGET_P212
 	  P212 is a reference dessign board based on Meson GXL S905X SoC
 	  with 2 GiB of RAM, Ethernet, HDMI, 2 USB, micro-SD slot,
 	  eMMC, IR receiver, CVBS+Audio jack and a SDIO WiFi module.
-
-config TARGET_LIBRETECH_CC
-	bool "LIBRETECH-CC"
-	select MESON_GXL
-	help
-	  LibreTech CC is a single board computer based on Meson GXL
-	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
-	  eMMC, IR receiver and a 40-pin GPIO header.
-
-config TARGET_KHADAS_VIM
-	bool "KHADAS-VIM"
-	select MESON_GXL
-	help
-	  Khadas VIM is a single board computer based on Meson GXL
-	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
-	  eMMC, IR receiver and a 40-pin GPIO header.
+	  You should also select this TARGET if you have Khadas Vim or
+	  a libretech aml-s905x-cc
 
 config TARGET_KHADAS_VIM2
 	bool "KHADAS-VIM2"
@@ -85,10 +71,6 @@ source "board/amlogic/odroid-c2/Kconfig"
 source "board/amlogic/nanopi-k2/Kconfig"
 
 source "board/amlogic/p212/Kconfig"
-
-source "board/amlogic/libretech-cc/Kconfig"
-
-source "board/amlogic/khadas-vim/Kconfig"
 
 source "board/amlogic/khadas-vim2/Kconfig"
 
