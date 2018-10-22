@@ -18,7 +18,7 @@ static const struct efi_boot_services *boottime;
 static const struct efi_runtime_services *runtime;
 static efi_handle_t handle;
 static u16 reset_message[] = L"Selftest completed";
-static int *setup_ok;
+static int *setup_status;
 
 /*
  * Exit the boot services.
@@ -199,8 +199,8 @@ void efi_st_do_tests(const u16 *testname, unsigned int phase,
 		if (test->phase != phase)
 			continue;
 		if (steps & EFI_ST_SETUP)
-			setup_ok[i] = setup(test, failures);
-		if (steps & EFI_ST_EXECUTE && setup_ok[i] == EFI_ST_SUCCESS)
+			setup_status[i] = setup(test, failures);
+		if (steps & EFI_ST_EXECUTE && setup_status[i] == EFI_ST_SUCCESS)
 			execute(test, failures);
 		if (steps & EFI_ST_TEARDOWN)
 			teardown(test, failures);
@@ -278,7 +278,7 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 	ret = boottime->allocate_pool(EFI_RUNTIME_SERVICES_DATA, sizeof(int) *
 				      ll_entry_count(struct efi_unit_test,
 						     efi_unit_test),
-				      (void **)&setup_ok);
+				      (void **)&setup_status);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Allocate pool failed\n");
 		return ret;
