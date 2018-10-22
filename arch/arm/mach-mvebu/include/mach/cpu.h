@@ -68,10 +68,12 @@ enum {
 	MVEBU_SOC_UNKNOWN,
 };
 
+#define MVEBU_SDRAM_SIZE_MAX	0xc0000000
+
 /*
  * Default Device Address MAP BAR values
  */
-#define MBUS_PCI_MEM_BASE	0xE8000000
+#define MBUS_PCI_MEM_BASE	MVEBU_SDRAM_SIZE_MAX
 #define MBUS_PCI_MEM_SIZE	(128 << 20)
 #define MBUS_PCI_IO_BASE	0xF1100000
 #define MBUS_PCI_IO_SIZE	(64 << 10)
