@@ -156,4 +156,12 @@
 		ranges = <0x81000000 0x0 0x00000000 0x16 0x00020000 0x0 0x00010000   /* downstream I/O */
 			  0x82000000 0x0 0x40000000 0x16 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
+
+	sata: sata@3200000 {
+			compatible = "fsl,ls2080a-ahci";
+			reg = <0x0 0x3200000 0x0 0x10000>;
+			interrupts = <0 133 0x4>; /* Level high type */
+			status = "disabled";
+	};
+
 };
