@@ -30,6 +30,9 @@ config TPL_TIMER
 config TIMER_EARLY
 	bool "Allow timer to be used early in U-Boot"
 	depends on TIMER
+	# initr_bootstage() requires a timer and is called before initr_dm()
+	# so only the early timer is available
+	default y if X86 && BOOTSTAGE
 	help
 	  In some cases the timer must be accessible before driver model is
 	  active. Examples include when using CONFIG_TRACE to trace U-Boot's
@@ -78,6 +81,16 @@ config X86_TSC_TIMER
 	depends on TIMER && X86
 	help
 	  Select this to enable Time-Stamp Counter (TSC) timer for x86.
+
+config X86_TSC_TIMER_EARLY_FREQ
+	int "x86 TSC timer frequency in MHz when used as the early timer"
+	depends on X86_TSC_TIMER
+	default 1000
+	help
+	  Sets the estimated CPU frequency in MHz when TSC is used as the
+	  early timer and the frequency can neither be calibrated via some
+	  hardware ways, nor got from device tree at the time when device
+	  tree is not available yet.
 
 config OMAP_TIMER
 	bool "Omap timer support"

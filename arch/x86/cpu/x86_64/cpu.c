@@ -7,30 +7,18 @@
 #include <common.h>
 #include <debug_uart.h>
 
-/* Global declaration of gd */
-struct global_data *global_data_ptr;
+/*
+ * Global declaration of gd.
+ *
+ * As we write to it before relocation we have to make sure it is not put into
+ * a .bss section which may overlap a .rela section. Initialization forces it
+ * into a .data section which cannot overlap any .rela section.
+ */
+struct global_data *global_data_ptr = (struct global_data *)~0;
 
 void arch_setup_gd(gd_t *new_gd)
 {
 	global_data_ptr = new_gd;
-
-	/*
-	 * TODO(sjg@chromium.org): For some reason U-Boot does not boot
-	 * without this line. It fails to start up U-Boot proper and instead
-	 * restarts SPL. Need to figure out why:
-	 *
-	 * U-Boot SPL 2017.01
-	 *
-	 * U-Boot SPL 2017.01
-	 * CPU:   Intel(R) Core(TM) i5-3427U CPU @ 1.80GHz
-	 * Trying to boot from SPIJumping to 64-bit U-Boot: Note many
-	 * features are missing
-	 *
-	 * U-Boot SPL 2017.01
-	 */
-#ifdef CONFIG_DEBUG_UART
-	printch(' ');
-#endif
 }
 
 int cpu_has_64bit(void)

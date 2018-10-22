@@ -53,6 +53,15 @@ static void do_elf_reloc_fixups64(unsigned int text_base, uintptr_t size,
 	Elf64_Addr *offset_ptr_ram;
 
 	do {
+		unsigned long long type = ELF64_R_TYPE(re_src->r_info);
+
+		if (type != R_X86_64_RELATIVE) {
+			printf("%s: unsupported relocation type 0x%llx "
+			       "at %p, ", __func__, type, re_src);
+			printf("offset = 0x%llx\n", re_src->r_offset);
+			continue;
+		}
+
 		/* Get the location from the relocation entry */
 		offset_ptr_rom = (Elf64_Addr *)(uintptr_t)re_src->r_offset;
 
@@ -91,6 +100,15 @@ static void do_elf_reloc_fixups32(unsigned int text_base, uintptr_t size,
 	Elf32_Addr *offset_ptr_ram;
 
 	do {
+		unsigned int type = ELF32_R_TYPE(re_src->r_info);
+
+		if (type != R_386_RELATIVE) {
+			printf("%s: unsupported relocation type 0x%x "
+			       "at %p, ", __func__, type, re_src);
+			printf("offset = 0x%x\n", re_src->r_offset);
+			continue;
+		}
+
 		/* Get the location from the relocation entry */
 		offset_ptr_rom = (Elf32_Addr *)(uintptr_t)re_src->r_offset;
 
