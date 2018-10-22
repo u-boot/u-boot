@@ -104,3 +104,7 @@
 		reg = <1>;
 	 };
 };
+
+&sata {
+	status = "okay";
+};
