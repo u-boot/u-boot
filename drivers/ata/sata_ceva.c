@@ -105,6 +105,7 @@ enum ceva_soc {
 	CEVA_LS1043A,
 	CEVA_LS1046A,
 	CEVA_LS1088A,
+	CEVA_LS2080A,
 };
 
 struct ceva_sata_priv {
@@ -146,6 +147,8 @@ static int ceva_init_sata(struct ceva_sata_priv *priv)
 	case CEVA_LS1043A:
 	case CEVA_LS1046A:
 		writel(ECC_DIS_VAL_CH2, ECC_DIS_ADDR_CH2);
+		/* fallthrough */
+	case CEVA_LS2080A:
 		writel(CEVA_PHY1_CFG, base + AHCI_VEND_PPCFG);
 		writel(CEVA_TRANS_CFG, base + AHCI_VEND_PTC);
 		if (priv->flag & FLAG_COHERENT)
@@ -187,6 +190,7 @@ static const struct udevice_id sata_ceva_ids[] = {
 	{ .compatible = "fsl,ls1043a-ahci", .data = CEVA_LS1043A },
 	{ .compatible = "fsl,ls1046a-ahci", .data = CEVA_LS1046A },
 	{ .compatible = "fsl,ls1088a-ahci", .data = CEVA_LS1088A },
+	{ .compatible = "fsl,ls2080a-ahci", .data = CEVA_LS2080A },
 	{ }
 };
 
