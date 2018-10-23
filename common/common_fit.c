@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <image.h>
 #include <linux/libfdt.h>
-#include <spl.h>
 
 ulong fdt_getprop_u32(const void *fdt, int node, const char *prop)
 {
