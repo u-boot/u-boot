@@ -164,10 +164,10 @@ matrix:
     - name: "buildman arm11 arm7 arm920t arm946es"
       env:
         - BUILDMAN="arm11 arm7 arm920t arm946es"
-    - name: "buildman arm926ejs (non-mx,siemens,atmel,kirkwood)"
+    - name: "buildman arm926ejs (non-freescale,siemens,atmel,kirkwood,spear)"
       env:
         - JOB="arm926ejs"
-          BUILDMAN="arm926ejs -x mx,siemens,atmel,kirkwood"
+          BUILDMAN="arm926ejs -x freescale,siemens,atmel,kirkwood,spear"
     - name: "buildman atmel"
       env:
         - BUILDMAN="atmel"
@@ -177,9 +177,12 @@ matrix:
     - name: "buildman Freescale ARM32"
       env:
         - BUILDMAN="freescale -x powerpc,m68k,aarch64"
-    - name: "buildman Freescale AArch64"
+    - name: "buildman Freescale AArch64 LS10xx"
       env:
-        - BUILDMAN="freescale&aarch64"
+        - BUILDMAN="freescale&aarch64&&ls1"
+    - name: "buildman Freescale AArch64 LS20xx"
+      env:
+        - BUILDMAN="freescale&aarch64&&ls2"
     - name: "buildman i.MX6 (non-Freescale)"
       env:
         - BUILDMAN="mx6 -x freescale,toradex,boundary,engicam"
@@ -192,6 +195,9 @@ matrix:
     - name: "buildman samsung socfpga"
       env:
         - BUILDMAN="samsung socfpga"
+    - name: "buildman spear"
+      env:
+        - BUILDMAN="spear"
     - name: "buildman sun4i"
       env:
         - BUILDMAN="sun4i"
@@ -286,7 +292,7 @@ matrix:
         - BUILDMAN="uniphier"
     - name: "buildman catch-all AArch64"
       env:
-        - BUILDMAN="aarch64 -x tegra,freescale,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
+        - BUILDMAN="aarch64 -x tegra,ls1,ls2,mvebu,uniphier,sunxi,samsung,rockchip,xilinx"
     - name: "buildman rockchip"
       env:
         - BUILDMAN="rockchip"
