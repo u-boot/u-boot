@@ -130,7 +130,7 @@ U-Boot prompt on the serial console.
 
 (Legacy) boot0 method
 ---------------------
-boot0 is Allwiner's secondary program loader and it can be used as some kind
+boot0 is Allwinner's secondary program loader and it can be used as some kind
 of SPL replacement to get U-Boot up and running from an microSD card.
 For some time using boot0 was the only option to get the Pine64 booted.
 With working DRAM init code in U-Boot's SPL this is no longer necessary,
