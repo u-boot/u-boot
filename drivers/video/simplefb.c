@@ -68,5 +68,4 @@ U_BOOT_DRIVER(simple_video) = {
 	.id	= UCLASS_VIDEO,
 	.of_match = simple_video_ids,
 	.probe	= simple_video_probe,
-	.flags	= DM_FLAG_PRE_RELOC,
 };
