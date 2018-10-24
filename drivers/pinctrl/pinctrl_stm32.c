@@ -14,6 +14,79 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OTYPE_MSK			1
 #define AFR_MASK			0xF
 
+#ifndef CONFIG_SPL_BUILD
+struct stm32_pinctrl_priv {
+	int pinctrl_ngpios;
+	struct list_head gpio_dev;
+};
+
+struct stm32_gpio_bank {
+	struct udevice *gpio_dev;
+	struct list_head list;
+};
+
+static int stm32_pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
+	struct gpio_dev_priv *uc_priv;
+	struct stm32_gpio_bank *gpio_bank;
+
+	/*
+	 * if get_pins_count has already been executed once on this
+	 * pin-controller, no need to run it again
+	 */
+	if (priv->pinctrl_ngpios)
+		return priv->pinctrl_ngpios;
+
+	/*
+	 * walk through all banks to retrieve the pin-controller
+	 * pins number
+	 */
+	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
+		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
+
+		priv->pinctrl_ngpios += uc_priv->gpio_count;
+	}
+
+	return priv->pinctrl_ngpios;
+}
+
+int stm32_pinctrl_probe(struct udevice *dev)
+{
+	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
+	struct udevice *gpio_dev;
+	struct udevice *child;
+	struct stm32_gpio_bank *gpio_bank;
+	int ret;
+
+	INIT_LIST_HEAD(&priv->gpio_dev);
+
+	/*
+	 * parse pin-controller sub-nodes (ie gpio bank nodes) and fill
+	 * a list with all gpio device reference which belongs to the
+	 * current pin-controller. This list is used to find pin_name and
+	 * pin muxing
+	 */
+	list_for_each_entry(child, &dev->child_head, sibling_node) {
+		ret = uclass_get_device_by_name(UCLASS_GPIO, child->name,
+						&gpio_dev);
+		if (ret < 0)
+			continue;
+
+		gpio_bank = malloc(sizeof(*gpio_bank));
+		if (!gpio_bank) {
+			dev_err(dev, "Not enough memory\n");
+			return -ENOMEM;
+		}
+
+		gpio_bank->gpio_dev = gpio_dev;
+		list_add_tail(&gpio_bank->list, &priv->gpio_dev);
+	}
+
+	return 0;
+}
+#endif
+
 static int stm32_gpio_config(struct gpio_desc *desc,
 			     const struct stm32_gpio_ctl *ctl)
 {
@@ -182,6 +255,9 @@ static struct pinctrl_ops stm32_pinctrl_ops = {
 #else /* PINCTRL_FULL */
 	.set_state_simple	= stm32_pinctrl_set_state_simple,
 #endif /* PINCTRL_FULL */
+#ifndef CONFIG_SPL_BUILD
+	.get_pins_count		= stm32_pinctrl_get_pins_count,
+#endif
 };
 
 static const struct udevice_id stm32_pinctrl_ids[] = {
@@ -195,9 +271,13 @@ static const struct udevice_id stm32_pinctrl_ids[] = {
 };
 
 U_BOOT_DRIVER(pinctrl_stm32) = {
-	.name		= "pinctrl_stm32",
-	.id		= UCLASS_PINCTRL,
-	.of_match	= stm32_pinctrl_ids,
-	.ops		= &stm32_pinctrl_ops,
-	.bind		= dm_scan_fdt_dev,
+	.name			= "pinctrl_stm32",
+	.id			= UCLASS_PINCTRL,
+	.of_match		= stm32_pinctrl_ids,
+	.ops			= &stm32_pinctrl_ops,
+	.bind			= dm_scan_fdt_dev,
+#ifndef CONFIG_SPL_BUILD
+	.probe			= stm32_pinctrl_probe,
+	.priv_auto_alloc_size	= sizeof(struct stm32_pinctrl_priv),
+#endif
 };
