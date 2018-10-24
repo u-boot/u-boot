@@ -18,11 +18,6 @@
 #define EFUSE_MAC_OFFSET	52
 #define EFUSE_MAC_SIZE		6
 
-int board_init(void)
-{
-	return 0;
-}
-
 int misc_init_r(void)
 {
 	u8 mac_addr[EFUSE_MAC_SIZE];
@@ -45,13 +40,6 @@ int misc_init_r(void)
 		if (len == EFUSE_SN_SIZE)
 			env_set("serial#", serial);
 	}
-
-	return 0;
-}
-
-int ft_board_setup(void *blob, bd_t *bd)
-{
-	meson_init_reserved_memory(blob);
 
 	return 0;
 }

@@ -14,6 +14,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+__weak int board_init(void)
+{
+	return 0;
+}
+
 int dram_init(void)
 {
 	const fdt64_t *val;
@@ -32,6 +37,18 @@ int dram_init(void)
 	gd->ram_size = get_unaligned_be64(&val[1]);
 
 	return 0;
+}
+
+__weak int meson_ft_board_setup(void *blob, bd_t *bd)
+{
+	return 0;
+}
+
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	meson_init_reserved_memory(blob);
+
+	return meson_ft_board_setup(blob, bd);
 }
 
 void meson_board_add_reserved_memory(void *fdt, u64 start, u64 size)
