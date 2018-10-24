@@ -417,7 +417,6 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.ofdata_to_platdata = stm32mp_bsec_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct stm32mp_bsec_platdata),
 	.ops = &stm32mp_bsec_ops,
-	.flags  = DM_FLAG_PRE_RELOC,
 };
 
 /* bsec IP is not present in device tee, manage IP address by platdata */
