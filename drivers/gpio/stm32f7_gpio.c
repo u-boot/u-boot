@@ -65,11 +65,31 @@ static int stm32_gpio_set_value(struct udevice *dev, unsigned offset, int value)
 	return 0;
 }
 
+static int stm32_gpio_get_function(struct udevice *dev, unsigned int offset)
+{
+	struct stm32_gpio_priv *priv = dev_get_priv(dev);
+	struct stm32_gpio_regs *regs = priv->regs;
+	int bits_index = MODE_BITS(offset);
+	int mask = MODE_BITS_MASK << bits_index;
+	u32 mode;
+
+	mode = (readl(&regs->moder) & mask) >> bits_index;
+	if (mode == STM32_GPIO_MODE_OUT)
+		return GPIOF_OUTPUT;
+	if (mode == STM32_GPIO_MODE_IN)
+		return GPIOF_INPUT;
+	if (mode == STM32_GPIO_MODE_AN)
+		return GPIOF_UNUSED;
+
+	return GPIOF_FUNC;
+}
+
 static const struct dm_gpio_ops gpio_stm32_ops = {
 	.direction_input	= stm32_gpio_direction_input,
 	.direction_output	= stm32_gpio_direction_output,
 	.get_value		= stm32_gpio_get_value,
 	.set_value		= stm32_gpio_set_value,
+	.get_function		= stm32_gpio_get_function,
 };
 
 static int gpio_stm32_probe(struct udevice *dev)
