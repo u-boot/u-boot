@@ -925,7 +925,9 @@ U_BOOT_DRIVER(i2c_omap) = {
 	.probe	= omap_i2c_probe,
 	.priv_auto_alloc_size = sizeof(struct omap_i2c),
 	.ops	= &omap_i2c_ops,
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags  = DM_FLAG_PRE_RELOC,
+#endif
 };
 
 #endif /* CONFIG_DM_I2C */
