@@ -128,7 +128,6 @@ U_BOOT_DRIVER(serial_arc) = {
 	.ofdata_to_platdata = arc_serial_ofdata_to_platdata,
 	.probe = arc_serial_probe,
 	.ops	= &arc_serial_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 #ifdef CONFIG_DEBUG_ARC_SERIAL

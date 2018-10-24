@@ -211,7 +211,6 @@ U_BOOT_DRIVER(serial_s5p) = {
 	.platdata_auto_alloc_size = sizeof(struct s5p_serial_platdata),
 	.probe = s5p_serial_probe,
 	.ops	= &s5p_serial_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 #endif
 

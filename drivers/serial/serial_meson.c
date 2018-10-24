@@ -132,7 +132,6 @@ U_BOOT_DRIVER(serial_meson) = {
 	.of_match	= meson_serial_ids,
 	.probe		= meson_serial_probe,
 	.ops		= &meson_serial_ops,
-	.flags		= DM_FLAG_PRE_RELOC,
 	.ofdata_to_platdata = meson_serial_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct meson_serial_platdata),
 };

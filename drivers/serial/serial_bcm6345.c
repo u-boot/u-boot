@@ -264,7 +264,6 @@ U_BOOT_DRIVER(bcm6345_serial) = {
 	.probe = bcm6345_serial_probe,
 	.priv_auto_alloc_size = sizeof(struct bcm6345_serial_priv),
 	.ops = &bcm6345_serial_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 #ifdef CONFIG_DEBUG_UART_BCM6345
