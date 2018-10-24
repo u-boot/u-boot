@@ -6,6 +6,9 @@
 #ifndef __PINCTRL_H
 #define __PINCTRL_H
 
+#define PINNAME_SIZE	10
+#define PINMUX_SIZE	40
+
 /**
  * struct pinconf_param - pin config parameters
  *
