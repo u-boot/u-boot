@@ -115,5 +115,4 @@ U_BOOT_DRIVER(altera_timer) = {
 	.platdata_auto_alloc_size = sizeof(struct atftmr_timer_platdata),
 	.probe = atftmr_timer_probe,
 	.ops	= &ag101p_timer_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

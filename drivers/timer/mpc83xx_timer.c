@@ -244,6 +244,5 @@ U_BOOT_DRIVER(mpc83xx_timer) = {
 	.of_match = mpc83xx_timer_ids,
 	.probe = mpc83xx_timer_probe,
 	.ops	= &mpc83xx_timer_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 	.priv_auto_alloc_size = sizeof(struct mpc83xx_timer_priv),
 };
