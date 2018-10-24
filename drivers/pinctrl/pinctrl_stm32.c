@@ -25,6 +25,9 @@ struct stm32_gpio_bank {
 	struct list_head list;
 };
 
+#define MAX_PIN_PER_BANK		16
+
+static char pin_name[PINNAME_SIZE];
 static int stm32_pinctrl_get_pins_count(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
@@ -51,6 +54,48 @@ static int stm32_pinctrl_get_pins_count(struct udevice *dev)
 	return priv->pinctrl_ngpios;
 }
 
+static struct udevice *stm32_pinctrl_get_gpio_dev(struct udevice *dev,
+						  unsigned int selector)
+{
+	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
+	struct stm32_gpio_bank *gpio_bank;
+	struct gpio_dev_priv *uc_priv;
+	int first_pin = 0;
+
+	/* look up for the bank which owns the requested pin */
+	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
+		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
+
+		if (selector < (first_pin + uc_priv->gpio_count))
+			/* we found the bank */
+			return gpio_bank->gpio_dev;
+
+		first_pin += uc_priv->gpio_count;
+	}
+
+	return NULL;
+}
+
+static const char *stm32_pinctrl_get_pin_name(struct udevice *dev,
+					      unsigned int selector)
+{
+	struct gpio_dev_priv *uc_priv;
+	struct udevice *gpio_dev;
+
+	/* look up for the bank which owns the requested pin */
+	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector);
+	if (!gpio_dev) {
+		snprintf(pin_name, PINNAME_SIZE, "Error");
+	} else {
+		uc_priv = dev_get_uclass_priv(gpio_dev);
+
+		snprintf(pin_name, PINNAME_SIZE, "%s%d",
+			 uc_priv->bank_name,
+			 selector % MAX_PIN_PER_BANK);
+	}
+
+	return pin_name;
+}
 int stm32_pinctrl_probe(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
@@ -256,6 +301,7 @@ static struct pinctrl_ops stm32_pinctrl_ops = {
 	.set_state_simple	= stm32_pinctrl_set_state_simple,
 #endif /* PINCTRL_FULL */
 #ifndef CONFIG_SPL_BUILD
+	.get_pin_name		= stm32_pinctrl_get_pin_name,
 	.get_pins_count		= stm32_pinctrl_get_pins_count,
 #endif
 };
