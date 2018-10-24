@@ -28,6 +28,29 @@ struct stm32_gpio_bank {
 #define MAX_PIN_PER_BANK		16
 
 static char pin_name[PINNAME_SIZE];
+#define PINMUX_MODE_COUNT		5
+static const char * const pinmux_mode[PINMUX_MODE_COUNT] = {
+	"gpio input",
+	"gpio output",
+	"analog",
+	"unknown",
+	"alt function",
+};
+
+static int stm32_pinctrl_get_af(struct udevice *dev, unsigned int offset)
+{
+	struct stm32_gpio_priv *priv = dev_get_priv(dev);
+	struct stm32_gpio_regs *regs = priv->regs;
+	u32 af;
+	u32 alt_shift = (offset % 8) * 4;
+	u32 alt_index =  offset / 8;
+
+	af = (readl(&regs->afr[alt_index]) &
+	      GENMASK(alt_shift + 3, alt_shift)) >> alt_shift;
+
+	return af;
+}
+
 static int stm32_pinctrl_get_pins_count(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
@@ -96,6 +119,53 @@ static const char *stm32_pinctrl_get_pin_name(struct udevice *dev,
 
 	return pin_name;
 }
+
+static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
+					unsigned int selector,
+					char *buf,
+					int size)
+{
+	struct udevice *gpio_dev;
+	const char *label;
+	int gpio_pin;
+	int mode;
+	int af_num;
+
+	/* look up for the bank which owns the requested pin */
+	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector);
+
+	if (!gpio_dev)
+		return -ENODEV;
+
+	/* translate pin-controller pin number to gpio pin number */
+	gpio_pin = selector % MAX_PIN_PER_BANK;
+
+	mode = gpio_get_raw_function(gpio_dev, gpio_pin, &label);
+
+	dev_dbg(dev, "selector = %d gpio_pin = %d mode = %d\n",
+		selector, gpio_pin, mode);
+
+	switch (mode) {
+	case GPIOF_UNKNOWN:
+		/* should never happen */
+		return -EINVAL;
+	case GPIOF_UNUSED:
+		snprintf(buf, size, "%s", pinmux_mode[mode]);
+		break;
+	case GPIOF_FUNC:
+		af_num = stm32_pinctrl_get_af(gpio_dev, gpio_pin);
+		snprintf(buf, size, "%s %d", pinmux_mode[mode], af_num);
+		break;
+	case GPIOF_OUTPUT:
+	case GPIOF_INPUT:
+		snprintf(buf, size, "%s %s",
+			 pinmux_mode[mode], label ? label : "");
+		break;
+	}
+
+	return 0;
+}
+
 int stm32_pinctrl_probe(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
@@ -303,6 +373,7 @@ static struct pinctrl_ops stm32_pinctrl_ops = {
 #ifndef CONFIG_SPL_BUILD
 	.get_pin_name		= stm32_pinctrl_get_pin_name,
 	.get_pins_count		= stm32_pinctrl_get_pins_count,
+	.get_pin_muxing		= stm32_pinctrl_get_pin_muxing,
 #endif
 };
 
