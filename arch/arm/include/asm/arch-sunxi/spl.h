@@ -19,6 +19,7 @@
 
 #define SPL_ENV_HEADER_VERSION	SPL_VERSION(0, 1)
 #define SPL_DT_HEADER_VERSION	SPL_VERSION(0, 2)
+#define SPL_DRAM_HEADER_VERSION	SPL_VERSION(0, 3)
 
 #define SPL_ADDR		CONFIG_SUNXI_SRAM_ADDRESS
 
@@ -70,7 +71,7 @@ struct boot_file_head {
 	 * to the users.
 	 */
 	uint32_t dt_name_offset;	/* since v0.2, set by mksunxiboot */
-	uint32_t reserved1;
+	uint32_t dram_size;		/* in MiB, since v0.3, set by SPL */
 	uint32_t boot_media;		/* written here by the boot ROM */
 	/* A padding area (may be used for storing text strings) */
 	uint32_t string_pool[13];	/* since v0.2, filled by mksunxiboot */

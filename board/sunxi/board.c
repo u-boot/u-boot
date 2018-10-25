@@ -281,7 +281,16 @@ static struct boot_file_head * get_spl_header(uint8_t req_version)
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_0, PHYS_SDRAM_0_SIZE);
+	struct boot_file_head *spl = get_spl_header(SPL_DRAM_HEADER_VERSION);
+
+	if (spl == INVALID_SPL_HEADER)
+		gd->ram_size = get_ram_size((long *)PHYS_SDRAM_0,
+					    PHYS_SDRAM_0_SIZE);
+	else
+		gd->ram_size = (phys_addr_t)spl->dram_size << 20;
+
+	if (gd->ram_size > CONFIG_SUNXI_DRAM_MAX_SIZE)
+		gd->ram_size = CONFIG_SUNXI_DRAM_MAX_SIZE;
 
 	return 0;
 }
@@ -545,6 +554,21 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
+
+static void sunxi_spl_store_dram_size(phys_addr_t dram_size)
+{
+	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
+
+	if (spl == INVALID_SPL_HEADER)
+		return;
+
+	/* Promote the header version for U-Boot proper, if needed. */
+	if (spl->spl_signature[3] < SPL_DRAM_HEADER_VERSION)
+		spl->spl_signature[3] = SPL_DRAM_HEADER_VERSION;
+
+	spl->dram_size = dram_size >> 20;
+}
+
 void sunxi_board_init(void)
 {
 	int power_failed = 0;
@@ -612,6 +636,8 @@ void sunxi_board_init(void)
 	printf(" %d MiB\n", (int)(gd->ram_size >> 20));
 	if (!gd->ram_size)
 		hang();
+
+	sunxi_spl_store_dram_size(gd->ram_size);
 
 	/*
 	 * Only clock up the CPU to full speed if we are reasonably
