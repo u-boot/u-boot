@@ -8,49 +8,27 @@ config MESON64_COMMON
 	select DM_SERIAL
 	imply CMD_DM
 
-config MESON_GXBB
-	bool
-	select MESON64_COMMON
-
-config MESON_GXL
-	bool
-	select MESON64_COMMON
-
-config MESON_GXM
-	bool
-	select MESON64_COMMON
-
 choice
 	prompt "Platform select"
-	default TARGET_ODROID_C2
+	default MESON_GXBB
 
-config TARGET_ODROID_C2
-	bool "ODROID-C2"
-	select MESON_GXBB
+config MESON_GXBB
+	bool "GXBB"
+	select MESON64_COMMON
 	help
-	  ODROID-C2 is a single board computer based on Meson GXBaby
-	  with 2 GiB of RAM, Gigabit Ethernet, HDMI, 4 USB, micro-SD
-	  slot, eMMC, IR receiver and a 40-pin GPIO header.
-	  You should also select this TARGET if you have an nanopi-k2
+	  Select this if your SoC is an S905
 
-config TARGET_P212
-	bool "P212"
-	select MESON_GXL
+config MESON_GXL
+	bool "GXL"
+	select MESON64_COMMON
 	help
-	  P212 is a reference dessign board based on Meson GXL S905X SoC
-	  with 2 GiB of RAM, Ethernet, HDMI, 2 USB, micro-SD slot,
-	  eMMC, IR receiver, CVBS+Audio jack and a SDIO WiFi module.
-	  You should also select this TARGET if you have Khadas Vim or
-	  a libretech aml-s905x-cc
+	  Select this if your SoC is an S905X/D or S805X
 
-config TARGET_Q200
-	bool "KHADAS-VIM2"
-	select MESON_GXM
+config MESON_GXM
+	bool "GXM"
+	select MESON64_COMMON
 	help
-	  Q200 is a reference dessign board based on Meson GXM
-	  with 2/3 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
-	  eMMC, IR receiver.
-	  You should also select this TARGET if you have Khadas Vim2.
+	  Select this if your SoC is an S912
 
 endchoice
 
@@ -60,10 +38,31 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x1000
 
-source "board/amlogic/odroid-c2/Kconfig"
+config SYS_VENDOR
+	string "Vendor name"
+	default "amlogic"
+	help
+	  This option contains information about board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
+	  be used.
 
-source "board/amlogic/p212/Kconfig"
+config SYS_BOARD
+	string "Board name"
+	default "odroid-c2" if MESON_GXBB
+	default "p212" if MESON_GXL
+	default "q200" if MESON_GXM
+	default ""
+	help
+	  This option contains information about board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
+	  be used.
 
-source "board/amlogic/q200/Kconfig"
+config SYS_CONFIG_NAME
+	string "Board configuration name"
+	default "meson64"
+	help
+	  This option contains information about board configuration name.
+	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
+	  will be used for board configuration.
 
 endif

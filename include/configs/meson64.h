@@ -1,11 +1,15 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Configuration for Amlogic Meson GX SoCs
+ * Configuration for Amlogic Meson 64bits SoCs
  * (C) Copyright 2016 Beniamino Galvani <b.galvani@gmail.com>
  */
 
-#ifndef __MESON_GX_COMMON_CONFIG_H
-#define __MESON_GX_COMMON_CONFIG_H
+#ifndef __MESON64_CONFIG_H
+#define __MESON64_CONFIG_H
+
+/* Generic Interrupt Controller Definitions */
+#define GICD_BASE			0xc4301000
+#define GICC_BASE			0xc4302000
 
 #define CONFIG_CPU_ARMV8
 #define CONFIG_REMAKE_ELF
@@ -17,10 +21,7 @@
 #define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_INIT_SP_ADDR		0x20000000
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_TEXT_BASE
-
-/* Generic Interrupt Controller Definitions */
-#define GICD_BASE			0xc4301000
-#define GICC_BASE			0xc4302000
+#define CONFIG_SYS_BOOTM_LEN		(64 << 20) /* 64 MiB */
 
 #ifdef CONFIG_CMD_USB
 #define BOOT_TARGET_DEVICES_USB(func) func(USB, usb, 0)
@@ -28,6 +29,7 @@
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
+#ifndef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 1) \
@@ -35,9 +37,9 @@
 	BOOT_TARGET_DEVICES_USB(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
+#endif
 
-#include <config_distro_bootcmd.h>
-
+#ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_addr_r=0x01000000\0" \
 	"scriptaddr=0x1f000000\0" \
@@ -46,7 +48,8 @@
 	"ramdisk_addr_r=0x13000000\0" \
 	"fdtfile=amlogic/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
 	BOOTENV
+#endif
 
-#define CONFIG_SYS_BOOTM_LEN    (64 << 20)      /* 64 MiB */
+#include <config_distro_bootcmd.h>
 
-#endif /* __MESON_GX_COMMON_CONFIG_H */
+#endif /* __MESON64_CONFIG_H */
