@@ -667,9 +667,9 @@ static void parse_spl_header(const uint32_t spl_addr)
 		return; /* signature mismatch, no usable header */
 
 	uint8_t spl_header_version = spl->spl_signature[3];
-	if (spl_header_version != SPL_HEADER_VERSION) {
+	if (spl_header_version < SPL_ENV_HEADER_VERSION) {
 		printf("sunxi SPL version mismatch: expected %u, got %u\n",
-		       SPL_HEADER_VERSION, spl_header_version);
+		       SPL_ENV_HEADER_VERSION, spl_header_version);
 		return;
 	}
 	if (!spl->fel_script_address)
