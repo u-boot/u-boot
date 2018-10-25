@@ -140,6 +140,12 @@ config MACH_SUNXI_H3_H5
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
+# TODO: try out A80's 8GiB DRAM space
+config SUNXI_DRAM_MAX_SIZE
+	hex
+	default 0xC0000000 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN50I_H6
+	default 0x80000000
+
 choice
 	prompt "Sunxi SoC Variant"
 	optional
