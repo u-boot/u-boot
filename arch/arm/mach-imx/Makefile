@@ -86,9 +86,13 @@ IMX_CONFIG = $(CONFIG_IMX_CONFIG:"%"=%)
 	$(Q)mkdir -p $(dir $@)
 	$(call if_changed_dep,cpp_cfg)
 
-IMAGE_TYPE = imximage
 ifeq ($(CONFIG_ARCH_IMX8), y)
-IMAGE_TYPE = imx8image
+CNTR_DEPFILES := $(srctree)/tools/imx_cntr_image.sh
+IMAGE_TYPE := imx8image
+DEPFILE_EXISTS := $(shell if [ -f u-boot-dtb.cfgout ]; then $(CNTR_DEPFILES) u-boot-dtb.cfgout; echo $$?; fi)
+else
+IMAGE_TYPE := imximage
+DEPFILE_EXISTS := 0
 endif
 
 MKIMAGEFLAGS_u-boot.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
@@ -104,7 +108,9 @@ MKIMAGEFLAGS_u-boot-dtb.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
 u-boot-dtb.imx: MKIMAGEOUTPUT = u-boot-dtb.imx.log
 
 u-boot-dtb.imx: u-boot-dtb.bin u-boot-dtb.cfgout $(PLUGIN).bin FORCE
+ifeq ($(DEPFILE_EXISTS),0)
 	$(call if_changed,mkimage)
+endif
 endif
 
 MKIMAGEFLAGS_SPL = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
