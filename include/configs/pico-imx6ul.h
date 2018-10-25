@@ -56,8 +56,8 @@
 
 #define CONFIG_DFU_ENV_SETTINGS \
 	"dfu_alt_info=" \
-		"spl raw 0x2 0x400 mmcpart 1;" \
-		"u-boot raw 0x8a 0x400 mmcpart 1;" \
+		"spl raw 0x2 0x400;" \
+		"u-boot raw 0x8a 0x400;" \
 		"/boot/zImage ext4 0 1;" \
 		"/boot/imx6ul-pico-hobbit.dtb ext4 0 1;" \
 		"/boot/imx6ul-pico-pi.dtb ext4 0 1;" \
@@ -103,6 +103,8 @@
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>

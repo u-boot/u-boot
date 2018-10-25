@@ -4,7 +4,7 @@
  *
  */
 
-#ifdef CONFIG_ARCH_MX7ULP
+#if defined(CONFIG_ARCH_MX7ULP) || defined(CONFIG_ARCH_IMX8)
 struct lpuart_fsl_reg32 {
 	u32 verid;
 	u32 param;

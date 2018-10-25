@@ -164,6 +164,7 @@ u32 __weak get_board_rev(void)
 }
 #endif
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 /* enable all periherial can be accessed in nosec mode */
 static void init_csu(void)
 {
@@ -285,6 +286,7 @@ int arch_cpu_init(void)
 
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_ARCH_MISC_INIT
 int arch_misc_init(void)

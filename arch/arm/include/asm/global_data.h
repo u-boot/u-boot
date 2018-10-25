@@ -74,6 +74,10 @@ struct arch_global_data {
 #if defined(CONFIG_FSL_LSCH3) && defined(CONFIG_SYS_FSL_HAS_DP_DDR)
 	unsigned long mem2_clk;
 #endif
+
+#ifdef CONFIG_ARCH_IMX8
+	struct udevice *scu_dev;
+#endif
 };
 
 #include <asm-generic/global_data.h>

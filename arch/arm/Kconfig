@@ -668,6 +668,12 @@ config ARCH_LPC32XX
 	select SUPPORT_SPL
 	imply CMD_DM
 
+config ARCH_IMX8
+	bool "NXP i.MX8 platform"
+	select ARM64
+	select DM
+	select OF_CONTROL
+
 config ARCH_MX8M
 	bool "NXP i.MX8M platform"
 	select ARM64
@@ -1417,6 +1423,8 @@ source "arch/arm/mach-imx/mx6/Kconfig"
 source "arch/arm/mach-imx/mx7/Kconfig"
 
 source "arch/arm/mach-imx/mx7ulp/Kconfig"
+
+source "arch/arm/mach-imx/imx8/Kconfig"
 
 source "arch/arm/mach-imx/mx8m/Kconfig"
 

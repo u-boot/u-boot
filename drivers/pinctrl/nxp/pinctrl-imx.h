@@ -40,13 +40,29 @@ extern const struct pinctrl_ops imx_pinctrl_ops;
 #define FSL_PIN_SIZE		24
 #define SHARE_FSL_PIN_SIZE	20
 
+/* Each pin on imx8qm/qxp consists of 2 u32 PIN_FUNC_ID and 1 u32 CONFIG */
+#define SHARE_IMX8_PIN_SIZE	12
+
 #define SHARE_MUX_CONF_REG	0x1
 #define ZERO_OFFSET_VALID	0x2
 #define CONFIG_IBE_OBE		0x4
+#define IMX8_USE_SCU		0x8
 
 #define IOMUXC_CONFIG_SION	(0x1 << 4)
 
 int imx_pinctrl_probe(struct udevice *dev, struct imx_pinctrl_soc_info *info);
 
 int imx_pinctrl_remove(struct udevice *dev);
+
+#ifdef CONFIG_PINCTRL_IMX_SCU
+int imx_pinctrl_scu_conf_pins(struct imx_pinctrl_soc_info *info,
+			      u32 *pin_data, int npins);
+#else
+static inline int imx_pinctrl_scu_conf_pins(struct imx_pinctrl_soc_info *info,
+					    u32 *pin_data, int npins)
+{
+	return 0;
+}
+#endif
+
 #endif /* __DRIVERS_PINCTRL_IMX_H */

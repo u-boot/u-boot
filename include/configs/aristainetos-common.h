@@ -192,9 +192,6 @@
 
 /* UBI support */
 
-#define CONFIG_HW_WATCHDOG
-#define CONFIG_IMX_WATCHDOG
-
 /* Framebuffer */
 #define CONFIG_VIDEO_IPUV3
 /* check this console not needed, after test remove it */

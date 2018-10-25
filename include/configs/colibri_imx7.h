@@ -13,9 +13,6 @@
 
 #include "mx7_common.h"
 
-/*#define CONFIG_DBG_MONITOR*/
-#define PHYS_SDRAM_SIZE			SZ_1G
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 

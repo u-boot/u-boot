@@ -13,6 +13,17 @@
 
 #define PHYS_SDRAM_SIZE			SZ_512M
 
+/*
+ * If we have defined the OPTEE ram size and not OPTEE it means that we were
+ * launched by OPTEE, because of that we shall skip all the low level
+ * initialization since it was already done by ATF or OPTEE
+ */
+#ifdef CONFIG_OPTEE_TZDRAM_SIZE
+#ifndef CONFIG_OPTEE
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#endif
+#endif
+
 #define CONFIG_MXC_UART_BASE		UART1_IPS_BASE_ADDR
 
 /* Size of malloc() pool */

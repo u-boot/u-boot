@@ -17,8 +17,6 @@
 #define CONSOLE_DEV		"ttymxc3"
 
 /* Watchdog */
-#define CONFIG_HW_WATCHDOG
-#define CONFIG_IMX_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT_MSECS	60000
 
 /* Config on-board RTC */
