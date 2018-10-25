@@ -18,8 +18,6 @@
 
 	regulators {
 		compatible = "simple-bus";
-		#address-cells = <1>;
-		#size-cells = <0>;
 
 		reg_usdhc2_vmmc: usdhc2-vmmc {
 			compatible = "regulator-fixed";
