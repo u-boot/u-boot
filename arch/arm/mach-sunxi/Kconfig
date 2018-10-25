@@ -970,4 +970,14 @@ config SPL_SPI_SUNXI
 	  sunxi SPI Flash. It uses the same method as the boot ROM, so does
 	  not need any extra configuration.
 
+config PINE64_DT_SELECTION
+	bool "Enable Pine64 device tree selection code"
+	depends on MACH_SUN50I
+	help
+	  The original Pine A64 and Pine A64+ are similar but different
+	  boards and can be differed by the DRAM size. Pine A64 has
+	  512MiB DRAM, and Pine A64+ has 1GiB or 2GiB. By selecting this
+	  option, the device tree selection code specific to Pine64 which
+	  utilizes the DRAM size will be enabled.
+
 endif
