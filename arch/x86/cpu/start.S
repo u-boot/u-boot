@@ -16,6 +16,7 @@
 #include <asm/processor-flags.h>
 #include <generated/generic-asm-offsets.h>
 #include <generated/asm-offsets.h>
+#include <linux/linkage.h>
 
 .section .text.start
 .code32
@@ -184,13 +185,8 @@ board_init_f_r_trampoline:
 	movl	%eax, %esp
 
 	/* See if we need to disable CAR */
-.weak	car_uninit
-	movl	$car_uninit, %eax
-	cmpl	$0, %eax
-	jz	1f
-
 	call	car_uninit
-1:
+
 	/* Re-enter U-Boot by calling board_init_f_r() */
 	call	board_init_f_r
 
@@ -198,6 +194,10 @@ die:
 	hlt
 	jmp	die
 	hlt
+
+WEAK(car_uninit)
+	ret
+ENDPROC(car_uninit)
 
 blank_idt_ptr:
 	.word	0		/* limit */
