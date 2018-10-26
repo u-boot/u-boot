@@ -225,6 +225,9 @@ static int ls_pcie_addr_valid(struct ls_pcie *pcie, pci_dev_t bdf)
 {
 	struct udevice *bus = pcie->bus;
 
+	if (pcie->mode == PCI_HEADER_TYPE_NORMAL)
+		return -ENODEV;
+
 	if (!pcie->enabled)
 		return -ENXIO;
 
