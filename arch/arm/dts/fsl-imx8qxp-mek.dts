@@ -16,18 +16,14 @@
 		stdout-path = &lpuart0;
 	};
 
-	regulators {
-		compatible = "simple-bus";
-
-		reg_usdhc2_vmmc: usdhc2-vmmc {
-			compatible = "regulator-fixed";
-			regulator-name = "SD1_SPWR";
-			regulator-min-microvolt = <3000000>;
-			regulator-max-microvolt = <3000000>;
-			gpio = <&gpio4 19 GPIO_ACTIVE_HIGH>;
-			off-on-delay = <3480>;
-			enable-active-high;
-		};
+	reg_usdhc2_vmmc: regulator-usdhc2-vmmc {
+		compatible = "regulator-fixed";
+		regulator-name = "SD1_SPWR";
+		regulator-min-microvolt = <3000000>;
+		regulator-max-microvolt = <3000000>;
+		gpio = <&gpio4 19 GPIO_ACTIVE_HIGH>;
+		off-on-delay = <3480>;
+		enable-active-high;
 	};
 };
 
