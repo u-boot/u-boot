@@ -1,8 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2015 Google, Inc
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:      GPL-2.0+
 #
 
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o clk_fixed_rate.o

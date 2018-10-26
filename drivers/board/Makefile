@@ -1,4 +1,4 @@
-# SPDX-License-Identifier:	GPL-2.0+
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2017
 # Mario Six,  Guntermann & Drunck GmbH, mario.six@gdsys.cc

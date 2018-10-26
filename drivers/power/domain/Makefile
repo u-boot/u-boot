@@ -1,6 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0
+#
 # Copyright (c) 2016, NVIDIA CORPORATION.
 #
-# SPDX-License-Identifier: GPL-2.0
 
 obj-$(CONFIG_$(SPL_)POWER_DOMAIN) += power-domain-uclass.o
 obj-$(CONFIG_BCM6328_POWER_DOMAIN) += bcm6328-power-domain.o
