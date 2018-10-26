@@ -791,7 +791,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 		return -ENOENT;
 	}
 
-	printf("clock %lu has rate %lu\n", id, rate);
+	debug("clock %lu has rate %lu\n", id, rate);
 	return rate;
 }
 
