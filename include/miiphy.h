@@ -39,6 +39,7 @@ void miiphy_init(void);
 int miiphy_set_current_dev(const char *devname);
 const char *miiphy_get_current_dev(void);
 struct mii_dev *mdio_get_current_dev(void);
+struct list_head *mdio_get_list_head(void);
 struct mii_dev *miiphy_get_dev_by_name(const char *devname);
 struct phy_device *mdio_phydev_for_ethname(const char *devname);
 

@@ -452,8 +452,6 @@ unsigned long get_board_sys_clk(void);
 
 /* MAC/PHY configuration */
 #ifdef CONFIG_FSL_MC_ENET
-#define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_AQUANTIA
 #define CONFIG_PHY_CORTINA
 #define	CONFIG_SYS_CORTINA_FW_IN_NOR
 #ifdef CONFIG_QSPI_BOOT
@@ -474,7 +472,6 @@ unsigned long get_board_sys_clk(void);
 #define AQR405_IRQ_MASK		0x36
 
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
-#define CONFIG_PHY_AQUANTIA
 #endif
 
 #include <asm/fsl_secure_boot.h>
