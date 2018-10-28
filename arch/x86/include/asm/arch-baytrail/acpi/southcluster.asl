@@ -150,9 +150,9 @@ Device (PCI0)
 		CreateQwordField(MCRS, ^UMEM._MAX, UMAX)
 		CreateQwordField(MCRS, ^UMEM._LEN, ULEN)
 
-		/* Set base address to 48GB and allocate 16GB for PCI space */
-		Store(0xc00000000, UMIN)
-		Store(0x400000000, ULEN)
+		/* Set base address to 16GB and allocate 48GB for PCI space */
+		Store(0x400000000, UMIN)
+		Store(0xc00000000, ULEN)
 		Add(UMIN, Subtract(ULEN, 1), UMAX)
 
 		Return (MCRS)
