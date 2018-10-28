@@ -622,26 +622,10 @@ static void tmio_sd_set_pins(struct udevice *dev)
 #endif
 
 #ifdef CONFIG_PINCTRL
-	switch (mmc->selected_mode) {
-	case MMC_LEGACY:
-	case SD_LEGACY:
-	case MMC_HS:
-	case SD_HS:
-	case MMC_HS_52:
-	case MMC_DDR_52:
-		pinctrl_select_state(dev, "default");
-		break;
-	case UHS_SDR12:
-	case UHS_SDR25:
-	case UHS_SDR50:
-	case UHS_DDR50:
-	case UHS_SDR104:
-	case MMC_HS_200:
+	if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180)
 		pinctrl_select_state(dev, "state_uhs");
-		break;
-	default:
-		break;
-	}
+	else
+		pinctrl_select_state(dev, "default");
 #endif
 }
 
