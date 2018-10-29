@@ -11,6 +11,7 @@
  * Copyright (C) 2018, IBM Corporation.
  */
 
+#include <clk.h>
 #include <dm.h>
 #include <miiphy.h>
 #include <net.h>
@@ -55,6 +56,7 @@
  * @bus: The mdio bus
  * @phy_mode: The mode of the PHY interface (rgmii, rmii, ...)
  * @max_speed: Maximum speed of Ethernet connection supported by MAC
+ * @clks: The bulk of clocks assigned to the device in the DT
  */
 struct ftgmac100_data {
 	struct ftgmac100 *iobase;
@@ -69,6 +71,8 @@ struct ftgmac100_data {
 	struct mii_dev *bus;
 	u32 phy_mode;
 	u32 max_speed;
+
+	struct clk_bulk clks;
 };
 
 /*
@@ -489,6 +493,7 @@ static int ftgmac100_write_hwaddr(struct udevice *dev)
 static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct ftgmac100_data *priv = dev_get_priv(dev);
 	const char *phy_mode;
 
 	pdata->iobase = devfdt_get_addr(dev);
@@ -503,7 +508,7 @@ static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
 
 	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 0);
 
-	return 0;
+	return clk_get_bulk(dev, &priv->clks);
 }
 
 static int ftgmac100_probe(struct udevice *dev)
@@ -516,6 +521,10 @@ static int ftgmac100_probe(struct udevice *dev)
 	priv->phy_mode = pdata->phy_interface;
 	priv->max_speed = pdata->max_speed;
 	priv->phy_addr = 0;
+
+	ret = clk_enable_bulk(&priv->clks);
+	if (ret)
+		goto out;
 
 	ret = ftgmac100_mdio_init(dev);
 	if (ret) {
@@ -530,6 +539,9 @@ static int ftgmac100_probe(struct udevice *dev)
 	}
 
 out:
+	if (ret)
+		clk_release_bulk(&priv->clks);
+
 	return ret;
 }
 
@@ -540,6 +552,7 @@ static int ftgmac100_remove(struct udevice *dev)
 	free(priv->phydev);
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
+	clk_release_bulk(&priv->clks);
 
 	return 0;
 }
