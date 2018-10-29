@@ -331,7 +331,7 @@ static void ftgmac100_reset(struct ftgmac100_data *priv)
 
 	debug("%s()\n", __func__);
 
-	writel(FTGMAC100_MACCR_SW_RST, &ftgmac100->maccr);
+	setbits_le32(&ftgmac100->maccr, FTGMAC100_MACCR_SW_RST);
 
 	while (readl(&ftgmac100->maccr) & FTGMAC100_MACCR_SW_RST)
 		;
