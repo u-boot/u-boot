@@ -60,6 +60,9 @@ static struct cpu_type cpu_type_list[] = {
 	CPU_TYPE_ENTRY(LS1084A, LS1084A, 8),
 	CPU_TYPE_ENTRY(LS1048A, LS1048A, 4),
 	CPU_TYPE_ENTRY(LS1044A, LS1044A, 4),
+	CPU_TYPE_ENTRY(LX2160A, LX2160A, 16),
+	CPU_TYPE_ENTRY(LX2120A, LX2120A, 12),
+	CPU_TYPE_ENTRY(LX2080A, LX2080A, 8),
 };
 
 #define EARLY_PGTABLE_SIZE 0x5000
@@ -246,7 +249,7 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-#ifdef CONFIG_ARCH_LS2080A
+#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
 	{ CONFIG_SYS_PCIE4_PHYS_ADDR, CONFIG_SYS_PCIE4_PHYS_ADDR,
 	  CONFIG_SYS_PCIE4_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
@@ -366,6 +369,10 @@ void cpu_name(char *name)
 	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
 		if ((cpu_type_list[i].soc_ver & SVR_WO_E) == ver) {
 			strcpy(name, cpu_type_list[i].name);
+#ifdef CONFIG_ARCH_LX2160A
+			if (IS_C_PROCESSOR(svr))
+				strcat(name, "C");
+#endif
 
 			if (IS_E_PROCESSOR(svr))
 				strcat(name, "E");
@@ -1164,10 +1171,16 @@ void __efi_runtime reset_cpu(ulong addr)
 {
 	u32 val;
 
+#ifdef CONFIG_ARCH_LX2160A
+	val = in_le32(rstcr);
+	val |= 0x01;
+	out_le32(rstcr, val);
+#else
 	/* Raise RESET_REQ_B */
 	val = scfg_in32(rstcr);
 	val |= 0x02;
 	scfg_out32(rstcr, val);
+#endif
 }
 
 #ifdef CONFIG_EFI_LOADER

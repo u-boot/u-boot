@@ -22,8 +22,17 @@ static u8 serdes3_prtcl_map[SERDES_PRCTL_COUNT];
 #endif
 
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#ifdef CONFIG_ARCH_LX2160A
+int xfi_dpmac[XFI14 + 1];
+int sgmii_dpmac[SGMII18 + 1];
+int a25gaui_dpmac[_25GE10 + 1];
+int xlaui_dpmac[_40GE2 + 1];
+int caui2_dpmac[_50GE2 + 1];
+int caui4_dpmac[_100GE2 + 1];
+#else
 int xfi_dpmac[XFI8 + 1];
 int sgmii_dpmac[SGMII16 + 1];
+#endif
 #endif
 
 __weak void wriop_init_dpmac_qsgmii(int sd, int lane_prtcl)
@@ -146,6 +155,32 @@ void serdes_init(u32 sd, u32 sd_addr, u32 rcwsr, u32 sd_prctl_mask,
 		else {
 			serdes_prtcl_map[lane_prtcl] = 1;
 #if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+#ifdef CONFIG_ARCH_LX2160A
+			if (lane_prtcl >= XFI1 && lane_prtcl <= XFI14)
+				wriop_init_dpmac(sd, xfi_dpmac[lane_prtcl],
+						 (int)lane_prtcl);
+
+			if (lane_prtcl >= SGMII1 && lane_prtcl <= SGMII18)
+				wriop_init_dpmac(sd, sgmii_dpmac[lane_prtcl],
+						 (int)lane_prtcl);
+
+			if (lane_prtcl >= _25GE1 && lane_prtcl <= _25GE10)
+				wriop_init_dpmac(sd, a25gaui_dpmac[lane_prtcl],
+						 (int)lane_prtcl);
+
+			if (lane_prtcl >= _40GE1 && lane_prtcl <= _40GE2)
+				wriop_init_dpmac(sd, xlaui_dpmac[lane_prtcl],
+						 (int)lane_prtcl);
+
+			if (lane_prtcl >= _50GE1 && lane_prtcl <= _50GE2)
+				wriop_init_dpmac(sd, caui2_dpmac[lane_prtcl],
+						 (int)lane_prtcl);
+
+			if (lane_prtcl >= _100GE1 && lane_prtcl <= _100GE2)
+				wriop_init_dpmac(sd, caui4_dpmac[lane_prtcl],
+						 (int)lane_prtcl);
+
+#else
 			switch (lane_prtcl) {
 			case QSGMII_A:
 			case QSGMII_B:
@@ -166,6 +201,7 @@ void serdes_init(u32 sd, u32 sd_addr, u32 rcwsr, u32 sd_prctl_mask,
 							 (int)lane_prtcl);
 				break;
 			}
+#endif
 #endif
 		}
 	}

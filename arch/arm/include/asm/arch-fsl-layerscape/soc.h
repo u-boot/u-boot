@@ -96,12 +96,18 @@ enum boot_src get_boot_src(void);
 #define SVR_LS2044A		0x870930
 #define SVR_LS2081A		0x870918
 #define SVR_LS2041A		0x870914
+#define SVR_LX2160A		0x873601
+#define SVR_LX2120A		0x873621
+#define SVR_LX2080A		0x873603
 
 #define SVR_MAJ(svr)		(((svr) >> 4) & 0xf)
 #define SVR_MIN(svr)		(((svr) >> 0) & 0xf)
 #define SVR_REV(svr)		(((svr) >> 0) & 0xff)
 #define SVR_SOC_VER(svr)	(((svr) >> 8) & SVR_WO_E)
 #define IS_E_PROCESSOR(svr)	(!((svr >> 8) & 0x1))
+#ifdef CONFIG_ARCH_LX2160A
+#define IS_C_PROCESSOR(svr)	(!((svr >> 12) & 0x1))
+#endif
 #define IS_SVR_REV(svr, maj, min) \
 		((SVR_MAJ(svr) == (maj)) && (SVR_MIN(svr) == (min)))
 #define SVR_DEV(svr)		((svr) >> 8)

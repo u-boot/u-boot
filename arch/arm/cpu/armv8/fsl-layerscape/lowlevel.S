@@ -354,7 +354,7 @@ get_svr:
 	ret
 #endif
 
-#ifdef CONFIG_SYS_FSL_HAS_CCN504
+#if defined(CONFIG_SYS_FSL_HAS_CCN504) || defined(CONFIG_SYS_FSL_HAS_CCN508)
 hnf_pstate_poll:
 	/* x0 has the desired status, return 0 for success, 1 for timeout
 	 * clobber x1, x2, x3, x4, x6, x7
