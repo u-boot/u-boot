@@ -411,6 +411,7 @@ static int ast2500_clk_enable(struct clk *clk)
 		break;
 	case PLL_D2PLL:
 		ast2500_configure_d2pll(priv->scu, D2PLL_DEFAULT_RATE);
+		break;
 	default:
 		return -ENOENT;
 	}
