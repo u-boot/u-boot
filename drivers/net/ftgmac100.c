@@ -13,19 +13,17 @@
 
 #include <dm.h>
 #include <miiphy.h>
-#include <malloc.h>
 #include <net.h>
 #include <linux/io.h>
-#include <asm/dma-mapping.h>
 #include <linux/iopoll.h>
 
 #include "ftgmac100.h"
 
-#define ETH_ZLEN	60
-#define CFG_XBUF_SIZE	1536
+/* Min frame ethernet frame size without FCS */
+#define ETH_ZLEN			60
 
-/* RBSR - hw default init value is also 0x640 */
-#define RBSR_DEFAULT_VALUE	0x640
+/* Receive Buffer Size Register - HW default is 0x640 */
+#define FTGMAC100_RBSR_DEFAULT		0x640
 
 /* PKTBUFSTX/PKTBUFSRX must both be power of 2 */
 #define PKTBUFSTX	4	/* must be power of 2 */
@@ -57,10 +55,8 @@
 struct ftgmac100_data {
 	struct ftgmac100 *iobase;
 
-	ulong txdes_dma;
-	struct ftgmac100_txdes *txdes;
-	ulong rxdes_dma;
-	struct ftgmac100_rxdes *rxdes;
+	struct ftgmac100_txdes txdes[PKTBUFSTX];
+	struct ftgmac100_rxdes rxdes[PKTBUFSRX];
 	int tx_index;
 	int rx_index;
 
@@ -266,36 +262,14 @@ static int ftgmac100_start(struct udevice *dev)
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100 *ftgmac100 = priv->iobase;
 	struct phy_device *phydev = priv->phydev;
-	struct ftgmac100_txdes *txdes;
-	struct ftgmac100_rxdes *rxdes;
 	unsigned int maccr;
-	void *buf;
+	ulong start, end;
 	int ret;
 	int i;
 
 	debug("%s()\n", __func__);
 
 	ftgmac100_reset(priv);
-
-	if (!priv->txdes) {
-		txdes = dma_alloc_coherent(
-			sizeof(*txdes) * PKTBUFSTX, &priv->txdes_dma);
-		if (!txdes)
-			panic("ftgmac100: out of memory\n");
-		memset(txdes, 0, sizeof(*txdes) * PKTBUFSTX);
-		priv->txdes = txdes;
-	}
-	txdes = priv->txdes;
-
-	if (!priv->rxdes) {
-		rxdes = dma_alloc_coherent(
-			sizeof(*rxdes) * PKTBUFSRX, &priv->rxdes_dma);
-		if (!rxdes)
-			panic("ftgmac100: out of memory\n");
-		memset(rxdes, 0, sizeof(*rxdes) * PKTBUFSRX);
-		priv->rxdes = rxdes;
-	}
-	rxdes = priv->rxdes;
 
 	/* set the ethernet address */
 	ftgmac100_set_mac(priv, plat->enetaddr);
@@ -307,42 +281,37 @@ static int ftgmac100_start(struct udevice *dev)
 	priv->tx_index = 0;
 	priv->rx_index = 0;
 
-	txdes[PKTBUFSTX - 1].txdes0	= FTGMAC100_TXDES0_EDOTR;
-	rxdes[PKTBUFSRX - 1].rxdes0	= FTGMAC100_RXDES0_EDORR;
-
 	for (i = 0; i < PKTBUFSTX; i++) {
-		/* TXBUF_BADR */
-		if (!txdes[i].txdes2) {
-			buf = memalign(ARCH_DMA_MINALIGN, CFG_XBUF_SIZE);
-			if (!buf)
-				panic("ftgmac100: out of memory\n");
-			txdes[i].txdes3 = virt_to_phys(buf);
-			txdes[i].txdes2 = (uint)buf;
-		}
-		txdes[i].txdes1 = 0;
+		priv->txdes[i].txdes3 = 0;
+		priv->txdes[i].txdes0 = 0;
 	}
+	priv->txdes[PKTBUFSTX - 1].txdes0 = FTGMAC100_TXDES0_EDOTR;
+
+	start = (ulong)&priv->txdes[0];
+	end = start + roundup(sizeof(priv->txdes), ARCH_DMA_MINALIGN);
+	flush_dcache_range(start, end);
 
 	for (i = 0; i < PKTBUFSRX; i++) {
-		/* RXBUF_BADR */
-		if (!rxdes[i].rxdes2) {
-			buf = net_rx_packets[i];
-			rxdes[i].rxdes3 = virt_to_phys(buf);
-			rxdes[i].rxdes2 = (uint)buf;
-		}
-		rxdes[i].rxdes0 &= ~FTGMAC100_RXDES0_RXPKT_RDY;
+		priv->rxdes[i].rxdes3 = (unsigned int)net_rx_packets[i];
+		priv->rxdes[i].rxdes0 = 0;
 	}
+	priv->rxdes[PKTBUFSRX - 1].rxdes0 = FTGMAC100_RXDES0_EDORR;
+
+	start = (ulong)&priv->rxdes[0];
+	end = start + roundup(sizeof(priv->rxdes), ARCH_DMA_MINALIGN);
+	flush_dcache_range(start, end);
 
 	/* transmit ring */
-	writel(priv->txdes_dma, &ftgmac100->txr_badr);
+	writel((u32)priv->txdes, &ftgmac100->txr_badr);
 
 	/* receive ring */
-	writel(priv->rxdes_dma, &ftgmac100->rxr_badr);
+	writel((u32)priv->rxdes, &ftgmac100->rxr_badr);
 
 	/* poll receive descriptor automatically */
 	writel(FTGMAC100_APTC_RXPOLL_CNT(1), &ftgmac100->aptc);
 
 	/* config receive buffer size register */
-	writel(FTGMAC100_RBSR_SIZE(RBSR_DEFAULT_VALUE), &ftgmac100->rbsr);
+	writel(FTGMAC100_RBSR_SIZE(FTGMAC100_RBSR_DEFAULT), &ftgmac100->rbsr);
 
 	/* enable transmitter, receiver */
 	maccr = FTGMAC100_MACCR_TXMAC_EN |
@@ -378,9 +347,13 @@ static int ftgmac100_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100_rxdes *curr_des = &priv->rxdes[priv->rx_index];
+	ulong des_start = (ulong)curr_des;
+	ulong des_end = des_start +
+		roundup(sizeof(*curr_des), ARCH_DMA_MINALIGN);
 
-	/* Release buffer to DMA */
+	/* Release buffer to DMA and flush descriptor */
 	curr_des->rxdes0 &= ~FTGMAC100_RXDES0_RXPKT_RDY;
+	flush_dcache_range(des_start, des_end);
 
 	/* Move to next descriptor */
 	priv->rx_index = (priv->rx_index + 1) % PKTBUFSRX;
@@ -394,20 +367,25 @@ static int ftgmac100_free_pkt(struct udevice *dev, uchar *packet, int length)
 static int ftgmac100_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct ftgmac100_data *priv = dev_get_priv(dev);
-	struct ftgmac100_rxdes *curr_des;
+	struct ftgmac100_rxdes *curr_des = &priv->rxdes[priv->rx_index];
 	unsigned short rxlen;
+	ulong des_start = (ulong)curr_des;
+	ulong des_end = des_start +
+		roundup(sizeof(*curr_des), ARCH_DMA_MINALIGN);
+	ulong data_start = curr_des->rxdes3;
+	ulong data_end;
 
-	curr_des = &priv->rxdes[priv->rx_index];
+	invalidate_dcache_range(des_start, des_end);
 
 	if (!(curr_des->rxdes0 & FTGMAC100_RXDES0_RXPKT_RDY))
-		return -1;
+		return -EAGAIN;
 
 	if (curr_des->rxdes0 & (FTGMAC100_RXDES0_RX_ERR |
 				FTGMAC100_RXDES0_CRC_ERR |
 				FTGMAC100_RXDES0_FTL |
 				FTGMAC100_RXDES0_RUNT |
 				FTGMAC100_RXDES0_RX_ODD_NB)) {
-		return -1;
+		return -EAGAIN;
 	}
 
 	rxlen = FTGMAC100_RXDES0_VDBC(curr_des->rxdes0);
@@ -415,18 +393,12 @@ static int ftgmac100_recv(struct udevice *dev, int flags, uchar **packetp)
 	debug("%s(): RX buffer %d, %x received\n",
 	       __func__, priv->rx_index, rxlen);
 
-	/* invalidate d-cache */
-	dma_map_single((void *)curr_des->rxdes2, rxlen, DMA_FROM_DEVICE);
+	/* Invalidate received data */
+	data_end = data_start + roundup(rxlen, ARCH_DMA_MINALIGN);
+	invalidate_dcache_range(data_start, data_end);
+	*packetp = (uchar *)data_start;
 
-	/* pass the packet up to the protocol layers. */
-	net_process_received_packet((void *)curr_des->rxdes2, rxlen);
-
-	/* release buffer to DMA */
-	curr_des->rxdes0 &= ~FTGMAC100_RXDES0_RXPKT_RDY;
-
-	priv->rx_index = (priv->rx_index + 1) % PKTBUFSRX;
-
-	return 0;
+	return rxlen;
 }
 
 /*
@@ -437,31 +409,46 @@ static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100 *ftgmac100 = priv->iobase;
 	struct ftgmac100_txdes *curr_des = &priv->txdes[priv->tx_index];
+	ulong des_start = (ulong)curr_des;
+	ulong des_end = des_start +
+		roundup(sizeof(*curr_des), ARCH_DMA_MINALIGN);
+	ulong data_start;
+	ulong data_end;
+
+	invalidate_dcache_range(des_start, des_end);
 
 	if (curr_des->txdes0 & FTGMAC100_TXDES0_TXDMA_OWN) {
-		debug("%s(): no TX descriptor available\n", __func__);
-		return -1;
+		dev_err(dev, "no TX descriptor available\n");
+		return -EPERM;
 	}
 
 	debug("%s(%x, %x)\n", __func__, (int)packet, length);
 
 	length = (length < ETH_ZLEN) ? ETH_ZLEN : length;
 
-	memcpy((void *)curr_des->txdes2, (void *)packet, length);
-	dma_map_single((void *)curr_des->txdes2, length, DMA_TO_DEVICE);
+	curr_des->txdes3 = (unsigned int)packet;
 
-	/* only one descriptor on TXBUF */
+	/* Flush data to be sent */
+	data_start = curr_des->txdes3;
+	data_end = data_start + roundup(length, ARCH_DMA_MINALIGN);
+	flush_dcache_range(data_start, data_end);
+
+	/* Only one segment on TXBUF */
 	curr_des->txdes0 &= FTGMAC100_TXDES0_EDOTR;
 	curr_des->txdes0 |= FTGMAC100_TXDES0_FTS |
 			    FTGMAC100_TXDES0_LTS |
 			    FTGMAC100_TXDES0_TXBUF_SIZE(length) |
 			    FTGMAC100_TXDES0_TXDMA_OWN ;
 
-	/* start transmit */
+	/* Flush modified buffer descriptor */
+	flush_dcache_range(des_start, des_end);
+
+	/* Start transmit */
 	writel(1, &ftgmac100->txpd);
 
 	debug("%s(): packet sent\n", __func__);
 
+	/* Move to next descriptor */
 	priv->tx_index = (priv->tx_index + 1) % PKTBUFSTX;
 
 	return 0;
