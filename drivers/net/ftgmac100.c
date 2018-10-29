@@ -14,6 +14,7 @@
 #include <dm.h>
 #include <miiphy.h>
 #include <net.h>
+#include <wait_bit.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 
@@ -27,6 +28,9 @@
 
 /* PKTBUFSTX/PKTBUFSRX must both be power of 2 */
 #define PKTBUFSTX	4	/* must be power of 2 */
+
+/* Timeout for transmit */
+#define FTGMAC100_TX_TIMEOUT_MS		1000
 
 /* Timeout for a mdio read/write operation */
 #define FTGMAC100_MDIO_TIMEOUT_USEC	10000
@@ -401,6 +405,19 @@ static int ftgmac100_recv(struct udevice *dev, int flags, uchar **packetp)
 	return rxlen;
 }
 
+static u32 ftgmac100_read_txdesc(const void *desc)
+{
+	const struct ftgmac100_txdes *txdes = desc;
+	ulong des_start = (ulong)txdes;
+	ulong des_end = des_start + roundup(sizeof(*txdes), ARCH_DMA_MINALIGN);
+
+	invalidate_dcache_range(des_start, des_end);
+
+	return txdes->txdes0;
+}
+
+BUILD_WAIT_FOR_BIT(ftgmac100_txdone, u32, ftgmac100_read_txdesc)
+
 /*
  * Send a data block via Ethernet
  */
@@ -414,6 +431,7 @@ static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 		roundup(sizeof(*curr_des), ARCH_DMA_MINALIGN);
 	ulong data_start;
 	ulong data_end;
+	int rc;
 
 	invalidate_dcache_range(des_start, des_end);
 
@@ -445,6 +463,12 @@ static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 
 	/* Start transmit */
 	writel(1, &ftgmac100->txpd);
+
+	rc = wait_for_bit_ftgmac100_txdone(curr_des,
+					   FTGMAC100_TXDES0_TXDMA_OWN, false,
+					   FTGMAC100_TX_TIMEOUT_MS, true);
+	if (rc)
+		return rc;
 
 	debug("%s(): packet sent\n", __func__);
 
