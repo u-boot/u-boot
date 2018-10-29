@@ -43,6 +43,14 @@
  */
 #define MDC_CYCTHR			0x34
 
+/*
+ * ftgmac100 model variants
+ */
+enum ftgmac100_model {
+	FTGMAC100_MODEL_FARADAY,
+	FTGMAC100_MODEL_ASPEED,
+};
+
 /**
  * struct ftgmac100_data - private data for the FTGMAC100 driver
  *
@@ -57,6 +65,8 @@
  * @phy_mode: The mode of the PHY interface (rgmii, rmii, ...)
  * @max_speed: Maximum speed of Ethernet connection supported by MAC
  * @clks: The bulk of clocks assigned to the device in the DT
+ * @rxdes0_edorr_mask: The bit number identifying the end of the RX ring buffer
+ * @txdes0_edotr_mask: The bit number identifying the end of the TX ring buffer
  */
 struct ftgmac100_data {
 	struct ftgmac100 *iobase;
@@ -73,6 +83,10 @@ struct ftgmac100_data {
 	u32 max_speed;
 
 	struct clk_bulk clks;
+
+	/* End of RX/TX ring buffer bits. Depend on model */
+	u32 rxdes0_edorr_mask;
+	u32 txdes0_edotr_mask;
 };
 
 /*
@@ -293,7 +307,7 @@ static int ftgmac100_start(struct udevice *dev)
 		priv->txdes[i].txdes3 = 0;
 		priv->txdes[i].txdes0 = 0;
 	}
-	priv->txdes[PKTBUFSTX - 1].txdes0 = FTGMAC100_TXDES0_EDOTR;
+	priv->txdes[PKTBUFSTX - 1].txdes0 = priv->txdes0_edotr_mask;
 
 	start = (ulong)&priv->txdes[0];
 	end = start + roundup(sizeof(priv->txdes), ARCH_DMA_MINALIGN);
@@ -303,7 +317,7 @@ static int ftgmac100_start(struct udevice *dev)
 		priv->rxdes[i].rxdes3 = (unsigned int)net_rx_packets[i];
 		priv->rxdes[i].rxdes0 = 0;
 	}
-	priv->rxdes[PKTBUFSRX - 1].rxdes0 = FTGMAC100_RXDES0_EDORR;
+	priv->rxdes[PKTBUFSRX - 1].rxdes0 = priv->rxdes0_edorr_mask;
 
 	start = (ulong)&priv->rxdes[0];
 	end = start + roundup(sizeof(priv->rxdes), ARCH_DMA_MINALIGN);
@@ -456,7 +470,7 @@ static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 	flush_dcache_range(data_start, data_end);
 
 	/* Only one segment on TXBUF */
-	curr_des->txdes0 &= FTGMAC100_TXDES0_EDOTR;
+	curr_des->txdes0 &= priv->txdes0_edotr_mask;
 	curr_des->txdes0 |= FTGMAC100_TXDES0_FTS |
 			    FTGMAC100_TXDES0_LTS |
 			    FTGMAC100_TXDES0_TXBUF_SIZE(length) |
@@ -507,6 +521,14 @@ static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	pdata->max_speed = dev_read_u32_default(dev, "max-speed", 0);
+
+	if (dev_get_driver_data(dev) == FTGMAC100_MODEL_ASPEED) {
+		priv->rxdes0_edorr_mask = BIT(30);
+		priv->txdes0_edotr_mask = BIT(30);
+	} else {
+		priv->rxdes0_edorr_mask = BIT(15);
+		priv->txdes0_edotr_mask = BIT(15);
+	}
 
 	return clk_get_bulk(dev, &priv->clks);
 }
@@ -567,7 +589,8 @@ static const struct eth_ops ftgmac100_ops = {
 };
 
 static const struct udevice_id ftgmac100_ids[] = {
-	{ .compatible = "faraday,ftgmac100" },
+	{ .compatible = "faraday,ftgmac100",  .data = FTGMAC100_MODEL_FARADAY },
+	{ .compatible = "aspeed,ast2500-mac", .data = FTGMAC100_MODEL_ASPEED  },
 	{ }
 };
 
