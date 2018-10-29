@@ -197,7 +197,7 @@ struct stm32_i2c_priv {
 	int speed;
 };
 
-static struct stm32_i2c_spec i2c_specs[] = {
+static const struct stm32_i2c_spec i2c_specs[] = {
 	[STM32_I2C_SPEED_STANDARD] = {
 		.rate = STANDARD_RATE,
 		.rate_min = 8000,
@@ -236,7 +236,7 @@ static struct stm32_i2c_spec i2c_specs[] = {
 	},
 };
 
-static struct stm32_i2c_setup stm32f7_setup = {
+static const struct stm32_i2c_setup stm32f7_setup = {
 	.rise_time = STM32_I2C_RISE_TIME_DEFAULT,
 	.fall_time = STM32_I2C_FALL_TIME_DEFAULT,
 	.dnf = STM32_I2C_DNF_DEFAULT,
