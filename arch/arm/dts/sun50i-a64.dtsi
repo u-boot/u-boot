@@ -259,7 +259,8 @@
 		};
 
 		syscon: syscon@1c00000 {
-			compatible = "allwinner,sun50i-a64-system-control";
+			compatible = "allwinner,sun50i-a64-system-control",
+				"syscon";
 			reg = <0x01c00000 0x1000>;
 			#address-cells = <1>;
 			#size-cells = <1>;
