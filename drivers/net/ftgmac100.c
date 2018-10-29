@@ -7,15 +7,16 @@
  *
  * (C) Copyright 2010 Andes Technology
  * Macpaul Lin <macpaul@andestech.com>
+ *
+ * Copyright (C) 2018, IBM Corporation.
  */
 
-#include <config.h>
-#include <common.h>
+#include <dm.h>
+#include <miiphy.h>
 #include <malloc.h>
 #include <net.h>
-#include <asm/io.h>
+#include <linux/io.h>
 #include <asm/dma-mapping.h>
-#include <linux/mii.h>
 
 #include "ftgmac100.h"
 
@@ -28,7 +29,19 @@
 /* PKTBUFSTX/PKTBUFSRX must both be power of 2 */
 #define PKTBUFSTX	4	/* must be power of 2 */
 
+/**
+ * struct ftgmac100_data - private data for the FTGMAC100 driver
+ *
+ * @iobase: The base address of the hardware registers
+ * @txdes: The array of transmit descriptors
+ * @rxdes: The array of receive descriptors
+ * @tx_index: Transmit descriptor index in @txdes
+ * @rx_index: Receive descriptor index in @rxdes
+ * @phy_addr: The PHY interface address to use
+ */
 struct ftgmac100_data {
+	struct ftgmac100 *iobase;
+
 	ulong txdes_dma;
 	struct ftgmac100_txdes *txdes;
 	ulong rxdes_dma;
@@ -41,10 +54,10 @@ struct ftgmac100_data {
 /*
  * struct mii_bus functions
  */
-static int ftgmac100_mdiobus_read(struct eth_device *dev, int phy_addr,
-	int regnum)
+static int ftgmac100_mdiobus_read(struct ftgmac100_data *priv, int phy_addr,
+				  int regnum)
 {
-	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
+	struct ftgmac100 *ftgmac100 = priv->iobase;
 	int phycr;
 	int i;
 
@@ -76,10 +89,10 @@ static int ftgmac100_mdiobus_read(struct eth_device *dev, int phy_addr,
 	return -1;
 }
 
-static int ftgmac100_mdiobus_write(struct eth_device *dev, int phy_addr,
-	int regnum, u16 value)
+static int ftgmac100_mdiobus_write(struct ftgmac100_data *priv, int phy_addr,
+				   int regnum, u16 value)
 {
-	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
+	struct ftgmac100 *ftgmac100 = priv->iobase;
 	int phycr;
 	int data;
 	int i;
@@ -114,9 +127,10 @@ static int ftgmac100_mdiobus_write(struct eth_device *dev, int phy_addr,
 	return -1;
 }
 
-int ftgmac100_phy_read(struct eth_device *dev, int addr, int reg, u16 *value)
+int ftgmac100_phy_read(struct ftgmac100_data *priv, int addr, int reg,
+		       u16 *value)
 {
-	*value = ftgmac100_mdiobus_read(dev , addr, reg);
+	*value = ftgmac100_mdiobus_read(priv, addr, reg);
 
 	if (*value == -1)
 		return -1;
@@ -124,31 +138,31 @@ int ftgmac100_phy_read(struct eth_device *dev, int addr, int reg, u16 *value)
 	return 0;
 }
 
-int  ftgmac100_phy_write(struct eth_device *dev, int addr, int reg, u16 value)
+int ftgmac100_phy_write(struct ftgmac100_data *priv, int addr, int reg,
+			u16 value)
 {
-	if (ftgmac100_mdiobus_write(dev, addr, reg, value) == -1)
+	if (ftgmac100_mdiobus_write(priv, addr, reg, value) == -1)
 		return -1;
 
 	return 0;
 }
 
-static int ftgmac100_phy_reset(struct eth_device *dev)
+static int ftgmac100_phy_reset(struct ftgmac100_data *priv, struct udevice *dev)
 {
-	struct ftgmac100_data *priv = dev->priv;
 	int i;
 	u16 status, adv;
 
 	adv = ADVERTISE_CSMA | ADVERTISE_ALL;
 
-	ftgmac100_phy_write(dev, priv->phy_addr, MII_ADVERTISE, adv);
+	ftgmac100_phy_write(priv, priv->phy_addr, MII_ADVERTISE, adv);
 
 	printf("%s: Starting autonegotiation...\n", dev->name);
 
-	ftgmac100_phy_write(dev, priv->phy_addr,
-		MII_BMCR, (BMCR_ANENABLE | BMCR_ANRESTART));
+	ftgmac100_phy_write(priv, priv->phy_addr,
+			    MII_BMCR, (BMCR_ANENABLE | BMCR_ANRESTART));
 
 	for (i = 0; i < 100000 / 100; i++) {
-		ftgmac100_phy_read(dev, priv->phy_addr, MII_BMSR, &status);
+		ftgmac100_phy_read(priv, priv->phy_addr, MII_BMSR, &status);
 
 		if (status & BMSR_ANEGCOMPLETE)
 			break;
@@ -166,19 +180,17 @@ static int ftgmac100_phy_reset(struct eth_device *dev)
 	return 1;
 }
 
-static int ftgmac100_phy_init(struct eth_device *dev)
+static int ftgmac100_phy_init(struct ftgmac100_data *priv, struct udevice *dev)
 {
-	struct ftgmac100_data *priv = dev->priv;
-
 	int phy_addr;
 	u16 phy_id, status, adv, lpa, stat_ge;
 	int media, speed, duplex;
 	int i;
 
 	/* Check if the PHY is up to snuff... */
-	for (phy_addr = 0; phy_addr < CONFIG_PHY_MAX_ADDR; phy_addr++) {
+	for (phy_addr = 0; phy_addr < PHY_MAX_ADDR; phy_addr++) {
 
-		ftgmac100_phy_read(dev, phy_addr, MII_PHYSID1, &phy_id);
+		ftgmac100_phy_read(priv, phy_addr, MII_PHYSID1, &phy_id);
 
 		/*
 		 * When it is unable to found PHY,
@@ -197,15 +209,15 @@ static int ftgmac100_phy_init(struct eth_device *dev)
 		return 0;
 	}
 
-	ftgmac100_phy_read(dev, priv->phy_addr, MII_BMSR, &status);
+	ftgmac100_phy_read(priv, priv->phy_addr, MII_BMSR, &status);
 
 	if (!(status & BMSR_LSTATUS)) {
 		/* Try to re-negotiate if we don't have link already. */
-		ftgmac100_phy_reset(dev);
+		ftgmac100_phy_reset(priv, dev);
 
 		for (i = 0; i < 100000 / 100; i++) {
-			ftgmac100_phy_read(dev, priv->phy_addr,
-				MII_BMSR, &status);
+			ftgmac100_phy_read(priv, priv->phy_addr,
+					   MII_BMSR, &status);
 			if (status & BMSR_LSTATUS)
 				break;
 			udelay(100);
@@ -235,8 +247,8 @@ static int ftgmac100_phy_init(struct eth_device *dev)
 	}
 #endif
 
-	ftgmac100_phy_read(dev, priv->phy_addr, MII_ADVERTISE, &adv);
-	ftgmac100_phy_read(dev, priv->phy_addr, MII_LPA, &lpa);
+	ftgmac100_phy_read(priv, priv->phy_addr, MII_ADVERTISE, &adv);
+	ftgmac100_phy_read(priv, priv->phy_addr, MII_LPA, &lpa);
 
 	media = mii_nway_result(lpa & adv);
 	speed = (media & (ADVERTISE_100FULL | ADVERTISE_100HALF) ? 1 : 0);
@@ -248,21 +260,19 @@ static int ftgmac100_phy_init(struct eth_device *dev)
 	return 1;
 }
 
-static int ftgmac100_update_link_speed(struct eth_device *dev)
+static int ftgmac100_update_link_speed(struct ftgmac100_data *priv)
 {
-	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
-	struct ftgmac100_data *priv = dev->priv;
-
+	struct ftgmac100 *ftgmac100 = priv->iobase;
 	unsigned short stat_fe;
 	unsigned short stat_ge;
 	unsigned int maccr;
 
 #ifdef CONFIG_FTGMAC100_EGIGA
 	/* 1000 Base-T Status Register */
-	ftgmac100_phy_read(dev, priv->phy_addr, MII_STAT1000, &stat_ge);
+	ftgmac100_phy_read(priv, priv->phy_addr, MII_STAT1000, &stat_ge);
 #endif
 
-	ftgmac100_phy_read(dev, priv->phy_addr, MII_BMSR, &stat_fe);
+	ftgmac100_phy_read(priv, priv->phy_addr, MII_BMSR, &stat_fe);
 
 	if (!(stat_fe & BMSR_LSTATUS))	/* link status up? */
 		return 0;
@@ -315,9 +325,9 @@ static int ftgmac100_update_link_speed(struct eth_device *dev)
 /*
  * Reset MAC
  */
-static void ftgmac100_reset(struct eth_device *dev)
+static void ftgmac100_reset(struct ftgmac100_data *priv)
 {
-	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
+	struct ftgmac100 *ftgmac100 = priv->iobase;
 
 	debug("%s()\n", __func__);
 
@@ -330,10 +340,10 @@ static void ftgmac100_reset(struct eth_device *dev)
 /*
  * Set MAC address
  */
-static void ftgmac100_set_mac(struct eth_device *dev,
-	const unsigned char *mac)
+static int ftgmac100_set_mac(struct ftgmac100_data *priv,
+			     const unsigned char *mac)
 {
-	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
+	struct ftgmac100 *ftgmac100 = priv->iobase;
 	unsigned int maddr = mac[0] << 8 | mac[1];
 	unsigned int laddr = mac[2] << 24 | mac[3] << 16 | mac[4] << 8 | mac[5];
 
@@ -341,31 +351,28 @@ static void ftgmac100_set_mac(struct eth_device *dev,
 
 	writel(maddr, &ftgmac100->mac_madr);
 	writel(laddr, &ftgmac100->mac_ladr);
-}
 
-static void ftgmac100_set_mac_from_env(struct eth_device *dev)
-{
-	eth_env_get_enetaddr("ethaddr", dev->enetaddr);
-
-	ftgmac100_set_mac(dev, dev->enetaddr);
+	return 0;
 }
 
 /*
  * disable transmitter, receiver
  */
-static void ftgmac100_halt(struct eth_device *dev)
+static void ftgmac100_stop(struct udevice *dev)
 {
-	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+	struct ftgmac100 *ftgmac100 = priv->iobase;
 
 	debug("%s()\n", __func__);
 
 	writel(0, &ftgmac100->maccr);
 }
 
-static int ftgmac100_init(struct eth_device *dev, bd_t *bd)
+static int ftgmac100_start(struct udevice *dev)
 {
-	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
-	struct ftgmac100_data *priv = dev->priv;
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+	struct ftgmac100 *ftgmac100 = priv->iobase;
 	struct ftgmac100_txdes *txdes;
 	struct ftgmac100_rxdes *rxdes;
 	unsigned int maccr;
@@ -373,6 +380,8 @@ static int ftgmac100_init(struct eth_device *dev, bd_t *bd)
 	int i;
 
 	debug("%s()\n", __func__);
+
+	ftgmac100_reset(priv);
 
 	if (!priv->txdes) {
 		txdes = dma_alloc_coherent(
@@ -395,7 +404,7 @@ static int ftgmac100_init(struct eth_device *dev, bd_t *bd)
 	rxdes = priv->rxdes;
 
 	/* set the ethernet address */
-	ftgmac100_set_mac_from_env(dev);
+	ftgmac100_set_mac(priv, plat->enetaddr);
 
 	/* disable all interrupts */
 	writel(0, &ftgmac100->ier);
@@ -453,10 +462,24 @@ static int ftgmac100_init(struct eth_device *dev, bd_t *bd)
 
 	writel(maccr, &ftgmac100->maccr);
 
-	if (!ftgmac100_phy_init(dev)) {
-		if (!ftgmac100_update_link_speed(dev))
+	if (!ftgmac100_phy_init(priv, dev)) {
+		if (!ftgmac100_update_link_speed(priv))
 			return -1;
 	}
+
+	return 0;
+}
+
+static int ftgmac100_free_pkt(struct udevice *dev, uchar *packet, int length)
+{
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+	struct ftgmac100_rxdes *curr_des = &priv->rxdes[priv->rx_index];
+
+	/* Release buffer to DMA */
+	curr_des->rxdes0 &= ~FTGMAC100_RXDES0_RXPKT_RDY;
+
+	/* Move to next descriptor */
+	priv->rx_index = (priv->rx_index + 1) % PKTBUFSRX;
 
 	return 0;
 }
@@ -464,9 +487,9 @@ static int ftgmac100_init(struct eth_device *dev, bd_t *bd)
 /*
  * Get a data block via Ethernet
  */
-static int ftgmac100_recv(struct eth_device *dev)
+static int ftgmac100_recv(struct udevice *dev, int flags, uchar **packetp)
 {
-	struct ftgmac100_data *priv = dev->priv;
+	struct ftgmac100_data *priv = dev_get_priv(dev);
 	struct ftgmac100_rxdes *curr_des;
 	unsigned short rxlen;
 
@@ -505,10 +528,10 @@ static int ftgmac100_recv(struct eth_device *dev)
 /*
  * Send a data block via Ethernet
  */
-static int ftgmac100_send(struct eth_device *dev, void *packet, int length)
+static int ftgmac100_send(struct udevice *dev, void *packet, int length)
 {
-	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
-	struct ftgmac100_data *priv = dev->priv;
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+	struct ftgmac100 *ftgmac100 = priv->iobase;
 	struct ftgmac100_txdes *curr_des = &priv->txdes[priv->tx_index];
 
 	if (curr_des->txdes0 & FTGMAC100_TXDES0_TXDMA_OWN) {
@@ -540,43 +563,59 @@ static int ftgmac100_send(struct eth_device *dev, void *packet, int length)
 	return 0;
 }
 
-int ftgmac100_initialize(bd_t *bd)
+static int ftgmac100_write_hwaddr(struct udevice *dev)
 {
-	struct eth_device *dev;
-	struct ftgmac100_data *priv;
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct ftgmac100_data *priv = dev_get_priv(dev);
 
-	dev = malloc(sizeof *dev);
-	if (!dev) {
-		printf("%s(): failed to allocate dev\n", __func__);
-		goto out;
-	}
+	return ftgmac100_set_mac(priv, pdata->enetaddr);
+}
 
-	/* Transmit and receive descriptors should align to 16 bytes */
-	priv = memalign(16, sizeof(struct ftgmac100_data));
-	if (!priv) {
-		printf("%s(): failed to allocate priv\n", __func__);
-		goto free_dev;
-	}
+static int ftgmac100_ofdata_to_platdata(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
 
-	memset(dev, 0, sizeof(*dev));
-	memset(priv, 0, sizeof(*priv));
-
-	strcpy(dev->name, "FTGMAC100");
-	dev->iobase	= CONFIG_FTGMAC100_BASE;
-	dev->init	= ftgmac100_init;
-	dev->halt	= ftgmac100_halt;
-	dev->send	= ftgmac100_send;
-	dev->recv	= ftgmac100_recv;
-	dev->priv	= priv;
-
-	eth_register(dev);
-
-	ftgmac100_reset(dev);
-
-	return 1;
-
-free_dev:
-	free(dev);
-out:
+	pdata->iobase = devfdt_get_addr(dev);
 	return 0;
 }
+
+static int ftgmac100_probe(struct udevice *dev)
+{
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct ftgmac100_data *priv = dev_get_priv(dev);
+
+	priv->iobase = (struct ftgmac100 *)pdata->iobase;
+	return 0;
+}
+
+static int ftgmac100_remove(struct udevice *dev)
+{
+	return 0;
+}
+
+static const struct eth_ops ftgmac100_ops = {
+	.start	= ftgmac100_start,
+	.send	= ftgmac100_send,
+	.recv	= ftgmac100_recv,
+	.stop	= ftgmac100_stop,
+	.free_pkt = ftgmac100_free_pkt,
+	.write_hwaddr = ftgmac100_write_hwaddr,
+};
+
+static const struct udevice_id ftgmac100_ids[] = {
+	{ .compatible = "faraday,ftgmac100" },
+	{ }
+};
+
+U_BOOT_DRIVER(ftgmac100) = {
+	.name	= "ftgmac100",
+	.id	= UCLASS_ETH,
+	.of_match = ftgmac100_ids,
+	.ofdata_to_platdata = ftgmac100_ofdata_to_platdata,
+	.probe	= ftgmac100_probe,
+	.remove = ftgmac100_remove,
+	.ops	= &ftgmac100_ops,
+	.priv_auto_alloc_size = sizeof(struct ftgmac100_data),
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};

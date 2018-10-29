@@ -186,6 +186,32 @@ config FTMAC100
 	help
 	  This MAC is present in Andestech SoCs.
 
+config FTGMAC100
+	bool "Ftgmac100 Ethernet Support"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  This driver supports the Faraday's FTGMAC100 Gigabit SoC
+	  Ethernet controller that can be found on Aspeed SoCs (which
+	  include NCSI).
+
+	  It is fully compliant with IEEE 802.3 specification for
+	  10/100 Mbps Ethernet and IEEE 802.3z specification for 1000
+	  Mbps Ethernet and includes Reduced Media Independent
+	  Interface (RMII) and Reduced Gigabit Media Independent
+	  Interface (RGMII) interfaces. It adopts an AHB bus interface
+	  and integrates a link list DMA engine with direct M-Bus
+	  accesses for transmitting and receiving packets. It has
+	  independent TX/RX fifos, supports half and full duplex (1000
+	  Mbps mode only supports full duplex), flow control for full
+	  duplex and backpressure for half duplex.
+
+	  The FTGMAC100 also implements IP, TCP, UDP checksum offloads
+	  and supports IEEE 802.1Q VLAN tag insertion and removal. It
+	  offers high-priority transmit queue for QoS and CoS
+	  applications.
+
+
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on KIRKWOOD || ORION5X
