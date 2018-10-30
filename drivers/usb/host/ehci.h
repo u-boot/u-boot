@@ -8,6 +8,7 @@
 #ifndef USB_EHCI_H
 #define USB_EHCI_H
 
+#include <stdbool.h>
 #include <usb.h>
 #include <generic-phy.h>
 
@@ -66,6 +67,8 @@ struct ehci_hcor {
 #define PORTSC_PSPD_FS			0x0
 #define PORTSC_PSPD_LS			0x1
 #define PORTSC_PSPD_HS			0x2
+#define PORTSC_FSL_PFSC		BIT(24) /* PFSC bit to disable HS chirping */
+
 	uint32_t or_systune;
 } __attribute__ ((packed, aligned(4)));
 
@@ -251,6 +254,7 @@ struct ehci_ctrl {
 	uint32_t *periodic_list;
 	int periodic_schedules;
 	int ntds;
+	bool has_fsl_erratum_a005275;	/* Freescale HS silicon quirk */
 	struct ehci_ops ops;
 	void *priv;	/* client's private data */
 };

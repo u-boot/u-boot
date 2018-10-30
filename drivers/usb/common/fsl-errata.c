@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <hwconfig.h>
 #include <fsl_errata.h>
 #include<fsl_usb.h>
 #if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3) || \
@@ -38,6 +39,33 @@ bool has_dual_phy(void)
 	case SVR_T4160:
 	case SVR_T4080:
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+#endif
+	}
+
+	return false;
+}
+
+bool has_erratum_a005275(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	if (hwconfig("no_erratum_a005275"))
+		return false;
+
+	switch (soc) {
+#ifdef CONFIG_PPC
+	case SVR_P3041:
+	case SVR_P2041:
+	case SVR_P2040:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 1, 1);
+	case SVR_P5010:
+	case SVR_P5020:
+	case SVR_P5021:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_P5040:
+	case SVR_P1010:
+		return IS_SVR_REV(svr, 1, 0);
 #endif
 	}
 
