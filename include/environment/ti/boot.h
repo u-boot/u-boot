@@ -93,7 +93,6 @@
 		AVB_VERIFY_CHECK \
 		"part start mmc ${mmcdev} boot boot_start; " \
 		"part size mmc ${mmcdev} boot boot_size; " \
-		"mmc read ${fdtaddr} ${fdt_start} ${fdt_size}; " \
 		"mmc read ${loadaddr} ${boot_start} ${boot_size}; " \
 		"bootm ${loadaddr}#${fdtfile};\0 "
 
