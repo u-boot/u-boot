@@ -498,6 +498,8 @@ int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			ret = tmio_sd_dma_xfer(dev, data);
 		else
 			ret = tmio_sd_pio_xfer(dev, data);
+		if (ret)
+			return ret;
 
 		ret = tmio_sd_wait_for_irq(dev, TMIO_SD_INFO1,
 					       TMIO_SD_INFO1_CMP);
@@ -505,9 +507,8 @@ int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 			return ret;
 	}
 
-	tmio_sd_wait_for_irq(dev, TMIO_SD_INFO2, TMIO_SD_INFO2_SCLKDIVEN);
-
-	return ret;
+	return tmio_sd_wait_for_irq(dev, TMIO_SD_INFO2,
+				    TMIO_SD_INFO2_SCLKDIVEN);
 }
 
 static int tmio_sd_set_bus_width(struct tmio_sd_priv *priv,
