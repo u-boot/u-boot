@@ -3,6 +3,7 @@
  * Aquantia PHY drivers
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  */
 #include <config.h>
 #include <common.h>
@@ -18,6 +19,13 @@
 
 #define AQUNTIA_SPEED_LSB_MASK	0x2000
 #define AQUNTIA_SPEED_MSB_MASK	0x40
+
+#define AQUANTIA_SYSTEM_INTERFACE_SR     0xe812
+#define AQUANTIA_VENDOR_PROVISIONING_REG 0xC441
+
+#define AQUANTIA_USX_AUTONEG_CONTROL_ENA 0x0008
+#define AQUANTIA_SI_IN_USE_MASK          0x0078
+#define AQUANTIA_SI_USXGMII              0x0018
 
 /* registers in MDIO_MMD_VEND1 region */
 #define GLOBAL_FIRMWARE_ID 0x20
@@ -284,6 +292,16 @@ int aquantia_config(struct phy_device *phydev)
 			phy_write(phydev, MDIO_MMD_PMAPMD, MII_BMCR,
 				  AQUNTIA_SPEED_LSB_MASK |
 				  AQUNTIA_SPEED_MSB_MASK);
+
+		val = phy_read(phydev, MDIO_MMD_PHYXS,
+			       AQUANTIA_SYSTEM_INTERFACE_SR);
+		/* If SI is USXGMII then start USXGMII autoneg */
+		if ((val & AQUANTIA_SI_IN_USE_MASK) == AQUANTIA_SI_USXGMII) {
+			phy_write(phydev, MDIO_MMD_PHYXS,
+				  AQUANTIA_VENDOR_PROVISIONING_REG,
+				  AQUANTIA_USX_AUTONEG_CONTROL_ENA);
+		}
+
 	} else if (phydev->interface == PHY_INTERFACE_MODE_SGMII_2500) {
 		/* 2.5GBASE-T mode */
 		phydev->advertising = SUPPORTED_1000baseT_Full;
