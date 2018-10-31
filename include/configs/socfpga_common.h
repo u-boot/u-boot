@@ -31,8 +31,21 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFE00000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x40000 /* 256KB */
 #endif
+
+/*
+ * Some boards (e.g. socfpga_sr1500) use 8 bytes at the end of the internal
+ * SRAM as bootcounter storage. Make sure to not put the stack directly
+ * at this address to not overwrite the bootcounter by checking, if the
+ * bootcounter address is located in the internal SRAM.
+ */
+#if ((CONFIG_SYS_BOOTCOUNT_ADDR > CONFIG_SYS_INIT_RAM_ADDR) &&	\
+     (CONFIG_SYS_BOOTCOUNT_ADDR < (CONFIG_SYS_INIT_RAM_ADDR +	\
+				   CONFIG_SYS_INIT_RAM_SIZE)))
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_BOOTCOUNT_ADDR
+#else
 #define CONFIG_SYS_INIT_SP_ADDR			\
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)
+#endif
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
