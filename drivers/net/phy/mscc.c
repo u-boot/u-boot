@@ -251,6 +251,10 @@ vsc_phy_clk_slew {
 	VSC_PHY_CLK_SLEW_RATE_7,
 };
 
+struct vsc85xx_priv {
+	int (*config_pre)(struct phy_device *phydev);
+};
+
 static void vsc8584_csr_write(struct mii_dev *bus, int phy0, u16 addr, u32 val)
 {
 	bus->write(bus, phy0, MDIO_DEVAD_NONE, MSCC_PHY_REG_TR_DATA_18,
@@ -447,10 +451,27 @@ static int vsc8584_patch_fw(struct mii_dev *bus, int phy, const u8 *fw_patch,
 	return 0;
 }
 
-static int vsc8584_config_pre_init(struct mii_dev *bus, int phy0)
+static int vsc8584_config_pre_init(struct phy_device *phydev)
 {
-	u16 reg, crc;
+	struct mii_dev *bus = phydev->bus;
+	u16 reg, crc, phy0, addr;
 	int ret;
+
+	if ((phydev->phy_id & MSCC_DEV_REV_MASK) != VSC8584_REVB) {
+		pr_warn("VSC8584 revA not officially supported, skipping firmware patching. Use at your own risk.\n");
+		return 0;
+	}
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
+		  MSCC_PHY_PAGE_EXT1);
+	addr = phy_read(phydev, MDIO_DEVAD_NONE, MSCC_PHY_EXT_PHY_CNTL_4);
+	addr >>= PHY_CNTL_4_ADDR_POS;
+
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MSCC_PHY_ACTIPHY_CNTL);
+	if (reg & PHY_ADDR_REVERSED)
+		phy0 = phydev->addr + addr;
+	else
+		phy0 = phydev->addr - addr;
 
 	bus->write(bus, phy0, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
 		   MSCC_PHY_PAGE_STD);
@@ -909,32 +930,22 @@ static int vsc8541_config(struct phy_device *phydev)
 	return genphy_config_aneg(phydev);
 }
 
-static int vsc8584_config(struct phy_device *phydev)
+static int vsc8584_config_init(struct phy_device *phydev)
 {
+	struct vsc85xx_priv *priv = phydev->priv;
 	int ret;
 	u16 addr;
 	u16 reg_val;
 	u16 val;
-	u16 base_addr;
 
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
 		  MSCC_PHY_PAGE_EXT1);
 	addr = phy_read(phydev, MDIO_DEVAD_NONE, MSCC_PHY_EXT_PHY_CNTL_4);
 	addr >>= PHY_CNTL_4_ADDR_POS;
 
-	val = phy_read(phydev, MDIO_DEVAD_NONE, MSCC_PHY_ACTIPHY_CNTL);
-	if (val & PHY_ADDR_REVERSED)
-		base_addr = phydev->addr + addr;
-	else
-		base_addr = phydev->addr - addr;
-
-	if ((phydev->phy_id & MSCC_DEV_REV_MASK) != VSC8584_REVB) {
-		pr_warn("VSC8584 revA not officially supported, skipping firmware patching. Use at your own risk.\n");
-	} else {
-		ret = vsc8584_config_pre_init(phydev->bus, base_addr);
-		if (ret)
-			return ret;
-	}
+	ret = priv->config_pre(phydev);
+	if (ret)
+		return ret;
 
 	phy_write(phydev, MDIO_DEVAD_NONE, MSCC_EXT_PAGE_ACCESS,
 		  MSCC_PHY_PAGE_GPIO);
@@ -997,6 +1008,17 @@ static int vsc8584_config(struct phy_device *phydev)
 		return ret;
 
 	return genphy_config(phydev);
+}
+
+static struct vsc85xx_priv vsc8584_priv = {
+	.config_pre = vsc8584_config_pre_init,
+};
+
+static int vsc8584_config(struct phy_device *phydev)
+{
+	phydev->priv = &vsc8584_priv;
+
+	return vsc8584_config_init(phydev);
 }
 
 static struct phy_driver VSC8530_driver = {
