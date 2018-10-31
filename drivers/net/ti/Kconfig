@@ -13,3 +13,8 @@ config DRIVER_TI_EMAC
 	bool "TI Davinci EMAC"
 	help
 	   Support for davinci emac
+
+config DRIVER_TI_KEYSTONE_NET
+	bool "TI Keystone 2 Ethernet"
+	help
+	   This driver supports the TI Keystone 2 Ethernet subsystem
