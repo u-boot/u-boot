@@ -22,6 +22,8 @@
 #include <asm/ti-common/keystone_serdes.h>
 #include <asm/arch/psc_defs.h>
 
+#include "cpsw_mdio.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef KEYSTONE2_EMAC_GIG_ENABLE
@@ -97,93 +99,20 @@ struct ks2_eth_priv {
 	bool				has_mdio;
 };
 
-/* MDIO */
-
-static int keystone2_mdio_reset(struct mii_dev *bus)
-{
-	u_int32_t clkdiv;
-	struct mdio_regs *adap_mdio = bus->priv;
-
-	clkdiv = (EMAC_MDIO_BUS_FREQ / EMAC_MDIO_CLOCK_FREQ) - 1;
-
-	writel((clkdiv & 0xffff) | MDIO_CONTROL_ENABLE |
-	       MDIO_CONTROL_FAULT | MDIO_CONTROL_FAULT_ENABLE,
-	       &adap_mdio->control);
-
-	while (readl(&adap_mdio->control) & MDIO_CONTROL_IDLE)
-		;
-
-	return 0;
-}
-
-/**
- * keystone2_mdio_read - read a PHY register via MDIO interface.
- * Blocks until operation is complete.
- */
-static int keystone2_mdio_read(struct mii_dev *bus,
-			       int addr, int devad, int reg)
-{
-	int tmp;
-	struct mdio_regs *adap_mdio = bus->priv;
-
-	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
-		;
-
-	writel(MDIO_USERACCESS0_GO | MDIO_USERACCESS0_WRITE_READ |
-	       ((reg & 0x1f) << 21) | ((addr & 0x1f) << 16),
-	       &adap_mdio->useraccess0);
-
-	/* Wait for command to complete */
-	while ((tmp = readl(&adap_mdio->useraccess0)) & MDIO_USERACCESS0_GO)
-		;
-
-	if (tmp & MDIO_USERACCESS0_ACK)
-		return tmp & 0xffff;
-
-	return -1;
-}
-
-/**
- * keystone2_mdio_write - write to a PHY register via MDIO interface.
- * Blocks until operation is complete.
- */
-static int keystone2_mdio_write(struct mii_dev *bus,
-				int addr, int devad, int reg, u16 val)
-{
-	struct mdio_regs *adap_mdio = bus->priv;
-
-	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
-		;
-
-	writel(MDIO_USERACCESS0_GO | MDIO_USERACCESS0_WRITE_WRITE |
-	       ((reg & 0x1f) << 21) | ((addr & 0x1f) << 16) |
-	       (val & 0xffff), &adap_mdio->useraccess0);
-
-	/* Wait for command to complete */
-	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
-		;
-
-	return 0;
-}
-
 static void  __attribute__((unused))
 	keystone2_eth_gigabit_enable(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
-	u_int16_t data;
-
-	if (priv->has_mdio) {
-		data = keystone2_mdio_read(priv->mdio_bus, priv->phy_addr,
-					   MDIO_DEVAD_NONE, 0);
-		/* speed selection MSB */
-		if (!(data & (1 << 6)))
-			return;
-	}
 
 	/*
 	 * Check if link detected is giga-bit
 	 * If Gigabit mode detected, enable gigbit in MAC
 	 */
+	if (priv->has_mdio) {
+		if (priv->phydev->speed != 1000)
+			return;
+	}
+
 	writel(readl(DEVICE_EMACSL_BASE(priv->slave_port - 1) +
 		     CPGMACSL_REG_CTL) |
 	       EMAC_MACCONTROL_GIGFORCE | EMAC_MACCONTROL_GIGABIT_ENABLE,
@@ -484,8 +413,6 @@ static int ks2_eth_start(struct udevice *dev)
 	hw_config_streaming_switch();
 
 	if (priv->has_mdio) {
-		keystone2_mdio_reset(priv->mdio_bus);
-
 		phy_startup(priv->phydev);
 		if (priv->phydev->link == 0) {
 			pr_err("phy startup failed\n");
@@ -605,9 +532,9 @@ static int ks2_eth_probe(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 	struct mii_dev *mdio_bus;
-	int ret;
 
 	priv->dev = dev;
+	priv->emac_open = false;
 
 	/* These clock enables has to be moved to common location */
 	if (cpu_is_k2g())
@@ -626,44 +553,35 @@ static int ks2_eth_probe(struct udevice *dev)
 	if (cpu_is_k2e() || cpu_is_k2l())
 		pll_pa_clk_sel();
 
-
 	priv->net_rx_buffs.buff_ptr = rx_buffs;
 	priv->net_rx_buffs.num_buffs = RX_BUFF_NUMS;
 	priv->net_rx_buffs.buff_len = RX_BUFF_LEN;
 
 	if (priv->slave_port == 1) {
+#ifndef CONFIG_SOC_K2G
+		keystone2_net_serdes_setup();
+#endif
 		/*
 		 * Register MDIO bus for slave 0 only, other slave have
 		 * to re-use the same
 		 */
-		mdio_bus = mdio_alloc();
+		mdio_bus = cpsw_mdio_init("ethernet-mdio",
+					  (u32)priv->mdio_base,
+					  EMAC_MDIO_CLOCK_FREQ,
+					  EMAC_MDIO_BUS_FREQ);
 		if (!mdio_bus) {
 			pr_err("MDIO alloc failed\n");
 			return -ENOMEM;
 		}
 		priv->mdio_bus = mdio_bus;
-		mdio_bus->read	= keystone2_mdio_read;
-		mdio_bus->write	= keystone2_mdio_write;
-		mdio_bus->reset	= keystone2_mdio_reset;
-		mdio_bus->priv	= priv->mdio_base;
-		sprintf(mdio_bus->name, "ethernet-mdio");
-
-		ret = mdio_register(mdio_bus);
-		if (ret) {
-			pr_err("MDIO bus register failed\n");
-			return ret;
-		}
 	} else {
 		/* Get the MDIO bus from slave 0 device */
 		struct ks2_eth_priv *parent_priv;
 
 		parent_priv = dev_get_priv(dev->parent);
 		priv->mdio_bus = parent_priv->mdio_bus;
+		priv->mdio_base = parent_priv->mdio_base;
 	}
-
-#ifndef CONFIG_SOC_K2G
-	keystone2_net_serdes_setup();
-#endif
 
 	priv->netcp_pktdma = &netcp_pktdma;
 
@@ -680,9 +598,7 @@ int ks2_eth_remove(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 
-	free(priv->phydev);
-	mdio_unregister(priv->mdio_bus);
-	mdio_free(priv->mdio_bus);
+	cpsw_mdio_free(priv->mdio_bus);
 
 	return 0;
 }
