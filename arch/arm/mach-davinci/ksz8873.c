@@ -19,7 +19,7 @@
 #include <net.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
-#include "../../../drivers/net/davinci_emac.h"
+#include "../../../drivers/net/ti/davinci_emac.h"
 
 int ksz8873_is_phy_connected(int phy_addr)
 {

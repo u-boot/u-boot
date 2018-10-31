@@ -11,13 +11,6 @@ config DM_ETH
 	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
 
-config DRIVER_TI_CPSW
-	bool "TI Common Platform Ethernet Switch"
-	select PHYLIB
-	help
-	  This driver supports the TI three port switch gigabit ethernet
-	  subsystem found in the TI SoCs.
-
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET
@@ -355,10 +348,7 @@ config SH_ETHER
 	help
 	  This driver supports the Ethernet for Renesas SH and ARM SoCs.
 
-config DRIVER_TI_EMAC
-	bool "TI Davinci EMAC"
-	help
-	   Support for davinci emac
+source "drivers/net/ti/Kconfig"
 
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
