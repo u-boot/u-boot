@@ -66,59 +66,6 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_DRIVER_TI_KEYSTONE_NET
-#ifndef CONFIG_DM_ETH
-int get_eth_env_param(char *env_name)
-{
-	char *env;
-	int res = -1;
-
-	env = env_get(env_name);
-	if (env)
-		res = simple_strtol(env, NULL, 0);
-
-	return res;
-}
-
-int board_eth_init(bd_t *bis)
-{
-	int j;
-	int res;
-	int port_num;
-	char link_type_name[32];
-
-	if (cpu_is_k2g())
-		writel(KS2_ETHERNET_RGMII, KS2_ETHERNET_CFG);
-
-	/* By default, select PA PLL clock as PA clock source */
-#ifndef CONFIG_SOC_K2G
-	if (psc_enable_module(KS2_LPSC_PA))
-		return -1;
-#endif
-	if (psc_enable_module(KS2_LPSC_CPGMAC))
-		return -1;
-	if (psc_enable_module(KS2_LPSC_CRYPTO))
-		return -1;
-
-	if (cpu_is_k2e() || cpu_is_k2l())
-		pll_pa_clk_sel();
-
-	port_num = get_num_eth_ports();
-
-	for (j = 0; j < port_num; j++) {
-		sprintf(link_type_name, "sgmii%d_link_type", j);
-		res = get_eth_env_param(link_type_name);
-		if (res >= 0)
-			eth_priv_cfg[j].sgmii_link_type = res;
-
-		keystone2_emac_initialize(&eth_priv_cfg[j]);
-	}
-
-	return 0;
-}
-#endif
-#endif
-
 #ifdef CONFIG_SPL_BUILD
 void spl_board_init(void)
 {

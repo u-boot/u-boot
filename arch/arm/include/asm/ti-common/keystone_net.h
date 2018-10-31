@@ -242,18 +242,4 @@ struct mdio_regs {
 	u32 userphysel1;
 };
 
-struct eth_priv_t {
-	char int_name[32];
-	int rx_flow;
-	int phy_addr;
-	int slave_port;
-	int sgmii_link_type;
-	phy_interface_t phy_if;
-	struct phy_device *phy_dev;
-};
-
-int keystone2_emac_initialize(struct eth_priv_t *eth_priv);
-void sgmii_serdes_setup_156p25mhz(void);
-void sgmii_serdes_shutdown(void);
-
 #endif  /* _KEYSTONE_NET_H_ */
