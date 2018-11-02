@@ -58,5 +58,12 @@ config SYS_K3_BOOT_CORE_ID
 	int
 	default 16
 
+config SYS_K3_SPL_ATF
+	bool "Start Cortex-A from SPL"
+	depends on SPL && CPU_V7R
+	help
+	  Enabling this will try to start Cortex-A (typically with ATF)
+	  after SPL from R5.
+
 source "board/ti/am65x/Kconfig"
 endif
