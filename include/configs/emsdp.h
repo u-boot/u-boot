@@ -3,8 +3,8 @@
  * Copyright (C) 2018 Synopsys, Inc. All rights reserved.
  */
 
-#ifndef _CONFIG_EMDK_H_
-#define _CONFIG_EMDK_H_
+#ifndef _CONFIG_EMSDP_H_
+#define _CONFIG_EMSDP_H_
 
 #include <linux/sizes.h>
 
@@ -30,11 +30,11 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"upgrade_image=u-boot.bin\0" \
-	"upgrade=emdk rom unlock && " \
+	"upgrade=emsdp rom unlock && " \
 		"fatload mmc 0 ${loadaddr} ${upgrade_image} && " \
 		"cp.b ${loadaddr} 0 ${filesize} && " \
 		"dcache flush && " \
-		"emdk rom lock\0"
+		"emsdp rom lock\0"
 
-#endif /* _CONFIG_EMDK_H_ */
+#endif /* _CONFIG_EMSDP_H_ */
 

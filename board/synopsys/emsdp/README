@@ -1,11 +1,12 @@
 ================================================================================
-Useful notes on bulding and using of U-Boot on ARC EM Development Kit (AKA EMDK)
+Useful notes on bulding and using of U-Boot on
+ARC EM Software Development Platform (AKA EMSDP)
 ================================================================================
 
    BOARD OVERVIEW
 
-   The DesignWare ARC EM Development Kit is FPGA-bases platform for rapid
-   software development on the ARC EM family of processors.
+   The DesignWare ARC EM Software Development Platform is FPGA-bases platform
+   for rapid software development on the ARC EM family of processors.
 
    Since this board is based on FPGA it's possible to load and use different
    versions of ARC EM CPUs. U-Boot is built to be run on the simplest
@@ -50,7 +51,7 @@ Useful notes on bulding and using of U-Boot on ARC EM Development Kit (AKA EMDK)
 
    1. Configure U-Boot:
       ------------------------->8----------------------
-      make emdk_defconfig
+      make emsdp_defconfig
       ------------------------->8----------------------
 
    2. To build Elf file (for example to be used with host debugger via JTAG
@@ -69,7 +70,7 @@ Useful notes on bulding and using of U-Boot on ARC EM Development Kit (AKA EMDK)
 
    EXECUTING U-BOOT
 
-   1. The EMDK board is supposed to auto-start U-Boot image stored in ROM on
+   1. The EMSDP board is supposed to auto-start U-Boot image stored in ROM on
       power-on. For that make sure VCCIO DIP-switches are all in "off" state.
 
    2. Though it is possible to load U-Boot as a simple Elf file via JTAG right

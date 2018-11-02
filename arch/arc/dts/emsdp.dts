@@ -7,7 +7,7 @@
 #include "skeleton.dtsi"
 
 / {
-	model = "snps,emdk";
+	model = "snps,emsdp";
 
 	#address-cells = <1>;
 	#size-cells = <1>;
