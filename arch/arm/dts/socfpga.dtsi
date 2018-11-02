@@ -646,7 +646,7 @@
 		};
 
 		qspi: spi@ff705000 {
-			compatible = "cadence,qspi";
+			compatible = "cdns,qspi-nor";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0xff705000 0x1000>,
