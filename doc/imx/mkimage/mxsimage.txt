@@ -46,7 +46,7 @@ These semantics and rules will be outlined now.
       TAG [LAST]
       - LAST               :: Flag denoting the last section in the file
 
-  - After a "TAG" unstruction, any of the following instructions may follow
+  - After a "TAG" instruction, any of the following instructions may follow
     in any order and any quantity:
 
       NOOP
@@ -142,7 +142,7 @@ These semantics and rules will be outlined now.
   - An optional flags lines can be one of the following:
 
 	DISPLAYPROGRESS
-	- Enable boot progress output form the BootROM.
+	- Enable boot progress output from the BootROM.
 
 - If the boot progress output from the BootROM is enabled, the BootROM will
   produce a letter on the Debug UART for each instruction it started processing.
