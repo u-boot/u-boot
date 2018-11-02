@@ -195,9 +195,7 @@ struct dm_serial_ops {
 	 * Set up a new config for this device.
 	 *
 	 * @dev: Device pointer
-	 * @parity: parity to use
-	 * @bits: bits number to use
-	 * @stop: stop bits number to use
+	 * @serial_config: number of bits, parity and number of stopbits to use
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*setconfig)(struct udevice *dev, uint serial_config);
