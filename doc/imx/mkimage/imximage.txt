@@ -175,7 +175,7 @@ Warning: setting sector offset for DOS compatiblity
 We have set 255 heads, 63 sector. We have to set the cylinder.
 The value to be set can be calculated with:
 
-	cilynder = <total size> / <heads> / <sectors> / <blocksize>
+	cylinder = <total size> / <heads> / <sectors> / <blocksize>
 
 in this example,
 	1981284352 / 255 / 63 / 512 = 239.x = 239
