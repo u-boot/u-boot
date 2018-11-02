@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <spl.h>
 #include <asm/arch/hardware.h>
+#include "common.h"
 
 #ifdef CONFIG_SPL_BUILD
 static void mmr_unlock(u32 base, u32 partition)
@@ -64,6 +65,10 @@ void board_init_f(ulong dummy)
 
 	/* Make all control module registers accessible */
 	ctrl_mmr_unlock();
+
+#ifdef CONFIG_CPU_V7R
+	setup_k3_mpu_regions();
+#endif
 
 	/* Init DM early in-order to invoke system controller */
 	spl_early_init();
