@@ -1,32 +1,43 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright Altera Corporation (C) 2015
+ * Copyright Altera Corporation (C) 2015. All rights reserved.
  */
 
 #include "socfpga_cyclone5.dtsi"
 
 / {
-	model = "Terasic DE0-Nano(Atlas)";
-	compatible = "altr,socfpga-cyclone5", "altr,socfpga";
+	model = "Terasic DE-0(Atlas)";
+	compatible = "terasic,de0-atlas", "altr,socfpga-cyclone5", "altr,socfpga";
 
 	chosen {
-		bootargs = "console=ttyS0,115200";
+		bootargs = "earlyprintk";
 		stdout-path = "serial0:115200n8";
 	};
 
-	aliases {
-		ethernet0 = &gmac1;
-		udc0 = &usb1;
-	};
-
-	memory {
+	memory@0 {
 		name = "memory";
 		device_type = "memory";
 		reg = <0x0 0x40000000>; /* 1GB */
 	};
 
-	soc {
-		u-boot,dm-pre-reloc;
+	aliases {
+		ethernet0 = &gmac1;
+	};
+
+	regulator_3_3v: 3-3-v-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "3.3V";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		hps0 {
+			label = "hps_led0";
+			gpios = <&portb 24 0>;
+			linux,default-trigger = "heartbeat";
+		};
 	};
 };
 
@@ -34,14 +45,20 @@
 	status = "okay";
 	phy-mode = "rgmii";
 
-	rxd0-skew-ps = <420>;
-	rxd1-skew-ps = <420>;
-	rxd2-skew-ps = <420>;
-	rxd3-skew-ps = <420>;
-	txen-skew-ps = <0>;
-	txc-skew-ps = <1860>;
-	rxdv-skew-ps = <420>;
-	rxc-skew-ps = <1680>;
+	txd0-skew-ps = <0>; /* -420ps */
+	txd1-skew-ps = <0>; /* -420ps */
+	txd2-skew-ps = <0>; /* -420ps */
+	txd3-skew-ps = <0>; /* -420ps */
+	rxd0-skew-ps = <420>; /* 0ps */
+	rxd1-skew-ps = <420>; /* 0ps */
+	rxd2-skew-ps = <420>; /* 0ps */
+	rxd3-skew-ps = <420>; /* 0ps */
+	txen-skew-ps = <0>; /* -420ps */
+	txc-skew-ps = <1860>; /* 960ps */
+	rxdv-skew-ps = <420>; /* 0ps */
+	rxc-skew-ps = <1680>; /* 780ps */
+
+	max-frame-size = <3800>;
 };
 
 &gpio0 {
@@ -58,8 +75,9 @@
 
 &i2c0 {
 	status = "okay";
+	clock-frequency = <100000>;
 
-	dxl345: adxl345@0 {
+	adxl345: adxl345@53 {
 		compatible = "adi,adxl345";
 		reg = <0x53>;
 
@@ -69,14 +87,15 @@
 };
 
 &mmc0 {
-	status = "okay";
-	u-boot,dm-pre-reloc;
-};
-
-&usb1 {
+	vmmc-supply = <&regulator_3_3v>;
+	vqmmc-supply = <&regulator_3_3v>;
 	status = "okay";
 };
 
 &uart0 {
-	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&usb1 {
+	status = "okay";
 };

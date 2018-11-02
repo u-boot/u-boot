@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  Copyright (C) 2013 Altera Corporation <www.altera.com>
+ * Copyright (C) 2013 Altera Corporation <www.altera.com>
  */
 
 #include "socfpga_arria5.dtsi"
@@ -10,22 +10,44 @@
 	compatible = "altr,socfpga-arria5", "altr,socfpga";
 
 	chosen {
-		bootargs = "console=ttyS0,115200";
+		bootargs = "earlyprintk";
 		stdout-path = "serial0:115200n8";
 	};
 
-	memory {
+	memory@0 {
 		name = "memory";
 		device_type = "memory";
 		reg = <0x0 0x40000000>; /* 1GB */
 	};
 
 	aliases {
-		/* this allow the ethaddr uboot environment variable contents
-		 * to be added to the gmac1 device tree blob.
-		 */
+		/* this allow the ethaddr uboot environmnet variable contents
+		* to be added to the gmac1 device tree blob.
+		*/
 		ethernet0 = &gmac1;
-		udc0 = &usb1;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		hps0 {
+			label = "hps_led0";
+			gpios = <&porta 0 1>;
+		};
+
+		hps1 {
+			label = "hps_led1";
+			gpios = <&portb 11 1>;
+		};
+
+		hps2 {
+			label = "hps_led2";
+			gpios = <&porta 17 1>;
+		};
+
+		hps3 {
+			label = "hps_led3";
+			gpios = <&porta 18 1>;
+		};
 	};
 
 	regulator_3_3v: 3-3-v-regulator {
@@ -33,10 +55,6 @@
 		regulator-name = "3.3V";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-	};
-
-	soc {
-		u-boot,dm-pre-reloc;
 	};
 };
 
@@ -54,8 +72,28 @@
 	rxc-skew-ps = <2000>;
 };
 
+&gpio0 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
 &i2c0 {
 	status = "okay";
+	clock-frequency = <100000>;
+
+	/*
+	 * adjust the falling times to decrease the i2c frequency to 50Khz
+	 * because the LCD module does not work at the standard 100Khz
+	 */
+	i2c-sda-falling-time-ns = <5000>;
+	i2c-scl-falling-time-ns = <5000>;
 
 	eeprom@51 {
 		compatible = "atmel,24c32";
@@ -72,35 +110,42 @@
 &mmc0 {
 	vmmc-supply = <&regulator_3_3v>;
 	vqmmc-supply = <&regulator_3_3v>;
-	bus-width = <4>;
-	u-boot,dm-pre-reloc;
-};
-
-&usb1 {
 	status = "okay";
 };
 
 &qspi {
 	status = "okay";
-	u-boot,dm-pre-reloc;
 
-	flash0: n25q00@0 {
-		u-boot,dm-pre-reloc;
+	flash: flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "n25q00", "spi-flash";
-		reg = <0>;      /* chip select */
-		spi-max-frequency = <50000000>;
+		compatible = "n25q256a";
+		reg = <0>;
+		spi-max-frequency = <100000000>;
+
 		m25p,fast-read;
-		page-size = <256>;
-		block-size = <16>; /* 2^16, 64KB */
+		cdns,page-size = <256>;
+		cdns,block-size = <16>;
+		cdns,read-delay = <4>;
 		cdns,tshsl-ns = <50>;
 		cdns,tsd2d-ns = <50>;
 		cdns,tchsh-ns = <4>;
 		cdns,tslch-ns = <4>;
+
+		partition@qspi-boot {
+			/* 8MB for raw data. */
+			label = "Flash 0 Raw Data";
+			reg = <0x0 0x800000>;
+		};
+
+		partition@qspi-rootfs {
+			/* 120MB for jffs2 data. */
+			label = "Flash 0 jffs2 Filesystem";
+			reg = <0x800000 0x7800000>;
+		};
 	};
 };
 
-&uart0 {
-	u-boot,dm-pre-reloc;
+&usb1 {
+	status = "okay";
 };

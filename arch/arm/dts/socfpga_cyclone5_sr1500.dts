@@ -50,6 +50,18 @@
 	status = "okay";
 };
 
+&porta {
+	bank-name = "porta";
+};
+
+&portb {
+	bank-name = "portb";
+};
+
+&portc {
+	bank-name = "portc";
+};
+
 &i2c0 {
 	status = "okay";
 	speed-mode = <0>;

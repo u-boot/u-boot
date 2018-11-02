@@ -47,9 +47,20 @@
 	status = "okay";
 };
 
+&porta {
+	bank-name = "porta";
+};
+
+&portb {
+	bank-name = "portb";
+};
+
+&portc {
+	bank-name = "portc";
+};
+
 &mmc0 {
 	status = "okay";
-	bus-width = <4>;
 	u-boot,dm-pre-reloc;
 };
 
@@ -60,4 +71,8 @@
 
 &uart0 {
 	u-boot,dm-pre-reloc;
+};
+
+&watchdog0 {
+	status = "disabled";
 };
