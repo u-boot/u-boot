@@ -248,6 +248,24 @@ config MIPS_CACHE_INDEX_BASE
 	  Normally this is CKSEG0. If the MIPS system needs to move this block
 	  to some SRAM or ScratchPad RAM, adapt this option accordingly.
 
+config MIPS_RELOCATION_TABLE_SIZE
+	hex "Relocation table size"
+	range 0x100 0x10000
+	default "0x8000"
+	---help---
+	  A table of relocation data will be appended to the U-Boot binary
+	  and parsed in relocate_code() to fix up all offsets in the relocated
+	  U-Boot.
+
+	  This option allows the amount of space reserved for the table to be
+	  adjusted in a range from 256 up to 64k. The default is 32k and should
+	  be ok in most cases. Reduce this value to shrink the size of U-Boot
+	  binary.
+
+	  The build will fail and a valid size suggested if this is too small.
+
+	  If unsure, leave at the default value.
+
 endmenu
 
 menu "OS boot interface"
