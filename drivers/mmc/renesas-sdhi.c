@@ -34,6 +34,8 @@
 #define   RENESAS_SDHI_SCC_RVSREQ_RVSERR		BIT(2)
 #define RENESAS_SDHI_SCC_SMPCMP			0x818
 #define RENESAS_SDHI_SCC_TMPPORT2			0x81c
+#define   RENESAS_SDHI_SCC_TMPPORT2_HS400EN		BIT(31)
+#define   RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL		BIT(4)
 
 #define RENESAS_SDHI_MAX_TAP 3
 
@@ -49,12 +51,9 @@ static unsigned int renesas_sdhi_init_tuning(struct tmio_sd_priv *priv)
 	tmio_sd_writel(priv, reg, TMIO_SD_CLKCTL);
 
 	/* Set sampling clock selection range */
-	tmio_sd_writel(priv, 0x8 << RENESAS_SDHI_SCC_DTCNTL_TAPNUM_SHIFT,
-			   RENESAS_SDHI_SCC_DTCNTL);
-
-	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_DTCNTL);
-	reg |= RENESAS_SDHI_SCC_DTCNTL_TAPEN;
-	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_DTCNTL);
+	tmio_sd_writel(priv, (0x8 << RENESAS_SDHI_SCC_DTCNTL_TAPNUM_SHIFT) |
+			     RENESAS_SDHI_SCC_DTCNTL_TAPEN,
+			     RENESAS_SDHI_SCC_DTCNTL);
 
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_CKSEL);
 	reg |= RENESAS_SDHI_SCC_CKSEL_DTSEL;
@@ -89,6 +88,11 @@ static void renesas_sdhi_reset_tuning(struct tmio_sd_priv *priv)
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_CKSEL);
 	reg &= ~RENESAS_SDHI_SCC_CKSEL_DTSEL;
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_CKSEL);
+
+	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_TMPPORT2);
+	reg &= ~(RENESAS_SDHI_SCC_TMPPORT2_HS400EN |
+		 RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL);
+	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_TMPPORT2);
 
 	reg = tmio_sd_readl(priv, TMIO_SD_CLKCTL);
 	reg |= TMIO_SD_CLKCTL_SCLKEN;
@@ -294,18 +298,44 @@ static int renesas_sdhi_set_ios(struct udevice *dev)
 #if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 
-	renesas_sdhi_reset_tuning(priv);
+	if (priv->caps & TMIO_SD_CAP_RCAR_UHS)
+		renesas_sdhi_reset_tuning(priv);
 #endif
 
 	return ret;
 }
 
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+static int renesas_sdhi_wait_dat0(struct udevice *dev, int state, int timeout)
+{
+	int ret = -ETIMEDOUT;
+	bool dat0_high;
+	bool target_dat0_high = !!state;
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+
+	timeout = DIV_ROUND_UP(timeout, 10); /* check every 10 us. */
+	while (timeout--) {
+		dat0_high = !!(tmio_sd_readl(priv, TMIO_SD_INFO2) & TMIO_SD_INFO2_DAT0);
+		if (dat0_high == target_dat0_high) {
+			ret = 0;
+			break;
+		}
+		udelay(10);
+	}
+
+	return ret;
+}
+#endif
+
 static const struct dm_mmc_ops renesas_sdhi_ops = {
 	.send_cmd = tmio_sd_send_cmd,
 	.set_ios = renesas_sdhi_set_ios,
 	.get_cd = tmio_sd_get_cd,
-#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
 	.execute_tuning = renesas_sdhi_execute_tuning,
+#endif
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+	.wait_dat0 = renesas_sdhi_wait_dat0,
 #endif
 };
 
@@ -373,7 +403,7 @@ static int renesas_sdhi_probe(struct udevice *dev)
 
 	ret = tmio_sd_probe(dev, quirks);
 #if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT)
-	if (!ret)
+	if (!ret && (priv->caps & TMIO_SD_CAP_RCAR_UHS))
 		renesas_sdhi_reset_tuning(priv);
 #endif
 	return ret;

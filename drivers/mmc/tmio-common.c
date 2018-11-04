@@ -95,7 +95,7 @@ static void __dma_unmap_single(dma_addr_t addr, size_t size,
 		invalidate_dcache_range(addr, addr + size);
 }
 
-static int tmio_sd_check_error(struct udevice *dev)
+static int tmio_sd_check_error(struct udevice *dev, struct mmc_cmd *cmd)
 {
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 	u32 info2 = tmio_sd_readl(priv, TMIO_SD_INFO2);
@@ -116,7 +116,9 @@ static int tmio_sd_check_error(struct udevice *dev)
 
 	if (info2 & (TMIO_SD_INFO2_ERR_END | TMIO_SD_INFO2_ERR_CRC |
 		     TMIO_SD_INFO2_ERR_IDX)) {
-		dev_err(dev, "communication out of sync\n");
+		if ((cmd->cmdidx != MMC_CMD_SEND_TUNING_BLOCK) &&
+		    (cmd->cmdidx != MMC_CMD_SEND_TUNING_BLOCK_HS200))
+			dev_err(dev, "communication out of sync\n");
 		return -EILSEQ;
 	}
 
@@ -129,8 +131,8 @@ static int tmio_sd_check_error(struct udevice *dev)
 	return 0;
 }
 
-static int tmio_sd_wait_for_irq(struct udevice *dev, unsigned int reg,
-				    u32 flag)
+static int tmio_sd_wait_for_irq(struct udevice *dev, struct mmc_cmd *cmd,
+				unsigned int reg, u32 flag)
 {
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 	long wait = 1000000;
@@ -142,7 +144,7 @@ static int tmio_sd_wait_for_irq(struct udevice *dev, unsigned int reg,
 			return -ETIMEDOUT;
 		}
 
-		ret = tmio_sd_check_error(dev);
+		ret = tmio_sd_check_error(dev, cmd);
 		if (ret)
 			return ret;
 
@@ -178,15 +180,15 @@ tmio_pio_read_fifo(64, q)
 tmio_pio_read_fifo(32, l)
 tmio_pio_read_fifo(16, w)
 
-static int tmio_sd_pio_read_one_block(struct udevice *dev, char *pbuf,
-					  uint blocksize)
+static int tmio_sd_pio_read_one_block(struct udevice *dev, struct mmc_cmd *cmd,
+				      char *pbuf, uint blocksize)
 {
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 	int ret;
 
 	/* wait until the buffer is filled with data */
-	ret = tmio_sd_wait_for_irq(dev, TMIO_SD_INFO2,
-				       TMIO_SD_INFO2_BRE);
+	ret = tmio_sd_wait_for_irq(dev, cmd, TMIO_SD_INFO2,
+				   TMIO_SD_INFO2_BRE);
 	if (ret)
 		return ret;
 
@@ -231,15 +233,15 @@ tmio_pio_write_fifo(64, q)
 tmio_pio_write_fifo(32, l)
 tmio_pio_write_fifo(16, w)
 
-static int tmio_sd_pio_write_one_block(struct udevice *dev,
+static int tmio_sd_pio_write_one_block(struct udevice *dev, struct mmc_cmd *cmd,
 					   const char *pbuf, uint blocksize)
 {
 	struct tmio_sd_priv *priv = dev_get_priv(dev);
 	int ret;
 
 	/* wait until the buffer becomes empty */
-	ret = tmio_sd_wait_for_irq(dev, TMIO_SD_INFO2,
-				    TMIO_SD_INFO2_BWE);
+	ret = tmio_sd_wait_for_irq(dev, cmd, TMIO_SD_INFO2,
+				   TMIO_SD_INFO2_BWE);
 	if (ret)
 		return ret;
 
@@ -255,7 +257,8 @@ static int tmio_sd_pio_write_one_block(struct udevice *dev,
 	return 0;
 }
 
-static int tmio_sd_pio_xfer(struct udevice *dev, struct mmc_data *data)
+static int tmio_sd_pio_xfer(struct udevice *dev, struct mmc_cmd *cmd,
+			    struct mmc_data *data)
 {
 	const char *src = data->src;
 	char *dest = data->dest;
@@ -263,10 +266,10 @@ static int tmio_sd_pio_xfer(struct udevice *dev, struct mmc_data *data)
 
 	for (i = 0; i < data->blocks; i++) {
 		if (data->flags & MMC_DATA_READ)
-			ret = tmio_sd_pio_read_one_block(dev, dest,
+			ret = tmio_sd_pio_read_one_block(dev, cmd, dest,
 							     data->blocksize);
 		else
-			ret = tmio_sd_pio_write_one_block(dev, src,
+			ret = tmio_sd_pio_write_one_block(dev, cmd, src,
 							      data->blocksize);
 		if (ret)
 			return ret;
@@ -468,8 +471,8 @@ int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		cmd->cmdidx, tmp, cmd->cmdarg);
 	tmio_sd_writel(priv, tmp, TMIO_SD_CMD);
 
-	ret = tmio_sd_wait_for_irq(dev, TMIO_SD_INFO1,
-				       TMIO_SD_INFO1_RSP);
+	ret = tmio_sd_wait_for_irq(dev, cmd, TMIO_SD_INFO1,
+				   TMIO_SD_INFO1_RSP);
 	if (ret)
 		return ret;
 
@@ -497,17 +500,18 @@ int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		    tmio_sd_addr_is_dmaable(data->src))
 			ret = tmio_sd_dma_xfer(dev, data);
 		else
-			ret = tmio_sd_pio_xfer(dev, data);
+			ret = tmio_sd_pio_xfer(dev, cmd, data);
+		if (ret)
+			return ret;
 
-		ret = tmio_sd_wait_for_irq(dev, TMIO_SD_INFO1,
-					       TMIO_SD_INFO1_CMP);
+		ret = tmio_sd_wait_for_irq(dev, cmd, TMIO_SD_INFO1,
+					   TMIO_SD_INFO1_CMP);
 		if (ret)
 			return ret;
 	}
 
-	tmio_sd_wait_for_irq(dev, TMIO_SD_INFO2, TMIO_SD_INFO2_SCLKDIVEN);
-
-	return ret;
+	return tmio_sd_wait_for_irq(dev, cmd, TMIO_SD_INFO2,
+				    TMIO_SD_INFO2_SCLKDIVEN);
 }
 
 static int tmio_sd_set_bus_width(struct tmio_sd_priv *priv,
@@ -622,26 +626,10 @@ static void tmio_sd_set_pins(struct udevice *dev)
 #endif
 
 #ifdef CONFIG_PINCTRL
-	switch (mmc->selected_mode) {
-	case MMC_LEGACY:
-	case SD_LEGACY:
-	case MMC_HS:
-	case SD_HS:
-	case MMC_HS_52:
-	case MMC_DDR_52:
-		pinctrl_select_state(dev, "default");
-		break;
-	case UHS_SDR12:
-	case UHS_SDR25:
-	case UHS_SDR50:
-	case UHS_DDR50:
-	case UHS_SDR104:
-	case MMC_HS_200:
+	if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180)
 		pinctrl_select_state(dev, "state_uhs");
-		break;
-	default:
-		break;
-	}
+	else
+		pinctrl_select_state(dev, "default");
 #endif
 }
 
@@ -654,11 +642,11 @@ int tmio_sd_set_ios(struct udevice *dev)
 	dev_dbg(dev, "clock %uHz, DDRmode %d, width %u\n",
 		mmc->clock, mmc->ddr_mode, mmc->bus_width);
 
+	tmio_sd_set_clk_rate(priv, mmc);
 	ret = tmio_sd_set_bus_width(priv, mmc);
 	if (ret)
 		return ret;
 	tmio_sd_set_ddr_mode(priv, mmc);
-	tmio_sd_set_clk_rate(priv, mmc);
 	tmio_sd_set_pins(dev);
 
 	return 0;
@@ -732,6 +720,8 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 
 #ifdef CONFIG_DM_REGULATOR
 	device_get_supply_regulator(dev, "vqmmc-supply", &priv->vqmmc_dev);
+	if (priv->vqmmc_dev)
+		regulator_set_value(priv->vqmmc_dev, 3300000);
 #endif
 
 	ret = mmc_of_parse(dev, &plat->cfg);
