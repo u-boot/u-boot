@@ -380,6 +380,9 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 			ulong symidx = rel->info >> SYM_INDEX;
 			extern struct dyn_sym __dyn_sym_start[];
 			newaddr = __dyn_sym_start[symidx].addr + offset;
+#ifdef IS_RELA
+			newaddr -= CONFIG_SYS_TEXT_BASE;
+#endif
 			break;
 		}
 #endif
