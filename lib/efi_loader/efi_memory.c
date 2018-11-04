@@ -294,6 +294,12 @@ static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
 {
 	struct list_head *lhandle;
 
+	/*
+	 * Prealign input max address, so we simplify our matching
+	 * logic below and can just reuse it as return pointer.
+	 */
+	max_addr &= ~EFI_PAGE_MASK;
+
 	list_for_each(lhandle, &efi_mem) {
 		struct efi_mem_list *lmem = list_entry(lhandle,
 			struct efi_mem_list, link);
