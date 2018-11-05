@@ -965,7 +965,7 @@ struct efi_file_info {
 	struct efi_time last_access_time;
 	struct efi_time modification_time;
 	u64 attribute;
-	s16 file_name[0];
+	u16 file_name[0];
 };
 
 struct efi_file_system_info {
