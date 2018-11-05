@@ -304,7 +304,8 @@ ENTRY(lowlevel_init)
 100:
 #endif
 
-#if defined(CONFIG_FSL_LSCH2) && !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_TFABOOT) && \
+	(defined(CONFIG_FSL_LSCH2) && !defined(CONFIG_SPL_BUILD))
 	bl	fsl_ocram_init
 #endif
 
