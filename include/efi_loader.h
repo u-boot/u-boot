@@ -518,6 +518,29 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
 				     u32 attributes, efi_uintn_t data_size,
 				     void *data);
 
+/*
+ * See section 3.1.3 in the v2.7 UEFI spec for more details on
+ * the layout of EFI_LOAD_OPTION.  In short it is:
+ *
+ *    typedef struct _EFI_LOAD_OPTION {
+ *        UINT32 Attributes;
+ *        UINT16 FilePathListLength;
+ *        // CHAR16 Description[];   <-- variable length, NULL terminated
+ *        // EFI_DEVICE_PATH_PROTOCOL FilePathList[];
+ *						 <-- FilePathListLength bytes
+ *        // UINT8 OptionalData[];
+ *    } EFI_LOAD_OPTION;
+ */
+struct efi_load_option {
+	u32 attributes;
+	u16 file_path_length;
+	u16 *label;
+	struct efi_device_path *file_path;
+	u8 *optional_data;
+};
+
+void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data);
+unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
 void *efi_bootmgr_load(struct efi_device_path **device_path,
 		       struct efi_device_path **file_path);
 
