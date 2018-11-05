@@ -190,7 +190,7 @@ static int fw_get_filesystem_firmware(struct device_platdata *plat,
 			fw_priv->offset, firmware->size, &actread);
 
 	if (ret) {
-		debug("Error: %d Failed to read %s from flash %lld != %d.\n",
+		debug("Error: %d Failed to read %s from flash %lld != %zu.\n",
 		      ret, fw_priv->name, actread, firmware->size);
 	} else {
 		ret = actread;
