@@ -53,6 +53,23 @@ struct cpu_type {
 
 #define CPU_TYPE_ENTRY(n, v, nc) \
 	{ .name = #n, .soc_ver = SVR_##v, .num_cores = (nc)}
+
+#ifdef CONFIG_TFABOOT
+enum boot_src {
+	BOOT_SOURCE_RESERVED = 0,
+	BOOT_SOURCE_IFC_NOR,
+	BOOT_SOURCE_IFC_NAND,
+	BOOT_SOURCE_QSPI_NOR,
+	BOOT_SOURCE_QSPI_NAND,
+	BOOT_SOURCE_XSPI_NOR,
+	BOOT_SOURCE_XSPI_NAND,
+	BOOT_SOURCE_SD_MMC,
+	BOOT_SOURCE_SD_MMC2,
+	BOOT_SOURCE_I2C1_EXTENDED,
+};
+
+enum boot_src get_boot_src(void);
+#endif
 #endif
 #define SVR_WO_E		0xFFFFFE
 #define SVR_LS1012A		0x870400

@@ -82,6 +82,55 @@
 #define CONFIG_SYS_FSL_JR0_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_JR0_OFFSET)
 
+#ifdef CONFIG_TFABOOT
+#ifdef CONFIG_FSL_LSCH3_2
+/* RCW_SRC field in Power-On Reset Control Register 1 */
+#define RCW_SRC_MASK			0x07800000
+#define RCW_SRC_BIT			23
+
+/* CFG_RCW_SRC[3:0] */
+#define RCW_SRC_TYPE_MASK		0x8
+#define RCW_SRC_ADDR_OFFSET_8MB		0x800000
+
+/* RCW SRC HARDCODED */
+#define RCW_SRC_HARDCODED_VAL		0x0	/* 0x00 - 0x07 */
+
+#define RCW_SRC_SDHC1_VAL		0x8	/* 0x8 */
+#define RCW_SRC_SDHC2_VAL		0x9	/* 0x9 */
+#define RCW_SRC_I2C1_VAL		0xa	/* 0xa */
+#define RCW_SRC_RESERVED_UART_VAL	0xb	/* 0xb */
+#define RCW_SRC_FLEXSPI_NAND2K_VAL	0xc	/* 0xc */
+#define RCW_SRC_FLEXSPI_NAND4K_VAL	0xd	/* 0xd */
+#define RCW_SRC_RESERVED_1_VAL		0xe	/* 0xe */
+#define RCW_SRC_FLEXSPI_NOR_24B		0xf	/* 0xf */
+#else
+#define RCW_SRC_MASK			(0xFF800000)
+#define RCW_SRC_BIT			23
+/* CFG_RCW_SRC[6:0] */
+#define RCW_SRC_TYPE_MASK               (0x70)
+
+/* RCW SRC HARDCODED */
+#define RCW_SRC_HARDCODED_VAL           (0x10)     /* 0x10 - 0x1f */
+/* Hardcoded will also have CFG_RCW_SRC[7] as 1.   0x90 - 0x9f */
+
+/* RCW SRC NOR */
+#define RCW_SRC_NOR_VAL                 (0x20)
+#define NOR_TYPE_MASK                   (0x10)
+#define NOR_16B_VAL                     (0x0)       /* 0x20 - 0x2f */
+#define NOR_32B_VAL                     (0x10)       /* 0x30 - 0x3f */
+
+/* RCW SRC Serial Flash
+ * 1. SERIAL NOR (QSPI)
+ * 2. OTHERS (SD/MMC, SPI, I2C1
+ */
+#define RCW_SRC_SERIAL_MASK             (0x7F)
+#define RCW_SRC_QSPI_VAL                (0x62)     /* 0x62 */
+#define RCW_SRC_SD_CARD_VAL             (0x40)     /* 0x40 */
+#define RCW_SRC_EMMC_VAL                (0x41)     /* 0x41 */
+#define RCW_SRC_I2C1_VAL                (0x49)     /* 0x49 */
+#endif
+#endif
+
 /* Security Monitor */
 #define CONFIG_SYS_SEC_MON_ADDR		(CONFIG_SYS_IMMR + 0x00e90000)
 
