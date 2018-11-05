@@ -40,11 +40,9 @@
 #endif
 
 #if defined(ENV_IS_EMBEDDED)
-env_t *env_ptr = &environment;
+static env_t *env_ptr = &environment;
 #elif defined(CONFIG_NAND_ENV_DST)
-env_t *env_ptr = (env_t *)CONFIG_NAND_ENV_DST;
-#else /* ! ENV_IS_EMBEDDED */
-env_t *env_ptr;
+static env_t *env_ptr = (env_t *)CONFIG_NAND_ENV_DST;
 #endif /* ENV_IS_EMBEDDED */
 
 DECLARE_GLOBAL_DATA_PTR;

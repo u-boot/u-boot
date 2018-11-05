@@ -44,16 +44,16 @@ DECLARE_GLOBAL_DATA_PTR;
 #define INITENV
 #endif
 
+#if defined(CONFIG_ENV_ADDR_REDUND) && defined(CMD_SAVEENV) || \
+	!defined(CONFIG_ENV_ADDR_REDUND) && defined(INITENV)
 #ifdef ENV_IS_EMBEDDED
-env_t *env_ptr = &environment;
-
-static __maybe_unused env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
-
+static env_t *env_ptr = &environment;
 #else /* ! ENV_IS_EMBEDDED */
 
-env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
-static __maybe_unused env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
+static env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif /* ENV_IS_EMBEDDED */
+#endif
+static __maybe_unused env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
 
 /* CONFIG_ENV_ADDR is supposed to be on sector boundary */
 static ulong __maybe_unused end_addr =
