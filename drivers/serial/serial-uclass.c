@@ -423,7 +423,7 @@ static int serial_post_probe(struct udevice *dev)
 		ops->setconfig += gd->reloc_off;
 #if CONFIG_POST & CONFIG_SYS_POST_UART
 	if (ops->loop)
-		ops->loop += gd->reloc_off
+		ops->loop += gd->reloc_off;
 #endif
 #endif
 	/* Set the baud rate */
