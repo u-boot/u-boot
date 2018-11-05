@@ -298,10 +298,17 @@ out:
 }
 #endif
 
+#ifdef CONFIG_ENV_ADDR
+__weak void *env_sf_get_env_addr(void)
+{
+	return (void *)CONFIG_ENV_ADDR;
+}
+#endif
+
 #if defined(INITENV) && defined(CONFIG_ENV_ADDR)
 static int env_sf_init(void)
 {
-	env_t *env_ptr = (env_t *)(CONFIG_ENV_ADDR);
+	env_t *env_ptr = (env_t *)env_sf_get_env_addr();
 
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
 		gd->env_addr	= (ulong)&(env_ptr->data);
