@@ -693,23 +693,41 @@ enum boot_src __get_boot_src(u32 porsr1)
 		}
 	}
 #endif
+
+	if (CONFIG_IS_ENABLED(SYS_FSL_ERRATUM_A010539) && !rcw_src)
+		src = BOOT_SOURCE_QSPI_NOR;
+
 	debug("%s: src 0x%x\n", __func__, src);
 	return src;
 }
 
 enum boot_src get_boot_src(void)
 {
-	u32 porsr1;
+	struct pt_regs regs;
+	u32 porsr1 = 0;
 
 #if defined(CONFIG_FSL_LSCH3)
 	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
-
-	porsr1 = in_le32(dcfg_ccsr + DCFG_PORSR1 / 4);
 #elif defined(CONFIG_FSL_LSCH2)
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
-
-	porsr1 = in_be32(&gur->porsr1);
 #endif
+
+	if (current_el() == 2) {
+		regs.regs[0] = SIP_SVC_RCW;
+
+		smc_call(&regs);
+		if (!regs.regs[0])
+			porsr1 = regs.regs[1];
+	}
+
+	if (current_el() == 3 || !porsr1) {
+#ifdef CONFIG_FSL_LSCH3
+		porsr1 = in_le32(dcfg_ccsr + DCFG_PORSR1 / 4);
+#elif defined(CONFIG_FSL_LSCH2)
+		porsr1 = in_be32(&gur->porsr1);
+#endif
+	}
+
 	debug("%s: porsr1 0x%x\n", __func__, porsr1);
 
 	return __get_boot_src(porsr1);

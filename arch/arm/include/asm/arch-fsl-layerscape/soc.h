@@ -56,6 +56,7 @@ struct cpu_type {
 
 #ifdef CONFIG_TFABOOT
 #define SMC_DRAM_BANK_INFO (0xC200FF12)
+#define SIP_SVC_RCW	0xC200FF18
 
 phys_size_t tfa_get_dram_size(void);
 
