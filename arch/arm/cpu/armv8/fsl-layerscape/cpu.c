@@ -1229,12 +1229,96 @@ phys_size_t get_effective_memsize(void)
 	return ea_size;
 }
 
+#ifdef CONFIG_TFABOOT
+phys_size_t tfa_get_dram_size(void)
+{
+	struct pt_regs regs;
+	phys_size_t dram_size = 0;
+
+	regs.regs[0] = SMC_DRAM_BANK_INFO;
+	regs.regs[1] = -1;
+
+	smc_call(&regs);
+	if (regs.regs[0])
+		return 0;
+
+	dram_size = regs.regs[1];
+	return dram_size;
+}
+
+static int tfa_dram_init_banksize(void)
+{
+	int i = 0, ret = 0;
+	struct pt_regs regs;
+	phys_size_t dram_size = tfa_get_dram_size();
+
+	debug("dram_size %llx\n", dram_size);
+
+	if (!dram_size)
+		return -EINVAL;
+
+	do {
+		regs.regs[0] = SMC_DRAM_BANK_INFO;
+		regs.regs[1] = i;
+
+		smc_call(&regs);
+		if (regs.regs[0]) {
+			ret = -EINVAL;
+			break;
+		}
+
+		debug("bank[%d]: start %lx, size %lx\n", i, regs.regs[1],
+		      regs.regs[2]);
+		gd->bd->bi_dram[i].start = regs.regs[1];
+		gd->bd->bi_dram[i].size = regs.regs[2];
+
+		dram_size -= gd->bd->bi_dram[i].size;
+
+		i++;
+	} while (dram_size);
+
+	if (i > 0)
+		ret = 0;
+
+#if defined(CONFIG_FSL_MC_ENET) && !defined(CONFIG_SPL_BUILD)
+	/* Assign memory for MC */
+#ifdef CONFIG_SYS_DDR_BLOCK3_BASE
+	if (gd->bd->bi_dram[2].size >=
+	    board_reserve_ram_top(gd->bd->bi_dram[2].size)) {
+		gd->arch.resv_ram = gd->bd->bi_dram[2].start +
+			    gd->bd->bi_dram[2].size -
+			    board_reserve_ram_top(gd->bd->bi_dram[2].size);
+	} else
+#endif
+	{
+		if (gd->bd->bi_dram[1].size >=
+		    board_reserve_ram_top(gd->bd->bi_dram[1].size)) {
+			gd->arch.resv_ram = gd->bd->bi_dram[1].start +
+				gd->bd->bi_dram[1].size -
+				board_reserve_ram_top(gd->bd->bi_dram[1].size);
+		} else if (gd->bd->bi_dram[0].size >
+			   board_reserve_ram_top(gd->bd->bi_dram[0].size)) {
+			gd->arch.resv_ram = gd->bd->bi_dram[0].start +
+				gd->bd->bi_dram[0].size -
+				board_reserve_ram_top(gd->bd->bi_dram[0].size);
+		}
+	}
+#endif	/* CONFIG_FSL_MC_ENET */
+
+	return ret;
+}
+#endif
+
 int dram_init_banksize(void)
 {
 #ifdef CONFIG_SYS_DP_DDR_BASE_PHY
 	phys_size_t dp_ddr_size;
 #endif
 
+#ifdef CONFIG_TFABOOT
+	if (!tfa_dram_init_banksize())
+		return 0;
+#endif
 	/*
 	 * gd->ram_size has the total size of DDR memory, less reserved secure
 	 * memory. The DDR extends from low region to high region(s) presuming

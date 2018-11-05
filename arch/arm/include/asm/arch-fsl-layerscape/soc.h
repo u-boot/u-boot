@@ -55,6 +55,10 @@ struct cpu_type {
 	{ .name = #n, .soc_ver = SVR_##v, .num_cores = (nc)}
 
 #ifdef CONFIG_TFABOOT
+#define SMC_DRAM_BANK_INFO (0xC200FF12)
+
+phys_size_t tfa_get_dram_size(void);
+
 enum boot_src {
 	BOOT_SOURCE_RESERVED = 0,
 	BOOT_SOURCE_IFC_NOR,
