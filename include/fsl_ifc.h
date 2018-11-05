@@ -1031,6 +1031,23 @@ struct fsl_ifc {
 	struct fsl_ifc_runtime *rregs;
 };
 
+struct ifc_regs {
+	const char *name;
+	u32 pr;
+	u32 pr_ext;
+	u32 amask;
+	u32 or;
+	u32 ftim[4];
+	u32 or_ext;
+	u32 pr_final;
+	u32 amask_final;
+};
+
+struct ifc_regs_info {
+	struct ifc_regs *regs;
+	u32 cs_size;
+};
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A002769
 #undef CSPR_MSEL_NOR
 #define CSPR_MSEL_NOR	CSPR_MSEL_GPCM
