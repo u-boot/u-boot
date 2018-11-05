@@ -88,7 +88,8 @@ static struct mm_region early_map[] = {
 #endif
 	{ CONFIG_SYS_FSL_DRAM_BASE1, CONFIG_SYS_FSL_DRAM_BASE1,
 	  CONFIG_SYS_FSL_DRAM_SIZE1,
-#if defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_TFABOOT) || \
+	(defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD))
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 #else	/* Start with nGnRnE and PXN and UXN to prevent speculative access */
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_PXN | PTE_BLOCK_UXN |
@@ -139,7 +140,8 @@ static struct mm_region early_map[] = {
 #endif
 	{ CONFIG_SYS_FSL_DRAM_BASE1, CONFIG_SYS_FSL_DRAM_BASE1,
 	  CONFIG_SYS_FSL_DRAM_SIZE1,
-#if defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_TFABOOT) || \
+	(defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD))
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 #else	/* Start with nGnRnE and PXN and UXN to prevent speculative access */
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) | PTE_BLOCK_PXN | PTE_BLOCK_UXN |
@@ -1236,7 +1238,8 @@ void update_early_mmu_table(void)
 __weak int dram_init(void)
 {
 	fsl_initdram();
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#if (!defined(CONFIG_SPL) && !defined(CONFIG_TFABOOT)) || \
+	defined(CONFIG_SPL_BUILD)
 	/* This will break-before-make MMU for DDR */
 	update_early_mmu_table();
 #endif
