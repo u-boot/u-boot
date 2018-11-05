@@ -914,17 +914,19 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 		exit(EXIT_FAILURE);
 	}
 
-	/* Note: Image offset are not contained in the image */
-	tmp = flatten_container_header(&imx_header, container + 1, &size,
-				       file_padding);
-	/* Write image header */
-	if (write(ofd, tmp, size) != size) {
-		fprintf(stderr, "error writing image hdr\n");
-		exit(EXIT_FAILURE);
-	}
+	if (container >= 0) {
+		/* Note: Image offset are not contained in the image */
+		tmp = flatten_container_header(&imx_header, container + 1,
+					       &size, file_padding);
+		/* Write image header */
+		if (write(ofd, tmp, size) != size) {
+			fprintf(stderr, "error writing image hdr\n");
+			exit(EXIT_FAILURE);
+		}
 
-	/* Clean-up memory used by the headers */
-	free(tmp);
+		/* Clean-up memory used by the headers */
+		free(tmp);
+	}
 
 	/*
 	 * step through the image stack again this time copying
