@@ -812,6 +812,10 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 		case SCFW:
 		case DATA:
 		case MSG_BLOCK:
+			if (container < 0) {
+				fprintf(stderr, "No container found\n");
+				exit(EXIT_FAILURE);
+			}
 			check_file(&sbuf, img_sp->filename);
 			tmp_filename = img_sp->filename;
 			set_image_array_entry(&imx_header.fhdr[container],
@@ -825,6 +829,10 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 			break;
 
 		case SECO:
+			if (container < 0) {
+				fprintf(stderr, "No container found\n");
+				exit(EXIT_FAILURE);
+			}
 			check_file(&sbuf, img_sp->filename);
 			tmp_filename = img_sp->filename;
 			set_image_array_entry(&imx_header.fhdr[container],
