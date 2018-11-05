@@ -33,6 +33,9 @@
 
 #ifdef CONFIG_TFABOOT
 #include <environment.h>
+#ifdef CONFIG_CHAIN_OF_TRUST
+#include <fsl_validate.h>
+#endif
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -741,6 +744,14 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	if (prio)
 		return ENVL_UNKNOWN;
 
+#ifdef CONFIG_CHAIN_OF_TRUST
+	/* Check Boot Mode
+	 * If Boot Mode is Secure, return ENVL_NOWHERE
+	 */
+	if (fsl_check_boot_mode_secure() == 1)
+		goto done;
+#endif
+
 	switch (src) {
 	case BOOT_SOURCE_IFC_NOR:
 		env_loc = ENVL_FLASH;
@@ -768,6 +779,9 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		break;
 	}
 
+#ifdef CONFIG_CHAIN_OF_TRUST
+done:
+#endif
 	return env_loc;
 }
 #endif	/* CONFIG_TFABOOT */
