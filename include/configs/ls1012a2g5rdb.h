@@ -93,9 +93,15 @@
 		"bootm $load_addr#$board\0"
 
 #undef CONFIG_BOOTCOMMAND
+#ifdef CONFIG_TFABOOT
+#undef QSPI_NOR_BOOTCOMMAND
+#define QSPI_NOR_BOOTCOMMAND "pfe stop;run distro_bootcmd; run qspi_bootcmd; " \
+			     "env exists secureboot && esbc_halt;"
+#else
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_BOOTCOMMAND "pfe stop;run distro_bootcmd; run qspi_bootcmd; " \
 			   "env exists secureboot && esbc_halt;"
+#endif
 #endif
 
 #define DEFAULT_PFE_MDIO_NAME "PFE_MDIO"
