@@ -666,8 +666,10 @@ static int get_container_image_start_pos(image_t *image_stack, uint32_t align)
 			}
 
 			ret = fread(&header, sizeof(header), 1, fd);
-			if (ret != 1)
+			if (ret != 1) {
 				printf("Failure Read header %d\n", ret);
+				exit(EXIT_FAILURE);
+			}
 
 			fclose(fd);
 
