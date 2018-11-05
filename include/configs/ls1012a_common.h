@@ -16,7 +16,11 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_INIT_SP_ADDR                CONFIG_SYS_TEXT_BASE
+#else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
+#endif
 #define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_DDR_SDRAM_BASE + 0x10000000)
 
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x80000000
@@ -34,7 +38,7 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
 
 /*SPI device */
-#ifdef CONFIG_QSPI_BOOT
+#if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_TFABOOT)
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR		0x400d0000
 #define CONFIG_ENV_SPI_BUS		0
@@ -58,7 +62,11 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_ENV_SIZE			0x40000          /* 256KB */
+#ifdef CONFIG_TFABOOT
+#define CONFIG_ENV_OFFSET		0x500000        /* 5MB */
+#else
 #define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
+#endif
 #define CONFIG_ENV_SECT_SIZE		0x40000
 #endif
 
@@ -106,9 +114,15 @@
 	"kernel_size=0x2800000\0"		\
 
 #undef CONFIG_BOOTCOMMAND
+#ifdef CONFIG_TFABOOT
+#define QSPI_NOR_BOOTCOMMAND	"pfe stop; sf probe 0:0; sf read $kernel_load "\
+				"$kernel_start $kernel_size && "\
+				"bootm $kernel_load"
+#else
 #define CONFIG_BOOTCOMMAND	"pfe stop; sf probe 0:0; sf read $kernel_load "\
 				"$kernel_start $kernel_size && "\
 				"bootm $kernel_load"
+#endif
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
