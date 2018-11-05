@@ -955,7 +955,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	char filename[32] = { 0 }; /* dp->str is u16[32] long */
 	char *s;
 
-	if (!device || (path && !file))
+	if (path && !file)
 		return EFI_INVALID_PARAMETER;
 
 	is_net = !strcmp(dev, "Net");
@@ -965,10 +965,12 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 		if (part < 0)
 			return EFI_INVALID_PARAMETER;
 
-		*device = efi_dp_from_part(desc, part);
+		if (device)
+			*device = efi_dp_from_part(desc, part);
 	} else {
 #ifdef CONFIG_NET
-		*device = efi_dp_from_eth();
+		if (device)
+			*device = efi_dp_from_eth();
 #endif
 	}
 
@@ -985,7 +987,8 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	s = filename;
 	while ((s = strchr(s, '/')))
 		*s++ = '\\';
-	*file = efi_dp_from_file(NULL, 0, filename);
+	*file = efi_dp_from_file(((!is_net && device) ? desc : NULL),
+				 part, filename);
 
 	return EFI_SUCCESS;
 }
