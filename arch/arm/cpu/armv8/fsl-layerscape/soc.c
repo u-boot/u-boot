@@ -747,6 +747,54 @@ int fsl_setenv_bootcmd(void)
 	}
 	return 0;
 }
+
+int fsl_setenv_mcinitcmd(void)
+{
+	int ret = 0;
+	enum boot_src src = get_boot_src();
+
+	switch (src) {
+#ifdef IFC_MC_INIT_CMD
+	case BOOT_SOURCE_IFC_NAND:
+	case BOOT_SOURCE_IFC_NOR:
+	ret = env_set("mcinitcmd", IFC_MC_INIT_CMD);
+		break;
+#endif
+#ifdef QSPI_MC_INIT_CMD
+	case BOOT_SOURCE_QSPI_NAND:
+	case BOOT_SOURCE_QSPI_NOR:
+	ret = env_set("mcinitcmd", QSPI_MC_INIT_CMD);
+		break;
+#endif
+#ifdef XSPI_MC_INIT_CMD
+	case BOOT_SOURCE_XSPI_NAND:
+	case BOOT_SOURCE_XSPI_NOR:
+	ret = env_set("mcinitcmd", XSPI_MC_INIT_CMD);
+		break;
+#endif
+#ifdef SD_MC_INIT_CMD
+	case BOOT_SOURCE_SD_MMC:
+	ret = env_set("mcinitcmd", SD_MC_INIT_CMD);
+		break;
+#endif
+#ifdef SD2_MC_INIT_CMD
+	case BOOT_SOURCE_SD_MMC2:
+	ret = env_set("mcinitcmd", SD2_MC_INIT_CMD);
+		break;
+#endif
+	default:
+#ifdef QSPI_MC_INIT_CMD
+	ret = env_set("mcinitcmd", QSPI_MC_INIT_CMD);
+#endif
+		break;
+	}
+
+	if (ret) {
+		printf("Failed to set mcinitcmd: ret = %d\n", ret);
+		return ret;
+	}
+	return 0;
+}
 #endif
 
 #ifdef CONFIG_BOARD_LATE_INIT
@@ -758,9 +806,12 @@ int board_late_init(void)
 #ifdef CONFIG_TFABOOT
 	/*
 	 * check if gd->env_addr is default_environment; then setenv bootcmd
+	 * and mcinitcmd.
 	 */
-	if (gd->env_addr + gd->reloc_off == (ulong)&default_environment[0])
+	if (gd->env_addr + gd->reloc_off == (ulong)&default_environment[0]) {
 		fsl_setenv_bootcmd();
+		fsl_setenv_mcinitcmd();
+	}
 #endif
 #ifdef CONFIG_QSPI_AHB_INIT
 	qspi_ahb_init();
