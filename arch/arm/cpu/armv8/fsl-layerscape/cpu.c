@@ -371,7 +371,10 @@ static inline void early_mmu_setup(void)
 	unsigned int el = current_el();
 
 	/* global data is already setup, no allocation yet */
-	gd->arch.tlb_addr = CONFIG_SYS_FSL_OCRAM_BASE;
+	if (el == 3)
+		gd->arch.tlb_addr = CONFIG_SYS_FSL_OCRAM_BASE;
+	else
+		gd->arch.tlb_addr = CONFIG_SYS_DDR_SDRAM_BASE;
 	gd->arch.tlb_fillptr = gd->arch.tlb_addr;
 	gd->arch.tlb_size = EARLY_PGTABLE_SIZE;
 
