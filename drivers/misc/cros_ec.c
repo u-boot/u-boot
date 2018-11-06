@@ -13,6 +13,8 @@
  * is not reset.
  */
 
+#define LOG_CATEGORY UCLASS_CROS_EC
+
 #include <common.h>
 #include <command.h>
 #include <dm.h>
@@ -365,10 +367,14 @@ int cros_ec_scan_keyboard(struct udevice *dev, struct mbkp_keyscan *scan)
 int cros_ec_read_id(struct udevice *dev, char *id, int maxlen)
 {
 	struct ec_response_get_version *r;
+	int ret;
 
-	if (ec_command_inptr(dev, EC_CMD_GET_VERSION, 0, NULL, 0,
-			(uint8_t **)&r, sizeof(*r)) != sizeof(*r))
+	ret = ec_command_inptr(dev, EC_CMD_GET_VERSION, 0, NULL, 0,
+			       (uint8_t **)&r, sizeof(*r));
+	if (ret != sizeof(*r)) {
+		log_err("Got rc %d, expected %d\n", ret, sizeof(*r));
 		return -1;
+	}
 
 	if (maxlen > (int)sizeof(r->version_string_ro))
 		maxlen = sizeof(r->version_string_ro);
@@ -381,6 +387,7 @@ int cros_ec_read_id(struct udevice *dev, char *id, int maxlen)
 		memcpy(id, r->version_string_rw, maxlen);
 		break;
 	default:
+		log_err("Invalid EC image %d\n", r->current_image);
 		return -1;
 	}
 
