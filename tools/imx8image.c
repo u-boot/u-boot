@@ -301,6 +301,7 @@ static void copy_file_aligned(int ifd, const char *datafile, int offset,
 	unsigned char *ptr;
 	uint8_t zeros[0x4000];
 	int size;
+	int ret;
 
 	if (align > 0x4000) {
 		fprintf(stderr, "Wrong alignment requested %d\n", align);
@@ -333,7 +334,13 @@ static void copy_file_aligned(int ifd, const char *datafile, int offset,
 	}
 
 	size = sbuf.st_size;
-	lseek(ifd, offset, SEEK_SET);
+	ret = lseek(ifd, offset, SEEK_SET);
+	if (ret < 0) {
+		fprintf(stderr, "%s: lseek error %s\n",
+			__func__, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
 	if (write(ifd, ptr, size) != size) {
 		fprintf(stderr, "Write error %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
@@ -359,7 +366,7 @@ static void copy_file (int ifd, const char *datafile, int pad, int offset)
 	int tail;
 	int zero = 0;
 	uint8_t zeros[4096];
-	int size;
+	int size, ret;
 
 	memset(zeros, 0, sizeof(zeros));
 
@@ -387,7 +394,13 @@ static void copy_file (int ifd, const char *datafile, int pad, int offset)
 	}
 
 	size = sbuf.st_size;
-	lseek(ifd, offset, SEEK_SET);
+	ret = lseek(ifd, offset, SEEK_SET);
+	if (ret < 0) {
+		fprintf(stderr, "%s: lseek error %s\n",
+			__func__, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
 	if (write(ifd, ptr, size) != size) {
 		fprintf(stderr, "Write error %s\n",
 			strerror(errno));
@@ -653,8 +666,10 @@ static int get_container_image_start_pos(image_t *image_stack, uint32_t align)
 			}
 
 			ret = fread(&header, sizeof(header), 1, fd);
-			if (ret != 1)
+			if (ret != 1) {
 				printf("Failure Read header %d\n", ret);
+				exit(EXIT_FAILURE);
+			}
 
 			fclose(fd);
 
@@ -762,6 +777,7 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 	char *tmp_filename = NULL;
 	uint32_t size = 0;
 	uint32_t file_padding = 0;
+	int ret;
 
 	int container = -1;
 	int cont_img_count = 0; /* indexes to arrange the container */
@@ -796,6 +812,10 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 		case SCFW:
 		case DATA:
 		case MSG_BLOCK:
+			if (container < 0) {
+				fprintf(stderr, "No container found\n");
+				exit(EXIT_FAILURE);
+			}
 			check_file(&sbuf, img_sp->filename);
 			tmp_filename = img_sp->filename;
 			set_image_array_entry(&imx_header.fhdr[container],
@@ -809,6 +829,10 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 			break;
 
 		case SECO:
+			if (container < 0) {
+				fprintf(stderr, "No container found\n");
+				exit(EXIT_FAILURE);
+			}
 			check_file(&sbuf, img_sp->filename);
 			tmp_filename = img_sp->filename;
 			set_image_array_entry(&imx_header.fhdr[container],
@@ -883,19 +907,26 @@ static int build_container(soc_type_t soc, uint32_t sector_size,
 	} while (img_sp->option != NO_IMG);
 
 	/* Add padding or skip appended container */
-	lseek(ofd, file_padding, SEEK_SET);
-
-	/* Note: Image offset are not contained in the image */
-	tmp = flatten_container_header(&imx_header, container + 1, &size,
-				       file_padding);
-	/* Write image header */
-	if (write(ofd, tmp, size) != size) {
-		fprintf(stderr, "error writing image hdr\n");
+	ret = lseek(ofd, file_padding, SEEK_SET);
+	if (ret < 0) {
+		fprintf(stderr, "%s: lseek error %s\n",
+			__func__, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
-	/* Clean-up memory used by the headers */
-	free(tmp);
+	if (container >= 0) {
+		/* Note: Image offset are not contained in the image */
+		tmp = flatten_container_header(&imx_header, container + 1,
+					       &size, file_padding);
+		/* Write image header */
+		if (write(ofd, tmp, size) != size) {
+			fprintf(stderr, "error writing image hdr\n");
+			exit(EXIT_FAILURE);
+		}
+
+		/* Clean-up memory used by the headers */
+		free(tmp);
+	}
 
 	/*
 	 * step through the image stack again this time copying
