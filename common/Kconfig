@@ -27,6 +27,15 @@ config SPL_BOOTSTAGE
 	  information when SPL finishes and load it when U-Boot proper starts
 	  up.
 
+config TPL_BOOTSTAGE
+	bool "Boot timing and reported in TPL"
+	depends on BOOTSTAGE
+	help
+	  Enable recording of boot time in SPL. To make this visible to U-Boot
+	  proper, enable BOOTSTAGE_STASH as well. This will stash the timing
+	  information when TPL finishes and load it when U-Boot proper starts
+	  up.
+
 config BOOTSTAGE_REPORT
 	bool "Display a detailed boot timing report before booting the OS"
 	depends on BOOTSTAGE
@@ -444,6 +453,16 @@ config LOG
 
 config SPL_LOG
 	bool "Enable logging support in SPL"
+	depends on LOG
+	help
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
+config TPL_LOG
+	bool "Enable logging support in TPL"
+	depends on LOG
 	help
 	  This enables support for logging of status and debug messages. These
 	  can be displayed on the console, recorded in a memory buffer, or
@@ -659,6 +678,22 @@ config AVB_VERIFY
 	    * Helpers to process strings in order to build OS bootargs.
 	    * Helpers to access MMC, similar to drivers/fastboot/fb_mmc.c.
 	    * Helpers to alloc/init/free avb ops.
+
+config SPL_HASH
+	bool # "Support hashing API (SHA1, SHA256, etc.)"
+	help
+	  This provides a way to hash data in memory using various supported
+	  algorithms (such as SHA1, MD5, CRC32). The API is defined in hash.h
+	  and the algorithms it supports are defined in common/hash.c. See
+	  also CMD_HASH for command-line access.
+
+config TPL_HASH
+	bool # "Support hashing API (SHA1, SHA256, etc.)"
+	help
+	  This provides a way to hash data in memory using various supported
+	  algorithms (such as SHA1, MD5, CRC32). The API is defined in hash.h
+	  and the algorithms it supports are defined in common/hash.c. See
+	  also CMD_HASH for command-line access.
 
 endmenu
 
