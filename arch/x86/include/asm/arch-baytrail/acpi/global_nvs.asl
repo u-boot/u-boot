@@ -8,7 +8,6 @@
 OperationRegion(GNVS, SystemMemory, ACPI_GNVS_ADDR, ACPI_GNVS_SIZE)
 Field(GNVS, ByteAcc, NoLock, Preserve)
 {
-	Offset (0x00),
 	PCNT, 8,	/* processor count */
 	IURE, 8,	/* internal UART enabled */
 }
