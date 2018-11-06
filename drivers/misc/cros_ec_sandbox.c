@@ -74,7 +74,7 @@ struct ec_keymatrix_entry {
  * @recovery_req: Keyboard recovery requested
  */
 struct ec_state {
-	uint8_t vbnv_context[EC_VBNV_BLOCK_SIZE];
+	u8 vbnv_context[EC_VBNV_BLOCK_SIZE_V2];
 	struct fdt_cros_ec ec_config;
 	uint8_t *flash_data;
 	int flash_data_len;
