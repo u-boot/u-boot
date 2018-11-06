@@ -344,7 +344,7 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 			switch (val) {
 			case 0:
 				/* all attributes off */
-				video_set_default_colors(vid_priv);
+				video_set_default_colors(dev->parent, false);
 				break;
 			case 1:
 				/* bold */

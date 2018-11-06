@@ -191,9 +191,10 @@ void video_set_flush_dcache(struct udevice *dev, bool flush);
 /**
  * Set default colors and attributes
  *
- * @priv	device information
+ * @dev:	video device
+ * @invert	true to invert colours
  */
-void video_set_default_colors(struct video_priv *priv);
+void video_set_default_colors(struct udevice *dev, bool invert);
 
 #endif /* CONFIG_DM_VIDEO */
 

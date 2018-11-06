@@ -115,18 +115,29 @@ int video_clear(struct udevice *dev)
 	return 0;
 }
 
-void video_set_default_colors(struct video_priv *priv)
+void video_set_default_colors(struct udevice *dev, bool invert)
 {
+	struct video_priv *priv = dev_get_uclass_priv(dev);
+	int fore, back;
+
 #ifdef CONFIG_SYS_WHITE_ON_BLACK
 	/* White is used when switching to bold, use light gray here */
-	priv->fg_col_idx = VID_LIGHT_GRAY;
-	priv->colour_fg = vid_console_color(priv, VID_LIGHT_GRAY);
-	priv->colour_bg = vid_console_color(priv, VID_BLACK);
+	fore = VID_LIGHT_GRAY;
+	back = VID_BLACK;
 #else
-	priv->fg_col_idx = VID_BLACK;
-	priv->colour_fg = vid_console_color(priv, VID_BLACK);
-	priv->colour_bg = vid_console_color(priv, VID_WHITE);
+	fore = VID_BLACK;
+	back = VID_WHITE;
 #endif
+	if (invert) {
+		int temp;
+
+		temp = fore;
+		fore = back;
+		back = temp;
+	}
+	priv->fg_col_idx = fore;
+	priv->colour_fg = vid_console_color(priv, fore);
+	priv->colour_bg = vid_console_color(priv, back);
 }
 
 /* Flush video activity to the caches */
@@ -219,7 +230,7 @@ static int video_post_probe(struct udevice *dev)
 	priv->fb_size = priv->line_length * priv->ysize;
 
 	/* Set up colors  */
-	video_set_default_colors(priv);
+	video_set_default_colors(dev, false);
 
 	if (!CONFIG_IS_ENABLED(NO_FB_CLEAR))
 		video_clear(dev);
