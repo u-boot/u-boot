@@ -98,9 +98,8 @@ void os_exit(int exit_code)
 	exit(exit_code);
 }
 
-int os_write_file(const char *name, const void *buf, int size)
+int os_write_file(const char *fname, const void *buf, int size)
 {
-	char fname[256];
 	int fd;
 
 	fd = os_open(fname, OS_O_WRONLY | OS_O_CREAT | OS_O_TRUNC);
@@ -110,12 +109,51 @@ int os_write_file(const char *name, const void *buf, int size)
 	}
 	if (os_write(fd, buf, size) != size) {
 		printf("Cannot write to file '%s'\n", fname);
+		os_close(fd);
 		return -EIO;
 	}
 	os_close(fd);
-	printf("Write '%s', size %#x (%d)\n", name, size, size);
 
 	return 0;
+}
+
+int os_read_file(const char *fname, void **bufp, int *sizep)
+{
+	off_t size;
+	int ret = -EIO;
+	int fd;
+
+	fd = os_open(fname, OS_O_RDONLY);
+	if (fd < 0) {
+		printf("Cannot open file '%s'\n", fname);
+		goto err;
+	}
+	size = os_lseek(fd, 0, OS_SEEK_END);
+	if (size < 0) {
+		printf("Cannot seek to end of file '%s'\n", fname);
+		goto err;
+	}
+	if (os_lseek(fd, 0, OS_SEEK_SET) < 0) {
+		printf("Cannot seek to start of file '%s'\n", fname);
+		goto err;
+	}
+	*bufp = os_malloc(size);
+	if (!*bufp) {
+		printf("Not enough memory to read file '%s'\n", fname);
+		ret = -ENOMEM;
+		goto err;
+	}
+	if (os_read(fd, *bufp, size) != size) {
+		printf("Cannot read from file '%s'\n", fname);
+		goto err;
+	}
+	os_close(fd);
+	*sizep = size;
+
+	return 0;
+err:
+	os_close(fd);
+	return ret;
 }
 
 /* Restore tty state when we exit */
