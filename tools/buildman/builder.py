@@ -1197,6 +1197,7 @@ class Builder:
 
 
         ok_boards = []      # List of boards fixed since last commit
+        warn_boards = []    # List of boards with warnings since last commit
         err_boards = []     # List of new broken boards since last commit
         new_boards = []     # List of boards that didn't exist last time
         unknown_boards = [] # List of boards that were not built
@@ -1212,9 +1213,15 @@ class Builder:
                 if outcome.rc == OUTCOME_UNKNOWN:
                     unknown_boards.append(target)
                 elif outcome.rc < base_outcome:
-                    ok_boards.append(target)
+                    if outcome.rc == OUTCOME_WARNING:
+                        warn_boards.append(target)
+                    else:
+                        ok_boards.append(target)
                 elif outcome.rc > base_outcome:
-                    err_boards.append(target)
+                    if outcome.rc == OUTCOME_WARNING:
+                        warn_boards.append(target)
+                    else:
+                        err_boards.append(target)
             else:
                 new_boards.append(target)
 
@@ -1225,11 +1232,13 @@ class Builder:
                 self._base_warn_line_boards, warn_lines, warn_line_boards, 'w')
 
         # Display results by arch
-        if any((ok_boards, err_boards, unknown_boards, new_boards, worse_err,
-                better_err, worse_warn, better_warn)):
+        if any((ok_boards, warn_boards, err_boards, unknown_boards, new_boards,
+                worse_err, better_err, worse_warn, better_warn)):
             arch_list = {}
             self.AddOutcome(board_selected, arch_list, ok_boards, '',
                     self.col.GREEN)
+            self.AddOutcome(board_selected, arch_list, warn_boards, 'w+',
+                    self.col.YELLOW)
             self.AddOutcome(board_selected, arch_list, err_boards, '+',
                     self.col.RED)
             self.AddOutcome(board_selected, arch_list, new_boards, '*', self.col.BLUE)
