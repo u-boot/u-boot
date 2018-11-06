@@ -290,6 +290,7 @@ class Builder:
         self._re_function = re.compile('(.*): In function.*')
         self._re_files = re.compile('In file included from.*')
         self._re_warning = re.compile('(.*):(\d*):(\d*): warning: .*')
+        self._re_dtb_warning = re.compile('(.*): Warning .*')
         self._re_note = re.compile('(.*):(\d*):(\d*): note: this is the location of the previous.*')
 
         self.queue = Queue.Queue()
@@ -788,7 +789,8 @@ class Builder:
                             self._re_files.match(line)):
                         last_func = line
                     else:
-                        is_warning = self._re_warning.match(line)
+                        is_warning = (self._re_warning.match(line) or
+                                      self._re_dtb_warning.match(line))
                         is_note = self._re_note.match(line)
                         if is_warning or (last_was_warning and is_note):
                             if last_func:

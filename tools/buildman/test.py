@@ -46,8 +46,9 @@ make[1]: *** [main.o] Error 1
 make: *** [common/libcommon.o] Error 2
 Make failed
 ''',
-    '''main.c: In function 'main_loop3':
-main.c:280:6: warning: unused variable 'mary' [-Wunused-variable]
+    '''arch/arm/dts/socfpga_arria10_socdk_sdmmc.dtb: Warning \
+(avoid_unnecessary_addr_size): /clocks: unnecessary #address-cells/#size-cells \
+without "ranges" or child "reg" property
 ''',
     '''powerpc-linux-ld: warning: dot moved backwards before `.bss'
 powerpc-linux-ld: warning: dot moved backwards before `.bss'
