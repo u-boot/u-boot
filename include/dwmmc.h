@@ -56,6 +56,7 @@
 #define DWMCI_INTMSK_DTO	(1 << 3)
 #define DWMCI_INTMSK_TXDR	(1 << 4)
 #define DWMCI_INTMSK_RXDR	(1 << 5)
+#define DWMCI_INTMSK_RCRC	(1 << 6)
 #define DWMCI_INTMSK_DCRC	(1 << 7)
 #define DWMCI_INTMSK_RTO	(1 << 8)
 #define DWMCI_INTMSK_DRTO	(1 << 9)
