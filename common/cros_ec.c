@@ -25,15 +25,3 @@ struct udevice *board_get_cros_ec_dev(void)
 	}
 	return dev;
 }
-
-int cros_ec_get_error(void)
-{
-	struct udevice *dev;
-	int ret;
-
-	ret = uclass_get_device(UCLASS_CROS_EC, 0, &dev);
-	if (ret && ret != -ENODEV)
-		return ret;
-
-	return 0;
-}
