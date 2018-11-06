@@ -227,7 +227,7 @@ static int send_command_proto3(struct cros_ec_dev *cdev,
 	return handle_proto3_response(cdev, dinp, din_len);
 }
 
-static int send_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
+static int send_command(struct cros_ec_dev *dev, uint cmd, int cmd_version,
 			const void *dout, int dout_len,
 			uint8_t **dinp, int din_len)
 {
@@ -330,7 +330,7 @@ static int ec_command_inptr(struct udevice *dev, uint8_t cmd,
  * @param din_len       Maximum size of response in bytes
  * @return number of bytes in response, or -ve on error
  */
-static int ec_command(struct udevice *dev, uint8_t cmd, int cmd_version,
+static int ec_command(struct udevice *dev, uint cmd, int cmd_version,
 		      const void *dout, int dout_len,
 		      void *din, int din_len)
 {
@@ -650,16 +650,14 @@ static int cros_ec_check_version(struct udevice *dev)
 	cdev->protocol_version = 3;
 	req.in_data = 0;
 	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
-			     (uint8_t **)&resp, sizeof(*resp)) > 0) {
+			     (uint8_t **)&resp, sizeof(*resp)) > 0)
 		return 0;
-	}
 
 	/* Try sending a version 2 packet */
 	cdev->protocol_version = 2;
 	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
-			     (uint8_t **)&resp, sizeof(*resp)) > 0) {
+			     (uint8_t **)&resp, sizeof(*resp)) > 0)
 		return 0;
-	}
 
 	/*
 	 * Fail if we're still here, since the EC doesn't understand any
