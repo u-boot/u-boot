@@ -1152,4 +1152,5 @@ UCLASS_DRIVER(cros_ec) = {
 	.name		= "cros_ec",
 	.per_device_auto_alloc_size = sizeof(struct cros_ec_dev),
 	.post_bind	= dm_scan_fdt_dev,
+	.flags		= DM_UC_FLAG_ALLOC_PRIV_DMA,
 };
