@@ -113,4 +113,12 @@ int sandbox_osd_get_mem(struct udevice *dev, u8 *buf, size_t buflen);
 int sandbox_pwm_get_config(struct udevice *dev, uint channel, uint *period_nsp,
 			   uint *duty_nsp, bool *enablep, bool *polarityp);
 
+/**
+ * sandbox_sf_set_block_protect() - Set the BP bits of the status register
+ *
+ * @dev: Device to update
+ * @bp_mask: BP bits to set (bits 2:0, so a value of 0 to 7)
+ */
+void sandbox_sf_set_block_protect(struct udevice *dev, int bp_mask);
+
 #endif

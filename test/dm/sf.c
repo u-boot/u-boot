@@ -11,6 +11,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/state.h>
+#include <asm/test.h>
 #include <dm/test.h>
 #include <dm/util.h>
 #include <test/ut.h>
@@ -44,6 +45,14 @@ static int dm_test_spi_flash(struct unit_test_state *uts)
 	ut_assertok(spi_flash_write_dm(dev, 0, size, src));
 	ut_assertok(spi_flash_read_dm(dev, 0, size, dst));
 	ut_assertok(memcmp(src, dst, size));
+
+	/* Try the write-protect stuff */
+	ut_assertok(uclass_first_device_err(UCLASS_SPI_EMUL, &emul));
+	ut_asserteq(0, spl_flash_get_sw_write_prot(dev));
+	sandbox_sf_set_block_protect(emul, 1);
+	ut_asserteq(1, spl_flash_get_sw_write_prot(dev));
+	sandbox_sf_set_block_protect(emul, 0);
+	ut_asserteq(0, spl_flash_get_sw_write_prot(dev));
 
 	/*
 	 * Since we are about to destroy all devices, we must tell sandbox

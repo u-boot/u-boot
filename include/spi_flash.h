@@ -112,6 +112,19 @@ struct dm_spi_flash_ops {
 	int (*write)(struct udevice *dev, u32 offset, size_t len,
 		     const void *buf);
 	int (*erase)(struct udevice *dev, u32 offset, size_t len);
+	/**
+	 * get_sw_write_prot() - Check state of software write-protect feature
+	 *
+	 * SPI flash chips can lock a region of the flash defined by a
+	 * 'protected area'. This function checks if this protected area is
+	 * defined.
+	 *
+	 * @dev:	SPI flash device
+	 * @return 0 if no region is write-protected, 1 if a region is
+	 *	write-protected, -ENOSYS if the driver does not implement this,
+	 *	other -ve value on error
+	 */
+	int (*get_sw_write_prot)(struct udevice *dev);
 };
 
 /* Access the serial operations for a device */
@@ -152,6 +165,20 @@ int spi_flash_write_dm(struct udevice *dev, u32 offset, size_t len,
  * @return 0 if OK, -ve on error
  */
 int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len);
+
+/**
+ * spl_flash_get_sw_write_prot() - Check state of software write-protect feature
+ *
+ * SPI flash chips can lock a region of the flash defined by a
+ * 'protected area'. This function checks if this protected area is
+ * defined.
+ *
+ * @dev:	SPI flash device
+ * @return 0 if no region is write-protected, 1 if a region is
+ *	write-protected, -ENOSYS if the driver does not implement this,
+ *	other -ve value on error
+ */
+int spl_flash_get_sw_write_prot(struct udevice *dev);
 
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 			   unsigned int max_hz, unsigned int spi_mode,
