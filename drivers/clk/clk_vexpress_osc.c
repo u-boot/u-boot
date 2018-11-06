@@ -29,7 +29,7 @@ static ulong vexpress_osc_clk_get_rate(struct clk *clk)
 
 	data = CLK_FUNCTION | priv->osc;
 	err = misc_read(vexpress_cfg, 0, &data, sizeof(data));
-	if (err)
+	if (err < 0)
 		return err;
 
 	return data;
@@ -53,7 +53,7 @@ static ulong vexpress_osc_clk_set_rate(struct clk *clk, ulong rate)
 	buffer[0] = CLK_FUNCTION | priv->osc;
 	buffer[1] = rate;
 	err = misc_write(vexpress_cfg, 0, buffer, 2 * sizeof(u32));
-	if (err)
+	if (err < 0)
 		return err;
 
 	return rate;

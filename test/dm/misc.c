@@ -21,9 +21,9 @@ static int dm_test_misc(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "misc-test", &dev));
 
 	/* Read / write tests */
-	ut_assertok(misc_write(dev, 0, "TEST", 4));
-	ut_assertok(misc_write(dev, 4, "WRITE", 5));
-	ut_assertok(misc_read(dev, 0, buf, 9));
+	ut_asserteq(4, misc_write(dev, 0, "TEST", 4));
+	ut_asserteq(5, misc_write(dev, 4, "WRITE", 5));
+	ut_asserteq(9, misc_read(dev, 0, buf, 9));
 
 	ut_assertok(memcmp(buf, "TESTWRITE", 9));
 
