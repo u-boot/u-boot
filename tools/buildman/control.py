@@ -164,7 +164,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
 
     if no_toolchains:
         toolchains.GetSettings()
-        toolchains.Scan(options.list_tool_chains)
+        toolchains.Scan(options.list_tool_chains and options.verbose)
     if options.list_tool_chains:
         toolchains.List()
         print

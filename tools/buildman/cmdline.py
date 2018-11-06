@@ -66,7 +66,7 @@ def ParseArgs():
     parser.add_option('-l', '--list-error-boards', action='store_true',
           default=False, help='Show a list of boards next to each error/warning')
     parser.add_option('--list-tool-chains', action='store_true', default=False,
-          help='List available tool chains')
+          help='List available tool chains (use -v to see probing detail)')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
           default=False, help="Do a dry run (describe actions, but do nothing)")
     parser.add_option('-N', '--no-subdirs', action='store_true', dest='no_subdirs',
