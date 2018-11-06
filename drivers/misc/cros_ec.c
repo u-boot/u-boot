@@ -827,6 +827,9 @@ int cros_ec_flash_write(struct udevice *dev, const uint8_t *data,
 	uint32_t end, off;
 	int ret;
 
+	if (!burst)
+		return -EINVAL;
+
 	/*
 	 * TODO: round up to the nearest multiple of write size.  Can get away
 	 * without that on link right now because its write size is 4 bytes.
