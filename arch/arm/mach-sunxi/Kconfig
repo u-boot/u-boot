@@ -278,6 +278,7 @@ config MACH_SUN50I
 	select ARM64
 	select DM_I2C
 	select PHY_SUN4I_USB
+	select SUN6I_PRCM
 	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
