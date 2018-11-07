@@ -106,7 +106,7 @@ int rk_mipi_dsi_enable(struct udevice *dev,
 	rk_mipi_dsi_write(regs, VSYNC_ACTIVE_LOW, val);
 
 	val = (timing->flags & DISPLAY_FLAGS_DE_LOW) ? 1 : 0;
-	rk_mipi_dsi_write(regs, DISPLAY_FLAGS_DE_LOW, val);
+	rk_mipi_dsi_write(regs, DATAEN_ACTIVE_LOW, val);
 
 	val = (timing->flags & DISPLAY_FLAGS_PIXDATA_NEGEDGE) ? 1 : 0;
 	rk_mipi_dsi_write(regs, COLORM_ACTIVE_LOW, val);
