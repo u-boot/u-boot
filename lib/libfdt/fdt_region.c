@@ -96,6 +96,9 @@ int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
 			break;
 
 		case FDT_END_NODE:
+			/* Depth must never go below -1 */
+			if (depth < 0)
+				return -FDT_ERR_BADSTRUCTURE;
 			include = want;
 			want = stack[depth--];
 			while (end > path && *--end != '/')
