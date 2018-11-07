@@ -7,6 +7,9 @@
 #ifndef _ASM_RISCV_CACHE_H
 #define _ASM_RISCV_CACHE_H
 
+/* cache */
+void	cache_flush(void);
+
 /*
  * The current upper bound for RISCV L1 data cache line sizes is 32 bytes.
  * We use that value for aligning DMA buffers unless the board config has

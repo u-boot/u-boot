@@ -46,6 +46,10 @@ _start:
 	/* mask all interrupts */
 	csrw	mie, zero
 
+	/* Enable cache */
+	jal	icache_enable
+	jal	dcache_enable
+
 /*
  * Set stackpointer in internal/ex RAM to call board_init_f
  */
@@ -181,6 +185,8 @@ clbss_l:
  * initialization, now running from RAM.
  */
 call_board_init_r:
+	jal	invalidate_icache_all
+	jal	flush_dcache_all
 	la	t0, board_init_r
 	mv	t4, t0			/* offset of board_init_r() */
 	add	t4, t4, t6		/* real address of board_init_r() */
