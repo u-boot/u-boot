@@ -334,6 +334,11 @@ int fit_config_check_sig(const void *fit, int noffset, int required_keynode,
 		return -1;
 	}
 
+	if (prop && prop_len > 0 && prop[prop_len - 1] != '\0') {
+		*err_msgp = "hashed-nodes property must be null-terminated";
+		return -1;
+	}
+
 	/* Add a sanity check here since we are using the stack */
 	if (count > IMAGE_MAX_HASHED_NODES) {
 		*err_msgp = "Number of hashed nodes exceeds maximum";
