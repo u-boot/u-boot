@@ -472,6 +472,8 @@ struct dw_hdmi {
 	u8 reg_io_width;
 
 	int (*phy_set)(struct dw_hdmi *hdmi, uint mpixelclock);
+	void (*write_reg)(struct dw_hdmi *hdmi, u8 val, int offset);
+	u8 (*read_reg)(struct dw_hdmi *hdmi, int offset);
 };
 
 int dw_hdmi_phy_cfg(struct dw_hdmi *hdmi, uint mpixelclock);
