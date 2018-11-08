@@ -182,6 +182,7 @@ config TARGET_DISPLAY5
 config TARGET_EMBESTMX6BOARDS
 	bool "embestmx6boards"
 	select BOARD_LATE_INIT
+	select SUPPORT_SPL
 
 config TARGET_GE_BX50V3
 	bool "General Electric Bx50v3"

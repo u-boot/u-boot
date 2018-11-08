@@ -5,3 +5,4 @@ F:	board/embest/mx6boards/
 F:	include/configs/embestmx6boards.h
 F:	configs/marsboard_defconfig
 F:	configs/riotboard_defconfig
+F:	configs/riotboard_spl_defconfig
