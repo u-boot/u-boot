@@ -79,7 +79,7 @@ static ulong meson_clk_set_rate_by_id(struct clk *clk, unsigned long id,
 static ulong meson_mux_get_parent(struct clk *clk, unsigned long id);
 static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id);
 
-struct meson_gate gates[] = {
+static struct meson_gate gates[] = {
 	/* Everything Else (EE) domain gates */
 	MESON_GATE(CLKID_DDR, HHI_GCLK_MPEG0, 0),
 	MESON_GATE(CLKID_DOS, HHI_GCLK_MPEG0, 1),
