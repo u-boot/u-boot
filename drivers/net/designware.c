@@ -839,6 +839,7 @@ static const struct udevice_id designware_eth_ids[] = {
 	{ .compatible = "amlogic,meson6-dwmac" },
 	{ .compatible = "amlogic,meson-gx-dwmac" },
 	{ .compatible = "amlogic,meson-gxbb-dwmac" },
+	{ .compatible = "amlogic,meson-axg-dwmac" },
 	{ .compatible = "st,stm32-dwmac" },
 	{ }
 };
