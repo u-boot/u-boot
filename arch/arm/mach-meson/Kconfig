@@ -50,13 +50,14 @@ config TARGET_P212
 	  You should also select this TARGET if you have Khadas Vim or
 	  a libretech aml-s905x-cc
 
-config TARGET_KHADAS_VIM2
+config TARGET_Q200
 	bool "KHADAS-VIM2"
 	select MESON_GXM
 	help
-	  Khadas VIM2 is a single board computer based on Meson GXM
+	  Q200 is a reference dessign board based on Meson GXM
 	  with 2/3 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
-	  eMMC, IR receiver and a 40-pin GPIO header.
+	  eMMC, IR receiver.
+	  You should also select this TARGET if you have Khadas Vim2.
 
 endchoice
 
@@ -72,6 +73,6 @@ source "board/amlogic/nanopi-k2/Kconfig"
 
 source "board/amlogic/p212/Kconfig"
 
-source "board/amlogic/khadas-vim2/Kconfig"
+source "board/amlogic/q200/Kconfig"
 
 endif

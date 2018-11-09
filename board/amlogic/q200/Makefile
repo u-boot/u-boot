@@ -3,4 +3,4 @@
 # (C) Copyright 2016 BayLibre, SAS
 # Author: Neil Armstrong <narmstrong@baylibre.com>
 
-obj-y	:= khadas-vim2.o
+obj-y	:= q200.o
