@@ -98,12 +98,16 @@ static int mmc_resource_init(int sdc_no)
 static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 {
 	unsigned int pll, pll_hz, div, n, oclk_dly, sclk_dly;
-	bool new_mode = false;
+	bool new_mode = true;
 	bool calibrate = false;
 	u32 val = 0;
 
-	if (IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE) && (priv->mmc_no == 2))
-		new_mode = true;
+	if (!IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE))
+		new_mode = false;
+
+	/* A83T support new mode only on eMMC */
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_A83T) && priv->mmc_no != 2)
+		new_mode = false;
 
 #if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN50I_H6)
 	calibrate = true;
