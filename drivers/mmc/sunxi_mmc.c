@@ -109,13 +109,6 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 	calibrate = true;
 #endif
 
-	/*
-	 * The MMC clock has an extra /2 post-divider when operating in the new
-	 * mode.
-	 */
-	if (new_mode)
-		hz = hz * 2;
-
 	if (hz <= 24000000) {
 		pll = CCM_MMC_CTRL_OSCM24;
 		pll_hz = 24000000;
