@@ -21,6 +21,19 @@ Method(_WAK, 1)
     Return (Package() {0, 0})
 }
 
+Scope (_SB)
+{
+    /* Real Time Clock */
+    Device (RTC0)
+    {
+        Name (_HID, EisaId ("PNP0B00"))
+        Name (_CRS, ResourceTemplate()
+        {
+            IO(Decode16, 0x70, 0x70, 0x01, 0x08)
+        })
+    }
+}
+
 /* ACPI global NVS */
 #include "global_nvs.asl"
 
