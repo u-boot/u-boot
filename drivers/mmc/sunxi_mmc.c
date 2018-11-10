@@ -176,7 +176,9 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 
 	if (new_mode) {
 #ifdef CONFIG_MMC_SUNXI_HAS_NEW_MODE
+#ifdef CONFIG_MMC_SUNXI_HAS_MODE_SWITCH
 		val = CCM_MMC_CTRL_MODE_SEL_NEW;
+#endif
 		setbits_le32(&priv->reg->ntsr, SUNXI_MMC_NTSR_MODE_SEL_NEW);
 #endif
 	} else if (!calibrate) {
