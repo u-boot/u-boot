@@ -272,6 +272,14 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 		s++;    /* ; */
 		s = parsenum(s, &col);
 
+		/*
+		 * Video origin is [0, 0], terminal origin is [1, 1].
+		 */
+		if (row)
+			--row;
+		if (col)
+			--col;
+
 		set_cursor_position(priv, row, col);
 
 		break;
