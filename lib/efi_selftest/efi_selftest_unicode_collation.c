@@ -52,7 +52,7 @@ static int test_stri_coll(void)
 						    c1, c2);
 	if (ret) {
 		efi_st_error(
-			"stri_coll(\"%ps\", \"%ps\") = %zu\n", c1, c2, ret);
+			"stri_coll(\"%ps\", \"%ps\") = %d\n", c1, c2, (int)ret);
 		return EFI_ST_FAILURE;
 	}
 
@@ -60,7 +60,7 @@ static int test_stri_coll(void)
 						    c1, c3);
 	if (ret >= 0) {
 		efi_st_error(
-			"stri_coll(\"%ps\", \"%ps\") = %zu\n", c1, c3, ret);
+			"stri_coll(\"%ps\", \"%ps\") = %d\n", c1, c3, (int)ret);
 		return EFI_ST_FAILURE;
 	}
 
@@ -68,7 +68,7 @@ static int test_stri_coll(void)
 						    c3, c1);
 	if (ret <= 0) {
 		efi_st_error(
-			"stri_coll(\"%ps\", \"%ps\") = %zu\n", c3, c1, ret);
+			"stri_coll(\"%ps\", \"%ps\") = %d\n", c3, c1, (int)ret);
 		return EFI_ST_FAILURE;
 	}
 
