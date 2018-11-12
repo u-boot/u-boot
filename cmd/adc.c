@@ -71,8 +71,9 @@ static int do_adc_info(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_adc_single(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
+	struct udevice *dev;
 	unsigned int data;
-	int ret;
+	int ret, uV;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -85,7 +86,11 @@ static int do_adc_single(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	printf("%u\n", data);
+	ret = uclass_get_device_by_name(UCLASS_ADC, argv[1], &dev);
+	if (!ret && !adc_raw_to_uV(dev, data, &uV))
+		printf("%u, %d uV\n", data, uV);
+	else
+		printf("%u\n", data);
 
 	return CMD_RET_SUCCESS;
 }
