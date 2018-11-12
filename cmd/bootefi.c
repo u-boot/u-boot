@@ -275,7 +275,16 @@ static void efi_carve_out_dt_rsv(void *fdt)
 		if (fdt_get_mem_rsv(fdt, i, &addr, &size) != 0)
 			continue;
 
-		pages = ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT;
+		/*
+		 * Do not carve out the device tree. It is already marked as
+		 * EFI_RUNTIME_SERVICES_DATA
+		 */
+		if (addr == (uintptr_t)fdt)
+			continue;
+
+		pages = ALIGN(size + (addr & EFI_PAGE_MASK), EFI_PAGE_SIZE) >>
+			EFI_PAGE_SHIFT;
+		addr &= ~EFI_PAGE_MASK;
 		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
 					false))
 			printf("FDT memrsv map %d: Failed to add to map\n", i);
