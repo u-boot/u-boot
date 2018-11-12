@@ -660,6 +660,14 @@ void gpr_init(void)
 {
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
+	/*
+	 * If this function is used in a common MX6 spl implementation
+	 * we have to ensure that it is only called for suitable cpu types,
+	 * otherwise it breaks hardware parts like enet1, can1, can2, etc.
+	 */
+	if (!is_mx6dqp() && !is_mx6dq() && !is_mx6sdl())
+		return;
+
 	/* enable AXI cache for VDOA/VPU/IPU */
 	writel(0xF00000CF, &iomux->gpr[4]);
 	if (is_mx6dqp()) {
