@@ -35,7 +35,7 @@ static int do_adc_info(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char *const argv[])
 {
 	struct udevice *dev;
-	unsigned int data_mask;
+	unsigned int data_mask, ch_mask;
 	int ret, vss, vdd;
 
 	if (argc < 2)
@@ -48,6 +48,10 @@ static int do_adc_info(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	printf("ADC Device '%s' :\n", argv[1]);
+
+	ret = adc_channel_mask(dev, &ch_mask);
+	if (!ret)
+		printf("channel mask: %x\n", ch_mask);
 
 	ret = adc_data_mask(dev, &data_mask);
 	if (!ret)
