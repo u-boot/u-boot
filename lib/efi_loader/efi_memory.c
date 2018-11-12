@@ -555,13 +555,21 @@ __weak void efi_add_known_memory(void)
 
 	/* Add RAM */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		u64 ram_start = gd->bd->bi_dram[i].start;
-		u64 ram_size = gd->bd->bi_dram[i].size;
-		u64 start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
-		u64 pages = (ram_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+		u64 ram_end, ram_start, pages;
 
-		efi_add_memory_map(start, pages, EFI_CONVENTIONAL_MEMORY,
-				   false);
+		ram_start = gd->bd->bi_dram[i].start;
+		ram_end = ram_start + gd->bd->bi_dram[i].size;
+
+		/* Remove partial pages */
+		ram_end &= ~EFI_PAGE_MASK;
+		ram_start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
+
+		if (ram_end > ram_start) {
+			pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
+
+			efi_add_memory_map(ram_start, pages,
+					   EFI_CONVENTIONAL_MEMORY, false);
+		}
 	}
 }
 
