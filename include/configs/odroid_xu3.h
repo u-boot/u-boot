@@ -61,6 +61,7 @@
 	"exynos5422-odroidxu3.dtb fat 0 1;" \
 	"exynos5422-odroidxu3-lite.dtb fat 0 1;" \
 	"exynos5422-odroidxu4.dtb fat 0 1;" \
+	"exynos5422-odroidhc1.dtb fat 0 1;" \
 	"boot part 0 1;"                    \
 	"root part 0 2\0"
 
