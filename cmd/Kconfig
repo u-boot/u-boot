@@ -1856,7 +1856,6 @@ endmenu
 
 config CMD_UBI
 	tristate "Enable UBI - Unsorted block images commands"
-	select CMD_MTDPARTS
 	select CRC32
 	select MTD_UBI
 	help
