@@ -600,7 +600,8 @@ static unsigned long meson_clk81_get_rate(struct clk *clk)
 	reg = readl(priv->addr + HHI_MPEG_CLK_CNTL);
 	reg = reg & ((1 << 7) - 1);
 
-	return parent_rate / reg;
+	/* clk81 divider is zero based */
+	return parent_rate / (reg + 1);
 }
 
 static long mpll_rate_from_params(unsigned long parent_rate,
