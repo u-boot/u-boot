@@ -22,12 +22,6 @@ config MTD_DEVICE
 	  Adds the MTD device infrastructure from the Linux kernel.
 	  Needed for mtdparts command support.
 
-config MTD_PARTITIONS
-	bool "Add MTD Partioning infrastructure"
-	help
-	  Adds the MTD partitioning infrastructure from the Linux
-	  kernel. Needed for UBI support.
-
 config FLASH_CFI_DRIVER
 	bool "Enable CFI Flash driver"
 	help
