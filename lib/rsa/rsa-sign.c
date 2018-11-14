@@ -393,7 +393,8 @@ static int rsa_sign_with_key(RSA *rsa, struct checksum_algo *checksum_algo,
 {
 	EVP_PKEY *key;
 	EVP_MD_CTX *context;
-	int size, ret = 0;
+	int ret = 0;
+	size_t size;
 	uint8_t *sig;
 	int i;
 
@@ -409,7 +410,7 @@ static int rsa_sign_with_key(RSA *rsa, struct checksum_algo *checksum_algo,
 	size = EVP_PKEY_size(key);
 	sig = malloc(size);
 	if (!sig) {
-		fprintf(stderr, "Out of memory for signature (%d bytes)\n",
+		fprintf(stderr, "Out of memory for signature (%zu bytes)\n",
 			size);
 		ret = -ENOMEM;
 		goto err_alloc;
@@ -421,22 +422,26 @@ static int rsa_sign_with_key(RSA *rsa, struct checksum_algo *checksum_algo,
 		goto err_create;
 	}
 	EVP_MD_CTX_init(context);
-	if (!EVP_SignInit(context, checksum_algo->calculate_sign())) {
+	if (EVP_DigestSignInit(context, NULL,
+			       checksum_algo->calculate_sign(),
+			       NULL, key) <= 0) {
 		ret = rsa_err("Signer setup failed");
 		goto err_sign;
 	}
 
 	for (i = 0; i < region_count; i++) {
-		if (!EVP_SignUpdate(context, region[i].data, region[i].size)) {
+		if (!EVP_DigestSignUpdate(context, region[i].data,
+					  region[i].size)) {
 			ret = rsa_err("Signing data failed");
 			goto err_sign;
 		}
 	}
 
-	if (!EVP_SignFinal(context, sig, sig_size, key)) {
+	if (!EVP_DigestSignFinal(context, sig, &size)) {
 		ret = rsa_err("Could not obtain signature");
 		goto err_sign;
 	}
+
 	#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
 		(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
 		EVP_MD_CTX_cleanup(context);
@@ -446,7 +451,7 @@ static int rsa_sign_with_key(RSA *rsa, struct checksum_algo *checksum_algo,
 	EVP_MD_CTX_destroy(context);
 	EVP_PKEY_free(key);
 
-	debug("Got signature: %d bytes, expected %d\n", *sig_size, size);
+	debug("Got signature: %d bytes, expected %zu\n", *sig_size, size);
 	*sigp = sig;
 	*sig_size = size;
 
