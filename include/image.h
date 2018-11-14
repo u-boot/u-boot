@@ -1101,6 +1101,7 @@ struct image_sign_info {
 	int node_offset;		/* Offset of signature node */
 	const char *name;		/* Algorithm name */
 	struct checksum_algo *checksum;	/* Checksum algorithm information */
+	struct padding_algo *padding;	/* Padding algorithm information */
 	struct crypto_algo *crypto;	/* Crypto algorithm information */
 	const void *fdt_blob;		/* FDT containing public keys */
 	int required_keynode;		/* Node offset of key to use: -1=any */
@@ -1186,6 +1187,13 @@ struct crypto_algo {
 		      uint8_t *sig, uint sig_len);
 };
 
+struct padding_algo {
+	const char *name;
+	int (*verify)(struct image_sign_info *info,
+		      uint8_t *pad, int pad_len,
+		      const uint8_t *hash, int hash_len);
+};
+
 /**
  * image_get_checksum_algo() - Look up a checksum algorithm
  *
@@ -1201,6 +1209,14 @@ struct checksum_algo *image_get_checksum_algo(const char *full_name);
  * @return pointer to algorithm information, or NULL if not found
  */
 struct crypto_algo *image_get_crypto_algo(const char *full_name);
+
+/**
+ * image_get_padding_algo() - Look up a padding algorithm
+ *
+ * @param name		Name of padding algorithm
+ * @return pointer to algorithm information, or NULL if not found
+ */
+struct padding_algo *image_get_padding_algo(const char *name);
 
 /**
  * fit_image_verify_required_sigs() - Verify signatures marked as 'required'
