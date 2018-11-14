@@ -204,7 +204,7 @@ def test_vboot(u_boot_console):
     fit_check_sign = cons.config.build_dir + '/tools/fit_check_sign'
     dtc_args = '-I dts -O dtb -i %s' % tmpdir
     dtb = '%ssandbox-u-boot.dtb' % tmpdir
-    sig_node = '/configurations/conf@1/signature@1'
+    sig_node = '/configurations/conf-1/signature'
 
     # Create an RSA key pair
     public_exponent = 65537
