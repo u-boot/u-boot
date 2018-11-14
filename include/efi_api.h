@@ -241,8 +241,8 @@ struct efi_runtime_services {
 	efi_status_t (EFIAPI *query_capsule_caps)(
 			struct efi_capsule_header **capsule_header_array,
 			efi_uintn_t capsule_count,
-			u64 maximum_capsule_size,
-			u32 reset_type);
+			u64 *maximum_capsule_size,
+			u32 *reset_type);
 	efi_status_t (EFIAPI *query_variable_info)(
 			u32 attributes,
 			u64 *maximum_variable_storage_size,

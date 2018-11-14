@@ -628,8 +628,8 @@ efi_status_t __efi_runtime EFIAPI efi_update_capsule(
 efi_status_t __efi_runtime EFIAPI efi_query_capsule_caps(
 			struct efi_capsule_header **capsule_header_array,
 			efi_uintn_t capsule_count,
-			u64 maximum_capsule_size,
-			u32 reset_type)
+			u64 *maximum_capsule_size,
+			u32 *reset_type)
 {
 	return EFI_UNSUPPORTED;
 }
