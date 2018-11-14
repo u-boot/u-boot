@@ -284,7 +284,7 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 	}, {
 		/* invalidate_*cache_all are gone */
 		.ptr = &efi_runtime_services.set_virtual_address_map,
-		.patchto = &efi_invalid_parameter,
+		.patchto = &efi_unimplemented,
 	}, {
 		/* RTC accessors are gone */
 		.ptr = &efi_runtime_services.get_time,
