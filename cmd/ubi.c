@@ -417,11 +417,6 @@ static int ubi_dev_scan(struct mtd_info *info, const char *vid_header_offset)
 
 int ubi_detach(void)
 {
-	if (mtdparts_init() != 0) {
-		printf("Error initializing mtdparts!\n");
-		return 1;
-	}
-
 #ifdef CONFIG_CMD_UBIFS
 	/*
 	 * Automatically unmount UBIFS partition when user
