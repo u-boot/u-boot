@@ -17,8 +17,8 @@ int arch_auxiliary_core_up(u32 core_id, ulong boot_private_data)
 	if (!boot_private_data)
 		return -EINVAL;
 
-	stack = *(ulong *)boot_private_data;
-	pc = *(ulong *)(boot_private_data + 4);
+	stack = *(u32 *)boot_private_data;
+	pc = *(u32 *)(boot_private_data + 4);
 
 	/* Set the stack and pc to M4 bootROM */
 	writel(stack, M4_BOOTROM_BASE_ADDR);
