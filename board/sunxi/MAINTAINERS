@@ -149,6 +149,11 @@ S:	Maintained
 F:	configs/Bananapi_m2m_defconfig
 F:	arch/arm/dts/sun8i-r16-bananapi-m2m.dts
 
+BANANAPI M2 ZERO BOARD
+M:	Icenowy Zheng <icenowy@aosc.io>
+S:	Maintained
+F:	configs/bananapi_m2_zero_defconfig
+
 BANANAPI M64
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
@@ -329,6 +334,11 @@ M:	Stefan Mavrodiev <stefan@olimex.com>
 S:	Maintained
 F:	configs/A20-Olimex-SOM204-EVB_defconfig
 F:	configs/A20-Olimex-SOM204-EVB-eMMC_defconfig
+
+ORANGEPI LITE2 BOARD
+M:	Jagan Teki <jagan@openedev.com>
+S:	Maintained
+F:	configs/orangepi_lite2_defconfig
 
 ORANGEPI ONE PLUS BOARD
 M:	Jagan Teki <jagan@amarulasolutions.com>

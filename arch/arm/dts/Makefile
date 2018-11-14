@@ -365,6 +365,7 @@ dtb-$(CONFIG_MACH_SUN8I_A83T) += \
 	sun8i-a83t-cubietruck-plus.dtb \
 	sun8i-a83t-tbs-a711.dts
 dtb-$(CONFIG_MACH_SUN8I_H3) += \
+	sun8i-h2-plus-bananapi-m2-zero.dtb \
 	sun8i-h2-plus-libretech-all-h3-cc.dtb \
 	sun8i-h2-plus-orangepi-r1.dtb \
 	sun8i-h2-plus-orangepi-zero.dtb \
@@ -395,6 +396,7 @@ dtb-$(CONFIG_MACH_SUN50I_H5) += \
 	sun50i-h5-orangepi-prime.dtb \
 	sun50i-h5-orangepi-zero-plus2.dtb
 dtb-$(CONFIG_MACH_SUN50I_H6) += \
+	sun50i-h6-orangepi-lite2.dtb \
 	sun50i-h6-orangepi-one-plus.dtb \
 	sun50i-h6-pine-h64.dtb
 dtb-$(CONFIG_MACH_SUN50I) += \
@@ -405,6 +407,7 @@ dtb-$(CONFIG_MACH_SUN50I) += \
 	sun50i-a64-orangepi-win.dtb \
 	sun50i-a64-pine64-plus.dtb \
 	sun50i-a64-pine64.dtb \
+	sun50i-a64-pinebook.dtb \
 	sun50i-a64-sopine-baseboard.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-optimus.dtb \
