@@ -106,6 +106,9 @@ When the image is signed, the following properties are optional:
 
 - comment: Additional information about the signer or image
 
+- padding: The padding algorithm, it may be pkcs-1.5 or pss,
+	if no value is provided we assume pkcs-1.5
+
 For config bindings (see Signed Configurations below), the following
 additional properties are optional:
 
