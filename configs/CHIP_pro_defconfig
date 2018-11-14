@@ -7,6 +7,7 @@ CONFIG_USB0_VBUS_PIN="PB10"
 CONFIG_NR_DRAM_BANKS=1
 CONFIG_SPL_I2C_SUPPORT=y
 # CONFIG_CMD_FLASH is not set
+CONFIG_CMD_MTDPARTS=y
 CONFIG_MTDIDS_DEFAULT="nand0=sunxi-nand.0"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=sunxi-nand.0:256k(spl),256k(spl-backup),2m(uboot),2m(uboot-backup),-(UBI)"
 CONFIG_DEFAULT_DEVICE_TREE="sun5i-gr8-chip-pro"

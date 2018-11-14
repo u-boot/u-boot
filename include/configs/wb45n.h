@@ -54,7 +54,6 @@
 #define CONFIG_PMECC_CAP            4
 #define CONFIG_PMECC_SECTOR_SIZE    512
 
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 

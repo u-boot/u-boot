@@ -31,6 +31,7 @@ CONFIG_CMD_CACHE=y
 CONFIG_CMD_DATE=y
 CONFIG_CMD_EXT2=y
 CONFIG_CMD_FAT=y
+CONFIG_CMD_MTDPARTS=y
 CONFIG_MTDIDS_DEFAULT="nand0=mxc_nand.0"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=mxc_nand.0:1M(u-boot)ro,512K(env),512K(env2),512K(firmware),512K(dtb),5M(kernel),-(rootfs)"
 CONFIG_CMD_UBI=y

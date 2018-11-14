@@ -21,6 +21,7 @@ CONFIG_CMD_ONENAND=y
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_MISC is not set
 CONFIG_CMD_JFFS2=y
+CONFIG_CMD_MTDPARTS=y
 CONFIG_MTDIDS_DEFAULT="onenand0=onenand"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=onenand:128k(u-boot),128k(env),20m(kernel),-(rootfs)"
 CONFIG_CMD_UBI=y
