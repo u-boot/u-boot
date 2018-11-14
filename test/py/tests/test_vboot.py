@@ -126,7 +126,7 @@ def test_vboot(u_boot_console):
             handle.write(struct.pack(">I", size))
         return struct.unpack(">I", total_size)[0]
 
-    def test_with_algo(sha_algo):
+    def test_with_algo(sha_algo, padding):
         """Test verified boot with the given hash algorithm.
 
         This is the main part of the test code. The same procedure is followed
@@ -144,7 +144,7 @@ def test_vboot(u_boot_console):
 
         # Build the FIT, but don't sign anything yet
         cons.log.action('%s: Test FIT with signed images' % sha_algo)
-        make_fit('sign-images-%s.its' % sha_algo)
+        make_fit('sign-images-%s%s.its' % (sha_algo , padding))
         run_bootm(sha_algo, 'unsigned images', 'dev-', True)
 
         # Sign images with our dev keys
@@ -155,7 +155,7 @@ def test_vboot(u_boot_console):
         dtc('sandbox-u-boot.dts')
 
         cons.log.action('%s: Test FIT with signed configuration' % sha_algo)
-        make_fit('sign-configs-%s.its' % sha_algo)
+        make_fit('sign-configs-%s%s.its' % (sha_algo , padding))
         run_bootm(sha_algo, 'unsigned config', '%s+ OK' % sha_algo, True)
 
         # Sign images with our dev keys
@@ -226,8 +226,10 @@ def test_vboot(u_boot_console):
         # afterwards.
         old_dtb = cons.config.dtb
         cons.config.dtb = dtb
-        test_with_algo('sha1')
-        test_with_algo('sha256')
+        test_with_algo('sha1','')
+        test_with_algo('sha1','-pss')
+        test_with_algo('sha256','')
+        test_with_algo('sha256','-pss')
     finally:
         # Go back to the original U-Boot with the correct dtb.
         cons.config.dtb = old_dtb
