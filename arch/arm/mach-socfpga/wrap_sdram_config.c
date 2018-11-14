@@ -251,7 +251,7 @@ static const struct socfpga_sdram_rw_mgr_config rw_mgr_config = {
 		RW_MGR_MEM_VIRTUAL_GROUPS_PER_WRITE_DQS,
 };
 
-struct socfpga_sdram_io_config io_config = {
+static const struct socfpga_sdram_io_config io_config = {
 	.delay_per_dchain_tap		= IO_DELAY_PER_DCHAIN_TAP,
 	.delay_per_dqs_en_dchain_tap	= IO_DELAY_PER_DQS_EN_DCHAIN_TAP,
 	.delay_per_opa_tap		= IO_DELAY_PER_OPA_TAP,
@@ -269,7 +269,7 @@ struct socfpga_sdram_io_config io_config = {
 	.shift_dqs_en_when_shift_dqs	= IO_SHIFT_DQS_EN_WHEN_SHIFT_DQS,
 };
 
-struct socfpga_sdram_misc_config misc_config = {
+static const struct socfpga_sdram_misc_config misc_config = {
 	.afi_rate_ratio			= AFI_RATE_RATIO,
 	.calib_lfifo_offset		= CALIB_LFIFO_OFFSET,
 	.calib_vfifo_offset		= CALIB_VFIFO_OFFSET,
