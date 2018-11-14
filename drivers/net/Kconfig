@@ -11,13 +11,6 @@ config DM_ETH
 	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
 
-config DRIVER_TI_CPSW
-	bool "TI Common Platform Ethernet Switch"
-	select PHYLIB
-	help
-	  This driver supports the TI three port switch gigabit ethernet
-	  subsystem found in the TI SoCs.
-
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET
@@ -186,6 +179,32 @@ config FTMAC100
 	help
 	  This MAC is present in Andestech SoCs.
 
+config FTGMAC100
+	bool "Ftgmac100 Ethernet Support"
+	depends on DM_ETH
+	select PHYLIB
+	help
+	  This driver supports the Faraday's FTGMAC100 Gigabit SoC
+	  Ethernet controller that can be found on Aspeed SoCs (which
+	  include NCSI).
+
+	  It is fully compliant with IEEE 802.3 specification for
+	  10/100 Mbps Ethernet and IEEE 802.3z specification for 1000
+	  Mbps Ethernet and includes Reduced Media Independent
+	  Interface (RMII) and Reduced Gigabit Media Independent
+	  Interface (RGMII) interfaces. It adopts an AHB bus interface
+	  and integrates a link list DMA engine with direct M-Bus
+	  accesses for transmitting and receiving packets. It has
+	  independent TX/RX fifos, supports half and full duplex (1000
+	  Mbps mode only supports full duplex), flow control for full
+	  duplex and backpressure for half duplex.
+
+	  The FTGMAC100 also implements IP, TCP, UDP checksum offloads
+	  and supports IEEE 802.1Q VLAN tag insertion and removal. It
+	  offers high-priority transmit queue for QoS and CoS
+	  applications.
+
+
 config MVGBE
 	bool "Marvell Orion5x/Kirkwood network interface support"
 	depends on KIRKWOOD || ORION5X
@@ -226,6 +245,13 @@ config MACB_ZYNQ
 	help
 	  The Cadence MACB ethernet interface was used on Zynq platform.
 	  Say Y to enable support for the MACB/GEM in Zynq chip.
+
+config MT7628_ETH
+	bool "MediaTek MT7628 Ethernet Interface"
+	depends on ARCH_MT7620
+	help
+	  The MediaTek MT7628 ethernet interface is used on MT7628 and
+	  MT7688 based boards.
 
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
@@ -322,10 +348,7 @@ config SH_ETHER
 	help
 	  This driver supports the Ethernet for Renesas SH and ARM SoCs.
 
-config DRIVER_TI_EMAC
-	bool "TI Davinci EMAC"
-	help
-	   Support for davinci emac
+source "drivers/net/ti/Kconfig"
 
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)

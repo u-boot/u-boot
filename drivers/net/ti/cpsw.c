@@ -1,16 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * CPSW Ethernet Switch Driver
  *
- * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation version 2.
- *
- * This program is distributed "as is" WITHOUT ANY WARRANTY of any
- * kind, whether express or implied; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * Copyright (C) 2010-2018 Texas Instruments Incorporated - http://www.ti.com/
  */
 
 #include <common.h>
@@ -29,11 +21,11 @@
 #include <dm.h>
 #include <fdt_support.h>
 
+#include "cpsw_mdio.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define BITMASK(bits)		(BIT(bits) - 1)
-#define PHY_REG_MASK		0x1f
-#define PHY_ID_MASK		0x1f
 #define NUM_DESCS		(PKTBUFSRX * 2)
 #define PKT_MIN			60
 #define PKT_MAX			(1500 + 14 + 4 + 4)
@@ -84,36 +76,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * unexpected controller lock ups.  Ideally, we should never ever hit this
  * scenario in practice.
  */
-#define MDIO_TIMEOUT            100 /* msecs */
 #define CPDMA_TIMEOUT		100 /* msecs */
-
-struct cpsw_mdio_regs {
-	u32	version;
-	u32	control;
-#define CONTROL_IDLE		BIT(31)
-#define CONTROL_ENABLE		BIT(30)
-
-	u32	alive;
-	u32	link;
-	u32	linkintraw;
-	u32	linkintmasked;
-	u32	__reserved_0[2];
-	u32	userintraw;
-	u32	userintmasked;
-	u32	userintmaskset;
-	u32	userintmaskclr;
-	u32	__reserved_1[20];
-
-	struct {
-		u32		access;
-		u32		physel;
-#define USERACCESS_GO		BIT(31)
-#define USERACCESS_WRITE	BIT(30)
-#define USERACCESS_ACK		BIT(29)
-#define USERACCESS_READ		(0)
-#define USERACCESS_DATA		(0xffff)
-	} user[0];
-};
 
 struct cpsw_regs {
 	u32	id_ver;
@@ -490,100 +453,6 @@ static inline void cpsw_ale_port_state(struct cpsw_priv *priv, int port,
 	tmp &= ~mask;
 	tmp |= val & mask;
 	__raw_writel(tmp, priv->ale_regs + offset);
-}
-
-static struct cpsw_mdio_regs *mdio_regs;
-
-/* wait until hardware is ready for another user access */
-static inline u32 wait_for_user_access(void)
-{
-	u32 reg = 0;
-	int timeout = MDIO_TIMEOUT;
-
-	while (timeout-- &&
-	((reg = __raw_readl(&mdio_regs->user[0].access)) & USERACCESS_GO))
-		udelay(10);
-
-	if (timeout == -1) {
-		printf("wait_for_user_access Timeout\n");
-		return -ETIMEDOUT;
-	}
-	return reg;
-}
-
-/* wait until hardware state machine is idle */
-static inline void wait_for_idle(void)
-{
-	int timeout = MDIO_TIMEOUT;
-
-	while (timeout-- &&
-		((__raw_readl(&mdio_regs->control) & CONTROL_IDLE) == 0))
-		udelay(10);
-
-	if (timeout == -1)
-		printf("wait_for_idle Timeout\n");
-}
-
-static int cpsw_mdio_read(struct mii_dev *bus, int phy_id,
-				int dev_addr, int phy_reg)
-{
-	int data;
-	u32 reg;
-
-	if (phy_reg & ~PHY_REG_MASK || phy_id & ~PHY_ID_MASK)
-		return -EINVAL;
-
-	wait_for_user_access();
-	reg = (USERACCESS_GO | USERACCESS_READ | (phy_reg << 21) |
-	       (phy_id << 16));
-	__raw_writel(reg, &mdio_regs->user[0].access);
-	reg = wait_for_user_access();
-
-	data = (reg & USERACCESS_ACK) ? (reg & USERACCESS_DATA) : -1;
-	return data;
-}
-
-static int cpsw_mdio_write(struct mii_dev *bus, int phy_id, int dev_addr,
-				int phy_reg, u16 data)
-{
-	u32 reg;
-
-	if (phy_reg & ~PHY_REG_MASK || phy_id & ~PHY_ID_MASK)
-		return -EINVAL;
-
-	wait_for_user_access();
-	reg = (USERACCESS_GO | USERACCESS_WRITE | (phy_reg << 21) |
-		   (phy_id << 16) | (data & USERACCESS_DATA));
-	__raw_writel(reg, &mdio_regs->user[0].access);
-	wait_for_user_access();
-
-	return 0;
-}
-
-static void cpsw_mdio_init(const char *name, u32 mdio_base, u32 div)
-{
-	struct mii_dev *bus = mdio_alloc();
-
-	mdio_regs = (struct cpsw_mdio_regs *)mdio_base;
-
-	/* set enable and clock divider */
-	__raw_writel(div | CONTROL_ENABLE, &mdio_regs->control);
-
-	/*
-	 * wait for scan logic to settle:
-	 * the scan time consists of (a) a large fixed component, and (b) a
-	 * small component that varies with the mii bus frequency.  These
-	 * were estimated using measurements at 1.1 and 2.2 MHz on tnetv107x
-	 * silicon.  Since the effect of (b) was found to be largely
-	 * negligible, we keep things simple here.
-	 */
-	udelay(1000);
-
-	bus->read = cpsw_mdio_read;
-	bus->write = cpsw_mdio_write;
-	strcpy(bus->name, name);
-
-	mdio_register(bus);
 }
 
 /* Set a self-clearing bit in a register, and wait for it to clear */
@@ -1011,7 +880,7 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 static void cpsw_phy_addr_update(struct cpsw_priv *priv)
 {
 	struct cpsw_platform_data *data = &priv->data;
-	u16 alive = mdio_regs->alive & GENMASK(15, 0);
+	u16 alive = cpsw_mdio_get_alive(priv->bus);
 	int active = data->active_slave;
 	int new_addr = ffs(alive) - 1;
 
@@ -1052,11 +921,12 @@ int _cpsw_register(struct cpsw_priv *priv)
 		idx = idx + 1;
 	}
 
-	cpsw_mdio_init(priv->dev->name, data->mdio_base, data->mdio_div);
+	priv->bus = cpsw_mdio_init(priv->dev->name, data->mdio_base, 0, 0);
+	if (!priv->bus)
+		return -EFAULT;
 
 	cpsw_phy_addr_update(priv);
 
-	priv->bus = miiphy_get_dev_by_name(priv->dev->name);
 	for_active_slave(slave, priv)
 		cpsw_phy_init(priv, slave);
 

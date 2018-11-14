@@ -22,13 +22,9 @@
 #include <asm/ti-common/keystone_serdes.h>
 #include <asm/arch/psc_defs.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+#include "cpsw_mdio.h"
 
-#ifndef CONFIG_DM_ETH
-unsigned int emac_open;
-static struct mii_dev *mdio_bus;
-static unsigned int sys_has_mdio = 1;
-#endif
+DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef KEYSTONE2_EMAC_GIG_ENABLE
 #define emac_gigabit_enable(x)	keystone2_eth_gigabit_enable(x)
@@ -42,17 +38,6 @@ static unsigned int sys_has_mdio = 1;
 #define SGMII_ANEG_TIMEOUT		4000
 
 static u8 rx_buffs[RX_BUFF_NUMS * RX_BUFF_LEN] __aligned(16);
-
-#ifndef CONFIG_DM_ETH
-struct rx_buff_desc net_rx_buffs = {
-	.buff_ptr	= rx_buffs,
-	.num_buffs	= RX_BUFF_NUMS,
-	.buff_len	= RX_BUFF_LEN,
-	.rx_flow	= 22,
-};
-#endif
-
-#ifdef CONFIG_DM_ETH
 
 enum link_type {
 	LINK_TYPE_SGMII_MAC_TO_MAC_AUTO		= 0,
@@ -83,7 +68,7 @@ enum link_type {
 #define DEVICE_EMACSW_BASE(base, x)	((base) + EMAC_EMACSW_PORT_BASE_OFS +  \
 					 (x) * 0x30)
 
-#elif defined CONFIG_KSNET_NETCP_V1_5
+#elif defined(CONFIG_KSNET_NETCP_V1_5)
 
 #define EMAC_EMACSW_PORT_BASE_OFS	0x222000
 
@@ -113,126 +98,26 @@ struct ks2_eth_priv {
 	bool				emac_open;
 	bool				has_mdio;
 };
-#endif
 
-/* MDIO */
-
-static int keystone2_mdio_reset(struct mii_dev *bus)
-{
-	u_int32_t clkdiv;
-	struct mdio_regs *adap_mdio = bus->priv;
-
-	clkdiv = (EMAC_MDIO_BUS_FREQ / EMAC_MDIO_CLOCK_FREQ) - 1;
-
-	writel((clkdiv & 0xffff) | MDIO_CONTROL_ENABLE |
-	       MDIO_CONTROL_FAULT | MDIO_CONTROL_FAULT_ENABLE,
-	       &adap_mdio->control);
-
-	while (readl(&adap_mdio->control) & MDIO_CONTROL_IDLE)
-		;
-
-	return 0;
-}
-
-/**
- * keystone2_mdio_read - read a PHY register via MDIO interface.
- * Blocks until operation is complete.
- */
-static int keystone2_mdio_read(struct mii_dev *bus,
-			       int addr, int devad, int reg)
-{
-	int tmp;
-	struct mdio_regs *adap_mdio = bus->priv;
-
-	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
-		;
-
-	writel(MDIO_USERACCESS0_GO | MDIO_USERACCESS0_WRITE_READ |
-	       ((reg & 0x1f) << 21) | ((addr & 0x1f) << 16),
-	       &adap_mdio->useraccess0);
-
-	/* Wait for command to complete */
-	while ((tmp = readl(&adap_mdio->useraccess0)) & MDIO_USERACCESS0_GO)
-		;
-
-	if (tmp & MDIO_USERACCESS0_ACK)
-		return tmp & 0xffff;
-
-	return -1;
-}
-
-/**
- * keystone2_mdio_write - write to a PHY register via MDIO interface.
- * Blocks until operation is complete.
- */
-static int keystone2_mdio_write(struct mii_dev *bus,
-				int addr, int devad, int reg, u16 val)
-{
-	struct mdio_regs *adap_mdio = bus->priv;
-
-	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
-		;
-
-	writel(MDIO_USERACCESS0_GO | MDIO_USERACCESS0_WRITE_WRITE |
-	       ((reg & 0x1f) << 21) | ((addr & 0x1f) << 16) |
-	       (val & 0xffff), &adap_mdio->useraccess0);
-
-	/* Wait for command to complete */
-	while (readl(&adap_mdio->useraccess0) & MDIO_USERACCESS0_GO)
-		;
-
-	return 0;
-}
-
-#ifndef CONFIG_DM_ETH
-static void  __attribute__((unused))
-	keystone2_eth_gigabit_enable(struct eth_device *dev)
-{
-	u_int16_t data;
-	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
-
-	if (sys_has_mdio) {
-		data = keystone2_mdio_read(mdio_bus, eth_priv->phy_addr,
-					   MDIO_DEVAD_NONE, 0);
-		/* speed selection MSB */
-		if (!(data & (1 << 6)))
-			return;
-	}
-
-	/*
-	 * Check if link detected is giga-bit
-	 * If Gigabit mode detected, enable gigbit in MAC
-	 */
-	writel(readl(DEVICE_EMACSL_BASE(eth_priv->slave_port - 1) +
-		     CPGMACSL_REG_CTL) |
-	       EMAC_MACCONTROL_GIGFORCE | EMAC_MACCONTROL_GIGABIT_ENABLE,
-	       DEVICE_EMACSL_BASE(eth_priv->slave_port - 1) + CPGMACSL_REG_CTL);
-}
-#else
 static void  __attribute__((unused))
 	keystone2_eth_gigabit_enable(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
-	u_int16_t data;
-
-	if (priv->has_mdio) {
-		data = keystone2_mdio_read(priv->mdio_bus, priv->phy_addr,
-					   MDIO_DEVAD_NONE, 0);
-		/* speed selection MSB */
-		if (!(data & (1 << 6)))
-			return;
-	}
 
 	/*
 	 * Check if link detected is giga-bit
 	 * If Gigabit mode detected, enable gigbit in MAC
 	 */
+	if (priv->has_mdio) {
+		if (priv->phydev->speed != 1000)
+			return;
+	}
+
 	writel(readl(DEVICE_EMACSL_BASE(priv->slave_port - 1) +
 		     CPGMACSL_REG_CTL) |
 	       EMAC_MACCONTROL_GIGFORCE | EMAC_MACCONTROL_GIGABIT_ENABLE,
 	       DEVICE_EMACSL_BASE(priv->slave_port - 1) + CPGMACSL_REG_CTL);
 }
-#endif
 
 #ifdef CONFIG_SOC_K2G
 int keystone_rgmii_config(struct phy_device *phy_dev)
@@ -497,246 +382,6 @@ static void keystone2_net_serdes_setup(void)
 }
 #endif
 
-#ifndef CONFIG_DM_ETH
-
-int keystone2_eth_read_mac_addr(struct eth_device *dev)
-{
-	struct eth_priv_t *eth_priv;
-	u32 maca = 0;
-	u32 macb = 0;
-
-	eth_priv = (struct eth_priv_t *)dev->priv;
-
-	/* Read the e-fuse mac address */
-	if (eth_priv->slave_port == 1) {
-		maca = __raw_readl(MAC_ID_BASE_ADDR);
-		macb = __raw_readl(MAC_ID_BASE_ADDR + 4);
-	}
-
-	dev->enetaddr[0] = (macb >>  8) & 0xff;
-	dev->enetaddr[1] = (macb >>  0) & 0xff;
-	dev->enetaddr[2] = (maca >> 24) & 0xff;
-	dev->enetaddr[3] = (maca >> 16) & 0xff;
-	dev->enetaddr[4] = (maca >>  8) & 0xff;
-	dev->enetaddr[5] = (maca >>  0) & 0xff;
-
-	return 0;
-}
-
-int32_t cpmac_drv_send(u32 *buffer, int num_bytes, int slave_port_num)
-{
-	if (num_bytes < EMAC_MIN_ETHERNET_PKT_SIZE)
-		num_bytes = EMAC_MIN_ETHERNET_PKT_SIZE;
-
-	return ksnav_send(&netcp_pktdma, buffer,
-			  num_bytes, (slave_port_num) << 16);
-}
-
-/* Eth device open */
-static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
-{
-	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
-	struct phy_device *phy_dev = eth_priv->phy_dev;
-
-	debug("+ emac_open\n");
-
-	net_rx_buffs.rx_flow	= eth_priv->rx_flow;
-
-	sys_has_mdio =
-		(eth_priv->sgmii_link_type == SGMII_LINK_MAC_PHY) ? 1 : 0;
-
-	if (sys_has_mdio)
-		keystone2_mdio_reset(mdio_bus);
-
-#ifdef CONFIG_SOC_K2G
-	keystone_rgmii_config(phy_dev);
-#else
-	keystone_sgmii_config(phy_dev, eth_priv->slave_port - 1,
-			      eth_priv->sgmii_link_type);
-#endif
-
-	udelay(10000);
-
-	/* On chip switch configuration */
-	ethss_config(target_get_switch_ctl(), SWITCH_MAX_PKT_SIZE);
-
-	/* TODO: add error handling code */
-	if (qm_init()) {
-		printf("ERROR: qm_init()\n");
-		return -1;
-	}
-	if (ksnav_init(&netcp_pktdma, &net_rx_buffs)) {
-		qm_close();
-		printf("ERROR: netcp_init()\n");
-		return -1;
-	}
-
-	/*
-	 * Streaming switch configuration. If not present this
-	 * statement is defined to void in target.h.
-	 * If present this is usually defined to a series of register writes
-	 */
-	hw_config_streaming_switch();
-
-	if (sys_has_mdio) {
-		keystone2_mdio_reset(mdio_bus);
-
-		phy_startup(phy_dev);
-		if (phy_dev->link == 0) {
-			ksnav_close(&netcp_pktdma);
-			qm_close();
-			return -1;
-		}
-	}
-
-	emac_gigabit_enable(dev);
-
-	ethss_start();
-
-	debug("- emac_open\n");
-
-	emac_open = 1;
-
-	return 0;
-}
-
-/* Eth device close */
-void keystone2_eth_close(struct eth_device *dev)
-{
-	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
-	struct phy_device *phy_dev = eth_priv->phy_dev;
-
-	debug("+ emac_close\n");
-
-	if (!emac_open)
-		return;
-
-	ethss_stop();
-
-	ksnav_close(&netcp_pktdma);
-	qm_close();
-	phy_shutdown(phy_dev);
-
-	emac_open = 0;
-
-	debug("- emac_close\n");
-}
-
-/*
- * This function sends a single packet on the network and returns
- * positive number (number of bytes transmitted) or negative for error
- */
-static int keystone2_eth_send_packet(struct eth_device *dev,
-					void *packet, int length)
-{
-	int ret_status = -1;
-	struct eth_priv_t *eth_priv = (struct eth_priv_t *)dev->priv;
-	struct phy_device *phy_dev = eth_priv->phy_dev;
-
-	genphy_update_link(phy_dev);
-	if (phy_dev->link == 0)
-		return -1;
-
-	if (cpmac_drv_send((u32 *)packet, length, eth_priv->slave_port) != 0)
-		return ret_status;
-
-	return length;
-}
-
-/*
- * This function handles receipt of a packet from the network
- */
-static int keystone2_eth_rcv_packet(struct eth_device *dev)
-{
-	void *hd;
-	int  pkt_size;
-	u32  *pkt;
-
-	hd = ksnav_recv(&netcp_pktdma, &pkt, &pkt_size);
-	if (hd == NULL)
-		return 0;
-
-	net_process_received_packet((uchar *)pkt, pkt_size);
-
-	ksnav_release_rxhd(&netcp_pktdma, hd);
-
-	return pkt_size;
-}
-
-#ifdef CONFIG_MCAST_TFTP
-static int keystone2_eth_bcast_addr(struct eth_device *dev, u32 ip, u8 set)
-{
-	return 0;
-}
-#endif
-
-/*
- * This function initializes the EMAC hardware.
- */
-int keystone2_emac_initialize(struct eth_priv_t *eth_priv)
-{
-	int res;
-	struct eth_device *dev;
-	struct phy_device *phy_dev;
-	struct mdio_regs *adap_mdio = (struct mdio_regs *)EMAC_MDIO_BASE_ADDR;
-
-	dev = malloc(sizeof(struct eth_device));
-	if (dev == NULL)
-		return -1;
-
-	memset(dev, 0, sizeof(struct eth_device));
-
-	strcpy(dev->name, eth_priv->int_name);
-	dev->priv = eth_priv;
-
-	keystone2_eth_read_mac_addr(dev);
-
-	dev->iobase		= 0;
-	dev->init		= keystone2_eth_open;
-	dev->halt		= keystone2_eth_close;
-	dev->send		= keystone2_eth_send_packet;
-	dev->recv		= keystone2_eth_rcv_packet;
-#ifdef CONFIG_MCAST_TFTP
-	dev->mcast		= keystone2_eth_bcast_addr;
-#endif
-
-	eth_register(dev);
-
-	/* Register MDIO bus if it's not registered yet */
-	if (!mdio_bus) {
-		mdio_bus	= mdio_alloc();
-		mdio_bus->read	= keystone2_mdio_read;
-		mdio_bus->write	= keystone2_mdio_write;
-		mdio_bus->reset	= keystone2_mdio_reset;
-		mdio_bus->priv	= (void *)EMAC_MDIO_BASE_ADDR;
-		strcpy(mdio_bus->name, "ethernet-mdio");
-
-		res = mdio_register(mdio_bus);
-		if (res)
-			return res;
-	}
-
-#ifndef CONFIG_SOC_K2G
-	keystone2_net_serdes_setup();
-#endif
-
-	/* Create phy device and bind it with driver */
-#ifdef CONFIG_KSNET_MDIO_PHY_CONFIG_ENABLE
-	phy_dev = phy_connect(mdio_bus, eth_priv->phy_addr,
-			      dev, eth_priv->phy_if);
-	phy_config(phy_dev);
-#else
-	phy_dev = phy_find_by_mask(mdio_bus, 1 << eth_priv->phy_addr,
-				   eth_priv->phy_if);
-	phy_dev->dev = dev;
-#endif
-	eth_priv->phy_dev = phy_dev;
-
-	return 0;
-}
-
-#else
-
 static int ks2_eth_start(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
@@ -768,8 +413,6 @@ static int ks2_eth_start(struct udevice *dev)
 	hw_config_streaming_switch();
 
 	if (priv->has_mdio) {
-		keystone2_mdio_reset(priv->mdio_bus);
-
 		phy_startup(priv->phydev);
 		if (priv->phydev->link == 0) {
 			pr_err("phy startup failed\n");
@@ -889,9 +532,9 @@ static int ks2_eth_probe(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 	struct mii_dev *mdio_bus;
-	int ret;
 
 	priv->dev = dev;
+	priv->emac_open = false;
 
 	/* These clock enables has to be moved to common location */
 	if (cpu_is_k2g())
@@ -910,44 +553,35 @@ static int ks2_eth_probe(struct udevice *dev)
 	if (cpu_is_k2e() || cpu_is_k2l())
 		pll_pa_clk_sel();
 
-
 	priv->net_rx_buffs.buff_ptr = rx_buffs;
 	priv->net_rx_buffs.num_buffs = RX_BUFF_NUMS;
 	priv->net_rx_buffs.buff_len = RX_BUFF_LEN;
 
 	if (priv->slave_port == 1) {
+#ifndef CONFIG_SOC_K2G
+		keystone2_net_serdes_setup();
+#endif
 		/*
 		 * Register MDIO bus for slave 0 only, other slave have
 		 * to re-use the same
 		 */
-		mdio_bus = mdio_alloc();
+		mdio_bus = cpsw_mdio_init("ethernet-mdio",
+					  (u32)priv->mdio_base,
+					  EMAC_MDIO_CLOCK_FREQ,
+					  EMAC_MDIO_BUS_FREQ);
 		if (!mdio_bus) {
 			pr_err("MDIO alloc failed\n");
 			return -ENOMEM;
 		}
 		priv->mdio_bus = mdio_bus;
-		mdio_bus->read	= keystone2_mdio_read;
-		mdio_bus->write	= keystone2_mdio_write;
-		mdio_bus->reset	= keystone2_mdio_reset;
-		mdio_bus->priv	= priv->mdio_base;
-		sprintf(mdio_bus->name, "ethernet-mdio");
-
-		ret = mdio_register(mdio_bus);
-		if (ret) {
-			pr_err("MDIO bus register failed\n");
-			return ret;
-		}
 	} else {
 		/* Get the MDIO bus from slave 0 device */
 		struct ks2_eth_priv *parent_priv;
 
 		parent_priv = dev_get_priv(dev->parent);
 		priv->mdio_bus = parent_priv->mdio_bus;
+		priv->mdio_base = parent_priv->mdio_base;
 	}
-
-#ifndef CONFIG_SOC_K2G
-	keystone2_net_serdes_setup();
-#endif
 
 	priv->netcp_pktdma = &netcp_pktdma;
 
@@ -964,9 +598,7 @@ int ks2_eth_remove(struct udevice *dev)
 {
 	struct ks2_eth_priv *priv = dev_get_priv(dev);
 
-	free(priv->phydev);
-	mdio_unregister(priv->mdio_bus);
-	mdio_free(priv->mdio_bus);
+	cpsw_mdio_free(priv->mdio_bus);
 
 	return 0;
 }
@@ -1167,4 +799,3 @@ U_BOOT_DRIVER(eth_ks2) = {
 	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
-#endif

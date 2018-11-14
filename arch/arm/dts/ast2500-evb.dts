@@ -11,6 +11,11 @@
 	chosen {
 		stdout-path = &uart5;
 	};
+
+	aliases {
+		ethernet0 = &mac0;
+		ethernet1 = &mac1;
+	};
 };
 
 &uart5 {
@@ -35,4 +40,22 @@
 &wdt3 {
 	u-boot,dm-pre-reloc;
 	status = "okay";
+};
+
+&mac0 {
+	status = "okay";
+
+	phy-mode = "rgmii";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_mac1link_default &pinctrl_mdio1_default>;
+};
+
+&mac1 {
+	status = "okay";
+
+	phy-mode = "rgmii";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_mac2link_default &pinctrl_mdio2_default>;
 };

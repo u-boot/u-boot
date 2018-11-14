@@ -84,48 +84,6 @@ struct pll_init_data *get_pll_init_data(int pll)
 	return data;
 }
 
-#ifdef CONFIG_DRIVER_TI_KEYSTONE_NET
-struct eth_priv_t eth_priv_cfg[] = {
-	{
-		.int_name        = "K2L_EMAC",
-		.rx_flow         = 0,
-		.phy_addr        = 0,
-		.slave_port      = 1,
-		.sgmii_link_type = SGMII_LINK_MAC_PHY,
-		.phy_if          = PHY_INTERFACE_MODE_SGMII,
-	},
-	{
-		.int_name        = "K2L_EMAC1",
-		.rx_flow         = 8,
-		.phy_addr        = 1,
-		.slave_port      = 2,
-		.sgmii_link_type = SGMII_LINK_MAC_PHY,
-		.phy_if          = PHY_INTERFACE_MODE_SGMII,
-	},
-	{
-		.int_name        = "K2L_EMAC2",
-		.rx_flow         = 16,
-		.phy_addr        = 2,
-		.slave_port      = 3,
-		.sgmii_link_type = SGMII_LINK_MAC_MAC_FORCED,
-		.phy_if          = PHY_INTERFACE_MODE_SGMII,
-	},
-	{
-		.int_name        = "K2L_EMAC3",
-		.rx_flow         = 32,
-		.phy_addr        = 3,
-		.slave_port      = 4,
-		.sgmii_link_type = SGMII_LINK_MAC_MAC_FORCED,
-		.phy_if          = PHY_INTERFACE_MODE_SGMII,
-	},
-};
-
-int get_num_eth_ports(void)
-{
-	return sizeof(eth_priv_cfg) / sizeof(struct eth_priv_t);
-}
-#endif
-
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
