@@ -76,6 +76,12 @@ struct padding_algo padding_algos[] = {
 		.name = "pkcs-1.5",
 		.verify = padding_pkcs_15_verify,
 	},
+#ifdef CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT
+	{
+		.name = "pss",
+		.verify = padding_pss_verify,
+	}
+#endif /* CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT */
 };
 
 struct checksum_algo *image_get_checksum_algo(const char *full_name)

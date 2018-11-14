@@ -290,6 +290,14 @@ config FIT_SIGNATURE_MAX_SIZE
 	  device memory. Assure this size does not extend past expected storage
 	  space.
 
+config FIT_ENABLE_RSASSA_PSS_SUPPORT
+	bool "Support rsassa-pss signature scheme of FIT image contents"
+	depends on FIT_SIGNATURE
+	default n
+	help
+	  Enable this to support the pss padding algorithm as described
+	  in the rfc8017 (https://tools.ietf.org/html/rfc8017).
+
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"
 	help

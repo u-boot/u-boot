@@ -438,6 +438,16 @@ static int rsa_sign_with_key(RSA *rsa, struct padding_algo *padding_algo,
 		goto err_sign;
 	}
 
+#ifdef CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT
+	if (padding_algo && !strcmp(padding_algo->name, "pss")) {
+		if (EVP_PKEY_CTX_set_rsa_padding(ckey,
+						 RSA_PKCS1_PSS_PADDING) <= 0) {
+			ret = rsa_err("Signer padding setup failed");
+			goto err_sign;
+		}
+	}
+#endif /* CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT */
+
 	for (i = 0; i < region_count; i++) {
 		if (!EVP_DigestSignUpdate(context, region[i].data,
 					  region[i].size)) {
