@@ -241,7 +241,7 @@ int rk_mipi_phy_enable(struct udevice *dev)
 
 	/* select the suitable value for fsfreqrang reg */
 	for (i = 0; i < ARRAY_SIZE(freq_rang); i++) {
-		if (ddr_clk / (MHz) >= freq_rang[i][0])
+		if (ddr_clk / (MHz) <= freq_rang[i][0])
 			break;
 	}
 	if (i == ARRAY_SIZE(freq_rang)) {
