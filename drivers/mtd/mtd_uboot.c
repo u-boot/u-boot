@@ -92,12 +92,70 @@ static void mtd_probe_uclass_mtd_devs(void) { }
 #endif
 
 #if defined(CONFIG_MTD_PARTITIONS)
+extern void board_mtdparts_default(const char **mtdids,
+				   const char **mtdparts);
+
+static const char *get_mtdids(void)
+{
+	__maybe_unused const char *mtdparts = NULL;
+	const char *mtdids = env_get("mtdids");
+
+	if (mtdids)
+		return mtdids;
+
+#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
+	board_mtdparts_default(&mtdids, &mtdparts);
+#elif defined(MTDIDS_DEFAULT)
+	mtdids = MTDIDS_DEFAULT;
+#elif defined(CONFIG_MTDIDS_DEFAULT)
+	mtdids = CONFIG_MTDIDS_DEFAULT;
+#endif
+
+	if (mtdids)
+		env_set("mtdids", mtdids);
+
+	return mtdids;
+}
+
+#define MTDPARTS_MAXLEN         512
+
+static const char *get_mtdparts(void)
+{
+	__maybe_unused const char *mtdids = NULL;
+	static char tmp_parts[MTDPARTS_MAXLEN];
+	static bool use_defaults = true;
+	const char *mtdparts = NULL;
+
+	if (gd->flags & GD_FLG_ENV_READY)
+		mtdparts = env_get("mtdparts");
+	else if (env_get_f("mtdparts", tmp_parts, sizeof(tmp_parts)) != -1)
+		mtdparts = tmp_parts;
+
+	if (mtdparts || !use_defaults)
+		return mtdparts;
+
+#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
+	board_mtdparts_default(&mtdids, &mtdparts);
+#elif defined(MTDPARTS_DEFAULT)
+	mtdparts = MTDPARTS_DEFAULT;
+#elif defined(CONFIG_MTDPARTS_DEFAULT)
+	mtdparts = CONFIG_MTDPARTS_DEFAULT;
+#endif
+
+	if (mtdparts)
+		env_set("mtdparts", mtdparts);
+
+	use_defaults = false;
+
+	return mtdparts;
+}
+
 int mtd_probe_devices(void)
 {
 	static char *old_mtdparts;
 	static char *old_mtdids;
-	const char *mtdparts = env_get("mtdparts");
-	const char *mtdids = env_get("mtdids");
+	const char *mtdparts = get_mtdparts();
+	const char *mtdids = get_mtdids();
 	bool remaining_partitions = true;
 	struct mtd_info *mtd;
 

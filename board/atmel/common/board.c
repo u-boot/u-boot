@@ -13,6 +13,8 @@
 #define AT91_PDA_EEPROM_ID_LENGTH		5
 #define AT91_PDA_EEPROM_DEFAULT_BUS		0
 
+char *get_cpu_name(void);
+
 void dummy(void)
 {
 }
@@ -66,3 +68,8 @@ void at91_pda_detect(void)
 {
 }
 #endif
+
+void at91_prepare_cpu_var(void)
+{
+	env_set("cpu", get_cpu_name());
+}

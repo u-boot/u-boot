@@ -1,5 +1,5 @@
 GE_BX50V3 BOARD
-M:	Martin Donnelly <martin.donnelly@ge.com>
+M:	Ian Ray <ian.ray@ge.com>
 S:	Maintained
 F:	board/ge/bx50v3/
 F:	include/configs/ge_bx50v3.h

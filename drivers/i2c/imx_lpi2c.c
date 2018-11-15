@@ -105,7 +105,7 @@ static int bus_i2c_send(struct udevice *bus, u8 *txbuf, int len)
 	while (len--) {
 		result = bus_i2c_wait_for_tx_ready(regs);
 		if (result) {
-			debug("i2c: send wait fot tx ready: %d\n", result);
+			debug("i2c: send wait for tx ready: %d\n", result);
 			return result;
 		}
 		writel(*txbuf++, &regs->mtdr);
@@ -482,7 +482,7 @@ static int imx_lpi2c_probe(struct udevice *bus)
 	if (ret < 0)
 		return ret;
 
-	debug("i2c : controller bus %d at %lu , speed %d: ",
+	debug("i2c : controller bus %d at 0x%lx , speed %d: ",
 	      bus->seq, i2c_bus->base,
 	      i2c_bus->speed);
 

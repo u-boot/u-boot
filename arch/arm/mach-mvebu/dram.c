@@ -33,7 +33,9 @@ struct sdram_addr_dec {
 #define REG_CPUCS_WIN_WIN0_CS(x)	(((x) & 0x3) << 2)
 #define REG_CPUCS_WIN_SIZE(x)		(((x) & 0xff) << 24)
 
-#define SDRAM_SIZE_MAX			0xc0000000
+#ifndef MVEBU_SDRAM_SIZE_MAX
+#define MVEBU_SDRAM_SIZE_MAX		0xc0000000
+#endif
 
 #define SCRUB_MAGIC		0xbeefdead
 
@@ -275,8 +277,8 @@ int dram_init(void)
 		 * address space left for the internal registers etc.
 		 */
 		size += mvebu_sdram_bs(i);
-		if (size > SDRAM_SIZE_MAX)
-			size = SDRAM_SIZE_MAX;
+		if (size > MVEBU_SDRAM_SIZE_MAX)
+			size = MVEBU_SDRAM_SIZE_MAX;
 	}
 
 	for (; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -312,7 +314,7 @@ int dram_init_banksize(void)
 
 		/* Clip the banksize to 1GiB if it exceeds the max size */
 		size += gd->bd->bi_dram[i].size;
-		if (size > SDRAM_SIZE_MAX)
+		if (size > MVEBU_SDRAM_SIZE_MAX)
 			mvebu_sdram_bs_set(i, 0x40000000);
 	}
 

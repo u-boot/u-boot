@@ -11,7 +11,6 @@
 
 #include <common.h>
 #include <console.h>
-#include <cpu.h>
 #include <dm.h>
 #include <environment.h>
 #include <fdtdec.h>
@@ -161,33 +160,6 @@ static int print_resetinfo(void)
 
 	if (!sysreset_get_status(dev, status, sizeof(status)))
 		printf("%s", status);
-
-	return 0;
-}
-#endif
-
-#if defined(CONFIG_DISPLAY_CPUINFO) && CONFIG_IS_ENABLED(CPU)
-static int print_cpuinfo(void)
-{
-	struct udevice *dev;
-	char desc[512];
-	int ret;
-
-	ret = uclass_first_device_err(UCLASS_CPU, &dev);
-	if (ret) {
-		debug("%s: Could not get CPU device (err = %d)\n",
-		      __func__, ret);
-		return ret;
-	}
-
-	ret = cpu_get_desc(dev, desc, sizeof(desc));
-	if (ret) {
-		debug("%s: Could not get CPU description (err = %d)\n",
-		      dev->name, ret);
-		return ret;
-	}
-
-	printf("%s", desc);
 
 	return 0;
 }

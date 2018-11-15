@@ -34,11 +34,15 @@ under that bus.
 Note that this is all done on a lazy basis, as needed, so until something is
 touched on PCI (eg: a call to pci_find_devices()) it will not be probed.
 
-PCI devices can appear in the flattened device tree. If they do this serves to
-specify the driver to use for the device. In this case they will be bound at
-first. Each PCI device node must have a compatible string list as well as a
-<reg> property, as defined by the IEEE Std 1275-1994 PCI bus binding document
-v2.1. Note we must describe PCI devices with the same bus hierarchy as the
+PCI devices can appear in the flattened device tree. If they do, their node
+often contains extra information which cannot be derived from the PCI IDs or
+PCI class of the device. Each PCI device node must have a <reg> property, as
+defined by the IEEE Std 1275-1994 PCI bus binding document v2.1. Compatible
+string list is optional and generally not needed, since PCI is discoverable
+bus, albeit there are justified exceptions. If the compatible string is
+present, matching on it takes precedence over PCI IDs and PCI classes.
+
+Note we must describe PCI devices with the same bus hierarchy as the
 hardware, otherwise driver model cannot detect the correct parent/children
 relationship during PCI bus enumeration thus PCI devices won't be bound to
 their drivers accordingly. A working example like below:

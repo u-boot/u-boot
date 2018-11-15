@@ -6,6 +6,8 @@
 #include <common.h>
 #include <asm/io.h>
 
+/* R-Car Gen3 caches are enabled in memmap-gen3.c */
+#ifndef CONFIG_RCAR_GEN3
 #ifdef CONFIG_ARCH_CPU_INIT
 int arch_cpu_init(void)
 {
@@ -19,6 +21,7 @@ void enable_caches(void)
 {
 	dcache_enable();
 }
+#endif
 #endif
 
 #ifdef CONFIG_DISPLAY_CPUINFO

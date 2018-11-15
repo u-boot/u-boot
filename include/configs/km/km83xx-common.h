@@ -84,11 +84,7 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
-#define CONFIG_FLASH_CFI_DRIVER		/* use the CFI driver */
 #define CONFIG_SYS_FLASH_SIZE		256 /* max FLASH size is 256M */
-#define CONFIG_SYS_FLASH_PROTECTION
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)

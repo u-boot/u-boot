@@ -47,8 +47,6 @@
 #define CONFIG_SYS_BOOTMAPSZ	(8 * 1024 * 1024)
 
 /* FLASH */
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH_EMPTY_INFO			/* print 'E' for empty sector on flinfo */
 
@@ -67,8 +65,6 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	(3 * 1000)	/* Timeout for Flash write operations (in ms) */
 #define CONFIG_SYS_FLASH_LOCK_TOUT	(3 * 1000)	/* Timeout for Flash set sector lock bit operations (in ms) */
 #define CONFIG_SYS_FLASH_UNLOCK_TOUT	(3 * 1000)	/* Timeout for Flash clear lock bit operations (in ms) */
-
-#undef  CONFIG_SYS_FLASH_PROTECTION			/* Use hardware flash sectors protection instead of U-Boot software protection */
 
 #undef  CONFIG_SYS_DIRECT_FLASH_TFTP
 

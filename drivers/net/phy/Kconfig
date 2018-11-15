@@ -64,8 +64,32 @@ endif # MV88E61XX_SWITCH
 config PHYLIB_10G
 	bool "Generic 10G PHY support"
 
-config PHY_AQUANTIA
+menuconfig PHY_AQUANTIA
 	bool "Aquantia Ethernet PHYs support"
+	select PHY_GIGE
+	select PHYLIB_10G
+
+config PHY_AQUANTIA_UPLOAD_FW
+	bool "Aquantia firmware loading support"
+	default n
+	depends on PHY_AQUANTIA
+	help
+		Aquantia PHYs use firmware which can be either loaded automatically
+		from storage directly attached to the phy or loaded by the boot loader
+		via MDIO commands.  The firmware is loaded from a file, specified by
+		the PHY_AQUANTIA_FW_PART and PHY_AQUANTIA_FW_NAME options.
+
+config PHY_AQUANTIA_FW_PART
+	string "Aquantia firmware partition"
+	depends on PHY_AQUANTIA_UPLOAD_FW
+	help
+		Partition containing the firmware file.
+
+config PHY_AQUANTIA_FW_NAME
+	string "Aquantia firmware filename"
+	depends on PHY_AQUANTIA_UPLOAD_FW
+	help
+		Firmware filename.
 
 config PHY_ATHEROS
 	bool "Atheros Ethernet PHYs support"

@@ -443,16 +443,6 @@ config ARCH_MVEBU
 	select SPI
 	imply CMD_DM
 
-config TARGET_DEVKIT3250
-	bool "Support devkit3250"
-	select CPU_ARM926EJS
-	select SUPPORT_SPL
-
-config TARGET_WORK_92105
-	bool "Support work_92105"
-	select CPU_ARM926EJS
-	select SUPPORT_SPL
-
 config TARGET_APF27
 	bool "Support apf27"
 	select CPU_ARM926EJS
@@ -668,6 +658,22 @@ config ARCH_MESON
 	  targeted at media players and tablet computers. We currently
 	  support the S905 (GXBaby) 64-bit SoC.
 
+config ARCH_LPC32XX
+	bool "NXP LPC32xx platform"
+	select CPU_ARM926EJS
+	select DM
+	select DM_GPIO
+	select DM_SERIAL
+	select SPL_DM if SPL
+	select SUPPORT_SPL
+	imply CMD_DM
+
+config ARCH_IMX8
+	bool "NXP i.MX8 platform"
+	select ARM64
+	select DM
+	select OF_CONTROL
+
 config ARCH_MX8M
 	bool "NXP i.MX8M platform"
 	select ARM64
@@ -801,7 +807,6 @@ config ARCH_SOCFPGA
 	select SPL_SPI_SUPPORT if DM_SPI
 	select SPL_WATCHDOG_SUPPORT
 	select SUPPORT_SPL
-	select SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 	select SYS_NS16550
 	select SYS_THUMB_BUILD if TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	imply CMD_DM
@@ -811,6 +816,7 @@ config ARCH_SOCFPGA
 	imply DM_SPI_FLASH
 	imply FAT_WRITE
 	imply SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
+	imply SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
@@ -1400,6 +1406,8 @@ source "arch/arm/mach-keystone/Kconfig"
 
 source "arch/arm/mach-kirkwood/Kconfig"
 
+source "arch/arm/cpu/arm926ejs/lpc32xx/Kconfig"
+
 source "arch/arm/mach-mvebu/Kconfig"
 
 source "arch/arm/cpu/armv7/ls102xa/Kconfig"
@@ -1415,6 +1423,8 @@ source "arch/arm/mach-imx/mx6/Kconfig"
 source "arch/arm/mach-imx/mx7/Kconfig"
 
 source "arch/arm/mach-imx/mx7ulp/Kconfig"
+
+source "arch/arm/mach-imx/imx8/Kconfig"
 
 source "arch/arm/mach-imx/mx8m/Kconfig"
 
@@ -1518,11 +1528,9 @@ source "board/st/stv0991/Kconfig"
 source "board/tcl/sl50/Kconfig"
 source "board/ucRobotics/bubblegum_96/Kconfig"
 source "board/birdland/bav335x/Kconfig"
-source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/vscom/baltos/Kconfig"
 source "board/woodburn/Kconfig"
-source "board/work-microwave/work_92105/Kconfig"
 source "board/xilinx/Kconfig"
 source "board/xilinx/zynq/Kconfig"
 source "board/xilinx/zynqmp/Kconfig"

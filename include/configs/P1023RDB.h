@@ -92,8 +92,6 @@ extern unsigned long get_clock_freq(void);
 				| BR_PS_16 | BR_V)
 #define CONFIG_FLASH_OR_PRELIM	0xfc000ff7
 
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* sectors per device */

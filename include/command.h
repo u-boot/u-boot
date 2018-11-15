@@ -67,7 +67,7 @@ extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *
  *
  * @cmdtp: Command which caused the error
  * @err: Error code (0 if none, -ve for error, like -EIO)
- * @return 0 (CMD_RET_SUCCESX) if there is not error,
+ * @return 0 (CMD_RET_SUCCESS) if there is not error,
  *	   1 (CMD_RET_FAILURE) if an error is found
  *	   -1 (CMD_RET_USAGE) if 'usage' error is found
  */

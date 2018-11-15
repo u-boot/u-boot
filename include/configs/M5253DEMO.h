@@ -156,14 +156,12 @@
 #define FLASH_SST6401B		0x200
 #define SST_ID_xF6401B		0x236D236D
 
-#undef CONFIG_SYS_FLASH_CFI
 #ifdef CONFIG_SYS_FLASH_CFI
 /*
  * Unable to use CFI driver, due to incompatible sector erase command by SST.
  * Amd/Atmel use 0x30 for sector erase, SST use 0x50.
  * 0x30 is block erase in SST
  */
-#	define CONFIG_FLASH_CFI_DRIVER	1
 #	define CONFIG_SYS_FLASH_SIZE		0x800000
 #	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CONFIG_FLASH_CFI_LEGACY

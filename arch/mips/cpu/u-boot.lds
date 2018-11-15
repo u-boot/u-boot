@@ -41,16 +41,22 @@ SECTIONS
 	__image_copy_end = .;
 	__init_end = .;
 
-	/*
-	 * .rel must come last so that the mips-relocs tool can shrink
-	 * the section size & the PT_LOAD program header filesz.
-	 */
-	.rel : {
+	.data.reloc : {
 		__rel_start = .;
-		BYTE(0x0)
-		. += (32 * 1024) - 1;
+		/*
+		 * Space for relocation table
+		 * This needs to be filled so that the
+		 * mips-reloc tool can overwrite the content.
+		 * An invalid value is left at the start of the
+		 * section to abort relocation if the table
+		 * has not been filled in.
+		 */
+		LONG(0xFFFFFFFF);
+		FILL(0);
+		. += CONFIG_MIPS_RELOCATION_TABLE_SIZE - 4;
 	}
 
+	. = ALIGN(4);
 	_end = .;
 
 	.bss __rel_start (OVERLAY) : {

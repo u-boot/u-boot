@@ -85,8 +85,9 @@
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read " \
-				"0x22000000 0x200000 0x300000; " \
-				"bootm 0x22000000"
+				"0x22000000 0x200000 0x600000; " \
+				"nand read 0x21000000 0x180000 0x20000; " \
+				"bootz 0x22000000 - 0x21000000"
 #elif defined(CONFIG_SPI_BOOT)
 /* bootstrap + u-boot + env + linux in spi flash */
 #define CONFIG_ENV_OFFSET	0x5000

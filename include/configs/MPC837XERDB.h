@@ -239,14 +239,10 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
-#define CONFIG_FLASH_CFI_DRIVER	/* use the CFI driver */
 #define CONFIG_SYS_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		8 /* max FLASH size is 32M */
 
-#define CONFIG_SYS_FLASH_PROTECTION	1	/* Use h/w Flash protection. */
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* display empty sectors */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	/* buffer up multiple bytes */
 
 					/* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE

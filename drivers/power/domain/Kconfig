@@ -16,6 +16,13 @@ config BCM6328_POWER_DOMAIN
 	  Enable support for manipulating BCM6345 power domains via MMIO
 	  mapped registers.
 
+config IMX8_POWER_DOMAIN
+	bool "Enable i.MX8 power domain driver"
+        depends on ARCH_IMX8
+        help
+          Enable support for manipulating NXP i.MX8 on-SoC power domains via IPC
+          requests to the SCU.
+
 config MESON_GX_VPU_POWER_DOMAIN
 	bool "Enable Amlogic Meson GX VPU power domain driver"
 	depends on ARCH_MESON
@@ -44,5 +51,4 @@ config TI_SCI_POWER_DOMAIN
 	help
 	  Generic power domain implementation for TI devices implementing the
 	  TI SCI protocol.
-
 endmenu

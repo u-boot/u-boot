@@ -6,9 +6,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	default "timll"
 
-config SYS_SOC
-	default "lpc32xx"
-
 config SYS_CONFIG_NAME
 	default "devkit3250"
 

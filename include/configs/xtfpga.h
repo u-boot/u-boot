@@ -194,8 +194,6 @@
 /* Flash & Environment */
 /*=====================*/
 
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER			/* use generic CFI driver */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #ifdef CONFIG_XTFPGA_LX60
@@ -220,7 +218,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	\
 	(CONFIG_SYS_FLASH_SECT_SZ/CONFIG_SYS_FLASH_PARMSECT_SZ + \
 	 CONFIG_SYS_FLASH_SIZE/CONFIG_SYS_FLASH_SECT_SZ - 1)
-#define CONFIG_SYS_FLASH_PROTECTION		/* hw flash protection */
 
 /*
  * Put environment in top block (64kB)

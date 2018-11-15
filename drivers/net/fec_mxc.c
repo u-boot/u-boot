@@ -15,6 +15,7 @@
 #include <miiphy.h>
 #include <net.h>
 #include <netdev.h>
+#include <power/regulator.h>
 
 #include <asm/io.h>
 #include <linux/errno.h>
@@ -122,6 +123,32 @@ static int fec_mdio_read(struct ethernet_regs *eth, uint8_t phyaddr,
 	return val;
 }
 
+static int fec_get_clk_rate(void *udev, int idx)
+{
+#if IS_ENABLED(CONFIG_IMX8)
+	struct fec_priv *fec;
+	struct udevice *dev;
+	int ret;
+
+	dev = udev;
+	if (!dev) {
+		ret = uclass_get_device(UCLASS_ETH, idx, &dev);
+		if (ret < 0) {
+			debug("Can't get FEC udev: %d\n", ret);
+			return ret;
+		}
+	}
+
+	fec = dev_get_priv(dev);
+	if (fec)
+		return fec->clk_rate;
+
+	return -EINVAL;
+#else
+	return imx_get_fecclk();
+#endif
+}
+
 static void fec_mii_setspeed(struct ethernet_regs *eth)
 {
 	/*
@@ -139,9 +166,20 @@ static void fec_mii_setspeed(struct ethernet_regs *eth)
 	 * Given that ceil(clkrate / 5000000) <= 64, the calculation for
 	 * holdtime cannot result in a value greater than 3.
 	 */
-	u32 pclk = imx_get_fecclk();
-	u32 speed = DIV_ROUND_UP(pclk, 5000000);
-	u32 hold = DIV_ROUND_UP(pclk, 100000000) - 1;
+	u32 pclk;
+	u32 speed;
+	u32 hold;
+	int ret;
+
+	ret = fec_get_clk_rate(NULL, 0);
+	if (ret < 0) {
+		printf("Can't find FEC0 clk rate: %d\n", ret);
+		return;
+	}
+	pclk = ret;
+	speed = DIV_ROUND_UP(pclk, 5000000);
+	hold = DIV_ROUND_UP(pclk, 100000000) - 1;
+
 #ifdef FEC_QUIRK_ENET_MAC
 	speed--;
 #endif
@@ -1254,7 +1292,7 @@ static void fec_gpio_reset(struct fec_priv *priv)
 	debug("fec_gpio_reset: fec_gpio_reset(dev)\n");
 	if (dm_gpio_is_valid(&priv->phy_reset_gpio)) {
 		dm_gpio_set_value(&priv->phy_reset_gpio, 1);
-		udelay(priv->reset_delay);
+		mdelay(priv->reset_delay);
 		dm_gpio_set_value(&priv->phy_reset_gpio, 0);
 	}
 }
@@ -1268,9 +1306,34 @@ static int fecmxc_probe(struct udevice *dev)
 	uint32_t start;
 	int ret;
 
+	if (IS_ENABLED(CONFIG_IMX8)) {
+		ret = clk_get_by_name(dev, "ipg", &priv->ipg_clk);
+		if (ret < 0) {
+			debug("Can't get FEC ipg clk: %d\n", ret);
+			return ret;
+		}
+		ret = clk_enable(&priv->ipg_clk);
+		if (ret < 0) {
+			debug("Can't enable FEC ipg clk: %d\n", ret);
+			return ret;
+		}
+
+		priv->clk_rate = clk_get_rate(&priv->ipg_clk);
+	}
+
 	ret = fec_alloc_descs(priv);
 	if (ret)
 		return ret;
+
+#ifdef CONFIG_DM_REGULATOR
+	if (priv->phy_supply) {
+		ret = regulator_autoset(priv->phy_supply);
+		if (ret) {
+			printf("%s: Error enabling phy supply\n", dev->name);
+			return ret;
+		}
+	}
+#endif
 
 #ifdef CONFIG_DM_GPIO
 	fec_gpio_reset(priv);
@@ -1301,8 +1364,27 @@ static int fecmxc_probe(struct udevice *dev)
 	}
 
 	priv->bus = bus;
-	priv->xcv_type = CONFIG_FEC_XCV_TYPE;
 	priv->interface = pdata->phy_interface;
+	switch (priv->interface) {
+	case PHY_INTERFACE_MODE_MII:
+		priv->xcv_type = MII100;
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		priv->xcv_type = RMII;
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		priv->xcv_type = RGMII;
+		break;
+	default:
+		priv->xcv_type = CONFIG_FEC_XCV_TYPE;
+		printf("Unsupported interface type %d defaulting to %d\n",
+		       priv->interface, priv->xcv_type);
+		break;
+	}
+
 	ret = fec_phy_init(priv, dev);
 	if (ret)
 		goto err_phy;
@@ -1327,6 +1409,11 @@ static int fecmxc_remove(struct udevice *dev)
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
 
+#ifdef CONFIG_DM_REGULATOR
+	if (priv->phy_supply)
+		regulator_set_enable(priv->phy_supply, false);
+#endif
+
 	return 0;
 }
 
@@ -1350,24 +1437,25 @@ static int fecmxc_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_DM_REGULATOR
+	device_get_supply_regulator(dev, "phy-supply", &priv->phy_supply);
+#endif
+
 #ifdef CONFIG_DM_GPIO
 	ret = gpio_request_by_name(dev, "phy-reset-gpios", 0,
-			     &priv->phy_reset_gpio, GPIOD_IS_OUT);
-	if (ret == 0) {
-		ret = dev_read_u32_array(dev, "phy-reset-duration",
-					 &priv->reset_delay, 1);
-	} else if (ret == -ENOENT) {
-		priv->reset_delay = 1000;
-		ret = 0;
-	}
+				   &priv->phy_reset_gpio, GPIOD_IS_OUT);
+	if (ret < 0)
+		return 0; /* property is optional, don't return error! */
 
+	priv->reset_delay = dev_read_u32_default(dev, "phy-reset-duration", 1);
 	if (priv->reset_delay > 1000) {
-		printf("FEX MXC: gpio reset timeout should be less the 1000\n");
-		priv->reset_delay = 1000;
+		printf("FEC MXC: phy reset duration should be <= 1000ms\n");
+		/* property value wrong, use default value */
+		priv->reset_delay = 1;
 	}
 #endif
 
-	return ret;
+	return 0;
 }
 
 static const struct udevice_id fecmxc_ids[] = {
@@ -1376,6 +1464,7 @@ static const struct udevice_id fecmxc_ids[] = {
 	{ .compatible = "fsl,imx6sx-fec" },
 	{ .compatible = "fsl,imx6ul-fec" },
 	{ .compatible = "fsl,imx53-fec" },
+	{ .compatible = "fsl,imx7d-fec" },
 	{ }
 };
 

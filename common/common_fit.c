@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <image.h>
 #include <linux/libfdt.h>
-#include <spl.h>
 
 ulong fdt_getprop_u32(const void *fdt, int node, const char *prop)
 {
@@ -73,7 +72,7 @@ int fit_find_config_node(const void *fdt)
 	}
 
 	if (dflt_conf_node != -ENOENT) {
-		debug("Selecting default config '%s'", dflt_conf_desc);
+		debug("Selecting default config '%s'\n", dflt_conf_desc);
 		return dflt_conf_node;
 	}
 

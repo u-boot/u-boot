@@ -26,12 +26,12 @@
 	PORT_GP_18(0, fn, sfx),	\
 	PORT_GP_23(1, fn, sfx),	\
 	PORT_GP_26(2, fn, sfx),	\
-	PORT_GP_12(3, fn, sfx),	\
+	PORT_GP_CFG_12(3, fn, sfx, SH_PFC_PIN_CFG_IO_VOLTAGE),	\
 	PORT_GP_1(3, 12, fn, sfx),	\
 	PORT_GP_1(3, 13, fn, sfx),	\
 	PORT_GP_1(3, 14, fn, sfx),	\
 	PORT_GP_1(3, 15, fn, sfx),	\
-	PORT_GP_11(4, fn, sfx),	\
+	PORT_GP_CFG_11(4, fn, sfx, SH_PFC_PIN_CFG_IO_VOLTAGE),	\
 	PORT_GP_20(5, fn, sfx),	\
 	PORT_GP_18(6, fn, sfx)
 /*
@@ -5151,8 +5151,37 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
 	{ },
 };
 
+enum ioctrl_regs {
+	POCCTRL,
+};
+
+static const struct pinmux_ioctrl_reg pinmux_ioctrl_regs[] = {
+	[POCCTRL] = { 0xe6060380, },
+	{ /* sentinel */ },
+};
+
+static int r8a77990_pin_to_pocctrl(struct sh_pfc *pfc, unsigned int pin, u32 *pocctrl)
+{
+	int bit = -EINVAL;
+
+	*pocctrl = pinmux_ioctrl_regs[POCCTRL].reg;
+
+	if (pin >= RCAR_GP_PIN(3, 0) && pin <= RCAR_GP_PIN(3, 11))
+		bit = pin & 0x1f;
+
+	if (pin >= RCAR_GP_PIN(4, 0) && pin <= RCAR_GP_PIN(4, 10))
+		bit = (pin & 0x1f) + 19;
+
+	return bit;
+}
+
+static const struct sh_pfc_soc_operations r8a77990_pinmux_ops = {
+	.pin_to_pocctrl = r8a77990_pin_to_pocctrl,
+};
+
 const struct sh_pfc_soc_info r8a77990_pinmux_info = {
 	.name = "r8a77990_pfc",
+	.ops = &r8a77990_pinmux_ops,
 	.unlock_reg = 0xe6060000, /* PMMR */
 
 	.function = { PINMUX_FUNCTION_BEGIN, PINMUX_FUNCTION_END },
@@ -5165,6 +5194,7 @@ const struct sh_pfc_soc_info r8a77990_pinmux_info = {
 	.nr_functions = ARRAY_SIZE(pinmux_functions),
 
 	.cfg_regs = pinmux_config_regs,
+	.ioctrl_regs = pinmux_ioctrl_regs,
 
 	.pinmux_data = pinmux_data,
 	.pinmux_data_size = ARRAY_SIZE(pinmux_data),

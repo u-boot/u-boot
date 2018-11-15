@@ -308,6 +308,7 @@ static int execute(void)
 	} system_info;
 	efi_uintn_t buf_size;
 	char buf[16] __aligned(ARCH_DMA_MINALIGN);
+	u64 pos;
 
 	/* Connect controller to virtual disk */
 	ret = boottime->connect_controller(disk_handle, NULL, NULL, 1);
@@ -392,19 +393,34 @@ static int execute(void)
 		efi_st_error("Failed to open file\n");
 		return EFI_ST_FAILURE;
 	}
+	ret = file->setpos(file, 1);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("SetPosition failed\n");
+		return EFI_ST_FAILURE;
+	}
 	buf_size = sizeof(buf) - 1;
 	ret = file->read(file, &buf_size, buf);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to read file\n");
 		return EFI_ST_FAILURE;
 	}
-	if (buf_size != 13) {
+	if (buf_size != 12) {
 		efi_st_error("Wrong number of bytes read: %u\n",
 			     (unsigned int)buf_size);
 		return EFI_ST_FAILURE;
 	}
-	if (efi_st_memcmp(buf, "Hello world!", 12)) {
+	if (efi_st_memcmp(buf, "ello world!", 11)) {
 		efi_st_error("Unexpected file content\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = file->getpos(file, &pos);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("GetPosition failed\n");
+		return EFI_ST_FAILURE;
+	}
+	if (pos != 13) {
+		efi_st_error("GetPosition returned %u, expected 13\n",
+			     (unsigned int)pos);
 		return EFI_ST_FAILURE;
 	}
 	ret = file->close(file);
@@ -432,6 +448,16 @@ static int execute(void)
 	ret = file->close(file);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("Failed to close file\n");
+		return EFI_ST_FAILURE;
+	}
+	ret = file->getpos(file, &pos);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("GetPosition failed\n");
+		return EFI_ST_FAILURE;
+	}
+	if (pos != 7) {
+		efi_st_error("GetPosition returned %u, expected 7\n",
+			     (unsigned int)pos);
 		return EFI_ST_FAILURE;
 	}
 

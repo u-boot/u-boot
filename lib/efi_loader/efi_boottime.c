@@ -1599,7 +1599,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  efi_uintn_t source_size,
 					  efi_handle_t *image_handle)
 {
-	struct efi_loaded_image *info;
+	struct efi_loaded_image *info = NULL;
 	struct efi_loaded_image_obj **image_obj =
 		(struct efi_loaded_image_obj **)image_handle;
 	efi_status_t ret;
@@ -2023,7 +2023,7 @@ static efi_status_t EFIAPI efi_open_protocol_information(
 
 	/* Copy entries */
 	buffer_size = count * sizeof(struct efi_open_protocol_info_entry);
-	r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, buffer_size,
+	r = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, buffer_size,
 			      (void **)entry_buffer);
 	if (r != EFI_SUCCESS)
 		goto out;
@@ -2080,7 +2080,7 @@ static efi_status_t EFIAPI efi_protocols_per_handle(
 		size_t j = 0;
 
 		buffer_size = sizeof(efi_guid_t *) * *protocol_buffer_count;
-		r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, buffer_size,
+		r = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, buffer_size,
 				      (void **)protocol_buffer);
 		if (r != EFI_SUCCESS)
 			return EFI_EXIT(r);
@@ -2133,7 +2133,7 @@ static efi_status_t EFIAPI efi_locate_handle_buffer(
 			      *buffer);
 	if (r != EFI_BUFFER_TOO_SMALL)
 		goto out;
-	r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES, buffer_size,
+	r = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, buffer_size,
 			      (void **)buffer);
 	if (r != EFI_SUCCESS)
 		goto out;
@@ -2506,7 +2506,7 @@ static efi_status_t efi_protocol_open(
 			if (item->info.attributes & EFI_OPEN_PROTOCOL_BY_DRIVER)
 				opened_by_driver = true;
 		}
-		/* Only one controller can be conncected */
+		/* Only one controller can be connected */
 		if (opened_by_driver)
 			return EFI_ACCESS_DENIED;
 	}

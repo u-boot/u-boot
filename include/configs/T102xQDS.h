@@ -85,12 +85,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
-#ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-#endif
-
 /* PCIe Boot - Master */
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
 /*
@@ -721,9 +715,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_FLASH_CFI_MTD
-#endif
 
 /*
  * Environment

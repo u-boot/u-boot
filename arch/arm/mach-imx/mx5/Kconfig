@@ -30,6 +30,11 @@ config TARGET_KP_IMX53
 	select MX53
 	imply CMD_DM
 
+config TARGET_M53MENLO
+	bool "Support m53menlo"
+	select MX53
+	select SUPPORT_SPL
+
 config TARGET_MX51EVK
 	bool "Support mx51evk"
 	select BOARD_LATE_INIT
@@ -89,6 +94,7 @@ source "board/freescale/mx53smd/Kconfig"
 source "board/ge/mx53ppd/Kconfig"
 source "board/inversepath/usbarmory/Kconfig"
 source "board/k+p/kp_imx53/Kconfig"
+source "board/menlo/m53menlo/Kconfig"
 source "board/technologic/ts4800/Kconfig"
 
 endif

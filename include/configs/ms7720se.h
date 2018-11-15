@@ -41,8 +41,6 @@
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 /* FLASH */
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* print 'E' for empty sector on flinfo */
 

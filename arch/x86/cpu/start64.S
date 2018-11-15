@@ -20,6 +20,7 @@ _start:
 
 	call	board_init_f_init_reserve
 
+	xor	%rdi, %rdi
 	call	board_init_f
 	call	board_init_f_r
 

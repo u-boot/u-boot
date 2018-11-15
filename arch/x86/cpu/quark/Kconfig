@@ -130,4 +130,8 @@ config SYS_CAR_SIZE
 	  Space in bytes in eSRAM used as Cache-As-ARM (CAR).
 	  Note this size must not exceed eSRAM's total size.
 
+config X86_TSC_TIMER_EARLY_FREQ
+	int
+	default 400
+
 endif

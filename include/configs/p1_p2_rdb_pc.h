@@ -69,7 +69,6 @@
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#define CONFIG_FLASH_CFI_MTD
 #endif
 
 #if defined(CONFIG_TARGET_P1021RDB)
@@ -89,7 +88,6 @@
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#define CONFIG_FLASH_CFI_MTD
 #endif
 
 #if defined(CONFIG_TARGET_P1024RDB)
@@ -134,7 +132,6 @@
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#define CONFIG_FLASH_CFI_MTD
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -370,10 +367,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC

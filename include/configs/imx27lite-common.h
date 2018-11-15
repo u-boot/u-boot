@@ -84,12 +84,8 @@
 /*
  * Flash & Environment
  */
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
 /* Use buffered writes (~10x faster) */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 /* Use hardware sector protection */
-#define CONFIG_SYS_FLASH_PROTECTION		1
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of flash banks */
 /* CS2 Base address */
 #define PHYS_FLASH_1			0xc0000000
@@ -113,7 +109,6 @@
 /*
  * MTD
  */
-#define CONFIG_FLASH_CFI_MTD
 
 /*
  * NAND

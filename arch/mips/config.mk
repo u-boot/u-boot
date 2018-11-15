@@ -55,7 +55,7 @@ PLATFORM_ELFFLAGS += -B mips $(OBJCOPYFLAGS)
 # MODFLAGS			+= -mlong-calls
 #
 ifndef CONFIG_SPL_BUILD
-OBJCOPYFLAGS			+= -j .got -j .rel -j .padding -j .dtb.init.rodata
+OBJCOPYFLAGS			+= -j .data.reloc -j .dtb.init.rodata
 LDFLAGS_FINAL			+= --emit-relocs
 endif
 

@@ -15,7 +15,6 @@ obj-$(CONFIG_CMD_AES) += aes.o
 obj-$(CONFIG_CMD_ADC) += adc.o
 obj-$(CONFIG_CMD_ARMFLASH) += armflash.o
 obj-y += blk_common.o
-obj-$(CONFIG_SOURCE) += source.o
 obj-$(CONFIG_CMD_SOURCE) += source.o
 obj-$(CONFIG_CMD_BDI) += bdinfo.o
 obj-$(CONFIG_CMD_BEDBUG) += bedbug.o

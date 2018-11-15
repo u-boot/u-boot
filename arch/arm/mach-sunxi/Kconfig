@@ -140,6 +140,12 @@ config MACH_SUNXI_H3_H5
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 
+# TODO: try out A80's 8GiB DRAM space
+config SUNXI_DRAM_MAX_SIZE
+	hex
+	default 0xC0000000 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN50I_H6
+	default 0x80000000
+
 choice
 	prompt "Sunxi SoC Variant"
 	optional
@@ -969,5 +975,15 @@ config SPL_SPI_SUNXI
 	  Enable support for SPI Flash. This option allows SPL to read from
 	  sunxi SPI Flash. It uses the same method as the boot ROM, so does
 	  not need any extra configuration.
+
+config PINE64_DT_SELECTION
+	bool "Enable Pine64 device tree selection code"
+	depends on MACH_SUN50I
+	help
+	  The original Pine A64 and Pine A64+ are similar but different
+	  boards and can be differed by the DRAM size. Pine A64 has
+	  512MiB DRAM, and Pine A64+ has 1GiB or 2GiB. By selecting this
+	  option, the device tree selection code specific to Pine64 which
+	  utilizes the DRAM size will be enabled.
 
 endif

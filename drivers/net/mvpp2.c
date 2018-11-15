@@ -4792,9 +4792,9 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 static void mvpp2_gpio_init(struct mvpp2_port *port)
 {
 	if (dm_gpio_is_valid(&port->phy_reset_gpio)) {
-		dm_gpio_set_value(&port->phy_reset_gpio, 0);
-		udelay(1000);
 		dm_gpio_set_value(&port->phy_reset_gpio, 1);
+		mdelay(10);
+		dm_gpio_set_value(&port->phy_reset_gpio, 0);
 	}
 
 	if (dm_gpio_is_valid(&port->phy_tx_disable_gpio))

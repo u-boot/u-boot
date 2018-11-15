@@ -255,9 +255,42 @@ int board_init(void)
 	return soft_i2c_board_init();
 }
 
+/*
+ * On older SoCs the SPL is actually at address zero, so using NULL as
+ * an error value does not work.
+ */
+#define INVALID_SPL_HEADER ((void *)~0UL)
+
+static struct boot_file_head * get_spl_header(uint8_t req_version)
+{
+	struct boot_file_head *spl = (void *)(ulong)SPL_ADDR;
+	uint8_t spl_header_version = spl->spl_signature[3];
+
+	/* Is there really the SPL header (still) there? */
+	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) != 0)
+		return INVALID_SPL_HEADER;
+
+	if (spl_header_version < req_version) {
+		printf("sunxi SPL version mismatch: expected %u, got %u\n",
+		       req_version, spl_header_version);
+		return INVALID_SPL_HEADER;
+	}
+
+	return spl;
+}
+
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_0, PHYS_SDRAM_0_SIZE);
+	struct boot_file_head *spl = get_spl_header(SPL_DRAM_HEADER_VERSION);
+
+	if (spl == INVALID_SPL_HEADER)
+		gd->ram_size = get_ram_size((long *)PHYS_SDRAM_0,
+					    PHYS_SDRAM_0_SIZE);
+	else
+		gd->ram_size = (phys_addr_t)spl->dram_size << 20;
+
+	if (gd->ram_size > CONFIG_SUNXI_DRAM_MAX_SIZE)
+		gd->ram_size = CONFIG_SUNXI_DRAM_MAX_SIZE;
 
 	return 0;
 }
@@ -521,6 +554,21 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
+
+static void sunxi_spl_store_dram_size(phys_addr_t dram_size)
+{
+	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
+
+	if (spl == INVALID_SPL_HEADER)
+		return;
+
+	/* Promote the header version for U-Boot proper, if needed. */
+	if (spl->spl_signature[3] < SPL_DRAM_HEADER_VERSION)
+		spl->spl_signature[3] = SPL_DRAM_HEADER_VERSION;
+
+	spl->dram_size = dram_size >> 20;
+}
+
 void sunxi_board_init(void)
 {
 	int power_failed = 0;
@@ -588,6 +636,8 @@ void sunxi_board_init(void)
 	printf(" %d MiB\n", (int)(gd->ram_size >> 20));
 	if (!gd->ram_size)
 		hang();
+
+	sunxi_spl_store_dram_size(gd->ram_size);
 
 	/*
 	 * Only clock up the CPU to full speed if we are reasonably
@@ -662,16 +712,11 @@ void get_board_serial(struct tag_serialnr *serialnr)
  */
 static void parse_spl_header(const uint32_t spl_addr)
 {
-	struct boot_file_head *spl = (void *)(ulong)spl_addr;
-	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) != 0)
-		return; /* signature mismatch, no usable header */
+	struct boot_file_head *spl = get_spl_header(SPL_ENV_HEADER_VERSION);
 
-	uint8_t spl_header_version = spl->spl_signature[3];
-	if (spl_header_version != SPL_HEADER_VERSION) {
-		printf("sunxi SPL version mismatch: expected %u, got %u\n",
-		       SPL_HEADER_VERSION, spl_header_version);
+	if (spl == INVALID_SPL_HEADER)
 		return;
-	}
+
 	if (!spl->fel_script_address)
 		return;
 
@@ -806,11 +851,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	struct boot_file_head *spl = (void *)(ulong)SPL_ADDR;
-	const char *cmp_str = (void *)(ulong)SPL_ADDR;
+	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
+	const char *cmp_str = (const char *)spl;
 
 	/* Check if there is a DT name stored in the SPL header and use that. */
-	if (spl->dt_name_offset) {
+	if (spl != INVALID_SPL_HEADER && spl->dt_name_offset) {
 		cmp_str += spl->dt_name_offset;
 	} else {
 #ifdef CONFIG_DEFAULT_DEVICE_TREE
@@ -820,6 +865,7 @@ int board_fit_config_name_match(const char *name)
 #endif
 	};
 
+#ifdef CONFIG_PINE64_DT_SELECTION
 /* Differentiate the two Pine64 board DTs by their DRAM size. */
 	if (strstr(name, "-pine64") && strstr(cmp_str, "-pine64")) {
 		if ((gd->ram_size > 512 * 1024 * 1024))
@@ -829,5 +875,7 @@ int board_fit_config_name_match(const char *name)
 	} else {
 		return strcmp(name, cmp_str);
 	}
+#endif
+	return strcmp(name, cmp_str);
 }
 #endif

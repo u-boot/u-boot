@@ -317,6 +317,10 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	} else if (mask & DWMCI_INTMSK_RE) {
 		debug("%s: Response Error.\n", __func__);
 		return -EIO;
+	} else if ((cmd->resp_type & MMC_RSP_CRC) &&
+		   (mask & DWMCI_INTMSK_RCRC)) {
+		debug("%s: Response CRC Error.\n", __func__);
+		return -EIO;
 	}
 
 

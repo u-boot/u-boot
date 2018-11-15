@@ -110,9 +110,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FLASH_BASE_PHYS_EARLY	0x00000000
 
 #ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
 #endif

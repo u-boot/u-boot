@@ -49,7 +49,12 @@ static int match(struct tee_version_data *vers, const void *data)
 	return vers->gen_caps & TEE_GEN_CAP_GP;
 }
 
-static int dm_test_tee(struct unit_test_state *uts)
+struct test_tee_vars {
+	struct tee_shm *reg_shm;
+	struct tee_shm *alloc_shm;
+};
+
+static int test_tee(struct unit_test_state *uts, struct test_tee_vars *vars)
 {
 	struct tee_version_data vers;
 	struct udevice *dev;
@@ -57,8 +62,6 @@ static int dm_test_tee(struct unit_test_state *uts)
 	u32 session = 0;
 	int rc;
 	u8 data[128];
-	struct tee_shm *reg_shm;
-	struct tee_shm *alloc_shm;
 
 	dev = tee_find_device(NULL, match, NULL, &vers);
 	ut_assert(dev);
@@ -77,22 +80,36 @@ static int dm_test_tee(struct unit_test_state *uts)
 	ut_assert(!state->session);
 
 	ut_assert(!state->num_shms);
-	rc = tee_shm_register(dev, data, sizeof(data), 0, &reg_shm);
+	rc = tee_shm_register(dev, data, sizeof(data), 0, &vars->reg_shm);
 	ut_assert(!rc);
 	ut_assert(state->num_shms == 1);
 
-	rc = tee_shm_alloc(dev, 256, 0, &alloc_shm);
+	rc = tee_shm_alloc(dev, 256, 0, &vars->alloc_shm);
 	ut_assert(!rc);
 	ut_assert(state->num_shms == 2);
 
-	ut_assert(tee_shm_is_registered(reg_shm, dev));
-	ut_assert(tee_shm_is_registered(alloc_shm, dev));
+	ut_assert(tee_shm_is_registered(vars->reg_shm, dev));
+	ut_assert(tee_shm_is_registered(vars->alloc_shm, dev));
 
-	tee_shm_free(reg_shm);
-	tee_shm_free(alloc_shm);
+	tee_shm_free(vars->reg_shm);
+	vars->reg_shm = NULL;
+	tee_shm_free(vars->alloc_shm);
+	vars->alloc_shm = NULL;
 	ut_assert(!state->num_shms);
 
 	return 0;
+}
+
+static int dm_test_tee(struct unit_test_state *uts)
+{
+	struct test_tee_vars vars = { NULL, NULL };
+	int rc = test_tee(uts, &vars);
+
+	/* In case test_tee() asserts these may still remain allocated */
+	tee_shm_free(vars.reg_shm);
+	tee_shm_free(vars.alloc_shm);
+
+	return rc;
 }
 
 DM_TEST(dm_test_tee, DM_TESTF_SCAN_FDT);

@@ -426,14 +426,22 @@ static void enable_videopll(void)
 
 	setbits_le32(&ccm->analog_pll_video, BM_ANADIG_PLL_VIDEO_POWERDOWN);
 
-	/* set video pll to 910MHz (24MHz * (37+11/12))
-	* video pll post div to 910/4 = 227.5MHz
-	*/
+	/* PLL_VIDEO  455MHz (24MHz * (37+11/12) / 2)
+	 *   |
+	 * PLL5
+	 *   |
+	 * CS2CDR[LDB_DI0_CLK_SEL]
+	 *   |
+	 *   +----> LDB_DI0_SERIAL_CLK_ROOT
+	 *   |
+	 *   +--> CSCMR2[LDB_DI0_IPU_DIV] --> LDB_DI0_IPU  455 / 7 = 65 MHz
+	 */
+
 	clrsetbits_le32(&ccm->analog_pll_video,
 			BM_ANADIG_PLL_VIDEO_DIV_SELECT |
 			BM_ANADIG_PLL_VIDEO_POST_DIV_SELECT,
 			BF_ANADIG_PLL_VIDEO_DIV_SELECT(37) |
-			BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(0));
+			BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(1));
 
 	writel(BF_ANADIG_PLL_VIDEO_NUM_A(11), &ccm->analog_pll_video_num);
 	writel(BF_ANADIG_PLL_VIDEO_DENOM_B(12), &ccm->analog_pll_video_denom);
@@ -459,8 +467,8 @@ static void setup_display_b850v3(void)
 
 	enable_videopll();
 
-	/* IPU1 D0 clock is 227.5 / 3.5 = 65MHz */
-	clrbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
+	/* IPU1 DI0 clock is 455MHz / 7 = 65MHz */
+	setbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
 
 	imx_setup_hdmi();
 
@@ -507,7 +515,7 @@ static void setup_display_bx50v3(void)
 	 */
 	mdelay(200);
 
-	/* IPU1 DI0 clock is 480/7 = 68.5 MHz */
+	/* IPU1 DI0 clock is 455MHz / 7 = 65MHz */
 	setbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
 
 	/* Set LDB_DI0 as clock source for IPU_DI0 */
@@ -683,12 +691,8 @@ int board_early_init_f(void)
 	setup_iomux_uart();
 
 #if defined(CONFIG_VIDEO_IPUV3)
-	if (is_b850v3())
-		/* Set LDB clock to Video PLL */
-		select_ldb_di_clock_source(MXC_PLL5_CLK);
-	else
-		/* Set LDB clock to USB PLL */
-		select_ldb_di_clock_source(MXC_PLL3_SW_CLK);
+	/* Set LDB clock to Video PLL */
+	select_ldb_di_clock_source(MXC_PLL5_CLK);
 #endif
 	return 0;
 }
@@ -710,9 +714,9 @@ static void set_confidx(const struct vpd_cache* vpd)
 
 int board_init(void)
 {
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
-	setup_i2c(3, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
+	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
 
 	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
 
@@ -805,6 +809,8 @@ int board_late_init(void)
 
 	if (is_b850v3())
 		env_set("videoargs", "video=DP-1:1024x768@60 video=HDMI-A-1:1024x768@60");
+	else
+		env_set("videoargs", "video=LVDS-1:1024x768@65");
 
 	/* board specific pmic init */
 	pmic_init();

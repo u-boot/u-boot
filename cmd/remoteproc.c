@@ -120,7 +120,7 @@ static int do_remoteproc_load(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc != 4)
 		return CMD_RET_USAGE;
 
-	id = (int)simple_strtoul(argv[1], NULL, 3);
+	id = (int)simple_strtoul(argv[1], NULL, 10);
 	addr = simple_strtoul(argv[2], NULL, 16);
 
 	size = simple_strtoul(argv[3], NULL, 16);
@@ -163,7 +163,7 @@ static int do_remoteproc_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc != 2)
 		return CMD_RET_USAGE;
 
-	id = (int)simple_strtoul(argv[1], NULL, 3);
+	id = (int)simple_strtoul(argv[1], NULL, 10);
 
 	if (!rproc_is_initialized()) {
 		printf("\tRemote Processors are not initialized\n");

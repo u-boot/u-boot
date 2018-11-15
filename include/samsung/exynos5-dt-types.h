@@ -9,6 +9,7 @@ enum {
 	EXYNOS5_BOARD_ODROID_XU3_REV02,
 	EXYNOS5_BOARD_ODROID_XU4_REV01,
 	EXYNOS5_BOARD_ODROID_HC1_REV01,
+	EXYNOS5_BOARD_ODROID_HC2_REV01,
 	EXYNOS5_BOARD_ODROID_UNKNOWN,
 
 	EXYNOS5_BOARD_COUNT,
@@ -25,5 +26,6 @@ bool board_is_generic(void);
 bool board_is_odroidxu3(void);
 bool board_is_odroidxu4(void);
 bool board_is_odroidhc1(void);
+bool board_is_odroidhc2(void);
 
 #endif

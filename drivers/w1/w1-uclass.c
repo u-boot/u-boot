@@ -115,17 +115,19 @@ int w1_get_bus(int busnum, struct udevice **busp)
 	struct udevice *dev;
 
 	for (ret = uclass_first_device(UCLASS_W1, &dev);
-	     !ret;
-	     uclass_next_device(&dev), i++) {
-		if (ret) {
-			debug("Cannot find w1 bus %d\n", busnum);
-			return ret;
-		}
+	     dev && !ret;
+	     ret = uclass_next_device(&dev), i++) {
 		if (i == busnum) {
 			*busp = dev;
 			return 0;
 		}
 	}
+
+	if (!ret) {
+		debug("Cannot find w1 bus %d\n", busnum);
+		ret = -ENODEV;
+	}
+
 	return ret;
 }
 

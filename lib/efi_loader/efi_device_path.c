@@ -382,7 +382,6 @@ struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
 		*size = 0;
 	if (!dp || !*dp)
 		return NULL;
-	p = *dp;
 	sz = efi_dp_instance_size(*dp);
 	p = dp_alloc(sz + sizeof(END));
 	if (!p)

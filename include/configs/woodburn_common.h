@@ -110,7 +110,6 @@
 /*
  * MTD Command for mtdparts
  */
-#define CONFIG_FLASH_CFI_MTD
 
 /*
  * FLASH and environment organization
@@ -135,12 +134,8 @@
 /*
  * CFI FLASH driver setup
  */
-#define CONFIG_SYS_FLASH_CFI		/* Flash memory is CFI compliant */
-#define CONFIG_FLASH_CFI_DRIVER
 
 /* A non-standard buffered write algorithm */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	/* faster */
-#define CONFIG_SYS_FLASH_PROTECTION	/* Use hardware sector protection */
 
 /*
  * NAND FLASH driver setup

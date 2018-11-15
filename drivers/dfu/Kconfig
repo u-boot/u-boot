@@ -30,6 +30,7 @@ config DFU_MMC
 
 config DFU_NAND
 	bool "NAND back end for DFU"
+	depends on CMD_MTDPARTS
 	help
 	  This option enables using DFU to read and write to NAND based
 	  storage.

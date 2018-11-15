@@ -94,8 +94,6 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER			        /* use the CFI driver */
 #ifdef VME_CADDY2
 #define CONFIG_SYS_FLASH_BASE		0xffc00000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_SIZE		4		/* flash size in MB */
@@ -137,7 +135,6 @@
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_128MB)
 #endif
-/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
 #define CONFIG_SYS_WINDOW1_BASE		0xf0000000
 #define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_WINDOW1_BASE \

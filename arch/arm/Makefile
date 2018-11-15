@@ -106,7 +106,7 @@ ifneq (,$(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_MX35)$(filter $(SOC), mx25 mx5 mx6 
 libs-y += arch/arm/mach-imx/
 endif
 else
-ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx7 mx7ulp mx31 mx35 mxs mx8m vf610))
+ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx7 mx7ulp mx31 mx35 mxs mx8m imx8 vf610))
 libs-y += arch/arm/mach-imx/
 endif
 endif

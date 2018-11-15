@@ -1,5 +1,6 @@
 STM32MP1 BOARD
 M:	Patrick Delaunay <patrick.delaunay@st.com>
+L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
 S:	Maintained
 F:	board/st/stm32mp1
 F:	include/configs/stm32mp1.h

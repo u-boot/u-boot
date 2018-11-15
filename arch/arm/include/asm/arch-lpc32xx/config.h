@@ -60,10 +60,6 @@
 #endif	/* CONFIG_NAND_LPC32XX_SLC */
 
 /* NOR Flash */
-#if defined(CONFIG_SYS_FLASH_CFI)
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_PROTECTION
-#endif
 
 /* USB OHCI */
 #if defined(CONFIG_USB_OHCI_LPC32XX)

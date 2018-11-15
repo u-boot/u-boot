@@ -61,17 +61,11 @@
 
 /* NOR 16-bit mode */
 #define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
-#define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_SYS_FLASH_CFI_WIDTH FLASH_CFI_16BIT
-#define CONFIG_SYS_FLASH_CFI            /* Flash memory is CFI compliant */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* Use buffered writes*/
 #define CONFIG_SYS_FLASH_EMPTY_INFO
-#define CONFIG_FLASH_CFI_DRIVER         /* Use drivers/cfi_flash.c */
 #define CONFIG_FLASH_VERIFY
 
 /* NOR Flash MTD */
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_FLASH_CFI_MTD
 #define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 1
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ (CONFIG_SYS_FLASH_BASE) }
 #define CONFIG_SYS_FLASH_BANKS_SIZES	{ (32 * SZ_1M) }

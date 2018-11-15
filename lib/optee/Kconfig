@@ -10,21 +10,20 @@ config OPTEE
 config OPTEE_LOAD_ADDR
 	hex "OPTEE load address"
 	default 0x00000000
+	depends on OPTEE
 	help
 	  The load address of the bootable OPTEE binary.
 
 config OPTEE_TZDRAM_SIZE
 	hex "Amount of Trust-Zone RAM for the OPTEE image"
-	depends on OPTEE
-	default 0x3000000
+	default 0x0000000
 	help
 	  The size of pre-allocated Trust Zone DRAM to allocate for the OPTEE
 	  runtime.
 
 config OPTEE_TZDRAM_BASE
 	hex "Base address of Trust-Zone RAM for the OPTEE image"
-	depends on OPTEE
-	default 0x9d000000
+	default 0x00000000
 	help
 	  The base address of pre-allocated Trust Zone DRAM for
 	  the OPTEE runtime.
@@ -32,6 +31,7 @@ config OPTEE_TZDRAM_BASE
 config BOOTM_OPTEE
 	bool "Support OPTEE bootm command"
 	select BOOTM_LINUX
+	depends on OPTEE
 	default n
 	help
 	  Select this command to enable chain-loading of a Linux kernel

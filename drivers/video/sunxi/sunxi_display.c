@@ -460,7 +460,7 @@ static void sunxi_composer_init(void)
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_ENABLE);
 }
 
-static u32 sunxi_rgb2yuv_coef[12] = {
+static const u32 sunxi_rgb2yuv_coef[12] = {
 	0x00000107, 0x00000204, 0x00000064, 0x00000108,
 	0x00003f69, 0x00003ed6, 0x000001c1, 0x00000808,
 	0x000001c1, 0x00003e88, 0x00003fb8, 0x00000808

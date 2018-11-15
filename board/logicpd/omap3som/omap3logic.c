@@ -40,6 +40,22 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG1	0x00011203
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG2	0x000A1302
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG3	0x000F1302
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG4	0x0A021303
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG5	0x00120F18
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG6	0x0A030000
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG7	0x00000C50
+
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG1	0x00011203
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG2	0x00091102
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG3	0x000D1102
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG4	0x09021103
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG5	0x00100D15
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG6	0x09030000
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG7	0x00000C50
+
 /* This is only needed until SPL gets OF support */
 #ifdef CONFIG_SPL_BUILD
 static const struct ns16550_platdata omap3logic_serial = {
@@ -50,7 +66,7 @@ static const struct ns16550_platdata omap3logic_serial = {
 };
 
 U_BOOT_DEVICE(omap3logic_uart) = {
-	"ns16550_serial",
+	"omap_serial",
 	&omap3logic_serial
 };
 
@@ -63,7 +79,7 @@ static const struct omap_hsmmc_plat omap3_logic_mmc0_platdata = {
 	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
 
-U_BOOT_DEVICE(am335x_mmc0) = {
+U_BOOT_DEVICE(omap3_logic_mmc0) = {
 	.name = "omap_hsmmc",
 	.platdata = &omap3_logic_mmc0_platdata,
 };
@@ -89,11 +105,21 @@ int spl_start_uboot(void)
 void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
 	timings->mr = MICRON_V_MR_165;
-	/* 256MB DDR */
-	timings->mcfg = MICRON_V_MCFG_200(256 << 20);
-	timings->ctrla = MICRON_V_ACTIMA_200;
-	timings->ctrlb = MICRON_V_ACTIMB_200;
-	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+
+	if (get_cpu_family() == CPU_OMAP36XX) {
+		/* 200 MHz works for OMAP36/DM37 */
+		/* 256MB DDR */
+		timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_200;
+		timings->ctrlb = MICRON_V_ACTIMB_200;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+	} else {
+		/* 165 MHz works for OMAP35 */
+		timings->mcfg = MICRON_V_MCFG_165(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	}
 }
 
 #define GPMC_NAND_COMMAND_0 (OMAP34XX_GPMC_BASE + 0x7c)
@@ -138,6 +164,7 @@ void spl_board_prepare_for_linux(void)
 }
 #endif
 
+#if !CONFIG_IS_ENABLED(DM_USB)
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
 static struct musb_hdrc_config musb_config = {
 	.multipoint     = 1,
@@ -191,7 +218,7 @@ int ehci_hcd_stop(int index)
 }
 
 #endif /* CONFIG_USB_EHCI_HCD */
-
+#endif /* !DM_USB*/
 /*
  * Routine: misc_init_r
  * Description: Configure board specific parts
@@ -201,12 +228,35 @@ int misc_init_r(void)
 	twl4030_power_init();
 	omap_die_id_display();
 
+#if !CONFIG_IS_ENABLED(DM_USB)
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
 	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
 #endif
-
+#endif
 	return 0;
 }
+
+#if defined(CONFIG_FLASH_CFI_DRIVER)
+static const u32 gpmc_dm37_c2nor_config[] = {
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG1,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG2,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG3,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG4,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG5,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG6,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG7
+};
+
+static const u32 gpmc_omap35_c2nor_config[] = {
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG1,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG2,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG3,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG4,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG5,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG6,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG7
+};
+#endif
 
 /*
  * Routine: board_init
@@ -218,7 +268,16 @@ int board_init(void)
 
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
-
+#if defined(CONFIG_FLASH_CFI_DRIVER)
+	if (get_cpu_family() == CPU_OMAP36XX) {
+		/* Enable CS2 for NOR Flash */
+		enable_gpmc_cs_config(gpmc_dm37_c2nor_config, &gpmc_cfg->cs[2],
+				      0x10000000, GPMC_SIZE_64M);
+	} else {
+		enable_gpmc_cs_config(gpmc_omap35_c2nor_config, &gpmc_cfg->cs[2],
+				      0x10000000, GPMC_SIZE_64M);
+	}
+#endif
 	return 0;
 }
 

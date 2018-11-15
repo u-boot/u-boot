@@ -5,7 +5,7 @@
  * (C) Copyright 2013 Luke Kenneth Casson Leighton <lkcl@lkcl.net>
  *
  * Based on sun4i Linux kernel sources mach-sunxi/pm/standby/dram*.c
- * and earlier U-Boot Allwiner A10 SPL work
+ * and earlier U-Boot Allwinner A10 SPL work
  *
  * (C) Copyright 2007-2012
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>

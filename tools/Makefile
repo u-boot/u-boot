@@ -93,6 +93,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			common/image.o \
 			imagetool.o \
 			imximage.o \
+			imx8image.o \
 			kwbimage.o \
 			lib/md5.o \
 			lpc32xximage.o \

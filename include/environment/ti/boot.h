@@ -35,7 +35,6 @@
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=xloader,start=128K,size=256K,uuid=${uuid_gpt_xloader};" \
 	"name=bootloader,size=1792K,uuid=${uuid_gpt_bootloader};" \
-	"name=environment,size=128K,uuid=${uuid_gpt_environment};" \
 	"name=misc,size=128K,uuid=${uuid_gpt_misc};" \
 	"name=reserved,size=256K,uuid=${uuid_gpt_reserved};" \
 	"name=efs,size=16M,uuid=${uuid_gpt_efs};" \
@@ -92,11 +91,8 @@
 		"mmc dev $mmcdev; " \
 		"mmc rescan; " \
 		AVB_VERIFY_CHECK \
-		"part start mmc ${mmcdev} environment fdt_start; " \
-		"part size mmc ${mmcdev} environment fdt_size; " \
 		"part start mmc ${mmcdev} boot boot_start; " \
 		"part size mmc ${mmcdev} boot boot_size; " \
-		"mmc read ${fdtaddr} ${fdt_start} ${fdt_size}; " \
 		"mmc read ${loadaddr} ${boot_start} ${boot_size}; " \
 		"bootm ${loadaddr}#${fdtfile};\0 "
 
