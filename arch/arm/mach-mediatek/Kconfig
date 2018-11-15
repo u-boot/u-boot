@@ -9,6 +9,18 @@ config SYS_VENDOR
 choice
 	prompt "MediaTek board select"
 
+config TARGET_MT7623
+	bool "MediaTek MT7623 SoC"
+	select CPU_V7A
+	select ARCH_MISC_INIT
+	help
+	  The MediaTek MT7623 is a ARM-based SoC with a quad-core Cortex-A7
+	  including NEON and GPU, Mali-450 graphics, several DDR3 options,
+	  crypto engine, built-in Wi-Fi / Bluetooth combo chip, JPEG decoder,
+	  video interfaces supporting HDMI and MIPI, and video codec support.
+	  Peripherals include Gigabit Ethernet, switch, USB3.0 and OTG, PCIe,
+	  I2S, PCM, S/PDIF, UART, SPI, I2C, IR TX/RX, and PWM.
+
 config TARGET_MT7629
 	bool "MediaTek MT7629 SoC"
 	select CPU_V7A
@@ -21,6 +33,7 @@ config TARGET_MT7629
 
 endchoice
 
+source "board/mediatek/mt7623/Kconfig"
 source "board/mediatek/mt7629/Kconfig"
 
 endif
