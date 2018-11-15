@@ -560,68 +560,71 @@ static ulong tmio_sd_clk_get_rate(struct tmio_sd_priv *priv)
 	return priv->clk_get_rate(priv);
 }
 
-static void tmio_sd_set_clk_rate(struct tmio_sd_priv *priv,
-				     struct mmc *mmc)
+static void tmio_sd_set_clk_rate(struct tmio_sd_priv *priv, struct mmc *mmc)
 {
 	unsigned int divisor;
-	u32 val, tmp;
+	u32 tmp, val = 0;
 	ulong mclk;
 
-	if (!mmc->clock)
-		return;
+	if (mmc->clock) {
+		mclk = tmio_sd_clk_get_rate(priv);
 
-	mclk = tmio_sd_clk_get_rate(priv);
+		divisor = DIV_ROUND_UP(mclk, mmc->clock);
 
-	divisor = DIV_ROUND_UP(mclk, mmc->clock);
+		/* Do not set divider to 0xff in DDR mode */
+		if (mmc->ddr_mode && (divisor == 1))
+			divisor = 2;
 
-	/* Do not set divider to 0xff in DDR mode */
-	if (mmc->ddr_mode && (divisor == 1))
-		divisor = 2;
-
-	if (divisor <= 1)
-		val = (priv->caps & TMIO_SD_CAP_RCAR) ?
-		      TMIO_SD_CLKCTL_RCAR_DIV1 : TMIO_SD_CLKCTL_DIV1;
-	else if (divisor <= 2)
-		val = TMIO_SD_CLKCTL_DIV2;
-	else if (divisor <= 4)
-		val = TMIO_SD_CLKCTL_DIV4;
-	else if (divisor <= 8)
-		val = TMIO_SD_CLKCTL_DIV8;
-	else if (divisor <= 16)
-		val = TMIO_SD_CLKCTL_DIV16;
-	else if (divisor <= 32)
-		val = TMIO_SD_CLKCTL_DIV32;
-	else if (divisor <= 64)
-		val = TMIO_SD_CLKCTL_DIV64;
-	else if (divisor <= 128)
-		val = TMIO_SD_CLKCTL_DIV128;
-	else if (divisor <= 256)
-		val = TMIO_SD_CLKCTL_DIV256;
-	else if (divisor <= 512 || !(priv->caps & TMIO_SD_CAP_DIV1024))
-		val = TMIO_SD_CLKCTL_DIV512;
-	else
-		val = TMIO_SD_CLKCTL_DIV1024;
+		if (divisor <= 1)
+			val = (priv->caps & TMIO_SD_CAP_RCAR) ?
+			      TMIO_SD_CLKCTL_RCAR_DIV1 : TMIO_SD_CLKCTL_DIV1;
+		else if (divisor <= 2)
+			val = TMIO_SD_CLKCTL_DIV2;
+		else if (divisor <= 4)
+			val = TMIO_SD_CLKCTL_DIV4;
+		else if (divisor <= 8)
+			val = TMIO_SD_CLKCTL_DIV8;
+		else if (divisor <= 16)
+			val = TMIO_SD_CLKCTL_DIV16;
+		else if (divisor <= 32)
+			val = TMIO_SD_CLKCTL_DIV32;
+		else if (divisor <= 64)
+			val = TMIO_SD_CLKCTL_DIV64;
+		else if (divisor <= 128)
+			val = TMIO_SD_CLKCTL_DIV128;
+		else if (divisor <= 256)
+			val = TMIO_SD_CLKCTL_DIV256;
+		else if (divisor <= 512 || !(priv->caps & TMIO_SD_CAP_DIV1024))
+			val = TMIO_SD_CLKCTL_DIV512;
+		else
+			val = TMIO_SD_CLKCTL_DIV1024;
+	}
 
 	tmp = tmio_sd_readl(priv, TMIO_SD_CLKCTL);
-	if (tmp & TMIO_SD_CLKCTL_SCLKEN &&
-	    (tmp & TMIO_SD_CLKCTL_DIV_MASK) == val)
-		return;
+	if (mmc->clock &&
+	    !((tmp & TMIO_SD_CLKCTL_SCLKEN) &&
+	      ((tmp & TMIO_SD_CLKCTL_DIV_MASK) == val))) {
+		/*
+		 * Stop the clock before changing its rate
+		 * to avoid a glitch signal
+		 */
+		tmp &= ~TMIO_SD_CLKCTL_SCLKEN;
+		tmio_sd_writel(priv, tmp, TMIO_SD_CLKCTL);
 
-	/* stop the clock before changing its rate to avoid a glitch signal */
-	tmp &= ~TMIO_SD_CLKCTL_SCLKEN;
-	tmio_sd_writel(priv, tmp, TMIO_SD_CLKCTL);
+		/* Change the clock rate. */
+		tmp &= ~TMIO_SD_CLKCTL_DIV_MASK;
+		tmp |= val;
+	}
 
-	tmp &= ~TMIO_SD_CLKCTL_DIV_MASK;
-	tmp |= val;
-	tmio_sd_writel(priv, tmp, TMIO_SD_CLKCTL);
-
-	if (!mmc->clk_disable) {
-		tmp &= ~TMIO_SD_CLKCTL_OFFEN;
-		tmp |= TMIO_SD_CLKCTL_SCLKEN;
-	} else {
+	/* Enable or Disable the clock */
+	if (mmc->clk_disable) {
 		tmp |= TMIO_SD_CLKCTL_OFFEN;
 		tmp &= ~TMIO_SD_CLKCTL_SCLKEN;
+	} else {
+		tmp &= ~TMIO_SD_CLKCTL_OFFEN;
+		tmp |= TMIO_SD_CLKCTL_SCLKEN;
 	}
+
 	tmio_sd_writel(priv, tmp, TMIO_SD_CLKCTL);
 
 	udelay(1000);
