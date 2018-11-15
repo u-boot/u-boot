@@ -106,9 +106,14 @@ int regulator_get_enable(struct udevice *dev)
 int regulator_set_enable(struct udevice *dev, bool enable)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
+	struct dm_regulator_uclass_platdata *uc_pdata;
 
 	if (!ops || !ops->set_enable)
 		return -ENOSYS;
+
+	uc_pdata = dev_get_uclass_platdata(dev);
+	if (!enable && uc_pdata->always_on)
+		return -EACCES;
 
 	return ops->set_enable(dev, enable);
 }
