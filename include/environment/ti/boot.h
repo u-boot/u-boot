@@ -34,9 +34,9 @@
 	"partitions_android=" \
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=xloader,start=128K,size=256K,uuid=${uuid_gpt_xloader};" \
-	"name=bootloader,size=1792K,uuid=${uuid_gpt_bootloader};" \
+	"name=bootloader,size=2048K,uuid=${uuid_gpt_bootloader};" \
+	"name=reserved,start=2432K,size=256K,uuid=${uuid_gpt_reserved};" \
 	"name=misc,size=128K,uuid=${uuid_gpt_misc};" \
-	"name=reserved,size=256K,uuid=${uuid_gpt_reserved};" \
 	"name=efs,size=16M,uuid=${uuid_gpt_efs};" \
 	"name=crypto,size=16K,uuid=${uuid_gpt_crypto};" \
 	"name=recovery,size=40M,uuid=${uuid_gpt_recovery};" \
