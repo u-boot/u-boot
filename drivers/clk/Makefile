@@ -10,6 +10,7 @@ obj-y += imx/
 obj-y += tegra/
 obj-$(CONFIG_ARCH_ASPEED) += aspeed/
 obj-$(CONFIG_ARCH_MESON) += clk_meson.o
+obj-$(CONFIG_ARCH_MEDIATEK) += mediatek/
 obj-$(CONFIG_ARCH_ROCKCHIP) += rockchip/
 obj-$(CONFIG_ARCH_SOCFPGA) += altera/
 obj-$(CONFIG_CLK_AT91) += at91/
