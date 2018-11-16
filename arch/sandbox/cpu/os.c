@@ -576,10 +576,10 @@ static int make_exec(char *fname, const void *data, int size)
  */
 static int add_args(char ***argvp, char *add_args[], int count)
 {
-	char **argv;
+	char **argv, **ap;
 	int argc;
 
-	for (argv = *argvp, argc = 0; (*argvp)[argc]; argc++)
+	for (argc = 0; (*argvp)[argc]; argc++)
 		;
 
 	argv = os_malloc((argc + count + 1) * sizeof(char *));
@@ -587,7 +587,24 @@ static int add_args(char ***argvp, char *add_args[], int count)
 		printf("Out of memory for %d argv\n", count);
 		return -ENOMEM;
 	}
-	memcpy(argv, *argvp, argc * sizeof(char *));
+	for (ap = *argvp, argc = 0; *ap; ap++) {
+		char *arg = *ap;
+
+		/* Drop args that we don't want to propagate */
+		if (*arg == '-' && strlen(arg) == 2) {
+			switch (arg[1]) {
+			case 'j':
+			case 'm':
+				ap++;
+				continue;
+			}
+		} else if (!strcmp(arg, "--rm_memory")) {
+			ap++;
+			continue;
+		}
+		argv[argc++] = arg;
+	}
+
 	memcpy(argv + argc, add_args, count * sizeof(char *));
 	argv[argc + count] = NULL;
 
@@ -611,6 +628,7 @@ static int os_jump_to_file(const char *fname)
 	int fd, err;
 	char *extra_args[5];
 	char **argv = state->argv;
+	int argc;
 #ifdef DEBUG
 	int i;
 #endif
@@ -630,11 +648,13 @@ static int os_jump_to_file(const char *fname)
 	extra_args[1] = (char *)fname;
 	extra_args[2] = "-m";
 	extra_args[3] = mem_fname;
-	extra_args[4] = "--rm_memory";
-	err = add_args(&argv, extra_args,
-		       sizeof(extra_args) / sizeof(extra_args[0]));
+	argc = 4;
+	if (state->ram_buf_rm)
+		extra_args[argc++] = "--rm_memory";
+	err = add_args(&argv, extra_args, argc);
 	if (err)
 		return err;
+	argv[0] = (char *)fname;
 
 #ifdef DEBUG
 	for (i = 0; argv[i]; i++)
