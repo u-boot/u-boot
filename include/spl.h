@@ -21,6 +21,33 @@
 #define MMCSD_MODE_FS		2
 #define MMCSD_MODE_EMMCBOOT	3
 
+/*
+ * u_boot_first_phase() - check if this is the first U-Boot phase
+ *
+ * U-Boot has up to three phases: TPL, SPL and U-Boot proper. Depending on the
+ * build flags we can determine whether the current build is for the first
+ * phase of U-Boot or not. If there is no SPL, then this is U-Boot proper. If
+ * there is SPL but no TPL, the the first phase is SPL. If there is TPL, then
+ * it is the first phase.
+ *
+ * @returns true if this is the first phase of U-Boot
+ *
+ */
+static inline bool u_boot_first_phase(void)
+{
+	if (IS_ENABLED(CONFIG_TPL)) {
+		if (IS_ENABLED(CONFIG_TPL_BUILD))
+			return true;
+	} else if (IS_ENABLED(CONFIG_SPL)) {
+		if (IS_ENABLED(CONFIG_SPL_BUILD))
+			return true;
+	} else {
+		return true;
+	}
+
+	return false;
+}
+
 struct spl_image_info {
 	const char *name;
 	u8 os;

@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <bloblist.h>
 #include <binman_sym.h>
 #include <dm.h>
 #include <spl.h>
@@ -343,6 +344,14 @@ static int spl_common_init(bool setup_malloc)
 		return ret;
 	}
 #endif
+	if (CONFIG_IS_ENABLED(BLOBLIST)) {
+		ret = bloblist_init();
+		if (ret) {
+			debug("%s: Failed to set up bloblist: ret=%d\n",
+			      __func__, ret);
+			return ret;
+		}
+	}
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = fdtdec_setup();
 		if (ret) {
@@ -481,6 +490,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		BOOT_DEVICE_NONE,
 	};
 	struct spl_image_info spl_image;
+	int ret;
 
 	debug(">>spl:board_init_r()\n");
 
@@ -527,6 +537,12 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	}
 
 	spl_perform_fixups(&spl_image);
+	if (CONFIG_IS_ENABLED(BLOBLIST)) {
+		ret = bloblist_finish();
+		if (ret)
+			printf("Warning: Failed to finish bloblist (ret=%d)\n",
+			       ret);
+	}
 
 #ifdef CONFIG_CPU_V7M
 	spl_image.entry_point |= 0x1;
@@ -563,8 +579,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	      gd->malloc_ptr / 1024);
 #endif
 #ifdef CONFIG_BOOTSTAGE_STASH
-	int ret;
-
 	bootstage_mark_name(BOOTSTAGE_ID_END_SPL, "end_spl");
 	ret = bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			      CONFIG_BOOTSTAGE_STASH_SIZE);
