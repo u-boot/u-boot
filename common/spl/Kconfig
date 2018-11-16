@@ -295,6 +295,16 @@ config SPL_HASH_SUPPORT
 	  this option to build system-specific drivers for hash acceleration
 	  as part of an SPL build.
 
+config TPL_HASH_SUPPORT
+	bool "Support hashing drivers in TPL"
+	select SHA1
+	select SHA256
+	help
+	  Enable hashing drivers in SPL. These drivers can be used to
+	  accelerate secure boot processing in secure applications. Enable
+	  this option to build system-specific drivers for hash acceleration
+	  as part of an SPL build.
+
 config SPL_DMA_SUPPORT
 	bool "Support DMA drivers"
 	help
@@ -376,7 +386,7 @@ config SPL_FPGA_SUPPORT
 	  within SPL.
 
 config SPL_GPIO_SUPPORT
-	bool "Support GPIO"
+	bool "Support GPIO in SPL"
 	help
 	  Enable support for GPIOs (General-purpose Input/Output) in SPL.
 	  GPIOs allow U-Boot to read the state of an input line (high or
@@ -928,6 +938,17 @@ config TPL_ENV_SUPPORT
 	help
 	  Enable environment support in TPL. See SPL_ENV_SUPPORT for details.
 
+config TPL_GPIO_SUPPORT
+	bool "Support GPIO in TPL"
+	help
+	  Enable support for GPIOs (General-purpose Input/Output) in TPL.
+	  GPIOs allow U-Boot to read the state of an input line (high or
+	  low) and set the state of an output line. This can be used to
+	  drive LEDs, control power to various system parts and read user
+	  input. GPIOs can be useful in TPL to enable a 'sign-of-life' LED,
+	  for example. Enable this option to build the drivers in
+	  drivers/gpio as part of an TPL build.
+
 config TPL_I2C_SUPPORT
 	bool "Support I2C"
 	help
@@ -963,6 +984,22 @@ config TPL_NAND_SUPPORT
 	help
 	  Enable support for NAND in TPL. See SPL_NAND_SUPPORT for details.
 
+config TPL_PCI_SUPPORT
+	bool "Support PCI drivers"
+	help
+	  Enable support for PCI in TPL. For platforms that need PCI to boot,
+	  or must perform some init using PCI in SPL, this provides the
+	  necessary driver support. This enables the drivers in drivers/pci
+	  as part of a TPL build.
+
+config TPL_PCH_SUPPORT
+	bool "Support PCH drivers"
+	help
+	  Enable support for PCH (Platform Controller Hub) devices in TPL.
+	  These are used to set up GPIOs and the SPI peripheral early in
+	  boot. This enables the drivers in drivers/pch as part of a TPL
+	  build.
+
 config TPL_RAM_SUPPORT
 	bool "Support booting from RAM"
 	help
@@ -976,6 +1013,15 @@ config TPL_RAM_DEVICE
 	  Enable booting of an image already loaded in RAM. The image has to
 	  be already in memory when TPL takes over, e.g. loaded by the boot
 	  ROM.
+
+config TPL_RTC_SUPPORT
+	bool "Support RTC drivers"
+	help
+	  Enable RTC (Real-time Clock) support in TPL. This includes support
+	  for reading and setting the time. Some RTC devices also have some
+	  non-volatile (battery-backed) memory which is accessible if
+	  needed. This enables the drivers in drivers/rtc as part of an TPL
+	  build.
 
 config TPL_SERIAL_SUPPORT
 	bool "Support serial"
