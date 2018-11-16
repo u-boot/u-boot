@@ -563,7 +563,18 @@ static int make_exec(char *fname, const void *data, int size)
 	return 0;
 }
 
-static int add_args(char ***argvp, const char *add_args[], int count)
+/**
+ * add_args() - Allocate a new argv with the given args
+ *
+ * This is used to create a new argv array with all the old arguments and some
+ * new ones that are passed in
+ *
+ * @argvp:  Returns newly allocated args list
+ * @add_args: Arguments to add, each a string
+ * @count: Number of arguments in @add_args
+ * @return 0 if OK, -ENOMEM if out of memory
+ */
+static int add_args(char ***argvp, char *add_args[], int count)
 {
 	char **argv;
 	int argc;
@@ -584,20 +595,25 @@ static int add_args(char ***argvp, const char *add_args[], int count)
 	return 0;
 }
 
-int os_jump_to_image(const void *dest, int size)
+/**
+ * os_jump_to_file() - Jump to a new program
+ *
+ * This saves the memory buffer, sets up arguments to the new process, then
+ * execs it.
+ *
+ * @fname: Filename to exec
+ * @return does not return on success, any return value is an error
+ */
+static int os_jump_to_file(const char *fname)
 {
 	struct sandbox_state *state = state_get_current();
-	char fname[30], mem_fname[30];
+	char mem_fname[30];
 	int fd, err;
-	const char *extra_args[5];
+	char *extra_args[5];
 	char **argv = state->argv;
 #ifdef DEBUG
-	int argc, i;
+	int i;
 #endif
-
-	err = make_exec(fname, dest, size);
-	if (err)
-		return err;
 
 	strcpy(mem_fname, "/tmp/u-boot.mem.XXXXXX");
 	fd = mkstemp(mem_fname);
@@ -611,7 +627,7 @@ int os_jump_to_image(const void *dest, int size)
 	os_fd_restore();
 
 	extra_args[0] = "-j";
-	extra_args[1] = fname;
+	extra_args[1] = (char *)fname;
 	extra_args[2] = "-m";
 	extra_args[3] = mem_fname;
 	extra_args[4] = "--rm_memory";
@@ -634,6 +650,18 @@ int os_jump_to_image(const void *dest, int size)
 		return err;
 
 	return unlink(fname);
+}
+
+int os_jump_to_image(const void *dest, int size)
+{
+	char fname[30];
+	int err;
+
+	err = make_exec(fname, dest, size);
+	if (err)
+		return err;
+
+	return os_jump_to_file(fname);
 }
 
 int os_find_u_boot(char *fname, int maxlen)
