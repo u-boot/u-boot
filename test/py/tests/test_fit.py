@@ -99,15 +99,15 @@ base_fdt = '''
 # then run the 'bootm' command, then save out memory from the places where
 # we expect 'bootm' to write things. Then quit.
 base_script = '''
-sb load hostfs 0 %(fit_addr)x %(fit)s
+host load hostfs 0 %(fit_addr)x %(fit)s
 fdt addr %(fit_addr)x
 bootm start %(fit_addr)x
 bootm loados
-sb save hostfs 0 %(kernel_addr)x %(kernel_out)s %(kernel_size)x
-sb save hostfs 0 %(fdt_addr)x %(fdt_out)s %(fdt_size)x
-sb save hostfs 0 %(ramdisk_addr)x %(ramdisk_out)s %(ramdisk_size)x
-sb save hostfs 0 %(loadables1_addr)x %(loadables1_out)s %(loadables1_size)x
-sb save hostfs 0 %(loadables2_addr)x %(loadables2_out)s %(loadables2_size)x
+host save hostfs 0 %(kernel_addr)x %(kernel_out)s %(kernel_size)x
+host save hostfs 0 %(fdt_addr)x %(fdt_out)s %(fdt_size)x
+host save hostfs 0 %(ramdisk_addr)x %(ramdisk_out)s %(ramdisk_size)x
+host save hostfs 0 %(loadables1_addr)x %(loadables1_out)s %(loadables1_size)x
+host save hostfs 0 %(loadables2_addr)x %(loadables2_out)s %(loadables2_size)x
 '''
 
 @pytest.mark.boardspec('sandbox')

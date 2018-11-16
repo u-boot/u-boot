@@ -74,7 +74,7 @@ def test_vboot(u_boot_console):
         cons.restart_uboot()
         with cons.log.section('Verified boot %s %s' % (sha_algo, test_type)):
             output = cons.run_command_list(
-                ['sb load hostfs - 100 %stest.fit' % tmpdir,
+                ['host load hostfs - 100 %stest.fit' % tmpdir,
                 'fdt addr 100',
                 'bootm 100'])
         assert(expect_string in ''.join(output))

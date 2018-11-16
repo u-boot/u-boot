@@ -168,11 +168,6 @@ static int do_host(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(
-	sb,	8,	1,	do_host,
-	"Deprecated: use 'host' command instead.", ""
-);
-
-U_BOOT_CMD(
 	host, 8, 1, do_host,
 	"Miscellaneous host commands",
 	"load hostfs - <addr> <filename> [<bytes> <offset>]  - "
