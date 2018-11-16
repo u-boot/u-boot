@@ -10,6 +10,7 @@
 #include <bloblist.h>
 #include <binman_sym.h>
 #include <dm.h>
+#include <handoff.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <nand.h>
@@ -45,6 +46,14 @@ static bd_t bdata __attribute__ ((section(".data")));
  */
 __weak void show_boot_progress(int val) {}
 
+#if defined(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF)
+/* weak, default platform-specific function to initialize dram banks */
+__weak int dram_init_banksize(void)
+{
+	return 0;
+}
+#endif
+
 /*
  * Default function to determine if u-boot or the OS should
  * be started. This implementation always returns 1.
@@ -62,14 +71,6 @@ __weak int spl_start_uboot(void)
 	     "Please implement spl_start_uboot() for your board\n");
 	puts(SPL_TPL_PROMPT "Direct Linux boot not active!\n");
 	return 1;
-}
-
-/* weak default platform specific function to initialize
- * dram banks
- */
-__weak int dram_init_banksize(void)
-{
-	return 0;
 }
 
 /*
@@ -320,6 +321,44 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	image_entry();
 }
 
+#if CONFIG_IS_ENABLED(HANDOFF)
+/**
+ * Set up the SPL hand-off information
+ *
+ * This is initially empty (zero) but can be written by
+ */
+static int setup_spl_handoff(void)
+{
+	struct spl_handoff *ho;
+
+	ho = bloblist_ensure(BLOBLISTT_SPL_HANDOFF, sizeof(struct spl_handoff));
+	if (!ho)
+		return -ENOENT;
+
+	return 0;
+}
+
+static int write_spl_handoff(void)
+{
+	struct spl_handoff *ho;
+
+	ho = bloblist_find(BLOBLISTT_SPL_HANDOFF, sizeof(struct spl_handoff));
+	if (!ho)
+		return -ENOENT;
+	handoff_save_dram(ho);
+#ifdef CONFIG_SANDBOX
+	ho->arch.magic = TEST_HANDOFF_MAGIC;
+#endif
+	debug(SPL_TPL_PROMPT "Wrote SPL handoff\n");
+
+	return 0;
+}
+#else
+static inline int setup_spl_handoff(void) { return 0; }
+static inline int write_spl_handoff(void) { return 0; }
+
+#endif /* HANDOFF */
+
 static int spl_common_init(bool setup_malloc)
 {
 	int ret;
@@ -353,6 +392,15 @@ static int spl_common_init(bool setup_malloc)
 			debug("%s: Failed to set up bloblist: ret=%d\n",
 			      __func__, ret);
 			return ret;
+		}
+	}
+	if (CONFIG_IS_ENABLED(HANDOFF)) {
+		int ret;
+
+		ret = setup_spl_handoff();
+		if (ret) {
+			puts(SPL_TPL_PROMPT "Cannot set up SPL handoff\n");
+			hang();
 		}
 	}
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
@@ -503,10 +551,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 
 	spl_set_bd();
 
-#ifdef CONFIG_SPL_OS_BOOT
-	dram_init_banksize();
-#endif
-
 #if defined(CONFIG_SYS_SPL_MALLOC_START)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
 			CONFIG_SYS_SPL_MALLOC_SIZE);
@@ -528,6 +572,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_board_init();
 #endif
 
+	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF))
+		dram_init_banksize();
+
 	bootcount_inc();
 
 	memset(&spl_image, '\0', sizeof(spl_image));
@@ -544,6 +591,12 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	}
 
 	spl_perform_fixups(&spl_image);
+	if (CONFIG_IS_ENABLED(HANDOFF)) {
+		ret = write_spl_handoff();
+		if (ret)
+			printf(SPL_TPL_PROMPT
+			       "SPL hand-off write failed (err=%d)\n", ret);
+	}
 	if (CONFIG_IS_ENABLED(BLOBLIST)) {
 		ret = bloblist_finish();
 		if (ret)

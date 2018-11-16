@@ -25,6 +25,9 @@
 #include <post.h>
 #include <relocate.h>
 #include <spi.h>
+#ifdef CONFIG_SPL
+#include <spl.h>
+#endif
 #include <status_led.h>
 #include <sysreset.h>
 #include <timer.h>
@@ -283,6 +286,17 @@ static int setup_mon_len(void)
 	/* TODO: use (ulong)&__bss_end - (ulong)&__text_start; ? */
 	gd->mon_len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
 #endif
+	return 0;
+}
+
+static int setup_spl_handoff(void)
+{
+#if CONFIG_IS_ENABLED(HANDOFF)
+	gd->spl_handoff = bloblist_find(BLOBLISTT_SPL_HANDOFF,
+					sizeof(struct spl_handoff));
+	debug("Found SPL hand-off info %p\n", gd->spl_handoff);
+#endif
+
 	return 0;
 }
 
@@ -845,6 +859,7 @@ static const init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_BLOBLIST
 	bloblist_init,
 #endif
+	setup_spl_handoff,
 	initf_console_record,
 #if defined(CONFIG_HAVE_FSP)
 	arch_fsp_init,

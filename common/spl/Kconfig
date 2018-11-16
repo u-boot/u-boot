@@ -25,7 +25,27 @@ config SPL_FRAMEWORK
 	  supports MMC, NAND and YMODEM and other methods loading of U-Boot
 	  and the Linux Kernel.  If unsure, say Y.
 
+config HANDOFF
+	bool "Pass hand-off information from SPL to U-Boot proper"
+	depends on BLOBLIST
+	help
+	  It is useful to be able to pass information from SPL to U-Boot
+	  proper to preserve state that is known in SPL and is needed in U-Boot.
+	  Enable this to locate the handoff information in U-Boot proper, early
+	  in boot. It is available in gd->handoff. The state state is set up
+	  in SPL (or TPL if that is being used).
+
 if SPL
+
+config SPL_HANDOFF
+	bool "Pass hand-off information from SPL to U-Boot proper"
+	depends on HANDOFF
+	default y
+	help
+	  This option enables SPL to write handoff information. This can be
+	  used to pass information like the size of SDRAM from SPL to U-Boot
+	  proper. Also SPL can receive information from TPL in the same place
+	  if that is enabled.
 
 config SPL_LDSCRIPT
 	string "Linker script for the SPL stage"
@@ -866,6 +886,16 @@ config TPL
 	  If you want to build TPL as well as the normal image and SPL, say Y.
 
 if TPL
+
+config TPL_HANDOFF
+	bool "Pass hand-off information from TPL to SPL and U-Boot proper"
+	depends on HANDOFF
+	default y
+	help
+	  This option enables TPL to write handoff information. This can be
+	  used to pass information like the size of SDRAM from TPL to U-Boot
+	  proper. The information is also available to SPL if it is useful
+	  there.
 
 config TPL_BOARD_INIT
 	bool "Call board-specific initialization in TPL"

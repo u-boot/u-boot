@@ -11,6 +11,7 @@
 /* Platform-specific defines */
 #include <linux/compiler.h>
 #include <asm/spl.h>
+#include <handoff.h>
 
 /* Value in r0 indicates we booted from U-Boot */
 #define UBOOT_NOT_LOADED_FROM_SPL	0x13578642

@@ -125,6 +125,9 @@ typedef struct global_data {
 #if CONFIG_IS_ENABLED(BLOBLIST)
 	struct bloblist_hdr *bloblist;	/* Bloblist information */
 	struct bloblist_hdr *new_bloblist;	/* Relocated blolist info */
+# ifdef CONFIG_SPL
+	struct spl_handoff *spl_handoff;
+# endif
 #endif
 } gd_t;
 #endif
