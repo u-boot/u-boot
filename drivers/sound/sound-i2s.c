@@ -185,7 +185,8 @@ int sound_play(uint32_t msec, uint32_t frequency)
 		return -1;
 	}
 
-	sound_create_square_wave((unsigned short *)data,
+	sound_create_square_wave(g_i2stx_pri.samplingrate,
+				 (unsigned short *)data,
 				 data_size / sizeof(unsigned short),
 				 frequency);
 

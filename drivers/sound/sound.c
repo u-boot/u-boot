@@ -7,11 +7,11 @@
 #include <common.h>
 #include <sound.h>
 
-void sound_create_square_wave(unsigned short *data, int size, uint32_t freq)
+void sound_create_square_wave(uint sample_rate, unsigned short *data, int size,
+			      uint freq)
 {
-	const int sample = 48000;
 	const unsigned short amplitude = 16000; /* between 1 and 32767 */
-	const int period = freq ? sample / freq : 0;
+	const int period = freq ? sample_rate / freq : 0;
 	const int half = period / 2;
 
 	assert(freq);

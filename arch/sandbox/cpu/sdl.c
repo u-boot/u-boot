@@ -322,7 +322,7 @@ int sandbox_sdl_sound_start(uint frequency)
 	if (!sdl.audio_active)
 		return -1;
 	sdl.frequency = frequency;
-	sound_create_square_wave((unsigned short *)sdl.audio_data,
+	sound_create_square_wave(22050, (unsigned short *)sdl.audio_data,
 				 sdl.audio_size, frequency);
 	sdl.audio_pos = 0;
 	SDL_PauseAudio(0);
