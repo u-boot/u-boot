@@ -122,6 +122,10 @@ typedef struct global_data {
 	struct list_head log_head;	/* List of struct log_device */
 	int log_fmt;			/* Mask containing log format info */
 #endif
+#if CONFIG_IS_ENABLED(BLOBLIST)
+	struct bloblist_hdr *bloblist;	/* Bloblist information */
+	struct bloblist_hdr *new_bloblist;	/* Relocated blolist info */
+#endif
 } gd_t;
 #endif
 
