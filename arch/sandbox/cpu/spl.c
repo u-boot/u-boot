@@ -37,8 +37,12 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 		return ret;
 	}
 
-	/* Hopefully this will not return */
-	return os_spl_to_uboot(fname);
+	/* Set up spl_image to boot from jump_to_image_no_args() */
+	spl_image->arg = strdup(fname);
+	if (!spl_image->arg)
+		return log_msg_ret("Setup exec filename", -ENOMEM);
+
+	return 0;
 }
 SPL_LOAD_IMAGE_METHOD("sandbox", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
 
@@ -59,4 +63,13 @@ void spl_board_init(void)
 		     uclass_next_device(&dev))
 			;
 	}
+}
+
+void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+{
+	const char *fname = spl_image->arg;
+
+	os_fd_restore();
+	os_spl_to_uboot(fname);
+	hang();
 }

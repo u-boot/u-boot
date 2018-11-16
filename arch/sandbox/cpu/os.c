@@ -666,8 +666,11 @@ static int os_jump_to_file(const char *fname)
 
 	err = execv(fname, argv);
 	os_free(argv);
-	if (err)
+	if (err) {
+		perror("Unable to run image");
+		printf("Image filename '%s'\n", mem_fname);
 		return err;
+	}
 
 	return unlink(fname);
 }
@@ -747,17 +750,7 @@ int os_find_u_boot(char *fname, int maxlen)
 
 int os_spl_to_uboot(const char *fname)
 {
-	struct sandbox_state *state = state_get_current();
-	char *argv[state->argc + 1];
-	int ret;
-
-	memcpy(argv, state->argv, sizeof(char *) * (state->argc + 1));
-	argv[0] = (char *)fname;
-	ret = execv(fname, argv);
-	if (ret)
-		return ret;
-
-	return unlink(fname);
+	return os_jump_to_file(fname);
 }
 
 void os_localtime(struct rtc_time *rt)
