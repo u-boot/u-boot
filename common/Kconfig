@@ -299,6 +299,10 @@ config SPL_LOGLEVEL
 	int
 	default LOGLEVEL
 
+config TPL_LOGLEVEL
+	int
+	default LOGLEVEL
+
 config SILENT_CONSOLE
 	bool "Support a silent console"
 	help
@@ -505,6 +509,24 @@ config SPL_LOG_MAX_LEVEL
 	    6 - detail
 	    7 - debug
 
+config TPL_LOG_MAX_LEVEL
+	int "Maximum log level to record in TPL"
+	depends on TPL_LOG
+	default 3
+	help
+	  This selects the maximum log level that will be recorded. Any value
+	  higher than this will be ignored. If possible log statements below
+	  this level will be discarded at build time. Levels:
+
+	    0 - panic
+	    1 - critical
+	    2 - error
+	    3 - warning
+	    4 - note
+	    5 - info
+	    6 - detail
+	    7 - debug
+
 config LOG_CONSOLE
 	bool "Allow log output to the console"
 	depends on LOG
@@ -515,9 +537,19 @@ config LOG_CONSOLE
 	  log message is shown - other details like level, category, file and
 	  line number are omitted.
 
-config LOG_SPL_CONSOLE
+config SPL_LOG_CONSOLE
 	bool "Allow log output to the console in SPL"
-	depends on LOG_SPL
+	depends on SPL_LOG
+	default y
+	help
+	  Enables a log driver which writes log records to the console.
+	  Generally the console is the serial port or LCD display. Only the
+	  log message is shown - other details like level, category, file and
+	  line number are omitted.
+
+config TPL_LOG_CONSOLE
+	bool "Allow log output to the console in SPL"
+	depends on TPL_LOG
 	default y
 	help
 	  Enables a log driver which writes log records to the console.

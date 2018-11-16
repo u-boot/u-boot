@@ -336,6 +336,13 @@ static int spl_common_init(bool setup_malloc)
 		return ret;
 	}
 	bootstage_mark_name(BOOTSTAGE_ID_START_SPL, "spl");
+#if CONFIG_IS_ENABLED(LOG)
+	ret = log_init();
+	if (ret) {
+		debug("%s: Failed to set up logging\n", __func__);
+		return ret;
+	}
+#endif
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = fdtdec_setup();
 		if (ret) {
