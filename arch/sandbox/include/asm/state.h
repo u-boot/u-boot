@@ -243,6 +243,13 @@ bool state_get_skip_delays(void);
 void state_reset_for_test(struct sandbox_state *state);
 
 /**
+ * state_show() - Show information about the sandbox state
+ *
+ * @param state		Sandbox state to show
+ */
+void state_show(struct sandbox_state *state);
+
+/**
  * Initialize the test system state
  */
 int state_init(void);

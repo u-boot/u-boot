@@ -305,6 +305,16 @@ static void setup_ram_buf(struct sandbox_state *state)
 	gd->ram_size = state->ram_size;
 }
 
+void state_show(struct sandbox_state *state)
+{
+	char **p;
+
+	printf("Arguments:\n");
+	for (p = state->argv; *p; p++)
+		printf("%s ", *p);
+	printf("\n");
+}
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
