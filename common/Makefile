@@ -61,6 +61,7 @@ obj-$(CONFIG_CMDLINE) += cli_readline.o cli_simple.o
 endif # !CONFIG_SPL_BUILD
 
 obj-$(CONFIG_$(SPL_TPL_)BOOTSTAGE) += bootstage.o
+obj-$(CONFIG_$(SPL_TPL_)BLOBLIST) += bloblist.o
 
 ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_SPL_DFU_SUPPORT

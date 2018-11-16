@@ -750,4 +750,52 @@ config UPDATE_TFTP_MSEC_MAX
 
 endmenu
 
+menu "Blob list"
+
+config BLOBLIST
+	bool "Support for a bloblist"
+	help
+	  This enables support for a bloblist in U-Boot, which can be passed
+	  from TPL to SPL to U-Boot proper (and potentially to Linux). The
+	  blob list supports multiple binary blobs of data, each with a tag,
+	  so that different U-Boot components can store data which can survive
+	  through to the next stage of the boot.
+
+config SPL_BLOBLIST
+	bool "Support for a bloblist in SPL"
+	depends on BLOBLIST
+	default y if SPL
+	help
+	  This enables a bloblist in SPL. If this is the first part of U-Boot
+	  to run, then the bloblist is set up in SPL and passed to U-Boot
+	  proper. If TPL also has a bloblist, then SPL uses the one from there.
+
+config TPL_BLOBLIST
+	bool "Support for a bloblist in TPL"
+	depends on BLOBLIST
+	default y if TPL
+	help
+	  This enables a bloblist in TPL. The bloblist is set up in TPL and
+	  passed to SPL and U-Boot proper.
+
+config BLOBLIST_SIZE
+	hex "Size of bloblist"
+	depends on BLOBLIST
+	default 0x400
+	help
+	  Sets the size of the bloblist in bytes. This must include all
+	  overhead (alignment, bloblist header, record header). The bloblist
+	  is set up in the first part of U-Boot to run (TPL, SPL or U-Boot
+	  proper), and this sane bloblist is used for subsequent stages.
+
+config BLOBLIST_ADDR
+	hex "Address of bloblist"
+	depends on BLOBLIST
+	default 0xe000 if SANDBOX
+	help
+	  Sets the address of the bloblist, set up by the first part of U-Boot
+	  which runs. Subsequent U-Boot stages typically use the same address.
+
+endmenu
+
 source "common/spl/Kconfig"
