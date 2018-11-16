@@ -91,6 +91,7 @@ config SANDBOX
 	select SPI
 	select SUPPORT_OF_CONTROL
 	imply BITREVERSE
+	select BLOBLIST
 	imply CMD_DM
 	imply CMD_GETTIME
 	imply CMD_HASH

@@ -55,6 +55,8 @@ static cmd_tbl_t cmd_ut_sub[] = {
 #ifdef CONFIG_SANDBOX
 	U_BOOT_CMD_MKENT(compression, CONFIG_SYS_MAXARGS, 1, do_ut_compression,
 			 "", ""),
+	U_BOOT_CMD_MKENT(bloblist, CONFIG_SYS_MAXARGS, 1, do_ut_bloblist,
+			 "", ""),
 #endif
 };
 
@@ -97,6 +99,7 @@ static int do_ut(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 static char ut_help_text[] =
 	"all - execute all enabled tests\n"
 #ifdef CONFIG_SANDBOX
+	"ut bloblist - Test bloblist implementation\n"
 	"ut compression - Test compressors and bootm decompression\n"
 #endif
 #ifdef CONFIG_UT_DM
