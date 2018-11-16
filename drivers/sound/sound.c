@@ -25,11 +25,9 @@ void sound_create_square_wave(unsigned short *data, int size, uint32_t freq)
 		for (i = 0; size && i < half; i++) {
 			size -= 2;
 			*data++ = amplitude;
-			*data++ = amplitude;
 		}
 		for (i = 0; size && i < period - half; i++) {
 			size -= 2;
-			*data++ = -amplitude;
 			*data++ = -amplitude;
 		}
 	}
