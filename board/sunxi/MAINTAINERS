@@ -380,10 +380,16 @@ M:	Hauke Mehrtens <hauke@hauke-m.de>
 S:	Maintained
 F:	configs/orangepi_r1_defconfig
 
+PINEBOOK BOARD:
+M:	Vasily Khoruzhick <anarsoul@gmail.com>
+S:	Maintained
+F:	configs/pinebook_defconfig
+
 PINE64 BOARDS
 M:	Andre Przywara <andre.przywara@arm.com>
 S:	Maintained
 F:	configs/pine64_plus_defconfig
+F:	configs/pine64-lts_defconfig
 
 PINE H64 BOARD
 M:	Icenowy Zheng <icenowy@aosc.io>
