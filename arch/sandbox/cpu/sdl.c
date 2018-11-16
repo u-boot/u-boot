@@ -268,25 +268,6 @@ int sandbox_sdl_sound_init(void)
 	if (sdl.audio_active)
 		return 0;
 
-	/*
-	 * At present all sandbox sounds crash. This is probably due to
-	 * symbol name conflicts with U-Boot. We can remove the malloc()
-	 * probles with:
-	 *
-	 * #define USE_DL_PREFIX
-	 *
-	 * and get this:
-	 *
-	 * Assertion 'e->pollfd->fd == e->fd' failed at pulse/mainloop.c:676,
-	 *		function dispatch_pollfds(). Aborting.
-	 *
-	 * The right solution is probably to make U-Boot's names private or
-	 * link os.c and sdl.c against their libraries before liking with
-	 * U-Boot. TBD. For now sound is disabled.
-	 */
-	printf("(Warning: sandbox sound disabled)\n");
-	return 0;
-
 	/* Set the audio format */
 	wanted.freq = SAMPLE_RATE;
 	wanted.format = AUDIO_S16;
