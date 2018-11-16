@@ -378,6 +378,10 @@ static int spl_common_init(bool setup_malloc)
 
 void spl_set_bd(void)
 {
+	/*
+	 * NOTE: On some platforms (e.g. x86) bdata may be in flash and not
+	 * writeable.
+	 */
 	if (!gd->bd)
 		gd->bd = &bdata;
 }
