@@ -585,11 +585,11 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
-	if (dev_read_bool(dev, "st,negedge"))
+	if (dev_read_bool(dev, "st,neg-edge"))
 		priv->clk_reg_msk |= SDMMC_CLKCR_NEGEDGE;
-	if (dev_read_bool(dev, "st,dirpol"))
+	if (dev_read_bool(dev, "st,sig-dir"))
 		priv->pwr_reg_msk |= SDMMC_POWER_DIRPOL;
-	if (dev_read_bool(dev, "st,pin-ckin"))
+	if (dev_read_bool(dev, "st,use-ckin"))
 		priv->clk_reg_msk |= SDMMC_CLKCR_SELCLKRX_CKIN;
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
