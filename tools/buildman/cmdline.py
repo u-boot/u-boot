@@ -18,6 +18,8 @@ def ParseArgs():
     parser.add_option('-B', '--bloat', dest='show_bloat',
           action='store_true', default=False,
           help='Show changes in function code size for each board')
+    parser.add_option('--boards', type='string', action='append',
+          help='List of board names to build separated by comma')
     parser.add_option('-c', '--count', dest='count', type='int',
           default=-1, help='Run build on the top n commits')
     parser.add_option('-C', '--force-reconfig', dest='force_reconfig',
@@ -102,7 +104,7 @@ def ParseArgs():
           type='string', action='append',
           help='Specify a list of boards to exclude, separated by comma')
 
-    parser.usage += """
+    parser.usage += """ [list of target/arch/cpu/board/vendor/soc to build]
 
     Build U-Boot for all commits in a branch. Use -n to do a dry run"""
 

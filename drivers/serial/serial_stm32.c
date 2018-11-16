@@ -230,7 +230,9 @@ U_BOOT_DRIVER(serial_stm32) = {
 	.platdata_auto_alloc_size = sizeof(struct stm32x7_serial_platdata),
 	.ops = &stm32_serial_ops,
 	.probe = stm32_serial_probe,
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
+#endif
 };
 
 #ifdef CONFIG_DEBUG_UART_STM32

@@ -201,7 +201,6 @@ U_BOOT_DRIVER(exynos7420_clk_topc) = {
 	.probe = exynos7420_clk_topc_probe,
 	.priv_auto_alloc_size = sizeof(struct exynos7420_clk_topc_priv),
 	.ops = &exynos7420_clk_topc_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 static const struct udevice_id exynos7420_clk_top0_compat[] = {
@@ -216,7 +215,6 @@ U_BOOT_DRIVER(exynos7420_clk_top0) = {
 	.probe = exynos7420_clk_top0_probe,
 	.priv_auto_alloc_size = sizeof(struct exynos7420_clk_top0_priv),
 	.ops = &exynos7420_clk_top0_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 static const struct udevice_id exynos7420_clk_peric1_compat[] = {
@@ -229,5 +227,4 @@ U_BOOT_DRIVER(exynos7420_clk_peric1) = {
 	.id = UCLASS_CLK,
 	.of_match = exynos7420_clk_peric1_compat,
 	.ops = &exynos7420_clk_peric1_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

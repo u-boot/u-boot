@@ -203,4 +203,5 @@ U_BOOT_DRIVER(cpu_x86_baytrail_drv) = {
 	.bind		= cpu_x86_bind,
 	.probe		= cpu_x86_baytrail_probe,
 	.ops		= &cpu_x86_baytrail_ops,
+	.flags		= DM_FLAG_PRE_RELOC,
 };

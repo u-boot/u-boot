@@ -352,7 +352,6 @@ static const struct udevice_id socfpga_a10_clk_match[] = {
 U_BOOT_DRIVER(socfpga_a10_clk) = {
 	.name		= "clk-a10",
 	.id		= UCLASS_CLK,
-	.flags		= DM_FLAG_PRE_RELOC,
 	.of_match	= socfpga_a10_clk_match,
 	.ops		= &socfpga_a10_clk_ops,
 	.bind		= socfpga_a10_clk_bind,

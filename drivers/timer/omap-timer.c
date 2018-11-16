@@ -104,5 +104,4 @@ U_BOOT_DRIVER(omap_timer) = {
 	.priv_auto_alloc_size = sizeof(struct omap_timer_priv),
 	.probe = omap_timer_probe,
 	.ops	= &omap_timer_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

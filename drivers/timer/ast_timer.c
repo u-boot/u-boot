@@ -90,5 +90,4 @@ U_BOOT_DRIVER(ast_timer) = {
 	.priv_auto_alloc_size = sizeof(struct ast_timer_priv),
 	.ofdata_to_platdata = ast_timer_ofdata_to_platdata,
 	.ops = &ast_timer_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

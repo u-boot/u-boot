@@ -134,5 +134,4 @@ U_BOOT_DRIVER(clk_owl) = {
 	.ops		= &owl_clk_ops,
 	.priv_auto_alloc_size = sizeof(struct owl_clk_priv),
 	.probe		= owl_clk_probe,
-	.flags		= DM_FLAG_PRE_RELOC,
 };

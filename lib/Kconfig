@@ -21,6 +21,12 @@ config DYNAMIC_CRC_TABLE
 	  Enable this option to calculate entries for CRC tables at runtime.
 	  This can be helpful when reducing the size of the build image
 
+config HAVE_ARCH_IOMAP
+	bool
+	help
+	  Enable this option if architecture provides io{read,write}{8,16,32}
+	  I/O accessor functions.
+
 config HAVE_PRIVATE_LIBGCC
 	bool
 

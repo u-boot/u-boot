@@ -45,5 +45,4 @@ U_BOOT_DRIVER(x86_sysreset) = {
 	.id = UCLASS_SYSRESET,
 	.of_match = x86_sysreset_ids,
 	.ops = &x86_sysreset_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

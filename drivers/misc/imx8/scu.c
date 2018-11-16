@@ -223,7 +223,7 @@ static int imx8_scu_bind(struct udevice *dev)
 	if (node < 0)
 		panic("No clk node found\n");
 
-	ret = lists_bind_fdt(dev, offset_to_ofnode(node), &child);
+	ret = lists_bind_fdt(dev, offset_to_ofnode(node), &child, true);
 	if (ret)
 		return ret;
 
@@ -234,7 +234,7 @@ static int imx8_scu_bind(struct udevice *dev)
 	if (node < 0)
 		panic("No iomuxc node found\n");
 
-	ret = lists_bind_fdt(dev, offset_to_ofnode(node), &child);
+	ret = lists_bind_fdt(dev, offset_to_ofnode(node), &child, true);
 	if (ret)
 		return ret;
 

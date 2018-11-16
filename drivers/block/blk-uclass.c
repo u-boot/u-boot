@@ -23,6 +23,7 @@ static const char *if_typename_str[IF_TYPE_COUNT] = {
 	[IF_TYPE_HOST]		= "host",
 	[IF_TYPE_NVME]		= "nvme",
 	[IF_TYPE_EFI]		= "efi",
+	[IF_TYPE_VIRTIO]	= "virtio",
 };
 
 static enum uclass_id if_type_uclass_id[IF_TYPE_COUNT] = {
@@ -37,6 +38,7 @@ static enum uclass_id if_type_uclass_id[IF_TYPE_COUNT] = {
 	[IF_TYPE_HOST]		= UCLASS_ROOT,
 	[IF_TYPE_NVME]		= UCLASS_NVME,
 	[IF_TYPE_EFI]		= UCLASS_EFI,
+	[IF_TYPE_VIRTIO]	= UCLASS_VIRTIO,
 };
 
 static enum if_type if_typename_to_iftype(const char *if_typename)
@@ -471,15 +473,6 @@ unsigned long blk_derase(struct blk_desc *block_dev, lbaint_t start,
 	return ops->erase(dev, start, blkcnt);
 }
 
-int blk_prepare_device(struct udevice *dev)
-{
-	struct blk_desc *desc = dev_get_uclass_platdata(dev);
-
-	part_init(desc);
-
-	return 0;
-}
-
 int blk_get_from_parent(struct udevice *parent, struct udevice **devp)
 {
 	struct udevice *dev;
@@ -526,7 +519,7 @@ int blk_find_max_devnum(enum if_type if_type)
 	return max_devnum;
 }
 
-static int blk_next_free_devnum(enum if_type if_type)
+int blk_next_free_devnum(enum if_type if_type)
 {
 	int ret;
 
@@ -644,8 +637,20 @@ int blk_unbind_all(int if_type)
 	return 0;
 }
 
+static int blk_post_probe(struct udevice *dev)
+{
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT)
+	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+
+	part_init(desc);
+#endif
+
+	return 0;
+}
+
 UCLASS_DRIVER(blk) = {
 	.id		= UCLASS_BLK,
 	.name		= "blk",
+	.post_probe	= blk_post_probe,
 	.per_device_platdata_auto_alloc_size = sizeof(struct blk_desc),
 };

@@ -15,34 +15,29 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Test that block devices can be created */
 static int dm_test_blk_base(struct unit_test_state *uts)
 {
-	struct udevice *blk, *usb_blk, *dev;
+	struct udevice *blk1, *blk3, *dev;
 
 	/* Make sure there are no block devices */
-	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_BLK, 0, &blk));
+	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_BLK, 0, &dev));
 
 	/* Create two, one the parent of the other */
 	ut_assertok(blk_create_device(gd->dm_root, "sandbox_host_blk", "test",
-				      IF_TYPE_HOST, 1, 512, 2, &blk));
-	ut_assertok(blk_create_device(blk, "usb_storage_blk", "test",
-				      IF_TYPE_USB, 3, 512, 2, &usb_blk));
+				      IF_TYPE_HOST, 1, 512, 2, &blk1));
+	ut_assertok(blk_create_device(blk1, "sandbox_host_blk", "test",
+				      IF_TYPE_HOST, 3, 512, 2, &blk3));
 
 	/* Check we can find them */
 	ut_asserteq(-ENODEV, blk_get_device(IF_TYPE_HOST, 0, &dev));
 	ut_assertok(blk_get_device(IF_TYPE_HOST, 1, &dev));
-	ut_asserteq_ptr(blk, dev);
-
-	ut_asserteq(-ENODEV, blk_get_device(IF_TYPE_USB, 0, &dev));
-	ut_assertok(blk_get_device(IF_TYPE_USB, 3, &dev));
-	ut_asserteq_ptr(usb_blk, dev);
+	ut_asserteq_ptr(blk1, dev);
+	ut_assertok(blk_get_device(IF_TYPE_HOST, 3, &dev));
+	ut_asserteq_ptr(blk3, dev);
 
 	/* Check we can iterate */
 	ut_assertok(blk_first_device(IF_TYPE_HOST, &dev));
-	ut_asserteq_ptr(blk, dev);
-	ut_asserteq(-ENODEV, blk_next_device(&dev));
-
-	ut_assertok(blk_first_device(IF_TYPE_USB, &dev));
-	ut_asserteq_ptr(usb_blk, dev);
-	ut_asserteq(-ENODEV, blk_next_device(&dev));
+	ut_asserteq_ptr(blk1, dev);
+	ut_assertok(blk_next_device(&dev));
+	ut_asserteq_ptr(blk3, dev);
 
 	return 0;
 }

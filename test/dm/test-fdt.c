@@ -55,10 +55,13 @@ static int testfdt_drv_probe(struct udevice *dev)
 
 	/*
 	 * If this device is on a bus, the uclass_flag will be set before
-	 * calling this function. This is used by
-	 * dm_test_bus_child_pre_probe_uclass().
+	 * calling this function. In the meantime the uclass_postp is
+	 * initlized to a value -1. These are used respectively by
+	 * dm_test_bus_child_pre_probe_uclass() and
+	 * dm_test_bus_child_post_probe_uclass().
 	 */
 	priv->uclass_total += priv->uclass_flag;
+	priv->uclass_postp = -1;
 
 	return 0;
 }
@@ -82,6 +85,25 @@ U_BOOT_DRIVER(testfdt_drv) = {
 	.ops	= &test_ops,
 	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
 	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
+};
+
+static const struct udevice_id testfdt1_ids[] = {
+	{
+		.compatible = "denx,u-boot-fdt-test1",
+		.data = DM_TEST_TYPE_FIRST },
+	{ }
+};
+
+U_BOOT_DRIVER(testfdt1_drv) = {
+	.name	= "testfdt1_drv",
+	.of_match	= testfdt1_ids,
+	.id	= UCLASS_TEST_FDT,
+	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
+	.probe	= testfdt_drv_probe,
+	.ops	= &test_ops,
+	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
+	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
+	.flags = DM_FLAG_PRE_RELOC,
 };
 
 /* From here is the testfdt uclass code */
@@ -168,7 +190,7 @@ int dm_check_devices(struct unit_test_state *uts, int num_devices)
 /* Test that FDT-based binding works correctly */
 static int dm_test_fdt(struct unit_test_state *uts)
 {
-	const int num_devices = 7;
+	const int num_devices = 8;
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
@@ -208,8 +230,12 @@ static int dm_test_fdt_pre_reloc(struct unit_test_state *uts)
 	ret = uclass_get(UCLASS_TEST_FDT, &uc);
 	ut_assert(!ret);
 
-	/* These is only one pre-reloc device */
-	ut_asserteq(1, list_count_items(&uc->dev_head));
+	/*
+	 * These are 2 pre-reloc devices:
+	 * one with "u-boot,dm-pre-reloc" property (a-test node), and the other
+	 * one whose driver marked with DM_FLAG_PRE_RELOC flag (h-test node).
+	 */
+	ut_asserteq(2, list_count_items(&uc->dev_head));
 
 	return 0;
 }

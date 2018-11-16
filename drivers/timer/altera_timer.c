@@ -92,5 +92,4 @@ U_BOOT_DRIVER(altera_timer) = {
 	.platdata_auto_alloc_size = sizeof(struct altera_timer_platdata),
 	.probe = altera_timer_probe,
 	.ops	= &altera_timer_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

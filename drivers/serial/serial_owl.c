@@ -132,5 +132,4 @@ U_BOOT_DRIVER(serial_owl) = {
 	.priv_auto_alloc_size =	sizeof(struct owl_serial_priv),
 	.probe = owl_serial_probe,
 	.ops = &owl_serial_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

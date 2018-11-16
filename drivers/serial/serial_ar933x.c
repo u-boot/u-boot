@@ -189,7 +189,6 @@ U_BOOT_DRIVER(serial_ar933x) = {
 	.priv_auto_alloc_size = sizeof(struct ar933x_serial_priv),
 	.probe = ar933x_serial_probe,
 	.ops    = &ar933x_serial_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 #ifdef CONFIG_DEBUG_UART_AR933X

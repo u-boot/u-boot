@@ -1953,6 +1953,8 @@ U_BOOT_DRIVER(omap_hsmmc) = {
 	.ops = &omap_hsmmc_ops,
 	.probe	= omap_hsmmc_probe,
 	.priv_auto_alloc_size = sizeof(struct omap_hsmmc_data),
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
+#endif
 };
 #endif

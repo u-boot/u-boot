@@ -135,6 +135,7 @@ obj-$(CONFIG_CMD_UBI) += ubi.o
 obj-$(CONFIG_CMD_UBIFS) += ubifs.o
 obj-$(CONFIG_CMD_UNIVERSE) += universe.o
 obj-$(CONFIG_CMD_UNZIP) += unzip.o
+obj-$(CONFIG_CMD_VIRTIO) += virtio.o
 obj-$(CONFIG_CMD_LZMADEC) += lzmadec.o
 
 obj-$(CONFIG_CMD_USB) += usb.o disk.o

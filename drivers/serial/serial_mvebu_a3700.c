@@ -129,7 +129,6 @@ U_BOOT_DRIVER(serial_mvebu) = {
 	.platdata_auto_alloc_size = sizeof(struct mvebu_platdata),
 	.probe	= mvebu_serial_probe,
 	.ops	= &mvebu_serial_ops,
-	.flags	= DM_FLAG_PRE_RELOC,
 };
 
 #ifdef CONFIG_DEBUG_MVEBU_A3700_UART

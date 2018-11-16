@@ -262,7 +262,7 @@ static int mpc83xx_cpu_get_desc(struct udevice *dev, char *buf, int size)
 	determine_cpu_data(dev);
 
 	snprintf(buf, size,
-		 "CPU:   %s, MPC%s%s%s, Rev: %d.%d at %s MHz, CSB: %s MHz\n",
+		 "%s, MPC%s%s%s, Rev: %d.%d at %s MHz, CSB: %s MHz",
 		 e300_names[priv->e300_type],
 		 cpu_type_names[priv->type],
 		 priv->is_e_processor ? "E" : "",

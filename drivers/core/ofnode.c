@@ -831,8 +831,10 @@ int ofnode_write_prop(ofnode node, const char *propname, int len,
 		return -ENOMEM;
 
 	new->name = strdup(propname);
-	if (!new->name)
+	if (!new->name) {
+		free(new);
 		return -ENOMEM;
+	}
 
 	new->value = (void *)value;
 	new->length = len;

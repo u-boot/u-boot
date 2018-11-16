@@ -110,5 +110,4 @@ U_BOOT_DRIVER(atcpit100_timer) = {
 	.platdata_auto_alloc_size = sizeof(struct atcpit_timer_platdata),
 	.probe = atcpit_timer_probe,
 	.ops	= &atcpit_timer_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

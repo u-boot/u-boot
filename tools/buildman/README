@@ -114,6 +114,10 @@ a few commits or boards, it will be pretty slow. As a tip, if you don't
 plan to use your machine for anything else, you can use -T to increase the
 number of threads beyond the default.
 
+
+Selecting which boards to build
+===============================
+
 Buildman lets you build all boards, or a subset. Specify the subset by passing
 command-line arguments that list the desired board name, architecture name,
 SOC name, or anything else in the boards.cfg file. Multiple arguments are
@@ -138,11 +142,17 @@ You can also use -x to specifically exclude some boards. For example:
 means to build all arm boards except nvidia, freescale and anything ending
 with 'ball'.
 
+For building specific boards you can use the --boards option, which takes a
+comma-separated list of board target names and be used multiple times on
+the command line:
+
+   buidman --boards sandbox,snow --boards
+
 It is convenient to use the -n option to see what will be built based on
 the subset given. Use -v as well to get an actual list of boards.
 
 Buildman does not store intermediate object files. It optionally copies
-the binary output into a directory when a build is successful. Size
+the binary output into a directory when a build is successful (-k). Size
 information is always recorded. It needs a fair bit of disk space to work,
 typically 250MB per thread.
 

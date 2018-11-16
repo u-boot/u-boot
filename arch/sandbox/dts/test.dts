@@ -186,6 +186,10 @@
 		compatible = "denx,u-boot-fdt-test";
 	};
 
+	h-test {
+		compatible = "denx,u-boot-fdt-test1";
+	};
+
 	clocks {
 		clk_fixed: clk-fixed {
 			compatible = "fixed-clock";
@@ -346,14 +350,17 @@
 
 	cpu-test1 {
 		compatible = "sandbox,cpu_sandbox";
+		u-boot,dm-pre-reloc;
 	};
 
 	cpu-test2 {
 		compatible = "sandbox,cpu_sandbox";
+		u-boot,dm-pre-reloc;
 	};
 
 	cpu-test3 {
 		compatible = "sandbox,cpu_sandbox";
+		u-boot,dm-pre-reloc;
 	};
 
 	misc-test {
@@ -525,7 +532,7 @@
 
 	syscon@0 {
 		compatible = "sandbox,syscon0";
-		reg = <0x10 4>;
+		reg = <0x10 16>;
 	};
 
 	syscon@1 {
@@ -711,6 +718,14 @@
 
 	sandbox_tee {
 		compatible = "sandbox,tee";
+	};
+
+	sandbox_virtio1 {
+		compatible = "sandbox,virtio1";
+	};
+
+	sandbox_virtio2 {
+		compatible = "sandbox,virtio2";
 	};
 };
 

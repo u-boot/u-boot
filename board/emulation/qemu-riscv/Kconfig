@@ -18,5 +18,16 @@ config SYS_TEXT_BASE
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	imply SYS_NS16550
+	imply VIRTIO_MMIO
+	imply VIRTIO_NET
+	imply VIRTIO_BLK
+	imply CMD_PING
+	imply CMD_FS_GENERIC
+	imply DOS_PARTITION
+	imply EFI_PARTITION
+	imply ISO_PARTITION
+	imply CMD_EXT2
+	imply CMD_EXT4
+	imply CMD_FAT
 
 endif

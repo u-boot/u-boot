@@ -312,4 +312,21 @@ config FS_LOADER
 	  The consumer driver would then use this loader to program whatever,
 	  ie. the FPGA device.
 
+config GDSYS_SOC
+	bool "Enable gdsys SOC driver"
+	depends on MISC
+	help
+	  Support for gdsys IHS SOC, a simple bus associated with each gdsys
+	  IHS (Integrated Hardware Systems) FPGA, which holds all devices whose
+	  register maps are contained within the FPGA's register map.
+
+config IHS_FPGA
+	bool "Enable IHS FPGA driver"
+	depends on MISC
+	help
+	  Support IHS (Integrated Hardware Systems) FPGA, the main FPGAs on
+	  gdsys devices, which supply the majority of the functionality offered
+	  by the devices. This driver supports both CON and CPU variants of the
+	  devices, depending on the device tree entry.
+
 endmenu

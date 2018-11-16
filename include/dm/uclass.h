@@ -61,7 +61,8 @@ struct udevice;
  * @post_probe: Called after a new device is probed
  * @pre_remove: Called before a device is removed
  * @child_post_bind: Called after a child is bound to a device in this uclass
- * @child_pre_probe: Called before a child is probed in this uclass
+ * @child_pre_probe: Called before a child in this uclass is probed
+ * @child_post_probe: Called after a child in this uclass is probed
  * @init: Called to set up the uclass
  * @destroy: Called to destroy the uclass
  * @priv_auto_alloc_size: If non-zero this is the size of the private data
@@ -94,6 +95,7 @@ struct uclass_driver {
 	int (*pre_remove)(struct udevice *dev);
 	int (*child_post_bind)(struct udevice *dev);
 	int (*child_pre_probe)(struct udevice *dev);
+	int (*child_post_probe)(struct udevice *dev);
 	int (*init)(struct uclass *class);
 	int (*destroy)(struct uclass *class);
 	int priv_auto_alloc_size;

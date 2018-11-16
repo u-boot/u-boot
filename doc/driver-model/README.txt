@@ -830,10 +830,18 @@ Pre-Relocation Support
 ----------------------
 
 For pre-relocation we simply call the driver model init function. Only
-drivers marked with DM_FLAG_PRE_RELOC or the device tree
-'u-boot,dm-pre-reloc' flag are initialised prior to relocation. This helps
-to reduce the driver model overhead. This flag applies to SPL and TPL as
-well, if device tree is enabled there.
+drivers marked with DM_FLAG_PRE_RELOC or the device tree 'u-boot,dm-pre-reloc'
+property are initialised prior to relocation. This helps to reduce the driver
+model overhead. This flag applies to SPL and TPL as well, if device tree is
+enabled (CONFIG_OF_CONTROL) there.
+
+Note when device tree is enabled, the device tree 'u-boot,dm-pre-reloc'
+property can provide better control granularity on which device is bound
+before relocation. While with DM_FLAG_PRE_RELOC flag of the driver all
+devices with the same driver are bound, which requires allocation a large
+amount of memory. When device tree is not used, DM_FLAG_PRE_RELOC is the
+only way for statically declared devices via U_BOOT_DEVICE() to be bound
+prior to relocation.
 
 It is possible to limit this to specific relocation steps, by using
 the more specialized 'u-boot,dm-spl' and 'u-boot,dm-tpl' flags

@@ -247,7 +247,9 @@ U_BOOT_DRIVER(serial_sh) = {
 	.platdata_auto_alloc_size = sizeof(struct sh_serial_platdata),
 	.probe	= sh_serial_probe,
 	.ops	= &sh_serial_ops,
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags	= DM_FLAG_PRE_RELOC,
+#endif
 	.priv_auto_alloc_size = sizeof(struct uart_port),
 };
 

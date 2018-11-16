@@ -107,6 +107,5 @@ U_BOOT_DRIVER(arc_timer) = {
 	.of_match = arc_timer_ids,
 	.probe = arc_timer_probe,
 	.ops	= &arc_timer_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 	.priv_auto_alloc_size = sizeof(struct arc_timer_priv),
 };

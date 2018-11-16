@@ -63,6 +63,15 @@ static int testbus_child_pre_probe_uclass(struct udevice *dev)
 	return 0;
 }
 
+static int testbus_child_post_probe_uclass(struct udevice *dev)
+{
+	struct dm_test_priv *priv = dev_get_priv(dev);
+
+	priv->uclass_postp++;
+
+	return 0;
+}
+
 static int testbus_child_post_remove(struct udevice *dev)
 {
 	struct dm_test_parent_data *parent_data = dev_get_parent_priv(dev);
@@ -102,12 +111,13 @@ UCLASS_DRIVER(testbus) = {
 	.id		= UCLASS_TEST_BUS,
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 	.child_pre_probe = testbus_child_pre_probe_uclass,
+	.child_post_probe = testbus_child_post_probe_uclass,
 };
 
 /* Test that we can probe for children */
 static int dm_test_bus_children(struct unit_test_state *uts)
 {
-	int num_devices = 7;
+	int num_devices = 8;
 	struct udevice *bus;
 	struct uclass *uc;
 
@@ -546,4 +556,39 @@ static int dm_test_bus_child_pre_probe_uclass(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_bus_child_pre_probe_uclass,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/*
+ * Test that the bus' uclass' child_post_probe() is called after the
+ * device's probe() method
+ */
+static int dm_test_bus_child_post_probe_uclass(struct unit_test_state *uts)
+{
+	struct udevice *bus, *dev;
+	int child_count;
+
+	/*
+	 * See testfdt_drv_probe() which effectively initializes that
+	 * the uclass postp flag is set to a value
+	 */
+	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
+	for (device_find_first_child(bus, &dev), child_count = 0;
+	     dev;
+	     device_find_next_child(&dev)) {
+		struct dm_test_priv *priv = dev_get_priv(dev);
+
+		/* Check that things happened in the right order */
+		ut_asserteq_ptr(NULL, priv);
+		ut_assertok(device_probe(dev));
+
+		priv = dev_get_priv(dev);
+		ut_assert(priv != NULL);
+		ut_asserteq(0, priv->uclass_postp);
+		child_count++;
+	}
+	ut_asserteq(3, child_count);
+
+	return 0;
+}
+DM_TEST(dm_test_bus_child_post_probe_uclass,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

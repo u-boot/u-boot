@@ -94,4 +94,5 @@ U_BOOT_DRIVER(cpu_x86_drv) = {
 	.of_match	= cpu_x86_ids,
 	.bind		= cpu_x86_bind,
 	.ops		= &cpu_x86_ops,
+	.flags		= DM_FLAG_PRE_RELOC,
 };

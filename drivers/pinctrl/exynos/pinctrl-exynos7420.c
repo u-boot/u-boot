@@ -113,5 +113,4 @@ U_BOOT_DRIVER(pinctrl_exynos7420) = {
 	.priv_auto_alloc_size = sizeof(struct exynos_pinctrl_priv),
 	.ops		= &exynos7420_pinctrl_ops,
 	.probe		= exynos_pinctrl_probe,
-	.flags		= DM_FLAG_PRE_RELOC
 };

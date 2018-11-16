@@ -51,7 +51,6 @@ int sata_probe(int devnum)
 {
 #ifdef CONFIG_AHCI
 	struct udevice *dev;
-	struct udevice *blk;
 	int rc;
 
 	rc = uclass_get_device(UCLASS_AHCI, devnum, &dev);
@@ -65,14 +64,6 @@ int sata_probe(int devnum)
 	if (rc) {
 		printf("Cannot scan SATA device %d (err=%d)\n", devnum, rc);
 		return CMD_RET_FAILURE;
-	}
-
-	rc = blk_get_from_parent(dev, &blk);
-	if (!rc) {
-		struct blk_desc *desc = dev_get_uclass_platdata(blk);
-
-		if (desc->lba > 0 && desc->blksz > 0)
-			part_init(desc);
 	}
 
 	return 0;
