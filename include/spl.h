@@ -48,6 +48,19 @@ static inline bool u_boot_first_phase(void)
 	return false;
 }
 
+/* A string name for SPL or TPL */
+#ifdef CONFIG_SPL_BUILD
+# ifdef CONFIG_TPL_BUILD
+#  define SPL_TPL_NAME	"tpl"
+# else
+#  define SPL_TPL_NAME	"spl"
+# endif
+# define SPL_TPL_PROMPT	SPL_TPL_NAME ": "
+#else
+# define SPL_TPL_NAME	""
+# define SPL_TPL_PROMPT	""
+#endif
+
 struct spl_image_info {
 	const char *name;
 	u8 os;

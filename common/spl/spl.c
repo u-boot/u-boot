@@ -58,8 +58,9 @@ __weak void show_boot_progress(int val) {}
 #ifdef CONFIG_SPL_OS_BOOT
 __weak int spl_start_uboot(void)
 {
-	puts("SPL: Please implement spl_start_uboot() for your board\n");
-	puts("SPL: Direct Linux boot not active!\n");
+	puts(SPL_TPL_PROMPT
+	     "Please implement spl_start_uboot() for your board\n");
+	puts(SPL_TPL_PROMPT "Direct Linux boot not active!\n");
 	return 1;
 }
 
@@ -101,13 +102,13 @@ void spl_fixup_fdt(void)
 	/* fixup the memory dt node */
 	err = fdt_shrink_to_minimum(fdt_blob, 0);
 	if (err == 0) {
-		printf("spl: fdt_shrink_to_minimum err - %d\n", err);
+		printf(SPL_TPL_PROMPT "fdt_shrink_to_minimum err - %d\n", err);
 		return;
 	}
 
 	err = arch_fixup_fdt(fdt_blob);
 	if (err) {
-		printf("spl: arch_fixup_fdt err - %d\n", err);
+		printf(SPL_TPL_PROMPT "arch_fixup_fdt err - %d\n", err);
 		return;
 	}
 #endif
@@ -186,7 +187,7 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
 
-	debug("spl: payload image: %32s load addr: 0x%lx size: %d\n",
+	debug(SPL_TPL_PROMPT "payload image: %32s load addr: 0x%lx size: %d\n",
 	      spl_image->name, spl_image->load_addr, spl_image->size);
 
 #ifdef CONFIG_SPL_FIT_SIGNATURE
@@ -256,7 +257,8 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 		}
 		spl_image->os = image_get_os(header);
 		spl_image->name = image_get_name(header);
-		debug("spl: payload image: %32s load addr: 0x%lx size: %d\n",
+		debug(SPL_TPL_PROMPT
+		      "payload image: %32s load addr: 0x%lx size: %d\n",
 		      spl_image->name, spl_image->load_addr, spl_image->size);
 #else
 		/* LEGACY image not supported */
@@ -285,7 +287,8 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			spl_image->load_addr = CONFIG_SYS_LOAD_ADDR;
 			spl_image->entry_point = CONFIG_SYS_LOAD_ADDR;
 			spl_image->size = end - start;
-			debug("spl: payload zImage, load addr: 0x%lx size: %d\n",
+			debug(SPL_TPL_PROMPT
+			      "payload zImage, load addr: 0x%lx size: %d\n",
 			      spl_image->load_addr, spl_image->size);
 			return 0;
 		}
@@ -469,7 +472,7 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 		if (loader)
 			printf("Trying to boot from %s\n", loader->name);
 		else
-			puts("SPL: Unsupported Boot Device!\n");
+			puts(SPL_TPL_PROMPT "Unsupported Boot Device!\n");
 #endif
 		if (loader && !spl_load_image(spl_image, loader)) {
 			spl_image->boot_device = spl_boot_list[i];
@@ -492,7 +495,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	struct spl_image_info spl_image;
 	int ret;
 
-	debug(">>spl:board_init_r()\n");
+	debug(">>" SPL_TPL_PROMPT "board_init_r()\n");
 
 	spl_set_bd();
 
@@ -532,7 +535,7 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 
 	if (boot_from_devices(&spl_image, spl_boot_list,
 			      ARRAY_SIZE(spl_boot_list))) {
-		puts("SPL: failed to boot from all boot devices\n");
+		puts(SPL_TPL_PROMPT "failed to boot from all boot devices\n");
 		hang();
 	}
 
@@ -605,8 +608,8 @@ void preloader_console_init(void)
 	gd->have_console = 1;
 
 #ifndef CONFIG_SPL_DISABLE_BANNER_PRINT
-	puts("\nU-Boot SPL " PLAIN_VERSION " (" U_BOOT_DATE " - " \
-			U_BOOT_TIME " " U_BOOT_TZ ")\n");
+	puts("\nU-Boot " SPL_TPL_NAME " " PLAIN_VERSION " (" U_BOOT_DATE " - "
+	     U_BOOT_TIME " " U_BOOT_TZ ")\n");
 #endif
 #ifdef CONFIG_SPL_DISPLAY_PRINT
 	spl_display_print();
