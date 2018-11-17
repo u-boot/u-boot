@@ -380,9 +380,11 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 		return -EPERM;
 	}
 
-	length = max(length, ETH_ZLEN);
-
 	memcpy((void *)data_start, packet, length);
+	if (length < ETH_ZLEN) {
+		memset(&((char *)data_start)[length], 0, ETH_ZLEN - length);
+		length = ETH_ZLEN;
+	}
 
 	/* Flush data to be sent */
 	flush_dcache_range(data_start, data_end);
