@@ -118,6 +118,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			struct spl_load_info *info, ulong sector, void *fdt);
 
 #define SPL_COPY_PAYLOAD_ONLY	1
+#define SPL_FIT_FOUND		2
 
 /* SPL common functions */
 void preloader_console_init(void);
