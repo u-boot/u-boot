@@ -354,6 +354,18 @@ void spl_optee_entry(void *arg0, void *arg1, void *arg2, void *arg3);
 void board_return_to_bootrom(void);
 
 /**
+ * board_spl_fit_post_load - allow process images after loading finished
+ *
+ */
+void board_spl_fit_post_load(ulong load_addr, size_t length);
+
+/**
+ * board_spl_fit_size_align - specific size align before processing payload
+ *
+ */
+ulong board_spl_fit_size_align(ulong size);
+
+/**
  * spl_perform_fixups() - arch/board-specific callback before processing
  *                        the boot-payload
  */
