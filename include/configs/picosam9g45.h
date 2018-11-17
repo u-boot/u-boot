@@ -57,10 +57,6 @@
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-/* Enable the watchdog */
-#define CONFIG_AT91SAM9_WATCHDOG
-#define CONFIG_HW_WATCHDOG
-
 /*
  * Command line configuration.
  */

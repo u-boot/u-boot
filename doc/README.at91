@@ -171,4 +171,4 @@ III. Watchdog support
 	your code (make sure not to disable it in AT91Bootstrap for instance).
 
 	In the U-Boot configuration, the AT91 watchdog support is enabled using
-	the CONFIG_AT91SAM9_WATCHDOG and CONFIG_HW_WATCHDOG options.
+	the CONFIG_WDT and CONFIG_WDT_AT91 options.

@@ -112,13 +112,6 @@
 	"root=/dev/nfs ip=dhcp nfsroot=${serverip}:/srv/nfs/rootfs; "	\
 	"dhcp"
 
-/* Enable the watchdog */
-#define CONFIG_AT91SAM9_WATCHDOG
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_HW_WATCHDOG
-#endif
-#define CONFIG_AT91_HW_WDT_TIMEOUT	15
-
 #if !defined(CONFIG_SPL_BUILD)
 /* USB configuration */
 #define CONFIG_USB_ATMEL

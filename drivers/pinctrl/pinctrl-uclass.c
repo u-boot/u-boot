@@ -249,6 +249,40 @@ int pinctrl_get_gpio_mux(struct udevice *dev, int banknum, int index)
 	return ops->get_gpio_mux(dev, banknum, index);
 }
 
+int pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+
+	if (!ops->get_pins_count)
+		return -ENOSYS;
+
+	return ops->get_pins_count(dev);
+}
+
+int pinctrl_get_pin_name(struct udevice *dev, int selector, char *buf,
+			 int size)
+{
+	struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+
+	if (!ops->get_pin_name)
+		return -ENOSYS;
+
+	snprintf(buf, size, ops->get_pin_name(dev, selector));
+
+	return 0;
+}
+
+int pinctrl_get_pin_muxing(struct udevice *dev, int selector, char *buf,
+			   int size)
+{
+	struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+
+	if (!ops->get_pin_muxing)
+		return -ENOSYS;
+
+	return ops->get_pin_muxing(dev, selector, buf, size);
+}
+
 /**
  * pinconfig_post_bind() - post binding for PINCTRL uclass
  * Recursively bind child nodes as pinconfig devices in case of full pinctrl.

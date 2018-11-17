@@ -562,6 +562,19 @@ int uclass_next_device(struct udevice **devp)
 	return uclass_get_device_tail(dev, ret, devp);
 }
 
+int uclass_next_device_err(struct udevice **devp)
+{
+	int ret;
+
+	ret = uclass_next_device(devp);
+	if (ret)
+		return ret;
+	else if (!*devp)
+		return -ENODEV;
+
+	return 0;
+}
+
 int uclass_first_device_check(enum uclass_id id, struct udevice **devp)
 {
 	int ret;

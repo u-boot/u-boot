@@ -29,6 +29,7 @@
 #define SCR_EL3_HCE_EN		(1 << 8)  /* Hypervisor Call enable          */
 #define SCR_EL3_SMD_DIS		(1 << 7)  /* Secure Monitor Call disable     */
 #define SCR_EL3_RES1		(3 << 4)  /* Reserved, RES1                  */
+#define SCR_EL3_EA_EN		(1 << 3)  /* External aborts taken to EL3    */
 #define SCR_EL3_NS_EN		(1 << 0)  /* EL0 and EL1 in Non-scure state  */
 
 /*

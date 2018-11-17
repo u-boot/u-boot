@@ -76,7 +76,7 @@ void __weak spl_board_init(void)
 void board_init_f(ulong dummy)
 {
 	lowlevel_clock_init();
-#if !defined(CONFIG_AT91SAM9_WATCHDOG)
+#if !defined(CONFIG_WDT_AT91)
 	at91_disable_wdt();
 #endif
 

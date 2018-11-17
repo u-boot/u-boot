@@ -727,6 +727,10 @@
 	sandbox_virtio2 {
 		compatible = "sandbox,virtio2";
 	};
+
+	pinctrl {
+		compatible = "sandbox,pinctrl";
+	};
 };
 
 #include "sandbox_pmic.dtsi"

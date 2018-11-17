@@ -10,6 +10,8 @@
 #include <asm/io.h>
 #include <spl.h>
 #include <asm/arch/hardware.h>
+#include "common.h"
+#include <dm.h>
 
 #ifdef CONFIG_SPL_BUILD
 static void mmr_unlock(u32 base, u32 partition)
@@ -56,6 +58,10 @@ static void store_boot_index_from_rom(void)
 
 void board_init_f(ulong dummy)
 {
+#if defined(CONFIG_K3_AM654_DDRSS)
+	struct udevice *dev;
+	int ret;
+#endif
 	/*
 	 * Cannot delay this further as there is a chance that
 	 * K3_BOOT_PARAM_TABLE_INDEX can be over written by SPL MALLOC section.
@@ -65,11 +71,23 @@ void board_init_f(ulong dummy)
 	/* Make all control module registers accessible */
 	ctrl_mmr_unlock();
 
+#ifdef CONFIG_CPU_V7R
+	setup_k3_mpu_regions();
+#endif
+
 	/* Init DM early in-order to invoke system controller */
 	spl_early_init();
 
 	/* Prepare console output */
 	preloader_console_init();
+
+#ifdef CONFIG_K3_AM654_DDRSS
+	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (ret) {
+		printf("DRAM init failed: %d\n", ret);
+		return;
+	}
+#endif
 }
 
 u32 spl_boot_mode(const u32 boot_device)

@@ -17,6 +17,14 @@ static const char * const sandbox_pins[] = {
 	"W1"
 };
 
+static const char * const sandbox_pins_muxing[] = {
+	"I2C SCL",
+	"I2C SDA",
+	"Uart TX",
+	"Uart RX",
+	"1-wire gpio",
+};
+
 static const char * const sandbox_groups[] = {
 	"i2c",
 	"serial_a",
@@ -54,6 +62,15 @@ static int sandbox_get_pins_count(struct udevice *dev)
 static const char *sandbox_get_pin_name(struct udevice *dev, unsigned selector)
 {
 	return sandbox_pins[selector];
+}
+
+static int sandbox_get_pin_muxing(struct udevice *dev,
+				  unsigned int selector,
+				  char *buf, int size)
+{
+	snprintf(buf, size, "%s", sandbox_pins_muxing[selector]);
+
+	return 0;
 }
 
 static int sandbox_get_groups_count(struct udevice *dev)
@@ -123,6 +140,7 @@ static int sandbox_pinconf_group_set(struct udevice *dev,
 const struct pinctrl_ops sandbox_pinctrl_ops = {
 	.get_pins_count = sandbox_get_pins_count,
 	.get_pin_name = sandbox_get_pin_name,
+	.get_pin_muxing = sandbox_get_pin_muxing,
 	.get_groups_count = sandbox_get_groups_count,
 	.get_group_name = sandbox_get_group_name,
 	.get_functions_count = sandbox_get_functions_count,

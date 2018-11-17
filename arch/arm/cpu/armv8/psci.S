@@ -236,6 +236,28 @@ handle_sync:
 
 	b	unhandled_exception
 
+#ifdef CONFIG_ARMV8_EA_EL3_FIRST
+/*
+ * Override this function if custom error handling is
+ * needed for asynchronous aborts
+ */
+ENTRY(plat_error_handler)
+	ret
+ENDPROC(plat_error_handler)
+.weak plat_error_handler
+
+handle_error:
+	bl	psci_get_cpu_id
+	bl	psci_get_cpu_stack_top
+	mov	x9, #1
+	msr	spsel, x9
+	mov	sp, x0
+
+	bl	plat_error_handler	/* Platform specific error handling */
+deadloop:
+	b	deadloop		/* Never return */
+#endif
+
 	.align	11
 	.globl	el3_exception_vectors
 el3_exception_vectors:
@@ -261,7 +283,11 @@ el3_exception_vectors:
 	.align	7
 	b	unhandled_exception	/* FIQ, Lower EL using AArch64 */
 	.align	7
+#ifdef CONFIG_ARMV8_EA_EL3_FIRST
+	b	handle_error		/* SError, Lower EL using AArch64 */
+#else
 	b	unhandled_exception	/* SError, Lower EL using AArch64 */
+#endif
 	.align	7
 	b	unhandled_exception	/* Sync, Lower EL using AArch32 */
 	.align	7
