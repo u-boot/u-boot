@@ -536,6 +536,27 @@ int i2c_chip_ofdata_to_platdata(struct udevice *dev, struct dm_i2c_chip *chip);
  */
 void i2c_dump_msgs(struct i2c_msg *msg, int nmsgs);
 
+/**
+ * i2c_emul_find() - Find an emulator for an i2c sandbox device
+ *
+ * This looks at the device's 'emul' phandle
+ *
+ * @dev: Device to find an emulator for
+ * @emulp: Returns the associated emulator, if found *
+ * @return 0 if OK, -ENOENT or -ENODEV if not found
+ */
+int i2c_emul_find(struct udevice *dev, struct udevice **emulp);
+
+/**
+ * i2c_emul_get_device() - Find the device being emulated
+ *
+ * Given an emulator this returns the associated device
+ *
+ * @emul: Emulator for the device
+ * @return device that @emul is emulating
+ */
+struct udevice *i2c_emul_get_device(struct udevice *emul);
+
 #ifndef CONFIG_DM_I2C
 
 /*

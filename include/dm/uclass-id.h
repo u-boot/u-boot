@@ -21,6 +21,7 @@ enum uclass_id {
 	UCLASS_TEST_DUMMY,
 	UCLASS_SPI_EMUL,	/* sandbox SPI device emulator */
 	UCLASS_I2C_EMUL,	/* sandbox I2C device emulator */
+	UCLASS_I2C_EMUL_PARENT,	/* parent for I2C device emulators */
 	UCLASS_PCI_EMUL,	/* sandbox PCI device emulator */
 	UCLASS_USB_EMUL,	/* sandbox USB bus device emulator */
 	UCLASS_AXI_EMUL,	/* sandbox AXI bus device emulator */
