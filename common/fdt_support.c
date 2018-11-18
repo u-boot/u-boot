@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <mapmem.h>
 #include <stdio_dev.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
@@ -633,7 +634,7 @@ int fdt_shrink_to_minimum(void *blob, uint extrasize)
 	fdt_set_totalsize(blob, actualsize);
 
 	/* Add the new reservation */
-	ret = fdt_add_mem_rsv(blob, (uintptr_t)blob, actualsize);
+	ret = fdt_add_mem_rsv(blob, map_to_sysmem(blob), actualsize);
 	if (ret < 0)
 		return ret;
 
