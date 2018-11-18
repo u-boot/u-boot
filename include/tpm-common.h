@@ -26,6 +26,8 @@ enum tpm_duration {
 /* Max buffer size supported by our tpm */
 #define TPM_DEV_BUFSIZE		1260
 
+#define TPM_PCR_MINIMUM_DIGEST_SIZE 20
+
 /**
  * enum tpm_version - The version of the TPM stack to be used
  * @TPM_V1:		Use TPM v1.x stack
