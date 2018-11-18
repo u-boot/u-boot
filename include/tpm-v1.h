@@ -282,64 +282,72 @@ struct __packed tpm_nv_data_public {
 /**
  * Issue a TPM_Startup command.
  *
+ * @param dev		TPM device
  * @param mode		TPM startup mode
  * @return return code of the operation
  */
-u32 tpm_startup(enum tpm_startup_type mode);
+u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode);
 
 /**
  * Issue a TPM_SelfTestFull command.
  *
+ * @param dev		TPM device
  * @return return code of the operation
  */
-u32 tpm_self_test_full(void);
+u32 tpm_self_test_full(struct udevice *dev);
 
 /**
  * Issue a TPM_ContinueSelfTest command.
  *
+ * @param dev		TPM device
  * @return return code of the operation
  */
-u32 tpm_continue_self_test(void);
+u32 tpm_continue_self_test(struct udevice *dev);
 
 /**
  * Issue a TPM_NV_DefineSpace command.  The implementation is limited
  * to specify TPM_NV_ATTRIBUTES and size of the area.  The area index
  * could be one of the special value listed in enum tpm_nv_index.
  *
+ * @param dev		TPM device
  * @param index		index of the area
  * @param perm		TPM_NV_ATTRIBUTES of the area
  * @param size		size of the area
  * @return return code of the operation
  */
-u32 tpm_nv_define_space(u32 index, u32 perm, u32 size);
+u32 tpm_nv_define_space(struct udevice *dev, u32 index, u32 perm, u32 size);
 
 /**
  * Issue a TPM_NV_ReadValue command.  This implementation is limited
  * to read the area from offset 0.  The area index could be one of
  * the special value listed in enum tpm_nv_index.
  *
+ * @param dev		TPM device
  * @param index		index of the area
  * @param data		output buffer of the area contents
  * @param count		size of output buffer
  * @return return code of the operation
  */
-u32 tpm_nv_read_value(u32 index, void *data, u32 count);
+u32 tpm_nv_read_value(struct udevice *dev, u32 index, void *data, u32 count);
 
 /**
  * Issue a TPM_NV_WriteValue command.  This implementation is limited
  * to write the area from offset 0.  The area index could be one of
  * the special value listed in enum tpm_nv_index.
  *
+ * @param dev		TPM device
  * @param index		index of the area
  * @param data		input buffer to be wrote to the area
  * @param length	length of data bytes of input buffer
  * @return return code of the operation
  */
-u32 tpm_nv_write_value(u32 index, const void *data, u32 length);
+u32 tpm_nv_write_value(struct udevice *dev, u32 index, const void *data,
+		       u32 length);
 
 /**
  * Issue a TPM_Extend command.
  *
+ * @param dev		TPM device
  * @param index		index of the PCR
  * @param in_digest	160-bit value representing the event to be
  *			recorded
@@ -347,69 +355,78 @@ u32 tpm_nv_write_value(u32 index, const void *data, u32 length);
  *			command
  * @return return code of the operation
  */
-u32 tpm_extend(u32 index, const void *in_digest, void *out_digest);
+u32 tpm_extend(struct udevice *dev, u32 index, const void *in_digest,
+	       void *out_digest);
 
 /**
  * Issue a TPM_PCRRead command.
  *
+ * @param dev		TPM device
  * @param index		index of the PCR
  * @param data		output buffer for contents of the named PCR
  * @param count		size of output buffer
  * @return return code of the operation
  */
-u32 tpm_pcr_read(u32 index, void *data, size_t count);
+u32 tpm_pcr_read(struct udevice *dev, u32 index, void *data, size_t count);
 
 /**
  * Issue a TSC_PhysicalPresence command.  TPM physical presence flag
  * is bit-wise OR'ed of flags listed in enum tpm_physical_presence.
  *
+ * @param dev		TPM device
  * @param presence	TPM physical presence flag
  * @return return code of the operation
  */
-u32 tpm_tsc_physical_presence(u16 presence);
+u32 tpm_tsc_physical_presence(struct udevice *dev, u16 presence);
 
 /**
  * Issue a TPM_ReadPubek command.
  *
+ * @param dev		TPM device
  * @param data		output buffer for the public endorsement key
  * @param count		size of output buffer
  * @return return code of the operation
  */
-u32 tpm_read_pubek(void *data, size_t count);
+u32 tpm_read_pubek(struct udevice *dev, void *data, size_t count);
 
 /**
  * Issue a TPM_ForceClear command.
  *
+ * @param dev		TPM device
  * @return return code of the operation
  */
-u32 tpm_force_clear(void);
+u32 tpm_force_clear(struct udevice *dev);
 
 /**
  * Issue a TPM_PhysicalEnable command.
  *
+ * @param dev		TPM device
  * @return return code of the operation
  */
-u32 tpm_physical_enable(void);
+u32 tpm_physical_enable(struct udevice *dev);
 
 /**
  * Issue a TPM_PhysicalDisable command.
  *
+ * @param dev		TPM device
  * @return return code of the operation
  */
-u32 tpm_physical_disable(void);
+u32 tpm_physical_disable(struct udevice *dev);
 
 /**
  * Issue a TPM_PhysicalSetDeactivated command.
  *
+ * @param dev		TPM device
  * @param state		boolean state of the deactivated flag
  * @return return code of the operation
  */
-u32 tpm_physical_set_deactivated(u8 state);
+u32 tpm_physical_set_deactivated(struct udevice *dev, u8 state);
 
 /**
  * Issue a TPM_GetCapability command.  This implementation is limited
  * to query sub_cap index that is 4-byte wide.
  *
+ * @param dev		TPM device
  * @param cap_area	partition of capabilities
  * @param sub_cap	further definition of capability, which is
  *			limited to be 4-byte wide
@@ -417,15 +434,17 @@ u32 tpm_physical_set_deactivated(u8 state);
  * @param count		size of output buffer
  * @return return code of the operation
  */
-u32 tpm_get_capability(u32 cap_area, u32 sub_cap, void *cap, size_t count);
+u32 tpm_get_capability(struct udevice *dev, u32 cap_area, u32 sub_cap,
+		       void *cap, size_t count);
 
 /**
  * Issue a TPM_FlushSpecific command for a AUTH resource.
  *
+ * @param dev		TPM device
  * @param auth_handle	handle of the auth session
  * @return return code of the operation
  */
-u32 tpm_terminate_auth_session(u32 auth_handle);
+u32 tpm_terminate_auth_session(struct udevice *dev, u32 auth_handle);
 
 /**
  * Issue a TPM_OIAP command to setup an object independent authorization
@@ -434,22 +453,25 @@ u32 tpm_terminate_auth_session(u32 auth_handle);
  * If there was already an OIAP session active it is terminated and a new
  * session is set up.
  *
+ * @param dev		TPM device
  * @param auth_handle	pointer to the (new) auth handle or NULL.
  * @return return code of the operation
  */
-u32 tpm_oiap(u32 *auth_handle);
+u32 tpm_oiap(struct udevice *dev, u32 *auth_handle);
 
 /**
  * Ends an active OIAP session.
  *
+ * @param dev		TPM device
  * @return return code of the operation
  */
-u32 tpm_end_oiap(void);
+u32 tpm_end_oiap(struct udevice *dev);
 
 /**
  * Issue a TPM_LoadKey2 (Auth1) command using an OIAP session for authenticating
  * the usage of the parent key.
  *
+ * @param dev		TPM device
  * @param parent_handle	handle of the parent key.
  * @param key		pointer to the key structure (TPM_KEY or TPM_KEY12).
  * @param key_length	size of the key structure
@@ -457,13 +479,15 @@ u32 tpm_end_oiap(void);
  * @param key_handle	pointer to the key handle
  * @return return code of the operation
  */
-u32 tpm_load_key2_oiap(u32 parent_handle, const void *key, size_t key_length,
-		       const void *parent_key_usage_auth, u32 *key_handle);
+u32 tpm_load_key2_oiap(struct udevice *dev, u32 parent_handle, const void *key,
+		       size_t key_length, const void *parent_key_usage_auth,
+		       u32 *key_handle);
 
 /**
  * Issue a TPM_GetPubKey (Auth1) command using an OIAP session for
  * authenticating the usage of the key.
  *
+ * @param dev		TPM device
  * @param key_handle	handle of the key
  * @param usage_auth	usage auth for the key
  * @param pubkey	pointer to the pub key buffer; may be NULL if the pubkey
@@ -473,45 +497,51 @@ u32 tpm_load_key2_oiap(u32 parent_handle, const void *key, size_t key_length,
  *			of the stored TPM_PUBKEY structure (iff pubkey != NULL).
  * @return return code of the operation
  */
-u32 tpm_get_pub_key_oiap(u32 key_handle, const void *usage_auth, void *pubkey,
+u32 tpm_get_pub_key_oiap(struct udevice *dev, u32 key_handle,
+			 const void *usage_auth, void *pubkey,
 			 size_t *pubkey_len);
 
 /**
  * Get the TPM permanent flags value
  *
+ * @param dev		TPM device
  * @param pflags	Place to put permanent flags
  * @return return code of the operation
  */
-u32 tpm_get_permanent_flags(struct tpm_permanent_flags *pflags);
+u32 tpm_get_permanent_flags(struct udevice *dev,
+			    struct tpm_permanent_flags *pflags);
 
 /**
  * Get the TPM permissions
  *
+ * @param dev		TPM device
  * @param perm		Returns permissions value
  * @return return code of the operation
  */
-u32 tpm_get_permissions(u32 index, u32 *perm);
+u32 tpm_get_permissions(struct udevice *dev, u32 index, u32 *perm);
 
 /**
  * Flush a resource with a given handle and type from the TPM
  *
+ * @param dev		TPM device
  * @param key_handle           handle of the resource
  * @param resource_type                type of the resource
  * @return return code of the operation
  */
-u32 tpm_flush_specific(u32 key_handle, u32 resource_type);
+u32 tpm_flush_specific(struct udevice *dev, u32 key_handle, u32 resource_type);
 
 #ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
 /**
  * Search for a key by usage AuthData and the hash of the parent's pub key.
  *
+ * @param dev		TPM device
  * @param auth	        Usage auth of the key to search for
  * @param pubkey_digest	SHA1 hash of the pub key structure of the key
  * @param[out] handle	The handle of the key (Non-null iff found)
  * @return 0 if key was found in TPM; != 0 if not.
  */
-u32 tpm_find_key_sha1(const u8 auth[20], const u8 pubkey_digest[20],
-		      u32 *handle);
+u32 tpm_find_key_sha1(struct udevice *dev, const u8 auth[20],
+		      const u8 pubkey_digest[20], u32 *handle);
 #endif /* CONFIG_TPM_LOAD_KEY_BY_SHA1 */
 
 /**
@@ -519,38 +549,43 @@ u32 tpm_find_key_sha1(const u8 auth[20], const u8 pubkey_digest[20],
  * that the TPM may legally return fewer bytes than requested by retrying
  * until @p count bytes have been received.
  *
+ * @param dev		TPM device
  * @param data		output buffer for the random bytes
  * @param count		size of output buffer
  * @return return code of the operation
  */
-u32 tpm_get_random(void *data, u32 count);
+u32 tpm_get_random(struct udevice *dev, void *data, u32 count);
 
 /**
  * tpm_finalise_physical_presence() - Finalise physical presence
  *
+ * @param dev		TPM device
  * @return return code of the operation (0 = success)
  */
-u32 tpm_finalise_physical_presence(void);
+u32 tpm_finalise_physical_presence(struct udevice *dev);
 
 /**
  * tpm_nv_set_locked() - lock the non-volatile space
  *
+ * @param dev		TPM device
  * @return return code of the operation (0 = success)
  */
-u32 tpm_nv_set_locked(void);
+u32 tpm_nv_set_locked(struct udevice *dev);
 
 /**
  * tpm_set_global_lock() - set the global lock
  *
+ * @param dev		TPM device
  * @return return code of the operation (0 = success)
  */
-u32 tpm_set_global_lock(void);
+u32 tpm_set_global_lock(struct udevice *dev);
 
 /**
  * tpm_resume() - start up the TPM from resume (after suspend)
  *
+ * @param dev		TPM device
  * @return return code of the operation (0 = success)
  */
-u32 tpm_resume(void);
+u32 tpm_resume(struct udevice *dev);
 
 #endif /* __TPM_V1_H */

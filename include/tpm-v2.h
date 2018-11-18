@@ -131,45 +131,51 @@ enum tpm2_algorithms {
 /**
  * Issue a TPM2_Startup command.
  *
+ * @dev		TPM device
  * @mode	TPM startup mode
  *
  * @return code of the operation
  */
-u32 tpm2_startup(enum tpm2_startup_types mode);
+u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode);
 
 /**
  * Issue a TPM2_SelfTest command.
  *
+ * @dev		TPM device
  * @full_test	Asking to perform all tests or only the untested ones
  *
  * @return code of the operation
  */
-u32 tpm2_self_test(enum tpm2_yes_no full_test);
+u32 tpm2_self_test(struct udevice *dev, enum tpm2_yes_no full_test);
 
 /**
  * Issue a TPM2_Clear command.
  *
+ * @dev		TPM device
  * @handle	Handle
  * @pw		Password
  * @pw_sz	Length of the password
  *
  * @return code of the operation
  */
-u32 tpm2_clear(u32 handle, const char *pw, const ssize_t pw_sz);
+u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
+	       const ssize_t pw_sz);
 
 /**
  * Issue a TPM2_PCR_Extend command.
  *
+ * @dev		TPM device
  * @index	Index of the PCR
  * @digest	Value representing the event to be recorded
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_extend(u32 index, const uint8_t *digest);
+u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest);
 
 /**
  * Issue a TPM2_PCR_Read command.
  *
+ * @dev		TPM device
  * @idx		Index of the PCR
  * @idx_min_sz	Minimum size in bytes of the pcrSelect array
  * @data	Output buffer for contents of the named PCR
@@ -177,13 +183,14 @@ u32 tpm2_pcr_extend(u32 index, const uint8_t *digest);
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_read(u32 idx, unsigned int idx_min_sz, void *data,
-		  unsigned int *updates);
+u32 tpm2_pcr_read(struct udevice *dev, u32 idx, unsigned int idx_min_sz,
+		  void *data, unsigned int *updates);
 
 /**
  * Issue a TPM2_GetCapability command.  This implementation is limited
  * to query property index that is 4-byte wide.
  *
+ * @dev		TPM device
  * @capability	Partition of capabilities
  * @property	Further definition of capability, limited to be 4 bytes wide
  * @buf		Output buffer for capability information
@@ -191,22 +198,24 @@ u32 tpm2_pcr_read(u32 idx, unsigned int idx_min_sz, void *data,
  *
  * @return code of the operation
  */
-u32 tpm2_get_capability(u32 capability, u32 property, void *buf,
-			size_t prop_count);
+u32 tpm2_get_capability(struct udevice *dev, u32 capability, u32 property,
+			void *buf, size_t prop_count);
 
 /**
  * Issue a TPM2_DictionaryAttackLockReset command.
  *
+ * @dev		TPM device
  * @pw		Password
  * @pw_sz	Length of the password
  *
  * @return code of the operation
  */
-u32 tpm2_dam_reset(const char *pw, const ssize_t pw_sz);
+u32 tpm2_dam_reset(struct udevice *dev, const char *pw, const ssize_t pw_sz);
 
 /**
  * Issue a TPM2_DictionaryAttackParameters command.
  *
+ * @dev		TPM device
  * @pw		Password
  * @pw_sz	Length of the password
  * @max_tries	Count of authorizations before lockout
@@ -215,13 +224,15 @@ u32 tpm2_dam_reset(const char *pw, const ssize_t pw_sz);
  *
  * @return code of the operation
  */
-u32 tpm2_dam_parameters(const char *pw, const ssize_t pw_sz,
-			unsigned int max_tries, unsigned int recovery_time,
+u32 tpm2_dam_parameters(struct udevice *dev, const char *pw,
+			const ssize_t pw_sz, unsigned int max_tries,
+			unsigned int recovery_time,
 			unsigned int lockout_recovery);
 
 /**
  * Issue a TPM2_HierarchyChangeAuth command.
  *
+ * @dev		TPM device
  * @handle	Handle
  * @newpw	New password
  * @newpw_sz	Length of the new password
@@ -230,12 +241,14 @@ u32 tpm2_dam_parameters(const char *pw, const ssize_t pw_sz,
  *
  * @return code of the operation
  */
-int tpm2_change_auth(u32 handle, const char *newpw, const ssize_t newpw_sz,
-		     const char *oldpw, const ssize_t oldpw_sz);
+int tpm2_change_auth(struct udevice *dev, u32 handle, const char *newpw,
+		     const ssize_t newpw_sz, const char *oldpw,
+		     const ssize_t oldpw_sz);
 
 /**
  * Issue a TPM_PCR_SetAuthPolicy command.
  *
+ * @dev		TPM device
  * @pw		Platform password
  * @pw_sz	Length of the password
  * @index	Index of the PCR
@@ -243,12 +256,13 @@ int tpm2_change_auth(u32 handle, const char *newpw, const ssize_t newpw_sz,
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_setauthpolicy(const char *pw, const ssize_t pw_sz, u32 index,
-			   const char *key);
+u32 tpm2_pcr_setauthpolicy(struct udevice *dev, const char *pw,
+			   const ssize_t pw_sz, u32 index, const char *key);
 
 /**
  * Issue a TPM_PCR_SetAuthValue command.
  *
+ * @dev		TPM device
  * @pw		Platform password
  * @pw_sz	Length of the password
  * @index	Index of the PCR
@@ -257,7 +271,8 @@ u32 tpm2_pcr_setauthpolicy(const char *pw, const ssize_t pw_sz, u32 index,
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_setauthvalue(const char *pw, const ssize_t pw_sz, u32 index,
-			  const char *key, const ssize_t key_sz);
+u32 tpm2_pcr_setauthvalue(struct udevice *dev, const char *pw,
+			  const ssize_t pw_sz, u32 index, const char *key,
+			  const ssize_t key_sz);
 
 #endif /* __TPM_V2_H */

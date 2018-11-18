@@ -264,10 +264,16 @@ int do_tpm_info(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 int do_tpm_init(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	struct udevice *dev;
+	int rc;
+
 	if (argc != 1)
 		return CMD_RET_USAGE;
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
-	return report_return_code(tpm_init());
+	return report_return_code(tpm_init(dev));
 }
 
 int do_tpm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

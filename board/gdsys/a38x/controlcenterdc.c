@@ -34,6 +34,19 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DB_GP_88F68XX_GPP_POL_LOW	0x0
 #define DB_GP_88F68XX_GPP_POL_MID	0x0
 
+static int get_tpm(struct udevice **devp)
+{
+	int rc;
+
+	rc = uclass_first_device_err(UCLASS_TPM, devp);
+	if (rc) {
+		printf("Could not find TPM (ret=%d)\n", rc);
+		return CMD_RET_FAILURE;
+	}
+
+	return 0;
+}
+
 /*
  * Define the DDR layout / topology here in the board file. This will
  * be used by the DDR3 init code in the SPL U-Boot version to configure
@@ -266,18 +279,22 @@ int board_fix_fdt(void *rw_fdt_blob)
 
 int last_stage_init(void)
 {
+	struct udevice *tpm;
+	int ret;
+
 #ifndef CONFIG_SPL_BUILD
 	ccdc_eth_init();
 #endif
-	if (tpm_init() || tpm_startup(TPM_ST_CLEAR) ||
-	    tpm_continue_self_test()) {
+	ret = get_tpm(&tpm);
+	if (ret || tpm_init(tpm) || tpm_startup(tpm, TPM_ST_CLEAR) ||
+	    tpm_continue_self_test(tpm)) {
 		return 1;
 	}
 
 	mdelay(37);
 
-	flush_keys();
-	load_and_run_keyprog();
+	flush_keys(tpm);
+	load_and_run_keyprog(tpm);
 
 	return 0;
 }

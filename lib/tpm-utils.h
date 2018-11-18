@@ -78,6 +78,7 @@ u32 tpm_return_code(const void *response);
  *			is a bidirectional
  * @return return code of the TPM response
  */
-u32 tpm_sendrecv_command(const void *command, void *response, size_t *size_ptr);
+u32 tpm_sendrecv_command(struct udevice *dev, const void *command,
+			 void *response, size_t *size_ptr);
 
 #endif /* __TPM_UTILS_H */

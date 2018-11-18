@@ -176,9 +176,15 @@ struct tpm_ops {
 int do_##cmd(cmd_tbl_t *cmdtp, int flag,		\
 	     int argc, char * const argv[])		\
 {							\
+	struct udevice *dev;				\
+	int rc;						\
+							\
+	rc = get_tpm(&dev);				\
+	if (rc)						\
+		return rc;				\
 	if (argc != 1)					\
 		return CMD_RET_USAGE;			\
-	return report_return_code(cmd());		\
+	return report_return_code(cmd(dev));		\
 }
 
 /**
@@ -187,6 +193,7 @@ int do_##cmd(cmd_tbl_t *cmdtp, int flag,		\
  * After all commands have been completed the caller is supposed to
  * call tpm_close().
  *
+ * @dev - TPM device
  * Returns 0 on success, -ve on failure.
  */
 int tpm_open(struct udevice *dev);
@@ -196,6 +203,9 @@ int tpm_open(struct udevice *dev);
  *
  * Releasing the locked locality. Returns 0 on success, -ve 1 on
  * failure (in case lock removal did not succeed).
+ *
+ * @dev - TPM device
+ * Returns 0 on success, -ve on failure.
  */
 int tpm_close(struct udevice *dev);
 
@@ -222,6 +232,7 @@ int tpm_get_desc(struct udevice *dev, char *buf, int size);
  * Note that the outgoing data is inspected to determine command type
  * (ordinal) and a timeout is used for that command type.
  *
+ * @dev - TPM device
  * @sendbuf - buffer of the data to send
  * @send_size size of the data to send
  * @recvbuf - memory to save the response to
@@ -236,9 +247,10 @@ int tpm_xfer(struct udevice *dev, const u8 *sendbuf, size_t send_size,
 /**
  * Initialize TPM device.  It must be called before any TPM commands.
  *
+ * @dev - TPM device
  * @return 0 on success, non-0 on error.
  */
-int tpm_init(void);
+int tpm_init(struct udevice *dev);
 
 /**
  * Retrieve the array containing all the v1 (resp. v2) commands.

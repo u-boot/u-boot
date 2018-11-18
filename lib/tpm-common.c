@@ -151,9 +151,9 @@ u32 tpm_return_code(const void *response)
 	return get_unaligned_be32(response + return_code_offset);
 }
 
-u32 tpm_sendrecv_command(const void *command, void *response, size_t *size_ptr)
+u32 tpm_sendrecv_command(struct udevice *dev, const void *command,
+			 void *response, size_t *size_ptr)
 {
-	struct udevice *dev;
 	int err, ret;
 	u8 response_buffer[COMMAND_BUFFER_SIZE];
 	size_t response_length;
@@ -166,9 +166,6 @@ u32 tpm_sendrecv_command(const void *command, void *response, size_t *size_ptr)
 		response_length = sizeof(response_buffer);
 	}
 
-	ret = uclass_first_device_err(UCLASS_TPM, &dev);
-	if (ret)
-		return ret;
 	err = tpm_xfer(dev, command, tpm_command_size(command),
 		       response, &response_length);
 
@@ -188,14 +185,7 @@ u32 tpm_sendrecv_command(const void *command, void *response, size_t *size_ptr)
 	return ret;
 }
 
-int tpm_init(void)
+int tpm_init(struct udevice *dev)
 {
-	struct udevice *dev;
-	int err;
-
-	err = uclass_first_device_err(UCLASS_TPM, &dev);
-	if (err)
-		return err;
-
 	return tpm_open(dev);
 }
