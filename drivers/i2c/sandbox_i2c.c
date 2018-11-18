@@ -21,33 +21,15 @@ static int get_emul(struct udevice *dev, struct udevice **devp,
 		    struct dm_i2c_ops **opsp)
 {
 	struct dm_i2c_chip *plat;
-	struct udevice *child;
 	int ret;
 
 	*devp = NULL;
 	*opsp = NULL;
 	plat = dev_get_parent_platdata(dev);
 	if (!plat->emul) {
-		ret = dm_scan_fdt_dev(dev);
+		ret = i2c_emul_find(dev, &plat->emul);
 		if (ret)
 			return ret;
-
-		for (device_find_first_child(dev, &child); child;
-		     device_find_next_child(&child)) {
-			if (device_get_uclass_id(child) != UCLASS_I2C_EMUL)
-				continue;
-
-			ret = device_probe(child);
-			if (ret)
-				return ret;
-
-			break;
-		}
-
-		if (child)
-			plat->emul = child;
-		else
-			return -ENODEV;
 	}
 	*devp = plat->emul;
 	*opsp = i2c_get_ops(plat->emul);
