@@ -1289,6 +1289,10 @@ static int sd_set_card_speed(struct mmc *mmc, enum bus_mode mode)
 	ALLOC_CACHE_ALIGN_BUFFER(uint, switch_status, 16);
 	int speed;
 
+	/* SD version 1.00 and 1.01 does not support CMD 6 */
+	if (mmc->version == SD_VERSION_1_0)
+		return 0;
+
 	switch (mode) {
 	case SD_LEGACY:
 		speed = UHS_SDR12_BUS_SPEED;
