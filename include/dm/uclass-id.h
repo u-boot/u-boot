@@ -24,7 +24,6 @@ enum uclass_id {
 	UCLASS_PCI_EMUL,	/* sandbox PCI device emulator */
 	UCLASS_USB_EMUL,	/* sandbox USB bus device emulator */
 	UCLASS_AXI_EMUL,	/* sandbox AXI bus device emulator */
-	UCLASS_SIMPLE_BUS,	/* bus with child devices */
 
 	/* U-Boot uclasses start here - in alphabetical order */
 	UCLASS_ADC,		/* Analog-to-digital converter */
@@ -78,6 +77,7 @@ enum uclass_id {
 	UCLASS_RTC,		/* Real time clock device */
 	UCLASS_SCSI,		/* SCSI device */
 	UCLASS_SERIAL,		/* Serial UART */
+	UCLASS_SIMPLE_BUS,	/* Bus with child devices */
 	UCLASS_SMEM,		/* Shared memory interface */
 	UCLASS_SPI,		/* SPI bus */
 	UCLASS_SPMI,		/* System Power Management Interface bus */
