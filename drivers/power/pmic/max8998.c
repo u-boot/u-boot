@@ -23,7 +23,7 @@ static int max8998_write(struct udevice *dev, uint reg, const uint8_t *buff,
 
 	ret = dm_i2c_write(dev, reg, buff, len);
 	if (ret)
-		pr_err("write error to device: %p register: %#x!", dev, reg);
+		pr_err("write error to device: %p register: %#x!\n", dev, reg);
 
 	return ret;
 }
@@ -34,7 +34,7 @@ static int max8998_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 
 	ret = dm_i2c_read(dev, reg, buff, len);
 	if (ret)
-		pr_err("read error from device: %p register: %#x!", dev, reg);
+		pr_err("read error from device: %p register: %#x!\n", dev, reg);
 
 	return ret;
 }

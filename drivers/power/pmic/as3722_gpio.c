@@ -25,7 +25,7 @@ int as3722_gpio_configure(struct udevice *pmic, unsigned int gpio,
 
 	err = pmic_reg_write(pmic, AS3722_GPIO_CONTROL(gpio), value);
 	if (err) {
-		pr_err("failed to configure GPIO#%u: %d", gpio, err);
+		pr_err("failed to configure GPIO#%u: %d\n", gpio, err);
 		return err;
 	}
 
@@ -45,7 +45,7 @@ static int as3722_gpio_set_value(struct udevice *dev, unsigned int gpio,
 
 	err = pmic_reg_read(pmic, AS3722_GPIO_SIGNAL_OUT);
 	if (err < 0) {
-		pr_err("failed to read GPIO signal out register: %d", err);
+		pr_err("failed to read GPIO signal out register: %d\n", err);
 		return err;
 	}
 	value = err;
@@ -60,7 +60,7 @@ static int as3722_gpio_set_value(struct udevice *dev, unsigned int gpio,
 
 	err = pmic_reg_write(pmic, AS3722_GPIO_SIGNAL_OUT, value);
 	if (err) {
-		pr_err("failed to set GPIO#%u %s: %d", gpio, l, err);
+		pr_err("failed to set GPIO#%u %s: %d\n", gpio, l, err);
 		return err;
 	}
 
@@ -83,13 +83,14 @@ int as3722_gpio_direction_output(struct udevice *dev, unsigned int gpio,
 
 	err = pmic_reg_write(pmic, AS3722_GPIO_CONTROL(gpio), value);
 	if (err) {
-		pr_err("failed to configure GPIO#%u as output: %d", gpio, err);
+		pr_err("failed to configure GPIO#%u as output: %d\n", gpio,
+		       err);
 		return err;
 	}
 
 	err = as3722_gpio_set_value(pmic, gpio, value);
 	if (err < 0) {
-		pr_err("failed to set GPIO#%u high: %d", gpio, err);
+		pr_err("failed to set GPIO#%u high: %d\n", gpio, err);
 		return err;
 	}
 
