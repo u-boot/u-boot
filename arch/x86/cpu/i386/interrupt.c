@@ -264,7 +264,9 @@ int interrupt_init(void)
 	i8259_init();
 #endif
 
+#ifdef CONFIG_APIC
 	lapic_setup();
+#endif
 
 	/* Initialize core interrupt and exception functionality of CPU */
 	cpu_init_interrupts();

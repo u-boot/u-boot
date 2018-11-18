@@ -736,6 +736,15 @@ config I8259_PIC
 	  slave) interrupt controllers. Include this to have U-Boot set up
 	  the interrupt correctly.
 
+config APIC
+	bool
+	default y
+	help
+	  The (A)dvanced (P)rogrammable (I)nterrupt (C)ontroller is responsible
+	  for catching interrupts and distributing them to one or more CPU
+	  cores. In most cases there are some LAPICs (local) for each core and
+	  one I/O APIC. This conjunction is found on most modern x86 systems.
+
 config PINCTRL_ICH6
 	bool
 	help
