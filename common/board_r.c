@@ -453,7 +453,8 @@ static int initr_env(void)
 	else
 		set_default_env(NULL, 0);
 #ifdef CONFIG_OF_CONTROL
-	env_set_addr("fdtcontroladdr", gd->fdt_blob);
+	env_set_hex("fdtcontroladdr",
+		    (unsigned long)map_to_sysmem(gd->fdt_blob));
 #endif
 
 	/* Initialize from environment */
