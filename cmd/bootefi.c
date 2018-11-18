@@ -149,7 +149,7 @@ static void set_load_options(struct efi_loaded_image *loaded_image_info,
  * copy_fdt() - Copy the device tree to a new location available to EFI
  *
  * The FDT is relocated into a suitable location within the EFI memory map.
- * An additional 12KB is added to the space in case the device tree needs to be
+ * Additional 12 KiB are added to the space in case the device tree needs to be
  * expanded later with fdt_open_into().
  *
  * @fdt_addr:	On entry, address of start of FDT. On exit, address of relocated
@@ -177,14 +177,12 @@ static efi_status_t copy_fdt(ulong *fdt_addrp)
 	}
 
 	/*
-	 * Give us at least 4KB of breathing room in case the device tree needs
-	 * to be expanded later. Round up to the nearest EFI page boundary.
+	 * Give us at least 12 KiB of breathing room in case the device tree
+	 * needs to be expanded later.
 	 */
 	fdt = map_sysmem(*fdt_addrp, 0);
-	fdt_size = fdt_totalsize(fdt);
-	fdt_size += 4096 * 3;
-	fdt_size = ALIGN(fdt_size + EFI_PAGE_SIZE - 1, EFI_PAGE_SIZE);
-	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
+	fdt_pages = efi_size_in_pages(fdt_totalsize(fdt) + 0x3000);
+	fdt_size = fdt_pages << EFI_PAGE_SHIFT;
 
 	/* Safe fdt location is at 127MB */
 	new_fdt_addr = fdt_ram_start + (127 * 1024 * 1024) + fdt_size;
@@ -282,8 +280,7 @@ static void efi_carve_out_dt_rsv(void *fdt)
 		if (addr == (uintptr_t)fdt)
 			continue;
 
-		pages = ALIGN(size + (addr & EFI_PAGE_MASK), EFI_PAGE_SIZE) >>
-			EFI_PAGE_SHIFT;
+		pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
 		addr &= ~EFI_PAGE_MASK;
 		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
 					false))

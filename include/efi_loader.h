@@ -344,7 +344,16 @@ struct efi_simple_file_system_protocol *efi_simple_file_system(
 /* open file from device-path: */
 struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
 
-
+/**
+ * efi_size_in_pages() - convert size in bytes to size in pages
+ *
+ * This macro returns the number of EFI memory pages required to hold 'size'
+ * bytes.
+ *
+ * @size:	size in bytes
+ * Return:	size in pages
+ */
+#define efi_size_in_pages(size) ((size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
 /* More specific EFI memory allocator, called by EFI payloads */
