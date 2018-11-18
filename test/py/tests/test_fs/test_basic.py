@@ -13,6 +13,7 @@ import re
 from fstest_defs import *
 
 @pytest.mark.boardspec('sandbox')
+@pytest.mark.slow
 class TestFsBasic(object):
     def test_fs1(self, u_boot_console, fs_obj_basic):
         """
