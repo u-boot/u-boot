@@ -384,7 +384,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 		/* Reserve that map in our memory maps */
 		ret = efi_add_memory_map(addr, pages, memory_type, true);
 		if (ret == addr) {
-			*memory = (uintptr_t)map_sysmem(addr, len);
+			*memory = addr;
 		} else {
 			/* Map would overlap, bail out */
 			r = EFI_OUT_OF_RESOURCES;
@@ -418,12 +418,11 @@ void *efi_alloc(uint64_t len, int memory_type)
 efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
 	uint64_t r = 0;
-	uint64_t addr = map_to_sysmem((void *)(uintptr_t)memory);
 
-	r = efi_add_memory_map(addr, pages, EFI_CONVENTIONAL_MEMORY, false);
+	r = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
 	/* Merging of adjacent free regions is missing */
 
-	if (r == addr)
+	if (r == memory)
 		return EFI_SUCCESS;
 
 	return EFI_NOT_FOUND;
@@ -562,7 +561,7 @@ __weak void efi_add_known_memory(void)
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		u64 ram_end, ram_start, pages;
 
-		ram_start = gd->bd->bi_dram[i].start;
+		ram_start = (uintptr_t)map_sysmem(gd->bd->bi_dram[i].start, 0);
 		ram_end = ram_start + gd->bd->bi_dram[i].size;
 
 		/* Remove partial pages */
