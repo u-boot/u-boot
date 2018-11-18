@@ -6,13 +6,17 @@
  *
  * This unit test checks the following runtime services:
  * AllocatePages, FreePages, GetMemoryMap
+ *
+ * The memory type used for the device tree is checked.
  */
 
 #include <efi_selftest.h>
 
 #define EFI_ST_NUM_PAGES 8
 
+static const efi_guid_t fdt_guid = EFI_FDT_GUID;
 static struct efi_boot_services *boottime;
+static u64 fdt_addr;
 
 /**
  * setup() - setup unit test
@@ -24,8 +28,20 @@ static struct efi_boot_services *boottime;
 static int setup(const efi_handle_t handle,
 		 const struct efi_system_table *systable)
 {
+	size_t i;
+
 	boottime = systable->boottime;
 
+	for (i = 0; i < systable->nr_tables; ++i) {
+		if (!efi_st_memcmp(&systable->tables[i].guid, &fdt_guid,
+				   sizeof(efi_guid_t))) {
+			if (fdt_addr) {
+				efi_st_error("Duplicate device tree\n");
+				return EFI_ST_FAILURE;
+			}
+			fdt_addr = (uintptr_t)systable->tables[i].table;
+		}
+	}
 	return EFI_ST_SUCCESS;
 }
 
@@ -152,6 +168,14 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 
+	/* Check memory reservation for the device tree */
+	if (fdt_addr &&
+	    find_in_memory_map(map_size, memory_map, desc_size, fdt_addr,
+			       EFI_RUNTIME_SERVICES_DATA) != EFI_ST_SUCCESS) {
+		efi_st_error
+			("Device tree not marked as runtime services data\n");
+		return EFI_ST_FAILURE;
+	}
 	return EFI_ST_SUCCESS;
 }
 
