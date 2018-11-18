@@ -280,13 +280,6 @@ static void efi_carve_out_dt_rsv(void *fdt)
 		/* Convert from sandbox address space. */
 		addr = (uintptr_t)map_sysmem(addr, 0);
 
-		/*
-		 * Do not carve out the device tree. It is already marked as
-		 * EFI_RUNTIME_SERVICES_DATA
-		 */
-		if (addr == (uintptr_t)fdt)
-			continue;
-
 		pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
 		addr &= ~EFI_PAGE_MASK;
 		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
@@ -307,6 +300,9 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
 		return EFI_INVALID_PARAMETER;
 	}
 
+	/* Create memory reservation as indicated by the device tree */
+	efi_carve_out_dt_rsv(fdt);
+
 	/* Prepare fdt for payload */
 	ret = copy_fdt(&fdt);
 	if (ret)
@@ -316,8 +312,6 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
 		printf("ERROR: failed to process device tree\n");
 		return EFI_LOAD_ERROR;
 	}
-
-	efi_carve_out_dt_rsv(fdt);
 
 	/* Link to it in the efi tables */
 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
