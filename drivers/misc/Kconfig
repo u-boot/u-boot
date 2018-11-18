@@ -13,6 +13,24 @@ config MISC
 	  set of generic read, write and ioctl methods may be used to
 	  access the device.
 
+config SPL_MISC
+	bool "Enable Driver Model for Misc drivers in SPL"
+	depends on SPL_DM
+	help
+	  Enable driver model for miscellaneous devices. This class is
+	  used only for those do not fit other more general classes. A
+	  set of generic read, write and ioctl methods may be used to
+	  access the device.
+
+config TPL_MISC
+	bool "Enable Driver Model for Misc drivers in TPL"
+	depends on TPL_DM
+	help
+	  Enable driver model for miscellaneous devices. This class is
+	  used only for those do not fit other more general classes. A
+	  set of generic read, write and ioctl methods may be used to
+	  access the device.
+
 config ALTERA_SYSID
 	bool "Altera Sysid support"
 	depends on MISC
@@ -68,6 +86,24 @@ config CROS_EC
 	  control access to the battery and main PMIC depending on the
 	  device. You can use the 'crosec' command to access it.
 
+config SPL_CROS_EC
+	bool "Enable Chrome OS EC in SPL"
+	help
+	  Enable access to the Chrome OS EC in SPL. This is a separate
+	  microcontroller typically available on a SPI bus on Chromebooks. It
+	  provides access to the keyboard, some internal storage and may
+	  control access to the battery and main PMIC depending on the
+	  device. You can use the 'crosec' command to access it.
+
+config TPL_CROS_EC
+	bool "Enable Chrome OS EC in TPL"
+	help
+	  Enable access to the Chrome OS EC in TPL. This is a separate
+	  microcontroller typically available on a SPI bus on Chromebooks. It
+	  provides access to the keyboard, some internal storage and may
+	  control access to the battery and main PMIC depending on the
+	  device. You can use the 'crosec' command to access it.
+
 config CROS_EC_I2C
 	bool "Enable Chrome OS EC I2C driver"
 	depends on CROS_EC
@@ -86,11 +122,47 @@ config CROS_EC_LPC
 	  through a legacy port interface, so on x86 machines the main
 	  function of the EC is power and thermal management.
 
+config SPL_CROS_EC_LPC
+	bool "Enable Chrome OS EC LPC driver in SPL"
+	depends on CROS_EC
+	help
+	  Enable I2C access to the Chrome OS EC. This is used on x86
+	  Chromebooks such as link and falco. The keyboard is provided
+	  through a legacy port interface, so on x86 machines the main
+	  function of the EC is power and thermal management.
+
+config TPL_CROS_EC_LPC
+	bool "Enable Chrome OS EC LPC driver in TPL"
+	depends on CROS_EC
+	help
+	  Enable I2C access to the Chrome OS EC. This is used on x86
+	  Chromebooks such as link and falco. The keyboard is provided
+	  through a legacy port interface, so on x86 machines the main
+	  function of the EC is power and thermal management.
+
 config CROS_EC_SANDBOX
 	bool "Enable Chrome OS EC sandbox driver"
 	depends on CROS_EC && SANDBOX
 	help
 	  Enable a sandbox emulation of the Chrome OS EC. This supports
+	  keyboard (use the -l flag to enable the LCD), verified boot context,
+	  EC flash read/write/erase support and a few other things. It is
+	  enough to perform a Chrome OS verified boot on sandbox.
+
+config SPL_CROS_EC_SANDBOX
+	bool "Enable Chrome OS EC sandbox driver in SPL"
+	depends on SPL_CROS_EC && SANDBOX
+	help
+	  Enable a sandbox emulation of the Chrome OS EC in SPL. This supports
+	  keyboard (use the -l flag to enable the LCD), verified boot context,
+	  EC flash read/write/erase support and a few other things. It is
+	  enough to perform a Chrome OS verified boot on sandbox.
+
+config TPL_CROS_EC_SANDBOX
+	bool "Enable Chrome OS EC sandbox driver in TPL"
+	depends on TPL_CROS_EC && SANDBOX
+	help
+	  Enable a sandbox emulation of the Chrome OS EC in TPL. This supports
 	  keyboard (use the -l flag to enable the LCD), verified boot context,
 	  EC flash read/write/erase support and a few other things. It is
 	  enough to perform a Chrome OS verified boot on sandbox.
