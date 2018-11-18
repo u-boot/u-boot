@@ -314,4 +314,12 @@ config MPC8XXX_GPIO
 	  Aside from the standard functions of input/output mode, and output
 	  value setting, the open-drain feature, which can configure individual
 	  GPIOs to work as open-drain outputs, is supported.
+
+config MT7621_GPIO
+	bool "MediaTek MT7621 GPIO driver"
+	depends on DM_GPIO && ARCH_MT7620
+	default y
+	help
+	  Say yes here to support MediaTek MT7621 compatible GPIOs.
+
 endmenu

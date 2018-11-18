@@ -4,14 +4,26 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
+#include <led.h>
+#include <linux/io.h>
+
+#define MT76XX_AGPIO_CFG	0x1000003c
 
 int board_early_init_f(void)
 {
-	/*
-	 * Nothing to be done here for this board (no UART setup etc)
-	 * right now. We might need some pin muxing, so lets keep this
-	 * function for now.
-	 */
+	void __iomem *gpio_mode;
+
+	/* Configure digital vs analog GPIOs */
+	gpio_mode = ioremap_nocache(MT76XX_AGPIO_CFG, 0x100);
+	iowrite32(0x00fe01ff, gpio_mode);
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+	if (IS_ENABLED(CONFIG_LED))
+		led_default_state();
+
 	return 0;
 }
