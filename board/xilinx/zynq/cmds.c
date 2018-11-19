@@ -493,6 +493,7 @@ static int do_zynq(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return cmd_process_error(zynq_cmd, ret);
 }
 
+#ifdef CONFIG_SYS_LONGHELP
 static char zynq_help_text[] =
 	""
 #ifdef CONFIG_CMD_ZYNQ_RSA
@@ -507,6 +508,7 @@ static char zynq_help_text[] =
 	"                  destination address\n"
 #endif
 	;
+#endif
 
 U_BOOT_CMD(zynq,	6,	0,	do_zynq,
 	   "Zynq specific commands", zynq_help_text
