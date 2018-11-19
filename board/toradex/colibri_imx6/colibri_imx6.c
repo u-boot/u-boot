@@ -622,6 +622,15 @@ static void setup_display(void)
 	gpio_direction_output(RGB_BACKLIGHTPWM_GP, 0);
 	gpio_direction_output(RGB_BACKLIGHT_GP, 1);
 }
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_direction_output(RGB_BACKLIGHTPWM_GP, 1);
+	gpio_direction_output(RGB_BACKLIGHT_GP, 0);
+}
 #endif /* defined(CONFIG_VIDEO_IPUV3) */
 
 int board_early_init_f(void)

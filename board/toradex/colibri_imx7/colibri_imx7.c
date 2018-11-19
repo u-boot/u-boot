@@ -150,6 +150,15 @@ static int setup_lcd(void)
 }
 #endif
 
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_direction_output(GPIO_PWM_A, 1);
+	gpio_direction_output(GPIO_BL_ON, 0);
+}
+
 #ifdef CONFIG_FEC_MXC
 static iomux_v3_cfg_t const fec1_pads[] = {
 #ifndef CONFIG_COLIBRI_IMX7_EXT_PHYCLK

@@ -38,8 +38,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ENET_PAD_CTRL	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_HIGH | \
 			PAD_CTL_DSE_50ohm | PAD_CTL_OBE_IBE_ENABLE)
 
-#define USB_PEN_GPIO           83
+#define USB_PEN_GPIO		83
 #define USB_CDET_GPIO		102
+#define PTC0_GPIO_45		45
 
 static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
 	/* AXI */
@@ -632,3 +633,12 @@ int board_usb_phy_mode(int port)
 	}
 }
 #endif
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_request(PTC0_GPIO_45, "BL_ON");
+	gpio_direction_output(PTC0_GPIO_45, 0);
+}
