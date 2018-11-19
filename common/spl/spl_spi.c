@@ -74,15 +74,21 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 	unsigned payload_offs = CONFIG_SYS_SPI_U_BOOT_OFFS;
 	struct spi_flash *flash;
 	struct image_header *header;
+	unsigned int max_hz = CONFIG_SF_DEFAULT_SPEED;
+	unsigned int spi_mode = CONFIG_SF_DEFAULT_MODE;
 
+#ifdef CONFIG_DM_SPI_FLASH
+	/* In DM mode defaults will be taken from DT */
+	max_hz = 0, spi_mode = 0;
+#endif
 	/*
 	 * Load U-Boot image from SPI flash into RAM
 	 */
 
 	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
 				CONFIG_SF_DEFAULT_CS,
-				CONFIG_SF_DEFAULT_SPEED,
-				CONFIG_SF_DEFAULT_MODE);
+				max_hz,
+				spi_mode);
 	if (!flash) {
 		puts("SPI probe failed.\n");
 		return -ENODEV;
