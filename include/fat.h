@@ -11,6 +11,7 @@
 #define _FAT_H_
 
 #include <asm/byteorder.h>
+#include <fs.h>
 
 #define CONFIG_SUPPORT_VFAT
 /* Maximum Long File Name length supported here is 128 UTF-16 code units */
@@ -57,12 +58,6 @@
  * dir entries
  */
 #define LAST_LONG_ENTRY_MASK	0x40
-
-/* Flags telling whether we should read a file or list a directory */
-#define LS_NO		0
-#define LS_YES		1
-#define LS_DIR		1
-#define LS_ROOT		2
 
 #define ISDIRDELIM(c)	((c) == '/' || (c) == '\\')
 
@@ -133,10 +128,14 @@ typedef struct volume_info
 	/* Boot sign comes last, 2 bytes */
 } volume_info;
 
+/* see dir_entry::lcase: */
+#define CASE_LOWER_BASE	8	/* base (name) is lower case */
+#define CASE_LOWER_EXT	16	/* extension is lower case */
+
 typedef struct dir_entry {
 	char	name[8],ext[3];	/* Name and extension */
 	__u8	attr;		/* Attribute bits */
-	__u8	lcase;		/* Case for base and extension */
+	__u8	lcase;		/* Case for name and ext (CASE_LOWER_x) */
 	__u8	ctime_ms;	/* Creation time, milliseconds */
 	__u16	ctime;		/* Creation time */
 	__u16	cdate;		/* Creation date */
@@ -189,7 +188,6 @@ static inline u32 sect_to_clust(fsdata *fsdata, u32 sect)
 }
 
 int file_fat_detectfs(void);
-int file_fat_ls(const char *dir);
 int fat_exists(const char *filename);
 int fat_size(const char *filename, loff_t *size);
 int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
@@ -202,5 +200,8 @@ int file_fat_write(const char *filename, void *buf, loff_t offset, loff_t len,
 		   loff_t *actwrite);
 int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
 		  loff_t *actread);
+int fat_opendir(const char *filename, struct fs_dir_stream **dirsp);
+int fat_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
+void fat_closedir(struct fs_dir_stream *dirs);
 void fat_close(void);
 #endif /* _FAT_H_ */
