@@ -255,6 +255,8 @@
 	"fdtheader_addr_r=0x80100000\0"		\
 	"kernelheader_addr_r=0x80200000\0"	\
 	"kernel_addr_r=0x81000000\0"		\
+	"kernel_start=0x1000000\0"		\
+	"kernelheader_start=0x800000\0"		\
 	"fdt_addr_r=0x90000000\0"		\
 	"load_addr=0xa0000000\0"		\
 	"kernelheader_addr=0x60800000\0"	\
@@ -306,6 +308,12 @@
 		"&& cp.b $kernelheader_addr $kernelheader_addr_r "	\
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
 		"bootm $load_addr#$board\0"	    \
+	"nand_bootcmd=echo Trying load from NAND..;"	\
+		"nand info; nand read $load_addr "	\
+		"$kernel_start $kernel_size; env exists secureboot "	\
+		"&& nand read $kernelheader_addr_r $kernelheader_start "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
+		"bootm $load_addr#$board\0"	\
 	"sd_bootcmd=echo Trying load from SD ..;"       \
 		"mmcinfo; mmc read $load_addr "         \
 		"$kernel_addr_sd $kernel_size_sd && "     \
