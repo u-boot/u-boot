@@ -322,6 +322,25 @@ int serial_setconfig(uint config)
 	return 0;
 }
 
+int serial_getinfo(struct serial_device_info *info)
+{
+	struct dm_serial_ops *ops;
+
+	if (!gd->cur_serial_dev)
+		return -ENODEV;
+
+	if (!info)
+		return -EINVAL;
+
+	info->baudrate = gd->baudrate;
+
+	ops = serial_get_ops(gd->cur_serial_dev);
+	if (ops->getinfo)
+		return ops->getinfo(gd->cur_serial_dev, info);
+
+	return -EINVAL;
+}
+
 void serial_stdio_init(void)
 {
 }
@@ -441,6 +460,8 @@ static int serial_post_probe(struct udevice *dev)
 	if (ops->loop)
 		ops->loop += gd->reloc_off;
 #endif
+	if (ops->getinfo)
+		ops->getinfo += gd->reloc_off;
 #endif
 	/* Set the baud rate */
 	if (ops->setbrg) {

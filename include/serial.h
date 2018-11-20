@@ -118,6 +118,39 @@ enum serial_stop {
 			 SERIAL_8_BITS << SERIAL_BITS_SHIFT | \
 			 SERIAL_ONE_STOP << SERIAL_STOP_SHIFT)
 
+enum serial_chip_type {
+	SERIAL_CHIP_UNKNOWN = -1,
+	SERIAL_CHIP_16550_COMPATIBLE,
+};
+
+enum adr_space_type {
+	SERIAL_ADDRESS_SPACE_MEMORY = 0,
+	SERIAL_ADDRESS_SPACE_IO,
+};
+
+/**
+ * struct serial_device_info - structure to hold serial device info
+ *
+ * @type:	type of the UART chip
+ * @addr_space:	address space to access the registers
+ * @addr:	physical address of the registers
+ * @reg_width:	size (in bytes) of the IO accesses to the registers
+ * @reg_offset:	offset to apply to the @addr from the start of the registers
+ * @reg_shift:	quantity to shift the register offsets by
+ * @baudrate:	baud rate
+ */
+struct serial_device_info {
+	enum serial_chip_type type;
+	enum adr_space_type addr_space;
+	ulong addr;
+	u8 reg_width;
+	u8 reg_offset;
+	u8 reg_shift;
+	unsigned int baudrate;
+};
+
+#define SERIAL_DEFAULT_ADDRESS	0xBADACCE5
+
 /**
  * struct struct dm_serial_ops - Driver model serial operations
  *
@@ -219,6 +252,13 @@ struct dm_serial_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*setconfig)(struct udevice *dev, uint serial_config);
+	/**
+	 * getinfo() - Get serial device information
+	 *
+	 * @dev: Device pointer
+	 * @info: struct serial_device_info to fill
+	 */
+	int (*getinfo)(struct udevice *dev, struct serial_device_info *info);
 };
 
 /**

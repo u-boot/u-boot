@@ -188,6 +188,26 @@ static int sandbox_serial_setconfig(struct udevice *dev, uint serial_config)
 	return 0;
 }
 
+static int sandbox_serial_getinfo(struct udevice *dev,
+				  struct serial_device_info *serial_info)
+{
+	struct serial_device_info info = {
+		.type = SERIAL_CHIP_UNKNOWN,
+		.addr_space = SERIAL_ADDRESS_SPACE_IO,
+		.addr = SERIAL_DEFAULT_ADDRESS,
+		.reg_width = 1,
+		.reg_offset = 0,
+		.reg_shift = 0,
+	};
+
+	if (!serial_info)
+		return -EINVAL;
+
+	*serial_info = info;
+
+	return 0;
+}
+
 #if CONFIG_IS_ENABLED(OF_CONTROL)
 static const char * const ansi_colour[] = {
 	"black", "red", "green", "yellow", "blue", "megenta", "cyan",
@@ -221,6 +241,7 @@ static const struct dm_serial_ops sandbox_serial_ops = {
 	.getc = sandbox_serial_getc,
 	.getconfig = sandbox_serial_getconfig,
 	.setconfig = sandbox_serial_setconfig,
+	.getinfo = sandbox_serial_getinfo,
 };
 
 static const struct udevice_id sandbox_serial_ids[] = {
