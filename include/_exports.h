@@ -50,11 +50,9 @@
 #endif
 
 #if !defined(CONFIG_CMD_SPI) || defined(CONFIG_DM_SPI)
-	EXPORT_FUNC(dummy, void, spi_init, void)
 	EXPORT_FUNC(dummy, void, spi_setup_slave, void)
 	EXPORT_FUNC(dummy, void, spi_free_slave, void)
 #else
-	EXPORT_FUNC(spi_init, void, spi_init, void)
 	EXPORT_FUNC(spi_setup_slave, struct spi_slave *, spi_setup_slave,
 		    unsigned int, unsigned int, unsigned int, unsigned int)
 	EXPORT_FUNC(spi_free_slave, void, spi_free_slave, struct spi_slave *)

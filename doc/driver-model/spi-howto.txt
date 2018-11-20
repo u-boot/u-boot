@@ -163,11 +163,6 @@ At this point you should be able to build U-Boot for your board with the
 empty SPI driver. You still have empty methods in your driver, but we will
 write these one by one.
 
-If you have spi_init() functions or the like that are called from your
-board then the build will fail. Remove these calls and make a note of the
-init that needs to be done.
-
-
 7. Set up your platform data structure
 
 This will hold the information your driver to operate, like its hardware
