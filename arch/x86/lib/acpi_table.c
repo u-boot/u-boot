@@ -10,6 +10,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <dm/uclass-internal.h>
+#include <serial.h>
 #include <version.h>
 #include <asm/acpi/global_nvs.h>
 #include <asm/acpi_table.h>
@@ -336,6 +337,115 @@ static void acpi_create_mcfg(struct acpi_mcfg *mcfg)
 	header->checksum = table_compute_checksum((void *)mcfg, header->length);
 }
 
+static void acpi_create_spcr(struct acpi_spcr *spcr)
+{
+	struct acpi_table_header *header = &(spcr->header);
+	struct serial_device_info serial_info = {0};
+	ulong serial_address, serial_offset;
+	uint serial_config;
+	uint serial_width;
+	int access_size;
+	int space_id;
+	int ret;
+
+	/* Fill out header fields */
+	acpi_fill_header(header, "SPCR");
+	header->length = sizeof(struct acpi_spcr);
+	header->revision = 2;
+
+	ret = serial_getinfo(&serial_info);
+	if (ret)
+		serial_info.type = SERIAL_CHIP_UNKNOWN;
+
+	/* Encode chip type */
+	switch (serial_info.type) {
+	case SERIAL_CHIP_16550_COMPATIBLE:
+		spcr->interface_type = ACPI_DBG2_16550_COMPATIBLE;
+		break;
+	case SERIAL_CHIP_UNKNOWN:
+	default:
+		spcr->interface_type = ACPI_DBG2_UNKNOWN;
+		break;
+	}
+
+	/* Encode address space */
+	switch (serial_info.addr_space) {
+	case SERIAL_ADDRESS_SPACE_MEMORY:
+		space_id = ACPI_ADDRESS_SPACE_MEMORY;
+		break;
+	case SERIAL_ADDRESS_SPACE_IO:
+	default:
+		space_id = ACPI_ADDRESS_SPACE_IO;
+		break;
+	}
+
+	serial_width = serial_info.reg_width * 8;
+	serial_offset = serial_info.reg_offset << serial_info.reg_shift;
+	serial_address = serial_info.addr + serial_offset;
+
+	/* Encode register access size */
+	switch (serial_info.reg_shift) {
+	case 0:
+		access_size = ACPI_ACCESS_SIZE_BYTE_ACCESS;
+		break;
+	case 1:
+		access_size = ACPI_ACCESS_SIZE_WORD_ACCESS;
+		break;
+	case 2:
+		access_size = ACPI_ACCESS_SIZE_DWORD_ACCESS;
+		break;
+	case 3:
+		access_size = ACPI_ACCESS_SIZE_QWORD_ACCESS;
+		break;
+	default:
+		access_size = ACPI_ACCESS_SIZE_UNDEFINED;
+		break;
+	}
+
+	debug("UART type %u @ %lx\n", spcr->interface_type, serial_address);
+
+	/* Fill GAS */
+	spcr->serial_port.space_id = space_id;
+	spcr->serial_port.bit_width = serial_width;
+	spcr->serial_port.bit_offset = 0;
+	spcr->serial_port.access_size = access_size;
+	spcr->serial_port.addrl = lower_32_bits(serial_address);
+	spcr->serial_port.addrh = upper_32_bits(serial_address);
+
+	/* Encode baud rate */
+	switch (serial_info.baudrate) {
+	case 9600:
+		spcr->baud_rate = 3;
+		break;
+	case 19200:
+		spcr->baud_rate = 4;
+		break;
+	case 57600:
+		spcr->baud_rate = 6;
+		break;
+	case 115200:
+		spcr->baud_rate = 7;
+		break;
+	default:
+		spcr->baud_rate = 0;
+		break;
+	}
+
+	ret = serial_getconfig(&serial_config);
+	if (ret)
+		serial_config = SERIAL_DEFAULT_CONFIG;
+
+	spcr->parity = SERIAL_GET_PARITY(serial_config);
+	spcr->stop_bits = SERIAL_GET_STOP(serial_config);
+
+	/* No PCI devices for now */
+	spcr->pci_device_id = 0xffff;
+	spcr->pci_vendor_id = 0xffff;
+
+	/* Fix checksum */
+	header->checksum = table_compute_checksum((void *)spcr, header->length);
+}
+
 /*
  * QEMU's version of write_acpi_tables is defined in drivers/misc/qfw.c
  */
@@ -350,6 +460,7 @@ ulong write_acpi_tables(ulong start)
 	struct acpi_fadt *fadt;
 	struct acpi_mcfg *mcfg;
 	struct acpi_madt *madt;
+	struct acpi_spcr *spcr;
 	int i;
 
 	current = start;
@@ -436,6 +547,13 @@ ulong write_acpi_tables(ulong start)
 	acpi_create_mcfg(mcfg);
 	current += mcfg->header.length;
 	acpi_add_table(rsdp, mcfg);
+	current = ALIGN(current, 16);
+
+	debug("ACPI:    * SPCR\n");
+	spcr = (struct acpi_spcr *)current;
+	acpi_create_spcr(spcr);
+	current += spcr->header.length;
+	acpi_add_table(rsdp, spcr);
 	current = ALIGN(current, 16);
 
 	debug("current = %x\n", current);

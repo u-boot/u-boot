@@ -327,6 +327,8 @@ struct acpi_global_nvs;
 #define ACPI_DBG2_USB_XHCI		0x0000
 #define ACPI_DBG2_USB_EHCI		0x0001
 
+#define ACPI_DBG2_UNKNOWN		0x00FF
+
 /* SPCR (Serial Port Console Redirection table) */
 struct __packed acpi_spcr {
 	struct acpi_table_header header;
