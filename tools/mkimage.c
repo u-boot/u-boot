@@ -530,6 +530,13 @@ int main(int argc, char **argv)
 			ret = imx8image_copy_image(ifd, &params);
 			if (ret)
 				return ret;
+		} else if (params.type == IH_TYPE_IMX8MIMAGE) {
+			/* i.MX8M has special Image format */
+			int ret;
+
+			ret = imx8mimage_copy_image(ifd, &params);
+			if (ret)
+				return ret;
 		} else {
 			copy_file(ifd, params.datafile, pad_len);
 		}
