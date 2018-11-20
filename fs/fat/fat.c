@@ -725,7 +725,10 @@ static void *next_cluster(fat_itr *itr)
 	if (itr->last_cluster)
 		return NULL;
 
-	sect = clust_to_sect(itr->fsdata, itr->next_clust);
+	if (itr->fsdata->fatsize != 32 && itr->is_root)
+		sect = mydata->rootdir_sect;
+	else
+		sect = clust_to_sect(itr->fsdata, itr->next_clust);
 
 	debug("FAT read(sect=%d), clust_size=%d, DIRENTSPERBLOCK=%zd\n",
 	      sect, itr->fsdata->clust_size, DIRENTSPERBLOCK);
