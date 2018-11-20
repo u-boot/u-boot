@@ -118,13 +118,6 @@ struct spi_slave {
 };
 
 /**
- * Initialization, must be called once on start up.
- *
- * TODO: I don't think we really need this.
- */
-void spi_init(void);
-
-/**
  * spi_do_alloc_slave - Allocate a new SPI slave (internal)
  *
  * Allocate and zero all fields in the spi slave, and set the bus/chip

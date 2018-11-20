@@ -461,11 +461,6 @@ static inline struct omap3_spi_priv *to_omap3_spi(struct spi_slave *slave)
 	return container_of(slave, struct omap3_spi_priv, slave);
 }
 
-void spi_init(void)
-{
-	/* do nothing */
-}
-
 void spi_free_slave(struct spi_slave *slave)
 {
 	struct omap3_spi_priv *priv = to_omap3_spi(slave);
