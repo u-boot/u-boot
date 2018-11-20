@@ -14,9 +14,6 @@ typedef volatile unsigned long	vu_long;
 typedef volatile unsigned short vu_short;
 typedef volatile unsigned char	vu_char;
 
-/* Allow sharing constants with type modifiers between C and assembly. */
-#define _AC(X, Y)       (X##Y)
-
 #include <config.h>
 #include <errno.h>
 #include <time.h>
@@ -541,15 +538,9 @@ int cpu_release(u32 nr, int argc, char * const argv[]);
 
 #else	/* __ASSEMBLY__ */
 
-/* Drop a C type modifier (like in 3UL) for constants used in assembly. */
-#define _AC(X, Y)       X
-
 #endif	/* __ASSEMBLY__ */
 
 /* Put only stuff here that the assembler can digest */
-
-/* Declare an unsigned long constant digestable both by C and an assembler. */
-#define UL(x)           _AC(x, UL)
 
 #ifdef CONFIG_POST
 #define CONFIG_HAS_POST
