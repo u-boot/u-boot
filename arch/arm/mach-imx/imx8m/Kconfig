@@ -1,10 +1,10 @@
-if ARCH_MX8M
+if ARCH_IMX8M
 
-config MX8M
+config IMX8M
 	bool
 	select ROM_UNIFIED_SECTIONS
 
 config SYS_SOC
-	default "mx8m"
+	default "imx8m"
 
 endif

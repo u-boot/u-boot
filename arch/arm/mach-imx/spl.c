@@ -96,8 +96,8 @@ u32 spl_boot_device(void)
 	return BOOT_DEVICE_NONE;
 }
 
-#elif defined(CONFIG_MX7) || defined(CONFIG_MX8M)
-/* Translate iMX7/MX8M boot device to the SPL boot device enumeration */
+#elif defined(CONFIG_MX7) || defined(CONFIG_IMX8M)
+/* Translate iMX7/i.MX8M boot device to the SPL boot device enumeration */
 u32 spl_boot_device(void)
 {
 #if defined(CONFIG_MX7)
@@ -143,7 +143,7 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_NONE;
 	}
 }
-#endif /* CONFIG_MX6 || CONFIG_MX7 || CONFIG_MX8M */
+#endif /* CONFIG_MX6 || CONFIG_MX7 || CONFIG_IMX8M */
 
 #ifdef CONFIG_SPL_USB_GADGET_SUPPORT
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)

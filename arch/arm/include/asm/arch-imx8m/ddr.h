@@ -3,8 +3,8 @@
  * Copyright 2017 NXP
  */
 
-#ifndef __ASM_ARCH_MX8M_DDR_H
-#define __ASM_ARCH_MX8M_DDR_H
+#ifndef __ASM_ARCH_IMX8M_DDR_H
+#define __ASM_ARCH_IMX8M_DDR_H
 
 #define DDRC_DDR_SS_GPR0		0x3d000000
 #define DDRC_IPS_BASE_ADDR_0		0x3f400000

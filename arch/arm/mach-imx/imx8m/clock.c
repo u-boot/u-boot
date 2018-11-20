@@ -730,7 +730,7 @@ int clock_init(void)
  * Dump some clockes.
  */
 #ifndef CONFIG_SPL_BUILD
-int do_mx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
+int do_imx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
 	u32 freq;
@@ -785,7 +785,7 @@ int do_mx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(
-	clocks,	CONFIG_SYS_MAXARGS, 1, do_mx8m_showclocks,
+	clocks,	CONFIG_SYS_MAXARGS, 1, do_imx8m_showclocks,
 	"display clocks",
 	""
 );

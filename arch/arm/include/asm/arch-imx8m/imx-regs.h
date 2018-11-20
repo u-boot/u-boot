@@ -3,8 +3,8 @@
  * Copyright 2017 NXP
  */
 
-#ifndef __ASM_ARCH_MX8M_REGS_H__
-#define __ASM_ARCH_MX8M_REGS_H__
+#ifndef __ASM_ARCH_IMX8M_REGS_H__
+#define __ASM_ARCH_IMX8M_REGS_H__
 
 #include <asm/mach-imx/regs-lcdif.h>
 

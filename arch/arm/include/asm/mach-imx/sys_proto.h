@@ -26,7 +26,7 @@
 
 #define is_mx6() (is_soc_type(MXC_SOC_MX6))
 #define is_mx7() (is_soc_type(MXC_SOC_MX7))
-#define is_mx8m() (is_soc_type(MXC_SOC_MX8M))
+#define is_imx8m() (is_soc_type(MXC_SOC_IMX8M))
 #define is_imx8() (is_soc_type(MXC_SOC_IMX8))
 
 #define is_mx6dqp() (is_cpu_type(MXC_CPU_MX6QP) || is_cpu_type(MXC_CPU_MX6DP))
