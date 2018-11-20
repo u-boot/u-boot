@@ -607,6 +607,7 @@ config ARCH_EXYNOS
 	select DM_SPI
 	select DM_SPI_FLASH
 	select SPI
+	imply SYS_THUMB_BUILD
 	imply CMD_DM
 	imply FAT_WRITE
 
