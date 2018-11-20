@@ -446,6 +446,7 @@ int ns16550_serial_ofdata_to_platdata(struct udevice *dev)
 
 	plat->reg_offset = dev_read_u32_default(dev, "reg-offset", 0);
 	plat->reg_shift = dev_read_u32_default(dev, "reg-shift", 0);
+	plat->reg_width = dev_read_u32_default(dev, "reg-io-width", 1);
 
 	err = clk_get_by_index(dev, 0, &clk);
 	if (!err) {
