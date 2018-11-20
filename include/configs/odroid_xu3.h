@@ -30,7 +30,7 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR        (CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
-#define CONFIG_DEFAULT_CONSOLE		"ttySAC2,115200n8"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
 /* USB */
 #define CONFIG_USB_EHCI_EXYNOS
@@ -100,7 +100,7 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
 	"rootfstype=ext4\0" \
-	"console=" CONFIG_DEFAULT_CONSOLE "\0"\
+	"console=" CONFIG_DEFAULT_CONSOLE \
 	"fdtfile=exynos5422-odroidxu3.dtb\0" \
 	"boardname=odroidxu3\0" \
 	"mmcbootdev=0\0" \
