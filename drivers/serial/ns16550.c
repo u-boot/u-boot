@@ -372,6 +372,25 @@ static int ns16550_serial_setconfig(struct udevice *dev, uint serial_config)
 	return 0;
 }
 
+static int ns16550_serial_getinfo(struct udevice *dev,
+				  struct serial_device_info *info)
+{
+	struct NS16550 *const com_port = dev_get_priv(dev);
+	struct ns16550_platdata *plat = com_port->plat;
+
+	info->type = SERIAL_CHIP_16550_COMPATIBLE;
+#ifdef CONFIG_SYS_NS16550_PORT_MAPPED
+	info->addr_space = SERIAL_ADDRESS_SPACE_IO;
+#else
+	info->addr_space = SERIAL_ADDRESS_SPACE_MEMORY;
+#endif
+	info->addr = plat->base;
+	info->reg_width = plat->reg_width;
+	info->reg_shift = plat->reg_shift;
+	info->reg_offset = plat->reg_offset;
+	return 0;
+}
+
 int ns16550_serial_probe(struct udevice *dev)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
@@ -479,7 +498,8 @@ const struct dm_serial_ops ns16550_serial_ops = {
 	.pending = ns16550_serial_pending,
 	.getc = ns16550_serial_getc,
 	.setbrg = ns16550_serial_setbrg,
-	.setconfig = ns16550_serial_setconfig
+	.setconfig = ns16550_serial_setconfig,
+	.getinfo = ns16550_serial_getinfo,
 };
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
