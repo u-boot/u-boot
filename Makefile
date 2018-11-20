@@ -1208,6 +1208,11 @@ tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin FORCE
 SPL: spl/u-boot-spl.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
+ifeq ($(CONFIG_ARCH_IMX8M), y)
+flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
+	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+endif
+
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: SPL u-boot.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
 
