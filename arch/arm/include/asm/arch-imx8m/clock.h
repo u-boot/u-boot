@@ -10,6 +10,8 @@
 
 #include <linux/bitops.h>
 
+#define MHZ(X)	((X) * 1000000UL)
+
 enum pll_clocks {
 	ANATOP_ARM_PLL,
 	ANATOP_GPU_PLL,
@@ -631,6 +633,26 @@ enum frac_pll_out_val {
 	FRAC_PLL_OUT_1600M,
 };
 
+#define DRAM_BYPASS_ROOT_CONFIG(_rate, _m, _p, _s, _k)			\
+	{								\
+		.clk		=	(_rate),			\
+		.alt_root_sel	=	(_m),				\
+		.alt_pre_div	=	(_p),				\
+		.apb_root_sel	=	(_s),				\
+		.apb_pre_div	=	(_k),				\
+	}
+
+struct dram_bypass_clk_setting {
+	ulong clk;
+	int alt_root_sel;
+	enum root_pre_div alt_pre_div;
+	int apb_root_sel;
+	enum root_pre_div apb_pre_div;
+};
+
+void dram_pll_init(ulong pll_val);
+void dram_enable_bypass(ulong clk_val);
+void dram_disable_bypass(void);
 u32 imx_get_fecclk(void);
 u32 imx_get_uartclk(void);
 int clock_init(void);
