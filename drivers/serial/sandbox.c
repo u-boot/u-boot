@@ -163,6 +163,18 @@ DEBUG_UART_FUNCS
 
 #endif /* CONFIG_DEBUG_UART_SANDBOX */
 
+static int sandbox_serial_getconfig(struct udevice *dev, uint *serial_config)
+{
+	uint config = SERIAL_DEFAULT_CONFIG;
+
+	if (!serial_config)
+		return -EINVAL;
+
+	*serial_config = config;
+
+	return 0;
+}
+
 static int sandbox_serial_setconfig(struct udevice *dev, uint serial_config)
 {
 	u8 parity = SERIAL_GET_PARITY(serial_config);
@@ -207,6 +219,7 @@ static const struct dm_serial_ops sandbox_serial_ops = {
 	.putc = sandbox_serial_putc,
 	.pending = sandbox_serial_pending,
 	.getc = sandbox_serial_getc,
+	.getconfig = sandbox_serial_getconfig,
 	.setconfig = sandbox_serial_setconfig,
 };
 

@@ -364,6 +364,7 @@ void	serial_putc_raw(const char);
 void	serial_puts   (const char *);
 int	serial_getc   (void);
 int	serial_tstc   (void);
+int	serial_getconfig(uint *config);
 int	serial_setconfig(uint config);
 
 /* $(CPU)/speed.c */
