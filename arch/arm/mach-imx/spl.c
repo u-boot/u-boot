@@ -126,6 +126,7 @@ u32 spl_boot_device(void)
 	enum boot_device boot_device_spl = get_boot_device();
 
 	switch (boot_device_spl) {
+#if defined(CONFIG_MX7)
 	case SD1_BOOT:
 	case MMC1_BOOT:
 	case SD2_BOOT:
@@ -133,6 +134,14 @@ u32 spl_boot_device(void)
 	case SD3_BOOT:
 	case MMC3_BOOT:
 		return BOOT_DEVICE_MMC1;
+#elif defined(CONFIG_IMX8M)
+	case SD1_BOOT:
+	case MMC1_BOOT:
+		return BOOT_DEVICE_MMC1;
+	case SD2_BOOT:
+	case MMC2_BOOT:
+		return BOOT_DEVICE_MMC2;
+#endif
 	case NAND_BOOT:
 		return BOOT_DEVICE_NAND;
 	case SPI_NOR_BOOT:
@@ -143,7 +152,7 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_NONE;
 	}
 }
-#endif /* CONFIG_MX6 || CONFIG_MX7 || CONFIG_IMX8M */
+#endif /* CONFIG_MX7 || CONFIG_IMX8M */
 
 #ifdef CONFIG_SPL_USB_GADGET_SUPPORT
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
