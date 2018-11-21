@@ -637,13 +637,6 @@ void sunxi_board_init(void)
 	power_failed |= axp_set_sw(IS_ENABLED(CONFIG_AXP_SW_ON));
 #endif
 #endif
-	printf("DRAM:");
-	gd->ram_size = sunxi_dram_init();
-	printf(" %d MiB\n", (int)(gd->ram_size >> 20));
-	if (!gd->ram_size)
-		hang();
-
-	sunxi_spl_store_dram_size(gd->ram_size);
 
 	/*
 	 * Only clock up the CPU to full speed if we are reasonably
@@ -652,7 +645,16 @@ void sunxi_board_init(void)
 	if (!power_failed)
 		clock_set_pll1(CONFIG_SYS_CLK_FREQ);
 	else
-		printf("Failed to set core voltage! Can't set CPU frequency\n");
+		printf("Error setting up the power controller.\n"
+		       "CPU frequency not set.\n");
+
+	printf("DRAM:");
+	gd->ram_size = sunxi_dram_init();
+	printf(" %d MiB\n", (int)(gd->ram_size >> 20));
+	if (!gd->ram_size)
+		hang();
+
+	sunxi_spl_store_dram_size(gd->ram_size);
 }
 #endif
 
