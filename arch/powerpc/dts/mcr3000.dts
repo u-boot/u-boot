@@ -9,4 +9,7 @@
 /dts-v1/;
 
 / {
+	WDT: watchdog@0 {
+		compatible = "fsl,pq1-wdt";
+	};
 };
