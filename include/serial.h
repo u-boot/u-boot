@@ -224,7 +224,6 @@ struct serial_dev_priv {
 void atmel_serial_initialize(void);
 void mcf_serial_initialize(void);
 void mpc85xx_serial_initialize(void);
-void mpc8xx_serial_initialize(void);
 void mxc_serial_initialize(void);
 void ns16550_serial_initialize(void);
 void pl01x_serial_initialize(void);
