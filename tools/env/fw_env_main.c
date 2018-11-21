@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 	unlink(lockname);
 	
 	if (env_opts.lockname)
-	free(lockname);
+		free(lockname);
 	
 	return retval;
 }
