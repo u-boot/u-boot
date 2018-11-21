@@ -81,8 +81,7 @@ int axp_set_aldo2(unsigned int mvolt)
 	if (rc)
 		return rc;
 
-	/* LDO2 configuration is in upper 4 bits */
-	reg = (reg & 0x0f) | (cfg << 4);
+	reg |= AXP209_LDO24_LDO2_SET(reg, cfg);
 	rc = pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
 	if (rc)
 		return rc;
@@ -99,10 +98,12 @@ int axp_set_aldo3(unsigned int mvolt)
 		return pmic_bus_clrbits(AXP209_OUTPUT_CTRL,
 					AXP209_OUTPUT_CTRL_LDO3);
 
-	if (mvolt == -1)
-		cfg = 0x80;	/* determined by LDO3IN pin */
-	else
+	if (mvolt == -1) {
+		cfg = AXP209_LDO3_VOLTAGE_FROM_LDO3IN;
+	} else {
 		cfg = axp209_mvolt_to_cfg(mvolt, 700, 3500, 25);
+		cfg = AXP209_LDO3_VOLTAGE_SET(cfg);
+	}
 
 	rc = pmic_bus_write(AXP209_LDO3_VOLTAGE, cfg);
 	if (rc)
@@ -131,8 +132,7 @@ int axp_set_aldo4(unsigned int mvolt)
 	if (rc)
 		return rc;
 
-	/* LDO4 configuration is in lower 4 bits */
-	reg = (reg & 0xf0) | (cfg << 0);
+	reg |= AXP209_LDO24_LDO4_SET(reg, cfg);
 	rc = pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
 	if (rc)
 		return rc;
