@@ -19,7 +19,6 @@
 #include <environment.h>
 #include <errno.h>
 #include <miiphy.h>
-#include <serial.h>
 #include <spl.h>
 #include <watchdog.h>
 
@@ -68,13 +67,6 @@ static void enable_board_pin_mux(void)
 	configure_module_pin_mux(mmc0_pin_mux);
 }
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */
-
-#ifndef CONFIG_DM_SERIAL
-struct serial_device *default_serial_console(void)
-{
-	return &eserial1_device;
-}
-#endif
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 void set_uart_mux_conf(void)
