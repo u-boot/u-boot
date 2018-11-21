@@ -12,4 +12,11 @@
 	WDT: watchdog@0 {
 		compatible = "fsl,pq1-wdt";
 	};
+	SERIAL: smc@0 {
+		compatible = "fsl,pq1-smc";
+	};
+
+	chosen {
+		stdout-path = &SERIAL;
+	};
 };
