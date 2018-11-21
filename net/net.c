@@ -657,6 +657,7 @@ restart:
 			/* Invalidate the last protocol */
 			eth_set_last_protocol(BOOTP);
 			debug_cond(DEBUG_INT_STATE, "--- net_loop Fail!\n");
+			ret = -ENONET;
 			goto done;
 
 		case NETLOOP_CONTINUE:
