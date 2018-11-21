@@ -274,10 +274,12 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (env_opts.lockname)
-		free(lockname);
-
 	flock(lockfd, LOCK_UN);
 	close(lockfd);
+	unlink(lockname);
+	
+	if (env_opts.lockname)
+	free(lockname);
+	
 	return retval;
 }
