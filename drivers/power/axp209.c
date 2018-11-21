@@ -153,10 +153,7 @@ int axp_init(void)
 	if (rc)
 		return rc;
 
-	/* Low 4 bits is chip version */
-	ver &= 0x0f;
-
-	if (ver != 0x1)
+	if ((ver & AXP209_CHIP_VERSION_MASK) != 0x1)
 		return -EINVAL;
 
 	/* Mask all interrupts */
