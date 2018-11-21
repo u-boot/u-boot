@@ -122,6 +122,29 @@ int axp_set_aldo3(unsigned int mvolt)
 	if (rc)
 		return rc;
 
+#ifdef CONFIG_AXP_ALDO3_INRUSH_QUIRK
+	/*
+	 * On some boards, LDO3 has a too big capacitor installed. When
+	 * turning on LDO3, this causes the AXP209 to shutdown on
+	 * voltages over 1.9 volt. As a workaround, we enable LDO3
+	 * first with the lowest possible voltage. If this still causes
+	 * high inrush currents, the voltage slope should be increased.
+	 */
+	rc = pmic_bus_read(AXP209_OUTPUT_CTRL, &cfg);
+	if (rc)
+		return rc;
+
+	if (!(cfg & AXP209_OUTPUT_CTRL_LDO3)) {
+		rc = pmic_bus_write(AXP209_LDO3_VOLTAGE, 0x0); /* 0.7 Volt */
+		mdelay(1);
+		rc |= pmic_bus_setbits(AXP209_OUTPUT_CTRL,
+				       AXP209_OUTPUT_CTRL_LDO3);
+
+		if (rc)
+			return rc;
+	}
+#endif
+
 	if (mvolt == -1) {
 		cfg = AXP209_LDO3_VOLTAGE_FROM_LDO3IN;
 	} else {
