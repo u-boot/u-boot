@@ -100,7 +100,7 @@ struct eth_dev {
 	struct usb_gadget	*gadget;
 	struct usb_request	*req;		/* for control responses */
 	struct usb_request	*stat_req;	/* for cdc & rndis status */
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 	struct udevice		*usb_udev;
 #endif
 
@@ -2337,7 +2337,7 @@ fail:
 
 /*-------------------------------------------------------------------------*/
 
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 int dm_usb_init(struct eth_dev *e_dev)
 {
 	struct udevice *dev = NULL;
@@ -2362,7 +2362,7 @@ static int _usb_eth_init(struct ether_priv *priv)
 	unsigned long ts;
 	unsigned long timeout = USB_CONNECT_TIMEOUT;
 
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 	if (dm_usb_init(dev)) {
 		pr_err("USB ether not found\n");
 		return -ENODEV;
@@ -2541,7 +2541,7 @@ void _usb_eth_halt(struct ether_priv *priv)
 	}
 
 	usb_gadget_unregister_driver(&priv->eth_driver);
-#ifndef CONFIG_DM_USB
+#if !CONFIG_IS_ENABLED(DM_USB)
 	board_usb_cleanup(0, USB_INIT_DEVICE);
 #endif
 }

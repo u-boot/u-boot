@@ -1015,7 +1015,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	if (driver->speed != USB_SPEED_FULL && driver->speed != USB_SPEED_HIGH)
 		return -EINVAL;
 
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 	ret = usb_setup_ehci_gadget(&controller.ctrl);
 #else
 	ret = usb_lowlevel_init(0, USB_INIT_DEVICE, (void **)&controller.ctrl);

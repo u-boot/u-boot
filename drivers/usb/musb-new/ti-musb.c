@@ -19,7 +19,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 
 /* USB 2.0 PHY Control */
 #define CM_PHY_PWRDN			(1 << 0)
@@ -251,4 +251,4 @@ U_BOOT_DRIVER(ti_musb_wrapper) = {
 	.bind = ti_musb_wrapper_bind,
 };
 
-#endif /* CONFIG_DM_USB */
+#endif /* CONFIG_IS_ENABLED(DM_USB) */

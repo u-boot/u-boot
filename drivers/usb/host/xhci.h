@@ -1211,7 +1211,7 @@ void xhci_hcd_stop(int index);
 #define XHCI_STS_CNR		(1 << 11)
 
 struct xhci_ctrl {
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 	struct udevice *dev;
 #endif
 	struct xhci_hccr *hccr;	/* R/O registers, not need for volatile */
