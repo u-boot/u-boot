@@ -4705,21 +4705,22 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 {
 	int port_node = dev_of_offset(dev);
 	const char *phy_mode_str;
-	int phy_node, mdio_off, cp_node;
+	int phy_node;
 	u32 id;
 	u32 phyaddr = 0;
 	int phy_mode = -1;
-	phys_addr_t mdio_addr;
 
 	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
 
 	if (phy_node > 0) {
+		ofnode phy_ofnode;
+		fdt_addr_t phy_base;
+
 		phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
 		if (phyaddr < 0) {
 			dev_err(&pdev->dev, "could not find phy address\n");
 			return -1;
 		}
-		mdio_off = fdt_parent_offset(gd->fdt_blob, phy_node);
 
 		/* TODO: This WA for mdio issue. U-boot 2017 don't have
 		 * mdio driver and on MACHIATOBin board ports from CP1
@@ -4728,14 +4729,10 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 		 * base address. WA should be removed after
 		 * mdio driver implementation.
 		 */
-		mdio_addr = fdtdec_get_uint(gd->fdt_blob,
-					    mdio_off, "reg", 0);
 
-		cp_node = fdt_parent_offset(gd->fdt_blob, mdio_off);
-		mdio_addr |= fdt_get_base_address((void *)gd->fdt_blob,
-						  cp_node);
-
-		port->priv->mdio_base = (void *)mdio_addr;
+		phy_ofnode = ofnode_get_parent(offset_to_ofnode(phy_node));
+		phy_base = ofnode_get_addr(phy_ofnode);
+		port->priv->mdio_base = (void *)phy_base;
 
 		if (port->priv->mdio_base < 0) {
 			dev_err(&pdev->dev, "could not find mdio base address\n");
