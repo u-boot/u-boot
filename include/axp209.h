@@ -10,6 +10,7 @@ enum axp209_reg {
 	AXP209_CHIP_VERSION = 0x03,
 	AXP209_OUTPUT_CTRL = 0x12,
 	AXP209_DCDC2_VOLTAGE = 0x23,
+	AXP209_VRC_DCDC2_LDO3 = 0x25,
 	AXP209_DCDC3_VOLTAGE = 0x27,
 	AXP209_LDO24_VOLTAGE = 0x28,
 	AXP209_LDO3_VOLTAGE = 0x29,
@@ -33,6 +34,26 @@ enum axp209_reg {
 #define AXP209_OUTPUT_CTRL_LDO4		BIT(3)
 #define AXP209_OUTPUT_CTRL_DCDC2	BIT(4)
 #define AXP209_OUTPUT_CTRL_LDO3		BIT(6)
+
+/*
+ * AXP209 datasheet contains wrong information about LDO3 VRC:
+ * - VRC is actually enabled when BIT(1) is True
+ * - VRC is actually not enabled by default (BIT(3) = 0 after reset)
+ */
+#define AXP209_VRC_LDO3_EN		BIT(3)
+#define AXP209_VRC_DCDC2_EN		BIT(2)
+#define AXP209_VRC_LDO3_800uV_uS	(BIT(1) | AXP209_VRC_LDO3_EN)
+#define AXP209_VRC_LDO3_1600uV_uS	AXP209_VRC_LDO3_EN
+#define AXP209_VRC_DCDC2_800uV_uS	(BIT(0) | AXP209_VRC_DCDC2_EN)
+#define AXP209_VRC_DCDC2_1600uV_uS	AXP209_VRC_DCDC2_EN
+#define AXP209_VRC_LDO3_MASK		0xa
+#define AXP209_VRC_DCDC2_MASK		0x5
+#define AXP209_VRC_DCDC2_SLOPE_SET(reg, cfg) \
+	(((reg) & ~AXP209_VRC_DCDC2_MASK) | \
+	((cfg) & AXP209_VRC_DCDC2_MASK))
+#define AXP209_VRC_LDO3_SLOPE_SET(reg, cfg) \
+	(((reg) & ~AXP209_VRC_LDO3_MASK) | \
+	((cfg) & AXP209_VRC_LDO3_MASK))
 
 #define AXP209_LDO24_LDO2_MASK		0xf0
 #define AXP209_LDO24_LDO4_MASK		0x0f

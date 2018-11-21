@@ -9,6 +9,16 @@
 #include <asm/arch/pmic_bus.h>
 #include <axp_pmic.h>
 
+#ifdef CONFIG_AXP_ALDO3_VOLT_SLOPE_08
+#  define AXP209_VRC_SLOPE AXP209_VRC_LDO3_800uV_uS
+#endif
+#ifdef CONFIG_AXP_ALDO3_VOLT_SLOPE_16
+#  define AXP209_VRC_SLOPE AXP209_VRC_LDO3_1600uV_uS
+#endif
+#if defined CONFIG_AXP_ALDO3_VOLT_SLOPE_NONE || !defined AXP209_VRC_SLOPE
+#  define AXP209_VRC_SLOPE 0x00
+#endif
+
 static u8 axp209_mvolt_to_cfg(int mvolt, int min, int max, int div)
 {
 	if (mvolt < min)
@@ -97,6 +107,20 @@ int axp_set_aldo3(unsigned int mvolt)
 	if (mvolt == 0)
 		return pmic_bus_clrbits(AXP209_OUTPUT_CTRL,
 					AXP209_OUTPUT_CTRL_LDO3);
+
+	/*
+	 * Some boards have trouble reaching the target voltage without causing
+	 * great inrush currents. To prevent this, boards can enable a certain
+	 * slope to ramp up voltage. Note, this only works when changing an
+	 * already active power rail. When toggling power on, the AXP ramps up
+	 * steeply at 0.0167 V/uS.
+	 */
+	rc = pmic_bus_read(AXP209_VRC_DCDC2_LDO3, &cfg);
+	cfg = AXP209_VRC_LDO3_SLOPE_SET(cfg, AXP209_VRC_SLOPE);
+	rc |= pmic_bus_write(AXP209_VRC_DCDC2_LDO3, cfg);
+
+	if (rc)
+		return rc;
 
 	if (mvolt == -1) {
 		cfg = AXP209_LDO3_VOLTAGE_FROM_LDO3IN;
