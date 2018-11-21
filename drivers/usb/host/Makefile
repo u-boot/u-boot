@@ -4,7 +4,7 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
 ifdef CONFIG_$(SPL_)DM_USB
-obj-$(CONFIG_CMD_USB) += usb-uclass.o
+obj-y += usb-uclass.o
 obj-$(CONFIG_SANDBOX) += usb-sandbox.o
 endif
 
