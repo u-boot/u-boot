@@ -3,6 +3,8 @@
  * (C) Copyright 2012 Henrik Nordstrom <henrik@henriknordstrom.net>
  */
 
+#include <linux/bitops.h>
+
 enum axp209_reg {
 	AXP209_POWER_STATUS = 0x00,
 	AXP209_CHIP_VERSION = 0x03,
@@ -20,29 +22,29 @@ enum axp209_reg {
 	AXP209_SHUTDOWN = 0x32,
 };
 
-#define AXP209_POWER_STATUS_ON_BY_DC	(1 << 0)
-#define AXP209_POWER_STATUS_VBUS_USABLE	(1 << 4)
+#define AXP209_POWER_STATUS_ON_BY_DC	BIT(0)
+#define AXP209_POWER_STATUS_VBUS_USABLE	BIT(4)
 
-#define AXP209_OUTPUT_CTRL_EXTEN	(1 << 0)
-#define AXP209_OUTPUT_CTRL_DCDC3	(1 << 1)
-#define AXP209_OUTPUT_CTRL_LDO2		(1 << 2)
-#define AXP209_OUTPUT_CTRL_LDO4		(1 << 3)
-#define AXP209_OUTPUT_CTRL_DCDC2	(1 << 4)
-#define AXP209_OUTPUT_CTRL_LDO3		(1 << 6)
+#define AXP209_OUTPUT_CTRL_EXTEN	BIT(0)
+#define AXP209_OUTPUT_CTRL_DCDC3	BIT(1)
+#define AXP209_OUTPUT_CTRL_LDO2		BIT(2)
+#define AXP209_OUTPUT_CTRL_LDO4		BIT(3)
+#define AXP209_OUTPUT_CTRL_DCDC2	BIT(4)
+#define AXP209_OUTPUT_CTRL_LDO3		BIT(6)
 
-#define AXP209_IRQ5_PEK_UP		(1 << 6)
-#define AXP209_IRQ5_PEK_DOWN		(1 << 5)
+#define AXP209_IRQ5_PEK_UP		BIT(6)
+#define AXP209_IRQ5_PEK_DOWN		BIT(5)
 
-#define AXP209_POWEROFF			(1 << 7)
+#define AXP209_POWEROFF			BIT(7)
 
 /* For axp_gpio.c */
 #define AXP_POWER_STATUS		0x00
-#define AXP_POWER_STATUS_VBUS_PRESENT		(1 << 5)
+#define AXP_POWER_STATUS_VBUS_PRESENT	BIT(5)
 #define AXP_GPIO0_CTRL			0x90
 #define AXP_GPIO1_CTRL			0x92
 #define AXP_GPIO2_CTRL			0x93
-#define AXP_GPIO_CTRL_OUTPUT_LOW		0x00 /* Drive pin low */
-#define AXP_GPIO_CTRL_OUTPUT_HIGH		0x01 /* Drive pin high */
-#define AXP_GPIO_CTRL_INPUT			0x02 /* Input */
+#define AXP_GPIO_CTRL_OUTPUT_LOW	0x00 /* Drive pin low */
+#define AXP_GPIO_CTRL_OUTPUT_HIGH	0x01 /* Drive pin high */
+#define AXP_GPIO_CTRL_INPUT		0x02 /* Input */
 #define AXP_GPIO_STATE			0x94
-#define AXP_GPIO_STATE_OFFSET			4
+#define AXP_GPIO_STATE_OFFSET		4
