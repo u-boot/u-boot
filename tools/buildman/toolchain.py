@@ -502,7 +502,8 @@ class Toolchains:
             trailing /
         """
         stdout = command.Output('tar', 'xvfJ', fname, '-C', dest)
-        return stdout.splitlines()[0][:-1]
+        dirs = stdout.splitlines()[1].split('/')[:2]
+        return '/'.join(dirs)
 
     def TestSettingsHasPath(self, path):
         """Check if buildman will find this toolchain
