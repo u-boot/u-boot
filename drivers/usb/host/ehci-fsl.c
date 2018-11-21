@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009, 2011, 2016 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2008, Excito Elektronik i Sk=E5ne AB
  *
  * Author: Tor Krill tor@excito.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -94,6 +93,7 @@ static int ehci_fsl_probe(struct udevice *dev)
 	struct usb_ehci *ehci = NULL;
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
+	struct ehci_ctrl *ehci_ctrl = &priv->ehci;
 
 	/*
 	 * Get the base address for EHCI controller from the device node
@@ -106,14 +106,16 @@ static int ehci_fsl_probe(struct udevice *dev)
 	ehci = (struct usb_ehci *)priv->hcd_base;
 	hccr = (struct ehci_hccr *)(&ehci->caplength);
 	hcor = (struct ehci_hcor *)
-		((u32)hccr + HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+		((void *)hccr + HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+
+	ehci_ctrl->has_fsl_erratum_a005275 = has_erratum_a005275();
 
 	if (ehci_fsl_init(priv, ehci, hccr, hcor) < 0)
 		return -ENXIO;
 
-	debug("ehci-fsl: init hccr %x and hcor %x hc_length %d\n",
-	      (u32)hccr, (u32)hcor,
-	      (u32)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+	debug("ehci-fsl: init hccr %p and hcor %p hc_length %d\n",
+	      (void *)hccr, (void *)hcor,
+	      HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	return ehci_register(dev, hccr, hcor, &fsl_ehci_ops, 0, USB_INIT_HOST);
 }
@@ -146,6 +148,8 @@ U_BOOT_DRIVER(ehci_fsl) = {
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
+	struct ehci_ctrl *ehci_ctrl = container_of(hccr,
+					struct ehci_ctrl, hccr);
 	struct usb_ehci *ehci = NULL;
 
 	switch (index) {
@@ -163,6 +167,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
 			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+
+	ehci_ctrl->has_fsl_erratum_a005275 = has_erratum_a005275();
 
 	return ehci_fsl_init(index, ehci, *hccr, *hcor);
 }

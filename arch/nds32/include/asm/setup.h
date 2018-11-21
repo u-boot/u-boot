@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  *  linux/arch/nds32/include/asm/setup.h
  *
  *  Copyright (C) 1997-1999 Russell King
  *  Copyright (C) 2008 Andes Technology Corporation
  *	Copyright (C) 2013 Ken Kuo (ken_kuo@andestech.com)
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  *  Structure passed to kernel to tell it about the
  *  hardware it's running on.  See Documentation/arm/Setup

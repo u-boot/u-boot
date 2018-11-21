@@ -1,15 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Marvell International Ltd.
  *
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
 #include <malloc.h>
 #include <spi.h>
+#include <clk.h>
 #include <wait_bit.h>
 #include <asm/io.h>
 
@@ -22,9 +22,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MVEBU_SPI_A3700_CLK_POL			BIT(7)
 #define MVEBU_SPI_A3700_FIFO_EN			BIT(17)
 #define MVEBU_SPI_A3700_SPI_EN_0		BIT(16)
-#define MVEBU_SPI_A3700_CLK_PRESCALE_BIT	0
-#define MVEBU_SPI_A3700_CLK_PRESCALE_MASK	\
-	(0x1f << MVEBU_SPI_A3700_CLK_PRESCALE_BIT)
+#define MVEBU_SPI_A3700_CLK_PRESCALE_MASK	0x1f
+
 
 /* SPI registers */
 struct spi_reg {
@@ -36,8 +35,7 @@ struct spi_reg {
 
 struct mvebu_spi_platdata {
 	struct spi_reg *spireg;
-	unsigned int frequency;
-	unsigned int clock;
+	struct clk clk;
 };
 
 static void spi_cs_activate(struct spi_reg *reg, int cs)
@@ -95,8 +93,9 @@ static int spi_legacy_shift_byte(struct spi_reg *reg, unsigned int bytelen,
 	din_8 = din;
 
 	while (bytelen) {
-		ret = wait_for_bit(__func__, &reg->ctrl,
-				   MVEBU_SPI_A3700_XFER_RDY, true, 100, false);
+		ret = wait_for_bit_le32(&reg->ctrl,
+					MVEBU_SPI_A3700_XFER_RDY,
+					true,100, false);
 		if (ret)
 			return ret;
 
@@ -109,9 +108,9 @@ static int spi_legacy_shift_byte(struct spi_reg *reg, unsigned int bytelen,
 		writel(pending_dout, &reg->dout);
 
 		if (din) {
-			ret = wait_for_bit(__func__, &reg->ctrl,
-					   MVEBU_SPI_A3700_XFER_RDY,
-					   true, 100, false);
+			ret = wait_for_bit_le32(&reg->ctrl,
+						MVEBU_SPI_A3700_XFER_RDY,
+						true, 100, false);
 			if (ret)
 				return ret;
 
@@ -160,8 +159,9 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	/* Deactivate CS */
 	if (flags & SPI_XFER_END) {
-		ret = wait_for_bit(__func__, &reg->ctrl,
-				   MVEBU_SPI_A3700_XFER_RDY, true, 100, false);
+		ret = wait_for_bit_le32(&reg->ctrl,
+					MVEBU_SPI_A3700_XFER_RDY,
+					true, 100, false);
 		if (ret)
 			return ret;
 
@@ -176,17 +176,18 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 {
 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
 	struct spi_reg *reg = plat->spireg;
-	u32 data;
+	u32 data, prescale;
 
 	data = readl(&reg->cfg);
 
-	/* Set Prescaler */
-	data &= ~MVEBU_SPI_A3700_CLK_PRESCALE_MASK;
+	prescale = DIV_ROUND_UP(clk_get_rate(&plat->clk), hz);
+	if (prescale > 0x1f)
+		prescale = 0x1f;
+	else if (prescale > 0xf)
+		prescale = 0x10 + (prescale + 1) / 2;
 
-	/* Calculate Prescaler = (spi_input_freq / spi_max_freq) */
-	if (hz > plat->frequency)
-		hz = plat->frequency;
-	data |= plat->clock / hz;
+	data &= ~MVEBU_SPI_A3700_CLK_PRESCALE_MASK;
+	data |= prescale & MVEBU_SPI_A3700_CLK_PRESCALE_MASK;
 
 	writel(data, &reg->cfg);
 
@@ -231,8 +232,8 @@ static int mvebu_spi_probe(struct udevice *bus)
 	/* Flush read/write FIFO */
 	data = readl(&reg->cfg);
 	writel(data | MVEBU_SPI_A3700_FIFO_FLUSH, &reg->cfg);
-	ret = wait_for_bit(__func__, &reg->cfg, MVEBU_SPI_A3700_FIFO_FLUSH,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&reg->cfg, MVEBU_SPI_A3700_FIFO_FLUSH,
+				false, 1000, false);
 	if (ret)
 		return ret;
 
@@ -250,21 +251,24 @@ static int mvebu_spi_probe(struct udevice *bus)
 static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	int ret;
 
 	plat->spireg = (struct spi_reg *)devfdt_get_addr(bus);
 
-	/*
-	 * FIXME
-	 * Right now, mvebu does not have a clock infrastructure in U-Boot
-	 * which should be used to query the input clock to the SPI
-	 * controller. Once this clock driver is integrated into U-Boot
-	 * it should be used to read the input clock and the DT property
-	 * can be removed.
-	 */
-	plat->clock = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
-				     "clock-frequency", 160000);
-	plat->frequency = fdtdec_get_int(gd->fdt_blob, dev_of_offset(bus),
-					 "spi-max-frequency", 40000);
+	ret = clk_get_by_index(bus, 0, &plat->clk);
+	if (ret) {
+		dev_err(bus, "cannot get clock\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+static int mvebu_spi_remove(struct udevice *bus)
+{
+	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+
+	clk_free(&plat->clk);
 
 	return 0;
 }
@@ -292,4 +296,5 @@ U_BOOT_DRIVER(mvebu_spi) = {
 	.ofdata_to_platdata = mvebu_spi_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct mvebu_spi_platdata),
 	.probe = mvebu_spi_probe,
+	.remove = mvebu_spi_remove,
 };

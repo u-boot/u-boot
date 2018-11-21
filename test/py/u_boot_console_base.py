@@ -1,7 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0
 # Copyright (c) 2015 Stephen Warren
 # Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
-#
-# SPDX-License-Identifier: GPL-2.0
 
 # Common logic to interact with U-Boot via the console. This class provides
 # the interface that tests use to execute U-Boot shell commands and wait for
@@ -305,7 +304,17 @@ class ConsoleBase(object):
             # Wait for something U-Boot will likely never send. This will
             # cause the console output to be read and logged.
             self.p.expect(['This should never match U-Boot output'])
-        except u_boot_spawn.Timeout:
+        except:
+            # We expect a timeout, since U-Boot won't print what we waited
+            # for. Squash it when it happens.
+            #
+            # Squash any other exception too. This function is only used to
+            # drain (and log) the U-Boot console output after a failed test.
+            # The U-Boot process will be restarted, or target board reset, once
+            # this function returns. So, we don't care about detecting any
+            # additional errors, so they're squashed so that the rest of the
+            # post-test-failure cleanup code can continue operation, and
+            # correctly terminate any log sections, etc.
             pass
         finally:
             self.p.timeout = orig_timeout

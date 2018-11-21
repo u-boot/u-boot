@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Topic Miami board DTS
  *
  * Copyright (C) 2014-2016 Topic Embedded Products
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 #include "zynq-7000.dtsi"
@@ -13,7 +12,6 @@
 	compatible = "topic,miami", "xlnx,zynq-7000";
 
 	aliases {
-		ethernet0 = &gem0;
 		serial0 = &uart0;
 		spi0 = &qspi;
 		i2c0 = &i2c0;

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2013-2015 Arcturus Networks, Inc.
  *           http://www.arcturusnetworks.com/products/ucp1020/
  * based on board/freescale/p1_p2_rdb_pc/spl.c
  * original copyright follows:
  * Copyright 2013 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

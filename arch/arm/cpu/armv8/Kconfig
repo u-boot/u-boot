@@ -1,5 +1,16 @@
 if ARM64
 
+config ARMV8_SPL_EXCEPTION_VECTORS
+	bool "Install crash dump exception vectors"
+	depends on SPL
+	default y
+	help
+	  The default exception vector table is only used for the crash
+	  dump, but still takes quite a lot of space in the image size.
+
+	  Say N here if you are running out of code space in the image
+	  and want to save some space at the cost of less debugging info.
+
 config ARMV8_MULTIENTRY
         bool "Enable multiple CPUs to enter into U-Boot"
 
@@ -44,8 +55,8 @@ config ARMV8_SPIN_TABLE
 menu "ARMv8 secure monitor firmware"
 config ARMV8_SEC_FIRMWARE_SUPPORT
 	bool "Enable ARMv8 secure monitor firmware framework support"
-	select OF_LIBFDT
 	select FIT
+	select OF_LIBFDT
 	help
 	  This framework is aimed at making secure monitor firmware load
 	  process brief.
@@ -60,8 +71,8 @@ config ARMV8_SEC_FIRMWARE_SUPPORT
 
 config SPL_ARMV8_SEC_FIRMWARE_SUPPORT
 	bool "Enable ARMv8 secure monitor firmware framework support for SPL"
-	select SPL_OF_LIBFDT
 	select SPL_FIT
+	select SPL_OF_LIBFDT
 	help
 	  Say Y here to support this framework in SPL phase.
 
@@ -85,11 +96,13 @@ endmenu
 config PSCI_RESET
 	bool "Use PSCI for reset and shutdown"
 	default y
-	depends on !ARCH_EXYNOS7 && !ARCH_BCM283X && !TARGET_LS2080A_EMU && \
+	depends on !ARCH_EXYNOS7 && !ARCH_BCM283X && \
 		   !TARGET_LS2080A_SIMU && !TARGET_LS2080AQDS && \
-		   !TARGET_LS2080ARDB && !TARGET_LS1012AQDS && \
+		   !TARGET_LS2080ARDB && !TARGET_LS2080A_EMU && \
 		   !TARGET_LS1088ARDB && !TARGET_LS1088AQDS && \
 		   !TARGET_LS1012ARDB && !TARGET_LS1012AFRDM && \
+		   !TARGET_LS1012A2G5RDB && !TARGET_LS1012AQDS && \
+		   !TARGET_LS1012AFRWY && \
 		   !TARGET_LS1043ARDB && !TARGET_LS1043AQDS && \
 		   !TARGET_LS1046ARDB && !TARGET_LS1046AQDS && \
 		   !TARGET_LS2081ARDB && \

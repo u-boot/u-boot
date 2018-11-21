@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2015 Atmel Corporation
  *		      Wenyou.Yang <wenyou.yang@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ATMEL_SDHCI_H

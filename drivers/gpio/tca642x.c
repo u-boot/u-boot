@@ -163,7 +163,7 @@ int tca642x_set_inital_state(uchar chip, struct tca642x_bank_info init_data[])
 	return ret;
 }
 
-#ifdef CONFIG_CMD_TCA642X
+#if defined(CONFIG_CMD_TCA642X) && !defined(CONFIG_SPL_BUILD)
 /*
  * Display tca642x information
  */
@@ -212,7 +212,7 @@ static int tca642x_info(uchar chip)
 	return 0;
 }
 
-cmd_tbl_t cmd_tca642x[] = {
+static cmd_tbl_t cmd_tca642x[] = {
 	U_BOOT_CMD_MKENT(device, 3, 0, (void *)TCA642X_CMD_DEVICE, "", ""),
 	U_BOOT_CMD_MKENT(output, 4, 0, (void *)TCA642X_CMD_OUTPUT, "", ""),
 	U_BOOT_CMD_MKENT(input, 3, 0, (void *)TCA642X_CMD_INPUT, "", ""),
@@ -220,7 +220,7 @@ cmd_tbl_t cmd_tca642x[] = {
 	U_BOOT_CMD_MKENT(info, 2, 0, (void *)TCA642X_CMD_INFO, "", ""),
 };
 
-int do_tca642x(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_tca642x(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	static uchar chip = CONFIG_SYS_I2C_TCA642X_ADDR;
 	int ret = CMD_RET_USAGE, val;

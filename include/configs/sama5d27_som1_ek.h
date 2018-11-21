@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration file for the SAMA5D27 SOM1 EK Board.
  *
  * Copyright (C) 2017 Microchip Corporation
  *		      Wenyou Yang <wenyou.yang@microchip.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -12,15 +11,10 @@
 
 #include "at91-sama5_common.h"
 
-#undef CONFIG_SYS_TEXT_BASE
 #undef CONFIG_SYS_AT91_MAIN_CLOCK
-#define CONFIG_SYS_TEXT_BASE		0x23f00000
 #define CONFIG_SYS_AT91_MAIN_CLOCK      24000000 /* from 24 MHz crystal */
 
-#define CONFIG_MISC_INIT_R
-
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x8000000
 
@@ -42,17 +36,11 @@
 #undef CONFIG_BOOTCOMMAND
 #ifdef CONFIG_SD_BOOT
 /* u-boot env in sd/mmc card */
-#define FAT_ENV_INTERFACE	"mmc"
-#define FAT_ENV_DEVICE_AND_PART	"0"
-#define FAT_ENV_FILE		"uboot.env"
 #define CONFIG_ENV_SIZE		0x4000
 /* bootstrap + u-boot + env in sd card */
-#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x21000000 at91-sama5d27_som1_ek.dtb; " \
-				"fatload mmc 0:1 0x22000000 zImage; " \
+#define CONFIG_BOOTCOMMAND	"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x21000000 at91-sama5d27_som1_ek.dtb; " \
+				"fatload mmc " CONFIG_ENV_FAT_DEVICE_AND_PART " 0x22000000 zImage; " \
 				"bootz 0x22000000 - 0x21000000"
-#undef CONFIG_BOOTARGS
-#define CONFIG_BOOTARGS \
-	"console=ttyS0,115200 earlyprintk root=/dev/mmcblk0p2 rw rootwait"
 #endif
 
 #ifdef CONFIG_QSPI_BOOT
@@ -69,7 +57,6 @@
 #endif
 
 /* SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x200000
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_BSS_START_ADDR	0x20000000
@@ -85,7 +72,6 @@
 #endif
 
 #ifdef CONFIG_QSPI_BOOT
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x10000
 #endif
 

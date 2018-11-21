@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2003 Arabella Software Ltd.
  * Yuli Barcohen <yuli@arabellasw.com>
@@ -5,8 +6,6 @@
  * Serial Presence Detect (SPD) EEPROM format according to the
  * Intel's PC SDRAM Serial Presence Detect (SPD) Specification,
  * revision 1.2B, November 1999
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SPD_H_

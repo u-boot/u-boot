@@ -1,15 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  *  Copyright (C) 2015-2017 Altera Corporation <www.altera.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __CONFIG_SOCFGPA_ARRIA10_H__
 #define __CONFIG_SOCFGPA_ARRIA10_H__
 
 #include <asm/arch/base_addr_a10.h>
-
-#define CONFIG_HW_WATCHDOG
 
 /* Booting Linux */
 #define CONFIG_LOADADDR		0x01000000

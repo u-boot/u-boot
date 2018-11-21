@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011 Simon Guinot <sguinot@lacie.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_LACIE_KW_H
@@ -41,12 +40,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
- * Commands configuration
- */
-#ifndef CONFIG_NETSPACE_MINI_V2 /* No USB ports on Network Space v2 Mini */
-#endif
-
-/*
  * Core clock definition
  */
 #define CONFIG_SYS_TCLK			166000000 /* 166MHz */
@@ -54,7 +47,6 @@
 /*
  * SDRAM configuration
  */
-#define CONFIG_NR_DRAM_BANKS		1
 
 /*
  * Different SDRAM configuration and size for some of the boards derived
@@ -81,7 +73,6 @@
 /*
  * Enable platform initialisation via misc_init_r() function
  */
-#define CONFIG_MISC_INIT_R
 
 /*
  * Ethernet Driver configuration

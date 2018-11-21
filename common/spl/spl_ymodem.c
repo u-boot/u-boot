@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -6,15 +7,12 @@
  * Texas Instruments, <www.ti.com>
  *
  * Matt Porter <mporter@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <spl.h>
 #include <xyzModem.h>
 #include <asm/u-boot.h>
-#include <asm/utils.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #define BUF_SIZE 1024
 

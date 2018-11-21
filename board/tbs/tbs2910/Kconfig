@@ -13,6 +13,6 @@ config MX6Q
 	default y
 
 config IMX_CONFIG
-	default "board/boundary/nitrogen6x/nitrogen6q2g.cfg"
+	default "board/tbs/tbs2910/tbs2910.cfg"
 
 endif

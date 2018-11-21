@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * taken from gdb/remote.c
  *
@@ -106,8 +107,6 @@ remote_continue(void)
    Free Software Foundation, Inc.
 
    This file is part of GDB.
-
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /* *INDENT-OFF* */
 /* Remote communication protocol.

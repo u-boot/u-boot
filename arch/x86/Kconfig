@@ -112,6 +112,7 @@ source "arch/x86/cpu/braswell/Kconfig"
 source "arch/x86/cpu/broadwell/Kconfig"
 source "arch/x86/cpu/coreboot/Kconfig"
 source "arch/x86/cpu/ivybridge/Kconfig"
+source "arch/x86/cpu/efi/Kconfig"
 source "arch/x86/cpu/qemu/Kconfig"
 source "arch/x86/cpu/quark/Kconfig"
 source "arch/x86/cpu/queensbay/Kconfig"
@@ -735,6 +736,12 @@ config I8259_PIC
 	  slave) interrupt controllers. Include this to have U-Boot set up
 	  the interrupt correctly.
 
+config PINCTRL_ICH6
+	bool
+	help
+	  Intel ICH6 compatible chipset pinctrl driver. It needs to work
+	  together with the ICH6 compatible gpio driver.
+
 config I8254_TIMER
 	bool
 	default y
@@ -765,7 +772,5 @@ config HIGH_TABLE_SIZE
 
 	  Increse it if the default size does not fit the board's needs.
 	  This is most likely due to a large ACPI DSDT table is used.
-
-source "arch/x86/lib/efi/Kconfig"
 
 endmenu

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the BuS EB+CPU5283 boards (aka EB+MCF-EV123)
  *
  * (C) Copyright 2005-2009 BuS Elektronik GmbH & Co.KG <esw@bus-elektonik.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_EB_CPU5282_H_
@@ -14,8 +13,6 @@
 /*----------------------------------------------------------------------*
  * High Level Configuration Options (easy to change)                    *
  *----------------------------------------------------------------------*/
-
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
@@ -48,18 +45,12 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
  */
-#define CONFIG_CMDLINE_EDITING
 
 #define CONFIG_MCFTMR
-
-#define	CONFIG_SYS_LONGHELP	1
 
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
@@ -86,7 +77,6 @@
  *----------------------------------------------------------------------*/
 
 #define CONFIG_MCFFEC
-#define CONFIG_MII			1
 #define CONFIG_MII_INIT			1
 #define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_SYS_RX_ETH_BUFFER	8
@@ -150,10 +140,7 @@
 #define	CONFIG_SYS_MAX_FLASH_SECT	128
 #define	CONFIG_SYS_MAX_FLASH_BANKS	1
 #define	CONFIG_SYS_FLASH_ERASE_TOUT	10000000
-#define	CONFIG_SYS_FLASH_PROTECTION
 
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_SIZE		16*1024*1024
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 

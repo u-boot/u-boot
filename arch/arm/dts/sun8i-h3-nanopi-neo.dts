@@ -47,13 +47,26 @@
 	compatible = "friendlyarm,nanopi-neo", "allwinner,sun8i-h3";
 };
 
+&ehci0 {
+	status = "okay";
+};
+
 &emac {
-	phy = <&phy1>;
+	phy-handle = <&int_mii_phy>;
 	phy-mode = "mii";
-	allwinner,use-internal-phy;
 	allwinner,leds-active-low;
 	status = "okay";
-	phy1: ethernet-phy@1 {
-		reg = <1>;
-	};
+};
+
+&ohci0 {
+	status = "okay";
+};
+
+&usb_otg {
+	status = "okay";
+	dr_mode = "peripheral";
+};
+
+&usbphy {
+	usb0_id_det-gpios = <&pio 6 12 GPIO_ACTIVE_HIGH>; /* PG12 */
 };

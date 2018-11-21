@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Lei Wen <leiwen@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -39,7 +38,6 @@
 
 /* Kirkwood has 2k of Security SRAM, use it for SP */
 #define CONFIG_SYS_INIT_SP_ADDR		0xC8012000
-#define CONFIG_NR_DRAM_BANKS_MAX	2
 
 #define CONFIG_I2C_MVTWSI_BASE0	KW_TWSI_BASE
 #define MV_UART_CONSOLE_BASE	KW_UART0_BASE
@@ -60,8 +58,6 @@
  * SPI Flash configuration
  */
 #ifdef CONFIG_CMD_SF
-#define CONFIG_HARD_SPI			1
-#define CONFIG_KIRKWOOD_SPI		1
 #ifndef CONFIG_ENV_SPI_BUS
 # define CONFIG_ENV_SPI_BUS		0
 #endif
@@ -78,8 +74,6 @@
  */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
-#define CONFIG_MII		/* expose smi ove miiphy interface */
-#define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
@@ -119,7 +113,7 @@
 /*
  * I2C related stuff
  */
-#ifdef CONFIG_CMD_I2C
+#if defined(CONFIG_CMD_I2C) && !defined(CONFIG_DM_I2C)
 #ifndef CONFIG_SYS_I2C_SOFT
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MVTWSI

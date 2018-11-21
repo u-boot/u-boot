@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
@@ -6,12 +7,15 @@
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <SA-1100.h>
+
+static ulong get_timer_masked (void)
+{
+	return OSCR;
+}
 
 ulong get_timer (ulong base)
 {
@@ -19,16 +23,6 @@ ulong get_timer (ulong base)
 }
 
 void __udelay (unsigned long usec)
-{
-	udelay_masked (usec);
-}
-
-ulong get_timer_masked (void)
-{
-	return OSCR;
-}
-
-void udelay_masked (unsigned long usec)
 {
 	ulong tmo;
 	ulong endtime;

@@ -1,7 +1,10 @@
 config ARCH_LS1012A
 	bool
 	select ARMV8_SET_SMPEN
+	select ARM_ERRATA_855873
 	select FSL_LSCH2
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_MMDC
 	select SYS_FSL_ERRATUM_A010315
@@ -11,12 +14,18 @@ config ARCH_LS1012A
 	select SYS_FSL_ERRATUM_A009008
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
 	imply PANIC_HANG
 
 config ARCH_LS1043A
 	bool
 	select ARMV8_SET_SMPEN
+	select ARM_ERRATA_855873
 	select FSL_LSCH2
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_DDR_VER_50
@@ -35,6 +44,11 @@ config ARCH_LS1043A
 	select SYS_FSL_HAS_DDR4
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C3
+	select SYS_I2C_MXC_I2C4
 	imply SCSI
 	imply SCSI_AHCI
 	imply CMD_PCI
@@ -43,6 +57,8 @@ config ARCH_LS1046A
 	bool
 	select ARMV8_SET_SMPEN
 	select FSL_LSCH2
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
 	select SYS_FSL_DDR_VER_50
@@ -62,13 +78,21 @@ config ARCH_LS1046A
 	select SYS_FSL_SRDS_2
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C3
+	select SYS_I2C_MXC_I2C4
 	imply SCSI
 	imply SCSI_AHCI
 
 config ARCH_LS1088A
 	bool
 	select ARMV8_SET_SMPEN
+	select ARM_ERRATA_855873
 	select FSL_LSCH3
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
 	select SYS_FSL_DDR_VER_50
@@ -91,6 +115,11 @@ config ARCH_LS1088A
 	select FSL_TZASC_1
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C3
+	select SYS_I2C_MXC_I2C4
 	imply SCSI
 	imply PANIC_HANG
 
@@ -102,6 +131,8 @@ config ARCH_LS2080A
 	select ARM_ERRATA_829520
 	select ARM_ERRATA_833471
 	select FSL_LSCH3
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_LE
 	select SYS_FSL_DDR_VER_50
@@ -131,6 +162,12 @@ config ARCH_LS2080A
 	select SYS_FSL_ERRATUM_A009203
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C3
+	select SYS_I2C_MXC_I2C4
+	imply DISTRO_DEFAULTS
 	imply PANIC_HANG
 
 config FSL_LSCH2
@@ -139,13 +176,9 @@ config FSL_LSCH2
 	select SYS_FSL_HAS_SEC
 	select SYS_FSL_SEC_COMPAT_5
 	select SYS_FSL_SEC_BE
-	select SYS_FSL_SRDS_1
-	select SYS_HAS_SERDES
 
 config FSL_LSCH3
 	bool
-	select SYS_FSL_SRDS_1
-	select SYS_HAS_SERDES
 
 config FSL_MC_ENET
 	bool "Management Complex network"
@@ -227,40 +260,6 @@ config SYS_LS_PPA_FW_IN_NAND
 	  Say Y here if the PPA firmware locate at NAND flash.
 
 endchoice
-
-config SYS_LS_PPA_FW_ADDR
-	hex "Address of PPA firmware loading from"
-	depends on FSL_LS_PPA
-	default 0x20400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT && ARCH_LS2080A
-	default 0x40400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
-	default 0x580400000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS2080A
-	default 0x20400000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1088A
-	default 0x60400000 if SYS_LS_PPA_FW_IN_XIP
-	default 0x400000 if SYS_LS_PPA_FW_IN_MMC
-	default 0x400000 if SYS_LS_PPA_FW_IN_NAND
-
-	help
-	  If the PPA firmware locate at XIP flash, such as NOR or
-	  QSPI flash, this address is a directly memory-mapped.
-	  If it is in a serial accessed flash, such as NAND and SD
-	  card, it is a byte offset.
-
-config SYS_LS_PPA_ESBC_ADDR
-	hex "hdr address of PPA firmware loading from"
-	depends on FSL_LS_PPA && CHAIN_OF_TRUST
-	default 0x60680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1043A
-	default 0x40680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1046A
-	default 0x40680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1012A
-	default 0x20680000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT && ARCH_LS2080A
-	default 0x580680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS2080A
-	default 0x20680000 if SYS_LS_PPA_FW_IN_XIP && ARCH_LS1088A
-	default 0x680000 if SYS_LS_PPA_FW_IN_MMC
-	default 0x680000 if SYS_LS_PPA_FW_IN_NAND
-	help
-	  If the PPA header firmware locate at XIP flash, such as NOR or
-	  QSPI flash, this address is a directly memory-mapped.
-	  If it is in a serial accessed flash, such as NAND and SD
-	  card, it is a byte offset.
 
 config LS_PPA_ESBC_HDR_SIZE
 	hex "Length of PPA ESBC header"
@@ -436,6 +435,14 @@ config SYS_FSL_SDHC_CLK_DIV
 	help
 	  This is the divider that is used to derive SDHC clock from Platform
 	  clock, in another word SDHC_clk = Platform_clk / this_divider.
+
+config SYS_FSL_QMAN_CLK_DIV
+	int "QMAN clock divider"
+	default 1 if ARCH_LS1043A
+	default 2
+	help
+	  This is the divider that is used to derive QMAN clock from Platform
+	  clock, in another word QMAN_clk = Platform_clk / this_divider.
 endmenu
 
 config RESV_RAM
@@ -493,8 +500,7 @@ config SYS_FSL_HAS_RGMII
 config SYS_MC_RSV_MEM_ALIGN
 	hex "Management Complex reserved memory alignment"
 	depends on RESV_RAM
-	default 0x20000000 if ARCH_LS2080A
-	default 0x70000000 if ARCH_LS1088A
+	default 0x20000000 if ARCH_LS2080A || ARCH_LS1088A
 	help
 	  Reserved memory needs to be aligned for MC to use. Default value
 	  is 512MB.

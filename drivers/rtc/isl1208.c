@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008
  * Tor Krill, Excito Elektronik i Skåne , tor@excito.com
  *
  * Modelled after the ds1337 driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -14,6 +13,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <rtc.h>
 #include <i2c.h>
 
@@ -51,45 +51,56 @@
 #define RTC_STAT_BIT_BAT	0x02	/* BATTERY BIT */
 #define RTC_STAT_BIT_RTCF	0x01	/* REAL TIME CLOCK FAIL BIT */
 
-static uchar rtc_read (uchar reg);
-static void rtc_write (uchar reg, uchar val);
+/*
+ * Read an RTC register
+ */
+
+static int isl1208_rtc_read8(struct udevice *dev, unsigned int reg)
+{
+	return dm_i2c_reg_read(dev, reg);
+}
+
+/*
+ * Write an RTC register
+ */
+
+static int isl1208_rtc_write8(struct udevice *dev, unsigned int reg, int val)
+{
+	return dm_i2c_reg_write(dev, reg, val);
+}
 
 /*
  * Get the current time from the RTC
  */
 
-int rtc_get (struct rtc_time *tmp)
+static int isl1208_rtc_get(struct udevice *dev, struct rtc_time *tmp)
 {
-	int rel = 0;
-	uchar sec, min, hour, mday, wday, mon, year, status;
+	int ret;
+	uchar buf[8], val;
 
-	status = rtc_read (RTC_STAT_REG_ADDR);
-	sec = rtc_read (RTC_SEC_REG_ADDR);
-	min = rtc_read (RTC_MIN_REG_ADDR);
-	hour = rtc_read (RTC_HR_REG_ADDR);
-	wday = rtc_read (RTC_DAY_REG_ADDR);
-	mday = rtc_read (RTC_DATE_REG_ADDR);
-	mon = rtc_read (RTC_MON_REG_ADDR);
-	year = rtc_read (RTC_YR_REG_ADDR);
+	ret = dm_i2c_read(dev, 0, buf, sizeof(buf));
+	if (ret < 0)
+		return ret;
 
-	DEBUGR ("Get RTC year: %02x mon: %02x mday: %02x wday: %02x "
-		"hr: %02x min: %02x sec: %02x status: %02x\n",
-		year, mon, mday, wday, hour, min, sec, status);
-
-	if (status & RTC_STAT_BIT_RTCF) {
+	if (buf[RTC_STAT_REG_ADDR] & RTC_STAT_BIT_RTCF) {
 		printf ("### Warning: RTC oscillator has stopped\n");
-		rtc_write(RTC_STAT_REG_ADDR,
-			rtc_read(RTC_STAT_REG_ADDR) &~ (RTC_STAT_BIT_BAT|RTC_STAT_BIT_RTCF));
-		rel = -1;
+		ret = dm_i2c_read(dev, RTC_STAT_REG_ADDR, &val, sizeof(val));
+		if (ret < 0)
+			return ret;
+
+		val = val & ~(RTC_STAT_BIT_BAT | RTC_STAT_BIT_RTCF);
+		ret = dm_i2c_write(dev, RTC_STAT_REG_ADDR, &val, sizeof(val));
+		if (ret < 0)
+			return ret;
 	}
 
-	tmp->tm_sec  = bcd2bin (sec & 0x7F);
-	tmp->tm_min  = bcd2bin (min & 0x7F);
-	tmp->tm_hour = bcd2bin (hour & 0x3F);
-	tmp->tm_mday = bcd2bin (mday & 0x3F);
-	tmp->tm_mon  = bcd2bin (mon & 0x1F);
-	tmp->tm_year = bcd2bin (year)+2000;
-	tmp->tm_wday = bcd2bin (wday & 0x07);
+	tmp->tm_sec  = bcd2bin(buf[RTC_SEC_REG_ADDR] & 0x7F);
+	tmp->tm_min  = bcd2bin(buf[RTC_MIN_REG_ADDR] & 0x7F);
+	tmp->tm_hour = bcd2bin(buf[RTC_HR_REG_ADDR] & 0x3F);
+	tmp->tm_mday = bcd2bin(buf[RTC_DATE_REG_ADDR] & 0x3F);
+	tmp->tm_mon  = bcd2bin(buf[RTC_MON_REG_ADDR] & 0x1F);
+	tmp->tm_year = bcd2bin(buf[RTC_YR_REG_ADDR]) + 2000;
+	tmp->tm_wday = bcd2bin(buf[RTC_DAY_REG_ADDR] & 0x07);
 	tmp->tm_yday = 0;
 	tmp->tm_isdst= 0;
 
@@ -97,51 +108,90 @@ int rtc_get (struct rtc_time *tmp)
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 
-	return rel;
+	return 0;
 }
 
 /*
  * Set the RTC
  */
-int rtc_set (struct rtc_time *tmp)
+static int isl1208_rtc_set(struct udevice *dev, const struct rtc_time *tmp)
 {
+	int ret;
+	uchar val, buf[7];
+
 	DEBUGR ("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
 		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 
-	/* enable write */
-	rtc_write(RTC_STAT_REG_ADDR,
-		rtc_read(RTC_STAT_REG_ADDR) | RTC_STAT_BIT_WRTC);
+	if (tmp->tm_year < 2000 || tmp->tm_year > 2099)
+		printf("WARNING: year should be between 2000 and 2099!\n");
 
-	rtc_write (RTC_YR_REG_ADDR, bin2bcd (tmp->tm_year % 100));
-	rtc_write (RTC_MON_REG_ADDR, bin2bcd (tmp->tm_mon));
-	rtc_write (RTC_DAY_REG_ADDR, bin2bcd (tmp->tm_wday));
-	rtc_write (RTC_DATE_REG_ADDR, bin2bcd (tmp->tm_mday));
-	rtc_write (RTC_HR_REG_ADDR, bin2bcd (tmp->tm_hour) | 0x80 ); /* 24h clock */
-	rtc_write (RTC_MIN_REG_ADDR, bin2bcd (tmp->tm_min));
-	rtc_write (RTC_SEC_REG_ADDR, bin2bcd (tmp->tm_sec));
+	/* enable write */
+	ret = dm_i2c_read(dev, RTC_STAT_REG_ADDR, &val, sizeof(val));
+	if (ret < 0)
+		return ret;
+
+	val = val | RTC_STAT_BIT_WRTC;
+
+	ret = dm_i2c_write(dev, RTC_STAT_REG_ADDR, &val, sizeof(val));
+	if (ret < 0)
+		return ret;
+
+	buf[RTC_YR_REG_ADDR] = bin2bcd(tmp->tm_year % 100);
+	buf[RTC_MON_REG_ADDR] = bin2bcd(tmp->tm_mon);
+	buf[RTC_DAY_REG_ADDR] = bin2bcd(tmp->tm_wday);
+	buf[RTC_DATE_REG_ADDR] = bin2bcd(tmp->tm_mday);
+	buf[RTC_HR_REG_ADDR] = bin2bcd(tmp->tm_hour) | 0x80; /* 24h clock */
+	buf[RTC_MIN_REG_ADDR] = bin2bcd(tmp->tm_min);
+	buf[RTC_SEC_REG_ADDR] = bin2bcd(tmp->tm_sec);
+
+	ret = dm_i2c_write(dev, 0, buf, sizeof(buf));
+	if (ret < 0)
+		return ret;
 
 	/* disable write */
-	rtc_write(RTC_STAT_REG_ADDR,
-		rtc_read(RTC_STAT_REG_ADDR) & ~RTC_STAT_BIT_WRTC);
+	ret = dm_i2c_read(dev, RTC_STAT_REG_ADDR, &val, sizeof(val));
+	if (ret < 0)
+		return ret;
+
+	val = val & ~RTC_STAT_BIT_WRTC;
+	ret = dm_i2c_write(dev, RTC_STAT_REG_ADDR, &val, sizeof(val));
+	if (ret < 0)
+		return ret;
 
 	return 0;
 }
 
-void rtc_reset (void)
+static int isl1208_rtc_reset(struct udevice *dev)
 {
+	return 0;
 }
 
-/*
- * Helper functions
- */
-
-static uchar rtc_read (uchar reg)
+static int isl1208_probe(struct udevice *dev)
 {
-	return (i2c_reg_read (CONFIG_SYS_I2C_RTC_ADDR, reg));
+	i2c_set_chip_flags(dev, DM_I2C_CHIP_RD_ADDRESS |
+			   DM_I2C_CHIP_WR_ADDRESS);
+
+	return 0;
 }
 
-static void rtc_write (uchar reg, uchar val)
-{
-	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
-}
+static const struct rtc_ops isl1208_rtc_ops = {
+	.get = isl1208_rtc_get,
+	.set = isl1208_rtc_set,
+	.reset = isl1208_rtc_reset,
+	.read8 = isl1208_rtc_read8,
+	.write8 = isl1208_rtc_write8,
+};
+
+static const struct udevice_id isl1208_rtc_ids[] = {
+	{ .compatible = "isil,isl1208" },
+	{ }
+};
+
+U_BOOT_DRIVER(rtc_isl1208) = {
+	.name	= "rtc-isl1208",
+	.id	= UCLASS_RTC,
+	.probe	= isl1208_probe,
+	.of_match = isl1208_rtc_ids,
+	.ops	= &isl1208_rtc_ops,
+};

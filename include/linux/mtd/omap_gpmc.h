@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2004-2008 Texas Instruments, <www.ti.com>
  * Rohit Choraria <rohitkc@ti.com>
  *
  * (C) Copyright 2013 Andreas Bießmann <andreas@biessmann.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ASM_OMAP_GPMC_H
 #define __ASM_OMAP_GPMC_H

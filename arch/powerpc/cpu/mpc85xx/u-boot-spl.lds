@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de
  *
  * Copyright 2009 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "config.h"
@@ -56,6 +55,7 @@ SECTIONS
 	. = ALIGN(8);
 	__init_begin = .;
 	__init_end = .;
+	_end = .;
 #ifdef CONFIG_SPL_SKIP_RELOCATE
 	. = ALIGN(4);
 	__bss_start = .;

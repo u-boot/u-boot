@@ -1,5 +1,5 @@
 T1040QDS BOARD
-M:	Poonam Aggrwal <poonam.aggrwal@freescale.com>
+M:	Poonam Aggrwal <poonam.aggrwal@nxp.com>
 S:	Maintained
 F:	board/freescale/t1040qds/
 F:	include/configs/T1040QDS.h

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * am3517_evm.h - Default configuration for AM3517 EVM board.
  *
@@ -6,14 +7,10 @@
  * Based on omap3_evm_config.h
  *
  * Copyright (C) 2010 Texas Instruments Incorporated
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-
-#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
@@ -22,14 +19,12 @@
  * other needs.
  */
 
-#define CONFIG_SYS_TEXT_BASE		0x80100000
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
 #include <configs/ti_omap3_common.h>
-#undef CONFIG_SDRC	/* Disable SDRC since we have EMIF4 */
 
-#define CONFIG_MISC_INIT_R
+#undef CONFIG_DM_I2C_COMPAT
 #define CONFIG_REVISION_TAG
 
 /* Hardware drivers */
@@ -42,8 +37,6 @@
  * Enable CONFIG_USB_MUSB_HOST for Host functionalities MSC, keyboard
  * Enable CONFIG_USB_MUSB_GADGET for Device functionalities.
  */
-#define CONFIG_USB_MUSB_AM35X
-#define CONFIG_USB_MUSB_PIO_ONLY
 
 #ifdef CONFIG_USB_MUSB_AM35X
 
@@ -58,23 +51,16 @@
 #endif /* CONFIG_USB_MUSB_AM35X */
 
 /* I2C */
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 
 /* Ethernet */
-#define CONFIG_DRIVER_TI_EMAC
 #define CONFIG_DRIVER_TI_EMAC_USE_RMII
-#define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10
 
 /* Board NAND Info. */
 #ifdef CONFIG_NAND
-#define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
-							/* to access nand */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
@@ -95,8 +81,6 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS	56
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
-#define CONFIG_MTD_PARTITIONS		/* required for UBI partition support */
-#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 /* NAND block size is 128 KiB.  Synchronize these values with
  * corresponding Device Tree entries in Linux:
  *  MLO(SPL)             4 * NAND_BLOCK_SIZE = 512 KiB  @ 0x000000
@@ -175,9 +159,6 @@
 	"else run nandboot; fi"
 
 /* Miscellaneous configurable options */
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_LONGHELP
 
 /* We set the max number of command args high to avoid HUSH bugs. */
 #define CONFIG_SYS_MAXARGS		64
@@ -219,7 +200,6 @@
 #define CONFIG_ENV_ADDR			0x260000
 
 /* Defines for SPL */
-#define CONFIG_SPL_FRAMEWORK
 #undef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		0x40200000
 

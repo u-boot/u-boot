@@ -62,14 +62,6 @@
 	};
 };
 
-&gsl1680 {
-	compatible = "silead,gsl3670";
-	touchscreen-fw-name = "silead/gsl3670-polaroid-mid2809pxe04.fw";
-	touchscreen-size-x = <1660>;
-	touchscreen-size-y = <890>;
-	status = "okay";
-};
-
 &mmc1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc1_pins_a>;
@@ -87,14 +79,21 @@
 };
 
 &mmc1_pins_a {
-	allwinner,pull = <SUN4I_PINCTRL_PULL_UP>;
+	bias-pull-up;
 };
 
 &r_pio {
 	wifi_pwrseq_pin_mid2809: wifi_pwrseq_pin@0 {
-		allwinner,pins = "PL6";
-		allwinner,function = "gpio_out";
-		allwinner,drive = <SUN4I_PINCTRL_10_MA>;
-		allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+		pins = "PL6";
+		function = "gpio_out";
 	};
+};
+
+&touchscreen {
+	reg = <0x40>;
+	compatible = "silead,gsl3670";
+	firmware-name = "gsl3670-polaroid-mid2809pxe04.fw";
+	touchscreen-size-x = <1660>;
+	touchscreen-size-y = <890>;
+	status = "okay";
 };

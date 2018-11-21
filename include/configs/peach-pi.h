@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Samsung Electronics
  *
  * Configuration settings for the SAMSUNG/GOOGLE PEACH-PI board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_PEACH_PI_H
@@ -22,11 +21,9 @@
 #include <configs/exynos5-common.h>
 
 #define CONFIG_SYS_SDRAM_BASE	0x20000000
-#define CONFIG_SYS_TEXT_BASE	0x23E00000
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_IRAM_TOP - 0x800)
 
 /* select serial console configuration */
-#define CONFIG_SERIAL3		/* use SERIAL 3 */
 #define CONFIG_DEFAULT_CONSOLE	"console=ttySAC1,115200n8\0"
 
 /* Display */
@@ -39,7 +36,6 @@
 #define CONFIG_POWER_TPS65090_EC
 
 /* DRAM Memory Banks */
-#define CONFIG_NR_DRAM_BANKS	7
 #define SDRAM_BANK_SIZE		(512UL << 20UL)	/* 512 MB */
 
 #endif	/* __CONFIG_PEACH_PI_H */

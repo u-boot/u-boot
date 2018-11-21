@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2014 Google, Inc
  *
@@ -19,8 +20,6 @@
  * David Mosberger-Tang
  *
  * Copyright 1997 -- 1999 Martin Mares <mj@atrey.karlin.mff.cuni.cz>
-
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -248,7 +247,7 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 	}
 
 	if (!board_should_load_oprom(dev))
-		return -ENXIO;
+		return log_msg_ret("Should not load OPROM", -ENXIO);
 
 	ret = pci_rom_probe(dev, &rom);
 	if (ret)
@@ -329,7 +328,7 @@ int vbe_setup_video_priv(struct vesa_mode_info *vesa,
 			 struct video_uc_platdata *plat)
 {
 	if (!vesa->x_resolution)
-		return -ENXIO;
+		return log_msg_ret("No x resolution", -ENXIO);
 	uc_priv->xsize = vesa->x_resolution;
 	uc_priv->ysize = vesa->y_resolution;
 	switch (vesa->bits_per_pixel) {
@@ -355,8 +354,6 @@ int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void))
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 
-	printf("Video: ");
-
 	/* If we are running from EFI or coreboot, this can't work */
 	if (!ll_boot_init()) {
 		printf("Not available (previous bootloader prevents it)\n");
@@ -377,7 +374,7 @@ int vbe_setup_video(struct udevice *dev, int (*int15_handler)(void))
 		return ret;
 	}
 
-	printf("%dx%dx%d\n", uc_priv->xsize, uc_priv->ysize,
+	printf("Video: %dx%dx%d\n", uc_priv->xsize, uc_priv->ysize,
 	       mode_info.vesa.bits_per_pixel);
 
 	return 0;

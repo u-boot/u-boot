@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * evm.c
  *
  * Copyright (C) 2013, Adeneo Embedded <www.adeneo-embedded.com>
  * Antoine Tenart, <atenart@adeneo-embedded.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <environment.h>
 #include <spl.h>
 #include <netdev.h>
 #include <asm/cache.h>

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * (C) Copyright 2005
  * 2N Telekomunikace, a.s. <www.2n.cz>
  * Ladislav Michl <michl@2n.cz>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _NAND_H_

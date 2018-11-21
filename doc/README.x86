@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2014, Simon Glass <sjg@chromium.org>
 # Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 U-Boot on x86
 =============
@@ -34,7 +32,7 @@ are supported:
    - Link (Chromebook Pixel)
    - Minnowboard MAX
    - Samus (Chromebook Pixel 2015)
-   - QEMU x86
+   - QEMU x86 (32-bit & 64-bit)
 
 As for loading an OS, U-Boot supports directly booting a 32-bit or 64-bit
 Linux kernel as part of a FIT image. It also supports a compressed zImage.
@@ -46,23 +44,8 @@ Build Instructions for U-Boot as coreboot payload
 Building U-Boot as a coreboot payload is just like building U-Boot for targets
 on other architectures, like below:
 
-$ make coreboot-x86_defconfig
+$ make coreboot_defconfig
 $ make all
-
-Note this default configuration will build a U-Boot payload for the QEMU board.
-To build a coreboot payload against another board, you can change the build
-configuration during the 'make menuconfig' process.
-
-x86 architecture  --->
-	...
-	(qemu-x86) Board configuration file
-	(qemu-x86_i440fx) Board Device Tree Source (dts) file
-	(0x01920000) Board specific Cache-As-RAM (CAR) address
-	(0x4000) Board specific Cache-As-RAM (CAR) size
-
-Change the 'Board configuration file' and 'Board Device Tree Source (dts) file'
-to point to a new board. You can also change the Cache-As-RAM (CAR) related
-settings here if the default values do not fit your new board.
 
 Build Instructions for U-Boot as main bootloader
 ------------------------------------------------
@@ -258,7 +241,9 @@ the board manual. The SPI-0 flash should have flash descriptor plus ME firmware
 and SPI-1 flash is used to store U-Boot. For convenience, the complete 8MB SPI-0
 flash image is included in the FSP package (named Rom00_8M_MB_PPT.bin). Program
 this image to the SPI-0 flash according to the board manual just once and we are
-all set. For programming U-Boot we just need to program SPI-1 flash.
+all set. For programming U-Boot we just need to program SPI-1 flash. Since the
+default u-boot.rom image for this board is set to 2MB, it should be programmed
+to the last 2MB of the 8MB chip, address range [600000, 7FFFFF].
 
 ---
 
@@ -391,7 +376,9 @@ QEMU x86 target instructions for bare mode:
 
 To build u-boot.rom for QEMU x86 targets, just simply run
 
-$ make qemu-x86_defconfig
+$ make qemu-x86_defconfig (for 32-bit)
+or
+$ make qemu-x86_64_defconfig (for 64-bit)
 $ make all
 
 Note this default configuration will build a U-Boot for the QEMU x86 i440FX
@@ -427,16 +414,9 @@ To enable video you must enable these options in coreboot:
    - Set framebuffer graphics resolution (1280x1024 32k-color (1:5:5))
    - Keep VESA framebuffer
 
-And include coreboot_fb.dtsi in your board's device tree source file, like:
-
-   /include/ "coreboot_fb.dtsi"
-
 At present it seems that for Minnowboard Max, coreboot does not pass through
 the video information correctly (it always says the resolution is 0x0). This
 works correctly for link though.
-
-Note: coreboot framebuffer driver does not work on QEMU. The reason is unknown
-at this point. Patches are welcome if you figure out anything wrong.
 
 Test with QEMU for bare mode
 ----------------------------
@@ -500,6 +480,19 @@ Here the kernel (bzImage) is loaded to 01000000 and initrd is to 04000000. Then,
 'zboot' can be used to boot the kernel:
 
 => zboot 01000000 - 04000000 1b1ab50
+
+To run 64-bit U-Boot, qemu-system-x86_64 should be used instead, e.g.:
+$ qemu-system-x86_64 -nographic -bios path/to/u-boot.rom
+
+A specific CPU can be specified via the '-cpu' parameter but please make
+sure the specified CPU supports 64-bit like '-cpu core2duo'. Conversely
+'-cpu pentium' won't work for obvious reasons that the processor only
+supports 32-bit.
+
+Note 64-bit support is very preliminary at this point. Lots of features
+are missing in the 64-bit world. One notable feature is the VGA console
+support which is currently missing, so that you must specify '-nographic'
+to get 64-bit U-Boot up and running.
 
 Updating U-Boot on Edison
 -------------------------
@@ -1134,35 +1127,43 @@ the "Power" submenu from the Windows start menu.
 EFI Support
 -----------
 U-Boot supports booting as a 32-bit or 64-bit EFI payload, e.g. with UEFI.
-This is enabled with CONFIG_EFI_STUB. U-Boot can also run as an EFI
-application, with CONFIG_EFI_APP. The CONFIG_EFI_LOADER option, where U-Booot
-provides an EFI environment to the kernel (i.e. replaces UEFI completely but
-provides the same EFI run-time services) is not currently supported on x86.
+This is enabled with CONFIG_EFI_STUB to boot from both 32-bit and 64-bit
+UEFI BIOS. U-Boot can also run as an EFI application, with CONFIG_EFI_APP.
+The CONFIG_EFI_LOADER option, where U-Boot provides an EFI environment to
+the kernel (i.e. replaces UEFI completely but provides the same EFI run-time
+services) is supported too. For example, we can even use 'bootefi' command
+to load a 'u-boot-payload.efi', see below test logs on QEMU.
 
-See README.efi for details of EFI support in U-Boot.
+  => load ide 0 3000000 u-boot-payload.efi
+  489787 bytes read in 138 ms (3.4 MiB/s)
+  => bootefi 3000000
+  Scanning disk ide.blk#0...
+  Found 2 disks
+  WARNING: booting without device tree
+  ## Starting EFI application at 03000000 ...
+  U-Boot EFI Payload
 
-64-bit Support
---------------
-U-Boot supports booting a 64-bit kernel directly and is able to change to
-64-bit mode to do so. It also supports (with CONFIG_EFI_STUB) booting from
-both 32-bit and 64-bit UEFI. However, U-Boot itself is currently always built
-in 32-bit mode. Some access to the full memory range is provided with
-arch_phys_memset().
 
-The development work to make U-Boot itself run in 64-bit mode has not yet
-been attempted. The best approach would likely be to build a 32-bit SPL
-image for U-Boot, with CONFIG_SPL_BUILD. This could then handle the early CPU
-init in 16-bit and 32-bit mode, running the FSP and any other binaries that
-are needed. Then it could change to 64-bit model and jump to U-Boot proper.
+  U-Boot 2018.07-rc2 (Jun 23 2018 - 17:12:58 +0800)
 
-Given U-Boot's extensive 64-bit support this has not been a high priority,
-but it would be a nice addition.
+  CPU: x86_64, vendor AMD, device 663h
+  DRAM:  2 GiB
+  MMC:
+  Video: 1024x768x32
+  Model: EFI x86 Payload
+  Net:   e1000: 52:54:00:12:34:56
+
+  Warning: e1000#0 using MAC address from ROM
+  eth0: e1000#0
+  No controllers found
+  Hit any key to stop autoboot:  0
+
+See README.u-boot_on_efi and README.uefi for details of EFI support in U-Boot.
 
 TODO List
 ---------
 - Audio
 - Chrome OS verified boot
-- Building U-Boot to run in 64-bit mode
 
 References
 ----------

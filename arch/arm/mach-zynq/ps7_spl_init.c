@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (c) Copyright 2010-2017 Xilinx, Inc. All rights reserved.
  * (c) Copyright 2016 Topic Embedded Products.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/io.h>

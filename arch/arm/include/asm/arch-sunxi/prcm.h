@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sunxi A31 Power Management Unit register definition.
  *
@@ -6,8 +7,6 @@
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Berg Xing <bergxing@allwinnertech.com>
  * Tom Cubie <tangliang@allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_PRCM_H

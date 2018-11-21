@@ -8,17 +8,17 @@
 	model = "sandbox";
 
 	aliases {
-		eth5 = "/eth@90000000";
 		i2c0 = &i2c_0;
 		pci0 = &pci;
 		rtc0 = &rtc_0;
+		axi0 = &axi;
 	};
 
 	chosen {
 		stdout-path = "/serial";
 	};
 
-	cros_ec: cros-ec@0 {
+	cros_ec: cros-ec {
 		reg = <0 0>;
 		compatible = "google,cros-ec-sandbox";
 
@@ -26,25 +26,30 @@
 		 * This describes the flash memory within the EC. Note
 		 * that the STM32L flash erases to 0, not 0xff.
 		 */
-		#address-cells = <1>;
-		#size-cells = <1>;
-		flash@8000000 {
-			reg = <0x08000000 0x20000>;
+		flash {
+			image-pos = <0x08000000>;
+			size = <0x20000>;
 			erase-value = <0>;
-			#address-cells = <1>;
-			#size-cells = <1>;
 
 			/* Information for sandbox */
 			ro {
-				reg = <0 0xf000>;
+				image-pos = <0>;
+				size = <0xf000>;
 			};
 			wp-ro {
-				reg = <0xf000 0x1000>;
+				image-pos = <0xf000>;
+				size = <0x1000>;
 			};
 			rw {
-				reg = <0x10000 0x10000>;
+				image-pos = <0x10000>;
+				size = <0x10000>;
 			};
 		};
+	};
+
+	ethrawbus {
+		compatible = "sandbox,eth-raw-bus";
+		skip-localhost = <0>;
 	};
 
 	eth@10002000 {
@@ -53,24 +58,12 @@
 		fake-host-hwaddr = [00 00 66 44 22 00];
 	};
 
-	eth@80000000 {
-		compatible = "sandbox,eth-raw";
-		reg = <0x80000000 0x1000>;
-		host-raw-interface = "eth0";
-	};
-
-	eth@90000000 {
-		compatible = "sandbox,eth-raw";
-		reg = <0x90000000 0x1000>;
-		host-raw-interface = "lo";
-	};
-
 	gpio_a: gpios@0 {
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <1>;
 		gpio-bank-name = "a";
-		num-gpios = <20>;
+		sandbox,gpio-count = <20>;
 	};
 
 	gpio_b: gpios@1 {
@@ -78,7 +71,7 @@
 		compatible = "sandbox,gpio";
 		#gpio-cells = <2>;
 		gpio-bank-name = "b";
-		num-gpios = <10>;
+		sandbox,gpio-count = <10>;
 	};
 
 	hexagon {
@@ -114,6 +107,10 @@
 		};
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;
+		};
+
+		mc34708: pmic@41 {
+			reg = <0x41>;
 		};
 	};
 
@@ -156,6 +153,7 @@
 
 	pinctrl {
 		compatible = "sandbox,pinctrl";
+		status = "okay";
 
 		pinctrl_i2c0: i2c0 {
 			groups = "i2c";
@@ -166,6 +164,12 @@
 		pinctrl_serial0: uart0 {
 			groups = "serial_a";
 			function = "serial";
+		};
+
+		pinctrl_onewire0: onewire0 {
+			groups = "w1";
+			function = "w1";
+			bias-pull-up;
 		};
 	};
 
@@ -236,6 +240,10 @@
 
 	tpm {
 		compatible = "google,sandbox-tpm";
+	};
+
+	tpm2 {
+		compatible = "sandbox,tpm2";
 	};
 
 	triangle {
@@ -310,6 +318,33 @@
 				gpio-bank-name="spmi";
 			};
 		};
+	};
+
+	axi: axi@0 {
+		compatible = "sandbox,axi";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		store@0 {
+			compatible = "sandbox,sandbox_store";
+			reg = <0x0 0x400>;
+		};
+	};
+
+	onewire0: onewire {
+		compatible = "w1-gpio";
+		gpios = <&gpio_a 8>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_onewire0>;
+		status = "okay";
+
+		sandbox_eeprom0: sandbox_eeprom@0 {
+			compatible = "sandbox,w1-eeprom";
+			status = "okay";
+		};
+	};
+
+	sandbox_tee {
+		compatible = "sandbox,tee";
 	};
 };
 

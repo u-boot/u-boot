@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2017 Rockchip Electronics Co., Ltd.
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _DT_BINDINGS_CLK_ROCKCHIP_RK3228_H

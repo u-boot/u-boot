@@ -39,14 +39,15 @@
 		sai1 = &sai1;
 		sai2 = &sai2;
 		sai3 = &sai3;
-		spi0 = &ecspi1;
-		spi1 = &ecspi2;
-		spi2 = &ecspi3;
-		spi3 = &ecspi4;
-		usbotg0 = &usbotg1;
-		usbotg1 = &usbotg2;
+		spi0 = &qspi;
+		spi1 = &ecspi1;
+		spi2 = &ecspi2;
+		spi3 = &ecspi3;
+		spi4 = &ecspi4;
 		usbphy0 = &usbphy1;
 		usbphy1 = &usbphy2;
+		usb0 = &usbotg1;
+		usb1 = &usbotg2;
 	};
 
 	cpus {
@@ -134,7 +135,6 @@
 		compatible = "simple-bus";
 		interrupt-parent = <&gpc>;
 		ranges;
-		u-boot,dm-spl;
 
 		pmu {
 			compatible = "arm,cortex-a7-pmu";
@@ -186,7 +186,6 @@
 			#size-cells = <1>;
 			reg = <0x02000000 0x100000>;
 			ranges;
-			u-boot,dm-spl;
 
 			spba-bus@02000000 {
 				compatible = "fsl,spba-bus", "simple-bus";
@@ -194,6 +193,7 @@
 				#size-cells = <1>;
 				reg = <0x02000000 0x40000>;
 				ranges;
+				u-boot,dm-spl;
 
 				ecspi1: ecspi@02008000 {
 					#address-cells = <1>;
@@ -417,7 +417,6 @@
 				#interrupt-cells = <2>;
 				gpio-ranges = <&iomuxc  0 23 10>, <&iomuxc 10 17 6>,
 					      <&iomuxc 16 33 16>;
-				u-boot,dm-spl;
 			};
 
 			gpio2: gpio@020a0000 {
@@ -454,7 +453,6 @@
 				interrupt-controller;
 				#interrupt-cells = <2>;
 				gpio-ranges = <&iomuxc 0 94 17>, <&iomuxc 17 117 12>;
-				u-boot,dm-spl;
 			};
 
 			gpio5: gpio@020ac000 {
@@ -653,7 +651,6 @@
 			iomuxc: iomuxc@020e0000 {
 				compatible = "fsl,imx6ul-iomuxc";
 				reg = <0x020e0000 0x4000>;
-				u-boot,dm-spl;
 			};
 
 			gpr: iomuxc-gpr@020e4000 {
@@ -734,7 +731,6 @@
 			#size-cells = <1>;
 			reg = <0x02100000 0x100000>;
 			ranges;
-			u-boot,dm-spl;
 
 			usbotg1: usb@02184000 {
 				compatible = "fsl,imx6ul-usb", "fsl,imx27-usb";
@@ -878,6 +874,14 @@
 				clocks = <&clks IMX6UL_CLK_QSPI>,
 					 <&clks IMX6UL_CLK_QSPI>;
 				clock-names = "qspi_en", "qspi";
+				status = "disabled";
+			};
+
+			wdog3: wdog@021e4000 {
+				compatible = "fsl,imx6ul-wdt", "fsl,imx21-wdt";
+				reg = <0x021e4000 0x4000>;
+				interrupts = <GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>;
+				clocks = <&clks IMX6UL_CLK_WDOG3>;
 				status = "disabled";
 			};
 

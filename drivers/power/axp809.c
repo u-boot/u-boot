@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * AXP809 driver based on AXP221 driver
  *
@@ -7,8 +8,6 @@
  * Based on axp221.c
  * (C) Copyright 2014 Hans de Goede <hdegoede@redhat.com>
  * (C) Copyright 2013 Oliver Schinagl <oliver@schinagl.nl>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

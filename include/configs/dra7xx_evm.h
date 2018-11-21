@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * Texas Instruments Incorporated.
@@ -5,8 +6,6 @@
  *
  * Configuration settings for the TI DRA7XX board.
  * See ti_omap5_common.h for omap5 common settings.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_DRA7XX_EVM_H
@@ -14,12 +13,9 @@
 
 #include <environment/ti/dfu.h>
 
-#ifdef CONFIG_SPL_BUILD
 #define CONFIG_IODELAY_RECALIBRATION
-#endif
 
 #define CONFIG_VERY_BIG_RAM
-#define CONFIG_NR_DRAM_BANKS		2
 #define CONFIG_MAX_MEM_MAPPED		0x80000000
 
 #ifndef CONFIG_QSPI_BOOT
@@ -47,31 +43,6 @@
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
 #ifndef CONFIG_SPL_BUILD
-/* Define the default GPT table for eMMC */
-#define PARTS_DEFAULT \
-	/* Linux partitions */ \
-	"uuid_disk=${uuid_gpt_disk};" \
-	"name=bootloader,start=384K,size=1792K,uuid=${uuid_gpt_bootloader};" \
-	"name=rootfs,start=2688K,size=-,uuid=${uuid_gpt_rootfs}\0" \
-	/* Android partitions */ \
-	"partitions_android=" \
-	"uuid_disk=${uuid_gpt_disk};" \
-	"name=xloader,start=128K,size=256K,uuid=${uuid_gpt_xloader};" \
-	"name=bootloader,size=1792K,uuid=${uuid_gpt_bootloader};" \
-	"name=environment,size=128K,uuid=${uuid_gpt_environment};" \
-	"name=misc,size=128K,uuid=${uuid_gpt_misc};" \
-	"name=reserved,size=256K,uuid=${uuid_gpt_reserved};" \
-	"name=efs,size=16M,uuid=${uuid_gpt_efs};" \
-	"name=crypto,size=16K,uuid=${uuid_gpt_crypto};" \
-	"name=recovery,size=40M,uuid=${uuid_gpt_recovery};" \
-	"name=boot,size=10M,uuid=${uuid_gpt_boot};" \
-	"name=system,size=768M,uuid=${uuid_gpt_system};" \
-	"name=vendor,size=256M,uuid=${uuid_gpt_vendor};" \
-	"name=cache,size=256M,uuid=${uuid_gpt_cache};" \
-	"name=ipu1,size=1M,uuid=${uuid_gpt_ipu1};" \
-	"name=ipu2,size=1M,uuid=${uuid_gpt_ipu2};" \
-	"name=userdata,size=-,uuid=${uuid_gpt_userdata}"
-
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
 	DFU_ALT_INFO_MMC \
@@ -96,14 +67,9 @@
 #define CONFIG_HSMMC2_8BIT
 
 /* CPSW Ethernet */
-#define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT		10
-#define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
-#define CONFIG_MII			/* Required in net/eth.c */
 #define CONFIG_PHY_TI
 
 /* SPI */
@@ -136,7 +102,6 @@
 
 /* SPI SPL */
 #define CONFIG_TI_EDMA3
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS     0x40000
 
 #define CONFIG_SUPPORT_EMMC_BOOT
@@ -144,15 +109,10 @@
 /* USB xHCI HOST */
 #define CONFIG_USB_XHCI_OMAP
 
-#define CONFIG_OMAP_USB_PHY
 #define CONFIG_OMAP_USB2PHY2_HOST
 
 /* SATA */
 #define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
-#define CONFIG_SYS_SCSI_MAX_LUN		1
-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
-						CONFIG_SYS_SCSI_MAX_LUN)
 
 /* NAND support */
 #ifdef CONFIG_NAND
@@ -191,11 +151,6 @@
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_FLASH_SIZE		(64 * 1024 * 1024) /* 64 MB */
 /* #define CONFIG_INIT_IGNORE_ERROR */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-#define CONFIG_SYS_FLASH_PROTECTION
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_FLASH_CFI_MTD
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE

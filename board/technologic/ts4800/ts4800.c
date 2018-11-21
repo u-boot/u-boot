@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015 Savoir-faire Linux Inc.
  *
  * Derived from MX51EVK code by
  *   Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,6 +16,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/mx5_video.h>
+#include <environment.h>
 #include <mmc.h>
 #include <input.h>
 #include <fsl_esdhc.h>

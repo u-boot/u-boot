@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2008, Guennadi Liakhovetski <lg@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -61,7 +60,7 @@ static inline struct mxc_spi_slave *to_mxc_spi_slave(struct spi_slave *slave)
 static void mxc_spi_cs_activate(struct mxc_spi_slave *mxcs)
 {
 	if (CONFIG_IS_ENABLED(DM_SPI)) {
-		dm_gpio_set_value(&mxcs->ss, mxcs->ss_pol);
+		dm_gpio_set_value(&mxcs->ss, 1);
 	} else {
 		if (mxcs->gpio > 0)
 			gpio_set_value(mxcs->gpio, mxcs->ss_pol);
@@ -71,7 +70,7 @@ static void mxc_spi_cs_activate(struct mxc_spi_slave *mxcs)
 static void mxc_spi_cs_deactivate(struct mxc_spi_slave *mxcs)
 {
 	if (CONFIG_IS_ENABLED(DM_SPI)) {
-		dm_gpio_set_value(&mxcs->ss, !(mxcs->ss_pol));
+		dm_gpio_set_value(&mxcs->ss, 0);
 	} else {
 		if (mxcs->gpio > 0)
 			gpio_set_value(mxcs->gpio, !(mxcs->ss_pol));
@@ -505,11 +504,11 @@ static int mxc_spi_probe(struct udevice *bus)
 		return -EINVAL;
 	}
 
-	plat->base = dev_get_addr(bus);
+	plat->base = devfdt_get_addr(bus);
 	if (plat->base == FDT_ADDR_T_NONE)
 		return -ENODEV;
 
-	ret = dm_gpio_set_value(&plat->ss, !(mxcs->ss_pol));
+	ret = dm_gpio_set_value(&plat->ss, 0);
 	if (ret) {
 		dev_err(bus, "Setting cs error\n");
 		return ret;

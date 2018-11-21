@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013
  * Gumstix Inc. <www.gumstix.com>
  * Maintainer: Ash Charles  <ash@gumstix.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #include <common.h>
 #include <netdev.h>

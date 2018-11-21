@@ -1,14 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016-2017
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
@@ -45,7 +43,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 500 * SZ_1M)
 
-#define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS  2
 #define CONFIG_SF_DEFAULT_CS   0
 #define CONFIG_SF_DEFAULT_SPEED 25000000
@@ -64,24 +61,16 @@
 
 /* NOR 16-bit mode */
 #define CONFIG_SYS_FLASH_BASE           WEIM_ARB_BASE_ADDR
-#define CONFIG_SYS_FLASH_PROTECTION
 #define CONFIG_SYS_FLASH_CFI_WIDTH FLASH_CFI_16BIT
-#define CONFIG_SYS_FLASH_CFI            /* Flash memory is CFI compliant */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* Use buffered writes*/
 #define CONFIG_SYS_FLASH_EMPTY_INFO
-#define CONFIG_FLASH_CFI_DRIVER         /* Use drivers/cfi_flash.c */
 #define CONFIG_FLASH_VERIFY
 
 /* NOR Flash MTD */
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_FLASH_CFI_MTD
 #define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 1
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ (CONFIG_SYS_FLASH_BASE) }
 #define CONFIG_SYS_FLASH_BANKS_SIZES	{ (32 * SZ_1M) }
 
 /* MTD support */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 /* USB Configs */
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
@@ -90,13 +79,11 @@
 
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		1
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200 quiet\0" \
 	"fdtfile=imx6q-mccmon6.dtb\0" \
@@ -281,7 +268,6 @@
 	    "fi;\0"
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM

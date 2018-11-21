@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Originally from Linux v4.9
  * Copyright (C) 1996-2005 Paul Mackerras.
@@ -11,8 +12,6 @@
  *
  * Modified for U-Boot
  * Copyright (c) 2017 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DM_OF_ACCESS_H
@@ -195,6 +194,22 @@ struct device_node *of_find_compatible_node(struct device_node *from,
 				const char *type, const char *compatible);
 
 /**
+ * of_find_node_by_prop_value() - find a node with a given property value
+ *
+ * Find a node based on a property value.
+ * @from: Node to start searching from or NULL. the node you pass will not be
+ *	searched, only the next one will; typically, you pass what the previous
+ *	call returned.
+ * @propname: property name to check
+ * @propval: property value to search for
+ * @proplen: length of the value in propval
+ * @return node pointer or NULL if not found
+ */
+struct device_node *of_find_node_by_prop_value(struct device_node *from,
+					       const char *propname,
+					       const void *propval,
+					       int proplen);
+/**
  * of_find_node_by_phandle() - Find a node given a phandle
  *
  * @handle:	phandle of the node to find
@@ -218,6 +233,22 @@ struct device_node *of_find_node_by_phandle(phandle handle);
  * property data isn't large enough.
  */
 int of_read_u32(const struct device_node *np, const char *propname, u32 *outp);
+
+/**
+ * of_read_u64() - Find and read a 64-bit integer from a property
+ *
+ * Search for a property in a device node and read a 64-bit value from
+ * it.
+ *
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ * @outp:	pointer to return value, modified only if return value is 0.
+ *
+ * @return 0 on success, -EINVAL if the property does not exist,
+ * -ENODATA if property does not have a value, and -EOVERFLOW if the
+ * property data isn't large enough.
+ */
+int of_read_u64(const struct device_node *np, const char *propname, u64 *outp);
 
 /**
  * of_read_u32_array() - Find and read an array of 32 bit integers

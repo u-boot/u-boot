@@ -1,5 +1,0 @@
-/ {
-	coreboot-fb {
-		compatible = "coreboot-fb";
-	};
-};

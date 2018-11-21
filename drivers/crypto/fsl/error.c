@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * CAAM Error Reporting
  *
  * Copyright 2009-2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Derived from error.c file in linux drivers/crypto/caam
  */

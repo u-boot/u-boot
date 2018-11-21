@@ -1,27 +1,19 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012
  * Linaro
  * Linus Walleij <linus.walleij@linaro.org>
  * Common ARM Integrator configuration settings
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#define CONFIG_SYS_TEXT_BASE		0x01000000
 #define CONFIG_SYS_MEMTEST_START	0x100000
 #define CONFIG_SYS_MEMTEST_END		0x10000000
 #define CONFIG_SYS_TIMERBASE		0x13000100	/* Timer1 */
 #define CONFIG_SYS_LOAD_ADDR		0x7fc0	/* default load address */
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024) /* Size of malloc() pool */
-
-/* Serial port PL010/PL011 through the device model */
-#define CONFIG_PL01X_SERIAL
-#define CONFIG_CONS_INDEX		0
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_MISC_INIT_R		/* call misc_init_r during start up */
 
 /*
  * There are various dependencies on the core module (CM) fitted
@@ -71,7 +63,6 @@
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1		0x00000000	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* 128 MB */
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
@@ -90,13 +81,10 @@
  * - SIB block
  * - U-Boot environment
  */
-#define CONFIG_SYS_FLASH_CFI		1
-#define CONFIG_FLASH_CFI_DRIVER		1
 #define CONFIG_SYS_FLASH_BASE		0x24000000
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 
 /* Timeout values in ticks */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	(2 * CONFIG_SYS_HZ) /* Erase Timeout */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	(2 * CONFIG_SYS_HZ) /* Write Timeout */
-#define CONFIG_SYS_FLASH_PROTECTION	/* The devices have real protection */
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */

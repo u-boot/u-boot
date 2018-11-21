@@ -1,6 +1,0 @@
-EFI-X86 BOARD
-M:	Simon Glass <sjg@chromium.org>
-S:	Maintained
-F:	board/efi/efi-x86/
-F:	include/configs/efi-x86.h
-F:	configs/efi-x86_defconfig

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  *
  * Command for en/de-crypting block of memory with AES-128-CBC cipher.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -13,13 +12,6 @@
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
-
-DECLARE_GLOBAL_DATA_PTR;
-
-__weak int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len)
-{
-	return 0;
-}
 
 /**
  * do_aes() - Handle the "aes" command-line command
@@ -33,14 +25,13 @@ __weak int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len)
  */
 static int do_aes(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	uint32_t key_addr, src_addr, dst_addr, len;
-	uint8_t *key_ptr, *src_ptr, *dst_ptr;
+	uint32_t key_addr, iv_addr, src_addr, dst_addr, len;
+	uint8_t *key_ptr, *iv_ptr, *src_ptr, *dst_ptr;
 	uint8_t key_exp[AES_EXPAND_KEY_LENGTH];
 	uint32_t aes_blocks;
 	int enc;
-	bool use_hw = false;
 
-	if (argc < 6 || argc > 7)
+	if (argc != 7)
 		return CMD_RET_USAGE;
 
 	if (!strncmp(argv[1], "enc", 3))
@@ -51,54 +42,47 @@ static int do_aes(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 
 	key_addr = simple_strtoul(argv[2], NULL, 16);
-	src_addr = simple_strtoul(argv[3], NULL, 16);
-	dst_addr = simple_strtoul(argv[4], NULL, 16);
-	len = simple_strtoul(argv[5], NULL, 16);
+	iv_addr = simple_strtoul(argv[3], NULL, 16);
+	src_addr = simple_strtoul(argv[4], NULL, 16);
+	dst_addr = simple_strtoul(argv[5], NULL, 16);
+	len = simple_strtoul(argv[6], NULL, 16);
 
-	if (argc == 7)
-		if (!strncmp(argv[6], "hw", 2))
-			use_hw = true;
+	key_ptr = (uint8_t *)key_addr;
+	iv_ptr = (uint8_t *)iv_addr;
+	src_ptr = (uint8_t *)src_addr;
+	dst_ptr = (uint8_t *)dst_addr;
 
-	key_ptr = (uint8_t *)(uintptr_t)key_addr;
-	src_ptr = (uint8_t *)(uintptr_t)src_addr;
-	dst_ptr = (uint8_t *)(uintptr_t)dst_addr;
+	/* First we expand the key. */
+	aes_expand_key(key_ptr, key_exp);
 
-	if (use_hw) {
-		if (!enc)
-			aes_decrypt_hw(key_ptr, src_ptr, dst_ptr, len);
-	} else {
-		/* First we expand the key. */
-		aes_expand_key(key_ptr, key_exp);
+	/* Calculate the number of AES blocks to encrypt. */
+	aes_blocks = DIV_ROUND_UP(len, AES_KEY_LENGTH);
 
-		/* Calculate the number of AES blocks to encrypt. */
-		aes_blocks = DIV_ROUND_UP(len, AES_KEY_LENGTH);
+	if (enc)
+		aes_cbc_encrypt_blocks(key_exp, iv_ptr, src_ptr, dst_ptr,
+				       aes_blocks);
+	else
+		aes_cbc_decrypt_blocks(key_exp, iv_ptr, src_ptr, dst_ptr,
+				       aes_blocks);
 
-		if (enc)
-			aes_cbc_encrypt_blocks(key_exp, src_ptr, dst_ptr,
-					       aes_blocks);
-		else
-			aes_cbc_decrypt_blocks(key_exp, src_ptr, dst_ptr,
-					       aes_blocks);
-	}
 	return 0;
 }
 
 /***************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char aes_help_text[] =
-	"enc key src dst len - Encrypt block of data $len bytes long\n"
-	"                          at address $src using a key at address\n"
-	"                          $key and store the result at address\n"
-	"                          $dst. The $len size must be multiple of\n"
-	"                          16 bytes and $key must be 16 bytes long.\n"
-	"aes dec key src dst len [hw] - Decrypt block of data $len bytes\n"
-	"                               long at address $src using a key at\n"
-	"                               address $key and store the result at\n"
-	"                               address $dst. The $len size must be\n"
-	"                               multiple of 16 bytes and $key must be\n"
-	"                               16 bytes long. The optional hw flag\n"
-	"                               specifies to used hardware engine if\n"
-	"                               supports\n";
+	"enc key iv src dst len - Encrypt block of data $len bytes long\n"
+	"                             at address $src using a key at address\n"
+	"                             $key with initialization vector at address\n"
+	"                             $iv. Store the result at address $dst.\n"
+	"                             The $len size must be multiple of 16 bytes.\n"
+	"                             The $key and $iv must be 16 bytes long.\n"
+	"aes dec key iv src dst len - Decrypt block of data $len bytes long\n"
+	"                             at address $src using a key at address\n"
+	"                             $key with initialization vector at address\n"
+	"                             $iv. Store the result at address $dst.\n"
+	"                             The $len size must be multiple of 16 bytes.\n"
+	"                             The $key and $iv must be 16 bytes long.";
 #endif
 
 U_BOOT_CMD(

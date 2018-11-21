@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2014 The Chromium OS Authors.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 Native Execution of U-Boot
@@ -24,8 +23,11 @@ single board in board/sandbox.
 CONFIG_SANDBOX_BIG_ENDIAN should be defined when running on big-endian
 machines.
 
-By default sandbox builds and runs on 64-bit hosts. If you are going to build
-and run sandbox on a 32-bit host, select CONFIG_SANDBOX_32BIT.
+There are two versions of the sandbox: One using 32-bit-wide integers, and one
+using 64-bit-wide integers. The 32-bit version can be build and run on either
+32 or 64-bit hosts by either selecting or deselecting CONFIG_SANDBOX_32BIT; by
+default, the sandbox it built for a 32-bit host. The sandbox using 64-bit-wide
+integers can only be built on 64-bit hosts.
 
 Note that standalone/API support is not available at present.
 
@@ -103,8 +105,8 @@ recreate the binary file.
 
 To execute commands directly, use the -c option. You can specify a single
 command, or multiple commands separated by a semicolon, as is normal in
-U-Boot. Be careful with quoting as the shall will normally process and
-swallow quotes. When -c is used, U-Boot exists after the command is complete,
+U-Boot. Be careful with quoting as the shell will normally process and
+swallow quotes. When -c is used, U-Boot exits after the command is complete,
 but you can force it to go to interactive mode instead with -i.
 
 
@@ -185,10 +187,34 @@ U-Boot sandbox supports these emulations:
 - SPI flash
 - TPM (Trusted Platform Module)
 
-A wide range of commands is implemented. Filesystems which use a block
+A wide range of commands are implemented. Filesystems which use a block
 device are supported.
 
 Also sandbox supports driver model (CONFIG_DM) and associated commands.
+
+
+Sandbox Variants
+----------------
+
+There are unfortunately quite a few variants at present:
+
+sandbox - should be used for most tests
+sandbox64 - special build that forces a 64-bit host
+sandbox_flattree - builds with dev_read_...() functions defined as inline.
+    We need this build so that we can test those inline functions, and we
+    cannot build with both the inline functions and the non-inline functions
+    since they are named the same.
+sandbox_noblk - builds without CONFIG_BLK, which means the legacy block
+    drivers are used. We cannot use both the legacy and driver-model block
+    drivers since they implement the same functions
+sandbox_spl - builds sandbox with SPL support, so you can run spl/u-boot-spl
+    and it will start up and then load ./u-boot. It is also possible to
+    run ./u-boot directly.
+
+Of these sandbox_noblk can be removed once CONFIG_BLK is used everwhere, and
+sandbox_spl can probably be removed since it is a superset of sandbox.
+
+Most of the config options should be identical between these variants.
 
 
 Linux RAW Networking Bridge
@@ -242,7 +268,7 @@ dhcp
 set serverip WWW.XXX.YYY.ZZZ
 tftpboot u-boot.bin
 
-The bridge also support (to a lesser extent) the localhost inderface, 'lo'.
+The bridge also supports (to a lesser extent) the localhost interface, 'lo'.
 
 The 'lo' interface cannot use the RAW AF_PACKET API because the lo interface
 doesn't support Ethernet-level traffic. It is a higher-level interface that is

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007, Tensilica Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef	_XTENSA_GBL_DATA_H

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * m5301x.h -- Definitions for Freescale Coldfire 5301x
  *
  * Copyright (C) 2004-2008 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef m5301x_h

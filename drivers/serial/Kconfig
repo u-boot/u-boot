@@ -24,6 +24,15 @@ config REQUIRE_SERIAL_CONSOLE
 	  during serial port initialization (default y). Set this to n on
 	  boards which have no debug serial port whatsoever.
 
+config SPECIFY_CONSOLE_INDEX
+	bool "Specify the port number used for console"
+	default y if !DM_SERIAL || (SPL && !SPL_DM_SERIAL) || \
+		(TPL && !TPL_DM_SERIAL)
+	help
+	  In various cases, we need to specify which of the UART devices that
+	  a board or SoC has available are to be used for the console device
+	  in U-Boot.
+
 config SERIAL_PRESENT
 	bool "Provide a serial driver"
 	depends on DM_SERIAL
@@ -44,16 +53,49 @@ config SPL_SERIAL_PRESENT
 	  This option enables the full UART in SPL, so if is it disabled,
 	  the full UART driver will be omitted, thus saving space.
 
+config TPL_SERIAL_PRESENT
+	bool "Provide a serial driver in TPL"
+	depends on DM_SERIAL
+	default y
+	help
+	  In very space-constrained devices even the full UART driver is too
+	  large. In this case the debug UART can still be used in some cases.
+	  This option enables the full UART in TPL, so if is it disabled,
+	  the full UART driver will be omitted, thus saving space.
+
+# Logic to allow us to use the imply keyword to set what the default port
+# should be.  The default is otherwise 1.
+config CONS_INDEX_0
+	bool
+
+config CONS_INDEX_2
+	bool
+
+config CONS_INDEX_3
+	bool
+
+config CONS_INDEX_4
+	bool
+
+config CONS_INDEX_5
+	bool
+
+config CONS_INDEX_6
+	bool
+
 config CONS_INDEX
 	int "UART used for console"
-	depends on ARCH_SUNXI
-	default 2 if MACH_SUN5I
-	default 5 if MACH_SUN8I_A23 || MACH_SUN8I_A33
+	depends on SPECIFY_CONSOLE_INDEX
+	range 0 6
+	default 0 if CONS_INDEX_0
+	default 2 if CONS_INDEX_2
+	default 3 if CONS_INDEX_3
+	default 4 if CONS_INDEX_4
+	default 5 if CONS_INDEX_5
+	default 6 if CONS_INDEX_6
 	default 1
 	help
-	  Configures the console index.
-	  For Allwinner SoC., default values are 2 for SUN5I and 5 for A23/A33.
-	  Otherwise, the index equals 1.
+	  Set this to match the UART number of the serial console.
 
 config DM_SERIAL
 	bool "Enable Driver Model for serial drivers"
@@ -79,10 +121,22 @@ config SERIAL_RX_BUFFER_SIZE
 	help
 	  The size of the RX buffer (needs to be power of 2)
 
+config SERIAL_SEARCH_ALL
+	bool "Search for serial devices after default one failed"
+	depends on DM_SERIAL
+	help
+	  The serial subsystem only searches for a single serial device
+	  that was instantiated, but does not check whether it was probed
+	  correctly. With this option set, we make successful probing
+	  mandatory and search for fallback serial devices if the default
+	  device does not work.
+
+	  If unsure, say N.
+
 config SPL_DM_SERIAL
 	bool "Enable Driver Model for serial drivers in SPL"
-	depends on DM_SERIAL
-	default y if SPL && DM_SERIAL
+	depends on DM_SERIAL && SPL_DM
+	default y
 	help
 	  Enable driver model for serial in SPL. This replaces
 	  drivers/serial/serial.c with the serial uclass, which
@@ -149,6 +203,15 @@ config DEBUG_UART_AR933X
 	depends on AR933X_UART
 	help
 	  Select this to enable a debug UART using the ar933x uart driver.
+	  You will need to provide parameters to make this work. The
+	  driver will be available until the real driver model serial is
+	  running.
+
+config DEBUG_ARC_SERIAL
+	bool "ARC UART"
+	depends on ARC_SERIAL
+	help
+	  Select this to enable a debug UART using the ARC UART driver.
 	  You will need to provide parameters to make this work. The
 	  driver will be available until the real driver model serial is
 	  running.
@@ -271,6 +334,24 @@ config DEBUG_UART_MXC
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_SANDBOX
+	bool "sandbox"
+	depends on SANDBOX_SERIAL
+	help
+	  Select this to enable the debug UART using the sandbox driver. This
+	  provides basic serial output from the console without needing to
+	  start up driver model. The driver will be available until the real
+	  driver model serial is running.
+
+config DEBUG_UART_STM32
+	bool "STMicroelectronics STM32"
+	depends on STM32_SERIAL
+	help
+	  Select this to enable a debug UART using the serial_stm32 driver
+	  You will need to provide parameters to make this work.
+	  The driver will be available until the real driver model
+	  serial is running.
+
 config DEBUG_UART_UNIPHIER
 	bool "UniPhier on-chip UART"
 	depends on ARCH_UNIPHIER
@@ -292,6 +373,7 @@ endchoice
 config DEBUG_UART_BASE
 	hex "Base address of UART"
 	depends on DEBUG_UART
+	default 0 if DEBUG_UART_SANDBOX
 	help
 	  This is the base address of your UART for memory-mapped UARTs.
 
@@ -301,6 +383,7 @@ config DEBUG_UART_BASE
 config DEBUG_UART_CLOCK
 	int "UART input clock"
 	depends on DEBUG_UART
+	default 0 if DEBUG_UART_SANDBOX
 	help
 	  The UART input clock determines the speed of the internal UART
 	  circuitry. The baud rate is derived from this by dividing the input
@@ -381,6 +464,13 @@ config AR933X_UART
 	  tree binding to operate, please refer to the document at
 	  doc/device-tree-bindings/serial/qca,ar9330-uart.txt.
 
+config ARC_SERIAL
+	bool "ARC UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable support for ARC UART now typically
+	  only used in Synopsys DesignWare ARC simulators like nSIM.
+
 config ATMEL_USART
 	bool "Atmel USART support"
 	help
@@ -388,11 +478,34 @@ config ATMEL_USART
 	  configured in the device tree, and input clock frequency can
 	  be got from the clk node.
 
+config BCM283X_MU_SERIAL
+	bool "Support for BCM283x Mini-UART"
+	depends on DM_SERIAL && ARCH_BCM283X
+	default y
+	help
+	  Select this to enable Mini-UART support on BCM283X family of SoCs.
+
+config BCM283X_PL011_SERIAL
+	bool "Support for BCM283x PL011 UART"
+	depends on PL01X_SERIAL && ARCH_BCM283X
+	default y
+	help
+	  Select this to enable an overriding PL011 driver for BCM283X SoCs
+	  that supports automatic disable, so that it only gets used when
+	  the UART is actually muxed.
+
 config BCM6345_SERIAL
 	bool "Support for BCM6345 UART"
 	depends on DM_SERIAL && ARCH_BMIPS
 	help
 	  Select this to enable UART on BCM6345 SoCs.
+
+config FSL_LINFLEXUART
+	bool "Freescale Linflex UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable the Linflex serial module found on some
+	  NXP SoCs like S32V234.
 
 config FSL_LPUART
 	bool "Freescale LPUART support"
@@ -446,6 +559,24 @@ config INTEL_MID_SERIAL
 	help
 	  Select this to enable a UART for Intel MID platforms.
 	  This uses the ns16550 driver as a library.
+
+config PL010_SERIAL
+	bool "ARM PL010 driver"
+	depends on !DM_SERIAL
+	help
+	  Select this to enable a UART for platforms using PL010.
+
+config PL011_SERIAL
+	bool "ARM PL011 driver"
+	depends on !DM_SERIAL
+	help
+	  Select this to enable a UART for platforms using PL011.
+
+config PL01X_SERIAL
+	bool "ARM PL010 and PL011 driver"
+	depends on DM_SERIAL
+	help
+	  Select this to enable a UART for platforms using PL010 or PL011.
 
 config ROCKCHIP_SERIAL
 	bool "Rockchip on-chip UART support"
@@ -515,6 +646,23 @@ config MSM_SERIAL
 	  for example APQ8016 and MSM8916.
 	  Single baudrate is supported in current implementation (115200).
 
+config OMAP_SERIAL
+	bool "Support for OMAP specific UART"
+	depends on DM_SERIAL
+	default y if (ARCH_OMAP2PLUS || ARCH_K3)
+	select SYS_NS16550
+	help
+	  If you have an TI based SoC and want to use the on-chip serial
+	  port, say Y to this option. If unsure say N.
+
+config OWL_SERIAL
+	bool "Actions Semi OWL UART"
+	depends on DM_SERIAL && ARCH_OWL
+	help
+	  If you have a Actions Semi OWL based board and want to use the on-chip
+	  serial port, say Y to this option. If unsure, say N.
+	  Single baudrate is supported in current implementation (115200).
+
 config PXA_SERIAL
 	bool "PXA serial port support"
 	help
@@ -529,24 +677,24 @@ config STI_ASC_SERIAL
 	  on STiH410 SoC. This is a basic implementation,  it supports
 	  following baudrate 9600, 19200, 38400, 57600 and 115200.
 
-config STM32X7_SERIAL
+config STM32_SERIAL
 	bool "STMicroelectronics STM32 SoCs on-chip UART"
-	depends on DM_SERIAL && (STM32F4 || STM32F7 || STM32H7)
+	depends on DM_SERIAL && (STM32F4 || STM32F7 || STM32H7 || ARCH_STM32MP)
 	help
-	  If you have a machine based on a STM32 F4, F7 or H7 SoC you can
-	  enable its onboard serial ports, say Y to this option.
+	  If you have a machine based on a STM32 F4, F7, H7 or MP1 SOC
+	  you can enable its onboard serial ports, say Y to this option.
 	  If unsure, say N.
 
 config ZYNQ_SERIAL
 	bool "Cadence (Xilinx Zynq) UART support"
-	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
+	depends on DM_SERIAL && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_ZYNQMP_R5)
 	help
 	  This driver supports the Cadence UART. It is found e.g. in Xilinx
 	  Zynq/ZynqMP.
 
 config MPC8XX_CONS
 	bool "Console driver for MPC8XX"
-	depends on 8xx
+	depends on MPC8xx
 	default y
 
 choice

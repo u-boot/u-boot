@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  EFI utils
  *
  *  Copyright (c) 2017 Rob Clark
- *
- *  SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <malloc.h>
@@ -45,12 +44,9 @@
  * converted to utf16?
  */
 
-#define MAX_VAR_NAME 31
-#define MAX_NATIVE_VAR_NAME \
-	(strlen("efi_xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxxxxxx_") + \
-		(MAX_VAR_NAME * MAX_UTF8_PER_UTF16))
+#define PREFIX_LEN (strlen("efi_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_"))
 
-static int hex(unsigned char ch)
+static int hex(int ch)
 {
 	if (ch >= 'a' && ch <= 'f')
 		return ch-'a'+10;
@@ -61,44 +57,32 @@ static int hex(unsigned char ch)
 	return -1;
 }
 
-static const char *hex2mem(u8 *mem, const char *hexstr, int count)
+static int hex2mem(u8 *mem, const char *hexstr, int size)
 {
-	memset(mem, 0, count/2);
+	int nibble;
+	int i;
 
-	do {
-		int nibble;
-
-		*mem = 0;
-
-		if (!count || !*hexstr)
+	for (i = 0; i < size; i++) {
+		if (*hexstr == '\0')
 			break;
 
 		nibble = hex(*hexstr);
 		if (nibble < 0)
-			break;
+			return -1;
 
 		*mem = nibble;
-		count--;
 		hexstr++;
-
-		if (!count || !*hexstr)
-			break;
 
 		nibble = hex(*hexstr);
 		if (nibble < 0)
-			break;
+			return -1;
 
 		*mem = (*mem << 4) | nibble;
-		count--;
 		hexstr++;
 		mem++;
+	}
 
-	} while (1);
-
-	if (*hexstr)
-		return hexstr;
-
-	return NULL;
+	return i;
 }
 
 static char *mem2hex(char *hexstr, const u8 *mem, int count)
@@ -114,18 +98,20 @@ static char *mem2hex(char *hexstr, const u8 *mem, int count)
 	return hexstr;
 }
 
-static efi_status_t efi_to_native(char *native, s16 *variable_name,
-		efi_guid_t *vendor)
+static efi_status_t efi_to_native(char **native, const u16 *variable_name,
+				  efi_guid_t *vendor)
 {
 	size_t len;
+	char *pos;
 
-	len = utf16_strlen((u16 *)variable_name);
-	if (len >= MAX_VAR_NAME)
-		return EFI_DEVICE_ERROR;
+	len = PREFIX_LEN + utf16_utf8_strlen(variable_name) + 1;
+	*native = malloc(len);
+	if (!*native)
+		return EFI_OUT_OF_RESOURCES;
 
-	native += sprintf(native, "efi_%pUl_", vendor);
-	native  = (char *)utf16_to_utf8((u8 *)native, (u16 *)variable_name, len);
-	*native = '\0';
+	pos = *native;
+	pos += sprintf(pos, "efi_%pUl_", vendor);
+	utf16_utf8_strcpy(&pos, variable_name);
 
 	return EFI_SUCCESS;
 }
@@ -177,11 +163,11 @@ static const char *parse_attr(const char *str, u32 *attrp)
 }
 
 /* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#GetVariable.28.29 */
-efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
-		efi_guid_t *vendor, u32 *attributes,
-		unsigned long *data_size, void *data)
+efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
+				     u32 *attributes, efi_uintn_t *data_size,
+				     void *data)
 {
-	char native_name[MAX_NATIVE_VAR_NAME + 1];
+	char *native_name;
 	efi_status_t ret;
 	unsigned long in_size;
 	const char *val, *s;
@@ -193,13 +179,14 @@ efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
 	if (!variable_name || !vendor || !data_size)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	ret = efi_to_native(native_name, variable_name, vendor);
+	ret = efi_to_native(&native_name, variable_name, vendor);
 	if (ret)
 		return EFI_EXIT(ret);
 
 	debug("%s: get '%s'\n", __func__, native_name);
 
 	val = env_get(native_name);
+	free(native_name);
 	if (!val)
 		return EFI_EXIT(EFI_NOT_FOUND);
 
@@ -210,8 +197,12 @@ efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
 	if ((s = prefix(val, "(blob)"))) {
 		unsigned len = strlen(s);
 
+		/* number of hexadecimal digits must be even */
+		if (len & 1)
+			return EFI_EXIT(EFI_DEVICE_ERROR);
+
 		/* two characters per byte: */
-		len = DIV_ROUND_UP(len, 2);
+		len /= 2;
 		*data_size = len;
 
 		if (in_size < len)
@@ -220,7 +211,7 @@ efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
 		if (!data)
 			return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-		if (hex2mem(data, s, len * 2))
+		if (hex2mem(data, s, len) != len)
 			return EFI_EXIT(EFI_DEVICE_ERROR);
 
 		debug("%s: got value: \"%s\"\n", __func__, s);
@@ -251,9 +242,9 @@ efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
 }
 
 /* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#GetNextVariableName.28.29 */
-efi_status_t EFIAPI efi_get_next_variable(
-		unsigned long *variable_name_size,
-		s16 *variable_name, efi_guid_t *vendor)
+efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+					       u16 *variable_name,
+					       efi_guid_t *vendor)
 {
 	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
 
@@ -261,44 +252,52 @@ efi_status_t EFIAPI efi_get_next_variable(
 }
 
 /* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#SetVariable.28.29 */
-efi_status_t EFIAPI efi_set_variable(s16 *variable_name,
-		efi_guid_t *vendor, u32 attributes,
-		unsigned long data_size, void *data)
+efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
+				     u32 attributes, efi_uintn_t data_size,
+				     void *data)
 {
-	char native_name[MAX_NATIVE_VAR_NAME + 1];
+	char *native_name = NULL, *val = NULL, *s;
 	efi_status_t ret = EFI_SUCCESS;
-	char *val, *s;
 	u32 attr;
 
-	EFI_ENTRY("\"%ls\" %pUl %x %lu %p", variable_name, vendor, attributes,
+	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
 		  data_size, data);
 
-	if (!variable_name || !vendor)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	if (!variable_name || !vendor) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
-	ret = efi_to_native(native_name, variable_name, vendor);
+	ret = efi_to_native(&native_name, variable_name, vendor);
 	if (ret)
-		return EFI_EXIT(ret);
+		goto out;
 
 #define ACCESS_ATTR (EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_BOOTSERVICE_ACCESS)
 
 	if ((data_size == 0) || !(attributes & ACCESS_ATTR)) {
 		/* delete the variable: */
 		env_set(native_name, NULL);
-		return EFI_EXIT(EFI_SUCCESS);
+		ret = EFI_SUCCESS;
+		goto out;
 	}
 
 	val = env_get(native_name);
 	if (val) {
 		parse_attr(val, &attr);
 
-		if (attr & READ_ONLY)
-			return EFI_EXIT(EFI_WRITE_PROTECTED);
+		if (attr & READ_ONLY) {
+			/* We should not free val */
+			val = NULL;
+			ret = EFI_WRITE_PROTECTED;
+			goto out;
+		}
 	}
 
 	val = malloc(2 * data_size + strlen("{ro,run,boot}(blob)") + 1);
-	if (!val)
-		return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+	if (!val) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
 
 	s = val;
 
@@ -329,6 +328,8 @@ efi_status_t EFIAPI efi_set_variable(s16 *variable_name,
 	if (env_set(native_name, val))
 		ret = EFI_DEVICE_ERROR;
 
+out:
+	free(native_name);
 	free(val);
 
 	return EFI_EXIT(ret);

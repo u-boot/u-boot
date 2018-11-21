@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Timesys Corporation
  * Copyright 2015 General Electric Company
  * Copyright 2012 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>
@@ -19,6 +18,7 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
+#include <net.h>
 #include <netdev.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
@@ -28,8 +28,15 @@
 #include <input.h>
 #include <pwm.h>
 #include <stdlib.h>
+#include "../common/ge_common.h"
 #include "../common/vpd_reader.h"
+#include "../../../drivers/net/e1000.h"
 DECLARE_GLOBAL_DATA_PTR;
+
+struct vpd_cache;
+
+static int confidx = 3;  /* Default to b850v3. */
+static struct vpd_cache vpd;
 
 #ifndef CONFIG_SYS_I2C_EEPROM_ADDR
 # define CONFIG_SYS_I2C_EEPROM_ADDR     0x50
@@ -37,7 +44,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #ifndef CONFIG_SYS_I2C_EEPROM_BUS
-#define CONFIG_SYS_I2C_EEPROM_BUS       2
+#define CONFIG_SYS_I2C_EEPROM_BUS       4
 #endif
 
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
@@ -359,20 +366,21 @@ int board_cfb_skip(void)
 	return 0;
 }
 
-static int detect_baseboard(struct display_info_t const *dev)
+static int is_b850v3(void)
 {
-	if (IS_ENABLED(CONFIG_TARGET_GE_B450V3) ||
-	    IS_ENABLED(CONFIG_TARGET_GE_B650V3))
-		return 1;
+	return confidx == 3;
+}
 
-	return 0;
+static int detect_lcd(struct display_info_t const *dev)
+{
+	return !is_b850v3();
 }
 
 struct display_info_t const displays[] = {{
 	.bus	= -1,
 	.addr	= -1,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
-	.detect	= detect_baseboard,
+	.detect	= detect_lcd,
 	.enable	= NULL,
 	.mode	= {
 		.name           = "G121X1-L03",
@@ -418,14 +426,22 @@ static void enable_videopll(void)
 
 	setbits_le32(&ccm->analog_pll_video, BM_ANADIG_PLL_VIDEO_POWERDOWN);
 
-	/* set video pll to 910MHz (24MHz * (37+11/12))
-	* video pll post div to 910/4 = 227.5MHz
-	*/
+	/* PLL_VIDEO  455MHz (24MHz * (37+11/12) / 2)
+	 *   |
+	 * PLL5
+	 *   |
+	 * CS2CDR[LDB_DI0_CLK_SEL]
+	 *   |
+	 *   +----> LDB_DI0_SERIAL_CLK_ROOT
+	 *   |
+	 *   +--> CSCMR2[LDB_DI0_IPU_DIV] --> LDB_DI0_IPU  455 / 7 = 65 MHz
+	 */
+
 	clrsetbits_le32(&ccm->analog_pll_video,
 			BM_ANADIG_PLL_VIDEO_DIV_SELECT |
 			BM_ANADIG_PLL_VIDEO_POST_DIV_SELECT,
 			BF_ANADIG_PLL_VIDEO_DIV_SELECT(37) |
-			BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(0));
+			BF_ANADIG_PLL_VIDEO_POST_DIV_SELECT(1));
 
 	writel(BF_ANADIG_PLL_VIDEO_NUM_A(11), &ccm->analog_pll_video_num);
 	writel(BF_ANADIG_PLL_VIDEO_DENOM_B(12), &ccm->analog_pll_video_denom);
@@ -451,8 +467,8 @@ static void setup_display_b850v3(void)
 
 	enable_videopll();
 
-	/* IPU1 D0 clock is 227.5 / 3.5 = 65MHz */
-	clrbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
+	/* IPU1 DI0 clock is 455MHz / 7 = 65MHz */
+	setbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
 
 	imx_setup_hdmi();
 
@@ -490,6 +506,8 @@ static void setup_display_bx50v3(void)
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
+	enable_videopll();
+
 	/* When a reset/reboot is performed the display power needs to be turned
 	 * off for atleast 500ms. The boot time is ~300ms, we need to wait for
 	 * an additional 200ms here. Unfortunately we use external PMIC for
@@ -497,7 +515,7 @@ static void setup_display_bx50v3(void)
 	 */
 	mdelay(200);
 
-	/* IPU1 DI0 clock is 480/7 = 68.5 MHz */
+	/* IPU1 DI0 clock is 455MHz / 7 = 65MHz */
 	setbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
 
 	/* Set LDB_DI0 as clock source for IPU_DI0 */
@@ -546,68 +564,75 @@ int overwrite_console(void)
 #define VPD_PRODUCT_B850 1
 #define VPD_PRODUCT_B650 2
 #define VPD_PRODUCT_B450 3
+#define VPD_HAS_MAC1 0x1
+#define VPD_HAS_MAC2 0x2
+#define VPD_MAC_ADDRESS_LENGTH 6
 
 struct vpd_cache {
-	uint8_t product_id;
-	uint8_t macbits;
-	unsigned char mac1[6];
+	u8 product_id;
+	u8 has;
+	unsigned char mac1[VPD_MAC_ADDRESS_LENGTH];
+	unsigned char mac2[VPD_MAC_ADDRESS_LENGTH];
 };
 
 /*
  * Extracts MAC and product information from the VPD.
  */
-static int vpd_callback(
-	void *userdata,
-	uint8_t id,
-	uint8_t version,
-	uint8_t type,
-	size_t size,
-	uint8_t const *data)
+static int vpd_callback(void *userdata, u8 id, u8 version, u8 type,
+			size_t size, u8 const *data)
 {
 	struct vpd_cache *vpd = (struct vpd_cache *)userdata;
 
-	if (   id == VPD_BLOCK_HWID
-	    && version == 1
-	    && type != VPD_TYPE_INVALID
-	    && size >= 1) {
+	if (id == VPD_BLOCK_HWID && version == 1 && type != VPD_TYPE_INVALID &&
+	    size >= 1) {
 		vpd->product_id = data[0];
-
-	} else if (   id == VPD_BLOCK_NETWORK
-		   && version == 1
-		   && type != VPD_TYPE_INVALID
-		   && size >= 6) {
-		vpd->macbits |= 1;
-		memcpy(vpd->mac1, data, 6);
+	} else if (id == VPD_BLOCK_NETWORK && version == 1 &&
+		   type != VPD_TYPE_INVALID) {
+		if (size >= 6) {
+			vpd->has |= VPD_HAS_MAC1;
+			memcpy(vpd->mac1, data, VPD_MAC_ADDRESS_LENGTH);
+		}
+		if (size >= 12) {
+			vpd->has |= VPD_HAS_MAC2;
+			memcpy(vpd->mac2, data + 6, VPD_MAC_ADDRESS_LENGTH);
+		}
 	}
 
 	return 0;
 }
 
-static void set_eth0_mac_address(unsigned char * mac)
-{
-	uint32_t *ENET_TCR = (uint32_t*)0x21880c4;
-	uint32_t *ENET_PALR = (uint32_t*)0x21880e4;
-	uint32_t *ENET_PAUR = (uint32_t*)0x21880e8;
-
-	*ENET_TCR |= 0x100;  /* ADDINS */
-	*ENET_PALR |= (mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3];
-	*ENET_PAUR |= (mac[4] << 24) | (mac[5] << 16);
-}
-
 static void process_vpd(struct vpd_cache *vpd)
 {
-	if (   vpd->product_id == VPD_PRODUCT_B850
-	    || vpd->product_id == VPD_PRODUCT_B650
-	    || vpd->product_id == VPD_PRODUCT_B450) {
-		if (vpd->macbits & 1) {
-			set_eth0_mac_address(vpd->mac1);
-		}
+	int fec_index = -1;
+	int i210_index = -1;
+
+	switch (vpd->product_id) {
+	case VPD_PRODUCT_B450:
+		env_set("confidx", "1");
+		i210_index = 0;
+		fec_index = 1;
+		break;
+	case VPD_PRODUCT_B650:
+		env_set("confidx", "2");
+		i210_index = 0;
+		fec_index = 1;
+		break;
+	case VPD_PRODUCT_B850:
+		env_set("confidx", "3");
+		i210_index = 1;
+		fec_index = 2;
+		break;
 	}
+
+	if (fec_index >= 0 && (vpd->has & VPD_HAS_MAC1))
+		eth_env_set_enetaddr_by_index("eth", fec_index, vpd->mac1);
+
+	if (i210_index >= 0 && (vpd->has & VPD_HAS_MAC2))
+		eth_env_set_enetaddr_by_index("eth", i210_index, vpd->mac2);
 }
 
 static int read_vpd(uint eeprom_bus)
 {
-	struct vpd_cache vpd;
 	int res;
 	int size = 1024;
 	uint8_t *data;
@@ -627,7 +652,6 @@ static int read_vpd(uint eeprom_bus)
 	if (res == 0) {
 		memset(&vpd, 0, sizeof(vpd));
 		vpd_reader(size, data, &vpd, vpd_callback);
-		process_vpd(&vpd);
 	}
 
 	free(data);
@@ -641,6 +665,8 @@ int board_eth_init(bd_t *bis)
 	setup_iomux_enet();
 	setup_pcie();
 
+	e1000_initialize(bis);
+
 	return cpu_eth_init(bis);
 }
 
@@ -652,6 +678,7 @@ static iomux_v3_cfg_t const misc_pads[] = {
 	MX6_PAD_EIM_OE__GPIO2_IO25	| MUX_PAD_CTRL(NC_PAD_CTRL),
 	MX6_PAD_EIM_BCLK__GPIO6_IO31	| MUX_PAD_CTRL(NC_PAD_CTRL),
 	MX6_PAD_GPIO_1__GPIO1_IO01	| MUX_PAD_CTRL(NC_PAD_CTRL),
+	MX6_PAD_GPIO_9__WDOG1_B         | MUX_PAD_CTRL(NC_PAD_CTRL),
 };
 #define SUS_S3_OUT	IMX_GPIO_NR(4, 11)
 #define WIFI_EN	IMX_GPIO_NR(6, 14)
@@ -664,22 +691,41 @@ int board_early_init_f(void)
 	setup_iomux_uart();
 
 #if defined(CONFIG_VIDEO_IPUV3)
-	if (IS_ENABLED(CONFIG_TARGET_GE_B850V3))
-		/* Set LDB clock to Video PLL */
-		select_ldb_di_clock_source(MXC_PLL5_CLK);
-	else
-		/* Set LDB clock to USB PLL */
-		select_ldb_di_clock_source(MXC_PLL3_SW_CLK);
+	/* Set LDB clock to Video PLL */
+	select_ldb_di_clock_source(MXC_PLL5_CLK);
 #endif
 	return 0;
 }
 
+static void set_confidx(const struct vpd_cache* vpd)
+{
+	switch (vpd->product_id) {
+	case VPD_PRODUCT_B450:
+		confidx = 1;
+		break;
+	case VPD_PRODUCT_B650:
+		confidx = 2;
+		break;
+	case VPD_PRODUCT_B850:
+		confidx = 3;
+		break;
+	}
+}
+
 int board_init(void)
 {
+	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
+
+	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
+
+	set_confidx(&vpd);
+
 	gpio_direction_output(SUS_S3_OUT, 1);
 	gpio_direction_output(WIFI_EN, 1);
 #if defined(CONFIG_VIDEO_IPUV3)
-	if (IS_ENABLED(CONFIG_TARGET_GE_B850V3))
+	if (is_b850v3())
 		setup_display_b850v3();
 	else
 		setup_display_bx50v3();
@@ -690,12 +736,6 @@ int board_init(void)
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
 #endif
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
-	setup_i2c(3, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
-
-	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
-
 	return 0;
 }
 
@@ -761,10 +801,60 @@ void pmic_init(void)
 
 int board_late_init(void)
 {
+	process_vpd(&vpd);
+
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
 
+	if (is_b850v3())
+		env_set("videoargs", "video=DP-1:1024x768@60 video=HDMI-A-1:1024x768@60");
+	else
+		env_set("videoargs", "video=LVDS-1:1024x768@65");
+
+	/* board specific pmic init */
+	pmic_init();
+
+	check_time();
+
+	return 0;
+}
+
+/*
+ * Removes the 'eth[0-9]*addr' environment variable with the given index
+ *
+ * @param index [in] the index of the eth_device whose variable is to be removed
+ */
+static void remove_ethaddr_env_var(int index)
+{
+	char env_var_name[9];
+
+	sprintf(env_var_name, index == 0 ? "ethaddr" : "eth%daddr", index);
+	env_set(env_var_name, NULL);
+}
+
+int last_stage_init(void)
+{
+	int i;
+
+	/*
+	 * Remove first three ethaddr which may have been created by
+	 * function process_vpd().
+	 */
+	for (i = 0; i < 3; ++i)
+		remove_ethaddr_env_var(i);
+
+	return 0;
+}
+
+int checkboard(void)
+{
+	printf("BOARD: %s\n", CONFIG_BOARD_NAME);
+	return 0;
+}
+
+static int do_backlight_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
 #ifdef CONFIG_VIDEO_IPUV3
 	/* We need at least 200ms between power on and backlight on
 	 * as per specifications from CHI MEI */
@@ -782,14 +872,11 @@ int board_late_init(void)
 	pwm_enable(0);
 #endif
 
-	/* board specific pmic init */
-	pmic_init();
-
 	return 0;
 }
 
-int checkboard(void)
-{
-	printf("BOARD: %s\n", CONFIG_BOARD_NAME);
-	return 0;
-}
+U_BOOT_CMD(
+       bx50_backlight_enable, 1,      1,      do_backlight_enable,
+       "enable Bx50 backlight",
+       ""
+);

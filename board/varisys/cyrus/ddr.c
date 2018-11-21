@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Based on corenet_ds ddr code
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 #include <common.h>

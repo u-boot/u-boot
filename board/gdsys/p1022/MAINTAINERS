@@ -1,5 +1,5 @@
 P1022 BOARD
-M:	Dirk Eibach <eibach@gdsys.de>
+M:	Dirk Eibach <dirk.eibach@gdsys.cc>
 S:	Maintained
 F:	board/gdsys/p1022/
 F:	include/configs/controlcenterd.h

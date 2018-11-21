@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Driver for Marvell NETA network card for Armada XP and Armada 370 SoCs.
  *
@@ -9,8 +10,6 @@
  *
  * Rami Rosen <rosenr@marvell.com>
  * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -34,14 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #if !defined(CONFIG_PHYLIB)
 # error Marvell mvneta requires PHYLIB
 #endif
-
-/* Some linux -> U-Boot compatibility stuff */
-#define netdev_err(dev, fmt, args...)		\
-	printf(fmt, ##args)
-#define netdev_warn(dev, fmt, args...)		\
-	printf(fmt, ##args)
-#define netdev_info(dev, fmt, args...)		\
-	printf(fmt, ##args)
 
 #define CONFIG_NR_CPUS		1
 #define ETH_HLEN		14	/* Total octets in header */
@@ -890,6 +881,15 @@ static void mvneta_mac_addr_set(struct mvneta_port *pp, unsigned char *addr,
 	mvneta_set_ucast_addr(pp, addr[5], queue);
 }
 
+static int mvneta_write_hwaddr(struct udevice *dev)
+{
+	mvneta_mac_addr_set(dev_get_priv(dev),
+		((struct eth_pdata *)dev_get_platdata(dev))->enetaddr,
+		rxq_def);
+
+	return 0;
+}
+
 /* Handle rx descriptor fill by setting buf_cookie and buf_phys_addr */
 static void mvneta_rx_desc_fill(struct mvneta_rx_desc *rx_desc,
 				u32 phys_addr, u32 cookie)
@@ -1017,6 +1017,8 @@ static int mvneta_rxq_init(struct mvneta_port *pp,
 	if (rxq->descs == NULL)
 		return -ENOMEM;
 
+	WARN_ON(rxq->descs != PTR_ALIGN(rxq->descs, ARCH_DMA_MINALIGN));
+
 	rxq->last_desc = rxq->size - 1;
 
 	/* Set Rx descriptors queue starting address */
@@ -1052,6 +1054,8 @@ static int mvneta_txq_init(struct mvneta_port *pp,
 	txq->descs_phys = (dma_addr_t)txq->descs;
 	if (txq->descs == NULL)
 		return -ENOMEM;
+
+	WARN_ON(txq->descs != PTR_ALIGN(txq->descs, ARCH_DMA_MINALIGN));
 
 	txq->last_desc = txq->size - 1;
 
@@ -1554,6 +1558,10 @@ static int mvneta_start(struct udevice *dev)
 
 			phydev = phy_connect(pp->bus, pp->phyaddr, dev,
 					     pp->phy_interface);
+			if (!phydev) {
+				printf("phy_connect failed\n");
+				return -ENODEV;
+			}
 
 			pp->phydev = phydev;
 			phy_config(phydev);
@@ -1654,7 +1662,11 @@ static int mvneta_recv(struct udevice *dev, int flags, uchar **packetp)
 		 */
 		*packetp = data;
 
-		mvneta_rxq_desc_num_update(pp, rxq, rx_done, rx_done);
+		/*
+		 * Only mark one descriptor as free
+		 * since only one was processed
+		 */
+		mvneta_rxq_desc_num_update(pp, rxq, 1, 1);
 	}
 
 	return rx_bytes;
@@ -1678,18 +1690,22 @@ static int mvneta_probe(struct udevice *dev)
 	 * be active. Make this area DMA safe by disabling the D-cache
 	 */
 	if (!buffer_loc.tx_descs) {
+		u32 size;
+
 		/* Align buffer area for descs and rx_buffers to 1MiB */
 		bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
+		flush_dcache_range((ulong)bd_space, (ulong)bd_space + BD_SPACE);
 		mmu_set_region_dcache_behaviour((phys_addr_t)bd_space, BD_SPACE,
 						DCACHE_OFF);
 		buffer_loc.tx_descs = (struct mvneta_tx_desc *)bd_space;
+		size = roundup(MVNETA_MAX_TXD * sizeof(struct mvneta_tx_desc),
+				ARCH_DMA_MINALIGN);
+		memset(buffer_loc.tx_descs, 0, size);
 		buffer_loc.rx_descs = (struct mvneta_rx_desc *)
-			((phys_addr_t)bd_space +
-			 MVNETA_MAX_TXD * sizeof(struct mvneta_tx_desc));
-		buffer_loc.rx_buffers = (phys_addr_t)
-			(bd_space +
-			 MVNETA_MAX_TXD * sizeof(struct mvneta_tx_desc) +
-			 MVNETA_MAX_RXD * sizeof(struct mvneta_rx_desc));
+			((phys_addr_t)bd_space + size);
+		size += roundup(MVNETA_MAX_RXD * sizeof(struct mvneta_rx_desc),
+				ARCH_DMA_MINALIGN);
+		buffer_loc.rx_buffers = (phys_addr_t)(bd_space + size);
 	}
 
 	pp->base = (void __iomem *)pdata->iobase;
@@ -1749,6 +1765,7 @@ static const struct eth_ops mvneta_ops = {
 	.send		= mvneta_send,
 	.recv		= mvneta_recv,
 	.stop		= mvneta_stop,
+	.write_hwaddr	= mvneta_write_hwaddr,
 };
 
 static int mvneta_ofdata_to_platdata(struct udevice *dev)

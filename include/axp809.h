@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2016 Chen-Yu Tsai <wens@csie.org>
  *
  * X-Powers AXP809 Power Management IC driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define AXP809_CHIP_ID		0x03

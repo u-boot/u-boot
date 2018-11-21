@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <ns16550.h>
+#include <reset.h>
 #include <serial.h>
 #include <watchdog.h>
 #include <linux/types.h>
@@ -55,7 +56,7 @@ static inline void serial_out_shift(void *addr, int shift, int value)
 {
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 	outb(value, (ulong)addr);
-#elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
+#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_LITTLE_ENDIAN)
 	out_le32(addr, value);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
 	out_be32(addr, value);
@@ -72,7 +73,7 @@ static inline int serial_in_shift(void *addr, int shift)
 {
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 	return inb((ulong)addr);
-#elif defined(CONFIG_SYS_NS16550_MEM32) && !defined(CONFIG_SYS_BIG_ENDIAN)
+#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_LITTLE_ENDIAN)
 	return in_le32(addr);
 #elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
 	return in_be32(addr);
@@ -174,14 +175,16 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 		;
 
 	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
-#if defined(CONFIG_ARCH_OMAP2PLUS)
+#if defined(CONFIG_ARCH_OMAP2PLUS) || defined(CONFIG_OMAP_SERIAL)
 	serial_out(0x7, &com_port->mdr1);	/* mode select reset TL16C750*/
 #endif
+
 	serial_out(UART_MCRVAL, &com_port->mcr);
 	serial_out(ns16550_getfcr(com_port), &com_port->fcr);
 	if (baud_divisor != -1)
 		NS16550_setbrg(com_port, baud_divisor);
-#if defined(CONFIG_ARCH_OMAP2PLUS) || defined(CONFIG_SOC_DA8XX)
+#if defined(CONFIG_ARCH_OMAP2PLUS) || defined(CONFIG_SOC_DA8XX) || \
+	defined(CONFIG_OMAP_SERIAL)
 	/* /16 is proper to hit 115200 with 48MHz */
 	serial_out(0, &com_port->mdr1);
 #endif
@@ -277,42 +280,6 @@ DEBUG_UART_FUNCS
 
 #endif
 
-#ifdef CONFIG_DEBUG_UART_OMAP
-
-#include <debug_uart.h>
-
-static inline void _debug_uart_init(void)
-{
-	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
-	int baud_divisor;
-
-	baud_divisor = ns16550_calc_divisor(com_port, CONFIG_DEBUG_UART_CLOCK,
-					    CONFIG_BAUDRATE);
-	serial_dout(&com_port->ier, CONFIG_SYS_NS16550_IER);
-	serial_dout(&com_port->mdr1, 0x7);
-	serial_dout(&com_port->mcr, UART_MCRVAL);
-	serial_dout(&com_port->fcr, UART_FCR_DEFVAL);
-
-	serial_dout(&com_port->lcr, UART_LCR_BKSE | UART_LCRVAL);
-	serial_dout(&com_port->dll, baud_divisor & 0xff);
-	serial_dout(&com_port->dlm, (baud_divisor >> 8) & 0xff);
-	serial_dout(&com_port->lcr, UART_LCRVAL);
-	serial_dout(&com_port->mdr1, 0x0);
-}
-
-static inline void _debug_uart_putc(int ch)
-{
-	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
-
-	while (!(serial_din(&com_port->lsr) & UART_LSR_THRE))
-		;
-	serial_dout(&com_port->thr, ch);
-}
-
-DEBUG_UART_FUNCS
-
-#endif
-
 #ifdef CONFIG_DM_SERIAL
 static int ns16550_serial_putc(struct udevice *dev, const char ch)
 {
@@ -339,9 +306,9 @@ static int ns16550_serial_pending(struct udevice *dev, bool input)
 	struct NS16550 *const com_port = dev_get_priv(dev);
 
 	if (input)
-		return serial_in(&com_port->lsr) & UART_LSR_DR ? 1 : 0;
+		return (serial_in(&com_port->lsr) & UART_LSR_DR) ? 1 : 0;
 	else
-		return serial_in(&com_port->lsr) & UART_LSR_THRE ? 0 : 1;
+		return (serial_in(&com_port->lsr) & UART_LSR_THRE) ? 0 : 1;
 }
 
 static int ns16550_serial_getc(struct udevice *dev)
@@ -370,6 +337,12 @@ static int ns16550_serial_setbrg(struct udevice *dev, int baudrate)
 int ns16550_serial_probe(struct udevice *dev)
 {
 	struct NS16550 *const com_port = dev_get_priv(dev);
+	struct reset_ctl_bulk reset_bulk;
+	int ret;
+
+	ret = reset_get_bulk(dev, &reset_bulk);
+	if (!ret)
+		reset_deassert_bulk(&reset_bulk);
 
 	com_port->plat = dev_get_platdata(dev);
 	NS16550_init(com_port, -1);
@@ -481,12 +454,6 @@ static const struct udevice_id ns16550_serial_ids[] = {
 	{ .compatible = "ingenic,jz4780-uart",	.data = PORT_JZ4780  },
 	{ .compatible = "nvidia,tegra20-uart",	.data = PORT_NS16550 },
 	{ .compatible = "snps,dw-apb-uart",	.data = PORT_NS16550 },
-	{ .compatible = "ti,omap2-uart",	.data = PORT_NS16550 },
-	{ .compatible = "ti,omap3-uart",	.data = PORT_NS16550 },
-	{ .compatible = "ti,omap4-uart",	.data = PORT_NS16550 },
-	{ .compatible = "ti,am3352-uart",	.data = PORT_NS16550 },
-	{ .compatible = "ti,am4372-uart",	.data = PORT_NS16550 },
-	{ .compatible = "ti,dra742-uart",	.data = PORT_NS16550 },
 	{}
 };
 #endif /* OF_CONTROL && !OF_PLATDATA */

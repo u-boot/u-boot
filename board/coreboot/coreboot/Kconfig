@@ -9,35 +9,15 @@ config SYS_VENDOR
 config SYS_SOC
 	default "coreboot"
 
+config SYS_CONFIG_NAME
+	default "coreboot"
+
 config SYS_TEXT_BASE
 	default 0x01110000
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	imply SPI_FLASH_ATMEL
-	imply SPI_FLASH_EON
-	imply SPI_FLASH_GIGADEVICE
-	imply SPI_FLASH_MACRONIX
-	imply SPI_FLASH_SPANSION
-	imply SPI_FLASH_STMICRO
-	imply SPI_FLASH_SST
-	imply SPI_FLASH_WINBOND
-
-comment "coreboot-specific options"
-
-config SYS_CONFIG_NAME
-	string "Board configuration file"
-	default "qemu-x86"
-	help
-	  This option selects the board configuration file in include/configs/
-	  directory to be used to build U-Boot for coreboot.
-
-config DEFAULT_DEVICE_TREE
-	string "Board Device Tree Source (dts) file"
-	default "qemu-x86_i440fx"
-	help
-	  This option selects the board Device Tree Source (dts) file in
-	  arch/x86/dts/ directory to be used to build U-Boot for coreboot.
+	select BOARD_EARLY_INIT_R
 
 config SYS_CAR_ADDR
 	hex "Board specific Cache-As-RAM (CAR) address"

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Samsung Exynos7420 clock driver.
  * Copyright (C) 2016 Samsung Electronics
  * Thomas Abraham <thomas.ab@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -13,8 +12,6 @@
 #include <asm/io.h>
 #include <dt-bindings/clock/exynos7420-clk.h>
 #include "clk-pll.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define DIVIDER(reg, shift, mask)	\
 	(((readl(reg) >> shift) & mask) + 1)

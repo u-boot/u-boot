@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * ti_am335x_common.h
  *
  * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * For more details, please see the technical documents listed at
  * http://www.ti.com/product/am3359#technicaldocuments
@@ -15,7 +14,6 @@
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
-#define CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 #include <asm/arch/omap.h>
 
@@ -30,22 +28,10 @@
 
 #ifndef CONFIG_SPL_BUILD
 /* Network defines. */
-#define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
-#define CONFIG_MII			/* Required in net/eth.c */
 #endif
-
-#define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
-/*
- * RTC related defines. To use bootcount you must set bootlimit in the
- * environment to a non-zero value and enable CONFIG_BOOTCOUNT_LIMIT
- * in the board config.
- */
-#define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the

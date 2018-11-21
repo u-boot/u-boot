@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * This file is part of UBIFS.
  *
  * Copyright (C) 2006-2008 Nokia Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
@@ -15,6 +14,8 @@
  * corresponding subsystem, just because they are closely related and utilize
  * various local functions of those subsystems.
  */
+
+#include <hexdump.h>
 
 #ifndef __UBOOT__
 #include <linux/module.h>
@@ -308,7 +309,7 @@ void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 	/* If the magic is incorrect, just hexdump the first bytes */
 	if (le32_to_cpu(ch->magic) != UBIFS_NODE_MAGIC) {
 		pr_err("Not a node, first %zu bytes:", UBIFS_CH_SZ);
-		print_hex_dump(KERN_ERR, "", DUMP_PREFIX_OFFSET, 32, 1,
+		print_hex_dump("", DUMP_PREFIX_OFFSET, 32, 1,
 			       (void *)node, UBIFS_CH_SZ, 1);
 		return;
 	}
@@ -483,7 +484,7 @@ void ubifs_dump_node(const struct ubifs_info *c, const void *node)
 		       (int)le16_to_cpu(dn->compr_type));
 		pr_err("\tdata size      %d\n", dlen);
 		pr_err("\tdata:\n");
-		print_hex_dump(KERN_ERR, "\t", DUMP_PREFIX_OFFSET, 32, 1,
+		print_hex_dump("\t", DUMP_PREFIX_OFFSET, 32, 1,
 			       (void *)&dn->data, dlen, 0);
 		break;
 	}

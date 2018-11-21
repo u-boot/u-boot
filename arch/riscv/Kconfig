@@ -1,0 +1,46 @@
+menu "RISC-V architecture"
+	depends on RISCV
+
+config SYS_ARCH
+	default "riscv"
+
+choice
+	prompt "Target select"
+	optional
+
+config TARGET_AX25_AE350
+	bool "Support ax25-ae350"
+
+config TARGET_QEMU_VIRT
+	bool "Support QEMU Virt Board"
+
+endchoice
+
+source "board/AndesTech/ax25-ae350/Kconfig"
+source "board/emulation/qemu-riscv/Kconfig"
+
+choice
+	prompt "CPU selection"
+	default CPU_RISCV_32
+
+config CPU_RISCV_32
+	bool "RISC-V 32-bit"
+	select 32BIT
+	help
+	  Choose this option to build an U-Boot for RISCV32 architecture.
+
+config CPU_RISCV_64
+	bool "RISC-V 64-bit"
+	select 64BIT
+	help
+	  Choose this option to build an U-Boot for RISCV64 architecture.
+
+endchoice
+
+config 32BIT
+	bool
+
+config 64BIT
+	bool
+
+endmenu

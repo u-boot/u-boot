@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Rockchip Electronics Co., Ltd
  *
  * Based on kernel drivers/regulator/pwm-regulator.c
  * Copyright (C) 2014 - STMicroelectronics Inc.
  * Author: Lee Jones <lee.jones@linaro.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -13,9 +12,6 @@
 #include <errno.h>
 #include <pwm.h>
 #include <power/regulator.h>
-#include <libfdt.h>
-#include <fdt_support.h>
-#include <fdtdec.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -94,13 +90,10 @@ static int pwm_regulator_set_voltage(struct udevice *dev, int uvolt)
 static int pwm_regulator_ofdata_to_platdata(struct udevice *dev)
 {
 	struct pwm_regulator_info *priv = dev_get_priv(dev);
-	struct fdtdec_phandle_args args;
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
+	struct ofnode_phandle_args args;
 	int ret;
 
-	ret = fdtdec_parse_phandle_with_args(blob, node, "pwms", "#pwm-cells",
-					     0, 0, &args);
+	ret = dev_read_phandle_with_args(dev, "pwms", "#pwm-cells", 0, 0, &args);
 	if (ret) {
 		debug("%s: Cannot get PWM phandle: ret=%d\n", __func__, ret);
 		return ret;
@@ -109,14 +102,13 @@ static int pwm_regulator_ofdata_to_platdata(struct udevice *dev)
 	priv->period_ns = args.args[1];
 	priv->polarity = args.args[2];
 
-	priv->init_voltage = fdtdec_get_int(blob, node,
-			"regulator-init-microvolt", -1);
+	priv->init_voltage = dev_read_u32_default(dev, "regulator-init-microvolt", -1);
 	if (priv->init_voltage < 0) {
 		printf("Cannot find regulator pwm init_voltage\n");
 		return -EINVAL;
 	}
 
-	ret = uclass_get_device_by_of_offset(UCLASS_PWM, args.node, &priv->pwm);
+	ret = uclass_get_device_by_ofnode(UCLASS_PWM, args.node, &priv->pwm);
 	if (ret) {
 		debug("%s: Cannot get PWM: ret=%d\n", __func__, ret);
 		return ret;

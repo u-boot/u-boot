@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1985 MIPS Computer Systems, Inc.
  * Copyright (C) 1994, 95, 99, 2003 by Ralf Baechle
  * Copyright (C) 1990 - 1992, 1999 Silicon Graphics, Inc.
  * Copyright (C) 2011 Wind River Systems,
  *   written by Ralf Baechle <ralf@linux-mips.org>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_REGDEF_H
 #define _ASM_REGDEF_H

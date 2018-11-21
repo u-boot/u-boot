@@ -1,20 +1,16 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * SPL definitions for the i.MX7 SPL
  *
  * (C) Copyright 2017 CompuLab, Ltd. http://www.compulab.com
  *
  * Author: Uri Mashiach <uri.mashiach@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IMX7_SPL_CONFIG_H
 #define __IMX7_SPL_CONFIG_H
 
 #ifdef CONFIG_SPL
-
-#define CONFIG_SPL_FRAMEWORK
-
 /*
  * see figure 6-22 in i.MX 7Dual/Solo Reference manuals:
  *  - IMX7D/S OCRAM free area RAM (OCRAM) is from 0x00910000 to
@@ -54,7 +50,6 @@
 #define CONFIG_SPL_BSS_MAX_SIZE        0x100000		/* 1 MB */
 #define CONFIG_SYS_SPL_MALLOC_START    0x88300000
 #define CONFIG_SYS_SPL_MALLOC_SIZE     0x100000		/* 1 MB */
-#define CONFIG_SYS_TEXT_BASE           0x87800000
 
 #endif /* CONFIG_SPL */
 

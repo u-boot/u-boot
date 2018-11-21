@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 DENX Software Engineering
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/mach-imx/iomux-v3.h>
@@ -33,6 +32,16 @@ void displ5_set_iomux_uart_spl(void)
 void displ5_set_iomux_uart(void)
 {
 	SETUP_IOMUX_PADS(uart_pads);
+}
+
+iomux_v3_cfg_t const misc_pads_spl[] = {
+	/* Emergency recovery pin */
+	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+void displ5_set_iomux_misc_spl(void)
+{
+	SETUP_IOMUX_PADS(misc_pads_spl);
 }
 
 #ifdef CONFIG_MXC_SPI

@@ -1,25 +1,64 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Faraday MMC/SD Host Controller
  *
  * (C) Copyright 2010 Faraday Technology
  * Dante Su <dantesu@faraday-tech.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Copyright 2018 Andes Technology, Inc.
+ * Author: Rick Chen (rick@andestech.com)
  */
 
 #include <common.h>
+#include <clk.h>
 #include <malloc.h>
 #include <part.h>
 #include <mmc.h>
-
 #include <linux/io.h>
 #include <linux/errno.h>
 #include <asm/byteorder.h>
 #include <faraday/ftsdc010.h>
 #include "ftsdc010_mci.h"
+#include <dm.h>
+#include <dt-structs.h>
+#include <errno.h>
+#include <mapmem.h>
+#include <pwrseq.h>
+#include <syscon.h>
+#include <linux/err.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define CFG_CMD_TIMEOUT (CONFIG_SYS_HZ >> 4) /* 250 ms */
 #define CFG_RST_TIMEOUT CONFIG_SYS_HZ /* 1 sec reset timeout */
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+struct ftsdc010 {
+	fdt32_t		bus_width;
+	bool		cap_mmc_highspeed;
+	bool		cap_sd_highspeed;
+	fdt32_t		clock_freq_min_max[2];
+	struct phandle_2_cell	clocks[4];
+	fdt32_t		fifo_depth;
+	fdt32_t		reg[2];
+};
+#endif
+
+struct ftsdc010_plat {
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct ftsdc010 dtplat;
+#endif
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
+struct ftsdc_priv {
+	struct clk clk;
+	struct ftsdc010_chip chip;
+	int fifo_depth;
+	bool fifo_mode;
+	u32 minmax[2];
+};
 
 static inline int ftsdc010_send_cmd(struct mmc *mmc, struct mmc_cmd *mmc_cmd)
 {
@@ -138,16 +177,10 @@ static int ftsdc010_wait(struct ftsdc010_mmc __iomem *regs, uint32_t mask)
 /*
  * u-boot mmc api
  */
-#ifdef CONFIG_DM_MMC
 static int ftsdc010_request(struct udevice *dev, struct mmc_cmd *cmd,
 	struct mmc_data *data)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-#else
-static int ftsdc010_request(struct mmc *mmc, struct mmc_cmd *cmd,
-	struct mmc_data *data)
-{
-#endif
 	int ret = -EOPNOTSUPP;
 	uint32_t len = 0;
 	struct ftsdc010_chip *chip = mmc->priv;
@@ -248,14 +281,9 @@ static int ftsdc010_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	return ret;
 }
 
-#ifdef CONFIG_DM_MMC
 static int ftsdc010_set_ios(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-#else
-static int ftsdc010_set_ios(struct mmc *mmc)
-{
-#endif
 	struct ftsdc010_chip *chip = mmc->priv;
 	struct ftsdc010_mmc __iomem *regs = chip->regs;
 
@@ -277,27 +305,17 @@ static int ftsdc010_set_ios(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_DM_MMC
 static int ftsdc010_get_cd(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-#else
-static int ftsdc010_get_cd(struct mmc *mmc)
-{
-#endif
 	struct ftsdc010_chip *chip = mmc->priv;
 	struct ftsdc010_mmc __iomem *regs = chip->regs;
 	return !(readl(&regs->status) & FTSDC010_STATUS_CARD_DETECT);
 }
 
-#ifdef CONFIG_DM_MMC
 static int ftsdc010_get_wp(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
-#else
-static int ftsdc010_get_wp(struct mmc *mmc)
-{
-#endif
 	struct ftsdc010_chip *chip = mmc->priv;
 	struct ftsdc010_mmc __iomem *regs = chip->regs;
 	if (readl(&regs->status) & FTSDC010_STATUS_WRITE_PROT) {
@@ -337,31 +355,20 @@ static int ftsdc010_init(struct mmc *mmc)
 	return 0;
 }
 
-#ifdef CONFIG_DM_MMC
-int ftsdc010_probe(struct udevice *dev)
+static int ftsdc010_probe(struct udevice *dev)
 {
 	struct mmc *mmc = mmc_get_mmc_dev(dev);
 	return ftsdc010_init(mmc);
 }
 
-const struct dm_mmc_ops dm_ftsdc010_ops = {
+const struct dm_mmc_ops dm_ftsdc010_mmc_ops = {
 	.send_cmd	= ftsdc010_request,
 	.set_ios	= ftsdc010_set_ios,
 	.get_cd		= ftsdc010_get_cd,
 	.get_wp		= ftsdc010_get_wp,
 };
 
-#else
-static const struct mmc_ops ftsdc010_ops = {
-	.send_cmd	= ftsdc010_request,
-	.set_ios	= ftsdc010_set_ios,
-	.getcd		= ftsdc010_get_cd,
-	.getwp		= ftsdc010_get_wp,
-	.init		= ftsdc010_init,
-};
-#endif
-
-void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
+static void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
 		     uint caps, u32 max_clk, u32 min_clk)
 {
 	cfg->name = name;
@@ -380,73 +387,94 @@ void ftsdc_setup_cfg(struct mmc_config *cfg, const char *name, int buswidth,
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 }
 
-void set_bus_width(struct ftsdc010_mmc __iomem *regs, struct mmc_config *cfg)
+static int ftsdc010_mmc_ofdata_to_platdata(struct udevice *dev)
 {
-	switch (readl(&regs->bwr) & FTSDC010_BWR_CAPS_MASK) {
-	case FTSDC010_BWR_CAPS_4BIT:
-		cfg->host_caps |= MMC_MODE_4BIT;
-		break;
-	case FTSDC010_BWR_CAPS_8BIT:
-		cfg->host_caps |= MMC_MODE_4BIT | MMC_MODE_8BIT;
-		break;
-	default:
-		break;
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct ftsdc_priv *priv = dev_get_priv(dev);
+	struct ftsdc010_chip *chip = &priv->chip;
+	chip->name = dev->name;
+	chip->ioaddr = (void *)devfdt_get_addr(dev);
+	chip->buswidth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+					"bus-width", 4);
+	chip->priv = dev;
+	priv->fifo_depth = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+				    "fifo-depth", 0);
+	priv->fifo_mode = fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),
+					  "fifo-mode");
+	if (fdtdec_get_int_array(gd->fdt_blob, dev_of_offset(dev),
+			 "clock-freq-min-max", priv->minmax, 2)) {
+		int val = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
+				  "max-frequency", -EINVAL);
+		if (val < 0)
+			return val;
+
+		priv->minmax[0] = 400000;  /* 400 kHz */
+		priv->minmax[1] = val;
+	} else {
+		debug("%s: 'clock-freq-min-max' property was deprecated.\n",
+		__func__);
 	}
-}
-
-#ifdef CONFIG_BLK
-int ftsdc010_bind(struct udevice *dev, struct mmc *mmc, struct mmc_config *cfg)
-{
-	return mmc_bind(dev, mmc, cfg);
-}
-#else
-
-int ftsdc010_mmc_init(int devid)
-{
-	struct mmc *mmc;
-	struct ftsdc010_chip *chip;
-	struct ftsdc010_mmc __iomem *regs;
-#ifdef CONFIG_FTSDC010_BASE_LIST
-	uint32_t base_list[] = CONFIG_FTSDC010_BASE_LIST;
-
-	if (devid < 0 || devid >= ARRAY_SIZE(base_list))
-		return -1;
-	regs = (void __iomem *)base_list[devid];
-#else
-	regs = (void __iomem *)(CONFIG_FTSDC010_BASE + (devid << 20));
 #endif
-
-	chip = malloc(sizeof(struct ftsdc010_chip));
-	if (!chip)
-		return -ENOMEM;
-	memset(chip, 0, sizeof(struct ftsdc010_chip));
-
-	chip->regs = regs;
-#ifdef CONFIG_SYS_CLK_FREQ
-	chip->sclk = CONFIG_SYS_CLK_FREQ;
-#else
-	chip->sclk = clk_get_rate("SDC");
-#endif
-
-	chip->cfg.name = "ftsdc010";
-#ifndef CONFIG_DM_MMC
-	chip->cfg.ops = &ftsdc010_ops;
-#endif
-	chip->cfg.host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz;
-	set_bus_width(regs , &chip->cfg);
-	chip->cfg.voltages  = MMC_VDD_32_33 | MMC_VDD_33_34;
-	chip->cfg.f_max     = chip->sclk / 2;
-	chip->cfg.f_min     = chip->sclk / 0x100;
-
-	chip->cfg.part_type = PART_TYPE_DOS;
-	chip->cfg.b_max	    = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-
-	mmc = mmc_create(&chip->cfg, chip);
-	if (mmc == NULL) {
-		free(chip);
-		return -ENOMEM;
-	}
-
+	chip->sclk = priv->minmax[1];
+	chip->regs = chip->ioaddr;
 	return 0;
 }
+
+static int ftsdc010_mmc_probe(struct udevice *dev)
+{
+	struct ftsdc010_plat *plat = dev_get_platdata(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct ftsdc_priv *priv = dev_get_priv(dev);
+	struct ftsdc010_chip *chip = &priv->chip;
+	struct udevice *pwr_dev __maybe_unused;
+
+#if CONFIG_IS_ENABLED(OF_PLATDATA)
+	int ret;
+	struct ftsdc010 *dtplat = &plat->dtplat;
+	chip->name = dev->name;
+	chip->ioaddr = map_sysmem(dtplat->reg[0], dtplat->reg[1]);
+	chip->buswidth = dtplat->bus_width;
+	chip->priv = dev;
+	chip->dev_index = 1;
+	memcpy(priv->minmax, dtplat->clock_freq_min_max, sizeof(priv->minmax));
+	ret = clk_get_by_index_platdata(dev, 0, dtplat->clocks, &priv->clk);
+	if (ret < 0)
+		return ret;
 #endif
+
+	if (dev_read_bool(dev, "cap-mmc-highspeed") || \
+		  dev_read_bool(dev, "cap-sd-highspeed"))
+		chip->caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz;
+
+	ftsdc_setup_cfg(&plat->cfg, dev->name, chip->buswidth, chip->caps,
+			priv->minmax[1] , priv->minmax[0]);
+	chip->mmc = &plat->mmc;
+	chip->mmc->priv = &priv->chip;
+	chip->mmc->dev = dev;
+	upriv->mmc = chip->mmc;
+	return ftsdc010_probe(dev);
+}
+
+int ftsdc010_mmc_bind(struct udevice *dev)
+{
+	struct ftsdc010_plat *plat = dev_get_platdata(dev);
+
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
+}
+
+static const struct udevice_id ftsdc010_mmc_ids[] = {
+	{ .compatible = "andestech,atfsdc010" },
+	{ }
+};
+
+U_BOOT_DRIVER(ftsdc010_mmc) = {
+	.name		= "ftsdc010_mmc",
+	.id		= UCLASS_MMC,
+	.of_match	= ftsdc010_mmc_ids,
+	.ofdata_to_platdata = ftsdc010_mmc_ofdata_to_platdata,
+	.ops		= &dm_ftsdc010_mmc_ops,
+	.bind		= ftsdc010_mmc_bind,
+	.probe		= ftsdc010_mmc_probe,
+	.priv_auto_alloc_size = sizeof(struct ftsdc_priv),
+	.platdata_auto_alloc_size = sizeof(struct ftsdc010_plat),
+};

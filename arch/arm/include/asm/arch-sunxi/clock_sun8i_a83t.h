@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * sun8i a83t clock register definitions
  *
@@ -7,7 +8,6 @@
  *
  * (C) Copyright 2015 Vishnu Patekar <vishnupatekar0510@gmail.com>
  * from sun6i.h
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_CLOCK_SUN8I_A83T_H

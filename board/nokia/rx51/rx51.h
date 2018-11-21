@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012
  * Ивайло Димитров <freemangordon@abv.bg>
@@ -7,8 +8,6 @@
  *
  * (C) Copyright 2008
  * Dirk Behme <dirk.behme@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _RX51_H_
 #define _RX51_H_

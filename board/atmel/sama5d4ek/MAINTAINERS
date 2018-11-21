@@ -1,5 +1,5 @@
 SAMA5D4EK BOARD
-M:	Bo Shen <voice.shen@atmel.com>
+M:	Eugen Hristev <eugen.hristev@microchip.com>
 S:	Maintained
 F:	board/atmel/sama5d4ek/
 F:	include/configs/sama5d4ek.h

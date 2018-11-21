@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2017 STMicroelectronics
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -243,8 +242,6 @@ static struct stm32_i2c_setup stm32f7_setup = {
 	.dnf = STM32_I2C_DNF_DEFAULT,
 	.analog_filter = STM32_I2C_ANALOG_FILTER_ENABLE,
 };
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int stm32_i2c_check_device_busy(struct stm32_i2c_priv *i2c_priv)
 {
@@ -533,7 +530,7 @@ static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
 				if (((sdadel >= sdadel_min) &&
 				     (sdadel <= sdadel_max)) &&
 				    (p != p_prev)) {
-					v = kmalloc(sizeof(*v), GFP_KERNEL);
+					v = calloc(1, sizeof(*v));
 					if (!v)
 						return -ENOMEM;
 
@@ -689,7 +686,7 @@ exit:
 	/* Release list and memory */
 	list_for_each_entry_safe(v, _v, &solutions, node) {
 		list_del(&v->node);
-		kfree(v);
+		free(v);
 	}
 
 	return ret;

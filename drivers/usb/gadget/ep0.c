@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2003
  * Gerry Hamel, geh@ti.com, Texas Instruments
@@ -15,8 +16,6 @@
  *	Stuart Lynne <sl@lineo.com>,
  *	Tom Rushworth <tbr@lineo.com>,
  *	Bruce Balden <balden@lineo.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

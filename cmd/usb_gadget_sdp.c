@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * cmd_sdp.c -- sdp command
  *
  * Copyright (C) 2016 Toradex
  * Author: Stefan Agner <stefan.agner@toradex.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -28,13 +27,13 @@ static int do_sdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	ret = sdp_init(controller_index);
 	if (ret) {
-		pr_err("SDP init failed: %d", ret);
+		pr_err("SDP init failed: %d\n", ret);
 		goto exit;
 	}
 
 	/* This command typically does not return but jumps to an image */
 	sdp_handle(controller_index);
-	pr_err("SDP ended");
+	pr_err("SDP ended\n");
 
 exit:
 	g_dnl_unregister();

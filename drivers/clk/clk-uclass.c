@@ -1,23 +1,22 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  * Copyright (c) 2016, NVIDIA CORPORATION.
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Copyright (c) 2018, Theobroma Systems Design und Consulting GmbH
  */
 
 #include <common.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <dm.h>
+#include <dm/read.h>
 #include <dt-structs.h>
 #include <errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
-static inline struct clk_ops *clk_dev_ops(struct udevice *dev)
+static inline const struct clk_ops *clk_dev_ops(struct udevice *dev)
 {
-	return (struct clk_ops *)dev->driver->ops;
+	return (const struct clk_ops *)dev->driver->ops;
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
@@ -55,20 +54,21 @@ static int clk_of_xlate_default(struct clk *clk,
 	return 0;
 }
 
-int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
+static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
+				   int index, struct clk *clk)
 {
 	int ret;
 	struct ofnode_phandle_args args;
 	struct udevice *dev_clk;
-	struct clk_ops *ops;
+	const struct clk_ops *ops;
 
 	debug("%s(dev=%p, index=%d, clk=%p)\n", __func__, dev, index, clk);
 
 	assert(clk);
 	clk->dev = NULL;
 
-	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
-					  index, &args);
+	ret = dev_read_phandle_with_args(dev, prop_name, "#clock-cells", 0,
+					 index, &args);
 	if (ret) {
 		debug("%s: fdtdec_parse_phandle_with_args failed: err=%d\n",
 		      __func__, ret);
@@ -96,6 +96,168 @@ int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 	}
 
 	return clk_request(dev_clk, clk);
+}
+
+int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
+{
+	return clk_get_by_indexed_prop(dev, "clocks", index, clk);
+}
+
+int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)
+{
+	int i, ret, err, count;
+	
+	bulk->count = 0;
+
+	count = dev_count_phandle_with_args(dev, "clocks", "#clock-cells");
+	if (count < 1)
+		return count;
+
+	bulk->clks = devm_kcalloc(dev, count, sizeof(struct clk), GFP_KERNEL);
+	if (!bulk->clks)
+		return -ENOMEM;
+
+	for (i = 0; i < count; i++) {
+		ret = clk_get_by_index(dev, i, &bulk->clks[i]);
+		if (ret < 0)
+			goto bulk_get_err;
+
+		++bulk->count;
+	}
+
+	return 0;
+
+bulk_get_err:
+	err = clk_release_all(bulk->clks, bulk->count);
+	if (err)
+		debug("%s: could release all clocks for %p\n",
+		      __func__, dev);
+
+	return ret;
+}
+
+static int clk_set_default_parents(struct udevice *dev)
+{
+	struct clk clk, parent_clk;
+	int index;
+	int num_parents;
+	int ret;
+
+	num_parents = dev_count_phandle_with_args(dev, "assigned-clock-parents",
+						  "#clock-cells");
+	if (num_parents < 0) {
+		debug("%s: could not read assigned-clock-parents for %p\n",
+		      __func__, dev);
+		return 0;
+	}
+
+	for (index = 0; index < num_parents; index++) {
+		ret = clk_get_by_indexed_prop(dev, "assigned-clock-parents",
+					      index, &parent_clk);
+		/* If -ENOENT, this is a no-op entry */
+		if (ret == -ENOENT)
+			continue;
+
+		if (ret) {
+			debug("%s: could not get parent clock %d for %s\n",
+			      __func__, index, dev_read_name(dev));
+			return ret;
+		}
+
+		ret = clk_get_by_indexed_prop(dev, "assigned-clocks",
+					      index, &clk);
+		if (ret) {
+			debug("%s: could not get assigned clock %d for %s\n",
+			      __func__, index, dev_read_name(dev));
+			return ret;
+		}
+
+		ret = clk_set_parent(&clk, &parent_clk);
+
+		/*
+		 * Not all drivers may support clock-reparenting (as of now).
+		 * Ignore errors due to this.
+		 */
+		if (ret == -ENOSYS)
+			continue;
+
+		if (ret) {
+			debug("%s: failed to reparent clock %d for %s\n",
+			      __func__, index, dev_read_name(dev));
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+static int clk_set_default_rates(struct udevice *dev)
+{
+	struct clk clk;
+	int index;
+	int num_rates;
+	int size;
+	int ret = 0;
+	u32 *rates = NULL;
+
+	size = dev_read_size(dev, "assigned-clock-rates");
+	if (size < 0)
+		return 0;
+
+	num_rates = size / sizeof(u32);
+	rates = calloc(num_rates, sizeof(u32));
+	if (!rates)
+		return -ENOMEM;
+
+	ret = dev_read_u32_array(dev, "assigned-clock-rates", rates, num_rates);
+	if (ret)
+		goto fail;
+
+	for (index = 0; index < num_rates; index++) {
+		/* If 0 is passed, this is a no-op */
+		if (!rates[index])
+			continue;
+
+		ret = clk_get_by_indexed_prop(dev, "assigned-clocks",
+					      index, &clk);
+		if (ret) {
+			debug("%s: could not get assigned clock %d for %s\n",
+			      __func__, index, dev_read_name(dev));
+			continue;
+		}
+
+		ret = clk_set_rate(&clk, rates[index]);
+		if (ret < 0) {
+			debug("%s: failed to set rate on clock %d for %s\n",
+			      __func__, index, dev_read_name(dev));
+			break;
+		}
+	}
+
+fail:
+	free(rates);
+	return ret;
+}
+
+int clk_set_defaults(struct udevice *dev)
+{
+	int ret;
+
+	/* If this is running pre-reloc state, don't take any action. */
+	if (!(gd->flags & GD_FLG_RELOC))
+		return 0;
+
+	debug("%s(%s)\n", __func__, dev_read_name(dev));
+
+	ret = clk_set_default_parents(dev);
+	if (ret)
+		return ret;
+
+	ret = clk_set_default_rates(dev);
+	if (ret < 0)
+		return ret;
+
+	return 0;
 }
 # endif /* OF_PLATDATA */
 
@@ -142,7 +304,7 @@ int clk_release_all(struct clk *clk, int count)
 
 int clk_request(struct udevice *dev, struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(dev);
+	const struct clk_ops *ops = clk_dev_ops(dev);
 
 	debug("%s(dev=%p, clk=%p)\n", __func__, dev, clk);
 
@@ -156,7 +318,7 @@ int clk_request(struct udevice *dev, struct clk *clk)
 
 int clk_free(struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p)\n", __func__, clk);
 
@@ -168,7 +330,7 @@ int clk_free(struct clk *clk)
 
 ulong clk_get_rate(struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p)\n", __func__, clk);
 
@@ -180,7 +342,7 @@ ulong clk_get_rate(struct clk *clk)
 
 ulong clk_set_rate(struct clk *clk, ulong rate)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p, rate=%lu)\n", __func__, clk, rate);
 
@@ -190,9 +352,21 @@ ulong clk_set_rate(struct clk *clk, ulong rate)
 	return ops->set_rate(clk, rate);
 }
 
+int clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
+
+	debug("%s(clk=%p, parent=%p)\n", __func__, clk, parent);
+
+	if (!ops->set_parent)
+		return -ENOSYS;
+
+	return ops->set_parent(clk, parent);
+}
+
 int clk_enable(struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p)\n", __func__, clk);
 
@@ -202,9 +376,22 @@ int clk_enable(struct clk *clk)
 	return ops->enable(clk);
 }
 
+int clk_enable_bulk(struct clk_bulk *bulk)
+{
+	int i, ret;
+
+	for (i = 0; i < bulk->count; i++) {
+		ret = clk_enable(&bulk->clks[i]);
+		if (ret < 0 && ret != -ENOSYS)
+			return ret;
+	}
+
+	return 0;
+}
+
 int clk_disable(struct clk *clk)
 {
-	struct clk_ops *ops = clk_dev_ops(clk->dev);
+	const struct clk_ops *ops = clk_dev_ops(clk->dev);
 
 	debug("%s(clk=%p)\n", __func__, clk);
 
@@ -212,6 +399,19 @@ int clk_disable(struct clk *clk)
 		return -ENOSYS;
 
 	return ops->disable(clk);
+}
+
+int clk_disable_bulk(struct clk_bulk *bulk)
+{
+	int i, ret;
+
+	for (i = 0; i < bulk->count; i++) {
+		ret = clk_disable(&bulk->clks[i]);
+		if (ret < 0 && ret != -ENOSYS)
+			return ret;
+	}
+
+	return 0;
 }
 
 UCLASS_DRIVER(clk) = {

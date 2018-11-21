@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
  * Author: Wang Dongsheng <dongsheng.wang@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -125,7 +124,8 @@ psci_cpu_on:
 
 	mov	r0, r4
 	mov	r1, r2
-	bl	psci_save_target_pc
+	mov	r2, r3
+	bl	psci_save
 	mov	r1, r4
 
 	@ Get DCFG base address

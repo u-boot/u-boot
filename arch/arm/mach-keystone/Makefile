@@ -13,7 +13,6 @@ ifndef CONFIG_SPL_BUILD
 obj-y	+= cmd_clock.o
 obj-y	+= cmd_mon.o
 obj-y	+= cmd_poweroff.o
-obj-y	+= cmd_ddr3.o
 endif
 obj-y	+= msmc.o
 obj-y	+= ddr3.o

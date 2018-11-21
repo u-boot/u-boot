@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * sun4i, sun5i and sun7i clock register definitions
  *
  * (C) Copyright 2007-2011
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Tom Cubie <tangliang@allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_CLOCK_SUN4I_H

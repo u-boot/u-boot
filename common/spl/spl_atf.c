@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * Reference to the ARM TF Project,
  * plat/arm/common/arm_bl2_setup.c
@@ -6,8 +7,6 @@
  * Copyright (C) 2016 Rockchip Electronic Co.,Ltd
  * Written by Kever Yang <kever.yang@rock-chips.com>
  * Copyright (C) 2017 Theobroma Systems Design und Consulting GmbH
- *
- * SPDX-License-Identifier:     BSD-3-Clause
  */
 
 #include <common.h>
@@ -50,13 +49,14 @@ static struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl33_entry)
 		       ATF_PARAM_IMAGE_BINARY, ATF_VERSION_1, 0);
 
 	/* Fill BL32 related information if it exists */
-#ifdef BL32_BASE
 	bl2_to_bl31_params->bl32_ep_info = &bl31_params_mem.bl32_ep_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info, ATF_PARAM_EP,
 		       ATF_VERSION_1, 0);
 	bl2_to_bl31_params->bl32_image_info = &bl31_params_mem.bl32_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image_info,
 		       ATF_PARAM_IMAGE_BINARY, ATF_VERSION_1, 0);
+#ifndef BL32_BASE
+	bl2_to_bl31_params->bl32_ep_info->pc = 0;
 #endif /* BL32_BASE */
 
 	/* Fill BL33 related information */

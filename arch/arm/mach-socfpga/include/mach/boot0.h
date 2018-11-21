@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Specialty padding for the Altera SoCFPGA preloader image
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __BOOT0_H
@@ -18,8 +17,8 @@ _start:
 	.word	0xcafec0d3;	/* Checksum, zero-pad */
 	nop;
 
-	b reset;		/* SoCFPGA jumps here */
-	nop;
+	b reset;		/* SoCFPGA Gen5 jumps here */
+	b reset;		/* SoCFPGA Gen10 trampoline */
 	nop;
 	nop;
 #endif

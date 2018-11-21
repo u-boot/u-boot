@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2001 - 2012 Tensilica Inc.
  * Copyright (C) 2014 - 2016 Cadence Design Systems Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _XTENSA_BITOPS_H

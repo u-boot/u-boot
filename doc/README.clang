@@ -10,16 +10,11 @@ used to get its value. This does lead to larger code then strictly
 necessary, but at least works.
 
 NOTE: target compilation only work for _some_ ARM boards at the moment.
-Also Aarch64 is not supported: Most notably boards which aren't using
-the generic board will fail to compile, but since those are expected
-to be converted this will solve itself. Boards which reassign gd in c
-will also fail to compile, but there is in no strict reason to do so
-in the ARM world, since crt0.S takes care of this. These assignments
-can be avoided by changing the init calls but this is not in mainline yet.
-
-NOTE: without the -mllvm -arm-use-movt=0 flags U-Boot will compile
-fine, but llvm might hardcode addresses in movw / movt pairs, which
-cannot be relocated and U-Boot will fail at runtime.
+Also AArch64 is not supported currently due to a lack of private libgcc
+support.  Boards which reassign gd in c will also fail to compile, but there is
+in no strict reason to do so in the ARM world, since crt0.S takes care of this.
+These assignments can be avoided by changing the init calls but this is not in
+mainline yet.
 
 Debian (based)
 --------------
@@ -29,7 +24,8 @@ sudo apt-get install clang
 Note that we still use binutils for some tools so we must continue to set
 CROSS_COMPILE. To compile U-Boot with clang on linux without IAS use e.g.:
 make HOSTCC=clang rpi_2_defconfig
-make HOSTCC=clang CROSS_COMPILE=arm-linux-gnueabi- CC=clang -j8
+make HOSTCC=clang CROSS_COMPILE=arm-linux-gnueabi- \
+    CC="clang -target arm-linux-gnueabi" -j8
 
 It can also be used to compile sandbox:
 make HOSTCC=clang sandbox_defconfig

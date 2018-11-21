@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  armboot - Startup Code for ARM926EJS CPU-core
  *
@@ -11,8 +12,6 @@
  *  Copyright (c) 2003	Richard Woodruff <r-woodruff2@ti.com>
  *  Copyright (c) 2003	Kshitij <kshitij@ti.com>
  *  Copyright (c) 2010	Albert Aribaud <albert.u.boot@aribaud.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>
@@ -105,9 +104,9 @@ flush_dcache:
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.
 	 */
-	mov	ip, lr		/* perserve link reg across call */
+	mov	r4, lr		/* perserve link reg across call */
 	bl	lowlevel_init	/* go setup pll,mux,memory */
-	mov	lr, ip		/* restore link */
+	mov	lr, r4		/* restore link */
 #endif
 	mov	pc, lr		/* back to my caller */
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */

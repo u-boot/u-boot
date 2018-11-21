@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /* Copyright (C) 1992, 1997 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-
- * SPDX-License-Identifier:	LGPL-2.0+
  */
 
 typedef struct {

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2013 Bo Shen <voice.shen@atmel.com>
  *
  * Copyright (C) 2009 Jens Scharsig (js_at_ng@scharsoft.de)
  *
  *  Copyright (C) 2005 HP Labs
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

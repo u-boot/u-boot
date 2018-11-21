@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from linux/drivers/power/reset/syscon-reboot.c:
  *	Copyright (C) 2013, Applied Micro Circuits Corporation
  *	Author: Feng Kan <fkan@apm.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -14,8 +13,6 @@
 #include <regmap.h>
 #include <sysreset.h>
 #include <syscon.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct syscon_reboot_priv {
 	struct regmap *regmap;
@@ -38,27 +35,27 @@ static struct sysreset_ops syscon_reboot_ops = {
 
 int syscon_reboot_probe(struct udevice *dev)
 {
-	struct udevice *syscon;
 	struct syscon_reboot_priv *priv = dev_get_priv(dev);
 	int err;
+	u32 phandle;
+	ofnode node;
 
-	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
-					   "regmap", &syscon);
-	if (err) {
-		pr_err("unable to find syscon device\n");
+	err = ofnode_read_u32(dev_ofnode(dev), "regmap", &phandle);
+	if (err)
 		return err;
-	}
 
-	priv->regmap = syscon_get_regmap(syscon);
+	node = ofnode_get_by_phandle(phandle);
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
+	priv->regmap = syscon_node_to_regmap(node);
 	if (!priv->regmap) {
 		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
 
-	priv->offset = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-				       "offset", 0);
-	priv->mask = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-				       "mask", 0);
+	priv->offset = dev_read_u32_default(dev, "offset", 0);
+	priv->mask = dev_read_u32_default(dev, "mask", 0);
 
 	return 0;
 }

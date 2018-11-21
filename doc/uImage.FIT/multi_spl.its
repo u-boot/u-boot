@@ -45,7 +45,7 @@
 			load = <0x40000>;
 		};
 
-		fdt@1 {
+		fdt-1 {
 			description = "Pine64+ DT";
 			type = "flat_dt";
 			compression = "none";
@@ -53,7 +53,7 @@
 			arch = "arm64";
 		};
 
-		fdt@2 {
+		fdt-2 {
 			description = "Pine64 DT";
 			type = "flat_dt";
 			compression = "none";
@@ -79,18 +79,18 @@
 	};
 
 	configurations {
-		default = "config@1";
+		default = "config-1";
 
-		config@1 {
+		config-1 {
 			description = "sun50i-a64-pine64-plus";
 			loadables = "uboot", "atf", "kernel", "initrd";
-			fdt = "fdt@1";
+			fdt = "fdt-1";
 		};
 
-		config@2 {
+		config-2 {
 			description = "sun50i-a64-pine64";
 			loadables = "uboot", "atf", "mgmt-firmware";
-			fdt = "fdt@2";
+			fdt = "fdt-2";
 		};
 	};
 };

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Atmel SAMA5Dx boot parameter handling
  *
  * Copyright (c) 2016 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

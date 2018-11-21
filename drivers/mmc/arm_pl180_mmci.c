@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * ARM PrimeCell MultiMedia Card Interface - PL180
  *
@@ -6,8 +7,6 @@
  * Author: Ulf Hansson <ulf.hansson@stericsson.com>
  * Author: Martin Lundholm <martin.xa.lundholm@stericsson.com>
  * Ported to drivers/mmc/ by: Matt Waddel <matt.waddel@linaro.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* #define DEBUG */
@@ -25,8 +24,6 @@
 
 #ifdef CONFIG_DM_MMC
 #include <dm.h>
-DECLARE_GLOBAL_DATA_PTR;
-
 #define MMC_CLOCK_MAX	48000000
 #define MMC_CLOCK_MIN	400000
 
@@ -360,13 +357,13 @@ static const struct mmc_ops arm_pl180_mmci_ops = {
 	.set_ios = host_set_ios,
 	.init = mmc_host_reset,
 };
-#endif
 
 /*
  * mmc_host_init - initialize the mmc controller.
  * Set initial clock and power for mmc slot.
  * Initialize mmc struct and register with mmc framework.
  */
+
 int arm_pl180_mmci_init(struct pl180_mmc_host *host, struct mmc **mmc)
 {
 	u32 sdi_u32;
@@ -380,9 +377,8 @@ int arm_pl180_mmci_init(struct pl180_mmc_host *host, struct mmc **mmc)
 	writel(sdi_u32, &host->base->mask0);
 
 	host->cfg.name = host->name;
-#ifndef CONFIG_DM_MMC
 	host->cfg.ops = &arm_pl180_mmci_ops;
-#endif
+
 	/* TODO remove the duplicates */
 	host->cfg.host_caps = host->caps;
 	host->cfg.voltages = host->voltages;
@@ -396,20 +392,34 @@ int arm_pl180_mmci_init(struct pl180_mmc_host *host, struct mmc **mmc)
 	*mmc = mmc_create(&host->cfg, host);
 	if (!*mmc)
 		return -1;
-
 	debug("registered mmc interface number is:%d\n",
 	      (*mmc)->block_dev.devnum);
 
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_DM_MMC
+static void arm_pl180_mmc_init(struct pl180_mmc_host *host)
+{
+	u32 sdi_u32;
+
+	writel(host->pwr_init, &host->base->power);
+	writel(host->clkdiv_init, &host->base->clock);
+	udelay(CLK_CHANGE_DELAY);
+
+	/* Disable mmc interrupts */
+	sdi_u32 = readl(&host->base->mask0) & ~SDI_MASK0_MASK;
+	writel(sdi_u32, &host->base->mask0);
+}
+
 static int arm_pl180_mmc_probe(struct udevice *dev)
 {
 	struct arm_pl180_mmc_plat *pdata = dev_get_platdata(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct mmc *mmc = &pdata->mmc;
-	struct pl180_mmc_host *host = mmc->priv;
+	struct pl180_mmc_host *host = dev->priv;
+	struct mmc_config *cfg = &pdata->cfg;
 	struct clk clk;
 	u32 bus_width;
 	int ret;
@@ -420,31 +430,33 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 
 	ret = clk_enable(&clk);
 	if (ret) {
+		clk_free(&clk);
 		dev_err(dev, "failed to enable clock\n");
 		return ret;
 	}
 
-	strcpy(host->name, "MMC");
 	host->pwr_init = INIT_PWR;
 	host->clkdiv_init = SDI_CLKCR_CLKDIV_INIT_V1 | SDI_CLKCR_CLKEN |
 			    SDI_CLKCR_HWFC_EN;
-	host->voltages = VOLTAGE_WINDOW_SD;
-	host->caps = 0;
 	host->clock_in = clk_get_rate(&clk);
-	host->clock_min = host->clock_in / (2 * (SDI_CLKCR_CLKDIV_INIT_V1 + 1));
-	host->clock_max = dev_read_u32_default(dev, "max-frequency",
-					       MMC_CLOCK_MAX);
 	host->version2 = dev_get_driver_data(dev);
+
+	cfg->name = dev->name;
+	cfg->voltages = VOLTAGE_WINDOW_SD;
+	cfg->host_caps = 0;
+	cfg->f_min = host->clock_in / (2 * (SDI_CLKCR_CLKDIV_INIT_V1 + 1));
+	cfg->f_max = dev_read_u32_default(dev, "max-frequency", MMC_CLOCK_MAX);
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	gpio_request_by_name(dev, "cd-gpios", 0, &host->cd_gpio, GPIOD_IS_IN);
 
 	bus_width = dev_read_u32_default(dev, "bus-width", 1);
 	switch (bus_width) {
 	case 8:
-		host->caps |= MMC_MODE_8BIT;
+		cfg->host_caps |= MMC_MODE_8BIT;
 		/* Hosts capable of 8-bit transfers can also do 4 bits */
 	case 4:
-		host->caps |= MMC_MODE_4BIT;
+		cfg->host_caps |= MMC_MODE_4BIT;
 		break;
 	case 1:
 		break;
@@ -452,17 +464,19 @@ static int arm_pl180_mmc_probe(struct udevice *dev)
 		dev_err(dev, "Invalid bus-width value %u\n", bus_width);
 	}
 
-	ret = arm_pl180_mmci_init(host, &mmc);
-	if (ret) {
-		dev_err(dev, "arm_pl180_mmci init failed\n");
-		return ret;
-	}
-
+	arm_pl180_mmc_init(host);
+	mmc->priv = host;
 	mmc->dev = dev;
-	dev->priv = host;
 	upriv->mmc = mmc;
 
 	return 0;
+}
+
+int arm_pl180_mmc_bind(struct udevice *dev)
+{
+	struct arm_pl180_mmc_plat *plat = dev_get_platdata(dev);
+
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
 static int dm_host_request(struct udevice *dev, struct mmc_cmd *cmd,
@@ -482,16 +496,11 @@ static int dm_host_set_ios(struct udevice *dev)
 
 static int dm_mmc_getcd(struct udevice *dev)
 {
-	struct arm_pl180_mmc_plat *pdata = dev_get_platdata(dev);
-	struct mmc *mmc = &pdata->mmc;
-	struct pl180_mmc_host *host = mmc->priv;
+	struct pl180_mmc_host *host = dev->priv;
 	int value = 1;
 
-	if (dm_gpio_is_valid(&host->cd_gpio)) {
+	if (dm_gpio_is_valid(&host->cd_gpio))
 		value = dm_gpio_get_value(&host->cd_gpio);
-		if (host->cd_inverted)
-			return !value;
-	}
 
 	return value;
 }
@@ -504,12 +513,10 @@ static const struct dm_mmc_ops arm_pl180_dm_mmc_ops = {
 
 static int arm_pl180_mmc_ofdata_to_platdata(struct udevice *dev)
 {
-	struct arm_pl180_mmc_plat *pdata = dev_get_platdata(dev);
-	struct mmc *mmc = &pdata->mmc;
-	struct pl180_mmc_host *host = mmc->priv;
+	struct pl180_mmc_host *host = dev->priv;
 	fdt_addr_t addr;
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
@@ -530,6 +537,7 @@ U_BOOT_DRIVER(arm_pl180_mmc) = {
 	.ops = &arm_pl180_dm_mmc_ops,
 	.probe = arm_pl180_mmc_probe,
 	.ofdata_to_platdata = arm_pl180_mmc_ofdata_to_platdata,
+	.bind = arm_pl180_mmc_bind,
 	.priv_auto_alloc_size = sizeof(struct pl180_mmc_host),
 	.platdata_auto_alloc_size = sizeof(struct arm_pl180_mmc_plat),
 };

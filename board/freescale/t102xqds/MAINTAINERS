@@ -1,6 +1,6 @@
 T102XQDS BOARD
-M:	Shengzhou Liu  <Shengzhou.Liu@freescale.com>
-S:	Maintained
+#M:	Shengzhou Liu  <Shengzhou.Liu@freescale.com>
+S:	Orphan (since 2018-05)
 F:	board/freescale/t102xqds/
 F:	include/configs/T102xQDS.h
 F:	configs/T1024QDS_defconfig

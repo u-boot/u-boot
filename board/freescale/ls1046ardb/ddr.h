@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DDR_H__
@@ -39,6 +38,25 @@ static const struct board_specific_parameters udimm0[] = {
 
 static const struct board_specific_parameters *udimms[] = {
 	udimm0,
+};
+
+static const struct board_specific_parameters rdimm0[] = {
+	/*
+	 * memory controller 0
+	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl
+	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
+	 */
+	{2,  1666, 0, 0x8,     0x0D, 0x0C0B0A08, 0x0A0B0C08,},
+	{2,  1900, 0, 0x8,     0x0E, 0x0D0C0B09, 0x0B0C0D09,},
+	{2,  2300, 0, 0xa,     0x12, 0x100F0D0C, 0x0E0F100C,},
+	{1,  1666, 0, 0x8,     0x0D, 0x0C0B0A08, 0x0A0B0C08,},
+	{1,  1900, 0, 0x8,     0x0E, 0x0D0C0B09, 0x0B0C0D09,},
+	{1,  2300, 0, 0xa,     0x12, 0x100F0D0C, 0x0E0F100C,},
+	{}
+};
+
+static const struct board_specific_parameters *rdimms[] = {
+	rdimm0,
 };
 
 #endif

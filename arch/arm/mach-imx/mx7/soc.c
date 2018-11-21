@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -9,7 +8,6 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/dma.h>
 #include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/rdc-sema.h>
@@ -17,6 +15,39 @@
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
 #include <imx_thermal.h>
+#include <fsl_sec.h>
+#include <asm/setup.h>
+
+#define IOMUXC_GPR1		0x4
+#define BM_IOMUXC_GPR1_IRQ	0x1000
+
+#define GPC_LPCR_A7_BSC		0x0
+#define GPC_LPCR_M4		0x8
+#define GPC_SLPCR		0x14
+#define GPC_PGC_ACK_SEL_A7	0x24
+#define GPC_IMR1_CORE0		0x30
+#define GPC_IMR1_CORE1		0x40
+#define GPC_IMR1_M4		0x50
+#define GPC_PGC_CPU_MAPPING	0xec
+#define GPC_PGC_C0_PUPSCR	0x804
+#define GPC_PGC_SCU_TIMING	0x890
+#define GPC_PGC_C1_PUPSCR	0x844
+
+#define BM_LPCR_A7_BSC_IRQ_SRC_A7_WAKEUP	0x70000000
+#define BM_LPCR_A7_BSC_CPU_CLK_ON_LPM		0x4000
+#define BM_LPCR_M4_MASK_DSM_TRIGGER		0x80000000
+#define BM_SLPCR_EN_DSM				0x80000000
+#define BM_SLPCR_RBC_EN				0x40000000
+#define BM_SLPCR_REG_BYPASS_COUNT		0x3f000000
+#define BM_SLPCR_VSTBY				0x4
+#define BM_SLPCR_SBYOS				0x2
+#define BM_SLPCR_BYPASS_PMIC_READY		0x1
+#define BM_SLPCR_EN_A7_FASTWUP_WAIT_MODE	0x10000
+
+#define BM_GPC_PGC_ACK_SEL_A7_DUMMY_PUP_ACK	0x80000000
+#define BM_GPC_PGC_ACK_SEL_A7_DUMMY_PDN_ACK	0x8000
+
+#define BM_GPC_PGC_CORE_PUPSCR			0x7fff80
 
 #if defined(CONFIG_IMX_THERMAL)
 static const struct imx_thermal_plat imx7_thermal_plat = {
@@ -97,77 +128,6 @@ struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
 };
 #endif
 
-/*
- * OCOTP_TESTER3[9:8] (see Fusemap Description Table offset 0x440)
- * defines a 2-bit SPEED_GRADING
- */
-#define OCOTP_TESTER3_SPEED_SHIFT	8
-#define OCOTP_TESTER3_SPEED_800MHZ	0
-#define OCOTP_TESTER3_SPEED_500MHZ	1
-#define OCOTP_TESTER3_SPEED_1GHZ	2
-#define OCOTP_TESTER3_SPEED_1P2GHZ	3
-
-u32 get_cpu_speed_grade_hz(void)
-{
-	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
-	struct fuse_bank *bank = &ocotp->bank[1];
-	struct fuse_bank1_regs *fuse =
-		(struct fuse_bank1_regs *)bank->fuse_regs;
-	uint32_t val;
-
-	val = readl(&fuse->tester3);
-	val >>= OCOTP_TESTER3_SPEED_SHIFT;
-	val &= 0x3;
-
-	switch(val) {
-	case OCOTP_TESTER3_SPEED_800MHZ:
-		return 800000000;
-	case OCOTP_TESTER3_SPEED_500MHZ:
-		return 500000000;
-	case OCOTP_TESTER3_SPEED_1GHZ:
-		return 1000000000;
-	case OCOTP_TESTER3_SPEED_1P2GHZ:
-		return 1200000000;
-	}
-	return 0;
-}
-
-/*
- * OCOTP_TESTER3[7:6] (see Fusemap Description Table offset 0x440)
- * defines a 2-bit SPEED_GRADING
- */
-#define OCOTP_TESTER3_TEMP_SHIFT	6
-
-u32 get_cpu_temp_grade(int *minc, int *maxc)
-{
-	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
-	struct fuse_bank *bank = &ocotp->bank[1];
-	struct fuse_bank1_regs *fuse =
-		(struct fuse_bank1_regs *)bank->fuse_regs;
-	uint32_t val;
-
-	val = readl(&fuse->tester3);
-	val >>= OCOTP_TESTER3_TEMP_SHIFT;
-	val &= 0x3;
-
-	if (minc && maxc) {
-		if (val == TEMP_AUTOMOTIVE) {
-			*minc = -40;
-			*maxc = 125;
-		} else if (val == TEMP_INDUSTRIAL) {
-			*minc = -40;
-			*maxc = 105;
-		} else if (val == TEMP_EXTCOMMERCIAL) {
-			*minc = -20;
-			*maxc = 105;
-		} else {
-			*minc = 0;
-			*maxc = 95;
-		}
-	}
-	return val;
-}
-
 static bool is_mx7d(void)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -204,6 +164,7 @@ u32 __weak get_board_rev(void)
 }
 #endif
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 /* enable all periherial can be accessed in nosec mode */
 static void init_csu(void)
 {
@@ -230,6 +191,76 @@ static void imx_enet_mdio_fixup(void)
 	}
 }
 
+static void imx_gpcv2_init(void)
+{
+	u32 val, i;
+
+	/*
+	 * Force IOMUXC irq pending, so that the interrupt to GPC can be
+	 * used to deassert dsm_request signal when the signal gets
+	 * asserted unexpectedly.
+	 */
+	val = readl(IOMUXC_GPR_BASE_ADDR + IOMUXC_GPR1);
+	val |= BM_IOMUXC_GPR1_IRQ;
+	writel(val, IOMUXC_GPR_BASE_ADDR + IOMUXC_GPR1);
+
+	/* Initially mask all interrupts */
+	for (i = 0; i < 4; i++) {
+		writel(~0, GPC_IPS_BASE_ADDR + GPC_IMR1_CORE0 + i * 4);
+		writel(~0, GPC_IPS_BASE_ADDR + GPC_IMR1_CORE1 + i * 4);
+		writel(~0, GPC_IPS_BASE_ADDR + GPC_IMR1_M4 + i * 4);
+	}
+
+	/* set SCU timing */
+	writel((0x59 << 10) | 0x5B | (0x2 << 20),
+	       GPC_IPS_BASE_ADDR + GPC_PGC_SCU_TIMING);
+
+	/* only external IRQs to wake up LPM and core 0/1 */
+	val = readl(GPC_IPS_BASE_ADDR + GPC_LPCR_A7_BSC);
+	val |= BM_LPCR_A7_BSC_IRQ_SRC_A7_WAKEUP;
+	writel(val, GPC_IPS_BASE_ADDR + GPC_LPCR_A7_BSC);
+
+	/* set C0 power up timming per design requirement */
+	val = readl(GPC_IPS_BASE_ADDR + GPC_PGC_C0_PUPSCR);
+	val &= ~BM_GPC_PGC_CORE_PUPSCR;
+	val |= (0x1A << 7);
+	writel(val, GPC_IPS_BASE_ADDR + GPC_PGC_C0_PUPSCR);
+
+	/* set C1 power up timming per design requirement */
+	val = readl(GPC_IPS_BASE_ADDR + GPC_PGC_C1_PUPSCR);
+	val &= ~BM_GPC_PGC_CORE_PUPSCR;
+	val |= (0x1A << 7);
+	writel(val, GPC_IPS_BASE_ADDR + GPC_PGC_C1_PUPSCR);
+
+	/* dummy ack for time slot by default */
+	writel(BM_GPC_PGC_ACK_SEL_A7_DUMMY_PUP_ACK |
+		BM_GPC_PGC_ACK_SEL_A7_DUMMY_PDN_ACK,
+		GPC_IPS_BASE_ADDR + GPC_PGC_ACK_SEL_A7);
+
+	/* mask M4 DSM trigger */
+	writel(readl(GPC_IPS_BASE_ADDR + GPC_LPCR_M4) |
+		 BM_LPCR_M4_MASK_DSM_TRIGGER,
+		 GPC_IPS_BASE_ADDR + GPC_LPCR_M4);
+
+	/* set mega/fast mix in A7 domain */
+	writel(0x1, GPC_IPS_BASE_ADDR + GPC_PGC_CPU_MAPPING);
+
+	/* DSM related settings */
+	val = readl(GPC_IPS_BASE_ADDR + GPC_SLPCR);
+	val &= ~(BM_SLPCR_EN_DSM | BM_SLPCR_VSTBY | BM_SLPCR_RBC_EN |
+		BM_SLPCR_SBYOS | BM_SLPCR_BYPASS_PMIC_READY |
+		BM_SLPCR_REG_BYPASS_COUNT);
+	val |= BM_SLPCR_EN_A7_FASTWUP_WAIT_MODE;
+	writel(val, GPC_IPS_BASE_ADDR + GPC_SLPCR);
+
+	/*
+	 * disabling RBC need to delay at least 2 cycles of CKIL(32K)
+	 * due to hardware design requirement, which is
+	 * ~61us, here we use 65us for safe
+	 */
+	udelay(65);
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
@@ -249,8 +280,13 @@ int arch_cpu_init(void)
 	isolate_resource();
 #endif
 
+	init_snvs();
+
+	imx_gpcv2_init();
+
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_ARCH_MISC_INIT
 int arch_misc_init(void)
@@ -262,11 +298,36 @@ int arch_misc_init(void)
 		env_set("soc", "imx7s");
 #endif
 
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
+
 	return 0;
 }
 #endif
 
 #ifdef CONFIG_SERIAL_TAG
+/*
+ * OCOTP_TESTER
+ * i.MX 7Solo Applications Processor Reference Manual, Rev. 0.1, 08/2016
+ * OCOTP_TESTER describes a unique ID based on silicon wafer
+ * and die X/Y position
+ *
+ * OCOTOP_TESTER offset 0x410
+ * 31:0 fuse 0
+ * FSL-wide unique, encoded LOT ID STD II/SJC CHALLENGE/ Unique ID
+ *
+ * OCOTP_TESTER1 offset 0x420
+ * 31:24 fuse 1
+ * The X-coordinate of the die location on the wafer/SJC CHALLENGE/ Unique ID
+ * 23:16 fuse 1
+ * The Y-coordinate of the die location on the wafer/SJC CHALLENGE/ Unique ID
+ * 15:11 fuse 1
+ * The wafer number of the wafer on which the device was fabricated/SJC
+ * CHALLENGE/ Unique ID
+ * 10:0 fuse 1
+ * FSL-wide unique, encoded LOT ID STD II/SJC CHALLENGE/ Unique ID
+ */
 void get_board_serial(struct tag_serialnr *serialnr)
 {
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
@@ -276,74 +337,6 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 	serialnr->low = fuse->tester0;
 	serialnr->high = fuse->tester1;
-}
-#endif
-
-#if defined(CONFIG_FEC_MXC)
-void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
-{
-	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
-	struct fuse_bank *bank = &ocotp->bank[9];
-	struct fuse_bank9_regs *fuse =
-		(struct fuse_bank9_regs *)bank->fuse_regs;
-
-	if (0 == dev_id) {
-		u32 value = readl(&fuse->mac_addr1);
-		mac[0] = (value >> 8);
-		mac[1] = value;
-
-		value = readl(&fuse->mac_addr0);
-		mac[2] = value >> 24;
-		mac[3] = value >> 16;
-		mac[4] = value >> 8;
-		mac[5] = value;
-	} else {
-		u32 value = readl(&fuse->mac_addr2);
-		mac[0] = value >> 24;
-		mac[1] = value >> 16;
-		mac[2] = value >> 8;
-		mac[3] = value;
-
-		value = readl(&fuse->mac_addr1);
-		mac[4] = value >> 24;
-		mac[5] = value >> 16;
-	}
-}
-#endif
-
-#ifdef CONFIG_IMX_BOOTAUX
-int arch_auxiliary_core_up(u32 core_id, u32 boot_private_data)
-{
-	u32 stack, pc;
-	struct src *src_reg = (struct src *)SRC_BASE_ADDR;
-
-	if (!boot_private_data)
-		return 1;
-
-	stack = *(u32 *)boot_private_data;
-	pc = *(u32 *)(boot_private_data + 4);
-
-	/* Set the stack and pc to M4 bootROM */
-	writel(stack, M4_BOOTROM_BASE_ADDR);
-	writel(pc, M4_BOOTROM_BASE_ADDR + 4);
-
-	/* Enable M4 */
-	clrsetbits_le32(&src_reg->m4rcr, SRC_M4RCR_M4C_NON_SCLR_RST_MASK,
-			SRC_M4RCR_ENABLE_M4_MASK);
-
-	return 0;
-}
-
-int arch_auxiliary_core_check_up(u32 core_id)
-{
-	uint32_t val;
-	struct src *src_reg = (struct src *)SRC_BASE_ADDR;
-
-	val = readl(&src_reg->m4rcr);
-	if (val & 0x00000001)
-		return 0; /* assert in reset */
-
-	return 1;
 }
 #endif
 
@@ -365,95 +358,8 @@ void set_wdog_reset(struct wdog_regs *wdog)
 	writew(reg, &wdog->wcr);
 }
 
-/*
- * cfg_val will be used for
- * Boot_cfg4[7:0]:Boot_cfg3[7:0]:Boot_cfg2[7:0]:Boot_cfg1[7:0]
- * After reset, if GPR10[28] is 1, ROM will copy GPR9[25:0]
- * to SBMR1, which will determine the boot device.
- */
-const struct boot_mode soc_boot_modes[] = {
-	{"ecspi1:0",	MAKE_CFGVAL(0x00, 0x60, 0x00, 0x00)},
-	{"ecspi1:1",	MAKE_CFGVAL(0x40, 0x62, 0x00, 0x00)},
-	{"ecspi1:2",	MAKE_CFGVAL(0x80, 0x64, 0x00, 0x00)},
-	{"ecspi1:3",	MAKE_CFGVAL(0xc0, 0x66, 0x00, 0x00)},
-
-	{"weim",	MAKE_CFGVAL(0x00, 0x50, 0x00, 0x00)},
-	{"qspi1",	MAKE_CFGVAL(0x10, 0x40, 0x00, 0x00)},
-	/* 4 bit bus width */
-	{"usdhc1",	MAKE_CFGVAL(0x10, 0x10, 0x00, 0x00)},
-	{"usdhc2",	MAKE_CFGVAL(0x10, 0x14, 0x00, 0x00)},
-	{"usdhc3",	MAKE_CFGVAL(0x10, 0x18, 0x00, 0x00)},
-	{"mmc1",	MAKE_CFGVAL(0x10, 0x20, 0x00, 0x00)},
-	{"mmc2",	MAKE_CFGVAL(0x10, 0x24, 0x00, 0x00)},
-	{"mmc3",	MAKE_CFGVAL(0x10, 0x28, 0x00, 0x00)},
-	{NULL,		0},
-};
-
-enum boot_device get_boot_device(void)
-{
-	struct bootrom_sw_info **p =
-		(struct bootrom_sw_info **)ROM_SW_INFO_ADDR;
-
-	enum boot_device boot_dev = SD1_BOOT;
-	u8 boot_type = (*p)->boot_dev_type;
-	u8 boot_instance = (*p)->boot_dev_instance;
-
-	switch (boot_type) {
-	case BOOT_TYPE_SD:
-		boot_dev = boot_instance + SD1_BOOT;
-		break;
-	case BOOT_TYPE_MMC:
-		boot_dev = boot_instance + MMC1_BOOT;
-		break;
-	case BOOT_TYPE_NAND:
-		boot_dev = NAND_BOOT;
-		break;
-	case BOOT_TYPE_QSPI:
-		boot_dev = QSPI_BOOT;
-		break;
-	case BOOT_TYPE_WEIM:
-		boot_dev = WEIM_NOR_BOOT;
-		break;
-	case BOOT_TYPE_SPINOR:
-		boot_dev = SPI_NOR_BOOT;
-		break;
-	default:
-		break;
-	}
-
-	return boot_dev;
-}
-
-#ifdef CONFIG_ENV_IS_IN_MMC
-__weak int board_mmc_get_env_dev(int devno)
-{
-	return CONFIG_SYS_MMC_ENV_DEV;
-}
-
-int mmc_get_env_dev(void)
-{
-	struct bootrom_sw_info **p =
-		(struct bootrom_sw_info **)ROM_SW_INFO_ADDR;
-	int devno = (*p)->boot_dev_instance;
-	u8 boot_type = (*p)->boot_dev_type;
-
-	/* If not boot from sd/mmc, use default value */
-	if ((boot_type != BOOT_TYPE_SD) && (boot_type != BOOT_TYPE_MMC))
-		return CONFIG_SYS_MMC_ENV_DEV;
-
-	return board_mmc_get_env_dev(devno);
-}
-#endif
-
 void s_init(void)
 {
-#if !defined CONFIG_SPL_BUILD
-	/* Enable SMP mode for CPU0, by setting bit 6 of Auxiliary Ctl reg */
-	asm volatile(
-			"mrc p15, 0, r0, c1, c0, 1\n"
-			"orr r0, r0, #1 << 6\n"
-			"mcr p15, 0, r0, c1, c0, 1\n");
-#endif
 	/* clock configuration. */
 	clock_init();
 

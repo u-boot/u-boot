@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Chip-specific header file for the AT91SAM9M1x family
  *
@@ -5,8 +6,6 @@
  *
  * Definitions for the SoC:
  * AT91SAM9G45
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91SAM9G45_H

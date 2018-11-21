@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011, Marvell Semiconductor Inc.
  * Lei Wen <leiwen@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

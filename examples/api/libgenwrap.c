@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007 Semihalf
  *
  * Written by: Rafal Jaworowski <raj@semihalf.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * This is is a set of wrappers/stubs that allow to use certain routines from
  * U-Boot's lib in the standalone app. This way way we can re-use

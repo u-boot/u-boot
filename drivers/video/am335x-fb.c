@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at>
- * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
+ * Copyright (C) 2013-2018 Hannes Schmelzer <oe5hpm@oevsv.at>
+ * B&R Industrial Automation GmbH - http://www.br-automation.com
  *
  * minimal framebuffer driver for TI's AM335x SoC to be compatible with
  * Wolfgang Denk's LCD-Framework (CONFIG_LCD, common/lcd.c)
@@ -8,11 +9,13 @@
  * - supporting 16/24/32bit RGB/TFT raster Mode (not using palette)
  * - sets up LCD controller as in 'am335x_lcdpanel' struct given
  * - starts output DMA from gd->fb_base buffer
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/omap.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
 #include <lcd.h>
 #include "am335x-fb.h"
 
@@ -20,6 +23,7 @@
 #error "hw-base address of LCD-Controller (LCD_CNTL_BASE) not defined!"
 #endif
 
+#define LCDC_FMAX				200000000
 
 /* LCD Control Register */
 #define LCD_CLK_DIVISOR(x)			((x) << 8)
@@ -96,6 +100,7 @@ struct am335x_lcdhw {
 };
 
 static struct am335x_lcdhw *lcdhw = (void *)LCD_CNTL_BASE;
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int lcd_get_size(int *line_length)
@@ -108,11 +113,16 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 {
 	u32 raster_ctrl = 0;
 
-	if (0 == gd->fb_base) {
+	struct cm_dpll *const cmdpll = (struct cm_dpll *)CM_DPLL;
+	struct dpll_params dpll_disp = { 1, 0, 1, -1, -1, -1, -1 };
+	unsigned int m, n, d, best_d = 2;
+	int err = 0, err_r = 0;
+
+	if (gd->fb_base == 0) {
 		printf("ERROR: no valid fb_base stored in GLOBAL_DATA_PTR!\n");
 		return -1;
 	}
-	if (0 == panel) {
+	if (panel == NULL) {
 		printf("ERROR: missing ptr to am335x_lcdpanel!\n");
 		return -1;
 	}
@@ -132,13 +142,50 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 		return -1;
 	}
 
+	/* check given clock-frequency */
+	if (panel->pxl_clk > (LCDC_FMAX / 2)) {
+		pr_err("am335x-fb: requested pxl-clk: %d not supported!\n",
+		       panel->pxl_clk);
+		return -1;
+	}
+
 	debug("setting up LCD-Controller for %dx%dx%d (hfp=%d,hbp=%d,hsw=%d / ",
 	      panel->hactive, panel->vactive, panel->bpp,
 	      panel->hfp, panel->hbp, panel->hsw);
-	debug("vfp=%d,vbp=%d,vsw=%d / clk-div=%d)\n",
-	      panel->vfp, panel->vfp, panel->vsw, panel->pxl_clk_div);
+	debug("vfp=%d,vbp=%d,vsw=%d / clk=%d)\n",
+	      panel->vfp, panel->vfp, panel->vsw, panel->pxl_clk);
 	debug("using frambuffer at 0x%08x with size %d.\n",
 	      (unsigned int)gd->fb_base, FBSIZE(panel));
+
+	/* setup display pll for requested clock frequency */
+	err = panel->pxl_clk;
+	err_r = err;
+
+	for (d = 2; d < 255; d++) {
+		for (m = 2; m < 2047; m++) {
+			if ((V_OSCK * m) < (panel->pxl_clk * d))
+				continue;
+			n = (V_OSCK * m) / (panel->pxl_clk * d);
+			if (n > 127)
+				break;
+			if (((V_OSCK * m) / n) > LCDC_FMAX)
+				break;
+
+			err = abs((V_OSCK * m) / n / d - panel->pxl_clk);
+			if (err < err_r) {
+				err_r = err;
+				dpll_disp.m = m;
+				dpll_disp.n = n;
+				best_d = d;
+			}
+		}
+	}
+	debug("%s: PLL: best error %d Hz (M %d, N %d, DISP %d)\n",
+	      __func__, err_r, dpll_disp.m, dpll_disp.n, best_d);
+	do_setup_dpll(&dpll_disp_regs, &dpll_disp);
+
+	/* clock source for LCDC from dispPLL M2 */
+	writel(0x0, &cmdpll->clklcdcpixelclk);
 
 	/* palette default entry */
 	memset((void *)gd->fb_base, 0, 0x20);
@@ -147,14 +194,14 @@ int am335xfb_init(struct am335x_lcdpanel *panel)
 	gd->fb_base += 0x20;
 
 	/* turn ON display through powercontrol function if accessible */
-	if (0 != panel->panel_power_ctrl)
+	if (panel->panel_power_ctrl != NULL)
 		panel->panel_power_ctrl(1);
 
 	debug("am335x-fb: wait for stable power ...\n");
 	mdelay(panel->pup_delay);
 	lcdhw->clkc_enable = LCD_CORECLKEN | LCD_LIDDCLKEN | LCD_DMACLKEN;
 	lcdhw->raster_ctrl = 0;
-	lcdhw->ctrl = LCD_CLK_DIVISOR(panel->pxl_clk_div) | LCD_RASTER_MODE;
+	lcdhw->ctrl = LCD_CLK_DIVISOR(best_d) | LCD_RASTER_MODE;
 	lcdhw->lcddma_fb0_base = gd->fb_base;
 	lcdhw->lcddma_fb0_ceiling = gd->fb_base + FBSIZE(panel);
 	lcdhw->lcddma_fb1_base = gd->fb_base;

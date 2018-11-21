@@ -1,0 +1,87 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2018 Philippe Reynes <philippe.reynes@softathome.com>
+ */
+
+#include "skeleton.dtsi"
+
+/ {
+	compatible = "brcm,bcm6838";
+
+	cpus {
+		reg = <0x14e00000 0x4>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		u-boot,dm-pre-reloc;
+
+		cpu@0 {
+			compatible = "brcm,bcm6838-cpu", "mips,mips4Kc";
+			device_type = "cpu";
+			reg = <0>;
+			u-boot,dm-pre-reloc;
+		};
+
+		cpu@1 {
+			compatible = "brcm,bcm6838-cpu", "mips,mips4Kc";
+			device_type = "cpu";
+			reg = <1>;
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		u-boot,dm-pre-reloc;
+
+		periph_osc: periph-osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <50000000>;
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	ubus {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		u-boot,dm-pre-reloc;
+
+		memory: memory-controller@12000000 {
+			compatible = "brcm,bcm6328-mc";
+			reg = <0x12000000 0x1000>;
+			u-boot,dm-pre-reloc;
+		};
+
+		gpio_test_port: syscon@14e00294 {
+			compatible = "syscon";
+			reg = <0x14e00294 0x1c>;
+		};
+
+		pinctrl: pinctrl {
+			compatible = "brcm,bcm6838-pinctrl";
+			regmap = <&gpio_test_port>;
+			brcm,pins-count = <74>;
+			brcm,functions-count = <8>;
+		};
+
+		uart0: serial@14e00500 {
+			compatible = "brcm,bcm6345-uart";
+			reg = <0x14e00500 0x18>;
+			clocks = <&periph_osc>;
+
+			status = "disabled";
+		};
+
+		leds: led-controller@14e00f00 {
+			compatible = "brcm,bcm6328-leds";
+			reg = <0x14e00f00 0x28>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			status = "disabled";
+		};
+	};
+};

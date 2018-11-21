@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 NXP Semiconductors
  *
  * Configuration settings for the i.MX7D Pico board.
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 #ifndef __PICO_IMX7D_CONFIG_H
@@ -11,7 +10,19 @@
 
 #include "mx7_common.h"
 
-#define PHYS_SDRAM_SIZE		SZ_1G
+#include "imx7_spl.h"
+
+#ifdef CONFIG_SPL_OS_BOOT
+/* Falcon Mode */
+#define CONFIG_SPL_FS_LOAD_ARGS_NAME	"args"
+#define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"uImage"
+#define CONFIG_SYS_SPL_ARGS_ADDR	0x88000000
+
+/* Falcon Mode - MMC support: args@1MB kernel@2MB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR  0x800   /* 1MB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS (CONFIG_CMD_SPL_WRITE_SIZE / 512)
+#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR        0x1000  /* 2MB */
+#endif
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
@@ -20,7 +31,6 @@
 
 /* Network */
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
 #define CONFIG_FEC_MXC_PHYADDR		1
@@ -33,6 +43,21 @@
 /* MMC Config */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
+#define CONFIG_DFU_ENV_SETTINGS \
+	"dfu_alt_info=" \
+		"spl raw 0x2 0x400;" \
+		"u-boot raw 0x8a 0x400;" \
+		"/boot/zImage ext4 0 1;" \
+		"/boot/imx7d-pico-hobbit.dtb ext4 0 1;" \
+		"/boot/imx7d-pico-pi.dtb ext4 0 1;" \
+		"rootfs part 0 1\0" \
+
+#define BOOTMENU_ENV \
+	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
+		"setenv fdtfile imx7d-pico-hobbit.dtb\0" \
+	"bootmenu_1=Boot using PICO-Pi baseboard=" \
+		"setenv fdtfile imx7d-pico-pi.dtb\0" \
+
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
@@ -42,48 +67,36 @@
 	"console=ttymxc4\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_file=imx7d-pico.dtb\0" \
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	BOOTMENU_ENV \
 	"fdt_addr=0x83000000\0" \
-	"ip_dyn=yes\0" \
-	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"finduuid=part uuid mmc 0:2 uuid\0" \
-	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=PARTUUID=${uuid} rootwait rw\0" \
-	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run finduuid; " \
-		"run mmcargs; " \
-		"if run loadfdt; then " \
-			"bootz ${loadaddr} - ${fdt_addr}; " \
-		"else " \
-			"echo WARN: Cannot load the DT; " \
-		"fi;\0" \
-	"netargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/nfs " \
-	"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
-		"netboot=echo Booting from net ...; " \
-		"run netargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${image}; " \
-		"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-			"bootz ${loadaddr} - ${fdt_addr}; " \
-		"else " \
-			"echo WARN: Cannot load the DT; " \
-		"fi;\0"
+	"fdt_addr_r=0x83000000\0" \
+	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
+	"ramdisk_addr_r=0x83000000\0" \
+	"ramdiskaddr=0x83000000\0" \
+	"scriptaddr=" __stringify(CONFIG_LOADADDR) "\0" \
+	CONFIG_DFU_ENV_SETTINGS \
+	"findfdt=" \
+		"if test $fdtfile = ask ; then " \
+			"bootmenu -1; fi;" \
+		"if test $fdtfile != ask ; then " \
+			"saveenv; fi;\0" \
+	"finduuid=part uuid mmc 0:1 uuid\0" \
+	"partitions=" \
+		"uuid_disk=${uuid_gpt_disk};" \
+		"name=rootfs,size=0,uuid=${uuid_gpt_rootfs}\0" \
+	"fastboot_partition_alias_system=rootfs\0" \
+	"setup_emmc=mmc dev 0; gpt write mmc 0 $partitions; reset;\0" \
+	BOOTENV
 
-#define CONFIG_BOOTCOMMAND \
-	"if mmc rescan; then " \
-		"if run loadimage; then " \
-			"run mmcboot; " \
-		"else run netboot; " \
-		"fi; " \
-	"else run netboot; fi"
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
@@ -92,7 +105,6 @@
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
@@ -135,7 +147,5 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 
 #define CONFIG_IMX_THERMAL
-
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 #endif

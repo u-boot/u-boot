@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Bus Matrix header file for the SAMA5 family
  *
  * Copyright (C) 2014 Atmel
  *		      Bo Shen <voice.shen@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __SAMA5_MATRIX_H

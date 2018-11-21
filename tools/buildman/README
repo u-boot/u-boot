@@ -1,7 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2013 The Chromium OS Authors.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 (Please read 'How to change from MAKEALL' if you are used to that tool)
 
@@ -1009,6 +1007,34 @@ file. The achieve this, buildman considers 'y' to be '1' in configuration
 variables. This avoids lots of useless output when converting a CONFIG
 option to Kconfig. To disable this behaviour, use --squash-config-y.
 
+
+Checking the environment
+========================
+
+When converting CONFIG options which manipulate the default environment,
+a common requirement is to check that the default environment has not
+changed due to the conversion. Buildman supports this with the -U option,
+used after a build. This shows differences in the default environment
+between one commit and the next.
+
+For example:
+
+$ buildman -b squash brppt1 -sU
+boards.cfg is up to date. Nothing to do.
+Summary of 2 commits for 3 boards (3 threads, 3 jobs per thread)
+01: Migrate bootlimit to Kconfig
+02: Squashed commit of the following:
+   c brppt1_mmc: altbootcmd=mmc dev 1; run mmcboot0; -> mmc dev 1; run mmcboot0
+   c brppt1_spi: altbootcmd=mmc dev 1; run mmcboot0; -> mmc dev 1; run mmcboot0
+   + brppt1_nand: altbootcmd=run usbscript
+   - brppt1_nand:  altbootcmd=run usbscript
+(no errors to report)
+
+This shows that commit 2 modified the value of 'altbootcmd' for 'brppt1_mmc'
+and 'brppt1_spi', removing a trailing semicolon. 'brppt1_nand' gained an a
+value for 'altbootcmd', but lost one for ' altbootcmd'.
+
+The -U option uses the u-boot.env files which are produced by a build.
 
 Other options
 =============

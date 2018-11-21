@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -11,7 +10,7 @@
 #include <asm/immap_85xx.h>
 #include <asm/io.h>
 #include <miiphy.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fsl_mdio.h>
 #include <tsec.h>
@@ -550,6 +549,7 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_BUILD
 static int pin_mux_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
@@ -569,3 +569,4 @@ U_BOOT_CMD(
 	"configure multiplexing pin for IFC/SDHC bus in runtime",
 	"bus_type (e.g. mux sdhc)"
 );
+#endif

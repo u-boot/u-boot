@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ifdef CONFIG_SYS_BIG_ENDIAN
 32bit-emul		:= elf32btsmip
@@ -57,7 +55,7 @@ PLATFORM_ELFFLAGS += -B mips $(OBJCOPYFLAGS)
 # MODFLAGS			+= -mlong-calls
 #
 ifndef CONFIG_SPL_BUILD
-OBJCOPYFLAGS			+= -j .got -j .rel -j .padding -j .dtb.init.rodata
+OBJCOPYFLAGS			+= -j .data.reloc -j .dtb.init.rodata
 LDFLAGS_FINAL			+= --emit-relocs
 endif
 

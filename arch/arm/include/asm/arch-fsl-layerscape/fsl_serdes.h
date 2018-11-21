@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __FSL_SERDES_H__
@@ -164,6 +163,7 @@ void fsl_rgmii_init(void);
 #ifdef CONFIG_FSL_LSCH2
 const char *serdes_clock_to_string(u32 clock);
 int get_serdes_protocol(void);
+#endif
 #ifdef CONFIG_SYS_HAS_SERDES
 /* Get the volt of SVDD in unit mV */
 int get_serdes_volt(void);
@@ -171,7 +171,6 @@ int get_serdes_volt(void);
 int set_serdes_volt(int svdd);
 /* The target volt of SVDD in unit mV */
 int setup_serdes_volt(u32 svdd);
-#endif
 #endif
 
 #endif /* __FSL_SERDES_H__ */

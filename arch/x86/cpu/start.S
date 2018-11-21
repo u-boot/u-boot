@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  U-Boot - x86 Startup Code
  *
@@ -6,8 +7,6 @@
  *
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -17,8 +16,9 @@
 #include <asm/processor-flags.h>
 #include <generated/generic-asm-offsets.h>
 #include <generated/asm-offsets.h>
+#include <linux/linkage.h>
 
-.section .text
+.section .text.start
 .code32
 .globl _start
 .type _start, @function
@@ -185,13 +185,8 @@ board_init_f_r_trampoline:
 	movl	%eax, %esp
 
 	/* See if we need to disable CAR */
-.weak	car_uninit
-	movl	$car_uninit, %eax
-	cmpl	$0, %eax
-	jz	1f
-
 	call	car_uninit
-1:
+
 	/* Re-enter U-Boot by calling board_init_f_r() */
 	call	board_init_f_r
 
@@ -199,6 +194,10 @@ die:
 	hlt
 	jmp	die
 	hlt
+
+WEAK(car_uninit)
+	ret
+ENDPROC(car_uninit)
 
 blank_idt_ptr:
 	.word	0		/* limit */

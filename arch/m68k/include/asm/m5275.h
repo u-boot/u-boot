@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * MCF5275 Internal Memory Map
  *
  * Copyright (C) 2003-2004, Greg Ungerer (gerg@snapgear.com)
  * Copyright (C) 2004-2008 Arthur Shipkowski (art@videon-central.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef	__M5275_H__

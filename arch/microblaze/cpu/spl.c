@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013 - 2014 Xilinx, Inc
  *
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -11,8 +10,6 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/u-boot.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 bool boot_linux;
 
@@ -49,4 +46,12 @@ int spl_start_uboot(void)
 #endif
 
 	return 1;
+}
+
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	__asm__ __volatile__ ("mts rmsr, r0;" \
+			      "bra r0");
+
+	return 0;
 }

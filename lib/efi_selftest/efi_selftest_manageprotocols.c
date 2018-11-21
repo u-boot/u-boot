@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * efi_selftest_manageprotocols
  *
  * Copyright (c) 2017 Heinrich Schuchardt <xypron.glpk@gmx.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * This unit test checks the following protocol services:
  * InstallProtocolInterface, UninstallProtocolInterface,
@@ -180,7 +179,12 @@ static int execute(void)
 		efi_st_error("LocateHandleBuffer failed to locate new handle\n");
 		return EFI_ST_FAILURE;
 	}
-	boottime->set_mem(buffer, sizeof(efi_handle_t) * buffer_size, 0);
+	/* Release buffer */
+	ret = boottime->free_pool(buffer);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
+		return EFI_ST_FAILURE;
+	}
 
 	/*
 	 * Test error handling in UninstallMultipleProtocols
@@ -194,7 +198,7 @@ static int execute(void)
 						&guid3, &interface3,
 						NULL);
 	if (ret == EFI_SUCCESS) {
-		efi_st_todo("UninstallMultipleProtocolInterfaces did not catch error\n");
+		efi_st_error("UninstallMultipleProtocolInterfaces did not catch error\n");
 		return EFI_ST_FAILURE;
 	}
 
@@ -222,6 +226,7 @@ static int execute(void)
 		efi_st_error("LocateHandleBuffer failed to locate new handle\n");
 		return EFI_ST_FAILURE;
 	}
+	/* Clear the buffer, we are reusing it it the next step. */
 	boottime->set_mem(buffer, sizeof(efi_handle_t) * buffer_size, 0);
 
 	/*
@@ -249,7 +254,12 @@ static int execute(void)
 		efi_st_error("LocateHandle failed to locate new handles\n");
 		return EFI_ST_FAILURE;
 	}
-	boottime->set_mem(buffer, sizeof(efi_handle_t) * buffer_size, 0);
+	/* Release buffer */
+	ret = boottime->free_pool(buffer);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
+		return EFI_ST_FAILURE;
+	}
 
 	/*
 	 * Test LocateProtocol
@@ -273,8 +283,8 @@ static int execute(void)
 						&guid2, &interface2,
 						NULL);
 	if (ret != EFI_SUCCESS) {
-		efi_st_todo("UninstallMultipleProtocolInterfaces failed\n");
-		/* This test is known to fail due to missing implementation */
+		efi_st_error("UninstallMultipleProtocolInterfaces failed\n");
+		return EFI_ST_FAILURE;
 	}
 	/*
 	 * Check that the protocols are really uninstalled.
@@ -287,8 +297,8 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	if (count != 1) {
-		efi_st_todo("UninstallMultipleProtocolInterfaces failed to uninstall protocols\n");
-		/* This test is known to fail due to missing implementation */
+		efi_st_error("UninstallMultipleProtocolInterfaces failed to uninstall protocols\n");
+		return EFI_ST_FAILURE;
 	}
 	ret = find_in_buffer(handle1, count, buffer);
 	if (ret != EFI_SUCCESS) {
@@ -320,6 +330,12 @@ static int execute(void)
 		efi_st_error("Failed to get protocols per handle\n");
 		return EFI_ST_FAILURE;
 	}
+	/* Release buffer */
+	ret = boottime->free_pool(prot_buffer);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
+		return EFI_ST_FAILURE;
+	}
 
 	/*
 	 * Uninstall remaining protocols
@@ -327,19 +343,19 @@ static int execute(void)
 	ret = boottime->uninstall_protocol_interface(handle1, &guid1,
 						     &interface1);
 	if (ret != EFI_SUCCESS) {
-		efi_st_todo("UninstallProtocolInterface failed\n");
-		/* This test is known to fail due to missing implementation */
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
 	}
 	ret = boottime->handle_protocol(handle1, &guid1, (void **)&interface);
 	if (ret == EFI_SUCCESS) {
-		efi_st_todo("UninstallProtocolInterface failed\n");
-		/* This test is known to fail due to missing implementation */
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
 	}
 	ret = boottime->uninstall_protocol_interface(handle1, &guid3,
-						     &interface1);
+						     &interface3);
 	if (ret != EFI_SUCCESS) {
-		efi_st_todo("UninstallProtocolInterface failed\n");
-		/* This test is known to fail due to missing implementation */
+		efi_st_error("UninstallProtocolInterface failed\n");
+		return EFI_ST_FAILURE;
 	}
 
 	return EFI_ST_SUCCESS;

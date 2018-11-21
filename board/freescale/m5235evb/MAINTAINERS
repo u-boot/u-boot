@@ -1,5 +1,5 @@
 M5235EVB BOARD
-M:	TsiChung Liew <Tsi-Chung.Liew@freescale.com>
+M:	TsiChung Liew <Tsi-Chung.Liew@nxp.com>
 S:	Maintained
 F:	board/freescale/m5235evb/
 F:	include/configs/M5235EVB.h

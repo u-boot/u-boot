@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012
  * Philippe Reynes <tremyfr@yahoo.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

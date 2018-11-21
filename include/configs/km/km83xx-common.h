@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_KM83XX_H
@@ -12,7 +11,6 @@
 #include "keymile-common.h"
 #include "km-powerpc.h"
 
-#define CONFIG_MISC_INIT_R
 /*
  * System Clock Setup
  */
@@ -86,11 +84,7 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
-#define CONFIG_FLASH_CFI_DRIVER		/* use the CFI driver */
 #define CONFIG_SYS_FLASH_SIZE		256 /* max FLASH size is 256M */
-#define CONFIG_SYS_FLASH_PROTECTION
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
@@ -128,7 +122,6 @@
 /*
  * Serial Port
  */
-#define CONFIG_CONS_INDEX	1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)

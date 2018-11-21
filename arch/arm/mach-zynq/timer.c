@@ -1,9 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Weidmüller Interface GmbH & Co. KG
  * Stefan Herbrechtsmeier <stefan.herbrechtsmeier@weidmueller.com>
  *
  * Copyright (C) 2012 Michal Simek <monstr@monstr.eu>
- * Copyright (C) 2011-2012 Xilinx, Inc. All rights reserved.
+ * Copyright (C) 2011-2017 Xilinx, Inc. All rights reserved.
  *
  * (C) Copyright 2008
  * Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
@@ -24,8 +25,6 @@
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <clk.h>

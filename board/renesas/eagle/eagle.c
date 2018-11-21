@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * board/renesas/eagle/eagle.c
  *     This file is Eagle board support.
  *
  * Copyright (C) 2017 Marek Vasut <marek.vasut+renesas@gmail.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>
@@ -27,8 +26,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define CPGWPR  0xE6150900
 #define CPGWPCR	0xE6150904
-#define CPGWPR  0xE615090C
 
 /* PLL */
 #define PLL0CR		0xE61500D8
@@ -51,15 +50,11 @@ void s_init(void)
 	clrsetbits_le32(PLL0CR, PLL0_STC_MASK, stc);
 }
 
-#define TMU0_MSTP125		BIT(25)	/* secure */
-
 int board_early_init_f(void)
 {
-	writel(0xA5A5FFFF, CPGWPCR);
-	writel(0x5A5A0000, CPGWPR);
-
-	/* TMU0 */
-	mstp_clrbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
+	/* Unlock CPG access */
+	writel(0xA5A5FFFF, CPGWPR);
+	writel(0x5A5A0000, CPGWPCR);
 
 	return 0;
 }
@@ -74,7 +69,7 @@ int board_init(void)
 
 int dram_init(void)
 {
-	if (fdtdec_setup_memory_size() != 0)
+	if (fdtdec_setup_mem_size_base() != 0)
 		return -EINVAL;
 
 	return 0;

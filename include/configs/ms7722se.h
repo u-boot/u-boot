@@ -1,16 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Hitachi Solution Engine 7722
  *
  * Copyright (C) 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MS7722SE_H
 #define __MS7722SE_H
 
 #define CONFIG_CPU_SH7722	1
-#define CONFIG_MS7722SE		1
 
 #define CONFIG_DISPLAY_BOARDINFO
 #undef  CONFIG_SHOW_BOOT_PROGRESS
@@ -24,8 +22,6 @@
 #define MS7722SE_FLASH_BASE_1	(0xA0000000)
 #define MS7722SE_FLASH_BANK_SIZE	(8*1024 * 1024)
 
-#define CONFIG_SYS_TEXT_BASE	0x8FFC0000
-#define CONFIG_SYS_LONGHELP				/* undef to save memory	*/
 #define CONFIG_SYS_PBSIZE		256		/* Buffer size for Console output */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }	/* List of legal baudrate settings for this board */
 
@@ -35,7 +31,6 @@
 #define CONFIG_SYS_MEMTEST_START	(MS7722SE_SDRAM_BASE)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (60 * 1024 * 1024))
 
-#undef  CONFIG_SYS_ALT_MEMTEST		/* Enable alternate, more extensive, memory test */
 #undef  CONFIG_SYS_MEMTEST_SCRATCH	/* Scratch address used by the alternate memory test */
 
 #undef  CONFIG_SYS_LOADS_BAUD_CHANGE	/* Enable temporary baudrate change while serial download */
@@ -52,8 +47,6 @@
 #define CONFIG_SYS_BOOTMAPSZ	(8 * 1024 * 1024)
 
 /* FLASH */
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH_EMPTY_INFO			/* print 'E' for empty sector on flinfo */
 
@@ -73,8 +66,6 @@
 #define CONFIG_SYS_FLASH_LOCK_TOUT	(3 * 1000)	/* Timeout for Flash set sector lock bit operations (in ms) */
 #define CONFIG_SYS_FLASH_UNLOCK_TOUT	(3 * 1000)	/* Timeout for Flash clear lock bit operations (in ms) */
 
-#undef  CONFIG_SYS_FLASH_PROTECTION			/* Use hardware flash sectors protection instead of U-Boot software protection */
-
 #undef  CONFIG_SYS_DIRECT_FLASH_TFTP
 
 #define CONFIG_ENV_OVERWRITE	1
@@ -87,8 +78,6 @@
 
 /* Board Clock */
 #define CONFIG_SYS_CLK_FREQ	33333333
-#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_TMU_CLK_DIV		(4)	/* 4 (default), 16, 64, 256 or 1024 */
 
 #endif	/* __MS7722SE_H */

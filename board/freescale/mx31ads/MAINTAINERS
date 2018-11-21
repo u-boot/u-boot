@@ -1,6 +1,0 @@
-MX31ADS BOARD
-#M:	(resigned) Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-S:	Orphan (since 2013-09)
-F:	board/freescale/mx31ads/
-F:	include/configs/mx31ads.h
-F:	configs/mx31ads_defconfig

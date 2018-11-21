@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -307,6 +306,10 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if ((SVR_SOC_VER(svr) == SVR_8548 && IS_SVR_REV(svr, 3, 1)) ||
 	    (SVR_REV(svr) <= CONFIG_SYS_FSL_A004447_SVR_REV))
 		puts("Work-around for Erratum I2C-A004447 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005275
+	if (has_erratum_a005275())
+		puts("Work-around for Erratum A005275 enabled\n");
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006261
 	if (has_erratum_a006261())

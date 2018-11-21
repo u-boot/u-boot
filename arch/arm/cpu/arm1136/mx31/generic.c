@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007
  * Sascha Hauer, Pengutronix
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

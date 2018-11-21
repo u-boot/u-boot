@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009-2015
  * Marvell Semiconductor <www.marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_MARVELL_PLUG_H
@@ -18,33 +17,9 @@
 #define CONFIG_BUILD_TARGET     "u-boot.kwb"
 
 /*
- * Compression configuration
- */
-#ifdef CONFIG_SYS_MVFS
-#define CONFIG_BZIP2
-#endif /* CONFIG_SYS_MVFS */
-
-/*
- * Commands configuration
- */
-
-/*
- * Extra file system
- */
-
-/*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
  */
 #include "mv-common.h"
-
-/*
- * RTC driver configuration
- */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
-
-#define CONFIG_SYS_ALT_MEMTEST
 
 #endif /* _CONFIG_MARVELL_PLUG_H */

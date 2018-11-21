@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Freescale i.MX28 SB image generator
  *
  * Copyright (C) 2012 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MXSSB_H__

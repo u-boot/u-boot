@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DW_ETH_H
@@ -238,6 +237,10 @@ struct dw_eth_dev {
 #endif
 #ifdef CONFIG_DM_GPIO
 	struct gpio_desc reset_gpio;
+#endif
+#ifdef CONFIG_CLK
+	struct clk *clocks;	/* clock list */
+	int clock_count;	/* number of clock in clock list */
 #endif
 
 	struct phy_device *phydev;

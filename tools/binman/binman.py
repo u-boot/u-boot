@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
+# SPDX-License-Identifier: GPL-2.0+
 
 # Copyright (c) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 # Creates binary images from input files controlled by a description
 #
@@ -11,6 +10,7 @@
 """See README for more information"""
 
 import glob
+import multiprocessing
 import os
 import sys
 import traceback
@@ -18,21 +18,33 @@ import unittest
 
 # Bring in the patman and dtoc libraries
 our_path = os.path.dirname(os.path.realpath(__file__))
-for dirname in ['../patman', '../dtoc', '..']:
+for dirname in ['../patman', '../dtoc', '..', '../concurrencytest']:
     sys.path.insert(0, os.path.join(our_path, dirname))
 
 # Bring in the libfdt module
 sys.path.insert(0, 'scripts/dtc/pylibfdt')
-
-# Also allow entry-type modules to be brought in from the etype directory.
-sys.path.insert(0, os.path.join(our_path, 'etype'))
+sys.path.insert(0, os.path.join(our_path,
+                '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
 
 import cmdline
 import command
+use_concurrent = True
+try:
+    from concurrencytest import ConcurrentTestSuite, fork_for_tests
+except:
+    use_concurrent = False
 import control
+import test_util
 
-def RunTests(debug):
-    """Run the functional tests and any embedded doctests"""
+def RunTests(debug, processes, args):
+    """Run the functional tests and any embedded doctests
+
+    Args:
+        debug: True to enable debugging, which shows a full stack trace on error
+        args: List of positional args provided to binman. This can hold a test
+            name to execute (as in 'binman -t testSections', for example)
+        processes: Number of processes to use to run tests (None=same as #CPUs)
+    """
     import elf_test
     import entry_test
     import fdt_test
@@ -49,14 +61,28 @@ def RunTests(debug):
     sys.argv = [sys.argv[0]]
     if debug:
         sys.argv.append('-D')
+    if debug:
+        sys.argv.append('-D')
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
-    suite = unittest.TestLoader().loadTestsFromTestCase(entry_test.TestEntry)
-    suite.run(result)
-    for module in (ftest.TestFunctional, fdt_test.TestFdt, elf_test.TestElf,
-                   image_test.TestImage):
-        suite = unittest.TestLoader().loadTestsFromTestCase(module)
+    test_name = args and args[0] or None
+    suite = unittest.TestSuite()
+    loader = unittest.TestLoader()
+    for module in (entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
+                   elf_test.TestElf, image_test.TestImage):
+        if test_name:
+            try:
+                suite.addTests(loader.loadTestsFromName(test_name, module))
+            except AttributeError:
+                continue
+        else:
+            suite.addTests(loader.loadTestsFromTestCase(module))
+    if use_concurrent and processes != 1:
+        concurrent_suite = ConcurrentTestSuite(suite,
+                fork_for_tests(processes or multiprocessing.cpu_count()))
+        concurrent_suite.run(result)
+    else:
         suite.run(result)
 
     print result
@@ -69,35 +95,25 @@ def RunTests(debug):
       return 1
     return 0
 
+def GetEntryModules(include_testing=True):
+    """Get a set of entry class implementations
+
+    Returns:
+        Set of paths to entry class filenames
+    """
+    glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
+    return set([os.path.splitext(os.path.basename(item))[0]
+                for item in glob_list
+                if include_testing or '_testing' not in item])
+
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""
-    # This uses the build output from sandbox_spl to get _libfdt.so
-    cmd = ('PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools coverage run '
-            '--include "tools/binman/*.py" --omit "*test*,*binman.py" '
-            'tools/binman/binman.py -t' % options.build_dir)
-    os.system(cmd)
-    stdout = command.Output('coverage', 'report')
-    lines = stdout.splitlines()
-
-    test_set= set([os.path.basename(line.split()[0])
-                     for line in lines if '/etype/' in line])
-    glob_list = glob.glob(os.path.join(our_path, 'etype/*.py'))
-    all_set = set([os.path.basename(item) for item in glob_list])
-    missing_list = all_set
-    missing_list.difference_update(test_set)
-    missing_list.remove('_testing.py')
-    coverage = lines[-1].split(' ')[-1]
-    ok = True
-    if missing_list:
-        print 'Missing tests for %s' % (', '.join(missing_list))
-        ok = False
-    if coverage != '100%':
-        print stdout
-        print "Type 'coverage html' to get a report in htmlcov/index.html"
-        print 'Coverage error: %s, but should be 100%%' % coverage
-        ok = False
-    if not ok:
-      raise ValueError('Test coverage failure')
+    glob_list = GetEntryModules(False)
+    all_set = set([os.path.splitext(os.path.basename(item))[0]
+                   for item in glob_list if '_testing' not in item])
+    test_util.RunTestCoverage('tools/binman/binman.py', None,
+            ['*test*', '*binman.py', 'tools/patman/*', 'tools/dtoc/*'],
+            options.build_dir, all_set)
 
 def RunBinman(options, args):
     """Main entry point to binman once arguments are parsed
@@ -115,18 +131,13 @@ def RunBinman(options, args):
         sys.tracebacklimit = 0
 
     if options.test:
-        ret_code = RunTests(options.debug)
+        ret_code = RunTests(options.debug, options.processes, args[1:])
 
     elif options.test_coverage:
         RunTestCoverage()
 
-    elif options.full_help:
-        pager = os.getenv('PAGER')
-        if not pager:
-            pager = 'more'
-        fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
-                            'README')
-        command.Run(pager, fname)
+    elif options.entry_docs:
+        control.WriteEntryDocs(GetEntryModules())
 
     else:
         try:

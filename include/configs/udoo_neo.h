@@ -1,17 +1,15 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
  * Copyright Jasbir Matharu
  * Copyright 2015 UDOO Team
  *
  * Configuration settings for the UDOO NEO board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 #include "imx6_spl.h"
@@ -28,7 +26,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0  /*USDHC2*/
 
 /* Linux only */
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0,115200\0" \
 	"fdt_high=0xffffffff\0" \
@@ -67,7 +64,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000)
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -99,7 +95,6 @@
 
 /* Network */
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 
 #define CONFIG_FEC_ENET_DEV 0
 #define IMX_FEC_BASE			ENET_BASE_ADDR

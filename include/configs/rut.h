@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * siemens rut
  * (C) Copyright 2013 Siemens Schweiz AG
@@ -7,14 +8,11 @@
  * U-Boot file:/include/configs/am335x_evm.h
  *
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_RUT_H
 #define __CONFIG_RUT_H
 
-#define CONFIG_SIEMENS_RUT
 #define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_RUT
 
 #include "siemens-am33x-common.h"
@@ -117,8 +115,6 @@
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_LOGO
 #define DA8XX_LCD_CNTL_BASE	LCD_CNTL_BASE
-
-#define CONFIG_SPI
 
 #define BOARD_LCD_RESET		115	/* Bank 3 pin 19 */
 #define CONFIG_FORMIKE

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2013 Samsung Electronics
  * Przemyslaw Marczak <p.marczak@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -457,7 +456,7 @@ void draw_logo(void)
 
 	addr = panel_info.logo_addr;
 	if (!addr) {
-		pr_err("There is no logo data.");
+		pr_err("There is no logo data.\n");
 		return;
 	}
 

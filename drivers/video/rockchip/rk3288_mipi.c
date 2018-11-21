@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2017, Fuzhou Rockchip Electronics Co., Ltd
  * Author: Eric Gao <eric.gao@rock-chips.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>
@@ -23,8 +22,6 @@
 #include <asm/arch/cru_rk3288.h>
 #include <asm/arch/grf_rk3288.h>
 #include <asm/arch/rockchip_mipi_dsi.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define MHz 1000000
 
@@ -136,7 +133,7 @@ static int rk_mipi_ofdata_to_platdata(struct udevice *dev)
 	struct rk_mipi_priv *priv = dev_get_priv(dev);
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	if (IS_ERR(priv->grf)) {
+	if (IS_ERR_OR_NULL(priv->grf)) {
 		debug("%s: Get syscon grf failed (ret=%p)\n",
 		      __func__, priv->grf);
 		return  -ENXIO;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * EMIF programming
  *
@@ -5,8 +6,6 @@
  * Texas Instruments, <www.ti.com>
  *
  * Aneesh V <aneesh@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,6 +16,7 @@
 #include <asm/omap_sec_common.h>
 #include <asm/utils.h>
 #include <linux/compiler.h>
+#include <asm/ti-common/ti-edma3.h>
 
 static int emif1_enabled = -1, emif2_enabled = -1;
 
@@ -255,7 +255,7 @@ static void update_hwleveling_output(u32 base, const struct emif_regs *regs)
 	u32 *emif_ext_phy_ctrl_reg, *emif_phy_status;
 	u32 reg, i, phy;
 
-	emif_phy_status = (u32 *)&emif->emif_ddr_phy_status[7];
+	emif_phy_status = (u32 *)&emif->emif_ddr_phy_status[6];
 	phy = readl(&emif->emif_ddr_phy_ctrl_1);
 
 	/* Update PHY_REG_RDDQS_RATIO */
@@ -269,7 +269,7 @@ static void update_hwleveling_output(u32 base, const struct emif_regs *regs)
 
 	/* Update PHY_REG_FIFO_WE_SLAVE_RATIO */
 	emif_ext_phy_ctrl_reg = (u32 *)&emif->emif_ddr_ext_phy_ctrl_2;
-	emif_phy_status = (u32 *)&emif->emif_ddr_phy_status[12];
+	emif_phy_status = (u32 *)&emif->emif_ddr_phy_status[11];
 	if (!(phy & EMIF_DDR_PHY_CTRL_1_RDLVLGATE_MASK_MASK))
 		for (i = 0; i < PHY_FIFO_WE_SLAVE_RATIO_REGS; i++) {
 			reg = readl(emif_phy_status++);
@@ -279,7 +279,7 @@ static void update_hwleveling_output(u32 base, const struct emif_regs *regs)
 
 	/* Update PHY_REG_WR_DQ/DQS_SLAVE_RATIO */
 	emif_ext_phy_ctrl_reg = (u32 *)&emif->emif_ddr_ext_phy_ctrl_12;
-	emif_phy_status = (u32 *)&emif->emif_ddr_phy_status[17];
+	emif_phy_status = (u32 *)&emif->emif_ddr_phy_status[16];
 	if (!(phy & EMIF_DDR_PHY_CTRL_1_WRLVL_MASK_MASK))
 		for (i = 0; i < PHY_REG_WR_DQ_SLAVE_RATIO_REGS; i++) {
 			reg = readl(emif_phy_status++);
@@ -332,6 +332,71 @@ static void dra7_ddr3_leveling(u32 base, const struct emif_regs *regs)
 	update_hwleveling_output(base, regs);
 }
 
+static void dra7_reset_ddr_data(u32 base, u32 size)
+{
+#if defined(CONFIG_TI_EDMA3) && !defined(CONFIG_DMA)
+	enable_edma3_clocks();
+
+	edma3_fill(EDMA3_BASE, 1, (void *)base, 0, size);
+
+	disable_edma3_clocks();
+#else
+	memset((void *)base, 0, size);
+#endif
+}
+
+static void dra7_enable_ecc(u32 base, const struct emif_regs *regs)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+	u32 rgn, size;
+
+	/* ECC available only on dra76x EMIF1 */
+	if ((base != EMIF1_BASE) || !is_dra76x())
+		return;
+
+	if (regs->emif_ecc_ctrl_reg & EMIF_ECC_CTRL_REG_ECC_EN_MASK) {
+		writel(regs->emif_ecc_address_range_1,
+		       &emif->emif_ecc_address_range_1);
+		writel(regs->emif_ecc_address_range_2,
+		       &emif->emif_ecc_address_range_2);
+		writel(regs->emif_ecc_ctrl_reg, &emif->emif_ecc_ctrl_reg);
+
+		/* Set region1 memory with 0 */
+		rgn = ((regs->emif_ecc_address_range_1 &
+			EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16) +
+		       CONFIG_SYS_SDRAM_BASE;
+		size = (regs->emif_ecc_address_range_1 &
+			EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0x10000;
+
+		if (regs->emif_ecc_ctrl_reg &
+		    EMIF_ECC_REG_ECC_ADDR_RGN_1_EN_MASK)
+			dra7_reset_ddr_data(rgn, size);
+
+		/* Set region2 memory with 0 */
+		rgn = ((regs->emif_ecc_address_range_2 &
+			EMIF_ECC_REG_ECC_START_ADDR_MASK) << 16) +
+		       CONFIG_SYS_SDRAM_BASE;
+		size = (regs->emif_ecc_address_range_2 &
+			EMIF_ECC_REG_ECC_END_ADDR_MASK) + 0x10000;
+
+		if (regs->emif_ecc_ctrl_reg &
+		    EMIF_ECC_REG_ECC_ADDR_RGN_2_EN_MASK)
+			dra7_reset_ddr_data(rgn, size);
+
+#ifdef CONFIG_DRA7XX
+		/* Clear the status flags and other history */
+		writel(readl(&emif->emif_1b_ecc_err_cnt),
+		       &emif->emif_1b_ecc_err_cnt);
+		writel(0xffffffff, &emif->emif_1b_ecc_err_dist_1);
+		writel(0x1, &emif->emif_2b_ecc_err_addr_log);
+		writel(EMIF_INT_WR_ECC_ERR_SYS_MASK |
+		       EMIF_INT_TWOBIT_ECC_ERR_SYS_MASK |
+		       EMIF_INT_ONEBIT_ECC_ERR_SYS_MASK,
+		       &emif->emif_irqstatus_sys);
+#endif
+	}
+}
+
 static void dra7_ddr3_init(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
@@ -368,8 +433,29 @@ static void dra7_ddr3_init(u32 base, const struct emif_regs *regs)
 
 	writel(regs->ref_ctrl_final, &emif->emif_sdram_ref_ctrl);
 
-	if (regs->emif_rd_wr_lvl_rmp_ctl & EMIF_REG_RDWRLVL_EN_MASK)
+	if (regs->emif_rd_wr_lvl_rmp_ctl & EMIF_REG_RDWRLVL_EN_MASK) {
+		/*
+		 * Perform Dummy ECC setup just to allow hardware
+		 * leveling of ECC memories
+		 */
+		if (is_dra76x() && (base == EMIF1_BASE) &&
+		    (regs->emif_ecc_ctrl_reg & EMIF_ECC_CTRL_REG_ECC_EN_MASK)) {
+			writel(0, &emif->emif_ecc_address_range_1);
+			writel(0, &emif->emif_ecc_address_range_2);
+			writel(EMIF_ECC_CTRL_REG_ECC_EN_MASK |
+			       EMIF_ECC_CTRL_REG_ECC_ADDR_RGN_PROT_MASK,
+			       &emif->emif_ecc_ctrl_reg);
+		}
+
 		dra7_ddr3_leveling(base, regs);
+
+		/* Disable ECC */
+		if (is_dra76x())
+			writel(0, &emif->emif_ecc_ctrl_reg);
+	}
+
+	/* Enable ECC as necessary */
+	dra7_enable_ecc(base, regs);
 }
 
 static void omap5_ddr3_init(u32 base, const struct emif_regs *regs)
@@ -512,7 +598,7 @@ s8 addressing_table_index(u8 type, u8 density, u8 width)
  * tables of the device using DDR clock frequency
  */
 static const struct lpddr2_ac_timings *get_timings_table(const struct
-			lpddr2_ac_timings const *const *device_timings,
+			lpddr2_ac_timings *const *device_timings,
 			u32 freq)
 {
 	u32 i, temp, freq_nearest;

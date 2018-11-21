@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2013, Google Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "mkimage.h"
@@ -21,7 +20,8 @@
 #define HAVE_ERR_REMOVE_THREAD_STATE
 #endif
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
 static void RSA_get0_key(const RSA *r,
                  const BIGNUM **n, const BIGNUM **e, const BIGNUM **d)
 {
@@ -300,7 +300,8 @@ static int rsa_init(void)
 {
 	int ret;
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
 	ret = SSL_library_init();
 #else
 	ret = OPENSSL_init_ssl(0, NULL);
@@ -309,7 +310,8 @@ static int rsa_init(void)
 		fprintf(stderr, "Failure to init SSL library\n");
 		return -1;
 	}
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
 	SSL_load_error_strings();
 
 	OpenSSL_add_all_algorithms();
@@ -355,7 +357,8 @@ err_set_rsa:
 err_engine_init:
 	ENGINE_free(e);
 err_engine_by_id:
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
 	ENGINE_cleanup();
 #endif
 	return ret;
@@ -363,7 +366,8 @@ err_engine_by_id:
 
 static void rsa_remove(void)
 {
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+	(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
 	CRYPTO_cleanup_all_ex_data();
 	ERR_free_strings();
 #ifdef HAVE_ERR_REMOVE_THREAD_STATE
@@ -433,7 +437,8 @@ static int rsa_sign_with_key(RSA *rsa, struct checksum_algo *checksum_algo,
 		ret = rsa_err("Could not obtain signature");
 		goto err_sign;
 	}
-	#if OPENSSL_VERSION_NUMBER < 0x10100000L
+	#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+		(defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x02070000fL)
 		EVP_MD_CTX_cleanup(context);
 	#else
 		EVP_MD_CTX_reset(context);
@@ -636,6 +641,15 @@ static int fdt_add_bignum(void *blob, int noffset, const char *prop_name,
 	big2 = BN_new();
 	big32 = BN_new();
 	big2_32 = BN_new();
+
+	/*
+	 * Note: This code assumes that all of the above succeed, or all fail.
+	 * In practice memory allocations generally do not fail (unless the
+	 * process is killed), so it does not seem worth handling each of these
+	 * as a separate case. Technicaly this could leak memory on failure,
+	 * but a) it won't happen in practice, and b) it doesn't matter as we
+	 * will immediately exit with a failure code.
+	 */
 	if (!tmp || !big2 || !big32 || !big2_32) {
 		fprintf(stderr, "Out of memory (bignum)\n");
 		return -ENOMEM;
@@ -668,15 +682,13 @@ static int fdt_add_bignum(void *blob, int noffset, const char *prop_name,
 	 * might fail several times
 	 */
 	ret = fdt_setprop(blob, noffset, prop_name, buf, size);
-	if (ret)
-		return -FDT_ERR_NOSPACE;
 	free(buf);
 	BN_free(tmp);
 	BN_free(big2);
 	BN_free(big32);
 	BN_free(big2_32);
 
-	return ret;
+	return ret ? -FDT_ERR_NOSPACE : 0;
 }
 
 int rsa_add_verify_data(struct image_sign_info *info, void *keydest)

@@ -1,8 +1,7 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0+
 # Test for gcc '-fstack-usage' support
 # Copyright (C) 2013, Masahiro Yamada <yamada.m@jp.panasonic.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 
 TMP="$$"

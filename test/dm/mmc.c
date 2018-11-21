@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -9,8 +8,6 @@
 #include <mmc.h>
 #include <dm/test.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Basic test of the mmc uclass. We could expand this by implementing an MMC

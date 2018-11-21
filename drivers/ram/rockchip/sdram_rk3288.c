@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2015 Google, Inc
  * Copyright 2014 Rockchip Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0
  *
  * Adapted from coreboot.
  */
@@ -26,8 +25,6 @@
 #include <linux/err.h>
 #include <power/regulator.h>
 #include <power/rk8xx_pmic.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct chan_info {
 	struct rk3288_ddr_pctl *pctl;
@@ -1003,7 +1000,7 @@ static int rk3288_dmc_ofdata_to_platdata(struct udevice *dev)
 
 	priv->is_veyron = !fdt_node_check_compatible(blob, 0, "google,veyron");
 #endif
-	ret = regmap_init_mem(dev, &params->map);
+	ret = regmap_init_mem(dev_ofnode(dev), &params->map);
 	if (ret)
 		return ret;
 #endif

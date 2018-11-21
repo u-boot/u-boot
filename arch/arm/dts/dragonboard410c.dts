@@ -1,14 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Qualcomm APQ8016 based Dragonboard 410C board device tree source
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
 
 #include "skeleton64.dtsi"
+#include <dt-bindings/pinctrl/pinctrl-snapdragon.h>
 
 / {
 	model = "Qualcomm Technologies, Inc. Dragonboard 410c";
@@ -18,15 +18,35 @@
 	#address-cells = <0x2>;
 	#size-cells = <0x2>;
 
+	aliases {
+		usb0 = "/soc/ehci@78d9000";
+	};
+
 	memory {
 		device_type = "memory";
 		reg = <0 0x80000000 0 0x3da00000>;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		smem_mem: smem_region@86300000 {
+			reg = <0x0 0x86300000 0x0 0x100000>;
+			no-map;
+		};
 	};
 
 	chosen {
 		stdout-path = "/soc/serial@78b0000";
 	};
 
+	smem {
+		compatible = "qcom,smem";
+		memory-region = <&smem_mem>;
+		qcom,rpm-msg-ram = <&rpm_msg_ram>;
+	};
 
 	soc {
 		#address-cells = <0x1>;
@@ -34,6 +54,22 @@
 		ranges = <0x0 0x0 0x0 0xffffffff>;
 		compatible = "simple-bus";
 
+		rpm_msg_ram: memory@60000 {
+			compatible = "qcom,rpm-msg-ram";
+			reg = <0x60000 0x8000>;
+		};
+
+		pinctrl: qcom,tlmm@1000000 {
+			compatible = "qcom,tlmm-apq8016";
+			reg = <0x1000000 0x400000>;
+
+			blsp1_uart: uart {
+				function = "blsp1_uart";
+				pins = "GPIO_4", "GPIO_5";
+				drive-strength = <DRIVE_STRENGTH_8MA>;
+				bias-disable;
+			};
+		};
 		clkc: qcom,gcc@1800000 {
 			compatible = "qcom,gcc-apq8016";
 			reg = <0x1800000 0x80000>;
@@ -44,13 +80,9 @@
 		serial@78b0000 {
 			compatible = "qcom,msm-uartdm-v1.4";
 			reg = <0x78b0000 0x200>;
-			u-boot,dm-pre-reloc;
 			clock = <&clkc 4>;
-		};
-
-		restart@4ab000 {
-			compatible = "qcom,pshold";
-			reg = <0x4ab000 0x4>;
+			pinctrl-names = "uart";
+			pinctrl-0 = <&blsp1_uart>;
 		};
 
 		soc_gpios: pinctrl@1000000 {
@@ -65,6 +97,13 @@
 		ehci@78d9000 {
 			compatible = "qcom,ehci-host";
 			reg = <0x78d9000 0x400>;
+			phys = <&ehci_phy>;
+		};
+
+		ehci_phy: ehci_phy@78d9000 {
+			compatible = "qcom,apq8016-usbphy";
+			reg = <0x78d9000 0x400>;
+			#phy-cells = <0>;
 		};
 
 		sdhci@07824000 {
@@ -84,6 +123,16 @@
 			bus-width = <0x4>;
 			clock = <&clkc 1>;
 			clock-frequency = <200000000>;
+		};
+
+		wcnss {
+			bt {
+				compatible="qcom,wcnss-bt";
+			};
+
+			wifi {
+				compatible="qcom,wcnss-wlan";
+			};
 		};
 
 		spmi@200f000 {

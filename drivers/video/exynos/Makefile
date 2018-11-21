@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-$(CONFIG_EXYNOS_DP) += exynos_dp.o exynos_dp_lowlevel.o
 obj-$(CONFIG_EXYNOS_FB) += exynos_fb.o

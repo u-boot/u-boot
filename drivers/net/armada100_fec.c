@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011
  * eInfochips Ltd. <www.einfochips.com>
@@ -6,8 +7,6 @@
  * (C) Copyright 2010
  * Marvell Semiconductor <www.marvell.com>
  * Contributor: Mahavir Jain <mjain@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

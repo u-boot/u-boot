@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011 Freescale Semiconductor, Inc.
  * Jason Liu <r64343@freescale.com>
  *
  * Configuration settings for Freescale MX53 low cost board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -23,27 +22,19 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
-#define CONFIG_HW_WATCHDOG
-#define CONFIG_IMX_WATCHDOG
 #define CONFIG_WATCHDOG_TIMEOUT_MSECS 8000
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_LATE_INIT
-#define CONFIG_MXC_GPIO
 #define CONFIG_REVISION_TAG
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /* MMC Configs */
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	2
 
-#define CONFIG_SUPPORT_RAW_INITRD	/* bootz raw initrd support */
-
 /* Eth Configs */
-#define CONFIG_MII
 
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE	FEC_BASE_ADDR
@@ -80,16 +71,13 @@
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
 
 /* Command definition */
-#define CONFIG_SUPPORT_RAW_INITRD
 
 #define CONFIG_ETHPRIME		"FEC0"
 
 #define CONFIG_LOADADDR		0x72000000	/* loadaddr env var */
-#define CONFIG_SYS_TEXT_BASE    0x77800000
 
 #define PPD_CONFIG_NFS \
 	"nfsserver=192.168.252.95\0" \
@@ -110,7 +98,6 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	PPD_CONFIG_NFS \
-	"bootlimit=10\0" \
 	"image=/boot/fitImage\0" \
 	"fdt_high=0xffffffff\0" \
 	"dev=mmc\0" \
@@ -176,8 +163,6 @@
 #define CONFIG_ARP_TIMEOUT	200UL
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 
 #define CONFIG_SYS_MAXARGS	48	/* max number of command args */
@@ -188,10 +173,7 @@
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
-#define CONFIG_CMDLINE_EDITING
-
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS	2
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR
 #define PHYS_SDRAM_1_SIZE		(gd->bd->bi_dram[0].size)
 #define PHYS_SDRAM_2			CSD1_BASE_ADDR
@@ -208,9 +190,8 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* FLASH and environment organization */
-#define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
-#define CONFIG_ENV_SIZE        (8 * 1024)
-#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_OFFSET      (12 * 64 * 1024)
+#define CONFIG_ENV_SIZE        (10 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 #define CONFIG_CMD_FUSE
@@ -233,8 +214,6 @@
 				}
 
 #define CONFIG_BCH
-
-#define CONFIG_BOOTCOUNT_LIMIT
 
 /* Backlight Control */
 #define CONFIG_PWM_IMX

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /**
  * (C) Copyright 2014, Cavium Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
 **/
 
 #include <common.h>
@@ -15,8 +14,6 @@
 #include <asm/psci.h>
 
 #include <malloc.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 ssize_t atf_read_mmc(uintptr_t offset, void *buffer, size_t size)
 {

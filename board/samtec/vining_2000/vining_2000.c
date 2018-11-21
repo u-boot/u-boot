@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 samtec automotive software & electronics gmbh
  *
  * Author: Christoph Fritz <chf.fritz@googlemail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>
@@ -18,6 +17,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <linux/sizes.h>
 #include <common.h>
+#include <environment.h>
 #include <fsl_esdhc.h>
 #include <mmc.h>
 #include <i2c.h>
@@ -378,7 +378,7 @@ static int read_adc(u32 *val)
 
 	/* start auto calibration */
 	setbits_le32(b + ADCx_GC, ADCx_GC_CAL);
-	ret = wait_for_bit("ADC", b + ADCx_GC, ADCx_GC_CAL, ADCx_GC_CAL, 10, 0);
+	ret = wait_for_bit_le32(b + ADCx_GC, ADCx_GC_CAL, ADCx_GC_CAL, 10, 0);
 	if (ret)
 		goto adc_exit;
 
@@ -386,7 +386,7 @@ static int read_adc(u32 *val)
 	writel(0, b + ADCx_HC0);
 
 	/* wait for conversion */
-	ret = wait_for_bit("ADC", b + ADCx_HS, ADCx_HS_C0, ADCx_HS_C0, 10, 0);
+	ret = wait_for_bit_le32(b + ADCx_HS, ADCx_HS_C0, ADCx_HS_C0, 10, 0);
 	if (ret)
 		goto adc_exit;
 

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007 Michal Simek
  * (C) Copyright 2004 Atmark Techno, Inc.
  *
  * Michal  SIMEK <monstr@monstr.eu>
  * Yasushi SHOJI <yashi@atmark-techno.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -14,13 +13,6 @@
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
-
-DECLARE_GLOBAL_DATA_PTR;
-
-int arch_fixup_fdt(void *blob)
-{
-	return 0;
-}
 
 int do_bootm_linux(int flag, int argc, char * const argv[],
 		   bootm_headers_t *images)

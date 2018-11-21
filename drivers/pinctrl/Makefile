@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 obj-y					+= pinctrl-uclass.o
 obj-$(CONFIG_$(SPL_)PINCTRL_GENERIC)	+= pinctrl-generic.o
@@ -22,3 +20,4 @@ obj-$(CONFIG_ARCH_MVEBU)	+= mvebu/
 obj-$(CONFIG_PINCTRL_SINGLE)	+= pinctrl-single.o
 obj-$(CONFIG_PINCTRL_STI)	+= pinctrl-sti.o
 obj-$(CONFIG_PINCTRL_STM32)	+= pinctrl_stm32.o
+obj-y				+= broadcom/

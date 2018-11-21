@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * sh_eth.h - Driver for Renesas SuperH ethernet controller.
  *
  * Copyright (C) 2008 - 2012 Renesas Solutions Corp.
  * Copyright (c) 2008 - 2012 Nobuhiro Iwamatsu
  * Copyright (c) 2007 Carlos Munoz <carlos@kenati.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <netdev.h>
@@ -25,8 +24,10 @@
 #define ADDR_TO_PHY(addr)	((int)(addr) & ~0xe0000000)
 #endif
 #elif defined(CONFIG_ARM)
-#define inl		readl
+#ifndef inl
+#define inl	readl
 #define outl	writel
+#endif
 #define ADDR_TO_PHY(addr)	((int)(addr))
 #define ADDR_TO_P2(addr)	(addr)
 #endif /* defined(CONFIG_SH) */
@@ -90,6 +91,7 @@ struct sh_eth_info {
 	u8 phy_addr;
 	struct eth_device *dev;
 	struct phy_device *phydev;
+	void __iomem *iobase;
 };
 
 struct sh_eth_dev {
@@ -226,61 +228,6 @@ static const u16 sh_eth_offset_gigabit[SH_ETH_MAX_REGISTER_OFFSET] = {
 	[RMII_MII] =  0x0790,
 };
 
-#if defined(SH_ETH_TYPE_RZ)
-static const u16 sh_eth_offset_rz[SH_ETH_MAX_REGISTER_OFFSET] = {
-	[EDSR]	= 0x0000,
-	[EDMR]	= 0x0400,
-	[EDTRR]	= 0x0408,
-	[EDRRR]	= 0x0410,
-	[EESR]	= 0x0428,
-	[EESIPR]	= 0x0430,
-	[TDLAR]	= 0x0010,
-	[TDFAR]	= 0x0014,
-	[TDFXR]	= 0x0018,
-	[TDFFR]	= 0x001c,
-	[RDLAR]	= 0x0030,
-	[RDFAR]	= 0x0034,
-	[RDFXR]	= 0x0038,
-	[RDFFR]	= 0x003c,
-	[TRSCER]	= 0x0438,
-	[RMFCR]	= 0x0440,
-	[TFTR]	= 0x0448,
-	[FDR]	= 0x0450,
-	[RMCR]	= 0x0458,
-	[RPADIR]	= 0x0460,
-	[FCFTR]	= 0x0468,
-	[CSMR] = 0x04E4,
-
-	[ECMR]	= 0x0500,
-	[ECSR]	= 0x0510,
-	[ECSIPR]	= 0x0518,
-	[PSR]	= 0x0528,
-	[PIPR]	= 0x052c,
-	[RFLR]	= 0x0508,
-	[APR]	= 0x0554,
-	[MPR]	= 0x0558,
-	[PFTCR]	= 0x055c,
-	[PFRCR]	= 0x0560,
-	[TPAUSER]	= 0x0564,
-	[GECMR]	= 0x05b0,
-	[BCULR]	= 0x05b4,
-	[MAHR]	= 0x05c0,
-	[MALR]	= 0x05c8,
-	[TROCR]	= 0x0700,
-	[CDCR]	= 0x0708,
-	[LCCR]	= 0x0710,
-	[CEFCR]	= 0x0740,
-	[FRECR]	= 0x0748,
-	[TSFRCR]	= 0x0750,
-	[TLFRCR]	= 0x0758,
-	[RFCR]	= 0x0760,
-	[CERCR]	= 0x0768,
-	[CEECR]	= 0x0770,
-	[MAFCR]	= 0x0778,
-	[RMII_MII] =  0x0790,
-};
-#endif
-
 static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 	[ECMR]	= 0x0100,
 	[RFLR]	= 0x0108,
@@ -354,8 +301,7 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 #elif defined(CONFIG_R8A7740)
 #define SH_ETH_TYPE_GETHER
 #define BASE_IO_ADDR	0xE9A00000
-#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
-	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
+#elif defined(CONFIG_RCAR_GEN2)
 #define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xEE700200
 #elif defined(CONFIG_R7S72100)
@@ -566,8 +512,7 @@ enum FELIC_MODE_BIT {
 	ECMR_PRM = 0x00000001,
 #ifdef CONFIG_CPU_SH7724
 	ECMR_RTM = 0x00000010,
-#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
-	defined(CONFIG_R8A7793) || defined(CONFIG_R8A7794)
+#elif defined(CONFIG_RCAR_GEN2)
 	ECMR_RTM = 0x00000004,
 #endif
 
@@ -654,29 +599,27 @@ enum FIFO_SIZE_BIT {
 	FIFO_SIZE_T = 0x00000700, FIFO_SIZE_R = 0x00000007,
 };
 
-static inline unsigned long sh_eth_reg_addr(struct sh_eth_dev *eth,
+static inline unsigned long sh_eth_reg_addr(struct sh_eth_info *port,
 					    int enum_index)
 {
-#if defined(SH_ETH_TYPE_GETHER)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	const u16 *reg_offset = sh_eth_offset_gigabit;
 #elif defined(SH_ETH_TYPE_ETHER)
 	const u16 *reg_offset = sh_eth_offset_fast_sh4;
-#elif defined(SH_ETH_TYPE_RZ)
-	const u16 *reg_offset = sh_eth_offset_rz;
 #else
 #error
 #endif
-	return BASE_IO_ADDR + reg_offset[enum_index] + 0x800 * eth->port;
+	return (unsigned long)port->iobase + reg_offset[enum_index];
 }
 
-static inline void sh_eth_write(struct sh_eth_dev *eth, unsigned long data,
+static inline void sh_eth_write(struct sh_eth_info *port, unsigned long data,
 				int enum_index)
 {
-	outl(data, sh_eth_reg_addr(eth, enum_index));
+	outl(data, sh_eth_reg_addr(port, enum_index));
 }
 
-static inline unsigned long sh_eth_read(struct sh_eth_dev *eth,
+static inline unsigned long sh_eth_read(struct sh_eth_info *port,
 					int enum_index)
 {
-	return inl(sh_eth_reg_addr(eth, enum_index));
+	return inl(sh_eth_reg_addr(port, enum_index));
 }

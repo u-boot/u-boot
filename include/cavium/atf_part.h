@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /**
  * (C) Copyright 2014, Cavium Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
 **/
 
 #ifndef __ATF_PART_H__

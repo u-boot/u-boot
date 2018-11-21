@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  (C) Copyright 2014-2016
  *  Stefan Agner <stefan@agner.ch>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

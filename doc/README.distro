@@ -1,9 +1,8 @@
+SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 Red Hat Inc.
  * Copyright (c) 2014-2015, NVIDIA CORPORATION.  All rights reserved.
  * Copyright (C) 2015 K. Merker <merker@debian.org>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 Generic Distro Configuration Concept
@@ -165,14 +164,12 @@ Enabling the distro options
 In your board's defconfig, enable the DISTRO_DEFAULTS option by adding
 a line with "CONFIG_DISTRO_DEFAULTS=y". If you want to enable this
 from Kconfig itself, for e.g. all boards using a specific SoC then
-add a "default y if ARCH_FOO" to the DISTRO_DEFAULTS section of
-the Kconfig file in the root of the u-boot sources.
+add a "imply DISTRO_DEFAULTS" to your SoC CONFIG option.
 
 In your board configuration file, include the following:
 
 ------------------------------------------------------------
 #ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
 #include <config_distro_bootcmd.h>
 #endif
 ------------------------------------------------------------
@@ -188,7 +185,7 @@ Finally, a few options that are mostly relevant only when using U-Boot-
 specific boot.scr scripts are enabled. This enables distros to generate a
 U-Boot-specific boot.scr script rather than extlinux.conf as the boot
 configuration file. While doing so is fully supported, and
-<config_distro_defaults.h> exposes enough parameterization to boot.scr to
+CONFIG_DISTRO_DEFAULTS exposes enough parameterization to boot.scr to
 allow for board-agnostic boot.scr content, this document recommends that
 distros generate extlinux.conf rather than boot.scr. extlinux.conf is intended
 to work across multiple bootloaders, whereas boot.scr will only work with

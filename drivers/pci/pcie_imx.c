@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Freescale i.MX6 PCI Express Root-Complex driver
  *
@@ -6,8 +7,6 @@
  * Based on upstream Linux kernel driver:
  * pci-imx6.c:		Sean Cross <xobs@kosagi.com>
  * pcie-designware.c:	Jingoo Han <jg1.han@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -517,10 +516,12 @@ static int imx6_pcie_init_phy(void)
 __weak int imx6_pcie_toggle_power(void)
 {
 #ifdef CONFIG_PCIE_IMX_POWER_GPIO
+	gpio_request(CONFIG_PCIE_IMX_POWER_GPIO, "pcie_power");
 	gpio_direction_output(CONFIG_PCIE_IMX_POWER_GPIO, 0);
 	mdelay(20);
 	gpio_set_value(CONFIG_PCIE_IMX_POWER_GPIO, 1);
 	mdelay(20);
+	gpio_free(CONFIG_PCIE_IMX_POWER_GPIO);
 #endif
 	return 0;
 }
@@ -556,10 +557,12 @@ __weak int imx6_pcie_toggle_reset(void)
 	 * state due to being previously used in U-Boot.
 	 */
 #ifdef CONFIG_PCIE_IMX_PERST_GPIO
+	gpio_request(CONFIG_PCIE_IMX_PERST_GPIO, "pcie_reset");
 	gpio_direction_output(CONFIG_PCIE_IMX_PERST_GPIO, 0);
 	mdelay(20);
 	gpio_set_value(CONFIG_PCIE_IMX_PERST_GPIO, 1);
 	mdelay(20);
+	gpio_free(CONFIG_PCIE_IMX_PERST_GPIO);
 #else
 	puts("WARNING: Make sure the PCIe #PERST line is connected!\n");
 #endif
@@ -610,6 +613,17 @@ static int imx_pcie_link_up(void)
 	imx6_pcie_deassert_core_reset();
 
 	imx_pcie_regions_setup();
+
+	/*
+	 * By default, the subordinate is set equally to the secondary
+	 * bus (0x01) when the RC boots.
+	 * This means that theoretically, only bus 1 is reachable from the RC.
+	 * Force the PCIe RC subordinate to 0xff, otherwise no downstream
+	 * devices will be detected if the enumeration is applied strictly.
+	 */
+	tmp = readl(MX6_DBI_ADDR + 0x18);
+	tmp |= (0xff << 16);
+	writel(tmp, MX6_DBI_ADDR + 0x18);
 
 	/*
 	 * FIXME: Force the PCIe RC to Gen1 operation

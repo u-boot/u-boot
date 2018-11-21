@@ -910,8 +910,22 @@ out:
 	return ret;
 }
 
+static int cpsw_reap_completed_packets(struct cpsw_priv *priv)
+{
+	int timeout = CPDMA_TIMEOUT;
+
+	/* reap completed packets */
+	while (timeout-- &&
+	       (cpdma_process(priv, &priv->tx_chan, NULL, NULL) >= 0))
+		;
+
+	return timeout;
+}
+
 static void _cpsw_halt(struct cpsw_priv *priv)
 {
+	cpsw_reap_completed_packets(priv);
+
 	writel(0, priv->dma_regs + CPDMA_TXCONTROL);
 	writel(0, priv->dma_regs + CPDMA_RXCONTROL);
 
@@ -925,18 +939,12 @@ static void _cpsw_halt(struct cpsw_priv *priv)
 
 static int _cpsw_send(struct cpsw_priv *priv, void *packet, int length)
 {
-	void *buffer;
-	int len;
-	int timeout = CPDMA_TIMEOUT;
+	int timeout;
 
 	flush_dcache_range((unsigned long)packet,
 			   (unsigned long)packet + ALIGN(length, PKTALIGN));
 
-	/* first reap completed packets */
-	while (timeout-- &&
-		(cpdma_process(priv, &priv->tx_chan, &buffer, &len) >= 0))
-		;
-
+	timeout = cpsw_reap_completed_packets(priv);
 	if (timeout == -1) {
 		printf("cpdma_process timeout\n");
 		return -ETIMEDOUT;
@@ -949,7 +957,7 @@ static int _cpsw_recv(struct cpsw_priv *priv, uchar **pkt)
 {
 	void *buffer;
 	int len;
-	int ret = -EAGAIN;
+	int ret;
 
 	ret = cpdma_process(priv, &priv->rx_chan, &buffer, &len);
 	if (ret < 0)
@@ -991,13 +999,32 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 
 #ifdef CONFIG_DM_ETH
 	if (slave->data->phy_of_handle)
-		dev_set_of_offset(phydev->dev, slave->data->phy_of_handle);
+		phydev->node = offset_to_ofnode(slave->data->phy_of_handle);
 #endif
 
 	priv->phydev = phydev;
 	phy_config(phydev);
 
 	return 1;
+}
+
+static void cpsw_phy_addr_update(struct cpsw_priv *priv)
+{
+	struct cpsw_platform_data *data = &priv->data;
+	u16 alive = mdio_regs->alive & GENMASK(15, 0);
+	int active = data->active_slave;
+	int new_addr = ffs(alive) - 1;
+
+	/*
+	 * If there is only one phy alive and its address does not match
+	 * that of active slave, then phy address can safely be updated.
+	 */
+	if (hweight16(alive) == 1 &&
+	    data->slave_data[active].phy_addr != new_addr) {
+		printf("Updated phy address for CPSW#%d, old: %d, new: %d\n",
+		       active, data->slave_data[active].phy_addr, new_addr);
+		data->slave_data[active].phy_addr = new_addr;
+	}
 }
 
 int _cpsw_register(struct cpsw_priv *priv)
@@ -1026,6 +1053,9 @@ int _cpsw_register(struct cpsw_priv *priv)
 	}
 
 	cpsw_mdio_init(priv->dev->name, data->mdio_base, data->mdio_div);
+
+	cpsw_phy_addr_update(priv);
+
 	priv->bus = miiphy_get_dev_by_name(priv->dev->name);
 	for_active_slave(slave, priv)
 		cpsw_phy_init(priv, slave);
@@ -1450,6 +1480,13 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+int cpsw_get_slave_phy_addr(struct udevice *dev, int slave)
+{
+	struct cpsw_priv *priv = dev_get_priv(dev);
+	struct cpsw_platform_data *data = &priv->data;
+
+	return data->slave_data[slave].phy_addr;
+}
 
 static const struct udevice_id cpsw_eth_ids[] = {
 	{ .compatible = "ti,cpsw" },

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Andestech ATCSPI200 SPI controller driver.
  *
  * Copyright 2017 Andes Technology, Inc.
  * Author: Rick Chen (rick@andestech.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <clk.h>
@@ -75,9 +74,6 @@ struct atcspi200_spi_regs {
 };
 
 struct nds_spi_slave {
-#ifndef CONFIG_DM_SPI
-	struct spi_slave slave;
-#endif
 	volatile struct atcspi200_spi_regs *regs;
 	int		to;
 	unsigned int	freq;
@@ -201,7 +197,7 @@ static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 		int num_bytes;
 		u8 *cmd_buf = ns->cmd_buf;
 		size_t cmd_len = ns->cmd_len;
-		size_t data_len = bitlen / 8;
+		unsigned long data_len = bitlen / 8;
 		int rf_cnt;
 		int ret = 0;
 
@@ -233,13 +229,15 @@ static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 			__atcspi200_spi_start(ns);
 			break;
 		}
-		debug("spi_xfer: data_out %08X(%p) data_in %08X(%p) data_len %u\n",
-		      *(uint *)data_out, data_out, *(uint *)data_in, data_in, data_len);
+		if (data_out)
+			debug("spi_xfer: data_out %08X(%p) data_in %08X(%p) data_len %lu\n",
+			      *(uint *)data_out, data_out, *(uint *)data_in,
+			      data_in, data_len);
 		num_chunks = DIV_ROUND_UP(data_len, max_tran_len);
 		din = data_in;
 		dout = data_out;
 		while (num_chunks--) {
-			tran_len = min(data_len, (size_t)max_tran_len);
+			tran_len = min((size_t)data_len, (size_t)max_tran_len);
 			ns->tran_len = tran_len;
 			num_blks = DIV_ROUND_UP(tran_len , CHUNK_SIZE);
 			num_bytes = (tran_len) % CHUNK_SIZE;
@@ -286,89 +284,6 @@ static int __atcspi200_spi_xfer(struct nds_spi_slave *ns,
 		return ret;
 }
 
-#ifndef CONFIG_DM_SPI
-#define to_nds_spi_slave(s) container_of(s, struct nds_spi_slave, slave)
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
-{
-	struct nds_spi_slave *ns;
-
-	if (!spi_cs_is_valid(bus, cs))
-		return NULL;
-
-	ns = spi_alloc_slave(struct nds_spi_slave, bus, cs);
-
-	switch (bus) {
-	case SPI0_BUS:
-			ns->regs = (struct atcspi200_spi_regs *)SPI0_BASE;
-			break;
-
-		case SPI1_BUS:
-			ns->regs = (struct atcspi200_spi_regs *)SPI1_BASE;
-			break;
-
-		default:
-			return NULL;
-	}
-
-	ns->freq= max_hz;
-	ns->mode = mode;
-	ns->to = SPI_TIMEOUT;
-	ns->max_transfer_length = MAX_TRANSFER_LEN;
-	ns->slave.max_write_size = MAX_TRANSFER_LEN;
-	if (!ns)
-		return NULL;
-
-	return &ns->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	free(ns);
-}
-
-void spi_init(void)
-{
-	/* do nothing */
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	return __atcspi200_spi_claim_bus(ns);
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	__atcspi200_spi_release_bus(ns);
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
-		void *data_in, unsigned long flags)
-{
-	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	return __atcspi200_spi_xfer(ns, bitlen, data_out, data_in, flags);
-}
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs < NSPI_MAX_CS_NUM;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	__atcspi200_spi_start(ns);
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	struct nds_spi_slave *ns = to_nds_spi_slave(slave);
-	__atcspi200_spi_stop(ns);
-}
-#else
 static int atcspi200_spi_set_speed(struct udevice *bus, uint max_hz)
 {
 	struct nds_spi_slave *ns = dev_get_priv(bus);
@@ -496,4 +411,3 @@ U_BOOT_DRIVER(atcspi200_spi) = {
 	.priv_auto_alloc_size = sizeof(struct nds_spi_slave),
 	.probe = atcspi200_spi_probe,
 };
-#endif

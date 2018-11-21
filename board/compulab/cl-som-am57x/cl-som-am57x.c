@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Board functions for CompuLab cl_som_am57x board
  *
  * (C) Copyright 2016 CompuLab, Ltd. http://compulab.co.il/
  *
  * Author: Dmitry Lifshitz <lifshitz@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -16,6 +15,7 @@
 #include <asm/arch/sys_proto.h>
 #include "../common/common.h"
 #include "../common/eeprom.h"
+#include <asm/omap_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -63,4 +63,16 @@ int misc_init_r(void)
 u32 get_board_rev(void)
 {
 	return cl_eeprom_get_board_rev(CONFIG_SYS_I2C_EEPROM_BUS);
+}
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	enable_usb_clocks(index);
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	disable_usb_clocks(index);
+	return 0;
 }

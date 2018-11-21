@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -54,6 +53,16 @@ int misc_call(struct udevice *dev, int msgid, void *tx_msg, int tx_size,
 		return -ENOSYS;
 
 	return ops->call(dev, msgid, tx_msg, tx_size, rx_msg, rx_size);
+}
+
+int misc_set_enabled(struct udevice *dev, bool val)
+{
+	const struct misc_ops *ops = device_get_ops(dev);
+
+	if (!ops->set_enabled)
+		return -ENOSYS;
+
+	return ops->set_enabled(dev, val);
 }
 
 UCLASS_DRIVER(misc) = {

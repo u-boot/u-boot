@@ -5,10 +5,10 @@ config SYS_CONFIG_NAME
 
 config ARCH_UNIPHIER_32BIT
 	bool
-	select CPU_V7
-	select CPU_V7_HAS_NONSEC
-	select ARMV7_NONSEC
 	select ARCH_SUPPORT_PSCI
+	select ARMV7_NONSEC
+	select CPU_V7A
+	select CPU_V7_HAS_NONSEC
 
 choice
         prompt "UniPhier SoC select"
@@ -68,8 +68,8 @@ config ARCH_UNIPHIER_LD11
 config ARCH_UNIPHIER_LD20
 	bool "Enable UniPhier LD20 SoC support"
 	depends on ARCH_UNIPHIER_V8_MULTI
-	select OF_BOARD_SETUP
 	default y
+	select OF_BOARD_SETUP
 
 config ARCH_UNIPHIER_PXS3
 	bool "Enable UniPhier PXs3 SoC support"
@@ -79,8 +79,8 @@ config ARCH_UNIPHIER_PXS3
 config CACHE_UNIPHIER
 	bool "Enable the UniPhier L2 cache controller"
 	depends on ARCH_UNIPHIER_32BIT
-	select SYS_CACHE_SHIFT_7
 	default y
+	select SYS_CACHE_SHIFT_7
 	help
 	  This option allows to use the UniPhier System Cache as L2 cache.
 

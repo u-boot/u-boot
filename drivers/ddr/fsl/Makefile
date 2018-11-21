@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0
 #
 # Copyright 2008-2014 Freescale Semiconductor, Inc.
-#
-# SPDX-License-Identifier:	GPL-2.0
-#
 
 obj-$(CONFIG_SYS_FSL_DDR1) += main.o util.o ctrl_regs.o options.o \
 				lc_common_dimm_params.o

@@ -1,5 +1,5 @@
 DRAGONBOARD410C BOARD
-M:	Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+M:	Ramon Fried <ramon.fried@gmail.com>
 S:	Maintained
 F:	board/qualcomm/dragonboard410c/
 F:	include/configs/dragonboard410c.h

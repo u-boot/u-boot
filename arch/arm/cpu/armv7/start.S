@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * armboot - Startup Code for OMAP3530/ARM Cortex CPU-core
  *
@@ -9,8 +10,6 @@
  * Copyright (c) 2003	Richard Woodruff <r-woodruff2@ti.com>
  * Copyright (c) 2003	Kshitij <kshitij@ti.com>
  * Copyright (c) 2006-2008 Syed Mohammed Khasim <x0khasim@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>
@@ -73,14 +72,18 @@ switch_to_hypervisor_ret:
 	bic	r0, #CR_V		@ V = 0
 	mcr	p15, 0, r0, c1, c0, 0	@ Write CP15 SCTLR Register
 
+#ifdef CONFIG_HAS_VBAR
 	/* Set vector address in CP15 VBAR register */
 	ldr	r0, =_start
 	mcr	p15, 0, r0, c12, c0, 0	@Set VBAR
 #endif
+#endif
 
 	/* the mask ROM code should have PLL and others stable */
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#ifdef CONFIG_CPU_V7A
 	bl	cpu_init_cp15
+#endif
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 	bl	cpu_init_crit
 #endif
@@ -238,56 +241,59 @@ skip_errata_798870:
 skip_errata_801819:
 #endif
 
-#ifdef CONFIG_ARM_ERRATA_454179
-	cmp	r2, #0x21		@ Only on < r2p1
-	bge	skip_errata_454179
-
-	mrc	p15, 0, r0, c1, c0, 1	@ Read ACR
-	orr	r0, r0, #(0x3 << 6)	@ Set DBSM(BIT7) and IBE(BIT6) bits
+#ifdef CONFIG_ARM_CORTEX_A15_CVE_2017_5715
+	mrc	p15, 0, r0, c1, c0, 1	@ read auxilary control register
+	orr	r0, r0, #1 << 0		@ Enable invalidates of BTB
 	push	{r1-r5}			@ Save the cpu info registers
 	bl	v7_arch_cp15_set_acr
 	pop	{r1-r5}			@ Restore the cpu info - fall through
-
-skip_errata_454179:
 #endif
 
-#ifdef CONFIG_ARM_ERRATA_430973
-	cmp	r2, #0x21		@ Only on < r2p1
-	bge	skip_errata_430973
-
+#ifdef CONFIG_ARM_ERRATA_454179
 	mrc	p15, 0, r0, c1, c0, 1	@ Read ACR
-	orr	r0, r0, #(0x1 << 6)	@ Set IBE bit
+
+	cmp	r2, #0x21		@ Only on < r2p1
+	orrlt	r0, r0, #(0x3 << 6)	@ Set DBSM(BIT7) and IBE(BIT6) bits
+
 	push	{r1-r5}			@ Save the cpu info registers
 	bl	v7_arch_cp15_set_acr
 	pop	{r1-r5}			@ Restore the cpu info - fall through
+#endif
 
-skip_errata_430973:
+#if defined(CONFIG_ARM_ERRATA_430973) || defined (CONFIG_ARM_CORTEX_A8_CVE_2017_5715)
+	mrc	p15, 0, r0, c1, c0, 1	@ Read ACR
+
+#ifdef CONFIG_ARM_CORTEX_A8_CVE_2017_5715
+	orr	r0, r0, #(0x1 << 6)	@ Set IBE bit always to enable OS WA
+#else
+	cmp	r2, #0x21		@ Only on < r2p1
+	orrlt	r0, r0, #(0x1 << 6)	@ Set IBE bit
+#endif
+	push	{r1-r5}			@ Save the cpu info registers
+	bl	v7_arch_cp15_set_acr
+	pop	{r1-r5}			@ Restore the cpu info - fall through
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_621766
-	cmp	r2, #0x21		@ Only on < r2p1
-	bge	skip_errata_621766
-
 	mrc	p15, 0, r0, c1, c0, 1	@ Read ACR
-	orr	r0, r0, #(0x1 << 5)	@ Set L1NEON bit
+
+	cmp	r2, #0x21		@ Only on < r2p1
+	orrlt	r0, r0, #(0x1 << 5)	@ Set L1NEON bit
+
 	push	{r1-r5}			@ Save the cpu info registers
 	bl	v7_arch_cp15_set_acr
 	pop	{r1-r5}			@ Restore the cpu info - fall through
-
-skip_errata_621766:
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_725233
-	cmp	r2, #0x21		@ Only on < r2p1 (Cortex A8)
-	bge	skip_errata_725233
-
 	mrc	p15, 1, r0, c9, c0, 2	@ Read L2ACR
-	orr	r0, r0, #(0x1 << 27)	@ L2 PLD data forwarding disable
+
+	cmp	r2, #0x21		@ Only on < r2p1 (Cortex A8)
+	orrlt	r0, r0, #(0x1 << 27)	@ L2 PLD data forwarding disable
+
 	push	{r1-r5}			@ Save the cpu info registers
 	bl	v7_arch_cp15_set_l2aux_ctrl
 	pop	{r1-r5}			@ Restore the cpu info - fall through
-
-skip_errata_725233:
 #endif
 
 #ifdef CONFIG_ARM_ERRATA_852421

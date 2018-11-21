@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 Stephen Warren
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -65,7 +64,7 @@ int bcm2835_power_on_module(u32 module)
 	return 0;
 }
 
-int bcm2835_get_mmc_clock(void)
+int bcm2835_get_mmc_clock(u32 clock_id)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(struct msg_get_clock_rate, msg_clk, 1);
 	int ret;
@@ -76,7 +75,7 @@ int bcm2835_get_mmc_clock(void)
 
 	BCM2835_MBOX_INIT_HDR(msg_clk);
 	BCM2835_MBOX_INIT_TAG(&msg_clk->get_clock_rate, GET_CLOCK_RATE);
-	msg_clk->get_clock_rate.body.req.clock_id = BCM2835_MBOX_CLOCK_ID_EMMC;
+	msg_clk->get_clock_rate.body.req.clock_id = clock_id;
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_clk->hdr);
 	if (ret) {

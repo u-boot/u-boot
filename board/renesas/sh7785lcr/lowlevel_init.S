@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2008 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <config.h>
 #include <asm/processor.h>

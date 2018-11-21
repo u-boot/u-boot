@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2015 Hans de Goede <hdegoede@redhat.com>
  *
  * Sunxi PMIC bus access helpers header
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_PMIC_BUS_H

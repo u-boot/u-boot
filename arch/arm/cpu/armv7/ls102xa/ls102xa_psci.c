@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
  * Author: Hongbo Zhang <hongbo.zhang@nxp.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  * This file implements LS102X platform PSCI SYSTEM-SUSPEND function
  */
 
@@ -74,6 +73,7 @@ static void __secure ls1_deepsleep_irq_cfg(void)
 	 * read, that is why we don't read it from register ippdexpcr1 itself.
 	 */
 	ippdexpcr1 = in_le32(&scfg->sparecr[7]);
+	out_be32(&rcpm->ippdexpcr1, ippdexpcr1);
 
 	if (ippdexpcr0 & RCPM_IPPDEXPCR0_ETSEC)
 		pmcintecr |= SCFG_PMCINTECR_ETSECRXG0 |
@@ -192,6 +192,9 @@ static void __secure ls1_deep_sleep(u32 entry_point)
 	/* Enable Warm Device Reset */
 	setbits_be32(&scfg->dpslpcr, SCFG_DPSLPCR_WDRR_EN);
 	setbits_be32(&gur->crstsr, DCFG_CRSTSR_WDRFR);
+
+	/* Disable QE */
+	setbits_be32(&gur->devdisr, CCSR_DEVDISR1_QE);
 
 	ls1_deepsleep_irq_cfg();
 

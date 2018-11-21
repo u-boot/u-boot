@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011, Google Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 
@@ -11,7 +10,7 @@
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <malloc.h>
 #include <linux/compiler.h>
 

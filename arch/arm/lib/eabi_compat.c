@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Utility functions needed for (some) EABI conformant tool chains.
  *
  * (C) Copyright 2009 Wolfgang Denk <wd@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  *	Copied from Linux Monitor (LiMon) - Networking.
  *
@@ -6,7 +7,6 @@
  *	Copyright 2000 Roland Borde
  *	Copyright 2000 Paolo Scaffardi
  *	Copyright 2000-2002 Wolfgang Denk, wd@denx.de
- *	SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __ARP_H__
@@ -20,6 +20,7 @@ extern uchar *arp_wait_packet_ethaddr;
 extern int arp_wait_tx_packet_size;
 extern ulong arp_wait_timer_start;
 extern int arp_wait_try;
+extern uchar *arp_tx_packet;
 
 void arp_init(void);
 void arp_request(void);

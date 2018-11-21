@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009 SAMSUNG Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Portions Copyright (C) 2011-2012 NVIDIA Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __TEGRA_MMC_H_

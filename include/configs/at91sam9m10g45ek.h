@@ -1,17 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007-2008
  * Stelian Pop <stelian@popies.net>
  * Lead Tech Design <www.leadtechdesign.com>
  *
  * Configuation settings for the AT91SAM9M10G45EK board(and AT91SAM9G45EKES).
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-
-#define CONFIG_SYS_TEXT_BASE		0x73f00000
 
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
@@ -44,12 +41,8 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE           0x70000000
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000
 
@@ -58,7 +51,6 @@
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_BASE			ATMEL_BASE_CS3
 #define CONFIG_SYS_NAND_DBW_8
@@ -82,7 +74,7 @@
 
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env in nandflash */
-#define CONFIG_ENV_OFFSET		0x120000
+#define CONFIG_ENV_OFFSET		0x140000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE			0x20000
 
@@ -98,17 +90,12 @@
 				"bootz 0x72000000 - 0x71000000"
 #endif
 
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
-
 /*
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
 
 /* Defines for SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x300000
 #define CONFIG_SPL_MAX_SIZE		0x010000
 #define CONFIG_SPL_STACK		0x310000

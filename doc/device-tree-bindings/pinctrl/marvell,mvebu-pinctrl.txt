@@ -6,10 +6,10 @@ mpp pins or group of pins and a mpp function common to all pins.
 
 Required properties for the pinctrl driver:
 - compatible:	"marvell,mvebu-pinctrl",
-		"marvell,armada-ap806-pinctrl",
-		"marvell,a70x0-pinctrl",
-		"marvell,a80x0-cp0-pinctrl",
-		"marvell,a80x0-cp1-pinctrl"
+		"marvell,ap806-pinctrl",
+		"marvell,armada-7k-pinctrl",
+		"marvell,armada-8k-cpm-pinctrl",
+		"marvell,armada-8k-cps-pinctrl"
 - bank-name:	A string defining the pinc controller bank name
 - reg: 		A pair of values defining the pin controller base address
 		and the address space
@@ -31,7 +31,7 @@ Example:
 		config-space {
 			pinctl: pinctl@6F4000 {
 				compatible = "marvell,mvebu-pinctrl",
-					     "marvell,armada-ap806-pinctrl";
+					     "marvell,ap806-pinctrl";
 				bank-name ="apn-806";
 				reg = <0x6F4000 0x10>;
 				pin-count = <20>;
@@ -52,8 +52,8 @@ Example:
 		config-space {
 			cpm_pinctl: pinctl@44000 {
 				compatible = "marvell,mvebu-pinctrl",
-					     "marvell,a70x0-pinctrl",
-					     "marvell,a80x0-cp0-pinctrl";
+					     "marvell,armada-7k-pinctrl",
+					     "marvell,armada-8k-cpm-pinctrl";
 				bank-name ="cp0-110";
 				reg = <0x440000 0x20>;
 				pin-count = <63>;
@@ -89,7 +89,7 @@ Example:
 		config-space {
 			cps_pinctl: pinctl@44000 {
 				compatible = "marvell,mvebu-pinctrl",
-					     "marvell,a80x0-cp1-pinctrl";
+					     "marvell,armada-8k-cps-pinctrl";
 				bank-name ="cp1-110";
 				reg = <0x440000 0x20>;
 				pin-count = <63>;

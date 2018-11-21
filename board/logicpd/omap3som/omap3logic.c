@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011
  * Logic Product Development <www.logicpd.com>
@@ -8,8 +9,6 @@
  * Derived from Beagle Board and 3430 SDP code by
  *	Richard Woodruff <r-woodruff2@ti.com>
  *	Syed Mohammed Khasim <khasim@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <dm.h>
@@ -25,6 +24,7 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <asm/omap_mmc.h>
 #include <asm/mach-types.h>
 #include <linux/mtd/rawnand.h>
 #include <asm/omap_musb.h>
@@ -40,6 +40,22 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG1	0x00011203
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG2	0x000A1302
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG3	0x000F1302
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG4	0x0A021303
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG5	0x00120F18
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG6	0x0A030000
+#define LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG7	0x00000C50
+
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG1	0x00011203
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG2	0x00091102
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG3	0x000D1102
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG4	0x09021103
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG5	0x00100D15
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG6	0x09030000
+#define LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG7	0x00000C50
+
 /* This is only needed until SPL gets OF support */
 #ifdef CONFIG_SPL_BUILD
 static const struct ns16550_platdata omap3logic_serial = {
@@ -50,44 +66,25 @@ static const struct ns16550_platdata omap3logic_serial = {
 };
 
 U_BOOT_DEVICE(omap3logic_uart) = {
-	"ns16550_serial",
+	"omap_serial",
 	&omap3logic_serial
 };
-#endif
 
-/*
- * two dimensional array of strucures containining board name and Linux
- * machine IDs; row it selected based on CPU column is slected based
- * on hsusb0_data5 pin having a pulldown resistor
- */
-static struct board_id {
-	char *name;
-	int machine_id;
-	char *fdtfile;
-} boards[2][2] = {
-	{
-		{
-			.name		= "OMAP35xx SOM LV",
-			.machine_id	= MACH_TYPE_OMAP3530_LV_SOM,
-			.fdtfile	= "logicpd-som-lv-35xx-devkit.dtb",
-		},
-		{
-			.name		= "OMAP35xx Torpedo",
-			.machine_id	= MACH_TYPE_OMAP3_TORPEDO,
-			.fdtfile	= "logicpd-torpedo-35xx-devkit.dtb",
-		},
-	},
-	{
-		{
-			.name		= "DM37xx SOM LV",
-			.fdtfile	= "logicpd-som-lv-37xx-devkit.dtb",
-		},
-		{
-			.name		= "DM37xx Torpedo",
-			.fdtfile	= "logicpd-torpedo-37xx-devkit.dtb",
-		},
-	},
+static const struct omap_hsmmc_plat omap3_logic_mmc0_platdata = {
+	.base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE,
+	.cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_4BIT,
+	.cfg.f_min = 400000,
+	.cfg.f_max = 52000000,
+	.cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195,
+	.cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT,
 };
+
+U_BOOT_DEVICE(omap3_logic_mmc0) = {
+	.name = "omap_hsmmc",
+	.platdata = &omap3_logic_mmc0_platdata,
+};
+
+#endif
 
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
@@ -108,11 +105,21 @@ int spl_start_uboot(void)
 void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
 	timings->mr = MICRON_V_MR_165;
-	/* 256MB DDR */
-	timings->mcfg = MICRON_V_MCFG_200(256 << 20);
-	timings->ctrla = MICRON_V_ACTIMA_200;
-	timings->ctrlb = MICRON_V_ACTIMB_200;
-	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+
+	if (get_cpu_family() == CPU_OMAP36XX) {
+		/* 200 MHz works for OMAP36/DM37 */
+		/* 256MB DDR */
+		timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_200;
+		timings->ctrlb = MICRON_V_ACTIMB_200;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+	} else {
+		/* 165 MHz works for OMAP35 */
+		timings->mcfg = MICRON_V_MCFG_165(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	}
 }
 
 #define GPMC_NAND_COMMAND_0 (OMAP34XX_GPMC_BASE + 0x7c)
@@ -157,6 +164,7 @@ void spl_board_prepare_for_linux(void)
 }
 #endif
 
+#if !CONFIG_IS_ENABLED(DM_USB)
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
 static struct musb_hdrc_config musb_config = {
 	.multipoint     = 1,
@@ -210,8 +218,7 @@ int ehci_hcd_stop(int index)
 }
 
 #endif /* CONFIG_USB_EHCI_HCD */
-
-
+#endif /* !DM_USB*/
 /*
  * Routine: misc_init_r
  * Description: Configure board specific parts
@@ -221,17 +228,35 @@ int misc_init_r(void)
 	twl4030_power_init();
 	omap_die_id_display();
 
+#if !CONFIG_IS_ENABLED(DM_USB)
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
 	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
 #endif
-
+#endif
 	return 0;
 }
 
-/*
- * BOARD_ID_GPIO - GPIO of pin with optional pulldown resistor on SOM LV
- */
-#define BOARD_ID_GPIO	189 /* hsusb0_data5 pin */
+#if defined(CONFIG_FLASH_CFI_DRIVER)
+static const u32 gpmc_dm37_c2nor_config[] = {
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG1,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG2,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG3,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG4,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG5,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG6,
+	LOGIC_MT28_DM37_ASYNC_GPMC_CONFIG7
+};
+
+static const u32 gpmc_omap35_c2nor_config[] = {
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG1,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG2,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG3,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG4,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG5,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG6,
+	LOGIC_MT28_OMAP35_ASYNC_GPMC_CONFIG7
+};
+#endif
 
 /*
  * Routine: board_init
@@ -243,7 +268,16 @@ int board_init(void)
 
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
-
+#if defined(CONFIG_FLASH_CFI_DRIVER)
+	if (get_cpu_family() == CPU_OMAP36XX) {
+		/* Enable CS2 for NOR Flash */
+		enable_gpmc_cs_config(gpmc_dm37_c2nor_config, &gpmc_cfg->cs[2],
+				      0x10000000, GPMC_SIZE_64M);
+	} else {
+		enable_gpmc_cs_config(gpmc_omap35_c2nor_config, &gpmc_cfg->cs[2],
+				      0x10000000, GPMC_SIZE_64M);
+	}
+#endif
 	return 0;
 }
 
@@ -260,65 +294,10 @@ static void unlock_nand(void)
 
 int board_late_init(void)
 {
-	struct board_id *board;
-	unsigned int val;
-
-	/*
-	 * To identify between a SOM LV and Torpedo module,
-	 * a pulldown resistor is on hsusb0_data5 for the SOM LV module.
-	 * Drive the pin (and let it soak), then read it back.
-	 * If the pin is still high its a Torpedo.  If low its a SOM LV
-	 */
-
-	/* Mux hsusb0_data5 as a GPIO */
-	MUX_VAL(CP(HSUSB0_DATA5),	(IEN  | PTD | DIS | M4));
-
-	if (gpio_request(BOARD_ID_GPIO, "husb0_data5.gpio_189") == 0) {
-
-		/*
-		 * Drive BOARD_ID_GPIO - the pulldown resistor on the SOM LV
-		 * will drain the voltage.
-		 */
-		gpio_direction_output(BOARD_ID_GPIO, 0);
-		gpio_set_value(BOARD_ID_GPIO, 1);
-
-		/* Let it soak for a bit */
-		sdelay(0x100);
-
-		/*
-		 * Read state of BOARD_ID_GPIO as an input and if its set.
-		 * If so the board is a Torpedo
-		 */
-		gpio_direction_input(BOARD_ID_GPIO);
-		val = gpio_get_value(BOARD_ID_GPIO);
-		gpio_free(BOARD_ID_GPIO);
-
-		board = &boards[!!(get_cpu_family() == CPU_OMAP36XX)][!!val];
-		printf("Board: %s\n", board->name);
-
-		/* Set the machine_id passed to Linux */
-		if (board->machine_id)
-			gd->bd->bi_arch_number = board->machine_id;
-
-		/* If the user has not set fdtimage, set the default */
-		if (!env_get("fdtimage"))
-			env_set("fdtimage", board->fdtfile);
-	}
-
-	/* restore hsusb0_data5 pin as hsusb0_data5 */
-	MUX_VAL(CP(HSUSB0_DATA5),	(IEN  | PTD | DIS | M0));
-
 #ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
 	unlock_nand();
 #endif
 	return 0;
-}
-#endif
-
-#if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
-{
-	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 #endif
 
@@ -348,5 +327,3 @@ int board_eth_init(bd_t *bis)
 	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
 }
 #endif
-
-

@@ -1,7 +1,5 @@
-#
+# SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2014 Google, Inc
-#
-# SPDX-License-Identifier:      GPL-2.0+
 #
 
 from optparse import OptionParser
@@ -32,6 +30,8 @@ def ParseArgs():
           help="Don't build, just configure each commit")
     parser.add_option('-e', '--show_errors', action='store_true',
           default=False, help='Show errors and warnings')
+    parser.add_option('-E', '--warnings-as-errors', action='store_true',
+          default=False, help='Treat all compiler warnings as errors')
     parser.add_option('-f', '--force-build', dest='force_build',
           action='store_true', default=False,
           help='Force build of boards even if already built')
@@ -92,6 +92,8 @@ def ParseArgs():
           default=None, help='Number of builder threads to use')
     parser.add_option('-u', '--show_unknown', action='store_true',
           default=False, help='Show boards with unknown build result')
+    parser.add_option('-U', '--show-environment', action='store_true',
+          default=False, help='Show environment changes in summary')
     parser.add_option('-v', '--verbose', action='store_true',
           default=False, help='Show build results while the build progresses')
     parser.add_option('-V', '--verbose-build', action='store_true',

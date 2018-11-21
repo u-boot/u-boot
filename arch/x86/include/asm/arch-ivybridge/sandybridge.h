@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2014 Google, Inc
  *
@@ -5,8 +6,6 @@
  *
  * Copyright (C) 2007-2008 coresystems GmbH
  * Copyright (C) 2011 Google Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _ACH_ASM_SANDYBRIDGE_H

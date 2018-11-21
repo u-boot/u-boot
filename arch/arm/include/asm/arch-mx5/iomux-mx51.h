@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009-2010 Amit Kucheria <amit.kucheria@canonical.com>
  * Copyright (C) 2010 Freescale Semiconductor, Inc.
  * Copyright (C) 2009-2012 Genesi USA, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

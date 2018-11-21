@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007-2011
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Tom Cubie <tangliang@allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_CPU_SUN4I_H
@@ -64,10 +63,11 @@
 #ifdef CONFIG_SUNXI_GEN_SUN6I
 #if defined(CONFIG_MACH_SUNXI_H3_H5) || defined(CONFIG_MACH_SUN50I)
 #define SUNXI_USBPHY_BASE		0x01c19000
-#define SUNXI_USB0_BASE			0x01c1a000
-#define SUNXI_USB1_BASE			0x01c1b000
-#define SUNXI_USB2_BASE			0x01c1c000
-#define SUNXI_USB3_BASE			0x01c1d000
+#define SUNXI_USB0_BASE			SUNXI_USBPHY_BASE
+#define SUNXI_USB1_BASE			0x01c1a000
+#define SUNXI_USB2_BASE			0x01c1b000
+#define SUNXI_USB3_BASE			0x01c1c000
+#define SUNXI_USB4_BASE			0x01c1d000
 #else
 #define SUNXI_USB0_BASE			0x01c19000
 #define SUNXI_USB1_BASE			0x01c1a000

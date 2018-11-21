@@ -1,14 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Altera SoCFPGA common board code
  *
  * Copyright (C) 2015 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <errno.h>
+#include <fdtdec.h>
 #include <asm/arch/reset_manager.h>
+#include <asm/arch/clock_manager.h>
+#include <asm/arch/misc.h>
 #include <asm/io.h>
 
 #include <usb.h>
@@ -16,7 +18,22 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void s_init(void) {}
+void s_init(void) {
+#ifndef CONFIG_ARM64
+	/*
+	 * Preconfigure ACTLR and CPACR, make sure Write Full Line of Zeroes
+	 * is disabled in ACTLR.
+	 * This is optional on CycloneV / ArriaV.
+	 * This is mandatory on Arria10, otherwise Linux refuses to boot.
+	 */
+	asm volatile(
+		"mcr p15, 0, %0, c1, c0, 1\n"
+		"mcr p15, 0, %0, c1, c0, 2\n"
+		"isb\n"
+		"dsb\n"
+	::"r"(0x0));
+#endif
+}
 
 /*
  * Miscellaneous platform dependent initialisations
@@ -25,6 +42,13 @@ int board_init(void)
 {
 	/* Address of boot parameters for ATAG (if ATAG is used) */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
+	return 0;
+}
+
+int dram_init_banksize(void)
+{
+	fdtdec_setup_memory_banksize();
 
 	return 0;
 }

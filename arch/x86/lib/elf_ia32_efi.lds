@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
 /*
  * U-Boot EFI linker script
- *
- * SPDX-License-Identifier:	BSD-2-Clause
  *
  * Modified from usr/lib32/elf_ia32_efi.lds in gnu-efi
  */
@@ -47,7 +46,7 @@ SECTIONS
 		*(.sbss)
 		*(.scommon)
 		*(.dynbss)
-		*(.bss)
+		*(.bss*)
 		*(COMMON)
 
 		/* U-Boot lists and device tree */

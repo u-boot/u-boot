@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2007-2009 coresystems GmbH
  * Copyright (C) 2016 Bin Meng <bmeng.cn@gmail.com>
  *
  * Modified from coreboot src/soc/intel/baytrail/acpi/usb.asl
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* EHCI Controller 0:1d.0 */

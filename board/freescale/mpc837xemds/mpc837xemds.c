@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2007,2010 Freescale Semiconductor, Inc.
  * Dave Liu <daveliu@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -12,7 +11,7 @@
 #include <asm/fsl_mpc83xx_serdes.h>
 #include <spd_sdram.h>
 #include <tsec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
 #include <fsl_mdio.h>

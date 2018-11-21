@@ -1,17 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <reset-uclass.h>
+#include <stm32_rcc.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+/* reset clear offset for STM32MP RCC */
+#define RCC_CL 0x4
 
 struct stm32_reset_priv {
 	fdt_addr_t base;
@@ -35,7 +36,11 @@ static int stm32_reset_assert(struct reset_ctl *reset_ctl)
 	debug("%s: reset id = %ld bank = %d offset = %d)\n", __func__,
 	      reset_ctl->id, bank, offset);
 
-	setbits_le32(priv->base + bank, BIT(offset));
+	if (dev_get_driver_data(reset_ctl->dev) == STM32MP1)
+		/* reset assert is done in rcc set register */
+		writel(BIT(offset), priv->base + bank);
+	else
+		setbits_le32(priv->base + bank, BIT(offset));
 
 	return 0;
 }
@@ -48,7 +53,11 @@ static int stm32_reset_deassert(struct reset_ctl *reset_ctl)
 	debug("%s: reset id = %ld bank = %d offset = %d)\n", __func__,
 	      reset_ctl->id, bank, offset);
 
-	clrbits_le32(priv->base + bank, BIT(offset));
+	if (dev_get_driver_data(reset_ctl->dev) == STM32MP1)
+		/* reset deassert is done in rcc clr register */
+		writel(BIT(offset), priv->base + bank + RCC_CL);
+	else
+		clrbits_le32(priv->base + bank, BIT(offset));
 
 	return 0;
 }
@@ -64,9 +73,13 @@ static int stm32_reset_probe(struct udevice *dev)
 {
 	struct stm32_reset_priv *priv = dev_get_priv(dev);
 
-	priv->base = devfdt_get_addr(dev);
-	if (priv->base == FDT_ADDR_T_NONE)
-		return -EINVAL;
+	priv->base = dev_read_addr(dev);
+	if (priv->base == FDT_ADDR_T_NONE) {
+		/* for MFD, get address of parent */
+		priv->base = dev_read_addr(dev->parent);
+		if (priv->base == FDT_ADDR_T_NONE)
+			return -EINVAL;
+	}
 
 	return 0;
 }

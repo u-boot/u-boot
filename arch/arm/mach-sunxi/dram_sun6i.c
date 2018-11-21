@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Sun6i platform dram controller init.
  *
@@ -7,8 +8,6 @@
  * Tom Cubie <tangliang@allwinnertech.com>
  *
  * (C) Copyright 2014 Hans de Goede <hdegoede@redhat.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <errno.h>

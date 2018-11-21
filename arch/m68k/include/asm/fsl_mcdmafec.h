@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * fsl_mcdmafec.h -- Multi-channel DMA Fast Ethernet Controller definitions
  *
  * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef fsl_mcdmafec_h

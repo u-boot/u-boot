@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008
  * Sergei Poselenov, Emcraft Systems, sposelenov@emcraft.com.
@@ -7,8 +8,6 @@
  * Xianghua Xiao, (X.Xiao@motorola.com)
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,7 +16,7 @@
 #include <asm/immap_85xx.h>
 #include <ioports.h>
 #include <flash.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/io.h>
 #include <i2c.h>

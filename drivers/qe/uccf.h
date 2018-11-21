@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2006 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  * based on source code of Shlomi Gridish
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __UCCF_H__

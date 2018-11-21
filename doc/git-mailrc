@@ -15,55 +15,48 @@ alias abiessmann     Andreas Bießmann <andreas@biessmann.org>
 alias abrodkin       Alexey Brodkin <alexey.brodkin@synopsys.com>
 alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>
-alias alisonwang     Alison Wang <alison.wang@freescale.com>
+alias agraf          Alexander Graf <agraf@suse.de>
+alias alisonwang     Alison Wang <alison.wang@nxp.com>
 alias angelo_ts      Angelo Dureghello <angelo@sysam.it>
 alias bmeng          Bin Meng <bmeng.cn@gmail.com>
 alias danielschwierzeck Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
-alias dinh	     Dinh Nguyen <dinguyen@kernel.org>
-alias galak          Kumar Gala <galak@kernel.crashing.org>
+alias dinh           Dinh Nguyen <dinguyen@kernel.org>
 alias hs             Heiko Schocher <hs@denx.de>
-alias ijc            Ian Campbell <ijc+uboot@hellion.org.uk>
 alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 alias jaehoon        Jaehoon Chung <jh80.chung@samsung.com>
 alias jagan          Jagan Teki <jagan@openedev.com>
-alias jasonjin       Jason Jin <jason.jin@freescale.com>
 alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
-alias jwrdegoede     Hans de Goede <hdegoede@redhat.com>
-alias kimphill       Kim Phillips <kim.phillips@freescale.com>
 alias luka           Luka Perkov <luka.perkov@sartura.hr>
-alias lukma          Lukasz Majewski <l.majewski@denx.de>
+alias lukma          Lukasz Majewski <lukma@denx.de>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
+alias mariosix       Mario Six <mario.six@gdsys.cc>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
-alias maxime	     Maxime Ripard <maxime.ripard@free-electrons.com>
+alias maxime         Maxime Ripard <maxime.ripard@free-electrons.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
 alias ptomsich       Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
-alias rbohmer        Remy Bohmer <linux@bohmer.net>
-alias reinhardm      Reinhard Meyer <u-boot@emk-elektronik.de>
 alias sbabic         Stefano Babic <sbabic@denx.de>
-alias scottwood      Scott Wood <scottwood@freescale.com>
 alias sjg            Simon Glass <sjg@chromium.org>
 alias smcnutt        Scott McNutt <smcnutt@psyent.com>
-alias sonic          Sonic Zhang <sonic.adi@gmail.com>
 alias stroese        Stefan Roese <sr@denx.de>
 alias trini          Tom Rini <trini@konsulko.com>
-alias vapier         Mike Frysinger <vapier@gentoo.org>
 alias wd             Wolfgang Denk <wd@denx.de>
+alias yorksun        York Sun <york.sun@nxp.com>
 
 # Architecture aliases
-alias arch           arc, arm, bfin, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, sparc, x86
+alias arch           arc, arm, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, x86
 alias arches         arch
 
 alias arc            uboot, abrodkin
 
-alias arm            uboot, aaribaud
+alias arm            uboot, aaribaud, trini
 alias at91           uboot, abiessmann
 alias davinci        ti
 alias imx            uboot, sbabic
-alias kirkwood       uboot, prafulla, luka
+alias kirkwood       uboot, prafulla, luka, stroese
 alias omap           ti
 alias pxa            uboot, marex
 alias rmobile        uboot, iwamatsu
@@ -80,9 +73,6 @@ alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
 alias rockchip       uboot, sjg, Kever Yang <kever.yang@rock-chips.com>, ptomsich
 
-alias bfin           uboot, vapier, sonic
-alias blackfin       bfin
-
 alias m68k           uboot, alisonwang, angelo_ts
 alias coldfire       m68k
 
@@ -96,22 +86,17 @@ alias nds32          uboot, macpaul
 alias nios           uboot, Thomas Chou <thomas@wytron.com.tw>, smcnutt
 alias nios2          nios
 
-alias powerpc        uboot, afleming, kimphill, galak, stroese, wd
+alias powerpc        uboot, afleming, stroese, wd, yorksun, mariosix
 alias ppc            powerpc
-alias mpc5xxx        uboot, wd
-alias mpc8xx         uboot, wd
-alias mpc82xx        uboot, wd
-alias mpc83xx        uboot, kimphill
-alias mpc85xx        uboot, afleming, galak
-alias mpc86xx        uboot, afleming, galak
-alias ppc4xx         uboot, stroese
+alias mpc8xx         uboot, wd, Christophe Leroy <christophe.leroy@c-s.fr>
+alias mpc83xx        uboot, yorksun, mariosix
+alias mpc85xx        uboot, afleming, yorksun
+alias mpc86xx        uboot, afleming, yorksun
 
 alias sandbox        sjg
 alias sb             sandbox
 
-alias sparc          uboot, Francois Retief <fgretief@spaceteq.co.za>
-
-alias superh         uboot, iwamatsu
+alias superh         uboot, iwamatsu, marex
 alias sh             superh
 
 alias x86            uboot, sjg, bmeng
@@ -120,13 +105,14 @@ alias x86            uboot, sjg, bmeng
 alias dm             uboot, sjg
 alias cfi            uboot, stroese
 alias dfu            uboot, lukma
+alias efi            uboot, agraf
 alias eth            uboot, jhersh
 alias kerneldoc      uboot, marex
 alias fdt            uboot, sjg
 alias i2c            uboot, hs
 alias kconfig        uboot, masahiro
 alias mmc            uboot, jaehoon
-alias nand           uboot, scottwood
+alias nand           uboot
 alias net            uboot, jhersh
 alias phy            uboot, jhersh
 alias spi            uboot, jagan

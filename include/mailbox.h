@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2016, NVIDIA CORPORATION.
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #ifndef _MAILBOX_H
@@ -45,6 +44,7 @@ struct udevice;
  *
  * @dev: The device which implements the mailbox.
  * @id: The mailbox channel ID within the provider.
+ * @con_priv: Hook for controller driver to attach private data
  *
  * Currently, the mailbox API assumes that a single integer ID is enough to
  * identify and configure any mailbox channel for any mailbox provider. If this
@@ -57,11 +57,9 @@ struct udevice;
  */
 struct mbox_chan {
 	struct udevice *dev;
-	/*
-	 * Written by of_xlate. We assume a single id is enough for now. In the
-	 * future, we might add more fields here.
-	 */
+	/* Written by of_xlate.*/
 	unsigned long id;
+	void *con_priv;
 };
 
 /**

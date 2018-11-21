@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2009
  * Guennadi Liakhovetski, DENX Software Engineering, <lg@denx.de>
  * Copyright (C) 2011
  * HALE electronic GmbH, <helmut.raiger@hale.at>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <malloc.h>
@@ -343,8 +342,6 @@ union chan_param_mem {
 	struct chan_param_mem_planar		pp;
 	struct chan_param_mem_interleaved	ip;
 };
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* graphics setup */
 static GraphicDevice panel;

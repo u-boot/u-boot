@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Low-level board setup code for TI DaVinci SoC based boards.
  *
@@ -20,8 +21,6 @@
  * Modified for DV-EVM board by Rishi Bhattacharya, Apr 2005
  *
  * Modified for DV-EVM board by Swaminathan S, Nov 2005
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

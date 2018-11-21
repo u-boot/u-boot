@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
  * Copyright 2017 NXP
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __FSL_SECURE_BOOT_H
@@ -26,6 +25,14 @@
 
 #define CONFIG_KEY_REVOCATION
 
+#if defined(CONFIG_FSL_LAYERSCAPE)
+/*
+ * For fsl layerscape based platforms, ESBC image Address in Header
+ * is 64 bit.
+ */
+#define CONFIG_ESBC_ADDR_64BIT
+#endif
+
 #ifndef CONFIG_SPL_BUILD
 #ifndef CONFIG_SYS_RAMBOOT
 /* The key used for verification of next level images
@@ -40,14 +47,6 @@
  */
 #define CONFIG_FSL_ISBC_KEY_EXT
 
-#endif
-
-#if defined(CONFIG_FSL_LAYERSCAPE)
-/*
- * For fsl layerscape based platforms, ESBC image Address in Header
- * is 64 bit.
- */
-#define CONFIG_ESBC_ADDR_64BIT
 #endif
 
 #ifdef CONFIG_ARCH_LS2080A

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Freescale i.MX23/i.MX28 common code
  *
@@ -6,8 +7,6 @@
  *
  * Based on code from LTIB:
  * Copyright (C) 2010 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -24,7 +23,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Lowlevel init isn't used on i.MX28, so just have a dummy here */
-void lowlevel_init(void) {}
+__weak void lowlevel_init(void) {}
 
 void reset_cpu(ulong ignored) __attribute__((noreturn));
 
@@ -48,16 +47,6 @@ void reset_cpu(ulong ignored)
 	/* Endless loop, reset will exit from here */
 	for (;;)
 		;
-}
-
-void enable_caches(void)
-{
-#ifndef CONFIG_SYS_ICACHE_OFF
-	icache_enable();
-#endif
-#ifndef CONFIG_SYS_DCACHE_OFF
-	dcache_enable();
-#endif
 }
 
 /*
@@ -178,8 +167,7 @@ const char *get_imx_type(u32 imxtype)
 int print_cpuinfo(void)
 {
 	u32 cpurev;
-	struct mxs_spl_data *data = (struct mxs_spl_data *)
-		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
+	struct mxs_spl_data *data = MXS_SPL_DATA;
 
 	cpurev = get_cpu_rev();
 	printf("CPU:   Freescale i.MX%s rev%d.%d at %d MHz\n",
@@ -277,8 +265,7 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 
 int mxs_dram_init(void)
 {
-	struct mxs_spl_data *data = (struct mxs_spl_data *)
-		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
+	struct mxs_spl_data *data = MXS_SPL_DATA;
 
 	if (data->mem_dram_size == 0) {
 		printf("MXS:\n"

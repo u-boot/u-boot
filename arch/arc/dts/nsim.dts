@@ -1,13 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015-2016 Synopsys, Inc. (www.synopsys.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 
 #include "skeleton.dtsi"
 
 / {
+	model = "snps,nsim";
+
 	aliases {
 		console = &arcuart0;
 	};

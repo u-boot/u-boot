@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -68,7 +67,7 @@ void acpi_create_fadt(struct acpi_fadt *fadt, struct acpi_facs *facs,
 	fadt->reset_reg.access_size = ACPI_ACCESS_SIZE_BYTE_ACCESS;
 	fadt->reset_reg.addrl = IO_PORT_RESET;
 	fadt->reset_reg.addrh = 0;
-	fadt->reset_value = SYS_RST | RST_CPU;
+	fadt->reset_value = SYS_RST | RST_CPU | FULL_RST;
 
 	fadt->x_firmware_ctl_l = (u32)facs;
 	fadt->x_firmware_ctl_h = 0;

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2013 Freescale Semiconductor, Inc.
  *
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>
@@ -254,7 +253,7 @@ int checkboard(void)
 
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #define USDHC1_CD_GPIO	IMX_GPIO_NR(4, 7)
 #define USDHC2_CD_GPIO	IMX_GPIO_NR(5, 0)

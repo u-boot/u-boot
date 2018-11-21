@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sunxi platform Push-Push i2c register definition.
  *
@@ -8,8 +9,6 @@
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Berg Xing <bergxing@allwinnertech.com>
  * Tom Cubie <tangliang@allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_P2WI_H

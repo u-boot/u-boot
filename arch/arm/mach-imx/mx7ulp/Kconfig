@@ -9,6 +9,7 @@ choice
 
 config TARGET_MX7ULP_EVK
         bool "Support mx7ulp EVK board"
+	select SYS_ARCH_TIMER
 
 endchoice
 

@@ -1,20 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010,2011
  * Vladimir Khusainov, Emcraft Systems, vlad@emcraft.com
  *
  * (C) Copyright 2015
  * Kamil Lulko, <kamil.lulko@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef ARMV7M_H
 #define ARMV7M_H
-
-#if defined(__ASSEMBLY__)
-.syntax unified
-.thumb
-#endif
 
 /* armv7m fixed base addresses */
 #define V7M_SCS_BASE		0xE000E000

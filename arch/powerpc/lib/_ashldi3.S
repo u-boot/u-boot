@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * This code was copied from arch/powerpc/kernel/misc_32.S in the Linux
  * kernel sources (commit 85e2efbb1db9a18d218006706d6e4fbeb0216213, also
@@ -7,8 +8,6 @@
  *
  * Largely rewritten by Cort Dougan (cort@cs.nmt.edu)
  * and Paul Mackerras.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <ppc_asm.tmpl>

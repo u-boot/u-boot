@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2013-2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ARCH_FSL_LSCH2_IMMAP_H__
@@ -23,6 +22,8 @@
 #define CONFIG_SYS_FSL_GUTS_ADDR		(CONFIG_SYS_IMMR + 0x00ee0000)
 #define CONFIG_SYS_FSL_RST_ADDR			(CONFIG_SYS_IMMR + 0x00ee00b0)
 #define CONFIG_SYS_FSL_SCFG_ADDR		(CONFIG_SYS_IMMR + 0x00570000)
+#define CONFIG_SYS_FSL_BMAN_ADDR		(CONFIG_SYS_IMMR + 0x00890000)
+#define CONFIG_SYS_FSL_QMAN_ADDR		(CONFIG_SYS_IMMR + 0x00880000)
 #define CONFIG_SYS_FSL_FMAN_ADDR		(CONFIG_SYS_IMMR + 0x00a00000)
 #define CONFIG_SYS_FSL_SERDES_ADDR		(CONFIG_SYS_IMMR + 0x00ea0000)
 #define CONFIG_SYS_FSL_DCFG_ADDR		(CONFIG_SYS_IMMR + 0x00ee0000)
@@ -41,6 +42,32 @@
 #define CONFIG_SYS_SEC_MON_ADDR			(CONFIG_SYS_IMMR + 0xe90000)
 #define CONFIG_SYS_SFP_ADDR			(CONFIG_SYS_IMMR + 0xe80200)
 
+#define CONFIG_SYS_BMAN_NUM_PORTALS	10
+#define CONFIG_SYS_BMAN_MEM_BASE	0x508000000
+#define CONFIG_SYS_BMAN_MEM_PHYS	(0xf00000000ull + \
+						CONFIG_SYS_BMAN_MEM_BASE)
+#define CONFIG_SYS_BMAN_MEM_SIZE	0x08000000
+#define CONFIG_SYS_BMAN_SP_CENA_SIZE    0x10000
+#define CONFIG_SYS_BMAN_SP_CINH_SIZE    0x10000
+#define CONFIG_SYS_BMAN_CENA_BASE       CONFIG_SYS_BMAN_MEM_BASE
+#define CONFIG_SYS_BMAN_CENA_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_CINH_BASE       (CONFIG_SYS_BMAN_MEM_BASE + \
+					CONFIG_SYS_BMAN_CENA_SIZE)
+#define CONFIG_SYS_BMAN_CINH_SIZE       (CONFIG_SYS_BMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_BMAN_SWP_ISDR_REG    0x3E80
+#define CONFIG_SYS_QMAN_NUM_PORTALS	10
+#define CONFIG_SYS_QMAN_MEM_BASE	0x500000000
+#define CONFIG_SYS_QMAN_MEM_PHYS	CONFIG_SYS_QMAN_MEM_BASE
+#define CONFIG_SYS_QMAN_MEM_SIZE	0x08000000
+#define CONFIG_SYS_QMAN_SP_CENA_SIZE    0x10000
+#define CONFIG_SYS_QMAN_SP_CINH_SIZE    0x10000
+#define CONFIG_SYS_QMAN_CENA_BASE       CONFIG_SYS_QMAN_MEM_BASE
+#define CONFIG_SYS_QMAN_CENA_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_CINH_BASE       (CONFIG_SYS_QMAN_MEM_BASE + \
+					CONFIG_SYS_QMAN_CENA_SIZE)
+#define CONFIG_SYS_QMAN_CINH_SIZE       (CONFIG_SYS_QMAN_MEM_SIZE >> 1)
+#define CONFIG_SYS_QMAN_SWP_ISDR_REG	0x3680
+
 #define CONFIG_SYS_FSL_TIMER_ADDR		0x02b00000
 
 #define I2C1_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01180000)
@@ -53,9 +80,20 @@
 #define QSPI0_BASE_ADDR				(CONFIG_SYS_IMMR + 0x00550000)
 #define DSPI1_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01100000)
 
+#define GPIO1_BASE_ADDR				(CONFIG_SYS_IMMR + 0x1300000)
+#define GPIO2_BASE_ADDR				(CONFIG_SYS_IMMR + 0x1310000)
+#define GPIO3_BASE_ADDR				(CONFIG_SYS_IMMR + 0x1320000)
+#define GPIO4_BASE_ADDR				(CONFIG_SYS_IMMR + 0x1330000)
+
+#define QE_BASE_ADDR				(CONFIG_SYS_IMMR + 0x1400000)
+
 #define LPUART_BASE				(CONFIG_SYS_IMMR + 0x01950000)
 
+#define EDMA_BASE_ADDR				(CONFIG_SYS_IMMR + 0x01c00000)
+
 #define AHCI_BASE_ADDR				(CONFIG_SYS_IMMR + 0x02200000)
+
+#define QDMA_BASE_ADDR				(CONFIG_SYS_IMMR + 0x07380000)
 
 #define CONFIG_SYS_PCIE1_PHYS_ADDR		0x4000000000ULL
 #define CONFIG_SYS_PCIE2_PHYS_ADDR		0x4800000000ULL
@@ -164,13 +202,23 @@ struct sys_info {
 
 #define CONFIG_SYS_FSL_SEC_OFFSET		0x700000ull
 #define CONFIG_SYS_FSL_JR0_OFFSET		0x710000ull
+#define FSL_SEC_JR0_OFFSET			CONFIG_SYS_FSL_JR0_OFFSET
+#define FSL_SEC_JR1_OFFSET			0x720000ull
+#define FSL_SEC_JR2_OFFSET			0x730000ull
+#define FSL_SEC_JR3_OFFSET			0x740000ull
 #define CONFIG_SYS_FSL_SEC_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_SEC_OFFSET)
 #define CONFIG_SYS_FSL_JR0_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_JR0_OFFSET)
+#define FSL_SEC_JR0_BASE_ADDR (CONFIG_SYS_IMMR + FSL_SEC_JR0_OFFSET)
+#define FSL_SEC_JR1_BASE_ADDR (CONFIG_SYS_IMMR + FSL_SEC_JR1_OFFSET)
+#define FSL_SEC_JR2_BASE_ADDR (CONFIG_SYS_IMMR + FSL_SEC_JR2_OFFSET)
+#define FSL_SEC_JR3_BASE_ADDR (CONFIG_SYS_IMMR + FSL_SEC_JR3_OFFSET)
 
 /* Device Configuration and Pin Control */
 #define DCFG_DCSR_PORCR1		0x0
+#define DCFG_DCSR_ECCCR2		0x524
+#define DISABLE_PFE_ECC			BIT(13)
 
 struct ccsr_gur {
 	u32     porsr1;         /* POR status 1 */
@@ -361,6 +409,29 @@ struct ccsr_gur {
 #define SCFG_SNPCNFGCR_SATARDSNP	0x00800000
 #define SCFG_SNPCNFGCR_SATAWRSNP	0x00400000
 
+/* RGMIIPCR bit definitions*/
+#define SCFG_RGMIIPCR_EN_AUTO		BIT(3)
+#define SCFG_RGMIIPCR_SETSP_1000M	BIT(2)
+#define SCFG_RGMIIPCR_SETSP_100M	0
+#define SCFG_RGMIIPCR_SETSP_10M		BIT(1)
+#define SCFG_RGMIIPCR_SETFD		BIT(0)
+
+/* PFEASBCR bit definitions */
+#define SCFG_PFEASBCR_ARCACHE0		BIT(31)
+#define SCFG_PFEASBCR_AWCACHE0		BIT(30)
+#define SCFG_PFEASBCR_ARCACHE1		BIT(29)
+#define SCFG_PFEASBCR_AWCACHE1		BIT(28)
+#define SCFG_PFEASBCR_ARSNP		BIT(27)
+#define SCFG_PFEASBCR_AWSNP		BIT(26)
+
+/* WR_QoS1 PFE bit definitions */
+#define SCFG_WR_QOS1_PFE1_QOS		GENMASK(27, 24)
+#define SCFG_WR_QOS1_PFE2_QOS		GENMASK(23, 20)
+
+/* RD_QoS1 PFE bit definitions */
+#define SCFG_RD_QOS1_PFE1_QOS		GENMASK(27, 24)
+#define SCFG_RD_QOS1_PFE2_QOS		GENMASK(23, 20)
+
 /* Supplemental Configuration Unit */
 struct ccsr_scfg {
 	u8 res_000[0x100-0x000];
@@ -378,7 +449,12 @@ struct ccsr_scfg {
 	u8 res_140[0x158-0x140];
 	u32 altcbar;
 	u32 qspi_cfg;
-	u8 res_160[0x180-0x160];
+	u8 res_160[0x164 - 0x160];
+	u32 wr_qos1;
+	u32 wr_qos2;
+	u32 rd_qos1;
+	u32 rd_qos2;
+	u8 res_174[0x180 - 0x174];
 	u32 dmamcr;
 	u8 res_184[0x188-0x184];
 	u32 gic_align;
@@ -409,7 +485,21 @@ struct ccsr_scfg {
 	u32 usb_refclk_selcr1;
 	u32 usb_refclk_selcr2;
 	u32 usb_refclk_selcr3;
-	u8 res_424[0x600-0x424];
+	u8 res_424[0x434 - 0x424];
+	u32 rgmiipcr;
+	u32 res_438;
+	u32 rgmiipsr;
+	u32 pfepfcssr1;
+	u32 pfeintencr1;
+	u32 pfepfcssr2;
+	u32 pfeintencr2;
+	u32 pfeerrcr;
+	u32 pfeeerrintencr;
+	u32 pfeasbcr;
+	u32 pfebsbcr;
+	u8 res_460[0x484 - 0x460];
+	u32 mdioselcr;
+	u8 res_468[0x600 - 0x488];
 	u32 scratchrw[4];
 	u8 res_610[0x680-0x610];
 	u32 corebcr;
@@ -560,6 +650,16 @@ struct ccsr_serdes {
 		u32	srdsxficr3;	/* 0x198c XFI Protocol Control 3 */
 	} xfi[2];	/* Lane A, B */
 	u8	res_19a0[0x2000-0x19a0];	/* from 0x19a0 to 0x1fff */
+};
+
+struct ccsr_gpio {
+	u32	gpdir;
+	u32	gpodr;
+	u32	gpdat;
+	u32	gpier;
+	u32	gpimr;
+	u32	gpicr;
+	u32	gpibe;
 };
 
 /* MMU 500 */

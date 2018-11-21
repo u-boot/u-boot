@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Xilinx, Inc.
  *
@@ -6,22 +7,18 @@
  * Author: Siva Durga Prasad Paladugu<sivadur@xilinx.com>
  *
  * This file was reused from Freescale USB xHCI
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
 #include <usb.h>
 #include <linux/errno.h>
-#include <asm/arch-zynqmp/hardware.h>
+#include <asm/arch/hardware.h>
 #include <linux/compat.h>
 #include <linux/usb/dwc3.h>
 #include "xhci.h"
 
 /* Declare global data pointer */
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Default to the ZYNQMP XHCI defines */
 #define USB3_PWRCTL_CLK_CMD_MASK	0x3FE000
 #define USB3_PWRCTL_CLK_FREQ_MASK	0xFFC
@@ -113,7 +110,6 @@ static int xhci_usb_probe(struct udevice *dev)
 	hcor = (struct xhci_hcor *)((ulong)ctx->hcd +
 				  HC_LENGTH(xhci_readl(&ctx->hcd->cr_capbase)));
 
-
 	return xhci_register(dev, ctx->hcd, hcor);
 }
 
@@ -138,13 +134,13 @@ static int xhci_usb_ofdata_to_platdata(struct udevice *dev)
 }
 
 U_BOOT_DRIVER(dwc3_generic_host) = {
-	.name	= "dwc3-generic-host",
-	.id	= UCLASS_USB,
+	.name = "dwc3-generic-host",
+	.id = UCLASS_USB,
 	.ofdata_to_platdata = xhci_usb_ofdata_to_platdata,
 	.probe = xhci_usb_probe,
 	.remove = xhci_usb_remove,
-	.ops    = &xhci_usb_ops,
+	.ops = &xhci_usb_ops,
 	.platdata_auto_alloc_size = sizeof(struct zynqmp_xhci_platdata),
 	.priv_auto_alloc_size = sizeof(struct zynqmp_xhci),
-	.flags  = DM_FLAG_ALLOC_PRIV_DMA,
+	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

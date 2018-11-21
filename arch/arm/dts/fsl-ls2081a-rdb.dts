@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * NXP LS2081A RDB board device tree source for QSPI-boot
  *
  * Author: Priyanka Jain <priyanka.jain@nxp.com>
  *
  * Copyright 2017 NXP
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;

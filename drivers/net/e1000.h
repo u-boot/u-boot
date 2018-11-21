@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*******************************************************************************
 
 
   Copyright(c) 1999 - 2002 Intel Corporation. All rights reserved.
   Copyright 2011 Freescale Semiconductor, Inc.
-
- * SPDX-License-Identifier:	GPL-2.0+
 
   Contact Information:
   Linux NICS <linux.nics@intel.com>
@@ -1242,6 +1241,9 @@ struct e1000_hw {
 #define E1000_EECD_SELSHAD   0x00020000 /* Select Shadow RAM */
 #define E1000_EECD_INITSRAM  0x00040000 /* Initialize Shadow RAM */
 #define E1000_EECD_FLUPD     0x00080000 /* Update FLASH */
+#define E1000_EECD_FLUPD_I210       0x00800000 /* Update FLASH */
+#define E1000_EECD_FLUDONE_I210     0x04000000 /* Update FLASH done*/
+#define E1000_FLUDONE_ATTEMPTS      20000
 #define E1000_EECD_AUPDEN    0x00100000 /* Enable Autonomous FLASH update */
 #define E1000_EECD_SHADV     0x00200000 /* Shadow RAM Data Valid */
 #define E1000_EECD_SEC1VAL   0x00400000 /* Sector One Valid */

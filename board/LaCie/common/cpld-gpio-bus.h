@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Simon Guinot <simon.guinot@sequanux.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _LACIE_CPLD_GPI0_BUS_H

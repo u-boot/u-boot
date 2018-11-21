@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) Marvell International Ltd. and its affiliates
- *
- * SPDX-License-Identifier:     GPL-2.0
  */
 
 #ifndef _DDR_TOPOLOGY_DEF_H
@@ -10,38 +9,13 @@
 #include "ddr3_training_ip_def.h"
 #include "ddr3_topology_def.h"
 
-#if defined(CONFIG_ARMADA_38X)
-#include "ddr3_a38x.h"
+#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
+#include "mv_ddr_plat.h"
 #endif
 
-/* bus width in bits */
-enum hws_bus_width {
-	BUS_WIDTH_4,
-	BUS_WIDTH_8,
-	BUS_WIDTH_16,
-	BUS_WIDTH_32
-};
-
-enum hws_temperature {
-	HWS_TEMP_LOW,
-	HWS_TEMP_NORMAL,
-	HWS_TEMP_HIGH
-};
-
-enum hws_mem_size {
-	MEM_512M,
-	MEM_1G,
-	MEM_2G,
-	MEM_4G,
-	MEM_8G,
-	MEM_SIZE_LAST
-};
-
-enum hws_timing {
-	HWS_TIM_DEFAULT,
-	HWS_TIM_1T,
-	HWS_TIM_2T
-};
+#include "mv_ddr_topology.h"
+#include "mv_ddr_spd.h"
+#include "ddr3_logging_def.h"
 
 struct bus_params {
 	/* Chip Select (CS) bitmask (bits 0-CS0, bit 1- CS1 ...) */
@@ -67,11 +41,11 @@ struct if_params {
 	/* Speed Bin Table */
 	enum hws_speed_bin speed_bin_index;
 
-	/* bus width of memory */
-	enum hws_bus_width bus_width;
+	/* sdram device width */
+	enum mv_ddr_dev_width bus_width;
 
-	/* Bus memory size (MBit) */
-	enum hws_mem_size memory_size;
+	/* total sdram capacity per die, megabits */
+	enum mv_ddr_die_capacity memory_size;
 
 	/* The DDR frequency for each interfaces */
 	enum hws_ddr_freq memory_freq;
@@ -89,33 +63,52 @@ struct if_params {
 	u8 cas_l;
 
 	/* operation temperature */
-	enum hws_temperature interface_temp;
+	enum mv_ddr_temperature interface_temp;
 
 	/* 2T vs 1T mode (by default computed from number of CSs) */
-	enum hws_timing timing;
+	enum mv_ddr_timing timing;
 };
 
-struct hws_topology_map {
+struct mv_ddr_topology_map {
+	/* debug level configuration */
+	enum mv_ddr_debug_level debug_level;
+
 	/* Number of interfaces (default is 12) */
 	u8 if_act_mask;
 
 	/* Controller configuration per interface */
 	struct if_params interface_params[MAX_INTERFACE_NUM];
 
-	/* BUS per interface (default is 4) */
-	u8 num_of_bus_per_interface;
-
 	/* Bit mask for active buses */
-	u8 bus_act_mask;
+	u16 bus_act_mask;
+
+	/* source of ddr configuration data */
+	enum mv_ddr_cfg_src cfg_src;
+
+	/* raw spd data */
+	union mv_ddr_spd_data spd_data;
+
+	/* timing parameters */
+	unsigned int timing_data[MV_DDR_TDATA_LAST];
 };
 
 /* DDR3 training global configuration parameters */
 struct tune_train_params {
 	u32 ck_delay;
-	u32 ck_delay_16;
-	u32 p_finger;
-	u32 n_finger;
 	u32 phy_reg3_val;
+	u32 g_zpri_data;
+	u32 g_znri_data;
+	u32 g_zpri_ctrl;
+	u32 g_znri_ctrl;
+	u32 g_zpodt_data;
+	u32 g_znodt_data;
+	u32 g_zpodt_ctrl;
+	u32 g_znodt_ctrl;
+	u32 g_dic;
+	u32 g_odt_config;
+	u32 g_rtt_nom;
+	u32 g_rtt_wr;
+	u32 g_rtt_park;
 };
 
 #endif /* _DDR_TOPOLOGY_DEF_H */

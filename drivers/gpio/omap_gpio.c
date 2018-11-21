@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2009 Wind River Systems, Inc.
  * Tom Rix <Tom.Rix@windriver.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  * This work is derived from the linux 2.6.27 kernel source
  * To fetch, use the kernel repository
@@ -289,14 +288,19 @@ static int omap_gpio_probe(struct udevice *dev)
 	struct gpio_bank *bank = dev_get_priv(dev);
 	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	char name[18], *str;
 
-	uc_priv->bank_name = plat->port_name;
+	sprintf(name, "gpio@%4x_", (unsigned int)plat->base);
+	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
+	uc_priv->bank_name = str;
 	uc_priv->gpio_count = GPIO_PER_BANK;
 	bank->base = (void *)plat->base;
-
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 static int omap_gpio_bind(struct udevice *dev)
 {
 	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
@@ -329,7 +333,9 @@ static int omap_gpio_bind(struct udevice *dev)
 
 	return 0;
 }
+#endif
 
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static const struct udevice_id omap_gpio_ids[] = {
 	{ .compatible = "ti,omap3-gpio" },
 	{ .compatible = "ti,omap4-gpio" },
@@ -337,14 +343,36 @@ static const struct udevice_id omap_gpio_ids[] = {
 	{ }
 };
 
+static int omap_gpio_ofdata_to_platdata(struct udevice *dev)
+{
+	struct omap_gpio_platdata *plat = dev_get_platdata(dev);
+	fdt_addr_t addr;
+
+	addr = devfdt_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	plat->base = addr;
+	return 0;
+}
+#endif
+
 U_BOOT_DRIVER(gpio_omap) = {
 	.name	= "gpio_omap",
 	.id	= UCLASS_GPIO,
-	.ops	= &gpio_omap_ops,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_gpio_ids,
-	.bind	= omap_gpio_bind,
+	.ofdata_to_platdata = of_match_ptr(omap_gpio_ofdata_to_platdata),
+	.platdata_auto_alloc_size = sizeof(struct omap_gpio_platdata),
+#endif
+#else
+	.bind   = omap_gpio_bind,
+#endif
+	.ops	= &gpio_omap_ops,
 	.probe	= omap_gpio_probe,
 	.priv_auto_alloc_size = sizeof(struct gpio_bank),
+	.flags = DM_FLAG_PRE_RELOC,
 };
 
 #endif /* CONFIG_DM_GPIO */

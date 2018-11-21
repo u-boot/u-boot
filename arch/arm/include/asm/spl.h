@@ -1,15 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012
  * Texas Instruments, <www.ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef	_ASM_SPL_H_
 #define	_ASM_SPL_H_
 
 #if defined(CONFIG_ARCH_OMAP2PLUS) \
 	|| defined(CONFIG_EXYNOS4) || defined(CONFIG_EXYNOS5) \
-	|| defined(CONFIG_EXYNOS4210)
+	|| defined(CONFIG_EXYNOS4210) || defined(CONFIG_ARCH_K3)
 /* Platform-specific defines */
 #include <asm/arch/spl.h>
 

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2013 Xilinx Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_ARCH_HARDWARE_H
@@ -21,6 +20,7 @@
 #define ZYNQ_EFUSE_BASEADDR		0xF800D000
 #define ZYNQ_USB_BASEADDR0		0xE0002000
 #define ZYNQ_USB_BASEADDR1		0xE0003000
+#define ZYNQ_OCM_BASEADDR		0xFFFC0000
 
 /* Bootmode setting values */
 #define ZYNQ_BM_MASK		0x7

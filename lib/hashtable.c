@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1+
 /*
  * This implementation is based on code from uClibc-0.9.30.3 but was
  * modified and extended for use within U-Boot.
@@ -9,8 +10,6 @@
  * Copyright (C) 1993, 1995, 1996, 1997, 2002 Free Software Foundation, Inc.
  * This file is part of the GNU C Library.
  * Contributed by Ulrich Drepper <drepper@gnu.ai.mit.edu>, 1993.
- *
- * SPDX-License-Identifier:	LGPL-2.1+
  */
 
 #include <errno.h>
@@ -623,7 +622,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 
 			list[n++] = ep;
 
-			totlen += strlen(ep->key) + 2;
+			totlen += strlen(ep->key);
 
 			if (sep == '\0') {
 				totlen += strlen(ep->data);
@@ -663,7 +662,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 			return (-1);
 		}
 	} else {
-		size = totlen + 1;
+		size = totlen;
 	}
 
 	/* Check if the user provided a buffer */
@@ -750,8 +749,11 @@ static int drop_var_from_set(const char *name, int nvars, char * vars[])
  *
  * The "flag" argument can be used to control the behaviour: when the
  * H_NOCLEAR bit is set, then an existing hash table will kept, i. e.
- * new data will be added to an existing hash table; otherwise, old
- * data will be discarded and a new hash table will be created.
+ * new data will be added to an existing hash table; otherwise, if no
+ * vars are passed, old data will be discarded and a new hash table
+ * will be created. If vars are passed, passed vars that are not in
+ * the linear list of "name=value" pairs will be removed from the
+ * current hash table.
  *
  * The separator character for the "name=value" pairs can be selected,
  * so we both support importing from externally stored environment
@@ -802,7 +804,7 @@ int himport_r(struct hsearch_data *htab,
 	if (nvars)
 		memcpy(localvars, vars, sizeof(vars[0]) * nvars);
 
-	if ((flag & H_NOCLEAR) == 0) {
+	if ((flag & H_NOCLEAR) == 0 && !nvars) {
 		/* Destroy old hash table if one exists */
 		debug("Destroy Hash Table: %p table = %p\n", htab,
 		       htab->table);
@@ -934,6 +936,9 @@ int himport_r(struct hsearch_data *htab,
 	debug("INSERT: free(data = %p)\n", data);
 	free(data);
 
+	if (flag & H_NOCLEAR)
+		goto end;
+
 	/* process variables which were not considered */
 	for (i = 0; i < nvars; i++) {
 		if (localvars[i] == NULL)
@@ -952,6 +957,7 @@ int himport_r(struct hsearch_data *htab,
 			printf("WARNING: '%s' not in imported env, deleting it!\n", localvars[i]);
 	}
 
+end:
 	debug("INSERT: done\n");
 	return 1;		/* everything OK */
 }

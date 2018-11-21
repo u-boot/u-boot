@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * BTRFS filesystem implementation for U-Boot
  *
  * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

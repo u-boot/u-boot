@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2010
  * Reinhard Meyer, reinhard.meyer@emk-elektronik.de
  * (C) Copyright 2009
  * Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

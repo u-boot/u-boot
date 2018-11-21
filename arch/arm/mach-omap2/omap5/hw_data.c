@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * HW data initialization for OMAP5
@@ -6,8 +7,6 @@
  * Texas Instruments, <www.ti.com>
  *
  * Sricharan R <r.sricharan@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <palmas.h>
@@ -438,17 +437,17 @@ void enable_basic_clocks(void)
 	setbits_le32((*prcm)->cm_l4per_gpio4_clkctrl,
 			GPIO4_CLKCTRL_OPTFCLKEN_MASK);
 
-	/* Enable 96 MHz clock for MMC1 & MMC2 */
+	/* Enable 192 MHz clock for MMC1 & MMC2 */
 	setbits_le32((*prcm)->cm_l3init_hsmmc1_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
 	setbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
 			HSMMC_CLKCTRL_CLKSEL_MASK);
 
 	/* Set the correct clock dividers for mmc */
-	setbits_le32((*prcm)->cm_l3init_hsmmc1_clkctrl,
-			HSMMC_CLKCTRL_CLKSEL_DIV_MASK);
-	setbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
-			HSMMC_CLKCTRL_CLKSEL_DIV_MASK);
+	clrbits_le32((*prcm)->cm_l3init_hsmmc1_clkctrl,
+		     HSMMC_CLKCTRL_CLKSEL_DIV_MASK);
+	clrbits_le32((*prcm)->cm_l3init_hsmmc2_clkctrl,
+		     HSMMC_CLKCTRL_CLKSEL_DIV_MASK);
 
 	/* Select 32KHz clock as the source of GPTIMER1 */
 	setbits_le32((*prcm)->cm_wkup_gptimer1_clkctrl,
@@ -746,6 +745,8 @@ void __weak hw_data_init(void)
 	*ctrl = &omap5_ctrl;
 	break;
 
+	case DRA762_ABZ_ES1_0:
+	case DRA762_ACD_ES1_0:
 	case DRA762_ES1_0:
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra76x_dplls;
@@ -792,6 +793,8 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 	case DRA752_ES1_1:
 	case DRA752_ES2_0:
 	case DRA762_ES1_0:
+	case DRA762_ACD_ES1_0:
+	case DRA762_ABZ_ES1_0:
 		*regs = &ioregs_dra7xx_es1;
 		break;
 	case DRA722_ES1_0:

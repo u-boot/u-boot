@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015, Miao Yan <yanmiaobest@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,8 +9,6 @@
 #include <errno.h>
 #include <qfw.h>
 #include <asm/cpu.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int cpu_qemu_get_desc(struct udevice *dev, char *buf, int size)
 {

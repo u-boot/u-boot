@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009 Stefan Roese <sr@denx.de>, DENX Software Engineering
  *
  * Copyright (C) 2006 Micronas GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -524,11 +523,13 @@ int scc_setup_dma(enum scc_id id, u32 buffer_tag,
 	struct scc_dma_state *dma_state;
 	int return_value = 0;
 	union scc_dma_cfg dma_cfg;
-	u32 *buffer_tag_list = scc_descriptor_table[id].buffer_tag_list;
+	u32 *buffer_tag_list;
 	u32 tag_count, t, t_valid;
 
 	if ((id >= SCC_MAX) || (id < 0))
 		return -EINVAL;
+
+	buffer_tag_list = scc_descriptor_table[id].buffer_tag_list;
 
 	/* if the register is only configured by hw, cannot write! */
 	if (1 == scc_descriptor_table[id].hw_dma_cfg)

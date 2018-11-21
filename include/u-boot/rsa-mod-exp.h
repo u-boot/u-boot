@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:    GPL-2.0+
-*/
+ */
 
 #ifndef _RSA_MOD_EXP_H
 #define _RSA_MOD_EXP_H
@@ -43,6 +42,10 @@ int rsa_mod_exp_sw(const uint8_t *sig, uint32_t sig_len,
 int rsa_mod_exp(struct udevice *dev, const uint8_t *sig, uint32_t sig_len,
 		struct key_prop *node, uint8_t *out);
 
+#if defined(CONFIG_CMD_ZYNQ_RSA)
+int zynq_pow_mod(u32 *keyptr, u32 *inout);
+#endif
+
 /**
  * struct struct mod_exp_ops - Driver model for RSA Modular Exponentiation
  *				operations
@@ -71,7 +74,5 @@ struct mod_exp_ops {
 			   uint32_t sig_len, struct key_prop *node,
 			   uint8_t *outp);
 };
-
-int zynq_pow_mod(uint32_t *keyptr, uint32_t *inout);
 
 #endif

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  linux/arch/arm/kernel/debug.S
  *
  *  Copyright (C) 1994-1999 Russell King
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  *  32-bit debugging code
  */

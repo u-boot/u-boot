@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2010-2013 NVIDIA Corporation
  * With help from the mpc8xxx SPI driver
  * With more help from omap3_spi SPI driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

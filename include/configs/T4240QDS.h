@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011-2012 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -22,8 +21,6 @@
 #define CONFIG_RESET_VECTOR_ADDRESS     0xfffffffc
 #else
 #define CONFIG_SPL_FLUSH_IMAGE
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SYS_TEXT_BASE		0x00201000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
 #define CONFIG_SPL_PAD_TO		0x40000
 #define CONFIG_SPL_MAX_SIZE		0x28000
@@ -42,7 +39,6 @@
 
 #ifdef	CONFIG_SDCARD
 #define	CONFIG_RESET_VECTOR_ADDRESS	0x200FFC
-#define CONFIG_SPL_MMC_MINIMAL
 #define CONFIG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_MMC_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_MMC_U_BOOT_START	0x00200000
@@ -77,15 +73,7 @@
 
 #include "t4qds.h"
 
-#ifndef CONFIG_MTD_NOR_FLASH
-#else
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-#endif
-
 #if defined(CONFIG_SPIFLASH)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_SPI_BUS              0
 #define CONFIG_ENV_SPI_CS               0
 #define CONFIG_ENV_SPI_MAX_HZ           10000000
@@ -94,12 +82,10 @@
 #define CONFIG_ENV_OFFSET               0x100000        /* 1MB */
 #define CONFIG_ENV_SECT_SIZE            0x10000
 #elif defined(CONFIG_SDCARD)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_SYS_MMC_ENV_DEV          0
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET		(512 * 0x800)
 #elif defined(CONFIG_NAND)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET		(10 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
@@ -381,7 +367,6 @@ unsigned long get_board_ddr_clk(void);
 
 /* Qman/Bman */
 #ifndef CONFIG_NOBQFMAN
-#define CONFIG_SYS_DPAA_QBMAN		/* Support Q/Bman */
 #define CONFIG_SYS_BMAN_NUM_PORTALS	50
 #define CONFIG_SYS_BMAN_MEM_BASE	0xf4000000
 #define CONFIG_SYS_BMAN_MEM_PHYS	0xff4000000ull
@@ -480,7 +465,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_FMAN_ENET
-#define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC1"
 #endif
 
@@ -492,7 +476,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_HAS_FSL_DR_USB
 
 #ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #define CONFIG_SYS_FSL_ESDHC_BROKEN_TIMEOUT
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33

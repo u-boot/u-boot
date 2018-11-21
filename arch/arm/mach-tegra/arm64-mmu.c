@@ -1,18 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 - 2015 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
  * (This file derived from arch/arm/cpu/armv8/zynqmp/cpu.c)
  *
  * Copyright (c) 2015, NVIDIA CORPORATION. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/system.h>
 #include <asm/armv8/mmu.h>
 
-static struct mm_region tegra_mem_map[] = {
+/* size: IO + NR_DRAM_BANKS + terminator */
+struct mm_region tegra_mem_map[1 + CONFIG_NR_DRAM_BANKS + 1] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,

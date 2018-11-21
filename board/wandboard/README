@@ -4,7 +4,7 @@ U-Boot for Wandboard
 This file contains information for the port of U-Boot to the Wandboard.
 
 Wandboard is a development board that has three variants based on the following
-SoCs: mx6 quad, mx6 dual lite and mx6 solo.
+SoCs: mx6 quad, mx6 quad plus, mx6 dual lite and mx6 solo.
 
 For more details about Wandboard, please refer to:
 http://www.wandboard.org/

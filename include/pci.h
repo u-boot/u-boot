@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2001 Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Andreas Heppel <aheppel@sysgo.de>
  *
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _PCI_H
@@ -18,6 +17,7 @@
  * Under PCI, each device has 256 bytes of configuration address space,
  * of which the first 64 bytes are standardized as follows:
  */
+#define PCI_STD_HEADER_SIZEOF	64
 #define PCI_VENDOR_ID		0x00	/* 16 bits */
 #define PCI_DEVICE_ID		0x02	/* 16 bits */
 #define PCI_COMMAND		0x04	/* 16 bits */
@@ -272,21 +272,6 @@
 #define  PCI_BRIDGE_CTL_BUS_RESET 0x40	/* Secondary bus reset */
 #define  PCI_BRIDGE_CTL_FAST_BACK 0x80	/* Fast Back2Back enabled on secondary interface */
 
-/* From 440ep */
-#define PCI_ERREN       0x48     /* Error Enable */
-#define PCI_ERRSTS      0x49     /* Error Status */
-#define PCI_BRDGOPT1    0x4A     /* PCI Bridge Options 1 */
-#define PCI_PLBSESR0    0x4C     /* PCI PLB Slave Error Syndrome 0 */
-#define PCI_PLBSESR1    0x50     /* PCI PLB Slave Error Syndrome 1 */
-#define PCI_PLBSEAR     0x54     /* PCI PLB Slave Error Address */
-#define PCI_CAPID       0x58     /* Capability Identifier */
-#define PCI_NEXTITEMPTR 0x59     /* Next Item Pointer */
-#define PCI_PMC         0x5A     /* Power Management Capabilities */
-#define PCI_PMCSR       0x5C     /* Power Management Control Status */
-#define PCI_PMCSRBSE    0x5E     /* PMCSR PCI to PCI Bridge Support Extensions */
-#define PCI_BRDGOPT2    0x60     /* PCI Bridge Options 2 */
-#define PCI_PMSCRR      0x64     /* Power Management State Change Request Re. */
-
 /* Header type 2 (CardBus bridges) */
 #define PCI_CB_CAPABILITY_LIST	0x14
 /* 0x15 reserved */
@@ -334,7 +319,21 @@
 #define  PCI_CAP_ID_SLOTID	0x04	/* Slot Identification */
 #define  PCI_CAP_ID_MSI		0x05	/* Message Signalled Interrupts */
 #define  PCI_CAP_ID_CHSWP	0x06	/* CompactPCI HotSwap */
-#define  PCI_CAP_ID_EXP 	0x10	/* PCI Express */
+#define  PCI_CAP_ID_PCIX	0x07	/* PCI-X */
+#define  PCI_CAP_ID_HT		0x08	/* HyperTransport */
+#define  PCI_CAP_ID_VNDR	0x09	/* Vendor-Specific */
+#define  PCI_CAP_ID_DBG		0x0A	/* Debug port */
+#define  PCI_CAP_ID_CCRC	0x0B	/* CompactPCI Central Resource Control */
+#define  PCI_CAP_ID_SHPC	0x0C	/* PCI Standard Hot-Plug Controller */
+#define  PCI_CAP_ID_SSVID	0x0D	/* Bridge subsystem vendor/device ID */
+#define  PCI_CAP_ID_AGP3	0x0E	/* AGP Target PCI-PCI bridge */
+#define  PCI_CAP_ID_SECDEV	0x0F	/* Secure Device */
+#define  PCI_CAP_ID_EXP		0x10	/* PCI Express */
+#define  PCI_CAP_ID_MSIX	0x11	/* MSI-X */
+#define  PCI_CAP_ID_SATA	0x12	/* SATA Data/Index Conf. */
+#define  PCI_CAP_ID_AF		0x13	/* PCI Advanced Features */
+#define  PCI_CAP_ID_EA		0x14	/* PCI Enhanced Allocation */
+#define  PCI_CAP_ID_MAX		PCI_CAP_ID_EA
 #define PCI_CAP_LIST_NEXT	1	/* Next capability in the list */
 #define PCI_CAP_FLAGS		2	/* Capability defined flags (16 bits) */
 #define PCI_CAP_SIZEOF		4
@@ -450,6 +449,10 @@
 #define PCI_EXT_CAP_ID_SECPCI	0x19	/* Secondary PCIe Capability */
 #define PCI_EXT_CAP_ID_PMUX	0x1A	/* Protocol Multiplexing */
 #define PCI_EXT_CAP_ID_PASID	0x1B	/* Process Address Space ID */
+#define PCI_EXT_CAP_ID_DPC	0x1D	/* Downstream Port Containment */
+#define PCI_EXT_CAP_ID_L1SS	0x1E	/* L1 PM Substates */
+#define PCI_EXT_CAP_ID_PTM	0x1F	/* Precision Time Measurement */
+#define PCI_EXT_CAP_ID_MAX	PCI_EXT_CAP_ID_PTM
 
 /* Include the ID list */
 
@@ -585,8 +588,6 @@ struct pci_controller {
 	/* Used by auto config */
 	struct pci_region *pci_mem, *pci_io, *pci_prefetch;
 
-	/* Used by ppc405 autoconfig*/
-	struct pci_region *pci_fb;
 #ifndef CONFIG_DM_PCI
 	int current_busno;
 
@@ -683,8 +684,21 @@ extern int pci_write_config_dword(pci_dev_t dev, int where, u32 val);
 void pciauto_region_init(struct pci_region *res);
 void pciauto_region_align(struct pci_region *res, pci_size_t size);
 void pciauto_config_init(struct pci_controller *hose);
+
+/**
+ * pciauto_region_allocate() - Allocate resources from a PCI resource region
+ *
+ * Allocates @size bytes from the PCI resource @res. If @supports_64bit is
+ * false, the result will be guaranteed to fit in 32 bits.
+ *
+ * @res:		PCI region to allocate from
+ * @size:		Amount of bytes to allocate
+ * @bar:		Returns the PCI bus address of the allocated resource
+ * @supports_64bit:	Whether to allow allocations above the 32-bit boundary
+ * @return 0 if successful, -1 on failure
+ */
 int pciauto_region_allocate(struct pci_region *res, pci_size_t size,
-			    pci_addr_t *bar);
+			    pci_addr_t *bar, bool supports_64bit);
 
 #if !defined(CONFIG_DM_PCI) || defined(CONFIG_DM_PCI_COMPAT)
 extern int pci_hose_read_config_byte_via_dword(struct pci_controller *hose,
@@ -1298,6 +1312,51 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  */
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
 
+/**
+ * dm_pci_find_capability() - find a capability
+ *
+ * Tell if a device supports a given PCI capability. Returns the
+ * address of the requested capability structure within the device's
+ * PCI configuration space or 0 in case the device does not support it.
+ *
+ * Possible values for @cap:
+ *
+ *  %PCI_CAP_ID_MSI	Message Signalled Interrupts
+ *  %PCI_CAP_ID_PCIX	PCI-X
+ *  %PCI_CAP_ID_EXP	PCI Express
+ *  %PCI_CAP_ID_MSIX	MSI-X
+ *
+ * See PCI_CAP_ID_xxx for the complete capability ID codes.
+ *
+ * @dev:	PCI device to query
+ * @cap:	capability code
+ * @return:	capability address or 0 if not supported
+ */
+int dm_pci_find_capability(struct udevice *dev, int cap);
+
+/**
+ * dm_pci_find_ext_capability() - find an extended capability
+ *
+ * Tell if a device supports a given PCI express extended capability.
+ * Returns the address of the requested extended capability structure
+ * within the device's PCI configuration space or 0 in case the device
+ * does not support it.
+ *
+ * Possible values for @cap:
+ *
+ *  %PCI_EXT_CAP_ID_ERR	Advanced Error Reporting
+ *  %PCI_EXT_CAP_ID_VC	Virtual Channel
+ *  %PCI_EXT_CAP_ID_DSN	Device Serial Number
+ *  %PCI_EXT_CAP_ID_PWR	Power Budgeting
+ *
+ * See PCI_EXT_CAP_ID_xxx for the complete extended capability ID codes.
+ *
+ * @dev:	PCI device to query
+ * @cap:	extended capability code
+ * @return:	extended capability address or 0 if not supported
+ */
+int dm_pci_find_ext_capability(struct udevice *dev, int cap);
+
 #define dm_pci_virt_to_bus(dev, addr, flags) \
 	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), (flags))
 #define dm_pci_bus_to_virt(dev, addr, flags, len, map_flags) \
@@ -1446,11 +1505,12 @@ struct dm_pci_emul_ops {
  *
  * @bus:	PCI bus to search
  * @find_devfn:	PCI device and function address (PCI_DEVFN())
+ * @containerp:	Returns container device if found
  * @emulp:	Returns emulated device if found
  * @return 0 if found, -ENODEV if not found
  */
 int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
-			 struct udevice **emulp);
+			 struct udevice **containerp, struct udevice **emulp);
 
 #endif /* CONFIG_DM_PCI */
 

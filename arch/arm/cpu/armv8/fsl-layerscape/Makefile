@@ -1,14 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright 2014-2015, Freescale Semiconductor
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y += cpu.o
 obj-y += lowlevel.o
 obj-y += soc.o
+ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_MP) += mp.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
+endif
 obj-$(CONFIG_SPL) += spl.o
 obj-$(CONFIG_$(SPL_)FSL_LS_PPA) += ppa.o
 
@@ -29,6 +29,7 @@ endif
 ifneq ($(CONFIG_ARCH_LS1043A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls1043a_serdes.o
 obj-$(CONFIG_ARMV8_PSCI) += ls1043a_psci.o
+obj-y += icid.o ls1043_ids.o
 endif
 
 ifneq ($(CONFIG_ARCH_LS1012A),)
@@ -37,6 +38,7 @@ endif
 
 ifneq ($(CONFIG_ARCH_LS1046A),)
 obj-$(CONFIG_SYS_HAS_SERDES) += ls1046a_serdes.o
+obj-y += icid.o ls1046_ids.o
 endif
 
 ifneq ($(CONFIG_ARCH_LS1088A),)

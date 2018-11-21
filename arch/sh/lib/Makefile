@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2007
 # Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 extra-y	+= start.o
 

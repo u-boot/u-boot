@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Freescale T2080RDB board-specific CPLD controlling supports.
  */

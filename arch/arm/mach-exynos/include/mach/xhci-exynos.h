@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /* Copyright (c) 2012 Samsung Electronics Co. Ltd
  *
  * Exynos Phy register definitions
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_ARCH_XHCI_EXYNOS_H_

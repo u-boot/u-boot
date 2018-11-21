@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * USB HOST XHCI Controller stack
  *
@@ -10,8 +11,6 @@
  * Copyright (C) 2013 Samsung Electronics Co.Ltd
  * Authors: Vivek Gautam <gautam.vivek@samsung.com>
  *	    Vikas Sajjan <vikas.sajjan@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /**
@@ -537,7 +536,7 @@ static int xhci_set_configuration(struct usb_device *udev)
 	/* slot context */
 	xhci_slot_copy(ctrl, in_ctx, out_ctx);
 	slot_ctx = xhci_get_slot_ctx(ctrl, in_ctx);
-	slot_ctx->dev_info &= ~(LAST_CTX_MASK);
+	slot_ctx->dev_info &= ~(cpu_to_le32(LAST_CTX_MASK));
 	slot_ctx->dev_info |= cpu_to_le32(LAST_CTX(max_ep_flag + 1) | 0);
 
 	xhci_endpoint_copy(ctrl, in_ctx, out_ctx, 0);
@@ -1425,7 +1424,7 @@ static int xhci_update_hub_device(struct udevice *dev, struct usb_device *udev)
 
 	ctrl_ctx = xhci_get_input_control_ctx(in_ctx);
 	/* Initialize the input context control */
-	ctrl_ctx->add_flags |= cpu_to_le32(SLOT_FLAG);
+	ctrl_ctx->add_flags = cpu_to_le32(SLOT_FLAG);
 	ctrl_ctx->drop_flags = 0;
 
 	xhci_inval_cache((uintptr_t)out_ctx->bytes, out_ctx->size);
@@ -1436,8 +1435,15 @@ static int xhci_update_hub_device(struct udevice *dev, struct usb_device *udev)
 
 	/* Update hub related fields */
 	slot_ctx->dev_info |= cpu_to_le32(DEV_HUB);
-	if (hub->tt.multi && udev->speed == USB_SPEED_HIGH)
+	/*
+	 * refer to section 6.2.2: MTT should be 0 for full speed hub,
+	 * but it may be already set to 1 when setup an xHCI virtual
+	 * device, so clear it anyway.
+	 */
+	if (hub->tt.multi)
 		slot_ctx->dev_info |= cpu_to_le32(DEV_MTT);
+	else if (udev->speed == USB_SPEED_FULL)
+		slot_ctx->dev_info &= cpu_to_le32(~DEV_MTT);
 	slot_ctx->dev_info2 |= cpu_to_le32(XHCI_MAX_PORTS(udev->maxchild));
 	/*
 	 * Set TT think time - convert from ns to FS bit times.
@@ -1453,6 +1459,7 @@ static int xhci_update_hub_device(struct udevice *dev, struct usb_device *udev)
 		think_time = (think_time / 666) - 1;
 	if (udev->speed == USB_SPEED_HIGH)
 		slot_ctx->tt_info |= cpu_to_le32(TT_THINK_TIME(think_time));
+	slot_ctx->dev_state = 0;
 
 	return xhci_configure_endpoints(udev, false);
 }

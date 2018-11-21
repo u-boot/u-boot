@@ -1,14 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2017, Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
-U-Boot on QEMU's 'virt' machine on ARM
-======================================
+U-Boot on QEMU's 'virt' machine on ARM & AArch64
+================================================
 
 QEMU for ARM supports a special 'virt' machine designed for emulation and
 virtualization purposes. This document describes how to run U-Boot under it.
+Both 32-bit ARM and AArch64 are supported.
 
 The 'virt' platform provides the following as the basic functionality:
 
@@ -17,7 +16,7 @@ The 'virt' platform provides the following as the basic functionality:
     - A generated device tree blob placed at the start of RAM
     - A freely configurable amount of RAM, described by the DTB
     - A PL011 serial port, discoverable via the DTB
-    - An ARMv7 architected timer
+    - An ARMv7/ARMv8 architected timer
     - PSCI for rebooting the system
     - A generic ECAM-based PCI host controller, discoverable via the DTB
 
@@ -25,19 +24,28 @@ Additionally, a number of optional peripherals can be added to the PCI bus.
 
 Building U-Boot
 ---------------
-Set the CROSS_COMPILE and ARCH=arm environment variables as usual, and run:
+Set the CROSS_COMPILE environment variable as usual, and run:
 
+- For ARM:
     make qemu_arm_defconfig
+    make
+
+- For AArch64:
+    make qemu_arm64_defconfig
     make
 
 Running U-Boot
 --------------
 The minimal QEMU command line to get U-Boot up and running is:
 
-    qemu-system-arm -machine virt,highmem=off -bios u-boot.bin
+- For ARM:
+    qemu-system-arm -machine virt -bios u-boot.bin
 
-The 'highmem=off' parameter to the 'virt' machine is required for PCI to work
-in U-Boot.
+- For AArch64:
+    qemu-system-aarch64 -machine virt -cpu cortex-a57 -bios u-boot.bin
+
+Note that for some odd reason qemu-system-aarch64 needs to be explicitly
+told to use a 64-bit CPU or it will boot in 32-bit mode.
 
 Additional peripherals that have been tested to work in both U-Boot and Linux
 can be enabled with the following command line parameters:

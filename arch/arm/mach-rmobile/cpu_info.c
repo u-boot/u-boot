@@ -1,12 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  * (C) Copyright 2012 Renesas Solutions Corp.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/io.h>
 
+/* R-Car Gen3 caches are enabled in memmap-gen3.c */
+#ifndef CONFIG_RCAR_GEN3
 #ifdef CONFIG_ARCH_CPU_INIT
 int arch_cpu_init(void)
 {
@@ -18,11 +19,9 @@ int arch_cpu_init(void)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
-#if defined(CONFIG_RCAR_GEN3)
-	rcar_gen3_memmap_fixup();
-#endif
 	dcache_enable();
 }
+#endif
 #endif
 
 #ifdef CONFIG_DISPLAY_CPUINFO
@@ -61,7 +60,9 @@ static const struct {
 	{ RMOBILE_CPU_TYPE_R8A7794, "R8A7794" },
 	{ RMOBILE_CPU_TYPE_R8A7795, "R8A7795" },
 	{ RMOBILE_CPU_TYPE_R8A7796, "R8A7796" },
+	{ RMOBILE_CPU_TYPE_R8A77965, "R8A77965" },
 	{ RMOBILE_CPU_TYPE_R8A77970, "R8A77970" },
+	{ RMOBILE_CPU_TYPE_R8A77990, "R8A77990" },
 	{ RMOBILE_CPU_TYPE_R8A77995, "R8A77995" },
 	{ 0x0, "CPU" },
 };

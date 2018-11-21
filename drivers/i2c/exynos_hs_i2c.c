@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2016, Google Inc
  *
  * (C) Copyright 2002
  * David Mueller, ELSOFT AG, d.mueller@elsoft.ch
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

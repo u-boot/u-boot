@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -70,9 +69,6 @@
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_FLASH_CFI_MTD
 #endif
 
 #if defined(CONFIG_TARGET_P1021RDB)
@@ -92,9 +88,6 @@
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_FLASH_CFI_MTD
 #endif
 
 #if defined(CONFIG_TARGET_P1024RDB)
@@ -139,16 +132,11 @@
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_FLASH_CFI_MTD
 #endif
 
 #ifdef CONFIG_SDCARD
-#define CONFIG_SPL_MMC_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SYS_TEXT_BASE		0x11001000
 #define CONFIG_SPL_TEXT_BASE		0xf8f81000
 #define CONFIG_SPL_PAD_TO		0x20000
 #define CONFIG_SPL_MAX_SIZE		(128 * 1024)
@@ -168,7 +156,6 @@
 #define CONFIG_SPL_SPI_FLASH_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SYS_TEXT_BASE		0x11001000
 #define CONFIG_SPL_TEXT_BASE		0xf8f81000
 #define CONFIG_SPL_PAD_TO		0x20000
 #define CONFIG_SPL_MAX_SIZE		(128 * 1024)
@@ -212,12 +199,7 @@
 #define CONFIG_SPL_PAD_TO		0x20000
 #define CONFIG_TPL_PAD_TO		0x20000
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SYS_TEXT_BASE		0x11001000
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
-#endif
-
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE		0xeff40000
 #endif
 
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
@@ -232,8 +214,6 @@
 #endif
 #endif
 
-#define CONFIG_MP
-
 #define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
 #define CONFIG_FSL_PCI_INIT	/* Use common FSL init code */
@@ -241,7 +221,6 @@
 #define CONFIG_FSL_PCIE_RESET	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	/* enable 64-bit PCI resources */
 
-#define CONFIG_TSEC_ENET	/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
@@ -388,10 +367,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 /* Nand Flash */
 #ifdef CONFIG_NAND_FSL_ELBC
@@ -434,8 +410,6 @@
 	| OR_FCM_EHTR)
 #endif
 #endif /* CONFIG_NAND_FSL_ELBC */
-
-#define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
 
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* stack in RAM */
@@ -531,7 +505,6 @@
 #define CONFIG_SPL_RELOC_TEXT_BASE	0xf8f81000
 #define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L2_ADDR + 112 * 1024)
 #define CONFIG_SPL_RELOC_STACK		(CONFIG_SYS_INIT_L2_ADDR + 116 * 1024)
-#define CONFIG_SPL_RELOC_STACK_SIZE	(32 << 10)
 #define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SYS_INIT_L2_ADDR + 148 * 1024)
 #if defined(CONFIG_TARGET_P2020RDB)
 #define CONFIG_SPL_RELOC_MALLOC_SIZE	(364 << 10)
@@ -562,7 +535,6 @@
  * open - index 2
  * shorted - index 1
  */
-#define CONFIG_CONS_INDEX		1
 #undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -664,7 +636,6 @@
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
-#define CONFIG_MII		/* MII PHY management */
 #define CONFIG_TSEC1
 #define CONFIG_TSEC1_NAME	"eTSEC1"
 #define CONFIG_TSEC2
@@ -779,7 +750,6 @@
 #ifdef CONFIG_USB_EHCI_HCD
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
-#define CONFIG_EHCI_DESC_BIG_ENDIAN
 #endif
 #endif
 
@@ -788,7 +758,6 @@
 #endif
 
 #ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
@@ -797,8 +766,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory */
-#define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*
@@ -816,7 +783,7 @@
 /*
  * Environment Configuration
  */
-#define CONFIG_HOSTNAME		unknown
+#define CONFIG_HOSTNAME		"unknown"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_UBOOTPATH	u-boot.bin /* U-Boot image on TFTP server */

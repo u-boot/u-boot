@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Board functions for IGEP COM AQUILA and SMARC AM335x based boards
  *
  * Copyright (C) 2013-2017, ISEE 2007 SL - http://www.isee.biz/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -212,7 +211,7 @@ int board_late_init(void)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
-	static struct node_info nodes[] = {
+	static const struct node_info nodes[] = {
 		{ "ti,omap2-nand", MTD_DEV_TYPE_NAND, },
 	};
 

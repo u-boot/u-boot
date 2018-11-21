@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Freescale ls2080a RDB board device tree source
  *
  * Copyright 2013-2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;

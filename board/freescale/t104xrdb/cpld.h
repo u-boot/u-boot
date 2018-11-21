@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /**
  * Copyright 2013 Freescale Semiconductor
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * This file provides support for the ngPIXIS, a board-specific FPGA used on
  * some Freescale reference boards.

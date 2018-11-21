@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * am3517evm.h - Header file for the AM3517 EVM.
  *
@@ -7,8 +8,6 @@
  *
  * Copyright (C) 2010
  * Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _AM3517EVM_H_

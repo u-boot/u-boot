@@ -1,18 +1,15 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * pengwyn.h
  *
  * Copyright (C) 2013 Lothar Felten <lothar.felten@gmail.com>
  *
  * based on am335x_evm.h, Copyright (C) 2011 Texas Instruments Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_PENGWYN_H
 #define __CONFIG_PENGWYN_H
 
-#define CONFIG_SERIAL1
-#define CONFIG_CONS_INDEX		1
 
 #include <configs/ti_am335x_common.h>
 
@@ -22,8 +19,6 @@
 
 /* set env size */
 #define CONFIG_ENV_SIZE			0x4000
-
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -162,24 +157,15 @@
  * board schematic and physical port wired to each.  Then for host we
  * add mass storage support.
  */
-#define CONFIG_USB_MUSB_DSPS
-#define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
-#if defined(CONFIG_SPL_BUILD)
-/* disable host part of MUSB in SPL */
-/* Disable CPSW SPL support so we fit within the 101KiB limit. */
-#endif
-
 /* Network */
 #define CONFIG_PHY_RESET	1
 #define CONFIG_PHY_NATSEMI
 #define CONFIG_PHY_REALTEK
-
-/* CPSW support */
 
 #endif	/* ! __CONFIG_PENGWYN_H */

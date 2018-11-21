@@ -63,7 +63,6 @@ Changed files:
 1.2 Configuration settings for M54418TWR Development Board
 CONFIG_MCF5441x			-- define for all MCF5441x CPUs
 CONFIG_M54418			-- define for all Freescale MCF54418 CPUs
-CONFIG_M54418TWR		-- define for M54418TWR board
 
 CONFIG_MCFUART			-- define to use common CF Uart driver
 CONFIG_SYS_UART_PORT		-- define UART port number, start with 0, 1 and 2

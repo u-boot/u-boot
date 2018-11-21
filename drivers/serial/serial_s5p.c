@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009 SAMSUNG Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Heungjun Kim <riverful.kim@samsung.com>
  *
  * based on drivers/serial/s3c64xx.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

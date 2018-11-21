@@ -1,13 +1,13 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2015-2017 Intel Corporation <www.intel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _SOCFPGA_SDRAM_ARRIA10_H_
 #define _SOCFPGA_SDRAM_ARRIA10_H_
 
 #ifndef __ASSEMBLY__
+int ddr_calibration_sequence(void);
 
 struct socfpga_ecc_hmc {
 	u32 ip_rev_id;
@@ -204,6 +204,7 @@ struct socfpga_io48_mmr {
 	u32 niosreserve1;
 	u32 niosreserve2;
 };
+
 #endif /*__ASSEMBLY__*/
 
 #define IO48_MMR_CTRLCFG0_DB2_BURST_LENGTH_MASK		0x1F000000

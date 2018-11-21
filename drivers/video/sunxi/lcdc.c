@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Timing controller driver for Allwinner SoCs.
  *
  * (C) Copyright 2013-2014 Luc Verhaegen <libv@skynet.be>
  * (C) Copyright 2014-2015 Hans de Goede <hdegoede@redhat.com>
  * (C) Copyright 2017 Jernej Skrabec <jernej.skrabec@siol.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

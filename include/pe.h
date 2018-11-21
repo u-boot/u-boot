@@ -1,15 +1,16 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Portable Executable binary format structures
  *
  *  Copyright (c) 2016 Alexander Graf
  *
  *  Based on wine code
- *
- *  SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _PE_H
 #define _PE_H
+
+#include <asm-generic/pe.h>
 
 typedef struct _IMAGE_DOS_HEADER {
 	uint16_t e_magic;	/* 00: MZ Header signature */
@@ -36,11 +37,15 @@ typedef struct _IMAGE_DOS_HEADER {
 #define IMAGE_DOS_SIGNATURE		0x5A4D     /* MZ   */
 #define IMAGE_NT_SIGNATURE		0x00004550 /* PE00 */
 
+#define IMAGE_FILE_MACHINE_I386		0x014c
 #define IMAGE_FILE_MACHINE_ARM		0x01c0
 #define IMAGE_FILE_MACHINE_THUMB	0x01c2
 #define IMAGE_FILE_MACHINE_ARMNT	0x01c4
 #define IMAGE_FILE_MACHINE_AMD64	0x8664
 #define IMAGE_FILE_MACHINE_ARM64	0xaa64
+#define IMAGE_FILE_MACHINE_RISCV32	0x5032
+#define IMAGE_FILE_MACHINE_RISCV64	0x5064
+
 #define IMAGE_NT_OPTIONAL_HDR32_MAGIC	0x10b
 #define IMAGE_NT_OPTIONAL_HDR64_MAGIC	0x20b
 #define IMAGE_SUBSYSTEM_EFI_APPLICATION	10
@@ -61,12 +66,6 @@ typedef struct _IMAGE_DATA_DIRECTORY {
 } IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;
 
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
-
-/* PE32+ Subsystem type for EFI images */
-#define IMAGE_SUBSYSTEM_EFI_APPLICATION         10
-#define IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER 11
-#define IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER      12
-#define IMAGE_SUBSYSTEM_SAL_RUNTIME_DRIVER      13
 
 typedef struct _IMAGE_OPTIONAL_HEADER64 {
 	uint16_t Magic; /* 0x20b */
@@ -202,10 +201,13 @@ typedef struct _IMAGE_RELOCATION
 #define IMAGE_REL_BASED_MIPS_JMPADDR            5
 #define IMAGE_REL_BASED_ARM_MOV32A              5 /* yes, 5 too */
 #define IMAGE_REL_BASED_ARM_MOV32               5 /* yes, 5 too */
+#define IMAGE_REL_BASED_RISCV_HI20		5 /* yes, 5 too */
 #define IMAGE_REL_BASED_SECTION                 6
 #define IMAGE_REL_BASED_REL                     7
 #define IMAGE_REL_BASED_ARM_MOV32T              7 /* yes, 7 too */
 #define IMAGE_REL_BASED_THUMB_MOV32             7 /* yes, 7 too */
+#define IMAGE_REL_BASED_RISCV_LOW12I		7 /* yes, 7 too */
+#define IMAGE_REL_BASED_RISCV_LOW12S		8
 #define IMAGE_REL_BASED_MIPS_JMPADDR16          9
 #define IMAGE_REL_BASED_IA64_IMM64              9 /* yes, 9 too */
 #define IMAGE_REL_BASED_DIR64                   10

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * From Coreboot
  * Copyright (C) 2008-2009 coresystems GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

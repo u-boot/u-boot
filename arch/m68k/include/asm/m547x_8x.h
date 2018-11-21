@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * mcf547x_8x.h -- Definitions for Freescale Coldfire 547x_8x
  *
  * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef mcf547x_8x_h

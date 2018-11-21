@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * From linux/include/uapi/linux/btrfs_tree.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __BTRFS_BTRFS_TREE_H__

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Cortina PHY drivers
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
  */
@@ -64,6 +63,10 @@
 #define VILLA_HOST_SDS_COMMON_STX0_TX_OUTPUT_CTRLB  0x813
 #define VILLA_LINE_SDS_COMMON_STX0_TX_OUTPUT_CTRLA 0x427
 #define VILLA_LINE_SDS_COMMON_STX0_TX_OUTPUT_CTRLB 0x428
+
+/* Cortina CS4223 */
+#define CS4223_EEPROM_STATUS  0x5001
+#define CS4223_EEPROM_FIRMWARE_LOADDONE  0x1
 
 #define mseq_edc_bist_done (0x1<<0)
 #define mseq_edc_bist_fail (0x1<<8)

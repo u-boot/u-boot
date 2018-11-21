@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -9,6 +8,34 @@
 #include <asm/pl310.h>
 #include <asm/io.h>
 #include <asm/mach-imx/sys_proto.h>
+
+static void enable_ca7_smp(void)
+{
+	u32 val;
+
+	/* Read MIDR */
+	asm volatile ("mrc p15, 0, %0, c0, c0, 0\n\t" : "=r"(val));
+	val = (val >> 4);
+	val &= 0xf;
+
+	/* Only set the SMP for Cortex A7 */
+	if (val == 0x7) {
+		/* Read auxiliary control register */
+		asm volatile ("mrc p15, 0, %0, c1, c0, 1\n\t" : "=r"(val));
+
+		if (val & (1 << 6))
+			return;
+
+		/* Enable SMP */
+		val |= (1 << 6);
+
+		/* Write auxiliary control register */
+		asm volatile ("mcr p15, 0, %0, c1, c0, 1\n\t" : : "r"(val));
+
+		DSB;
+		ISB;
+	}
+}
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
@@ -21,6 +48,9 @@ void enable_caches(void)
 	/* Avoid random hang when download by usb */
 	invalidate_dcache_all();
 
+	/* Set ACTLR.SMP bit for Cortex-A7 */
+	enable_ca7_smp();
+
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 
@@ -31,6 +61,17 @@ void enable_caches(void)
 	mmu_set_region_dcache_behaviour(IRAM_BASE_ADDR,
 					IRAM_SIZE,
 					option);
+}
+#else
+void enable_caches(void)
+{
+	/*
+	 * Set ACTLR.SMP bit for Cortex-A7, even if the caches are
+	 * disabled by u-boot
+	 */
+	enable_ca7_smp();
+
+	puts("WARNING: Caches not enabled\n");
 }
 #endif
 

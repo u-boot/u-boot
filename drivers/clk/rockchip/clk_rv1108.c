@@ -1,7 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2016 Rockchip Electronics Co., Ltd
  * Author: Andy Yan <andy.yan@rock-chips.com>
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -16,8 +16,6 @@
 #include <asm/arch/hardware.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rv1108-cru.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 enum {
 	VCO_MAX_HZ	= 2400U * 1000000,
@@ -209,11 +207,18 @@ static void rkclk_init(struct rv1108_cru *cru)
 	printf("APLL: %d DPLL:%d GPLL:%d\n", apll, dpll, gpll);
 }
 
-static int rv1108_clk_probe(struct udevice *dev)
+static int rv1108_clk_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rv1108_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = (struct rv1108_cru *)devfdt_get_addr(dev);
+	priv->cru = dev_read_addr_ptr(dev);
+
+	return 0;
+}
+
+static int rv1108_clk_probe(struct udevice *dev)
+{
+	struct rv1108_clk_priv *priv = dev_get_priv(dev);
 
 	rkclk_init(priv->cru);
 
@@ -240,6 +245,13 @@ static int rv1108_clk_bind(struct udevice *dev)
 		sys_child->priv = priv;
 	}
 
+#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+	ret = offsetof(struct rk3368_cru, softrst_con[0]);
+	ret = rockchip_reset_bind(dev, ret, 13);
+	if (ret)
+		debug("Warning: software reset driver bind faile\n");
+#endif
+
 	return 0;
 }
 
@@ -253,6 +265,7 @@ U_BOOT_DRIVER(clk_rv1108) = {
 	.id		= UCLASS_CLK,
 	.of_match	= rv1108_clk_ids,
 	.priv_auto_alloc_size = sizeof(struct rv1108_clk_priv),
+	.ofdata_to_platdata = rv1108_clk_ofdata_to_platdata,
 	.ops		= &rv1108_clk_ops,
 	.bind		= rv1108_clk_bind,
 	.probe		= rv1108_clk_probe,

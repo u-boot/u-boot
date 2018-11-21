@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011-2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -9,9 +8,6 @@
  */
 #ifndef __QEMU_PPCE500_H
 #define __QEMU_PPCE500_H
-
-#undef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xf01000 /* 15 MB */
 
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 
@@ -30,7 +26,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
-#define CONFIG_SYS_ALT_MEMTEST
 
 /* Needed to fill the ccsrbar pointer */
 
@@ -86,7 +81,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
-#define CONFIG_CONS_INDEX	1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		(get_bus_freq(0))
@@ -117,8 +111,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 
-#define CONFIG_LAST_STAGE_INIT
-
 /*
  * Command line configuration.
  */
@@ -126,9 +118,6 @@ extern unsigned long long get_phys_ccsrbar_addr_early(void);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_CMDLINE_EDITING			/* Command-line editing */
-#define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*

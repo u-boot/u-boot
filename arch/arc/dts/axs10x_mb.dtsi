@@ -1,10 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Synopsys, Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 / {
+	aliases {
+		spi0 = &spi0;
+	};
+
 	axs10x_mb@e0000000 {
 		compatible = "simple-bus";
 		#address-cells = <1>;
@@ -31,11 +34,8 @@
 		};
 
 		ethernet@18000 {
-			#interrupt-cells = <1>;
 			compatible = "altr,socfpga-stmmac";
 			reg = < 0x18000 0x2000 >;
-			interrupts = < 25 >;
-			interrupt-names = "macirq";
 			phy-mode = "gmii";
 			snps,pbl = < 32 >;
 			clocks = <&apbclk>;
@@ -46,13 +46,11 @@
 		ehci@0x40000 {
 			compatible = "generic-ehci";
 			reg = < 0x40000 0x100 >;
-			interrupts = < 8 >;
 		};
 
 		ohci@0x60000 {
 			compatible = "generic-ohci";
 			reg = < 0x60000 0x100 >;
-			interrupts = < 8 >;
 		};
 
 		uart0: serial0@22000 {
@@ -61,6 +59,36 @@
 			clocks = <&uartclk>;
 			reg-shift = <2>;
 			reg-io-width = <4>;
+		};
+
+		spi0: spi@0 {
+			compatible = "snps,dw-apb-ssi";
+			reg = <0x0 0x100>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			spi-max-frequency = <4000000>;
+			clocks = <&apbclk>;
+			clock-names = "spi_clk";
+			cs-gpio = <&cs_gpio 0>;
+			spi_flash@0 {
+				compatible = "spi-flash";
+				reg = <0>;
+				spi-max-frequency = <4000000>;
+			};
+		};
+
+		cs_gpio: gpio@11218 {
+			compatible = "snps,creg-gpio";
+			reg = <0x11218 0x4>;
+			gpio-controller;
+			#gpio-cells = <1>;
+			gpio-bank-name = "axs-spi-cs";
+			gpio-count = <1>;
+			gpio-first-shift = <0>;
+			gpio-bit-per-line = <2>;
+			gpio-activate-val = <1>;
+			gpio-deactivate-val = <3>;
+			gpio-default-val = <1>;
 		};
 	};
 };

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012
  * David Purdy <david.c.purdy@gmail.com>
@@ -6,8 +7,6 @@
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_POGO_E02_H
@@ -28,7 +27,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_MVFS
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -73,7 +71,5 @@
 /*
  * File system
  */
-#define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS
 
 #endif /* _CONFIG_POGO_E02_H */

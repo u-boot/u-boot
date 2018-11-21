@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2006 Freescale Semiconductor, Inc.
  *                    Dave Liu <daveliu@freescale.com>
@@ -10,8 +11,6 @@
  *
  * (C) Copyright 2008 - 2010
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -23,7 +22,7 @@
 #include <asm/mmu.h>
 #include <asm/processor.h>
 #include <pci.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <post.h>
 
 #include "../common/common.h"

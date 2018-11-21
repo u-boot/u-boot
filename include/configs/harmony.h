@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  (C) Copyright 2010-2012
  *  NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -29,6 +28,8 @@
 /* NAND support */
 #define CONFIG_TEGRA_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
+
+/* Dynamic MTD partition support */
 
 /* Environment in NAND (which is 512M), aligned to start of last sector */
 #define CONFIG_ENV_OFFSET	(SZ_512M - SZ_128K) /* 128K sector size */

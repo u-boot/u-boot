@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016
  * Ladislav Michl <ladis@linux-mips.org>
  *
  * bootz code:
  * Copyright (C) 2012 Marek Vasut <marek.vasut@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 

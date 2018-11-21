@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Enhanced Direct Memory Access (EDMA3) Controller
  *
@@ -5,8 +6,6 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  *
  * Author: Ivan Khoronzhuk <ivan.khoronzhuk@ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <asm/io.h>
@@ -34,9 +33,13 @@
 #define EDMA3_QEESR				0x108c
 #define EDMA3_QSECR				0x1094
 
+#define EDMA_FILL_BUFFER_SIZE			512
+
 struct ti_edma3_priv {
 	u32 base;
 };
+
+static u8 edma_fill_buffer[EDMA_FILL_BUFFER_SIZE] __aligned(ARCH_DMA_MINALIGN);
 
 /**
  * qedma3_start - start qdma on a channel
@@ -391,7 +394,7 @@ void qedma3_stop(u32 base, struct edma3_channel_config *cfg)
 }
 
 void __edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
-		      void *dst, void *src, size_t len)
+		      void *dst, void *src, size_t len, size_t s_len)
 {
 	struct edma3_slot_config        slot;
 	struct edma3_channel_config     edma_channel;
@@ -401,7 +404,11 @@ void __edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 	unsigned int                    addr = (unsigned int) (dst);
 	unsigned int                    max_acnt  = 0x7FFFU;
 
-	if (len > max_acnt) {
+	if (len > s_len) {
+		b_cnt_value = (len / s_len);
+		rem_bytes = (len % s_len);
+		a_cnt_value = s_len;
+	} else if (len > max_acnt) {
 		b_cnt_value = (len / max_acnt);
 		rem_bytes  = (len % max_acnt);
 		a_cnt_value = max_acnt;
@@ -412,7 +419,10 @@ void __edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 	slot.acnt       = a_cnt_value;
 	slot.bcnt       = b_cnt_value;
 	slot.ccnt       = 1;
-	slot.src_bidx   = a_cnt_value;
+	if (len == s_len)
+		slot.src_bidx = a_cnt_value;
+	else
+		slot.src_bidx = 0;
 	slot.dst_bidx   = a_cnt_value;
 	slot.src_cidx   = 0;
 	slot.dst_cidx   = 0;
@@ -438,8 +448,11 @@ void __edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 
 	if (rem_bytes != 0) {
 		slot.opt        = 0;
-		slot.src        =
-			(b_cnt_value * max_acnt) + ((unsigned int) src);
+		if (len == s_len)
+			slot.src =
+				(b_cnt_value * max_acnt) + ((unsigned int) src);
+		else
+			slot.src = (unsigned int) src;
 		slot.acnt       = rem_bytes;
 		slot.bcnt       = 1;
 		slot.ccnt       = 1;
@@ -468,12 +481,39 @@ void __edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 	}
 }
 
+void __edma3_fill(unsigned long edma3_base_addr, unsigned int edma_slot_num,
+		  void *dst, u8 val, size_t len)
+{
+	int xfer_len;
+	int max_xfer = EDMA_FILL_BUFFER_SIZE * 65535;
+
+	memset((void *)edma_fill_buffer, val, sizeof(edma_fill_buffer));
+
+	while (len) {
+		xfer_len = len;
+		if (xfer_len > max_xfer)
+			xfer_len = max_xfer;
+
+		__edma3_transfer(edma3_base_addr, edma_slot_num, dst,
+				 edma_fill_buffer, xfer_len,
+				 EDMA_FILL_BUFFER_SIZE);
+		len -= xfer_len;
+		dst += xfer_len;
+	}
+}
+
 #ifndef CONFIG_DMA
 
 void edma3_transfer(unsigned long edma3_base_addr, unsigned int edma_slot_num,
 		    void *dst, void *src, size_t len)
 {
-	__edma3_transfer(edma3_base_addr, edma_slot_num, dst, src, len);
+	__edma3_transfer(edma3_base_addr, edma_slot_num, dst, src, len, len);
+}
+
+void edma3_fill(unsigned long edma3_base_addr, unsigned int edma_slot_num,
+		void *dst, u8 val, size_t len)
+{
+	__edma3_fill(edma3_base_addr, edma_slot_num, dst, val, len);
 }
 
 #else
@@ -488,7 +528,7 @@ static int ti_edma3_transfer(struct udevice *dev, int direction, void *dst,
 
 	switch (direction) {
 	case DMA_MEM_TO_MEM:
-		__edma3_transfer(priv->base, 1, dst, src, len);
+		__edma3_transfer(priv->base, 1, dst, src, len, len);
 		break;
 	default:
 		pr_err("Transfer type not implemented in DMA driver\n");

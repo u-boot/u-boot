@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -19,8 +18,6 @@
 #include <asm/arch/ddr_rk3368.h>
 #include <asm/arch/sdram.h>
 #include <asm/arch/sdram_common.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct dram_info {
 	struct ram_info info;
@@ -880,7 +877,7 @@ static int rk3368_dmc_ofdata_to_platdata(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3368_sdram_params *plat = dev_get_platdata(dev);
 
-	ret = regmap_init_mem(dev, &plat->map);
+	ret = regmap_init_mem(dev_ofnode(dev), &plat->map);
 	if (ret)
 		return ret;
 #endif

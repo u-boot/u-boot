@@ -1,14 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
  * Configuration settings for the SolidRun mx6 based boards
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __MX6CUBOXI_CONFIG_H
 #define __MX6CUBOXI_CONFIG_H
 
-#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 #include "imx6_spl.h"
@@ -31,7 +29,6 @@
 
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_FEC_MXC_PHYADDR		0
@@ -69,12 +66,12 @@
 
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 #define CONSOLE_DEV	"ttymxc0"
-#define CONFIG_SYS_FSL_USDHC_NUM	1
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* SDHC2 */
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"som_rev=undefined\0" \
+	"has_emmc=undefined\0" \
 	"fdtfile=undefined\0" \
 	"fdt_addr_r=0x18000000\0" \
 	"fdt_addr=0x18000000\0" \
@@ -104,19 +101,21 @@
 			"fi; "	\
 		"fi\0" \
 	"findfdt="\
-		"if test $board_name = HUMMINGBOARD2 && test $board_rev = MX6Q ; then " \
-			"setenv fdtfile imx6q-hummingboard2.dtb; fi; " \
-		"if test $board_name = HUMMINGBOARD2 && test $board_rev = MX6DL ; then " \
-			"setenv fdtfile imx6dl-hummingboard2.dtb; fi; " \
-		"if test $board_name = HUMMINGBOARD && test $board_rev = MX6Q ; then " \
-			"setenv fdtfile imx6q-hummingboard.dtb; fi; " \
-		"if test $board_name = HUMMINGBOARD && test $board_rev = MX6DL ; then " \
-			"setenv fdtfile imx6dl-hummingboard.dtb; fi; " \
-		"if test $board_name = CUBOXI && test $board_rev = MX6Q ; then " \
-			"setenv fdtfile imx6q-cubox-i.dtb; fi; " \
-		"if test $board_name = CUBOXI && test $board_rev = MX6DL ; then " \
-			"setenv fdtfile imx6dl-cubox-i.dtb; fi; " \
-		"if test $fdtfile = undefined; then " \
+		"if test ${board_rev} = MX6Q; then " \
+			"setenv fdtprefix imx6q; fi; " \
+		"if test ${board_rev} = MX6DL; then " \
+			"setenv fdtprefix imx6dl; fi; " \
+		"if test ${som_rev} = V15; then " \
+			"setenv fdtsuffix -som-v15; fi; " \
+		"if test ${has_emmc} = yes; then " \
+			"setenv emmcsuffix -emmc; fi; " \
+		"if test ${board_name} = HUMMINGBOARD2 ; then " \
+			"setenv fdtfile ${fdtprefix}-hummingboard2${emmcsuffix}${fdtsuffix}.dtb; fi; " \
+		"if test ${board_name} = HUMMINGBOARD ; then " \
+			"setenv fdtfile ${fdtprefix}-hummingboard${emmcsuffix}${fdtsuffix}.dtb; fi; " \
+		"if test ${board_name} = CUBOXI ; then " \
+			"setenv fdtfile ${fdtprefix}-cubox-i${emmcsuffix}${fdtsuffix}.dtb; fi; " \
+		"if test ${fdtfile} = undefined; then " \
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
 	BOOTENV
 
@@ -134,7 +133,6 @@
 #endif /* CONFIG_SPL_BUILD */
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS           1
 #define CONFIG_SYS_SDRAM_BASE          MMDC0_ARB_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_ADDR       IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE       IRAM_SIZE
@@ -146,6 +144,6 @@
 
 /* Environment organization */
 #define CONFIG_ENV_SIZE			(8 * 1024)
-#define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
+#define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)
 
 #endif                         /* __MX6CUBOXI_CONFIG_H */

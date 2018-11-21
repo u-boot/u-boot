@@ -1,7 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
-#
-# SPDX-License-Identifier:      GPL-2.0+
 #
 # Handle various things related to ELF images
 #
@@ -58,7 +57,9 @@ def GetSymbols(fname, patterns):
             name = parts[2]
             syms[name] = Symbol(section, int(value, 16), int(size,16),
                                 flags[1] == 'w')
-    return syms
+
+    # Sort dict by address
+    return OrderedDict(sorted(syms.iteritems(), key=lambda x: x[1].address))
 
 def GetSymbolAddress(fname, sym_name):
     """Get a value of a symbol from an ELF file
@@ -76,19 +77,19 @@ def GetSymbolAddress(fname, sym_name):
         return None
     return sym.address
 
-def LookupAndWriteSymbols(elf_fname, entry, image):
+def LookupAndWriteSymbols(elf_fname, entry, section):
     """Replace all symbols in an entry with their correct values
 
     The entry contents is updated so that values for referenced symbols will be
-    visible at run time. This is done by finding out the symbols positions in
-    the entry (using the ELF file) and replacing them with values from binman's
-    data structures.
+    visible at run time. This is done by finding out the symbols offsets in the
+    entry (using the ELF file) and replacing them with values from binman's data
+    structures.
 
     Args:
         elf_fname: Filename of ELF image containing the symbol information for
             entry
         entry: Entry to process
-        image: Image which can be used to lookup symbol values
+        section: Section which can be used to lookup symbol values
     """
     fname = tools.GetInputFilename(elf_fname)
     syms = GetSymbols(fname, ['image', 'binman'])
@@ -99,8 +100,8 @@ def LookupAndWriteSymbols(elf_fname, entry, image):
         return
     for name, sym in syms.iteritems():
         if name.startswith('_binman'):
-            msg = ("Image '%s': Symbol '%s'\n   in entry '%s'" %
-                   (image.GetPath(), name, entry.GetPath()))
+            msg = ("Section '%s': Symbol '%s'\n   in entry '%s'" %
+                   (section.GetPath(), name, entry.GetPath()))
             offset = sym.address - base.address
             if offset < 0 or offset + sym.size > entry.contents_size:
                 raise ValueError('%s has offset %x (size %x) but the contents '
@@ -115,7 +116,7 @@ def LookupAndWriteSymbols(elf_fname, entry, image):
                                  (msg, sym.size))
 
             # Look up the symbol in our entry tables.
-            value = image.LookupSymbol(name, sym.weak, msg)
+            value = section.LookupSymbol(name, sym.weak, msg)
             if value is not None:
                 value += base.address
             else:

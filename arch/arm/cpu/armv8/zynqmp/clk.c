@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 - 2015 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,10 +16,6 @@ unsigned long zynqmp_get_system_timer_freq(void)
 	u32 ver = zynqmp_get_silicon_version();
 
 	switch (ver) {
-	case ZYNQMP_CSU_VERSION_VELOCE:
-		return 10000;
-	case ZYNQMP_CSU_VERSION_EP108:
-		return 4000000;
 	case ZYNQMP_CSU_VERSION_QEMU:
 		return 50000000;
 	}
@@ -41,11 +36,7 @@ int set_cpu_clk_info(void)
 {
 	gd->cpu_clk = get_tbclk();
 
-	/* Support Veloce to show at least 1MHz via bdi */
-	if (gd->cpu_clk > 1000000)
-		gd->bd->bi_arm_freq = gd->cpu_clk / 1000000;
-	else
-		gd->bd->bi_arm_freq = 1;
+	gd->bd->bi_arm_freq = gd->cpu_clk / 1000000;
 
 	gd->bd->bi_dsp_freq = 0;
 

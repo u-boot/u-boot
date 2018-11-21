@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015
  * Texas Instruments Incorporated, <www.ti.com>
  *
  * Lokesh Vutla <lokeshvutla@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -271,4 +270,34 @@ void __recalibrate_iodelay(struct pad_conf_entry const *pad, int npads,
 err:
 	__recalibrate_iodelay_end(ret);
 
+}
+
+void late_recalibrate_iodelay(struct pad_conf_entry const *pad, int npads,
+			      struct iodelay_cfg_entry const *iodelay,
+			      int niodelays)
+{
+	int ret = 0;
+
+	/* unlock IODELAY CONFIG registers */
+	writel(CFG_IODELAY_UNLOCK_KEY, (*ctrl)->iodelay_config_base +
+	       CFG_REG_8_OFFSET);
+
+	ret = calibrate_iodelay((*ctrl)->iodelay_config_base);
+	if (ret)
+		goto err;
+
+	ret = update_delay_mechanism((*ctrl)->iodelay_config_base);
+
+	/* Configure Mux settings */
+	do_set_mux32((*ctrl)->control_padconf_core_base, pad, npads);
+
+	/* Configure Manual IO timing modes */
+	ret = do_set_iodelay((*ctrl)->iodelay_config_base, iodelay, niodelays);
+	if (ret)
+		goto err;
+
+err:
+	/* lock IODELAY CONFIG registers */
+	writel(CFG_IODELAY_LOCK_KEY, (*ctrl)->iodelay_config_base +
+	       CFG_REG_8_OFFSET);
 }

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <dt-bindings/clock/bcm6358-clock.h>
@@ -11,6 +10,10 @@
 
 / {
 	compatible = "brcm,bcm6358";
+
+	aliases {
+		spi0 = &spi;
+	};
 
 	cpus {
 		reg = <0xfffe0000 0x4>;
@@ -142,10 +145,50 @@
 			status = "disabled";
 		};
 
+		spi: spi@fffe0800 {
+			compatible = "brcm,bcm6358-spi";
+			reg = <0xfffe0800 0x70c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&periph_clk BCM6358_CLK_SPI>;
+			resets = <&periph_rst BCM6358_RST_SPI>;
+			spi-max-frequency = <20000000>;
+			num-cs = <4>;
+
+			status = "disabled";
+		};
+
 		memory-controller@fffe1200 {
 			compatible = "brcm,bcm6358-mc";
 			reg = <0xfffe1200 0x4c>;
 			u-boot,dm-pre-reloc;
+		};
+
+		ehci: usb-controller@fffe1300 {
+			compatible = "brcm,bcm6358-ehci", "generic-ehci";
+			reg = <0xfffe1300 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		ohci: usb-controller@fffe1400 {
+			compatible = "brcm,bcm6358-ohci", "generic-ohci";
+			reg = <0xfffe1400 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		usbh: usb-phy@fffe1500 {
+			compatible = "brcm,bcm6358-usbh";
+			reg = <0xfffe1500 0x28>;
+			#phy-cells = <0>;
+			resets = <&periph_rst BCM6358_RST_USBH>;
+
+			status = "disabled";
 		};
 	};
 };

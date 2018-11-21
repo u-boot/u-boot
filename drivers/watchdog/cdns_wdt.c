@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Cadence WDT driver - Used by Xilinx Zynq
  * Reference: Linux kernel Cadence watchdog driver.
  *
  * Author(s):	Shreenidhi Shedi <yesshedi@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

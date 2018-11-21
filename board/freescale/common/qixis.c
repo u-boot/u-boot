@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2011 Freescale Semiconductor
  * Author: Shengzhou Liu <Shengzhou.Liu@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * This file provides support for the QIXIS of some Freescale reference boards.
  */
@@ -10,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
+#include <linux/compiler.h>
 #include <linux/time.h>
 #include <i2c.h>
 #include "qixis.h"
@@ -136,12 +136,13 @@ void board_deassert_mem_reset(void)
 }
 #endif
 
-void qixis_reset(void)
+#ifndef CONFIG_SPL_BUILD
+static void qixis_reset(void)
 {
 	QIXIS_WRITE(rst_ctl, QIXIS_RST_CTL_RESET);
 }
 
-void qixis_bank_reset(void)
+static void qixis_bank_reset(void)
 {
 	QIXIS_WRITE(rcfg_ctl, QIXIS_RCFG_CTL_RECONFIG_IDLE);
 	QIXIS_WRITE(rcfg_ctl, QIXIS_RCFG_CTL_RECONFIG_START);
@@ -196,15 +197,12 @@ static void qixis_dump_regs(void)
 	printf("stat_alrm = %02x\n", QIXIS_READ(stat_alrm));
 }
 
-static void __qixis_dump_switch(void)
+void __weak qixis_dump_switch(void)
 {
 	puts("Reverse engineering switch is not implemented for this board\n");
 }
 
-void qixis_dump_switch(void)
-	__attribute__((weak, alias("__qixis_dump_switch")));
-
-int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 
@@ -231,6 +229,28 @@ int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		QIXIS_WRITE(rcfg_ctl, 0);
 		set_lbmap(QIXIS_LBMAP_SD);
 		set_rcw_src(QIXIS_RCW_SRC_SD);
+		QIXIS_WRITE(rcfg_ctl, 0x20);
+		QIXIS_WRITE(rcfg_ctl, 0x21);
+#else
+		printf("Not implemented\n");
+#endif
+	} else if (strcmp(argv[1], "ifc") == 0) {
+#ifdef QIXIS_LBMAP_IFC
+		QIXIS_WRITE(rst_ctl, 0x30);
+		QIXIS_WRITE(rcfg_ctl, 0);
+		set_lbmap(QIXIS_LBMAP_IFC);
+		set_rcw_src(QIXIS_RCW_SRC_IFC);
+		QIXIS_WRITE(rcfg_ctl, 0x20);
+		QIXIS_WRITE(rcfg_ctl, 0x21);
+#else
+		printf("Not implemented\n");
+#endif
+	} else if (strcmp(argv[1], "emmc") == 0) {
+#ifdef QIXIS_LBMAP_EMMC
+		QIXIS_WRITE(rst_ctl, 0x30);
+		QIXIS_WRITE(rcfg_ctl, 0);
+		set_lbmap(QIXIS_LBMAP_EMMC);
+		set_rcw_src(QIXIS_RCW_SRC_EMMC);
 		QIXIS_WRITE(rcfg_ctl, 0x20);
 		QIXIS_WRITE(rcfg_ctl, 0x21);
 #else
@@ -305,3 +325,4 @@ U_BOOT_CMD(
 	"qixis_reset dump - display the QIXIS registers\n"
 	"qixis_reset switch - display switch\n"
 	);
+#endif

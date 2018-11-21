@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * LSI ET1011C PHY Driver for TI DaVinci(TMS320DM6467) board.
  *
  * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

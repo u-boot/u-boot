@@ -1,12 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y += mmc.o
 obj-$(CONFIG_$(SPL_)DM_MMC) += mmc-uclass.o
+obj-$(CONFIG_$(SPL_)MMC_WRITE) += mmc_write.o
 
 ifndef CONFIG_$(SPL_)BLK
 obj-y += mmc_legacy.o
@@ -16,9 +15,6 @@ obj-$(CONFIG_SUPPORT_EMMC_BOOT) += mmc_boot.o
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
-obj-$(CONFIG_SPL_SAVEENV) += mmc_write.o
-else
-obj-y += mmc_write.o
 endif
 
 obj-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
@@ -44,13 +40,14 @@ obj-$(CONFIG_MMC_SANDBOX)		+= sandbox_mmc.o
 obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
 obj-$(CONFIG_SH_SDHI) += sh_sdhi.o
 obj-$(CONFIG_STM32_SDMMC2) += stm32_sdmmc2.o
-obj-$(CONFIG_MMC_NDS32) += nds32_mmc.o
 
 # SDHCI
 obj-$(CONFIG_MMC_SDHCI)			+= sdhci.o
 obj-$(CONFIG_MMC_SDHCI_ATMEL)		+= atmel_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_BCM2835)		+= bcm2835_sdhci.o
+obj-$(CONFIG_MMC_SDHCI_BCMSTB)		+= bcmstb_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_CADENCE)		+= sdhci-cadence.o
+obj-$(CONFIG_MMC_SDHCI_K3_ARASAN)	+= k3_arsan_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_KONA)		+= kona_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_MSM)		+= msm_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_MV)		+= mv_sdhci.o
@@ -65,4 +62,6 @@ obj-$(CONFIG_MMC_SDHCI_XENON)		+= xenon_sdhci.o
 obj-$(CONFIG_MMC_SDHCI_ZYNQ)		+= zynq_sdhci.o
 
 obj-$(CONFIG_MMC_SUNXI)			+= sunxi_mmc.o
-obj-$(CONFIG_MMC_UNIPHIER)		+= uniphier-sd.o
+obj-$(CONFIG_MMC_UNIPHIER)		+= tmio-common.o uniphier-sd.o
+obj-$(CONFIG_RENESAS_SDHI)		+= tmio-common.o renesas-sdhi.o
+obj-$(CONFIG_MMC_BCM2835)		+= bcm2835_sdhost.o

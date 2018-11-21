@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007
  * Stelian Pop <stelian@popies.net>
  * Lead Tech Design <www.leadtechdesign.com>
  * Copyright (C) 2009 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ASM_ARM_ARCH_CLK_H__
 #define __ASM_ARM_ARCH_CLK_H__

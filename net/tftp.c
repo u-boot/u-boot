@@ -735,7 +735,7 @@ void tftp_start(enum proto_t protocol)
 	      tftp_block_size_option, timeout_ms);
 
 	tftp_remote_ip = net_server_ip;
-	if (net_boot_file_name[0] == '\0') {
+	if (!net_parse_bootfile(&tftp_remote_ip, tftp_filename, MAX_LEN)) {
 		sprintf(default_filename, "%02X%02X%02X%02X.img",
 			net_ip.s_addr & 0xFF,
 			(net_ip.s_addr >>  8) & 0xFF,
@@ -747,17 +747,6 @@ void tftp_start(enum proto_t protocol)
 
 		printf("*** Warning: no boot file name; using '%s'\n",
 		       tftp_filename);
-	} else {
-		char *p = strchr(net_boot_file_name, ':');
-
-		if (p == NULL) {
-			strncpy(tftp_filename, net_boot_file_name, MAX_LEN);
-			tftp_filename[MAX_LEN - 1] = 0;
-		} else {
-			tftp_remote_ip = string_to_ip(net_boot_file_name);
-			strncpy(tftp_filename, p + 1, MAX_LEN);
-			tftp_filename[MAX_LEN - 1] = 0;
-		}
 	}
 
 	printf("Using %s device\n", eth_get_name());

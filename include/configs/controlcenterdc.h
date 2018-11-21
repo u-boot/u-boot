@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Stefan Roese <sr@denx.de>
  * Copyright (C) 2016 Mario Six <mario.six@gdsys.cc>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_CONTROLCENTERDC_H
@@ -14,16 +13,13 @@
 #define CONFIG_CUSTOMER_BOARD_SUPPORT
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 #define CONFIG_BOARD_LATE_INIT
-#define CONFIG_LAST_STAGE_INIT
 
 /*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.
  */
-#define	CONFIG_SYS_TEXT_BASE	0x00800000
 
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
@@ -54,9 +50,6 @@
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 					 CONFIG_SYS_SCSI_MAX_LUN)
 
-/* Additional FS support/configuration */
-#define CONFIG_SUPPORT_VFAT
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 
@@ -66,7 +59,6 @@
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
 #define CONFIG_ENV_SECT_SIZE		(256 << 10) /* 256KiB sectors */
 
-#define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 /* PCIe support */
@@ -76,8 +68,6 @@
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #endif
-
-#define CONFIG_SYS_ALT_MEMTEST
 
 /*
  * Software (bit-bang) MII driver configuration
@@ -98,7 +88,6 @@
 #define CONFIG_SPL_BOOT_DEVICE		SPL_BOOT_SPI_NOR_FLASH
 
 /* Defines for SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_SIZE			(160 << 10)
 
 #if defined(CONFIG_SECURED_MODE_IMAGE)
@@ -121,12 +110,10 @@
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT
 
 #if CONFIG_SPL_BOOT_DEVICE == SPL_BOOT_SPI_NOR_FLASH
 /* SPL related SPI defines */
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x30000
 #define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
 #endif
@@ -150,7 +137,7 @@
 
 #define CONFIG_BAUDRATE 115200
 
-#define CONFIG_HOSTNAME		ccdc
+#define CONFIG_HOSTNAME		"ccdc"
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"ccdc.img"
 

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * Copyright (C) 2012 Altera Corporation <www.altera.com>
  * All rights reserved.
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #include <common.h>
@@ -11,8 +10,6 @@
 #include <asm/arch/fpga_manager.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define FPGA_TIMEOUT_CNT	0x1000000
 
@@ -207,7 +204,7 @@ static int fpgamgr_program_poll_usermode(void)
  */
 int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 {
-	unsigned long status;
+	int status;
 
 	if ((uint32_t)rbf_data & 0x3) {
 		puts("FPGA: Unaligned data, realign to 32bit boundary.\n");

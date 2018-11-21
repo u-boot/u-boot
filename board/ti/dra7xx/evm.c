@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013
  * Texas Instruments Incorporated, <www.ti.com>
@@ -7,8 +8,6 @@
  * Based on previous work by:
  * Aneesh V       <aneesh@ti.com>
  * Steve Sakoman  <steve@sakoman.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <palmas.h>
@@ -285,6 +284,8 @@ void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
 			break;
 		}
 		break;
+	case DRA762_ABZ_ES1_0:
+	case DRA762_ACD_ES1_0:
 	case DRA762_ES1_0:
 		if (emif_nr == 1)
 			*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra76;
@@ -347,6 +348,8 @@ void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs)
 	ram_size = board_ti_get_emif_size();
 
 	switch (omap_revision()) {
+	case DRA762_ABZ_ES1_0:
+	case DRA762_ACD_ES1_0:
 	case DRA762_ES1_0:
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
@@ -655,8 +658,10 @@ int board_late_init(void)
 			name = "dra71x";
 		else
 			name = "dra72x";
-	} else if (is_dra76x()) {
-		name = "dra76x";
+	} else if (is_dra76x_abz()) {
+		name = "dra76x_abz";
+	} else if (is_dra76x_acd()) {
+		name = "dra76x_acd";
 	} else {
 		name = "dra7xx";
 	}
@@ -793,6 +798,7 @@ void recalibrate_iodelay(void)
 		iodelay = dra742_es1_1_iodelay_cfg_array;
 		niodelays = ARRAY_SIZE(dra742_es1_1_iodelay_cfg_array);
 		break;
+	case DRA762_ACD_ES1_0:
 	case DRA762_ES1_0:
 		pads = dra76x_core_padconf_array;
 		npads = ARRAY_SIZE(dra76x_core_padconf_array);
@@ -801,6 +807,7 @@ void recalibrate_iodelay(void)
 		break;
 	default:
 	case DRA752_ES2_0:
+	case DRA762_ABZ_ES1_0:
 		pads = dra74x_core_padconf_array;
 		npads = ARRAY_SIZE(dra74x_core_padconf_array);
 		iodelay = dra742_es2_0_iodelay_cfg_array;
@@ -822,6 +829,11 @@ void recalibrate_iodelay(void)
 	if (delta_npads)
 		do_set_mux32((*ctrl)->control_padconf_core_base,
 			     delta_pads, delta_npads);
+
+	if (is_dra76x())
+		/* Set mux for MCAN instead of DCAN1 */
+		clrsetbits_le32((*ctrl)->control_core_control_spare_rw,
+				MCAN_SEL_ALT_MASK, MCAN_SEL);
 
 	/* Setup IOdelay configuration */
 	ret = do_set_iodelay((*ctrl)->iodelay_config_base, iodelay, niodelays);
@@ -851,6 +863,35 @@ void board_mmc_poweron_ldo(uint voltage)
 		palmas_mmc1_poweron_ldo(LDO4_VOLTAGE, LDO4_CTRL, voltage);
 	} else {
 		palmas_mmc1_poweron_ldo(LDO1_VOLTAGE, LDO1_CTRL, voltage);
+	}
+}
+
+static const struct mmc_platform_fixups dra7x_es1_1_mmc1_fixups = {
+	.hw_rev = "rev11",
+	.unsupported_caps = MMC_CAP(MMC_HS_200) |
+			    MMC_CAP(UHS_SDR104),
+	.max_freq = 96000000,
+};
+
+static const struct mmc_platform_fixups dra7x_es1_1_mmc23_fixups = {
+	.hw_rev = "rev11",
+	.unsupported_caps = MMC_CAP(MMC_HS_200) |
+			    MMC_CAP(UHS_SDR104) |
+			    MMC_CAP(UHS_SDR50),
+	.max_freq = 48000000,
+};
+
+const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
+{
+	switch (omap_revision()) {
+	case DRA752_ES1_0:
+	case DRA752_ES1_1:
+		if (addr == OMAP_HSMMC1_BASE)
+			return &dra7x_es1_1_mmc1_fixups;
+		else
+			return &dra7x_es1_1_mmc23_fixups;
+	default:
+		return NULL;
 	}
 }
 #endif
@@ -894,7 +935,7 @@ static struct ti_usb_phy_device usb_phy2_device = {
 	.index = 1,
 };
 
-int omap_xhci_board_usb_init(int index, enum usb_init_type init)
+int board_usb_init(int index, enum usb_init_type init)
 {
 	enable_usb_clocks(index);
 	switch (index) {
@@ -931,7 +972,7 @@ int omap_xhci_board_usb_init(int index, enum usb_init_type init)
 	return 0;
 }
 
-int omap_xhci_board_usb_cleanup(int index, enum usb_init_type init)
+int board_usb_cleanup(int index, enum usb_init_type init)
 {
 	switch (index) {
 	case 0:
@@ -1125,9 +1166,10 @@ int board_fit_config_name_match(const char *name)
 		} else if (!strcmp(name, "dra72-evm")) {
 			return 0;
 		}
-	} else if (is_dra76x() && !strcmp(name, "dra76-evm")) {
+	} else if (is_dra76x_acd() && !strcmp(name, "dra76-evm")) {
 		return 0;
-	} else if (!is_dra72x() && !is_dra76x() && !strcmp(name, "dra7-evm")) {
+	} else if (!is_dra72x() && !is_dra76x_acd() &&
+		   !strcmp(name, "dra7-evm")) {
 		return 0;
 	}
 
@@ -1145,6 +1187,16 @@ void board_tee_image_process(ulong tee_image, size_t tee_size)
 {
 	secure_tee_install((u32)tee_image);
 }
+
+#if CONFIG_IS_ENABLED(FASTBOOT) && !CONFIG_IS_ENABLED(ENV_IS_NOWHERE)
+int fastboot_set_reboot_flag(void)
+{
+	printf("Setting reboot to fastboot flag ...\n");
+	env_set("dofastboot", "1");
+	env_save();
+	return 0;
+}
+#endif
 
 U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_TEE, board_tee_image_process);
 #endif

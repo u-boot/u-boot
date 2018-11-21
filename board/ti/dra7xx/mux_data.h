@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * Texas Instruments Incorporated, <www.ti.com>
  *
  * Sricharan R	<r.sricharan@ti.com>
  * Nishant Kamat <nskamat@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _MUX_DATA_DRA7XX_H_
 #define _MUX_DATA_DRA7XX_H_
@@ -140,7 +139,7 @@ const struct pad_conf_entry dra72x_core_padconf_array_common[] = {
 	{SPI1_CS0, (M0 | PIN_INPUT_PULLUP)},	/* spi1_cs0.spi1_cs0 */
 	{SPI1_CS1, (M14 | PIN_OUTPUT)},	/* spi1_cs1.gpio7_11 */
 	{SPI1_CS2, (M14 | PIN_INPUT_PULLDOWN)},	/* spi1_cs2.gpio7_12 */
-	{SPI1_CS3, (M6 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
+	{SPI1_CS3, (M6 | PIN_INPUT | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
 	{SPI2_SCLK, (M1 | PIN_INPUT_PULLDOWN)},	/* spi2_sclk.uart3_rxd */
 	{SPI2_D1, (M1 | PIN_INPUT_SLEW)},	/* spi2_d1.uart3_txd */
 	{SPI2_D0, (M1 | PIN_INPUT_SLEW)},	/* spi2_d0.uart3_ctsn */
@@ -350,7 +349,7 @@ const struct pad_conf_entry dra71x_core_padconf_array[] = {
 	{SPI1_CS0, (M0 | PIN_INPUT_PULLUP)},	/* spi1_cs0.spi1_cs0 */
 	{SPI1_CS1, (M14 | PIN_INPUT_PULLUP)},	/* spi1_cs1.gpio7_11 */
 	{SPI1_CS2, (M14 | PIN_INPUT_PULLDOWN)},	/* spi1_cs2.gpio7_12 */
-	{SPI1_CS3, (M6 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
+	{SPI1_CS3, (M6 | PIN_INPUT | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
 	{SPI2_SCLK, (M1 | PIN_INPUT_PULLDOWN)},	/* spi2_sclk.uart3_rxd */
 	{SPI2_D1, (M1 | PIN_INPUT_SLEW)},	/* spi2_d1.uart3_txd */
 	{SPI2_D0, (M1 | PIN_INPUT_SLEW)},	/* spi2_d0.uart3_ctsn */
@@ -372,13 +371,10 @@ const struct pad_conf_entry dra71x_core_padconf_array[] = {
 };
 
 const struct pad_conf_entry early_padconf[] = {
-#if (CONFIG_CONS_INDEX == 1)
 	{UART1_RXD, (PIN_INPUT_SLEW | M0)}, /* UART1_RXD */
 	{UART1_TXD, (PIN_INPUT_SLEW | M0)}, /* UART1_TXD */
-#elif (CONFIG_CONS_INDEX == 3)
 	{UART3_RXD, (PIN_INPUT_SLEW | M0)}, /* UART3_RXD */
 	{UART3_TXD, (PIN_INPUT_SLEW | M0)}, /* UART3_TXD */
-#endif
 	{I2C1_SDA, (PIN_INPUT | M0)},	/* I2C1_SDA */
 	{I2C1_SCL, (PIN_INPUT | M0)},	/* I2C1_SCL */
 };
@@ -677,7 +673,7 @@ const struct pad_conf_entry dra74x_core_padconf_array[] = {
 	{SPI1_CS0, (M0 | PIN_INPUT_PULLUP)},	/* spi1_cs0.spi1_cs0 */
 	{SPI1_CS1, (M14 | PIN_OUTPUT)},		/* spi1_cs1.gpio7_11 */
 	{SPI1_CS2, (M14 | PIN_INPUT_PULLDOWN)},	/* spi1_cs2.gpio7_12 */
-	{SPI1_CS3, (M6 | PIN_INPUT_PULLUP | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
+	{SPI1_CS3, (M6 | PIN_INPUT | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
 	{SPI2_SCLK, (M1 | PIN_INPUT_PULLDOWN)},	/* spi2_sclk.uart3_rxd */
 	{SPI2_D1, (M1 | PIN_INPUT_SLEW)},	/* spi2_d1.uart3_txd */
 	{SPI2_D0, (M1 | PIN_INPUT_SLEW)},	/* spi2_d0.uart3_ctsn */
@@ -862,8 +858,8 @@ const struct pad_conf_entry dra76x_core_padconf_array[] = {
 	{SPI1_D1, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_d1.spi1_d1 */
 	{SPI1_D0, (M0 | PIN_INPUT_PULLDOWN)},	/* spi1_d0.spi1_d0 */
 	{SPI1_CS0, (M0 | PIN_INPUT_PULLUP)},	/* spi1_cs0.spi1_cs0 */
-	{SPI1_CS2, (M6 | 0x000f0000)},	/* spi1_cs2.hdmi1_hpd */
-	{SPI1_CS3, (M6 | 0x000f0000)},	/* spi1_cs3.hdmi1_cec */
+	{SPI1_CS2, (M14 | PIN_INPUT_PULLDOWN)},	/* spi1_cs2.gpio7_12 */
+	{SPI1_CS3, (M6 | PIN_INPUT | SLEWCONTROL)},	/* spi1_cs3.hdmi1_cec */
 	{SPI2_SCLK, (M1 | PIN_INPUT_PULLDOWN)},	/* spi2_sclk.uart3_rxd */
 	{SPI2_D1, (M1 | PIN_INPUT_SLEW)},	/* spi2_d1.uart3_txd */
 	{SPI2_D0, (M1 | PIN_INPUT_SLEW)},	/* spi2_d0.uart3_ctsn */
@@ -882,7 +878,7 @@ const struct pad_conf_entry dra76x_core_padconf_array[] = {
 	{I2C2_SCL, (M1 | PIN_INPUT_PULLUP)},	/* i2c2_scl.hdmi1_ddc_sda */
 	{WAKEUP0, (M14 | PIN_OUTPUT)},	/* N/A.gpio1_0 */
 	{WAKEUP1, (M14 | PIN_OUTPUT)},	/* N/A.gpio1_1 */
-	{WAKEUP2, (M1 | PIN_OUTPUT)},	/* N/A.sys_nirq2 */
+	{WAKEUP2, (M14 | PIN_INPUT)},	/* N/A.gpio1_2 */
 	{WAKEUP3, (M1 | PIN_OUTPUT)},	/* N/A.sys_nirq1 */
 };
 

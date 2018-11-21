@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2005
  * ARM Ltd.
@@ -5,8 +6,6 @@
  * Configuration for ARM Core Modules.
  * No standalonw port yet available
  * - this file is included by both integratorap.h & integratorcp.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ARMCOREMODULE_H

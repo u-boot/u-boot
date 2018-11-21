@@ -1,22 +1,18 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * USB armory MkI board configuration settings
  * http://inversepath.com/usbarmory
  *
  * Copyright (C) 2015, Inverse Path
  * Andrej Rosano <andrej@inversepath.com>
- *
- * SPDX-License-Identifier:|____GPL-2.0+
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
 #define CONFIG_SYS_FSL_CLK
-#define CONFIG_MXC_GPIO
 
 #include <asm/arch/imx-regs.h>
-
-#include <config_distro_defaults.h>
 
 /* U-Boot environment */
 #define CONFIG_ENV_OFFSET	(6 * 64 * 1024)
@@ -29,10 +25,8 @@
 /* UART */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
-#define CONFIG_CONS_INDEX	1
 
 /* SD/MMC */
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
@@ -53,11 +47,10 @@
 
 /* U-Boot memory offsets */
 #define CONFIG_LOADADDR		0x72000000
-#define CONFIG_SYS_TEXT_BASE	0x77800000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Linux boot */
-#define CONFIG_HOSTNAME		usbarmory
+#define CONFIG_HOSTNAME		"usbarmory"
 #define CONFIG_BOOTCOMMAND						\
 	"run distro_bootcmd; "						\
 	"setenv bootargs console=${console} ${bootargs_default}; "	\
@@ -89,7 +82,6 @@
 #endif
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			CSD0_BASE_ADDR
 #define PHYS_SDRAM_SIZE			(gd->ram_size)
 

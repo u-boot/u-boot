@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright: 2013
  * Gumstix, Inc - http://www.gumstix.com
@@ -5,8 +6,6 @@
  *
  * Configuration settings for the Gumstix DuoVero board.
  * See omap4_common.h for OMAP4 common part
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __CONFIG_DUOVERO_H
@@ -33,7 +32,5 @@
 /* GPIO */
 
 /* ENV related config options */
-
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 #endif /* __CONFIG_DUOVERO_H */

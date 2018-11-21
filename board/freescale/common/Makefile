@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 MINIMAL=
 
@@ -23,8 +21,8 @@ obj-$(CONFIG_FMAN_ENET)	+= fman.o
 obj-$(CONFIG_FSL_PIXIS)	+= pixis.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_FSL_NGPIXIS)	+= ngpixis.o
-obj-$(CONFIG_VID)		+= vid.o
 endif
+obj-$(CONFIG_VID)		+= vid.o
 obj-$(CONFIG_FSL_QIXIS)	+= qixis.o
 obj-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o
 ifndef CONFIG_SPL_BUILD
@@ -61,6 +59,7 @@ obj-$(CONFIG_VSC_CROSSBAR)    += vsc3316_3308.o
 obj-$(CONFIG_IDT8T49N222A)	+= idt8t49n222a_serdes_clk.o
 obj-$(CONFIG_ZM7300)		+= zm7300.o
 obj-$(CONFIG_POWER_PFUZE100)	+= pfuze.o
+obj-$(CONFIG_DM_PMIC_PFUZE100)	+= pfuze.o
 obj-$(CONFIG_POWER_MC34VR500)	+= mc34vr500.o
 
 obj-$(CONFIG_LS102XA_STREAM_ID)	+= ls102xa_stream_id.o

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) Marvell International Ltd. and its affiliates
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _HIGH_SPEED_ENV_SPEC_H

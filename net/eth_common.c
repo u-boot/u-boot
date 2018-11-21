@@ -1,46 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001-2015
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Joe Hershberger, National Instruments
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
+#include <environment.h>
 #include <miiphy.h>
 #include <net.h>
 #include "eth_internal.h"
-
-void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
-{
-	char *end;
-	int i;
-
-	for (i = 0; i < 6; ++i) {
-		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
-		if (addr)
-			addr = (*end) ? end + 1 : end;
-	}
-}
-
-int eth_env_get_enetaddr(const char *name, uchar *enetaddr)
-{
-	eth_parse_enetaddr(env_get(name), enetaddr);
-	return is_valid_ethaddr(enetaddr);
-}
-
-int eth_env_set_enetaddr(const char *name, const uchar *enetaddr)
-{
-	char buf[ARP_HLEN_ASCII + 1];
-
-	if (eth_env_get_enetaddr(name, (uchar *)buf))
-		return -EEXIST;
-
-	sprintf(buf, "%pM", enetaddr);
-
-	return env_set(name, buf);
-}
 
 int eth_env_get_enetaddr_by_index(const char *base_name, int index,
 				 uchar *enetaddr)

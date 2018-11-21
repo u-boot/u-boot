@@ -1,12 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2013 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm/util.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <vsprintf.h>
 
 #ifdef CONFIG_DM_WARN

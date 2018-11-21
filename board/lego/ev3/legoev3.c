@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 David Lechner <david@lechnology.com>
  *
@@ -9,14 +10,10 @@
  *
  * Copyright (C) 2009 Nick Thompson, GE Fanuc, Ltd. <nick.thompson@gefanuc.com>
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <i2c.h>
-#include <net.h>
-#include <netdev.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/hardware.h>
@@ -133,6 +130,11 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 int board_early_init_f(void)
 {
+	/* enable the console UART */
+	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
+		DAVINCI_UART_PWREMU_MGMT_UTRST),
+	       &davinci_uart1_ctrl_regs->pwremu_mgmt);
+
 	/*
 	 * Power on required peripherals
 	 * ARM does not have access by default to PSC0 and PSC1
@@ -158,7 +160,7 @@ int board_init(void)
 
 	/* setup the SUSPSRC for ARM to control emulation suspend */
 	writel(readl(&davinci_syscfg_regs->suspsrc) &
-	       ~(DAVINCI_SYSCFG_SUSPSRC_EMAC | DAVINCI_SYSCFG_SUSPSRC_I2C |
+	       ~(DAVINCI_SYSCFG_SUSPSRC_I2C |
 		 DAVINCI_SYSCFG_SUSPSRC_SPI0 | DAVINCI_SYSCFG_SUSPSRC_TIMER0 |
 		 DAVINCI_SYSCFG_SUSPSRC_UART1),
 	       &davinci_syscfg_regs->suspsrc);
@@ -166,11 +168,6 @@ int board_init(void)
 	/* configure pinmux settings */
 	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
-
-	/* enable the console UART */
-	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
-		DAVINCI_UART_PWREMU_MGMT_UTRST),
-	       &davinci_uart1_ctrl_regs->pwremu_mgmt);
 
 	return 0;
 }

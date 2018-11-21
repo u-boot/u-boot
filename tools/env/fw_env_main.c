@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -46,7 +45,7 @@ static struct option long_options[] = {
 	{"config", required_argument, NULL, 'c'},
 	{"help", no_argument, NULL, 'h'},
 	{"script", required_argument, NULL, 's'},
-	{"noheader", required_argument, NULL, 'n'},
+	{"noheader", no_argument, NULL, 'n'},
 	{"lock", required_argument, NULL, 'l'},
 	{"version", no_argument, NULL, 'v'},
 	{NULL, 0, NULL, 0}
@@ -239,7 +238,7 @@ int main(int argc, char *argv[])
 	argv += optind;
 
 	if (env_opts.lockname) {
-		lockname = malloc(sizeof(env_opts.lockname) +
+		lockname = malloc(strlen(env_opts.lockname) +
 				sizeof(CMD_PRINTENV) + 10);
 		if (!lockname) {
 			fprintf(stderr, "Unable allocate memory");

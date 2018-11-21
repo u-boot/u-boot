@@ -45,20 +45,12 @@ choice
 		  NXP SABRELite.
 
 	config UART1_CSI0_DAT10_11
-		bool "UART1 on CSI0_DAT10/11 (Wand)"
+		bool "UART1 on CSI0_DAT10/11 (Wand, SabreSD)"
 		depends on SERIAL_CONSOLE_UART1
 		help
 		  Choose this configuration if you're using pads
 		  CSI0_DAT10 and DAT11 for a console on UART1 as
-		  is done on the i.MX6 Wand board.
-
-	config UART1_SD3_DAT6_7
-		bool "UART1 on SD3_DAT6/7 (SabreSD, SabreAuto)"
-		depends on SERIAL_CONSOLE_UART1
-		help
-		  Choose this configuration if you're using pads
-		  SD3_DAT6 and DAT7 for a console on UART1 as is
-		  done on the NXP SABRESD or SABREAUTO designs.
+		  is done on the i.MX6 Wand board and i.MX6 SabreSD.
 
 	config UART1_UART1
 		bool "UART1 on UART1 (i.MX6SL EVK, WaRP)"

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -14,6 +13,8 @@
  */
 
 #include <common.h>
+#include <malloc.h>
+#include <asm/acpi_table.h>
 #include <asm/io.h>
 #include <asm/ptrace.h>
 #include <asm/zimage.h>
@@ -24,8 +25,7 @@
 #include <asm/arch/timestamp.h>
 #endif
 #include <linux/compiler.h>
-
-DECLARE_GLOBAL_DATA_PTR;
+#include <linux/libfdt.h>
 
 /*
  * Memory lay-out:
@@ -92,6 +92,38 @@ static int get_boot_protocol(struct setup_header *hdr)
 		printf("Magic signature not found\n");
 		return 0x0100;
 	}
+}
+
+static int setup_device_tree(struct setup_header *hdr, const void *fdt_blob)
+{
+	int bootproto = get_boot_protocol(hdr);
+	struct setup_data *sd;
+	int size;
+
+	if (bootproto < 0x0209)
+		return -ENOTSUPP;
+
+	if (!fdt_blob)
+		return 0;
+
+	size = fdt_totalsize(fdt_blob);
+	if (size < 0)
+		return -EINVAL;
+
+	size += sizeof(struct setup_data);
+	sd = (struct setup_data *)malloc(size);
+	if (!sd) {
+		printf("Not enough memory for DTB setup data\n");
+		return -ENOMEM;
+	}
+
+	sd->next = hdr->setup_data;
+	sd->type = SETUP_DTB;
+	sd->len = fdt_totalsize(fdt_blob);
+	memcpy(sd->data, fdt_blob, sd->len);
+	hdr->setup_data = (unsigned long)sd;
+
+	return 0;
 }
 
 struct boot_params *load_zimage(char *image, unsigned long kernel_size,
@@ -246,15 +278,21 @@ int setup_zimage(struct boot_params *setup_base, char *cmd_line, int auto_boot,
 			hdr->setup_move_size = 0x9100;
 		}
 
-#if defined(CONFIG_INTEL_MID)
-		hdr->hardware_subarch = X86_SUBARCH_INTEL_MID;
-#endif
-
 		/* build command line at COMMAND_LINE_OFFSET */
 		build_command_line(cmd_line, auto_boot);
 	}
 
+#ifdef CONFIG_INTEL_MID
+	if (bootproto >= 0x0207)
+		hdr->hardware_subarch = X86_SUBARCH_INTEL_MID;
+#endif
+
+	setup_device_tree(hdr, (const void *)env_get_hex("fdtaddr", 0));
 	setup_video(&setup_base->screen_info);
+
+#ifdef CONFIG_EFI_STUB
+	setup_efi_info(&setup_base->efi_info);
+#endif
 
 	return 0;
 }

@@ -1,19 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007
  * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com
  *
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <inttypes.h>
 #include <stdio_dev.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <exports.h>
 #include <fdtdec.h>
@@ -410,7 +408,7 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 	return p - (char *)buf;
 }
 
-#ifdef CONFIG_NR_DRAM_BANKS
+#if CONFIG_NR_DRAM_BANKS > 4
 #define MEMORY_BANKS_MAX CONFIG_NR_DRAM_BANKS
 #else
 #define MEMORY_BANKS_MAX 4
@@ -418,7 +416,7 @@ static int fdt_pack_reg(const void *fdt, void *buf, u64 *address, u64 *size,
 int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 {
 	int err, nodeoffset;
-	int len;
+	int len, i;
 	u8 tmp[MEMORY_BANKS_MAX * 16]; /* Up to 64-bit address + 64-bit size */
 
 	if (banks > MEMORY_BANKS_MAX) {
@@ -447,8 +445,21 @@ int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 		return err;
 	}
 
+	for (i = 0; i < banks; i++) {
+		if (start[i] == 0 && size[i] == 0)
+			break;
+	}
+
+	banks = i;
+
 	if (!banks)
 		return 0;
+
+	for (i = 0; i < banks; i++)
+		if (start[i] == 0 && size[i] == 0)
+			break;
+
+	banks = i;
 
 	len = fdt_pack_reg(blob, tmp, start, size, banks);
 
@@ -717,7 +728,7 @@ struct reg_cell {
 	unsigned int r1;
 };
 
-int fdt_del_subnodes(const void *blob, int parent_offset)
+static int fdt_del_subnodes(const void *blob, int parent_offset)
 {
 	int off, ndepth;
 	int ret;
@@ -742,7 +753,7 @@ int fdt_del_subnodes(const void *blob, int parent_offset)
 	return 0;
 }
 
-int fdt_del_partitions(void *blob, int parent_offset)
+static int fdt_del_partitions(void *blob, int parent_offset)
 {
 	const void *prop;
 	int ndepth = 0;
@@ -881,9 +892,9 @@ err_prop:
  *
  *	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
  */
-void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
+void fdt_fixup_mtdparts(void *blob, const struct node_info *node_info,
+			int node_info_size)
 {
-	struct node_info *ni = node_info;
 	struct mtd_device *dev;
 	int i, idx;
 	int noff;
@@ -893,12 +904,13 @@ void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
 
 	for (i = 0; i < node_info_size; i++) {
 		idx = 0;
-		noff = fdt_node_offset_by_compatible(blob, -1, ni[i].compat);
+		noff = fdt_node_offset_by_compatible(blob, -1,
+						     node_info[i].compat);
 		while (noff != -FDT_ERR_NOTFOUND) {
 			debug("%s: %s, mtd dev type %d\n",
 				fdt_get_name(blob, noff, 0),
-				ni[i].compat, ni[i].type);
-			dev = device_find(ni[i].type, idx++);
+				node_info[i].compat, node_info[i].type);
+			dev = device_find(node_info[i].type, idx++);
 			if (dev) {
 				if (fdt_node_set_part_info(blob, noff, dev))
 					return; /* return on error */
@@ -906,7 +918,7 @@ void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
 
 			/* Jump to next flash node */
 			noff = fdt_node_offset_by_compatible(blob, noff,
-							     ni[i].compat);
+							     node_info[i].compat);
 		}
 	}
 }
@@ -1012,8 +1024,7 @@ static u64 of_bus_default_map(fdt32_t *addr, const fdt32_t *range,
 	s  = fdt_read_number(range + na + pna, ns);
 	da = fdt_read_number(addr, na);
 
-	debug("OF: default map, cp=%" PRIu64 ", s=%" PRIu64
-	      ", da=%" PRIu64 "\n", cp, s, da);
+	debug("OF: default map, cp=%llu, s=%llu, da=%llu\n", cp, s, da);
 
 	if (da < cp || da >= (cp + s))
 		return OF_BAD_ADDR;
@@ -1068,8 +1079,7 @@ static u64 of_bus_isa_map(fdt32_t *addr, const fdt32_t *range,
 	s  = fdt_read_number(range + na + pna, ns);
 	da = fdt_read_number(addr + 1, na - 1);
 
-	debug("OF: ISA map, cp=%" PRIu64 ", s=%" PRIu64
-	      ", da=%" PRIu64 "\n", cp, s, da);
+	debug("OF: ISA map, cp=%llu, s=%llu, da=%llu\n", cp, s, da);
 
 	if (da < cp || da >= (cp + s))
 		return OF_BAD_ADDR;
@@ -1175,7 +1185,7 @@ static int of_translate_one(const void *blob, int parent, struct of_bus *bus,
 
  finish:
 	of_dump_addr("OF: parent translation for:", addr, pna);
-	debug("OF: with offset: %" PRIu64 "\n", offset);
+	debug("OF: with offset: %llu\n", offset);
 
 	/* Translate it into parent bus space */
 	return pbus->translate(addr, offset, pna);
@@ -1505,9 +1515,9 @@ int fdt_verify_alias_address(void *fdt, int anode, const char *alias, u64 addr)
 
 	dt_addr = fdt_translate_address(fdt, node, reg);
 	if (addr != dt_addr) {
-		printf("Warning: U-Boot configured device %s at address %"
-		       PRIx64 ",\n but the device tree has it address %"
-		       PRIx64 ".\n", alias, addr, dt_addr);
+		printf("Warning: U-Boot configured device %s at address %llu,\n"
+		       "but the device tree has it address %llx.\n",
+		       alias, addr, dt_addr);
 		return 0;
 	}
 
@@ -1655,7 +1665,7 @@ int fdt_setup_simplefb_node(void *fdt, int node, u64 base_address, u32 width,
 	if (ret < 0)
 		return ret;
 
-	snprintf(name, sizeof(name), "framebuffer@%" PRIx64, base_address);
+	snprintf(name, sizeof(name), "framebuffer@%llx", base_address);
 	ret = fdt_set_name(fdt, node, name);
 	if (ret < 0)
 		return ret;

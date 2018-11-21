@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2015 Google, Inc
  * Copyright 2014 Rockchip Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -19,8 +18,6 @@
 #include <asm/arch/edp_rk3288.h>
 #include <asm/arch/grf_rk3288.h>
 #include <dt-bindings/clock/rk3288-cru.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define MAX_CR_LOOP 5
 #define MAX_EQ_LOOP 5

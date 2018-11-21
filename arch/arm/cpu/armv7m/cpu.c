@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2010,2011
  * Vladimir Khusainov, Emcraft Systems, vlad@emcraft.com
  *
  * (C) Copyright 2015
  * Kamil Lulko, <kamil.lulko@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -36,6 +35,9 @@ int cleanup_before_linux(void)
 	/* invalidate to make sure no cache line gets dirty between
 	 * dcache flushing and disabling dcache */
 	invalidate_dcache_all();
+
+	icache_disable();
+	invalidate_icache_all();
 
 	return 0;
 }

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2015 Google, Inc
  * (C) Copyright 2016 Heiko Stuebner <heiko@sntech.de>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -22,8 +21,6 @@
 #include <dm/lists.h>
 #include <dm/uclass-internal.h>
 #include <linux/log2.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 enum rk3188_clk_type {
 	RK3188_CRU,
@@ -123,7 +120,7 @@ static int rkclk_configure_ddr(struct rk3188_cru *cru, struct rk3188_grf *grf,
 			       unsigned int hz, bool has_bwadj)
 {
 	static const struct pll_div dpll_cfg[] = {
-		{.nf = 25, .nr = 2, .no = 1},
+		{.nf = 75, .nr = 1, .no = 6},
 		{.nf = 400, .nr = 9, .no = 2},
 		{.nf = 500, .nr = 9, .no = 2},
 		{.nf = 100, .nr = 3, .no = 1},
@@ -541,7 +538,7 @@ static int rk3188_clk_ofdata_to_platdata(struct udevice *dev)
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct rk3188_clk_priv *priv = dev_get_priv(dev);
 
-	priv->cru = (struct rk3188_cru *)devfdt_get_addr(dev);
+	priv->cru = dev_read_addr_ptr(dev);
 #endif
 
 	return 0;
@@ -589,6 +586,13 @@ static int rk3188_clk_bind(struct udevice *dev)
 						    cru_glb_srst_snd_value);
 		sys_child->priv = priv;
 	}
+
+#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+	ret = offsetof(struct rk3188_cru, cru_softrst_con[0]);
+	ret = rockchip_reset_bind(dev, ret, 9);
+	if (ret)
+		debug("Warning: software reset driver bind faile\n");
+#endif
 
 	return 0;
 }

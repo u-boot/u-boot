@@ -30,8 +30,10 @@
 /* Timing = value +1 cycles */
 #define TMRD_1		(1 - 1)
 #define TMRD_2		(2 - 1)
+#define TMRD_3		(3 - 1)
 #define TXSR_1		(1 - 1)
 #define TXSR_6		(6 - 1)
+#define TXSR_7		(7 - 1)
 #define TRAS_1		(1 - 1)
 #define TRAS_4		(4 - 1)
 #define TRC_6		(6 - 1)

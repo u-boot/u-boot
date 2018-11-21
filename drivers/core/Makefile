@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2013 Google, Inc
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y	+= device.o fdtaddr.o lists.o root.o uclass.o util.o
 obj-$(CONFIG_DEVRES) += devres.o

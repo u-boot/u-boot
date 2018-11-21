@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * David Feng <fenghua@phytium.com.cn>
@@ -8,8 +9,6 @@
  * (C) Copyright 2010
  * Texas Instruments, <www.ti.com>
  *	Aneesh V <aneesh@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 MEMORY { .sram : ORIGIN = CONFIG_SPL_TEXT_BASE,

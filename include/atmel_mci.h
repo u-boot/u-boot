@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2005-2006 Atmel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ATMEL_MCI_H__
 #define __ATMEL_MCI_H__

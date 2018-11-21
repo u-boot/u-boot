@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Amarula Solutions B.V.
  * Copyright (C) 2016 Engicam S.r.l.
  * Author: Jagan Teki <jagan@amarulasolutions.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -21,8 +20,6 @@
 #include <asm/mach-imx/iomux-v3.h>
 
 #include "../common/board.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_NAND_MXS
 

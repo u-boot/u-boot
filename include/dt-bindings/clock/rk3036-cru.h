@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2014 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DT_BINDINGS_CLK_ROCKCHIP_RK3036_H

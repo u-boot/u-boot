@@ -1,14 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 SAMSUNG Electronics
  * Jaehoon Chung <jh80.chung@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dwmmc.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <malloc.h>
 #include <errno.h>
 #include <asm/arch/dwmmc.h>
@@ -47,8 +46,12 @@ struct dwmci_exynos_priv_data {
  */
 static void exynos_dwmci_clksel(struct dwmci_host *host)
 {
+#ifdef CONFIG_DM_MMC
+	struct dwmci_exynos_priv_data *priv =
+		container_of(host, struct dwmci_exynos_priv_data, host);
+#else
 	struct dwmci_exynos_priv_data *priv = host->priv;
-
+#endif
 	dwmci_writel(host, DWMCI_CLKSEL, priv->sdr_timing);
 }
 
@@ -147,17 +150,11 @@ static int do_dwmci_init(struct dwmci_host *host)
 }
 
 static int exynos_dwmci_get_config(const void *blob, int node,
-					struct dwmci_host *host)
+				   struct dwmci_host *host,
+				   struct dwmci_exynos_priv_data *priv)
 {
 	int err = 0;
 	u32 base, timing[3];
-	struct dwmci_exynos_priv_data *priv;
-
-	priv = malloc(sizeof(struct dwmci_exynos_priv_data));
-	if (!priv) {
-		pr_err("dwmci_exynos_priv_data malloc fail!\n");
-		return -ENOMEM;
-	}
 
 	/* Extract device id for each mmc channel */
 	host->dev_id = pinmux_decode_periph_id(blob, node);
@@ -206,14 +203,13 @@ static int exynos_dwmci_get_config(const void *blob, int node,
 	host->bus_hz = fdtdec_get_int(blob, node, "bus_hz", 0);
 	host->div = fdtdec_get_int(blob, node, "div", 0);
 
-	host->priv = priv;
-
 	return 0;
 }
 
 static int exynos_dwmci_process_node(const void *blob,
 					int node_list[], int count)
 {
+	struct dwmci_exynos_priv_data *priv;
 	struct dwmci_host *host;
 	int i, node, err;
 
@@ -222,11 +218,20 @@ static int exynos_dwmci_process_node(const void *blob,
 		if (node <= 0)
 			continue;
 		host = &dwmci_host[i];
-		err = exynos_dwmci_get_config(blob, node, host);
+
+		priv = malloc(sizeof(struct dwmci_exynos_priv_data));
+		if (!priv) {
+			pr_err("dwmci_exynos_priv_data malloc fail!\n");
+			return -ENOMEM;
+		}
+
+		err = exynos_dwmci_get_config(blob, node, host, priv);
 		if (err) {
 			printf("%s: failed to decode dev %d\n", __func__, i);
+			free(priv);
 			return err;
 		}
+		host->priv = priv;
 
 		do_dwmci_init(host);
 	}
@@ -264,7 +269,8 @@ static int exynos_dwmmc_probe(struct udevice *dev)
 	struct dwmci_host *host = &priv->host;
 	int err;
 
-	err = exynos_dwmci_get_config(gd->fdt_blob, dev_of_offset(dev), host);
+	err = exynos_dwmci_get_config(gd->fdt_blob, dev_of_offset(dev), host,
+				      priv);
 	if (err)
 		return err;
 	err = do_dwmci_init(host);
@@ -289,6 +295,7 @@ static int exynos_dwmmc_bind(struct udevice *dev)
 
 static const struct udevice_id exynos_dwmmc_ids[] = {
 	{ .compatible = "samsung,exynos4412-dw-mshc" },
+	{ .compatible = "samsung,exynos-dwmmc" },
 	{ }
 };
 

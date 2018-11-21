@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Cirrus Logic EP93xx ethernet MAC / MII driver.
  *
@@ -13,8 +14,6 @@
  * (C) Copyright 2002 2003
  * Adam Bezanson, Network Audio Technologies, Inc.
  * <bezanson@netaudiotech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <command.h>

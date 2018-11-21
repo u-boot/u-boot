@@ -1,11 +1,10 @@
-/**
- * dwc3-generic.c - Generic DWC3 Glue layer
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Generic DWC3 Glue layer
  *
- * Copyright (C) 2016 Xilinx, Inc.
+ * Copyright (C) 2016 - 2018 Xilinx, Inc.
  *
  * Based on dwc3-omap.c.
- *
- * SPDX-License-Identifier:     GPL-2.0
  */
 
 #include <common.h>
@@ -110,6 +109,7 @@ static int dwc3_generic_bind(struct udevice *parent)
 		const char *name = fdt_get_name(fdt, node, NULL);
 		enum usb_dr_mode dr_mode;
 		struct udevice *dev;
+		const char *driver;
 
 		debug("%s: subnode name: %s\n", __func__, name);
 		if (strncmp(name, "dwc3@", 4))
@@ -121,31 +121,24 @@ static int dwc3_generic_bind(struct udevice *parent)
 		case USB_DR_MODE_PERIPHERAL:
 		case USB_DR_MODE_OTG:
 			debug("%s: dr_mode: OTG or Peripheral\n", __func__);
-			ret = device_bind_driver_to_node(parent,
-							 "dwc3-generic-peripheral",
-							 name, offset_to_ofnode(node),
-							 &dev);
-			if (ret) {
-				debug("%s: not able to bind usb device mode\n",
-				      __func__);
-				return ret;
-			}
+			driver = "dwc3-generic-peripheral";
 			break;
 		case USB_DR_MODE_HOST:
 			debug("%s: dr_mode: HOST\n", __func__);
-			ret = device_bind_driver_to_node(parent,
-							 "dwc3-generic-host",
-							 name, offset_to_ofnode(node),
-							 &dev);
-			if (ret) {
-				debug("%s: not able to bind usb host mode\n",
-				      __func__);
-				return ret;
-			}
+			driver = "dwc3-generic-host";
 			break;
 		default:
-			break;
+			debug("%s: unsupported dr_mode\n", __func__);
+			return -ENODEV;
 		};
+
+		ret = device_bind_driver_to_node(parent, driver, name,
+						 offset_to_ofnode(node), &dev);
+		if (ret) {
+			debug("%s: not able to bind usb device mode\n",
+			      __func__);
+			return ret;
+		}
 	}
 
 	return 0;

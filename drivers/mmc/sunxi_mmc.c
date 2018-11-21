@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007-2011
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Aaron <leafy.myeh@allwinnertech.com>
  *
  * MMC driver for allwinner sunxi platform.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -30,6 +29,7 @@ struct sunxi_mmc_priv {
 	uint32_t *mclkreg;
 	unsigned fatal_err;
 	struct gpio_desc cd_gpio;	/* Change Detect GPIO */
+	int cd_inverted;		/* Inverted Card Detect */
 	struct sunxi_mmc *reg;
 	struct mmc_config cfg;
 };
@@ -70,10 +70,12 @@ static int mmc_resource_init(int sdc_no)
 		priv->reg = (struct sunxi_mmc *)SUNXI_MMC2_BASE;
 		priv->mclkreg = &ccm->sd2_clk_cfg;
 		break;
+#ifdef SUNXI_MMC3_BASE
 	case 3:
 		priv->reg = (struct sunxi_mmc *)SUNXI_MMC3_BASE;
 		priv->mclkreg = &ccm->sd3_clk_cfg;
 		break;
+#endif
 	default:
 		printf("Wrong mmc number %d\n", sdc_no);
 		return -1;
@@ -116,6 +118,9 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 #ifdef CONFIG_MACH_SUN9I
 		pll = CCM_MMC_CTRL_PLL_PERIPH0;
 		pll_hz = clock_get_pll4_periph0();
+#elif defined(CONFIG_MACH_SUN50I_H6)
+		pll = CCM_MMC_CTRL_PLL6X2;
+		pll_hz = clock_get_pll6() * 2;
 #else
 		pll = CCM_MMC_CTRL_PLL6;
 		pll_hz = clock_get_pll6();
@@ -146,19 +151,19 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 		oclk_dly = 0;
 		sclk_dly = 5;
 #ifdef CONFIG_MACH_SUN9I
-	} else if (hz <= 50000000) {
+	} else if (hz <= 52000000) {
 		oclk_dly = 5;
 		sclk_dly = 4;
 	} else {
-		/* hz > 50000000 */
+		/* hz > 52000000 */
 		oclk_dly = 2;
 		sclk_dly = 4;
 #else
-	} else if (hz <= 50000000) {
+	} else if (hz <= 52000000) {
 		oclk_dly = 3;
 		sclk_dly = 4;
 	} else {
-		/* hz > 50000000 */
+		/* hz > 52000000 */
 		oclk_dly = 1;
 		sclk_dly = 4;
 #endif
@@ -187,15 +192,16 @@ static int mmc_update_clk(struct sunxi_mmc_priv *priv)
 {
 	unsigned int cmd;
 	unsigned timeout_msecs = 2000;
+	unsigned long start = get_timer(0);
 
 	cmd = SUNXI_MMC_CMD_START |
 	      SUNXI_MMC_CMD_UPCLK_ONLY |
 	      SUNXI_MMC_CMD_WAIT_PRE_OVER;
+
 	writel(cmd, &priv->reg->cmd);
 	while (readl(&priv->reg->cmd) & SUNXI_MMC_CMD_START) {
-		if (!timeout_msecs--)
+		if (get_timer(start) > timeout_msecs)
 			return -1;
-		udelay(1000);
 	}
 
 	/* clock update sets various irq status bits, clear these */
@@ -276,18 +282,21 @@ static int mmc_trans_data_by_cpu(struct sunxi_mmc_priv *priv, struct mmc *mmc,
 	unsigned i;
 	unsigned *buff = (unsigned int *)(reading ? data->dest : data->src);
 	unsigned byte_cnt = data->blocksize * data->blocks;
-	unsigned timeout_usecs = (byte_cnt >> 8) * 1000;
-	if (timeout_usecs < 2000000)
-		timeout_usecs = 2000000;
+	unsigned timeout_msecs = byte_cnt >> 8;
+	unsigned long  start;
+
+	if (timeout_msecs < 2000)
+		timeout_msecs = 2000;
 
 	/* Always read / write data through the CPU */
 	setbits_le32(&priv->reg->gctrl, SUNXI_MMC_GCTRL_ACCESS_BY_AHB);
 
+	start = get_timer(0);
+
 	for (i = 0; i < (byte_cnt >> 2); i++) {
 		while (readl(&priv->reg->status) & status_bit) {
-			if (!timeout_usecs--)
+			if (get_timer(start) > timeout_msecs)
 				return -1;
-			udelay(1);
 		}
 
 		if (reading)
@@ -303,16 +312,16 @@ static int mmc_rint_wait(struct sunxi_mmc_priv *priv, struct mmc *mmc,
 			 uint timeout_msecs, uint done_bit, const char *what)
 {
 	unsigned int status;
+	unsigned long start = get_timer(0);
 
 	do {
 		status = readl(&priv->reg->rint);
-		if (!timeout_msecs-- ||
+		if ((get_timer(start) > timeout_msecs) ||
 		    (status & SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT)) {
 			debug("%s timeout %x\n", what,
 			      status & SUNXI_MMC_RINT_INTERRUPT_ERROR_BIT);
 			return -ETIMEDOUT;
 		}
-		udelay(1000);
 	} while (!(status & done_bit));
 
 	return 0;
@@ -404,15 +413,16 @@ static int sunxi_mmc_send_cmd_common(struct sunxi_mmc_priv *priv,
 	}
 
 	if (cmd->resp_type & MMC_RSP_BUSY) {
+		unsigned long start = get_timer(0);
 		timeout_msecs = 2000;
+
 		do {
 			status = readl(&priv->reg->status);
-			if (!timeout_msecs--) {
+			if (get_timer(start) > timeout_msecs) {
 				debug("busy timeout\n");
 				error = -ETIMEDOUT;
 				goto out;
 			}
-			udelay(1000);
 		} while (status & SUNXI_MMC_STATUS_CARD_DATA_BUSY);
 	}
 
@@ -489,7 +499,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
-#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN8I)
+#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN8I) || defined(CONFIG_MACH_SUN50I_H6)
 	if (sdc_no == 2)
 		cfg->host_caps = MMC_MODE_8BIT;
 #endif
@@ -504,6 +514,7 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 
 	/* config ahb clock */
 	debug("init mmc %d clock and io\n", sdc_no);
+#if !defined(CONFIG_MACH_SUN50I_H6)
 	setbits_le32(&ccm->ahb_gate0, 1 << AHB_GATE_OFFSET_MMC(sdc_no));
 
 #ifdef CONFIG_SUNXI_GEN_SUN6I
@@ -514,6 +525,11 @@ struct mmc *sunxi_mmc_init(int sdc_no)
 	/* sun9i has a mmc-common module, also set the gate and reset there */
 	writel(SUNXI_MMC_COMMON_CLK_GATE | SUNXI_MMC_COMMON_RESET,
 	       SUNXI_MMC_COMMON_BASE + 4 * sdc_no);
+#endif
+#else /* CONFIG_MACH_SUN50I_H6 */
+	setbits_le32(&ccm->sd_gate_reset, 1 << sdc_no);
+	/* unassert reset */
+	setbits_le32(&ccm->sd_gate_reset, 1 << (RESET_SHIFT + sdc_no));
 #endif
 	ret = mmc_set_mod_clk(priv, 24000000);
 	if (ret)
@@ -544,9 +560,11 @@ static int sunxi_mmc_getcd(struct udevice *dev)
 {
 	struct sunxi_mmc_priv *priv = dev_get_priv(dev);
 
-	if (dm_gpio_is_valid(&priv->cd_gpio))
-		return dm_gpio_get_value(&priv->cd_gpio);
+	if (dm_gpio_is_valid(&priv->cd_gpio)) {
+		int cd_state = dm_gpio_get_value(&priv->cd_gpio);
 
+		return cd_state ^ priv->cd_inverted;
+	}
 	return 1;
 }
 
@@ -610,6 +628,9 @@ static int sunxi_mmc_probe(struct udevice *dev)
 		sunxi_gpio_set_pull(cd_pin, SUNXI_GPIO_PULL_UP);
 	}
 
+	/* Check if card detect is inverted */
+	priv->cd_inverted = dev_read_bool(dev, "cd-inverted");
+
 	upriv->mmc = &plat->mmc;
 
 	/* Reset controller */
@@ -627,7 +648,9 @@ static int sunxi_mmc_bind(struct udevice *dev)
 }
 
 static const struct udevice_id sunxi_mmc_ids[] = {
+	{ .compatible = "allwinner,sun4i-a10-mmc" },
 	{ .compatible = "allwinner,sun5i-a13-mmc" },
+	{ .compatible = "allwinner,sun7i-a20-mmc" },
 	{ }
 };
 

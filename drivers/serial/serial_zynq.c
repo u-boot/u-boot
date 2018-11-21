@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2011-2012 Xilinx, Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <clk.h>
@@ -15,18 +14,17 @@
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <serial.h>
-#include <asm/arch/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define ZYNQ_UART_SR_TXEMPTY	(1 << 3) /* TX FIFO empty */
-#define ZYNQ_UART_SR_TXACTIVE	(1 << 11)  /* TX active */
-#define ZYNQ_UART_SR_RXEMPTY	0x00000002 /* RX FIFO empty */
+#define ZYNQ_UART_SR_TXACTIVE	BIT(11) /* TX active */
+#define ZYNQ_UART_SR_TXFULL	BIT(4) /* TX FIFO full */
+#define ZYNQ_UART_SR_RXEMPTY	BIT(1) /* RX FIFO empty */
 
-#define ZYNQ_UART_CR_TX_EN	0x00000010 /* TX enabled */
-#define ZYNQ_UART_CR_RX_EN	0x00000004 /* RX enabled */
-#define ZYNQ_UART_CR_TXRST	0x00000002 /* TX logic reset */
-#define ZYNQ_UART_CR_RXRST	0x00000001 /* RX logic reset */
+#define ZYNQ_UART_CR_TX_EN	BIT(4) /* TX enabled */
+#define ZYNQ_UART_CR_RX_EN	BIT(2) /* RX enabled */
+#define ZYNQ_UART_CR_TXRST	BIT(1) /* TX logic reset */
+#define ZYNQ_UART_CR_RXRST	BIT(0) /* RX logic reset */
 
 #define ZYNQ_UART_MR_PARITY_NONE	0x00000020  /* No parity mode */
 
@@ -41,7 +39,7 @@ struct uart_zynq {
 	u32 baud_rate_divider; /* 0x34 - Baud Rate Divider [7:0] */
 };
 
-struct zynq_uart_priv {
+struct zynq_uart_platdata {
 	struct uart_zynq *regs;
 };
 
@@ -97,7 +95,7 @@ static void _uart_zynq_serial_init(struct uart_zynq *regs)
 
 static int _uart_zynq_serial_putc(struct uart_zynq *regs, const char c)
 {
-	if (!(readl(&regs->channel_sts) & ZYNQ_UART_SR_TXEMPTY))
+	if (readl(&regs->channel_sts) & ZYNQ_UART_SR_TXFULL)
 		return -EAGAIN;
 
 	writel(c, &regs->tx_rx_fifo);
@@ -105,9 +103,9 @@ static int _uart_zynq_serial_putc(struct uart_zynq *regs, const char c)
 	return 0;
 }
 
-int zynq_serial_setbrg(struct udevice *dev, int baudrate)
+static int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct zynq_uart_priv *priv = dev_get_priv(dev);
+	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
 	unsigned long clock;
 
 	int ret;
@@ -132,24 +130,28 @@ int zynq_serial_setbrg(struct udevice *dev, int baudrate)
 		return ret;
 	}
 
-	_uart_zynq_serial_setbrg(priv->regs, clock, baudrate);
+	_uart_zynq_serial_setbrg(platdata->regs, clock, baudrate);
 
 	return 0;
 }
 
 static int zynq_serial_probe(struct udevice *dev)
 {
-	struct zynq_uart_priv *priv = dev_get_priv(dev);
+	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
 
-	_uart_zynq_serial_init(priv->regs);
+	/* No need to reinitialize the UART after relocation */
+	if (gd->flags & GD_FLG_RELOC)
+		return 0;
+
+	_uart_zynq_serial_init(platdata->regs);
 
 	return 0;
 }
 
 static int zynq_serial_getc(struct udevice *dev)
 {
-	struct zynq_uart_priv *priv = dev_get_priv(dev);
-	struct uart_zynq *regs = priv->regs;
+	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
+	struct uart_zynq *regs = platdata->regs;
 
 	if (readl(&regs->channel_sts) & ZYNQ_UART_SR_RXEMPTY)
 		return -EAGAIN;
@@ -159,15 +161,15 @@ static int zynq_serial_getc(struct udevice *dev)
 
 static int zynq_serial_putc(struct udevice *dev, const char ch)
 {
-	struct zynq_uart_priv *priv = dev_get_priv(dev);
+	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
 
-	return _uart_zynq_serial_putc(priv->regs, ch);
+	return _uart_zynq_serial_putc(platdata->regs, ch);
 }
 
 static int zynq_serial_pending(struct udevice *dev, bool input)
 {
-	struct zynq_uart_priv *priv = dev_get_priv(dev);
-	struct uart_zynq *regs = priv->regs;
+	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
+	struct uart_zynq *regs = platdata->regs;
 
 	if (input)
 		return !(readl(&regs->channel_sts) & ZYNQ_UART_SR_RXEMPTY);
@@ -177,9 +179,11 @@ static int zynq_serial_pending(struct udevice *dev, bool input)
 
 static int zynq_serial_ofdata_to_platdata(struct udevice *dev)
 {
-	struct zynq_uart_priv *priv = dev_get_priv(dev);
+	struct zynq_uart_platdata *platdata = dev_get_platdata(dev);
 
-	priv->regs = (struct uart_zynq *)devfdt_get_addr(dev);
+	platdata->regs = (struct uart_zynq *)dev_read_addr(dev);
+	if (IS_ERR(platdata->regs))
+		return PTR_ERR(platdata->regs);
 
 	return 0;
 }
@@ -203,7 +207,7 @@ U_BOOT_DRIVER(serial_zynq) = {
 	.id	= UCLASS_SERIAL,
 	.of_match = zynq_serial_ids,
 	.ofdata_to_platdata = zynq_serial_ofdata_to_platdata,
-	.priv_auto_alloc_size = sizeof(struct zynq_uart_priv),
+	.platdata_auto_alloc_size = sizeof(struct zynq_uart_platdata),
 	.probe = zynq_serial_probe,
 	.ops	= &zynq_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,

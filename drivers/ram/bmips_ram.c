@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from linux/arch/mips/bcm63xx/cpu.c:
  *	Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
  *	Copyright (C) 2009 Florian Fainelli <florian@openwrt.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -23,6 +22,8 @@
 #define SDRAM_CFG_32B_MASK	(1 << SDRAM_CFG_32B_SHIFT)
 #define SDRAM_CFG_BANK_SHIFT	13
 #define SDRAM_CFG_BANK_MASK	(1 << SDRAM_CFG_BANK_SHIFT)
+#define SDRAM_6318_SPACE_SHIFT	4
+#define SDRAM_6318_SPACE_MASK	(0xf << SDRAM_6318_SPACE_SHIFT)
 
 #define MEMC_CFG_REG		0x4
 #define MEMC_CFG_32B_SHIFT	1
@@ -42,8 +43,19 @@ struct bmips_ram_hw {
 
 struct bmips_ram_priv {
 	void __iomem *regs;
+	u32 force_size;
 	const struct bmips_ram_hw *hw;
 };
+
+static ulong bcm6318_get_ram_size(struct bmips_ram_priv *priv)
+{
+	u32 val;
+
+	val = readl_be(priv->regs + SDRAM_CFG_REG);
+	val = (val & SDRAM_6318_SPACE_MASK) >> SDRAM_6318_SPACE_SHIFT;
+
+	return (1 << (val + 20));
+}
 
 static ulong bcm6328_get_ram_size(struct bmips_ram_priv *priv)
 {
@@ -93,13 +105,20 @@ static int bmips_ram_get_info(struct udevice *dev, struct ram_info *info)
 	const struct bmips_ram_hw *hw = priv->hw;
 
 	info->base = 0x80000000;
-	info->size = hw->get_ram_size(priv);
+	if (priv->force_size)
+		info->size = priv->force_size;
+	else
+		info->size = hw->get_ram_size(priv);
 
 	return 0;
 }
 
 static const struct ram_ops bmips_ram_ops = {
 	.get_info = bmips_ram_get_info,
+};
+
+static const struct bmips_ram_hw bmips_ram_bcm6318 = {
+	.get_ram_size = bcm6318_get_ram_size,
 };
 
 static const struct bmips_ram_hw bmips_ram_bcm6328 = {
@@ -116,6 +135,9 @@ static const struct bmips_ram_hw bmips_ram_bcm6358 = {
 
 static const struct udevice_id bmips_ram_ids[] = {
 	{
+		.compatible = "brcm,bcm6318-mc",
+		.data = (ulong)&bmips_ram_bcm6318,
+	}, {
 		.compatible = "brcm,bcm6328-mc",
 		.data = (ulong)&bmips_ram_bcm6328,
 	}, {
@@ -132,14 +154,13 @@ static int bmips_ram_probe(struct udevice *dev)
 	struct bmips_ram_priv *priv = dev_get_priv(dev);
 	const struct bmips_ram_hw *hw =
 		(const struct bmips_ram_hw *)dev_get_driver_data(dev);
-	fdt_addr_t addr;
-	fdt_size_t size;
 
-	addr = devfdt_get_addr_size_index(dev, 0, &size);
-	if (addr == FDT_ADDR_T_NONE)
+	priv->regs = dev_remap_addr(dev);
+	if (!priv->regs)
 		return -EINVAL;
 
-	priv->regs = ioremap(addr, size);
+	dev_read_u32(dev, "force-size", &priv->force_size);
+
 	priv->hw = hw;
 
 	return 0;

@@ -1,11 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) STMicroelectronics SA 2017
 #
 # Authors: Philippe Cornu <philippe.cornu@st.com>
 #          Yannick Fertre <yannick.fertre@st.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 menuconfig VIDEO_STM32
 	bool "Enable STM32 video support"

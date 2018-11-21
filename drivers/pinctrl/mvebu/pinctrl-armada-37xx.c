@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * U-Boot Marvell 37xx SoC pinctrl driver
  *
@@ -12,8 +13,6 @@
  * (C) Copyright 2016 - Beniamino Galvani <b.galvani@gmail.com>
  * Based on code from Linux kernel:
  * Copyright (C) 2016 Endless Mobile, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  * https://spdx.org/licenses
  */
 
@@ -44,7 +43,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IRQ_STATUS	0x10
 #define IRQ_WKUP	0x18
 
-#define NB_FUNCS 2
+#define NB_FUNCS 3
 #define GPIO_PER_REG	32
 
 /**
@@ -128,6 +127,16 @@ struct armada_37xx_pinctrl {
 		.funcs = {_func1, "gpio"}	\
 	}
 
+#define PIN_GRP_GPIO_3(_name, _start, _nr, _mask, _v1, _v2, _v3, _f1, _f2) \
+	{					\
+		.name = _name,			\
+		.start_pin = _start,		\
+		.npins = _nr,			\
+		.reg_mask = _mask,		\
+		.val = {_v1, _v2, _v3},	\
+		.funcs = {_f1, _f2, "gpio"}	\
+	}
+
 #define PIN_GRP_EXTRA(_name, _start, _nr, _mask, _v1, _v2, _start2, _nr2, \
 		      _f1, _f2)				\
 	{						\
@@ -149,8 +158,8 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
 	PIN_GRP_GPIO("pwm1", 12, 1, BIT(4), "pwm"),
 	PIN_GRP_GPIO("pwm2", 13, 1, BIT(5), "pwm"),
 	PIN_GRP_GPIO("pwm3", 14, 1, BIT(6), "pwm"),
-	PIN_GRP_GPIO("pmic1", 17, 1, BIT(7), "pmic"),
-	PIN_GRP_GPIO("pmic0", 16, 1, BIT(8), "pmic"),
+	PIN_GRP_GPIO("pmic1", 7, 1, BIT(7), "pmic"),
+	PIN_GRP_GPIO("pmic0", 6, 1, BIT(8), "pmic"),
 	PIN_GRP_GPIO("i2c2", 2, 2, BIT(9), "i2c"),
 	PIN_GRP_GPIO("i2c1", 0, 2, BIT(10), "i2c"),
 	PIN_GRP_GPIO("spi_cs1", 17, 1, BIT(12), "spi"),
@@ -172,13 +181,15 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
 static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
 	PIN_GRP_GPIO("usb32_drvvbus0", 0, 1, BIT(0), "drvbus"),
 	PIN_GRP_GPIO("usb2_drvvbus1", 1, 1, BIT(1), "drvbus"),
-	PIN_GRP_GPIO("sdio_sb", 24, 5, BIT(2), "sdio"),
-	PIN_GRP_EXTRA("rgmii", 6, 14, BIT(3), 0, BIT(3), 23, 1, "mii", "gpio"),
-	PIN_GRP_GPIO("pcie1", 3, 2, BIT(4), "pcie"),
-	PIN_GRP_GPIO("ptp", 20, 3, BIT(5), "ptp"),
+	PIN_GRP_GPIO("sdio_sb", 24, 6, BIT(2), "sdio"),
+	PIN_GRP_GPIO("rgmii", 6, 12, BIT(3), "mii"),
+	PIN_GRP_GPIO("smi", 18, 2, BIT(4), "smi"),
+	PIN_GRP_GPIO("pcie1", 3, 3, BIT(5) | BIT(9) | BIT(10), "pcie"),
+	PIN_GRP_GPIO("ptp", 20, 3, BIT(11) | BIT(12) | BIT(13), "ptp"),
 	PIN_GRP("ptp_clk", 21, 1, BIT(6), "ptp", "mii"),
 	PIN_GRP("ptp_trig", 22, 1, BIT(7), "ptp", "mii"),
-	PIN_GRP("mii_col", 23, 1, BIT(8), "mii", "mii_err"),
+	PIN_GRP_GPIO_3("mii_col", 23, 1, BIT(8) | BIT(14), 0, BIT(8), BIT(14),
+		       "mii", "mii_err"),
 };
 
 const struct armada_37xx_pin_data armada_37xx_pin_nb = {
@@ -189,18 +200,18 @@ const struct armada_37xx_pin_data armada_37xx_pin_nb = {
 };
 
 const struct armada_37xx_pin_data armada_37xx_pin_sb = {
-	.nr_pins = 29,
+	.nr_pins = 30,
 	.name = "GPIO2",
 	.groups = armada_37xx_sb_groups,
 	.ngroups = ARRAY_SIZE(armada_37xx_sb_groups),
 };
 
 static inline void armada_37xx_update_reg(unsigned int *reg,
-					  unsigned int offset)
+					  unsigned int *offset)
 {
 	/* We never have more than 2 registers */
-	if (offset >= GPIO_PER_REG) {
-		offset -= GPIO_PER_REG;
+	if (*offset >= GPIO_PER_REG) {
+		*offset -= GPIO_PER_REG;
 		*reg += sizeof(u32);
 	}
 }
@@ -210,7 +221,7 @@ static int armada_37xx_get_func_reg(struct armada_37xx_pin_group *grp,
 {
 	int f;
 
-	for (f = 0; f < NB_FUNCS; f++)
+	for (f = 0; (f < NB_FUNCS) && grp->funcs[f]; f++)
 		if (!strcmp(grp->funcs[f], func))
 			return f;
 
@@ -352,7 +363,7 @@ static int armada_37xx_fill_group(struct armada_37xx_pinctrl *info)
 		for (j = 0; j < grp->extra_npins; j++)
 			grp->pins[i+j] = grp->extra_pin + j;
 
-		for (f = 0; f < NB_FUNCS; f++) {
+		for (f = 0; (f < NB_FUNCS) && grp->funcs[f]; f++) {
 			int ret;
 			/* check for unique functions and count groups */
 			ret = armada_37xx_add_function(info->funcs, &funcsize,
@@ -404,7 +415,7 @@ static int armada_37xx_fill_func(struct armada_37xx_pinctrl *info)
 			struct armada_37xx_pin_group *gp = &info->groups[g];
 			int f;
 
-			for (f = 0; f < NB_FUNCS; f++) {
+			for (f = 0; (f < NB_FUNCS) && gp->funcs[f]; f++) {
 				if (strcmp(gp->funcs[f], name) == 0) {
 					*groups = gp->name;
 					groups++;
@@ -421,7 +432,7 @@ static int armada_37xx_gpio_get(struct udevice *dev, unsigned int offset)
 	unsigned int reg = INPUT_VAL;
 	unsigned int val, mask;
 
-	armada_37xx_update_reg(&reg, offset);
+	armada_37xx_update_reg(&reg, &offset);
 	mask = BIT(offset);
 
 	val = readl(info->base + reg);
@@ -436,7 +447,7 @@ static int armada_37xx_gpio_set(struct udevice *dev, unsigned int offset,
 	unsigned int reg = OUTPUT_VAL;
 	unsigned int mask, val;
 
-	armada_37xx_update_reg(&reg, offset);
+	armada_37xx_update_reg(&reg, &offset);
 	mask = BIT(offset);
 	val = value ? mask : 0;
 
@@ -452,7 +463,7 @@ static int armada_37xx_gpio_get_direction(struct udevice *dev,
 	unsigned int reg = OUTPUT_EN;
 	unsigned int val, mask;
 
-	armada_37xx_update_reg(&reg, offset);
+	armada_37xx_update_reg(&reg, &offset);
 	mask = BIT(offset);
 	val = readl(info->base + reg);
 
@@ -469,7 +480,7 @@ static int armada_37xx_gpio_direction_input(struct udevice *dev,
 	unsigned int reg = OUTPUT_EN;
 	unsigned int mask;
 
-	armada_37xx_update_reg(&reg, offset);
+	armada_37xx_update_reg(&reg, &offset);
 	mask = BIT(offset);
 
 	clrbits_le32(info->base + reg, mask);
@@ -484,7 +495,7 @@ static int armada_37xx_gpio_direction_output(struct udevice *dev,
 	unsigned int reg = OUTPUT_EN;
 	unsigned int mask;
 
-	armada_37xx_update_reg(&reg, offset);
+	armada_37xx_update_reg(&reg, &offset);
 	mask = BIT(offset);
 
 	setbits_le32(info->base + reg, mask);

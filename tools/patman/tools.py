@@ -1,18 +1,35 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2016 Google, Inc
 #
-# SPDX-License-Identifier:      GPL-2.0+
-#
 
+import command
+import glob
 import os
 import shutil
 import tempfile
 
 import tout
 
+# Output directly (generally this is temporary)
 outdir = None
-indirs = None
+
+# True to keep the output directory around after exiting
 preserve_outdir = False
+
+# Path to the Chrome OS chroot, if we know it
+chroot_path = None
+
+# Search paths to use for Filename(), used to find files
+search_paths = []
+
+# Tools and the packages that contain them, on debian
+packages = {
+    'lz4': 'liblz4-tool',
+    }
+
+# List of paths to use when looking for an input file
+indir = []
 
 def PrepareOutputDir(dirname, preserve=False):
     """Select an output directory, ensuring it exists.
@@ -107,8 +124,25 @@ def GetInputFilename(fname):
         if os.path.exists(pathname):
             return pathname
 
-    raise ValueError("Filename '%s' not found in input path (%s)" %
-                     (fname, ','.join(indir)))
+    raise ValueError("Filename '%s' not found in input path (%s) (cwd='%s')" %
+                     (fname, ','.join(indir), os.getcwd()))
+
+def GetInputFilenameGlob(pattern):
+    """Return a list of filenames for use as input.
+
+    Args:
+        pattern: Filename pattern to search for
+
+    Returns:
+        A list of matching files in all input directories
+    """
+    if not indir:
+        return glob.glob(fname)
+    files = []
+    for dirname in indir:
+        pathname = os.path.join(dirname, pattern)
+        files += glob.glob(pathname)
+    return sorted(files)
 
 def Align(pos, align):
     if align:
@@ -118,3 +152,90 @@ def Align(pos, align):
 
 def NotPowerOfTwo(num):
     return num and (num & (num - 1))
+
+def PathHasFile(fname):
+    """Check if a given filename is in the PATH
+
+    Args:
+        fname: Filename to check
+
+    Returns:
+        True if found, False if not
+    """
+    for dir in os.environ['PATH'].split(':'):
+        if os.path.exists(os.path.join(dir, fname)):
+            return True
+    return False
+
+def Run(name, *args):
+    try:
+        return command.Run(name, *args, cwd=outdir, capture=True)
+    except:
+        if not PathHasFile(name):
+            msg = "Plesae install tool '%s'" % name
+            package = packages.get(name)
+            if package:
+                 msg += " (e.g. from package '%s')" % package
+            raise ValueError(msg)
+        raise
+
+def Filename(fname):
+    """Resolve a file path to an absolute path.
+
+    If fname starts with ##/ and chroot is available, ##/ gets replaced with
+    the chroot path. If chroot is not available, this file name can not be
+    resolved, `None' is returned.
+
+    If fname is not prepended with the above prefix, and is not an existing
+    file, the actual file name is retrieved from the passed in string and the
+    search_paths directories (if any) are searched to for the file. If found -
+    the path to the found file is returned, `None' is returned otherwise.
+
+    Args:
+      fname: a string,  the path to resolve.
+
+    Returns:
+      Absolute path to the file or None if not found.
+    """
+    if fname.startswith('##/'):
+      if chroot_path:
+        fname = os.path.join(chroot_path, fname[3:])
+      else:
+        return None
+
+    # Search for a pathname that exists, and return it if found
+    if fname and not os.path.exists(fname):
+        for path in search_paths:
+            pathname = os.path.join(path, os.path.basename(fname))
+            if os.path.exists(pathname):
+                return pathname
+
+    # If not found, just return the standard, unchanged path
+    return fname
+
+def ReadFile(fname):
+    """Read and return the contents of a file.
+
+    Args:
+      fname: path to filename to read, where ## signifiies the chroot.
+
+    Returns:
+      data read from file, as a string.
+    """
+    with open(Filename(fname), 'rb') as fd:
+        data = fd.read()
+    #self._out.Info("Read file '%s' size %d (%#0x)" %
+                   #(fname, len(data), len(data)))
+    return data
+
+def WriteFile(fname, data):
+    """Write data into a file.
+
+    Args:
+        fname: path to filename to write
+        data: data to write to file, as a string
+    """
+    #self._out.Info("Write file '%s' size %d (%#0x)" %
+                   #(fname, len(data), len(data)))
+    with open(Filename(fname), 'wb') as fd:
+        fd.write(data)

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2003
  * Gerry Hamel, geh@ti.com, Texas Instruments
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CIRCBUF_H__

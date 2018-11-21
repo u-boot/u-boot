@@ -4,12 +4,12 @@
 
 menuconfig NET
 	bool "Networking support"
+	default y
 
 if NET
 
 config NET_RANDOM_ETHADDR
 	bool "Random ethaddr if unset"
-	select LIB_RAND
 	help
 	  Selecting this will allow the Ethernet interface to function
 	  even when the ethaddr variable for that interface is unset.
@@ -21,28 +21,5 @@ config NETCONSOLE
 	help
 	  Support the 'nc' input/output device for networked console.
 	  See README.NetConsole for details.
-
-config NET_TFTP_VARS
-	bool "Control TFTP timeout and count through environment"
-	default y
-	help
-	  If set, allows controlling the TFTP timeout through the
-	  environment variable tftptimeout, and the TFTP maximum
-	  timeout count through the variable tftptimeoutcountmax.
-	  If unset, timeout and maximum are hard-defined as 1 second
-	  and 10 timouts per TFTP transfer.
-
-config BOOTP_PXE_CLIENTARCH
-	hex
-        default 0x16 if ARM64
-        default 0x15 if ARM
-        default 0 if X86
-
-config BOOTP_VCI_STRING
-	string
-	default "U-Boot.armv7" if CPU_V7 || CPU_V7M
-	default "U-Boot.armv8" if ARM64
-	default "U-Boot.arm" if ARM
-	default "U-Boot"
 
 endif   # if NET

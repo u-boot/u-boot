@@ -20,6 +20,13 @@
 	unlikely(__ret_warn_on);					\
 })
 
+#define WARN(condition, format...) ({                   \
+	int __ret_warn_on = !!(condition);              \
+	if (unlikely(__ret_warn_on))                    \
+		printf(format);                  \
+	unlikely(__ret_warn_on);                    \
+})
+
 #define WARN_ON_ONCE(condition)	({				\
 	static bool __warned;					\
 	int __ret_warn_once = !!(condition);			\
@@ -29,6 +36,17 @@
 		WARN_ON(1);					\
 	}							\
 	unlikely(__ret_warn_once);				\
+})
+
+#define WARN_ONCE(condition, format...) ({          \
+	static bool __warned;     \
+	int __ret_warn_once = !!(condition);            \
+								\
+	if (unlikely(__ret_warn_once && !__warned)) {       \
+		__warned = true;                \
+		WARN(1, format);                \
+	}                           \
+	unlikely(__ret_warn_once);              \
 })
 
 #endif	/* _LINUX_BUG_H */

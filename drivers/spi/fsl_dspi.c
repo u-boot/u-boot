@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -6,8 +7,6 @@
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  * Chao Fu (B44548@freescale.com)
  * Haikun Wang (B53464@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -392,16 +391,6 @@ static int fsl_dspi_cfg_speed(struct fsl_dspi_priv *priv, uint speed)
 }
 #ifndef CONFIG_DM_SPI
 void spi_init(void)
-{
-	/* Nothing to do */
-}
-
-void spi_init_f(void)
-{
-	/* Nothing to do */
-}
-
-void spi_init_r(void)
 {
 	/* Nothing to do */
 }

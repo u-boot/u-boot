@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011 ARM Limited
  * (C) Copyright 2010 Linaro
@@ -5,8 +6,6 @@
  *
  * Configuration for Versatile Express. Parts were derived from other ARM
  *   configurations.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __VEXPRESS_COMMON_H
@@ -30,7 +29,6 @@
 #define V2M_SERIAL_BUS_PCI	(V2M_PA_CS7 + V2M_PERIPH_OFFSET(2))
 
 #define V2M_BASE		0x60000000
-#define CONFIG_SYS_TEXT_BASE	0x60800000
 #elif defined(CONFIG_VEXPRESS_EXTENDED_MEMORY_MAP)
 /* CS register bases for the extended memory map. */
 #define V2M_PA_CS0		0x08000000
@@ -45,7 +43,6 @@
 #define V2M_SERIAL_BUS_PCI	(V2M_PA_CS7 + V2M_PERIPH_OFFSET(3))
 
 #define V2M_BASE		0x80000000
-#define CONFIG_SYS_TEXT_BASE	0x80800000
 #endif
 
 /*
@@ -133,11 +130,9 @@
 #define CONFIG_SYS_TIMER_COUNTS_DOWN
 
 /* PL011 Serial Configuration */
-#define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK		24000000
 #define CONFIG_PL01x_PORTS		{(void *)CONFIG_SYS_SERIAL0, \
 					 (void *)CONFIG_SYS_SERIAL1}
-#define CONFIG_CONS_INDEX		0
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #define CONFIG_SYS_SERIAL0		V2M_UART0
@@ -150,16 +145,12 @@
 
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		(V2M_BASE + 0x8000)
 #define LINUX_BOOT_PARAM_ADDR		(V2M_BASE + 0x2000)
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			(V2M_BASE)	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_2			(((unsigned int)V2M_BASE) + \
 					((unsigned int)0x20000000))
@@ -173,8 +164,6 @@
 					 CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_GBL_DATA_OFFSET
-
-#include <config_distro_defaults.h>
 
 /* Basic environment settings */
 #define BOOT_TARGET_DEVICES(func) \
@@ -222,8 +211,6 @@
 
 /* FLASH and environment organization */
 #define PHYS_FLASH_SIZE			0x04000000	/* 64MB */
-#define CONFIG_SYS_FLASH_CFI		1
-#define CONFIG_FLASH_CFI_DRIVER		1
 #define CONFIG_SYS_FLASH_SIZE		0x04000000
 #define CONFIG_SYS_MAX_FLASH_BANKS	2
 #define CONFIG_SYS_FLASH_BASE0		V2M_NOR0
@@ -241,8 +228,6 @@
 /* Room required on the stack for the environment data */
 #define CONFIG_ENV_SIZE			FLASH_MAX_SECTOR_SIZE
 
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes */
-
 /*
  * Amount of flash used for environment:
  * We don't know which end has the small erase blocks so we use the penultimate
@@ -256,13 +241,11 @@
 					(2 * CONFIG_ENV_SECT_SIZE))
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE1 + \
 					 CONFIG_ENV_OFFSET)
-#define CONFIG_SYS_FLASH_PROTECTION	/* The devices have real protection */
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* flinfo indicates empty blocks */
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE0, \
 					  CONFIG_SYS_FLASH_BASE1 }
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_LONGHELP
 
 #endif /* VEXPRESS_COMMON_H */

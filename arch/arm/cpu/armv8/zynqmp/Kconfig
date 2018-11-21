@@ -65,10 +65,6 @@ config PMUFW_INIT_FILE
 	  Include external PMUFW (Platform Management Unit FirmWare) to
 	  a Xilinx bootable image (boot.bin).
 
-config ZYNQMP_QSPI
-	bool "Configure ZynqMP QSPI"
-	select DM_SPI
-
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
 
@@ -99,6 +95,9 @@ config SPL_ZYNQMP_ALT_BOOTMODE_ENABLED
 	help
 	  Overwrite bootmode selected via boot mode pins to tell SPL what should
 	  be the next boot device.
+
+config ZYNQ_SDHCI_MAX_FREQ
+	default 200000000
 
 config SPL_ZYNQMP_ALT_BOOTMODE
 	hex
@@ -153,24 +152,5 @@ config SD1_LSHFT_MODE
 	bool "SD1_LSHFT_MODE"
 
 endchoice
-
-# Temporary Kconfig options which needs to be fixed
-config MINI_EMMC
-	bool
-
-config MINI_QSPI
-	bool
-
-config MINI_NAND
-	bool
-
-config SPI_GENERIC
-	bool
-
-config ZYNQ_I2C0
-	bool "Xilinx I2C0 controller"
-
-config ZYNQ_I2C1
-	bool "Xilinx I2C1 controller"
 
 endif

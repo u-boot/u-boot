@@ -1,14 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009
  * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
 #include <i2c.h>
 #include <pci.h>
+#include <reset.h>
 #include <asm/io.h>
 #include "designware_i2c.h"
 
@@ -34,6 +34,7 @@ static struct dw_scl_sda_cfg byt_config = {
 struct dw_i2c {
 	struct i2c_regs *regs;
 	struct dw_scl_sda_cfg *scl_sda_cfg;
+	struct reset_ctl reset_ctl;
 };
 
 #ifdef CONFIG_SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
@@ -534,6 +535,7 @@ static int designware_i2c_probe_chip(struct udevice *bus, uint chip_addr,
 static int designware_i2c_probe(struct udevice *bus)
 {
 	struct dw_i2c *priv = dev_get_priv(bus);
+	int ret;
 
 	if (device_is_on_pci_bus(bus)) {
 #ifdef CONFIG_DM_PCI
@@ -548,6 +550,13 @@ static int designware_i2c_probe(struct udevice *bus)
 	} else {
 		priv->regs = (struct i2c_regs *)devfdt_get_addr_ptr(bus);
 	}
+
+	ret = reset_get_by_name(bus, "i2c", &priv->reset_ctl);
+	if (ret)
+		pr_info("reset_get_by_name() failed: %d\n", ret);
+
+	if (&priv->reset_ctl)
+		reset_deassert(&priv->reset_ctl);
 
 	__dw_i2c_init(priv->regs, 0, 0);
 

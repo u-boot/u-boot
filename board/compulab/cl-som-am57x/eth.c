@@ -1,15 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Ethernet specific code for CompuLab CL-SOM-AM57x module
  *
  * (C) Copyright 2016 CompuLab, Ltd. http://compulab.co.il/
  *
  * Author: Uri Mashiach <uri.mashiach@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <cpsw.h>
+#include <environment.h>
 #include <miiphy.h>
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>

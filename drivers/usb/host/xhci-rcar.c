@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
  *
  * Renesas RCar USB HOST xHCI Controller
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -55,18 +54,18 @@ static int xhci_rcar_download_fw(struct rcar_xhci *ctx, const u32 *fw_data,
 		setbits_le32(regs + RCAR_USB3_DL_CTRL,
 			     RCAR_USB3_DL_CTRL_FW_SET_DATA0);
 
-		ret = wait_for_bit("xhci-rcar", regs + RCAR_USB3_DL_CTRL,
-				   RCAR_USB3_DL_CTRL_FW_SET_DATA0, false,
-				   10, false);
+		ret = wait_for_bit_le32(regs + RCAR_USB3_DL_CTRL,
+					RCAR_USB3_DL_CTRL_FW_SET_DATA0, false,
+					10, false);
 		if (ret)
 			break;
 	}
 
 	clrbits_le32(regs + RCAR_USB3_DL_CTRL, RCAR_USB3_DL_CTRL_ENABLE);
 
-	ret = wait_for_bit("xhci-rcar", regs + RCAR_USB3_DL_CTRL,
-			   RCAR_USB3_DL_CTRL_FW_SUCCESS, true,
-			   10, false);
+	ret = wait_for_bit_le32(regs + RCAR_USB3_DL_CTRL,
+				RCAR_USB3_DL_CTRL_FW_SUCCESS, true,
+				10, false);
 
 	return ret;
 }
@@ -118,12 +117,15 @@ err_clk:
 
 static int xhci_rcar_deregister(struct udevice *dev)
 {
+	int ret;
 	struct rcar_xhci_platdata *plat = dev_get_platdata(dev);
+
+	ret = xhci_deregister(dev);
 
 	clk_disable(&plat->clk);
 	clk_free(&plat->clk);
 
-	return xhci_deregister(dev);
+	return ret;
 }
 
 static int xhci_rcar_ofdata_to_platdata(struct udevice *dev)
@@ -142,6 +144,7 @@ static int xhci_rcar_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id xhci_rcar_ids[] = {
 	{ .compatible = "renesas,xhci-r8a7795" },
 	{ .compatible = "renesas,xhci-r8a7796" },
+	{ .compatible = "renesas,xhci-r8a77965" },
 	{ }
 };
 

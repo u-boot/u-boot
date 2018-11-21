@@ -1,14 +1,11 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIG_SOCFPGA_SR1500_H__
 #define __CONFIG_SOCFPGA_SR1500_H__
 
 #include <asm/arch/base_addr_ac5.h>
-
-#define CONFIG_HW_WATCHDOG
 
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on SR1500 */
@@ -20,7 +17,6 @@
 /* Ethernet on SoC (EMAC) */
 #define CONFIG_PHY_INTERFACE_MODE	PHY_INTERFACE_MODE_RGMII
 /* The PHY is autodetected, so no MII PHY address is needed here */
-#define CONFIG_PHY_MARVELL
 #define PHY_ANEG_TIMEOUT	8000
 
 /* Environment */
@@ -31,9 +27,6 @@
 /*
  * Bootcounter
  */
-#define CONFIG_BOOTCOUNT_LIMIT
-/* last 2 lwords in OCRAM */
-#define CONFIG_SYS_BOOTCOUNT_ADDR	0xfffffff8
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* Environment setting for SPI flash */

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * R8A66597 HCD (Host Controller Driver) for u-boot
  *
  * Copyright (C) 2008  Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __R8A66597_H__

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 DENX Software Engineering
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -26,6 +25,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <i2c.h>
+#include <environment.h>
 
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
@@ -45,6 +45,7 @@ static bool sw_ids_valid;
 static u32 cpu_id;
 static u32 unit_id;
 
+#define EM_PAD IMX_GPIO_NR(3, 29)
 #define SW0	IMX_GPIO_NR(2, 4)
 #define SW1	IMX_GPIO_NR(2, 5)
 #define SW2	IMX_GPIO_NR(2, 6)
@@ -180,6 +181,9 @@ iomux_v3_cfg_t const misc_pads[] = {
 
 	/* XTALOSC */
 	MX6_PAD_GPIO_3__XTALOSC_REF_CLK_24M | MUX_PAD_CTRL(NO_PAD_CTRL),
+
+	/* Emergency recovery pin */
+	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 #ifdef CONFIG_FSL_ESDHC
@@ -251,6 +255,25 @@ static void setup_iomux_enet(void)
 	gpio_direction_input(IMX_GPIO_NR(1, 28)); /*INT#_GBE*/
 }
 
+static int setup_mac_from_fuse(void)
+{
+	unsigned char enetaddr[6];
+	int ret;
+
+	ret = eth_env_get_enetaddr("ethaddr", enetaddr);
+	if (ret)	/* ethaddr is already set */
+		return 0;
+
+	imx_get_mac_from_fuse(0, enetaddr);
+
+	if (is_valid_ethaddr(enetaddr)) {
+		eth_env_set_enetaddr("ethaddr", enetaddr);
+		return 0;
+	}
+
+	return 0;
+}
+
 int board_eth_init(bd_t *bd)
 {
 	struct phy_device *phydev;
@@ -264,6 +287,8 @@ int board_eth_init(bd_t *bd)
 	ret = enable_fec_anatop_clock(0, ENET_125MHZ);
 	if (ret)
 		return ret;
+
+	setup_mac_from_fuse();
 
 	bus = fec_get_miibus(IMX_FEC_BASE, -1);
 	if (!bus)
@@ -370,7 +395,22 @@ static inline void setup_boot_modes(void) {}
 
 int misc_init_r(void)
 {
+	int ret;
+
 	setup_boot_modes();
+
+	ret = gpio_request(EM_PAD, "Emergency_PAD");
+	if (ret) {
+		printf("Can't request emergency PAD gpio\n");
+		return ret;
+	}
+
+	ret = gpio_direction_input(EM_PAD);
+	if (ret) {
+		printf("Can't set emergency PAD direction\n");
+		return ret;
+	}
+
 	return 0;
 }
 

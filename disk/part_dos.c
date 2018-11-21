@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001
  * Raymond Lo, lo@routefree.com
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -20,7 +19,7 @@
 #include <memalign.h>
 #include "part_dos.h"
 
-#ifdef HAVE_BLOCK_DEVICE
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 #define DOS_PART_DEFAULT_SECTOR 512
 
@@ -90,7 +89,7 @@ static int test_block_type(unsigned char *buffer)
 static int part_test_dos(struct blk_desc *dev_desc)
 {
 #ifndef CONFIG_SPL_BUILD
-	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, mbr, dev_desc->blksz);
+	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, mbr, 1);
 
 	if (blk_dread(dev_desc, 0, 1, (ulong *)mbr) != 1)
 		return -1;

@@ -22,6 +22,20 @@ config SYS_HAS_ARMV8_SECURE_BASE
 	  If enabled, please also define the value for ARMV8_SECURE_BASE,
 	  for LS1043ARDB, it could be some address in OCRAM.
 
+if FSL_LS_PPA
+config SYS_LS_PPA_FW_ADDR
+	hex "PPA Firmware Addr"
+	default 0x60400000 if SYS_LS_PPA_FW_IN_XIP
+	default 0x400000 if SYS_LS_PPA_FW_IN_MMC || SYS_LS_PPA_FW_IN_NAND
+
+if CHAIN_OF_TRUST
+config SYS_LS_PPA_ESBC_ADDR
+	hex "PPA Firmware HDR Addr"
+	default 0x60680000 if SYS_LS_PPA_FW_IN_XIP
+	default 0x680000 if SYS_LS_PPA_FW_IN_MMC || SYS_LS_PPA_FW_IN_NAND
+endif
+endif
+
 source "board/freescale/common/Kconfig"
 
 endif

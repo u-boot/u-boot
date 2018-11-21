@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Device Tree Source extras for U-Boot for the ULCB board
+ *
+ * Copyright (C) 2018 Marek Vasut <marek.vasut@gmail.com>
+ */
+
+#include "r8a7796-m3ulcb.dts"
+#include "r8a7796-u-boot.dtsi"

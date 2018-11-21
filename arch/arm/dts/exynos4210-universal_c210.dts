@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Samsung's Exynos4210 based Universal C210 board device tree source
  *
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
@@ -26,8 +25,6 @@
 		gpio-mosi = <&gpy3 3 0>;
 		gpio-miso = <&gpy3 0 0>;
 		spi-delay-us = <1>;
-		#address-cells = <1>;
-		#size-cells = <0>;
 		cs@0 {
 		};
 	};

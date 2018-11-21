@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * Common functions for OMAP4/5 based boards
@@ -8,8 +9,6 @@
  * Author :
  *	Aneesh V	<aneesh@ti.com>
  *	Steve Sakoman	<steve@sakoman.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -44,7 +43,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void enable_caches(void)
 {
-	/* Enable D-cache. I-cache is already enabled in start.S */
+
+	/* Enable I cache if not enabled */
+	if (!icache_status())
+		icache_enable();
+
 	dcache_enable();
 }
 

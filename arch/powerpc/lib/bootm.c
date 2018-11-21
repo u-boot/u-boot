@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008 Semihalf
  *
  * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 
@@ -22,7 +21,7 @@
 #include <vxworks.h>
 
 #if defined(CONFIG_OF_LIBFDT)
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #endif
 
@@ -39,11 +38,6 @@ static void set_clocks_in_mhz (bd_t *kbd);
 #ifndef CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE
 #define CONFIG_SYS_LINUX_LOWMEM_MAX_SIZE	(768*1024*1024)
 #endif
-
-int arch_fixup_fdt(void *blob)
-{
-	return 0;
-}
 
 static void boot_jump_linux(bootm_headers_t *images)
 {

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007
  * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com
  * Based on code written by:
  *   Pantelis Antoniou <pantelis.antoniou@gmail.com> and
  *   Matthew McClintock <msm@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -13,7 +12,7 @@
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <mapmem.h>
 #include <asm/io.h>
@@ -597,6 +596,9 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			       fdt_strerror(err));
 			return CMD_RET_FAILURE;
 		}
+#ifdef CONFIG_SOC_KEYSTONE
+		ft_board_setup_ex(working_fdt, gd->bd);
+#endif
 	}
 #endif
 	/* Create a chosen node */

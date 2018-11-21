@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Google Inc.
  * Copyright (C) 2016 Bin Meng <bmeng.cn@gmail.com>
  *
  * Modified from coreboot src/soc/intel/baytrail/acpi/xhci.asl
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* XHCI Controller 0:14.0 */

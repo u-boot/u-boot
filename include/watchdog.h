@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2001
  * Erik Theisen,  Wave 7 Optics, etheisen@mindspring.com.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -71,11 +70,6 @@ int init_func_watchdog_reset(void);
 /*
  * Prototypes from $(CPU)/cpu.c.
  */
-
-/* MPC 8xx */
-#if defined(CONFIG_8xx) && !defined(__ASSEMBLY__)
-	void reset_8xx_watchdog(immap_t __iomem *immr);
-#endif
 
 #if defined(CONFIG_HW_WATCHDOG) && !defined(__ASSEMBLY__)
 	void hw_watchdog_init(void);

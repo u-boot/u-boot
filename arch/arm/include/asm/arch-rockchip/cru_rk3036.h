@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2015 Rockchip Electronics Co., Ltd
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #ifndef _ASM_ARCH_CRU_RK3036_H
 #define _ASM_ARCH_CRU_RK3036_H

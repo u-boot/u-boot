@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * relocate - common relocation function for AArch64 U-Boot
  *
  * (C) Copyright 2013
  * Albert ARIBAUD <albert.u.boot@aribaud.net>
  * David Feng <fenghua@phytium.com.cn>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

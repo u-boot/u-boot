@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Copyright (C) 2014-2015 Samsung Electronics
  *  Przemyslaw Marczak <p.marczak@samsung.com>
  *
  *  Copyright (C) 2011-2012 Samsung Electronics
  *  Lukasz Majewski <l.majewski@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CORE_PMIC_H_
@@ -297,6 +296,15 @@ int pmic_reg_write(struct udevice *dev, uint reg, uint value);
  * @return 0 on success or negative value of errno.
  */
 int pmic_clrsetbits(struct udevice *dev, uint reg, uint clr, uint set);
+
+/*
+ * This structure holds the private data for PMIC uclass
+ * For now we store information about the number of bytes
+ * being sent at once to the device.
+ */
+struct uc_pmic_priv {
+	uint trans_len;
+};
 
 #endif /* CONFIG_DM_PMIC */
 

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  * Copyright (C) 2016 Grinn
  *
  * Configuration settings for the Grinn liteBoard (i.MX6UL).
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __LITEBOARD_CONFIG_H
 #define __LITEBOARD_CONFIG_H
@@ -112,10 +111,7 @@
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_CMDLINE_EDITING
-
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
@@ -144,7 +140,6 @@
 
 #ifdef CONFIG_CMD_NET
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define CONFIG_FEC_ENET_DEV		0
 
 #define IMX_FEC_BASE			ENET_BASE_ADDR

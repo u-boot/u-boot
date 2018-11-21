@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  *
  * Derived from drivers/spi/mpc8xxx_spi.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -243,8 +242,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 
 /* Here now the DM part */
 
+struct mvebu_spi_dev {
+	bool			is_errata_50mhz_ac;
+};
+
 struct mvebu_spi_platdata {
 	struct kwspi_registers *spireg;
+	bool is_errata_50mhz_ac;
 };
 
 struct mvebu_spi_priv {
@@ -269,6 +273,39 @@ static int mvebu_spi_set_speed(struct udevice *bus, uint hz)
 	return 0;
 }
 
+static void mvebu_spi_50mhz_ac_timing_erratum(struct udevice *bus, uint mode)
+{
+	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	struct kwspi_registers *reg = plat->spireg;
+	u32 data;
+
+	/*
+	 * Erratum description: (Erratum NO. FE-9144572) The device
+	 * SPI interface supports frequencies of up to 50 MHz.
+	 * However, due to this erratum, when the device core clock is
+	 * 250 MHz and the SPI interfaces is configured for 50MHz SPI
+	 * clock and CPOL=CPHA=1 there might occur data corruption on
+	 * reads from the SPI device.
+	 * Erratum Workaround:
+	 * Work in one of the following configurations:
+	 * 1. Set CPOL=CPHA=0 in "SPI Interface Configuration
+	 * Register".
+	 * 2. Set TMISO_SAMPLE value to 0x2 in "SPI Timing Parameters 1
+	 * Register" before setting the interface.
+	 */
+	data = readl(&reg->timing1);
+	data &= ~KW_SPI_TMISO_SAMPLE_MASK;
+
+	if (CONFIG_SYS_TCLK == 250000000 &&
+	    mode & SPI_CPOL &&
+	    mode & SPI_CPHA)
+		data |= KW_SPI_TMISO_SAMPLE_2;
+	else
+		data |= KW_SPI_TMISO_SAMPLE_1;
+
+	writel(data, &reg->timing1);
+}
+
 static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 {
 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
@@ -285,6 +322,9 @@ static int mvebu_spi_set_mode(struct udevice *bus, uint mode)
 		data |= (KWSPI_RXLSBF | KWSPI_TXLSBF);
 
 	writel(data, &reg->cfg);
+
+	if (plat->is_errata_50mhz_ac)
+		mvebu_spi_50mhz_ac_timing_erratum(bus, mode);
 
 	return 0;
 }
@@ -326,8 +366,11 @@ static int mvebu_spi_probe(struct udevice *bus)
 static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 {
 	struct mvebu_spi_platdata *plat = dev_get_platdata(bus);
+	const struct mvebu_spi_dev *drvdata =
+		(struct mvebu_spi_dev *)dev_get_driver_data(bus);
 
 	plat->spireg = (struct kwspi_registers *)devfdt_get_addr(bus);
+	plat->is_errata_50mhz_ac = drvdata->is_errata_50mhz_ac;
 
 	return 0;
 }
@@ -343,10 +386,39 @@ static const struct dm_spi_ops mvebu_spi_ops = {
 	 */
 };
 
+static const struct mvebu_spi_dev armada_spi_dev_data = {
+	.is_errata_50mhz_ac = false,
+};
+
+static const struct mvebu_spi_dev armada_xp_spi_dev_data = {
+	.is_errata_50mhz_ac = false,
+};
+
+static const struct mvebu_spi_dev armada_375_spi_dev_data = {
+	.is_errata_50mhz_ac = false,
+};
+
+static const struct mvebu_spi_dev armada_380_spi_dev_data = {
+	.is_errata_50mhz_ac = true,
+};
+
 static const struct udevice_id mvebu_spi_ids[] = {
-	{ .compatible = "marvell,armada-375-spi" },
-	{ .compatible = "marvell,armada-380-spi" },
-	{ .compatible = "marvell,armada-xp-spi" },
+	{
+		.compatible = "marvell,orion-spi",
+		.data = (ulong)&armada_spi_dev_data,
+	},
+	{
+		.compatible = "marvell,armada-375-spi",
+		.data = (ulong)&armada_375_spi_dev_data
+	},
+	{
+		.compatible = "marvell,armada-380-spi",
+		.data = (ulong)&armada_380_spi_dev_data
+	},
+	{
+		.compatible = "marvell,armada-xp-spi",
+		.data = (ulong)&armada_xp_spi_dev_data
+	},
 	{ }
 };
 

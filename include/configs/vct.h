@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008 Stefan Roese <sr@denx.de>, DENX Software Engineering
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -52,7 +51,6 @@
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	-4
 #define CONFIG_SYS_NS16550_COM1		UART_1_BASE
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_CLK		921600
 
 /*
@@ -72,7 +70,6 @@
  * Commands
  */
 #if defined(CONFIG_CMD_USB)
-#define CONFIG_SUPPORT_VFAT
 
 /*
  * USB/EHCI
@@ -88,18 +85,12 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-#define CONFIG_BOOTP_SUBNETMASK
 
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
 #define CONFIG_SYS_CBSIZE	512		/* Console I/O Buffer Size	*/
 #define CONFIG_TIMESTAMP			/* Print image info with timestamp */
-#define CONFIG_CMDLINE_EDITING			/* add command line history	*/
 
 /*
  * FLASH and environment organization
@@ -125,8 +116,6 @@
 /*
  * CFI driver settings
  */
-#define CONFIG_SYS_FLASH_CFI			/* The flash is CFI compatible	*/
-#define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 #define CONFIG_SYS_FLASH_CFI_AMD_RESET	1	/* Use AMD (Spansion) reset cmd */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT	/* no byte writes on IXP4xx	*/
 
@@ -198,10 +187,6 @@ int vct_gpio_get(int pin);
 /*
  * UBI configuration
  */
-#if defined(CONFIG_VCT_ONENAND)
-#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS
-#endif
 
 /*
  * We need a small, stripped down image to fit into the first 128k OneNAND
@@ -211,7 +196,6 @@ int vct_gpio_get(int pin);
 #if defined(CONFIG_VCT_SMALL_IMAGE)
 #undef CONFIG_SYS_I2C_SOFT
 #undef CONFIG_SOURCE
-#undef CONFIG_SYS_LONGHELP
 #undef CONFIG_TIMESTAMP
 #endif /* CONFIG_VCT_SMALL_IMAGE */
 

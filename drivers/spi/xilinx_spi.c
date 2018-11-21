@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Xilinx SPI driver
  *
@@ -9,8 +10,6 @@
  * Copyright (c) 2010 Graeme Smecher <graeme.smecher@mail.mcgill.ca>
  * Copyright (c) 2010 Thomas Chou <thomas@wytron.com.tw>
  * Copyright (c) 2005-2008 Analog Devices Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -20,6 +19,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <asm/io.h>
+#include <wait_bit.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,6 +79,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifndef CONFIG_XILINX_SPI_IDLE_VAL
 #define CONFIG_XILINX_SPI_IDLE_VAL	GENMASK(7, 0)
 #endif
+
+#define XILINX_SPISR_TIMEOUT	10000 /* in milliseconds */
 
 #define XILINX_SPI_QUAD_MODE	2
 
@@ -157,7 +159,6 @@ static void spi_cs_deactivate(struct udevice *dev)
 	reg = readl(&regs->spicr) | SPICR_RXFIFO_RESEST | SPICR_TXFIFO_RESEST;
 	writel(reg, &regs->spicr);
 	writel(SPISSR_OFF, &regs->spissr);
-
 }
 
 static int xilinx_spi_claim_bus(struct udevice *dev)
@@ -183,6 +184,7 @@ static int xilinx_spi_release_bus(struct udevice *dev)
 
 	return 0;
 }
+
 static u32 xilinx_spi_fill_txfifo(struct udevice *bus, const u8 *txp,
 				  u32 txbytes)
 {
@@ -200,6 +202,7 @@ static u32 xilinx_spi_fill_txfifo(struct udevice *bus, const u8 *txp,
 		txbytes--;
 		i++;
 	}
+
 	return i;
 }
 
@@ -270,6 +273,7 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	u32 txbytes = bytes;
 	u32 rxbytes = bytes;
 	u32 reg, count, timeout;
+	int ret;
 
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n",
 	      bus->seq, slave_plat->cs, bitlen, bytes, flags);
@@ -313,14 +317,11 @@ static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		if (txp)
 			txp += count;
 
-		timeout = 10000000;
-		do {
-			udelay(1);
-		} while (!(readl(&regs->spisr) & SPISR_TX_EMPTY) && timeout--);
-
-		if (!timeout) {
+		ret = wait_for_bit_le32(&regs->spisr, SPISR_TX_EMPTY, true,
+					XILINX_SPISR_TIMEOUT, false);
+		if (ret < 0) {
 			printf("XILSPI error: Xfer timeout\n");
-			return -1;
+			return ret;
 		}
 
 		debug("txbytes:0x%x,txp:0x%p\n", txbytes, txp);

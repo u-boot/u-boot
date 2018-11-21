@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011 Freescale Semiconductor
  * Author: Shengzhou Liu <Shengzhou.Liu@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * This file provides support for the QIXIS of some Freescale reference boards.
  */

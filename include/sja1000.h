@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2009, Matthias Fuchs <matthias.fuchs@esd.eu>
  *
  * SJA1000 register layout for basic CAN mode
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SJA1000_H_

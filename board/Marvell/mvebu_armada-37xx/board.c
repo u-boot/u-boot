@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -50,29 +49,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f(void)
 {
-	const void *blob = gd->fdt_blob;
-	const char *bank_name;
-	const char *compat = "marvell,armada-3700-pinctl";
-	int off, len;
-	void __iomem *addr;
-
-	/* FIXME
-	 * Temporary WA for setting correct pin control values
-	 * until the real pin control driver is awailable.
-	 */
-	off = fdt_node_offset_by_compatible(blob, -1, compat);
-	while (off != -FDT_ERR_NOTFOUND) {
-		bank_name = fdt_getprop(blob, off, "bank-name", &len);
-		addr = (void __iomem *)fdtdec_get_addr_size_auto_noparent(
-				blob, off, "reg", 0, NULL, true);
-		if (!strncmp(bank_name, "armada-3700-nb", len))
-			writel(PINCTRL_NB_REG_VALUE, addr);
-		else if (!strncmp(bank_name, "armada-3700-sb", len))
-			writel(PINCTRL_SB_REG_VALUE, addr);
-
-		off = fdt_node_offset_by_compatible(blob, off, compat);
-	}
-
 	return 0;
 }
 

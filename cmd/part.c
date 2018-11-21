@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -12,8 +13,6 @@
  * (C) Copyright 2003 - 2004
  * Sysgo Real-Time Solutions, AG <www.elinos.com>
  * Pavel Bartusek <pba@sysgo.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -21,6 +20,11 @@
 #include <command.h>
 #include <part.h>
 #include <vsprintf.h>
+
+enum cmd_part_info {
+	CMD_PART_INFO_START = 0,
+	CMD_PART_INFO_SIZE,
+};
 
 static int do_part_uuid(int argc, char * const argv[])
 {
@@ -86,7 +90,7 @@ static int do_part_list(int argc, char * const argv[])
 		char str[512] = { '\0', };
 		disk_partition_t info;
 
-		for (p = 1; p < 128; p++) {
+		for (p = 1; p < MAX_SEARCH_PARTITIONS; p++) {
 			char t[5];
 			int r = part_get_info(desc, p, &info);
 
@@ -108,11 +112,12 @@ static int do_part_list(int argc, char * const argv[])
 	return 0;
 }
 
-static int do_part_start(int argc, char * const argv[])
+static int do_part_info(int argc, char * const argv[], enum cmd_part_info param)
 {
 	struct blk_desc *desc;
 	disk_partition_t info;
 	char buf[512] = { 0 };
+	char *endp;
 	int part;
 	int err;
 	int ret;
@@ -122,17 +127,32 @@ static int do_part_start(int argc, char * const argv[])
 	if (argc > 4)
 		return CMD_RET_USAGE;
 
-	part = simple_strtoul(argv[2], NULL, 0);
-
 	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
 	if (ret < 0)
 		return 1;
 
-	err = part_get_info(desc, part, &info);
-	if (err)
-		return 1;
+	part = simple_strtoul(argv[2], &endp, 0);
+	if (*endp == '\0') {
+		err = part_get_info(desc, part, &info);
+		if (err)
+			return 1;
+	} else {
+		part = part_get_info_by_name(desc, argv[2], &info);
+		if (part == -1)
+			return 1;
+	}
 
-	snprintf(buf, sizeof(buf), LBAF, info.start);
+	switch (param) {
+	case CMD_PART_INFO_START:
+		snprintf(buf, sizeof(buf), LBAF, info.start);
+		break;
+	case CMD_PART_INFO_SIZE:
+		snprintf(buf, sizeof(buf), LBAF, info.size);
+		break;
+	default:
+		printf("** Unknown cmd_part_info value: %d\n", param);
+		return 1;
+	}
 
 	if (argc > 3)
 		env_set(argv[3], buf);
@@ -142,38 +162,14 @@ static int do_part_start(int argc, char * const argv[])
 	return 0;
 }
 
+static int do_part_start(int argc, char * const argv[])
+{
+	return do_part_info(argc, argv, CMD_PART_INFO_START);
+}
+
 static int do_part_size(int argc, char * const argv[])
 {
-	struct blk_desc *desc;
-	disk_partition_t info;
-	char buf[512] = { 0 };
-	int part;
-	int err;
-	int ret;
-
-	if (argc < 3)
-		return CMD_RET_USAGE;
-	if (argc > 4)
-		return CMD_RET_USAGE;
-
-	part = simple_strtoul(argv[2], NULL, 0);
-
-	ret = blk_get_device_by_str(argv[0], argv[1], &desc);
-	if (ret < 0)
-		return 1;
-
-	err = part_get_info(desc, part, &info);
-	if (err)
-		return 1;
-
-	snprintf(buf, sizeof(buf), LBAF, info.size);
-
-	if (argc > 3)
-		env_set(argv[3], buf);
-	else
-		printf("%s\n", buf);
-
-	return 0;
+	return do_part_info(argc, argv, CMD_PART_INFO_SIZE);
 }
 
 static int do_part(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -207,6 +203,8 @@ U_BOOT_CMD(
 	"      flags can be -bootable (list only bootable partitions)\n"
 	"part start <interface> <dev> <part> <varname>\n"
 	"    - set environment variable to the start of the partition (in blocks)\n"
+	"      part can be either partition number or partition name\n"
 	"part size <interface> <dev> <part> <varname>\n"
-	"    - set environment variable to the size of the partition (in blocks)"
+	"    - set environment variable to the size of the partition (in blocks)\n"
+	"      part can be either partition number or partition name"
 );

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2003
  * Gleb Natapov <gnatapov@mrv.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -15,6 +14,7 @@
 #include <status_led.h>
 #endif
 
+#ifndef CONFIG_MPC83XX_TIMER
 #ifdef CONFIG_SHOW_ACTIVITY
 void board_show_activity (ulong) __attribute__((weak, alias("__board_show_activity")));
 
@@ -45,7 +45,7 @@ static __inline__ void set_dec (unsigned long val)
 	if (val)
 		asm volatile ("mtdec %0"::"r" (val));
 }
-
+#endif /* !CONFIG_MPC83XX_TIMER */
 
 void enable_interrupts (void)
 {
@@ -61,6 +61,7 @@ int disable_interrupts (void)
 	return ((msr & MSR_EE) != 0);
 }
 
+#ifndef CONFIG_MPC83XX_TIMER
 int interrupt_init (void)
 {
 	/* call cpu specific function from $(CPU)/interrupts.c */
@@ -103,3 +104,4 @@ ulong get_timer (ulong base)
 {
 	return (timestamp - base);
 }
+#endif /* !CONFIG_MPC83XX_TIMER */

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016
  * Texas Instruments Incorporated, <www.ti.com>
  *
  * Keerthy <j-keerthy@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -15,8 +14,6 @@
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/palmas.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define	REGULATOR_ON		0x1
 #define	REGULATOR_OFF		0x0

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) Freescale Semiconductor, Inc. 2006.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,7 +16,7 @@
 #include <spd_sdram.h>
 #include <asm/mmu.h>
 #if defined(CONFIG_OF_LIBFDT)
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;

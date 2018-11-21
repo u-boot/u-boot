@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * This file is part of UBIFS.
  *
@@ -5,8 +6,6 @@
  *
  * (C) Copyright 2008-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Authors: Artem Bityutskiy (Битюцкий Артём)
  *          Adrian Hunter
@@ -317,8 +316,8 @@ struct super_block {
 	struct backing_dev_info *s_bdi;
 #endif
 	struct mtd_info		*s_mtd;
-	struct hlist_node	s_instances;
 #ifndef __UBOOT__
+	struct hlist_node	s_instances;
 	struct quota_info	s_dquot;	/* Diskquota specific options */
 #endif
 
@@ -611,16 +610,20 @@ static inline ino_t parent_ino(struct dentry *dentry)
 /* misc.h */
 #define mutex_lock_nested(...)
 #define mutex_unlock_nested(...)
-#define mutex_is_locked(...)	0
+#define mutex_is_locked(...)	1
 #endif
 
 /* Version of this UBIFS implementation */
 #define UBIFS_VERSION 1
 
 /* Normal UBIFS messages */
+#ifdef CONFIG_UBIFS_SILENCE_MSG
+#define ubifs_msg(c, fmt, ...)
+#else
 #define ubifs_msg(c, fmt, ...)                                      \
 	pr_notice("UBIFS (ubi%d:%d): " fmt "\n",                    \
 		  (c)->vi.ubi_num, (c)->vi.vol_id, ##__VA_ARGS__)
+#endif
 /* UBIFS error messages */
 #ifndef __UBOOT__
 #define ubifs_err(c, fmt, ...)                                      \

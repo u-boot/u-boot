@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012 Samsung Electronics
  *
  * Author: Donghwa Lee <dh09.lee@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -13,12 +12,10 @@
 #include <asm/arch/dp_info.h>
 #include <asm/arch/dp.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include "exynos_dp_lowlevel.h"
 
 /* Declare global data pointer */
-DECLARE_GLOBAL_DATA_PTR;
-
 static void exynos_dp_enable_video_input(struct exynos_dp *dp_regs,
 					 unsigned int enable)
 {

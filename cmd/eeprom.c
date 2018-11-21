@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000, 2001
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -68,7 +67,7 @@ __weak int eeprom_write_enable(unsigned dev_addr, int state)
 void eeprom_init(int bus)
 {
 	/* SPI EEPROM */
-#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
+#if defined(CONFIG_MPC8XX_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 	spi_init_f();
 #endif
 
@@ -131,7 +130,7 @@ static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 	int ret = 0;
 
 	/* SPI */
-#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
+#if defined(CONFIG_MPC8XX_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 	if (read)
 		spi_read(addr, alen, buffer, len);
 	else

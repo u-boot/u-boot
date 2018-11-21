@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009 Reinhard Arlt, reinhard.arlt@esd-electronics.com
  *
  * base on universe.h by
  *
  * (C) Copyright 2003 Stefan Roese, stefan.roese@esd-electronics.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

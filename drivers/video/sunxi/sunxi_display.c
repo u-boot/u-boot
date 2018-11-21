@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Display driver for Allwinner SoCs.
  *
  * (C) Copyright 2013-2014 Luc Verhaegen <libv@skynet.be>
  * (C) Copyright 2014-2015 Hans de Goede <hdegoede@redhat.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <efi_loader.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/display.h>
@@ -460,7 +460,7 @@ static void sunxi_composer_init(void)
 	setbits_le32(&de_be->mode, SUNXI_DE_BE_MODE_ENABLE);
 }
 
-static u32 sunxi_rgb2yuv_coef[12] = {
+static const u32 sunxi_rgb2yuv_coef[12] = {
 	0x00000107, 0x00000204, 0x00000064, 0x00000108,
 	0x00003f69, 0x00003ed6, 0x000001c1, 0x00000808,
 	0x000001c1, 0x00003e88, 0x00003fb8, 0x00000808
@@ -624,6 +624,8 @@ static void sunxi_ctfb_mode_to_display_timing(const struct ctfb_res_modes *mode,
 	timing->vfront_porch.typ = mode->lower_margin;
 	timing->vback_porch.typ = mode->upper_margin;
 	timing->vsync_len.typ = mode->vsync_len;
+
+	timing->flags = 0;
 
 	if (mode->sync & FB_SYNC_HOR_HIGH_ACT)
 		timing->flags |= DISPLAY_FLAGS_HSYNC_HIGH;
@@ -1204,6 +1206,13 @@ void *video_hw_init(void)
 	gd->fb_base = gd->bd->bi_dram[0].start +
 		      gd->bd->bi_dram[0].size - sunxi_display.fb_size;
 	sunxi_engines_init();
+
+#ifdef CONFIG_EFI_LOADER
+	efi_add_memory_map(gd->fb_base,
+			   ALIGN(sunxi_display.fb_size, EFI_PAGE_SIZE) >>
+			   EFI_PAGE_SHIFT,
+			   EFI_RESERVED_MEMORY_TYPE, false);
+#endif
 
 	fb_dma_addr = gd->fb_base - CONFIG_SYS_SDRAM_BASE;
 	sunxi_display.fb_addr = gd->fb_base;

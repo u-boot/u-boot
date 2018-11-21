@@ -1,8 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2017 Toradex AG
  *
  * FSL DCU platform driver
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/crm_regs.h>
@@ -10,8 +10,6 @@
 #include <common.h>
 #include <fsl_dcu_fb.h>
 #include "div64.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 unsigned int dcu_set_pixel_clock(unsigned int pixclock)
 {

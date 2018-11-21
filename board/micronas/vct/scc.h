@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009 Stefan Roese <sr@denx.de>, DENX Software Engineering
  *
  * Copyright (C) 2006 Micronas GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SCC_H

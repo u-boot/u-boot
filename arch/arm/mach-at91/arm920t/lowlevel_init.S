@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 1999 2000 2001 Erik Mouw (J.A.K.Mouw@its.tudelft.nl) and
  *		       Jan-Derk Bakker (J.D.Bakker@its.tudelft.nl)
@@ -5,8 +6,6 @@
  * Modified for the at91rm9200dk board by
  * (C) Copyright 2004
  * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

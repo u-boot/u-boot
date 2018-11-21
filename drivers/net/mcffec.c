@@ -1,14 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <environment.h>
 #include <malloc.h>
 
 #include <command.h>
@@ -31,8 +31,6 @@
 #define LAST_PKTBUFSRX		PKTBUFSRX - 1
 #define BD_ENET_RX_W_E		(BD_ENET_RX_WRAP | BD_ENET_RX_EMPTY)
 #define BD_ENET_TX_RDY_LST	(BD_ENET_TX_READY | BD_ENET_TX_LAST)
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct fec_info_s fec_info[] = {
 #ifdef CONFIG_SYS_FEC0_IOBASE

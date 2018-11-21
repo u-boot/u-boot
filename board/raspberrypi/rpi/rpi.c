@@ -1,13 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2012-2016 Stephen Warren
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
-#include <inttypes.h>
 #include <config.h>
 #include <dm.h>
+#include <environment.h>
 #include <efi_loader.h>
 #include <fdt_support.h>
 #include <fdt_simplefb.h>
@@ -24,6 +23,7 @@
 #include <asm/armv8/mmu.h>
 #endif
 #include <watchdog.h>
+#include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -90,10 +90,35 @@ static const struct rpi_model rpi_model_unknown = {
 };
 
 static const struct rpi_model rpi_models_new_scheme[] = {
+	[0x0] = {
+		"Model A",
+		DTB_DIR "bcm2835-rpi-a.dtb",
+		false,
+	},
+	[0x1] = {
+		"Model B",
+		DTB_DIR "bcm2835-rpi-b.dtb",
+		true,
+	},
+	[0x2] = {
+		"Model A+",
+		DTB_DIR "bcm2835-rpi-a-plus.dtb",
+		false,
+	},
+	[0x3] = {
+		"Model B+",
+		DTB_DIR "bcm2835-rpi-b-plus.dtb",
+		true,
+	},
 	[0x4] = {
 		"2 Model B",
 		DTB_DIR "bcm2836-rpi-2-b.dtb",
 		true,
+	},
+	[0x6] = {
+		"Compute Module",
+		DTB_DIR "bcm2835-rpi-cm.dtb",
+		false,
 	},
 	[0x8] = {
 		"3 Model B",
@@ -105,10 +130,20 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		DTB_DIR "bcm2835-rpi-zero.dtb",
 		false,
 	},
+	[0xA] = {
+		"Compute Module 3",
+		DTB_DIR "bcm2837-rpi-cm3.dtb",
+		false,
+	},
 	[0xC] = {
 		"Zero W",
 		DTB_DIR "bcm2835-rpi-zero-w.dtb",
 		false,
+	},
+	[0xD] = {
+		"3 Model B+",
+		DTB_DIR "bcm2837-rpi-3-b-plus.dtb",
+		true,
 	},
 };
 
@@ -348,7 +383,7 @@ static void set_serial_number(void)
 		return;
 	}
 
-	snprintf(serial_string, sizeof(serial_string), "%016" PRIx64,
+	snprintf(serial_string, sizeof(serial_string), "%016llx",
 		 msg->get_board_serial.body.resp.serial);
 	env_set("serial#", serial_string);
 }
@@ -419,53 +454,10 @@ static void get_board_rev(void)
 	printf("RPI %s (0x%x)\n", model->name, revision);
 }
 
-#ifndef CONFIG_PL01X_SERIAL
-static bool rpi_is_serial_active(void)
-{
-	int serial_gpio = 15;
-	struct udevice *dev;
-
-	/*
-	 * The RPi3 disables the mini uart by default. The easiest way to find
-	 * out whether it is available is to check if the RX pin is muxed.
-	 */
-
-	if (uclass_first_device(UCLASS_GPIO, &dev) || !dev)
-		return true;
-
-	if (bcm2835_gpio_get_func_id(dev, serial_gpio) != BCM2835_GPIO_ALT5)
-		return false;
-
-	return true;
-}
-
-/* Disable mini-UART I/O if it's not pinmuxed to our pins.
- * The firmware only enables it if explicitly done in config.txt: enable_uart=1
- */
-static void rpi_disable_inactive_uart(void)
-{
-	struct udevice *dev;
-	struct bcm283x_mu_serial_platdata *plat;
-
-	if (uclass_get_device_by_driver(UCLASS_SERIAL,
-					DM_GET_DRIVER(serial_bcm283x_mu),
-					&dev) || !dev)
-		return;
-
-	if (!rpi_is_serial_active()) {
-		plat = dev_get_platdata(dev);
-		plat->disabled = true;
-	}
-}
-#endif
-
 int board_init(void)
 {
 #ifdef CONFIG_HW_WATCHDOG
 	hw_watchdog_init();
-#endif
-#ifndef CONFIG_PL01X_SERIAL
-	rpi_disable_inactive_uart();
 #endif
 
 	get_board_rev();

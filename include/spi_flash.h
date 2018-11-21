@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Common SPI flash Interface
  *
  * Copyright (C) 2008 Atmel Corporation
  * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _SPI_FLASH_H_
@@ -189,25 +188,13 @@ static inline int spi_flash_erase(struct spi_flash *flash, u32 offset,
 struct sandbox_state;
 
 int sandbox_sf_bind_emul(struct sandbox_state *state, int busnum, int cs,
-			 struct udevice *bus, int of_offset, const char *spec);
+			 struct udevice *bus, ofnode node, const char *spec);
 
 void sandbox_sf_unbind_emul(struct sandbox_state *state, int busnum, int cs);
 
 #else
 struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int spi_mode);
-
-/**
- * Set up a new SPI flash from an fdt node
- *
- * @param blob		Device tree blob
- * @param slave_node	Pointer to this SPI slave node in the device tree
- * @param spi_node	Cached pointer to the SPI interface this node belongs
- *			to
- * @return 0 if ok, -1 on error
- */
-struct spi_flash *spi_flash_probe_fdt(const void *blob, int slave_node,
-				      int spi_node);
 
 void spi_flash_free(struct spi_flash *flash);
 

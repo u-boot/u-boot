@@ -1,14 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * BTRFS filesystem implementation for U-Boot
  *
  * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "btrfs.h"
 #include <linux/lzo.h>
 #include <u-boot/zlib.h>
+#include <asm/unaligned.h>
 
 static u32 decompress_lzo(const u8 *cbuf, u32 clen, u8 *dbuf, u32 dlen)
 {
@@ -19,7 +19,7 @@ static u32 decompress_lzo(const u8 *cbuf, u32 clen, u8 *dbuf, u32 dlen)
 	if (clen < 4)
 		return -1;
 
-	tot_len = le32_to_cpu(*(u32 *) cbuf);
+	tot_len = le32_to_cpu(get_unaligned((u32 *)cbuf));
 	cbuf += 4;
 	clen -= 4;
 	tot_len -= 4;
@@ -32,7 +32,7 @@ static u32 decompress_lzo(const u8 *cbuf, u32 clen, u8 *dbuf, u32 dlen)
 	res = 0;
 
 	while (tot_len > 4) {
-		in_len = le32_to_cpu(*(u32 *) cbuf);
+		in_len = le32_to_cpu(get_unaligned((u32 *)cbuf));
 		cbuf += 4;
 		clen -= 4;
 

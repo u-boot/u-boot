@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015-2016 Reinhard Pfau <reinhard.pfau@gdsys.cc>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

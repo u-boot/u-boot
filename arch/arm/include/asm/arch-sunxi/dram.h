@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007-2012
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
@@ -5,8 +6,6 @@
  * Tom Cubie <tangliang@allwinnertech.com>
  *
  * Sunxi platform dram register definition.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_DRAM_H
@@ -28,6 +27,8 @@
 #include <asm/arch/dram_sunxi_dw.h>
 #elif defined(CONFIG_MACH_SUN9I)
 #include <asm/arch/dram_sun9i.h>
+#elif defined(CONFIG_MACH_SUN50I_H6)
+#include <asm/arch/dram_sun50i_h6.h>
 #else
 #include <asm/arch/dram_sun4i.h>
 #endif

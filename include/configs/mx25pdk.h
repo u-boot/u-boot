@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -12,7 +11,6 @@
 /* High Level Configuration Options */
 
 #define CONFIG_SYS_TEXT_BASE		0x81200000
-#define CONFIG_MXC_GPIO
 #define CONFIG_SYS_FSL_CLK
 
 #define CONFIG_SYS_TIMER_RATE		32768
@@ -30,7 +28,6 @@
 
 /* Physical Memory Map */
 
-#define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		0x80000000
 #define PHYS_SDRAM_1_SIZE	(64 * 1024 * 1024)
 
@@ -50,7 +47,6 @@
 /* Serial Info */
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
-#define CONFIG_CONS_INDEX	1	/* use UART0 for console */
 
 /* No NOR flash present */
 #define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
@@ -58,26 +54,16 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
 /* U-Boot general configuration */
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_LONGHELP
-
-/* U-Boot commands */
-
-/* Filesystem support */
-#define CONFIG_FS_EXT4
 
 /* Ethernet */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC_PHYADDR		0x1f
-#define CONFIG_MII
 #define CONFIG_ENV_OVERWRITE
 
 /* ESDHC driver */
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	IMX_MMC_SDHC1_BASE
 #define CONFIG_SYS_FSL_ESDHC_NUM	1
 
@@ -196,7 +182,5 @@
 	   "else run netboot; fi"
 
 /* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
 
 #endif /* __CONFIG_H */

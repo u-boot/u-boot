@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) Marvell International Ltd. and its affiliates
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _DDR3_TRAINING_IP_ENGINE_H_
@@ -38,8 +37,6 @@ int ddr3_tip_training_ip_test(u32 dev_num, enum hws_training_result result_type,
 			      u32 num_of_iterations, u32 start_pattern,
 			      u32 end_pattern);
 int ddr3_tip_load_pattern_to_mem(u32 dev_num, enum hws_pattern pattern);
-int ddr3_tip_load_pattern_to_mem_by_cpu(u32 dev_num, enum hws_pattern pattern,
-					u32 offset);
 int ddr3_tip_load_all_pattern_to_mem(u32 dev_num);
 int ddr3_tip_read_training_result(u32 dev_num, u32 if_id,
 				  enum hws_access_type pup_access_type,
@@ -76,10 +73,13 @@ int ddr3_tip_ip_training_wrapper(u32 dev_num, enum hws_access_type access_type,
 				 enum hws_edge_compare edge_comp,
 				 enum hws_ddr_cs train_cs_type, u32 cs_num,
 				 enum hws_training_ip_stat *train_status);
-int is_odpg_access_done(u32 dev_num, u32 if_id);
+u8 mv_ddr_tip_sub_phy_byte_status_get(u32 if_id, u32 subphy_id);
+void mv_ddr_tip_sub_phy_byte_status_set(u32 if_id, u32 subphy_id, u8 byte_status_data);
 void ddr3_tip_print_bist_res(void);
 struct pattern_info *ddr3_tip_get_pattern_table(void);
 u16 *ddr3_tip_get_mask_results_dq_reg(void);
 u16 *ddr3_tip_get_mask_results_pup_reg_map(void);
-
+int mv_ddr_load_dm_pattern_to_odpg(enum hws_access_type access_type, enum hws_pattern pattern,
+				   enum dm_direction dm_dir);
+int mv_ddr_pattern_start_addr_set(struct pattern_info *pattern_tbl, enum hws_pattern pattern, u32 addr);
 #endif /* _DDR3_TRAINING_IP_ENGINE_H_ */

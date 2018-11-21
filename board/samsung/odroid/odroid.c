@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Samsung Electronics
  * Przemyslaw Marczak <p.marczak@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -429,7 +428,7 @@ int exynos_power_init(void)
 	};
 
 	if (regulator_list_autoset(mmc_regulators, NULL, true))
-		pr_err("Unable to init all mmc regulators");
+		pr_err("Unable to init all mmc regulators\n");
 
 	return 0;
 }
@@ -442,7 +441,7 @@ static int s5pc210_phy_control(int on)
 
 	ret = regulator_get_by_platname("VDD_UOTG_3.0V", &dev);
 	if (ret) {
-		pr_err("Regulator get error: %d", ret);
+		pr_err("Regulator get error: %d\n", ret);
 		return ret;
 	}
 
@@ -487,25 +486,25 @@ int board_usb_init(int index, enum usb_init_type init)
 
 	ret = regulator_get_by_platname("VCC_P3V3_2.85V", &dev);
 	if (ret) {
-		pr_err("Regulator get error: %d", ret);
+		pr_err("Regulator get error: %d\n", ret);
 		return ret;
 	}
 
 	ret = regulator_set_enable(dev, true);
 	if (ret) {
-		pr_err("Regulator %s enable setting error: %d", dev->name, ret);
+		pr_err("Regulator %s enable setting error: %d\n", dev->name, ret);
 		return ret;
 	}
 
 	ret = regulator_set_value(dev, 750000);
 	if (ret) {
-		pr_err("Regulator %s value setting error: %d", dev->name, ret);
+		pr_err("Regulator %s value setting error: %d\n", dev->name, ret);
 		return ret;
 	}
 
 	ret = regulator_set_value(dev, 3300000);
 	if (ret) {
-		pr_err("Regulator %s value setting error: %d", dev->name, ret);
+		pr_err("Regulator %s value setting error: %d\n", dev->name, ret);
 		return ret;
 	}
 #endif

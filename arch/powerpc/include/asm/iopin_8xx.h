@@ -1,6 +1,4 @@
-/*
- * SPDX-License-Identifier:	GPL-2.0+
- */
+/* SPDX-License-Identifier: GPL-2.0+ */
 
 /*
  * MPC8xx I/O port pin manipulation functions
@@ -11,7 +9,7 @@
 #define _ASM_IOPIN_8XX_H_
 
 #include <linux/types.h>
-#include <asm/8xx_immap.h>
+#include <asm/immap_8xx.h>
 #include <asm/io.h>
 
 #ifdef __KERNEL__

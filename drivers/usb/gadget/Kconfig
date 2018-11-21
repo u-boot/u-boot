@@ -127,6 +127,20 @@ config USB_GADGET_DOWNLOAD
 
 if USB_GADGET_DOWNLOAD
 
+config USB_FUNCTION_MASS_STORAGE
+	bool "Enable USB mass storage gadget"
+	help
+	  Enable mass storage protocol support in U-Boot. It allows exporting
+	  the eMMC/SD card content to HOST PC so it can be mounted.
+
+config USB_FUNCTION_ROCKUSB
+        bool "Enable USB rockusb gadget"
+        help
+          Rockusb protocol is widely used by Rockchip SoC based devices. It can
+          read/write info, image to/from devices. This enables the USB part of
+          the rockusb gadget.for more detail about Rockusb protocol, please see
+          doc/README.rockusb
+
 config USB_FUNCTION_SDP
 	bool "Enable USB SDP (Serial Download Protocol)"
 	help
@@ -134,10 +148,17 @@ config USB_FUNCTION_SDP
 	  allows to download images into memory and execute (jump to) them
 	  using the same protocol as implemented by the i.MX family's boot ROM.
 
+config USB_FUNCTION_THOR
+	bool "Enable USB THOR gadget"
+	help
+	  Enable Tizen's THOR download protocol support in U-Boot. It
+	  allows downloading images into memory and flash them to target device.
+
 endif # USB_GADGET_DOWNLOAD
 
 config USB_ETHER
 	bool "USB Ethernet Gadget"
+	depends on NET
 	default y if ARCH_SUNXI && USB_MUSB_GADGET
 	help
 	  Creates an Ethernet network device through a USB peripheral

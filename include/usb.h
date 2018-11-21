@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2001
  * Denis Peter, MPL AG Switzerland
  *
  * Adapted for U-Boot driver model
  * (C) Copyright 2015 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  * Note: Part of this code has been derived from linux
  *
  */

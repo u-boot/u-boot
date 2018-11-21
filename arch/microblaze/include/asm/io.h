@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * include/asm-microblaze/io.h -- Misc I/O operations
  *
@@ -21,39 +22,42 @@
 #define IO_SPACE_LIMIT 0xFFFFFFFF
 
 #define readb(addr) \
-  ({ unsigned char __v = (*(volatile unsigned char *) (addr)); __v; })
+	({ unsigned char __v = (*(volatile unsigned char *)(addr)); __v; })
+
 #define readw(addr) \
-  ({ unsigned short __v = (*(volatile unsigned short *) (addr)); __v; })
+	({ unsigned short __v = (*(volatile unsigned short *)(addr)); __v; })
+
 #define readl(addr) \
-	({ unsigned int __v = (*(volatile unsigned int *) (addr)); __v; })
+	({ unsigned int __v = (*(volatile unsigned int *)(addr)); __v; })
 
 #define writeb(b, addr) \
-  (void)((*(volatile unsigned char *) (addr)) = (b))
+	(void)((*(volatile unsigned char *)(addr)) = (b))
+
 #define writew(b, addr) \
-  (void)((*(volatile unsigned short *) (addr)) = (b))
+	(void)((*(volatile unsigned short *)(addr)) = (b))
+
 #define writel(b, addr) \
-  (void)((*(volatile unsigned int *) (addr)) = (b))
+	(void)((*(volatile unsigned int *)(addr)) = (b))
 
-#define memset_io(a,b,c)        memset((void *)(a),(b),(c))
-#define memcpy_fromio(a,b,c)    memcpy((a),(void *)(b),(c))
-#define memcpy_toio(a,b,c)      memcpy((void *)(a),(b),(c))
+#define memset_io(a, b, c)        memset((void *)(a), (b), (c))
+#define memcpy_fromio(a, b, c)    memcpy((a), (void *)(b), (c))
+#define memcpy_toio(a, b, c)      memcpy((void *)(a), (b), (c))
 
-#define inb(addr)	readb (addr)
-#define inw(addr)	readw (addr)
-#define inl(addr)	readl (addr)
-#define outb(x, addr)	((void) writeb (x, addr))
-#define outw(x, addr)	((void) writew (x, addr))
-#define outl(x, addr)	((void) writel (x, addr))
+#define inb(addr)	readb(addr)
+#define inw(addr)	readw(addr)
+#define inl(addr)	readl(addr)
+#define outb(x, addr)	((void)writeb(x, addr))
+#define outw(x, addr)	((void)writew(x, addr))
+#define outl(x, addr)	((void)writel(x, addr))
 
 /* Some #definitions to keep strange Xilinx code happy */
-#define in_8(addr)	readb (addr)
-#define in_be16(addr)	readw (addr)
-#define in_be32(addr)	readl (addr)
+#define in_8(addr)	readb(addr)
+#define in_be16(addr)	readw(addr)
+#define in_be32(addr)	readl(addr)
 
-#define out_8(addr,x )	outb (x,addr)
-#define out_be16(addr,x )	outw (x,addr)
-#define out_be32(addr,x )	outl (x,addr)
-
+#define out_8(addr, x)		outb(x, addr)
+#define out_be16(addr, x)	outw(x, addr)
+#define out_be32(addr, x)	outl(x, addr)
 
 #define inb_p(port)		inb((port))
 #define outb_p(val, port)	outb((val), (port))
@@ -71,58 +75,65 @@
 #define __raw_writew writew
 #define __raw_writel writel
 
-static inline void io_insb (unsigned long port, void *dst, unsigned long count)
+static inline void io_insb(unsigned long port, void *dst, unsigned long count)
 {
 	unsigned char *p = dst;
+
 	while (count--)
-		*p++ = inb (port);
+		*p++ = inb(port);
 }
-static inline void io_insw (unsigned long port, void *dst, unsigned long count)
+
+static inline void io_insw(unsigned long port, void *dst, unsigned long count)
 {
 	unsigned short *p = dst;
+
 	while (count--)
-		*p++ = inw (port);
+		*p++ = inw(port);
 }
-static inline void io_insl (unsigned long port, void *dst, unsigned long count)
+
+static inline void io_insl(unsigned long port, void *dst, unsigned long count)
 {
 	unsigned long *p = dst;
+
 	while (count--)
-		*p++ = inl (port);
+		*p++ = inl(port);
 }
 
 static inline void
-io_outsb (unsigned long port, const void *src, unsigned long count)
+io_outsb(unsigned long port, const void *src, unsigned long count)
 {
 	const unsigned char *p = src;
+
 	while (count--)
-		outb (*p++, port);
+		outb(*p++, port);
 }
+
 static inline void
-io_outsw (unsigned long port, const void *src, unsigned long count)
+io_outsw(unsigned long port, const void *src, unsigned long count)
 {
 	const unsigned short *p = src;
+
 	while (count--)
-		outw (*p++, port);
+		outw(*p++, port);
 }
+
 static inline void
-io_outsl (unsigned long port, const void *src, unsigned long count)
+io_outsl(unsigned long port, const void *src, unsigned long count)
 {
 	const unsigned long *p = src;
+
 	while (count--)
-		outl (*p++, port);
+		outl(*p++, port);
 }
 
-#define outsb(a,b,l) io_outsb(a,b,l)
-#define outsw(a,b,l) io_outsw(a,b,l)
-#define outsl(a,b,l) io_outsl(a,b,l)
+#define outsb(a, b, l) io_outsb(a, b, l)
+#define outsw(a, b, l) io_outsw(a, b, l)
+#define outsl(a, b, l) io_outsl(a, b, l)
 
-#define insb(a,b,l) io_insb(a,b,l)
-#define insw(a,b,l) io_insw(a,b,l)
-#define insl(a,b,l) io_insl(a,b,l)
+#define insb(a, b, l) io_insb(a, b, l)
+#define insw(a, b, l) io_insw(a, b, l)
+#define insl(a, b, l) io_insl(a, b, l)
 
-
-#define iounmap(addr)				((void)0)
-#define ioremap(physaddr, size)			(physaddr)
 #define ioremap_nocache(physaddr, size)		(physaddr)
 #define ioremap_writethrough(physaddr, size)	(physaddr)
 #define ioremap_fullcache(physaddr, size)	(physaddr)

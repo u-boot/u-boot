@@ -1,6 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2011-2012 The Chromium OS Authors.
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __SANDBOX_STATE_H
@@ -9,6 +9,7 @@
 #include <config.h>
 #include <sysreset.h>
 #include <stdbool.h>
+#include <linux/list.h>
 #include <linux/stringify.h>
 
 /**
@@ -35,7 +36,6 @@ enum state_terminal_raw {
 };
 
 struct sandbox_spi_info {
-	const char *spec;
 	struct udevice *emul;
 };
 
@@ -43,6 +43,23 @@ struct sandbox_wdt_info {
 	unsigned long long counter;
 	uint reset_count;
 	bool running;
+};
+
+/**
+ * struct sandbox_mapmem_entry - maps pointers to/from U-Boot addresses
+ *
+ * When map_to_sysmem() is called with an address outside sandbox's emulated
+ * RAM, a record is created with a tag that can be used to reference that
+ * pointer. When map_sysmem() is called later with that tag, the pointer will
+ * be returned, just as it would for a normal sandbox address.
+ *
+ * @tag: Address tag (a value which U-Boot uses to refer to the address)
+ * @ptr: Associated pointer for that tag
+ */
+struct sandbox_mapmem_entry {
+	ulong tag;
+	void *ptr;
+	struct list_head sibling_node;
 };
 
 /* The complete state of the test system */
@@ -71,6 +88,7 @@ struct sandbox_state {
 	enum state_terminal_raw term_raw;	/* Terminal raw/cooked */
 	bool skip_delays;		/* Ignore any time delays (for test) */
 	bool show_test_output;		/* Don't suppress stdout in tests */
+	int default_log_level;		/* Default log level for sandbox */
 
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]
@@ -78,6 +96,9 @@ struct sandbox_state {
 
 	/* Information about Watchdog */
 	struct sandbox_wdt_info wdt;
+
+	ulong next_tag;			/* Next address tag to allocate */
+	struct list_head mapmem_head;	/* struct sandbox_mapmem_entry */
 };
 
 /* Minimum space we guarantee in the state FDT when calling read/write*/

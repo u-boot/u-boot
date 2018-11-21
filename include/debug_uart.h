@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Early debug UART support
  *
  * (C) Copyright 2014 Google, Inc
  * Writte by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DEBUG_UART_H

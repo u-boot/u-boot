@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Xilinx ZynqMP SoC Tap Delay Programming
  *
- * Copyright (C) 2016 Xilinx, Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0+
+ * Copyright (C) 2018 Xilinx, Inc.
  */
 
 #include <common.h>

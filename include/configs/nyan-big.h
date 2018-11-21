@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2014
  * NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -18,8 +17,6 @@
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
-
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 /* I2C */
 #define CONFIG_SYS_I2C_TEGRA

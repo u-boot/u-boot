@@ -1,16 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) STMicroelectronics SA 2017
- *
- * Authors: Philippe Cornu <philippe.cornu@st.com>
- *          Yannick Fertre <yannick.fertre@st.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
+ * Copyright (C) 2017-2018 STMicroelectronics - All Rights Reserved
+ * Author(s): Philippe Cornu <philippe.cornu@st.com> for STMicroelectronics.
+ *	      Yannick Fertre <yannick.fertre@st.com> for STMicroelectronics.
  */
 
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
 #include <panel.h>
+#include <reset.h>
 #include <video.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
@@ -138,7 +137,9 @@ struct stm32_ltdc_priv {
 #define LXCFBLNR_CFBLN	GENMASK(10, 0)	/* Color Frame Buffer Line Number */
 
 #define BF1_PAXCA	0x600		/* Pixel Alpha x Constant Alpha */
+#define BF1_CA		0x400		/* Constant Alpha */
 #define BF2_1PAXCA	0x007		/* 1 - (Pixel Alpha x Constant Alpha) */
+#define BF2_1CA		0x005		/* 1 - Constant Alpha */
 
 enum stm32_ltdc_pix_fmt {
 	PF_ARGB8888 = 0,
@@ -161,11 +162,17 @@ static u32 stm32_ltdc_get_pixel_format(enum video_log2_bpp l2bpp)
 		pf = PF_RGB565;
 		break;
 
+	case VIDEO_BPP32:
+		pf = PF_ARGB8888;
+		break;
+
+	case VIDEO_BPP8:
+		pf = PF_L8;
+		break;
+
 	case VIDEO_BPP1:
 	case VIDEO_BPP2:
 	case VIDEO_BPP4:
-	case VIDEO_BPP8:
-	case VIDEO_BPP32:
 	default:
 		debug("%s: warning %dbpp not supported yet, %dbpp instead\n",
 		      __func__, VNBITS(l2bpp), VNBITS(VIDEO_BPP16));
@@ -176,6 +183,23 @@ static u32 stm32_ltdc_get_pixel_format(enum video_log2_bpp l2bpp)
 	debug("%s: %d bpp -> ltdc pf %d\n", __func__, VNBITS(l2bpp), pf);
 
 	return (u32)pf;
+}
+
+static bool has_alpha(u32 fmt)
+{
+	switch (fmt) {
+	case PF_ARGB8888:
+	case PF_ARGB1555:
+	case PF_ARGB4444:
+	case PF_AL44:
+	case PF_AL88:
+		return true;
+	case PF_RGB888:
+	case PF_RGB565:
+	case PF_L8:
+	default:
+		return false;
+	}
 }
 
 static void stm32_ltdc_enable(struct stm32_ltdc_priv *priv)
@@ -219,6 +243,8 @@ static void stm32_ltdc_set_mode(struct stm32_ltdc_priv *priv)
 	val = (total_w << 16) | total_h;
 	clrsetbits_le32(regs + LTDC_TWCR, TWCR_TOTALH | TWCR_TOTALW, val);
 
+	setbits_le32(regs + LTDC_LIPCR, acc_act_h + 1);
+
 	/* Signal polarities */
 	val = 0;
 	debug("%s: timing->flags 0x%08x\n", __func__, timing->flags);
@@ -245,6 +271,7 @@ static void stm32_ltdc_set_layer1(struct stm32_ltdc_priv *priv, ulong fb_addr)
 	u32 line_length;
 	u32 bus_width;
 	u32 val, tmp, bpp;
+	u32 format;
 
 	x0 = priv->crop_x;
 	x1 = priv->crop_x + priv->crop_w - 1;
@@ -275,15 +302,18 @@ static void stm32_ltdc_set_layer1(struct stm32_ltdc_priv *priv, ulong fb_addr)
 	clrsetbits_le32(regs + LTDC_L1CFBLR, LXCFBLR_CFBLL | LXCFBLR_CFBP, val);
 
 	/* Pixel format */
-	val = stm32_ltdc_get_pixel_format(priv->l2bpp);
-	clrsetbits_le32(regs + LTDC_L1PFCR, LXPFCR_PF, val);
+	format = stm32_ltdc_get_pixel_format(priv->l2bpp);
+	clrsetbits_le32(regs + LTDC_L1PFCR, LXPFCR_PF, format);
 
 	/* Constant alpha value */
 	clrsetbits_le32(regs + LTDC_L1CACR, LXCACR_CONSTA, priv->alpha);
 
+	/* Specifies the blending factors : with or without pixel alpha */
+	/* Manage hw-specific capabilities */
+	val = has_alpha(format) ? BF1_PAXCA | BF2_1PAXCA : BF1_CA | BF2_1CA;
+
 	/* Blending factors */
-	clrsetbits_le32(regs + LTDC_L1BFCR, LXBFCR_BF2 | LXBFCR_BF1,
-			BF1_PAXCA | BF2_1PAXCA);
+	clrsetbits_le32(regs + LTDC_L1BFCR, LXBFCR_BF2 | LXBFCR_BF1, val);
 
 	/* Frame buffer line number */
 	clrsetbits_le32(regs + LTDC_L1CFBLNR, LXCFBLNR_CFBLN, priv->crop_h);
@@ -301,14 +331,37 @@ static int stm32_ltdc_probe(struct udevice *dev)
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct stm32_ltdc_priv *priv = dev_get_priv(dev);
 	struct udevice *panel;
-	struct clk pclk, pxclk;
-	int ret;
+	struct clk pclk;
+	struct reset_ctl rst;
+	int rate, ret;
 
 	priv->regs = (void *)dev_read_addr(dev);
 	if ((fdt_addr_t)priv->regs == FDT_ADDR_T_NONE) {
 		debug("%s: ltdc dt register address error\n", __func__);
 		return -EINVAL;
 	}
+
+	ret = clk_get_by_index(dev, 0, &pclk);
+	if (ret) {
+		debug("%s: peripheral clock get error %d\n", __func__, ret);
+		return ret;
+	}
+
+	ret = clk_enable(&pclk);
+	if (ret) {
+		debug("%s: peripheral clock enable error %d\n",
+		      __func__, ret);
+		return ret;
+	}
+
+	ret = reset_get_by_index(dev, 0, &rst);
+	if (ret) {
+		debug("%s: missing ltdc hardware reset\n", __func__);
+		return -ENODEV;
+	}
+
+	/* Reset */
+	reset_deassert(&rst);
 
 	ret = uclass_first_device(UCLASS_PANEL, &panel);
 	if (ret) {
@@ -323,31 +376,24 @@ static int stm32_ltdc_probe(struct udevice *dev)
 		return ret;
 	}
 
-	ret = fdtdec_decode_display_timing(gd->fdt_blob, dev_of_offset(dev),
-					   0, &priv->timing);
+	ret = fdtdec_decode_display_timing(gd->fdt_blob,
+					   dev_of_offset(dev), 0,
+					   &priv->timing);
 	if (ret) {
-		debug("%s: decode display timing error %d\n", __func__, ret);
+		debug("%s: decode display timing error %d\n",
+		      __func__, ret);
 		return -EINVAL;
 	}
 
-	ret = clk_get_by_name(dev, "pclk", &pclk);
-	if (ret) {
-		debug("%s: peripheral clock get error %d\n", __func__, ret);
-		return ret;
+	rate = clk_set_rate(&pclk, priv->timing.pixelclock.typ);
+	if (rate < 0) {
+		debug("%s: fail to set pixel clock %d hz %d hz\n",
+		      __func__, priv->timing.pixelclock.typ, rate);
+		return rate;
 	}
 
-	ret = clk_enable(&pclk);
-	if (ret) {
-		debug("%s: peripheral clock enable error %d\n", __func__, ret);
-		return ret;
-	}
-
-	/* Verify pixel clock value if any & inform user accordingly */
-	ret = clk_get_by_name(dev, "pxclk", &pxclk);
-	if (!ret) {
-		if (clk_get_rate(&pxclk) != priv->timing.pixelclock.typ)
-			printf("Warning: please adjust ltdc pixel clock\n");
-	}
+	debug("%s: Set pixel clock req %d hz get %d hz\n", __func__,
+	      priv->timing.pixelclock.typ, rate);
 
 	/* TODO Below parameters are hard-coded for the moment... */
 	priv->l2bpp = VIDEO_BPP16;
@@ -397,10 +443,10 @@ static const struct udevice_id stm32_ltdc_ids[] = {
 };
 
 U_BOOT_DRIVER(stm32_ltdc) = {
-	.name	= "stm32_ltdc",
-	.id	= UCLASS_VIDEO,
-	.of_match = stm32_ltdc_ids,
-	.probe	= stm32_ltdc_probe,
-	.bind	= stm32_ltdc_bind,
+	.name			= "stm32_display",
+	.id			= UCLASS_VIDEO,
+	.of_match		= stm32_ltdc_ids,
+	.probe			= stm32_ltdc_probe,
+	.bind			= stm32_ltdc_bind,
 	.priv_auto_alloc_size	= sizeof(struct stm32_ltdc_priv),
 };

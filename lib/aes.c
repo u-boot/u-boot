@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2011 NVIDIA Corporation www.nvidia.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -601,12 +600,11 @@ void aes_apply_cbc_chain_data(u8 *cbc_chain_data, u8 *src, u8 *dst)
 		*dst++ = *src++ ^ *cbc_chain_data++;
 }
 
-void aes_cbc_encrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks)
+void aes_cbc_encrypt_blocks(u8 *key_exp, u8 *iv, u8 *src, u8 *dst,
+			    u32 num_aes_blocks)
 {
-	u8 zero_key[AES_KEY_LENGTH] = { 0 };
 	u8 tmp_data[AES_KEY_LENGTH];
-	/* Convenient array of 0's for IV */
-	u8 *cbc_chain_data = zero_key;
+	u8 *cbc_chain_data = iv;
 	u32 i;
 
 	for (i = 0; i < num_aes_blocks; i++) {
@@ -628,13 +626,15 @@ void aes_cbc_encrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks)
 	}
 }
 
-void aes_cbc_decrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks)
+void aes_cbc_decrypt_blocks(u8 *key_exp, u8 *iv, u8 *src, u8 *dst,
+			    u32 num_aes_blocks)
 {
 	u8 tmp_data[AES_KEY_LENGTH], tmp_block[AES_KEY_LENGTH];
 	/* Convenient array of 0's for IV */
-	u8 cbc_chain_data[AES_KEY_LENGTH] = { 0 };
+	u8 cbc_chain_data[AES_KEY_LENGTH];
 	u32 i;
 
+	memcpy(cbc_chain_data, iv, AES_KEY_LENGTH);
 	for (i = 0; i < num_aes_blocks; i++) {
 		debug("encrypt_object: block %d of %d\n", i, num_aes_blocks);
 		debug_print_vector("AES Src", AES_KEY_LENGTH, src);

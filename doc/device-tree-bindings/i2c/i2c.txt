@@ -12,6 +12,11 @@ property which allows the chip offset length to be selected.
 Optional properties:
 - u-boot,i2c-offset-len - length of chip offset in bytes. If omitted the
     default value of 1 is used.
+- gpios = <sda ...>, <scl ...>;
+  pinctrl-names = "default", "gpio";
+  pinctrl-0 = <&i2c_xfer>;
+  pinctrl-1 = <&i2c_gpio>;
+    Pin description for I2C bus software deblocking.
 
 
 Example
@@ -25,4 +30,12 @@ i2c4: i2c@12ca0000 {
 		u-boot,i2c-offset-len = <0>;
 		ec-interrupt = <&gpx1 6 GPIO_ACTIVE_LOW>;
 	};
+};
+
+&i2c1 {
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&i2c1_xfer>;
+	pinctrl-1 = <&i2c1_gpio>;
+	gpios = <&gpio1 26 GPIO_ACTIVE_LOW>, /* SDA */
+		<&gpio1 27 GPIO_ACTIVE_LOW>; /* SCL */
 };

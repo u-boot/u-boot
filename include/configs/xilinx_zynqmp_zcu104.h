@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration for Xilinx ZynqMP zcu104
  *
  * (C) Copyright 2017 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_ZYNQMP_ZCU104_H
@@ -25,7 +24,6 @@
 				{0, {{I2C_MUX_PCA9548, 0x74, 7} } }, \
 				}
 
-#define CONFIG_SYS_I2C_ZYNQ
 #define CONFIG_PCA953X
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1

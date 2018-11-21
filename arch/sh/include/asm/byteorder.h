@@ -1,6 +1,4 @@
-/*
- * SPDX-License-Identifier:	GPL-2.0+
- */
+/* SPDX-License-Identifier: GPL-2.0+ */
 
 #ifndef __ASM_SH_BYTEORDER_H_
 #define __ASM_SH_BYTEORDER_H_

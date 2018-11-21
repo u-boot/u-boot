@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Hitachi Solution Engine 7750
  *
  * Copyright (C) 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MS7750SE_H
@@ -12,7 +11,6 @@
 #define CONFIG_CPU_SH7750	1
 /* #define CONFIG_CPU_SH7751	1 */
 /* #define CONFIG_CPU_TYPE_R	1 */
-#define CONFIG_MS7750SE		1
 #define __LITTLE_ENDIAN__	1
 
 #define CONFIG_DISPLAY_BOARDINFO
@@ -28,10 +26,8 @@
 #define CONFIG_SYS_SDRAM_BASE		(0x8C000000)
 #define CONFIG_SYS_SDRAM_SIZE		(64 * 1024 * 1024)
 
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_PBSIZE		256
 
-#define CONFIG_SYS_TEXT_BASE		0x8FFC0000
 #define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_TEXT_BASE - 0x100000)
 
@@ -52,8 +48,6 @@
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 #define CONFIG_SYS_RX_ETH_BUFFER	(8)
 
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
 #undef CONFIG_SYS_FLASH_CFI_BROKEN_TABLE
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH_EMPTY_INFO				/* print 'E' for empty sector on flinfo */
@@ -66,8 +60,6 @@
 
 /* Board Clock */
 #define CONFIG_SYS_CLK_FREQ	33333333
-#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_TMU_CLK_DIV		4
 
 #endif /* __MS7750SE_H */

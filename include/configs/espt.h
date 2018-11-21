@@ -1,17 +1,15 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the ESPT-GIGA board
  *
  * Copyright (C) 2008 Renesas Solutions Corp.
  * Copyright (C) 2008 Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ESPT_H
 #define __ESPT_H
 
 #define CONFIG_CPU_SH7763	1
-#define CONFIG_ESPT	1
 #define __LITTLE_ENDIAN		1
 
 #define CONFIG_ENV_OVERWRITE    1
@@ -22,8 +20,6 @@
 /* SCIF */
 #define CONFIG_CONS_SCIF0		1
 
-#define CONFIG_SYS_TEXT_BASE	0x8FFC0000
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_PBSIZE		256	/* Buffer size for Console output */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }	/* List of legal baudrate
 												settings for this board */
@@ -48,8 +44,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* print 'E' for empty sector on flinfo */
 /* Timeout for Flash erase operations (in ms) */
@@ -61,7 +55,6 @@
 /* Timeout for Flash clear lock bit operations (in ms) */
 #define CONFIG_SYS_FLASH_UNLOCK_TOUT	(3 * 1000)
 /* Use hardware flash sectors protection instead of U-Boot software protection */
-#undef  CONFIG_SYS_FLASH_PROTECTION
 #undef  CONFIG_SYS_DIRECT_FLASH_TFTP
 #define CONFIG_ENV_SECT_SIZE	(128 * 1024)
 #define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
@@ -73,12 +66,9 @@
 
 /* Clock */
 #define CONFIG_SYS_CLK_FREQ	66666666
-#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_TMU_CLK_DIV      4
 
 /* Ether */
-#define CONFIG_SH_ETHER 1
 #define CONFIG_SH_ETHER_USE_PORT (1)
 #define CONFIG_SH_ETHER_PHY_ADDR (0x00)
 #define CONFIG_BITBANGMII

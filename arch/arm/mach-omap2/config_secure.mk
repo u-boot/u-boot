@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2016, Texas Instruments, Incorporated - http://www.ti.com/
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 quiet_cmd_mkomapsecimg = SECURE  $@
 ifneq ($(TI_SECURE_DEV_PKG),)
 ifneq ($(wildcard $(TI_SECURE_DEV_PKG)/scripts/create-boot-image.sh),)

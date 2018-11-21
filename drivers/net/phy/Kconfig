@@ -13,6 +13,38 @@ menuconfig PHYLIB
 
 if PHYLIB
 
+config PHY_ADDR_ENABLE
+	bool "Limit phy address"
+	default y if ARCH_SUNXI
+	help
+	  Select this if you want to control which phy address is used
+
+if PHY_ADDR_ENABLE
+config PHY_ADDR
+	int "PHY address"
+	default 1 if ARCH_SUNXI
+	default 0
+	help
+	  The address of PHY on MII bus. Usually in range of 0 to 31.
+endif
+
+config B53_SWITCH
+	bool "Broadcom BCM53xx (RoboSwitch) Ethernet switch PHY support."
+	help
+	  Enable support for Broadcom BCM53xx (RoboSwitch) Ethernet switches.
+	  This currently supports BCM53125 and similar models.
+
+if B53_SWITCH
+
+config B53_CPU_PORT
+	int "CPU port"
+	default 8
+
+config B53_PHY_PORTS
+	hex "Bitmask of PHY ports"
+
+endif # B53_SWITCH
+
 config MV88E61XX_SWITCH
 	bool "Marvel MV88E61xx Ethernet switch PHY support."
 
@@ -32,8 +64,32 @@ endif # MV88E61XX_SWITCH
 config PHYLIB_10G
 	bool "Generic 10G PHY support"
 
-config PHY_AQUANTIA
+menuconfig PHY_AQUANTIA
 	bool "Aquantia Ethernet PHYs support"
+	select PHY_GIGE
+	select PHYLIB_10G
+
+config PHY_AQUANTIA_UPLOAD_FW
+	bool "Aquantia firmware loading support"
+	default n
+	depends on PHY_AQUANTIA
+	help
+		Aquantia PHYs use firmware which can be either loaded automatically
+		from storage directly attached to the phy or loaded by the boot loader
+		via MDIO commands.  The firmware is loaded from a file, specified by
+		the PHY_AQUANTIA_FW_PART and PHY_AQUANTIA_FW_NAME options.
+
+config PHY_AQUANTIA_FW_PART
+	string "Aquantia firmware partition"
+	depends on PHY_AQUANTIA_UPLOAD_FW
+	help
+		Partition containing the firmware file.
+
+config PHY_AQUANTIA_FW_NAME
+	string "Aquantia firmware filename"
+	depends on PHY_AQUANTIA_UPLOAD_FW
+	help
+		Firmware filename.
 
 config PHY_ATHEROS
 	bool "Atheros Ethernet PHYs support"
@@ -114,6 +170,16 @@ config PHY_NATSEMI
 
 config PHY_REALTEK
 	bool "Realtek Ethernet PHYs support"
+
+config RTL8211E_PINE64_GIGABIT_FIX
+	bool "Fix gigabit throughput on some Pine64+ models"
+	depends on PHY_REALTEK
+	help
+	  Configure the Realtek RTL8211E found on some Pine64+ models differently to
+	  fix throughput on Gigabit links, turning off all internal delays in the
+	  process. The settings that this touches are not documented in the CONFREG
+	  section of the RTL8211E datasheet, but come from Realtek by way of the
+	  Pine64 engineering team.
 
 config RTL8211X_PHY_FORCE_MASTER
 	bool "Ethernet PHY RTL8211x: force 1000BASE-T master mode"

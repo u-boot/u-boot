@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015, Google, Inc
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -29,11 +28,10 @@ static int pci_mmc_probe(struct udevice *dev)
 	struct pci_mmc_plat *plat = dev_get_platdata(dev);
 	struct pci_mmc_priv *priv = dev_get_priv(dev);
 	struct sdhci_host *host = &priv->host;
-	u32 ioaddr;
 	int ret;
 
-	dm_pci_read_config32(dev, PCI_BASE_ADDRESS_0, &ioaddr);
-	host->ioaddr = map_sysmem(ioaddr, 0);
+	host->ioaddr = (void *)dm_pci_map_bar(dev, PCI_BASE_ADDRESS_0,
+					      PCI_REGION_MEM);
 	host->name = dev->name;
 	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
 	if (ret)

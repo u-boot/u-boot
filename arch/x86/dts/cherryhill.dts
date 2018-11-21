@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
@@ -11,6 +10,7 @@
 
 /include/ "skeleton.dtsi"
 /include/ "serial.dtsi"
+/include/ "reset.dtsi"
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
@@ -76,8 +76,6 @@
 		pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,pch9";
-			#address-cells = <1>;
-			#size-cells = <1>;
 
 			irq-router {
 				compatible = "intel,irq-router";

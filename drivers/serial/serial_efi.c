@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -18,7 +17,7 @@
 
 /* Information about the efi console */
 struct serial_efi_priv {
-	struct efi_simple_input_interface *con_in;
+	struct efi_simple_text_input_protocol *con_in;
 	struct efi_simple_text_output_protocol *con_out;
 	struct efi_input_key key;
 	bool have_key;

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SoC-specific lowlevel code for tms320dm365 and similar chips
  * Actually used for booting from NAND with nand_spl.
  *
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <nand.h>

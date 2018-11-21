@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2003
  * David Müller ELSOFT AG Switzerland. d.mueller@elsoft.ch
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -11,8 +10,6 @@
 
 #include <common.h>
 #include <command.h>
-
-#if (defined(CONFIG_CMD_DATE))
 
 #include <asm/arch/s3c24x0_cpu.h>
 
@@ -150,5 +147,3 @@ void rtc_reset(void)
 	writeb((readb(&rtc->rtccon) & ~0x06) | 0x08, &rtc->rtccon);
 	writeb(readb(&rtc->rtccon) & ~(0x08 | 0x01), &rtc->rtccon);
 }
-
-#endif

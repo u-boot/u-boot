@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * ISEE 2007 SL, <www.iseebcn.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _IGEP00X0_H_
 #define _IGEP00X0_H_

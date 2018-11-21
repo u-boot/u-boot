@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Timing and Organization details of the Elpida parts used in OMAP4
  * SDPs and Panda
@@ -6,8 +7,6 @@
  * Texas Instruments, <www.ti.com>
  *
  * Aneesh V <aneesh@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/emif.h>

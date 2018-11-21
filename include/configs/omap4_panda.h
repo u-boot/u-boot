@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Texas Instruments Incorporated.
@@ -5,8 +6,6 @@
  *
  * Configuration settings for the TI OMAP4 Panda board.
  * See ti_omap4_common.h for OMAP4 common part
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_PANDA_H
@@ -30,7 +29,6 @@
 
 /* ENV related config options */
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_ENV_OVERWRITE
 
 #endif /* __CONFIG_PANDA_H */

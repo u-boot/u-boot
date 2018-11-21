@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000 - 2013
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 Summary:
 ========
@@ -143,6 +141,7 @@ Directory Hierarchy:
   /nios2		Files generic to Altera NIOS2 architecture
   /openrisc		Files generic to OpenRISC architecture
   /powerpc		Files generic to PowerPC architecture
+  /riscv		Files generic to RISC-V architecture
   /sandbox		Files generic to HW-independent "sandbox"
   /sh			Files generic to SH architecture
   /x86			Files generic to x86 architecture
@@ -331,11 +330,6 @@ The following options need to be configured:
 - CPU Type:	Define exactly one, e.g. CONFIG_MPC85XX.
 
 - Board Type:	Define exactly one, e.g. CONFIG_MPC8540ADS.
-
-- Marvell Family Member
-		CONFIG_SYS_MVFS		- define it if you want to enable
-					  multiple fs option at one time
-					  for marvell soc family
 
 - 85xx CPU Options:
 		CONFIG_SYS_PPC64
@@ -534,25 +528,6 @@ The following options need to be configured:
 		pointer. This is needed for the temporary stack before
 		relocation.
 
-		CONFIG_SYS_MIPS_CACHE_MODE
-
-		Cache operation mode for the MIPS CPU.
-		See also arch/mips/include/asm/mipsregs.h.
-		Possible values are:
-			CONF_CM_CACHABLE_NO_WA
-			CONF_CM_CACHABLE_WA
-			CONF_CM_UNCACHED
-			CONF_CM_CACHABLE_NONCOHERENT
-			CONF_CM_CACHABLE_CE
-			CONF_CM_CACHABLE_COW
-			CONF_CM_CACHABLE_CUW
-			CONF_CM_CACHABLE_ACCELERATED
-
-		CONFIG_SYS_XWAY_EBU_BOOTCFG
-
-		Special option for Lantiq XWAY SoCs for booting from NOR flash.
-		See also arch/mips/cpu/mips32/start.S.
-
 		CONFIG_XWAY_SWAP_BYTES
 
 		Enable compilation of tools/xway-swap-bytes needed for Lantiq
@@ -712,22 +687,6 @@ The following options need to be configured:
 		as a convenience, when switching between booting from
 		RAM and NFS.
 
-- Bootcount:
-		CONFIG_BOOTCOUNT_LIMIT
-		Implements a mechanism for detecting a repeating reboot
-		cycle, see:
-		http://www.denx.de/wiki/view/DULG/UBootBootCountLimit
-
-		CONFIG_BOOTCOUNT_ENV
-		If no softreset save registers are found on the hardware
-		"bootcount" is stored in the environment. To prevent a
-		saveenv on all reboots, the environment variable
-		"upgrade_available" is used. If "upgrade_available" is
-		0, "bootcount" is always 0, if "upgrade_available" is
-		1 "bootcount" is incremented in the environment.
-		So the Userspace Applikation must set the "upgrade_available"
-		and "bootcount" variable to 0, if a boot was successfully.
-
 - Pre-Boot Commands:
 		CONFIG_PREBOOT
 
@@ -827,14 +786,6 @@ The following options need to be configured:
 		CONFIG_AT91_HW_WDT_TIMEOUT
 		specify the timeout in seconds. default 2 seconds.
 
-- U-Boot Version:
-		CONFIG_VERSION_VARIABLE
-		If this variable is defined, an environment variable
-		named "ver" is created by U-Boot showing the U-Boot
-		version as printed by the "version" command.
-		Any change to this variable will be reverted at the
-		next reset.
-
 - Real-Time Clock:
 
 		When CONFIG_CMD_DATE is selected, the type of the RTC
@@ -904,9 +855,6 @@ The following options need to be configured:
 		CONFIG_EFI_PARTITION   GPT partition table, common when EFI is the
 				       bootloader.  Note 2TB partition limit; see
 				       disk/part_efi.c
-		CONFIG_MTD_PARTITIONS  Memory Technology Device partition table.
-
-		If IDE or SCSI support is enabled (CONFIG_IDE or
 		CONFIG_SCSI) you must configure support for at
 		least one non-MTD partition type as well.
 
@@ -1009,9 +957,6 @@ The following options need to be configured:
 			CONFIG_SMC_USE_IOFUNCS
 			Define this to use i/o functions instead of macros
 			(some hardware wont work with macros)
-
-		CONFIG_DRIVER_TI_EMAC
-		Support for davinci emac
 
 			CONFIG_SYS_DAVINCI_EMAC_PHY_COUNT
 			Define this if you have more then 3 PHYs.
@@ -1197,12 +1142,8 @@ The following options need to be configured:
 		CONFIG_SUPPORT_EMMC_BOOT
 		Enable some additional features of the eMMC boot partitions.
 
-		CONFIG_SUPPORT_EMMC_RPMB
-		Enable the commands for reading, writing and programming the
-		key for the Replay Protection Memory Block partition in eMMC.
-
 - USB Device Firmware Update (DFU) class support:
-		CONFIG_USB_FUNCTION_DFU
+		CONFIG_DFU_OVER_USB
 		This enables the USB portion of the DFU USB class
 
 		CONFIG_DFU_MMC
@@ -1435,10 +1376,6 @@ The following options need to be configured:
 		be at least 4MB.
 
 - MII/PHY support:
-		CONFIG_PHY_ADDR
-
-		The address of PHY on MII bus.
-
 		CONFIG_PHY_CLOCK_FREQ (ppc4xx)
 
 		The clock frequency of the MII bus
@@ -1542,14 +1479,8 @@ The following options need to be configured:
 		You can fine tune the DHCP functionality by defining
 		CONFIG_BOOTP_* symbols:
 
-		CONFIG_BOOTP_SUBNETMASK
-		CONFIG_BOOTP_GATEWAY
-		CONFIG_BOOTP_HOSTNAME
 		CONFIG_BOOTP_NISDOMAIN
-		CONFIG_BOOTP_BOOTPATH
 		CONFIG_BOOTP_BOOTFILESIZE
-		CONFIG_BOOTP_DNS
-		CONFIG_BOOTP_DNS2
 		CONFIG_BOOTP_SEND_HOSTNAME
 		CONFIG_BOOTP_NTPSERVER
 		CONFIG_BOOTP_TIMEOFFSET
@@ -1564,15 +1495,6 @@ The following options need to be configured:
 		instead of starting over.  This can be used to fail over
 		to Link-local IP address configuration if the DHCP server
 		is not available.
-
-		CONFIG_BOOTP_DNS2 - If a DHCP client requests the DNS
-		serverip from a DHCP server, it is possible that more
-		than one DNS serverip is offered to the client.
-		If CONFIG_BOOTP_DNS2 is enabled, the secondary DNS
-		serverip will be stored in the additional environment
-		variable "dnsip2". The first DNS serverip is always
-		stored in the variable "dnsip", when CONFIG_BOOTP_DNS
-		is defined.
 
 		CONFIG_BOOTP_SEND_HOSTNAME - Some DHCP servers are capable
 		to do a dynamic update of a DNS server. To do this, they
@@ -2000,11 +1922,6 @@ The following options need to be configured:
 		SPI EEPROM, also an instance works with Crystal A/D and
 		D/As on the SACSng board)
 
-		CONFIG_SH_SPI
-
-		Enables the driver for SPI controller on SuperH. Currently
-		only SH7757 is supported.
-
 		CONFIG_SOFT_SPI
 
 		Enables a software (bit-bang) SPI driver rather than
@@ -2022,11 +1939,6 @@ The following options need to be configured:
 		must define a list of chip-select function pointers.
 		Currently supported on some MPC8xxx processors.	 For an
 		example, see include/configs/mpc8349emds.h.
-
-		CONFIG_MXC_SPI
-
-		Enables the driver for the SPI controllers on i.MX and MXC
-		SoCs. Currently i.MX31/35/51 are supported.
 
 		CONFIG_SYS_SPI_MXC_WAIT
 		Timeout for waiting until spi transfer completed.
@@ -2196,10 +2108,6 @@ The following options need to be configured:
 		#define CONFIG_NFS_TIMEOUT 10000UL
 
 - Command Interpreter:
-		CONFIG_AUTO_COMPLETE
-
-		Enable auto completion of commands using TAB.
-
 		CONFIG_SYS_PROMPT_HUSH_PS2
 
 		This defines the secondary prompt string, which is
@@ -2228,12 +2136,6 @@ The following options need to be configured:
 		symbols.
 
 - Command Line Editing and History:
-		CONFIG_CMDLINE_EDITING
-
-		Enable editing and History functions for interactive
-		command line input operations
-
-- Command Line PS1/PS2 support:
 		CONFIG_CMDLINE_PS_SUPPORT
 
 		Enable support for changing the command prompt string
@@ -2267,26 +2169,6 @@ The following options need to be configured:
 		the environment like the "source" command or the
 		boot command first.
 
-		CONFIG_ENV_VARS_UBOOT_CONFIG
-
-		Define this in order to add variables describing the
-		U-Boot build configuration to the default environment.
-		These will be named arch, cpu, board, vendor, and soc.
-
-		Enabling this option will cause the following to be defined:
-
-		- CONFIG_SYS_ARCH
-		- CONFIG_SYS_CPU
-		- CONFIG_SYS_BOARD
-		- CONFIG_SYS_VENDOR
-		- CONFIG_SYS_SOC
-
-		CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
-		Define this in order to add variables describing certain
-		run-time determined information about the hardware to the
-		environment.  These will be named board_name, board_rev.
-
 		CONFIG_DELAY_ENVIRONMENT
 
 		Normally the environment is loaded when the board is
@@ -2310,18 +2192,6 @@ The following options need to be configured:
 		CONFIG_SF_DEFAULT_MODE 		(see include/spi.h)
 		CONFIG_SF_DEFAULT_SPEED		in Hz
 
-		CONFIG_SYSTEMACE
-
-		Adding this option adds support for Xilinx SystemACE
-		chips attached via some sort of local bus. The address
-		of the chip must also be defined in the
-		CONFIG_SYS_SYSTEMACE_BASE macro. For example:
-
-		#define CONFIG_SYSTEMACE
-		#define CONFIG_SYS_SYSTEMACE_BASE 0xf0000000
-
-		When SystemACE support is added, the "ace" device type
-		becomes available to the fat commands, i.e. fatls.
 
 - TFTP Fixed UDP Port:
 		CONFIG_TFTP_PORT
@@ -2342,32 +2212,6 @@ The following options need to be configured:
 		the remainder of the TFTP transfer to proceed normally.
 		A better solution is to properly configure the firewall,
 		but sometimes that is not allowed.
-
-- bootcount support:
-		CONFIG_BOOTCOUNT_LIMIT
-
-		This enables the bootcounter support, see:
-		http://www.denx.de/wiki/DULG/UBootBootCountLimit
-
-		CONFIG_AT91SAM9XE
-		enable special bootcounter support on at91sam9xe based boards.
-		CONFIG_SOC_DA8XX
-		enable special bootcounter support on da850 based boards.
-		CONFIG_BOOTCOUNT_RAM
-		enable support for the bootcounter in RAM
-		CONFIG_BOOTCOUNT_I2C
-		enable support for the bootcounter on an i2c (like RTC) device.
-			CONFIG_SYS_I2C_RTC_ADDR = i2c chip address
-			CONFIG_SYS_BOOTCOUNT_ADDR = i2c addr which is used for
-						    the bootcounter.
-			CONFIG_BOOTCOUNT_ALEN = address len
-		CONFIG_BOOTCOUNT_EXT
-		enable support for the bootcounter in EXT filesystem
-			CONFIG_SYS_BOOTCOUNT_ADDR = RAM address used for read
-                                                    and write.
-			CONFIG_SYS_BOOTCOUNT_EXT_INTERFACE = interface
-			CONFIG_SYS_BOOTCOUNT_EXT_DEVPART = device and part
-			CONFIG_SYS_BOOTCOUNT_EXT_NAME = filename
 
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
@@ -2533,19 +2377,6 @@ FIT uImage format:
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
 
-- legacy image format:
-		CONFIG_IMAGE_FORMAT_LEGACY
-		enables the legacy image format support in U-Boot.
-
-		Default:
-		enabled if CONFIG_FIT_SIGNATURE is not defined.
-
-		CONFIG_DISABLE_IMAGE_LEGACY
-		disable the legacy image format
-
-		This define is introduced, as the legacy image format is
-		enabled per default for backward compatibility.
-
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR
 
@@ -2577,23 +2408,6 @@ FIT uImage format:
 		for a more detailed description refer to doc/README.update.
 
 - MTD Support (mtdparts command, UBI support)
-		CONFIG_MTD_DEVICE
-
-		Adds the MTD device infrastructure from the Linux kernel.
-		Needed for mtdparts command support.
-
-		CONFIG_MTD_PARTITIONS
-
-		Adds the MTD partitioning infrastructure from the Linux
-		kernel. Needed for UBI support.
-
-- UBI support
-		CONFIG_UBI_SILENCE_MSG
-
-		Make the verbose messages from UBI stop printing.  This leaves
-		warnings and errors enabled.
-
-
 		CONFIG_MTD_UBI_WL_THRESHOLD
 		This parameter defines the maximum difference between the highest
 		erase counter value and the lowest erase counter value of eraseblocks
@@ -2654,12 +2468,6 @@ FIT uImage format:
 		CONFIG_MTD_UBI_FM_DEBUG
 		Enable UBI fastmap debug
 		default: 0
-
-- UBIFS support
-		CONFIG_UBIFS_SILENCE_MSG
-
-		Make the verbose messages from UBIFS stop printing.  This leaves
-		warnings and errors enabled.
 
 - SPL framework
 		CONFIG_SPL
@@ -2725,11 +2533,6 @@ FIT uImage format:
 		CONFIG_SYS_SPL_MALLOC_SIZE
 		The size of the malloc pool used in SPL.
 
-		CONFIG_SPL_FRAMEWORK
-		Enable the SPL framework under common/.  This framework
-		supports MMC, NAND and YMODEM loading of U-Boot and NAND
-		NAND loading of the Linux Kernel.
-
 		CONFIG_SPL_OS_BOOT
 		Enable booting directly to an OS from SPL.
 		See also: doc/README.falcon
@@ -2785,6 +2588,10 @@ FIT uImage format:
 
 		CONFIG_SPL_NAND_DRIVERS
 		SPL uses normal NAND drivers, not minimal drivers.
+
+		CONFIG_SPL_NAND_IDENT
+		SPL uses the chip ID list to identify the NAND flash.
+		Requires CONFIG_SPL_NAND_BASE.
 
 		CONFIG_SPL_NAND_ECC
 		Include standard software ECC in the SPL
@@ -2847,7 +2654,7 @@ FIT uImage format:
 		use an arch-specific makefile fragment instead, for
 		example if more than one image needs to be produced.
 
-		CONFIG_FIT_SPL_PRINT
+		CONFIG_SPL_FIT_PRINT
 		Printing information about a FIT image adds quite a bit of
 		code to SPL. So this is normally disabled in SPL. Use this
 		option to re-enable it. This will affect the output of the
@@ -2924,9 +2731,6 @@ Configuration Settings:
 - CONFIG_SYS_MEMTEST_START, CONFIG_SYS_MEMTEST_END:
 		Begin and End addresses of the area used by the
 		simple memory test.
-
-- CONFIG_SYS_ALT_MEMTEST:
-		Enable an alternate, more extensive memory test.
 
 - CONFIG_SYS_MEMTEST_SCRATCH:
 		Scratch address used by the alternate memory test
@@ -3192,11 +2996,6 @@ Configuration Settings:
 	If defined, don't allow the -f switch to env set override variable
 	access flags.
 
-- CONFIG_USE_STDINT
-	If stdint.h is available with your toolchain you can define this
-	option to enable it. You can provide option 'USE_STDINT=1' when
-	building U-Boot to enable this.
-
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
 following configurations:
@@ -3438,8 +3237,8 @@ Low Level (hardware related) configuration options:
 		a 16 bit bus.
 		Not all NAND drivers use this symbol.
 		Example of drivers that use it:
-		- drivers/mtd/nand/ndfc.c
-		- drivers/mtd/nand/mxc_nand.c
+		- drivers/mtd/nand/raw/ndfc.c
+		- drivers/mtd/nand/raw/mxc_nand.c
 
 - CONFIG_SYS_NDFC_EBC0_CFG
 		Sets the EBC0_CFG register for the NDFC. If not defined
@@ -3510,7 +3309,7 @@ Low Level (hardware related) configuration options:
 		globally (CONFIG_CMD_MEMORY).
 
 - CONFIG_SKIP_LOWLEVEL_INIT
-		[ARM, NDS32, MIPS only] If this variable is defined, then certain
+		[ARM, NDS32, MIPS, RISC-V only] If this variable is defined, then certain
 		low level initializations (like setting up the memory
 		controller) are omitted and/or U-Boot does not
 		relocate itself into RAM.
@@ -3553,13 +3352,10 @@ Low Level (hardware related) configuration options:
 		If defined, the x86 reset vector code is included. This is not
 		needed when U-Boot is running from Coreboot.
 
-- CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC:
-		Enables the RTC32K OSC on AM33xx based plattforms
-
 - CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
 		Option to disable subpage write in NAND driver
 		driver that uses this:
-		drivers/mtd/nand/davinci_nand.c
+		drivers/mtd/nand/raw/davinci_nand.c
 
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
@@ -3718,6 +3514,11 @@ this behavior and build U-Boot to some external directory:
 Note that the command line "O=" setting overrides the KBUILD_OUTPUT environment
 variable.
 
+User specific CPPFLAGS, AFLAGS and CFLAGS can be passed to the compiler by
+setting the according environment variables KCPPFLAGS, KAFLAGS and KCFLAGS.
+For example to treat all compiler warnings as errors:
+
+	make KCFLAGS=-Werror
 
 Please be aware that the Makefiles assume you are using GNU make, so
 for instance on NetBSD you might need to use "gmake" instead of
@@ -4115,6 +3916,17 @@ If CONFIG_REGEX is defined, the variable_name above is evaluated as a
 regular expression. This allows multiple variables to be connected to
 the same callback without explicitly listing them all out.
 
+The signature of the callback functions is:
+
+    int callback(const char *name, const char *value, enum env_op op, int flags)
+
+* name - changed environment variable
+* value - new value of the environment variable
+* op - operation (create, overwrite, or delete)
+* flags - attributes of the environment variable change, see flags H_* in
+  include/search.h
+
+The return value is 0 if the variable change is accepted and 1 otherwise.
 
 Command Line Parsing:
 =====================
@@ -4963,6 +4775,22 @@ On NDS32, the following registers are used:
 
 NOTE: DECLARE_GLOBAL_DATA_PTR must be used with file-global scope,
 or current versions of GCC may "optimize" the code too much.
+
+On RISC-V, the following registers are used:
+
+	x0: hard-wired zero (zero)
+	x1: return address (ra)
+	x2:	stack pointer (sp)
+	x3:	global pointer (gp)
+	x4:	thread pointer (tp)
+	x5:	link register (t0)
+	x8:	frame pointer (fp)
+	x10-x11:	arguments/return values (a0-1)
+	x12-x17:	arguments (a2-7)
+	x28-31:	 temporaries (t3-6)
+	pc:	program counter (pc)
+
+    ==> U-Boot will use gp to hold a pointer to the global data
 
 Memory Management:
 ------------------

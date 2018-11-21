@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011 Freescale Semiconductor, Inc. All Rights Reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ASM_ARCH_MXC_MXC_I2C_H__
 #define __ASM_ARCH_MXC_MXC_I2C_H__
@@ -88,8 +87,7 @@ struct mxc_i2c_bus {
 
 
 #define I2C_PADS_INFO(name)	\
-	(is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) ? \
-					&mx6q_##name : &mx6s_##name
+	(is_mx6dq() || is_mx6dqp()) ? &mx6q_##name : &mx6s_##name
 #endif
 
 int setup_i2c(unsigned i2c_index, int speed, int slave_addr,

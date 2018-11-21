@@ -1,13 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Device Tree Include file for Freescale Layerscape-1046A family SoC.
  *
  * Copyright (C) 2016, Freescale Semiconductor
  *
  * Mingkai Hu <mingkai.hu@nxp.com>
- *
- * This file is licensed under the terms of the GNU General Public
- * License version 2.  This program is licensed "as is" without any
- * warranty of any kind, whether express or implied.
  */
 
 /include/ "skeleton64.dtsi"
@@ -71,6 +68,14 @@
 			num-cs = <6>;
 			big-endian;
 			status = "disabled";
+		};
+
+		esdhc: esdhc@1560000 {
+			compatible = "fsl,esdhc";
+			reg = <0x0 0x1560000 0x0 0x10000>;
+			interrupts = <0 62 0x4>;
+			big-endian;
+			bus-width = <4>;
 		};
 
 		ifc: ifc@1530000 {

@@ -1,8 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2007 Semihalf
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+
+# Provide symbol API_BUILD to signal that the API example is being built.
+KBUILD_CPPFLAGS += -DAPI_BUILD
 
 ifeq ($(ARCH),powerpc)
 LOAD_ADDR = 0x40000
@@ -31,6 +32,7 @@ OBJ-y += libgenwrap.o
 EXT_COBJ-y += lib/crc32.o
 EXT_COBJ-y += lib/ctype.o
 EXT_COBJ-y += lib/div64.o
+EXT_COBJ-y += lib/hexdump.o
 EXT_COBJ-y += lib/string.o
 EXT_COBJ-y += lib/time.o
 EXT_COBJ-y += lib/vsprintf.o

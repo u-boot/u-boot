@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2005,2010-2011 Freescale Semiconductor, Inc.
  *
@@ -6,8 +7,6 @@
  * Description: UCC GETH Driver -- PHY handling
  *		Driver for UEC on QE
  *		Based on 8260_io/fcc_enet.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

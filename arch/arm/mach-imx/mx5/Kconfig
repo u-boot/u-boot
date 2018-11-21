@@ -1,23 +1,37 @@
 if ARCH_MX5
 
 config MX5
-	select GPT_TIMER
 	bool
 	default y
+	select GPT_TIMER
 
 config MX51
 	bool
+	select ARM_CORTEX_A8_CVE_2017_5715
 	select SYS_FSL_ERRATUM_ESDHC_A001
 
 config MX53
 	bool
+	select ARM_CORTEX_A8_CVE_2017_5715
 
 choice
 	prompt "MX5 board select"
 	optional
 
-config TARGET_M53EVK
-	bool "Support m53evk"
+config TARGET_KP_IMX53
+	bool "Support K+P imx53 board"
+	select BOARD_LATE_INIT
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_PMIC
+	select DM_SERIAL
+	select MX53
+	imply CMD_DM
+
+config TARGET_M53MENLO
+	bool "Support m53menlo"
 	select MX53
 	select SUPPORT_SPL
 
@@ -33,9 +47,10 @@ config TARGET_MX53ARD
 config TARGET_MX53CX9020
 	bool "Support CX9020"
 	select BOARD_LATE_INIT
-	select MX53
 	select DM
 	select DM_SERIAL
+	select MX53
+	imply CMD_DM
 
 config TARGET_MX53EVK
 	bool "Support mx53evk"
@@ -70,7 +85,6 @@ endchoice
 config SYS_SOC
 	default "mx5"
 
-source "board/aries/m53evk/Kconfig"
 source "board/beckhoff/mx53cx9020/Kconfig"
 source "board/freescale/mx51evk/Kconfig"
 source "board/freescale/mx53ard/Kconfig"
@@ -79,6 +93,8 @@ source "board/freescale/mx53loco/Kconfig"
 source "board/freescale/mx53smd/Kconfig"
 source "board/ge/mx53ppd/Kconfig"
 source "board/inversepath/usbarmory/Kconfig"
+source "board/k+p/kp_imx53/Kconfig"
+source "board/menlo/m53menlo/Kconfig"
 source "board/technologic/ts4800/Kconfig"
 
 endif

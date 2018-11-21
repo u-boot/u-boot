@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -13,8 +12,6 @@
 #define __CONFIG_H
 
 #define CONFIG_QEMU_MIPS
-
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
@@ -32,9 +29,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
@@ -47,7 +41,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		115200
 #define CONFIG_SYS_NS16550_COM1		0xb40003f8
-#define CONFIG_CONS_INDEX		1
 
 #ifdef CONFIG_SYS_BIG_ENDIAN
 #define CONFIG_IDE_SWAP_IO
@@ -65,10 +58,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 
@@ -99,9 +88,6 @@
 #define CONFIG_SYS_FLASH_BASE		0xbfc00000
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	128
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 /* Address and size of Primary Environment Sector */
 #define CONFIG_ENV_SIZE		0x8000

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014, 2015 O.S. Systems Software LTDA.
  * Copyright (C) 2014 Kynetics LLC.
  * Copyright (C) 2014 Revolution Robotics, Inc.
  *
  * Author: Otavio Salvador <otavio@ossystems.com.br>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>

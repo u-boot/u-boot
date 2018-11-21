@@ -50,6 +50,9 @@ typedef unsigned long ulong;
 #endif
 #ifdef __FreeBSD__
 # include <sys/endian.h> /* htole32 and friends */
+# define __BYTE_ORDER BYTE_ORDER
+# define __LITTLE_ENDIAN LITTLE_ENDIAN
+# define __BIG_ENDIAN BIG_ENDIAN
 #elif defined(__OpenBSD__)
 # include <endian.h>
 # define __BYTE_ORDER BYTE_ORDER
@@ -117,13 +120,8 @@ typedef unsigned int uint;
 
 #else /* !USE_HOSTCC */
 
-#ifdef CONFIG_USE_STDINT
-/* Provided by gcc. */
-#include <stdint.h>
-#else
 /* Type for `void *' pointers. */
 typedef unsigned long int uintptr_t;
-#endif
 
 #include <linux/string.h>
 #include <linux/types.h>

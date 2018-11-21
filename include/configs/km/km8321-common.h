@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2006 Freescale Semiconductor, Inc.
  *                    Dave Liu <daveliu@freescale.com>
@@ -16,8 +17,6 @@
  *
  * (C) Copyright 2010-2011
  * Thomas Reufer, KEYMILE Ltd, thomas.reufer@keymile.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_KM8321_COMMON_H

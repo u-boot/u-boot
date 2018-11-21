@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2008 RuggedCom, Inc.
  * Richard Retanubun <RichardRetanubun@RuggedCom.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -15,7 +14,6 @@
 #include <command.h>
 #include <fdtdec.h>
 #include <ide.h>
-#include <inttypes.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <part_efi.h>
@@ -24,7 +22,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef HAVE_BLOCK_DEVICE
+/*
+ * GUID for basic data partions.
+ */
+static const efi_guid_t partition_basic_data_guid = PARTITION_BASIC_DATA_GUID;
+
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 /**
  * efi_crc32() - EFI version of crc32 function
  * @buf: buffer to calculate crc32 of
@@ -79,11 +82,11 @@ static int validate_gpt_header(gpt_header *gpt_h, lbaint_t lba,
 	uint32_t calc_crc32;
 
 	/* Check the GPT header signature */
-	if (le64_to_cpu(gpt_h->signature) != GPT_HEADER_SIGNATURE) {
+	if (le64_to_cpu(gpt_h->signature) != GPT_HEADER_SIGNATURE_UBOOT) {
 		printf("%s signature is wrong: 0x%llX != 0x%llX\n",
 		       "GUID Partition Table Header",
 		       le64_to_cpu(gpt_h->signature),
-		       GPT_HEADER_SIGNATURE);
+		       GPT_HEADER_SIGNATURE_UBOOT);
 		return -1;
 	}
 
@@ -351,8 +354,6 @@ static int set_protective_mbr(struct blk_desc *dev_desc)
 {
 	/* Setup the Protective MBR */
 	ALLOC_CACHE_ALIGN_BUFFER_PAD(legacy_mbr, p_mbr, 1, dev_desc->blksz);
-	memset(p_mbr, 0, sizeof(*p_mbr));
-
 	if (p_mbr == NULL) {
 		printf("%s: calloc failed!\n", __func__);
 		return -1;
@@ -363,6 +364,10 @@ static int set_protective_mbr(struct blk_desc *dev_desc)
 		pr_err("** Can't read from device %d **\n", dev_desc->devnum);
 		return -1;
 	}
+
+	/* Clear all data in MBR except of backed up boot code */
+	memset((char *)p_mbr + MSDOS_MBR_BOOT_CODE_SIZE, 0, sizeof(*p_mbr) -
+			MSDOS_MBR_BOOT_CODE_SIZE);
 
 	/* Append signature */
 	p_mbr->signature = MSDOS_MBR_SIGNATURE;
@@ -501,12 +506,12 @@ int gpt_fill_pte(struct blk_desc *dev_desc,
 		} else {
 			/* default partition type GUID */
 			memcpy(bin_type_guid,
-			       &PARTITION_BASIC_DATA_GUID, 16);
+			       &partition_basic_data_guid, 16);
 		}
 #else
 		/* partition type GUID */
 		memcpy(gpt_e[i].partition_type_guid.b,
-			&PARTITION_BASIC_DATA_GUID, 16);
+			&partition_basic_data_guid, 16);
 #endif
 
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
@@ -598,7 +603,7 @@ static uint32_t partition_entries_offset(struct blk_desc *dev_desc)
 int gpt_fill_header(struct blk_desc *dev_desc, gpt_header *gpt_h,
 		char *str_guid, int parts_count)
 {
-	gpt_h->signature = cpu_to_le64(GPT_HEADER_SIGNATURE);
+	gpt_h->signature = cpu_to_le64(GPT_HEADER_SIGNATURE_UBOOT);
 	gpt_h->revision = cpu_to_le32(GPT_HEADER_REVISION_V1);
 	gpt_h->header_size = cpu_to_le32(sizeof(gpt_header));
 	gpt_h->my_lba = cpu_to_le64(1);

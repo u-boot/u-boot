@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2009 Wind River Systems, Inc.
  * Tom Rix <Tom.Rix at windriver.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * twl4030_led_init is from cpu/omap3/common.c, power_init_r
  *

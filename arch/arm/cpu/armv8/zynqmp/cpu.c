@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 - 2015 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -84,7 +83,7 @@ void mem_map_fill(void)
 
 #if !defined(CONFIG_ZYNQMP_NO_DDR)
 	for (int i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		/* Skip empty banks */
+		/* Zero size means no more DDR that's this is end */
 		if (!gd->bd->bi_dram[i].size)
 			break;
 
@@ -144,12 +143,8 @@ unsigned int zynqmp_get_silicon_version(void)
 	gd->cpu_clk = get_tbclk();
 
 	switch (gd->cpu_clk) {
-	case 0 ... 1000000:
-		return ZYNQMP_CSU_VERSION_VELOCE;
 	case 50000000:
 		return ZYNQMP_CSU_VERSION_QEMU;
-	case 4000000:
-		return ZYNQMP_CSU_VERSION_EP108;
 	}
 
 	return ZYNQMP_CSU_VERSION_SILICON;
@@ -215,8 +210,12 @@ static int zynqmp_mmio_rawwrite(const u32 address,
 {
 	u32 data;
 	u32 value_local = value;
+	int ret;
 
-	zynqmp_mmio_read(address, &data);
+	ret = zynqmp_mmio_read(address, &data);
+	if (ret)
+		return ret;
+
 	data &= ~mask;
 	value_local &= mask;
 	value_local |= data;

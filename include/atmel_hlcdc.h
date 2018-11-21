@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Header file for AT91/AT32 MULTI LAYER LCD Controller
  *
  *  Data structure and register user interface
  *
  *  Copyright (C) 2012 Atmel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ATMEL_HLCDC_H__
 #define __ATMEL_HLCDC_H__

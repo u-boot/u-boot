@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Taken from the linux kernel file of the same name
  *
  * (C) Copyright 2012
  * Graeme Russ, <graeme.russ@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_X86_MSR_INDEX_H

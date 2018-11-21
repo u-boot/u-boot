@@ -1,5 +1,6 @@
 config SCSI
 	bool "Support SCSI controllers"
+	select HAVE_BLOCK_DEVICE
 	help
 	  This enables support for SCSI (Small Computer System Interface),
 	  a parallel interface widely used with storage peripherals such as

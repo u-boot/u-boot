@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015  Thomas Chou <thomas@wytron.com.tw>
  * Copyright (C) 2011  Missing Link Electronics
  *                     Joachim Foerster <joachim@missinglinkelectronics.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <dm.h>

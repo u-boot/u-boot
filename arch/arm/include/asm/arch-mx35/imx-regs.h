@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
  *
  * (C) Copyright 2008-2009 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_MX35_H

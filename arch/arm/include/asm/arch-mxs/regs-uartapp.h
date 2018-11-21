@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Freescale MXS UARTAPP Register Definitions
  *
@@ -5,8 +6,6 @@
  *
  * Based on code from LTIB:
  * Copyright 2008-2010 Freescale Semiconductor, Inc. All Rights Reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ARCH_ARM___MXS_UARTAPP_H

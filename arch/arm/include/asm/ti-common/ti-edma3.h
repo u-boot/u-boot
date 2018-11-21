@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Enhanced Direct Memory Access (EDMA3) Controller
  *
  * (C) Copyright 2014
  *     Texas Instruments Incorporated, <www.ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _EDMA3_H_
@@ -119,5 +118,7 @@ void edma3_set_transfer_params(u32 base, int slot, int acnt,
 			       enum edma3_sync_dimension sync_mode);
 void edma3_transfer(unsigned long edma3_base_addr, unsigned int
 		edma_slot_num, void *dst, void *src, size_t len);
+void edma3_fill(unsigned long edma3_base_addr, unsigned int edma_slot_num,
+		void *dst, u8 val, size_t len);
 
 #endif

@@ -86,7 +86,7 @@ $
 $ mkimage -l kernel.itb
 FIT description: Simple image with single Linux kernel
 Created:	 Tue Mar 11 17:26:15 2008
- Image 0 (kernel@1)
+ Image 0 (kernel)
   Description:	Vanilla Linux kernel
   Type:		Kernel Image
   Compression:	gzip compressed
@@ -99,10 +99,10 @@ Created:	 Tue Mar 11 17:26:15 2008
   Hash value:	2ae2bb40
   Hash algo:	sha1
   Hash value:	3c200f34e2c226ddc789240cca0c59fc54a67cf4
- Default Configuration: 'config@1'
- Configuration 0 (config@1)
+ Default Configuration: 'config-1'
+ Configuration 0 (config-1)
   Description:	Boot Linux kernel
-  Kernel:	kernel@1
+  Kernel:	kernel
 
 
 The resulting image file kernel.itb can be now transferred to the target,
@@ -130,7 +130,7 @@ Bytes transferred = 944464 (e6950 hex)
    FIT image found
    FIT description: Simple image with single Linux kernel
    Created:	    2008-03-11	16:26:15 UTC
-    Image 0 (kernel@1)
+    Image 0 (kernel)
      Description:  Vanilla Linux kernel
      Type:	   Kernel Image
      Compression:  gzip compressed
@@ -144,15 +144,15 @@ Bytes transferred = 944464 (e6950 hex)
      Hash value:   2ae2bb40
      Hash algo:    sha1
      Hash value:   3c200f34e2c226ddc789240cca0c59fc54a67cf4
-    Default Configuration: 'config@1'
-    Configuration 0 (config@1)
+    Default Configuration: 'config-1'
+    Configuration 0 (config-1)
      Description:  Boot Linux kernel
-     Kernel:	   kernel@1
+     Kernel:	   kernel
 
 => bootm
 ## Booting kernel from FIT Image at 00900000 ...
-   Using 'config@1' configuration
-   Trying 'kernel@1' kernel subimage
+   Using 'config-1' configuration
+   Trying 'kernel' kernel subimage
      Description:  Vanilla Linux kernel
      Type:	   Kernel Image
      Compression:  gzip compressed
@@ -196,7 +196,7 @@ $
 $ mkimage -l kernel_fdt.itb
 FIT description: Simple image with single Linux kernel and FDT blob
 Created:	 Tue Mar 11 16:29:22 2008
- Image 0 (kernel@1)
+ Image 0 (kernel)
   Description:	Vanilla Linux kernel
   Type:		Kernel Image
   Compression:	gzip compressed
@@ -209,7 +209,7 @@ Created:	 Tue Mar 11 16:29:22 2008
   Hash value:	2c0cc807
   Hash algo:	sha1
   Hash value:	264b59935470e42c418744f83935d44cdf59a3bb
- Image 1 (fdt@1)
+ Image 1 (fdt-1)
   Description:	Flattened Device Tree blob
   Type:		Flat Device Tree
   Compression:	uncompressed
@@ -219,11 +219,11 @@ Created:	 Tue Mar 11 16:29:22 2008
   Hash value:	0d655d71
   Hash algo:	sha1
   Hash value:	25ab4e15cd4b8a5144610394560d9c318ce52def
- Default Configuration: 'conf@1'
- Configuration 0 (conf@1)
+ Default Configuration: 'conf-1'
+ Configuration 0 (conf-1)
   Description:	Boot Linux kernel with FDT blob
-  Kernel:	kernel@1
-  FDT:		fdt@1
+  Kernel:	kernel
+  FDT:		fdt-1
 
 
 The resulting image file kernel_fdt.itb can be now transferred to the target,
@@ -245,7 +245,7 @@ Bytes transferred = 1109776 (10ef10 hex)
    FIT image found
    FIT description: Simple image with single Linux kernel and FDT blob
    Created:	    2008-03-11	15:29:22 UTC
-    Image 0 (kernel@1)
+    Image 0 (kernel)
      Description:  Vanilla Linux kernel
      Type:	   Kernel Image
      Compression:  gzip compressed
@@ -259,7 +259,7 @@ Bytes transferred = 1109776 (10ef10 hex)
      Hash value:   2c0cc807
      Hash algo:    sha1
      Hash value:   264b59935470e42c418744f83935d44cdf59a3bb
-    Image 1 (fdt@1)
+    Image 1 (fdt-1)
      Description:  Flattened Device Tree blob
      Type:	   Flat Device Tree
      Compression:  uncompressed
@@ -270,15 +270,15 @@ Bytes transferred = 1109776 (10ef10 hex)
      Hash value:   0d655d71
      Hash algo:    sha1
      Hash value:   25ab4e15cd4b8a5144610394560d9c318ce52def
-    Default Configuration: 'conf@1'
-    Configuration 0 (conf@1)
+    Default Configuration: 'conf-1'
+    Configuration 0 (conf-1)
      Description:  Boot Linux kernel with FDT blob
-     Kernel:	   kernel@1
-     FDT:	   fdt@1
+     Kernel:	   kernel
+     FDT:	   fdt-1
 => bootm
 ## Booting kernel from FIT Image at 00900000 ...
-   Using 'conf@1' configuration
-   Trying 'kernel@1' kernel subimage
+   Using 'conf-1' configuration
+   Trying 'kernel' kernel subimage
      Description:  Vanilla Linux kernel
      Type:	   Kernel Image
      Compression:  gzip compressed
@@ -295,8 +295,8 @@ Bytes transferred = 1109776 (10ef10 hex)
    Verifying Hash Integrity ... crc32+ sha1+ OK
    Uncompressing Kernel Image ... OK
 ## Flattened Device Tree from FIT Image at 00900000
-   Using 'conf@1' configuration
-   Trying 'fdt@1' FDT blob subimage
+   Using 'conf-1' configuration
+   Trying 'fdt-1' FDT blob subimage
      Description:  Flattened Device Tree blob
      Type:	   Flat Device Tree
      Compression:  uncompressed

@@ -1,13 +1,13 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _FSL_LIODN_H_
 #define _FSL_LIODN_H_
 
 #include <asm/types.h>
+#include <fsl_qbman.h>
 
 struct srio_liodn_id_table {
 	u32 id[2];
@@ -128,12 +128,14 @@ extern void fdt_fixup_liodn(void *blob);
 		CONFIG_SYS_MPC85xx_TDM_OFFSET)
 
 #define SET_QMAN_LIODN(liodn) \
-	SET_LIODN_ENTRY_1("fsl,qman", liodn, offsetof(ccsr_qman_t, liodnr) + \
+	SET_LIODN_ENTRY_1("fsl,qman", liodn, \
+		offsetof(struct ccsr_qman, liodnr) + \
 		CONFIG_SYS_FSL_QMAN_OFFSET, \
 		CONFIG_SYS_FSL_QMAN_OFFSET)
 
 #define SET_BMAN_LIODN(liodn) \
-	SET_LIODN_ENTRY_1("fsl,bman", liodn, offsetof(ccsr_bman_t, liodnr) + \
+	SET_LIODN_ENTRY_1("fsl,bman", liodn, \
+		offsetof(struct ccsr_bman, liodnr) + \
 		CONFIG_SYS_FSL_BMAN_OFFSET, \
 		CONFIG_SYS_FSL_BMAN_OFFSET)
 

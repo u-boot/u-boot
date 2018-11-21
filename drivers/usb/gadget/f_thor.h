@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * f_thor.h - USB TIZEN THOR - internal gadget definitions
  *
  * Copyright (C) 2013 Samsung Electronics
  * Lukasz Majewski  <l.majewski@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _USB_THOR_H_
@@ -35,7 +34,7 @@ struct usb_cdc_attribute_vendor_descriptor {
 	__u8 DAUValue;
 } __packed;
 
-#define VER_PROTOCOL_MAJOR	4
+#define VER_PROTOCOL_MAJOR	5
 #define VER_PROTOCOL_MINOR	0
 
 enum rqt {

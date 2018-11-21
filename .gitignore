@@ -3,26 +3,30 @@
 # subdirectories here. Add them in the ".gitignore" file
 # in that subdirectory instead.
 #
-# Normal rules
+# Normal rules (sorted alphabetically)
 #
 .*
+*.a
+*.bin
+*.cfgout
+*.dtb
+*.dtb.S
+*.elf
+*.exe
+*.gcda
+*.gcno
+*.i
+*.lex.c
+*.lst
+*.mod.c
 *.o
 *.o.*
-*.a
+*.order
+*.patch
 *.s
 *.su
-*.mod.c
-*.i
-*.lst
-*.order
-*.elf
 *.swp
-*.bin
-*.patch
-*.cfgtmp
-
-# host programs on Cygwin
-*.exe
+*.tab.[ch]
 
 # Build tree
 /build-*
@@ -46,7 +50,6 @@ fit-dtb.blob
 #
 # Generated files
 #
-/LOG
 /spl/
 /tpl/
 /defconfig

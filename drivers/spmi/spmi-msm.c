@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * Qualcomm SPMI bus driver
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
  *
  * Loosely based on Little Kernel driver
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #include <common.h>
@@ -16,6 +15,10 @@
 #include <spmi/spmi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* PMIC Arbiter configuration registers */
+#define PMIC_ARB_VERSION		0x0000
+#define PMIC_ARB_VERSION_V2_MIN		0x20010000
 
 #define ARB_CHANNEL_OFFSET(n)		(0x4 * (n))
 #define SPMI_CH_OFFSET(chnl)		((chnl) * 0x8000)
@@ -148,6 +151,8 @@ static int msm_spmi_probe(struct udevice *dev)
 	struct udevice *parent = dev->parent;
 	struct msm_spmi_priv *priv = dev_get_priv(dev);
 	int node = dev_of_offset(dev);
+	u32 hw_ver;
+	bool is_v1;
 	int i;
 
 	priv->arb_chnl = devfdt_get_addr(dev);
@@ -155,6 +160,12 @@ static int msm_spmi_probe(struct udevice *dev)
 			dev_of_offset(parent), node, "reg", 1, NULL, false);
 	priv->spmi_obs = fdtdec_get_addr_size_auto_parent(gd->fdt_blob,
 			dev_of_offset(parent), node, "reg", 2, NULL, false);
+
+	hw_ver = readl(priv->arb_chnl + PMIC_ARB_VERSION - 0x800);
+	is_v1  = (hw_ver < PMIC_ARB_VERSION_V2_MIN);
+
+	dev_dbg(dev, "PMIC Arb Version-%d (0x%x)\n", (is_v1 ? 1 : 2), hw_ver);
+
 	if (priv->arb_chnl == FDT_ADDR_T_NONE ||
 	    priv->spmi_core == FDT_ADDR_T_NONE ||
 	    priv->spmi_obs == FDT_ADDR_T_NONE)

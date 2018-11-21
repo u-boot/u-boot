@@ -1,15 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) Marvell International Ltd. and its affiliates
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _XOR_H
 #define _XOR_H
 
 #define SRAM_BASE		0x40000000
-
-#include "ddr3_hws_hw_training_def.h"
 
 #define MV_XOR_MAX_UNIT		2	/* XOR unit == XOR engine */
 #define MV_XOR_MAX_CHAN		4	/* total channels for all units */
@@ -88,5 +85,6 @@ int mv_xor_ctrl_set(u32 chan, u32 xor_ctrl);
 int mv_xor_command_set(u32 chan, enum mv_command command);
 int mv_xor_override_set(u32 chan, enum xor_override_target target, u32 win_num,
 			int enable);
+int mv_xor_transfer(u32 chan, enum xor_type type, u32 xor_chain_ptr);
 
 #endif

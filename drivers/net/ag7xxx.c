@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Atheros AR71xx / AR9xxx GMAC driver
  *
  * Copyright (C) 2016 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -164,8 +163,8 @@ static int ag7xxx_switch_read(struct mii_dev *bus, int addr, int reg, u16 *val)
 	writel(AG7XXX_ETH_MII_MGMT_CMD_READ,
 	       regs + AG7XXX_ETH_MII_MGMT_CMD);
 
-	ret = wait_for_bit("ag7xxx", regs + AG7XXX_ETH_MII_MGMT_IND,
-			   AG7XXX_ETH_MII_MGMT_IND_BUSY, 0, 1000, 0);
+	ret = wait_for_bit_le32(regs + AG7XXX_ETH_MII_MGMT_IND,
+				AG7XXX_ETH_MII_MGMT_IND_BUSY, 0, 1000, 0);
 	if (ret)
 		return ret;
 
@@ -185,8 +184,8 @@ static int ag7xxx_switch_write(struct mii_dev *bus, int addr, int reg, u16 val)
 	       regs + AG7XXX_ETH_MII_MGMT_ADDRESS);
 	writel(val, regs + AG7XXX_ETH_MII_MGMT_CTRL);
 
-	ret = wait_for_bit("ag7xxx", regs + AG7XXX_ETH_MII_MGMT_IND,
-			   AG7XXX_ETH_MII_MGMT_IND_BUSY, 0, 1000, 0);
+	ret = wait_for_bit_le32(regs + AG7XXX_ETH_MII_MGMT_IND,
+				AG7XXX_ETH_MII_MGMT_IND_BUSY, 0, 1000, 0);
 
 	return ret;
 }
@@ -510,13 +509,13 @@ static void ag7xxx_eth_stop(struct udevice *dev)
 
 	/* Stop the TX DMA. */
 	writel(0, priv->regs + AG7XXX_ETH_DMA_TX_CTRL);
-	wait_for_bit("ag7xxx", priv->regs + AG7XXX_ETH_DMA_TX_CTRL, ~0, 0,
-		     1000, 0);
+	wait_for_bit_le32(priv->regs + AG7XXX_ETH_DMA_TX_CTRL, ~0, 0,
+			  1000, 0);
 
 	/* Stop the RX DMA. */
 	writel(0, priv->regs + AG7XXX_ETH_DMA_RX_CTRL);
-	wait_for_bit("ag7xxx", priv->regs + AG7XXX_ETH_DMA_RX_CTRL, ~0, 0,
-		     1000, 0);
+	wait_for_bit_le32(priv->regs + AG7XXX_ETH_DMA_RX_CTRL, ~0, 0,
+			  1000, 0);
 }
 
 /*

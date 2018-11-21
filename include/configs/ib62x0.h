@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011-2012
  * Gerald Kerma <dreagle@doukki.net>
  * Luka Perkov <luka@openwrt.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_IB62x0_H
@@ -27,7 +26,6 @@
 /*
  * Commands configuration
  */
-#define CONFIG_SYS_MVFS
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

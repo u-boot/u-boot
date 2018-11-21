@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013 ADVANSEE
  * Benoît Thébaudeau <benoit.thebaudeau@advansee.com>
@@ -8,8 +9,6 @@
  * http://git.freescale.com/git/cgit.cgi/imx/uboot-imx.git/tree/drivers/misc/imx_otp.c?h=imx_v2009.08_1.1.0&id=9aa74e6,
  * which is:
  * Copyright (C) 2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -35,6 +34,8 @@
 #define BM_OUT_STATUS_DED				0x00000400
 #define BM_OUT_STATUS_LOCKED			0x00000800
 #define BM_OUT_STATUS_PROGFAIL			0x00001000
+#elif defined(CONFIG_MX8M)
+#define BM_CTRL_ADDR			0x000000ff
 #else
 #define BM_CTRL_ADDR			0x0000007f
 #endif
@@ -79,6 +80,9 @@
 #elif defined(CONFIG_MX7ULP)
 #define FUSE_BANK_SIZE	0x80
 #define FUSE_BANKS	31
+#elif defined(CONFIG_MX8M)
+#define FUSE_BANK_SIZE	0x40
+#define FUSE_BANKS	64
 #else
 #error "Unsupported architecture\n"
 #endif
@@ -294,6 +298,8 @@ static void setup_direct_access(struct ocotp_regs *regs, u32 bank, u32 word,
 	u32 wr_unlock = write ? BV_CTRL_WR_UNLOCK_KEY : 0;
 #ifdef CONFIG_MX7
 	u32 addr = bank;
+#elif defined CONFIG_MX8M
+	u32 addr = bank << 2 | word;
 #else
 	u32 addr;
 	/* Bank 7 and Bank 8 only supports 4 words each for i.MX6ULL */
@@ -342,6 +348,23 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 static int prepare_write(struct ocotp_regs **regs, u32 bank, u32 word,
 				const char *caller)
 {
+#ifdef CONFIG_MX7ULP
+	u32 val;
+	int ret;
+
+	/* Only bank 0 and 1 are redundancy mode, others are ECC mode */
+	if (bank != 0 && bank != 1) {
+		ret = fuse_sense(bank, word, &val);
+		if (ret)
+			return ret;
+
+		if (val != 0) {
+			printf("mxc_ocotp: The word has been programmed, no more write\n");
+			return -EPERM;
+		}
+	}
+#endif
+
 	return prepare_access(regs, bank, word, true, caller);
 }
 

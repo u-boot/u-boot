@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * (c) Copyright 2016, Data61
  * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
@@ -5,8 +6,6 @@
  * Based on jetson-tk1.h which is:
  * (C) Copyright 2013-2014
  * NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:     GPL-2.0
  */
 
 #ifndef __CONFIG_H

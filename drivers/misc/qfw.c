@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015 Miao Yan <yanmiaobest@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -221,6 +220,14 @@ out:
 
 	free(table_loader);
 	return addr;
+}
+
+ulong acpi_get_rsdp_addr(void)
+{
+	struct fw_file *file;
+
+	file = qemu_fwcfg_find_file("etc/acpi/rsdp");
+	return file->addr;
 }
 #endif
 

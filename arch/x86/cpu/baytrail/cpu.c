@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Based on code from coreboot
  */
@@ -81,7 +80,7 @@ static void set_max_freq(void)
 	perf_ctl.lo = (msr.lo & 0x3f0000) >> 8;
 
 	/*
-	 * Set guaranteed vid [21:16] from IACORE_VIDS to bits [7:0] of
+	 * Set guaranteed vid [22:16] from IACORE_VIDS to bits [7:0] of
 	 * the PERF_CTL
 	 */
 	msr = msr_read(MSR_IACORE_VIDS);

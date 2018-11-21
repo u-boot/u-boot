@@ -1,13 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2010-2011 Calxeda, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-
-#include <config_distro_defaults.h>
 
 #define CONFIG_SYS_DCACHE_OFF
 
@@ -22,17 +19,11 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024)
 
-#define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK		150000000
 #define CONFIG_PL01x_PORTS		{ (void *)(0xFFF36000) }
-#define CONFIG_CONS_INDEX		0
 
-#define CONFIG_BOOTCOUNT_LIMIT
-#define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
 #define CONFIG_SYS_BOOTCOUNT_LE		/* Use little-endian accessors */
-#define CONFIG_SYS_BOOTCOUNT_ADDR	0xfff3cf0c
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	5
 #define CONFIG_SYS_SCSI_MAX_LUN		1
@@ -61,7 +52,6 @@
  * Physical Memory Map
  * The DRAM is already setup, so do not touch the DT node later.
  */
-#define CONFIG_NR_DRAM_BANKS		0
 #define PHYS_SDRAM_1_SIZE		(4089 << 20)
 #define CONFIG_SYS_MEMTEST_START	0x100000
 #define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1_SIZE - 0x100000)
@@ -74,7 +64,6 @@
 #define CONFIG_ENV_ADDR			CONFIG_SYS_NVRAM_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_TEXT_BASE		0x00008000
 #define CONFIG_SYS_INIT_SP_ADDR		0x01000000
 #define CONFIG_SKIP_LOWLEVEL_INIT
 

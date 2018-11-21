@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * da8xx-usb.h -- TI's DA8xx platform specific usb wrapper definitions.
  *
@@ -6,8 +7,6 @@
  * Based on drivers/usb/musb/davinci.h
  *
  * Copyright (C) 2009 Texas Instruments Incorporated
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __DA8XX_MUSB_H__
 #define __DA8XX_MUSB_H__

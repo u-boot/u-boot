@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * LG Optimus Black codename sniper board
  *
  * Copyright (C) 2015 Paul Kocialkowski <contact@paulk.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -174,7 +173,7 @@ void reset_misc(void)
 	omap_reboot_mode_store(reboot_mode);
 }
 
-int fb_set_reboot_flag(void)
+int fastboot_set_reboot_flag(void)
 {
 	return omap_reboot_mode_store("b");
 }

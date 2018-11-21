@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012-2015 Panasonic Corporation
  * Copyright (C) 2015-2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
+#include <linux/bug.h>
 #include <linux/io.h>
 #include <linux/serial_reg.h>
 #include <linux/sizes.h>
@@ -34,17 +34,17 @@ struct uniphier_serial {
 	u32 dlr;		/* Divisor Latch Register */
 };
 
-struct uniphier_serial_private_data {
+struct uniphier_serial_priv {
 	struct uniphier_serial __iomem *membase;
 	unsigned int uartclk;
 };
 
 #define uniphier_serial_port(dev)	\
-	((struct uniphier_serial_private_data *)dev_get_priv(dev))->membase
+	((struct uniphier_serial_priv *)dev_get_priv(dev))->membase
 
 static int uniphier_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
+	struct uniphier_serial_priv *priv = dev_get_priv(dev);
 	struct uniphier_serial __iomem *port = uniphier_serial_port(dev);
 	const unsigned int mode_x_div = 16;
 	unsigned int divisor;
@@ -88,11 +88,34 @@ static int uniphier_serial_pending(struct udevice *dev, bool input)
 		return !(readl(&port->lsr) & UART_LSR_THRE);
 }
 
+/*
+ * SPL does not have enough memory footprint for the clock driver.
+ * Hardcode clock frequency for each SoC.
+ */
+struct uniphier_serial_clk_data {
+	const char *compatible;
+	unsigned int clk_rate;
+};
+
+static const struct uniphier_serial_clk_data uniphier_serial_clk_data[] = {
+	{ .compatible = "socionext,uniphier-ld4",  .clk_rate = 36864000 },
+	{ .compatible = "socionext,uniphier-pro4", .clk_rate = 73728000 },
+	{ .compatible = "socionext,uniphier-sld8", .clk_rate = 80000000 },
+	{ .compatible = "socionext,uniphier-pro5", .clk_rate = 73728000 },
+	{ .compatible = "socionext,uniphier-pxs2", .clk_rate = 88888888 },
+	{ .compatible = "socionext,uniphier-ld6b", .clk_rate = 88888888 },
+	{ .compatible = "socionext,uniphier-ld11", .clk_rate = 58823529 },
+	{ .compatible = "socionext,uniphier-ld20", .clk_rate = 58823529 },
+	{ .compatible = "socionext,uniphier-pxs3", .clk_rate = 58823529 },
+	{ /* sentinel */ },
+};
+
 static int uniphier_serial_probe(struct udevice *dev)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-	struct uniphier_serial_private_data *priv = dev_get_priv(dev);
+	struct uniphier_serial_priv *priv = dev_get_priv(dev);
 	struct uniphier_serial __iomem *port;
+	const struct uniphier_serial_clk_data *clk_data;
+	ofnode root_node;
 	fdt_addr_t base;
 	u32 tmp;
 
@@ -106,8 +129,19 @@ static int uniphier_serial_probe(struct udevice *dev)
 
 	priv->membase = port;
 
-	priv->uartclk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-				       "clock-frequency", 0);
+	root_node = ofnode_path("/");
+	clk_data = uniphier_serial_clk_data;
+	while (clk_data->compatible) {
+		if (ofnode_device_is_compatible(root_node,
+						clk_data->compatible))
+			break;
+		clk_data++;
+	}
+
+	if (WARN_ON(!clk_data->compatible))
+		return -ENOTSUPP;
+
+	priv->uartclk = clk_data->clk_rate;
 
 	tmp = readl(&port->lcr_mcr);
 	tmp &= ~LCR_MASK;
@@ -134,6 +168,6 @@ U_BOOT_DRIVER(uniphier_serial) = {
 	.id = UCLASS_SERIAL,
 	.of_match = uniphier_uart_of_match,
 	.probe = uniphier_serial_probe,
-	.priv_auto_alloc_size = sizeof(struct uniphier_serial_private_data),
+	.priv_auto_alloc_size = sizeof(struct uniphier_serial_priv),
 	.ops = &uniphier_serial_ops,
 };

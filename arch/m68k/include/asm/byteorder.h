@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _M68K_BYTEORDER_H
@@ -11,21 +10,28 @@
 #include <asm/types.h>
 
 #ifdef __GNUC__
-#define __sw16(x) \
-	((__u16)( \
-		(((__u16)(x) & (__u16)0x00ffU) << 8) | \
-		(((__u16)(x) & (__u16)0xff00U) >> 8) ))
-#define __sw32(x) \
-	((__u32)( \
-		(((__u32)(x)) << 24) | \
-		(((__u32)(x) & (__u32)0x0000ff00UL) <<  8) | \
-		(((__u32)(x) & (__u32)0x00ff0000UL) >>  8) | \
-		(((__u32)(x)) >> 24) ))
+
+static inline __u32 __sw32(__u32 x)
+{
+	__u32 v = x;
+
+	return v << 24 |
+		(v & (__u32)0x0000ff00UL) <<  8 |
+		(v & (__u32)0x00ff0000UL) >>  8 |
+		v >> 24;
+}
+
+static inline __u16 __sw16(__u16 x)
+{
+	__u16 v = x;
+
+	return (v & (__u16)0x00ffU) << 8 |
+		(v & (__u16)0xff00U) >> 8;
+}
 
 static __inline__ unsigned ld_le16(const volatile unsigned short *addr)
 {
-	unsigned result = *addr;
-	return __sw16(result);
+	return __sw16(*addr);
 }
 
 static __inline__ void st_le16(volatile unsigned short *addr,
@@ -36,8 +42,7 @@ static __inline__ void st_le16(volatile unsigned short *addr,
 
 static __inline__ unsigned ld_le32(const volatile unsigned *addr)
 {
-	unsigned result = *addr;
-	return __sw32(result);
+	return __sw32(*addr);
 }
 
 static __inline__ void st_le32(volatile unsigned *addr, const unsigned val)

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2010-2016, NVIDIA CORPORATION.
  * (based on tegra_gpio.c)
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>
@@ -16,8 +15,6 @@
 #include <dm/device-internal.h>
 #include <dt-bindings/gpio/gpio.h>
 #include "tegra186_gpio_priv.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct tegra186_gpio_port_data {
 	const char *name;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * clock.c
  *
@@ -5,8 +6,6 @@
  * Derived from OMAP4 boards
  *
  * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/arch/cpu.h>
@@ -243,4 +242,14 @@ void prcm_init(void)
 {
 	scale_vcores();
 	setup_dplls();
+}
+
+void rtc_only_prcm_init(void)
+{
+	const struct dpll_params *params;
+
+	rtc_only_enable_basic_clocks();
+
+	params = get_dpll_ddr_params();
+	do_setup_dpll(&dpll_ddr_regs, params);
 }

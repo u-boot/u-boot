@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2013-2015 Freescale Semiconductor, Inc.
  *
  * Freescale Quad Serial Peripheral Interface (QSPI) driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -20,7 +19,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #define RX_BUFFER_SIZE		0x80
-#ifdef CONFIG_MX6SX
+#if defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL) || \
+	defined(CONFIG_MX6ULL) || defined(CONFIG_MX7D)
 #define TX_BUFFER_SIZE		0x200
 #else
 #define TX_BUFFER_SIZE		0x40
@@ -84,7 +84,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /* QSPI max chipselect signals number */
 #define FSL_QSPI_MAX_CHIPSELECT_NUM     4
 
-#ifdef CONFIG_DM_SPI
 /**
  * struct fsl_qspi_platdata - platform data for Freescale QSPI
  *
@@ -105,7 +104,6 @@ struct fsl_qspi_platdata {
 	u32 flash_num;
 	u32 num_chipselect;
 };
-#endif
 
 /**
  * struct fsl_qspi_priv - private data for Freescale QSPI
@@ -136,12 +134,6 @@ struct fsl_qspi_priv {
 	struct fsl_qspi_regs *regs;
 };
 
-#ifndef CONFIG_DM_SPI
-struct fsl_qspi {
-	struct spi_slave slave;
-	struct fsl_qspi_priv priv;
-};
-#endif
 
 static u32 qspi_read32(u32 flags, u32 *addr)
 {
@@ -153,6 +145,25 @@ static void qspi_write32(u32 flags, u32 *addr, u32 val)
 {
 	flags & QSPI_FLAG_REGMAP_ENDIAN_BIG ?
 		out_be32(addr, val) : out_le32(addr, val);
+}
+
+static inline int is_controller_busy(const struct fsl_qspi_priv *priv)
+{
+	u32 val;
+	const u32 mask = QSPI_SR_BUSY_MASK | QSPI_SR_AHB_ACC_MASK |
+			 QSPI_SR_IP_ACC_MASK;
+	unsigned int retry = 5;
+
+	do {
+		val = qspi_read32(priv->flags, &priv->regs->sr);
+
+		if ((~val & mask) == mask)
+			return 0;
+
+		udelay(1);
+	} while (--retry);
+
+	return -ETIMEDOUT;
 }
 
 /* QSPI support swapping the flash read/write data
@@ -268,7 +279,8 @@ static void qspi_set_lut(struct fsl_qspi_priv *priv)
 			     INSTR0(LUT_CMD) | OPRND1(ADDR32BIT) |
 			     PAD1(LUT_PAD1) | INSTR1(LUT_ADDR));
 #endif
-#ifdef CONFIG_MX6SX
+#if defined(CONFIG_MX6SX) || defined(CONFIG_MX6UL) || \
+	defined(CONFIG_MX6ULL) || defined(CONFIG_MX7D)
 	/*
 	 * To MX6SX, OPRND0(TX_BUFFER_SIZE) can not work correctly.
 	 * So, Use IDATSZ in IPCR to determine the size and here set 0.
@@ -387,7 +399,7 @@ static inline void qspi_ahb_read(struct fsl_qspi_priv *priv, u8 *rxbuf, int len)
 {
 	struct fsl_qspi_regs *regs = priv->regs;
 	u32 mcr_reg;
-	void *rx_addr = NULL;
+	void *rx_addr;
 
 	mcr_reg = qspi_read32(priv->flags, &regs->mcr);
 
@@ -849,131 +861,7 @@ void qspi_cfg_smpr(struct fsl_qspi_priv *priv, u32 clear_bits, u32 set_bits)
 	smpr_val |= set_bits;
 	qspi_write32(priv->flags, &priv->regs->smpr, smpr_val);
 }
-#ifndef CONFIG_DM_SPI
-static unsigned long spi_bases[] = {
-	QSPI0_BASE_ADDR,
-#ifdef CONFIG_MX6SX
-	QSPI1_BASE_ADDR,
-#endif
-};
 
-static unsigned long amba_bases[] = {
-	QSPI0_AMBA_BASE,
-#ifdef CONFIG_MX6SX
-	QSPI1_AMBA_BASE,
-#endif
-};
-
-static inline struct fsl_qspi *to_qspi_spi(struct spi_slave *slave)
-{
-	return container_of(slave, struct fsl_qspi, slave);
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
-{
-	u32 mcr_val;
-	struct fsl_qspi *qspi;
-	struct fsl_qspi_regs *regs;
-	u32 total_size;
-
-	if (bus >= ARRAY_SIZE(spi_bases))
-		return NULL;
-
-	if (cs >= FSL_QSPI_FLASH_NUM)
-		return NULL;
-
-	qspi = spi_alloc_slave(struct fsl_qspi, bus, cs);
-	if (!qspi)
-		return NULL;
-
-#ifdef CONFIG_SYS_FSL_QSPI_BE
-	qspi->priv.flags |= QSPI_FLAG_REGMAP_ENDIAN_BIG;
-#endif
-
-	regs = (struct fsl_qspi_regs *)spi_bases[bus];
-	qspi->priv.regs = regs;
-	/*
-	 * According cs, use different amba_base to choose the
-	 * corresponding flash devices.
-	 *
-	 * If not, only one flash device is used even if passing
-	 * different cs using `sf probe`
-	 */
-	qspi->priv.cur_amba_base = amba_bases[bus] + cs * FSL_QSPI_FLASH_SIZE;
-
-	qspi->slave.max_write_size = TX_BUFFER_SIZE;
-
-	mcr_val = qspi_read32(qspi->priv.flags, &regs->mcr);
-	qspi_write32(qspi->priv.flags, &regs->mcr,
-		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_MDIS_MASK |
-		     (mcr_val & QSPI_MCR_END_CFD_MASK));
-
-	qspi_cfg_smpr(&qspi->priv,
-		      ~(QSPI_SMPR_FSDLY_MASK | QSPI_SMPR_DDRSMP_MASK |
-		      QSPI_SMPR_FSPHS_MASK | QSPI_SMPR_HSENA_MASK), 0);
-
-	total_size = FSL_QSPI_FLASH_SIZE * FSL_QSPI_FLASH_NUM;
-	/*
-	 * Any read access to non-implemented addresses will provide
-	 * undefined results.
-	 *
-	 * In case single die flash devices, TOP_ADDR_MEMA2 and
-	 * TOP_ADDR_MEMB2 should be initialized/programmed to
-	 * TOP_ADDR_MEMA1 and TOP_ADDR_MEMB1 respectively - in effect,
-	 * setting the size of these devices to 0.  This would ensure
-	 * that the complete memory map is assigned to only one flash device.
-	 */
-	qspi_write32(qspi->priv.flags, &regs->sfa1ad,
-		     FSL_QSPI_FLASH_SIZE | amba_bases[bus]);
-	qspi_write32(qspi->priv.flags, &regs->sfa2ad,
-		     FSL_QSPI_FLASH_SIZE | amba_bases[bus]);
-	qspi_write32(qspi->priv.flags, &regs->sfb1ad,
-		     total_size | amba_bases[bus]);
-	qspi_write32(qspi->priv.flags, &regs->sfb2ad,
-		     total_size | amba_bases[bus]);
-
-	qspi_set_lut(&qspi->priv);
-
-#ifdef CONFIG_SYS_FSL_QSPI_AHB
-	qspi_init_ahb_read(&qspi->priv);
-#endif
-
-	qspi_module_disable(&qspi->priv, 0);
-
-	return &qspi->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct fsl_qspi *qspi = to_qspi_spi(slave);
-
-	free(qspi);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	return 0;
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	/* Nothing to do */
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-		const void *dout, void *din, unsigned long flags)
-{
-	struct fsl_qspi *qspi = to_qspi_spi(slave);
-
-	return qspi_xfer(&qspi->priv, bitlen, dout, din, flags);
-}
-
-void spi_init(void)
-{
-	/* Nothing to do */
-}
-#else
 static int fsl_qspi_child_pre_probe(struct udevice *dev)
 {
 	struct spi_slave *slave = dev_get_parent_priv(dev);
@@ -1011,11 +899,7 @@ static int fsl_qspi_probe(struct udevice *bus)
 	priv->num_chipselect = plat->num_chipselect;
 
 	/* make sure controller is not busy anywhere */
-	ret = wait_for_bit(__func__, &priv->regs->sr,
-			   QSPI_SR_BUSY_MASK |
-			   QSPI_SR_AHB_ACC_MASK |
-			   QSPI_SR_IP_ACC_MASK,
-			   false, 100, false);
+	ret = is_controller_busy(priv);
 
 	if (ret) {
 		debug("ERROR : The controller is busy\n");
@@ -1023,6 +907,11 @@ static int fsl_qspi_probe(struct udevice *bus)
 	}
 
 	mcr_val = qspi_read32(priv->flags, &priv->regs->mcr);
+
+	/* Set endianness to LE for i.mx */
+	if (IS_ENABLED(CONFIG_MX6) || IS_ENABLED(CONFIG_MX7))
+		mcr_val = QSPI_MCR_END_CFD_LE;
+
 	qspi_write32(priv->flags, &priv->regs->mcr,
 		     QSPI_MCR_RESERVED_MASK | QSPI_MCR_MDIS_MASK |
 		     (mcr_val & QSPI_MCR_END_CFD_MASK));
@@ -1173,11 +1062,7 @@ static int fsl_qspi_claim_bus(struct udevice *dev)
 	priv = dev_get_priv(bus);
 
 	/* make sure controller is not busy anywhere */
-	ret = wait_for_bit(__func__, &priv->regs->sr,
-			   QSPI_SR_BUSY_MASK |
-			   QSPI_SR_AHB_ACC_MASK |
-			   QSPI_SR_IP_ACC_MASK,
-			   false, 100, false);
+	ret = is_controller_busy(priv);
 
 	if (ret) {
 		debug("ERROR : The controller is busy\n");
@@ -1227,6 +1112,8 @@ static const struct dm_spi_ops fsl_qspi_ops = {
 static const struct udevice_id fsl_qspi_ids[] = {
 	{ .compatible = "fsl,vf610-qspi" },
 	{ .compatible = "fsl,imx6sx-qspi" },
+	{ .compatible = "fsl,imx6ul-qspi" },
+	{ .compatible = "fsl,imx7d-qspi" },
 	{ }
 };
 
@@ -1241,4 +1128,3 @@ U_BOOT_DRIVER(fsl_qspi) = {
 	.probe	= fsl_qspi_probe,
 	.child_pre_probe = fsl_qspi_child_pre_probe,
 };
-#endif

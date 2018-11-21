@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SoC-specific lowlevel code for DA850
  *
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <nand.h>
@@ -289,10 +288,10 @@ int arch_cpu_init(void)
 	/* GPIO setup */
 	board_gpio_init();
 
-
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 	NS16550_init((NS16550_t)(CONFIG_SYS_NS16550_COM1),
 			CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
-
+#endif
 	/*
 	 * Fix Power and Emulation Management Register
 	 * see sprufw3a.pdf page 37 Table 24

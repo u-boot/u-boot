@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * i2c driver for Freescale i.MX series
  *
@@ -10,8 +11,6 @@
  *  Copyright (C) 2007 RightHand Technologies, Inc.
  *  Copyright (C) 2008 Darius Augulis <darius.augulis at teltonika.lt>
  *
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -589,6 +588,22 @@ static int bus_i2c_write(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 #define I2C4_BASE_ADDR	0
 #endif
 
+#if !defined(I2C5_BASE_ADDR)
+#define I2C5_BASE_ADDR 0
+#endif
+
+#if !defined(I2C6_BASE_ADDR)
+#define I2C6_BASE_ADDR 0
+#endif
+
+#if !defined(I2C7_BASE_ADDR)
+#define I2C7_BASE_ADDR 0
+#endif
+
+#if !defined(I2C8_BASE_ADDR)
+#define I2C8_BASE_ADDR 0
+#endif
+
 static struct mxc_i2c_bus mxc_i2c_buses[] = {
 #if defined(CONFIG_ARCH_LS1021A) || defined(CONFIG_VF610) || \
 	defined(CONFIG_FSL_LAYERSCAPE)
@@ -596,11 +611,19 @@ static struct mxc_i2c_bus mxc_i2c_buses[] = {
 	{ 1, I2C2_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 2, I2C3_BASE_ADDR, I2C_QUIRK_FLAG },
 	{ 3, I2C4_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 4, I2C5_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 5, I2C6_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 6, I2C7_BASE_ADDR, I2C_QUIRK_FLAG },
+	{ 7, I2C8_BASE_ADDR, I2C_QUIRK_FLAG },
 #else
 	{ 0, I2C1_BASE_ADDR, 0 },
 	{ 1, I2C2_BASE_ADDR, 0 },
 	{ 2, I2C3_BASE_ADDR, 0 },
 	{ 3, I2C4_BASE_ADDR, 0 },
+	{ 4, I2C5_BASE_ADDR, 0 },
+	{ 5, I2C6_BASE_ADDR, 0 },
+	{ 6, I2C7_BASE_ADDR, 0 },
+	{ 7, I2C8_BASE_ADDR, 0 },
 #endif
 };
 
@@ -738,6 +761,38 @@ U_BOOT_I2C_ADAP_COMPLETE(mxc3, mxc_i2c_init, mxc_i2c_probe,
 			 CONFIG_SYS_MXC_I2C4_SLAVE, 3)
 #endif
 
+#ifdef CONFIG_SYS_I2C_MXC_I2C5
+U_BOOT_I2C_ADAP_COMPLETE(mxc4, mxc_i2c_init, mxc_i2c_probe,
+			 mxc_i2c_read, mxc_i2c_write,
+			 mxc_i2c_set_bus_speed,
+			 CONFIG_SYS_MXC_I2C5_SPEED,
+			 CONFIG_SYS_MXC_I2C5_SLAVE, 4)
+#endif
+
+#ifdef CONFIG_SYS_I2C_MXC_I2C6
+U_BOOT_I2C_ADAP_COMPLETE(mxc5, mxc_i2c_init, mxc_i2c_probe,
+			 mxc_i2c_read, mxc_i2c_write,
+			 mxc_i2c_set_bus_speed,
+			 CONFIG_SYS_MXC_I2C6_SPEED,
+			 CONFIG_SYS_MXC_I2C6_SLAVE, 5)
+#endif
+
+#ifdef CONFIG_SYS_I2C_MXC_I2C7
+U_BOOT_I2C_ADAP_COMPLETE(mxc6, mxc_i2c_init, mxc_i2c_probe,
+			 mxc_i2c_read, mxc_i2c_write,
+			 mxc_i2c_set_bus_speed,
+			 CONFIG_SYS_MXC_I2C7_SPEED,
+			 CONFIG_SYS_MXC_I2C7_SLAVE, 6)
+#endif
+
+#ifdef CONFIG_SYS_I2C_MXC_I2C8
+U_BOOT_I2C_ADAP_COMPLETE(mxc7, mxc_i2c_init, mxc_i2c_probe,
+			 mxc_i2c_read, mxc_i2c_write,
+			 mxc_i2c_set_bus_speed,
+			 CONFIG_SYS_MXC_I2C8_SPEED,
+			 CONFIG_SYS_MXC_I2C8_SLAVE, 7)
+#endif
+
 #else
 
 static int mxc_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
@@ -784,9 +839,9 @@ static int mxc_i2c_probe(struct udevice *bus)
 		ret2 = gpio_request_by_name_nodev(offset_to_ofnode(node),
 				"sda-gpios", 0, &i2c_bus->sda_gpio,
 				GPIOD_IS_OUT);
-		if (!dm_gpio_is_valid(&i2c_bus->sda_gpio) |
-		    !dm_gpio_is_valid(&i2c_bus->scl_gpio) |
-		    ret | ret2) {
+		if (!dm_gpio_is_valid(&i2c_bus->sda_gpio) ||
+		    !dm_gpio_is_valid(&i2c_bus->scl_gpio) ||
+		    ret || ret2) {
 			dev_err(dev, "i2c bus %d at %lu, fail to request scl/sda gpio\n", bus->seq, i2c_bus->base);
 			return -EINVAL;
 		}

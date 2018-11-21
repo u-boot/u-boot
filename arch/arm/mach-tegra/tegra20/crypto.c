@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2010 - 2011 NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -50,6 +49,7 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 			u32 num_aes_blocks)
 {
 	u8 tmp_data[AES_KEY_LENGTH];
+	u8 iv[AES_KEY_LENGTH] = {0};
 	u8 left[AES_KEY_LENGTH];
 	u8 k1[AES_KEY_LENGTH];
 	u8 *cbc_chain_data;
@@ -61,7 +61,7 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 	for (i = 0; i < AES_KEY_LENGTH; i++)
 		tmp_data[i] = 0;
 
-	aes_cbc_encrypt_blocks(key_schedule, tmp_data, left, 1);
+	aes_cbc_encrypt_blocks(key_schedule, iv, tmp_data, left, 1);
 
 	left_shift_vector(left, k1, sizeof(left));
 
@@ -102,6 +102,7 @@ static int encrypt_and_sign(u8 *key, enum security_op oper, u8 *src,
 {
 	u32 num_aes_blocks;
 	u8 key_schedule[AES_EXPAND_KEY_LENGTH];
+	u8 iv[AES_KEY_LENGTH] = {0};
 
 	debug("encrypt_and_sign: length = %d\n", length);
 
@@ -116,7 +117,8 @@ static int encrypt_and_sign(u8 *key, enum security_op oper, u8 *src,
 	if (oper & SECURITY_ENCRYPT) {
 		/* Perform this in place, resulting in src being encrypted. */
 		debug("encrypt_and_sign: begin encryption\n");
-		aes_cbc_encrypt_blocks(key_schedule, src, src, num_aes_blocks);
+		aes_cbc_encrypt_blocks(key_schedule, iv, src, src,
+				       num_aes_blocks);
 		debug("encrypt_and_sign: end encryption\n");
 	}
 

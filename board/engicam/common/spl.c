@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Amarula Solutions B.V.
  * Copyright (C) 2016 Engicam S.r.l.
  * Author: Jagan Teki <jagan@amarulasolutions.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -22,8 +21,6 @@
 
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/video.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |             \
         PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
@@ -46,9 +43,13 @@ int board_fit_config_name_match(const char *name)
                 return 0;
         else if (is_mx6dq() && !strcmp(name, "imx6q-icore-rqs"))
                 return 0;
+        else if (is_mx6dq() && !strcmp(name, "imx6q-icore-mipi"))
+                return 0;
         else if ((is_mx6dl() || is_mx6solo()) && !strcmp(name, "imx6dl-icore"))
                 return 0;
         else if ((is_mx6dl() || is_mx6solo()) && !strcmp(name, "imx6dl-icore-rqs"))
+                return 0;
+        else if ((is_mx6dl() || is_mx6solo()) && !strcmp(name, "imx6dl-icore-mipi"))
                 return 0;
         else
                 return -1;
@@ -413,7 +414,8 @@ void board_init_f(ulong dummy)
 	/* setup AIPS and disable watchdog */
 	arch_cpu_init();
 
-	gpr_init();
+	if (!(is_mx6ul()))
+		gpr_init();
 
 	/* iomux */
 	SETUP_IOMUX_PADS(uart_pads);

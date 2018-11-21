@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _MVEBU_CPU_H
@@ -69,10 +68,12 @@ enum {
 	MVEBU_SOC_UNKNOWN,
 };
 
+#define MVEBU_SDRAM_SIZE_MAX	0xc0000000
+
 /*
  * Default Device Address MAP BAR values
  */
-#define MBUS_PCI_MEM_BASE	0xE8000000
+#define MBUS_PCI_MEM_BASE	MVEBU_SDRAM_SIZE_MAX
 #define MBUS_PCI_MEM_SIZE	(128 << 20)
 #define MBUS_PCI_IO_BASE	0xF1100000
 #define MBUS_PCI_IO_SIZE	(64 << 10)

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007 Michal Simek
  * (C) Copyright 2004 Atmark Techno, Inc.
  *
  * Michal  SIMEK <monstr@monstr.eu>
  * Yasushi SHOJI <yashi@atmark-techno.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

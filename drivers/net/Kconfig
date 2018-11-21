@@ -1,4 +1,5 @@
 source "drivers/net/phy/Kconfig"
+source "drivers/net/pfe_eth/Kconfig"
 
 config DM_ETH
 	bool "Enable Driver Model for Ethernet drivers"
@@ -6,9 +7,16 @@ config DM_ETH
 	help
 	  Enable driver model for Ethernet.
 
-	  The eth_*() interface will be implemented by the UC_ETH class
-	  This is currently implemented in net/eth.c
+	  The eth_*() interface will be implemented by the UCLASS_ETH class
+	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
+
+config DRIVER_TI_CPSW
+	bool "TI Common Platform Ethernet Switch"
+	select PHYLIB
+	help
+	  This driver supports the TI three port switch gigabit ethernet
+	  subsystem found in the TI SoCs.
 
 menuconfig NETDEVICES
 	bool "Network device support"
@@ -142,14 +150,33 @@ config ETH_DESIGNWARE
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
 	  provide the PHY (physical media interface).
 
+config ETH_DESIGNWARE_SOCFPGA
+	bool "Altera SoCFPGA extras for Synopsys Designware Ethernet MAC"
+	depends on DM_ETH && ETH_DESIGNWARE
+	help
+	  The Altera SoCFPGA requires additional configuration of the
+	  Altera system manager to correctly interface with the PHY.
+	  This code handles those SoC specifics.
+
 config ETHOC
 	bool "OpenCores 10/100 Mbps Ethernet MAC"
 	help
 	  This MAC is present in OpenRISC and Xtensa XTFPGA boards.
 
+config FEC_MXC_SHARE_MDIO
+	bool "Share the MDIO bus for FEC controller"
+	depends on FEC_MXC
+
+config FEC_MXC_MDIO_BASE
+	hex "MDIO base address for the FEC controller"
+	depends on FEC_MXC_SHARE_MDIO
+	help
+	  This specifies the MDIO registers base address. It is used when
+	  two FEC controllers share MDIO bus.
+
 config FEC_MXC
 	bool "FEC Ethernet controller"
-	depends on MX5 || MX6
+	depends on MX5 || MX6 || MX7 || IMX8
 	help
 	  This driver supports the 10/100 Fast Ethernet controller for
 	  NXP i.MX processors.
@@ -159,13 +186,21 @@ config FTMAC100
 	help
 	  This MAC is present in Andestech SoCs.
 
+config MVGBE
+	bool "Marvell Orion5x/Kirkwood network interface support"
+	depends on KIRKWOOD || ORION5X
+	select PHYLIB if DM_ETH
+	help
+	  This driver supports the network interface units in the
+	  Marvell Orion5x and Kirkwood SoCs
+
 config MVNETA
-	bool "Marvell Armada 385 network interface support"
-	depends on ARMADA_XP || ARMADA_38X
+	bool "Marvell Armada XP/385/3700 network interface support"
+	depends on ARMADA_XP || ARMADA_38X || ARMADA_3700
 	select PHYLIB
 	help
 	  This driver supports the network interface units in the
-	  Marvell ARMADA XP and 38X SoCs
+	  Marvell ARMADA XP, ARMADA 38X and ARMADA 3700 SoCs
 
 config MVPP2
 	bool "Marvell Armada 375/7K/8K network interface support"
@@ -185,6 +220,13 @@ config MACB
 	  GEM (Gigabit Ethernet MAC) found in some ARM SoC devices.
 	  Say Y to include support for the MACB/GEM chip.
 
+config MACB_ZYNQ
+	bool "Cadence MACB/GEM Ethernet Interface for Xilinx Zynq"
+	depends on MACB
+	help
+	  The Cadence MACB ethernet interface was used on Zynq platform.
+	  Say Y to enable support for the MACB/GEM in Zynq chip.
+
 config PCH_GBE
 	bool "Intel Platform Controller Hub EG20T GMAC driver"
 	depends on DM_ETH && DM_PCI
@@ -198,6 +240,11 @@ config RGMII
 	help
 	  Enable the support of the Reduced Gigabit Media-Independent
 	  Interface (RGMII).
+
+config MII
+	bool "Enable MII"
+	help
+	  Enable support of the Media-Independent Interface (MII)
 
 config RTL8139
 	bool "Realtek 8139 series Ethernet controller driver"
@@ -269,6 +316,17 @@ config SUN8I_EMAC
 	  It can be found in H3/A64/A83T based SoCs and compatible with both
 	  External and Internal PHYs.
 
+config SH_ETHER
+	bool "Renesas SH Ethernet MAC"
+	select PHYLIB
+	help
+	  This driver supports the Ethernet for Renesas SH and ARM SoCs.
+
+config DRIVER_TI_EMAC
+	bool "TI Davinci EMAC"
+	help
+	   Support for davinci emac
+
 config XILINX_AXIEMAC
 	depends on DM_ETH && (MICROBLAZE || ARCH_ZYNQ || ARCH_ZYNQMP)
 	select PHYLIB
@@ -286,7 +344,7 @@ config XILINX_EMACLITE
 	  This MAC is present in Xilinx Microblaze, Zynq and ZynqMP SoCs.
 
 config ZYNQ_GEM
-	depends on DM_ETH && (ARCH_ZYNQ || ARCH_ZYNQMP)
+	depends on DM_ETH && (ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL)
 	select PHYLIB
 	bool "Xilinx Ethernet GEM"
 	help
@@ -317,11 +375,21 @@ config RENESAS_RAVB
 
 config MPC8XX_FEC
 	bool "Fast Ethernet Controller on MPC8XX"
-	depends on 8xx
+	depends on MPC8xx
 	select MII
 	help
 	  This driver implements support for the Fast Ethernet Controller
 	  on MPC8XX
+
+config SNI_AVE
+	bool "Socionext AVE Ethernet support"
+	depends on DM_ETH && ARCH_UNIPHIER
+	select PHYLIB
+	select SYSCON
+	select REGMAP
+	help
+	  This driver implements support for the Socionext AVE Ethernet
+	  controller, as found on the Socionext UniPhier family.
 
 config ETHER_ON_FEC1
 	bool "FEC1"
@@ -372,5 +440,36 @@ config FEC2_PHY_NORXERR
 	help
 	  The PHY does not have a RXERR line (RMII only).
 	  (so program the FEC to ignore it).
+
+config SYS_DPAA_QBMAN
+	bool "Device tree fixup for QBMan on freescale SOCs"
+	depends on (ARM || PPC) && !SPL_BUILD
+	default y if ARCH_B4860 || \
+		     ARCH_B4420 || \
+		     ARCH_P1023 || \
+		     ARCH_P2041 || \
+		     ARCH_T1023 || \
+		     ARCH_T1024 || \
+		     ARCH_T1040 || \
+		     ARCH_T1042 || \
+		     ARCH_T2080 || \
+		     ARCH_T2081 || \
+		     ARCH_T4240 || \
+		     ARCH_T4160 || \
+		     ARCH_P4080 || \
+		     ARCH_P3041 || \
+		     ARCH_P5040 || \
+		     ARCH_P5020 || \
+		     ARCH_LS1043A || \
+		     ARCH_LS1046A
+	help
+	  QBman fixups to allow deep sleep in DPAA 1 SOCs
+
+config TSEC_ENET
+	select PHYLIB
+	bool "Enable Three-Speed Ethernet Controller"
+	help
+	  This driver implements support for the (Enhanced) Three-Speed
+	  Ethernet Controller found on Freescale SoCs.
 
 endif # NETDEVICES

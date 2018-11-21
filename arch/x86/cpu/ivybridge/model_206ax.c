@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * From Coreboot file of same name
  *
  * Copyright (C) 2007-2009 coresystems GmbH
  * Copyright (C) 2011 The Chromium Authors
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -394,27 +393,12 @@ static void configure_mca(void)
 		msr_write(IA32_MC0_STATUS + (i * 4), msr);
 }
 
-#if CONFIG_USBDEBUG
-static unsigned ehci_debug_addr;
-#endif
-
 static int model_206ax_init(struct udevice *dev)
 {
 	int ret;
 
 	/* Clear out pending MCEs */
 	configure_mca();
-
-#if CONFIG_USBDEBUG
-	/* Is this caution really needed? */
-	if (!ehci_debug_addr)
-		ehci_debug_addr = get_ehci_debug();
-	set_ehci_debug(0);
-#endif
-
-#if CONFIG_USBDEBUG
-	set_ehci_debug(ehci_debug_addr);
-#endif
 
 	/* Enable the local cpu apics */
 	enable_lapic_tpr();

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2007 Freescale Semiconductor, Inc.
  * Kevin Lam <kevin.lam@freescale.com>
  * Joe D'Abbraccio <joe.d'abbraccio@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -16,15 +15,11 @@
 #define CONFIG_MPC837x		1 /* MPC837x CPU specific */
 #define CONFIG_MPC837XERDB	1
 
-#define	CONFIG_SYS_TEXT_BASE	0xFE000000
-
-#define CONFIG_MISC_INIT_R
 #define CONFIG_HWCONFIG
 
 /*
  * On-board devices
  */
-#define CONFIG_TSEC_ENET		/* TSEC Ethernet support */
 #define CONFIG_VSC7385_ENET
 
 /*
@@ -244,14 +239,10 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
-#define CONFIG_FLASH_CFI_DRIVER	/* use the CFI driver */
 #define CONFIG_SYS_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		8 /* max FLASH size is 32M */
 
-#define CONFIG_SYS_FLASH_PROTECTION	1	/* Use h/w Flash protection. */
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* display empty sectors */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	/* buffer up multiple bytes */
 
 					/* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
@@ -324,7 +315,6 @@
 /*
  * Serial Port
  */
-#define CONFIG_CONS_INDEX	1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -468,21 +458,14 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
  */
 
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history */
-#define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
-
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
 #ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_ESDHC_PIN_MUX
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
 #endif
@@ -490,7 +473,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP	/* undef to save memory */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000 /* default load address */
 
 /*
@@ -634,7 +616,7 @@
 
 #define CONFIG_NETDEV		"eth1"
 
-#define CONFIG_HOSTNAME		mpc837x_rdb
+#define CONFIG_HOSTNAME		"mpc837x_rdb"
 #define CONFIG_ROOTPATH		"/nfsroot"
 #define CONFIG_RAMDISKFILE	"rootfs.ext2.gz.uboot"
 #define CONFIG_BOOTFILE		"uImage"

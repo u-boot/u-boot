@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SoC-specific code for TMS320DM646x chips
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/hardware.h>

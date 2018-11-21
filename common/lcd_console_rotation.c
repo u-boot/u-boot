@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

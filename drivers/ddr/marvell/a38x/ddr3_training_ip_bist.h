@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) Marvell International Ltd. and its affiliates
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _DDR3_TRAINING_IP_BIST_H_
@@ -46,9 +45,13 @@ int hws_ddr3_run_bist(u32 dev_num, enum hws_pattern pattern, u32 *result,
 		      u32 cs_num);
 int ddr3_tip_run_sweep_test(int dev_num, u32 repeat_num, u32 direction,
 			    u32 mode);
+int ddr3_tip_run_leveling_sweep_test(int dev_num, u32 repeat_num,
+				     u32 direction, u32 mode);
 int ddr3_tip_print_regs(u32 dev_num);
 int ddr3_tip_reg_dump(u32 dev_num);
 int run_xsb_test(u32 dev_num, u32 mem_addr, u32 write_type, u32 read_type,
 		 u32 burst_length);
-
+int mv_ddr_dm_to_dq_diff_get(u8 adll_byte_high, u8 adll_byte_low, u8 *vw_vector,
+			     int *delta_h_adll, int *delta_l_adll);
+int mv_ddr_dm_vw_get(enum hws_pattern pattern, u32 cs, u8 *vw_vector);
 #endif /* _DDR3_TRAINING_IP_BIST_H_ */

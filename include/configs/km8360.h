@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012
  * Holger Brunck, Keymile GmbH Hannover, <holger.brunck@keymile.com>
  * Christian Herzig, Keymile AG Switzerland, <christian.herzig@keymile.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -14,11 +13,11 @@
 #define CONFIG_SYS_KMBEC_FPGA_SIZE	64
 
 #if defined CONFIG_KMETER1
-#define CONFIG_HOSTNAME		kmeter1
+#define CONFIG_HOSTNAME		"kmeter1"
 #define CONFIG_KM_BOARD_NAME   "kmeter1"
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth2\0"
 #elif defined CONFIG_KMCOGE5NE
-#define CONFIG_HOSTNAME		kmcoge5ne
+#define CONFIG_HOSTNAME		"kmcoge5ne"
 #define CONFIG_KM_BOARD_NAME	"kmcoge5ne"
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth1\0"
 #define CONFIG_NAND_ECC_BCH
@@ -38,8 +37,6 @@
  */
 #define CONFIG_QE			/* Has QE */
 #define CONFIG_MPC8360			/* MPC8360 CPU specific */
-
-#define	CONFIG_SYS_TEXT_BASE	0xF0000000
 
 /* include common defines/options for all 83xx Keymile boards */
 #include "km/km83xx-common.h"

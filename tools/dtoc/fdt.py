@@ -1,9 +1,8 @@
 #!/usr/bin/python
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2016 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
-#
-# SPDX-License-Identifier:      GPL-2.0+
 #
 
 import struct
@@ -11,6 +10,7 @@ import sys
 
 import fdt_util
 import libfdt
+from libfdt import QUIET_NOTFOUND
 
 # This deals with a device tree, presenting it as an assortment of Node and
 # Prop objects, representing nodes and properties, respectively. This file
@@ -43,18 +43,15 @@ class Prop:
         self.name = name
         self.value = None
         self.bytes = str(bytes)
+        self.dirty = False
         if not bytes:
             self.type = TYPE_BOOL
             self.value = True
             return
         self.type, self.value = self.BytesToValue(bytes)
 
-    def GetPhandle(self):
-        """Get a (single) phandle value from a property
-
-        Gets the phandle valuie from a property and returns it as an integer
-        """
-        return fdt_util.fdt32_to_cpu(self.value[:4])
+    def RefreshOffset(self, poffset):
+        self._offset = poffset
 
     def Widen(self, newprop):
         """Figure out which property type is more general
@@ -139,6 +136,7 @@ class Prop:
         else:
             return TYPE_INT, val
 
+    @classmethod
     def GetEmpty(self, type):
         """Get an empty / zero value of the given type
 
@@ -148,7 +146,7 @@ class Prop:
         if type == TYPE_BYTE:
             return chr(0)
         elif type == TYPE_INT:
-            return struct.pack('<I', 0);
+            return struct.pack('>I', 0);
         elif type == TYPE_STRING:
             return ''
         else:
@@ -160,7 +158,57 @@ class Prop:
         Returns:
             The offset of the property (struct fdt_property) within the file
         """
+        self._node._fdt.CheckCache()
         return self._node._fdt.GetStructOffset(self._offset)
+
+    def SetInt(self, val):
+        """Set the integer value of the property
+
+        The device tree is marked dirty so that the value will be written to
+        the block on the next sync.
+
+        Args:
+            val: Integer value (32-bit, single cell)
+        """
+        self.bytes = struct.pack('>I', val);
+        self.value = self.bytes
+        self.type = TYPE_INT
+        self.dirty = True
+
+    def SetData(self, bytes):
+        """Set the value of a property as bytes
+
+        Args:
+            bytes: New property value to set
+        """
+        self.bytes = str(bytes)
+        self.type, self.value = self.BytesToValue(bytes)
+        self.dirty = True
+
+    def Sync(self, auto_resize=False):
+        """Sync property changes back to the device tree
+
+        This updates the device tree blob with any changes to this property
+        since the last sync.
+
+        Args:
+            auto_resize: Resize the device tree automatically if it does not
+                have enough space for the update
+
+        Raises:
+            FdtException if auto_resize is False and there is not enough space
+        """
+        if self._offset is None or self.dirty:
+            node = self._node
+            fdt_obj = node._fdt._fdt_obj
+            if auto_resize:
+                while fdt_obj.setprop(node.Offset(), self.name, self.bytes,
+                                    (libfdt.NOSPACE,)) == -libfdt.NOSPACE:
+                    fdt_obj.resize(fdt_obj.totalsize() + 1024)
+                    fdt_obj.setprop(node.Offset(), self.name, self.bytes)
+            else:
+                fdt_obj.setprop(node.Offset(), self.name, self.bytes)
+
 
 class Node:
     """A device tree node
@@ -183,7 +231,15 @@ class Node:
         self.subnodes = []
         self.props = {}
 
-    def _FindNode(self, name):
+    def GetFdt(self):
+        """Get the Fdt object for this node
+
+        Returns:
+            Fdt object
+        """
+        return self._fdt
+
+    def FindNode(self, name):
         """Find a node given its name
 
         Args:
@@ -211,22 +267,22 @@ class Node:
         This fills in the props and subnodes properties, recursively
         searching into subnodes so that the entire tree is built.
         """
+        fdt_obj = self._fdt._fdt_obj
         self.props = self._fdt.GetProps(self)
-        phandle = self.props.get('phandle')
+        phandle = fdt_obj.get_phandle(self.Offset())
         if phandle:
-            val = fdt_util.fdt32_to_cpu(phandle.value)
-            self._fdt.phandle_to_node[val] = self
+            self._fdt.phandle_to_node[phandle] = self
 
-        offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self.Offset())
+        offset = fdt_obj.first_subnode(self.Offset(), QUIET_NOTFOUND)
         while offset >= 0:
             sep = '' if self.path[-1] == '/' else '/'
-            name = self._fdt._fdt_obj.get_name(offset)
+            name = fdt_obj.get_name(offset)
             path = self.path + sep + name
             node = Node(self._fdt, self, offset, name, path)
             self.subnodes.append(node)
 
             node.Scan()
-            offset = libfdt.fdt_next_subnode(self._fdt.GetFdt(), offset)
+            offset = fdt_obj.next_subnode(offset, QUIET_NOTFOUND)
 
     def Refresh(self, my_offset):
         """Fix up the _offset for each node, recursively
@@ -234,13 +290,28 @@ class Node:
         Note: This does not take account of property offsets - these will not
         be updated.
         """
+        fdt_obj = self._fdt._fdt_obj
         if self._offset != my_offset:
-            #print '%s: %d -> %d\n' % (self.path, self._offset, my_offset)
             self._offset = my_offset
-        offset = libfdt.fdt_first_subnode(self._fdt.GetFdt(), self._offset)
+        offset = fdt_obj.first_subnode(self._offset, QUIET_NOTFOUND)
         for subnode in self.subnodes:
+            if subnode.name != fdt_obj.get_name(offset):
+                raise ValueError('Internal error, node name mismatch %s != %s' %
+                                 (subnode.name, fdt_obj.get_name(offset)))
             subnode.Refresh(offset)
-            offset = libfdt.fdt_next_subnode(self._fdt.GetFdt(), offset)
+            offset = fdt_obj.next_subnode(offset, QUIET_NOTFOUND)
+        if offset != -libfdt.FDT_ERR_NOTFOUND:
+            raise ValueError('Internal error, offset == %d' % offset)
+
+        poffset = fdt_obj.first_property_offset(self._offset, QUIET_NOTFOUND)
+        while poffset >= 0:
+            p = fdt_obj.get_property_by_offset(poffset)
+            prop = self.props.get(p.name)
+            if not prop:
+                raise ValueError("Internal error, property '%s' missing, "
+                                 'offset %d' % (p.name, poffset))
+            prop.RefreshOffset(poffset)
+            poffset = fdt_obj.next_property_offset(poffset, QUIET_NOTFOUND)
 
     def DeleteProp(self, prop_name):
         """Delete a property of a node
@@ -252,10 +323,137 @@ class Node:
         Raises:
             ValueError if the property does not exist
         """
-        CheckErr(libfdt.fdt_delprop(self._fdt.GetFdt(), self.Offset(), prop_name),
+        CheckErr(self._fdt._fdt_obj.delprop(self.Offset(), prop_name),
                  "Node '%s': delete property: '%s'" % (self.path, prop_name))
         del self.props[prop_name]
         self._fdt.Invalidate()
+
+    def AddZeroProp(self, prop_name):
+        """Add a new property to the device tree with an integer value of 0.
+
+        Args:
+            prop_name: Name of property
+        """
+        self.props[prop_name] = Prop(self, None, prop_name, '\0' * 4)
+
+    def AddEmptyProp(self, prop_name, len):
+        """Add a property with a fixed data size, for filling in later
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property
+            len: Length of data in property
+        """
+        value = chr(0) * len
+        self.props[prop_name] = Prop(self, None, prop_name, value)
+
+    def SetInt(self, prop_name, val):
+        """Update an integer property int the device tree.
+
+        This is not allowed to change the size of the FDT.
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property
+            val: Value to set
+        """
+        self.props[prop_name].SetInt(val)
+
+    def SetData(self, prop_name, val):
+        """Set the data value of a property
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property to set
+            val: Data value to set
+        """
+        self.props[prop_name].SetData(val)
+
+    def SetString(self, prop_name, val):
+        """Set the string value of a property
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property to set
+            val: String value to set (will be \0-terminated in DT)
+        """
+        self.props[prop_name].SetData(val + chr(0))
+
+    def AddString(self, prop_name, val):
+        """Add a new string property to a node
+
+        The device tree is marked dirty so that the value will be written to
+        the blob on the next sync.
+
+        Args:
+            prop_name: Name of property to add
+            val: String value of property
+        """
+        self.props[prop_name] = Prop(self, None, prop_name, val + chr(0))
+
+    def AddSubnode(self, name):
+        """Add a new subnode to the node
+
+        Args:
+            name: name of node to add
+
+        Returns:
+            New subnode that was created
+        """
+        path = self.path + '/' + name
+        subnode = Node(self._fdt, self, None, name, path)
+        self.subnodes.append(subnode)
+        return subnode
+
+    def Sync(self, auto_resize=False):
+        """Sync node changes back to the device tree
+
+        This updates the device tree blob with any changes to this node and its
+        subnodes since the last sync.
+
+        Args:
+            auto_resize: Resize the device tree automatically if it does not
+                have enough space for the update
+
+        Raises:
+            FdtException if auto_resize is False and there is not enough space
+        """
+        if self._offset is None:
+            # The subnode doesn't exist yet, so add it
+            fdt_obj = self._fdt._fdt_obj
+            if auto_resize:
+                while True:
+                    offset = fdt_obj.add_subnode(self.parent._offset, self.name,
+                                                (libfdt.NOSPACE,))
+                    if offset != -libfdt.NOSPACE:
+                        break
+                    fdt_obj.resize(fdt_obj.totalsize() + 1024)
+            else:
+                offset = fdt_obj.add_subnode(self.parent._offset, self.name)
+            self._offset = offset
+
+        # Sync subnodes in reverse so that we don't disturb node offsets for
+        # nodes that are earlier in the DT. This avoids an O(n^2) rescan of
+        # node offsets.
+        for node in reversed(self.subnodes):
+            node.Sync(auto_resize)
+
+        # Sync properties now, whose offsets should not have been disturbed.
+        # We do this after subnodes, since this disturbs the offsets of these
+        # properties.
+        prop_list = sorted(self.props.values(), key=lambda prop: prop._offset,
+                           reverse=True)
+        for prop in prop_list:
+            prop.Sync(auto_resize)
+
 
 class Fdt:
     """Provides simple access to a flat device tree blob using libfdts.
@@ -272,8 +470,32 @@ class Fdt:
             self._fname = fdt_util.EnsureCompiled(self._fname)
 
             with open(self._fname) as fd:
-                self._fdt = bytearray(fd.read())
-                self._fdt_obj = libfdt.Fdt(self._fdt)
+                self._fdt_obj = libfdt.Fdt(fd.read())
+
+    @staticmethod
+    def FromData(data):
+        """Create a new Fdt object from the given data
+
+        Args:
+            data: Device-tree data blob
+
+        Returns:
+            Fdt object containing the data
+        """
+        fdt = Fdt(None)
+        fdt._fdt_obj = libfdt.Fdt(bytearray(data))
+        return fdt
+
+    def LookupPhandle(self, phandle):
+        """Look up a phandle
+
+        Args:
+            phandle: Phandle to look up (int)
+
+        Returns:
+            Node object the phandle points to
+        """
+        return self.phandle_to_node.get(phandle)
 
     def Scan(self, root='/'):
         """Scan a device tree, building up a tree of Node objects
@@ -285,6 +507,7 @@ class Fdt:
 
         TODO(sjg@chromium.org): Implement the 'root' parameter
         """
+        self._cached_offsets = True
         self._root = self.Node(self, None, 0, '/', '/')
         self._root.Scan()
 
@@ -305,8 +528,11 @@ class Fdt:
             Node object, or None if not found
         """
         node = self._root
-        for part in path.split('/')[1:]:
-            node = node._FindNode(part)
+        parts = path.split('/')
+        if len(parts) < 2:
+            return None
+        for part in parts[1:]:
+            node = node.FindNode(part)
             if not node:
                 return None
         return node
@@ -317,7 +543,20 @@ class Fdt:
         If the device tree has changed in memory, write it back to the file.
         """
         with open(self._fname, 'wb') as fd:
-            fd.write(self._fdt)
+            fd.write(self._fdt_obj.as_bytearray())
+
+    def Sync(self, auto_resize=False):
+        """Make sure any DT changes are written to the blob
+
+        Args:
+            auto_resize: Resize the device tree automatically if it does not
+                have enough space for the update
+
+        Raises:
+            FdtException if auto_resize is False and there is not enough space
+        """
+        self._root.Sync(auto_resize)
+        self.Invalidate()
 
     def Pack(self):
         """Pack the device tree down to its minimum size
@@ -325,23 +564,24 @@ class Fdt:
         When nodes and properties shrink or are deleted, wasted space can
         build up in the device tree binary.
         """
-        CheckErr(libfdt.fdt_pack(self._fdt), 'pack')
-        fdt_len = libfdt.fdt_totalsize(self._fdt)
-        del self._fdt[fdt_len:]
+        CheckErr(self._fdt_obj.pack(), 'pack')
+        self.Invalidate()
 
-    def GetFdt(self):
+    def GetContents(self):
         """Get the contents of the FDT
 
         Returns:
             The FDT contents as a string of bytes
         """
-        return self._fdt
+        return self._fdt_obj.as_bytearray()
 
-    def CheckErr(errnum, msg):
-        if errnum:
-            raise ValueError('Error %d: %s: %s' %
-                (errnum, libfdt.fdt_strerror(errnum), msg))
+    def GetFdtObj(self):
+        """Get the contents of the FDT
 
+        Returns:
+            The FDT contents as a libfdt.Fdt object
+        """
+        return self._fdt_obj
 
     def GetProps(self, node):
         """Get all properties from a node.
@@ -357,13 +597,15 @@ class Fdt:
             ValueError: if the node does not exist.
         """
         props_dict = {}
-        poffset = libfdt.fdt_first_property_offset(self._fdt, node._offset)
+        poffset = self._fdt_obj.first_property_offset(node._offset,
+                                                      QUIET_NOTFOUND)
         while poffset >= 0:
             p = self._fdt_obj.get_property_by_offset(poffset)
-            prop = Prop(node, poffset, p.name, p.value)
+            prop = Prop(node, poffset, p.name, p)
             props_dict[prop.name] = prop
 
-            poffset = libfdt.fdt_next_property_offset(self._fdt, poffset)
+            poffset = self._fdt_obj.next_property_offset(poffset,
+                                                         QUIET_NOTFOUND)
         return props_dict
 
     def Invalidate(self):
@@ -389,7 +631,7 @@ class Fdt:
         Returns:
             Position of @offset within the device tree binary
         """
-        return libfdt.fdt_off_dt_struct(self._fdt) + offset
+        return self._fdt_obj.off_dt_struct() + offset
 
     @classmethod
     def Node(self, fdt, parent, offset, name, path):
@@ -409,7 +651,7 @@ class Fdt:
         return node
 
 def FdtScan(fname):
-    """Returns a new Fdt object from the implementation we are using"""
+    """Returns a new Fdt object"""
     dtb = Fdt(fname)
     dtb.Scan()
     return dtb

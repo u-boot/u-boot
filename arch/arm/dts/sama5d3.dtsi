@@ -238,10 +238,6 @@
 				clocks = <&isi_clk>;
 				clock-names = "isi_clk";
 				status = "disabled";
-				port {
-					#address-cells = <1>;
-					#size-cells = <0>;
-				};
 			};
 
 			sfr: sfr@f0038000 {
@@ -1537,5 +1533,10 @@
 				clocks = <&hsmc_clk>;
 			};
 		};
+	};
+
+	onewire_tm: onewire {
+		compatible = "w1-gpio";
+		status = "disabled";
 	};
 };

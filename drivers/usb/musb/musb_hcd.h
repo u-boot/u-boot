@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Mentor USB OTG Core host controller driver.
  *
  * Copyright (c) 2008 Texas Instruments
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Author: Thomas Abraham t-abraham@ti.com, Texas Instruments
  */

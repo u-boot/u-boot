@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2011 The Chromium OS Authors.
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 
 """See README for more information"""
@@ -39,6 +38,8 @@ parser.add_option('-i', '--ignore-errors', action='store_true',
 parser.add_option('-m', '--no-maintainers', action='store_false',
        dest='add_maintainers', default=True,
        help="Don't cc the file maintainers automatically")
+parser.add_option('-l', '--limit-cc', dest='limit', type='int',
+       default=None, help='Limit the cc list to LIMIT entries [default: %default]')
 parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
        default=False, help="Do a dry run (create but don't email patches)")
 parser.add_option('-p', '--project', default=project.DetectProject(),
@@ -61,6 +62,8 @@ parser.add_option('--no-check', action='store_false', dest='check_patch',
                   help="Don't check for patch compliance")
 parser.add_option('--no-tags', action='store_false', dest='process_tags',
                   default=True, help="Don't process subject tags as aliaes")
+parser.add_option('--smtp-server', type='str',
+                  help="Specify the SMTP server to 'git send-email'")
 parser.add_option('-T', '--thread', action='store_true', dest='thread',
                   default=False, help='Create patches as a single thread')
 
@@ -158,7 +161,7 @@ else:
 
     cc_file = series.MakeCcFile(options.process_tags, cover_fname,
                                 not options.ignore_bad_tags,
-                                options.add_maintainers)
+                                options.add_maintainers, options.limit)
 
     # Email the patches out (giving the user time to check / cancel)
     cmd = ''
@@ -166,7 +169,8 @@ else:
     if its_a_go:
         cmd = gitutil.EmailPatches(series, cover_fname, args,
                 options.dry_run, not options.ignore_bad_tags, cc_file,
-                in_reply_to=options.in_reply_to, thread=options.thread)
+                in_reply_to=options.in_reply_to, thread=options.thread,
+                smtp_server=options.smtp_server)
     else:
         print(col.Color(col.RED, "Not sending emails due to errors/warnings"))
 

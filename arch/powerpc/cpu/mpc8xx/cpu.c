@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -21,14 +20,14 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mpc8xx.h>
-#include <commproc.h>
 #include <netdev.h>
 #include <asm/cache.h>
+#include <asm/cpm_8xx.h>
 #include <linux/compiler.h>
 #include <asm/io.h>
 
 #if defined(CONFIG_OF_LIBFDT)
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #endif
 
@@ -36,13 +35,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int check_CPU(long clock, uint pvr, uint immr)
 {
-	immap_t __iomem *immap = (immap_t __iomem *)(immr & 0xFFFF0000);
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	uint k;
 	char buf[32];
 
 	/* the highest 16 bits should be 0x0050 for a 860 */
 
-	if ((pvr >> 16) != 0x0050)
+	if (PVR_VER(pvr) != PVR_VER(PVR_8xx))
 		return -1;
 
 	k = (immr << 16) |
@@ -90,7 +89,7 @@ static int check_CPU(long clock, uint pvr, uint immr)
 int checkcpu(void)
 {
 	ulong clock = gd->cpu_clk;
-	uint immr = get_immr(0);	/* Return full IMMR contents */
+	uint immr = get_immr();	/* Return full IMMR contents */
 	uint pvr = get_pvr();
 
 	puts("CPU:   ");
@@ -237,8 +236,7 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  */
 unsigned long get_tbclk(void)
 {
-	uint immr = get_immr(0);	/* Return full IMMR contents */
-	immap_t __iomem *immap = (immap_t __iomem *)(immr & 0xFFFF0000);
+	immap_t __iomem *immap = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	ulong oscclk, factor, pll;
 
 	if (in_be32(&immap->im_clkrst.car_sccr) & SCCR_TBS)
@@ -270,31 +268,6 @@ unsigned long get_tbclk(void)
 
 	return oscclk / 16;
 }
-
-/* ------------------------------------------------------------------------- */
-
-#if defined(CONFIG_WATCHDOG)
-void watchdog_reset(void)
-{
-	int re_enable = disable_interrupts();
-
-	reset_8xx_watchdog((immap_t __iomem *)CONFIG_SYS_IMMR);
-	if (re_enable)
-		enable_interrupts();
-}
-#endif /* CONFIG_WATCHDOG */
-
-#if defined(CONFIG_WATCHDOG)
-
-void reset_8xx_watchdog(immap_t __iomem *immr)
-{
-	/*
-	 * All other boards use the MPC8xx Internal Watchdog
-	 */
-	out_be16(&immr->im_siu_conf.sc_swsr, 0x556c);	/* write magic1 */
-	out_be16(&immr->im_siu_conf.sc_swsr, 0xaa39);	/* write magic2 */
-}
-#endif /* CONFIG_WATCHDOG */
 
 /*
  * Initializes on-chip ethernet controllers.

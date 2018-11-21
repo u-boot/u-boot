@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2013, Google Inc.
  *
@@ -5,8 +6,6 @@
  *
  * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifdef USE_HOSTCC
@@ -143,7 +142,186 @@ int fit_get_subimage_count(const void *fit, int images_noffset)
 	return count;
 }
 
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_FIT_SPL_PRINT)
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_FIT_PRINT)
+/**
+ * fit_image_print_data() - prints out the hash node details
+ * @fit: pointer to the FIT format image header
+ * @noffset: offset of the hash node
+ * @p: pointer to prefix string
+ * @type: Type of information to print ("hash" or "sign")
+ *
+ * fit_image_print_data() lists properties for the processed hash node
+ *
+ * This function avoid using puts() since it prints a newline on the host
+ * but does not in U-Boot.
+ *
+ * returns:
+ *     no returned results
+ */
+static void fit_image_print_data(const void *fit, int noffset, const char *p,
+				 const char *type)
+{
+	const char *keyname;
+	uint8_t *value;
+	int value_len;
+	char *algo;
+	int required;
+	int ret, i;
+
+	debug("%s  %s node:    '%s'\n", p, type,
+	      fit_get_name(fit, noffset, NULL));
+	printf("%s  %s algo:    ", p, type);
+	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
+		printf("invalid/unsupported\n");
+		return;
+	}
+	printf("%s", algo);
+	keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
+	required = fdt_getprop(fit, noffset, "required", NULL) != NULL;
+	if (keyname)
+		printf(":%s", keyname);
+	if (required)
+		printf(" (required)");
+	printf("\n");
+
+	ret = fit_image_hash_get_value(fit, noffset, &value,
+				       &value_len);
+	printf("%s  %s value:   ", p, type);
+	if (ret) {
+		printf("unavailable\n");
+	} else {
+		for (i = 0; i < value_len; i++)
+			printf("%02x", value[i]);
+		printf("\n");
+	}
+
+	debug("%s  %s len:     %d\n", p, type, value_len);
+
+	/* Signatures have a time stamp */
+	if (IMAGE_ENABLE_TIMESTAMP && keyname) {
+		time_t timestamp;
+
+		printf("%s  Timestamp:    ", p);
+		if (fit_get_timestamp(fit, noffset, &timestamp))
+			printf("unavailable\n");
+		else
+			genimg_print_time(timestamp);
+	}
+}
+
+/**
+ * fit_image_print_verification_data() - prints out the hash/signature details
+ * @fit: pointer to the FIT format image header
+ * @noffset: offset of the hash or signature node
+ * @p: pointer to prefix string
+ *
+ * This lists properties for the processed hash node
+ *
+ * returns:
+ *     no returned results
+ */
+static void fit_image_print_verification_data(const void *fit, int noffset,
+					      const char *p)
+{
+	const char *name;
+
+	/*
+	 * Check subnode name, must be equal to "hash" or "signature".
+	 * Multiple hash/signature nodes require unique unit node
+	 * names, e.g. hash-1, hash-2, signature-1, signature-2, etc.
+	 */
+	name = fit_get_name(fit, noffset, NULL);
+	if (!strncmp(name, FIT_HASH_NODENAME, strlen(FIT_HASH_NODENAME))) {
+		fit_image_print_data(fit, noffset, p, "Hash");
+	} else if (!strncmp(name, FIT_SIG_NODENAME,
+				strlen(FIT_SIG_NODENAME))) {
+		fit_image_print_data(fit, noffset, p, "Sign");
+	}
+}
+
+/**
+ * fit_conf_print - prints out the FIT configuration details
+ * @fit: pointer to the FIT format image header
+ * @noffset: offset of the configuration node
+ * @p: pointer to prefix string
+ *
+ * fit_conf_print() lists all mandatory properties for the processed
+ * configuration node.
+ *
+ * returns:
+ *     no returned results
+ */
+static void fit_conf_print(const void *fit, int noffset, const char *p)
+{
+	char *desc;
+	const char *uname;
+	int ret;
+	int fdt_index, loadables_index;
+	int ndepth;
+
+	/* Mandatory properties */
+	ret = fit_get_desc(fit, noffset, &desc);
+	printf("%s  Description:  ", p);
+	if (ret)
+		printf("unavailable\n");
+	else
+		printf("%s\n", desc);
+
+	uname = fdt_getprop(fit, noffset, FIT_KERNEL_PROP, NULL);
+	printf("%s  Kernel:       ", p);
+	if (!uname)
+		printf("unavailable\n");
+	else
+		printf("%s\n", uname);
+
+	/* Optional properties */
+	uname = fdt_getprop(fit, noffset, FIT_RAMDISK_PROP, NULL);
+	if (uname)
+		printf("%s  Init Ramdisk: %s\n", p, uname);
+
+	uname = fdt_getprop(fit, noffset, FIT_FIRMWARE_PROP, NULL);
+	if (uname)
+		printf("%s  Firmware:     %s\n", p, uname);
+
+	for (fdt_index = 0;
+	     uname = fdt_stringlist_get(fit, noffset, FIT_FDT_PROP,
+					fdt_index, NULL), uname;
+	     fdt_index++) {
+		if (fdt_index == 0)
+			printf("%s  FDT:          ", p);
+		else
+			printf("%s                ", p);
+		printf("%s\n", uname);
+	}
+
+	uname = fdt_getprop(fit, noffset, FIT_FPGA_PROP, NULL);
+	if (uname)
+		printf("%s  FPGA:         %s\n", p, uname);
+
+	/* Print out all of the specified loadables */
+	for (loadables_index = 0;
+	     uname = fdt_stringlist_get(fit, noffset, FIT_LOADABLE_PROP,
+					loadables_index, NULL), uname;
+	     loadables_index++) {
+		if (loadables_index == 0) {
+			printf("%s  Loadables:    ", p);
+		} else {
+			printf("%s                ", p);
+		}
+		printf("%s\n", uname);
+	}
+
+	/* Process all hash subnodes of the component configuration node */
+	for (ndepth = 0, noffset = fdt_next_node(fit, noffset, &ndepth);
+	     (noffset >= 0) && (ndepth > 0);
+	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
+		if (ndepth == 1) {
+			/* Direct child node of the component configuration node */
+			fit_image_print_verification_data(fit, noffset, p);
+		}
+	}
+}
+
 /**
  * fit_print_contents - prints out the contents of the FIT format image
  * @fit: pointer to the FIT format image header
@@ -246,102 +424,6 @@ void fit_print_contents(const void *fit)
 }
 
 /**
- * fit_image_print_data() - prints out the hash node details
- * @fit: pointer to the FIT format image header
- * @noffset: offset of the hash node
- * @p: pointer to prefix string
- * @type: Type of information to print ("hash" or "sign")
- *
- * fit_image_print_data() lists properties for the processed hash node
- *
- * This function avoid using puts() since it prints a newline on the host
- * but does not in U-Boot.
- *
- * returns:
- *     no returned results
- */
-static void fit_image_print_data(const void *fit, int noffset, const char *p,
-				 const char *type)
-{
-	const char *keyname;
-	uint8_t *value;
-	int value_len;
-	char *algo;
-	int required;
-	int ret, i;
-
-	debug("%s  %s node:    '%s'\n", p, type,
-	      fit_get_name(fit, noffset, NULL));
-	printf("%s  %s algo:    ", p, type);
-	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
-		printf("invalid/unsupported\n");
-		return;
-	}
-	printf("%s", algo);
-	keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
-	required = fdt_getprop(fit, noffset, "required", NULL) != NULL;
-	if (keyname)
-		printf(":%s", keyname);
-	if (required)
-		printf(" (required)");
-	printf("\n");
-
-	ret = fit_image_hash_get_value(fit, noffset, &value,
-					&value_len);
-	printf("%s  %s value:   ", p, type);
-	if (ret) {
-		printf("unavailable\n");
-	} else {
-		for (i = 0; i < value_len; i++)
-			printf("%02x", value[i]);
-		printf("\n");
-	}
-
-	debug("%s  %s len:     %d\n", p, type, value_len);
-
-	/* Signatures have a time stamp */
-	if (IMAGE_ENABLE_TIMESTAMP && keyname) {
-		time_t timestamp;
-
-		printf("%s  Timestamp:    ", p);
-		if (fit_get_timestamp(fit, noffset, &timestamp))
-			printf("unavailable\n");
-		else
-			genimg_print_time(timestamp);
-	}
-}
-
-/**
- * fit_image_print_verification_data() - prints out the hash/signature details
- * @fit: pointer to the FIT format image header
- * @noffset: offset of the hash or signature node
- * @p: pointer to prefix string
- *
- * This lists properties for the processed hash node
- *
- * returns:
- *     no returned results
- */
-static void fit_image_print_verification_data(const void *fit, int noffset,
-				       const char *p)
-{
-	const char *name;
-
-	/*
-	 * Check subnode name, must be equal to "hash" or "signature".
-	 * Multiple hash/signature nodes require unique unit node
-	 * names, e.g. hash@1, hash@2, signature@1, signature@2, etc.
-	 */
-	name = fit_get_name(fit, noffset, NULL);
-	if (!strncmp(name, FIT_HASH_NODENAME, strlen(FIT_HASH_NODENAME))) {
-		fit_image_print_data(fit, noffset, p, "Hash");
-	} else if (!strncmp(name, FIT_SIG_NODENAME,
-				strlen(FIT_SIG_NODENAME))) {
-		fit_image_print_data(fit, noffset, p, "Sign");
-	}
-}
-
-/**
  * fit_image_print - prints out the FIT component image details
  * @fit: pointer to the FIT format image header
  * @image_noffset: offset of the component image node
@@ -392,7 +474,7 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	fit_image_get_comp(fit, image_noffset, &comp);
 	printf("%s  Compression:  %s\n", p, genimg_get_comp_name(comp));
 
-	ret = fit_image_get_data(fit, image_noffset, &data, &size);
+	ret = fit_image_get_data_and_size(fit, image_noffset, &data, &size);
 
 #ifndef USE_HOSTCC
 	printf("%s  Data Start:   ", p);
@@ -460,8 +542,10 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 		}
 	}
 }
-
-#endif /* !defined(CONFIG_SPL_BUILD) || defined(CONFIG_FIT_SPL_PRINT) */
+#else
+void fit_print_contents(const void *fit) { }
+void fit_image_print(const void *fit, int image_noffset, const char *p) { }
+#endif /* !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_FIT_PRINT) */
 
 /**
  * fit_get_desc - get node description property
@@ -857,6 +941,54 @@ int fit_image_get_data_size(const void *fit, int noffset, int *data_size)
 }
 
 /**
+ * fit_image_get_data_and_size - get data and its size including
+ *				 both embedded and external data
+ * @fit: pointer to the FIT format image header
+ * @noffset: component image node offset
+ * @data: double pointer to void, will hold data property's data address
+ * @size: pointer to size_t, will hold data property's data size
+ *
+ * fit_image_get_data_and_size() finds data and its size including
+ * both embedded and external data. If the property is found
+ * its data start address and size are returned to the caller.
+ *
+ * returns:
+ *     0, on success
+ *     otherwise, on failure
+ */
+int fit_image_get_data_and_size(const void *fit, int noffset,
+				const void **data, size_t *size)
+{
+	bool external_data = false;
+	int offset;
+	int len;
+	int ret;
+
+	if (!fit_image_get_data_position(fit, noffset, &offset)) {
+		external_data = true;
+	} else if (!fit_image_get_data_offset(fit, noffset, &offset)) {
+		external_data = true;
+		/*
+		 * For FIT with external data, figure out where
+		 * the external images start. This is the base
+		 * for the data-offset properties in each image.
+		 */
+		offset += ((fdt_totalsize(fit) + 3) & ~3);
+	}
+
+	if (external_data) {
+		debug("External Data\n");
+		ret = fit_image_get_data_size(fit, noffset, &len);
+		*data = fit + offset;
+		*size = len;
+	} else {
+		ret = fit_image_get_data(fit, noffset, data, size);
+	}
+
+	return ret;
+}
+
+/**
  * fit_image_hash_get_algo - get hash algorithm name
  * @fit: pointer to the FIT format image header
  * @noffset: hash node offset
@@ -1069,33 +1201,13 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 	return 0;
 }
 
-/**
- * fit_image_verify - verify data integrity
- * @fit: pointer to the FIT format image header
- * @image_noffset: component image node offset
- *
- * fit_image_verify() goes over component image hash nodes,
- * re-calculates each data hash and compares with the value stored in hash
- * node.
- *
- * returns:
- *     1, if all hashes are valid
- *     0, otherwise (or on error)
- */
-int fit_image_verify(const void *fit, int image_noffset)
+int fit_image_verify_with_data(const void *fit, int image_noffset,
+			       const void *data, size_t size)
 {
-	const void	*data;
-	size_t		size;
 	int		noffset = 0;
 	char		*err_msg = "";
 	int verify_all = 1;
 	int ret;
-
-	/* Get image data and data length */
-	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
-		err_msg = "Can't get image data/size";
-		goto error;
-	}
 
 	/* Verify all required signatures */
 	if (IMAGE_ENABLE_VERIFY &&
@@ -1112,7 +1224,7 @@ int fit_image_verify(const void *fit, int image_noffset)
 		/*
 		 * Check subnode name, must be equal to "hash".
 		 * Multiple hash nodes require unique unit node
-		 * names, e.g. hash@1, hash@2, etc.
+		 * names, e.g. hash-1, hash-2, etc.
 		 */
 		if (!strncmp(name, FIT_HASH_NODENAME,
 			     strlen(FIT_HASH_NODENAME))) {
@@ -1151,6 +1263,38 @@ error:
 	       err_msg, fit_get_name(fit, noffset, NULL),
 	       fit_get_name(fit, image_noffset, NULL));
 	return 0;
+}
+
+/**
+ * fit_image_verify - verify data integrity
+ * @fit: pointer to the FIT format image header
+ * @image_noffset: component image node offset
+ *
+ * fit_image_verify() goes over component image hash nodes,
+ * re-calculates each data hash and compares with the value stored in hash
+ * node.
+ *
+ * returns:
+ *     1, if all hashes are valid
+ *     0, otherwise (or on error)
+ */
+int fit_image_verify(const void *fit, int image_noffset)
+{
+	const void	*data;
+	size_t		size;
+	int		noffset = 0;
+	char		*err_msg = "";
+
+	/* Get image data and data length */
+	if (fit_image_get_data_and_size(fit, image_noffset, &data, &size)) {
+		err_msg = "Can't get image data/size";
+		printf("error!\n%s for '%s' hash node in '%s' image node\n",
+		       err_msg, fit_get_name(fit, noffset, NULL),
+		       fit_get_name(fit, image_noffset, NULL));
+		return 0;
+	}
+
+	return fit_image_verify_with_data(fit, image_noffset, data, size);
 }
 
 /**
@@ -1349,15 +1493,15 @@ int fit_check_format(const void *fit)
  *
  * / o image-tree
  *   |-o images
- *   | |-o fdt@1
- *   | |-o fdt@2
+ *   | |-o fdt-1
+ *   | |-o fdt-2
  *   |
  *   |-o configurations
- *     |-o config@1
- *     | |-fdt = fdt@1
+ *     |-o config-1
+ *     | |-fdt = fdt-1
  *     |
- *     |-o config@2
- *       |-fdt = fdt@2
+ *     |-o config-2
+ *       |-fdt = fdt-2
  *
  * / o U-Boot fdt
  *   |-compatible = "foo,bar", "bim,bam"
@@ -1560,79 +1704,6 @@ int fit_conf_get_prop_node(const void *fit, int noffset,
 	return fit_conf_get_prop_node_index(fit, noffset, prop_name, 0);
 }
 
-/**
- * fit_conf_print - prints out the FIT configuration details
- * @fit: pointer to the FIT format image header
- * @noffset: offset of the configuration node
- * @p: pointer to prefix string
- *
- * fit_conf_print() lists all mandatory properties for the processed
- * configuration node.
- *
- * returns:
- *     no returned results
- */
-void fit_conf_print(const void *fit, int noffset, const char *p)
-{
-	char *desc;
-	const char *uname;
-	int ret;
-	int fdt_index, loadables_index;
-
-	/* Mandatory properties */
-	ret = fit_get_desc(fit, noffset, &desc);
-	printf("%s  Description:  ", p);
-	if (ret)
-		printf("unavailable\n");
-	else
-		printf("%s\n", desc);
-
-	uname = fdt_getprop(fit, noffset, FIT_KERNEL_PROP, NULL);
-	printf("%s  Kernel:       ", p);
-	if (uname == NULL)
-		printf("unavailable\n");
-	else
-		printf("%s\n", uname);
-
-	/* Optional properties */
-	uname = fdt_getprop(fit, noffset, FIT_RAMDISK_PROP, NULL);
-	if (uname)
-		printf("%s  Init Ramdisk: %s\n", p, uname);
-
-	uname = fdt_getprop(fit, noffset, FIT_FIRMWARE_PROP, NULL);
-	if (uname)
-		printf("%s  Firmware:     %s\n", p, uname);
-
-	for (fdt_index = 0;
-	     uname = fdt_stringlist_get(fit, noffset, FIT_FDT_PROP,
-					fdt_index, NULL), uname;
-	     fdt_index++) {
-
-		if (fdt_index == 0)
-			printf("%s  FDT:          ", p);
-		else
-			printf("%s                ", p);
-		printf("%s\n", uname);
-	}
-
-	uname = fdt_getprop(fit, noffset, FIT_FPGA_PROP, NULL);
-	if (uname)
-		printf("%s  FPGA:         %s\n", p, uname);
-
-	/* Print out all of the specified loadables */
-	for (loadables_index = 0;
-	     uname = fdt_stringlist_get(fit, noffset, FIT_LOADABLE_PROP,
-					loadables_index, NULL), uname;
-	     loadables_index++) {
-		if (loadables_index == 0) {
-			printf("%s  Loadables:    ", p);
-		} else {
-			printf("%s                ", p);
-		}
-		printf("%s\n", uname);
-	}
-}
-
 static int fit_image_select(const void *fit, int rd_noffset, int verify)
 {
 	fit_image_print(fit, rd_noffset, "   ");
@@ -1702,6 +1773,8 @@ static const char *fit_get_image_type_property(int type)
 		return FIT_LOADABLE_PROP;
 	case IH_TYPE_FPGA:
 		return FIT_FPGA_PROP;
+	case IH_TYPE_STANDALONE:
+		return FIT_STANDALONE_PROP;
 	}
 
 	return "unknown";
@@ -1765,23 +1838,25 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 					BOOTSTAGE_SUB_NO_UNIT_NAME);
 			return -ENOENT;
 		}
+
 		fit_base_uname_config = fdt_get_name(fit, cfg_noffset, NULL);
 		printf("   Using '%s' configuration\n", fit_base_uname_config);
-		if (image_type == IH_TYPE_KERNEL) {
-			/* Remember (and possibly verify) this config */
+		/* Remember this config */
+		if (image_type == IH_TYPE_KERNEL)
 			images->fit_uname_cfg = fit_base_uname_config;
-			if (IMAGE_ENABLE_VERIFY && images->verify) {
-				puts("   Verifying Hash Integrity ... ");
-				if (fit_config_verify(fit, cfg_noffset)) {
-					puts("Bad Data Hash\n");
-					bootstage_error(bootstage_id +
-						BOOTSTAGE_SUB_HASH);
-					return -EACCES;
-				}
-				puts("OK\n");
+
+		if (IMAGE_ENABLE_VERIFY && images->verify) {
+			puts("   Verifying Hash Integrity ... ");
+			if (fit_config_verify(fit, cfg_noffset)) {
+				puts("Bad Data Hash\n");
+				bootstage_error(bootstage_id +
+					BOOTSTAGE_SUB_HASH);
+				return -EACCES;
 			}
-			bootstage_mark(BOOTSTAGE_ID_FIT_CONFIG);
+			puts("OK\n");
 		}
+
+		bootstage_mark(BOOTSTAGE_ID_FIT_CONFIG);
 
 		noffset = fit_conf_get_prop_node(fit, cfg_noffset,
 						 prop_name);
@@ -1851,7 +1926,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL_OK);
 
 	/* get image data address and length */
-	if (fit_image_get_data(fit, noffset, &buf, &size)) {
+	if (fit_image_get_data_and_size(fit, noffset, &buf, &size)) {
 		printf("Could not find %s subimage data!\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_GET_DATA);
 		return -ENOENT;

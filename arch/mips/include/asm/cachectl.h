@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1994, 1995, 1996 by Ralf Baechle
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef	_ASM_CACHECTL
 #define	_ASM_CACHECTL

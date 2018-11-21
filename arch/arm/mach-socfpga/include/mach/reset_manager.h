@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Copyright (C) 2012-2017 Altera Corporation <www.altera.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _RESET_MANAGER_H_
@@ -11,12 +10,10 @@ void reset_cpu(ulong addr);
 
 void socfpga_per_reset(u32 reset, int set);
 void socfpga_per_reset_all(void);
+int socfpga_eth_reset_common(void (*resetfn)(const u8 of_reset_id,
+					     const u8 phymode));
 
-#if defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
-#define RSTMGR_CTRL_SWWARMRSTREQ_LSB 2
-#else
 #define RSTMGR_CTRL_SWWARMRSTREQ_LSB 1
-#endif
 
 /*
  * Define a reset identifier, from which a permodrst bank ID
@@ -45,6 +42,8 @@ void socfpga_per_reset_all(void);
 #include <asm/arch/reset_manager_gen5.h>
 #elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
 #include <asm/arch/reset_manager_arria10.h>
+#elif defined(CONFIG_TARGET_SOCFPGA_STRATIX10)
+#include <asm/arch/reset_manager_s10.h>
 #endif
 
 #endif /* _RESET_MANAGER_H_ */

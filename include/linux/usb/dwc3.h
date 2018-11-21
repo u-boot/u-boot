@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /* include/linux/usb/dwc3.h
  *
  * Copyright (c) 2012 Samsung Electronics Co. Ltd
  *
  * Designware SuperSpeed USB 3.0 DRD Controller global and OTG registers
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DWC3_H_

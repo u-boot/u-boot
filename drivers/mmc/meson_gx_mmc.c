@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Carlo Caione <carlo@caione.org>
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 #include <common.h>
@@ -34,6 +33,9 @@ static void meson_mmc_config_clock(struct mmc *mmc)
 {
 	uint32_t meson_mmc_clk = 0;
 	unsigned int clk, clk_src, clk_div;
+
+	if (!mmc->clock)
+		return;
 
 	/* 1GHz / CLK_MAX_DIV = 15,9 MHz */
 	if (mmc->clock > 16000000) {
@@ -250,7 +252,7 @@ static int meson_mmc_probe(struct udevice *dev)
 	mmc->priv = pdata;
 	upriv->mmc = mmc;
 
-	mmc_set_clock(mmc, cfg->f_min);
+	mmc_set_clock(mmc, cfg->f_min, MMC_CLK_ENABLE);
 
 	/* reset all status bits */
 	meson_write(mmc, STATUS_MASK, MESON_SD_EMMC_STATUS);

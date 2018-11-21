@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2010,2011 Nvidia Corporation.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ifdef CONFIG_SPL_BUILD
 obj-y	+= cpu.o

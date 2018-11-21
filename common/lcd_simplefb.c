@@ -1,17 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Simplefb device tree support
  *
  * (C) Copyright 2015
  * Stephen Warren <swarren@wwwdotorg.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
 #include <lcd.h>
 #include <fdt_support.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <video.h>
 
 DECLARE_GLOBAL_DATA_PTR;

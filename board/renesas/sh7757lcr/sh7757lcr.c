@@ -1,10 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011  Renesas Solutions Corp.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <environment.h>
 #include <malloc.h>
 #include <asm/processor.h>
 #include <asm/io.h>

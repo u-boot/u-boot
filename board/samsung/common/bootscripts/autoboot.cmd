@@ -74,15 +74,15 @@ setenv boot_img "
 
 #### Routine: autoboot - choose proper boot path
 setenv autoboot "
-if test -e mmc 0:${mmcbootpart} Image.itb; then
+if test -e mmc ${mmcbootdev}:${mmcbootpart} Image.itb; then
 	echo Found kernel image: Image.itb;
 	run setboot_fit;
 	run boot_img;
-elif test -e mmc 0:${mmcbootpart} zImage; then
+elif test -e mmc ${mmcbootdev}:${mmcbootpart} zImage; then
 	echo Found kernel image: zImage;
 	run setboot_zimg;
 	run boot_img;
-elif test -e mmc 0:${mmcbootpart} uImage; then
+elif test -e mmc ${mmcbootdev}:${mmcbootpart} uImage; then
 	echo Found kernel image: uImage;
 	run setboot_uimg;
 	run boot_img;

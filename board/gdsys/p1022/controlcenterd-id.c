@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013
  * Reinhard Pfau, Guntermann & Drunck GmbH, reinhard.pfau@gdsys.cc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* TODO: some more #ifdef's to avoid unneeded code for stage 1 / stage 2 */
@@ -16,7 +15,7 @@
 #include <fs.h>
 #include <i2c.h>
 #include <mmc.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 #include <u-boot/sha1.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>

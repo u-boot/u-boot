@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * HW data initialization for OMAP4
@@ -6,8 +7,6 @@
  * Texas Instruments, <www.ti.com>
  *
  * Sricharan R <r.sricharan@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/arch/omap.h>

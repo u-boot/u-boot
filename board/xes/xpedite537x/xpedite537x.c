@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008 Extreme Engineering Solutions, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -12,11 +11,9 @@
 #include <asm/fsl_pci.h>
 #include <asm/io.h>
 #include <asm/cache.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pca953x.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 extern void ft_board_pci_setup(void *blob, bd_t *bd);
 

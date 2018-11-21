@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * (C) Copyright 2010 - 2011 NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _AES_REF_H_
@@ -75,30 +74,24 @@ void aes_apply_cbc_chain_data(u8 *cbc_chain_data, u8 *src, u8 *dst);
  * aes_cbc_encrypt_blocks() - Encrypt multiple blocks of data with AES CBC.
  *
  * @key_exp		Expanded key to use
+ * @iv			Initialization vector
  * @src			Source data to encrypt
  * @dst			Destination buffer
  * @num_aes_blocks	Number of AES blocks to encrypt
  */
-void aes_cbc_encrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks);
+void aes_cbc_encrypt_blocks(u8 *key_exp, u8 *iv, u8 *src, u8 *dst,
+			    u32 num_aes_blocks);
 
 /**
  * Decrypt multiple blocks of data with AES CBC.
  *
  * @key_exp		Expanded key to use
+ * @iv			Initialization vector
  * @src			Source data to decrypt
  * @dst			Destination buffer
  * @num_aes_blocks	Number of AES blocks to decrypt
  */
-void aes_cbc_decrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks);
-
-/**
- * Decrypt the image using hw engine.
- *
- * @key_ptr		Key to use
- * @src_ptr		Source data to decrypt
- * @dst_ptr		Destination buffer
- * @len			Length of encrypted image
- */
-int aes_decrypt_hw(u8 *key_ptr, u8 *src_ptr, u8 *dst_ptr, u32 len);
+void aes_cbc_decrypt_blocks(u8 *key_exp, u8 *iv, u8 *src, u8 *dst,
+			    u32 num_aes_blocks);
 
 #endif /* _AES_REF_H_ */

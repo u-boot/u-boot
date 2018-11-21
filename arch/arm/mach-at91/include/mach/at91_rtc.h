@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2005 Ivan Kokshaysky
  * Copyright (C) SAN People
  *
  * Real Time Clock (RTC) - System peripheral registers.
  * Based on AT91RM9200 datasheet revision E.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91_RTC_H

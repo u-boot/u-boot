@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  *
  * Intel Platform Controller Hub EG20T (codename Topcliff) GMAC Driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -430,7 +429,7 @@ static int pch_gbe_phy_init(struct udevice *dev)
 	return 0;
 }
 
-int pch_gbe_probe(struct udevice *dev)
+static int pch_gbe_probe(struct udevice *dev)
 {
 	struct pch_gbe_priv *priv;
 	struct eth_pdata *plat = dev_get_platdata(dev);
@@ -465,7 +464,7 @@ int pch_gbe_probe(struct udevice *dev)
 	return pch_gbe_phy_init(dev);
 }
 
-int pch_gbe_remove(struct udevice *dev)
+static int pch_gbe_remove(struct udevice *dev)
 {
 	struct pch_gbe_priv *priv = dev_get_priv(dev);
 

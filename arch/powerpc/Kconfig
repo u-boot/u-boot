@@ -20,9 +20,10 @@ config MPC85xx
 	select CREATE_ARCH_SYMLINK
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
-	imply USB_EHCI_HCD if USB
+	select BINMAN
 	imply CMD_HASH
 	imply CMD_IRQ
+	imply USB_EHCI_HCD if USB
 
 config MPC86xx
 	bool "MPC86xx"
@@ -30,9 +31,11 @@ config MPC86xx
 	select SYS_FSL_DDR_BE
 	imply CMD_REGINFO
 
-config 8xx
+config MPC8xx
 	bool "MPC8xx"
+	select BOARD_EARLY_INIT_F
 	imply CMD_REGINFO
+	imply MPC8xx_WATCHDOG
 
 endchoice
 

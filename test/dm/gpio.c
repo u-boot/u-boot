@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2013 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -12,8 +11,6 @@
 #include <dm/util.h>
 #include <asm/gpio.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Test that sandbox GPIOs work correctly */
 static int dm_test_gpio(struct unit_test_state *uts)

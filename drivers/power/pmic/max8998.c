@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  Copyright (C) 2016 Samsung Electronics
  *  Jaehoon Chung <jh80.chung@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -11,8 +10,6 @@
 #include <i2c.h>
 #include <power/pmic.h>
 #include <power/max8998_pmic.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int max8998_reg_count(struct udevice *dev)
 {

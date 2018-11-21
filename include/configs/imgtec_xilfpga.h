@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016, Imagination Technologies Ltd.
  *
  * Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Imagination Technologies Ltd. MIPSfpga
  */
@@ -19,9 +18,6 @@
  */
 /* CPU Timer rate */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	50000000
-
-/* Cache Configuration */
-#define CONFIG_SYS_MIPS_CACHE_MODE	CONF_CM_CACHABLE_NONCOHERENT
 
 /*----------------------------------------------------------------------
  * Memory Layout
@@ -40,7 +36,6 @@
 /*----------------------------------------------------------------------
  * Commands
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 /*------------------------------------------------------------
  * Console Configuration

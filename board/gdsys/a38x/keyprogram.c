@@ -1,12 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016
  * Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 #include <common.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 #include <malloc.h>
 #include <linux/ctype.h>
 #include <asm/unaligned.h>

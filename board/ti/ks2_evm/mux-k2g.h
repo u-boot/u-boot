@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * K2G EVM: Pinmux configuration
  *
  * (C) Copyright 2015
  *     Texas Instruments Incorporated, <www.ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -338,6 +337,15 @@ struct pin_cfg k2g_ice_evm_pin_cfg[] = {
 	/* I2C 0 */
 	{ 223,  MODE(0) },		/* SOC_I2C0_SCL */
 	{ 224,  MODE(0) },		/* SOC_I2C0_SDA */
+
+	/* QSPI */
+	{ 129,	MODE(0) },	/* SOC_QSPI_CLK */
+	{ 130,	MODE(0) },	/* SOC_QSPI_RTCLK */
+	{ 131,	MODE(0) },	/* SOC_QSPI_D0 */
+	{ 132,	MODE(0) },	/* SOC_QSPI_D1 */
+	{ 133,	MODE(0) },	/* SOC_QSPI_D2 */
+	{ 134,	MODE(0) },	/* SOC_QSPI_D3 */
+	{ 135,	MODE(0) },	/* SOC_QSPI_CSN0 */
 	{ MAX_PIN_N, }
 };
 
@@ -345,7 +353,7 @@ void k2g_mux_config(void)
 {
 	if (!board_ti_was_eeprom_read()) {
 		configure_pin_mux(k2g_generic_pin_cfg);
-	} else if (board_is_k2g_gp()) {
+	} else if (board_is_k2g_gp() || board_is_k2g_g1()) {
 		configure_pin_mux(k2g_evm_pin_cfg);
 	} else if (board_is_k2g_ice()) {
 		configure_pin_mux(k2g_ice_evm_pin_cfg);

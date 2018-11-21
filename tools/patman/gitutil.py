@@ -1,6 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2011 The Chromium OS Authors.
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 
 import command
@@ -333,7 +332,8 @@ def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
     return result
 
 def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
-        self_only=False, alias=None, in_reply_to=None, thread=False):
+        self_only=False, alias=None, in_reply_to=None, thread=False,
+        smtp_server=None):
     """Email a patch series.
 
     Args:
@@ -349,6 +349,7 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
             Should be a message ID that this is in reply to.
         thread: True to add --thread to git send-email (make
             all patches reply to cover-letter or first patch in series)
+        smtp_server: SMTP server to use to send patches
 
     Returns:
         Git command that was/would be run
@@ -406,6 +407,8 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
         to = BuildEmailList([os.getenv('USER')], '--to', alias, raise_on_error)
         cc = []
     cmd = ['git', 'send-email', '--annotate']
+    if smtp_server:
+        cmd.append('--smtp-server=%s' % smtp_server)
     if in_reply_to:
         if type(in_reply_to) != str:
             in_reply_to = in_reply_to.encode('utf-8')

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Author Adrian Cox
  * Based somewhat on board/freescale/corenet_ds/eth_hydra.c
- *
- * SPDX-License-Identifier:    GPL-2.0+
  */
 
 #include <common.h>

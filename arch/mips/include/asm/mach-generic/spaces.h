@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1994 - 1999, 2000, 03, 04 Ralf Baechle
  * Copyright (C) 2000, 2002  Maciej W. Rozycki
  * Copyright (C) 1990, 1999, 2000 Silicon Graphics, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_MACH_GENERIC_SPACES_H
 #define _ASM_MACH_GENERIC_SPACES_H

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -193,8 +192,6 @@ struct descriptor {			/* A generic descriptor. */
 #define NUM_TX_DESC		1	/* Number of TX descriptors   */
 
 #define TOUT_LOOP		1000000
-
-#define ETH_ALEN		6
 
 static struct RxFD rx_ring[NUM_RX_DESC];	/* RX descriptor ring	      */
 static struct TxFD tx_ring[NUM_TX_DESC];	/* TX descriptor ring	      */

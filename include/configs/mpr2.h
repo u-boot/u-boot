@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for MPR2
  *
  * Copyright (C) 2008
  * Mark Jonas <mark.jonas@de.bosch.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MPR2_H
@@ -18,19 +17,15 @@
 
 /* CPU and platform */
 #define CONFIG_CPU_SH7720	1
-#define CONFIG_MPR2		1
 
 #define CONFIG_DISPLAY_BOARDINFO
 
 /* U-Boot internals */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }	/* List of legal baudrate settings for this board */
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 32 * 1024 * 1024)
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(128 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(256 * 1024)
-
-#define CONFIG_SYS_TEXT_BASE	0x8FFC0000
 
 /* Memory */
 #define CONFIG_SYS_SDRAM_BASE		0x8C000000
@@ -39,8 +34,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (60 * 1024 * 1024))
 
 /* Flash */
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_BASE		0xA0000000
 #define CONFIG_SYS_MAX_FLASH_SECT	256
@@ -54,9 +47,7 @@
 
 /* Clocks */
 #define CONFIG_SYS_CLK_FREQ	24000000
-#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_TMU_CLK_DIV		4	/* 4 (default), 16, 64, 256 or 1024 */
 
 /* UART */
 #define CONFIG_CONS_SCIF0	1

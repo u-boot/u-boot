@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -12,7 +11,6 @@
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ls102xa_devdis.h>
 #include <asm/arch/ls102xa_soc.h>
-#include <asm/arch/ls102xa_sata.h>
 #include <hwconfig.h>
 #include <mmc.h>
 #include <fsl_csu.h>
@@ -92,9 +90,7 @@ struct cpld_data {
 };
 
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
-static void convert_serdes_mux(int type, int need_reset);
-
-void cpld_show(void)
+static void cpld_show(void)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
 
@@ -292,6 +288,47 @@ int board_eth_init(bd_t *bis)
 }
 
 #if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
+static void convert_serdes_mux(int type, int need_reset)
+{
+	char current_serdes;
+	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
+
+	current_serdes = cpld_data->serdes_mux;
+
+	switch (type) {
+	case LANEB_SATA:
+		current_serdes &= ~MASK_LANE_B;
+		break;
+	case LANEB_SGMII1:
+		current_serdes |= (MASK_LANE_B | MASK_SGMII | MASK_LANE_C);
+		break;
+	case LANEC_SGMII1:
+		current_serdes &= ~(MASK_LANE_B | MASK_SGMII | MASK_LANE_C);
+		break;
+	case LANED_SGMII2:
+		current_serdes |= MASK_LANE_D;
+		break;
+	case LANEC_PCIEX1:
+		current_serdes |= MASK_LANE_C;
+		break;
+	case (LANED_PCIEX2 | LANEC_PCIEX1):
+		current_serdes |= MASK_LANE_C;
+		current_serdes &= ~MASK_LANE_D;
+		break;
+	default:
+		printf("CPLD serdes MUX: unsupported MUX type 0x%x\n", type);
+		return;
+	}
+
+	cpld_data->soft_mux_on |= CPLD_SET_MUX_SERDES;
+	cpld_data->serdes_mux = current_serdes;
+
+	if (need_reset == 1) {
+		printf("Reset board to enable configuration\n");
+		cpld_data->system_rst = CONFIG_RESET;
+	}
+}
+
 int config_serdes_mux(void)
 {
 	struct ccsr_gur __iomem *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -518,9 +555,6 @@ void spl_board_init(void)
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
-#ifdef CONFIG_SCSI_AHCI_PLAT
-	ls1021a_sata_init();
-#endif
 #ifdef CONFIG_CHAIN_OF_TRUST
 	fsl_setenv_chain_of_trust();
 #endif
@@ -584,7 +618,8 @@ u16 flash_read16(void *addr)
 	return (((val) >> 8) & 0x00ff) | (((val) << 8) & 0xff00);
 }
 
-#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
+#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI) \
+	&& !defined(CONFIG_SPL_BUILD)
 static void convert_flash_bank(char bank)
 {
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
@@ -645,48 +680,7 @@ U_BOOT_CMD(
 
 );
 
-static void convert_serdes_mux(int type, int need_reset)
-{
-	char current_serdes;
-	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
-
-	current_serdes = cpld_data->serdes_mux;
-
-	switch (type) {
-	case LANEB_SATA:
-		current_serdes &= ~MASK_LANE_B;
-		break;
-	case LANEB_SGMII1:
-		current_serdes |= (MASK_LANE_B | MASK_SGMII | MASK_LANE_C);
-		break;
-	case LANEC_SGMII1:
-		current_serdes &= ~(MASK_LANE_B | MASK_SGMII | MASK_LANE_C);
-		break;
-	case LANED_SGMII2:
-		current_serdes |= MASK_LANE_D;
-		break;
-	case LANEC_PCIEX1:
-		current_serdes |= MASK_LANE_C;
-		break;
-	case (LANED_PCIEX2 | LANEC_PCIEX1):
-		current_serdes |= MASK_LANE_C;
-		current_serdes &= ~MASK_LANE_D;
-		break;
-	default:
-		printf("CPLD serdes MUX: unsupported MUX type 0x%x\n", type);
-		return;
-	}
-
-	cpld_data->soft_mux_on |= CPLD_SET_MUX_SERDES;
-	cpld_data->serdes_mux = current_serdes;
-
-	if (need_reset == 1) {
-		printf("Reset board to enable configuration\n");
-		cpld_data->system_rst = CONFIG_RESET;
-	}
-}
-
-void print_serdes_mux(void)
+static void print_serdes_mux(void)
 {
 	char current_serdes;
 	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);

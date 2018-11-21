@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2004, Psyent Corporation <www.psyent.com>
  * Scott McNutt <smcnutt@psyent.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,8 +9,6 @@
 #include <errno.h>
 #include <serial.h>
 #include <asm/io.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* data register */
 #define ALTERA_JTAG_RVALID	BIT(15)	/* Read valid */

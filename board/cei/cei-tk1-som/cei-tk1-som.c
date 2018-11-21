@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014
  * NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -12,8 +11,6 @@
 #include <asm/arch/pinmux.h>
 
 #include "pinmux-config-cei-tk1-som.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Routine: pinmux_init

@@ -1,26 +1,26 @@
 #!/bin/bash
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2014 Suriyan Ramasami
-#
-#  SPDX-License-Identifier:	GPL-2.0+
-#
 
 # Invoke this test script from U-Boot base directory as ./test/fs/fs-test.sh
 # It currently tests the fs/sb and native commands for ext4 and fat partitions
 # Expected results are as follows:
 # EXT4 tests:
-# fs-test.sb.ext4.out: Summary: PASS: 24 FAIL: 0
-# fs-test.ext4.out: Summary: PASS: 24 FAIL: 0
-# fs-test.fs.ext4.out: Summary: PASS: 24 FAIL: 0
+# fs-test.sb.ext4	Summary: PASS: 24 FAIL: 0
+# fs-test.nonfs.ext4	Summary: PASS: 24 FAIL: 0
+# fs-test.fs.ext4	Summary: PASS: 24 FAIL: 0
 # FAT16 tests:
-# fs-test.sb.fat16.out: Summary: PASS: 24 FAIL: 0
-# fs-test.fat16.out: Summary: PASS: 21 FAIL: 3
-# fs-test.fs.fat16.out: Summary: PASS: 21 FAIL: 3
+# fs-test.sb.fat16	Summary: PASS: 24 FAIL: 0
+# fs-test.nonfs.fat16	Summary: PASS: 24 FAIL: 0
+# fs-test.fs.fat16	Summary: PASS: 24 FAIL: 0
 # FAT32 tests:
-# fs-test.sb.fat32.out: Summary: PASS: 24 FAIL: 0
-# fs-test.fat32.out: Summary: PASS: 21 FAIL: 3
-# fs-test.fs.fat32.out: Summary: PASS: 21 FAIL: 3
-# Total Summary: TOTAL PASS: 204 TOTAL FAIL: 12
+# fs-test.sb.fat32	Summary: PASS: 24 FAIL: 0
+# fs-test.nonfs.fat32	Summary: PASS: 24 FAIL: 0
+# fs-test.fs.fat32	Summary: PASS: 24 FAIL: 0
+# --------------------------------------------
+# Total Summary: TOTAL PASS: 216 TOTAL FAIL: 0
+# --------------------------------------------
 
 # pre-requisite binaries list.
 PREREQ_BINS="md5sum mkfs mount umount dd fallocate mkdir"
@@ -225,6 +225,8 @@ setenv bind 'if test "\$sb" != sb; then sb bind 0 "$1"; fi'
 run bind
 # Test Case 1 - ls
 ${PREFIX}ls host${SUFFIX} $6
+# In addition, test with a nonexistent directory to see if we crash.
+${PREFIX}ls host${SUFFIX} invalid_d
 #
 # We want ${PREFIX}size host 0:0 $3 for host commands and
 # sb size hostfs - $3 for hostfs commands.
@@ -522,7 +524,7 @@ function check_results() {
 		"TC11: 1MB write to $3.w - content verified"
 
 	# Check lookup of 'dot' directory
-	grep -A4 "Test Case 12 " "$1" | grep -q 'Unable to write file'
+	grep -A4 "Test Case 12 " "$1" | grep -q 'Unable to write'
 	pass_fail "TC12: 1MB write to . - write denied"
 
 	# Check directory traversal

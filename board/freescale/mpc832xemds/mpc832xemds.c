@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2006 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,7 +16,7 @@
 #endif
 #include <asm/mmu.h>
 #if defined(CONFIG_OF_LIBFDT)
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #endif
 #if defined(CONFIG_PQ_MDS_PIB)
 #include "../common/pq-mds-pib.h"

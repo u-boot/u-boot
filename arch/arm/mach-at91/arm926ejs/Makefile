@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-$(CONFIG_AT91SAM9260)	+= at91sam9260_devices.o
 obj-$(CONFIG_AT91SAM9G20)	+= at91sam9260_devices.o
@@ -18,7 +16,6 @@ obj-$(CONFIG_AT91SAM9N12)	+= at91sam9n12_devices.o
 obj-$(CONFIG_AT91SAM9X5)	+= at91sam9x5_devices.o
 obj-$(CONFIG_AT91_EFLASH)	+= eflash.o
 obj-$(CONFIG_AT91_LED)	+= led.o
-obj-y += cache.o
 obj-y += clock.o
 obj-y += cpu.o
 obj-y	+= reset.o

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2015 Stephen Warren
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _BUS_ADDR_H

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * Altera SoCFPGA IOCSR configuration
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #ifndef __SOCFPGA_IOCSR_CONFIG_H__

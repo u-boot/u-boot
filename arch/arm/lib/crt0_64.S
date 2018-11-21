@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * crt0 - C-runtime startup Code for AArch64 U-Boot
  *
@@ -6,8 +7,6 @@
  *
  * (C) Copyright 2012
  * Albert ARIBAUD <albert.u.boot@aribaud.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -73,6 +72,9 @@ ENTRY(_main)
 	ldr	x0, =(CONFIG_TPL_STACK)
 #elif defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
 	ldr	x0, =(CONFIG_SPL_STACK)
+#elif defined(CONFIG_SYS_INIT_SP_BSS_OFFSET)
+	adr	x0, __bss_start
+	add	x0, x0, #CONFIG_SYS_INIT_SP_BSS_OFFSET
 #else
 	ldr	x0, =(CONFIG_SYS_INIT_SP_ADDR)
 #endif

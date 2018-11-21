@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /* include/linux/usb/dwc3-omap.h
  *
  * Copyright (c) 2014 Texas Instruments Incorporated - http://www.ti.com
  *
  * Designware SuperSpeed Glue
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DWC3_OMAP_H_

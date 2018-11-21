@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  *
  * Ported from coreboot src/arch/x86/include/arch/pirq_routing.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _PIRQ_ROUTING_H_

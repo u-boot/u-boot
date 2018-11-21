@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Adaptive Body Bias programming sequence for OMAP family
  *
@@ -5,8 +6,6 @@
  * Texas Instruments, <www.ti.com>
  *
  * Andrii Tseglytskyi <andrii.tseglytskyi@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

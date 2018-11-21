@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2009 Extreme Engineering Solutions, Inc.
  * Copyright 2007-2008 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -14,16 +13,12 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_XPEDITE5140	1	/* MPC8641HPCN board specific */
 #define CONFIG_SYS_BOARD_NAME	"XPedite5170"
 #define CONFIG_SYS_FORM_3U_VPX	1
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
-#define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 #define CONFIG_ALTIVEC		1
-
-#define	CONFIG_SYS_TEXT_BASE	0xfff00000
 
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup */
 #define CONFIG_PCIE1		1	/* PCIE controller 1 */
@@ -82,7 +77,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Diagnostics
  */
-#define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		0x20000000
 #define CONFIG_POST			(CONFIG_SYS_POST_MEMORY |\
@@ -130,9 +124,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_MAX_FLASH_SECT	1024		/* sectors per device */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000		/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_AUTOPROTECT_LIST	{ {0xfff00000, 0xc0000}, \
 						  {0xf7f00000, 0xc0000} }
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
@@ -194,7 +185,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Serial Port
  */
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -303,8 +293,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Networking options
  */
-#define CONFIG_TSEC_ENET		/* tsec ethernet support */
-#define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #define CONFIG_TSEC1		1
@@ -483,9 +471,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_CMDLINE_EDITING	1		/* Command-line editing */
 #define CONFIG_LOADADDR		0x1000000	/* default location for tftp and bootm */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */

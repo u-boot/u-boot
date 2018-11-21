@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -218,7 +217,7 @@ phys_addr_t sti_reset_get_regmap(const char *compatible)
 		return -ENODEV;
 	}
 
-	return regmap->base;
+	return regmap->ranges[0].start;
 }
 
 static int sti_reset_program_hw(struct reset_ctl *reset_ctl, int assert)
@@ -266,8 +265,8 @@ static int sti_reset_program_hw(struct reset_ctl *reset_ctl, int assert)
 		return 0;
 
 	reg = (void __iomem *)base + ch->ack_offset;
-	if (wait_for_bit(__func__, reg, BIT(ch->ack_bit), ctrl_val,
-			 1000, false)) {
+	if (wait_for_bit_le32(reg, BIT(ch->ack_bit), ctrl_val,
+			      1000, false)) {
 		pr_err("Stuck on waiting ack reset_ctl=%p dev=%p id=%lu\n",
 		      reset_ctl, reset_ctl->dev, reset_ctl->id);
 

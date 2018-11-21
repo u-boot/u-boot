@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from linux/drivers/tty/serial/bcm63xx_uart.c:
  *	Copyright (C) 2008 Maxime Bizon <mbizon@freebox.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <clk.h>
@@ -228,16 +227,12 @@ static int bcm6345_serial_probe(struct udevice *dev)
 {
 	struct bcm6345_serial_priv *priv = dev_get_priv(dev);
 	struct clk clk;
-	fdt_addr_t addr;
-	fdt_size_t size;
 	int ret;
 
 	/* get address */
-	addr = devfdt_get_addr_size_index(dev, 0, &size);
-	if (addr == FDT_ADDR_T_NONE)
+	priv->base = dev_remap_addr(dev);
+	if (!priv->base)
 		return -EINVAL;
-
-	priv->base = ioremap(addr, size);
 
 	/* get clock rate */
 	ret = clk_get_by_index(dev, 0, &clk);

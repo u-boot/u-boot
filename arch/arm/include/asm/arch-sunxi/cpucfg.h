@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sunxi A31 CPUCFG register definition.
  *
  * (C) Copyright 2014 Hans de Goede <hdegoede@redhat.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_CPUCFG_H

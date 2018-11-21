@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
  * Command for accessing Arcturus factory environment.
  *
  * Copyright 2013-2015 Arcturus Networks Inc.
  *           http://www.arcturusnetworks.com/products/ucp1020/
  *           by Oleksandr G Zhadan et al.
- *
- * SPDX-License-Identifier: GPL-2.0+ BSD-3-Clause
  *
  */
 

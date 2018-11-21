@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013-2016 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -34,10 +33,6 @@
 #define UARTSR_RMB          (1 << 9)
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#ifndef CONFIG_DM_SERIAL
-#error "The linflex serial driver does not have non-DM support."
-#endif
 
 static void _linflex_serial_setbrg(struct linflex_fsl *base, int baudrate)
 {

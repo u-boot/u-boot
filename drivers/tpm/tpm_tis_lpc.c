@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -16,7 +15,7 @@
 #include <common.h>
 #include <dm.h>
 #include <mapmem.h>
-#include <tpm.h>
+#include <tpm-v1.h>
 #include <asm/io.h>
 
 #define PREFIX "lpc_tpm: "
@@ -165,7 +164,7 @@ static int tpm_tis_lpc_probe(struct udevice *dev)
 	u32 didvid;
 	ulong chip_type = dev_get_driver_data(dev);
 
-	addr = devfdt_get_addr(dev);
+	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 	priv->regs = map_sysmem(addr, 0);

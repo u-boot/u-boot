@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * composite.h -- framework for usb gadgets which are composite devices
  *
  * Copyright (C) 2006-2008 David Brownell
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef	__LINUX_USB_COMPOSITE_H

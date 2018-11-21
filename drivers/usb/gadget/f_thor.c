@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * f_thor.c -- USB TIZEN THOR Downloader gadget function
  *
@@ -11,8 +12,6 @@
  * Copyright (C) 2009 Samsung Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Sanghee Kim <sh0130.kim@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <errno.h>
@@ -48,7 +47,7 @@ DEFINE_CACHE_ALIGN_BUFFER(unsigned char, thor_rx_data_buf,
 /* ********************************************************** */
 /*         THOR protocol - transmission handling	      */
 /* ********************************************************** */
-DEFINE_CACHE_ALIGN_BUFFER(char, f_name, F_NAME_BUF_SIZE);
+DEFINE_CACHE_ALIGN_BUFFER(char, f_name, F_NAME_BUF_SIZE + 1);
 static unsigned long long int thor_file_size;
 static int alt_setting_num;
 
@@ -263,8 +262,10 @@ static long long int process_rqt_download(const struct rqt_box *rqt)
 
 	switch (rqt->rqt_data) {
 	case RQT_DL_INIT:
-		thor_file_size = rqt->int_data[0];
-		debug("INIT: total %d bytes\n", rqt->int_data[0]);
+		thor_file_size = (unsigned long long int)rqt->int_data[0] +
+				 (((unsigned long long int)rqt->int_data[1])
+				  << 32);
+		debug("INIT: total %llu bytes\n", thor_file_size);
 		break;
 	case RQT_DL_FILE_INFO:
 		file_type = rqt->int_data[0];
@@ -275,8 +276,11 @@ static long long int process_rqt_download(const struct rqt_box *rqt)
 			break;
 		}
 
-		thor_file_size = rqt->int_data[1];
+		thor_file_size = (unsigned long long int)rqt->int_data[1] +
+				 (((unsigned long long int)rqt->int_data[2])
+				  << 32);
 		memcpy(f_name, rqt->str_data[0], F_NAME_BUF_SIZE);
+		f_name[F_NAME_BUF_SIZE] = '\0';
 
 		debug("INFO: name(%s, %d), size(%llu), type(%d)\n",
 		      f_name, 0, thor_file_size, file_type);
@@ -616,22 +620,6 @@ static void thor_rx_tx_complete(struct usb_ep *ep, struct usb_request *req)
 	      status, req->actual, req->length);
 }
 
-static struct usb_request *thor_start_ep(struct usb_ep *ep)
-{
-	struct usb_request *req;
-
-	req = alloc_ep_req(ep, THOR_PACKET_SIZE);
-	debug("%s: ep:%p req:%p\n", __func__, ep, req);
-
-	if (!req)
-		return NULL;
-
-	memset(req->buf, 0, req->length);
-	req->complete = thor_rx_tx_complete;
-
-	return req;
-}
-
 static void thor_setup_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	if (req->status || req->actual != req->length)
@@ -748,6 +736,13 @@ int thor_handle(void)
 	return 0;
 }
 
+static void free_ep_req(struct usb_ep *ep, struct usb_request *req)
+{
+	if (req->buf)
+		free(req->buf);
+	usb_ep_free_request(ep, req);
+}
+
 static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 {
 	struct usb_gadget *gadget = c->cdev->gadget;
@@ -856,14 +851,10 @@ static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 	return 0;
 
  fail:
+	if (dev->req)
+		free_ep_req(gadget->ep0, dev->req);
 	free(dev);
 	return status;
-}
-
-static void free_ep_req(struct usb_ep *ep, struct usb_request *req)
-{
-	free(req->buf);
-	usb_ep_free_request(ep, req);
 }
 
 static void thor_unbind(struct usb_configuration *c, struct usb_function *f)
@@ -871,6 +862,7 @@ static void thor_unbind(struct usb_configuration *c, struct usb_function *f)
 	struct f_thor *f_thor = func_to_thor(f);
 	struct thor_dev *dev = f_thor->dev;
 
+	free_ep_req(dev->gadget->ep0, dev->req);
 	free(dev);
 	memset(thor_func, 0, sizeof(*thor_func));
 	thor_func = NULL;
@@ -885,16 +877,14 @@ static void thor_func_disable(struct usb_function *f)
 
 	/* Avoid freeing memory when ep is still claimed */
 	if (dev->in_ep->driver_data) {
-		free_ep_req(dev->in_ep, dev->in_req);
 		usb_ep_disable(dev->in_ep);
+		free_ep_req(dev->in_ep, dev->in_req);
 		dev->in_ep->driver_data = NULL;
 	}
 
 	if (dev->out_ep->driver_data) {
-		free(dev->out_req->buf);
-		dev->out_req->buf = NULL;
-		usb_ep_free_request(dev->out_ep, dev->out_req);
 		usb_ep_disable(dev->out_ep);
+		usb_ep_free_request(dev->out_ep, dev->out_req);
 		dev->out_ep->driver_data = NULL;
 	}
 
@@ -920,16 +910,17 @@ static int thor_eps_setup(struct usb_function *f)
 
 	result = usb_ep_enable(ep, d);
 	if (result)
-		goto exit;
+		goto err;
 
 	ep->driver_data = cdev; /* claim */
-	req = thor_start_ep(ep);
+	req = alloc_ep_req(ep, THOR_PACKET_SIZE);
 	if (!req) {
-		usb_ep_disable(ep);
 		result = -EIO;
-		goto exit;
+		goto err_disable_in_ep;
 	}
 
+	memset(req->buf, 0, req->length);
+	req->complete = thor_rx_tx_complete;
 	dev->in_req = req;
 	ep = dev->out_ep;
 	d = ep_desc(gadget, &hs_out_desc, &fs_out_desc);
@@ -937,22 +928,34 @@ static int thor_eps_setup(struct usb_function *f)
 
 	result = usb_ep_enable(ep, d);
 	if (result)
-		goto exit;
+		goto err_free_in_req;
 
 	ep->driver_data = cdev; /* claim */
-	req = thor_start_ep(ep);
+	req = usb_ep_alloc_request(ep, 0);
 	if (!req) {
-		usb_ep_disable(ep);
 		result = -EIO;
-		goto exit;
+		goto err_disable_out_ep;
 	}
 
+	req->complete = thor_rx_tx_complete;
 	dev->out_req = req;
 	/* ACM control EP */
 	ep = dev->int_ep;
 	ep->driver_data = cdev;	/* claim */
 
- exit:
+	return 0;
+
+ err_disable_out_ep:
+	usb_ep_disable(dev->out_ep);
+
+ err_free_in_req:
+	free_ep_req(dev->in_ep, dev->in_req);
+	dev->in_req = NULL;
+
+ err_disable_in_ep:
+	usb_ep_disable(dev->in_ep);
+
+ err:
 	return result;
 }
 

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Linux driver for Disk-On-Chip devices
  *
@@ -5,8 +6,6 @@
  * Copyright © 1999-2010 David Woodhouse <dwmw2@infradead.org>
  * Copyright © 2002-2003 Greg Ungerer <gerg@snapgear.com>
  * Copyright © 2002-2003 SnapGear Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  */
 

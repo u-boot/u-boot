@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012 Samsung Electronics
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _S3C24X0_I2C_H

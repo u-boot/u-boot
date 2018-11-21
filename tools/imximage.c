@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
@@ -5,8 +6,6 @@
  * (C) Copyright 2008
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "imagetool.h"
@@ -507,8 +506,7 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 		genimg_print_size(hdr_v2->boot_data.size);
 		printf("Load Address: %08x\n", (uint32_t)fhdr_v2->boot_data_ptr);
 		printf("Entry Point:  %08x\n", (uint32_t)fhdr_v2->entry);
-		if (fhdr_v2->csf && (imximage_ivt_offset != UNDEFINED) &&
-		    (imximage_csf_size != UNDEFINED)) {
+		if (fhdr_v2->csf) {
 			uint16_t dcdlen;
 			int offs;
 
@@ -516,11 +514,17 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 			offs = (char *)&hdr_v2->data.dcd_table
 				- (char *)hdr_v2;
 
-			printf("HAB Blocks:   %08x %08x %08x\n",
+			/*
+			 * The HAB block is the first part of the image, from
+			 * start of IVT header (fhdr_v2->self) to the start of
+			 * the CSF block (fhdr_v2->csf). So HAB size is
+			 * calculated as:
+			 * HAB_size = fhdr_v2->csf - fhdr_v2->self
+			 */
+			printf("HAB Blocks:   0x%08x 0x%08x 0x%08x\n",
 			       (uint32_t)fhdr_v2->self, 0,
-			       hdr_v2->boot_data.size - imximage_ivt_offset -
-			       imximage_csf_size);
-			printf("DCD Blocks:   00910000 %08x %08x\n",
+			       (uint32_t)(fhdr_v2->csf - fhdr_v2->self));
+			printf("DCD Blocks:   0x00910000 0x%08x 0x%08x\n",
 			       offs, be16_to_cpu(dcdlen));
 		}
 	} else {

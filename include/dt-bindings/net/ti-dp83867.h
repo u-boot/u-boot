@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * TI DP83867 PHY drivers
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  */
 
@@ -31,5 +30,20 @@
 #define DP83867_RGMIIDCTL_3_50_NS	0xd
 #define DP83867_RGMIIDCTL_3_75_NS	0xe
 #define DP83867_RGMIIDCTL_4_00_NS	0xf
+
+/* IO_MUX_CFG - Clock output selection */
+#define DP83867_CLK_O_SEL_CHN_A_RCLK		0x0
+#define DP83867_CLK_O_SEL_CHN_B_RCLK		0x1
+#define DP83867_CLK_O_SEL_CHN_C_RCLK		0x2
+#define DP83867_CLK_O_SEL_CHN_D_RCLK		0x3
+#define DP83867_CLK_O_SEL_CHN_A_RCLK_DIV5	0x4
+#define DP83867_CLK_O_SEL_CHN_B_RCLK_DIV5	0x5
+#define DP83867_CLK_O_SEL_CHN_C_RCLK_DIV5	0x6
+#define DP83867_CLK_O_SEL_CHN_D_RCLK_DIV5	0x7
+#define DP83867_CLK_O_SEL_CHN_A_TCLK		0x8
+#define DP83867_CLK_O_SEL_CHN_B_TCLK		0x9
+#define DP83867_CLK_O_SEL_CHN_C_TCLK		0xA
+#define DP83867_CLK_O_SEL_CHN_D_TCLK		0xB
+#define DP83867_CLK_O_SEL_REF_CLK		0xC
 
 #endif

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Common internal memory map for some Freescale SoCs
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __FSL_SEC_H
@@ -67,6 +66,9 @@ struct rng4tst {
 	};
 	u32 rsvd1[40];
 #define RNG_STATE0_HANDLE_INSTANTIATED	0x00000001
+#define RNG_STATE1_HANDLE_INSTANTIATED	0x00000002
+#define RNG_STATE_HANDLE_MASK	\
+	(RNG_STATE0_HANDLE_INSTANTIATED | RNG_STATE1_HANDLE_INSTANTIATED)
 	u32 rdsta;		/*RNG DRNG Status Register*/
 	u32 rsvd2[15];
 };

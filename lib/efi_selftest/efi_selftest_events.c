@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * efi_selftest_events
  *
  * Copyright (c) 2017 Heinrich Schuchardt <xypron.glpk@gmx.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  *
  * This unit test uses timer events to check the implementation
  * of the following boottime services:
@@ -142,8 +141,8 @@ static int execute(void)
 		efi_st_error("WaitForEvent returned wrong index\n");
 		return EFI_ST_FAILURE;
 	}
-	efi_st_printf("Notification count periodic: %u\n", timer_ticks);
 	if (timer_ticks < 8 || timer_ticks > 12) {
+		efi_st_printf("Notification count periodic: %u\n", timer_ticks);
 		efi_st_error("Incorrect timing of events\n");
 		return EFI_ST_FAILURE;
 	}
@@ -170,8 +169,9 @@ static int execute(void)
 		efi_st_error("Could not wait for event\n");
 		return EFI_ST_FAILURE;
 	}
-	efi_st_printf("Notification count single shot: %u\n", timer_ticks);
 	if (timer_ticks != 1) {
+		efi_st_printf("Notification count single shot: %u\n",
+			      timer_ticks);
 		efi_st_error("Single shot timer failed\n");
 		return EFI_ST_FAILURE;
 	}
@@ -180,8 +180,9 @@ static int execute(void)
 		efi_st_error("Could not wait for event\n");
 		return EFI_ST_FAILURE;
 	}
-	efi_st_printf("Notification count stopped timer: %u\n", timer_ticks);
 	if (timer_ticks != 1) {
+		efi_st_printf("Notification count stopped timer: %u\n",
+			      timer_ticks);
 		efi_st_error("Stopped timer fired\n");
 		return EFI_ST_FAILURE;
 	}

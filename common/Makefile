@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2004-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 # core
 ifndef CONFIG_SPL_BUILD
@@ -31,7 +29,6 @@ obj-$(CONFIG_CMD_BOOTI) += bootm.o bootm_os.o
 
 obj-$(CONFIG_CMD_BEDBUG) += bedbug.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdt_support.o
-
 obj-$(CONFIG_MII) += miiphyutil.o
 obj-$(CONFIG_CMD_MII) += miiphyutil.o
 obj-$(CONFIG_PHYLIB) += miiphyutil.o
@@ -66,7 +63,9 @@ endif # !CONFIG_SPL_BUILD
 obj-$(CONFIG_$(SPL_TPL_)BOOTSTAGE) += bootstage.o
 
 ifdef CONFIG_SPL_BUILD
-obj-$(CONFIG_SPL_DFU_SUPPORT) += dfu.o
+ifdef CONFIG_SPL_DFU_SUPPORT
+obj-$(CONFIG_DFU_OVER_USB) += dfu.o
+endif
 obj-$(CONFIG_SPL_DFU_SUPPORT) += cli_hush.o
 obj-$(CONFIG_SPL_HASH_SUPPORT) += hash.o
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
@@ -109,16 +108,7 @@ obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o
 obj-y += stdio.o
 
-# This option is not just y/n - it can have a numeric value
-ifdef CONFIG_FASTBOOT_FLASH
-obj-y += image-sparse.o
-ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
-obj-y += fb_mmc.o
-endif
-ifdef CONFIG_FASTBOOT_FLASH_NAND_DEV
-obj-y += fb_nand.o
-endif
-endif
+obj-$(CONFIG_CMD_DTIMG) += image-android-dt.o
 
 ifdef CONFIG_CMD_EEPROM_LAYOUT
 obj-y += eeprom/eeprom_field.o eeprom/eeprom_layout.o
@@ -126,9 +116,12 @@ endif
 
 obj-y += cli.o
 obj-$(CONFIG_FSL_DDR_INTERACTIVE) += cli_simple.o cli_readline.o
-obj-$(CONFIG_CMD_DFU) += dfu.o
+obj-$(CONFIG_DFU_OVER_USB) += dfu.o
 obj-y += command.o
 obj-$(CONFIG_$(SPL_)LOG) += log.o
 obj-$(CONFIG_$(SPL_)LOG_CONSOLE) += log_console.o
 obj-y += s_record.o
-obj-y += xyzModem.o
+obj-$(CONFIG_CMD_LOADB) += xyzModem.o
+obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
+
+obj-$(CONFIG_AVB_VERIFY) += avb_verify.o

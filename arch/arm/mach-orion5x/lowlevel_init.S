@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -72,67 +71,67 @@ lowlevel_init:
 
 #ifdef CONFIG_SPL_BUILD
 
-	/* Use 'r4 as the base for internal register accesses */
-	ldr	r4, =ORION5X_REGS_PHY_BASE
+	/* Use 'r2 as the base for internal register accesses */
+	ldr	r2, =ORION5X_REGS_PHY_BASE
 
 	/* move internal registers from the default 0xD0000000
 	 * to their intended location, defined by SoC */
 	ldr	r3, =0xD0000000
 	add	r3, r3, #0x20000
-	str	r4, [r3, #0x80]
+	str	r2, [r3, #0x80]
 
 	/* Use R3 as the base for DRAM registers */
-	add	r3, r4, #0x01000
+	add	r3, r2, #0x01000
 
 	/*DDR SDRAM Initialization Control */
-	ldr	r6, =0x00000001
-	str	r6, [r3, #0x480]
+	ldr	r0, =0x00000001
+	str	r0, [r3, #0x480]
 
 	/* Use R3 as the base for PCI registers */
-	add	r3, r4, #0x31000
+	add	r3, r2, #0x31000
 
 	/* Disable arbiter */
-	ldr	r6, =0x00000030
-	str	r6, [r3, #0xd00]
+	ldr	r0, =0x00000030
+	str	r0, [r3, #0xd00]
 
 	/* Use R3 as the base for DRAM registers */
-	add	r3, r4, #0x01000
+	add	r3, r2, #0x01000
 
 	/* set all dram windows to 0 */
-	mov	r6, #0
-	str	r6, [r3, #0x504]
-	str	r6, [r3, #0x50C]
-	str	r6, [r3, #0x514]
-	str	r6, [r3, #0x51C]
+	mov	r0, #0
+	str	r0, [r3, #0x504]
+	str	r0, [r3, #0x50C]
+	str	r0, [r3, #0x514]
+	str	r0, [r3, #0x51C]
 
 	/* 1) Configure SDRAM  */
-	ldr	r6, =SDRAM_CONFIG
-	str	r6, [r3, #0x400]
+	ldr	r0, =SDRAM_CONFIG
+	str	r0, [r3, #0x400]
 
 	/* 2) Set SDRAM Control reg */
-	ldr	r6, =SDRAM_CONTROL
-	str	r6, [r3, #0x404]
+	ldr	r0, =SDRAM_CONTROL
+	str	r0, [r3, #0x404]
 
 	/* 3) Write SDRAM address control register */
-	ldr	r6, =SDRAM_ADDR_CTRL
-	str	r6, [r3, #0x410]
+	ldr	r0, =SDRAM_ADDR_CTRL
+	str	r0, [r3, #0x410]
 
 	/* 4) Write SDRAM bank 0 size register */
-	ldr	r6, =SDRAM_BANK0_SIZE
-	str	r6, [r3, #0x504]
+	ldr	r0, =SDRAM_BANK0_SIZE
+	str	r0, [r3, #0x504]
 	/* keep other banks disabled */
 
 	/* 5) Write SDRAM open pages control register */
-	ldr	r6, =SDRAM_OPEN_PAGE_EN
-	str	r6, [r3, #0x414]
+	ldr	r0, =SDRAM_OPEN_PAGE_EN
+	str	r0, [r3, #0x414]
 
 	/* 6) Write SDRAM timing Low register */
-	ldr	r6, =SDRAM_TIME_CTRL_LOW
-	str	r6, [r3, #0x408]
+	ldr	r0, =SDRAM_TIME_CTRL_LOW
+	str	r0, [r3, #0x408]
 
 	/* 7) Write SDRAM timing High register */
-	ldr	r6, =SDRAM_TIME_CTRL_HI
-	str	r6, [r3, #0x40C]
+	ldr	r0, =SDRAM_TIME_CTRL_HI
+	str	r0, [r3, #0x40C]
 
 	/* 8) Write SDRAM mode register */
 	/* The CPU must not attempt to change the SDRAM Mode register setting */
@@ -143,73 +142,73 @@ lowlevel_init:
 	/* and then sets SDRAM Mode register to its new value.		      */
 
 	/* 8.1 write 'nop' to SDRAM operation */
-	ldr	r6, =SDRAM_OP_NOP
-	str	r6, [r3, #0x418]
+	ldr	r0, =SDRAM_OP_NOP
+	str	r0, [r3, #0x418]
 
 	/* 8.2 poll SDRAM operation until back in 'normal' mode.  */
 1:
-	ldr	r6, [r3, #0x418]
-	cmp	r6, #0
+	ldr	r0, [r3, #0x418]
+	cmp	r0, #0
 	bne	1b
 
 	/* 8.3 Now its safe to write new value to SDRAM Mode register	      */
-	ldr	r6, =SDRAM_MODE
-	str	r6, [r3, #0x41C]
+	ldr	r0, =SDRAM_MODE
+	str	r0, [r3, #0x41C]
 
 	/* 8.4 Set new mode */
-	ldr	r6, =SDRAM_OP_SETMODE
-	str	r6, [r3, #0x418]
+	ldr	r0, =SDRAM_OP_SETMODE
+	str	r0, [r3, #0x418]
 
 	/* 8.5 poll SDRAM operation until back in 'normal' mode.  */
 2:
-	ldr	r6, [r3, #0x418]
-	cmp	r6, #0
+	ldr	r0, [r3, #0x418]
+	cmp	r0, #0
 	bne	2b
 
 	/* DDR SDRAM Address/Control Pads Calibration */
-	ldr	r6, [r3, #0x4C0]
+	ldr	r0, [r3, #0x4C0]
 
 	/* Set Bit [31] to make the register writable			*/
-	orr	r6, r6, #SDRAM_PAD_CTRL_WR_EN
-	str	r6, [r3, #0x4C0]
+	orr	r0, r0, #SDRAM_PAD_CTRL_WR_EN
+	str	r0, [r3, #0x4C0]
 
-	bic	r6, r6, #SDRAM_PAD_CTRL_WR_EN
-	bic	r6, r6, #SDRAM_PAD_CTRL_TUNE_EN
-	bic	r6, r6, #SDRAM_PAD_CTRL_DRVN_MASK
-	bic	r6, r6, #SDRAM_PAD_CTRL_DRVP_MASK
+	bic	r0, r0, #SDRAM_PAD_CTRL_WR_EN
+	bic	r0, r0, #SDRAM_PAD_CTRL_TUNE_EN
+	bic	r0, r0, #SDRAM_PAD_CTRL_DRVN_MASK
+	bic	r0, r0, #SDRAM_PAD_CTRL_DRVP_MASK
 
 	/* Get the final N locked value of driving strength [22:17]	*/
-	mov	r1, r6
+	mov	r1, r0
 	mov	r1, r1, LSL #9
 	mov	r1, r1, LSR #26	 /* r1[5:0]<DrvN>  = r3[22:17]<LockN>	*/
 	orr	r1, r1, r1, LSL #6 /* r1[11:6]<DrvP> = r1[5:0]<DrvN>	*/
 
 	/* Write to both <DrvN> bits [5:0] and <DrvP> bits [11:6]	*/
-	orr	r6, r6, r1
-	str	r6, [r3, #0x4C0]
+	orr	r0, r0, r1
+	str	r0, [r3, #0x4C0]
 
 	/* DDR SDRAM Data Pads Calibration				*/
-	ldr	r6, [r3, #0x4C4]
+	ldr	r0, [r3, #0x4C4]
 
 	/* Set Bit [31] to make the register writable			*/
-	orr	r6, r6, #SDRAM_PAD_CTRL_WR_EN
-	str	r6, [r3, #0x4C4]
+	orr	r0, r0, #SDRAM_PAD_CTRL_WR_EN
+	str	r0, [r3, #0x4C4]
 
-	bic	r6, r6, #SDRAM_PAD_CTRL_WR_EN
-	bic	r6, r6, #SDRAM_PAD_CTRL_TUNE_EN
-	bic	r6, r6, #SDRAM_PAD_CTRL_DRVN_MASK
-	bic	r6, r6, #SDRAM_PAD_CTRL_DRVP_MASK
+	bic	r0, r0, #SDRAM_PAD_CTRL_WR_EN
+	bic	r0, r0, #SDRAM_PAD_CTRL_TUNE_EN
+	bic	r0, r0, #SDRAM_PAD_CTRL_DRVN_MASK
+	bic	r0, r0, #SDRAM_PAD_CTRL_DRVP_MASK
 
 	/* Get the final N locked value of driving strength [22:17]	*/
-	mov	r1, r6
+	mov	r1, r0
 	mov	r1, r1, LSL #9
 	mov	r1, r1, LSR #26
 	orr	r1, r1, r1, LSL #6 /* r1[5:0] = r3[22:17]<LockN>	*/
 
 	/* Write to both <DrvN> bits [5:0] and <DrvP> bits [11:6]	*/
-	orr	r6, r6, r1
+	orr	r0, r0, r1
 
-	str	r6, [r3, #0x4C4]
+	str	r0, [r3, #0x4C4]
 
 	/* Implement Guideline (GL# MEM-3) Drive Strength Value		*/
 	/* Relevant for: 88F5181-A1/B0/B1 and 88F5281-A0/B0		*/
@@ -217,37 +216,37 @@ lowlevel_init:
 	ldr	r1, =DDR1_PAD_STRENGTH_DEFAULT
 
 	/* Enable writes to DDR SDRAM Addr/Ctrl Pads Calibration register */
-	ldr	r6, [r3, #0x4C0]
-	orr	r6, r6, #SDRAM_PAD_CTRL_WR_EN
-	str	r6, [r3, #0x4C0]
+	ldr	r0, [r3, #0x4C0]
+	orr	r0, r0, #SDRAM_PAD_CTRL_WR_EN
+	str	r0, [r3, #0x4C0]
 
 	/* Correct strength and disable writes again */
-	bic	r6, r6, #SDRAM_PAD_CTRL_WR_EN
-	bic	r6, r6, #SDRAM_PAD_CTRL_DRV_STR_MASK
-	orr	r6, r6, r1
-	str	r6, [r3, #0x4C0]
+	bic	r0, r0, #SDRAM_PAD_CTRL_WR_EN
+	bic	r0, r0, #SDRAM_PAD_CTRL_DRV_STR_MASK
+	orr	r0, r0, r1
+	str	r0, [r3, #0x4C0]
 
 	/* Enable writes to DDR SDRAM Data Pads Calibration register */
-	ldr	r6, [r3, #0x4C4]
-	orr	r6, r6, #SDRAM_PAD_CTRL_WR_EN
-	str	r6, [r3, #0x4C4]
+	ldr	r0, [r3, #0x4C4]
+	orr	r0, r0, #SDRAM_PAD_CTRL_WR_EN
+	str	r0, [r3, #0x4C4]
 
 	/* Correct strength and disable writes again */
-	bic	r6, r6, #SDRAM_PAD_CTRL_DRV_STR_MASK
-	bic	r6, r6, #SDRAM_PAD_CTRL_WR_EN
-	orr	r6, r6, r1
-	str	r6, [r3, #0x4C4]
+	bic	r0, r0, #SDRAM_PAD_CTRL_DRV_STR_MASK
+	bic	r0, r0, #SDRAM_PAD_CTRL_WR_EN
+	orr	r0, r0, r1
+	str	r0, [r3, #0x4C4]
 
 	/* Implement Guideline (GL# MEM-4) DQS Reference Delay Tuning	*/
 	/* Relevant for: 88F5181-A1/B0/B1 and 88F5281-A0/B0		*/
 
 	/* Get the "sample on reset" register for the DDR frequancy	*/
 	ldr	r3, =0x10000
-	ldr	r6, [r3, #0x010]
+	ldr	r0, [r3, #0x010]
 	ldr	r1, =MSAR_ARMDDRCLCK_MASK
-	and	r1, r6, r1
+	and	r1, r0, r1
 
-	ldr	r6, =FTDLL_DDR1_166MHZ
+	ldr	r0, =FTDLL_DDR1_166MHZ
 	cmp	r1, #MSAR_ARMDDRCLCK_333_167
 	beq	3f
 	cmp	r1, #MSAR_ARMDDRCLCK_500_167
@@ -255,7 +254,7 @@ lowlevel_init:
 	cmp	r1, #MSAR_ARMDDRCLCK_667_167
 	beq	3f
 
-	ldr	r6, =FTDLL_DDR1_200MHZ
+	ldr	r0, =FTDLL_DDR1_200MHZ
 	cmp	r1, #MSAR_ARMDDRCLCK_400_200_1
 	beq	3f
 	cmp	r1, #MSAR_ARMDDRCLCK_400_200
@@ -265,21 +264,21 @@ lowlevel_init:
 	cmp	r1, #MSAR_ARMDDRCLCK_800_200
 	beq	3f
 
-	ldr	r6, =0
+	ldr	r0, =0
 
 3:
 	/* Use R3 as the base for DRAM registers */
-	add	r3, r4, #0x01000
+	add	r3, r2, #0x01000
 
 	ldr	r2, [r3, #0x484]
-	orr	r2, r2, r6
+	orr	r2, r2, r0
 	str	r2, [r3, #0x484]
 
 	/* enable for 2 GB DDR; detection should find out real amount */
-	sub	r6, r6, r6
-	str	r6, [r3, #0x500]
-	ldr	r6, =0x7fff0001
-	str	r6, [r3, #0x504]
+	sub	r0, r0, r0
+	str	r0, [r3, #0x500]
+	ldr	r0, =0x7fff0001
+	str	r0, [r3, #0x504]
 
 #endif /* CONFIG_SPL_BUILD */
 

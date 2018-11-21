@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SPI Flash ID's.
  *
  * Copyright (C) 2016 Jagan Teki <jagan@openedev.com>
  * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -63,7 +62,9 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"en25s64",	   INFO(0x1c3817, 0x0, 64 * 1024,   128, 0) },
 #endif
 #ifdef CONFIG_SPI_FLASH_GIGADEVICE	/* GIGADEVICE */
+	{"gd25q16c",	   INFO(0xc84015, 0x0, 64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
 	{"gd25q64b",	   INFO(0xc84017, 0x0, 64 * 1024,   128, SECT_4K) },
+	{"gd25q32b",       INFO(0xc84016, 0x0, 64 * 1024,    64, SECT_4K) },
 	{"gd25lq32",	   INFO(0xc86016, 0x0, 64 * 1024,    64, SECT_4K) },
 #endif
 #ifdef CONFIG_SPI_FLASH_ISSI		/* ISSI */
@@ -78,6 +79,9 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"is25wp064d",	   INFO(0x9d7017, 0x0, 64 * 1024,   128, RD_QUAD) },
 	{"is25lp128",	   INFO(0x9d6018, 0x0, 64 * 1024,   256, 0) },
 	{"is25lp256d",	   INFO(0x9d6019, 0x0, 64 * 1024,   512, RD_QUAD) },
+	{"is25wp032",	   INFO(0x9d7016, 0x0, 64 * 1024,    64, RD_FULL | SECT_4K) },
+	{"is25wp064",	   INFO(0x9d7017, 0x0, 64 * 1024,   128, RD_FULL | SECT_4K) },
+	{"is25wp128",	   INFO(0x9d7018, 0x0, 64 * 1024,   256, RD_FULL | SECT_4K) },
 	{"is25wp256d",	   INFO(0x9d7019, 0x0, 64 * 1024,   512, RD_QUAD) },
 #endif
 #ifdef CONFIG_SPI_FLASH_MACRONIX	/* MACRONIX */
@@ -90,11 +94,13 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"mx25l12805",	   INFO(0xc22018, 0x0, 64 * 1024,   256, RD_FULL | WR_QPP) },
 	{"mx25l25635f",	   INFO(0xc22019, 0x0, 64 * 1024,   512, RD_FULL | WR_QPP) },
 	{"mx25l51235f",	   INFO(0xc2201a, 0x0, 64 * 1024,  1024, RD_FULL | WR_QPP) },
+	{"mx25l1633e",	   INFO(0xc22415, 0x0, 64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
 	{"mx25u6435f",	   INFO(0xc22537, 0x0, 64 * 1024,   128, RD_FULL | WR_QPP) },
 	{"mx25u12835f",	   INFO(0xc22538, 0x0, 64 * 1024,   256, RD_FULL | WR_QPP) },
 	{"mx25u25635f",	   INFO(0xc22539, 0x0, 64 * 1024,   512, RD_FULL | WR_QPP) },
 	{"mx25l12855e",	   INFO(0xc22618, 0x0, 64 * 1024,   256, RD_FULL | WR_QPP) },
 	{"mx25u1635e",     INFO(0xc22535, 0x0, 64 * 1024,  32, SECT_4K) },
+	{"mx25u25635f",    INFO(0xc22539, 0x0, 64 * 1024,   512, RD_FULL | WR_QPP) },
 	{"mx66u51235f",    INFO(0xc2253a, 0x0, 64 * 1024,  1024, RD_FULL | WR_QPP) },
 	{"mx66l1g45g",     INFO(0xc2201b, 0x0, 64 * 1024,  2048, RD_FULL | WR_QPP) },
 	{"mx66u1g45g",     INFO(0xc2253b, 0x0, 64 * 1024,  2048, RD_FULL | WR_QPP) },
@@ -105,7 +111,8 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"s25fl032a",	   INFO(0x010215, 0x0, 64 * 1024,    64, 0) },
 	{"s25fl064a",	   INFO(0x010216, 0x0, 64 * 1024,   128, 0) },
 	{"s25fl064l",	   INFO(0x016017, 0x0, 64 * 1024,   128, 0) },
-	{"s25fl116k",	   INFO(0x014015, 0x0, 64 * 1024,   128, 0) },
+	{"s25fl208k",	   INFO(0x014014, 0x0, 64 * 1024,    16, 0) },
+	{"s25fl116k",	   INFO(0x014015, 0x0, 64 * 1024,    32, 0) },
 	{"s25fl164k",	   INFO(0x014017, 0x0140,  64 * 1024,   128, 0) },
 	{"s25fl128p_256k", INFO(0x012018, 0x0300, 256 * 1024,    64, RD_FULL | WR_QPP) },
 	{"s25fl128p_64k",  INFO(0x012018, 0x0301,  64 * 1024,   256, RD_FULL | WR_QPP) },
@@ -113,10 +120,11 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"s25fl064p",	   INFO(0x010216, 0x4d00,  64 * 1024,   128, RD_FULL | WR_QPP) },
 	{"s25fl128s_256k", INFO(0x012018, 0x4d00, 256 * 1024,    64, RD_FULL | WR_QPP) },
 	{"s25fl128s_64k",  INFO(0x012018, 0x4d01,  64 * 1024,   256, RD_FULL | WR_QPP) },
+	{"s25fl128l",      INFO(0x016018, 0, 64 * 1024,    256, RD_FULL | WR_QPP) },
 	{"s25fl256s_256k", INFO(0x010219, 0x4d00, 256 * 1024,   128, RD_FULL | WR_QPP) },
 	{"s25fs256s_64k",  INFO6(0x010219, 0x4d0181, 64 * 1024, 512, RD_FULL | WR_QPP | SECT_4K) },
 	{"s25fl256s_64k",  INFO(0x010219, 0x4d01,  64 * 1024,   512, RD_FULL | WR_QPP) },
-	{"s25fs512s",      INFO6(0x010220, 0x4d0081, 128 * 1024, 512, RD_FULL | WR_QPP | SECT_4K) },
+	{"s25fs512s",      INFO6(0x010220, 0x4d0081, 256 * 1024, 256, RD_FULL | WR_QPP | SECT_4K) },
 	{"s25fl512s_256k", INFO(0x010220, 0x4d00, 256 * 1024,   256, RD_FULL | WR_QPP) },
 	{"s25fl512s_64k",  INFO(0x010220, 0x4d01,  64 * 1024,  1024, RD_FULL | WR_QPP) },
 	{"s25fl512s_512k", INFO(0x010220, 0x4f00, 256 * 1024,   256, RD_FULL | WR_QPP) },
@@ -141,8 +149,8 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"n25q64a",	   INFO(0x20bb17, 0x0,  64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K) },
 	{"n25q128",	   INFO(0x20ba18, 0x0,  64 * 1024,   256, RD_FULL | WR_QPP) },
 	{"n25q128a",	   INFO(0x20bb18, 0x0,  64 * 1024,   256, RD_FULL | WR_QPP) },
-	{"n25q256",	   INFO(0x20ba19, 0x0,  64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
-	{"n25q256a",	   INFO(0x20bb19, 0x0,  64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
+	{"n25q256",	   INFO(0x20ba19, 0x0,  64 * 1024,   512, RD_FULL | WR_QPP | E_FSR | SECT_4K) },
+	{"n25q256a",	   INFO(0x20bb19, 0x0,  64 * 1024,   512, RD_FULL | WR_QPP | E_FSR | SECT_4K) },
 	{"n25q512",	   INFO(0x20ba20, 0x0,  64 * 1024,  1024, RD_FULL | WR_QPP | E_FSR | SECT_4K) },
 	{"n25q512a",	   INFO(0x20bb20, 0x0,  64 * 1024,  1024, RD_FULL | WR_QPP | E_FSR | SECT_4K) },
 	{"n25q1024",	   INFO(0x20ba21, 0x0,  64 * 1024,  2048, RD_FULL | WR_QPP | E_FSR | SECT_4K) },
@@ -163,7 +171,9 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"sst25wf040",	   INFO(0xbf2504, 0x0,	64 * 1024,     8, SECT_4K | SST_WR) },
 	{"sst25wf040b",	   INFO(0x621613, 0x0,	64 * 1024,     8, SECT_4K) },
 	{"sst25wf080",	   INFO(0xbf2505, 0x0,	64 * 1024,    16, SECT_4K | SST_WR) },
-	{"sst26wf016b",	   INFO(0xbf2651, 0x0,	64 * 1024,   256, SECT_4K) },
+	{"sst26wf016",	   INFO(0xbf2651, 0x0,	64 * 1024,    32, SECT_4K) },
+	{"sst26wf032",	   INFO(0xbf2622, 0x0,	64 * 1024,    64, SECT_4K) },
+	{"sst26wf064",	   INFO(0xbf2643, 0x0,	64 * 1024,   128, SECT_4K) },
 #endif
 #ifdef CONFIG_SPI_FLASH_WINBOND		/* WINBOND */
 	{"w25p80",	   INFO(0xef2014, 0x0,	64 * 1024,    16, 0) },
@@ -181,9 +191,19 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"w25q256",	   INFO(0xef4019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q80bw",	   INFO(0xef5014, 0x0,	64 * 1024,    16, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q16dw",	   INFO(0xef6015, 0x0,	64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q16jv",	   INFO(0xef7015, 0x0,	64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q32dw",	   INFO(0xef6016, 0x0,	64 * 1024,    64, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q32jv",	   INFO(0xef7016, 0x0,	64 * 1024,    64, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q64dw",	   INFO(0xef6017, 0x0,	64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q64jv",	   INFO(0xef7017, 0x0,	64 * 1024,   128, RD_FULL | WR_QPP | SECT_4K) },
 	{"w25q128fw",	   INFO(0xef6018, 0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q128jv",	   INFO(0xef7018, 0x0,	64 * 1024,   256, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q256fw",	   INFO(0xef6019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
+	{"w25q256jw",	   INFO(0xef7019, 0x0,	64 * 1024,   512, RD_FULL | WR_QPP | SECT_4K) },
+#endif
+#ifdef CONFIG_SPI_FLASH_XMC /* Wuhan Xinxin Semiconductor Manufacturing Corp */
+	{ "xm25qh64a",	   INFO(0x207017, 0x0, 64 * 1024,    128, SECT_4K | RD_DUAL | RD_QUAD) },
+	{ "xm25qh128a",	   INFO(0x207018, 0x0, 64 * 1024,    256, SECT_4K | RD_DUAL | RD_QUAD) },
 #endif
 	{},	/* Empty entry to terminate the list */
 	/*
@@ -191,12 +211,13 @@ const struct spi_flash_info spi_flash_ids[] = {
 	 * Below paired flash devices has similar spi_flash params.
 	 * (s25fl129p_64k, s25fl128s_64k)
 	 * (w25q80bl, w25q80bv)
-	 * (w25q16cl, w25q16dv)
+	 * (w25q16cl, w25q16dv, w25q16jv)
 	 * (w25q32bv, w25q32fv_spi)
 	 * (w25q64cv, w25q64fv_spi)
 	 * (w25q128bv, w25q128fv_spi)
 	 * (w25q32dw, w25q32fv_qpi)
 	 * (w25q64dw, w25q64fv_qpi)
 	 * (w25q128fw, w25q128fv_qpi)
+	 * (w25q256fw, w25q256fv_qpi)
 	 */
 };

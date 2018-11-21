@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008 - 2013 Tensilica Inc.
  * (C) Copyright 2014 - 2016 Cadence Design Systems Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -226,7 +225,7 @@ _start:
 #endif
 
 	movi	a0, 0
-	movi	sp, (CONFIG_SYS_TEXT_ADDR - 16) & 0xfffffff0
+	movi	sp, (XTENSA_SYS_TEXT_ADDR - 16) & 0xfffffff0
 
 #ifdef CONFIG_DEBUG_UART
 	movi	a4, debug_uart_init

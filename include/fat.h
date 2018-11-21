@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * R/O (V)FAT 12/16/32 filesystem implementation by Marcus Sundberg
  *
  * 2002-07-28 - rjones@nexus-tech.net - ported to ppcboot v1.1.6
  * 2003-03-10 - kharris@nexus-tech.net - ported to u-boot
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _FAT_H_
@@ -13,7 +12,6 @@
 #include <asm/byteorder.h>
 #include <fs.h>
 
-#define CONFIG_SUPPORT_VFAT
 /* Maximum Long File Name length supported here is 128 UTF-16 code units */
 #define VFAT_MAXLEN_BYTES	256 /* Maximum LFN buffer in bytes */
 #define VFAT_MAXSEQ		9   /* Up to 9 of 13 2-byte UTF-16 entries */
@@ -175,6 +173,8 @@ typedef struct {
 	int	fatbufnum;	/* Used by get_fatent, init to -1 */
 	int	rootdir_size;	/* Size of root dir for non-FAT32 */
 	__u32	root_cluster;	/* First cluster of root dir for FAT32 */
+	u32	total_sect;	/* Number of sectors */
+	int	fats;		/* Number of FATs */
 } fsdata;
 
 static inline u32 clust_to_sect(fsdata *fsdata, u32 clust)
@@ -182,7 +182,7 @@ static inline u32 clust_to_sect(fsdata *fsdata, u32 clust)
 	return fsdata->data_begin + clust * fsdata->clust_size;
 }
 
-static inline u32 sect_to_clust(fsdata *fsdata, u32 sect)
+static inline u32 sect_to_clust(fsdata *fsdata, int sect)
 {
 	return (sect - fsdata->data_begin) / fsdata->clust_size;
 }
@@ -203,5 +203,7 @@ int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
 int fat_opendir(const char *filename, struct fs_dir_stream **dirsp);
 int fat_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
 void fat_closedir(struct fs_dir_stream *dirs);
+int fat_unlink(const char *filename);
+int fat_mkdir(const char *dirname);
 void fat_close(void);
 #endif /* _FAT_H_ */

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2009 Samsung Electronics
  * Kyungmin Park <kyungmin.park@samsung.com>
  * Minkyu Kang <mk7.kang@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARM_ARCH_POWER_H_

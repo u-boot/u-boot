@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Video driver for Marvell Armada XP SoC
  *
  * Initialization of LCD interface and setup of SPLASH screen image
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Beniamino Galvani <b.galvani@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,8 +9,6 @@
 #include <fdtdec.h>
 #include <linux/compiler.h>
 #include <serial.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct meson_uart {
 	u32 wfifo;
@@ -125,6 +122,7 @@ static const struct dm_serial_ops meson_serial_ops = {
 
 static const struct udevice_id meson_serial_ids[] = {
 	{ .compatible = "amlogic,meson-uart" },
+	{ .compatible = "amlogic,meson-gx-uart" },
 	{ }
 };
 

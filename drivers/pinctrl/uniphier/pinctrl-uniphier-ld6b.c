@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015-2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,17 +9,6 @@
 #include <dm/pinctrl.h>
 
 #include "pinctrl-uniphier.h"
-
-static const struct uniphier_pinctrl_pin uniphier_ld6b_pins[] = {
-	UNIPHIER_PINCTRL_PIN(113, 0),
-	UNIPHIER_PINCTRL_PIN(114, 0),
-	UNIPHIER_PINCTRL_PIN(115, 0),
-	UNIPHIER_PINCTRL_PIN(116, 0),
-	UNIPHIER_PINCTRL_PIN(217, 0),
-	UNIPHIER_PINCTRL_PIN(218, 0),
-	UNIPHIER_PINCTRL_PIN(219, 0),
-	UNIPHIER_PINCTRL_PIN(220, 0),
-};
 
 static const unsigned emmc_pins[] = {36, 37, 38, 39, 40, 41, 42};
 static const int emmc_muxvals[] = {1, 1, 1, 1, 1, 1, 1};
@@ -135,8 +123,6 @@ static const char * const uniphier_ld6b_functions[] = {
 };
 
 static struct uniphier_pinctrl_socdata uniphier_ld6b_pinctrl_socdata = {
-	.pins = uniphier_ld6b_pins,
-	.pins_count = ARRAY_SIZE(uniphier_ld6b_pins),
 	.groups = uniphier_ld6b_groups,
 	.groups_count = ARRAY_SIZE(uniphier_ld6b_groups),
 	.functions = uniphier_ld6b_functions,

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2001 Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Andreas Heppel <aheppel@sysgo.de>
-
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -41,7 +40,10 @@ env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif
 
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
-static int env_nvram_get_char(int index)
+/** Call this function from overridden env_get_char_spec() if you need
+ * this functionality.
+ */
+int env_nvram_get_char(int index)
 {
 	uchar c;
 
@@ -60,9 +62,7 @@ static int env_nvram_load(void)
 #else
 	memcpy(buf, (void *)CONFIG_ENV_ADDR, CONFIG_ENV_SIZE);
 #endif
-	env_import(buf, 1);
-
-	return 0;
+	return env_import(buf, 1);
 }
 
 static int env_nvram_save(void)
@@ -115,9 +115,6 @@ static int env_nvram_init(void)
 U_BOOT_ENV_LOCATION(nvram) = {
 	.location	= ENVL_NVRAM,
 	ENV_NAME("NVRAM")
-#ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
-	.get_char	= env_nvram_get_char,
-#endif
 	.load		= env_nvram_load,
 	.save		= env_save_ptr(env_nvram_save),
 	.init		= env_nvram_init,

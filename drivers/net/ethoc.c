@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Opencore 10/100 ethernet mac driver
  *
@@ -6,8 +7,6 @@
  *   Thierry Reding <thierry.reding@avionic-design.de>
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
  * Copyright (C) 2016 Cadence Design Systems Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -548,8 +547,8 @@ static int ethoc_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 	ethoc_write(priv, MIIADDRESS, MIIADDRESS_ADDR(addr, reg));
 	ethoc_write(priv, MIICOMMAND, MIICOMMAND_READ);
 
-	rc = wait_for_bit(__func__, ethoc_reg(priv, MIISTATUS),
-			  MIISTATUS_BUSY, false, CONFIG_SYS_HZ, false);
+	rc = wait_for_bit_le32(ethoc_reg(priv, MIISTATUS),
+			       MIISTATUS_BUSY, false, CONFIG_SYS_HZ, false);
 
 	if (rc == 0) {
 		u32 data = ethoc_read(priv, MIIRX_DATA);
@@ -571,8 +570,8 @@ static int ethoc_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 	ethoc_write(priv, MIITX_DATA, val);
 	ethoc_write(priv, MIICOMMAND, MIICOMMAND_WRITE);
 
-	rc = wait_for_bit(__func__, ethoc_reg(priv, MIISTATUS),
-			  MIISTATUS_BUSY, false, CONFIG_SYS_HZ, false);
+	rc = wait_for_bit_le32(ethoc_reg(priv, MIISTATUS),
+			       MIISTATUS_BUSY, false, CONFIG_SYS_HZ, false);
 
 	if (rc == 0) {
 		/* reset MII command register */

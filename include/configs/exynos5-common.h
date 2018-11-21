@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Samsung Electronics
  *
  * Configuration settings for the SAMSUNG EXYNOS5 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_EXYNOS5_COMMON_H
@@ -139,6 +138,7 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
+	func(MMC, mmc, 2) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 

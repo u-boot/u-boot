@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009
  * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -21,6 +20,8 @@ static struct misc_regs *const misc_regs_p =
     (struct misc_regs *)CONFIG_SPEAR_MISCBASE;
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static ulong get_timer_masked(void);
 
 #define timestamp gd->arch.tbl
 #define lastdec gd->arch.lastinc
@@ -83,7 +84,7 @@ void __udelay(unsigned long usec)
 		;
 }
 
-ulong get_timer_masked(void)
+static ulong get_timer_masked(void)
 {
 	ulong now = READ_TIMER();
 
@@ -97,11 +98,6 @@ ulong get_timer_masked(void)
 	lastdec = now;
 
 	return timestamp;
-}
-
-void udelay_masked(unsigned long usec)
-{
-	return udelay(usec);
 }
 
 /*

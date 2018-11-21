@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012,2015 Stephen Warren
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _BCM2835_MSG_H
@@ -18,9 +17,10 @@ int bcm2835_power_on_module(u32 module);
 /**
  * bcm2835_get_mmc_clock() - get the frequency of the MMC clock
  *
+ * @clock_id: ID of clock to get frequency for
  * @return clock frequency, or -ve on error
  */
-int bcm2835_get_mmc_clock(void);
+int bcm2835_get_mmc_clock(u32 clock_id);
 
 /**
  * bcm2835_get_video_size() - get the current display size

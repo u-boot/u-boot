@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration for Xilinx ZynqMP zc1751 XM015 DC1
  *
  * (C) Copyright 2015 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_ZYNQMP_ZC1751_XM015_DC1_H

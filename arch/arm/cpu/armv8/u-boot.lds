@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * David Feng <fenghua@phytium.com.cn>
  *
  * (C) Copyright 2002
  * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -26,6 +25,19 @@ SECTIONS
 	{
 		*(.__image_copy_start)
 		CPUDIR/start.o (.text*)
+	}
+
+	/* This needs to come before *(.text*) */
+	.efi_runtime : {
+                __efi_runtime_start = .;
+		*(.text.efi_runtime*)
+		*(.rodata.efi_runtime*)
+		*(.data.efi_runtime*)
+                __efi_runtime_stop = .;
+	}
+
+	.text_rest :
+	{
 		*(.text*)
 	}
 
@@ -99,17 +111,10 @@ SECTIONS
 
 	. = ALIGN(8);
 
-	.efi_runtime : {
-                __efi_runtime_start = .;
-		*(efi_runtime_text)
-		*(efi_runtime_data)
-                __efi_runtime_stop = .;
-	}
-
 	.efi_runtime_rel : {
                 __efi_runtime_rel_start = .;
-		*(.relaefi_runtime_text)
-		*(.relaefi_runtime_data)
+		*(.rel*.efi_runtime)
+		*(.rel*.efi_runtime.*)
                 __efi_runtime_rel_stop = .;
 	}
 
@@ -159,4 +164,8 @@ SECTIONS
 	/DISCARD/ : { *(.plt*) }
 	/DISCARD/ : { *(.interp*) }
 	/DISCARD/ : { *(.gnu*) }
+
+#ifdef CONFIG_LINUX_KERNEL_IMAGE_HEADER
+#include "linux-kernel-image-header-vars.h"
+#endif
 }

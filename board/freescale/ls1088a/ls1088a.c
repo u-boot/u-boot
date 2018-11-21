@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2017 NXP
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <i2c.h>
@@ -13,18 +12,32 @@
 #include <fsl_sec.h>
 #include <asm/io.h>
 #include <fdt_support.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
 #include <asm/arch-fsl-layerscape/soc.h>
 #include <asm/arch/ppa.h>
 #include <hwconfig.h>
+#include <asm/arch/fsl_serdes.h>
+#include <asm/arch/soc.h>
 
 #include "../common/qixis.h"
 #include "ls1088a_qixis.h"
+#include "../common/vid.h"
+#include <fsl_immap.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int board_early_init_f(void)
+{
+#if defined(CONFIG_SYS_I2C_EARLY_INIT) && defined(CONFIG_TARGET_LS1088AQDS)
+	i2c_early_init_f();
+#endif
+	fsl_lsch3_early_init_f();
+	return 0;
+}
+
+#ifdef CONFIG_FSL_QIXIS
 unsigned long long get_qixis_addr(void)
 {
 	unsigned long long addr;
@@ -42,7 +55,19 @@ unsigned long long get_qixis_addr(void)
 
 	return addr;
 }
+#endif
 
+#if defined(CONFIG_VID)
+int init_func_vid(void)
+{
+	if (adjust_vdd(0) < 0)
+		printf("core voltage not adjusted\n");
+
+	return 0;
+}
+#endif
+
+#if !defined(CONFIG_SPL_BUILD)
 int checkboard(void)
 {
 	char buf[64];
@@ -145,6 +170,7 @@ int checkboard(void)
 
 	return 0;
 }
+#endif
 
 bool if_board_diff_clk(void)
 {
@@ -212,6 +238,7 @@ int select_i2c_ch_pca9547(u8 ch)
 	return 0;
 }
 
+#if !defined(CONFIG_SPL_BUILD)
 void board_retimer_init(void)
 {
 	u8 reg;
@@ -313,7 +340,122 @@ int misc_init_r(void)
 	return 0;
 }
 #endif
+#endif
 
+int i2c_multiplexer_select_vid_channel(u8 channel)
+{
+	return select_i2c_ch_pca9547(channel);
+}
+
+#ifdef CONFIG_TARGET_LS1088AQDS
+/* read the current value(SVDD) of the LTM Regulator Voltage */
+int get_serdes_volt(void)
+{
+	int  ret, vcode = 0;
+	u8 chan = PWM_CHANNEL0;
+
+	/* Select the PAGE 0 using PMBus commands PAGE for VDD */
+	ret = i2c_write(I2C_SVDD_MONITOR_ADDR,
+			PMBUS_CMD_PAGE, 1, &chan, 1);
+	if (ret) {
+		printf("VID: failed to select VDD Page 0\n");
+		return ret;
+	}
+
+	/* Read the output voltage using PMBus command READ_VOUT */
+	ret = i2c_read(I2C_SVDD_MONITOR_ADDR,
+		       PMBUS_CMD_READ_VOUT, 1, (void *)&vcode, 2);
+	if (ret) {
+		printf("VID: failed to read the volatge\n");
+		return ret;
+	}
+
+	return vcode;
+}
+
+int set_serdes_volt(int svdd)
+{
+	int ret, vdd_last;
+	u8 buff[5] = {0x04, PWM_CHANNEL0, PMBUS_CMD_VOUT_COMMAND,
+			svdd & 0xFF, (svdd & 0xFF00) >> 8};
+
+	/* Write the desired voltage code to the SVDD regulator */
+	ret = i2c_write(I2C_SVDD_MONITOR_ADDR,
+			PMBUS_CMD_PAGE_PLUS_WRITE, 1, (void *)&buff, 5);
+	if (ret) {
+		printf("VID: I2C failed to write to the volatge regulator\n");
+		return -1;
+	}
+
+	/* Wait for the volatge to get to the desired value */
+	do {
+		vdd_last = get_serdes_volt();
+		if (vdd_last < 0) {
+			printf("VID: Couldn't read sensor abort VID adjust\n");
+			return -1;
+		}
+	} while (vdd_last != svdd);
+
+	return 1;
+}
+#else
+int get_serdes_volt(void)
+{
+	return 0;
+}
+
+int set_serdes_volt(int svdd)
+{
+	int ret;
+	u8 brdcfg4;
+
+	printf("SVDD changing of RDB\n");
+
+	/* Read the BRDCFG54 via CLPD */
+	ret = i2c_read(CONFIG_SYS_I2C_FPGA_ADDR,
+		       QIXIS_BRDCFG4_OFFSET, 1, (void *)&brdcfg4, 1);
+	if (ret) {
+		printf("VID: I2C failed to read the CPLD BRDCFG4\n");
+		return -1;
+	}
+
+	brdcfg4 = brdcfg4 | 0x08;
+
+	/* Write to the BRDCFG4 */
+	ret = i2c_write(CONFIG_SYS_I2C_FPGA_ADDR,
+			QIXIS_BRDCFG4_OFFSET, 1, (void *)&brdcfg4, 1);
+	if (ret) {
+		debug("VID: I2C failed to set the SVDD CPLD BRDCFG4\n");
+		return -1;
+	}
+
+	/* Wait for the volatge to get to the desired value */
+	udelay(10000);
+
+	return 1;
+}
+#endif
+
+/* this function disables the SERDES, changes the SVDD Voltage and enables it*/
+int board_adjust_vdd(int vdd)
+{
+	int ret = 0;
+
+	debug("%s: vdd = %d\n", __func__, vdd);
+
+	/* Special settings to be performed when voltage is 900mV */
+	if (vdd == 900) {
+		ret = setup_serdes_volt(vdd);
+		if (ret < 0) {
+			ret = -1;
+			goto exit;
+		}
+	}
+exit:
+	return ret;
+}
+
+#if !defined(CONFIG_SPL_BUILD)
 int board_init(void)
 {
 	init_final_memctl_regs();
@@ -339,12 +481,6 @@ int board_init(void)
 #ifdef CONFIG_FSL_LS_PPA
 	ppa_init();
 #endif
-	return 0;
-}
-
-int board_early_init_f(void)
-{
-	fsl_lsch3_early_init_f();
 	return 0;
 }
 
@@ -439,6 +575,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory_banks(blob, base, size, CONFIG_NR_DRAM_BANKS);
 
+	fdt_fsl_mc_fixup_iommu_map_entry(blob);
+
 	fsl_fdt_fixup_flash(blob);
 
 #ifdef CONFIG_FSL_MC_ENET
@@ -451,3 +589,4 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 #endif
+#endif /* defined(CONFIG_SPL_BUILD) */

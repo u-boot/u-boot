@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2013 Google, Inc
  *
  * (C) Copyright 2012
  * Pavel Herrmann <morpheus.ibis@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DM_UCLASS_INTERNAL_H
@@ -23,6 +22,17 @@
  * @return ret, if non-zero, else the result of the device_probe() call
  */
 int uclass_get_device_tail(struct udevice *dev, int ret, struct udevice **devp);
+
+/**
+ * dev_get_uclass_index() - Get uclass and index of device
+ * @dev:	- in - Device that we want the uclass/index of
+ * @ucp:	- out - A pointer to the uclass the device belongs to
+ *
+ * The device is not prepared for use - this is an internal function.
+ *
+ * @return the index of the device in the uclass list or -ENODEV if not found.
+ */
+int dev_get_uclass_index(struct udevice *dev, struct uclass **ucp);
 
 /**
  * uclass_find_device() - Return n-th child of uclass

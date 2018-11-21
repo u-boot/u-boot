@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2007-2009, 2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "config.h"
@@ -82,6 +81,7 @@ SECTIONS
   .data.init : { *(.data.init) }
   . = ALIGN(256);
   __init_end = .;
+  _end = .;
 
 #ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
   .bootpg ADDR(.text) - 0x1000 :

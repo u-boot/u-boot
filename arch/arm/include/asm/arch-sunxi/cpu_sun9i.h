@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2015 Hans de Goede <hdegoede@redhat.com>
  * (C) Copyright 2007-2013
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Jerry Wang <wangflord@allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_CPU_SUN9I_H

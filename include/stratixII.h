@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007
  * Eran Liberty, Extricom, eran.liberty@gmail.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _STRATIXII_H_
 #define _STRATIXII_H_

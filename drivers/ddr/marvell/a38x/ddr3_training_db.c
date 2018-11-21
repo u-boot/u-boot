@@ -1,19 +1,27 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) Marvell International Ltd. and its affiliates
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
-
-#include <common.h>
-#include <spl.h>
-#include <asm/io.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/soc.h>
 
 #include "ddr3_init.h"
 
+/* Device attributes structures */
+enum mv_ddr_dev_attribute ddr_dev_attributes[MAX_DEVICE_NUM][MV_ATTR_LAST];
+int ddr_dev_attr_init_done[MAX_DEVICE_NUM] = { 0 };
+
+static inline u32 pattern_table_get_killer_word16(u8 dqs, u8 index);
+static inline u32 pattern_table_get_sso_word(u8 sso, u8 index);
+static inline u32 pattern_table_get_vref_word(u8 index);
+static inline u32 pattern_table_get_vref_word16(u8 index);
+static inline u32 pattern_table_get_sso_full_xtalk_word(u8 bit, u8 index);
+static inline u32 pattern_table_get_sso_full_xtalk_word16(u8 bit, u8 index);
+static inline u32 pattern_table_get_sso_xtalk_free_word(u8 bit, u8 index);
+static inline u32 pattern_table_get_sso_xtalk_free_word16(u8 bit, u8 index);
+static inline u32 pattern_table_get_isi_word(u8 index);
+static inline u32 pattern_table_get_isi_word16(u8 index);
+
 /* List of allowed frequency listed in order of enum hws_ddr_freq */
-u32 freq_val[DDR_FREQ_LIMIT] = {
+u32 freq_val[DDR_FREQ_LAST] = {
 	0,			/*DDR_FREQ_LOW_FREQ */
 	400,			/*DDR_FREQ_400, */
 	533,			/*DDR_FREQ_533, */
@@ -152,18 +160,18 @@ u8 twr_mask_table[] = {
 	10,
 	10,
 	10,
-	1,			/*5 */
-	2,			/*6 */
-	3,			/*7 */
+	1,			/* 5 */
+	2,			/* 6 */
+	3,			/* 7 */
+	4,			/* 8 */
 	10,
+	5,			/* 10 */
 	10,
-	5,			/*10 */
+	6,			/* 12 */
 	10,
-	6,			/*12 */
+	7,			/* 14 */
 	10,
-	7,			/*14 */
-	10,
-	0			/*16 */
+	0			/* 16 */
 };
 
 u8 cl_mask_table[] = {
@@ -210,7 +218,11 @@ u16 rfc_table[] = {
 	110,			/* 1G */
 	160,			/* 2G */
 	260,			/* 4G */
-	350			/* 8G */
+	350,			/* 8G */
+	0,			/* TODO: placeholder for 16-Mbit dev width */
+	0,			/* TODO: placeholder for 32-Mbit dev width */
+	0,			/* TODO: placeholder for 12-Mbit dev width */
+	0			/* TODO: placeholder for 24-Mbit dev width */
 };
 
 u32 speed_bin_table_t_rc[] = {
@@ -234,7 +246,7 @@ u32 speed_bin_table_t_rc[] = {
 	43285,
 	44220,
 	45155,
-	46900
+	46090
 };
 
 u32 speed_bin_table_t_rcd_t_rp[] = {
@@ -256,7 +268,7 @@ u32 speed_bin_table_t_rcd_t_rp[] = {
 	12840,
 	13910,
 	10285,
-	11022,
+	11220,
 	12155,
 	13090,
 };
@@ -357,13 +369,13 @@ u32 speed_bin_table(u8 index, enum speed_bin_table_elements element)
 		result = speed_bin_table_t_rcd_t_rp[index];
 		break;
 	case SPEED_BIN_TRAS:
-		if (index < 6)
+		if (index < SPEED_BIN_DDR_1066G)
 			result = 37500;
-		else if (index < 10)
+		else if (index < SPEED_BIN_DDR_1333J)
 			result = 36000;
-		else if (index < 14)
+		else if (index < SPEED_BIN_DDR_1600K)
 			result = 35000;
-		else if (index < 18)
+		else if (index < SPEED_BIN_DDR_1866M)
 			result = 34000;
 		else
 			result = 33000;
@@ -372,49 +384,49 @@ u32 speed_bin_table(u8 index, enum speed_bin_table_elements element)
 		result = speed_bin_table_t_rc[index];
 		break;
 	case SPEED_BIN_TRRD1K:
-		if (index < 3)
+		if (index < SPEED_BIN_DDR_800E)
 			result = 10000;
-		else if (index < 6)
-			result = 7005;
-		else if (index < 14)
+		else if (index < SPEED_BIN_DDR_1066G)
+			result = 7500;
+		else if (index < SPEED_BIN_DDR_1600K)
 			result = 6000;
 		else
 			result = 5000;
 		break;
 	case SPEED_BIN_TRRD2K:
-		if (index < 6)
+		if (index < SPEED_BIN_DDR_1066G)
 			result = 10000;
-		else if (index < 14)
-			result = 7005;
+		else if (index < SPEED_BIN_DDR_1600K)
+			result = 7500;
 		else
 			result = 6000;
 		break;
 	case SPEED_BIN_TPD:
-		if (index < 3)
+		if (index < SPEED_BIN_DDR_800E)
 			result = 7500;
-		else if (index < 10)
+		else if (index < SPEED_BIN_DDR_1333J)
 			result = 5625;
 		else
 			result = 5000;
 		break;
 	case SPEED_BIN_TFAW1K:
-		if (index < 3)
+		if (index < SPEED_BIN_DDR_800E)
 			result = 40000;
-		else if (index < 6)
+		else if (index < SPEED_BIN_DDR_1066G)
 			result = 37500;
-		else if (index < 14)
+		else if (index < SPEED_BIN_DDR_1600K)
 			result = 30000;
-		else if (index < 18)
+		else if (index < SPEED_BIN_DDR_1866M)
 			result = 27000;
 		else
 			result = 25000;
 		break;
 	case SPEED_BIN_TFAW2K:
-		if (index < 6)
+		if (index < SPEED_BIN_DDR_1066G)
 			result = 50000;
-		else if (index < 10)
+		else if (index < SPEED_BIN_DDR_1333J)
 			result = 45000;
-		else if (index < 14)
+		else if (index < SPEED_BIN_DDR_1600K)
 			result = 40000;
 		else
 			result = 35000;
@@ -430,6 +442,9 @@ u32 speed_bin_table(u8 index, enum speed_bin_table_elements element)
 		break;
 	case SPEED_BIN_TMOD:
 		result = 15000;
+		break;
+	case SPEED_BIN_TXPDLL:
+		result = 24000;
 		break;
 	default:
 		break;
@@ -463,14 +478,7 @@ static inline u32 pattern_table_get_killer_word16(u8 dqs, u8 index)
 			(PATTERN_KILLER_PATTERN_TABLE_MAP_ROLE_AGGRESSOR) :
 			(PATTERN_KILLER_PATTERN_TABLE_MAP_ROLE_VICTIM);
 		byte0 |= pattern_killer_pattern_table_map[index * 2][role] << i;
-	}
-
-	for (i = 0; i < 8; i++) {
-		role = (i == dqs) ?
-			(PATTERN_KILLER_PATTERN_TABLE_MAP_ROLE_AGGRESSOR) :
-			(PATTERN_KILLER_PATTERN_TABLE_MAP_ROLE_VICTIM);
-		byte1 |= pattern_killer_pattern_table_map
-			[index * 2 + 1][role] << i;
+		byte1 |= pattern_killer_pattern_table_map[index * 2 + 1][role] << i;
 	}
 
 	return byte0 | (byte0 << 8) | (byte1 << 16) | (byte1 << 24);
@@ -484,6 +492,79 @@ static inline u32 pattern_table_get_sso_word(u8 sso, u8 index)
 		return 0x0;
 	else
 		return 0xffffffff;
+}
+
+static inline u32 pattern_table_get_sso_full_xtalk_word(u8 bit, u8 index)
+{
+	u8 byte = (1 << bit);
+
+	if ((index & 1) == 1)
+		byte = ~byte;
+
+	return byte | (byte << 8) | (byte << 16) | (byte << 24);
+
+}
+
+static inline u32 pattern_table_get_sso_xtalk_free_word(u8 bit, u8 index)
+{
+	u8 byte = (1 << bit);
+
+	if ((index & 1) == 1)
+		byte = 0;
+
+	return byte | (byte << 8) | (byte << 16) | (byte << 24);
+}
+
+static inline u32 pattern_table_get_isi_word(u8 index)
+{
+	u8 i0 = index % 32;
+	u8 i1 = index % 8;
+	u32 word;
+
+	if (i0 > 15)
+		word = ((i1 == 5) | (i1 == 7)) ? 0xffffffff : 0x0;
+	else
+		word = (i1 == 6) ? 0xffffffff : 0x0;
+
+	word = ((i0 % 16) > 7) ? ~word : word;
+
+	return word;
+}
+
+static inline u32 pattern_table_get_sso_full_xtalk_word16(u8 bit, u8 index)
+{
+	u8 byte = (1 << bit);
+
+	if ((index & 1) == 1)
+		byte = ~byte;
+
+	return byte | (byte << 8) | ((~byte) << 16) | ((~byte) << 24);
+}
+
+static inline u32 pattern_table_get_sso_xtalk_free_word16(u8 bit, u8 index)
+{
+	u8 byte = (1 << bit);
+
+	if ((index & 1) == 0)
+		return (byte << 16) | (byte << 24);
+	else
+		return byte | (byte << 8);
+}
+
+static inline u32 pattern_table_get_isi_word16(u8 index)
+{
+	u8 i0 = index % 16;
+	u8 i1 = index % 4;
+	u32 word;
+
+	if (i0 > 7)
+		word = (i1 > 1) ? 0x0000ffff : 0x0;
+	else
+		word = (i1 == 3) ? 0xffff0000 : 0x0;
+
+	word = ((i0 % 8) > 3) ? ~word : word;
+
+	return word;
 }
 
 static inline u32 pattern_table_get_vref_word(u8 index)
@@ -525,13 +606,13 @@ static inline u32 pattern_table_get_static_pbs_word(u8 index)
 	return temp | (temp << 8) | (temp << 16) | (temp << 24);
 }
 
-inline u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
+u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 {
 	u32 pattern;
-	struct hws_topology_map *tm = ddr3_get_topology_map();
+	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
 	if (DDR3_IS_16BIT_DRAM_MODE(tm->bus_act_mask) == 0) {
-		/* 32bit patterns */
+		/* 32/64-bit patterns */
 		switch (type) {
 		case PATTERN_PBS1:
 		case PATTERN_PBS2:
@@ -575,9 +656,9 @@ inline u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 			break;
 		case PATTERN_TEST:
 			if (index > 1 && index < 6)
-				pattern = PATTERN_20;
-			else
 				pattern = PATTERN_00;
+			else
+				pattern = PATTERN_FF;
 			break;
 		case PATTERN_FULL_SSO0:
 		case PATTERN_FULL_SSO1:
@@ -589,7 +670,34 @@ inline u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 		case PATTERN_VREF:
 			pattern = pattern_table_get_vref_word(index);
 			break;
+		case PATTERN_SSO_FULL_XTALK_DQ0:
+		case PATTERN_SSO_FULL_XTALK_DQ1:
+		case PATTERN_SSO_FULL_XTALK_DQ2:
+		case PATTERN_SSO_FULL_XTALK_DQ3:
+		case PATTERN_SSO_FULL_XTALK_DQ4:
+		case PATTERN_SSO_FULL_XTALK_DQ5:
+		case PATTERN_SSO_FULL_XTALK_DQ6:
+		case PATTERN_SSO_FULL_XTALK_DQ7:
+			pattern = pattern_table_get_sso_full_xtalk_word(
+				(u8)(type - PATTERN_SSO_FULL_XTALK_DQ0), index);
+			break;
+		case PATTERN_SSO_XTALK_FREE_DQ0:
+		case PATTERN_SSO_XTALK_FREE_DQ1:
+		case PATTERN_SSO_XTALK_FREE_DQ2:
+		case PATTERN_SSO_XTALK_FREE_DQ3:
+		case PATTERN_SSO_XTALK_FREE_DQ4:
+		case PATTERN_SSO_XTALK_FREE_DQ5:
+		case PATTERN_SSO_XTALK_FREE_DQ6:
+		case PATTERN_SSO_XTALK_FREE_DQ7:
+			pattern = pattern_table_get_sso_xtalk_free_word(
+				(u8)(type - PATTERN_SSO_XTALK_FREE_DQ0), index);
+			break;
+		case PATTERN_ISI_XTALK_FREE:
+			pattern = pattern_table_get_isi_word(index);
+			break;
 		default:
+			DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR, ("Error: %s: pattern type [%d] not supported\n",
+							      __func__, (int)type));
 			pattern = 0;
 			break;
 		}
@@ -628,7 +736,10 @@ inline u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 				pattern = PATTERN_01;
 			break;
 		case PATTERN_TEST:
-			pattern = PATTERN_0080;
+			if ((index == 0) || (index == 3))
+				pattern = 0x00000000;
+			else
+				pattern = 0xFFFFFFFF;
 			break;
 		case PATTERN_FULL_SSO0:
 			pattern = 0x0000ffff;
@@ -642,11 +753,65 @@ inline u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 		case PATTERN_VREF:
 			pattern = pattern_table_get_vref_word16(index);
 			break;
+		case PATTERN_SSO_FULL_XTALK_DQ0:
+		case PATTERN_SSO_FULL_XTALK_DQ1:
+		case PATTERN_SSO_FULL_XTALK_DQ2:
+		case PATTERN_SSO_FULL_XTALK_DQ3:
+		case PATTERN_SSO_FULL_XTALK_DQ4:
+		case PATTERN_SSO_FULL_XTALK_DQ5:
+		case PATTERN_SSO_FULL_XTALK_DQ6:
+		case PATTERN_SSO_FULL_XTALK_DQ7:
+			pattern = pattern_table_get_sso_full_xtalk_word16(
+				(u8)(type - PATTERN_SSO_FULL_XTALK_DQ0), index);
+			break;
+		case PATTERN_SSO_XTALK_FREE_DQ0:
+		case PATTERN_SSO_XTALK_FREE_DQ1:
+		case PATTERN_SSO_XTALK_FREE_DQ2:
+		case PATTERN_SSO_XTALK_FREE_DQ3:
+		case PATTERN_SSO_XTALK_FREE_DQ4:
+		case PATTERN_SSO_XTALK_FREE_DQ5:
+		case PATTERN_SSO_XTALK_FREE_DQ6:
+		case PATTERN_SSO_XTALK_FREE_DQ7:
+			pattern = pattern_table_get_sso_xtalk_free_word16(
+				(u8)(type - PATTERN_SSO_XTALK_FREE_DQ0), index);
+			break;
+		case PATTERN_ISI_XTALK_FREE:
+			pattern = pattern_table_get_isi_word16(index);
+			break;
 		default:
+			DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR, ("Error: %s: pattern type [%d] not supported\n",
+							      __func__, (int)type));
 			pattern = 0;
 			break;
 		}
 	}
 
 	return pattern;
+}
+
+/* Device attribute functions */
+void ddr3_tip_dev_attr_init(u32 dev_num)
+{
+	u32 attr_id;
+
+	for (attr_id = 0; attr_id < MV_ATTR_LAST; attr_id++)
+		ddr_dev_attributes[dev_num][attr_id] = 0xFF;
+
+	ddr_dev_attr_init_done[dev_num] = 1;
+}
+
+u32 ddr3_tip_dev_attr_get(u32 dev_num, enum mv_ddr_dev_attribute attr_id)
+{
+	if (ddr_dev_attr_init_done[dev_num] == 0)
+		ddr3_tip_dev_attr_init(dev_num);
+
+	return ddr_dev_attributes[dev_num][attr_id];
+}
+
+void ddr3_tip_dev_attr_set(u32 dev_num, enum mv_ddr_dev_attribute attr_id, u32 value)
+{
+	if (ddr_dev_attr_init_done[dev_num] == 0)
+		ddr3_tip_dev_attr_init(dev_num);
+
+	ddr_dev_attributes[dev_num][attr_id] = value;
 }

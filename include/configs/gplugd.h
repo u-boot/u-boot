@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * eInfochips Ltd. <www.einfochips.com>
@@ -8,8 +9,6 @@
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  * Contributor: Mahavir Jain <mjain@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_GPLUGD_H
@@ -24,14 +23,11 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_GPLUGD /* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
-#define	CONFIG_SYS_TEXT_BASE	0x00f00000
-
 /*
  * There is no internal RAM in ARMADA100, using DRAM
  * TBD: dcache to be used for this
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - 0x00200000)
-#define CONFIG_NR_DRAM_BANKS_MAX	2
 
 /*
  * Commands configuration
@@ -52,7 +48,6 @@
 #define CONFIG_MARVELL_GPIO
 
 /* PHY configuration */
-#define CONFIG_MII
 #define CONFIG_RESET_PHY_R
 /* 88E3015 register definition */
 #define PHY_LED_PAR_SEL_REG		22
@@ -84,7 +79,5 @@
 #define CONFIG_USB_EHCI_ARMADA100
 #define CONFIG_EHCI_IS_TDI
 #endif /* CONFIG_CMD_USB */
-
-#define CONFIG_SUPPORT_VFAT
 
 #endif	/* __CONFIG_GPLUGD_H */

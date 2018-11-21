@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Marek Behun <marek.behun@nic.cz>
  * Copyright (C) 2016 Tomas Hlavacek <tomas.hlavacek@nic.cz>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_TURRIS_OMNIA_H
@@ -12,15 +11,11 @@
  * High Level Configuration Options (easy to change)
  */
 
-#define CONFIG_MISC_INIT_R
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-
 /*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.
  */
-#define	CONFIG_SYS_TEXT_BASE	0x00800000
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /*
@@ -59,9 +54,6 @@
 #define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
 					 CONFIG_SYS_SCSI_MAX_LUN)
 
-/* Additional FS support/configuration */
-#define CONFIG_SUPPORT_VFAT
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 
@@ -70,7 +62,6 @@
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
 #define CONFIG_ENV_SECT_SIZE		(256 << 10) /* 256KiB sectors */
 
-#define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
 /* PCIe support */
@@ -79,15 +70,12 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
-#define CONFIG_SYS_ALT_MEMTEST
-
 /* Keep device tree and initrd in lower memory so the kernel can access them */
 #define RELOCATION_LIMITS_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
 	"initrd_high=0x10000000\0"
 
 /* Defines for SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_SIZE			(140 << 10)
 #define CONFIG_SPL_TEXT_BASE		0x40000030
 #define CONFIG_SPL_MAX_SIZE		(CONFIG_SPL_SIZE - 0x0030)
@@ -103,14 +91,13 @@
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 
-#ifdef CONFIG_TURRIS_OMNIA_SPL_BOOT_DEVICE_SPI
+#ifdef CONFIG_MVEBU_SPL_BOOT_DEVICE_SPI
 /* SPL related SPI defines */
-# define CONFIG_SPL_SPI_LOAD
 # define CONFIG_SYS_SPI_U_BOOT_OFFS	0x24000
 # define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
 #endif
 
-#ifdef CONFIG_TURRIS_OMNIA_SPL_BOOT_DEVICE_MMC
+#ifdef CONFIG_MVEBU_SPL_BOOT_DEVICE_MMC
 /* SPL related MMC defines */
 # define CONFIG_SYS_MMC_U_BOOT_OFFS		(160 << 10)
 # define CONFIG_SYS_U_BOOT_OFFS			CONFIG_SYS_MMC_U_BOOT_OFFS
@@ -127,7 +114,6 @@
 
 /* Include the common distro boot environment */
 #ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
 
 #ifdef CONFIG_MMC
 #define BOOT_TARGET_DEVICES_MMC(func) func(MMC, mmc, 0)

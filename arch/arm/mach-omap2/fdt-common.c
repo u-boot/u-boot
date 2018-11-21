@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016-2017 Texas Instruments, Inc.
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 
 #include <asm/omap_common.h>

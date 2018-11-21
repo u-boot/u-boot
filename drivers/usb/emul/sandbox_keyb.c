@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,8 +9,6 @@
 #include <os.h>
 #include <scsi.h>
 #include <usb.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * This driver emulates a USB keyboard using the USB HID specification (boot

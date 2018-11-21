@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2008 Renesas Solutions Corp.
  * Copyright (C) 2007,2008 Nobuhiro Iwamatsu
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _ASM_CPU_SH7763_H_
 #define _ASM_CPU_SH7763_H_

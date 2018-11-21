@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) International Business Machines Corp., 2006
  * Copyright (c) Nokia Corporation, 2007
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Author: Artem Bityutskiy (Битюцкий Артём),
  *         Frank Haverkamp
@@ -1060,15 +1059,7 @@ int ubi_attach_mtd_dev(struct mtd_info *mtd, int ubi_num,
 #ifndef __UBOOT__
 	wake_up_process(ubi->bgt_thread);
 #else
-	/*
-	 * U-Boot special: We have no bgt_thread in U-Boot!
-	 * So just call do_work() here directly.
-	 */
-	err = do_work(ubi);
-	if (err) {
-		ubi_err(ubi, "%s: work failed with error code %d",
-			ubi->bgt_name, err);
-	}
+	ubi_do_worker(ubi);
 #endif
 
 	spin_unlock(&ubi->wl_lock);
@@ -1259,7 +1250,7 @@ int ubi_init(void)
 	BUILD_BUG_ON(sizeof(struct ubi_vid_hdr) != 64);
 
 	if (mtd_devs > UBI_MAX_DEVICES) {
-		pr_err("UBI error: too many MTD devices, maximum is %d",
+		pr_err("UBI error: too many MTD devices, maximum is %d\n",
 		       UBI_MAX_DEVICES);
 		return -EINVAL;
 	}
@@ -1271,7 +1262,7 @@ int ubi_init(void)
 
 	err = misc_register(&ubi_ctrl_cdev);
 	if (err) {
-		pr_err("UBI error: cannot register device");
+		pr_err("UBI error: cannot register device\n");
 		goto out;
 	}
 
@@ -1298,7 +1289,7 @@ int ubi_init(void)
 		mtd = open_mtd_device(p->name);
 		if (IS_ERR(mtd)) {
 			err = PTR_ERR(mtd);
-			pr_err("UBI error: cannot open mtd %s, error %d",
+			pr_err("UBI error: cannot open mtd %s, error %d\n",
 			       p->name, err);
 			/* See comment below re-ubi_is_module(). */
 			if (ubi_is_module())
@@ -1311,7 +1302,7 @@ int ubi_init(void)
 					 p->vid_hdr_offs, p->max_beb_per1024);
 		mutex_unlock(&ubi_devices_mutex);
 		if (err < 0) {
-			pr_err("UBI error: cannot attach mtd%d",
+			pr_err("UBI error: cannot attach mtd%d\n",
 			       mtd->index);
 			put_mtd_device(mtd);
 
@@ -1335,7 +1326,7 @@ int ubi_init(void)
 
 	err = ubiblock_init();
 	if (err) {
-		pr_err("UBI error: block: cannot initialize, error %d", err);
+		pr_err("UBI error: block: cannot initialize, error %d\n", err);
 
 		/* See comment above re-ubi_is_module(). */
 		if (ubi_is_module())
@@ -1362,7 +1353,7 @@ out:
 	mtd_devs = 0;
 #endif
 	class_unregister(&ubi_class);
-	pr_err("UBI error: cannot initialize UBI, error %d", err);
+	pr_err("UBI error: cannot initialize UBI, error %d\n", err);
 	return err;
 }
 late_initcall(ubi_init);

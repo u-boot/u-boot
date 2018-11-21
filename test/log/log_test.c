@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Logging support test program
  *
  * Copyright (c) 2017 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -180,6 +179,19 @@ static int log_test(int testnum)
 		ret = log_remove_filter("console", filt3);
 		if (ret < 0)
 			return ret;
+		break;
+	}
+	case 10: {
+		log_err("level %d\n", LOGL_EMERG);
+		log_err("level %d\n", LOGL_ALERT);
+		log_err("level %d\n", LOGL_CRIT);
+		log_err("level %d\n", LOGL_ERR);
+		log_warning("level %d\n", LOGL_WARNING);
+		log_notice("level %d\n", LOGL_NOTICE);
+		log_info("level %d\n", LOGL_INFO);
+		log_debug("level %d\n", LOGL_DEBUG);
+		log_content("level %d\n", LOGL_DEBUG_CONTENT);
+		log_io("level %d\n", LOGL_DEBUG_IO);
 		break;
 	}
 	}

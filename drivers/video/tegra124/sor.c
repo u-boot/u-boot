@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2011-2013, NVIDIA Corporation.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -16,8 +15,6 @@
 #include <asm/arch-tegra/dc.h>
 #include "displayport.h"
 #include "sor.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define DEBUG_SOR 0
 
@@ -536,7 +533,8 @@ static int tegra_dc_sor_power_up(struct udevice *dev, int is_lvds)
 #if DEBUG_SOR
 static void dump_sor_reg(struct tegra_dc_sor_data *sor)
 {
-#define DUMP_REG(a) printk(BIOS_INFO, "%-32s  %03x  %08x\n",		\
+#define DUMP_REG(a) printk(BIOS_INFO, \
+		"%-32s  %03x  %08x\n",		\
 		#a, a, tegra_sor_readl(sor, a));
 
 	DUMP_REG(SUPER_STATE0);

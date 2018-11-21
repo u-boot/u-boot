@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2016, NVIDIA CORPORATION.
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>
@@ -35,8 +34,6 @@ struct tegra_hsp {
 	fdt_addr_t regs;
 	uint32_t db_base;
 };
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static uint32_t *tegra_hsp_reg(struct tegra_hsp *thsp, uint32_t db_id,
 			       uint32_t reg)

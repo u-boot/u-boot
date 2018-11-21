@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * This is from the Android Project,
  * Repository: https://android.googlesource.com/platform/system/core
  * File: libsparse/sparse_format.h
  * Commit: 28fa5bc347390480fe190294c6c385b6a9f0d68b
  * Copyright (C) 2010 The Android Open Source Project
- *
- * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef _LIBSPARSE_SPARSE_FORMAT_H_

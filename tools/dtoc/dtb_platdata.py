@@ -1,9 +1,8 @@
 #!/usr/bin/python
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2017 Google, Inc
 # Written by Simon Glass <sjg@chromium.org>
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 
 """Device tree to platform data class
@@ -212,15 +211,21 @@ class DtbPlatdata(object):
             Number of argument cells is this is a phandle, else None
         """
         if prop.name in ['clocks']:
+            if not isinstance(prop.value, list):
+                prop.value = [prop.value]
             val = prop.value
-            if not isinstance(val, list):
-                val = [val]
             i = 0
 
             max_args = 0
             args = []
             while i < len(val):
                 phandle = fdt_util.fdt32_to_cpu(val[i])
+                # If we get to the end of the list, stop. This can happen
+                # since some nodes have more phandles in the list than others,
+                # but we allocate enough space for the largest list. So those
+                # nodes with shorter lists end up with zeroes at the end.
+                if not phandle:
+                    break
                 target = self._fdt.phandle_to_node.get(phandle)
                 if not target:
                     raise ValueError("Cannot parse '%s' in node '%s'" %
@@ -311,7 +316,8 @@ class DtbPlatdata(object):
             total = na + ns
 
             if reg.type != fdt.TYPE_INT:
-                raise ValueError("Node '%s' reg property is not an int")
+                raise ValueError("Node '%s' reg property is not an int" %
+                                 node.name)
             if len(reg.value) % total:
                 raise ValueError("Node '%s' reg property has %d cells "
                         'which is not a multiple of na + ns = %d + %d)' %
@@ -401,8 +407,6 @@ class DtbPlatdata(object):
                     continue
                 info = self.get_phandle_argc(prop, node.name)
                 if info:
-                    if not isinstance(prop.value, list):
-                        prop.value = [prop.value]
                     # Process the list as pairs of (phandle, id)
                     pos = 0
                     for args in info.args:
@@ -422,7 +426,7 @@ class DtbPlatdata(object):
         """
         self.out_header()
         self.out('#include <stdbool.h>\n')
-        self.out('#include <libfdt.h>\n')
+        self.out('#include <linux/libfdt.h>\n')
 
         # Output the struct definition
         for name in sorted(structs):

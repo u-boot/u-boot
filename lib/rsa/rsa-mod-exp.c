@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2013, Google Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef USE_HOSTCC
@@ -302,17 +301,24 @@ int rsa_mod_exp_sw(const uint8_t *sig, uint32_t sig_len,
 	return 0;
 }
 
+#if defined(CONFIG_CMD_ZYNQ_RSA)
 /**
- * zynq_pow_mod() - in-place public exponentiation
+ * zynq_pow_mod - in-place public exponentiation
  *
  * @keyptr:	RSA key
  * @inout:	Big-endian word array containing value and result
+ * @return 0 on successful calculation, otherwise failure error code
+ *
+ * FIXME: Use pow_mod() instead of zynq_pow_mod()
+ *        pow_mod calculation required for zynq is bit different from
+ *        pw_mod above here, hence defined zynq specific routine.
  */
-int zynq_pow_mod(uint32_t *keyptr, uint32_t *inout)
+int zynq_pow_mod(u32 *keyptr, u32 *inout)
 {
-	uint32_t *result, *ptr;
+	u32 *result, *ptr;
 	uint i;
 	struct rsa_public_key *key;
+	u32 val[RSA2048_BYTES], acc[RSA2048_BYTES], tmp[RSA2048_BYTES];
 
 	key = (struct rsa_public_key *)keyptr;
 
@@ -323,7 +329,6 @@ int zynq_pow_mod(uint32_t *keyptr, uint32_t *inout)
 		return -EINVAL;
 	}
 
-	uint32_t val[key->len], acc[key->len], tmp[key->len];
 	result = tmp;  /* Re-use location. */
 
 	for (i = 0, ptr = inout; i < key->len; i++, ptr++)
@@ -345,3 +350,4 @@ int zynq_pow_mod(uint32_t *keyptr, uint32_t *inout)
 
 	return 0;
 }
+#endif

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011 Ilya Yanok, Emcraft Systems
  *
  * Based on: mach-davinci/emac_defs.h
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DAVINCI_EMAC_H_

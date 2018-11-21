@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -131,7 +130,8 @@ void psci_arch_init(void)
 
 u32 uniphier_psci_holding_pen_release __secure_data = 0xffffffff;
 
-int __secure psci_cpu_on(u32 function_id, u32 cpuid, u32 entry_point)
+int __secure psci_cpu_on(u32 function_id, u32 cpuid, u32 entry_point,
+			 u32 context_id)
 {
 	u32 cpu = cpuid & 0xff;
 
@@ -139,9 +139,11 @@ int __secure psci_cpu_on(u32 function_id, u32 cpuid, u32 entry_point)
 	debug_puth(cpuid);
 	debug_puts(", entry_point=");
 	debug_puth(entry_point);
+	debug_puts(", context_id=");
+	debug_puth(context_id);
 	debug_puts("\n");
 
-	psci_save_target_pc(cpu, entry_point);
+	psci_save(cpu, entry_point, context_id);
 
 	/* We assume D-cache is off, so do not call flush_dcache() here */
 	uniphier_psci_holding_pen_release = cpu;

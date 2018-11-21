@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Driver for AT91/AT32 MULTI LAYER LCD Controller
  *
  * Copyright (C) 2012 Atmel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -70,26 +69,26 @@ void lcd_ctrl_init(void *lcdbase)
 
 	/* Disable DISP signal */
 	writel(LCDC_LCDDIS_DISPDIS, &regs->lcdc_lcddis);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_DISPSTS,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_DISPSTS,
+				false, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	/* Disable synchronization */
 	writel(LCDC_LCDDIS_SYNCDIS, &regs->lcdc_lcddis);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_LCDSTS,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_LCDSTS,
+				false, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	/* Disable pixel clock */
 	writel(LCDC_LCDDIS_CLKDIS, &regs->lcdc_lcddis);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_CLKSTS,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_CLKSTS,
+				false, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	/* Disable PWM */
 	writel(LCDC_LCDDIS_PWMDIS, &regs->lcdc_lcddis);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_PWMSTS,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_PWMSTS,
+				false, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 
@@ -215,26 +214,26 @@ void lcd_ctrl_init(void *lcdbase)
 	/* Enable LCD */
 	value = readl(&regs->lcdc_lcden);
 	writel(value | LCDC_LCDEN_CLKEN, &regs->lcdc_lcden);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_CLKSTS,
-			   true, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_CLKSTS,
+				true, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	value = readl(&regs->lcdc_lcden);
 	writel(value | LCDC_LCDEN_SYNCEN, &regs->lcdc_lcden);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_LCDSTS,
-			   true, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_LCDSTS,
+				true, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	value = readl(&regs->lcdc_lcden);
 	writel(value | LCDC_LCDEN_DISPEN, &regs->lcdc_lcden);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_DISPSTS,
-			   true, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_DISPSTS,
+				true, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	value = readl(&regs->lcdc_lcden);
 	writel(value | LCDC_LCDEN_PWMEN, &regs->lcdc_lcden);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_PWMSTS,
-			   true, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_PWMSTS,
+				true, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 
@@ -299,26 +298,26 @@ static void atmel_hlcdc_init(struct udevice *dev)
 
 	/* Disable DISP signal */
 	writel(LCDC_LCDDIS_DISPDIS, &regs->lcdc_lcddis);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_DISPSTS,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_DISPSTS,
+				false, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	/* Disable synchronization */
 	writel(LCDC_LCDDIS_SYNCDIS, &regs->lcdc_lcddis);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_LCDSTS,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_LCDSTS,
+				false, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	/* Disable pixel clock */
 	writel(LCDC_LCDDIS_CLKDIS, &regs->lcdc_lcddis);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_CLKSTS,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_CLKSTS,
+				false, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	/* Disable PWM */
 	writel(LCDC_LCDDIS_PWMDIS, &regs->lcdc_lcddis);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_PWMSTS,
-			   false, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_PWMSTS,
+				false, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 
@@ -451,26 +450,26 @@ static void atmel_hlcdc_init(struct udevice *dev)
 	/* Enable LCD */
 	value = readl(&regs->lcdc_lcden);
 	writel(value | LCDC_LCDEN_CLKEN, &regs->lcdc_lcden);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_CLKSTS,
-			   true, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_CLKSTS,
+				true, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	value = readl(&regs->lcdc_lcden);
 	writel(value | LCDC_LCDEN_SYNCEN, &regs->lcdc_lcden);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_LCDSTS,
-			   true, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_LCDSTS,
+				true, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	value = readl(&regs->lcdc_lcden);
 	writel(value | LCDC_LCDEN_DISPEN, &regs->lcdc_lcden);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_DISPSTS,
-			   true, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_DISPSTS,
+				true, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 	value = readl(&regs->lcdc_lcden);
 	writel(value | LCDC_LCDEN_PWMEN, &regs->lcdc_lcden);
-	ret = wait_for_bit(__func__, &regs->lcdc_lcdsr, LCDC_LCDSR_PWMSTS,
-			   true, 1000, false);
+	ret = wait_for_bit_le32(&regs->lcdc_lcdsr, LCDC_LCDSR_PWMSTS,
+				true, 1000, false);
 	if (ret)
 		printf("%s: %d: Timeout!\n", __func__, __LINE__);
 }

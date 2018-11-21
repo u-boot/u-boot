@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2016
  * Author: Chen-Yu Tsai <wens@csie.org>
  *
  * Based on assembly code by Marc Zyngier <marc.zyngier@arm.com>,
  * which was based on code by Carl van Schaik <carl@ok-labs.com>.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #include <config.h>
 #include <common.h>
@@ -243,14 +242,15 @@ out:
 	cp15_write_scr(scr);
 }
 
-int __secure psci_cpu_on(u32 __always_unused unused, u32 mpidr, u32 pc)
+int __secure psci_cpu_on(u32 __always_unused unused, u32 mpidr, u32 pc,
+			 u32 context_id)
 {
 	struct sunxi_cpucfg_reg *cpucfg =
 		(struct sunxi_cpucfg_reg *)SUNXI_CPUCFG_BASE;
 	u32 cpu = (mpidr & 0x3);
 
-	/* store target PC */
-	psci_save_target_pc(cpu, pc);
+	/* store target PC and context id */
+	psci_save(cpu, pc, context_id);
 
 	/* Set secondary core power on PC */
 	sunxi_set_entry_address(&psci_cpu_entry);

@@ -1,10 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 #  Copyright (C) 2015
 #
 #  Lukasz Majewski <l.majewski@majess.pl>
-#
-#
-# SPDX-License-Identifier:	GPL-2.0+
 
 Device Firmware Upgrade (DFU) - extension to use TFTP
 =====================================================

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2008 Semihalf
  *
  * (C) Copyright 2000-2005
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  ********************************************************************
  * NOTE: This header file defines an interface to U-Boot. Including
  * this (unmodified) header file in another file is considered normal
@@ -18,9 +17,11 @@
 
 #include "compiler.h"
 #include <asm/byteorder.h>
+#include <stdbool.h>
 
 /* Define this to avoid #ifdefs later on */
 struct lmb;
+struct fdt_region;
 
 #ifdef USE_HOSTCC
 #include <sys/types.h>
@@ -53,7 +54,7 @@ struct lmb;
 
 #if IMAGE_ENABLE_FIT
 #include <hash.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 # ifdef CONFIG_SPL_BUILD
 #  ifdef CONFIG_SPL_CRC32_SUPPORT
@@ -153,6 +154,7 @@ enum {
 	IH_OS_PLAN9,			/* Plan 9	*/
 	IH_OS_OPENRTOS,		/* OpenRTOS	*/
 	IH_OS_ARM_TRUSTED_FIRMWARE,     /* ARM Trusted Firmware */
+	IH_OS_TEE,			/* Trusted Execution Environment */
 
 	IH_OS_COUNT,
 };
@@ -190,6 +192,7 @@ enum {
 	IH_ARCH_ARC,			/* Synopsys DesignWare ARC */
 	IH_ARCH_X86_64,			/* AMD x86_64, Intel and Via */
 	IH_ARCH_XTENSA,			/* Xtensa	*/
+	IH_ARCH_RISCV,			/* RISC-V */
 
 	IH_ARCH_COUNT,
 };
@@ -248,6 +251,7 @@ enum {
 	IH_TYPE_FLATDT,			/* Binary Flat Device Tree Blob	*/
 	IH_TYPE_KWBIMAGE,		/* Kirkwood Boot Image		*/
 	IH_TYPE_IMXIMAGE,		/* Freescale IMXBoot Image	*/
+	IH_TYPE_IMX8IMAGE,		/* Freescale IMX8Boot Image	*/
 	IH_TYPE_UBLIMAGE,		/* Davinci UBL Image		*/
 	IH_TYPE_OMAPIMAGE,		/* TI OMAP Config Header Image	*/
 	IH_TYPE_AISIMAGE,		/* TI Davinci AIS Image		*/
@@ -257,7 +261,7 @@ enum {
 	IH_TYPE_MXSIMAGE,		/* Freescale MXSBoot Image	*/
 	IH_TYPE_GPIMAGE,		/* TI Keystone GPHeader Image	*/
 	IH_TYPE_ATMELIMAGE,		/* ATMEL ROM bootable Image	*/
-	IH_TYPE_SOCFPGAIMAGE,		/* Altera SOCFPGA Preloader	*/
+	IH_TYPE_SOCFPGAIMAGE,		/* Altera SOCFPGA CV/AV Preloader */
 	IH_TYPE_X86_SETUP,		/* x86 setup.bin Image		*/
 	IH_TYPE_LPC32XXIMAGE,		/* x86 setup.bin Image		*/
 	IH_TYPE_LOADABLE,		/* A list of typeless images	*/
@@ -266,11 +270,14 @@ enum {
 	IH_TYPE_RKSPI,			/* Rockchip SPI image		*/
 	IH_TYPE_ZYNQIMAGE,		/* Xilinx Zynq Boot Image */
 	IH_TYPE_ZYNQMPIMAGE,		/* Xilinx ZynqMP Boot Image */
+	IH_TYPE_ZYNQMPBIF,		/* Xilinx ZynqMP Boot Image (bif) */
 	IH_TYPE_FPGA,			/* FPGA Image */
 	IH_TYPE_VYBRIDIMAGE,	/* VYBRID .vyb Image */
 	IH_TYPE_TEE,            /* Trusted Execution Environment OS Image */
 	IH_TYPE_FIRMWARE_IVT,		/* Firmware Image with HABv4 IVT */
 	IH_TYPE_PMMC,            /* TI Power Management Micro-Controller Firmware */
+	IH_TYPE_STM32IMAGE,		/* STMicroelectronics STM32 Image */
+	IH_TYPE_SOCFPGAIMAGE_V1,	/* Altera SOCFPGA A10 Preloader	*/
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };
@@ -577,7 +584,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
  * boot_get_loadable() will take the given FIT configuration, and look
  * for a field named "loadables".  Loadables, is a list of elements in
  * the FIT given as strings.  exe:
- *   loadables = "linux_kernel@1", "fdt@2";
+ *   loadables = "linux_kernel", "fdt-2";
  * this function will attempt to parse each string, and load the
  * corresponding element from the FIT into memory.  Once placed,
  * no aditional actions are taken.
@@ -603,10 +610,10 @@ int boot_get_setup_fit(bootm_headers_t *images, uint8_t arch,
  * @param images	Boot images structure
  * @param addr		Address of FIT in memory
  * @param fit_unamep	On entry this is the requested image name
- *			(e.g. "kernel@1") or NULL to use the default. On exit
+ *			(e.g. "kernel") or NULL to use the default. On exit
  *			points to the selected image name
  * @param fit_uname_configp	On entry this is the requested configuration
- *			name (e.g. "conf@1") or NULL to use the default. On
+ *			name (e.g. "conf-1") or NULL to use the default. On
  *			exit points to the selected configuration name.
  * @param arch		Expected architecture (IH_ARCH_...)
  * @param datap		Returns address of loaded image
@@ -631,10 +638,10 @@ int boot_get_fdt_fit(bootm_headers_t *images, ulong addr,
  * @param images	Boot images structure
  * @param addr		Address of FIT in memory
  * @param fit_unamep	On entry this is the requested image name
- *			(e.g. "kernel@1") or NULL to use the default. On exit
+ *			(e.g. "kernel") or NULL to use the default. On exit
  *			points to the selected image name
  * @param fit_uname_configp	On entry this is the requested configuration
- *			name (e.g. "conf@1") or NULL to use the default. On
+ *			name (e.g. "conf-1") or NULL to use the default. On
  *			exit points to the selected configuration name.
  * @param arch		Expected architecture (IH_ARCH_...)
  * @param image_type	Required image type (IH_TYPE_...). If this is
@@ -657,25 +664,25 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 /**
  * fit_get_node_from_config() - Look up an image a FIT by type
  *
- * This looks in the selected conf@ node (images->fit_uname_cfg) for a
+ * This looks in the selected conf- node (images->fit_uname_cfg) for a
  * particular image type (e.g. "kernel") and then finds the image that is
  * referred to.
  *
  * For example, for something like:
  *
  * images {
- *	kernel@1 {
+ *	kernel {
  *		...
  *	};
  * };
  * configurations {
- *	conf@1 {
- *		kernel = "kernel@1";
+ *	conf-1 {
+ *		kernel = "kernel";
  *	};
  * };
  *
  * the function will return the node offset of the kernel@1 node, assuming
- * that conf@1 is the chosen configuration.
+ * that conf-1 is the chosen configuration.
  *
  * @param images	Boot images structure
  * @param prop_name	Property name to look up (FIT_..._PROP)
@@ -870,6 +877,17 @@ int image_setup_linux(bootm_headers_t *images);
  */
 int bootz_setup(ulong image, ulong *start, ulong *end);
 
+/**
+ * Return the correct start address and size of a Linux aarch64 Image.
+ *
+ * @image: Address of image
+ * @start: Returns start address of image
+ * @size : Returns size image
+ * @force_reloc: Ignore image->ep field, always place image to RAM start
+ * @return 0 if OK, 1 if the image was not recognised
+ */
+int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
+		bool force_reloc);
 
 /*******************************************************************/
 /* New uImage format specific code (prefixed with fit_) */
@@ -908,6 +926,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 #define FIT_SETUP_PROP		"setup"
 #define FIT_FPGA_PROP		"fpga"
 #define FIT_FIRMWARE_PROP	"firmware"
+#define FIT_STANDALONE_PROP	"standalone"
 
 #define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
@@ -973,6 +992,8 @@ int fit_image_get_data_offset(const void *fit, int noffset, int *data_offset);
 int fit_image_get_data_position(const void *fit, int noffset,
 				int *data_position);
 int fit_image_get_data_size(const void *fit, int noffset, int *data_size);
+int fit_image_get_data_and_size(const void *fit, int noffset,
+				const void **data, size_t *size);
 
 int fit_image_hash_get_algo(const void *fit, int noffset, char **algo);
 int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
@@ -989,6 +1010,7 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
  * @comment:	Comment to add to signature nodes
  * @require_keys: Mark all keys as 'required'
  * @engine_id:	Engine to use for signing
+ * @cmdname:	Command name used when reporting errors
  *
  * Adds hash values for all component images in the FIT blob.
  * Hashes are calculated for all component images which have hash subnodes
@@ -1002,8 +1024,10 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
  */
 int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
 			      const char *comment, int require_keys,
-			      const char *engine_id);
+			      const char *engine_id, const char *cmdname);
 
+int fit_image_verify_with_data(const void *fit, int image_noffset,
+			       const void *data, size_t size);
 int fit_image_verify(const void *fit, int noffset);
 int fit_config_verify(const void *fit, int conf_noffset);
 int fit_all_image_verify(const void *fit);
@@ -1022,15 +1046,13 @@ int fit_conf_get_node(const void *fit, const char *conf_uname);
  * @noffset:	Offset of conf@xxx node to check
  * @prop_name:	Property to read from the conf node
  *
- * The conf@ nodes contain references to other nodes, using properties
- * like 'kernel = "kernel@1"'. Given such a property name (e.g. "kernel"),
+ * The conf- nodes contain references to other nodes, using properties
+ * like 'kernel = "kernel"'. Given such a property name (e.g. "kernel"),
  * return the offset of the node referred to (e.g. offset of node
- * "/images/kernel@1".
+ * "/images/kernel".
  */
 int fit_conf_get_prop_node(const void *fit, int noffset,
 		const char *prop_name);
-
-void fit_conf_print(const void *fit, int noffset, const char *p);
 
 int fit_check_ramdisk(const void *fit, int os_noffset,
 		uint8_t arch, int verify);
@@ -1263,6 +1285,8 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 			     ulong *os_data, ulong *os_len);
 int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
 			      ulong *rd_data, ulong *rd_len);
+int android_image_get_second(const struct andr_img_hdr *hdr,
+			      ulong *second_data, ulong *second_len);
 ulong android_image_get_end(const struct andr_img_hdr *hdr);
 ulong android_image_get_kload(const struct andr_img_hdr *hdr);
 void android_print_contents(const struct andr_img_hdr *hdr);

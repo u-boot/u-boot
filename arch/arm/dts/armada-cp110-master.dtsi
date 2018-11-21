@@ -120,8 +120,8 @@
 
 			cpm_pinctl: cpm-pinctl@440000 {
 				compatible = "marvell,mvebu-pinctrl",
-					     "marvell,a70x0-pinctrl",
-					     "marvell,a80x0-cp0-pinctrl";
+					     "marvell,armada-7k-pinctrl",
+					     "marvell,armada-8k-cpm-pinctrl";
 				bank-name ="cp0-110";
 				reg = <0x440000 0x20>;
 				pin-count = <63>;

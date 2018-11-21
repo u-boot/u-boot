@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Ugly header containing required header files. This could  be adjusted
  * so that including asm/arch/hardware includes the correct file.
  *
  * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_PPC_H
@@ -13,8 +12,8 @@
 
 #ifndef __ASSEMBLY__
 
-#if defined(CONFIG_8xx)
-#include <asm/8xx_immap.h>
+#if defined(CONFIG_MPC8xx)
+#include <asm/immap_8xx.h>
 #endif
 #ifdef CONFIG_MPC86xx
 #include <mpc86xx.h>
@@ -40,14 +39,11 @@
 
 #include <asm/processor.h>
 
-#if defined(CONFIG_8xx)
-static inline uint get_immr(uint mask)
+static inline uint get_immr(void)
 {
-	uint immr = mfspr(SPRN_IMMR);
-
-	return mask ? (immr & mask) : immr;
+	return mfspr(SPRN_IMMR);
 }
-#endif
+
 static inline uint get_pvr(void)
 {
 	return mfspr(PVR);

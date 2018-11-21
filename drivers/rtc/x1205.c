@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
@@ -8,8 +9,6 @@
  *
  * Information and datasheet:
  * http://www.intersil.com/cda/deviceinfo/0,1477,X1205,00.html
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -22,8 +21,6 @@
 #include <command.h>
 #include <rtc.h>
 #include <i2c.h>
-
-#if defined(CONFIG_CMD_DATE)
 
 #define CCR_SEC			0
 #define CCR_MIN			1
@@ -161,5 +158,3 @@ void rtc_reset(void)
 	 * Nothing to do
 	 */
 }
-
-#endif

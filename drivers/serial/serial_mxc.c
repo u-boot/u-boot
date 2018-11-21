@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (c) 2007 Sascha Hauer <s.hauer@pengutronix.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -340,6 +339,7 @@ static int mxc_serial_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id mxc_serial_ids[] = {
 	{ .compatible = "fsl,imx6ul-uart" },
 	{ .compatible = "fsl,imx7d-uart" },
+	{ .compatible = "fsl,imx6q-uart" },
 	{ }
 };
 #endif

@@ -1,16 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sysam stmark2 board configuration
  *
  * (C) Copyright 2017  Angelo Dureghello <angelo@sysam.it>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __STMARK2_CONFIG_H
 #define __STMARK2_CONFIG_H
 
-#define CONFIG_STMARK2
-#define CONFIG_HOSTNAME			stmark2
+#define CONFIG_HOSTNAME			"stmark2"
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		0
@@ -57,7 +55,6 @@
 #define CONFIG_SYS_MCFRRTC_BASE		0xFC0A8000
 
 /* spi not partitions */
-#define CONFIG_MTD_DEVICE
 #define CONFIG_JFFS2_CMDLINE
 #define CONFIG_JFFS2_DEV		"nor0"
 
@@ -66,12 +63,10 @@
 #undef CONFIG_MCFPIT
 
 /* DSPI and Serial Flash */
-#define CONFIG_CF_SPI
 #define CONFIG_CF_DSPI
 #define CONFIG_SF_DEFAULT_SPEED		50000000
 #define CONFIG_SERIAL_FLASH
 #define CONFIG_HARD_SPI
-#define CONFIG_SPI_FLASH_ISSI
 #define CONFIG_ENV_SPI_BUS		0
 #define CONFIG_ENV_SPI_CS		1
 
@@ -92,8 +87,6 @@
 #define CONFIG_EXTRA_CLOCK
 
 #define CONFIG_PRAM			2048	/* 2048 KB */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 
 /* Print Buffer Size */

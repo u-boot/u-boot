@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -24,25 +23,35 @@
 /* Check all partition types */
 #define PART_TYPE_ALL		-1
 
-DECLARE_GLOBAL_DATA_PTR;
-
-#ifdef HAVE_BLOCK_DEVICE
-static struct part_driver *part_driver_lookup_type(int part_type)
+static struct part_driver *part_driver_lookup_type(struct blk_desc *dev_desc)
 {
 	struct part_driver *drv =
 		ll_entry_start(struct part_driver, part_driver);
 	const int n_ents = ll_entry_count(struct part_driver, part_driver);
 	struct part_driver *entry;
 
-	for (entry = drv; entry != drv + n_ents; entry++) {
-		if (part_type == entry->part_type)
-			return entry;
+	if (dev_desc->part_type == PART_TYPE_UNKNOWN) {
+		for (entry = drv; entry != drv + n_ents; entry++) {
+			int ret;
+
+			ret = entry->test(dev_desc);
+			if (!ret) {
+				dev_desc->part_type = entry->part_type;
+				return entry;
+			}
+		}
+	} else {
+		for (entry = drv; entry != drv + n_ents; entry++) {
+			if (dev_desc->part_type == entry->part_type)
+				return entry;
+		}
 	}
 
 	/* Not found */
 	return NULL;
 }
 
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 static struct blk_desc *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 {
 	struct blk_desc *dev_desc;
@@ -80,7 +89,7 @@ struct blk_desc *blk_get_dev(const char *ifname, int dev)
 }
 #endif
 
-#ifdef HAVE_BLOCK_DEVICE
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -212,7 +221,7 @@ void dev_print (struct blk_desc *dev_desc)
 }
 #endif
 
-#ifdef HAVE_BLOCK_DEVICE
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 
 void part_init(struct blk_desc *dev_desc)
 {
@@ -285,7 +294,7 @@ void part_print(struct blk_desc *dev_desc)
 {
 	struct part_driver *drv;
 
-	drv = part_driver_lookup_type(dev_desc->part_type);
+	drv = part_driver_lookup_type(dev_desc);
 	if (!drv) {
 		printf("## Unknown partition table type %x\n",
 		       dev_desc->part_type);
@@ -298,12 +307,12 @@ void part_print(struct blk_desc *dev_desc)
 		drv->print(dev_desc);
 }
 
-#endif /* HAVE_BLOCK_DEVICE */
+#endif /* CONFIG_HAVE_BLOCK_DEVICE */
 
 int part_get_info(struct blk_desc *dev_desc, int part,
 		       disk_partition_t *info)
 {
-#ifdef HAVE_BLOCK_DEVICE
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 	struct part_driver *drv;
 
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
@@ -314,7 +323,7 @@ int part_get_info(struct blk_desc *dev_desc, int part,
 	info->type_guid[0] = 0;
 #endif
 
-	drv = part_driver_lookup_type(dev_desc->part_type);
+	drv = part_driver_lookup_type(dev_desc);
 	if (!drv) {
 		debug("## Unknown partition table type %x\n",
 		      dev_desc->part_type);
@@ -329,7 +338,7 @@ int part_get_info(struct blk_desc *dev_desc, int part,
 		PRINTF("## Valid %s partition found ##\n", drv->name);
 		return 0;
 	}
-#endif /* HAVE_BLOCK_DEVICE */
+#endif /* CONFIG_HAVE_BLOCK_DEVICE */
 
 	return -1;
 }
@@ -391,12 +400,12 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 
 	*dev_desc = get_dev_hwpart(ifname, dev, hwpart);
 	if (!(*dev_desc) || ((*dev_desc)->type == DEV_TYPE_UNKNOWN)) {
-		printf("** Bad device %s %s **\n", ifname, dev_hwpart_str);
+		debug("** Bad device %s %s **\n", ifname, dev_hwpart_str);
 		dev = -ENOENT;
 		goto cleanup;
 	}
 
-#ifdef HAVE_BLOCK_DEVICE
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 	/*
 	 * Updates the partition table for the specified hw partition.
 	 * Does not need to be done for hwpart 0 since it is default and
@@ -632,28 +641,25 @@ cleanup:
 int part_get_info_by_name_type(struct blk_desc *dev_desc, const char *name,
 			       disk_partition_t *info, int part_type)
 {
-	struct part_driver *first_drv =
-		ll_entry_start(struct part_driver, part_driver);
-	const int n_drvs = ll_entry_count(struct part_driver, part_driver);
 	struct part_driver *part_drv;
+	int ret;
+	int i;
 
-	for (part_drv = first_drv; part_drv != first_drv + n_drvs; part_drv++) {
-		int ret;
-		int i;
-		for (i = 1; i < part_drv->max_entries; i++) {
-			if (part_type >= 0 && part_type != part_drv->part_type)
-				break;
-			ret = part_drv->get_info(dev_desc, i, info);
-			if (ret != 0) {
-				/* no more entries in table */
-				break;
-			}
-			if (strcmp(name, (const char *)info->name) == 0) {
-				/* matched */
-				return i;
-			}
+	part_drv = part_driver_lookup_type(dev_desc);
+	if (!part_drv)
+		return -1;
+	for (i = 1; i < part_drv->max_entries; i++) {
+		ret = part_drv->get_info(dev_desc, i, info);
+		if (ret != 0) {
+			/* no more entries in table */
+			break;
+		}
+		if (strcmp(name, (const char *)info->name) == 0) {
+			/* matched */
+			return i;
 		}
 	}
+
 	return -1;
 }
 

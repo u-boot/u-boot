@@ -359,7 +359,7 @@ typedef struct
 } urb_priv_t;
 #define URB_DEL 1
 
-#define NUM_EDS 8		/* num of preallocated endpoint descriptors */
+#define NUM_EDS 32		/* num of preallocated endpoint descriptors */
 
 #define NUM_TD 64		/* we need more TDs than EDs */
 

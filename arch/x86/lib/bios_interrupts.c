@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * From Coreboot
  *
  * Copyright (C) 2001 Ronald G. Minnich
  * Copyright (C) 2005 Nick.Barker9@btinternet.com
  * Copyright (C) 2007-2009 coresystems GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

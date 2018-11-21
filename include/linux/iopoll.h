@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2012-2014 The Linux Foundation. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _LINUX_IOPOLL_H

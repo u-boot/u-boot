@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2016 Imagination Technologies
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __CONFIGS_BOSTON_H__
@@ -44,15 +43,10 @@
 /*
  * Console
  */
-#define CONFIG_SYS_LONGHELP
 
 /*
  * Flash
  */
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_PROTECTION
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_MAX_FLASH_BANKS_DETECT	1
 #define CONFIG_SYS_MAX_FLASH_SECT		1024
 

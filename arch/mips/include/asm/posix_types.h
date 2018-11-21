@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1996, 1997, 1998, 2000 by Ralf Baechle
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_POSIX_TYPES_H
 #define _ASM_POSIX_TYPES_H

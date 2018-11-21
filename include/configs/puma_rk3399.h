@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __PUMA_RK3399_H
@@ -21,7 +20,6 @@
 
 #define SDRAM_BANK_SIZE			(2UL << 30)
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_SERIAL_TAG
 #define CONFIG_ENV_OVERWRITE
 

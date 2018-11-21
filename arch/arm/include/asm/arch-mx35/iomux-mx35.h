@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 ADVANSEE
  * Benoît Thébaudeau <benoit.thebaudeau@advansee.com>
  *
  * Based on mainline Linux i.MX iomux-mx35.h file:
  * Copyright (C) 2009 by Jan Weitzel Phytec Messtechnik GmbH <armlinux@phytec.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IOMUX_MX35_H__

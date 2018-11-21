@@ -1,16 +1,41 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2015 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __video_console_h
 #define __video_console_h
 
+#include <video.h>
+
 #define VID_FRAC_DIV	256
 
 #define VID_TO_PIXEL(x)	((x) / VID_FRAC_DIV)
 #define VID_TO_POS(x)	((x) * VID_FRAC_DIV)
+
+/*
+ * The 16 colors supported by the console
+ */
+enum color_idx {
+	VID_BLACK = 0,
+	VID_RED,
+	VID_GREEN,
+	VID_BROWN,
+	VID_BLUE,
+	VID_MAGENTA,
+	VID_CYAN,
+	VID_LIGHT_GRAY,
+	VID_GRAY,
+	VID_LIGHT_RED,
+	VID_LIGTH_GREEN,
+	VID_YELLOW,
+	VID_LIGHT_BLUE,
+	VID_LIGHT_MAGENTA,
+	VID_LIGHT_CYAN,
+	VID_WHITE,
+
+	VID_COLOR_COUNT
+};
 
 /**
  * struct vidconsole_priv - uclass-private data about a console device
@@ -18,20 +43,22 @@
  * Drivers must set up @rows, @cols, @x_charsize, @y_charsize in their probe()
  * method. Drivers may set up @xstart_frac if desired.
  *
- * @sdev:	stdio device, acting as an output sink
- * @xcur_frac:	Current X position, in fractional units (VID_TO_POS(x))
- * @curr_row:	Current Y position in pixels (0=top)
- * @rows:	Number of text rows
- * @cols:	Number of text columns
- * @x_charsize:	Character width in pixels
- * @y_charsize:	Character height in pixels
+ * @sdev:		stdio device, acting as an output sink
+ * @xcur_frac:		Current X position, in fractional units (VID_TO_POS(x))
+ * @ycur:		Current Y position in pixels (0=top)
+ * @rows:		Number of text rows
+ * @cols:		Number of text columns
+ * @x_charsize:		Character width in pixels
+ * @y_charsize:		Character height in pixels
  * @tab_width_frac:	Tab width in fractional units
- * @xsize_frac:	Width of the display in fractional units
+ * @xsize_frac:		Width of the display in fractional units
  * @xstart_frac:	Left margin for the text console in fractional units
- * @last_ch:	Last character written to the text console on this line
- * @escape:	TRUE if currently accumulating an ANSI escape sequence
- * @escape_len:	Length of accumulated escape sequence so far
- * @escape_buf:	Buffer to accumulate escape sequence
+ * @last_ch:		Last character written to the text console on this line
+ * @escape:		TRUE if currently accumulating an ANSI escape sequence
+ * @escape_len:		Length of accumulated escape sequence so far
+ * @col_saved:		Saved X position, in fractional units (VID_TO_POS(x))
+ * @row_saved:		Saved Y position in pixels (0=top)
+ * @escape_buf:		Buffer to accumulate escape sequence
  */
 struct vidconsole_priv {
 	struct stdio_dev sdev;
@@ -52,6 +79,8 @@ struct vidconsole_priv {
 	 */
 	int escape;
 	int escape_len;
+	int row_saved;
+	int col_saved;
 	char escape_buf[32];
 };
 
@@ -195,5 +224,22 @@ int vidconsole_put_char(struct udevice *dev, char ch);
  */
 void vidconsole_position_cursor(struct udevice *dev, unsigned col,
 				unsigned row);
+
+#ifdef CONFIG_DM_VIDEO
+
+/**
+ * vid_console_color() - convert a color code to a pixel's internal
+ * representation
+ *
+ * The caller has to guarantee that the color index is less than
+ * VID_COLOR_COUNT.
+ *
+ * @priv	private data of the console device
+ * @idx		color index
+ * @return	color value
+ */
+u32 vid_console_color(struct video_priv *priv, unsigned int idx);
+
+#endif
 
 #endif

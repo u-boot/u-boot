@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Google Veyron (and derivatives) board device tree source
  *
  * Copyright 2014 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <dt-bindings/clock/rockchip,rk808.h>

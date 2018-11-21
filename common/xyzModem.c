@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: eCos-2.0
 /*
  *==========================================================================
  *
@@ -5,8 +6,6 @@
  *
  *      RedBoot stream handler for xyzModem protocol
  *
- *==========================================================================
- * SPDX-License-Identifier:	eCos-2.0
  *==========================================================================
  *#####DESCRIPTIONBEGIN####
  *
@@ -172,7 +171,7 @@ parse_num (char *s, unsigned long *val, char **es, char *delim)
 }
 
 
-#ifdef DEBUG
+#if defined(DEBUG) && !defined(CONFIG_USE_TINY_PRINTF)
 /*
  * Note: this debug setup works by storing the strings in a fixed buffer
  */
@@ -181,15 +180,16 @@ static char *zm_out = zm_debug_buf;
 static char *zm_out_start = zm_debug_buf;
 
 static int
-zm_dprintf (char *fmt, ...)
+zm_dprintf(char *fmt, ...)
 {
-  int len;
-  va_list args;
+	int len;
+	va_list args;
 
-  va_start (args, fmt);
-  len = diag_vsprintf (zm_out, fmt, args);
-  zm_out += len;
-  return len;
+	va_start(args, fmt);
+	len = diag_vsprintf(zm_out, fmt, args);
+	va_end(args);
+	zm_out += len;
+	return len;
 }
 
 static void

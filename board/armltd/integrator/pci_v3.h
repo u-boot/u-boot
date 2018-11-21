@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  arch/arm/include/asm/hardware/pci_v3.h
  *
@@ -5,8 +6,6 @@
  *
  *  Copyright (C) ARM Limited
  *  Copyright (C) 2000-2001 Deep Blue Solutions Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef ASM_ARM_HARDWARE_PCI_V3_H
 #define ASM_ARM_HARDWARE_PCI_V3_H

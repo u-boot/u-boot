@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration for Xilinx ZynqMP zc1275 RevB
  *
  * (C) Copyright 2018 Xilinx, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_ZYNQMP_ZC1275_REVB_H

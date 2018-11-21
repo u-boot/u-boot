@@ -1,16 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
 #include <usb.h>
 #include <dm/device-internal.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* We only support up to 8 */
 #define SANDBOX_NUM_PORTS	4

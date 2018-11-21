@@ -1,12 +1,13 @@
-/*
- * SPDX-License-Identifier:	GPL-2.0+
- *
- * Based on bitrev from the Linux kernel, by Akinobu Mita
- */
+// SPDX-License-Identifier: GPL-2.0
 
-
+#ifndef CONFIG_HAVE_ARCH_BITREVERSE
 #include <linux/types.h>
+#include <linux/compat.h>
 #include <linux/bitrev.h>
+
+MODULE_AUTHOR("Akinobu Mita <akinobu.mita@gmail.com>");
+MODULE_DESCRIPTION("Bit ordering reversal functions");
+MODULE_LICENSE("GPL");
 
 const u8 byte_rev_table[256] = {
 	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
@@ -42,17 +43,6 @@ const u8 byte_rev_table[256] = {
 	0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
 	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
 };
+EXPORT_SYMBOL_GPL(byte_rev_table);
 
-u16 bitrev16(u16 x)
-{
-	return (bitrev8(x & 0xff) << 8) | bitrev8(x >> 8);
-}
-
-/**
- * bitrev32 - reverse the order of bits in a u32 value
- * @x: value to be bit-reversed
- */
-u32 bitrev32(u32 x)
-{
-	return (bitrev16(x & 0xffff) << 16) | bitrev16(x >> 16);
-}
+#endif /* CONFIG_HAVE_ARCH_BITREVERSE */

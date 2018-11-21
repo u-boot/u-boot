@@ -1,16 +1,13 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 Atmel Corporation.
  * Josh Wu <josh.wu@atmel.com>
  *
  * Configuation settings for the AT91SAM9N12-EK boards.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __AT91SAM9N12_CONFIG_H_
 #define __AT91SAM9N12_CONFIG_H_
-
-#define CONFIG_SYS_TEXT_BASE		0x26f00000
 
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
@@ -35,11 +32,7 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000
 
@@ -58,7 +51,6 @@
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
 #define CONFIG_SYS_NAND_MASK_ALE	(1 << 21)
@@ -72,9 +64,6 @@
 #define CONFIG_ATMEL_NAND_HW_PMECC
 #define CONFIG_PMECC_CAP		2
 #define CONFIG_PMECC_SECTOR_SIZE	512
-
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
 
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
 	"console=console=ttyS0,115200\0"                                \
@@ -116,7 +105,7 @@
 #elif defined(CONFIG_NAND_BOOT)
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_OFFSET		0x120000
+#define CONFIG_ENV_OFFSET		0x140000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND						\
@@ -147,17 +136,12 @@
 
 #endif
 
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
-
 /*
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(4 * 1024 * 1024)
 
 /* SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x300000
 #define CONFIG_SPL_MAX_SIZE		0x6000
 #define CONFIG_SPL_STACK		0x308000
@@ -180,7 +164,6 @@
 
 #elif CONFIG_SYS_USE_NANDFLASH
 #elif CONFIG_SPI_BOOT
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8400
 
 #elif CONFIG_NAND_BOOT

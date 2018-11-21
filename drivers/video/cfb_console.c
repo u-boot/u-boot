@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2002 ELTEC Elektronik AG
  * Frank Gottschling <fgottschling@eltec.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -768,7 +767,7 @@ static void parse_putc(const char c)
 		break;
 
 	case '\n':		/* next line */
-		if (console_col || (!console_col && nl))
+		if (console_col || nl)
 			console_newline(1);
 		nl = 1;
 		break;
@@ -1298,6 +1297,10 @@ next_run:
 			break;
 		}
 	}
+
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
+
 	return 0;
 error:
 	printf("Error: Too much encoded pixel data, validate your bitmap\n");

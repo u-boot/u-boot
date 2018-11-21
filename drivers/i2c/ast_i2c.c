@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012-2020  ASPEED Technology Inc.
  * Copyright 2016 IBM Corporation
  * Copyright 2017 Google, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -21,8 +20,6 @@
 #define I2C_SLEEP_STEP_US 20
 
 #define HIGHSPEED_TTIMEOUT		3
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Device private data

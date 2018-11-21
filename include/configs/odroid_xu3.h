@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Samsung Electronics
  * Hyungwon Hwang <human.hwang@samsung.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __CONFIG_ODROID_XU3_H
@@ -14,14 +13,11 @@
 #define CONFIG_BOARD_COMMON
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SYS_TEXT_BASE		0x43E00000
 
 /* select serial console configuration */
-#define CONFIG_SERIAL2			/* use SERIAL 2 */
 
 #define TZPC_BASE_OFFSET		0x10000
 
-#define CONFIG_NR_DRAM_BANKS	8
 #define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
 /* Reserve the last 22 MiB for the secure firmware */
 #define CONFIG_SYS_MEM_TOP_HIDE		(22UL << 20UL)
@@ -47,12 +43,10 @@
 /* THOR */
 #define CONFIG_G_DNL_THOR_VENDOR_NUM	CONFIG_USB_GADGET_VENDOR_NUM
 #define CONFIG_G_DNL_THOR_PRODUCT_NUM	0x685D
-#define CONFIG_USB_FUNCTION_THOR
 
 /* UMS */
 #define CONFIG_G_DNL_UMS_VENDOR_NUM	0x0525
 #define CONFIG_G_DNL_UMS_PRODUCT_NUM	0xA4A5
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 /* FIXME: MUST BE REMOVED AFTER TMU IS TURNED ON */
 #undef CONFIG_EXYNOS_TMU
@@ -86,12 +80,10 @@
 
 /* Enable: board/samsung/common/misc.c to use set_dfu_alt_info() */
 #define CONFIG_MISC_COMMON
-#define CONFIG_MISC_INIT_R
 #define CONFIG_SET_DFU_ALT_INFO
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 
 /* Set soc_rev, soc_id, board_rev, boardname, fdtfile */
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_ODROID_REV_AIN			9
 #define CONFIG_REVISION_TAG
 #define CONFIG_BOARD_TYPES
@@ -106,7 +98,6 @@
 	EXYNOS_FDTFILE_SETTING \
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTENV \
-	"bootdelay=0\0" \
 	"rootfstype=ext4\0" \
 	"console=" CONFIG_DEFAULT_CONSOLE "\0"\
 	"fdtfile=exynos5422-odroidxu3.dtb\0" \

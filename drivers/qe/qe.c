@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  * based on source code of Shlomi Gridish
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -219,7 +218,7 @@ void u_qe_init(void)
 		printf("\nMMC read: dev # %u, block # %u, count %u ...\n",
 		       dev, blk, cnt);
 		mmc_init(mmc);
-		(void)mmc->block_dev.block_read(&mmc->block_dev, blk, cnt,
+		(void)blk_dread(mmc_get_blk_desc(mmc), blk, cnt,
 						addr);
 	}
 #endif

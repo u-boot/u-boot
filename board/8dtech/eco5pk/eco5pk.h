@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * eco5.h - Header file for the 8D Technologies ECO5 board.
  *
@@ -6,8 +7,6 @@
  *
  * Copyright (C) 2011 8D Technologies inc.
  * Copyright (C) 2009 Texas Instruments Incorporated
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ECO5PK_H__

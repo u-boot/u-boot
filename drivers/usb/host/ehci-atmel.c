@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012
  * Atmel Semiconductor <www.atmel.com>
  * Written-by: Bo Shen <voice.shen@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -14,8 +13,6 @@
 #include <asm/arch/clk.h>
 
 #include "ehci.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_DM_USB
 

@@ -1,5 +1,5 @@
 menu "mpc8xx CPU"
-	depends on 8xx
+	depends on MPC8xx
 
 config SYS_CPU
 	default "mpc8xx"
@@ -24,6 +24,10 @@ config MPC885
 	bool "MPC885"
 
 endchoice
+
+config MPC8xx_WATCHDOG
+	bool "Watchdog"
+	select HW_WATCHDOG
 
 config 8xx_GCLK_FREQ
 	int "CPU GCLK Frequency"

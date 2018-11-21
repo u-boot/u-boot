@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2010  Eric C. Cooper <ecc@cmu.edu>
  *
@@ -5,8 +6,6 @@
  * Prafulla Wadaskar <prafulla@marvell.com>
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_DOCKSTAR_H
@@ -17,7 +16,6 @@
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
 #define CONFIG_KW88F6281	1	/* SOC Name */
-#define CONFIG_MACH_DOCKSTAR	/* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
@@ -70,7 +68,5 @@
 /*
  * File system
  */
-#define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
-#define CONFIG_MTD_PARTITIONS
 
 #endif /* _CONFIG_DOCKSTAR_H */

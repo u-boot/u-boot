@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2011
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -8,9 +9,6 @@
 # (C) Copyright 2011
 # Texas Instruments Incorporated - http://www.ti.com/
 # Aneesh V <aneesh@ti.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 # Based on top-level Makefile.
 #
 
@@ -47,8 +45,17 @@ SPL_ :=
 SPL_TPL_ :=
 endif
 
+ifeq ($(obj)$(CONFIG_SUPPORT_SPL),spl)
+$(error You cannot build SPL without enabling CONFIG_SUPPORT_SPL)
+endif
+ifeq ($(obj)$(CONFIG_SUPPORT_TPL),tpl)
+$(error You cannot build TPL without enabling CONFIG_SUPPORT_TPL)
+endif
+
 include $(srctree)/config.mk
 include $(srctree)/arch/$(ARCH)/Makefile
+
+include $(srctree)/scripts/Makefile.lib
 
 # Enable garbage collection of un-used sections for SPL
 KBUILD_CFLAGS += -ffunction-sections -fdata-sections
@@ -142,7 +149,11 @@ MKIMAGEOUTPUT ?= /dev/null
 
 quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
-	$(if $(KBUILD_VERBOSE:1=), >$(MKIMAGEOUTPUT))
+	>$(MKIMAGEOUTPUT) $(if $(KBUILD_VERBOSE:0=), && cat $(MKIMAGEOUTPUT))
+
+quiet_cmd_mkfitimage = MKIMAGE $@
+cmd_mkfitimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -f $(SPL_ITS) -E $@ \
+	$(if $(KBUILD_VERBOSE:1=), MKIMAGEOUTPUT)
 
 MKIMAGEFLAGS_MLO = -T omapimage -a $(CONFIG_SPL_TEXT_BASE)
 
@@ -313,7 +324,11 @@ LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 endif
 
+ifdef CONFIG_TARGET_SOCFPGA_ARRIA10
+MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage_v1
+else
 MKIMAGEFLAGS_$(SPL_BIN).sfp = -T socfpgaimage
+endif
 $(obj)/$(SPL_BIN).sfp: $(obj)/$(SPL_BIN).bin FORCE
 	$(call if_changed,mkimage)
 
@@ -356,7 +371,7 @@ $(u-boot-spl-dirs): $(u-boot-spl-platdata)
 
 quiet_cmd_cpp_lds = LDS     $@
 cmd_cpp_lds = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
-		-D__ASSEMBLY__ -x assembler-with-cpp -P -o $@ $<
+		-D__ASSEMBLY__ -x assembler-with-cpp -std=c99 -P -o $@ $<
 
 $(obj)/u-boot-spl.lds: $(LDSCRIPT) FORCE
 	$(call if_changed_dep,cpp_lds)
@@ -393,9 +408,18 @@ MKIMAGEFLAGS_$(SPL_BIN).multidtb.fit = -f auto -A $(ARCH) -T firmware -C none -O
 
 $(obj)/$(SPL_BIN).multidtb.fit: /dev/null $(SHRUNK_ARCH_DTB) FORCE
 	$(call if_changed,mkimage)
+ifneq ($(SOURCE_DATE_EPOCH),)
+	touch -d @$(SOURCE_DATE_EPOCH) $(obj)/$(SPL_BIN).multidtb.fit
+	chmod 0600 $(obj)/$(SPL_BIN).multidtb.fit
+endif
 
 $(obj)/$(SPL_BIN).multidtb.fit.gz: $(obj)/$(SPL_BIN).multidtb.fit
 	@gzip -kf9 $< > $@
 
 $(obj)/$(SPL_BIN).multidtb.fit.lzo: $(obj)/$(SPL_BIN).multidtb.fit
 	@lzop -f9 $< > $@
+
+ifdef CONFIG_ARCH_K3
+tispl.bin: $(obj)/u-boot-spl-nodtb.bin $(SHRUNK_ARCH_DTB) $(SPL_ITS) FORCE
+	$(call if_changed,mkfitimage)
+endif

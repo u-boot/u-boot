@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008 Extreme Engineering Solutions, Inc.
  * Copyright 2004, 2007 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -14,7 +13,7 @@
 #include <asm/io.h>
 #include <asm/cache.h>
 #include <asm/mmu.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pca953x.h>
 

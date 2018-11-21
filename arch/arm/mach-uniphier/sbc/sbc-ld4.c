@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011-2015 Panasonic Corporation
  * Copyright (C) 2015-2017 Socionext Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <linux/io.h>

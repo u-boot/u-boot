@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Copyright (C) 2015 Freescale Semiconductor, Inc
  *  Peng Fan <Peng.Fan@freescale.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #ifndef __PFUZE3000_PMIC_H_
 #define __PFUZE3000_PMIC_H_
@@ -70,7 +69,7 @@ enum {
 	PFUZE3000_VLDO3CTL	= 0x70,
 	PFUZE3000_VLD4CTL	= 0x71,
 
-	PMIC_NUM_OF_REGS	= 0x7F,
+	PFUZE3000_NUM_OF_REGS	= 0x100,
 };
 
 int power_pfuze3000_init(unsigned char bus);

@@ -1,112 +1,131 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Renesas RCar Gen3 memory map tables
  *
  * Copyright (C) 2017 Marek Vasut <marek.vasut@gmail.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/armv8/mmu.h>
 
-static struct mm_region r8a7795_mem_map[] = {
+#define GEN3_NR_REGIONS 16
+
+static struct mm_region gen3_mem_map[GEN3_NR_REGIONS] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
+		.size = 0x40000000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE |
+			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	}, {
+		.virt = 0x40000000UL,
+		.phys = 0x40000000UL,
 		.size = 0x80000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0x80000000UL,
-		.phys = 0x80000000UL,
-		.size = 0x80000000UL,
+		.virt = 0xc0000000UL,
+		.phys = 0xc0000000UL,
+		.size = 0x40000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	}, {
-		/* List terminator */
-		0,
-	}
-};
-
-static struct mm_region r8a7796_mem_map[] = {
-	{
-		.virt = 0x0UL,
-		.phys = 0x0UL,
-		.size = 0xe0000000UL,
+		.virt = 0x100000000UL,
+		.phys = 0x100000000UL,
+		.size = 0xf00000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0xe0000000UL,
-		.phys = 0xe0000000UL,
-		.size = 0xe0000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
 		/* List terminator */
 		0,
 	}
 };
 
-static struct mm_region r8a77970_mem_map[] = {
-	{
-		.virt = 0x0UL,
-		.phys = 0x0UL,
-		.size = 0xe0000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0xe0000000UL,
-		.phys = 0xe0000000UL,
-		.size = 0xe0000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		/* List terminator */
-		0,
-	}
-};
+struct mm_region *mem_map = gen3_mem_map;
 
-static struct mm_region r8a77995_mem_map[] = {
-	{
-		.virt = 0x0UL,
-		.phys = 0x0UL,
-		.size = 0xe0000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
-		.virt = 0xe0000000UL,
-		.phys = 0xe0000000UL,
-		.size = 0xe0000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
-			 PTE_BLOCK_NON_SHARE |
-			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		/* List terminator */
-		0,
-	}
-};
+DECLARE_GLOBAL_DATA_PTR;
 
-struct mm_region *mem_map = r8a7795_mem_map;
-
-void rcar_gen3_memmap_fixup(void)
+void enable_caches(void)
 {
-	u32 cpu_type = rmobile_get_cpu_type();
+	u64 start, size;
+	int bank, i = 0;
 
-	switch (cpu_type) {
-	case RMOBILE_CPU_TYPE_R8A7795:
-		mem_map = r8a7795_mem_map;
-		break;
-	case RMOBILE_CPU_TYPE_R8A7796:
-		mem_map = r8a7796_mem_map;
-		break;
-	case RMOBILE_CPU_TYPE_R8A77970:
-		mem_map = r8a77970_mem_map;
-		break;
-	case RMOBILE_CPU_TYPE_R8A77995:
-		mem_map = r8a77995_mem_map;
-		break;
+	/* Create map for RPC access */
+	gen3_mem_map[i].virt = 0x0ULL;
+	gen3_mem_map[i].phys = 0x0ULL;
+	gen3_mem_map[i].size = 0x40000000ULL;
+	gen3_mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+				PTE_BLOCK_NON_SHARE |
+				PTE_BLOCK_PXN | PTE_BLOCK_UXN;
+	i++;
+
+	/* Generate entires for DRAM in 32bit address space */
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		start = gd->bd->bi_dram[bank].start;
+		size = gd->bd->bi_dram[bank].size;
+
+		/* Skip empty DRAM banks */
+		if (!size)
+			continue;
+
+		/* Skip DRAM above 4 GiB */
+		if (start >> 32ULL)
+			continue;
+
+		/* Mark memory reserved by ATF as cacheable too. */
+		if (start == 0x48000000) {
+			start = 0x40000000ULL;
+			size += 0x08000000ULL;
+		}
+
+		gen3_mem_map[i].virt = start;
+		gen3_mem_map[i].phys = start;
+		gen3_mem_map[i].size = size;
+		gen3_mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+					PTE_BLOCK_INNER_SHARE;
+		i++;
 	}
+
+	/* Create map for register access */
+	gen3_mem_map[i].virt = 0xc0000000ULL;
+	gen3_mem_map[i].phys = 0xc0000000ULL;
+	gen3_mem_map[i].size = 0x40000000ULL;
+	gen3_mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+				PTE_BLOCK_NON_SHARE |
+				PTE_BLOCK_PXN | PTE_BLOCK_UXN;
+	i++;
+
+	/* Generate entires for DRAM in 64bit address space */
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		start = gd->bd->bi_dram[bank].start;
+		size = gd->bd->bi_dram[bank].size;
+
+		/* Skip empty DRAM banks */
+		if (!size)
+			continue;
+
+		/* Skip DRAM below 4 GiB */
+		if (!(start >> 32ULL))
+			continue;
+
+		gen3_mem_map[i].virt = start;
+		gen3_mem_map[i].phys = start;
+		gen3_mem_map[i].size = size;
+		gen3_mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+					PTE_BLOCK_INNER_SHARE;
+		i++;
+	}
+
+	/* Zero out the remaining regions. */
+	for (; i < GEN3_NR_REGIONS; i++) {
+		gen3_mem_map[i].virt = 0;
+		gen3_mem_map[i].phys = 0;
+		gen3_mem_map[i].size = 0;
+		gen3_mem_map[i].attrs = 0;
+	}
+
+	icache_enable();
+	dcache_enable();
 }

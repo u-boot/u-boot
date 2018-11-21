@@ -1,16 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Masahiro Yamada <yamada.masahiro@socionext.com>
  *
  * Based on drivers/firmware/psci.c from Linux:
  * Copyright (C) 2015 ARM Limited
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
 #include <dm/lists.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <linux/arm-smccc.h>
 #include <linux/errno.h>
 #include <linux/printk.h>

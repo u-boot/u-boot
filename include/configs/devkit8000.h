@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2006-2008
  * Texas Instruments.
@@ -8,8 +9,6 @@
  * Frederik Kriewitz <frederik@kriewitz.eu>
  *
  * Configuration settings for the DevKit8000 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -24,7 +23,6 @@
  * header. That is 0x800FFFC0--0x80100000 should not be used for any
  * other needs.
  */
-#define CONFIG_SYS_TEXT_BASE	0x80100000
 
 #define CONFIG_SPL_BSS_START_ADDR       0x80000500 /* leave space for bootargs*/
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000
@@ -33,11 +31,8 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
 
 /*  Physical Memory Map  */
-#define CONFIG_NR_DRAM_BANKS		2 /* CS1 may or may not be populated */
 
 #include <configs/ti_omap3_common.h>
-
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_REVISION_TAG		1
 
@@ -58,18 +53,9 @@
 #define CONFIG_DM9000_NO_SROM		1
 #undef	CONFIG_DM9000_DEBUG
 
-/* SPI */
-#undef CONFIG_SPI
-
-/* I2C */
-
 /* TWL4030 */
-#define CONFIG_TWL4030_LED		1
 
 /* Board NAND Info */
-
-#define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
-							/* to access nand */
 #define CONFIG_JFFS2_NAND
 /* nand device jffs2 lives on */
 #define CONFIG_JFFS2_DEV		"nand0"
@@ -78,19 +64,11 @@
 #define CONFIG_JFFS2_PART_SIZE		0xf980000	/* size of jffs2 */
 							/* partition */
 
-#undef CONFIG_SUPPORT_RAW_INITRD
-
 /* BOOTP/DHCP options */
-#define CONFIG_BOOTP_SUBNETMASK
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_NISDOMAIN
-#define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
-#define CONFIG_BOOTP_NTPSERVER
 #define CONFIG_BOOTP_TIMEOFFSET
 #undef CONFIG_BOOTP_VENDOREX
 

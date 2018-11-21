@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for shmin (T-SH7706LAN, T-SH7706LSR)
  *
  * Copyright (C) 2010, 2011 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __SHMIN_H
@@ -26,8 +25,6 @@
 #define SHMIN_SDRAM_BASE		(0x8C000000)
 #define SHMIN_FLASH_BASE_1		(0xA0000000)
 
-#define CONFIG_SYS_TEXT_BASE	0x8DFB0000
-#define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 #define CONFIG_SYS_PBSIZE	256	/* Buffer size for Console output */
 /* List of legal baudrate settings for this board */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600,14400,19200,38400,57600,115200 }
@@ -48,8 +45,6 @@
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 /* FLASH */
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
 #undef  CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* print 'E' for empty sector on flinfo */
 #define CONFIG_SYS_FLASH_BASE		SHMIN_FLASH_BASE_1
@@ -81,9 +76,7 @@
 #else
 #define CONFIG_SYS_CLK_FREQ 33333333
 #endif /* CONFIG_T_SH7706LSR */
-#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_TMU_CLK_DIV	4
 
 /* Network device */
 #define CONFIG_DRIVER_NE2000

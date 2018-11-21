@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2006 Freescale Semiconductor, Inc.
  *                    Dave Liu <daveliu@freescale.com>
@@ -14,8 +15,6 @@
  * (C) Copyright 2010-2013
  * Lukas Roggli, KEYMILE Ltd, lukas.roggli@keymile.com
  * Holger Brunck,  Keymile GmbH, holger.bruncl@keymile.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -26,24 +25,22 @@
  */
 #if defined(CONFIG_KMSUPX5)
 #define CONFIG_KM_BOARD_NAME	"kmsupx5"
-#define CONFIG_HOSTNAME		kmsupx5
+#define CONFIG_HOSTNAME		"kmsupx5"
 #elif defined(CONFIG_TUGE1)
 #define CONFIG_KM_BOARD_NAME	"tuge1"
-#define CONFIG_HOSTNAME		tuge1
+#define CONFIG_HOSTNAME		"tuge1"
 #elif defined(CONFIG_TUXX1)	/* TUXX1 board (tuxa1/tuda1) specific */
 #define CONFIG_KM_BOARD_NAME	"tuxx1"
-#define CONFIG_HOSTNAME		tuxx1
+#define CONFIG_HOSTNAME		"tuxx1"
 #elif defined(CONFIG_KMOPTI2)
 #define CONFIG_KM_BOARD_NAME	"kmopti2"
-#define CONFIG_HOSTNAME		kmopti2
+#define CONFIG_HOSTNAME		"kmopti2"
 #elif defined(CONFIG_KMTEPR2)
 #define CONFIG_KM_BOARD_NAME    "kmtepr2"
-#define CONFIG_HOSTNAME         kmtepr2
+#define CONFIG_HOSTNAME         "kmtepr2"
 #else
 #error ("Board not supported")
 #endif
-
-#define	CONFIG_SYS_TEXT_BASE	0xF0000000
 
 /* include common defines/options for all 8321 Keymile boards */
 #include "km/km8321-common.h"

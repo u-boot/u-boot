@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2017 Toradex, Inc.
  *
  * Configuration settings for the Toradex Apalis TK1 modules.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -16,7 +15,6 @@
 #define CONFIG_ARCH_MISC_INIT
 
 /* High-level configuration options */
-#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTA
@@ -82,7 +80,7 @@
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
 #define SD_BOOTCMD \
-	"sdargs=ip=off root=/dev/mmcblk1p2 rw rootfstype=ext3 rootwait\0" \
+	"sdargs=ip=off root=/dev/mmcblk1p2 rw rootfstype=ext4 rootwait\0" \
 	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} ${setupargs} " \
 		"${vidargs}; echo Booting from SD card in 8bit slot...; " \
 		"run sddtbload; load mmc 1:1 ${kernel_addr_r} " \
@@ -93,7 +91,7 @@
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
 #define USB_BOOTCMD \
-	"usbargs=ip=off root=/dev/sda2 rw rootfstype=ext3 rootwait\0" \
+	"usbargs=ip=off root=/dev/sda2 rw rootfstype=ext4 rootwait\0" \
 	"usbboot=run setup; setenv bootargs ${defargs} ${setupargs} " \
 		"${usbargs} ${vidargs}; echo Booting from USB stick...; " \
 		"usb start && run usbdtbload; load usb 0:1 ${kernel_addr_r} " \
@@ -147,7 +145,6 @@
 
 #define CONFIG_CMD_TIME
 
-#define CONFIG_SUPPORT_RAW_INITRD
 #define CONFIG_SYS_BOOT_RAMDISK_HIGH
 
 #include "tegra-common-usb-gadget.h"

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015,2016 Freescale Semiconductor, Inc.
  *
  * FSL USB HOST xHCI Controller
  *
  * Author: Ramneek Mehresh<ramneek.mehresh@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -20,8 +19,6 @@
 #include <dm.h>
 
 /* Declare global data pointer */
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifndef CONFIG_DM_USB
 static struct fsl_xhci fsl_xhci;
 unsigned long ctr_addr[] = FSL_USB_XHCI_ADDR;

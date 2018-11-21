@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2017 Rockchip Electronics Co., Ltd.
- *
- * SPDX-License-Identifier:     GPL-2.0
  */
 
 #include <common.h>
@@ -12,7 +11,6 @@
 #include <asm/arch/grf_rk3328.h>
 #include <asm/arch/sdram_common.h>
 
-DECLARE_GLOBAL_DATA_PTR;
 struct dram_info {
 	struct ram_info info;
 	struct rk3328_grf_regs *grf;

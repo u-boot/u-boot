@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 2015 Renesas Electronics Corporation
  * Copyright (C) 2015 Cogent Embedded, Inc.
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #ifndef __QOS_H__

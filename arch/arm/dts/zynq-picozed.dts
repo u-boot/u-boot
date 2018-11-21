@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Avnet PicoZed board DTS
  *
  * Copyright (C) 2015 Xilinx, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 #include "zynq-7000.dtsi"

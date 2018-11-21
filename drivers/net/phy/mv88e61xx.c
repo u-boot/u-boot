@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015
  * Elecsys Corporation <www.elecsyscorp.com>
@@ -7,8 +8,6 @@
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
  * Prafulla Wadaskar <prafulla@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -706,6 +705,31 @@ unforce:
 	return res;
 }
 
+static int mv88e61xx_fixed_port_setup(struct phy_device *phydev, u8 port)
+{
+	int val;
+
+	val = mv88e61xx_port_read(phydev, port, PORT_REG_PHYS_CTRL);
+	if (val < 0)
+		return val;
+
+	val &= ~(PORT_REG_PHYS_CTRL_SPD_MASK |
+		 PORT_REG_PHYS_CTRL_FC_VALUE);
+	val |= PORT_REG_PHYS_CTRL_PCS_AN_EN |
+	       PORT_REG_PHYS_CTRL_PCS_AN_RST |
+	       PORT_REG_PHYS_CTRL_FC_FORCE |
+	       PORT_REG_PHYS_CTRL_DUPLEX_VALUE |
+	       PORT_REG_PHYS_CTRL_DUPLEX_FORCE |
+	       PORT_REG_PHYS_CTRL_SPD1000;
+
+	if (port == CONFIG_MV88E61XX_CPU_PORT)
+		val |= PORT_REG_PHYS_CTRL_LINK_VALUE |
+		       PORT_REG_PHYS_CTRL_LINK_FORCE;
+
+	return mv88e61xx_port_write(phydev, port, PORT_REG_PHYS_CTRL,
+				   val);
+}
+
 static int mv88e61xx_set_cpu_port(struct phy_device *phydev)
 {
 	int val;
@@ -749,6 +773,11 @@ static int mv88e61xx_set_cpu_port(struct phy_device *phydev)
 			if (val < 0)
 				return val;
 		}
+	} else {
+		val = mv88e61xx_fixed_port_setup(phydev,
+						 CONFIG_MV88E61XX_CPU_PORT);
+		if (val < 0)
+			return val;
 	}
 
 	return 0;
@@ -809,27 +838,6 @@ static int mv88e61xx_phy_setup(struct phy_device *phydev, u8 phy)
 		return val;
 
 	return 0;
-}
-
-static int mv88e61xx_fixed_port_setup(struct phy_device *phydev, u8 port)
-{
-	int val;
-
-	val = mv88e61xx_port_read(phydev, port, PORT_REG_PHYS_CTRL);
-	if (val < 0)
-		return val;
-
-	val &= ~(PORT_REG_PHYS_CTRL_SPD_MASK |
-		 PORT_REG_PHYS_CTRL_FC_VALUE);
-	val |= PORT_REG_PHYS_CTRL_PCS_AN_EN |
-	       PORT_REG_PHYS_CTRL_PCS_AN_RST |
-	       PORT_REG_PHYS_CTRL_FC_FORCE |
-	       PORT_REG_PHYS_CTRL_DUPLEX_VALUE |
-	       PORT_REG_PHYS_CTRL_DUPLEX_FORCE |
-	       PORT_REG_PHYS_CTRL_SPD1000;
-
-	return mv88e61xx_port_write(phydev, port, PORT_REG_PHYS_CTRL,
-				   val);
 }
 
 static int mv88e61xx_phy_config_port(struct phy_device *phydev, u8 phy)

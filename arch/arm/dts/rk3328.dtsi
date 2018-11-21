@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Rockchip Electronics Co., Ltd
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <dt-bindings/clock/rk3328-cru.h>
@@ -190,8 +189,6 @@
 		u-boot,dm-pre-reloc;
 		compatible = "rockchip,rk3328-grf", "syscon", "simple-mfd";
 		reg = <0x0 0xff100000 0x0 0x1000>;
-		#address-cells = <1>;
-		#size-cells = <1>;
 
 		io_domains: io-domains {
 			compatible = "rockchip,rk3328-io-voltage-domain";
@@ -453,6 +450,25 @@
 		clock-names = "biu", "ciu";
 		fifo-depth = <0x100>;
 		interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+	};
+
+	gmac2io: ethernet@ff540000 {
+		compatible = "rockchip,rk3328-gmac";
+		reg = <0x0 0xff540000 0x0 0x10000>;
+		rockchip,grf = <&grf>;
+		interrupts = <GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "macirq";
+		clocks = <&cru SCLK_MAC2IO>, <&cru SCLK_MAC2IO_RX>,
+			 <&cru SCLK_MAC2IO_TX>, <&cru SCLK_MAC2IO_REF>,
+			 <&cru SCLK_MAC2IO_REFOUT>, <&cru ACLK_MAC2IO>,
+			 <&cru PCLK_MAC2IO>;
+		clock-names = "stmmaceth", "mac_clk_rx",
+			      "mac_clk_tx", "clk_mac_ref",
+			      "clk_mac_refout", "aclk_mac",
+			      "pclk_mac";
+		resets = <&cru SRST_GMAC2IO_A>;
+		reset-names = "stmmaceth";
 		status = "disabled";
 	};
 

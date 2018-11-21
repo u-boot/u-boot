@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
  *
  * Copyright (C) 2009 TechNexion Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -19,10 +18,8 @@
 #include <spl.h>
 #include <mmc.h>
 #include <asm/gpio.h>
-#ifdef CONFIG_USB_EHCI_HCD
 #include <usb.h>
 #include <asm/ehci-omap.h>
-#endif
 #include "twister.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -46,7 +43,7 @@ static const u32 gpmc_XR16L2751[] = {
 	XR16L2751_GPMC_CONFIG6,
 };
 
-#ifdef CONFIG_USB_EHCI_HCD
+#ifdef CONFIG_USB_EHCI_OMAP
 static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
 	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
@@ -119,19 +116,20 @@ void set_muxconf_regs(void)
 
 int board_eth_init(bd_t *bis)
 {
+#ifdef CONFIG_DRIVER_TI_EMAC
 	davinci_emac_initialize();
-
+#endif
 	/* init cs for extern lan */
 	enable_gpmc_cs_config(gpmc_smc911, &gpmc_cfg->cs[5],
 		CONFIG_SMC911X_BASE, GPMC_SIZE_16M);
-	if (smc911x_initialize(0, CONFIG_SMC911X_BASE) <= 0)
-		printf("\nError initializing SMC911x controlleri\n");
-
+#ifdef CONFIG_SMC911X
+	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#else
 	return 0;
+#endif
 }
 
-#if defined(CONFIG_MMC_OMAP_HS) && \
-	!defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_MMC_OMAP_HS)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, -1);

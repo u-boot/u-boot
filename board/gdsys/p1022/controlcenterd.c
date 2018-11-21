@@ -32,7 +32,7 @@
 #include <fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <asm/io.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <fsl_mdio.h>
 #include <tsec.h>
@@ -43,8 +43,6 @@
 #include <watchdog.h>
 #include "../common/dp501.h"
 #include "controlcenterd-id.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 enum {
 	HWVER_100 = 0,

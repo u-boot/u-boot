@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2017 Theobroma Systems Design und Consulting GmbH
  * Copyright (c) 2015 Google, Inc
  * Copyright 2014 Rockchip Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -84,7 +83,7 @@ int rk_hdmi_ofdata_to_platdata(struct udevice *dev)
 	struct rk_hdmi_priv *priv = dev_get_priv(dev);
 	struct dw_hdmi *hdmi = &priv->hdmi;
 
-	hdmi->ioaddr = (ulong)devfdt_get_addr(dev);
+	hdmi->ioaddr = (ulong)dev_read_addr(dev);
 	hdmi->mpll_cfg = rockchip_mpll_cfg;
 	hdmi->phy_cfg = rockchip_phy_config;
 

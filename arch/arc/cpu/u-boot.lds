@@ -1,32 +1,32 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013-2014 Synopsys, Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
 
-OUTPUT_FORMAT("elf32-littlearc", "elf32-littlearc", "elf32-littlearc")
+OUTPUT_FORMAT("elf32-littlearc", "elf32-bigarc", "elf32-littlearc")
 OUTPUT_ARCH(arc)
 ENTRY(_start)
 SECTIONS
 {
 	. = CONFIG_SYS_TEXT_BASE;
 	__image_copy_start = .;
+	. = ALIGN(1024);
+	__ivt_start = .;
+	.ivt :
+	{
+		KEEP(*(.ivt))
+	}
+	__ivt_end = .;
+
+	. = ALIGN(1024);
 	__text_start = .;
 	.text :	{
 		arch/arc/lib/start.o (.text*)
 		*(.text*)
 	}
 	__text_end = .;
-
-	. = ALIGN(1024);
-	__ivt_start = .;
-	.ivt :
-	{
-		*(.ivt)
-	}
-	__ivt_end = .;
 
 	. = ALIGN(4);
 	.rodata : {

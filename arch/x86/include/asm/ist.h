@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 #ifndef _ASM_X86_IST_H
 #define _ASM_X86_IST_H
 
 /*
  * Include file for the interface to IST BIOS
  * Copyright 2002 Andy Grover <andrew.grover@intel.com>
- *
-  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

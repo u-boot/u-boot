@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -323,6 +322,7 @@ void hab_caam_clock_enable(unsigned char enable)
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Dump some core clockes.
  */
@@ -363,3 +363,4 @@ U_BOOT_CMD(
 	"display clocks",
 	""
 );
+#endif

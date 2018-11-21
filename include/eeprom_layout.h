@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009-2016 CompuLab, Ltd.
  *
  * Authors: Nikita Kiryanov <nikita@compulab.co.il>
  *	    Igor Grinberg <grinberg@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _LAYOUT_

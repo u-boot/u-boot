@@ -1,15 +1,35 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * U-Boot addition to handle Dragonboard 410c pins
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 / {
-	config {
-		u-boot,mmc-env-partition = "boot";
+
+	smem {
+		u-boot,dm-pre-reloc;
 	};
+
+	soc {
+		u-boot,dm-pre-reloc;
+
+		qcom,tlmm@1000000 {
+			u-boot,dm-pre-reloc;
+
+			uart {
+				u-boot,dm-pre-reloc;
+			};
+		};
+
+		qcom,gcc@1800000 {
+			u-boot,dm-pre-reloc;
+		};
+
+		serial@78b0000 {
+			u-boot,dm-pre-reloc;
+			};
+		};
 };
 
 

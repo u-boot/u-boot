@@ -25,15 +25,22 @@
 #include <linux/linkage.h>
 
 static u32 psci_target_pc[CONFIG_ARMV7_PSCI_NR_CPUS] __secure_data = { 0 };
+static u32 psci_context_id[CONFIG_ARMV7_PSCI_NR_CPUS] __secure_data = { 0 };
 
-void __secure psci_save_target_pc(int cpu, u32 pc)
+void __secure psci_save(int cpu, u32 pc, u32 context_id)
 {
 	psci_target_pc[cpu] = pc;
+	psci_context_id[cpu] = context_id;
 	dsb();
 }
 
 u32 __secure psci_get_target_pc(int cpu)
 {
 	return psci_target_pc[cpu];
+}
+
+u32 __secure psci_get_context_id(int cpu)
+{
+	return psci_context_id[cpu];
 }
 

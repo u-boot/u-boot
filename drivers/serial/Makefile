@@ -1,15 +1,29 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2006-2009
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
-ifdef CONFIG_DM_SERIAL
-obj-$(CONFIG_$(SPL_TPL_)DM_SERIAL) += serial-uclass.o
-obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
+ifdef CONFIG_SPL_BUILD
+
+ifeq ($(CONFIG_$(SPL_TPL_)BUILD)$(CONFIG_$(SPL_TPL_)DM_SERIAL),yy)
+obj-y += serial-uclass.o
 else
 obj-y += serial.o
+endif
+
+else
+
+ifdef CONFIG_DM_SERIAL
+obj-y += serial-uclass.o
+else
+obj-y += serial.o
+endif
+
+endif
+
+ifdef CONFIG_DM_SERIAL
+obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
+else
 obj-$(CONFIG_PL010_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
@@ -44,12 +58,14 @@ obj-$(CONFIG_UNIPHIER_SERIAL) += serial_uniphier.o
 obj-$(CONFIG_STM32_SERIAL) += serial_stm32.o
 obj-$(CONFIG_STI_ASC_SERIAL) += serial_sti_asc.o
 obj-$(CONFIG_PIC32_SERIAL) += serial_pic32.o
-obj-$(CONFIG_STM32X7_SERIAL) += serial_stm32x7.o
 obj-$(CONFIG_BCM283X_MU_SERIAL) += serial_bcm283x_mu.o
+obj-$(CONFIG_BCM283X_PL011_SERIAL) += serial_bcm283x_pl011.o
 obj-$(CONFIG_MSM_SERIAL) += serial_msm.o
 obj-$(CONFIG_MVEBU_A3700_UART) += serial_mvebu_a3700.o
 obj-$(CONFIG_MPC8XX_CONS) += serial_mpc8xx.o
 obj-$(CONFIG_NULLDEV_SERIAL) += serial_nulldev.o
+obj-$(CONFIG_OWL_SERIAL) += serial_owl.o
+obj-$(CONFIG_OMAP_SERIAL) += serial_omap.o
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_USB_TTY) += usbtty.o

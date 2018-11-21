@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011-2012
  * Pali Rohár <pali.rohar@gmail.com>
@@ -12,8 +13,6 @@
  * Syed Mohammed Khasim <x0khasim@ti.com>
  *
  * Configuration settings for the Nokia RX-51 aka N900.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -31,7 +30,6 @@
  * NOLO loading boot image to random place, so it doesn't really
  * matter what we set this to. We have to copy u-boot to this address
  */
-#define CONFIG_SYS_TEXT_BASE	0x80008000
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap.h>
@@ -42,7 +40,6 @@
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_SKIP_LOWLEVEL_INIT		/* X-Loader set everything up */
 
 #define CONFIG_CMDLINE_TAG	/* enable passing kernel command line string */
@@ -74,19 +71,11 @@
 /*
  * select serial console configuration
  */
-#define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-#define CONFIG_SERIAL3			3		/* UART3 on RX-51 */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_BAUDRATE_TABLE { 4800, 9600, 19200, 38400, 57600, 115200 }
-
-/* USB */
-#define CONFIG_USB_MUSB_UDC
-#define CONFIG_USB_MUSB_HCD
-#define CONFIG_USB_OMAP3
-#define CONFIG_TWL4030_USB
 
 /* USB device configuration */
 #define CONFIG_USB_DEVICE
@@ -97,18 +86,11 @@
 
 /* commands to include */
 
-#define CONFIG_CMDLINE_EDITING		/* add command line history */
-#define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
-
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 
 /*
  * TWL4030
  */
-#define CONFIG_TWL4030_LED
-#define CONFIG_TWL4030_KEYPAD
 
 #define GPIO_SLIDE			71
 
@@ -161,8 +143,6 @@
 #ifdef ONENAND_SUPPORT
 
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 #endif
 
@@ -320,7 +300,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory */
 
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + 0x01F00000)/*31MB*/
@@ -339,7 +318,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			OMAP34XX_SDRC_CS0
 
 /*

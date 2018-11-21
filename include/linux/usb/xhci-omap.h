@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * Texas Instruments Inc, <www.ti.com>
  *
  * Author: Dan Murphy <dmurphy@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_ARCH_XHCI_OMAP_H_

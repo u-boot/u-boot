@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1996-1999 SciTech Software, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _BIOS_EMUL_H

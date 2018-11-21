@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Cavium Thunder DTS file - Thunder SoC description
  *
  * Copyright (C) 2014, Cavium Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+ or X11
  *
  */
 

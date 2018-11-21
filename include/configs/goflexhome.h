@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Suriyan Ramasami <suriyan.r@gmail.com>
  *
@@ -8,8 +9,6 @@
  * Prafulla Wadaskar <prafulla@marvell.com>
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_GOFLEXHOME_H
@@ -20,7 +19,6 @@
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
 #define CONFIG_KW88F6281	1	/* SOC Name */
-#define CONFIG_MACH_GOFLEXHOME		/* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
@@ -42,8 +40,6 @@
 /*
  * Commands configuration
  */
-
-#define CONFIG_SYS_MVFS         /* Picks up Filesystem from mv-common.h */
 
 /*
  * mv-common.h should be defined after CMD configs since it used them
@@ -96,12 +92,5 @@
 #ifdef CONFIG_MVSATA_IDE
 #define CONFIG_SYS_ATA_IDE0_OFFSET      MV_SATA_PORT0_OFFSET
 #endif /*CONFIG_MVSATA_IDE*/
-
-/*
- *  * RTC driver configuration
- *   */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_MV
-#endif /* CONFIG_CMD_DATE */
 
 #endif /* _CONFIG_GOFLEXHOME_H */

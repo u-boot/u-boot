@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /**
  * dwc3-omap.c - OMAP Specific Glue layer
  *
@@ -10,8 +11,6 @@
  * to uboot.
  *
  * commit 7ee2566ff5 : usb: dwc3: dwc3-omap: get rid of ->prepare()/->complete()
- *
- * SPDX-License-Identifier:     GPL-2.0
  */
 
 #include <common.h>

@@ -197,7 +197,7 @@ You can take a look at the resulting fit file if you like:
 $ dumpimage -l image.fit
 FIT description: Simple image with single Linux kernel on x86
 Created:         Tue Oct  7 10:57:24 2014
- Image 0 (kernel@1)
+ Image 0 (kernel)
   Description:  Vanilla Linux kernel
   Created:      Tue Oct  7 10:57:24 2014
   Type:         Kernel Image
@@ -209,7 +209,7 @@ Created:         Tue Oct  7 10:57:24 2014
   Entry Point:  0x00000000
   Hash algo:    sha1
   Hash value:   446b5163ebfe0fb6ee20cbb7a8501b263cd92392
- Image 1 (setup@1)
+ Image 1 (setup)
   Description:  Linux setup.bin
   Created:      Tue Oct  7 10:57:24 2014
   Type:         x86 setup.bin
@@ -217,10 +217,10 @@ Created:         Tue Oct  7 10:57:24 2014
   Data Size:    12912 Bytes = 12.61 kB = 0.01 MB
   Hash algo:    sha1
   Hash value:   a1f2099cf47ff9816236cd534c77af86e713faad
- Default Configuration: 'config@1'
- Configuration 0 (config@1)
+ Default Configuration: 'config-1'
+ Configuration 0 (config-1)
   Description:  Boot Linux kernel
-  Kernel:       kernel@1
+  Kernel:       kernel
 
 
 Booting the FIT

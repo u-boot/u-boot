@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2015 Google, Inc
  * Copyright 2014 Rockchip Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -218,41 +217,67 @@ static void rkvop_mode_set(struct udevice *dev,
  *		node within the VOP's 'port' list.
  * @return 0 if OK, -ve if something went wrong
  */
-static int rk_display_init(struct udevice *dev, ulong fbbase, int ep_node)
+static int rk_display_init(struct udevice *dev, ulong fbbase, ofnode ep_node)
 {
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
-	const void *blob = gd->fdt_blob;
 	struct rk_vop_priv *priv = dev_get_priv(dev);
 	int vop_id, remote_vop_id;
 	struct rk3288_vop *regs = priv->regs;
 	struct display_timing timing;
 	struct udevice *disp;
-	int ret, remote, i, offset;
+	int ret;
+	u32 remote_phandle;
 	struct display_plat *disp_uc_plat;
 	struct clk clk;
 	enum video_log2_bpp l2bpp;
+	ofnode remote;
 
-	vop_id = fdtdec_get_int(blob, ep_node, "reg", -1);
+	debug("%s(%s, %lu, %s)\n", __func__,
+	      dev_read_name(dev), fbbase, ofnode_get_name(ep_node));
+
+	vop_id = ofnode_read_s32_default(ep_node, "reg", -1);
 	debug("vop_id=%d\n", vop_id);
-	remote = fdtdec_lookup_phandle(blob, ep_node, "remote-endpoint");
-	if (remote < 0)
+	ret = ofnode_read_u32(ep_node, "remote-endpoint", &remote_phandle);
+	if (ret)
+		return ret;
+
+	remote = ofnode_get_by_phandle(remote_phandle);
+	if (!ofnode_valid(remote))
 		return -EINVAL;
-	remote_vop_id = fdtdec_get_int(blob, remote, "reg", -1);
+	remote_vop_id = ofnode_read_u32_default(remote, "reg", -1);
 	debug("remote vop_id=%d\n", remote_vop_id);
 
-	for (i = 0, offset = remote; i < 3 && offset > 0; i++)
-		offset = fdt_parent_offset(blob, offset);
-	if (offset < 0) {
-		debug("%s: Invalid remote-endpoint position\n", dev->name);
-		return -EINVAL;
-	}
+	/*
+	 * The remote-endpoint references into a subnode of the encoder
+	 * (i.e. HDMI, MIPI, etc.) with the DTS looking something like
+	 * the following (assume 'hdmi_in_vopl' to be referenced):
+	 *
+	 * hdmi: hdmi@ff940000 {
+	 *   ports {
+	 *     hdmi_in: port {
+	 *       hdmi_in_vopb: endpoint@0 { ... };
+	 *       hdmi_in_vopl: endpoint@1 { ... };
+	 *     }
+	 *   }
+	 * }
+	 *
+	 * The original code had 3 steps of "walking the parent", but
+	 * a much better (as in: less likely to break if the DTS
+	 * changes) way of doing this is to "find the enclosing device
+	 * of UCLASS_DISPLAY".
+	 */
+	while (ofnode_valid(remote)) {
+		remote = ofnode_get_parent(remote);
+		if (!ofnode_valid(remote)) {
+			debug("%s(%s): no UCLASS_DISPLAY for remote-endpoint\n",
+			      __func__, dev_read_name(dev));
+			return -EINVAL;
+		}
 
-	ret = uclass_find_device_by_of_offset(UCLASS_DISPLAY, offset, &disp);
-	if (ret) {
-		debug("%s: device '%s' display not found (ret=%d)\n", __func__,
-		      dev->name, ret);
-		return ret;
-	}
+		uclass_find_device_by_ofnode(UCLASS_DISPLAY, remote, &disp);
+		if (disp)
+			break;
+	};
 
 	disp_uc_plat = dev_get_uclass_platdata(disp);
 	debug("Found device '%s', disp_uc_priv=%p\n", disp->name, disp_uc_plat);
@@ -334,16 +359,15 @@ void rk_vop_probe_regulators(struct udevice *dev,
 int rk_vop_probe(struct udevice *dev)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
-	const void *blob = gd->fdt_blob;
 	struct rk_vop_priv *priv = dev_get_priv(dev);
 	int ret = 0;
-	int port, node;
+	ofnode port, node;
 
 	/* Before relocation we don't need to do anything */
 	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
 
-	priv->regs = (struct rk3288_vop *)devfdt_get_addr(dev);
+	priv->regs = (struct rk3288_vop *)dev_read_addr(dev);
 
 	/*
 	 * Try all the ports until we find one that works. In practice this
@@ -353,12 +377,16 @@ int rk_vop_probe(struct udevice *dev)
 	 * clock so it is currently not possible to use more than one display
 	 * device simultaneously.
 	 */
-	port = fdt_subnode_offset(blob, dev_of_offset(dev), "port");
-	if (port < 0)
+	port = dev_read_subnode(dev, "port");
+	if (!ofnode_valid(port)) {
+		debug("%s(%s): 'port' subnode not found\n",
+		      __func__, dev_read_name(dev));
 		return -EINVAL;
-	for (node = fdt_first_subnode(blob, port);
-	     node > 0;
-	     node = fdt_next_subnode(blob, node)) {
+	}
+
+	for (node = ofnode_first_subnode(port);
+	     ofnode_valid(node);
+	     node = dev_read_next_subnode(node)) {
 		ret = rk_display_init(dev, plat->base, node);
 		if (ret)
 			debug("Device failed: ret=%d\n", ret);

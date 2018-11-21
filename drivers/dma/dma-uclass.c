@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Direct Memory Access U-Class driver
  *
@@ -5,8 +6,6 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  *
  * Author: Mugunthan V N <mugunthanvnm@ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -15,8 +14,6 @@
 #include <dm/uclass-internal.h>
 #include <dm/device-internal.h>
 #include <errno.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int dma_get_device(u32 transfer_type, struct udevice **devp)
 {

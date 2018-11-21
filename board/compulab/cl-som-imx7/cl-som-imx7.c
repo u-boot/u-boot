@@ -1,14 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * U-Boot board functions for CompuLab CL-SOM-iMX7 module
  *
  * (C) Copyright 2017 CompuLab, Ltd. http://www.compulab.com
  *
  * Author: Uri Mashiach <uri.mashiach@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <environment.h>
 #include <mmc.h>
 #include <phy.h>
 #include <netdev.h>

@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * MUSB OTG driver peripheral defines
  *
  * Copyright 2005 Mentor Graphics Corporation
  * Copyright (C) 2005-2006 by Texas Instruments
  * Copyright (C) 2006-2007 Nokia Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __MUSB_GADGET_H

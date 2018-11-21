@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015
  * Cristian Birsan <cristian.birsan@microchip.com>
  * Purna Chandra Mandal <purna.mandal@microchip.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -66,10 +65,10 @@ static inline void flash_initiate_operation(u32 nvmop)
 
 static int flash_wait_till_busy(const char *func, ulong timeout)
 {
-	int ret = wait_for_bit(__func__, &nvm_regs_p->ctrl.raw,
-			       NVM_WR, false, timeout, false);
+	int ret = wait_for_bit_le32(&nvm_regs_p->ctrl.raw,
+				    NVM_WR, false, timeout, false);
 
-	return ret ? ERR_TIMOUT : ERR_OK;
+	return ret ? ERR_TIMEOUT : ERR_OK;
 }
 
 static inline int flash_complete_operation(void)
@@ -99,7 +98,7 @@ static inline int flash_complete_operation(void)
  * Erase flash sectors, returns:
  * ERR_OK - OK
  * ERR_INVAL - invalid sector arguments
- * ERR_TIMOUT - write timeout
+ * ERR_TIMEOUT - write timeout
  * ERR_NOT_ERASED - Flash not erased
  * ERR_UNKNOWN_FLASH_VENDOR - incorrect flash
  */
@@ -217,7 +216,7 @@ static int write_word(flash_info_t *info, ulong dest, ulong word)
 /*
  * Copy memory to flash, returns:
  * ERR_OK - OK
- * ERR_TIMOUT - write timeout
+ * ERR_TIMEOUT - write timeout
  * ERR_NOT_ERASED - Flash not erased
  */
 int write_buff(flash_info_t *info, uchar *src, ulong addr, ulong cnt)

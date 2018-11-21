@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) DENX
  * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
  *
  * Original code (C) Copyright 2010
  * Robert Aigner (ra@spiid.net)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _EVM_H_
 #define _EVM_H_

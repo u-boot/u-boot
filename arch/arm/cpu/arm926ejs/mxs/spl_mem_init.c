@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Freescale i.MX28 RAM init
  *
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -16,7 +15,7 @@
 
 #include "mxs_init.h"
 
-static uint32_t dram_vals[] = {
+__weak uint32_t mxs_dram_vals[] = {
 /*
  * i.MX28 DDR2 at 200MHz
  */
@@ -101,11 +100,11 @@ static void initialize_dram_values(void)
 	int i;
 
 	debug("SPL: Setting mx28 board specific SDRAM parameters\n");
-	mxs_adjust_memory_params(dram_vals);
+	mxs_adjust_memory_params(mxs_dram_vals);
 
 	debug("SPL: Applying SDRAM parameters\n");
-	for (i = 0; i < ARRAY_SIZE(dram_vals); i++)
-		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
+	for (i = 0; i < ARRAY_SIZE(mxs_dram_vals); i++)
+		writel(mxs_dram_vals[i], MXS_DRAM_BASE + (4 * i));
 }
 #else
 static void initialize_dram_values(void)
@@ -113,7 +112,7 @@ static void initialize_dram_values(void)
 	int i;
 
 	debug("SPL: Setting mx23 board specific SDRAM parameters\n");
-	mxs_adjust_memory_params(dram_vals);
+	mxs_adjust_memory_params(mxs_dram_vals);
 
 	/*
 	 * HW_DRAM_CTL27, HW_DRAM_CTL28 and HW_DRAM_CTL35 are not initialized as
@@ -125,10 +124,10 @@ static void initialize_dram_values(void)
 	 * So skip the initialization of these HW_DRAM_CTL registers.
 	 */
 	debug("SPL: Applying SDRAM parameters\n");
-	for (i = 0; i < ARRAY_SIZE(dram_vals); i++) {
+	for (i = 0; i < ARRAY_SIZE(mxs_dram_vals); i++) {
 		if (i == 8 || i == 27 || i == 28 || i == 35)
 			continue;
-		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
+		writel(mxs_dram_vals[i], MXS_DRAM_BASE + (4 * i));
 	}
 
 	/*

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * Helmut Raiger, HALE electronic GmbH, helmut.raiger@hale.at
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _MX31_SYS_PROTO_H_

@@ -45,4 +45,16 @@ config FPGA_ZYNQMPPL
 	  Enable FPGA driver for loading bitstream in BIT and BIN format
 	  on Xilinx Zynq UltraScale+ (ZynqMP) device.
 
+config FPGA_SPARTAN3
+	bool "Enable Spartan3 FPGA driver"
+	help
+	  Enable Spartan3 FPGA driver for loading in BIT format.
+
+config FPGA_ZYNQPL
+	bool "Enable Xilinx FPGA for Zynq"
+	depends on ARCH_ZYNQ
+	help
+	  Enable FPGA driver for loading bitstream in BIT and BIN format
+	  on Xilinx Zynq devices.
+
 endmenu

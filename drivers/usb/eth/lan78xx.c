@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2017 Microchip Technology Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <dm.h>
@@ -297,7 +296,7 @@ static int lan78xx_basic_reset(struct usb_device *udev,
 	ret = lan7x_read_reg(udev, LAN78XX_USB_CFG0, &val);
 	if (ret)
 		return ret;
-	val |= LAN78XX_USB_CFG0_BIR;
+	val &= ~LAN78XX_USB_CFG0_BIR;
 	return lan7x_write_reg(udev, LAN78XX_USB_CFG0, val);
 }
 

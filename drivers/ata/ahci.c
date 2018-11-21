@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) Freescale Semiconductor, Inc. 2006.
  * Author: Jason Jin<Jason.jin@freescale.com>
  *         Zhang Wei<wei.zhang@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * with the reference on libata and ahci drvier in kernel
  *
@@ -231,8 +230,10 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 	debug("cap 0x%x  port_map 0x%x  n_ports %d\n",
 	      uc_priv->cap, uc_priv->port_map, uc_priv->n_ports);
 
+#if !defined(CONFIG_DM_SCSI)
 	if (uc_priv->n_ports > CONFIG_SYS_SCSI_MAX_SCSI_ID)
 		uc_priv->n_ports = CONFIG_SYS_SCSI_MAX_SCSI_ID;
+#endif
 
 	for (i = 0; i < uc_priv->n_ports; i++) {
 		if (!(port_map & (1 << i)))
@@ -981,7 +982,7 @@ static int ahci_start_ports(struct ahci_uc_priv *uc_priv)
 
 	linkmap = uc_priv->link_port_map;
 
-	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
+	for (i = 0; i < uc_priv->n_ports; i++) {
 		if (((linkmap >> i) & 0x01)) {
 			if (ahci_port_start(uc_priv, (u8) i)) {
 				printf("Can not start port %d\n", i);

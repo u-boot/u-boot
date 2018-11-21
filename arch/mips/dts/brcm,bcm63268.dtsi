@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <dt-bindings/clock/bcm63268-clock.h>
@@ -12,6 +11,11 @@
 
 / {
 	compatible = "brcm,bcm63268";
+
+	aliases {
+		spi0 = &lsspi;
+		spi1 = &hsspi;
+	};
 
 	cpus {
 		reg = <0x10000000 0x4>;
@@ -39,6 +43,12 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		u-boot,dm-pre-reloc;
+
+		hsspi_pll: hsspi-pll {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <400000000>;
+		};
 
 		periph_osc: periph-osc {
 			compatible = "fixed-clock";
@@ -136,11 +146,68 @@
 			#power-domain-cells = <1>;
 		};
 
+		lsspi: spi@10000800 {
+			compatible = "brcm,bcm6358-spi";
+			reg = <0x10000800 0x70c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&periph_clk BCM63268_CLK_SPI>;
+			resets = <&periph_rst BCM63268_RST_SPI>;
+			spi-max-frequency = <20000000>;
+			num-cs = <8>;
+
+			status = "disabled";
+		};
+
+		hsspi: spi@10001000 {
+			compatible = "brcm,bcm6328-hsspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10001000 0x600>;
+			clocks = <&periph_clk BCM63268_CLK_HSSPI>, <&hsspi_pll>;
+			clock-names = "hsspi", "pll";
+			resets = <&periph_rst BCM63268_RST_SPI>;
+			spi-max-frequency = <50000000>;
+			num-cs = <8>;
+
+			status = "disabled";
+		};
+
 		leds: led-controller@10001900 {
 			compatible = "brcm,bcm6328-leds";
 			reg = <0x10001900 0x24>;
 			#address-cells = <1>;
 			#size-cells = <0>;
+
+			status = "disabled";
+		};
+
+		ehci: usb-controller@10002500 {
+			compatible = "brcm,bcm63268-ehci", "generic-ehci";
+			reg = <0x10002500 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		ohci: usb-controller@10002600 {
+			compatible = "brcm,bcm63268-ohci", "generic-ohci";
+			reg = <0x10002600 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		usbh: usb-phy@10002700 {
+			compatible = "brcm,bcm63268-usbh";
+			reg = <0x10002700 0x38>;
+			#phy-cells = <0>;
+			clocks = <&periph_clk BCM63268_CLK_USBH>, <&timer_clk BCM63268_TCLK_USB_REF>;
+			clock-names = "usbh", "usb_ref";
+			power-domains = <&periph_pwr BCM63268_PWR_USBH>;
+			resets = <&periph_rst BCM63268_RST_USBH>;
 
 			status = "disabled";
 		};

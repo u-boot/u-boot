@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2015 Google, Inc
  * (C) 2017 Theobroma Systems Design und Consulting GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -19,8 +18,6 @@
 #include <asm/arch/hardware.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3399-cru.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 struct rk3399_clk_plat {
@@ -742,6 +739,30 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 	return rk3399_mmc_get_clk(cru, clk_id);
 }
 
+static ulong rk3399_gmac_set_clk(struct rk3399_cru *cru, ulong rate)
+{
+	ulong ret;
+
+	/*
+	 * The RGMII CLK can be derived either from an external "clkin"
+	 * or can be generated from internally by a divider from SCLK_MAC.
+	 */
+	if (readl(&cru->clksel_con[19]) & BIT(4)) {
+		/* An external clock will always generate the right rate... */
+		ret = rate;
+	} else {
+		/*
+		 * No platform uses an internal clock to date.
+		 * Implement this once it becomes necessary and print an error
+		 * if someone tries to use it (while it remains unimplemented).
+		 */
+		pr_err("%s: internal clock is UNIMPLEMENTED\n", __func__);
+		ret = 0;
+	}
+
+	return ret;
+}
+
 #define PMUSGRF_DDR_RGN_CON16 0xff330040
 static ulong rk3399_ddr_set_clk(struct rk3399_cru *cru,
 				ulong set_rate)
@@ -859,14 +880,31 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	switch (clk->id) {
 	case 0 ... 63:
 		return 0;
+
+	case ACLK_PERIHP:
+	case HCLK_PERIHP:
+	case PCLK_PERIHP:
+		return 0;
+
+	case ACLK_PERILP0:
+	case HCLK_PERILP0:
+	case PCLK_PERILP0:
+		return 0;
+
+	case ACLK_CCI:
+		return 0;
+
+	case HCLK_PERILP1:
+	case PCLK_PERILP1:
+		return 0;
+
 	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 	case SCLK_EMMC:
 		ret = rk3399_mmc_set_clk(priv->cru, clk->id, rate);
 		break;
 	case SCLK_MAC:
-		/* nothing to do, as this is an external clock */
-		ret = rate;
+		ret = rk3399_gmac_set_clk(priv->cru, rate);
 		break;
 	case SCLK_I2C1:
 	case SCLK_I2C2:
@@ -902,6 +940,52 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	return ret;
 }
 
+static int __maybe_unused rk3399_gmac_set_parent(struct clk *clk, struct clk *parent)
+{
+	struct rk3399_clk_priv *priv = dev_get_priv(clk->dev);
+	const char *clock_output_name;
+	int ret;
+
+	/*
+	 * If the requested parent is in the same clock-controller and
+	 * the id is SCLK_MAC ("clk_gmac"), switch to the internal clock.
+	 */
+	if ((parent->dev == clk->dev) && (parent->id == SCLK_MAC)) {
+		debug("%s: switching RGMII to SCLK_MAC\n", __func__);
+		rk_clrreg(&priv->cru->clksel_con[19], BIT(4));
+		return 0;
+	}
+
+	/*
+	 * Otherwise, we need to check the clock-output-names of the
+	 * requested parent to see if the requested id is "clkin_gmac".
+	 */
+	ret = dev_read_string_index(parent->dev, "clock-output-names",
+				    parent->id, &clock_output_name);
+	if (ret < 0)
+		return -ENODATA;
+
+	/* If this is "clkin_gmac", switch to the external clock input */
+	if (!strcmp(clock_output_name, "clkin_gmac")) {
+		debug("%s: switching RGMII to CLKIN\n", __func__);
+		rk_setreg(&priv->cru->clksel_con[19], BIT(4));
+		return 0;
+	}
+
+	return -EINVAL;
+}
+
+static int __maybe_unused rk3399_clk_set_parent(struct clk *clk, struct clk *parent)
+{
+	switch (clk->id) {
+	case SCLK_RMII_SRC:
+		return rk3399_gmac_set_parent(clk, parent);
+	}
+
+	debug("%s: unsupported clk %ld\n", __func__, clk->id);
+	return -ENOENT;
+}
+
 static int rk3399_clk_enable(struct clk *clk)
 {
 	switch (clk->id) {
@@ -909,6 +993,16 @@ static int rk3399_clk_enable(struct clk *clk)
 	case HCLK_HOST0_ARB:
 	case HCLK_HOST1:
 	case HCLK_HOST1_ARB:
+		return 0;
+
+	case SCLK_MAC:
+	case SCLK_MAC_RX:
+	case SCLK_MAC_TX:
+	case SCLK_MACREF:
+	case SCLK_MACREF_OUT:
+	case ACLK_GMAC:
+	case PCLK_GMAC:
+		/* Required to successfully probe the Designware GMAC driver */
 		return 0;
 	}
 
@@ -919,6 +1013,9 @@ static int rk3399_clk_enable(struct clk *clk)
 static struct clk_ops rk3399_clk_ops = {
 	.get_rate = rk3399_clk_get_rate,
 	.set_rate = rk3399_clk_set_rate,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+	.set_parent = rk3399_clk_set_parent,
+#endif
 	.enable = rk3399_clk_enable,
 };
 
@@ -1046,6 +1143,13 @@ static int rk3399_clk_bind(struct udevice *dev)
 		sys_child->priv = priv;
 	}
 
+#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+	ret = offsetof(struct rk3399_cru, softrst_con[0]);
+	ret = rockchip_reset_bind(dev, ret, 21);
+	if (ret)
+		debug("Warning: software reset driver bind faile\n");
+#endif
+
 	return 0;
 }
 
@@ -1139,6 +1243,8 @@ static ulong rk3399_pmuclk_get_rate(struct clk *clk)
 	ulong rate = 0;
 
 	switch (clk->id) {
+	case PLL_PPLL:
+		return PPLL_HZ;
 	case PCLK_RKPWM_PMU:
 		rate = rk3399_pwm_get_clk(priv->pmucru);
 		break;
@@ -1160,6 +1266,13 @@ static ulong rk3399_pmuclk_set_rate(struct clk *clk, ulong rate)
 	ulong ret = 0;
 
 	switch (clk->id) {
+	case PLL_PPLL:
+		/*
+		 * This has already been set up and we don't want/need
+		 * to change it here.  Accept the request though, as the
+		 * device-tree has this in an 'assigned-clocks' list.
+		 */
+		return PPLL_HZ;
 	case SCLK_I2C0_PMU:
 	case SCLK_I2C4_PMU:
 	case SCLK_I2C8_PMU:
@@ -1221,6 +1334,19 @@ static int rk3399_pmuclk_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static int rk3399_pmuclk_bind(struct udevice *dev)
+{
+#if CONFIG_IS_ENABLED(CONFIG_RESET_ROCKCHIP)
+	int ret;
+
+	ret = offsetof(struct rk3399_pmucru, pmucru_softrst_con[0]);
+	ret = rockchip_reset_bind(dev, ret, 2);
+	if (ret)
+		debug("Warning: software reset driver bind faile\n");
+#endif
+	return 0;
+}
+
 static const struct udevice_id rk3399_pmuclk_ids[] = {
 	{ .compatible = "rockchip,rk3399-pmucru" },
 	{ }
@@ -1234,6 +1360,7 @@ U_BOOT_DRIVER(rockchip_rk3399_pmuclk) = {
 	.ofdata_to_platdata = rk3399_pmuclk_ofdata_to_platdata,
 	.ops		= &rk3399_pmuclk_ops,
 	.probe		= rk3399_pmuclk_probe,
+	.bind		= rk3399_pmuclk_bind,
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	.platdata_auto_alloc_size = sizeof(struct rk3399_pmuclk_plat),
 #endif

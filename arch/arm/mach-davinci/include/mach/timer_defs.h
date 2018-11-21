@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011 DENX Software Engineering GmbH
  * Heiko Schocher <hs@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _TIMER_DEFS_H_
 #define _TIMER_DEFS_H_

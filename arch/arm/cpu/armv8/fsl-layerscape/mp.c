@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -192,14 +191,14 @@ int is_core_online(u64 cpu_id)
 	return table[SPIN_TABLE_ELEM_STATUS_IDX] == 1;
 }
 
-int cpu_reset(int nr)
+int cpu_reset(u32 nr)
 {
 	puts("Feature is not implemented.\n");
 
 	return 0;
 }
 
-int cpu_disable(int nr)
+int cpu_disable(u32 nr)
 {
 	puts("Feature is not implemented.\n");
 
@@ -232,7 +231,7 @@ static int core_to_pos(int nr)
 	return i;
 }
 
-int cpu_status(int nr)
+int cpu_status(u32 nr)
 {
 	u64 *table;
 	int pos;
@@ -258,7 +257,7 @@ int cpu_status(int nr)
 	return 0;
 }
 
-int cpu_release(int nr, int argc, char * const argv[])
+int cpu_release(u32 nr, int argc, char * const argv[])
 {
 	u64 boot_addr;
 	u64 *table = (u64 *)get_spin_tbl_addr();

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_BMIPS_BCM3380_H
@@ -11,7 +10,6 @@
 #define CONFIG_SYS_MIPS_TIMER_FREQ	166500000
 
 /* RAM */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 
 /* U-Boot */

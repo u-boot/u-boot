@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SH7780 PCI Controller (PCIC) for U-Boot.
  * (C) Dustin McIntire (dustin@sensoria.com)
  * (C) 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  * (C) 2008 Yusuke Goda <goda.yusuke@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

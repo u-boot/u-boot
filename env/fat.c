@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (c) Copyright 2011 by Tigris Elektronik GmbH
  *
  * Author:
  *  Maximilian Schwerin <mvs@tigris.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -31,8 +30,6 @@
 # endif
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #ifdef CMD_SAVEENV
 static int env_fat_save(void)
 {
@@ -55,7 +52,11 @@ static int env_fat_save(void)
 
 	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
-		printf("\n** Unable to use %s %d:%d for saveenv **\n",
+		/*
+		 * This printf is embedded in the messages from env_save that
+		 * will calling it. The missing \n is intentional.
+		 */
+		printf("Unable to use %s %d:%d... ",
 		       CONFIG_ENV_FAT_INTERFACE, dev, part);
 		return 1;
 	}
@@ -63,12 +64,15 @@ static int env_fat_save(void)
 	err = file_fat_write(CONFIG_ENV_FAT_FILE, (void *)&env_new, 0, sizeof(env_t),
 			     &size);
 	if (err == -1) {
-		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",
+		/*
+		 * This printf is embedded in the messages from env_save that
+		 * will calling it. The missing \n is intentional.
+		 */
+		printf("Unable to write \"%s\" from %s%d:%d... ",
 			CONFIG_ENV_FAT_FILE, CONFIG_ENV_FAT_INTERFACE, dev, part);
 		return 1;
 	}
 
-	puts("done\n");
 	return 0;
 }
 #endif /* CMD_SAVEENV */
@@ -82,6 +86,11 @@ static int env_fat_load(void)
 	int dev, part;
 	int err;
 
+#ifdef CONFIG_MMC
+	if (!strcmp(CONFIG_ENV_FAT_INTERFACE, "mmc"))
+		mmc_initialize(NULL);
+#endif
+
 	part = blk_get_device_part_str(CONFIG_ENV_FAT_INTERFACE,
 					CONFIG_ENV_FAT_DEVICE_AND_PART,
 					&dev_desc, &info, 1);
@@ -90,23 +99,30 @@ static int env_fat_load(void)
 
 	dev = dev_desc->devnum;
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
-		printf("\n** Unable to use %s %d:%d for loading the env **\n",
+		/*
+		 * This printf is embedded in the messages from env_save that
+		 * will calling it. The missing \n is intentional.
+		 */
+		printf("Unable to use %s %d:%d... ",
 		       CONFIG_ENV_FAT_INTERFACE, dev, part);
 		goto err_env_relocate;
 	}
 
 	err = file_fat_read(CONFIG_ENV_FAT_FILE, buf, CONFIG_ENV_SIZE);
 	if (err == -1) {
-		printf("\n** Unable to read \"%s\" from %s%d:%d **\n",
+		/*
+		 * This printf is embedded in the messages from env_save that
+		 * will calling it. The missing \n is intentional.
+		 */
+		printf("Unable to read \"%s\" from %s%d:%d... ",
 			CONFIG_ENV_FAT_FILE, CONFIG_ENV_FAT_INTERFACE, dev, part);
 		goto err_env_relocate;
 	}
 
-	env_import(buf, 1);
-	return 0;
+	return env_import(buf, 1);
 
 err_env_relocate:
-	set_default_env(NULL);
+	set_default_env(NULL, 0);
 
 	return -EIO;
 }

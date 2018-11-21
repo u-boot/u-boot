@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2013-2016 Stefan Agner
  *
  * Configuration settings for the Toradex Colibri T30 modules.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -14,7 +13,6 @@
 #include "tegra30-common.h"
 
 /* High-level configuration options */
-#define CONFIG_DISPLAY_BOARDINFO_LATE	/* Calls show_board_info() */
 
 /* Board-specific serial config */
 #define CONFIG_TEGRA_ENABLE_UARTA

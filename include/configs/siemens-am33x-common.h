@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * siemens am33x common board options
  * (C) Copyright 2013 Siemens Schweiz AG
@@ -7,8 +8,6 @@
  * U-Boot file:/include/configs/am335x_evm.h
  *
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_SIEMENS_AM33X_COMMON_H
@@ -21,7 +20,6 @@
 
 #define CONFIG_ENV_SIZE			(0x2000)
 #define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024)
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #ifdef CONFIG_SIEMENS_MACH_TYPE
 #define CONFIG_MACH_TYPE		CONFIG_SIEMENS_MACH_TYPE
 #endif
@@ -32,16 +30,12 @@
 
 /* commands to include */
 
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_ROOTPATH		"/opt/eldk"
 #endif
 
 #define CONFIG_ENV_OVERWRITE		1
 
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_AUTOLOAD	"yes"
 
 /* Clock Defines */
@@ -67,12 +61,9 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 
-#define CONFIG_SPI
-#define CONFIG_MTD_DEVICE
 #define CONFIG_SF_DEFAULT_SPEED		(75000000)
 
  /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1		/*  1 bank of DRAM */
 #define PHYS_DRAM_1			0x80000000	/* DRAM Bank #1 */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_DRAM_1
@@ -91,17 +82,12 @@
 #define CONFIG_SYS_NS16550_COM1		0x44e09000
 #define CONFIG_SYS_NS16550_COM4		0x481a6000
 
-#define CONFIG_SERIAL1                  1
-#define CONFIG_CONS_INDEX               1
 
 /* I2C Configuration */
 #define CONFIG_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 
 /* Defines for SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x402F0400
 #define CONFIG_SPL_MAX_SIZE		(SRAM_SCRATCH_SPACE_ADDR - \
 					 CONFIG_SPL_TEXT_BASE)
@@ -112,7 +98,6 @@
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
 #define CONFIG_SPL_NAND_BASE
@@ -152,7 +137,6 @@
  * header. That is 0x800FFFC0--0x80100000 should not be used for any
  * other needs.
  */
-#define CONFIG_SYS_TEXT_BASE		0x80100000
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
@@ -168,8 +152,6 @@
 /*
  * USB configuration
  */
-#define CONFIG_USB_MUSB_DSPS
-#define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 
 #define CONFIG_AM335X_USB0
@@ -204,23 +186,14 @@
 # define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
 #endif /* SPI support */
 
-#define CONFIG_DRIVER_TI_CPSW
-#define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
 
 /* NAND support */
 #ifdef CONFIG_NAND
 /* UBI Support */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_MTD_DEVICE
-#endif
 
 /* Commen environment */
 #define CONFIG_PREBOOT
@@ -263,7 +236,6 @@
 	"project_dir=targetdir\0" \
 	"upgrade_available=0\0" \
 	"altbootcmd=run bootcmd\0" \
-	"bootlimit=3\0" \
 	"partitionset_active=A\0" \
 	"loadaddr=0x82000000\0" \
 	"kloadaddr=0x81000000\0" \
@@ -503,8 +475,5 @@
 /* Reboot after 60 sec if bootcmd fails */
 #define CONFIG_RESET_TO_RETRY
 #define CONFIG_BOOT_RETRY_TIME 60
-
-#define CONFIG_BOOTCOUNT_LIMIT
-#define CONFIG_BOOTCOUNT_ENV
 
 #endif	/* ! __CONFIG_SIEMENS_AM33X_COMMON_H */

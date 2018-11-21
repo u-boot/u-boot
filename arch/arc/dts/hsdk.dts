@@ -1,27 +1,65 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Synopsys, Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 
 #include "skeleton.dtsi"
+#include "dt-bindings/clock/snps,hsdk-cgu.h"
 
 / {
+	model = "snps,hsdk";
+
 	#address-cells = <1>;
 	#size-cells = <1>;
 
 	aliases {
 		console = &uart0;
+		spi0 = &spi0;
 	};
 
 	cpu_card {
 		core_clk: core_clk {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
-			clock-frequency = <1000000000>;
+			clock-frequency = <500000000>;
 			u-boot,dm-pre-reloc;
 		};
+	};
+
+	clk-fmeas {
+		clocks = <&cgu_clk CLK_ARC_PLL>, <&cgu_clk CLK_SYS_PLL>,
+			 <&cgu_clk CLK_TUN_PLL>, <&cgu_clk CLK_DDR_PLL>,
+			 <&cgu_clk CLK_ARC>, <&cgu_clk CLK_HDMI_PLL>,
+			 <&cgu_clk CLK_TUN_TUN>, <&cgu_clk CLK_HDMI>,
+			 <&cgu_clk CLK_SYS_APB>, <&cgu_clk CLK_SYS_AXI>,
+			 <&cgu_clk CLK_SYS_ETH>, <&cgu_clk CLK_SYS_USB>,
+			 <&cgu_clk CLK_SYS_SDIO>, <&cgu_clk CLK_SYS_HDMI>,
+			 <&cgu_clk CLK_SYS_GFX_CORE>, <&cgu_clk CLK_SYS_GFX_DMA>,
+			 <&cgu_clk CLK_SYS_GFX_CFG>, <&cgu_clk CLK_SYS_DMAC_CORE>,
+			 <&cgu_clk CLK_SYS_DMAC_CFG>, <&cgu_clk CLK_SYS_SDIO_REF>,
+			 <&cgu_clk CLK_SYS_SPI_REF>, <&cgu_clk CLK_SYS_I2C_REF>,
+			 <&cgu_clk CLK_SYS_UART_REF>, <&cgu_clk CLK_SYS_EBI_REF>,
+			 <&cgu_clk CLK_TUN_ROM>, <&cgu_clk CLK_TUN_PWM>;
+		clock-names = "cpu-pll", "sys-pll",
+			      "tun-pll", "ddr-clk",
+			      "cpu-clk", "hdmi-pll",
+			      "tun-clk", "hdmi-clk",
+			      "apb-clk", "axi-clk",
+			      "eth-clk", "usb-clk",
+			      "sdio-clk", "hdmi-sys-clk",
+			      "gfx-core-clk", "gfx-dma-clk",
+			      "gfx-cfg-clk", "dmac-core-clk",
+			      "dmac-cfg-clk", "sdio-ref-clk",
+			      "spi-clk", "i2c-clk",
+			      "uart-clk", "ebi-clk",
+			      "rom-clk", "pwm-clk";
+	};
+
+	cgu_clk: cgu-clk@f0000000 {
+		compatible = "snps,hsdk-cgu-clock";
+		reg = <0xf0000000 0x10>, <0xf00014B8 0x4>;
+		#clock-cells = <1>;
 	};
 
 	uart0: serial0@f0005000 {
@@ -46,5 +84,35 @@
 	ohci@0xf0060000 {
 		compatible = "generic-ohci";
 		reg = <0xf0060000 0x100>;
+	};
+
+	spi0: spi@f0020000 {
+		compatible = "snps,dw-apb-ssi";
+		reg = <0xf0020000 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		spi-max-frequency = <4000000>;
+		clocks = <&cgu_clk CLK_SYS_SPI_REF>;
+		clock-names = "spi_clk";
+		cs-gpio = <&cs_gpio 0>;
+		spi_flash@0 {
+			compatible = "spi-flash";
+			reg = <0>;
+			spi-max-frequency = <4000000>;
+		};
+	};
+
+	cs_gpio: gpio@f00014b0 {
+		compatible = "snps,creg-gpio";
+		reg = <0xf00014b0 0x4>;
+		gpio-controller;
+		#gpio-cells = <1>;
+		gpio-bank-name = "hsdk-spi-cs";
+		gpio-count = <1>;
+		gpio-first-shift = <0>;
+		gpio-bit-per-line = <2>;
+		gpio-activate-val = <2>;
+		gpio-deactivate-val = <3>;
+		gpio-default-val = <1>;
 	};
 };

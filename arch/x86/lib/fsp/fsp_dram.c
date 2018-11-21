@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -62,9 +61,10 @@ ulong board_get_usable_ram_top(ulong total_size)
 	return fsp_get_usable_lowmem_top(gd->arch.hob_list);
 }
 
-unsigned install_e820_map(unsigned max_entries, struct e820entry *entries)
+unsigned int install_e820_map(unsigned int max_entries,
+			      struct e820_entry *entries)
 {
-	unsigned num_entries = 0;
+	unsigned int num_entries = 0;
 	const struct hob_header *hdr;
 	struct hob_res_desc *res_desc;
 

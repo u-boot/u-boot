@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014-2015 Freescale Semiconductor, Inc.
  * Copyright (C) Jasbir Matharu
@@ -5,8 +6,6 @@
  *
  * Author: Breno Lima <breno.lima@nxp.com>
  * Author: Francesco Montefoschi <francesco.monte@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>
@@ -445,7 +444,7 @@ int board_late_init(void)
 
 #ifdef CONFIG_SPL_BUILD
 
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <asm/arch/mx6-ddr.h>
 
 static const struct mx6sx_iomux_ddr_regs mx6_ddr_ioregs = {

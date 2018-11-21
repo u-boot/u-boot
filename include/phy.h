@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
  *	Andy Fleming <afleming@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * This file pretty much stolen from Linux's mii.h/ethtool.h/phy.h
  */
@@ -10,10 +9,12 @@
 #ifndef _PHY_H
 #define _PHY_H
 
+#include <dm.h>
 #include <linux/list.h>
 #include <linux/mii.h>
 #include <linux/ethtool.h>
 #include <linux/mdio.h>
+#include <phy_interface.h>
 
 #define PHY_FIXED_ID		0xa5a55a5a
 /*
@@ -52,58 +53,6 @@
 #ifndef PHY_ANEG_TIMEOUT
 #define PHY_ANEG_TIMEOUT	4000
 #endif
-
-
-typedef enum {
-	PHY_INTERFACE_MODE_MII,
-	PHY_INTERFACE_MODE_GMII,
-	PHY_INTERFACE_MODE_SGMII,
-	PHY_INTERFACE_MODE_SGMII_2500,
-	PHY_INTERFACE_MODE_QSGMII,
-	PHY_INTERFACE_MODE_TBI,
-	PHY_INTERFACE_MODE_RMII,
-	PHY_INTERFACE_MODE_RGMII,
-	PHY_INTERFACE_MODE_RGMII_ID,
-	PHY_INTERFACE_MODE_RGMII_RXID,
-	PHY_INTERFACE_MODE_RGMII_TXID,
-	PHY_INTERFACE_MODE_RTBI,
-	PHY_INTERFACE_MODE_XGMII,
-	PHY_INTERFACE_MODE_XAUI,
-	PHY_INTERFACE_MODE_RXAUI,
-	PHY_INTERFACE_MODE_SFI,
-	PHY_INTERFACE_MODE_NONE,	/* Must be last */
-
-	PHY_INTERFACE_MODE_COUNT,
-} phy_interface_t;
-
-static const char *phy_interface_strings[] = {
-	[PHY_INTERFACE_MODE_MII]		= "mii",
-	[PHY_INTERFACE_MODE_GMII]		= "gmii",
-	[PHY_INTERFACE_MODE_SGMII]		= "sgmii",
-	[PHY_INTERFACE_MODE_SGMII_2500]		= "sgmii-2500",
-	[PHY_INTERFACE_MODE_QSGMII]		= "qsgmii",
-	[PHY_INTERFACE_MODE_TBI]		= "tbi",
-	[PHY_INTERFACE_MODE_RMII]		= "rmii",
-	[PHY_INTERFACE_MODE_RGMII]		= "rgmii",
-	[PHY_INTERFACE_MODE_RGMII_ID]		= "rgmii-id",
-	[PHY_INTERFACE_MODE_RGMII_RXID]		= "rgmii-rxid",
-	[PHY_INTERFACE_MODE_RGMII_TXID]		= "rgmii-txid",
-	[PHY_INTERFACE_MODE_RTBI]		= "rtbi",
-	[PHY_INTERFACE_MODE_XGMII]		= "xgmii",
-	[PHY_INTERFACE_MODE_XAUI]		= "xaui",
-	[PHY_INTERFACE_MODE_RXAUI]		= "rxaui",
-	[PHY_INTERFACE_MODE_SFI]		= "sfi",
-	[PHY_INTERFACE_MODE_NONE]		= "",
-};
-
-static inline const char *phy_string_for_interface(phy_interface_t i)
-{
-	/* Default to unknown */
-	if (i > PHY_INTERFACE_MODE_NONE)
-		i = PHY_INTERFACE_MODE_NONE;
-
-	return phy_interface_strings[i];
-}
 
 
 struct phy_device;
@@ -169,6 +118,7 @@ struct phy_device {
 
 #ifdef CONFIG_DM_ETH
 	struct udevice *dev;
+	ofnode node;
 #else
 	struct eth_device *dev;
 #endif
@@ -239,11 +189,22 @@ void phy_connect_dev(struct phy_device *phydev, struct udevice *dev);
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 				struct udevice *dev,
 				phy_interface_t interface);
+static inline ofnode phy_get_ofnode(struct phy_device *phydev)
+{
+	if (ofnode_valid(phydev->node))
+		return phydev->node;
+	else
+		return dev_ofnode(phydev->dev);
+}
 #else
 void phy_connect_dev(struct phy_device *phydev, struct eth_device *dev);
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 				struct eth_device *dev,
 				phy_interface_t interface);
+static inline ofnode phy_get_ofnode(struct phy_device *phydev)
+{
+	return ofnode_null();
+}
 #endif
 int phy_startup(struct phy_device *phydev);
 int phy_config(struct phy_device *phydev);
@@ -262,6 +223,7 @@ int gen10g_startup(struct phy_device *phydev);
 int gen10g_shutdown(struct phy_device *phydev);
 int gen10g_discover_mmds(struct phy_device *phydev);
 
+int phy_b53_init(void);
 int phy_mv88e61xx_init(void);
 int phy_aquantia_init(void);
 int phy_atheros_init(void);
@@ -319,7 +281,9 @@ static inline bool phy_interface_is_sgmii(struct phy_device *phydev)
 }
 
 /* PHY UIDs for various PHYs that are referenced in external code */
-#define PHY_UID_CS4340  0x13e51002
-#define PHY_UID_TN2020	0x00a19410
+#define PHY_UID_CS4340  	0x13e51002
+#define PHY_UID_CS4223  	0x03e57003
+#define PHY_UID_TN2020		0x00a19410
+#define PHY_UID_IN112525_S03	0x02107440
 
 #endif

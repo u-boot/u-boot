@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Makefile for mini-box PICOSAM9G45 (AT91SAM9G45) based board
 # (C) Copytight 2015 Inter Act B.V.
@@ -11,9 +12,6 @@
 # (C) Copyright 2008
 # Stelian Pop <stelian@popies.net>
 # Lead Tech Design <www.leadtechdesign.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y += picosam9g45.o
 obj-y += led.o

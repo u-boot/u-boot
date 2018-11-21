@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  EFI watchdog
  *
  *  Copyright (c) 2017 Heinrich Schuchardt
- *
- *  SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -59,7 +58,7 @@ efi_status_t efi_set_watchdog(unsigned long timeout)
  *
  * This function is called by efi_init_obj_list()
  */
-int efi_watchdog_register(void)
+efi_status_t efi_watchdog_register(void)
 {
 	efi_status_t r;
 
@@ -67,7 +66,7 @@ int efi_watchdog_register(void)
 	 * Create a timer event.
 	 */
 	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
-			     efi_watchdog_timer_notify, NULL,
+			     efi_watchdog_timer_notify, NULL, NULL,
 			     &watchdog_timer_event);
 	if (r != EFI_SUCCESS) {
 		printf("ERROR: Failed to register watchdog event\n");
@@ -85,5 +84,5 @@ int efi_watchdog_register(void)
 		printf("ERROR: Failed to set watchdog timer\n");
 		return r;
 	}
-	return 0;
+	return EFI_SUCCESS;
 }

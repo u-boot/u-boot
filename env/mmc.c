@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* #define DEBUG */
@@ -156,19 +155,19 @@ static inline int mmc_set_env_part(struct mmc *mmc) {return 0; };
 static const char *init_mmc_for_env(struct mmc *mmc)
 {
 	if (!mmc)
-		return "!No MMC card found";
+		return "No MMC card found";
 
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 	struct udevice *dev;
 
 	if (blk_get_from_parent(mmc->dev, &dev))
-		return "!No block device";
+		return "No block device";
 #else
 	if (mmc_init(mmc))
-		return "!MMC init failed";
+		return "MMC init failed";
 #endif
 	if (mmc_set_env_part(mmc))
-		return "!MMC partition switch failed";
+		return "MMC partition switch failed";
 
 	return NULL;
 }
@@ -233,7 +232,6 @@ static int env_mmc_save(void)
 		goto fini;
 	}
 
-	puts("done\n");
 	ret = 0;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
@@ -274,6 +272,8 @@ static int env_mmc_load(void)
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, tmp_env1, 1);
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, tmp_env2, 1);
 
+	mmc_initialize(NULL);
+
 	mmc = find_mmc_device(dev);
 
 	errmsg = init_mmc_for_env(mmc);
@@ -291,33 +291,14 @@ static int env_mmc_load(void)
 	read1_fail = read_env(mmc, CONFIG_ENV_SIZE, offset1, tmp_env1);
 	read2_fail = read_env(mmc, CONFIG_ENV_SIZE, offset2, tmp_env2);
 
-	if (read1_fail && read2_fail)
-		puts("*** Error - No Valid Environment Area found\n");
-	else if (read1_fail || read2_fail)
-		puts("*** Warning - some problems detected "
-		     "reading environment; recovered successfully\n");
-
-	if (read1_fail && read2_fail) {
-		errmsg = "!bad CRC";
-		ret = -EIO;
-		goto fini;
-	} else if (!read1_fail && read2_fail) {
-		gd->env_valid = ENV_VALID;
-		env_import((char *)tmp_env1, 1);
-	} else if (read1_fail && !read2_fail) {
-		gd->env_valid = ENV_REDUND;
-		env_import((char *)tmp_env2, 1);
-	} else {
-		env_import_redund((char *)tmp_env1, (char *)tmp_env2);
-	}
-
-	ret = 0;
+	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
+				read2_fail);
 
 fini:
 	fini_mmc_for_env(mmc);
 err:
 	if (ret)
-		set_default_env(errmsg);
+		set_default_env(errmsg, 0);
 
 #endif
 	return ret;
@@ -352,14 +333,13 @@ static int env_mmc_load(void)
 		goto fini;
 	}
 
-	env_import(buf, 1);
-	ret = 0;
+	ret = env_import(buf, 1);
 
 fini:
 	fini_mmc_for_env(mmc);
 err:
 	if (ret)
-		set_default_env(errmsg);
+		set_default_env(errmsg, 0);
 #endif
 	return ret;
 }

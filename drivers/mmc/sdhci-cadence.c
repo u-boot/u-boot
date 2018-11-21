@@ -1,16 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
+#include <linux/bitfield.h>
 #include <linux/io.h>
 #include <linux/iopoll.h>
 #include <linux/sizes.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <mmc.h>
 #include <sdhci.h>
 
@@ -19,15 +19,14 @@
 #define   SDHCI_CDNS_HRS04_ACK			BIT(26)
 #define   SDHCI_CDNS_HRS04_RD			BIT(25)
 #define   SDHCI_CDNS_HRS04_WR			BIT(24)
-#define   SDHCI_CDNS_HRS04_RDATA_SHIFT		16
-#define   SDHCI_CDNS_HRS04_WDATA_SHIFT		8
-#define   SDHCI_CDNS_HRS04_ADDR_SHIFT		0
+#define   SDHCI_CDNS_HRS04_RDATA		GENMASK(23, 16)
+#define   SDHCI_CDNS_HRS04_WDATA		GENMASK(15, 8)
+#define   SDHCI_CDNS_HRS04_ADDR			GENMASK(5, 0)
 
 #define SDHCI_CDNS_HRS06		0x18		/* eMMC control */
 #define   SDHCI_CDNS_HRS06_TUNE_UP		BIT(15)
-#define   SDHCI_CDNS_HRS06_TUNE_SHIFT		8
-#define   SDHCI_CDNS_HRS06_TUNE_MASK		0x3f
-#define   SDHCI_CDNS_HRS06_MODE_MASK		0x7
+#define   SDHCI_CDNS_HRS06_TUNE			GENMASK(13, 8)
+#define   SDHCI_CDNS_HRS06_MODE			GENMASK(2, 0)
 #define   SDHCI_CDNS_HRS06_MODE_SD		0x0
 #define   SDHCI_CDNS_HRS06_MODE_MMC_SDR		0x2
 #define   SDHCI_CDNS_HRS06_MODE_MMC_DDR		0x3
@@ -51,6 +50,13 @@
 #define SDHCI_CDNS_PHY_DLY_SDCLK	0x0b
 #define SDHCI_CDNS_PHY_DLY_HSMMC	0x0c
 #define SDHCI_CDNS_PHY_DLY_STROBE	0x0d
+
+/*
+ * The tuned val register is 6 bit-wide, but not the whole of the range is
+ * available.  The range 0-42 seems to be available (then 43 wraps around to 0)
+ * but I am not quite sure if it is official.  Use only 0 to 39 for safety.
+ */
+#define SDHCI_CDNS_MAX_TUNING_LOOP	40
 
 struct sdhci_cdns_plat {
 	struct mmc_config cfg;
@@ -84,8 +90,8 @@ static int sdhci_cdns_write_phy_reg(struct sdhci_cdns_plat *plat,
 	u32 tmp;
 	int ret;
 
-	tmp = (data << SDHCI_CDNS_HRS04_WDATA_SHIFT) |
-	      (addr << SDHCI_CDNS_HRS04_ADDR_SHIFT);
+	tmp = FIELD_PREP(SDHCI_CDNS_HRS04_WDATA, data) |
+	      FIELD_PREP(SDHCI_CDNS_HRS04_ADDR, addr);
 	writel(tmp, reg);
 
 	tmp |= SDHCI_CDNS_HRS04_WR;
@@ -135,31 +141,92 @@ static void sdhci_cdns_set_control_reg(struct sdhci_host *host)
 	 * The mode should be decided by MMC_TIMING_* like Linux, but
 	 * U-Boot does not support timing.  Use the clock frequency instead.
 	 */
-	if (clock <= 26000000)
+	if (clock <= 26000000) {
 		mode = SDHCI_CDNS_HRS06_MODE_SD; /* use this for Legacy */
-	else if (clock <= 52000000) {
+	} else if (clock <= 52000000) {
 		if (mmc->ddr_mode)
 			mode = SDHCI_CDNS_HRS06_MODE_MMC_DDR;
 		else
 			mode = SDHCI_CDNS_HRS06_MODE_MMC_SDR;
 	} else {
-		/*
-		 * REVISIT:
-		 * The IP supports HS200/HS400, revisit once U-Boot support it
-		 */
-		printf("unsupported frequency %d\n", clock);
-		return;
+		if (mmc->ddr_mode)
+			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS400;
+		else
+			mode = SDHCI_CDNS_HRS06_MODE_MMC_HS200;
 	}
 
 	tmp = readl(plat->hrs_addr + SDHCI_CDNS_HRS06);
-	tmp &= ~SDHCI_CDNS_HRS06_MODE_MASK;
-	tmp |= mode;
+	tmp &= ~SDHCI_CDNS_HRS06_MODE;
+	tmp |= FIELD_PREP(SDHCI_CDNS_HRS06_MODE, mode);
 	writel(tmp, plat->hrs_addr + SDHCI_CDNS_HRS06);
 }
 
 static const struct sdhci_ops sdhci_cdns_ops = {
 	.set_control_reg = sdhci_cdns_set_control_reg,
 };
+
+static int sdhci_cdns_set_tune_val(struct sdhci_cdns_plat *plat,
+				   unsigned int val)
+{
+	void __iomem *reg = plat->hrs_addr + SDHCI_CDNS_HRS06;
+	u32 tmp;
+
+	if (WARN_ON(!FIELD_FIT(SDHCI_CDNS_HRS06_TUNE, val)))
+		return -EINVAL;
+
+	tmp = readl(reg);
+	tmp &= ~SDHCI_CDNS_HRS06_TUNE;
+	tmp |= FIELD_PREP(SDHCI_CDNS_HRS06_TUNE, val);
+	tmp |= SDHCI_CDNS_HRS06_TUNE_UP;
+	writel(tmp, reg);
+
+	return readl_poll_timeout(reg, tmp, !(tmp & SDHCI_CDNS_HRS06_TUNE_UP),
+				  1);
+}
+
+static int __maybe_unused sdhci_cdns_execute_tuning(struct udevice *dev,
+						    unsigned int opcode)
+{
+	struct sdhci_cdns_plat *plat = dev_get_platdata(dev);
+	struct mmc *mmc = &plat->mmc;
+	int cur_streak = 0;
+	int max_streak = 0;
+	int end_of_streak = 0;
+	int i;
+
+	/*
+	 * This handler only implements the eMMC tuning that is specific to
+	 * this controller.  The tuning for SD timing should be handled by the
+	 * SDHCI core.
+	 */
+	if (!IS_MMC(mmc))
+		return -ENOTSUPP;
+
+	if (WARN_ON(opcode != MMC_CMD_SEND_TUNING_BLOCK_HS200))
+		return -EINVAL;
+
+	for (i = 0; i < SDHCI_CDNS_MAX_TUNING_LOOP; i++) {
+		if (sdhci_cdns_set_tune_val(plat, i) ||
+		    mmc_send_tuning(mmc, opcode, NULL)) { /* bad */
+			cur_streak = 0;
+		} else { /* good */
+			cur_streak++;
+			if (cur_streak > max_streak) {
+				max_streak = cur_streak;
+				end_of_streak = i;
+			}
+		}
+	}
+
+	if (!max_streak) {
+		dev_err(dev, "no tuning point found\n");
+		return -EIO;
+	}
+
+	return sdhci_cdns_set_tune_val(plat, end_of_streak - max_streak / 2);
+}
+
+static struct dm_mmc_ops sdhci_cdns_mmc_ops;
 
 static int sdhci_cdns_bind(struct udevice *dev)
 {
@@ -189,6 +256,14 @@ static int sdhci_cdns_probe(struct udevice *dev)
 	host->ioaddr = plat->hrs_addr + SDHCI_CDNS_SRS_BASE;
 	host->ops = &sdhci_cdns_ops;
 	host->quirks |= SDHCI_QUIRK_WAIT_SEND_CMD;
+	sdhci_cdns_mmc_ops = sdhci_ops;
+#ifdef MMC_SUPPORTS_TUNING
+	sdhci_cdns_mmc_ops.execute_tuning = sdhci_cdns_execute_tuning;
+#endif
+
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
 
 	ret = sdhci_cdns_phy_init(plat, gd->fdt_blob, dev_of_offset(dev));
 	if (ret)
@@ -219,5 +294,5 @@ U_BOOT_DRIVER(sdhci_cdns) = {
 	.probe = sdhci_cdns_probe,
 	.priv_auto_alloc_size = sizeof(struct sdhci_host),
 	.platdata_auto_alloc_size = sizeof(struct sdhci_cdns_plat),
-	.ops = &sdhci_ops,
+	.ops = &sdhci_cdns_mmc_ops,
 };

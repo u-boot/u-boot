@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007
  * Heiko Schocher, DENX Software Engineering, <hs@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "os_support.h"

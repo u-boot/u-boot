@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * On-chip UART initializaion for low-level debugging
  *
  * Copyright (C) 2014-2015 Masahiro Yamada <yamada.masahiro@socionext.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <linux/serial_reg.h>

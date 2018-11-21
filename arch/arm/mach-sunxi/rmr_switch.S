@@ -26,9 +26,15 @@
 @ reference and to be able to regenerate a (probably fixed) version of this
 @ code found in encoded form in boot0.h.
 
+#include <config.h>
+
 .text
 
+#ifndef CONFIG_MACH_SUN50I_H6
 	ldr	r1, =0x017000a0		@ MMIO mapped RVBAR[0] register
+#else
+	ldr	r1, =0x09010040		@ MMIO mapped RVBAR[0] register
+#endif
 	ldr	r0, =0x57aA7add		@ start address, to be replaced
 	str	r0, [r1]
 	dsb	sy

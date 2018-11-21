@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Gateworks Corporation
  * Author: Tim Harvey <tharvey@gateworks.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -20,8 +19,6 @@
 
 #include "gsc.h"
 #include "common.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define RTT_NOM_120OHM /* use 120ohm Rtt_nom vs 60ohm (lower power) */
 #define GSC_EEPROM_DDR_SIZE	0x2B	/* enum (512,1024,2048) MB */

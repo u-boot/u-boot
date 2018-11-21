@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Cache operations for the cache instruction.
  *
  * (C) Copyright 1996, 97, 99, 2002, 03 Ralf Baechle
  * (C) Copyright 1999 Silicon Graphics, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef	__ASM_CACHEOPS_H
 #define	__ASM_CACHEOPS_H

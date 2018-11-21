@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2017 Microchip Technology Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <console.h>
@@ -95,7 +94,7 @@
 #define LAN7X_MAC_RX_MAX_SIZE(mtu) \
 	((mtu) << 16)			/* Max frame size */
 #define LAN7X_MAC_RX_MAX_SIZE_DEFAULT \
-	LAN7X_MAC_RX_MAX_SIZE(ETH_FRAME_LEN + 4 /* VLAN */ + 4 /* CRC */)
+	LAN7X_MAC_RX_MAX_SIZE(PKTSIZE_ALIGN + 4 /* VLAN */ + 4 /* CRC */)
 
 /* Timeouts */
 #define USB_CTRL_SET_TIMEOUT_MS		5000

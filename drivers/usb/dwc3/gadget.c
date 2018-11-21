@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /**
  * gadget.c - DesignWare USB3 DRD Controller Gadget Framework Link
  *
@@ -10,8 +11,6 @@
  * to uboot.
  *
  * commit 8e74475b0e : usb: dwc3: gadget: use udc-core's reset notifier
- *
- * SPDX-License-Identifier:     GPL-2.0
  */
 
 #include <common.h>

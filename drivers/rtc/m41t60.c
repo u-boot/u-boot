@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007
  * Larry Johnson, lrj@acm.org
@@ -6,8 +7,6 @@
  *
  * (C) Copyright 2002
  * Andrew May, Viasat Inc, amay@viasat.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -20,8 +19,6 @@
 #include <command.h>
 #include <rtc.h>
 #include <i2c.h>
-
-#if defined(CONFIG_SYS_I2C_RTC_ADDR) && defined(CONFIG_CMD_DATE)
 
 /*
  * Convert between century and "century bits" (CB1 and CB0).  These routines
@@ -238,4 +235,3 @@ void rtc_reset(void)
 	}
 	rtc_dump("end reset");
 }
-#endif /* CONFIG_RTC_M41T60 && CONFIG_SYS_I2C_RTC_ADDR && CONFIG_CMD_DATE */

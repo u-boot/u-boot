@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2012-2020  ASPEED Technology Inc.
  *
  * Copyright 2016 Google, Inc
- *
- * SPDX-License-Identifier:		GPL-2.0
  */
 
 #include <common.h>
@@ -392,7 +391,7 @@ static int ast2500_sdrammc_ofdata_to_platdata(struct udevice *dev)
 	struct regmap *map;
 	int ret;
 
-	ret = regmap_init_mem(dev, &map);
+	ret = regmap_init_mem(dev_ofnode(dev), &map);
 	if (ret)
 		return ret;
 

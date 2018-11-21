@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Bluewater Systems Snapper 9260/9G20 modules
  *
  * (C) Copyright 2011 Bluewater Systems
  *   Author: Andre Renaud <andre@bluewatersys.com>
  *   Author: Ryan Mallon <ryan@bluewatersys.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -18,7 +17,6 @@
 #ifndef CONFIG_DM_ETH
 #include <netdev.h>
 #endif
-#include <spi.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
@@ -414,25 +412,6 @@ int dram_init(void)
 void reset_phy(void)
 {
 }
-
-/* SPI chip select control - only used for FPGA programming */
-#ifdef CONFIG_ATMEL_SPI
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return bus == 0 && cs == 0;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	/* We don't use chipselects for FPGA programming */
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	/* We don't use chipselects for FPGA programming */
-}
-#endif /* CONFIG_ATMEL_SPI */
 
 static struct atmel_serial_platdata at91sam9260_serial_plat = {
 	.base_addr = ATMEL_BASE_DBGU,

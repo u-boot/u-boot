@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Generic PCIE host provided by e.g. QEMU
  *
  * Heavily based on drivers/pci/pcie_xilinx.c
  *
  * Copyright (C) 2016 Imagination Technologies
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

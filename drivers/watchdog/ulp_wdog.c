@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -39,8 +38,6 @@ struct wdog_regs {
 #define WDG_LPO_CLK                      (0x1)
 #define WDG_32KHZ_CLK                    (0x2)
 #define WDG_EXT_CLK                      (0x3)
-
-DECLARE_GLOBAL_DATA_PTR;
 
 void hw_watchdog_set_timeout(u16 val)
 {

@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 if VENDOR_GOOGLE
 
@@ -31,7 +29,6 @@ config TARGET_CHROMEBOOK_LINK64
 
 config TARGET_CHROMEBOX_PANTHER
 	bool "Chromebox panther (not available)"
-	select n
 	help
 	  Note: At present this must be used with coreboot. See README.x86
 	  for instructions.

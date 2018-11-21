@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * ashldi3.c extracted from gcc-2.7.2.3/libgcc2.c and
  *			   gcc-2.7.2.3/longlong.h
  *
  * Copyright (C) 1989-2015 Free Software Foundation, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define BITS_PER_UNIT 8

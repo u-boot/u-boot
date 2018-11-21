@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 dtb-y += bayleybay.dtb \
 	cherryhill.dtb \
@@ -8,17 +6,18 @@ dtb-y += bayleybay.dtb \
 	chromebox_panther.dtb \
 	chromebook_samus.dtb \
 	conga-qeval20-qa3-e3845.dtb \
+	coreboot.dtb \
 	cougarcanyon2.dtb \
 	crownbay.dtb \
 	dfi-bt700-q7x-151.dtb \
 	edison.dtb \
-	efi.dtb \
+	efi-x86_app.dtb \
+	efi-x86_payload.dtb \
 	galileo.dtb \
 	minnowmax.dtb \
 	qemu-x86_i440fx.dtb \
 	qemu-x86_q35.dtb \
 	theadorable-x86-dfi-bt700.dtb \
-	broadwell_som-6896.dtb \
 	baytrail_som-db5800-som-6867.dtb
 
 targets += $(dtb-y)

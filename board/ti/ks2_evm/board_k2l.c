@@ -1,18 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * K2L EVM : Board initialization
  *
  * (C) Copyright 2014
  *     Texas Instruments Incorporated, <www.ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/arch/ddr3.h>
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/keystone_net.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 unsigned int get_external_clk(u32 clk)
 {

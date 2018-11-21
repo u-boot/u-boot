@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Device Tree file for Freescale Layerscape-1046A family SoC.
  *
  * Copyright (C) 2016, Freescale Semiconductor
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;

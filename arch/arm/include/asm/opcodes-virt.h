@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * opcodes-virt.h: Opcode definitions for the ARM virtualization extensions
  * Copyright (C) 2012  Linaro Limited
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ASM_ARM_OPCODES_VIRT_H
 #define __ASM_ARM_OPCODES_VIRT_H

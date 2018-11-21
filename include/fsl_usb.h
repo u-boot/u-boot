@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Freescale USB Controller
  *
  * Copyright 2013 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_FSL_USB_H_
@@ -88,6 +87,7 @@ struct ccsr_usb_phy {
 /* USB Erratum Checking code */
 #if defined(CONFIG_PPC) || defined(CONFIG_ARM)
 bool has_dual_phy(void);
+bool has_erratum_a005275(void);
 bool has_erratum_a006261(void);
 bool has_erratum_a007075(void);
 bool has_erratum_a007798(void);

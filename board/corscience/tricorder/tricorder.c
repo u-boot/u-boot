@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012
  * Corscience GmbH & Co. KG, <www.corscience.de>
@@ -7,8 +8,6 @@
  *
  * Derived from Devkit8000 code by
  * Frederik Kriewitz <frederik@kriewitz.eu>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <twl4030.h>

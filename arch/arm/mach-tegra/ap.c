@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
-* (C) Copyright 2010-2015
-* NVIDIA Corporation <www.nvidia.com>
-*
- * SPDX-License-Identifier:	GPL-2.0+
-*/
+ * (C) Copyright 2010-2015
+ * NVIDIA Corporation <www.nvidia.com>
+ */
 
 /* Tegra AP (Application Processor) code */
 
@@ -156,8 +155,13 @@ static void init_pmc_scratch(void)
 	int i;
 
 	/* SCRATCH0 is initialized by the boot ROM and shouldn't be cleared */
-	for (i = 0; i < 23; i++)
-		writel(0, &pmc->pmc_scratch1+i);
+#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+	if (!tegra_cpu_is_non_secure())
+#endif
+	{
+		for (i = 0; i < 23; i++)
+			writel(0, &pmc->pmc_scratch1 + i);
+	}
 
 	/* ODMDATA is for kernel use to determine RAM size, LP config, etc. */
 	odmdata = get_odmdata();

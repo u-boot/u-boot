@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * ARM64 header for proper chain-loading with Little Kernel.
  *
@@ -8,8 +9,6 @@
  * https://www.kernel.org/doc/Documentation/arm64/booting.txt
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

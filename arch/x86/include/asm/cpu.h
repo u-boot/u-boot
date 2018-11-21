@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2014 The Chromium OS Authors.
  *
  * Part of this file is adapted from coreboot
  * src/arch/x86/include/arch/cpu.h and
  * src/arch/x86/lib/cpu.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_CPU_H

@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 PHYTEC Messtechnik GmbH
  * Author: Wadim Egorov <w.egorov@phytec.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
+#include <environment.h>
 #include <i2c.h>
 #include <i2c_eeprom.h>
 #include <netdev.h>

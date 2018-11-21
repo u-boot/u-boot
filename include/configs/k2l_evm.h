@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration header file for TI's k2l-evm
  *
  * (C) Copyright 2012-2014
  *     Texas Instruments Incorporated, <www.ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __CONFIG_K2L_EVM_H
@@ -15,9 +14,18 @@
 /* Platform type */
 #define CONFIG_SOC_K2L
 
+#ifdef CONFIG_TI_SECURE_DEVICE
+#define DEFAULT_SEC_BOOT_ENV						\
+	DEFAULT_FIT_TI_ARGS						\
+	"findfdt=setenv fdtfile ${name_fdt}\0"
+#else
+#define DEFAULT_SEC_BOOT_ENV
+#endif
+
 /* U-Boot general configuration */
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
 	DEFAULT_FW_INITRAMFS_BOOT_ENV					\
+	DEFAULT_SEC_BOOT_ENV						\
 	"boot=ubi\0"							\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 	"root=ubi0:rootfs rootflags=sync rw ubi.mtd=ubifs,4096\0"	\

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration header file for TI's k2g-evm
  *
  * (C) Copyright 2015
  *     Texas Instruments Incorporated, <www.ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __CONFIG_K2G_EVM_H
@@ -15,8 +14,6 @@
 
 /* Platform type */
 #define CONFIG_SOC_K2G
-
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
 /* U-Boot general configuration */
 #define CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
@@ -34,11 +31,13 @@
 	"findfdt="\
 		"if test $board_name = 66AK2GGP; then " \
 			 "setenv name_fdt keystone-k2g-evm.dtb; " \
+		"else if test $board_name = 66AK2GG1; then " \
+			"setenv name_fdt keystone-k2g-evm.dtb; " \
 		"else if test $board_name = 66AK2GIC; then " \
 			 "setenv name_fdt keystone-k2g-ice.dtb; " \
 		"else if test $name_fdt = undefined; then " \
 			"echo WARNING: Could not determine device tree to use;"\
-		"fi;fi;fi; setenv fdtfile ${name_fdt}\0" \
+		"fi;fi;fi;fi; setenv fdtfile ${name_fdt}\0" \
 	"name_mon=skern-k2g.bin\0"					\
 	"name_ubi=k2g-evm-ubifs.ubi\0"					\
 	"name_uboot=u-boot-spi-k2g-evm.gph\0"				\
@@ -74,7 +73,7 @@
 #endif
 
 /* SPL SPI Loader Configuration */
-#define CONFIG_SPL_TEXT_BASE		0x0c080000
+#define CONFIG_SPL_TEXT_BASE		0x0c0a0000
 
 /* NAND Configuration */
 #define CONFIG_SYS_NAND_PAGE_2K
@@ -93,8 +92,6 @@
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_CADENCE_QSPI
 #define CONFIG_CQSPI_REF_CLK 384000000
-#define CONFIG_CQSPI_DECODER 0x0
-#define CONFIG_BOUNCE_BUFFER
 #endif
 
 #define SPI_MTD_PARTS	KEYSTONE_SPI1_MTD_PARTS

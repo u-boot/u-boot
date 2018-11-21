@@ -138,31 +138,31 @@ unit.
 
 Examples:
 
-- boot kernel "kernel@1" stored in a new uImage located at 200000:
-bootm 200000:kernel@1
+- boot kernel "kernel-1" stored in a new uImage located at 200000:
+bootm 200000:kernel-1
 
-- boot configuration "cfg@1" from a new uImage located at 200000:
-bootm 200000#cfg@1
+- boot configuration "cfg-1" from a new uImage located at 200000:
+bootm 200000#cfg-1
 
-- boot configuration "cfg@1" with extra "cfg@2" from a new uImage located
+- boot configuration "cfg-1" with extra "cfg-2" from a new uImage located
   at 200000:
-bootm 200000#cfg@1#cfg@2
+bootm 200000#cfg-1#cfg-2
 
-- boot "kernel@1" from a new uImage at 200000 with initrd "ramdisk@2" found in
+- boot "kernel-1" from a new uImage at 200000 with initrd "ramdisk-2" found in
   some other new uImage stored at address 800000:
-bootm 200000:kernel@1 800000:ramdisk@2
+bootm 200000:kernel-1 800000:ramdisk-2
 
-- boot "kernel@2" from a new uImage at 200000, with initrd "ramdisk@1" and FDT
-  "fdt@1", both stored in some other new uImage located at 800000:
-bootm 200000:kernel@1 800000:ramdisk@1 800000:fdt@1
+- boot "kernel-2" from a new uImage at 200000, with initrd "ramdisk-1" and FDT
+  "fdt-1", both stored in some other new uImage located at 800000:
+bootm 200000:kernel-1 800000:ramdisk-1 800000:fdt-1
 
-- boot kernel "kernel@2" with initrd "ramdisk@2", both stored in a new uImage
+- boot kernel "kernel-2" with initrd "ramdisk-2", both stored in a new uImage
   at address 200000, with a raw FDT blob stored at address 600000:
-bootm 200000:kernel@2 200000:ramdisk@2 600000
+bootm 200000:kernel-2 200000:ramdisk-2 600000
 
-- boot kernel "kernel@2" from new uImage at 200000 with FDT "fdt@1" from the
+- boot kernel "kernel-2" from new uImage at 200000 with FDT "fdt-1" from the
   same new uImage:
-bootm 200000:kernel@2 - 200000:fdt@1
+bootm 200000:kernel-2 - 200000:fdt-1
 
 
 Note on current image address
@@ -186,16 +186,16 @@ current image address is to be used. For example, consider the following
 commands:
 
 tftp 200000 /tftpboot/uImage
-bootm :kernel@1
+bootm :kernel-1
 Last command is equivalent to:
-bootm 200000:kernel@1
+bootm 200000:kernel-1
 
 tftp 200000 /tftpboot/uImage
-bootm 400000:kernel@1 :ramdisk@1
+bootm 400000:kernel-1 :ramdisk-1
 Last command is equivalent to:
-bootm 400000:kernel@1 400000:ramdisk@1
+bootm 400000:kernel-1 400000:ramdisk-1
 
 tftp 200000 /tftpboot/uImage
-bootm :kernel@1 400000:ramdisk@1 :fdt@1
+bootm :kernel-1 400000:ramdisk-1 :fdt-1
 Last command is equivalent to:
-bootm 200000:kernel@1 400000:ramdisk@1 400000:fdt@1
+bootm 200000:kernel-1 400000:ramdisk-1 400000:fdt-1

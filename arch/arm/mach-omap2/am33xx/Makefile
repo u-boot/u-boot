@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-$(CONFIG_AM33XX)	+= clock_am33xx.o
 obj-$(CONFIG_TI814X)	+= clock_ti814x.o

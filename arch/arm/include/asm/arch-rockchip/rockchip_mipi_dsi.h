@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Fuzhou Rockchip Electronics Co., Ltd
  * author: Eric Gao <eric.gao@rock-chips.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef ROCKCHIP_MIPI_DSI_H

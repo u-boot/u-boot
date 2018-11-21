@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) International Business Machines Corp., 2006
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Authors: Artem Bityutskiy (Битюцкий Артём), Thomas Gleixner
  */
@@ -191,11 +190,7 @@ static void wl_entry_destroy(struct ubi_device *ubi, struct ubi_wl_entry *e)
  * This function returns zero in case of success and a negative error code in
  * case of failure.
  */
-#ifndef __UBOOT__
 static int do_work(struct ubi_device *ubi)
-#else
-int do_work(struct ubi_device *ubi)
-#endif
 {
 	int err;
 	struct ubi_work *wrk;
@@ -528,6 +523,33 @@ repeat:
 	spin_unlock(&ubi->wl_lock);
 }
 
+#ifdef __UBOOT__
+void ubi_do_worker(struct ubi_device *ubi)
+{
+	int err;
+
+	if (list_empty(&ubi->works) || ubi->ro_mode ||
+	    !ubi->thread_enabled || ubi_dbg_is_bgt_disabled(ubi))
+		return;
+
+	spin_lock(&ubi->wl_lock);
+	while (!list_empty(&ubi->works)) {
+		/*
+		 * call do_work, which executes exactly one work form the queue,
+		 * including removeing it from the work queue.
+		 */
+		spin_unlock(&ubi->wl_lock);
+		err = do_work(ubi);
+		spin_lock(&ubi->wl_lock);
+		if (err) {
+			ubi_err(ubi, "%s: work failed with error code %d",
+				ubi->bgt_name, err);
+		}
+	}
+	spin_unlock(&ubi->wl_lock);
+}
+#endif
+
 /**
  * __schedule_ubi_work - schedule a work.
  * @ubi: UBI device description object
@@ -545,17 +567,6 @@ static void __schedule_ubi_work(struct ubi_device *ubi, struct ubi_work *wrk)
 #ifndef __UBOOT__
 	if (ubi->thread_enabled && !ubi_dbg_is_bgt_disabled(ubi))
 		wake_up_process(ubi->bgt_thread);
-#else
-	int err;
-	/*
-	 * U-Boot special: We have no bgt_thread in U-Boot!
-	 * So just call do_work() here directly.
-	 */
-	err = do_work(ubi);
-	if (err) {
-		ubi_err(ubi, "%s: work failed with error code %d",
-			ubi->bgt_name, err);
-	}
 #endif
 	spin_unlock(&ubi->wl_lock);
 }
@@ -610,6 +621,10 @@ static int schedule_erase(struct ubi_device *ubi, struct ubi_wl_entry *e,
 	wl_wrk->torture = torture;
 
 	schedule_ubi_work(ubi, wl_wrk);
+
+#ifdef __UBOOT__
+	ubi_do_worker(ubi);
+#endif
 	return 0;
 }
 
@@ -1011,8 +1026,15 @@ static int ensure_wear_leveling(struct ubi_device *ubi, int nested)
 	wrk->func = &wear_leveling_worker;
 	if (nested)
 		__schedule_ubi_work(ubi, wrk);
+#ifndef __UBOOT__
 	else
 		schedule_ubi_work(ubi, wrk);
+#else
+	else {
+		schedule_ubi_work(ubi, wrk);
+		ubi_do_worker(ubi);
+	}
+#endif
 	return err;
 
 out_cancel:

@@ -58,6 +58,11 @@ config ATMEL_PIO4
 	  may be dedicated as a general purpose I/O or be assigned to
 	  a function of an embedded peripheral.
 
+config DA8XX_GPIO
+	bool "DA8xx GPIO Driver"
+	help
+	  This driver supports the DA8xx GPIO controller
+
 config INTEL_BROADWELL_GPIO
 	bool "Intel Broadwell GPIO driver"
 	depends on DM
@@ -107,6 +112,11 @@ config MSM_GPIO
 	  Supported devices:
 	  - APQ8016
 	  - MSM8916
+
+config MXC_GPIO
+	bool "Freescale/NXP MXC GPIO driver"
+	help
+	  Support GPIO controllers on various i.MX platforms
 
 config OMAP_GPIO
 	bool "TI OMAP GPIO driver"
@@ -178,6 +188,12 @@ config SANDBOX_GPIO_COUNT
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
 
+config XILINX_GPIO
+	bool "Xilinx GPIO driver"
+	depends on DM_GPIO
+	help
+	  This config enable the Xilinx GPIO driver for Microblaze.
+
 config CMD_TCA642X
 	bool "tca642x - Command to access tca642x state"
 	help
@@ -224,7 +240,7 @@ config PIC32_GPIO
 
 config STM32F7_GPIO
 	bool "ST STM32 GPIO driver"
-	depends on DM_GPIO && STM32
+	depends on DM_GPIO && (STM32 || ARCH_STM32MP)
 	default y
 	help
 	  Device model driver support for STM32 GPIO controller. It should be
@@ -276,11 +292,11 @@ config DM_PCA953X
 	  Now, max 24 bits chips and PCA953X compatible chips are
 	  supported
 
-config MPC85XX_GPIO
-	bool "Freescale MPC85XX GPIO driver"
+config MPC8XXX_GPIO
+	bool "Freescale MPC8XXX GPIO driver"
 	depends on DM_GPIO
 	help
-	  This driver supports the built-in GPIO controller of MPC85XX CPUs.
+	  This driver supports the built-in GPIO controller of MPC8XXX CPUs.
 	  Each GPIO bank is identified by its own entry in the device tree,
 	  i.e.
 
@@ -298,7 +314,4 @@ config MPC85XX_GPIO
 	  Aside from the standard functions of input/output mode, and output
 	  value setting, the open-drain feature, which can configure individual
 	  GPIOs to work as open-drain outputs, is supported.
-
-	  The driver has been tested on MPC85XX, but it is likely that other
-	  PowerQUICC III devices will work as well.
 endmenu

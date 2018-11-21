@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
  *
  * Intel Platform Controller Hub EG20T (codename Topcliff) GMAC Driver
  * Adapted from linux drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _PCH_GBE_H_

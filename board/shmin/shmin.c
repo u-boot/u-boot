@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2007 - 2010
  *     Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
@@ -6,8 +7,6 @@
  * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  *
  * board/shmin/shmin.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Copy board_flash_get_legacy() from board/freescale/m54455evb/m54455evb.c
  */

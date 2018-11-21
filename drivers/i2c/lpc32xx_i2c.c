@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * LPC32xx I2C interface driver
  *
  * (C) Copyright 2014-2015  DENX Software Engineering GmbH
  * Written-by: Albert ARIBAUD - 3ADEV <albert.aribaud@3adev.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

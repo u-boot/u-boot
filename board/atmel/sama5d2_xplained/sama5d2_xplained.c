@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Atmel Corporation
  *		      Wenyou.Yang <wenyou.yang@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -15,6 +14,8 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/sama5d2.h>
+
+extern void at91_pda_detect(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,6 +30,7 @@ int board_late_init(void)
 #ifdef CONFIG_DM_VIDEO
 	at91_video_show_board_info();
 #endif
+	at91_pda_detect();
 	return 0;
 }
 #endif
@@ -36,7 +38,7 @@ int board_late_init(void)
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 static void board_uart1_hw_init(void)
 {
-	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 2, 1);	/* URXD1 */
+	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 2, ATMEL_PIO_PUEN_MASK);	/* URXD1 */
 	atmel_pio4_set_a_periph(AT91_PIO_PORTD, 3, 0);	/* UTXD1 */
 
 	at91_periph_clk_enable(ATMEL_ID_UART1);

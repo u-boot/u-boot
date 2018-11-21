@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Sample SPMI bus driver
  *
  * It emulates bus with single pm8916-like pmic that has only GPIO reigsters.
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -14,8 +13,6 @@
 #include <spmi/spmi.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define EMUL_GPIO_PID_START 0xC0
 #define EMUL_GPIO_PID_END   0xC3

@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * cpu.h
  *
  * AM33xx specific header file
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _AM33XX_CPU_H
@@ -67,6 +66,9 @@
 
 #define PRM_RSTCTRL_RESET		0x01
 #define PRM_RSTST_WARM_RESET_MASK	0x232
+
+/* EMIF Control register bits */
+#define EMIF_CTRL_DEVOFF	BIT(0)
 
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
@@ -386,8 +388,19 @@ struct cm_device_inst {
 };
 
 struct prm_device_inst {
-	unsigned int prm_rstctrl;
-	unsigned int prm_rstst;
+	unsigned int rstctrl;
+	unsigned int rstst;
+	unsigned int rsttime;
+	unsigned int sram_count;
+	unsigned int ldo_sram_core_set;	/* offset 0x10 */
+	unsigned int ldo_sram_core_ctr;
+	unsigned int ldo_sram_mpu_setu;
+	unsigned int ldo_sram_mpu_ctrl;
+	unsigned int io_count;		/* offset 0x20 */
+	unsigned int io_pmctrl;
+	unsigned int vc_val_bypass;
+	unsigned int resv1;
+	unsigned int emif_ctrl;		/* offset 0x30 */
 };
 
 struct cm_dpll {

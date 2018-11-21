@@ -1,14 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Samsung Electronics
  * Thomas Abraham <thomas.ab@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/armv8/mmu.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_EXYNOS7420
 static struct mm_region exynos7420_mem_map[] = {

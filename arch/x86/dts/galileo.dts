@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /dts-v1/;
@@ -10,6 +9,7 @@
 #include <dt-bindings/interrupt-router/intel-irq.h>
 
 /include/ "skeleton.dtsi"
+/include/ "reset.dtsi"
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
@@ -98,7 +98,7 @@
 			#size-cells = <1>;
 
 			irq-router {
-				compatible = "intel,quark-irq-router";
+				compatible = "intel,irq-router";
 				intel,pirq-config = "pci";
 				intel,actl-addr = <0x58>;
 				intel,pirq-link = <0x60 8>;

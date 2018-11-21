@@ -1,17 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 CompuLab, Ltd.
  *
  * Configuration settings for the CompuLab CL-SOM-iMX7 System-on-Module.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CL_SOM_IMX7_CONFIG_H
 #define __CL_SOM_IMX7_CONFIG_H
 
 #include "mx7_common.h"
-
-#define CONFIG_DBG_MONITOR
 
 #define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
 
@@ -26,7 +23,6 @@
 
 /* Network */
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define CONFIG_FEC_XCV_TYPE             RGMII
 #define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_MXC_PHYADDR          0
@@ -65,9 +61,7 @@
 #undef CONFIG_SYS_AUTOLOAD
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #undef CONFIG_BOOTCOMMAND
-#undef CONFIG_BOOTDELAY
 
-#define CONFIG_BOOTDELAY		3
 #define CONFIG_SYS_AUTOLOAD		"no"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -134,7 +128,6 @@
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
@@ -147,8 +140,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* SPI Flash support */
-#define CONFIG_SPI
-#define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
 #define CONFIG_SF_DEFAULT_SPEED		20000000
@@ -185,7 +176,6 @@
 /* SPL */
 #include "imx7_spl.h"
 #ifdef CONFIG_SPL_BUILD
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 #endif /* CONFIG_SPL_BUILD */
 

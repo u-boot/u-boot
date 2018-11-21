@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -155,7 +154,23 @@ void get_sys_info(struct sys_info *sys_info)
 	sys_info->freq_localbus = sys_info->freq_systembus /
 						CONFIG_SYS_FSL_IFC_CLK_DIV;
 #endif
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	sys_info->freq_qman = (sys_info->freq_systembus /
+				CONFIG_SYS_FSL_PCLK_DIV) /
+				CONFIG_SYS_FSL_QMAN_CLK_DIV;
+#endif
 }
+
+#ifdef CONFIG_SYS_DPAA_QBMAN
+unsigned long get_qman_freq(void)
+{
+	struct sys_info sys_info;
+
+	get_sys_info(&sys_info);
+
+	return sys_info.freq_qman;
+}
+#endif
 
 int get_clocks(void)
 {

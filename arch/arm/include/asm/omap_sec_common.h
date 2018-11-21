@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2016
  * Texas Instruments, <www.ti.com>
  *
  * Andreas Dannenberg <dannenberg@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef	_OMAP_SEC_COMMON_H_
 #define	_OMAP_SEC_COMMON_H_

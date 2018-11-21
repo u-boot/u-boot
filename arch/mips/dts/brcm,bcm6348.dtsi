@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <dt-bindings/clock/bcm6348-clock.h>
@@ -11,6 +10,10 @@
 
 / {
 	compatible = "brcm,bcm6348";
+
+	aliases {
+		spi0 = &spi;
+	};
 
 	cpus {
 		reg = <0xfffe0000 0x4>;
@@ -114,6 +117,39 @@
 			reg = <0xfffe0404 0x4>, <0xfffe040c 0x4>;
 			gpio-controller;
 			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		spi: spi@fffe0c00 {
+			compatible = "brcm,bcm6348-spi";
+			reg = <0xfffe0c00 0xc0>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&periph_clk BCM6348_CLK_SPI>;
+			resets = <&periph_rst BCM6348_RST_SPI>;
+			spi-max-frequency = <20000000>;
+			num-cs = <4>;
+
+			status = "disabled";
+		};
+
+		ohci: usb-controller@fffe1b00 {
+			compatible = "brcm,bcm6348-ohci", "generic-ohci";
+			reg = <0xfffe1b00 0x100>;
+			phys = <&usbh>;
+			big-endian;
+
+			status = "disabled";
+		};
+
+		usbh: usb-phy@fffe1c00 {
+			compatible = "brcm,bcm6348-usbh";
+			reg = <0xfffe1c00 0x4>;
+			#phy-cells = <0>;
+			clocks = <&periph_clk BCM6348_CLK_USBH>;
+			clock-names = "usbh";
+			resets = <&periph_rst BCM6348_RST_USBH>;
 
 			status = "disabled";
 		};

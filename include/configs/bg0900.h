@@ -1,16 +1,11 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIGS_BG0900_H__
 #define __CONFIGS_BG0900_H__
 
-/* System configurations */
-#define CONFIG_MX28				/* i.MX28 SoC */
-
 /* Memory configuration */
-#define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
 #define PHYS_SDRAM_1			0x40000000	/* Base address */
 #define PHYS_SDRAM_1_SIZE		0x10000000	/* Max 256 MB RAM */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1

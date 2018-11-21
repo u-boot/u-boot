@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * From Coreboot file of the same name
  *
  * Copyright (C) 2011 The ChromiumOS Authors.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _ASM_ARCH_MODEL_206AX_H

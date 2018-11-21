@@ -1,14 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) Marvell International Ltd. and its affiliates
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
-
-#include <common.h>
-#include <spl.h>
-#include <asm/io.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/soc.h>
 
 #include "ddr3_init.h"
 
@@ -24,7 +17,7 @@ u8 max_pbs_per_pup[MAX_INTERFACE_NUM][MAX_BUS_NUM];
 u8 min_pbs_per_pup[MAX_INTERFACE_NUM][MAX_BUS_NUM];
 u8 max_adll_per_pup[MAX_INTERFACE_NUM][MAX_BUS_NUM];
 u8 min_adll_per_pup[MAX_INTERFACE_NUM][MAX_BUS_NUM];
-u32 pbsdelay_per_pup[NUM_OF_PBS_MODES][MAX_INTERFACE_NUM][MAX_BUS_NUM];
+u32 pbsdelay_per_pup[NUM_OF_PBS_MODES][MAX_INTERFACE_NUM][MAX_BUS_NUM][MAX_CS_NUM];
 u8 adll_shift_lock[MAX_INTERFACE_NUM][MAX_BUS_NUM];
 u8 adll_shift_val[MAX_INTERFACE_NUM][MAX_BUS_NUM];
 enum hws_pattern pbs_pattern = PATTERN_VREF;
@@ -50,34 +43,33 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 	int init_val = (search_dir == HWS_LOW2HIGH) ? 0 : iterations;
 	enum hws_edge_compare search_edge = EDGE_FP;
 	u32 pup = 0, bit = 0, if_id = 0, all_lock = 0, cs_num = 0;
-	int reg_addr = 0;
+	u32 reg_addr = 0;
 	u32 validation_val = 0;
 	u32 cs_enable_reg_val[MAX_INTERFACE_NUM];
 	u16 *mask_results_dq_reg_map = ddr3_tip_get_mask_results_dq_reg();
 	u8 temp = 0;
-	struct hws_topology_map *tm = ddr3_get_topology_map();
+	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
+	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
 	/* save current cs enable reg val */
 	for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-		VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+		VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 
 		/* save current cs enable reg val */
 		CHECK_STATUS(ddr3_tip_if_read
 			     (dev_num, ACCESS_TYPE_UNICAST, if_id,
-			      CS_ENABLE_REG, cs_enable_reg_val, MASK_ALL_BITS));
+			      DUAL_DUNIT_CFG_REG, cs_enable_reg_val, MASK_ALL_BITS));
 
 		/* enable single cs */
 		CHECK_STATUS(ddr3_tip_if_write
 			     (dev_num, ACCESS_TYPE_UNICAST, if_id,
-			      CS_ENABLE_REG, (1 << 3), (1 << 3)));
+			      DUAL_DUNIT_CFG_REG, (1 << 3), (1 << 3)));
 	}
 
 	reg_addr = (pbs_mode == PBS_RX_MODE) ?
-		(READ_CENTRALIZATION_PHY_REG +
-		 (effective_cs * CS_REGISTER_ADDR_OFFSET)) :
-		(WRITE_CENTRALIZATION_PHY_REG +
-		 (effective_cs * CS_REGISTER_ADDR_OFFSET));
-	read_adll_value(nominal_adll, reg_addr, MASK_ALL_BITS);
+		CRX_PHY_REG(effective_cs) :
+		CTX_PHY_REG(effective_cs);
+	ddr3_tip_read_adll_value(dev_num, nominal_adll, reg_addr, MASK_ALL_BITS);
 
 	/* stage 1 shift ADLL */
 	ddr3_tip_ip_training(dev_num, ACCESS_TYPE_MULTICAST,
@@ -88,10 +80,10 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 			     pbs_pattern, search_edge, CS_SINGLE, cs_num,
 			     train_status);
 	validation_val = (pbs_mode == PBS_RX_MODE) ? 0x1f : 0;
-	for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-		VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+	for (pup = 0; pup < octets_per_if_num; pup++) {
+		VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 		for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-			VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 			min_adll_per_pup[if_id][pup] =
 				(pbs_mode == PBS_RX_MODE) ? 0x1f : 0x3f;
 			pup_state[if_id][pup] = 0x3;
@@ -101,8 +93,8 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 	}
 
 	/* EBA */
-	for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-		VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+	for (pup = 0; pup < octets_per_if_num; pup++) {
+		VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 		for (bit = 0; bit < BUS_WIDTH_IN_BITS; bit++) {
 			CHECK_STATUS(ddr3_tip_if_read
 				     (dev_num, ACCESS_TYPE_MULTICAST,
@@ -112,7 +104,7 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 				      res0, MASK_ALL_BITS));
 			for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1;
 			     if_id++) {
-				VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+				VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 				DEBUG_PBS_ENGINE(DEBUG_LEVEL_TRACE,
 						 ("FP I/F %d, bit:%d, pup:%d res0 0x%x\n",
 						  if_id, bit, pup,
@@ -177,10 +169,10 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 	}
 
 	/* EEBA */
-	for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-		VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+	for (pup = 0; pup < octets_per_if_num; pup++) {
+		VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 		for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-			VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 
 			if (pup_state[if_id][pup] != 4)
 				continue;
@@ -336,10 +328,10 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 	}
 
 	/* Print Stage result */
-	for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-		VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+	for (pup = 0; pup < octets_per_if_num; pup++) {
+		VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 		for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-			VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 			DEBUG_PBS_ENGINE(DEBUG_LEVEL_TRACE,
 					 ("FP I/F %d, ADLL Shift for EBA: pup[%d] Lock status = %d Lock Val = %d,%d\n",
 					  if_id, pup,
@@ -351,10 +343,10 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 	DEBUG_PBS_ENGINE(DEBUG_LEVEL_INFO,
 			 ("Update ADLL Shift of all pups:\n"));
 
-	for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-		VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+	for (pup = 0; pup < octets_per_if_num; pup++) {
+		VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 		for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-			VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 			if (adll_shift_lock[if_id][pup] != 1)
 				continue;
 			/* if pup not locked continue to next pup */
@@ -374,10 +366,10 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 
 	/* PBS EEBA&EBA */
 	/* Start the Per Bit Skew search */
-	for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-		VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+	for (pup = 0; pup < octets_per_if_num; pup++) {
+		VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 		for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-			VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 			max_pbs_per_pup[if_id][pup] = 0x0;
 			min_pbs_per_pup[if_id][pup] = 0x1f;
 			for (bit = 0; bit < BUS_WIDTH_IN_BITS; bit++) {
@@ -401,10 +393,10 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 			     iterations, pbs_pattern, search_edge,
 			     CS_SINGLE, cs_num, train_status);
 
-	for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-		VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+	for (pup = 0; pup < octets_per_if_num; pup++) {
+		VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 		for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-			VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 			if (adll_shift_lock[if_id][pup] != 1) {
 				/* if pup not lock continue to next pup */
 				continue;
@@ -462,10 +454,10 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 
 	/* Check all Pup lock */
 	all_lock = 1;
-	for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-		VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+	for (pup = 0; pup < octets_per_if_num; pup++) {
+		VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 		for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-			VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 			all_lock = all_lock * adll_shift_lock[if_id][pup];
 		}
 	}
@@ -479,11 +471,11 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 		search_dir = (pbs_mode == PBS_RX_MODE) ? HWS_LOW2HIGH :
 			HWS_HIGH2LOW;
 		init_val = (search_dir == HWS_LOW2HIGH) ? 0 : iterations;
-		for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-			VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+		for (pup = 0; pup < octets_per_if_num; pup++) {
+			VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 			for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1;
 			     if_id++) {
-				VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+				VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 				if (adll_shift_lock[if_id][pup] == 1) {
 					/*if pup lock continue to next pup */
 					continue;
@@ -628,11 +620,11 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 				     search_edge, CS_SINGLE, cs_num,
 				     train_status);
 
-		for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-			VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+		for (pup = 0; pup < octets_per_if_num; pup++) {
+			VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 			for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1;
 			     if_id++) {
-				VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+				VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 				for (bit = 0; bit < BUS_WIDTH_IN_BITS; bit++) {
 					CHECK_STATUS(ddr3_tip_if_read
 						     (dev_num,
@@ -697,7 +689,7 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 
 		/* Check all Pup state */
 		all_lock = 1;
-		for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
+		for (pup = 0; pup < octets_per_if_num; pup++) {
 			/*
 			 * DEBUG_PBS_ENGINE(DEBUG_LEVEL_INFO,
 			 * ("pup_state[%d][%d] = %d\n",if_id,pup,pup_state
@@ -708,12 +700,12 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 
 	/* END OF SBA */
 	/* Norm */
-	for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-		VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+	for (pup = 0; pup < octets_per_if_num; pup++) {
+		VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 		for (bit = 0; bit < BUS_WIDTH_IN_BITS; bit++) {
 			for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1;
 			     if_id++) {
-				VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+				VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 				/* if pup not lock continue to next pup */
 				if (adll_shift_lock[if_id][pup] != 1) {
 					DEBUG_PBS_ENGINE(
@@ -754,9 +746,9 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 
 	/* DQ PBS register update with the final result */
 	for (if_id = 0; if_id < MAX_INTERFACE_NUM; if_id++) {
-		VALIDATE_ACTIVE(tm->if_act_mask, if_id);
-		for (pup = 0; pup < tm->num_of_bus_per_interface; pup++) {
-			VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+		VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
+		for (pup = 0; pup < octets_per_if_num; pup++) {
+			VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 
 			DEBUG_PBS_ENGINE(
 				DEBUG_LEVEL_INFO,
@@ -772,28 +764,32 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 				pad_num = dq_map_table[
 					bit + pup * BUS_WIDTH_IN_BITS +
 					if_id * BUS_WIDTH_IN_BITS *
-					tm->num_of_bus_per_interface];
+					MAX_BUS_NUM];
 				DEBUG_PBS_ENGINE(DEBUG_LEVEL_INFO,
 						 ("result_mat: %d ",
 						  result_mat[if_id][pup]
 						  [bit]));
 				reg_addr = (pbs_mode == PBS_RX_MODE) ?
-					(PBS_RX_PHY_REG + effective_cs * 0x10) :
-					(PBS_TX_PHY_REG + effective_cs * 0x10);
+					PBS_RX_PHY_REG(effective_cs, 0) :
+					PBS_TX_PHY_REG(effective_cs, 0);
 				CHECK_STATUS(ddr3_tip_bus_write
 					     (dev_num, ACCESS_TYPE_UNICAST,
 					      if_id, ACCESS_TYPE_UNICAST, pup,
 					      DDR_PHY_DATA, reg_addr + pad_num,
 					      result_mat[if_id][pup][bit]));
 			}
-			pbsdelay_per_pup[pbs_mode][if_id][pup] =
-				(max_pbs_per_pup[if_id][pup] ==
-				 min_pbs_per_pup[if_id][pup]) ?
-				TYPICAL_PBS_VALUE :
-				((max_adll_per_pup[if_id][pup] -
-				  min_adll_per_pup[if_id][pup]) * adll_tap /
-				 (max_pbs_per_pup[if_id][pup] -
-				  min_pbs_per_pup[if_id][pup]));
+
+			if (max_pbs_per_pup[if_id][pup] == min_pbs_per_pup[if_id][pup]) {
+				temp = TYPICAL_PBS_VALUE;
+			} else {
+				temp = ((max_adll_per_pup[if_id][pup] -
+					 min_adll_per_pup[if_id][pup]) *
+					adll_tap /
+					(max_pbs_per_pup[if_id][pup] -
+					 min_pbs_per_pup[if_id][pup]));
+			}
+			pbsdelay_per_pup[pbs_mode]
+			[if_id][pup][effective_cs] = temp;
 
 			/* RX results ready, write RX also */
 			if (pbs_mode == PBS_TX_MODE) {
@@ -843,18 +839,18 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 			DEBUG_PBS_ENGINE(
 				DEBUG_LEVEL_INFO,
 				(", PBS tap=%d [psec] ==> skew observed = %d\n",
-				 pbsdelay_per_pup[pbs_mode][if_id][pup],
+				 temp,
 				 ((max_pbs_per_pup[if_id][pup] -
 				   min_pbs_per_pup[if_id][pup]) *
-				  pbsdelay_per_pup[pbs_mode][if_id][pup])));
+				 temp)));
 		}
 	}
 
 	/* Write back to the phy the default values */
 	reg_addr = (pbs_mode == PBS_RX_MODE) ?
-		(READ_CENTRALIZATION_PHY_REG + effective_cs * 4) :
-		(WRITE_CENTRALIZATION_PHY_REG + effective_cs * 4);
-	write_adll_value(nominal_adll, reg_addr);
+		CRX_PHY_REG(effective_cs) :
+		CTX_PHY_REG(effective_cs);
+	ddr3_tip_write_adll_value(dev_num, nominal_adll, reg_addr);
 
 	for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
 		reg_addr = (pbs_mode == PBS_RX_MODE) ?
@@ -866,24 +862,29 @@ int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 			      0));
 
 		/* restore cs enable value */
-		VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+		VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 		CHECK_STATUS(ddr3_tip_if_write
 			     (dev_num, ACCESS_TYPE_UNICAST, if_id,
-			      CS_ENABLE_REG, cs_enable_reg_val[if_id],
+			      DUAL_DUNIT_CFG_REG, cs_enable_reg_val[if_id],
 			      MASK_ALL_BITS));
 	}
 
 	/* exit test mode */
 	CHECK_STATUS(ddr3_tip_if_write
 		     (dev_num, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE,
-		      ODPG_WRITE_READ_MODE_ENABLE_REG, 0xffff, MASK_ALL_BITS));
+		      ODPG_WR_RD_MODE_ENA_REG, 0xffff, MASK_ALL_BITS));
+
 	for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-		/*
-		 * meaning that there is no VW exist at all (No lock at
-		 * the EBA ADLL shift at EBS)
-		 */
-		if (pup_state[if_id][pup] == 1)
-			return MV_FAIL;
+		VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
+		for (pup = 0; pup < octets_per_if_num; pup++) {
+			VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
+			/*
+			 * no valid window found
+			 * (no lock at EBA ADLL shift at EBS)
+			 */
+			if (pup_state[if_id][pup] == 1)
+				return MV_FAIL;
+		}
 	}
 
 	return MV_OK;
@@ -913,14 +914,14 @@ int ddr3_tip_pbs_tx(u32 uidev_num)
 	return ddr3_tip_pbs(uidev_num, PBS_TX_MODE);
 }
 
-#ifndef EXCLUDE_SWITCH_DEBUG
+#ifdef DDR_VIEWER_TOOL
 /*
  * Print PBS Result
  */
 int ddr3_tip_print_all_pbs_result(u32 dev_num)
 {
 	u32 curr_cs;
-	u32 max_cs = hws_ddr3_tip_max_cs_get();
+	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
 
 	for (curr_cs = 0; curr_cs < max_cs; curr_cs++) {
 		ddr3_tip_print_pbs_result(dev_num, curr_cs, PBS_RX_MODE);
@@ -937,21 +938,33 @@ int ddr3_tip_print_pbs_result(u32 dev_num, u32 cs_num, enum pbs_dir pbs_mode)
 {
 	u32 data_value = 0, bit = 0, if_id = 0, pup = 0;
 	u32 reg_addr = (pbs_mode == PBS_RX_MODE) ?
-		(PBS_RX_PHY_REG + cs_num * 0x10) :
-		(PBS_TX_PHY_REG + cs_num * 0x10);
-	struct hws_topology_map *tm = ddr3_get_topology_map();
+		PBS_RX_PHY_REG(cs_num, 0) :
+		PBS_TX_PHY_REG(cs_num , 0);
+	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
+	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
+	printf("%s,CS%d,PBS,ADLLRATIO,,,",
+	       (pbs_mode == PBS_RX_MODE) ? "Rx" : "Tx", cs_num);
+
+	for (if_id = 0; if_id < MAX_INTERFACE_NUM; if_id++) {
+		VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
+		for (pup = 0; pup < octets_per_if_num; pup++) {
+			VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
+			printf("%d,",
+			       pbsdelay_per_pup[pbs_mode][if_id][pup][cs_num]);
+		}
+	}
 	printf("CS%d, %s ,PBS\n", cs_num,
 	       (pbs_mode == PBS_RX_MODE) ? "Rx" : "Tx");
 
 	for (bit = 0; bit < BUS_WIDTH_IN_BITS; bit++) {
 		printf("%s, DQ", (pbs_mode == PBS_RX_MODE) ? "Rx" : "Tx");
 		for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-			VALIDATE_ACTIVE(tm->if_act_mask, if_id);
+			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 			printf("%d ,PBS,,, ", bit);
-			for (pup = 0; pup <= tm->num_of_bus_per_interface;
+			for (pup = 0; pup <= octets_per_if_num;
 			     pup++) {
-				VALIDATE_ACTIVE(tm->bus_act_mask, pup);
+				VALIDATE_BUS_ACTIVE(tm->bus_act_mask, pup);
 				CHECK_STATUS(ddr3_tip_bus_read
 					     (dev_num, if_id,
 					      ACCESS_TYPE_UNICAST, pup,
@@ -966,7 +979,7 @@ int ddr3_tip_print_pbs_result(u32 dev_num, u32 cs_num, enum pbs_dir pbs_mode)
 
 	return MV_OK;
 }
-#endif
+#endif /* DDR_VIEWER_TOOL */
 
 /*
  * Fixup PBS Result
@@ -975,13 +988,14 @@ int ddr3_tip_clean_pbs_result(u32 dev_num, enum pbs_dir pbs_mode)
 {
 	u32 if_id, pup, bit;
 	u32 reg_addr = (pbs_mode == PBS_RX_MODE) ?
-		(PBS_RX_PHY_REG + effective_cs * 0x10) :
-		(PBS_TX_PHY_REG + effective_cs * 0x10);
-	struct hws_topology_map *tm = ddr3_get_topology_map();
+		PBS_RX_PHY_REG(effective_cs, 0) :
+		PBS_TX_PHY_REG(effective_cs, 0);
+	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
+	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
 	for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++) {
-		VALIDATE_ACTIVE(tm->if_act_mask, if_id);
-		for (pup = 0; pup <= tm->num_of_bus_per_interface; pup++) {
+		VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
+		for (pup = 0; pup <= octets_per_if_num; pup++) {
 			for (bit = 0; bit <= BUS_WIDTH_IN_BITS + 3; bit++) {
 				CHECK_STATUS(ddr3_tip_bus_write
 					     (dev_num, ACCESS_TYPE_UNICAST,

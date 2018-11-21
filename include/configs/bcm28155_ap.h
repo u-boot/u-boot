@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2013 Broadcom Corporation.
- *
- * SPDX-License-Identifier:      GPL-2.0+
  */
 
 #ifndef __BCM28155_AP_H
@@ -17,11 +16,9 @@
 /*
  * Memory configuration
  */
-#define CONFIG_SYS_TEXT_BASE		0xae000000
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_SYS_SDRAM_SIZE		0x80000000
-#define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_SYS_MALLOC_LEN		SZ_4M	/* see armv7/start.S. */
 
@@ -57,7 +54,6 @@
 #define CONFIG_SYS_TIMER_COUNTER	(TIMER_BASE_ADDR + 4) /* STCLO offset */
 
 /* Init functions */
-#define CONFIG_MISC_INIT_R	/* board's misc_init_r function */
 
 /* Some commands use this as the default load address */
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
@@ -76,7 +72,6 @@
 /* Post pad 3 bytes after each reg addr */
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		13000000
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_COM1		0x3e000000
 
 /* must fit into GPT:u-boot-env partition */
@@ -96,9 +91,6 @@
  */
 
 /* version string, parser, etc */
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_LONGHELP
 
 #define CONFIG_MX_CYCLIC
 

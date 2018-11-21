@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2006-2008
  * Texas Instruments, <www.ti.com>
@@ -7,8 +8,6 @@
  *
  * Initial Code from:
  *		Richard Woodruff <r-woodruff2@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _MEM_H_

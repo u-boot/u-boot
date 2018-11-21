@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2016, NVIDIA CORPORATION.
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>
@@ -10,7 +9,7 @@
 #include <asm/io.h>
 #include <asm/reset.h>
 
-#define SANDBOX_RESET_SIGNALS 3
+#define SANDBOX_RESET_SIGNALS 101
 
 struct sandbox_reset_signal {
 	bool asserted;

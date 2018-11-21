@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2007 Freescale Semiconductor, Inc.
  * Kevin Lam <kevin.lam@freescale.com>
  * Joe D'Abbraccio <joe.d'abbraccio@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

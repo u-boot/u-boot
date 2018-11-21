@@ -11,11 +11,12 @@ choice
 config TARGET_MICROBLAZE_GENERIC
 	bool "Support microblaze-generic"
 	select BOARD_LATE_INIT
-	select SUPPORT_SPL
-	select OF_CONTROL
 	select DM
 	select DM_SERIAL
-	select ENV_IS_IN_FLASH
+	select OF_CONTROL
+	select SUPPORT_SPL
+	select SYSRESET
+	imply CMD_DM
 
 endchoice
 

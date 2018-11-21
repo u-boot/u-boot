@@ -1,5 +1,5 @@
 VF610TWR BOARD
-M:	Alison Wang <b18965@freescale.com>
+M:	Alison Wang <alison.wang@nxp.com>
 S:	Maintained
 F:	board/freescale/vf610twr/
 F:	include/configs/vf610twr.h

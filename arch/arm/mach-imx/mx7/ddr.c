@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * DDR controller configuration for the i.MX7 architecture
  *
  * (C) Copyright 2017 CompuLab, Ltd. http://www.compulab.com
  *
  * Author: Uri Mashiach <uri.mashiach@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <linux/types.h>
@@ -196,6 +195,10 @@ unsigned int imx_ddr_size(void)
 	field_val = (reg_val & ADDRMAP1_BANK_B2_MASK) >> ADDRMAP1_BANK_B2_SHIFT;
 	if (field_val <= 29)
 		bits++;
+
+	/* cap to max 2 GB */
+	if (bits > 31)
+		bits = 31;
 
 	return 1 << bits;
 }

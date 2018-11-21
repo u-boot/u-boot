@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
@@ -6,8 +7,6 @@
  * Copyright (C) 2011 Andes Technology Corporation
  * Copyright (C) 2010 Shawn Lin (nobuhiro@andestech.com)
  * Copyright (C) 2011 Macpaul Lin (macpaul@andestech.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  ********************************************************************
  * NOTE: This header file defines an interface to U-Boot. Including

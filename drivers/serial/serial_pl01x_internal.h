@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2003, 2004
  * ARM Ltd.
  * Philippe Robin, <philippe.robin@arm.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -38,7 +37,25 @@ struct pl01x_regs {
 	u32	pl011_lcrh;	/* 0x2C Line control register */
 	u32	pl011_cr;	/* 0x30 Control register */
 };
-#endif
+
+#ifdef CONFIG_DM_SERIAL
+
+int pl01x_serial_ofdata_to_platdata(struct udevice *dev);
+int pl01x_serial_probe(struct udevice *dev);
+
+/* Needed for external pl01x_serial_ops drivers */
+int pl01x_serial_putc(struct udevice *dev, const char ch);
+int pl01x_serial_pending(struct udevice *dev, bool input);
+int pl01x_serial_getc(struct udevice *dev);
+int pl01x_serial_setbrg(struct udevice *dev, int baudrate);
+
+struct pl01x_priv {
+	struct pl01x_regs *regs;
+	enum pl01x_type type;
+};
+
+#endif /* CONFIG_DM_SERIAL */
+#endif /* !__ASSEMBLY__ */
 
 #define UART_PL01x_RSR_OE               0x08
 #define UART_PL01x_RSR_BE               0x04

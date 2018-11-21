@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * MUSB OTG driver core code
  *
  * Copyright 2005 Mentor Graphics Corporation
  * Copyright (C) 2005-2006 by Texas Instruments
  * Copyright (C) 2006-2007 Nokia Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 /*
@@ -1008,6 +1007,7 @@ void musb_stop(struct musb *musb)
 	 *  - ...
 	 */
 	musb_platform_try_idle(musb, 0);
+	musb_platform_exit(musb);
 }
 
 #ifndef __UBOOT__

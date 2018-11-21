@@ -1,6 +1,4 @@
-/*
- * SPDX-License-Identifier:	GPL-2.0+
- */
+/* SPDX-License-Identifier: GPL-2.0+ */
 
 MEMORY { .spl_mem : ORIGIN = CONFIG_SPL_TEXT_BASE, \
 		LENGTH = CONFIG_SPL_MAX_SIZE }

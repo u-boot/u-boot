@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011 Michal Simek
  *
@@ -5,8 +6,6 @@
  *
  * Based on Xilinx gmac driver:
  * (C) Copyright 2011 Xilinx
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <clk.h>
@@ -198,7 +197,7 @@ struct zynq_gem_priv {
 	struct zynq_gem_regs *iobase;
 	phy_interface_t interface;
 	struct phy_device *phydev;
-	int phy_of_handle;
+	ofnode phy_of_node;
 	struct mii_dev *bus;
 	struct clk clk;
 	u32 max_speed;
@@ -206,15 +205,15 @@ struct zynq_gem_priv {
 	bool dma_64bit;
 };
 
-static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
+static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 			u32 op, u16 *data)
 {
 	u32 mgtcr;
 	struct zynq_gem_regs *regs = priv->iobase;
 	int err;
 
-	err = wait_for_bit(__func__, &regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
-			    true, 20000, false);
+	err = wait_for_bit_le32(&regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
+				true, 20000, false);
 	if (err)
 		return err;
 
@@ -226,8 +225,8 @@ static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	/* Write mgtcr and wait for completion */
 	writel(mgtcr, &regs->phymntnc);
 
-	err = wait_for_bit(__func__, &regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
-			    true, 20000, false);
+	err = wait_for_bit_le32(&regs->nwsr, ZYNQ_GEM_NWSR_MDIOIDLE_MASK,
+				true, 20000, false);
 	if (err)
 		return err;
 
@@ -237,10 +236,10 @@ static u32 phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
 	return 0;
 }
 
-static u32 phyread(struct zynq_gem_priv *priv, u32 phy_addr,
+static int phyread(struct zynq_gem_priv *priv, u32 phy_addr,
 		   u32 regnum, u16 *val)
 {
-	u32 ret;
+	int ret;
 
 	ret = phy_setup_op(priv, phy_addr, regnum,
 			   ZYNQ_GEM_PHYMNTNC_OP_R_MASK, val);
@@ -252,7 +251,7 @@ static u32 phyread(struct zynq_gem_priv *priv, u32 phy_addr,
 	return ret;
 }
 
-static u32 phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
+static int phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 		    u32 regnum, u16 data)
 {
 	debug("%s: phy_addr %d, regnum 0x%x, data 0x%x\n", __func__, phy_addr,
@@ -265,7 +264,7 @@ static u32 phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 static int phy_detection(struct udevice *dev)
 {
 	int i;
-	u16 phyreg;
+	u16 phyreg = 0;
 	struct zynq_gem_priv *priv = dev->priv;
 
 	if (priv->phyaddr != -1) {
@@ -369,9 +368,7 @@ static int zynq_phy_init(struct udevice *dev)
 	}
 
 	priv->phydev->advertising = priv->phydev->supported;
-
-	if (priv->phy_of_handle > 0)
-		dev_set_of_offset(priv->phydev->dev, priv->phy_of_handle);
+	priv->phydev->node = priv->phy_of_node;
 
 	return phy_config(priv->phydev);
 }
@@ -515,6 +512,7 @@ static int zynq_gem_init(struct udevice *dev)
 		break;
 	}
 
+#if !defined(CONFIG_ARCH_VERSAL)
 	ret = clk_set_rate(&priv->clk, clk_rate);
 	if (IS_ERR_VALUE(ret) && ret != (unsigned long)-ENOSYS) {
 		dev_err(dev, "failed to set tx clock rate\n");
@@ -526,6 +524,9 @@ static int zynq_gem_init(struct udevice *dev)
 		dev_err(dev, "failed to enable tx clock\n");
 		return ret;
 	}
+#else
+	debug("requested clk_rate %ld\n", clk_rate);
+#endif
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
 					ZYNQ_GEM_NWCTRL_TXEN_MASK);
@@ -583,8 +584,8 @@ static int zynq_gem_send(struct udevice *dev, void *ptr, int len)
 	if (priv->tx_bd->status & ZYNQ_GEM_TXBUF_EXHAUSTED)
 		printf("TX buffers exhausted in mid frame\n");
 
-	return wait_for_bit(__func__, &regs->txsr, ZYNQ_GEM_TSR_DONE,
-			    true, 20000, true);
+	return wait_for_bit_le32(&regs->txsr, ZYNQ_GEM_TSR_DONE,
+				 true, 20000, true);
 }
 
 /* Do not check frame_recd flag in rx_status register 0x20 - just poll BD */
@@ -677,7 +678,7 @@ static int zynq_gem_miiphy_read(struct mii_dev *bus, int addr,
 {
 	struct zynq_gem_priv *priv = bus->priv;
 	int ret;
-	u16 val;
+	u16 val = 0;
 
 	ret = phyread(priv, addr, reg, &val);
 	debug("%s 0x%x, 0x%x, 0x%x, 0x%x\n", __func__, addr, reg, val, ret);
@@ -701,10 +702,16 @@ static int zynq_gem_probe(struct udevice *dev)
 
 	/* Align rxbuffers to ARCH_DMA_MINALIGN */
 	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
+	if (!priv->rxbuffers)
+		return -ENOMEM;
+
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
 
 	/* Align bd_space to MMU_SECTION_SHIFT */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
+	if (!bd_space)
+		return -ENOMEM;
+
 	mmu_set_region_dcache_behaviour((phys_addr_t)bd_space,
 					BD_SPACE, DCACHE_OFF);
 
@@ -755,21 +762,26 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct zynq_gem_priv *priv = dev_get_priv(dev);
-	int node = dev_of_offset(dev);
+	struct ofnode_phandle_args phandle_args;
 	const char *phy_mode;
 
-	pdata->iobase = (phys_addr_t)devfdt_get_addr(dev);
+	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
 	priv->iobase = (struct zynq_gem_regs *)pdata->iobase;
 	/* Hardcode for now */
 	priv->phyaddr = -1;
 
-	priv->phy_of_handle = fdtdec_lookup_phandle(gd->fdt_blob, node,
-						    "phy-handle");
-	if (priv->phy_of_handle > 0)
-		priv->phyaddr = fdtdec_get_int(gd->fdt_blob,
-					priv->phy_of_handle, "reg", -1);
+	if (!dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+					&phandle_args)) {
+		debug("phy-handle does exist %s\n", dev->name);
+		priv->phyaddr = ofnode_read_u32_default(phandle_args.node,
+							"reg", -1);
+		priv->phy_of_node = phandle_args.node;
+		priv->max_speed = ofnode_read_u32_default(phandle_args.node,
+							  "max-speed",
+							  SPEED_1000);
+	}
 
-	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
+	phy_mode = dev_read_prop(dev, "phy-mode", NULL);
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
@@ -778,10 +790,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 	}
 	priv->interface = pdata->phy_interface;
 
-	priv->max_speed = fdtdec_get_uint(gd->fdt_blob, priv->phy_of_handle,
-					  "max-speed", SPEED_1000);
-	priv->int_pcs = fdtdec_get_bool(gd->fdt_blob, node,
-					"is-internal-pcspma");
+	priv->int_pcs = dev_read_bool(dev, "is-internal-pcspma");
 
 	printf("ZYNQ GEM: %lx, phyaddr %x, interface %s\n", (ulong)priv->iobase,
 	       priv->phyaddr, phy_string_for_interface(priv->interface));

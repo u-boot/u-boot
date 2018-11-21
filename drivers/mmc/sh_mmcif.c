@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * MMCIF driver.
  *
  * Copyright (C)  2011 Renesas Solutions Corp.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <config.h>
@@ -11,9 +10,13 @@
 #include <watchdog.h>
 #include <command.h>
 #include <mmc.h>
+#include <clk.h>
+#include <dm.h>
 #include <malloc.h>
 #include <linux/errno.h>
-#include <asm/io.h>
+#include <linux/compat.h>
+#include <linux/io.h>
+#include <linux/sizes.h>
 #include "sh_mmcif.h"
 
 #define DRIVER_NAME	"sh_mmcif"
@@ -510,10 +513,9 @@ static int sh_mmcif_start_cmd(struct sh_mmcif_host *host,
 	return ret;
 }
 
-static int sh_mmcif_request(struct mmc *mmc, struct mmc_cmd *cmd,
-			    struct mmc_data *data)
+static int sh_mmcif_send_cmd_common(struct sh_mmcif_host *host,
+				    struct mmc_cmd *cmd, struct mmc_data *data)
 {
-	struct sh_mmcif_host *host = mmc->priv;
 	int ret;
 
 	WATCHDOG_RESET();
@@ -539,10 +541,8 @@ static int sh_mmcif_request(struct mmc *mmc, struct mmc_cmd *cmd,
 	return ret;
 }
 
-static int sh_mmcif_set_ios(struct mmc *mmc)
+static int sh_mmcif_set_ios_common(struct sh_mmcif_host *host, struct mmc *mmc)
 {
-	struct sh_mmcif_host *host = mmc->priv;
-
 	if (mmc->clock)
 		sh_mmcif_clock_control(host, mmc->clock);
 
@@ -558,19 +558,45 @@ static int sh_mmcif_set_ios(struct mmc *mmc)
 	return 0;
 }
 
-static int sh_mmcif_init(struct mmc *mmc)
+static int sh_mmcif_initialize_common(struct sh_mmcif_host *host)
 {
-	struct sh_mmcif_host *host = mmc->priv;
-
 	sh_mmcif_sync_reset(host);
 	sh_mmcif_write(MASK_ALL, &host->regs->ce_int_mask);
 	return 0;
 }
 
+#ifndef CONFIG_DM_MMC
+static void *mmc_priv(struct mmc *mmc)
+{
+	return (void *)mmc->priv;
+}
+
+static int sh_mmcif_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+			    struct mmc_data *data)
+{
+	struct sh_mmcif_host *host = mmc_priv(mmc);
+
+	return sh_mmcif_send_cmd_common(host, cmd, data);
+}
+
+static int sh_mmcif_set_ios(struct mmc *mmc)
+{
+	struct sh_mmcif_host *host = mmc_priv(mmc);
+
+	return sh_mmcif_set_ios_common(host, mmc);
+}
+
+static int sh_mmcif_initialize(struct mmc *mmc)
+{
+	struct sh_mmcif_host *host = mmc_priv(mmc);
+
+	return sh_mmcif_initialize_common(host);
+}
+
 static const struct mmc_ops sh_mmcif_ops = {
-	.send_cmd	= sh_mmcif_request,
-	.set_ios	= sh_mmcif_set_ios,
-	.init		= sh_mmcif_init,
+	.send_cmd       = sh_mmcif_send_cmd,
+	.set_ios        = sh_mmcif_set_ios,
+	.init           = sh_mmcif_initialize,
 };
 
 static struct mmc_config sh_mmcif_cfg = {
@@ -606,3 +632,115 @@ int mmcif_mmc_init(void)
 
 	return 0;
 }
+
+#else
+struct sh_mmcif_plat {
+	struct mmc_config cfg;
+	struct mmc mmc;
+};
+
+int sh_mmcif_dm_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+			struct mmc_data *data)
+{
+	struct sh_mmcif_host *host = dev_get_priv(dev);
+
+	return sh_mmcif_send_cmd_common(host, cmd, data);
+}
+
+int sh_mmcif_dm_set_ios(struct udevice *dev)
+{
+	struct sh_mmcif_host *host = dev_get_priv(dev);
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+
+	return sh_mmcif_set_ios_common(host, mmc);
+}
+
+static const struct dm_mmc_ops sh_mmcif_dm_ops = {
+	.send_cmd	= sh_mmcif_dm_send_cmd,
+	.set_ios	= sh_mmcif_dm_set_ios,
+};
+
+static int sh_mmcif_dm_bind(struct udevice *dev)
+{
+	struct sh_mmcif_plat *plat = dev_get_platdata(dev);
+
+	return mmc_bind(dev, &plat->mmc, &plat->cfg);
+}
+
+static int sh_mmcif_dm_probe(struct udevice *dev)
+{
+	struct sh_mmcif_plat *plat = dev_get_platdata(dev);
+	struct sh_mmcif_host *host = dev_get_priv(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
+	struct clk sh_mmcif_clk;
+	fdt_addr_t base;
+	int ret;
+
+	base = devfdt_get_addr(dev);
+	if (base == FDT_ADDR_T_NONE)
+		return -EINVAL;
+
+	host->regs = (struct sh_mmcif_regs *)devm_ioremap(dev, base, SZ_2K);
+	if (!host->regs)
+		return -ENOMEM;
+
+	ret = clk_get_by_index(dev, 0, &sh_mmcif_clk);
+	if (ret) {
+		debug("failed to get clock, ret=%d\n", ret);
+		return ret;
+	}
+
+	ret = clk_enable(&sh_mmcif_clk);
+	if (ret) {
+		debug("failed to enable clock, ret=%d\n", ret);
+		return ret;
+	}
+
+	host->clk = clk_get_rate(&sh_mmcif_clk);
+
+	plat->cfg.name = dev->name;
+	plat->cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
+
+	switch (fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), "bus-width",
+			       1)) {
+	case 8:
+		plat->cfg.host_caps |= MMC_MODE_8BIT;
+		break;
+	case 4:
+		plat->cfg.host_caps |= MMC_MODE_4BIT;
+		break;
+	case 1:
+		break;
+	default:
+		dev_err(dev, "Invalid \"bus-width\" value\n");
+		return -EINVAL;
+	}
+
+	sh_mmcif_initialize_common(host);
+
+	plat->cfg.voltages = MMC_VDD_165_195 | MMC_VDD_32_33 | MMC_VDD_33_34;
+	plat->cfg.f_min = MMC_CLK_DIV_MIN(host->clk);
+	plat->cfg.f_max = MMC_CLK_DIV_MAX(host->clk);
+	plat->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+
+	upriv->mmc = &plat->mmc;
+
+	return 0;
+}
+
+static const struct udevice_id sh_mmcif_sd_match[] = {
+	{ .compatible = "renesas,sh-mmcif" },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(sh_mmcif_mmc) = {
+	.name			= "sh-mmcif",
+	.id			= UCLASS_MMC,
+	.of_match		= sh_mmcif_sd_match,
+	.bind			= sh_mmcif_dm_bind,
+	.probe			= sh_mmcif_dm_probe,
+	.priv_auto_alloc_size	= sizeof(struct sh_mmcif_host),
+	.platdata_auto_alloc_size = sizeof(struct sh_mmcif_plat),
+	.ops			= &sh_mmcif_dm_ops,
+};
+#endif

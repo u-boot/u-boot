@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * DP83848 ethernet Physical layer
  *
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
  *
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

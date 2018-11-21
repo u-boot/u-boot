@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -18,7 +17,6 @@
 #define BYT_TRIG_LVL		BIT(24)
 #define BYT_TRIG_POS		BIT(25)
 
-#ifndef CONFIG_EFI_APP
 int arch_cpu_init(void)
 {
 	post_code(POST_CPU_INIT);
@@ -56,12 +54,4 @@ int arch_misc_init(void)
 		     BYT_TRIG_LVL | BYT_TRIG_POS);
 
 	return 0;
-}
-
-#endif
-
-void reset_cpu(ulong addr)
-{
-	/* cold reset */
-	x86_full_reset();
 }

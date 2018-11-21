@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
  *
  * DWC3 controller driver
  *
  * Author: Ramneek Mehresh<ramneek.mehresh@freescale.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -19,10 +18,9 @@
 #include <linux/usb/dwc3.h>
 #include <linux/usb/otg.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct xhci_dwc3_platdata {
-	struct phy usb_phy;
+	struct phy *usb_phys;
+	int num_phys;
 };
 
 void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
@@ -112,9 +110,93 @@ void dwc3_set_fladj(struct dwc3 *dwc3_reg, u32 val)
 }
 
 #ifdef CONFIG_DM_USB
-static int xhci_dwc3_probe(struct udevice *dev)
+static int xhci_dwc3_setup_phy(struct udevice *dev)
 {
 	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
+	int i, ret, count;
+
+	/* Return if no phy declared */
+	if (!dev_read_prop(dev, "phys", NULL))
+		return 0;
+
+	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
+	if (count <= 0)
+		return count;
+
+	plat->usb_phys = devm_kcalloc(dev, count, sizeof(struct phy),
+				      GFP_KERNEL);
+	if (!plat->usb_phys)
+		return -ENOMEM;
+
+	for (i = 0; i < count; i++) {
+		ret = generic_phy_get_by_index(dev, i, &plat->usb_phys[i]);
+		if (ret && ret != -ENOENT) {
+			pr_err("Failed to get USB PHY%d for %s\n",
+			       i, dev->name);
+			return ret;
+		}
+
+		++plat->num_phys;
+	}
+
+	for (i = 0; i < plat->num_phys; i++) {
+		ret = generic_phy_init(&plat->usb_phys[i]);
+		if (ret) {
+			pr_err("Can't init USB PHY%d for %s\n",
+			       i, dev->name);
+			goto phys_init_err;
+		}
+	}
+
+	for (i = 0; i < plat->num_phys; i++) {
+		ret = generic_phy_power_on(&plat->usb_phys[i]);
+		if (ret) {
+			pr_err("Can't power USB PHY%d for %s\n",
+			       i, dev->name);
+			goto phys_poweron_err;
+		}
+	}
+
+	return 0;
+
+phys_poweron_err:
+	for (; i >= 0; i--)
+		generic_phy_power_off(&plat->usb_phys[i]);
+
+	for (i = 0; i < plat->num_phys; i++)
+		generic_phy_exit(&plat->usb_phys[i]);
+
+	return ret;
+
+phys_init_err:
+	for (; i >= 0; i--)
+		generic_phy_exit(&plat->usb_phys[i]);
+
+	return ret;
+}
+
+static int xhci_dwc3_shutdown_phy(struct udevice *dev)
+{
+	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
+	int i, ret;
+
+	for (i = 0; i < plat->num_phys; i++) {
+		if (!generic_phy_valid(&plat->usb_phys[i]))
+			continue;
+
+		ret = generic_phy_power_off(&plat->usb_phys[i]);
+		ret |= generic_phy_exit(&plat->usb_phys[i]);
+		if (ret) {
+			pr_err("Can't shutdown USB PHY%d for %s\n",
+			       i, dev->name);
+		}
+	}
+
+	return 0;
+}
+
+static int xhci_dwc3_probe(struct udevice *dev)
+{
 	struct xhci_hcor *hcor;
 	struct xhci_hccr *hccr;
 	struct dwc3 *dwc3_reg;
@@ -125,19 +207,9 @@ static int xhci_dwc3_probe(struct udevice *dev)
 	hcor = (struct xhci_hcor *)((uintptr_t)hccr +
 			HC_LENGTH(xhci_readl(&(hccr)->cr_capbase)));
 
-	ret = generic_phy_get_by_index(dev, 0, &plat->usb_phy);
-	if (ret) {
-		if (ret != -ENOENT) {
-			pr_err("Failed to get USB PHY for %s\n", dev->name);
-			return ret;
-		}
-	} else {
-		ret = generic_phy_init(&plat->usb_phy);
-		if (ret) {
-			pr_err("Can't init USB PHY for %s\n", dev->name);
-			return ret;
-		}
-	}
+	ret = xhci_dwc3_setup_phy(dev);
+	if (ret)
+		return ret;
 
 	dwc3_reg = (struct dwc3 *)((char *)(hccr) + DWC3_REG_OFFSET);
 
@@ -155,16 +227,7 @@ static int xhci_dwc3_probe(struct udevice *dev)
 
 static int xhci_dwc3_remove(struct udevice *dev)
 {
-	struct xhci_dwc3_platdata *plat = dev_get_platdata(dev);
-	int ret;
-
-	if (generic_phy_valid(&plat->usb_phy)) {
-		ret = generic_phy_exit(&plat->usb_phy);
-		if (ret) {
-			pr_err("Can't deinit USB PHY for %s\n", dev->name);
-			return ret;
-		}
-	}
+	xhci_dwc3_shutdown_phy(dev);
 
 	return xhci_deregister(dev);
 }

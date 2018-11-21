@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #include <common.h>
@@ -49,14 +48,10 @@ static int bcm6328_power_domain_off(struct power_domain *power_domain)
 static int bcm6328_power_domain_probe(struct udevice *dev)
 {
 	struct bcm6328_power_domain *priv = dev_get_priv(dev);
-	fdt_addr_t addr;
-	fdt_size_t size;
 
-	addr = devfdt_get_addr_size_index(dev, 0, &size);
-	if (addr == FDT_ADDR_T_NONE)
+	priv->regs = dev_remap_addr(dev);
+	if (!priv->regs)
 		return -EINVAL;
-
-	priv->regs = ioremap(addr, size);
 
 	return 0;
 }

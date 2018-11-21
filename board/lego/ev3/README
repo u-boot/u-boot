@@ -9,14 +9,34 @@ Booting
 =======
 
 The EV3 contains a bootloader in EEPROM that loads u-boot.bin from address 0x0
-of the spi flash memory. Using the default configuration, u-boot will check to
-see if there is a boot.scr file on the first FAT partition of the mmc. If there
-is, it will run the script and boot the kernel from the uImage file also in
-the FAT partition. Otherwise, it will load a kernel and rootfs from the flash.
-The kernel must be stored at address 0x50000 on the flash and have a maximum
-size of 3MiB. The rootfs must be a squasfs image and stored at 0x350000 in the
-flash and have a maximum size of 9.3MiB. The flash starting at 0xCB0000 is
-reserved for user data.
+of the SPI flash memory (with a size of 256KiB!). Because the EEPROM is read-
+only and it takes care of low level configuration (PLL and DDR), we don't use
+U-Boot to produce an SPL image.
+
+Using the default configuration, U-Boot had a boot scrips that works as follows:
+
+* Check to see if microSD card is present
+* If it is, try to load boot.scr from the first FAT partition
+* If loading boot.scr was successful, run it
+* Otherwise, try loading uEnv.txt
+* If loading uEnv.txt was successful, import it
+* If there is a uenvcmd variable (from uEnv.txt), run it
+* Try to load uImage from the first FAT partition
+* If it was successful, try to load da850-lego-ev3.dtb
+* If loading uImage was successful, boot it (DT is optional)
+* If none of the above was successful, try booting from flash
+
+Suggested Flash Memory Layout
+=============================
+
+The following is based on the default U-Boot configuration:
+
+| Image (file)       | Start Addr. | Max. Size         |
++--------------------+-------------+-------------------+
+| u-boot.bin         |         0x0 |  0x40000 (256KiB) |
+| da850-lego-ev3.dtb |     0x40000 |  0x10000 (64KiB)  |
+| uImage             |     0x50000 | 0x400000 (4MiB)   |
+| rootfs (squashfs)  |    0x450000 | 0xa00000 (10MiB)  |
 
 Writing image to flash
 ======================

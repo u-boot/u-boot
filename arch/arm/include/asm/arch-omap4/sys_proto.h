@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Texas Instruments, <www.ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SYS_PROTO_H_
@@ -15,8 +14,6 @@
 #include <linux/mtd/omap_gpmc.h>
 #include <asm/arch/mux_omap4.h>
 #include <asm/ti-common/sys_proto.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 extern const struct emif_regs emif_regs_elpida_200_mhz_2cs;

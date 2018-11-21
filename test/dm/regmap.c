@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Google, Inc
-2 *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -13,36 +12,32 @@
 #include <dm/test.h>
 #include <test/ut.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Base test of register maps */
 static int dm_test_regmap_base(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	struct regmap *map;
+	ofnode node;
 	int i;
 
 	ut_assertok(uclass_get_device(UCLASS_SYSCON, 0, &dev));
 	map = syscon_get_regmap(dev);
 	ut_assertok_ptr(map);
 	ut_asserteq(1, map->range_count);
-	ut_asserteq(0x10, map->base);
-	ut_asserteq(0x10, map->range->start);
-	ut_asserteq(4, map->range->size);
-	ut_asserteq_ptr(&map->base_range, map->range);
+	ut_asserteq(0x10, map->ranges[0].start);
+	ut_asserteq(4, map->ranges[0].size);
 	ut_asserteq(0x10, map_to_sysmem(regmap_get_range(map, 0)));
 
 	ut_assertok(uclass_get_device(UCLASS_SYSCON, 1, &dev));
 	map = syscon_get_regmap(dev);
 	ut_assertok_ptr(map);
 	ut_asserteq(4, map->range_count);
-	ut_asserteq(0x20, map->base);
-	ut_assert(&map->base_range != map->range);
+	ut_asserteq(0x20, map->ranges[0].start);
 	for (i = 0; i < 4; i++) {
 		const unsigned long addr = 0x20 + 8 * i;
 
-		ut_asserteq(addr, map->range[i].start);
-		ut_asserteq(5 + i, map->range[i].size);
+		ut_asserteq(addr, map->ranges[i].start);
+		ut_asserteq(5 + i, map->ranges[i].size);
 		ut_asserteq(addr, map_to_sysmem(regmap_get_range(map, i)));
 	}
 
@@ -50,6 +45,22 @@ static int dm_test_regmap_base(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_I2C, 0, &dev));
 	map = syscon_get_regmap(dev);
 	ut_asserteq_ptr(ERR_PTR(-ENOEXEC), map);
+
+	/* A different device can be a syscon by using Linux-compat API */
+	node = ofnode_path("/syscon@2");
+	ut_assert(ofnode_valid(node));
+
+	map = syscon_node_to_regmap(node);
+	ut_assertok_ptr(map);
+	ut_asserteq(4, map->range_count);
+	ut_asserteq(0x40, map->ranges[0].start);
+	for (i = 0; i < 4; i++) {
+		const unsigned long addr = 0x40 + 8 * i;
+
+		ut_asserteq(addr, map->ranges[i].start);
+		ut_asserteq(5 + i, map->ranges[i].size);
+		ut_asserteq(addr, map_to_sysmem(regmap_get_range(map, i)));
+	}
 
 	return 0;
 }
@@ -80,3 +91,28 @@ static int dm_test_regmap_syscon(struct unit_test_state *uts)
 }
 
 DM_TEST(dm_test_regmap_syscon, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Read/Write/Modify test */
+static int dm_test_regmap_rw(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct regmap *map;
+	uint reg;
+
+	ut_assertok(uclass_get_device(UCLASS_SYSCON, 0, &dev));
+	map = syscon_get_regmap(dev);
+	ut_assertok_ptr(map);
+
+	ut_assertok(regmap_write(map, 0, 0xcacafafa));
+	ut_assertok(regmap_write(map, 3, 0x55aa2211));
+
+	ut_assertok(regmap_read(map, 0, &reg));
+	ut_assertok(regmap_read(map, 3, &reg));
+
+	ut_assertok(regmap_update_bits(map, 0, 0xff00ff00, 0x55aa2211));
+	ut_assertok(regmap_update_bits(map, 3, 0x00ff00ff, 0xcacafada));
+
+	return 0;
+}
+
+DM_TEST(dm_test_regmap_rw, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

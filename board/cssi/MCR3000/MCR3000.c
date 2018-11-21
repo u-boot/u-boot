@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010-2017 CS Systemes d'Information
  * Florent Trinh Thai <florent.trinh-thai@c-s.fr>
  * Christophe Leroy <christophe.leroy@c-s.fr>
  *
  * Board specific routines for the MCR3000 board
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -15,6 +14,8 @@
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define SDRAM_MAX_SIZE			(32 * 1024 * 1024)
 
 static const uint cs1_dram_table_66[] = {
 	/* DRAM - single read. (offset 0 in upm RAM) */

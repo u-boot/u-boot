@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 SAMSUNG Electronics
  * Jaehoon Chung <jh80.chung@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,7 +9,7 @@
 #include <malloc.h>
 #include <sdhci.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <asm/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/clk.h>

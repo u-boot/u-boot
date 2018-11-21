@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  *  linux/arch/arm/lib/muldi3.S
  *
  *  Author:     Nicolas Pitre
  *  Created:    Oct 19, 2005
  *  Copyright:  Monta Vista Software, Inc.
- *
- *  SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <linux/linkage.h>

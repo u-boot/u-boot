@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ OR BSD-2-Clause */
 /*
  * (C) Copyright 2007-2008 Semihalf
  *
  * Written by: Rafal Jaworowski <raj@semihalf.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+	BSD-2-Clause
  */
 
 #ifndef _API_PUBLIC_H_

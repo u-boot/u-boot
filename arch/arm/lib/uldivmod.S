@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright 2010, Google Inc.
  *
  * Brought in from coreboot uldivmod.S
- *
- * SPDX-License-Identifier:     GPL-2.0
  */
 
 #include <linux/linkage.h>

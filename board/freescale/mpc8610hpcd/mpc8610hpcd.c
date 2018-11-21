@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2007,2009-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -14,7 +13,7 @@
 #include <asm/fsl_serdes.h>
 #include <i2c.h>
 #include <asm/io.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <spd_sdram.h>
 #include <netdev.h>

@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Take drivers/gpio/gpio-74x164.c as reference.
  *
  * 74Hx164 - Generic serial-in/parallel-out 8-bits shift register GPIO driver
  *
  * Copyright (C) 2016 Peng Fan <van.freenix@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  */
 

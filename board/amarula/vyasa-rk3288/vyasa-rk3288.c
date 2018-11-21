@@ -1,13 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Amarula Solutions
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
 
 #ifndef CONFIG_TPL_BUILD
 #include <spl.h>
+
+void board_boot_order(u32 *spl_boot_list)
+{
+	/* eMMC prior to sdcard. */
+	spl_boot_list[0] = BOOT_DEVICE_MMC2;
+	spl_boot_list[1] = BOOT_DEVICE_MMC1;
+}
 
 int spl_start_uboot(void)
 {

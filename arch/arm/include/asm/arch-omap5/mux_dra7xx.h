@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013
  * Texas Instruments Incorporated
  *
  * Nishant Kamat <nskamat@ti.com>
  * Lokesh Vutla <lokeshvutla@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _MUX_DRA7XX_H_
 #define _MUX_DRA7XX_H_
@@ -350,5 +349,8 @@
 #define RESETN		0x45C
 #define NMIN_DSP	0x460
 #define RSTOUTN		0x464
+
+#define MCAN_SEL_ALT_MASK	0x6000
+#define MCAN_SEL		0x2000
 
 #endif /* _MUX_DRA7XX_H_ */

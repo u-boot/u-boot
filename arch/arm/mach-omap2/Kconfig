@@ -6,6 +6,7 @@ choice
 
 config OMAP34XX
 	bool "OMAP34XX SoC"
+	select ARM_CORTEX_A8_CVE_2017_5715
 	select ARM_ERRATA_430973
 	select ARM_ERRATA_454179
 	select ARM_ERRATA_621766
@@ -51,6 +52,7 @@ config OMAP44XX
 
 config OMAP54XX
 	bool "OMAP54XX SoC"
+	select ARM_CORTEX_A15_CVE_2017_5715
 	select ARM_ERRATA_798870
 	select SYS_THUMB_BUILD
 	imply NAND_OMAP_ELM
@@ -74,6 +76,7 @@ config OMAP54XX
 
 config TI814X
 	bool "TI814X SoC"
+	select SPECIFY_CONSOLE_INDEX
 	help
 	  Support for AM335x SOC from Texas Instruments.
 	  The AM335x high performance SOC features a Cortex-A8
@@ -81,6 +84,7 @@ config TI814X
 
 config TI816X
 	bool "TI816X SoC"
+	select SPECIFY_CONSOLE_INDEX
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC
 	help
@@ -90,6 +94,7 @@ config TI816X
 
 config AM43XX
 	bool "AM43XX SoC"
+	select SPECIFY_CONSOLE_INDEX
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC
 	imply SPL_DM
@@ -111,6 +116,8 @@ config AM43XX
 
 config AM33XX
 	bool "AM33XX SoC"
+	select ARM_CORTEX_A8_CVE_2017_5715
+	select SPECIFY_CONSOLE_INDEX
 	imply NAND_OMAP_ELM
 	imply NAND_OMAP_GPMC
 	imply SPL_NAND_AM33XX_BCH
@@ -129,19 +136,10 @@ endchoice
 
 config SYS_MPUCLK
 	int "MPU CLK speed"
+	depends on AM33XX
 	default 500
 	help
 	  Defines the MPU clock speed (in MHz).
-
-config TI_SECURE_DEVICE
-	bool "HS Device Type Support"
-	depends on OMAP54XX || AM43XX || AM33XX || ARCH_KEYSTONE
-	help
-	  If a high secure (HS) device type is being used, this config
-	  must be set. This option impacts various aspects of the
-	  build system (to create signed boot images that can be
-	  authenticated) and the code. See the doc/README.ti-secure
-	  file for further details.
 
 config TI_SECURE_EMIF_REGION_START
 	hex "Reserved EMIF region start address"

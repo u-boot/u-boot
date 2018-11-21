@@ -29,6 +29,7 @@ tests. Similar package names should exist in other distributions.
 | -------------- | ----------------------------- |
 | python         | 2.7.5-5ubuntu3                |
 | python-pytest  | 2.5.1-1                       |
+| python-subunit | -                             |
 | gdisk          | 0.8.8-1ubuntu0.1              |
 | dfu-util       | 0.5-1                         |
 | dtc            | 1.4.0+dfsg-1                  |
@@ -150,7 +151,7 @@ processing.
   option takes a single argument which is used to filter test names. Simple
   logical operators are supported. For example:
   - `'ums'` runs only tests with "ums" in their name.
-  - ``ut_dm'` runs only tests with "ut_dm" in their name. Note that in this
+  - `'ut_dm'` runs only tests with "ut_dm" in their name. Note that in this
     case, "ut_dm" is a parameter to a test rather than the test name. The full
     test name is e.g. "test_ut[ut_dm_leak]".
   - `'not reset'` runs everything except tests with "reset" in their name.
@@ -320,7 +321,7 @@ If U-Boot has already been built:
 
 ```bash
 PATH=$HOME/ubtest/bin:$PATH \
-    PYTHONPATH=${HOME}/ubtest/py:${PYTHONPATH} \
+    PYTHONPATH=${HOME}/ubtest/py/${HOSTNAME}:${PYTHONPATH} \
     ./test/py/test.py --bd seaboard
 ```
 
@@ -331,7 +332,7 @@ follow:
 ```bash
 CROSS_COMPILE=arm-none-eabi- \
     PATH=$HOME/ubtest/bin:$PATH \
-    PYTHONPATH=${HOME}/ubtest/py:${PYTHONPATH} \
+    PYTHONPATH=${HOME}/ubtest/py/${HOSTNAME}:${PYTHONPATH} \
     ./test/py/test.py --bd seaboard --build
 ```
 

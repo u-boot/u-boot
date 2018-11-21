@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * linux/arch/arm/mach-kirkwood/mpp.h -- Multi Purpose Pins
  *
  * Copyright 2009: Marvell Technology Group Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __KIRKWOOD_MPP_H

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Texas Instruments, <www.ti.com>
@@ -5,8 +6,6 @@
  * Authors:
  *	Aneesh V <aneesh@ti.com>
  *	Sricharan R <r.sricharan@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _OMAP5_H_
@@ -65,6 +64,9 @@
 #define DRA722_CONTROL_ID_CODE_ES1_0		0x0B9BC02F
 #define DRA722_CONTROL_ID_CODE_ES2_0		0x1B9BC02F
 #define DRA722_CONTROL_ID_CODE_ES2_1		0x2B9BC02F
+
+#define DRA762_ABZ_PACKAGE			0x2
+#define DRA762_ACD_PACKAGE			0x3
 
 /* UART */
 #define UART1_BASE		(OMAP54XX_L4_PER_BASE + 0x6a000)

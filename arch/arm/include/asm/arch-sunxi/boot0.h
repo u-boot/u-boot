@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration settings for the Allwinner A64 (sun50i) CPU
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #if defined(CONFIG_RESERVE_ALLWINNER_BOOT0_HEADER) && !defined(CONFIG_SPL_BUILD)
@@ -27,7 +26,11 @@
 	.word	0xf57ff06f	// isb     sy
 	.word	0xe320f003	// wfi
 	.word	0xeafffffd	// b       @wfi
+#ifndef CONFIG_MACH_SUN50I_H6
 	.word	0x017000a0	// writeable RVBAR mapping address
+#else
+	.word	0x09010040	// writeable RVBAR mapping address
+#endif
 #ifdef CONFIG_SPL_BUILD
 	.word	CONFIG_SPL_TEXT_BASE
 #else

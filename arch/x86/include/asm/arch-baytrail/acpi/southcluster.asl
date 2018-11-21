@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Google Inc.
  * Copyright (C) 2016 Bin Meng <bmeng.cn@gmail.com>
  *
  * Modified from coreboot src/soc/intel/baytrail/acpi/southcluster.asl
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 Device (PCI0)
@@ -151,9 +150,9 @@ Device (PCI0)
 		CreateQwordField(MCRS, ^UMEM._MAX, UMAX)
 		CreateQwordField(MCRS, ^UMEM._LEN, ULEN)
 
-		/* Set base address to 48GB and allocate 16GB for PCI space */
-		Store(0xc00000000, UMIN)
-		Store(0x400000000, ULEN)
+		/* Set base address to 16GB and allocate 48GB for PCI space */
+		Store(0x400000000, UMIN)
+		Store(0xc00000000, ULEN)
 		Add(UMIN, Subtract(ULEN, 1), UMAX)
 
 		Return (MCRS)

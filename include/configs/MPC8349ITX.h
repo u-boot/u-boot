@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) Freescale Semiconductor, Inc. 2006.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -50,14 +49,9 @@
 #define CONFIG_MPC834x		/* MPC834x family (8343, 8347, 8349) */
 #define CONFIG_MPC8349		/* MPC8349 specific */
 
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xFEF00000
-#endif
-
 #define CONFIG_SYS_IMMR	0xE0000000	/* The IMMR is relocated to here */
 
 #define CONFIG_MISC_INIT_F
-#define CONFIG_MISC_INIT_R
 
 /*
  * On-board devices
@@ -72,7 +66,6 @@
 
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C
-#define CONFIG_TSEC_ENET		/* TSEC Ethernet support */
 
 /*
  * Device configurations
@@ -193,8 +186,6 @@
  *Flash on the Local Bus
  */
 
-#define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
-#define CONFIG_FLASH_CFI_DRIVER		/* use the CFI driver */
 #define CONFIG_SYS_FLASH_BASE		0xFE000000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 /* 127 64KB sectors + 8 8KB sectors per device */
@@ -210,7 +201,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_FLASH_BANKS_LIST	\
 		{CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE + 0x800000}
 #define CONFIG_SYS_FLASH_SIZE		16	/* FLASH size in MB */
-#define CONFIG_SYS_FLASH_PROTECTION	1	/* Use h/w Flash protection. */
 
 /* Vitesse 7385 */
 
@@ -344,7 +334,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /*
  * Serial Port
  */
-#define CONFIG_CONS_INDEX	1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -415,9 +404,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /* TSEC */
 
 #ifdef CONFIG_TSEC_ENET
-
-#define CONFIG_MII
-
 #define CONFIG_TSEC1
 
 #ifdef CONFIG_TSEC1
@@ -454,7 +440,6 @@ boards, we say we have two, but don't display a message if we find only one. */
   #define CONFIG_ENV_SECT_SIZE	0x10000 /* 64K (one sector) for environment */
   #define CONFIG_ENV_SIZE	0x2000
 #else
-  #undef  CONFIG_FLASH_CFI_DRIVER
   #define CONFIG_ENV_ADDR	(CONFIG_SYS_MONITOR_BASE - 0x1000)
   #define CONFIG_ENV_SIZE	0x2000
 #endif
@@ -466,17 +451,6 @@ boards, we say we have two, but don't display a message if we find only one. */
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
-
-#if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114) \
-				|| defined(CONFIG_USB_STORAGE)
-	#define CONFIG_SUPPORT_VFAT
-#endif
-
-#if defined(CONFIG_SATA_SIL3114) || defined(CONFIG_USB_STORAGE)
-#endif
 
 /* Watchdog */
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
@@ -484,9 +458,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
-#define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */

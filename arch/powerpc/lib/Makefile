@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ## Build a couple of necessary functions into a private libgcc
 ## if the user asked for it
@@ -19,13 +17,17 @@ endif
 
 ifdef MINIMAL
 obj-y += cache.o time.o
+ifndef CONFIG_TIMER
 obj-y += ticks.o
+endif
 else
 
 obj-y	+= ppcstring.o
 
 obj-y	+= ppccache.o
+ifndef CONFIG_TIMER
 obj-y	+= ticks.o
+endif
 obj-y	+= reloc.o
 
 obj-$(CONFIG_BAT_RW) += bat_rw.o

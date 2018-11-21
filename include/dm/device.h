@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2013 Google, Inc
  *
  * (C) Copyright 2012
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  * Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DM_DEVICE_H
@@ -203,7 +202,7 @@ struct udevice_id {
  * it.
  *
  * @name: Device name
- * @id: Identiies the uclass we belong to
+ * @id: Identifies the uclass we belong to
  * @of_match: List of compatible strings to match, and any identifying data
  * for each.
  * @bind: Called to bind a device to its driver
@@ -271,7 +270,7 @@ struct driver {
  * @dev		Device to check
  * @return platform data, or NULL if none
  */
-void *dev_get_platdata(struct udevice *dev);
+void *dev_get_platdata(const struct udevice *dev);
 
 /**
  * dev_get_parent_platdata() - Get the parent platform data for a device
@@ -281,7 +280,7 @@ void *dev_get_platdata(struct udevice *dev);
  * @dev		Device to check
  * @return parent's platform data, or NULL if none
  */
-void *dev_get_parent_platdata(struct udevice *dev);
+void *dev_get_parent_platdata(const struct udevice *dev);
 
 /**
  * dev_get_uclass_platdata() - Get the uclass platform data for a device
@@ -291,7 +290,7 @@ void *dev_get_parent_platdata(struct udevice *dev);
  * @dev		Device to check
  * @return uclass's platform data, or NULL if none
  */
-void *dev_get_uclass_platdata(struct udevice *dev);
+void *dev_get_uclass_platdata(const struct udevice *dev);
 
 /**
  * dev_get_priv() - Get the private data for a device
@@ -301,7 +300,7 @@ void *dev_get_uclass_platdata(struct udevice *dev);
  * @dev		Device to check
  * @return private data, or NULL if none
  */
-void *dev_get_priv(struct udevice *dev);
+void *dev_get_priv(const struct udevice *dev);
 
 /**
  * dev_get_parent_priv() - Get the parent private data for a device
@@ -315,7 +314,7 @@ void *dev_get_priv(struct udevice *dev);
  * @dev		Device to check
  * @return parent data, or NULL if none
  */
-void *dev_get_parent_priv(struct udevice *dev);
+void *dev_get_parent_priv(const struct udevice *dev);
 
 /**
  * dev_get_uclass_priv() - Get the private uclass data for a device
@@ -325,7 +324,7 @@ void *dev_get_parent_priv(struct udevice *dev);
  * @dev		Device to check
  * @return private uclass data for this device, or NULL if none
  */
-void *dev_get_uclass_priv(struct udevice *dev);
+void *dev_get_uclass_priv(const struct udevice *dev);
 
 /**
  * struct dev_get_parent() - Get the parent of a device
@@ -333,7 +332,7 @@ void *dev_get_uclass_priv(struct udevice *dev);
  * @child:	Child to check
  * @return parent of child, or NULL if this is the root device
  */
-struct udevice *dev_get_parent(struct udevice *child);
+struct udevice *dev_get_parent(const struct udevice *child);
 
 /**
  * dev_get_driver_data() - get the driver data used to bind a device
@@ -360,7 +359,7 @@ struct udevice *dev_get_parent(struct udevice *child);
  * @dev:	Device to check
  * @return driver data (0 if none is provided)
  */
-ulong dev_get_driver_data(struct udevice *dev);
+ulong dev_get_driver_data(const struct udevice *dev);
 
 /**
  * dev_get_driver_ops() - get the device's driver's operations
@@ -371,7 +370,7 @@ ulong dev_get_driver_data(struct udevice *dev);
  * @dev:	Device to check
  * @return void pointer to driver's operations or NULL for NULL-dev or NULL-ops
  */
-const void *dev_get_driver_ops(struct udevice *dev);
+const void *dev_get_driver_ops(const struct udevice *dev);
 
 /**
  * device_get_uclass_id() - return the uclass ID of a device
@@ -379,7 +378,7 @@ const void *dev_get_driver_ops(struct udevice *dev);
  * @dev:	Device to check
  * @return uclass ID for the device
  */
-enum uclass_id device_get_uclass_id(struct udevice *dev);
+enum uclass_id device_get_uclass_id(const struct udevice *dev);
 
 /**
  * dev_get_uclass_name() - return the uclass name of a device
@@ -389,7 +388,7 @@ enum uclass_id device_get_uclass_id(struct udevice *dev);
  * @dev:	Device to check
  * @return  pointer to the uclass name for the device
  */
-const char *dev_get_uclass_name(struct udevice *dev);
+const char *dev_get_uclass_name(const struct udevice *dev);
 
 /**
  * device_get_child() - Get the child of a device by index
@@ -474,18 +473,33 @@ int device_get_child_by_of_offset(struct udevice *parent, int of_offset,
 				  struct udevice **devp);
 
 /**
- * device_get_global_by_of_offset() - Get a device based on FDT offset
+ * device_find_global_by_ofnode() - Get a device based on ofnode
  *
- * Locates a device by its device tree offset, searching globally throughout
+ * Locates a device by its device tree ofnode, searching globally throughout
+ * the all driver model devices.
+ *
+ * The device is NOT probed
+ *
+ * @node: Device tree ofnode to find
+ * @devp: Returns pointer to device if found, otherwise this is set to NULL
+ * @return 0 if OK, -ve on error
+ */
+
+int device_find_global_by_ofnode(ofnode node, struct udevice **devp);
+
+/**
+ * device_get_global_by_ofnode() - Get a device based on ofnode
+ *
+ * Locates a device by its device tree ofnode, searching globally throughout
  * the all driver model devices.
  *
  * The device is probed to activate it ready for use.
  *
- * @of_offset: Device tree offset to find
+ * @node: Device tree ofnode to find
  * @devp: Returns pointer to device if found, otherwise this is set to NULL
  * @return 0 if OK, -ve on error
  */
-int device_get_global_by_of_offset(int of_offset, struct udevice **devp);
+int device_get_global_by_ofnode(ofnode node, struct udevice **devp);
 
 /**
  * device_find_first_child() - Find the first child of a device
@@ -506,12 +520,27 @@ int device_find_first_child(struct udevice *parent, struct udevice **devp);
 int device_find_next_child(struct udevice **devp);
 
 /**
+ * device_find_first_inactive_child() - Find the first inactive child
+ *
+ * This is used to locate an existing child of a device which is of a given
+ * uclass.
+ *
+ * @parent:	Parent device to search
+ * @uclass_id:	Uclass to look for
+ * @devp:	Returns device found, if any
+ * @return 0 if found, else -ENODEV
+ */
+int device_find_first_inactive_child(struct udevice *parent,
+				     enum uclass_id uclass_id,
+				     struct udevice **devp);
+
+/**
  * device_has_children() - check if a device has any children
  *
  * @dev:	Device to check
  * @return true if the device has one or more children
  */
-bool device_has_children(struct udevice *dev);
+bool device_has_children(const struct udevice *dev);
 
 /**
  * device_has_active_children() - check if a device has any active children
@@ -585,6 +614,22 @@ bool device_is_compatible(struct udevice *dev, const char *compat);
  * @return true if OK, false if the compatible is not found
  */
 bool of_machine_is_compatible(const char *compat);
+
+/**
+ * dev_disable_by_path() - Disable a device given its device tree path
+ *
+ * @path:	The device tree path identifying the device to be disabled
+ * @return 0 on success, -ve on error
+ */
+int dev_disable_by_path(const char *path);
+
+/**
+ * dev_enable_by_path() - Enable a device given its device tree path
+ *
+ * @path:	The device tree path identifying the device to be enabled
+ * @return 0 on success, -ve on error
+ */
+int dev_enable_by_path(const char *path);
 
 /**
  * device_is_on_pci_bus - Test if a device is on a PCI bus

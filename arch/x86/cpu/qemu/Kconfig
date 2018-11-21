@@ -1,14 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 config QEMU
 	bool
 	select ARCH_EARLY_INIT_R
 	imply AHCI_PCI
 	imply E1000
+	imply SCSI
 	imply SCSI_AHCI
 	imply SYS_NS16550
 	imply USB

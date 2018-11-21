@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Handling of common block commands
  *
@@ -5,14 +6,12 @@
  *
  * (C) Copyright 2000-2011
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <blk.h>
 
-#ifdef HAVE_BLOCK_DEVICE
+#ifdef CONFIG_HAVE_BLOCK_DEVICE
 int blk_common_cmd(int argc, char * const argv[], enum if_type if_type,
 		   int *cur_devnump)
 {

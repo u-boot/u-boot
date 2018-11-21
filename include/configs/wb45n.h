@@ -1,15 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the WB45N CPU Module.
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
 
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
 #include <asm/hardware.h>
-
-#define CONFIG_SYS_TEXT_BASE        0x23f00000
 
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK  32768
@@ -33,12 +30,8 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS        1
 #define CONFIG_SYS_SDRAM_BASE       0x20000000
 #define CONFIG_SYS_SDRAM_SIZE       0x04000000	/* 64 MB */
 
@@ -46,7 +39,6 @@
     (CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 /* NAND flash */
-#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE  1
 #define CONFIG_SYS_NAND_BASE        0x40000000
 /* our ALE is AD21 */
@@ -62,9 +54,6 @@
 #define CONFIG_PMECC_CAP            4
 #define CONFIG_PMECC_SECTOR_SIZE    512
 
-#define CONFIG_MTD_DEVICE
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_MTD_PARTITIONS
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 
@@ -120,9 +109,6 @@
 
 #define CONFIG_SYS_CBSIZE   256
 #define CONFIG_SYS_MAXARGS  16
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
 
 /*
  * Size of malloc() pool
@@ -130,7 +116,6 @@
 #define CONFIG_SYS_MALLOC_LEN       (512 * 1024 + 0x1000)
 
 /* SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE        0x300000
 #define CONFIG_SPL_MAX_SIZE         0x6000
 #define CONFIG_SPL_STACK            0x308000

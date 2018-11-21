@@ -1,15 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright 2008, 2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/mp.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 extern void ft_fixup_num_cores(void *blob);
 extern void ft_srio_setup(void *blob);

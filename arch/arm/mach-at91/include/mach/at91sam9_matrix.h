@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jrosoft.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_AT91SAM9_MATRIX_H

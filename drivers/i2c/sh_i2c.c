@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011, 2013 Renesas Solutions Corp.
  * Copyright (C) 2011, 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * NOTE: This driver should be converted to driver model before June 2017.
  * Please see doc/driver-model/i2c-howto.txt for instructions.

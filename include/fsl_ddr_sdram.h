@@ -1,7 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
- * Copyright 2008-2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
+ * Copyright 2008-2016 Freescale Semiconductor, Inc.
+ * Copyright 2017-2018 NXP Semiconductor
  */
 
 #ifndef FSL_DDR_MEMCTL_H
@@ -366,6 +366,7 @@ typedef struct memctl_options_s {
 	unsigned int quad_rank_present;
 	unsigned int ap_en;	/* address parity enable for RDIMM/DDR4-UDIMM */
 	unsigned int x4_en;	/* enable x4 devices */
+	unsigned int package_3ds;
 
 	/* Global Timing Parameters */
 	unsigned int cas_latency_override;
@@ -408,6 +409,7 @@ typedef struct memctl_options_s {
 	unsigned int rcw_override;
 	unsigned int rcw_1;
 	unsigned int rcw_2;
+	unsigned int rcw_3;
 	/* control register 1 */
 	unsigned int ddr_cdr1;
 	unsigned int ddr_cdr2;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012 Henrik Nordstrom <henrik@henriknordstrom.net>
  *
@@ -6,8 +7,6 @@
  * Tom Cubie <tangliang@allwinnertech.com>
  *
  * Some init for sunxi platform.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -53,7 +52,7 @@ static struct mm_region sunxi_mem_map[] = {
 		/* RAM */
 		.virt = 0x40000000UL,
 		.phys = 0x40000000UL,
-		.size = 0x80000000UL,
+		.size = 0xC0000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
@@ -108,6 +107,10 @@ static int gpio_init(void)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(8), SUN50I_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN50I_GPB_UART0);
 	sunxi_gpio_set_pull(SUNXI_GPB(9), SUNXI_GPIO_PULL_UP);
+#elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN50I_H6)
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(0), SUN50I_H6_GPH_UART0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPH(1), SUN50I_H6_GPH_UART0);
+	sunxi_gpio_set_pull(SUNXI_GPH(1), SUNXI_GPIO_PULL_UP);
 #elif CONFIG_CONS_INDEX == 1 && defined(CONFIG_MACH_SUN8I_A83T)
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(9), SUN8I_A83T_GPB_UART0);
 	sunxi_gpio_set_cfgpin(SUNXI_GPB(10), SUN8I_A83T_GPB_UART0);
@@ -208,10 +211,6 @@ void s_init(void)
 	eth_init_board();
 }
 
-#ifdef CONFIG_SPL_BUILD
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
 /* The sunxi internal brom will try to loader external bootloader
  * from mmc0, nand flash, mmc2.
  */
@@ -260,12 +259,6 @@ u32 spl_boot_device(void)
 	return sunxi_get_boot_device();
 }
 
-/* No confirmation data available in SPL yet. Hardcode bootmode */
-u32 spl_boot_mode(const u32 boot_device)
-{
-	return MMCSD_MODE_RAW;
-}
-
 void board_init_f(ulong dummy)
 {
 	spl_init();
@@ -293,7 +286,7 @@ void reset_cpu(ulong addr)
 		/* sun5i sometimes gets stuck without this */
 		writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
 	}
-#elif defined(CONFIG_SUNXI_GEN_SUN6I)
+#elif defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_MACH_SUN50I_H6)
 	static const struct sunxi_wdog *wdog =
 		 ((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
 

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier:	GPL-2.0+
 #
 # Copyright 2017 Google, Inc
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 
 import contextlib
@@ -150,7 +149,8 @@ class TestFunctional(unittest.TestCase):
                 patchstream.InsertCoverLetter(cover_fname, series, count)
             series.DoChecks()
             cc_file = series.MakeCcFile(process_tags, cover_fname,
-                                        not ignore_bad_tags, add_maintainers)
+                                        not ignore_bad_tags, add_maintainers,
+                                        None)
             cmd = gitutil.EmailPatches(series, cover_fname, args,
                     dry_run, not ignore_bad_tags, cc_file,
                     in_reply_to=in_reply_to, thread=None)
@@ -210,7 +210,7 @@ Changes in v4:
 
 Simon Glass (2):
   pci: Correct cast for sandbox
-  fdt: Correct cast for sandbox in fdtdec_setup_memory_size()
+  fdt: Correct cast for sandbox in fdtdec_setup_mem_size_base()
 
  cmd/pci.c                   | 3 ++-
  fs/fat/fat.c                | 1 +

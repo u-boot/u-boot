@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011
  * egnite GmbH <info@egnite.de>
  *
  * (C) Copyright 2010
  * Ole Reinhardt <ole.reinhardt@thermotemp.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

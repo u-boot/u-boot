@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) International Business Machines Corp., 2006
  * Copyright (c) Nokia Corporation, 2006, 2007
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Author: Artem Bityutskiy (Битюцкий Артём)
  */
@@ -1119,6 +1118,6 @@ static inline int idx2vol_id(const struct ubi_device *ubi, int idx)
 }
 
 #ifdef __UBOOT__
-int do_work(struct ubi_device *ubi);
+void ubi_do_worker(struct ubi_device *ubi);
 #endif
 #endif /* !__UBI_UBI_H__ */

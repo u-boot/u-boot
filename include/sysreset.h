@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __SYSRESET_H
@@ -12,6 +11,7 @@ enum sysreset_t {
 	SYSRESET_WARM,	/* Reset CPU, keep GPIOs active */
 	SYSRESET_COLD,	/* Reset CPU and GPIOs */
 	SYSRESET_POWER,	/* Reset PMIC (remove and restore power) */
+	SYSRESET_POWER_OFF,	/* Turn off power */
 
 	SYSRESET_COUNT,
 };
@@ -29,6 +29,23 @@ struct sysreset_ops {
 	 *		(in which case this method will not actually return)
 	 */
 	int (*request)(struct udevice *dev, enum sysreset_t type);
+	/**
+	 * get_status() - get printable reset status information
+	 *
+	 * @dev:	Device to check
+	 * @buf:	Buffer to receive the textual reset information
+	 * @size:	Size of the passed buffer
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*get_status)(struct udevice *dev, char *buf, int size);
+
+	/**
+	 * get_last() - get information on the last reset
+	 *
+	 * @dev:	Device to check
+	 * @return last reset state (enum sysreset_t) or -ve error
+	 */
+	int (*get_last)(struct udevice *dev);
 };
 
 #define sysreset_get_ops(dev)        ((struct sysreset_ops *)(dev)->driver->ops)
@@ -40,6 +57,24 @@ struct sysreset_ops {
  * @return 0 if OK, -EPROTONOSUPPORT if not supported by this device
  */
 int sysreset_request(struct udevice *dev, enum sysreset_t type);
+
+/**
+ * sysreset_get_status() - get printable reset status information
+ *
+ * @dev:	Device to check
+ * @buf:	Buffer to receive the textual reset information
+ * @size:	Size of the passed buffer
+ * @return 0 if OK, -ve on error
+ */
+int sysreset_get_status(struct udevice *dev, char *buf, int size);
+
+/**
+ * sysreset_get_last() - get information on the last reset
+ *
+ * @dev:	Device to check
+ * @return last reset state (enum sysreset_t) or -ve error
+ */
+int sysreset_get_last(struct udevice *dev);
 
 /**
  * sysreset_walk() - cause a system reset
@@ -54,6 +89,19 @@ int sysreset_request(struct udevice *dev, enum sysreset_t type);
  * @return -EINPROGRESS if a reset is in progress, -ENOSYS if not available
  */
 int sysreset_walk(enum sysreset_t type);
+
+/**
+ * sysreset_get_last_walk() - get information on the last reset
+ *
+ * This works through the available sysreset devices until it finds one that can
+ * perform a reset. If the provided sysreset type is not available, the next one
+ * will be tried.
+ *
+ * If no device prives the information, this function returns -ENOENT
+ *
+ * @return last reset state (enum sysreset_t) or -ve error
+ */
+int sysreset_get_last_walk(void);
 
 /**
  * sysreset_walk_halt() - try to reset, otherwise halt

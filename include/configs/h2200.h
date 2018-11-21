@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * iPAQ h2200 board configuration
  *
  * Copyright (C) 2012 Lukasz Dalek <luk0104@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -12,9 +11,7 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_H2200
 
 #define CONFIG_CPU_PXA25X		1
-#define CONFIG_BOARD_H2200
 
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0xa0000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE		0x04000000 /* 64 MB */
 
@@ -42,8 +39,6 @@
  *	.org 0x1000
  * --- Header end ---
  */
-
-#define CONFIG_SYS_TEXT_BASE		0xa0041000
 
 /*
  * Static chips
@@ -103,7 +98,6 @@
  * Serial port
  */
 #define CONFIG_FFUART
-#define CONFIG_CONS_INDEX		3
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 38400, 115200 }
 

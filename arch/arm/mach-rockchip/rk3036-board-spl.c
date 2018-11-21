@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015 Rockchip Electronics Co., Ltd
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -13,8 +12,6 @@
 #include <asm/arch/sdram_rk3036.h>
 #include <asm/arch/timer.h>
 #include <asm/arch/uart.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define GRF_BASE	0x20008000
 

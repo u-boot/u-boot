@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Embest/Timll DevKit3250 board configuration file
  *
  * Copyright (C) 2011-2015 Vladimir Zapolskiy <vz@mleia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_DEVKIT3250_H__
@@ -24,11 +23,9 @@
 /*
  * Memory configurations
  */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_MALLOC_LEN		SZ_1M
 #define CONFIG_SYS_SDRAM_BASE		EMC_DYCS0_BASE
 #define CONFIG_SYS_SDRAM_SIZE		SZ_64M
-#define CONFIG_SYS_TEXT_BASE		0x83F00000
 #define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE + SZ_32K)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_TEXT_BASE - SZ_1M)
 
@@ -64,7 +61,6 @@
 /*
  * SSP/SPI
  */
-#define CONFIG_LPC32XX_SSP
 #define CONFIG_LPC32XX_SSP_TIMEOUT	100000
 
 /*
@@ -73,7 +69,6 @@
 #define CONFIG_RMII
 #define CONFIG_PHY_SMSC
 #define CONFIG_LPC32XX_ETH
-#define CONFIG_PHY_ADDR			0x1F
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
 
 /*
@@ -83,12 +78,10 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	71
 #define CONFIG_SYS_FLASH_BASE		EMC_CS0_BASE
 #define CONFIG_SYS_FLASH_SIZE		SZ_4M
-#define CONFIG_SYS_FLASH_CFI
 
 /*
  * NAND controller
  */
-#define CONFIG_NAND_LPC32XX_SLC
 #define CONFIG_SYS_NAND_BASE		SLC_NAND_BASE
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
@@ -118,12 +111,8 @@
 /*
  * U-Boot General Configurations
  */
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 
 /*
  * Pass open firmware flat tree
@@ -174,7 +163,6 @@
 #define CONFIG_SPL_STACK		0x0000FFF8
 
 /* Use the framework and generic lib */
-#define CONFIG_SPL_FRAMEWORK
 
 /* SPL will use serial */
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
  *
@@ -5,11 +6,11 @@
  *
  * Copyright (C) 2009 Nick Thompson, GE Fanuc, Ltd. <nick.thompson@gefanuc.com>
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <dm.h>
+#include <environment.h>
 #include <i2c.h>
 #include <net.h>
 #include <netdev.h>
@@ -24,6 +25,7 @@
 #include <linux/errno.h>
 #include <hwconfig.h>
 #include <asm/mach-types.h>
+#include <asm/gpio.h>
 
 #ifdef CONFIG_MMC_DAVINCI
 #include <mmc.h>
@@ -46,6 +48,33 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CFG_MAC_ADDR_SPI_MODE	SPI_MODE_3
 
 #define CFG_MAC_ADDR_OFFSET	(flash->size - SZ_64K)
+
+#ifdef CONFIG_SPL_BUILD
+#include <ns16550.h>
+#include <dm/platform_data/spi_davinci.h>
+
+static const struct ns16550_platdata da850evm_serial = {
+	.base = DAVINCI_UART2_BASE,
+	.reg_shift = 2,
+	.clock = 150000000,
+	.fcr = UART_FCR_DEFVAL,
+};
+
+U_BOOT_DEVICE(da850evm_uart) = {
+	.name = "ns16550_serial",
+	.platdata = &da850evm_serial,
+};
+
+static const struct davinci_spi_platdata davinci_spi_data = {
+        .regs = (struct davinci_spi_regs *)0x01f0e000,
+        .num_cs = 4,
+};
+
+U_BOOT_DEVICE(davinci_spi) = {
+        .name = "davinci_spi",
+        .platdata = &davinci_spi_data,
+};
+#endif
 
 #ifdef CONFIG_MAC_ADDR_IN_SPIFLASH
 static int get_mac_addr(u8 *addr)
@@ -202,6 +231,7 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifndef CONFIG_DM_MMC
 #ifdef CONFIG_MMC_DAVINCI
 static struct davinci_mmc mmc_sd0 = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
@@ -217,6 +247,7 @@ int board_mmc_init(bd_t *bis)
 	/* Add slot-0 to mmc subsystem */
 	return davinci_mmc_init(bis, &mmc_sd0);
 }
+#endif
 #endif
 
 static const struct pinmux_config gpio_pins[] = {

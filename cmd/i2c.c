@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009
  * Sergey Kubushyn, himself, ksi@koi8.net
@@ -6,8 +7,6 @@
  *
  * (C) Copyright 2001
  * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -78,8 +77,6 @@
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <linux/compiler.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Display values from last command.
  * Memory modify remembered values are different from display memory.

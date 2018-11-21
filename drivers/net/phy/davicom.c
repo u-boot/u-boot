@@ -1,11 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Davicom PHY drivers
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * author Andy Fleming
  */
+#include <common.h>
 #include <phy.h>
 
 #define MIIM_DM9161_SCR                0x10

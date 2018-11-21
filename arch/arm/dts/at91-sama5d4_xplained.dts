@@ -58,6 +58,18 @@
 		stdout-path = &usart3;
 	};
 
+	onewire_tm: onewire {
+		gpios = <&pioE 15 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_onewire_tm_default>;
+		status = "okay";
+
+		w1_eeprom: w1_eeprom@0 {
+			compatible = "maxim,ds24b33";
+			status = "okay";
+		};
+	};
+
 	memory {
 		reg = <0x20000000 0x20000000>;
 	};
@@ -198,6 +210,10 @@
 					pinctrl_macb0_phy_irq: macb0_phy_irq_0 {
 						atmel,pins =
 							<AT91_PIOE 1 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
+					};
+					pinctrl_onewire_tm_default: onewire_tm_default {
+						atmel,pins =
+							<AT91_PIOE 15 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
 					};
 				};
 			};

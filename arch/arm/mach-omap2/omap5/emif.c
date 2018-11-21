@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * EMIF programming
  *
@@ -5,8 +6,6 @@
  * Texas Instruments, <www.ti.com>
  *
  * Aneesh V <aneesh@ti.com> for OMAP4
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

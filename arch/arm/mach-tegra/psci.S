@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014, NVIDIA
  * Copyright (C) 2015, Siemens AG
@@ -5,8 +6,6 @@
  * Authors:
  *  Thierry Reding <treding@nvidia.com>
  *  Jan Kiszka <jan.kiszka@siemens.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <linux/linkage.h>
@@ -90,7 +89,8 @@ ENTRY(psci_cpu_on)
 	mov	r4, r1
 	mov	r0, r1
 	mov	r1, r2
-	bl	psci_save_target_pc	@ store target PC
+	mov	r2, r3
+	bl	psci_save		@ store target PC and context id
 	mov	r1, r4
 
 	ldr	r6, =TEGRA_RESET_EXCEPTION_VECTOR

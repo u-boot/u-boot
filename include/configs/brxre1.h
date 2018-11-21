@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * brxre1.h
  *
@@ -5,8 +6,6 @@
  *
  * Copyright (C) 2013 Hannes Schmelzer <oe5hpm@oevsv.at> -
  * Bernecker & Rainer Industrieelektronik GmbH - http://www.br-automation.com
- *
- * SPDX-License-Identifier:        GPL-2.0+
  */
 
 #ifndef __CONFIG_BRXRE1_H__
@@ -80,8 +79,6 @@ BUR_COMMON_ENV \
 #define CONFIG_INITRD_TAG
 
 /* USB configuration */
-#define CONFIG_USB_MUSB_DSPS
-#define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_HOST

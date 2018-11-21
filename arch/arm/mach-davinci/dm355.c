@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SoC-specific code for tms320dm355 and similar chips
  *
  * Copyright (C) 2009 David Brownell
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

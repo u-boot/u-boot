@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 - 2016 Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -113,20 +112,6 @@ u32 spl_boot_device(void)
 	}
 
 	return 0;
-}
-
-u32 spl_boot_mode(const u32 boot_device)
-{
-	switch (boot_device) {
-	case BOOT_DEVICE_RAM:
-		return 0;
-	case BOOT_DEVICE_MMC1:
-	case BOOT_DEVICE_MMC2:
-		return MMCSD_MODE_FS;
-	default:
-		puts("spl: error: unsupported device\n");
-		hang();
-	}
 }
 
 #ifdef CONFIG_SPL_OS_BOOT

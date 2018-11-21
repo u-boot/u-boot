@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * ti_armv7_omap.h
  *
  * Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * The various ARMv7 SoCs from TI all share a number of IP blocks when
  * implementing a given feature. This is meant to isolate the features
@@ -11,10 +10,6 @@
  */
 #ifndef __CONFIG_TI_ARMV7_OMAP_H__
 #define __CONFIG_TI_ARMV7_OMAP_H__
-
-/* I2C IP block */
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 
 /*
  * GPMC NAND block.  We support 1 device and the physical address to

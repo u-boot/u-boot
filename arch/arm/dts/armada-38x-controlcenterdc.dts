@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Device Tree file for the Guntermann & Drunck ControlCenter-Compact board
  *
@@ -9,8 +10,6 @@
  * Copyright (C) 2014 Marvell
  *
  * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 /dts-v1/;
@@ -93,14 +92,14 @@
 				spi-flash@0 {
 					#address-cells = <1>;
 					#size-cells = <1>;
-					compatible = "n25q016a";
+					compatible = "n25q016a", "spi-flash";
 					reg = <0>; /* Chip select 0 */
 					spi-max-frequency = <108000000>;
 				};
 				spi-flash@1 {
 					#address-cells = <1>;
 					#size-cells = <1>;
-					compatible = "n25q128a11";
+					compatible = "n25q128a11", "spi-flash";
 					reg = <1>; /* Chip select 1 */
 					spi-max-frequency = <108000000>;
 					u-boot,dm-pre-reloc;

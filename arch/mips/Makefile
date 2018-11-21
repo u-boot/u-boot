@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
 
 head-y := arch/mips/cpu/start.o
 
@@ -13,10 +11,10 @@ endif
 libs-y += arch/mips/cpu/
 libs-y += arch/mips/lib/
 
-machine-$(CONFIG_SOC_AU1X00) += au1x00
 machine-$(CONFIG_ARCH_ATH79) += ath79
 machine-$(CONFIG_ARCH_BMIPS) += bmips
 machine-$(CONFIG_MACH_PIC32) += pic32
+machine-$(CONFIG_ARCH_MT7620) += mt7620
 
 machdirs := $(patsubst %,arch/mips/mach-%/,$(machine-y))
 libs-y += $(machdirs)

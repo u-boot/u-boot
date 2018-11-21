@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
   * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
  * Based on original Kirkwood support which is
  * Copyright (C) Marvell International Ltd. and its affiliates
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -79,7 +78,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define timestamp gd->arch.tbl
 #define lastdec gd->arch.lastinc
 
-ulong get_timer_masked(void)
+static ulong get_timer_masked(void)
 {
 	ulong now = read_timer();
 

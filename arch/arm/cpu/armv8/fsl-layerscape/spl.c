@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -12,6 +11,7 @@
 #include <fsl_csu.h>
 #include <asm/arch/fdt.h>
 #include <asm/arch/ppa.h>
+#include <asm/arch/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -23,24 +23,10 @@ u32 spl_boot_device(void)
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	return BOOT_DEVICE_NAND;
 #endif
-	return 0;
-}
-
-u32 spl_boot_mode(const u32 boot_device)
-{
-	switch (spl_boot_device()) {
-	case BOOT_DEVICE_MMC1:
-#ifdef CONFIG_SPL_FAT_SUPPORT
-		return MMCSD_MODE_FS;
-#else
-		return MMCSD_MODE_RAW;
+#ifdef CONFIG_QSPI_BOOT
+	return BOOT_DEVICE_NOR;
 #endif
-	case BOOT_DEVICE_NAND:
-		return 0;
-	default:
-		puts("spl: error: unsupported device\n");
-		hang();
-	}
+	return 0;
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -70,6 +56,7 @@ void spl_board_init(void)
 
 void board_init_f(ulong dummy)
 {
+	icache_enable();
 	/* Clear global data */
 	memset((void *)gd, 0, sizeof(gd_t));
 	board_early_init_f();
@@ -84,6 +71,9 @@ void board_init_f(ulong dummy)
 
 #ifdef CONFIG_SPL_I2C_SUPPORT
 	i2c_init_all();
+#endif
+#ifdef CONFIG_VID
+	init_func_vid();
 #endif
 	dram_init();
 #ifdef CONFIG_SPL_FSL_LS_PPA
@@ -116,6 +106,9 @@ void board_init_f(ulong dummy)
 	gd->arch.tlb_addr = (gd->ram_top - gd->arch.tlb_size) & ~(0x10000 - 1);
 	gd->arch.tlb_allocated = gd->arch.tlb_addr;
 #endif	/* CONFIG_SPL_FSL_LS_PPA */
+#if defined(CONFIG_QSPI_AHB_INIT) && defined(CONFIG_QSPI_BOOT)
+	qspi_ahb_init();
+#endif
 }
 
 #ifdef CONFIG_SPL_OS_BOOT

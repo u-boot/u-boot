@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Beniamino Galvani <b.galvani@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
+#include <environment.h>
 #include <asm/io.h>
-#include <asm/arch/gxbb.h>
+#include <asm/arch/gx.h>
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>
 #include <asm/arch/mem.h>
@@ -29,15 +29,6 @@ int misc_init_r(void)
 	ssize_t len;
 
 	meson_gx_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
-
-	/* Enable power and clock gate */
-	setbits_le32(GXBB_GCLK_MPEG_0, GXBB_GCLK_MPEG_0_I2C);
-
-	/* Reset PHY on GPIOZ_14 */
-	clrbits_le32(GXBB_GPIO_EN(3), BIT(14));
-	clrbits_le32(GXBB_GPIO_OUT(3), BIT(14));
-	mdelay(10);
-	setbits_le32(GXBB_GPIO_OUT(3), BIT(14));
 
 	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,

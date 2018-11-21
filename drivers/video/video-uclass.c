@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2015 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -87,23 +86,51 @@ int video_reserve(ulong *addrp)
 	return 0;
 }
 
-void video_clear(struct udevice *dev)
+int video_clear(struct udevice *dev)
 {
 	struct video_priv *priv = dev_get_uclass_priv(dev);
 
-	if (priv->bpix == VIDEO_BPP32) {
+	switch (priv->bpix) {
+	case VIDEO_BPP16: {
+		u16 *ppix = priv->fb;
+		u16 *end = priv->fb + priv->fb_size;
+
+		while (ppix < end)
+			*ppix++ = priv->colour_bg;
+		break;
+	}
+	case VIDEO_BPP32: {
 		u32 *ppix = priv->fb;
 		u32 *end = priv->fb + priv->fb_size;
 
 		while (ppix < end)
 			*ppix++ = priv->colour_bg;
-	} else {
-		memset(priv->fb, priv->colour_bg, priv->fb_size);
+		break;
 	}
+	default:
+		memset(priv->fb, priv->colour_bg, priv->fb_size);
+		break;
+	}
+
+	return 0;
+}
+
+void video_set_default_colors(struct video_priv *priv)
+{
+#ifdef CONFIG_SYS_WHITE_ON_BLACK
+	/* White is used when switching to bold, use light gray here */
+	priv->fg_col_idx = VID_LIGHT_GRAY;
+	priv->colour_fg = vid_console_color(priv, VID_LIGHT_GRAY);
+	priv->colour_bg = vid_console_color(priv, VID_BLACK);
+#else
+	priv->fg_col_idx = VID_BLACK;
+	priv->colour_fg = vid_console_color(priv, VID_BLACK);
+	priv->colour_bg = vid_console_color(priv, VID_WHITE);
+#endif
 }
 
 /* Flush video activity to the caches */
-void video_sync(struct udevice *vid)
+void video_sync(struct udevice *vid, bool force)
 {
 	/*
 	 * flush_dcache_range() is declared in common.h but it seems that some
@@ -122,7 +149,7 @@ void video_sync(struct udevice *vid)
 	struct video_priv *priv = dev_get_uclass_priv(vid);
 	static ulong last_sync;
 
-	if (get_timer(last_sync) > 10) {
+	if (force || get_timer(last_sync) > 10) {
 		sandbox_sdl_sync(priv->fb);
 		last_sync = get_timer(0);
 	}
@@ -137,7 +164,7 @@ void video_sync_all(void)
 	     dev;
 	     uclass_find_next_device(&dev)) {
 		if (device_active(dev))
-			video_sync(dev);
+			video_sync(dev, true);
 	}
 }
 
@@ -191,12 +218,8 @@ static int video_post_probe(struct udevice *dev)
 	priv->line_length = priv->xsize * VNBYTES(priv->bpix);
 	priv->fb_size = priv->line_length * priv->ysize;
 
-	/* Set up colours - we could in future support other colours */
-#ifdef CONFIG_SYS_WHITE_ON_BLACK
-	priv->colour_fg = 0xffffff;
-#else
-	priv->colour_bg = 0xffffff;
-#endif
+	/* Set up colors  */
+	video_set_default_colors(priv);
 
 	if (!CONFIG_IS_ENABLED(NO_FB_CLEAR))
 		video_clear(dev);
@@ -250,7 +273,7 @@ static int video_post_bind(struct udevice *dev)
 	ulong size;
 
 	/* Before relocation there is nothing to do here */
-	if ((!gd->flags & GD_FLG_RELOC))
+	if (!(gd->flags & GD_FLG_RELOC))
 		return 0;
 	size = alloc_fb(dev, &addr);
 	if (addr < gd->video_bottom) {

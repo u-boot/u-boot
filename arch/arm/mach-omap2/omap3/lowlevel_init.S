@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Board specific setup info
  *
@@ -7,8 +8,6 @@
  * Initial Code by:
  * Richard Woodruff <r-woodruff2@ti.com>
  * Syed Mohammed Khasim <khasim@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -22,6 +21,7 @@
  *	R0 - Service ID
  *	R1 - paramer list
  */
+/* TODO: Re-evaluate the comment at the end regarding armv5 vs armv7 */
 ENTRY(do_omap3_emu_romcode_call)
 	PUSH {r4-r12, lr} @ Save all registers from ROM code!
 	MOV r12, r0	@ Copy the Secure Service ID in R12

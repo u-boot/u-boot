@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
  *
@@ -5,8 +6,6 @@
  *
  * Copyright (C) 2009 Nick Thompson, GE Fanuc, Ltd. <nick.thompson@gefanuc.com>
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -354,6 +353,7 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifndef CONFIG_DM_MMC
 #ifdef CONFIG_MMC_DAVINCI
 static struct davinci_mmc mmc_sd0 = {
 	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
@@ -369,4 +369,5 @@ int board_mmc_init(bd_t *bis)
 	/* Add slot-0 to mmc subsystem */
 	return davinci_mmc_init(bis, &mmc_sd0);
 }
+#endif
 #endif

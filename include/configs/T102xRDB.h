@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 /*
@@ -13,7 +12,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
-#define CONFIG_MP			/* support multiple processors */
 #define CONFIG_ENABLE_36BIT_PHYS
 
 #ifdef CONFIG_PHYS_64BIT
@@ -34,8 +32,6 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t102xrdb/t1024_pbi.cfg
 #define CONFIG_SPL_FLUSH_IMAGE
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SYS_TEXT_BASE		0x30001000
 #define CONFIG_SPL_TEXT_BASE		0xFFFD8000
 #define CONFIG_SPL_PAD_TO		0x40000
 #define CONFIG_SPL_MAX_SIZE		0x28000
@@ -82,7 +78,6 @@
 
 #ifdef CONFIG_SDCARD
 #define CONFIG_RESET_VECTOR_ADDRESS	0x30000FFC
-#define CONFIG_SPL_MMC_MINIMAL
 #define CONFIG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
 #define CONFIG_SYS_MMC_U_BOOT_DST	(0x30000000)
 #define CONFIG_SYS_MMC_U_BOOT_START	(0x30000000)
@@ -101,18 +96,8 @@
 
 #endif /* CONFIG_RAMBOOT_PBL */
 
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xeff40000
-#endif
-
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
 #define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
-#endif
-
-#ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #endif
 
 /* PCIe Boot - Master */
@@ -159,7 +144,6 @@
 #endif
 
 #if defined(CONFIG_SPIFLASH)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_SPI_BUS		0
 #define CONFIG_ENV_SPI_CS		0
 #define CONFIG_ENV_SPI_MAX_HZ		10000000
@@ -172,12 +156,10 @@
 #define CONFIG_ENV_SECT_SIZE		0x40000
 #endif
 #elif defined(CONFIG_SDCARD)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_OFFSET		(512 * 0x800)
 #elif defined(CONFIG_NAND)
-#define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_SIZE			0x2000
 #if defined(CONFIG_TARGET_T1024RDB)
 #define CONFIG_ENV_OFFSET		(2 * CONFIG_SYS_NAND_BLOCK_SIZE)
@@ -218,7 +200,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
-#define CONFIG_SYS_ALT_MEMTEST
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -232,7 +213,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SPL_GD_ADDR + 12 * 1024)
 #define CONFIG_SPL_RELOC_MALLOC_SIZE	(30 << 10)
 #define CONFIG_SPL_RELOC_STACK		(CONFIG_SPL_GD_ADDR + 64 * 1024)
-#define CONFIG_SPL_RELOC_STACK_SIZE	(22 << 10)
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_DCSRBAR		0xf0000000
@@ -438,9 +418,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_R
-#define CONFIG_MISC_INIT_R
-
 #define CONFIG_HWCONFIG
 
 /* define to use L1 as initial stack */
@@ -469,7 +446,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 /* Serial Port */
-#define CONFIG_CONS_INDEX	1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		(get_bus_freq(0)/2)
@@ -642,13 +618,11 @@ unsigned long get_board_ddr_clk(void);
  * SDHC
  */
 #ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #endif
 
 /* Qman/Bman */
 #ifndef CONFIG_NOBQFMAN
-#define CONFIG_SYS_DPAA_QBMAN		/* Support Q/Bman */
 #define CONFIG_SYS_BMAN_NUM_PORTALS	10
 #define CONFIG_SYS_BMAN_MEM_BASE	0xf4000000
 #ifdef CONFIG_PHYS_64BIT
@@ -686,7 +660,6 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_TARGET_T1024RDB
 #define CONFIG_QE
-#define CONFIG_U_QE
 #endif
 /* Default address of microcode for the Linux FMan driver */
 #if defined(CONFIG_SPIFLASH)
@@ -736,9 +709,7 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
-#define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_REALTEK
-#define CONFIG_PHY_AQUANTIA
 #if defined(CONFIG_TARGET_T1024RDB)
 #define RGMII_PHY1_ADDR		0x2
 #define RGMII_PHY2_ADDR		0x6
@@ -752,18 +723,12 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_FMAN_ENET
-#define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"FM1@DTSEC4"
 #endif
 
 /*
  * Dynamic MTD Partition support with mtdparts
  */
-#ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-#define CONFIG_FLASH_CFI_MTD
-#endif
 
 /*
  * Environment
@@ -774,9 +739,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_CMDLINE_EDITING			/* Command-line editing */
-#define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*

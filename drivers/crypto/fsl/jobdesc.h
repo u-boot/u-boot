@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  */
 
@@ -40,7 +39,7 @@ void inline_cnstr_jobdesc_blob_decap(uint32_t *desc, uint8_t *key_idnfr,
 				     uint8_t *enc_blob, uint8_t *plain_txt,
 				     uint32_t out_sz);
 
-void inline_cnstr_jobdesc_rng_instantiation(uint32_t *desc);
+void inline_cnstr_jobdesc_rng_instantiation(uint32_t *desc, int handle);
 
 void inline_cnstr_jobdesc_pkha_rsaexp(uint32_t *desc,
 				      struct pk_in_params *pkin, uint8_t *out,

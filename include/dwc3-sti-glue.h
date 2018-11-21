@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DWC3_STI_UBOOT_H_

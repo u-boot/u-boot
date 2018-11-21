@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015 Google, Inc
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <clk.h>
@@ -50,7 +49,7 @@ u32 spl_boot_device(void)
 		debug("node=%d\n", node);
 		goto fallback;
 	}
-	ret = device_get_global_by_of_offset(node, &dev);
+	ret = device_get_global_by_ofnode(offset_to_ofnode(node), &dev);
 	if (ret) {
 		debug("device at node %s/%d not found: %d\n", bootdev, node,
 		      ret);
@@ -70,11 +69,6 @@ u32 spl_boot_device(void)
 fallback:
 #endif
 	return BOOT_DEVICE_MMC1;
-}
-
-u32 spl_boot_mode(const u32 boot_device)
-{
-	return MMCSD_MODE_RAW;
 }
 
 static int setup_arm_clock(void)
@@ -135,8 +129,6 @@ void board_init_f(ulong dummy)
 		debug("spl_early_init() failed: %d\n", ret);
 		hang();
 	}
-
-	rockchip_timer_init();
 
 	ret = rockchip_get_clk(&dev);
 	if (ret) {

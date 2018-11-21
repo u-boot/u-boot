@@ -14,6 +14,9 @@
 # For example:
 #   scripts/check-config.sh b/chromebook_link/u-boot.cfg kconfig_whitelist.txt .
 
+set -e
+set -u
+
 path="$1"
 whitelist="$2"
 srctree="$3"

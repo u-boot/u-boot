@@ -1,13 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  * Copyright (c) 2015 Sjoerd Simons <sjoerd.simons@collabora.co.uk>
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/io.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define	LINUX_ARM_ZIMAGE_MAGIC	0x016f2818
 
@@ -48,11 +46,6 @@ int bootz_setup(ulong image, ulong *start, ulong *end)
 	unmap_sysmem((void *)image);
 
 	return ret;
-}
-
-int arch_fixup_fdt(void *blob)
-{
-	return 0;
 }
 
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)

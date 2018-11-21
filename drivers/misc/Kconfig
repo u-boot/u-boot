@@ -41,6 +41,14 @@ config ROCKCHIP_EFUSE
 	  extended (by porting the read function from the Linux kernel sources)
 	  to support other recent Rockchip devices.
 
+config VEXPRESS_CONFIG
+	bool "Enable support for Arm Versatile Express config bus"
+	depends on MISC
+	help
+	  If you say Y here, you will get support for accessing the
+	  configuration bus on the Arm Versatile Express boards via
+	  a sysreg driver.
+
 config CMD_CROS_EC
 	bool "Enable crosec command"
 	depends on CROS_EC
@@ -158,9 +166,18 @@ config PCA9551_I2C_ADDR
 	help
 	  The I2C address of the PCA9551 LED controller.
 
+config STM32MP_FUSE
+	bool "Enable STM32MP fuse wrapper providing the fuse API"
+	depends on ARCH_STM32MP && MISC
+	default y if CMD_FUSE
+	help
+	  If you say Y here, you will get support for the fuse API (OTP)
+	  for STM32MP architecture.
+	  This API is needed for CMD_FUSE.
+
 config STM32_RCC
 	bool "Enable RCC driver for the STM32 SoC's family"
-	depends on STM32 && MISC
+	depends on (STM32 || ARCH_STM32MP) && MISC
 	help
 	  Enable the STM32 RCC driver. The RCC block (Reset and Clock Control
 	  block) is responsible of the management of the clock and reset
@@ -185,6 +202,11 @@ config TEGRA186_BPMP
 	  communication path by which feature-specific drivers (such as clock)
 	  can make requests to the BPMP. This driver is similar to an MFD
 	  driver in the Linux kernel.
+
+config TWL4030_LED
+	bool "Enable TWL4030 LED controller"
+	help
+	  Enable this to add support for the TWL4030 LED controller.
 
 config WINBOND_W83627
 	bool "Enable Winbond Super I/O driver"
@@ -213,6 +235,12 @@ config SPL_I2C_EEPROM
 	help
 	  This option is an SPL-variant of the I2C_EEPROM option.
 	  See the help of I2C_EEPROM for details.
+
+config ZYNQ_GEM_I2C_MAC_OFFSET
+	hex "Set the I2C MAC offset"
+	default 0x0
+	help
+	  Set the MAC offset for i2C.
 
 if I2C_EEPROM
 
@@ -257,5 +285,31 @@ config SYS_I2C_EEPROM_ADDR_OVERFLOW
 
 endif
 
+config GDSYS_RXAUI_CTRL
+	bool "Enable gdsys RXAUI control driver"
+	depends on MISC
+	help
+	  Support gdsys FPGA's RXAUI control.
+
+config GDSYS_IOEP
+	bool "Enable gdsys IOEP driver"
+	depends on MISC
+	help
+	  Support gdsys FPGA's IO endpoint driver.
+
+config MPC83XX_SERDES
+	bool "Enable MPC83xx serdes driver"
+	depends on MISC
+	help
+	  Support for serdes found on MPC83xx SoCs.
+
+config FS_LOADER
+	bool "Enable loader driver for file system"
+	help
+	  This is file system generic loader which can be used to load
+	  the file image from the storage into target such as memory.
+
+	  The consumer driver would then use this loader to program whatever,
+	  ie. the FPGA device.
 
 endmenu

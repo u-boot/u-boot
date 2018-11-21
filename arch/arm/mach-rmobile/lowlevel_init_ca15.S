@@ -1,16 +1,16 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * arch/arm/cpu/armv7/rmobile/lowlevel_init_ca15.S
  *     This file is lager low level initialize.
  *
  * Copyright (C) 2013, 2014 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <config.h>
 #include <linux/linkage.h>
 
 ENTRY(lowlevel_init)
+#ifndef CONFIG_SPL_BUILD
 	mrc	p15, 0, r4, c0, c0, 5 /* mpidr */
 	orr	r4, r4, r4, lsr #6
 	and	r4, r4, #7 /* id 0-3 = ca15.0,1,2,3 */
@@ -83,6 +83,7 @@ _exit_init_l2_a15:
 	bl s_init
 
 	ldr	lr, [sp]
+#endif
 	mov	pc, lr
 	nop
 ENDPROC(lowlevel_init)

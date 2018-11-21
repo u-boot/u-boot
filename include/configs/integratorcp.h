@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2003
  * Texas Instruments.
@@ -8,8 +9,6 @@
  * ARM Ltd.
  * Philippe Robin, <philippe.robin@arm.com>
  * Configuration for Compact Integrator board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

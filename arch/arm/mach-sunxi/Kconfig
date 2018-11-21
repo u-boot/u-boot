@@ -6,16 +6,92 @@ config SPL_LDSCRIPT
 config IDENT_STRING
 	default " Allwinner Technology"
 
-config SUNXI_HIGH_SRAM
+config DRAM_SUN4I
 	bool
-	default n
+	help
+	  Select this dram controller driver for Sun4/5/7i platforms,
+	  like A10/A13/A20.
+
+config DRAM_SUN6I
+	bool
+	help
+	  Select this dram controller driver for Sun6i platforms,
+	  like A31/A31s.
+
+config DRAM_SUN8I_A23
+	bool
+	help
+	  Select this dram controller driver for Sun8i platforms,
+	  for A23 SOC.
+
+config DRAM_SUN8I_A33
+	bool
+	help
+	  Select this dram controller driver for Sun8i platforms,
+	  for A33 SOC.
+
+config DRAM_SUN8I_A83T
+	bool
+	help
+	  Select this dram controller driver for Sun8i platforms,
+	  for A83T SOC.
+
+config DRAM_SUN9I
+	bool
+	help
+	  Select this dram controller driver for Sun9i platforms,
+	  like A80.
+
+config DRAM_SUN50I_H6
+	bool
+	help
+	  Select this dram controller driver for some sun50i platforms,
+	  like H6.
+
+config SUN6I_P2WI
+	bool "Allwinner sun6i internal P2WI controller"
+	help
+	  If you say yes to this option, support will be included for the
+	  P2WI (Push/Pull 2 Wire Interface) controller embedded in some sunxi
+	  SOCs.
+	  The P2WI looks like an SMBus controller (which supports only byte
+	  accesses), except that it only supports one slave device.
+	  This interface is used to connect to specific PMIC devices (like the
+	  AXP221).
+
+config SUN6I_PRCM
+	bool
+	help
+	  Support for the PRCM (Power/Reset/Clock Management) unit available
+	  in A31 SoC.
+
+config AXP_PMIC_BUS
+	bool "Sunxi AXP PMIC bus access helpers"
+	help
+	  Select this PMIC bus access helpers for Sunxi platform PRCM or other
+	  AXP family PMIC devices.
+
+config SUN8I_RSB
+	bool "Allwinner sunXi Reduced Serial Bus Driver"
+	help
+	  Say y here to enable support for Allwinner's Reduced Serial Bus
+	  (RSB) support. This controller is responsible for communicating
+	  with various RSB based devices, such as AXP223, AXP8XX PMICs,
+	  and AC100/AC200 ICs.
+
+config SUNXI_SRAM_ADDRESS
+	hex
+	default 0x10000 if MACH_SUN9I || MACH_SUN50I || MACH_SUN50I_H5
+	default 0x20000 if MACH_SUN50I_H6
+	default 0x0
 	---help---
 	Older Allwinner SoCs have their mask boot ROM mapped just below 4GB,
 	with the first SRAM region being located at address 0.
 	Some newer SoCs map the boot ROM at address 0 instead and move the
-	SRAM to 64KB, just behind the mask ROM.
-	Chips using the latter setup are supposed to select this option to
-	adjust the addresses accordingly.
+	SRAM to a different address.
+
+config SUNXI_A64_TIMER_ERRATUM
+	bool
 
 # Note only one of these may be selected at a time! But hidden choices are
 # not supported by Kconfig
@@ -57,11 +133,18 @@ endif
 config MACH_SUNXI_H3_H5
 	bool
 	select DM_I2C
+	select PHY_SUN4I_USB
 	select SUNXI_DE2
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
+
+# TODO: try out A80's 8GiB DRAM space
+config SUNXI_DRAM_MAX_SIZE
+	hex
+	default 0xC0000000 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN50I_H6
+	default 0x80000000
 
 choice
 	prompt "Sunxi SoC Variant"
@@ -69,68 +152,89 @@ choice
 
 config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
-	select CPU_V7
+	select CPU_V7A
 	select ARM_CORTEX_CPU_IS_UP
+	select DM_MMC if MMC
+	select DM_SCSI if SCSI
+	select PHY_SUN4I_USB
+	select DRAM_SUN4I
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 
 config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
-	select CPU_V7
+	select CPU_V7A
 	select ARM_CORTEX_CPU_IS_UP
+	select DRAM_SUN4I
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
+	imply CONS_INDEX_2 if !DM_SERIAL
 
 config MACH_SUN6I
 	bool "sun6i (Allwinner A31)"
-	select CPU_V7
+	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DRAM_SUN6I
+	select PHY_SUN4I_USB
+	select SUN6I_P2WI
+	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN7I
 	bool "sun7i (Allwinner A20)"
-	select CPU_V7
+	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DRAM_SUN4I
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
 
 config MACH_SUN8I_A23
 	bool "sun8i (Allwinner A23)"
-	select CPU_V7
+	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DRAM_SUN8I_A23
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply CONS_INDEX_5 if !DM_SERIAL
 
 config MACH_SUN8I_A33
 	bool "sun8i (Allwinner A33)"
-	select CPU_V7
+	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DRAM_SUN8I_A33
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
 	select SUPPORT_SPL
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	imply CONS_INDEX_5 if !DM_SERIAL
 
 config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
-	select CPU_V7
+	select CPU_V7A
+	select DRAM_SUN8I_A83T
+	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
 	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
 
 config MACH_SUN8I_H3
 	bool "sun8i (Allwinner H3)"
-	select CPU_V7
+	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
@@ -139,7 +243,7 @@ config MACH_SUN8I_H3
 
 config MACH_SUN8I_R40
 	bool "sun8i (Allwinner R40)"
-	select CPU_V7
+	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
@@ -150,7 +254,7 @@ config MACH_SUN8I_R40
 
 config MACH_SUN8I_V3S
 	bool "sun8i (Allwinner V3s)"
-	select CPU_V7
+	select CPU_V7A
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
@@ -162,37 +266,49 @@ config MACH_SUN8I_V3S
 
 config MACH_SUN9I
 	bool "sun9i (Allwinner A80)"
-	select CPU_V7
-	select SUNXI_HIGH_SRAM
+	select CPU_V7A
+	select DRAM_SUN9I
+	select SUN6I_PRCM
 	select SUNXI_GEN_SUN6I
+	select SUN8I_RSB
 	select SUPPORT_SPL
 
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
 	select DM_I2C
+	select PHY_SUN4I_USB
 	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
-	select SUNXI_HIGH_SRAM
 	select SUPPORT_SPL
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT
 	select FIT
 	select SPL_LOAD_FIT
+	select SUNXI_A64_TIMER_ERRATUM
 
 config MACH_SUN50I_H5
 	bool "sun50i (Allwinner H5)"
 	select ARM64
 	select MACH_SUNXI_H3_H5
-	select SUNXI_HIGH_SRAM
 	select FIT
 	select SPL_LOAD_FIT
+
+config MACH_SUN50I_H6
+	bool "sun50i (Allwinner H6)"
+	select ARM64
+	select SUPPORT_SPL
+	select FIT
+	select SPL_LOAD_FIT
+	select DRAM_SUN50I_H6
 
 endchoice
 
 # The sun8i SoCs share a lot, this helps to avoid a lot of "if A23 || A33"
 config MACH_SUN8I
 	bool
+	select SUN8I_RSB
+	select SUN6I_PRCM
 	default y if MACH_SUN8I_A23
 	default y if MACH_SUN8I_A33
 	default y if MACH_SUN8I_A83T
@@ -279,6 +395,7 @@ config DRAM_CLK
 	default 360 if MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || \
 		       MACH_SUN8I_V3S
 	default 672 if MACH_SUN50I
+	default 744 if MACH_SUN50I_H6
 	---help---
 	Set the dram clock speed, valid range 240 - 480 (prior to sun9i),
 	must be a multiple of 24. For the sun9i (A80), the tested values
@@ -298,7 +415,7 @@ config DRAM_ZQ
 	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
 	default 127 if MACH_SUN7I
 	default 14779 if MACH_SUN8I_V3S
-	default 3881979 if MACH_SUN8I_R40
+	default 3881979 if MACH_SUN8I_R40 || MACH_SUN50I_H6
 	default 4145117 if MACH_SUN9I
 	default 3881915 if MACH_SUN50I
 	---help---
@@ -306,10 +423,10 @@ config DRAM_ZQ
 
 config DRAM_ODT_EN
 	bool "sunxi dram odt enable"
-	default n if !MACH_SUN8I_A23
 	default y if MACH_SUN8I_A23
 	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I
+	default y if MACH_SUN50I_H6
 	---help---
 	Select this to enable dram odt (on die termination).
 
@@ -400,6 +517,7 @@ config SYS_CLK_FREQ
 	default 816000000 if MACH_SUN50I || MACH_SUN50I_H5
 	default 1008000000 if MACH_SUN8I
 	default 1008000000 if MACH_SUN9I
+	default 888000000 if MACH_SUN50I_H6
 
 config SYS_CONFIG_NAME
 	default "sun4i" if MACH_SUN4I
@@ -409,6 +527,7 @@ config SYS_CONFIG_NAME
 	default "sun8i" if MACH_SUN8I
 	default "sun9i" if MACH_SUN9I
 	default "sun50i" if MACH_SUN50I
+	default "sun50i" if MACH_SUN50I_H6
 
 config SYS_BOARD
 	default "sunxi"
@@ -614,6 +733,7 @@ config VIDEO_SUNXI
 	depends on !MACH_SUN8I_V3S
 	depends on !MACH_SUN9I
 	depends on !MACH_SUN50I
+	depends on !MACH_SUN50I_H6
 	select VIDEO
 	imply VIDEO_DT_SIMPLEFB
 	default y
@@ -846,5 +966,24 @@ config SPL_STACK_R_ADDR
 	default 0x4fe00000 if MACH_SUN8I
 	default 0x2fe00000 if MACH_SUN9I
 	default 0x4fe00000 if MACH_SUN50I
+	default 0x4fe00000 if MACH_SUN50I_H6
+
+config SPL_SPI_SUNXI
+	bool "Support for SPI Flash on Allwinner SoCs in SPL"
+	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUNXI_H3_H5 || MACH_SUN50I
+	help
+	  Enable support for SPI Flash. This option allows SPL to read from
+	  sunxi SPI Flash. It uses the same method as the boot ROM, so does
+	  not need any extra configuration.
+
+config PINE64_DT_SELECTION
+	bool "Enable Pine64 device tree selection code"
+	depends on MACH_SUN50I
+	help
+	  The original Pine A64 and Pine A64+ are similar but different
+	  boards and can be differed by the DRAM size. Pine A64 has
+	  512MiB DRAM, and Pine A64+ has 1GiB or 2GiB. By selecting this
+	  option, the device tree selection code specific to Pine64 which
+	  utilizes the DRAM size will be enabled.
 
 endif

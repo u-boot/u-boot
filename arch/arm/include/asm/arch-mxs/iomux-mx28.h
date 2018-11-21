@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009-2010 Amit Kucheria <amit.kucheria@canonical.com>
  * Copyright (C) 2010 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MACH_IOMUX_MX28_H__

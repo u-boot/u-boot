@@ -3,12 +3,25 @@ menu "MMC Host controller Support"
 config MMC
 	bool "MMC/SD/SDIO card support"
 	default ARM || PPC || SANDBOX
+	select HAVE_BLOCK_DEVICE
 	help
 	  This selects MultiMediaCard, Secure Digital and Secure
 	  Digital I/O support.
 
 	  If you want MMC/SD/SDIO support, you should say Y here and
 	  also to your specific host controller driver.
+
+config MMC_WRITE
+	bool "support for MMC/SD write operations"
+	depends on MMC
+	default y
+	help
+	  Enable write access to MMC and SD Cards
+
+config MMC_BROKEN_CD
+	bool "Poll for broken card detection case"
+	help
+	  If card  detection feature is broken, just poll to detect.
 
 config DM_MMC
 	bool "Enable MMC controllers using Driver Model"
@@ -41,6 +54,103 @@ config ARM_PL180_MMCI
 	  Interface (PL180, PL181 and compatible) support.
 	  If you have an ARM(R) platform with a Multimedia Card slot,
 	  say Y or M here.
+
+config MMC_QUIRKS
+	bool "Enable quirks"
+	default y
+	help
+	  Some cards and hosts may sometimes behave unexpectedly (quirks).
+	  This option enable workarounds to handle those quirks. Some of them
+	  are enabled by default, other may require additionnal flags or are
+	  enabled by the host driver.
+
+config MMC_HW_PARTITIONING
+	bool "Support for HW partitioning command(eMMC)"
+	default y
+	help
+	  This adds a command and an API to do hardware partitioning on eMMC
+	  devices.
+
+config SUPPORT_EMMC_RPMB
+	bool "Support eMMC replay protected memory block (RPMB)"
+	imply CMD_MMC_RPMB
+	help
+	  Enable support for reading, writing and programming the
+	  key for the Replay Protection Memory Block partition in eMMC.
+
+config MMC_IO_VOLTAGE
+	bool "Support IO voltage configuration"
+	help
+	  IO voltage configuration allows selecting the voltage level of the IO
+	  lines (not the level of main supply). This is required for UHS
+	  support. For eMMC this not mandatory, but not enabling this option may
+	  prevent the driver of using the faster modes.
+
+config SPL_MMC_IO_VOLTAGE
+	bool "Support IO voltage configuration in SPL"
+	default n
+	help
+	  IO voltage configuration allows selecting the voltage level of the IO
+	  lines (not the level of main supply). This is required for UHS
+	  support. For eMMC this not mandatory, but not enabling this option may
+	  prevent the driver of using the faster modes.
+
+config MMC_UHS_SUPPORT
+	bool "enable UHS support"
+	depends on MMC_IO_VOLTAGE
+	help
+	  The Ultra High Speed (UHS) bus is available on some SDHC and SDXC
+	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
+	  frequency can go up to 208MHz (SDR104)
+
+config SPL_MMC_UHS_SUPPORT
+	bool "enable UHS support in SPL"
+	depends on SPL_MMC_IO_VOLTAGE
+	help
+	  The Ultra High Speed (UHS) bus is available on some SDHC and SDXC
+	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
+	  frequency can go up to 208MHz (SDR104)
+
+config MMC_HS400_SUPPORT
+	bool "enable HS400 support"
+	select MMC_HS200_SUPPORT
+	help
+	  The HS400 mode is support by some eMMC. The bus frequency is up to
+	  200MHz. This mode requires tuning the IO.
+
+config SPL_MMC_HS400_SUPPORT
+	bool "enable HS400 support in SPL"
+	help
+	  The HS400 mode is support by some eMMC. The bus frequency is up to
+	  200MHz. This mode requires tuning the IO.
+
+config MMC_HS200_SUPPORT
+	bool "enable HS200 support"
+	help
+	  The HS200 mode is support by some eMMC. The bus frequency is up to
+	  200MHz. This mode requires tuning the IO.
+
+
+config SPL_MMC_HS200_SUPPORT
+	bool "enable HS200 support in SPL"
+	help
+	  The HS200 mode is support by some eMMC. The bus frequency is up to
+	  200MHz. This mode requires tuning the IO.
+
+config MMC_VERBOSE
+	bool "Output more information about the MMC"
+	default y
+	help
+	  Enable the output of more information about the card such as the
+	  operating mode.
+
+config MMC_TRACE
+	bool "MMC debugging"
+	default n
+	help
+	  This is an option for use by developer. Enable MMC core debugging.
+
+	  If you need to see the MMC core message, say Y.
 
 config SPL_MMC_TINY
 	bool "Tiny MMC framework in SPL"
@@ -128,6 +238,10 @@ config MMC_MXC
 
 config MMC_MXS
 	bool "Freescale MXS Multimedia Card Interface support"
+	depends on MX23 || MX28 || MX6 || MX7
+	select APBH_DMA
+	select APBH_DMA_BURST if ARCH_MX6 || ARCH_MX7
+	select APBH_DMA_BURST8 if ARCH_MX6 || ARCH_MX7
 	help
 	  This selects the Freescale SSP MMC controller found on MXS based
 	  platforms like mx23/28.
@@ -153,6 +267,15 @@ config MMC_OMAP_HS
 
 	  If unsure, say N.
 
+config MMC_OMAP_HS_ADMA
+	bool "ADMA support for OMAP HS MMC"
+	depends on MMC_OMAP_HS && !OMAP34XX
+	default y if !AM33XX
+	help
+	  This enables support for the ADMA2 controller (SDA3.00 Part A2 DMA
+	  controller). If supported by the hardware, selecting this option will
+	  increase performances.
+
 config MMC_OMAP36XX_PINS
 	bool "Enable MMC1 on OMAP36xx/37xx"
 	depends on OMAP34XX && MMC_OMAP_HS
@@ -171,14 +294,43 @@ config SH_SDHI
 	help
 	  Support for the on-chip SDHI host controller on SuperH/Renesas ARM SoCs platform
 
+config SH_MMCIF
+	bool "SuperH/Renesas ARM SoCs on-chip MMCIF host controller support"
+	depends on ARCH_RMOBILE || SH
+	help
+	  Support for the on-chip MMCIF host controller on SuperH/Renesas ARM SoCs platform
+
 config MMC_UNIPHIER
-	bool "UniPhier/RCar SD/MMC Host Controller support"
-	depends on ARCH_UNIPHIER || ARCH_RMOBILE
+	bool "UniPhier SD/MMC Host Controller support"
+	depends on ARCH_UNIPHIER
 	depends on BLK && DM_MMC
 	depends on OF_CONTROL
 	help
 	  This selects support for the Matsushita SD/MMC Host Controller on
-	  SocioNext UniPhier and Renesas RCar SoCs.
+	  SocioNext UniPhier SoCs.
+
+config RENESAS_SDHI
+	bool "Renesas R-Car SD/MMC Host Controller support"
+	depends on ARCH_RMOBILE
+	depends on BLK && DM_MMC
+	depends on OF_CONTROL
+	help
+	  This selects support for the Matsushita SD/MMC Host Controller on
+	  Renesas R-Car SoCs.
+
+config MMC_BCM2835
+	bool "BCM2835 family custom SD/MMC Host Controller support"
+	depends on ARCH_BCM283X
+	depends on BLK && DM_MMC
+	depends on OF_CONTROL
+	default y
+	help
+	  This selects support for the custom SD host controller in the BCM2835
+	  family of devices.
+
+	  If you have a BCM2835 platform with SD or MMC devices, say Y here.
+
+	  If unsure, say N.
 
 config MMC_SANDBOX
 	bool "Sandbox MMC support"
@@ -240,6 +392,17 @@ config MMC_SDHCI_BCM2835
 
 	  If unsure, say N.
 
+config MMC_SDHCI_BCMSTB
+	tristate "SDHCI support for the BCMSTB SD/MMC Controller"
+	depends on MMC_SDHCI
+	help
+	  This selects the Broadcom set-top box SD/MMC controller.
+
+	  If you have a BCMSTB platform with SD or MMC devices,
+	  say Y here.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_CADENCE
 	bool "SDHCI support for the Cadence SD/SDIO/eMMC controller"
 	depends on BLK && DM_MMC
@@ -251,6 +414,15 @@ config MMC_SDHCI_CADENCE
 	  If you have a controller with this interface, say Y here.
 
 	  If unsure, say N.
+
+config MMC_SDHCI_K3_ARASAN
+	bool "Arasan SDHCI controller for TI's K3 based SoCs"
+	depends on ARCH_K3
+	depends on MMC_SDHCI
+	depends on DM_MMC && OF_CONTROL && BLK
+	help
+	  Support for Arasan SDHCI host controller on Texas Instruments'
+	  K3 family based SoC platforms
 
 config MMC_SDHCI_KONA
 	bool "SDHCI support on Broadcom KONA platform"
@@ -366,11 +538,24 @@ config MMC_SDHCI_TEGRA
 
 config MMC_SDHCI_ZYNQ
 	bool "Arasan SDHCI controller support"
-	depends on ARCH_ZYNQ || ARCH_ZYNQMP
+	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
 	depends on DM_MMC && OF_CONTROL && BLK
 	depends on MMC_SDHCI
 	help
 	  Support for Arasan SDHCI host controller on Zynq/ZynqMP ARM SoCs platform
+
+config ZYNQ_SDHCI_MAX_FREQ
+	int "Set the maximum frequency of the controller"
+	depends on MMC_SDHCI_ZYNQ
+	help
+	  Set the maximum frequency of the controller.
+
+config ZYNQ_SDHCI_MIN_FREQ
+	int "Set the minimum frequency of the controller"
+	depends on MMC_SDHCI_ZYNQ
+	default 0
+	help
+	  Set the minimum frequency of the controller.
 
 config MMC_SUNXI
 	bool "Allwinner sunxi SD/MMC Host Controller support"
@@ -401,17 +586,17 @@ config STM32_SDMMC2
 	  If you have a board based on such a SoC and with a SD/MMC slot,
 	  say Y or M here.
 
-config MMC_NDS32
-	bool "Andestech SD/MMC controller support"
-	depends on DM_MMC && OF_CONTROL && BLK && FTSDC010
-	help
-	  This enables support for the Andestech SD/MMM controller, which is
-	  based on Faraday IP.
-
 config FTSDC010
 	bool "Ftsdc010 SD/MMC controller Support"
 	help
 	  This SD/MMC controller is present in Andestech SoCs which is based on Faraday IP.
+
+config FTSDC010_SDIO
+	bool "Support ftsdc010 sdio"
+	default n
+	depends on FTSDC010
+	help
+		This can enable ftsdc010 sdio function.
 
 endif
 
@@ -425,6 +610,12 @@ config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
 
 	  TODO(marcel.ziswiler@toradex.com): Move to device tree controlled
 	  approach once proper kernel integration made it mainline.
+
+config FSL_ESDHC
+	bool "Freescale/NXP eSDHC controller support"
+	help
+	  This selects support for the eSDHC (enhanced secure digital host
+	  controller) found on numerous Freescale/NXP SoCs.
 
 endmenu
 

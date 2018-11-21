@@ -6,6 +6,7 @@
  *
  */
 #include "nconf.h"
+#include "lkc.h"
 
 /* a list of all the different widgets we use */
 attributes_t attributes[ATTR_MAX+1] = {0};
@@ -129,7 +130,7 @@ static void no_colors_theme(void)
 	mkattrn(FUNCTION_TEXT, A_REVERSE);
 }
 
-void set_colors()
+void set_colors(void)
 {
 	start_color();
 	use_default_colors();
@@ -192,7 +193,7 @@ const char *get_line(const char *text, int line_no)
 	int lines = 0;
 
 	if (!text)
-		return 0;
+		return NULL;
 
 	for (i = 0; text[i] != '\0' && lines < line_no; i++)
 		if (text[i] == '\n')
@@ -374,7 +375,7 @@ int dialog_inputbox(WINDOW *main_window,
 
 	if (strlen(init)+1 > *result_len) {
 		*result_len = strlen(init)+1;
-		*resultp = result = realloc(result, *result_len);
+		*resultp = result = xrealloc(result, *result_len);
 	}
 
 	/* find the widest line of msg: */

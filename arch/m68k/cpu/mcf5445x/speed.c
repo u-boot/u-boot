@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * Copyright (C) 2004-2007, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -121,6 +120,8 @@ void setup_5441x_clocks(void)
 	temp = ((pdr & PLL_DR_OUTDIV2_BITS) >> 5) + 1;
 	gd->bus_clk = vco / temp;	/* bus clock */
 
+	temp = ((pdr & PLL_DR_OUTDIV3_BITS) >> 10) + 1;
+	gd->arch.sdhc_clk = vco / temp;
 }
 #endif
 

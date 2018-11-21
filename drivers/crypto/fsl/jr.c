@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Based on CAAM driver in drivers/crypto/caam in Linux
  */
@@ -444,15 +443,12 @@ int sec_reset(void)
 #ifndef CONFIG_SPL_BUILD
 static int instantiate_rng(uint8_t sec_idx)
 {
-	struct result op;
 	u32 *desc;
 	u32 rdsta_val;
-	int ret = 0;
+	int ret = 0, sh_idx, size;
 	ccsr_sec_t __iomem *sec = (ccsr_sec_t __iomem *)SEC_ADDR(sec_idx);
 	struct rng4tst __iomem *rng =
 			(struct rng4tst __iomem *)&sec->rng;
-
-	memset(&op, 0, sizeof(struct result));
 
 	desc = memalign(ARCH_DMA_MINALIGN, sizeof(uint32_t) * 6);
 	if (!desc) {
@@ -460,19 +456,36 @@ static int instantiate_rng(uint8_t sec_idx)
 		return -1;
 	}
 
-	inline_cnstr_jobdesc_rng_instantiation(desc);
-	int size = roundup(sizeof(uint32_t) * 6, ARCH_DMA_MINALIGN);
-	flush_dcache_range((unsigned long)desc,
-			   (unsigned long)desc + size);
+	for (sh_idx = 0; sh_idx < RNG4_MAX_HANDLES; sh_idx++) {
+		/*
+		 * If the corresponding bit is set, this state handle
+		 * was initialized by somebody else, so it's left alone.
+		 */
+		rdsta_val = sec_in32(&rng->rdsta) & RNG_STATE_HANDLE_MASK;
+		if (rdsta_val & (1 << sh_idx))
+			continue;
 
-	ret = run_descriptor_jr_idx(desc, sec_idx);
+		inline_cnstr_jobdesc_rng_instantiation(desc, sh_idx);
+		size = roundup(sizeof(uint32_t) * 6, ARCH_DMA_MINALIGN);
+		flush_dcache_range((unsigned long)desc,
+				   (unsigned long)desc + size);
 
-	if (ret)
-		printf("RNG: Instantiation failed with error %x\n", ret);
+		ret = run_descriptor_jr_idx(desc, sec_idx);
 
-	rdsta_val = sec_in32(&rng->rdsta);
-	if (op.status || !(rdsta_val & RNG_STATE0_HANDLE_INSTANTIATED))
-		return -1;
+		if (ret)
+			printf("RNG: Instantiation failed with error 0x%x\n",
+			       ret);
+
+		rdsta_val = sec_in32(&rng->rdsta) & RNG_STATE_HANDLE_MASK;
+		if (!(rdsta_val & (1 << sh_idx))) {
+			free(desc);
+			return -1;
+		}
+
+		memset(desc, 0, sizeof(uint32_t) * 6);
+	}
+
+	free(desc);
 
 	return ret;
 }
@@ -524,14 +537,11 @@ static int rng_init(uint8_t sec_idx)
 	ccsr_sec_t __iomem *sec = (ccsr_sec_t __iomem *)SEC_ADDR(sec_idx);
 	struct rng4tst __iomem *rng =
 			(struct rng4tst __iomem *)&sec->rng;
-
-	u32 rdsta = sec_in32(&rng->rdsta);
-
-	/* Check if RNG state 0 handler is already instantiated */
-	if (rdsta & RNG_STATE0_HANDLE_INSTANTIATED)
-		return 0;
+	u32 inst_handles;
 
 	do {
+		inst_handles = sec_in32(&rng->rdsta) & RNG_STATE_HANDLE_MASK;
+
 		/*
 		 * If either of the SH's were instantiated by somebody else
 		 * then it is assumed that the entropy
@@ -540,8 +550,10 @@ static int rng_init(uint8_t sec_idx)
 		 * Also, if a handle was instantiated, do not change
 		 * the TRNG parameters.
 		 */
-		kick_trng(ent_delay, sec_idx);
-		ent_delay += 400;
+		if (!inst_handles) {
+			kick_trng(ent_delay, sec_idx);
+			ent_delay += 400;
+		}
 		/*
 		 * if instantiate_rng(...) fails, the loop will rerun
 		 * and the kick_trng(...) function will modfiy the
@@ -566,6 +578,8 @@ int sec_init_idx(uint8_t sec_idx)
 {
 	ccsr_sec_t *sec = (void *)SEC_ADDR(sec_idx);
 	uint32_t mcr = sec_in32(&sec->mcfgr);
+	uint32_t jrown_ns;
+	int i;
 	int ret = 0;
 
 #ifdef CONFIG_FSL_CORENET
@@ -620,6 +634,13 @@ int sec_init_idx(uint8_t sec_idx)
 	liodn_s = (liodnr & JRSLIODN_MASK) >> JRSLIODN_SHIFT;
 #endif
 #endif
+
+	/* Set ownership of job rings to non-TrustZone mode by default */
+	for (i = 0; i < ARRAY_SIZE(sec->jrliodnr); i++) {
+		jrown_ns = sec_in32(&sec->jrliodnr[i].ms);
+		jrown_ns |= JROWN_NS | JRMID_NS;
+		sec_out32(&sec->jrliodnr[i].ms, jrown_ns);
+	}
 
 	ret = jr_init(sec_idx);
 	if (ret < 0) {

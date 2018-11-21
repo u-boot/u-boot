@@ -1,7 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2017 Rockchip Electronics Co. Ltd.
  * Author: Shawn Lin <shawn.lin@rock-chips.com>
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _DT_BINDINGS_CLK_ROCKCHIP_RV1108_H

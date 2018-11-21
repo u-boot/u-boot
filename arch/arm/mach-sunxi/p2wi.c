@@ -1,17 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Sunxi A31 Power Management Unit
  *
  * (C) Copyright 2013 Oliver Schinagl <oliver@schinagl.nl>
  * http://linux-sunxi.org
  *
- * Based on sun6i sources and earlier U-Boot Allwiner A10 SPL work
+ * Based on sun6i sources and earlier U-Boot Allwinner A10 SPL work
  *
  * (C) Copyright 2006-2013
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Berg Xing <bergxing@allwinnertech.com>
  * Tom Cubie <tangliang@allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

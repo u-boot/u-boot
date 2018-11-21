@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2013 Google, Inc
  *
  * (C) Copyright 2012
  * Pavel Herrmann <morpheus.ibis@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DM_UCLASS_H
@@ -45,6 +44,9 @@ struct udevice;
 /* Members of this uclass sequence themselves with aliases */
 #define DM_UC_FLAG_SEQ_ALIAS			(1 << 0)
 
+/* Same as DM_FLAG_ALLOC_PRIV_DMA */
+#define DM_UC_FLAG_ALLOC_PRIV_DMA		(1 << 5)
+
 /**
  * struct uclass_driver - Driver for the uclass
  *
@@ -59,6 +61,7 @@ struct udevice;
  * @post_probe: Called after a new device is probed
  * @pre_remove: Called before a device is removed
  * @child_post_bind: Called after a child is bound to a device in this uclass
+ * @child_pre_probe: Called before a child is probed in this uclass
  * @init: Called to set up the uclass
  * @destroy: Called to destroy the uclass
  * @priv_auto_alloc_size: If non-zero this is the size of the private data
@@ -72,11 +75,11 @@ struct udevice;
  * then this will be automatically allocated.
  * @per_child_auto_alloc_size: Each child device (of a parent in this
  * uclass) can hold parent data for the device/uclass. This value is only
- * used as a falback if this member is 0 in the driver.
+ * used as a fallback if this member is 0 in the driver.
  * @per_child_platdata_auto_alloc_size: A bus likes to store information about
  * its children. If non-zero this is the size of this data, to be allocated
  * in the child device's parent_platdata pointer. This value is only used as
- * a falback if this member is 0 in the driver.
+ * a fallback if this member is 0 in the driver.
  * @ops: Uclass operations, providing the consistent interface to devices
  * within the uclass.
  * @flags: Flags for this uclass (DM_UC_...)
@@ -126,6 +129,14 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
  * @returns the name of the uclass driver for that ID, or NULL if none
  */
 const char *uclass_get_name(enum uclass_id id);
+
+/**
+ * uclass_get_by_name() - Look up a uclass by its driver name
+ *
+ * @name: Name to look up
+ * @returns the associated uclass ID, or UCLASS_INVALID if not found
+ */
+enum uclass_id uclass_get_by_name(const char *name);
 
 /**
  * uclass_get_device() - Get a uclass device based on an ID and index
@@ -201,6 +212,22 @@ int uclass_get_device_by_of_offset(enum uclass_id id, int node,
  */
 int uclass_get_device_by_ofnode(enum uclass_id id, ofnode node,
 				struct udevice **devp);
+
+/**
+ * uclass_get_device_by_phandle_id() - Get a uclass device by phandle id
+ *
+ * This searches the devices in the uclass for one with the given phandle id.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: uclass ID to look up
+ * @phandle_id: the phandle id to look up
+ * @devp: Returns pointer to device (there is only one for each node)
+ * @return 0 if OK, -ENODEV if there is no device match the phandle, other
+ *	-ve on error
+ */
+int uclass_get_device_by_phandle_id(enum uclass_id id, uint phandle_id,
+				    struct udevice **devp);
 
 /**
  * uclass_get_device_by_phandle() - Get a uclass device by phandle
@@ -279,7 +306,7 @@ int uclass_first_device_err(enum uclass_id id, struct udevice **devp);
 int uclass_next_device(struct udevice **devp);
 
 /**
- * uclass_first_device() - Get the first device in a uclass
+ * uclass_first_device_check() - Get the first device in a uclass
  *
  * The device returned is probed if necessary, and ready for use
  *
@@ -295,7 +322,7 @@ int uclass_next_device(struct udevice **devp);
 int uclass_first_device_check(enum uclass_id id, struct udevice **devp);
 
 /**
- * uclass_next_device() - Get the next device in a uclass
+ * uclass_next_device_check() - Get the next device in a uclass
  *
  * The device returned is probed if necessary, and ready for use
  *

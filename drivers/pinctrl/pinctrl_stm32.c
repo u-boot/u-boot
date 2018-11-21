@@ -41,9 +41,10 @@ static int stm32_gpio_config(struct gpio_desc *desc,
 
 	return 0;
 }
+
 static int prep_gpio_dsc(struct stm32_gpio_dsc *gpio_dsc, u32 port_pin)
 {
-	gpio_dsc->port = (port_pin & 0xF000) >> 12;
+	gpio_dsc->port = (port_pin & 0x1F000) >> 12;
 	gpio_dsc->pin = (port_pin & 0x0F00) >> 8;
 	debug("%s: GPIO:port= %d, pin= %d\n", __func__, gpio_dsc->port,
 	      gpio_dsc->pin);
@@ -115,11 +116,13 @@ static int stm32_pinctrl_config(int offset)
 			return -EINVAL;
 		for (i = 0; i < len; i++) {
 			struct gpio_desc desc;
+
 			debug("%s: pinmux = %x\n", __func__, *(pin_mux + i));
 			prep_gpio_dsc(&gpio_dsc, *(pin_mux + i));
 			prep_gpio_ctl(&gpio_ctl, *(pin_mux + i), offset);
 			rv = uclass_get_device_by_seq(UCLASS_GPIO,
-						      gpio_dsc.port, &desc.dev);
+						      gpio_dsc.port,
+						      &desc.dev);
 			if (rv)
 				return rv;
 			desc.offset = gpio_dsc.pin;
@@ -182,8 +185,12 @@ static struct pinctrl_ops stm32_pinctrl_ops = {
 };
 
 static const struct udevice_id stm32_pinctrl_ids[] = {
+	{ .compatible = "st,stm32f429-pinctrl" },
+	{ .compatible = "st,stm32f469-pinctrl" },
 	{ .compatible = "st,stm32f746-pinctrl" },
 	{ .compatible = "st,stm32h743-pinctrl" },
+	{ .compatible = "st,stm32mp157-pinctrl" },
+	{ .compatible = "st,stm32mp157-z-pinctrl" },
 	{ }
 };
 

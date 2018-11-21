@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009 Jens Scharsig (js_at_ng@scharsoft.de)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91_TC_H

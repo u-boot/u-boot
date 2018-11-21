@@ -1,12 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Copyright (c) 2013 Heiko Stuebner <heiko@sntech.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+ or X11
  */
 
 /dts-v1/;
 #include <dt-bindings/input/input.h>
 #include "rk3188.dtsi"
+#include "rk3188-radxarock-u-boot.dtsi"
 
 / {
 	model = "Radxa Rock";
@@ -104,6 +104,8 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		gpio = <&gpio3 1 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&sdmmc_pwr>;
 		startup-delay-us = <100000>;
 		vin-supply = <&vcc_io>;
 	};
@@ -334,6 +336,12 @@
 		};
 	};
 
+	sd0 {
+		sdmmc_pwr: sdmmc-pwr {
+			rockchip,pins = <RK_GPIO3 1 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
 	usb {
 		host_vbus_drv: host-vbus-drv {
 			rockchip,pins = <0 3 RK_FUNC_GPIO &pcfg_pull_none>;
@@ -354,11 +362,6 @@
 
 &uart1 {
 	status = "okay";
-};
-
-&uart2 {
-	status = "okay";
-	u-boot,dm-spl;
 };
 
 &uart3 {

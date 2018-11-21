@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sun8i platform dram controller register and constant defines
  *
@@ -5,8 +6,6 @@
  *                         Jerry Wang <wangflord@allwinnertech.com>
  * (C) Copyright 2015      Vishnu Patekar <vishnupatekar0510@gmail.com>
  * (C) Copyright 2014-2015 Hans de Goede <hdegoede@redhat.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_DRAM_SUN8I_A33_H

@@ -1,12 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * BTRFS filesystem implementation for U-Boot
  *
  * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "btrfs.h"
+#include <memalign.h>
 
 #define BTRFS_SUPER_FLAG_SUPP	(BTRFS_HEADER_FLAG_WRITTEN	\
 				 | BTRFS_HEADER_FLAG_RELOC	\
@@ -16,18 +16,34 @@
 
 #define BTRFS_SUPER_INFO_SIZE	4096
 
-static int btrfs_newest_root_backup(struct btrfs_super_block *sb)
+/*
+ * checks if a valid root backup is present.
+ * considers the case when all root backups empty valid.
+ * returns -1 in case of invalid root backup and 0 for valid.
+ */
+static int btrfs_check_super_roots(struct btrfs_super_block *sb)
 {
 	struct btrfs_root_backup *root_backup;
 	int i, newest = -1;
+	int num_empty = 0;
 
 	for (i = 0; i < BTRFS_NUM_BACKUP_ROOTS; ++i) {
 		root_backup = sb->super_roots + i;
+
+		if (root_backup->tree_root == 0 && root_backup->tree_root_gen == 0)
+			num_empty++;
+
 		if (root_backup->tree_root_gen == sb->generation)
 			newest = i;
 	}
 
-	return newest;
+	if (num_empty == BTRFS_NUM_BACKUP_ROOTS) {
+		return 0;
+	} else if (newest >= 0) {
+		return 0;
+	}
+
+	return -1;
 }
 
 static inline int is_power_of_2(u64 x)
@@ -147,8 +163,8 @@ static int btrfs_check_super(struct btrfs_super_block *sb)
 
 	if (sb->sys_chunk_array_size < sizeof(struct btrfs_key) +
 	    sizeof(struct btrfs_chunk)) {
-		printf("%s: system chunk array too small %u < %lu\n", __func__,
-		       sb->sys_chunk_array_size, (u32) sizeof(struct btrfs_key)
+		printf("%s: system chunk array too small %u < %zu\n", __func__,
+		       sb->sys_chunk_array_size, sizeof(struct btrfs_key)
 		       + sizeof(struct btrfs_chunk));
 		ret = -1;
 	}
@@ -164,10 +180,10 @@ int btrfs_read_superblock(void)
 		0x4000000000ull,
 		0x4000000000000ull
 	};
-	char raw_sb[BTRFS_SUPER_INFO_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(char, raw_sb, BTRFS_SUPER_INFO_SIZE);
 	struct btrfs_super_block *sb = (struct btrfs_super_block *) raw_sb;
 	u64 dev_total_bytes;
-	int i, root_backup_idx;
+	int i;
 
 	dev_total_bytes = (u64) btrfs_part_info->size * btrfs_part_info->blksz;
 
@@ -212,17 +228,15 @@ int btrfs_read_superblock(void)
 		return -1;
 	}
 
-	root_backup_idx = btrfs_newest_root_backup(&btrfs_info.sb);
-	if (root_backup_idx < 0) {
+	if (btrfs_check_super_roots(&btrfs_info.sb)) {
 		printf("%s: No valid root_backup found!\n", __func__);
 		return -1;
 	}
-	btrfs_info.root_backup = btrfs_info.sb.super_roots + root_backup_idx;
 
-	if (btrfs_info.root_backup->num_devices != 1) {
+	if (btrfs_info.sb.num_devices != 1) {
 		printf("%s: Unsupported number of devices (%lli). This driver "
 		       "only supports filesystem on one device.\n", __func__,
-		       btrfs_info.root_backup->num_devices);
+		       btrfs_info.sb.num_devices);
 		return -1;
 	}
 

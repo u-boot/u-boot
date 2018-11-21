@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2017 NXP
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -17,8 +16,6 @@
 #include <asm/arch/fsl_serdes.h>
 #include <fsl-mc/fsl_mc.h>
 #include <fsl-mc/ldpaa_wriop.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 int board_eth_init(bd_t *bis)
 {
@@ -58,16 +55,17 @@ int board_eth_init(bd_t *bis)
 		 * a MAC has no PHY address, we give a PHY address to XFI
 		 * MAC error.
 		 */
-		wriop_set_phy_address(WRIOP1_DPMAC1, 0x0a);
-		wriop_set_phy_address(WRIOP1_DPMAC2, AQ_PHY_ADDR1);
-		wriop_set_phy_address(WRIOP1_DPMAC3, QSGMII1_PORT1_PHY_ADDR);
-		wriop_set_phy_address(WRIOP1_DPMAC4, QSGMII1_PORT2_PHY_ADDR);
-		wriop_set_phy_address(WRIOP1_DPMAC5, QSGMII1_PORT3_PHY_ADDR);
-		wriop_set_phy_address(WRIOP1_DPMAC6, QSGMII1_PORT4_PHY_ADDR);
-		wriop_set_phy_address(WRIOP1_DPMAC7, QSGMII2_PORT1_PHY_ADDR);
-		wriop_set_phy_address(WRIOP1_DPMAC8, QSGMII2_PORT2_PHY_ADDR);
-		wriop_set_phy_address(WRIOP1_DPMAC9, QSGMII2_PORT3_PHY_ADDR);
-		wriop_set_phy_address(WRIOP1_DPMAC10, QSGMII2_PORT4_PHY_ADDR);
+		wriop_set_phy_address(WRIOP1_DPMAC1, 0, 0x0a);
+		wriop_set_phy_address(WRIOP1_DPMAC2, 0, AQ_PHY_ADDR1);
+		wriop_set_phy_address(WRIOP1_DPMAC3, 0, QSGMII1_PORT1_PHY_ADDR);
+		wriop_set_phy_address(WRIOP1_DPMAC4, 0, QSGMII1_PORT2_PHY_ADDR);
+		wriop_set_phy_address(WRIOP1_DPMAC5, 0, QSGMII1_PORT3_PHY_ADDR);
+		wriop_set_phy_address(WRIOP1_DPMAC6, 0, QSGMII1_PORT4_PHY_ADDR);
+		wriop_set_phy_address(WRIOP1_DPMAC7, 0, QSGMII2_PORT1_PHY_ADDR);
+		wriop_set_phy_address(WRIOP1_DPMAC8, 0, QSGMII2_PORT2_PHY_ADDR);
+		wriop_set_phy_address(WRIOP1_DPMAC9, 0, QSGMII2_PORT3_PHY_ADDR);
+		wriop_set_phy_address(WRIOP1_DPMAC10, 0,
+				      QSGMII2_PORT4_PHY_ADDR);
 
 		break;
 	default:

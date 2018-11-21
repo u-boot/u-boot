@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SPI flash interface
  *
  * Copyright (C) 2008 Atmel Corporation
  * Copyright (C) 2010 Reinhard Meyer, EMK Elektronik
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

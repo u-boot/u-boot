@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015-2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,10 +16,41 @@
 
 #define UNIPHIER_PINCTRL_PINMUX_BASE	0x1000
 #define UNIPHIER_PINCTRL_LOAD_PINMUX	0x1700
+#define UNIPHIER_PINCTRL_DRVCTRL_BASE	0x1800
+#define UNIPHIER_PINCTRL_DRV2CTRL_BASE	0x1900
+#define UNIPHIER_PINCTRL_DRV3CTRL_BASE	0x1980
 #define UNIPHIER_PINCTRL_PUPDCTRL_BASE	0x1a00
 #define UNIPHIER_PINCTRL_IECTRL		0x1d00
 
 static const char *uniphier_pinctrl_dummy_name = "_dummy";
+
+static int uniphier_pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+	const struct uniphier_pinctrl_pin *pins = priv->socdata->pins;
+	int pins_count = priv->socdata->pins_count;
+
+	/*
+	 * We do not list all pins in the pin table to save memory footprint.
+	 * Report the max pin number + 1 to fake the framework.
+	 */
+	return pins[pins_count - 1].number + 1;
+}
+
+static const char *uniphier_pinctrl_get_pin_name(struct udevice *dev,
+						 unsigned int selector)
+{
+	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+	const struct uniphier_pinctrl_pin *pins = priv->socdata->pins;
+	int pins_count = priv->socdata->pins_count;
+	int i;
+
+	for (i = 0; i < pins_count; i++)
+		if (pins[i].number == selector)
+			return pins[i].name;
+
+	return uniphier_pinctrl_dummy_name;
+}
 
 static int uniphier_pinctrl_get_groups_count(struct udevice *dev)
 {
@@ -114,9 +144,24 @@ static const struct pinconf_param uniphier_pinconf_params[] = {
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 1 },
 	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_DOWN, 1 },
 	{ "bias-pull-pin-default", PIN_CONFIG_BIAS_PULL_PIN_DEFAULT, 1 },
+	{ "drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 0 },
 	{ "input-enable", PIN_CONFIG_INPUT_ENABLE, 1 },
 	{ "input-disable", PIN_CONFIG_INPUT_ENABLE, 0 },
 };
+
+static const struct uniphier_pinctrl_pin *
+uniphier_pinctrl_pin_get(struct uniphier_pinctrl_priv *priv, unsigned int pin)
+{
+	const struct uniphier_pinctrl_pin *pins = priv->socdata->pins;
+	int pins_count = priv->socdata->pins_count;
+	int i;
+
+	for (i = 0; i < pins_count; i++)
+		if (pins[i].number == pin)
+			return &pins[i];
+
+	return NULL;
+}
 
 static int uniphier_pinconf_bias_set(struct udevice *dev, unsigned int pin,
 				     unsigned int param, unsigned int arg)
@@ -158,8 +203,88 @@ static int uniphier_pinconf_bias_set(struct udevice *dev, unsigned int pin,
 	return 0;
 }
 
-static int uniphier_pinconf_set_one(struct udevice *dev, unsigned int pin,
-				    unsigned int param, unsigned int arg)
+static const unsigned int uniphier_pinconf_drv_strengths_1bit[] = {
+	4, 8,
+};
+
+static const unsigned int uniphier_pinconf_drv_strengths_2bit[] = {
+	8, 12, 16, 20,
+};
+
+static const unsigned int uniphier_pinconf_drv_strengths_3bit[] = {
+	4, 5, 7, 9, 11, 12, 14, 16,
+};
+
+static int uniphier_pinconf_drive_set(struct udevice *dev, unsigned int pin,
+				      unsigned int strength)
+{
+	struct uniphier_pinctrl_priv *priv = dev_get_priv(dev);
+	const struct uniphier_pinctrl_pin *desc;
+	const unsigned int *strengths;
+	unsigned int base, stride, width, drvctrl, reg, shift;
+	u32 val, mask, tmp;
+
+	desc = uniphier_pinctrl_pin_get(priv, pin);
+	if (WARN_ON(!desc))
+		return -EINVAL;
+
+	switch (uniphier_pin_get_drv_type(desc->data)) {
+	case UNIPHIER_PIN_DRV_1BIT:
+		strengths = uniphier_pinconf_drv_strengths_1bit;
+		base = UNIPHIER_PINCTRL_DRVCTRL_BASE;
+		stride = 1;
+		width = 1;
+		break;
+	case UNIPHIER_PIN_DRV_2BIT:
+		strengths = uniphier_pinconf_drv_strengths_2bit;
+		base = UNIPHIER_PINCTRL_DRV2CTRL_BASE;
+		stride = 2;
+		width = 2;
+		break;
+	case UNIPHIER_PIN_DRV_3BIT:
+		strengths = uniphier_pinconf_drv_strengths_3bit;
+		base = UNIPHIER_PINCTRL_DRV3CTRL_BASE;
+		stride = 4;
+		width = 3;
+		break;
+	default:
+		/* drive strength control is not supported for this pin */
+		return -EINVAL;
+	}
+
+	drvctrl = uniphier_pin_get_drvctrl(desc->data);
+	drvctrl *= stride;
+
+	reg = base + drvctrl / 32 * 4;
+	shift = drvctrl % 32;
+	mask = (1U << width) - 1;
+
+	for (val = 0; val <= mask; val++) {
+		if (strengths[val] > strength)
+			break;
+	}
+
+	if (val == 0) {
+		dev_err(dev, "unsupported drive strength %u mA for pin %s\n",
+			strength, desc->name);
+		return -EINVAL;
+	}
+
+	if (!mask)
+		return 0;
+
+	val--;
+
+	tmp = readl(priv->base + reg);
+	tmp &= ~(mask << shift);
+	tmp |= (mask & val) << shift;
+	writel(tmp, priv->base + reg);
+
+	return 0;
+}
+
+static int uniphier_pinconf_set(struct udevice *dev, unsigned int pin,
+				unsigned int param, unsigned int arg)
 {
 	int ret;
 
@@ -170,11 +295,14 @@ static int uniphier_pinconf_set_one(struct udevice *dev, unsigned int pin,
 	case PIN_CONFIG_BIAS_PULL_PIN_DEFAULT:
 		ret = uniphier_pinconf_bias_set(dev, pin, param, arg);
 		break;
+	case PIN_CONFIG_DRIVE_STRENGTH:
+		ret = uniphier_pinconf_drive_set(dev, pin, arg);
+		break;
 	case PIN_CONFIG_INPUT_ENABLE:
 		ret = uniphier_pinconf_input_enable(dev, pin, arg);
 		break;
 	default:
-		printf("unsupported configuration parameter %u\n", param);
+		dev_err(dev, "unsupported configuration parameter %u\n", param);
 		return -EINVAL;
 	}
 
@@ -191,7 +319,7 @@ static int uniphier_pinconf_group_set(struct udevice *dev,
 	int i, ret;
 
 	for (i = 0; i < grp->num_pins; i++) {
-		ret = uniphier_pinconf_set_one(dev, grp->pins[i], param, arg);
+		ret = uniphier_pinconf_set(dev, grp->pins[i], param, arg);
 		if (ret)
 			return ret;
 	}
@@ -269,6 +397,8 @@ static int uniphier_pinmux_group_set(struct udevice *dev,
 }
 
 const struct pinctrl_ops uniphier_pinctrl_ops = {
+	.get_pins_count = uniphier_pinctrl_get_pins_count,
+	.get_pin_name = uniphier_pinctrl_get_pin_name,
 	.get_groups_count = uniphier_pinctrl_get_groups_count,
 	.get_group_name = uniphier_pinctrl_get_group_name,
 	.get_functions_count = uniphier_pinmux_get_functions_count,
@@ -277,6 +407,7 @@ const struct pinctrl_ops uniphier_pinctrl_ops = {
 #if CONFIG_IS_ENABLED(PINCONF)
 	.pinconf_num_params = ARRAY_SIZE(uniphier_pinconf_params),
 	.pinconf_params = uniphier_pinconf_params,
+	.pinconf_set = uniphier_pinconf_set,
 	.pinconf_group_set = uniphier_pinconf_group_set,
 #endif
 	.set_state = pinctrl_generic_set_state,

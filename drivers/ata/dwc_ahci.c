@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * DWC SATA platform driver
  *
@@ -5,8 +6,6 @@
  *     Texas Instruments Incorporated, <www.ti.com>
  *
  * Author: Mugunthan V N <mugunthanvnm@ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -18,23 +17,22 @@
 #include <asm/io.h>
 #include <generic-phy.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct dwc_ahci_priv {
 	void *base;
 	void *wrapper_base;
 };
 
+static int dwc_ahci_bind(struct udevice *dev)
+{
+	struct udevice *scsi_dev;
+
+	return ahci_bind_scsi(dev, &scsi_dev);
+}
+
 static int dwc_ahci_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc_ahci_priv *priv = dev_get_priv(dev);
-	struct scsi_platdata *plat = dev_get_uclass_platdata(dev);
 	fdt_addr_t addr;
-
-	plat->max_id = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-				       "max-id", CONFIG_SYS_SCSI_MAX_SCSI_ID);
-	plat->max_lun = fdtdec_get_uint(gd->fdt_blob, dev_of_offset(dev),
-					"max-lun", CONFIG_SYS_SCSI_MAX_LUN);
 
 	priv->base = map_physmem(devfdt_get_addr(dev), sizeof(void *),
 				 MAP_NOCACHE);
@@ -81,11 +79,7 @@ static int dwc_ahci_probe(struct udevice *dev)
 		writel(val, priv->wrapper_base + TI_SATA_SYSCONFIG);
 	}
 
-	ret = ahci_init_dm(dev, priv->base);
-	if (ret)
-		return ret;
-
-	return ahci_start_ports_dm(dev);
+	return ahci_probe_scsi(dev, (ulong)priv->base);
 }
 
 static const struct udevice_id dwc_ahci_ids[] = {
@@ -95,11 +89,11 @@ static const struct udevice_id dwc_ahci_ids[] = {
 
 U_BOOT_DRIVER(dwc_ahci) = {
 	.name	= "dwc_ahci",
-	.id	= UCLASS_SCSI,
+	.id	= UCLASS_AHCI,
 	.of_match = dwc_ahci_ids,
+	.bind	= dwc_ahci_bind,
 	.ofdata_to_platdata = dwc_ahci_ofdata_to_platdata,
 	.ops	= &scsi_ops,
 	.probe	= dwc_ahci_probe,
 	.priv_auto_alloc_size = sizeof(struct dwc_ahci_priv),
-	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };

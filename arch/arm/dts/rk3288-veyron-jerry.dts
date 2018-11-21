@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Google Veyron Jerry Rev 3+ board device tree source
  *
  * Copyright 2014 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 /dts-v1/;

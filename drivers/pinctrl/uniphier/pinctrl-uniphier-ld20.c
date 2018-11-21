@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,6 +9,15 @@
 #include <dm/pinctrl.h>
 
 #include "pinctrl-uniphier.h"
+
+static const struct uniphier_pinctrl_pin uniphier_ld20_pins[] = {
+	UNIPHIER_PINCTRL_PIN(40, "RGMII_TXCLK", 28, UNIPHIER_PIN_DRV_3BIT),
+	UNIPHIER_PINCTRL_PIN(41, "RGMII_TXD0", 29, UNIPHIER_PIN_DRV_3BIT),
+	UNIPHIER_PINCTRL_PIN(42, "RGMII_TXD1", 30, UNIPHIER_PIN_DRV_3BIT),
+	UNIPHIER_PINCTRL_PIN(43, "RGMII_TXD2", 31, UNIPHIER_PIN_DRV_3BIT),
+	UNIPHIER_PINCTRL_PIN(44, "RGMII_TXD3", 32, UNIPHIER_PIN_DRV_3BIT),
+	UNIPHIER_PINCTRL_PIN(45, "RGMII_TXCTL", 33, UNIPHIER_PIN_DRV_3BIT),
+};
 
 static const unsigned emmc_pins[] = {18, 19, 20, 21, 22, 23, 24, 25};
 static const int emmc_muxvals[] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -103,6 +111,8 @@ static const char * const uniphier_ld20_functions[] = {
 };
 
 static struct uniphier_pinctrl_socdata uniphier_ld20_pinctrl_socdata = {
+	.pins = uniphier_ld20_pins,
+	.pins_count = ARRAY_SIZE(uniphier_ld20_pins),
 	.groups = uniphier_ld20_groups,
 	.groups_count = ARRAY_SIZE(uniphier_ld20_groups),
 	.functions = uniphier_ld20_functions,

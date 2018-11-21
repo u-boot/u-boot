@@ -1,17 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Board functions for Compulab CM-FX6 board
  *
  * Copyright (C) 2014, Compulab Ltd - http://compulab.co.il/
  *
  * Author: Nikita Kiryanov <nikita@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <ahci.h>
 #include <dm.h>
 #include <dwc_ahsata.h>
+#include <environment.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <mtd_node.h>
@@ -519,7 +519,7 @@ int cm_fx6_setup_ecspi(void) { return 0; }
 #ifdef CONFIG_OF_BOARD_SETUP
 #define USDHC3_PATH	"/soc/aips-bus@02100000/usdhc@02198000/"
 
-struct node_info nodes[] = {
+static const struct node_info nodes[] = {
 	/*
 	 * Both entries target the same flash chip. The st,m25p compatible
 	 * is used in the vendor device trees, while upstream uses (the
@@ -618,6 +618,27 @@ int board_init(void)
 	}
 #endif
 
+	return 0;
+}
+
+int board_late_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	char baseboard_name[16];
+	int err;
+
+	if (is_mx6dq())
+		env_set("board_rev", "MX6Q");
+	else if (is_mx6dl())
+		env_set("board_rev", "MX6DL");
+
+	err = cl_eeprom_get_product_name((uchar *)baseboard_name, 0);
+	if (err)
+		return 0;
+
+	if (!strncmp("SB-FX6m", baseboard_name, 7))
+		env_set("board_name", "Utilite");
+#endif
 	return 0;
 }
 

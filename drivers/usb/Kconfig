@@ -51,9 +51,13 @@ source "drivers/usb/host/Kconfig"
 
 source "drivers/usb/dwc3/Kconfig"
 
+source "drivers/usb/musb/Kconfig"
+
 source "drivers/usb/musb-new/Kconfig"
 
 source "drivers/usb/emul/Kconfig"
+
+source "drivers/usb/phy/Kconfig"
 
 source "drivers/usb/ulpi/Kconfig"
 
@@ -67,6 +71,7 @@ config USB_STORAGE
 
 config USB_KEYBOARD
 	bool "USB Keyboard support"
+	select SYS_STDIO_DEREGISTER
 	---help---
 	  Say Y here if you want to use a USB keyboard for U-Boot command line
 	  input.

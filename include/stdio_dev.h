@@ -1,13 +1,13 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2000
  * Paolo Scaffardi, AIRVENT SAM s.p.a - RIMINI(ITALY), arsenio@tin.it
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _STDIO_DEV_H_
 #define _STDIO_DEV_H_
 
+#include <stdio.h>
 #include <linux/list.h>
 
 /*
@@ -47,24 +47,6 @@ struct stdio_dev {
 	void *priv;			/* Private extensions			*/
 	struct list_head list;
 };
-
-/*
- * VIDEO EXTENSIONS
- */
-#define VIDEO_FORMAT_RGB_INDEXED	0x0000
-#define VIDEO_FORMAT_RGB_DIRECTCOLOR	0x0001
-#define VIDEO_FORMAT_YUYV_4_4_4		0x0010
-#define VIDEO_FORMAT_YUYV_4_2_2		0x0011
-
-typedef struct {
-	void *address;			/* Address of framebuffer		*/
-	ushort	width;			/* Horizontal resolution		*/
-	ushort	height;			/* Vertical resolution			*/
-	uchar	format;			/* Format				*/
-	uchar	colors;			/* Colors number or color depth		*/
-	void (*setcolreg) (int, int, int, int);
-	void (*getcolreg) (int, void *);
-} video_ext_t;
 
 /*
  * VARIABLES

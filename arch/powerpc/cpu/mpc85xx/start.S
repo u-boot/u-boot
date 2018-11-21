@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2004, 2007-2012 Freescale Semiconductor, Inc.
  * Copyright (C) 2003  Motorola,Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* U-Boot Startup Code for Motorola 85xx PowerPC based Embedded Boards

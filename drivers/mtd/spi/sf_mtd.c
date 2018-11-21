@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012-2014 Daniel Schwierzeck, daniel.schwierzeck@gmail.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

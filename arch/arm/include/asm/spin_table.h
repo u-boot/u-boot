@@ -1,6 +1,4 @@
-/*
- * SPDX-License-Identifier:	GPL-2.0+
- */
+/* SPDX-License-Identifier: GPL-2.0+ */
 
 #ifndef __ASM_SPIN_TABLE_H__
 #define __ASM_SPIN_TABLE_H__

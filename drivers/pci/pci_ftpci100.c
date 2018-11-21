@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Faraday FTPCI100 PCI Bridge Controller Device Driver Implementation
  *
  * Copyright (C) 2011 Andes Technology Corporation
  * Gavin Guo, Andes Technology Corporation <gavinguo@andestech.com>
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <malloc.h>

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * drivers/usb/gadget/dwc2_udc_otg.c
  * Designware DWC2 on-chip full/high speed USB OTG 2.0 device controllers
@@ -14,8 +15,6 @@
  * Ported to u-boot:
  * Marek Szyprowski <m.szyprowski@samsung.com>
  * Lukasz Majewski <l.majewski@samsumg.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #undef DEBUG
 #include <common.h>

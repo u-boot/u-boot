@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2004-2014
  * Texas Instruments, <www.ti.com>
  *
  * Some changes copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _DAVINCI_I2C_H_
 #define _DAVINCI_I2C_H_

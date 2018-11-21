@@ -1,6 +1,4 @@
-/*
- * SPDX-License-Identifier:    GPL-2.0+
- */
+/* SPDX-License-Identifier: GPL-2.0+ */
 
 #ifndef _PSU_INIT_GPL_H_ /* prevent circular inclusions */
 #define _PSU_INIT_GPL_H_

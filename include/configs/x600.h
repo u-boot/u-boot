@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009, STMicroelectronics - All Rights Reserved
  * Author(s): Vipin Kumar, <vipin.kumar@st.com> for STMicroelectronics.
  *
  * Copyright (C) 2012, 2015 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -22,7 +21,6 @@
 /* Timer, HZ specific defines */
 #define CONFIG_SYS_HZ_CLOCK			8300000
 
-#define	CONFIG_SYS_TEXT_BASE			0x00800040
 #define CONFIG_SYS_FLASH_BASE			0xf8000000
 /* Reserve 8KiB for SPL */
 #define CONFIG_SPL_PAD_TO			8192	/* decimal for 'dd' */
@@ -38,9 +36,7 @@
 #define CONFIG_SYS_SERIAL1			0xD0080000
 #define CONFIG_PL01x_PORTS			{ (void *)CONFIG_SYS_SERIAL0, \
 						(void *)CONFIG_SYS_SERIAL1 }
-#define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK			(48 * 1000 * 1000)
-#define CONFIG_CONS_INDEX			0
 #define CONFIG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, \
 						  57600, 115200 }
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
@@ -66,13 +62,9 @@
 #define CONFIG_NAND_ECC_BCH
 
 /* UBI/UBI config options */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 /* Ethernet config options */
-#define CONFIG_MII
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-#define CONFIG_PHY_ADDR		0	/* PHY address */
 
 #define CONFIG_SPEAR_GPIO
 
@@ -87,18 +79,11 @@
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
 
 /* FPGA config options */
-#define CONFIG_FPGA
-#define CONFIG_FPGA_XILINX
-#define CONFIG_FPGA_SPARTAN3
 #define CONFIG_FPGA_COUNT	1
 
 /* USB EHCI options */
 #define CONFIG_USB_EHCI_SPEAR
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	2
-
-/* Filesystem support (for USB key) */
-#define CONFIG_SUPPORT_VFAT
-
 
 /*
  * U-Boot Environment placing definitions.
@@ -116,29 +101,20 @@
 #define CONFIG_BOOT_PARAMS_ADDR			0x00000100
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_MISC_INIT_R
 #define CONFIG_MX_CYCLIC		/* enable mdc/mwc commands      */
 
 #define CONFIG_SYS_MEMTEST_START		0x00800000
 #define CONFIG_SYS_MEMTEST_END			0x04000000
 #define CONFIG_SYS_MALLOC_LEN			(8 << 20)
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 
-/* Use last 2 lwords in internal SRAM for bootcounter */
-#define CONFIG_BOOTCOUNT_LIMIT
-#define CONFIG_SYS_BOOTCOUNT_ADDR		(CONFIG_SRAM_BASE + \
-						 CONFIG_SRAM_SIZE)
-
-#define CONFIG_HOSTNAME				x600
+#define CONFIG_HOSTNAME				"x600"
 #define CONFIG_UBI_PART				ubi0
 #define CONFIG_UBIFS_VOLUME			rootfs
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"u-boot_addr=1000000\0"						\
-	"u-boot=" __stringify(CONFIG_HOSTNAME) "/u-boot.spr\0"		\
+	"u-boot=" CONFIG_HOSTNAME "/u-boot.spr\0"		\
 	"load=tftp ${u-boot_addr} ${u-boot}\0"				\
 	"update=protect off " __stringify(CONFIG_SYS_MONITOR_BASE)	\
 		" +${filesize};"					\
@@ -148,7 +124,7 @@
 		"protect on " __stringify(CONFIG_SYS_MONITOR_BASE)	\
 		" +${filesize}\0"					\
 	"upd=run load update\0"						\
-	"ubifs=" __stringify(CONFIG_HOSTNAME) "/ubifs.img\0"		\
+	"ubifs=" CONFIG_HOSTNAME "/ubifs.img\0"		\
 	"part=" __stringify(CONFIG_UBI_PART) "\0"			\
 	"vol=" __stringify(CONFIG_UBIFS_VOLUME) "\0"			\
 	"load_ubifs=tftp ${kernel_addr} ${ubifs}\0"			\
@@ -173,12 +149,12 @@
 		"saveenv;boot\0"					\
 	"ubifsargs=set bootargs ubi.mtd=ubi${boot_part} "		\
 		"root=ubi0:rootfs rootfstype=ubifs\0"			\
-	"kernel=" __stringify(CONFIG_HOSTNAME) "/uImage\0"		\
+	"kernel=" CONFIG_HOSTNAME "/uImage\0"		\
 	"kernel_fs=/boot/uImage \0"					\
 	"kernel_addr=1000000\0"						\
-	"dtb=" __stringify(CONFIG_HOSTNAME) "/"				\
-		__stringify(CONFIG_HOSTNAME) ".dtb\0"			\
-	"dtb_fs=/boot/" __stringify(CONFIG_HOSTNAME) ".dtb\0"		\
+	"dtb=" CONFIG_HOSTNAME "/"				\
+		CONFIG_HOSTNAME ".dtb\0"			\
+	"dtb_fs=/boot/" CONFIG_HOSTNAME ".dtb\0"		\
 	"dtb_addr=1800000\0"						\
 	"load_kernel=tftp ${kernel_addr} ${kernel}\0"			\
 	"load_dtb=tftp ${dtb_addr} ${dtb}\0"				\
@@ -205,7 +181,6 @@
 	"\0"
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM_1				0x00000000
 #define PHYS_SDRAM_1_MAXSIZE			0x40000000
 
@@ -228,8 +203,6 @@
 #define CONFIG_SPL_TEXT_BASE		0xd2800b00
 #define CONFIG_SPL_MAX_SIZE		(CONFIG_SRAM_SIZE - 0xb00)
 #define	CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/spear"
-
-#define CONFIG_SPL_FRAMEWORK
 
 /*
  * Please select/define only one of the following

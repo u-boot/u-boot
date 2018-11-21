@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2003-2004 Red Hat, Inc.  All rights reserved.
  * Copyright 2003-2004 Jeff Garzik
  * Copyright (C) 2008 Freescale Semiconductor, Inc.
  *		Dave Liu <daveliu@freescale.com>
  *		port from libata of linux kernel
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __LIBATA_H__

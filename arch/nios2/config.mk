@@ -1,10 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2004
 # Psyent Corporation <www.psyent.com>
 # Scott McNutt <smcnutt@psyent.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE := nios2-elf-

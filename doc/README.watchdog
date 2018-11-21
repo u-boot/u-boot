@@ -31,6 +31,3 @@ CONFIG_IMX_WATCHDOG
 
 CONFIG_XILINX_TB_WATCHDOG
 	Available for Xilinx Axi platforms to service timebase watchdog timer.
-
-CONFIG_BFIN_WATCHDOG
-	Available for bf5xx and bf6xx to service the watchdog.

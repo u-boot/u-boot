@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SuperH SCIF device driver.
  * Copyright (C) 2013  Renesas Electronics Corporation
  * Copyright (C) 2007,2008,2010, 2014 Nobuhiro Iwamatsu
  * Copyright (C) 2002 - 2008  Paul Mundt
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -149,7 +148,7 @@ static int sh_serial_getc_generic(struct uart_port *port)
 	return ch;
 }
 
-#ifdef CONFIG_DM_SERIAL
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 
 static int sh_serial_pending(struct udevice *dev, bool input)
 {
@@ -204,7 +203,7 @@ static const struct dm_serial_ops sh_serial_ops = {
 	.setbrg = sh_serial_setbrg,
 };
 
-#ifdef CONFIG_OF_CONTROL
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static const struct udevice_id sh_serial_id[] ={
 	{.compatible = "renesas,sci", .data = PORT_SCI},
 	{.compatible = "renesas,scif", .data = PORT_SCIF},
@@ -219,8 +218,8 @@ static int sh_serial_ofdata_to_platdata(struct udevice *dev)
 	fdt_addr_t addr;
 	int ret;
 
-	addr = fdtdec_get_addr(gd->fdt_blob, dev_of_offset(dev), "reg");
-	if (addr == FDT_ADDR_T_NONE)
+	addr = devfdt_get_addr(dev);
+	if (!addr)
 		return -EINVAL;
 
 	plat->base = addr;
@@ -270,6 +269,8 @@ U_BOOT_DRIVER(serial_sh) = {
 # define SCIF_BASE	SCIF6_BASE
 #elif defined(CONFIG_CONS_SCIF7)
 # define SCIF_BASE	SCIF7_BASE
+#elif defined(CONFIG_CONS_SCIFA0)
+# define SCIF_BASE	SCIFA0_BASE
 #else
 # error "Default SCIF doesn't set....."
 #endif

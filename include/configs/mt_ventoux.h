@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2011
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
@@ -6,8 +7,6 @@
  * Configuration settings for the Teejet mt_ventoux board.
  *
  * Copyright (C) 2009 TechNexion Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -22,9 +21,8 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_AM3517_MT_VENTOUX
 
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_AUTO_COMPLETE
 
-#define CONFIG_HOSTNAME mt_ventoux
+#define CONFIG_HOSTNAME "mt_ventoux"
 
 /*
  * Set its own mtdparts, different from common
@@ -33,9 +31,6 @@
 /*
  * FPGA
  */
-#define CONFIG_FPGA
-#define CONFIG_FPGA_XILINX
-#define CONFIG_FPGA_SPARTAN3
 #define CONFIG_SYS_FPGA_PROG_FEEDBACK
 #define CONFIG_SYS_FPGA_WAIT	10000
 #define CONFIG_MAX_FPGA_DEVICES	1
@@ -44,7 +39,6 @@
 
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_VIDEO_BMP_RLE8
-#define CONFIG_VIDEO_OMAP3	/* DSS Support			*/
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	CONFIG_TAM3517_SETTINGS \
 	"bootcmd=run net_nfs\0"

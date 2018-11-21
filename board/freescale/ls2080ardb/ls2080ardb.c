@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017 NXP Semiconductors
  * Copyright 2015 Freescale Semiconductor
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Copyright 2017 NXP
  */
 #include <common.h>
 #include <malloc.h>
@@ -13,7 +12,7 @@
 #include <asm/io.h>
 #include <hwconfig.h>
 #include <fdt_support.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
 #include <environment.h>
 #include <efi_loader.h>
@@ -71,11 +70,10 @@ int checkboard(void)
 #ifdef CONFIG_TARGET_LS2081ARDB
 #ifdef CONFIG_FSL_QIXIS
 	sw = QIXIS_READ(arch);
-	printf("Board Arch: V%d, ", sw >> 4);
 	printf("Board version: %c, ", (sw & 0xf) + 'A');
 
 	sw = QIXIS_READ(brdcfg[0]);
-	sw = (sw & QIXIS_QMAP_MASK) >> QIXIS_QMAP_SHIFT;
+	sw = (sw >> QIXIS_QMAP_SHIFT) & QIXIS_QMAP_MASK;
 	switch (sw) {
 	case 0:
 		puts("boot from QSPI DEV#0\n");
@@ -101,6 +99,7 @@ int checkboard(void)
 		printf("invalid setting of SW%u\n", sw);
 		break;
 	}
+	printf("FPGA: v%d.%d\n", QIXIS_READ(scver), QIXIS_READ(tagdata));
 #endif
 	puts("SERDES1 Reference : ");
 	printf("Clock1 = 100MHz ");
@@ -394,6 +393,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	fdt_fixup_memory_banks(blob, base, size, 2);
+
+	fdt_fsl_mc_fixup_iommu_map_entry(blob);
 
 	fsl_fdt_fixup_dr_usb(blob, bd);
 

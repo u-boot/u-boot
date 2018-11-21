@@ -1,15 +1,16 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*-
  * Copyright (c) 2007-2008, Juniper Networks, Inc.
  * Copyright (c) 2008, Michael Trimarchi <trimarchimichael@yahoo.it>
  * All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef USB_EHCI_H
 #define USB_EHCI_H
 
+#include <stdbool.h>
 #include <usb.h>
+#include <generic-phy.h>
 
 /* Section 2.2.3 - N_PORTS */
 #define MAX_HC_PORTS		15
@@ -66,6 +67,8 @@ struct ehci_hcor {
 #define PORTSC_PSPD_FS			0x0
 #define PORTSC_PSPD_LS			0x1
 #define PORTSC_PSPD_HS			0x2
+#define PORTSC_FSL_PFSC		BIT(24) /* PFSC bit to disable HS chirping */
+
 	uint32_t or_systune;
 } __attribute__ ((packed, aligned(4)));
 
@@ -251,6 +254,7 @@ struct ehci_ctrl {
 	uint32_t *periodic_list;
 	int periodic_schedules;
 	int ntds;
+	bool has_fsl_erratum_a005275;	/* Freescale HS silicon quirk */
 	struct ehci_ops ops;
 	void *priv;	/* client's private data */
 };
@@ -288,5 +292,9 @@ int ehci_register(struct udevice *dev, struct ehci_hccr *hccr,
 		  uint tweaks, enum usb_init_type init);
 int ehci_deregister(struct udevice *dev);
 extern struct dm_usb_ops ehci_usb_ops;
+
+/* EHCI PHY functions */
+int ehci_setup_phy(struct udevice *dev, struct phy *phy, int index);
+int ehci_shutdown_phy(struct udevice *dev, struct phy *phy);
 
 #endif /* USB_EHCI_H */

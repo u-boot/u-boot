@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2016, NVIDIA CORPORATION.
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>
@@ -9,8 +8,6 @@
 #include <fdtdec.h>
 #include <reset.h>
 #include <reset-uclass.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static inline struct reset_ops *reset_dev_ops(struct udevice *dev)
 {
@@ -81,6 +78,40 @@ int reset_get_by_index(struct udevice *dev, int index,
 	return 0;
 }
 
+int reset_get_bulk(struct udevice *dev, struct reset_ctl_bulk *bulk)
+{
+	int i, ret, err, count;
+	
+	bulk->count = 0;
+
+	count = dev_count_phandle_with_args(dev, "resets", "#reset-cells");
+	if (count < 1)
+		return count;
+
+	bulk->resets = devm_kcalloc(dev, count, sizeof(struct reset_ctl),
+				    GFP_KERNEL);
+	if (!bulk->resets)
+		return -ENOMEM;
+
+	for (i = 0; i < count; i++) {
+		ret = reset_get_by_index(dev, i, &bulk->resets[i]);
+		if (ret < 0)
+			goto bulk_get_err;
+
+		++bulk->count;
+	}
+
+	return 0;
+
+bulk_get_err:
+	err = reset_release_all(bulk->resets, bulk->count);
+	if (err)
+		debug("%s: could release all resets for %p\n",
+		      __func__, dev);
+
+	return ret;
+}
+
 int reset_get_by_name(struct udevice *dev, const char *name,
 		     struct reset_ctl *reset_ctl)
 {
@@ -126,6 +157,19 @@ int reset_assert(struct reset_ctl *reset_ctl)
 	return ops->rst_assert(reset_ctl);
 }
 
+int reset_assert_bulk(struct reset_ctl_bulk *bulk)
+{
+	int i, ret;
+
+	for (i = 0; i < bulk->count; i++) {
+		ret = reset_assert(&bulk->resets[i]);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+
 int reset_deassert(struct reset_ctl *reset_ctl)
 {
 	struct reset_ops *ops = reset_dev_ops(reset_ctl->dev);
@@ -133,6 +177,28 @@ int reset_deassert(struct reset_ctl *reset_ctl)
 	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
 
 	return ops->rst_deassert(reset_ctl);
+}
+
+int reset_deassert_bulk(struct reset_ctl_bulk *bulk)
+{
+	int i, ret;
+
+	for (i = 0; i < bulk->count; i++) {
+		ret = reset_deassert(&bulk->resets[i]);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+
+int reset_status(struct reset_ctl *reset_ctl)
+{
+	struct reset_ops *ops = reset_dev_ops(reset_ctl->dev);
+
+	debug("%s(reset_ctl=%p)\n", __func__, reset_ctl);
+
+	return ops->rst_status(reset_ctl);
 }
 
 int reset_release_all(struct reset_ctl *reset_ctl, int count)

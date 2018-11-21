@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Google Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,8 +9,6 @@
 #include <timer.h>
 #include <asm/io.h>
 #include <asm/arch/timer.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define AST_TICK_TIMER  1
 #define AST_TMC_RELOAD_VAL  0xffffffff

@@ -1,9 +1,7 @@
-/*
- * SPDX-License-Identifier:	GPL-2.0+
- */
+// SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <linux/compiler.h>
 
 int __weak checkboard(void)

@@ -1993,7 +1993,7 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
 
                STBTT_assert(fabs(area) <= 1.01f);
 
-               scanline[x2] += area + sign * (1-((x2-x2)+(x_bottom-x2))/2) * (sy1-y_crossing);
+               scanline[x2] += area + sign * (1-(x_bottom-x2)/2) * (sy1-y_crossing);
 
                scanline_fill[x2] += sign * (sy1-sy0);
             }

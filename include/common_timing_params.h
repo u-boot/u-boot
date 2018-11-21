@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef COMMON_TIMING_PARAMS_H
@@ -26,6 +25,7 @@ typedef struct {
 	unsigned int trrds_ps;
 	unsigned int trrdl_ps;
 	unsigned int tccdl_ps;
+	unsigned int trfc_slr_ps;
 #else
 	unsigned int twtr_ps;	/* maximum = 63750 ps */
 	unsigned int trfc_ps;	/* maximum = 255 ns + 256 ns + .75 ns

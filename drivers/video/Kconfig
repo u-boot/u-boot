@@ -156,6 +156,15 @@ config VIDEO_COREBOOT
 	  coreboot already. This can in principle be used with any platform
 	  that coreboot supports.
 
+config VIDEO_EFI
+	bool "Enable EFI framebuffer driver support"
+	depends on EFI_STUB
+	help
+	  Turn on this option to enable a framebuffeer driver when U-Boot is
+	  loaded as a payload (see README.u-boot_on_efi) by an EFI BIOS where
+	  the graphics device is configured by the EFI BIOS already. This can
+	  in principle be used with any platform that has an EFI BIOS.
+
 config VIDEO_VESA
 	bool "Enable VESA video driver support"
 	default n
@@ -174,7 +183,7 @@ config FRAMEBUFFER_SET_VESA_MODE
 
 choice
 	prompt "framebuffer graphics resolution"
-	default FRAMEBUFFER_VESA_MODE_117
+	default FRAMEBUFFER_VESA_MODE_118
 	depends on FRAMEBUFFER_SET_VESA_MODE
 	help
 	  This option sets the resolution used for the U-Boot framebuffer (and
@@ -399,9 +408,14 @@ config VIDEO_MVEBU
 	Support for the LCD controller integrated in the Marvell
 	Armada XP SoC.
 
+config VIDEO_OMAP3
+	bool "Enable OMAP3+ DSS Support"
+	depends on ARCH_OMAP2PLUS
+	help
+	  This enables the Display subsystem (DSS) on OMAP3+ boards.
+
 config I2C_EDID
 	bool "Enable EDID library"
-	depends on DM_I2C
 	default n
 	help
 	   This enables library for accessing EDID data from an LCD panel.
@@ -417,11 +431,30 @@ config DISPLAY
 	   The devices provide a simple interface to start up the display,
 	   read display information and enable it.
 
+config NXP_TDA19988
+	bool "Enable NXP TDA19988 support"
+	depends on DISPLAY
+	default n
+	help
+	  This enables support for the NXP TDA19988 HDMI encoder. This encoder
+	  will convert RGB data streams into HDMI-encoded signals.
+
 config ATMEL_HLCD
 	bool "Enable ATMEL video support using HLCDC"
 	depends on DM_VIDEO
 	help
 	   HLCDC supports video output to an attached LCD panel.
+
+config LOGICORE_DP_TX
+	bool "Enable Logicore DP TX driver"
+	depends on DISPLAY
+	help
+	  Enable the driver for the transmitter part of the Xilinx LogiCORE
+	  DisplayPort, a IP core for Xilinx FPGAs that implements a DisplayPort
+	  video interface as defined by VESA DisplayPort v1.2.
+
+	  Note that this is a pure transmitter device, and has no display
+	  capabilities by itself.
 
 config VIDEO_BROADWELL_IGD
 	bool "Enable Intel Broadwell integrated graphics device"
@@ -463,6 +496,14 @@ config VIDEO_FSL_DCU_MAX_FB_SIZE_MB
 	 Controller Unit (DCU4).
 
 source "drivers/video/rockchip/Kconfig"
+
+config VIDEO_ARM_MALIDP
+	bool "Enable Arm Mali Display Processor support"
+	depends on DM_VIDEO && OF_CONTROL
+	select VEXPRESS_CLK
+	help
+	  This enables support for Arm Ltd Mali Display Processors from
+	  the DP500, DP550 and DP650 family.
 
 config VIDEO_SANDBOX_SDL
 	bool "Enable sandbox video console using SDL"
@@ -657,5 +698,28 @@ config VIDEO_DT_SIMPLEFB
 	  simple framebuffer in the device tree.
 	  The video output is initialized by U-Boot, and kept by the
 	  kernel.
+
+config OSD
+	bool "Enable OSD support"
+	depends on DM
+	default n
+	help
+	   This supports drivers that provide a OSD (on-screen display), which
+	   is a (usually text-oriented) graphics buffer to show information on
+	   a display.
+
+config SANDBOX_OSD
+	bool "Enable sandbox OSD"
+	depends on OSD
+	help
+	  Enable support for sandbox OSD device used for testing purposes.
+
+config IHS_VIDEO_OUT
+	bool "Enable IHS video out driver"
+	depends on OSD
+	help
+	  Enable support for the gdsys Integrated Hardware Systems (IHS) video
+	  out On-screen Display (OSD) used on gdsys FPGAs to control dynamic
+	  textual overlays of the display outputs.
 
 endmenu

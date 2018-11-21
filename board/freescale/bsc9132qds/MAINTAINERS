@@ -1,5 +1,5 @@
 BSC9132QDS BOARD
-M:	Naveen Burmi <NaveenBurmi@freescale.com>
+M:	Naveen Burmi <naveen.burmi@nxp.com>
 S:	Maintained
 F:	board/freescale/bsc9132qds/
 F:	include/configs/BSC9132QDS.h

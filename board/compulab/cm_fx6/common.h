@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014, Compulab Ltd - http://compulab.co.il/
  *
  * Author: Nikita Kiryanov <nikita@compulab.co.il>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/mx6-pins.h>

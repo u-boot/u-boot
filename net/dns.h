@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Masami Komiya <mkomiya@sonare.it> 2005
  *  Copyright 2009, Robin Getz <rgetz@blackfin.uclinux.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DNS_H__

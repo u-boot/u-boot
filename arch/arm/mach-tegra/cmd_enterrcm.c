@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
  *
@@ -21,8 +22,6 @@
  * mailto:info@wawnet.biz
  *
  * (C) Copyright 2004 Texas Insturments
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

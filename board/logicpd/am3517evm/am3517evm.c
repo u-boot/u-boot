@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * am3517evm.c - board file for TI's AM3517 family of devices.
  *
@@ -7,8 +8,6 @@
  *
  * Copyright (C) 2010
  * Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -38,20 +37,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CPGMACSS_SW_RST		(1 << 1)
 #define PHY_GPIO		30
 
-/* This is only needed until SPL gets OF support */
-#ifdef CONFIG_SPL_BUILD
-static const struct ns16550_platdata am3517_serial = {
-	.base = OMAP34XX_UART3,
-	.reg_shift = 2,
-	.clock = V_NS16550_CLK,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DEVICE(am3517_uart) = {
-	"ns16550_serial",
-	&am3517_serial
-};
-#endif
 
 /*
  * Routine: board_init
@@ -123,10 +108,11 @@ int misc_init_r(void)
 	volatile unsigned int ctr;
 	u32 reset;
 
+#if !defined(CONFIG_DM_I2C)
 #ifdef CONFIG_SYS_I2C_OMAP24XX
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
-
+#endif
 	omap_die_id_display();
 
 	am3517_evm_musb_init();

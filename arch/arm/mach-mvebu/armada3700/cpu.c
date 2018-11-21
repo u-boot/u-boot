@@ -1,20 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <asm/io.h>
 #include <asm/system.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/armv8/mmu.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Armada 3700 */
 #define MVEBU_GPIO_NB_REG_BASE		(MVEBU_REGISTER(0x13800))
@@ -42,6 +39,14 @@ static struct mm_region mvebu_mem_map[] = {
 		.phys = 0xd0000000UL,
 		.virt = 0xd0000000UL,
 		.size = 0x02000000UL,	/* 32MiB internal registers */
+		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+			 PTE_BLOCK_NON_SHARE
+	},
+	{
+		/* PCI regions */
+		.phys = 0xe8000000UL,
+		.virt = 0xe8000000UL,
+		.size = 0x02000000UL,	/* 32MiB master PCI space */
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE
 	},

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  armboot - Startup Code for ARM926EJS CPU-core
  *
@@ -15,8 +16,6 @@
  * Change to support call back into iMX28 bootrom
  * Copyright (c) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

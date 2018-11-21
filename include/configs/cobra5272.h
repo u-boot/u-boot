@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Sentec Cobra Board.
  *
  * (C) Copyright 2003 Josef Baumgartner <josef.baumgartner@telex.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* ---
@@ -109,16 +108,12 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
  */
 
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_MII		1
 #	define CONFIG_MII_INIT		1
 #	define CONFIG_SYS_DISCOVER_PHY
 #	define CONFIG_SYS_RX_ETH_BUFFER	8
@@ -166,8 +161,6 @@ enter a valid image address in flash */
 from which user programs will be started */
 
 /*---*/
-
-#define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
 
 /*
  *-----------------------------------------------------------------------------

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2004
  * Robin Getz rgetz@blacfin.uclinux.org
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Heavily borrowed from the following peoples GPL'ed software:
  *  - Wolfgang Denk, DENX Software Engineering, wd@denx.de

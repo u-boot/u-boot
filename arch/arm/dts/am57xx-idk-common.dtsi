@@ -413,6 +413,8 @@
 	bus-width = <8>;
 	ti,non-removable;
 	max-frequency = <96000000>;
+	no-1-8-v;
+	/delete-property/ mmc-hs200-1_8v;
 };
 
 &dcan1 {

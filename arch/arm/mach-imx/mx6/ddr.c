@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Gateworks Corporation
  * Author: Tim Harvey <tharvey@gateworks.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -21,10 +20,10 @@ static void reset_read_data_fifos(void)
 
 	/* Reset data FIFOs twice. */
 	setbits_le32(&mmdc0->mpdgctrl0, 1 << 31);
-	wait_for_bit("MMDC", &mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
+	wait_for_bit_le32(&mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
 
 	setbits_le32(&mmdc0->mpdgctrl0, 1 << 31);
-	wait_for_bit("MMDC", &mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
+	wait_for_bit_le32(&mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
 }
 
 static void precharge_all(const bool cs0_enable, const bool cs1_enable)
@@ -39,12 +38,12 @@ static void precharge_all(const bool cs0_enable, const bool cs1_enable)
 	 */
 	if (cs0_enable) { /* CS0 */
 		writel(0x04008050, &mmdc0->mdscr);
-		wait_for_bit("MMDC", &mmdc0->mdscr, 1 << 14, 1, 100, 0);
+		wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 1, 100, 0);
 	}
 
 	if (cs1_enable) { /* CS1 */
 		writel(0x04008058, &mmdc0->mdscr);
-		wait_for_bit("MMDC", &mmdc0->mdscr, 1 << 14, 1, 100, 0);
+		wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 1, 100, 0);
 	}
 }
 
@@ -83,6 +82,23 @@ static void modify_dg_result(u32 *reg_st0, u32 *reg_st1, u32 *reg_ctrl)
 	val_ctrl |= (dg_dl_abs_offset + dg_hc_del) << 16;
 
 	writel(val_ctrl, reg_ctrl);
+}
+
+static void correct_mpwldectr_result(void *reg)
+{
+	/* Limit is 200/256 of CK, which is WL_HC_DELx | 0x48. */
+	const unsigned int limit = 0x148;
+	u32 val = readl(reg);
+	u32 old = val;
+
+	if ((val & 0x17f) > limit)
+		val &= 0xffff << 16;
+
+	if (((val >> 16) & 0x17f) > limit)
+		val &= 0xffff;
+
+	if (old != val)
+		writel(val, reg);
 }
 
 int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
@@ -146,7 +162,7 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	 * 7. Upon completion of this process the MMDC de-asserts
 	 * the MPWLGCR[HW_WL_EN]
 	 */
-	wait_for_bit("MMDC", &mmdc0->mpwlgcr, 1 << 0, 0, 100, 0);
+	wait_for_bit_le32(&mmdc0->mpwlgcr, 1 << 0, 0, 100, 0);
 
 	/*
 	 * 8. check for any errors: check both PHYs for x64 configuration,
@@ -174,6 +190,13 @@ int mmdc_do_write_level_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 			writel(ldectrl[3], &mmdc1->mpwldectrl1);
 		}
 		errors |= 4;
+	}
+
+	correct_mpwldectr_result(&mmdc0->mpwldectrl0);
+	correct_mpwldectr_result(&mmdc0->mpwldectrl1);
+	if (sysinfo->dsize == 2) {
+		correct_mpwldectr_result(&mmdc1->mpwldectrl0);
+		correct_mpwldectr_result(&mmdc1->mpwldectrl1);
 	}
 
 	/*
@@ -278,7 +301,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 		writel(0x00008028, &mmdc0->mdscr);
 
 	/* poll to make sure the con_ack bit was asserted */
-	wait_for_bit("MMDC", &mmdc0->mdscr, 1 << 14, 1, 100, 0);
+	wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 1, 100, 0);
 
 	/*
 	 * Check MDMISC register CALIB_PER_CS to see which CS calibration
@@ -312,7 +335,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	 * this bit until it clears to indicate completion of the write access.
 	 */
 	setbits_le32(&mmdc0->mpswdar0, 1);
-	wait_for_bit("MMDC", &mmdc0->mpswdar0, 1 << 0, 0, 100, 0);
+	wait_for_bit_le32(&mmdc0->mpswdar0, 1 << 0, 0, 100, 0);
 
 	/* Set the RD_DL_ABS# bits to their default values
 	 * (will be calibrated later in the read delay-line calibration).
@@ -359,7 +382,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	setbits_le32(&mmdc0->mpdgctrl0, 5 << 28);
 
 	/* Poll for completion.  MPDGCTRL0[HW_DG_EN] should be 0 */
-	wait_for_bit("MMDC", &mmdc0->mpdgctrl0, 1 << 28, 0, 100, 0);
+	wait_for_bit_le32(&mmdc0->mpdgctrl0, 1 << 28, 0, 100, 0);
 
 	/*
 	 * Check to see if any errors were encountered during calibration
@@ -423,7 +446,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	 * setting MPRDDLHWCTL[HW_RD_DL_EN] = 0.   Also, ensure that
 	 * no error bits were set.
 	 */
-	wait_for_bit("MMDC", &mmdc0->mprddlhwctl, 1 << 4, 0, 100, 0);
+	wait_for_bit_le32(&mmdc0->mprddlhwctl, 1 << 4, 0, 100, 0);
 
 	/* check both PHYs for x64 configuration, if x32, check only PHY0 */
 	if (readl(&mmdc0->mprddlhwctl) & 0x0000000f)
@@ -477,7 +500,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	 * by setting MPWRDLHWCTL[HW_WR_DL_EN] = 0.
 	 * Also, ensure that no error bits were set.
 	 */
-	wait_for_bit("MMDC", &mmdc0->mpwrdlhwctl, 1 << 4, 0, 100, 0);
+	wait_for_bit_le32(&mmdc0->mpwrdlhwctl, 1 << 4, 0, 100, 0);
 
 	/* Check both PHYs for x64 configuration, if x32, check only PHY0 */
 	if (readl(&mmdc0->mpwrdlhwctl) & 0x0000000f)
@@ -526,7 +549,7 @@ int mmdc_do_dqs_calibration(struct mx6_ddr_sysinfo const *sysinfo)
 	writel(0x0, &mmdc0->mdscr);	/* CS0 */
 
 	/* Poll to make sure the con_ack bit is clear */
-	wait_for_bit("MMDC", &mmdc0->mdscr, 1 << 14, 0, 100, 0);
+	wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 0, 100, 0);
 
 	/*
 	 * Print out the registers that were updated as a result
@@ -908,7 +931,7 @@ void mx6sdl_dram_iocfg(unsigned width,
 #define MR(val, ba, cmd, cs1) \
 	((val << 16) | (1 << 15) | (cmd << 4) | (cs1 << 3) | ba)
 #define MMDC1(entry, value) do {					  \
-	if (!is_mx6sx() && !is_mx6ul() && !is_mx6sl())			  \
+	if (!is_mx6sx() && !is_mx6ul() && !is_mx6ull() && !is_mx6sl())	  \
 		mmdc1->entry = value;					  \
 	} while (0)
 
@@ -1215,7 +1238,7 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	u16 mem_speed = ddr3_cfg->mem_speed;
 
 	mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
-	if (!is_mx6sx() && !is_mx6ul() && !is_mx6sl())
+	if (!is_mx6sx() && !is_mx6ul() && !is_mx6ull() && !is_mx6sl())
 		mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
 
 	/* Limit mem_speed for MX6D/MX6Q */

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  Copyright 2014 - 2015 Freescale Semiconductor, Inc.
- *
- *  SPDX-License-Identifier:      GPL-2.0+
  *
  *  Driver for the Vitesse VSC9953 L2 Switch
  */
@@ -2469,6 +2468,139 @@ void vsc9953_default_configuration(void)
 		debug("VSC9953: failed to set default aggregation code mode\n");
 }
 
+static void vcap_entry2cache_init(u32 target, u32 entry_words)
+{
+	int i;
+
+	for (i = 0; i < entry_words; i++) {
+		out_le32((unsigned int *)(VSC9953_OFFSET +
+				VSC9953_VCAP_CACHE_ENTRY_DAT(target, i)), 0x00);
+		out_le32((unsigned int *)(VSC9953_OFFSET +
+				VSC9953_VCAP_CACHE_MASK_DAT(target, i)), 0xFF);
+	}
+
+	out_le32((unsigned int *)(VSC9953_OFFSET +
+				VSC9953_VCAP_CACHE_TG_DAT(target)), 0x00);
+	out_le32((unsigned int *)(VSC9953_OFFSET +
+				  VSC9953_VCAP_CFG_MV_CFG(target)),
+		 VSC9953_VCAP_CFG_MV_CFG_SIZE(entry_words));
+}
+
+static void vcap_action2cache_init(u32 target, u32 action_words,
+				   u32 counter_words)
+{
+	int i;
+
+	for (i = 0; i < action_words; i++)
+		out_le32((unsigned int *)(VSC9953_OFFSET +
+			       VSC9953_VCAP_CACHE_ACTION_DAT(target, i)), 0x00);
+
+	for (i = 0; i < counter_words; i++)
+		out_le32((unsigned int *)(VSC9953_OFFSET +
+				  VSC9953_VCAP_CACHE_CNT_DAT(target, i)), 0x00);
+}
+
+static int vcap_cmd(u32 target, u16 ix, int cmd, int sel, int entry_count)
+{
+	u32 tgt = target;
+	u32 value = (VSC9953_VCAP_UPDATE_CTRL_UPDATE_CMD(cmd) |
+		     VSC9953_VCAP_UPDATE_CTRL_UPDATE_ADDR(ix) |
+		     VSC9953_VCAP_UPDATE_CTRL_UPDATE_SHOT);
+
+	if ((sel & TCAM_SEL_ENTRY) && ix >= entry_count)
+		return CMD_RET_FAILURE;
+
+	if (!(sel & TCAM_SEL_ENTRY))
+		value |= VSC9953_VCAP_UPDATE_CTRL_UPDATE_ENTRY_DIS;
+
+	if (!(sel & TCAM_SEL_ACTION))
+		value |= VSC9953_VCAP_UPDATE_CTRL_UPDATE_ACTION_DIS;
+
+	if (!(sel & TCAM_SEL_COUNTER))
+		value |= VSC9953_VCAP_UPDATE_CTRL_UPDATE_CNT_DIS;
+
+	out_le32((unsigned int *)(VSC9953_OFFSET +
+				VSC9953_VCAP_CFG_UPDATE_CTRL(tgt)), value);
+
+	do {
+		value = in_le32((unsigned int *)(VSC9953_OFFSET +
+				VSC9953_VCAP_CFG_UPDATE_CTRL(tgt)));
+
+	} while (value & VSC9953_VCAP_UPDATE_CTRL_UPDATE_SHOT);
+
+	return CMD_RET_SUCCESS;
+}
+
+static void vsc9953_vcap_init(void)
+{
+	u32 tgt = VSC9953_ES0;
+	int cmd_ret;
+
+	/* write entries */
+	vcap_entry2cache_init(tgt, ENTRY_WORDS_ES0);
+	cmd_ret = vcap_cmd(tgt, 0, TCAM_CMD_INITIALIZE, TCAM_SEL_ENTRY,
+			   ENTRY_WORDS_ES0);
+	if (cmd_ret != CMD_RET_SUCCESS)
+		debug("VSC9953:%d invalid TCAM_SEL_ENTRY\n",
+		      __LINE__);
+
+	/* write actions and counters */
+	vcap_action2cache_init(tgt, BITS_TO_DWORD(ES0_ACT_WIDTH),
+			       BITS_TO_DWORD(ES0_CNT_WIDTH));
+	out_le32((unsigned int *)(VSC9953_OFFSET +
+				  VSC9953_VCAP_CFG_MV_CFG(tgt)),
+		 VSC9953_VCAP_CFG_MV_CFG_SIZE(ES0_ACT_COUNT));
+	cmd_ret = vcap_cmd(tgt, 0, TCAM_CMD_INITIALIZE,
+			   TCAM_SEL_ACTION | TCAM_SEL_COUNTER, ENTRY_WORDS_ES0);
+	if (cmd_ret != CMD_RET_SUCCESS)
+		debug("VSC9953:%d invalid TCAM_SEL_ACTION | TCAM_SEL_COUNTER\n",
+		      __LINE__);
+
+	tgt = VSC9953_IS1;
+
+	/* write entries */
+	vcap_entry2cache_init(tgt, ENTRY_WORDS_IS1);
+	cmd_ret = vcap_cmd(tgt, 0, TCAM_CMD_INITIALIZE, TCAM_SEL_ENTRY,
+			   ENTRY_WORDS_IS1);
+	if (cmd_ret != CMD_RET_SUCCESS)
+		debug("VSC9953:%d invalid TCAM_SEL_ENTRY\n",
+		      __LINE__);
+
+	/* write actions and counters */
+	vcap_action2cache_init(tgt, BITS_TO_DWORD(IS1_ACT_WIDTH),
+			       BITS_TO_DWORD(IS1_CNT_WIDTH));
+	out_le32((unsigned int *)(VSC9953_OFFSET +
+				  VSC9953_VCAP_CFG_MV_CFG(tgt)),
+		 VSC9953_VCAP_CFG_MV_CFG_SIZE(IS1_ACT_COUNT));
+	cmd_ret = vcap_cmd(tgt, 0, TCAM_CMD_INITIALIZE,
+			   TCAM_SEL_ACTION | TCAM_SEL_COUNTER, ENTRY_WORDS_IS1);
+	if (cmd_ret != CMD_RET_SUCCESS)
+		debug("VSC9953:%d invalid TCAM_SEL_ACTION | TCAM_SEL_COUNTER\n",
+		      __LINE__);
+
+	tgt = VSC9953_IS2;
+
+	/* write entries */
+	vcap_entry2cache_init(tgt, ENTRY_WORDS_IS2);
+	cmd_ret = vcap_cmd(tgt, 0, TCAM_CMD_INITIALIZE, TCAM_SEL_ENTRY,
+			   ENTRY_WORDS_IS2);
+	if (cmd_ret != CMD_RET_SUCCESS)
+		debug("VSC9953:%d invalid selection: TCAM_SEL_ENTRY\n",
+		      __LINE__);
+
+	/* write actions and counters */
+	vcap_action2cache_init(tgt, BITS_TO_DWORD(IS2_ACT_WIDTH),
+			       BITS_TO_DWORD(IS2_CNT_WIDTH));
+	out_le32((unsigned int *)(VSC9953_OFFSET +
+				  VSC9953_VCAP_CFG_MV_CFG(tgt)),
+		 VSC9953_VCAP_CFG_MV_CFG_SIZE(IS2_ACT_COUNT));
+	cmd_ret = vcap_cmd(tgt, 0, TCAM_CMD_INITIALIZE,
+			   TCAM_SEL_ACTION | TCAM_SEL_COUNTER, ENTRY_WORDS_IS2);
+	if (cmd_ret != CMD_RET_SUCCESS)
+		debug("VSC9953:%d invalid TCAM_SEL_ACTION | TCAM_SEL_COUNTER\n",
+		      __LINE__);
+}
+
 void vsc9953_init(bd_t *bis)
 {
 	u32 i;
@@ -2605,6 +2737,7 @@ void vsc9953_init(bd_t *bis)
 		}
 	}
 
+	vsc9953_vcap_init();
 	vsc9953_default_configuration();
 
 #ifdef CONFIG_CMD_ETHSW

@@ -1,0 +1,74 @@
+if ARCH_STM32MP
+
+config SPL
+	select SPL_BOARD_INIT
+	select SPL_CLK
+	select SPL_DM
+	select SPL_DM_SEQ_ALIAS
+	select SPL_DRIVERS_MISC_SUPPORT
+	select SPL_FRAMEWORK
+	select SPL_GPIO_SUPPORT
+	select SPL_LIBCOMMON_SUPPORT
+	select SPL_LIBGENERIC_SUPPORT
+	select SPL_OF_CONTROL
+	select SPL_OF_TRANSLATE
+	select SPL_PINCTRL
+	select SPL_REGMAP
+	select SPL_DM_RESET
+	select SPL_SERIAL_SUPPORT
+	select SPL_SYSCON
+	select SPL_DRIVERS_MISC_SUPPORT
+	imply SPL_LIBDISK_SUPPORT
+
+config SYS_SOC
+	default "stm32mp"
+
+config TARGET_STM32MP1
+	bool "Support stm32mp1xx"
+	select ARCH_SUPPORT_PSCI
+	select CPU_V7A
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select PINCTRL_STM32
+	select STM32_RCC
+	select STM32_RESET
+	select SYS_ARCH_TIMER
+	select SYSRESET_SYSCON
+	help
+		target STMicroelectronics SOC STM32MP1 family
+		STMicroelectronics MPU with core ARMv7
+
+config SYS_TEXT_BASE
+	prompt "U-Boot base address"
+	default 0xC0100000
+	help
+		configure the U-Boot base address
+		when DDR driver is used:
+		  DDR + 1MB (0xC0100000)
+
+config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
+	hex "Partition on MMC2 to use to load U-Boot from"
+	depends on SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
+	default 1
+	help
+	  Partition on the second MMC to load U-Boot from when the MMC is being
+	  used in raw mode
+
+source "board/st/stm32mp1/Kconfig"
+
+# currently activated for debug / should be deactivated for real product
+if DEBUG_UART
+
+config DEBUG_UART_BOARD_INIT
+	default y
+
+# debug on UART4 by default
+config DEBUG_UART_BASE
+	default 0x40010000
+
+# clock source is HSI on reset
+config DEBUG_UART_CLOCK
+	default 64000000
+endif
+
+endif

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009
  * Ryan CHEN, ST Micoelectronics, ryan.chen@st.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __SYSCTRL_H

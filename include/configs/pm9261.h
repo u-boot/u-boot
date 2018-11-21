@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007-2008
  * Stelian Pop <stelian@popies.net>
@@ -5,8 +6,6 @@
  * Ilko Iliev <www.ronetix.at>
  *
  * Configuation settings for the RONETIX PM9261 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -27,9 +26,7 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000
 
 #define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9261"
-#define CONFIG_PM9261		1	/* on a Ronetix PM9261 Board	*/
 #define CONFIG_ARCH_CPU_INIT
-#define CONFIG_SYS_TEXT_BASE	0
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_PM9261
 
@@ -155,17 +152,12 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE	1
-#define CONFIG_BOOTP_BOOTPATH		1
-#define CONFIG_BOOTP_GATEWAY		1
-#define CONFIG_BOOTP_HOSTNAME		1
 
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM				0x20000000
 #define PHYS_SDRAM_SIZE				0x04000000	/* 64 megs */
 
 /* NAND flash */
-#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_BASE			0x40000000
 #define CONFIG_SYS_NAND_DBW_8			1
@@ -177,8 +169,6 @@
 #define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(16)
 
 /* NOR flash */
-#define CONFIG_SYS_FLASH_CFI			1
-#define CONFIG_FLASH_CFI_DRIVER			1
 #define PHYS_FLASH_1				0x10000000
 #define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
 #define CONFIG_SYS_MAX_FLASH_SECT		256
@@ -268,9 +258,6 @@
 #else
 #error "Undefined memory device"
 #endif
-
-#define CONFIG_SYS_LONGHELP		1
-#define CONFIG_CMDLINE_EDITING	1
 
 /*
  * Size of malloc() pool

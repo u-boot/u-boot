@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2016 NextThing Co
  * Copyright (c) 2016 Free Electrons
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <command.h>
 #include <errno.h>
+#include <fdt_support.h>
 #include <malloc.h>
 
 #include <linux/sizes.h>

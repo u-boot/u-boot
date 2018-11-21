@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -39,10 +38,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_L2_CACHE				/* toggle L2 cache	*/
 #define CONFIG_BTB				/* toggle branch predition */
 
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xfff80000
-#endif
-
 #ifndef CONFIG_SYS_MONITOR_BASE
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
@@ -52,7 +47,6 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
-#define CONFIG_BOARD_EARLY_INIT_R	1
 #define CONFIG_HWCONFIG
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
@@ -157,8 +151,6 @@ extern unsigned long get_clock_freq(void);
 
 #undef CONFIG_SYS_RAMBOOT
 
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
 /* Chip select 3 - NAND */
@@ -218,7 +210,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_MALLOC_LEN	(512 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE    1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -439,14 +430,10 @@ extern unsigned long get_clock_freq(void);
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 #ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_ESDHC_PIN_MUX
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
 #endif
@@ -454,9 +441,6 @@ extern unsigned long get_clock_freq(void);
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_CMDLINE_EDITING			/* Command-line editing */
-#define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	2048		/* Console I/O Buffer Size */
@@ -482,7 +466,7 @@ extern unsigned long get_clock_freq(void);
 /*
  * Environment Configuration
  */
-#define CONFIG_HOSTNAME mpc8569mds
+#define CONFIG_HOSTNAME "mpc8569mds"
 #define CONFIG_ROOTPATH  "/nfsroot"
 #define CONFIG_BOOTFILE  "your.uImage"
 

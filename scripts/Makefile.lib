@@ -1,6 +1,4 @@
-#
-# SPDX-License-Identifier:	GPL-2.0
-#
+# SPDX-License-Identifier: GPL-2.0
 # Backward compatibility
 asflags-y  += $(EXTRA_AFLAGS)
 ccflags-y  += $(EXTRA_CFLAGS)
@@ -211,47 +209,30 @@ $(foreach m, $(notdir $1), \
 	$(addprefix $(obj)/, $(foreach s, $3, $($(m:%$(strip $2)=%$(s)))))))
 endef
 
-ifdef REGENERATE_PARSERS
-
-# GPERF
-# ---------------------------------------------------------------------------
-quiet_cmd_gperf = GPERF $@
-      cmd_gperf = gperf -t --output-file $@ -a -C -E -g -k 1,3,$$ -p -t $<
-
-.PRECIOUS: $(src)/%.hash.c_shipped
-$(src)/%.hash.c_shipped: $(src)/%.gperf
-	$(call cmd,gperf)
-
 # LEX
 # ---------------------------------------------------------------------------
-LEX_PREFIX = $(if $(LEX_PREFIX_${baseprereq}),$(LEX_PREFIX_${baseprereq}),yy)
-
 quiet_cmd_flex = LEX     $@
-      cmd_flex = flex -o$@ -L -P $(LEX_PREFIX) $<
+      cmd_flex = $(LEX) -o$@ -L $<
 
-.PRECIOUS: $(src)/%.lex.c_shipped
-$(src)/%.lex.c_shipped: $(src)/%.l
-	$(call cmd,flex)
+.PRECIOUS: $(obj)/%.lex.c
+$(obj)/%.lex.c: $(src)/%.l FORCE
+	$(call if_changed,flex)
 
 # YACC
 # ---------------------------------------------------------------------------
-YACC_PREFIX = $(if $(YACC_PREFIX_${baseprereq}),$(YACC_PREFIX_${baseprereq}),yy)
-
 quiet_cmd_bison = YACC    $@
-      cmd_bison = bison -o$@ -t -l -p $(YACC_PREFIX) $<
+      cmd_bison = $(YACC) -o$@ -t -l $<
 
-.PRECIOUS: $(src)/%.tab.c_shipped
-$(src)/%.tab.c_shipped: $(src)/%.y
-	$(call cmd,bison)
+.PRECIOUS: $(obj)/%.tab.c
+$(obj)/%.tab.c: $(src)/%.y FORCE
+	$(call if_changed,bison)
 
 quiet_cmd_bison_h = YACC    $@
-      cmd_bison_h = bison -o/dev/null --defines=$@ -t -l -p $(YACC_PREFIX) $<
+      cmd_bison_h = $(YACC) -o/dev/null --defines=$@ -t -l $<
 
-.PRECIOUS: $(src)/%.tab.h_shipped
-$(src)/%.tab.h_shipped: $(src)/%.y
-	$(call cmd,bison_h)
-
-endif
+.PRECIOUS: $(obj)/%.tab.h
+$(obj)/%.tab.h: $(src)/%.y FORCE
+	$(call if_changed,bison_h)
 
 # Shipped files
 # ===========================================================================
@@ -318,7 +299,7 @@ quiet_cmd_dtc = DTC     $@
 # Modified for U-Boot
 # Bring in any U-Boot-specific include at the end of the file
 cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
-	(cat $<; $(if $(u_boot_dtsi),echo '\#include "$(u_boot_dtsi)"')) > $(pre-tmp); \
+	(cat $<; $(if $(u_boot_dtsi),echo '$(pound)include "$(u_boot_dtsi)"')) > $(pre-tmp); \
 	$(CPP) $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) $(pre-tmp) ; \
 	$(DTC) -O dtb -o $@ -b 0 \
 		-i $(dir $<) $(DTC_FLAGS) \
@@ -404,8 +385,14 @@ cmd_efi_ld = $(LD) -nostdlib -znocombreloc -T $(EFI_LDS_PATH) -shared \
 
 EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
 
-$(obj)/%_efi.so: $(obj)/%.o arch/$(ARCH)/lib/$(EFI_CRT0) \
-		arch/$(ARCH)/lib/$(EFI_RELOC)
+$(obj)/efi_crt0.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_CRT0:.o=.S)
+	$(call if_changed_dep,as_o_S)
+
+$(obj)/efi_reloc.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_RELOC:.o=.c) $(recordmcount_source) FORCE
+	$(call cmd,force_checksrc)
+	$(call if_changed_rule,cc_o_c)
+
+$(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_reloc.o
 	$(call cmd,efi_ld)
 
 # ACPI
@@ -418,6 +405,7 @@ cmd_acpi_c_asl=         \
 
 $(obj)/dsdt.c:    $(src)/dsdt.asl
 	$(call cmd,acpi_c_asl)
+	$(Q)sed -i -e "s,dsdt_aml_code,AmlCode," $@
 
 # Bzip2
 # ---------------------------------------------------------------------------
@@ -521,4 +509,22 @@ cmd_xzmisc = (cat $(filter-out FORCE,$^) | \
 MKIMAGEOUTPUT ?= /dev/null
 quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
-	$(if $(KBUILD_VERBOSE:1=), >$(MKIMAGEOUTPUT))
+	>$(MKIMAGEOUTPUT) $(if $(KBUILD_VERBOSE:0=), && cat $(MKIMAGEOUTPUT))
+
+# fdtgrep
+# ---------------------------------------------------------------------------
+# Pass the original device tree file through fdtgrep twice. The first pass
+# removes any unwanted nodes (i.e. those which don't have the
+# 'u-boot,dm-pre-reloc' property and thus are not needed by SPL. The second
+# pass removes various unused properties from the remaining nodes.
+# The output is typically a much smaller device tree file.
+ifeq ($(CONFIG_TPL_BUILD),y)
+fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-tpl
+else
+fdtgrep_props := -b u-boot,dm-pre-reloc -b u-boot,dm-spl
+endif
+quiet_cmd_fdtgrep = FDTGREP $@
+      cmd_fdtgrep = $(objtree)/tools/fdtgrep $(fdtgrep_props) -RT $< \
+		-n /chosen -n /config -O dtb | \
+	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
+		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))

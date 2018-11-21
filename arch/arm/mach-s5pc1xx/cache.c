@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014 Samsung Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Robert Baldyga <r.baldyga@samsung.com>
  *
  * based on arch/arm/cpu/armv7/omap3/cache.S
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  * Copyright (c) 2016, NVIDIA CORPORATION.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CLK_UCLASS_H
@@ -77,6 +76,14 @@ struct clk_ops {
 	 * @return new rate, or -ve error code.
 	 */
 	ulong (*set_rate)(struct clk *clk, ulong rate);
+	/**
+	 * set_parent() - Set current clock parent
+	 *
+	 * @clk:        The clock to manipulate.
+	 * @parent:     New clock parent.
+	 * @return zero on success, or -ve error code.
+	 */
+	int (*set_parent)(struct clk *clk, struct clk *parent);
 	/**
 	 * enable() - Enable a clock.
 	 *

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010-2017 CS Systemes d'Information
  * Florent Trinh Thai <florent.trinh-thai@c-s.fr>
  * Christophe Leroy <christophe.leroy@c-s.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -17,7 +16,7 @@
 
 static void nand_hwcontrol(struct mtd_info *mtdinfo, int cmd, unsigned int ctrl)
 {
-	struct nand_chip *this	= mtdinfo->priv;
+	struct nand_chip *this	= mtd_to_nand(mtdinfo);
 	immap_t __iomem *immr	= (immap_t __iomem *)CONFIG_SYS_IMMR;
 	unsigned short pddat	= 0;
 

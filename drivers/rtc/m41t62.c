@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * based on a the Linux rtc-m41t80.c driver which is:
  *   Alexander Bigga <ab@mycable.de>, 2006 (c) mycable GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -18,8 +17,6 @@
 #include <command.h>
 #include <rtc.h>
 #include <i2c.h>
-
-#if defined(CONFIG_CMD_DATE)
 
 #define M41T62_REG_SSEC	0
 #define M41T62_REG_SEC	1
@@ -131,5 +128,3 @@ void rtc_reset(void)
 	val &= ~M41T80_ALHOUR_HT;
 	i2c_write(CONFIG_SYS_I2C_RTC_ADDR, M41T62_REG_ALARM_HOUR, 1, &val, 1);
 }
-
-#endif

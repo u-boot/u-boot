@@ -1,11 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) International Business Machines Corp., 2006
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Author: Artem Bityutskiy (Битюцкий Артём)
  */
 
+#include <hexdump.h>
 #include <ubi_uboot.h>
 #include "ubi.h"
 #ifndef __UBOOT__
@@ -40,7 +40,7 @@ void ubi_dump_flash(struct ubi_device *ubi, int pnum, int offset, int len)
 
 	ubi_msg(ubi, "dumping %d bytes of data from PEB %d, offset %d",
 		len, pnum, offset);
-	print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 32, 1, buf, len, 1);
+	print_hex_dump("", DUMP_PREFIX_OFFSET, 32, 1, buf, len, 1);
 out:
 	vfree(buf);
 	return;
@@ -61,7 +61,7 @@ void ubi_dump_ec_hdr(const struct ubi_ec_hdr *ec_hdr)
 	pr_err("\timage_seq      %d\n", be32_to_cpu(ec_hdr->image_seq));
 	pr_err("\thdr_crc        %#08x\n", be32_to_cpu(ec_hdr->hdr_crc));
 	pr_err("erase counter header hexdump:\n");
-	print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 32, 1,
+	print_hex_dump("", DUMP_PREFIX_OFFSET, 32, 1,
 		       ec_hdr, UBI_EC_HDR_SIZE, 1);
 }
 
@@ -86,7 +86,7 @@ void ubi_dump_vid_hdr(const struct ubi_vid_hdr *vid_hdr)
 		(unsigned long long)be64_to_cpu(vid_hdr->sqnum));
 	pr_err("\thdr_crc   %08x\n", be32_to_cpu(vid_hdr->hdr_crc));
 	pr_err("Volume identifier header hexdump:\n");
-	print_hex_dump(KERN_DEBUG, "", DUMP_PREFIX_OFFSET, 32, 1,
+	print_hex_dump("", DUMP_PREFIX_OFFSET, 32, 1,
 		       vid_hdr, UBI_VID_HDR_SIZE, 1);
 }
 

@@ -16,16 +16,132 @@
 #include <common.h>
 #include <command.h>
 #include <elf.h>
+#include <environment.h>
 #include <net.h>
 #include <vxworks.h>
 #ifdef CONFIG_X86
+#include <vbe.h>
 #include <asm/e820.h>
 #include <linux/linkage.h>
 #endif
 
 /*
- * A very simple elf loader, assumes the image is valid, returns the
+ * A very simple ELF64 loader, assumes the image is valid, returns the
  * entry point address.
+ *
+ * Note if U-Boot is 32-bit, the loader assumes the to segment's
+ * physical address and size is within the lower 32-bit address space.
+ */
+static unsigned long load_elf64_image_phdr(unsigned long addr)
+{
+	Elf64_Ehdr *ehdr; /* Elf header structure pointer */
+	Elf64_Phdr *phdr; /* Program header structure pointer */
+	int i;
+
+	ehdr = (Elf64_Ehdr *)addr;
+	phdr = (Elf64_Phdr *)(addr + (ulong)ehdr->e_phoff);
+
+	/* Load each program header */
+	for (i = 0; i < ehdr->e_phnum; ++i) {
+		void *dst = (void *)(ulong)phdr->p_paddr;
+		void *src = (void *)addr + phdr->p_offset;
+
+		debug("Loading phdr %i to 0x%p (%lu bytes)\n",
+		      i, dst, (ulong)phdr->p_filesz);
+		if (phdr->p_filesz)
+			memcpy(dst, src, phdr->p_filesz);
+		if (phdr->p_filesz != phdr->p_memsz)
+			memset(dst + phdr->p_filesz, 0x00,
+			       phdr->p_memsz - phdr->p_filesz);
+		flush_cache((unsigned long)dst, phdr->p_filesz);
+		++phdr;
+	}
+
+	if (ehdr->e_machine == EM_PPC64 && (ehdr->e_flags &
+					    EF_PPC64_ELFV1_ABI)) {
+		/*
+		 * For the 64-bit PowerPC ELF V1 ABI, e_entry is a function
+		 * descriptor pointer with the first double word being the
+		 * address of the entry point of the function.
+		 */
+		uintptr_t addr = ehdr->e_entry;
+
+		return *(Elf64_Addr *)addr;
+	}
+
+	return ehdr->e_entry;
+}
+
+static unsigned long load_elf64_image_shdr(unsigned long addr)
+{
+	Elf64_Ehdr *ehdr; /* Elf header structure pointer */
+	Elf64_Shdr *shdr; /* Section header structure pointer */
+	unsigned char *strtab = 0; /* String table pointer */
+	unsigned char *image; /* Binary image pointer */
+	int i; /* Loop counter */
+
+	ehdr = (Elf64_Ehdr *)addr;
+
+	/* Find the section header string table for output info */
+	shdr = (Elf64_Shdr *)(addr + (ulong)ehdr->e_shoff +
+			     (ehdr->e_shstrndx * sizeof(Elf64_Shdr)));
+
+	if (shdr->sh_type == SHT_STRTAB)
+		strtab = (unsigned char *)(addr + (ulong)shdr->sh_offset);
+
+	/* Load each appropriate section */
+	for (i = 0; i < ehdr->e_shnum; ++i) {
+		shdr = (Elf64_Shdr *)(addr + (ulong)ehdr->e_shoff +
+				     (i * sizeof(Elf64_Shdr)));
+
+		if (!(shdr->sh_flags & SHF_ALLOC) ||
+		    shdr->sh_addr == 0 || shdr->sh_size == 0) {
+			continue;
+		}
+
+		if (strtab) {
+			debug("%sing %s @ 0x%08lx (%ld bytes)\n",
+			      (shdr->sh_type == SHT_NOBITS) ? "Clear" : "Load",
+			       &strtab[shdr->sh_name],
+			       (unsigned long)shdr->sh_addr,
+			       (long)shdr->sh_size);
+		}
+
+		if (shdr->sh_type == SHT_NOBITS) {
+			memset((void *)(uintptr_t)shdr->sh_addr, 0,
+			       shdr->sh_size);
+		} else {
+			image = (unsigned char *)addr + (ulong)shdr->sh_offset;
+			memcpy((void *)(uintptr_t)shdr->sh_addr,
+			       (const void *)image, shdr->sh_size);
+		}
+		flush_cache(rounddown(shdr->sh_addr, ARCH_DMA_MINALIGN),
+			    roundup((shdr->sh_addr + shdr->sh_size),
+				     ARCH_DMA_MINALIGN) -
+			            rounddown(shdr->sh_addr, ARCH_DMA_MINALIGN));
+	}
+
+	if (ehdr->e_machine == EM_PPC64 && (ehdr->e_flags &
+					    EF_PPC64_ELFV1_ABI)) {
+		/*
+		 * For the 64-bit PowerPC ELF V1 ABI, e_entry is a function
+		 * descriptor pointer with the first double word being the
+		 * address of the entry point of the function.
+		 */
+		uintptr_t addr = ehdr->e_entry;
+
+		return *(Elf64_Addr *)addr;
+	}
+
+	return ehdr->e_entry;
+}
+
+/*
+ * A very simple ELF loader, assumes the image is valid, returns the
+ * entry point address.
+ *
+ * The loader firstly reads the EFI class to see if it's a 64-bit image.
+ * If yes, call the ELF64 loader. Otherwise continue with the ELF32 loader.
  */
 static unsigned long load_elf_image_phdr(unsigned long addr)
 {
@@ -34,12 +150,16 @@ static unsigned long load_elf_image_phdr(unsigned long addr)
 	int i;
 
 	ehdr = (Elf32_Ehdr *)addr;
+	if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
+		return load_elf64_image_phdr(addr);
+
 	phdr = (Elf32_Phdr *)(addr + ehdr->e_phoff);
 
 	/* Load each program header */
 	for (i = 0; i < ehdr->e_phnum; ++i) {
 		void *dst = (void *)(uintptr_t)phdr->p_paddr;
 		void *src = (void *)addr + phdr->p_offset;
+
 		debug("Loading phdr %i to 0x%p (%i bytes)\n",
 		      i, dst, phdr->p_filesz);
 		if (phdr->p_filesz)
@@ -63,6 +183,8 @@ static unsigned long load_elf_image_shdr(unsigned long addr)
 	int i; /* Loop counter */
 
 	ehdr = (Elf32_Ehdr *)addr;
+	if (ehdr->e_ident[EI_CLASS] == ELFCLASS64)
+		return load_elf64_image_shdr(addr);
 
 	/* Find the section header string table for output info */
 	shdr = (Elf32_Shdr *)(addr + ehdr->e_shoff +
@@ -97,7 +219,10 @@ static unsigned long load_elf_image_shdr(unsigned long addr)
 			memcpy((void *)(uintptr_t)shdr->sh_addr,
 			       (const void *)image, shdr->sh_size);
 		}
-		flush_cache(shdr->sh_addr, shdr->sh_size);
+		flush_cache(rounddown(shdr->sh_addr, ARCH_DMA_MINALIGN),
+			    roundup((shdr->sh_addr + shdr->sh_size),
+				    ARCH_DMA_MINALIGN) -
+			    rounddown(shdr->sh_addr, ARCH_DMA_MINALIGN));
 	}
 
 	return ehdr->e_entry;
@@ -202,14 +327,17 @@ int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long addr; /* Address of image */
-	unsigned long bootaddr; /* Address to put the bootline */
+	unsigned long bootaddr = 0; /* Address to put the bootline */
 	char *bootline; /* Text of the bootline */
 	char *tmp; /* Temporary char pointer */
 	char build_buf[128]; /* Buffer for building the bootline */
 	int ptr = 0;
 #ifdef CONFIG_X86
-	struct e820info *info;
-	struct e820entry *data;
+	ulong base;
+	struct e820_info *info;
+	struct e820_entry *data;
+	struct efi_gop_info *gop;
+	struct vesa_mode_info *vesa = &mode_info.vesa;
 #endif
 
 	/*
@@ -240,16 +368,51 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * from the VxWorks BSP header files.
 	 * This will vary from board to board
 	 */
-#if defined(CONFIG_WALNUT)
-	tmp = (char *)CONFIG_SYS_NVRAM_BASE_ADDR + 0x500;
-	eth_env_get_enetaddr("ethaddr", (uchar *)build_buf);
-	memcpy(tmp, &build_buf[3], 3);
-#elif defined(CONFIG_SYS_VXWORKS_MAC_PTR)
+#if defined(CONFIG_SYS_VXWORKS_MAC_PTR)
 	tmp = (char *)CONFIG_SYS_VXWORKS_MAC_PTR;
 	eth_env_get_enetaddr("ethaddr", (uchar *)build_buf);
 	memcpy(tmp, build_buf, 6);
 #else
 	puts("## Ethernet MAC address not copied to NV RAM\n");
+#endif
+
+#ifdef CONFIG_X86
+	/*
+	 * Get VxWorks's physical memory base address from environment,
+	 * if we don't specify it in the environment, use a default one.
+	 */
+	base = env_get_hex("vx_phys_mem_base", VXWORKS_PHYS_MEM_BASE);
+	data = (struct e820_entry *)(base + E820_DATA_OFFSET);
+	info = (struct e820_info *)(base + E820_INFO_OFFSET);
+
+	memset(info, 0, sizeof(struct e820_info));
+	info->sign = E820_SIGNATURE;
+	info->entries = install_e820_map(E820MAX, data);
+	info->addr = (info->entries - 1) * sizeof(struct e820_entry) +
+		     E820_DATA_OFFSET;
+
+	/*
+	 * Explicitly clear the bootloader image size otherwise if memory
+	 * at this offset happens to contain some garbage data, the final
+	 * available memory size for the kernel is insane.
+	 */
+	*(u32 *)(base + BOOT_IMAGE_SIZE_OFFSET) = 0;
+
+	/*
+	 * Prepare compatible framebuffer information block.
+	 * The VESA mode has to be 32-bit RGBA.
+	 */
+	if (vesa->x_resolution && vesa->y_resolution) {
+		gop = (struct efi_gop_info *)(base + EFI_GOP_INFO_OFFSET);
+		gop->magic = EFI_GOP_INFO_MAGIC;
+		gop->info.version = 0;
+		gop->info.width = vesa->x_resolution;
+		gop->info.height = vesa->y_resolution;
+		gop->info.pixel_format = EFI_GOT_RGBA8;
+		gop->info.pixels_per_scanline = vesa->bytes_per_scanline / 4;
+		gop->fb_base = vesa->phys_base_ptr;
+		gop->fb_size = vesa->bytes_per_scanline * vesa->y_resolution;
+	}
 #endif
 
 	/*
@@ -260,104 +423,78 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 	tmp = env_get("bootaddr");
 	if (!tmp) {
+#ifdef CONFIG_X86
+		bootaddr = base + X86_BOOT_LINE_OFFSET;
+#else
 		printf("## VxWorks bootline address not specified\n");
-	} else {
-		bootaddr = simple_strtoul(tmp, NULL, 16);
-
-		/*
-		 * Check to see if the bootline is defined in the 'bootargs'
-		 * parameter. If it is not defined, we may be able to
-		 * construct the info.
-		 */
-		bootline = env_get("bootargs");
-		if (bootline) {
-			memcpy((void *)bootaddr, bootline,
-			       max(strlen(bootline), (size_t)255));
-			flush_cache(bootaddr, max(strlen(bootline),
-						  (size_t)255));
-		} else {
-			tmp = env_get("bootdev");
-			if (tmp) {
-				strcpy(build_buf, tmp);
-				ptr = strlen(tmp);
-			} else
-				printf("## VxWorks boot device not specified\n");
-
-			tmp = env_get("bootfile");
-			if (tmp)
-				ptr += sprintf(build_buf + ptr,
-					       "host:%s ", tmp);
-			else
-				ptr += sprintf(build_buf + ptr,
-					       "host:vxWorks ");
-
-			/*
-			 * The following parameters are only needed if 'bootdev'
-			 * is an ethernet device, otherwise they are optional.
-			 */
-			tmp = env_get("ipaddr");
-			if (tmp) {
-				ptr += sprintf(build_buf + ptr, "e=%s", tmp);
-				tmp = env_get("netmask");
-				if (tmp) {
-					u32 mask = env_get_ip("netmask").s_addr;
-					ptr += sprintf(build_buf + ptr,
-						       ":%08x ", ntohl(mask));
-				} else {
-					ptr += sprintf(build_buf + ptr, " ");
-				}
-			}
-
-			tmp = env_get("serverip");
-			if (tmp)
-				ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
-
-			tmp = env_get("gatewayip");
-			if (tmp)
-				ptr += sprintf(build_buf + ptr, "g=%s ", tmp);
-
-			tmp = env_get("hostname");
-			if (tmp)
-				ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
-
-			tmp = env_get("othbootargs");
-			if (tmp) {
-				strcpy(build_buf + ptr, tmp);
-				ptr += strlen(tmp);
-			}
-
-			memcpy((void *)bootaddr, build_buf,
-			       max(strlen(build_buf), (size_t)255));
-			flush_cache(bootaddr, max(strlen(build_buf),
-						  (size_t)255));
-		}
-
-		printf("## Using bootline (@ 0x%lx): %s\n", bootaddr,
-		       (char *)bootaddr);
+		return 1;
+#endif
 	}
 
-#ifdef CONFIG_X86
-	/*
-	 * Since E820 information is critical to the kernel, if we don't
-	 * specify these in the environments, use a default one.
-	 */
-	tmp = env_get("e820data");
-	if (tmp)
-		data = (struct e820entry *)simple_strtoul(tmp, NULL, 16);
-	else
-		data = (struct e820entry *)VXWORKS_E820_DATA_ADDR;
-	tmp = env_get("e820info");
-	if (tmp)
-		info = (struct e820info *)simple_strtoul(tmp, NULL, 16);
-	else
-		info = (struct e820info *)VXWORKS_E820_INFO_ADDR;
+	if (!bootaddr)
+		bootaddr = simple_strtoul(tmp, NULL, 16);
 
-	memset(info, 0, sizeof(struct e820info));
-	info->sign = E820_SIGNATURE;
-	info->entries = install_e820_map(E820MAX, data);
-	info->addr = (info->entries - 1) * sizeof(struct e820entry) +
-		     VXWORKS_E820_DATA_ADDR;
-#endif
+	/*
+	 * Check to see if the bootline is defined in the 'bootargs' parameter.
+	 * If it is not defined, we may be able to construct the info.
+	 */
+	bootline = env_get("bootargs");
+	if (!bootline) {
+		tmp = env_get("bootdev");
+		if (tmp) {
+			strcpy(build_buf, tmp);
+			ptr = strlen(tmp);
+		} else {
+			printf("## VxWorks boot device not specified\n");
+		}
+
+		tmp = env_get("bootfile");
+		if (tmp)
+			ptr += sprintf(build_buf + ptr, "host:%s ", tmp);
+		else
+			ptr += sprintf(build_buf + ptr, "host:vxWorks ");
+
+		/*
+		 * The following parameters are only needed if 'bootdev'
+		 * is an ethernet device, otherwise they are optional.
+		 */
+		tmp = env_get("ipaddr");
+		if (tmp) {
+			ptr += sprintf(build_buf + ptr, "e=%s", tmp);
+			tmp = env_get("netmask");
+			if (tmp) {
+				u32 mask = env_get_ip("netmask").s_addr;
+				ptr += sprintf(build_buf + ptr,
+					       ":%08x ", ntohl(mask));
+			} else {
+				ptr += sprintf(build_buf + ptr, " ");
+			}
+		}
+
+		tmp = env_get("serverip");
+		if (tmp)
+			ptr += sprintf(build_buf + ptr, "h=%s ", tmp);
+
+		tmp = env_get("gatewayip");
+		if (tmp)
+			ptr += sprintf(build_buf + ptr, "g=%s ", tmp);
+
+		tmp = env_get("hostname");
+		if (tmp)
+			ptr += sprintf(build_buf + ptr, "tn=%s ", tmp);
+
+		tmp = env_get("othbootargs");
+		if (tmp) {
+			strcpy(build_buf + ptr, tmp);
+			ptr += strlen(tmp);
+		}
+
+		bootline = build_buf;
+	}
+
+	memcpy((void *)bootaddr, bootline, max(strlen(bootline), (size_t)255));
+	flush_cache(bootaddr, max(strlen(bootline), (size_t)255));
+	printf("## Using bootline (@ 0x%lx): %s\n", bootaddr, (char *)bootaddr);
 
 	/*
 	 * If the data at the load address is an elf image, then
@@ -365,13 +502,18 @@ int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 * binary image.
 	 */
 	if (valid_elf_image(addr))
-		addr = load_elf_image_shdr(addr);
+		addr = load_elf_image_phdr(addr);
 	else
 		puts("## Not an ELF image, assuming binary\n");
 
 	printf("## Starting vxWorks at 0x%08lx ...\n", addr);
 
 	dcache_disable();
+#if defined(CONFIG_ARM64) && defined(CONFIG_ARMV8_PSCI)
+	armv8_setup_psci();
+	smp_kick_all_cpus();
+#endif
+
 #ifdef CONFIG_X86
 	/* VxWorks on x86 uses stack to pass parameters */
 	((asmlinkage void (*)(int))addr)(0);

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 Socionext Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef ARCH_DDRPHY_INIT_H

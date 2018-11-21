@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Google, Inc
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -9,8 +8,6 @@
 #include <pwm.h>
 #include <dm/test.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Basic test of the pwm uclass */
 static int dm_test_pwm_base(struct unit_test_state *uts)

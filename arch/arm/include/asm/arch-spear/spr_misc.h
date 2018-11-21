@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009
  * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SPR_MISC_H
@@ -145,12 +144,15 @@ struct misc_regs {
 #define MISC_USBDENB			0x01000000
 #define MISC_ETHENB			0x00800000
 #define MISC_SMIENB			0x00200000
+#define MISC_GPIO3ENB			0x00040000
 #define MISC_GPT3ENB			0x00010000
+#define MISC_SSP3ENB			0x00004000
 #define MISC_GPIO4ENB			0x00002000
 #define MISC_GPT2ENB			0x00000800
 #define MISC_FSMCENB			0x00000200
 #define MISC_I2CENB			0x00000080
-#define MISC_SSP2ENB			0x00000070
+#define MISC_SSP2ENB			0x00000040
+#define MISC_SSP1ENB			0x00000020
 #define MISC_UART0ENB			0x00000008
 
 /*   PERIPH_CLK_CFG   */

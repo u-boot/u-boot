@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Copyright (C) 2012-2017 Altera Corporation <www.altera.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _RESET_MANAGER_GEN5_H_

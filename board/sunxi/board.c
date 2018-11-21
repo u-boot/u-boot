@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2012-2013 Henrik Nordstrom <henrik@henriknordstrom.net>
  * (C) Copyright 2013 Luke Kenneth Casson Leighton <lkcl@lkcl.net>
@@ -7,13 +8,14 @@
  * Tom Cubie <tangliang@allwinnertech.com>
  *
  * Some board init for the Allwinner A10-evb board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <dm.h>
 #include <mmc.h>
 #include <axp_pmic.h>
+#include <generic-phy.h>
+#include <phy-sun4i-usb.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/display.h>
@@ -21,7 +23,6 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/spl.h>
-#include <asm/arch/usb_phy.h>
 #ifndef CONFIG_ARM64
 #include <asm/armv7.h>
 #endif
@@ -29,7 +30,7 @@
 #include <asm/io.h>
 #include <crc.h>
 #include <environment.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <nand.h>
 #include <net.h>
 #include <spl.h>
@@ -173,6 +174,22 @@ void i2c_init_board(void)
 #endif
 }
 
+#if defined(CONFIG_ENV_IS_IN_MMC) && defined(CONFIG_ENV_IS_IN_FAT)
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	switch (prio) {
+	case 0:
+		return ENVL_FAT;
+
+	case 1:
+		return ENVL_MMC;
+
+	default:
+		return ENVL_UNKNOWN;
+	}
+}
+#endif
+
 /* add board specific code here */
 int board_init(void)
 {
@@ -238,9 +255,42 @@ int board_init(void)
 	return soft_i2c_board_init();
 }
 
+/*
+ * On older SoCs the SPL is actually at address zero, so using NULL as
+ * an error value does not work.
+ */
+#define INVALID_SPL_HEADER ((void *)~0UL)
+
+static struct boot_file_head * get_spl_header(uint8_t req_version)
+{
+	struct boot_file_head *spl = (void *)(ulong)SPL_ADDR;
+	uint8_t spl_header_version = spl->spl_signature[3];
+
+	/* Is there really the SPL header (still) there? */
+	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) != 0)
+		return INVALID_SPL_HEADER;
+
+	if (spl_header_version < req_version) {
+		printf("sunxi SPL version mismatch: expected %u, got %u\n",
+		       req_version, spl_header_version);
+		return INVALID_SPL_HEADER;
+	}
+
+	return spl;
+}
+
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_0, PHYS_SDRAM_0_SIZE);
+	struct boot_file_head *spl = get_spl_header(SPL_DRAM_HEADER_VERSION);
+
+	if (spl == INVALID_SPL_HEADER)
+		gd->ram_size = get_ram_size((long *)PHYS_SDRAM_0,
+					    PHYS_SDRAM_0_SIZE);
+	else
+		gd->ram_size = (phys_addr_t)spl->dram_size << 20;
+
+	if (gd->ram_size > CONFIG_SUNXI_DRAM_MAX_SIZE)
+		gd->ram_size = CONFIG_SUNXI_DRAM_MAX_SIZE;
 
 	return 0;
 }
@@ -270,10 +320,9 @@ static void nand_clock_setup(void)
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 
 	setbits_le32(&ccm->ahb_gate0, (CLK_GATE_OPEN << AHB_GATE_OFFSET_NAND0));
-#ifdef CONFIG_MACH_SUN9I
-	setbits_le32(&ccm->ahb_gate1, (1 << AHB_GATE_OFFSET_DMA));
-#else
-	setbits_le32(&ccm->ahb_gate0, (1 << AHB_GATE_OFFSET_DMA));
+#if defined CONFIG_MACH_SUN6I || defined CONFIG_MACH_SUN8I || \
+    defined CONFIG_MACH_SUN9I || defined CONFIG_MACH_SUN50I
+	setbits_le32(&ccm->ahb_reset0_cfg, (1 << AHB_GATE_OFFSET_NAND0));
 #endif
 	setbits_le32(&ccm->nand0_clk_cfg, CCM_NAND_CTRL_ENABLE | AHB_DIV_1);
 }
@@ -427,6 +476,13 @@ static void mmc_pinmux_setup(int sdc)
 			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
 			sunxi_gpio_set_drv(pin, 2);
 		}
+#elif defined(CONFIG_MACH_SUN50I_H6)
+		/* SDC2: PC4-PC14 */
+		for (pin = SUNXI_GPC(4); pin <= SUNXI_GPC(14); pin++) {
+			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SDC2);
+			sunxi_gpio_set_pull(pin, SUNXI_GPIO_PULL_UP);
+			sunxi_gpio_set_drv(pin, 2);
+		}
 #elif defined(CONFIG_MACH_SUN9I)
 		/* SDC2: PC6-PC16 */
 		for (pin = SUNXI_GPC(6); pin <= SUNXI_GPC(16); pin++) {
@@ -480,7 +536,6 @@ static void mmc_pinmux_setup(int sdc)
 int board_mmc_init(bd_t *bis)
 {
 	__maybe_unused struct mmc *mmc0, *mmc1;
-	__maybe_unused char buf[512];
 
 	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
 	mmc0 = sunxi_mmc_init(CONFIG_MMC_SUNXI_SLOT);
@@ -499,6 +554,21 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
+
+static void sunxi_spl_store_dram_size(phys_addr_t dram_size)
+{
+	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
+
+	if (spl == INVALID_SPL_HEADER)
+		return;
+
+	/* Promote the header version for U-Boot proper, if needed. */
+	if (spl->spl_signature[3] < SPL_DRAM_HEADER_VERSION)
+		spl->spl_signature[3] = SPL_DRAM_HEADER_VERSION;
+
+	spl->dram_size = dram_size >> 20;
+}
+
 void sunxi_board_init(void)
 {
 	int power_failed = 0;
@@ -567,6 +637,8 @@ void sunxi_board_init(void)
 	if (!gd->ram_size)
 		hang();
 
+	sunxi_spl_store_dram_size(gd->ram_size);
+
 	/*
 	 * Only clock up the CPU to full speed if we are reasonably
 	 * assured it's being powered with suitable core voltage
@@ -581,7 +653,35 @@ void sunxi_board_init(void)
 #ifdef CONFIG_USB_GADGET
 int g_dnl_board_usb_cable_connected(void)
 {
-	return sunxi_usb_phy_vbus_detect(0);
+	struct udevice *dev;
+	struct phy phy;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_USB_DEV_GENERIC, 0, &dev);
+	if (ret) {
+		pr_err("%s: Cannot find USB device\n", __func__);
+		return ret;
+	}
+
+	ret = generic_phy_get_by_name(dev, "usb", &phy);
+	if (ret) {
+		pr_err("failed to get %s USB PHY\n", dev->name);
+		return ret;
+	}
+
+	ret = generic_phy_init(&phy);
+	if (ret) {
+		pr_err("failed to init %s USB PHY\n", dev->name);
+		return ret;
+	}
+
+	ret = sun4i_usb_phy_vbus_detect(&phy);
+	if (ret == 1) {
+		pr_err("A charger is plugged into the OTG\n");
+		return -ENODEV;
+	}
+
+	return ret;
 }
 #endif
 
@@ -612,16 +712,11 @@ void get_board_serial(struct tag_serialnr *serialnr)
  */
 static void parse_spl_header(const uint32_t spl_addr)
 {
-	struct boot_file_head *spl = (void *)(ulong)spl_addr;
-	if (memcmp(spl->spl_signature, SPL_SIGNATURE, 3) != 0)
-		return; /* signature mismatch, no usable header */
+	struct boot_file_head *spl = get_spl_header(SPL_ENV_HEADER_VERSION);
 
-	uint8_t spl_header_version = spl->spl_signature[3];
-	if (spl_header_version != SPL_HEADER_VERSION) {
-		printf("sunxi SPL version mismatch: expected %u, got %u\n",
-		       SPL_HEADER_VERSION, spl_header_version);
+	if (spl == INVALID_SPL_HEADER)
 		return;
-	}
+
 	if (!spl->fel_script_address)
 		return;
 
@@ -708,7 +803,6 @@ static void setup_environment(const void *fdt)
 
 int misc_init_r(void)
 {
-	__maybe_unused int ret;
 	uint boot;
 
 	env_set("fel_booted", NULL);
@@ -728,12 +822,6 @@ int misc_init_r(void)
 	}
 
 	setup_environment(gd->fdt_blob);
-
-#ifndef CONFIG_MACH_SUN9I
-	ret = sunxi_usb_phy_probe();
-	if (ret)
-		return ret;
-#endif
 
 #ifdef CONFIG_USB_ETHER
 	usb_ether_init();
@@ -763,11 +851,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	struct boot_file_head *spl = (void *)(ulong)SPL_ADDR;
-	const char *cmp_str = (void *)(ulong)SPL_ADDR;
+	struct boot_file_head *spl = get_spl_header(SPL_DT_HEADER_VERSION);
+	const char *cmp_str = (const char *)spl;
 
 	/* Check if there is a DT name stored in the SPL header and use that. */
-	if (spl->dt_name_offset) {
+	if (spl != INVALID_SPL_HEADER && spl->dt_name_offset) {
 		cmp_str += spl->dt_name_offset;
 	} else {
 #ifdef CONFIG_DEFAULT_DEVICE_TREE
@@ -777,6 +865,7 @@ int board_fit_config_name_match(const char *name)
 #endif
 	};
 
+#ifdef CONFIG_PINE64_DT_SELECTION
 /* Differentiate the two Pine64 board DTs by their DRAM size. */
 	if (strstr(name, "-pine64") && strstr(cmp_str, "-pine64")) {
 		if ((gd->ram_size > 512 * 1024 * 1024))
@@ -786,5 +875,7 @@ int board_fit_config_name_match(const char *name)
 	} else {
 		return strcmp(name, cmp_str);
 	}
+#endif
+	return strcmp(name, cmp_str);
 }
 #endif

@@ -43,3 +43,10 @@ config PWM_TEGRA
 	  four channels with a programmable period and duty cycle. Only a
 	  32KHz clock is supported by the driver but the duty cycle is
 	  configurable.
+
+config PWM_SUNXI
+	bool "Enable support for the Allwinner Sunxi PWM"
+	depends on DM_PWM
+	help
+	  This PWM is found on H3, A64 and other Allwinner SoCs. It supports a
+	  programmable period and duty cycle. A 16-bit counter is used.

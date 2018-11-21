@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Google Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -10,8 +9,6 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/pwm.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct tegra_pwm_priv {
 	struct pwm_ctlr *regs;

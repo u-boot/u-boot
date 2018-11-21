@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright Altera Corporation (C) 2015
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "socfpga_cyclone5.dtsi"
@@ -12,6 +11,7 @@
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
+		stdout-path = "serial0:115200n8";
 	};
 
 	aliases {
@@ -63,4 +63,8 @@
 
 &usb1 {
 	status = "okay";
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
 };

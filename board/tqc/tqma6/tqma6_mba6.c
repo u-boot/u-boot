@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  *
  * Copyright (C) 2013, 2014 TQ Systems (ported SabreSD to TQMa6x)
  * Author: Markus Niebel <markus.niebel@tq-group.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/io.h>
@@ -20,7 +19,7 @@
 
 #include <common.h>
 #include <fsl_esdhc.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <malloc.h>
 #include <i2c.h>
 #include <micrel.h>
@@ -29,8 +28,6 @@
 #include <netdev.h>
 
 #include "tqma6_bb.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
 	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)

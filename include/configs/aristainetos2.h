@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2015
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
@@ -6,14 +7,12 @@
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  *
  * Configuration settings for the Freescale i.MX6DL aristainetos2 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ARISTAINETOS2_CONFIG_H
 #define __ARISTAINETOS2_CONFIG_H
 
 #define CONFIG_SYS_BOARD_VERSION	2
-#define CONFIG_HOSTNAME		aristainetos2
+#define CONFIG_HOSTNAME		"aristainetos2"
 #define CONFIG_BOARDNAME	"aristainetos2"
 
 #define CONFIG_MXC_UART_BASE	UART2_BASE

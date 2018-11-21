@@ -13,12 +13,11 @@ config SYS_CONFIG_NAME
 	default "minnowmax"
 
 config SYS_TEXT_BASE
-	default 0xfff00000 if !EFI_STUB
-	default 0x01110000 if EFI_STUB
+	default 0xfff00000
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	select X86_RESET_VECTOR if !EFI_STUB
+	select X86_RESET_VECTOR
 	select INTEL_BAYTRAIL
 	select BOARD_ROMSIZE_KB_8192
 	select SPI_FLASH_STMICRO

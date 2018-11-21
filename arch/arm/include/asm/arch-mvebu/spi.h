@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  *
  * Derived from drivers/spi/mpc8xxx_spi.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __KW_SPI_H__
@@ -56,6 +55,12 @@ struct kwspi_registers {
 #define KWSPI_CPHA		(1 << 12)
 #define KWSPI_TXLSBF		(1 << 13)
 #define KWSPI_RXLSBF		(1 << 14)
+
+/* Timing Parameters 1 Register */
+#define KW_SPI_TMISO_SAMPLE_OFFSET	6
+#define KW_SPI_TMISO_SAMPLE_MASK	(0x3 << KW_SPI_TMISO_SAMPLE_OFFSET)
+#define KW_SPI_TMISO_SAMPLE_1		(1 << KW_SPI_TMISO_SAMPLE_OFFSET)
+#define KW_SPI_TMISO_SAMPLE_2		(2 << KW_SPI_TMISO_SAMPLE_OFFSET)
 
 #define KWSPI_IRQUNMASK		1 /* unmask SPI interrupt */
 #define KWSPI_IRQMASK		0 /* mask SPI interrupt */

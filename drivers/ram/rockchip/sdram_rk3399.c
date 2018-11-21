@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * (C) Copyright 2016-2017 Rockchip Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0
  *
  * Adapted from coreboot.
  */
@@ -23,7 +22,6 @@
 #include <linux/err.h>
 #include <time.h>
 
-DECLARE_GLOBAL_DATA_PTR;
 struct chan_info {
 	struct rk3399_ddr_pctl_regs *pctl;
 	struct rk3399_ddr_pi_regs *pi;
@@ -1015,6 +1013,7 @@ static int switch_to_phy_index1(struct dram_info *dram,
 	writel(RK_CLRSETBITS(1 << 1, 1 << 1), &dram->cic->cic_ctrl0);
 	while (!(readl(&dram->cic->cic_status0) & (1 << 0))) {
 		mdelay(10);
+		i++;
 		if (i > 10) {
 			debug("index1 frequency done overtime\n");
 			return -ETIME;
@@ -1099,7 +1098,7 @@ static int rk3399_dmc_ofdata_to_platdata(struct udevice *dev)
 		       __func__, ret);
 		return ret;
 	}
-	ret = regmap_init_mem(dev, &plat->map);
+	ret = regmap_init_mem(dev_ofnode(dev), &plat->map);
 	if (ret)
 		printf("%s: regmap failed %d\n", __func__, ret);
 

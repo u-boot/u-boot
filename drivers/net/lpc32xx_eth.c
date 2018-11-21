@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * LPC32xx Ethernet MAC interface driver
  *
  * (C) Copyright 2014  DENX Software Engineering GmbH
  * Written-by: Albert ARIBAUD - 3ADEV <albert.aribaud@3adev.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -217,8 +216,6 @@ struct lpc32xx_eth_device {
 #define MII_MAX_REG (MADR_REG_MASK >> MADR_REG_OFFSET)
 
 #define MII_MAX_PHY (MADR_PHY_MASK >> MADR_PHY_OFFSET)
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_PHYLIB) || defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 /*

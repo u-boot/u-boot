@@ -1,16 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012 - 2013 Michal Simek <monstr@monstr.eu>
- * Copyright (C) 2012 - 2013 Xilinx, Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Copyright (C) 2012 - 2017 Xilinx, Inc. All rights reserved.
  */
 
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_ZYNQ_DDRC_INIT
 void zynq_ddrc_init(void) {}

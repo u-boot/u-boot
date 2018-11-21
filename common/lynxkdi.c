@@ -20,6 +20,4 @@
 
 #include <lynxkdi.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #error "Lynx KDI support not implemented for configured CPU"

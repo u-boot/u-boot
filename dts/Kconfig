@@ -61,7 +61,7 @@ config OF_LIVE
 	help
 	  Normally U-Boot uses a flat device tree which saves space and
 	  avoids the need to unpack the tree before use. However a flat
-	  tree does not support modifcation from within U-Boot since it
+	  tree does not support modification from within U-Boot since it
 	  can invalidate driver-model device tree offsets. This option
 	  enables a live tree which is available after relocation,
 	  and can be adjusted as needed.
@@ -100,6 +100,13 @@ config OF_HOSTFILE
 	  If this option is enabled, DTB will be read from a file on startup.
 	  This is only useful for Sandbox.  Use the -d flag to U-Boot to
 	  specify the file to read.
+
+config OF_PRIOR_STAGE
+	bool "Prior stage bootloader DTB for DT control"
+	help
+	  If this option is enabled, the device tree used for DT
+	  control will be read from a device tree binary, at a memory
+	  location passed to U-Boot by the prior stage bootloader.
 
 endchoice
 
@@ -195,7 +202,7 @@ config SPL_MULTI_DTB_FIT_NO_COMPRESSION
 endchoice
 
 choice
-	prompt "Location of uncompressed DTBs "
+	prompt "Location of uncompressed DTBs"
 	depends on (SPL_MULTI_DTB_FIT_GZIP || SPL_MULTI_DTB_FIT_LZO)
 	default SPL_MULTI_DTB_FIT_DYN_ALLOC if SYS_MALLOC_F
 

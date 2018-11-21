@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /***********************************************************************
  *
  * Copyright (C) 2004 by FS Forth-Systeme GmbH.
@@ -8,8 +9,6 @@
  * @References: [1] NS9750 Hardware Reference, December 2003
  *              [2] Intel LXT971 Datasheet #249414 Rev. 02
  *              [3] NS7520 Linux Ethernet Driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __LXT971A_H__

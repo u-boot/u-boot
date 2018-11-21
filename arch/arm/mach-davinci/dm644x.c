@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SoC-specific code for tms320dm644x chips
  *
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
  * Copyright (C) 2008 Lyrtech <www.lyrtech.com>
  * Copyright (C) 2004 Texas Instruments.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

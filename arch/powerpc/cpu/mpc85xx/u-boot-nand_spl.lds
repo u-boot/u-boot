@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de
  *
  * Copyright 2009 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "config.h"
@@ -43,6 +42,7 @@ SECTIONS
 	. = ALIGN(8);
 	__init_begin = .;
 	__init_end = .;
+	_end = .;
 #if defined(CONFIG_FSL_IFC) /* Restrict bootpg at 4K boundry for IFC */
 	.bootpg ADDR(.text) + 0x1000 :
 	{

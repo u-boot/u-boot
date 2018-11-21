@@ -1,8 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Common internal memory map for some Freescale SoCs
  *
  * Copyright 2015 Freescale Semiconductor, Inc.
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __FSL_SEC_MON_H

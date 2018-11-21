@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007-2009 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  * (C) Copyright 2007 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_CPU_SH3_H_

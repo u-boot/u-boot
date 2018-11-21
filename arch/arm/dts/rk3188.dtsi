@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Copyright (c) 2013 MundoReader S.L.
  * Author: Heiko Stuebner <heiko@sntech.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+ or X11
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -105,7 +104,6 @@
 		compatible = "rockchip,rk3188-cru";
 		reg = <0x20000000 0x1000>;
 		rockchip,grf = <&grf>;
-		u-boot,dm-spl;
 
 		#clock-cells = <1>;
 		#reset-cells = <1>;
@@ -122,6 +120,12 @@
 		cpu_leakage: cpu_leakage@17 {
 			reg = <0x17 0x1>;
 		};
+	};
+
+	timer3: timer@2000e000 {
+		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
+		reg = <0x2000e000 0x20>;
+		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
 	usbphy: phy {
@@ -156,7 +160,6 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		ranges;
-		u-boot,dm-spl;
 
 		gpio0: gpio0@2000a000 {
 			compatible = "rockchip,gpio-bank";

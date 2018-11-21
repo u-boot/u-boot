@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Google, Inc
  *
  * (C) Copyright 2012
  * Pavel Herrmann <morpheus.ibis@gmail.com>
  * Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DM_DEVICE_INTERNAL_H
@@ -40,6 +39,10 @@ struct udevice;
 int device_bind(struct udevice *parent, const struct driver *drv,
 		const char *name, void *platdata, int of_offset,
 		struct udevice **devp);
+
+int device_bind_ofnode(struct udevice *parent, const struct driver *drv,
+		       const char *name, void *platdata, ofnode node,
+		       struct udevice **devp);
 
 /**
  * device_bind_with_driver_data() - Create a device and bind it to a driver
@@ -125,6 +128,44 @@ static inline int device_unbind(struct udevice *dev) { return 0; }
 void device_free(struct udevice *dev);
 #else
 static inline void device_free(struct udevice *dev) {}
+#endif
+
+/**
+ * device_chld_unbind() - Unbind all device's children from the device if bound
+ *			  to drv
+ *
+ * On error, the function continues to unbind all children, and reports the
+ * first error.
+ *
+ * @dev:	The device that is to be stripped of its children
+ * @drv:	The targeted driver
+ * @return 0 on success, -ve on error
+ */
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
+int device_chld_unbind(struct udevice *dev, struct driver *drv);
+#else
+static inline int device_chld_unbind(struct udevice *dev, struct driver *drv)
+{
+	return 0;
+}
+#endif
+
+/**
+ * device_chld_remove() - Stop all device's children
+ * @dev:	The device whose children are to be removed
+ * @drv:	The targeted driver
+ * @flags:	Flag, if this functions is called in the pre-OS stage
+ * @return 0 on success, -ve on error
+ */
+#if CONFIG_IS_ENABLED(DM_DEVICE_REMOVE)
+int device_chld_remove(struct udevice *dev, struct driver *drv,
+		       uint flags);
+#else
+static inline int device_chld_remove(struct udevice *dev, struct driver *drv,
+				     uint flags)
+{
+	return 0;
+}
 #endif
 
 /**

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2016 Marvell International Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0
  * https://spdx.org/licenses
  */
 
@@ -110,7 +109,7 @@ static ulong get_load_addr(void)
 /********************************************************************
  *     eMMC services
  ********************************************************************/
-#ifdef CONFIG_DM_MMC
+#if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(MMC_WRITE)
 static int mmc_burn_image(size_t image_size)
 {
 	struct mmc	*mmc;

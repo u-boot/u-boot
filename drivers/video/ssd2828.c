@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) 2015 Siarhei Siamashka <siarhei.siamashka@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

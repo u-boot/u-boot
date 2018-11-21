@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 Siemens Schweiz AG
  * (C) Heiko Schocher, DENX Software Engineering, hs@denx.de.
@@ -6,20 +7,16 @@
  * U-Boot file:/include/configs/am335x_evm.h
  *
  * Copyright (C) 2011 Texas Instruments Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_DRACO_H
 #define __CONFIG_DRACO_H
 
-#define CONFIG_SIEMENS_DRACO
 #define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_DRACO
 
 #include "siemens-am33x-common.h"
 
 #define DDR_PLL_FREQ	303
-#undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 #define BOARD_DFU_BUTTON_GPIO	27	/* Use as default */
 #define GPIO_LAN9303_NRST	88	/* GPIO2_24 = gpio88 */
@@ -39,7 +36,6 @@
 #define EEPROM_ADDR_DDR3 0x90
 #define EEPROM_ADDR_CHIP 0x120
 
-#undef CONFIG_MII
 #define CONFIG_PHY_SMSC
 
 #define CONFIG_FACTORYSET

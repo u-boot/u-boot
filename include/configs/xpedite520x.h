@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2008 Extreme Engineering Solutions, Inc.
  * Copyright 2004-2008 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -14,14 +13,8 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_XPEDITE5200	1
 #define CONFIG_SYS_BOARD_NAME	"XPedite5200"
 #define CONFIG_SYS_FORM_PMC_XMC	1
-#define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
-
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xfff80000
-#endif
 
 #define CONFIG_PCI_SCAN_SHOW	1	/* show pci devices on startup */
 #define CONFIG_PCI1		1	/* PCI controller 1 */
@@ -60,7 +53,6 @@
 /*
  * Diagnostics
  */
-#define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		0x20000000
 #define CONFIG_POST			(CONFIG_SYS_POST_MEMORY | \
@@ -107,9 +99,6 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	1024		/* sectors per device */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000		/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_AUTOPROTECT_LIST	{ {0xfff40000, 0xc0000}, \
 						  {0xfbf40000, 0xc0000} }
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
@@ -167,7 +156,6 @@
 /*
  * Serial Port
  */
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -244,8 +232,6 @@
 /*
  * Networking options
  */
-#define CONFIG_TSEC_ENET		/* tsec ethernet support */
-#define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #define CONFIG_TSEC1		1
@@ -280,16 +266,11 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
 
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_CMDLINE_EDITING	1		/* add command line history	*/
-#define CONFIG_AUTO_COMPLETE	1		/* add autocompletion support */
 #define CONFIG_LOADADDR		0x1000000	/* default location for tftp and bootm */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */

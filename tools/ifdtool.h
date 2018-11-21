@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * ifdtool - Manage Intel Firmware Descriptor information
  *
  * Copyright (C) 2011 The ChromiumOS Authors.
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  * From Coreboot project
  */

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -15,6 +14,8 @@
 	defined(CONFIG_ARM)
 #include <asm/arch/clock.h>
 #endif
+
+#define CTLR_INTLV_MASK	0x20000000
 
 #if defined(CONFIG_SYS_FSL_ERRATUM_A008511) | \
 	defined(CONFIG_SYS_FSL_ERRATUM_A009803)
@@ -54,6 +55,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	u32 temp32;
 	u32 total_gb_size_per_controller;
 	int timeout;
+	int mod_bnds = 0;
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A008511
 	u32 mr6;
@@ -91,33 +93,60 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 		printf("%s unexpected ctrl_num = %u\n", __func__, ctrl_num);
 		return;
 	}
+	mod_bnds = regs->cs[0].config & CTLR_INTLV_MASK;
 
 	if (step == 2)
 		goto step2;
+
+	/* Set cdr1 first in case 0.9v VDD is enabled for some SoCs*/
+	ddr_out32(&ddr->ddr_cdr1, regs->ddr_cdr1);
 
 	if (regs->ddr_eor)
 		ddr_out32(&ddr->eor, regs->ddr_eor);
 
 	ddr_out32(&ddr->sdram_clk_cntl, regs->ddr_sdram_clk_cntl);
-
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		if (i == 0) {
-			ddr_out32(&ddr->cs0_bnds, regs->cs[i].bnds);
-			ddr_out32(&ddr->cs0_config, regs->cs[i].config);
+			if (mod_bnds) {
+				debug("modified bnds\n");
+				ddr_out32(&ddr->cs0_bnds,
+					  (regs->cs[i].bnds & 0xfffefffe) >> 1);
+				ddr_out32(&ddr->cs0_config,
+					  (regs->cs[i].config &
+					   ~CTLR_INTLV_MASK));
+			} else {
+				ddr_out32(&ddr->cs0_bnds, regs->cs[i].bnds);
+				ddr_out32(&ddr->cs0_config, regs->cs[i].config);
+			}
 			ddr_out32(&ddr->cs0_config_2, regs->cs[i].config_2);
 
 		} else if (i == 1) {
-			ddr_out32(&ddr->cs1_bnds, regs->cs[i].bnds);
+			if (mod_bnds) {
+				ddr_out32(&ddr->cs1_bnds,
+					  (regs->cs[i].bnds & 0xfffefffe) >> 1);
+			} else {
+				ddr_out32(&ddr->cs1_bnds, regs->cs[i].bnds);
+			}
 			ddr_out32(&ddr->cs1_config, regs->cs[i].config);
 			ddr_out32(&ddr->cs1_config_2, regs->cs[i].config_2);
 
 		} else if (i == 2) {
-			ddr_out32(&ddr->cs2_bnds, regs->cs[i].bnds);
+			if (mod_bnds) {
+				ddr_out32(&ddr->cs2_bnds,
+					  (regs->cs[i].bnds & 0xfffefffe) >> 1);
+			} else {
+				ddr_out32(&ddr->cs2_bnds, regs->cs[i].bnds);
+			}
 			ddr_out32(&ddr->cs2_config, regs->cs[i].config);
 			ddr_out32(&ddr->cs2_config_2, regs->cs[i].config_2);
 
 		} else if (i == 3) {
-			ddr_out32(&ddr->cs3_bnds, regs->cs[i].bnds);
+			if (mod_bnds) {
+				ddr_out32(&ddr->cs3_bnds,
+					  (regs->cs[i].bnds & 0xfffefffe) >> 1);
+			} else {
+				ddr_out32(&ddr->cs3_bnds, regs->cs[i].bnds);
+			}
 			ddr_out32(&ddr->cs3_config, regs->cs[i].config);
 			ddr_out32(&ddr->cs3_config_2, regs->cs[i].config_2);
 		}
@@ -183,7 +212,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	ddr_out32(&ddr->ddr_sdram_rcw_4, regs->ddr_sdram_rcw_4);
 	ddr_out32(&ddr->ddr_sdram_rcw_5, regs->ddr_sdram_rcw_5);
 	ddr_out32(&ddr->ddr_sdram_rcw_6, regs->ddr_sdram_rcw_6);
-	ddr_out32(&ddr->ddr_cdr1, regs->ddr_cdr1);
 #ifdef CONFIG_DEEP_SLEEP
 	if (is_warm_boot()) {
 		ddr_out32(&ddr->sdram_cfg_2,
@@ -208,7 +236,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	if (regs->ddr_sdram_cfg_2 & SDRAM_CFG2_AP_EN) {
 		if (regs->ddr_sdram_cfg & SDRAM_CFG_RD_EN) { /* for RDIMM */
 			ddr_out32(&ddr->ddr_sdram_rcw_2,
-				  regs->ddr_sdram_rcw_2 & ~0x0f000000);
+				  regs->ddr_sdram_rcw_2 & ~0xf0);
 		}
 		ddr_out32(&ddr->err_disable, regs->err_disable |
 			  DDR_ERR_DISABLE_APED);
@@ -415,13 +443,10 @@ step2:
 			((regs->cs[i].config >> 8) & 0x7) + 12 +
 			((regs->cs[i].config >> 4) & 0x3) + 0 +
 			((regs->cs[i].config >> 0) & 0x7) + 8 +
+			((regs->ddr_sdram_cfg_3 >> 4) & 0x3) +
 			3 - ((regs->ddr_sdram_cfg >> 19) & 0x3) -
 			26);			/* minus 26 (count of 64M) */
 	}
-	if (fsl_ddr_get_intl3r() & 0x80000000)	/* 3-way interleaving */
-		total_gb_size_per_controller *= 3;
-	else if (regs->cs[0].config & 0x20000000) /* 2-way interleaving */
-		total_gb_size_per_controller <<= 1;
 	/*
 	 * total memory / bus width = transactions needed
 	 * transactions needed / data rate = seconds
@@ -447,6 +472,21 @@ step2:
 	if (timeout <= 0)
 		printf("Waiting for D_INIT timeout. Memory may not work.\n");
 
+	if (mod_bnds) {
+		debug("Reset to original bnds\n");
+		ddr_out32(&ddr->cs0_bnds, regs->cs[0].bnds);
+#if (CONFIG_CHIP_SELECTS_PER_CTRL > 1)
+		ddr_out32(&ddr->cs1_bnds, regs->cs[1].bnds);
+#if (CONFIG_CHIP_SELECTS_PER_CTRL > 2)
+		ddr_out32(&ddr->cs2_bnds, regs->cs[2].bnds);
+#if (CONFIG_CHIP_SELECTS_PER_CTRL > 3)
+		ddr_out32(&ddr->cs3_bnds, regs->cs[3].bnds);
+#endif
+#endif
+#endif
+		ddr_out32(&ddr->cs0_config, regs->cs[0].config);
+	}
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009663
 	ddr_out32(&ddr->sdram_interval, regs->ddr_sdram_interval);
 #endif
@@ -466,7 +506,6 @@ step2:
 #define BIST_CR		0x80010000
 #define BIST_CR_EN	0x80000000
 #define BIST_CR_STAT	0x00000001
-#define CTLR_INTLV_MASK	0x20000000
 	/* Perform build-in test on memory. Three-way interleaving is not yet
 	 * supported by this code. */
 	if (env_get_f("ddr_bist", buffer, CONFIG_SYS_CBSIZE) >= 0) {

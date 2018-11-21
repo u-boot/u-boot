@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2016 Vasily Khoruzhick <anarsoul@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <linux/types.h>

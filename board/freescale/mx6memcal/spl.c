@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 Nelson Integration, LLC
  * Author: Eric Nelson <eric@nelint.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -419,6 +418,7 @@ void board_init_f(ulong dummy)
 	if (sysinfo.dsize != 1) {
 		if (is_cpu_type(MXC_CPU_MX6SX) ||
 		    is_cpu_type(MXC_CPU_MX6UL) ||
+		    is_cpu_type(MXC_CPU_MX6ULL) ||
 		    is_cpu_type(MXC_CPU_MX6SL)) {
 			printf("cpu type 0x%x doesn't support 64-bit bus\n",
 			       get_cpu_type());
@@ -445,12 +445,11 @@ void board_init_f(ulong dummy)
 	} else {
 		errs = mmdc_do_dqs_calibration(&sysinfo);
 		if (errs) {
-			printf("error %d from write level calibration\n", errs);
+			printf("error %d from dqs calibration\n", errs);
 		} else {
 			printf("completed successfully\n");
 			mmdc_read_calibration(&sysinfo, &calibration);
 			display_calibration(&calibration);
 		}
 	}
-	reset_cpu(0);
 }

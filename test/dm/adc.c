@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Tests for the driver model ADC API
  *
  * Copyright (c) 2015 Samsung Electronics
  * Przemyslaw Marczak <p.marczak@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -19,8 +18,6 @@
 #include <power/sandbox_pmic.h>
 #include <sandbox-adc.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static int dm_test_adc_bind(struct unit_test_state *uts)
 {

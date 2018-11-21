@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Andes Technology Corporation
  * Ken Kuo, Andes Technology Corporation <ken_kuo@andestech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ASM_NDS_DMA_MAPPING_H
 #define __ASM_NDS_DMA_MAPPING_H

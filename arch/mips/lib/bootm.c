@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -253,17 +252,15 @@ static int boot_reloc_fdt(bootm_headers_t *images)
 #endif
 }
 
+#if CONFIG_IS_ENABLED(MIPS_BOOT_FDT) && CONFIG_IS_ENABLED(OF_LIBFDT)
 int arch_fixup_fdt(void *blob)
 {
-#if CONFIG_IS_ENABLED(MIPS_BOOT_FDT) && CONFIG_IS_ENABLED(OF_LIBFDT)
 	u64 mem_start = virt_to_phys((void *)gd->bd->bi_memstart);
 	u64 mem_size = gd->ram_size;
 
 	return fdt_fixup_memory_banks(blob, &mem_start, &mem_size, 1);
-#else
-	return 0;
-#endif
 }
+#endif
 
 static int boot_setup_fdt(bootm_headers_t *images)
 {

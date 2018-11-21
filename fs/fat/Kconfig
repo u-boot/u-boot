@@ -14,7 +14,7 @@ config FAT_WRITE
 	  existing FAT filesystem partition.
 
 config FS_FAT_MAX_CLUSTSIZE
-	int "Set maximum possible clusersize"
+	int "Set maximum possible clustersize"
 	default 65536
 	depends on FS_FAT
 	help

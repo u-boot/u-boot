@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2006
  * Bryan O'Donoghue, deckard@codehermit.ie, CodeHermit
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* ACM Control Requests */

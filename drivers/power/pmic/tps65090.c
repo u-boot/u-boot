@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2015 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -12,8 +11,6 @@
 #include <i2c.h>
 #include <power/pmic.h>
 #include <power/tps65090.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const struct pmic_child_info pmic_children_info[] = {
 	{ .prefix = "fet", .driver = TPS65090_FET_DRIVER },

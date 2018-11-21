@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *	Dave Liu <daveliu@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <malloc.h>
@@ -403,7 +402,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 		printf("\nMMC read: dev # %u, block # %u, count %u ...\n",
 				dev, blk, cnt);
 		mmc_init(mmc);
-		(void)mmc->block_dev.block_read(&mmc->block_dev, blk, cnt,
+		(void)blk_dread(mmc_get_blk_desc(mmc), blk, cnt,
 						addr);
 	}
 #elif defined(CONFIG_SYS_QE_FMAN_FW_IN_REMOTE)

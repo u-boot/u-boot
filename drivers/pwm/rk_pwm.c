@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2016 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -15,8 +14,6 @@
 #include <asm/io.h>
 #include <asm/arch/pwm.h>
 #include <power/regulator.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct rk_pwm_priv {
 	struct rk3288_pwm *regs;
@@ -76,7 +73,7 @@ static int rk_pwm_ofdata_to_platdata(struct udevice *dev)
 {
 	struct rk_pwm_priv *priv = dev_get_priv(dev);
 
-	priv->regs = (struct rk3288_pwm *)devfdt_get_addr(dev);
+	priv->regs = (struct rk3288_pwm *)dev_read_addr(dev);
 
 	return 0;
 }

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * Jason Cooper <u-boot@lakedaemon.net>
@@ -5,8 +6,6 @@
  * Based on work by:
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Siddarth Gore <gores@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_DREAMPLUG_H
@@ -37,7 +36,6 @@
 
 #ifdef CONFIG_CMD_SF
 #define CONFIG_HARD_SPI			1
-#define CONFIG_KIRKWOOD_SPI		1
 #define CONFIG_ENV_SPI_BUS		0
 #define CONFIG_ENV_SPI_CS		0
 #define CONFIG_ENV_SPI_MAX_HZ		50000000 /* 50 MHz */

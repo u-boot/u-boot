@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2011, Marvell Semiconductor Inc.
  * Lei Wen <leiwen@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Back ported to the 8xx platform (from the 8260 platform) by
  * Murray.Jensen@cmst.csiro.au, 27-Jan-01.
@@ -104,6 +103,10 @@ static struct usb_ep_ops ci_ep_ops = {
 	.alloc_request  = ci_ep_alloc_request,
 	.free_request   = ci_ep_free_request,
 };
+
+__weak void ci_init_after_reset(struct ehci_ctrl *ctrl)
+{
+}
 
 /* Init values for USB endpoints. */
 static const struct usb_ep ci_ep_init[5] = {
@@ -888,6 +891,8 @@ static int ci_pullup(struct usb_gadget *gadget, int is_on)
 		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RST, &udc->usbcmd);
 		udelay(200);
 
+		ci_init_after_reset(controller.ctrl);
+
 		writel((unsigned long)controller.epts, &udc->epinitaddr);
 
 		/* select DEVICE mode */
@@ -901,7 +906,8 @@ static int ci_pullup(struct usb_gadget *gadget, int is_on)
 		writel(0xffffffff, &udc->epflush);
 
 		/* Turn on the USB connection by enabling the pullup resistor */
-		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RUN, &udc->usbcmd);
+		setbits_le32(&udc->usbcmd, USBCMD_ITC(MICRO_8FRAME) |
+			     USBCMD_RUN);
 	} else {
 		udc_disconnect();
 	}

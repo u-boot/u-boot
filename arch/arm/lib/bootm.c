@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /* Copyright (C) 2011
  * Corscience GmbH & Co. KG - Simon Schwarz <schwarz@corscience.de>
  *  - Added prep subcommand support
@@ -8,8 +9,6 @@
  * Marius Groeger <mgroeger@sysgo.de>
  *
  * Copyright (C) 2001  Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -19,7 +18,7 @@
 #include <image.h>
 #include <u-boot/zlib.h>
 #include <asm/byteorder.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <mapmem.h>
 #include <fdt_support.h>
 #include <asm/bootm.h>
@@ -47,7 +46,8 @@ static ulong get_sp(void)
 
 void arch_lmb_reserve(struct lmb *lmb)
 {
-	ulong sp;
+	ulong sp, bank_end;
+	int bank;
 
 	/*
 	 * Booting a (Linux) kernel image
@@ -63,8 +63,16 @@ void arch_lmb_reserve(struct lmb *lmb)
 
 	/* adjust sp by 4K to be safe */
 	sp -= 4096;
-	lmb_reserve(lmb, sp,
-		    gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size - sp);
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		if (sp < gd->bd->bi_dram[bank].start)
+			continue;
+		bank_end = gd->bd->bi_dram[bank].start +
+			gd->bd->bi_dram[bank].size;
+		if (sp >= bank_end)
+			continue;
+		lmb_reserve(lmb, sp, bank_end - sp);
+		break;
+	}
 }
 
 __weak void board_quiesce_devices(void)
@@ -429,7 +437,7 @@ void boot_prep_vxworks(bootm_headers_t *images)
 
 	if (images->ft_addr) {
 		off = fdt_path_offset(images->ft_addr, "/memory");
-		if (off < 0) {
+		if (off > 0) {
 			if (arch_fixup_fdt(images->ft_addr))
 				puts("## WARNING: fixup memory failed!\n");
 		}
@@ -439,6 +447,11 @@ void boot_prep_vxworks(bootm_headers_t *images)
 }
 void boot_jump_vxworks(bootm_headers_t *images)
 {
+#if defined(CONFIG_ARM64) && defined(CONFIG_ARMV8_PSCI)
+	armv8_setup_psci();
+	smp_kick_all_cpus();
+#endif
+
 	/* ARM VxWorks requires device tree physical address to be passed */
 	((void (*)(void *))images->ep)(images->ft_addr);
 }

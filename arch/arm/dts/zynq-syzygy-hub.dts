@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * SYZYGY Hub DTS
  *
  *  Copyright (C) 2011 - 2015 Xilinx
  *  Copyright (C) 2017 Opal Kelly Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 /include/ "zynq-7000.dtsi"

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007-2011
  * Allwinner Technology Co., Ltd. <www.allwinnertech.com>
  * Tom Cubie <tangliang@allwinnertech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -56,12 +55,7 @@ int timer_init(void)
 }
 
 /* timer without interrupts */
-ulong get_timer(ulong base)
-{
-	return get_timer_masked() - base;
-}
-
-ulong get_timer_masked(void)
+static ulong get_timer_masked(void)
 {
 	/* current tick value */
 	ulong now = TICKS_TO_HZ(read_timer());
@@ -76,6 +70,11 @@ ulong get_timer_masked(void)
 	gd->arch.lastinc = now;
 
 	return gd->arch.tbl;
+}
+
+ulong get_timer(ulong base)
+{
+	return get_timer_masked() - base;
 }
 
 /* delay x useconds */

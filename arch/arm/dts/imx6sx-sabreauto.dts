@@ -96,6 +96,29 @@
 	};
 };
 
+&qspi1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_qspi1_1>;
+	status = "okay";
+	ddrsmp=<2>;
+
+	flash0: n25q256a@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "micron,n25q256a";
+		spi-max-frequency = <29000000>;
+		reg = <0>;
+	};
+
+	flash1: n25q256a@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "micron,n25q256a";
+		spi-max-frequency = <29000000>;
+		reg = <1>;
+	};
+};
+
 &iomuxc {
 	imx6x-sabreauto {
 		pinctrl_i2c2_1: i2c2grp-1 {
@@ -109,6 +132,23 @@
 			fsl,pins = <
 				MX6SX_PAD_KEY_ROW4__I2C3_SDA            0x4001b8b1
 				MX6SX_PAD_KEY_COL4__I2C3_SCL            0x4001b8b1
+			>;
+		};
+
+		pinctrl_qspi1_1: qspi1grp_1 {
+			fsl,pins = <
+				MX6SX_PAD_QSPI1A_DATA0__QSPI1_A_DATA_0  0x70a1
+				MX6SX_PAD_QSPI1A_DATA1__QSPI1_A_DATA_1  0x70a1
+				MX6SX_PAD_QSPI1A_DATA2__QSPI1_A_DATA_2  0x70a1
+				MX6SX_PAD_QSPI1A_DATA3__QSPI1_A_DATA_3  0x70a1
+				MX6SX_PAD_QSPI1A_SCLK__QSPI1_A_SCLK     0x70a1
+				MX6SX_PAD_QSPI1A_SS0_B__QSPI1_A_SS0_B   0x70a1
+				MX6SX_PAD_QSPI1B_DATA0__QSPI1_B_DATA_0  0x70a1
+				MX6SX_PAD_QSPI1B_DATA1__QSPI1_B_DATA_1  0x70a1
+				MX6SX_PAD_QSPI1B_DATA2__QSPI1_B_DATA_2  0x70a1
+				MX6SX_PAD_QSPI1B_DATA3__QSPI1_B_DATA_3  0x70a1
+				MX6SX_PAD_QSPI1B_SCLK__QSPI1_B_SCLK     0x70a1
+				MX6SX_PAD_QSPI1B_SS0_B__QSPI1_B_SS0_B   0x70a1
 			>;
 		};
 

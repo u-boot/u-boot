@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * emif4.c
  *
  * AM33XX emif4 configuration file
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -95,8 +94,13 @@ void config_ddr(unsigned int pll, const struct ctrl_ioregs *ioregs,
 	writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
 
 	if (emif_sdram_type(regs->sdram_config) == EMIF_SDRAM_TYPE_DDR3)
+#ifndef CONFIG_SPL_RTC_DDR_SUPPORT
 		/* Allow EMIF to control DDR_RESET */
 		writel(0x00000000, &ddrctrl->ddrioctrl);
+#else
+		/* Override EMIF DDR_RESET control */
+		writel(0x80000000, &ddrctrl->ddrioctrl);
+#endif /* CONFIG_SPL_RTC_DDR_SUPPORT */
 #endif
 
 	/* Program EMIF instance */

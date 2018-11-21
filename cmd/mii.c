@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001
  * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -314,7 +313,7 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			mask = simple_strtoul(argv[5], NULL, 16);
 	}
 
-	if (addrhi > 31) {
+	if (addrhi > 31 && strncmp(op, "de", 2)) {
 		printf("Incorrect PHY address. Range should be 0-31\n");
 		return CMD_RET_USAGE;
 	}

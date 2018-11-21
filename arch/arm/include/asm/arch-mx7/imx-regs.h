@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc. All Rights Reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_MX7_IMX_REGS_H__
@@ -264,10 +263,14 @@ struct src {
 	u32 ddrc_rcr;
 };
 
-#define SRC_M4RCR_M4C_NON_SCLR_RST_OFFSET	0
-#define SRC_M4RCR_M4C_NON_SCLR_RST_MASK		(1 << 0)
-#define SRC_M4RCR_ENABLE_M4_OFFSET		3
-#define SRC_M4RCR_ENABLE_M4_MASK		(1 << 3)
+#define src_base ((struct src *)SRC_BASE_ADDR)
+
+#define SRC_M4_REG_OFFSET		0xC
+#define SRC_M4C_NON_SCLR_RST_OFFSET	0
+#define SRC_M4C_NON_SCLR_RST_MASK	BIT(0)
+#define SRC_M4_ENABLE_OFFSET		3
+#define SRC_M4_ENABLE_MASK		BIT(3)
+
 #define SRC_DDRC_RCR_DDRC_CORE_RST_OFFSET	1
 #define SRC_DDRC_RCR_DDRC_CORE_RST_MASK		(1 << 1)
 
@@ -1207,14 +1210,6 @@ extern void pcie_power_off(void);
 #define	is_boot_from_usb(void) (readl(USBOTG1_IPS_BASE_ADDR + 0x158) || \
 	readl(USBOTG2_IPS_BASE_ADDR + 0x158))
 #define	disconnect_from_pc(void) writel(0x0, USBOTG1_IPS_BASE_ADDR + 0x140)
-
-/* Boot device type */
-#define BOOT_TYPE_SD		0x1
-#define BOOT_TYPE_MMC		0x2
-#define BOOT_TYPE_NAND		0x3
-#define BOOT_TYPE_QSPI		0x4
-#define BOOT_TYPE_WEIM		0x5
-#define BOOT_TYPE_SPINOR	0x6
 
 struct bootrom_sw_info {
 	u8 reserved_1;

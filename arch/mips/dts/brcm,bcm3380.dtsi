@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <dt-bindings/clock/bcm3380-clock.h>
@@ -11,6 +10,10 @@
 
 / {
 	compatible = "brcm,bcm3380";
+
+	aliases {
+		spi0 = &spi;
+	};
 
 	cpus {
 		reg = <0x14e00000 0x4>;
@@ -138,6 +141,19 @@
 			compatible = "brcm,bcm6345-uart";
 			reg = <0x14e00220 0x18>;
 			clocks = <&periph_osc>;
+
+			status = "disabled";
+		};
+
+		spi: spi@14e02000 {
+			compatible = "brcm,bcm6358-spi";
+			reg = <0x14e02000 0x70c>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			clocks = <&periph_clk0 BCM3380_CLK0_SPI>;
+			resets = <&periph_rst0 BCM3380_RST0_SPI>;
+			spi-max-frequency = <25000000>;
+			num-cs = <6>;
 
 			status = "disabled";
 		};

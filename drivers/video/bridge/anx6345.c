@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Vasily Khoruzhick <anarsoul@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -15,8 +14,6 @@
 #define DP_MAX_LINK_RATE		0x001
 #define DP_MAX_LANE_COUNT		0x002
 #define DP_MAX_LANE_COUNT_MASK		0x1f
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct anx6345_priv {
 	u8 edid[EDID_SIZE];

@@ -1,33 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <linux/bitops.h>
 #include <asm/armv7m.h>
-#include <asm/armv7m_mpu.h>
+#include <asm/armv7_mpu.h>
 #include <asm/io.h>
 
-#define V7M_MPU_CTRL_ENABLE		(1 << 0)
+#define V7M_MPU_CTRL_ENABLE		BIT(0)
 #define V7M_MPU_CTRL_DISABLE		(0 << 0)
-#define V7M_MPU_CTRL_HFNMIENA		(1 << 1)
-#define VALID_REGION			(1 << 4)
-
-#define ENABLE_REGION			(1 << 0)
-
-#define AP_SHIFT			24
-#define XN_SHIFT			28
-#define TEX_SHIFT			19
-#define S_SHIFT				18
-#define C_SHIFT				17
-#define B_SHIFT				16
-#define REGION_SIZE_SHIFT		1
-
-#define CACHEABLE			(1 << C_SHIFT)
-#define BUFFERABLE			(1 << B_SHIFT)
-#define SHAREABLE			(1 << S_SHIFT)
+#define V7M_MPU_CTRL_HFNMIENA		BIT(1)
+#define V7M_MPU_CTRL_PRIVDEFENA		BIT(2)
+#define VALID_REGION			BIT(4)
 
 void disable_mpu(void)
 {
@@ -36,7 +22,7 @@ void disable_mpu(void)
 
 void enable_mpu(void)
 {
-	writel(V7M_MPU_CTRL_ENABLE | V7M_MPU_CTRL_HFNMIENA, &V7M_MPU->ctrl);
+	writel(V7M_MPU_CTRL_ENABLE | V7M_MPU_CTRL_PRIVDEFENA, &V7M_MPU->ctrl);
 
 	/* Make sure new mpu config is effective for next memory access */
 	dsb();
@@ -47,32 +33,7 @@ void mpu_config(struct mpu_region_config *reg_config)
 {
 	uint32_t attr;
 
-	switch (reg_config->mr_attr) {
-	case STRONG_ORDER:
-		attr = SHAREABLE;
-		break;
-	case SHARED_WRITE_BUFFERED:
-		attr = BUFFERABLE;
-		break;
-	case O_I_WT_NO_WR_ALLOC:
-		attr = CACHEABLE;
-		break;
-	case O_I_WB_NO_WR_ALLOC:
-		attr = CACHEABLE | BUFFERABLE;
-		break;
-	case O_I_NON_CACHEABLE:
-		attr = 1 << TEX_SHIFT;
-		break;
-	case O_I_WB_RD_WR_ALLOC:
-		attr = (1 << TEX_SHIFT) | CACHEABLE | BUFFERABLE;
-		break;
-	case DEVICE_NON_SHARED:
-		attr = (2 << TEX_SHIFT) | BUFFERABLE;
-		break;
-	default:
-		attr = 0; /* strongly ordered */
-		break;
-	};
+	attr = get_attr_encoding(reg_config->mr_attr);
 
 	writel(reg_config->start_addr | VALID_REGION | reg_config->region_no,
 	       &V7M_MPU->rbar);

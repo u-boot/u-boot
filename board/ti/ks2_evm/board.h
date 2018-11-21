@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * K2HK EVM : Board common header
  *
  * (C) Copyright 2014
  *     Texas Instruments Incorporated, <www.ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _KS2_BOARD
@@ -19,6 +18,10 @@ extern struct eth_priv_t eth_priv_cfg[];
 static inline int board_is_k2g_gp(void)
 {
 	return board_ti_is("66AK2GGP");
+}
+static inline int board_is_k2g_g1(void)
+{
+	return board_ti_is("66AK2GG1");
 }
 static inline int board_is_k2g_ice(void)
 {

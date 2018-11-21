@@ -16,6 +16,20 @@ config BCM6328_POWER_DOMAIN
 	  Enable support for manipulating BCM6345 power domains via MMIO
 	  mapped registers.
 
+config IMX8_POWER_DOMAIN
+	bool "Enable i.MX8 power domain driver"
+        depends on ARCH_IMX8
+        help
+          Enable support for manipulating NXP i.MX8 on-SoC power domains via IPC
+          requests to the SCU.
+
+config MESON_GX_VPU_POWER_DOMAIN
+	bool "Enable Amlogic Meson GX VPU power domain driver"
+	depends on ARCH_MESON
+	help
+	  Enable support for manipulating Amlogic Meson GX Video Processing
+	  Unit power domain.
+
 config SANDBOX_POWER_DOMAIN
 	bool "Enable the sandbox power domain test driver"
 	depends on POWER_DOMAIN && SANDBOX
@@ -31,4 +45,10 @@ config TEGRA186_POWER_DOMAIN
 	  Enable support for manipulating Tegra's on-SoC power domains via IPC
 	  requests to the BPMP (Boot and Power Management Processor).
 
+config TI_SCI_POWER_DOMAIN
+	bool "Enable the TI SCI-based power domain driver"
+	depends on POWER_DOMAIN && TI_SCI_PROTOCOL
+	help
+	  Generic power domain implementation for TI devices implementing the
+	  TI SCI protocol.
 endmenu

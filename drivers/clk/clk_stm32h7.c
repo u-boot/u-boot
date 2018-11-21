@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -14,8 +13,6 @@
 #include <dm/root.h>
 
 #include <dt-bindings/clock/stm32h7-clks.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* RCC CR specific definitions */
 #define RCC_CR_HSION			BIT(0)
@@ -35,6 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RCC_CFGR_SW_CSI			1
 #define RCC_CFGR_SW_HSE			2
 #define RCC_CFGR_SW_PLL1		3
+#define RCC_CFGR_TIMPRE			BIT(15)
 
 #define RCC_PLLCKSELR_PLLSRC_HSI	0
 #define RCC_PLLCKSELR_PLLSRC_CSI	1
@@ -339,6 +337,11 @@ struct pll_psc sys_pll_psc = {
 	.divr = 2,
 };
 
+enum apb {
+	APB1,
+	APB2,
+};
+
 int configure_clocks(struct udevice *dev)
 {
 	struct stm32_clk *priv = dev_get_priv(dev);
@@ -562,13 +565,74 @@ static u32 stm32_get_PLL1_rate(struct stm32_rcc_regs *regs,
 	return -EINVAL;
 }
 
+static u32 stm32_get_apb_psc(struct stm32_rcc_regs *regs, enum apb apb)
+{
+	u16 prescaler_table[8] = {2, 4, 8, 16, 64, 128, 256, 512};
+	u32 d2cfgr = readl(&regs->d2cfgr);
+
+	if (apb == APB1) {
+		if (d2cfgr & RCC_D2CFGR_D2PPRE1_DIVIDED)
+			/* get D2 domain APB1 prescaler */
+			return prescaler_table[
+				((d2cfgr & RCC_D2CFGR_D2PPRE1_DIVIDER)
+				>> RCC_D2CFGR_D2PPRE1_SHIFT)];
+	} else  { /* APB2 */
+		if (d2cfgr & RCC_D2CFGR_D2PPRE2_DIVIDED)
+			/* get D2 domain APB2 prescaler */
+			return prescaler_table[
+				((d2cfgr & RCC_D2CFGR_D2PPRE2_DIVIDER)
+				>> RCC_D2CFGR_D2PPRE2_SHIFT)];
+	}
+
+	return 1;
+};
+
+static u32 stm32_get_timer_rate(struct stm32_clk *priv, u32 sysclk,
+				enum apb apb)
+{
+	struct stm32_rcc_regs *regs = priv->rcc_base;
+u32 psc = stm32_get_apb_psc(regs, apb);
+
+	if (readl(&regs->cfgr) & RCC_CFGR_TIMPRE)
+		/*
+		 * if APB prescaler is configured to a
+		 * division factor of 1, 2 or 4
+		 */
+		switch (psc) {
+		case 1:
+		case 2:
+		case 4:
+			return sysclk;
+		case 8:
+			return sysclk / 2;
+		case 16:
+			return sysclk / 4;
+		default:
+			pr_err("unexpected prescaler value (%d)\n", psc);
+			return 0;
+		}
+	else
+		switch (psc) {
+		case 1:
+			return sysclk;
+		case 2:
+		case 4:
+		case 8:
+		case 16:
+			return sysclk / psc;
+		default:
+			pr_err("unexpected prescaler value (%d)\n", psc);
+			return 0;
+		}
+};
+
 static ulong stm32_clk_get_rate(struct clk *clk)
 {
 	struct stm32_clk *priv = dev_get_priv(clk->dev);
 	struct stm32_rcc_regs *regs = priv->rcc_base;
 	ulong sysclk = 0;
 	u32 gate_offset;
-	u32 d1cfgr;
+	u32 d1cfgr, d3cfgr;
 	/* prescaler table lookups for clock computation */
 	u16 prescaler_table[8] = {2, 4, 8, 16, 64, 128, 256, 512};
 	u8 source, idx;
@@ -645,9 +709,10 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 		break;
 
 	case RCC_APB4ENR:
-		if (d1cfgr & RCC_D3CFGR_D3PPRE_DIVIDED) {
+		d3cfgr = readl(&regs->d3cfgr);
+		if (d3cfgr & RCC_D3CFGR_D3PPRE_DIVIDED) {
 			/* get D3 domain APB4 prescaler */
-			idx = (d1cfgr & RCC_D3CFGR_D3PPRE_DIVIDER) >>
+			idx = (d3cfgr & RCC_D3CFGR_D3PPRE_DIVIDER) >>
 			      RCC_D3CFGR_D3PPRE_SHIFT;
 			sysclk = sysclk / prescaler_table[idx];
 		}
@@ -660,31 +725,42 @@ static ulong stm32_clk_get_rate(struct clk *clk)
 
 	case RCC_APB1LENR:
 	case RCC_APB1HENR:
-		if (d1cfgr & RCC_D2CFGR_D2PPRE1_DIVIDED) {
-			/* get D2 domain APB1 prescaler */
-			idx = (d1cfgr & RCC_D2CFGR_D2PPRE1_DIVIDER) >>
-			      RCC_D2CFGR_D2PPRE1_SHIFT;
-			sysclk = sysclk / prescaler_table[idx];
+		/* special case for GPT timers */
+		switch (clk->id) {
+		case TIM14_CK:
+		case TIM13_CK:
+		case TIM12_CK:
+		case TIM7_CK:
+		case TIM6_CK:
+		case TIM5_CK:
+		case TIM4_CK:
+		case TIM3_CK:
+		case TIM2_CK:
+			return stm32_get_timer_rate(priv, sysclk, APB1);
 		}
 
 		debug("%s system clock: freq after APB1 prescaler = %ld\n",
 		      __func__, sysclk);
 
-		return sysclk;
+		return (sysclk / stm32_get_apb_psc(regs, APB1));
 		break;
 
 	case RCC_APB2ENR:
-		if (d1cfgr & RCC_D2CFGR_D2PPRE2_DIVIDED) {
-			/* get D2 domain APB1 prescaler */
-			idx = (d1cfgr & RCC_D2CFGR_D2PPRE2_DIVIDER) >>
-			      RCC_D2CFGR_D2PPRE2_SHIFT;
-			sysclk = sysclk / prescaler_table[idx];
+		/* special case for timers */
+		switch (clk->id) {
+		case TIM17_CK:
+		case TIM16_CK:
+		case TIM15_CK:
+		case TIM8_CK:
+		case TIM1_CK:
+			return stm32_get_timer_rate(priv, sysclk, APB2);
 		}
 
 		debug("%s system clock: freq after APB2 prescaler = %ld\n",
 		      __func__, sysclk);
 
-		return sysclk;
+		return (sysclk / stm32_get_apb_psc(regs, APB2));
+
 		break;
 
 	default:

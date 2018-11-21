@@ -1,7 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C)Copyright 2016 Rockchip Electronics Co., Ltd
  * Authors: Andy Yan <andy.yan@rock-chips.com>
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -16,6 +16,23 @@ int mach_cpu_init(void)
 {
 	int node;
 	struct rv1108_grf *grf;
+	enum {
+		GPIO3C3_SHIFT           = 6,
+		GPIO3C3_MASK            = 3 << GPIO3C3_SHIFT,
+
+		GPIO3C2_SHIFT           = 4,
+		GPIO3C2_MASK            = 3 << GPIO3C2_SHIFT,
+
+		GPIO2D2_SHIFT		= 4,
+		GPIO2D2_MASK		= 3 << GPIO2D2_SHIFT,
+		GPIO2D2_GPIO            = 0,
+		GPIO2D2_UART2_SOUT_M0,
+
+		GPIO2D1_SHIFT		= 2,
+		GPIO2D1_MASK		= 3 << GPIO2D1_SHIFT,
+		GPIO2D1_GPIO            = 0,
+		GPIO2D1_UART2_SIN_M0,
+	};
 
 	node = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "rockchip,rv1108-grf");
 	grf = (struct rv1108_grf *)fdtdec_get_addr(gd->fdt_blob, node, "reg");

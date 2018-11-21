@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Image manipulator for Marvell SoCs
  *  supports Kirkwood, Dove, Armada 370, Armada XP, and Armada 38x
  *
  * (C) Copyright 2013 Thomas Petazzoni
  * <thomas.petazzoni@free-electrons.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Not implemented: support for the register headers in v1 images
  */
@@ -24,7 +23,8 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
+#if OPENSSL_VERSION_NUMBER < 0x10100000L || \
+    (defined(LIBRESSL_VERSION_NUMBER) && LIBRESSL_VERSION_NUMBER < 0x2070000fL)
 static void RSA_get0_key(const RSA *r,
                  const BIGNUM **n, const BIGNUM **e, const BIGNUM **d)
 {
@@ -36,7 +36,7 @@ static void RSA_get0_key(const RSA *r,
        *d = r->d;
 }
 
-#else
+#elif !defined(LIBRESSL_VERSION_NUMBER)
 void EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx)
 {
 	EVP_MD_CTX_reset(ctx);

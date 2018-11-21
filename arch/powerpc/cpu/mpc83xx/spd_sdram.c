@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2006-2007 Freescale Semiconductor, Inc.
  *
@@ -7,9 +8,9 @@
  * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
+
+#ifndef CONFIG_MPC83XX_SDRAM
 
 #include <common.h>
 #include <asm/processor.h>
@@ -925,3 +926,5 @@ void ddr_enable_ecc(unsigned int dram_size)
 	__asm__ __volatile__ ("isync");
 }
 #endif	/* CONFIG_DDR_ECC */
+
+#endif /* !CONFIG_MPC83XX_SDRAM */

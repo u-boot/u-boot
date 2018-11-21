@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Freescale ls2080a SOC common device tree source
  *
  * Copyright 2013-2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 / {
@@ -74,6 +73,14 @@
 			<0x0 0x20000000 0x0 0x10000000>;
 		reg-names = "QuadSPI", "QuadSPI-memory";
 		num-cs = <4>;
+	};
+
+	esdhc: esdhc@0 {
+		compatible = "fsl,esdhc";
+		reg = <0x0 0x2140000 0x0 0x10000>;
+		interrupts = <0 28 0x4>; /* Level high type */
+		little-endian;
+		bus-width = <4>;
 	};
 
 	usb0: usb3@3100000 {

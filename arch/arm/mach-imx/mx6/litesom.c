@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015-2016 Freescale Semiconductor, Inc.
  * Copyright (C) 2016 Grinn
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>
@@ -77,7 +76,7 @@ int litesom_mmc_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_SPL_BUILD
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <spl.h>
 #include <asm/arch/mx6-ddr.h>
 

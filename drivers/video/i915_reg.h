@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * Copyright 2003 Tungsten Graphics, Inc., Cedar Park, Texas.
  * All Rights Reserved.
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #ifndef _I915_REG_H_

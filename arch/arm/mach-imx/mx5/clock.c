@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007
  * Sascha Hauer, Pengutronix
  *
  * (C) Copyright 2009 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -839,6 +838,31 @@ static int config_ddr_clk(u32 emi_clk)
 	return 0;
 }
 
+#ifdef CONFIG_MX53
+static int config_ldb_clk(u32 ref, u32 freq)
+{
+	int ret = 0;
+	struct pll_param pll_param;
+
+	memset(&pll_param, 0, sizeof(struct pll_param));
+
+	ret = calc_pll_params(ref, freq, &pll_param);
+	if (ret != 0) {
+		printf("Error:Can't find pll parameters: %d\n",
+			ret);
+		return ret;
+	}
+
+	return config_pll_clk(PLL4_CLOCK, &pll_param);
+}
+#else
+static int config_ldb_clk(u32 ref, u32 freq)
+{
+	/* Platform not supported */
+	return -EINVAL;
+}
+#endif
+
 /*
  * This function assumes the expected core clock has to be changed by
  * modifying the PLL. This is NOT true always but for most of the times,
@@ -880,6 +904,10 @@ int mxc_set_clock(u32 ref, u32 freq, enum mxc_clock clk)
 		if (config_nfc_clk(freq))
 			return -EINVAL;
 		break;
+	case MXC_LDB_CLK:
+		if (config_ldb_clk(ref, freq))
+			return -EINVAL;
+		break;
 	default:
 		printf("Warning:Unsupported or invalid clock type\n");
 	}
@@ -911,10 +939,11 @@ void mxc_set_sata_internal_clock(void)
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Dump some core clockes.
  */
-int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 freq;
 
@@ -947,3 +976,4 @@ U_BOOT_CMD(
 	"display clocks",
 	""
 );
+#endif

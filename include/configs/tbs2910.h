@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Soeren Moch <smoch@web.de>
  *
  * Configuration settings for the TBS2910 MatrixARM board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __TBS2910_CONFIG_H
@@ -20,7 +19,6 @@
 #define CONFIG_IMX_THERMAL
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		MMDC0_ARB_BASE_ADDR
 
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -42,8 +40,6 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE /* select UART1/UART2 */
 
-#define CONFIG_CONS_INDEX		1
-
 /* Filesystems / image support */
 
 /* MMC */
@@ -54,7 +50,6 @@
 /* Ethernet */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
@@ -91,7 +86,6 @@
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
 #ifdef CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USBD_HS
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
 #endif /* CONFIG_CMD_USB_MASS_STORAGE */
 #ifdef CONFIG_USB_KEYBOARD
 #define CONFIG_PREBOOT \

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * From Coreboot northbridge/intel/sandybridge/northbridge.c
  *
  * Copyright (C) 2007-2009 coresystems GmbH
  * Copyright (C) 2011 The Chromium Authors
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>

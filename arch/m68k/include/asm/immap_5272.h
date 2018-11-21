@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * MCF5272 Internal Memory Map
  *
  * Copyright (c) 2003 Josef Baumgartner <josef.baumgartner@telex.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IMMAP_5272__

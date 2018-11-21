@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2003
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -12,8 +11,8 @@
 #include <common.h>
 #include <command.h>
 
-#include <asm/8xx_immap.h>
-#include <commproc.h>
+#include <asm/immap_8xx.h>
+#include <asm/cpm_8xx.h>
 #include <asm/iopin_8xx.h>
 #include <asm/io.h>
 
@@ -341,6 +340,26 @@ static int do_brginfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return 0;
 }
+
+#ifdef CONFIG_CMD_REGINFO
+void print_reginfo(void)
+{
+	immap_t __iomem     *immap  = (immap_t __iomem *)CONFIG_SYS_IMMR;
+	sit8xx_t __iomem *timers = &immap->im_sit;
+
+	printf("\nSystem Configuration registers\n"
+		"\tIMMR\t0x%08X\n", get_immr());
+	do_siuinfo(NULL, 0, 0, NULL);
+
+	printf("Memory Controller Registers\n");
+	do_memcinfo(NULL, 0, 0, NULL);
+
+	printf("\nSystem Integration Timers\n");
+	printf("\tTBSCR\t0x%04X\tRTCSC\t0x%04X\n",
+	       in_be16(&timers->sit_tbscr), in_be16(&timers->sit_rtcsc));
+	printf("\tPISCR\t0x%04X\n", in_be16(&timers->sit_piscr));
+}
+#endif
 
 /***************************************************/
 

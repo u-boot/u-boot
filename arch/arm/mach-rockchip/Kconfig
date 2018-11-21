@@ -2,9 +2,11 @@ if ARCH_ROCKCHIP
 
 config ROCKCHIP_RK3036
 	bool "Support Rockchip RK3036"
-	select CPU_V7
+	select CPU_V7A
 	select SUPPORT_SPL
 	select SPL
+	imply USB_FUNCTION_ROCKUSB
+	imply CMD_ROCKUSB
 	help
 	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -13,7 +15,7 @@ config ROCKCHIP_RK3036
 
 config ROCKCHIP_RK3128
 	bool "Support Rockchip RK3128"
-	select CPU_V7
+	select CPU_V7A
 	help
 	  The Rockchip RK3128 is a ARM-based SoC with a quad-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -22,7 +24,7 @@ config ROCKCHIP_RK3128
 
 config ROCKCHIP_RK3188
 	bool "Support Rockchip RK3188"
-	select CPU_V7
+	select CPU_V7A
 	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select SPL
@@ -44,7 +46,7 @@ config ROCKCHIP_RK3188
 
 config ROCKCHIP_RK322X
 	bool "Support Rockchip RK3228/RK3229"
-	select CPU_V7
+	select CPU_V7A
 	select SUPPORT_SPL
 	select SPL
 	select ROCKCHIP_BROM_HELPER
@@ -57,16 +59,28 @@ config ROCKCHIP_RK322X
 
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
-	select CPU_V7
+	select CPU_V7A
 	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select SPL
+	imply USB_FUNCTION_ROCKUSB
+	imply CMD_ROCKUSB
 	help
 	  The Rockchip RK3288 is a ARM-based SoC with a quad-core Cortex-A17
 	  including NEON and GPU, 1MB L2 cache, Mali-T7 graphics, two
 	  video interfaces supporting HDMI and eDP, several DDR3 options
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
+
+if ROCKCHIP_RK3288
+
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/rk3288/u-boot-tpl.lds"
+
+config TPL_TEXT_BASE
+	default 0xff704000
+
+endif
 
 config ROCKCHIP_RK3328
 	bool "Support Rockchip RK3328"
@@ -89,7 +103,6 @@ config ROCKCHIP_RK3368
 	imply SPL_SERIAL_SUPPORT
 	imply TPL_SERIAL_SUPPORT
 	select DEBUG_UART_BOARD_INIT
-	select SYS_NS16550
 	help
 	  The Rockchip RK3368 is a ARM-based SoC with a octa-core (organised
 	  into a big and little cluster with 4 cores each) Cortex-A53 including
@@ -138,7 +151,7 @@ config ROCKCHIP_RK3399
 
 config ROCKCHIP_RV1108
 	bool "Support Rockchip RV1108"
-	select CPU_V7
+	select CPU_V7A
 	help
 	  The Rockchip RV1108 is a ARM-based SoC with a single-core Cortex-A7
 	  and a DSP.

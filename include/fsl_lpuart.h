@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
  *
- * SPDX-License-Identifier:	GPL-2.0+
- *
  */
 
-#ifdef CONFIG_ARCH_MX7ULP
+#if defined(CONFIG_ARCH_MX7ULP) || defined(CONFIG_ARCH_IMX8)
 struct lpuart_fsl_reg32 {
 	u32 verid;
 	u32 param;

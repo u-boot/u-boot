@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (c) 2015 Purna Chandra Mandal <purna.mandal@microchip.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Microchip PIC32MZ[DA] Starter Kit.
  */
@@ -16,9 +15,6 @@
  */
 /* CPU Timer rate */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	100000000
-
-/* Cache Configuration */
-#define CONFIG_SYS_MIPS_CACHE_MODE	CONF_CM_CACHABLE_NONCOHERENT
 
 /*----------------------------------------------------------------------
  * Memory Layout
@@ -52,18 +48,15 @@
 /*----------------------------------------------------------------------
  * Commands
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 /*------------------------------------------------------------
  * Console Configuration
  */
 #define CONFIG_SYS_CBSIZE		1024 /* Console I/O Buffer Size   */
-#define CONFIG_CMDLINE_EDITING		1
 
 /*-----------------------------------------------------------------------
  * Networking Configuration
  */
-#define CONFIG_MII
 #define CONFIG_PHY_SMSC
 #define CONFIG_SYS_RX_ETH_BUFFER	8
 #define CONFIG_NET_RETRY_COUNT		20
@@ -73,23 +66,10 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*--------------------------------------------------
  * USB Configuration
  */
-#define CONFIG_USB_MUSB_PIO_ONLY
-
-/*-----------------------------------------------------------------------
- * File System Configuration
- */
-/* FAT FS */
-#define CONFIG_SUPPORT_VFAT
-
-/* EXT4 FS */
-#define CONFIG_FS_EXT4
 
 /* -------------------------------------------------
  * Environment

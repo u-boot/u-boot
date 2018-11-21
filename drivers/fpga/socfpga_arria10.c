@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2017 Intel Corporation <www.intel.com>
- *
- * SPDX-License-Identifier:    GPL-2.0
  */
 
 #include <asm/io.h>
@@ -22,8 +21,6 @@
 #define COMPRESSION_OFFSET	229
 #define FPGA_TIMEOUT_MSEC	1000  /* timeout in ms */
 #define FPGA_TIMEOUT_CNT	0x1000000
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const struct socfpga_fpga_manager *fpga_manager_base =
 		(void *)SOCFPGA_FPGAMGRREGS_ADDRESS;
@@ -62,8 +59,7 @@ int is_fpgamgr_user_mode(void)
 
 static int wait_for_user_mode(void)
 {
-	return wait_for_bit(__func__,
-		&fpga_manager_base->imgcfg_stat,
+	return wait_for_bit_le32(&fpga_manager_base->imgcfg_stat,
 		ALT_FPGAMGR_IMGCFG_STAT_F2S_USERMODE_SET_MSK,
 		1, FPGA_TIMEOUT_MSEC, false);
 }
@@ -112,22 +108,20 @@ static int wait_for_nconfig_pin_and_nstatus_pin(void)
 	unsigned long mask = ALT_FPGAMGR_IMGCFG_STAT_F2S_NCONFIG_PIN_SET_MSK |
 				ALT_FPGAMGR_IMGCFG_STAT_F2S_NSTATUS_PIN_SET_MSK;
 
-	/* Poll until f2s_nconfig_pin and f2s_nstatus_pin; loop until de-asserted,
-	 * timeout at 1000ms
+	/*
+	 * Poll until f2s_nconfig_pin and f2s_nstatus_pin; loop until
+	 * de-asserted, timeout at 1000ms
 	 */
-	return wait_for_bit(__func__,
-			    &fpga_manager_base->imgcfg_stat,
-			    mask,
-			    false, FPGA_TIMEOUT_MSEC, false);
+	return wait_for_bit_le32(&fpga_manager_base->imgcfg_stat, mask,
+				 true, FPGA_TIMEOUT_MSEC, false);
 }
 
 static int wait_for_f2s_nstatus_pin(unsigned long value)
 {
 	/* Poll until f2s to specific value, timeout at 1000ms */
-	return wait_for_bit(__func__,
-			    &fpga_manager_base->imgcfg_stat,
-			    ALT_FPGAMGR_IMGCFG_STAT_F2S_NSTATUS_PIN_SET_MSK,
-			    value, FPGA_TIMEOUT_MSEC, false);
+	return wait_for_bit_le32(&fpga_manager_base->imgcfg_stat,
+		ALT_FPGAMGR_IMGCFG_STAT_F2S_NSTATUS_PIN_SET_MSK,
+		value, FPGA_TIMEOUT_MSEC, false);
 }
 
 /* set CD ratio */
@@ -459,7 +453,7 @@ int fpgamgr_program_finish(void)
  */
 int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 {
-	unsigned long status;
+	int status;
 
 	/* disable all signals from hps peripheral controller to fpga */
 	writel(0, &system_manager_base->fpgaintf_en_global);

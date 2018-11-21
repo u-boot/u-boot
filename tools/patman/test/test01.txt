@@ -28,7 +28,7 @@ commit 5ab48490f03051875ab13d288a4bf32b507d76fd
 Author: Simon Glass <sjg@chromium.org>
 Date:   Sat Apr 15 15:39:08 2017 -0600
 
-    fdt: Correct cast for sandbox in fdtdec_setup_memory_size()
+    fdt: Correct cast for sandbox in fdtdec_setup_mem_size_base()
     
     This gives a warning with some native compilers:
     

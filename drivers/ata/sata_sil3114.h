@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) Excito Elektronik i Skåne AB, All rights reserved.
  * Author: Tor Krill <tor@excito.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef SATA_SIL3114_H

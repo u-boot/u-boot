@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
  * Written by Jean-Jacques Hiblot  <jjhiblot@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,8 +9,6 @@
 #include <generic-phy.h>
 #include <dm/test.h>
 #include <test/ut.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Base test of the phy uclass */
 static int dm_test_phy_base(struct unit_test_state *uts)

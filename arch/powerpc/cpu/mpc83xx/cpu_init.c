@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2004-2009 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -465,6 +464,7 @@ static int print_83xx_arb_event(int force)
 }
 #endif /* CONFIG_DISPLAY_AER_xxxx */
 
+#ifndef CONFIG_CPU_MPC83XX
 /*
  * Figure out the cause of the reset
  */
@@ -506,3 +506,4 @@ int prt_83xx_rsr(void)
 
 	return 0;
 }
+#endif

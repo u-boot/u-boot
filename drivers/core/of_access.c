@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Originally from Linux v4.9
  * Paul Mackerras	August 1996.
@@ -16,12 +17,10 @@
  *
  * This file follows drivers/of/base.c with functions in the same order as the
  * Linux version.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <dm/of_access.h>
 #include <linux/ctype.h>
 #include <linux/err.h>
@@ -377,6 +376,33 @@ struct device_node *of_find_compatible_node(struct device_node *from,
 	return np;
 }
 
+static int of_device_has_prop_value(const struct device_node *device,
+				    const char *propname, const void *propval,
+				    int proplen)
+{
+	struct property *prop = of_find_property(device, propname, NULL);
+
+	if (!prop || !prop->value || prop->length != proplen)
+		return 0;
+	return !memcmp(prop->value, propval, proplen);
+}
+
+struct device_node *of_find_node_by_prop_value(struct device_node *from,
+					       const char *propname,
+					       const void *propval, int proplen)
+{
+	struct device_node *np;
+
+	for_each_of_allnodes_from(from, np) {
+		if (of_device_has_prop_value(np, propname, propval, proplen) &&
+		    of_node_get(np))
+			break;
+	}
+	of_node_put(from);
+
+	return np;
+}
+
 struct device_node *of_find_node_by_phandle(phandle handle)
 {
 	struct device_node *np;
@@ -454,6 +480,26 @@ int of_read_u32_array(const struct device_node *np, const char *propname,
 	debug("size %zd\n", sz);
 	while (sz--)
 		*out_values++ = be32_to_cpup(val++);
+
+	return 0;
+}
+
+int of_read_u64(const struct device_node *np, const char *propname, u64 *outp)
+{
+	const __be64 *val;
+
+	debug("%s: %s: ", __func__, propname);
+	if (!np)
+		return -EINVAL;
+	val = of_find_property_value_of_size(np, propname, sizeof(*outp));
+	if (IS_ERR(val)) {
+		debug("(not found)\n");
+		return PTR_ERR(val);
+	}
+
+	*outp = be64_to_cpup(val);
+	debug("%#llx (%lld)\n", (unsigned long long)*outp,
+              (unsigned long long)*outp);
 
 	return 0;
 }

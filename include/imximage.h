@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _IMXIMAGE_H_
@@ -13,6 +12,9 @@
 #define MAX_HW_CFG_SIZE_V1 60  /* Max number of registers imx can set for v1 */
 #define APP_CODE_BARKER	0xB1
 #define DCD_BARKER	0xB17219E9
+
+/* Specify the offset of the IVT in the IMX header as expected by BootROM */
+#define BOOTROM_IVT_HDR_OFFSET	0xC00
 
 /*
  * NOTE: This file must be kept in sync with arch/arm/include/asm/\
@@ -56,6 +58,7 @@
 #define DCD_CHECK_BITS_SET_PARAM	0x14
 #define DCD_CHECK_BITS_CLR_PARAM	0x04
 
+#ifndef __ASSEMBLY__
 enum imximage_cmd {
 	CMD_INVALID,
 	CMD_IMAGE_VERSION,
@@ -197,4 +200,5 @@ typedef void (*set_dcd_rst_t)(struct imx_header *imxhdr,
 typedef void (*set_imx_hdr_t)(struct imx_header *imxhdr, uint32_t dcd_len,
 		uint32_t entry_point, uint32_t flash_offset);
 
+#endif /* __ASSEMBLY__ */
 #endif /* _IMXIMAGE_H_ */

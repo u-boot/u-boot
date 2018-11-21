@@ -3,11 +3,18 @@ if ARCH_SNAPDRAGON
 config SYS_SOC
 	default "snapdragon"
 
+config SYS_MALLOC_F_LEN
+	default 0x2000
+
+config SPL_SYS_MALLOC_F_LEN
+	default 0x2000
+
 choice
 	prompt "Snapdragon board select"
 
 config TARGET_DRAGONBOARD410C
 	bool "96Boards Dragonboard 410C"
+	select BOARD_LATE_INIT
 	help
 	  Support for 96Boards Dragonboard 410C. This board complies with
 	  96Board Open Platform Specifications. Features:
@@ -19,8 +26,18 @@ config TARGET_DRAGONBOARD410C
 	  - HDMI
 	  - 20-pin low speed and 40-pin high speed expanders, 4 LED, 3 buttons
 
+config TARGET_DRAGONBOARD820C
+	bool "96Boards Dragonboard 820C"
+	help
+	  Support for 96Boards Dragonboard 820C. This board complies with
+	  96Board Open Platform Specifications. Features:
+	  - Qualcomm Snapdragon 820C SoC - APQ8096 (4xKyro CPU)
+	  - 3GiB RAM
+	  - 32GiB UFS drive
+
 endchoice
 
 source "board/qualcomm/dragonboard410c/Kconfig"
+source "board/qualcomm/dragonboard820c/Kconfig"
 
 endif

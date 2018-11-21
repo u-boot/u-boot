@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
 /*-
  * Copyright (c) 2007-2008, Juniper Networks, Inc.
  * Copyright (c) 2008, Excito Elektronik i Skåne AB
  * Copyright (c) 2008, Michael Trimarchi <trimarchimichael@yahoo.it>
  *
  * All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #include <common.h>
 #include <dm.h>
@@ -410,9 +409,15 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	endpt = QH_ENDPT1_RL(8) | QH_ENDPT1_C(c) |
 		QH_ENDPT1_MAXPKTLEN(maxpacket) | QH_ENDPT1_H(0) |
 		QH_ENDPT1_DTC(QH_ENDPT1_DTC_DT_FROM_QTD) |
-		QH_ENDPT1_EPS(ehci_encode_speed(dev->speed)) |
 		QH_ENDPT1_ENDPT(usb_pipeendpoint(pipe)) | QH_ENDPT1_I(0) |
 		QH_ENDPT1_DEVADDR(usb_pipedevice(pipe));
+
+	/* Force FS for fsl HS quirk */
+	if (!ctrl->has_fsl_erratum_a005275)
+		endpt |= QH_ENDPT1_EPS(ehci_encode_speed(dev->speed));
+	else
+		endpt |= QH_ENDPT1_EPS(ehci_encode_speed(QH_FULL_SPEED));
+
 	qh->qh_endpt1 = cpu_to_hc32(endpt);
 	endpt = QH_ENDPT2_MULT(1) | QH_ENDPT2_UFCMASK(0) | QH_ENDPT2_UFSMASK(0);
 	qh->qh_endpt2 = cpu_to_hc32(endpt);
@@ -832,6 +837,10 @@ static int ehci_submit_root(struct usb_device *dev, unsigned long pipe,
 				return -ENXIO;
 			} else {
 				int ret;
+
+				/* Disable chirp for HS erratum */
+				if (ctrl->has_fsl_erratum_a005275)
+					reg |= PORTSC_FSL_PFSC;
 
 				reg |= EHCI_PS_PR;
 				reg &= ~EHCI_PS_PE;
@@ -1675,4 +1684,70 @@ struct dm_usb_ops ehci_usb_ops = {
 	.get_max_xfer_size  = ehci_get_max_xfer_size,
 };
 
+#endif
+
+#ifdef CONFIG_PHY
+int ehci_setup_phy(struct udevice *dev, struct phy *phy, int index)
+{
+	int ret;
+
+	if (!phy)
+		return 0;
+
+	ret = generic_phy_get_by_index(dev, index, phy);
+	if (ret) {
+		if (ret != -ENOENT) {
+			dev_err(dev, "failed to get usb phy\n");
+			return ret;
+		}
+	} else {
+		ret = generic_phy_init(phy);
+		if (ret) {
+			dev_err(dev, "failed to init usb phy\n");
+			return ret;
+		}
+
+		ret = generic_phy_power_on(phy);
+		if (ret) {
+			dev_err(dev, "failed to power on usb phy\n");
+			return generic_phy_exit(phy);
+		}
+	}
+
+	return 0;
+}
+
+int ehci_shutdown_phy(struct udevice *dev, struct phy *phy)
+{
+	int ret = 0;
+
+	if (!phy)
+		return 0;
+
+	if (generic_phy_valid(phy)) {
+		ret = generic_phy_power_off(phy);
+		if (ret) {
+			dev_err(dev, "failed to power off usb phy\n");
+			return ret;
+		}
+
+		ret = generic_phy_exit(phy);
+		if (ret) {
+			dev_err(dev, "failed to power off usb phy\n");
+			return ret;
+		}
+	}
+
+	return 0;
+}
+#else
+int ehci_setup_phy(struct udevice *dev, struct phy *phy, int index)
+{
+	return 0;
+}
+
+int ehci_shutdown_phy(struct udevice *dev, struct phy *phy)
+{
+	return 0;
+}
 #endif

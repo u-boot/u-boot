@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Freescale SerDes initialization routine
  *
@@ -5,9 +6,9 @@
  * Copyright (C) 2008 MontaVista Software, Inc.
  *
  * Author: Li Yang <leoli@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
+
+#ifndef CONFIG_MPC83XX_SERDES
 
 #include <config.h>
 #include <common.h>
@@ -149,3 +150,5 @@ void fsl_setup_serdes(u32 offset, char proto, u32 rfcks, char vdd)
 	tmp |= FSL_SRDSRSTCTL_RST;
 	out_be32(regs + FSL_SRDSRSTCTL_OFFS, tmp);
 }
+
+#endif /* !CONFIG_MPC83XX_SERDES */

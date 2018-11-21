@@ -1,13 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Synopsys, Inc. (www.synopsys.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 /dts-v1/;
 
 #include "skeleton.dtsi"
 
 / {
+	model = "abilis,tb100";
+
 	aliases {
 		console = &uart0;
 	};

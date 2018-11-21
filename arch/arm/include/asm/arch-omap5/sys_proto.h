@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Texas Instruments, <www.ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SYS_PROTO_H_
@@ -15,8 +14,6 @@
 #include <linux/mtd/omap_gpmc.h>
 #include <asm/arch/clock.h>
 #include <asm/ti-common/sys_proto.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Structure for Iodelay configuration registers.
@@ -33,6 +30,12 @@ struct iodelay_cfg_entry {
 struct pad_conf_entry {
 	u32 offset;
 	u32 val;
+};
+
+struct mmc_platform_fixups {
+	const char *hw_rev;
+	u32 unsupported_caps;
+	u32 max_freq;
 };
 
 struct omap_sysinfo {
@@ -62,6 +65,7 @@ u32 omap_sdram_size(void);
 u32 cortex_rev(void);
 void save_omap_boot_params(void);
 void init_omap_revision(void);
+void init_package_revision(void);
 void do_io_settings(void);
 void sri2c_init(void);
 int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data);
@@ -70,6 +74,7 @@ void force_emif_self_refresh(void);
 void get_ioregs(const struct ctrl_ioregs **regs);
 void srcomp_enable(void);
 void setup_warmreset_time(void);
+const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr);
 
 static inline u32 div_round_up(u32 num, u32 den)
 {

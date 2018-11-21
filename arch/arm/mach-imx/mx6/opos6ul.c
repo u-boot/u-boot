@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2017 Armadeus Systems
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Copyright (C) 2018 Armadeus Systems
  */
 
 #include <asm/arch/clock.h>
@@ -9,15 +8,12 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
-#include <asm/arch/mx6ul_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <common.h>
 #include <environment.h>
-#include <fsl_esdhc.h>
-#include <mmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -131,17 +127,11 @@ int board_late_init(void)
 
 	/* In bootstrap don't use the env vars */
 	if (((reg & 0x3000000) >> 24) == 0x1) {
-		set_default_env(NULL);
+		set_default_env(NULL, 0);
 		env_set("preboot", "");
 	}
 
 	return opos6ul_board_late_init();
-}
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	return cfg->esdhc_base == USDHC1_BASE_ADDR;
 }
 
 int dram_init(void)
@@ -153,31 +143,8 @@ int dram_init(void)
 
 #ifdef CONFIG_SPL_BUILD
 #include <asm/arch/mx6-ddr.h>
-#include <asm/arch/opos6ul.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <spl.h>
-
-#define USDHC_PAD_CTRL (                                       \
-	PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_80ohm | PAD_CTL_SRE_FAST                   \
-)
-
-struct fsl_esdhc_cfg usdhc_cfg[1] = {
-	{USDHC1_BASE_ADDR, 0, 8},
-};
-
-static iomux_v3_cfg_t const usdhc1_pads[] = {
-	MX6_PAD_SD1_CLK__USDHC1_CLK        | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_CMD__USDHC1_CMD        | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DATA0__USDHC1_DATA0    | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DATA1__USDHC1_DATA1    | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DATA2__USDHC1_DATA2    | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD1_DATA3__USDHC1_DATA3    | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_READY_B__USDHC1_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_CE0_B__USDHC1_DATA5   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_CE1_B__USDHC1_DATA6   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_CLE__USDHC1_DATA7     | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
 
 static struct mx6ul_iomux_grp_regs mx6_grp_ioregs = {
 	.grp_addds = 0x00000030,
@@ -240,11 +207,14 @@ static struct mx6_ddr3_cfg mem_ddr = {
 	.trasmin = 3750,
 };
 
-int board_mmc_init(bd_t *bis)
+void board_boot_order(u32 *spl_boot_list)
 {
-	imx_iomux_v3_setup_multiple_pads(usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+	unsigned int bmode = readl(&src_base->sbmr2);
+
+	if (((bmode >> 24) & 0x03) == 0x01) /* Serial Downloader */
+		spl_boot_list[0] = BOOT_DEVICE_UART;
+	else
+		spl_boot_list[0] = spl_boot_device();
 }
 
 static void ccgr_init(void)
@@ -282,6 +252,11 @@ static void spl_dram_init(void)
 	mx6_dram_cfg(&ddr_sysinfo, &mx6_mmcd_calib, &mem_ddr);
 }
 
+void spl_board_init(void)
+{
+	preloader_console_init();
+}
+
 void board_init_f(ulong dummy)
 {
 	ccgr_init();
@@ -291,10 +266,6 @@ void board_init_f(ulong dummy)
 
 	/* setup GP timer */
 	timer_init();
-
-	/* UART clocks enabled and gd valid - init serial console */
-	opos6ul_setup_uart_debug();
-	preloader_console_init();
 
 	/* DDR initialization */
 	spl_dram_init();

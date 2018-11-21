@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  *
  * Based on code:
  *	Copyright (C) 2005-2009 Samsung Electronics
  *	Kyungmin Park <kyungmin.park@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -36,6 +36,7 @@ config ZYNQ_DDRC_INIT
 	  want to skip ddr init and this option is useful for it.
 
 config SYS_BOARD
+	string "Board name"
 	default "zynq"
 
 config SYS_VENDOR
@@ -79,5 +80,8 @@ config SYS_I2C_MUX_ADDR
 
 config SYS_I2C_MUX_EEPROM_SEL
 	int
+
+config ZYNQ_SDHCI_MAX_FREQ
+	default 52000000
 
 endif

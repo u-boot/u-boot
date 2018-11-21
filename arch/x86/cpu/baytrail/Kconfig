@@ -1,19 +1,18 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (C) 2015 Google, Inc
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 config INTEL_BAYTRAIL
 	bool
-	select HAVE_FSP if !EFI
-	select ARCH_MISC_INIT if !EFI
+	select HAVE_FSP
+	select ARCH_MISC_INIT
 	select CPU_INTEL_TURBO_NOT_PACKAGE_SCOPED
-	imply HAVE_INTEL_ME if !EFI
+	imply HAVE_INTEL_ME
 	imply ENABLE_MRC_CACHE
 	imply AHCI_PCI
 	imply ICH_SPI
 	imply INTEL_ICH6_GPIO
+	imply PINCTRL_ICH6
 	imply MMC
 	imply MMC_PCI
 	imply MMC_SDHCI

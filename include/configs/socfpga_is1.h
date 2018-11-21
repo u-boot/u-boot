@@ -1,15 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
  * Copyright (C) 2016 Pavel Machek <pavel@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIG_SOCFPGA_IS1_H__
 #define __CONFIG_SOCFPGA_IS1_H__
 
 #include <asm/arch/base_addr_ac5.h>
-
-#define CONFIG_HW_WATCHDOG
 
 /* Memory configurations */
 #define PHYS_SDRAM_1_SIZE		0x10000000
@@ -32,9 +29,6 @@
 /*
  * Bootcounter
  */
-#define CONFIG_BOOTCOUNT_LIMIT
-/* last 2 lwords in OCRAM */
-#define CONFIG_SYS_BOOTCOUNT_ADDR       0xfffffff8
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 #endif	/* __CONFIG_SOCFPGA_IS1_H__ */

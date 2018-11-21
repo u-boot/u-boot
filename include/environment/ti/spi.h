@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com
  *
  * Environment variable definitions for SPI on TI boards.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __TI_SPI_H

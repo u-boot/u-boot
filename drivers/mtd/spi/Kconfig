@@ -51,7 +51,7 @@ config SF_DUAL_FLASH
 
 config SPI_GENERIC
 	bool "SPI flash support"
-	depends on ARCH_ZYNQMP
+	depends on ARCH_ZYNQMP || ARCH_VERSAL
 	help
 	  Enable the generic SPI flash controller support.
 
@@ -102,6 +102,12 @@ config SPI_FLASH_WINBOND
 	help
 	  Add support for various Winbond SPI flash chips (W25xxx)
 
+config SPI_FLASH_XMC
+	bool "XMC SPI flash support"
+	help
+	  Add support for various XMC (Wuhan Xinxin Semiconductor
+	  Manufacturing Corp.) SPI flash chips (XM25xxx)
+
 endif
 
 config SPI_FLASH_USE_4K_SECTORS
@@ -145,18 +151,5 @@ config SPI_FLASH_MTD
 	  UBI which can only operate on top of the MTD layer.
 
 	  If unsure, say N
-
-if SPL
-
-config SPL_SPI_SUNXI
-	bool "Support for SPI Flash on Allwinner SoCs in SPL"
-	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I || MACH_SUNXI_H3_H5 || MACH_SUN50I
-	select SPL_SPI_FLASH_SUPPORT
-	---help---
-	Enable support for SPI Flash. This option allows SPL to read from
-	sunxi SPI Flash. It uses the same method as the boot ROM, so does
-	not need any extra configuration.
-
-endif
 
 endmenu # menu "SPI Flash Support"

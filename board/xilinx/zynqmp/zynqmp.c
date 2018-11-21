@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014 - 2015 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,6 +16,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/psu_init_gpl.h>
 #include <asm/io.h>
+#include <dm/device.h>
 #include <dm/uclass.h>
 #include <usb.h>
 #include <dwc3-uboot.h>
@@ -459,7 +459,7 @@ int dram_init_banksize(void)
 
 int dram_init(void)
 {
-	if (fdtdec_setup_memory_size() != 0)
+	if (fdtdec_setup_mem_size_base() != 0)
 		return -EINVAL;
 
 	return 0;
@@ -479,7 +479,8 @@ int dram_init_banksize(void)
 
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
+				    CONFIG_SYS_SDRAM_SIZE);
 
 	return 0;
 }
@@ -489,10 +490,55 @@ void reset_cpu(ulong addr)
 {
 }
 
+static const struct {
+	u32 bit;
+	const char *name;
+} reset_reasons[] = {
+	{ RESET_REASON_DEBUG_SYS, "DEBUG" },
+	{ RESET_REASON_SOFT, "SOFT" },
+	{ RESET_REASON_SRST, "SRST" },
+	{ RESET_REASON_PSONLY, "PS-ONLY" },
+	{ RESET_REASON_PMU, "PMU" },
+	{ RESET_REASON_INTERNAL, "INTERNAL" },
+	{ RESET_REASON_EXTERNAL, "EXTERNAL" },
+	{}
+};
+
+static u32 reset_reason(void)
+{
+	u32 ret;
+	int i;
+	const char *reason = NULL;
+
+	ret = readl(&crlapb_base->reset_reason);
+
+	puts("Reset reason:\t");
+
+	for (i = 0; i < ARRAY_SIZE(reset_reasons); i++) {
+		if (ret & reset_reasons[i].bit) {
+			reason = reset_reasons[i].name;
+			printf("%s ", reset_reasons[i].name);
+			break;
+		}
+	}
+
+	puts("\n");
+
+	env_set("reset_reason", reason);
+
+	writel(~0, &crlapb_base->reset_reason);
+
+	return ret;
+}
+
 int board_late_init(void)
 {
-	u32 ver, reg = 0;
+	u32 reg = 0;
 	u8 bootmode;
+	struct udevice *dev;
+	int bootseq = -1;
+	int bootseq_len = 0;
+	int env_targets_len = 0;
 	const char *mode;
 	char *new_targets;
 	char *env_targets;
@@ -501,20 +547,6 @@ int board_late_init(void)
 	if (!(gd->flags & GD_FLG_ENV_DEFAULT)) {
 		debug("Saved variables - Skipping\n");
 		return 0;
-	}
-
-	ver = zynqmp_get_silicon_version();
-
-	switch (ver) {
-	case ZYNQMP_CSU_VERSION_VELOCE:
-		env_set("setup", "setenv baudrate 4800 && env_set bootcmd run veloce");
-	case ZYNQMP_CSU_VERSION_EP108:
-	case ZYNQMP_CSU_VERSION_SILICON:
-	case ZYNQMP_CSU_VERSION_QEMU:
-		env_set("setup", "setenv partid auto");
-		break;
-	default:
-		env_set("setup", "setenv partid 0");
 	}
 
 	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
@@ -551,7 +583,15 @@ int board_late_init(void)
 		break;
 	case SD_MODE:
 		puts("SD_MODE\n");
-		mode = "mmc0";
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@ff160000", &dev)) {
+			puts("Boot from SD0 but without SD0 enabled!\n");
+			return -1;
+		}
+		debug("mmc0 device found at %p, seq %d\n", dev, dev->seq);
+
+		mode = "mmc";
+		bootseq = dev->seq;
 		env_set("modeboot", "sdboot");
 		break;
 	case SD1_LSHFT_MODE:
@@ -559,12 +599,15 @@ int board_late_init(void)
 		/* fall through */
 	case SD_MODE1:
 		puts("SD_MODE1\n");
-#if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
-		mode = "mmc1";
-		env_set("sdbootdev", "1");
-#else
-		mode = "mmc0";
-#endif
+		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "sdhci@ff170000", &dev)) {
+			puts("Boot from SD1 but without SD1 enabled!\n");
+			return -1;
+		}
+		debug("mmc1 device found at %p, seq %d\n", dev, dev->seq);
+
+		mode = "mmc";
+		bootseq = dev->seq;
 		env_set("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
@@ -578,21 +621,34 @@ int board_late_init(void)
 		break;
 	}
 
+	if (bootseq >= 0) {
+		bootseq_len = snprintf(NULL, 0, "%i", bootseq);
+		debug("Bootseq len: %x\n", bootseq_len);
+	}
+
 	/*
 	 * One terminating char + one byte for space between mode
 	 * and default boot_targets
 	 */
 	env_targets = env_get("boot_targets");
-	if (env_targets) {
-		new_targets = calloc(1, strlen(mode) +
-				     strlen(env_targets) + 2);
-		sprintf(new_targets, "%s %s", mode, env_targets);
-	} else {
-		new_targets = calloc(1, strlen(mode) + 2);
-		sprintf(new_targets, "%s", mode);
-	}
+	if (env_targets)
+		env_targets_len = strlen(env_targets);
+
+	new_targets = calloc(1, strlen(mode) + env_targets_len + 2 +
+			     bootseq_len);
+	if (!new_targets)
+		return -ENOMEM;
+
+	if (bootseq >= 0)
+		sprintf(new_targets, "%s%x %s", mode, bootseq,
+			env_targets ? env_targets : "");
+	else
+		sprintf(new_targets, "%s %s", mode,
+			env_targets ? env_targets : "");
 
 	env_set("boot_targets", new_targets);
+
+	reset_reason();
 
 	return 0;
 }

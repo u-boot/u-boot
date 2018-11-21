@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * [origin: Linux kernel include/asm-arm/arch-at91/at91sam9260_matrix.h]
  *
@@ -5,8 +6,6 @@
  *
  * Memory Controllers (MATRIX, EBI) - System peripherals registers.
  * Based on AT91SAM9260 datasheet revision B.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91SAM9260_MATRIX_H

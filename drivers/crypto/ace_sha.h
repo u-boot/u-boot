@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Header file for Advanced Crypto Engine - SFR definitions
  *
  * Copyright (c) 2012  Samsung Electronics
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ACE_SHA_H

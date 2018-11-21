@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2016 Freescale Semiconductor, Inc.
  *
  * RGPIO2P driver for the Freescale i.MX7ULP.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -13,8 +12,6 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <malloc.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 enum imx_rgpio2p_direction {
 	IMX_RGPIO2P_DIRECTION_IN,

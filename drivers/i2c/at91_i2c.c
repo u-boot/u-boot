@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Atmel I2C driver.
  *
  * (C) Copyright 2016 Songjun Wu <songjun.wu@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/io.h>

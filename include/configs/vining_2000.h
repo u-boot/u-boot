@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 samtec automotive software & electronics gmbh
  *
  * Configuration settings for the Samtec VIN|ING 2000 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -34,7 +33,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x10000)
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
@@ -64,7 +62,6 @@
 
 /* Network */
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_MXC_PHYADDR          0x0
@@ -92,7 +89,6 @@
 #define CONFIG_PWM_IMX
 #define CONFIG_IMX6_PWM_PER_CLK 66000000
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_ENV_OFFSET		(8 * SZ_64K)
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_OFFSET_REDUND	(9 * SZ_64K)
@@ -100,7 +96,6 @@
 
 #ifdef CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SUPPORT_EMMC_BOOT
-#define CONFIG_SUPPORT_EMMC_RPMB
 #define CONFIG_SYS_MMC_ENV_DEV		0 /* USDHC4 eMMC */
 /* 0=user, 1=boot0, 2=boot1, * 4..7=general0..3. */
 #define CONFIG_SYS_MMC_ENV_PART		1 /* boot0 */

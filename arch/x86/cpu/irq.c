@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,16 +16,75 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/**
+ * pirq_reg_to_linkno() - Convert a PIRQ routing register offset to link number
+ *
+ * @priv:	IRQ router driver's priv data
+ * @reg:	PIRQ routing register offset from the base address
+ * @return:	PIRQ link number (0 for PIRQA, 1 for PIRQB, etc)
+ */
+static inline int pirq_reg_to_linkno(struct irq_router *priv, int reg)
+{
+	int linkno = 0;
+
+	if (priv->has_regmap) {
+		struct pirq_regmap *map = priv->regmap;
+		int i;
+
+		for (i = 0; i < priv->link_num; i++) {
+			if (reg - priv->link_base == map->offset) {
+				linkno = map->link;
+				break;
+			}
+			map++;
+		}
+	} else {
+		linkno = reg - priv->link_base;
+	}
+
+	return linkno;
+}
+
+/**
+ * pirq_linkno_to_reg() - Convert a PIRQ link number to routing register offset
+ *
+ * @priv:	IRQ router driver's priv data
+ * @linkno:	PIRQ link number (0 for PIRQA, 1 for PIRQB, etc)
+ * @return:	PIRQ routing register offset from the base address
+ */
+static inline int pirq_linkno_to_reg(struct irq_router *priv, int linkno)
+{
+	int reg = 0;
+
+	if (priv->has_regmap) {
+		struct pirq_regmap *map = priv->regmap;
+		int i;
+
+		for (i = 0; i < priv->link_num; i++) {
+			if (linkno == map->link) {
+				reg = map->offset + priv->link_base;
+				break;
+			}
+			map++;
+		}
+	} else {
+		reg = linkno + priv->link_base;
+	}
+
+	return reg;
+}
+
 bool pirq_check_irq_routed(struct udevice *dev, int link, u8 irq)
 {
 	struct irq_router *priv = dev_get_priv(dev);
 	u8 pirq;
-	int base = priv->link_base;
 
 	if (priv->config == PIRQ_VIA_PCI)
-		dm_pci_read_config8(dev->parent, LINK_N2V(link, base), &pirq);
+		dm_pci_read_config8(dev->parent,
+				    pirq_linkno_to_reg(priv, link), &pirq);
 	else
-		pirq = readb((uintptr_t)priv->ibase + LINK_N2V(link, base));
+		pirq = readb((uintptr_t)priv->ibase +
+			     pirq_linkno_to_reg(priv, link));
 
 	pirq &= 0xf;
 
@@ -41,22 +99,23 @@ int pirq_translate_link(struct udevice *dev, int link)
 {
 	struct irq_router *priv = dev_get_priv(dev);
 
-	return LINK_V2N(link, priv->link_base);
+	return pirq_reg_to_linkno(priv, link);
 }
 
 void pirq_assign_irq(struct udevice *dev, int link, u8 irq)
 {
 	struct irq_router *priv = dev_get_priv(dev);
-	int base = priv->link_base;
 
 	/* IRQ# 0/1/2/8/13 are reserved */
 	if (irq < 3 || irq == 8 || irq == 13)
 		return;
 
 	if (priv->config == PIRQ_VIA_PCI)
-		dm_pci_write_config8(dev->parent, LINK_N2V(link, base), irq);
+		dm_pci_write_config8(dev->parent,
+				     pirq_linkno_to_reg(priv, link), irq);
 	else
-		writeb(irq, (uintptr_t)priv->ibase + LINK_N2V(link, base));
+		writeb(irq, (uintptr_t)priv->ibase +
+		       pirq_linkno_to_reg(priv, link));
 }
 
 static struct irq_info *check_dup_entry(struct irq_info *slot_base,
@@ -79,7 +138,7 @@ static inline void fill_irq_info(struct irq_router *priv, struct irq_info *slot,
 {
 	slot->bus = bus;
 	slot->devfn = (device << 3) | 0;
-	slot->irq[pin - 1].link = LINK_N2V(pirq, priv->link_base);
+	slot->irq[pin - 1].link = pirq_linkno_to_reg(priv, pirq);
 	slot->irq[pin - 1].bitmap = priv->irq_mask;
 }
 
@@ -90,6 +149,7 @@ static int create_pirq_routing_table(struct udevice *dev)
 	int node;
 	int len, count;
 	const u32 *cell;
+	struct pirq_regmap *map;
 	struct irq_routing_table *rt;
 	struct irq_info *slot, *slot_base;
 	int irq_entries = 0;
@@ -113,10 +173,43 @@ static int create_pirq_routing_table(struct udevice *dev)
 			return -EINVAL;
 	}
 
-	ret = fdtdec_get_int(blob, node, "intel,pirq-link", -1);
-	if (ret == -1)
-		return ret;
-	priv->link_base = ret;
+	cell = fdt_getprop(blob, node, "intel,pirq-link", &len);
+	if (!cell || len != 8)
+		return -EINVAL;
+	priv->link_base = fdt_addr_to_cpu(cell[0]);
+	priv->link_num = fdt_addr_to_cpu(cell[1]);
+	if (priv->link_num > CONFIG_MAX_PIRQ_LINKS) {
+		debug("Limiting supported PIRQ link number from %d to %d\n",
+		      priv->link_num, CONFIG_MAX_PIRQ_LINKS);
+		priv->link_num = CONFIG_MAX_PIRQ_LINKS;
+	}
+
+	cell = fdt_getprop(blob, node, "intel,pirq-regmap", &len);
+	if (cell) {
+		if (len % sizeof(struct pirq_regmap))
+			return -EINVAL;
+
+		count = len / sizeof(struct pirq_regmap);
+		if (count < priv->link_num) {
+			printf("Number of pirq-regmap entires is wrong\n");
+			return -EINVAL;
+		}
+
+		count = priv->link_num;
+		priv->regmap = calloc(count, sizeof(struct pirq_regmap));
+		if (!priv->regmap)
+			return -ENOMEM;
+
+		priv->has_regmap = true;
+		map = priv->regmap;
+		for (i = 0; i < count; i++) {
+			map->link = fdt_addr_to_cpu(cell[0]);
+			map->offset = fdt_addr_to_cpu(cell[1]);
+
+			cell += sizeof(struct pirq_regmap) / sizeof(u32);
+			map++;
+		}
+	}
 
 	priv->irq_mask = fdtdec_get_int(blob, node,
 					"intel,pirq-mask", PIRQ_BITMAP);
@@ -200,7 +293,7 @@ static int create_pirq_routing_table(struct udevice *dev)
 				 * routing information in the device tree.
 				 */
 				if (slot->irq[pr.pin - 1].link !=
-					LINK_N2V(pr.pirq, priv->link_base))
+				    pirq_linkno_to_reg(priv, pr.pirq))
 					debug("WARNING: Inconsistent PIRQ routing information\n");
 				continue;
 			}
@@ -238,7 +331,7 @@ static void irq_enable_sci(struct udevice *dev)
 	}
 }
 
-int irq_router_common_init(struct udevice *dev)
+int irq_router_probe(struct udevice *dev)
 {
 	int ret;
 
@@ -255,11 +348,6 @@ int irq_router_common_init(struct udevice *dev)
 		irq_enable_sci(dev);
 
 	return 0;
-}
-
-int irq_router_probe(struct udevice *dev)
-{
-	return irq_router_common_init(dev);
 }
 
 ulong write_pirq_routing_table(ulong addr)

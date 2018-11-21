@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ENVIRONMENT_H_
@@ -188,6 +187,7 @@ enum env_valid {
 };
 
 enum env_location {
+	ENVL_UNKNOWN,
 	ENVL_EEPROM,
 	ENVL_EXT4,
 	ENVL_FAT,
@@ -202,23 +202,19 @@ enum env_location {
 	ENVL_NOWHERE,
 
 	ENVL_COUNT,
-	ENVL_UNKNOWN,
+};
+
+/* value for the various operations we want to perform on the env */
+enum env_operation {
+	ENVOP_GET_CHAR,	/* we want to call the get_char function */
+	ENVOP_INIT,	/* we want to call the init function */
+	ENVOP_LOAD,	/* we want to call the load function */
+	ENVOP_SAVE,	/* we want to call the save function */
 };
 
 struct env_driver {
 	const char *name;
 	enum env_location location;
-
-	/**
-	 * get_char() - Read a character from the environment
-	 *
-	 * This method is optional. If not provided, a default implementation
-	 * will read from gd->env_addr.
-	 *
-	 * @index: Index of character to read (0=first)
-	 * @return character read, or -ve on error
-	 */
-	int (*get_char)(int index);
 
 	/**
 	 * load() - Load the environment from storage
@@ -276,10 +272,10 @@ void env_crc_update(void);
 char *env_get_default(const char *name);
 
 /* [re]set to the default environment */
-void set_default_env(const char *s);
+void set_default_env(const char *s, int flags);
 
 /* [re]set individual variables to their value in the default environment */
-int set_default_vars(int nvars, char * const vars[]);
+int set_default_vars(int nvars, char * const vars[], int flags);
 
 /* Import from binary representation into hash table */
 int env_import(const char *buf, int check);
@@ -289,20 +285,14 @@ int env_export(env_t *env_out);
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 /* Select and import one of two redundant environments */
-int env_import_redund(const char *buf1, const char *buf2);
+int env_import_redund(const char *buf1, int buf1_status,
+		      const char *buf2, int buf2_status);
 #endif
-
-/**
- * env_driver_lookup_default() - Look up the default environment driver
- *
- * @return pointer to driver, or NULL if none (which should not happen)
- */
-struct env_driver *env_driver_lookup_default(void);
 
 /**
  * env_get_char() - Get a character from the early environment
  *
- * This reads from the pre-relocation environemnt
+ * This reads from the pre-relocation environment
  *
  * @index: Index of character to read (0 = first)
  * @return character read, or -ve on error
@@ -324,9 +314,13 @@ int env_load(void);
 int env_save(void);
 
 /**
- * fix_envdriver() - Updates envdriver as per relocation
+ * env_fix_drivers() - Updates envdriver as per relocation
  */
-void fix_envdriver(void);
+void env_fix_drivers(void);
+
+void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr);
+int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr);
+int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr);
 
 #endif /* DO_DEPS_ONLY */
 

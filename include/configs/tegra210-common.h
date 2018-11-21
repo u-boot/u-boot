@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013-2015
  * NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _TEGRA210_COMMON_H_
@@ -15,15 +14,9 @@
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
-/*
- * Miscellaneous configurable options
- */
-#define CONFIG_STACKBASE	0x82800000	/* 40MB */
-
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
-#define CONFIG_SYS_TEXT_BASE	0x80110000
 
 /* Generic Interrupt Controller */
 #define CONFIG_GICV2
@@ -59,11 +52,6 @@
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"fdt_addr_r=0x82000000\0" \
 	"ramdisk_addr_r=0x82100000\0"
-
-/* Defines for SPL */
-#define CONFIG_SPL_TEXT_BASE		0x80108000
-#define CONFIG_SYS_SPL_MALLOC_START	0x80090000
-#define CONFIG_SPL_STACK		0x800ffffc
 
 /* For USB EHCI controller */
 #define CONFIG_EHCI_IS_TDI

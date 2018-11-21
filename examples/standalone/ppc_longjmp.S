@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: LGPL-2.1+ */
 /* longjmp for PowerPC.
    Copyright (C) 1995, 1996, 1997, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-
- * SPDX-License-Identifier:	LGPL-2.1+
  */
 
 #include <ppc_asm.tmpl>

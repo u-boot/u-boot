@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012 SAMSUNG Electronics
  * Jaehoon Chung <jh80.chung@samsung.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DWMMC_HW_H
@@ -57,6 +56,7 @@
 #define DWMCI_INTMSK_DTO	(1 << 3)
 #define DWMCI_INTMSK_TXDR	(1 << 4)
 #define DWMCI_INTMSK_RXDR	(1 << 5)
+#define DWMCI_INTMSK_RCRC	(1 << 6)
 #define DWMCI_INTMSK_DCRC	(1 << 7)
 #define DWMCI_INTMSK_RTO	(1 << 8)
 #define DWMCI_INTMSK_DRTO	(1 << 9)
@@ -104,6 +104,8 @@
 #define DWMCI_CTYPE_8BIT	(1 << 16)
 
 /* Status Register */
+#define DWMCI_FIFO_EMPTY	(1 << 2)
+#define DWMCI_FIFO_FULL		(1 << 3)
 #define DWMCI_BUSY		(1 << 9)
 #define DWMCI_FIFO_MASK		0x1fff
 #define DWMCI_FIFO_SHIFT	17

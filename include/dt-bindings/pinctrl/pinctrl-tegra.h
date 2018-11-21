@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * This header provides constants for Tegra pinctrl bindings.
  *
  * Copyright (c) 2013, NVIDIA CORPORATION.  All rights reserved.
  *
  * Author: Laxman Dewangan <ldewangan@nvidia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _DT_BINDINGS_PINCTRL_TEGRA_H

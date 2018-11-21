@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  EFI device path interface
  *
  *  Copyright (c) 2017 Heinrich Schuchardt
- *
- *  SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -18,6 +17,15 @@
 const efi_guid_t efi_guid_device_path_to_text_protocol =
 		EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID;
 
+/**
+ * efi_str_to_u16() - convert ASCII string to UTF-16
+ *
+ * A u16 buffer is allocated from pool. The ASCII string is copied to the u16
+ * buffer.
+ *
+ * @str:	ASCII string
+ * Return:	UTF-16 string. NULL if out of memory.
+ */
 static u16 *efi_str_to_u16(char *str)
 {
 	efi_uintn_t len;
@@ -30,7 +38,6 @@ static u16 *efi_str_to_u16(char *str)
 	if (ret != EFI_SUCCESS)
 		return NULL;
 	ascii2unicode(out, str);
-	out[len - 1] = 0;
 	return out;
 }
 
@@ -87,6 +94,20 @@ static char *dp_acpi(char *s, struct efi_device_path *dp)
 static char *dp_msging(char *s, struct efi_device_path *dp)
 {
 	switch (dp->sub_type) {
+	case DEVICE_PATH_SUB_TYPE_MSG_ATAPI: {
+		struct efi_device_path_atapi *ide =
+			(struct efi_device_path_atapi *)dp;
+		s += sprintf(s, "Ata(%d,%d,%d)", ide->primary_secondary,
+			     ide->slave_master, ide->logical_unit_number);
+		break;
+	}
+	case DEVICE_PATH_SUB_TYPE_MSG_SCSI: {
+		struct efi_device_path_scsi *ide =
+			(struct efi_device_path_scsi *)dp;
+		s += sprintf(s, "Scsi(%u,%u)", ide->target_id,
+			     ide->logical_unit_number);
+		break;
+	}
 	case DEVICE_PATH_SUB_TYPE_MSG_USB: {
 		struct efi_device_path_usb *udp =
 			(struct efi_device_path_usb *)dp;
@@ -230,6 +251,8 @@ static char *efi_convert_single_device_node_to_text(
 		break;
 	case DEVICE_PATH_TYPE_MEDIA_DEVICE:
 		str = dp_media(str, dp);
+		break;
+	case DEVICE_PATH_TYPE_END:
 		break;
 	default:
 		str = dp_unknown(str, dp);

@@ -1,16 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author: Patrick Delaunay <patrick.delaunay@st.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
 #include <backlight.h>
 #include <asm/gpio.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct gpio_backlight_priv {
 	struct gpio_desc gpio;

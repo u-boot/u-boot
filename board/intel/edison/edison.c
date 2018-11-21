@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2017 Intel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <dwc3-uboot.h>
@@ -16,8 +15,6 @@
 #include <asm/cache.h>
 #include <asm/scu.h>
 #include <asm/u-boot-x86.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static struct dwc3_device dwc3_device_data = {
 	.maximum_speed = USB_SPEED_HIGH,

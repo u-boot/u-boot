@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011 - 2012 Samsung Electronics
  * EXT4 filesystem implementation in Uboot by
@@ -17,8 +18,6 @@
  * Copyright (C) 2003, 2004  Free Software Foundation, Inc.
  *
  * ext4write : Based on generic ext4 protocol.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -165,7 +164,7 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 
 int ext4fs_ls(const char *dirname)
 {
-	struct ext2fs_node *dirnode;
+	struct ext2fs_node *dirnode = NULL;
 	int status;
 
 	if (dirname == NULL)
@@ -175,7 +174,8 @@ int ext4fs_ls(const char *dirname)
 				  FILETYPE_DIRECTORY);
 	if (status != 1) {
 		printf("** Can not find directory. **\n");
-		ext4fs_free_node(dirnode, &ext4fs_root->diropen);
+		if (dirnode)
+			ext4fs_free_node(dirnode, &ext4fs_root->diropen);
 		return 1;
 	}
 

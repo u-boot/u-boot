@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  *  arch/arm/include/asm/opcodes.h
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef __ASM_ARM_OPCODES_H

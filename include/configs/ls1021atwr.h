@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -23,26 +22,6 @@
 
 #define CONFIG_SYS_INIT_RAM_ADDR	OCRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_SIZE	OCRAM_SIZE
-
-/*
- * USB
- */
-
-/*
- * EHCI Support - disbaled by default as
- * there is no signal coming out of soc on
- * this board for this controller. However,
- * the silicon still has this controller,
- * and anyone can use this controller by
- * taking signals out on their board.
- */
-
-/*#define CONFIG_HAS_FSL_DR_USB*/
-
-#ifdef CONFIG_HAS_FSL_DR_USB
-#define CONFIG_USB_EHCI_FSL
-#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
-#endif
 
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
@@ -86,7 +65,6 @@
 #define CONFIG_SYS_FSL_PBL_RCW	\
 	board/freescale/ls1021atwr/ls102xa_rcw_sd_ifc.cfg
 #endif
-#define CONFIG_SPL_FRAMEWORK
 
 #ifdef CONFIG_SECURE_BOOT
 /*
@@ -100,7 +78,6 @@
 #define CONFIG_SPL_MAX_SIZE		0x1a000
 #define CONFIG_SPL_STACK		0x1001d000
 #define CONFIG_SPL_PAD_TO		0x1c000
-#define CONFIG_SYS_TEXT_BASE		0x82000000
 
 #define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_TEXT_BASE + \
 		CONFIG_SYS_MONITOR_LEN)
@@ -121,15 +98,6 @@
 #endif /* ifdef CONFIG_U_BOOT_HDR_SIZE */
 #endif
 
-#ifdef CONFIG_QSPI_BOOT
-#define CONFIG_SYS_TEXT_BASE		0x40100000
-#endif
-
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE		0x60100000
-#endif
-
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			0x80000000
 #define PHYS_SDRAM_SIZE			(1u * 1024 * 1024 * 1024)
 
@@ -138,7 +106,6 @@
 
 #if !defined(CONFIG_SD_BOOT) && !defined(CONFIG_NAND_BOOT) && \
 	!defined(CONFIG_QSPI_BOOT)
-#define CONFIG_U_QE
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #endif
 
@@ -173,9 +140,6 @@
 					FTIM2_NOR_TWPH(0x0e))
 #define CONFIG_SYS_NOR_FTIM3		0
 
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45	/* count down from 45/5: 9..1 */
 
@@ -239,7 +203,6 @@
 #ifdef CONFIG_LPUART
 #define CONFIG_LPUART_32B_REG
 #else
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_SERIAL
 #ifndef CONFIG_DM_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -268,7 +231,6 @@
 /*
  * MMC
  */
-#define CONFIG_FSL_ESDHC
 
 /* SPI */
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
@@ -300,10 +262,8 @@
 /*
  * eTSEC
  */
-#define CONFIG_TSEC_ENET
 
 #ifdef CONFIG_TSEC_ENET
-#define CONFIG_MII
 #define CONFIG_MII_DEFAULT_TSEC		1
 #define CONFIG_TSEC1			1
 #define CONFIG_TSEC1_NAME		"eTSEC1"
@@ -353,7 +313,6 @@
 
 #define CONFIG_FSL_DEVICE_DISABLE
 
-#include <config_distro_defaults.h>
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0)
@@ -500,8 +459,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_AUTO_COMPLETE
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
@@ -541,8 +498,6 @@
 #define CONFIG_ENV_SIZE			0x20000
 #define CONFIG_ENV_SECT_SIZE		0x20000 /* 128K (one sector) */
 #endif
-
-#define CONFIG_MISC_INIT_R
 
 #include <asm/fsl_secure_boot.h>
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20) /* Increase max gunzip size */

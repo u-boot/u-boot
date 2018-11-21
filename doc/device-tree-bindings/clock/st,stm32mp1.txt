@@ -1,0 +1,228 @@
+STMicroelectronics STM32MP1 clock tree initialization
+=====================================================
+
+The STM32MP clock tree initialization is based on device tree information
+for RCC IP and on fixed clocks.
+
+-------------------------------
+RCC CLOCK = st,stm32mp1-rcc-clk
+-------------------------------
+
+The RCC IP is both a reset and a clock controller but this documentation only
+describes the fields added for clock tree initialization which are not present
+in Linux binding.
+
+Please refer to ../mfd/st,stm32-rcc.txt for all the other properties common
+with Linux.
+
+Required properties:
+
+- compatible: Should be "st,stm32mp1-rcc-clk"
+
+- st,clksrc : The clock source in this order
+
+	for STM32MP15x: 9 clock sources are requested
+		MPU AXI MCU PLL12 PLL3 PLL4 RTC MCO1 MCO2
+
+	with value equals to RCC clock specifier as defined in
+	dt-bindings/clock/stm32mp1-clksrc.h: CLK_<NAME>_<SOURCE>
+
+- st,clkdiv : The div parameters in this order
+	for STM32MP15x: 11 dividers value are requested
+		MPU AXI MCU APB1 APB2 APB3 APB4 APB5 RTC MCO1 MCO2
+
+	with DIV coding defined in RCC associated register RCC_xxxDIVR
+
+	most the case, it is:
+		0x0: not divided
+		0x1: division by 2
+		0x2: division by 4
+		0x3: division by 8
+		...
+
+	but for RTC MCO1 MCO2, the coding is different:
+		0x0: not divided
+		0x1: division by 2
+		0x2: division by 3
+		0x3: division by 4
+		...
+
+Optional Properties:
+- st,pll
+    PLL children node for PLL1 to PLL4 : (see ref manual for details)
+    with associated index 0 to 3 (st,pll@0 to st,pll@4)
+    PLLx is off when the associated node is absent
+
+    - Sub-nodes:
+
+	- cfg:	The parameters for PLL configuration in this order:
+		DIVM DIVN DIVP DIVQ DIVR Output
+
+		with DIV value as defined in RCC spec:
+			0x0: bypass (division by 1)
+			0x1: division by 2
+			0x2: division by 3
+			0x3: division by 4
+			...
+
+		and Output = bitfield for each output value = 1:ON/0:OFF
+			BIT(0) => output P : DIVPEN
+			BIT(1) => output Q : DIVQEN
+			BIT(2) => output R : DIVREN
+		  NB : macro PQR(p,q,r) can be used to build this value
+		       with p,p,r = 0 or 1
+
+	- frac : Fractional part of the multiplication factor
+		(optional, PLL is in integer mode when absent)
+
+	- csg : Clock Spreading Generator (optional)
+	        with parameters in this order:
+		MOD_PER INC_STEP SSCG_MODE
+
+		* MOD_PER: Modulation Period Adjustment
+		* INC_STEP: Modulation Depth Adjustment
+		* SSCG_MODE: Spread spectrum clock generator mode
+		  you can use associated defines from stm32mp1-clksrc.h
+		  * SSCG_MODE_CENTER_SPREAD = 0
+		  * SSCG_MODE_DOWN_SPREAD = 1
+
+
+- st,pkcs : used to configure the peripherals kernel clock selection
+  containing a list of peripheral kernel clock source identifier as defined
+  in the file dt-bindings/clock/stm32mp1-clksrc.h
+
+  Example:
+
+	rcc: rcc@50000000 {
+		compatible = "syscon", "simple-mfd";
+
+		reg = <0x50000000 0x1000>;
+
+		rcc_clk: rcc-clk@50000000 {
+			#clock-cells = <1>;
+			compatible = "st,stm32mp1-rcc-clk";
+
+			st,clksrc = <	CLK_MPU_PLL1P
+					CLK_AXI_PLL2P
+					CLK_MCU_HSI
+					CLK_PLL12_HSE
+					CLK_PLL3_HSE
+					CLK_PLL4_HSE
+					CLK_RTC_HSE
+					CLK_MCO1_DISABLED
+					CLK_MCO2_DISABLED
+			>;
+
+			st,clkdiv = <
+				1 /*MPU*/
+				0 /*AXI*/
+				0 /*MCU*/
+				1 /*APB1*/
+				1 /*APB2*/
+				1 /*APB3*/
+				1 /*APB4*/
+				5 /*APB5*/
+				23 /*RTC*/
+				0 /*MCO1*/
+				0 /*MCO2*/
+			>;
+
+			st,pll@0 {
+				cfg = < 1 53 0 0 0 1 >;
+				frac = < 0x810 >;
+			};
+			st,pll@1 {
+				cfg = < 1 43 1 0 0 PQR(0,1,1)>;
+				csg = <10 20 1>;
+			};
+			st,pll@2 {
+				cfg = < 2 85 3 13 3 0>;
+				csg = <10 20 SSCG_MODE_CENTER_SPREAD>;
+			};
+			st,pll@3 {
+				cfg = < 2 78 4 7 9 3>;
+			};
+			st,pkcs = <
+					CLK_STGEN_HSE
+					CLK_CKPER_HSI
+					CLK_USBPHY_PLL2P
+					CLK_DSI_PLL2Q
+				  >;
+		};
+	};
+
+--------------------------
+other clocks = fixed-clock
+--------------------------
+The clock tree is also based on 5 fixed-clock in clocks node
+used to define the state of associated ST32MP1 oscillators:
+- clk-lsi
+- clk-lse
+- clk-hsi
+- clk-hse
+- clk-csi
+
+At boot the clock tree initialization will
+- enable the oscillator present in device tree
+- disable HSI oscillator if the node is absent (always activated by bootrom)
+
+Optional properties :
+
+a) for external oscillator: "clk-lse", "clk-hse"
+
+	4 optional fields are managed
+	- "st,bypass" Configure the oscillator bypass mode (HSEBYP, LSEBYP)
+	- "st,digbypass" Configure the bypass mode as full-swing digital signal
+	  (DIGBYP)
+	- "st,css" Activate the clock security system (HSECSSON, LSECSSON)
+	- "st,drive" (only for LSE) value of the drive for the oscillator
+	   (see LSEDRV_ define in the file dt-bindings/clock/stm32mp1-clksrc.h)
+
+	Example board file:
+
+	/ {
+		clocks {
+			clk_hse: clk-hse {
+				#clock-cells = <0>;
+				compatible = "fixed-clock";
+				clock-frequency = <64000000>;
+				st,bypass;
+			};
+
+			clk_lse: clk-lse {
+				#clock-cells = <0>;
+				compatible = "fixed-clock";
+				clock-frequency = <32768>;
+				st,css;
+				st,drive = <LSEDRV_LOWEST>;
+			};
+	};
+
+b) for internal oscillator: "clk-hsi"
+
+	internally HSI clock is fixed to 64MHz for STM32MP157 soc
+	in device tree clk-hsi is the clock after HSIDIV (ck_hsi in RCC doc)
+	So this clock frequency is used to compute the expected HSI_DIV
+	for the clock tree initialisation
+
+	ex: for HSIDIV = /1
+
+	/ {
+		clocks {
+			clk_hsi: clk-hsi {
+				#clock-cells = <0>;
+				compatible = "fixed-clock";
+				clock-frequency = <64000000>;
+			};
+	};
+
+	ex: for HSIDIV = /2
+
+	/ {
+		clocks {
+			clk_hsi: clk-hsi {
+				#clock-cells = <0>;
+				compatible = "fixed-clock";
+				clock-frequency = <32000000>;
+			};
+	};

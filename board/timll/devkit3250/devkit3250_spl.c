@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Timll DevKit3250 board support, SPL board configuration
  *
  * (C) Copyright 2015 Vladimir Zapolskiy <vz@mleia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

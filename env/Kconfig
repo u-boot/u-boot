@@ -1,41 +1,22 @@
 menu "Environment"
 
-choice
-	prompt "Select the location of the environment"
-	default ENV_IS_IN_MMC if ARCH_SUNXI
-	default ENV_IS_IN_MMC if ARCH_EXYNOS4
-	default ENV_IS_IN_MMC if MX6SX || MX7D
-	default ENV_IS_IN_MMC if TEGRA30 || TEGRA124
-	default ENV_IS_IN_MMC if TEGRA_ARMV8_COMMON
-	default ENV_IS_IN_FLASH if ARCH_CINTEGRATOR
-	default ENV_IS_IN_FLASH if ARCH_INTEGRATOR_CP
-	default ENV_IS_IN_FLASH if M548x || M547x || M5282 || MCF547x_8x
-	default ENV_IS_IN_FLASH if MCF532x || MCF52x2
-	default ENV_IS_IN_FLASH if MPC86xx || MPC83xx
-	default ENV_IS_IN_FLASH if ARCH_MPC8572 || ARCH_MPC8548 || ARCH_MPC8641
-	default ENV_IS_IN_FLASH if SH && !CPU_SH4
-	default ENV_IS_IN_SPI_FLASH if ARMADA_XP
-	default ENV_IS_IN_SPI_FLASH if INTEL_BAYTRAIL
-	default ENV_IS_IN_SPI_FLASH if INTEL_BRASWELL
-	default ENV_IS_IN_SPI_FLASH if INTEL_BROADWELL
-	default ENV_IS_IN_SPI_FLASH if NORTHBRIDGE_INTEL_IVYBRIDGE
-	default ENV_IS_IN_SPI_FLASH if INTEL_QUARK
-	default ENV_IS_IN_SPI_FLASH if INTEL_QUEENSBAY
-	default ENV_IS_IN_FAT if ARCH_BCM283X
-	default ENV_IS_IN_FAT if MMC_OMAP_HS && TI_COMMON_CMD_OPTIONS
-	default ENV_IS_NOWHERE
-	help
-	  At present the environment can be stored in only one place. Use this
-	  option to select the location. This is either a device (where the
-	  environemnt information is simply written to a fixed location or
-	  partition on the device) or a filesystem (where the environment
-	  information is written to a file).
-
 config ENV_IS_NOWHERE
 	bool "Environment is not stored"
+	depends on !ENV_IS_IN_EEPROM
+	depends on !ENV_IS_IN_EXT4
+	depends on !ENV_IS_IN_FAT
+	depends on !ENV_IS_IN_FLASH
+	depends on !ENV_IS_IN_MMC
+	depends on !ENV_IS_IN_NAND
+	depends on !ENV_IS_IN_NVRAM
+	depends on !ENV_IS_IN_ONENAND
+	depends on !ENV_IS_IN_REMOTE
+	depends on !ENV_IS_IN_SPI_FLASH
+	depends on !ENV_IS_IN_UBI
+	default y
 	help
 	  Define this if you don't want to or can't have an environment stored
-	  on a storage medium. In this case the environemnt will still exist
+	  on a storage medium. In this case the environment will still exist
 	  while U-Boot is running, but once U-Boot exits it will not be
 	  stored. U-Boot will therefore always start up with a default
 	  environment.
@@ -74,16 +55,31 @@ config ENV_IS_IN_EEPROM
 config ENV_IS_IN_FAT
 	bool "Environment is in a FAT filesystem"
 	depends on !CHAIN_OF_TRUST
+	default y if ARCH_BCM283X
+	default y if ARCH_SUNXI && MMC
+	default y if MMC_OMAP_HS && TI_COMMON_CMD_OPTIONS
+	select FS_FAT
 	select FAT_WRITE
 	help
 	  Define this if you want to use the FAT file system for the environment.
 
-	  - CONFIG_FAT_WRITE:
-	  This must be enabled. Otherwise it cannot save the environment file.
+config ENV_IS_IN_EXT4
+	bool "Environment is in a EXT4 filesystem"
+	depends on !CHAIN_OF_TRUST
+	select EXT4_WRITE
+	help
+	  Define this if you want to use the EXT4 file system for the environment.
 
 config ENV_IS_IN_FLASH
 	bool "Environment in flash memory"
 	depends on !CHAIN_OF_TRUST
+	default y if ARCH_CINTEGRATOR
+	default y if ARCH_INTEGRATOR_CP
+	default y if M548x || M547x || M5282 || MCF547x_8x
+	default y if MCF532x || MCF52x2
+	default y if MPC86xx || MPC83xx
+	default y if ARCH_MPC8572 || ARCH_MPC8548 || ARCH_MPC8641
+	default y if SH && !CPU_SH4
 	help
 	  Define this if you have a flash device which you want to use for the
 	  environment.
@@ -156,6 +152,11 @@ config ENV_IS_IN_FLASH
 config ENV_IS_IN_MMC
 	bool "Environment in an MMC device"
 	depends on !CHAIN_OF_TRUST
+	depends on MMC
+	default y if ARCH_EXYNOS4
+	default y if MX6SX || MX7D
+	default y if TEGRA30 || TEGRA124
+	default y if TEGRA_ARMV8_COMMON
 	help
 	  Define this if you have an MMC device which you want to use for the
 	  environment.
@@ -276,7 +277,7 @@ config ENV_IS_IN_ONENAND
 	  provision.
 
 config ENV_IS_IN_REMOTE
-	bool "Environment is in remove memory space"
+	bool "Environment is in remote memory space"
 	depends on !CHAIN_OF_TRUST
 	help
 	  Define this if you have a remote memory space which you
@@ -293,6 +294,13 @@ config ENV_IS_IN_REMOTE
 config ENV_IS_IN_SPI_FLASH
 	bool "Environment is in SPI flash"
 	depends on !CHAIN_OF_TRUST
+	default y if ARMADA_XP
+	default y if INTEL_BAYTRAIL
+	default y if INTEL_BRASWELL
+	default y if INTEL_BROADWELL
+	default y if NORTHBRIDGE_INTEL_IVYBRIDGE
+	default y if INTEL_QUARK
+	default y if INTEL_QUEENSBAY
 	help
 	  Define this if you have a SPI Flash memory device which you
 	  want to use for the environment.
@@ -352,17 +360,10 @@ config ENV_IS_IN_UBI
 	  the environment in.  This will enable redundant environments in UBI.
 	  It is assumed that both volumes are in the same MTD partition.
 
-	  - CONFIG_UBI_SILENCE_MSG
-	  - CONFIG_UBIFS_SILENCE_MSG
-
-	  You will probably want to define these to avoid a really noisy system
-	  when storing the env in UBI.
-
-endchoice
-
 config ENV_FAT_INTERFACE
 	string "Name of the block device for the environment"
 	depends on ENV_IS_IN_FAT
+	default "mmc" if ARCH_SUNXI
 	default "mmc" if TI_COMMON_CMD_OPTIONS || ARCH_ZYNQMP || ARCH_AT91
 	help
 	  Define this to a string that is the name of the block device.
@@ -372,6 +373,8 @@ config ENV_FAT_DEVICE_AND_PART
 	depends on ENV_IS_IN_FAT
 	default "0:1" if TI_COMMON_CMD_OPTIONS
 	default "0:auto" if ARCH_ZYNQMP
+	default "0:auto" if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA = -1
+	default "1:auto" if ARCH_SUNXI && MMC_SUNXI_SLOT_EXTRA != -1
 	default "0" if ARCH_AT91
 	help
 	  Define this to a string to specify the partition of the device. It can
@@ -389,29 +392,73 @@ config ENV_FAT_DEVICE_AND_PART
 	                   partition table then means device D.
 
 config ENV_FAT_FILE
-	string "Name of the FAT file to use for the environemnt"
+	string "Name of the FAT file to use for the environment"
 	depends on ENV_IS_IN_FAT
 	default "uboot.env"
 	help
 	  It's a string of the FAT file name. This file use to store the
 	  environment.
 
-if ARCH_SUNXI
+config ENV_EXT4_INTERFACE
+	string "Name of the block device for the environment"
+	depends on ENV_IS_IN_EXT4
+	help
+	  Define this to a string that is the name of the block device.
+
+config ENV_EXT4_DEVICE_AND_PART
+	string "Device and partition for where to store the environemt in EXT4"
+	depends on ENV_IS_IN_EXT4
+	help
+	  Define this to a string to specify the partition of the device. It can
+	  be as following:
+
+	    "D:P", "D:0", "D", "D:" or "D:auto" (D, P are integers. And P >= 1)
+	       - "D:P": device D partition P. Error occurs if device D has no
+	                partition table.
+	       - "D:0": device D.
+	       - "D" or "D:": device D partition 1 if device D has partition
+	                      table, or the whole device D if has no partition
+	                      table.
+	       - "D:auto": first partition in device D with bootable flag set.
+	                   If none, first valid partition in device D. If no
+	                   partition table then means device D.
+
+config ENV_EXT4_FILE
+	string "Name of the EXT4 file to use for the environment"
+	depends on ENV_IS_IN_EXT4
+	default "uboot.env"
+	help
+	  It's a string of the EXT4 file name. This file use to store the
+	  environment (explicit path to the file)
+
+if ARCH_ROCKCHIP || ARCH_SUNXI || ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
 
 config ENV_OFFSET
 	hex "Environment Offset"
 	depends on !ENV_IS_IN_UBI
 	depends on !ENV_IS_NOWHERE
+	default 0x3f8000 if ARCH_ROCKCHIP
 	default 0x88000 if ARCH_SUNXI
+	default 0xE0000 if ARCH_ZYNQ
+	default 0x1E00000 if ARCH_ZYNQMP
 	help
 	  Offset from the start of the device (or partition)
 
 config ENV_SIZE
 	hex "Environment Size"
-	depends on !ENV_IS_NOWHERE
-	default 0x20000 if ARCH_SUNXI
+	default 0x40000 if ENV_IS_IN_SPI_FLASH && ARCH_ZYNQMP
+	default 0x20000 if ARCH_SUNXI || ARCH_ZYNQ
+	default 0x8000 if ARCH_ROCKCHIP || ARCH_ZYNQMP || ARCH_VERSAL
 	help
 	  Size of the environment storage area
+
+config ENV_SECT_SIZE
+	hex "Environment Sector-Size"
+	depends on !ENV_IS_NOWHERE && (ARCH_ZYNQ || ARCH_ZYNQMP)
+	default 0x40000 if ARCH_ZYNQMP
+	default 0x20000 if ARCH_ZYNQ
+	help
+	  Size of the sector containing the environment.
 
 config ENV_UBI_PART
 	string "UBI partition name"
@@ -427,47 +474,143 @@ config ENV_UBI_VOLUME
 
 endif
 
-if ARCH_ROCKCHIP
-
-config ENV_OFFSET
-	hex
-	depends on !ENV_IS_IN_UBI
-	depends on !ENV_IS_NOWHERE
-	default 0x3f8000
+config USE_DEFAULT_ENV_FILE
+	bool "Create default environment from file"
 	help
-	  Offset from the start of the device (or partition)
+	  Normally, the default environment is automatically generated
+	  based on the settings of various CONFIG_* options, as well
+	  as the CONFIG_EXTRA_ENV_SETTINGS. By selecting this option,
+	  you can instead define the entire default environment in an
+	  external file.
 
-config ENV_SIZE
-	hex
-	default 0x8000
+config DEFAULT_ENV_FILE
+	string "Path to default environment file"
+	depends on USE_DEFAULT_ENV_FILE
 	help
-	  Size of the environment storage area
+	  The path containing the default environment. The format is
+	  the same as accepted by the mkenvimage tool: lines
+	  containing key=value pairs, blank lines and lines beginning
+	  with # are ignored.
+
+config ENV_VARS_UBOOT_RUNTIME_CONFIG
+	bool "Add run-time information to the environment"
+	help
+	  Enable this in order to add variables describing certain
+	  run-time determined information about the hardware to the
+	  environment.  These will be named board_name, board_rev.
+
+if SPL_ENV_SUPPORT
+config SPL_ENV_IS_NOWHERE
+	bool "SPL Environment is not stored"
+	default y if ENV_IS_NOWHERE
+	help
+	  Similar to ENV_IS_NOWHERE, used for SPL environment.
+
+config SPL_ENV_IS_IN_MMC
+	bool "SPL Environment in an MMC device"
+	depends on !SPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_MMC
+	default y
+	help
+	  Similar to ENV_IS_IN_MMC, used for SPL environment.
+
+config SPL_ENV_IS_IN_FAT
+	bool "SPL Environment is in a FAT filesystem"
+	depends on !SPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_FAT
+	default y
+	help
+	  Similar to ENV_IS_IN_FAT, used for SPL environment.
+
+config SPL_ENV_IS_IN_EXT4
+	bool "SPL Environment is in a EXT4 filesystem"
+	depends on !SPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_EXT4
+	default y
+	help
+	  Similar to ENV_IS_IN_EXT4, used for SPL environment.
+
+config SPL_ENV_IS_IN_NAND
+	bool "SPL Environment in a NAND device"
+	depends on !SPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_NAND
+	default y
+	help
+	  Similar to ENV_IS_IN_NAND, used for SPL environment.
+
+config SPL_ENV_IS_IN_SPI_FLASH
+	bool "SPL Environment is in SPI flash"
+	depends on !SPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_SPI_FLASH
+	default y
+	help
+	  Similar to ENV_IS_IN_SPI_FLASH, used for SPL environment.
+
+config SPL_ENV_IS_IN_FLASH
+	bool "SPL Environment in flash memory"
+	depends on !SPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_FLASH
+	default y
+	help
+	  Similar to ENV_IS_IN_FLASH, used for SPL environment.
 
 endif
 
-if ARCH_ZYNQMP
+if TPL_ENV_SUPPORT
 
-config ENV_OFFSET
-	hex "Environment Offset"
-	depends on !ENV_IS_NOWHERE
+config TPL_ENV_IS_NOWHERE
+	bool "TPL Environment is not stored"
+	default y if ENV_IS_NOWHERE
+	help
+	  Similar to ENV_IS_NOWHERE, used for TPL environment.
+
+config TPL_ENV_IS_IN_MMC
+	bool "TPL Environment in an MMC device"
+	depends on !TPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_MMC
+	default y
+	help
+	  Similar to ENV_IS_IN_MMC, used for TPL environment.
+
+config TPL_ENV_IS_IN_FAT
+	bool "TPL Environment is in a FAT filesystem"
+	depends on !TPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_FAT
+	default y
+	help
+	  Similar to ENV_IS_IN_FAT, used for TPL environment.
+
+config TPL_ENV_IS_IN_EXT4
+	bool "TPL Environment is in a EXT4 filesystem"
+	depends on !TPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_EXT4
+	default y
+	help
+	  Similar to ENV_IS_IN_EXT4, used for TPL environment.
+
+config TPL_ENV_IS_IN_NAND
+	bool "TPL Environment in a NAND device"
+	depends on !TPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_NAND
+	default y
+	help
+	  Similar to ENV_IS_IN_NAND, used for TPL environment.
+
+config TPL_ENV_IS_IN_SPI_FLASH
+	bool "TPL Environment is in SPI flash"
+	depends on !TPL_ENV_IS_NOWHERE
 	depends on ENV_IS_IN_SPI_FLASH
-	default 0x1e00000
+	default y
 	help
-	  Offset from the start of the device (or partition)
+	  Similar to ENV_IS_IN_SPI_FLASH, used for TPL environment.
 
-config ENV_SIZE
-	hex "Environment Size"
-	default 0x40000 if ENV_IS_IN_SPI_FLASH
-	default 0x8000 if !ENV_IS_IN_SPI_FLASH
+config TPL_ENV_IS_IN_FLASH
+	bool "TPL Environment in flash memory"
+	depends on !TPL_ENV_IS_NOWHERE
+	depends on ENV_IS_IN_FLASH
+	default y
 	help
-	  Size of the environment storage area.
-
-config ENV_SECT_SIZE
-	hex "Environment Sector-Size"
-	depends on ENV_IS_IN_SPI_FLASH
-	default 0x40000
-	help
-	  Size of the sector containing the environment.
+	  Similar to ENV_IS_IN_FLASH, used for TPL environment.
 
 endif
 

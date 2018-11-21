@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012
  * Anatolij Gustschin, DENX Software Engineering, <agust@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __MX5_VIDEO_H
 #define __MX5_VIDEO_H

@@ -1,8 +1,7 @@
 #!/usr/bin/env python2
+# SPDX-License-Identifier: GPL-2.0+
 #
 # Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
-#
-# SPDX-License-Identifier:	GPL-2.0+
 #
 
 """
@@ -25,7 +24,7 @@ import sys
 import tempfile
 import time
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'buildman'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'buildman'))
 import kconfiglib
 
 ### constant variables ###

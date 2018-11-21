@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __SANDBOX_ASM_IO_H
@@ -43,9 +42,15 @@ phys_addr_t map_to_sysmem(const void *ptr);
 #define readb(addr) ((void)addr, 0)
 #define readw(addr) ((void)addr, 0)
 #define readl(addr) ((void)addr, 0)
+#ifdef CONFIG_SANDBOX64
+#define readq(addr) ((void)addr, 0)
+#endif
 #define writeb(v, addr) ((void)addr)
 #define writew(v, addr) ((void)addr)
 #define writel(v, addr) ((void)addr)
+#ifdef CONFIG_SANDBOX64
+#define writeq(v, addr) ((void)addr)
+#endif
 
 /*
  * Clear and set bits in one shot. These macros can be used to clear and
@@ -170,10 +175,6 @@ static inline void _outsw(volatile u16 *port, const void *buf, int ns)
 
 #define insw(port, buf, ns)		_insw((u16 *)port, buf, ns)
 #define outsw(port, buf, ns)		_outsw((u16 *)port, buf, ns)
-
-/* For systemace.c */
-#define out16(addr, val)
-#define in16(addr)		0
 
 #include <iotrace.h>
 #include <asm/types.h>

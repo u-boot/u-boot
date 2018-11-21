@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
 /*
  * Altera SoCFPGA PinMux configuration
- *
- * SPDX-License-Identifier:    BSD-3-Clause
  */
 
 #ifndef __SOCFPGA_PINMUX_CONFIG_H__

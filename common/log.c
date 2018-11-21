@@ -1,17 +1,88 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Logging support
  *
  * Copyright (c) 2017 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <log.h>
 #include <malloc.h>
+#include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static const char *log_cat_name[LOGC_COUNT - LOGC_NONE] = {
+	"none",
+	"arch",
+	"board",
+	"core",
+	"driver-model",
+	"device-tree",
+	"efi",
+};
+
+static const char *log_level_name[LOGL_COUNT] = {
+	"EMERG",
+	"ALERT",
+	"CRIT",
+	"ERR",
+	"WARNING",
+	"NOTICE",
+	"INFO",
+	"DEBUG",
+	"CONTENT",
+	"IO",
+};
+
+const char *log_get_cat_name(enum log_category_t cat)
+{
+	const char *name;
+
+	if (cat < 0 || cat >= LOGC_COUNT)
+		return "<invalid>";
+	if (cat >= LOGC_NONE)
+		return log_cat_name[cat - LOGC_NONE];
+
+	name = uclass_get_name((enum uclass_id)cat);
+
+	return name ? name : "<missing>";
+}
+
+enum log_category_t log_get_cat_by_name(const char *name)
+{
+	enum uclass_id id;
+	int i;
+
+	for (i = LOGC_NONE; i < LOGC_COUNT; i++)
+		if (!strcmp(name, log_cat_name[i - LOGC_NONE]))
+			return i;
+	id = uclass_get_by_name(name);
+	if (id != UCLASS_INVALID)
+		return (enum log_category_t)id;
+
+	return LOGC_NONE;
+}
+
+const char *log_get_level_name(enum log_level_t level)
+{
+	if (level >= LOGL_COUNT)
+		return "INVALID";
+	return log_level_name[level];
+}
+
+enum log_level_t log_get_level_by_name(const char *name)
+{
+	int i;
+
+	for (i = 0; i < LOGL_COUNT; i++) {
+		if (!strcasecmp(log_level_name[i], name))
+			return i;
+	}
+
+	return LOGL_NONE;
+}
 
 static struct log_device *log_device_find_by_name(const char *drv_name)
 {
@@ -156,6 +227,7 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 {
 	struct log_filter *filt;
 	struct log_device *ldev;
+	int ret;
 	int i;
 
 	ldev = log_device_find_by_name(drv_name);
@@ -168,8 +240,10 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 	if (cat_list) {
 		filt->flags |= LOGFF_HAS_CAT;
 		for (i = 0; ; i++) {
-			if (i == ARRAY_SIZE(filt->cat_list))
-				return -ENOSPC;
+			if (i == ARRAY_SIZE(filt->cat_list)) {
+				ret = -ENOSPC;
+				goto err;
+			}
 			filt->cat_list[i] = cat_list[i];
 			if (cat_list[i] == LOGC_END)
 				break;
@@ -178,17 +252,19 @@ int log_add_filter(const char *drv_name, enum log_category_t cat_list[],
 	filt->max_level = max_level;
 	if (file_list) {
 		filt->file_list = strdup(file_list);
-		if (!filt->file_list)
-			goto nomem;
+		if (!filt->file_list) {
+			ret = ENOMEM;
+			goto err;
+		}
 	}
 	filt->filter_num = ldev->next_filter_num++;
 	list_add_tail(&filt->sibling_node, &ldev->filter_head);
 
 	return filt->filter_num;
 
-nomem:
+err:
 	free(filt);
-	return -ENOMEM;
+	return ret;
 }
 
 int log_remove_filter(const char *drv_name, int filter_num)
@@ -239,7 +315,9 @@ int log_init(void)
 		drv++;
 	}
 	gd->flags |= GD_FLG_LOG_READY;
-	gd->default_log_level = LOGL_INFO;
+	if (!gd->default_log_level)
+		gd->default_log_level = LOGL_INFO;
+	gd->log_fmt = LOGF_DEFAULT;
 
 	return 0;
 }

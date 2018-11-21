@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2010-2011 Calxeda, Inc.
  * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -472,6 +471,7 @@ struct pxe_label {
 	char *name;
 	char *menu;
 	char *kernel;
+	char *config;
 	char *append;
 	char *initrd;
 	char *fdt;
@@ -538,6 +538,9 @@ static void label_destroy(struct pxe_label *label)
 
 	if (label->kernel)
 		free(label->kernel);
+
+	if (label->config)
+		free(label->config);
 
 	if (label->append)
 		free(label->append);
@@ -619,6 +622,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	char initrd_str[28];
 	char mac_str[29] = "";
 	char ip_str[68] = "";
+	char *fit_addr = NULL;
 	int bootm_argc = 2;
 	int len = 0;
 	ulong kernel_addr;
@@ -700,6 +704,18 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	}
 
 	bootm_argv[1] = env_get("kernel_addr_r");
+	/* for FIT, append the configuration identifier */
+	if (label->config) {
+		int len = strlen(bootm_argv[1]) + strlen(label->config) + 1;
+
+		fit_addr = malloc(len);
+		if (!fit_addr) {
+			printf("malloc fail (FIT address)\n");
+			return 1;
+		}
+		snprintf(fit_addr, len, "%s%s", bootm_argv[1], label->config);
+		bootm_argv[1] = fit_addr;
+	}
 
 	/*
 	 * fdt usage is optional:
@@ -759,7 +775,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			fdtfilefree = malloc(len);
 			if (!fdtfilefree) {
 				printf("malloc fail (FDT filename)\n");
-				return 1;
+				goto cleanup;
 			}
 
 			snprintf(fdtfilefree, len, "%s%s%s%s%s%s",
@@ -773,7 +789,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			if (err < 0) {
 				printf("Skipping %s for failure retrieving fdt\n",
 						label->name);
-				return 1;
+				goto cleanup;
 			}
 		} else {
 			bootm_argv[3] = NULL;
@@ -804,6 +820,10 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
 #endif
 	unmap_sysmem(buf);
+
+cleanup:
+	if (fit_addr)
+		free(fit_addr);
 	return 1;
 }
 
@@ -1189,6 +1209,33 @@ static int parse_label_menu(char **c, struct pxe_menu *cfg,
 }
 
 /*
+ * Handles parsing a 'kernel' label.
+ * expecting "filename" or "<fit_filename>#cfg"
+ */
+static int parse_label_kernel(char **c, struct pxe_label *label)
+{
+	char *s;
+	int err;
+
+	err = parse_sliteral(c, &label->kernel);
+	if (err < 0)
+		return err;
+
+	s = strstr(label->kernel, "#");
+	if (!s)
+		return 1;
+
+	label->config = malloc(strlen(s) + 1);
+	if (!label->config)
+		return -ENOMEM;
+
+	strcpy(label->config, s);
+	*s = 0;
+
+	return 1;
+}
+
+/*
  * Parses a label and adds it to the list of labels for a menu.
  *
  * A label ends when we either get to the end of a file, or
@@ -1229,7 +1276,7 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 
 		case T_KERNEL:
 		case T_LINUX:
-			err = parse_sliteral(c, &label->kernel);
+			err = parse_label_kernel(c, label);
 			break;
 
 		case T_APPEND:
@@ -1454,8 +1501,8 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 	/*
 	 * Create a menu and add items for all the labels.
 	 */
-	m = menu_create(cfg->title, cfg->timeout, cfg->prompt, label_print,
-			NULL, NULL);
+	m = menu_create(cfg->title, DIV_ROUND_UP(cfg->timeout, 10),
+			cfg->prompt, label_print, NULL, NULL);
 
 	if (!m)
 		return NULL;

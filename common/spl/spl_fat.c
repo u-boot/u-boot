@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014
  * Texas Instruments, <www.ti.com>
  *
  * Dan Murphy <dmurphy@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * FAT Image Functions copied from spl_mmc.c
  */
@@ -15,7 +14,7 @@
 #include <fat.h>
 #include <errno.h>
 #include <image.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 static int fat_registered;
 
@@ -64,14 +63,24 @@ int spl_load_image_fat(struct spl_image_info *spl_image,
 	if (err)
 		goto end;
 
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-						sizeof(struct image_header));
+	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
 	err = file_fat_read(filename, header, sizeof(struct image_header));
 	if (err <= 0)
 		goto end;
 
-	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
+	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL) &&
+	    image_get_magic(header) == FDT_MAGIC) {
+		err = file_fat_read(filename, (void *)CONFIG_SYS_LOAD_ADDR, 0);
+		if (err <= 0)
+			goto end;
+		err = spl_parse_image_header(spl_image,
+				(struct image_header *)CONFIG_SYS_LOAD_ADDR);
+		if (err == -EAGAIN)
+			return err;
+		if (err == 0)
+			err = 1;
+	} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 	    image_get_magic(header) == FDT_MAGIC) {
 		struct spl_load_info load;
 

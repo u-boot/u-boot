@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014, STMicroelectronics - All Rights Reserved
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -21,6 +20,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define timestamp gd->arch.tbl
 #define lastdec gd->arch.lastinc
+
+static ulong get_timer_masked(void);
 
 int timer_init(void)
 {
@@ -74,7 +75,7 @@ void __udelay(unsigned long usec)
 		;
 }
 
-ulong get_timer_masked(void)
+static ulong get_timer_masked(void)
 {
 	ulong now = READ_TIMER();
 
@@ -88,11 +89,6 @@ ulong get_timer_masked(void)
 	lastdec = now;
 
 	return timestamp;
-}
-
-void udelay_masked(unsigned long usec)
-{
-	return udelay(usec);
 }
 
 /*

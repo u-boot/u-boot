@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Micrel PHY drivers
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * author Andy Fleming
@@ -9,15 +8,11 @@
  * (C) Copyright 2017 Adaptrum, Inc.
  * Written by Alexandru Gagniuc <alex.g@adaptrum.com> for Adaptrum, Inc.
  */
-
-#include <config.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
 #include <micrel.h>
 #include <phy.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * KSZ9021 - KSZ9031 common

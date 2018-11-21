@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Logging support
  *
  * Copyright (c) 2017 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __LOG_H
@@ -27,8 +26,10 @@ enum log_level_t {
 	LOGL_DEBUG_IO,		/* Debug message showing hardware I/O access */
 
 	LOGL_COUNT,
+	LOGL_NONE,
+
 	LOGL_FIRST = LOGL_EMERG,
-	LOGL_MAX = LOGL_DEBUG,
+	LOGL_MAX = LOGL_DEBUG_IO,
 };
 
 /**
@@ -38,14 +39,17 @@ enum log_level_t {
 enum log_category_t {
 	LOGC_FIRST = 0,	/* First part mirrors UCLASS_... */
 
-	LOGC_NONE = UCLASS_COUNT,
-	LOGC_ARCH,
-	LOGC_BOARD,
-	LOGC_CORE,
-	LOGC_DT,
+	LOGC_NONE = UCLASS_COUNT,	/* First number is after all uclasses */
+	LOGC_ARCH,	/* Related to arch-specific code */
+	LOGC_BOARD,	/* Related to board-specific code */
+	LOGC_CORE,	/* Related to core features (non-driver-model) */
+	LOGC_DM,	/* Core driver-model */
+	LOGC_DT,	/* Device-tree */
+	LOGC_EFI,	/* EFI implementation */
+	LOGC_ALLOC,	/* Memory allocation */
 
-	LOGC_COUNT,
-	LOGC_END,
+	LOGC_COUNT,	/* Number of log categories */
+	LOGC_END,	/* Sentinel value for a list of log categories */
 };
 
 /* Helper to cast a uclass ID to a log category */
@@ -85,8 +89,22 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
  */
 #if CONFIG_IS_ENABLED(LOG)
 #define _LOG_MAX_LEVEL CONFIG_VAL(LOG_MAX_LEVEL)
+#define log_err(_fmt...)	log(LOG_CATEGORY, LOGL_ERR, ##_fmt)
+#define log_warning(_fmt...)	log(LOG_CATEGORY, LOGL_WARNING, ##_fmt)
+#define log_notice(_fmt...)	log(LOG_CATEGORY, LOGL_NOTICE, ##_fmt)
+#define log_info(_fmt...)	log(LOG_CATEGORY, LOGL_INFO, ##_fmt)
+#define log_debug(_fmt...)	log(LOG_CATEGORY, LOGL_DEBUG, ##_fmt)
+#define log_content(_fmt...)	log(LOG_CATEGORY, LOGL_DEBUG_CONTENT, ##_fmt)
+#define log_io(_fmt...)		log(LOG_CATEGORY, LOGL_DEBUG_IO, ##_fmt)
 #else
 #define _LOG_MAX_LEVEL LOGL_INFO
+#define log_err(_fmt...)
+#define log_warning(_fmt...)
+#define log_notice(_fmt...)
+#define log_info(_fmt...)
+#define log_debug(_fmt...)
+#define log_content(_fmt...)
+#define log_io(_fmt...)
 #endif
 
 /* Emit a log record if the level is less that the maximum */
@@ -155,6 +173,25 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 #define assert(x) \
 	({ if (!(x) && _DEBUG) \
 		__assert_fail(#x, __FILE__, __LINE__, __func__); })
+
+#ifdef CONFIG_LOG_ERROR_RETURN
+#define log_ret(_ret) ({ \
+	int __ret = (_ret); \
+	if (__ret < 0) \
+		log(LOG_CATEGORY, LOGL_ERR, "returning err=%d\n", __ret); \
+	__ret; \
+	})
+#define log_msg_ret(_msg, _ret) ({ \
+	int __ret = (_ret); \
+	if (__ret < 0) \
+		log(LOG_CATEGORY, LOGL_ERR, "%s: returning err=%d\n", _msg, \
+		    __ret); \
+	__ret; \
+	})
+#else
+#define log_ret(_ret) (_ret)
+#define log_msg_ret(_msg, _ret) (_ret)
+#endif
 
 /**
  * struct log_rec - a single log record
@@ -255,6 +292,53 @@ struct log_filter {
 
 #define LOG_DRIVER(_name) \
 	ll_entry_declare(struct log_driver, _name, log_driver)
+
+/**
+ * log_get_cat_name() - Get the name of a category
+ *
+ * @cat: Category to look up
+ * @return category name (which may be a uclass driver name) if found, or
+ *	 "<invalid>" if invalid, or "<missing>" if not found
+ */
+const char *log_get_cat_name(enum log_category_t cat);
+
+/**
+ * log_get_cat_by_name() - Look up a category by name
+ *
+ * @name: Name to look up
+ * @return category ID, or LOGC_NONE if not found
+ */
+enum log_category_t log_get_cat_by_name(const char *name);
+
+/**
+ * log_get_level_name() - Get the name of a log level
+ *
+ * @level: Log level to look up
+ * @return log level name (in ALL CAPS)
+ */
+const char *log_get_level_name(enum log_level_t level);
+
+/**
+ * log_get_level_by_name() - Look up a log level by name
+ *
+ * @name: Name to look up
+ * @return log level ID, or LOGL_NONE if not found
+ */
+enum log_level_t log_get_level_by_name(const char *name);
+
+/* Log format flags (bit numbers) for gd->log_fmt. See log_fmt_chars */
+enum log_fmt {
+	LOGF_CAT	= 0,
+	LOGF_LEVEL,
+	LOGF_FILE,
+	LOGF_LINE,
+	LOGF_FUNC,
+	LOGF_MSG,
+
+	LOGF_COUNT,
+	LOGF_DEFAULT = (1 << LOGF_FUNC) | (1 << LOGF_MSG),
+	LOGF_ALL = 0x3f,
+};
 
 /* Handle the 'log test' command */
 int do_log_test(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);

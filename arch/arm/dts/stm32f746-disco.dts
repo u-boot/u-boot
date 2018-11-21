@@ -48,6 +48,7 @@
 /dts-v1/;
 #include "stm32f746.dtsi"
 #include <dt-bindings/memory/stm32-sdram.h>
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	model = "STMicroelectronics STM32F746-DISCO board";
@@ -65,6 +66,7 @@
 	aliases {
 		serial0 = &usart1;
 		spi0 = &qspi;
+		mmc0 = &sdio;
 		/* Aliases for gpios so as to use sequence */
 		gpio0 = &gpioa;
 		gpio1 = &gpiob;
@@ -87,6 +89,37 @@
 	button1 {
 		compatible = "st,button1";
 		button-gpio = <&gpioi 11 0>;
+	};
+
+	backlight: backlight {
+		compatible = "gpio-backlight";
+		gpios = <&gpiok 3 0>;
+		status = "okay";
+	};
+
+	panel-rgb@0 {
+		compatible = "simple-panel";
+		backlight = <&backlight>;
+		enable-gpios = <&gpioi 12 0>;
+		status = "okay";
+
+		display-timings {
+			timing@0 {
+				clock-frequency = <9000000>;
+				hactive = <480>;
+				vactive = <272>;
+				hfront-porch = <2>;
+				hback-porch = <2>;
+				hsync-len = <41>;
+				vfront-porch = <2>;
+				vback-porch = <2>;
+				vsync-len = <10>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				de-active = <0>;
+				pixelclk-active = <1>;
+			};
+		};
 	};
 };
 
@@ -182,6 +215,40 @@
 			  slew-rate = <2>;
 		};
 	};
+
+	ltdc_pins: ltdc@0 {
+		pins {
+			pinmux = <STM32F746_PE4_FUNC_LCD_B0>,
+			       <STM32F746_PG12_FUNC_LCD_B4>,
+			       <STM32F746_PI9_FUNC_LCD_VSYNC>,
+			       <STM32F746_PI10_FUNC_LCD_HSYNC>,
+			       <STM32F746_PI14_FUNC_LCD_CLK>,
+			       <STM32F746_PI15_FUNC_LCD_R0>,
+			       <STM32F746_PJ0_FUNC_LCD_R1>,
+			       <STM32F746_PJ1_FUNC_LCD_R2>,
+			       <STM32F746_PJ2_FUNC_LCD_R3>,
+			       <STM32F746_PJ3_FUNC_LCD_R4>,
+			       <STM32F746_PJ4_FUNC_LCD_R5>,
+			       <STM32F746_PJ5_FUNC_LCD_R6>,
+			       <STM32F746_PJ6_FUNC_LCD_R7>,
+			       <STM32F746_PJ7_FUNC_LCD_G0>,
+			       <STM32F746_PJ8_FUNC_LCD_G1>,
+			       <STM32F746_PJ9_FUNC_LCD_G2>,
+			       <STM32F746_PJ10_FUNC_LCD_G3>,
+			       <STM32F746_PJ11_FUNC_LCD_G4>,
+			       <STM32F746_PJ13_FUNC_LCD_B1>,
+			       <STM32F746_PJ14_FUNC_LCD_B2>,
+			       <STM32F746_PJ15_FUNC_LCD_B3>,
+			       <STM32F746_PK0_FUNC_LCD_G5>,
+			       <STM32F746_PK1_FUNC_LCD_G6>,
+			       <STM32F746_PK2_FUNC_LCD_G7>,
+			       <STM32F746_PK4_FUNC_LCD_B5>,
+			       <STM32F746_PK5_FUNC_LCD_B6>,
+			       <STM32F746_PK6_FUNC_LCD_B7>,
+			       <STM32F746_PK7_FUNC_LCD_DE>;
+			slew-rate = <2>;
+		};
+	};
 };
 
 &usart1 {
@@ -237,4 +304,19 @@
 			memory-map = <0x90000000 0x1000000>;
 			reg = <0>;
 	};
+};
+
+&sdio {
+	status = "okay";
+	cd-gpios = <&gpioc 13 GPIO_ACTIVE_LOW>;
+	pinctrl-names = "default", "opendrain";
+	pinctrl-0 = <&sdio_pins>;
+	pinctrl-1 = <&sdio_pins_od>;
+	bus-width = <4>;
+	max-frequency = <25000000>;
+};
+
+&ltdc {
+	status = "okay";
+	pinctrl-0 = <&ltdc_pins>;
 };

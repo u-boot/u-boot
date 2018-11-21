@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
 /*
  * Copyright 2015 Hans de Goede <hdegoede@redhat.com>
  *
  * Minimal dts file for the iNet 86VS for u-boot only
- *
- * SPDX-License-Identifier:     GPL-2.0+ or X11
  */
 
 /dts-v1/;

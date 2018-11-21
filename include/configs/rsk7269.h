@@ -1,23 +1,20 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Renesas RSK2+SH7269 board
  *
  * Copyright (C) 2012 Renesas Electronics Europe Ltd.
  * Copyright (C) 2012 Phil Edworthy
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __RSK7269_H
 #define __RSK7269_H
 
 #define CONFIG_CPU_SH7269	1
-#define CONFIG_RSK7269		1
 
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ CONFIG_BAUDRATE }
 
-#define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 #define CONFIG_SYS_PBSIZE	256	/* Print Buffer Size */
 
 /* Serial */
@@ -25,7 +22,6 @@
 
 /* Memory */
 /* u-boot relocated to top 256KB of ram */
-#define CONFIG_SYS_TEXT_BASE		0x0DFC0000
 #define CONFIG_SYS_SDRAM_BASE		0x0C000000
 #define CONFIG_SYS_SDRAM_SIZE		(32 * 1024 * 1024)
 
@@ -36,8 +32,6 @@
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 4*1024*1024)
 
 /* NOR Flash */
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_FLASH_BASE		0x20000000 /* Non-cached */
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
@@ -50,7 +44,6 @@
 
 /* Board Clock */
 #define CONFIG_SYS_CLK_FREQ	66125000
-#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CMT_CLK_DIVIDER		32	/* 8 (default), 32, 128 or 512 */
 #define CONFIG_SH_CMT_CLK_FREQ (CONFIG_SYS_CLK_FREQ / CMT_CLK_DIVIDER)

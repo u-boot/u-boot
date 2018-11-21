@@ -1,15 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012 Atmel Corporation
  *
  * Configuation settings for the AT91SAM9X5EK board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
-
-#define CONFIG_SYS_TEXT_BASE		0x26f00000
 
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
@@ -27,9 +24,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * define CONFIG_USB_EHCI_HCD to enable USB Hi-Speed (aka 2.0)
@@ -37,7 +31,6 @@
  */
 
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x08000000	/* 128 megs */
 
@@ -51,7 +44,6 @@
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
 #define CONFIG_SYS_NAND_DBW_8		1
@@ -61,9 +53,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PD4
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PD5
-
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 #endif
 
 /* PMECC & PMERRLOC */
@@ -92,12 +81,13 @@
 
 #ifdef CONFIG_NAND_BOOT
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_OFFSET		0x120000
+#define CONFIG_ENV_OFFSET		0x140000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read " \
-				"0x22000000 0x200000 0x300000; " \
-				"bootm 0x22000000"
+				"0x22000000 0x200000 0x600000; " \
+				"nand read 0x21000000 0x180000 0x20000; " \
+				"bootz 0x22000000 - 0x21000000"
 #elif defined(CONFIG_SPI_BOOT)
 /* bootstrap + u-boot + env + linux in spi flash */
 #define CONFIG_ENV_OFFSET	0x5000
@@ -121,17 +111,12 @@
 #define CONFIG_ENV_SIZE		0x4000
 #endif
 
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
-
 /*
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024 + 0x1000)
 
 /* SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x300000
 #define CONFIG_SPL_MAX_SIZE		0x6000
 #define CONFIG_SPL_STACK		0x308000
@@ -153,7 +138,6 @@
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot.img"
 
 #elif CONFIG_SPI_BOOT
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x8400
 
 #elif CONFIG_NAND_BOOT

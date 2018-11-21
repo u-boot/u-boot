@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * omap_wdt.c
  *
  * (C) Copyright 2013
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  * Based on:
  *
@@ -53,16 +52,25 @@ void hw_watchdog_reset(void)
 {
 	struct wd_timer *wdt = (struct wd_timer *)WDT_BASE;
 
-	/* wait for posted write to complete */
-	while ((readl(&wdt->wdtwwps)) & WDT_WWPS_PEND_WTGR)
-		;
+	/*
+	 * Somebody just triggered watchdog reset and write to WTGR register
+	 * is in progress. It is resetting right now, no need to trigger it
+	 * again
+	 */
+	if ((readl(&wdt->wdtwwps)) & WDT_WWPS_PEND_WTGR)
+		return;
 
 	wdt_trgr_pattern = ~wdt_trgr_pattern;
 	writel(wdt_trgr_pattern, &wdt->wdtwtgr);
 
-	/* wait for posted write to complete */
-	while ((readl(&wdt->wdtwwps) & WDT_WWPS_PEND_WTGR))
-		;
+	/*
+	 * Don't wait for posted write to complete, i.e. don't check
+	 * WDT_WWPS_PEND_WTGR bit in WWPS register. There is no writes to
+	 * WTGR register outside of this func, and if entering it
+	 * we see WDT_WWPS_PEND_WTGR bit set, it means watchdog reset
+	 * was just triggered. This prevents us from wasting time in busy
+	 * polling of WDT_WWPS_PEND_WTGR bit.
+	 */
 }
 
 static int omap_wdt_set_timeout(unsigned int timeout)

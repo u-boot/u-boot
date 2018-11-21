@@ -1,5 +1,5 @@
 SAMA5D3_XPLAINED BOARD
-M:	Bo Shen <voice.shen@atmel.com>
+M:	Eugen Hristev <eugen.hristev@microchip.com>
 S:	Maintained
 F:	board/atmel/sama5d3_xplained/
 F:	include/configs/sama5d3_xplained.h

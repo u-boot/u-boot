@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010-2012
  * NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __TEGRA_COMMON_POST_H
@@ -11,7 +10,7 @@
 /*
  * Size of malloc() pool
  */
-#ifdef CONFIG_USB_FUNCTION_DFU
+#ifdef CONFIG_DFU_OVER_USB
 #define CONFIG_SYS_MALLOC_LEN	(SZ_4M + \
 					CONFIG_SYS_DFU_DATA_BUF_SIZE + \
 					CONFIG_SYS_DFU_MAX_FILE_SIZE)
@@ -110,19 +109,10 @@
 #ifdef CONFIG_SYS_I2C_TEGRA
 #undef CONFIG_SYS_I2C_TEGRA
 #endif
-#ifdef CONFIG_CMD_I2C
-#endif
-
-/* remove partitions/filesystems */
-#ifdef CONFIG_FS_EXT4
-#undef CONFIG_FS_EXT4
-#endif
 
 /* remove USB */
 #ifdef CONFIG_USB_EHCI_TEGRA
 #undef CONFIG_USB_EHCI_TEGRA
-#endif
-#ifdef CONFIG_CMD_USB
 #endif
 
 #endif /* CONFIG_SPL_BUILD */

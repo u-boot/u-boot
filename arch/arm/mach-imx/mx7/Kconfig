@@ -2,19 +2,19 @@ if ARCH_MX7
 
 config MX7
 	bool
+	default y
+	select ARCH_SUPPORT_PSCI
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
 	select ROM_UNIFIED_SECTIONS
 	select SYSCOUNTER_TIMER
-	select CPU_V7_HAS_VIRT
-	select CPU_V7_HAS_NONSEC
-	select ARCH_SUPPORT_PSCI
 	imply CMD_FUSE
-	default y
 
 config MX7D
+	bool
 	select HAS_CAAM
 	select ROM_UNIFIED_SECTIONS
 	imply CMD_FUSE
-	bool
 
 choice
 	prompt "MX7 board select"
@@ -22,38 +22,43 @@ choice
 
 config TARGET_CL_SOM_IMX7
 	bool "CL-SOM-iMX7"
-	select MX7D
 	select DM
 	select DM_THERMAL
+	select MX7D
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_MX7DSABRESD
 	bool "mx7dsabresd"
 	select BOARD_LATE_INIT
-	select MX7D
 	select DM
 	select DM_THERMAL
+	select MX7D
+	imply CMD_DM
 
 config TARGET_PICO_IMX7D
 	bool "pico-imx7d"
 	select BOARD_LATE_INIT
-	select MX7D
 	select DM
 	select DM_THERMAL
+	select MX7D
+	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_WARP7
 	bool "warp7"
 	select BOARD_LATE_INIT
-	select MX7D
 	select DM
 	select DM_THERMAL
+	select MX7D
+	imply CMD_DM
 
 config TARGET_COLIBRI_IMX7
 	bool "Support Colibri iMX7S/iMX7D modules"
-	select BOARD_LATE_INIT
 	select DM
 	select DM_SERIAL
 	select DM_THERMAL
+	imply CMD_DM
 
 endchoice
 

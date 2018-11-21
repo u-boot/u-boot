@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009
  * Marvell Semiconductor <www.marvell.com>
@@ -8,8 +9,6 @@
  *
  * (C) Copyright 2010-2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -26,7 +25,6 @@
 #define CONFIG_MARVELL
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
 #define CONFIG_KW88F6281		/* SOC Name */
-#define CONFIG_MACH_KM_KIRKWOOD		/* Machine type */
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_KM_KIRKWOOD
 
@@ -51,7 +49,6 @@
 
 #include "asm/arch/config.h"
 
-#define CONFIG_SYS_TEXT_BASE	0x07d00000	/* code address before reloc */
 #define CONFIG_SYS_MEMTEST_START 0x00400000	/* 4M */
 #define CONFIG_SYS_MEMTEST_END	0x007fffff	/*(_8M -1) */
 #define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
@@ -71,7 +68,7 @@
 		" boardid=0x${IVM_BoardId} hwkey=0x${IVM_HWKey}"
 
 #define CONFIG_KM_DEF_ENV_CPU						\
-	"u-boot="__stringify(CONFIG_HOSTNAME) "/u-boot.kwb\0"		\
+	"u-boot="CONFIG_HOSTNAME "/u-boot.kwb\0"		\
 	CONFIG_KM_UPDATE_UBOOT						\
 	"set_fdthigh=setenv fdt_high ${kernelmem}\0"			\
 	"checkfdt="							\
@@ -83,7 +80,6 @@
 	""
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_MISC_INIT_R
 
 /*
  * NS16550 Configuration
@@ -99,8 +95,6 @@
  * The following definitions let you select what serial you want to use
  * for your console driver.
  */
-
-#define CONFIG_CONS_INDEX	1	/* Console on UART0 */
 
 /*
  * For booting Linux, the board info and command line data
@@ -130,15 +124,12 @@
  * Other required minimal configurations
  */
 #define CONFIG_ARCH_CPU_INIT		/* call arch_cpu_init() */
-#define CONFIG_NR_DRAM_BANKS	4
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 
 /*
  * Ethernet Driver configuration
  */
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
-#define CONFIG_MII		/* expose smi ove miiphy interface */
-#define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
@@ -263,7 +254,6 @@ int get_scl(void);
 	""
 
 #if !defined(CONFIG_MTD_NOR_FLASH)
-#undef	CONFIG_FLASH_CFI_MTD
 #undef	CONFIG_JFFS2_CMDLINE
 #endif
 
@@ -278,8 +268,6 @@ int get_scl(void);
 #define CONFIG_KM_RESERVED_PRAM 0x801000
 /* address for the bootcount (taken from end of RAM) */
 #define BOOTCOUNT_ADDR          (CONFIG_KM_RESERVED_PRAM)
-/* Use generic bootcount RAM driver */
-#define CONFIG_BOOTCOUNT_RAM
 
 /* enable POST tests */
 #define CONFIG_POST	(CONFIG_SYS_POST_MEM_REGIONS)

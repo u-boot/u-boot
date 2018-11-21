@@ -1,11 +1,13 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Based on acpi.c from coreboot
  *
  * Copyright (C) 2015, Saket Sinha <saket.sinha89@gmail.com>
  * Copyright (C) 2016, Bin Meng <bmeng.cn@gmail.com>
- *
- * SPDX-License-Identifier: GPL-2.0+
  */
+
+#ifndef __ASM_ACPI_TABLE_H__
+#define __ASM_ACPI_TABLE_H__
 
 #define RSDP_SIG		"RSD PTR "	/* RSDP pointer signature */
 #define OEM_ID			"U-BOOT"	/* U-Boot */
@@ -318,32 +320,15 @@ int acpi_create_mcfg_mmconfig(struct acpi_mcfg_mmconfig *mmconfig, u32 base,
 			      u16 seg_nr, u8 start, u8 end);
 u32 acpi_fill_mcfg(u32 current);
 void acpi_create_gnvs(struct acpi_global_nvs *gnvs);
-/**
- * enter_acpi_mode() - enter into ACPI mode
- *
- * This programs the ACPI-defined PM1_CNT register to enable SCI interrupt
- * so that the whole system swiches to ACPI mode.
- *
- * @pm1_cnt:	PM1_CNT register I/O address
- */
-void enter_acpi_mode(int pm1_cnt);
 ulong write_acpi_tables(ulong start);
 
 /**
- * acpi_find_fadt() - find ACPI FADT table in the sytem memory
+ * acpi_get_rsdp_addr() - get ACPI RSDP table address
  *
- * This routine parses the ACPI table to locate the ACPI FADT table.
+ * This routine returns the ACPI RSDP table address in the system memory.
  *
- * @return:	a pointer to the ACPI FADT table in the system memory
+ * @return:	ACPI RSDP table address
  */
-struct acpi_fadt *acpi_find_fadt(void);
+ulong acpi_get_rsdp_addr(void);
 
-/**
- * acpi_find_wakeup_vector() - find OS installed wake up vector address
- *
- * This routine parses the ACPI table to locate the wake up vector installed
- * by the OS previously.
- *
- * @return:	wake up vector address installed by the OS
- */
-void *acpi_find_wakeup_vector(struct acpi_fadt *);
+#endif /* __ASM_ACPI_TABLE_H__ */

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2003
  * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -175,4 +174,24 @@ void invalidate_dcache_range(ulong start_addr, ulong stop)
 
 	/* ensure cache ops complete before any further memory accesses */
 	sync();
+}
+
+int dcache_status(void)
+{
+	unsigned int cca = read_c0_config() & CONF_CM_CMASK;
+	return cca != CONF_CM_UNCACHED;
+}
+
+void dcache_enable(void)
+{
+	puts("Not supported!\n");
+}
+
+void dcache_disable(void)
+{
+	/* change CCA to uncached */
+	change_c0_config(CONF_CM_CMASK, CONF_CM_UNCACHED);
+
+	/* ensure the pipeline doesn't contain now-invalid instructions */
+	instruction_hazard_barrier();
 }

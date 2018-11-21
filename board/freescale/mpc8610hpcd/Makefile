@@ -1,7 +1,5 @@
+# SPDX-License-Identifier: GPL-2.0+
 # Copyright 2007 Freescale Semiconductor, Inc.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 obj-y	+= mpc8610hpcd.o
 obj-$(CONFIG_SYS_FSL_DDR2) += ddr.o

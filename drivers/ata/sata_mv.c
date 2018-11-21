@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) Excito Elektronik i Skåne AB, 2010.
  * Author: Tor Krill <tor@excito.com>
  *
  * Copyright (C) 2015 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

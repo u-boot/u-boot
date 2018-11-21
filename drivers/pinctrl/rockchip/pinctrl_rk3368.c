@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2017 Rockchip Electronics Co., Ltd
  * Author: Andy Yan <andy.yan@rock-chips.com>
  * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -16,8 +15,6 @@
 #include <asm/arch/grf_rk3368.h>
 #include <asm/arch/periph.h>
 #include <dm/pinctrl.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* PMUGRF_GPIO0B_IOMUX */
 enum {

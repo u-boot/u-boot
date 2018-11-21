@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * RNDIS MSG parser
  *
@@ -15,8 +16,6 @@
  *
  * Copyright (C) 2004 by David Brownell
  *		updates to merge with Linux 2.6, better match RNDIS spec
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -35,12 +34,6 @@
 #undef	VERBOSE
 
 #include "rndis.h"
-
-#define ETH_ALEN	6		/* Octets in one ethernet addr	 */
-#define ETH_HLEN	14		/* Total octets in header.	 */
-#define ETH_ZLEN	60		/* Min. octets in frame sans FCS */
-#define ETH_DATA_LEN	1500		/* Max. octets in payload	 */
-#define ETH_FRAME_LEN	PKTSIZE_ALIGN	/* Max. octets in frame sans FCS */
 
 /*
  * The driver for your USB chip needs to support ep0 OUT to work with

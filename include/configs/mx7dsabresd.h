@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
  * Configuration settings for the Freescale i.MX7D SABRESD board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MX7D_SABRESD_CONFIG_H
@@ -11,7 +10,6 @@
 
 #include "mx7_common.h"
 
-#define CONFIG_DBG_MONITOR
 #define PHYS_SDRAM_SIZE			SZ_1G
 
 #define CONFIG_MXC_UART_BASE            UART1_IPS_BASE_ADDR
@@ -21,7 +19,6 @@
 
 /* Network */
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define CONFIG_FEC_XCV_TYPE             RGMII
 #define CONFIG_ETHPRIME                 "FEC"
 #define CONFIG_FEC_MXC_PHYADDR          0
@@ -170,7 +167,6 @@
 #define CONFIG_SYS_HZ			1000
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
@@ -197,9 +193,6 @@
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
-#define CONFIG_APBH_DMA
-#define CONFIG_APBH_DMA_BURST
-#define CONFIG_APBH_DMA_BURST8
 #endif
 
 #define CONFIG_ENV_OFFSET		(12 * SZ_64K)
@@ -220,8 +213,6 @@
 
 #define CONFIG_USBD_HS
 
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
-
 #ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_MXS
 #define CONFIG_VIDEO_LOGO
@@ -233,9 +224,7 @@
 #endif
 
 #ifdef CONFIG_FSL_QSPI
-#define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_MACRONIX
-#define CONFIG_SPI_FLASH_BAR
+#define CONFIG_SYS_FSL_QSPI_AHB
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
 #define CONFIG_SF_DEFAULT_SPEED		40000000

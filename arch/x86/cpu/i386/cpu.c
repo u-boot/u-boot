@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008-2011
  * Graeme Russ, <graeme.russ@gmail.com>
@@ -15,8 +16,6 @@
  *
  * Part of this file is adapted from coreboot
  * src/arch/x86/lib/cpu.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

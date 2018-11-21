@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Common definitions for LPC32XX board configurations
  *
  * Copyright (C) 2011-2015 Vladimir Zapolskiy <vz@mleia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _LPC32XX_CONFIG_H
@@ -12,8 +11,6 @@
 
 /* Basic CPU architecture */
 #define CONFIG_ARCH_CPU_INIT
-
-#define CONFIG_NR_DRAM_BANKS_MAX	2
 
 /* UART configuration */
 #if	(CONFIG_SYS_LPC32XX_UART == 1) || (CONFIG_SYS_LPC32XX_UART == 2) || \
@@ -25,12 +22,6 @@
 
 #if !defined(CONFIG_SYS_NS16550_CLK)
 #define CONFIG_SYS_NS16550_CLK		13000000
-#endif
-
-#if !defined(CONFIG_LPC32XX_HSUART)
-#define CONFIG_CONS_INDEX		(CONFIG_SYS_LPC32XX_UART - 2)
-#else
-#define CONFIG_CONS_INDEX		CONFIG_SYS_LPC32XX_UART
 #endif
 
 #define CONFIG_SYS_BAUDRATE_TABLE	\
@@ -69,10 +60,6 @@
 #endif	/* CONFIG_NAND_LPC32XX_SLC */
 
 /* NOR Flash */
-#if defined(CONFIG_SYS_FLASH_CFI)
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_PROTECTION
-#endif
 
 /* USB OHCI */
 #if defined(CONFIG_USB_OHCI_LPC32XX)

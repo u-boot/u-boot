@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /**
  * ti_usb_phy.c - USB3 and USB3 PHY programming for dwc3
  *
@@ -13,8 +14,6 @@
  *
  * "commit eb82a3 : phy: omap-usb2: Balance pm_runtime_enable() on probe failure
  * and remove" for phy-omap-usb2.c
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>

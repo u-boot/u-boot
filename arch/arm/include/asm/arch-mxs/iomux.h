@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009 by Jan Weitzel Phytec Messtechnik GmbH,
  *			<armlinux@phytec.de>
  * Copyright (C) 2010 Freescale Semiconductor, Inc. All Rights Reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MACH_MXS_IOMUX_H__

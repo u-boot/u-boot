@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (c) 2015, Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  * All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -24,9 +23,8 @@ static void xhci_pci_init(struct udevice *dev, struct xhci_hccr **ret_hccr,
 	hcor = (struct xhci_hcor *)((uintptr_t) hccr +
 			HC_LENGTH(xhci_readl(&hccr->cr_capbase)));
 
-	debug("XHCI-PCI init hccr 0x%x and hcor 0x%x hc_length %d\n",
-	      (u32)hccr, (u32)hcor,
-	      (u32)HC_LENGTH(xhci_readl(&hccr->cr_capbase)));
+	debug("XHCI-PCI init hccr %p and hcor %p hc_length %d\n",
+	      hccr, hcor, (u32)HC_LENGTH(xhci_readl(&hccr->cr_capbase)));
 
 	*ret_hccr = hccr;
 	*ret_hcor = hcor;

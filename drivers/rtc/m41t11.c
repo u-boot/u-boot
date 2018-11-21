@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2002
  * Andrew May, Viasat Inc, amay@viasat.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -29,8 +28,6 @@
 #define CONFIG_SYS_M41T11_BASE_YEAR 2000
 #endif
 */
-
-#if defined(CONFIG_SYS_I2C_RTC_ADDR) && defined(CONFIG_CMD_DATE)
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -168,4 +165,3 @@ void rtc_reset (void)
 	val = val & 0x3F;/*turn off freq test keep calibration*/
 	i2c_write(CONFIG_SYS_I2C_RTC_ADDR, RTC_CONTROL_ADDR, 1, &val, 1);
 }
-#endif

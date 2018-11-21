@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2006 Ben Warren, Qstreams Networks Inc.
  * With help from the common/soft_spi and arch/powerpc/cpu/mpc8260 drivers
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

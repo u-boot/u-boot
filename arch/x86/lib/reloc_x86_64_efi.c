@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BSD-3-Clause
 /*
  * reloc_x86_64.c - position independent x86_64 ELF shared object relocator
  * Copyright (C) 1999 Hewlett-Packard Co.
@@ -6,17 +7,13 @@
  * Contributed by Fenghua Yu <fenghua.yu@intel.com>.
  *
  * All rights reserved.
- *
- * SPDX-License-Identifier:	BSD-3-Clause
  */
 
 #include <common.h>
 #include <efi.h>
 #include <elf.h>
-#include <asm/elf.h>
 
-efi_status_t _relocate(long ldbase, Elf64_Dyn *dyn, efi_handle_t image,
-		       struct efi_system_table *systab)
+efi_status_t EFIAPI _relocate(long ldbase, Elf64_Dyn *dyn)
 {
 	long relsz = 0, relent = 0;
 	Elf64_Rel *rel = 0;

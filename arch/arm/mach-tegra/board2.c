@@ -1,12 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  (C) Copyright 2010,2011
  *  NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <dm.h>
+#include <efi_loader.h>
 #include <errno.h>
 #include <ns16550.h>
 #include <usb.h>
@@ -211,6 +211,19 @@ int board_early_init_f(void)
 
 int board_late_init(void)
 {
+#if CONFIG_IS_ENABLED(EFI_LOADER)
+	if (gd->bd->bi_dram[1].start) {
+		/*
+		 * Only bank 0 is below board_get_usable_ram_top(), so all of
+		 * bank 1 is not mapped by the U-Boot MMU configuration, and so
+		 * we must prevent EFI from using it.
+		 */
+		efi_add_memory_map(gd->bd->bi_dram[1].start,
+				   gd->bd->bi_dram[1].size >> EFI_PAGE_SHIFT,
+				   EFI_BOOT_SERVICES_DATA, false);
+	}
+#endif
+
 #if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 	if (tegra_cpu_is_non_secure()) {
 		printf("CPU is in NS mode\n");
@@ -250,6 +263,10 @@ static ulong carveout_size(void)
 {
 #ifdef CONFIG_ARM64
 	return SZ_512M;
+#elif defined(CONFIG_ARMV7_SECURE_RESERVE_SIZE)
+	// BASE+SIZE might not == 4GB. If so, we want the carveout to cover
+	// from BASE to 4GB, not BASE to BASE+SIZE.
+	return (0 - CONFIG_ARMV7_SECURE_BASE) & ~(SZ_2M - 1);
 #else
 	return 0;
 #endif

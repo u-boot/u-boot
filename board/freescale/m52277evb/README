@@ -67,7 +67,6 @@ Changed files:
 1.2 Configuration settings for M52277EVB Development Board
 CONFIG_MCF5227x		-- define for all MCF5227x CPUs
 CONFIG_M52277		-- define for all Freescale MCF52277 CPUs
-CONFIG_M52277EVB	-- define for M52277EVB board
 
 CONFIG_MCFUART		-- define to use common CF Uart driver
 CONFIG_SYS_UART_PORT		-- define UART port number, start with 0, 1 and 2

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright 2008-2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _DDR_SPD_H_
@@ -382,9 +381,11 @@ struct ddr4_spd_eeprom_s {
 			/* 135 Register Revision Number */
 			uint8_t reg_rev;
 			/* 136 Address mapping from register to DRAM */
-			uint8_t reg_map;
-			/* 137~253 Reserved */
-			uint8_t res_137[254-137];
+			u8 reg_map;
+			u8 ca_stren;
+			u8 clk_stren;
+			/* 139~253 Reserved */
+			u8 res_137[254 - 139];
 			/* 254~255 CRC */
 			uint8_t crc[2];
 		} registered;

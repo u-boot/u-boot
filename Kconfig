@@ -59,29 +59,68 @@ config CC_OPTIMIZE_FOR_SIZE
 
 	  This option is enabled by default for U-Boot.
 
+config CC_COVERAGE
+	bool "Enable code coverage analysis"
+	depends on SANDBOX
+	help
+	  Enabling this option will pass "--coverage" to gcc to compile
+	  and link code instrumented for coverage analysis.
+
 config DISTRO_DEFAULTS
 	bool "Select defaults suitable for booting general purpose Linux distributions"
-	default y if ARCH_SUNXI || TEGRA
-	default y if ARCH_LS2080A
-	default y if ARCH_MESON
-	default y if ARCH_ROCKCHIP
-	default n
-	imply USE_BOOTCOMMAND
-	select CMD_BOOTZ if ARM && !ARM64
+	select AUTO_COMPLETE
+	select CMDLINE_EDITING
 	select CMD_BOOTI if ARM64
-	select CMD_DHCP if NET
-	select CMD_PXE if NET
+	select CMD_BOOTZ if ARM && !ARM64
+	select CMD_DHCP if CMD_NET
+	select CMD_ENV_EXISTS
 	select CMD_EXT2
 	select CMD_EXT4
 	select CMD_FAT
 	select CMD_FS_GENERIC
-	select CMD_MII if NET
-	select CMD_PING if NET
-	select CMD_PART
+	select CMD_PART if PARTITIONS
+	select CMD_PING if CMD_NET
+	select CMD_PXE if NET
+	select ENV_VARS_UBOOT_CONFIG
 	select HUSH_PARSER
+	select SUPPORT_RAW_INITRD
+	select SYS_LONGHELP
+	imply CMD_MII if NET
+	imply USE_BOOTCOMMAND
 	help
 	  Select this to enable various options and commands which are suitable
 	  for building u-boot for booting general purpose Linux distributions.
+
+config ENV_VARS_UBOOT_CONFIG
+	bool "Add arch, board, vendor and soc variables to default environment"
+	help
+	  Define this in order to add variables describing the
+	  U-Boot build configuration to the default environment.
+	  These will be named arch, cpu, board, vendor, and soc.
+	  Enabling this option will cause the following to be defined:
+	  - CONFIG_SYS_ARCH
+	  - CONFIG_SYS_CPU
+	  - CONFIG_SYS_BOARD
+	  - CONFIG_SYS_VENDOR
+	  - CONFIG_SYS_SOC
+
+config NR_DRAM_BANKS
+	int "Number of DRAM banks"
+	default 4
+	help
+	  This defines the number of DRAM banks.
+
+config SYS_BOOT_GET_CMDLINE
+	bool "Enable kernel command line setup"
+	help
+	  Enables allocating and saving kernel cmdline in space between
+	  "bootm_low" and "bootm_low" + BOOTMAPSZ.
+
+config SYS_BOOT_GET_KBD
+	bool "Enable kernel board information setup"
+	help
+	  Enables allocating and saving a kernel copy of the bd_info in
+	  space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
 
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"
@@ -95,6 +134,7 @@ config SYS_MALLOC_F
 config SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool before relocation"
 	depends on SYS_MALLOC_F
+	default 0x1000 if AM33XX
 	default 0x400
 	help
 	  Before relocation, memory is very limited on many platforms. Still,
@@ -104,30 +144,30 @@ config SYS_MALLOC_F_LEN
 
 config SYS_MALLOC_LEN
 	hex "Define memory for Dynamic allocation"
-	depends on ARCH_ZYNQ
+	depends on ARCH_ZYNQ || ARCH_VERSAL
 	help
 	  This defines memory to be allocated for Dynamic allocation
 	  TODO: Use for other architectures
 
 config SPL_SYS_MALLOC_F_LEN
-        hex "Size of malloc() pool in SPL before relocation"
-        depends on SYS_MALLOC_F
-        default SYS_MALLOC_F_LEN
-        help
-          Before relocation, memory is very limited on many platforms. Still,
-          we can provide a small malloc() pool if needed. Driver model in
-          particular needs this to operate, so that it can allocate the
-          initial serial device and any others that are needed.
+	hex "Size of malloc() pool in SPL before relocation"
+	depends on SYS_MALLOC_F
+	default SYS_MALLOC_F_LEN
+	help
+	  Before relocation, memory is very limited on many platforms. Still,
+	  we can provide a small malloc() pool if needed. Driver model in
+	  particular needs this to operate, so that it can allocate the
+	  initial serial device and any others that are needed.
 
 config TPL_SYS_MALLOC_F_LEN
-        hex "Size of malloc() pool in TPL before relocation"
-        depends on SYS_MALLOC_F
-        default SYS_MALLOC_F_LEN
-        help
-          Before relocation, memory is very limited on many platforms. Still,
-          we can provide a small malloc() pool if needed. Driver model in
-          particular needs this to operate, so that it can allocate the
-          initial serial device and any others that are needed.
+	hex "Size of malloc() pool in TPL before relocation"
+	depends on SYS_MALLOC_F
+	default SYS_MALLOC_F_LEN
+	help
+	  Before relocation, memory is very limited on many platforms. Still,
+	  we can provide a small malloc() pool if needed. Driver model in
+	  particular needs this to operate, so that it can allocate the
+	  initial serial device and any others that are needed.
 
 menuconfig EXPERT
 	bool "Configure standard U-Boot features (expert users)"
@@ -210,8 +250,8 @@ if FIT
 
 config FIT_ENABLE_SHA256_SUPPORT
 	bool "Support SHA256 checksum of FIT image contents"
-	select SHA256
 	default y
+	select SHA256
 	help
 	  Enable this to support SHA256 checksum of FIT image contents. A
 	  SHA256 checksum is a 256-bit (32-byte) hash value used to check that
@@ -225,6 +265,7 @@ config FIT_ENABLE_SHA256_SUPPORT
 config FIT_SIGNATURE
 	bool "Enable signature verification of FIT uImages"
 	depends on DM
+	select HASH
 	select RSA
 	help
 	  This option enables signature verification of FIT uImages,
@@ -238,6 +279,16 @@ config FIT_SIGNATURE
 	  unsigned images cannot be loaded. If a board needs the legacy image
 	  format support in this case, enable it using
 	  CONFIG_IMAGE_FORMAT_LEGACY.
+
+config FIT_SIGNATURE_MAX_SIZE
+	hex "Max size of signed FIT structures"
+	depends on FIT_SIGNATURE
+	default 0x10000000
+	help
+	  This option sets a max size in bytes for verified FIT uImages.
+	  A sane value of 256MB protects corrupted DTB structures from overlapping
+	  device memory. Assure this size does not extend past expected storage
+	  space.
 
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"
@@ -277,6 +328,12 @@ config SPL_FIT
 	depends on SPL
 	select SPL_OF_LIBFDT
 
+config SPL_FIT_PRINT
+	bool "Support FIT printing within SPL"
+	depends on SPL_FIT
+	help
+	  Support printing the content of the fitImage in a verbose manner in SPL.
+
 config SPL_FIT_SIGNATURE
 	bool "Enable signature verification of FIT firmware within SPL"
 	depends on SPL_DM
@@ -284,6 +341,17 @@ config SPL_FIT_SIGNATURE
 	select SPL_RSA
 
 config SPL_LOAD_FIT
+	bool "Enable SPL loading U-Boot as a FIT"
+	select SPL_FIT
+	help
+	  Normally with the SPL framework a legacy image is generated as part
+	  of the build. This contains U-Boot along with information as to
+	  where it should be loaded. This option instead enables generation
+	  of a FIT (Flat Image Tree) which provides more flexibility. In
+	  particular it can handle selecting from multiple device tree
+	  and passing the correct one to U-Boot.
+
+config SPL_LOAD_FIT_FULL
 	bool "Enable SPL loading U-Boot as a FIT"
 	select SPL_FIT
 	help
@@ -330,6 +398,16 @@ endif # SPL
 
 endif # FIT
 
+config IMAGE_FORMAT_LEGACY
+	bool "Enable support for the legacy image format"
+	default y if !FIT_SIGNATURE
+	help
+	  This option enables the legacy image format. It is enabled by
+	  default for backward compatibility, unless FIT_SIGNATURE is
+	  set where it is disabled so that unsigned images cannot be
+	  loaded. If a board needs the legacy image format support in this
+	  case, enable it here.
+
 config OF_BOARD_SETUP
 	bool "Set up board-specific details in device tree before boot"
 	depends on OF_LIBFDT
@@ -373,15 +451,16 @@ config SYS_EXTRA_OPTIONS
 	  new boards should not use this option.
 
 config SYS_TEXT_BASE
-	depends on ARC || X86 || ARCH_UNIPHIER || ARCH_ZYNQMP || \
-		(M68K && !TARGET_ASTRO_MCF5373L) || MICROBLAZE || MIPS || \
-		ARCH_ZYNQ || ARCH_KEYSTONE || ARCH_OMAP2PLUS
+	depends on !NIOS2 && !XTENSA
 	depends on !EFI_APP
+	default 0x80800000 if ARCH_OMAP2PLUS || ARCH_K3
+	default 0x4a000000 if ARCH_SUNXI && !MACH_SUN9I && !MACH_SUN8I_V3S
+	default 0x2a000000 if ARCH_SUNXI && MACH_SUN9I
+	default 0x42e00000 if ARCH_SUNXI && MACH_SUN8I_V3S
 	hex "Text Base"
 	help
-	  TODO: Move CONFIG_SYS_TEXT_BASE for all the architecture
+	  The address in memory that U-Boot will be running from, initially.
 
-	default 0x80800000 if ARCH_OMAP2PLUS
 
 
 config SYS_CLK_FREQ

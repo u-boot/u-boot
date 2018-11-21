@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2007, 2011 Freescale Semiconductor, Inc.
  * Authors: York Sun <yorksun@freescale.com>
  *          Timur Tabi <timur@freescale.com>
  *
  * FSL DIU Framebuffer driver
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 int fsl_diu_init(u16 xres, u16 yres, u32 pixel_format, int gamma_fix);

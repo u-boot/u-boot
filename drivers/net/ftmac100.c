@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Faraday FTMAC100 Ethernet
  *
  * (C) Copyright 2009 Faraday Technology
  * Po-Yu Chuang <ratbert@faraday-tech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -105,18 +104,18 @@ static int _ftmac100_init(struct ftmac100_data *priv, unsigned char enetaddr[6])
 
 	for (i = 0; i < PKTBUFSRX; i++) {
 		/* RXBUF_BADR */
-		rxdes[i].rxdes2 = (unsigned int)net_rx_packets[i];
+		rxdes[i].rxdes2 = (unsigned int)(unsigned long)net_rx_packets[i];
 		rxdes[i].rxdes1 |= FTMAC100_RXDES1_RXBUF_SIZE (PKTSIZE_ALIGN);
 		rxdes[i].rxdes0 = FTMAC100_RXDES0_RXDMA_OWN;
 	}
 
 	/* transmit ring */
 
-	writel ((unsigned int)txdes, &ftmac100->txr_badr);
+	writel ((unsigned long)txdes, &ftmac100->txr_badr);
 
 	/* receive ring */
 
-	writel ((unsigned int)rxdes, &ftmac100->rxr_badr);
+	writel ((unsigned long)rxdes, &ftmac100->rxr_badr);
 
 	/* poll receive descriptor automatically */
 
@@ -193,14 +192,14 @@ static int _ftmac100_send(struct ftmac100_data *priv, void *packet, int length)
 		return -1;
 	}
 
-	debug ("%s(%x, %x)\n", __func__, (int)packet, length);
+	debug ("%s(%lx, %x)\n", __func__, (unsigned long)packet, length);
 
 	length = (length < ETH_ZLEN) ? ETH_ZLEN : length;
 
 	/* initiate a transmit sequence */
 
-	flush_dcache_range((u32)packet,(u32)packet+length);
-	curr_des->txdes2 = (unsigned int)packet;	/* TXBUF_BADR */
+	flush_dcache_range((unsigned long)packet,(unsigned long)packet+length);
+	curr_des->txdes2 = (unsigned int)(unsigned long)packet;	/* TXBUF_BADR */
 
 	curr_des->txdes1 &= FTMAC100_TXDES1_EDOTR;
 	curr_des->txdes1 |= FTMAC100_TXDES1_FTS |
@@ -344,7 +343,7 @@ static int ftmac100_recv(struct udevice *dev, int flags, uchar **packetp)
 	int len;
 	len = __ftmac100_recv(priv);
 	if (len)
-		*packetp = (void *)curr_des->rxdes2;
+		*packetp = (uchar *)(unsigned long)curr_des->rxdes2;
 
 	return len ? len : -EAGAIN;
 }

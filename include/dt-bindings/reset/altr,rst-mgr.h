@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2014, Steffen Trumtrar <s.trumtrar@pengutronix.de>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _DT_BINDINGS_RESET_ALTR_RST_MGR_H

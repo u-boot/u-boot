@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: LGPL-2.1
 /*
  *  Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *  based on:
  *  FIPS-180-1 compliant SHA-1 implementation
  *
  *  Copyright (C) 2003-2006  Christophe Devine
- *
- * SPDX-License-Identifier:	LGPL-2.1
  */
 /*
  *  The SHA-1 standard was published by NIST in 1993.

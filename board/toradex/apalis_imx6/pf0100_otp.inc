@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2014-2016, Toradex AG
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 // Register Output for PF0100 programmer

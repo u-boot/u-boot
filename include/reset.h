@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2016, NVIDIA CORPORATION.
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #ifndef _RESET_H
@@ -41,10 +40,12 @@ struct udevice;
  *
  * @dev: The device which implements the reset signal.
  * @id: The reset signal ID within the provider.
+ * @data: An optional data field for scenarios where a single integer ID is not
+ *	  sufficient. If used, it can be populated through an .of_xlate op and
+ *	  processed during the various reset ops.
  *
- * Currently, the reset API assumes that a single integer ID is enough to
- * identify and configure any reset signal for any reset provider. If this
- * assumption becomes invalid in the future, the struct could be expanded to
+ * Should additional information to identify and configure any reset signal
+ * for any provider be required in the future, the struct could be expanded to
  * either (a) add more fields to allow reset providers to store additional
  * information, or (b) replace the id field with an opaque pointer, which the
  * provider would dynamically allocated during its .of_xlate op, and process
@@ -54,13 +55,31 @@ struct udevice;
 struct reset_ctl {
 	struct udevice *dev;
 	/*
-	 * Written by of_xlate. We assume a single id is enough for now. In the
-	 * future, we might add more fields here.
+	 * Written by of_xlate. In the future, we might add more fields here.
 	 */
 	unsigned long id;
+	unsigned long data;
 };
 
-#ifdef CONFIG_DM_RESET
+/**
+ * struct reset_ctl_bulk - A handle to (allowing control of) a bulk of reset
+ * signals.
+ *
+ * Clients provide storage for the reset control bulk. The content of the
+ * structure is managed solely by the reset API. A reset control bulk struct is
+ * initialized by "get"ing the reset control bulk struct.
+ * The reset control bulk struct is passed to all other bulk reset APIs to apply
+ * the API to all the reset signals in the bulk struct.
+ *
+ * @resets: An array of reset signal handles handles.
+ * @count: The number of reset signal handles in the reset array.
+ */
+struct reset_ctl_bulk {
+	struct reset_ctl *resets;
+	unsigned int count;
+};
+
+#if CONFIG_IS_ENABLED(DM_RESET)
 /**
  * reset_get_by_index - Get/request a reset signal by integer index.
  *
@@ -79,6 +98,22 @@ struct reset_ctl {
  */
 int reset_get_by_index(struct udevice *dev, int index,
 		       struct reset_ctl *reset_ctl);
+
+/**
+ * reset_get_bulk - Get/request all reset signals of a device.
+ *
+ * This looks up and requests all reset signals of the client device; each
+ * device is assumed to have n reset signals associated with it somehow,
+ * and this function finds and requests all of them in a separate structure.
+ * The mapping of client device reset signals indices to provider reset signals
+ * may be via device-tree properties, board-provided mapping tables, or some
+ * other mechanism.
+ *
+ * @dev:	The client device.
+ * @bulk	A pointer to a reset control bulk struct to initialize.
+ * @return 0 if OK, or a negative error code.
+ */
+int reset_get_bulk(struct udevice *dev, struct reset_ctl_bulk *bulk);
 
 /**
  * reset_get_by_name - Get/request a reset signal by name.
@@ -132,6 +167,21 @@ int reset_free(struct reset_ctl *reset_ctl);
 int reset_assert(struct reset_ctl *reset_ctl);
 
 /**
+ * reset_assert_bulk - Assert all reset signals in a reset control bulk struct.
+ *
+ * This function will assert the specified reset signals in a reset control
+ * bulk struct, thus resetting the affected HW module(s). Depending on the
+ * reset controller hardware, the reset signals will either stay asserted
+ * until reset_deassert_bulk() is called, or the hardware may autonomously
+ * clear the reset signals itself.
+ *
+ * @bulk:	A reset control bulk struct that was previously successfully
+ *		requested by reset_get_bulk().
+ * @return 0 if OK, or a negative error code.
+ */
+int reset_assert_bulk(struct reset_ctl_bulk *bulk);
+
+/**
  * reset_deassert - Deassert a reset signal.
  *
  * This function will deassert the specified reset signal, thus releasing the
@@ -145,6 +195,29 @@ int reset_assert(struct reset_ctl *reset_ctl);
 int reset_deassert(struct reset_ctl *reset_ctl);
 
 /**
+ * reset_deassert_bulk - Deassert all reset signals in a reset control bulk
+ * struct.
+ *
+ * This function will deassert the specified reset signals in a reset control
+ * bulk struct, thus releasing the affected HW modules() from reset, and
+ * allowing them to continue normal operation.
+ *
+ * @bulk:	A reset control bulk struct that was previously successfully
+ *		requested by reset_get_bulk().
+ * @return 0 if OK, or a negative error code.
+ */
+int reset_deassert_bulk(struct reset_ctl_bulk *bulk);
+
+/**
+ * rst_status - Check reset signal status.
+ *
+ * @reset_ctl:	The reset signal to check.
+ * @return 0 if deasserted, positive if asserted, or a negative
+ *           error code.
+ */
+int reset_status(struct reset_ctl *reset_ctl);
+
+/**
  * reset_release_all - Assert/Free an array of previously requested resets.
  *
  * For each reset contained in the reset array, this function will check if
@@ -156,9 +229,32 @@ int reset_deassert(struct reset_ctl *reset_ctl);
  * @return 0 if OK, or a negative error code.
  */
 int reset_release_all(struct reset_ctl *reset_ctl, int count);
+
+/**
+ * reset_release_bulk - Assert/Free an array of previously requested reset
+ * signals in a reset control bulk struct.
+ *
+ * For each reset contained in the reset control bulk struct, this function
+ * will check if reset has been previously requested and then will assert
+ * and free it.
+ *
+ * @bulk:	A reset control bulk struct that was previously successfully
+ *		requested by reset_get_bulk().
+ * @return 0 if OK, or a negative error code.
+ */
+static inline int reset_release_bulk(struct reset_ctl_bulk *bulk)
+{
+	return reset_release_all(bulk->resets, bulk->count);
+}
 #else
 static inline int reset_get_by_index(struct udevice *dev, int index,
 				     struct reset_ctl *reset_ctl)
+{
+	return -ENOTSUPP;
+}
+
+static inline int reset_get_bulk(struct udevice *dev,
+				 struct reset_ctl_bulk *bulk)
 {
 	return -ENOTSUPP;
 }
@@ -179,9 +275,24 @@ static inline int reset_assert(struct reset_ctl *reset_ctl)
 	return 0;
 }
 
+static inline int reset_assert_bulk(struct reset_ctl_bulk *bulk)
+{
+	return 0;
+}
+
 static inline int reset_deassert(struct reset_ctl *reset_ctl)
 {
 	return 0;
+}
+
+static inline int reset_deassert_bulk(struct reset_ctl_bulk *bulk)
+{
+	return 0;
+}
+
+static inline int reset_status(struct reset_ctl *reset_ctl)
+{
+	return -ENOTSUPP;
 }
 
 static inline int reset_release_all(struct reset_ctl *reset_ctl, int count)
@@ -189,6 +300,10 @@ static inline int reset_release_all(struct reset_ctl *reset_ctl, int count)
 	return 0;
 }
 
+static inline int reset_release_bulk(struct reset_ctl_bulk *bulk)
+{
+	return 0;
+}
 #endif
 
 #endif

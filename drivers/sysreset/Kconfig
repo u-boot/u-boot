@@ -15,12 +15,33 @@ config SYSRESET
 
 if SYSRESET
 
+config SYSRESET_GPIO
+	bool "Enable support for GPIO reset driver"
+	select GPIO
+	help
+	  Reset support via GPIO pin connected reset logic. This is used for
+	  example on Microblaze where reset logic can be controlled via GPIO
+	  pin which triggers cpu reset.
+
+config SYSRESET_MICROBLAZE
+	bool "Enable support for Microblaze soft reset"
+	depends on MICROBLAZE
+	help
+	  This is soft reset on Microblaze which does jump to 0x0 address.
+
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
 	depends on ARM_PSCI_FW
 	help
 	  Enable PSCI SYSTEM_RESET function call.  To use this, PSCI firmware
 	  must be running on your system.
+
+config SYSRESET_TI_SCI
+	bool "TI System Control Interface (TI SCI) system reset driver"
+	depends on TI_SCI_PROTOCOL
+	help
+	  This enables the system reset driver support over TI System Control
+	  Interface available on some new TI's SoCs.
 
 endif
 
@@ -36,5 +57,16 @@ config SYSRESET_WATCHDOG
 	select WDT
 	help
 	  Reboot support for generic watchdog reset.
+
+config SYSRESET_X86
+	bool "Enable support for x86 processor reboot driver"
+	depends on X86
+	help
+	  Reboot support for generic x86 processor reset.
+
+config SYSRESET_MCP83XX
+	bool "Enable support MPC83xx SoC family reboot driver"
+	help
+	  Reboot support for NXP MPC83xx SoCs.
 
 endmenu

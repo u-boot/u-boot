@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2017 General Electric Company
  *
@@ -5,8 +6,6 @@
  *
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  * Fabio Estevam <fabio.estevam@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

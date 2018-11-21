@@ -1,6 +1,4 @@
-/*
- * SPDX-License-Identifier:	GPL-2.0+
- */
+// SPDX-License-Identifier: GPL-2.0+
 
 #include <common.h>
 #include <malloc.h>
@@ -125,7 +123,6 @@
 #define TOUT_LOOP   1000000
 
 #define SETUP_FRAME_LEN 192
-#define ETH_ALEN	6
 
 struct de4x5_desc {
 	volatile s32 status;

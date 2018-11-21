@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2017 Intel Corporation
  *
  * Partially based on acpi.c for other x86 platforms
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

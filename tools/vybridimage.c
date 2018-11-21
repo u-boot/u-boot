@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Image manipulator for Vybrid SoCs
  *
@@ -5,8 +6,6 @@
  *
  * (C) Copyright 2016  DENX Software Engineering GmbH
  * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "imagetool.h"

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2010
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
@@ -7,8 +8,6 @@
  *
  * ispVM functions adapted from Lattice's ispmVMEmbedded code:
  * Copyright 2009 Lattice Semiconductor Corp.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

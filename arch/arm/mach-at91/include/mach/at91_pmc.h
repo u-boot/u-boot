@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * [origin: Linux kernel arch/arm/mach-at91/include/mach/at91_pmc.h]
  *
@@ -7,8 +8,6 @@
  *
  * Power Management Controller (PMC) - System peripherals registers.
  * Based on AT91RM9200 datasheet revision E.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91_PMC_H
@@ -233,9 +232,15 @@ typedef struct at91_pmc {
 #define			AT91_PMC_PDIV_1			(0 << 12)
 #define			AT91_PMC_PDIV_2			(1 << 12)
 
+#define AT91_PMC_USB_USBS_MASK		0x1
+#define AT91_PMC_USB_USBS_OFFSET		0
+#define AT91_PMC_USB_USBS_(x)		(x & 0x1)
 #define		AT91_PMC_USBS_USB_PLLA		(0x0)		/* USB Clock Input is PLLA */
 #define		AT91_PMC_USBS_USB_UPLL		(0x1)		/* USB Clock Input is UPLL */
 #define		AT91_PMC_USBS_USB_PLLB		(0x1)		/* USB Clock Input is PLLB, AT91SAM9N12 only */
+#define AT91_PMC_USB_DIV_MASK		0xf
+#define AT91_PMC_USB_DIV_OFFSET		8
+#define AT91_PMC_USB_DIV_(x)		((x & 0xf) << 8)
 #define		AT91_PMC_USB_DIV_2		(0x1 <<  8)	/* USB Clock divided by 2 */
 #define		AT91_PMC_USBDIV_8		(0x7 <<  8)	/* USB Clock divided by 8 */
 #define		AT91_PMC_USBDIV_10		(0x9 <<  8)	/* USB Clock divided by 10 */

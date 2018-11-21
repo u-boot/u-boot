@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *
  * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_CLOCK_H
@@ -10,17 +9,9 @@
 
 #include <common.h>
 
-#ifdef CONFIG_MX31_HCLK_FREQ
 #define MXC_HCLK	CONFIG_MX31_HCLK_FREQ
-#else
-#define MXC_HCLK	26000000
-#endif
 
-#ifdef CONFIG_MX31_CLK32
 #define MXC_CLK32	CONFIG_MX31_CLK32
-#else
-#define MXC_CLK32	32768
-#endif
 
 enum mxc_clock {
 	MXC_ARM_CLK,

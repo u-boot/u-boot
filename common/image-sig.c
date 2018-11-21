@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2013, Google Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifdef USE_HOSTCC
@@ -156,6 +155,11 @@ static int fit_image_setup_verify(struct image_sign_info *info,
 		char **err_msgp)
 {
 	char *algo_name;
+
+	if (fdt_totalsize(fit) > CONFIG_FIT_SIGNATURE_MAX_SIZE) {
+		*err_msgp = "Total size too large";
+		return 1;
+	}
 
 	if (fit_image_hash_get_algo(fit, noffset, &algo_name)) {
 		*err_msgp = "Can't get hash algo property";
@@ -347,7 +351,7 @@ int fit_config_check_sig(const void *fit, int noffset, int required_keynode,
 
 	/*
 	 * Each node can generate one region for each sub-node. Allow for
-	 * 7 sub-nodes (hash@1, signature@1, etc.) and some extra.
+	 * 7 sub-nodes (hash-1, signature-1, etc.) and some extra.
 	 */
 	max_regions = 20 + count * 7;
 	struct fdt_region fdt_regions[max_regions];
@@ -373,8 +377,11 @@ int fit_config_check_sig(const void *fit, int noffset, int required_keynode,
 	/* Add the strings */
 	strings = fdt_getprop(fit, noffset, "hashed-strings", NULL);
 	if (strings) {
-		fdt_regions[count].offset = fdt_off_dt_strings(fit) +
-				fdt32_to_cpu(strings[0]);
+		/*
+		 * The strings region offset must be a static 0x0.
+		 * This is set in tool/image-host.c
+		 */
+		fdt_regions[count].offset = fdt_off_dt_strings(fit);
 		fdt_regions[count].size = fdt32_to_cpu(strings[1]);
 		count++;
 	}

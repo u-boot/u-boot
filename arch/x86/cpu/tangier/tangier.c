@@ -1,14 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2017 Intel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <asm/scu.h>
 #include <asm/u-boot-x86.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Miscellaneous platform dependent initializations
@@ -26,9 +22,4 @@ int checkcpu(void)
 int print_cpuinfo(void)
 {
 	return default_print_cpuinfo();
-}
-
-void reset_cpu(ulong addr)
-{
-	scu_ipc_simple_command(IPCMSG_COLD_RESET, 0);
 }

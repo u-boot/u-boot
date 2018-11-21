@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Most of this source has been derived from the Linux USB
  * project:
@@ -13,8 +14,6 @@
  *
  * Adapted for U-Boot:
  * (C) Copyright 2001 Denis Peter, MPL AG Switzerland
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /****************************************************************************
@@ -36,8 +35,6 @@
 #include <asm/state.h>
 #endif
 #include <asm/unaligned.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #include <usb.h>
 

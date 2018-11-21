@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Mentor USB OTG Core functionality common for both Host and Device
  * functionality.
  *
  * Copyright (c) 2008 Texas Instruments
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Author: Thomas Abraham t-abraham@ti.com, Texas Instruments
  */

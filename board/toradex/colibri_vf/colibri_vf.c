@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Toradex, Inc.
  *
  * Based on vf610twr.c:
  * Copyright 2013 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -581,7 +580,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 {
 	int ret = 0;
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
-	static struct node_info nodes[] = {
+	static const struct node_info nodes[] = {
 		{ "fsl,vf610-nfc", MTD_DEV_TYPE_NAND, }, /* NAND flash */
 	};
 

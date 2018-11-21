@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2013 Google Inc.
  * Copyright (C) 2016 Bin Meng <bmeng.cn@gmail.com>
  *
  * Modified from coreboot src/soc/intel/baytrail/include/soc/pci_devs.h
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DEVICE_H_

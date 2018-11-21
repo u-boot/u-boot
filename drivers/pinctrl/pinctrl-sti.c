@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Pinctrl driver for STMicroelectronics STi SoCs
  *
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -62,7 +61,7 @@ void sti_alternate_select(struct udevice *dev, struct sti_pin_desc *pin_desc)
 	int bank = pin_desc->bank;
 	int pin = pin_desc->pin;
 
-	sysconfreg = (unsigned long *)plat->regmap->base;
+	sysconfreg = (unsigned long *)plat->regmap->ranges[0].start;
 
 	switch (bank) {
 	case 0 ... 5:		/* in "SBC Bank" */
@@ -96,7 +95,7 @@ void sti_pin_configure(struct udevice *dev, struct sti_pin_desc *pin_desc)
 	unsigned long *sysconfreg;
 	int bank = pin_desc->bank;
 
-	sysconfreg = (unsigned long *)plat->regmap->base + 40;
+	sysconfreg = (unsigned long *)plat->regmap->ranges[0].start + 40;
 
 	/*
 	 * NOTE: The PIO configuration for the PIO pins in the

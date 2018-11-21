@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * BTRFS filesystem implementation for U-Boot
  *
  * 2017 Marek Behun, CZ.NIC, marek.behun@nic.cz
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "btrfs.h"
 #include <u-boot/crc.h>
+#include <asm/unaligned.h>
 
 static u32 btrfs_crc32c_table[256];
 
@@ -34,5 +34,5 @@ u32 btrfs_csum_data(char *data, u32 seed, size_t len)
 
 void btrfs_csum_final(u32 crc, void *result)
 {
-	*((u32 *) result) = cpu_to_le32(~crc);
+	put_unaligned(cpu_to_le32(~crc), (u32 *)result);
 }

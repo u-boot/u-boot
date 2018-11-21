@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Driver for Marvell SOC Platform Group Xenon SDHC as a platform device
  *
@@ -11,14 +12,12 @@
  *
  * Ported to from Marvell 2015.01 to mainline U-Boot 2017.01:
  * Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <malloc.h>
 #include <sdhci.h>
 

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2010
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -29,7 +28,7 @@ void bootcount_store(ulong a)
 		size += gd->bd->bi_dram[i].size;
 	save_addr = (ulong *)(size - BOOTCOUNT_ADDR);
 	writel(a, save_addr);
-	writel(BOOTCOUNT_MAGIC, &save_addr[1]);
+	writel(CONFIG_SYS_BOOTCOUNT_MAGIC, &save_addr[1]);
 
 	for (i = 0; i < REPEAT_PATTERN; i++)
 		writel(patterns[i % NBR_OF_PATTERNS],

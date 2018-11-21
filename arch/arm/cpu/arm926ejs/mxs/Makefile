@@ -1,9 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 extra-$(CONFIG_SPL_BUILD) := start.o
 
@@ -14,8 +12,8 @@ obj-y	+= spl_boot.o spl_lradc_init.o spl_mem_init.o spl_power_init.o
 endif
 
 # Specify the target for use in elftosb call
-MKIMAGE_TARGET-$(CONFIG_MX23) = mxsimage.mx23.cfg
-MKIMAGE_TARGET-$(CONFIG_MX28) = mxsimage.mx28.cfg
+MKIMAGE_TARGET-$(CONFIG_MX23) = mxsimage$(CONFIG_SPL_FRAMEWORK:%=-spl).mx23.cfg
+MKIMAGE_TARGET-$(CONFIG_MX28) = mxsimage$(CONFIG_SPL_FRAMEWORK:%=-spl).mx28.cfg
 
 # Generate HAB-capable IVT
 #

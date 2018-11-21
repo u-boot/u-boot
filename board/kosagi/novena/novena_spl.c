@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Novena SPL
  *
  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -26,8 +25,6 @@
 #include <asm/arch/mx6-ddr.h>
 
 #include "novena.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL						\
 	(PAD_CTL_PKE | PAD_CTL_PUE |				\

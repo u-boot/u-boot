@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <phy.h>
@@ -42,9 +41,6 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 		if ((rcwsr13 & FSL_CORENET_RCWSR13_EC2) ==
 				FSL_CORENET_RCWSR13_EC2_FM1_DTSEC5_RGMII)
 			return PHY_INTERFACE_MODE_RGMII;
-		else if ((rcwsr13 & FSL_CORENET_RCWSR13_EC2) ==
-				FSL_CORENET_RCWSR13_EC2_FM1_DTSEC5_MII)
-			return PHY_INTERFACE_MODE_MII;
 	}
 
 	switch (port) {

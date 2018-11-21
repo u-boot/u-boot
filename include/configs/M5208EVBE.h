@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Freescale MCF5208EVBe.
  *
  * Copyright (C) 2004-2008 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _M5208EVBE_H
@@ -22,7 +21,6 @@
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_MII		1
 #	define CONFIG_MII_INIT		1
 #	define CONFIG_SYS_DISCOVER_PHY
 #	define CONFIG_SYS_RX_ETH_BUFFER	8
@@ -64,7 +62,7 @@
 #	define CONFIG_GATEWAYIP	192.162.1.1
 #endif				/* CONFIG_MCFFEC */
 
-#define CONFIG_HOSTNAME		M5208EVBe
+#define CONFIG_HOSTNAME		"M5208EVBe"
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=40010000\0"			\
@@ -78,7 +76,6 @@
 	""
 
 #define CONFIG_PRAM		512	/* 512 KB */
-#define CONFIG_SYS_LONGHELP	/* undef to save memory */
 
 #define CONFIG_SYS_LOAD_ADDR	0x40010000
 
@@ -131,14 +128,11 @@
 #define CONFIG_SYS_BOOTM_LEN		(CONFIG_SYS_SDRAM_SIZE << 20)
 
 /* FLASH organization */
-#define CONFIG_SYS_FLASH_CFI
 #ifdef CONFIG_SYS_FLASH_CFI
-#	define CONFIG_FLASH_CFI_DRIVER		1
 #	define CONFIG_SYS_FLASH_SIZE		0x800000	/* Max size that the board might have */
 #	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #	define CONFIG_SYS_MAX_FLASH_SECT	254	/* max number of sectors on one chip */
-#	define CONFIG_SYS_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #endif
 
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE

@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * UniPhier SG (SoC Glue) block registers
  *
  * Copyright (C) 2011-2015 Copyright (C) 2011-2015 Panasonic Corporation
  * Copyright (C) 2016-2017 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef UNIPHIER_SG_REGS_H

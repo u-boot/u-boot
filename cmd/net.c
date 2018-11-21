@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -14,6 +13,7 @@
 
 static int netboot_common(enum proto_t, cmd_tbl_t *, int, char * const []);
 
+#ifdef CONFIG_CMD_BOOTP
 static int do_bootp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return netboot_common(BOOTP, cmdtp, argc, argv);
@@ -24,7 +24,9 @@ U_BOOT_CMD(
 	"boot image via network using BOOTP/TFTP protocol",
 	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
+#endif
 
+#ifdef CONFIG_CMD_TFTPBOOT
 int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret;
@@ -40,6 +42,7 @@ U_BOOT_CMD(
 	"boot image via network using TFTP protocol",
 	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
+#endif
 
 #ifdef CONFIG_CMD_TFTPPUT
 static int do_tftpput(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -180,6 +183,8 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 	int   size;
 	ulong addr;
 
+	net_boot_file_name_explicit = false;
+
 	/* pre-set load_addr */
 	s = env_get("loadaddr");
 	if (s != NULL)
@@ -187,6 +192,9 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 
 	switch (argc) {
 	case 1:
+		/* refresh bootfile name from env */
+		copy_filename(net_boot_file_name, env_get("bootfile"),
+			      sizeof(net_boot_file_name));
 		break;
 
 	case 2:	/*
@@ -196,15 +204,21 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 		 * mis-interpreted as a valid number.
 		 */
 		addr = simple_strtoul(argv[1], &end, 16);
-		if (end == (argv[1] + strlen(argv[1])))
+		if (end == (argv[1] + strlen(argv[1]))) {
 			load_addr = addr;
-		else
+			/* refresh bootfile name from env */
+			copy_filename(net_boot_file_name, env_get("bootfile"),
+				      sizeof(net_boot_file_name));
+		} else {
+			net_boot_file_name_explicit = true;
 			copy_filename(net_boot_file_name, argv[1],
 				      sizeof(net_boot_file_name));
+		}
 		break;
 
 	case 3:
 		load_addr = simple_strtoul(argv[1], NULL, 16);
+		net_boot_file_name_explicit = true;
 		copy_filename(net_boot_file_name, argv[2],
 			      sizeof(net_boot_file_name));
 
@@ -217,6 +231,7 @@ static int netboot_common(enum proto_t proto, cmd_tbl_t *cmdtp, int argc,
 			printf("Invalid address/size\n");
 			return CMD_RET_USAGE;
 		}
+		net_boot_file_name_explicit = true;
 		copy_filename(net_boot_file_name, argv[3],
 			      sizeof(net_boot_file_name));
 		break;

@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: LGPL-2.0+ */
 /*
  * Copyright 2009 Extreme Engineering Solutions, Inc.
- *
- * SPDX-License-Identifier:	LGPL-2.0+
  */
 
 #ifndef __OS_SUPPORT_H_

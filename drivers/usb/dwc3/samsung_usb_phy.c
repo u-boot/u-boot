@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0
 /**
  * samsung_usb_phy.c - DesignWare USB3 (DWC3) PHY handling file
  *
  * Copyright (C) 2015 Samsung Electronics
  *
  * Author: Joonyoung Shim <jy0922.shim@samsung.com>
- *
- * SPDX-License-Identifier:     GPL-2.0
  */
 
 #include <common.h>

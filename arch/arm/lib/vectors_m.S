@@ -1,12 +1,11 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2015
  * Kamil Lulko, <kamil.lulko@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
-#include <asm/armv7m.h>
+#include <asm/assembler.h>
 #include <linux/linkage.h>
 
 .type __hard_fault_entry, %function

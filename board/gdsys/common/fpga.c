@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2013
- * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Dirk Eibach,  Guntermann & Drunck GmbH, dirk.eibach@gdsys.cc
  */
 
 #include <common.h>

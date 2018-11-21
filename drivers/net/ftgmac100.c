@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Faraday FTGMAC100 Ethernet
  *
@@ -6,8 +7,6 @@
  *
  * (C) Copyright 2010 Andes Technology
  * Macpaul Lin <macpaul@andestech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

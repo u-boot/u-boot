@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017 Amarula Solutions
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -18,8 +17,6 @@
 #include <asm/arch/pmu_rk3288.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define GRF_BASE		0xff770000
 void board_init_f(ulong dummy)

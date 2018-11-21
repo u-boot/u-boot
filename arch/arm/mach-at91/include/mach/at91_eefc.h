@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2010
  * Reinhard Meyer, reinhard.meyer@emk-elektronik.de
  *
  * Enhanced Embedded Flash Controller
  * Based on AT91SAM9XE datasheet
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef AT91_EEFC_H

@@ -1,6 +1,5 @@
-#
-# SPDX-License-Identifier:      GPL-2.0+
-#
+# SPDX-License-Identifier: GPL-2.0+
+
 from distutils.core import setup
 setup(name='patman',
       version='1.0',

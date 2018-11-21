@@ -1,13 +1,13 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:      GPL-2.0+
  *
  * Ethernet Switch commands
  */
 
 #include <common.h>
 #include <command.h>
+#include <environment.h>
 #include <errno.h>
 #include <env_flags.h>
 #include <ethsw.h>

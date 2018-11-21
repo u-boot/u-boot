@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2009 SAMSUNG Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Jaehoon Chung <jh80.chung@samsung.com>
  * Portions Copyright 2011-2016 NVIDIA Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <bouncebuf.h>
@@ -15,8 +14,6 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch-tegra/tegra_mmc.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct tegra_mmc_plat {
 	struct mmc_config cfg;

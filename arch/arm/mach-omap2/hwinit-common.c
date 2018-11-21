@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * Common functions for OMAP4/5 based boards
@@ -8,8 +9,6 @@
  * Author :
  *	Aneesh V	<aneesh@ti.com>
  *	Steve Sakoman	<steve@sakoman.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <debug_uart.h>
@@ -66,7 +65,7 @@ static void omap_rev_string(void)
 	u32 major_rev = (omap_rev & 0x00000F00) >> 8;
 	u32 minor_rev = (omap_rev & 0x000000F0) >> 4;
 
-	const char *sec_s;
+	const char *sec_s, *package = NULL;
 
 	switch (get_device_type()) {
 	case TST_DEVICE:
@@ -85,11 +84,29 @@ static void omap_rev_string(void)
 		sec_s = "?";
 	}
 
+#if defined(CONFIG_DRA7XX)
+	if (is_dra76x()) {
+		switch (omap_rev & 0xF) {
+		case DRA762_ABZ_PACKAGE:
+			package = "ABZ";
+			break;
+		case DRA762_ACD_PACKAGE:
+		default:
+			package = "ACD";
+			break;
+		}
+	}
+#endif
+
 	if (soc_variant)
 		printf("OMAP");
 	else
 		printf("DRA");
-	printf("%x-%s ES%x.%x\n", omap_variant, sec_s, major_rev, minor_rev);
+	printf("%x-%s ES%x.%x", omap_variant, sec_s, major_rev, minor_rev);
+	if (package)
+		printf(" %s package\n", package);
+	else
+		puts("\n");
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -128,6 +145,16 @@ void s_init(void)
 }
 
 /**
+ * init_package_revision() - Initialize package revision
+ *
+ * Function to get the pacakage information. This is expected to be
+ * overridden in the SoC family file where desired.
+ */
+void __weak init_package_revision(void)
+{
+}
+
+/**
  * early_system_init - Does Early system initialization.
  *
  * Does early system init of watchdog, muxing,  andclocks
@@ -146,6 +173,7 @@ void early_system_init(void)
 {
 	init_omap_revision();
 	hw_data_init();
+	init_package_revision();
 
 #ifdef CONFIG_SPL_BUILD
 	if (warm_reset())

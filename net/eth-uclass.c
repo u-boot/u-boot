@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001-2015
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Joe Hershberger, National Instruments
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -308,12 +307,13 @@ void eth_halt(void)
 	struct eth_device_priv *priv;
 
 	current = eth_get_dev();
-	if (!current || !device_active(current))
+	if (!current || !eth_is_active(current))
 		return;
 
 	eth_get_ops(current)->stop(current);
 	priv = current->uclass_priv;
-	priv->state = ETH_STATE_PASSIVE;
+	if (priv)
+		priv->state = ETH_STATE_PASSIVE;
 }
 
 int eth_is_active(struct udevice *dev)
@@ -336,7 +336,7 @@ int eth_send(void *packet, int length)
 	if (!current)
 		return -ENODEV;
 
-	if (!device_active(current))
+	if (!eth_is_active(current))
 		return -EINVAL;
 
 	ret = eth_get_ops(current)->send(current, packet, length);
@@ -359,7 +359,7 @@ int eth_rx(void)
 	if (!current)
 		return -ENODEV;
 
-	if (!device_active(current))
+	if (!eth_is_active(current))
 		return -EINVAL;
 
 	/* Process up to 32 packets at one time */
@@ -396,7 +396,7 @@ int eth_initialize(void)
 	 * This is accomplished by attempting to probe each device and calling
 	 * their write_hwaddr() operation.
 	 */
-	uclass_first_device(UCLASS_ETH, &dev);
+	uclass_first_device_check(UCLASS_ETH, &dev);
 	if (!dev) {
 		printf("No ethernet found.\n");
 		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
@@ -425,7 +425,7 @@ int eth_initialize(void)
 
 			eth_write_hwaddr(dev);
 
-			uclass_next_device(&dev);
+			uclass_next_device_check(&dev);
 			num_devices++;
 		} while (dev);
 

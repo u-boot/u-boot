@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * LPC32xx GPIO interface
  *
  * (C) Copyright 2014  DENX Software Engineering GmbH
  * Written-by: Albert ARIBAUD <albert.aribaud@3adev.fr>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /**

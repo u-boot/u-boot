@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * vme8349.c -- esd VME8349 board support
  *
@@ -8,8 +9,6 @@
  *
  * Reinhard Arlt <reinhard.arlt@esd-electronics.com>
  * Based on board/mpc8349emds/mpc8349emds.c (and previous 834x releases.)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,7 +16,7 @@
 #include <mpc83xx.h>
 #include <asm/mpc8349_pci.h>
 #if defined(CONFIG_OF_LIBFDT)
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #endif
 #include <asm/io.h>
 #include <asm/mmu.h>

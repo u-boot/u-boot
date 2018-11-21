@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2001 Navin Boppuri / Prashant Patel
  *	<nboppuri@trinetcommunication.com>,
  *	<pmpatel@trinetcommunication.com>
  * Copyright (c) 2001 Gerd Mennchen <Gerd.Mennchen@icn.siemens.de>
  * Copyright (c) 2001 Wolfgang Denk, DENX Software Engineering, <wd@denx.de>.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -19,7 +18,7 @@
 
 #include <common.h>
 #include <mpc8xx.h>
-#include <commproc.h>
+#include <asm/cpm_8xx.h>
 #include <linux/ctype.h>
 #include <malloc.h>
 #include <post.h>

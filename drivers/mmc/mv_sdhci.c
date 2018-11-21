@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Marvell SD Host Controller Interface
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -68,7 +67,7 @@ static char *MVSDH_NAME = "mv_sdh";
 int mv_sdh_init(unsigned long regbase, u32 max_clk, u32 min_clk, u32 quirks)
 {
 	struct sdhci_host *host = NULL;
-	host = (struct sdhci_host *)malloc(sizeof(struct sdhci_host));
+	host = calloc(1, sizeof(*host));
 	if (!host) {
 		printf("sdh_host malloc fail!\n");
 		return -ENOMEM;

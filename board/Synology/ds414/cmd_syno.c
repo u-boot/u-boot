@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Commands to deal with Synology specifics.
  *
  * Copyright (C) 2015  Phil Sutter <phil@nwl.cc>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -15,7 +14,6 @@
 #include <asm/io.h>
 #include "../drivers/ddr/marvell/axp/ddr3_init.h"
 
-#define ETH_ALEN		6
 #define ETHADDR_MAX		4
 #define SYNO_SN_TAG		"SN="
 #define SYNO_CHKSUM_TAG		"CHK="

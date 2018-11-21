@@ -1,15 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010 Freescale Semiconductor, Inc.
  * Copyright (C) 2010 Ilya Yanok, Emcraft Systems, yanok@emcraft.com
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <hwconfig.h>
 #include <i2c.h>
 #include <spi.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <pci.h>
 #include <mpc83xx.h>
@@ -19,8 +18,6 @@
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_mpc83xx_serdes.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * The following are used to control the SPI chip selects for the SPI command.

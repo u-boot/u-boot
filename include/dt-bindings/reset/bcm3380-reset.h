@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Álvaro Fernández Rojas <noltari@gmail.com>
  *
  * Derived from Broadcom GPL Source Code:
  *	Copyright (C) Broadcom Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DT_BINDINGS_RESET_BCM3380_H

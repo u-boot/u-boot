@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Copyright © 2000-2010 David Woodhouse <dwmw2@infradead.org>
  *                        Steven J. Hill <sjhill@realitydiluted.com>
  *		          Thomas Gleixner <tglx@linutronix.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Info:
  *	Contains standard defines and IDs for NAND flash devices
@@ -23,8 +22,15 @@
 #include <asm/cache.h>
 
 struct mtd_info;
+struct nand_chip;
 struct nand_flash_dev;
 struct device_node;
+
+/* Get the flash and manufacturer id and lookup if the type is supported. */
+struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
+					   struct nand_chip *chip,
+					   int *maf_id, int *dev_id,
+					   struct nand_flash_dev *type);
 
 /* Scan and identify a NAND device */
 int nand_scan(struct mtd_info *mtd, int max_chips);
@@ -137,6 +143,12 @@ typedef enum {
 	NAND_ECC_SOFT_BCH,
 } nand_ecc_modes_t;
 
+enum nand_ecc_algo {
+	NAND_ECC_UNKNOWN,
+	NAND_ECC_HAMMING,
+	NAND_ECC_BCH,
+};
+
 /*
  * Constants for Hardware ECC
  */
@@ -247,9 +259,6 @@ typedef enum {
 #define NAND_CI_CHIPNR_MSK	0x03
 #define NAND_CI_CELLTYPE_MSK	0x0C
 #define NAND_CI_CELLTYPE_SHIFT	2
-
-/* Keep gcc happy */
-struct nand_chip;
 
 /* ONFI features */
 #define ONFI_FEATURE_16_BIT_BUS		(1 << 0)
@@ -530,6 +539,7 @@ static const struct nand_ecc_caps __name = {			\
 /**
  * struct nand_ecc_ctrl - Control structure for ECC
  * @mode:	ECC mode
+ * @algo:	ECC algorithm
  * @steps:	number of ECC steps per page
  * @size:	data bytes per ECC step
  * @bytes:	ECC bytes per step
@@ -580,6 +590,7 @@ static const struct nand_ecc_caps __name = {			\
  */
 struct nand_ecc_ctrl {
 	nand_ecc_modes_t mode;
+	enum nand_ecc_algo algo;
 	int steps;
 	int size;
 	int bytes;

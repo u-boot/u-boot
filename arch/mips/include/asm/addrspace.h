@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (C) 1996, 99 Ralf Baechle
  * Copyright (C) 2000, 2002  Maciej W. Rozycki
  * Copyright (C) 1990, 1999 by Silicon Graphics, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef _ASM_ADDRSPACE_H
 #define _ASM_ADDRSPACE_H
@@ -131,13 +130,13 @@
  * Returns the uncached address of a sdram address
  */
 #ifndef __ASSEMBLY__
-#if defined(CONFIG_SOC_AU1X00) || defined(CONFIG_TB0229)
+#if defined(CONFIG_TB0229)
 /* We use a 36 bit physical address map here and
    cannot access physical memory directly from core */
 #define UNCACHED_SDRAM(a) (((unsigned long)(a)) | 0x20000000)
-#else	/* !CONFIG_SOC_AU1X00 */
+#else	/* !CONFIG_TB0229 */
 #define UNCACHED_SDRAM(a) CKSEG1ADDR(a)
-#endif	/* CONFIG_SOC_AU1X00 */
+#endif	/* CONFIG_TB0229 */
 #endif	/* __ASSEMBLY__ */
 
 /*

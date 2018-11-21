@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: LGPL-2.1+
 /*
  * Tiny printf version for SPL
  *
@@ -5,8 +6,6 @@
  * http://www.sparetimelabs.com/printfrevisited/printfrevisited.php
  *
  * Copyright (C) 2004,2008  Kustaa Nyholm
- *
- * SPDX-License-Identifier:	LGPL-2.1+
  */
 
 #include <common.h>
@@ -22,11 +21,6 @@ struct printf_info {
 	/* Output a character */
 	void (*putc)(struct printf_info *info, char ch);
 };
-
-static void putc_normal(struct printf_info *info, char ch)
-{
-	putc(ch);
-}
 
 static void out(struct printf_info *info, char c)
 {
@@ -321,6 +315,12 @@ abort:
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(PRINTF)
+static void putc_normal(struct printf_info *info, char ch)
+{
+	putc(ch);
+}
+
 int vprintf(const char *fmt, va_list va)
 {
 	struct printf_info info;
@@ -343,6 +343,7 @@ int printf(const char *fmt, ...)
 
 	return ret;
 }
+#endif
 
 static void putc_outstr(struct printf_info *info, char ch)
 {
@@ -380,13 +381,4 @@ int snprintf(char *buf, size_t size, const char *fmt, ...)
 	*info.outstr = '\0';
 
 	return ret;
-}
-
-void __assert_fail(const char *assertion, const char *file, unsigned line,
-		   const char *function)
-{
-	/* This will not return */
-	printf("%s:%u: %s: Assertion `%s' failed.", file, line, function,
-	       assertion);
-	hang();
 }

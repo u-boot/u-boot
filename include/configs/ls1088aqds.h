@@ -1,16 +1,12 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2017 NXP
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __LS1088A_QDS_H
 #define __LS1088A_QDS_H
 
 #include "ls1088a_common.h"
-
-
-#define CONFIG_DISPLAY_BOARDINFO_LATE
 
 
 #ifndef __ASSEMBLY__
@@ -21,14 +17,12 @@ unsigned long get_board_ddr_clk(void);
 
 #if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_ENV_SIZE			0x2000          /* 8KB */
-#define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
 #define CONFIG_ENV_SECT_SIZE		0x40000
 #elif defined(CONFIG_SD_BOOT)
 #define CONFIG_ENV_OFFSET		(3 * 1024 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_SIZE			0x2000
 #else
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x300000)
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #define CONFIG_ENV_SIZE			0x20000
@@ -42,6 +36,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 #else
+#define CONFIG_QIXIS_I2C_ACCESS
+#define CONFIG_SYS_I2C_EARLY_INIT
 #define CONFIG_SYS_CLK_FREQ		get_board_sys_clk()
 #define CONFIG_DDR_CLK_FREQ		get_board_ddr_clk()
 #endif
@@ -90,21 +86,19 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NOR_CSOR	CSOR_NOR_ADM_SHIFT(12)
 #define CONFIG_SYS_NOR_FTIM0	(FTIM0_NOR_TACSE(0x4) | \
 				FTIM0_NOR_TEADC(0x5) | \
+				FTIM0_NOR_TAVDS(0x6) | \
 				FTIM0_NOR_TEAHC(0x5))
 #define CONFIG_SYS_NOR_FTIM1	(FTIM1_NOR_TACO(0x35) | \
-				FTIM1_NOR_TRAD_NOR(0x1a) |\
+				FTIM1_NOR_TRAD_NOR(0x1a) | \
 				FTIM1_NOR_TSEQRAD_NOR(0x13))
-#define CONFIG_SYS_NOR_FTIM2	(FTIM2_NOR_TCS(0x4) | \
-				FTIM2_NOR_TCH(0x4) | \
-				FTIM2_NOR_TWPH(0x0E) | \
+#define CONFIG_SYS_NOR_FTIM2	(FTIM2_NOR_TCS(0x8) | \
+				FTIM2_NOR_TCH(0x8) | \
+				FTIM2_NOR_TWPH(0xe) | \
 				FTIM2_NOR_TWP(0x1c))
 #define CONFIG_SYS_NOR_FTIM3	0x04000000
 #define CONFIG_SYS_IFC_CCR	0x01000000
 
 #ifndef SYS_NO_FLASH
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
@@ -171,9 +165,13 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_LBMAP_DFLTBANK		0x0e
 #define QIXIS_LBMAP_ALTBANK		0x2e
 #define QIXIS_LBMAP_SD			0x00
+#define QIXIS_LBMAP_EMMC		0x00
+#define QIXIS_LBMAP_IFC			0x00
 #define QIXIS_LBMAP_SD_QSPI		0x0e
 #define QIXIS_LBMAP_QSPI		0x0e
+#define QIXIS_RCW_SRC_IFC		0x25
 #define QIXIS_RCW_SRC_SD		0x40
+#define QIXIS_RCW_SRC_EMMC		0x41
 #define QIXIS_RCW_SRC_QSPI		0x62
 #define QIXIS_RST_CTL_RESET		0x41
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
@@ -194,7 +192,7 @@ unsigned long get_board_ddr_clk(void);
 					| CSPR_MSEL_GPCM \
 					| CSPR_V)
 
-#define CONFIG_SYS_FPGA_AMASK		IFC_AMASK(64*1024)
+#define SYS_FPGA_AMASK		IFC_AMASK(64 * 1024)
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_SYS_FPGA_CSOR		CSOR_GPCM_ADM_SHIFT(0)
 #else
@@ -223,7 +221,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CSPR2_EXT		CONFIG_SYS_FPGA_CSPR_EXT
 #define CONFIG_SYS_CSPR2		CONFIG_SYS_FPGA_CSPR
 #define CONFIG_SYS_CSPR2_FINAL		SYS_FPGA_CSPR_FINAL
-#define CONFIG_SYS_AMASK2		CONFIG_SYS_FPGA_AMASK
+#define CONFIG_SYS_AMASK2		SYS_FPGA_AMASK
 #define CONFIG_SYS_CSOR2		CONFIG_SYS_FPGA_CSOR
 #define CONFIG_SYS_CS2_FTIM0		SYS_FPGA_CS_FTIM0
 #define CONFIG_SYS_CS2_FTIM1		SYS_FPGA_CS_FTIM1
@@ -259,13 +257,13 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
 #define CONFIG_SYS_CSPR3_EXT		CONFIG_SYS_FPGA_CSPR_EXT
 #define CONFIG_SYS_CSPR3		CONFIG_SYS_FPGA_CSPR
-#define CONFIG_SYS_CSPR3_FINAL		CONFIG_SYS_FPGA_CSPR_FINAL
-#define CONFIG_SYS_AMASK3		CONFIG_SYS_FPGA_AMASK
+#define CONFIG_SYS_CSPR3_FINAL		SYS_FPGA_CSPR_FINAL
+#define CONFIG_SYS_AMASK3		SYS_FPGA_AMASK
 #define CONFIG_SYS_CSOR3		CONFIG_SYS_FPGA_CSOR
-#define CONFIG_SYS_CS3_FTIM0		CONFIG_SYS_FPGA_CS_FTIM0
-#define CONFIG_SYS_CS3_FTIM1		CONFIG_SYS_FPGA_CS_FTIM1
-#define CONFIG_SYS_CS3_FTIM2		CONFIG_SYS_FPGA_CS_FTIM2
-#define CONFIG_SYS_CS3_FTIM3		CONFIG_SYS_FPGA_CS_FTIM3
+#define CONFIG_SYS_CS3_FTIM0		SYS_FPGA_CS_FTIM0
+#define CONFIG_SYS_CS3_FTIM1		SYS_FPGA_CS_FTIM1
+#define CONFIG_SYS_CS3_FTIM2		SYS_FPGA_CS_FTIM2
+#define CONFIG_SYS_CS3_FTIM3		SYS_FPGA_CS_FTIM3
 #endif
 
 #define CONFIG_SYS_LS_MC_BOOT_TIMEOUT_MS 5000
@@ -279,6 +277,33 @@ unsigned long get_board_ddr_clk(void);
 #define I2C_RETIMER_ADDR2		0x19
 #define I2C_MUX_CH_DEFAULT		0x8
 #define I2C_MUX_CH5			0xD
+
+#define I2C_MUX_CH_VOL_MONITOR          0xA
+
+/* Voltage monitor on channel 2*/
+#define I2C_VOL_MONITOR_ADDR           0x63
+#define I2C_VOL_MONITOR_BUS_V_OFFSET   0x2
+#define I2C_VOL_MONITOR_BUS_V_OVF      0x1
+#define I2C_VOL_MONITOR_BUS_V_SHIFT    3
+#define I2C_SVDD_MONITOR_ADDR           0x4F
+
+#define CONFIG_VID_FLS_ENV              "ls1088aqds_vdd_mv"
+#define CONFIG_VID
+
+/* The lowest and highest voltage allowed for LS1088AQDS */
+#define VDD_MV_MIN			819
+#define VDD_MV_MAX			1212
+
+#define CONFIG_VOL_MONITOR_LTC3882_SET
+#define CONFIG_VOL_MONITOR_LTC3882_READ
+
+/* PM Bus commands code for LTC3882*/
+#define PMBUS_CMD_PAGE                  0x0
+#define PMBUS_CMD_READ_VOUT             0x8B
+#define PMBUS_CMD_PAGE_PLUS_WRITE       0x05
+#define PMBUS_CMD_VOUT_COMMAND          0x21
+
+#define PWM_CHANNEL0                    0x0
 
 /*
 * RTC configuration
@@ -316,7 +341,6 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #define CONFIG_CMD_MEMINFO
-#define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x9fffffff
 
@@ -329,7 +353,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_MEMAC
 
 /*  MMC  */
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #define CONFIG_ESDHC_DETECT_QUIRK ((readb(QIXIS_BASE + QIXIS_STAT_PRES1) & \
 	QIXIS_SDID_MASK) != QIXIS_ESDHC_NO_ADAPTER)
@@ -438,14 +461,11 @@ unsigned long get_board_ddr_clk(void);
 #define XQSGMII_CARD_PHY4_PORT2_ADDR 0xe
 #define XQSGMII_CARD_PHY4_PORT3_ADDR 0xf
 
-#define CONFIG_MII		/* MII PHY management */
 #define CONFIG_ETHPRIME		"DPMAC1@xgmii"
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 
 #endif
 
-#undef CONFIG_CMDLINE_EDITING
-#include <config_distro_defaults.h>
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \

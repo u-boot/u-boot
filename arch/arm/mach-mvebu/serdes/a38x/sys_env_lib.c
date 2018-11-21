@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) Marvell International Ltd. and its affiliates
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -12,8 +11,6 @@
 
 #include "seq_exec.h"
 #include "sys_env_lib.h"
-
-#include "../../../drivers/ddr/marvell/a38x/ddr3_a38x.h"
 
 #ifdef CONFIG_ARMADA_38X
 enum unit_id sys_env_soc_unit_nums[MAX_UNITS_ID][MAX_DEV_ID_NUM] = {
@@ -234,4 +231,28 @@ u32 sys_env_device_id_get(void)
 	printf("Detected Device ID %s\n", device_id_str[g_dev_id]);
 
 	return g_dev_id;
+}
+
+/*
+ * sys_env_device_rev_get - Get Marvell controller device revision number
+ *
+ * DESCRIPTION:
+ *       This function returns 8bit describing the device revision as defined
+ *       Revision ID Register.
+ *
+ * INPUT:
+ *       None.
+ *
+ * OUTPUT:
+ *       None.
+ *
+ * RETURN:
+ *       8bit desscribing Marvell controller revision number
+ */
+u8 sys_env_device_rev_get(void)
+{
+	u32 value;
+
+	value = reg_read(DEV_VERSION_ID_REG);
+	return (value & (REVISON_ID_MASK)) >> REVISON_ID_OFFS;
 }

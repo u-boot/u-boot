@@ -38,6 +38,12 @@ the root of your U-Boot build directory (or create a symbolic link).
 $ export BL31=/src/arm-trusted-firmware/build/sun50iw1p1/debug/bl31.bin
   (adjust the actual path accordingly)
 
+If you run into size issues with the resulting U-Boot image file, it might
+help to use a release build, by using "DEBUG=0" when building bl31.bin.
+As sometimes the ATF build process is a bit picky about the toolchain used,
+or if you can't be bothered with building ATF, there are known working
+binaries in the firmware repository[3], purely for convenience reasons.
+
  SPL/U-Boot
 ------------
 Both U-Boot proper and the SPL are using the 64-bit mode. As the boot ROM
@@ -95,9 +101,8 @@ Transfer the SPL and the U-Boot FIT image directly to an uSD card:
 (replace /dev/sdx with you SD card device file name, which could be
 /dev/mmcblk[x] as well).
 
-Alternatively you can concatenate the SPL and the U-Boot FIT image into a
+Alternatively you can use the SPL and the U-Boot FIT image combined into a
 single file and transfer that instead:
-$ cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl.bin
 # dd if=u-boot-sunxi-with-spl.bin of=/dev/sdx bs=8k seek=1
 
 You can partition the microSD card, but leave the first MB unallocated (most
@@ -125,7 +130,7 @@ U-Boot prompt on the serial console.
 
 (Legacy) boot0 method
 ---------------------
-boot0 is Allwiner's secondary program loader and it can be used as some kind
+boot0 is Allwinner's secondary program loader and it can be used as some kind
 of SPL replacement to get U-Boot up and running from an microSD card.
 For some time using boot0 was the only option to get the Pine64 booted.
 With working DRAM init code in U-Boot's SPL this is no longer necessary,

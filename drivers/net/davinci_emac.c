@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Ethernet driver for TI TMS320DM644x (DaVinci) chips.
  *
@@ -15,8 +16,6 @@
  * Copyright (C) 2005 Texas Instruments.
  *
  * ----------------------------------------------------------------------------
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Modifications:
  * ver. 1.0: Sep 2005, Anant Gole - Created EMAC version for uBoot.

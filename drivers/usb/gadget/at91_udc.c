@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * from linux:
  * c94e289f195e: usb: gadget: remove incorrect __init/__exit annotations
@@ -7,8 +8,6 @@
  * Copyright (C) 2004 by Thomas Rathbone
  * Copyright (C) 2005 by HP Labs
  * Copyright (C) 2005 by David Brownell
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #undef	VERBOSE_DEBUG

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 Vladimir Zapolskiy <vz@mleia.com>
  * Copyright (C) 2008-2009 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
  * Copyright (C) 2008 Mark Jonas <mark.jonas@de.bosch.com>
  * Copyright (C) 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "config.h"

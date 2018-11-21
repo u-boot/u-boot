@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2009 Wind River Systems, Inc.
  * Tom Rix <Tom.Rix@windriver.com>
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  * This work is derived from the linux 2.6.27 kernel source
  * To fetch, use the kernel repository

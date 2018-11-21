@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  * Contributor: Mahavir Jain <mjain@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_ASPENITE_H
@@ -16,7 +15,6 @@
 #define CONFIG_SHEEVA_88SV331xV5	1	/* CPU Core subversion */
 #define CONFIG_ARMADA100		1	/* SOC Family Name */
 #define CONFIG_ARMADA168		1	/* SOC Used on this Board */
-#define CONFIG_MACH_ASPENITE			/* Machine type */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
@@ -24,7 +22,6 @@
  * TBD: dcache to be used for this
  */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - 0x00200000)
-#define CONFIG_NR_DRAM_BANKS_MAX	2
 
 /*
  * Commands configuration

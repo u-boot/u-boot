@@ -1,21 +1,18 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008
  * Gururaja Hebbar gururajakr@sanyo.co.in
  *
  * reference linux-2.6.20.6/drivers/rtc/rtc-pl031.c
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
+#include <errno.h>
 #include <rtc.h>
-
-#if defined(CONFIG_CMD_DATE)
-
-#ifndef CONFIG_SYS_RTC_PL031_BASE
-#error CONFIG_SYS_RTC_PL031_BASE is not defined!
-#endif
+#include <asm/io.h>
+#include <asm/types.h>
 
 /*
  * Register definitions
@@ -31,78 +28,114 @@
 
 #define RTC_CR_START	(1 << 0)
 
-#define	RTC_WRITE_REG(addr, val) \
-			(*(volatile unsigned int *)(CONFIG_SYS_RTC_PL031_BASE + (addr)) = (val))
-#define	RTC_READ_REG(addr)	\
-			(*(volatile unsigned int *)(CONFIG_SYS_RTC_PL031_BASE + (addr)))
+struct pl031_platdata {
+	phys_addr_t base;
+};
 
-static int pl031_initted = 0;
-
-/* Enable RTC Start in Control register*/
-void rtc_init(void)
+static inline u32 pl031_read_reg(struct udevice *dev, int reg)
 {
-	RTC_WRITE_REG(RTC_CR, RTC_CR_START);
+	struct pl031_platdata *pdata = dev_get_platdata(dev);
 
-	pl031_initted = 1;
+	return readl(pdata->base + reg);
+}
+
+static inline u32 pl031_write_reg(struct udevice *dev, int reg, u32 value)
+{
+	struct pl031_platdata *pdata = dev_get_platdata(dev);
+
+	return writel(value, pdata->base + reg);
 }
 
 /*
- * Reset the RTC. We set the date back to 1970-01-01.
+ * Probe RTC device
  */
-void rtc_reset(void)
+static int pl031_probe(struct udevice *dev)
 {
-	RTC_WRITE_REG(RTC_LR, 0x00);
-	if(!pl031_initted)
-		rtc_init();
-}
+	/* Enable RTC Start in Control register*/
+	pl031_write_reg(dev, RTC_CR, RTC_CR_START);
 
-/*
- * Set the RTC
-*/
-int rtc_set(struct rtc_time *tmp)
-{
-	unsigned long tim;
-
-	if(!pl031_initted)
-		rtc_init();
-
-	if (tmp == NULL) {
-		puts("Error setting the date/time\n");
-		return -1;
-	}
-
-	/* Calculate number of seconds this incoming time represents */
-	tim = rtc_mktime(tmp);
-
-	RTC_WRITE_REG(RTC_LR, tim);
-
-	return -1;
+	return 0;
 }
 
 /*
  * Get the current time from the RTC
  */
-int rtc_get(struct rtc_time *tmp)
+static int pl031_get(struct udevice *dev, struct rtc_time *tm)
 {
-	ulong tim;
+	unsigned long tim;
 
-	if(!pl031_initted)
-		rtc_init();
+	if (!tm)
+		return -EINVAL;
 
-	if (tmp == NULL) {
-		puts("Error getting the date/time\n");
-		return -1;
-	}
+	tim = pl031_read_reg(dev, RTC_DR);
 
-	tim = RTC_READ_REG(RTC_DR);
+	rtc_to_tm(tim, tm);
 
-	rtc_to_tm(tim, tmp);
-
-	debug ( "Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
-		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
-		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	debug("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	      tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_wday,
+	      tm->tm_hour, tm->tm_min, tm->tm_sec);
 
 	return 0;
 }
 
-#endif
+/*
+ * Set the RTC
+ */
+static int pl031_set(struct udevice *dev, const struct rtc_time *tm)
+{
+	unsigned long tim;
+
+	if (!tm)
+		return -EINVAL;
+
+	debug("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	      tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_wday,
+	      tm->tm_hour, tm->tm_min, tm->tm_sec);
+
+	/* Calculate number of seconds this incoming time represents */
+	tim = rtc_mktime(tm);
+
+	pl031_write_reg(dev, RTC_LR, tim);
+
+	return 0;
+}
+
+/*
+ * Reset the RTC. We set the date back to 1970-01-01.
+ */
+static int pl031_reset(struct udevice *dev)
+{
+	pl031_write_reg(dev, RTC_LR, 0);
+
+	return 0;
+}
+
+static const struct rtc_ops pl031_ops = {
+	.get = pl031_get,
+	.set = pl031_set,
+	.reset = pl031_reset,
+};
+
+static const struct udevice_id pl031_ids[] = {
+	{ .compatible = "arm,pl031" },
+	{ }
+};
+
+static int pl031_ofdata_to_platdata(struct udevice *dev)
+{
+	struct pl031_platdata *pdata = dev_get_platdata(dev);
+
+	pdata->base = dev_read_addr(dev);
+
+	return 0;
+}
+
+U_BOOT_DRIVER(rtc_pl031) = {
+	.name	= "rtc-pl031",
+	.id	= UCLASS_RTC,
+	.of_match = pl031_ids,
+	.probe	= pl031_probe,
+	.ofdata_to_platdata = pl031_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct pl031_platdata),
+	.ops	= &pl031_ops,
+};

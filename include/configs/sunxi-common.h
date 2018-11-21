@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2012-2012 Henrik Nordstrom <henrik@henriknordstrom.net>
  *
@@ -6,8 +7,6 @@
  * Tom Cubie <tangliang@allwinnertech.com>
  *
  * Configuration settings for the Allwinner sunxi series of boards.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_COMMON_CONFIG_H
@@ -64,7 +63,6 @@
 #define SDRAM_OFFSET(x) 0x2##x
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* default load address */
-#define CONFIG_SYS_TEXT_BASE		0x2a000000
 /* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
@@ -75,11 +73,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 /* V3s do not have enough memory to place code at 0x4a000000 */
-#ifndef CONFIG_MACH_SUN8I_V3S
-#define CONFIG_SYS_TEXT_BASE		0x4a000000
-#else
-#define CONFIG_SYS_TEXT_BASE		0x42e00000
-#endif
 /* Note SPL_STACK_R_ADDR is set through Kconfig, we include it here 
  * since it needs to fit in with the other values. By also #defining it
  * we get warnings if the Kconfig value mismatches. */
@@ -89,27 +82,25 @@
 
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00080000 /* 512 KiB */
 
-#ifdef CONFIG_SUNXI_HIGH_SRAM
 /*
  * The A80's A1 sram starts at 0x00010000 rather then at 0x00000000 and is
  * slightly bigger. Note that it is possible to map the first 32 KiB of the
  * A1 at 0x00000000 like with older SoCs by writing 0x16aa0001 to the
  * undocumented 0x008000e0 SYS_CTRL register. Where the 16aa is a key and
  * the 1 actually activates the mapping of the first 32 KiB to 0x00000000.
+ * A64 and H5 also has SRAM A1 at 0x00010000, but no magic remap register
+ * is known yet.
+ * H6 has SRAM A1 at 0x00020000.
  */
-#define CONFIG_SYS_INIT_RAM_ADDR	0x10000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x08000	/* FIXME: 40 KiB ? */
-#else
-#define CONFIG_SYS_INIT_RAM_ADDR	0x0
-#define CONFIG_SYS_INIT_RAM_SIZE	0x8000	/* 32 KiB */
-#endif
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SUNXI_SRAM_ADDRESS
+/* FIXME: this may be larger on some SoCs */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x8000 /* 32 KiB */
 
 #define CONFIG_SYS_INIT_SP_OFFSET \
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_0			CONFIG_SYS_SDRAM_BASE
 #define PHYS_SDRAM_0_SIZE		0x80000000 /* 2 GiB */
 
@@ -132,9 +123,6 @@
 #define CONFIG_SYS_NAND_MAX_ECCPOS 1664
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE 8
-
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 #endif
 
 #ifdef CONFIG_SPL_SPI_SUNXI
@@ -147,6 +135,16 @@
 #endif
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
+
+#ifdef CONFIG_ARM64
+/*
+ * This is actually (CONFIG_ENV_OFFSET -
+ * (CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR * 512)), but the value will be used
+ * directly in a makefile, without the preprocessor expansion.
+ */
+#define CONFIG_BOARD_SIZE_LIMIT		0x7e000
+#endif
+
 #if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
 /* If we have two devices (most likely eMMC + MMC), favour the eMMC */
 #define CONFIG_SYS_MMC_ENV_DEV		1
@@ -155,8 +153,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 #define CONFIG_SYS_MMC_MAX_DEVICE	4
-#elif defined(CONFIG_ENV_IS_NOWHERE)
-#define CONFIG_ENV_SIZE			(128 << 10)
 #endif
 
 #ifndef CONFIG_MACH_SUN8I_V3S
@@ -180,13 +176,15 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(768 << 10)	/* 768 KiB */
 
-#define CONFIG_SPL_FRAMEWORK
-
 #ifndef CONFIG_ARM64		/* AArch64 FEL support is not ready yet */
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
 #endif
 
-#ifdef CONFIG_SUNXI_HIGH_SRAM
+/*
+ * We cannot use expressions here, because expressions won't be evaluated in
+ * autoconf.mk.
+ */
+#if CONFIG_SUNXI_SRAM_ADDRESS == 0x10000
 #define CONFIG_SPL_TEXT_BASE		0x10060		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x7fa0		/* 32 KiB */
 #ifdef CONFIG_ARM64
@@ -195,6 +193,11 @@
 #else
 #define LOW_LEVEL_SRAM_STACK		0x00018000
 #endif /* !CONFIG_ARM64 */
+#elif CONFIG_SUNXI_SRAM_ADDRESS == 0x20000
+#define CONFIG_SPL_TEXT_BASE		0x20060		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x7fa0		/* 32 KiB */
+/* end of SRAM A2 on H6 for now */
+#define LOW_LEVEL_SRAM_STACK		0x00118000
 #else
 #define CONFIG_SPL_TEXT_BASE		0x60		/* sram start+header */
 #define CONFIG_SPL_MAX_SIZE		0x5fa0		/* 24KB on sun4i/sun7i */
@@ -285,14 +288,8 @@ extern int soft_i2c_gpio_scl;
 #endif /* CONFIG_VIDEO_SUNXI */
 
 /* Ethernet support */
-#ifdef CONFIG_SUN4I_EMAC
-#define CONFIG_PHY_ADDR		1
-#define CONFIG_MII			/* MII PHY management		*/
-#endif
 
 #ifdef CONFIG_SUN7I_GMAC
-#define CONFIG_PHY_ADDR		1
-#define CONFIG_MII			/* MII PHY management		*/
 #define CONFIG_PHY_REALTEK
 #endif
 
@@ -302,25 +299,11 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 #endif
 
-#ifdef CONFIG_USB_MUSB_SUNXI
-#define CONFIG_USB_MUSB_PIO_ONLY
-#endif
-
-#ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
-#endif
-
-#ifdef CONFIG_USB_FUNCTION_MASS_STORAGE
-#endif
-
 #ifdef CONFIG_USB_KEYBOARD
 #define CONFIG_PREBOOT
 #endif
 
-#define CONFIG_MISC_INIT_R
-
 #ifndef CONFIG_SPL_BUILD
-#include <config_distro_defaults.h>
 
 #ifdef CONFIG_ARM64
 /*

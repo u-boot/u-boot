@@ -1,5 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2014-2016 Freescale Semiconductor, Inc.
+ * Copyright 2017-2018 NXP Semiconductor
  *
  * calculate the organization and timing parameter
  * from ddr3 spd, please refer to the spec
@@ -98,6 +100,10 @@ compute_ranksize(const struct ddr4_spd_eeprom_s *spd)
 	if ((spd->organization & 0x7) < 4)
 		nbit_sdram_width = (spd->organization & 0x7) + 2;
 	package_3ds = (spd->package_type & 0x3) == 0x2;
+	if ((spd->package_type & 0x80) && !package_3ds) { /* other than 3DS */
+		printf("Warning: not supported SDRAM package type\n");
+		return 0;
+	}
 	if (package_3ds)
 		die_count = (spd->package_type >> 4) & 0x7;
 
@@ -105,7 +111,7 @@ compute_ranksize(const struct ddr4_spd_eeprom_s *spd)
 			 nbit_primary_bus_width - nbit_sdram_width +
 			 die_count);
 
-	debug("DDR: DDR III rank density = 0x%16llx\n", bsize);
+	debug("DDR: DDR rank density = 0x%16llx\n", bsize);
 
 	return bsize;
 }
@@ -132,6 +138,7 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	};
 	int spd_error = 0;
 	u8 *ptr;
+	u8 val;
 
 	if (spd->mem_type) {
 		if (spd->mem_type != SPD_MEMTYPE_DDR4) {
@@ -163,6 +170,7 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	pdimm->n_ranks = ((spd->organization >> 3) & 0x7) + 1;
 	pdimm->rank_density = compute_ranksize(spd);
 	pdimm->capacity = pdimm->n_ranks * pdimm->rank_density;
+	pdimm->die_density = spd->density_banks & 0xf;
 	pdimm->primary_sdram_width = 1 << (3 + (spd->bus_width & 0x7));
 	if ((spd->bus_width >> 3) & 0x3)
 		pdimm->ec_sdram_width = 8;
@@ -171,6 +179,8 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	pdimm->data_width = pdimm->primary_sdram_width
 			  + pdimm->ec_sdram_width;
 	pdimm->device_width = 1 << ((spd->organization & 0x7) + 2);
+	pdimm->package_3ds = (spd->package_type & 0x3) == 0x2 ?
+			     (spd->package_type >> 4) & 0x7 : 0;
 
 	/* These are the types defined by the JEDEC SPD spec */
 	pdimm->mirrored_dimm = 0;
@@ -179,6 +189,28 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	case DDR4_SPD_MODULETYPE_RDIMM:
 		/* Registered/buffered DIMMs */
 		pdimm->registered_dimm = 1;
+		if (spd->mod_section.registered.reg_map & 0x1)
+			pdimm->mirrored_dimm = 1;
+		val = spd->mod_section.registered.ca_stren;
+		pdimm->rcw[3] = val >> 4;
+		pdimm->rcw[4] = ((val & 0x3) << 2) | ((val & 0xc) >> 2);
+		val = spd->mod_section.registered.clk_stren;
+		pdimm->rcw[5] = ((val & 0x3) << 2) | ((val & 0xc) >> 2);
+		/* Not all in SPD. For convience only. Boards may overwrite. */
+		pdimm->rcw[6] = 0xf;
+		/*
+		 * A17 only used for 16Gb and above devices.
+		 * C[2:0] only used for 3DS.
+		 */
+		pdimm->rcw[8] = pdimm->die_density >= 0x6 ? 0x0 : 0x8 |
+				(pdimm->package_3ds > 0x3 ? 0x0 :
+				 (pdimm->package_3ds > 0x1 ? 0x1 :
+				  (pdimm->package_3ds > 0 ? 0x2 : 0x3)));
+		if (pdimm->package_3ds || pdimm->n_ranks != 4)
+			pdimm->rcw[13] = 0xc;
+		else
+			pdimm->rcw[13] = 0xd;	/* Fix encoded by board */
+
 		break;
 
 	case DDR4_SPD_MODULETYPE_UDIMM:
@@ -231,7 +263,6 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	 * BL8 -bit3, BC4 -bit2
 	 */
 	pdimm->burst_lengths_bitmask = 0x0c;
-	pdimm->row_density = __ilog2(pdimm->rank_density);
 
 	/* MTB - medium timebase
 	 * The MTB in the SPD spec is 125ps,
@@ -307,6 +338,17 @@ unsigned int ddr_compute_dimm_parameters(const unsigned int ctrl_num,
 	pdimm->trrdl_ps = spd_to_ps(spd->trrdl_min, spd->fine_trrdl_min);
 	/* min CAS to CAS Delay Time (tCCD_Lmin), same bank group */
 	pdimm->tccdl_ps = spd_to_ps(spd->tccdl_min, spd->fine_tccdl_min);
+
+	if (pdimm->package_3ds) {
+		if (pdimm->die_density <= 0x4) {
+			pdimm->trfc_slr_ps = 260000;
+		} else if (pdimm->die_density <= 0x5) {
+			pdimm->trfc_slr_ps = 350000;
+		} else {
+			printf("WARN: Unsupported logical rank density 0x%x\n",
+			       pdimm->die_density);
+		}
+	}
 
 	/*
 	 * Average periodic refresh interval

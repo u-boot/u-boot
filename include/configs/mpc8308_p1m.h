@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009-2010 Freescale Semiconductor, Inc.
  * Copyright (C) 2010 Ilya Yanok, Emcraft Systems, yanok@emcraft.com
  *
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -15,11 +14,6 @@
 #define CONFIG_E300		1 /* E300 family */
 #define CONFIG_MPC830x		1 /* MPC830x family */
 #define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
-#define CONFIG_MPC8308_P1M	1 /* mpc8308_p1m board specific */
-
-#ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xFC000000
-#endif
 
 /*
  * On-board devices
@@ -220,13 +214,10 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_CFI		/* use the Common Flash Interface */
-#define CONFIG_FLASH_CFI_DRIVER		/* use the CFI driver */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 
 #define CONFIG_SYS_FLASH_BASE		0xFC000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		64 /* FLASH size is 64M */
-#define CONFIG_SYS_FLASH_PROTECTION	1 /* Use h/w Flash protection. */
 
 /* Window base at flash base */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
@@ -288,7 +279,6 @@
 /*
  * Serial Port
  */
-#define CONFIG_CONS_INDEX	1
 #undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -336,7 +326,6 @@
 /*
  * TSEC
  */
-#define CONFIG_TSEC_ENET	/* TSEC ethernet support */
 #define CONFIG_SYS_TSEC1_OFFSET	0x24000
 #define CONFIG_SYS_TSEC1	(CONFIG_SYS_IMMR+CONFIG_SYS_TSEC1_OFFSET)
 #define CONFIG_SYS_TSEC2_OFFSET	0x25000
@@ -345,7 +334,6 @@
 /*
  * TSEC ethernet configuration
  */
-#define CONFIG_MII		1 /* MII PHY management */
 #define CONFIG_TSEC1_NAME	"eTSEC0"
 #define CONFIG_TSEC2_NAME	"eTSEC1"
 #define TSEC1_PHY_ADDR		1
@@ -375,20 +363,14 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
  */
 
-#define CONFIG_CMDLINE_EDITING	1	/* add command line history */
-
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_LOAD_ADDR		0x2000000 /* default load address */
 
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size */

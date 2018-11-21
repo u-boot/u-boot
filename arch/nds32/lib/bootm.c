@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011 Andes Technology Corporation
  * Shawn Lin, Andes Technology Corporation <nobuhiro@andestech.com>
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -14,12 +13,6 @@
 #include <asm/bootm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-int arch_fixup_fdt(void *blob)
-{
-	return 0;
-}
-
 
 #if defined(CONFIG_SETUP_MEMORY_TAGS) || \
 	defined(CONFIG_CMDLINE_TAG) || \

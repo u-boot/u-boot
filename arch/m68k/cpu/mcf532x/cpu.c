@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * (C) Copyright 2000-2003
@@ -5,8 +6,6 @@
  *
  * Copyright (C) 2004-2008, 2012 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -30,7 +29,8 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 };
 
-int checkcpu(void)
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
 {
 	ccm_t *ccm = (ccm_t *) MMAP_CCM;
 	u16 msk;
@@ -95,6 +95,7 @@ int checkcpu(void)
 
 	return 0;
 };
+#endif /* CONFIG_DISPLAY_CPUINFO */
 
 #if defined(CONFIG_WATCHDOG)
 /* Called by macro WATCHDOG_RESET */

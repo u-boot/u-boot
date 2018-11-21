@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Purna Chandra Mandal <purna.mandal@microchip.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  */
 
@@ -197,8 +196,8 @@ static ulong pic32_set_refclk(struct pic32_clk_priv *priv, int periph,
 	writel(REFO_ON | REFO_OE, reg + _CLR_OFFSET);
 
 	/* wait till previous src change is active */
-	wait_for_bit(__func__, reg, REFO_DIVSW_EN | REFO_ACTIVE,
-		     false, CONFIG_SYS_HZ, false);
+	wait_for_bit_le32(reg, REFO_DIVSW_EN | REFO_ACTIVE,
+			  false, CONFIG_SYS_HZ, false);
 
 	/* parent_id */
 	v = readl(reg);
@@ -223,8 +222,8 @@ static ulong pic32_set_refclk(struct pic32_clk_priv *priv, int periph,
 	writel(REFO_DIVSW_EN, reg + _SET_OFFSET);
 
 	/* wait for divider switching to complete */
-	return wait_for_bit(__func__, reg, REFO_DIVSW_EN, false,
-			    CONFIG_SYS_HZ, false);
+	return wait_for_bit_le32(reg, REFO_DIVSW_EN, false,
+				 CONFIG_SYS_HZ, false);
 }
 
 static ulong pic32_get_refclk(struct pic32_clk_priv *priv, int periph)
@@ -311,8 +310,8 @@ static int pic32_mpll_init(struct pic32_clk_priv *priv)
 
 	/* Wait for ready */
 	mask = MPLL_RDY | MPLL_VREG_RDY;
-	return wait_for_bit(__func__, priv->syscfg_base + CFGMPLL, mask,
-			    true, get_tbclk(), false);
+	return wait_for_bit_le32(priv->syscfg_base + CFGMPLL, mask,
+				 true, get_tbclk(), false);
 }
 
 static void pic32_clk_init(struct udevice *dev)

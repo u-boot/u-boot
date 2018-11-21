@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 DENX Software Engineering
  * Lukasz Majewski, DENX Software Engineering, lukma@denx.de
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DISPL5_COMMON_H_
@@ -38,5 +37,6 @@ void displ5_set_iomux_ecspi_spl(void);
 void displ5_set_iomux_ecspi(void);
 void displ5_set_iomux_usdhc_spl(void);
 void displ5_set_iomux_usdhc(void);
+void displ5_set_iomux_misc_spl(void);
 
 #endif /* __DISPL5_COMMON_H_ */

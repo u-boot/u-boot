@@ -20,6 +20,11 @@ Currently the u-boot port supports the following devices:
  - serial
  - eMMC, microSD
  - Ethernet
+ - I2C
+ - Regulators
+ - Reset controller
+ - Clock controller
+ - ADC
 
 u-boot compilation
 ==================

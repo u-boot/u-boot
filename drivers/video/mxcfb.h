@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Porting to u-boot:
  *
@@ -7,8 +8,6 @@
  * Linux IPU driver for MX51:
  *
  * (C) Copyright 2004-2009 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_MXCFB_H__

@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2002 SIXNET, dge@sixnetio.com.
  *
  * (C) Copyright 2004, Li-Pro.Net <www.li-pro.net>
  * Stephan Linz <linz@li-pro.net>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -19,8 +18,6 @@
 #include <command.h>
 #include <rtc.h>
 #include <spi.h>
-
-#if defined(CONFIG_CMD_DATE)
 
 #define	RTC_SECONDS		0x00
 #define	RTC_MINUTES		0x01
@@ -438,5 +435,3 @@ static void rtc_write (unsigned char reg, unsigned char val)
 }
 
 #endif /* end of code exclusion (see #ifdef CONFIG_SXNI855T above) */
-
-#endif

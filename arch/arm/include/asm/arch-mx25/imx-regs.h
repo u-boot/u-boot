@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2009, DENX Software Engineering
  * Author: John Rigby <jcrigby@gmail.com
@@ -10,8 +11,6 @@
  *		Sascha Hauer <s.hauer@pengutronix.de>
  *	Copyright (C) 2009 Ilya Yanok,
  *		Emcraft Systems <yanok@emcraft.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _IMX_REGS_H
@@ -355,12 +354,18 @@ struct cspi_regs {
 #define IMX_GPIO2_BASE		(0x53FD0000)
 #define IMX_SDMA_BASE		(0x53FD4000)
 #define IMX_WDT_BASE		(0x53FDC000)
+#define WDOG1_BASE_ADDR	IMX_WDT_BASE
 #define IMX_PWM1_BASE		(0x53FE0000)
 #define IMX_RTIC_BASE		(0x53FEC000)
 #define IMX_IIM_BASE		(0x53FF0000)
 #define IIM_BASE_ADDR		IMX_IIM_BASE
 #define IMX_USB_BASE		(0x53FF4000)
-#define IMX_USB_PORT_OFFSET	0x200
+/*
+ * This is in contradiction to the imx25 reference manual, which says that
+ * port 1's registers start at 0x53FF4200. The correct base address for
+ * port 1 is 0x53FF4400. The kernel uses 0x53FF4400 as well.
+ */
+#define IMX_USB_PORT_OFFSET	0x400
 #define IMX_CSI_BASE		(0x53FF8000)
 #define IMX_DRYICE_BASE		(0x53FFC000)
 

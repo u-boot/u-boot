@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DDR_H__
@@ -55,24 +54,9 @@ static const struct board_specific_parameters rdimm0[] = {
 	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl
 	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
 	 */
-	{2,  1350, 0, 8,     6, 0x0708090B, 0x0C0D0E09,},
-	{2,  1666, 0, 8,     7, 0x08090A0C, 0x0D0F100B,},
-	{2,  1900, 0, 8,     7, 0x09090B0D, 0x0E10120B,},
-	{2,  2200, 0, 8,     8, 0x090A0C0F, 0x1012130C,},
-	{}
-};
-
-/* DP-DDR DIMM */
-static const struct board_specific_parameters rdimm2[] = {
-	/*
-	 * memory controller 2
-	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl
-	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3
-	 */
-	{2,  1350, 0, 8,     6, 0x0708090B, 0x0C0D0E09,},
-	{2,  1666, 0, 8,     7, 0x0B0A090C, 0x0D0F100B,},
-	{2,  1900, 0, 8,     7, 0x09090B0D, 0x0E10120B,},
-	{2,  2200, 0, 8,     8, 0x090A0C0F, 0x1012130C,},
+	{2,  1666, 0, 8,     0x0F, 0x0D0C0A09, 0x0B0C0E08,},
+	{2,  1900, 0, 8,     0x10, 0x0F0D0B0A, 0x0B0E0F09,},
+	{2,  2200, 0, 8,     0x13, 0x120F0E0B, 0x0D10110B,},
 	{}
 };
 
@@ -85,7 +69,7 @@ static const struct board_specific_parameters *udimms[] = {
 static const struct board_specific_parameters *rdimms[] = {
 	rdimm0,
 	rdimm0,
-	rdimm2,
+	udimm2,	/* DP-DDR doesn't support RDIMM */
 };
 
 

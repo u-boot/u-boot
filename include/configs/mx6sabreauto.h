@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  *
  * Configuration settings for the Freescale i.MX6Q SabreAuto board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MX6SABREAUTO_CONFIG_H
@@ -45,9 +44,6 @@
 #define CONFIG_SYS_FLASH_SECT_SIZE      (128 * 1024)
 #define CONFIG_SYS_MAX_FLASH_BANKS 1    /* max number of memory banks */
 #define CONFIG_SYS_MAX_FLASH_SECT 256   /* max number of sectors on one chip */
-#define CONFIG_SYS_FLASH_CFI            /* Flash memory is CFI compliant */
-#define CONFIG_FLASH_CFI_DRIVER         /* Use drivers/cfi_flash.c */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* Use buffered writes*/
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #endif
@@ -66,16 +62,12 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* NAND stuff */
-#define CONFIG_NAND_MXS
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
 #define CONFIG_SYS_NAND_BASE           0x40000000
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
-#define CONFIG_APBH_DMA
-#define CONFIG_APBH_DMA_BURST
-#define CONFIG_APBH_DMA_BURST8
 
 /* PMIC */
 #define CONFIG_POWER

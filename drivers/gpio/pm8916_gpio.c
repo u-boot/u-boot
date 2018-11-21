@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Qualcomm pm8916 pmic gpio driver - part of Qualcomm PM8916 PMIC
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -13,8 +12,6 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/bitops.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Register offset for each gpio */
 #define REG_OFFSET(x)          ((x) * 0x100)
@@ -29,7 +26,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define REG_STATUS_VAL_MASK    0x1
 
 /* MODE_CTL */
-#define REG_CTL           0x40
+#define REG_CTL		0x40
 #define REG_CTL_MODE_MASK       0x70
 #define REG_CTL_MODE_INPUT      0x00
 #define REG_CTL_MODE_INOUT      0x20
@@ -183,7 +180,7 @@ static int pm8916_gpio_probe(struct udevice *dev)
 		return -ENODEV;
 
 	reg = pmic_reg_read(dev->parent, priv->pid + REG_SUBTYPE);
-	if (reg != 0x5)
+	if (reg != 0x5 && reg != 0x1)
 		return -ENODEV;
 
 	return 0;
@@ -203,6 +200,7 @@ static int pm8916_gpio_ofdata_to_platdata(struct udevice *dev)
 
 static const struct udevice_id pm8916_gpio_ids[] = {
 	{ .compatible = "qcom,pm8916-gpio" },
+	{ .compatible = "qcom,pm8994-gpio" },	/* 22 GPIO's */
 	{ }
 };
 
@@ -278,6 +276,7 @@ static int pm8941_pwrkey_ofdata_to_platdata(struct udevice *dev)
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
 	uc_priv->gpio_count = 2;
+	uc_priv->bank_name = dev_read_string(dev, "gpio-bank-name");
 	if (uc_priv->bank_name == NULL)
 		uc_priv->bank_name = "pm8916_key";
 
@@ -286,6 +285,7 @@ static int pm8941_pwrkey_ofdata_to_platdata(struct udevice *dev)
 
 static const struct udevice_id pm8941_pwrkey_ids[] = {
 	{ .compatible = "qcom,pm8916-pwrkey" },
+	{ .compatible = "qcom,pm8994-pwrkey" },
 	{ }
 };
 

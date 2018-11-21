@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  *  Header file for AT91/AT32 LCD Controller
  *
  *  Data structure and register user interface
  *
  *  Copyright (C) 2007 Atmel Corporation
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __ATMEL_LCDC_H__
 #define __ATMEL_LCDC_H__

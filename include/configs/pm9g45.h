@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010
  * Ilko Iliev <iliev@ronetix.at>
@@ -9,8 +10,6 @@
  * Lead Tech Design <www.leadtechdesign.com>
  *
  * Configuation settings for the PM9G45 board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -22,7 +21,6 @@
  */
 #include <asm/hardware.h>
 
-#define CONFIG_PM9G45		1	/* It's an Ronetix PM9G45 */
 #define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9G45"
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_PM9G45
@@ -30,7 +28,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000 /* from 12 MHz crystal */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
-#define CONFIG_SYS_TEXT_BASE		0x73f00000
 
 #define CONFIG_ARCH_CPU_INIT
 
@@ -60,9 +57,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE	1
-#define CONFIG_BOOTP_BOOTPATH		1
-#define CONFIG_BOOTP_GATEWAY		1
-#define CONFIG_BOOTP_HOSTNAME		1
 
 #define CONFIG_JFFS2_CMDLINE		1
 #define CONFIG_JFFS2_NAND		1
@@ -71,13 +65,11 @@
 #define CONFIG_JFFS2_PART_SIZE		(256 * 1024 * 1024) /* partition */
 
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			0x70000000
 #define PHYS_SDRAM_SIZE			0x08000000	/* 128 megs */
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
 #define CONFIG_SYS_NAND_DBW_8		1
@@ -118,10 +110,6 @@
 #define CONFIG_ENV_OFFSET_REDUND	0x80000
 #define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */
 #define CONFIG_BOOTCOMMAND	"nand read 0x72000000 0x200000 0x200000; bootm"
-
-#define CONFIG_SYS_LONGHELP		1
-#define CONFIG_CMDLINE_EDITING		1
-#define CONFIG_AUTO_COMPLETE
 
 /*
  * Size of malloc() pool

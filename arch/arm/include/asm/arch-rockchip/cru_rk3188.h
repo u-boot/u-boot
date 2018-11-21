@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2016 Heiko Stuebner <heiko@sntech.de>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 #ifndef _ASM_ARCH_CRU_RK3188_H
 #define _ASM_ARCH_CRU_RK3188_H

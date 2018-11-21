@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2015 Google, Inc
  *
  * (C) Copyright 2008-2014 Rockchip Electronics
  * Peter, Software Engineering, <superpeter.cai@gmail.com>.
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
@@ -86,10 +85,6 @@ static int rockchip_gpio_get_function(struct udevice *dev, unsigned offset)
 	ret = pinctrl_get_gpio_mux(priv->pinctrl, priv->bank, offset);
 	if (ret)
 		return ret;
-
-	/* If it's not 0, then it is not a GPIO */
-	if (ret)
-		return GPIOF_FUNC;
 	is_output = readl(&regs->swport_ddr) & OFFSET_TO_BIT(offset);
 
 	return is_output ? GPIOF_OUTPUT : GPIOF_INPUT;

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration settings for the SAMA5D3 Xplained board.
  *
  * Copyright (C) 2014 Atmel Corporation
  *		      Bo Shen <voice.shen@atmel.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -24,7 +23,6 @@
 #define ATMEL_PMC_UHP			(1 <<  6)
 
 /* SDRAM */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE           0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		0x10000000
 
@@ -37,7 +35,6 @@
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x60000000
 /* our ALE is AD21 */
@@ -45,9 +42,6 @@
 /* our CLE is AD22 */
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 #define CONFIG_SYS_NAND_ONFI_DETECTION
-
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 #endif
 /* PMECC & PMERRLOC */
 #define CONFIG_ATMEL_NAND_HWECC
@@ -70,7 +64,6 @@
 #define CONFIG_SYS_LOAD_ADDR			0x22000000 /* load address */
 
 /* SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x300000
 #define CONFIG_SPL_MAX_SIZE		0x18000
 #define CONFIG_SPL_BSS_START_ADDR	0x20000000

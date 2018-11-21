@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Qualcomm UART driver
  *
@@ -5,8 +6,6 @@
  *
  * UART will work in Data Mover mode.
  * Based on Linux driver.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -17,6 +16,7 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
+#include <dm/pinctrl.h>
 
 /* Serial registers - this driver works in uartdm mode*/
 
@@ -26,6 +26,9 @@
 #define UARTDM_RXFS             0x50 /* RX channel status register */
 #define UARTDM_RXFS_BUF_SHIFT   0x7  /* Number of bytes in the packing buffer */
 #define UARTDM_RXFS_BUF_MASK    0x7
+#define UARTDM_MR1				 0x00
+#define UARTDM_MR2				 0x04
+#define UARTDM_CSR				 0xA0
 
 #define UARTDM_SR                0xA4 /* Status register */
 #define UARTDM_SR_RX_READY       (1 << 0) /* Word is the receiver FIFO */
@@ -46,6 +49,10 @@
 #define UARTDM_TF               0x100 /* UART Transmit FIFO register */
 #define UARTDM_RF               0x140 /* UART Receive FIFO register */
 
+#define UART_DM_CLK_RX_TX_BIT_RATE 0xCC
+#define MSM_BOOT_UART_DM_8_N_1_MODE 0x34
+#define MSM_BOOT_UART_DM_CMD_RESET_RX 0x10
+#define MSM_BOOT_UART_DM_CMD_RESET_TX 0x20
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -180,19 +187,29 @@ static int msm_uart_clk_init(struct udevice *dev)
 	return 0;
 }
 
+static void uart_dm_init(struct msm_serial_data *priv)
+{
+	writel(UART_DM_CLK_RX_TX_BIT_RATE, priv->base + UARTDM_CSR);
+	writel(0x0, priv->base + UARTDM_MR1);
+	writel(MSM_BOOT_UART_DM_8_N_1_MODE, priv->base + UARTDM_MR2);
+	writel(MSM_BOOT_UART_DM_CMD_RESET_RX, priv->base + UARTDM_CR);
+	writel(MSM_BOOT_UART_DM_CMD_RESET_TX, priv->base + UARTDM_CR);
+}
 static int msm_serial_probe(struct udevice *dev)
 {
+	int ret;
 	struct msm_serial_data *priv = dev_get_priv(dev);
 
-	msm_uart_clk_init(dev); /* Ignore return value and hope clock was
-				  properly initialized by earlier loaders */
+	/* No need to reinitialize the UART after relocation */
+	if (gd->flags & GD_FLG_RELOC)
+		return 0;
 
-	if (readl(priv->base + UARTDM_SR) & UARTDM_SR_UART_OVERRUN)
-		writel(UARTDM_CR_CMD_RESET_ERR, priv->base + UARTDM_CR);
+	ret = msm_uart_clk_init(dev);
+	if (ret)
+		return ret;
 
-	writel(0, priv->base + UARTDM_IMR);
-	writel(UARTDM_CR_CMD_STALE_EVENT_DISABLE, priv->base + UARTDM_CR);
-	msm_serial_fetch(dev);
+	pinctrl_select_state(dev, "uart");
+	uart_dm_init(priv);
 
 	return 0;
 }

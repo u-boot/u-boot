@@ -1,12 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011 OMICRON electronics GmbH
  *
- * based on drivers/mtd/nand/nand_spl_load.c
+ * based on drivers/mtd/nand/raw/nand_spl_load.c
  *
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -29,7 +28,7 @@ static int spi_load_image_os(struct spl_image_info *spl_image,
 	int err;
 
 	/* Read for a header, parse or error out. */
-	spi_flash_read(flash, CONFIG_SYS_SPI_KERNEL_OFFS, 0x40,
+	spi_flash_read(flash, CONFIG_SYS_SPI_KERNEL_OFFS, sizeof(*header),
 		       (void *)header);
 
 	if (image_get_magic(header) != IH_MAGIC)
@@ -89,8 +88,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 		return -ENODEV;
 	}
 
-	/* use CONFIG_SYS_TEXT_BASE as temporary storage area */
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);
+	header = spl_get_load_buffer(-sizeof(*header), sizeof(*header));
 
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	payload_offs = fdtdec_get_config_int(gd->fdt_blob,
@@ -103,7 +101,7 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 #endif
 	{
 		/* Load u-boot, mkimage header is 64 bytes. */
-		err = spi_flash_read(flash, payload_offs, 0x40,
+		err = spi_flash_read(flash, payload_offs, sizeof(*header),
 				     (void *)header);
 		if (err) {
 			debug("%s: Failed to read from SPI flash (err=%d)\n",
@@ -111,8 +109,17 @@ static int spl_spi_load_image(struct spl_image_info *spl_image,
 			return err;
 		}
 
-		if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
-			image_get_magic(header) == FDT_MAGIC) {
+		if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL) &&
+		    image_get_magic(header) == FDT_MAGIC) {
+			err = spi_flash_read(flash, payload_offs,
+					     roundup(fdt_totalsize(header), 4),
+					     (void *)CONFIG_SYS_LOAD_ADDR);
+			if (err)
+				return err;
+			err = spl_parse_image_header(spl_image,
+					(struct image_header *)CONFIG_SYS_LOAD_ADDR);
+		} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
+			   image_get_magic(header) == FDT_MAGIC) {
 			struct spl_load_info load;
 
 			debug("Found FIT\n");

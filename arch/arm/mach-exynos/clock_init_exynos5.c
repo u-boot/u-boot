@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Clock setup for SMDK5250 board based on EXYNOS5
  *
  * Copyright (C) 2012 Samsung Electronics
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -20,8 +19,6 @@
 
 #define FSYS1_MMC0_DIV_MASK	0xff0f
 #define FSYS1_MMC0_DIV_VAL	0x0701
-
-DECLARE_GLOBAL_DATA_PTR;
 
 struct arm_clk_ratios arm_clk_ratios[] = {
 #ifdef CONFIG_EXYNOS5420

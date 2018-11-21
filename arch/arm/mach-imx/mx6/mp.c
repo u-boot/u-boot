@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2014
  * Gabriel Huau <contact@huau-gabriel.fr>
  *
  * (C) Copyright 2009 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -30,20 +29,20 @@ static uint32_t cpu_ctrl_mask[MAX_CPUS] = {
 	SRC_SCR_CORE_3_ENABLE_MASK
 };
 
-int cpu_reset(int nr)
+int cpu_reset(u32 nr)
 {
 	/* Software reset of the CPU N */
 	src->scr |= cpu_reset_mask[nr];
 	return 0;
 }
 
-int cpu_status(int nr)
+int cpu_status(u32 nr)
 {
 	printf("core %d => %d\n", nr, !!(src->scr & cpu_ctrl_mask[nr]));
 	return 0;
 }
 
-int cpu_release(int nr, int argc, char *const argv[])
+int cpu_release(u32 nr, int argc, char *const argv[])
 {
 	uint32_t boot_addr;
 
@@ -79,7 +78,7 @@ int is_core_valid(unsigned int core)
 	return 1;
 }
 
-int cpu_disable(int nr)
+int cpu_disable(u32 nr)
 {
 	/* Disable the CPU N */
 	src->scr &= ~cpu_ctrl_mask[nr];

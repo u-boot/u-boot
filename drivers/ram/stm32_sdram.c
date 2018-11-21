@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -11,7 +10,10 @@
 #include <ram.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+#define MEM_MODE_MASK	GENMASK(2, 0)
+#define SWP_FMC_OFFSET 10
+#define SWP_FMC_MASK	GENMASK(SWP_FMC_OFFSET+1, SWP_FMC_OFFSET)
+#define NOT_FOUND	0xff
 
 struct stm32_fmc_regs {
 	/* 0x0 */
@@ -253,9 +255,40 @@ static int stm32_fmc_ofdata_to_platdata(struct udevice *dev)
 {
 	struct stm32_sdram_params *params = dev_get_platdata(dev);
 	struct bank_params *bank_params;
+	struct ofnode_phandle_args args;
+	u32 *syscfg_base;
+	u32 mem_remap;
+	u32 swp_fmc;
 	ofnode bank_node;
 	char *bank_name;
 	u8 bank = 0;
+	int ret;
+
+	ret = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
+						 &args);
+	if (ret) {
+		dev_dbg(dev, "%s: can't find syscon device (%d)\n", __func__, ret);
+	} else {
+		syscfg_base = (u32 *)ofnode_get_addr(args.node);
+
+		mem_remap = dev_read_u32_default(dev, "st,mem_remap", NOT_FOUND);
+		if (mem_remap != NOT_FOUND) {
+			/* set memory mapping selection */
+			clrsetbits_le32(syscfg_base, MEM_MODE_MASK, mem_remap);
+		} else {
+			dev_dbg(dev, "%s: cannot find st,mem_remap property\n", __func__);
+		}
+		
+		swp_fmc = dev_read_u32_default(dev, "st,swp_fmc", NOT_FOUND);
+		if (swp_fmc != NOT_FOUND) {
+			/* set fmc swapping selection */
+			clrsetbits_le32(syscfg_base, SWP_FMC_MASK, swp_fmc << SWP_FMC_OFFSET);
+		} else {
+			dev_dbg(dev, "%s: cannot find st,swp_fmc property\n", __func__);
+		}
+
+		dev_dbg(dev, "syscfg %x = %x\n", (u32)syscfg_base, *syscfg_base);
+	}
 
 	dev_for_each_subnode(bank_node, dev) {
 		/* extract the bank index from DT */

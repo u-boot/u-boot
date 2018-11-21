@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Freescale Semiconductor
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __LS1046A_COMMON_H
@@ -17,16 +16,17 @@
 #define SPL_NO_USB
 #define SPL_NO_SATA
 #endif
-#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_NAND_BOOT))
+#if defined(CONFIG_SPL_BUILD) && \
+	(defined(CONFIG_NAND_BOOT) || defined(CONFIG_QSPI_BOOT))
 #define SPL_NO_MMC
 #endif
-#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_SD_BOOT))
+#if defined(CONFIG_SPL_BUILD)		&& \
+	!defined(CONFIG_SPL_FSL_LS_PPA)
 #define SPL_NO_IFC
 #endif
 
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
-#define CONFIG_MP
 #define CONFIG_GICV2
 
 #include <asm/arch/config.h>
@@ -34,8 +34,6 @@
 
 /* Link Definitions */
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
-
-#define CONFIG_SUPPORT_RAW_INITRD
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -54,7 +52,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
 
 /* Serial Port */
-#define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK          (get_serial_clock())
@@ -63,18 +60,6 @@
 
 /* SD boot SPL */
 #ifdef CONFIG_SD_BOOT
-#define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-#define CONFIG_SPL_WATCHDOG_SUPPORT
-#define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
-#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
-
-#define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_TEXT_BASE		0x10000000
 #define CONFIG_SPL_MAX_SIZE		0x1f000		/* 124 KiB */
 #define CONFIG_SPL_STACK		0x10020000
@@ -99,17 +84,29 @@
 #endif /* ifdef CONFIG_SECURE_BOOT */
 #endif
 
+#if defined(CONFIG_QSPI_BOOT) && defined(CONFIG_SPL)
+#define CONFIG_SPL_TARGET		"spl/u-boot-spl.pbl"
+#define CONFIG_SPL_TEXT_BASE		0x10000000
+#define CONFIG_SPL_MAX_SIZE		0x1f000
+#define CONFIG_SPL_STACK		0x10020000
+#define CONFIG_SPL_PAD_TO		0x20000
+#define CONFIG_SPL_BSS_START_ADDR	0x8f000000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_BSS_START_ADDR + \
+					CONFIG_SPL_BSS_MAX_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
+#define CONFIG_SYS_MONITOR_LEN		0x100000
+#define CONFIG_SYS_UBOOT_START		CONFIG_SYS_TEXT_BASE
+#endif
+
 /* NAND SPL */
 #ifdef CONFIG_NAND_BOOT
 #define CONFIG_SPL_PBL_PAD
-#define CONFIG_SPL_FRAMEWORK
-#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_WATCHDOG_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 
 #define CONFIG_SPL_NAND_SUPPORT
@@ -130,11 +127,6 @@
 
 /* I2C */
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1
-#define CONFIG_SYS_I2C_MXC_I2C2
-#define CONFIG_SYS_I2C_MXC_I2C3
-#define CONFIG_SYS_I2C_MXC_I2C4
 
 /* PCIe */
 #define CONFIG_PCIE1		/* PCIE controller 1 */
@@ -145,18 +137,25 @@
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
+/* SATA */
+#ifndef SPL_NO_SATA
+#define CONFIG_SCSI_AHCI_PLAT
+
+#define CONFIG_SYS_SATA				AHCI_BASE_ADDR
+
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID		1
+#define CONFIG_SYS_SCSI_MAX_LUN			1
+#define CONFIG_SYS_SCSI_MAX_DEVICE		(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+						CONFIG_SYS_SCSI_MAX_LUN)
+#endif
+
 /* Command line configuration */
 
 /* MMC */
 #ifndef SPL_NO_MMC
 #ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
-#endif
-
-#ifndef SPL_NO_QBMAN
-#define CONFIG_SYS_DPAA_QBMAN		/* Support Q/Bman */
 #endif
 
 /* FMan ucode */
@@ -198,9 +197,9 @@
 #define CONFIG_HWCONFIG
 #define HWCONFIG_BUFFER_SIZE		128
 
-#include <config_distro_defaults.h>
 #ifndef CONFIG_SPL_BUILD
 #define BOOT_TARGET_DEVICES(func) \
+	func(SCSI, scsi, 0) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0)
 #include <config_distro_bootcmd.h>
@@ -281,9 +280,7 @@
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-#define CONFIG_SYS_LONGHELP
 
-#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_MAXARGS		64	/* max command args */
 
 #define CONFIG_SYS_BOOTM_LEN   (64 << 20)      /* Increase max gunzip size */

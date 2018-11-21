@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /* include/ti_usb_phy_uboot.h
  *
  * Copyright (c) 2014 Texas Instruments Incorporated - http://www.ti.com
  *
  * USB2 and USB3 PHY uboot init
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __TI_USB_PHY_UBOOT_H_

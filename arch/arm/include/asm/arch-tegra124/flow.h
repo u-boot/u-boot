@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2010-2013
  * NVIDIA Corporation <www.nvidia.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef _TEGRA124_FLOW_H_
@@ -30,7 +29,7 @@ struct flow_ctlr {
 	u32 flow_dbg_cnt0;	/* offset 0x48 */
 	u32 flow_dbg_cnt1;	/* offset 0x4c */
 	u32 flow_dbg_qual;	/* offset 0x50 */
-	u32 flow_ctlr_spare;	/* offset 0x54 */
+	u32 flow_ctrl_spare;	/* offset 0x54 */
 	u32 ram_repair_cluster1;/* offset 0x58 */
 };
 
@@ -49,10 +48,8 @@ struct flow_ctlr {
 #define CSR_WAIT_WFI_SHIFT	8
 #define CSR_PWR_OFF_STS		(1 << 16)
 
-/* RAM_REPAIR, 0x40, 0x58 */
-enum {
-	RAM_REPAIR_REQ = 0x1 << 0,
-	RAM_REPAIR_STS = 0x1 << 1,
-};
+#define RAM_REPAIR_REQ		BIT(0)
+#define RAM_REPAIR_STS		BIT(1)
+#define RAM_REPAIR_BYPASS_EN	BIT(2)
 
 #endif	/*  _TEGRA124_FLOW_H_ */

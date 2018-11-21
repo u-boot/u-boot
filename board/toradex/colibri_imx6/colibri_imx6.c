@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2010-2013 Freescale Semiconductor, Inc.
  * Copyright (C) 2013, Boundary Devices <info@boundarydevices.com>
  * Copyright (C) 2014-2016, Toradex AG
  * copied from nitrogen6x
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -743,7 +742,7 @@ void ldo_mode_set(int ldo_bypass)
 
 #ifdef CONFIG_SPL_BUILD
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include "asm/arch/mx6dl-ddr.h"
 #include "asm/arch/iomux.h"
 #include "asm/arch/crm_regs.h"

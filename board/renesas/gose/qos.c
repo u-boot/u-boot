@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * board/renesas/gose/qos.c
  *     This file is gose QoS setting.
  *
  * Copyright (C) 2014 Renesas Electronics Corporation
- *
- * SPDX-License-Identifier: GPL-2.0
  */
 
 #include <common.h>

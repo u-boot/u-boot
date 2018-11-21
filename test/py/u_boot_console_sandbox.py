@@ -1,7 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0
 # Copyright (c) 2015 Stephen Warren
 # Copyright (c) 2015-2016, NVIDIA CORPORATION. All rights reserved.
-#
-# SPDX-License-Identifier: GPL-2.0
 
 # Logic to interact with the sandbox port of U-Boot, running as a sub-process.
 
@@ -42,7 +41,7 @@ class ConsoleSandbox(ConsoleBase):
         bcfg = self.config.buildconfig
         config_spl = bcfg.get('config_spl', 'n') == 'y'
         fname = '/spl/u-boot-spl' if config_spl else '/u-boot'
-        print fname
+        print(fname)
         cmd = []
         if self.config.gdbserver:
             cmd += ['gdbserver', self.config.gdbserver]
@@ -82,7 +81,7 @@ class ConsoleSandbox(ConsoleBase):
 
         p = self.p
         self.p = None
-        for i in xrange(100):
+        for i in range(100):
             ret = not p.isalive()
             if ret:
                 break

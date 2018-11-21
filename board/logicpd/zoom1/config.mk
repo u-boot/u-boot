@@ -1,12 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2006-2008
 # Texas Instruments, <www.ti.com>
 #
 # Zoom MDK uses OMAP3 (ARM-CortexA8) cpu
 # see http://www.ti.com/ for more information on Texas Instruments
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 # Physical Address:
 # 8000'0000 (bank0)
 # A000/0000 (bank1)

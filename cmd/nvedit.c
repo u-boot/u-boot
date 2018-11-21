@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2000-2013
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -6,8 +7,6 @@
  * Andreas Heppel <aheppel@sysgo.de>
  *
  * Copyright 2011 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -341,6 +340,36 @@ ulong env_get_hex(const char *varname, ulong default_val)
 	return value;
 }
 
+void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr)
+{
+	char *end;
+	int i;
+
+	for (i = 0; i < 6; ++i) {
+		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
+		if (addr)
+			addr = (*end) ? end + 1 : end;
+	}
+}
+
+int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr)
+{
+	eth_parse_enetaddr(env_get(name), enetaddr);
+	return is_valid_ethaddr(enetaddr);
+}
+
+int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr)
+{
+	char buf[ARP_HLEN_ASCII + 1];
+
+	if (eth_env_get_enetaddr(name, (uint8_t *)buf))
+		return -EEXIST;
+
+	sprintf(buf, "%pM", enetaddr);
+
+	return env_set(name, buf);
+}
+
 #ifndef CONFIG_SPL_BUILD
 static int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -650,12 +679,14 @@ char *env_get(const char *name)
  */
 int env_get_f(const char *name, char *buf, unsigned len)
 {
-	int i, nxt;
+	int i, nxt, c;
 
 	for (i = 0; env_get_char(i) != '\0'; i = nxt + 1) {
 		int val, n;
 
-		for (nxt = i; env_get_char(nxt) != '\0'; ++nxt) {
+		for (nxt = i; (c = env_get_char(nxt)) != '\0'; ++nxt) {
+			if (c < 0)
+				return c;
 			if (nxt >= CONFIG_ENV_SIZE)
 				return -1;
 		}
@@ -666,7 +697,10 @@ int env_get_f(const char *name, char *buf, unsigned len)
 
 		/* found; copy out */
 		for (n = 0; n < len; ++n, ++buf) {
-			*buf = env_get_char(val++);
+			c = env_get_char(val++);
+			if (c < 0)
+				return c;
+			*buf = c;
 			if (*buf == '\0')
 				return n;
 		}
@@ -686,7 +720,7 @@ int env_get_f(const char *name, char *buf, unsigned len)
 /**
  * Decode the integer value of an environment variable and return it.
  *
- * @param name		Name of environemnt variable
+ * @param name		Name of environment variable
  * @param base		Number base to use (normally 10, or 16 for hex)
  * @param default_val	Default value to return if the variable is not
  *			found
@@ -708,10 +742,6 @@ ulong env_get_ulong(const char *name, int base, ulong default_val)
 static int do_env_save(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	struct env_driver *env = env_driver_lookup_default();
-
-	printf("Saving Environment to %s...\n", env->name);
-
 	return env_save() ? 1 : 0;
 }
 
@@ -747,10 +777,10 @@ int envmatch(uchar *s1, int i2)
 }
 
 #ifndef CONFIG_SPL_BUILD
-static int do_env_default(cmd_tbl_t *cmdtp, int __flag,
+static int do_env_default(cmd_tbl_t *cmdtp, int flag,
 			  int argc, char * const argv[])
 {
-	int all = 0, flag = 0;
+	int all = 0, env_flag = H_INTERACTIVE;
 
 	debug("Initial value for argc=%d\n", argc);
 	while (--argc > 0 && **++argv == '-') {
@@ -762,7 +792,7 @@ static int do_env_default(cmd_tbl_t *cmdtp, int __flag,
 				all = 1;
 				break;
 			case 'f':		/* force */
-				flag |= H_FORCE;
+				env_flag |= H_FORCE;
 				break;
 			default:
 				return cmd_usage(cmdtp);
@@ -772,12 +802,13 @@ static int do_env_default(cmd_tbl_t *cmdtp, int __flag,
 	debug("Final value for argc=%d\n", argc);
 	if (all && (argc == 0)) {
 		/* Reset the whole environment */
-		set_default_env("## Resetting to default environment\n");
+		set_default_env("## Resetting to default environment\n",
+				env_flag);
 		return 0;
 	}
 	if (!all && (argc > 0)) {
 		/* Reset individual variables */
-		set_default_vars(argc, argv);
+		set_default_vars(argc, argv, env_flag);
 		return 0;
 	}
 
@@ -929,7 +960,8 @@ NXTARG:		;
 				H_MATCH_KEY | H_MATCH_IDENT,
 				&ptr, size, argc, argv);
 		if (len < 0) {
-			pr_err("Cannot export environment: errno = %d\n", errno);
+			pr_err("## Error: Cannot export environment: errno = %d\n",
+			       errno);
 			return 1;
 		}
 		sprintf(buf, "%zX", (size_t)len);
@@ -949,12 +981,14 @@ NXTARG:		;
 			H_MATCH_KEY | H_MATCH_IDENT,
 			&res, ENV_SIZE, argc, argv);
 	if (len < 0) {
-		pr_err("Cannot export environment: errno = %d\n", errno);
+		pr_err("## Error: Cannot export environment: errno = %d\n",
+		       errno);
 		return 1;
 	}
 
 	if (chk) {
-		envp->crc = crc32(0, envp->data, ENV_SIZE);
+		envp->crc = crc32(0, envp->data,
+				size ? size - offsetof(env_t, data) : ENV_SIZE);
 #ifdef CONFIG_ENV_ADDR_REDUND
 		envp->flags = ACTIVE_FLAG;
 #endif
@@ -964,15 +998,19 @@ NXTARG:		;
 	return 0;
 
 sep_err:
-	printf("## %s: only one of \"-b\", \"-c\" or \"-t\" allowed\n",	cmd);
+	printf("## Error: %s: only one of \"-b\", \"-c\" or \"-t\" allowed\n",
+	       cmd);
 	return 1;
 }
 #endif
 
 #ifdef CONFIG_CMD_IMPORTENV
 /*
- * env import [-d] [-t [-r] | -b | -c] addr [size]
- *	-d:	delete existing environment before importing;
+ * env import [-d] [-t [-r] | -b | -c] addr [size] [var ...]
+ *	-d:	delete existing environment before importing if no var is
+ *		passed; if vars are passed, if one var is in the current
+ *		environment but not in the environment at addr, delete var from
+ *		current environment;
  *		otherwise overwrite / append to existing definitions
  *	-t:	assume text format; either "size" must be given or the
  *		text data must be '\0' terminated
@@ -985,6 +1023,11 @@ sep_err:
  *	addr:	memory address to read from
  *	size:	length of input data; if missing, proper '\0'
  *		termination is mandatory
+ *		if var is set and size should be missing (i.e. '\0'
+ *		termination), set size to '-'
+ *	var...	List of the names of the only variables that get imported from
+ *		the environment at address 'addr'. Without arguments, the whole
+ *		environment gets imported.
  */
 static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 			 int argc, char * const argv[])
@@ -996,6 +1039,7 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 	int	fmt = 0;
 	int	del = 0;
 	int	crlf_is_lf = 0;
+	int	wl = 0;
 	size_t	size;
 
 	cmd = *argv;
@@ -1044,9 +1088,9 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 	addr = simple_strtoul(argv[0], NULL, 16);
 	ptr = map_sysmem(addr, 0);
 
-	if (argc == 2) {
+	if (argc >= 2 && strcmp(argv[1], "-")) {
 		size = simple_strtoul(argv[1], NULL, 16);
-	} else if (argc == 1 && chk) {
+	} else if (chk) {
 		puts("## Error: external checksum format must pass size\n");
 		return CMD_RET_FAILURE;
 	} else {
@@ -1068,6 +1112,9 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 		printf("## Info: input data size = %zu = 0x%zX\n", size, size);
 	}
 
+	if (argc > 2)
+		wl = 1;
+
 	if (chk) {
 		uint32_t crc;
 		env_t *ep = (env_t *)ptr;
@@ -1082,9 +1129,10 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 		ptr = (char *)ep->data;
 	}
 
-	if (himport_r(&env_htab, ptr, size, sep, del ? 0 : H_NOCLEAR,
-			crlf_is_lf, 0, NULL) == 0) {
-		pr_err("Environment import failed: errno = %d\n", errno);
+	if (!himport_r(&env_htab, ptr, size, sep, del ? 0 : H_NOCLEAR,
+		       crlf_is_lf, wl ? argc - 2 : 0, wl ? &argv[2] : NULL)) {
+		pr_err("## Error: Environment import failed: errno = %d\n",
+		       errno);
 		return 1;
 	}
 	gd->flags |= GD_FLG_ENV_READY;
@@ -1212,7 +1260,7 @@ static char env_help_text[] =
 #endif
 #endif
 #if defined(CONFIG_CMD_IMPORTENV)
-	"env import [-d] [-t [-r] | -b | -c] addr [size] - import environment\n"
+	"env import [-d] [-t [-r] | -b | -c] addr [size] [var ...] - import environment\n"
 #endif
 	"env print [-a | name ...] - print environment\n"
 #if defined(CONFIG_CMD_RUN)

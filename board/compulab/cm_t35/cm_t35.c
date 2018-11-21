@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2011 - 2013 CompuLab, Ltd. <www.compulab.co.il>
  *
@@ -8,11 +9,10 @@
  *	Manikandan Pillai <mani.pillai@ti.com>
  *	Richard Woodruff <r-woodruff2@ti.com>
  *	Syed Mohammed Khasim <x0khasim@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
+#include <environment.h>
 #include <status_led.h>
 #include <netdev.h>
 #include <net.h>

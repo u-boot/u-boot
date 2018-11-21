@@ -1,12 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  */
 
 #include <common.h>
 #include <malloc.h>
+#include <memalign.h>
 #include "jobdesc.h"
 #include "desc.h"
 #include "jr.h"
@@ -163,19 +163,36 @@ int caam_hash(const unsigned char *pbuf, unsigned int buf_len,
 {
 	int ret = 0;
 	uint32_t *desc;
+	unsigned int size;
 
-	desc = malloc(sizeof(int) * MAX_CAAM_DESCSIZE);
+	desc = malloc_cache_aligned(sizeof(int) * MAX_CAAM_DESCSIZE);
 	if (!desc) {
 		debug("Not enough memory for descriptor allocation\n");
 		return -ENOMEM;
 	}
+
+	if (!IS_ALIGNED((uintptr_t)pbuf, ARCH_DMA_MINALIGN) ||
+	    !IS_ALIGNED((uintptr_t)pout, ARCH_DMA_MINALIGN)) {
+		puts("Error: Address arguments are not aligned\n");
+		return -EINVAL;
+	}
+
+	size = ALIGN(buf_len, ARCH_DMA_MINALIGN);
+	flush_dcache_range((unsigned long)pbuf, (unsigned long)pbuf + size);
 
 	inline_cnstr_jobdesc_hash(desc, pbuf, buf_len, pout,
 				  driver_hash[algo].alg_type,
 				  driver_hash[algo].digestsize,
 				  0);
 
+	size = ALIGN(sizeof(int) * MAX_CAAM_DESCSIZE, ARCH_DMA_MINALIGN);
+	flush_dcache_range((unsigned long)desc, (unsigned long)desc + size);
+
 	ret = run_descriptor_jr(desc);
+
+	size = ALIGN(driver_hash[algo].digestsize, ARCH_DMA_MINALIGN);
+	invalidate_dcache_range((unsigned long)pout,
+				(unsigned long)pout + size);
 
 	free(desc);
 	return ret;

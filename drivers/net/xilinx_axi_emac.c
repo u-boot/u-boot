@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2011 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2011 PetaLogix
  * Copyright (C) 2010 Xilinx, Inc. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -383,8 +382,8 @@ static int axi_ethernet_init(struct axidma_priv *priv)
 	 * processor mode and hence bypass in this mode
 	 */
 	if (!priv->eth_hasnobuf) {
-		err = wait_for_bit(__func__, (const u32 *)&regs->is,
-				   XAE_INT_MGTRDY_MASK, true, 200, false);
+		err = wait_for_bit_le32(&regs->is, XAE_INT_MGTRDY_MASK,
+					true, 200, false);
 		if (err) {
 			printf("%s: Timeout\n", __func__);
 			return 1;

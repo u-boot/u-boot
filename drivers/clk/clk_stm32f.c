@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Vikas Manocha, <vikas.manocha@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -12,7 +11,6 @@
 
 #include <asm/io.h>
 #include <asm/arch/stm32.h>
-#include <asm/arch/stm32_periph.h>
 #include <asm/arch/stm32_pwr.h>
 
 #include <dt-bindings/mfd/stm32f7-rcc.h>
@@ -56,19 +54,26 @@
 #define RCC_CFGR_PPRE1_SHIFT		10
 #define RCC_CFGR_PPRE2_SHIFT		13
 
-#define RCC_PLLCFGR_PLLSAIN_MASK	GENMASK(14, 6)
-#define RCC_PLLCFGR_PLLSAIP_MASK	GENMASK(17, 16)
+#define RCC_PLLSAICFGR_PLLSAIN_MASK	GENMASK(14, 6)
+#define RCC_PLLSAICFGR_PLLSAIP_MASK	GENMASK(17, 16)
+#define RCC_PLLSAICFGR_PLLSAIQ_MASK	GENMASK(27, 24)
+#define RCC_PLLSAICFGR_PLLSAIR_MASK	GENMASK(30, 28)
 #define RCC_PLLSAICFGR_PLLSAIN_SHIFT	6
 #define RCC_PLLSAICFGR_PLLSAIP_SHIFT	16
-#define RCC_PLLSAICFGR_PLLSAIP_4	BIT(17)
+#define RCC_PLLSAICFGR_PLLSAIQ_SHIFT	24
+#define RCC_PLLSAICFGR_PLLSAIR_SHIFT	28
+#define RCC_PLLSAICFGR_PLLSAIP_4	BIT(16)
 #define RCC_PLLSAICFGR_PLLSAIQ_4	BIT(26)
-#define RCC_PLLSAICFGR_PLLSAIR_2	BIT(29)
+#define RCC_PLLSAICFGR_PLLSAIR_3	BIT(29) | BIT(28)
 
+#define RCC_DCKCFGRX_TIMPRE		BIT(24)
 #define RCC_DCKCFGRX_CK48MSEL		BIT(27)
 #define RCC_DCKCFGRX_SDMMC1SEL		BIT(28)
 #define RCC_DCKCFGR2_SDMMC2SEL		BIT(29)
 
-#define RCC_APB2ENR_SAI1EN		BIT(22)
+#define RCC_DCKCFGR_PLLSAIDIVR_SHIFT    16
+#define RCC_DCKCFGR_PLLSAIDIVR_MASK	GENMASK(17, 16)
+#define RCC_DCKCFGR_PLLSAIDIVR_2	0
 
 /*
  * RCC AHB1ENR specific definitions
@@ -87,11 +92,17 @@
  * RCC APB2ENR specific definitions
  */
 #define RCC_APB2ENR_SYSCFGEN		BIT(14)
+#define RCC_APB2ENR_SAI1EN		BIT(22)
 
-struct stm32_clk_info stm32f4_clk_info = {
+enum pllsai_div {
+	PLLSAIP,
+	PLLSAIQ,
+	PLLSAIR,
+};
+
+static const struct stm32_clk_info stm32f4_clk_info = {
 	/* 180 MHz */
 	.sys_pll_psc = {
-		.pll_m = 8,
 		.pll_n = 360,
 		.pll_p = 2,
 		.pll_q = 8,
@@ -103,10 +114,9 @@ struct stm32_clk_info stm32f4_clk_info = {
 	.v2 = false,
 };
 
-struct stm32_clk_info stm32f7_clk_info = {
+static const struct stm32_clk_info stm32f7_clk_info = {
 	/* 200 MHz */
 	.sys_pll_psc = {
-		.pll_m = 25,
 		.pll_n = 400,
 		.pll_p = 2,
 		.pll_q = 8,
@@ -121,16 +131,22 @@ struct stm32_clk_info stm32f7_clk_info = {
 struct stm32_clk {
 	struct stm32_rcc_regs *base;
 	struct stm32_pwr_regs *pwr_regs;
-	struct stm32_clk_info *info;
+	struct stm32_clk_info info;
+	unsigned long hse_rate;
+	bool pllsaip;
 };
+
+#ifdef CONFIG_VIDEO_STM32
+static const u8 plldivr_table[] = { 0, 0, 2, 3, 4, 5, 6, 7 };
+#endif
+static const u8 pllsaidivr_table[] = { 2, 4, 8, 16 };
 
 static int configure_clocks(struct udevice *dev)
 {
 	struct stm32_clk *priv = dev_get_priv(dev);
 	struct stm32_rcc_regs *regs = priv->base;
 	struct stm32_pwr_regs *pwr = priv->pwr_regs;
-	struct pll_psc sys_pll_psc = priv->info->sys_pll_psc;
-	u32 pllsaicfgr = 0;
+	struct pll_psc *sys_pll_psc = &priv->info.sys_pll_psc;
 
 	/* Reset RCC configuration */
 	setbits_le32(&regs->cr, RCC_CR_HSION);
@@ -147,35 +163,29 @@ static int configure_clocks(struct udevice *dev)
 		;
 
 	setbits_le32(&regs->cfgr, ((
-		sys_pll_psc.ahb_psc << RCC_CFGR_HPRE_SHIFT)
-		| (sys_pll_psc.apb1_psc << RCC_CFGR_PPRE1_SHIFT)
-		| (sys_pll_psc.apb2_psc << RCC_CFGR_PPRE2_SHIFT)));
+		sys_pll_psc->ahb_psc << RCC_CFGR_HPRE_SHIFT)
+		| (sys_pll_psc->apb1_psc << RCC_CFGR_PPRE1_SHIFT)
+		| (sys_pll_psc->apb2_psc << RCC_CFGR_PPRE2_SHIFT)));
 
 	/* Configure the main PLL */
 	setbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLSRC); /* pll source HSE */
 	clrsetbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLM_MASK,
-			sys_pll_psc.pll_m << RCC_PLLCFGR_PLLM_SHIFT);
+			sys_pll_psc->pll_m << RCC_PLLCFGR_PLLM_SHIFT);
 	clrsetbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLN_MASK,
-			sys_pll_psc.pll_n << RCC_PLLCFGR_PLLN_SHIFT);
+			sys_pll_psc->pll_n << RCC_PLLCFGR_PLLN_SHIFT);
 	clrsetbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLP_MASK,
-			((sys_pll_psc.pll_p >> 1) - 1) << RCC_PLLCFGR_PLLP_SHIFT);
+			((sys_pll_psc->pll_p >> 1) - 1) << RCC_PLLCFGR_PLLP_SHIFT);
 	clrsetbits_le32(&regs->pllcfgr, RCC_PLLCFGR_PLLQ_MASK,
-			sys_pll_psc.pll_q << RCC_PLLCFGR_PLLQ_SHIFT);
+			sys_pll_psc->pll_q << RCC_PLLCFGR_PLLQ_SHIFT);
 
-	/* Configure the SAI PLL to get a 48 MHz source */
-	pllsaicfgr = RCC_PLLSAICFGR_PLLSAIR_2 | RCC_PLLSAICFGR_PLLSAIQ_4 |
-		     RCC_PLLSAICFGR_PLLSAIP_4;
-	pllsaicfgr |= 192 << RCC_PLLSAICFGR_PLLSAIN_SHIFT;
-	writel(pllsaicfgr, &regs->pllsaicfgr);
-
-	/* Enable the main PLL */
-	setbits_le32(&regs->cr, RCC_CR_PLLON);
-	while (!(readl(&regs->cr) & RCC_CR_PLLRDY))
-		;
-
-	if (priv->info->v2) { /*stm32f7 case */
-		/* select PLLSAI as 48MHz clock source */
-		setbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_CK48MSEL);
+	/* configure SDMMC clock */
+	if (priv->info.v2) { /*stm32f7 case */
+		if (priv->pllsaip)
+			/* select PLLSAIP as 48MHz clock source */
+			setbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_CK48MSEL);
+		else
+			/* select PLLQ as 48MHz clock source */
+			clrbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_CK48MSEL);
 
 		/* select 48MHz as SDMMC1 clock source */
 		clrbits_le32(&regs->dckcfgr2, RCC_DCKCFGRX_SDMMC1SEL);
@@ -183,21 +193,43 @@ static int configure_clocks(struct udevice *dev)
 		/* select 48MHz as SDMMC2 clock source */
 		clrbits_le32(&regs->dckcfgr2, RCC_DCKCFGR2_SDMMC2SEL);
 	} else  { /* stm32f4 case */
-		/* select PLLSAI as 48MHz clock source */
-		setbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_CK48MSEL);
+		if (priv->pllsaip)
+			/* select PLLSAIP as 48MHz clock source */
+			setbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_CK48MSEL);
+		else
+			/* select PLLQ as 48MHz clock source */
+			clrbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_CK48MSEL);
 
 		/* select 48MHz as SDMMC1 clock source */
 		clrbits_le32(&regs->dckcfgr, RCC_DCKCFGRX_SDMMC1SEL);
 	}
 
+	/*
+	 * Configure the SAI PLL to generate LTDC pixel clock and
+	 * 48 Mhz for SDMMC and USB
+	 */
+	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIP_MASK,
+			RCC_PLLSAICFGR_PLLSAIP_4);
+	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIR_MASK,
+			RCC_PLLSAICFGR_PLLSAIR_3);
+	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIN_MASK,
+			195 << RCC_PLLSAICFGR_PLLSAIN_SHIFT);
+
+	clrsetbits_le32(&regs->dckcfgr, RCC_DCKCFGR_PLLSAIDIVR_MASK,
+			RCC_DCKCFGR_PLLSAIDIVR_2 << RCC_DCKCFGR_PLLSAIDIVR_SHIFT);
+
+	/* Enable the main PLL */
+	setbits_le32(&regs->cr, RCC_CR_PLLON);
+	while (!(readl(&regs->cr) & RCC_CR_PLLRDY))
+		;
+
 	/* Enable the SAI PLL */
 	setbits_le32(&regs->cr, RCC_CR_PLLSAION);
 	while (!(readl(&regs->cr) & RCC_CR_PLLSAIRDY))
 		;
-
 	setbits_le32(&regs->apb1enr, RCC_APB1ENR_PWREN);
 
-	if (priv->info->has_overdrive) {
+	if (priv->info.has_overdrive) {
 		/*
 		 * Enable high performance mode
 		 * System frequency up to 200 MHz
@@ -220,54 +252,153 @@ static int configure_clocks(struct udevice *dev)
 	while ((readl(&regs->cfgr) & RCC_CFGR_SWS_MASK) !=
 			RCC_CFGR_SWS_PLL)
 		;
-	/* gate the SAI clock, needed for MMC 1&2 clocks */
-	setbits_le32(&regs->apb2enr, RCC_APB2ENR_SAI1EN);
+
+#ifdef CONFIG_ETH_DESIGNWARE
+	/* gate the SYSCFG clock, needed to set RMII ethernet interface */
+	setbits_le32(&regs->apb2enr, RCC_APB2ENR_SYSCFGEN);
+#endif
 
 	return 0;
 }
 
-static unsigned long stm32_clk_pll48clk_rate(struct stm32_clk *priv,
-					     u32 sysclk)
+static bool stm32_clk_get_ck48msel(struct stm32_clk *priv)
 {
 	struct stm32_rcc_regs *regs = priv->base;
-	u16 pllq, pllm, pllsain, pllsaip;
-	bool pllsai;
 
-	pllq = (readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLQ_MASK)
-	       >> RCC_PLLCFGR_PLLQ_SHIFT;
-
-	if (priv->info->v2) /*stm32f7 case */
-		pllsai = readl(&regs->dckcfgr2) & RCC_DCKCFGRX_CK48MSEL;
+	if (priv->info.v2) /*stm32f7 case */
+		return readl(&regs->dckcfgr2) & RCC_DCKCFGRX_CK48MSEL;
 	else
-		pllsai = readl(&regs->dckcfgr) & RCC_DCKCFGRX_CK48MSEL;
 
-	if (pllsai) {
-		/* PLL48CLK is selected from PLLSAI, get PLLSAI value */
-		pllm = (readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLM_MASK);
-		pllsain = ((readl(&regs->pllsaicfgr) & RCC_PLLCFGR_PLLSAIN_MASK)
-			>> RCC_PLLSAICFGR_PLLSAIN_SHIFT);
-		pllsaip = ((((readl(&regs->pllsaicfgr) & RCC_PLLCFGR_PLLSAIP_MASK)
-			>> RCC_PLLSAICFGR_PLLSAIP_SHIFT) + 1) << 1);
-		return ((CONFIG_STM32_HSE_HZ / pllm) * pllsain) / pllsaip;
-	}
-	/* PLL48CLK is selected from PLLQ */
-	return sysclk / pllq;
+		return readl(&regs->dckcfgr) & RCC_DCKCFGRX_CK48MSEL;
 }
 
-static unsigned long stm32_clk_get_rate(struct clk *clk)
+static unsigned long stm32_clk_get_pllsai_vco_rate(struct stm32_clk *priv)
 {
-	struct stm32_clk *priv = dev_get_priv(clk->dev);
 	struct stm32_rcc_regs *regs = priv->base;
-	u32 sysclk = 0;
-	u32 shift = 0;
-	u16 pllm, plln, pllp;
+	u16 pllm, pllsain;
+
+	pllm = (readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLM_MASK);
+	pllsain = ((readl(&regs->pllsaicfgr) & RCC_PLLSAICFGR_PLLSAIN_MASK)
+		  >> RCC_PLLSAICFGR_PLLSAIN_SHIFT);
+
+	return ((priv->hse_rate / pllm) * pllsain);
+}
+
+static unsigned long stm32_clk_get_pllsai_rate(struct stm32_clk *priv,
+					       enum pllsai_div output)
+{
+	struct stm32_rcc_regs *regs = priv->base;
+	u16 pll_div_output;
+
+	switch (output) {
+	case PLLSAIP:
+		pll_div_output = ((((readl(&regs->pllsaicfgr)
+				  & RCC_PLLSAICFGR_PLLSAIP_MASK)
+				  >> RCC_PLLSAICFGR_PLLSAIP_SHIFT) + 1) << 1);
+		break;
+	case PLLSAIQ:
+		pll_div_output = (readl(&regs->pllsaicfgr)
+				  & RCC_PLLSAICFGR_PLLSAIQ_MASK)
+				  >> RCC_PLLSAICFGR_PLLSAIQ_SHIFT;
+		break;
+	case PLLSAIR:
+		pll_div_output = (readl(&regs->pllsaicfgr)
+				  & RCC_PLLSAICFGR_PLLSAIR_MASK)
+				  >> RCC_PLLSAICFGR_PLLSAIR_SHIFT;
+		break;
+	default:
+		pr_err("incorrect PLLSAI output %d\n", output);
+		return -EINVAL;
+	}
+
+	return (stm32_clk_get_pllsai_vco_rate(priv) / pll_div_output);
+}
+
+static bool stm32_get_timpre(struct stm32_clk *priv)
+{
+	struct stm32_rcc_regs *regs = priv->base;
+	u32 val;
+
+	if (priv->info.v2) /*stm32f7 case */
+		val = readl(&regs->dckcfgr2);
+	else
+		val = readl(&regs->dckcfgr);
+	/* get timer prescaler */
+	return !!(val & RCC_DCKCFGRX_TIMPRE);
+}
+
+static u32 stm32_get_hclk_rate(struct stm32_rcc_regs *regs, u32 sysclk)
+{
+	u8 shift;
 	/* Prescaler table lookups for clock computation */
 	u8 ahb_psc_table[16] = {
 		0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9
 	};
+
+	shift = ahb_psc_table[(
+		(readl(&regs->cfgr) & RCC_CFGR_AHB_PSC_MASK)
+		>> RCC_CFGR_HPRE_SHIFT)];
+
+	return sysclk >> shift;
+};
+
+static u8 stm32_get_apb_shift(struct stm32_rcc_regs *regs, enum apb apb)
+{
+	/* Prescaler table lookups for clock computation */
 	u8 apb_psc_table[8] = {
 		0, 0, 0, 0, 1, 2, 3, 4
 	};
+
+	if (apb == APB1)
+		return apb_psc_table[(
+		       (readl(&regs->cfgr) & RCC_CFGR_APB1_PSC_MASK)
+		       >> RCC_CFGR_PPRE1_SHIFT)];
+	else /* APB2 */
+		return apb_psc_table[(
+		       (readl(&regs->cfgr) & RCC_CFGR_APB2_PSC_MASK)
+		       >> RCC_CFGR_PPRE2_SHIFT)];
+};
+
+static u32 stm32_get_timer_rate(struct stm32_clk *priv, u32 sysclk,
+				enum apb apb)
+{
+	struct stm32_rcc_regs *regs = priv->base;
+	u8 shift = stm32_get_apb_shift(regs, apb);
+
+	if (stm32_get_timpre(priv))
+		/*
+		 * if APB prescaler is configured to a
+		 * division factor of 1, 2 or 4
+		 */
+		switch (shift) {
+		case 0:
+		case 1:
+		case 2:
+			return stm32_get_hclk_rate(regs, sysclk);
+		default:
+			return (sysclk >> shift) * 4;
+		}
+	else
+		/*
+		 * if APB prescaler is configured to a
+		 * division factor of 1
+		 */
+		if (shift == 0)
+			return sysclk;
+		else
+			return (sysclk >> shift) * 2;
+};
+
+static ulong stm32_clk_get_rate(struct clk *clk)
+{
+	struct stm32_clk *priv = dev_get_priv(clk->dev);
+	struct stm32_rcc_regs *regs = priv->base;
+	u32 sysclk = 0;
+	u32 vco;
+	u32 sdmmcxsel_bit;
+	u32 saidivr;
+	u32 pllsai_rate;
+	u16 pllm, plln, pllp, pllq;
 
 	if ((readl(&regs->cfgr) & RCC_CFGR_SWS_MASK) ==
 			RCC_CFGR_SWS_PLL) {
@@ -276,7 +407,10 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 			>> RCC_PLLCFGR_PLLN_SHIFT);
 		pllp = ((((readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLP_MASK)
 			>> RCC_PLLCFGR_PLLP_SHIFT) + 1) << 1);
-		sysclk = ((CONFIG_STM32_HSE_HZ / pllm) * plln) / pllp;
+		pllq = ((readl(&regs->pllcfgr) & RCC_PLLCFGR_PLLQ_MASK)
+			>> RCC_PLLCFGR_PLLQ_SHIFT);
+		vco = (priv->hse_rate / pllm) * plln;
+		sysclk = vco / pllp;
 	} else {
 		return -EINVAL;
 	}
@@ -287,48 +421,178 @@ static unsigned long stm32_clk_get_rate(struct clk *clk)
 	 * AHB1, AHB2 and AHB3
 	 */
 	case STM32F7_AHB1_CLOCK(GPIOA) ... STM32F7_AHB3_CLOCK(QSPI):
-		shift = ahb_psc_table[(
-			(readl(&regs->cfgr) & RCC_CFGR_AHB_PSC_MASK)
-			>> RCC_CFGR_HPRE_SHIFT)];
-		return sysclk >>= shift;
+		return stm32_get_hclk_rate(regs, sysclk);
 	/* APB1 CLOCK */
 	case STM32F7_APB1_CLOCK(TIM2) ... STM32F7_APB1_CLOCK(UART8):
-		shift = apb_psc_table[(
-			(readl(&regs->cfgr) & RCC_CFGR_APB1_PSC_MASK)
-			>> RCC_CFGR_PPRE1_SHIFT)];
-		return sysclk >>= shift;
+		/* For timer clock, an additionnal prescaler is used*/
+		switch (clk->id) {
+		case STM32F7_APB1_CLOCK(TIM2):
+		case STM32F7_APB1_CLOCK(TIM3):
+		case STM32F7_APB1_CLOCK(TIM4):
+		case STM32F7_APB1_CLOCK(TIM5):
+		case STM32F7_APB1_CLOCK(TIM6):
+		case STM32F7_APB1_CLOCK(TIM7):
+		case STM32F7_APB1_CLOCK(TIM12):
+		case STM32F7_APB1_CLOCK(TIM13):
+		case STM32F7_APB1_CLOCK(TIM14):
+			return stm32_get_timer_rate(priv, sysclk, APB1);
+		}
+		return (sysclk >> stm32_get_apb_shift(regs, APB1));
+
 	/* APB2 CLOCK */
-	case STM32F7_APB2_CLOCK(TIM1) ... STM32F7_APB2_CLOCK(LTDC):
+	case STM32F7_APB2_CLOCK(TIM1) ... STM32F7_APB2_CLOCK(DSI):
+		switch (clk->id) {
 		/*
 		 * particular case for SDMMC1 and SDMMC2 :
 		 * 48Mhz source clock can be from main PLL or from
-		 * SAI PLL
+		 * PLLSAIP
 		 */
-		switch (clk->id) {
 		case STM32F7_APB2_CLOCK(SDMMC1):
-			if (readl(&regs->dckcfgr2) & RCC_DCKCFGRX_SDMMC1SEL)
+		case STM32F7_APB2_CLOCK(SDMMC2):
+			if (clk->id == STM32F7_APB2_CLOCK(SDMMC1))
+				sdmmcxsel_bit = RCC_DCKCFGRX_SDMMC1SEL;
+			else
+				sdmmcxsel_bit = RCC_DCKCFGR2_SDMMC2SEL;
+
+			if (readl(&regs->dckcfgr2) & sdmmcxsel_bit)
 				/* System clock is selected as SDMMC1 clock */
 				return sysclk;
+			/*
+			 * 48 MHz can be generated by either PLLSAIP
+			 * or by PLLQ depending of CK48MSEL bit of RCC_DCKCFGR
+			 */
+			if (stm32_clk_get_ck48msel(priv))
+				return stm32_clk_get_pllsai_rate(priv, PLLSAIP);
 			else
-				return stm32_clk_pll48clk_rate(priv, sysclk);
+				return (vco / pllq);
 			break;
-		case STM32F7_APB2_CLOCK(SDMMC2):
-			if (readl(&regs->dckcfgr2) & RCC_DCKCFGR2_SDMMC2SEL)
-				/* System clock is selected as SDMMC2 clock */
-				return sysclk;
-			else
-				return stm32_clk_pll48clk_rate(priv, sysclk);
-			break;
-		}
 
-		shift = apb_psc_table[(
-			(readl(&regs->cfgr) & RCC_CFGR_APB2_PSC_MASK)
-			>> RCC_CFGR_PPRE2_SHIFT)];
-		return sysclk >>= shift;
+		/* For timer clock, an additionnal prescaler is used*/
+		case STM32F7_APB2_CLOCK(TIM1):
+		case STM32F7_APB2_CLOCK(TIM8):
+		case STM32F7_APB2_CLOCK(TIM9):
+		case STM32F7_APB2_CLOCK(TIM10):
+		case STM32F7_APB2_CLOCK(TIM11):
+			return stm32_get_timer_rate(priv, sysclk, APB2);
+		break;
+
+		/* particular case for LTDC clock */
+		case STM32F7_APB2_CLOCK(LTDC):
+			saidivr = readl(&regs->dckcfgr);
+			saidivr = (saidivr & RCC_DCKCFGR_PLLSAIDIVR_MASK)
+				  >> RCC_DCKCFGR_PLLSAIDIVR_SHIFT;
+			pllsai_rate = stm32_clk_get_pllsai_rate(priv, PLLSAIR);
+
+			return pllsai_rate / pllsaidivr_table[saidivr];
+		}
+		return (sysclk >> stm32_get_apb_shift(regs, APB2));
+
 	default:
 		pr_err("clock index %ld out of range\n", clk->id);
 		return -EINVAL;
 	}
+}
+
+static ulong stm32_set_rate(struct clk *clk, ulong rate)
+{
+#ifdef CONFIG_VIDEO_STM32
+	struct stm32_clk *priv = dev_get_priv(clk->dev);
+	struct stm32_rcc_regs *regs = priv->base;
+	u32 pllsair_rate, pllsai_vco_rate, current_rate;
+	u32 best_div, best_diff, diff;
+	u16 div;
+	u8 best_plldivr, best_pllsaidivr;
+	u8 i, j;
+	bool found = false;
+
+	/* Only set_rate for LTDC clock is implemented */
+	if (clk->id != STM32F7_APB2_CLOCK(LTDC)) {
+		pr_err("set_rate not implemented for clock index %ld\n",
+		       clk->id);
+		return 0;
+	}
+
+	if (rate == stm32_clk_get_rate(clk))
+		/* already set to requested rate */
+		return rate;
+
+	/* get the current PLLSAIR output freq */
+	pllsair_rate = stm32_clk_get_pllsai_rate(priv, PLLSAIR);
+	best_div = pllsair_rate / rate;
+
+	/* look into pllsaidivr_table if this divider is available*/
+	for (i = 0 ; i < sizeof(pllsaidivr_table); i++)
+		if (best_div == pllsaidivr_table[i]) {
+			/* set pll_saidivr with found value */
+			clrsetbits_le32(&regs->dckcfgr,
+					RCC_DCKCFGR_PLLSAIDIVR_MASK,
+					pllsaidivr_table[i]);
+			return rate;
+		}
+
+	/*
+	 * As no pllsaidivr value is suitable to obtain requested freq,
+	 * test all combination of pllsaidivr * pllsair and find the one
+	 * which give freq closest to requested rate.
+	 */
+
+	pllsai_vco_rate = stm32_clk_get_pllsai_vco_rate(priv);
+	best_diff = ULONG_MAX;
+	best_pllsaidivr = 0;
+	best_plldivr = 0;
+	/*
+	 * start at index 2 of plldivr_table as divider value at index 0
+	 * and 1 are 0)
+	 */
+	for (i = 2; i < sizeof(plldivr_table); i++) {
+		for (j = 0; j < sizeof(pllsaidivr_table); j++) {
+			div = plldivr_table[i] * pllsaidivr_table[j];
+			current_rate = pllsai_vco_rate / div;
+			/* perfect combination is found ? */
+			if (current_rate == rate) {
+				best_pllsaidivr = j;
+				best_plldivr = i;
+				found = true;
+				break;
+			}
+
+			diff = (current_rate > rate) ?
+			       current_rate - rate : rate - current_rate;
+
+			/* found a better combination ? */
+			if (diff < best_diff) {
+				best_diff = diff;
+				best_pllsaidivr = j;
+				best_plldivr = i;
+			}
+		}
+
+		if (found)
+			break;
+	}
+
+	/* Disable the SAI PLL */
+	clrbits_le32(&regs->cr, RCC_CR_PLLSAION);
+
+	/* set pll_saidivr with found value */
+	clrsetbits_le32(&regs->dckcfgr, RCC_DCKCFGR_PLLSAIDIVR_MASK,
+			best_pllsaidivr << RCC_DCKCFGR_PLLSAIDIVR_SHIFT);
+
+	/* set pllsair with found value */
+	clrsetbits_le32(&regs->pllsaicfgr, RCC_PLLSAICFGR_PLLSAIR_MASK,
+			plldivr_table[best_plldivr]
+			<< RCC_PLLSAICFGR_PLLSAIR_SHIFT);
+
+	/* Enable the SAI PLL */
+	setbits_le32(&regs->cr, RCC_CR_PLLSAION);
+	while (!(readl(&regs->cr) & RCC_CR_PLLSAIRDY))
+		;
+
+	div = plldivr_table[best_plldivr] * pllsaidivr_table[best_pllsaidivr];
+	return pllsai_vco_rate / div;
+#else
+	return 0;
+#endif
 }
 
 static int stm32_clk_enable(struct clk *clk)
@@ -345,28 +609,11 @@ static int stm32_clk_enable(struct clk *clk)
 	return 0;
 }
 
-void clock_setup(int peripheral)
-{
-	switch (peripheral) {
-	case SYSCFG_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->apb2enr, RCC_APB2ENR_SYSCFGEN);
-		break;
-	case TIMER2_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->apb1enr, RCC_APB1ENR_TIM2EN);
-		break;
-	case STMMAC_CLOCK_CFG:
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_EN);
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_RX_EN);
-		setbits_le32(&STM32_RCC->ahb1enr, RCC_AHB1ENR_ETHMAC_TX_EN);
-		break;
-	default:
-		break;
-	}
-}
-
 static int stm32_clk_probe(struct udevice *dev)
 {
 	struct ofnode_phandle_args args;
+	struct udevice *fixed_clock_dev = NULL;
+	struct clk clk;
 	int err;
 
 	debug("%s\n", __func__);
@@ -379,19 +626,59 @@ static int stm32_clk_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->base = (struct stm32_rcc_regs *)addr;
+	priv->pllsaip = true;
 
 	switch (dev_get_driver_data(dev)) {
-	case STM32F4:
-		priv->info = &stm32f4_clk_info;
+	case STM32F42X:
+		priv->pllsaip = false;
+		/* fallback into STM32F469 case */
+	case STM32F469:
+		memcpy(&priv->info, &stm32f4_clk_info,
+		       sizeof(struct stm32_clk_info));
 		break;
+
 	case STM32F7:
-		priv->info = &stm32f7_clk_info;
+		memcpy(&priv->info, &stm32f7_clk_info,
+		       sizeof(struct stm32_clk_info));
 		break;
 	default:
 		return -EINVAL;
 	}
 
-	if (priv->info->has_overdrive) {
+	/* retrieve HSE frequency (external oscillator) */
+	err = uclass_get_device_by_name(UCLASS_CLK, "clk-hse",
+					&fixed_clock_dev);
+
+	if (err) {
+		pr_err("Can't find fixed clock (%d)", err);
+		return err;
+	}
+
+	err = clk_request(fixed_clock_dev, &clk);
+	if (err) {
+		pr_err("Can't request %s clk (%d)", fixed_clock_dev->name,
+		       err);
+		return err;
+	}
+
+	/*
+	 * set pllm factor accordingly to the external oscillator
+	 * frequency (HSE). For STM32F4 and STM32F7, we want VCO
+	 * freq at 1MHz
+	 * if input PLL frequency is 25Mhz, divide it by 25
+	 */
+	clk.id = 0;
+	priv->hse_rate = clk_get_rate(&clk);
+
+	if (priv->hse_rate < 1000000) {
+		pr_err("%s: unexpected HSE clock rate = %ld \"n", __func__,
+		       priv->hse_rate);
+		return -EINVAL;
+	}
+
+	priv->info.sys_pll_psc.pll_m = priv->hse_rate / 1000000;
+
+	if (priv->info.has_overdrive) {
 		err = dev_read_phandle_with_args(dev, "st,syscfg", NULL, 0, 0,
 						 &args);
 		if (err) {
@@ -429,6 +716,7 @@ static struct clk_ops stm32_clk_ops = {
 	.of_xlate	= stm32_clk_of_xlate,
 	.enable		= stm32_clk_enable,
 	.get_rate	= stm32_clk_get_rate,
+	.set_rate	= stm32_set_rate,
 };
 
 U_BOOT_DRIVER(stm32fx_clk) = {

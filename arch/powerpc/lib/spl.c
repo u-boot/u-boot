@@ -1,15 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2012 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <config.h>
 #include <spl.h>
 #include <image.h>
 #include <linux/compiler.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * This function jumps to an image with argument. Normally an FDT or ATAGS

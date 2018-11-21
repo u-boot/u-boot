@@ -1,13 +1,13 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2017 Texas Instruments Incorporated - http://www.ti.com/
  * Written by Jean-Jacques Hiblot  <jjhiblot@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __GENERIC_PHY_H
 #define __GENERIC_PHY_H
 
+struct ofnode_phandle_args;
 
 /**
  * struct phy - A handle to (allowing control of) a single phy port.

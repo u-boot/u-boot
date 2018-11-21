@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *  Copyright (C) 2013 Altera Corporation <www.altera.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 
@@ -10,8 +9,6 @@
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/freeze_controller.h>
 #include <linux/errno.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static const struct socfpga_freeze_controller *freeze_controller_base =
 		(void *)(SOCFPGA_SYSMGR_ADDRESS + SYSMGR_FRZCTRL_ADDRESS);

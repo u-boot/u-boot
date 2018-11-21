@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * mcf5249.h -- Definitions for Motorola Coldfire 5249
  *
  * Based on mcf5272sim.h of uCLinux distribution:
  *      (C) Copyright 1999, Greg Ungerer (gerg@snapgear.com)
  *      (C) Copyright 2000, Lineo Inc. (www.lineo.com)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef	mcf5249_h

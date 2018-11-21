@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2008 Semihalf
  *
  * Written by: Rafal Czubak <rcz@semihalf.com>
  *             Bartlomiej Sieka <tur@semihalf.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -24,6 +23,7 @@
 #include <malloc.h>
 #include <dfu.h>
 #include <errno.h>
+#include <mtd/cfi_flash.h>
 
 /* env variable holding the location of the update file */
 #define UPDATE_FILE_ENV		"updatefile"

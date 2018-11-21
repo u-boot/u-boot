@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Altera SPI driver
  *
  * based on bfin_spi.c
  * Copyright (c) 2005-2008 Analog Devices Inc.
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <dm.h>
@@ -14,8 +13,6 @@
 #include <fdtdec.h>
 #include <spi.h>
 #include <asm/io.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 #define ALTERA_SPI_STATUS_RRDY_MSK	BIT(7)
 #define ALTERA_SPI_CONTROL_SSO_MSK	BIT(10)

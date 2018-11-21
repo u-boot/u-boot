@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * RNDIS	Definitions for Remote NDIS
  *
@@ -6,8 +7,6 @@
  *
  *		This software was originally developed in conformance with
  *		Microsoft's Remote NDIS Specification License Agreement.
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _USBGADGET_RNDIS_H

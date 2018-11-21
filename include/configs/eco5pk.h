@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2012 8D Technologies inc.
  * Based on mt_ventoux.h, original banner below:
@@ -6,8 +7,6 @@
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
  *
  * Copyright (C) 2009 TechNexion Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -15,21 +14,16 @@
 
 #include "tam3517-common.h"
 
-#undef CONFIG_USB_OMAP3
-
 /* Our console port is port3 */
-#undef CONFIG_CONS_INDEX
 #undef CONFIG_SYS_NS16550_COM1
-#undef CONFIG_SERIAL1
 
-#define CONFIG_CONS_INDEX	3
 #define CONFIG_SYS_NS16550_COM3	OMAP34XX_UART3
-#define CONFIG_SERIAL3
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_ECO5_PK
 
 #define CONFIG_BOOTFILE		"uImage"
-#define CONFIG_AUTO_COMPLETE
+
+#define CONFIG_HOSTNAME "eco5pk"
 
 /*
  * Set its own mtdparts, different from common

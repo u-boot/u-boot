@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * esd vme8349 U-Boot configuration file
  * Copyright (c) 2008, 2009 esd gmbh Hannover Germany
@@ -7,8 +8,6 @@
  *
  * reinhard.arlt@esd-electronics.de
  * Based on the MPC8349EMDS config.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -32,10 +31,6 @@
 #define CONFIG_MPC834x		1	/* MPC834x family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_VME8349		1	/* ESD VME8349 board specific */
-
-#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
-
-#define CONFIG_MISC_INIT_R
 
 /* Don't enable PCI2 on vme834x - it doesn't exist physically. */
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
@@ -99,8 +94,6 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER			        /* use the CFI driver */
 #ifdef VME_CADDY2
 #define CONFIG_SYS_FLASH_BASE		0xffc00000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_SIZE		4		/* flash size in MB */
@@ -142,7 +135,6 @@
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_128MB)
 #endif
-/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
 #define CONFIG_SYS_WINDOW1_BASE		0xf0000000
 #define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_WINDOW1_BASE \
@@ -196,7 +188,6 @@
 /*
  * Serial Port
  */
-#define CONFIG_CONS_INDEX	1
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
@@ -206,9 +197,6 @@
 
 #define CONFIG_SYS_NS16550_COM1		(CONFIG_SYS_IMMR + 0x4500)
 #define CONFIG_SYS_NS16550_COM2		(CONFIG_SYS_IMMR + 0x4600)
-
-#define CONFIG_CMDLINE_EDITING		/* add command line history	*/
-#define CONFIG_AUTO_COMPLETE		/* add autocompletion support */
 
 /* I2C */
 #define CONFIG_SYS_I2C
@@ -264,9 +252,6 @@
 #undef PCI_ONE_PCI1
 #endif
 
-#ifndef VME_CADDY2
-#endif
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
@@ -284,10 +269,6 @@
 /*
  * TSEC configuration
  */
-#ifdef VME_CADDY2
-#else
-#define CONFIG_TSEC_ENET		/* TSEC ethernet support */
-#endif
 
 #if defined(CONFIG_TSEC_ENET)
 
@@ -333,9 +314,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
@@ -352,7 +330,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP			/* undef to save memory */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 
 /*
@@ -509,7 +486,7 @@
 #define CONFIG_HAS_ETH1
 #endif
 
-#define CONFIG_HOSTNAME		VME8349
+#define CONFIG_HOSTNAME		"VME8349"
 #define CONFIG_ROOTPATH		"/tftpboot/rootfs"
 #define CONFIG_BOOTFILE		"uImage"
 

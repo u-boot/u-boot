@@ -92,8 +92,9 @@
 			      <0x24000000 0x4000000>;
 			interrupts = <GIC_SPI 198 IRQ_TYPE_EDGE_RISING>;
 			num-cs = <4>;
-			fifo-depth = <256>;
-			sram-size = <256>;
+			cdns,fifo-depth = <256>;
+			cdns,fifo-width = <4>;
+			cdns,trigger-address = <0x24000000>;
 			status = "disabled";
 		};
 

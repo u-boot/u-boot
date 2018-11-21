@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
 /*
  * Copyright(c) 2009 Intel Corporation. All rights reserved.
- *
- * SPDX-License-Identifier:	GPL-2.0+	BSD-3-Clause
  */
 
 #ifndef _LINUX_SFI_H

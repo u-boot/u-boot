@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Generic I/O functions.
  *
  * Copyright (c) 2016 Imagination Technologies Ltd.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_GENERIC_IO_H__

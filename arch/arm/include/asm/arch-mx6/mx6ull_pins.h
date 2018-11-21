@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_IMX6ULL_PINS_H__
@@ -333,7 +332,7 @@ enum {
 	MX6_PAD_UART5_TX_DATA__CSI_DATA14                     = IOMUX_PAD(0x0348, 0x00BC, 3, 0x04FC, 0, 0),
 	MX6_PAD_UART5_TX_DATA__CSU_CSU_ALARM_AUT00            = IOMUX_PAD(0x0348, 0x00BC, 4, 0x0000, 0, 0),
 
-	MX6_PAD_UART5_RX_DATA__UART5_DCE_RX                   = IOMUX_PAD(0x034C, 0x00C0, 0, 0x0644, 5, 0),
+	MX6_PAD_UART5_RX_DATA__UART5_DCE_RX                   = IOMUX_PAD(0x034C, 0x00C0, 0, 0x0644, 7, 0),
 
 	MX6_PAD_UART5_RX_DATA__UART5_DTE_TX                   = IOMUX_PAD(0x034C, 0x00C0, 0, 0x0000, 0, 0),
 	MX6_PAD_UART5_RX_DATA__ENET2_COL                      = IOMUX_PAD(0x034C, 0x00C0, 1, 0x0000, 0, 0),

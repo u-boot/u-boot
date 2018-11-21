@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Eukréa Electromatique
  * Author: Eric Bénard <eric@eukrea.com>
@@ -6,8 +7,6 @@
  *
  * based on mx6*sabre*.h which are :
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __RIOTBOARD_CONFIG_H
@@ -43,7 +42,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
 #define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
@@ -52,7 +50,6 @@
 #define CONFIG_PHY_ATHEROS
 
 #ifdef CONFIG_CMD_SF
-#define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0
 #define CONFIG_SF_DEFAULT_CS		0
 #define CONFIG_SF_DEFAULT_SPEED		20000000
@@ -66,7 +63,6 @@
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS           1
 #define PHYS_SDRAM                     MMDC0_ARB_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM
@@ -111,7 +107,6 @@
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
-#include <config_distro_defaults.h>
 #include "mx6_common.h"
 
 /* 256M RAM (minimum), 32M uncompressed kernel, 16M compressed kernel, 1M fdt,

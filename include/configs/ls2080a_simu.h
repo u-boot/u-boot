@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014 Freescale Semiconductor
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __LS2_SIMU_H
@@ -11,9 +10,6 @@
 
 #define CONFIG_SYS_CLK_FREQ	100000000
 #define CONFIG_DDR_CLK_FREQ	133333333
-
-#define CONFIG_SYS_MXC_I2C1_SPEED	40000000
-#define CONFIG_SYS_MXC_I2C2_SPEED	40000000
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR		1
 #define CONFIG_CHIP_SELECTS_PER_CTRL		4
@@ -29,9 +25,6 @@
 #define CONFIG_SYS_NOR_AMASK	IFC_AMASK(128*1024*1024)
 
 #ifdef CONFIG_MTD_NOR_FLASH
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #endif
 
@@ -133,7 +126,6 @@
 
 /*  MMC  */
 #ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 

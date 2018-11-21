@@ -15,6 +15,8 @@
 #ifndef __ASM_ARM_BITOPS_H
 #define __ASM_ARM_BITOPS_H
 
+#include <asm-generic/bitops/__ffs.h>
+
 #ifdef __KERNEL__
 
 #include <asm/proc-armv/system.h>
@@ -108,57 +110,41 @@ static inline int __ilog2(unsigned int x)
 	return generic_fls(x) - 1;
 }
 
-/*
- * ffz = Find First Zero in word. Undefined if no zero exists,
- * so code should check against ~0UL first..
- */
-static inline unsigned long ffz(unsigned long word)
-{
-	int k;
-
-	word = ~word;
-	k = 31;
-	if (word & 0x0000ffff) { k -= 16; word <<= 16; }
-	if (word & 0x00ff0000) { k -= 8;  word <<= 8;  }
-	if (word & 0x0f000000) { k -= 4;  word <<= 4;  }
-	if (word & 0x30000000) { k -= 2;  word <<= 2;  }
-	if (word & 0x40000000) { k -= 1; }
-	return k;
-}
+#define ffz(x)  __ffs(~(x))
 
 static inline int find_next_zero_bit(void *addr, int size, int offset)
 {
-	unsigned long *p = ((unsigned long *)addr) + (offset >> 5);
-	unsigned long result = offset & ~31UL;
+	unsigned long *p = ((unsigned long *)addr) + (offset / BITS_PER_LONG);
+	unsigned long result = offset & ~(BITS_PER_LONG - 1);
 	unsigned long tmp;
 
 	if (offset >= size)
 		return size;
 	size -= result;
-	offset &= 31UL;
+	offset &= (BITS_PER_LONG - 1);
 	if (offset) {
 		tmp = *(p++);
-		tmp |= ~0UL >> (32-offset);
-		if (size < 32)
+		tmp |= ~0UL >> (BITS_PER_LONG - offset);
+		if (size < BITS_PER_LONG)
 			goto found_first;
 		if (~tmp)
 			goto found_middle;
-		size -= 32;
-		result += 32;
+		size -= BITS_PER_LONG;
+		result += BITS_PER_LONG;
 	}
-	while (size & ~31UL) {
+	while (size & ~(BITS_PER_LONG - 1)) {
 		tmp = *(p++);
 		if (~tmp)
 			goto found_middle;
-		result += 32;
-		size -= 32;
+		result += BITS_PER_LONG;
+		size -= BITS_PER_LONG;
 	}
 	if (!size)
 		return result;
 	tmp = *p;
 
 found_first:
-	tmp |= ~0UL >> size;
+	tmp |= ~0UL << size;
 found_middle:
 	return result + ffz(tmp);
 }
@@ -191,7 +177,6 @@ found_middle:
 #endif /* __KERNEL__ */
 
 #include <asm-generic/bitops/__fls.h>
-#include <asm-generic/bitops/__ffs.h>
 #include <asm-generic/bitops/fls.h>
 #include <asm-generic/bitops/fls64.h>
 

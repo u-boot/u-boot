@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * (C) Copyright 2014 Xilinx, Inc. Michal Simek
- *
- * SPDX-License-Identifier:	GPL-2.0+
+ * (C) Copyright 2014 - 2017 Xilinx, Inc. Michal Simek
  */
 #include <common.h>
 #include <debug_uart.h>
@@ -12,8 +11,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/ps7_init_gpl.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 void board_init_f(ulong dummy)
 {
@@ -32,6 +29,9 @@ void board_init_f(ulong dummy)
 void spl_board_init(void)
 {
 	preloader_console_init();
+#if defined(CONFIG_ARCH_EARLY_INIT_R) && defined(CONFIG_SPL_FPGA_SUPPORT)
+	arch_early_init_r();
+#endif
 	board_init();
 }
 #endif
@@ -69,13 +69,6 @@ u32 spl_boot_device(void)
 
 	return mode;
 }
-
-#ifdef CONFIG_SPL_MMC_SUPPORT
-u32 spl_boot_mode(const u32 boot_device)
-{
-	return MMCSD_MODE_FS;
-}
-#endif
 
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)

@@ -56,8 +56,6 @@
 #define NANDARGS ""
 #endif
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 DEFAULT_LINUX_BOOT_ENV \
@@ -339,8 +337,6 @@ DEFAULT_LINUX_BOOT_ENV \
 /* SPL */
 #ifndef CONFIG_NOR_BOOT
 /* Bootcount using the RTC block */
-#define CONFIG_BOOTCOUNT_LIMIT
-#define CONFIG_BOOTCOUNT_AM33XX
 #define CONFIG_SYS_BOOTCOUNT_BE
 
 /* USB gadget RNDIS */
@@ -383,9 +379,6 @@ DEFAULT_LINUX_BOOT_ENV \
  * For NOR boot, we must set this to the start of where NOR is mapped
  * in memory.
  */
-#ifdef CONFIG_NOR_BOOT
-#define CONFIG_SYS_TEXT_BASE		0x08000000
-#endif
 
 /*
  * USB configuration.  We enable MUSB support, both for host and for
@@ -394,19 +387,13 @@ DEFAULT_LINUX_BOOT_ENV \
  * add mass storage support and for gadget we add both RNDIS ethernet
  * and DFU.
  */
-#define CONFIG_USB_MUSB_DSPS
-#define CONFIG_USB_MUSB_PIO_ONLY
 #define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_HOST
 
-#ifdef CONFIG_USB_MUSB_GADGET
-#define CONFIG_USB_FUNCTION_MASS_STORAGE
-#endif /* CONFIG_USB_MUSB_GADGET */
-
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USB_ETHER)
 /* disable host part of MUSB in SPL */
 /* disable EFI partitions and partition UUID support */
 #endif
@@ -463,7 +450,6 @@ DEFAULT_LINUX_BOOT_ENV \
  */
 #if defined(CONFIG_SPI_BOOT)
 /* SPL related */
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
@@ -498,11 +484,6 @@ DEFAULT_LINUX_BOOT_ENV \
  * 0x4C0000 - 0xFFFFFF : Userland (11 MiB + 256 KiB)
  */
 #if defined(CONFIG_NOR)
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
-#define CONFIG_SYS_FLASH_PROTECTION
-#define CONFIG_SYS_FLASH_CFI
-#define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_FLASH_CFI_MTD
 #define CONFIG_SYS_MAX_FLASH_SECT	128
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)

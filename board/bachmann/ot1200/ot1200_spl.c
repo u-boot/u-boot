@@ -1,14 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015, Bachmann electronic GmbH
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
 #include <spl.h>
 #include <asm/arch/mx6-ddr.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* Configure MX6Q/DUAL mmdc DDR io registers */
 static struct mx6dq_iomux_ddr_regs ot1200_ddr_ioregs = {

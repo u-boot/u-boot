@@ -14,22 +14,6 @@
 			u-boot,dm-pre-reloc;
 		};
 
-		mioctrl@59810000 {
-			u-boot,dm-pre-reloc;
-
-			clock {
-				u-boot,dm-pre-reloc;
-			};
-		};
-
-		sdctrl@59810000 {
-			u-boot,dm-pre-reloc;
-
-			clock {
-				u-boot,dm-pre-reloc;
-			};
-		};
-
 		soc-glue@5f800000 {
 			u-boot,dm-pre-reloc;
 

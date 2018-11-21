@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2011
  * egnite GmbH <info@egnite.de>
  *
  * Configuation settings for Ethernut 5 with AT91SAM9XE.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -13,7 +12,6 @@
 #include <asm/hardware.h>
 
 /* The first stage boot loader expects u-boot running at this address. */
-#define CONFIG_SYS_TEXT_BASE	0x27000000	/* 16MB available */
 
 /* The first stage boot loader takes care of low level initialization. */
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -35,7 +33,6 @@
 				GENERATED_GBL_DATA_SIZE)
 
 /* 128MB SDRAM in 1 bank */
-#define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_SDRAM_SIZE		(128 << 20)
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
@@ -50,7 +47,6 @@
 # define CONFIG_SYS_FLASH_BASE		0x00200000 /* AT91SAM9XE_FLASH_BASE */
 # define CONFIG_AT91_EFLASH
 # define CONFIG_SYS_MAX_FLASH_SECT	32
-# define CONFIG_SYS_FLASH_PROTECTION	/* First stage loader in sector 0 */
 # define CONFIG_EFLASH_PROTSECTORS	1
 
 
@@ -60,15 +56,11 @@
 #define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #define CONFIG_ENV_SPI_MAX_HZ	15000000
 
-#ifndef MINIMAL_LOADER
-#endif
-
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000
 #define CONFIG_SYS_NAND_DBW_8
-#define CONFIG_NAND_ATMEL
 /* our ALE is AD21 */
 #define CONFIG_SYS_NAND_MASK_ALE	(1 << 21)
 /* our CLE is AD22 */
@@ -143,15 +135,10 @@
 /* DHCP/BOOTP options */
 #ifdef CONFIG_CMD_DHCP
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_SYS_AUTOLOAD	"n"
 #endif
 
 /* File systems */
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
 
 /* Boot command */
 #define CONFIG_CMDLINE_TAG
@@ -162,7 +149,5 @@
 				"bootm 0x22000000"
 
 /* Misc. u-boot settings */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
 
 #endif

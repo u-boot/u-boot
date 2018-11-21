@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Manage Keyboard Matrices
  *
  * Copyright (c) 2012 The Chromium OS Authors.
  * (C) Copyright 2004 DENX Software Engineering, Wolfgang Denk, wd@denx.de
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,7 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2008-2015 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier: GPL-2.0+
  *
  * Command for encapsulating DEK blob
  */
@@ -15,8 +14,6 @@
 #include <fsl_sec.h>
 #include <asm/arch/clock.h>
 #include <mapmem.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /**
 * blob_dek() - Encapsulate the DEK as a blob using CAM's Key

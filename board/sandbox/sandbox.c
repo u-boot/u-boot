@@ -1,11 +1,12 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <cros_ec.h>
 #include <dm.h>
+#include <led.h>
 #include <os.h>
 #include <asm/test.h>
 #include <asm/u-boot-sandbox.h>
@@ -44,6 +45,14 @@ unsigned long timer_read_counter(void)
 int dram_init(void)
 {
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	return 0;
+}
+
+int board_init(void)
+{
+	if (IS_ENABLED(CONFIG_LED))
+		led_default_state();
+
 	return 0;
 }
 

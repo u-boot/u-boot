@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001 Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Andreas Heppel <aheppel@sysgo.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -70,8 +69,6 @@ void nvram_write(short dest, const void *src, size_t count)
 	while (count--)
 		rtc_write(d++, *s++);
 }
-
-#if defined(CONFIG_CMD_DATE)
 
 /* ------------------------------------------------------------------------- */
 
@@ -176,5 +173,3 @@ void rtc_set_watchdog(short multi, short res)
 	wd_value = RTC_WDS | ((multi & 0x1F) << 2) | (res & 0x3);
 	rtc_write(RTC_WATCHDOG, wd_value);
 }
-
-#endif

@@ -1,13 +1,10 @@
+# SPDX-License-Identifier: GPL-2.0+
 #
 # (C) Copyright 2000-2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# SPDX-License-Identifier:	GPL-2.0+
-#
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000
 
-PLATFORM_CPPFLAGS += -fno-strict-aliasing
 PLATFORM_CPPFLAGS += -fomit-frame-pointer
 PF_CPPFLAGS_X86   := $(call cc-option, -fno-toplevel-reorder, \
 		     $(call cc-option, -fno-unit-at-a-time))
@@ -26,10 +23,11 @@ endif
 ifeq ($(IS_32BIT),y)
 PLATFORM_CPPFLAGS += -march=i386 -m32
 else
-PLATFORM_CPPFLAGS += $(if $(CONFIG_SPL_BUILD),,-fpic) -fno-common -m64
+PLATFORM_CPPFLAGS += $(if $(CONFIG_SPL_BUILD),,-fpic) -fno-common -march=core2 -m64
+PLATFORM_CPPFLAGS += -mno-mmx -mno-sse
 endif
 
-PLATFORM_RELFLAGS += -ffunction-sections -fvisibility=hidden
+PLATFORM_RELFLAGS += -fdata-sections -ffunction-sections -fvisibility=hidden
 
 PLATFORM_LDFLAGS += -Bsymbolic -Bsymbolic-functions
 PLATFORM_LDFLAGS += -m $(if $(IS_32BIT),elf_i386,elf_x86_64)
@@ -88,18 +86,34 @@ else
 PLATFORM_CPPFLAGS += -D__I386__
 endif
 
-ifneq ($(CONFIG_EFI_STUB)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
+ifdef CONFIG_EFI_STUB
 
-ifneq ($(CONFIG_EFI_STUB_64BIT),)
+ifdef CONFIG_EFI_STUB_64BIT
 EFI_LDS := elf_x86_64_efi.lds
 EFI_CRT0 := crt0_x86_64_efi.o
 EFI_RELOC := reloc_x86_64_efi.o
-EFI_TARGET := --target=efi-app-ia32
 else
 EFI_LDS := elf_ia32_efi.lds
 EFI_CRT0 := crt0_ia32_efi.o
 EFI_RELOC := reloc_ia32_efi.o
-EFI_TARGET := --target=efi-app-x86_64
 endif
 
+else
+
+ifdef CONFIG_X86_64
+EFI_LDS := elf_x86_64_efi.lds
+EFI_CRT0 := crt0_x86_64_efi.o
+EFI_RELOC := reloc_x86_64_efi.o
+else
+EFI_LDS := elf_ia32_efi.lds
+EFI_CRT0 := crt0_ia32_efi.o
+EFI_RELOC := reloc_ia32_efi.o
+endif
+
+endif
+
+ifdef CONFIG_X86_64
+EFI_TARGET := --target=efi-app-x86_64
+else
+EFI_TARGET := --target=efi-app-ia32
 endif

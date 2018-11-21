@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Faraday USB 2.0 OTG Controller
  *
  * (C) Copyright 2010 Faraday Technology
  * Dante Su <dantesu@faraday-tech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

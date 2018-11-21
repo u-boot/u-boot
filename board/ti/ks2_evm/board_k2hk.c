@@ -1,18 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * K2HK EVM : Board initialization
  *
  * (C) Copyright 2012-2014
  *     Texas Instruments Incorporated, <www.ti.com>
- *
- * SPDX-License-Identifier:     GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/keystone_net.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 unsigned int external_clk[ext_clk_count] = {
 	[sys_clk]	=	122880000,

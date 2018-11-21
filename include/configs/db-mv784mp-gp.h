@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2014-2015 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_DB_MV7846MP_GP_H
@@ -12,14 +11,11 @@
  */
 #define CONFIG_DB_784MP_GP		/* Board target name for DDR training */
 
-#define CONFIG_DISPLAY_BOARDINFO_LATE
-
 /*
  * TEXT_BASE needs to be below 16MiB, since this area is scrubbed
  * for DDR ECC byte filling in the SPL before loading the main
  * U-Boot into it.
  */
-#define	CONFIG_SYS_TEXT_BASE	0x00800000
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
 /* I2C */
@@ -42,17 +38,11 @@
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */
 #define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64KiB sectors */
 
-#define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
-
-#define CONFIG_SYS_ALT_MEMTEST
 
 /* SATA support */
 #define CONFIG_SYS_SATA_MAX_DEVICE	2
 #define CONFIG_LBA48
-
-/* Additional FS support/configuration */
-#define CONFIG_SUPPORT_VFAT
 
 /* PCIe support */
 #ifndef CONFIG_SPL_BUILD
@@ -85,7 +75,6 @@
 
 /* SPL */
 /* Defines for SPL */
-#define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_TEXT_BASE		0x40004030
 #define CONFIG_SPL_MAX_SIZE		((128 << 10) - 0x4030)
 
@@ -100,7 +89,6 @@
 #define CONFIG_SPL_BOOTROM_SAVE		(CONFIG_SPL_STACK + 4)
 
 /* SPL related SPI defines */
-#define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #define CONFIG_SYS_U_BOOT_OFFS		CONFIG_SYS_SPI_U_BOOT_OFFS
 

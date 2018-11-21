@@ -1,6 +1,0 @@
-Aries MA5D4EVK BOARD
-#M:	Marek Vasut <marek.vasut@gmail.com>
-S:	Orphan (since 2017-07)
-F:	board/aries/ma5d4evk/
-F:	include/configs/ma5d4evk.h
-F:	configs/ma5d4evk_defconfig

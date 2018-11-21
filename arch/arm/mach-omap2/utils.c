@@ -1,12 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2011 Linaro Limited
  * Aneesh V <aneesh@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <environment.h>
 #include <asm/setup.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/omap_common.h>
+
 static void do_cancel_out(u32 *num, u32 *den, u32 factor)
 {
 	while (1) {
@@ -27,6 +29,8 @@ static void omap_set_fastboot_cpu(void)
 
 	switch (cpu_rev) {
 	case DRA762_ES1_0:
+	case DRA762_ABZ_ES1_0:
+	case DRA762_ACD_ES1_0:
 		cpu = "DRA762";
 		break;
 	case DRA752_ES1_0:
@@ -81,7 +85,7 @@ static void omap_set_fastboot_board_rev(void)
 	env_set("fastboot.board_rev", board_rev);
 }
 
-#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+#ifdef CONFIG_FASTBOOT_FLASH_MMC
 static u32 omap_mmc_get_part_size(const char *part)
 {
 	int res;
@@ -124,7 +128,7 @@ static void omap_set_fastboot_userdata_size(void)
 static inline void omap_set_fastboot_userdata_size(void)
 {
 }
-#endif /* CONFIG_FASTBOOT_FLASH_MMC_DEV */
+#endif /* CONFIG_FASTBOOT_FLASH_MMC */
 void omap_set_fastboot_vars(void)
 {
 	omap_set_fastboot_cpu();

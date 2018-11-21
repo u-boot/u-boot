@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration settings for the TechNexion TAO-3530 SOM
  * equipped on Thunder baseboard.
@@ -6,8 +7,6 @@
  * Tapani Utriainen <linuxfae@technexion.com>
  *
  * Copyright (C) 2013 Stefan Roese <sr@denx.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -23,8 +22,6 @@
 /* Clock Defines */
 #define V_OSCK			26000000	/* Clock output from T2 */
 #define V_SCLK			(V_OSCK >> 1)
-
-#define CONFIG_MISC_INIT_R
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -53,30 +50,23 @@
 /*
  * select serial console configuration
  */
-#define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 /* commands to include */
-#define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 #define CONFIG_I2C_MULTI_BUS
 
 /*
  * TWL4030
  */
-#define CONFIG_TWL4030_LED
 
 /*
  * Board NAND Info.
  */
-#define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
-							/* to access nand */
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
 							/* to access nand at */
 							/* CS0 */
@@ -139,13 +129,9 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 /* turn on command-line edit/hist/auto */
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_AUTO_COMPLETE
 
-#define CONFIG_SYS_ALT_MEMTEST		1
 #define CONFIG_SYS_MEMTEST_START	(0x82000000)		/* memtest */
 								/* defaults */
 #define CONFIG_SYS_MEMTEST_END		(0x83FFFFFF)		/* 64MB */
@@ -153,7 +139,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)	/* default */
 							/* load address */
-#define CONFIG_SYS_TEXT_BASE		0x80008000
 
 /*
  * OMAP3 has 12 GP timers, they can be driven by the system clock
@@ -166,7 +151,6 @@
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
 #define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
@@ -207,7 +191,6 @@
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	162
 
 /* Defines for SPL */
-#define CONFIG_SPL_FRAMEWORK
 
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
@@ -245,7 +228,6 @@
  * older x-loader implementations. And move the BSS area so that it
  * doesn't overlap with TEXT_BASE.
  */
-#define CONFIG_SYS_TEXT_BASE		0x80008000
 #define CONFIG_SPL_BSS_START_ADDR	0x80100000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
 

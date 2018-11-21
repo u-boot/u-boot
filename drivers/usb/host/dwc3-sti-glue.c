@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * STiH407 family DWC3 specific Glue layer
  *
  * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
  * Author(s): Patrice Chotard, <patrice.chotard@st.com> for STMicroelectronics.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -12,7 +11,7 @@
 #include <dm.h>
 #include <errno.h>
 #include <fdtdec.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <dm/lists.h>
 #include <regmap.h>
 #include <reset-uclass.h>
@@ -134,7 +133,7 @@ static int sti_dwc3_glue_ofdata_to_platdata(struct udevice *dev)
 		pr_err("unable to find regmap\n");
 		return -ENODEV;
 	}
-	plat->syscfg_base = regmap->base;
+	plat->syscfg_base = regmap->ranges[0].start;
 
 	/* get powerdown reset */
 	ret = reset_get_by_name(dev, "powerdown", &plat->powerdown_ctl);

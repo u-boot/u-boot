@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2014
  * Texas Instruments, <www.ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _TI_COMMON_SYS_PROTO_H_
 #define _TI_COMMON_SYS_PROTO_H_

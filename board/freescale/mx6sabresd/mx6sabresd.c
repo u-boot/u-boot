@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2012 Freescale Semiconductor, Inc.
  *
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>
@@ -725,7 +724,7 @@ int checkboard(void)
 #ifdef CONFIG_SPL_BUILD
 #include <asm/arch/mx6-ddr.h>
 #include <spl.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)

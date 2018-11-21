@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 Andes Technology Corporation
  * Nobuhiro Lin, Andes Technology Corporation <nobuhiro@andestech.com>
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __AE3XX_H
@@ -44,8 +43,6 @@
 #define CONFIG_FTGPIO010_BASE		0xf0700000
 /* I2C */
 #define CONFIG_FTIIC010_BASE		0xf0a00000
-/* SD Controller */
-#define CONFIG_FTSDC010_BASE		0xf0e00000
 
 /* The following address was not defined in Linux */
 

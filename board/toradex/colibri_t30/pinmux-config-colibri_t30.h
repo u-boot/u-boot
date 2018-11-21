@@ -1,7 +1,6 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Copyright (c) 2013-2014, Stefan Agner
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 
 #ifndef _PINMUX_CONFIG_COLIBRI_T30_H_

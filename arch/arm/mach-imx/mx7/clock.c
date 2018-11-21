@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
  * Author:
  *	Peng Fan <Peng.Fan@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -1096,6 +1095,7 @@ void epdc_clock_disable(void)
 }
 #endif
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Dump some core clockes.
  */
@@ -1131,3 +1131,4 @@ U_BOOT_CMD(
 	"display clocks",
 	""
 );
+#endif

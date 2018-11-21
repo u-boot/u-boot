@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2016 ARM Ltd.
  *
@@ -9,8 +10,6 @@
  *
  * Much of the original barrier code was contributed by:
  *   Valentine Barshak <valentine.barshak@cogentembedded.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __BARRIERS_H__
 #define __BARRIERS_H__

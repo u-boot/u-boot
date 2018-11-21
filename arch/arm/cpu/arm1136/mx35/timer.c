@@ -1,18 +1,15 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2007
  * Sascha Hauer, Pengutronix
  *
  * (C) Copyright 2008-2009 Freescale Semiconductor, Inc.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 /* General purpose timers bitfields */
 #define GPTCR_SWR       (1<<15)	/* Software reset */

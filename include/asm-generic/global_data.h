@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2012 The Chromium OS Authors.
  * (C) Copyright 2002-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_GENERIC_GBL_DATA_H
@@ -50,7 +49,10 @@ typedef struct global_data {
 #endif
 	unsigned long env_addr;		/* Address  of Environment struct */
 	unsigned long env_valid;	/* Environment valid? enum env_valid */
+	unsigned long env_has_init;	/* Bitmask of boolean of struct env_location offsets */
+	int env_load_prio;		/* Priority of the loaded environment */
 
+	unsigned long ram_base;		/* Base address of RAM used by U-Boot */
 	unsigned long ram_top;		/* Top address of RAM used by U-Boot */
 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t ram_size;		/* RAM size */
@@ -118,6 +120,7 @@ typedef struct global_data {
 	int log_drop_count;		/* Number of dropped log messages */
 	int default_log_level;		/* For devices with no filters */
 	struct list_head log_head;	/* List of struct log_device */
+	int log_fmt;			/* Mask containing log format info */
 #endif
 } gd_t;
 #endif

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _U_BOOT_I386_H_
@@ -41,7 +40,6 @@ int x86_cleanup_before_linux(void);
 void x86_enable_caches(void);
 void x86_disable_caches(void);
 int x86_init_cache(void);
-void reset_cpu(ulong addr);
 ulong board_get_usable_ram_top(ulong total_size);
 int default_print_cpuinfo(void);
 
@@ -85,7 +83,6 @@ static inline __attribute__((no_instrument_function)) uint64_t rdtsc(void)
 /* board/... */
 void timer_set_tsc_base(uint64_t new_base);
 uint64_t timer_get_tsc(void);
-void board_quiesce_devices(void);
 
 void quick_ram_check(void);
 

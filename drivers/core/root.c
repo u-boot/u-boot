@@ -1,17 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2013 Google, Inc
  *
  * (C) Copyright 2012
  * Pavel Herrmann <morpheus.ibis@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <malloc.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -266,6 +265,23 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 	for (offset = fdt_first_subnode(blob, offset);
 	     offset > 0;
 	     offset = fdt_next_subnode(blob, offset)) {
+		const char *node_name = fdt_get_name(blob, offset, NULL);
+
+		/*
+		 * The "chosen" and "firmware" nodes aren't devices
+		 * themselves but may contain some:
+		 */
+		if (!strcmp(node_name, "chosen") ||
+		    !strcmp(node_name, "firmware")) {
+			pr_debug("parsing subnodes of \"%s\"\n", node_name);
+
+			err = dm_scan_fdt_node(parent, blob, offset,
+					       pre_reloc_only);
+			if (err && !ret)
+				ret = err;
+			continue;
+		}
+
 		if (pre_reloc_only &&
 		    !dm_fdt_pre_reloc(blob, offset))
 			continue;
@@ -276,8 +292,7 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 		err = lists_bind_fdt(parent, offset_to_ofnode(offset), NULL);
 		if (err && !ret) {
 			ret = err;
-			debug("%s: ret=%d\n", fdt_get_name(blob, offset, NULL),
-			      ret);
+			debug("%s: ret=%d\n", node_name, ret);
 		}
 	}
 
@@ -320,9 +335,25 @@ static int dm_scan_fdt_node(struct udevice *parent, const void *blob,
 }
 #endif
 
+static int dm_scan_fdt_ofnode_path(const char *path, bool pre_reloc_only)
+{
+	ofnode node;
+
+	node = ofnode_path(path);
+	if (!ofnode_valid(node))
+		return 0;
+
+#if CONFIG_IS_ENABLED(OF_LIVE)
+	if (of_live_active())
+		return dm_scan_fdt_live(gd->dm_root, node.np, pre_reloc_only);
+#endif
+	return dm_scan_fdt_node(gd->dm_root, gd->fdt_blob, node.of_offset,
+				pre_reloc_only);
+}
+
 int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 {
-	int node, ret;
+	int ret;
 
 	ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
 	if (ret) {
@@ -330,16 +361,15 @@ int dm_extended_scan_fdt(const void *blob, bool pre_reloc_only)
 		return ret;
 	}
 
-	/* bind fixed-clock */
-	node = ofnode_to_offset(ofnode_path("/clocks"));
-	/* if no DT "clocks" node, no need to go further */
-	if (node < 0)
+	ret = dm_scan_fdt_ofnode_path("/clocks", pre_reloc_only);
+	if (ret) {
+		debug("scan for /clocks failed: %d\n", ret);
 		return ret;
+	}
 
-	ret = dm_scan_fdt_node(gd->dm_root, gd->fdt_blob, node,
-			       pre_reloc_only);
+	ret = dm_scan_fdt_ofnode_path("/firmware", pre_reloc_only);
 	if (ret)
-		debug("dm_scan_fdt_node() failed: %d\n", ret);
+		debug("scan for /firmware failed: %d\n", ret);
 
 	return ret;
 }

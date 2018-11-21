@@ -1,23 +1,55 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2015-2016 Socionext Inc.
  *   Author: Masahiro Yamada <yamada.masahiro@socionext.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __PINCTRL_UNIPHIER_H__
 #define __PINCTRL_UNIPHIER_H__
 
 #include <linux/bitops.h>
-#include <linux/bug.h>
+#include <linux/build_bug.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
 
-#define UNIPHIER_PIN_ATTR_PACKED(iectrl)	(iectrl)
+/* drive strength control register number */
+#define UNIPHIER_PIN_DRVCTRL_SHIFT	0
+#define UNIPHIER_PIN_DRVCTRL_BITS	9
+#define UNIPHIER_PIN_DRVCTRL_MASK	((1U << (UNIPHIER_PIN_DRVCTRL_BITS)) \
+					 - 1)
 
-static inline unsigned int uniphier_pin_get_iectrl(unsigned long data)
+/* drive control type */
+#define UNIPHIER_PIN_DRV_TYPE_SHIFT	((UNIPHIER_PIN_DRVCTRL_SHIFT) + \
+					 (UNIPHIER_PIN_DRVCTRL_BITS))
+#define UNIPHIER_PIN_DRV_TYPE_BITS	2
+#define UNIPHIER_PIN_DRV_TYPE_MASK	((1U << (UNIPHIER_PIN_DRV_TYPE_BITS)) \
+					 - 1)
+
+/* drive control type */
+enum uniphier_pin_drv_type {
+	UNIPHIER_PIN_DRV_1BIT,		/* 2 level control: 4/8 mA */
+	UNIPHIER_PIN_DRV_2BIT,		/* 4 level control: 8/12/16/20 mA */
+	UNIPHIER_PIN_DRV_3BIT,		/* 8 level control: 4/5/7/9/11/12/14/16 mA */
+};
+
+#define UNIPHIER_PIN_DRVCTRL(x) \
+	(((x) & (UNIPHIER_PIN_DRVCTRL_MASK)) << (UNIPHIER_PIN_DRVCTRL_SHIFT))
+#define UNIPHIER_PIN_DRV_TYPE(x) \
+	(((x) & (UNIPHIER_PIN_DRV_TYPE_MASK)) << (UNIPHIER_PIN_DRV_TYPE_SHIFT))
+
+#define UNIPHIER_PIN_ATTR_PACKED(drvctrl, drv_type)	\
+	UNIPHIER_PIN_DRVCTRL(drvctrl) |			\
+	UNIPHIER_PIN_DRV_TYPE(drv_type)
+
+static inline unsigned int uniphier_pin_get_drvctrl(unsigned int data)
 {
-	return data;
+	return (data >> UNIPHIER_PIN_DRVCTRL_SHIFT) & UNIPHIER_PIN_DRVCTRL_MASK;
+}
+
+static inline unsigned int uniphier_pin_get_drv_type(unsigned int data)
+{
+	return (data >> UNIPHIER_PIN_DRV_TYPE_SHIFT) &
+						UNIPHIER_PIN_DRV_TYPE_MASK;
 }
 
 /**
@@ -28,7 +60,8 @@ static inline unsigned int uniphier_pin_get_iectrl(unsigned long data)
  */
 struct uniphier_pinctrl_pin {
 	unsigned number;
-	unsigned long data;
+	const char *name;
+	unsigned int data;
 };
 
 /**
@@ -73,10 +106,11 @@ struct uniphier_pinctrl_socdata {
 #define UNIPHIER_PINCTRL_CAPS_MUX_4BIT		BIT(0)
 };
 
-#define UNIPHIER_PINCTRL_PIN(a, b)					\
+#define UNIPHIER_PINCTRL_PIN(a, b, c, d)				\
 {									\
 	.number = a,							\
-	.data = UNIPHIER_PIN_ATTR_PACKED(b),				\
+	.name = b,							\
+	.data = UNIPHIER_PIN_ATTR_PACKED(c, d),				\
 }
 
 #define __UNIPHIER_PINCTRL_GROUP(grp)					\

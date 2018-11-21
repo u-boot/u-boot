@@ -1,11 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Atheros PHY drivers
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Copyright 2011, 2013 Freescale Semiconductor, Inc.
  * author Andy Fleming
  */
+#include <common.h>
 #include <phy.h>
 
 #define AR803x_PHY_DEBUG_ADDR_REG	0x1d
@@ -19,6 +19,7 @@
 
 static int ar8021_config(struct phy_device *phydev)
 {
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x00, 0x1200);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x3D47);
 

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2013 Keymile AG
  * Valentin Longchamp <valentin.longchamp@keymile.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -10,12 +9,12 @@
 
 /* KMLION1 */
 #if defined(CONFIG_KMLION1)
-#define CONFIG_HOSTNAME		kmlion1
+#define CONFIG_HOSTNAME		"kmlion1"
 #define CONFIG_KM_BOARD_NAME	"kmlion1"
 
 /* KMCOGE4 */
 #elif defined(CONFIG_KMCOGE4)
-#define CONFIG_HOSTNAME		kmcoge4
+#define CONFIG_HOSTNAME		"kmcoge4"
 #define CONFIG_KM_BOARD_NAME	"kmcoge4"
 
 #else

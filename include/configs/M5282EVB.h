@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuation settings for the Motorola MC5282EVB board.
  *
  * (C) Copyright 2003 Josef Baumgartner <josef.baumgartner@telex.de>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -38,9 +37,6 @@
  * BOOTP options
  */
 #define CONFIG_BOOTP_BOOTFILESIZE
-#define CONFIG_BOOTP_BOOTPATH
-#define CONFIG_BOOTP_GATEWAY
-#define CONFIG_BOOTP_HOSTNAME
 
 /*
  * Command line configuration.
@@ -48,7 +44,6 @@
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_MII		1
 #	define CONFIG_MII_INIT		1
 #	define CONFIG_SYS_DISCOVER_PHY
 #	define CONFIG_SYS_RX_ETH_BUFFER	8
@@ -75,7 +70,7 @@
 #	define CONFIG_GATEWAYIP	192.162.1.1
 #endif				/* CONFIG_MCFFEC */
 
-#define CONFIG_HOSTNAME		M5282EVB
+#define CONFIG_HOSTNAME		"M5282EVB"
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=10000\0"			\
@@ -87,8 +82,6 @@
 	"cp.b ${loadaddr} ffe00000 ${filesize};"\
 	"save\0"				\
 	""
-
-#define	CONFIG_SYS_LONGHELP		/* undef to save memory         */
 
 #define CONFIG_SYS_LOAD_ADDR		0x20000
 
@@ -150,15 +143,12 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_SYS_FLASH_CFI
 #ifdef CONFIG_SYS_FLASH_CFI
 
-#	define CONFIG_FLASH_CFI_DRIVER	1
 #	define CONFIG_SYS_FLASH_SIZE		0x1000000	/* Max size that the board might have */
 #	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
 #	define CONFIG_SYS_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
-#	define CONFIG_SYS_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #	define CONFIG_SYS_FLASH_CHECKSUM
 #	define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 #endif

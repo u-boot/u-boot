@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  *
  * Functions for omap5 based boards.
@@ -9,8 +10,6 @@
  *	Aneesh V	<aneesh@ti.com>
  *	Steve Sakoman	<steve@sakoman.com>
  *	Sricharan	<r.sricharan@ti.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <palmas.h>
@@ -23,8 +22,6 @@
 #include <asm/arch/gpio.h>
 #include <asm/emif.h>
 #include <asm/omap_common.h>
-
-DECLARE_GLOBAL_DATA_PTR;
 
 u32 *const omap_si_rev = (u32 *)OMAP_SRAM_SCRATCH_OMAP_REV;
 
@@ -387,6 +384,27 @@ void init_omap_revision(void)
 		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;
 	}
 	init_cpu_configuration();
+}
+
+void init_package_revision(void)
+{
+	unsigned int die_id[4] = { 0 };
+	u8 package;
+
+	omap_die_id(die_id);
+	package = (die_id[2] >> 16) & 0x3;
+
+	if (is_dra76x()) {
+		switch (package) {
+		case DRA762_ABZ_PACKAGE:
+			*omap_si_rev = DRA762_ABZ_ES1_0;
+			break;
+		case DRA762_ACD_PACKAGE:
+		default:
+			*omap_si_rev = DRA762_ACD_ES1_0;
+			break;
+		}
+	}
 }
 
 void omap_die_id(unsigned int *die_id)

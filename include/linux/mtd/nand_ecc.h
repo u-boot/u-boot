@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  *  drivers/mtd/nand_ecc.h
  *
  *  Copyright (C) 2000-2010 Steven J. Hill <sjhill@realitydiluted.com>
  *			    David Woodhouse <dwmw2@infradead.org>
  *			    Thomas Gleixner <tglx@linutronix.de>
- *
- * SPDX-License-Identifier:	GPL-2.0
  *
  * This file is the header for the ECC algorithm.
  */

@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (C) 2010 Freescale Semiconductor, Inc.
  * Terry Lv <r65388@freescale.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DWC_AHSATA_PRIV_H__

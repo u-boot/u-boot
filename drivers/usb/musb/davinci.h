@@ -1,9 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * TI's Davinci platform specific USB wrapper functions.
  *
  * Copyright (c) 2008 Texas Instruments
- *
- * SPDX-License-Identifier:	GPL-2.0+
  *
  * Author: Thomas Abraham t-abraham@ti.com, Texas Instruments
  */

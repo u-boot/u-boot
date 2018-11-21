@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2007 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * SH7750/SH7750S/SH7750R/SH7751/SH7751R
  *  Internal I/O register
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _ASM_CPU_SH7750_H_

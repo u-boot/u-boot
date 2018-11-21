@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Sun6i platform dram controller register and constant defines
  *
@@ -7,8 +8,6 @@
  * Tom Cubie <tangliang@allwinnertech.com>
  *
  * (C) Copyright 2014 Hans de Goede <hdegoede@redhat.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SUNXI_DRAM_SUN6I_H

@@ -1,8 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * (C) Copyright 2001
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -10,7 +9,8 @@
 #include <errno.h>
 #include <rtc.h>
 
-#if defined(CONFIG_CMD_DATE) || defined(CONFIG_TIMESTAMP)
+#if defined(CONFIG_CMD_DATE) || defined(CONFIG_DM_RTC) || \
+				defined(CONFIG_TIMESTAMP)
 
 #define FEBRUARY		2
 #define	STARTOFTIME		1970
@@ -19,10 +19,6 @@
 #define	leapyear(year)		((year) % 4 == 0)
 #define	days_in_year(a)		(leapyear(a) ? 366 : 365)
 #define	days_in_month(a)	(month_days[(a) - 1])
-
-static int month_days[12] = {
-	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-};
 
 static int month_offset[] = {
 	0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
@@ -64,45 +60,6 @@ int rtc_calc_weekday(struct rtc_time *tm)
 	tm->tm_wday = day % 7;
 
 	return 0;
-}
-
-int rtc_to_tm(int tim, struct rtc_time *tm)
-{
-	register int i;
-	register long hms, day;
-
-	day = tim / SECDAY;
-	hms = tim % SECDAY;
-
-	/* Hours, minutes, seconds are easy */
-	tm->tm_hour = hms / 3600;
-	tm->tm_min = (hms % 3600) / 60;
-	tm->tm_sec = (hms % 3600) % 60;
-
-	/* Number of years in days */
-	for (i = STARTOFTIME; day >= days_in_year(i); i++)
-		day -= days_in_year(i);
-	tm->tm_year = i;
-
-	/* Number of months in days left */
-	if (leapyear(tm->tm_year))
-		days_in_month(FEBRUARY) = 29;
-	for (i = 1; day >= days_in_month(i); i++)
-		day -= days_in_month(i);
-	days_in_month(FEBRUARY) = 28;
-	tm->tm_mon = i;
-
-	/* Days are what is left over (+1) from all that */
-	tm->tm_mday = day + 1;
-
-	/* Zero unused fields */
-	tm->tm_yday = 0;
-	tm->tm_isdst = 0;
-
-	/*
-	 * Determine the day of week
-	 */
-	return rtc_calc_weekday(tm);
 }
 
 /*

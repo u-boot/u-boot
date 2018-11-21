@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright (c) 2013 Google, Inc
  *
  * (C) Copyright 2012
  * Pavel Herrmann <morpheus.ibis@gmail.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DM_UCLASS_ID_H
@@ -19,22 +18,27 @@ enum uclass_id {
 	UCLASS_TEST_FDT,
 	UCLASS_TEST_BUS,
 	UCLASS_TEST_PROBE,
+	UCLASS_TEST_DUMMY,
 	UCLASS_SPI_EMUL,	/* sandbox SPI device emulator */
 	UCLASS_I2C_EMUL,	/* sandbox I2C device emulator */
 	UCLASS_PCI_EMUL,	/* sandbox PCI device emulator */
 	UCLASS_USB_EMUL,	/* sandbox USB bus device emulator */
+	UCLASS_AXI_EMUL,	/* sandbox AXI bus device emulator */
 	UCLASS_SIMPLE_BUS,	/* bus with child devices */
 
 	/* U-Boot uclasses start here - in alphabetical order */
 	UCLASS_ADC,		/* Analog-to-digital converter */
 	UCLASS_AHCI,		/* SATA disk controller */
 	UCLASS_BLK,		/* Block device */
+	UCLASS_BOARD,		/* Device information from hardware */
 	UCLASS_CLK,		/* Clock source, e.g. used by peripherals */
 	UCLASS_CPU,		/* CPU, typically part of an SoC */
 	UCLASS_CROS_EC,		/* Chrome OS EC */
 	UCLASS_DISPLAY,		/* Display (e.g. DisplayPort, HDMI) */
 	UCLASS_DMA,		/* Direct Memory Access */
+	UCLASS_EFI,		/* EFI managed devices */
 	UCLASS_ETH,		/* Ethernet device */
+	UCLASS_FS_FIRMWARE_LOADER,		/* Generic loader */
 	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
 	UCLASS_FIRMWARE,	/* Firmware */
 	UCLASS_I2C,		/* I2C bus */
@@ -42,6 +46,7 @@ enum uclass_id {
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */
 	UCLASS_I2C_MUX,		/* I2C multiplexer */
 	UCLASS_IDE,		/* IDE device */
+	UCLASS_AXI,		/* AXI bus */
 	UCLASS_IRQ,		/* Interrupt controller */
 	UCLASS_KEYBOARD,	/* Keyboard input device */
 	UCLASS_LED,		/* Light-emitting diode (LED) */
@@ -73,12 +78,14 @@ enum uclass_id {
 	UCLASS_RTC,		/* Real time clock device */
 	UCLASS_SCSI,		/* SCSI device */
 	UCLASS_SERIAL,		/* Serial UART */
+	UCLASS_SMEM,		/* Shared memory interface */
 	UCLASS_SPI,		/* SPI bus */
 	UCLASS_SPMI,		/* System Power Management Interface bus */
 	UCLASS_SPI_FLASH,	/* SPI flash */
 	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */
 	UCLASS_SYSCON,		/* System configuration device */
 	UCLASS_SYSRESET,	/* System reset device */
+	UCLASS_TEE,		/* Trusted Execution Environment device */
 	UCLASS_THERMAL,		/* Thermal sensor */
 	UCLASS_TIMER,		/* Timer device */
 	UCLASS_TPM,		/* Trusted Platform Module TIS interface */
@@ -88,6 +95,9 @@ enum uclass_id {
 	UCLASS_VIDEO,		/* Video or LCD device */
 	UCLASS_VIDEO_BRIDGE,	/* Video bridge, e.g. DisplayPort to LVDS */
 	UCLASS_VIDEO_CONSOLE,	/* Text console driver for video device */
+	UCLASS_VIDEO_OSD,	/* On-screen display */
+	UCLASS_W1,		/* Dallas 1-Wire bus */
+	UCLASS_W1_EEPROM,	/* one-wire EEPROMs */
 	UCLASS_WDT,		/* Watchdot Timer driver */
 
 	UCLASS_COUNT,

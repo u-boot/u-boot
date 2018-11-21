@@ -1,11 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
  * Copyright (c) Thomas Gleixner <tglx@linutronix.de>
  *
  * The parts taken from the kernel implementation are:
  *
  * Copyright (c) International Business Machines Corp., 2006
- *
- * SPDX-License-Identifier: GPL 2.0+ BSD-3-Clause
  */
 
 #include <common.h>

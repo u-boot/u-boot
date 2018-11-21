@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Definition of the Linux/Xtensa boot parameter structure
  *
  * Copyright (C) 2001 - 2009  Tensilica Inc.
  *
  * (Concept borrowed from the 68K port)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _XTENSA_BOOTPARAM_H

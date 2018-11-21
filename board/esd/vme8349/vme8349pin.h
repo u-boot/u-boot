@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * vme8349pin.h -- esd VME8349 MPC8349 I/O pin definition.
  * Copyright (c) 2009 esd gmbh.
  *
  * Reinhard Arlt <reinhard.arlt@esd-electronics.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __VME8349PIN_H__

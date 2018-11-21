@@ -1,14 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2009-2014 Freescale Semiconductor, Inc.
  *
  * This file is derived from arch/powerpc/cpu/mpc85xx/cpu.c and
  * arch/powerpc/cpu/mpc86xx/cpu.c. Basically this file contains
  * cpu specific common code for 85xx/86xx processors.
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
-#include <libfdt.h>
+#include <linux/libfdt.h>
 #include <fdt_support.h>
 #include <asm/mp.h>
 #include <asm/fsl_serdes.h>

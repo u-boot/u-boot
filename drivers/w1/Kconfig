@@ -1,0 +1,25 @@
+#
+# W1 subsystem configuration
+#
+
+menu "1-Wire support"
+
+config W1
+	bool "Enable 1-wire controllers support"
+	default no
+	depends on DM
+	help
+	  Support for the Dallas 1-Wire bus.
+
+if W1
+
+config W1_GPIO
+	bool "Enable 1-wire GPIO bitbanging"
+	default no
+	depends on DM_GPIO
+	help
+	  Emulate a 1-wire bus using a GPIO.
+
+endif
+
+endmenu

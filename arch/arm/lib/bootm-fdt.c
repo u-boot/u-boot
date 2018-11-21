@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (c) 2013, Google Inc.
  *
@@ -11,8 +12,6 @@
  * Marius Groeger <mgroeger@sysgo.de>
  *
  * Copyright (C) 2001  Erik Mouw (J.A.K.Mouw@its.tudelft.nl)
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -34,7 +33,7 @@ __weak int fdt_update_ethernet_dt(void *blob)
 
 int arch_fixup_fdt(void *blob)
 {
-	int ret = 0;
+	__maybe_unused int ret = 0;
 #if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_OF_LIBFDT)
 	bd_t *bd = gd->bd;
 	int bank;

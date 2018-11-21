@@ -44,15 +44,6 @@ Notes:
   CONFIG_SYS_MMC_ENV_PART=1
   Valid values for this parameter are 1 for BOOT0 and 2 for BOOT1.
   Please never use partition number 0 here!
-  The eMMC has 2 boot partitions (BOOT0 and BOOT1) and a user data partition (DATA).
-  The boot partitions are numbered as partition 1 and 2 in MMC driver.
-  Number 0 is used for user data partition and should not be utilized for storing
-  boot images and U-Boot environment in RAW mode since it will break file system
-  structures usually located here.
-  The default boot partition is BOOT0. It is selected by the following parameter:
-  CONFIG_SYS_MMC_ENV_PART=1
-  Valid values for this parameter are 1 for BOOT0 and 2 for BOOT1.
-  Please never use partition number 0 here!
 - The partition number is ignored if the target device is SD card.
 - The boot image offset starts at block 0 for eMMC and block 1 for SD devices.
   The block 0 on SD devices is left for MBR storage.

@@ -1,6 +1,6 @@
 MPC832XEMDS BOARD
-M:	Dave Liu <daveliu@freescale.com>
-S:	Maintained
+#M:	Dave Liu <daveliu@freescale.com>
+S:	Orphan (since 2018-05)
 F:	board/freescale/mpc832xemds/
 F:	include/configs/MPC832XEMDS.h
 F:	configs/MPC832XEMDS_defconfig

@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * (C) Copyright 2009-2014
  * Gerald Kerma <dreagle@doukki.net>
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_SHEEVAPLUG_H
@@ -14,7 +13,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_FEROCEON_88FR131	1	/* CPU Core subversion */
-#define CONFIG_MACH_SHEEVAPLUG	/* Machine type */
 
 /*
  * Commands configuration
@@ -23,7 +21,7 @@
 /*
  * Standard filesystems
  */
-#define CONFIG_SYS_MVFS
+#define CONFIG_BZIP2
 
 /*
  * mv-plug-common.h should be defined after CMD configs since it used them
@@ -44,6 +42,11 @@
 #define CONFIG_ENV_SIZE			0x20000	/* 128k */
 #define CONFIG_ENV_ADDR			0x80000
 #define CONFIG_ENV_OFFSET		0x80000	/* env starts here */
+/*
+ * Environment is right behind U-Boot in flash. Make sure U-Boot
+ * doesn't grow into the environment area.
+ */
+#define CONFIG_BOARD_SIZE_LIMIT		CONFIG_ENV_OFFSET
 
 /*
  * Default environment variables

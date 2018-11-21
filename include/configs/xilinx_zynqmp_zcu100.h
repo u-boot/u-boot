@@ -1,10 +1,9 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Configuration for Xilinx ZynqMP zcu100
  *
  * (C) Copyright 2015 - 2016 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_ZYNQMP_ZCU100_H
@@ -24,16 +23,6 @@
 				{0, {{I2C_MUX_PCA9548, 0x75, 6} } }, \
 				{0, {{I2C_MUX_PCA9548, 0x75, 7} } }, \
 				}
-
-
-/* #define CONFIG_ZYNQ_I2C1 */ /* FIXME for 96 compatible bitstream */
-#define CONFIG_SYS_I2C_ZYNQ
-
-#define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_ASIX
-
-/* #define CONFIG_MMC_TRACE */
-/* #define CONFIG_ZYNQ_SDHCI_MAX_FREQ 15000000 */
 
 #include <configs/xilinx_zynqmp.h>
 

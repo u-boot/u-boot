@@ -1,11 +1,10 @@
+/* SPDX-License-Identifier: GPL-2.0 */
 /*
  * Various register offset definitions for debuggers, core file
  * examiners and whatnot.
  *
  * Copyright (C) 1995, 1999 by Ralf Baechle
  * Copyright (C) 1995, 1999 Silicon Graphics
- *
- * SPDX-License-Identifier:	GPL-2.0
  */
 #ifndef __ASM_MIPS_REG_H
 #define __ASM_MIPS_REG_H

@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Chromium OS cros_ec driver - LPC interface
  *
  * Copyright (c) 2012 The Chromium OS Authors.
- *
- * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -39,6 +38,38 @@ static int wait_for_sync(struct cros_ec_dev *dev)
 	}
 
 	return 0;
+}
+
+int cros_ec_lpc_packet(struct udevice *udev, int out_bytes, int in_bytes)
+{
+	struct cros_ec_dev *dev = dev_get_uclass_priv(udev);
+	uint8_t *d;
+	int i;
+
+	if (out_bytes > EC_LPC_HOST_PACKET_SIZE)
+		return log_msg_ret("Cannot send that many bytes\n", -E2BIG);
+
+	if (in_bytes > EC_LPC_HOST_PACKET_SIZE)
+		return log_msg_ret("Cannot receive that many bytes\n", -E2BIG);
+
+	if (wait_for_sync(dev))
+		return log_msg_ret("Timeout waiting ready\n", -ETIMEDOUT);
+
+	/* Write data */
+	for (i = 0, d = (uint8_t *)dev->dout; i < out_bytes; i++, d++)
+		outb(*d, EC_LPC_ADDR_HOST_PACKET + i);
+
+	/* Start the command */
+	outb(EC_COMMAND_PROTOCOL_3, EC_LPC_ADDR_HOST_CMD);
+
+	if (wait_for_sync(dev))
+		return log_msg_ret("Timeout waiting ready\n", -ETIMEDOUT);
+
+	/* Read back args */
+	for (i = 0, d = dev->din; i < in_bytes; i++, d++)
+		*d = inb(EC_LPC_ADDR_HOST_PACKET + i);
+
+	return in_bytes;
 }
 
 int cros_ec_lpc_command(struct udevice *udev, uint8_t cmd, int cmd_version,
@@ -201,6 +232,7 @@ static int cros_ec_probe(struct udevice *dev)
 }
 
 static struct dm_cros_ec_ops cros_ec_ops = {
+	.packet = cros_ec_lpc_packet,
 	.command = cros_ec_lpc_command,
 	.check_version = cros_ec_lpc_check_version,
 };
