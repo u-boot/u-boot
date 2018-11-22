@@ -81,6 +81,10 @@ static void _exit_trap(ulong code, ulong epc, struct pt_regs *regs)
 		"Store/AMO page fault",
 	};
 
-	printf("exception code: %ld , %s , epc %lx , ra %lx\n",
-		code, exception_code[code], epc, regs->ra);
+	if (code < ARRAY_SIZE(exception_code)) {
+		printf("exception code: %ld , %s , epc %lx , ra %lx\n",
+		       code, exception_code[code], epc, regs->ra);
+	} else {
+		printf("Reserved\n");
+	}
 }
