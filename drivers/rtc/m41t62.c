@@ -49,12 +49,8 @@
 
 #define M41T80_ALHOUR_HT	(1 << 6)	/* HT: Halt Update Bit */
 
-int rtc_get(struct rtc_time *tm)
+static void m41t62_update_rtc_time(struct rtc_time *tm, u8 *buf)
 {
-	u8 buf[M41T62_DATETIME_REG_SIZE];
-
-	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
-
 	debug("%s: raw read data - sec=%02x, min=%02x, hr=%02x, "
 	      "mday=%02x, mon=%02x, year=%02x, wday=%02x, y2k=%02x\n",
 	      __FUNCTION__,
@@ -77,19 +73,13 @@ int rtc_get(struct rtc_time *tm)
 	      __FUNCTION__,
 	      tm->tm_sec, tm->tm_min, tm->tm_hour,
 	      tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
-
-	return 0;
 }
 
-int rtc_set(struct rtc_time *tm)
+static void m41t62_set_rtc_buf(const struct rtc_time *tm, u8 *buf)
 {
-	u8 buf[M41T62_DATETIME_REG_SIZE];
-
 	debug("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	      tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_wday,
 	      tm->tm_hour, tm->tm_min, tm->tm_sec);
-
-	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
 
 	/* Merge time-data and register flags into buf[0..7] */
 	buf[M41T62_REG_SSEC] = 0;
@@ -107,6 +97,24 @@ int rtc_set(struct rtc_time *tm)
 		bin2bcd(tm->tm_mon) | (buf[M41T62_REG_MON] & ~0x1f);
 	/* assume 20YY not 19YY */
 	buf[M41T62_REG_YEAR] = bin2bcd(tm->tm_year % 100);
+}
+
+int rtc_get(struct rtc_time *tm)
+{
+	u8 buf[M41T62_DATETIME_REG_SIZE];
+
+	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
+	m41t62_update_rtc_time(tm, buf);
+
+	return 0;
+}
+
+int rtc_set(struct rtc_time *tm)
+{
+	u8 buf[M41T62_DATETIME_REG_SIZE];
+
+	i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE);
+	m41t62_set_rtc_buf(tm, buf);
 
 	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf,
 		      M41T62_DATETIME_REG_SIZE)) {
