@@ -15,7 +15,13 @@
 
 #define CONFIG_SYS_MALLOC_LEN		SZ_8M
 
+#define CONFIG_SYS_BOOTM_LEN		SZ_16M
+
 /* Environment options */
 #define CONFIG_ENV_SIZE			SZ_4K
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"fdt_high=0xffffffffffffffff\0" \
+	"initrd_high=0xffffffffffffffff\0"
 
 #endif /* __CONFIG_H */
