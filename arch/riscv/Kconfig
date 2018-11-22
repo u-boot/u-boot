@@ -32,6 +32,7 @@ config ARCH_RV32I
 config ARCH_RV64I
 	bool "RV64I"
 	select 64BIT
+	select PHYS_64BIT
 	help
 	  Choose this option to target the RV64I base integer instruction set.
 
