@@ -67,7 +67,18 @@ static void _exit_trap(ulong code, ulong epc, struct pt_regs *regs)
 		"Instruction access fault",
 		"Illegal instruction",
 		"Breakpoint",
-		"Load address misaligned"
+		"Load address misaligned",
+		"Load access fault",
+		"Store/AMO address misaligned",
+		"Store/AMO access fault",
+		"Environment call from U-mode",
+		"Environment call from S-mode",
+		"Reserved",
+		"Environment call from M-mode",
+		"Instruction page fault",
+		"Load page fault",
+		"Reserved",
+		"Store/AMO page fault",
 	};
 
 	printf("exception code: %ld , %s , epc %lx , ra %lx\n",
