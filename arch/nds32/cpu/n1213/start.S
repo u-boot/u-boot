@@ -201,14 +201,6 @@ update_gp:
 #endif
 
 /*
- * Do CPU critical regs init only at reboot,
- * not when booting from ram
- */
-#ifdef CONFIG_INIT_CRITICAL
-	jal	cpu_init_crit		! Do CPU critical regs init
-#endif
-
-/*
  * Set stackpointer in internal RAM to call board_init_f
  * $sp must be 8-byte alignment for ABI compliance.
  */
@@ -317,49 +309,6 @@ call_board_init_r:
 
 	/* jump to it ... */
 	jr	$lp			/* jump to board_init_r() */
-
-/*
- * Initialize CPU critical registers
- *
- *	1.	Setup control registers
- *		1.1 Mask all IRQs
- *		1.2 Flush cache and TLB
- *		1.3 Disable MMU and cache
- *	2.	Setup memory timing
- */
-
-cpu_init_crit:
-
-	move	$r0, $lp		/* push	ra */
-
-	/* Disable Interrupts by clear GIE in $PSW reg */
-	setgie.d
-
-	/* Flush caches and TLB */
-	/* Invalidate caches */
-	jal	invalidate_icac
-	jal	invalidate_dcac
-
-	/* Flush TLB */
-	mfsr	$p0, $MMU_CFG
-	andi	$p0, $p0, 0x3			! MMPS
-	li	$p1, 0x2			! TLB MMU
-	bne	$p0, $p1, 1f
-	tlbop	flushall			! Flush TLB
-
-1:
-	! Disable MMU, Dcache
-	! Whitiger is MMU disabled when reset
-	! Disable the D$
-	mfsr	$p0, MR_CAC_CTL			! Get the $CACHE_CTL reg
-	li	$p1, DIS_DCAC
-	and	$p0, $p0, $p1			! Set DC_EN bit
-	mtsr	$p0, MR_CAC_CTL			! write back the $CACHE_CTL reg
-	isb
-
-	move	$lp, $r0
-2:
-	ret
 
 /*
  * Invalidate I$

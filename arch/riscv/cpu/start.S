@@ -51,14 +51,6 @@ handle_reset:
 	csrwi	mie, 0
 
 /*
- * Do CPU critical regs init only at reboot,
- * not when booting from ram
- */
-#ifdef CONFIG_INIT_CRITICAL
-	jal	cpu_init_crit		/* Do CPU critical regs init */
-#endif
-
-/*
  * Set stackpointer in internal/ex RAM to call board_init_f
  */
 call_board_init_f:
@@ -285,8 +277,3 @@ trap_entry:
 	LREG	x31, 31*REGBYTES(sp)
 	addi	sp, sp, 32*REGBYTES
 	mret
-
-#ifdef CONFIG_INIT_CRITICAL
-cpu_init_crit:
-    ret
-#endif
