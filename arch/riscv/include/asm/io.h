@@ -17,16 +17,6 @@ static inline void sync(void)
 {
 }
 
-/*
- * Given a physical address and a length, return a virtual address
- * that can be used to access the memory range with the caching
- * properties specified by "flags".
- */
-#define MAP_NOCACHE	(0)
-#define MAP_WRCOMBINE	(0)
-#define MAP_WRBACK	(0)
-#define MAP_WRTHROUGH	(0)
-
 #ifdef CONFIG_ARCH_MAP_SYSMEM
 static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
 {
@@ -48,24 +38,6 @@ static inline phys_addr_t map_to_sysmem(const void *ptr)
 	return (phys_addr_t)(uintptr_t)ptr;
 }
 #endif
-
-static inline void *
-map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
-{
-	return (void *)paddr;
-}
-
-/*
- * Take down a mapping set up by map_physmem().
- */
-static inline void unmap_physmem(void *vaddr, unsigned long flags)
-{
-}
-
-static inline phys_addr_t virt_to_phys(void *vaddr)
-{
-	return (phys_addr_t)(vaddr);
-}
 
 /*
  * Generic virtual read/write.  Note that we don't support half-word
@@ -484,4 +456,7 @@ out:
 
 #endif	/* __mem_isa */
 #endif	/* __KERNEL__ */
+
+#include <asm-generic/io.h>
+
 #endif	/* __ASM_RISCV_IO_H */
