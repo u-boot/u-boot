@@ -38,8 +38,9 @@ _start:
 	SREG	a2, 0(t0)
 	la	t0, trap_entry
 	csrw	mtvec, t0
-	csrwi	mstatus, 0
-	csrwi	mie, 0
+
+	/* mask all interrupts */
+	csrw	mie, zero
 
 /*
  * Set stackpointer in internal/ex RAM to call board_init_f
@@ -160,11 +161,10 @@ clear_bss:
 	add	t0, t0, t6		/* t0 <- rel __bss_start in RAM */
 	la	t1, __bss_end		/* t1 <- rel __bss_end in FLASH */
 	add	t1, t1, t6		/* t1 <- rel __bss_end in RAM */
-	li	t2, 0x00000000		/* clear */
 	beq	t0, t1, call_board_init_r
 
 clbss_l:
-	SREG	t2, 0(t0)		/* clear loop... */
+	SREG	zero, 0(t0)		/* clear loop... */
 	addi	t0, t0, REGBYTES
 	bne	t0, t1, clbss_l
 
