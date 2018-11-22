@@ -382,13 +382,6 @@ static int initr_flash(void)
 #if defined(CONFIG_PPC) && !defined(CONFIG_DM_SPI)
 static int initr_spi(void)
 {
-	/* MPC8xx does this here */
-#ifdef CONFIG_MPC8XX_SPI
-#if !defined(CONFIG_ENV_IS_IN_EEPROM)
-	spi_init_f();
-#endif
-	spi_init_r();
-#endif
 	return 0;
 }
 #endif
