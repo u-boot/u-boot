@@ -9,16 +9,11 @@
  * Driver for ARM PL022 SPI Controller.
  */
 
-#include <asm/io.h>
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
 #include <dm/platform_data/pl022_spi.h>
-#include <fdtdec.h>
-#include <linux/bitops.h>
-#include <linux/bug.h>
 #include <linux/io.h>
-#include <linux/kernel.h>
 #include <spi.h>
 
 #define SSP_CR0		0x000
