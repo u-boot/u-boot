@@ -257,10 +257,6 @@
 #define CONFIG_AM335X_USB1
 #define CONFIG_AM335X_USB1_MODE MUSB_OTG
 
-/* Network. */
-#define CONFIG_PHY_SMSC
-#define CONFIG_PHY_ATHEROS
-
 /* NAND support */
 #ifdef CONFIG_NAND
 #define GPMC_NAND_ECC_LP_x8_LAYOUT	1
