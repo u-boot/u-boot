@@ -34,6 +34,10 @@
 .section .text
 .globl _start
 _start:
+	/* save hart id and dtb pointer */
+	mv	s0, a0
+	mv	s1, a1
+
 	li	t0, CONFIG_SYS_SDRAM_BASE
 	SREG	a2, 0(t0)
 	la	t0, trap_entry
@@ -58,6 +62,10 @@ call_board_init_f_0:
 	mv	a0, sp
 	jal	board_init_f_alloc_reserve
 	mv	sp, a0
+
+	la	t0, prior_stage_fdt_address
+	SREG	s1, 0(t0)
+
 	jal	board_init_f_init_reserve
 
 	mv	a0, zero		/* a0 <-- boot_flags = 0 */
@@ -140,8 +148,8 @@ fix_rela_dyn:
 	LREG	t3, -(REGBYTES*3)(t1)
 	li	t5, SYM_SIZE
 	mul	t0, t0, t5
-	add	s1, t4, t0
-	LREG	t5, REGBYTES(s1)
+	add	s5, t4, t0
+	LREG	t5, REGBYTES(s5)
 	add	t5, t5, t6		/* t5 <-- location to fix up in RAM */
 	add	t3, t3, t6		/* t3 <-- location to fix up in RAM */
 	SREG	t5, 0(t3)
