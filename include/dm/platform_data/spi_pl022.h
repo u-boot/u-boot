@@ -7,8 +7,8 @@
  * in ofdata_to_platdata.
  */
 
-#ifndef __PL022_SPI_H__
-#define __PL022_SPI_H__
+#ifndef __spi_pl022_h
+#define __spi_pl022_h
 
 #include <fdtdec.h>
 
@@ -18,4 +18,4 @@ struct pl022_spi_pdata {
 	unsigned int freq;
 };
 
-#endif
+#endif /* __spi_pl022_h */
