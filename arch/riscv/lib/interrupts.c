@@ -87,4 +87,6 @@ static void _exit_trap(ulong code, ulong epc, struct pt_regs *regs)
 	} else {
 		printf("Reserved\n");
 	}
+
+	hang();
 }
