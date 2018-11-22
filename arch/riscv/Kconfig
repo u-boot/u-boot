@@ -20,20 +20,20 @@ source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 
 choice
-	prompt "CPU selection"
-	default CPU_RISCV_32
+	prompt "Base ISA"
+	default ARCH_RV32I
 
-config CPU_RISCV_32
-	bool "RISC-V 32-bit"
+config ARCH_RV32I
+	bool "RV32I"
 	select 32BIT
 	help
-	  Choose this option to build an U-Boot for RISCV32 architecture.
+	  Choose this option to target the RV32I base integer instruction set.
 
-config CPU_RISCV_64
-	bool "RISC-V 64-bit"
+config ARCH_RV64I
+	bool "RV64I"
 	select 64BIT
 	help
-	  Choose this option to build an U-Boot for RISCV64 architecture.
+	  Choose this option to target the RV64I base integer instruction set.
 
 endchoice
 
