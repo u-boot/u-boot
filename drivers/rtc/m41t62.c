@@ -108,7 +108,8 @@ int rtc_set(struct rtc_time *tm)
 	/* assume 20YY not 19YY */
 	buf[M41T62_REG_YEAR] = bin2bcd(tm->tm_year % 100);
 
-	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf, M41T62_DATETIME_REG_SIZE)) {
+	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 1, buf,
+		      M41T62_DATETIME_REG_SIZE)) {
 		printf("I2C write failed in %s()\n", __func__);
 		return -1;
 	}
