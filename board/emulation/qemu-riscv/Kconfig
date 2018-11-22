@@ -29,5 +29,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply CMD_EXT2
 	imply CMD_EXT4
 	imply CMD_FAT
+	imply BOARD_LATE_INIT
 
 endif

@@ -21,10 +21,20 @@
 #define CONFIG_ENV_SIZE			SZ_4K
 
 #define BOOT_TARGET_DEVICES(func) \
+	func(QEMU, qemu, na) \
 	func(VIRTIO, virtio, 0) \
 	func(DHCP, dhcp, na)
 
 #include <config_distro_bootcmd.h>
+
+#define BOOTENV_DEV_QEMU(devtypeu, devtypel, instance) \
+	"bootcmd_qemu=" \
+		"if env exists kernel_start; then " \
+			"bootm ${kernel_start} - ${fdtcontroladdr};" \
+		"fi;\0"
+
+#define BOOTENV_DEV_NAME_QEMU(devtypeu, devtypel, instance) \
+	"qemu "
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffffffffffff\0" \
