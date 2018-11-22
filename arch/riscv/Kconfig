@@ -38,6 +38,17 @@ config ARCH_RV64I
 
 endchoice
 
+config RISCV_ISA_C
+	bool "Emit compressed instructions"
+	default y
+	help
+	  Adds "C" to the ISA subsets that the toolchain is allowed to emit
+	  when building U-Boot, which results in compressed instructions in the
+	  U-Boot binary.
+
+config RISCV_ISA_A
+	def_bool y
+
 config 32BIT
 	bool
 
