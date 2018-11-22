@@ -42,7 +42,6 @@ nmi_vector:
 trap_vector:
 	j	trap_entry
 
-.global trap_entry
 handle_reset:
 	li	t0, CONFIG_SYS_SDRAM_BASE
 	SREG	a2, 0(t0)
@@ -208,6 +207,7 @@ call_board_init_r:
 /*
  * trap entry
  */
+.align 2
 trap_entry:
 	addi	sp, sp, -32*REGBYTES
 	SREG	x1, 1*REGBYTES(sp)
