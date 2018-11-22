@@ -8,6 +8,8 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
+#include <dm/root.h>
 #include <image.h>
 #include <asm/byteorder.h>
 #include <asm/csr.h>
@@ -26,38 +28,28 @@ int arch_fixup_fdt(void *blob)
 	return 0;
 }
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+/**
+ * announce_and_cleanup() - Print message and prepare for kernel boot
+ *
+ * @fake: non-zero to do everything except actually boot
+ */
+static void announce_and_cleanup(int fake)
 {
-	void	(*kernel)(ulong hart, void *dtb);
-
-	/*
-	 * allow the PREP bootm subcommand, it is required for bootm to work
-	 */
-	if (flag & BOOTM_STATE_OS_PREP)
-		return 0;
-
-	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
-		return 1;
-
-	kernel = (void (*)(ulong, void *))images->ep;
-
-	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
-
-	debug("## Transferring control to Linux (at address %08lx) ...\n",
-	       (ulong)kernel);
-
-	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
-#ifdef CONFIG_OF_LIBFDT
-		debug("using: FDT\n");
-		if (image_setup_linux(images)) {
-			printf("FDT creation failed! hanging...");
-			hang();
-		}
+	printf("\nStarting kernel ...%s\n\n", fake ?
+		"(fake run for tracing)" : "");
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
+#ifdef CONFIG_BOOTSTAGE_FDT
+	bootstage_fdt_add_report();
 #endif
-	}
+#ifdef CONFIG_BOOTSTAGE_REPORT
+	bootstage_report();
+#endif
 
-	/* we assume that the kernel is in place */
-	printf("\nStarting kernel ...\n\n");
+#ifdef CONFIG_USB_DEVICE
+	udc_disconnect();
+#endif
+
+	board_quiesce_devices();
 
 	/*
 	 * Call remove function of all devices with a removal flag set.
@@ -67,11 +59,62 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
 
 	cleanup_before_linux();
+}
 
-	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
-		kernel(csr_read(mhartid), images->ft_addr);
+static void boot_prep_linux(bootm_headers_t *images)
+{
+	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
+#ifdef CONFIG_OF_LIBFDT
+		debug("using: FDT\n");
+		if (image_setup_linux(images)) {
+			printf("FDT creation failed! hanging...");
+			hang();
+		}
+#endif
+	} else {
+		printf("Device tree not found or missing FDT support\n");
+		hang();
+	}
+}
 
-	/* does not return */
+static void boot_jump_linux(bootm_headers_t *images, int flag)
+{
+	void (*kernel)(ulong hart, void *dtb);
+	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
 
-	return 1;
+	kernel = (void (*)(ulong, void *))images->ep;
+
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+	debug("## Transferring control to Linux (at address %08lx) ...\n",
+	      (ulong)kernel);
+
+	announce_and_cleanup(fake);
+
+	if (!fake) {
+		if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
+			kernel(csr_read(mhartid), images->ft_addr);
+	}
+}
+
+int do_bootm_linux(int flag, int argc, char * const argv[],
+		   bootm_headers_t *images)
+{
+	/* No need for those on RISC-V */
+	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
+		return -1;
+
+	if (flag & BOOTM_STATE_OS_PREP) {
+		boot_prep_linux(images);
+		return 0;
+	}
+
+	if (flag & (BOOTM_STATE_OS_GO | BOOTM_STATE_OS_FAKE_GO)) {
+		boot_jump_linux(images, flag);
+		return 0;
+	}
+
+	boot_prep_linux(images);
+	boot_jump_linux(images, flag);
+	return 0;
 }
