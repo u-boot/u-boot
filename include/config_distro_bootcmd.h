@@ -242,6 +242,18 @@
 	BOOT_TARGET_DEVICES_references_USB_without_CONFIG_CMD_USB
 #endif
 
+#ifdef CONFIG_CMD_VIRTIO
+#define BOOTENV_SHARED_VIRTIO	BOOTENV_SHARED_BLKDEV(virtio)
+#define BOOTENV_DEV_VIRTIO	BOOTENV_DEV_BLKDEV
+#define BOOTENV_DEV_NAME_VIRTIO	BOOTENV_DEV_NAME_BLKDEV
+#else
+#define BOOTENV_SHARED_VIRTIO
+#define BOOTENV_DEV_VIRTIO \
+	BOOT_TARGET_DEVICES_references_VIRTIO_without_CONFIG_CMD_VIRTIO
+#define BOOTENV_DEV_NAME_VIRTIO \
+	BOOT_TARGET_DEVICES_references_VIRTIO_without_CONFIG_CMD_VIRTIO
+#endif
+
 #if defined(CONFIG_CMD_DHCP)
 #if defined(CONFIG_EFI_LOADER)
 /* http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml */
@@ -350,6 +362,7 @@
 	BOOTENV_SHARED_IDE \
 	BOOTENV_SHARED_UBIFS \
 	BOOTENV_SHARED_EFI \
+	BOOTENV_SHARED_VIRTIO \
 	"boot_prefixes=/ /boot/\0" \
 	"boot_scripts=boot.scr.uimg boot.scr\0" \
 	"boot_script_dhcp=boot.scr.uimg\0" \
