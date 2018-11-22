@@ -21,7 +21,13 @@ static struct mm_region gen3_mem_map[GEN3_NR_REGIONS] = {
 	}, {
 		.virt = 0x40000000UL,
 		.phys = 0x40000000UL,
-		.size = 0x80000000UL,
+		.size = 0x03F00000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x47E00000UL,
+		.phys = 0x47E00000UL,
+		.size = 0x78200000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
