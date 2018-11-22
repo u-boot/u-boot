@@ -27,7 +27,6 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <cpsw.h>
-#include <power/tps65217.h>
 #include <power/tps65910.h>
 #include <environment.h>
 #include <watchdog.h>
