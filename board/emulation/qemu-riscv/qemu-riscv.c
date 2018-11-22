@@ -9,8 +9,6 @@
 #include <virtio_types.h>
 #include <virtio.h>
 
-#define MROM_FDT_ADDR	0x1020
-
 int board_init(void)
 {
 	/*
@@ -20,13 +18,4 @@ int board_init(void)
 	virtio_init();
 
 	return 0;
-}
-
-void *board_fdt_blob_setup(void)
-{
-	/*
-	 * QEMU loads a generated DTB for us immediately
-	 * after the reset vectors in the MROM
-	 */
-	return (void *)MROM_FDT_ADDR;
 }
