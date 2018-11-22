@@ -34,15 +34,6 @@
 .section .text
 .globl _start
 _start:
-	j	handle_reset
-
-nmi_vector:
-	j	nmi_vector
-
-trap_vector:
-	j	trap_entry
-
-handle_reset:
 	li	t0, CONFIG_SYS_SDRAM_BASE
 	SREG	a2, 0(t0)
 	la	t0, trap_entry
