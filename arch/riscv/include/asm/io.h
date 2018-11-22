@@ -74,12 +74,12 @@ static inline phys_addr_t virt_to_phys(void *vaddr)
 #define __arch_getb(a)			(*(unsigned char *)(a))
 #define __arch_getw(a)			(*(unsigned short *)(a))
 #define __arch_getl(a)			(*(unsigned int *)(a))
-#define __arch_getq(a)			(*(unsigned long *)(a))
+#define __arch_getq(a)			(*(unsigned long long *)(a))
 
 #define __arch_putb(v, a)		(*(unsigned char *)(a) = (v))
 #define __arch_putw(v, a)		(*(unsigned short *)(a) = (v))
 #define __arch_putl(v, a)		(*(unsigned int *)(a) = (v))
-#define __arch_putq(v, a)		(*(unsigned long *)(a) = (v))
+#define __arch_putq(v, a)		(*(unsigned long long *)(a) = (v))
 
 #define __raw_writeb(v, a)		__arch_putb(v, a)
 #define __raw_writew(v, a)		__arch_putw(v, a)
@@ -152,7 +152,7 @@ static inline u32 readl(const volatile void __iomem *addr)
 
 static inline u64 readq(const volatile void __iomem *addr)
 {
-	u32	val;
+	u64	val;
 
 	val = __arch_getq(addr);
 	__iormb();

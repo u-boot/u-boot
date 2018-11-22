@@ -37,10 +37,10 @@ typedef unsigned short		__kernel_gid_t;
 #ifdef __GNUC__
 typedef __SIZE_TYPE__		__kernel_size_t;
 #else
-typedef unsigned int		__kernel_size_t;
+typedef unsigned long		__kernel_size_t;
 #endif
-typedef int			__kernel_ssize_t;
-typedef int			__kernel_ptrdiff_t;
+typedef long			__kernel_ssize_t;
+typedef long			__kernel_ptrdiff_t;
 typedef long			__kernel_time_t;
 typedef long			__kernel_suseconds_t;
 typedef long			__kernel_clock_t;

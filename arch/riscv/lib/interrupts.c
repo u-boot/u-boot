@@ -12,7 +12,7 @@
 #include <asm/system.h>
 #include <asm/encoding.h>
 
-static void _exit_trap(int code, uint epc, struct pt_regs *regs);
+static void _exit_trap(ulong code, ulong epc, struct pt_regs *regs);
 
 int interrupt_init(void)
 {
@@ -34,9 +34,9 @@ int disable_interrupts(void)
 	return 0;
 }
 
-uint handle_trap(uint mcause, uint epc, struct pt_regs *regs)
+ulong handle_trap(ulong mcause, ulong epc, struct pt_regs *regs)
 {
-	uint is_int;
+	ulong is_int;
 
 	is_int = (mcause & MCAUSE_INT);
 	if ((is_int) && ((mcause & MCAUSE_CAUSE)  == IRQ_M_EXT))
@@ -60,7 +60,7 @@ __attribute__((weak)) void timer_interrupt(struct pt_regs *regs)
 {
 }
 
-static void _exit_trap(int code, uint epc, struct pt_regs *regs)
+static void _exit_trap(ulong code, ulong epc, struct pt_regs *regs)
 {
 	static const char * const exception_code[] = {
 		"Instruction address misaligned",
@@ -70,6 +70,6 @@ static void _exit_trap(int code, uint epc, struct pt_regs *regs)
 		"Load address misaligned"
 	};
 
-	printf("exception code: %d , %s , epc %08x , ra %08lx\n",
+	printf("exception code: %ld , %s , epc %lx , ra %lx\n",
 		code, exception_code[code], epc, regs->ra);
 }
