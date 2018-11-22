@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * (C) Copyright 2018
+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de.
+ *
  * (C) Copyright 2008
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
@@ -15,6 +18,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <dm.h>
 #include <rtc.h>
 #include <i2c.h>
 
@@ -99,6 +103,78 @@ static void m41t62_set_rtc_buf(const struct rtc_time *tm, u8 *buf)
 	buf[M41T62_REG_YEAR] = bin2bcd(tm->tm_year % 100);
 }
 
+#ifdef CONFIG_DM_RTC
+static int m41t62_rtc_get(struct udevice *dev, struct rtc_time *tm)
+{
+	u8 buf[M41T62_DATETIME_REG_SIZE];
+	int ret;
+
+	ret = dm_i2c_read(dev, 0, buf, sizeof(buf));
+	if (ret)
+		return ret;
+
+	m41t62_update_rtc_time(tm, buf);
+
+	return 0;
+}
+
+static int m41t62_rtc_set(struct udevice *dev, const struct rtc_time *tm)
+{
+	u8 buf[M41T62_DATETIME_REG_SIZE];
+	int ret;
+
+	ret = dm_i2c_read(dev, 0, buf, sizeof(buf));
+	if (ret)
+		return ret;
+
+	m41t62_set_rtc_buf(tm, buf);
+
+	ret = dm_i2c_write(dev, 0, buf, sizeof(buf));
+	if (ret) {
+		printf("I2C write failed in %s()\n", __func__);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int m41t62_rtc_reset(struct udevice *dev)
+{
+	u8 val;
+
+	/*
+	 * M41T82: Make sure HT (Halt Update) bit is cleared.
+	 * This bit is 0 in M41T62 so its save to clear it always.
+	 */
+
+	int ret = dm_i2c_read(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+
+	val &= ~M41T80_ALHOUR_HT;
+	ret |= dm_i2c_write(dev, M41T62_REG_ALARM_HOUR, &val, sizeof(val));
+
+	return ret;
+}
+
+static const struct rtc_ops m41t62_rtc_ops = {
+	.get = m41t62_rtc_get,
+	.set = m41t62_rtc_set,
+	.reset = m41t62_rtc_reset,
+};
+
+static const struct udevice_id m41t62_rtc_ids[] = {
+	{ .compatible = "st,m41t62" },
+	{ .compatible = "microcrystal,rv4162" },
+	{ }
+};
+
+U_BOOT_DRIVER(rtc_m41t62) = {
+	.name	= "rtc-m41t62",
+	.id	= UCLASS_RTC,
+	.of_match = m41t62_rtc_ids,
+	.ops	= &m41t62_rtc_ops,
+};
+
+#else /* NON DM RTC code - will be removed */
 int rtc_get(struct rtc_time *tm)
 {
 	u8 buf[M41T62_DATETIME_REG_SIZE];
@@ -137,3 +213,4 @@ void rtc_reset(void)
 	val &= ~M41T80_ALHOUR_HT;
 	i2c_write(CONFIG_SYS_I2C_RTC_ADDR, M41T62_REG_ALARM_HOUR, 1, &val, 1);
 }
+#endif /* CONFIG_DM_RTC */
