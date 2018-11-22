@@ -12,6 +12,16 @@ void flush_dcache_range(unsigned long start, unsigned long end)
 
 void invalidate_icache_range(unsigned long start, unsigned long end)
 {
+	/*
+	 * RISC-V does not have an instruction for invalidating parts of the
+	 * instruction cache. Invalidate all of it instead.
+	 */
+	invalidate_icache_all();
+}
+
+void invalidate_icache_all(void)
+{
+	asm volatile ("fence.i" ::: "memory");
 }
 
 void invalidate_dcache_range(unsigned long start, unsigned long end)
