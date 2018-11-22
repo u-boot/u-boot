@@ -14,16 +14,12 @@
 64bit-emul		:= elf64lriscv
 
 ifdef CONFIG_32BIT
-PLATFORM_CPPFLAGS	+= -march=rv32ima -mabi=ilp32
 PLATFORM_LDFLAGS	+= -m $(32bit-emul)
-CFLAGS_EFI		+= -march=rv32ima -mabi=ilp32
 EFI_LDS			:= elf_riscv32_efi.lds
 endif
 
 ifdef CONFIG_64BIT
-PLATFORM_CPPFLAGS	+= -march=rv64ima -mabi=lp64
 PLATFORM_LDFLAGS	+= -m $(64bit-emul)
-CFLAGS_EFI		+= -march=rv64ima -mabi=lp64
 EFI_LDS			:= elf_riscv64_efi.lds
 endif
 
