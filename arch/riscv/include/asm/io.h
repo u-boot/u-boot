@@ -10,6 +10,7 @@
 #ifdef __KERNEL__
 
 #include <linux/types.h>
+#include <asm/barrier.h>
 #include <asm/byteorder.h>
 
 static inline void sync(void)
@@ -91,13 +92,9 @@ static inline phys_addr_t virt_to_phys(void *vaddr)
 #define __raw_readl(a)			__arch_getl(a)
 #define __raw_readq(a)			__arch_getq(a)
 
-/*
- * TODO: The kernel offers some more advanced versions of barriers, it might
- * have some advantages to use them instead of the simple one here.
- */
-#define dmb()		__asm__ __volatile__ ("" : : : "memory")
-#define __iormb()	dmb()
-#define __iowmb()	dmb()
+#define dmb()		mb()
+#define __iormb()	rmb()
+#define __iowmb()	wmb()
 
 static inline void writeb(u8 val, volatile void __iomem *addr)
 {
