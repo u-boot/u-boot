@@ -928,6 +928,7 @@ config ARCH_ZYNQMP
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
 	select SPL_CLK if SPL
+	select SPL_SEPARATE_BSS if SPL
 	select SUPPORT_SPL
 	imply BOARD_LATE_INIT
 	imply CMD_DM
