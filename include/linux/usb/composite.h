@@ -24,7 +24,7 @@
 #include <common.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
-#include <usb/lin_gadget_compat.h>
+#include <linux/bitmap.h>
 
 /*
  * USB function drivers should return USB_GADGET_DELAYED_STATUS if they

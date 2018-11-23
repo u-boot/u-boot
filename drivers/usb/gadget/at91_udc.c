@@ -24,7 +24,6 @@
 #include <linux/usb/gadget.h>
 #include <linux/usb/at91_udc.h>
 #include <malloc.h>
-#include <usb/lin_gadget_compat.h>
 
 #include "at91_udc.h"
 
