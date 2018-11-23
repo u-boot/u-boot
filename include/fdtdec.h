@@ -956,6 +956,7 @@ int fdtdec_setup(void);
  * Called when CONFIG_OF_BOARD is defined, or if CONFIG_OF_SEPARATE is defined
  * and the board implements it.
  */
+void *board_fdt_blob_setup(void);
 
 /*
  * Decode the size of memory

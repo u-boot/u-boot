@@ -35,7 +35,7 @@ void display_sysid(void)
 	if (ret)
 		return;
 	ret = misc_read(dev, 0, &sysid, sizeof(sysid));
-	if (ret)
+	if (ret < 0)
 		return;
 
 	stamp = sysid[1];

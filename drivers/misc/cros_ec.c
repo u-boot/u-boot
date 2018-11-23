@@ -13,6 +13,8 @@
  * is not reset.
  */
 
+#define LOG_CATEGORY UCLASS_CROS_EC
+
 #include <common.h>
 #include <command.h>
 #include <dm.h>
@@ -39,6 +41,54 @@ enum {
 	CROS_EC_CMD_TIMEOUT_MS	= 5000,
 	/* Timeout waiting for a synchronous hash to be recomputed */
 	CROS_EC_CMD_HASH_TIMEOUT_MS = 2000,
+};
+
+#define INVALID_HCMD 0xFF
+
+/*
+ * Map UHEPI masks to non UHEPI commands in order to support old EC FW
+ * which does not support UHEPI command.
+ */
+static const struct {
+	u8 set_cmd;
+	u8 clear_cmd;
+	u8 get_cmd;
+} event_map[] = {
+	[EC_HOST_EVENT_MAIN] = {
+		INVALID_HCMD, EC_CMD_HOST_EVENT_CLEAR,
+		INVALID_HCMD,
+	},
+	[EC_HOST_EVENT_B] = {
+		INVALID_HCMD, EC_CMD_HOST_EVENT_CLEAR_B,
+		EC_CMD_HOST_EVENT_GET_B,
+	},
+	[EC_HOST_EVENT_SCI_MASK] = {
+		EC_CMD_HOST_EVENT_SET_SCI_MASK, INVALID_HCMD,
+		EC_CMD_HOST_EVENT_GET_SCI_MASK,
+	},
+	[EC_HOST_EVENT_SMI_MASK] = {
+		EC_CMD_HOST_EVENT_SET_SMI_MASK, INVALID_HCMD,
+		EC_CMD_HOST_EVENT_GET_SMI_MASK,
+	},
+	[EC_HOST_EVENT_ALWAYS_REPORT_MASK] = {
+		INVALID_HCMD, INVALID_HCMD, INVALID_HCMD,
+	},
+	[EC_HOST_EVENT_ACTIVE_WAKE_MASK] = {
+		EC_CMD_HOST_EVENT_SET_WAKE_MASK, INVALID_HCMD,
+		EC_CMD_HOST_EVENT_GET_WAKE_MASK,
+	},
+	[EC_HOST_EVENT_LAZY_WAKE_MASK_S0IX] = {
+		EC_CMD_HOST_EVENT_SET_WAKE_MASK, INVALID_HCMD,
+		EC_CMD_HOST_EVENT_GET_WAKE_MASK,
+	},
+	[EC_HOST_EVENT_LAZY_WAKE_MASK_S3] = {
+		EC_CMD_HOST_EVENT_SET_WAKE_MASK, INVALID_HCMD,
+		EC_CMD_HOST_EVENT_GET_WAKE_MASK,
+	},
+	[EC_HOST_EVENT_LAZY_WAKE_MASK_S5] = {
+		EC_CMD_HOST_EVENT_SET_WAKE_MASK, INVALID_HCMD,
+		EC_CMD_HOST_EVENT_GET_WAKE_MASK,
+	},
 };
 
 void cros_ec_dump_data(const char *name, int cmd, const uint8_t *data, int len)
@@ -227,7 +277,7 @@ static int send_command_proto3(struct cros_ec_dev *cdev,
 	return handle_proto3_response(cdev, dinp, din_len);
 }
 
-static int send_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
+static int send_command(struct cros_ec_dev *dev, uint cmd, int cmd_version,
 			const void *dout, int dout_len,
 			uint8_t **dinp, int din_len)
 {
@@ -330,7 +380,7 @@ static int ec_command_inptr(struct udevice *dev, uint8_t cmd,
  * @param din_len       Maximum size of response in bytes
  * @return number of bytes in response, or -ve on error
  */
-static int ec_command(struct udevice *dev, uint8_t cmd, int cmd_version,
+static int ec_command(struct udevice *dev, uint cmd, int cmd_version,
 		      const void *dout, int dout_len,
 		      void *din, int din_len)
 {
@@ -365,10 +415,14 @@ int cros_ec_scan_keyboard(struct udevice *dev, struct mbkp_keyscan *scan)
 int cros_ec_read_id(struct udevice *dev, char *id, int maxlen)
 {
 	struct ec_response_get_version *r;
+	int ret;
 
-	if (ec_command_inptr(dev, EC_CMD_GET_VERSION, 0, NULL, 0,
-			(uint8_t **)&r, sizeof(*r)) != sizeof(*r))
+	ret = ec_command_inptr(dev, EC_CMD_GET_VERSION, 0, NULL, 0,
+			       (uint8_t **)&r, sizeof(*r));
+	if (ret != sizeof(*r)) {
+		log_err("Got rc %d, expected %d\n", ret, sizeof(*r));
 		return -1;
+	}
 
 	if (maxlen > (int)sizeof(r->version_string_ro))
 		maxlen = sizeof(r->version_string_ro);
@@ -381,6 +435,7 @@ int cros_ec_read_id(struct udevice *dev, char *id, int maxlen)
 		memcpy(id, r->version_string_rw, maxlen);
 		break;
 	default:
+		log_err("Invalid EC image %d\n", r->current_image);
 		return -1;
 	}
 
@@ -563,6 +618,36 @@ int cros_ec_info(struct udevice *dev, struct ec_response_mkbp_info *info)
 	return 0;
 }
 
+int cros_ec_get_event_mask(struct udevice *dev, uint type, uint32_t *mask)
+{
+	struct ec_response_host_event_mask rsp;
+	int ret;
+
+	ret = ec_command(dev, type, 0, NULL, 0, &rsp, sizeof(rsp));
+	if (ret < 0)
+		return ret;
+	else if (ret != sizeof(rsp))
+		return -EINVAL;
+
+	*mask = rsp.mask;
+
+	return 0;
+}
+
+int cros_ec_set_event_mask(struct udevice *dev, uint type, uint32_t mask)
+{
+	struct ec_params_host_event_mask req;
+	int ret;
+
+	req.mask = mask;
+
+	ret = ec_command(dev, type, 0, &req, sizeof(req), NULL, 0);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 int cros_ec_get_host_events(struct udevice *dev, uint32_t *events_ptr)
 {
 	struct ec_response_host_event_mask *resp;
@@ -616,6 +701,17 @@ int cros_ec_flash_protect(struct udevice *dev, uint32_t set_mask,
 	return 0;
 }
 
+int cros_ec_entering_mode(struct udevice *dev, int mode)
+{
+	int rc;
+
+	rc = ec_command(dev, EC_CMD_ENTERING_MODE, 0, &mode, sizeof(mode),
+			NULL, 0);
+	if (rc)
+		return -1;
+	return 0;
+}
+
 static int cros_ec_check_version(struct udevice *dev)
 {
 	struct cros_ec_dev *cdev = dev_get_uclass_priv(dev);
@@ -650,16 +746,14 @@ static int cros_ec_check_version(struct udevice *dev)
 	cdev->protocol_version = 3;
 	req.in_data = 0;
 	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
-			     (uint8_t **)&resp, sizeof(*resp)) > 0) {
+			     (uint8_t **)&resp, sizeof(*resp)) > 0)
 		return 0;
-	}
 
 	/* Try sending a version 2 packet */
 	cdev->protocol_version = 2;
 	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
-			     (uint8_t **)&resp, sizeof(*resp)) > 0) {
+			     (uint8_t **)&resp, sizeof(*resp)) > 0)
 		return 0;
-	}
 
 	/*
 	 * Fail if we're still here, since the EC doesn't understand any
@@ -822,6 +916,9 @@ int cros_ec_flash_write(struct udevice *dev, const uint8_t *data,
 	uint32_t end, off;
 	int ret;
 
+	if (!burst)
+		return -EINVAL;
+
 	/*
 	 * TODO: round up to the nearest multiple of write size.  Can get away
 	 * without that on link right now because its write size is 4 bytes.
@@ -842,6 +939,35 @@ int cros_ec_flash_write(struct udevice *dev, const uint8_t *data,
 	}
 
 	return 0;
+}
+
+/**
+ * Run verification on a slot
+ *
+ * @param me     CrosEc instance
+ * @param region Region to run verification on
+ * @return 0 if success or not applicable. Non-zero if verification failed.
+ */
+int cros_ec_efs_verify(struct udevice *dev, enum ec_flash_region region)
+{
+	struct ec_params_efs_verify p;
+	int rv;
+
+	log_info("EFS: EC is verifying updated image...\n");
+	p.region = region;
+
+	rv = ec_command(dev, EC_CMD_EFS_VERIFY, 0, &p, sizeof(p), NULL, 0);
+	if (rv >= 0) {
+		log_info("EFS: Verification success\n");
+		return 0;
+	}
+	if (rv == -EC_RES_INVALID_COMMAND) {
+		log_info("EFS: EC doesn't support EFS_VERIFY command\n");
+		return 0;
+	}
+	log_info("EFS: Verification failed\n");
+
+	return rv;
 }
 
 /**
@@ -934,15 +1060,17 @@ int cros_ec_read_nvdata(struct udevice *dev, uint8_t *block, int size)
 	struct ec_params_vbnvcontext p;
 	int len;
 
-	if (size != EC_VBNV_BLOCK_SIZE)
+	if (size != EC_VBNV_BLOCK_SIZE && size != EC_VBNV_BLOCK_SIZE_V2)
 		return -EINVAL;
 
 	p.op = EC_VBNV_CONTEXT_OP_READ;
 
 	len = ec_command(dev, EC_CMD_VBNV_CONTEXT, EC_VER_VBNV_CONTEXT,
-			&p, sizeof(p), block, EC_VBNV_BLOCK_SIZE);
-	if (len < EC_VBNV_BLOCK_SIZE)
+			 &p, sizeof(uint32_t) + size, block, size);
+	if (len != size) {
+		log_err("Expected %d bytes, got %d\n", size, len);
 		return -EIO;
+	}
 
 	return 0;
 }
@@ -952,16 +1080,30 @@ int cros_ec_write_nvdata(struct udevice *dev, const uint8_t *block, int size)
 	struct ec_params_vbnvcontext p;
 	int len;
 
-	if (size != EC_VBNV_BLOCK_SIZE)
+	if (size != EC_VBNV_BLOCK_SIZE && size != EC_VBNV_BLOCK_SIZE_V2)
 		return -EINVAL;
 	p.op = EC_VBNV_CONTEXT_OP_WRITE;
-	memcpy(p.block, block, sizeof(p.block));
+	memcpy(p.block, block, size);
 
 	len = ec_command_inptr(dev, EC_CMD_VBNV_CONTEXT, EC_VER_VBNV_CONTEXT,
-			&p, sizeof(p), NULL, 0);
+			&p, sizeof(uint32_t) + size, NULL, 0);
 	if (len < 0)
 		return -1;
 
+	return 0;
+}
+
+int cros_ec_battery_cutoff(struct udevice *dev, uint8_t flags)
+{
+	struct ec_params_battery_cutoff p;
+	int len;
+
+	p.flags = flags;
+	len = ec_command(dev, EC_CMD_BATTERY_CUT_OFF, 1, &p, sizeof(p),
+			 NULL, 0);
+
+	if (len < 0)
+		return -1;
 	return 0;
 }
 
@@ -1139,9 +1281,209 @@ int cros_ec_i2c_tunnel(struct udevice *dev, int port, struct i2c_msg *in,
 	return 0;
 }
 
+int cros_ec_check_feature(struct udevice *dev, int feature)
+{
+	struct ec_response_get_features r;
+	int rv;
+
+	rv = ec_command(dev, EC_CMD_GET_FEATURES, 0, &r, sizeof(r), NULL, 0);
+	if (rv)
+		return rv;
+
+	if (feature >= 8 * sizeof(r.flags))
+		return -1;
+
+	return r.flags[feature / 32] & EC_FEATURE_MASK_0(feature);
+}
+
+/*
+ * Query the EC for specified mask indicating enabled events.
+ * The EC maintains separate event masks for SMI, SCI and WAKE.
+ */
+static int cros_ec_uhepi_cmd(struct udevice *dev, uint mask, uint action,
+			     uint64_t *value)
+{
+	int ret;
+	struct ec_params_host_event req;
+	struct ec_response_host_event rsp;
+
+	req.action = action;
+	req.mask_type = mask;
+	if (action != EC_HOST_EVENT_GET)
+		req.value = *value;
+	else
+		*value = 0;
+	ret = ec_command(dev, EC_CMD_HOST_EVENT, 0, &req, sizeof(req), &rsp,
+			 sizeof(rsp));
+
+	if (action != EC_HOST_EVENT_GET)
+		return ret;
+	if (ret == 0)
+		*value = rsp.value;
+
+	return ret;
+}
+
+static int cros_ec_handle_non_uhepi_cmd(struct udevice *dev, uint hcmd,
+					uint action, uint64_t *value)
+{
+	int ret = -1;
+	struct ec_params_host_event_mask req;
+	struct ec_response_host_event_mask rsp;
+
+	if (hcmd == INVALID_HCMD)
+		return ret;
+
+	if (action != EC_HOST_EVENT_GET)
+		req.mask = (uint32_t)*value;
+	else
+		*value = 0;
+
+	ret = ec_command(dev, hcmd, 0, &req, sizeof(req), &rsp, sizeof(rsp));
+	if (action != EC_HOST_EVENT_GET)
+		return ret;
+	if (ret == 0)
+		*value = rsp.mask;
+
+	return ret;
+}
+
+bool cros_ec_is_uhepi_supported(struct udevice *dev)
+{
+#define UHEPI_SUPPORTED 1
+#define UHEPI_NOT_SUPPORTED 2
+	static int uhepi_support;
+
+	if (!uhepi_support) {
+		uhepi_support = cros_ec_check_feature(dev,
+			EC_FEATURE_UNIFIED_WAKE_MASKS) > 0 ? UHEPI_SUPPORTED :
+			UHEPI_NOT_SUPPORTED;
+		log_debug("Chrome EC: UHEPI %s\n",
+			  uhepi_support == UHEPI_SUPPORTED ? "supported" :
+			  "not supported");
+	}
+	return uhepi_support == UHEPI_SUPPORTED;
+}
+
+static int cros_ec_get_mask(struct udevice *dev, uint type)
+{
+	u64 value = 0;
+
+	if (cros_ec_is_uhepi_supported(dev)) {
+		cros_ec_uhepi_cmd(dev, type, EC_HOST_EVENT_GET, &value);
+	} else {
+		assert(type < ARRAY_SIZE(event_map));
+		cros_ec_handle_non_uhepi_cmd(dev, event_map[type].get_cmd,
+					     EC_HOST_EVENT_GET, &value);
+	}
+	return value;
+}
+
+static int cros_ec_clear_mask(struct udevice *dev, uint type, u64 mask)
+{
+	if (cros_ec_is_uhepi_supported(dev))
+		return cros_ec_uhepi_cmd(dev, type, EC_HOST_EVENT_CLEAR, &mask);
+
+	assert(type < ARRAY_SIZE(event_map));
+
+	return cros_ec_handle_non_uhepi_cmd(dev, event_map[type].clear_cmd,
+					    EC_HOST_EVENT_CLEAR, &mask);
+}
+
+uint64_t cros_ec_get_events_b(struct udevice *dev)
+{
+	return cros_ec_get_mask(dev, EC_HOST_EVENT_B);
+}
+
+int cros_ec_clear_events_b(struct udevice *dev, uint64_t mask)
+{
+	log_debug("Chrome EC: clear events_b mask to 0x%016llx\n", mask);
+
+	return cros_ec_clear_mask(dev, EC_HOST_EVENT_B, mask);
+}
+
+int cros_ec_read_limit_power(struct udevice *dev, int *limit_powerp)
+{
+	struct ec_params_charge_state p;
+	struct ec_response_charge_state r;
+	int ret;
+
+	p.cmd = CHARGE_STATE_CMD_GET_PARAM;
+	p.get_param.param = CS_PARAM_LIMIT_POWER;
+	ret = ec_command(dev, EC_CMD_CHARGE_STATE, 0, &p, sizeof(p),
+			 &r, sizeof(r));
+
+	/*
+	 * If our EC doesn't support the LIMIT_POWER parameter, assume that
+	 * LIMIT_POWER is not requested.
+	 */
+	if (ret == -EC_RES_INVALID_PARAM || ret == -EC_RES_INVALID_COMMAND) {
+		log_warning("PARAM_LIMIT_POWER not supported by EC\n");
+		return -ENOSYS;
+	}
+
+	if (ret != sizeof(r.get_param))
+		return -EINVAL;
+
+	*limit_powerp = r.get_param.value;
+	return 0;
+}
+
+int cros_ec_config_powerbtn(struct udevice *dev, uint32_t flags)
+{
+	struct ec_params_config_power_button params;
+	int ret;
+
+	params.flags = flags;
+	ret = ec_command(dev, EC_CMD_CONFIG_POWER_BUTTON, 0,
+			 &params, sizeof(params), NULL, 0);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
+int cros_ec_get_lid_shutdown_mask(struct udevice *dev)
+{
+	u32 mask;
+	int ret;
+
+	ret = cros_ec_get_event_mask(dev, EC_CMD_HOST_EVENT_GET_SMI_MASK,
+				     &mask);
+	if (ret < 0)
+		return ret;
+
+	return !!(mask & EC_HOST_EVENT_MASK(EC_HOST_EVENT_LID_CLOSED));
+}
+
+int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable)
+{
+	u32 mask;
+	int ret;
+
+	ret = cros_ec_get_event_mask(dev, EC_CMD_HOST_EVENT_GET_SMI_MASK,
+				     &mask);
+	if (ret < 0)
+		return ret;
+
+	// Set lid close event state in the EC SMI event mask
+	if (enable)
+		mask |= EC_HOST_EVENT_MASK(EC_HOST_EVENT_LID_CLOSED);
+	else
+		mask &= ~EC_HOST_EVENT_MASK(EC_HOST_EVENT_LID_CLOSED);
+
+	ret = cros_ec_set_event_mask(dev, EC_CMD_HOST_EVENT_SET_SMI_MASK, mask);
+	if (ret < 0)
+		return ret;
+
+	printf("EC: %sabled lid close event\n", enable ? "en" : "dis");
+	return 0;
+}
+
 UCLASS_DRIVER(cros_ec) = {
 	.id		= UCLASS_CROS_EC,
 	.name		= "cros_ec",
 	.per_device_auto_alloc_size = sizeof(struct cros_ec_dev),
 	.post_bind	= dm_scan_fdt_dev,
+	.flags		= DM_UC_FLAG_ALLOC_PRIV_DMA,
 };

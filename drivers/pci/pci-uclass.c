@@ -774,15 +774,18 @@ int pci_bind_bus_devices(struct udevice *bus)
 			found_multi = false;
 		if (PCI_FUNC(bdf) && !found_multi)
 			continue;
+
 		/* Check only the first access, we don't expect problems */
-		ret = pci_bus_read_config(bus, bdf, PCI_HEADER_TYPE,
-					  &header_type, PCI_SIZE_8);
+		ret = pci_bus_read_config(bus, bdf, PCI_VENDOR_ID, &vendor,
+					  PCI_SIZE_16);
 		if (ret)
 			goto error;
-		pci_bus_read_config(bus, bdf, PCI_VENDOR_ID, &vendor,
-				    PCI_SIZE_16);
+
 		if (vendor == 0xffff || vendor == 0x0000)
 			continue;
+
+		pci_bus_read_config(bus, bdf, PCI_HEADER_TYPE,
+				    &header_type, PCI_SIZE_8);
 
 		if (!PCI_FUNC(bdf))
 			found_multi = header_type & 0x80;

@@ -1198,7 +1198,8 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 # else
 static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 {
-	return -ENOTSUPP;
+	*dstp = (void *)src;
+	return 0;
 }
 # endif
 #endif

@@ -30,9 +30,8 @@ class Entry_u_boot_elf(Entry_blob):
             out_fname = tools.GetOutputFilename('%s.stripped' % uniq)
             tools.WriteFile(out_fname, tools.ReadFile(self._pathname))
             tools.Run('strip', out_fname)
-            self.SetContents(tools.ReadFile(out_fname))
-        else:
-            self.SetContents(tools.ReadFile(self._pathname))
+            self._pathname = out_fname
+        Entry_blob.ReadBlobContents(self)
         return True
 
     def GetDefaultFilename(self):

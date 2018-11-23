@@ -110,6 +110,18 @@ static int write_cr(struct spi_flash *flash, u8 wc)
 }
 #endif
 
+int spi_flash_cmd_get_sw_write_prot(struct spi_flash *flash)
+{
+	u8 status;
+	int ret;
+
+	ret = read_sr(flash, &status);
+	if (ret)
+		return ret;
+
+	return (status >> 2) & 7;
+}
+
 #ifdef CONFIG_SPI_FLASH_BAR
 /*
  * This "clean_bar" is necessary in a situation when one was accessing

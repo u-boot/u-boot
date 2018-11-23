@@ -290,6 +290,7 @@ class Builder:
         self._re_function = re.compile('(.*): In function.*')
         self._re_files = re.compile('In file included from.*')
         self._re_warning = re.compile('(.*):(\d*):(\d*): warning: .*')
+        self._re_dtb_warning = re.compile('(.*): Warning .*')
         self._re_note = re.compile('(.*):(\d*):(\d*): note: this is the location of the previous.*')
 
         self.queue = Queue.Queue()
@@ -788,7 +789,8 @@ class Builder:
                             self._re_files.match(line)):
                         last_func = line
                     else:
-                        is_warning = self._re_warning.match(line)
+                        is_warning = (self._re_warning.match(line) or
+                                      self._re_dtb_warning.match(line))
                         is_note = self._re_note.match(line)
                         if is_warning or (last_was_warning and is_note):
                             if last_func:
@@ -1194,10 +1196,11 @@ class Builder:
                 Print('   ' + line, newline=True, colour=col)
 
 
-        better = []     # List of boards fixed since last commit
-        worse = []      # List of new broken boards since last commit
-        new = []        # List of boards that didn't exist last time
-        unknown = []    # List of boards that were not built
+        ok_boards = []      # List of boards fixed since last commit
+        warn_boards = []    # List of boards with warnings since last commit
+        err_boards = []     # List of new broken boards since last commit
+        new_boards = []     # List of boards that didn't exist last time
+        unknown_boards = [] # List of boards that were not built
 
         for target in board_dict:
             if target not in board_selected:
@@ -1208,13 +1211,19 @@ class Builder:
                 base_outcome = self._base_board_dict[target].rc
                 outcome = board_dict[target]
                 if outcome.rc == OUTCOME_UNKNOWN:
-                    unknown.append(target)
+                    unknown_boards.append(target)
                 elif outcome.rc < base_outcome:
-                    better.append(target)
+                    if outcome.rc == OUTCOME_WARNING:
+                        warn_boards.append(target)
+                    else:
+                        ok_boards.append(target)
                 elif outcome.rc > base_outcome:
-                    worse.append(target)
+                    if outcome.rc == OUTCOME_WARNING:
+                        warn_boards.append(target)
+                    else:
+                        err_boards.append(target)
             else:
-                new.append(target)
+                new_boards.append(target)
 
         # Get a list of errors that have appeared, and disappeared
         better_err, worse_err = _CalcErrorDelta(self._base_err_lines,
@@ -1223,16 +1232,18 @@ class Builder:
                 self._base_warn_line_boards, warn_lines, warn_line_boards, 'w')
 
         # Display results by arch
-        if (better or worse or unknown or new or worse_err or better_err
-                or worse_warn or better_warn):
+        if any((ok_boards, warn_boards, err_boards, unknown_boards, new_boards,
+                worse_err, better_err, worse_warn, better_warn)):
             arch_list = {}
-            self.AddOutcome(board_selected, arch_list, better, '',
+            self.AddOutcome(board_selected, arch_list, ok_boards, '',
                     self.col.GREEN)
-            self.AddOutcome(board_selected, arch_list, worse, '+',
+            self.AddOutcome(board_selected, arch_list, warn_boards, 'w+',
+                    self.col.YELLOW)
+            self.AddOutcome(board_selected, arch_list, err_boards, '+',
                     self.col.RED)
-            self.AddOutcome(board_selected, arch_list, new, '*', self.col.BLUE)
+            self.AddOutcome(board_selected, arch_list, new_boards, '*', self.col.BLUE)
             if self._show_unknown:
-                self.AddOutcome(board_selected, arch_list, unknown, '?',
+                self.AddOutcome(board_selected, arch_list, unknown_boards, '?',
                         self.col.MAGENTA)
             for arch, target_list in arch_list.iteritems():
                 Print('%10s: %s' % (arch, target_list))

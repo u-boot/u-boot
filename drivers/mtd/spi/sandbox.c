@@ -57,6 +57,8 @@ static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
 /* Bits for the status register */
 #define STAT_WIP	(1 << 0)
 #define STAT_WEL	(1 << 1)
+#define STAT_BP_SHIFT	2
+#define STAT_BP_MASK	(7 << STAT_BP_SHIFT)
 
 /* Assume all SPI flashes have 3 byte addresses since they do atm */
 #define SF_ADDR_LEN	3
@@ -101,6 +103,14 @@ struct sandbox_spi_flash_plat_data {
 	int bus;
 	int cs;
 };
+
+void sandbox_sf_set_block_protect(struct udevice *dev, int bp_mask)
+{
+	struct sandbox_spi_flash *sbsf = dev_get_priv(dev);
+
+	sbsf->status &= ~STAT_BP_MASK;
+	sbsf->status |= bp_mask << STAT_BP_SHIFT;
+}
 
 /**
  * This is a very strange probe function. If it has platform data (which may

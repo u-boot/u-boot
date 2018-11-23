@@ -723,6 +723,12 @@ If you need to specify a particular device-tree compiler to use, you can define
 the DTC environment variable. This can be useful when the system dtc is too
 old.
 
+To enable a full backtrace and other debugging features in binman, pass
+BINMAN_DEBUG=1 to your build:
+
+   make sandbox_defconfig
+   make BINMAN_DEBUG=1
+
 
 History / Credits
 -----------------
