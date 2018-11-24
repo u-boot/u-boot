@@ -69,7 +69,11 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	const char *fname = spl_image->arg;
 
-	os_fd_restore();
-	os_spl_to_uboot(fname);
+	if (fname) {
+		os_fd_restore();
+		os_spl_to_uboot(fname);
+	} else {
+		printf("No filename provided for U-Boot\n");
+	}
 	hang();
 }
