@@ -119,7 +119,7 @@ int unpack_byte_string(const u8 *str, size_t size, const char *format, ...)
 
 		if (offset + length > size) {
 			va_end(args);
-			log_err("Failed to read: size=%d, offset=%x, len=%x\n",
+			log_err("Failed to read: size=%zd, offset=%zx, len=%zx\n",
 				size, offset, length);
 			return -1;
 		}
