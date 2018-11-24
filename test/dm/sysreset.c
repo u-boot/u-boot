@@ -102,10 +102,10 @@ static int dm_test_sysreset_get_last(struct unit_test_state *uts)
 
 	/* Device 2 is the cold sysreset device */
 	ut_assertok(uclass_get_device(UCLASS_SYSRESET, 2, &dev));
-	ut_asserteq(SYSRESET_COLD, sysreset_get_last(dev));
+	ut_asserteq(SYSRESET_POWER, sysreset_get_last(dev));
 
 	/* This is device 0, the non-DT one */
-	ut_asserteq(SYSRESET_COLD, sysreset_get_last_walk());
+	ut_asserteq(SYSRESET_POWER, sysreset_get_last_walk());
 
 	return 0;
 }
