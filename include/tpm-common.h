@@ -274,4 +274,15 @@ static inline cmd_tbl_t *get_tpm2_commands(unsigned int *size)
 }
 #endif
 
+/**
+ * tpm_get_version() - Find the version of a TPM
+ *
+ * This checks the uclass data for a TPM device and returns the version number
+ * it supports.
+ *
+ * @dev: TPM device
+ * @return version number (TPM_V1 or TPMV2)
+ */
+enum tpm_version tpm_get_version(struct udevice *dev);
+
 #endif /* __TPM_COMMON_H */

@@ -12,6 +12,13 @@
 #include <tpm-common.h>
 #include "tpm-utils.h"
 
+enum tpm_version tpm_get_version(struct udevice *dev)
+{
+	struct tpm_chip_priv *priv = dev_get_uclass_priv(dev);
+
+	return priv->version;
+}
+
 int pack_byte_string(u8 *str, size_t size, const char *format, ...)
 {
 	va_list args;
