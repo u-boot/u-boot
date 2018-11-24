@@ -159,7 +159,6 @@
  */
 #define CONFIG_TSEC1
 #define CONFIG_TSEC2
-#define CONFIG_HARD_SPI
 
 /*
  * NOR FLASH setup
@@ -272,15 +271,6 @@
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x3100
 #define CONFIG_RTC_PCF8563
 #define CONFIG_SYS_I2C_RTC_ADDR	0x51
-
-/*
- * SPI setup
- */
-#ifdef CONFIG_HARD_SPI
-#define CONFIG_SYS_GPIO1_PRELIM
-#define CONFIG_SYS_GPIO1_DIR		0x00000001
-#define CONFIG_SYS_GPIO1_DAT		0x00000001
-#endif
 
 /*
  * Ethernet setup

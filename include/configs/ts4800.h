@@ -43,11 +43,6 @@
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 /*
- * SPI Configs
- * */
-#define CONFIG_HARD_SPI /* puts SPI: ready */
-
-/*
  * MMC Configs
  * */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	MMC_SDHC1_BASE_ADDR

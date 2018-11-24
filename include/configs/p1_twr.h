@@ -214,11 +214,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
-/*
- * eSPI - Enhanced SPI
- */
-#define CONFIG_HARD_SPI
-
 #if defined(CONFIG_PCI)
 /*
  * General PCI

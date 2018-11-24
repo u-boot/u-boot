@@ -257,15 +257,6 @@ __weak int init_func_vid(void)
 }
 #endif
 
-#if defined(CONFIG_HARD_SPI)
-static int init_func_spi(void)
-{
-	puts("SPI:   ");
-	puts("ready\n");
-	return 0;
-}
-#endif
-
 static int setup_mon_len(void)
 {
 #if defined(__ARM__) || defined(__MICROBLAZE__)
@@ -863,9 +854,6 @@ static const init_fnc_t init_sequence_f[] = {
 #endif
 #if defined(CONFIG_VID) && !defined(CONFIG_SPL)
 	init_func_vid,
-#endif
-#if defined(CONFIG_HARD_SPI)
-	init_func_spi,
 #endif
 	announce_dram_init,
 	dram_init,		/* configure available RAM banks */
