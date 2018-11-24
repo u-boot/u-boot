@@ -210,6 +210,14 @@ int tpm_open(struct udevice *dev);
 int tpm_close(struct udevice *dev);
 
 /**
+ * tpm_clear_and_reenable() - Force clear the TPM and reenable it
+ *
+ * @dev: TPM device
+ * @return 0 on success, -ve on failure
+ */
+u32 tpm_clear_and_reenable(struct udevice *dev);
+
+/**
  * tpm_get_desc() - Get a text description of the TPM
  *
  * @dev:	Device to check
