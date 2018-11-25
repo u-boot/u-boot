@@ -8,7 +8,7 @@
 #include <common.h>
 #include <dm.h>
 #include <phy.h>
-#include <crc.h>
+#include <u-boot/crc.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
 #include <fs.h>

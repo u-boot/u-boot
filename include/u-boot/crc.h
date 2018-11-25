@@ -11,6 +11,9 @@
 /* lib/crc8.c */
 unsigned int crc8(unsigned int crc_start, const unsigned char *vptr, int len);
 
+/* lib/crc16.c - 16 bit CRC with polynomial x^16+x^12+x^5+1 (CRC-CCITT) */
+uint16_t crc16_ccitt(uint16_t crc_start, const unsigned char *s, int len);
+
 /* lib/crc32.c */
 uint32_t crc32 (uint32_t, const unsigned char *, uint);
 uint32_t crc32_wd (uint32_t, const unsigned char *, uint, uint);

@@ -22,7 +22,7 @@
  *==========================================================================
  */
 
-#include "crc.h"
+#include <u-boot/crc.h>
 
 /* Table of CRC constants - implements x^16+x^12+x^5+1 */
 static const uint16_t crc16_tab[] = {

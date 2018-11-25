@@ -28,7 +28,7 @@
 #endif
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <crc.h>
+#include <u-boot/crc.h>
 #include <environment.h>
 #include <linux/libfdt.h>
 #include <nand.h>

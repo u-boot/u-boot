@@ -24,7 +24,7 @@
 #include <common.h>
 #include <xyzModem.h>
 #include <stdarg.h>
-#include <crc.h>
+#include <u-boot/crc.h>
 
 /* Assumption - run xyzModem protocol over the console port */
 

@@ -10,7 +10,7 @@
 #include <part.h>
 #include <mmc.h>
 #include <spi.h>
-#include <crc.h>
+#include <u-boot/crc.h>
 #include <linux/crc7.h>
 #include <asm/byteorder.h>
 
