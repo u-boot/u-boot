@@ -325,6 +325,25 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
 	return ret;
 }
 
+static efi_status_t bootefi_run_prepare(const char *load_options_path,
+		struct efi_device_path *device_path,
+		struct efi_device_path *image_path,
+		struct efi_loaded_image_obj **image_objp,
+		struct efi_loaded_image **loaded_image_infop)
+{
+	efi_status_t ret;
+
+	ret = efi_setup_loaded_image(device_path, image_path, image_objp,
+				     loaded_image_infop);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	/* Transfer environment variable as load options */
+	set_load_options(*loaded_image_infop, load_options_path);
+
+	return 0;
+}
+
 /**
  * do_bootefi_exec() - execute EFI binary
  *
@@ -374,13 +393,11 @@ static efi_status_t do_bootefi_exec(void *efi,
 		assert(device_path && image_path);
 	}
 
-	ret = efi_setup_loaded_image(device_path, image_path, &image_obj,
-				     &loaded_image_info);
-	if (ret != EFI_SUCCESS)
-		goto exit;
+	ret = bootefi_run_prepare("bootargs", device_path, image_path,
+				  &image_obj, &loaded_image_info);
+	if (ret)
+		return ret;
 
-	/* Transfer environment variable bootargs as load options */
-	set_load_options(loaded_image_info, "bootargs");
 	/* Load the EFI payload */
 	entry = efi_load_pe(image_obj, efi, loaded_image_info);
 	if (!entry) {
@@ -468,16 +485,14 @@ exit:
  * @path: File path to the test being run (often just the test name with a
  *    backslash before it
  * @test_func: Address of the test function that is being run
+ * @load_options_path: U-Boot environment variable to use as load options
  * @return 0 if OK, -ve on error
  */
 static efi_status_t bootefi_test_prepare
 		(struct efi_loaded_image_obj **image_objp,
-		struct efi_loaded_image **loaded_image_infop,
-		const char *path,
-		ulong test_func)
+		struct efi_loaded_image **loaded_image_infop, const char *path,
+		ulong test_func, const char *load_options_path)
 {
-	efi_status_t r;
-
 	/* Construct a dummy device path */
 	bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
 					      (uintptr_t)test_func,
@@ -487,15 +502,10 @@ static efi_status_t bootefi_test_prepare
 	bootefi_image_path = efi_dp_from_file(NULL, 0, path);
 	if (!bootefi_image_path)
 		return EFI_OUT_OF_RESOURCES;
-	r = efi_setup_loaded_image(bootefi_device_path, bootefi_image_path,
-				   image_objp, loaded_image_infop);
-	if (r)
-		return r;
 
-	/* Transfer environment variable efi_selftest as load options */
-	set_load_options(*loaded_image_infop, "efi_selftest");
-
-	return 0;
+	return bootefi_run_prepare(load_options_path, bootefi_device_path,
+				   bootefi_image_path, image_objp,
+				   loaded_image_infop);
 }
 
 /**
@@ -589,8 +599,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		struct efi_loaded_image *loaded_image_info;
 
 		if (bootefi_test_prepare(&image_obj, &loaded_image_info,
-					 "\\selftest",
-					 (uintptr_t)&efi_selftest))
+					 "\\selftest", (uintptr_t)&efi_selftest,
+					 "efi_selftest"))
 			return CMD_RET_FAILURE;
 
 		/* Execute the test */
