@@ -453,6 +453,66 @@ exit:
 	return ret;
 }
 
+#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+/**
+ * bootefi_test_prepare() - prepare to run an EFI test
+ *
+ * This sets things up so we can call EFI functions. This involves preparing
+ * the 'gd' pointer and setting up the load ed image data structures.
+ *
+ * @image_objp: loaded_image_infop: Pointer to a struct which will hold the
+ *    loaded image object. This struct will be inited by this function before
+ *    use.
+ * @loaded_image_infop: Pointer to a struct which will hold the loaded image
+ *    info. This struct will be inited by this function before use.
+ * @path: File path to the test being run (often just the test name with a
+ *    backslash before it
+ * @test_func: Address of the test function that is being run
+ * @return 0 if OK, -ve on error
+ */
+static efi_status_t bootefi_test_prepare
+		(struct efi_loaded_image_obj **image_objp,
+		struct efi_loaded_image **loaded_image_infop,
+		const char *path,
+		ulong test_func)
+{
+	efi_status_t r;
+
+	/* Construct a dummy device path */
+	bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
+					      (uintptr_t)test_func,
+					      (uintptr_t)test_func);
+	if (!bootefi_device_path)
+		return EFI_OUT_OF_RESOURCES;
+	bootefi_image_path = efi_dp_from_file(NULL, 0, path);
+	if (!bootefi_image_path)
+		return EFI_OUT_OF_RESOURCES;
+	r = efi_setup_loaded_image(bootefi_device_path, bootefi_image_path,
+				   image_objp, loaded_image_infop);
+	if (r)
+		return r;
+
+	/* Transfer environment variable efi_selftest as load options */
+	set_load_options(*loaded_image_infop, "efi_selftest");
+
+	return 0;
+}
+
+/**
+ * bootefi_test_finish() - finish up after running an EFI test
+ *
+ * @image_obj: Pointer to a struct which holds the loaded image object
+ * @loaded_image_info: Pointer to a struct which holds the loaded image info
+ */
+static void bootefi_test_finish(struct efi_loaded_image_obj *image_obj,
+				struct efi_loaded_image *loaded_image_info)
+{
+	efi_restore_gd();
+	free(loaded_image_info->load_options);
+	efi_delete_handle(&image_obj->header);
+}
+#endif /* CONFIG_CMD_BOOTEFI_SELFTEST */
+
 static int do_bootefi_bootmgr_exec(void)
 {
 	struct efi_device_path *device_path, *file_path;
@@ -528,31 +588,14 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		struct efi_loaded_image_obj *image_obj;
 		struct efi_loaded_image *loaded_image_info;
 
-		/* Construct a dummy device path. */
-		bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-						      (uintptr_t)&efi_selftest,
-						      (uintptr_t)&efi_selftest);
-		if (!bootefi_device_path)
+		if (bootefi_test_prepare(&image_obj, &loaded_image_info,
+					 "\\selftest",
+					 (uintptr_t)&efi_selftest))
 			return CMD_RET_FAILURE;
 
-		bootefi_image_path = efi_dp_from_file(NULL, 0, "\\selftest");
-		if (!bootefi_image_path)
-			return CMD_RET_FAILURE;
-
-		r = efi_setup_loaded_image(bootefi_device_path,
-					   bootefi_image_path, &image_obj,
-					   &loaded_image_info);
-		if (r != EFI_SUCCESS)
-			return CMD_RET_FAILURE;
-
-		efi_save_gd();
-		/* Transfer environment variable efi_selftest as load options */
-		set_load_options(loaded_image_info, "efi_selftest");
 		/* Execute the test */
 		r = efi_selftest(&image_obj->header, &systab);
-		efi_restore_gd();
-		free(loaded_image_info->load_options);
-		efi_delete_handle(&image_obj->header);
+		bootefi_test_finish(image_obj, loaded_image_info);
 		return r != EFI_SUCCESS;
 	} else
 #endif
