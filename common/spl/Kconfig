@@ -25,7 +25,27 @@ config SPL_FRAMEWORK
 	  supports MMC, NAND and YMODEM and other methods loading of U-Boot
 	  and the Linux Kernel.  If unsure, say Y.
 
+config HANDOFF
+	bool "Pass hand-off information from SPL to U-Boot proper"
+	depends on BLOBLIST
+	help
+	  It is useful to be able to pass information from SPL to U-Boot
+	  proper to preserve state that is known in SPL and is needed in U-Boot.
+	  Enable this to locate the handoff information in U-Boot proper, early
+	  in boot. It is available in gd->handoff. The state state is set up
+	  in SPL (or TPL if that is being used).
+
 if SPL
+
+config SPL_HANDOFF
+	bool "Pass hand-off information from SPL to U-Boot proper"
+	depends on HANDOFF
+	default y
+	help
+	  This option enables SPL to write handoff information. This can be
+	  used to pass information like the size of SDRAM from SPL to U-Boot
+	  proper. Also SPL can receive information from TPL in the same place
+	  if that is enabled.
 
 config SPL_LDSCRIPT
 	string "Linker script for the SPL stage"
@@ -135,12 +155,21 @@ config SPL_SEPARATE_BSS
 	  location is used. Normally we put the device tree at the end of BSS
 	  but with this option enabled, it goes at _image_binary_end.
 
-config SPL_DISABLE_BANNER_PRINT
-	bool "Disable output of the SPL banner 'U-Boot SPL ...'"
+config SPL_BANNER_PRINT
+	bool "Enable output of the SPL banner 'U-Boot SPL ...'"
+	default y
+	help
+	  If this option is enabled, SPL will print the banner with version
+	  info. Disabling this option could be useful to reduce TPL boot time
+	  (e.g. approx. 6 ms faster, when output on i.MX6 with 115200 baud).
+
+config TPL_BANNER_PRINT
+	bool "Enable output of the TPL banner 'U-Boot TPL ...'"
+	default y
 	help
 	  If this option is enabled, SPL will not print the banner with version
-	  info. Selecting this option could be useful to reduce SPL boot time
-	  (e.g. approx. 6 ms slower, when output on i.MX6 with 115200 baud).
+	  info. Disabling this option could be useful to reduce SPL boot time
+	  (e.g. approx. 6 ms faster, when output on i.MX6 with 115200 baud).
 
 config SPL_DISPLAY_PRINT
 	bool "Display a board-specific message in SPL"
@@ -295,6 +324,16 @@ config SPL_HASH_SUPPORT
 	  this option to build system-specific drivers for hash acceleration
 	  as part of an SPL build.
 
+config TPL_HASH_SUPPORT
+	bool "Support hashing drivers in TPL"
+	select SHA1
+	select SHA256
+	help
+	  Enable hashing drivers in SPL. These drivers can be used to
+	  accelerate secure boot processing in secure applications. Enable
+	  this option to build system-specific drivers for hash acceleration
+	  as part of an SPL build.
+
 config SPL_DMA_SUPPORT
 	bool "Support DMA drivers"
 	help
@@ -376,7 +415,7 @@ config SPL_FPGA_SUPPORT
 	  within SPL.
 
 config SPL_GPIO_SUPPORT
-	bool "Support GPIO"
+	bool "Support GPIO in SPL"
 	help
 	  Enable support for GPIOs (General-purpose Input/Output) in SPL.
 	  GPIOs allow U-Boot to read the state of an input line (high or
@@ -848,6 +887,16 @@ config TPL
 
 if TPL
 
+config TPL_HANDOFF
+	bool "Pass hand-off information from TPL to SPL and U-Boot proper"
+	depends on HANDOFF
+	default y
+	help
+	  This option enables TPL to write handoff information. This can be
+	  used to pass information like the size of SDRAM from TPL to U-Boot
+	  proper. The information is also available to SPL if it is useful
+	  there.
+
 config TPL_BOARD_INIT
 	bool "Call board-specific initialization in TPL"
 	help
@@ -928,6 +977,17 @@ config TPL_ENV_SUPPORT
 	help
 	  Enable environment support in TPL. See SPL_ENV_SUPPORT for details.
 
+config TPL_GPIO_SUPPORT
+	bool "Support GPIO in TPL"
+	help
+	  Enable support for GPIOs (General-purpose Input/Output) in TPL.
+	  GPIOs allow U-Boot to read the state of an input line (high or
+	  low) and set the state of an output line. This can be used to
+	  drive LEDs, control power to various system parts and read user
+	  input. GPIOs can be useful in TPL to enable a 'sign-of-life' LED,
+	  for example. Enable this option to build the drivers in
+	  drivers/gpio as part of an TPL build.
+
 config TPL_I2C_SUPPORT
 	bool "Support I2C"
 	help
@@ -963,6 +1023,22 @@ config TPL_NAND_SUPPORT
 	help
 	  Enable support for NAND in TPL. See SPL_NAND_SUPPORT for details.
 
+config TPL_PCI_SUPPORT
+	bool "Support PCI drivers"
+	help
+	  Enable support for PCI in TPL. For platforms that need PCI to boot,
+	  or must perform some init using PCI in SPL, this provides the
+	  necessary driver support. This enables the drivers in drivers/pci
+	  as part of a TPL build.
+
+config TPL_PCH_SUPPORT
+	bool "Support PCH drivers"
+	help
+	  Enable support for PCH (Platform Controller Hub) devices in TPL.
+	  These are used to set up GPIOs and the SPI peripheral early in
+	  boot. This enables the drivers in drivers/pch as part of a TPL
+	  build.
+
 config TPL_RAM_SUPPORT
 	bool "Support booting from RAM"
 	help
@@ -976,6 +1052,15 @@ config TPL_RAM_DEVICE
 	  Enable booting of an image already loaded in RAM. The image has to
 	  be already in memory when TPL takes over, e.g. loaded by the boot
 	  ROM.
+
+config TPL_RTC_SUPPORT
+	bool "Support RTC drivers"
+	help
+	  Enable RTC (Real-time Clock) support in TPL. This includes support
+	  for reading and setting the time. Some RTC devices also have some
+	  non-volatile (battery-backed) memory which is accessible if
+	  needed. This enables the drivers in drivers/rtc as part of an TPL
+	  build.
 
 config TPL_SERIAL_SUPPORT
 	bool "Support serial"

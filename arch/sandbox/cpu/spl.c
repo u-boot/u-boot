@@ -37,12 +37,39 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 		return ret;
 	}
 
-	/* Hopefully this will not return */
-	return os_spl_to_uboot(fname);
+	/* Set up spl_image to boot from jump_to_image_no_args() */
+	spl_image->arg = strdup(fname);
+	if (!spl_image->arg)
+		return log_msg_ret("Setup exec filename", -ENOMEM);
+
+	return 0;
 }
 SPL_LOAD_IMAGE_METHOD("sandbox", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
 
 void spl_board_init(void)
 {
+	struct sandbox_state *state = state_get_current();
+	struct udevice *dev;
+
 	preloader_console_init();
+	if (state->show_of_platdata) {
+		/*
+		 * Scan all the devices so that we can output their platform
+		 * data. See sandbox_spl_probe().
+		 */
+		printf("Scanning misc devices\n");
+		for (uclass_first_device(UCLASS_MISC, &dev);
+		     dev;
+		     uclass_next_device(&dev))
+			;
+	}
+}
+
+void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+{
+	const char *fname = spl_image->arg;
+
+	os_fd_restore();
+	os_spl_to_uboot(fname);
+	hang();
 }

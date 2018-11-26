@@ -19,7 +19,7 @@ run_test "sandbox" ./test/py/test.py --bd sandbox --build
 
 # Run tests which require sandbox_spl
 run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build \
-	-k test_ofplatdata.py
+	-k 'test_ofplatdata or test_handoff'
 
 # Run tests for the flat-device-tree version of sandbox. This is a special
 # build which does not enable CONFIG_OF_LIVE for the live device tree, so we can

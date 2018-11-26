@@ -88,7 +88,7 @@ stdin=serial
 stdout=serial
 
 Environment size: 117/8188 bytes
-=>sb save host 0 trace 0 ${profoffset}
+=>host save host 0 trace 0 ${profoffset}
 11405888 bytes written in 10 ms (1.1 GiB/s)
 =>reset
 

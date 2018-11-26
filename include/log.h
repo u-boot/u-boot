@@ -48,6 +48,7 @@ enum log_category_t {
 	LOGC_EFI,	/* EFI implementation */
 	LOGC_ALLOC,	/* Memory allocation */
 	LOGC_SANDBOX,	/* Related to the sandbox board */
+	LOGC_BLOBLIST,	/* Bloblist */
 
 	LOGC_COUNT,	/* Number of log categories */
 	LOGC_END,	/* Sentinel value for a list of log categories */
@@ -108,6 +109,8 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 #define log_io(_fmt...)
 #endif
 
+#if CONFIG_IS_ENABLED(LOG)
+
 /* Emit a log record if the level is less that the maximum */
 #define log(_cat, _level, _fmt, _args...) ({ \
 	int _l = _level; \
@@ -116,6 +119,9 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 		      __func__, \
 		      pr_fmt(_fmt), ##_args); \
 	})
+#else
+#define log(_cat, _level, _fmt, _args...)
+#endif
 
 #ifdef DEBUG
 #define _DEBUG	1
@@ -175,7 +181,16 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 	({ if (!(x) && _DEBUG) \
 		__assert_fail(#x, __FILE__, __LINE__, __func__); })
 
-#ifdef CONFIG_LOG_ERROR_RETURN
+#if CONFIG_IS_ENABLED(LOG) && defined(CONFIG_LOG_ERROR_RETURN)
+/*
+ * Log an error return value, possibly with a message. Usage:
+ *
+ *	return log_ret(fred_call());
+ *
+ * or:
+ *
+ *	return log_msg_ret("fred failed", fred_call());
+ */
 #define log_ret(_ret) ({ \
 	int __ret = (_ret); \
 	if (__ret < 0) \
@@ -190,8 +205,9 @@ void __assert_fail(const char *assertion, const char *file, unsigned int line,
 	__ret; \
 	})
 #else
+/* Non-logging versions of the above which just return the error code */
 #define log_ret(_ret) (_ret)
-#define log_msg_ret(_msg, _ret) (_ret)
+#define log_msg_ret(_msg, _ret) ((void)(_msg), _ret)
 #endif
 
 /**

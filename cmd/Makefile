@@ -115,6 +115,7 @@ obj-$(CONFIG_CMD_ROCKUSB) += rockusb.o
 obj-$(CONFIG_SANDBOX) += host.o
 obj-$(CONFIG_CMD_SATA) += sata.o
 obj-$(CONFIG_CMD_NVME) += nvme.o
+obj-$(CONFIG_SANDBOX) += sb.o
 obj-$(CONFIG_CMD_SF) += sf.o
 obj-$(CONFIG_CMD_SCSI) += scsi.o disk.o
 obj-$(CONFIG_CMD_SHA1SUM) += sha1sum.o

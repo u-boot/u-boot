@@ -2,14 +2,19 @@
 
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk/
 obj-$(CONFIG_$(SPL_TPL_)DM) += core/
+obj-$(CONFIG_$(SPL_TPL_)GPIO_SUPPORT) += gpio/
 obj-$(CONFIG_$(SPL_TPL_)DRIVERS_MISC_SUPPORT) += misc/ sysreset/ firmware/
 obj-$(CONFIG_$(SPL_TPL_)I2C_SUPPORT) += i2c/
+obj-$(CONFIG_$(SPL_TPL_)INPUT) += input/
 obj-$(CONFIG_$(SPL_TPL_)LED) += led/
 obj-$(CONFIG_$(SPL_TPL_)MMC_SUPPORT) += mmc/
 obj-$(CONFIG_$(SPL_TPL_)NAND_SUPPORT) += mtd/nand/raw/
+obj-$(CONFIG_$(SPL_TPL_)PCH_SUPPORT) += pch/
+obj-$(CONFIG_$(SPL_TPL_)PCI_SUPPORT) += pci/
 obj-$(CONFIG_$(SPL_TPL_)PHY) += phy/
 obj-$(CONFIG_$(SPL_TPL_)PINCTRL) += pinctrl/
 obj-$(CONFIG_$(SPL_TPL_)RAM) += ram/
+obj-$(CONFIG_$(SPL_TPL_)RTC_SUPPORT) += rtc/
 obj-$(CONFIG_$(SPL_TPL_)SERIAL_SUPPORT) += serial/
 obj-$(CONFIG_$(SPL_TPL_)SPI_FLASH_SUPPORT) += mtd/spi/
 obj-$(CONFIG_$(SPL_TPL_)SPI_SUPPORT) += spi/
@@ -17,6 +22,7 @@ obj-$(CONFIG_$(SPL_TPL_)TIMER) += timer/
 obj-$(CONFIG_$(SPL_TPL_)VIRTIO) += virtio/
 obj-$(CONFIG_$(SPL_)DM_MAILBOX) += mailbox/
 obj-$(CONFIG_$(SPL_)REMOTEPROC) += remoteproc/
+obj-$(CONFIG_$(SPL_TPL_)TPM) += tpm/
 
 ifndef CONFIG_TPL_BUILD
 ifdef CONFIG_SPL_BUILD
@@ -24,7 +30,6 @@ ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_BOOTCOUNT_LIMIT) += bootcount/
 obj-$(CONFIG_SPL_CPU_SUPPORT) += cpu/
 obj-$(CONFIG_SPL_CRYPTO_SUPPORT) += crypto/
-obj-$(CONFIG_SPL_GPIO_SUPPORT) += gpio/
 obj-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += ddr/fsl/
 obj-$(CONFIG_ARMADA_38X) += ddr/marvell/a38x/
 obj-$(CONFIG_ARMADA_XP) += ddr/marvell/axp/
@@ -40,9 +45,6 @@ obj-$(CONFIG_SPL_DMA_SUPPORT) += dma/
 obj-$(CONFIG_SPL_ETH_SUPPORT) += net/
 obj-$(CONFIG_SPL_ETH_SUPPORT) += net/phy/
 obj-$(CONFIG_SPL_USB_ETHER) += net/phy/
-obj-$(CONFIG_SPL_PCI_SUPPORT) += pci/
-obj-$(CONFIG_SPL_PCH_SUPPORT) += pch/
-obj-$(CONFIG_SPL_RTC_SUPPORT) += rtc/
 obj-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += usb/musb-new/
 obj-$(CONFIG_SPL_USB_GADGET_SUPPORT) += usb/gadget/
 obj-$(CONFIG_SPL_USB_GADGET_SUPPORT) += usb/gadget/udc/
@@ -92,7 +94,6 @@ obj-y += scsi/
 obj-y += sound/
 obj-y += spmi/
 obj-y += sysreset/
-obj-y += tpm/
 obj-y += video/
 obj-y += watchdog/
 obj-$(CONFIG_QE) += qe/

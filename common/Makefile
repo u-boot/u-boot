@@ -61,6 +61,7 @@ obj-$(CONFIG_CMDLINE) += cli_readline.o cli_simple.o
 endif # !CONFIG_SPL_BUILD
 
 obj-$(CONFIG_$(SPL_TPL_)BOOTSTAGE) += bootstage.o
+obj-$(CONFIG_$(SPL_TPL_)BLOBLIST) += bloblist.o
 
 ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_SPL_DFU_SUPPORT
@@ -122,8 +123,8 @@ obj-y += cli.o
 obj-$(CONFIG_FSL_DDR_INTERACTIVE) += cli_simple.o cli_readline.o
 obj-$(CONFIG_DFU_OVER_USB) += dfu.o
 obj-y += command.o
-obj-$(CONFIG_$(SPL_)LOG) += log.o
-obj-$(CONFIG_$(SPL_)LOG_CONSOLE) += log_console.o
+obj-$(CONFIG_$(SPL_TPL_)LOG) += log.o
+obj-$(CONFIG_$(SPL_TPL_)LOG_CONSOLE) += log_console.o
 obj-y += s_record.o
 obj-$(CONFIG_CMD_LOADB) += xyzModem.o
 obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o

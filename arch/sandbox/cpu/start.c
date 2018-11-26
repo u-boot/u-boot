@@ -283,6 +283,15 @@ static int sandbox_cmdline_cb_log_level(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(log_level, 'L', 1,
 			  "Set log level (0=panic, 7=debug)");
 
+static int sandbox_cmdline_cb_show_of_platdata(struct sandbox_state *state,
+					       const char *arg)
+{
+	state->show_of_platdata = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT(show_of_platdata, 0, "Show of-platdata in SPL");
+
 int board_run_command(const char *cmdline)
 {
 	printf("## Commands are disabled. Please enable CONFIG_CMDLINE.\n");
@@ -294,6 +303,16 @@ static void setup_ram_buf(struct sandbox_state *state)
 {
 	gd->arch.ram_buf = state->ram_buf;
 	gd->ram_size = state->ram_size;
+}
+
+void state_show(struct sandbox_state *state)
+{
+	char **p;
+
+	printf("Arguments:\n");
+	for (p = state->argv; *p; p++)
+		printf("%s ", *p);
+	printf("\n");
 }
 
 int main(int argc, char *argv[])

@@ -2,6 +2,7 @@
 #
 # (C) Copyright 2012 The Chromium Authors
 
+obj-$(CONFIG_SANDBOX) += bloblist.o
 obj-$(CONFIG_UNIT_TEST) += cmd_ut.o
 obj-$(CONFIG_UNIT_TEST) += ut.o
 obj-$(CONFIG_SANDBOX) += command_ut.o
