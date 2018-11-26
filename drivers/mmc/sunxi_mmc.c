@@ -98,23 +98,20 @@ static int mmc_resource_init(int sdc_no)
 static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 {
 	unsigned int pll, pll_hz, div, n, oclk_dly, sclk_dly;
-	bool new_mode = false;
+	bool new_mode = true;
 	bool calibrate = false;
 	u32 val = 0;
 
-	if (IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE) && (priv->mmc_no == 2))
-		new_mode = true;
+	if (!IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE))
+		new_mode = false;
+
+	/* A83T support new mode only on eMMC */
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_A83T) && priv->mmc_no != 2)
+		new_mode = false;
 
 #if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN50I_H6)
 	calibrate = true;
 #endif
-
-	/*
-	 * The MMC clock has an extra /2 post-divider when operating in the new
-	 * mode.
-	 */
-	if (new_mode)
-		hz = hz * 2;
 
 	if (hz <= 24000000) {
 		pll = CCM_MMC_CTRL_OSCM24;
@@ -176,7 +173,9 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 
 	if (new_mode) {
 #ifdef CONFIG_MMC_SUNXI_HAS_NEW_MODE
+#ifdef CONFIG_MMC_SUNXI_HAS_MODE_SWITCH
 		val = CCM_MMC_CTRL_MODE_SEL_NEW;
+#endif
 		setbits_le32(&priv->reg->ntsr, SUNXI_MMC_NTSR_MODE_SEL_NEW);
 #endif
 	} else if (!calibrate) {

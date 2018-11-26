@@ -334,7 +334,7 @@ unsigned long sunxi_dram_init(void)
 	struct dram_para para = {
 		.cs1 = 0,
 		.bank = 1,
-		.rank = 1,
+		.rank = 2,
 		.rows = 15,
 		.bus_width = 16,
 		.page_size = 2048,
