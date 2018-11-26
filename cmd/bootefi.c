@@ -532,7 +532,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
 						      (uintptr_t)&efi_selftest,
 						      (uintptr_t)&efi_selftest);
+		if (!bootefi_device_path)
+			return CMD_RET_FAILURE;
+
 		bootefi_image_path = efi_dp_from_file(NULL, 0, "\\selftest");
+		if (!bootefi_image_path)
+			return CMD_RET_FAILURE;
 
 		r = efi_setup_loaded_image(bootefi_device_path,
 					   bootefi_image_path, &image_obj,
