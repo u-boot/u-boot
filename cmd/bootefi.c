@@ -345,6 +345,20 @@ static efi_status_t bootefi_run_prepare(const char *load_options_path,
 }
 
 /**
+ * bootefi_run_finish() - finish up after running an EFI test
+ *
+ * @loaded_image_info: Pointer to a struct which holds the loaded image info
+ * @image_objj: Pointer to a struct which holds the loaded image object
+ */
+static void bootefi_run_finish(struct efi_loaded_image_obj *image_obj,
+			       struct efi_loaded_image *loaded_image_info)
+{
+	efi_restore_gd();
+	free(loaded_image_info->load_options);
+	efi_delete_handle(&image_obj->header);
+}
+
+/**
  * do_bootefi_exec() - execute EFI binary
  *
  * @efi:		address of the binary
@@ -384,11 +398,11 @@ static efi_status_t do_bootefi_exec(void *efi,
 		 */
 		ret = efi_create_handle(&mem_handle);
 		if (ret != EFI_SUCCESS)
-			goto exit;
+			return ret; /* TODO: leaks device_path */
 		ret = efi_add_protocol(mem_handle, &efi_guid_device_path,
 				       device_path);
 		if (ret != EFI_SUCCESS)
-			goto exit;
+			goto err_add_protocol;
 	} else {
 		assert(device_path && image_path);
 	}
@@ -396,13 +410,13 @@ static efi_status_t do_bootefi_exec(void *efi,
 	ret = bootefi_run_prepare("bootargs", device_path, image_path,
 				  &image_obj, &loaded_image_info);
 	if (ret)
-		return ret;
+		goto err_prepare;
 
 	/* Load the EFI payload */
 	entry = efi_load_pe(image_obj, efi, loaded_image_info);
 	if (!entry) {
 		ret = EFI_LOAD_ERROR;
-		goto exit;
+		goto err_prepare;
 	}
 
 	if (memdp) {
@@ -422,7 +436,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 
 	if (setjmp(&image_obj->exit_jmp)) {
 		ret = image_obj->exit_status;
-		goto exit;
+		goto err_prepare;
 	}
 
 #ifdef CONFIG_ARM64
@@ -460,10 +474,11 @@ static efi_status_t do_bootefi_exec(void *efi,
 
 	ret = efi_do_enter(&image_obj->header, &systab, entry);
 
-exit:
+err_prepare:
 	/* image has returned, loaded-image obj goes *poof*: */
-	if (image_obj)
-		efi_delete_handle(&image_obj->header);
+	bootefi_run_finish(image_obj, loaded_image_info);
+
+err_add_protocol:
 	if (mem_handle)
 		efi_delete_handle(mem_handle);
 
@@ -508,19 +523,6 @@ static efi_status_t bootefi_test_prepare
 				   loaded_image_infop);
 }
 
-/**
- * bootefi_test_finish() - finish up after running an EFI test
- *
- * @image_obj: Pointer to a struct which holds the loaded image object
- * @loaded_image_info: Pointer to a struct which holds the loaded image info
- */
-static void bootefi_test_finish(struct efi_loaded_image_obj *image_obj,
-				struct efi_loaded_image *loaded_image_info)
-{
-	efi_restore_gd();
-	free(loaded_image_info->load_options);
-	efi_delete_handle(&image_obj->header);
-}
 #endif /* CONFIG_CMD_BOOTEFI_SELFTEST */
 
 static int do_bootefi_bootmgr_exec(void)
@@ -605,7 +607,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		/* Execute the test */
 		r = efi_selftest(&image_obj->header, &systab);
-		bootefi_test_finish(image_obj, loaded_image_info);
+		bootefi_run_finish(image_obj, loaded_image_info);
 		return r != EFI_SUCCESS;
 	} else
 #endif
