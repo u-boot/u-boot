@@ -571,6 +571,17 @@ static int get_fs_info(fsdata *mydata)
 				mydata->sect_size, cur_part_info.blksz);
 		return -1;
 	}
+	if (mydata->clust_size == 0) {
+		printf("Error: FAT cluster size not set\n");
+		return -1;
+	}
+	if ((unsigned int)mydata->clust_size * mydata->sect_size >
+	    MAX_CLUSTSIZE) {
+		printf("Error: FAT cluster size too big (cs=%u, max=%u)\n",
+		       (unsigned int)mydata->clust_size * mydata->sect_size,
+		       MAX_CLUSTSIZE);
+		return -1;
+	}
 
 	if (mydata->fatsize == 32) {
 		mydata->data_begin = mydata->rootdir_sect -
