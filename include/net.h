@@ -289,7 +289,6 @@ const char *eth_get_name(void);		/* get name of current device */
 
 #ifdef CONFIG_MCAST_TFTP
 int eth_mcast_join(struct in_addr mcast_addr, int join);
-u32 ether_crc(size_t len, unsigned char const *p);
 #endif
 
 
