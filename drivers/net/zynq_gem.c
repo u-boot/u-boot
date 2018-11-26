@@ -102,6 +102,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ZYNQ_GEM_PCS_CTL_ANEG_ENBL	0x1000
 
+#define ZYNQ_GEM_DCFG_DBG6_DMA_64B	BIT(23)
+
 /* Use MII register 1 (MII status register) to detect PHY */
 #define PHY_DETECT_REG  1
 
@@ -150,7 +152,9 @@ struct zynq_gem_regs {
 	u32 stat[STAT_SIZE]; /* 0x100 - Octects transmitted Low reg */
 	u32 reserved9[20];
 	u32 pcscntrl;
-	u32 reserved7[143];
+	u32 rserved12[36];
+	u32 dcfg6; /* 0x294 Design config reg6 */
+	u32 reserved7[106];
 	u32 transmit_q1_ptr; /* 0x440 - Transmit priority queue 1 */
 	u32 reserved8[15];
 	u32 receive_q1_ptr; /* 0x480 - Receive priority queue 1 */
@@ -198,6 +202,7 @@ struct zynq_gem_priv {
 	struct clk clk;
 	u32 max_speed;
 	bool int_pcs;
+	bool dma_64bit;
 };
 
 static int phy_setup_op(struct zynq_gem_priv *priv, u32 phy_addr, u32 regnum,
@@ -377,6 +382,23 @@ static int zynq_gem_init(struct udevice *dev)
 	struct zynq_gem_regs *regs = priv->iobase;
 	struct emac_bd *dummy_tx_bd = &priv->tx_bd[TX_FREE_DESC];
 	struct emac_bd *dummy_rx_bd = &priv->tx_bd[TX_FREE_DESC + 2];
+
+	if (readl(&regs->dcfg6) & ZYNQ_GEM_DCFG_DBG6_DMA_64B)
+		priv->dma_64bit = true;
+	else
+		priv->dma_64bit = false;
+
+#if defined(CONFIG_PHYS_64BIT)
+	if (!priv->dma_64bit) {
+		printf("ERR: %s: Using 64-bit DMA but HW doesn't support it\n",
+		       __func__);
+		return -EINVAL;
+	}
+#else
+	if (priv->dma_64bit)
+		debug("WARN: %s: Not using 64-bit dma even HW supports it\n",
+		      __func__);
+#endif
 
 	if (!priv->init) {
 		/* Disable all interrupts */
