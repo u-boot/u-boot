@@ -2579,9 +2579,6 @@ int usb_eth_initialize(bd_t *bi)
 	netdev->halt = usb_eth_halt;
 	netdev->priv = l_priv;
 
-#ifdef CONFIG_MCAST_TFTP
-  #error not supported
-#endif
 	eth_register(netdev);
 	return 0;
 }

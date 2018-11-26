@@ -476,10 +476,8 @@ static int eth_post_probe(struct udevice *dev)
 			ops->free_pkt += gd->reloc_off;
 		if (ops->stop)
 			ops->stop += gd->reloc_off;
-#ifdef CONFIG_MCAST_TFTP
 		if (ops->mcast)
 			ops->mcast += gd->reloc_off;
-#endif
 		if (ops->write_hwaddr)
 			ops->write_hwaddr += gd->reloc_off;
 		if (ops->read_rom_hwaddr)

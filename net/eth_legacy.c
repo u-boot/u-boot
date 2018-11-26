@@ -291,7 +291,6 @@ int eth_initialize(void)
 	return num_devices;
 }
 
-#ifdef CONFIG_MCAST_TFTP
 /* Multicast.
  * mcast_addr: multicast ipaddr from which multicast Mac is made
  * join: 1=join, 0=leave.
@@ -309,9 +308,6 @@ int eth_mcast_join(struct in_addr mcast_ip, int join)
 	mcast_mac[0] = 0x1;
 	return eth_current->mcast(eth_current, mcast_mac, join);
 }
-
-#endif
-
 
 int eth_init(void)
 {
