@@ -821,6 +821,9 @@ static dir_entry *extract_vfat_name(fat_itr *itr)
 
 		slot2str((dir_slot *)dent, buf, &idx);
 
+		if (n + idx >= sizeof(itr->l_name))
+			return NULL;
+
 		/* shift accumulated long-name up and copy new part in: */
 		memmove(itr->l_name + idx, itr->l_name, n);
 		memcpy(itr->l_name, buf, idx);
