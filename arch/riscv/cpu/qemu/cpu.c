@@ -15,7 +15,7 @@ int cleanup_before_linux(void)
 {
 	disable_interrupts();
 
-	/* turn off I/D-cache */
+	cache_flush();
 
 	return 0;
 }

@@ -16,26 +16,44 @@ config TARGET_QEMU_VIRT
 
 endchoice
 
+# board-specific options below
 source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
 
-choice
-	prompt "CPU selection"
-	default CPU_RISCV_32
+# platform-specific options below
+source "arch/riscv/cpu/ax25/Kconfig"
 
-config CPU_RISCV_32
-	bool "RISC-V 32-bit"
+# architecture-specific options below
+
+choice
+	prompt "Base ISA"
+	default ARCH_RV32I
+
+config ARCH_RV32I
+	bool "RV32I"
 	select 32BIT
 	help
-	  Choose this option to build an U-Boot for RISCV32 architecture.
+	  Choose this option to target the RV32I base integer instruction set.
 
-config CPU_RISCV_64
-	bool "RISC-V 64-bit"
+config ARCH_RV64I
+	bool "RV64I"
 	select 64BIT
+	select PHYS_64BIT
 	help
-	  Choose this option to build an U-Boot for RISCV64 architecture.
+	  Choose this option to target the RV64I base integer instruction set.
 
 endchoice
+
+config RISCV_ISA_C
+	bool "Emit compressed instructions"
+	default y
+	help
+	  Adds "C" to the ISA subsets that the toolchain is allowed to emit
+	  when building U-Boot, which results in compressed instructions in the
+	  U-Boot binary.
+
+config RISCV_ISA_A
+	def_bool y
 
 config 32BIT
 	bool

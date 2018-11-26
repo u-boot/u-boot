@@ -549,11 +549,6 @@ int cpu_release(u32 nr, int argc, char * const argv[]);
 #endif
 #endif
 
-#ifdef CONFIG_INIT_CRITICAL
-#error CONFIG_INIT_CRITICAL is deprecated!
-#error Read section CONFIG_SKIP_LOWLEVEL_INIT in README.
-#endif
-
 #define ROUND(a,b)		(((a) + (b) - 1) & ~((b) - 1))
 
 /*
