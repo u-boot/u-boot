@@ -40,6 +40,8 @@ source "drivers/fpga/Kconfig"
 
 source "drivers/gpio/Kconfig"
 
+source "drivers/hwspinlock/Kconfig"
+
 source "drivers/i2c/Kconfig"
 
 source "drivers/input/Kconfig"

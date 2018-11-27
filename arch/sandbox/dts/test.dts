@@ -742,6 +742,10 @@
 	pinctrl {
 		compatible = "sandbox,pinctrl";
 	};
+
+	hwspinlock@0 {
+		compatible = "sandbox,hwspinlock";
+	};
 };
 
 #include "sandbox_pmic.dtsi"

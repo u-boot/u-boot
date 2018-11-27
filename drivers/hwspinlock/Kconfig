@@ -1,0 +1,16 @@
+menu "Hardware Spinlock Support"
+
+config DM_HWSPINLOCK
+	bool "Enable U-Boot hardware spinlock support"
+	help
+	  This option enables U-Boot hardware spinlock support
+
+config HWSPINLOCK_SANDBOX
+	bool "Enable Hardware Spinlock support for Sandbox"
+	depends on SANDBOX && DM_HWSPINLOCK
+	help
+	  Enable hardware spinlock support in Sandbox. This is a dummy device that
+	  can be probed and support all the methods of HWSPINLOCK, but does not
+	  really do anything.
+
+endmenu

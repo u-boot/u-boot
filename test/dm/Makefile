@@ -19,6 +19,7 @@ obj-$(CONFIG_CLK) += clk.o
 obj-$(CONFIG_DM_ETH) += eth.o
 obj-$(CONFIG_FIRMWARE) += firmware.o
 obj-$(CONFIG_DM_GPIO) += gpio.o
+obj-$(CONFIG_DM_HWSPINLOCK) += hwspinlock.o
 obj-$(CONFIG_DM_I2C) += i2c.o
 obj-$(CONFIG_LED) += led.o
 obj-$(CONFIG_DM_MAILBOX) += mailbox.o
