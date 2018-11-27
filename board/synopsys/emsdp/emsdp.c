@@ -80,6 +80,7 @@ int board_mmc_getcd(struct mmc *mmc)
 #define CREG_BASE		0xF0001000
 #define CREG_BOOT		(void *)(CREG_BASE + 0x0FF0)
 #define CREG_IP_SW_RESET	(void *)(CREG_BASE + 0x0FF0)
+#define CREG_IP_VERSION		(void *)(CREG_BASE + 0x0FF8)
 
 /* Bits in CREG_BOOT register */
 #define CREG_BOOT_WP_BIT	BIT(8)
@@ -133,3 +134,12 @@ U_BOOT_CMD(
 	"rom unlock - Unlock non-volatile memory for writing\n"
 	"emsdp rom lock - Lock non-volatile memory to prevent writing\n"
 );
+
+int checkboard(void)
+{
+	int version = readl(CREG_IP_VERSION);
+
+	printf("Board: ARC EM Software Development Platform v%d.%d\n",
+	       (version >> 16) & 0xff, version & 0xff);
+	return 0;
+};

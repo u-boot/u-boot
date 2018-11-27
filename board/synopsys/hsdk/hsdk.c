@@ -1053,3 +1053,9 @@ int board_mmc_init(bd_t *bis)
 
 	return 0;
 }
+
+int checkboard(void)
+{
+	puts("Board: Synopsys ARC HS Development Kit\n");
+	return 0;
+};
