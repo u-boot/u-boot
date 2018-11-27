@@ -70,6 +70,14 @@ config BOOTCOUNT_AT91
 	bool "Boot counter for Atmel AT91SAM9XE"
 	depends on AT91SAM9XE
 
+config DM_BOOTCOUNT
+        bool "Boot counter in a device-model device"
+	help
+	  Enables reading/writing the bootcount in a device-model based
+	  backing store.  If an entry in /chosen/u-boot,bootcount-device
+	  exists, this will be the preferred bootcount device; otherwise
+	  the first available bootcount device will be used.
+
 endchoice
 
 config BOOTCOUNT_BOOTLIMIT

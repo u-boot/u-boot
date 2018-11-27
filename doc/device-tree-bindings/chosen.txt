@@ -42,6 +42,36 @@ Example
 	};
 };
 
+u-boot,bootcount-device property
+--------------------------------
+
+In a DM-based system, the bootcount may be stored in a device known to
+the DM framework (e.g. in a battery-backed SRAM area within a RTC
+device) managed by a device conforming to UCLASS_BOOTCOUNT.  If
+multiple such devices are present in a system concurrently, then the
+u-boot,bootcount-device property can select the preferred target.
+
+Example
+-------
+/ {
+	chosen {
+	        u-boot,bootcount-device = &bootcount-rv3029;
+	};
+
+	bootcount-rv3029: bootcount@0 {
+		compatible = "u-boot,bootcount-rtc";
+		rtc = &rv3029;
+		offset = <0x38>;
+	};
+
+	i2c2 {
+	        rv3029: rtc@56 {
+		                compatible = "mc,rv3029";
+		                reg = <0x56>;
+		};
+	};
+};
+
 u-boot,spl-boot-order property
 ------------------------------
 
