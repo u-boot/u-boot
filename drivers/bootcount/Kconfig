@@ -80,6 +80,26 @@ config DM_BOOTCOUNT
 
 endchoice
 
+if DM_BOOTCOUNT
+
+menu "Backing stores for device-model backed bootcount"
+config DM_BOOTCOUNT_RTC
+	bool "Support RTC devices as a backing store for bootcount"
+	depends on DM_RTC
+	help
+	  Enabled reading/writing the bootcount in a DM RTC device.
+	  The wrapper device is to be specified with the compatible string
+	  'u-boot,bootcount-rtc' and the 'rtc'-property (a phandle pointing
+	  to the underlying RTC device) and an optional 'offset' property
+	  are supported.
+
+	  Accesses to the backing store are performed using the write16
+	  and read16 ops of DM RTC devices.
+
+endmenu
+
+endif
+
 config BOOTCOUNT_BOOTLIMIT
 	int "Maximum number of reboot cycles allowed"
 	default 0

@@ -9,3 +9,4 @@ obj-$(CONFIG_BOOTCOUNT_I2C)	+= bootcount_i2c.o
 obj-$(CONFIG_BOOTCOUNT_EXT)	+= bootcount_ext.o
 
 obj-$(CONFIG_DM_BOOTCOUNT)      += bootcount-uclass.o
+obj-$(CONFIG_DM_BOOTCOUNT_RTC)  += rtc.o
