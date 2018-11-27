@@ -19,7 +19,7 @@
 #include <dm.h>
 
 /* Declare global data pointer */
-#ifndef CONFIG_DM_USB
+#if !CONFIG_IS_ENABLED(DM_USB)
 static struct fsl_xhci fsl_xhci;
 unsigned long ctr_addr[] = FSL_USB_XHCI_ADDR;
 #else
@@ -107,7 +107,7 @@ static int fsl_xhci_core_exit(struct fsl_xhci *fsl_xhci)
 	return 0;
 }
 
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 static int xhci_fsl_probe(struct udevice *dev)
 {
 	struct xhci_fsl_priv *priv = dev_get_priv(dev);

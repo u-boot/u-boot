@@ -108,13 +108,13 @@ static struct descriptor {
 	},
 };
 
-#ifndef CONFIG_DM_USB
+#if !CONFIG_IS_ENABLED(DM_USB)
 static struct xhci_ctrl xhcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
 #endif
 
 struct xhci_ctrl *xhci_get_ctrl(struct usb_device *udev)
 {
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 	struct udevice *dev;
 
 	/* Find the USB controller */
@@ -741,7 +741,7 @@ static int _xhci_alloc_device(struct usb_device *udev)
 	return 0;
 }
 
-#ifndef CONFIG_DM_USB
+#if !CONFIG_IS_ENABLED(DM_USB)
 int usb_alloc_device(struct usb_device *udev)
 {
 	return _xhci_alloc_device(udev);
@@ -1256,7 +1256,7 @@ static int xhci_lowlevel_stop(struct xhci_ctrl *ctrl)
 	return 0;
 }
 
-#ifndef CONFIG_DM_USB
+#if !CONFIG_IS_ENABLED(DM_USB)
 int submit_control_msg(struct usb_device *udev, unsigned long pipe,
 		       void *buffer, int length, struct devrequest *setup)
 {
@@ -1340,9 +1340,9 @@ int usb_lowlevel_stop(int index)
 
 	return 0;
 }
-#endif /* CONFIG_DM_USB */
+#endif /* CONFIG_IS_ENABLED(DM_USB) */
 
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 
 static int xhci_submit_control_msg(struct udevice *dev, struct usb_device *udev,
 				   unsigned long pipe, void *buffer, int length,
