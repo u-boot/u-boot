@@ -16,6 +16,20 @@
  * access: "lr"/"sr".
  */
 
+/*
+ * Typically 8 least significant bits of Build Configuration Register (BCR)
+ * describe version of the HW block in question. Moreover if decoded version
+ * is 0 this means given HW block is absent - this is especially useful because
+ * we may safely read BRC regardless HW block existence while an attempt to
+ * access any other AUX regs associated with this HW block lead to imediate
+ * "instruction error" exception.
+ *
+ * I.e. before using any cofigurable HW block it's required to make sure it
+ * exists at all, and for that we introduce a special macro below.
+ */
+#define ARC_BCR_VERSION_MASK	GENMASK(7, 0)
+#define ARC_FEATURE_EXISTS(bcr)	!!(__builtin_arc_lr(bcr) & ARC_BCR_VERSION_MASK)
+
 #define ARC_AUX_IDENTITY	0x04
 #define ARC_AUX_STATUS32	0x0a
 
@@ -73,13 +87,22 @@
 #define ARC_BCR_CLUSTER		0xcf
 
 /* MMU Management regs */
-#define ARC_AUX_MMU_BCR		0x06f
+#define ARC_AUX_MMU_BCR		0x6f
 
 /* IO coherency related auxiliary registers */
 #define ARC_AUX_IO_COH_ENABLE	0x500
 #define ARC_AUX_IO_COH_PARTIAL	0x501
 #define ARC_AUX_IO_COH_AP0_BASE	0x508
 #define ARC_AUX_IO_COH_AP0_SIZE	0x509
+
+/* XY-memory related */
+#define ARC_AUX_XY_BUILD	0x79
+
+/* DSP-extensions related auxiliary registers */
+#define ARC_AUX_DSP_BUILD	0x7A
+
+/* ARC Subsystems related auxiliary registers */
+#define ARC_AUX_SUBSYS_BUILD	0xF0
 
 #ifndef __ASSEMBLY__
 /* Accessors for auxiliary registers */
