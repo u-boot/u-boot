@@ -261,6 +261,9 @@ int print_cpuinfo(void)
 		case MV_88F68XX_A0_ID:
 			puts("A0");
 			break;
+		case MV_88F68XX_B0_ID:
+			puts("B0");
+			break;
 		default:
 			printf("?? (%x)", revid);
 			break;

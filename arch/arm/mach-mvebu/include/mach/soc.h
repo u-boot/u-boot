@@ -27,6 +27,7 @@
 /* A38x revisions */
 #define MV_88F68XX_Z1_ID	0x0
 #define MV_88F68XX_A0_ID	0x4
+#define MV_88F68XX_B0_ID	0xa
 
 /* TCLK Core Clock definition */
 #ifndef CONFIG_SYS_TCLK
