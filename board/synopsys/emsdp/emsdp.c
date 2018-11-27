@@ -78,31 +78,31 @@ int board_mmc_getcd(struct mmc *mmc)
 }
 
 #define CREG_BASE		0xF0001000
-#define CREG_BOOT_OFFSET	0
-#define CREG_BOOT_WP_OFFSET	8
+#define CREG_BOOT		(void *)(CREG_BASE + 0x0FF0)
+#define CREG_IP_SW_RESET	(void *)(CREG_BASE + 0x0FF0)
 
-#define CGU_BASE		0xF0000000
-#define CGU_IP_SW_RESET		0x0FF0
+/* Bits in CREG_BOOT register */
+#define CREG_BOOT_WP_BIT	BIT(8)
 
 void reset_cpu(ulong addr)
 {
-	writel(1, (u32 *)(CGU_BASE + CGU_IP_SW_RESET));
+	writel(1, CREG_IP_SW_RESET);
 	while (1)
 		; /* loop forever till reset */
 }
 
 static int do_emsdp_rom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	u32 creg_boot = readl((u32 *)(CREG_BASE + CREG_BOOT_OFFSET));
+	u32 creg_boot = readl(CREG_BOOT);
 
 	if (!strcmp(argv[1], "unlock"))
-		creg_boot &= ~BIT(CREG_BOOT_WP_OFFSET);
+		creg_boot &= ~CREG_BOOT_WP_BIT;
 	else if (!strcmp(argv[1], "lock"))
-		creg_boot |= BIT(CREG_BOOT_WP_OFFSET);
+		creg_boot |= CREG_BOOT_WP_BIT;
 	else
 		return CMD_RET_USAGE;
 
-	writel(creg_boot, (u32 *)(CREG_BASE + CREG_BOOT_OFFSET));
+	writel(creg_boot, CREG_BOOT);
 
 	return CMD_RET_SUCCESS;
 }
