@@ -191,8 +191,8 @@
 };
 
 &usb2_phy0 {
-        /*
-         * HDMI_5V is also used as supply for the USB VBUS.
-         */
-        phy-supply = <&hdmi_5v>;
+	/*
+	 * HDMI_5V is also used as supply for the USB VBUS.
+	 */
+	phy-supply = <&hdmi_5v>;
 };
