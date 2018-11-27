@@ -59,6 +59,11 @@ int dram_init(void)
 	return 0;
 }
 
+struct image_header *spl_get_load_buffer(ssize_t offset, size_t size)
+{
+	return (struct image_header *)(CONFIG_SYS_TEXT_BASE);
+}
+
 int board_init(void)
 {
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
