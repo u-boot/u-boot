@@ -1,6 +1,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
+#include <hwspinlock.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -14,8 +15,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OTYPE_MSK			1
 #define AFR_MASK			0xF
 
-#ifndef CONFIG_SPL_BUILD
 struct stm32_pinctrl_priv {
+	struct hwspinlock hws;
 	int pinctrl_ngpios;
 	struct list_head gpio_dev;
 };
@@ -24,6 +25,8 @@ struct stm32_gpio_bank {
 	struct udevice *gpio_dev;
 	struct list_head list;
 };
+
+#ifndef CONFIG_SPL_BUILD
 
 #define MAX_PIN_PER_BANK		16
 
@@ -166,6 +169,8 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 	return 0;
 }
 
+#endif
+
 int stm32_pinctrl_probe(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
@@ -198,20 +203,34 @@ int stm32_pinctrl_probe(struct udevice *dev)
 		list_add_tail(&gpio_bank->list, &priv->gpio_dev);
 	}
 
+	/* hwspinlock property is optional, just log the error */
+	ret = hwspinlock_get_by_index(dev, 0, &priv->hws);
+	if (ret)
+		debug("%s: hwspinlock_get_by_index may have failed (%d)\n",
+		      __func__, ret);
+
 	return 0;
 }
-#endif
 
 static int stm32_gpio_config(struct gpio_desc *desc,
 			     const struct stm32_gpio_ctl *ctl)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(desc->dev);
 	struct stm32_gpio_regs *regs = priv->regs;
+	struct stm32_pinctrl_priv *ctrl_priv;
+	int ret;
 	u32 index;
 
 	if (!ctl || ctl->af > 15 || ctl->mode > 3 || ctl->otype > 1 ||
 	    ctl->pupd > 2 || ctl->speed > 3)
 		return -EINVAL;
+
+	ctrl_priv = dev_get_priv(dev_get_parent(desc->dev));
+	ret = hwspinlock_lock_timeout(&ctrl_priv->hws, 10);
+	if (ret == -ETIME) {
+		dev_err(desc->dev, "HWSpinlock timeout\n");
+		return ret;
+	}
 
 	index = (desc->offset & 0x07) * 4;
 	clrsetbits_le32(&regs->afr[desc->offset >> 3], AFR_MASK << index,
@@ -226,6 +245,8 @@ static int stm32_gpio_config(struct gpio_desc *desc,
 
 	index = desc->offset;
 	clrsetbits_le32(&regs->otyper, OTYPE_MSK << index, ctl->otype << index);
+
+	hwspinlock_unlock(&ctrl_priv->hws);
 
 	return 0;
 }
@@ -393,8 +414,6 @@ U_BOOT_DRIVER(pinctrl_stm32) = {
 	.of_match		= stm32_pinctrl_ids,
 	.ops			= &stm32_pinctrl_ops,
 	.bind			= dm_scan_fdt_dev,
-#ifndef CONFIG_SPL_BUILD
 	.probe			= stm32_pinctrl_probe,
 	.priv_auto_alloc_size	= sizeof(struct stm32_pinctrl_priv),
-#endif
 };
