@@ -27,28 +27,6 @@ enum dma_direction {
 #define DMA_SUPPORTS_DEV_TO_DEV	BIT(3)
 
 /*
- * struct dma_ops - Driver model DMA operations
- *
- * The uclass interface is implemented by all DMA devices which use
- * driver model.
- */
-struct dma_ops {
-	/*
-	 * Get the current timer count
-	 *
-	 * @dev: The DMA device
-	 * @direction: direction of data transfer should be one from
-		       enum dma_direction
-	 * @dst: Destination pointer
-	 * @src: Source pointer
-	 * @len: Length of the data to be copied.
-	 * @return: 0 if OK, -ve on error
-	 */
-	int (*transfer)(struct udevice *dev, int direction, void *dst,
-			void *src, size_t len);
-};
-
-/*
  * struct dma_dev_priv - information about a device used by the uclass
  *
  * @supported: mode of transfers that DMA can support, should be

@@ -11,7 +11,7 @@
 #include <asm/io.h>
 #include <common.h>
 #include <dm.h>
-#include <dma.h>
+#include <dma-uclass.h>
 #include <asm/omap_common.h>
 #include <asm/ti-common/ti-edma3.h>
 
