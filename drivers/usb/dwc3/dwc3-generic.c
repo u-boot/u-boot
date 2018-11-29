@@ -119,6 +119,90 @@ struct dwc3_glue_ops {
 			       enum usb_dr_mode mode);
 };
 
+void dwc3_ti_select_dr_mode(struct udevice *dev, int index,
+			    enum usb_dr_mode mode)
+{
+#define USBOTGSS_UTMI_OTG_STATUS		0x0084
+#define USBOTGSS_UTMI_OTG_OFFSET		0x0480
+
+/* UTMI_OTG_STATUS REGISTER */
+#define USBOTGSS_UTMI_OTG_STATUS_SW_MODE	BIT(31)
+#define USBOTGSS_UTMI_OTG_STATUS_POWERPRESENT	BIT(9)
+#define USBOTGSS_UTMI_OTG_STATUS_TXBITSTUFFENABLE BIT(8)
+#define USBOTGSS_UTMI_OTG_STATUS_IDDIG		BIT(4)
+#define USBOTGSS_UTMI_OTG_STATUS_SESSEND	BIT(3)
+#define USBOTGSS_UTMI_OTG_STATUS_SESSVALID	BIT(2)
+#define USBOTGSS_UTMI_OTG_STATUS_VBUSVALID	BIT(1)
+enum dwc3_omap_utmi_mode {
+	DWC3_OMAP_UTMI_MODE_UNKNOWN = 0,
+	DWC3_OMAP_UTMI_MODE_HW,
+	DWC3_OMAP_UTMI_MODE_SW,
+};
+
+	u32 use_id_pin;
+	u32 host_mode;
+	u32 reg;
+	u32 utmi_mode;
+	u32 utmi_status_offset = USBOTGSS_UTMI_OTG_STATUS;
+
+	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+	void *base = map_physmem(glue->regs, 0x10000, MAP_NOCACHE);
+
+	if (device_is_compatible(dev, "ti,am437x-dwc3"))
+		utmi_status_offset += USBOTGSS_UTMI_OTG_OFFSET;
+
+	utmi_mode = dev_read_u32_default(dev, "utmi-mode",
+					 DWC3_OMAP_UTMI_MODE_UNKNOWN);
+	if (utmi_mode != DWC3_OMAP_UTMI_MODE_HW) {
+		debug("%s: OTG is not supported. defaulting to PERIPHERAL\n",
+		      dev->name);
+		mode = USB_DR_MODE_PERIPHERAL;
+	}
+
+	switch (mode)  {
+	case USB_DR_MODE_PERIPHERAL:
+		use_id_pin = 0;
+		host_mode = 0;
+		break;
+	case USB_DR_MODE_HOST:
+		use_id_pin = 0;
+		host_mode = 1;
+		break;
+	case USB_DR_MODE_OTG:
+	default:
+		use_id_pin = 1;
+		host_mode = 0;
+		break;
+	}
+
+	reg = readl(base + utmi_status_offset);
+
+	reg &= ~(USBOTGSS_UTMI_OTG_STATUS_SW_MODE);
+	if (!use_id_pin)
+		reg |= USBOTGSS_UTMI_OTG_STATUS_SW_MODE;
+
+	writel(reg, base + utmi_status_offset);
+
+	reg &= ~(USBOTGSS_UTMI_OTG_STATUS_SESSEND |
+		USBOTGSS_UTMI_OTG_STATUS_VBUSVALID |
+		USBOTGSS_UTMI_OTG_STATUS_IDDIG);
+
+	reg |= USBOTGSS_UTMI_OTG_STATUS_SESSVALID |
+		USBOTGSS_UTMI_OTG_STATUS_POWERPRESENT;
+
+	if (!host_mode)
+		reg |= USBOTGSS_UTMI_OTG_STATUS_IDDIG |
+			USBOTGSS_UTMI_OTG_STATUS_VBUSVALID;
+
+	writel(reg, base + utmi_status_offset);
+
+	unmap_physmem(base, MAP_NOCACHE);
+}
+
+struct dwc3_glue_ops ti_ops = {
+	.select_dr_mode = dwc3_ti_select_dr_mode,
+};
+
 static int dwc3_glue_bind(struct udevice *parent)
 {
 	const void *fdt = gd->fdt_blob;
@@ -258,6 +342,7 @@ static int dwc3_glue_remove(struct udevice *dev)
 
 static const struct udevice_id dwc3_glue_ids[] = {
 	{ .compatible = "xlnx,zynqmp-dwc3" },
+	{ .compatible = "ti,dwc3", .data = (ulong)&ti_ops },
 	{ }
 };
 
