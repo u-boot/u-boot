@@ -92,8 +92,11 @@ void board_init_f(ulong dummy)
 
 	/* Put everything into reset but L4WD0. */
 	socfpga_per_reset_all();
-	/* Put FPGA bridges into reset too. */
-	socfpga_bridges_reset(1);
+
+	if (!socfpga_is_booting_from_fpga()) {
+		/* Put FPGA bridges into reset too. */
+		socfpga_bridges_reset(1);
+	}
 
 	socfpga_per_reset(SOCFPGA_RESET(SDR), 0);
 	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
@@ -163,5 +166,6 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
-	socfpga_bridges_reset(1);
+	if (!socfpga_is_booting_from_fpga())
+		socfpga_bridges_reset(1);
 }

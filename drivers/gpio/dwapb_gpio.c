@@ -180,6 +180,13 @@ static int gpio_dwapb_bind(struct udevice *dev)
 		plat->pins = fdtdec_get_int(blob, node, "snps,nr-gpios", 0);
 		plat->name = fdt_stringlist_get(blob, node, "bank-name", 0,
 						NULL);
+		if (!plat->name) {
+			/*
+			 * Fall back to node name. This means accessing pins
+			 * via bank name won't work.
+			 */
+			plat->name = fdt_get_name(blob, node, NULL);
+		}
 
 		ret = device_bind(dev, dev->driver, plat->name,
 				  plat, -1, &subdev);
