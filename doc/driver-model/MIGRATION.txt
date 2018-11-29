@@ -25,6 +25,16 @@ The subsystem itself has been converted along with many of the host controller
 and maintainers should submit patches switching over to using CONFIG_DM_USB and
 other base driver model options in time for inclusion in the 2019.07 rerelease.
 
+CONFIG_SATA
+-----------
+
+Status: In progress
+Deadline: 2019.07
+
+The subsystem itself has been converted along with many of the host controller
+and maintainers should submit patches switching over to using CONFIG_AHCI and
+other base driver model options in time for inclusion in the 2019.07 rerelease.
+
 CONFIG_BLK
 ----------
 
