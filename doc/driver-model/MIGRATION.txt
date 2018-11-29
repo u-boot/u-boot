@@ -39,14 +39,12 @@ CONFIG_BLK
 ----------
 
 Status: In progress
-Deadline: 2018.05
+Deadline: 2019.07
 
-Maintainers should submit patches for enabling CONFIG_BLK on all boards in
-time for inclusion in the 2018.05 release. Boards not converted by this
-time may be removed in a subsequent release.
-
-Note that this implies use of driver model for all block devices (e.g.
-MMC, USB, SCSI, SATA).
+In concert with maintainers migrating their block device usage to the
+appropriate DM driver, CONFIG_BLK needs to be set as well.  The final deadline
+here coincides with the final deadline for migration of the various block
+subsystems.
 
 CONFIG_DM_SPI
 CONFIG_DM_SPI_FLASH
