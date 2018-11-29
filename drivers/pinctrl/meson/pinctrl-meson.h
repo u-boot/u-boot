@@ -12,9 +12,7 @@ struct meson_pmx_group {
 	const char *name;
 	const unsigned int *pins;
 	unsigned int num_pins;
-	bool is_gpio;
-	unsigned int reg;
-	unsigned int bit;
+	const void *data;
 };
 
 struct meson_pmx_func {
@@ -33,6 +31,8 @@ struct meson_pinctrl_data {
 	unsigned int num_groups;
 	unsigned int num_funcs;
 	unsigned int num_banks;
+	const struct driver *gpio_driver;
+	void *pmx_data;
 };
 
 struct meson_pinctrl {
@@ -89,23 +89,6 @@ struct meson_bank {
 
 #define PIN(x, b)	(b + x)
 
-#define GROUP(grp, r, b)						\
-	{								\
-		.name = #grp,						\
-		.pins = grp ## _pins,					\
-		.num_pins = ARRAY_SIZE(grp ## _pins),			\
-		.reg = r,						\
-		.bit = b,						\
-	 }
-
-#define GPIO_GROUP(gpio, b)						\
-	{								\
-		.name = #gpio,						\
-		.pins = (const unsigned int[]){ PIN(gpio, b) },		\
-		.num_pins = 1,						\
-		.is_gpio = true,					\
-	 }
-
 #define FUNCTION(fn)							\
 	{								\
 		.name = #fn,						\
@@ -131,6 +114,20 @@ struct meson_bank {
 
 extern const struct pinctrl_ops meson_pinctrl_ops;
 
+int meson_pinctrl_get_groups_count(struct udevice *dev);
+const char *meson_pinctrl_get_group_name(struct udevice *dev,
+					 unsigned int selector);
+int meson_pinmux_get_functions_count(struct udevice *dev);
+const char *meson_pinmux_get_function_name(struct udevice *dev,
+					   unsigned int selector);
 int meson_pinctrl_probe(struct udevice *dev);
+
+int meson_gpio_get(struct udevice *dev, unsigned int offset);
+int meson_gpio_set(struct udevice *dev, unsigned int offset, int value);
+int meson_gpio_get_direction(struct udevice *dev, unsigned int offset);
+int meson_gpio_direction_input(struct udevice *dev, unsigned int offset);
+int meson_gpio_direction_output(struct udevice *dev, unsigned int offset,
+				int value);
+int meson_gpio_probe(struct udevice *dev);
 
 #endif /* __PINCTRL_MESON_H__ */

@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/clock.h>
+#include <asm/arch/clock-gx.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
 #include <div64.h>
@@ -79,7 +79,7 @@ static ulong meson_clk_set_rate_by_id(struct clk *clk, unsigned long id,
 static ulong meson_mux_get_parent(struct clk *clk, unsigned long id);
 static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id);
 
-struct meson_gate gates[] = {
+static struct meson_gate gates[] = {
 	/* Everything Else (EE) domain gates */
 	MESON_GATE(CLKID_DDR, HHI_GCLK_MPEG0, 0),
 	MESON_GATE(CLKID_DOS, HHI_GCLK_MPEG0, 1),
@@ -791,7 +791,7 @@ static ulong meson_clk_get_rate_by_id(struct clk *clk, unsigned long id)
 		return -ENOENT;
 	}
 
-	printf("clock %lu has rate %lu\n", id, rate);
+	debug("clock %lu has rate %lu\n", id, rate);
 	return rate;
 }
 

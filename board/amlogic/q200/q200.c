@@ -9,9 +9,9 @@
 #include <environment.h>
 #include <asm/io.h>
 #include <asm/arch/gx.h>
+#include <asm/arch/mem.h>
 #include <asm/arch/sm.h>
 #include <asm/arch/eth.h>
-#include <asm/arch/mem.h>
 
 #define EFUSE_SN_OFFSET		20
 #define EFUSE_SN_SIZE		16
@@ -24,8 +24,13 @@ int misc_init_r(void)
 	char serial[EFUSE_SN_SIZE];
 	ssize_t len;
 
-	meson_eth_init(PHY_INTERFACE_MODE_RMII,
-		       MESON_USE_INTERNAL_RMII_PHY);
+	meson_eth_init(PHY_INTERFACE_MODE_RGMII, 0);
+
+	/* Reset PHY on GPIOZ_14 */
+	clrbits_le32(GX_GPIO_EN(3), BIT(14));
+	clrbits_le32(GX_GPIO_OUT(3), BIT(14));
+	mdelay(10);
+	setbits_le32(GX_GPIO_OUT(3), BIT(14));
 
 	if (!eth_env_get_enetaddr("ethaddr", mac_addr)) {
 		len = meson_sm_read_efuse(EFUSE_MAC_OFFSET,
@@ -36,7 +41,7 @@ int misc_init_r(void)
 
 	if (!env_get("serial#")) {
 		len = meson_sm_read_efuse(EFUSE_SN_OFFSET, serial,
-			EFUSE_SN_SIZE);
+					  EFUSE_SN_SIZE);
 		if (len == EFUSE_SN_SIZE)
 			env_set("serial#", serial);
 	}
