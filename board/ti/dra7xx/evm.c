@@ -915,7 +915,7 @@ const struct mmc_platform_fixups *platform_fixups_mmc(uint32_t addr)
 }
 #endif
 
-#ifdef CONFIG_USB_DWC3
+#if defined(CONFIG_USB_DWC3) && !CONFIG_IS_ENABLED(DM_USB)
 static struct dwc3_device usb_otg_ss1 = {
 	.maximum_speed = USB_SPEED_SUPER,
 	.base = DRA7_USB_OTG_SS1_BASE,
