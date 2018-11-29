@@ -460,6 +460,8 @@
 
 		test4 {
 			compatible = "denx,u-boot-probe-test";
+			first-syscon = <&syscon0>;
+			second-sys-ctrl = <&another_system_controller>;
 		};
 	};
 
@@ -540,12 +542,12 @@
 		};
 	};
 
-	syscon@0 {
+	syscon0: syscon@0 {
 		compatible = "sandbox,syscon0";
 		reg = <0x10 16>;
 	};
 
-	syscon@1 {
+	another_system_controller: syscon@1 {
 		compatible = "sandbox,syscon1";
 		reg = <0x20 5
 			0x28 6
