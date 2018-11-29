@@ -22,19 +22,9 @@
 #include "linux-compat.h"
 
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
-int usb_gadget_handle_interrupts(int index)
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
-	struct dwc3 *priv;
-	struct udevice *dev;
-	int ret;
-
-	ret = uclass_first_device(UCLASS_USB_DEV_GENERIC, &dev);
-	if (!dev || ret) {
-		pr_err("No USB device found\n");
-		return -ENODEV;
-	}
-
-	priv = dev_get_priv(dev);
+	struct dwc3 *priv = dev_get_priv(dev);
 
 	dwc3_gadget_uboot_handle_interrupt(priv);
 

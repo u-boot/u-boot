@@ -18,7 +18,8 @@
 #include <asm/cache.h>
 #include <asm/dma-mapping.h>
 #include <common.h>
-
+#include <dm.h>
+#include <dm/device-internal.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 
@@ -351,3 +352,44 @@ EXPORT_SYMBOL_GPL(usb_gadget_unregister_driver);
 MODULE_DESCRIPTION("UDC Framework");
 MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
 MODULE_LICENSE("GPL v2");
+
+#if CONFIG_IS_ENABLED(DM_USB_GADGET)
+#define MAX_UDC_DEVICES 4
+static struct udevice *dev_array[MAX_UDC_DEVICES];
+int usb_gadget_initialize(int index)
+{
+	int ret;
+	struct udevice *dev = NULL;
+
+	if (index < 0 || index >= ARRAY_SIZE(dev_array))
+		return -EINVAL;
+	if (dev_array[index])
+		return 0;
+	ret = uclass_get_device(UCLASS_USB_DEV_GENERIC, index, &dev);
+	if (!dev || ret) {
+		pr_err("No USB device found\n");
+		return -ENODEV;
+	}
+	dev_array[index] = dev;
+	return 0;
+}
+
+int usb_gadget_release(int index)
+{
+	int ret;
+
+	if (index < 0 || index >= ARRAY_SIZE(dev_array))
+		return -EINVAL;
+	ret = device_remove(dev_array[index], DM_REMOVE_NORMAL);
+	if (!ret)
+		dev_array[index] = NULL;
+	return ret;
+}
+
+int usb_gadget_handle_interrupts(int index)
+{
+	if (index < 0 || index >= ARRAY_SIZE(dev_array))
+		return -EINVAL;
+	return dm_usb_gadget_handle_interrupts(dev_array[index]);
+}
+#endif
