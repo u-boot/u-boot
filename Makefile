@@ -930,6 +930,16 @@ ifneq ($(CONFIG_DM_MMC)$(CONFIG_OF_CONTROL)$(CONFIG_BLK),yyy)
 	@echo "===================================================="
 endif
 endif
+ifeq ($(CONFIG_USB),y)
+ifneq ($(CONFIG_DM_USB)$(CONFIG_OF_CONTROL)$(CONFIG_BLK),yyy)
+	@echo "===================== WARNING ======================"
+	@echo "This board does not use CONFIG_DM_USB. Please update"
+	@echo "the board to use CONFIG_DM_USB before the v2019.07 release."
+	@echo "Failure to update by the deadline may result in board removal."
+	@echo "See doc/driver-model/MIGRATION.txt for more info."
+	@echo "===================================================="
+endif
+endif
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
