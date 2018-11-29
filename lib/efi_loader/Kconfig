@@ -93,6 +93,17 @@ config EFI_SET_TIME
 	  Provide the SetTime() runtime service at boottime. This service
 	  can be used by an EFI application to adjust the real time clock.
 
+config EFI_HAVE_CAPSULE_SUPPORT
+	bool
+
+config EFI_RUNTIME_UPDATE_CAPSULE
+	bool "UpdateCapsule() runtime service"
+	default n
+	select EFI_HAVE_CAPSULE_SUPPORT
+	help
+	  Select this option if you want to use UpdateCapsule and
+	  QueryCapsuleCapabilities API's.
+
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y

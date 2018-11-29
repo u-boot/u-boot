@@ -23,6 +23,7 @@ endif
 obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
 obj-y += efi_bootmgr.o
 obj-y += efi_boottime.o
+obj-$(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) += efi_capsule.o
 obj-y += efi_console.o
 obj-y += efi_device_path.o
 obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
