@@ -15,6 +15,8 @@
 
 #define CONFIG_SYS_MEMTEST_SCRATCH     0xfffc0000
 
+#define CONFIG_EXTRA_ENV_SETTINGS
+
 #include <configs/xilinx_zynqmp.h>
 
 /* Undef unneeded configs */
