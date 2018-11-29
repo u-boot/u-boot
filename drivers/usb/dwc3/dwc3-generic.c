@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <asm-generic/io.h>
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -110,6 +111,12 @@ U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 struct dwc3_glue_data {
 	struct clk_bulk		clks;
 	struct reset_ctl_bulk	resets;
+	fdt_addr_t regs;
+};
+
+struct dwc3_glue_ops {
+	void (*select_dr_mode)(struct udevice *dev, int index,
+			       enum usb_dr_mode mode);
 };
 
 static int dwc3_glue_bind(struct udevice *parent)
@@ -205,8 +212,13 @@ static int dwc3_glue_clk_init(struct udevice *dev,
 
 static int dwc3_glue_probe(struct udevice *dev)
 {
+	struct dwc3_glue_ops *ops = (struct dwc3_glue_ops *)dev_get_driver_data(dev);
 	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+	struct udevice *child = NULL;
+	int index = 0;
 	int ret;
+
+	glue->regs = dev_read_addr(dev);
 
 	ret = dwc3_glue_clk_init(dev, glue);
 	if (ret)
@@ -215,6 +227,20 @@ static int dwc3_glue_probe(struct udevice *dev)
 	ret = dwc3_glue_reset_init(dev, glue);
 	if (ret)
 		return ret;
+
+	ret = device_find_first_child(dev, &child);
+	if (ret)
+		return ret;
+
+	while (child) {
+		enum usb_dr_mode dr_mode;
+
+		dr_mode = usb_get_dr_mode(dev_of_offset(child));
+		device_find_next_child(&child);
+		if (ops && ops->select_dr_mode)
+			ops->select_dr_mode(dev, index, dr_mode);
+		index++;
+	}
 
 	return 0;
 }
