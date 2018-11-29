@@ -5,6 +5,15 @@ U-Boot has been migrating to a new driver model since its introduction in
 2014. This file describes the schedule for deprecation of pre-driver-model
 features.
 
+CONFIG_DM_MMC
+-------------
+
+Status: In progress
+Deadline: 2019.04
+
+The subsystem itself has been converted and maintainers should submit patches
+switching over to using CONFIG_DM_MMC and other base driver model options in
+time for inclusion in the 2019.04 rerelease.
 
 CONFIG_BLK
 ----------
