@@ -301,6 +301,7 @@ config ASPEED_AST2500_PINCTRL
 endif
 
 source "drivers/pinctrl/meson/Kconfig"
+source "drivers/pinctrl/mediatek/Kconfig"
 source "drivers/pinctrl/nxp/Kconfig"
 source "drivers/pinctrl/renesas/Kconfig"
 source "drivers/pinctrl/uniphier/Kconfig"

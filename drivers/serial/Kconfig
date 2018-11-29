@@ -368,6 +368,16 @@ config DEBUG_UART_OMAP
 	  You will need to provide parameters to make this work. The driver
 	  will be available until the real driver model serial is running.
 
+config DEBUG_UART_MTK
+	bool "MediaTek High-speed UART"
+	depends on MTK_SERIAL
+	help
+	  Select this to enable a debug UART using the MediaTek High-speed
+	  UART driver.
+	  You will need to provide parameters to make this work. The
+	  driver will be available until the real driver model serial is
+	  running.
+
 endchoice
 
 config DEBUG_UART_BASE
@@ -697,6 +707,16 @@ config ZYNQ_SERIAL
 	help
 	  This driver supports the Cadence UART. It is found e.g. in Xilinx
 	  Zynq/ZynqMP.
+
+config MTK_SERIAL
+	bool "MediaTek High-speed UART support"
+	depends on DM_SERIAL
+	help
+	  Select this to enable UART support for MediaTek High-speed UART
+	  devices. This driver uses driver model and requires a device
+	  tree binding to operate.
+	  The High-speed UART is compatible with the ns16550a UART and have
+	  its own high-speed registers.
 
 config MPC8XX_CONS
 	bool "Console driver for MPC8XX"

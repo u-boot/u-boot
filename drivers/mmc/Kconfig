@@ -602,6 +602,17 @@ config FTSDC010_SDIO
 	help
 		This can enable ftsdc010 sdio function.
 
+config MMC_MTK
+	bool "MediaTek SD/MMC Card Interface support"
+	depends on ARCH_MEDIATEK
+	depends on BLK && DM_MMC
+	depends on OF_CONTROL
+	help
+	  This selects the MediaTek(R) Secure digital and Multimedia card Interface.
+	  If you have a machine with a integrated SD/MMC card reader, say Y or M here.
+	  This is needed if support for any SD/SDIO/MMC devices is required.
+	  If unsure, say N.
+
 endif
 
 config TEGRA124_MMC_DISABLE_EXT_LOOPBACK

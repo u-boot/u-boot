@@ -103,6 +103,14 @@ config WDT_CDNS
 	   Select this to enable Cadence watchdog timer, which can be found on some
 	   Xilinx Microzed Platform.
 
+config WDT_MTK
+	bool "MediaTek watchdog timer support"
+	depends on WDT && ARCH_MEDIATEK
+	help
+	  Select this to enable watchdog timer for MediaTek SoCs.
+	  The watchdog timer is stopped when initialized.
+	  It performs full SoC reset.
+
 config XILINX_TB_WATCHDOG
 	bool "Xilinx Axi watchdog timer support"
 	depends on WDT

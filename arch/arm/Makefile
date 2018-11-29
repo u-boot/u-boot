@@ -62,6 +62,7 @@ machine-$(CONFIG_ARCH_K3)		+= k3
 machine-$(CONFIG_ARCH_KEYSTONE)		+= keystone
 # TODO: rename CONFIG_KIRKWOOD -> CONFIG_ARCH_KIRKWOOD
 machine-$(CONFIG_KIRKWOOD)		+= kirkwood
+machine-$(CONFIG_ARCH_MEDIATEK)		+= mediatek
 machine-$(CONFIG_ARCH_MESON)		+= meson
 machine-$(CONFIG_ARCH_MVEBU)		+= mvebu
 # TODO: rename CONFIG_TEGRA -> CONFIG_ARCH_TEGRA

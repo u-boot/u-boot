@@ -219,6 +219,8 @@ ALL-$(CONFIG_SPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-16bit-spl.bin
 ALL-$(CONFIG_ARCH_ZYNQ)		+= $(obj)/boot.bin
 ALL-$(CONFIG_ARCH_ZYNQMP)	+= $(obj)/boot.bin
 
+ALL-$(CONFIG_ARCH_MEDIATEK)	+= $(obj)/u-boot-spl-mtk.bin
+
 all:	$(ALL-y)
 
 quiet_cmd_cat = CAT     $@
@@ -348,6 +350,15 @@ cmd_sunxi_spl_image_builder = $(objtree)/tools/sunxi-spl-image-builder \
 				-s -b $< $@
 $(obj)/sunxi-spl-with-ecc.bin: $(obj)/sunxi-spl.bin
 	$(call if_changed,sunxi_spl_image_builder)
+
+
+# MediaTek's specific SPL build
+MKIMAGEFLAGS_u-boot-spl-mtk.bin = -T mtk_image \
+	-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) \
+	-n "$(patsubst "%",%,$(CONFIG_MTK_BROM_HEADER_INFO))"
+
+$(obj)/u-boot-spl-mtk.bin: $(obj)/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
 
 # Rule to link u-boot-spl
 # May be overridden by arch/$(ARCH)/config.mk

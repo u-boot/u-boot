@@ -65,3 +65,4 @@ obj-$(CONFIG_MMC_SUNXI)			+= sunxi_mmc.o
 obj-$(CONFIG_MMC_UNIPHIER)		+= tmio-common.o uniphier-sd.o
 obj-$(CONFIG_RENESAS_SDHI)		+= tmio-common.o renesas-sdhi.o
 obj-$(CONFIG_MMC_BCM2835)		+= bcm2835_sdhost.o
+obj-$(CONFIG_MMC_MTK)			+= mtk-sd.o

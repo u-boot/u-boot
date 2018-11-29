@@ -23,6 +23,13 @@ config IMX8_POWER_DOMAIN
           Enable support for manipulating NXP i.MX8 on-SoC power domains via IPC
           requests to the SCU.
 
+config MTK_POWER_DOMAIN
+	bool "Enable the MediaTek power domain driver"
+	depends on POWER_DOMAIN && ARCH_MEDIATEK
+	help
+	  Enable support for manipulating MediaTek power domains via MMIO
+	  mapped registers.
+
 config MESON_GX_VPU_POWER_DOMAIN
 	bool "Enable Amlogic Meson GX VPU power domain driver"
 	depends on ARCH_MESON
