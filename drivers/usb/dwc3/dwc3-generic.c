@@ -21,8 +21,7 @@
 #include "gadget.h"
 #include "linux-compat.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
+#if CONFIG_IS_ENABLED(DM_USB_GADGET)
 int usb_gadget_handle_interrupts(int index)
 {
 	struct dwc3 *priv;
@@ -97,6 +96,7 @@ U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.priv_auto_alloc_size = sizeof(struct dwc3),
 	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
+#endif
 
 static int dwc3_generic_bind(struct udevice *parent)
 {

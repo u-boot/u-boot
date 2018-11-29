@@ -789,8 +789,7 @@ MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("DesignWare USB3 DRD Controller Driver");
 
-#if CONFIG_IS_ENABLED(DM_USB)
-
+#if CONFIG_IS_ENABLED(DM_USB_GADGET)
 int dwc3_init(struct dwc3 *dwc)
 {
 	int ret;
