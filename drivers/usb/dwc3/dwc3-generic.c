@@ -11,58 +11,85 @@
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
-#include <linux/usb/otg.h>
-#include <linux/compat.h>
+#include <dwc3-uboot.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <malloc.h>
 #include <usb.h>
 #include "core.h"
 #include "gadget.h"
-#include "linux-compat.h"
+#include <reset.h>
+#include <clk.h>
 
 #if CONFIG_IS_ENABLED(DM_USB_GADGET)
+struct dwc3_generic_peripheral {
+	struct dwc3 dwc3;
+	struct phy *phys;
+	int num_phys;
+	fdt_addr_t base;
+};
+
 int dm_usb_gadget_handle_interrupts(struct udevice *dev)
 {
-	struct dwc3 *priv = dev_get_priv(dev);
+	struct dwc3_generic_peripheral *priv = dev_get_priv(dev);
+	struct dwc3 *dwc3 = &priv->dwc3;
 
-	dwc3_gadget_uboot_handle_interrupt(priv);
+	dwc3_gadget_uboot_handle_interrupt(dwc3);
 
 	return 0;
 }
 
 static int dwc3_generic_peripheral_probe(struct udevice *dev)
 {
-	struct dwc3 *priv = dev_get_priv(dev);
+	int rc;
+	struct dwc3_generic_peripheral *priv = dev_get_priv(dev);
+	struct dwc3 *dwc3 = &priv->dwc3;
 
-	return dwc3_init(priv);
+	rc = dwc3_setup_phy(dev, &priv->phys, &priv->num_phys);
+	if (rc)
+		return rc;
+
+	dwc3->regs = map_physmem(priv->base, DWC3_OTG_REGS_END, MAP_NOCACHE);
+	dwc3->regs += DWC3_GLOBALS_REGS_START;
+	dwc3->dev = dev;
+
+	rc =  dwc3_init(dwc3);
+	if (rc) {
+		unmap_physmem(dwc3->regs, MAP_NOCACHE);
+		return rc;
+	}
+
+	return 0;
 }
 
 static int dwc3_generic_peripheral_remove(struct udevice *dev)
 {
-	struct dwc3 *priv = dev_get_priv(dev);
+	struct dwc3_generic_peripheral *priv = dev_get_priv(dev);
+	struct dwc3 *dwc3 = &priv->dwc3;
 
-	dwc3_remove(priv);
+	dwc3_remove(dwc3);
+	dwc3_shutdown_phy(dev, priv->phys, priv->num_phys);
+	unmap_physmem(dwc3->regs, MAP_NOCACHE);
 
 	return 0;
 }
 
 static int dwc3_generic_peripheral_ofdata_to_platdata(struct udevice *dev)
 {
-	struct dwc3 *priv = dev_get_priv(dev);
+	struct dwc3_generic_peripheral *priv = dev_get_priv(dev);
+	struct dwc3 *dwc3 = &priv->dwc3;
 	int node = dev_of_offset(dev);
 
-	priv->regs = (void *)devfdt_get_addr(dev);
-	priv->regs += DWC3_GLOBALS_REGS_START;
+	priv->base = devfdt_get_addr(dev);
 
-	priv->maximum_speed = usb_get_maximum_speed(node);
-	if (priv->maximum_speed == USB_SPEED_UNKNOWN) {
+	dwc3->maximum_speed = usb_get_maximum_speed(node);
+	if (dwc3->maximum_speed == USB_SPEED_UNKNOWN) {
 		pr_err("Invalid usb maximum speed\n");
 		return -ENODEV;
 	}
 
-	priv->dr_mode = usb_get_dr_mode(node);
-	if (priv->dr_mode == USB_DR_MODE_UNKNOWN) {
+	dwc3->dr_mode = usb_get_dr_mode(node);
+	if (dwc3->dr_mode == USB_DR_MODE_UNKNOWN) {
 		pr_err("Invalid usb mode setup\n");
 		return -ENODEV;
 	}
@@ -76,12 +103,16 @@ U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.ofdata_to_platdata = dwc3_generic_peripheral_ofdata_to_platdata,
 	.probe = dwc3_generic_peripheral_probe,
 	.remove = dwc3_generic_peripheral_remove,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct dwc3),
+	.priv_auto_alloc_size = sizeof(struct dwc3_generic_peripheral),
 };
 #endif
 
-static int dwc3_generic_bind(struct udevice *parent)
+struct dwc3_glue_data {
+	struct clk_bulk		clks;
+	struct reset_ctl_bulk	resets;
+};
+
+static int dwc3_glue_bind(struct udevice *parent)
 {
 	const void *fdt = gd->fdt_blob;
 	int node;
@@ -92,28 +123,31 @@ static int dwc3_generic_bind(struct udevice *parent)
 		const char *name = fdt_get_name(fdt, node, NULL);
 		enum usb_dr_mode dr_mode;
 		struct udevice *dev;
-		const char *driver;
+		const char *driver = NULL;
 
 		debug("%s: subnode name: %s\n", __func__, name);
-		if (strncmp(name, "dwc3@", 4))
-			continue;
 
 		dr_mode = usb_get_dr_mode(node);
 
 		switch (dr_mode) {
 		case USB_DR_MODE_PERIPHERAL:
 		case USB_DR_MODE_OTG:
+#if CONFIG_IS_ENABLED(DM_USB_GADGET)
 			debug("%s: dr_mode: OTG or Peripheral\n", __func__);
 			driver = "dwc3-generic-peripheral";
+#endif
 			break;
 		case USB_DR_MODE_HOST:
 			debug("%s: dr_mode: HOST\n", __func__);
-			driver = "dwc3-generic-host";
+			driver = "xhci-dwc3";
 			break;
 		default:
 			debug("%s: unsupported dr_mode\n", __func__);
 			return -ENODEV;
 		};
+
+		if (!driver)
+			continue;
 
 		ret = device_bind_driver_to_node(parent, driver, name,
 						 offset_to_ofnode(node), &dev);
@@ -127,7 +161,76 @@ static int dwc3_generic_bind(struct udevice *parent)
 	return 0;
 }
 
-static const struct udevice_id dwc3_generic_ids[] = {
+static int dwc3_glue_reset_init(struct udevice *dev,
+				struct dwc3_glue_data *glue)
+{
+	int ret;
+
+	ret = reset_get_bulk(dev, &glue->resets);
+	if (ret == -ENOTSUPP)
+		return 0;
+	else if (ret)
+		return ret;
+
+	ret = reset_deassert_bulk(&glue->resets);
+	if (ret) {
+		reset_release_bulk(&glue->resets);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int dwc3_glue_clk_init(struct udevice *dev,
+			      struct dwc3_glue_data *glue)
+{
+	int ret;
+
+	ret = clk_get_bulk(dev, &glue->clks);
+	if (ret == -ENOSYS)
+		return 0;
+	if (ret)
+		return ret;
+
+#if CONFIG_IS_ENABLED(CLK)
+	ret = clk_enable_bulk(&glue->clks);
+	if (ret) {
+		clk_release_bulk(&glue->clks);
+		return ret;
+	}
+#endif
+
+	return 0;
+}
+
+static int dwc3_glue_probe(struct udevice *dev)
+{
+	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+	int ret;
+
+	ret = dwc3_glue_clk_init(dev, glue);
+	if (ret)
+		return ret;
+
+	ret = dwc3_glue_reset_init(dev, glue);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int dwc3_glue_remove(struct udevice *dev)
+{
+	struct dwc3_glue_data *glue = dev_get_platdata(dev);
+
+	reset_release_bulk(&glue->resets);
+
+	clk_release_bulk(&glue->clks);
+
+	return dm_scan_fdt_dev(dev);
+}
+
+static const struct udevice_id dwc3_glue_ids[] = {
 	{ .compatible = "xlnx,zynqmp-dwc3" },
 	{ }
 };
@@ -135,6 +238,10 @@ static const struct udevice_id dwc3_generic_ids[] = {
 U_BOOT_DRIVER(dwc3_generic_wrapper) = {
 	.name	= "dwc3-generic-wrapper",
 	.id	= UCLASS_MISC,
-	.of_match = dwc3_generic_ids,
-	.bind = dwc3_generic_bind,
+	.of_match = dwc3_glue_ids,
+	.bind = dwc3_glue_bind,
+	.probe = dwc3_glue_probe,
+	.remove = dwc3_glue_remove,
+	.platdata_auto_alloc_size = sizeof(struct dwc3_glue_data),
+
 };
