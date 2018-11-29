@@ -18,6 +18,7 @@
 #include <configs/xilinx_zynqmp.h>
 
 /* Undef unneeded configs */
+#undef CONFIG_BOOTCOMMAND
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #undef CONFIG_SYS_MALLOC_LEN
 #undef CONFIG_ZLIB
