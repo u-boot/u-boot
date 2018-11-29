@@ -19,7 +19,7 @@
 #define PHY_FIXED_ID		0xa5a55a5a
 /*
  * There is no actual id for this.
- * This is just a dummy id for gmii2rgmmi converter
+ * This is just a dummy id for gmii2rgmmi converter.
  */
 #define PHY_GMII2RGMII_ID	0x5a5a5a5a
 

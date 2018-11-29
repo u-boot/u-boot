@@ -945,7 +945,8 @@ static struct phy_device *phy_connect_fixed(struct mii_dev *bus,
 
 #ifdef CONFIG_DM_ETH
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
-			       struct udevice *dev, phy_interface_t interface)
+			       struct udevice *dev,
+			       phy_interface_t interface)
 #else
 struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 			       struct eth_device *dev,
