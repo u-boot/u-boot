@@ -19,6 +19,7 @@
 #define __LINUX_USB_GADGET_H
 
 #include <errno.h>
+#include <usb.h>
 #include <linux/compat.h>
 #include <linux/list.h>
 
@@ -926,4 +927,13 @@ extern void usb_ep_autoconfig_reset(struct usb_gadget *);
 
 extern int usb_gadget_handle_interrupts(int index);
 
+static inline int usb_gadget_initialize(int index)
+{
+	return board_usb_init(index, USB_INIT_DEVICE);
+}
+
+static inline int usb_gadget_release(int index)
+{
+	return board_usb_cleanup(index, USB_INIT_DEVICE);
+}
 #endif	/* __LINUX_USB_GADGET_H */
