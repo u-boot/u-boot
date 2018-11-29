@@ -535,7 +535,7 @@ U_BOOT_DRIVER(usb_musb) = {
 #ifdef CONFIG_USB_MUSB_HOST
 	.id		= UCLASS_USB,
 #else
-	.id		= UCLASS_USB_DEV_GENERIC,
+	.id		= UCLASS_USB_GADGET_GENERIC,
 #endif
 	.of_match	= sunxi_musb_ids,
 	.probe		= musb_usb_probe,

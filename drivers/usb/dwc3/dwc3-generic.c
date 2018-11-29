@@ -72,7 +72,7 @@ static int dwc3_generic_peripheral_ofdata_to_platdata(struct udevice *dev)
 
 U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.name	= "dwc3-generic-peripheral",
-	.id	= UCLASS_USB_DEV_GENERIC,
+	.id	= UCLASS_USB_GADGET_GENERIC,
 	.ofdata_to_platdata = dwc3_generic_peripheral_ofdata_to_platdata,
 	.probe = dwc3_generic_peripheral_probe,
 	.remove = dwc3_generic_peripheral_remove,
