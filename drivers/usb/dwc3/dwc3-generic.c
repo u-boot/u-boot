@@ -70,21 +70,14 @@ static int dwc3_generic_peripheral_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static int dwc3_generic_peripheral_bind(struct udevice *dev)
-{
-	return device_probe(dev);
-}
-
 U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.name	= "dwc3-generic-peripheral",
 	.id	= UCLASS_USB_DEV_GENERIC,
 	.ofdata_to_platdata = dwc3_generic_peripheral_ofdata_to_platdata,
 	.probe = dwc3_generic_peripheral_probe,
 	.remove = dwc3_generic_peripheral_remove,
-	.bind = dwc3_generic_peripheral_bind,
 	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
 	.priv_auto_alloc_size = sizeof(struct dwc3),
-	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif
 
