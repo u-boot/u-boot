@@ -166,7 +166,8 @@ int reserve_arch(void)
 int last_stage_init(void)
 {
 	/* start usb so that usb keyboard can be used as input device */
-	usb_init();
+	if (CONFIG_IS_ENABLED(USB_KEYBOARD))
+		usb_init();
 
 	return 0;
 }
