@@ -61,7 +61,7 @@ static int stpmu1_bind(struct udevice *dev)
 
 	regulators_node = dev_read_subnode(dev, "regulators");
 	if (!ofnode_valid(regulators_node)) {
-		dev_dbg(dev, "regulators subnode not found!");
+		dev_dbg(dev, "regulators subnode not found!\n");
 		return -ENXIO;
 	}
 	dev_dbg(dev, "found regulators subnode\n");

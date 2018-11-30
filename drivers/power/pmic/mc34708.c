@@ -38,7 +38,7 @@ static int mc34708_write(struct udevice *dev, uint reg, const u8 *buff,
 
 	ret = dm_i2c_write(dev, reg, buf, len);
 	if (ret)
-		printf("write error to device: %p register: %#x!", dev, reg);
+		printf("write error to device: %p register: %#x!\n", dev, reg);
 
 	return ret;
 }
@@ -53,7 +53,7 @@ static int mc34708_read(struct udevice *dev, uint reg, u8 *buff, int len)
 
 	ret = dm_i2c_read(dev, reg, buf, len);
 	if (ret)
-		printf("read error from device: %p register: %#x!", dev, reg);
+		printf("read error from device: %p register: %#x!\n", dev, reg);
 
 	buff[0] = buf[2];
 	buff[1] = buf[1];

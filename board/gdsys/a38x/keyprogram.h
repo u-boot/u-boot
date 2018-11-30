@@ -7,7 +7,7 @@
 #ifndef __KEYPROGRAM_H
 #define __KEYPROGRAM_H
 
-int load_and_run_keyprog(void);
-int flush_keys(void);
+int load_and_run_keyprog(struct udevice *tpm);
+int flush_keys(struct udevice *tpm);
 
 #endif /* __KEYPROGRAM_H */

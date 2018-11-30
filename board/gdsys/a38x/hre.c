@@ -93,19 +93,20 @@ static const uint8_t vendor[] = "Guntermann & Drunck";
 
 /**
  * @brief get the size of a given (TPM) NV area
+ * @param tpm		TPM device
  * @param index	NV index of the area to get size for
  * @param size	pointer to the size
  * @return 0 on success, != 0 on error
  */
-static int get_tpm_nv_size(uint32_t index, uint32_t *size)
+static int get_tpm_nv_size(struct udevice *tpm, uint32_t index, uint32_t *size)
 {
 	uint32_t err;
 	uint8_t info[72];
 	uint8_t *ptr;
 	uint16_t v16;
 
-	err = tpm_get_capability(TPM_CAP_NV_INDEX, index,
-		info, sizeof(info));
+	err = tpm_get_capability(tpm, TPM_CAP_NV_INDEX, index,
+				 info, sizeof(info));
 	if (err) {
 		printf("tpm_get_capability(CAP_NV_INDEX, %08x) failed: %u\n",
 		       index, err);
@@ -128,13 +129,14 @@ static int get_tpm_nv_size(uint32_t index, uint32_t *size)
 
 /**
  * @brief search for a key by usage auth and pub key hash.
+ * @param tpm		TPM device
  * @param auth	usage auth of the key to search for
  * @param pubkey_digest	(SHA1) hash of the pub key structure of the key
  * @param[out] handle	the handle of the key iff found
  * @return 0 if key was found in TPM; != 0 if not.
  */
-static int find_key(const uint8_t auth[20], const uint8_t pubkey_digest[20],
-		uint32_t *handle)
+static int find_key(struct udevice *tpm, const uint8_t auth[20],
+		    const uint8_t pubkey_digest[20], uint32_t *handle)
 {
 	uint16_t key_count;
 	uint32_t key_handles[10];
@@ -146,7 +148,8 @@ static int find_key(const uint8_t auth[20], const uint8_t pubkey_digest[20],
 	unsigned int i;
 
 	/* fetch list of already loaded keys in the TPM */
-	err = tpm_get_capability(TPM_CAP_HANDLE, TPM_RT_KEY, buf, sizeof(buf));
+	err = tpm_get_capability(tpm, TPM_CAP_HANDLE, TPM_RT_KEY, buf,
+				 sizeof(buf));
 	if (err)
 		return -1;
 	key_count = get_unaligned_be16(buf);
@@ -157,7 +160,8 @@ static int find_key(const uint8_t auth[20], const uint8_t pubkey_digest[20],
 	/* now search a(/ the) key which we can access with the given auth */
 	for (i = 0; i < key_count; ++i) {
 		buf_len = sizeof(buf);
-		err = tpm_get_pub_key_oiap(key_handles[i], auth, buf, &buf_len);
+		err = tpm_get_pub_key_oiap(tpm, key_handles[i], auth, buf,
+					   &buf_len);
 		if (err && err != TPM_AUTHFAIL)
 			return -1;
 		if (err)
@@ -173,20 +177,21 @@ static int find_key(const uint8_t auth[20], const uint8_t pubkey_digest[20],
 
 /**
  * @brief read CCDM common data from TPM NV
+ * @param tpm		TPM device
  * @return 0 if CCDM common data was found and read, !=0 if something failed.
  */
-static int read_common_data(void)
+static int read_common_data(struct udevice *tpm)
 {
 	uint32_t size = 0;
 	uint32_t err;
 	uint8_t buf[256];
 	sha1_context ctx;
 
-	if (get_tpm_nv_size(NV_COMMON_DATA_INDEX, &size) ||
+	if (get_tpm_nv_size(tpm, NV_COMMON_DATA_INDEX, &size) ||
 	    size < NV_COMMON_DATA_MIN_SIZE)
 		return 1;
-	err = tpm_nv_read_value(NV_COMMON_DATA_INDEX,
-		buf, min(sizeof(buf), size));
+	err = tpm_nv_read_value(tpm, NV_COMMON_DATA_INDEX,
+				buf, min(sizeof(buf), size));
 	if (err) {
 		printf("tpm_nv_read_value() failed: %u\n", err);
 		return 1;
@@ -235,6 +240,7 @@ static struct h_reg *get_hreg(uint8_t spec)
 
 /**
  * @brief get pointer of a hash register by specification and usage.
+ * @param tpm		TPM device
  * @param spec	specification of a hash register
  * @param mode	access mode (read or write or read/write)
  * @return pointer to hash register if found and valid; NULL else.
@@ -244,7 +250,8 @@ static struct h_reg *get_hreg(uint8_t spec)
  * The value of automatic registers (PCR register and fixed registers) is
  * loaded or computed on read access.
  */
-static struct h_reg *access_hreg(uint8_t spec, enum access_mode mode)
+static struct h_reg *access_hreg(struct udevice *tpm, uint8_t spec,
+				 enum access_mode mode)
 {
 	struct h_reg *result;
 
@@ -261,13 +268,13 @@ static struct h_reg *access_hreg(uint8_t spec, enum access_mode mode)
 	if (mode & HREG_RD) {
 		if (!result->valid) {
 			if (IS_PCR_HREG(spec)) {
-				hre_tpm_err = tpm_pcr_read(HREG_IDX(spec),
+				hre_tpm_err = tpm_pcr_read(tpm, HREG_IDX(spec),
 					result->digest, 20);
 				result->valid = (hre_tpm_err == TPM_SUCCESS);
 			} else if (IS_FIX_HREG(spec)) {
 				switch (HREG_IDX(spec)) {
 				case FIX_HREG_DEVICE_ID_HASH:
-					read_common_data();
+					read_common_data(tpm);
 					break;
 				case FIX_HREG_VENDOR:
 					memcpy(result->digest, vendor, 20);
@@ -337,18 +344,19 @@ static void *compute_extend(void *_dst, const void *_src, size_t n)
 	return _dst;
 }
 
-static int hre_op_loadkey(struct h_reg *src_reg, struct h_reg *dst_reg,
-		const void *key, size_t key_size)
+static int hre_op_loadkey(struct udevice *tpm, struct h_reg *src_reg,
+			  struct h_reg *dst_reg, const void *key,
+			  size_t key_size)
 {
 	uint32_t parent_handle;
 	uint32_t key_handle;
 
 	if (!src_reg || !dst_reg || !src_reg->valid || !dst_reg->valid)
 		return -1;
-	if (find_key(src_reg->digest, dst_reg->digest, &parent_handle))
+	if (find_key(tpm, src_reg->digest, dst_reg->digest, &parent_handle))
 		return -1;
-	hre_tpm_err = tpm_load_key2_oiap(parent_handle, key, key_size,
-		src_reg->digest, &key_handle);
+	hre_tpm_err = tpm_load_key2_oiap(tpm, parent_handle, key, key_size,
+					 src_reg->digest, &key_handle);
 	if (hre_tpm_err) {
 		hre_err = HRE_E_TPM_FAILURE;
 		return -1;
@@ -359,11 +367,13 @@ static int hre_op_loadkey(struct h_reg *src_reg, struct h_reg *dst_reg,
 
 /**
  * @brief executes the next opcode on the hash register engine.
+ * @param tpm		TPM device
  * @param[in,out] ip	pointer to the opcode (instruction pointer)
  * @param[in,out] code_size	(remaining) size of the code
  * @return new instruction pointer on success, NULL on error.
  */
-static const uint8_t *hre_execute_op(const uint8_t **ip, size_t *code_size)
+static const uint8_t *hre_execute_op(struct udevice *tpm, const uint8_t **ip,
+				     size_t *code_size)
 {
 	bool dst_modified = false;
 	uint32_t ins;
@@ -394,10 +404,11 @@ static const uint8_t *hre_execute_op(const uint8_t **ip, size_t *code_size)
 	if ((opcode & 0x80) && (data_size + 4) > *code_size)
 		return NULL;
 
-	src_reg = access_hreg(src_spec, HREG_RD);
+	src_reg = access_hreg(tpm, src_spec, HREG_RD);
 	if (hre_err || hre_tpm_err)
 		return NULL;
-	dst_reg = access_hreg(dst_spec, (opcode & 0x40) ? HREG_RDWR : HREG_WR);
+	dst_reg = access_hreg(tpm, dst_spec,
+			      (opcode & 0x40) ? HREG_RDWR : HREG_WR);
 	if (hre_err || hre_tpm_err)
 		return NULL;
 
@@ -453,7 +464,7 @@ do_bin_func:
 		dst_modified = true;
 		break;
 	case HRE_LOADKEY:
-		if (hre_op_loadkey(src_reg, dst_reg, data, data_size))
+		if (hre_op_loadkey(tpm, src_reg, dst_reg, data, data_size))
 			return NULL;
 		break;
 	default:
@@ -461,8 +472,8 @@ do_bin_func:
 	}
 
 	if (dst_reg && dst_modified && IS_PCR_HREG(dst_spec)) {
-		hre_tpm_err = tpm_extend(HREG_IDX(dst_spec), dst_reg->digest,
-			dst_reg->digest);
+		hre_tpm_err = tpm_extend(tpm, HREG_IDX(dst_spec),
+					 dst_reg->digest, dst_reg->digest);
 		if (hre_tpm_err) {
 			hre_err = HRE_E_TPM_FAILURE;
 			return NULL;
@@ -481,11 +492,12 @@ end:
 
 /**
  * @brief runs a program on the hash register engine.
+ * @param tpm		TPM device
  * @param code		pointer to the (HRE) code.
  * @param code_size	size of the code (in bytes).
  * @return 0 on success, != 0 on failure.
  */
-int hre_run_program(const uint8_t *code, size_t code_size)
+int hre_run_program(struct udevice *tpm, const uint8_t *code, size_t code_size)
 {
 	size_t code_left;
 	const uint8_t *ip = code;
@@ -494,7 +506,7 @@ int hre_run_program(const uint8_t *code, size_t code_size)
 	hre_tpm_err = 0;
 	hre_err = HRE_E_OK;
 	while (code_left > 0)
-		if (!hre_execute_op(&ip, &code_left))
+		if (!hre_execute_op(tpm, &ip, &code_left))
 			return -1;
 
 	return hre_err;

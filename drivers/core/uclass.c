@@ -354,10 +354,8 @@ done:
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int uclass_find_device_by_phandle(enum uclass_id id,
-					 struct udevice *parent,
-					 const char *name,
-					 struct udevice **devp)
+int uclass_find_device_by_phandle(enum uclass_id id, struct udevice *parent,
+				  const char *name, struct udevice **devp)
 {
 	struct udevice *dev;
 	struct uclass *uc;

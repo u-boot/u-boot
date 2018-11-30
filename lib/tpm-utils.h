@@ -19,24 +19,6 @@
 #define tpm_u32(x) tpm_u16((x) >> 16), tpm_u16((x) & 0xFFFF)
 
 /**
- * tpm_open() - Request access to locality 0 for the caller
- *
- * After all commands have been completed the caller is supposed to
- * call tpm_close().
- *
- * Returns 0 on success, -ve on failure.
- */
-int tpm_open(struct udevice *dev);
-
-/**
- * tpm_close() - Close the current session
- *
- * Releasing the locked locality. Returns 0 on success, -ve 1 on
- * failure (in case lock removal did not succeed).
- */
-int tpm_close(struct udevice *dev);
-
-/**
  * Pack data into a byte string.  The data types are specified in
  * the format string: 'b' means unsigned byte, 'w' unsigned word,
  * 'd' unsigned double word, and 's' byte string.  The data are a
@@ -96,6 +78,7 @@ u32 tpm_return_code(const void *response);
  *			is a bidirectional
  * @return return code of the TPM response
  */
-u32 tpm_sendrecv_command(const void *command, void *response, size_t *size_ptr);
+u32 tpm_sendrecv_command(struct udevice *dev, const void *command,
+			 void *response, size_t *size_ptr);
 
 #endif /* __TPM_UTILS_H */

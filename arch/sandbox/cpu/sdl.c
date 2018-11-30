@@ -9,6 +9,10 @@
 #include <sound.h>
 #include <asm/state.h>
 
+enum {
+	SAMPLE_RATE	= 22050,
+};
+
 static struct sdl_info {
 	SDL_Surface *screen;
 	int width;
@@ -18,6 +22,7 @@ static struct sdl_info {
 	uint frequency;
 	uint audio_pos;
 	uint audio_size;
+	uint sample_rate;
 	uint8_t *audio_data;
 	bool audio_active;
 	bool inited;
@@ -263,27 +268,8 @@ int sandbox_sdl_sound_init(void)
 	if (sdl.audio_active)
 		return 0;
 
-	/*
-	 * At present all sandbox sounds crash. This is probably due to
-	 * symbol name conflicts with U-Boot. We can remove the malloc()
-	 * probles with:
-	 *
-	 * #define USE_DL_PREFIX
-	 *
-	 * and get this:
-	 *
-	 * Assertion 'e->pollfd->fd == e->fd' failed at pulse/mainloop.c:676,
-	 *		function dispatch_pollfds(). Aborting.
-	 *
-	 * The right solution is probably to make U-Boot's names private or
-	 * link os.c and sdl.c against their libraries before liking with
-	 * U-Boot. TBD. For now sound is disabled.
-	 */
-	printf("(Warning: sandbox sound disabled)\n");
-	return 0;
-
 	/* Set the audio format */
-	wanted.freq = 22050;
+	wanted.freq = SAMPLE_RATE;
 	wanted.format = AUDIO_S16;
 	wanted.channels = 1;    /* 1 = mono, 2 = stereo */
 	wanted.samples = 1024;  /* Good low-latency value for callback */
@@ -309,6 +295,7 @@ int sandbox_sdl_sound_init(void)
 		goto err;
 	}
 	sdl.audio_active = true;
+	sdl.sample_rate = wanted.freq;
 
 	return 0;
 
@@ -322,7 +309,8 @@ int sandbox_sdl_sound_start(uint frequency)
 	if (!sdl.audio_active)
 		return -1;
 	sdl.frequency = frequency;
-	sound_create_square_wave((unsigned short *)sdl.audio_data,
+	sound_create_square_wave(sdl.sample_rate,
+				 (unsigned short *)sdl.audio_data,
 				 sdl.audio_size, frequency);
 	sdl.audio_pos = 0;
 	SDL_PauseAudio(0);

@@ -29,7 +29,7 @@ static int rk8xx_write(struct udevice *dev, uint reg, const uint8_t *buff,
 
 	ret = dm_i2c_write(dev, reg, buff, len);
 	if (ret) {
-		debug("write error to device: %p register: %#x!", dev, reg);
+		debug("write error to device: %p register: %#x!\n", dev, reg);
 		return ret;
 	}
 
@@ -42,7 +42,7 @@ static int rk8xx_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 
 	ret = dm_i2c_read(dev, reg, buff, len);
 	if (ret) {
-		debug("read error from device: %p register: %#x!", dev, reg);
+		debug("read error from device: %p register: %#x!\n", dev, reg);
 		return ret;
 	}
 
@@ -57,7 +57,7 @@ static int rk8xx_bind(struct udevice *dev)
 
 	regulators_node = dev_read_subnode(dev, "regulators");
 	if (!ofnode_valid(regulators_node)) {
-		debug("%s: %s regulators subnode not found!", __func__,
+		debug("%s: %s regulators subnode not found!\n", __func__,
 		      dev->name);
 		return -ENXIO;
 	}

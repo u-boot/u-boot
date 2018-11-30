@@ -11,40 +11,6 @@
 &sandbox_pmic {
 	compatible = "sandbox,pmic";
 
-	pmic_emul {
-		compatible = "sandbox,i2c-pmic";
-
-		/*
-		 * Default PMICs register values are set by macro
-		 * VAL2REG(min, step, value) [uV/uA]
-		 * VAL2OMREG(mode id)
-		 * reg-defaults - byte array
-		 */
-		reg-defaults = /bits/ 8 <
-			/* BUCK1 */
-			VAL2REG(800000, 25000, 1000000)
-			VAL2REG(150000, 25000, 150000)
-			VAL2OMREG(BUCK_OM_OFF)
-			/* BUCK2 */
-			VAL2REG(750000, 50000, 3000000)
-			VAL2REG(150000, 25000, 150000)
-			VAL2OMREG(0)
-			/* LDO1 */
-			VAL2REG(800000, 25000, 1600000)
-			VAL2REG(100000, 50000, 150000)
-			VAL2OMREG(LDO_OM_OFF)
-			/* LDO2 */
-			VAL2REG(750000, 50000, 3000000)
-			VAL2REG(150000, 25000, 150000)
-			VAL2OMREG(0)
-			/* reg[12:15] - not used */
-			0x00
-			0x00
-			0x00
-			0x00
-		>;
-	};
-
 	buck1 {
 		regulator-name = "SUPPLY_1.2V";
 		regulator-min-microvolt = <1200000>;
@@ -84,10 +50,45 @@
 
 &mc34708 {
 	compatible = "fsl,mc34708";
+};
 
-	pmic_emul {
+&i2c_emul {
+	emul_pmic0: pmic-emul0 {
 		compatible = "sandbox,i2c-pmic";
 
+		/*
+		 * Default PMICs register values are set by macro
+		 * VAL2REG(min, step, value) [uV/uA]
+		 * VAL2OMREG(mode id)
+		 * reg-defaults - byte array
+		 */
+		reg-defaults = /bits/ 8 <
+			/* BUCK1 */
+			VAL2REG(800000, 25000, 1000000)
+			VAL2REG(150000, 25000, 150000)
+			VAL2OMREG(BUCK_OM_OFF)
+			/* BUCK2 */
+			VAL2REG(750000, 50000, 3000000)
+			VAL2REG(150000, 25000, 150000)
+			VAL2OMREG(0)
+			/* LDO1 */
+			VAL2REG(800000, 25000, 1600000)
+			VAL2REG(100000, 50000, 150000)
+			VAL2OMREG(LDO_OM_OFF)
+			/* LDO2 */
+			VAL2REG(750000, 50000, 3000000)
+			VAL2REG(150000, 25000, 150000)
+			VAL2OMREG(0)
+			/* reg[12:15] - not used */
+			0x00
+			0x00
+			0x00
+			0x00
+		>;
+	};
+
+	emul_pmic1: pmic-emul1 {
+		compatible = "sandbox,i2c-pmic";
 		reg-defaults = /bits/ 8 <
 			0x00 0x80 0x08 0xff 0xff 0xff 0x2e 0x01 0x08
 			0x40 0x80 0x81 0x5f 0xff 0xfb 0x1e 0x80 0x18

@@ -11,6 +11,7 @@ This test verifies mkdir operation on file system.
 import pytest
 
 @pytest.mark.boardspec('sandbox')
+@pytest.mark.slow
 class TestMkdir(object):
     def test_mkdir1(self, u_boot_console, fs_obj_mkdir):
         """

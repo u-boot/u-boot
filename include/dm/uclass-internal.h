@@ -143,6 +143,23 @@ int uclass_find_device_by_ofnode(enum uclass_id id, ofnode node,
 				 struct udevice **devp);
 
 /**
+ * uclass_find_device_by_phandle() - Find a uclass device by phandle
+ *
+ * This searches the devices in the uclass for one with the given phandle.
+ *
+ * The device is NOT probed, it is merely returned.
+ *
+ * @id: ID to look up
+ * @parent: Parent device containing the phandle pointer
+ * @name: Name of property in the parent device node
+ * @devp: Returns pointer to device (there is only one for each node)
+ * @return 0 if OK, -ENOENT if there is no @name present in the node, other
+ *	-ve on error
+ */
+int uclass_find_device_by_phandle(enum uclass_id id, struct udevice *parent,
+				  const char *name, struct udevice **devp);
+
+/**
  * uclass_bind_device() - Associate device with a uclass
  *
  * Connect the device into uclass's list of devices.

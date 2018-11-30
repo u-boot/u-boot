@@ -266,35 +266,45 @@
 		eeprom@2c {
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
-			emul {
-				compatible = "sandbox,i2c-eeprom";
-				sandbox,filename = "i2c.bin";
-				sandbox,size = <256>;
-			};
+			sandbox,emul = <&emul_eeprom>;
 		};
 
 		rtc_0: rtc@43 {
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
-			emul {
-				compatible = "sandbox,i2c-rtc";
-			};
+			sandbox,emul = <&emul0>;
 		};
 
 		rtc_1: rtc@61 {
 			reg = <0x61>;
 			compatible = "sandbox-rtc";
-			emul {
+			sandbox,emul = <&emul1>;
+		};
+
+		i2c_emul: emul {
+			reg = <0xff>;
+			compatible = "sandbox,i2c-emul-parent";
+			emul_eeprom: emul-eeprom {
+				compatible = "sandbox,i2c-eeprom";
+				sandbox,filename = "i2c.bin";
+				sandbox,size = <256>;
+			};
+			emul0: emul0 {
+				compatible = "sandbox,i2c-rtc";
+			};
+			emul1: emull {
 				compatible = "sandbox,i2c-rtc";
 			};
 		};
 
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;
+			sandbox,emul = <&emul_pmic0>;
 		};
 
 		mc34708: pmic@41 {
 			reg = <0x41>;
+			sandbox,emul = <&emul_pmic1>;
 		};
 	};
 

@@ -14,7 +14,12 @@ static int do_tpm_startup(cmd_tbl_t *cmdtp, int flag, int argc,
 			  char * const argv[])
 {
 	enum tpm_startup_type mode;
+	struct udevice *dev;
+	int rc;
 
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 	if (argc != 2)
 		return CMD_RET_USAGE;
 	if (!strcasecmp("TPM_ST_CLEAR", argv[1])) {
@@ -28,13 +33,19 @@ static int do_tpm_startup(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	return report_return_code(tpm_startup(mode));
+	return report_return_code(tpm_startup(dev, mode));
 }
 
 static int do_tpm_nv_define_space(cmd_tbl_t *cmdtp, int flag, int argc,
 				  char * const argv[])
 {
 	u32 index, perm, size;
+	struct udevice *dev;
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -42,14 +53,19 @@ static int do_tpm_nv_define_space(cmd_tbl_t *cmdtp, int flag, int argc,
 	perm = simple_strtoul(argv[2], NULL, 0);
 	size = simple_strtoul(argv[3], NULL, 0);
 
-	return report_return_code(tpm_nv_define_space(index, perm, size));
+	return report_return_code(tpm_nv_define_space(dev, index, perm, size));
 }
 
 static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
 	u32 index, count, rc;
+	struct udevice *dev;
 	void *data;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -57,7 +73,7 @@ static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag, int argc,
 	data = (void *)simple_strtoul(argv[2], NULL, 0);
 	count = simple_strtoul(argv[3], NULL, 0);
 
-	rc = tpm_nv_read_value(index, data, count);
+	rc = tpm_nv_read_value(dev, index, data, count);
 	if (!rc) {
 		puts("area content:\n");
 		print_byte_string(data, count);
@@ -69,9 +85,14 @@ static int do_tpm_nv_read_value(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag, int argc,
 				 char * const argv[])
 {
+	struct udevice *dev;
 	u32 index, rc;
 	size_t count;
 	void *data;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 3)
 		return CMD_RET_USAGE;
@@ -82,7 +103,7 @@ static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	rc = tpm_nv_write_value(index, data, count);
+	rc = tpm_nv_write_value(dev, index, data, count);
 	free(data);
 
 	return report_return_code(rc);
@@ -91,8 +112,13 @@ static int do_tpm_nv_write_value(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_tpm_extend(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char * const argv[])
 {
-	u32 index, rc;
 	u8 in_digest[20], out_digest[20];
+	struct udevice *dev;
+	u32 index, rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 3)
 		return CMD_RET_USAGE;
@@ -102,7 +128,7 @@ static int do_tpm_extend(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	}
 
-	rc = tpm_extend(index, in_digest, out_digest);
+	rc = tpm_extend(dev, index, in_digest, out_digest);
 	if (!rc) {
 		puts("PCR value after execution of the command:\n");
 		print_byte_string(out_digest, sizeof(out_digest));
@@ -115,7 +141,12 @@ static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag, int argc,
 			   char * const argv[])
 {
 	u32 index, count, rc;
+	struct udevice *dev;
 	void *data;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -123,7 +154,7 @@ static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag, int argc,
 	data = (void *)simple_strtoul(argv[2], NULL, 0);
 	count = simple_strtoul(argv[3], NULL, 0);
 
-	rc = tpm_pcr_read(index, data, count);
+	rc = tpm_pcr_read(dev, index, data, count);
 	if (!rc) {
 		puts("Named PCR content:\n");
 		print_byte_string(data, count);
@@ -135,27 +166,38 @@ static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_tpm_tsc_physical_presence(cmd_tbl_t *cmdtp, int flag, int argc,
 					char * const argv[])
 {
+	struct udevice *dev;
 	u16 presence;
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
 	presence = (u16)simple_strtoul(argv[1], NULL, 0);
 
-	return report_return_code(tpm_tsc_physical_presence(presence));
+	return report_return_code(tpm_tsc_physical_presence(dev, presence));
 }
 
 static int do_tpm_read_pubek(cmd_tbl_t *cmdtp, int flag, int argc,
 			     char * const argv[])
 {
+	struct udevice *dev;
 	u32 count, rc;
 	void *data;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 3)
 		return CMD_RET_USAGE;
 	data = (void *)simple_strtoul(argv[1], NULL, 0);
 	count = simple_strtoul(argv[2], NULL, 0);
 
-	rc = tpm_read_pubek(data, count);
+	rc = tpm_read_pubek(dev, data, count);
 	if (!rc) {
 		puts("pubek value:\n");
 		print_byte_string(data, count);
@@ -167,13 +209,19 @@ static int do_tpm_read_pubek(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_tpm_physical_set_deactivated(cmd_tbl_t *cmdtp, int flag, int argc,
 					   char * const argv[])
 {
+	struct udevice *dev;
 	u8 state;
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
 	state = (u8)simple_strtoul(argv[1], NULL, 0);
 
-	return report_return_code(tpm_physical_set_deactivated(state));
+	return report_return_code(tpm_physical_set_deactivated(dev, state));
 }
 
 static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -182,6 +230,11 @@ static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag, int argc,
 	u32 cap_area, sub_cap, rc;
 	void *cap;
 	size_t count;
+	struct udevice *dev;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 5)
 		return CMD_RET_USAGE;
@@ -190,7 +243,7 @@ static int do_tpm_get_capability(cmd_tbl_t *cmdtp, int flag, int argc,
 	cap = (void *)simple_strtoul(argv[3], NULL, 0);
 	count = simple_strtoul(argv[4], NULL, 0);
 
-	rc = tpm_get_capability(cap_area, sub_cap, cap, count);
+	rc = tpm_get_capability(dev, cap_area, sub_cap, cap, count);
 	if (!rc) {
 		puts("capability information:\n");
 		print_byte_string(cap, count);
@@ -232,6 +285,12 @@ static int do_tpm_nv_define(cmd_tbl_t *cmdtp, int flag, int argc,
 			    char * const argv[])
 {
 	u32 index, perm, size;
+	struct udevice *dev;
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -243,14 +302,20 @@ static int do_tpm_nv_define(cmd_tbl_t *cmdtp, int flag, int argc,
 	index = simple_strtoul(argv[2], NULL, 0);
 	perm = simple_strtoul(argv[3], NULL, 0);
 
-	return report_return_code(tpm_nv_define_space(index, perm, size));
+	return report_return_code(tpm_nv_define_space(dev, index, perm, size));
 }
 
 static int do_tpm_nv_read(cmd_tbl_t *cmdtp, int flag, int argc,
 			  char * const argv[])
 {
 	u32 index, count, err;
+	struct udevice *dev;
 	void *data;
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -263,7 +328,7 @@ static int do_tpm_nv_read(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 
-	err = tpm_nv_read_value(index, data, count);
+	err = tpm_nv_read_value(dev, index, data, count);
 	if (!err) {
 		if (type_string_write_vars(argv[1], data, argv + 3)) {
 			printf("Couldn't write to variables\n");
@@ -279,7 +344,13 @@ static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag, int argc,
 			   char * const argv[])
 {
 	u32 index, count, err;
+	struct udevice *dev;
 	void *data;
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -297,7 +368,7 @@ static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 
-	err = tpm_nv_write_value(index, data, count);
+	err = tpm_nv_write_value(dev, index, data, count);
 	free(data);
 
 	return report_return_code(err);
@@ -309,8 +380,14 @@ static int do_tpm_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
 	u32 auth_handle, err;
+	struct udevice *dev;
+	int rc;
 
-	err = tpm_oiap(&auth_handle);
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
+
+	err = tpm_oiap(dev, &auth_handle);
 
 	return report_return_code(err);
 }
@@ -324,6 +401,11 @@ static int do_tpm_load_key_by_sha1(cmd_tbl_t *cmdtp, int flag, int argc, char *
 	u8 usage_auth[DIGEST_LENGTH];
 	u8 parent_hash[DIGEST_LENGTH];
 	void *key;
+	struct udevice *dev;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc < 5)
 		return CMD_RET_USAGE;
@@ -360,6 +442,12 @@ static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
 	u32 parent_handle, key_len, key_handle, err;
 	u8 usage_auth[DIGEST_LENGTH];
 	void *key;
+	struct udevice *dev;
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc < 5)
 		return CMD_RET_USAGE;
@@ -371,7 +459,7 @@ static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	parse_byte_string(argv[4], usage_auth, NULL);
 
-	err = tpm_load_key2_oiap(parent_handle, key, key_len, usage_auth,
+	err = tpm_load_key2_oiap(dev, parent_handle, key, key_len, usage_auth,
 				 &key_handle);
 	if (!err)
 		printf("Key handle is 0x%x\n", key_handle);
@@ -386,6 +474,12 @@ static int do_tpm_get_pub_key_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
 	u8 usage_auth[DIGEST_LENGTH];
 	u8 pub_key_buffer[TPM_PUBKEY_MAX_LENGTH];
 	size_t pub_key_len = sizeof(pub_key_buffer);
+	struct udevice *dev;
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -395,7 +489,7 @@ static int do_tpm_get_pub_key_oiap(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_FAILURE;
 	parse_byte_string(argv[2], usage_auth, NULL);
 
-	err = tpm_get_pub_key_oiap(key_handle, usage_auth, pub_key_buffer,
+	err = tpm_get_pub_key_oiap(dev, key_handle, usage_auth, pub_key_buffer,
 				   &pub_key_len);
 	if (!err) {
 		printf("dump of received pub key structure:\n");
@@ -412,7 +506,13 @@ TPM_COMMAND_NO_ARG(tpm_end_oiap)
 static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
+	struct udevice *dev;
 	int type = 0;
+	int rc;
+
+	rc = get_tpm(&dev);
+	if (rc)
+		return rc;
 
 	if (argc != 3)
 		return CMD_RET_USAGE;
@@ -451,7 +551,7 @@ static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
 		uint i;
 
 		/* fetch list of already loaded resources in the TPM */
-		err = tpm_get_capability(TPM_CAP_HANDLE, type, buf,
+		err = tpm_get_capability(dev, TPM_CAP_HANDLE, type, buf,
 					 sizeof(buf));
 		if (err) {
 			printf("tpm_get_capability returned error %d.\n", err);
@@ -460,7 +560,7 @@ static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
 		res_count = get_unaligned_be16(buf);
 		ptr = buf + 2;
 		for (i = 0; i < res_count; ++i, ptr += 4)
-			tpm_flush_specific(get_unaligned_be32(ptr), type);
+			tpm_flush_specific(dev, get_unaligned_be32(ptr), type);
 	} else {
 		u32 handle = simple_strtoul(argv[2], NULL, 0);
 
@@ -468,7 +568,7 @@ static int do_tpm_flush(cmd_tbl_t *cmdtp, int flag, int argc,
 			printf("Illegal resource handle %s\n", argv[2]);
 			return -1;
 		}
-		tpm_flush_specific(cpu_to_be32(handle), type);
+		tpm_flush_specific(dev, cpu_to_be32(handle), type);
 	}
 
 	return 0;

@@ -11,6 +11,7 @@
 #endif
 
 #include <common.h>
+#include <dm.h>
 #include <malloc.h>
 #include <fs.h>
 #include <i2c.h>
@@ -141,6 +142,19 @@ static int hre_err = HRE_E_OK;
 #define IS_VAR_HREG(spec) (((spec) & 0x38) == 0x10)
 #define HREG_IDX(spec) ((spec) & (IS_PCR_HREG(spec) ? 0x1f : 0x7))
 
+static int get_tpm(struct udevice **devp)
+{
+	int rc;
+
+	rc = uclass_first_device_err(UCLASS_TPM, devp);
+	if (rc) {
+		printf("Could not find TPM (ret=%d)\n", rc);
+		return CMD_RET_FAILURE;
+	}
+
+	return 0;
+}
+
 static const uint8_t vendor[] = "Guntermann & Drunck";
 
 /**
@@ -245,15 +259,15 @@ static u8 *get_image_location(void)
  * @param size	pointer to the size
  * @return 0 on success, != 0 on error
  */
-static int get_tpm_nv_size(uint32_t index, uint32_t *size)
+static int get_tpm_nv_size(struct udevice *tpm, uint32_t index, uint32_t *size)
 {
 	uint32_t err;
 	uint8_t info[72];
 	uint8_t *ptr;
 	uint16_t v16;
 
-	err = tpm_get_capability(TPM_CAP_NV_INDEX, index,
-		info, sizeof(info));
+	err = tpm_get_capability(tpm, TPM_CAP_NV_INDEX, index,
+				 info, sizeof(info));
 	if (err) {
 		printf("tpm_get_capability(CAP_NV_INDEX, %08x) failed: %u\n",
 		       index, err);
@@ -281,8 +295,8 @@ static int get_tpm_nv_size(uint32_t index, uint32_t *size)
  * @param[out] handle	the handle of the key iff found
  * @return 0 if key was found in TPM; != 0 if not.
  */
-static int find_key(const uint8_t auth[20], const uint8_t pubkey_digest[20],
-		uint32_t *handle)
+static int find_key(struct udevice *tpm, const uint8_t auth[20],
+		    const uint8_t pubkey_digest[20], uint32_t *handle)
 {
 	uint16_t key_count;
 	uint32_t key_handles[10];
@@ -294,7 +308,8 @@ static int find_key(const uint8_t auth[20], const uint8_t pubkey_digest[20],
 	unsigned int i;
 
 	/* fetch list of already loaded keys in the TPM */
-	err = tpm_get_capability(TPM_CAP_HANDLE, TPM_RT_KEY, buf, sizeof(buf));
+	err = tpm_get_capability(tpm, TPM_CAP_HANDLE, TPM_RT_KEY, buf,
+				 sizeof(buf));
 	if (err)
 		return -1;
 	key_count = get_unaligned_be16(buf);
@@ -305,7 +320,8 @@ static int find_key(const uint8_t auth[20], const uint8_t pubkey_digest[20],
 	/* now search a(/ the) key which we can access with the given auth */
 	for (i = 0; i < key_count; ++i) {
 		buf_len = sizeof(buf);
-		err = tpm_get_pub_key_oiap(key_handles[i], auth, buf, &buf_len);
+		err = tpm_get_pub_key_oiap(tpm, key_handles[i], auth, buf,
+					   &buf_len);
 		if (err && err != TPM_AUTHFAIL)
 			return -1;
 		if (err)
@@ -323,18 +339,18 @@ static int find_key(const uint8_t auth[20], const uint8_t pubkey_digest[20],
  * @brief read CCDM common data from TPM NV
  * @return 0 if CCDM common data was found and read, !=0 if something failed.
  */
-static int read_common_data(void)
+static int read_common_data(struct udevice *tpm)
 {
 	uint32_t size;
 	uint32_t err;
 	uint8_t buf[256];
 	sha1_context ctx;
 
-	if (get_tpm_nv_size(NV_COMMON_DATA_INDEX, &size) ||
+	if (get_tpm_nv_size(tpm, NV_COMMON_DATA_INDEX, &size) ||
 	    size < NV_COMMON_DATA_MIN_SIZE)
 		return 1;
-	err = tpm_nv_read_value(NV_COMMON_DATA_INDEX,
-		buf, min(sizeof(buf), size));
+	err = tpm_nv_read_value(tpm, NV_COMMON_DATA_INDEX,
+				buf, min(sizeof(buf), size));
 	if (err) {
 		printf("tpm_nv_read_value() failed: %u\n", err);
 		return 1;
@@ -467,7 +483,8 @@ static struct h_reg *get_hreg(uint8_t spec)
  * The value of automatic registers (PCR register and fixed registers) is
  * loaded or computed on read access.
  */
-static struct h_reg *access_hreg(uint8_t spec, enum access_mode mode)
+static struct h_reg *access_hreg(struct udevice *tpm, uint8_t spec,
+				 enum access_mode mode)
 {
 	struct h_reg *result;
 
@@ -484,13 +501,13 @@ static struct h_reg *access_hreg(uint8_t spec, enum access_mode mode)
 	if (mode & HREG_RD) {
 		if (!result->valid) {
 			if (IS_PCR_HREG(spec)) {
-				hre_tpm_err = tpm_pcr_read(HREG_IDX(spec),
+				hre_tpm_err = tpm_pcr_read(tpm, HREG_IDX(spec),
 					result->digest, 20);
 				result->valid = (hre_tpm_err == TPM_SUCCESS);
 			} else if (IS_FIX_HREG(spec)) {
 				switch (HREG_IDX(spec)) {
 				case FIX_HREG_DEVICE_ID_HASH:
-					read_common_data();
+					read_common_data(tpm);
 					break;
 				case FIX_HREG_SELF_HASH:
 					ccdm_compute_self_hash();
@@ -566,18 +583,19 @@ static void *compute_extend(void *_dst, const void *_src, size_t n)
 	return _dst;
 }
 
-static int hre_op_loadkey(struct h_reg *src_reg, struct h_reg *dst_reg,
-		const void *key, size_t key_size)
+static int hre_op_loadkey(struct udevice *tpm, struct h_reg *src_reg,
+			  struct h_reg *dst_reg, const void *key,
+			  size_t key_size)
 {
 	uint32_t parent_handle;
 	uint32_t key_handle;
 
 	if (!src_reg || !dst_reg || !src_reg->valid || !dst_reg->valid)
 		return -1;
-	if (find_key(src_reg->digest, dst_reg->digest, &parent_handle))
+	if (find_key(tpm, src_reg->digest, dst_reg->digest, &parent_handle))
 		return -1;
-	hre_tpm_err = tpm_load_key2_oiap(parent_handle, key, key_size,
-		src_reg->digest, &key_handle);
+	hre_tpm_err = tpm_load_key2_oiap(tpm, parent_handle, key, key_size,
+					 src_reg->digest, &key_handle);
 	if (hre_tpm_err) {
 		hre_err = HRE_E_TPM_FAILURE;
 		return -1;
@@ -593,7 +611,8 @@ static int hre_op_loadkey(struct h_reg *src_reg, struct h_reg *dst_reg,
  * @param[in,out] code_size	(remaining) size of the code
  * @return new instruction pointer on success, NULL on error.
  */
-static const uint8_t *hre_execute_op(const uint8_t **ip, size_t *code_size)
+static const uint8_t *hre_execute_op(struct udevice *tpm, const uint8_t **ip,
+				     size_t *code_size)
 {
 	bool dst_modified = false;
 	uint32_t ins;
@@ -624,10 +643,11 @@ static const uint8_t *hre_execute_op(const uint8_t **ip, size_t *code_size)
 	if ((opcode & 0x80) && (data_size + 4) > *code_size)
 		return NULL;
 
-	src_reg = access_hreg(src_spec, HREG_RD);
+	src_reg = access_hreg(tpm, src_spec, HREG_RD);
 	if (hre_err || hre_tpm_err)
 		return NULL;
-	dst_reg = access_hreg(dst_spec, (opcode & 0x40) ? HREG_RDWR : HREG_WR);
+	dst_reg = access_hreg(tpm, dst_spec,
+			      (opcode & 0x40) ? HREG_RDWR : HREG_WR);
 	if (hre_err || hre_tpm_err)
 		return NULL;
 
@@ -683,7 +703,7 @@ do_bin_func:
 		dst_modified = true;
 		break;
 	case HRE_LOADKEY:
-		if (hre_op_loadkey(src_reg, dst_reg, data, data_size))
+		if (hre_op_loadkey(tpm, src_reg, dst_reg, data, data_size))
 			return NULL;
 		break;
 	default:
@@ -691,8 +711,8 @@ do_bin_func:
 	}
 
 	if (dst_reg && dst_modified && IS_PCR_HREG(dst_spec)) {
-		hre_tpm_err = tpm_extend(HREG_IDX(dst_spec), dst_reg->digest,
-			dst_reg->digest);
+		hre_tpm_err = tpm_extend(tpm, HREG_IDX(dst_spec),
+					 dst_reg->digest, dst_reg->digest);
 		if (hre_tpm_err) {
 			hre_err = HRE_E_TPM_FAILURE;
 			return NULL;
@@ -715,7 +735,8 @@ end:
  * @param code_size	size of the code (in bytes).
  * @return 0 on success, != 0 on failure.
  */
-static int hre_run_program(const uint8_t *code, size_t code_size)
+static int hre_run_program(struct udevice *tpm, const uint8_t *code,
+			   size_t code_size)
 {
 	size_t code_left;
 	const uint8_t *ip = code;
@@ -724,7 +745,7 @@ static int hre_run_program(const uint8_t *code, size_t code_size)
 	hre_tpm_err = 0;
 	hre_err = HRE_E_OK;
 	while (code_left > 0)
-		if (!hre_execute_op(&ip, &code_left))
+		if (!hre_execute_op(tpm, &ip, &code_left))
 			return -1;
 
 	return hre_err;
@@ -929,26 +950,27 @@ static const uint8_t prg_stage1_prepare[] = {
 	0x81, 0x2e, 0x30, 0x00, /* opcode: LOAD PCR3, f3 */
 };
 
-static int first_stage_actions(void)
+static int first_stage_actions(struct udevice *tpm)
 {
 	int result = 0;
 	struct key_program *sd_prg = NULL;
 
 	puts("CCDM S1: start actions\n");
 #ifndef CCDM_SECOND_STAGE
-	if (tpm_continue_self_test())
+	if (tpm_continue_self_test(tpm))
 		goto failure;
 #else
-	tpm_continue_self_test();
+	tpm_continue_self_test(tpm);
 #endif
 	mdelay(37);
 
-	if (hre_run_program(prg_stage1_prepare, sizeof(prg_stage1_prepare)))
+	if (hre_run_program(tpm, prg_stage1_prepare,
+			    sizeof(prg_stage1_prepare)))
 		goto failure;
 
 	sd_prg = load_sd_key_program();
 	if (sd_prg) {
-		if (hre_run_program(sd_prg->code, sd_prg->code_size))
+		if (hre_run_program(tpm, sd_prg->code, sd_prg->code_size))
 			goto failure;
 		puts("SD code run successfully\n");
 	} else {
@@ -969,19 +991,22 @@ end:
 #ifdef CCDM_FIRST_STAGE
 static int first_stage_init(void)
 {
-	int res = 0;
+	struct udevice *tpm;
+	int ret;
+
 	puts("CCDM S1\n");
-	if (tpm_init() || tpm_startup(TPM_ST_CLEAR))
+	ret = get_tpm(&tpm);
+	if (ret || tpm_init(tpm) || tpm_startup(tpm, TPM_ST_CLEAR))
 		return 1;
-	res = first_stage_actions();
+	ret = first_stage_actions(tpm);
 #ifndef CCDM_SECOND_STAGE
-	if (!res) {
+	if (!ret) {
 		if (bl2_entry)
 			(*bl2_entry)();
-		res = 1;
+		ret = 1;
 	}
 #endif
-	return res;
+	return ret;
 }
 #endif
 
@@ -1021,24 +1046,28 @@ static int second_stage_init(void)
 	char *mac_path = NULL;
 	ulong image_addr;
 	loff_t image_size;
+	struct udevice *tpm;
 	uint32_t err;
+	int ret;
 
 	printf("CCDM S2\n");
-	if (tpm_init())
+	ret = get_tpm(&tpm);
+	if (ret || tpm_init(tpm))
 		return 1;
-	err = tpm_startup(TPM_ST_CLEAR);
+	err = tpm_startup(tpm, TPM_ST_CLEAR);
 	if (err != TPM_INVALID_POSTINIT)
 		did_first_stage_run = false;
 
 #ifdef CCDM_AUTO_FIRST_STAGE
-	if (!did_first_stage_run && first_stage_actions())
+	if (!did_first_stage_run && first_stage_actions(tpm))
 		goto failure;
 #else
 	if (!did_first_stage_run)
 		goto failure;
 #endif
 
-	if (hre_run_program(prg_stage2_prepare, sizeof(prg_stage2_prepare)))
+	if (hre_run_program(tpm, prg_stage2_prepare,
+			    sizeof(prg_stage2_prepare)))
 		goto failure;
 
 	/* run "prepboot" from env to get "mmcdev" set */
@@ -1083,12 +1112,12 @@ static int second_stage_init(void)
 	}
 	puts("CCDM image OK\n");
 
-	hre_run_program(prg_stage2_success, sizeof(prg_stage2_success));
+	hre_run_program(tpm, prg_stage2_success, sizeof(prg_stage2_success));
 
 	goto end;
 failure:
 	result = 1;
-	hre_run_program(prg_stage_fail, sizeof(prg_stage_fail));
+	hre_run_program(tpm, prg_stage_fail, sizeof(prg_stage_fail));
 end:
 	if (hmac_blob)
 		free(hmac_blob);

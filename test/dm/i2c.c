@@ -35,7 +35,7 @@ static int dm_test_i2c_find(struct unit_test_state *uts)
 	 */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_I2C, busnum, &bus));
 	ut_assertok(dm_i2c_probe(bus, chip, 0, &dev));
-	ut_asserteq(-ENODEV, dm_i2c_probe(bus, no_chip, 0, &dev));
+	ut_asserteq(-ENOENT, dm_i2c_probe(bus, no_chip, 0, &dev));
 	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_I2C, 1, &bus));
 
 	return 0;

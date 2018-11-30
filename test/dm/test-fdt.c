@@ -611,3 +611,50 @@ static int dm_test_fdt_disable_enable_by_path(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_fdt_disable_enable_by_path, DM_TESTF_SCAN_PDATA |
 					    DM_TESTF_SCAN_FDT);
+
+/* Test a few uclass phandle functions */
+static int dm_test_fdt_phandle(struct unit_test_state *uts)
+{
+	struct udevice *back, *dev, *dev2;
+
+	ut_assertok(uclass_find_first_device(UCLASS_PANEL_BACKLIGHT, &back));
+	ut_asserteq(-ENOENT, uclass_find_device_by_phandle(UCLASS_REGULATOR,
+							back, "missing", &dev));
+	ut_assertok(uclass_find_device_by_phandle(UCLASS_REGULATOR, back,
+						  "power-supply", &dev));
+	ut_asserteq(0, device_active(dev));
+	ut_asserteq_str("ldo1", dev->name);
+	ut_assertok(uclass_get_device_by_phandle(UCLASS_REGULATOR, back,
+						 "power-supply", &dev2));
+	ut_asserteq_ptr(dev, dev2);
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_phandle, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test device_find_first_child_by_uclass() */
+static int dm_test_first_child(struct unit_test_state *uts)
+{
+	struct udevice *i2c, *dev, *dev2;
+
+	ut_assertok(uclass_first_device_err(UCLASS_I2C, &i2c));
+	ut_assertok(device_find_first_child_by_uclass(i2c, UCLASS_RTC, &dev));
+	ut_asserteq_str("rtc@43", dev->name);
+	ut_assertok(device_find_child_by_name(i2c, "rtc@43", &dev2));
+	ut_asserteq_ptr(dev, dev2);
+	ut_assertok(device_find_child_by_name(i2c, "rtc@61", &dev2));
+	ut_asserteq_str("rtc@61", dev2->name);
+
+	ut_assertok(device_find_first_child_by_uclass(i2c, UCLASS_I2C_EEPROM,
+						      &dev));
+	ut_asserteq_str("eeprom@2c", dev->name);
+	ut_assertok(device_find_child_by_name(i2c, "eeprom@2c", &dev2));
+	ut_asserteq_ptr(dev, dev2);
+
+	ut_asserteq(-ENODEV, device_find_first_child_by_uclass(i2c,
+							UCLASS_VIDEO, &dev));
+	ut_asserteq(-ENODEV, device_find_child_by_name(i2c, "missing", &dev));
+
+	return 0;
+}
+DM_TEST(dm_test_first_child, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

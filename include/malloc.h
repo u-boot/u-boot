@@ -880,6 +880,7 @@ static inline void free(void *ptr) {}
 void *calloc(size_t nmemb, size_t size);
 void *memalign_simple(size_t alignment, size_t bytes);
 void *realloc_simple(void *ptr, size_t size);
+void malloc_simple_info(void);
 #else
 
 # ifdef USE_DL_PREFIX

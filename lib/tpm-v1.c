@@ -31,7 +31,7 @@ static struct session_data oiap_session = {0, };
 
 #endif /* CONFIG_TPM_AUTH_SESSIONS */
 
-u32 tpm_startup(enum tpm_startup_type mode)
+u32 tpm_startup(struct udevice *dev, enum tpm_startup_type mode)
 {
 	const u8 command[12] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xc, 0x0, 0x0, 0x0, 0x99, 0x0, 0x0,
@@ -44,49 +44,49 @@ u32 tpm_startup(enum tpm_startup_type mode)
 			     mode_offset, mode))
 		return TPM_LIB_ERROR;
 
-	return tpm_sendrecv_command(buf, NULL, NULL);
+	return tpm_sendrecv_command(dev, buf, NULL, NULL);
 }
 
-u32 tpm_resume(void)
+u32 tpm_resume(struct udevice *dev)
 {
-	return tpm_startup(TPM_ST_STATE);
+	return tpm_startup(dev, TPM_ST_STATE);
 }
 
-u32 tpm_self_test_full(void)
+u32 tpm_self_test_full(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x50,
 	};
-	return tpm_sendrecv_command(command, NULL, NULL);
+	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_continue_self_test(void)
+u32 tpm_continue_self_test(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x53,
 	};
-	return tpm_sendrecv_command(command, NULL, NULL);
+	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_clear_and_reenable(void)
+u32 tpm_clear_and_reenable(struct udevice *dev)
 {
 	u32 ret;
 
 	log_info("TPM: Clear and re-enable\n");
-	ret = tpm_force_clear();
+	ret = tpm_force_clear(dev);
 	if (ret != TPM_SUCCESS) {
 		log_err("Can't initiate a force clear\n");
 		return ret;
 	}
 
 #if IS_ENABLED(CONFIG_TPM_V1)
-	ret = tpm_physical_enable();
+	ret = tpm_physical_enable(dev);
 	if (ret != TPM_SUCCESS) {
 		log_err("TPM: Can't set enabled state\n");
 		return ret;
 	}
 
-	ret = tpm_physical_set_deactivated(0);
+	ret = tpm_physical_set_deactivated(dev, 0);
 	if (ret != TPM_SUCCESS) {
 		log_err("TPM: Can't set deactivated state\n");
 		return ret;
@@ -96,7 +96,7 @@ u32 tpm_clear_and_reenable(void)
 	return TPM_SUCCESS;
 }
 
-u32 tpm_nv_define_space(u32 index, u32 perm, u32 size)
+u32 tpm_nv_define_space(struct udevice *dev, u32 index, u32 perm, u32 size)
 {
 	const u8 command[101] = {
 		0x0, 0xc1,		/* TPM_TAG */
@@ -136,15 +136,15 @@ u32 tpm_nv_define_space(u32 index, u32 perm, u32 size)
 			     size_offset, size))
 		return TPM_LIB_ERROR;
 
-	return tpm_sendrecv_command(buf, NULL, NULL);
+	return tpm_sendrecv_command(dev, buf, NULL, NULL);
 }
 
-u32 tpm_nv_set_locked(void)
+u32 tpm_nv_set_locked(struct udevice *dev)
 {
-	return tpm_nv_define_space(TPM_NV_INDEX_LOCK, 0, 0);
+	return tpm_nv_define_space(dev, TPM_NV_INDEX_LOCK, 0, 0);
 }
 
-u32 tpm_nv_read_value(u32 index, void *data, u32 count)
+u32 tpm_nv_read_value(struct udevice *dev, u32 index, void *data, u32 count)
 {
 	const u8 command[22] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0x16, 0x0, 0x0, 0x0, 0xcf,
@@ -163,7 +163,7 @@ u32 tpm_nv_read_value(u32 index, void *data, u32 count)
 			     index_offset, index,
 			     length_offset, count))
 		return TPM_LIB_ERROR;
-	err = tpm_sendrecv_command(buf, response, &response_length);
+	err = tpm_sendrecv_command(dev, buf, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "d",
@@ -178,7 +178,8 @@ u32 tpm_nv_read_value(u32 index, void *data, u32 count)
 	return 0;
 }
 
-u32 tpm_nv_write_value(u32 index, const void *data, u32 length)
+u32 tpm_nv_write_value(struct udevice *dev, u32 index, const void *data,
+		       u32 length)
 {
 	const u8 command[256] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xcd,
@@ -201,21 +202,22 @@ u32 tpm_nv_write_value(u32 index, const void *data, u32 length)
 			     length_offset, length,
 			     data_offset, data, length))
 		return TPM_LIB_ERROR;
-	err = tpm_sendrecv_command(buf, response, &response_length);
+	err = tpm_sendrecv_command(dev, buf, response, &response_length);
 	if (err)
 		return err;
 
 	return 0;
 }
 
-uint32_t tpm_set_global_lock(void)
+uint32_t tpm_set_global_lock(struct udevice *dev)
 {
 	u32 x;
 
-	return tpm_nv_write_value(TPM_NV_INDEX_0, (uint8_t *)&x, 0);
+	return tpm_nv_write_value(dev, TPM_NV_INDEX_0, (uint8_t *)&x, 0);
 }
 
-u32 tpm_extend(u32 index, const void *in_digest, void *out_digest)
+u32 tpm_extend(struct udevice *dev, u32 index, const void *in_digest,
+	       void *out_digest)
 {
 	const u8 command[34] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0x22, 0x0, 0x0, 0x0, 0x14,
@@ -234,7 +236,7 @@ u32 tpm_extend(u32 index, const void *in_digest, void *out_digest)
 			     in_digest_offset, in_digest,
 			     PCR_DIGEST_LENGTH))
 		return TPM_LIB_ERROR;
-	err = tpm_sendrecv_command(buf, response, &response_length);
+	err = tpm_sendrecv_command(dev, buf, response, &response_length);
 	if (err)
 		return err;
 
@@ -246,7 +248,7 @@ u32 tpm_extend(u32 index, const void *in_digest, void *out_digest)
 	return 0;
 }
 
-u32 tpm_pcr_read(u32 index, void *data, size_t count)
+u32 tpm_pcr_read(struct udevice *dev, u32 index, void *data, size_t count)
 {
 	const u8 command[14] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xe, 0x0, 0x0, 0x0, 0x15,
@@ -264,7 +266,7 @@ u32 tpm_pcr_read(u32 index, void *data, size_t count)
 			     0, command, sizeof(command),
 			     index_offset, index))
 		return TPM_LIB_ERROR;
-	err = tpm_sendrecv_command(buf, response, &response_length);
+	err = tpm_sendrecv_command(dev, buf, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "s",
@@ -274,7 +276,7 @@ u32 tpm_pcr_read(u32 index, void *data, size_t count)
 	return 0;
 }
 
-u32 tpm_tsc_physical_presence(u16 presence)
+u32 tpm_tsc_physical_presence(struct udevice *dev, u16 presence)
 {
 	const u8 command[12] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xc, 0x40, 0x0, 0x0, 0xa, 0x0, 0x0,
@@ -287,19 +289,19 @@ u32 tpm_tsc_physical_presence(u16 presence)
 			     presence_offset, presence))
 		return TPM_LIB_ERROR;
 
-	return tpm_sendrecv_command(buf, NULL, NULL);
+	return tpm_sendrecv_command(dev, buf, NULL, NULL);
 }
 
-u32 tpm_finalise_physical_presence(void)
+u32 tpm_finalise_physical_presence(struct udevice *dev)
 {
 	const u8 command[12] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xc, 0x40, 0x0, 0x0, 0xa, 0x2, 0xa0,
 	};
 
-	return tpm_sendrecv_command(command, NULL, NULL);
+	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_read_pubek(void *data, size_t count)
+u32 tpm_read_pubek(struct udevice *dev, void *data, size_t count)
 {
 	const u8 command[30] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0x1e, 0x0, 0x0, 0x0, 0x7c,
@@ -312,7 +314,7 @@ u32 tpm_read_pubek(void *data, size_t count)
 	u32 data_size;
 	u32 err;
 
-	err = tpm_sendrecv_command(command, response, &response_length);
+	err = tpm_sendrecv_command(dev, command, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "d",
@@ -330,34 +332,34 @@ u32 tpm_read_pubek(void *data, size_t count)
 	return 0;
 }
 
-u32 tpm_force_clear(void)
+u32 tpm_force_clear(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x5d,
 	};
 
-	return tpm_sendrecv_command(command, NULL, NULL);
+	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_physical_enable(void)
+u32 tpm_physical_enable(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x6f,
 	};
 
-	return tpm_sendrecv_command(command, NULL, NULL);
+	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_physical_disable(void)
+u32 tpm_physical_disable(struct udevice *dev)
 {
 	const u8 command[10] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0, 0x0, 0x70,
 	};
 
-	return tpm_sendrecv_command(command, NULL, NULL);
+	return tpm_sendrecv_command(dev, command, NULL, NULL);
 }
 
-u32 tpm_physical_set_deactivated(u8 state)
+u32 tpm_physical_set_deactivated(struct udevice *dev, u8 state)
 {
 	const u8 command[11] = {
 		0x0, 0xc1, 0x0, 0x0, 0x0, 0xb, 0x0, 0x0, 0x0, 0x72,
@@ -370,10 +372,11 @@ u32 tpm_physical_set_deactivated(u8 state)
 			     state_offset, state))
 		return TPM_LIB_ERROR;
 
-	return tpm_sendrecv_command(buf, NULL, NULL);
+	return tpm_sendrecv_command(dev, buf, NULL, NULL);
 }
 
-u32 tpm_get_capability(u32 cap_area, u32 sub_cap, void *cap, size_t count)
+u32 tpm_get_capability(struct udevice *dev, u32 cap_area, u32 sub_cap,
+		       void *cap, size_t count)
 {
 	const u8 command[22] = {
 		0x0, 0xc1,		/* TPM_TAG */
@@ -397,7 +400,7 @@ u32 tpm_get_capability(u32 cap_area, u32 sub_cap, void *cap, size_t count)
 			     cap_area_offset, cap_area,
 			     sub_cap_offset, sub_cap))
 		return TPM_LIB_ERROR;
-	err = tpm_sendrecv_command(buf, response, &response_length);
+	err = tpm_sendrecv_command(dev, buf, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "d",
@@ -412,7 +415,8 @@ u32 tpm_get_capability(u32 cap_area, u32 sub_cap, void *cap, size_t count)
 	return 0;
 }
 
-u32 tpm_get_permanent_flags(struct tpm_permanent_flags *pflags)
+u32 tpm_get_permanent_flags(struct udevice *dev,
+			    struct tpm_permanent_flags *pflags)
 {
 	const u8 command[22] = {
 		0x0, 0xc1,		/* TPM_TAG */
@@ -429,7 +433,7 @@ u32 tpm_get_permanent_flags(struct tpm_permanent_flags *pflags)
 	u32 err;
 	u32 data_size;
 
-	err = tpm_sendrecv_command(command, response, &response_length);
+	err = tpm_sendrecv_command(dev, command, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "d",
@@ -450,7 +454,7 @@ u32 tpm_get_permanent_flags(struct tpm_permanent_flags *pflags)
 	return 0;
 }
 
-u32 tpm_get_permissions(u32 index, u32 *perm)
+u32 tpm_get_permissions(struct udevice *dev, u32 index, u32 *perm)
 {
 	const u8 command[22] = {
 		0x0, 0xc1,		/* TPM_TAG */
@@ -468,7 +472,7 @@ u32 tpm_get_permissions(u32 index, u32 *perm)
 	if (pack_byte_string(buf, sizeof(buf), "d", 0, command, sizeof(command),
 			     index_offset, index))
 		return TPM_LIB_ERROR;
-	err = tpm_sendrecv_command(buf, response, &response_length);
+	err = tpm_sendrecv_command(dev, buf, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "d",
@@ -479,7 +483,7 @@ u32 tpm_get_permissions(u32 index, u32 *perm)
 }
 
 #ifdef CONFIG_TPM_FLUSH_RESOURCES
-u32 tpm_flush_specific(u32 key_handle, u32 resource_type)
+u32 tpm_flush_specific(struct udevice *dev, u32 key_handle, u32 resource_type)
 {
 	const u8 command[18] = {
 		0x00, 0xc1,             /* TPM_TAG */
@@ -500,7 +504,7 @@ u32 tpm_flush_specific(u32 key_handle, u32 resource_type)
 			     resource_type_offset, resource_type))
 		return TPM_LIB_ERROR;
 
-	err = tpm_sendrecv_command(buf, response, &response_length);
+	err = tpm_sendrecv_command(dev, buf, response, &response_length);
 	if (err)
 		return err;
 	return 0;
@@ -638,7 +642,7 @@ static u32 verify_response_auth(u32 command_code, const void *response,
 	return TPM_SUCCESS;
 }
 
-u32 tpm_terminate_auth_session(u32 auth_handle)
+u32 tpm_terminate_auth_session(struct udevice *dev, u32 auth_handle)
 {
 	const u8 command[18] = {
 		0x00, 0xc1,		/* TPM_TAG */
@@ -657,19 +661,19 @@ u32 tpm_terminate_auth_session(u32 auth_handle)
 	if (oiap_session.valid && oiap_session.handle == auth_handle)
 		oiap_session.valid = 0;
 
-	return tpm_sendrecv_command(request, NULL, NULL);
+	return tpm_sendrecv_command(dev, request, NULL, NULL);
 }
 
-u32 tpm_end_oiap(void)
+u32 tpm_end_oiap(struct udevice *dev)
 {
 	u32 err = TPM_SUCCESS;
 
 	if (oiap_session.valid)
-		err = tpm_terminate_auth_session(oiap_session.handle);
+		err = tpm_terminate_auth_session(dev, oiap_session.handle);
 	return err;
 }
 
-u32 tpm_oiap(u32 *auth_handle)
+u32 tpm_oiap(struct udevice *dev, u32 *auth_handle)
 {
 	const u8 command[10] = {
 		0x00, 0xc1,		/* TPM_TAG */
@@ -683,9 +687,9 @@ u32 tpm_oiap(u32 *auth_handle)
 	u32 err;
 
 	if (oiap_session.valid)
-		tpm_terminate_auth_session(oiap_session.handle);
+		tpm_terminate_auth_session(dev, oiap_session.handle);
 
-	err = tpm_sendrecv_command(command, response, &response_length);
+	err = tpm_sendrecv_command(dev, command, response, &response_length);
 	if (err)
 		return err;
 	if (unpack_byte_string(response, response_length, "ds",
@@ -699,8 +703,9 @@ u32 tpm_oiap(u32 *auth_handle)
 	return 0;
 }
 
-u32 tpm_load_key2_oiap(u32 parent_handle, const void *key, size_t key_length,
-		       const void *parent_key_usage_auth, u32 *key_handle)
+u32 tpm_load_key2_oiap(struct udevice *dev, u32 parent_handle, const void *key,
+		       size_t key_length, const void *parent_key_usage_auth,
+		       u32 *key_handle)
 {
 	const u8 command[14] = {
 		0x00, 0xc2,		/* TPM_TAG */
@@ -719,7 +724,7 @@ u32 tpm_load_key2_oiap(u32 parent_handle, const void *key, size_t key_length,
 	u32 err;
 
 	if (!oiap_session.valid) {
-		err = tpm_oiap(NULL);
+		err = tpm_oiap(dev, NULL);
 		if (err)
 			return err;
 	}
@@ -739,7 +744,7 @@ u32 tpm_load_key2_oiap(u32 parent_handle, const void *key, size_t key_length,
 				  parent_key_usage_auth);
 	if (err)
 		return err;
-	err = tpm_sendrecv_command(request, response, &response_length);
+	err = tpm_sendrecv_command(dev, request, response, &response_length);
 	if (err) {
 		if (err == TPM_AUTHFAIL)
 			oiap_session.valid = 0;
@@ -764,7 +769,8 @@ u32 tpm_load_key2_oiap(u32 parent_handle, const void *key, size_t key_length,
 	return 0;
 }
 
-u32 tpm_get_pub_key_oiap(u32 key_handle, const void *usage_auth, void *pubkey,
+u32 tpm_get_pub_key_oiap(struct udevice *dev, u32 key_handle,
+			 const void *usage_auth, void *pubkey,
 			 size_t *pubkey_len)
 {
 	const u8 command[14] = {
@@ -783,7 +789,7 @@ u32 tpm_get_pub_key_oiap(u32 key_handle, const void *usage_auth, void *pubkey,
 	u32 err;
 
 	if (!oiap_session.valid) {
-		err = tpm_oiap(NULL);
+		err = tpm_oiap(dev, NULL);
 		if (err)
 			return err;
 	}
@@ -799,7 +805,7 @@ u32 tpm_get_pub_key_oiap(u32 key_handle, const void *usage_auth, void *pubkey,
 				  request + sizeof(command), usage_auth);
 	if (err)
 		return err;
-	err = tpm_sendrecv_command(request, response, &response_length);
+	err = tpm_sendrecv_command(dev, request, response, &response_length);
 	if (err) {
 		if (err == TPM_AUTHFAIL)
 			oiap_session.valid = 0;
@@ -829,8 +835,8 @@ u32 tpm_get_pub_key_oiap(u32 key_handle, const void *usage_auth, void *pubkey,
 }
 
 #ifdef CONFIG_TPM_LOAD_KEY_BY_SHA1
-u32 tpm_find_key_sha1(const u8 auth[20], const u8 pubkey_digest[20],
-		      u32 *handle)
+u32 tpm_find_key_sha1(struct udevice *dev, const u8 auth[20],
+		      const u8 pubkey_digest[20], u32 *handle)
 {
 	u16 key_count;
 	u32 key_handles[10];
@@ -842,7 +848,8 @@ u32 tpm_find_key_sha1(const u8 auth[20], const u8 pubkey_digest[20],
 	unsigned int i;
 
 	/* fetch list of already loaded keys in the TPM */
-	err = tpm_get_capability(TPM_CAP_HANDLE, TPM_RT_KEY, buf, sizeof(buf));
+	err = tpm_get_capability(dev, TPM_CAP_HANDLE, TPM_RT_KEY, buf,
+				 sizeof(buf));
 	if (err)
 		return -1;
 	key_count = get_unaligned_be16(buf);
@@ -870,7 +877,7 @@ u32 tpm_find_key_sha1(const u8 auth[20], const u8 pubkey_digest[20],
 
 #endif /* CONFIG_TPM_AUTH_SESSIONS */
 
-u32 tpm_get_random(void *data, u32 count)
+u32 tpm_get_random(struct udevice *dev, void *data, u32 count)
 {
 	const u8 command[14] = {
 		0x0, 0xc1,		/* TPM_TAG */
@@ -894,7 +901,8 @@ u32 tpm_get_random(void *data, u32 count)
 				     0, command, sizeof(command),
 				     length_offset, this_bytes))
 			return TPM_LIB_ERROR;
-		err = tpm_sendrecv_command(buf, response, &response_length);
+		err = tpm_sendrecv_command(dev, buf, response,
+					   &response_length);
 		if (err)
 			return err;
 		if (unpack_byte_string(response, response_length, "d",

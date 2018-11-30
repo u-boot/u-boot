@@ -699,6 +699,40 @@ int device_find_first_inactive_child(struct udevice *parent,
 	return -ENODEV;
 }
 
+int device_find_first_child_by_uclass(struct udevice *parent,
+				      enum uclass_id uclass_id,
+				      struct udevice **devp)
+{
+	struct udevice *dev;
+
+	*devp = NULL;
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		if (device_get_uclass_id(dev) == uclass_id) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
+int device_find_child_by_name(struct udevice *parent, const char *name,
+			      struct udevice **devp)
+{
+	struct udevice *dev;
+
+	*devp = NULL;
+
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		if (!strcmp(dev->name, name)) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
 struct udevice *dev_get_parent(const struct udevice *child)
 {
 	return child->parent;

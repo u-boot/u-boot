@@ -735,9 +735,10 @@ int os_find_u_boot(char *fname, int maxlen)
 	}
 
 	/* Look for 'u-boot' in the parent directory of spl/ */
-	p = strstr(fname, "/spl/");
+	p = strstr(fname, "spl/");
 	if (p) {
-		strcpy(p, p + 4);
+		/* Remove the "spl" characters */
+		memmove(p, p + 4, strlen(p + 4) + 1);
 		fd = os_open(fname, O_RDONLY);
 		if (fd >= 0) {
 			close(fd);
