@@ -28,3 +28,18 @@
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	1
 #endif
+
+#ifndef CONFIG_SPL_BUILD
+#define ENV_MEM_LAYOUT_SETTINGS \
+	"scriptaddr=0x60000000\0" \
+	"fdt_addr_r=0x61f00000\0" \
+	"kernel_addr_r=0x62000000\0" \
+	"ramdisk_addr_r=0x64000000\0"
+
+#include <config_distro_bootcmd.h>
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	ENV_MEM_LAYOUT_SETTINGS \
+	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
+	"partitions=" PARTS_DEFAULT \
+	BOOTENV
+#endif
