@@ -69,16 +69,21 @@ check_member(rk3399_cru, sdio1_con[1], 0x594);
 #define MHz		1000000
 #define KHz		1000
 #define OSC_HZ		(24*MHz)
-#define APLL_HZ		(600*MHz)
+#define LPLL_HZ		(600*MHz)
+#define BPLL_HZ		(600*MHz)
 #define GPLL_HZ		(594*MHz)
 #define CPLL_HZ		(384*MHz)
 #define PPLL_HZ		(676*MHz)
 
 #define PMU_PCLK_HZ	(48*MHz)
 
-#define ACLKM_CORE_HZ	(300*MHz)
-#define ATCLK_CORE_HZ	(300*MHz)
-#define PCLK_DBG_HZ	(100*MHz)
+#define ACLKM_CORE_L_HZ	(300*MHz)
+#define ATCLK_CORE_L_HZ	(300*MHz)
+#define PCLK_DBG_L_HZ	(100*MHz)
+
+#define ACLKM_CORE_B_HZ	(300*MHz)
+#define ATCLK_CORE_B_HZ	(300*MHz)
+#define PCLK_DBG_B_HZ	(100*MHz)
 
 #define PERIHP_ACLK_HZ	(148500*KHz)
 #define PERIHP_HCLK_HZ	(148500*KHz)
@@ -97,5 +102,14 @@ enum apll_l_frequencies {
 	APLL_L_1600_MHZ,
 	APLL_L_600_MHZ,
 };
+
+enum apll_b_frequencies {
+	APLL_B_600_MHZ,
+};
+
+void rk3399_configure_cpu_l(struct rk3399_cru *cru,
+			    enum apll_l_frequencies apll_l_freq);
+void rk3399_configure_cpu_b(struct rk3399_cru *cru,
+			    enum apll_b_frequencies apll_b_freq);
 
 #endif	/* __ASM_ARCH_CRU_RK3399_H_ */
