@@ -346,6 +346,12 @@ config MAX_CPUS
 	  cores, count the reserved ports. This will allocate enough memory
 	  in spin table to properly handle all cores.
 
+config EMC2305
+	bool "Fan controller"
+	help
+	 Enable the EMC2305 fan controller for configuration of fan
+	 speed.
+
 config SECURE_BOOT
 	bool "Secure Boot"
 	help
