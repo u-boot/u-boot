@@ -29,7 +29,15 @@
 	u-boot,dm-pre-reloc;
 };
 
+&mmc1 {
+	u-boot,dm-pre-reloc;
+};
+
 &mmc1_pins {
+	u-boot,dm-pre-reloc;
+};
+
+&mmc2 {
 	u-boot,dm-pre-reloc;
 };
 
