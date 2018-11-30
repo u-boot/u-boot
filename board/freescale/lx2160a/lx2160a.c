@@ -26,6 +26,10 @@
 #include "../common/vid.h"
 #include <fsl_immap.h>
 
+#ifdef CONFIG_EMC2305
+#include "../common/emc2305.h"
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct pl01x_serial_platdata serial0 = {
@@ -80,6 +84,13 @@ int board_early_init_f(void)
 #endif
 	/* get required clock for UART IP */
 	uart_get_clock();
+
+#ifdef CONFIG_EMC2305
+	select_i2c_ch_pca9547(I2C_MUX_CH_EMC2305);
+	emc2305_init();
+	set_fan_speed(I2C_EMC2305_PWM);
+	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+#endif
 
 	fsl_lsch3_early_init_f();
 	return 0;

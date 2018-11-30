@@ -70,6 +70,12 @@
 
 #endif
 
+/* EMC2305 */
+#define I2C_MUX_CH_EMC2305		0x09
+#define I2C_EMC2305_ADDR		0x4D
+#define I2C_EMC2305_CMD		0x40
+#define I2C_EMC2305_PWM		0x80
+
 /* EEPROM */
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
