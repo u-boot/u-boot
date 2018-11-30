@@ -14,6 +14,8 @@ static const efi_guid_t efi_pxe_guid = EFI_PXE_GUID;
 static struct efi_pxe_packet *dhcp_ack;
 static bool new_rx_packet;
 static void *new_tx_packet;
+static void *transmit_buffer;
+
 /*
  * The notification function of this event is called in every timer cycle
  * to check if a new network packet has been received.
@@ -198,13 +200,11 @@ static efi_status_t EFIAPI efi_net_transmit(struct efi_simple_network *this,
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 	}
 
-#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
-	/* Ethernet packets always fit, just bounce */
-	memcpy(efi_bounce_buffer, buffer, buffer_size);
-	net_send_packet(efi_bounce_buffer, buffer_size);
-#else
-	net_send_packet(buffer, buffer_size);
-#endif
+	/* Ensure that the packet fits into the buffer */
+	if (buffer_size > PKTSIZE_ALIGN)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	memcpy(transmit_buffer, buffer, buffer_size);
+	net_send_packet(transmit_buffer, buffer_size);
 
 	new_tx_packet = buffer;
 
@@ -325,10 +325,14 @@ efi_status_t efi_net_register(void)
 
 	/* We only expose the "active" network device, so one is enough */
 	netobj = calloc(1, sizeof(*netobj));
-	if (!netobj) {
-		printf("ERROR: Out of memory\n");
-		return EFI_OUT_OF_RESOURCES;
-	}
+	if (!netobj)
+		goto out_of_resources;
+
+	/* Allocate an aligned transmit buffer */
+	transmit_buffer = calloc(1, PKTSIZE_ALIGN + PKTALIGN);
+	if (!transmit_buffer)
+		goto out_of_resources;
+	transmit_buffer = (void *)ALIGN((uintptr_t)transmit_buffer, PKTALIGN);
 
 	/* Hook net up to the device list */
 	efi_add_handle(&netobj->header);
@@ -408,4 +412,9 @@ efi_status_t efi_net_register(void)
 failure_to_add_protocol:
 	printf("ERROR: Failure to add protocol\n");
 	return r;
+out_of_resources:
+	free(netobj);
+	/* free(transmit_buffer) not needed yet */
+	printf("ERROR: Out of memory\n");
+	return EFI_OUT_OF_RESOURCES;
 }
