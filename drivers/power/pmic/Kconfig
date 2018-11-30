@@ -48,6 +48,20 @@ config PMIC_AS3722
 	  interface and is designs to cover most of the power managementment
 	  required for a tablets or laptop.
 
+config DM_PMIC_FAN53555
+	bool "Enable support for OnSemi FAN53555"
+	depends on DM_PMIC && DM_REGULATOR && DM_I2C
+	select DM_REGULATOR_FAN53555
+	help
+	  This config enables implementation of driver-model PMIC
+	  uclass features for the FAN53555 regulator. The FAN53555 is
+	  a (family of) single-output regulators that supports
+	  transitioning between two different output voltages based on
+	  an voltage selection pin.
+
+	  The driver implements read/write operations for use with the FAN53555
+	  regulator driver and binds the regulator driver to its node.
+
 config DM_PMIC_PFUZE100
 	bool "Enable Driver Model for PMIC PFUZE100"
 	depends on DM_PMIC

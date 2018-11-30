@@ -69,6 +69,22 @@ config DM_REGULATOR_MAX77686
 	features for REGULATOR MAX77686. The driver implements get/set api for:
 	value, enable and mode.
 
+config DM_REGULATOR_FAN53555
+	bool "Enable Driver Model for REGULATOR FAN53555"
+	depends on DM_PMIC_FAN53555
+	help
+	  This config enables implementation of driver-model regulator
+	  uclass features for the FAN53555 regulator. The FAN53555 is
+	  a (family of) single-output regulators that supports
+	  transitioning between two different output voltages based on
+	  an voltage selection pin.
+
+	  The driver implements a get/set api for the voltage of the
+	  'normal mode' voltage only. Switching to 'suspend mode'
+	  (i.e. the alternate voltage), disabling output via software,
+	  or switching the mode is not supported by this driver (at
+	  this time).
+
 config DM_REGULATOR_FIXED
 	bool "Enable Driver Model for REGULATOR Fixed value"
 	depends on DM_REGULATOR
