@@ -55,7 +55,6 @@
 #define CONFIG_SYS_MAXARGS	32
 
 /* MMC */
-#define CONFIG_BOUNCE_BUFFER
 #define CONFIG_FSL_USDHC
 
 /* Fuses */

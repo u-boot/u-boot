@@ -23,9 +23,6 @@
 
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 
-/* MMC/SD IP block */
-#define CONFIG_BOUNCE_BUFFER
-
 /* RAW SD card / eMMC locations. */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)
 

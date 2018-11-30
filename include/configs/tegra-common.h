@@ -88,7 +88,4 @@
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00010000
 #endif
 
-/* Misc utility code */
-#define CONFIG_BOUNCE_BUFFER
-
 #endif /* _TEGRA_COMMON_H_ */

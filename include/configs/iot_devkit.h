@@ -71,9 +71,6 @@
 					CONFIG_SYS_MALLOC_LEN - \
 					CONFIG_ENV_SIZE
 
-/* Required by DW MMC driver */
-#define CONFIG_BOUNCE_BUFFER
-
 /*
  * Environment
  */

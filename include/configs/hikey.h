@@ -55,9 +55,6 @@
 
 #define CONFIG_HIKEY_GPIO
 
-/* SD/MMC configuration */
-#define CONFIG_BOUNCE_BUFFER
-
 /* Command line configuration */
 
 /* BOOTP options */

@@ -82,9 +82,4 @@
  * Console configuration
  */
 
-/*
- * Misc utility configuration
- */
-#define CONFIG_BOUNCE_BUFFER
-
 #endif /* _CONFIG_AXS10X_H_ */

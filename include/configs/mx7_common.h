@@ -40,7 +40,6 @@
 #define CONFIG_MXC_UART
 
 /* MMC */
-#define CONFIG_BOUNCE_BUFFER
 #define CONFIG_FSL_USDHC
 
 /* Fuses */

@@ -28,7 +28,6 @@
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* 64M */
 
 /* MMC/SD IP block */
-#define CONFIG_BOUNCE_BUFFER
 #define CONFIG_ROCKCHIP_SDHCI_MAX_FREQ	200000000
 
 /* RAW SD card / eMMC locations. */

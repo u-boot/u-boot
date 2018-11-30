@@ -26,9 +26,6 @@
 /* USB configuration */
 #define CONFIG_USB_MAX_CONTROLLER_COUNT		2
 
-/* SD/MMC */
-#define CONFIG_BOUNCE_BUFFER
-
 /*****************************************************************************
  *  Initial environment variables
  *****************************************************************************/

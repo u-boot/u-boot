@@ -18,9 +18,6 @@
 #define CONFIG_SYS_MALLOC_LEN		SZ_64K
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_SDRAM_BASE
 
-/* Required by DW MMC driver */
-#define CONFIG_BOUNCE_BUFFER
-
 /*
  * Environment
  */

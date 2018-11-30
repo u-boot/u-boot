@@ -178,6 +178,7 @@ config MMC_DAVINCI
 
 config MMC_DW
 	bool "Synopsys DesignWare Memory Card Interface"
+	select BOUNCE_BUFFER
 	help
 	  This selects support for the Synopsys DesignWare Mobile Storage IP
 	  block, this provides host support for SD and MMC interfaces, in both
@@ -239,6 +240,7 @@ config MMC_MXC
 config MMC_MXS
 	bool "Freescale MXS Multimedia Card Interface support"
 	depends on MX23 || MX28 || MX6 || MX7
+	select BOUNCE_BUFFER
 	select APBH_DMA
 	select APBH_DMA_BURST if ARCH_MX6 || ARCH_MX7
 	select APBH_DMA_BURST8 if ARCH_MX6 || ARCH_MX7
@@ -535,6 +537,7 @@ config MMC_SDHCI_TANGIER
 config MMC_SDHCI_TEGRA
 	bool "SDHCI platform support for the Tegra SD/MMC Controller"
 	depends on TEGRA
+	select BOUNCE_BUFFER
 	default y
 	help
 	  This selects the Tegra SD/MMC controller. If you have a Tegra

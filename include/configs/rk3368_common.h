@@ -32,8 +32,6 @@
 #define CONFIG_SPL_BSS_START_ADDR       0x400000
 #define CONFIG_SPL_BSS_MAX_SIZE         0x20000
 
-#define CONFIG_BOUNCE_BUFFER
-
 #ifndef CONFIG_SPL_BUILD
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00500000\0" \

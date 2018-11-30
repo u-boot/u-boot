@@ -154,7 +154,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * SDMMC configurations
  */
 #ifdef CONFIG_CMD_MMC
-#define CONFIG_BOUNCE_BUFFER
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	256
 #endif
 /*
