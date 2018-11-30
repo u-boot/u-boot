@@ -551,7 +551,12 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 
 __weak void efi_add_known_memory(void)
 {
+	u64 ram_top = board_get_usable_ram_top(0) & ~EFI_PAGE_MASK;
 	int i;
+
+	/* Fix for 32bit targets with ram_top at 4G */
+	if (!ram_top)
+		ram_top = 0x100000000ULL;
 
 	/* Add RAM */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -564,11 +569,32 @@ __weak void efi_add_known_memory(void)
 		ram_end &= ~EFI_PAGE_MASK;
 		ram_start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
 
-		if (ram_end > ram_start) {
-			pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
+		if (ram_end <= ram_start) {
+			/* Invalid mapping, keep going. */
+			continue;
+		}
 
+		pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
+
+		efi_add_memory_map(ram_start, pages,
+				   EFI_CONVENTIONAL_MEMORY, false);
+
+		/*
+		 * Boards may indicate to the U-Boot memory core that they
+		 * can not support memory above ram_top. Let's honor this
+		 * in the efi_loader subsystem too by declaring any memory
+		 * above ram_top as "already occupied by firmware".
+		 */
+		if (ram_top < ram_start) {
+			/* ram_top is before this region, reserve all */
 			efi_add_memory_map(ram_start, pages,
-					   EFI_CONVENTIONAL_MEMORY, false);
+					   EFI_BOOT_SERVICES_DATA, true);
+		} else if ((ram_top >= ram_start) && (ram_top < ram_end)) {
+			/* ram_top is inside this region, reserve parts */
+			pages = (ram_end - ram_top) >> EFI_PAGE_SHIFT;
+
+			efi_add_memory_map(ram_top, pages,
+					   EFI_BOOT_SERVICES_DATA, true);
 		}
 	}
 }
