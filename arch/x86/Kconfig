@@ -729,7 +729,7 @@ config PCIE_ECAM_SIZE
 	  maximum number of PCI buses as defined by the PCI specification.
 
 config I8259_PIC
-	bool
+	bool "Enable Intel 8259 compatible interrupt controller"
 	default y
 	help
 	  Intel 8259 ISA compatible chipset incorporates two 8259 (master and
@@ -737,7 +737,7 @@ config I8259_PIC
 	  the interrupt correctly.
 
 config APIC
-	bool
+	bool "Enable Intel Advanced Programmable Interrupt Controller"
 	default y
 	help
 	  The (A)dvanced (P)rogrammable (I)nterrupt (C)ontroller is responsible
