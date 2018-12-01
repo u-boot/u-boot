@@ -192,6 +192,34 @@
 			status = "disabled";
 		};
 
+		enet0: ethernet@fffe4000 {
+			compatible = "brcm,bcm6348-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xfffe4000 0x2dc>;
+			clocks = <&periph_clk BCM6358_CLK_ENET0>;
+			dmas = <&iudma BCM6358_DMA_ENET0_RX>,
+			       <&iudma BCM6358_DMA_ENET0_TX>;
+			dma-names = "rx",
+				    "tx";
+
+			status = "disabled";
+		};
+
+		enet1: ethernet@fffe4800 {
+			compatible = "brcm,bcm6348-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xfffe4800 0x2dc>;
+			clocks = <&periph_clk BCM6358_CLK_ENET1>;
+			dmas = <&iudma BCM6358_DMA_ENET1_RX>,
+			       <&iudma BCM6358_DMA_ENET1_TX>;
+			dma-names = "rx",
+				    "tx";
+
+			status = "disabled";
+		};
+
 		iudma: dma-controller@fffe5000 {
 			compatible = "brcm,bcm6348-iudma";
 			reg = <0xfffe5000 0x24>,
