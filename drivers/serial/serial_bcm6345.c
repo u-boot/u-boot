@@ -89,26 +89,26 @@ struct bcm6345_serial_priv {
 /* enable rx & tx operation on uart */
 static void bcm6345_serial_enable(void __iomem *base)
 {
-	setbits_be32(base + UART_CTL_REG, UART_CTL_BRGEN_MASK |
-		     UART_CTL_TXEN_MASK | UART_CTL_RXEN_MASK);
+	setbits_32(base + UART_CTL_REG, UART_CTL_BRGEN_MASK |
+		   UART_CTL_TXEN_MASK | UART_CTL_RXEN_MASK);
 }
 
 /* disable rx & tx operation on uart */
 static void bcm6345_serial_disable(void __iomem *base)
 {
-	clrbits_be32(base + UART_CTL_REG, UART_CTL_BRGEN_MASK |
-		     UART_CTL_TXEN_MASK | UART_CTL_RXEN_MASK);
+	clrbits_32(base + UART_CTL_REG, UART_CTL_BRGEN_MASK |
+		   UART_CTL_TXEN_MASK | UART_CTL_RXEN_MASK);
 }
 
 /* clear all unread data in rx fifo and unsent data in tx fifo */
 static void bcm6345_serial_flush(void __iomem *base)
 {
 	/* empty rx and tx fifo */
-	setbits_be32(base + UART_CTL_REG, UART_CTL_RSTRXFIFO_MASK |
-		     UART_CTL_RSTTXFIFO_MASK);
+	setbits_32(base + UART_CTL_REG, UART_CTL_RSTRXFIFO_MASK |
+		   UART_CTL_RSTTXFIFO_MASK);
 
 	/* read any pending char to make sure all irq status are cleared */
-	readl_be(base + UART_FIFO_REG);
+	readl(base + UART_FIFO_REG);
 }
 
 static int bcm6345_serial_init(void __iomem *base, ulong clk, u32 baudrate)
@@ -120,40 +120,40 @@ static int bcm6345_serial_init(void __iomem *base, ulong clk, u32 baudrate)
 	bcm6345_serial_flush(base);
 
 	/* set uart control config */
-	clrsetbits_be32(base + UART_CTL_REG,
-			/* clear rx timeout */
-			UART_CTL_RXTIMEOUT_MASK |
-			/* clear stop bits */
-			UART_CTL_STOPBITS_MASK |
-			/* clear bits per symbol */
-			UART_CTL_BITSPERSYM_MASK |
-			/* clear xmit break */
-			UART_CTL_XMITBRK_MASK |
-			/* clear reserved bit */
-			UART_CTL_RSVD_MASK |
-			/* disable parity */
-			UART_CTL_RXPAREN_MASK |
-			UART_CTL_TXPAREN_MASK |
-			/* disable loopback */
-			UART_CTL_LOOPBACK_MASK,
-			/* set timeout to 5 */
-			UART_CTL_RXTIMEOUT_5 |
-			/* set 8 bits/symbol */
-			UART_CTL_BITSPERSYM_8 |
-			/* set 1 stop bit */
-			UART_CTL_STOPBITS_1 |
-			/* set parity to even */
-			UART_CTL_RXPAREVEN_MASK |
-			UART_CTL_TXPAREVEN_MASK);
+	clrsetbits_32(base + UART_CTL_REG,
+		      /* clear rx timeout */
+		      UART_CTL_RXTIMEOUT_MASK |
+		      /* clear stop bits */
+		      UART_CTL_STOPBITS_MASK |
+		      /* clear bits per symbol */
+		      UART_CTL_BITSPERSYM_MASK |
+		      /* clear xmit break */
+		      UART_CTL_XMITBRK_MASK |
+		      /* clear reserved bit */
+		      UART_CTL_RSVD_MASK |
+		      /* disable parity */
+		      UART_CTL_RXPAREN_MASK |
+		      UART_CTL_TXPAREN_MASK |
+		      /* disable loopback */
+		      UART_CTL_LOOPBACK_MASK,
+		      /* set timeout to 5 */
+		      UART_CTL_RXTIMEOUT_5 |
+		      /* set 8 bits/symbol */
+		      UART_CTL_BITSPERSYM_8 |
+		      /* set 1 stop bit */
+		      UART_CTL_STOPBITS_1 |
+		      /* set parity to even */
+		      UART_CTL_RXPAREVEN_MASK |
+		      UART_CTL_TXPAREVEN_MASK);
 
 	/* set uart fifo config */
-	clrsetbits_be32(base + UART_FIFO_CFG_REG,
-			/* clear fifo config */
-			UART_FIFO_CFG_RX_MASK |
-			UART_FIFO_CFG_TX_MASK,
-			/* set fifo config to 4 */
-			UART_FIFO_CFG_RX_4 |
-			UART_FIFO_CFG_TX_4);
+	clrsetbits_32(base + UART_FIFO_CFG_REG,
+		      /* clear fifo config */
+		      UART_FIFO_CFG_RX_MASK |
+		      UART_FIFO_CFG_TX_MASK,
+		      /* set fifo config to 4 */
+		      UART_FIFO_CFG_RX_4 |
+		      UART_FIFO_CFG_TX_4);
 
 	/* set baud rate */
 	val = ((clk / baudrate) >> 4);
@@ -161,10 +161,10 @@ static int bcm6345_serial_init(void __iomem *base, ulong clk, u32 baudrate)
 		val = (val >> 1);
 	else
 		val = (val >> 1) - 1;
-	writel_be(val, base + UART_BAUD_REG);
+	writel(val, base + UART_BAUD_REG);
 
 	/* clear interrupts */
-	writel_be(0, base + UART_IR_REG);
+	writel(0, base + UART_IR_REG);
 
 	/* enable uart */
 	bcm6345_serial_enable(base);
@@ -175,7 +175,7 @@ static int bcm6345_serial_init(void __iomem *base, ulong clk, u32 baudrate)
 static int bcm6345_serial_pending(struct udevice *dev, bool input)
 {
 	struct bcm6345_serial_priv *priv = dev_get_priv(dev);
-	u32 val = readl_be(priv->base + UART_IR_REG);
+	u32 val = readl(priv->base + UART_IR_REG);
 
 	if (input)
 		return !!(val & UART_IR_STAT(UART_IR_RXNOTEMPTY));
@@ -195,11 +195,11 @@ static int bcm6345_serial_putc(struct udevice *dev, const char ch)
 	struct bcm6345_serial_priv *priv = dev_get_priv(dev);
 	u32 val;
 
-	val = readl_be(priv->base + UART_IR_REG);
+	val = readl(priv->base + UART_IR_REG);
 	if (!(val & UART_IR_STAT(UART_IR_TXEMPTY)))
 		return -EAGAIN;
 
-	writel_be(ch, priv->base + UART_FIFO_REG);
+	writel(ch, priv->base + UART_FIFO_REG);
 
 	return 0;
 }
@@ -209,14 +209,13 @@ static int bcm6345_serial_getc(struct udevice *dev)
 	struct bcm6345_serial_priv *priv = dev_get_priv(dev);
 	u32 val;
 
-	val = readl_be(priv->base + UART_IR_REG);
+	val = readl(priv->base + UART_IR_REG);
 	if (val & UART_IR_STAT(UART_IR_RXOVER))
-		setbits_be32(priv->base + UART_CTL_REG,
-			     UART_CTL_RSTRXFIFO_MASK);
+		setbits_32(priv->base + UART_CTL_REG, UART_CTL_RSTRXFIFO_MASK);
 	if (!(val & UART_IR_STAT(UART_IR_RXNOTEMPTY)))
 		return -EAGAIN;
 
-	val = readl_be(priv->base + UART_FIFO_REG);
+	val = readl(priv->base + UART_FIFO_REG);
 	if (val & UART_FIFO_ANYERR_MASK)
 		return -EAGAIN;
 
@@ -277,7 +276,7 @@ static inline void _debug_uart_init(void)
 static inline void wait_xfered(void __iomem *base)
 {
 	do {
-		u32 val = readl_be(base + UART_IR_REG);
+		u32 val = readl(base + UART_IR_REG);
 		if (val & UART_IR_STAT(UART_IR_TXEMPTY))
 			break;
 	} while (1);
@@ -288,7 +287,7 @@ static inline void _debug_uart_putc(int ch)
 	void __iomem *base = (void __iomem *)CONFIG_DEBUG_UART_BASE;
 
 	wait_xfered(base);
-	writel_be(ch, base + UART_FIFO_REG);
+	writel(ch, base + UART_FIFO_REG);
 	wait_xfered(base);
 }
 
