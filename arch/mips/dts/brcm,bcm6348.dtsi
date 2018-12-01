@@ -161,6 +161,32 @@
 			u-boot,dm-pre-reloc;
 		};
 
+		enet0: ethernet@fffe6000 {
+			compatible = "brcm,bcm6348-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xfffe6000 0x2dc>;
+			dmas = <&iudma BCM6348_DMA_ENET0_RX>,
+			       <&iudma BCM6348_DMA_ENET0_TX>;
+			dma-names = "rx",
+				    "tx";
+
+			status = "disabled";
+		};
+
+		enet1: ethernet@fffe6800 {
+			compatible = "brcm,bcm6348-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xfffe6800 0x2dc>;
+			dmas = <&iudma BCM6348_DMA_ENET1_RX>,
+			       <&iudma BCM6348_DMA_ENET1_TX>;
+			dma-names = "rx",
+				    "tx";
+
+			status = "disabled";
+		};
+
 		iudma: dma-controller@fffe7000 {
 			compatible = "brcm,bcm6348-iudma";
 			reg = <0xfffe7000 0x1c>,
