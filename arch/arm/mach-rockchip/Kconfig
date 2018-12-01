@@ -35,6 +35,7 @@ config ROCKCHIP_RK3188
 	select SPL_RAM
 	select SPL_DRIVERS_MISC_SUPPORT
 	select SPL_ROCKCHIP_EARLYRETURN_TO_BROM
+	select DEBUG_UART_BOARD_INIT
 	select BOARD_LATE_INIT
 	select ROCKCHIP_BROM_HELPER
 	help
@@ -155,6 +156,14 @@ config ROCKCHIP_RV1108
 	help
 	  The Rockchip RV1108 is a ARM-based SoC with a single-core Cortex-A7
 	  and a DSP.
+
+config ROCKCHIP_USB_UART
+	bool "Route uart output to usb pins"
+	help
+	  Rockchip SoCs have the ability to route the signals of the debug
+	  uart through the d+ and d- pins of a specific usb phy to enable
+	  some form of closed-case debugging. With this option supported
+	  SoCs will enable this routing as a debug measure.
 
 config SPL_ROCKCHIP_BACK_TO_BROM
 	bool "SPL returns to bootrom"
