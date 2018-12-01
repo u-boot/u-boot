@@ -200,5 +200,22 @@
 			#dma-cells = <1>;
 			dma-channels = <8>;
 		};
+
+		enet: ethernet@10e00000 {
+			compatible = "brcm,bcm6368-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10e00000 0x10000>;
+			clocks = <&periph_clk BCM6328_CLK_ROBOSW>;
+			resets = <&periph_rst BCM6328_RST_ENETSW>,
+				 <&periph_rst BCM6328_RST_EPHY>;
+			dmas = <&iudma BCM6328_DMA_ENETSW_RX>,
+			       <&iudma BCM6328_DMA_ENETSW_TX>;
+			dma-names = "rx",
+				    "tx";
+			brcm,num-ports = <5>;
+
+			status = "disabled";
+		};
 	};
 };
