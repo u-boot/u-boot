@@ -144,5 +144,20 @@
 			dma-channels = <6>;
 			resets = <&periph_rst BCM6338_RST_DMAMEM>;
 		};
+
+		enet: ethernet@fffe2800 {
+			compatible = "brcm,bcm6348-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xfffe2800 0x2dc>;
+			clocks = <&periph_clk BCM6338_CLK_ENET>;
+			resets = <&periph_rst BCM6338_RST_ENET>;
+			dmas = <&iudma BCM6338_DMA_ENET_RX>,
+			       <&iudma BCM6338_DMA_ENET_TX>;
+			dma-names = "rx",
+				    "tx";
+
+			status = "disabled";
+		};
 	};
 };
