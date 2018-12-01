@@ -72,6 +72,16 @@ config BCM_SF2_ETH_GMAC
 	  by the BCM_SF2_ETH driver.
 	  Say Y to any bcmcygnus based platforms.
 
+config BCM6348_ETH
+	bool "BCM6348 EMAC support"
+	depends on DM_ETH && ARCH_BMIPS
+	select DMA
+	select DMA_CHANNELS
+	select MII
+	select PHYLIB
+	help
+	  This driver supports the BCM6348 Ethernet MAC.
+
 config DWC_ETH_QOS
 	bool "Synopsys DWC Ethernet QOS device support"
 	depends on DM_ETH
