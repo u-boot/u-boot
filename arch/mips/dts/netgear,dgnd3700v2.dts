@@ -43,6 +43,20 @@
 	status = "okay";
 };
 
+&enet {
+	status = "okay";
+
+	port@4 {
+		compatible = "brcm,enetsw-port";
+		reg = <4>;
+		label = "rgmii";
+		brcm,phy-id = <0xff>;
+		speed = <1000>;
+		full-duplex;
+		bypass-link;
+	};
+};
+
 &gpio0 {
 	status = "okay";
 };
