@@ -190,6 +190,25 @@
 			status = "disabled";
 		};
 
+		enet: ethernet@10080000 {
+			compatible = "brcm,bcm6368-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10080000 0x8000>;
+			clocks = <&periph_clk BCM6318_CLK_ROBOSW250>,
+				 <&periph_clk BCM6318_CLK_ROBOSW025>,
+				 <&ubus_clk BCM6318_UCLK_ROBOSW>;
+			resets = <&periph_rst BCM6318_RST_ENETSW>,
+				 <&periph_rst BCM6318_RST_EPHY>;
+			dmas = <&iudma BCM6318_DMA_ENETSW_RX>,
+			       <&iudma BCM6318_DMA_ENETSW_TX>;
+			dma-names = "rx",
+				    "tx";
+			brcm,num-ports = <5>;
+
+			status = "disabled";
+		};
+
 		iudma: dma-controller@10088000 {
 			compatible = "brcm,bcm6368-iudma";
 			reg = <0x10088000 0x80>,
