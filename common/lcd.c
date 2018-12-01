@@ -381,7 +381,6 @@ static inline void lcd_logo_plot(int x, int y) {}
 
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
-#define BMP_ALIGN_CENTER	0x7FFF
 
 static void splash_align_axis(int *axis, unsigned long panel_size,
 					unsigned long picture_size)

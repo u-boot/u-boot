@@ -7,6 +7,7 @@
 #include <bmp_layout.h>
 #include <dm.h>
 #include <mapmem.h>
+#include <splash.h>
 #include <video.h>
 #include <watchdog.h>
 #include <asm/unaligned.h>
@@ -139,8 +140,6 @@ __weak void fb_put_word(uchar **fb, uchar **from)
 	*(*fb)++ = *(*from)++;
 }
 #endif /* CONFIG_BMP_16BPP */
-
-#define BMP_ALIGN_CENTER	0x7fff
 
 /**
  * video_splash_align_axis() - Align a single coordinate
