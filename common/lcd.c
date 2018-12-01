@@ -242,14 +242,6 @@ void lcd_clear(void)
 	lcd_sync();
 }
 
-static int do_lcd_clear(cmd_tbl_t *cmdtp, int flag, int argc,
-			char *const argv[])
-{
-	lcd_clear();
-	return 0;
-}
-U_BOOT_CMD(cls,	1, 1, do_lcd_clear, "clear screen", "");
-
 static int lcd_init(void *lcdbase)
 {
 	debug("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
