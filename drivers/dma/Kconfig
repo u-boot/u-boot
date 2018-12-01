@@ -26,6 +26,15 @@ config SANDBOX_DMA
 	  Enable support for a test DMA uclass implementation. It stimulates
 	  DMA transfer by simple copying data between channels.
 
+config BCM6348_IUDMA
+	bool "BCM6348 IUDMA driver"
+	depends on ARCH_BMIPS
+	select DMA_CHANNELS
+	help
+	  Enable the BCM6348 IUDMA driver.
+	  This driver support data transfer from devices to
+	  memory and from memory to devices.
+
 config TI_EDMA3
 	bool "TI EDMA3 driver"
 	help

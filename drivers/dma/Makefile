@@ -7,6 +7,7 @@ obj-$(CONFIG_DMA) += dma-uclass.o
 
 obj-$(CONFIG_FSLDMAFEC) += MCD_tasksInit.o MCD_dmaApi.o MCD_tasks.o
 obj-$(CONFIG_APBH_DMA) += apbh_dma.o
+obj-$(CONFIG_BCM6348_IUDMA) += bcm6348-iudma.o
 obj-$(CONFIG_FSL_DMA) += fsl_dma.o
 obj-$(CONFIG_SANDBOX_DMA) += sandbox-dma-test.o
 obj-$(CONFIG_TI_KSNAV) += keystone_nav.o keystone_nav_cfg.o
