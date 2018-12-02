@@ -155,6 +155,7 @@ int mtd_probe_devices(void)
 	static char *old_mtdids;
 	const char *mtdparts = get_mtdparts();
 	const char *mtdids = get_mtdids();
+	const char *mtdparts_next = mtdparts;
 	bool remaining_partitions = true;
 	struct mtd_info *mtd;
 
@@ -219,13 +220,22 @@ int mtd_probe_devices(void)
 		mtdparts += 9;
 
 	/* For each MTD device in mtdparts */
-	while (mtdparts[0] != '\0') {
+	for (; mtdparts[0] != '\0'; mtdparts = mtdparts_next) {
 		char mtd_name[MTD_NAME_MAX_LEN], *colon;
 		struct mtd_partition *parts;
 		unsigned int mtd_name_len;
 		int nparts, ret;
 
+		mtdparts_next = strchr(mtdparts, ';');
+		if (!mtdparts_next)
+			mtdparts_next = mtdparts + strlen(mtdparts);
+		else
+			mtdparts_next++;
+
 		colon = strchr(mtdparts, ':');
+		if (colon > mtdparts_next)
+			colon = NULL;
+
 		if (!colon) {
 			printf("Wrong mtdparts: %s\n", mtdparts);
 			return -EINVAL;
@@ -263,10 +273,7 @@ int mtd_probe_devices(void)
 			if (ret || IS_ERR_OR_NULL(mtd)) {
 				printf("Could not find a valid device for %s\n",
 				       mtd_name);
-				mtdparts = strchr(mtdparts, ';');
-				if (mtdparts)
-					mtdparts++;
-
+				mtdparts = mtdparts_next;
 				continue;
 			}
 		}
