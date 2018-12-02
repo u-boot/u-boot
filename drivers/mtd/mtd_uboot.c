@@ -13,6 +13,29 @@
 
 #define MTD_NAME_MAX_LEN 20
 
+void board_mtdparts_default(const char **mtdids, const char **mtdparts);
+
+static const char *get_mtdids(void)
+{
+	__maybe_unused const char *mtdparts = NULL;
+	const char *mtdids = env_get("mtdids");
+
+	if (mtdids)
+		return mtdids;
+
+#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
+	board_mtdparts_default(&mtdids, &mtdparts);
+#elif defined(MTDIDS_DEFAULT)
+	mtdids = MTDIDS_DEFAULT;
+#elif defined(CONFIG_MTDIDS_DEFAULT)
+	mtdids = CONFIG_MTDIDS_DEFAULT;
+#endif
+
+	if (mtdids)
+		env_set("mtdids", mtdids);
+
+	return mtdids;
+}
 
 /**
  * mtd_search_alternate_name - Search an alternate name for @mtdname thanks to
@@ -34,7 +57,7 @@ int mtd_search_alternate_name(const char *mtdname, char *altname,
 	const char *mtdids, *equal, *comma, *dev_id, *mtd_id;
 	int dev_id_len, mtd_id_len;
 
-	mtdids = env_get("mtdids");
+	mtdids = get_mtdids();
 	if (!mtdids)
 		return -EINVAL;
 
@@ -92,30 +115,6 @@ static void mtd_probe_uclass_mtd_devs(void) { }
 #endif
 
 #if defined(CONFIG_MTD_PARTITIONS)
-extern void board_mtdparts_default(const char **mtdids,
-				   const char **mtdparts);
-
-static const char *get_mtdids(void)
-{
-	__maybe_unused const char *mtdparts = NULL;
-	const char *mtdids = env_get("mtdids");
-
-	if (mtdids)
-		return mtdids;
-
-#if defined(CONFIG_SYS_MTDPARTS_RUNTIME)
-	board_mtdparts_default(&mtdids, &mtdparts);
-#elif defined(MTDIDS_DEFAULT)
-	mtdids = MTDIDS_DEFAULT;
-#elif defined(CONFIG_MTDIDS_DEFAULT)
-	mtdids = CONFIG_MTDIDS_DEFAULT;
-#endif
-
-	if (mtdids)
-		env_set("mtdids", mtdids);
-
-	return mtdids;
-}
 
 #define MTDPARTS_MAXLEN         512
 
