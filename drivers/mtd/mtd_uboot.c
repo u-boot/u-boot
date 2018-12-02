@@ -215,7 +215,7 @@ int mtd_probe_devices(void)
 		return 0;
 
 	/* Start the parsing by ignoring the extra 'mtdparts=' prefix, if any */
-	if (strstr(mtdparts, "mtdparts="))
+	if (!strncmp(mtdparts, "mtdparts=", sizeof("mtdparts=") - 1))
 		mtdparts += 9;
 
 	/* For each MTD device in mtdparts */
