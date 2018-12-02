@@ -366,6 +366,8 @@ static inline bool mtd_has_partitions(const struct mtd_info *mtd)
 	return !list_empty(&mtd->partitions);
 }
 
+bool mtd_partitions_used(struct mtd_info *master);
+
 int mtd_ooblayout_ecc(struct mtd_info *mtd, int section,
 		      struct mtd_oob_region *oobecc);
 int mtd_ooblayout_find_eccregion(struct mtd_info *mtd, int eccbyte,
