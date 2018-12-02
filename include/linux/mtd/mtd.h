@@ -581,6 +581,7 @@ int mtd_arg_off_size(int argc, char *const argv[], int *idx, loff_t *off,
 void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
 			  const uint64_t length, uint64_t *len_incl_bad,
 			  int *truncated);
+bool mtd_dev_list_updated(void);
 
 /* drivers/mtd/mtd_uboot.c */
 int mtd_search_alternate_name(const char *mtdname, char *altname,
