@@ -222,8 +222,8 @@ int mtd_probe_devices(void)
 	while (mtdparts[0] != '\0') {
 		char mtd_name[MTD_NAME_MAX_LEN], *colon;
 		struct mtd_partition *parts;
-		int mtd_name_len, nparts;
-		int ret;
+		unsigned int mtd_name_len;
+		int nparts, ret;
 
 		colon = strchr(mtdparts, ':');
 		if (!colon) {
@@ -231,7 +231,12 @@ int mtd_probe_devices(void)
 			return -EINVAL;
 		}
 
-		mtd_name_len = colon - mtdparts;
+		mtd_name_len = (unsigned int)(colon - mtdparts);
+		if (mtd_name_len + 1 > sizeof(mtd_name)) {
+			printf("MTD name too long: %s\n", mtdparts);
+			return -EINVAL;
+		}
+
 		strncpy(mtd_name, mtdparts, mtd_name_len);
 		mtd_name[mtd_name_len] = '\0';
 		/* Move the pointer forward (including the ':') */
