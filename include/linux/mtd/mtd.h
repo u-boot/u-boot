@@ -562,8 +562,23 @@ unsigned mtd_mmap_capabilities(struct mtd_info *mtd);
 /* drivers/mtd/mtdcore.h */
 int add_mtd_device(struct mtd_info *mtd);
 int del_mtd_device(struct mtd_info *mtd);
+
+#ifdef CONFIG_MTD_PARTITIONS
 int add_mtd_partitions(struct mtd_info *, const struct mtd_partition *, int);
 int del_mtd_partitions(struct mtd_info *);
+#else
+static inline int add_mtd_partitions(struct mtd_info *mtd,
+				     const struct mtd_partition *parts,
+				     int nparts)
+{
+	return 0;
+}
+
+static inline int del_mtd_partitions(struct mtd_info *mtd)
+{
+	return 0;
+}
+#endif
 
 struct mtd_info *__mtd_next_device(int i);
 #define mtd_for_each_device(mtd)			\
