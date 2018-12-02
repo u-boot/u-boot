@@ -18,6 +18,9 @@ static int spi_flash_mtd_erase(struct mtd_info *mtd, struct erase_info *instr)
 	struct spi_flash *flash = mtd->priv;
 	int err;
 
+	if (!flash)
+		return -ENODEV;
+
 	instr->state = MTD_ERASING;
 
 	err = spi_flash_erase(flash, instr->addr, instr->len);
@@ -39,6 +42,9 @@ static int spi_flash_mtd_read(struct mtd_info *mtd, loff_t from, size_t len,
 	struct spi_flash *flash = mtd->priv;
 	int err;
 
+	if (!flash)
+		return -ENODEV;
+
 	err = spi_flash_read(flash, from, len, buf);
 	if (!err)
 		*retlen = len;
@@ -51,6 +57,9 @@ static int spi_flash_mtd_write(struct mtd_info *mtd, loff_t to, size_t len,
 {
 	struct spi_flash *flash = mtd->priv;
 	int err;
+
+	if (!flash)
+		return -ENODEV;
 
 	err = spi_flash_write(flash, to, len, buf);
 	if (!err)
@@ -76,8 +85,13 @@ int spi_flash_mtd_register(struct spi_flash *flash)
 {
 	int ret;
 
-	if (sf_mtd_registered)
-		del_mtd_device(&sf_mtd_info);
+	if (sf_mtd_registered) {
+		ret = del_mtd_device(&sf_mtd_info);
+		if (ret)
+			return ret;
+
+		sf_mtd_registered = false;
+	}
 
 	sf_mtd_registered = false;
 	memset(&sf_mtd_info, 0, sizeof(sf_mtd_info));
@@ -110,5 +124,24 @@ int spi_flash_mtd_register(struct spi_flash *flash)
 
 void spi_flash_mtd_unregister(void)
 {
-	del_mtd_device(&sf_mtd_info);
+	int ret;
+
+	if (!sf_mtd_registered)
+		return;
+
+	ret = del_mtd_device(&sf_mtd_info);
+	if (!ret) {
+		sf_mtd_registered = false;
+		return;
+	}
+
+	/*
+	 * Setting mtd->priv to NULL is the best we can do. Thanks to that,
+	 * the MTD layer can still call mtd hooks without risking a
+	 * use-after-free bug. Still, things should be fixed to prevent the
+	 * spi_flash object from being destroyed when del_mtd_device() fails.
+	 */
+	sf_mtd_info.priv = NULL;
+	printf("Failed to unregister MTD %s and the spi_flash object is going away: you're in deep trouble!",
+	       sf_mtd_info.name);
 }
