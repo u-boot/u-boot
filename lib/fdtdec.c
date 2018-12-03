@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
+#include <mapmem.h>
 #include <linux/libfdt.h>
 #include <serial.h>
 #include <asm/sections.h>
@@ -1253,8 +1254,9 @@ int fdtdec_setup(void)
 #  if CONFIG_IS_ENABLED(OF_PRIOR_STAGE)
 	gd->fdt_blob = (void *)prior_stage_fdt_address;
 #  else
-	gd->fdt_blob = (void *)env_get_ulong("fdtcontroladdr", 16,
-						(uintptr_t)gd->fdt_blob);
+	gd->fdt_blob = map_sysmem
+		(env_get_ulong("fdtcontroladdr", 16,
+			       (unsigned long)map_to_sysmem(gd->fdt_blob)), 0);
 #  endif
 # endif
 

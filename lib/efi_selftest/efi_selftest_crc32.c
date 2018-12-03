@@ -5,7 +5,7 @@
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
  *
  * This unit test checks the CalculateCrc32 bootservice and checks the
- * headers of the system table, the boot services tablle, and the runtime
+ * headers of the system table, the boot services table, and the runtime
  * services table before and after ExitBootServices().
  */
 
@@ -19,7 +19,7 @@ static int check_table(const void *table)
 {
 	efi_status_t ret;
 	u32 crc32, res;
-	/* Casting from const to not const */
+	/* Casting from constant to not constant */
 	struct efi_table_hdr *hdr = (struct efi_table_hdr *)table;
 
 	if (!hdr->signature) {

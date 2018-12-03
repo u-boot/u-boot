@@ -563,7 +563,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
 		if (fh->isdir)
 			info->attribute |= EFI_FILE_DIRECTORY;
 
-		ascii2unicode((u16 *)info->file_name, filename);
+		ascii2unicode(info->file_name, filename);
 	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
 		struct efi_file_system_info *info = buffer;
 		disk_partition_t part;

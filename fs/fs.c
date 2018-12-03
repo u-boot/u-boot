@@ -365,6 +365,7 @@ int fs_set_blk_dev_with_part(struct blk_desc *desc, int part)
 	for (i = 0, info = fstypes; i < ARRAY_SIZE(fstypes); i++, info++) {
 		if (!info->probe(fs_dev_desc, &fs_partition)) {
 			fs_type = info->fstype;
+			fs_dev_part = part;
 			return 0;
 		}
 	}

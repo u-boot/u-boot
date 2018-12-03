@@ -27,16 +27,16 @@ coff_header:
 	.short	2				/* nr_sections */
 	.long	0				/* TimeDateStamp */
 	.long	0				/* PointerToSymbolTable */
-	.long	1				/* NumberOfSymbols */
+	.long	0				/* NumberOfSymbols */
 	.short	section_table - optional_header	/* SizeOfOptionalHeader */
-	/*
-	 * Characteristics: IMAGE_FILE_32BIT_MACHINE |
-	 * IMAGE_FILE_DEBUG_STRIPPED | IMAGE_FILE_EXECUTABLE_IMAGE |
-	 * IMAGE_FILE_LINE_NUMS_STRIPPED
-	 */
-	.short	0x306
+	/* Characteristics */
+	.short	(IMAGE_FILE_EXECUTABLE_IMAGE | \
+		 IMAGE_FILE_LINE_NUMS_STRIPPED | \
+		 IMAGE_FILE_LOCAL_SYMS_STRIPPED | \
+		 IMAGE_FILE_32BIT_MACHINE | \
+		 IMAGE_FILE_DEBUG_STRIPPED)
 optional_header:
-	.short	0x10b				/* PE32+ format */
+	.short	0x10b				/* PE32 format */
 	.byte	0x02				/* MajorLinkerVersion */
 	.byte	0x14				/* MinorLinkerVersion */
 	.long	_edata - _start			/* SizeOfCode */

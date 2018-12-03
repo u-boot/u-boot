@@ -167,28 +167,41 @@ struct efi_handler {
 	struct list_head open_infos;
 };
 
-/*
- * UEFI has a poor man's OO model where one "object" can be polymorphic and have
- * multiple different protocols (classes) attached to it.
+/**
+ * struct efi_object - dereferenced EFI handle
  *
- * This struct is the parent struct for all of our actual implementation objects
- * that can include it to make themselves an EFI object
+ * @link:	pointers to put the handle into a linked list
+ * @protocols:	linked list with the protocol interfaces installed on this
+ *		handle
+ *
+ * UEFI offers a flexible and expandable object model. The objects in the UEFI
+ * API are devices, drivers, and loaded images. struct efi_object is our storage
+ * structure for these objects.
+ *
+ * When including this structure into a larger structure always put it first so
+ * that when deleting a handle the whole encompassing structure can be freed.
+ *
+ * A pointer to this structure is referred to as a handle. Typedef efi_handle_t
+ * has been created for such pointers.
  */
 struct efi_object {
 	/* Every UEFI object is part of a global object list */
 	struct list_head link;
 	/* The list of protocols */
 	struct list_head protocols;
-	/* The object spawner can either use this for data or as identifier */
-	void *handle;
 };
 
 /**
  * struct efi_loaded_image_obj - handle of a loaded image
+ *
+ * @header:		EFI object header
+ * @reloc_base:		base address for the relocated image
+ * @reloc_size:		size of the relocated image
+ * @exit_jmp:		long jump buffer for returning form started image
+ * @entry:		entry address of the relocated image
  */
 struct efi_loaded_image_obj {
-	/* Generic EFI object parent class data */
-	struct efi_object parent;
+	struct efi_object header;
 	void *reloc_base;
 	aligned_u64 reloc_size;
 	efi_status_t exit_status;
@@ -290,11 +303,11 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
 /* Call this to set the current device name */
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
 /* Add a new object to the object list. */
-void efi_add_handle(struct efi_object *obj);
+void efi_add_handle(efi_handle_t obj);
 /* Create handle */
 efi_status_t efi_create_handle(efi_handle_t *handle);
 /* Delete handle */
-void efi_delete_handle(struct efi_object *obj);
+void efi_delete_handle(efi_handle_t obj);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(const efi_handle_t handle);
 /* Find a protocol on a handle */
@@ -331,7 +344,16 @@ struct efi_simple_file_system_protocol *efi_simple_file_system(
 /* open file from device-path: */
 struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
 
-
+/**
+ * efi_size_in_pages() - convert size in bytes to size in pages
+ *
+ * This macro returns the number of EFI memory pages required to hold 'size'
+ * bytes.
+ *
+ * @size:	size in bytes
+ * Return:	size in pages
+ */
+#define efi_size_in_pages(size) ((size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
 /* Generic EFI memory allocator, call this to get memory */
 void *efi_alloc(uint64_t len, int memory_type);
 /* More specific EFI memory allocator, called by EFI payloads */
@@ -419,6 +441,10 @@ const struct efi_device_path *efi_dp_last_node(
 efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 				    struct efi_device_path **device_path,
 				    struct efi_device_path **file_path);
+efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
+			      const char *path,
+			      struct efi_device_path **device,
+			      struct efi_device_path **file);
 
 #define EFI_DP_TYPE(_dp, _type, _subtype) \
 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
@@ -492,6 +518,29 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
 				     u32 attributes, efi_uintn_t data_size,
 				     void *data);
 
+/*
+ * See section 3.1.3 in the v2.7 UEFI spec for more details on
+ * the layout of EFI_LOAD_OPTION.  In short it is:
+ *
+ *    typedef struct _EFI_LOAD_OPTION {
+ *        UINT32 Attributes;
+ *        UINT16 FilePathListLength;
+ *        // CHAR16 Description[];   <-- variable length, NULL terminated
+ *        // EFI_DEVICE_PATH_PROTOCOL FilePathList[];
+ *						 <-- FilePathListLength bytes
+ *        // UINT8 OptionalData[];
+ *    } EFI_LOAD_OPTION;
+ */
+struct efi_load_option {
+	u32 attributes;
+	u16 file_path_length;
+	u16 *label;
+	struct efi_device_path *file_path;
+	u8 *optional_data;
+};
+
+void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data);
+unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
 void *efi_bootmgr_load(struct efi_device_path **device_path,
 		       struct efi_device_path **file_path);
 

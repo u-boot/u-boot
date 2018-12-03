@@ -141,7 +141,9 @@ static void EFIAPI efi_reset_system_boottime(
 		do_reset(NULL, 0, 0, NULL);
 		break;
 	case EFI_RESET_SHUTDOWN:
-		/* We don't have anything to map this to */
+#ifdef CONFIG_CMD_POWEROFF
+		do_poweroff(NULL, 0, 0, NULL);
+#endif
 		break;
 	}
 
@@ -282,7 +284,7 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 	}, {
 		/* invalidate_*cache_all are gone */
 		.ptr = &efi_runtime_services.set_virtual_address_map,
-		.patchto = &efi_invalid_parameter,
+		.patchto = &efi_unimplemented,
 	}, {
 		/* RTC accessors are gone */
 		.ptr = &efi_runtime_services.get_time,
@@ -378,6 +380,9 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 			ulong symidx = rel->info >> SYM_INDEX;
 			extern struct dyn_sym __dyn_sym_start[];
 			newaddr = __dyn_sym_start[symidx].addr + offset;
+#ifdef IS_RELA
+			newaddr -= CONFIG_SYS_TEXT_BASE;
+#endif
 			break;
 		}
 #endif
@@ -623,8 +628,8 @@ efi_status_t __efi_runtime EFIAPI efi_update_capsule(
 efi_status_t __efi_runtime EFIAPI efi_query_capsule_caps(
 			struct efi_capsule_header **capsule_header_array,
 			efi_uintn_t capsule_count,
-			u64 maximum_capsule_size,
-			u32 reset_type)
+			u64 *maximum_capsule_size,
+			u32 *reset_type)
 {
 	return EFI_UNSUPPORTED;
 }

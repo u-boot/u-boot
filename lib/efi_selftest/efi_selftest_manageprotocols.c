@@ -189,7 +189,14 @@ static int execute(void)
 	/*
 	 * Test error handling in UninstallMultipleProtocols
 	 *
-	 * Try to uninstall more protocols than there are installed.
+	 * These are the installed protocol interfaces on handle 2:
+	 *
+	 *   guid1 interface4
+	 *   guid2 interface2
+	 *
+	 * Try to uninstall more protocols than there are installed. This
+	 * should return an error EFI_INVALID_PARAMETER. All deleted protocols
+	 * should be reinstalled.
 	 */
 	ret = boottime->uninstall_multiple_protocol_interfaces(
 						handle2,
@@ -197,13 +204,18 @@ static int execute(void)
 						&guid2, &interface2,
 						&guid3, &interface3,
 						NULL);
-	if (ret == EFI_SUCCESS) {
+	if (ret != EFI_INVALID_PARAMETER) {
+		printf("%lx", ret);
 		efi_st_error("UninstallMultipleProtocolInterfaces did not catch error\n");
 		return EFI_ST_FAILURE;
 	}
 
 	/*
 	 * Test LocateHandleBuffer with ByProtocol
+	 *
+	 * These are the handles with a guid1 protocol interface installed:
+	 *
+	 *	handle1, handle2
 	 */
 	count = buffer_size;
 	ret = boottime->locate_handle_buffer(BY_PROTOCOL, &guid1, NULL,
@@ -213,7 +225,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	if (count != 2) {
-		efi_st_error("LocateHandleBuffer failed to locate new handles\n");
+		efi_st_error("UninstallMultipleProtocolInterfaces deleted handle\n");
 		return EFI_ST_FAILURE;
 	}
 	ret = find_in_buffer(handle1, count, buffer);

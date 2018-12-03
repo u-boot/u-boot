@@ -2,6 +2,8 @@ Descriptions of section entries:
 
 	P: Person (obsolete)
 	M: Mail patches to: FullName <address@domain>
+	R: Designated reviewer: FullName <address@domain>
+	   These reviewers should be CCed on patches.
 	L: Mailing list that is relevant to this area
 	W: Web-page with status/info
 	Q: Patchwork web based patch tracking system site
@@ -414,6 +416,7 @@ F:	test/dm/
 
 EFI PAYLOAD
 M:	Alexander Graf <agraf@suse.de>
+R:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 S:	Maintained
 T:	git git://github.com/agraf/u-boot.git
 F:	doc/README.uefi

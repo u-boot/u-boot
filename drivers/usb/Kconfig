@@ -70,6 +70,7 @@ comment "USB peripherals"
 
 config USB_STORAGE
 	bool "USB Mass Storage support"
+	depends on !(BLK && !DM_USB)
 	---help---
 	  Say Y here if you want to connect USB mass storage devices to your
 	  board's USB port.
