@@ -641,7 +641,7 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 		.flash_bbt = 1,
 	};
 
-	nfc = malloc(sizeof(*nfc));
+	nfc = calloc(1, sizeof(*nfc));
 	if (!nfc) {
 		printf(KERN_ERR "%s: Memory exhausted!\n", __func__);
 		return -ENOMEM;
