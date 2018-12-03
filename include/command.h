@@ -209,6 +209,70 @@ int board_run_command(const char *cmdline);
 # define _CMD_HELP(x)
 #endif
 
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+#define U_BOOT_SUBCMDS_RELOC(_cmdname)					\
+	static void _cmdname##_subcmds_reloc(void)			\
+	{								\
+		static int relocated;					\
+									\
+		if (relocated)						\
+			return;						\
+									\
+		fixup_cmdtable(_cmdname##_subcmds,			\
+			       ARRAY_SIZE(_cmdname##_subcmds));		\
+		relocated = 1;						\
+	}
+#else
+#define U_BOOT_SUBCMDS_RELOC(_cmdname)					\
+	static void _cmdname##_subcmds_reloc(void) { }
+#endif
+
+#define U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
+	static int do_##_cmdname(cmd_tbl_t *cmdtp, int flag, int argc,	\
+				 char * const argv[], int *repeatable)	\
+	{								\
+		cmd_tbl_t *subcmd;					\
+									\
+		_cmdname##_subcmds_reloc();				\
+									\
+		/* We need at least the cmd and subcmd names. */	\
+		if (argc < 2 || argc > CONFIG_SYS_MAXARGS)		\
+			return CMD_RET_USAGE;				\
+									\
+		subcmd = find_cmd_tbl(argv[1], _cmdname##_subcmds,	\
+				      ARRAY_SIZE(_cmdname##_subcmds));	\
+		if (!subcmd || argc - 1 > subcmd->maxargs)		\
+			return CMD_RET_USAGE;				\
+									\
+		if (flag == CMD_FLAG_REPEAT &&				\
+		    !cmd_is_repeatable(subcmd))				\
+			return CMD_RET_SUCCESS;				\
+									\
+		return subcmd->cmd_rep(subcmd, flag, argc - 1,		\
+				       argv + 1, repeatable);		\
+	}
+
+#ifdef CONFIG_AUTO_COMPLETE
+#define U_BOOT_SUBCMDS_COMPLETE(_cmdname)				\
+	static int complete_##_cmdname(int argc, char * const argv[],	\
+				       char last_char, int maxv,	\
+				       char *cmdv[])			\
+	{								\
+		return complete_subcmdv(_cmdname##_subcmds,		\
+					ARRAY_SIZE(_cmdname##_subcmds),	\
+					argc - 1, argv + 1, last_char,	\
+					maxv, cmdv);			\
+	}
+#else
+#define U_BOOT_SUBCMDS_COMPLETE(_cmdname)
+#endif
+
+#define U_BOOT_SUBCMDS(_cmdname, ...)					\
+	static cmd_tbl_t _cmdname##_subcmds[] = { __VA_ARGS__ };	\
+	U_BOOT_SUBCMDS_RELOC(_cmdname)					\
+	U_BOOT_SUBCMDS_DO_CMD(_cmdname)					\
+	U_BOOT_SUBCMDS_COMPLETE(_cmdname)
+
 #ifdef CONFIG_CMDLINE
 #define U_BOOT_CMDREP_MKENT_COMPLETE(_name, _maxargs, _cmd_rep,		\
 				     _usage, _help, _comp)		\
@@ -270,5 +334,19 @@ int board_run_command(const char *cmdline);
 #define U_BOOT_CMD_MKENT(_name, _maxargs, _rep, _cmd, _usage, _help)	\
 	U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,		\
 					_usage, _help, NULL)
+
+#define U_BOOT_SUBCMD_MKENT_COMPLETE(_name, _maxargs, _rep, _do_cmd,	\
+				     _comp)				\
+	U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _do_cmd,	\
+				  "", "", _comp)
+
+#define U_BOOT_SUBCMD_MKENT(_name, _maxargs, _rep, _do_cmd)		\
+	U_BOOT_SUBCMD_MKENT_COMPLETE(_name, _maxargs, _rep, _do_cmd,	\
+				     NULL)
+
+#define U_BOOT_CMD_WITH_SUBCMDS(_name, _usage, _help, ...)		\
+	U_BOOT_SUBCMDS(_name, __VA_ARGS__)				\
+	U_BOOT_CMDREP_COMPLETE(_name, CONFIG_SYS_MAXARGS, do_##_name,	\
+			       _usage, _help, complete_##_name)
 
 #endif	/* __COMMAND_H */
