@@ -62,16 +62,6 @@ static int bclk_divs[] = {
 };
 
 /*
- * Initialise I2C for wm 8994
- *
- * @param bus no	i2c bus number in which wm8994 is connected
- */
-static void wm8994_i2c_init(int bus_no)
-{
-	i2c_set_bus_num(bus_no);
-}
-
-/*
  * Writes value to a device register through i2c
  *
  * @param priv	Private data for driver
@@ -918,7 +908,7 @@ int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 
 	/* shift the device address by 1 for 7 bit addressing */
 	wm8994_info.i2c_addr = pcodec_info.i2c_dev_addr;
-	wm8994_i2c_init(pcodec_info.i2c_bus);
+	i2c_set_bus_num(pcodec_info.i2c_bus);
 	ret = wm8994_device_init(&wm8994_info);
 	if (ret < 0) {
 		debug("%s: wm8994 codec chip init failed\n", __func__);
