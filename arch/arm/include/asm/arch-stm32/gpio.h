@@ -7,6 +7,8 @@
 #ifndef _GPIO_H_
 #define _GPIO_H_
 
+#define STM32_GPIOS_PER_BANK		16
+
 enum stm32_gpio_port {
 	STM32_GPIO_PORT_A = 0,
 	STM32_GPIO_PORT_B,
