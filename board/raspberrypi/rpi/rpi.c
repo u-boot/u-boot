@@ -68,14 +68,7 @@ struct msg_get_clock_rate {
 #endif
 
 /*
- * http://raspberryalphaomega.org.uk/2013/02/06/automatic-raspberry-pi-board-revision-detection-model-a-b1-and-b2/
- * http://www.raspberrypi.org/forums/viewtopic.php?f=63&t=32733
- * http://git.drogon.net/?p=wiringPi;a=blob;f=wiringPi/wiringPi.c;h=503151f61014418b9c42f4476a6086f75cd4e64b;hb=refs/heads/master#l922
- *
- * In http://lists.denx.de/pipermail/u-boot/2016-January/243752.html
- * ("[U-Boot] [PATCH] rpi: fix up Model B entries") Dom Cobley at the RPi
- * Foundation stated that the following source was accurate:
- * https://github.com/AndrewFromMelbourne/raspberry_pi_revision
+ * https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
  */
 struct rpi_model {
 	const char *name;
@@ -144,6 +137,11 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		"3 Model B+",
 		DTB_DIR "bcm2837-rpi-3-b-plus.dtb",
 		true,
+	},
+	[0xE] = {
+		"3 Model A+",
+		DTB_DIR "bcm2837-rpi-3-a-plus.dtb",
+		false,
 	},
 };
 
