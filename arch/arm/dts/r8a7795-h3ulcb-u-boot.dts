@@ -7,3 +7,14 @@
 
 #include "r8a7795-h3ulcb.dts"
 #include "r8a7795-u-boot.dtsi"
+
+/ {
+	cpld {
+		compatible = "renesas,ulcb-cpld";
+		status = "okay";
+		gpio-sck = <&gpio6 8 0>;
+		gpio-mosi = <&gpio6 7 0>;
+		gpio-miso = <&gpio6 10 0>;
+		gpio-sstbz = <&gpio2 3 0>;
+	};
+};
