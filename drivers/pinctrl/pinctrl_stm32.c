@@ -54,6 +54,39 @@ static int stm32_pinctrl_get_af(struct udevice *dev, unsigned int offset)
 	return af;
 }
 
+static int stm32_populate_gpio_dev_list(struct udevice *dev)
+{
+	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
+	struct udevice *gpio_dev;
+	struct udevice *child;
+	struct stm32_gpio_bank *gpio_bank;
+	int ret;
+
+	/*
+	 * parse pin-controller sub-nodes (ie gpio bank nodes) and fill
+	 * a list with all gpio device reference which belongs to the
+	 * current pin-controller. This list is used to find pin_name and
+	 * pin muxing
+	 */
+	list_for_each_entry(child, &dev->child_head, sibling_node) {
+		ret = uclass_get_device_by_name(UCLASS_GPIO, child->name,
+						&gpio_dev);
+		if (ret < 0)
+			continue;
+
+		gpio_bank = malloc(sizeof(*gpio_bank));
+		if (!gpio_bank) {
+			dev_err(dev, "Not enough memory\n");
+			return -ENOMEM;
+		}
+
+		gpio_bank->gpio_dev = gpio_dev;
+		list_add_tail(&gpio_bank->list, &priv->gpio_dev);
+	}
+
+	return 0;
+}
+
 static int stm32_pinctrl_get_pins_count(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
@@ -67,6 +100,8 @@ static int stm32_pinctrl_get_pins_count(struct udevice *dev)
 	if (priv->pinctrl_ngpios)
 		return priv->pinctrl_ngpios;
 
+	if (list_empty(&priv->gpio_dev))
+		stm32_populate_gpio_dev_list(dev);
 	/*
 	 * walk through all banks to retrieve the pin-controller
 	 * pins number
@@ -87,6 +122,9 @@ static struct udevice *stm32_pinctrl_get_gpio_dev(struct udevice *dev,
 	struct stm32_gpio_bank *gpio_bank;
 	struct gpio_dev_priv *uc_priv;
 	int first_pin = 0;
+
+	if (list_empty(&priv->gpio_dev))
+		stm32_populate_gpio_dev_list(dev);
 
 	/* look up for the bank which owns the requested pin */
 	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
@@ -174,34 +212,9 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 int stm32_pinctrl_probe(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
-	struct udevice *gpio_dev;
-	struct udevice *child;
-	struct stm32_gpio_bank *gpio_bank;
 	int ret;
 
 	INIT_LIST_HEAD(&priv->gpio_dev);
-
-	/*
-	 * parse pin-controller sub-nodes (ie gpio bank nodes) and fill
-	 * a list with all gpio device reference which belongs to the
-	 * current pin-controller. This list is used to find pin_name and
-	 * pin muxing
-	 */
-	list_for_each_entry(child, &dev->child_head, sibling_node) {
-		ret = uclass_get_device_by_name(UCLASS_GPIO, child->name,
-						&gpio_dev);
-		if (ret < 0)
-			continue;
-
-		gpio_bank = malloc(sizeof(*gpio_bank));
-		if (!gpio_bank) {
-			dev_err(dev, "Not enough memory\n");
-			return -ENOMEM;
-		}
-
-		gpio_bank->gpio_dev = gpio_dev;
-		list_add_tail(&gpio_bank->list, &priv->gpio_dev);
-	}
 
 	/* hwspinlock property is optional, just log the error */
 	ret = hwspinlock_get_by_index(dev, 0, &priv->hws);
