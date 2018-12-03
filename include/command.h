@@ -54,6 +54,9 @@ int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
 	      flag, int argc, char * const argv[]);
 cmd_tbl_t *find_cmd(const char *cmd);
 cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len);
+int complete_subcmdv(cmd_tbl_t *cmdtp, int count, int argc,
+		     char * const argv[], char last_char, int maxv,
+		     char *cmdv[]);
 
 extern int cmd_usage(const cmd_tbl_t *cmdtp);
 

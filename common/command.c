@@ -161,11 +161,11 @@ int var_complete(int argc, char * const argv[], char last_char, int maxv, char *
 
 /*************************************************************************************/
 
-static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv, char *cmdv[])
+int complete_subcmdv(cmd_tbl_t *cmdtp, int count, int argc,
+		     char * const argv[], char last_char,
+		     int maxv, char *cmdv[])
 {
 #ifdef CONFIG_CMDLINE
-	cmd_tbl_t *cmdtp = ll_entry_start(cmd_tbl_t, cmd);
-	const int count = ll_entry_count(cmd_tbl_t, cmd);
 	const cmd_tbl_t *cmdend = cmdtp + count;
 	const char *p;
 	int len, clen;
@@ -193,7 +193,7 @@ static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv
 
 	/* more than one arg or one but the start of the next */
 	if (argc > 1 || last_char == '\0' || isblank(last_char)) {
-		cmdtp = find_cmd(argv[0]);
+		cmdtp = find_cmd_tbl(argv[0], cmdtp, count);
 		if (cmdtp == NULL || cmdtp->complete == NULL) {
 			cmdv[0] = NULL;
 			return 0;
@@ -233,6 +233,18 @@ static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv
 
 	cmdv[n_found] = NULL;
 	return n_found;
+#else
+	return 0;
+#endif
+}
+
+static int complete_cmdv(int argc, char * const argv[], char last_char,
+			 int maxv, char *cmdv[])
+{
+#ifdef CONFIG_CMDLINE
+	return complete_subcmdv(ll_entry_start(cmd_tbl_t, cmd),
+				ll_entry_count(cmd_tbl_t, cmd), argc, argv,
+				last_char, maxv, cmdv);
 #else
 	return 0;
 #endif
