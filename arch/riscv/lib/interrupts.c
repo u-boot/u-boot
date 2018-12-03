@@ -34,17 +34,30 @@ int disable_interrupts(void)
 	return 0;
 }
 
-ulong handle_trap(ulong mcause, ulong epc, struct pt_regs *regs)
+ulong handle_trap(ulong cause, ulong epc, struct pt_regs *regs)
 {
-	ulong is_int;
+	ulong is_irq, irq;
 
-	is_int = (mcause & MCAUSE_INT);
-	if ((is_int) && ((mcause & MCAUSE_CAUSE)  == IRQ_M_EXT))
-		external_interrupt(0);	/* handle_m_ext_interrupt */
-	else if ((is_int) && ((mcause & MCAUSE_CAUSE)  == IRQ_M_TIMER))
-		timer_interrupt(0);	/* handle_m_timer_interrupt */
-	else
-		_exit_trap(mcause, epc, regs);
+	is_irq = (cause & MCAUSE_INT);
+	irq = (cause & ~MCAUSE_INT);
+
+	if (is_irq) {
+		switch (irq) {
+		case IRQ_M_EXT:
+		case IRQ_S_EXT:
+			external_interrupt(0);	/* handle external interrupt */
+			break;
+		case IRQ_M_TIMER:
+		case IRQ_S_TIMER:
+			timer_interrupt(0);	/* handle timer interrupt */
+			break;
+		default:
+			_exit_trap(cause, epc, regs);
+			break;
+		};
+	} else {
+		_exit_trap(cause, epc, regs);
+	}
 
 	return epc;
 }
