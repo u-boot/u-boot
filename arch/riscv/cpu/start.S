@@ -38,8 +38,6 @@ _start:
 	mv	s0, a0
 	mv	s1, a1
 
-	li	t0, CONFIG_SYS_SDRAM_BASE
-	SREG	a2, 0(t0)
 	la	t0, trap_entry
 	csrw	MODE_PREFIX(tvec), t0
 
