@@ -69,6 +69,26 @@ void *dev_remap_addr_index(struct udevice *dev, int index)
 	return map_physmem(addr, 0, MAP_NOCACHE);
 }
 
+fdt_addr_t dev_read_addr_name(struct udevice *dev, const char *name)
+{
+	int index = dev_read_stringlist_search(dev, "reg-names", name);
+
+	if (index < 0)
+		return FDT_ADDR_T_NONE;
+	else
+		return dev_read_addr_index(dev, index);
+}
+
+void *dev_remap_addr_name(struct udevice *dev, const char *name)
+{
+	fdt_addr_t addr = dev_read_addr_name(dev, name);
+
+	if (addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	return map_physmem(addr, 0, MAP_NOCACHE);
+}
+
 fdt_addr_t dev_read_addr(struct udevice *dev)
 {
 	return dev_read_addr_index(dev, 0);
