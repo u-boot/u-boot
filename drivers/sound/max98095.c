@@ -28,11 +28,11 @@ struct max98095_priv {
 	unsigned int sysclk;
 	unsigned int rate;
 	unsigned int fmt;
+	int i2c_addr;
 };
 
 static struct sound_codec_info g_codec_info;
 struct max98095_priv g_max98095_info;
-unsigned int g_max98095_i2c_dev_addr;
 
 /* Index 0 is reserved. */
 int rate_table[] = {0, 8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000,
@@ -52,7 +52,7 @@ static int max98095_i2c_write(struct max98095_priv *priv, unsigned int reg,
 {
 	debug("%s: Write Addr : 0x%02X, Data :  0x%02X\n",
 	      __func__, reg, data);
-	return i2c_write(g_max98095_i2c_dev_addr, reg, 1, &data, 1);
+	return i2c_write(priv->i2c_addr, reg, 1, &data, 1);
 }
 
 /*
@@ -69,7 +69,7 @@ static unsigned int max98095_i2c_read(struct max98095_priv *priv,
 {
 	int ret;
 
-	ret = i2c_read(g_max98095_i2c_dev_addr, reg, 1, data, 1);
+	ret = i2c_read(priv->i2c_addr, reg, 1, data, 1);
 	if (ret != 0) {
 		debug("%s: Error while reading register %#04x\n",
 		      __func__, reg);
@@ -574,7 +574,7 @@ int max98095_init(const void *blob, enum en_max_audio_interface aif_id,
 	i2c_set_bus_num(pcodec_info->i2c_bus);
 
 	/* shift the device address by 1 for 7 bit addressing */
-	g_max98095_i2c_dev_addr = pcodec_info->i2c_dev_addr >> 1;
+	g_max98095_info.i2c_addr = pcodec_info->i2c_dev_addr >> 1;
 	ret = max98095_device_init(&g_max98095_info);
 	if (ret < 0) {
 		debug("%s: max98095 codec chip init failed\n", __func__);
