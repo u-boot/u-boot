@@ -88,7 +88,7 @@
 
 		ro-boot {
 			label = "u-boot";
-			reg = <0x6000 0x9a000>;
+			reg = <0x6000 0xb0000>;
 			read-only;
 			type = "blob boot,dtb";
 			required;
