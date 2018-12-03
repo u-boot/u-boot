@@ -28,8 +28,6 @@ struct stm32_gpio_bank {
 
 #ifndef CONFIG_SPL_BUILD
 
-#define MAX_PIN_PER_BANK		16
-
 static char pin_name[PINNAME_SIZE];
 #define PINMUX_MODE_COUNT		5
 static const char * const pinmux_mode[PINMUX_MODE_COUNT] = {
@@ -116,12 +114,13 @@ static int stm32_pinctrl_get_pins_count(struct udevice *dev)
 }
 
 static struct udevice *stm32_pinctrl_get_gpio_dev(struct udevice *dev,
-						  unsigned int selector)
+						  unsigned int selector,
+						  unsigned int *idx)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
 	struct stm32_gpio_bank *gpio_bank;
 	struct gpio_dev_priv *uc_priv;
-	int first_pin = 0;
+	int pin_count = 0;
 
 	if (list_empty(&priv->gpio_dev))
 		stm32_populate_gpio_dev_list(dev);
@@ -130,11 +129,19 @@ static struct udevice *stm32_pinctrl_get_gpio_dev(struct udevice *dev,
 	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
 		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
 
-		if (selector < (first_pin + uc_priv->gpio_count))
-			/* we found the bank */
-			return gpio_bank->gpio_dev;
+		if (selector < (pin_count + uc_priv->gpio_count)) {
+			/*
+			 * we found the bank, convert pin selector to
+			 * gpio bank index
+			 */
+			*idx = stm32_offset_to_index(gpio_bank->gpio_dev,
+						     selector - pin_count);
+			if (*idx < 0)
+				return NULL;
 
-		first_pin += uc_priv->gpio_count;
+			return gpio_bank->gpio_dev;
+		}
+		pin_count += uc_priv->gpio_count;
 	}
 
 	return NULL;
@@ -145,9 +152,10 @@ static const char *stm32_pinctrl_get_pin_name(struct udevice *dev,
 {
 	struct gpio_dev_priv *uc_priv;
 	struct udevice *gpio_dev;
+	unsigned int gpio_idx;
 
 	/* look up for the bank which owns the requested pin */
-	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector);
+	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector, &gpio_idx);
 	if (!gpio_dev) {
 		snprintf(pin_name, PINNAME_SIZE, "Error");
 	} else {
@@ -155,7 +163,7 @@ static const char *stm32_pinctrl_get_pin_name(struct udevice *dev,
 
 		snprintf(pin_name, PINNAME_SIZE, "%s%d",
 			 uc_priv->bank_name,
-			 selector % MAX_PIN_PER_BANK);
+			 gpio_idx);
 	}
 
 	return pin_name;
@@ -168,23 +176,21 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 {
 	struct udevice *gpio_dev;
 	const char *label;
-	int gpio_pin;
 	int mode;
 	int af_num;
+	unsigned int gpio_idx;
 
 	/* look up for the bank which owns the requested pin */
-	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector);
+	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector, &gpio_idx);
 
 	if (!gpio_dev)
 		return -ENODEV;
 
-	/* translate pin-controller pin number to gpio pin number */
-	gpio_pin = selector % MAX_PIN_PER_BANK;
+	mode = gpio_get_raw_function(gpio_dev, gpio_idx, &label);
 
-	mode = gpio_get_raw_function(gpio_dev, gpio_pin, &label);
+	dev_dbg(dev, "selector = %d gpio_idx = %d mode = %d\n",
+		selector, gpio_idx, mode);
 
-	dev_dbg(dev, "selector = %d gpio_pin = %d mode = %d\n",
-		selector, gpio_pin, mode);
 
 	switch (mode) {
 	case GPIOF_UNKNOWN:
@@ -194,7 +200,7 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 		snprintf(buf, size, "%s", pinmux_mode[mode]);
 		break;
 	case GPIOF_FUNC:
-		af_num = stm32_pinctrl_get_af(gpio_dev, gpio_pin);
+		af_num = stm32_pinctrl_get_af(gpio_dev, gpio_idx);
 		snprintf(buf, size, "%s %d", pinmux_mode[mode], af_num);
 		break;
 	case GPIOF_OUTPUT:
