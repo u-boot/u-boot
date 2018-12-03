@@ -75,7 +75,6 @@
 #define CONFIG_SYS_I2C_SLAVE			0x02
 #define CONFIG_I2C_CHIPADDRESS			0x50
 
-#define CONFIG_RTC_M41T62	1
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
 
 /* FPGA config options */

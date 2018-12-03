@@ -119,7 +119,6 @@ U_BOOT_ENV_CALLBACK(baudrate, on_baudrate);
 serial_initfunc(atmel_serial_initialize);
 serial_initfunc(mcf_serial_initialize);
 serial_initfunc(mpc85xx_serial_initialize);
-serial_initfunc(mpc8xx_serial_initialize);
 serial_initfunc(mxc_serial_initialize);
 serial_initfunc(ns16550_serial_initialize);
 serial_initfunc(pl01x_serial_initialize);
@@ -173,7 +172,6 @@ void serial_initialize(void)
 	atmel_serial_initialize();
 	mcf_serial_initialize();
 	mpc85xx_serial_initialize();
-	mpc8xx_serial_initialize();
 	mxc_serial_initialize();
 	ns16550_serial_initialize();
 	pl01x_serial_initialize();

@@ -15,7 +15,8 @@
 			entry = <0x8>;
 			kernel-version = <1>;
 			signature {
-				algo = "sha1,rsa2048";
+				algo = "sha256,rsa2048";
+				padding = "pss";
 				key-name-hint = "dev";
 			};
 		};
@@ -27,7 +28,8 @@
 			compression = "none";
 			fdt-version = <1>;
 			signature {
-				algo = "sha1,rsa2048";
+				algo = "sha256,rsa2048";
+				padding = "pss";
 				key-name-hint = "dev";
 			};
 		};

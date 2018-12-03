@@ -165,6 +165,7 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 	uint8_t *value;
 	int value_len;
 	char *algo;
+	const char *padding;
 	int required;
 	int ret, i;
 
@@ -183,6 +184,10 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p,
 	if (required)
 		printf(" (required)");
 	printf("\n");
+
+	padding = fdt_getprop(fit, noffset, "padding", NULL);
+	if (padding)
+		printf("%s  %s padding: %s\n", p, type, padding);
 
 	ret = fit_image_hash_get_value(fit, noffset, &value,
 				       &value_len);

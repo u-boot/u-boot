@@ -16,6 +16,7 @@
 			kernel-version = <1>;
 			signature {
 				algo = "sha1,rsa2048";
+				padding = "pss";
 				key-name-hint = "dev";
 			};
 		};
@@ -28,6 +29,7 @@
 			fdt-version = <1>;
 			signature {
 				algo = "sha1,rsa2048";
+				padding = "pss";
 				key-name-hint = "dev";
 			};
 		};

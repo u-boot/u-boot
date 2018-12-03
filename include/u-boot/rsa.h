@@ -97,6 +97,16 @@ static inline int rsa_add_verify_data(struct image_sign_info *info,
 int rsa_verify(struct image_sign_info *info,
 	       const struct image_region region[], int region_count,
 	       uint8_t *sig, uint sig_len);
+
+int padding_pkcs_15_verify(struct image_sign_info *info,
+			   uint8_t *msg, int msg_len,
+			   const uint8_t *hash, int hash_len);
+
+#ifdef CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT
+int padding_pss_verify(struct image_sign_info *info,
+		       uint8_t *msg, int msg_len,
+		       const uint8_t *hash, int hash_len);
+#endif /* CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT */
 #else
 static inline int rsa_verify(struct image_sign_info *info,
 		const struct image_region region[], int region_count,
@@ -104,7 +114,25 @@ static inline int rsa_verify(struct image_sign_info *info,
 {
 	return -ENXIO;
 }
+
+static inline int padding_pkcs_15_verify(struct image_sign_info *info,
+					 uint8_t *msg, int msg_len,
+					 const uint8_t *hash, int hash_len)
+{
+	return -ENXIO;
+}
+
+#ifdef CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT
+static inline int padding_pss_verify(struct image_sign_info *info,
+				     uint8_t *msg, int msg_len,
+				     const uint8_t *hash, int hash_len)
+{
+	return -ENXIO;
+}
+#endif /* CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT */
 #endif
+
+#define RSA_DEFAULT_PADDING_NAME		"pkcs-1.5"
 
 #define RSA2048_BYTES	(2048 / 8)
 #define RSA4096_BYTES	(4096 / 8)

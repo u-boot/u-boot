@@ -14,9 +14,8 @@
 			load = <0x4>;
 			entry = <0x8>;
 			kernel-version = <1>;
-			signature {
-				algo = "sha1,rsa2048";
-				key-name-hint = "dev";
+			hash-1 {
+				algo = "sha256";
 			};
 		};
 		fdt-1 {
@@ -26,9 +25,8 @@
 			arch = "sandbox";
 			compression = "none";
 			fdt-version = <1>;
-			signature {
-				algo = "sha1,rsa2048";
-				key-name-hint = "dev";
+			hash-1 {
+				algo = "sha256";
 			};
 		};
 	};
@@ -37,6 +35,12 @@
 		conf-1 {
 			kernel = "kernel";
 			fdt = "fdt-1";
+			signature {
+				algo = "sha256,rsa2048";
+				padding = "pss";
+				key-name-hint = "dev";
+				sign-images = "fdt", "kernel";
+			};
 		};
 	};
 };
