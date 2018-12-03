@@ -31,9 +31,6 @@ struct max98095_priv {
 	int i2c_addr;
 };
 
-static struct sound_codec_info g_codec_info;
-struct max98095_priv g_max98095_info;
-
 /* Index 0 is reserved. */
 int rate_table[] = {0, 8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000,
 		88200, 96000};
@@ -479,31 +476,30 @@ static int max98095_setup_interface(struct max98095_priv *priv,
 	return 0;
 }
 
-static int max98095_do_init(struct sound_codec_info *pcodec_info,
+static int max98095_do_init(struct max98095_priv *priv,
 			    enum en_max_audio_interface aif_id,
 			    int sampling_rate, int mclk_freq,
 			    int bits_per_sample)
 {
 	int ret = 0;
 
-	ret = max98095_setup_interface(&g_max98095_info, aif_id);
+	ret = max98095_setup_interface(priv, aif_id);
 	if (ret < 0) {
 		debug("%s: max98095 codec chip init failed\n", __func__);
 		return ret;
 	}
 
-	ret = max98095_set_sysclk(&g_max98095_info, mclk_freq);
+	ret = max98095_set_sysclk(priv, mclk_freq);
 	if (ret < 0) {
 		debug("%s: max98095 codec set sys clock failed\n", __func__);
 		return ret;
 	}
 
-	ret = max98095_hw_params(&g_max98095_info, aif_id, sampling_rate,
+	ret = max98095_hw_params(priv, aif_id, sampling_rate,
 				 bits_per_sample);
 
 	if (ret == 0) {
-		ret = max98095_set_fmt(&g_max98095_info,
-				       SND_SOC_DAIFMT_I2S |
+		ret = max98095_set_fmt(priv, SND_SOC_DAIFMT_I2S |
 				       SND_SOC_DAIFMT_NB_NF |
 				       SND_SOC_DAIFMT_CBS_CFS,
 				       aif_id);
@@ -564,24 +560,25 @@ int max98095_init(const void *blob, enum en_max_audio_interface aif_id,
 {
 	int ret;
 	int old_bus = i2c_get_bus_num();
-	struct sound_codec_info *pcodec_info = &g_codec_info;
+	struct sound_codec_info pcodec_info;
+	struct max98095_priv max98095_info;
 
-	if (get_max98095_codec_values(pcodec_info, blob) < 0) {
+	if (get_max98095_codec_values(&pcodec_info, blob) < 0) {
 		debug("FDT Codec values failed\n");
 		return -1;
 	}
 
-	i2c_set_bus_num(pcodec_info->i2c_bus);
+	i2c_set_bus_num(pcodec_info.i2c_bus);
 
 	/* shift the device address by 1 for 7 bit addressing */
-	g_max98095_info.i2c_addr = pcodec_info->i2c_dev_addr >> 1;
-	ret = max98095_device_init(&g_max98095_info);
+	max98095_info.i2c_addr = pcodec_info.i2c_dev_addr >> 1;
+	ret = max98095_device_init(&max98095_info);
 	if (ret < 0) {
 		debug("%s: max98095 codec chip init failed\n", __func__);
 		return ret;
 	}
 
-	ret = max98095_do_init(pcodec_info, aif_id, sampling_rate, mclk_freq,
+	ret = max98095_do_init(&max98095_info, aif_id, sampling_rate, mclk_freq,
 			       bits_per_sample);
 	i2c_set_bus_num(old_bus);
 
