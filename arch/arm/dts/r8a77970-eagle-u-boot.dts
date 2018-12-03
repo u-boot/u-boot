@@ -7,10 +7,30 @@
 
 #include "r8a77970-eagle.dts"
 #include "r8a77970-u-boot.dtsi"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	aliases {
 		spi0 = &rpc;
+	};
+};
+
+&avb {
+	pinctrl-0 = <&avb0_pins>;
+	pinctrl-names = "default";
+
+};
+
+&phy0 {
+	reset-gpios = <&gpio1 16 GPIO_ACTIVE_LOW>;
+};
+
+&pfc {
+	avb0_pins: avb {
+		mux {
+			groups = "avb0_link", "avb0_mdio", "avb0_rgmii", "avb0_txcrefclk";
+			function = "avb0";
+		};
 	};
 };
 
