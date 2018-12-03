@@ -659,8 +659,7 @@ static int wm8994_init_volume_aif1_dac1(struct wm8994_priv *priv)
  *
  * @returns -1 for error  and 0 Success.
  */
-static int wm8994_device_init(struct wm8994_priv *priv,
-			      enum en_audio_interface aif_id)
+static int wm8994_device_init(struct wm8994_priv *priv)
 {
 	const char *devname;
 	unsigned short reg_data;
@@ -671,7 +670,7 @@ static int wm8994_device_init(struct wm8994_priv *priv,
 	ret = wm8994_i2c_read(priv, WM8994_SOFTWARE_RESET, &reg_data);
 	if (ret < 0) {
 		debug("Failed to read ID register\n");
-		goto err;
+		return ret;
 	}
 
 	if (reg_data == WM8994_ID) {
@@ -680,21 +679,28 @@ static int wm8994_device_init(struct wm8994_priv *priv,
 		priv->type = WM8994;
 	} else {
 		debug("Device is not a WM8994, ID is %x\n", ret);
-		ret = -1;
-		goto err;
+		return -ENXIO;
 	}
 
 	ret = wm8994_i2c_read(priv, WM8994_CHIP_REVISION, &reg_data);
 	if (ret < 0) {
 		debug("Failed to read revision register: %d\n", ret);
-		goto err;
+		return ret;
 	}
 	priv->revision = reg_data;
 	debug("%s revision %c\n", devname, 'A' + priv->revision);
 
+	return 0;
+}
+
+static int wm8994_setup_interface(struct wm8994_priv *priv,
+				  enum en_audio_interface aif_id)
+{
+	int ret;
+
 	/* VMID Selection */
-	ret |= wm8994_bic_or(priv, WM8994_POWER_MANAGEMENT_1,
-			     WM8994_VMID_SEL_MASK | WM8994_BIAS_ENA_MASK, 0x3);
+	ret = wm8994_bic_or(priv, WM8994_POWER_MANAGEMENT_1,
+			    WM8994_VMID_SEL_MASK | WM8994_BIAS_ENA_MASK, 0x3);
 
 	/* Charge Pump Enable */
 	ret |= wm8994_bic_or(priv, WM8994_CHARGE_PUMP_1, WM8994_CP_ENA_MASK,
@@ -807,10 +813,10 @@ static int wm8994_device_init(struct wm8994_priv *priv,
 	if (ret < 0)
 		goto err;
 
-	debug("%s: Codec chip init ok\n", __func__);
+	debug("%s: Codec chip setup ok\n", __func__);
 	return 0;
 err:
-	debug("%s: Codec chip init error\n", __func__);
+	debug("%s: Codec chip setup error\n", __func__);
 	return -1;
 }
 
@@ -874,7 +880,7 @@ static int _wm8994_init(struct wm8994_priv *priv,
 {
 	int ret;
 
-	ret = wm8994_device_init(priv, aif_id);
+	ret = wm8994_setup_interface(priv, aif_id);
 	if (ret < 0) {
 		debug("%s: wm8994 codec chip init failed\n", __func__);
 		return ret;
@@ -904,6 +910,7 @@ int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 		unsigned int channels)
 {
 	struct sound_codec_info *pcodec_info = &g_codec_info;
+	int ret;
 
 	/* Get the codec Values */
 	if (get_codec_values(pcodec_info, blob) < 0) {
@@ -914,6 +921,11 @@ int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 	/* shift the device address by 1 for 7 bit addressing */
 	g_wm8994_i2c_dev_addr = pcodec_info->i2c_dev_addr;
 	wm8994_i2c_init(pcodec_info->i2c_bus);
+	ret = wm8994_device_init(&g_wm8994_info);
+	if (ret < 0) {
+		debug("%s: wm8994 codec chip init failed\n", __func__);
+		return ret;
+	}
 
 	return _wm8994_init(&g_wm8994_info, aif_id, sampling_rate, mclk_freq,
 			    bits_per_sample, channels);
