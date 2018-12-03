@@ -4,13 +4,13 @@
  * R. Chandrasekar <rcsekar@samsung.com>
  */
 
+#include <common.h>
+#include <i2s.h>
+#include <sound.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/i2s-regs.h>
 #include <asm/io.h>
-#include <common.h>
-#include <sound.h>
-#include <i2s.h>
 
 #define FIC_TX2COUNT(x)		(((x) >>  24) & 0xf)
 #define FIC_TX1COUNT(x)		(((x) >>  16) & 0xf)
@@ -170,7 +170,7 @@ static int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 	default:
 		debug("%s: Invalid format priority [0x%x]\n", __func__,
 		      (fmt & SND_SOC_DAIFMT_FORMAT_MASK));
-		return -1;
+		return -ERANGE;
 	}
 
 	/*
@@ -189,7 +189,7 @@ static int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 	default:
 		debug("%s: Invalid clock ploarity input [0x%x]\n", __func__,
 		      (fmt & SND_SOC_DAIFMT_INV_MASK));
-		return -1;
+		return -ERANGE;
 	}
 
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
@@ -201,13 +201,13 @@ static int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 		ret = i2s_set_sysclk_dir(i2s_reg, SND_SOC_CLOCK_OUT);
 		if (ret != 0) {
 			debug("%s:set i2s clock direction failed\n", __func__);
-			return -1;
+			return ret;
 		}
 		break;
 	default:
 		debug("%s: Invalid master selection [0x%x]\n", __func__,
 		      (fmt & SND_SOC_DAIFMT_MASTER_MASK));
-		return -1;
+		return -ERANGE;
 	}
 
 	mod &= ~(MOD_SDF_MASK | MOD_LR_RLOW | MOD_SLAVE);
@@ -248,7 +248,7 @@ static int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
 	default:
 		debug("%s: Invalid sample size input [0x%x]\n",
 		      __func__, blc);
-		return -1;
+		return -ERANGE;
 	}
 	writel(mod, &i2s_reg->mod);
 
@@ -265,7 +265,7 @@ int i2s_transfer_tx_data(struct samsung_i2s_priv *pi2s_tx, unsigned int *data,
 
 	if (data_size < FIFO_LENGTH) {
 		debug("%s : Invalid data size\n", __func__);
-		return -1; /* invalid pcm data size */
+		return -ENODATA; /* invalid pcm data size */
 	}
 
 	/* fill the tx buffer before stating the tx transmit */
@@ -284,7 +284,7 @@ int i2s_transfer_tx_data(struct samsung_i2s_priv *pi2s_tx, unsigned int *data,
 			if (get_timer(start) > TIMEOUT_I2S_TX) {
 				i2s_txctrl(i2s_reg, I2S_TX_OFF);
 				debug("%s: I2S Transfer Timeout\n", __func__);
-				return -1;
+				return -ETIMEDOUT;
 			}
 		}
 	}
@@ -312,20 +312,20 @@ int i2s_tx_init(struct samsung_i2s_priv *pi2s_tx)
 		ret = set_epll_clk(pi2s_tx->audio_pll_clk);
 	} else {
 		debug("%s: unsupported i2s-%d bus\n", __func__, pi2s_tx->id);
-		return -1;
+		return -ERANGE;
 	}
 
-	if (ret != 0) {
+	if (ret) {
 		debug("%s: epll clock set rate failed\n", __func__);
-		return -1;
+		return ret;
 	}
 
 	/* Select Clk Source for Audio 0 or 1 */
 	ret = set_i2s_clk_source(pi2s_tx->id);
-	if (ret == -1) {
+	if (ret) {
 		debug("%s: unsupported clock for i2s-%d\n", __func__,
 		      pi2s_tx->id);
-		return -1;
+		return ret;
 	}
 
 	if (pi2s_tx->id == 0) {
@@ -341,10 +341,10 @@ int i2s_tx_init(struct samsung_i2s_priv *pi2s_tx)
 				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
 				pi2s_tx->id);
 	}
-	if (ret == -1) {
+	if (ret) {
 		debug("%s: unsupported prescalar for i2s-%d\n", __func__,
 		      pi2s_tx->id);
-		return -1;
+		return ret;
 	}
 
 	/* Configure I2s format */
@@ -355,7 +355,7 @@ int i2s_tx_init(struct samsung_i2s_priv *pi2s_tx)
 		ret = i2s_set_samplesize(i2s_reg, pi2s_tx->bitspersample);
 		if (ret != 0) {
 			debug("%s:set sample rate failed\n", __func__);
-			return -1;
+			return ret;
 		}
 
 		i2s_set_bitclk_framesize(i2s_reg, pi2s_tx->bfs);
