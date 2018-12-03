@@ -20,15 +20,15 @@
 #define SOUND_400_HZ 400
 #define SOUND_BITS_IN_BYTE 8
 
-static struct i2stx_info g_i2stx_pri;
+static struct samsung_i2s_priv g_i2stx_pri;
 
 /*
  * get_sound_i2s_values gets values for i2s parameters
  *
- * @param i2stx_info	i2s transmitter transfer param structure
+ * @param samsung_i2s_priv	i2s transmitter transfer param structure
  * @param blob		FDT blob if enabled else NULL
  */
-static int get_sound_i2s_values(struct i2stx_info *i2s, const void *blob)
+static int get_sound_i2s_values(struct samsung_i2s_priv *i2s, const void *blob)
 {
 	int node;
 	int error = 0;
@@ -97,7 +97,7 @@ static int get_sound_i2s_values(struct i2stx_info *i2s, const void *blob)
  * @param pi2s_tx	i2s parameters required by codec
  * @return              int value, 0 for success
  */
-static int codec_init(const void *blob, struct i2stx_info *pi2s_tx)
+static int codec_init(const void *blob, struct samsung_i2s_priv *pi2s_tx)
 {
 	int ret;
 	const char *codectype;
@@ -145,7 +145,7 @@ static int codec_init(const void *blob, struct i2stx_info *pi2s_tx)
 int sound_init(const void *blob)
 {
 	int ret;
-	struct i2stx_info *pi2s_tx = &g_i2stx_pri;
+	struct samsung_i2s_priv *pi2s_tx = &g_i2stx_pri;
 
 	/* Get the I2S Values */
 	if (get_sound_i2s_values(pi2s_tx, blob) < 0) {
