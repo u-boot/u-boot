@@ -784,6 +784,7 @@ config ARCH_RMOBILE
 	imply CMD_DM
 	imply FAT_WRITE
 	imply SYS_THUMB_BUILD
+	imply ARCH_MISC_INIT if DISPLAY_CPUINFO
 
 config TARGET_S32V234EVB
 	bool "Support s32v234evb"
