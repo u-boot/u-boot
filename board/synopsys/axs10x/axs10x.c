@@ -109,3 +109,11 @@ void smp_kick_all_cpus(void)
 	writel(cmd, (void __iomem *)AXC003_CREG_CPU_START);
 }
 #endif
+
+int checkboard(void)
+{
+	printf("Board: ARC Software Development Platform AXS%s\n",
+	     is_isa_arcv2() ? "103" : "101");
+
+	return 0;
+};

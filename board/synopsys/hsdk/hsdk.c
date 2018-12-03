@@ -1054,10 +1054,8 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 
-#ifdef CONFIG_DISPLAY_CPUINFO
-int print_cpuinfo(void)
+int checkboard(void)
 {
-	printf("CPU:   ARC HS38 v2.1c\n");
+	puts("Board: Synopsys ARC HS Development Kit\n");
 	return 0;
-}
-#endif /* CONFIG_DISPLAY_CPUINFO */
+};
