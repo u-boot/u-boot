@@ -38,6 +38,7 @@ struct wm8994_priv {
 	int mclk[WM8994_MAX_AIF];	/* master clock frequency in Hz */
 	int aifclk[WM8994_MAX_AIF];	/* audio interface clock in Hz   */
 	struct wm8994_fll_config fll[2]; /* fll config to configure fll */
+	int i2c_addr;
 };
 
 /* wm 8994 supported sampling rate values */
@@ -61,7 +62,6 @@ static int bclk_divs[] = {
 };
 
 static struct wm8994_priv g_wm8994_info;
-static unsigned char g_wm8994_i2c_dev_addr;
 static struct sound_codec_info g_codec_info;
 
 /*
@@ -92,7 +92,7 @@ static int wm8994_i2c_write(struct wm8994_priv *priv, unsigned int reg,
 	val[1] = (unsigned char)(data & 0xff);
 	debug("Write Addr : 0x%04X, Data :  0x%04X\n", reg, data);
 
-	return i2c_write(g_wm8994_i2c_dev_addr, reg, 2, val, 2);
+	return i2c_write(priv->i2c_addr, reg, 2, val, 2);
 }
 
 /*
@@ -110,7 +110,7 @@ static unsigned int wm8994_i2c_read(struct wm8994_priv *priv, unsigned int reg,
 	unsigned char val[2];
 	int ret;
 
-	ret = i2c_read(g_wm8994_i2c_dev_addr, reg, 2, val, 2);
+	ret = i2c_read(priv->i2c_addr, reg, 2, val, 2);
 	if (ret != 0) {
 		debug("%s: Error while reading register %#04x\n",
 		      __func__, reg);
@@ -919,7 +919,7 @@ int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 	}
 
 	/* shift the device address by 1 for 7 bit addressing */
-	g_wm8994_i2c_dev_addr = pcodec_info->i2c_dev_addr;
+	g_wm8994_info.i2c_addr = pcodec_info->i2c_dev_addr;
 	wm8994_i2c_init(pcodec_info->i2c_bus);
 	ret = wm8994_device_init(&g_wm8994_info);
 	if (ret < 0) {
