@@ -151,6 +151,7 @@ static int gpio_stm32_probe(struct udevice *dev)
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args args;
+	struct clk clk;
 	fdt_addr_t addr;
 	const char *name;
 	int ret;
@@ -184,8 +185,6 @@ static int gpio_stm32_probe(struct udevice *dev)
 		(u32 *)priv->regs, uc_priv->bank_name, uc_priv->gpio_count,
 		priv->gpio_range);
 
-#ifdef CONFIG_CLK
-	struct clk clk;
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0)
 		return ret;
@@ -197,7 +196,6 @@ static int gpio_stm32_probe(struct udevice *dev)
 		return ret;
 	}
 	debug("clock enabled for device %s\n", dev->name);
-#endif
 
 	return 0;
 }
