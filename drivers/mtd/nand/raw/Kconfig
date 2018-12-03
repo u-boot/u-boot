@@ -299,6 +299,13 @@ config SYS_NAND_BUSWIDTH_16BIT
 	    not available while configuring controller. So a static CONFIG_NAND_xx
 	    is needed to know the device's bus-width in advance.
 
+config SYS_NAND_MAX_CHIPS
+	int "NAND max chips"
+	default 1
+	depends on NAND_ARASAN
+	help
+	  The maximum number of NAND chips per device to be supported.
+
 if SPL
 
 config SYS_NAND_U_BOOT_LOCATIONS
