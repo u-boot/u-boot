@@ -6,12 +6,8 @@
 #ifndef _DDR3_TRAINING_IP_H_
 #define _DDR3_TRAINING_IP_H_
 
-#include "ddr3_training_ip_def.h"
 #include "ddr_topology_def.h"
-#include "ddr_training_ip_db.h"
 
-#define MAX_CS_NUM		4
-#define MAX_TOTAL_BUS_NUM	(MAX_INTERFACE_NUM * MAX_BUS_NUM)
 #define TIP_ENG_LOCK	0x02000000
 #define TIP_TX_DLL_RANGE_MAX	64
 
@@ -112,38 +108,9 @@ struct pattern_info {
 	u8 pattern_len;
 };
 
-/* CL value for each frequency */
-struct cl_val_per_freq {
-	u8 cl_val[DDR_FREQ_LAST];
-};
-
 struct cs_element {
 	u8 cs_num;
 	u8 num_of_cs;
-};
-
-struct mode_info {
-	/* 32 bits representing MRS bits */
-	u32 reg_mr0[MAX_INTERFACE_NUM];
-	u32 reg_mr1[MAX_INTERFACE_NUM];
-	u32 reg_mr2[MAX_INTERFACE_NUM];
-	u32 reg_m_r3[MAX_INTERFACE_NUM];
-	/*
-	 * Each element in array represent read_data_sample register delay for
-	 * a specific interface.
-	 * Each register, 4 bits[0+CS*8 to 4+CS*8] represent Number of DDR
-	 * cycles from read command until data is ready to be fetched from
-	 * the PHY, when accessing CS.
-	 */
-	u32 read_data_sample[MAX_INTERFACE_NUM];
-	/*
-	 * Each element in array represent read_data_sample register delay for
-	 * a specific interface.
-	 * Each register, 4 bits[0+CS*8 to 4+CS*8] represent the total delay
-	 * from read command until opening the read mask, when accessing CS.
-	 * This field defines the delay in DDR cycles granularity.
-	 */
-	u32 read_data_ready[MAX_INTERFACE_NUM];
 };
 
 struct hws_tip_freq_config_info {
@@ -173,12 +140,7 @@ int hws_ddr3_tip_init_controller(u32 dev_num,
 int hws_ddr3_tip_load_topology_map(u32 dev_num,
 				   struct mv_ddr_topology_map *topology);
 int hws_ddr3_tip_run_alg(u32 dev_num, enum hws_algo_type algo_type);
-int hws_ddr3_tip_mode_read(u32 dev_num, struct mode_info *mode_info);
-int hws_ddr3_tip_read_training_result(u32 dev_num,
-		enum hws_result result[MAX_STAGE_LIMIT][MAX_INTERFACE_NUM]);
 int ddr3_tip_is_pup_lock(u32 *pup_buf, enum hws_training_result read_mode);
 u8 ddr3_tip_get_buf_min(u8 *buf_ptr);
 u8 ddr3_tip_get_buf_max(u8 *buf_ptr);
-uint64_t mv_ddr_get_memory_size_per_cs_in_bits(void);
-uint64_t mv_ddr_get_total_memory_size_in_bits(void);
 #endif /* _DDR3_TRAINING_IP_H_ */

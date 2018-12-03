@@ -4,6 +4,8 @@
  */
 
 #include "ddr3_init.h"
+#include "mv_ddr_training_db.h"
+#include "mv_ddr_regs.h"
 
 u8 is_reg_dump = 0;
 u8 debug_pbs = DEBUG_LEVEL_ERROR;
@@ -83,7 +85,7 @@ void ddr3_hws_set_log_level(enum ddr_lib_debug_block block, u8 level)
 #endif /* SILENT_LIB */
 
 #if defined(DDR_VIEWER_TOOL)
-static char *convert_freq(enum hws_ddr_freq freq);
+static char *convert_freq(enum mv_ddr_freq freq);
 #if defined(EXCLUDE_SWITCH_DEBUG)
 u32 ctrl_sweepres[ADLL_LENGTH][MAX_INTERFACE_NUM][MAX_BUS_NUM];
 u32 ctrl_adll[MAX_CS_NUM * MAX_INTERFACE_NUM * MAX_BUS_NUM];
@@ -177,23 +179,6 @@ int ddr3_tip_init_config_func(u32 dev_num,
 }
 
 /*
- * Read training result table
- */
-int hws_ddr3_tip_read_training_result(
-	u32 dev_num, enum hws_result result[MAX_STAGE_LIMIT][MAX_INTERFACE_NUM])
-{
-	if (result == NULL)
-		return MV_BAD_PARAM;
-
-	memcpy(result, training_result,
-	       sizeof(enum hws_result) *
-	       MAX_STAGE_LIMIT *
-	       MAX_INTERFACE_NUM);
-
-	return MV_OK;
-}
-
-/*
  * Get training result info pointer
  */
 enum hws_result *ddr3_tip_get_result_ptr(u32 stage)
@@ -218,50 +203,50 @@ int ddr3_tip_get_device_info(u32 dev_num, struct ddr3_device_info *info_ptr)
 /*
  * Convert freq to character string
  */
-static char *convert_freq(enum hws_ddr_freq freq)
+static char *convert_freq(enum mv_ddr_freq freq)
 {
 	switch (freq) {
-	case DDR_FREQ_LOW_FREQ:
-		return "DDR_FREQ_LOW_FREQ";
+	case MV_DDR_FREQ_LOW_FREQ:
+		return "MV_DDR_FREQ_LOW_FREQ";
 
-	case DDR_FREQ_400:
+	case MV_DDR_FREQ_400:
 		return "400";
 
-	case DDR_FREQ_533:
+	case MV_DDR_FREQ_533:
 		return "533";
 
-	case DDR_FREQ_667:
+	case MV_DDR_FREQ_667:
 		return "667";
 
-	case DDR_FREQ_800:
+	case MV_DDR_FREQ_800:
 		return "800";
 
-	case DDR_FREQ_933:
+	case MV_DDR_FREQ_933:
 		return "933";
 
-	case DDR_FREQ_1066:
+	case MV_DDR_FREQ_1066:
 		return "1066";
 
-	case DDR_FREQ_311:
+	case MV_DDR_FREQ_311:
 		return "311";
 
-	case DDR_FREQ_333:
+	case MV_DDR_FREQ_333:
 		return "333";
 
-	case DDR_FREQ_467:
+	case MV_DDR_FREQ_467:
 		return "467";
 
-	case DDR_FREQ_850:
+	case MV_DDR_FREQ_850:
 		return "850";
 
-	case DDR_FREQ_900:
+	case MV_DDR_FREQ_900:
 		return "900";
 
-	case DDR_FREQ_360:
-		return "DDR_FREQ_360";
+	case MV_DDR_FREQ_360:
+		return "MV_DDR_FREQ_360";
 
-	case DDR_FREQ_1000:
-		return "DDR_FREQ_1000";
+	case MV_DDR_FREQ_1000:
+		return "MV_DDR_FREQ_1000";
 
 	default:
 		return "Unknown Frequency";
@@ -364,7 +349,7 @@ int ddr3_tip_print_log(u32 dev_num, u32 mem_addr)
 	if ((is_validate_window_per_if != 0) ||
 	    (is_validate_window_per_pup != 0)) {
 		u32 is_pup_log = 0;
-		enum hws_ddr_freq freq;
+		enum mv_ddr_freq freq;
 
 		freq = tm->interface_params[first_active_if].memory_freq;
 
@@ -528,7 +513,7 @@ int ddr3_tip_print_stability_log(u32 dev_num)
 	u8 if_id = 0, csindex = 0, bus_id = 0, idx = 0;
 	u32 reg_data;
 	u32 read_data[MAX_INTERFACE_NUM];
-	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
+	unsigned int max_cs = mv_ddr_cs_num_get();
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
 	/* Title print */
@@ -844,8 +829,6 @@ u32 xsb_test_table[][8] = {
 	 0xffffffff, 0xffffffff}
 };
 
-static int ddr3_tip_access_atr(u32 dev_num, u32 flag_id, u32 value, u32 **ptr);
-
 int ddr3_tip_print_adll(void)
 {
 	u32 bus_cnt = 0, if_id, data_p1, data_p2, ui_data3, dev_num = 0;
@@ -872,353 +855,6 @@ int ddr3_tip_print_adll(void)
 					   if_id, bus_cnt, data_p1, data_p2,
 					   ui_data3));
 			}
-	}
-
-	return MV_OK;
-}
-
-/*
- * Set attribute value
- */
-int ddr3_tip_set_atr(u32 dev_num, u32 flag_id, u32 value)
-{
-	int ret;
-	u32 *ptr_flag = NULL;
-
-	ret = ddr3_tip_access_atr(dev_num, flag_id, value, &ptr_flag);
-	if (ptr_flag != NULL) {
-		printf("ddr3_tip_set_atr Flag ID 0x%x value is set to 0x%x (was 0x%x)\n",
-		       flag_id, value, *ptr_flag);
-		*ptr_flag = value;
-	} else {
-		printf("ddr3_tip_set_atr Flag ID 0x%x value is set to 0x%x\n",
-		       flag_id, value);
-	}
-
-	return ret;
-}
-
-/*
- * Access attribute
- */
-static int ddr3_tip_access_atr(u32 dev_num, u32 flag_id, u32 value, u32 **ptr)
-{
-	u32 tmp_val = 0, if_id = 0, pup_id = 0;
-	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
-
-	*ptr = NULL;
-
-	switch (flag_id) {
-	case 0:
-		*ptr = (u32 *)&(tm->if_act_mask);
-		break;
-
-	case 0x1:
-		*ptr = (u32 *)&mask_tune_func;
-		break;
-
-	case 0x2:
-		low_freq = (enum hws_ddr_freq)value;
-		break;
-
-	case 0x3:
-		medium_freq = (enum hws_ddr_freq)value;
-		break;
-
-	case 0x4:
-		*ptr = (u32 *)&generic_init_controller;
-		break;
-
-	case 0x8:
-		*ptr = (u32 *)&start_xsb_offset;
-		break;
-
-	case 0x20:
-		*ptr = (u32 *)&is_rl_old;
-		break;
-
-	case 0x21:
-		*ptr = (u32 *)&is_freq_old;
-		break;
-
-	case 0x23:
-		*ptr = (u32 *)&is_dfs_disabled;
-		break;
-
-	case 0x24:
-		*ptr = (u32 *)&is_pll_before_init;
-		break;
-
-	case 0x25:
-		*ptr = (u32 *)&is_adll_calib_before_init;
-		break;
-	case 0x28:
-		*ptr = (u32 *)&is_tune_result;
-		break;
-
-	case 0x29:
-		*ptr = (u32 *)&is_validate_window_per_if;
-		break;
-
-	case 0x2a:
-		*ptr = (u32 *)&is_validate_window_per_pup;
-		break;
-
-	case 0x30:
-		*ptr = (u32 *)&sweep_cnt;
-		break;
-
-	case 0x31:
-		*ptr = (u32 *)&is_bist_reset_bit;
-		break;
-
-	case 0x32:
-		*ptr = (u32 *)&is_dfs_in_init;
-		break;
-
-	case 0x33:
-		*ptr = (u32 *)&g_zpodt_data;
-		break;
-
-	case 0x34:
-		*ptr = (u32 *)&g_znodt_data;
-		break;
-
-	case 0x35:
-		break;
-
-	case 0x36:
-		*ptr = (u32 *)&(freq_val[DDR_FREQ_LOW_FREQ]);
-		break;
-
-	case 0x37:
-		*ptr = (u32 *)&start_pattern;
-		break;
-
-	case 0x38:
-		*ptr = (u32 *)&end_pattern;
-		break;
-
-	case 0x39:
-		*ptr = (u32 *)&phy_reg0_val;
-		break;
-
-	case 0x4a:
-		*ptr = (u32 *)&phy_reg1_val;
-		break;
-
-	case 0x4b:
-		*ptr = (u32 *)&phy_reg2_val;
-		break;
-
-	case 0x4c:
-		*ptr = (u32 *)&phy_reg3_val;
-		break;
-
-	case 0x4e:
-		sweep_pattern = (enum hws_pattern)value;
-		break;
-
-	case 0x51:
-		*ptr = (u32 *)&g_znri_data;
-		break;
-
-	case 0x52:
-		*ptr = (u32 *)&g_zpri_data;
-		break;
-
-	case 0x53:
-		*ptr = (u32 *)&finger_test;
-		break;
-
-	case 0x54:
-		*ptr = (u32 *)&n_finger_start;
-		break;
-
-	case 0x55:
-		*ptr = (u32 *)&n_finger_end;
-		break;
-
-	case 0x56:
-		*ptr = (u32 *)&p_finger_start;
-		break;
-
-	case 0x57:
-		*ptr = (u32 *)&p_finger_end;
-		break;
-
-	case 0x58:
-		*ptr = (u32 *)&p_finger_step;
-		break;
-
-	case 0x59:
-		*ptr = (u32 *)&n_finger_step;
-		break;
-
-	case 0x5a:
-		*ptr = (u32 *)&g_znri_ctrl;
-		break;
-
-	case 0x5b:
-		*ptr = (u32 *)&g_zpri_ctrl;
-		break;
-
-	case 0x5c:
-		*ptr = (u32 *)&is_reg_dump;
-		break;
-
-	case 0x5d:
-		*ptr = (u32 *)&vref_init_val;
-		break;
-
-	case 0x5e:
-		*ptr = (u32 *)&mode_2t;
-		break;
-
-	case 0x5f:
-		*ptr = (u32 *)&xsb_validate_type;
-		break;
-
-	case 0x60:
-		*ptr = (u32 *)&xsb_validation_base_address;
-		break;
-
-	case 0x67:
-		*ptr = (u32 *)&activate_select_before_run_alg;
-		break;
-
-	case 0x68:
-		*ptr = (u32 *)&activate_deselect_after_run_alg;
-		break;
-
-	case 0x69:
-		*ptr = (u32 *)&odt_additional;
-		break;
-
-	case 0x70:
-		*ptr = (u32 *)&debug_mode;
-		break;
-
-	case 0x71:
-		pbs_pattern = (enum hws_pattern)value;
-		break;
-
-	case 0x72:
-		*ptr = (u32 *)&delay_enable;
-		break;
-
-	case 0x73:
-		*ptr = (u32 *)&ck_delay;
-		break;
-
-	case 0x75:
-		*ptr = (u32 *)&ca_delay;
-		break;
-
-	case 0x100:
-		*ptr = (u32 *)&debug_dunit;
-		break;
-
-	case 0x101:
-		debug_acc = (int)value;
-		break;
-
-	case 0x102:
-		debug_training = (u8)value;
-		break;
-
-	case 0x103:
-		debug_training_bist = (u8)value;
-		break;
-
-	case 0x104:
-		debug_centralization = (u8)value;
-		break;
-
-	case 0x105:
-		debug_training_ip = (u8)value;
-		break;
-
-	case 0x106:
-		debug_leveling = (u8)value;
-		break;
-
-	case 0x107:
-		debug_pbs = (u8)value;
-		break;
-
-	case 0x108:
-		debug_training_static = (u8)value;
-		break;
-
-	case 0x109:
-		debug_training_access = (u8)value;
-		break;
-
-
-	case 0x112:
-		*ptr = &start_pattern;
-		break;
-
-	case 0x113:
-		*ptr = &end_pattern;
-		break;
-
-	default:
-		if ((flag_id >= 0x200) && (flag_id < 0x210)) {
-			if_id = flag_id - 0x200;
-			*ptr = (u32 *)&(tm->interface_params
-					[if_id].memory_freq);
-		} else if ((flag_id >= 0x210) && (flag_id < 0x220)) {
-			if_id = flag_id - 0x210;
-			*ptr = (u32 *)&(tm->interface_params
-					[if_id].speed_bin_index);
-		} else if ((flag_id >= 0x220) && (flag_id < 0x230)) {
-			if_id = flag_id - 0x220;
-			*ptr = (u32 *)&(tm->interface_params
-					[if_id].bus_width);
-		} else if ((flag_id >= 0x230) && (flag_id < 0x240)) {
-			if_id = flag_id - 0x230;
-			*ptr = (u32 *)&(tm->interface_params
-					[if_id].memory_size);
-		} else if ((flag_id >= 0x240) && (flag_id < 0x250)) {
-			if_id = flag_id - 0x240;
-			*ptr = (u32 *)&(tm->interface_params
-					[if_id].cas_l);
-		} else if ((flag_id >= 0x250) && (flag_id < 0x260)) {
-			if_id = flag_id - 0x250;
-			*ptr = (u32 *)&(tm->interface_params
-					[if_id].cas_wl);
-		} else if ((flag_id >= 0x270) && (flag_id < 0x2cf)) {
-			if_id = (flag_id - 0x270) / MAX_BUS_NUM;
-			pup_id = (flag_id - 0x270) % MAX_BUS_NUM;
-			*ptr = (u32 *)&(tm->interface_params[if_id].
-					as_bus_params[pup_id].is_ck_swap);
-		} else if ((flag_id >= 0x2d0) && (flag_id < 0x32f)) {
-			if_id = (flag_id - 0x2d0) / MAX_BUS_NUM;
-			pup_id = (flag_id - 0x2d0) % MAX_BUS_NUM;
-			*ptr = (u32 *)&(tm->interface_params[if_id].
-					as_bus_params[pup_id].is_dqs_swap);
-		} else if ((flag_id >= 0x330) && (flag_id < 0x38f)) {
-			if_id = (flag_id - 0x330) / MAX_BUS_NUM;
-			pup_id = (flag_id - 0x330) % MAX_BUS_NUM;
-			*ptr = (u32 *)&(tm->interface_params[if_id].
-					as_bus_params[pup_id].cs_bitmask);
-		} else if ((flag_id >= 0x390) && (flag_id < 0x3ef)) {
-			if_id = (flag_id - 0x390) / MAX_BUS_NUM;
-			pup_id = (flag_id - 0x390) % MAX_BUS_NUM;
-			*ptr = (u32 *)&(tm->interface_params
-					[if_id].as_bus_params
-					[pup_id].mirror_enable_bitmask);
-		} else if ((flag_id >= 0x500) && (flag_id <= 0x50f)) {
-			tmp_val = flag_id - 0x320;
-			*ptr = (u32 *)&(clamp_tbl[tmp_val]);
-		} else {
-			DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR,
-					  ("flag_id out of boundary %d\n",
-					   flag_id));
-			return MV_BAD_PARAM;
-		}
 	}
 
 	return MV_OK;
@@ -1315,7 +951,7 @@ int ddr3_tip_run_sweep_test(int dev_num, u32 repeat_num, u32 direction,
 	u32 reg;
 	enum hws_access_type pup_access;
 	u32 cs;
-	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
+	unsigned int max_cs = mv_ddr_cs_num_get();
 	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
@@ -1462,7 +1098,7 @@ int ddr3_tip_run_leveling_sweep_test(int dev_num, u32 repeat_num,
 	u32 reg;
 	enum hws_access_type pup_access;
 	u32 cs;
-	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
+	unsigned int max_cs = mv_ddr_cs_num_get();
 	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 

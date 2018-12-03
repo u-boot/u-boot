@@ -4,6 +4,7 @@
  */
 
 #include "ddr3_init.h"
+#include "mv_ddr_regs.h"
 
 #define VALIDATE_WIN_LENGTH(e1, e2, maxsize)		\
 	(((e2) + 1 > (e1) + (u8)MIN_WINDOW_SIZE) &&	\
@@ -697,6 +698,8 @@ int ddr3_tip_print_centralization_result(u32 dev_num)
 	u32 if_id = 0, bus_id = 0;
 	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
+
+	dev_num = dev_num;
 
 	printf("Centralization Results\n");
 	printf("I/F0 Result[0 - success 1-fail 2 - state_2 3 - state_3] ...\n");

@@ -64,7 +64,7 @@ static struct mv_ddr_topology_map ddr_topology_map = {
 	    SPEED_BIN_DDR_1600K,	/* speed_bin */
 	    MV_DDR_DEV_WIDTH_16BIT,	/* memory_width */
 	    MV_DDR_DIE_CAP_4GBIT,	/* mem_size */
-	    DDR_FREQ_533,		/* frequency */
+	    MV_DDR_FREQ_533,		/* frequency */
 	    0, 0,			/* cas_wl cas_l */
 	    MV_DDR_TEMP_LOW,		/* temperature */
 	    MV_DDR_TIM_DEFAULT} },	/* timing */
