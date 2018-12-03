@@ -61,9 +61,6 @@ static int bclk_divs[] = {
 	640, 880, 960, 1280, 1760, 1920
 };
 
-static struct wm8994_priv g_wm8994_info;
-static struct sound_codec_info g_codec_info;
-
 /*
  * Initialise I2C for wm 8994
  *
@@ -909,24 +906,25 @@ int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 		int sampling_rate, int mclk_freq, int bits_per_sample,
 		unsigned int channels)
 {
-	struct sound_codec_info *pcodec_info = &g_codec_info;
+	struct sound_codec_info pcodec_info;
+	struct wm8994_priv wm8994_info;
 	int ret;
 
 	/* Get the codec Values */
-	if (get_codec_values(pcodec_info, blob) < 0) {
+	if (get_codec_values(&pcodec_info, blob) < 0) {
 		debug("FDT Codec values failed\n");
 		return -1;
 	}
 
 	/* shift the device address by 1 for 7 bit addressing */
-	g_wm8994_info.i2c_addr = pcodec_info->i2c_dev_addr;
-	wm8994_i2c_init(pcodec_info->i2c_bus);
-	ret = wm8994_device_init(&g_wm8994_info);
+	wm8994_info.i2c_addr = pcodec_info.i2c_dev_addr;
+	wm8994_i2c_init(pcodec_info.i2c_bus);
+	ret = wm8994_device_init(&wm8994_info);
 	if (ret < 0) {
 		debug("%s: wm8994 codec chip init failed\n", __func__);
 		return ret;
 	}
 
-	return _wm8994_init(&g_wm8994_info, aif_id, sampling_rate, mclk_freq,
+	return _wm8994_init(&wm8994_info, aif_id, sampling_rate, mclk_freq,
 			    bits_per_sample, channels);
 }
