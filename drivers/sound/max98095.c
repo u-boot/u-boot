@@ -522,7 +522,6 @@ static int get_max98095_codec_values(struct sound_codec_info *pcodec_info,
 				const void *blob)
 {
 	int error = 0;
-#if CONFIG_IS_ENABLED(OF_CONTROL)
 	enum fdt_compat_id compat;
 	int node;
 	int parent;
@@ -556,11 +555,6 @@ static int get_max98095_codec_values(struct sound_codec_info *pcodec_info,
 		debug("%s: Unknown compat id %d\n", __func__, compat);
 		return -1;
 	}
-#else
-	pcodec_info->i2c_bus = AUDIO_I2C_BUS;
-	pcodec_info->i2c_dev_addr = AUDIO_I2C_REG;
-	debug("i2c dev addr = %d\n", pcodec_info->i2c_dev_addr);
-#endif
 	pcodec_info->codec_type = CODEC_MAX_98095;
 	if (error == -1) {
 		debug("fail to get max98095 codec node properties\n");
