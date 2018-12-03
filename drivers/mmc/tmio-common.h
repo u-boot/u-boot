@@ -117,7 +117,6 @@ struct tmio_sd_plat {
 
 struct tmio_sd_priv {
 	void __iomem			*regbase;
-	unsigned long			mclk;
 	unsigned int			version;
 	u32				caps;
 #define TMIO_SD_CAP_NONREMOVABLE	BIT(0)	/* Nonremovable e.g. eMMC */
@@ -133,6 +132,14 @@ struct tmio_sd_priv {
 #ifdef CONFIG_DM_REGULATOR
 	struct udevice *vqmmc_dev;
 #endif
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk			clk;
+#endif
+#if CONFIG_IS_ENABLED(RENESAS_SDHI)
+	u8				tap_set;
+	u8				nrtaps;
+#endif
+	ulong (*clk_get_rate)(struct tmio_sd_priv *);
 };
 
 int tmio_sd_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,

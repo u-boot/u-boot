@@ -107,7 +107,7 @@ static int gen3_clk_get_parent(struct gen3_clk_priv *priv, struct clk *clk,
 	return renesas_clk_get_parent(clk, info, parent);
 }
 
-static int gen3_clk_setup_sdif_div(struct clk *clk)
+static int gen3_clk_setup_sdif_div(struct clk *clk, ulong rate)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
 	struct cpg_mssr_info *info = priv->info;
@@ -133,7 +133,7 @@ static int gen3_clk_setup_sdif_div(struct clk *clk)
 
 	debug("%s[%i] SDIF offset=%x\n", __func__, __LINE__, core->offset);
 
-	writel(1, priv->base + core->offset);
+	writel((rate == 400000000) ? 0x4 : 0x1, priv->base + core->offset);
 
 	return 0;
 }
@@ -141,10 +141,6 @@ static int gen3_clk_setup_sdif_div(struct clk *clk)
 static int gen3_clk_enable(struct clk *clk)
 {
 	struct gen3_clk_priv *priv = dev_get_priv(clk->dev);
-	int ret = gen3_clk_setup_sdif_div(clk);
-
-	if (ret)
-		return ret;
 
 	return renesas_clk_endisable(clk, priv->base, true);
 }
@@ -328,7 +324,7 @@ static ulong gen3_clk_get_rate(struct clk *clk)
 static ulong gen3_clk_set_rate(struct clk *clk, ulong rate)
 {
 	/* Force correct SD-IF divider configuration if applicable */
-	gen3_clk_setup_sdif_div(clk);
+	gen3_clk_setup_sdif_div(clk, rate);
 	return gen3_clk_get_rate64(clk);
 }
 
