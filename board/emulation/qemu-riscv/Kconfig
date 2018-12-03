@@ -13,7 +13,8 @@ config SYS_CONFIG_NAME
 	default "qemu-riscv"
 
 config SYS_TEXT_BASE
-	default 0x80000000
+	default 0x80000000 if !RISCV_SMODE
+	default 0x80200000 if RISCV_SMODE
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
