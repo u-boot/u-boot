@@ -501,6 +501,30 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)
 }
 #endif
 
+int cmd_always_repeatable(cmd_tbl_t *cmdtp, int flag, int argc,
+			  char * const argv[], int *repeatable)
+{
+	*repeatable = 1;
+
+	return cmdtp->cmd(cmdtp, flag, argc, argv);
+}
+
+int cmd_never_repeatable(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[], int *repeatable)
+{
+	*repeatable = 0;
+
+	return cmdtp->cmd(cmdtp, flag, argc, argv);
+}
+
+int cmd_discard_repeatable(cmd_tbl_t *cmdtp, int flag, int argc,
+			   char * const argv[])
+{
+	int repeatable;
+
+	return cmdtp->cmd_rep(cmdtp, flag, argc, argv, &repeatable);
+}
+
 /**
  * Call a command function. This should be the only route in U-Boot to call
  * a command, so that we can track whether we are waiting for input or
@@ -510,13 +534,15 @@ void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)
  * @param flag		Some flags normally 0 (see CMD_FLAG_.. above)
  * @param argc		Number of arguments (arg 0 must be the command text)
  * @param argv		Arguments
+ * @param repeatable	Can the command be repeated
  * @return 0 if command succeeded, else non-zero (CMD_RET_...)
  */
-static int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+		    int *repeatable)
 {
 	int result;
 
-	result = (cmdtp->cmd)(cmdtp, flag, argc, argv);
+	result = cmdtp->cmd_rep(cmdtp, flag, argc, argv, repeatable);
 	if (result)
 		debug("Command failed, result=%d\n", result);
 	return result;
@@ -553,12 +579,14 @@ enum command_ret_t cmd_process(int flag, int argc, char * const argv[],
 
 	/* If OK so far, then do the command */
 	if (!rc) {
+		int newrep;
+
 		if (ticks)
 			*ticks = get_timer(0);
-		rc = cmd_call(cmdtp, flag, argc, argv);
+		rc = cmd_call(cmdtp, flag, argc, argv, &newrep);
 		if (ticks)
 			*ticks = get_timer(*ticks);
-		*repeatable &= cmdtp->repeatable;
+		*repeatable &= newrep;
 	}
 	if (rc == CMD_RET_USAGE)
 		rc = cmd_usage(cmdtp);
