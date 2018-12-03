@@ -847,8 +847,6 @@ static int get_codec_values(struct sound_codec_info *pcodec_info,
 		return -1;
 	}
 
-	pcodec_info->codec_type = CODEC_WM_8994;
-
 	if (error == -1) {
 		debug("fail to get wm8994 codec node properties\n");
 		return -1;
@@ -874,14 +872,6 @@ int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 	/* shift the device address by 1 for 7 bit addressing */
 	g_wm8994_i2c_dev_addr = pcodec_info->i2c_dev_addr;
 	wm8994_i2c_init(pcodec_info->i2c_bus);
-
-	if (pcodec_info->codec_type == CODEC_WM_8994) {
-		g_wm8994_info.type = WM8994;
-	} else {
-		debug("%s: Codec id [%d] not defined\n", __func__,
-		      pcodec_info->codec_type);
-		return -1;
-	}
 
 	ret = wm8994_device_init(&g_wm8994_info, aif_id);
 	if (ret < 0) {

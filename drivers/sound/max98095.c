@@ -24,12 +24,7 @@
 #include "i2s.h"
 #include "max98095.h"
 
-enum max98095_type {
-	MAX98095,
-};
-
 struct max98095_priv {
-	enum max98095_type devtype;
 	unsigned int sysclk;
 	unsigned int rate;
 	unsigned int fmt;
@@ -484,14 +479,6 @@ static int max98095_do_init(struct sound_codec_info *pcodec_info,
 	/* shift the device address by 1 for 7 bit addressing */
 	g_max98095_i2c_dev_addr = pcodec_info->i2c_dev_addr >> 1;
 
-	if (pcodec_info->codec_type == CODEC_MAX_98095) {
-		g_max98095_info.devtype = MAX98095;
-	} else {
-		debug("%s: Codec id [%d] not defined\n", __func__,
-		      pcodec_info->codec_type);
-		return -1;
-	}
-
 	ret = max98095_device_init(&g_max98095_info, aif_id);
 	if (ret < 0) {
 		debug("%s: max98095 codec chip init failed\n", __func__);
@@ -555,7 +542,6 @@ static int get_max98095_codec_values(struct sound_codec_info *pcodec_info,
 		debug("%s: Unknown compat id %d\n", __func__, compat);
 		return -1;
 	}
-	pcodec_info->codec_type = CODEC_MAX_98095;
 	if (error == -1) {
 		debug("fail to get max98095 codec node properties\n");
 		return -1;

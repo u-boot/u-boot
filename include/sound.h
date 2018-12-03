@@ -8,14 +8,6 @@
 #define __SOUND_H__
 
 /* sound codec enum */
-enum sound_codec {
-	CODEC_WM_8994,
-	CODEC_WM_8995,
-	CODEC_MAX_98095,
-	CODEC_MAX
-};
-
-/* sound codec enum */
 enum sound_compat {
 	AUDIO_COMPAT_SPI,
 	AUDIO_COMPAT_I2C,
@@ -25,7 +17,6 @@ enum sound_compat {
 struct sound_codec_info {
 	int i2c_bus;
 	int i2c_dev_addr;
-	enum sound_codec codec_type;
 };
 
 /*
