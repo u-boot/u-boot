@@ -384,11 +384,13 @@ static int max98095_reset(struct max98095_priv *priv)
  *
  * @returns -1 for error  and 0 Success.
  */
-static int max98095_device_init(struct max98095_priv *priv,
-				enum en_max_audio_interface aif_id)
+static int max98095_device_init(struct max98095_priv *priv)
 {
 	unsigned char id;
 	int error = 0;
+
+	/* Enable codec clock */
+	set_xclkout();
 
 	/* reset the codec, the DSP core, and disable all interrupts */
 	error = max98095_reset(priv);
@@ -406,11 +408,19 @@ static int max98095_device_init(struct max98095_priv *priv,
 	if (error < 0) {
 		debug("%s: Failure reading hardware revision: %d\n",
 		      __func__, id);
-		goto err_access;
+		return error;
 	}
 	debug("%s: Hardware revision: %c\n", __func__, (id - 0x40) + 'A');
 
-	error |= max98095_i2c_write(priv, M98095_097_PWR_SYS, M98095_PWRSV);
+	return 0;
+}
+
+static int max98095_setup_interface(struct max98095_priv *priv,
+				    enum en_max_audio_interface aif_id)
+{
+	int error;
+
+	error = max98095_i2c_write(priv, M98095_097_PWR_SYS, M98095_PWRSV);
 
 	/*
 	 * initialize registers to hardware default configuring audio
@@ -463,7 +473,6 @@ static int max98095_device_init(struct max98095_priv *priv,
 	else
 		error |= max98095_i2c_write(priv, M98095_096_PWR_DAC_CK, 0x07);
 
-err_access:
 	if (error < 0)
 		return -1;
 
@@ -477,13 +486,7 @@ static int max98095_do_init(struct sound_codec_info *pcodec_info,
 {
 	int ret = 0;
 
-	/* Enable codec clock */
-	set_xclkout();
-
-	/* shift the device address by 1 for 7 bit addressing */
-	g_max98095_i2c_dev_addr = pcodec_info->i2c_dev_addr >> 1;
-
-	ret = max98095_device_init(&g_max98095_info, aif_id);
+	ret = max98095_setup_interface(&g_max98095_info, aif_id);
 	if (ret < 0) {
 		debug("%s: max98095 codec chip init failed\n", __func__);
 		return ret;
@@ -569,6 +572,15 @@ int max98095_init(const void *blob, enum en_max_audio_interface aif_id,
 	}
 
 	i2c_set_bus_num(pcodec_info->i2c_bus);
+
+	/* shift the device address by 1 for 7 bit addressing */
+	g_max98095_i2c_dev_addr = pcodec_info->i2c_dev_addr >> 1;
+	ret = max98095_device_init(&g_max98095_info);
+	if (ret < 0) {
+		debug("%s: max98095 codec chip init failed\n", __func__);
+		return ret;
+	}
+
 	ret = max98095_do_init(pcodec_info, aif_id, sampling_rate, mclk_freq,
 			       bits_per_sample);
 	i2c_set_bus_num(old_bus);
