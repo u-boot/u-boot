@@ -867,12 +867,42 @@ static int get_codec_values(struct sound_codec_info *pcodec_info,
 	return 0;
 }
 
+static int _wm8994_init(struct wm8994_priv *priv,
+			enum en_audio_interface aif_id, int sampling_rate,
+			int mclk_freq, int bits_per_sample,
+			unsigned int channels)
+{
+	int ret;
+
+	ret = wm8994_device_init(priv, aif_id);
+	if (ret < 0) {
+		debug("%s: wm8994 codec chip init failed\n", __func__);
+		return ret;
+	}
+
+	ret =  wm8994_set_sysclk(priv, aif_id, WM8994_SYSCLK_MCLK1, mclk_freq);
+	if (ret < 0) {
+		debug("%s: wm8994 codec set sys clock failed\n", __func__);
+		return ret;
+	}
+
+	ret = wm8994_hw_params(priv, aif_id, sampling_rate, bits_per_sample,
+			       channels);
+
+	if (ret == 0) {
+		ret = wm8994_set_fmt(priv, aif_id, SND_SOC_DAIFMT_I2S |
+				     SND_SOC_DAIFMT_NB_NF |
+				     SND_SOC_DAIFMT_CBS_CFS);
+	}
+
+	return ret;
+}
+
 /* WM8994 Device Initialisation */
 int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 		int sampling_rate, int mclk_freq, int bits_per_sample,
 		unsigned int channels)
 {
-	int ret = 0;
 	struct sound_codec_info *pcodec_info = &g_codec_info;
 
 	/* Get the codec Values */
@@ -885,26 +915,6 @@ int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 	g_wm8994_i2c_dev_addr = pcodec_info->i2c_dev_addr;
 	wm8994_i2c_init(pcodec_info->i2c_bus);
 
-	ret = wm8994_device_init(&g_wm8994_info, aif_id);
-	if (ret < 0) {
-		debug("%s: wm8994 codec chip init failed\n", __func__);
-		return ret;
-	}
-
-	ret =  wm8994_set_sysclk(&g_wm8994_info, aif_id, WM8994_SYSCLK_MCLK1,
-							mclk_freq);
-	if (ret < 0) {
-		debug("%s: wm8994 codec set sys clock failed\n", __func__);
-		return ret;
-	}
-
-	ret = wm8994_hw_params(&g_wm8994_info, aif_id, sampling_rate,
-			       bits_per_sample, channels);
-
-	if (ret == 0) {
-		ret = wm8994_set_fmt(&g_wm8994_info, aif_id,
-				     SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
-				     SND_SOC_DAIFMT_CBS_CFS);
-	}
-	return ret;
+	return _wm8994_init(&g_wm8994_info, aif_id, sampling_rate, mclk_freq,
+			    bits_per_sample, channels);
 }
