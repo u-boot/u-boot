@@ -362,13 +362,21 @@ int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp)
 	sep = NULL;
 	seplen = 0;
 	if (i == 1) { /* one match; perfect */
-		k = strlen(argv[argc - 1]);
+		if (last_char != '\0' && !isblank(last_char))
+			k = strlen(argv[argc - 1]);
+		else
+			k = 0;
+
 		s = cmdv[0] + k;
 		len = strlen(s);
 		sep = " ";
 		seplen = 1;
 	} else if (i > 1 && (j = find_common_prefix(cmdv)) != 0) { /* more */
-		k = strlen(argv[argc - 1]);
+		if (last_char != '\0' && !isblank(last_char))
+			k = strlen(argv[argc - 1]);
+		else
+			k = 0;
+
 		j -= k;
 		if (j > 0) {
 			s = cmdv[0] + k;
