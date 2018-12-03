@@ -111,7 +111,7 @@ static void i2s_set_bitclk_framesize(struct i2s_reg *i2s_reg, unsigned bfs)
  * @param flush		Tx fifo flush command (0x00 - do not flush
  *				0x80 - flush tx fifo)
  */
-void i2s_fifo(struct i2s_reg *i2s_reg, unsigned int flush)
+static void i2s_fifo(struct i2s_reg *i2s_reg, unsigned int flush)
 {
 	/* Flush the FIFO */
 	setbits_le32(&i2s_reg->fic, flush);
@@ -126,7 +126,7 @@ void i2s_fifo(struct i2s_reg *i2s_reg, unsigned int flush)
  *
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_set_sysclk_dir(struct i2s_reg *i2s_reg, int dir)
+static int i2s_set_sysclk_dir(struct i2s_reg *i2s_reg, int dir)
 {
 	unsigned int mod = readl(&i2s_reg->mod);
 
@@ -148,7 +148,7 @@ int i2s_set_sysclk_dir(struct i2s_reg *i2s_reg, int dir)
  *
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
+static int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 {
 	unsigned int mod = readl(&i2s_reg->mod);
 	unsigned int tmp = 0;
@@ -225,7 +225,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
  *
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
+static int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
 {
 	unsigned int mod = readl(&i2s_reg->mod);
 

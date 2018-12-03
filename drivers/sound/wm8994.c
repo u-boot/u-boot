@@ -156,7 +156,7 @@ static int wm8994_update_bits(unsigned int reg, unsigned short mask,
  *
  * @return -1 for error and 0  Success.
  */
-int wm8994_set_fmt(int aif_id, unsigned int fmt)
+static int wm8994_set_fmt(int aif_id, unsigned int fmt)
 {
 	int ms_reg;
 	int aif_reg;
