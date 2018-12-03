@@ -319,15 +319,24 @@ static int bif_add_pmufw(struct bif_entry *bf, const char *data, size_t len)
 static int bif_add_part(struct bif_entry *bf, const char *data, size_t len)
 {
 	size_t parthdr_offset = 0;
+	size_t len_padded = ROUND(len, 4);
+
 	struct partition_header parthdr = {
-		.len_enc = cpu_to_le32(len / 4),
-		.len_unenc = cpu_to_le32(len / 4),
-		.len = cpu_to_le32(len / 4),
+		.len_enc = cpu_to_le32(len_padded / 4),
+		.len_unenc = cpu_to_le32(len_padded / 4),
+		.len = cpu_to_le32(len_padded / 4),
 		.entry_point = cpu_to_le64(bf->entry),
 		.load_address = cpu_to_le64(bf->load),
 	};
 	int r;
 	uint32_t csum;
+
+	if (len < len_padded) {
+		char *newdata = malloc(len_padded);
+		memcpy(newdata, data, len);
+		memset(newdata + len, 0, len_padded - len);
+		data = newdata;
+	}
 
 	if (bf->flags & (1ULL << BIF_FLAG_PMUFW_IMAGE))
 		return bif_add_pmufw(bf, data, len);
