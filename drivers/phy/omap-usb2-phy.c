@@ -19,6 +19,11 @@
 #define OMAP_DEV_PHY_PD		BIT(0)
 #define OMAP_USB2_PHY_PD	BIT(28)
 
+#define AM437X_USB2_PHY_PD		BIT(0)
+#define AM437X_USB2_OTG_PD		BIT(1)
+#define AM437X_USB2_OTGVDET_EN		BIT(19)
+#define AM437X_USB2_OTGSESSEND_EN	BIT(20)
+
 #define USB2PHY_DISCON_BYP_LATCH	BIT(31)
 #define USB2PHY_ANA_CONFIG1		(0x4c)
 
@@ -60,6 +65,15 @@ static const struct usb_phy_data dra7x_usb2_phy2_data = {
 	.power_off = OMAP_USB2_PHY_PD,
 };
 
+static const struct usb_phy_data am437x_usb2_data = {
+	.label = "am437x_usb2",
+	.flags =  0,
+	.mask = AM437X_USB2_PHY_PD | AM437X_USB2_OTG_PD |
+		AM437X_USB2_OTGVDET_EN | AM437X_USB2_OTGSESSEND_EN,
+	.power_on = AM437X_USB2_OTGVDET_EN | AM437X_USB2_OTGSESSEND_EN,
+	.power_off = AM437X_USB2_PHY_PD | AM437X_USB2_OTG_PD,
+};
+
 static const struct udevice_id omap_usb2_id_table[] = {
 	{
 		.compatible = "ti,omap5-usb2",
@@ -72,6 +86,10 @@ static const struct udevice_id omap_usb2_id_table[] = {
 	{
 		.compatible = "ti,dra7x-usb2-phy2",
 		.data = (ulong)&dra7x_usb2_phy2_data,
+	},
+	{
+		.compatible = "ti,am437x-usb2",
+		.data = (ulong)&am437x_usb2_data,
 	},
 	{},
 };
@@ -170,20 +188,25 @@ int omap_usb2_phy_probe(struct udevice *dev)
 	}
 
 	regmap = syscon_regmap_lookup_by_phandle(dev, "syscon-phy-power");
-	if (IS_ERR(regmap)) {
-		printf("can't get regmap (err %ld)\n", PTR_ERR(regmap));
-		return PTR_ERR(regmap);
+	if (!IS_ERR(regmap)) {
+		priv->pwr_regmap = regmap;
+		rc =  dev_read_u32_array(dev, "syscon-phy-power", tmp, 2);
+		if (rc) {
+			printf("couldn't get power reg. offset (err %d)\n", rc);
+			return rc;
+		}
+		priv->pwr_reg_offset = tmp[1];
+		return 0;
 	}
-	priv->pwr_regmap = regmap;
-
-	rc =  dev_read_u32_array(dev, "syscon-phy-power", tmp, 2);
-	if (rc) {
-		printf("couldn't get power reg. offset (err %d)\n", rc);
-		return rc;
+	regmap = syscon_regmap_lookup_by_phandle(dev, "ctrl-module");
+	if (!IS_ERR(regmap)) {
+		priv->pwr_regmap = regmap;
+		priv->pwr_reg_offset = 0;
+		return 0;
 	}
-	priv->pwr_reg_offset = tmp[1];
 
-	return 0;
+	printf("can't get regmap (err %ld)\n", PTR_ERR(regmap));
+	return PTR_ERR(regmap);
 }
 
 U_BOOT_DRIVER(omap_usb2_phy) = {
