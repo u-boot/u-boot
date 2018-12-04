@@ -33,6 +33,34 @@
 	};
 };
 
+&keystone_usb0 {
+	status = "okay";
+};
+
+&usb0_phy {
+	status = "okay";
+	compatible = "nop-phy";
+};
+
+&usb0 {
+	dr_mode = "host";
+	status = "okay";
+};
+
+&keystone_usb1 {
+	status = "okay";
+};
+
+&usb1_phy {
+	compatible = "nop-phy";
+	status = "okay";
+};
+
+&usb1 {
+	dr_mode = "peripheral";
+	status = "okay";
+};
+
 &gbe0 {
 	phy-handle = <&ethphy0>;
 };
