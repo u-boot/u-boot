@@ -8,6 +8,10 @@
 	};
 };
 
+&eth0 {
+	phy-reset-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;
+};
+
 &spi1 {
 	u-boot,dm-spl;
 };
