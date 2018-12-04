@@ -47,6 +47,7 @@ obj-$(CONFIG_SPL_ETH_SUPPORT) += net/phy/
 obj-$(CONFIG_SPL_USB_ETHER) += net/phy/
 obj-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += usb/musb-new/
 obj-$(CONFIG_SPL_USB_GADGET_SUPPORT) += usb/gadget/
+obj-$(CONFIG_SPL_USB_GADGET_SUPPORT) += usb/common/
 obj-$(CONFIG_SPL_USB_GADGET_SUPPORT) += usb/gadget/udc/
 obj-$(CONFIG_SPL_DFU_SUPPORT) += dfu/
 obj-$(CONFIG_SPL_WATCHDOG_SUPPORT) += watchdog/
