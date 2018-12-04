@@ -140,6 +140,8 @@ void enable_caches(void)
 		gen3_mem_map[i].attrs = 0;
 	}
 
-	icache_enable();
+	if (!icache_status())
+		icache_enable();
+
 	dcache_enable();
 }
