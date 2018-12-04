@@ -27,7 +27,7 @@
 
 #define BOOTENV_SHARED_BLKDEV_BODY(devtypel) \
 		"if " #devtypel " dev ${devnum}; then " \
-			"setenv devtype " #devtypel "; " \
+			"devtype=" #devtypel "; " \
 			"run scan_dev_for_boot_part; " \
 		"fi\0"
 
@@ -37,7 +37,7 @@
 
 #define BOOTENV_DEV_BLKDEV(devtypeu, devtypel, instance) \
 	"bootcmd_" #devtypel #instance "=" \
-		"setenv devnum " #instance "; " \
+		"devnum=" #instance "; " \
 		"run " #devtypel "_boot\0"
 
 #define BOOTENV_DEV_NAME_BLKDEV(devtypeu, devtypel, instance) \
@@ -77,7 +77,7 @@
 		"if ubi part ${bootubipart} && " \
 			"ubifsmount ubi${devnum}:${bootubivol}; " \
 		"then " \
-			"setenv devtype ubi; " \
+			"devtype=ubi; " \
 			"run scan_dev_for_boot; " \
 		"fi\0"
 #define BOOTENV_DEV_UBIFS	BOOTENV_DEV_BLKDEV
@@ -205,11 +205,11 @@
 
 #ifdef CONFIG_SCSI
 #define BOOTENV_RUN_SCSI_INIT "run scsi_init; "
-#define BOOTENV_SET_SCSI_NEED_INIT "setenv scsi_need_init; "
+#define BOOTENV_SET_SCSI_NEED_INIT "scsi_need_init=; "
 #define BOOTENV_SHARED_SCSI \
 	"scsi_init=" \
 		"if ${scsi_need_init}; then " \
-			"setenv scsi_need_init false; " \
+			"scsi_need_init=false; " \
 			"scsi scan; " \
 		"fi\0" \
 	\
@@ -444,7 +444,8 @@
 					"bootfstype; then "               \
 				"run scan_dev_for_boot; "                 \
 			"fi; "                                            \
-		"done\0"                                                  \
+		"done; "                                                  \
+		"setenv devplist\0"					  \
 	\
 	BOOT_TARGET_DEVICES(BOOTENV_DEV)                                  \
 	\
