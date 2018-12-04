@@ -190,7 +190,6 @@ void ddrmc_ctrl_init_ddr3(struct ddr3_jedec_timings const *timings,
 		   DDRMC_CR77_SWAP_EN, &ddrmr->cr[77]);
 	writel(DDRMC_CR78_Q_FULLNESS(timings->q_fullness) |
 		   DDRMC_CR78_BUR_ON_FLY_BIT(12), &ddrmr->cr[78]);
-	writel(DDRMC_CR79_CTLUPD_AREF(0), &ddrmr->cr[79]);
 
 	writel(DDRMC_CR82_INT_MASK, &ddrmr->cr[82]);
 
