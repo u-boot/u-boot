@@ -18,3 +18,23 @@
 &ocp2scp1 {
 	compatible = "ti,am437x-ocp2scp", "ti,omap-ocp2scp", "simple-bus";
 };
+
+&dwc3_1 {
+	u-boot,dm-spl;
+};
+
+&usb1 {
+	u-boot,dm-spl;
+};
+
+&usb2_phy1 {
+	u-boot,dm-spl;
+};
+
+&am43xx_control_usb2phy1 {
+	u-boot,dm-spl;
+};
+
+&ocp2scp0 {
+	u-boot,dm-spl;
+};
