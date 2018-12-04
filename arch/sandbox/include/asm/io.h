@@ -173,6 +173,18 @@ static inline void _outsw(volatile u16 *port, const void *buf, int ns)
 {
 }
 
+static inline void memset_io(volatile void *addr, unsigned char val, int count)
+{
+}
+
+static inline void memcpy_fromio(void *dst, const volatile void *src, int count)
+{
+}
+
+static inline void memcpy_toio(volatile void *dst, const void *src, int count)
+{
+}
+
 #define insw(port, buf, ns)		_insw((u16 *)port, buf, ns)
 #define outsw(port, buf, ns)		_outsw((u16 *)port, buf, ns)
 
