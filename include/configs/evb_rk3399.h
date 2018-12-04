@@ -8,7 +8,7 @@
 
 #include <configs/rk3399_common.h>
 
-#define CONFIG_SYS_MMC_ENV_DEV 1
+#define CONFIG_SYS_MMC_ENV_DEV 0
 
 #define SDRAM_BANK_SIZE			(2UL << 30)
 
