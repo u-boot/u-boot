@@ -54,12 +54,6 @@
 #define CONFIG_PHY_MARVELL		/* there is a marvell phy */
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
-/* PCIe support */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_PCI_MVEBU
-#define CONFIG_PCI_SCAN_SHOW
-#endif
-
 /* Keep device tree and initrd in lower memory so the kernel can access them */
 #define RELOCATION_LIMITS_ENV_SETTINGS	\
 	"fdt_high=0x10000000\0"		\
