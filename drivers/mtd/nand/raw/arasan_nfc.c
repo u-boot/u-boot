@@ -1201,6 +1201,10 @@ static int arasan_nand_init(struct nand_chip *nand_chip, int devnum)
 	mtd = nand_to_mtd(nand_chip);
 	nand_set_controller_data(nand_chip, nand);
 
+#ifdef CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
+	nand_chip->options |= NAND_NO_SUBPAGE_WRITE;
+#endif
+
 	/* Set the driver entry points for MTD */
 	nand_chip->cmdfunc = arasan_nand_cmd_function;
 	nand_chip->select_chip = arasan_nand_select_chip;

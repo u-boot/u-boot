@@ -318,6 +318,7 @@
 				temperature-stability = <50>;
 				factory-fout = <300000000>;
 				clock-frequency = <300000000>;
+				clock-output-names = "si570_user";
 			};
 		};
 		i2c@3 {
@@ -331,6 +332,7 @@
 				temperature-stability = <50>;
 				factory-fout = <156250000>;
 				clock-frequency = <148500000>;
+				clock-output-names = "si570_mgt";
 			};
 		};
 		i2c@4 {
@@ -449,7 +451,7 @@
 	status = "okay";
 	is-dual = <1>;
 	flash@0 {
-		compatible = "m25p80"; /* 32MB */
+		compatible = "m25p80", "spi-flash"; /* 32MB */
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;

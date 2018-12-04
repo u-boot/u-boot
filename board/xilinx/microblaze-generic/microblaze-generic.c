@@ -32,34 +32,13 @@ ulong ram_base;
 
 int dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = ram_base;
-	gd->bd->bi_dram[0].size = get_effective_memsize();
-
-	return 0;
+	return fdtdec_setup_memory_banksize();
 }
 
 int dram_init(void)
 {
-	int node;
-	fdt_addr_t addr;
-	fdt_size_t size;
-	const void *blob = gd->fdt_blob;
-
-	node = fdt_node_offset_by_prop_value(blob, -1, "device_type",
-					     "memory", 7);
-	if (node == -FDT_ERR_NOTFOUND) {
-		debug("DRAM: Can't get memory node\n");
-		return 1;
-	}
-	addr = fdtdec_get_addr_size(blob, node, "reg", &size);
-	if (addr == FDT_ADDR_T_NONE || size == 0) {
-		debug("DRAM: Can't get base address or size\n");
-		return 1;
-	}
-	ram_base = addr;
-
-	gd->ram_top = addr; /* In setup_dest_addr() is done +ram_size */
-	gd->ram_size = size;
+	if (fdtdec_setup_mem_size_base() != 0)
+		return -EINVAL;
 
 	return 0;
 };

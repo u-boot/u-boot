@@ -59,7 +59,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			num-cs = <1>;
-			flash@0 {
+			flash0: flash@0 {
 				compatible = "n25q128a11";
 				reg = <0x0>;
 				spi-tx-bus-width = <1>;

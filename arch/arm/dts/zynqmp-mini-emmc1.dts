@@ -10,7 +10,7 @@
 /dts-v1/;
 
 / {
-	model = "ZynqMP MINI EMMC";
+	model = "ZynqMP MINI EMMC1";
 	compatible = "xlnx,zynqmp";
 	#address-cells = <2>;
 	#size-cells = <2>;
