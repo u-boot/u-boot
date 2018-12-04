@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
+
+/ {
+	aliases {
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+	};
+};
