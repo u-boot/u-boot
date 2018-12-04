@@ -233,6 +233,7 @@ void ddrmc_ctrl_init_ddr3(struct ddr3_jedec_timings const *timings,
 	/* all inits done, start the DDR controller */
 	writel(DDRMC_CR00_DRAM_CLASS_DDR3 | DDRMC_CR00_START, &ddrmr->cr[0]);
 
-	while (!(readl(&ddrmr->cr[80]) && 0x100))
+	while (!(readl(&ddrmr->cr[80]) & DDRMC_CR80_MC_INIT_COMPLETE))
 		udelay(10);
+	writel(DDRMC_CR80_MC_INIT_COMPLETE, &ddrmr->cr[81]);
 }

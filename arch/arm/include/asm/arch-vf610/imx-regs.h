@@ -200,7 +200,8 @@
 #define DDRMC_CR78_Q_FULLNESS(v)			(((v) & 0x7) << 24)
 #define DDRMC_CR78_BUR_ON_FLY_BIT(v)			((v) & 0xf)
 #define DDRMC_CR79_CTLUPD_AREF(v)			(((v) & 0x1) << 24)
-#define DDRMC_CR82_INT_MASK				0x10000000
+#define DDRMC_CR80_MC_INIT_COMPLETE			(1 << 8)
+#define DDRMC_CR82_INT_MASK				(1 << 28)
 #define DDRMC_CR87_ODT_WR_MAPCS0(v)			((v) << 24)
 #define DDRMC_CR87_ODT_RD_MAPCS0(v)			((v) << 16)
 #define DDRMC_CR88_TODTL_CMD(v)				(((v) & 0x1f) << 16)
