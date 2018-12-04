@@ -27,6 +27,7 @@
 #include <asm/arch/soc.h>
 #include <linux/compat.h>
 #include <linux/mbus.h>
+#include <asm-generic/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -274,6 +275,9 @@ struct mvneta_port {
 	int init;
 	int phyaddr;
 	struct phy_device *phydev;
+#ifdef CONFIG_DM_GPIO
+	struct gpio_desc phy_reset_gpio;
+#endif
 	struct mii_dev *bus;
 };
 
@@ -1748,6 +1752,17 @@ static int mvneta_probe(struct udevice *dev)
 	ret = mdio_register(bus);
 	if (ret)
 		return ret;
+
+#ifdef CONFIG_DM_GPIO
+	gpio_request_by_name(dev, "phy-reset-gpios", 0,
+			     &pp->phy_reset_gpio, GPIOD_IS_OUT);
+
+	if (dm_gpio_is_valid(&pp->phy_reset_gpio)) {
+		dm_gpio_set_value(&pp->phy_reset_gpio, 1);
+		mdelay(10);
+		dm_gpio_set_value(&pp->phy_reset_gpio, 0);
+	}
+#endif
 
 	return board_network_enable(bus);
 }
