@@ -82,3 +82,21 @@ int dram_init_banksize(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_MULTI_DTB_FIT
+int board_fit_config_name_match(const char *name)
+{
+	/* PRR driver is not available yet */
+	u32 cpu_type = rmobile_get_cpu_type();
+
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7795) &&
+	    !strcmp(name, "r8a7795-h3ulcb-u-boot"))
+		return 0;
+
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7796) &&
+	    !strcmp(name, "r8a7796-m3ulcb-u-boot"))
+		return 0;
+
+	return -1;
+}
+#endif
