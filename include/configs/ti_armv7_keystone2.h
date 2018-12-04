@@ -169,6 +169,17 @@
 #define CONFIG_SYS_NAND_MAX_CHIPS		1
 #define CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
 
+#define DFU_ALT_INFO_MMC \
+	"dfu_alt_info_mmc=" \
+	"MLO fat 0 1;" \
+	"u-boot.img fat 0 1;" \
+	"uEnv.txt fat 0 1\0"
+
+/* DFU settings */
+#define DFUARGS \
+	"dfu_bufsiz=0x10000\0" \
+	DFU_ALT_INFO_MMC \
+
 /* U-Boot general configuration */
 #define CONFIG_MX_CYCLIC
 #define CONFIG_TIMESTAMP
@@ -207,6 +218,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_LINUX_BOOT_ENV						\
 	CONFIG_EXTRA_ENV_KS2_BOARD_SETTINGS				\
+	DFUARGS								\
 	"bootdir=/boot\0" \
 	"tftp_root=/\0"							\
 	"nfs_root=/export\0"						\
