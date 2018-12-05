@@ -13,6 +13,11 @@ config RCAR_GEN3
 	select ARM64
 	select PHY
 	select CMD_CACHE
+	imply CMD_FS_UUID
+	imply CMD_GPT
+	imply CMD_UUID
+	imply CMD_MMC_SWRITE if MMC
+	imply SUPPORT_EMMC_RPMB if MMC
 
 endchoice
 

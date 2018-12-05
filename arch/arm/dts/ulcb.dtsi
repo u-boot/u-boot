@@ -1,12 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Device Tree Source for the R-Car Gen3 ULCB board
  *
  * Copyright (C) 2016 Renesas Electronics Corp.
  * Copyright (C) 2016 Cogent Embedded, Inc.
- *
- * This file is licensed under the terms of the GNU General Public License
- * version 2.  This program is licensed "as is" without any warranty of any
- * kind, whether express or implied.
  */
 
 #include <dt-bindings/gpio/gpio.h>
@@ -22,15 +19,6 @@
 
 	chosen {
 		stdout-path = "serial0:115200n8";
-	};
-
-	cpld {
-		compatible = "renesas,ulcb-cpld";
-		status = "okay";
-		gpio-sck = <&gpio6 8 0>;
-		gpio-mosi = <&gpio6 7 0>;
-		gpio-miso = <&gpio6 10 0>;
-		gpio-sstbz = <&gpio2 3 0>;
 	};
 
 	audio_clkout: audio-clkout {
@@ -252,6 +240,32 @@
 
 &i2c_dvfs {
 	status = "okay";
+
+	pmic: pmic@30 {
+		pinctrl-0 = <&irq0_pins>;
+		pinctrl-names = "default";
+
+		compatible = "rohm,bd9571mwv";
+		reg = <0x30>;
+		interrupt-parent = <&intc_ex>;
+		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		rohm,ddr-backup-power = <0xf>;
+		rohm,rstbmode-pulse;
+
+		regulators {
+			dvfs: dvfs {
+				regulator-name = "dvfs";
+				regulator-min-microvolt = <750000>;
+				regulator-max-microvolt = <1030000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
+		};
+	};
 };
 
 &ohci1 {
@@ -264,12 +278,12 @@
 
 	avb_pins: avb {
 		mux {
-			groups = "avb_link", "avb_mdc", "avb_mii";
+			groups = "avb_link", "avb_mdio", "avb_mii";
 			function = "avb";
 		};
 
-		pins_mdc {
-			groups = "avb_mdc";
+		pins_mdio {
+			groups = "avb_mdio";
 			drive-strength = <24>;
 		};
 
@@ -283,6 +297,11 @@
 	i2c2_pins: i2c2 {
 		groups = "i2c2_a";
 		function = "i2c2";
+	};
+
+	irq0_pins: irq0 {
+		groups = "intc_ex_irq0";
+		function = "intc_ex";
 	};
 
 	scif2_pins: scif2 {
@@ -310,7 +329,7 @@
 	sdhi2_pins: sd2 {
 		groups = "sdhi2_data8", "sdhi2_ctrl", "sdhi2_ds";
 		function = "sdhi2";
-		power-source = <1800>;
+		power-source = <3300>;
 	};
 
 	sdhi2_pins_uhs: sd2_uhs {
@@ -396,12 +415,8 @@
 	vqmmc-supply = <&vccq_sdhi0>;
 	cd-gpios = <&gpio3 12 GPIO_ACTIVE_LOW>;
 	bus-width = <4>;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
 	sd-uhs-sdr50;
-	sd-uhs-sdr104;
 	status = "okay";
-	max-frequency = <208000000>;
 };
 
 &sdhi2 {
@@ -414,10 +429,8 @@
 	vqmmc-supply = <&reg_1p8v>;
 	bus-width = <8>;
 	mmc-hs200-1_8v;
-	mmc-hs400-1_8v;
 	non-removable;
 	status = "okay";
-	max-frequency = <200000000>;
 };
 
 &ssi1 {
@@ -431,7 +444,7 @@
 	status = "okay";
 };
 
-&wdt0 {
+&rwdt {
 	timeout-sec = <60>;
 	status = "okay";
 };

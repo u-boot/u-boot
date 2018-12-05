@@ -40,8 +40,7 @@
 #define CONFIG_SYS_CLK_FREQ	RMOBILE_XTAL_CLK
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"fdt_high=0xffffffff\0"		\
-	"initrd_high=0xffffffff\0"
+	"bootm_size=0x10000000\0"
 
 /* SPL support */
 #define CONFIG_SPL_TEXT_BASE		0xe6300000
