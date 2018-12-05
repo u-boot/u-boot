@@ -81,9 +81,11 @@ libs-$(CONFIG_TPL_LIBGENERIC_SUPPORT) += lib/
 else
 libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/ cmd/ env/
 libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
+ifdef CONFIG_SPL_FRAMEWORK
+libs-$(CONFIG_PARTITIONS) += disk/
+endif
 endif
 
-libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
 libs-y += drivers/
 libs-$(CONFIG_SPL_USB_GADGET_SUPPORT) += drivers/usb/dwc3/
 libs-y += dts/
