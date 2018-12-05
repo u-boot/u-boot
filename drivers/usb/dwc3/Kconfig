@@ -39,7 +39,7 @@ config USB_DWC3_OMAP
 
 config USB_DWC3_GENERIC
 	bool "Xilinx ZynqMP and similar Platforms"
-	depends on DM_USB && USB_DWC3
+	depends on DM_USB && USB_DWC3 && MISC
 	help
 	  Some platforms can reuse this DWC3 generic implementation.
 
