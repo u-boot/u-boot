@@ -948,6 +948,14 @@ ifeq ($(CONFIG_LIBATA)$(CONFIG_DM_SCSI)$(CONFIG_MVSATA_IDE),y)
 	@echo "See doc/driver-model/MIGRATION.txt for more info."
 	@echo "===================================================="
 endif
+ifeq ($(CONFIG_OF_EMBED),y)
+	@echo "===================== WARNING ======================"
+	@echo "CONFIG_OF_EMBED is enabled. This option should only"
+	@echo "be used for debugging purposes. Please use"
+	@echo "CONFIG_OF_SEPARATE for boards in mainline."
+	@echo "See doc/README.fdt-control for more info."
+	@echo "===================================================="
+endif
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
