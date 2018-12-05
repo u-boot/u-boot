@@ -53,6 +53,7 @@ obj-$(CONFIG_SECURE_BOOT) += hab.o
 endif
 ifeq ($(SOC),$(filter $(SOC),vf610))
 obj-y += ddrmc-vf610.o
+obj-$(CONFIG_DDRMC_VF610_CALIBRATION) += ddrmc-vf610-calibration.o
 endif
 ifneq ($(CONFIG_SPL_BUILD),y)
 obj-$(CONFIG_CMD_BMODE) += cmd_bmode.o
