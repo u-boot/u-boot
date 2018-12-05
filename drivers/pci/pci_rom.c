@@ -331,6 +331,7 @@ int vbe_setup_video_priv(struct vesa_mode_info *vesa,
 		return log_msg_ret("No x resolution", -ENXIO);
 	uc_priv->xsize = vesa->x_resolution;
 	uc_priv->ysize = vesa->y_resolution;
+	uc_priv->line_length = vesa->bytes_per_scanline;
 	switch (vesa->bits_per_pixel) {
 	case 32:
 	case 24:
