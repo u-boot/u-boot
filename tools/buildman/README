@@ -1169,8 +1169,6 @@ access to log files. Also it would be nice if buildman could 'hunt' for
 problems, perhaps by building a few boards for each arch, or checking
 commits for changed files and building only boards which use those files.
 
-A specific problem to fix is that Ctrl-C does not exit buildman cleanly when
-multiple builder threads are active.
 
 Credits
 =======
