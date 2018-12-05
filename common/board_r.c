@@ -36,7 +36,6 @@
 #include <onenand_uboot.h>
 #include <scsi.h>
 #include <serial.h>
-#include <spi.h>
 #include <stdio_dev.h>
 #include <timer.h>
 #include <trace.h>
@@ -374,20 +373,6 @@ static int initr_flash(void)
 	bd->bi_flashoffset = CONFIG_SYS_TEXT_BASE + flash_size;
 #elif CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for monitor */
-#endif
-	return 0;
-}
-#endif
-
-#if defined(CONFIG_PPC) && !defined(CONFIG_DM_SPI)
-static int initr_spi(void)
-{
-	/* MPC8xx does this here */
-#ifdef CONFIG_MPC8XX_SPI
-#if !defined(CONFIG_ENV_IS_IN_EEPROM)
-	spi_init_f();
-#endif
-	spi_init_r();
 #endif
 	return 0;
 }
@@ -743,9 +728,6 @@ static init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_X86)
 	/* initialize higher level parts of CPU like time base and timers */
 	cpu_init_r,
-#endif
-#if defined(CONFIG_PPC) && !defined(CONFIG_DM_SPI)
-	initr_spi,
 #endif
 #ifdef CONFIG_CMD_NAND
 	initr_nand,

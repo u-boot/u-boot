@@ -66,10 +66,6 @@ static int write_fifo_empty_wait(struct sh_spi *ss)
 	return 0;
 }
 
-void spi_init(void)
-{
-}
-
 static void sh_spi_set_cs(struct sh_spi *ss, unsigned int cs)
 {
 	unsigned long val = 0;

@@ -47,15 +47,6 @@ static inline struct lpc32xx_spi_slave *to_lpc32xx_spi_slave(
 	return container_of(slave, struct lpc32xx_spi_slave, slave);
 }
 
-/* spi_init is called during boot when CONFIG_CMD_SPI is defined */
-void spi_init(void)
-{
-	/*
-	 *  nothing to do: clocking was enabled in lpc32xx_ssp_enable()
-	 * and configuration will be done in spi_setup_slave()
-	*/
-}
-
 /* the following is called in sequence by do_spi_xfer() */
 
 struct spi_slave *spi_setup_slave(uint bus, uint cs, uint max_hz, uint mode)

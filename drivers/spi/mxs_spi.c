@@ -39,10 +39,6 @@ static inline struct mxs_spi_slave *to_mxs_slave(struct spi_slave *slave)
 	return container_of(slave, struct mxs_spi_slave, slave);
 }
 
-void spi_init(void)
-{
-}
-
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	/* MXS SPI: 4 ports and 3 chip selects maximum */

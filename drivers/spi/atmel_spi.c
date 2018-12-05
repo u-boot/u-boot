@@ -34,11 +34,6 @@ static int spi_has_wdrbt(struct atmel_spi_slave *slave)
 	return (ATMEL_SPI_VERSION_REV(ver) >= 0x210);
 }
 
-void spi_init()
-{
-
-}
-
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 			unsigned int max_hz, unsigned int mode)
 {

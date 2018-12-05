@@ -144,6 +144,14 @@ static int spi_flash_std_probe(struct udevice *dev)
 	return spi_flash_probe_slave(flash);
 }
 
+static int spi_flash_std_remove(struct udevice *dev)
+{
+#ifdef CONFIG_SPI_FLASH_MTD
+	spi_flash_mtd_unregister();
+#endif
+	return 0;
+}
+
 static const struct dm_spi_flash_ops spi_flash_std_ops = {
 	.read = spi_flash_std_read,
 	.write = spi_flash_std_write,
@@ -161,6 +169,7 @@ U_BOOT_DRIVER(spi_flash_std) = {
 	.id		= UCLASS_SPI_FLASH,
 	.of_match	= spi_flash_std_ids,
 	.probe		= spi_flash_std_probe,
+	.remove		= spi_flash_std_remove,
 	.priv_auto_alloc_size = sizeof(struct spi_flash),
 	.ops		= &spi_flash_std_ops,
 };

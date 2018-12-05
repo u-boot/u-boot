@@ -66,11 +66,6 @@ __weak int eeprom_write_enable(unsigned dev_addr, int state)
 
 void eeprom_init(int bus)
 {
-	/* SPI EEPROM */
-#if defined(CONFIG_MPC8XX_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-	spi_init_f();
-#endif
-
 	/* I2C EEPROM */
 #if defined(CONFIG_SYS_I2C)
 	if (bus >= 0)
@@ -129,14 +124,6 @@ static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 {
 	int ret = 0;
 
-	/* SPI */
-#if defined(CONFIG_MPC8XX_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
-	if (read)
-		spi_read(addr, alen, buffer, len);
-	else
-		spi_write(addr, alen, buffer, len);
-#else	/* I2C */
-
 #if defined(CONFIG_DM_I2C) && defined(CONFIG_SYS_I2C_EEPROM_BUS)
 	struct udevice *dev;
 
@@ -162,7 +149,6 @@ static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 		ret = i2c_read(addr[0], offset, alen - 1, buffer, len);
 	else
 		ret = i2c_write(addr[0], offset, alen - 1, buffer, len);
-#endif
 #endif /* CONFIG_DM_I2C && CONFIG_SYS_I2C_EEPROM_BUS */
 	if (ret)
 		ret = CMD_RET_FAILURE;

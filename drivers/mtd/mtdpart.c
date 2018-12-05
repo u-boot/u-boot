@@ -63,6 +63,18 @@ char *kstrdup(const char *s, gfp_t gfp)
 #define MTD_SIZE_REMAINING		(~0LLU)
 #define MTD_OFFSET_NOT_SPECIFIED	(~0LLU)
 
+bool mtd_partitions_used(struct mtd_info *master)
+{
+	struct mtd_info *slave;
+
+	list_for_each_entry(slave, &master->partitions, node) {
+		if (slave->usecount)
+			return true;
+	}
+
+	return false;
+}
+
 /**
  * mtd_parse_partition - Parse @mtdparts partition definition, fill @partition
  *                       with it and update the @mtdparts string pointer.

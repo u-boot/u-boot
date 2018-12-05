@@ -102,7 +102,6 @@
 
 /* DSPI and Serial Flash */
 #define CONFIG_CF_DSPI
-#define CONFIG_HARD_SPI
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 #ifdef CONFIG_CMD_SPI
 #	define CONFIG_SYS_DSPI_CS2
