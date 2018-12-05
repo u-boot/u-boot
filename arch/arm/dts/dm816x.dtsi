@@ -90,8 +90,6 @@
 			dm816x_pinmux: pinmux@800 {
 				compatible = "pinctrl-single";
 				reg = <0x800 0x50a>;
-				#address-cells = <1>;
-				#size-cells = <0>;
 				#pinctrl-cells = <1>;
 				pinctrl-single,register-width = <16>;
 				pinctrl-single,function-mask = <0xf>;
@@ -127,8 +125,6 @@
 			};
 
 			scrm_clocks: clocks {
-				#address-cells = <1>;
-				#size-cells = <0>;
 			};
 
 			scrm_clockdomains: clockdomains {

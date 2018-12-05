@@ -109,8 +109,6 @@
 
 	gpio_buttons: gpio_buttons@0 {
 		compatible = "gpio-keys";
-		#address-cells = <1>;
-		#size-cells = <0>;
 
 		switch@1 {
 			label = "button0";
