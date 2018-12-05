@@ -142,21 +142,36 @@ int cmd_usage(const cmd_tbl_t *cmdtp)
 }
 
 #ifdef CONFIG_AUTO_COMPLETE
+static char env_complete_buf[512];
 
 int var_complete(int argc, char * const argv[], char last_char, int maxv, char *cmdv[])
 {
-	static char tmp_buf[512];
 	int space;
 
 	space = last_char == '\0' || isblank(last_char);
 
 	if (space && argc == 1)
-		return env_complete("", maxv, cmdv, sizeof(tmp_buf), tmp_buf);
+		return env_complete("", maxv, cmdv, sizeof(env_complete_buf),
+				    env_complete_buf, false);
 
 	if (!space && argc == 2)
-		return env_complete(argv[1], maxv, cmdv, sizeof(tmp_buf), tmp_buf);
+		return env_complete(argv[1], maxv, cmdv,
+				    sizeof(env_complete_buf),
+				    env_complete_buf, false);
 
 	return 0;
+}
+
+static int dollar_complete(int argc, char * const argv[], char last_char,
+			   int maxv, char *cmdv[])
+{
+	/* Make sure the last argument starts with a $. */
+	if (argc < 1 || argv[argc - 1][0] != '$' ||
+	    last_char == '\0' || isblank(last_char))
+		return 0;
+
+	return env_complete(argv[argc - 1], maxv, cmdv, sizeof(env_complete_buf),
+			    env_complete_buf, true);
 }
 
 /*************************************************************************************/
@@ -357,9 +372,14 @@ int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *colp)
 	/* separate into argv */
 	argc = make_argv(tmp_buf, sizeof(argv)/sizeof(argv[0]), argv);
 
-	/* do the completion and return the possible completions */
-	i = complete_cmdv(argc, argv, last_char,
-			  sizeof(cmdv) / sizeof(cmdv[0]), cmdv);
+	/* first try a $ completion */
+	i = dollar_complete(argc, argv, last_char,
+			    sizeof(cmdv) / sizeof(cmdv[0]), cmdv);
+	if (!i) {
+		/* do the completion and return the possible completions */
+		i = complete_cmdv(argc, argv, last_char,
+				  sizeof(cmdv) / sizeof(cmdv[0]), cmdv);
+	}
 
 	/* no match; bell and out */
 	if (i == 0) {
