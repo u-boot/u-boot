@@ -55,6 +55,11 @@ config RISCV_ISA_C
 config RISCV_ISA_A
 	def_bool y
 
+config RISCV_SMODE
+	bool "Run in S-Mode"
+	help
+	  Enable this option to build U-Boot for RISC-V S-Mode
+
 config 32BIT
 	bool
 

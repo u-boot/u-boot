@@ -7,6 +7,12 @@
 #ifndef RISCV_CSR_ENCODING_H
 #define RISCV_CSR_ENCODING_H
 
+#ifdef CONFIG_RISCV_SMODE
+#define MODE_PREFIX(__suffix)	s##__suffix
+#else
+#define MODE_PREFIX(__suffix)	m##__suffix
+#endif
+
 #define MSTATUS_UIE	0x00000001
 #define MSTATUS_SIE	0x00000002
 #define MSTATUS_HIE	0x00000004

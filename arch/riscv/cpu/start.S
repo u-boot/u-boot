@@ -38,13 +38,11 @@ _start:
 	mv	s0, a0
 	mv	s1, a1
 
-	li	t0, CONFIG_SYS_SDRAM_BASE
-	SREG	a2, 0(t0)
 	la	t0, trap_entry
-	csrw	mtvec, t0
+	csrw	MODE_PREFIX(tvec), t0
 
 	/* mask all interrupts */
-	csrw	mie, zero
+	csrw	MODE_PREFIX(ie), zero
 
 	/* Enable cache */
 	jal	icache_enable
@@ -166,7 +164,7 @@ fix_rela_dyn:
 */
 	la	t0, trap_entry
 	add	t0, t0, t6
-	csrw	mtvec, t0
+	csrw	MODE_PREFIX(tvec), t0
 
 clear_bss:
 	la	t0, __bss_start		/* t0 <- rel __bss_start in FLASH */
@@ -238,17 +236,24 @@ trap_entry:
 	SREG	x29, 29*REGBYTES(sp)
 	SREG	x30, 30*REGBYTES(sp)
 	SREG	x31, 31*REGBYTES(sp)
-	csrr	a0, mcause
-	csrr	a1, mepc
+	csrr	a0, MODE_PREFIX(cause)
+	csrr	a1, MODE_PREFIX(epc)
 	mv	a2, sp
 	jal	handle_trap
-	csrw	mepc, a0
+	csrw	MODE_PREFIX(epc), a0
 
+#ifdef CONFIG_RISCV_SMODE
+/*
+ * Remain in S-mode after sret
+ */
+	li	t0, SSTATUS_SPP
+#else
 /*
  * Remain in M-mode after mret
  */
 	li	t0, MSTATUS_MPP
-	csrs	mstatus, t0
+#endif
+	csrs	MODE_PREFIX(status), t0
 	LREG	x1, 1*REGBYTES(sp)
 	LREG	x2, 2*REGBYTES(sp)
 	LREG	x3, 3*REGBYTES(sp)
@@ -281,4 +286,4 @@ trap_entry:
 	LREG	x30, 30*REGBYTES(sp)
 	LREG	x31, 31*REGBYTES(sp)
 	addi	sp, sp, 32*REGBYTES
-	mret
+	MODE_PREFIX(ret)
