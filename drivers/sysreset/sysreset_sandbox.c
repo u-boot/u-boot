@@ -84,7 +84,13 @@ int sandbox_sysreset_get_status(struct udevice *dev, char *buf, int size)
 
 int sandbox_sysreset_get_last(struct udevice *dev)
 {
-	return SYSRESET_COLD;
+	struct sandbox_state *state = state_get_current();
+
+	/*
+	 * The first phase is a power reset, after that we assume we don't
+	 * know.
+	 */
+	return state->jumped_fname ? SYSRESET_WARM : SYSRESET_POWER;
 }
 
 static struct sysreset_ops sandbox_sysreset_ops = {

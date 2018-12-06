@@ -17,11 +17,12 @@ PLATFORM_CPPFLAGS += $(shell sdl-config --cflags)
 endif
 endif
 
-cmd_u-boot__ = $(CC) -o $@ -Wl,-T u-boot.lds \
+cmd_u-boot__ = $(CC) -o $@ -Wl,-T u-boot.lds $(u-boot-init) \
 	-Wl,--start-group $(u-boot-main) -Wl,--end-group \
 	$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot.map
 
 cmd_u-boot-spl = (cd $(obj) && $(CC) -o $(SPL_BIN) -Wl,-T u-boot-spl.lds \
+	$(patsubst $(obj)/%,%,$(u-boot-spl-init)) \
 	-Wl,--start-group $(patsubst $(obj)/%,%,$(u-boot-spl-main)) \
 	$(patsubst $(obj)/%,%,$(u-boot-spl-platdata)) -Wl,--end-group \
 	$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot-spl.map -Wl,--gc-sections)

@@ -5,10 +5,11 @@
 # (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-y	:= cpu.o os.o start.o state.o
+obj-y	:= cpu.o state.o
+extra-y	:= start.o os.o
+extra-$(CONFIG_SANDBOX_SDL)	+= sdl.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
 obj-$(CONFIG_ETH_SANDBOX_RAW)	+= eth-raw-os.o
-obj-$(CONFIG_SANDBOX_SDL)	+= sdl.o
 
 # os.c is build in the system environment, so needs standard includes
 # CFLAGS_REMOVE_os.o cannot be used to drop header include path

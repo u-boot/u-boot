@@ -668,7 +668,7 @@ static int os_jump_to_file(const char *fname)
 	os_free(argv);
 	if (err) {
 		perror("Unable to run image");
-		printf("Image filename '%s'\n", mem_fname);
+		printf("Image filename '%s'\n", fname);
 		return err;
 	}
 

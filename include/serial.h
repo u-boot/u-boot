@@ -75,6 +75,8 @@ enum serial_par {
 
 #define SERIAL_PAR_SHIFT	0
 #define SERIAL_PAR_MASK		(0x03 << SERIAL_PAR_SHIFT)
+#define SERIAL_SET_PARITY(parity) \
+	((parity << SERIAL_PAR_SHIFT) & SERIAL_PAR_MASK)
 #define SERIAL_GET_PARITY(config) \
 	((config & SERIAL_PAR_MASK) >> SERIAL_PAR_SHIFT)
 
@@ -87,6 +89,8 @@ enum serial_bits {
 
 #define SERIAL_BITS_SHIFT	2
 #define SERIAL_BITS_MASK	(0x3 << SERIAL_BITS_SHIFT)
+#define SERIAL_SET_BITS(bits) \
+	((bits << SERIAL_BITS_SHIFT) & SERIAL_BITS_MASK)
 #define SERIAL_GET_BITS(config) \
 	((config & SERIAL_BITS_MASK) >> SERIAL_BITS_SHIFT)
 
@@ -99,6 +103,8 @@ enum serial_stop {
 
 #define SERIAL_STOP_SHIFT	4
 #define SERIAL_STOP_MASK	(0x3 << SERIAL_STOP_SHIFT)
+#define SERIAL_SET_STOP(stop) \
+	((stop << SERIAL_STOP_SHIFT) & SERIAL_STOP_MASK)
 #define SERIAL_GET_STOP(config) \
 	((config & SERIAL_STOP_MASK) >> SERIAL_STOP_SHIFT)
 
@@ -107,9 +113,43 @@ enum serial_stop {
 		      bits << SERIAL_BITS_SHIFT | \
 		      stop << SERIAL_STOP_SHIFT)
 
-#define SERIAL_DEFAULT_CONFIG	SERIAL_PAR_NONE << SERIAL_PAR_SHIFT | \
-				SERIAL_8_BITS << SERIAL_BITS_SHIFT | \
-				SERIAL_ONE_STOP << SERIAL_STOP_SHIFT
+#define SERIAL_DEFAULT_CONFIG \
+			(SERIAL_PAR_NONE << SERIAL_PAR_SHIFT | \
+			 SERIAL_8_BITS << SERIAL_BITS_SHIFT | \
+			 SERIAL_ONE_STOP << SERIAL_STOP_SHIFT)
+
+enum serial_chip_type {
+	SERIAL_CHIP_UNKNOWN = -1,
+	SERIAL_CHIP_16550_COMPATIBLE,
+};
+
+enum adr_space_type {
+	SERIAL_ADDRESS_SPACE_MEMORY = 0,
+	SERIAL_ADDRESS_SPACE_IO,
+};
+
+/**
+ * struct serial_device_info - structure to hold serial device info
+ *
+ * @type:	type of the UART chip
+ * @addr_space:	address space to access the registers
+ * @addr:	physical address of the registers
+ * @reg_width:	size (in bytes) of the IO accesses to the registers
+ * @reg_offset:	offset to apply to the @addr from the start of the registers
+ * @reg_shift:	quantity to shift the register offsets by
+ * @baudrate:	baud rate
+ */
+struct serial_device_info {
+	enum serial_chip_type type;
+	enum adr_space_type addr_space;
+	ulong addr;
+	u8 reg_width;
+	u8 reg_offset;
+	u8 reg_shift;
+	unsigned int baudrate;
+};
+
+#define SERIAL_DEFAULT_ADDRESS	0xBADACCE5
 
 /**
  * struct struct dm_serial_ops - Driver model serial operations
@@ -189,6 +229,19 @@ struct dm_serial_ops {
 #endif
 
 	/**
+	 * getconfig() - Get the uart configuration
+	 * (parity, 5/6/7/8 bits word length, stop bits)
+	 *
+	 * Get a current config for this device.
+	 *
+	 * @dev: Device pointer
+	 * @parity: parity to use
+	 * @bits: bits number to use
+	 * @stop: stop bits number to use
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*getconfig)(struct udevice *dev, uint *serial_config);
+	/**
 	 * setconfig() - Set up the uart configuration
 	 * (parity, 5/6/7/8 bits word length, stop bits)
 	 *
@@ -199,6 +252,13 @@ struct dm_serial_ops {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*setconfig)(struct udevice *dev, uint serial_config);
+	/**
+	 * getinfo() - Get serial device information
+	 *
+	 * @dev: Device pointer
+	 * @info: struct serial_device_info to fill
+	 */
+	int (*getinfo)(struct udevice *dev, struct serial_device_info *info);
 };
 
 /**

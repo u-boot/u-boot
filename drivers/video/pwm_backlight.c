@@ -78,7 +78,7 @@ static int enable_sequence(struct udevice *dev, int seq)
 			ret = regulator_set_enable(priv->reg, true);
 			if (ret) {
 				log_debug("Cannot enable regulator for PWM '%s'\n",
-					  __func__, dev->name);
+					  dev->name);
 				return log_ret(ret);
 			}
 			mdelay(120);

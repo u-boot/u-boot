@@ -79,19 +79,19 @@ u32 tpm_clear_and_reenable(struct udevice *dev)
 		return ret;
 	}
 
-#if IS_ENABLED(CONFIG_TPM_V1)
-	ret = tpm_physical_enable(dev);
-	if (ret != TPM_SUCCESS) {
-		log_err("TPM: Can't set enabled state\n");
-		return ret;
-	}
+	if (tpm_get_version(dev) == TPM_V1) {
+		ret = tpm_physical_enable(dev);
+		if (ret != TPM_SUCCESS) {
+			log_err("TPM: Can't set enabled state\n");
+			return ret;
+		}
 
-	ret = tpm_physical_set_deactivated(dev, 0);
-	if (ret != TPM_SUCCESS) {
-		log_err("TPM: Can't set deactivated state\n");
-		return ret;
+		ret = tpm_physical_set_deactivated(dev, 0);
+		if (ret != TPM_SUCCESS) {
+			log_err("TPM: Can't set deactivated state\n");
+			return ret;
+		}
 	}
-#endif
 
 	return TPM_SUCCESS;
 }

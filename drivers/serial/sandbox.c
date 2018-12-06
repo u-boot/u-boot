@@ -163,6 +163,18 @@ DEBUG_UART_FUNCS
 
 #endif /* CONFIG_DEBUG_UART_SANDBOX */
 
+static int sandbox_serial_getconfig(struct udevice *dev, uint *serial_config)
+{
+	uint config = SERIAL_DEFAULT_CONFIG;
+
+	if (!serial_config)
+		return -EINVAL;
+
+	*serial_config = config;
+
+	return 0;
+}
+
 static int sandbox_serial_setconfig(struct udevice *dev, uint serial_config)
 {
 	u8 parity = SERIAL_GET_PARITY(serial_config);
@@ -172,6 +184,26 @@ static int sandbox_serial_setconfig(struct udevice *dev, uint serial_config)
 	if (bits != SERIAL_8_BITS || stop != SERIAL_ONE_STOP ||
 	    parity != SERIAL_PAR_NONE)
 		return -ENOTSUPP; /* not supported in driver*/
+
+	return 0;
+}
+
+static int sandbox_serial_getinfo(struct udevice *dev,
+				  struct serial_device_info *serial_info)
+{
+	struct serial_device_info info = {
+		.type = SERIAL_CHIP_UNKNOWN,
+		.addr_space = SERIAL_ADDRESS_SPACE_IO,
+		.addr = SERIAL_DEFAULT_ADDRESS,
+		.reg_width = 1,
+		.reg_offset = 0,
+		.reg_shift = 0,
+	};
+
+	if (!serial_info)
+		return -EINVAL;
+
+	*serial_info = info;
 
 	return 0;
 }
@@ -207,7 +239,9 @@ static const struct dm_serial_ops sandbox_serial_ops = {
 	.putc = sandbox_serial_putc,
 	.pending = sandbox_serial_pending,
 	.getc = sandbox_serial_getc,
+	.getconfig = sandbox_serial_getconfig,
 	.setconfig = sandbox_serial_setconfig,
+	.getinfo = sandbox_serial_getinfo,
 };
 
 static const struct udevice_id sandbox_serial_ids[] = {

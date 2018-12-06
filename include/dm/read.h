@@ -125,6 +125,31 @@ fdt_addr_t dev_read_addr_index(struct udevice *dev, int index);
 void *dev_remap_addr_index(struct udevice *dev, int index);
 
 /**
+ * dev_read_addr_name() - Get the reg property of a device, indexed by name
+ *
+ * @dev: Device to read from
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @index
+ *	  indicates the value to search for in 'reg-names'.
+ *
+ * @return address or FDT_ADDR_T_NONE if not found
+ */
+fdt_addr_t dev_read_addr_name(struct udevice *dev, const char* name);
+
+/**
+ * dev_remap_addr_name() - Get the reg property of a device, indexed by name,
+ *                         as a memory-mapped I/O pointer
+ *
+ * @dev: Device to read from
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @index
+ *	  indicates the value to search for in 'reg-names'.
+ *
+ * @return pointer or NULL if not found
+ */
+void *dev_remap_addr_name(struct udevice *dev, const char* name);
+
+/**
  * dev_read_addr() - Get the reg property of a device
  *
  * @dev: Device to read from
@@ -494,6 +519,12 @@ static inline fdt_addr_t dev_read_addr_index(struct udevice *dev, int index)
 	return devfdt_get_addr_index(dev, index);
 }
 
+static inline fdt_addr_t dev_read_addr_name(struct udevice *dev,
+					    const char *name)
+{
+	return devfdt_get_addr_name(dev, name);
+}
+
 static inline fdt_addr_t dev_read_addr(struct udevice *dev)
 {
 	return devfdt_get_addr(dev);
@@ -512,6 +543,11 @@ static inline void *dev_remap_addr(struct udevice *dev)
 static inline void *dev_remap_addr_index(struct udevice *dev, int index)
 {
 	return devfdt_remap_addr_index(dev, index);
+}
+
+static inline void *dev_remap_addr_name(struct udevice *dev, const char *name)
+{
+	return devfdt_remap_addr_name(dev, name);
 }
 
 static inline fdt_addr_t dev_read_addr_size(struct udevice *dev,

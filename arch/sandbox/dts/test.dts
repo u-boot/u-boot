@@ -690,6 +690,7 @@
 		dev@0,0 {
 			compatible = "denx,u-boot-fdt-dummy";
 			reg = <0 0x0 0x1000>;
+			reg-names = "sandbox-dummy-0";
 		};
 
 		dev@1,100 {

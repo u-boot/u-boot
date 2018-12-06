@@ -210,6 +210,14 @@ int tpm_open(struct udevice *dev);
 int tpm_close(struct udevice *dev);
 
 /**
+ * tpm_clear_and_reenable() - Force clear the TPM and reenable it
+ *
+ * @dev: TPM device
+ * @return 0 on success, -ve on failure
+ */
+u32 tpm_clear_and_reenable(struct udevice *dev);
+
+/**
  * tpm_get_desc() - Get a text description of the TPM
  *
  * @dev:	Device to check
@@ -273,5 +281,16 @@ static inline cmd_tbl_t *get_tpm2_commands(unsigned int *size)
 	return NULL;
 }
 #endif
+
+/**
+ * tpm_get_version() - Find the version of a TPM
+ *
+ * This checks the uclass data for a TPM device and returns the version number
+ * it supports.
+ *
+ * @dev: TPM device
+ * @return version number (TPM_V1 or TPMV2)
+ */
+enum tpm_version tpm_get_version(struct udevice *dev);
 
 #endif /* __TPM_COMMON_H */

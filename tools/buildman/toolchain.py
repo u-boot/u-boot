@@ -502,7 +502,8 @@ class Toolchains:
             trailing /
         """
         stdout = command.Output('tar', 'xvfJ', fname, '-C', dest)
-        return stdout.splitlines()[0][:-1]
+        dirs = stdout.splitlines()[1].split('/')[:2]
+        return '/'.join(dirs)
 
     def TestSettingsHasPath(self, path):
         """Check if buildman will find this toolchain
@@ -516,13 +517,14 @@ class Toolchains:
     def ListArchs(self):
         """List architectures with available toolchains to download"""
         host_arch, archives = self.LocateArchUrl('list')
-        re_arch = re.compile('[-a-z0-9.]*_([^-]*)-.*')
+        re_arch = re.compile('[-a-z0-9.]*[-_]([^-]*)-.*')
         arch_set = set()
         for archive in archives:
             # Remove the host architecture from the start
             arch = re_arch.match(archive[len(host_arch):])
             if arch:
-                arch_set.add(arch.group(1))
+                if arch.group(1) != '2.0' and arch.group(1) != '64':
+                    arch_set.add(arch.group(1))
         return sorted(arch_set)
 
     def FetchAndInstall(self, arch):

@@ -294,6 +294,20 @@ void serial_setbrg(void)
 		ops->setbrg(gd->cur_serial_dev, gd->baudrate);
 }
 
+int serial_getconfig(uint *config)
+{
+	struct dm_serial_ops *ops;
+
+	if (!gd->cur_serial_dev)
+		return 0;
+
+	ops = serial_get_ops(gd->cur_serial_dev);
+	if (ops->getconfig)
+		return ops->getconfig(gd->cur_serial_dev, config);
+
+	return 0;
+}
+
 int serial_setconfig(uint config)
 {
 	struct dm_serial_ops *ops;
@@ -306,6 +320,25 @@ int serial_setconfig(uint config)
 		return ops->setconfig(gd->cur_serial_dev, config);
 
 	return 0;
+}
+
+int serial_getinfo(struct serial_device_info *info)
+{
+	struct dm_serial_ops *ops;
+
+	if (!gd->cur_serial_dev)
+		return -ENODEV;
+
+	if (!info)
+		return -EINVAL;
+
+	info->baudrate = gd->baudrate;
+
+	ops = serial_get_ops(gd->cur_serial_dev);
+	if (ops->getinfo)
+		return ops->getinfo(gd->cur_serial_dev, info);
+
+	return -EINVAL;
 }
 
 void serial_stdio_init(void)
@@ -419,12 +452,16 @@ static int serial_post_probe(struct udevice *dev)
 		ops->pending += gd->reloc_off;
 	if (ops->clear)
 		ops->clear += gd->reloc_off;
+	if (ops->getconfig)
+		ops->getconfig += gd->reloc_off;
 	if (ops->setconfig)
 		ops->setconfig += gd->reloc_off;
 #if CONFIG_POST & CONFIG_SYS_POST_UART
 	if (ops->loop)
 		ops->loop += gd->reloc_off;
 #endif
+	if (ops->getinfo)
+		ops->getinfo += gd->reloc_off;
 #endif
 	/* Set the baud rate */
 	if (ops->setbrg) {

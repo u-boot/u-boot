@@ -420,7 +420,7 @@ int cros_ec_read_id(struct udevice *dev, char *id, int maxlen)
 	ret = ec_command_inptr(dev, EC_CMD_GET_VERSION, 0, NULL, 0,
 			       (uint8_t **)&r, sizeof(*r));
 	if (ret != sizeof(*r)) {
-		log_err("Got rc %d, expected %d\n", ret, sizeof(*r));
+		log_err("Got rc %d, expected %u\n", ret, (uint)sizeof(*r));
 		return -1;
 	}
 
@@ -1466,7 +1466,7 @@ int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable)
 	if (ret < 0)
 		return ret;
 
-	// Set lid close event state in the EC SMI event mask
+	/* Set lid close event state in the EC SMI event mask */
 	if (enable)
 		mask |= EC_HOST_EVENT_MASK(EC_HOST_EVENT_LID_CLOSED);
 	else
