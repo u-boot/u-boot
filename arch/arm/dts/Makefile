@@ -42,6 +42,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3288-veyron-minnie.dtb \
 	rk3288-vyasa.dtb \
 	rk3328-evb.dtb \
+	rk3399-ficus.dtb \
 	rk3368-lion.dtb \
 	rk3368-sheep.dtb \
 	rk3368-geekbox.dtb \
@@ -51,6 +52,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3399-puma-ddr1333.dtb \
 	rk3399-puma-ddr1600.dtb \
 	rk3399-puma-ddr1866.dtb \
+	rk3399-rock960.dtb \
 	rv1108-evb.dtb
 dtb-$(CONFIG_ARCH_MESON) += \
 	meson-gxbb-nanopi-k2.dtb \

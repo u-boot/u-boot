@@ -28,6 +28,31 @@ config TARGET_PUMA_RK3399
 	   * HDMI, eDP, MIPI-DSI, MIPI-DSI/CSI and MIPI-CSI
 	   * SPI, I2C, I2S, UART, GPIO, ...
 
+config TARGET_ROCK960_RK3399
+	bool "Vamrs Limited Rock960 board family"
+	help
+	  Support for Rock960 board family by Vamrs Limited. This board
+	  family consists of Rock960 (Consumer Edition) and Ficus
+	  (Enterprise Edition) 96Boards.
+
+	  Common features implemented on both boards:
+	   * Rockchip RK3399 SoC (2xCortex A72, 4xCortex A53, ARM Mali T860MP4)
+	   * 16/32GB eMMC, uSD slot
+	   * HDMI/DP/MIPI
+	   * 20-pin low speed and 40-pin high speed expanders, 6 LED, 3 buttons
+
+	  Additional features of Rock960:
+	   * 2GiB/4GiB LPDDR3 RAM
+	   * 1x USB 3.0 type A, 1x USB 2.0 type A (host mode only),
+	     1x USB 3.0 type C OTG
+
+	  Additional features of Ficus:
+	   * 2GiB/4GiB DDR3 RAM
+	   * Ethernet
+	   * Dual SATA
+	   * 2x USB 3.0 type A, 2x USB 2.0 type A (host mode only),
+	     1x USB 3.0 type C OTG
+
 endchoice
 
 config SYS_SOC
@@ -38,5 +63,6 @@ config SYS_MALLOC_F_LEN
 
 source "board/rockchip/evb_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
+source "board/vamrs/rock960_rk3399/Kconfig"
 
 endif
