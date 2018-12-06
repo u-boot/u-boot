@@ -14,7 +14,7 @@ struct dwc2_plat_otg_data {
 	void		*priv;
 	int		phy_of_node;
 	int		(*phy_control)(int on);
-	unsigned int	regs_phy;
+	uintptr_t	regs_phy;
 	uintptr_t	regs_otg;
 	unsigned int    usb_phy_ctrl;
 	unsigned int    usb_flags;
