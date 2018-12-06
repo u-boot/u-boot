@@ -12,12 +12,16 @@
 #include <dm.h>	/* Because we dereference struct udevice here */
 #include <linux/types.h>
 
+#ifndef CONFIG_DM_SPI_FLASH
+/* In DM mode, speed and mode value will be taken from DT */
 #ifndef CONFIG_SF_DEFAULT_SPEED
 # define CONFIG_SF_DEFAULT_SPEED	1000000
 #endif
 #ifndef CONFIG_SF_DEFAULT_MODE
 # define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 #endif
+#endif
+
 #ifndef CONFIG_SF_DEFAULT_CS
 # define CONFIG_SF_DEFAULT_CS		0
 #endif
