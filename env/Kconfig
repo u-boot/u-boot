@@ -329,11 +329,11 @@ config ENV_IS_IN_SPI_FLASH
 
 	  Define the SPI bus and chip select. If not defined they will be 0.
 
-	  - CONFIG_ENV_SPI_MAX_HZ (optional):
+	  - CONFIG_ENV_SPI_MAX_HZ (optional if !DM_SPI_FLASH):
 
 	  Define the SPI max work clock. If not defined then use 1MHz.
 
-	  - CONFIG_ENV_SPI_MODE (optional):
+	  - CONFIG_ENV_SPI_MODE (optional if !DM_SPI_FLASH):
 
 	  Define the SPI work mode. If not defined then use SPI_MODE_3.
 

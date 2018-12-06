@@ -24,11 +24,14 @@
 #ifndef CONFIG_ENV_SPI_CS
 # define CONFIG_ENV_SPI_CS	CONFIG_SF_DEFAULT_CS
 #endif
+
+#ifndef CONFIG_DM_SPI_FLASH
 #ifndef CONFIG_ENV_SPI_MAX_HZ
 # define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
 #endif
 #ifndef CONFIG_ENV_SPI_MODE
 # define CONFIG_ENV_SPI_MODE	CONFIG_SF_DEFAULT_MODE
+#endif
 #endif
 
 #ifndef CONFIG_SPL_BUILD
@@ -58,7 +61,7 @@ static int setup_flash_device(void)
 
 	/* speed and mode will be read from DT */
 	ret = spi_flash_probe_bus_cs(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
-				     CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE,
+				     0, 0,
 				     &new);
 	if (ret) {
 		set_default_env("spi_flash_probe_bus_cs() failed", 0);
