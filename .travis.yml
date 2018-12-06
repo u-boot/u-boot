@@ -332,6 +332,10 @@ matrix:
     - name: "sloccount"
       script:
         - sloccount .
+    # ensure all configs have MAINTAINERS entries
+    - name: "Check for configs without MAINTAINERS entry"
+      script:
+        - if [ `./tools/genboardscfg.py -f 2>&1 | wc -l` -ne 0 ]; then exit 1; fi
 
     # test/py
     - name: "test/py sandbox"
