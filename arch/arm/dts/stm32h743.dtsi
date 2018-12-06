@@ -104,12 +104,6 @@
 			reg = <0x58024800 0x400>;
 		};
 
-		fmc: fmc@52004000 {
-			compatible = "st,stm32h7-fmc";
-			reg = <0x52004000 0x1000>;
-			clocks = <&rcc FMC_CK>;
-		};
-
 		clk_hsi: clk-hsi {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
@@ -120,18 +114,6 @@
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
 			clock-frequency = <4000000>;
-		};
-
-		sdmmc1: sdmmc@52007000 {
-			compatible = "st,stm32-sdmmc2";
-			reg = <0x52007000 0x1000>;
-			interrupts = <49>;
-			clocks = <&rcc SDMMC1_CK>;
-			resets = <&rcc STM32H7_AHB3_RESET(SDMMC1)>;
-			st,idma = <1>;
-			cap-sd-highspeed;
-			cap-mmc-highspeed;
-			status = "disabled";
 		};
 	};
 };
