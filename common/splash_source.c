@@ -24,12 +24,13 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct spi_flash *sf;
 static int splash_sf_read_raw(u32 bmp_load_addr, int offset, size_t read_size)
 {
-	unsigned int max_hz = CONFIG_SF_DEFAULT_SPEED;
-	unsigned int spi_mode = CONFIG_SF_DEFAULT_MODE;
+	/* In DM mode, defaults will be taken from DT */
+	unsigned int max_hz = 0;
+	unsigned int spi_mode = 0;
 
-#ifdef CONFIG_DM_SPI_FLASH
-	/* In DM mode defaults will be taken from DT */
-	max_hz = 0, spi_mode = 0;
+#ifndef CONFIG_DM_SPI_FLASH
+	max_hz = CONFIG_SF_DEFAULT_SPEED;
+	spi_mode = CONFIG_SF_DEFAULT_MODE;
 #endif
 
 	if (!sf) {
