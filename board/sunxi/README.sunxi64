@@ -12,8 +12,13 @@ file describes how to make full use of the 64-bit capabilities.
 Quick Start / Overview
 ======================
 - Build the ARM Trusted Firmware binary (see "ARM Trusted Firmware (ATF)" below)
+  $ cd /src/arm-trusted-firmware
+  $ make PLAT=sun50i_a64 DEBUG=1 bl31
 - Build U-Boot (see "SPL/U-Boot" below)
+  $ export BL31=/path/to/bl31.bin
+  $ make pine64_plus_defconfig && make -j5
 - Transfer to an uSD card (see "microSD card" below)
+  $ dd if=u-boot-sunxi-with-spl.bin of=/dev/sdx bs=8k seek=1
 - Boot and enjoy!
 
 Building the firmware
@@ -29,14 +34,18 @@ to build it first.
 
  ARM Trusted Firmware (ATF)
 ----------------------------
-Checkout the "allwinner" branch from the github repository [1] and build it:
+Checkout the latest master branch from the official ATF repository [1] and
+build it:
 $ export CROSS_COMPILE=aarch64-linux-gnu-
-$ make PLAT=sun50iw1p1 DEBUG=1 bl31
-The resulting binary is build/sun50iw1p1/debug/bl31.bin. Either put the
+$ make PLAT=sun50i_a64 DEBUG=1 bl31
+The resulting binary is build/sun50i_a64/debug/bl31.bin. Either put the
 location of this file into the BL31 environment variable or copy this to
 the root of your U-Boot build directory (or create a symbolic link).
-$ export BL31=/src/arm-trusted-firmware/build/sun50iw1p1/debug/bl31.bin
+$ export BL31=/src/arm-trusted-firmware/build/sun50i_a64/debug/bl31.bin
   (adjust the actual path accordingly)
+The platform target "sun50i_a64" covers all boards with either an Allwinner
+A64 or H5 SoC (since they are very similar). For boards with an Allwinner H6
+SoC use "sun50i_h6".
 
 If you run into size issues with the resulting U-Boot image file, it might
 help to use a release build, by using "DEBUG=0" when building bl31.bin.
@@ -59,7 +68,8 @@ $ make pine64_plus_defconfig
 $ make
 
 This will build the SPL in spl/sunxi-spl.bin and a FIT image called u-boot.itb,
-which contains the rest of the firmware.
+which contains the rest of the firmware. u-boot-sunxi-with-spl.bin joins those
+two components in one convenient image file.
 
 
 Boot process
@@ -91,6 +101,9 @@ by using the USB-OTG interface and a host port on another computer.
 As the FEL mode is controlled by the boot ROM, it expects to be running in
 AArch32. For now the AArch64 SPL cannot properly return into FEL mode, so the
 feature is disabled in the configuration at the moment.
+The repository in [3] contains FEL capable SPL binaries, built using an
+off-tree branch to generate 32-bit ARM code (along with instructions
+how to re-create them).
 
 microSD card
 ------------
@@ -165,6 +178,6 @@ Then write this image to a microSD card, replacing /dev/sdx with the right
 device file (see above):
 $ dd if=firmware.img of=/dev/sdx bs=8k seek=1
 
-[1] https://github.com/apritzel/arm-trusted-firmware.git
+[1] https://github.com/ARM-software/arm-trusted-firmware.git
 [2] git://github.com/linux-sunxi/sunxi-tools.git
 [3] https://github.com/apritzel/pine64/
