@@ -89,6 +89,14 @@ static void factory_data_env_config(void)
 	u32 crc;
 	int ret;
 	u8 *ptr;
+	/* In DM mode, defaults will be taken from DT */
+	unsigned int speed = 0;
+	unsigned int mode = 0;
+
+#ifndef CONFIG_DM_SPI_FLASH
+	speed = CONFIG_SF_DEFAULT_SPEED;
+	mode = CONFIG_SF_DEFAULT_MODE;
+#endif
 
 	buf = malloc(FACTORY_DATA_SIZE);
 	if (!buf) {
@@ -101,8 +109,8 @@ static void factory_data_env_config(void)
 	 */
 	sf = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
 			     CONFIG_SF_DEFAULT_CS,
-			     CONFIG_SF_DEFAULT_SPEED,
-			     CONFIG_SF_DEFAULT_MODE);
+			     speed,
+			     mode);
 	if (!sf) {
 		printf("F-Data:Unable to access SPI NOR flash\n");
 		goto err_free;
@@ -207,6 +215,14 @@ int do_fd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct spi_flash *sf;
 	u8 *buf;
 	int ret = CMD_RET_FAILURE;
+	/* In DM mode, defaults will be taken from DT */
+	unsigned int speed = 0;
+	unsigned int mode = 0;
+
+#ifndef CONFIG_DM_SPI_FLASH
+	speed = CONFIG_SF_DEFAULT_SPEED;
+	mode = CONFIG_SF_DEFAULT_MODE;
+#endif
 
 	buf = malloc(FACTORY_DATA_SECT_SIZE);
 	if (!buf) {
@@ -216,8 +232,8 @@ int do_fd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	sf = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
 			     CONFIG_SF_DEFAULT_CS,
-			     CONFIG_SF_DEFAULT_SPEED,
-			     CONFIG_SF_DEFAULT_MODE);
+			     speed,
+			     mode);
 	if (!sf) {
 		printf("F-Data:Unable to access SPI NOR flash\n");
 		goto err_free;
