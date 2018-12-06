@@ -69,10 +69,16 @@ static struct spi_flash *parse_dev(char *devstr)
 {
 	unsigned int bus;
 	unsigned int cs;
-	unsigned int speed = CONFIG_SF_DEFAULT_SPEED;
-	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
+	/* In DM mode, defaults will be taken from DT */
+	unsigned int speed = 0;
+	unsigned int mode = 0;
 	char *s, *endp;
 	struct spi_flash *dev;
+
+#ifndef CONFIG_DM_SPI_FLASH
+	speed = CONFIG_SF_DEFAULT_SPEED;
+	mode = CONFIG_SF_DEFAULT_MODE;
+#endif
 
 	s = strsep(&devstr, ":");
 	if (!s || !*s || (bus = simple_strtoul(s, &endp, 0), *endp)) {
