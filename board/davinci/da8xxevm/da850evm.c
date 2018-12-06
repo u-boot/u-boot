@@ -44,8 +44,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define CFG_MAC_ADDR_SPI_BUS	0
 #define CFG_MAC_ADDR_SPI_CS	0
+
+#ifdef CONFIG_DM_SPI_FLASH
+/* In DM mode, speed and mode value will be taken from DT */
+#define CFG_MAC_ADDR_SPI_MAX_HZ	0
+#define CFG_MAC_ADDR_SPI_MODE	0
+#else
 #define CFG_MAC_ADDR_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
 #define CFG_MAC_ADDR_SPI_MODE	SPI_MODE_3
+#endif
 
 #define CFG_MAC_ADDR_OFFSET	(flash->size - SZ_64K)
 
