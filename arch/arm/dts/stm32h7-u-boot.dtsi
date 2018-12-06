@@ -43,10 +43,21 @@
 			 * second bank is bank@1
 			 */
 			bank1: bank@1 {
-				st,sdram-control = /bits/ 8 <NO_COL_9 NO_ROW_12 MWIDTH_32 BANKS_4
-						  CAS_2 SDCLK_3 RD_BURST_EN RD_PIPE_DL_0>;
-				st,sdram-timing = /bits/ 8 <TMRD_1 TXSR_1 TRAS_1 TRC_6 TRP_2
-						  TWR_1 TRCD_1>;
+				st,sdram-control = /bits/ 8 <NO_COL_9
+							     NO_ROW_12
+							     MWIDTH_32
+							     BANKS_4
+							     CAS_2
+							     SDCLK_3
+							     RD_BURST_EN
+							     RD_PIPE_DL_0>;
+				st,sdram-timing = /bits/ 8 <TMRD_1
+							    TXSR_1
+							    TRAS_1
+							    TRC_6
+							    TRP_2
+							    TWR_1
+							    TRCD_1>;
 				st,sdram-refcount = <1539>;
 			};
 		};
@@ -81,134 +92,137 @@
 	u-boot,dm-pre-reloc;
 };
 
-&clk_hsi {
-	u-boot,dm-pre-reloc;
-};
-
-&clk_csi {
-	u-boot,dm-pre-reloc;
-};
-
 &gpioa {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpiob {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpioc {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpiod {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpioe {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpiof {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpiog {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpioh {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpioi {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpioj {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &gpiok {
 	u-boot,dm-pre-reloc;
+	compatible = "st,stm32-gpio";
 };
 
 &pinctrl {
 	fmc_pins: fmc@0 {
-		  pins {
-			  pinmux = <STM32H7_PD0_FUNC_FMC_D2_FMC_DA2>,
-				  <STM32H7_PD1_FUNC_FMC_D3_FMC_DA3>,
-				  <STM32H7_PD8_FUNC_FMC_D13_FMC_DA13>,
-				  <STM32H7_PD9_FUNC_FMC_D14_FMC_DA14>,
-				  <STM32H7_PD10_FUNC_FMC_D15_FMC_DA15>,
-				  <STM32H7_PD14_FUNC_FMC_D0_FMC_DA0>,
-				  <STM32H7_PD15_FUNC_FMC_D1_FMC_DA1>,
+		pins {
+			pinmux = <STM32_PINMUX('D', 0, AF12)>,
+				 <STM32_PINMUX('D', 1, AF12)>,
+				 <STM32_PINMUX('D', 8, AF12)>,
+				 <STM32_PINMUX('D', 9, AF12)>,
+				 <STM32_PINMUX('D',10, AF12)>,
+				 <STM32_PINMUX('D',14, AF12)>,
+				 <STM32_PINMUX('D',15, AF12)>,
 
-				  <STM32H7_PE0_FUNC_FMC_NBL0>,
-				  <STM32H7_PE1_FUNC_FMC_NBL1>,
-				  <STM32H7_PE7_FUNC_FMC_D4_FMC_DA4>,
-				  <STM32H7_PE8_FUNC_FMC_D5_FMC_DA5>,
-				  <STM32H7_PE9_FUNC_FMC_D6_FMC_DA6>,
-				  <STM32H7_PE10_FUNC_FMC_D7_FMC_DA7>,
-				  <STM32H7_PE11_FUNC_FMC_D8_FMC_DA8>,
-				  <STM32H7_PE12_FUNC_FMC_D9_FMC_DA9>,
-				  <STM32H7_PE13_FUNC_FMC_D10_FMC_DA10>,
-				  <STM32H7_PE14_FUNC_FMC_D11_FMC_DA11>,
-				  <STM32H7_PE15_FUNC_FMC_D12_FMC_DA12>,
+				 <STM32_PINMUX('E', 0, AF12)>,
+				 <STM32_PINMUX('E', 1, AF12)>,
+				 <STM32_PINMUX('E', 7, AF12)>,
+				 <STM32_PINMUX('E', 8, AF12)>,
+				 <STM32_PINMUX('E', 9, AF12)>,
+				 <STM32_PINMUX('E',10, AF12)>,
+				 <STM32_PINMUX('E',11, AF12)>,
+				 <STM32_PINMUX('E',12, AF12)>,
+				 <STM32_PINMUX('E',13, AF12)>,
+				 <STM32_PINMUX('E',14, AF12)>,
+				 <STM32_PINMUX('E',15, AF12)>,
 
-				  <STM32H7_PF0_FUNC_FMC_A0>,
-				  <STM32H7_PF1_FUNC_FMC_A1>,
-				  <STM32H7_PF2_FUNC_FMC_A2>,
-				  <STM32H7_PF3_FUNC_FMC_A3>,
-				  <STM32H7_PF4_FUNC_FMC_A4>,
-				  <STM32H7_PF5_FUNC_FMC_A5>,
-				  <STM32H7_PF11_FUNC_FMC_SDNRAS>,
-				  <STM32H7_PF12_FUNC_FMC_A6>,
-				  <STM32H7_PF13_FUNC_FMC_A7>,
-				  <STM32H7_PF14_FUNC_FMC_A8>,
-				  <STM32H7_PF15_FUNC_FMC_A9>,
+				 <STM32_PINMUX('F', 0, AF12)>,
+				 <STM32_PINMUX('F', 1, AF12)>,
+				 <STM32_PINMUX('F', 2, AF12)>,
+				 <STM32_PINMUX('F', 3, AF12)>,
+				 <STM32_PINMUX('F', 4, AF12)>,
+				 <STM32_PINMUX('F', 5, AF12)>,
+				 <STM32_PINMUX('F',11, AF12)>,
+				 <STM32_PINMUX('F',12, AF12)>,
+				 <STM32_PINMUX('F',13, AF12)>,
+				 <STM32_PINMUX('F',14, AF12)>,
+				 <STM32_PINMUX('F',15, AF12)>,
 
-				  <STM32H7_PG0_FUNC_FMC_A10>,
-				  <STM32H7_PG1_FUNC_FMC_A11>,
-				  <STM32H7_PG2_FUNC_FMC_A12>,
-				  <STM32H7_PG4_FUNC_FMC_A14_FMC_BA0>,
-				  <STM32H7_PG5_FUNC_FMC_A15_FMC_BA1>,
-				  <STM32H7_PG8_FUNC_FMC_SDCLK>,
-				  <STM32H7_PG15_FUNC_FMC_SDNCAS>,
+				 <STM32_PINMUX('G', 0, AF12)>,
+				 <STM32_PINMUX('G', 1, AF12)>,
+				 <STM32_PINMUX('G', 2, AF12)>,
+				 <STM32_PINMUX('G', 4, AF12)>,
+				 <STM32_PINMUX('G', 5, AF12)>,
+				 <STM32_PINMUX('G', 8, AF12)>,
+				 <STM32_PINMUX('G',15, AF12)>,
 
-				  <STM32H7_PH5_FUNC_FMC_SDNWE>,
-				  <STM32H7_PH6_FUNC_FMC_SDNE1>,
-				  <STM32H7_PH7_FUNC_FMC_SDCKE1>,
-				  <STM32H7_PH8_FUNC_FMC_D16>,
-				  <STM32H7_PH9_FUNC_FMC_D17>,
-				  <STM32H7_PH10_FUNC_FMC_D18>,
-				  <STM32H7_PH11_FUNC_FMC_D19>,
-				  <STM32H7_PH12_FUNC_FMC_D20>,
-				  <STM32H7_PH13_FUNC_FMC_D21>,
-				  <STM32H7_PH14_FUNC_FMC_D22>,
-				  <STM32H7_PH15_FUNC_FMC_D23>,
+				 <STM32_PINMUX('H', 5, AF12)>,
+				 <STM32_PINMUX('H', 6, AF12)>,
+				 <STM32_PINMUX('H', 7, AF12)>,
+				 <STM32_PINMUX('H', 8, AF12)>,
+				 <STM32_PINMUX('H', 9, AF12)>,
+				 <STM32_PINMUX('H',10, AF12)>,
+				 <STM32_PINMUX('H',11, AF12)>,
+				 <STM32_PINMUX('H',12, AF12)>,
+				 <STM32_PINMUX('H',13, AF12)>,
+				 <STM32_PINMUX('H',14, AF12)>,
+				 <STM32_PINMUX('H',15, AF12)>,
 
-				  <STM32H7_PI0_FUNC_FMC_D24>,
-				  <STM32H7_PI1_FUNC_FMC_D25>,
-				  <STM32H7_PI2_FUNC_FMC_D26>,
-				  <STM32H7_PI3_FUNC_FMC_D27>,
-				  <STM32H7_PI4_FUNC_FMC_NBL2>,
-				  <STM32H7_PI5_FUNC_FMC_NBL3>,
-				  <STM32H7_PI6_FUNC_FMC_D28>,
-				  <STM32H7_PI7_FUNC_FMC_D29>,
-				  <STM32H7_PI9_FUNC_FMC_D30>,
-				  <STM32H7_PI10_FUNC_FMC_D31>;
+				 <STM32_PINMUX('I', 0, AF12)>,
+				 <STM32_PINMUX('I', 1, AF12)>,
+				 <STM32_PINMUX('I', 2, AF12)>,
+				 <STM32_PINMUX('I', 3, AF12)>,
+				 <STM32_PINMUX('I', 4, AF12)>,
+				 <STM32_PINMUX('I', 5, AF12)>,
+				 <STM32_PINMUX('I', 6, AF12)>,
+				 <STM32_PINMUX('I', 7, AF12)>,
+				 <STM32_PINMUX('I', 9, AF12)>,
+				 <STM32_PINMUX('I',10, AF12)>;
 
-			  slew-rate = <3>;
+			slew-rate = <3>;
 		};
 	};
 
 	pinctrl_sdmmc1_level_shifter: sdmmc0_ls@0 {
 		pins {
-			pinmux = <STM32H7_PB8_FUNC_SDMMC1_CKIN>,
-				 <STM32H7_PB9_FUNC_SDMMC1_CDIR>,
-				 <STM32H7_PC6_FUNC_SDMMC1_D0DIR>,
-				 <STM32H7_PC7_FUNC_SDMMC1_D123DIR>;
+			pinmux = <STM32_PINMUX('B', 8, AF7)>,
+				 <STM32_PINMUX('B', 9, AF7)>,
+				 <STM32_PINMUX('C', 6, AF8)>,
+				 <STM32_PINMUX('C', 7, AF8)>;
 			drive-push-pull;
 			slew-rate = <3>;
 		};
@@ -216,12 +230,12 @@
 
 	sdmmc1_pins: sdmmc@0 {
 		pins {
-			pinmux = <STM32H7_PC8_FUNC_SDMMC1_D0>,
-				 <STM32H7_PC9_FUNC_SDMMC1_D1>,
-				 <STM32H7_PC10_FUNC_SDMMC1_D2>,
-				 <STM32H7_PC11_FUNC_SDMMC1_D3>,
-				 <STM32H7_PC12_FUNC_SDMMC1_CK>,
-				 <STM32H7_PD2_FUNC_SDMMC1_CMD>;
+			pinmux = <STM32_PINMUX('C', 8, AF12)>,
+				 <STM32_PINMUX('C', 9, AF12)>,
+				 <STM32_PINMUX('C',10, AF12)>,
+				 <STM32_PINMUX('C',11, AF12)>,
+				 <STM32_PINMUX('C',12, AF12)>,
+				 <STM32_PINMUX('D', 2, AF12)>;
 
 			slew-rate = <3>;
 			drive-push-pull;
