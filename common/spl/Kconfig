@@ -612,7 +612,7 @@ config SPL_PAYLOAD
 	  TPL, tpl/u-boot-with-tpl.bin. For new boards, suggest to
 	  use u-boot.img.
 
-config SPL_PCI_SUPPORT
+config SPL_PCI
 	bool "Support PCI drivers"
 	help
 	  Enable support for PCI in SPL. For platforms that need PCI to boot,
@@ -1026,7 +1026,7 @@ config TPL_NAND_SUPPORT
 	help
 	  Enable support for NAND in TPL. See SPL_NAND_SUPPORT for details.
 
-config TPL_PCI_SUPPORT
+config TPL_PCI
 	bool "Support PCI drivers"
 	help
 	  Enable support for PCI in TPL. For platforms that need PCI to boot,
