@@ -180,6 +180,20 @@ int spi_flash_erase_dm(struct udevice *dev, u32 offset, size_t len);
  */
 int spl_flash_get_sw_write_prot(struct udevice *dev);
 
+/**
+ * spi_flash_probe_bus_cs() - Find flash for selected SPI bus and chip select
+ *
+ * SPI bus probe and search flash chip for one chip select.
+ *
+ * @busnum:	SPI bus identifier
+ * @cs:		Chip select to look for
+ * @max_hz:	Requested spi frequency, 0 = get value from platdata
+ *		or device tree
+ * @spi_mode:	Requested spi mode, 0 = get value from platdata
+ *		or device tree
+ * @devp:	Returns pointer to the flash device, if found
+ * @return 0 if found, -ve on error
+ */
 int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
 			   unsigned int max_hz, unsigned int spi_mode,
 			   struct udevice **devp);
