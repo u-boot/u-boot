@@ -70,7 +70,8 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 
 	dev->seq = -1;
 	dev->req_seq = -1;
-	if (CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_SEQ_ALIAS)) {
+	if (CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
+	    (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS)) {
 		/*
 		 * Some devices, such as a SPI bus, I2C bus and serial ports
 		 * are numbered using aliases.
@@ -78,10 +79,11 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		 * This is just a 'requested' sequence, and will be
 		 * resolved (and ->seq updated) when the device is probed.
 		 */
-		if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
-			if (uc->uc_drv->name && ofnode_valid(node)) {
+		if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
+			if (uc->uc_drv->name && ofnode_valid(node))
 				dev_read_alias_seq(dev, &dev->req_seq);
-			}
+		} else {
+			dev->req_seq = uclass_find_next_free_req_seq(drv->id);
 		}
 	}
 

@@ -269,6 +269,30 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 	return -ENODEV;
 }
 
+#if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_PLATDATA)
+int uclass_find_next_free_req_seq(enum uclass_id id)
+{
+	struct uclass *uc;
+	struct udevice *dev;
+	int ret;
+	int max = -1;
+
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return ret;
+
+	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		if ((dev->req_seq != -1) && (dev->req_seq > max))
+			max = dev->req_seq;
+	}
+
+	if (max == -1)
+		return 0;
+
+	return max + 1;
+}
+#endif
+
 int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 			      bool find_req_seq, struct udevice **devp)
 {
