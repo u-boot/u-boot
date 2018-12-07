@@ -50,6 +50,7 @@ int __maybe_unused ti_i2c_set_alen(int bus_addr, int dev_addr, int alen)
 }
 #endif
 
+#if !defined(CONFIG_DM_I2C) || defined(CONFIG_DM_I2C_COMPAT)
 /**
  * ti_i2c_eeprom_init - Initialize an i2c bus and probe for a device
  * @i2c_bus: i2c bus number to initialize
@@ -94,6 +95,7 @@ static int __maybe_unused ti_i2c_eeprom_read(int dev_addr, int offset,
 
 	return i2c_read(dev_addr, offset, alen, ep, epsize);
 }
+#endif
 
 /**
  * ti_eeprom_string_cleanup() - Handle eeprom programming errors
@@ -122,8 +124,56 @@ __weak void gpi2c_init(void)
 static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 					    u32 header, u32 size, uint8_t *ep)
 {
-	u32 byte, hdr_read;
+	u32 hdr_read;
 	int rc;
+
+#if defined(CONFIG_DM_I2C) && !defined(CONFIG_DM_I2C_COMPAT)
+	struct udevice *dev;
+	struct udevice *bus;
+
+	rc = uclass_get_device_by_seq(UCLASS_I2C, bus_addr, &bus);
+	if (rc)
+		return rc;
+	rc = i2c_get_chip(bus, dev_addr, 1, &dev);
+	if (rc)
+		return rc;
+
+	/*
+	 * Read the header first then only read the other contents.
+	 */
+	rc = i2c_set_chip_offset_len(dev, 2);
+	if (rc)
+		return rc;
+
+	rc = dm_i2c_read(dev, 0, (uint8_t *)&hdr_read, 4);
+	if (rc)
+		return rc;
+
+	/* Corrupted data??? */
+	if (hdr_read != header) {
+		rc = dm_i2c_read(dev, 0, (uint8_t *)&hdr_read, 4);
+		/*
+		 * read the eeprom header using i2c again, but use only a
+		 * 1 byte address (some legacy boards need this..)
+		 */
+		if (rc) {
+			rc =  i2c_set_chip_offset_len(dev, 1);
+			if (rc)
+				return rc;
+
+			rc = dm_i2c_read(dev, 0, (uint8_t *)&hdr_read, 4);
+		}
+		if (rc)
+			return rc;
+	}
+	if (hdr_read != header)
+		return -1;
+
+	rc = dm_i2c_read(dev, 0, ep, size);
+	if (rc)
+		return rc;
+#else
+	u32 byte;
 
 	gpi2c_init();
 	rc = ti_i2c_eeprom_init(bus_addr, dev_addr);
@@ -168,7 +218,7 @@ static int __maybe_unused ti_i2c_eeprom_get(int bus_addr, int dev_addr,
 	rc = i2c_read(dev_addr, 0x0, byte, ep, size);
 	if (rc)
 		return rc;
-
+#endif
 	return 0;
 }
 
