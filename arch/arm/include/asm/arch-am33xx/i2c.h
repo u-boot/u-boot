@@ -6,6 +6,8 @@
 #ifndef _I2C_AM33XX_H_
 #define _I2C_AM33XX_H_
 
+#include <asm/omap_i2c.h>
+
 #define  I2C_BASE1		0x44E0B000
 #define  I2C_BASE2		0x4802A000
 #define  I2C_BASE3		0x4819C000

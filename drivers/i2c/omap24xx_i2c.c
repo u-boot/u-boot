@@ -43,6 +43,7 @@
 #include <i2c.h>
 
 #include <asm/io.h>
+#include <asm/omap_i2c.h>
 
 /*
  * Provide access to architecture-specific I2C header files for platforms
@@ -60,11 +61,6 @@
 
 /* Absolutely safe for status update at 100 kHz I2C: */
 #define I2C_WAIT	200
-
-enum {
-	OMAP_I2C_REV_V1 = 0,
-	OMAP_I2C_REV_V2 = 1,
-};
 
 enum {
 	OMAP_I2C_REV_REG = 0,		/* Only on IP V1 (OMAP34XX) */
@@ -1051,8 +1047,12 @@ static int omap_i2c_probe_chip(struct udevice *bus, uint chip_addr,
 static int omap_i2c_probe(struct udevice *bus)
 {
 	struct omap_i2c *priv = dev_get_priv(bus);
+	struct omap_i2c_platdata *plat = dev_get_platdata(bus);
 
-	priv->ip_rev = dev_get_driver_data(bus);
+	priv->speed = plat->speed;
+	priv->regs = map_physmem(plat->base, sizeof(void *),
+				 MAP_NOCACHE);
+	priv->ip_rev = plat->ip_rev;
 
 	__omap24_i2c_init(priv->regs, priv->ip_rev, priv->speed, 0,
 			  &priv->waitdelay);
@@ -1063,11 +1063,11 @@ static int omap_i2c_probe(struct udevice *bus)
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 static int omap_i2c_ofdata_to_platdata(struct udevice *bus)
 {
-	struct omap_i2c *priv = dev_get_priv(bus);
+	struct omap_i2c_platdata *plat = dev_get_platdata(bus);
 
-	priv->regs = map_physmem(devfdt_get_addr(bus), sizeof(void *),
-				 MAP_NOCACHE);
-	priv->speed = CONFIG_SYS_OMAP24_I2C_SPEED;
+	plat->base = devfdt_get_addr(bus);
+	plat->speed = dev_read_u32_default(bus, "clock-frequency", 100000);
+	plat->ip_rev = dev_get_driver_data(bus);
 
 	return 0;
 }
@@ -1091,6 +1091,7 @@ U_BOOT_DRIVER(i2c_omap) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = omap_i2c_ids,
 	.ofdata_to_platdata = omap_i2c_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct omap_i2c_platdata),
 #endif
 	.probe	= omap_i2c_probe,
 	.priv_auto_alloc_size = sizeof(struct omap_i2c),
