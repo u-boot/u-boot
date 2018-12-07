@@ -164,61 +164,6 @@ void spl_board_prepare_for_linux(void)
 }
 #endif
 
-#if !CONFIG_IS_ENABLED(DM_USB)
-#ifdef CONFIG_USB_MUSB_OMAP2PLUS
-static struct musb_hdrc_config musb_config = {
-	.multipoint     = 1,
-	.dyn_fifo       = 1,
-	.num_eps        = 16,
-	.ram_bits       = 12,
-};
-
-static struct omap_musb_board_data musb_board_data = {
-	.interface_type	= MUSB_INTERFACE_ULPI,
-};
-
-static struct musb_hdrc_platform_data musb_plat = {
-#if defined(CONFIG_USB_MUSB_HOST)
-	.mode           = MUSB_HOST,
-#elif defined(CONFIG_USB_MUSB_GADGET)
-	.mode		= MUSB_PERIPHERAL,
-#else
-#error "Please define either CONFIG_USB_MUSB_HOST or CONFIG_USB_MUSB_GADGET"
-#endif
-	.config         = &musb_config,
-	.power          = 100,
-	.platform_ops	= &omap2430_ops,
-	.board_data	= &musb_board_data,
-};
-#endif
-
-#if defined(CONFIG_USB_EHCI_HCD) && !defined(CONFIG_SPL_BUILD)
-/* Call usb_stop() before starting the kernel */
-void show_boot_progress(int val)
-{
-	if (val == BOOTSTAGE_ID_RUN_OS)
-		usb_stop();
-}
-
-static struct omap_usbhs_board_data usbhs_bdata = {
-	.port_mode[0] = OMAP_EHCI_PORT_MODE_PHY,
-	.port_mode[1] = OMAP_EHCI_PORT_MODE_PHY,
-	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED
-};
-
-int ehci_hcd_init(int index, enum usb_init_type init,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
-{
-	return omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
-}
-
-int ehci_hcd_stop(int index)
-{
-	return omap_ehci_hcd_stop();
-}
-
-#endif /* CONFIG_USB_EHCI_HCD */
-#endif /* !DM_USB*/
 /*
  * Routine: misc_init_r
  * Description: Configure board specific parts
@@ -227,12 +172,6 @@ int misc_init_r(void)
 {
 	twl4030_power_init();
 	omap_die_id_display();
-
-#if !CONFIG_IS_ENABLED(DM_USB)
-#ifdef CONFIG_USB_MUSB_OMAP2PLUS
-	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
-#endif
-#endif
 	return 0;
 }
 
