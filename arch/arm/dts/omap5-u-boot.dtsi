@@ -91,3 +91,7 @@
 &gpio7 {
 	u-boot,dm-spl;
 };
+
+&i2c1 {
+	u-boot,dm-spl;
+};
