@@ -19,6 +19,7 @@
 #include <asm/arch/ddr_defs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
+#include <asm/arch/i2c.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
@@ -92,6 +93,20 @@ U_BOOT_DEVICES(am33xx_uarts) = {
 #   endif
 #  endif
 };
+
+#ifdef CONFIG_DM_I2C
+static const struct omap_i2c_platdata am33xx_i2c[] = {
+	{ I2C_BASE1, 100000, OMAP_I2C_REV_V2},
+	{ I2C_BASE2, 100000, OMAP_I2C_REV_V2},
+	{ I2C_BASE3, 100000, OMAP_I2C_REV_V2},
+};
+
+U_BOOT_DEVICES(am33xx_i2c) = {
+	{ "i2c_omap", &am33xx_i2c[0] },
+	{ "i2c_omap", &am33xx_i2c[1] },
+	{ "i2c_omap", &am33xx_i2c[2] },
+};
+#endif
 
 #ifdef CONFIG_DM_GPIO
 static const struct omap_gpio_platdata am33xx_gpio[] = {
