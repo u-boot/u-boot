@@ -10,6 +10,7 @@
 #include <power/pmic.h>
 #include <power/tps65218.h>
 
+#ifndef CONFIG_DM_I2C
 int tps65218_reg_read(uchar dest_reg, uchar *dest_val)
 {
 	uchar read_val;
@@ -84,6 +85,76 @@ int tps65218_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 
 	return 0;
 }
+#else
+struct udevice *tps65218_dev __attribute__((section(".data"))) = NULL;
+
+int tps65218_reg_read(uchar dest_reg, uchar *dest_val)
+{
+	uchar read_val;
+	int ret;
+
+	if (!tps65218_dev)
+		return -ENODEV;
+
+	ret = dm_i2c_read(tps65218_dev, dest_reg,  &read_val, 1);
+	if (ret)
+		return ret;
+
+	*dest_val = read_val;
+
+	return 0;
+}
+
+int tps65218_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
+		       uchar mask)
+{
+	uchar read_val;
+	uchar xor_reg;
+	int ret;
+
+	if (!tps65218_dev)
+		return -ENODEV;
+
+	/*
+	 * If we are affecting only a bit field, read dest_reg and apply the
+	 * mask
+	 */
+	if (mask != TPS65218_MASK_ALL_BITS) {
+		ret = dm_i2c_read(tps65218_dev, dest_reg, &read_val, 1);
+		if (ret)
+			return ret;
+
+		read_val &= (~mask);
+		read_val |= (dest_val & mask);
+		dest_val = read_val;
+	}
+
+	if (prot_level > 0) {
+		xor_reg = dest_reg ^ TPS65218_PASSWORD_UNLOCK;
+		ret = dm_i2c_write(tps65218_dev, TPS65218_PASSWORD, &xor_reg,
+				   1);
+		if (ret)
+			return ret;
+	}
+
+	ret = dm_i2c_write(tps65218_dev, dest_reg, &dest_val, 1);
+	if (ret)
+		return ret;
+
+	if (prot_level == TPS65218_PROT_LEVEL_2) {
+		ret = dm_i2c_write(tps65218_dev, TPS65218_PASSWORD, &xor_reg,
+				   1);
+		if (ret)
+			return ret;
+
+		ret = dm_i2c_write(tps65218_dev, dest_reg, &dest_val, 1);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+#endif
 
 /**
  * tps65218_voltage_update() - Function to change a voltage level, as this
@@ -154,6 +225,7 @@ int tps65218_lock_fseal(void)
 	return 0;
 }
 
+#ifndef CONFIG_DM_I2C
 int power_tps65218_init(unsigned char bus)
 {
 	static const char name[] = "TPS65218_PMIC";
@@ -173,3 +245,16 @@ int power_tps65218_init(unsigned char bus)
 
 	return 0;
 }
+#else
+int power_tps65218_init(unsigned char bus)
+{
+	struct udevice *dev = NULL;
+	int rc;
+
+	rc = i2c_get_chip_for_busnum(bus, TPS65218_CHIP_PM, 1, &dev);
+	if (rc)
+		return rc;
+	tps65218_dev = dev;
+	return 0;
+}
+#endif

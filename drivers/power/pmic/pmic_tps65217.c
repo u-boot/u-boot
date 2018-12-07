@@ -8,6 +8,8 @@
 #include <i2c.h>
 #include <power/tps65217.h>
 
+struct udevice *tps65217_dev __attribute__((section(".data"))) = NULL;
+
 /**
  * tps65217_reg_read() - Generic function that can read a TPS65217 register
  * @src_reg:		 Source register address
@@ -16,7 +18,11 @@
  */
 int tps65217_reg_read(uchar src_reg, uchar *src_val)
 {
+#ifndef CONFIG_DM_I2C
 	return i2c_read(TPS65217_CHIP_PM, src_reg, 1, src_val, 1);
+#else
+	return dm_i2c_read(tps65217_dev, src_reg,  src_val, 1);
+#endif
 }
 
 /**
@@ -46,9 +52,14 @@ int tps65217_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 	 * mask
 	 */
 	if (mask != TPS65217_MASK_ALL_BITS) {
+#ifndef CONFIG_DM_I2C
 		ret = i2c_read(TPS65217_CHIP_PM, dest_reg, 1, &read_val, 1);
+#else
+		ret = dm_i2c_read(tps65217_dev, dest_reg, &read_val, 1);
+#endif
 		if (ret)
 			return ret;
+
 		read_val &= (~mask);
 		read_val |= (dest_val & mask);
 		dest_val = read_val;
@@ -56,23 +67,40 @@ int tps65217_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 
 	if (prot_level > 0) {
 		xor_reg = dest_reg ^ TPS65217_PASSWORD_UNLOCK;
+#ifndef CONFIG_DM_I2C
 		ret = i2c_write(TPS65217_CHIP_PM, TPS65217_PASSWORD, 1,
 				&xor_reg, 1);
+#else
+		ret = dm_i2c_write(tps65217_dev, TPS65217_PASSWORD,
+				   &xor_reg, 1);
+#endif
 		if (ret)
 			return ret;
 	}
-
+#ifndef CONFIG_DM_I2C
 	ret = i2c_write(TPS65217_CHIP_PM, dest_reg, 1, &dest_val, 1);
+#else
+	ret = dm_i2c_write(tps65217_dev, dest_reg, &dest_val, 1);
+#endif
 	if (ret)
 		return ret;
 
 	if (prot_level == TPS65217_PROT_LEVEL_2) {
+#ifndef CONFIG_DM_I2C
 		ret = i2c_write(TPS65217_CHIP_PM, TPS65217_PASSWORD, 1,
 				&xor_reg, 1);
+#else
+		ret = dm_i2c_write(tps65217_dev, TPS65217_PASSWORD,
+				   &xor_reg, 1);
+#endif
 		if (ret)
 			return ret;
 
+#ifndef CONFIG_DM_I2C
 		ret = i2c_write(TPS65217_CHIP_PM, dest_reg, 1, &dest_val, 1);
+#else
+		ret = dm_i2c_write(tps65217_dev, dest_reg, &dest_val, 1);
+#endif
 		if (ret)
 			return ret;
 	}
@@ -104,5 +132,19 @@ int tps65217_voltage_update(uchar dc_cntrl_reg, uchar volt_sel)
 			       TPS65217_DCDC_GO, TPS65217_DCDC_GO))
 		return 1;
 
+	return 0;
+}
+
+int power_tps65217_init(unsigned char bus)
+{
+#ifdef CONFIG_DM_I2C
+	struct udevice *dev = NULL;
+	int rc;
+
+	rc = i2c_get_chip_for_busnum(bus, TPS65217_CHIP_PM, 1, &dev);
+	if (rc)
+		return rc;
+	tps65217_dev = dev;
+#endif
 	return 0;
 }
