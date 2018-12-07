@@ -251,6 +251,7 @@ int board_fit_config_name_match(const char *name)
 #if defined(CONFIG_DTB_RESELECT)
 static int k2g_alt_board_detect(void)
 {
+#ifndef CONFIG_DM_I2C
 	int rc;
 
 	rc = i2c_set_bus_num(1);
@@ -260,7 +261,17 @@ static int k2g_alt_board_detect(void)
 	rc = i2c_probe(K2G_GP_AUDIO_CODEC_ADDRESS);
 	if (rc)
 		return rc;
+#else
+	struct udevice *bus, *dev;
+	int rc;
 
+	rc = uclass_get_device_by_seq(UCLASS_I2C, 1, &bus);
+	if (rc)
+		return rc;
+	rc = dm_i2c_probe(bus, K2G_GP_AUDIO_CODEC_ADDRESS, 0, &dev);
+	if (rc)
+		return rc;
+#endif
 	ti_i2c_eeprom_am_set("66AK2GGP", "1.0X");
 
 	return 0;
