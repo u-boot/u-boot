@@ -80,8 +80,6 @@
 
 	gpio_keys: volume_keys@0 {
 		compatible = "gpio-keys";
-		#address-cells = <1>;
-		#size-cells = <0>;
 		autorepeat;
 
 		switch@9 {
@@ -723,8 +721,8 @@
 &mmc3 {
 	/* these are on the crossbar and are outlined in the
 	   xbar-event-map element */
-	dmas = <&edma 12
-		&edma 13>;
+	dmas = <&edma 12 0
+		&edma 13 0>;
 	dma-names = "tx", "rx";
 	status = "okay";
 	vmmc-supply = <&wlan_en_reg>;

@@ -365,6 +365,14 @@
 	usb33d-supply = <&usb33>;
 };
 
+&hwspinlock {
+	status = "okay";
+};
+
+&pinctrl {
+	hwlocks = <&hwspinlock 0>;
+};
+
 &usbphyc_port0 {
 	phy-supply = <&vdd_usb>;
 	vdda1v1-supply = <&reg11>;

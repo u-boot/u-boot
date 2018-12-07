@@ -8,6 +8,8 @@
 #define _STM32_GPIO_H_
 #include <asm/gpio.h>
 
+#define STM32_GPIOS_PER_BANK		16
+
 enum stm32_gpio_port {
 	STM32_GPIO_PORT_A = 0,
 	STM32_GPIO_PORT_B,
@@ -110,5 +112,9 @@ struct stm32_gpio_regs {
 
 struct stm32_gpio_priv {
 	struct stm32_gpio_regs *regs;
+	unsigned int gpio_range;
 };
+
+int stm32_offset_to_index(struct udevice *dev, unsigned int offset);
+
 #endif /* _STM32_GPIO_H_ */

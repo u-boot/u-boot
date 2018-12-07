@@ -351,6 +351,12 @@ static struct bootmenu_data *bootmenu_create(int delay)
 	}
 
 	menu->count = i;
+
+	if ((menu->active >= menu->count)||(menu->active < 0)) { //ensure active menuitem is inside menu
+		printf("active menuitem (%d) is outside menu (0..%d)\n",menu->active,menu->count-1);
+		menu->active=0;
+	}
+
 	return menu;
 
 cleanup:

@@ -742,6 +742,18 @@
 	pinctrl {
 		compatible = "sandbox,pinctrl";
 	};
+
+	hwspinlock@0 {
+		compatible = "sandbox,hwspinlock";
+	};
+
+	dma: dma {
+		compatible = "sandbox,dma";
+		#dma-cells = <1>;
+
+		dmas = <&dma 0>, <&dma 1>, <&dma 2>;
+		dma-names = "m2m", "tx0", "rx0";
+	};
 };
 
 #include "sandbox_pmic.dtsi"

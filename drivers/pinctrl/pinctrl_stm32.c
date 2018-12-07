@@ -1,6 +1,7 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
+#include <hwspinlock.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
@@ -14,8 +15,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OTYPE_MSK			1
 #define AFR_MASK			0xF
 
-#ifndef CONFIG_SPL_BUILD
 struct stm32_pinctrl_priv {
+	struct hwspinlock hws;
 	int pinctrl_ngpios;
 	struct list_head gpio_dev;
 };
@@ -25,7 +26,7 @@ struct stm32_gpio_bank {
 	struct list_head list;
 };
 
-#define MAX_PIN_PER_BANK		16
+#ifndef CONFIG_SPL_BUILD
 
 static char pin_name[PINNAME_SIZE];
 #define PINMUX_MODE_COUNT		5
@@ -51,130 +52,13 @@ static int stm32_pinctrl_get_af(struct udevice *dev, unsigned int offset)
 	return af;
 }
 
-static int stm32_pinctrl_get_pins_count(struct udevice *dev)
-{
-	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
-	struct gpio_dev_priv *uc_priv;
-	struct stm32_gpio_bank *gpio_bank;
-
-	/*
-	 * if get_pins_count has already been executed once on this
-	 * pin-controller, no need to run it again
-	 */
-	if (priv->pinctrl_ngpios)
-		return priv->pinctrl_ngpios;
-
-	/*
-	 * walk through all banks to retrieve the pin-controller
-	 * pins number
-	 */
-	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
-		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
-
-		priv->pinctrl_ngpios += uc_priv->gpio_count;
-	}
-
-	return priv->pinctrl_ngpios;
-}
-
-static struct udevice *stm32_pinctrl_get_gpio_dev(struct udevice *dev,
-						  unsigned int selector)
-{
-	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
-	struct stm32_gpio_bank *gpio_bank;
-	struct gpio_dev_priv *uc_priv;
-	int first_pin = 0;
-
-	/* look up for the bank which owns the requested pin */
-	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
-		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
-
-		if (selector < (first_pin + uc_priv->gpio_count))
-			/* we found the bank */
-			return gpio_bank->gpio_dev;
-
-		first_pin += uc_priv->gpio_count;
-	}
-
-	return NULL;
-}
-
-static const char *stm32_pinctrl_get_pin_name(struct udevice *dev,
-					      unsigned int selector)
-{
-	struct gpio_dev_priv *uc_priv;
-	struct udevice *gpio_dev;
-
-	/* look up for the bank which owns the requested pin */
-	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector);
-	if (!gpio_dev) {
-		snprintf(pin_name, PINNAME_SIZE, "Error");
-	} else {
-		uc_priv = dev_get_uclass_priv(gpio_dev);
-
-		snprintf(pin_name, PINNAME_SIZE, "%s%d",
-			 uc_priv->bank_name,
-			 selector % MAX_PIN_PER_BANK);
-	}
-
-	return pin_name;
-}
-
-static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
-					unsigned int selector,
-					char *buf,
-					int size)
-{
-	struct udevice *gpio_dev;
-	const char *label;
-	int gpio_pin;
-	int mode;
-	int af_num;
-
-	/* look up for the bank which owns the requested pin */
-	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector);
-
-	if (!gpio_dev)
-		return -ENODEV;
-
-	/* translate pin-controller pin number to gpio pin number */
-	gpio_pin = selector % MAX_PIN_PER_BANK;
-
-	mode = gpio_get_raw_function(gpio_dev, gpio_pin, &label);
-
-	dev_dbg(dev, "selector = %d gpio_pin = %d mode = %d\n",
-		selector, gpio_pin, mode);
-
-	switch (mode) {
-	case GPIOF_UNKNOWN:
-		/* should never happen */
-		return -EINVAL;
-	case GPIOF_UNUSED:
-		snprintf(buf, size, "%s", pinmux_mode[mode]);
-		break;
-	case GPIOF_FUNC:
-		af_num = stm32_pinctrl_get_af(gpio_dev, gpio_pin);
-		snprintf(buf, size, "%s %d", pinmux_mode[mode], af_num);
-		break;
-	case GPIOF_OUTPUT:
-	case GPIOF_INPUT:
-		snprintf(buf, size, "%s %s",
-			 pinmux_mode[mode], label ? label : "");
-		break;
-	}
-
-	return 0;
-}
-
-int stm32_pinctrl_probe(struct udevice *dev)
+static int stm32_populate_gpio_dev_list(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
 	struct udevice *gpio_dev;
 	struct udevice *child;
 	struct stm32_gpio_bank *gpio_bank;
 	int ret;
-
-	INIT_LIST_HEAD(&priv->gpio_dev);
 
 	/*
 	 * parse pin-controller sub-nodes (ie gpio bank nodes) and fill
@@ -200,18 +84,172 @@ int stm32_pinctrl_probe(struct udevice *dev)
 
 	return 0;
 }
+
+static int stm32_pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
+	struct gpio_dev_priv *uc_priv;
+	struct stm32_gpio_bank *gpio_bank;
+
+	/*
+	 * if get_pins_count has already been executed once on this
+	 * pin-controller, no need to run it again
+	 */
+	if (priv->pinctrl_ngpios)
+		return priv->pinctrl_ngpios;
+
+	if (list_empty(&priv->gpio_dev))
+		stm32_populate_gpio_dev_list(dev);
+	/*
+	 * walk through all banks to retrieve the pin-controller
+	 * pins number
+	 */
+	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
+		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
+
+		priv->pinctrl_ngpios += uc_priv->gpio_count;
+	}
+
+	return priv->pinctrl_ngpios;
+}
+
+static struct udevice *stm32_pinctrl_get_gpio_dev(struct udevice *dev,
+						  unsigned int selector,
+						  unsigned int *idx)
+{
+	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
+	struct stm32_gpio_bank *gpio_bank;
+	struct gpio_dev_priv *uc_priv;
+	int pin_count = 0;
+
+	if (list_empty(&priv->gpio_dev))
+		stm32_populate_gpio_dev_list(dev);
+
+	/* look up for the bank which owns the requested pin */
+	list_for_each_entry(gpio_bank, &priv->gpio_dev, list) {
+		uc_priv = dev_get_uclass_priv(gpio_bank->gpio_dev);
+
+		if (selector < (pin_count + uc_priv->gpio_count)) {
+			/*
+			 * we found the bank, convert pin selector to
+			 * gpio bank index
+			 */
+			*idx = stm32_offset_to_index(gpio_bank->gpio_dev,
+						     selector - pin_count);
+			if (*idx < 0)
+				return NULL;
+
+			return gpio_bank->gpio_dev;
+		}
+		pin_count += uc_priv->gpio_count;
+	}
+
+	return NULL;
+}
+
+static const char *stm32_pinctrl_get_pin_name(struct udevice *dev,
+					      unsigned int selector)
+{
+	struct gpio_dev_priv *uc_priv;
+	struct udevice *gpio_dev;
+	unsigned int gpio_idx;
+
+	/* look up for the bank which owns the requested pin */
+	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector, &gpio_idx);
+	if (!gpio_dev) {
+		snprintf(pin_name, PINNAME_SIZE, "Error");
+	} else {
+		uc_priv = dev_get_uclass_priv(gpio_dev);
+
+		snprintf(pin_name, PINNAME_SIZE, "%s%d",
+			 uc_priv->bank_name,
+			 gpio_idx);
+	}
+
+	return pin_name;
+}
+
+static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
+					unsigned int selector,
+					char *buf,
+					int size)
+{
+	struct udevice *gpio_dev;
+	const char *label;
+	int mode;
+	int af_num;
+	unsigned int gpio_idx;
+
+	/* look up for the bank which owns the requested pin */
+	gpio_dev = stm32_pinctrl_get_gpio_dev(dev, selector, &gpio_idx);
+
+	if (!gpio_dev)
+		return -ENODEV;
+
+	mode = gpio_get_raw_function(gpio_dev, gpio_idx, &label);
+
+	dev_dbg(dev, "selector = %d gpio_idx = %d mode = %d\n",
+		selector, gpio_idx, mode);
+
+
+	switch (mode) {
+	case GPIOF_UNKNOWN:
+		/* should never happen */
+		return -EINVAL;
+	case GPIOF_UNUSED:
+		snprintf(buf, size, "%s", pinmux_mode[mode]);
+		break;
+	case GPIOF_FUNC:
+		af_num = stm32_pinctrl_get_af(gpio_dev, gpio_idx);
+		snprintf(buf, size, "%s %d", pinmux_mode[mode], af_num);
+		break;
+	case GPIOF_OUTPUT:
+	case GPIOF_INPUT:
+		snprintf(buf, size, "%s %s",
+			 pinmux_mode[mode], label ? label : "");
+		break;
+	}
+
+	return 0;
+}
+
 #endif
+
+int stm32_pinctrl_probe(struct udevice *dev)
+{
+	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	INIT_LIST_HEAD(&priv->gpio_dev);
+
+	/* hwspinlock property is optional, just log the error */
+	ret = hwspinlock_get_by_index(dev, 0, &priv->hws);
+	if (ret)
+		debug("%s: hwspinlock_get_by_index may have failed (%d)\n",
+		      __func__, ret);
+
+	return 0;
+}
 
 static int stm32_gpio_config(struct gpio_desc *desc,
 			     const struct stm32_gpio_ctl *ctl)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(desc->dev);
 	struct stm32_gpio_regs *regs = priv->regs;
+	struct stm32_pinctrl_priv *ctrl_priv;
+	int ret;
 	u32 index;
 
 	if (!ctl || ctl->af > 15 || ctl->mode > 3 || ctl->otype > 1 ||
 	    ctl->pupd > 2 || ctl->speed > 3)
 		return -EINVAL;
+
+	ctrl_priv = dev_get_priv(dev_get_parent(desc->dev));
+	ret = hwspinlock_lock_timeout(&ctrl_priv->hws, 10);
+	if (ret == -ETIME) {
+		dev_err(desc->dev, "HWSpinlock timeout\n");
+		return ret;
+	}
 
 	index = (desc->offset & 0x07) * 4;
 	clrsetbits_le32(&regs->afr[desc->offset >> 3], AFR_MASK << index,
@@ -226,6 +264,8 @@ static int stm32_gpio_config(struct gpio_desc *desc,
 
 	index = desc->offset;
 	clrsetbits_le32(&regs->otyper, OTYPE_MSK << index, ctl->otype << index);
+
+	hwspinlock_unlock(&ctrl_priv->hws);
 
 	return 0;
 }
@@ -393,8 +433,6 @@ U_BOOT_DRIVER(pinctrl_stm32) = {
 	.of_match		= stm32_pinctrl_ids,
 	.ops			= &stm32_pinctrl_ops,
 	.bind			= dm_scan_fdt_dev,
-#ifndef CONFIG_SPL_BUILD
 	.probe			= stm32_pinctrl_probe,
 	.priv_auto_alloc_size	= sizeof(struct stm32_pinctrl_priv),
-#endif
 };

@@ -7,7 +7,6 @@
  */
 
 #include <common.h>
-#include <debug_uart.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <ns16550.h>
@@ -19,6 +18,47 @@
 #endif
 
 #ifdef CONFIG_DEBUG_UART_OMAP
+
+#ifndef CONFIG_SYS_NS16550_IER
+#define CONFIG_SYS_NS16550_IER  0x00
+#endif
+
+#define UART_MCRVAL 0x00
+#define UART_LCRVAL UART_LCR_8N1
+
+static inline void serial_out_shift(void *addr, int shift, int value)
+{
+#ifdef CONFIG_SYS_NS16550_PORT_MAPPED
+	outb(value, (ulong)addr);
+#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_LITTLE_ENDIAN)
+	out_le32(addr, value);
+#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
+	out_be32(addr, value);
+#elif defined(CONFIG_SYS_NS16550_MEM32)
+	writel(value, addr);
+#elif defined(CONFIG_SYS_BIG_ENDIAN)
+	writeb(value, addr + (1 << shift) - 1);
+#else
+	writeb(value, addr);
+#endif
+}
+
+static inline int serial_in_shift(void *addr, int shift)
+{
+#ifdef CONFIG_SYS_NS16550_PORT_MAPPED
+	return inb((ulong)addr);
+#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_LITTLE_ENDIAN)
+	return in_le32(addr);
+#elif defined(CONFIG_SYS_NS16550_MEM32) && defined(CONFIG_SYS_BIG_ENDIAN)
+	return in_be32(addr);
+#elif defined(CONFIG_SYS_NS16550_MEM32)
+	return readl(addr);
+#elif defined(CONFIG_SYS_BIG_ENDIAN)
+	return readb(addr + (1 << shift) - 1);
+#else
+	return readb(addr);
+#endif
+}
 
 #include <debug_uart.h>
 

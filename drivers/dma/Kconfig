@@ -12,6 +12,20 @@ config DMA
 	  buses that is used to transfer data to and from memory.
 	  The uclass interface is defined in include/dma.h.
 
+config DMA_CHANNELS
+	bool "Enable DMA channels support"
+	depends on DMA
+	help
+	  Enable channels support for DMA. Some DMA controllers have multiple
+	  channels which can either transfer data to/from different devices.
+
+config SANDBOX_DMA
+	bool "Enable the sandbox DMA test driver"
+	depends on DMA && DMA_CHANNELS && SANDBOX
+	help
+	  Enable support for a test DMA uclass implementation. It stimulates
+	  DMA transfer by simple copying data between channels.
+
 config TI_EDMA3
 	bool "TI EDMA3 driver"
 	help

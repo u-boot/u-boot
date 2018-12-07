@@ -36,8 +36,6 @@
 
 	gpio_keys: powerfail-keys {
 		compatible = "gpio-keys";
-		#address-cells = <1>;
-		#size-cells = <0>;
 		autorepeat;
 
 		pwr-fail0 {
@@ -190,12 +188,8 @@
 
 &epwmss1 {
 	status = "okay";
-
-	ehrpwm1: ehrpwm@48302200 {
-		status = "okay";
-		pinctrl-names = "default";
-		pinctrl-0 = <&epwmss1_pins>;
-	};
+	pinctrl-names = "default";
+	pinctrl-0 = <&epwmss1_pins>;
 };
 
 &gpmc {

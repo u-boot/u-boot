@@ -42,7 +42,7 @@ install:
  - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
  # prepare buildman environment
  - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
- - echo -e "arc = /tmp/arc_gnu_2017.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
+ - echo -e "arc = /tmp/arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
  - echo -e "\n[toolchain-alias]\nsh = sh2\n" >> ~/.buildman
  - cat ~/.buildman
  - virtualenv /tmp/venv
@@ -75,8 +75,8 @@ before_script:
       echo -e "\n[toolchain-alias]\nx86 = i386" >> ~/.buildman;
     fi
   - if [[ "${TOOLCHAIN}" == arc ]]; then
-       wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2017.09-release/arc_gnu_2017.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
-       tar -C /tmp -xf arc_gnu_2017.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
+       wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2018.09-release/arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
+       tar -C /tmp -xf arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
     fi
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then
        wget https://github.com/foss-xtensa/toolchain/releases/download/2018.02/x86_64-2018.02-${TOOLCHAIN}.tar.gz &&

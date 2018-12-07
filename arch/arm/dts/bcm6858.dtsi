@@ -75,7 +75,7 @@
 		u-boot,dm-pre-reloc;
 
 		uart0: serial@ff800640 {
-			compatible = "brcm,bcm6858-uart";
+			compatible = "brcm,bcm6345-uart";
 			reg = <0x0 0xff800640 0x0 0x18>;
 			clocks = <&periph_osc>;
 

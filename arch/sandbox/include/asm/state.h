@@ -101,6 +101,7 @@ struct sandbox_state {
 
 	ulong next_tag;			/* Next address tag to allocate */
 	struct list_head mapmem_head;	/* struct sandbox_mapmem_entry */
+	bool hwspinlock;		/* Hardware Spinlock status */
 };
 
 /* Minimum space we guarantee in the state FDT when calling read/write*/
