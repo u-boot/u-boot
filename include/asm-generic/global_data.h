@@ -77,6 +77,10 @@ typedef struct global_data {
 #ifdef CONFIG_OF_LIVE
 	struct device_node *of_root;
 #endif
+
+#if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
+	const void *multi_dtb_fit;	/* uncompressed multi-dtb FIT image */
+#endif
 	struct jt_funcs *jt;		/* jump table */
 	char env_buf[32];		/* buffer for env_get() before reloc. */
 #ifdef CONFIG_TRACE

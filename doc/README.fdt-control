@@ -184,6 +184,24 @@ The full device tree is available to U-Boot proper, but normally only a subset
 'SPL Support' in doc/driver-model/README.txt for more details.
 
 
+Using several DTBs in the SPL (CONFIG_SPL_MULTI_DTB)
+----------------------------------------------------
+In some rare cases it is desirable to let SPL be able to select one DTB among
+many. This usually not very useful as the DTB for the SPL is small and usually
+fits several platforms. However the DTB sometimes include information that do
+work on several platforms (like IO tuning parameters).
+In this case it is possible to use CONFIG_SPL_MULTI_DTB. This option appends to
+the SPL a FIT image containing several DTBs listed in SPL_OF_LIST.
+board_fit_config_name_match() is called to select the right DTB.
+
+If board_fit_config_name_match() relies on DM (DM driver to access an EEPROM
+containing the board ID for example), it possible to start with a generic DTB
+and then switch over to the right DTB after the detection. For this purpose,
+the platform code must call fdtdec_resetup(). Based on the returned flag, the
+platform may have to re-initiliaze the DM subusystem using dm_uninit() and
+dm_init_and_scan().
+
+
 Limitations
 -----------
 
