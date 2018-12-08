@@ -9,6 +9,16 @@
 #include <asm/arch/pmic_bus.h>
 #include <axp_pmic.h>
 
+#ifdef CONFIG_AXP_ALDO3_VOLT_SLOPE_08
+#  define AXP209_VRC_SLOPE AXP209_VRC_LDO3_800uV_uS
+#endif
+#ifdef CONFIG_AXP_ALDO3_VOLT_SLOPE_16
+#  define AXP209_VRC_SLOPE AXP209_VRC_LDO3_1600uV_uS
+#endif
+#if defined CONFIG_AXP_ALDO3_VOLT_SLOPE_NONE || !defined AXP209_VRC_SLOPE
+#  define AXP209_VRC_SLOPE 0x00
+#endif
+
 static u8 axp209_mvolt_to_cfg(int mvolt, int min, int max, int div)
 {
 	if (mvolt < min)
@@ -81,8 +91,7 @@ int axp_set_aldo2(unsigned int mvolt)
 	if (rc)
 		return rc;
 
-	/* LDO2 configuration is in upper 4 bits */
-	reg = (reg & 0x0f) | (cfg << 4);
+	reg |= AXP209_LDO24_LDO2_SET(reg, cfg);
 	rc = pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
 	if (rc)
 		return rc;
@@ -99,10 +108,49 @@ int axp_set_aldo3(unsigned int mvolt)
 		return pmic_bus_clrbits(AXP209_OUTPUT_CTRL,
 					AXP209_OUTPUT_CTRL_LDO3);
 
-	if (mvolt == -1)
-		cfg = 0x80;	/* determined by LDO3IN pin */
-	else
+	/*
+	 * Some boards have trouble reaching the target voltage without causing
+	 * great inrush currents. To prevent this, boards can enable a certain
+	 * slope to ramp up voltage. Note, this only works when changing an
+	 * already active power rail. When toggling power on, the AXP ramps up
+	 * steeply at 0.0167 V/uS.
+	 */
+	rc = pmic_bus_read(AXP209_VRC_DCDC2_LDO3, &cfg);
+	cfg = AXP209_VRC_LDO3_SLOPE_SET(cfg, AXP209_VRC_SLOPE);
+	rc |= pmic_bus_write(AXP209_VRC_DCDC2_LDO3, cfg);
+
+	if (rc)
+		return rc;
+
+#ifdef CONFIG_AXP_ALDO3_INRUSH_QUIRK
+	/*
+	 * On some boards, LDO3 has a too big capacitor installed. When
+	 * turning on LDO3, this causes the AXP209 to shutdown on
+	 * voltages over 1.9 volt. As a workaround, we enable LDO3
+	 * first with the lowest possible voltage. If this still causes
+	 * high inrush currents, the voltage slope should be increased.
+	 */
+	rc = pmic_bus_read(AXP209_OUTPUT_CTRL, &cfg);
+	if (rc)
+		return rc;
+
+	if (!(cfg & AXP209_OUTPUT_CTRL_LDO3)) {
+		rc = pmic_bus_write(AXP209_LDO3_VOLTAGE, 0x0); /* 0.7 Volt */
+		mdelay(1);
+		rc |= pmic_bus_setbits(AXP209_OUTPUT_CTRL,
+				       AXP209_OUTPUT_CTRL_LDO3);
+
+		if (rc)
+			return rc;
+	}
+#endif
+
+	if (mvolt == -1) {
+		cfg = AXP209_LDO3_VOLTAGE_FROM_LDO3IN;
+	} else {
 		cfg = axp209_mvolt_to_cfg(mvolt, 700, 3500, 25);
+		cfg = AXP209_LDO3_VOLTAGE_SET(cfg);
+	}
 
 	rc = pmic_bus_write(AXP209_LDO3_VOLTAGE, cfg);
 	if (rc)
@@ -131,8 +179,7 @@ int axp_set_aldo4(unsigned int mvolt)
 	if (rc)
 		return rc;
 
-	/* LDO4 configuration is in lower 4 bits */
-	reg = (reg & 0xf0) | (cfg << 0);
+	reg |= AXP209_LDO24_LDO4_SET(reg, cfg);
 	rc = pmic_bus_write(AXP209_LDO24_VOLTAGE, reg);
 	if (rc)
 		return rc;
@@ -153,10 +200,7 @@ int axp_init(void)
 	if (rc)
 		return rc;
 
-	/* Low 4 bits is chip version */
-	ver &= 0x0f;
-
-	if (ver != 0x1)
+	if ((ver & AXP209_CHIP_VERSION_MASK) != 0x1)
 		return -EINVAL;
 
 	/* Mask all interrupts */
