@@ -14,7 +14,7 @@
 
 #include "pinctrl-meson-axg.h"
 
-#define EE_OFF	14
+#define EE_OFF	15
 
 /* emmc */
 static const unsigned int emmc_nand_d0_pins[] = {BOOT_0};
@@ -893,17 +893,17 @@ static struct meson_pmx_func meson_axg_aobus_functions[] = {
 };
 
 static struct meson_bank meson_axg_periphs_banks[] = {
-	/*   name    first      last      pullen  pull    dir     out     in  */
-	BANK("Z",    GPIOZ_0,	GPIOZ_10, 3,  0,  3,  0,  9,  0,  10, 0,  11, 0),
-	BANK("BOOT", BOOT_0,	BOOT_14,  4,  0,  4,  0,  12, 0,  13, 0,  14, 0),
-	BANK("A",    GPIOA_0,	GPIOA_20, 0,  0,  0,  0,  0,  0,  1,  0,  2,  0),
-	BANK("X",    GPIOX_0,	GPIOX_22, 2,  0,  2,  0,  6,  0,  7,  0,  8,  0),
-	BANK("Y",    GPIOY_0,	GPIOY_15, 1,  0,  1,  0,  3,  0,  4,  0,  5,  0),
+	/*   name    first                      last                    pullen  pull    dir     out     in  */
+	BANK("Z",    PIN(GPIOZ_0, EE_OFF),	PIN(GPIOZ_10, EE_OFF), 3,  0,  3,  0,  9,  0,  10, 0,  11, 0),
+	BANK("BOOT", PIN(BOOT_0, EE_OFF),	PIN(BOOT_14, EE_OFF),  4,  0,  4,  0,  12, 0,  13, 0,  14, 0),
+	BANK("A",    PIN(GPIOA_0, EE_OFF),	PIN(GPIOA_20, EE_OFF), 0,  0,  0,  0,  0,  0,  1,  0,  2,  0),
+	BANK("X",    PIN(GPIOX_0, EE_OFF),	PIN(GPIOX_22, EE_OFF), 2,  0,  2,  0,  6,  0,  7,  0,  8,  0),
+	BANK("Y",    PIN(GPIOY_0, EE_OFF),	PIN(GPIOY_15, EE_OFF), 1,  0,  1,  0,  3,  0,  4,  0,  5,  0),
 };
 
 static struct meson_bank meson_axg_aobus_banks[] = {
-	/*   name    first      last       pullen  pull    dir     out     in  */
-	BANK("AO",   GPIOAO_0,  GPIOAO_13, 0,  16,  0, 0,  0,  0,  0, 16,  1,  0),
+	/*   name    first              last              pullen  pull    dir     out     in  */
+	BANK("AO",   PIN(GPIOAO_0, 0),  PIN(GPIOAO_13, 0), 0,  16,  0, 0,  0,  0,  0, 16,  1,  0),
 };
 
 static struct meson_pmx_bank meson_axg_periphs_pmx_banks[] = {
@@ -931,11 +931,11 @@ static struct meson_axg_pmx_data meson_axg_aobus_pmx_banks_data = {
 
 struct meson_pinctrl_data meson_axg_periphs_pinctrl_data = {
 	.name		= "periphs-banks",
-	.pin_base	= 11,
+	.pin_base	= 15,
 	.groups		= meson_axg_periphs_groups,
 	.funcs		= meson_axg_periphs_functions,
 	.banks		= meson_axg_periphs_banks,
-	.num_pins	= 100,
+	.num_pins	= 86,
 	.num_groups	= ARRAY_SIZE(meson_axg_periphs_groups),
 	.num_funcs	= ARRAY_SIZE(meson_axg_periphs_functions),
 	.num_banks	= ARRAY_SIZE(meson_axg_periphs_banks),

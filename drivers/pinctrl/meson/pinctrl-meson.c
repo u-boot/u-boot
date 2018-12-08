@@ -136,7 +136,7 @@ int meson_gpio_direction_input(struct udevice *dev, unsigned int offset)
 	if (ret)
 		return ret;
 
-	clrsetbits_le32(priv->reg_gpio + reg, BIT(bit), 1);
+	setbits_le32(priv->reg_gpio + reg, BIT(bit));
 
 	return 0;
 }
@@ -152,7 +152,7 @@ int meson_gpio_direction_output(struct udevice *dev,
 	if (ret)
 		return ret;
 
-	clrsetbits_le32(priv->reg_gpio + reg, BIT(bit), 0);
+	clrbits_le32(priv->reg_gpio + reg, BIT(bit));
 
 	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_OUT, &reg, &bit);
 	if (ret)
