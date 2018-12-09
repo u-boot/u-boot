@@ -290,10 +290,10 @@ struct vpd_cache {
 /*
  * Extracts MAC and product information from the VPD.
  */
-static int vpd_callback(void *userdata, u8 id, u8 version, u8 type, size_t size,
-			u8 const *data)
+static int vpd_callback(struct vpd_cache *userdata, u8 id, u8 version,
+			u8 type, size_t size, u8 const *data)
 {
-	struct vpd_cache *vpd = (struct vpd_cache *)userdata;
+	struct vpd_cache *vpd = userdata;
 
 	if (id == VPD_BLOCK_HWID && version == 1 && type != VPD_TYPE_INVALID &&
 	    size >= 1) {
