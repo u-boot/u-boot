@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+/*
+ * Copyright (C) Marvell International Ltd. and its affiliates
+ */
+
 #ifndef _MV_DDR_PLAT_H
 #define _MV_DDR_PLAT_H
 

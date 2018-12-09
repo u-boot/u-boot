@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) Marvell International Ltd. and its affiliates
+ */
 
 #include "ddr3_init.h"
 #include "mv_ddr_training_db.h"
