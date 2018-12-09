@@ -2825,7 +2825,7 @@ static efi_status_t EFIAPI efi_connect_controller(
 	efi_status_t ret = EFI_NOT_FOUND;
 	struct efi_object *efiobj;
 
-	EFI_ENTRY("%p, %p, %p, %d", controller_handle, driver_image_handle,
+	EFI_ENTRY("%p, %p, %pD, %d", controller_handle, driver_image_handle,
 		  remain_device_path, recursive);
 
 	efiobj = efi_search_obj(controller_handle);
