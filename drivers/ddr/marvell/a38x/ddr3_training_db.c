@@ -3,11 +3,16 @@
  * Copyright (C) Marvell International Ltd. and its affiliates
  */
 
-#include "ddr3_init.h"
+#include "ddr_ml_wrapper.h"
+
+#include "ddr3_training_ip_flow.h"
+#include "mv_ddr_topology.h"
+#include "mv_ddr_training_db.h"
+#include "ddr3_training_ip_db.h"
 
 /* Device attributes structures */
-enum mv_ddr_dev_attribute ddr_dev_attributes[MAX_DEVICE_NUM][MV_ATTR_LAST];
-int ddr_dev_attr_init_done[MAX_DEVICE_NUM] = { 0 };
+enum mv_ddr_dev_attribute ddr_dev_attributes[MV_ATTR_LAST];
+int ddr_dev_attr_init_done = 0;
 
 static inline u32 pattern_table_get_killer_word16(u8 dqs, u8 index);
 static inline u32 pattern_table_get_sso_word(u8 sso, u8 index);
@@ -20,28 +25,38 @@ static inline u32 pattern_table_get_sso_xtalk_free_word16(u8 bit, u8 index);
 static inline u32 pattern_table_get_isi_word(u8 index);
 static inline u32 pattern_table_get_isi_word16(u8 index);
 
-/* List of allowed frequency listed in order of enum hws_ddr_freq */
-u32 freq_val[DDR_FREQ_LAST] = {
-	0,			/*DDR_FREQ_LOW_FREQ */
-	400,			/*DDR_FREQ_400, */
-	533,			/*DDR_FREQ_533, */
-	666,			/*DDR_FREQ_667, */
-	800,			/*DDR_FREQ_800, */
-	933,			/*DDR_FREQ_933, */
-	1066,			/*DDR_FREQ_1066, */
-	311,			/*DDR_FREQ_311, */
-	333,			/*DDR_FREQ_333, */
-	467,			/*DDR_FREQ_467, */
-	850,			/*DDR_FREQ_850, */
-	600,			/*DDR_FREQ_600 */
-	300,			/*DDR_FREQ_300 */
-	900,			/*DDR_FREQ_900 */
-	360,			/*DDR_FREQ_360 */
-	1000			/*DDR_FREQ_1000 */
+/* List of allowed frequency listed in order of enum mv_ddr_freq */
+static unsigned int freq_val[MV_DDR_FREQ_LAST] = {
+	0,			/*MV_DDR_FREQ_LOW_FREQ */
+	400,			/*MV_DDR_FREQ_400, */
+	533,			/*MV_DDR_FREQ_533, */
+	666,			/*MV_DDR_FREQ_667, */
+	800,			/*MV_DDR_FREQ_800, */
+	933,			/*MV_DDR_FREQ_933, */
+	1066,			/*MV_DDR_FREQ_1066, */
+	311,			/*MV_DDR_FREQ_311, */
+	333,			/*MV_DDR_FREQ_333, */
+	467,			/*MV_DDR_FREQ_467, */
+	850,			/*MV_DDR_FREQ_850, */
+	600,			/*MV_DDR_FREQ_600 */
+	300,			/*MV_DDR_FREQ_300 */
+	900,			/*MV_DDR_FREQ_900 */
+	360,			/*MV_DDR_FREQ_360 */
+	1000			/*MV_DDR_FREQ_1000 */
 };
 
-/* Table for CL values per frequency for each speed bin index */
-struct cl_val_per_freq cas_latency_table[] = {
+unsigned int *mv_ddr_freq_tbl_get(void)
+{
+	return &freq_val[0];
+}
+
+u32 mv_ddr_freq_get(enum mv_ddr_freq freq)
+{
+	return freq_val[freq];
+}
+
+/* cas latency values per frequency for each speed bin index */
+static struct mv_ddr_cl_val_per_freq cl_table[] = {
 	/*
 	 * 400M   667M     933M   311M     467M  600M    360
 	 * 100M    533M    800M    1066M   333M    850M      900
@@ -97,8 +112,13 @@ struct cl_val_per_freq cas_latency_table[] = {
 	{ {6, 6, 7, 9, 11, 13, 0, 6, 6, 7, 13, 9, 6, 13, 6, 13} },
 };
 
-/* Table for CWL values per speedbin index */
-struct cl_val_per_freq cas_write_latency_table[] = {
+u32 mv_ddr_cl_val_get(u32 index, u32 freq)
+{
+	return cl_table[index].cl_val[freq];
+}
+
+/* cas write latency values per frequency for each speed bin index */
+static struct mv_ddr_cl_val_per_freq cwl_table[] = {
 	/*
 	 * 400M   667M     933M   311M     467M  600M    360
 	 * 100M    533M    800M    1066M   333M    850M      900
@@ -153,6 +173,11 @@ struct cl_val_per_freq cas_write_latency_table[] = {
 	/* DDR3-1866M-ext  */
 	{ {5, 5, 6, 7, 8, 9, 0, 5, 5, 6, 9, 7, 5, 9, 5, 9} },
 };
+
+u32 mv_ddr_cwl_val_get(u32 index, u32 freq)
+{
+	return cwl_table[index].cl_val[freq];
+}
 
 u8 twr_mask_table[] = {
 	10,
@@ -213,17 +238,22 @@ u8 cwl_mask_table[] = {
 };
 
 /* RFC values (in ns) */
-u16 rfc_table[] = {
-	90,			/* 512M */
-	110,			/* 1G */
-	160,			/* 2G */
-	260,			/* 4G */
-	350,			/* 8G */
-	0,			/* TODO: placeholder for 16-Mbit dev width */
-	0,			/* TODO: placeholder for 32-Mbit dev width */
-	0,			/* TODO: placeholder for 12-Mbit dev width */
-	0			/* TODO: placeholder for 24-Mbit dev width */
+static unsigned int rfc_table[] = {
+	90,	/* 512M */
+	110,	/* 1G */
+	160,	/* 2G */
+	260,	/* 4G */
+	350,	/* 8G */
+	0,	/* TODO: placeholder for 16-Mbit dev width */
+	0,	/* TODO: placeholder for 32-Mbit dev width */
+	0,	/* TODO: placeholder for 12-Mbit dev width */
+	0	/* TODO: placeholder for 24-Mbit dev width */
 };
+
+u32 mv_ddr_rfc_get(u32 mem)
+{
+	return rfc_table[mem];
+}
 
 u32 speed_bin_table_t_rc[] = {
 	50000,
@@ -358,8 +388,29 @@ static u8 pattern_vref_pattern_table_map[] = {
 	0xfe
 };
 
+static struct mv_ddr_page_element page_tbl[] = {
+	/* 8-bit, 16-bit page size */
+	{MV_DDR_PAGE_SIZE_1K, MV_DDR_PAGE_SIZE_2K}, /* 512M */
+	{MV_DDR_PAGE_SIZE_1K, MV_DDR_PAGE_SIZE_2K}, /* 1G */
+	{MV_DDR_PAGE_SIZE_1K, MV_DDR_PAGE_SIZE_2K}, /* 2G */
+	{MV_DDR_PAGE_SIZE_1K, MV_DDR_PAGE_SIZE_2K}, /* 4G */
+	{MV_DDR_PAGE_SIZE_2K, MV_DDR_PAGE_SIZE_2K}, /* 8G */
+	{0, 0}, /* TODO: placeholder for 16-Mbit die capacity */
+	{0, 0}, /* TODO: placeholder for 32-Mbit die capacity */
+	{0, 0}, /* TODO: placeholder for 12-Mbit die capacity */
+	{0, 0}  /* TODO: placeholder for 24-Mbit die capacity */
+};
+
+u32 mv_ddr_page_size_get(enum mv_ddr_dev_width bus_width, enum mv_ddr_die_capacity mem_size)
+{
+	if (bus_width == MV_DDR_DEV_WIDTH_8BIT)
+		return page_tbl[mem_size].page_size_8bit;
+	else
+		return page_tbl[mem_size].page_size_16bit;
+}
+
 /* Return speed Bin value for selected index and t* element */
-u32 speed_bin_table(u8 index, enum speed_bin_table_elements element)
+unsigned int mv_ddr_speed_bin_timing_get(enum mv_ddr_speed_bin index, enum mv_ddr_speed_bin_timing element)
 {
 	u32 result = 0;
 
@@ -384,19 +435,19 @@ u32 speed_bin_table(u8 index, enum speed_bin_table_elements element)
 		result = speed_bin_table_t_rc[index];
 		break;
 	case SPEED_BIN_TRRD1K:
-		if (index < SPEED_BIN_DDR_800E)
+		if (index <= SPEED_BIN_DDR_800E)
 			result = 10000;
-		else if (index < SPEED_BIN_DDR_1066G)
+		else if (index <= SPEED_BIN_DDR_1066G)
 			result = 7500;
-		else if (index < SPEED_BIN_DDR_1600K)
+		else if (index <= SPEED_BIN_DDR_1600K)
 			result = 6000;
 		else
 			result = 5000;
 		break;
 	case SPEED_BIN_TRRD2K:
-		if (index < SPEED_BIN_DDR_1066G)
+		if (index <= SPEED_BIN_DDR_1066G)
 			result = 10000;
-		else if (index < SPEED_BIN_DDR_1600K)
+		else if (index <= SPEED_BIN_DDR_1600K)
 			result = 7500;
 		else
 			result = 6000;
@@ -410,23 +461,23 @@ u32 speed_bin_table(u8 index, enum speed_bin_table_elements element)
 			result = 5000;
 		break;
 	case SPEED_BIN_TFAW1K:
-		if (index < SPEED_BIN_DDR_800E)
+		if (index <= SPEED_BIN_DDR_800E)
 			result = 40000;
-		else if (index < SPEED_BIN_DDR_1066G)
+		else if (index <= SPEED_BIN_DDR_1066G)
 			result = 37500;
-		else if (index < SPEED_BIN_DDR_1600K)
+		else if (index <= SPEED_BIN_DDR_1600K)
 			result = 30000;
-		else if (index < SPEED_BIN_DDR_1866M)
+		else if (index <= SPEED_BIN_DDR_1866M)
 			result = 27000;
 		else
 			result = 25000;
 		break;
 	case SPEED_BIN_TFAW2K:
-		if (index < SPEED_BIN_DDR_1066G)
+		if (index <= SPEED_BIN_DDR_1066G)
 			result = 50000;
-		else if (index < SPEED_BIN_DDR_1333J)
+		else if (index <= SPEED_BIN_DDR_1333J)
 			result = 45000;
-		else if (index < SPEED_BIN_DDR_1600K)
+		else if (index <= SPEED_BIN_DDR_1600K)
 			result = 40000;
 		else
 			result = 35000;
@@ -445,6 +496,9 @@ u32 speed_bin_table(u8 index, enum speed_bin_table_elements element)
 		break;
 	case SPEED_BIN_TXPDLL:
 		result = 24000;
+		break;
+	case SPEED_BIN_TXSDLL:
+		result = 512;
 		break;
 	default:
 		break;
@@ -608,7 +662,7 @@ static inline u32 pattern_table_get_static_pbs_word(u8 index)
 
 u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 {
-	u32 pattern;
+	u32 pattern = 0;
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
 	if (DDR3_IS_16BIT_DRAM_MODE(tm->bus_act_mask) == 0) {
@@ -696,8 +750,8 @@ u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 			pattern = pattern_table_get_isi_word(index);
 			break;
 		default:
-			DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR, ("Error: %s: pattern type [%d] not supported\n",
-							      __func__, (int)type));
+			printf("error: %s: unsupported pattern type [%d] found\n",
+			       __func__, (int)type);
 			pattern = 0;
 			break;
 		}
@@ -779,8 +833,8 @@ u32 pattern_table_get_word(u32 dev_num, enum hws_pattern type, u8 index)
 			pattern = pattern_table_get_isi_word16(index);
 			break;
 		default:
-			DEBUG_TRAINING_IP(DEBUG_LEVEL_ERROR, ("Error: %s: pattern type [%d] not supported\n",
-							      __func__, (int)type));
+			printf("error: %s: unsupported pattern type [%d] found\n",
+			       __func__, (int)type);
 			pattern = 0;
 			break;
 		}
@@ -795,23 +849,23 @@ void ddr3_tip_dev_attr_init(u32 dev_num)
 	u32 attr_id;
 
 	for (attr_id = 0; attr_id < MV_ATTR_LAST; attr_id++)
-		ddr_dev_attributes[dev_num][attr_id] = 0xFF;
+		ddr_dev_attributes[attr_id] = 0xFF;
 
-	ddr_dev_attr_init_done[dev_num] = 1;
+	ddr_dev_attr_init_done = 1;
 }
 
 u32 ddr3_tip_dev_attr_get(u32 dev_num, enum mv_ddr_dev_attribute attr_id)
 {
-	if (ddr_dev_attr_init_done[dev_num] == 0)
+	if (ddr_dev_attr_init_done == 0)
 		ddr3_tip_dev_attr_init(dev_num);
 
-	return ddr_dev_attributes[dev_num][attr_id];
+	return ddr_dev_attributes[attr_id];
 }
 
 void ddr3_tip_dev_attr_set(u32 dev_num, enum mv_ddr_dev_attribute attr_id, u32 value)
 {
-	if (ddr_dev_attr_init_done[dev_num] == 0)
+	if (ddr_dev_attr_init_done == 0)
 		ddr3_tip_dev_attr_init(dev_num);
 
-	ddr_dev_attributes[dev_num][attr_id] = value;
+	ddr_dev_attributes[attr_id] = value;
 }

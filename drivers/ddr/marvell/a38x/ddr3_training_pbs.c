@@ -4,6 +4,9 @@
  */
 
 #include "ddr3_init.h"
+#include "mv_ddr_training_db.h"
+#include "mv_ddr_common.h"
+#include "mv_ddr_regs.h"
 
 #define TYPICAL_PBS_VALUE	12
 
@@ -33,7 +36,7 @@ static u8 pup_state[MAX_INTERFACE_NUM][MAX_BUS_NUM];
 int ddr3_tip_pbs(u32 dev_num, enum pbs_dir pbs_mode)
 {
 	u32 res0[MAX_INTERFACE_NUM];
-	int adll_tap = MEGA / freq_val[medium_freq] / 64;
+	int adll_tap = MEGA / mv_ddr_freq_get(medium_freq) / 64;
 	int pad_num = 0;
 	enum hws_search_dir search_dir =
 		(pbs_mode == PBS_RX_MODE) ? HWS_HIGH2LOW : HWS_LOW2HIGH;
@@ -921,7 +924,7 @@ int ddr3_tip_pbs_tx(u32 uidev_num)
 int ddr3_tip_print_all_pbs_result(u32 dev_num)
 {
 	u32 curr_cs;
-	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
+	unsigned int max_cs = mv_ddr_cs_num_get();
 
 	for (curr_cs = 0; curr_cs < max_cs; curr_cs++) {
 		ddr3_tip_print_pbs_result(dev_num, curr_cs, PBS_RX_MODE);

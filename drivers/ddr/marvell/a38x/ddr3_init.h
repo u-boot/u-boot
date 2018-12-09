@@ -7,9 +7,7 @@
 #define _DDR3_INIT_H
 
 #include "ddr_ml_wrapper.h"
-#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
 #include "mv_ddr_plat.h"
-#endif
 
 #include "seq_exec.h"
 #include "ddr3_logging_def.h"
@@ -32,13 +30,7 @@
 			return status;	\
 	}
 
-#define GET_MAX_VALUE(x, y)			\
-	((x) > (y)) ? (x) : (y)
-
 #define SUB_VERSION	0
-
-/* max number of devices supported by driver */
-#define MAX_DEVICE_NUM	1
 
 enum log_level  {
 	MV_LOG_LEVEL_0,
@@ -47,24 +39,26 @@ enum log_level  {
 	MV_LOG_LEVEL_3
 };
 
+/* TODO: consider to move to misl phy driver */
+#define MISL_PHY_DRV_P_OFFS	0x7
+#define MISL_PHY_DRV_N_OFFS	0x0
+#define MISL_PHY_ODT_P_OFFS	0x6
+#define MISL_PHY_ODT_N_OFFS	0x0
+
 /* Globals */
 extern u8 debug_training, debug_calibration, debug_ddr4_centralization,
 	debug_tap_tuning, debug_dm_tuning;
 extern u8 is_reg_dump;
 extern u8 generic_init_controller;
-/* list of allowed frequency listed in order of enum hws_ddr_freq */
-extern u32 freq_val[DDR_FREQ_LAST];
+/* list of allowed frequency listed in order of enum mv_ddr_freq */
 extern u32 is_pll_old;
-extern struct cl_val_per_freq cas_latency_table[];
 extern struct pattern_info pattern_table[];
-extern struct cl_val_per_freq cas_write_latency_table[];
 extern u8 debug_centralization, debug_training_ip, debug_training_bist,
 	debug_pbs, debug_training_static, debug_leveling;
 extern struct hws_tip_config_func_db config_func_info[];
 extern u8 twr_mask_table[];
 extern u8 cl_mask_table[];
 extern u8 cwl_mask_table[];
-extern u16 rfc_table[];
 extern u32 speed_bin_table_t_rc[];
 extern u32 speed_bin_table_t_rcd_t_rp[];
 
@@ -90,10 +84,10 @@ extern u32 mask_tune_func;
 extern u32 rl_version;
 extern int rl_mid_freq_wa;
 extern u8 calibration_update_control; /* 2 external only, 1 is internal only */
-extern enum hws_ddr_freq medium_freq;
+extern enum mv_ddr_freq medium_freq;
 
 extern enum hws_result training_result[MAX_STAGE_LIMIT][MAX_INTERFACE_NUM];
-extern enum hws_ddr_freq low_freq;
+extern enum mv_ddr_freq low_freq;
 extern enum auto_tune_stage training_stage;
 extern u32 is_pll_before_init;
 extern u32 is_adll_calib_before_init;
@@ -120,7 +114,7 @@ extern u32 odt_additional;
 extern u32 debug_mode;
 extern u32 debug_dunit;
 extern u32 clamp_tbl[];
-extern u32 freq_mask[MAX_DEVICE_NUM][DDR_FREQ_LAST];
+extern u32 freq_mask[MAX_DEVICE_NUM][MV_DDR_FREQ_LAST];
 
 extern u32 maxt_poll_tries;
 extern u32 is_bist_reset_bit;
@@ -139,7 +133,6 @@ extern u16 mask_results_dq_reg_map[];
 
 extern u32 target_freq;
 extern u32 dfs_low_freq;
-extern u32 mem_size[];
 
 extern u32 nominal_avs;
 extern u32 extension_avs;
@@ -154,13 +147,8 @@ int mv_ddr_early_init(void);
 int mv_ddr_early_init2(void);
 int ddr3_silicon_post_init(void);
 int ddr3_post_run_alg(void);
-int ddr3_if_ecc_enabled(void);
 void ddr3_new_tip_ecc_scrub(void);
 
-void mv_ddr_ver_print(void);
-struct mv_ddr_topology_map *mv_ddr_topology_map_get(void);
-
-int ddr3_if_ecc_enabled(void);
 int ddr3_tip_reg_write(u32 dev_num, u32 reg_addr, u32 data);
 int ddr3_tip_reg_read(u32 dev_num, u32 reg_addr, u32 *data, u32 reg_mask);
 int ddr3_silicon_get_ddr_target_freq(u32 *ddr_freq);
@@ -185,15 +173,20 @@ void get_target_freq(u32 freq_mode, u32 *ddr_freq, u32 *hclk_ps);
 void ddr3_fast_path_static_cs_size_config(u32 cs_ena);
 u32 mv_board_id_index_get(u32 board_id);
 void ddr3_set_log_level(u32 n_log_level);
-int calc_cs_num(u32 dev_num, u32 if_id, u32 *cs_num);
 
 int hws_ddr3_cs_base_adr_calc(u32 if_id, u32 cs, u32 *cs_base_addr);
 
 int ddr3_tip_print_pbs_result(u32 dev_num, u32 cs_num, enum pbs_dir pbs_mode);
 int ddr3_tip_clean_pbs_result(u32 dev_num, enum pbs_dir pbs_mode);
-
-u32 mv_ddr_init_freq_get(void);
 void mv_ddr_mc_config(void);
 int mv_ddr_mc_init(void);
 void mv_ddr_set_calib_controller(void);
+/* TODO: consider to move to misl phy driver */
+unsigned int mv_ddr_misl_phy_drv_data_p_get(void);
+unsigned int mv_ddr_misl_phy_drv_data_n_get(void);
+unsigned int mv_ddr_misl_phy_drv_ctrl_p_get(void);
+unsigned int mv_ddr_misl_phy_drv_ctrl_n_get(void);
+unsigned int mv_ddr_misl_phy_odt_p_get(void);
+unsigned int mv_ddr_misl_phy_odt_n_get(void);
+
 #endif /* _DDR3_INIT_H */

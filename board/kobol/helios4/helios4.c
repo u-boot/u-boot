@@ -33,18 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BOARD_GPP_POL_LOW	0x0
 #define BOARD_GPP_POL_MID	0x0
 
-/* IO expander on Marvell GP board includes e.g. fan enabling */
-struct marvell_io_exp {
-	u8 addr;
-	u8 val;
-};
-
-static struct marvell_io_exp io_exp[] = {
-	{6, 0xf9},
-	{2, 0x46}, /* Assert reset signals and enable USB3 current limiter */
-	{6, 0xb9}
-};
-
 static struct serdes_map board_serdes_map[] = {
 	{SATA0, SERDES_SPEED_6_GBPS, SERDES_DEFAULT_MODE, 0, 0},
 	{USB3_HOST0, SERDES_SPEED_5_GBPS, SERDES_DEFAULT_MODE, 0, 0},
@@ -78,7 +66,7 @@ static struct mv_ddr_topology_map board_topology_map = {
 	    SPEED_BIN_DDR_1600K,	/* speed_bin */
 	    MV_DDR_DEV_WIDTH_16BIT,	/* memory_width */
 	    MV_DDR_DIE_CAP_8GBIT,	/* mem_size */
-	    DDR_FREQ_800,		/* frequency */
+	    MV_DDR_FREQ_800,		/* frequency */
 	    0, 0,			/* cas_wl cas_l */
 	    MV_DDR_TEMP_LOW,		/* temperature */
 	    MV_DDR_TIM_DEFAULT} },	/* timing */
@@ -123,28 +111,8 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	int i;
-
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
-
-	/* Init I2C IO expanders */
-	for (i = 0; i < ARRAY_SIZE(io_exp); i++) {
-		struct udevice *dev;
-		int ret;
-
-		ret = i2c_get_chip_for_busnum(0, io_exp[i].addr, 1, &dev);
-		if (ret) {
-			printf("Cannot find I2C: %d\n", ret);
-			return 0;
-		}
-
-		ret = dm_i2c_write(dev, io_exp[i].val, &io_exp[i].val, 1);
-		if (ret) {
-			printf("Failed to set IO expander via I2C\n");
-			return -EIO;
-		}
-	}
 
 	return 0;
 }
