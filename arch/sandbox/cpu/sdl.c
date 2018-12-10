@@ -7,7 +7,6 @@
 #include <unistd.h>
 #include <linux/input.h>
 #include <SDL/SDL.h>
-#include <sound.h>
 #include <asm/state.h>
 
 enum {

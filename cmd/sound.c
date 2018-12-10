@@ -15,18 +15,12 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Initilaise sound subsystem */
 static int do_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-#ifdef CONFIG_DM_SOUND
 	struct udevice *dev;
-#endif
 	int ret;
 
-#ifdef CONFIG_DM_SOUND
 	ret = uclass_first_device_err(UCLASS_SOUND, &dev);
 	if (!ret)
 		ret = sound_setup(dev);
-#else
-	ret = sound_init(gd->fdt_blob);
-#endif
 	if (ret) {
 		printf("Initialise Audio driver failed (ret=%d)\n", ret);
 		return CMD_RET_FAILURE;
@@ -38,9 +32,7 @@ static int do_init(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 /* play sound from buffer */
 static int do_play(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-#ifdef CONFIG_DM_SOUND
 	struct udevice *dev;
-#endif
 	int ret = 0;
 	int msec = 1000;
 	int freq = 400;
@@ -50,13 +42,9 @@ static int do_play(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	if (argc > 2)
 		freq = simple_strtoul(argv[2], NULL, 10);
 
-#ifdef CONFIG_DM_SOUND
 	ret = uclass_first_device_err(UCLASS_SOUND, &dev);
 	if (!ret)
 		ret = sound_beep(dev, msec, freq);
-#else
-	ret = sound_play(msec, freq);
-#endif
 	if (ret) {
 		printf("Sound device failed to play (err=%d)\n", ret);
 		return CMD_RET_FAILURE;

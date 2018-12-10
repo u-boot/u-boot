@@ -12,12 +12,6 @@ config SOUND
 	  audio codecs are called from the sound-i2s code. This could be
 	  converted to driver model.
 
-config DM_SOUND
-	bool "Use driver model for sound"
-	help
-	  Enable this option to use driver model for sound devices. This is a
-	  migration option and will be removed.
-
 config I2S
 	bool "Enable I2S support"
 	depends on SOUND

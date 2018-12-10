@@ -54,12 +54,12 @@ int sandbox_sdl_scan_keys(int key[], int max_keys);
 int sandbox_sdl_key_pressed(int keycode);
 
 /**
- * sandbox_sdl_sound_start() - start playing a sound
+ * sandbox_sdl_sound_play() - Play a sound
  *
- * @frequency:	Frequency of sounds in Hertz
- * @return 0 if OK, -ENODEV if no sound is available
+ * @data:	Data to play (typically 16-bit)
+ * @count:	Number of bytes in data
  */
-int sandbox_sdl_sound_start(uint frequency);
+int sandbox_sdl_sound_play(const void *data, uint count);
 
 /**
  * sandbox_sdl_sound_stop() - stop playing a sound
@@ -67,14 +67,6 @@ int sandbox_sdl_sound_start(uint frequency);
  * @return 0 if OK, -ENODEV if no sound is available
  */
 int sandbox_sdl_sound_stop(void);
-
-/**
- * sandbox_sdl_sound_play() - Play a sound
- *
- * @data:	Data to play (typically 16-bit)
- * @count:	Number of bytes in data
- */
-int sandbox_sdl_sound_play(const void *data, uint count);
 
 /**
  * sandbox_sdl_sound_init() - set up the sound system
@@ -106,6 +98,11 @@ static inline int sandbox_sdl_key_pressed(int keycode)
 }
 
 static inline int sandbox_sdl_sound_start(uint frequency)
+{
+	return -ENODEV;
+}
+
+int sandbox_sdl_sound_play(const void *data, uint count)
 {
 	return -ENODEV;
 }

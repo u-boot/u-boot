@@ -13,7 +13,7 @@ obj-$(CONFIG_UT_DM) += test-uclass.o
 # subsystem you must add sandbox tests here.
 obj-$(CONFIG_UT_DM) += core.o
 ifneq ($(CONFIG_SANDBOX),)
-obj-$(CONFIG_DM_SOUND) += audio.o
+obj-$(CONFIG_SOUND) += audio.o
 obj-$(CONFIG_BLK) += blk.o
 obj-$(CONFIG_BOARD) += board.o
 obj-$(CONFIG_CLK) += clk.o
@@ -22,7 +22,7 @@ obj-$(CONFIG_FIRMWARE) += firmware.o
 obj-$(CONFIG_DM_GPIO) += gpio.o
 obj-$(CONFIG_DM_HWSPINLOCK) += hwspinlock.o
 obj-$(CONFIG_DM_I2C) += i2c.o
-obj-$(CONFIG_DM_SOUND) += i2s.o
+obj-$(CONFIG_SOUND) += i2s.o
 obj-$(CONFIG_LED) += led.o
 obj-$(CONFIG_DM_MAILBOX) += mailbox.o
 obj-$(CONFIG_DM_MMC) += mmc.o
@@ -55,7 +55,7 @@ obj-$(CONFIG_AXI) += axi.o
 obj-$(CONFIG_MISC) += misc.o
 obj-$(CONFIG_DM_SERIAL) += serial.o
 obj-$(CONFIG_CPU) += cpu.o
-obj-$(CONFIG_DM_SOUND) += sound.o
+obj-$(CONFIG_SOUND) += sound.o
 obj-$(CONFIG_TEE) += tee.o
 obj-$(CONFIG_VIRTIO_SANDBOX) += virtio.o
 obj-$(CONFIG_DMA) += dma.o

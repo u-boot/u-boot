@@ -46,14 +46,6 @@ void sound_create_square_wave(uint sample_rate, unsigned short *data, int size,
 			      uint freq);
 
 /*
- * Initialises audio sub system
- * @param blob	Pointer of device tree node or NULL if none.
- * @return	int value 0 for success, -1 for error
- */
-int sound_init(const void *blob);
-
-#ifdef CONFIG_DM_SOUND
-/*
  * The sound uclass brings together a data transport (currently only I2C) and a
  * codec (currently connected over I2C).
  */
@@ -100,15 +92,5 @@ int sound_beep(struct udevice *dev, int msecs, int frequency_hz);
  * private data for this device.
  */
 int sound_find_codec_i2s(struct udevice *dev);
-
-#else
-/*
- * plays the pcm data buffer in pcm_data.h through i2s1 to make the
- * sine wave sound
- *
- * @return	int 0 for success, -1 for error
- */
-int sound_play(uint32_t msec, uint32_t frequency);
-#endif /* CONFIG_DM_SOUND */
 
 #endif  /* __SOUND__H__ */

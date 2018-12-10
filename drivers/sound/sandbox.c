@@ -8,7 +8,6 @@
 #include <dm.h>
 #include <i2s.h>
 #include <sound.h>
-#include <asm/sound.h>
 #include <asm/sdl.h>
 
 struct sandbox_codec_priv {
@@ -27,22 +26,6 @@ struct sandbox_sound_priv {
 	int setup_called;
 	int sum;	/* Use to sum the provided audio data */
 };
-
-#ifndef CONFIG_DM_SOUND
-int sound_play(uint32_t msec, uint32_t frequency)
-{
-	sandbox_sdl_sound_start(frequency);
-	mdelay(msec);
-	sandbox_sdl_sound_stop();
-
-	return 0;
-}
-#endif /* CONFIG_DM_SOUND */
-
-int sound_init(const void *blob)
-{
-	return sandbox_sdl_sound_init();
-}
 
 void sandbox_get_codec_params(struct udevice *dev, int *interfacep, int *ratep,
 			      int *mclk_freqp, int *bits_per_samplep,
@@ -102,7 +85,7 @@ static int sandbox_i2s_tx_data(struct udevice *dev, void *data,
 	for (i = 0; i < data_size; i++)
 		priv->sum += ((uint8_t *)data)[i];
 
-	return 0;
+	return sandbox_sdl_sound_play(data, data_size);
 }
 
 static int sandbox_i2s_probe(struct udevice *dev)
