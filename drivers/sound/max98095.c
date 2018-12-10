@@ -46,7 +46,7 @@ static int rate_value(int rate, u8 *value)
 	}
 	*value = 1;
 
-	return -1;
+	return -EINVAL;
 }
 
 /*
@@ -56,7 +56,7 @@ static int rate_value(int rate, u8 *value)
  * @param rate		Sampling rate
  * @param bits_per_sample	Bits per sample
  *
- * @return -1 for error  and 0  Success.
+ * @return	0 for success or negative error code.
  */
 static int max98095_hw_params(struct maxim_priv *priv,
 			      enum en_max_audio_interface aif_id,
@@ -89,13 +89,13 @@ static int max98095_hw_params(struct maxim_priv *priv,
 	default:
 		debug("%s: Illegal bits per sample %d.\n",
 		      __func__, bits_per_sample);
-		return -1;
+		return -EINVAL;
 	}
 
 	if (rate_value(rate, &regval)) {
 		debug("%s: Failed to set sample rate to %d.\n",
 		      __func__, rate);
-		return -1;
+		return -EINVAL;
 	}
 	priv->rate = rate;
 
@@ -112,7 +112,7 @@ static int max98095_hw_params(struct maxim_priv *priv,
 
 	if (error < 0) {
 		debug("%s: Error setting hardware params.\n", __func__);
-		return -1;
+		return -EIO;
 	}
 
 	return 0;
@@ -124,7 +124,7 @@ static int max98095_hw_params(struct maxim_priv *priv,
  * @param priv		max98095 information
  * @param freq		Sampling frequency in Hz
  *
- * @return -1 for error and 0 success.
+ * @return	0 for success or negative error code.
  */
 static int max98095_set_sysclk(struct maxim_priv *priv, unsigned int freq)
 {
@@ -147,13 +147,13 @@ static int max98095_set_sysclk(struct maxim_priv *priv, unsigned int freq)
 		error = maxim_i2c_write(priv, M98095_026_SYS_CLK, 0x30);
 	} else {
 		debug("%s: Invalid master clock frequency\n", __func__);
-		return -1;
+		return -EINVAL;
 	}
 
 	debug("%s: Clock at %uHz\n", __func__, freq);
 
 	if (error < 0)
-		return -1;
+		return -EIO;
 
 	priv->sysclk = freq;
 	return 0;
@@ -166,7 +166,7 @@ static int max98095_set_sysclk(struct maxim_priv *priv, unsigned int freq)
  * @param fmt		i2S format - supports a subset of the options defined
  *			in i2s.h.
  *
- * @return -1 for error and 0  Success.
+ * @return	0 for success or negative error code.
  */
 static int max98095_set_fmt(struct maxim_priv *priv, int fmt,
 			    enum en_max_audio_interface aif_id)
@@ -209,7 +209,7 @@ static int max98095_set_fmt(struct maxim_priv *priv, int fmt,
 	case SND_SOC_DAIFMT_CBM_CFS:
 	default:
 		debug("%s: Clock mode unsupported\n", __func__);
-		return -1;
+		return -EINVAL;
 	}
 
 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
@@ -220,7 +220,7 @@ static int max98095_set_fmt(struct maxim_priv *priv, int fmt,
 		break;
 	default:
 		debug("%s: Unrecognized format.\n", __func__);
-		return -1;
+		return -EINVAL;
 	}
 
 	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
@@ -237,7 +237,7 @@ static int max98095_set_fmt(struct maxim_priv *priv, int fmt,
 		break;
 	default:
 		debug("%s: Unrecognized inversion settings.\n", __func__);
-		return -1;
+		return -EINVAL;
 	}
 
 	error |= maxim_bic_or(priv, M98095_DAI_FORMAT,
@@ -248,7 +248,7 @@ static int max98095_set_fmt(struct maxim_priv *priv, int fmt,
 
 	if (error < 0) {
 		debug("%s: Error setting i2s format.\n", __func__);
-		return -1;
+		return -EIO;
 	}
 
 	return 0;
@@ -258,7 +258,7 @@ static int max98095_set_fmt(struct maxim_priv *priv, int fmt,
  * resets the audio codec
  *
  * @param priv	Private data for driver
- * @return -1 for error and 0 success.
+ * @return	0 for success or negative error code.
  */
 static int max98095_reset(struct maxim_priv *priv)
 {
@@ -299,22 +299,21 @@ static int max98095_reset(struct maxim_priv *priv)
  * Intialise max98095 codec device
  *
  * @param priv		max98095 information
- *
- * @returns -1 for error  and 0 Success.
+ * @return	0 for success or negative error code.
  */
 static int max98095_device_init(struct maxim_priv *priv)
 {
 	unsigned char id;
-	int error = 0;
+	int ret;
 
 	/* Enable codec clock */
 	set_xclkout();
 
 	/* reset the codec, the DSP core, and disable all interrupts */
-	error = max98095_reset(priv);
-	if (error != 0) {
+	ret = max98095_reset(priv);
+	if (ret != 0) {
 		debug("Reset\n");
-		return error;
+		return ret;
 	}
 
 	/* initialize private data */
@@ -322,11 +321,11 @@ static int max98095_device_init(struct maxim_priv *priv)
 	priv->rate = -1U;
 	priv->fmt = -1U;
 
-	error = maxim_i2c_read(priv, M98095_0FF_REV_ID, &id);
-	if (error < 0) {
+	ret = maxim_i2c_read(priv, M98095_0FF_REV_ID, &id);
+	if (ret < 0) {
 		debug("%s: Failure reading hardware revision: %d\n",
 		      __func__, id);
-		return error;
+		return ret;
 	}
 	debug("%s: Hardware revision: %c\n", __func__, (id - 0x40) + 'A');
 
@@ -392,7 +391,7 @@ static int max98095_setup_interface(struct maxim_priv *priv,
 		error |= maxim_i2c_write(priv, M98095_096_PWR_DAC_CK, 0x07);
 
 	if (error < 0)
-		return -1;
+		return -EIO;
 
 	return 0;
 }
