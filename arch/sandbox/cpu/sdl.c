@@ -4,6 +4,7 @@
  */
 
 #include <errno.h>
+#include <unistd.h>
 #include <linux/input.h>
 #include <SDL/SDL.h>
 #include <sound.h>
@@ -40,6 +41,7 @@ static struct sdl_info {
 	bool inited;
 	int cur_buf;
 	struct buf_info buf[2];
+	bool running;
 } sdl;
 
 static void sandbox_sdl_poll_events(void)
@@ -331,6 +333,7 @@ int sandbox_sdl_sound_init(void)
 	sdl.audio_active = true;
 	sdl.sample_rate = wanted.freq;
 	sdl.cur_buf = 0;
+	sdl.running = 0;
 
 	return 0;
 
@@ -340,27 +343,39 @@ err:
 	return -1;
 }
 
-int sandbox_sdl_sound_start(uint frequency)
+int sandbox_sdl_sound_play(const void *data, uint size)
 {
-	struct buf_info *buf = &sdl.buf[0];
+	struct buf_info *buf;
 
 	if (!sdl.audio_active)
-		return -1;
-	sdl.frequency = frequency;
-	sound_create_square_wave(sdl.sample_rate, (unsigned short *)buf->data,
-				 buf->alloced, frequency);
+		return 0;
+
+	buf = &sdl.buf[0];
+	if (buf->size)
+		buf = &sdl.buf[1];
+	while (buf->size)
+		usleep(1000);
+
+	if (size > buf->alloced)
+		return -E2BIG;
+
+	memcpy(buf->data, data, size);
+	buf->size = size;
 	buf->pos = 0;
-	buf->size = buf->alloced;
-	SDL_PauseAudio(0);
+	if (!sdl.running) {
+		SDL_PauseAudio(0);
+		sdl.running = 1;
+	}
 
 	return 0;
 }
 
 int sandbox_sdl_sound_stop(void)
 {
-	if (!sdl.audio_active)
-		return -1;
-	SDL_PauseAudio(1);
+	if (sdl.running) {
+		SDL_PauseAudio(1);
+		sdl.running = 0;
+	}
 
 	return 0;
 }

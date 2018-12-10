@@ -69,6 +69,14 @@ int sandbox_sdl_sound_start(uint frequency);
 int sandbox_sdl_sound_stop(void);
 
 /**
+ * sandbox_sdl_sound_play() - Play a sound
+ *
+ * @data:	Data to play (typically 16-bit)
+ * @count:	Number of bytes in data
+ */
+int sandbox_sdl_sound_play(const void *data, uint count);
+
+/**
  * sandbox_sdl_sound_init() - set up the sound system
  *
  * @return 0 if OK, -ENODEV if no sound is available
