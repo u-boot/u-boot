@@ -1,13 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * max98095.c -- MAX98095 ALSA SoC Audio driver
  *
  * Copyright 2011 Maxim Integrated Products
  *
- * Modified for uboot by R. Chandrasekar (rcsekar@samsung.com)
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
+ * Modified for U-Boot by R. Chandrasekar (rcsekar@samsung.com)
  */
 
 #include <common.h>
