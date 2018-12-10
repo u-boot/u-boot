@@ -31,8 +31,6 @@
 
 	clocks {
 		compatible = "simple-bus";
-		#address-cells = <1>;
-		#size-cells = <1>;
 		u-boot,dm-pre-reloc;
 
 		periph_osc: periph-osc {
