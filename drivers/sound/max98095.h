@@ -13,7 +13,7 @@
 
 /*  Available audio interface ports in wm8994 codec */
 enum en_max_audio_interface {
-	AIF1 = 1,
+	AIF1,
 	AIF2,
 };
 

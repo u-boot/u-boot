@@ -120,13 +120,11 @@ static int codec_init(const void *blob, struct i2s_uc_priv *pi2s_tx)
 	debug("device = %s\n", codectype);
 	if (!strcmp(codectype, "wm8994")) {
 		/* Check the codec type and initialise the same */
-		ret = wm8994_init(blob, pi2s_tx->id + 1,
-				  pi2s_tx->samplingrate,
+		ret = wm8994_init(blob, pi2s_tx->id, pi2s_tx->samplingrate,
 				  (pi2s_tx->samplingrate * (pi2s_tx->rfs)),
 				  pi2s_tx->bitspersample, pi2s_tx->channels);
 	} else if (!strcmp(codectype, "max98095")) {
-		ret = max98095_init(blob, pi2s_tx->id + 1,
-				    pi2s_tx->samplingrate,
+		ret = max98095_init(blob, pi2s_tx->id, pi2s_tx->samplingrate,
 				    (pi2s_tx->samplingrate * (pi2s_tx->rfs)),
 				    pi2s_tx->bitspersample);
 	} else {
