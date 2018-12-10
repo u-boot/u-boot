@@ -460,7 +460,7 @@ unsigned long get_board_ddr_clk(void);
 				| CSPR_MSEL_GPCM \
 				| CSPR_V)
 
-#define CONFIG_SYS_AMASK3	IFC_AMASK(4*1024)
+#define CONFIG_SYS_AMASK3	IFC_AMASK(64 * 1024)
 #define CONFIG_SYS_CSOR3	0x0
 
 /* CPLD Timing parameters for IFC CS3 */

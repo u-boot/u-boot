@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+ * Copyright 2018 NXP
  * Copyright 2015 Freescale Semiconductor, Inc.
  */
 
@@ -19,8 +20,12 @@ enum srds_prtcl {
 	PCIE2,
 	PCIE3,
 	PCIE4,
+	PCIE5,
+	PCIE6,
 	SATA1,
 	SATA2,
+	SATA3,
+	SATA4,
 	XAUI1,
 	XAUI2,
 	XFI1,
@@ -31,6 +36,12 @@ enum srds_prtcl {
 	XFI6,
 	XFI7,
 	XFI8,
+	XFI9,
+	XFI10,
+	XFI11,
+	XFI12,
+	XFI13,
+	XFI14,
 	SGMII1,
 	SGMII2,
 	SGMII3,
@@ -47,16 +58,35 @@ enum srds_prtcl {
 	SGMII14,
 	SGMII15,
 	SGMII16,
+	SGMII17,
+	SGMII18,
 	QSGMII_A,
 	QSGMII_B,
 	QSGMII_C,
 	QSGMII_D,
+	_25GE1,
+	_25GE2,
+	_25GE3,
+	_25GE4,
+	_25GE5,
+	_25GE6,
+	_25GE7,
+	_25GE8,
+	_25GE9,
+	_25GE10,
+	_40GE1,
+	_40GE2,
+	_50GE1,
+	_50GE2,
+	_100GE1,
+	_100GE2,
 	SERDES_PRCTL_COUNT
 };
 
 enum srds {
 	FSL_SRDS_1  = 0,
 	FSL_SRDS_2  = 1,
+	NXP_SRDS_3  = 2,
 };
 #elif defined(CONFIG_FSL_LSCH2)
 enum srds_prtcl {

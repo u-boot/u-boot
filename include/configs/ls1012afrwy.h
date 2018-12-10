@@ -119,8 +119,14 @@
 		"bootm $load_addr#$board\0"
 
 #undef CONFIG_BOOTCOMMAND
+#ifdef CONFIG_TFABOOT
+#undef QSPI_NOR_BOOTCOMMAND
+#define QSPI_NOR_BOOTCOMMAND "pfe stop; run distro_bootcmd; run sd_bootcmd; "\
+			     "env exists secureboot && esbc_halt;"
+#else
 #define CONFIG_BOOTCOMMAND "pfe stop; run distro_bootcmd; run sd_bootcmd; "\
 			   "env exists secureboot && esbc_halt;"
+#endif
 #define CONFIG_CMD_MEMINFO
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x80000000

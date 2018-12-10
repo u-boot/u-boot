@@ -27,6 +27,104 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_TFABOOT
+struct ifc_regs ifc_cfg_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
+	{
+		"nor",
+		CONFIG_SYS_NOR_CSPR,
+		CONFIG_SYS_NOR_CSPR_EXT,
+		CONFIG_SYS_NOR_AMASK,
+		CONFIG_SYS_NOR_CSOR,
+		{
+			CONFIG_SYS_NOR_FTIM0,
+			CONFIG_SYS_NOR_FTIM1,
+			CONFIG_SYS_NOR_FTIM2,
+			CONFIG_SYS_NOR_FTIM3
+		},
+
+	},
+	{
+		"nand",
+		CONFIG_SYS_NAND_CSPR,
+		CONFIG_SYS_NAND_CSPR_EXT,
+		CONFIG_SYS_NAND_AMASK,
+		CONFIG_SYS_NAND_CSOR,
+		{
+			CONFIG_SYS_NAND_FTIM0,
+			CONFIG_SYS_NAND_FTIM1,
+			CONFIG_SYS_NAND_FTIM2,
+			CONFIG_SYS_NAND_FTIM3
+		},
+	},
+	{
+		"cpld",
+		CONFIG_SYS_CPLD_CSPR,
+		CONFIG_SYS_CPLD_CSPR_EXT,
+		CONFIG_SYS_CPLD_AMASK,
+		CONFIG_SYS_CPLD_CSOR,
+		{
+			CONFIG_SYS_CPLD_FTIM0,
+			CONFIG_SYS_CPLD_FTIM1,
+			CONFIG_SYS_CPLD_FTIM2,
+			CONFIG_SYS_CPLD_FTIM3
+		},
+	}
+};
+
+struct ifc_regs ifc_cfg_nand_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
+	{
+		"nand",
+		CONFIG_SYS_NAND_CSPR,
+		CONFIG_SYS_NAND_CSPR_EXT,
+		CONFIG_SYS_NAND_AMASK,
+		CONFIG_SYS_NAND_CSOR,
+		{
+			CONFIG_SYS_NAND_FTIM0,
+			CONFIG_SYS_NAND_FTIM1,
+			CONFIG_SYS_NAND_FTIM2,
+			CONFIG_SYS_NAND_FTIM3
+		},
+	},
+	{
+		"nor",
+		CONFIG_SYS_NOR_CSPR,
+		CONFIG_SYS_NOR_CSPR_EXT,
+		CONFIG_SYS_NOR_AMASK,
+		CONFIG_SYS_NOR_CSOR,
+		{
+			CONFIG_SYS_NOR_FTIM0,
+			CONFIG_SYS_NOR_FTIM1,
+			CONFIG_SYS_NOR_FTIM2,
+			CONFIG_SYS_NOR_FTIM3
+		},
+	},
+	{
+		"cpld",
+		CONFIG_SYS_CPLD_CSPR,
+		CONFIG_SYS_CPLD_CSPR_EXT,
+		CONFIG_SYS_CPLD_AMASK,
+		CONFIG_SYS_CPLD_CSOR,
+		{
+			CONFIG_SYS_CPLD_FTIM0,
+			CONFIG_SYS_CPLD_FTIM1,
+			CONFIG_SYS_CPLD_FTIM2,
+			CONFIG_SYS_CPLD_FTIM3
+		},
+	}
+};
+
+void ifc_cfg_boot_info(struct ifc_regs_info *regs_info)
+{
+	enum boot_src src = get_boot_src();
+
+	if (src == BOOT_SOURCE_IFC_NAND)
+		regs_info->regs = ifc_cfg_nand_boot;
+	else
+		regs_info->regs = ifc_cfg_nor_boot;
+	regs_info->cs_size = CONFIG_SYS_FSL_IFC_BANK_COUNT;
+}
+
+#endif
 int board_early_init_f(void)
 {
 	fsl_lsch2_early_init_f();
@@ -38,6 +136,9 @@ int board_early_init_f(void)
 
 int checkboard(void)
 {
+#ifdef CONFIG_TFABOOT
+	enum boot_src src = get_boot_src();
+#endif
 	static const char *freq[2] = {"100.00MHZ", "156.25MHZ"};
 #ifndef CONFIG_SD_BOOT
 	u8 cfg_rcw_src1, cfg_rcw_src2;
@@ -46,6 +147,12 @@ int checkboard(void)
 	u8 sd1refclk_sel;
 
 	printf("Board: LS1043ARDB, boot from ");
+
+#ifdef CONFIG_TFABOOT
+	if (src == BOOT_SOURCE_SD_MMC)
+		puts("SD\n");
+	else {
+#endif
 
 #ifdef CONFIG_SD_BOOT
 	puts("SD\n");
@@ -64,6 +171,9 @@ int checkboard(void)
 		printf("Invalid setting of SW4\n");
 #endif
 
+#ifdef CONFIG_TFABOOT
+	}
+#endif
 	printf("CPLD:  V%x.%x\nPCBA:  V%x.0\n", CPLD_READ(cpld_ver),
 	       CPLD_READ(cpld_ver_sub), CPLD_READ(pcba_ver));
 

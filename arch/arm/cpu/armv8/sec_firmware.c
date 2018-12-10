@@ -348,6 +348,10 @@ unsigned int sec_firmware_support_psci_version(void)
  */
 bool sec_firmware_support_hwrng(void)
 {
+#ifdef CONFIG_TFABOOT
+	/* return true as TFA has one job ring reserved */
+	return true;
+#endif
 	if (sec_firmware_addr & SEC_FIRMWARE_RUNNING) {
 			return true;
 	}

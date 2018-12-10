@@ -108,6 +108,16 @@ found:
 #endif
 }
 
+#ifdef CONFIG_TFABOOT
+int fsl_initdram(void)
+{
+	gd->ram_size = tfa_get_dram_size();
+	if (!gd->ram_size)
+		gd->ram_size = fsl_ddr_sdram_size();
+
+	return 0;
+}
+#else
 int fsl_initdram(void)
 {
 	phys_size_t dram_size;
@@ -131,3 +141,4 @@ int fsl_initdram(void)
 
 	return 0;
 }
+#endif

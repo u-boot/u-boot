@@ -13,6 +13,7 @@
 #include <asm/arch/ppa.h>
 #include <asm/arch/fdt.h>
 #include <asm/arch/mmu.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
 #include <ahci.h>
@@ -32,18 +33,152 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_TFABOOT
+struct ifc_regs ifc_cfg_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
+	{
+		"nor0",
+		CONFIG_SYS_NOR0_CSPR,
+		CONFIG_SYS_NOR0_CSPR_EXT,
+		CONFIG_SYS_NOR_AMASK,
+		CONFIG_SYS_NOR_CSOR,
+		{
+			CONFIG_SYS_NOR_FTIM0,
+			CONFIG_SYS_NOR_FTIM1,
+			CONFIG_SYS_NOR_FTIM2,
+			CONFIG_SYS_NOR_FTIM3
+		},
+
+	},
+	{
+		"nor1",
+		CONFIG_SYS_NOR1_CSPR,
+		CONFIG_SYS_NOR1_CSPR_EXT,
+		CONFIG_SYS_NOR_AMASK,
+		CONFIG_SYS_NOR_CSOR,
+		{
+			CONFIG_SYS_NOR_FTIM0,
+			CONFIG_SYS_NOR_FTIM1,
+			CONFIG_SYS_NOR_FTIM2,
+			CONFIG_SYS_NOR_FTIM3
+		},
+	},
+	{
+		"nand",
+		CONFIG_SYS_NAND_CSPR,
+		CONFIG_SYS_NAND_CSPR_EXT,
+		CONFIG_SYS_NAND_AMASK,
+		CONFIG_SYS_NAND_CSOR,
+		{
+			CONFIG_SYS_NAND_FTIM0,
+			CONFIG_SYS_NAND_FTIM1,
+			CONFIG_SYS_NAND_FTIM2,
+			CONFIG_SYS_NAND_FTIM3
+		},
+	},
+	{
+		"fpga",
+		CONFIG_SYS_FPGA_CSPR,
+		CONFIG_SYS_FPGA_CSPR_EXT,
+		CONFIG_SYS_FPGA_AMASK,
+		CONFIG_SYS_FPGA_CSOR,
+		{
+			CONFIG_SYS_FPGA_FTIM0,
+			CONFIG_SYS_FPGA_FTIM1,
+			CONFIG_SYS_FPGA_FTIM2,
+			CONFIG_SYS_FPGA_FTIM3
+		},
+	}
+};
+
+struct ifc_regs ifc_cfg_nand_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
+	{
+		"nand",
+		CONFIG_SYS_NAND_CSPR,
+		CONFIG_SYS_NAND_CSPR_EXT,
+		CONFIG_SYS_NAND_AMASK,
+		CONFIG_SYS_NAND_CSOR,
+		{
+			CONFIG_SYS_NAND_FTIM0,
+			CONFIG_SYS_NAND_FTIM1,
+			CONFIG_SYS_NAND_FTIM2,
+			CONFIG_SYS_NAND_FTIM3
+		},
+	},
+	{
+		"nor0",
+		CONFIG_SYS_NOR0_CSPR,
+		CONFIG_SYS_NOR0_CSPR_EXT,
+		CONFIG_SYS_NOR_AMASK,
+		CONFIG_SYS_NOR_CSOR,
+		{
+			CONFIG_SYS_NOR_FTIM0,
+			CONFIG_SYS_NOR_FTIM1,
+			CONFIG_SYS_NOR_FTIM2,
+			CONFIG_SYS_NOR_FTIM3
+		},
+	},
+	{
+		"nor1",
+		CONFIG_SYS_NOR1_CSPR,
+		CONFIG_SYS_NOR1_CSPR_EXT,
+		CONFIG_SYS_NOR_AMASK,
+		CONFIG_SYS_NOR_CSOR,
+		{
+			CONFIG_SYS_NOR_FTIM0,
+			CONFIG_SYS_NOR_FTIM1,
+			CONFIG_SYS_NOR_FTIM2,
+			CONFIG_SYS_NOR_FTIM3
+		},
+	},
+	{
+		"fpga",
+		CONFIG_SYS_FPGA_CSPR,
+		CONFIG_SYS_FPGA_CSPR_EXT,
+		CONFIG_SYS_FPGA_AMASK,
+		CONFIG_SYS_FPGA_CSOR,
+		{
+			CONFIG_SYS_FPGA_FTIM0,
+			CONFIG_SYS_FPGA_FTIM1,
+			CONFIG_SYS_FPGA_FTIM2,
+			CONFIG_SYS_FPGA_FTIM3
+		},
+	}
+};
+
+void ifc_cfg_boot_info(struct ifc_regs_info *regs_info)
+{
+	enum boot_src src = get_boot_src();
+
+	if (src == BOOT_SOURCE_IFC_NAND)
+		regs_info->regs = ifc_cfg_nand_boot;
+	else
+		regs_info->regs = ifc_cfg_nor_boot;
+	regs_info->cs_size = CONFIG_SYS_FSL_IFC_BANK_COUNT;
+}
+
+#endif
+
 enum {
 	MUX_TYPE_GPIO,
 };
 
 int checkboard(void)
 {
+#ifdef CONFIG_TFABOOT
+	enum boot_src src = get_boot_src();
+#endif
 	char buf[64];
 #ifndef CONFIG_SD_BOOT
 	u8 sw;
 #endif
 
 	puts("Board: LS1046AQDS, boot from ");
+
+#ifdef CONFIG_TFABOOT
+	if (src == BOOT_SOURCE_SD_MMC)
+		puts("SD\n");
+	else {
+#endif
 
 #ifdef CONFIG_SD_BOOT
 	puts("SD\n");
@@ -63,6 +198,9 @@ int checkboard(void)
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
 #endif
 
+#ifdef CONFIG_TFABOOT
+	}
+#endif
 	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x\n",
 	       QIXIS_READ(id), QIXIS_READ(arch));
 
@@ -153,7 +291,8 @@ int dram_init(void)
 	 */
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 	fsl_initdram();
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#if (!defined(CONFIG_SPL) && !defined(CONFIG_TFABOOT)) || \
+	defined(CONFIG_SPL_BUILD)
 	/* This will break-before-make MMU for DDR */
 	update_early_mmu_table();
 #endif
@@ -342,3 +481,10 @@ u16 flash_read16(void *addr)
 
 	return (((val) >> 8) & 0x00ff) | (((val) << 8) & 0xff00);
 }
+
+#ifdef CONFIG_TFABOOT
+void *env_sf_get_env_addr(void)
+{
+	return (void *)(CONFIG_SYS_FSL_QSPI_BASE + CONFIG_ENV_OFFSET);
+}
+#endif

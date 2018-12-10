@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+ * Copyright 2015-2018 NXP
  * Copyright 2014 Freescale Semiconductor, Inc.
  *
  */
@@ -69,11 +70,11 @@
 #define FSL_SDMMC_STREAM_ID		3
 #define FSL_SATA1_STREAM_ID		4
 
-#if defined(CONFIG_ARCH_LS2080A)
+#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
 #define FSL_SATA2_STREAM_ID		5
 #endif
 
-#if defined(CONFIG_ARCH_LS2080A)
+#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
 #define FSL_DMA_STREAM_ID		6
 #elif defined(CONFIG_ARCH_LS1088A)
 #define FSL_DMA_STREAM_ID		5
@@ -81,6 +82,10 @@
 
 /* PCI - programmed in PEXn_LUT */
 #define FSL_PEX_STREAM_ID_START		7
+
+#ifdef CONFIG_ARCH_LX2160A
+#define FSL_PEX_STREAM_ID_NUM		(0x100)
+#endif
 
 #if defined(CONFIG_ARCH_LS2080A)
 #define FSL_PEX_STREAM_ID_END		22

@@ -318,6 +318,7 @@ static int set_voltage_to_IR(int i2caddress, int vdd)
 static int set_voltage_to_LTC(int i2caddress, int vdd)
 {
 	int ret, vdd_last, vdd_target = vdd;
+	int count = 100, temp = 0;
 
 	/* Scale up to the LTC resolution is 1/4096V */
 	vdd = (vdd * 4096) / 1000;
@@ -343,7 +344,9 @@ static int set_voltage_to_LTC(int i2caddress, int vdd)
 			printf("VID: Couldn't read sensor abort VID adjust\n");
 			return -1;
 		}
-	} while (vdd_last != vdd_target);
+		count--;
+		temp = vdd_last - vdd_target;
+	} while ((abs(temp) > 2)  && (count > 0));
 
 	return vdd_last;
 }
@@ -379,6 +382,42 @@ int adjust_vdd(ulong vdd_override)
 	int ret, i2caddress;
 	unsigned long vdd_string_override;
 	char *vdd_string;
+#ifdef CONFIG_ARCH_LX2160A
+	static const u16 vdd[32] = {
+		8250,
+		7875,
+		7750,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		8000,
+		8125,
+		8250,
+		0,      /* reserved */
+		8500,
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+		0,      /* reserved */
+	};
+#else
 #ifdef CONFIG_ARCH_LS1088A
 	static const uint16_t vdd[32] = {
 		10250,
@@ -450,6 +489,7 @@ int adjust_vdd(ulong vdd_override)
 		0,      /* reserved */
 		0,      /* reserved */
 	};
+#endif
 #endif
 	struct vdd_drive {
 		u8 vid;
