@@ -13,6 +13,21 @@ enum {
 	SAMPLE_RATE	= 22050,
 };
 
+/**
+ * struct buf_info - a data buffer holding audio data
+ *
+ * @pos:	Current position playing in audio buffer
+ * @size:	Size of data in audio buffer (0=empty)
+ * @alloced:	Allocated size of audio buffer (max size it can hold)
+ * @data:	Audio data
+ */
+struct buf_info {
+	uint pos;
+	uint size;
+	uint alloced;
+	uint8_t *data;
+};
+
 static struct sdl_info {
 	SDL_Surface *screen;
 	int width;
@@ -20,12 +35,11 @@ static struct sdl_info {
 	int depth;
 	int pitch;
 	uint frequency;
-	uint audio_pos;
-	uint audio_size;
 	uint sample_rate;
-	uint8_t *audio_data;
 	bool audio_active;
 	bool inited;
+	int cur_buf;
+	struct buf_info buf[2];
 } sdl;
 
 static void sandbox_sdl_poll_events(void)
@@ -243,24 +257,37 @@ int sandbox_sdl_key_pressed(int keycode)
 
 void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 {
+	struct buf_info *buf;
 	int avail;
+	int i;
 
-	avail = sdl.audio_size - sdl.audio_pos;
-	if (avail < len)
-		len = avail;
+	for (i = 0; i < 2; i++) {
+		buf = &sdl.buf[sdl.cur_buf];
+		avail = buf->size - buf->pos;
+		if (avail <= 0) {
+			sdl.cur_buf = 1 - sdl.cur_buf;
+			continue;
+		}
+		if (avail > len)
+			avail = len;
 
-	SDL_MixAudio(stream, sdl.audio_data + sdl.audio_pos, len,
-		     SDL_MIX_MAXVOLUME);
-	sdl.audio_pos += len;
+		SDL_MixAudio(stream, buf->data + buf->pos, avail,
+			     SDL_MIX_MAXVOLUME);
+		buf->pos += avail;
+		len -= avail;
 
-	/* Loop if we are at the end */
-	if (sdl.audio_pos == sdl.audio_size)
-		sdl.audio_pos = 0;
+		/* Move to next buffer if we are at the end */
+		if (buf->pos == buf->size)
+			buf->size = 0;
+		else
+			break;
+	}
 }
 
 int sandbox_sdl_sound_init(void)
 {
 	SDL_AudioSpec wanted;
+	int i;
 
 	if (sandbox_sdl_ensure_init())
 		return -1;
@@ -276,13 +303,20 @@ int sandbox_sdl_sound_init(void)
 	wanted.callback = sandbox_sdl_fill_audio;
 	wanted.userdata = NULL;
 
-	sdl.audio_size = sizeof(uint16_t) * wanted.freq;
-	sdl.audio_data = malloc(sdl.audio_size);
-	if (!sdl.audio_data) {
-		printf("%s: Out of memory\n", __func__);
-		return -1;
+	for (i = 0; i < 2; i++) {
+		struct buf_info *buf = &sdl.buf[i];
+
+		buf->alloced = sizeof(uint16_t) * wanted.freq * wanted.channels;
+		buf->data = malloc(buf->alloced);
+		if (!buf->data) {
+			printf("%s: Out of memory\n", __func__);
+			if (i == 1)
+				free(sdl.buf[0].data);
+			return -1;
+		}
+		buf->pos = 0;
+		buf->size = 0;
 	}
-	sdl.audio_pos = 0;
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
 		printf("Unable to initialize SDL audio: %s\n", SDL_GetError());
@@ -296,23 +330,27 @@ int sandbox_sdl_sound_init(void)
 	}
 	sdl.audio_active = true;
 	sdl.sample_rate = wanted.freq;
+	sdl.cur_buf = 0;
 
 	return 0;
 
 err:
-	free(sdl.audio_data);
+	for (i = 0; i < 2; i++)
+		free(sdl.buf[i].data);
 	return -1;
 }
 
 int sandbox_sdl_sound_start(uint frequency)
 {
+	struct buf_info *buf = &sdl.buf[0];
+
 	if (!sdl.audio_active)
 		return -1;
 	sdl.frequency = frequency;
-	sound_create_square_wave(sdl.sample_rate,
-				 (unsigned short *)sdl.audio_data,
-				 sdl.audio_size, frequency);
-	sdl.audio_pos = 0;
+	sound_create_square_wave(sdl.sample_rate, (unsigned short *)buf->data,
+				 buf->alloced, frequency);
+	buf->pos = 0;
+	buf->size = buf->alloced;
 	SDL_PauseAudio(0);
 
 	return 0;
