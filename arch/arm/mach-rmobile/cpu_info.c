@@ -7,8 +7,6 @@
 #include <asm/io.h>
 #include <linux/ctype.h>
 
-/* R-Car Gen3 caches are enabled in memmap-gen3.c */
-#ifndef CONFIG_RCAR_GEN3
 #ifdef CONFIG_ARCH_CPU_INIT
 int arch_cpu_init(void)
 {
@@ -17,6 +15,8 @@ int arch_cpu_init(void)
 }
 #endif
 
+/* R-Car Gen3 D-cache is enabled in memmap-gen3.c */
+#ifndef CONFIG_RCAR_GEN3
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
