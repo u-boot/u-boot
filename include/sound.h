@@ -37,13 +37,14 @@ struct sound_uc_priv {
 /**
  * Generates square wave sound data for 1 second
  *
- * @param sample_rate   Sample rate in Hz
- * @param data          data buffer pointer
- * @param size          size of the buffer in bytes
- * @param freq          frequency of the wave
+ * @sample_rate: Sample rate in Hz
+ * @data: data buffer pointer
+ * @size: size of the buffer in bytes
+ * @freq: frequency of the wave
+ * @channels: Number of channels to use
  */
 void sound_create_square_wave(uint sample_rate, unsigned short *data, int size,
-			      uint freq);
+			      uint freq, uint channels);
 
 /*
  * The sound uclass brings together a data transport (currently only I2C) and a

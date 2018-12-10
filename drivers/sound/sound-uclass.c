@@ -53,7 +53,7 @@ int sound_beep(struct udevice *dev, int msecs, int frequency_hz)
 	}
 
 	sound_create_square_wave(i2s_uc_priv->samplingrate, data, data_size,
-				 frequency_hz);
+				 frequency_hz, i2s_uc_priv->channels);
 
 	while (msecs >= 1000) {
 		ret = sound_play(dev, data, data_size);
