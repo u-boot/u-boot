@@ -218,7 +218,8 @@
 	i2c-scl-falling-time-ns = <4>;
 	clock-frequency = <400000>;
 
-	vdd_gpu: fan535555@60 {
+	vdd_gpu: vdd_gpu {
+		status = "okay";
 		compatible = "fcs,fan53555";
 		reg = <0x60>;
 		vsel-gpios = <&gpio1 RK_PB6 GPIO_ACTIVE_HIGH>;
@@ -420,7 +421,8 @@
 	status = "okay";
 	clock-frequency = <400000>;
 
-	vdd_cpu_b: fan53555@60 {
+	vdd_cpu_b: vdd_cpu_b {
+		status = "okay";
 		compatible = "fcs,fan53555";
 		reg = <0x60>;
 		vsel-gpios = <&gpio1 RK_PA4 GPIO_ACTIVE_HIGH>;

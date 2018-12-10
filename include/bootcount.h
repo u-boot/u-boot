@@ -10,6 +10,54 @@
 #include <asm/io.h>
 #include <asm/byteorder.h>
 
+#ifdef CONFIG_DM_BOOTCOUNT
+
+struct bootcount_ops {
+	/**
+	 * get() - get the current bootcount value
+	 *
+	 * Returns the current counter value of the bootcount backing
+	 * store.
+	 *
+	 * @dev:	Device to read from
+	 * @bootcount:	Address to put the current bootcount value
+	 */
+	int (*get)(struct udevice *dev, u32 *bootcount);
+
+	/**
+	 * set() - set a bootcount value (e.g. to reset or increment)
+	 *
+	 * Sets the value in the bootcount backing store.
+	 *
+	 * @dev:	Device to read from
+	 * @bootcount:	New bootcount value to store
+	 */
+	int (*set)(struct udevice *dev, const u32 bootcount);
+};
+
+/* Access the operations for a bootcount device */
+#define bootcount_get_ops(dev)	((struct bootcount_ops *)(dev)->driver->ops)
+
+/**
+ * dm_bootcount_get() - Read the current value from a bootcount storage
+ *
+ * @dev:	Device to read from
+ * @bootcount:	Place to put the current bootcount
+ * @return 0 if OK, -ve on error
+ */
+int dm_bootcount_get(struct udevice *dev, u32 *bootcount);
+
+/**
+ * dm_bootcount_set() - Write a value to a bootcount storage
+ *
+ * @dev:	Device to read from
+ * @bootcount:  Value to be written to the backing storage
+ * @return 0 if OK, -ve on error
+ */
+int dm_bootcount_set(struct udevice *dev, u32 bootcount);
+
+#endif
+
 #if defined(CONFIG_SPL_BOOTCOUNT_LIMIT) || defined(CONFIG_BOOTCOUNT_LIMIT)
 
 #if !defined(CONFIG_SYS_BOOTCOUNT_LE) && !defined(CONFIG_SYS_BOOTCOUNT_BE)
