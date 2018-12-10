@@ -187,6 +187,7 @@ int dm_uninit(void)
 {
 	device_remove(dm_root(), DM_REMOVE_NORMAL);
 	device_unbind(dm_root());
+	gd->dm_root = NULL;
 
 	return 0;
 }

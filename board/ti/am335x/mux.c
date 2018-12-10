@@ -329,12 +329,23 @@ static unsigned short detect_daughter_board_profile(void)
 {
 	unsigned short val;
 
+#ifndef CONFIG_DM_I2C
 	if (i2c_probe(I2C_CPLD_ADDR))
 		return PROFILE_NONE;
 
 	if (i2c_read(I2C_CPLD_ADDR, CFG_REG, 1, (unsigned char *)(&val), 2))
 		return PROFILE_NONE;
+#else
+	struct udevice *dev = NULL;
+	int rc;
 
+	rc = i2c_get_chip_for_busnum(0, I2C_CPLD_ADDR, 1, &dev);
+	if (rc)
+		return PROFILE_NONE;
+	rc = dm_i2c_read(dev, CFG_REG, (unsigned char *)(&val), 2);
+	if (rc)
+		return PROFILE_NONE;
+#endif
 	return (1 << (val & PROFILE_MASK));
 }
 

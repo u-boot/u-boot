@@ -347,6 +347,17 @@ int i2c_get_chip_for_busnum(int busnum, int chip_addr, uint offset_len,
 		debug("Cannot find I2C bus %d\n", busnum);
 		return ret;
 	}
+
+	/* detect the presence of the chip on the bus */
+	ret = i2c_probe_chip(bus, chip_addr, 0);
+	debug("%s: bus='%s', address %02x, ret=%d\n", __func__, bus->name,
+	      chip_addr, ret);
+	if (ret) {
+		debug("Cannot detect I2C chip %02x on bus %d\n", chip_addr,
+		      busnum);
+		return ret;
+	}
+
 	ret = i2c_get_chip(bus, chip_addr, offset_len, devp);
 	if (ret) {
 		debug("Cannot find I2C chip %02x on bus %d\n", chip_addr,

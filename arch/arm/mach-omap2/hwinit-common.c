@@ -12,6 +12,7 @@
  */
 #include <common.h>
 #include <debug_uart.h>
+#include <fdtdec.h>
 #include <spl.h>
 #include <asm/arch/sys_proto.h>
 #include <linux/sizes.h>
@@ -19,6 +20,7 @@
 #include <asm/omap_common.h>
 #include <linux/compiler.h>
 #include <asm/system.h>
+#include <dm/root.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -171,6 +173,10 @@ void __weak init_package_revision(void)
  */
 void early_system_init(void)
 {
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_MULTI_DTB_FIT)
+	int ret;
+	int rescan;
+#endif
 	init_omap_revision();
 	hw_data_init();
 	init_package_revision();
@@ -186,6 +192,7 @@ void early_system_init(void)
 	do_io_settings();
 #endif
 	setup_early_clocks();
+
 #ifdef CONFIG_SPL_BUILD
 	/*
 	 * Save the boot parameters passed from romcode.
@@ -193,11 +200,23 @@ void early_system_init(void)
 	 * to prevent overwrites.
 	 */
 	save_omap_boot_params();
-#endif
-	do_board_detect();
-#ifdef CONFIG_SPL_BUILD
 	spl_early_init();
 #endif
+	do_board_detect();
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_MULTI_DTB_FIT)
+	/*
+	 * Board detection has been done.
+	 * Let us see if another dtb wouldn't be a better match
+	 * for our board
+	 */
+	ret = fdtdec_resetup(&rescan);
+	if (!ret && rescan) {
+		dm_uninit();
+		dm_init_and_scan(true);
+	}
+#endif
+
 	vcores_init();
 #ifdef CONFIG_DEBUG_UART_OMAP
 	debug_uart_init();

@@ -623,7 +623,7 @@ void am57x_idk_lcd_detect(void)
 {
 	int r = -ENODEV;
 	char *idk_lcd = "no";
-	uint8_t buf = 0;
+	struct udevice *dev;
 
 	/* Only valid for IDKs */
 	if (board_is_x15() || board_is_am572x_evm())
@@ -633,32 +633,29 @@ void am57x_idk_lcd_detect(void)
 	if (board_is_am571x_idk() && !am571x_idk_needs_lcd())
 		goto out;
 
-	r = i2c_set_bus_num(OSD_TS_FT_BUS_ADDRESS);
+	r = i2c_get_chip_for_busnum(OSD_TS_FT_BUS_ADDRESS,
+				    OSD_TS_FT_CHIP_ADDRESS, 1, &dev);
 	if (r) {
-		printf("%s: Failed to set bus address to %d: %d\n",
-		       __func__, OSD_TS_FT_BUS_ADDRESS, r);
-		goto out;
-	}
-	r = i2c_probe(OSD_TS_FT_CHIP_ADDRESS);
-	if (r) {
+		printf("%s: Failed to get I2C device %d/%d (ret %d)\n",
+		       __func__, OSD_TS_FT_BUS_ADDRESS, OSD_TS_FT_CHIP_ADDRESS,
+		       r);
 		/* AM572x IDK has no explicit settings for optional LCD kit */
-		if (board_is_am571x_idk()) {
+		if (board_is_am571x_idk())
 			printf("%s: Touch screen detect failed: %d!\n",
 			       __func__, r);
-		}
 		goto out;
 	}
 
 	/* Read FT ID */
-	r = i2c_read(OSD_TS_FT_CHIP_ADDRESS, OSD_TS_FT_REG_ID, 1, &buf, 1);
-	if (r) {
+	r = dm_i2c_reg_read(dev, OSD_TS_FT_REG_ID);
+	if (r < 0) {
 		printf("%s: Touch screen ID read %d:0x%02x[0x%02x] failed:%d\n",
 		       __func__, OSD_TS_FT_BUS_ADDRESS, OSD_TS_FT_CHIP_ADDRESS,
 		       OSD_TS_FT_REG_ID, r);
 		goto out;
 	}
 
-	switch (buf) {
+	switch (r) {
 	case OSD_TS_FT_ID_5606:
 		idk_lcd = "osd101t2045";
 		break;
@@ -667,7 +664,7 @@ void am57x_idk_lcd_detect(void)
 		break;
 	default:
 		printf("%s: Unidentifed Touch screen ID 0x%02x\n",
-		       __func__, buf);
+		       __func__, r);
 		/* we will let default be "no lcd" */
 	}
 out:

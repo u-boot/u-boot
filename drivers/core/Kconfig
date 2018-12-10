@@ -57,12 +57,20 @@ config DM_DEVICE_REMOVE
 	default y
 	help
 	  We can save some code space by dropping support for removing a
-	  device. This is not normally required in SPL, so by default this
-	  option is disabled for SPL.
+	  device.
 
 	  Note that this may have undesirable results in the USB subsystem as
 	  it causes unplugged devices to linger around in the dm-tree, and it
 	  causes USB host controllers to not be stopped when booting the OS.
+
+config SPL_DM_DEVICE_REMOVE
+	bool "Support device removal in SPL"
+	depends on SPL_DM
+	default n
+	help
+	  We can save some code space by dropping support for removing a
+	  device. This is not normally required in SPL, so by default this
+	  option is disabled for SPL.
 
 config DM_STDIO
 	bool "Support stdio registration"
