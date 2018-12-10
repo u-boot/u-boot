@@ -87,6 +87,8 @@
 		test2-gpios = <&gpio_a 1>, <&gpio_a 4>, <&gpio_b 6 1 3 2 1>,
 			<&gpio_b 7 2 3 2 1>, <&gpio_b 8 4 3 2 1>,
 			<&gpio_b 9 0xc 3 2 1>;
+		int-value = <1234>;
+		uint-value = <(-1234)>;
 	};
 
 	junk {

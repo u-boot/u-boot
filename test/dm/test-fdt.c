@@ -736,3 +736,38 @@ static int dm_test_first_child(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_first_child, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test integer functions in dm_read_...() */
+static int dm_test_read_int(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	u32 val32;
+	s32 sval;
+	uint val;
+
+	ut_assertok(uclass_first_device_err(UCLASS_TEST_FDT, &dev));
+	ut_asserteq_str("a-test", dev->name);
+	ut_assertok(dev_read_u32(dev, "int-value", &val32));
+	ut_asserteq(1234, val32);
+
+	ut_asserteq(-EINVAL, dev_read_u32(dev, "missing", &val32));
+	ut_asserteq(6, dev_read_u32_default(dev, "missing", 6));
+
+	ut_asserteq(1234, dev_read_u32_default(dev, "int-value", 6));
+	ut_asserteq(1234, val32);
+
+	ut_asserteq(-EINVAL, dev_read_s32(dev, "missing", &sval));
+	ut_asserteq(6, dev_read_s32_default(dev, "missing", 6));
+
+	ut_asserteq(-1234, dev_read_s32_default(dev, "uint-value", 6));
+	ut_assertok(dev_read_s32(dev, "uint-value", &sval));
+	ut_asserteq(-1234, sval);
+
+	val = 0;
+	ut_asserteq(-EINVAL, dev_read_u32u(dev, "missing", &val));
+	ut_assertok(dev_read_u32u(dev, "uint-value", &val));
+	ut_asserteq(-1234, val);
+
+	return 0;
+}
+DM_TEST(dm_test_read_int, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

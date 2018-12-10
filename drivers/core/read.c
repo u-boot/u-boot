@@ -21,6 +21,29 @@ int dev_read_u32_default(struct udevice *dev, const char *propname, int def)
 	return ofnode_read_u32_default(dev_ofnode(dev), propname, def);
 }
 
+int dev_read_s32(struct udevice *dev, const char *propname, s32 *outp)
+{
+	return ofnode_read_u32(dev_ofnode(dev), propname, (u32 *)outp);
+}
+
+int dev_read_s32_default(struct udevice *dev, const char *propname, int def)
+{
+	return ofnode_read_u32_default(dev_ofnode(dev), propname, def);
+}
+
+int dev_read_u32u(struct udevice *dev, const char *propname, uint *outp)
+{
+	u32 val;
+	int ret;
+
+	ret = ofnode_read_u32(dev_ofnode(dev), propname, &val);
+	if (ret)
+		return ret;
+	*outp = val;
+
+	return 0;
+}
+
 const char *dev_read_string(struct udevice *dev, const char *propname)
 {
 	return ofnode_read_string(dev_ofnode(dev), propname);
