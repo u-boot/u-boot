@@ -52,6 +52,20 @@ config SPL_DM_USB
 	depends on DM_USB
 	default y
 
+config DM_USB_GADGET
+	bool "Enable driver model for USB Gadget"
+	depends on DM_USB
+	help
+	  Enable driver model for USB Gadget (Peripheral
+	  mode)
+
+config SPL_DM_USB_GADGET
+	bool "Enable driver model for USB Gadget in sPL"
+	depends on SPL_DM_USB
+	help
+	  Enable driver model for USB Gadget in SPL
+	  (Peripheral mode)
+
 source "drivers/usb/host/Kconfig"
 
 source "drivers/usb/dwc3/Kconfig"

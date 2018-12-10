@@ -51,7 +51,7 @@ static int do_fastboot_usb(int argc, char *const argv[],
 		return CMD_RET_FAILURE;
 	}
 
-	ret = board_usb_init(controller_index, USB_INIT_DEVICE);
+	ret = usb_gadget_initialize(controller_index);
 	if (ret) {
 		pr_err("USB init failed: %d\n", ret);
 		return CMD_RET_FAILURE;
@@ -82,7 +82,7 @@ static int do_fastboot_usb(int argc, char *const argv[],
 exit:
 	g_dnl_unregister();
 	g_dnl_clear_detach();
-	board_usb_cleanup(controller_index, USB_INIT_DEVICE);
+	usb_gadget_release(controller_index);
 
 	return ret;
 #else

@@ -20,7 +20,7 @@ static int do_sdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	char *usb_controller = argv[1];
 	int controller_index = simple_strtoul(usb_controller, NULL, 0);
-	board_usb_init(controller_index, USB_INIT_DEVICE);
+	usb_gadget_initialize(controller_index);
 
 	g_dnl_clear_detach();
 	g_dnl_register("usb_dnl_sdp");
@@ -37,7 +37,7 @@ static int do_sdp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 exit:
 	g_dnl_unregister();
-	board_usb_cleanup(controller_index, USB_INIT_DEVICE);
+	usb_gadget_release(controller_index);
 
 	return ret;
 }

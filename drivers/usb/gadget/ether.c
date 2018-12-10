@@ -100,9 +100,6 @@ struct eth_dev {
 	struct usb_gadget	*gadget;
 	struct usb_request	*req;		/* for control responses */
 	struct usb_request	*stat_req;	/* for cdc & rndis status */
-#if CONFIG_IS_ENABLED(DM_USB)
-	struct udevice		*usb_udev;
-#endif
 
 	u8			config;
 	struct usb_ep		*in_ep, *out_ep, *status_ep;
@@ -2336,40 +2333,17 @@ fail:
 }
 
 /*-------------------------------------------------------------------------*/
-
-#if CONFIG_IS_ENABLED(DM_USB)
-int dm_usb_init(struct eth_dev *e_dev)
-{
-	struct udevice *dev = NULL;
-	int ret;
-
-	ret = uclass_first_device(UCLASS_USB_DEV_GENERIC, &dev);
-	if (!dev || ret) {
-		pr_err("No USB device found\n");
-		return -ENODEV;
-	}
-
-	e_dev->usb_udev = dev;
-
-	return ret;
-}
-#endif
-
 static int _usb_eth_init(struct ether_priv *priv)
 {
 	struct eth_dev *dev = &priv->ethdev;
 	struct usb_gadget *gadget;
 	unsigned long ts;
+	int ret;
 	unsigned long timeout = USB_CONNECT_TIMEOUT;
 
-#if CONFIG_IS_ENABLED(DM_USB)
-	if (dm_usb_init(dev)) {
-		pr_err("USB ether not found\n");
-		return -ENODEV;
-	}
-#else
-	board_usb_init(0, USB_INIT_DEVICE);
-#endif
+	ret = usb_gadget_initialize(0);
+	if (ret)
+		return ret;
 
 	/* Configure default mac-addresses for the USB ethernet device */
 #ifdef CONFIG_USBNET_DEV_ADDR
@@ -2541,9 +2515,7 @@ void _usb_eth_halt(struct ether_priv *priv)
 	}
 
 	usb_gadget_unregister_driver(&priv->eth_driver);
-#if !CONFIG_IS_ENABLED(DM_USB)
-	board_usb_cleanup(0, USB_INIT_DEVICE);
-#endif
+	usb_gadget_release(0);
 }
 
 #ifndef CONFIG_DM_ETH
@@ -2699,7 +2671,7 @@ int usb_ether_init(void)
 	struct udevice *usb_dev;
 	int ret;
 
-	ret = uclass_first_device(UCLASS_USB_DEV_GENERIC, &usb_dev);
+	ret = uclass_first_device(UCLASS_USB_GADGET_GENERIC, &usb_dev);
 	if (!usb_dev || ret) {
 		pr_err("No USB device found\n");
 		return ret;

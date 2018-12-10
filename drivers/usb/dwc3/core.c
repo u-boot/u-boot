@@ -19,7 +19,7 @@
 #include <asm/dma-mapping.h>
 #include <linux/ioport.h>
 #include <dm.h>
-
+#include <generic-phy.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 
@@ -789,8 +789,92 @@ MODULE_AUTHOR("Felipe Balbi <balbi@ti.com>");
 MODULE_LICENSE("GPL v2");
 MODULE_DESCRIPTION("DesignWare USB3 DRD Controller Driver");
 
-#if CONFIG_IS_ENABLED(DM_USB)
+#if CONFIG_IS_ENABLED(PHY) && CONFIG_IS_ENABLED(DM_USB)
+int dwc3_setup_phy(struct udevice *dev, struct phy **array, int *num_phys)
+{
+	int i, ret, count;
+	struct phy *usb_phys;
 
+	/* Return if no phy declared */
+	if (!dev_read_prop(dev, "phys", NULL))
+		return 0;
+	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
+	if (count <= 0)
+		return count;
+
+	usb_phys = devm_kcalloc(dev, count, sizeof(struct phy),
+				GFP_KERNEL);
+	if (!usb_phys)
+		return -ENOMEM;
+
+	for (i = 0; i < count; i++) {
+		ret = generic_phy_get_by_index(dev, i, &usb_phys[i]);
+		if (ret && ret != -ENOENT) {
+			pr_err("Failed to get USB PHY%d for %s\n",
+			       i, dev->name);
+			return ret;
+		}
+	}
+
+	for (i = 0; i < count; i++) {
+		ret = generic_phy_init(&usb_phys[i]);
+		if (ret) {
+			pr_err("Can't init USB PHY%d for %s\n",
+			       i, dev->name);
+			goto phys_init_err;
+		}
+	}
+
+	for (i = 0; i < count; i++) {
+		ret = generic_phy_power_on(&usb_phys[i]);
+		if (ret) {
+			pr_err("Can't power USB PHY%d for %s\n",
+			       i, dev->name);
+			goto phys_poweron_err;
+		}
+	}
+
+	*array = usb_phys;
+	*num_phys =  count;
+	return 0;
+
+phys_poweron_err:
+	for (i = count - 1; i >= 0; i--)
+		generic_phy_power_off(&usb_phys[i]);
+
+	for (i = 0; i < count; i++)
+		generic_phy_exit(&usb_phys[i]);
+
+	return ret;
+
+phys_init_err:
+	for (; i >= 0; i--)
+		generic_phy_exit(&usb_phys[i]);
+
+	return ret;
+}
+
+int dwc3_shutdown_phy(struct udevice *dev, struct phy *usb_phys, int num_phys)
+{
+	int i, ret;
+
+	for (i = 0; i < num_phys; i++) {
+		if (!generic_phy_valid(&usb_phys[i]))
+			continue;
+
+		ret = generic_phy_power_off(&usb_phys[i]);
+		ret |= generic_phy_exit(&usb_phys[i]);
+		if (ret) {
+			pr_err("Can't shutdown USB PHY%d for %s\n",
+			       i, dev->name);
+		}
+	}
+
+	return 0;
+}
+#endif
+
+#if CONFIG_IS_ENABLED(DM_USB_GADGET)
 int dwc3_init(struct dwc3 *dwc)
 {
 	int ret;
@@ -841,5 +925,4 @@ void dwc3_remove(struct dwc3 *dwc)
 	dwc3_core_exit(dwc);
 	kfree(dwc->mem);
 }
-
 #endif

@@ -155,4 +155,13 @@ config MSM8916_USB_PHY
 
 	  This PHY is found on qualcomm dragonboard410c development board.
 
+config OMAP_USB2_PHY
+	bool "Support OMAP's USB2 PHY"
+	depends on PHY
+	depends on SYSCON
+	help
+	  Support for the OMAP's USB2 PHY.
+
+	  This PHY is found on OMAP devices supporting USB2.
+
 endmenu

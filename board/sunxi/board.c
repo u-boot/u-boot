@@ -665,7 +665,7 @@ int g_dnl_board_usb_cable_connected(void)
 	struct phy phy;
 	int ret;
 
-	ret = uclass_get_device(UCLASS_USB_DEV_GENERIC, 0, &dev);
+	ret = uclass_get_device(UCLASS_USB_GADGET_GENERIC, 0, &dev);
 	if (ret) {
 		pr_err("%s: Cannot find USB device\n", __func__);
 		return ret;

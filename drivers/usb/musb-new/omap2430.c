@@ -263,7 +263,7 @@ U_BOOT_DRIVER(omap2430_musb) = {
 #ifdef CONFIG_USB_MUSB_HOST
 	.id		= UCLASS_USB,
 #else
-	.id		= UCLASS_USB_DEV_GENERIC,
+	.id		= UCLASS_USB_GADGET_GENERIC,
 #endif
 	.of_match = omap2430_musb_ids,
 	.ofdata_to_platdata = omap2430_musb_ofdata_to_platdata,
