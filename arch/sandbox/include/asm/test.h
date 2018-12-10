@@ -141,4 +141,24 @@ void sandbox_get_codec_params(struct udevice *dev, int *interfacep, int *ratep,
  */
 int sandbox_get_i2s_sum(struct udevice *dev);
 
+/**
+ * sandbox_get_setup_called() - Returns the number of times setup(*) was called
+ *
+ * This is used in the sound test
+ *
+ * @dev: Device to check
+ * @return call count for the setup() method
+ */
+int sandbox_get_setup_called(struct udevice *dev);
+
+/**
+ * sandbox_get_sound_sum() - Read back the sum of the sound data so far
+ *
+ * This data is provided to the sandbox driver by the sound play() method.
+ *
+ * @dev: Device to check
+ * @return sum of audio data
+ */
+int sandbox_get_sound_sum(struct udevice *dev);
+
 #endif

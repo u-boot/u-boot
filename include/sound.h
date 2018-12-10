@@ -19,12 +19,27 @@ struct sound_codec_info {
 	int i2c_dev_addr;
 };
 
-/*
+/**
+ * struct sound_uc_priv - private uclass information about each sound device
+ *
+ * This is used to line the codec and i2s together
+ *
+ * @codec: Codec that is used for this sound device
+ * @i2s: I2S bus that is used for this sound device
+ * @setup_done: true if setup() has been called
+ */
+struct sound_uc_priv {
+	struct udevice *codec;
+	struct udevice *i2s;
+	int setup_done;
+};
+
+/**
  * Generates square wave sound data for 1 second
  *
  * @param sample_rate   Sample rate in Hz
  * @param data          data buffer pointer
- * @param size          size of the buffer
+ * @param size          size of the buffer in bytes
  * @param freq          frequency of the wave
  */
 void sound_create_square_wave(uint sample_rate, unsigned short *data, int size,
@@ -37,6 +52,56 @@ void sound_create_square_wave(uint sample_rate, unsigned short *data, int size,
  */
 int sound_init(const void *blob);
 
+#ifdef CONFIG_DM_SOUND
+/*
+ * The sound uclass brings together a data transport (currently only I2C) and a
+ * codec (currently connected over I2C).
+ */
+
+/* Operations for sound */
+struct sound_ops {
+	/**
+	 * setup() - Set up to play a sound
+	 */
+	int (*setup)(struct udevice *dev);
+
+	/**
+	 * play() - Play a beep
+	 *
+	 * @dev: Sound device
+	 * @data: Data buffer to play
+	 * @data_size: Size of data buffer in bytes
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*play)(struct udevice *dev, void *data, uint data_size);
+};
+
+#define sound_get_ops(dev)	((struct sound_ops *)(dev)->driver->ops)
+
+/**
+ * setup() - Set up to play a sound
+ */
+int sound_setup(struct udevice *dev);
+
+/**
+ * play() - Play a beep
+ *
+ * @dev: Sound device
+ * @msecs: Duration of beep in milliseconds
+ * @frequency_hz: Frequency of the beep in Hertz
+ * @return 0 if OK, -ve on error
+ */
+int sound_beep(struct udevice *dev, int msecs, int frequency_hz);
+
+/**
+ * sound_find_codec_i2s() - Called by sound drivers to locate codec and i2s
+ *
+ * This finds the audio codec and i2s devices and puts them in the uclass's
+ * private data for this device.
+ */
+int sound_find_codec_i2s(struct udevice *dev);
+
+#else
 /*
  * plays the pcm data buffer in pcm_data.h through i2s1 to make the
  * sine wave sound
@@ -44,5 +109,6 @@ int sound_init(const void *blob);
  * @return	int 0 for success, -1 for error
  */
 int sound_play(uint32_t msec, uint32_t frequency);
+#endif /* CONFIG_DM_SOUND */
 
 #endif  /* __SOUND__H__ */

@@ -538,6 +538,17 @@
 		compatible = "sandbox,smem";
 	};
 
+	sound {
+		compatible = "sandbox,sound";
+		cpu {
+			sound-dai = <&i2s 0>;
+		};
+
+		codec {
+			sound-dai = <&audio 0>;
+		};
+	};
+
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;

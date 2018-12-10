@@ -7,6 +7,7 @@
 #include <audio_codec.h>
 #include <dm.h>
 #include <i2s.h>
+#include <sound.h>
 #include <asm/sound.h>
 #include <asm/sdl.h>
 
@@ -22,6 +23,12 @@ struct sandbox_i2s_priv {
 	int sum;	/* Use to sum the provided audio data */
 };
 
+struct sandbox_sound_priv {
+	int setup_called;
+	int sum;	/* Use to sum the provided audio data */
+};
+
+#ifndef CONFIG_DM_SOUND
 int sound_play(uint32_t msec, uint32_t frequency)
 {
 	sandbox_sdl_sound_start(frequency);
@@ -30,6 +37,7 @@ int sound_play(uint32_t msec, uint32_t frequency)
 
 	return 0;
 }
+#endif /* CONFIG_DM_SOUND */
 
 int sound_init(const void *blob)
 {
@@ -52,6 +60,20 @@ void sandbox_get_codec_params(struct udevice *dev, int *interfacep, int *ratep,
 int sandbox_get_i2s_sum(struct udevice *dev)
 {
 	struct sandbox_i2s_priv *priv = dev_get_priv(dev);
+
+	return priv->sum;
+}
+
+int sandbox_get_setup_called(struct udevice *dev)
+{
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
+
+	return priv->setup_called;
+}
+
+int sandbox_get_sound_sum(struct udevice *dev)
+{
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
 
 	return priv->sum;
 }
@@ -96,7 +118,33 @@ static int sandbox_i2s_probe(struct udevice *dev)
 	uc_priv->channels = 2;
 	uc_priv->id = 1;
 
+	return sandbox_sdl_sound_init();
+}
+
+static int sandbox_sound_setup(struct udevice *dev)
+{
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
+
+	priv->setup_called++;
+
 	return 0;
+}
+
+static int sandbox_sound_play(struct udevice *dev, void *data, uint data_size)
+{
+	struct sound_uc_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
+	int i;
+
+	for (i = 0; i < data_size; i++)
+		priv->sum += ((uint8_t *)data)[i];
+
+	return i2s_tx_data(uc_priv->i2s, data, data_size);
+}
+
+static int sandbox_sound_probe(struct udevice *dev)
+{
+	return sound_find_codec_i2s(dev);
 }
 
 static const struct audio_codec_ops sandbox_codec_ops = {
@@ -132,4 +180,23 @@ U_BOOT_DRIVER(sandbox_i2s) = {
 	.ops		= &sandbox_i2s_ops,
 	.probe		= sandbox_i2s_probe,
 	.priv_auto_alloc_size	= sizeof(struct sandbox_i2s_priv),
+};
+
+static const struct sound_ops sandbox_sound_ops = {
+	.setup	= sandbox_sound_setup,
+	.play	= sandbox_sound_play,
+};
+
+static const struct udevice_id sandbox_sound_ids[] = {
+	{ .compatible = "sandbox,sound" },
+	{ }
+};
+
+U_BOOT_DRIVER(sandbox_sound) = {
+	.name		= "sandbox_sound",
+	.id		= UCLASS_SOUND,
+	.of_match	= sandbox_sound_ids,
+	.ops		= &sandbox_sound_ops,
+	.priv_auto_alloc_size	= sizeof(struct sandbox_sound_priv),
+	.probe		= sandbox_sound_probe,
 };
