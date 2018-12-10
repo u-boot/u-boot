@@ -131,4 +131,14 @@ void sandbox_get_codec_params(struct udevice *dev, int *interfacep, int *ratep,
 			      int *mclk_freqp, int *bits_per_samplep,
 			      uint *channelsp);
 
+/**
+ * sandbox_get_i2s_sum() - Read back the sum of the audio data so far
+ *
+ * This data is provided to the sandbox driver by the I2S tx_data() method.
+ *
+ * @dev: Device to check
+ * @return sum of audio data
+ */
+int sandbox_get_i2s_sum(struct udevice *dev);
+
 #endif

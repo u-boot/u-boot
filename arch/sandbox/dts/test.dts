@@ -47,7 +47,7 @@
 		#sound-dai-cells = <1>;
 	};
 
-		cros_ec: cros-ec {
+	cros_ec: cros-ec {
 		reg = <0 0>;
 		compatible = "google,cros-ec-sandbox";
 
@@ -376,6 +376,11 @@
 	cpu-test3 {
 		compatible = "sandbox,cpu_sandbox";
 		u-boot,dm-pre-reloc;
+	};
+
+	i2s: i2s {
+		compatible = "sandbox,i2s";
+		#sound-dai-cells = <1>;
 	};
 
 	misc-test {
