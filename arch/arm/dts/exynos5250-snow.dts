@@ -214,8 +214,8 @@
 			};
 		};
 
-		soundcodec@22 {
-			reg = <0x22>;
+		soundcodec@11 {
+			reg = <0x11>;
 			compatible = "maxim,max98095-codec";
 		};
 	};

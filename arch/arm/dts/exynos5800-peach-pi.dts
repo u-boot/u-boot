@@ -81,10 +81,10 @@
 
 	i2c@12CD0000 { /* i2c7 */
 		clock-frequency = <100000>;
-	       soundcodec@20 {
-	              reg = <0x20>;
-	              compatible = "maxim,max98090-codec";
-	       };
+		soundcodec@10 {
+			reg = <0x10>;
+			compatible = "maxim,max98090-codec";
+		};
 	};
 
         sound@3830000 {

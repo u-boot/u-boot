@@ -569,8 +569,7 @@ int max98095_init(const void *blob, enum en_max_audio_interface aif_id,
 
 	i2c_set_bus_num(pcodec_info.i2c_bus);
 
-	/* shift the device address by 1 for 7 bit addressing */
-	max98095_info.i2c_addr = pcodec_info.i2c_dev_addr >> 1;
+	max98095_info.i2c_addr = pcodec_info.i2c_dev_addr;
 	ret = max98095_device_init(&max98095_info);
 	if (ret < 0) {
 		debug("%s: max98095 codec chip init failed\n", __func__);
