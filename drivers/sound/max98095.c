@@ -11,6 +11,8 @@
  */
 
 #include <common.h>
+#include <audio_codec.h>
+#include <dm.h>
 #include <div64.h>
 #include <fdtdec.h>
 #include <i2c.h>
@@ -28,6 +30,7 @@ struct max98095_priv {
 	unsigned int rate;
 	unsigned int fmt;
 	int i2c_addr;
+	struct udevice *dev;
 };
 
 /* Index 0 is reserved. */
@@ -48,7 +51,12 @@ static int max98095_i2c_write(struct max98095_priv *priv, unsigned int reg,
 {
 	debug("%s: Write Addr : 0x%02X, Data :  0x%02X\n",
 	      __func__, reg, data);
+#ifdef CONFIG_DM_SOUND
+	debug("dev = %s\n", priv->dev->name);
+	return dm_i2c_write(priv->dev, reg, &data, 1);
+#else
 	return i2c_write(priv->i2c_addr, reg, 1, &data, 1);
+#endif
 }
 
 /*
@@ -65,7 +73,11 @@ static unsigned int max98095_i2c_read(struct max98095_priv *priv,
 {
 	int ret;
 
+#ifdef CONFIG_DM_SOUND
+	return dm_i2c_read(priv->dev, reg, data, 1);
+#else
 	ret = i2c_read(priv->i2c_addr, reg, 1, data, 1);
+#endif
 	if (ret != 0) {
 		debug("%s: Error while reading register %#04x\n",
 		      __func__, reg);
@@ -484,7 +496,7 @@ static int max98095_do_init(struct max98095_priv *priv,
 
 	ret = max98095_setup_interface(priv, aif_id);
 	if (ret < 0) {
-		debug("%s: max98095 codec chip init failed\n", __func__);
+		debug("%s: max98095 setup interface failed\n", __func__);
 		return ret;
 	}
 
@@ -507,6 +519,7 @@ static int max98095_do_init(struct max98095_priv *priv,
 	return ret;
 }
 
+#ifndef CONFIG_DM_SOUND
 static int get_max98095_codec_values(struct sound_codec_info *pcodec_info,
 				const void *blob)
 {
@@ -582,3 +595,47 @@ int max98095_init(const void *blob, enum en_max_audio_interface aif_id,
 
 	return ret;
 }
+#endif
+
+static int max98095_set_params(struct udevice *dev, int interface, int rate,
+			       int mclk_freq, int bits_per_sample,
+			       uint channels)
+{
+	struct max98095_priv *priv = dev_get_priv(dev);
+
+	return max98095_do_init(priv, interface, rate, mclk_freq,
+				bits_per_sample);
+}
+
+static int max98095_probe(struct udevice *dev)
+{
+	struct max98095_priv *priv = dev_get_priv(dev);
+	int ret;
+
+	priv->dev = dev;
+	ret = max98095_device_init(priv);
+	if (ret < 0) {
+		debug("%s: max98095 codec chip init failed\n", __func__);
+		return ret;
+	}
+
+	return 0;
+}
+
+static const struct audio_codec_ops max98095_ops = {
+	.set_params	= max98095_set_params,
+};
+
+static const struct udevice_id max98095_ids[] = {
+	{ .compatible = "maxim,max98095" },
+	{ }
+};
+
+U_BOOT_DRIVER(max98095) = {
+	.name		= "max98095",
+	.id		= UCLASS_AUDIO_CODEC,
+	.of_match	= max98095_ids,
+	.probe		= max98095_probe,
+	.ops		= &max98095_ops,
+	.priv_auto_alloc_size	= sizeof(struct max98095_priv),
+};

@@ -118,7 +118,10 @@ static int sandbox_i2s_probe(struct udevice *dev)
 	uc_priv->channels = 2;
 	uc_priv->id = 1;
 
-	return sandbox_sdl_sound_init();
+	/* Ignore any error here - we'll just have no sound */
+	sandbox_sdl_sound_init();
+
+	return 0;
 }
 
 static int sandbox_sound_setup(struct udevice *dev)

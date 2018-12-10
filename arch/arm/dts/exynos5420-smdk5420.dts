@@ -84,6 +84,7 @@
 	i2c@12C70000 {
 		soundcodec@1a {
 			reg = <0x1a>;
+			u-boot,i2c-offset-len = <2>;
 			compatible = "wolfson,wm8994-codec";
 		};
 	};

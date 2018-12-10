@@ -4,6 +4,8 @@
  * R. Chandrasekar <rcsekar@samsung.com>
  */
 #include <common.h>
+#include <audio_codec.h>
+#include <dm.h>
 #include <div64.h>
 #include <fdtdec.h>
 #include <i2c.h>
@@ -39,6 +41,7 @@ struct wm8994_priv {
 	int aifclk[WM8994_MAX_AIF];	/* audio interface clock in Hz   */
 	struct wm8994_fll_config fll[2]; /* fll config to configure fll */
 	int i2c_addr;
+	struct udevice *dev;
 };
 
 /* wm 8994 supported sampling rate values */
@@ -79,7 +82,12 @@ static int wm8994_i2c_write(struct wm8994_priv *priv, unsigned int reg,
 	val[1] = (unsigned char)(data & 0xff);
 	debug("Write Addr : 0x%04X, Data :  0x%04X\n", reg, data);
 
+#ifdef CONFIG_DM_SOUND
+	debug("dev = %s\n", priv->dev->name);
+	return dm_i2c_write(priv->dev, reg, val, 2);
+#else
 	return i2c_write(priv->i2c_addr, reg, 2, val, 2);
+#endif
 }
 
 /*
@@ -97,7 +105,11 @@ static unsigned int wm8994_i2c_read(struct wm8994_priv *priv, unsigned int reg,
 	unsigned char val[2];
 	int ret;
 
+#ifdef CONFIG_DM_SOUND
+	ret = dm_i2c_read(priv->dev, reg, val, 1);
+#else
 	ret = i2c_read(priv->i2c_addr, reg, 2, val, 2);
+#endif
 	if (ret != 0) {
 		debug("%s: Error while reading register %#04x\n",
 		      __func__, reg);
@@ -807,6 +819,7 @@ err:
 	return -1;
 }
 
+#ifndef CONFIG_DM_SOUND
 /*
  * Gets fdt values for wm8994 config parameters
  *
@@ -859,6 +872,7 @@ static int get_codec_values(struct sound_codec_info *pcodec_info,
 
 	return 0;
 }
+#endif
 
 static int _wm8994_init(struct wm8994_priv *priv,
 			enum en_audio_interface aif_id, int sampling_rate,
@@ -873,7 +887,7 @@ static int _wm8994_init(struct wm8994_priv *priv,
 		return ret;
 	}
 
-	ret =  wm8994_set_sysclk(priv, aif_id, WM8994_SYSCLK_MCLK1, mclk_freq);
+	ret = wm8994_set_sysclk(priv, aif_id, WM8994_SYSCLK_MCLK1, mclk_freq);
 	if (ret < 0) {
 		debug("%s: wm8994 codec set sys clock failed\n", __func__);
 		return ret;
@@ -891,6 +905,7 @@ static int _wm8994_init(struct wm8994_priv *priv,
 	return ret;
 }
 
+#ifndef CONFIG_DM_SOUND
 /* WM8994 Device Initialisation */
 int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 		int sampling_rate, int mclk_freq, int bits_per_sample,
@@ -918,3 +933,39 @@ int wm8994_init(const void *blob, enum en_audio_interface aif_id,
 	return _wm8994_init(&wm8994_info, aif_id, sampling_rate, mclk_freq,
 			    bits_per_sample, channels);
 }
+#endif
+
+static int wm8994_set_params(struct udevice *dev, int interface, int rate,
+			     int mclk_freq, int bits_per_sample, uint channels)
+{
+	struct wm8994_priv *priv = dev_get_priv(dev);
+
+	return _wm8994_init(priv, interface, rate, mclk_freq, bits_per_sample,
+			    channels);
+}
+
+static int wm8994_probe(struct udevice *dev)
+{
+	struct wm8994_priv *priv = dev_get_priv(dev);
+
+	priv->dev = dev;
+	return wm8994_device_init(priv);
+}
+
+static const struct audio_codec_ops wm8994_ops = {
+	.set_params	= wm8994_set_params,
+};
+
+static const struct udevice_id wm8994_ids[] = {
+	{ .compatible = "wolfson,wm8994" },
+	{ }
+};
+
+U_BOOT_DRIVER(wm8994) = {
+	.name		= "wm8994",
+	.id		= UCLASS_AUDIO_CODEC,
+	.of_match	= wm8994_ids,
+	.probe		= wm8994_probe,
+	.ops		= &wm8994_ops,
+	.priv_auto_alloc_size	= sizeof(struct wm8994_priv),
+};

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <i2s.h>
 #include <sound.h>
 #include <asm/arch/clk.h>
@@ -255,13 +256,13 @@ static int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
 	return 0;
 }
 
-int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, unsigned int *data,
-			 unsigned long data_size)
+int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, void *data,
+			 uint data_size)
 {
+	struct i2s_reg *i2s_reg = (struct i2s_reg *)pi2s_tx->base_address;
+	u32 *ptr;
 	int i;
 	int start;
-	struct i2s_reg *i2s_reg =
-				(struct i2s_reg *)pi2s_tx->base_address;
 
 	if (data_size < FIFO_LENGTH) {
 		debug("%s : Invalid data size\n", __func__);
@@ -269,17 +270,17 @@ int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, unsigned int *data,
 	}
 
 	/* fill the tx buffer before stating the tx transmit */
-	for (i = 0; i < FIFO_LENGTH; i++)
-		writel(*data++, &i2s_reg->txd);
+	for (i = 0, ptr = data; i < FIFO_LENGTH; i++)
+		writel(*ptr++, &i2s_reg->txd);
 
-	data_size -= FIFO_LENGTH;
+	data_size -= sizeof(*ptr) * FIFO_LENGTH;
 	i2s_txctrl(i2s_reg, I2S_TX_ON);
 
 	while (data_size > 0) {
 		start = get_timer(0);
 		if (!(CON_TXFIFO_FULL & (readl(&i2s_reg->con)))) {
-			writel(*data++, &i2s_reg->txd);
-			data_size--;
+			writel(*ptr++, &i2s_reg->txd);
+			data_size -= sizeof(*ptr);
 		} else {
 			if (get_timer(start) > TIMEOUT_I2S_TX) {
 				i2s_txctrl(i2s_reg, I2S_TX_OFF);
@@ -296,8 +297,8 @@ int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, unsigned int *data,
 int i2s_tx_init(struct i2s_uc_priv *pi2s_tx)
 {
 	int ret;
-	struct i2s_reg *i2s_reg =
-				(struct i2s_reg *)pi2s_tx->base_address;
+	struct i2s_reg *i2s_reg = (struct i2s_reg *)pi2s_tx->base_address;
+
 	if (pi2s_tx->id == 0) {
 		/* Initialize GPIO for I2S-0 */
 		exynos_pinmux_config(PERIPH_ID_I2S0, 0);
@@ -348,8 +349,8 @@ int i2s_tx_init(struct i2s_uc_priv *pi2s_tx)
 	}
 
 	/* Configure I2s format */
-	ret = i2s_set_fmt(i2s_reg, (SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
-			  SND_SOC_DAIFMT_CBM_CFM));
+	ret = i2s_set_fmt(i2s_reg, SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+			  SND_SOC_DAIFMT_CBM_CFM);
 	if (ret == 0) {
 		i2s_set_lr_framesize(i2s_reg, pi2s_tx->rfs);
 		ret = i2s_set_samplesize(i2s_reg, pi2s_tx->bitspersample);
@@ -368,3 +369,87 @@ int i2s_tx_init(struct i2s_uc_priv *pi2s_tx)
 
 	return ret;
 }
+
+static int samsung_i2s_tx_data(struct udevice *dev, void *data, uint data_size)
+{
+	struct i2s_uc_priv *priv = dev_get_uclass_priv(dev);
+
+	return i2s_transfer_tx_data(priv, data, data_size);
+}
+
+static int samsung_i2s_probe(struct udevice *dev)
+{
+	struct i2s_uc_priv *priv = dev_get_uclass_priv(dev);
+
+	return i2s_tx_init(priv);
+}
+
+static int samsung_i2s_ofdata_to_platdata(struct udevice *dev)
+{
+	struct i2s_uc_priv *priv = dev_get_uclass_priv(dev);
+	ulong base;
+
+	/*
+	 * Get the pre-defined sound specific values from FDT.
+	 * All of these are expected to be correct otherwise
+	 * wrong register values in i2s setup parameters
+	 * may result in no sound play.
+	 */
+	base = dev_read_addr(dev);
+	if (base == FDT_ADDR_T_NONE) {
+		debug("%s: Missing  i2s base\n", __func__);
+		return -EINVAL;
+	}
+	priv->base_address = base;
+
+	if (dev_read_u32u(dev, "samsung,i2s-epll-clock-frequency",
+			  &priv->audio_pll_clk))
+		goto err;
+	debug("audio_pll_clk = %d\n", priv->audio_pll_clk);
+	if (dev_read_u32u(dev, "samsung,i2s-sampling-rate",
+			  &priv->samplingrate))
+		goto err;
+	debug("samplingrate = %d\n", priv->samplingrate);
+	if (dev_read_u32u(dev, "samsung,i2s-bits-per-sample",
+			  &priv->bitspersample))
+		goto err;
+	debug("bitspersample = %d\n", priv->bitspersample);
+	if (dev_read_u32u(dev, "samsung,i2s-channels", &priv->channels))
+		goto err;
+	debug("channels = %d\n", priv->channels);
+	if (dev_read_u32u(dev, "samsung,i2s-lr-clk-framesize", &priv->rfs))
+		goto err;
+	debug("rfs = %d\n", priv->rfs);
+	if (dev_read_u32u(dev, "samsung,i2s-bit-clk-framesize", &priv->bfs))
+		goto err;
+	debug("bfs = %d\n", priv->bfs);
+
+	if (dev_read_u32u(dev, "samsung,i2s-id", &priv->id))
+		goto err;
+	debug("id = %d\n", priv->id);
+
+	return 0;
+
+err:
+	debug("fail to get sound i2s node properties\n");
+
+	return -EINVAL;
+}
+
+static const struct i2s_ops samsung_i2s_ops = {
+	.tx_data	= samsung_i2s_tx_data,
+};
+
+static const struct udevice_id samsung_i2s_ids[] = {
+	{ .compatible = "samsung,s5pv210-i2s" },
+	{ }
+};
+
+U_BOOT_DRIVER(samsung_i2s) = {
+	.name		= "samsung_i2s",
+	.id		= UCLASS_I2S,
+	.of_match	= samsung_i2s_ids,
+	.probe		= samsung_i2s_probe,
+	.ofdata_to_platdata	= samsung_i2s_ofdata_to_platdata,
+	.ops		= &samsung_i2s_ops,
+};
