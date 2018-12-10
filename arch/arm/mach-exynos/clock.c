@@ -1317,6 +1317,19 @@ int exynos5_set_epll_clk(unsigned long rate)
 	return 0;
 }
 
+static int exynos5420_set_i2s_clk_source(void)
+{
+	struct exynos5420_clock *clk =
+		(struct exynos5420_clock *)samsung_get_base_clock();
+
+	setbits_le32(&clk->src_top6, EXYNOS5420_CLK_SRC_MOUT_EPLL);
+	clrsetbits_le32(&clk->src_mau, EXYNOS5420_AUDIO0_SEL_MASK,
+			(EXYNOS5420_CLK_SRC_SCLK_EPLL));
+	setbits_le32(EXYNOS5_AUDIOSS_BASE, 1 << 0);
+
+	return 0;
+}
+
 int exynos5_set_i2s_clk_source(unsigned int i2s_id)
 {
 	struct exynos5_clock *clk =
@@ -1758,8 +1771,12 @@ int set_i2s_clk_prescaler(unsigned int src_frq, unsigned int dst_frq,
 
 int set_i2s_clk_source(unsigned int i2s_id)
 {
-	if (cpu_is_exynos5())
-		return exynos5_set_i2s_clk_source(i2s_id);
+	if (cpu_is_exynos5()) {
+		if (proid_is_exynos542x())
+			return exynos5420_set_i2s_clk_source();
+		else
+			return exynos5_set_i2s_clk_source(i2s_id);
+	}
 
 	return 0;
 }
