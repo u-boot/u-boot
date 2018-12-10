@@ -11,6 +11,8 @@
 #ifndef _MAX98095_H
 #define _MAX98095_H
 
+#include "maxim_codec.h"
+
 /*  Available audio interface ports in wm8994 codec */
 enum en_max_audio_interface {
 	AIF1,
