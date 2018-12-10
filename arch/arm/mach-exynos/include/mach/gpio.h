@@ -1397,7 +1397,7 @@ static struct gpio_info exynos5420_gpio_data[EXYNOS5420_GPIO_NUM_PARTS] = {
 static inline struct gpio_info *get_gpio_data(void)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420() || proid_is_exynos5422())
+		if (proid_is_exynos542x())
 			return exynos5420_gpio_data;
 		else
 			return exynos5_gpio_data;
@@ -1414,7 +1414,7 @@ static inline struct gpio_info *get_gpio_data(void)
 static inline unsigned int get_bank_num(void)
 {
 	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420() || proid_is_exynos5422())
+		if (proid_is_exynos542x())
 			return EXYNOS5420_GPIO_NUM_PARTS;
 		else
 			return EXYNOS5_GPIO_NUM_PARTS;
