@@ -76,7 +76,7 @@ struct i2s_reg {
 };
 
 /* This structure stores the i2s related information */
-struct samsung_i2s_priv {
+struct i2s_uc_priv {
 	unsigned int rfs;		/* LR clock frame size */
 	unsigned int bfs;		/* Bit slock frame size */
 	unsigned int audio_pll_clk;	/* Audio pll frequency in Hz */
@@ -96,7 +96,7 @@ struct samsung_i2s_priv {
  *
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_transfer_tx_data(struct samsung_i2s_priv *pi2s_tx, uint *data,
+int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, unsigned int *data,
 			 unsigned long data_size);
 
 /*
@@ -106,6 +106,6 @@ int i2s_transfer_tx_data(struct samsung_i2s_priv *pi2s_tx, uint *data,
  *
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_tx_init(struct samsung_i2s_priv *pi2s_tx);
+int i2s_tx_init(struct i2s_uc_priv *pi2s_tx);
 
 #endif /* __I2S_H__ */

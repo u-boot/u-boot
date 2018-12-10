@@ -255,7 +255,7 @@ static int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
 	return 0;
 }
 
-int i2s_transfer_tx_data(struct samsung_i2s_priv *pi2s_tx, unsigned int *data,
+int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, unsigned int *data,
 			 unsigned long data_size)
 {
 	int i;
@@ -293,7 +293,7 @@ int i2s_transfer_tx_data(struct samsung_i2s_priv *pi2s_tx, unsigned int *data,
 	return 0;
 }
 
-int i2s_tx_init(struct samsung_i2s_priv *pi2s_tx)
+int i2s_tx_init(struct i2s_uc_priv *pi2s_tx)
 {
 	int ret;
 	struct i2s_reg *i2s_reg =
