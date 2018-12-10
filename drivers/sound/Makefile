@@ -4,6 +4,7 @@
 # R. Chandrasekar <rcsekar@samsung.com>
 
 obj-$(CONFIG_SOUND)	+= sound.o
+obj-$(CONFIG_DM_SOUND)	+= codec-uclass.o
 obj-$(CONFIG_I2S)	+= sound-i2s.o
 obj-$(CONFIG_I2S_SAMSUNG)	+= samsung-i2s.o
 obj-$(CONFIG_SOUND_SANDBOX)	+= sandbox.o

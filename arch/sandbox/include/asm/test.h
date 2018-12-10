@@ -121,4 +121,14 @@ int sandbox_pwm_get_config(struct udevice *dev, uint channel, uint *period_nsp,
  */
 void sandbox_sf_set_block_protect(struct udevice *dev, int bp_mask);
 
+/**
+ * sandbox_get_codec_params() - Read back codec parameters
+ *
+ * This reads back the parameters set by audio_codec_set_params() for the
+ * sandbox audio driver. Arguments are as for that function.
+ */
+void sandbox_get_codec_params(struct udevice *dev, int *interfacep, int *ratep,
+			      int *mclk_freqp, int *bits_per_samplep,
+			      uint *channelsp);
+
 #endif
