@@ -9,10 +9,6 @@
 #include <SDL/SDL.h>
 #include <asm/state.h>
 
-enum {
-	SAMPLE_RATE	= 22050,
-};
-
 /**
  * struct buf_info - a data buffer holding audio data
  *
@@ -285,7 +281,7 @@ void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 	}
 }
 
-int sandbox_sdl_sound_init(void)
+int sandbox_sdl_sound_init(int rate, int channels)
 {
 	SDL_AudioSpec wanted;
 	int i;
@@ -297,9 +293,9 @@ int sandbox_sdl_sound_init(void)
 		return 0;
 
 	/* Set the audio format */
-	wanted.freq = SAMPLE_RATE;
+	wanted.freq = rate;
 	wanted.format = AUDIO_S16;
-	wanted.channels = 1;    /* 1 = mono, 2 = stereo */
+	wanted.channels = channels;
 	wanted.samples = 1024;  /* Good low-latency value for callback */
 	wanted.callback = sandbox_sdl_fill_audio;
 	wanted.userdata = NULL;

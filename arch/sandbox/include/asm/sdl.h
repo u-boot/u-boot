@@ -71,9 +71,11 @@ int sandbox_sdl_sound_stop(void);
 /**
  * sandbox_sdl_sound_init() - set up the sound system
  *
+ * @rate:	Sample rate to use
+ * @channels:	Number of channels to use (1=mono, 2=stereo)
  * @return 0 if OK, -ENODEV if no sound is available
  */
-int sandbox_sdl_sound_init(void);
+int sandbox_sdl_sound_init(int rate, int channels);
 
 #else
 static inline int sandbox_sdl_init_display(int width, int height,
@@ -112,7 +114,7 @@ static inline int sandbox_sdl_sound_stop(void)
 	return -ENODEV;
 }
 
-static inline int sandbox_sdl_sound_init(void)
+int sandbox_sdl_sound_init(int rate, int channels)
 {
 	return -ENODEV;
 }
