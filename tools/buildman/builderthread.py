@@ -156,7 +156,12 @@ class BuilderThread(threading.Thread):
         if result.already_done:
             # Get the return code from that build and use it
             with open(done_file, 'r') as fd:
-                result.return_code = int(fd.readline())
+                try:
+                    result.return_code = int(fd.readline())
+                except ValueError:
+                    # The file may be empty due to running out of disk space.
+                    # Try a rebuild
+                    result.return_code = RETURN_CODE_RETRY
 
             # Check the signal that the build needs to be retried
             if result.return_code == RETURN_CODE_RETRY:
