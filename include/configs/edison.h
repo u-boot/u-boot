@@ -8,10 +8,6 @@
 
 #include <asm/ibmpc.h>
 
-/* ACPI */
-
-/* DISK Partition support */
-
 /* Miscellaneous configurable options */
 
 #define CONFIG_SYS_CBSIZE	2048
