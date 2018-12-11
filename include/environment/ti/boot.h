@@ -41,7 +41,7 @@
 	"name=crypto,size=16K,uuid=${uuid_gpt_crypto};" \
 	"name=recovery,size=40M,uuid=${uuid_gpt_recovery};" \
 	"name=boot,size=10M,uuid=${uuid_gpt_boot};" \
-	"name=system,size=768M,uuid=${uuid_gpt_system};" \
+	"name=system,size=1024M,uuid=${uuid_gpt_system};" \
 	"name=vendor,size=256M,uuid=${uuid_gpt_vendor};" \
 	"name=cache,size=256M,uuid=${uuid_gpt_cache};" \
 	"name=ipu1,size=1M,uuid=${uuid_gpt_ipu1};" \
