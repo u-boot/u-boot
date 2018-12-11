@@ -322,7 +322,7 @@ static int mtk_brom_parse_imagename(const char *imagename)
 				lk = val;
 
 			if (!strcmp(key, "lkname"))
-				strncpy(lk_name, val, sizeof(lk_name));
+				snprintf(lk_name, sizeof(lk_name), "%s", val);
 		}
 
 		if (next)
@@ -656,7 +656,7 @@ static void mtk_image_set_gen_header(void *ptr, off_t filesize,
 		bootname = SDMMC_BOOT_NAME;
 
 	/* Generic device header */
-	strncpy(hdr->boot.name, bootname, sizeof(hdr->boot.name));
+	snprintf(hdr->boot.name, sizeof(hdr->boot.name), "%s", bootname);
 	hdr->boot.version = cpu_to_le32(1);
 	hdr->boot.size = cpu_to_le32(sizeof(hdr->boot));
 
