@@ -10,9 +10,6 @@
 
 /* ACPI */
 
-/* Boot */
-#define CONFIG_BOOTCOMMAND "run bootcmd"
-
 /* DISK Partition support */
 
 /* Miscellaneous configurable options */
