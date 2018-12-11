@@ -459,7 +459,8 @@ dtb-$(CONFIG_MX6UL) += \
 	imx6ul-isiot-nand.dtb \
 	imx6ul-opos6uldev.dtb \
 	imx6ul-14x14-evk.dtb \
-	imx6ul-9x9-evk.dtb
+	imx6ul-9x9-evk.dtb \
+	imx6ul-phycore-segin.dtb
 
 dtb-$(CONFIG_MX6ULL) += imx6ull-14x14-evk.dtb
 
