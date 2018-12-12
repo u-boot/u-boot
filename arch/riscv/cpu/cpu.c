@@ -5,8 +5,10 @@
 
 #include <common.h>
 #include <cpu.h>
+#include <dm.h>
 #include <log.h>
 #include <asm/csr.h>
+#include <dm/uclass-internal.h>
 
 /*
  * prior_stage_fdt_address must be stored in the data section since it is used
@@ -16,7 +18,31 @@ phys_addr_t prior_stage_fdt_address __attribute__((section(".data")));
 
 static inline bool supports_extension(char ext)
 {
+#ifdef CONFIG_CPU
+	struct udevice *dev;
+	char desc[32];
+
+	uclass_find_first_device(UCLASS_CPU, &dev);
+	if (!dev) {
+		debug("unable to find the RISC-V cpu device\n");
+		return false;
+	}
+	if (!cpu_get_desc(dev, desc, sizeof(desc))) {
+		/* skip the first 4 characters (rv32|rv64) */
+		if (strchr(desc + 4, ext))
+			return true;
+	}
+
+	return false;
+#else  /* !CONFIG_CPU */
+#ifdef CONFIG_RISCV_MMODE
 	return csr_read(misa) & (1 << (ext - 'a'));
+#else  /* !CONFIG_RISCV_MMODE */
+#warning "There is no way to determine the available extensions in S-mode."
+#warning "Please convert your board to use the RISC-V CPU driver."
+	return false;
+#endif /* CONFIG_RISCV_MMODE */
+#endif /* CONFIG_CPU */
 }
 
 static int riscv_cpu_probe(void)
