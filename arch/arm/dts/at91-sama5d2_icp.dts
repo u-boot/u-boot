@@ -39,6 +39,13 @@
 				status = "okay";
 			};
 
+			macb0: ethernet@f8008000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_macb0_rmii &pinctrl_macb0_phy_irq &pinctrl_macb0_rst>;
+				phy-mode = "internal";
+				status = "okay";
+			};
+
 			i2c1: i2c@fc028000 {
 				dmas = <0>, <0>;
 				pinctrl-names = "default";
@@ -70,6 +77,36 @@
 						pinmux = <PIN_PD19__TWD1>,
 							 <PIN_PD20__TWCK1>;
 						bias-disable;
+					};
+
+					pinctrl_macb0_rmii: macb0_rmii {
+						pinmux = <PIN_PD1__GRXCK>,
+							 <PIN_PD2__GTXER>,
+							 <PIN_PD5__GRX2>,
+							 <PIN_PD6__GRX3>,
+							 <PIN_PD7__GTX2>,
+							 <PIN_PD8__GTX3>,
+							 <PIN_PD9__GTXCK>,
+							 <PIN_PD10__GTXEN>,
+							 <PIN_PD11__GRXDV>,
+							 <PIN_PD12__GRXER>,
+							 <PIN_PD13__GRX0>,
+							 <PIN_PD14__GRX1>,
+							 <PIN_PD15__GTX0>,
+							 <PIN_PD16__GTX1>,
+							 <PIN_PD17__GMDC>,
+							 <PIN_PD18__GMDIO>;
+						bias-disable;
+					};
+
+					pinctrl_macb0_phy_irq: macb0_phy_irq {
+						pinmux = <PIN_PD3__GPIO>;
+						bias-disable;
+					};
+
+					pinctrl_macb0_rst: macb0_sw_rst {
+						pinmux = <PIN_PD4__GPIO>;
+						bias-pull-up;
 					};
 
 					pinctrl_sdmmc0_default: sdmmc0_default {
