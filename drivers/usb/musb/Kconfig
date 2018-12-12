@@ -11,9 +11,6 @@ config USB_MUSB_HCD
 config USB_MUSB_UDC
 	bool "Legacy USB Device Controller"
 
-config USB_DAVINCI
-	bool "Legacy MUSB DaVinci"
-	
 config USB_OMAP3
 	bool "Legacy MUSB OMAP3 / OMAP4"
 	depends on ARCH_OMAP2PLUS
