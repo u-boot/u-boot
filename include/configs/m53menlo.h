@@ -205,7 +205,7 @@
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0"			\
 	"netdev=eth0\0"							\
 	"splashsource=mmc_fs\0"						\
-	"splashfile=usplash.bmp.gz\0"					\
+	"splashfile=boot/usplash.bmp.gz\0"				\
 	"splashimage=0x88000000\0"					\
 	"splashpos=m,m\0"						\
 	"addcons="							\
