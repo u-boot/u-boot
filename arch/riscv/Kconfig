@@ -44,6 +44,24 @@ config ARCH_RV64I
 
 endchoice
 
+choice
+	prompt "Code Model"
+	default CMODEL_MEDLOW
+
+config CMODEL_MEDLOW
+	bool "medium low code model"
+	help
+	  U-Boot and its statically defined symbols must lie within a single 2 GiB
+	  address range and must lie between absolute addresses -2 GiB and +2 GiB.
+
+config CMODEL_MEDANY
+	bool "medium any code model"
+	help
+	  U-Boot and its statically defined symbols must be within any single 2 GiB
+	  address range.
+
+endchoice
+
 config RISCV_ISA_C
 	bool "Emit compressed instructions"
 	default y
