@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <log.h>
 #include <asm/csr.h>
+#include <asm/encoding.h>
 #include <dm/uclass-internal.h>
 
 /*
@@ -61,7 +62,31 @@ static int riscv_cpu_probe(void)
 
 int arch_cpu_init_dm(void)
 {
-	return riscv_cpu_probe();
+	int ret;
+
+	ret = riscv_cpu_probe();
+	if (ret)
+		return ret;
+
+	/* Enable FPU */
+	if (supports_extension('d') || supports_extension('f')) {
+		csr_set(MODE_PREFIX(status), MSTATUS_FS);
+		csr_write(fcsr, 0);
+	}
+
+	if (CONFIG_IS_ENABLED(RISCV_MMODE)) {
+		/*
+		 * Enable perf counters for cycle, time,
+		 * and instret counters only
+		 */
+		csr_write(mcounteren, GENMASK(2, 0));
+
+		/* Disable paging */
+		if (supports_extension('s'))
+			csr_write(satp, 0);
+	}
+
+	return 0;
 }
 
 int arch_early_init_r(void)
