@@ -12,7 +12,36 @@
 #include <asm/system.h>
 #include <asm/encoding.h>
 
-static void _exit_trap(ulong code, ulong epc, struct pt_regs *regs);
+static void _exit_trap(ulong code, ulong epc, struct pt_regs *regs)
+{
+	static const char * const exception_code[] = {
+		"Instruction address misaligned",
+		"Instruction access fault",
+		"Illegal instruction",
+		"Breakpoint",
+		"Load address misaligned",
+		"Load access fault",
+		"Store/AMO address misaligned",
+		"Store/AMO access fault",
+		"Environment call from U-mode",
+		"Environment call from S-mode",
+		"Reserved",
+		"Environment call from M-mode",
+		"Instruction page fault",
+		"Load page fault",
+		"Reserved",
+		"Store/AMO page fault",
+	};
+
+	if (code < ARRAY_SIZE(exception_code)) {
+		printf("exception code: %ld , %s , epc %lx , ra %lx\n",
+		       code, exception_code[code], epc, regs->ra);
+	} else {
+		printf("Reserved\n");
+	}
+
+	hang();
+}
 
 int interrupt_init(void)
 {
@@ -71,35 +100,4 @@ __attribute__((weak)) void external_interrupt(struct pt_regs *regs)
 
 __attribute__((weak)) void timer_interrupt(struct pt_regs *regs)
 {
-}
-
-static void _exit_trap(ulong code, ulong epc, struct pt_regs *regs)
-{
-	static const char * const exception_code[] = {
-		"Instruction address misaligned",
-		"Instruction access fault",
-		"Illegal instruction",
-		"Breakpoint",
-		"Load address misaligned",
-		"Load access fault",
-		"Store/AMO address misaligned",
-		"Store/AMO access fault",
-		"Environment call from U-mode",
-		"Environment call from S-mode",
-		"Reserved",
-		"Environment call from M-mode",
-		"Instruction page fault",
-		"Load page fault",
-		"Reserved",
-		"Store/AMO page fault",
-	};
-
-	if (code < ARRAY_SIZE(exception_code)) {
-		printf("exception code: %ld , %s , epc %lx , ra %lx\n",
-		       code, exception_code[code], epc, regs->ra);
-	} else {
-		printf("Reserved\n");
-	}
-
-	hang();
 }
