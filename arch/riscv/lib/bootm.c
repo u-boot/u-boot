@@ -93,7 +93,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 	if (!fake) {
 		if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len)
-			kernel(csr_read(mhartid), images->ft_addr);
+			kernel(gd->arch.boot_hart, images->ft_addr);
 	}
 }
 
