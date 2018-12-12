@@ -77,7 +77,6 @@ trap_entry:
 #endif
 	csrs MODE_PREFIX(status), t0
 	LREG x1,   1 * REGBYTES(sp)
-	LREG x2,   2 * REGBYTES(sp)
 	LREG x3,   3 * REGBYTES(sp)
 	LREG x4,   4 * REGBYTES(sp)
 	LREG x5,   5 * REGBYTES(sp)
@@ -107,5 +106,6 @@ trap_entry:
 	LREG x29, 29 * REGBYTES(sp)
 	LREG x30, 30 * REGBYTES(sp)
 	LREG x31, 31 * REGBYTES(sp)
+	LREG x2,   2 * REGBYTES(sp)
 	addi sp, sp, 32 * REGBYTES
 	MODE_PREFIX(ret)
