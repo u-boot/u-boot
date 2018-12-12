@@ -22,6 +22,7 @@ source "board/emulation/qemu-riscv/Kconfig"
 
 # platform-specific options below
 source "arch/riscv/cpu/ax25/Kconfig"
+source "arch/riscv/cpu/qemu/Kconfig"
 
 # architecture-specific options below
 
