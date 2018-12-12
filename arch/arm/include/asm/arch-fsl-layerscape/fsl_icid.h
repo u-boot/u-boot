@@ -55,7 +55,11 @@ void fdt_fixup_icid(void *blob);
 		CONFIG_SYS_FSL_ESDHC_ADDR)
 
 #define SET_QDMA_ICID(compat, streamid) \
-	SET_SCFG_ICID(compat, streamid, dma_icid,\
+	SET_ICID_ENTRY(compat, streamid, (1 << 31) | (streamid), \
+		QDMA_BASE_ADDR + QMAN_CQSIDR_REG, \
+		QDMA_BASE_ADDR), \
+	SET_ICID_ENTRY(NULL, streamid, (1 << 31) | (streamid), \
+		QDMA_BASE_ADDR + QMAN_CQSIDR_REG + 4, \
 		QDMA_BASE_ADDR)
 
 #define SET_EDMA_ICID(streamid) \
