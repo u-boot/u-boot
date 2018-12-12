@@ -104,4 +104,12 @@ config SIFIVE_CLINT
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
 
+config RISCV_RDTIME
+	bool
+	default y if RISCV_SMODE
+	help
+	  The provides the riscv_get_time() API that is implemented using the
+	  standard rdtime instruction. This is the case for S-mode U-Boot, and
+	  is useful for processors that support rdtime in M-mode too.
+
 endmenu
