@@ -123,9 +123,9 @@
 		"env import -t ${loadbootenv_addr} $filesize\0" \
 	"sd_uEnvtxt_existence_test=test -e mmc $sdbootdev:$partid /uEnv.txt\0" \
 	"sata_root=if test $scsidevs -gt 0; then setenv bootargs $bootargs root=/dev/sda rw rootfstype=ext4; fi\0" \
-	"sataboot=load scsi 0 80000 boot/Image && load scsi 0 $fdt_addr boot/system.dtb && booti 80000 - $fdt_addr\0" \
-	"netboot=tftpboot 10000000 image.ub && bootm\0" \
-	"qspiboot=sf probe 0 0 0 && sf read $fdt_addr $fdt_offset $fdt_size && " \
+	"sataboot=run xilinxcmd && load scsi 0 80000 boot/Image && load scsi 0 $fdt_addr boot/system.dtb && booti 80000 - $fdt_addr\0" \
+	"netboot=run xilinxcmd && tftpboot 10000000 image.ub && bootm\0" \
+	"qspiboot=run xilinxcmd && sf probe 0 0 0 && sf read $fdt_addr $fdt_offset $fdt_size && " \
 		  "sf read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
 	"uenvboot=" \
@@ -138,12 +138,12 @@
 			"echo Running uenvcmd ...; " \
 			"run uenvcmd; " \
 		"fi\0" \
-	"sdboot=mmc dev $sdbootdev && mmcinfo && run uenvboot || run sdroot$sdbootdev; " \
+	"sdboot=run xilinxcmd && mmc dev $sdbootdev && mmcinfo && run uenvboot || run sdroot$sdbootdev; " \
 		"load mmc $sdbootdev:$partid $fdt_addr system.dtb && " \
 		"load mmc $sdbootdev:$partid $kernel_addr Image && " \
 		"booti $kernel_addr - $fdt_addr\0" \
 	"emmcboot=run sdboot\0" \
-	"nandboot=nand info && nand read $fdt_addr $fdt_offset $fdt_size && " \
+	"nandboot=run xilinxcmd && nand info && nand read $fdt_addr $fdt_offset $fdt_size && " \
 		  "nand read $kernel_addr $kernel_offset $kernel_size && " \
 		  "booti $kernel_addr - $fdt_addr\0" \
 	"xen_prepare_dt=fdt addr $fdt_addr && fdt resize 128 && " \
@@ -161,15 +161,15 @@
 		"fdt rm /cpus/cpu@1 compatible && " \
 		"fdt rm /cpus/cpu@2 compatible && " \
 		"fdt rm /cpus/cpu@3 compatible\0" \
-	"xen=tftpb $fdt_addr system.dtb &&  tftpb 0x80000 Image &&" \
+	"xen=run xilinxcmd && tftpb $fdt_addr system.dtb &&  tftpb 0x80000 Image &&" \
 		"run xen_prepare_dt && " \
 		"tftpb 6000000 xen.ub && tftpb 0x1000000 image.ub && " \
 		"bootm 6000000 0x1000000 $fdt_addr\0" \
-	"xen_qemu=tftpb $fdt_addr system.dtb && tftpb 0x80000 Image && " \
+	"xen_qemu=run xilinxcmd && tftpb $fdt_addr system.dtb && tftpb 0x80000 Image && " \
 		"run xen_prepare_dt_qemu && " \
 		"tftpb 6000000 xen.ub && tftpb 0x1000000 image.ub && " \
 		"bootm 6000000 0x1000000 $fdt_addr\0" \
-	"jtagboot=tftpboot 80000 Image && tftpboot $fdt_addr system.dtb && " \
+	"jtagboot=run xilinxcmd && tftpboot 80000 Image && tftpboot $fdt_addr system.dtb && " \
 		 "tftpboot 6000000 rootfs.cpio.ub && booti 80000 6000000 $fdt_addr\0" \
 	"nosmp=setenv bootargs $bootargs maxcpus=1\0" \
 	"nfsroot=setenv bootargs $bootargs root=/dev/nfs nfsroot=$serverip:/mnt/sata,tcp ip=$ipaddr:$serverip:$serverip:255.255.255.0:zynqmp:eth0:off rw\0" \
@@ -181,6 +181,7 @@
 	"usbhostboot=usb start && load usb 0 $fdt_addr system.dtb && " \
 		     "load usb 0 $kernel_addr Image && " \
 		     "booti $kernel_addr - $fdt_addr\0" \
+	"xilinxcmd=echo !!! && echo !!! Booting cmd is deprecated (will be removed in 2020). && echo !!! Please move to distro boocmd. && echo !!!\0" \
 	PARTS_DEFAULT
 #endif
 
