@@ -68,14 +68,6 @@ trap_entry:
 	jal handle_trap
 	csrw MODE_PREFIX(epc), a0
 
-#ifdef CONFIG_RISCV_SMODE
-	/* Remain in S-mode after sret */
-	li t0, SSTATUS_SPP
-#else
-	/* Remain in M-mode after mret */
-	li t0, MSTATUS_MPP
-#endif
-	csrs MODE_PREFIX(status), t0
 	LREG x1,   1 * REGBYTES(sp)
 	LREG x3,   3 * REGBYTES(sp)
 	LREG x4,   4 * REGBYTES(sp)
