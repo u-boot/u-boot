@@ -95,4 +95,13 @@ config 32BIT
 config 64BIT
 	bool
 
+config SIFIVE_CLINT
+	bool
+	depends on RISCV_MMODE
+	select REGMAP
+	select SYSCON
+	help
+	  The SiFive CLINT block holds memory-mapped control and status registers
+	  associated with software and timer interrupts.
+
 endmenu
