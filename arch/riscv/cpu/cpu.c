@@ -4,6 +4,8 @@
  */
 
 #include <common.h>
+#include <cpu.h>
+#include <log.h>
 #include <asm/csr.h>
 
 /*
@@ -52,4 +54,28 @@ int print_cpuinfo(void)
 	printf("CPU:   %s\n", name);
 
 	return 0;
+}
+
+static int riscv_cpu_probe(void)
+{
+#ifdef CONFIG_CPU
+	int ret;
+
+	/* probe cpus so that RISC-V timer can be bound */
+	ret = cpu_probe_all();
+	if (ret)
+		return log_msg_ret("RISC-V cpus probe failed\n", ret);
+#endif
+
+	return 0;
+}
+
+int arch_cpu_init_dm(void)
+{
+	return riscv_cpu_probe();
+}
+
+int arch_early_init_r(void)
+{
+	return riscv_cpu_probe();
 }
