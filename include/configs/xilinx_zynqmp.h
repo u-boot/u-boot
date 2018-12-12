@@ -102,9 +102,9 @@
 # define PARTS_DEFAULT
 #endif
 
-/* Initial environment variables */
-#ifndef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
+/* Xilinx initial environment variables */
+#ifndef CONFIG_EXTRA_ENV_BOARD_SETTINGS
+#define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
 	"kernel_addr=0x80000\0" \
 	"initrd_addr=0xa00000\0" \
 	"initrd_size=0x2000000\0" \
@@ -181,8 +181,7 @@
 	"usbhostboot=usb start && load usb 0 $fdt_addr system.dtb && " \
 		     "load usb 0 $kernel_addr Image && " \
 		     "booti $kernel_addr - $fdt_addr\0" \
-	PARTS_DEFAULT \
-	DFU_ALT_INFO
+	PARTS_DEFAULT
 #endif
 
 /* Monitor Command Prompt */
@@ -267,6 +266,7 @@
 /* Initial environment variables */
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_EXTRA_ENV_BOARD_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
 	BOOTENV \
 	DFU_ALT_INFO
