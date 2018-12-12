@@ -13,3 +13,9 @@ config CPU_MPC83XX
 	select CLK_MPC83XX
 	help
 	  Support CPU cores for SoCs of the MPC83xx series.
+
+config CPU_RISCV
+	bool "Enable RISC-V CPU driver"
+	depends on CPU && RISCV
+	help
+	  Support CPU cores for RISC-V architecture.
