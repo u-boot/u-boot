@@ -314,6 +314,7 @@ enum cpu_speed {
 	OCOTP_TESTER3_SPEED_GRADE1,
 	OCOTP_TESTER3_SPEED_GRADE2,
 	OCOTP_TESTER3_SPEED_GRADE3,
+	OCOTP_TESTER3_SPEED_GRADE4,
 };
 
 u32 get_cpu_speed_grade_hz(void)
@@ -326,7 +327,16 @@ u32 get_cpu_speed_grade_hz(void)
 
 	val = readl(&fuse->tester3);
 	val >>= OCOTP_TESTER3_SPEED_SHIFT;
-	val &= 0x3;
+
+	if (is_imx8mn()) {
+		val &= 0xf;
+		return 2300000000 - val * 100000000;
+	}
+
+	if (is_imx8mm())
+		val &= 0x7;
+	else
+		val &= 0x3;
 
 	switch(val) {
 	case OCOTP_TESTER3_SPEED_GRADE0:
@@ -337,6 +347,8 @@ u32 get_cpu_speed_grade_hz(void)
 		return (is_mx7() ? 1000000000 : (is_imx8mq() ? 1300000000 : 1600000000));
 	case OCOTP_TESTER3_SPEED_GRADE3:
 		return (is_mx7() ? 1200000000 : (is_imx8mq() ? 1500000000 : 1800000000));
+	case OCOTP_TESTER3_SPEED_GRADE4:
+		return 2000000000;
 	}
 
 	return 0;
