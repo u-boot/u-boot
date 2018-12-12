@@ -12,6 +12,7 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+	long boot_hart;		/* boot hart id */
 #ifdef CONFIG_SIFIVE_CLINT
 	void __iomem *clint;	/* clint base address */
 #endif

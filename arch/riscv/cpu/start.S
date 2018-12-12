@@ -14,6 +14,7 @@
 #include <common.h>
 #include <elf.h>
 #include <asm/encoding.h>
+#include <generated/asm-offsets.h>
 
 #ifdef CONFIG_32BIT
 #define LREG			lw
@@ -69,6 +70,9 @@ call_board_init_f_0:
 	SREG	s1, 0(t0)
 
 	jal	board_init_f_init_reserve
+
+	/* save the boot hart id to global_data */
+	SREG	s0, GD_BOOT_HART(gp)
 
 	mv	a0, zero		/* a0 <-- boot_flags = 0 */
 	la	t5, board_init_f
