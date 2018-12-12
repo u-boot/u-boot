@@ -215,7 +215,7 @@
 		"setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off\0"				\
-	"addmtd=setenv bootargs ${bootargs} mtdparts=${mtdparts}\0"	\
+	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addmisc="							\
 		"setenv bootargs ${bootargs} ${miscargs}\0"		\
 	"addargs=run addcons addmisc addmtd\0"				\
