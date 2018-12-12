@@ -113,4 +113,7 @@ config RISCV_RDTIME
 	  standard rdtime instruction. This is the case for S-mode U-Boot, and
 	  is useful for processors that support rdtime in M-mode too.
 
+config SYS_MALLOC_F_LEN
+	default 0x1000
+
 endmenu
