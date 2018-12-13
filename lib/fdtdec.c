@@ -200,7 +200,7 @@ fdt_addr_t fdtdec_get_addr(const void *blob, int node, const char *prop_name)
 	return fdtdec_get_addr_size(blob, node, prop_name, NULL);
 }
 
-#if defined(CONFIG_PCI) && defined(CONFIG_DM_PCI)
+#if CONFIG_IS_ENABLED(PCI) && defined(CONFIG_DM_PCI)
 int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 			const char *prop_name, struct fdt_pci_addr *addr)
 {

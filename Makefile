@@ -695,7 +695,6 @@ libs-$(CONFIG_CMD_UBI) += drivers/mtd/ubi/
 libs-y += drivers/mtd/spi/
 libs-y += drivers/net/
 libs-y += drivers/net/phy/
-libs-y += drivers/pci/
 libs-y += drivers/power/ \
 	drivers/power/domain/ \
 	drivers/power/fuel_gauge/ \
@@ -946,6 +945,14 @@ ifeq ($(CONFIG_LIBATA)$(CONFIG_DM_SCSI)$(CONFIG_MVSATA_IDE),y)
 	@echo "the storage controller to use CONFIG_DM_SCSI before the v2019.07 release."
 	@echo "Failure to update by the deadline may result in board removal."
 	@echo "See doc/driver-model/MIGRATION.txt for more info."
+	@echo "===================================================="
+endif
+ifeq ($(CONFIG_OF_EMBED),y)
+	@echo "===================== WARNING ======================"
+	@echo "CONFIG_OF_EMBED is enabled. This option should only"
+	@echo "be used for debugging purposes. Please use"
+	@echo "CONFIG_OF_SEPARATE for boards in mainline."
+	@echo "See doc/README.fdt-control for more info."
 	@echo "===================================================="
 endif
 	@# Check that this build does not use CONFIG options that we do not

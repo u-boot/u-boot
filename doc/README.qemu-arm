@@ -47,6 +47,12 @@ The minimal QEMU command line to get U-Boot up and running is:
 Note that for some odd reason qemu-system-aarch64 needs to be explicitly
 told to use a 64-bit CPU or it will boot in 32-bit mode.
 
+Additional persistent U-boot environment support can be added as follows:
+- Create envstore.img using qemu-img:
+    qemu-img create -f raw envstore.img 64M
+- Add a pflash drive parameter to the command line:
+    -drive if=pflash,format=raw,index=1,file=envstore.img
+
 Additional peripherals that have been tested to work in both U-Boot and Linux
 can be enabled with the following command line parameters:
 

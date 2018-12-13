@@ -449,6 +449,7 @@ config SPL_LIBCOMMON_SUPPORT
 
 config SPL_LIBDISK_SUPPORT
 	bool "Support disk partitions"
+	select PARTITIONS
 	help
 	  Enable support for disk partitions within SPL. 'Disk' is something
 	  of a misnomer as it includes non-spinning media such as flash (as
@@ -480,6 +481,7 @@ config SPL_DM_MAILBOX
 config SPL_MMC_SUPPORT
 	bool "Support MMC"
 	depends on MMC
+	select HAVE_BLOCK_DEVICE
 	help
 	  Enable support for MMC (Multimedia Card) within SPL. This enables
 	  the MMC protocol implementation and allows any enabled drivers to
@@ -610,7 +612,7 @@ config SPL_PAYLOAD
 	  TPL, tpl/u-boot-with-tpl.bin. For new boards, suggest to
 	  use u-boot.img.
 
-config SPL_PCI_SUPPORT
+config SPL_PCI
 	bool "Support PCI drivers"
 	help
 	  Enable support for PCI in SPL. For platforms that need PCI to boot,
@@ -754,6 +756,7 @@ config SPL_THERMAL
 
 config SPL_USB_HOST_SUPPORT
 	bool "Support USB host drivers"
+	select HAVE_BLOCK_DEVICE
 	help
 	  Enable access to USB (Universal Serial Bus) host devices so that
 	  SPL can load U-Boot from a connected USB peripheral, such as a USB
@@ -1023,7 +1026,7 @@ config TPL_NAND_SUPPORT
 	help
 	  Enable support for NAND in TPL. See SPL_NAND_SUPPORT for details.
 
-config TPL_PCI_SUPPORT
+config TPL_PCI
 	bool "Support PCI drivers"
 	help
 	  Enable support for PCI in TPL. For platforms that need PCI to boot,

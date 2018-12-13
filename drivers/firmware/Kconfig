@@ -1,6 +1,10 @@
 config FIRMWARE
 	bool "Enable Firmware driver support"
 
+config SPL_ARM_PSCI_FW
+	bool
+	select FIRMWARE
+
 config ARM_PSCI_FW
 	bool
 	select FIRMWARE

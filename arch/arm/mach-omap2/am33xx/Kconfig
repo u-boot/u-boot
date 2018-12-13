@@ -206,6 +206,7 @@ config TARGET_PDU001
 	bool "Support PDU001"
 	select DM
 	select DM_SERIAL
+	imply SPL_SEPARATE_BSS
 	imply CMD_DM
 	help
 	  Support for PDU001 platform developed by EETS GmbH.
