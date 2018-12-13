@@ -735,8 +735,21 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		case USB_DT_DEVICE:
 			cdev->desc.bNumConfigurations =
 				count_configs(cdev, USB_DT_DEVICE);
-			cdev->desc.bMaxPacketSize0 =
-				cdev->gadget->ep0->maxpacket;
+
+			/*
+			 * If the speed is Super speed, then the supported
+			 * max packet size is 512 and it should be sent as
+			 * exponent of 2. So, 9(2^9=512) should be filled in
+			 * bMaxPacketSize0. Also fill USB version as 3.0
+			 * if speed is Super speed.
+			 */
+			if (cdev->gadget->speed == USB_SPEED_SUPER) {
+				cdev->desc.bMaxPacketSize0 = 9;
+				cdev->desc.bcdUSB = cpu_to_le16(0x0300);
+			} else {
+				cdev->desc.bMaxPacketSize0 =
+					cdev->gadget->ep0->maxpacket;
+			}
 			value = min(w_length, (u16) sizeof cdev->desc);
 			memcpy(req->buf, &cdev->desc, value);
 			break;
