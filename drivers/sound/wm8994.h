@@ -15,7 +15,7 @@
 
 /*  Avilable audi interface ports in wm8994 codec */
 enum en_audio_interface {
-	 WM8994_AIF1 = 1,
+	 WM8994_AIF1,
 	 WM8994_AIF2,
 	 WM8994_AIF3
 };

@@ -126,6 +126,7 @@ config SYS_BOOT_GET_KBD
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"
 	default y if DM
+
 	help
 	  Before relocation, memory is very limited on many platforms. Still,
 	  we can provide a small malloc() pool if needed. Driver model in
@@ -136,6 +137,7 @@ config SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool before relocation"
 	depends on SYS_MALLOC_F
 	default 0x1000 if AM33XX
+	default 0x2800 if SANDBOX
 	default 0x400
 	help
 	  Before relocation, memory is very limited on many platforms. Still,

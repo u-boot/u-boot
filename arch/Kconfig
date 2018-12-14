@@ -116,6 +116,7 @@ config SANDBOX
 	imply VIRTIO_SANDBOX
 	imply VIRTIO_BLK
 	imply VIRTIO_NET
+	imply DM_SOUND
 
 config SH
 	bool "SuperH architecture"

@@ -4,13 +4,24 @@
  */
 
 #include <errno.h>
+#include <unistd.h>
 #include <linux/input.h>
 #include <SDL/SDL.h>
-#include <sound.h>
 #include <asm/state.h>
 
-enum {
-	SAMPLE_RATE	= 22050,
+/**
+ * struct buf_info - a data buffer holding audio data
+ *
+ * @pos:	Current position playing in audio buffer
+ * @size:	Size of data in audio buffer (0=empty)
+ * @alloced:	Allocated size of audio buffer (max size it can hold)
+ * @data:	Audio data
+ */
+struct buf_info {
+	uint pos;
+	uint size;
+	uint alloced;
+	uint8_t *data;
 };
 
 static struct sdl_info {
@@ -20,12 +31,12 @@ static struct sdl_info {
 	int depth;
 	int pitch;
 	uint frequency;
-	uint audio_pos;
-	uint audio_size;
 	uint sample_rate;
-	uint8_t *audio_data;
 	bool audio_active;
 	bool inited;
+	int cur_buf;
+	struct buf_info buf[2];
+	bool running;
 } sdl;
 
 static void sandbox_sdl_poll_events(void)
@@ -243,24 +254,37 @@ int sandbox_sdl_key_pressed(int keycode)
 
 void sandbox_sdl_fill_audio(void *udata, Uint8 *stream, int len)
 {
+	struct buf_info *buf;
 	int avail;
+	int i;
 
-	avail = sdl.audio_size - sdl.audio_pos;
-	if (avail < len)
-		len = avail;
+	for (i = 0; i < 2; i++) {
+		buf = &sdl.buf[sdl.cur_buf];
+		avail = buf->size - buf->pos;
+		if (avail <= 0) {
+			sdl.cur_buf = 1 - sdl.cur_buf;
+			continue;
+		}
+		if (avail > len)
+			avail = len;
 
-	SDL_MixAudio(stream, sdl.audio_data + sdl.audio_pos, len,
-		     SDL_MIX_MAXVOLUME);
-	sdl.audio_pos += len;
+		SDL_MixAudio(stream, buf->data + buf->pos, avail,
+			     SDL_MIX_MAXVOLUME);
+		buf->pos += avail;
+		len -= avail;
 
-	/* Loop if we are at the end */
-	if (sdl.audio_pos == sdl.audio_size)
-		sdl.audio_pos = 0;
+		/* Move to next buffer if we are at the end */
+		if (buf->pos == buf->size)
+			buf->size = 0;
+		else
+			break;
+	}
 }
 
-int sandbox_sdl_sound_init(void)
+int sandbox_sdl_sound_init(int rate, int channels)
 {
 	SDL_AudioSpec wanted;
+	int i;
 
 	if (sandbox_sdl_ensure_init())
 		return -1;
@@ -269,20 +293,27 @@ int sandbox_sdl_sound_init(void)
 		return 0;
 
 	/* Set the audio format */
-	wanted.freq = SAMPLE_RATE;
+	wanted.freq = rate;
 	wanted.format = AUDIO_S16;
-	wanted.channels = 1;    /* 1 = mono, 2 = stereo */
+	wanted.channels = channels;
 	wanted.samples = 1024;  /* Good low-latency value for callback */
 	wanted.callback = sandbox_sdl_fill_audio;
 	wanted.userdata = NULL;
 
-	sdl.audio_size = sizeof(uint16_t) * wanted.freq;
-	sdl.audio_data = malloc(sdl.audio_size);
-	if (!sdl.audio_data) {
-		printf("%s: Out of memory\n", __func__);
-		return -1;
+	for (i = 0; i < 2; i++) {
+		struct buf_info *buf = &sdl.buf[i];
+
+		buf->alloced = sizeof(uint16_t) * wanted.freq * wanted.channels;
+		buf->data = malloc(buf->alloced);
+		if (!buf->data) {
+			printf("%s: Out of memory\n", __func__);
+			if (i == 1)
+				free(sdl.buf[0].data);
+			return -1;
+		}
+		buf->pos = 0;
+		buf->size = 0;
 	}
-	sdl.audio_pos = 0;
 
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
 		printf("Unable to initialize SDL audio: %s\n", SDL_GetError());
@@ -296,33 +327,50 @@ int sandbox_sdl_sound_init(void)
 	}
 	sdl.audio_active = true;
 	sdl.sample_rate = wanted.freq;
+	sdl.cur_buf = 0;
+	sdl.running = 0;
 
 	return 0;
 
 err:
-	free(sdl.audio_data);
+	for (i = 0; i < 2; i++)
+		free(sdl.buf[i].data);
 	return -1;
 }
 
-int sandbox_sdl_sound_start(uint frequency)
+int sandbox_sdl_sound_play(const void *data, uint size)
 {
+	struct buf_info *buf;
+
 	if (!sdl.audio_active)
-		return -1;
-	sdl.frequency = frequency;
-	sound_create_square_wave(sdl.sample_rate,
-				 (unsigned short *)sdl.audio_data,
-				 sdl.audio_size, frequency);
-	sdl.audio_pos = 0;
-	SDL_PauseAudio(0);
+		return 0;
+
+	buf = &sdl.buf[0];
+	if (buf->size)
+		buf = &sdl.buf[1];
+	while (buf->size)
+		usleep(1000);
+
+	if (size > buf->alloced)
+		return -E2BIG;
+
+	memcpy(buf->data, data, size);
+	buf->size = size;
+	buf->pos = 0;
+	if (!sdl.running) {
+		SDL_PauseAudio(0);
+		sdl.running = 1;
+	}
 
 	return 0;
 }
 
 int sandbox_sdl_sound_stop(void)
 {
-	if (!sdl.audio_active)
-		return -1;
-	SDL_PauseAudio(1);
+	if (sdl.running) {
+		SDL_PauseAudio(1);
+		sdl.running = 0;
+	}
 
 	return 0;
 }

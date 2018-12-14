@@ -121,4 +121,44 @@ int sandbox_pwm_get_config(struct udevice *dev, uint channel, uint *period_nsp,
  */
 void sandbox_sf_set_block_protect(struct udevice *dev, int bp_mask);
 
+/**
+ * sandbox_get_codec_params() - Read back codec parameters
+ *
+ * This reads back the parameters set by audio_codec_set_params() for the
+ * sandbox audio driver. Arguments are as for that function.
+ */
+void sandbox_get_codec_params(struct udevice *dev, int *interfacep, int *ratep,
+			      int *mclk_freqp, int *bits_per_samplep,
+			      uint *channelsp);
+
+/**
+ * sandbox_get_i2s_sum() - Read back the sum of the audio data so far
+ *
+ * This data is provided to the sandbox driver by the I2S tx_data() method.
+ *
+ * @dev: Device to check
+ * @return sum of audio data
+ */
+int sandbox_get_i2s_sum(struct udevice *dev);
+
+/**
+ * sandbox_get_setup_called() - Returns the number of times setup(*) was called
+ *
+ * This is used in the sound test
+ *
+ * @dev: Device to check
+ * @return call count for the setup() method
+ */
+int sandbox_get_setup_called(struct udevice *dev);
+
+/**
+ * sandbox_get_sound_sum() - Read back the sum of the sound data so far
+ *
+ * This data is provided to the sandbox driver by the sound play() method.
+ *
+ * @dev: Device to check
+ * @return sum of audio data
+ */
+int sandbox_get_sound_sum(struct udevice *dev);
+
 #endif

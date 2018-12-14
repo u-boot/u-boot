@@ -76,7 +76,7 @@ struct i2s_reg {
 };
 
 /* This structure stores the i2s related information */
-struct i2stx_info {
+struct i2s_uc_priv {
 	unsigned int rfs;		/* LR clock frame size */
 	unsigned int bfs;		/* Bit slock frame size */
 	unsigned int audio_pll_clk;	/* Audio pll frequency in Hz */
@@ -87,17 +87,41 @@ struct i2stx_info {
 	unsigned int id;		/* I2S controller id */
 };
 
+/* Operations for i2s devices */
+struct i2s_ops {
+	/**
+	 * tx_data() - Transmit audio data
+	 *
+	 * @dev: I2C device
+	 * @data: Data buffer to play
+	 * @data_size: Size of data buffer in bytes
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*tx_data)(struct udevice *dev, void *data, uint data_size);
+};
+
+#define i2s_get_ops(dev)	((struct i2s_ops *)(dev)->driver->ops)
+
+/**
+ * i2s_tx_data() - Transmit audio data
+ *
+ * @dev: I2C device
+ * @data: Data buffer to play
+ * @data_size: Size of data buffer in bytes
+ * @return 0 if OK, -ve on error
+ */
+int i2s_tx_data(struct udevice *dev, void *data, uint data_size);
+
 /*
  * Sends the given data through i2s tx
  *
  * @param pi2s_tx	pointer of i2s transmitter parameter structure.
  * @param data		address of the data buffer
- * @param data_size	array size of the int buffer (total size / size of int)
- *
+ * @param data_size	size of the data (in bytes)
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_transfer_tx_data(struct i2stx_info *pi2s_tx, unsigned *data,
-				unsigned long data_size);
+int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, void *data,
+			 uint data_size);
 
 /*
  * Initialise i2s transmiter
@@ -106,6 +130,6 @@ int i2s_transfer_tx_data(struct i2stx_info *pi2s_tx, unsigned *data,
  *
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_tx_init(struct i2stx_info *pi2s_tx);
+int i2s_tx_init(struct i2s_uc_priv *pi2s_tx);
 
 #endif /* __I2S_H__ */

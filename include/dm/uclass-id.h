@@ -29,6 +29,7 @@ enum uclass_id {
 	/* U-Boot uclasses start here - in alphabetical order */
 	UCLASS_ADC,		/* Analog-to-digital converter */
 	UCLASS_AHCI,		/* SATA disk controller */
+	UCLASS_AUDIO_CODEC,	/* Audio codec with control and data path */
 	UCLASS_AXI,		/* AXI bus */
 	UCLASS_BLK,		/* Block device */
 	UCLASS_BOARD,		/* Device information from hardware */
@@ -48,6 +49,7 @@ enum uclass_id {
 	UCLASS_I2C_EEPROM,	/* I2C EEPROM device */
 	UCLASS_I2C_GENERIC,	/* Generic I2C device */
 	UCLASS_I2C_MUX,		/* I2C multiplexer */
+	UCLASS_I2S,		/* I2S bus */
 	UCLASS_IDE,		/* IDE device */
 	UCLASS_IRQ,		/* Interrupt controller */
 	UCLASS_KEYBOARD,	/* Keyboard input device */
@@ -82,6 +84,7 @@ enum uclass_id {
 	UCLASS_SERIAL,		/* Serial UART */
 	UCLASS_SIMPLE_BUS,	/* Bus with child devices */
 	UCLASS_SMEM,		/* Shared memory interface */
+	UCLASS_SOUND,		/* Playing simple sounds */
 	UCLASS_SPI,		/* SPI bus */
 	UCLASS_SPI_FLASH,	/* SPI flash */
 	UCLASS_SPI_GENERIC,	/* Generic SPI flash target */

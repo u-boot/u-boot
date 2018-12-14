@@ -18,6 +18,11 @@
 		stdout-path = "/serial";
 	};
 
+	audio: audio-codec {
+		compatible = "sandbox,audio-codec";
+		#sound-dai-cells = <1>;
+	};
+
 	cros_ec: cros-ec {
 		reg = <0 0>;
 		u-boot,dm-pre-reloc;
@@ -127,6 +132,11 @@
 		};
 	};
 
+	i2s: i2s {
+		compatible = "sandbox,i2s";
+		#sound-dai-cells = <1>;
+	};
+
 	lcd {
 		u-boot,dm-pre-reloc;
 		compatible = "sandbox,lcd-sdl";
@@ -188,6 +198,17 @@
 
 	reset@1 {
 		compatible = "sandbox,reset";
+	};
+
+	sound {
+		compatible = "sandbox,sound";
+		cpu {
+			sound-dai = <&i2s 0>;
+		};
+
+		codec {
+			sound-dai = <&audio 0>;
+		};
 	};
 
 	spi@0 {
