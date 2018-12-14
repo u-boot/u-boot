@@ -349,6 +349,35 @@ size_t u16_strnlen(const u16 *in, size_t count)
 	return i;
 }
 
+u16 *u16_strcpy(u16 *dest, const u16 *src)
+{
+	u16 *tmp = dest;
+
+	for (;; dest++, src++) {
+		*dest = *src;
+		if (!*src)
+			break;
+	}
+
+	return tmp;
+}
+
+u16 *u16_strdup(const u16 *src)
+{
+	u16 *new;
+
+	if (!src)
+		return NULL;
+
+	new = malloc((u16_strlen(src) + 1) * sizeof(u16));
+	if (!new)
+		return NULL;
+
+	u16_strcpy(new, src);
+
+	return new;
+}
+
 /* Convert UTF-16 to UTF-8.  */
 uint8_t *utf16_to_utf8(uint8_t *dest, const uint16_t *src, size_t size)
 {

@@ -192,6 +192,29 @@ size_t u16_strlen(const u16 *in);
 size_t u16_strnlen(const u16 *in, size_t count);
 
 /**
+ * u16_strcpy() - copy u16 string
+ *
+ * Copy u16 string pointed to by src, including terminating null word, to
+ * the buffer pointed to by dest.
+ *
+ * @dest:		destination buffer
+ * @src:		source buffer (null terminated)
+ * Return:		'dest' address
+ */
+u16 *u16_strcpy(u16 *dest, const u16 *src);
+
+/**
+ * u16_strdup() - duplicate u16 string
+ *
+ * Copy u16 string pointed to by src, including terminating null word, to a
+ * newly allocated buffer.
+ *
+ * @src:		source buffer (null terminated)
+ * Return:		allocated new buffer on success, NULL on failure
+ */
+u16 *u16_strdup(const u16 *src);
+
+/**
  * utf16_to_utf8() - Convert an utf16 string to utf8
  *
  * Converts 'size' characters of the utf16 string 'src' to utf8
