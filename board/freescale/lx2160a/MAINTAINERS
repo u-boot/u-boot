@@ -6,3 +6,8 @@ F:	include/configs/lx2160a_common.h
 F:	include/configs/lx2160ardb.h
 F:	configs/lx2160ardb_tfa_defconfig
 F:	arch/arm/dts/fsl-lx2160a-rdb.dts
+
+LX2160ARDB_SECURE_BOOT BOARD
+M:	Udit Agarwal <udit.agarwal@nxp.com>
+S:	Maintained
+F:	configs/lx2160ardb_tfa_SECURE_BOOT_defconfig
