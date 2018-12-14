@@ -61,6 +61,8 @@ void ddrmc_setup_iomux(const iomux_v3_cfg_t *pads, int pads_count)
 		VF610_PAD_DDR_WE__DDR_WE_B,
 		VF610_PAD_DDR_ODT1__DDR_ODT_0,
 		VF610_PAD_DDR_ODT0__DDR_ODT_1,
+		VF610_PAD_DDR_DDRBYTE1__DDR_DDRBYTE1,
+		VF610_PAD_DDR_DDRBYTE2__DDR_DDRBYTE2,
 		VF610_PAD_DDR_RESETB,
 	};
 
