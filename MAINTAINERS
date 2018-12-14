@@ -512,6 +512,13 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-mips.git
 F:	arch/mips/
 
+MIPS MSCC
+M:	Gregory CLEMENT <gregory.clement@bootlin.com>
+M:	Lars Povlsen <lars.povlsen@microchip.com>
+M:	Horatiu Vultur <horatiu.vultur@microchip.com>
+S:	Maintained
+F:	arch/mips/mach-mscc/
+
 MMC
 M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained

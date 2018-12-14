@@ -59,6 +59,11 @@ config ARCH_ATH79
 	select OF_CONTROL
 	imply CMD_DM
 
+config ARCH_MSCC
+	bool "Support MSCC VCore-III"
+	select OF_CONTROL
+	select DM
+
 config ARCH_BMIPS
 	bool "Support BMIPS SoCs"
 	select CLK
@@ -138,6 +143,7 @@ source "board/imgtec/xilfpga/Kconfig"
 source "board/micronas/vct/Kconfig"
 source "board/qemu-mips/Kconfig"
 source "arch/mips/mach-ath79/Kconfig"
+source "arch/mips/mach-mscc/Kconfig"
 source "arch/mips/mach-bmips/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
 source "arch/mips/mach-mt7620/Kconfig"
