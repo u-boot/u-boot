@@ -954,6 +954,17 @@ ifeq ($(CONFIG_OF_EMBED),y)
 	@echo >&2 "See doc/README.fdt-control for more info."
 	@echo >&2 "===================================================="
 endif
+ifeq ($(CONFIG_SPI),y)
+ifneq ($(CONFIG_DM_SPI)$(CONFIG_OF_CONTROL),yy)
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "This board does not use CONFIG_DM_SPI. Please update"
+	@echo >&2 "the board before v2019.04 for no dm conversion"
+	@echo >&2 "and v2019.07 for partially dm converted drivers."
+	@echo >&2 "Failure to update can lead to driver/board removal"
+	@echo >&2 "See doc/driver-model/MIGRATION.txt for more info."
+	@echo >&2 "===================================================="
+endif
+endif
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
