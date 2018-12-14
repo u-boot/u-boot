@@ -1,0 +1,12 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2018 Microsemi Corporation
+ */
+
+/dts-v1/;
+#include "mscc,ocelot_pcb.dtsi"
+
+/ {
+	model = "Ocelot PCB123 Reference Board";
+	compatible = "mscc,ocelot-pcb123", "mscc,ocelot";
+};

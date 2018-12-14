@@ -518,6 +518,11 @@ M:	Lars Povlsen <lars.povlsen@microchip.com>
 M:	Horatiu Vultur <horatiu.vultur@microchip.com>
 S:	Maintained
 F:	arch/mips/mach-mscc/
+F:	arch/mips/dts/mscc*
+F:	arch/mips/dts/ocelot*
+F:	board/mscc/
+F:	configs/mscc*
+F:	include/configs/vcoreiii.h
 
 MMC
 M:	Jaehoon Chung <jh80.chung@samsung.com>

@@ -79,4 +79,6 @@ config DDRTYPE_MT47H128M8HQ
 
 endchoice
 
+source "board/mscc/ocelot/Kconfig"
+
 endmenu
