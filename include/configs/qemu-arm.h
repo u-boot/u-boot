@@ -25,6 +25,7 @@
 #define CONFIG_ENV_SIZE			SZ_256K
 
 #define BOOT_TARGET_DEVICES(func) \
+	func(USB, usb, 0) \
 	func(SCSI, scsi, 0) \
 	func(VIRTIO, virtio, 0) \
 	func(DHCP, dhcp, na)
