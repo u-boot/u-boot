@@ -3,18 +3,23 @@ if OMAP34XX
 # We only enable the clocks for the GPIO banks that a given board requies.
 config OMAP3_GPIO_2
 	bool
+	default y if CMD_GPIO
 
 config OMAP3_GPIO_3
 	bool
+	default y if CMD_GPIO
 
 config OMAP3_GPIO_4
 	bool
+	default y if CMD_GPIO
 
 config OMAP3_GPIO_5
 	bool
+	default y if CMD_GPIO
 
 config OMAP3_GPIO_6
 	bool
+	default y if CMD_GPIO
 
 choice
 	prompt "OMAP3 board select"
