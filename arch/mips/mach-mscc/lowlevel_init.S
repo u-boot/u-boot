@@ -8,6 +8,9 @@
 
     .set noreorder
     .extern     vcoreiii_tlb_init
+#ifdef CONFIG_SOC_LUTON
+    .extern     pll_init
+#endif
 
 LEAF(lowlevel_init)
 	/*
@@ -18,6 +21,10 @@ LEAF(lowlevel_init)
 
 	jal	vcoreiii_tlb_init
 	 nop
+#ifdef CONFIG_SOC_LUTON
+	jal	pll_init
+	 nop
+#endif
 	jr	s0
 	 nop
 	END(lowlevel_init)

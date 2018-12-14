@@ -21,6 +21,12 @@ config SOC_OCELOT
 	help
 	  This supports MSCC Ocelot family of SOCs.
 
+config SOC_LUTON
+	bool
+	select SOC_VCOREIII
+	help
+	  This supports MSCC Luton family of SOCs.
+
 config SYS_CONFIG_NAME
 	default "vcoreiii"
 
@@ -41,6 +47,13 @@ config TARGET_OCELOT_PCB123
 	  When selected, CONFIG_DEFAULT_DEVICE_TREE should be set to
 	  ocelot_pcb123
 
+config TARGET_LUTON_PCB091
+	bool "MSCC PCB091 Reference Board"
+	select SOC_LUTON
+	select MSCC_BITBANG_SPI_GPIO
+	help
+	  When selected, CONFIG_DEFAULT_DEVICE_TREE should be set to
+	  luton_pcb091
 endchoice
 
 choice

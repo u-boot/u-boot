@@ -614,6 +614,98 @@ static inline int dram_check(void)
 	}
 	return 0;
 }
+#else				/* Luton */
+
+static inline void sleep_100ns(u32 val)
+{
+}
+
+static inline void hal_vcoreiii_ddr_reset_assert(void)
+{
+	setbits_le32(BASE_CFG + ICPU_MEMPHY_CFG, ICPU_MEMPHY_CFG_PHY_RST);
+	setbits_le32(BASE_CFG + ICPU_RESET, ICPU_RESET_MEM_RST_FORCE);
+}
+
+static inline void hal_vcoreiii_ddr_reset_release(void)
+{
+}
+
+static inline void hal_vcoreiii_ddr_failed(void)
+{
+	register u32 memphy_cfg = readl(BASE_CFG + ICPU_MEMPHY_CFG);
+
+	/* Do a fifo reset and start over */
+	writel(memphy_cfg | ICPU_MEMPHY_CFG_PHY_FIFO_RST,
+	       BASE_CFG + ICPU_MEMPHY_CFG);
+	writel(memphy_cfg & ~ICPU_MEMPHY_CFG_PHY_FIFO_RST,
+	       BASE_CFG + ICPU_MEMPHY_CFG);
+	writel(memphy_cfg | ICPU_MEMPHY_CFG_PHY_FIFO_RST,
+	       BASE_CFG + ICPU_MEMPHY_CFG);
+}
+
+static inline void hal_vcoreiii_ddr_verified(void)
+{
+}
+
+static inline int look_for(u32 data)
+{
+	register u32 byte = __raw_readb((void __iomem *)MSCC_DDR_TO);
+
+	if (data != byte) {
+		if (!incr_dly(0))
+			return DDR_TRAIN_ERROR;
+		return DDR_TRAIN_CONTINUE;
+	}
+
+	return DDR_TRAIN_OK;
+}
+
+/* This algorithm is converted from the TCL training algorithm used
+ * during silicon simulation.
+ * NB: Assumes inlining as no stack is available!
+ */
+static inline int hal_vcoreiii_train_bytelane(u32 bytelane)
+{
+	register int res;
+
+	set_dly(bytelane, 0);	/* Start training at DQS=0 */
+	while ((res = look_for(0xff)) == DDR_TRAIN_CONTINUE)
+		;
+	if (res != DDR_TRAIN_OK)
+		return res;
+
+	set_dly(bytelane, 0);	/* Start training at DQS=0 */
+	while ((res = look_for(0x00)) == DDR_TRAIN_CONTINUE)
+
+		;
+
+	if (res != DDR_TRAIN_OK)
+		return res;
+
+	adjust_dly(-3);
+
+	return DDR_TRAIN_OK;
+}
+
+static inline int hal_vcoreiii_init_dqs(void)
+{
+	return 0;
+}
+
+static inline int dram_check(void)
+{
+	register u32 i;
+
+	for (i = 0; i < 8; i++) {
+		__raw_writel(~i, (void __iomem *)(MSCC_DDR_TO + (i * 4)));
+
+		if (__raw_readl((void __iomem *)(MSCC_DDR_TO + (i * 4))) != ~i)
+			return 1;
+	}
+
+	return 0;
+}
+#endif
 
 /*
  * NB: Called *early* to init memory controller - assumes inlining as
@@ -646,12 +738,12 @@ static inline void hal_vcoreiii_init_memctl(void)
 	/* Wait for ZCAL to clear */
 	while (readl(BASE_CFG + ICPU_MEMPHY_ZCAL) & ICPU_MEMPHY_ZCAL_ZCAL_ENA)
 		;
-
+#ifdef CONFIG_SOC_OCELOT
 	/* Check no ZCAL_ERR */
 	if (readl(BASE_CFG + ICPU_MEMPHY_ZCAL_STAT)
 	    & ICPU_MEMPHY_ZCAL_STAT_ZCAL_ERR)
 		hal_vcoreiii_ddr_failed();
-
+#endif
 	/* Drive CL, CK, ODT */
 	setbits_le32(BASE_CFG + ICPU_MEMPHY_CFG, ICPU_MEMPHY_CFG_PHY_ODT_OE |
 		     ICPU_MEMPHY_CFG_PHY_CK_OE | ICPU_MEMPHY_CFG_PHY_CL_OE);
@@ -660,7 +752,12 @@ static inline void hal_vcoreiii_init_memctl(void)
 	writel(MSCC_MEMPARM_MEMCFG, BASE_CFG + ICPU_MEMCTRL_CFG);
 	writel(MSCC_MEMPARM_PERIOD, BASE_CFG + ICPU_MEMCTRL_REF_PERIOD);
 
+#ifdef CONFIG_SOC_OCELOT
 	writel(MSCC_MEMPARM_TIMING0, BASE_CFG + ICPU_MEMCTRL_TIMING0);
+#else /* Luton */
+	clrbits_le32(BASE_CFG + ICPU_MEMCTRL_TIMING0, ((1 << 20) - 1));
+	setbits_le32(BASE_CFG + ICPU_MEMCTRL_TIMING0, MSCC_MEMPARM_TIMING0);
+#endif
 
 	writel(MSCC_MEMPARM_TIMING1, BASE_CFG + ICPU_MEMCTRL_TIMING1);
 	writel(MSCC_MEMPARM_TIMING2, BASE_CFG + ICPU_MEMCTRL_TIMING2);
@@ -670,6 +767,7 @@ static inline void hal_vcoreiii_init_memctl(void)
 	writel(MSCC_MEMPARM_MR2, BASE_CFG + ICPU_MEMCTRL_MR2_VAL);
 	writel(MSCC_MEMPARM_MR3, BASE_CFG + ICPU_MEMCTRL_MR3_VAL);
 
+#ifdef CONFIG_SOC_OCELOT
 	/* Termination setup - enable ODT */
 	writel(ICPU_MEMCTRL_TERMRES_CTRL_LOCAL_ODT_RD_ENA |
 	       /* Assert ODT0 for any write */
@@ -680,6 +778,11 @@ static inline void hal_vcoreiii_init_memctl(void)
 	hal_vcoreiii_ddr_reset_release();
 
 	writel(readl(BASE_CFG + ICPU_GPR(7)) + 1, BASE_CFG + ICPU_GPR(7));
+#else				/* Luton */
+	/* Termination setup - disable ODT */
+	writel(0, BASE_CFG + ICPU_MEMCTRL_TERMRES_CTRL);
+
+#endif
 }
 
 static inline void hal_vcoreiii_wait_memctl(void)
@@ -693,7 +796,7 @@ static inline void hal_vcoreiii_wait_memctl(void)
 
 	/* Settle...? */
 	sleep_100ns(10000);
-
+#ifdef CONFIG_SOC_OCELOT
 	/* Establish data contents in DDR RAM for training */
 
 	__raw_writel(0xcacafefe, ((void __iomem *)MSCC_DDR_TO));
@@ -704,5 +807,8 @@ static inline void hal_vcoreiii_wait_memctl(void)
 	__raw_writel(0xaaaa9999, ((void __iomem *)MSCC_DDR_TO + 0x14));
 	__raw_writel(0xccccbbbb, ((void __iomem *)MSCC_DDR_TO + 0x18));
 	__raw_writel(0xeeeedddd, ((void __iomem *)MSCC_DDR_TO + 0x1C));
+#else
+	__raw_writel(0xff, ((void __iomem *)MSCC_DDR_TO));
+#endif
 }
 #endif				/* __ASM_MACH_DDR_H */

@@ -10,6 +10,10 @@
 #include <mach/ocelot/ocelot.h>
 #include <mach/ocelot/ocelot_devcpu_gcb.h>
 #include <mach/ocelot/ocelot_icpu_cfg.h>
+#elif defined(CONFIG_SOC_LUTON)
+#include <mach/luton/luton.h>
+#include <mach/luton/luton_devcpu_gcb.h>
+#include <mach/luton/luton_icpu_cfg.h>
 #else
 #error Unsupported platform
 #endif

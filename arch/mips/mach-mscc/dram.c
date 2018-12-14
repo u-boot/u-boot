@@ -19,9 +19,11 @@ static inline int vcoreiii_train_bytelane(void)
 
 	ret = hal_vcoreiii_train_bytelane(0);
 
+#ifdef CONFIG_SOC_OCELOT
 	if (ret)
 		return ret;
 	ret = hal_vcoreiii_train_bytelane(1);
+#endif
 
 	return ret;
 }
