@@ -912,47 +912,47 @@ cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 
 all:		$(ALL-y) cfg
 ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
-	@echo "===================== WARNING ======================"
-	@echo "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
-	@echo "(possibly in a subsequent patch in your series)"
-	@echo "before sending patches to the mailing list."
-	@echo "===================================================="
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
+	@echo >&2 "(possibly in a subsequent patch in your series)"
+	@echo >&2 "before sending patches to the mailing list."
+	@echo >&2 "===================================================="
 endif
 ifeq ($(CONFIG_MMC),y)
 ifneq ($(CONFIG_DM_MMC)$(CONFIG_OF_CONTROL)$(CONFIG_BLK),yyy)
-	@echo "===================== WARNING ======================"
-	@echo "This board does not use CONFIG_DM_MMC. Please update"
-	@echo "the board to use CONFIG_DM_MMC before the v2019.04 release."
-	@echo "Failure to update by the deadline may result in board removal."
-	@echo "See doc/driver-model/MIGRATION.txt for more info."
-	@echo "===================================================="
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "This board does not use CONFIG_DM_MMC. Please update"
+	@echo >&2 "the board to use CONFIG_DM_MMC before the v2019.04 release."
+	@echo >&2 "Failure to update by the deadline may result in board removal."
+	@echo >&2 "See doc/driver-model/MIGRATION.txt for more info."
+	@echo >&2 "===================================================="
 endif
 endif
 ifeq ($(CONFIG_USB),y)
 ifneq ($(CONFIG_DM_USB)$(CONFIG_OF_CONTROL)$(CONFIG_BLK),yyy)
-	@echo "===================== WARNING ======================"
-	@echo "This board does not use CONFIG_DM_USB. Please update"
-	@echo "the board to use CONFIG_DM_USB before the v2019.07 release."
-	@echo "Failure to update by the deadline may result in board removal."
-	@echo "See doc/driver-model/MIGRATION.txt for more info."
-	@echo "===================================================="
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "This board does not use CONFIG_DM_USB. Please update"
+	@echo >&2 "the board to use CONFIG_DM_USB before the v2019.07 release."
+	@echo >&2 "Failure to update by the deadline may result in board removal."
+	@echo >&2 "See doc/driver-model/MIGRATION.txt for more info."
+	@echo >&2 "===================================================="
 endif
 endif
 ifeq ($(CONFIG_LIBATA)$(CONFIG_DM_SCSI)$(CONFIG_MVSATA_IDE),y)
-	@echo "===================== WARNING ======================"
-	@echo "This board does not use CONFIG_DM_SCSI. Please update"
-	@echo "the storage controller to use CONFIG_DM_SCSI before the v2019.07 release."
-	@echo "Failure to update by the deadline may result in board removal."
-	@echo "See doc/driver-model/MIGRATION.txt for more info."
-	@echo "===================================================="
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "This board does not use CONFIG_DM_SCSI. Please update"
+	@echo >&2 "the storage controller to use CONFIG_DM_SCSI before the v2019.07 release."
+	@echo >&2 "Failure to update by the deadline may result in board removal."
+	@echo >&2 "See doc/driver-model/MIGRATION.txt for more info."
+	@echo >&2 "===================================================="
 endif
 ifeq ($(CONFIG_OF_EMBED),y)
-	@echo "===================== WARNING ======================"
-	@echo "CONFIG_OF_EMBED is enabled. This option should only"
-	@echo "be used for debugging purposes. Please use"
-	@echo "CONFIG_OF_SEPARATE for boards in mainline."
-	@echo "See doc/README.fdt-control for more info."
-	@echo "===================================================="
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "CONFIG_OF_EMBED is enabled. This option should only"
+	@echo >&2 "be used for debugging purposes. Please use"
+	@echo >&2 "CONFIG_OF_SEPARATE for boards in mainline."
+	@echo >&2 "See doc/README.fdt-control for more info."
+	@echo >&2 "===================================================="
 endif
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
