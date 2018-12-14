@@ -425,8 +425,8 @@ static int bif_add_part(struct bif_entry *bf, const char *data, size_t len)
 		if (!bif_output.header->image_offset)
 			bif_output.header->image_offset =
 				cpu_to_le32(bf->offset);
-		bif_output.header->image_size = cpu_to_le32(len);
-		bif_output.header->image_stored_size = cpu_to_le32(len);
+		bif_output.header->image_size = cpu_to_le32(len_padded);
+		bif_output.header->image_stored_size = cpu_to_le32(len_padded);
 
 		bif_output.header->image_attributes &= ~HEADER_CPU_SELECT_MASK;
 		switch (bf->dest_cpu) {
