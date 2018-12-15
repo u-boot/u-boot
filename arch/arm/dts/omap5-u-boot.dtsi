@@ -12,6 +12,11 @@
 		tick-timer = &timer2;
 	};
 
+	aliases {
+		usb0 = &usb1;
+		usb1 = &usb2;
+	};
+
 	ocp {
 		u-boot,dm-spl;
 
