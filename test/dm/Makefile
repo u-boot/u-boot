@@ -2,7 +2,6 @@
 #
 # Copyright (c) 2013 Google, Inc
 
-obj-$(CONFIG_CMD_DM) += cmd_dm.o
 obj-$(CONFIG_UT_DM) += bus.o
 obj-$(CONFIG_UT_DM) += test-driver.o
 obj-$(CONFIG_UT_DM) += test-fdt.o

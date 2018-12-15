@@ -34,6 +34,7 @@
  * struct tee_version_data::gen_caps
  */
 #define TEE_SUCCESS			0x00000000
+#define TEE_ERROR_STORAGE_NOT_AVAILABLE	0xf0100003
 #define TEE_ERROR_GENERIC		0xffff0000
 #define TEE_ERROR_BAD_PARAMETERS	0xffff0006
 #define TEE_ERROR_ITEM_NOT_FOUND	0xffff0008

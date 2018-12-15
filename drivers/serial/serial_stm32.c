@@ -7,6 +7,7 @@
 #include <common.h>
 #include <clk.h>
 #include <dm.h>
+#include <reset.h>
 #include <serial.h>
 #include <watchdog.h>
 #include <asm/io.h>
@@ -171,6 +172,7 @@ static int stm32_serial_probe(struct udevice *dev)
 {
 	struct stm32x7_serial_platdata *plat = dev_get_platdata(dev);
 	struct clk clk;
+	struct reset_ctl reset;
 	int ret;
 
 	plat->uart_info = (struct stm32_uart_info *)dev_get_driver_data(dev);
@@ -183,6 +185,13 @@ static int stm32_serial_probe(struct udevice *dev)
 	if (ret) {
 		dev_err(dev, "failed to enable clock\n");
 		return ret;
+	}
+
+	ret = reset_get_by_index(dev, 0, &reset);
+	if (!ret) {
+		reset_assert(&reset);
+		udelay(2);
+		reset_deassert(&reset);
 	}
 
 	plat->clock_rate = clk_get_rate(&clk);
