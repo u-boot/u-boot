@@ -40,7 +40,6 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			phy0: phy@1 {
-				compatible = <0x0007c0f0 0xfffffff0>;
 				device_type = "ethernet-phy";
 				reg = <1>;
 			} ;
