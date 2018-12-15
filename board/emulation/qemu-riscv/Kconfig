@@ -33,5 +33,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply CMD_FAT
 	imply BOARD_LATE_INIT
 	imply OF_BOARD_SETUP
+	imply SIFIVE_SERIAL
 
 endif
