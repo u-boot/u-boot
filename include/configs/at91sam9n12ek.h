@@ -59,12 +59,6 @@
 #define CONFIG_SYS_NAND_READY_PIN	GPIO_PIN_PD(5)
 #endif
 
-/* PMECC & PMERRLOC */
-#define CONFIG_ATMEL_NAND_HWECC
-#define CONFIG_ATMEL_NAND_HW_PMECC
-#define CONFIG_PMECC_CAP		2
-#define CONFIG_PMECC_SECTOR_SIZE	512
-
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
 	"console=console=ttyS0,115200\0"                                \
 	"mtdparts="CONFIG_MTDPARTS_DEFAULT"\0"					\
@@ -177,6 +171,5 @@
 #define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_BLOCK_SIZE	0x20000
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0x0
-#define CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER
 
 #endif

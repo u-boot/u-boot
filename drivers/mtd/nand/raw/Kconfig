@@ -22,6 +22,44 @@ config NAND_ATMEL
 	  Enable this driver for NAND flash platforms using an Atmel NAND
 	  controller.
 
+if NAND_ATMEL
+
+config ATMEL_NAND_HWECC
+	bool "Atmel Hardware ECC"
+	default n
+
+config ATMEL_NAND_HW_PMECC
+	bool "Atmel Programmable Multibit ECC (PMECC)"
+	select ATMEL_NAND_HWECC
+	default n
+	help
+	  The Programmable Multibit ECC (PMECC) controller is a programmable
+	  binary BCH(Bose, Chaudhuri and Hocquenghem) encoder and decoder.
+
+config PMECC_CAP
+	int "PMECC Correctable ECC Bits"
+	depends on ATMEL_NAND_HW_PMECC
+	default 2
+	help
+	  Correctable ECC bits, can be 2, 4, 8, 12, and 24.
+
+config PMECC_SECTOR_SIZE
+	int "PMECC Sector Size"
+	depends on ATMEL_NAND_HW_PMECC
+	default 512
+	help
+	  Sector size, in bytes, can be 512 or 1024.
+
+config SPL_GENERATE_ATMEL_PMECC_HEADER
+	bool "Atmel PMECC Header Generation"
+	select ATMEL_NAND_HWECC
+	select ATMEL_NAND_HW_PMECC
+	default n
+	help
+	  Generate Programmable Multibit ECC (PMECC) header for SPL image.
+
+endif
+
 config NAND_DAVINCI
 	bool "Support TI Davinci NAND controller"
 	help
