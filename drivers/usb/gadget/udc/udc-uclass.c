@@ -20,7 +20,7 @@ int usb_gadget_initialize(int index)
 		return -EINVAL;
 	if (dev_array[index])
 		return 0;
-	ret = uclass_get_device(UCLASS_USB_GADGET_GENERIC, index, &dev);
+	ret = uclass_get_device_by_seq(UCLASS_USB_GADGET_GENERIC, index, &dev);
 	if (!dev || ret) {
 		pr_err("No USB device found\n");
 		return -ENODEV;
@@ -54,5 +54,6 @@ int usb_gadget_handle_interrupts(int index)
 
 UCLASS_DRIVER(usb_gadget_generic) = {
 	.id		= UCLASS_USB_GADGET_GENERIC,
-	.name		= "usb_gadget_generic",
+	.name		= "usb",
+	.flags		= DM_UC_FLAG_SEQ_ALIAS,
 };
