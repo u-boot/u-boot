@@ -705,6 +705,19 @@ int board_init(void)
 }
 
 #ifdef CONFIG_BOARD_LATE_INIT
+#if CONFIG_IS_ENABLED(DM_USB) && CONFIG_IS_ENABLED(OF_CONTROL)
+static int device_okay(const char *path)
+{
+	int node;
+
+	node = fdt_path_offset(gd->fdt_blob, path);
+	if (node < 0)
+		return 0;
+
+	return fdtdec_get_is_enabled(gd->fdt_blob, node);
+}
+#endif
+
 int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
@@ -717,10 +730,18 @@ int board_late_init(void)
 	if (get_device_type() == HS_DEVICE)
 		env_set("boot_fit", "1");
 #endif
+
+#if CONFIG_IS_ENABLED(DM_USB) && CONFIG_IS_ENABLED(OF_CONTROL)
+	if (device_okay("/ocp/omap_dwc3@48380000"))
+		enable_usb_clocks(0);
+	if (device_okay("/ocp/omap_dwc3@483c0000"))
+		enable_usb_clocks(1);
+#endif
 	return 0;
 }
 #endif
 
+#if !CONFIG_IS_ENABLED(DM_USB_GADGET)
 #ifdef CONFIG_USB_DWC3
 static struct dwc3_device usb_otg_ss1 = {
 	.maximum_speed = USB_SPEED_HIGH,
@@ -823,6 +844,7 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	return 0;
 }
 #endif /* defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP) */
+#endif /* !CONFIG_IS_ENABLED(DM_USB_GADGET) */
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 

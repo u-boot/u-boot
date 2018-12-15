@@ -33,7 +33,6 @@
 
 #include "dwc2_udc_otg_regs.h"
 #include "dwc2_udc_otg_priv.h"
-#include <usb/lin_gadget_compat.h>
 
 /***********************************************************/
 

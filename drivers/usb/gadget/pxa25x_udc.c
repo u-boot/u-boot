@@ -29,7 +29,6 @@
 
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
-#include <usb/lin_gadget_compat.h>
 #include <asm/arch/pxa-regs.h>
 
 #include "pxa25x_udc.h"

@@ -49,7 +49,7 @@ config DM_USB
 
 config SPL_DM_USB
 	bool "Enable driver model for USB in SPL"
-	depends on DM_USB
+	depends on SPL_DM && DM_USB
 	default y
 
 config DM_USB_GADGET

@@ -174,7 +174,55 @@ int cpu_mmc_init(bd_t *bis)
 /* AM33XX has two MUSB controllers which can be host or gadget */
 #if (defined(CONFIG_USB_MUSB_GADGET) || defined(CONFIG_USB_MUSB_HOST)) && \
 	(defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1)) && \
-	(!defined(CONFIG_DM_USB))
+	(!CONFIG_IS_ENABLED(DM_USB) || !CONFIG_IS_ENABLED(OF_CONTROL)) && \
+	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_MUSB_NEW_SUPPORT))
+
+static struct musb_hdrc_config musb_config = {
+	.multipoint     = 1,
+	.dyn_fifo       = 1,
+	.num_eps        = 16,
+	.ram_bits       = 12,
+};
+
+#if CONFIG_IS_ENABLED(DM_USB) && !CONFIG_IS_ENABLED(OF_CONTROL)
+static struct ti_musb_platdata usb0 = {
+	.base = (void *)USB0_OTG_BASE,
+	.ctrl_mod_base = &((struct ctrl_dev *)CTRL_DEVICE_BASE)->usb_ctrl0,
+	.plat = {
+		.config         = &musb_config,
+		.power          = 50,
+		.platform_ops	= &musb_dsps_ops,
+		},
+};
+
+static struct ti_musb_platdata usb1 = {
+	.base = (void *)USB1_OTG_BASE,
+	.ctrl_mod_base = &((struct ctrl_dev *)CTRL_DEVICE_BASE)->usb_ctrl1,
+	.plat = {
+		.config         = &musb_config,
+		.power          = 50,
+		.platform_ops	= &musb_dsps_ops,
+		},
+};
+
+U_BOOT_DEVICES(am33xx_usbs) = {
+#if CONFIG_AM335X_USB0_MODE == MUSB_PERIPHERAL
+	{ "ti-musb-peripheral", &usb0 },
+#elif CONFIG_AM335X_USB0_MODE == MUSB_HOST
+	{ "ti-musb-host", &usb0 },
+#endif
+#if CONFIG_AM335X_USB1_MODE == MUSB_PERIPHERAL
+	{ "ti-musb-peripheral", &usb1 },
+#elif CONFIG_AM335X_USB1_MODE == MUSB_HOST
+	{ "ti-musb-host", &usb1 },
+#endif
+};
+
+int arch_misc_init(void)
+{
+	return 0;
+}
+#else
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 /* USB 2.0 PHY Control */
@@ -192,13 +240,6 @@ static void am33xx_usb_set_phy_power(u8 on, u32 *reg_addr)
 		clrsetbits_le32(reg_addr, 0, CM_PHY_PWRDN | CM_PHY_OTG_PWRDN);
 	}
 }
-
-static struct musb_hdrc_config musb_config = {
-	.multipoint     = 1,
-	.dyn_fifo       = 1,
-	.num_eps        = 16,
-	.ram_bits       = 12,
-};
 
 #ifdef CONFIG_AM335X_USB0
 static void am33xx_otg0_set_phy_power(struct udevice *dev, u8 on)
@@ -250,6 +291,7 @@ int arch_misc_init(void)
 #endif
 	return 0;
 }
+#endif
 
 #else	/* CONFIG_USB_MUSB_* && CONFIG_AM335X_USB* && !CONFIG_DM_USB */
 

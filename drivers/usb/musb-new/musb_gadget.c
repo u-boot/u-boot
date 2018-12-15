@@ -1775,6 +1775,14 @@ static int musb_gadget_start(struct usb_gadget *g,
 		struct usb_gadget_driver *driver);
 static int musb_gadget_stop(struct usb_gadget *g,
 		struct usb_gadget_driver *driver);
+#else
+static int musb_gadget_stop(struct usb_gadget *g)
+{
+	struct musb	*musb = gadget_to_musb(g);
+
+	musb_stop(musb);
+	return 0;
+}
 #endif
 
 static const struct usb_gadget_ops musb_gadget_operations = {
@@ -1785,6 +1793,9 @@ static const struct usb_gadget_ops musb_gadget_operations = {
 	.vbus_draw		= musb_gadget_vbus_draw,
 	.pullup			= musb_gadget_pullup,
 #ifndef __UBOOT__
+	.udc_start		= musb_gadget_start,
+	.udc_stop		= musb_gadget_stop,
+#else
 	.udc_start		= musb_gadget_start,
 	.udc_stop		= musb_gadget_stop,
 #endif
