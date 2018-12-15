@@ -169,7 +169,7 @@ int sc_misc_get_control(sc_ipc_t ipc, sc_rsrc_t resource, sc_ctrl_t ctrl,
 		printf("%s: ctrl:%d resource:%d: res:%d\n",
 		       __func__, ctrl, resource, RPC_R8(&msg));
 
-	if (!val)
+	if (val)
 		*val = RPC_U32(&msg, 0U);
 
 	return ret;
@@ -194,7 +194,7 @@ void sc_misc_get_boot_dev(sc_ipc_t ipc, sc_rsrc_t *boot_dev)
 	if (ret)
 		printf("%s: res:%d\n", __func__, RPC_R8(&msg));
 
-	if (!boot_dev)
+	if (boot_dev)
 		*boot_dev = RPC_U16(&msg, 0U);
 }
 
