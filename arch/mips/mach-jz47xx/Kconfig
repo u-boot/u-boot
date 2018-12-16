@@ -1,0 +1,15 @@
+menu "Ingenic JZ47xx platforms"
+	depends on ARCH_JZ47XX
+
+config SYS_SOC
+	default "jz47xx"
+
+config SOC_JZ4780
+	bool
+	select SUPPORTS_LITTLE_ENDIAN
+	select SUPPORTS_CPU_MIPS32_R1
+	select SUPPORTS_CPU_MIPS32_R2
+	help
+	  Support for Ingenic JZ4780 family SoCs.
+
+endmenu

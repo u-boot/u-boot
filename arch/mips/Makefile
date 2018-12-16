@@ -13,6 +13,7 @@ libs-y += arch/mips/lib/
 
 machine-$(CONFIG_ARCH_ATH79) += ath79
 machine-$(CONFIG_ARCH_BMIPS) += bmips
+machine-$(CONFIG_ARCH_JZ47XX) += jz47xx
 machine-$(CONFIG_MACH_PIC32) += pic32
 machine-$(CONFIG_ARCH_MT7620) += mt7620
 machine-$(CONFIG_ARCH_MSCC) += mscc
