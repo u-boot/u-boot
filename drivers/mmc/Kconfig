@@ -332,6 +332,12 @@ config MMC_BCM2835
 
 	  If unsure, say N.
 
+config JZ47XX_MMC
+	bool "Ingenic JZ47xx SD/MMC Host Controller support"
+	depends on ARCH_JZ47XX
+	help
+	  This selects support for the SD Card Controller on Ingenic JZ47xx SoCs.
+
 config MMC_SANDBOX
 	bool "Sandbox MMC support"
 	depends on SANDBOX
