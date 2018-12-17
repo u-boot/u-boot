@@ -14,10 +14,13 @@
 #include <linux/string.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
+#include <environment.h>
 
 #ifdef CONFIG_WDT_ARMADA_37XX
 #include <wdt.h>
 #endif
+
+#include "mox_sp.h"
 
 #define MAX_MOX_MODULES		10
 
@@ -366,6 +369,49 @@ static int get_reset_gpio(struct gpio_desc *reset_gpio)
 	return 0;
 }
 
+int misc_init_r(void)
+{
+	int ret;
+	u8 mac1[6], mac2[6];
+
+	ret = mbox_sp_get_board_info(NULL, mac1, mac2, NULL, NULL);
+	if (ret < 0) {
+		printf("Cannot read data from OTP!\n");
+		return 0;
+	}
+
+	if (is_valid_ethaddr(mac1) && !env_get("ethaddr"))
+		eth_env_set_enetaddr("ethaddr", mac1);
+
+	if (is_valid_ethaddr(mac2) && !env_get("eth1addr"))
+		eth_env_set_enetaddr("eth1addr", mac2);
+
+	return 0;
+}
+
+static void mox_print_info(void)
+{
+	int ret, board_version, ram_size;
+	u64 serial_number;
+	const char *pub_key;
+
+	ret = mbox_sp_get_board_info(&serial_number, NULL, NULL, &board_version,
+				     &ram_size);
+	if (ret < 0)
+		return;
+
+	printf("Turris Mox:\n");
+	printf("  Board version: %i\n", board_version);
+	printf("  RAM size: %i MiB\n", ram_size);
+	printf("  Serial Number: %016llX\n", serial_number);
+
+	pub_key = mox_sp_get_ecdsa_public_key();
+	if (pub_key)
+		printf("  ECDSA Public Key: %s\n", pub_key);
+	else
+		printf("Cannot read ECDSA Public Key\n");
+}
+
 int last_stage_init(void)
 {
 	int ret, i;
@@ -374,14 +420,19 @@ int last_stage_init(void)
 	struct mii_dev *bus;
 	struct gpio_desc reset_gpio = {};
 
+	mox_print_info();
+
 	ret = mox_get_topology(&topology, &module_count, &is_sd);
 	if (ret) {
 		printf("Cannot read module topology!\n");
 		return 0;
 	}
 
-	printf("Found Turris Mox %s version\n", is_sd ? "SD" : "eMMC");
-	printf("Module Topology:\n");
+	printf("  SD/eMMC version: %s\n", is_sd ? "SD" : "eMMC");
+
+	if (module_count)
+		printf("Module Topology:\n");
+
 	for (i = 0; i < module_count; ++i) {
 		switch (topology[i]) {
 		case MOX_MODULE_SFP:
