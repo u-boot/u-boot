@@ -120,6 +120,14 @@ F:	doc/README.bcm7xxx
 F:	drivers/mmc/bcmstb_sdhci.c
 F:	drivers/spi/bcmstb_spi.c
 
+ARM/CZ.NIC TURRIS MOX SUPPORT
+M:	Marek Behun <marek.behun@nic.cz>
+S:	Maintained
+F:	arch/arm/dts/armada-3720-turris-mox.dts
+F:	board/CZ.NIC/
+F:	configs/turris_*_defconfig
+F:	include/configs/turris_*.h
+
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
 M:	Fabio Estevam <fabio.estevam@nxp.com>
