@@ -84,7 +84,7 @@ static void a8k_dram_init_banksize(void)
 	}
 }
 
-int dram_init_banksize(void)
+__weak int dram_init_banksize(void)
 {
 	if (CONFIG_IS_ENABLED(ARMADA_8K))
 		a8k_dram_init_banksize();
@@ -94,7 +94,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-int dram_init(void)
+__weak int dram_init(void)
 {
 	if (CONFIG_IS_ENABLED(ARMADA_8K)) {
 		gd->ram_size = a8k_dram_scan_ap_sz();
