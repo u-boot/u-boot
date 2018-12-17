@@ -135,17 +135,15 @@ int board_init(void)
 	return 0;
 }
 
-int last_stage_init(void)
+static int mox_do_spi(u8 *in, u8 *out, size_t size)
 {
 	struct spi_slave *slave;
 	struct udevice *dev;
-	u8 din[10], dout[10];
-	int ret, i;
-	size_t len = 0;
-	char module_topology[128];
+	int ret;
 
-	ret = spi_get_bus_and_cs(0, 1, 20000000, SPI_CPHA, "spi_generic_drv",
-				 "mox-modules@1", &dev, &slave);
+	ret = spi_get_bus_and_cs(0, 1, 1000000, SPI_CPHA | SPI_CPOL,
+				 "spi_generic_drv", "moxtet@1", &dev,
+				 &slave);
 	if (ret)
 		goto fail;
 
@@ -153,57 +151,101 @@ int last_stage_init(void)
 	if (ret)
 		goto fail_free;
 
-	memset(din, 0, 10);
-	memset(dout, 0, 10);
+	ret = spi_xfer(slave, size * 8, out, in, SPI_XFER_ONCE);
 
-	ret = spi_xfer(slave, 80, dout, din, SPI_XFER_ONCE);
-	if (ret)
-		goto fail_release;
-
-	if (din[0] != 0x00 && din[0] != 0xff)
-		goto fail_release;
-
-	printf("Module Topology:\n");
-	for (i = 1; i < 10 && din[i] != 0xff; ++i) {
-		u8 mid = din[i] & 0xf;
-		size_t mlen;
-		const char *mname = "";
-
-		switch (mid) {
-		case 0x1:
-			mname = "sfp-";
-			printf("% 4i: SFP Module\n", i);
-			break;
-		case 0x2:
-			mname = "pci-";
-			printf("% 4i: Mini-PCIe Module\n", i);
-			break;
-		case 0x3:
-			mname = "topaz-";
-			printf("% 4i: Topaz Switch Module\n", i);
-			break;
-		default:
-			printf("% 4i: unknown (ID %i)\n", i, mid);
-		}
-
-		mlen = strlen(mname);
-		if (len + mlen < sizeof(module_topology)) {
-			strcpy(module_topology + len, mname);
-			len += mlen;
-		}
-	}
-	printf("\n");
-
-	module_topology[len > 0 ? len - 1 : 0] = '\0';
-
-	env_set("module_topology", module_topology);
-
-fail_release:
 	spi_release_bus(slave);
 fail_free:
 	spi_free_slave(slave);
 fail:
-	if (ret)
-		printf("Cannot read module topology!\n");
 	return ret;
+}
+
+static int mox_get_topology(const u8 **ptopology, int *psize, int *pis_sd)
+{
+	static int is_sd;
+	static u8 topology[MAX_MOX_MODULES - 1];
+	static int size;
+	u8 din[MAX_MOX_MODULES], dout[MAX_MOX_MODULES];
+	int ret, i;
+
+	if (size) {
+		if (ptopology)
+			*ptopology = topology;
+		if (psize)
+			*psize = size;
+		if (pis_sd)
+			*pis_sd = is_sd;
+		return 0;
+	}
+
+	memset(din, 0, MAX_MOX_MODULES);
+	memset(dout, 0, MAX_MOX_MODULES);
+
+	ret = mox_do_spi(din, dout, MAX_MOX_MODULES);
+	if (ret)
+		return ret;
+
+	if (din[0] == 0x10)
+		is_sd = 1;
+	else if (din[0] == 0x00)
+		is_sd = 0;
+	else
+		return -ENODEV;
+
+	for (i = 1; i < MAX_MOX_MODULES && din[i] != 0xff; ++i)
+		topology[i - 1] = din[i] & 0xf;
+	size = i - 1;
+
+	if (ptopology)
+		*ptopology = topology;
+	if (psize)
+		*psize = size;
+	if (pis_sd)
+		*pis_sd = is_sd;
+
+	return 0;
+}
+
+int last_stage_init(void)
+{
+	int ret, i;
+	const u8 *topology;
+	int module_count, is_sd;
+
+	ret = mox_get_topology(&topology, &module_count, &is_sd);
+	if (ret) {
+		printf("Cannot read module topology!\n");
+		return 0;
+	}
+
+	printf("Found Turris Mox %s version\n", is_sd ? "SD" : "eMMC");
+	printf("Module Topology:\n");
+	for (i = 0; i < module_count; ++i) {
+		switch (topology[i]) {
+		case MOX_MODULE_SFP:
+			printf("% 4i: SFP Module\n", i + 1);
+			break;
+		case MOX_MODULE_PCI:
+			printf("% 4i: Mini-PCIe Module\n", i + 1);
+			break;
+		case MOX_MODULE_TOPAZ:
+			printf("% 4i: Topaz Switch Module (4-port)\n", i + 1);
+			break;
+		case MOX_MODULE_PERIDOT:
+			printf("% 4i: Peridot Switch Module (8-port)\n", i + 1);
+			break;
+		case MOX_MODULE_USB3:
+			printf("% 4i: USB 3.0 Module (4 ports)\n", i + 1);
+			break;
+		case MOX_MODULE_PASSPCI:
+			printf("% 4i: Passthrough Mini-PCIe Module\n", i + 1);
+			break;
+		default:
+			printf("% 4i: unknown (ID %i)\n", i + 1, topology[i]);
+		}
+	}
+
+	printf("\n");
+
+	return 0;
 }
