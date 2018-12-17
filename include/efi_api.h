@@ -299,7 +299,7 @@ struct efi_runtime_services {
 struct efi_configuration_table {
 	efi_guid_t guid;
 	void *table;
-};
+} __packed;
 
 #define EFI_SYSTEM_TABLE_SIGNATURE ((u64)0x5453595320494249ULL)
 
