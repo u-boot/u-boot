@@ -4,11 +4,13 @@
  */
 
 #include <common.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <dm.h>
 #include <clk.h>
 #include <spi.h>
 #include <mvebu/comphy.h>
+#include <miiphy.h>
 #include <linux/string.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
@@ -239,11 +241,138 @@ int comphy_update_map(struct comphy_map *serdes_map, int count)
 	return 0;
 }
 
+#define SW_SMI_CMD_R(d, r)	(0x9800 | (((d) & 0x1f) << 5) | ((r) & 0x1f))
+#define SW_SMI_CMD_W(d, r)	(0x9400 | (((d) & 0x1f) << 5) | ((r) & 0x1f))
+
+static int sw_multi_read(struct mii_dev *bus, int sw, int dev, int reg)
+{
+	bus->write(bus, sw, 0, 0, SW_SMI_CMD_R(dev, reg));
+	mdelay(5);
+	return bus->read(bus, sw, 0, 1);
+}
+
+static void sw_multi_write(struct mii_dev *bus, int sw, int dev, int reg,
+			   u16 val)
+{
+	bus->write(bus, sw, 0, 1, val);
+	bus->write(bus, sw, 0, 0, SW_SMI_CMD_W(dev, reg));
+	mdelay(5);
+}
+
+static int sw_scratch_read(struct mii_dev *bus, int sw, int reg)
+{
+	sw_multi_write(bus, sw, 0x1c, 0x1a, (reg & 0x7f) << 8);
+	return sw_multi_read(bus, sw, 0x1c, 0x1a) & 0xff;
+}
+
+static void sw_led_write(struct mii_dev *bus, int sw, int port, int reg,
+			 u16 val)
+{
+	sw_multi_write(bus, sw, port, 0x16, 0x8000 | ((reg & 7) << 12)
+					    | (val & 0x7ff));
+}
+
+static void sw_blink_leds(struct mii_dev *bus, int peridot, int topaz)
+{
+	int i, p;
+	struct {
+		int port;
+		u16 val;
+		int wait;
+	} regs[] = {
+		{ 2, 0xef, 1 }, { 2, 0xfe, 1 }, { 2, 0x33, 0 },
+		{ 4, 0xef, 1 }, { 4, 0xfe, 1 }, { 4, 0x33, 0 },
+		{ 3, 0xfe, 1 }, { 3, 0xef, 1 }, { 3, 0x33, 0 },
+		{ 1, 0xfe, 1 }, { 1, 0xef, 1 }, { 1, 0x33, 0 }
+	};
+
+	for (i = 0; i < 12; ++i) {
+		for (p = 0; p < peridot; ++p) {
+			sw_led_write(bus, 0x10 + p, regs[i].port, 0,
+				     regs[i].val);
+			sw_led_write(bus, 0x10 + p, regs[i].port + 4, 0,
+				     regs[i].val);
+		}
+		if (topaz) {
+			sw_led_write(bus, 0x2, 0x10 + regs[i].port, 0,
+				     regs[i].val);
+		}
+
+		if (regs[i].wait)
+			mdelay(75);
+	}
+}
+
+static void check_switch_address(struct mii_dev *bus, int addr)
+{
+	if (sw_scratch_read(bus, addr, 0x70) >> 3 != addr)
+		printf("Check of switch MDIO address failed for 0x%02x\n",
+		       addr);
+}
+
+static int sfp, pci, topaz, peridot, usb, passpci;
+static int sfp_pos, peridot_pos[3];
+static int module_count;
+
+static int configure_peridots(struct gpio_desc *reset_gpio)
+{
+	int i, ret;
+	u8 dout[MAX_MOX_MODULES];
+
+	memset(dout, 0, MAX_MOX_MODULES);
+
+	/* set addresses of Peridot modules */
+	for (i = 0; i < peridot; ++i)
+		dout[module_count - peridot_pos[i]] = (~i) & 3;
+
+	/*
+	 * if there is a SFP module connected to the last Peridot module, set
+	 * the P10_SMODE to 1 for the Peridot module
+	 */
+	if (sfp)
+		dout[module_count - peridot_pos[i - 1]] |= 1 << 3;
+
+	dm_gpio_set_value(reset_gpio, 1);
+	mdelay(10);
+
+	ret = mox_do_spi(NULL, dout, module_count + 1);
+
+	mdelay(10);
+	dm_gpio_set_value(reset_gpio, 0);
+
+	mdelay(50);
+
+	return ret;
+}
+
+static int get_reset_gpio(struct gpio_desc *reset_gpio)
+{
+	int node;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, 0, "cznic,moxtet");
+	if (node < 0) {
+		printf("Cannot find Moxtet bus device node!\n");
+		return -1;
+	}
+
+	gpio_request_by_name_nodev(offset_to_ofnode(node), "reset-gpios", 0,
+				   reset_gpio, GPIOD_IS_OUT);
+
+	if (!dm_gpio_is_valid(reset_gpio)) {
+		printf("Cannot find reset GPIO for Moxtet bus!\n");
+		return -1;
+	}
+
+	return 0;
+}
+
 int last_stage_init(void)
 {
 	int ret, i;
 	const u8 *topology;
-	int module_count, is_sd;
+	int is_sd;
+	struct mii_dev *bus;
+	struct gpio_desc reset_gpio = {};
 
 	ret = mox_get_topology(&topology, &module_count, &is_sd);
 	if (ret) {
@@ -275,6 +404,109 @@ int last_stage_init(void)
 			break;
 		default:
 			printf("% 4i: unknown (ID %i)\n", i + 1, topology[i]);
+		}
+	}
+
+	/* now check if modules are connected in supported mode */
+
+	for (i = 0; i < module_count; ++i) {
+		switch (topology[i]) {
+		case MOX_MODULE_SFP:
+			if (sfp) {
+				printf("Error: Only one SFP module is supported!\n");
+			} else if (topaz) {
+				printf("Error: SFP module cannot be connected after Topaz Switch module!\n");
+			} else {
+				sfp_pos = i;
+				++sfp;
+			}
+			break;
+		case MOX_MODULE_PCI:
+			if (pci) {
+				printf("Error: Only one Mini-PCIe module is supported!\n");
+			} else if (usb) {
+				printf("Error: Mini-PCIe module cannot come after USB 3.0 module!\n");
+			} else if (i && (i != 1 || !passpci)) {
+				printf("Error: Mini-PCIe module should be the first connected module or come right after Passthrough Mini-PCIe module!\n");
+			} else {
+				++pci;
+			}
+			break;
+		case MOX_MODULE_TOPAZ:
+			if (topaz) {
+				printf("Error: Only one Topaz module is supported!\n");
+			} else if (peridot >= 3) {
+				printf("Error: At most two Peridot modules can come before Topaz module!\n");
+			} else {
+				++topaz;
+			}
+			break;
+		case MOX_MODULE_PERIDOT:
+			if (sfp || topaz) {
+				printf("Error: Peridot module must come before SFP or Topaz module!\n");
+			} else if (peridot >= 3) {
+				printf("Error: At most three Peridot modules are supported!\n");
+			} else {
+				peridot_pos[peridot] = i;
+				++peridot;
+			}
+			break;
+		case MOX_MODULE_USB3:
+			if (pci) {
+				printf("Error: USB 3.0 module cannot come after Mini-PCIe module!\n");
+			} else if (usb) {
+				printf("Error: Only one USB 3.0 module is supported!\n");
+			} else if (i && (i != 1 || !passpci)) {
+				printf("Error: USB 3.0 module should be the first connected module or come right after Passthrough Mini-PCIe module!\n");
+			} else {
+				++usb;
+			}
+			break;
+		case MOX_MODULE_PASSPCI:
+			if (passpci) {
+				printf("Error: Only one Passthrough Mini-PCIe module is supported!\n");
+			} else if (i != 0) {
+				printf("Error: Passthrough Mini-PCIe module should be the first connected module!\n");
+			} else {
+				++passpci;
+			}
+		}
+	}
+
+	/* now configure modules */
+
+	if (get_reset_gpio(&reset_gpio) < 0)
+		return 0;
+
+	if (peridot > 0) {
+		if (configure_peridots(&reset_gpio) < 0) {
+			printf("Cannot configure Peridot modules!\n");
+			peridot = 0;
+		}
+	} else {
+		dm_gpio_set_value(&reset_gpio, 1);
+		mdelay(50);
+		dm_gpio_set_value(&reset_gpio, 0);
+		mdelay(50);
+	}
+
+	if (peridot || topaz) {
+		/*
+		 * now check if the addresses are set by reading Scratch & Misc
+		 * register 0x70 of Peridot (and potentially Topaz) modules
+		 */
+
+		bus = miiphy_get_dev_by_name("neta@30000");
+		if (!bus) {
+			printf("Cannot get MDIO bus device!\n");
+		} else {
+			for (i = 0; i < peridot; ++i)
+				check_switch_address(bus, 0x10 + i);
+
+			if (topaz)
+				check_switch_address(bus, 0x2);
+
+			sw_blink_leds(bus, peridot, topaz);
 		}
 	}
 
