@@ -8,6 +8,8 @@
 #ifndef _CONFIG_TURRIS_MOX_H
 #define _CONFIG_TURRIS_MOX_H
 
+#define CONFIG_SYS_BOOTM_LEN (64 << 20)
+
 #define CONFIG_LAST_STAGE_INIT
 
 /*
