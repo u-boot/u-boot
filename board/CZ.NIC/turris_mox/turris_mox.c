@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <clk.h>
 #include <spi.h>
+#include <mvebu/comphy.h>
 #include <linux/string.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
@@ -202,6 +203,38 @@ static int mox_get_topology(const u8 **ptopology, int *psize, int *pis_sd)
 		*psize = size;
 	if (pis_sd)
 		*pis_sd = is_sd;
+
+	return 0;
+}
+
+int comphy_update_map(struct comphy_map *serdes_map, int count)
+{
+	int ret, i, size, sfpindex = -1, swindex = -1;
+	const u8 *topology;
+
+	ret = mox_get_topology(&topology, &size, NULL);
+	if (ret)
+		return ret;
+
+	for (i = 0; i < size; ++i) {
+		if (topology[i] == MOX_MODULE_SFP && sfpindex == -1)
+			sfpindex = i;
+		else if ((topology[i] == MOX_MODULE_TOPAZ ||
+			  topology[i] == MOX_MODULE_PERIDOT) &&
+			 swindex == -1)
+			swindex = i;
+	}
+
+	if (sfpindex >= 0 && swindex >= 0) {
+		if (sfpindex < swindex)
+			serdes_map[0].speed = PHY_SPEED_1_25G;
+		else
+			serdes_map[0].speed = PHY_SPEED_3_125G;
+	} else if (sfpindex >= 0) {
+		serdes_map[0].speed = PHY_SPEED_1_25G;
+	} else if (swindex >= 0) {
+		serdes_map[0].speed = PHY_SPEED_3_125G;
+	}
 
 	return 0;
 }
