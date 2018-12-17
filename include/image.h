@@ -126,7 +126,8 @@ enum ih_category {
  * Operating System Codes
  *
  * The following are exposed to uImage header.
- * Do not change values for backward compatibility.
+ * New IDs *MUST* be appended at the end of the list and *NEVER*
+ * inserted for backward compatibility.
  */
 enum {
 	IH_OS_INVALID		= 0,	/* Invalid OS	*/
@@ -164,7 +165,8 @@ enum {
  * CPU Architecture Codes (supported by Linux)
  *
  * The following are exposed to uImage header.
- * Do not change values for backward compatibility.
+ * New IDs *MUST* be appended at the end of the list and *NEVER*
+ * inserted for backward compatibility.
  */
 enum {
 	IH_ARCH_INVALID		= 0,	/* Invalid CPU	*/
@@ -237,7 +239,8 @@ enum {
  *	as command interpreter (=> Shell Scripts).
  *
  * The following are exposed to uImage header.
- * Do not change values for backward compatibility.
+ * New IDs *MUST* be appended at the end of the list and *NEVER*
+ * inserted for backward compatibility.
  */
 
 enum {
@@ -252,7 +255,6 @@ enum {
 	IH_TYPE_FLATDT,			/* Binary Flat Device Tree Blob	*/
 	IH_TYPE_KWBIMAGE,		/* Kirkwood Boot Image		*/
 	IH_TYPE_IMXIMAGE,		/* Freescale IMXBoot Image	*/
-	IH_TYPE_IMX8IMAGE,		/* Freescale IMX8Boot Image	*/
 	IH_TYPE_UBLIMAGE,		/* Davinci UBL Image		*/
 	IH_TYPE_OMAPIMAGE,		/* TI OMAP Config Header Image	*/
 	IH_TYPE_AISIMAGE,		/* TI Davinci AIS Image		*/
@@ -280,6 +282,8 @@ enum {
 	IH_TYPE_STM32IMAGE,		/* STMicroelectronics STM32 Image */
 	IH_TYPE_SOCFPGAIMAGE_V1,	/* Altera SOCFPGA A10 Preloader	*/
 	IH_TYPE_MTKIMAGE,		/* MediaTek BootROM loadable Image */
+	IH_TYPE_IMX8MIMAGE,		/* Freescale IMX8MBoot Image	*/
+	IH_TYPE_IMX8IMAGE,		/* Freescale IMX8Boot Image	*/
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };
@@ -288,7 +292,8 @@ enum {
  * Compression Types
  *
  * The following are exposed to uImage header.
- * Do not change values for backward compatibility.
+ * New IDs *MUST* be appended at the end of the list and *NEVER*
+ * inserted for backward compatibility.
  */
 enum {
 	IH_COMP_NONE		= 0,	/*  No	 Compression Used	*/
