@@ -95,6 +95,8 @@
 		regulator-name = "usbhub_enable";
 		enable-active-low;
 		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&host_vbus_drv>;
 		regulator-boot-on;
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
@@ -143,16 +145,6 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&otg_vbus_drv>;
 		regulator-name = "vcc5v0_otg";
-		regulator-always-on;
-	};
-
-	vcc5v0_host: vcc5v0-host-regulator {
-		compatible = "regulator-fixed";
-		enable-active-low;
-		gpio = <&gpio4 RK_PA3 GPIO_ACTIVE_HIGH>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&host_vbus_drv>;
-		regulator-name = "vcc5v0_host";
 		regulator-always-on;
 	};
 
