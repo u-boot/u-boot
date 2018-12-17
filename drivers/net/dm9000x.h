@@ -31,7 +31,7 @@
 #define DM9000_PAR             0x10
 #define DM9000_MAR             0x16
 
-#define DM9000_GPCR			0x1e
+#define DM9000_GPCR            0x1e
 #define DM9000_GPR             0x1f
 #define DM9000_TRPAL           0x22
 #define DM9000_TRPAH           0x23
@@ -44,7 +44,9 @@
 #define DM9000_PIDH            0x2B
 
 #define DM9000_CHIPR           0x2C
+#define DM9000_TCR2            0x2D
 #define DM9000_SMCR            0x2F
+#define DM9000_PBCR            0x38
 
 #define DM9000_PHY		0x40	/* PHY address 0x01 */
 

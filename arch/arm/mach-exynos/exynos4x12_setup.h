@@ -11,24 +11,16 @@
 
 #include <config.h>
 
-#ifdef CONFIG_CLK_800_330_165
+/*
+ * refer to the datasheet
+ * the value for high-performance
+ */
+#ifdef CONFIG_CLK_800_400_200
 #define ARM_CLK_800
-#define DRAM_CLK_330
-#endif
-#ifdef CONFIG_CLK_1000_200_200
-#define ARM_CLK_1000
-#define DRAM_CLK_200
-#endif
-#ifdef CONFIG_CLK_1000_330_165
-#define ARM_CLK_1000
-#define DRAM_CLK_330
+#define DRAM_CLK_400
 #endif
 #ifdef CONFIG_CLK_1000_400_200
 #define ARM_CLK_1000
-#define DRAM_CLK_400
-#endif
-#ifdef CONFIG_CLK_1400_400_200
-#define ARM_CLK_1400
 #define DRAM_CLK_400
 #endif
 
@@ -36,56 +28,41 @@
 #define ASYNC_CONFIG        0x10010350
 
 /* CLK_SRC_CPU */
-#define MUX_MPLL_USER_SEL_C_FILPLL		0x0
-#define MUX_MPLL_USER_SEL_C_FOUTMPLL	    0x1
-#define MUX_HPM_SEL_MOUTAPLL		0x0
-#define MUX_HPM_SEL_SCLKMPLL		0x1
-#define MUX_CORE_SEL_MOUTAPLL		0x0
-#define MUX_CORE_SEL_SCLKMPLL		0x1
-#define MUX_APLL_SEL_FILPLL		    0x0
-#define MUX_APLL_SEL_MOUTMPLLFOUT	0x1
-#define CLK_SRC_CPU_RESET   ((MUX_MPLL_USER_SEL_C_FILPLL << 24) \
+#define MUX_MPLL_USER_SEL_C_FINPLL		0x0
+#define MUX_MPLL_USER_SEL_C_FOUTMPLL	0x1
+#define MUX_HPM_SEL_MOUTAPLL		    0x0
+#define MUX_HPM_SEL_SCLKMPLL		    0x1
+#define MUX_CORE_SEL_MOUTAPLL		    0x0
+#define MUX_CORE_SEL_SCLKMPLL		    0x1
+#define MUX_APLL_SEL_FILPLL		        0x0
+#define MUX_APLL_SEL_FOUTAPLL	        0x1
+#define CLK_SRC_CPU_RESET   ((MUX_MPLL_USER_SEL_C_FINPLL << 24) \
                     | (MUX_HPM_SEL_MOUTAPLL << 20) \
                     | (MUX_CORE_SEL_MOUTAPLL << 16) \
                     | (MUX_APLL_SEL_FILPLL << 0))
 #define CLK_SRC_CPU_VAL     ((MUX_MPLL_USER_SEL_C_FOUTMPLL << 24) \
                     | (MUX_HPM_SEL_MOUTAPLL << 20) \
                     | (MUX_CORE_SEL_MOUTAPLL << 16) \
-                    | (MUX_APLL_SEL_MOUTMPLLFOUT << 0))
+                    | (MUX_APLL_SEL_FOUTAPLL << 0))
 
 /* CLK_MUX_STAT_CPU */
 #define CLK_MUX_STAT_CPU_RESET  0x01110001
 #define CLK_MUX_STAT_CPU_VAL    0x02110002
 
 /* CLK_DIV_CPU0 */
+#define APLL_RATIO      0x01
+#define CORE_RATIO      0x00
 #define CORE2_RATIO     0x00
 #define PCLK_DBG_RATIO  0x01
-#define PERIPH_RATIO    0x00
-#define CORE_RATIO      0x00
+#define ATB_RATIO       0x03
+#define COREM0_RATIO    0x03
+#define COREM1_RATIO    0x07
+#define PERIPH_RATIO    0x03
 
 /* CLK_DIV_CPU1 */
+#define COPY_RATIO      0x02
 #define HPM_RATIO       0x00
 
-#ifdef ARM_CLK_800
-/* CLK_DIV_CPU0 */
-#define APLL_RATIO      0x01
-#define ATB_RATIO       0x03
-#define COREM1_RATIO    0x04
-#define COREM0_RATIO    0x02
-
-/* CLK_DIV_CPU1 */
-#define CORES_RATIO     0x03
-#define COPY_RATIO      0x03
-
-#elif defined ARM_CLK_1000
-#define APLL_RATIO      0x01
-#define ATB_RATIO       0x04
-#define COREM1_RATIO    0x05
-#define COREM0_RATIO    0x02
-
-#define CORES_RATIO     0x04
-#define COPY_RATIO      0x04
-#endif
 
 #define CLK_DIV_CPU0_VAL    ((CORE2_RATIO << 28) \
                     | (APLL_RATIO << 24) \
@@ -95,8 +72,7 @@
                     | (COREM1_RATIO << 8) \
                     | (COREM0_RATIO << 4) \
                     | (CORE_RATIO << 0))
-#define CLK_DIV_CPU1_VAL    ((CORES_RATIO << 8) \
-                    | (HPM_RATIO << 4) \
+#define CLK_DIV_CPU1_VAL    ((HPM_RATIO << 4) \
                     | (COPY_RATIO << 0))
 
 /* CLK_SRC_DMC */
@@ -231,6 +207,13 @@
 #define CLK_DIV_RIGHTBUS_VAL    ((GPR_RATIO << 4) \
                         | (GDR_RATIO << 0))
 
+#define DISABLE 0
+#define ENABLE  1
+#define SET_PLL(mdiv, pdiv, sdiv)     ((ENABLE << 31) \
+                        | (mdiv << 16) \
+                        | (pdiv << 8) \
+                        | (sdiv << 0))
+
 /* APLL_CON0 */
 #ifdef  ARM_CLK_800
 #define APLL_MDIV  0x64
@@ -241,21 +224,14 @@
 #define APLL_PDIV  0x03
 #define APLL_SDIV  0x00
 #endif
-
-#define DISABLE 0
-#define ENABLE  1
-#define SET_PLL(mdiv, pdiv, sdiv)     ((ENABLE << 31) \
-                        | (mdiv << 16) \
-                        | (pdiv << 8) \
-                        | (sdiv << 0))
 #define APLL_CON0_VAL   SET_PLL(APLL_MDIV, APLL_PDIV, APLL_SDIV)
 
 /* APLL_LOCK */
 #define APLL_LOCK_VAL   (APLL_PDIV * 270)
 
 /* APLL_CON1 */
-#define APLL_DCC_ENB 0x1
-#define APLL_AFC_ENB 0x0
+#define APLL_DCC_ENB    0x1
+#define APLL_AFC_ENB    0x0
 #define APLL_LOCK_CON_IN     0x3
 #define APLL_LOCK_CON_DLY    0x8
 #define APLL_CON1_VAL   ((APLL_DCC_ENB << 21) \
@@ -285,7 +261,7 @@
 /* EPLL_CON0 */
 #define EPLL_MDIV   0x40
 #define EPLL_PDIV   0x02
-#define EPLL_SDIV   0x03
+#define EPLL_SDIV   0x02
 #define EPLL_CON0_VAL   SET_PLL(EPLL_MDIV, EPLL_PDIV, EPLL_SDIV)
 
 /* EPLL_LOCK */
@@ -363,12 +339,16 @@
                     | (MMC2_SEL << 8))
 
 /* CLK_DIV_FSYS2 */
-#define MMC2_RATIO      0xf
-#define CLK_DIV_FSYS2_VAL   (MMC2_RATIO << 0)
+#define MMC2_RATIO      0x7
+#define MMC2_PRE_RATIO  0x4
+#define CLK_DIV_FSYS2_VAL   ((MMC2_PRE_RATIO << 8) \
+                        | (MMC2_RATIO << 0))
 
 /* CLK_DIV_FSYS3 */
-#define MMC4_RATIO      0xf
-#define CLK_DIV_FSYS3_VAL   (MMC4_RATIO << 0)
+#define MMC4_RATIO      0x7
+#define MMC4_PRE_RATIO  0x4
+#define CLK_DIV_FSYS3_VAL   ((MMC4_PRE_RATIO << 8) \
+                        | (MMC4_RATIO << 0))
 
 /* DMC */
 #define DIRECT_CMD_NOP	0x07000000

@@ -44,7 +44,7 @@
 /* CLK_DIV_CPU0 */
 #define APLL_RATIO		0x0
 #define PCLK_DBG_RATIO		0x1
-#define ATB_RATIO		0x3
+#define ATB_RATIO		0x4
 #define PERIPH_RATIO		0x3
 #define COREM1_RATIO		0x7
 #define COREM0_RATIO		0x3
@@ -207,7 +207,7 @@
 				| (MMC0_RATIO << 0))
 
 /* CLK_DIV_FSYS2 */
-#define MMC2_RATIO		0x3
+#define MMC2_RATIO		0x4
 #define MMC2_PRE_RATIO		0x3
 #define MMC3_RATIO		0xF
 #define MMC3_PRE_RATIO		0x0

@@ -20,10 +20,16 @@
         stdout-path = "/serial@13830000";
     };
 
+    config {
+        u-boot,mmc-env-offset = <0xAEE00>;
+    };
+
     aliases {
         serial3 = "/serial@13830000";
         console = "/serial@13830000";
-        pinctrl_exynos0 = "/pinctrl_exynos@0";
+        mmc1 = "/dwmmc@12550000";
+        mmc0 = "/sdhci@12530000";
+        pinctrl-exynos0 = "/pinctrl-exynos@0";
     };
 
     serial@13800000 {
@@ -53,7 +59,7 @@
         status = "okay";
     };
 
-    pinctrl_exynos@0 {
+    pinctrl-exynos@0 {
         compatible = "samsung,exynos4412-pinctrl";
         reg = <0x11400000 0x1000>;
 
@@ -117,7 +123,7 @@
         compatible = "samsung,exynos-sromc";
         bank = <3>;
         width = <2>;
-        srom-timing = <0 0 1 1 12 1 1>;
+        srom-timing = <0 0 12 1 6 1 1>;
     };
 
     ehci@12580000 {

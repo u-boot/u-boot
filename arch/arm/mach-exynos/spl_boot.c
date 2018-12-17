@@ -15,6 +15,7 @@
 #include <asm/arch/spl.h>
 #include <asm/arch/spi.h>
 #include <asm/io.h>
+#include <debug_uart.h>
 #ifdef CONFIG_X4412
 #include <asm/arch/smc.h>
 #endif
@@ -60,6 +61,9 @@ static void copy_uboot_and_coldboot(void)
             load_uboot_image(SDMMC_CH2);
             cold_boot(SDMMC_CH2);
             break;
+        case BOOT_MODE_EMMC:
+            load_uboot_image(EMMC44_CH4);
+            cold_boot(EMMC44_CH4);
         default:
             break;
     }
@@ -337,7 +341,6 @@ void board_init_f(unsigned long bootflag)
     copy_uboot_and_coldboot();
 #else
 	copy_uboot_to_ram();
-
 	/* Jump to U-Boot image */
 	uboot = (void *)CONFIG_SYS_TEXT_BASE;
 	(*uboot)();

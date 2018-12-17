@@ -8,6 +8,8 @@
 #include <common.h>
 #include <asm/arch/smc.h>
 
+void sdelay(unsigned long);
+
 /* SDMMC */
 struct sdmmc_dev {
     unsigned int images_pos;
@@ -81,9 +83,16 @@ void load_uboot_image(u32 boot_device)
 {
     struct ld_image_info *info_image;
     info_image = (struct ld_image_info *)CONFIG_IMAGE_INFO_BASE;
-    info_image->bootdev.sdmmc.images_pos = UBOOT_START_OFFSET;
-    info_image->bootdev.sdmmc.block_count = UBOOT_SIZE_BLOC_COUNT;
-    info_image->bootdev.sdmmc.base_addr = CONFIG_SYS_TEXT_BASE;
+
+    if (boot_device == SDMMC_CH2) {
+        info_image->bootdev.sdmmc.images_pos = UBOOT_START_OFFSET;
+        info_image->bootdev.sdmmc.block_count = UBOOT_SIZE_BLOC_COUNT;
+        info_image->bootdev.sdmmc.base_addr = CONFIG_SYS_TEXT_BASE;
+    } else if (boot_device == EMMC44_CH4) {
+        info_image->bootdev.emmc.block_count = UBOOT_SIZE_BLOC_COUNT;
+        info_image->bootdev.emmc.base_addr = CONFIG_SYS_TEXT_BASE;
+    }
+
     info_image->image_base_addr = CONFIG_SYS_TEXT_BASE;
     info_image->size = COPY_UBOOT_SIZE;
     info_image->secure_context_base = SMC_SECURE_CONTEXT_BASE;
@@ -96,9 +105,17 @@ void cold_boot(u32 boot_device)
 {
     struct ld_image_info *info_image;
     info_image = (struct ld_image_info *)CONFIG_IMAGE_INFO_BASE;
-    info_image->bootdev.sdmmc.images_pos = TZSW_START_OFFSET;
-    info_image->bootdev.sdmmc.block_count = TZSW_SIZE_BLOC_COUNT;
-    info_image->bootdev.sdmmc.base_addr = CONFIG_SYS_TZSW_BASE;
+
+    if (boot_device == SDMMC_CH2) {
+        info_image->bootdev.sdmmc.images_pos = TZSW_START_OFFSET;
+        info_image->bootdev.sdmmc.block_count = TZSW_SIZE_BLOC_COUNT;
+        info_image->bootdev.sdmmc.base_addr = CONFIG_SYS_TZSW_BASE;
+    } else if (boot_device == EMMC44_CH4) {
+        sdelay(1000); /* required for eMMC 4.4 */
+        info_image->bootdev.emmc.block_count = TZSW_SIZE_BLOC_COUNT;
+        info_image->bootdev.emmc.base_addr = CONFIG_SYS_TZSW_BASE;
+    }
+
     info_image->image_base_addr = CONFIG_SYS_TZSW_BASE;
     info_image->size = COPY_TZSW_SIZE;
     info_image->secure_context_base = SMC_SECURE_CONTEXT_BASE;
