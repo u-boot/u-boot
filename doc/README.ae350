@@ -25,7 +25,7 @@ Build and boot steps
 
 build:
 1. Prepare the toolchains and make sure the $PATH to toolchains is correct.
-2. Use `make ax25-ae350_defconfig` in u-boot root to build the image.
+2. Use `make ae350_rv[32|64]_defconfig` in u-boot root to build the image for 32 or 64 bit.
 
 Verification
 ====================
