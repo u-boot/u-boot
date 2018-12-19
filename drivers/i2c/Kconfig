@@ -450,6 +450,12 @@ config SYS_I2C_BUS_MAX
 	help
 	  Define the maximum number of available I2C buses.
 
+config SYS_I2C_XILINX_XIIC
+	bool "Xilinx AXI I2C driver"
+	depends on DM_I2C
+	help
+	  Support for Xilinx AXI I2C controller.
+
 config SYS_I2C_ZYNQ
 	bool "Xilinx I2C driver"
 	depends on ARCH_ZYNQMP || ARCH_ZYNQ
