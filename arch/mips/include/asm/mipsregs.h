@@ -1013,9 +1013,7 @@ do {									\
 #define __read_64bit_c0_split(source, sel)				\
 ({									\
 	unsigned long long __val;					\
-	unsigned long __flags;						\
 									\
-	local_irq_save(__flags);					\
 	if (sel == 0)							\
 		__asm__ __volatile__(					\
 			".set\tmips64\n\t"				\
@@ -1034,16 +1032,12 @@ do {									\
 			"dsra\t%L0, %L0, 32\n\t"			\
 			".set\tmips0"					\
 			: "=r" (__val));				\
-	local_irq_restore(__flags);					\
 									\
 	__val;								\
 })
 
 #define __write_64bit_c0_split(source, sel, val)			\
 do {									\
-	unsigned long __flags;						\
-									\
-	local_irq_save(__flags);					\
 	if (sel == 0)							\
 		__asm__ __volatile__(					\
 			".set\tmips64\n\t"				\
@@ -1064,7 +1058,6 @@ do {									\
 			"dmtc0\t%L0, " #source ", " #sel "\n\t"		\
 			".set\tmips0"					\
 			: : "r" (val));					\
-	local_irq_restore(__flags);					\
 } while (0)
 
 #define __readx_32bit_c0_register(source)				\
