@@ -656,7 +656,8 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 
 	phy_probe(dev);
 
-	bus->phymap[addr] = dev;
+	if (addr >= 0 && addr < PHY_MAX_ADDR)
+		bus->phymap[addr] = dev;
 
 	return dev;
 }
