@@ -113,6 +113,13 @@ static int sunxi_hdmi_hpd_detect(int hpd_delay)
 	writel(SUNXI_HDMI_CTRL_ENABLE, &hdmi->ctrl);
 	writel(SUNXI_HDMI_PAD_CTRL0_HDP, &hdmi->pad_ctrl0);
 
+	/* Enable PLLs for eventual DDC */
+	writel(SUNXI_HDMI_PAD_CTRL1 | SUNXI_HDMI_PAD_CTRL1_HALVE,
+	       &hdmi->pad_ctrl1);
+	writel(SUNXI_HDMI_PLL_CTRL | SUNXI_HDMI_PLL_CTRL_DIV(15),
+	       &hdmi->pll_ctrl);
+	writel(SUNXI_HDMI_PLL_DBG0_PLL3, &hdmi->pll_dbg0);
+
 	while (timer_get_us() < tmo) {
 		if (readl(&hdmi->hpd) & SUNXI_HDMI_HPD_DETECT)
 			return 1;
@@ -214,13 +221,6 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	int i, r, ext_blocks = 0;
-
-	/* SUNXI_HDMI_CTRL_ENABLE & PAD_CTRL0 are already set by hpd_detect */
-	writel(SUNXI_HDMI_PAD_CTRL1 | SUNXI_HDMI_PAD_CTRL1_HALVE,
-	       &hdmi->pad_ctrl1);
-	writel(SUNXI_HDMI_PLL_CTRL | SUNXI_HDMI_PLL_CTRL_DIV(15),
-	       &hdmi->pll_ctrl);
-	writel(SUNXI_HDMI_PLL_DBG0_PLL3, &hdmi->pll_dbg0);
 
 	/* Reset i2c controller */
 	setbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_DDC_GATE);
