@@ -37,7 +37,7 @@ cmd_gencert = cat $(srctree)/tools/k3_x509template.txt | sed $(SED_OPTS) > u-boo
 ifeq ($(CONFIG_SYS_K3_KEY), "")
 KEY=u-boot-spl-eckey.pem
 else
-KEY=$(patsubst "%",%,$(CONFIG_SYS_K3_KEY))
+KEY=$(patsubst "%",$(srctree)/%,$(CONFIG_SYS_K3_KEY))
 endif
 
 u-boot-spl-eckey.pem: FORCE
