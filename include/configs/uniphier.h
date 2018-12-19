@@ -171,6 +171,10 @@
 	"initrd_high=0xffffffffffffffff\0"			\
 	"scriptaddr=0x85000000\0"				\
 	"nor_base=0x42000000\0"					\
+	"emmcboot=mmcsetn && run bootcmd_mmc${mmc_first_dev}\0" \
+	"nandboot=run bootcmd_ubifs0\0" \
+	"norboot=run tftpboot\0" \
+	"usbboot=run bootcmd_usb0\0" \
 	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
 		"tftpboot $tmp_addr $second_image && " \
 		"setexpr tmp_addr $nor_base + 0x70000 && " \
