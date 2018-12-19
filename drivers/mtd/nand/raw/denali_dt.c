@@ -118,6 +118,7 @@ static int denali_dt_probe(struct udevice *dev)
 	}
 
 	if (clk_x.dev) {
+		denali->clk_rate = clk_get_rate(&clk);
 		denali->clk_x_rate = clk_get_rate(&clk_x);
 	} else {
 		/*
@@ -126,6 +127,7 @@ static int denali_dt_probe(struct udevice *dev)
 		 */
 		dev_notice(dev,
 			   "necessary clock is missing. default clock rates are used.\n");
+		denali->clk_rate = 50000000;
 		denali->clk_x_rate = 200000000;
 	}
 
