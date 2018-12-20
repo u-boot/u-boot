@@ -140,5 +140,6 @@ int mbox_qspi_open(void);
 #endif
 
 int mbox_reset_cold(void);
-
+int mbox_get_fpga_config_status(u32 cmd);
+int mbox_get_fpga_config_status_psci(u32 cmd);
 #endif /* _MAILBOX_S10_H_ */
