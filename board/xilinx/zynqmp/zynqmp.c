@@ -490,6 +490,7 @@ void reset_cpu(ulong addr)
 {
 }
 
+#if defined(CONFIG_BOARD_LATE_INIT)
 static const struct {
 	u32 bit;
 	const char *name;
@@ -660,6 +661,7 @@ int board_late_init(void)
 
 	return 0;
 }
+#endif
 
 int checkboard(void)
 {
