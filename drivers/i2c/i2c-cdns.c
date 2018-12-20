@@ -17,6 +17,7 @@
 #include <fdtdec.h>
 #include <mapmem.h>
 #include <wait_bit.h>
+#include <clk.h>
 
 /* i2c register set */
 struct cdns_i2c_regs {
@@ -415,6 +416,8 @@ static int cdns_i2c_ofdata_to_platdata(struct udevice *dev)
 	struct i2c_cdns_bus *i2c_bus = dev_get_priv(dev);
 	struct cdns_i2c_platform_data *pdata =
 		(struct cdns_i2c_platform_data *)dev_get_driver_data(dev);
+	struct clk clk;
+	int ret;
 
 	i2c_bus->regs = (struct cdns_i2c_regs *)devfdt_get_addr(dev);
 	if (!i2c_bus->regs)
@@ -423,7 +426,11 @@ static int cdns_i2c_ofdata_to_platdata(struct udevice *dev)
 	if (pdata)
 		i2c_bus->quirks = pdata->quirks;
 
-	i2c_bus->input_freq = 100000000; /* TODO hardcode input freq for now */
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (ret)
+		return ret;
+
+	i2c_bus->input_freq = clk_get_rate(&clk);
 
 	return 0;
 }
