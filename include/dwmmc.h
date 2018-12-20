@@ -130,6 +130,13 @@
 /* UHS register */
 #define DWMCI_DDR_MODE	(1 << 16)
 
+/* Internal IDMAC interrupt defines */
+#define DWMCI_IDINTEN_RI		BIT(1)
+#define DWMCI_IDINTEN_TI		BIT(0)
+
+#define DWMCI_IDINTEN_MASK	(DWMCI_IDINTEN_TI | \
+				 DWMCI_IDINTEN_RI)
+
 /* quirks */
 #define DWMCI_QUIRK_DISABLE_SMU		(1 << 0)
 
