@@ -327,7 +327,7 @@ static int _fdt_fixup_pci_msi(void *blob, const char *name, int rev)
 	memcpy((char *)tmp, p, len);
 
 	val = fdt32_to_cpu(tmp[0][6]);
-	if (rev > REV1_0) {
+	if (rev == REV1_0) {
 		tmp[1][6] = cpu_to_fdt32(val + 1);
 		tmp[2][6] = cpu_to_fdt32(val + 2);
 		tmp[3][6] = cpu_to_fdt32(val + 3);
