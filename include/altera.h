@@ -39,6 +39,8 @@ enum altera_iface {
 	fast_passive_parallel,
 	/* fast passive parallel with security (FPPS) */
 	fast_passive_parallel_security,
+	/* secure device manager (SDM) mailbox */
+	secure_device_manager_mailbox,
 	/* insert all new types before this */
 	max_altera_iface_type,
 };
@@ -54,6 +56,8 @@ enum altera_family {
 	Altera_StratixII,
 	/* StratixV Family */
 	Altera_StratixV,
+	/* Stratix10 Family */
+	Intel_FPGA_Stratix10,
 	/* SoCFPGA Family */
 	Altera_SoCFPGA,
 
