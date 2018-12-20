@@ -13,6 +13,7 @@
 #define	SUNXI_IMAGE_H
 
 #define BOOT0_MAGIC		"eGON.BT0"
+#define BROM_STAMP_VALUE	0x5f0a6c39
 #define SPL_SIGNATURE		"SPL" /* marks "sunxi" SPL header */
 #define SPL_MAJOR_BITS		3
 #define SPL_MINOR_BITS		5
