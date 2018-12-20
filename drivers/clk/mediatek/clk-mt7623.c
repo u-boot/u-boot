@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <asm/arch-mediatek/reset.h>
 #include <asm/io.h>
 #include <dt-bindings/clock/mt7623-clk.h>
 
@@ -782,6 +783,19 @@ static int mt7623_ethsys_probe(struct udevice *dev)
 	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, eth_cgs);
 }
 
+static int mt7623_ethsys_bind(struct udevice *dev)
+{
+	int ret = 0;
+
+#if CONFIG_IS_ENABLED(RESET_MEDIATEK)
+	ret = mediatek_reset_bind(dev, ETHSYS_RST_CTRL_OFS, 1);
+	if (ret)
+		debug("Warning: failed to bind ethsys reset controller\n");
+#endif
+
+	return ret;
+}
+
 static const struct udevice_id mt7623_apmixed_compat[] = {
 	{ .compatible = "mediatek,mt7623-apmixedsys" },
 	{ }
@@ -865,6 +879,7 @@ U_BOOT_DRIVER(mtk_clk_ethsys) = {
 	.id = UCLASS_CLK,
 	.of_match = mt7623_ethsys_compat,
 	.probe = mt7623_ethsys_probe,
+	.bind = mt7623_ethsys_bind,
 	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 };
