@@ -10,6 +10,7 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/power/mt7629-power.h>
+#include <dt-bindings/reset/mtk-reset.h>
 #include "skeleton.dtsi"
 
 / {
@@ -228,6 +229,48 @@
 		compatible = "mediatek,mt7629-ethsys", "syscon";
 		reg = <0x1b000000 0x1000>;
 		#clock-cells = <1>;
+		#reset-cells = <1>;
+	};
+
+	eth: ethernet@1b100000 {
+		compatible = "mediatek,mt7629-eth", "syscon";
+		reg = <0x1b100000 0x20000>;
+		clocks = <&topckgen CLK_TOP_ETH_SEL>,
+			<&topckgen CLK_TOP_F10M_REF_SEL>,
+			<&ethsys CLK_ETH_ESW_EN>,
+			<&ethsys CLK_ETH_GP0_EN>,
+			<&ethsys CLK_ETH_GP1_EN>,
+			<&ethsys CLK_ETH_GP2_EN>,
+			<&ethsys CLK_ETH_FE_EN>,
+			<&sgmiisys0 CLK_SGMII_TX_EN>,
+			<&sgmiisys0 CLK_SGMII_RX_EN>,
+			<&sgmiisys0 CLK_SGMII_CDR_REF>,
+			<&sgmiisys0 CLK_SGMII_CDR_FB>,
+			<&sgmiisys1 CLK_SGMII_TX_EN>,
+			<&sgmiisys1 CLK_SGMII_RX_EN>,
+			<&sgmiisys1 CLK_SGMII_CDR_REF>,
+			<&sgmiisys1 CLK_SGMII_CDR_FB>,
+			<&apmixedsys CLK_APMIXED_SGMIPLL>,
+			<&apmixedsys CLK_APMIXED_ETH2PLL>;
+		clock-names = "ethif", "sgmiitop", "esw", "gp0", "gp1", "gp2",
+				"fe", "sgmii_tx250m", "sgmii_rx250m",
+				"sgmii_cdr_ref", "sgmii_cdr_fb",
+				"sgmii2_tx250m", "sgmii2_rx250m",
+				"sgmii2_cdr_ref", "sgmii2_cdr_fb",
+				"sgmii_ck", "eth2pll";
+		assigned-clocks = <&topckgen CLK_TOP_ETH_SEL>,
+				  <&topckgen CLK_TOP_F10M_REF_SEL>;
+		assigned-clock-parents = <&topckgen CLK_TOP_UNIVPLL1_D2>,
+					 <&topckgen CLK_TOP_SGMIIPLL_D2>;
+		power-domains = <&scpsys MT7629_POWER_DOMAIN_ETHSYS>;
+		resets = <&ethsys ETHSYS_FE_RST>;
+		reset-names = "fe";
+		mediatek,ethsys = <&ethsys>;
+		mediatek,sgmiisys = <&sgmiisys0>;
+		mediatek,infracfg = <&infracfg>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
 	};
 
 	sgmiisys0: syscon@1b128000 {
