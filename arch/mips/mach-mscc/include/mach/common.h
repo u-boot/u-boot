@@ -45,4 +45,6 @@ int mscc_phy_wr(u32 miim_controller,
 		u8 addr,
 		u16 value);
 
+void mscc_gpio_set_alternate(int gpio, int mode);
+
 #endif				/* __ASM_MACH_COMMON_H */
