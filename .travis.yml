@@ -463,6 +463,13 @@ matrix:
           QEMU_TARGET="arm-softmmu"
           TEST_PY_ID="--id qemu"
           BUILDMAN="^zynq_zc702$"
+    - name: "test/py xilinx_versal_virt"
+      env:
+        - TEST_PY_BD="xilinx_versal_virt"
+          TEST_PY_TEST_SPEC="not sleep"
+          QEMU_TARGET="aarch64-softmmu"
+          TEST_PY_ID="--id qemu"
+          BUILDMAN="^xilinx_versal_virt$"
     - name: "test/py xtfpga"
       env:
         - TEST_PY_BD="xtfpga"
