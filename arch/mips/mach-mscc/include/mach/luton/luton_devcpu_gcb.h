@@ -13,4 +13,6 @@
 
 #define GPIO_ALT(x)				(0x88 + 4 * (x))
 
+#define CHIP_ID					(0x08)
+
 #endif

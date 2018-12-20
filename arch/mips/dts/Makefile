@@ -17,6 +17,8 @@ dtb-$(CONFIG_BOARD_NETGEAR_DGND3700V2) += netgear,dgnd3700v2.dtb
 dtb-$(CONFIG_BOARD_SAGEM_FAST1704) += sagem,f@st1704.dtb
 dtb-$(CONFIG_BOARD_TPLINK_WDR4300) += tplink_wdr4300.dtb
 dtb-$(CONFIG_TARGET_JZ4780_CI20) += ci20.dtb
+dtb-$(CONFIG_SOC_LUTON) += luton_pcb090.dtb luton_pcb091.dtb
+dtb-$(CONFIG_SOC_OCELOT) += ocelot_pcb120.dtb ocelot_pcb123.dtb
 
 targets += $(dtb-y)
 
