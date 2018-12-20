@@ -116,4 +116,8 @@ int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size);
 int stratixv_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size);
 #endif
 
+#ifdef CONFIG_FPGA_STRATIX10
+int stratix10_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size);
+#endif
+
 #endif /* _ALTERA_H_ */
