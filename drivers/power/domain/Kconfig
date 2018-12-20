@@ -32,7 +32,7 @@ config MTK_POWER_DOMAIN
 
 config MESON_GX_VPU_POWER_DOMAIN
 	bool "Enable Amlogic Meson GX VPU power domain driver"
-	depends on ARCH_MESON
+	depends on POWER_DOMAIN && ARCH_MESON
 	help
 	  Enable support for manipulating Amlogic Meson GX Video Processing
 	  Unit power domain.
