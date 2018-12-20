@@ -179,8 +179,7 @@ int __maybe_unused invoke_smc(u32 pm_api_id, u32 arg0, u32 arg1, u32 arg2,
 	return regs.regs[0];
 }
 
-#if defined(CONFIG_CLK_ZYNQMP)
-unsigned int zynqmp_pmufw_version(void)
+unsigned int  __maybe_unused zynqmp_pmufw_version(void)
 {
 	int ret;
 	u32 ret_payload[PAYLOAD_ARG_CNT];
@@ -202,7 +201,6 @@ unsigned int zynqmp_pmufw_version(void)
 
 	return pm_api_version;
 }
-#endif
 
 static int zynqmp_mmio_rawwrite(const u32 address,
 		      const u32 mask,
