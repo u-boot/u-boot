@@ -482,7 +482,7 @@ static boot_os_fn *boot_os[] = {
 	[IH_OS_PLAN9] = do_bootm_plan9,
 #endif
 #if defined(CONFIG_BOOTM_VXWORKS) && \
-	(defined(CONFIG_PPC) || defined(CONFIG_ARM))
+	(defined(CONFIG_PPC) || defined(CONFIG_ARM) || defined(CONFIG_RISCV))
 	[IH_OS_VXWORKS] = do_bootm_vxworks,
 #endif
 #if defined(CONFIG_CMD_ELF)

@@ -86,7 +86,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
-	debug("## Transferring control to Linux (at address %08lx) ...\n",
+	debug("## Transferring control to kernel (at address %08lx) ...\n",
 	      (ulong)kernel);
 
 	announce_and_cleanup(fake);
@@ -117,4 +117,10 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	boot_prep_linux(images);
 	boot_jump_linux(images, flag);
 	return 0;
+}
+
+int do_bootm_vxworks(int flag, int argc, char * const argv[],
+		     bootm_headers_t *images)
+{
+	return do_bootm_linux(flag, argc, argv, images);
 }
