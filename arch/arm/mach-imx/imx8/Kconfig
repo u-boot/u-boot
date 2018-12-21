@@ -5,6 +5,7 @@ config IMX8
 
 config IMX8QXP
 	select IMX8
+	select SUPPORT_SPL
 	bool
 
 config SYS_SOC
