@@ -317,8 +317,8 @@ static void do_bootvx_fdt(bootm_headers_t *images)
 	puts("## vxWorks terminated\n");
 }
 
-static int do_bootm_vxworks(int flag, int argc, char * const argv[],
-			     bootm_headers_t *images)
+int do_bootm_vxworks(int flag, int argc, char * const argv[],
+		     bootm_headers_t *images)
 {
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
