@@ -178,6 +178,31 @@
 	BOOT_TARGET_DEVICES_references_SATA_without_CONFIG_SATA
 #endif
 
+#ifdef CONFIG_NVME
+#define BOOTENV_RUN_NVME_INIT "run nvme_init; "
+#define BOOTENV_SET_NVME_NEED_INIT "setenv nvme_need_init; "
+#define BOOTENV_SHARED_NVME \
+	"nvme_init=" \
+		"if ${nvme_need_init}; then " \
+			"setenv nvme_need_init false; " \
+			"nvme scan; " \
+		"fi\0" \
+	\
+	"nvme_boot=" \
+		BOOTENV_RUN_NVME_INIT \
+		BOOTENV_SHARED_BLKDEV_BODY(nvme)
+#define BOOTENV_DEV_NVME	BOOTENV_DEV_BLKDEV
+#define BOOTENV_DEV_NAME_NVME	BOOTENV_DEV_NAME_BLKDEV
+#else
+#define BOOTENV_RUN_NVME_INIT
+#define BOOTENV_SET_NVME_NEED_INIT
+#define BOOTENV_SHARED_NVME
+#define BOOTENV_DEV_NVME \
+	BOOT_TARGET_DEVICES_references_NVME_without_CONFIG_NVME
+#define BOOTENV_DEV_NAME_NVME \
+	BOOT_TARGET_DEVICES_references_NVME_without_CONFIG_NVME
+#endif
+
 #ifdef CONFIG_SCSI
 #define BOOTENV_RUN_SCSI_INIT "run scsi_init; "
 #define BOOTENV_SET_SCSI_NEED_INIT "setenv scsi_need_init; "
@@ -359,6 +384,7 @@
 	BOOTENV_SHARED_USB \
 	BOOTENV_SHARED_SATA \
 	BOOTENV_SHARED_SCSI \
+	BOOTENV_SHARED_NVME \
 	BOOTENV_SHARED_IDE \
 	BOOTENV_SHARED_UBIFS \
 	BOOTENV_SHARED_EFI \
@@ -423,6 +449,7 @@
 	BOOT_TARGET_DEVICES(BOOTENV_DEV)                                  \
 	\
 	"distro_bootcmd=" BOOTENV_SET_SCSI_NEED_INIT                      \
+		BOOTENV_SET_NVME_NEED_INIT                                \
 		"for target in ${boot_targets}; do "                      \
 			"run bootcmd_${target}; "                         \
 		"done\0"
