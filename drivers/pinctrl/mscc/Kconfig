@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+
+config PINCTRL_MSCC
+	bool
+
+config PINCTRL_MSCC_OCELOT
+	depends on SOC_OCELOT && PINCTRL_FULL && OF_CONTROL
+	select PINCTRL_MSCC
+	default y
+	bool "Microsemi ocelot family pin control driver"
+	help
+	   Support pin multiplexing and pin configuration control on
+	   Microsemi ocelot SoCs.
+
+config PINCTRL_MSCC_LUTON
+	depends on SOC_LUTON && PINCTRL_FULL && OF_CONTROL
+	select PINCTRL_MSCC
+	default y
+	bool "Microsemi luton family pin control driver"
+	help
+	   Support pin multiplexing and pin configuration control on
+	   Microsemi luton SoCs.

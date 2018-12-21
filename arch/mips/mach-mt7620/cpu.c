@@ -89,9 +89,21 @@ void watchdog_reset(void)
 		wdt_reset(watchdog_dev);
 	}
 }
+#endif
 
 int arch_misc_init(void)
 {
+	/*
+	 * It has been noticed, that sometimes the d-cache is not in a
+	 * "clean-state" when U-Boot is running on MT7688. This was
+	 * detected when using the ethernet driver (which uses d-cache)
+	 * and a TFTP command does not complete. Flushing the complete
+	 * d-cache (again?) here seems to fix this issue.
+	 */
+	flush_dcache_range(gd->bd->bi_memstart,
+			   gd->bd->bi_memstart + gd->ram_size - 1);
+
+#ifdef CONFIG_WATCHDOG
 	/* Init watchdog */
 	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
 		debug("Watchdog: Not found by seq!\n");
@@ -103,7 +115,7 @@ int arch_misc_init(void)
 
 	wdt_start(watchdog_dev, 60000, 0);	/* 60 seconds */
 	printf("Watchdog: Started\n");
+#endif
 
 	return 0;
 }
-#endif

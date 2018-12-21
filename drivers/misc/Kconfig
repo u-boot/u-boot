@@ -120,6 +120,12 @@ config FSL_SEC_MON
 	  Security Monitor can be transitioned on any security failures,
 	  like software violations or hardware security violations.
 
+config JZ4780_EFUSE
+	bool "Ingenic JZ4780 eFUSE support"
+	depends on ARCH_JZ47XX
+	help
+	  This selects support for the eFUSE on Ingenic JZ4780 SoCs.
+
 config MXC_OCOTP
 	bool "Enable MXC OCOTP Driver"
 	help

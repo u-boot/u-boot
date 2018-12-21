@@ -62,3 +62,4 @@ obj-$(CONFIG_TEGRA_CAR) += tegra_car.o
 obj-$(CONFIG_TWL4030_LED) += twl4030_led.o
 obj-$(CONFIG_VEXPRESS_CONFIG) += vexpress_config.o
 obj-$(CONFIG_WINBOND_W83627) += winbond_w83627.o
+obj-$(CONFIG_JZ4780_EFUSE) += jz4780_efuse.o

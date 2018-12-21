@@ -53,6 +53,30 @@
 	status = "okay";
 };
 
+&enet0 {
+	status = "okay";
+	phy = <&enet0phy>;
+	phy-mode = "internal";
+
+	enet0phy: fixed-link {
+		reg = <1>;
+		speed = <100>;
+		full-duplex;
+	};
+};
+
+&enet1 {
+	status = "okay";
+	phy = <&enet1phy>;
+	phy-mode = "mii";
+
+	enet1phy: fixed-link {
+		reg = <1>;
+		speed = <100>;
+		full-duplex;
+	};
+};
+
 &gpio0 {
 	status = "okay";
 };

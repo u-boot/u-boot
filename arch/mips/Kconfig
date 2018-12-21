@@ -59,6 +59,11 @@ config ARCH_ATH79
 	select OF_CONTROL
 	imply CMD_DM
 
+config ARCH_MSCC
+	bool "Support MSCC VCore-III"
+	select OF_CONTROL
+	select DM
+
 config ARCH_BMIPS
 	bool "Support BMIPS SoCs"
 	select CLK
@@ -79,7 +84,7 @@ config ARCH_MT7620
 	select DM_SERIAL
 	imply DM_SPI
 	imply DM_SPI_FLASH
-	select ARCH_MISC_INIT if WATCHDOG
+	select ARCH_MISC_INIT
 	select MIPS_TUNE_24KC
 	select OF_CONTROL
 	select ROM_EXCEPTION_VECTORS
@@ -87,6 +92,12 @@ config ARCH_MT7620
 	select SUPPORTS_CPU_MIPS32_R2
 	select SUPPORTS_LITTLE_ENDIAN
 	select SYSRESET
+
+config ARCH_JZ47XX
+	bool "Support Ingenic JZ47xx"
+	select SUPPORT_SPL
+	select OF_CONTROL
+	select DM
 
 config MACH_PIC32
 	bool "Support Microchip PIC32"
@@ -138,7 +149,9 @@ source "board/imgtec/xilfpga/Kconfig"
 source "board/micronas/vct/Kconfig"
 source "board/qemu-mips/Kconfig"
 source "arch/mips/mach-ath79/Kconfig"
+source "arch/mips/mach-mscc/Kconfig"
 source "arch/mips/mach-bmips/Kconfig"
+source "arch/mips/mach-jz47xx/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
 source "arch/mips/mach-mt7620/Kconfig"
 

@@ -99,6 +99,13 @@ config LPC32XX_GPIO
 	help
 	  Support for the LPC32XX GPIO driver.
 
+config MSCC_BITBANG_SPI_GPIO
+	bool "Microsemi bitbang spi GPIO driver"
+	depends on DM_GPIO && SOC_VCOREIII
+	help
+	  Support controlling the GPIO used for SPI bitbang by software. Can
+	  be used by the VCoreIII SoCs, but it was mainly useful for Luton.
+
 config MSM_GPIO
 	bool "Qualcomm GPIO driver"
 	depends on DM_GPIO
