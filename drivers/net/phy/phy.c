@@ -959,7 +959,8 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 	phydev = phy_connect_fixed(bus, dev, interface);
 #endif
 #ifdef CONFIG_PHY_XILINX_GMII2RGMII
-	phydev = phy_connect_gmii2rgmii(bus, dev, interface);
+	if (!phydev)
+		phydev = phy_connect_gmii2rgmii(bus, dev, interface);
 #endif
 
 	if (!phydev)
