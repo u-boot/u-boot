@@ -1,7 +1,14 @@
 config RISCV_NDS
-	bool "AndeStar V5 ISA support"
-	default n
+	bool
 	help
-		Say Y here if you plan to run U-Boot on AndeStar v5
-		platforms and use some specific features which are
-		provided by Andes Technology AndeStar V5 Families.
+	  Run U-Boot on AndeStar V5 platforms and use some specific features
+	  which are provided by Andes Technology AndeStar V5 families.
+
+if RISCV_NDS
+
+config RISCV_NDS_CACHE
+	bool "AndeStar V5 families specific cache support"
+	help
+	  Provide Andes Technology AndeStar V5 families specific cache support.
+
+endif

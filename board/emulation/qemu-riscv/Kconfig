@@ -18,6 +18,7 @@ config SYS_TEXT_BASE
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
+	select QEMU_RISCV
 	imply SYS_NS16550
 	imply VIRTIO_MMIO
 	imply VIRTIO_NET
@@ -32,5 +33,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply CMD_FAT
 	imply BOARD_LATE_INIT
 	imply OF_BOARD_SETUP
+	imply SIFIVE_SERIAL
 
 endif

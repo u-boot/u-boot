@@ -21,4 +21,8 @@ config ENV_SIZE
 config ENV_OFFSET
 	default 0x140000 if ENV_IS_IN_SPI_FLASH
 
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select RISCV_NDS
+
 endif

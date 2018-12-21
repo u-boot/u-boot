@@ -343,6 +343,13 @@ config DEBUG_UART_SANDBOX
 	  start up driver model. The driver will be available until the real
 	  driver model serial is running.
 
+config DEBUG_UART_SIFIVE
+	bool "SiFive UART"
+	help
+	  Select this to enable a debug UART using the serial_sifive driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
 config DEBUG_UART_STM32
 	bool "STMicroelectronics STM32"
 	depends on STM32_SERIAL
@@ -678,6 +685,12 @@ config PXA_SERIAL
 	help
 	  If you have a machine based on a Marvell XScale PXA2xx CPU you
 	  can enable its onboard serial ports by enabling this option.
+
+config SIFIVE_SERIAL
+	bool "SiFive UART support"
+	depends on DM_SERIAL
+	help
+	  This driver supports the SiFive UART. If unsure say N.
 
 config STI_ASC_SERIAL
 	bool "STMicroelectronics on-chip UART"
