@@ -35,6 +35,26 @@ static struct scu_registers *scu_regs =
 	(struct scu_registers *)SOCFPGA_MPUSCU_ADDRESS;
 
 /*
+ * FPGA programming support for SoC FPGA Cyclone V
+ */
+static Altera_desc altera_fpga[] = {
+	{
+		/* Family */
+		Altera_SoCFPGA,
+		/* Interface type */
+		fast_passive_parallel,
+		/* No limitation as additional data will be ignored */
+		-1,
+		/* No device function table */
+		NULL,
+		/* Base interface address specified in driver */
+		NULL,
+		/* No cookie implementation */
+		0
+	},
+};
+
+/*
  * DesignWare Ethernet initialization
  */
 #ifdef CONFIG_ETH_DESIGNWARE
@@ -221,7 +241,7 @@ int arch_early_init_r(void)
 	socfpga_sdram_remap_zero();
 
 	/* Add device descriptor to FPGA device table */
-	socfpga_fpga_add();
+	socfpga_fpga_add(&altera_fpga[0]);
 
 #ifdef CONFIG_DESIGNWARE_SPI
 	/* Get Designware SPI controller out of reset */

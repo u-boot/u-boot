@@ -88,33 +88,11 @@ int overwrite_console(void)
 #endif
 
 #ifdef CONFIG_FPGA
-/*
- * FPGA programming support for SoC FPGA Cyclone V
- */
-static Altera_desc altera_fpga[] = {
-	{
-		/* Family */
-		Altera_SoCFPGA,
-		/* Interface type */
-		fast_passive_parallel,
-		/* No limitation as additional data will be ignored */
-		-1,
-		/* No device function table */
-		NULL,
-		/* Base interface address specified in driver */
-		NULL,
-		/* No cookie implementation */
-		0
-	},
-};
-
 /* add device descriptor to FPGA device table */
-void socfpga_fpga_add(void)
+void socfpga_fpga_add(void *fpga_desc)
 {
-	int i;
 	fpga_init();
-	for (i = 0; i < ARRAY_SIZE(altera_fpga); i++)
-		fpga_add(fpga_altera, &altera_fpga[i]);
+	fpga_add(fpga_altera, fpga_desc);
 }
 #endif
 

@@ -18,9 +18,9 @@ struct bsel {
 extern struct bsel bsel_str[];
 
 #ifdef CONFIG_FPGA
-void socfpga_fpga_add(void);
+void socfpga_fpga_add(void *fpga_desc);
 #else
-static inline void socfpga_fpga_add(void) {}
+inline void socfpga_fpga_add(void *fpga_desc) {}
 #endif
 
 #ifdef CONFIG_TARGET_SOCFPGA_GEN5
