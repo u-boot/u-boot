@@ -28,6 +28,42 @@ comp:		Pointer to the completion function. May be NULL.
 		entering the command arguments to complete the entry. Command
 		completion is only available if CONFIG_AUTO_COMPLETE is defined.
 
+Sub-command definition
+----------------------
+
+Likewise an array of cmd_tbl_t holding sub-commands can be created using either
+of the following macros:
+
+* U_BOOT_CMD_MKENT(name, maxargs, repeatable, command, "usage", "help")
+* U_BOOT_CMD_MKENTCOMPLETE(name, maxargs, repeatable, command, "usage, "help",
+  comp)
+
+This table has to be evaluated in the command function of the main command, e.g.
+
+    static cmd_tbl_t cmd_sub[] = {
+        U_BOOT_CMD_MKENT(foo, CONFIG_SYS_MAXARGS, 1, do_foo, "", ""),
+        U_BOOT_CMD_MKENT(bar, CONFIG_SYS_MAXARGS, 1, do_bar, "", ""),
+    };
+
+    static int do_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+    {
+        cmd_tbl_t *cp;
+
+        if (argc < 2)
+                return CMD_RET_USAGE;
+
+        /* drop sub-command argument */
+        argc--;
+        argv++;
+
+        cp = find_cmd_tbl(argv[0], cmd_ut_sub, ARRAY_SIZE(cmd_sub));
+
+        if (cp)
+            return cp->cmd(cmdtp, flag, argc, argv);
+
+        return CMD_RET_USAGE;
+    }
+
 Command function
 ----------------
 
