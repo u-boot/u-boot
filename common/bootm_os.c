@@ -260,7 +260,7 @@ static int do_bootm_plan9(int flag, int argc, char * const argv[],
 #if defined(CONFIG_BOOTM_VXWORKS) && \
 	(defined(CONFIG_PPC) || defined(CONFIG_ARM))
 
-void do_bootvx_fdt(bootm_headers_t *images)
+static void do_bootvx_fdt(bootm_headers_t *images)
 {
 #if defined(CONFIG_OF_LIBFDT)
 	int ret;
