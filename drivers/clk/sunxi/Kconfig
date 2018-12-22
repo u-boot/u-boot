@@ -1,0 +1,18 @@
+config CLK_SUNXI
+	bool "Clock support for Allwinner SoCs"
+	depends on CLK && ARCH_SUNXI
+	default y
+	help
+	  This enables support for common clock driver API on Allwinner
+	  SoCs.
+
+if CLK_SUNXI
+
+config CLK_SUN50I_A64
+	bool "Clock driver for Allwinner A64"
+	default MACH_SUN50I
+	help
+	  This enables common clock driver support for platforms based
+	  on Allwinner A64 SoC.
+
+endif # CLK_SUNXI
