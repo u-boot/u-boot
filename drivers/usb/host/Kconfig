@@ -190,6 +190,7 @@ config USB_EHCI_GENERIC
 	bool "Support for generic EHCI USB controller"
 	depends on OF_CONTROL
 	depends on DM_USB
+	default ARCH_SUNXI
 	default n
 	---help---
 	  Enables support for generic EHCI controller.
@@ -220,6 +221,7 @@ config USB_OHCI_GENERIC
 	bool "Support for generic OHCI USB controller"
 	depends on OF_CONTROL
 	depends on DM_USB
+	default ARCH_SUNXI
 	select USB_HOST
 	---help---
 	  Enables support for generic OHCI controller.
