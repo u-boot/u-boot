@@ -136,10 +136,10 @@ static int do_cbfs_ls(cmd_tbl_t *cmdtp, int flag, int argc,
 		case CBFS_TYPE_MICROCODE:
 			type_name = "microcode";
 			break;
-		case CBFS_COMPONENT_CMOS_DEFAULT:
+		case CBFS_TYPE_CMOS_DEFAULT:
 			type_name = "cmos default";
 			break;
-		case CBFS_COMPONENT_CMOS_LAYOUT:
+		case CBFS_TYPE_CMOS_LAYOUT:
 			type_name = "cmos layout";
 			break;
 		case -1:
