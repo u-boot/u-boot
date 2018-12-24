@@ -150,7 +150,7 @@ static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
 		debug("%s: trying to load \"%ls\" from %pD\n",
 		      __func__, lo.label, lo.file_path);
 
-		ret = efi_load_image_from_path(lo.file_path, &image);
+		ret = efi_load_image_from_path(lo.file_path, &image, &size);
 
 		if (ret != EFI_SUCCESS)
 			goto error;

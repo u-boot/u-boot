@@ -1595,50 +1595,72 @@ failure:
 
 /**
  * efi_load_image_from_path() - load an image using a file path
- * @file_path: the path of the image to load
- * @buffer:    buffer containing the loaded image
  *
- * Return: status code
+ * Read a file into a buffer allocated as EFI_BOOT_SERVICES_DATA. It is the
+ * callers obligation to update the memory type as needed.
+ *
+ * @file_path:	the path of the image to load
+ * @buffer:	buffer containing the loaded image
+ * @size:	size of the loaded image
+ * Return:	status code
  */
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
-				      void **buffer)
+				      void **buffer, efi_uintn_t *size)
 {
 	struct efi_file_info *info = NULL;
 	struct efi_file_handle *f;
 	static efi_status_t ret;
+	u64 addr;
 	efi_uintn_t bs;
 
+	/* In case of failure nothing is returned */
+	*buffer = NULL;
+	*size = 0;
+
+	/* Open file */
 	f = efi_file_from_path(file_path);
 	if (!f)
 		return EFI_DEVICE_ERROR;
 
+	/* Get file size */
 	bs = 0;
 	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid,
 				  &bs, info));
-	if (ret == EFI_BUFFER_TOO_SMALL) {
-		info = malloc(bs);
-		EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid,
-					  &bs, info));
+	if (ret != EFI_BUFFER_TOO_SMALL) {
+		ret =  EFI_DEVICE_ERROR;
+		goto error;
 	}
+
+	info = malloc(bs);
+	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid, &bs,
+				  info));
 	if (ret != EFI_SUCCESS)
 		goto error;
 
-	ret = efi_allocate_pool(EFI_LOADER_DATA, info->file_size, buffer);
-	if (ret)
-		goto error;
-
+	/*
+	 * When reading the file we do not yet know if it contains an
+	 * application, a boottime driver, or a runtime driver. So here we
+	 * allocate a buffer as EFI_BOOT_SERVICES_DATA. The caller has to
+	 * update the reservation according to the image type.
+	 */
 	bs = info->file_size;
-	EFI_CALL(ret = f->read(f, &bs, *buffer));
-
-error:
-	free(info);
-	EFI_CALL(f->close(f));
-
+	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
+				 EFI_BOOT_SERVICES_DATA,
+				 efi_size_in_pages(bs), &addr);
 	if (ret != EFI_SUCCESS) {
-		efi_free_pool(*buffer);
-		*buffer = NULL;
+		ret = EFI_OUT_OF_RESOURCES;
+		goto error;
 	}
 
+	/* Read file */
+	EFI_CALL(ret = f->read(f, &bs, (void *)(uintptr_t)addr));
+	if (ret != EFI_SUCCESS)
+		efi_free_pages(addr, efi_size_in_pages(bs));
+	*buffer = (void *)(uintptr_t)addr;
+	*size = bs;
+error:
+	EFI_CALL(f->close(f));
+	free(info);
 	return ret;
 }
 
@@ -1665,6 +1687,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					  efi_uintn_t source_size,
 					  efi_handle_t *image_handle)
 {
+	struct efi_device_path *dp, *fp;
 	struct efi_loaded_image *info = NULL;
 	struct efi_loaded_image_obj **image_obj =
 		(struct efi_loaded_image_obj **)image_handle;
@@ -1684,36 +1707,53 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	}
 
 	if (!source_buffer) {
-		struct efi_device_path *dp, *fp;
-
-		ret = efi_load_image_from_path(file_path, &source_buffer);
+		ret = efi_load_image_from_path(file_path, &source_buffer,
+					       &source_size);
 		if (ret != EFI_SUCCESS)
-			goto failure;
+			goto error;
 		/*
 		 * split file_path which contains both the device and
 		 * file parts:
 		 */
 		efi_dp_split_file_path(file_path, &dp, &fp);
-		ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
-		if (ret != EFI_SUCCESS)
-			goto failure;
 	} else {
 		/* In this case, file_path is the "device" path, i.e.
 		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
 		 */
-		ret = efi_setup_loaded_image(file_path, NULL, image_obj, &info);
+		u64 addr;
+		void *dest_buffer;
+
+		ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
+					 EFI_RUNTIME_SERVICES_CODE,
+					 efi_size_in_pages(source_size), &addr);
 		if (ret != EFI_SUCCESS)
 			goto error;
+		dest_buffer = (void *)(uintptr_t)addr;
+		memcpy(dest_buffer, source_buffer, source_size);
+		source_buffer = dest_buffer;
+
+		dp = file_path;
+		fp = NULL;
 	}
+	ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
+	if (ret != EFI_SUCCESS)
+		goto error_invalid_image;
 	(*image_obj)->entry = efi_load_pe(*image_obj, source_buffer, info);
 	if (!(*image_obj)->entry) {
 		ret = EFI_UNSUPPORTED;
-		goto failure;
+		goto error_invalid_image;
 	}
+	/* Update the type of the allocated memory */
+	efi_add_memory_map((uintptr_t)source_buffer,
+			   efi_size_in_pages(source_size),
+			   info->image_code_type, false);
 	info->system_table = &systab;
 	info->parent_handle = parent_image;
 	return EFI_EXIT(EFI_SUCCESS);
-failure:
+error_invalid_image:
+	/* The image is invalid. Release all associated resources. */
+	efi_free_pages((uintptr_t)source_buffer,
+		       efi_size_in_pages(source_size));
 	efi_delete_handle(*image_handle);
 	*image_handle = NULL;
 	free(info);

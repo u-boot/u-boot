@@ -397,7 +397,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 				    struct efi_loaded_image_obj **handle_ptr,
 				    struct efi_loaded_image **info_ptr);
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
-				      void **buffer);
+				      void **buffer, efi_uintn_t *size);
 /* Print information about all loaded images */
 void efi_print_image_infos(void *pc);
 
