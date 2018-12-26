@@ -386,7 +386,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 	if (!device_path && !image_path) {
 		printf("WARNING: using memory device/image path, this may confuse some payloads!\n");
 		/* actual addresses filled in after efi_load_pe() */
-		memdp = efi_dp_from_mem(0, 0, 0);
+		memdp = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE, 0, 0);
 		device_path = image_path = memdp;
 		/*
 		 * Grub expects that the device path of the loaded image is
