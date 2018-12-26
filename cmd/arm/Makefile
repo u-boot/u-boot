@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-obj-y += mtrr.o
+ifdef CONFIG_ARM64
+obj-$(CONFIG_CMD_EXCEPTION) += exception64.o
+else
 obj-$(CONFIG_CMD_EXCEPTION) += exception.o
-obj-$(CONFIG_HAVE_FSP) += fsp.o
+endif

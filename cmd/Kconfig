@@ -1433,6 +1433,12 @@ config CMD_EFIDEBUG
 	  particularly for managing boot parameters as  well as examining
 	  various EFI status for debugging.
 
+config CMD_EXCEPTION
+	bool "exception - raise exception"
+	depends on ARM || RISCV || X86
+	help
+	  Enable the 'exception' command which allows to raise an exception.
+
 config CMD_LED
 	bool "led"
 	depends on LED
