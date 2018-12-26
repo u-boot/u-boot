@@ -1738,11 +1738,9 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
 	if (ret != EFI_SUCCESS)
 		goto error_invalid_image;
-	(*image_obj)->entry = efi_load_pe(*image_obj, source_buffer, info);
-	if (!(*image_obj)->entry) {
-		ret = EFI_UNSUPPORTED;
+	ret = efi_load_pe(*image_obj, source_buffer, info);
+	if (ret != EFI_SUCCESS)
 		goto error_invalid_image;
-	}
 	/* Update the type of the allocated memory */
 	efi_add_memory_map((uintptr_t)source_buffer,
 			   efi_size_in_pages(source_size),

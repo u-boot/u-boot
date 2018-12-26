@@ -266,9 +266,6 @@ static efi_status_t do_bootefi_exec(void *efi,
 	struct efi_loaded_image_obj *image_obj = NULL;
 	struct efi_loaded_image *loaded_image_info = NULL;
 
-	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
-				     struct efi_system_table *st);
-
 	/*
 	 * Special case for efi payload not loaded from disk, such as
 	 * 'bootefi hello' or for example payload loaded directly into
@@ -300,11 +297,9 @@ static efi_status_t do_bootefi_exec(void *efi,
 		goto err_prepare;
 
 	/* Load the EFI payload */
-	entry = efi_load_pe(image_obj, efi, loaded_image_info);
-	if (!entry) {
-		ret = EFI_LOAD_ERROR;
+	ret = efi_load_pe(image_obj, efi, loaded_image_info);
+	if (ret != EFI_SUCCESS)
 		goto err_prepare;
-	}
 
 	if (memdp) {
 		struct efi_device_path_memory *mdp = (void *)memdp;
@@ -319,14 +314,14 @@ static efi_status_t do_bootefi_exec(void *efi,
 		"{ro,boot}(blob)0000000000000000");
 
 	/* Call our payload! */
-	debug("%s: Jumping to 0x%p\n", __func__, entry);
+	debug("%s: Jumping to 0x%p\n", __func__, image_obj->entry);
 
 	if (setjmp(&image_obj->exit_jmp)) {
 		ret = image_obj->exit_status;
 		goto err_prepare;
 	}
 
-	ret = efi_do_enter(&image_obj->header, &systab, entry);
+	ret = efi_do_enter(&image_obj->header, &systab, image_obj->entry);
 
 err_prepare:
 	/* image has returned, loaded-image obj goes *poof*: */

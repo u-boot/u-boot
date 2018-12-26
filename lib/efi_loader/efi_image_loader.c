@@ -193,13 +193,19 @@ static void efi_set_code_and_data_type(
 	}
 }
 
-/*
+/**
+ * efi_load_pe() - relocate EFI binary
+ *
  * This function loads all sections from a PE binary into a newly reserved
- * piece of memory. On successful load it then returns the entry point for
- * the binary. Otherwise NULL.
+ * piece of memory. On success the entry point is returned as handle->entry.
+ *
+ * @handle:		loaded image handle
+ * @efi:		pointer to the EFI binary
+ * @loaded_image_info:	loaded image protocol
+ * Return:		status code
  */
-void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
-		  struct efi_loaded_image *loaded_image_info)
+efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+			 struct efi_loaded_image *loaded_image_info)
 {
 	IMAGE_NT_HEADERS32 *nt;
 	IMAGE_DOS_HEADER *dos;
@@ -210,7 +216,6 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 	const IMAGE_BASE_RELOCATION *rel;
 	unsigned long rel_size;
 	int rel_idx = IMAGE_DIRECTORY_ENTRY_BASERELOC;
-	void *entry;
 	uint64_t image_base;
 	uint64_t image_size;
 	unsigned long virt_size = 0;
@@ -219,13 +224,13 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 	dos = efi;
 	if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
 		printf("%s: Invalid DOS Signature\n", __func__);
-		return NULL;
+		return EFI_LOAD_ERROR;
 	}
 
 	nt = (void *) ((char *)efi + dos->e_lfanew);
 	if (nt->Signature != IMAGE_NT_SIGNATURE) {
 		printf("%s: Invalid NT Signature\n", __func__);
-		return NULL;
+		return EFI_LOAD_ERROR;
 	}
 
 	for (i = 0; machines[i]; i++)
@@ -237,7 +242,7 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 	if (!supported) {
 		printf("%s: Machine type 0x%04x is not supported\n",
 		       __func__, nt->FileHeader.Machine);
-		return NULL;
+		return EFI_LOAD_ERROR;
 	}
 
 	/* Calculate upper virtual address boundary */
@@ -263,9 +268,9 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 		if (!efi_reloc) {
 			printf("%s: Could not allocate %lu bytes\n",
 			       __func__, virt_size);
-			return NULL;
+			return EFI_OUT_OF_RESOURCES;
 		}
-		entry = efi_reloc + opt->AddressOfEntryPoint;
+		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
 		virt_size = ALIGN(virt_size, opt->SectionAlignment);
@@ -279,16 +284,16 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 		if (!efi_reloc) {
 			printf("%s: Could not allocate %lu bytes\n",
 			       __func__, virt_size);
-			return NULL;
+			return EFI_OUT_OF_RESOURCES;
 		}
-		entry = efi_reloc + opt->AddressOfEntryPoint;
+		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
 		rel_size = opt->DataDirectory[rel_idx].Size;
 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
 		virt_size = ALIGN(virt_size, opt->SectionAlignment);
 	} else {
 		printf("%s: Invalid optional header magic %x\n", __func__,
 		       nt->OptionalHeader.Magic);
-		return NULL;
+		return EFI_LOAD_ERROR;
 	}
 
 	/* Load sections into RAM */
@@ -306,7 +311,7 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 				(unsigned long)image_base) != EFI_SUCCESS) {
 		efi_free_pages((uintptr_t) efi_reloc,
 			       (virt_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT);
-		return NULL;
+		return EFI_LOAD_ERROR;
 	}
 
 	/* Flush cache */
@@ -320,5 +325,5 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 	handle->reloc_base = efi_reloc;
 	handle->reloc_size = virt_size;
 
-	return entry;
+	return EFI_SUCCESS;
 }
