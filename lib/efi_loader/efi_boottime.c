@@ -1772,9 +1772,9 @@ error:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
-					   efi_uintn_t *exit_data_size,
-					   u16 **exit_data)
+efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+				    efi_uintn_t *exit_data_size,
+				    u16 **exit_data)
 {
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;

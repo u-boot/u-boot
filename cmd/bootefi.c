@@ -133,20 +133,6 @@ done:
 	return ret;
 }
 
-static efi_status_t efi_do_enter(
-			efi_handle_t image_handle, struct efi_system_table *st,
-			EFIAPI efi_status_t (*entry)(
-				efi_handle_t image_handle,
-				struct efi_system_table *st))
-{
-	efi_status_t ret = EFI_LOAD_ERROR;
-
-	if (entry)
-		ret = entry(image_handle, st);
-	st->boottime->exit(image_handle, ret, 0, NULL);
-	return ret;
-}
-
 /*
  * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
  *
@@ -315,13 +301,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 
 	/* Call our payload! */
 	debug("%s: Jumping to 0x%p\n", __func__, image_obj->entry);
-
-	if (setjmp(&image_obj->exit_jmp)) {
-		ret = image_obj->exit_status;
-		goto err_prepare;
-	}
-
-	ret = efi_do_enter(&image_obj->header, &systab, image_obj->entry);
+	ret = EFI_CALL(efi_start_image(&image_obj->header, NULL, NULL));
 
 err_prepare:
 	/* image has returned, loaded-image obj goes *poof*: */
