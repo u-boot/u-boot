@@ -142,3 +142,10 @@ void reset_phy(void)
 {
 }
 #endif
+
+#ifdef CONFIG_TFABOOT
+void *env_sf_get_env_addr(void)
+{
+	return (void *)(CONFIG_SYS_FSL_QSPI_BASE1 + CONFIG_ENV_OFFSET);
+}
+#endif
