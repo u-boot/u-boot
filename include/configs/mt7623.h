@@ -46,7 +46,7 @@
 /* DRAM */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 
-/* This is neede for kernel booting */
+/* This is needed for kernel booting */
 #define FDT_HIGH			"fdt_high=0xac000000\0"
 
 /* Extra environment variables */

@@ -20,10 +20,6 @@
 
 #define CONFIG_REVISION_TAG		1
 
-/* GPIO banks */
-#define CONFIG_OMAP3_GPIO_2		/* GPIO32..63   is in GPIO bank 2 */
-#define CONFIG_OMAP3_GPIO_4		/* GPIO96..127  is in GPIO bank 4 */
-
 /* TPS65950 */
 #define PBIASLITEVMODE1			(1 << 8)
 

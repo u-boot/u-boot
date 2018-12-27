@@ -17,6 +17,15 @@
 set -e
 set -u
 
+PROG_NAME="${0##*/}"
+
+usage() {
+	echo "$PROG_NAME <path to u-boot.cfg> <path to whitelist file> <source dir>"
+	exit 1
+}
+
+[ $# -ge 3 ] || usage
+
 path="$1"
 whitelist="$2"
 srctree="$3"
