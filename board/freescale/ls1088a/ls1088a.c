@@ -28,6 +28,121 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_TARGET_LS1088AQDS
+#ifdef CONFIG_TFABOOT
+struct ifc_regs ifc_cfg_ifc_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
+	{
+		"nor0",
+		CONFIG_SYS_NOR0_CSPR_EARLY,
+		CONFIG_SYS_NOR0_CSPR_EXT,
+		CONFIG_SYS_NOR_AMASK,
+		CONFIG_SYS_NOR_CSOR,
+		{
+			CONFIG_SYS_NOR_FTIM0,
+			CONFIG_SYS_NOR_FTIM1,
+			CONFIG_SYS_NOR_FTIM2,
+			CONFIG_SYS_NOR_FTIM3
+		},
+		0,
+		CONFIG_SYS_NOR0_CSPR,
+		0,
+	},
+	{
+		"nor1",
+		CONFIG_SYS_NOR1_CSPR_EARLY,
+		CONFIG_SYS_NOR0_CSPR_EXT,
+		CONFIG_SYS_NOR_AMASK_EARLY,
+		CONFIG_SYS_NOR_CSOR,
+		{
+			CONFIG_SYS_NOR_FTIM0,
+			CONFIG_SYS_NOR_FTIM1,
+			CONFIG_SYS_NOR_FTIM2,
+			CONFIG_SYS_NOR_FTIM3
+		},
+		0,
+		CONFIG_SYS_NOR1_CSPR,
+		CONFIG_SYS_NOR_AMASK,
+	},
+	{
+		"nand",
+		CONFIG_SYS_NAND_CSPR,
+		CONFIG_SYS_NAND_CSPR_EXT,
+		CONFIG_SYS_NAND_AMASK,
+		CONFIG_SYS_NAND_CSOR,
+		{
+			CONFIG_SYS_NAND_FTIM0,
+			CONFIG_SYS_NAND_FTIM1,
+			CONFIG_SYS_NAND_FTIM2,
+			CONFIG_SYS_NAND_FTIM3
+		},
+	},
+	{
+		"fpga",
+		CONFIG_SYS_FPGA_CSPR,
+		CONFIG_SYS_FPGA_CSPR_EXT,
+		SYS_FPGA_AMASK,
+		CONFIG_SYS_FPGA_CSOR,
+		{
+			SYS_FPGA_CS_FTIM0,
+			SYS_FPGA_CS_FTIM1,
+			SYS_FPGA_CS_FTIM2,
+			SYS_FPGA_CS_FTIM3
+		},
+		0,
+		SYS_FPGA_CSPR_FINAL,
+		0,
+	}
+};
+
+struct ifc_regs ifc_cfg_qspi_nor_boot[CONFIG_SYS_FSL_IFC_BANK_COUNT] = {
+	{
+		"nand",
+		CONFIG_SYS_NAND_CSPR,
+		CONFIG_SYS_NAND_CSPR_EXT,
+		CONFIG_SYS_NAND_AMASK,
+		CONFIG_SYS_NAND_CSOR,
+		{
+			CONFIG_SYS_NAND_FTIM0,
+			CONFIG_SYS_NAND_FTIM1,
+			CONFIG_SYS_NAND_FTIM2,
+			CONFIG_SYS_NAND_FTIM3
+		},
+	},
+	{
+		"reserved",
+	},
+	{
+		"fpga",
+		CONFIG_SYS_FPGA_CSPR,
+		CONFIG_SYS_FPGA_CSPR_EXT,
+		SYS_FPGA_AMASK,
+		CONFIG_SYS_FPGA_CSOR,
+		{
+			SYS_FPGA_CS_FTIM0,
+			SYS_FPGA_CS_FTIM1,
+			SYS_FPGA_CS_FTIM2,
+			SYS_FPGA_CS_FTIM3
+		},
+		0,
+		SYS_FPGA_CSPR_FINAL,
+		0,
+	}
+};
+
+void ifc_cfg_boot_info(struct ifc_regs_info *regs_info)
+{
+	enum boot_src src = get_boot_src();
+
+	if (src == BOOT_SOURCE_QSPI_NOR)
+		regs_info->regs = ifc_cfg_qspi_nor_boot;
+	else
+		regs_info->regs = ifc_cfg_ifc_nor_boot;
+
+	regs_info->cs_size = CONFIG_SYS_FSL_IFC_BANK_COUNT;
+}
+#endif /* CONFIG_TFABOOT */
+#endif /* CONFIG_TARGET_LS1088AQDS */
+
 int board_early_init_f(void)
 {
 #if defined(CONFIG_SYS_I2C_EARLY_INIT) && defined(CONFIG_TARGET_LS1088AQDS)
