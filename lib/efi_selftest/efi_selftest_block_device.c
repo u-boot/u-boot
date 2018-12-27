@@ -445,11 +445,6 @@ static int execute(void)
 		efi_st_error("Failed to write file\n");
 		return EFI_ST_FAILURE;
 	}
-	ret = file->close(file);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("Failed to close file\n");
-		return EFI_ST_FAILURE;
-	}
 	ret = file->getpos(file, &pos);
 	if (ret != EFI_SUCCESS) {
 		efi_st_error("GetPosition failed\n");
@@ -458,6 +453,11 @@ static int execute(void)
 	if (pos != 7) {
 		efi_st_error("GetPosition returned %u, expected 7\n",
 			     (unsigned int)pos);
+		return EFI_ST_FAILURE;
+	}
+	ret = file->close(file);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("Failed to close file\n");
 		return EFI_ST_FAILURE;
 	}
 

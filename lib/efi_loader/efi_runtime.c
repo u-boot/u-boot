@@ -436,13 +436,41 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 			uint32_t descriptor_version,
 			struct efi_mem_desc *virtmap)
 {
-	ulong runtime_start = (ulong)&__efi_runtime_start &
-			      ~(ulong)EFI_PAGE_MASK;
 	int n = memory_map_size / descriptor_size;
 	int i;
+	int rt_code_sections = 0;
 
 	EFI_ENTRY("%lx %lx %x %p", memory_map_size, descriptor_size,
 		  descriptor_version, virtmap);
+
+	/*
+	 * TODO:
+	 * Further down we are cheating. While really we should implement
+	 * SetVirtualAddressMap() events and ConvertPointer() to allow
+	 * dynamically loaded drivers to expose runtime services, we don't
+	 * today.
+	 *
+	 * So let's ensure we see exactly one single runtime section, as
+	 * that is the built-in one. If we see more (or less), someone must
+	 * have tried adding or removing to that which we don't support yet.
+	 * In that case, let's better fail rather than expose broken runtime
+	 * services.
+	 */
+	for (i = 0; i < n; i++) {
+		struct efi_mem_desc *map = (void*)virtmap +
+					   (descriptor_size * i);
+
+		if (map->type == EFI_RUNTIME_SERVICES_CODE)
+			rt_code_sections++;
+	}
+
+	if (rt_code_sections != 1) {
+		/*
+		 * We expose exactly one single runtime code section, so
+		 * something is definitely going wrong.
+		 */
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	}
 
 	/* Rebind mmio pointers */
 	for (i = 0; i < n; i++) {
@@ -483,7 +511,7 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 		map = (void*)virtmap + (descriptor_size * i);
 		if (map->type == EFI_RUNTIME_SERVICES_CODE) {
 			ulong new_offset = map->virtual_start -
-					   (runtime_start - gd->relocaddr);
+					   map->physical_start + gd->relocaddr;
 
 			efi_runtime_relocate(new_offset, map);
 			/* Once we're virtual, we can no longer handle
