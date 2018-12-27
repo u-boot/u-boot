@@ -1151,7 +1151,9 @@ static int macb_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 
-	pdata->iobase = devfdt_get_addr(dev);
+	pdata->iobase = (phys_addr_t)dev_remap_addr(dev);
+	if (!pdata->iobase)
+		return -EINVAL;
 
 	return macb_late_eth_ofdata_to_platdata(dev);
 }
