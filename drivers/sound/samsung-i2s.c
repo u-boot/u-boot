@@ -24,7 +24,7 @@
 /*
  * Sets the frame size for I2S LR clock
  *
- * @param i2s_reg	i2s regiter address
+ * @param i2s_reg	i2s register address
  * @param rfs		Frame Size
  */
 static void i2s_set_lr_framesize(struct i2s_reg *i2s_reg, unsigned int rfs)
@@ -54,7 +54,7 @@ static void i2s_set_lr_framesize(struct i2s_reg *i2s_reg, unsigned int rfs)
 /*
  * Sets the i2s transfer control
  *
- * @param i2s_reg	i2s regiter address
+ * @param i2s_reg	i2s register address
  * @param on		1 enable tx , 0 disable tx transfer
  */
 static void i2s_txctrl(struct i2s_reg *i2s_reg, int on)
@@ -77,7 +77,7 @@ static void i2s_txctrl(struct i2s_reg *i2s_reg, int on)
 /*
  * set the bit clock frame size (in multiples of LRCLK)
  *
- * @param i2s_reg	i2s regiter address
+ * @param i2s_reg	i2s register address
  * @param bfs		bit Frame Size
  */
 static void i2s_set_bitclk_framesize(struct i2s_reg *i2s_reg, unsigned bfs)
@@ -108,7 +108,7 @@ static void i2s_set_bitclk_framesize(struct i2s_reg *i2s_reg, unsigned bfs)
 /*
  * flushes the i2stx fifo
  *
- * @param i2s_reg	i2s regiter address
+ * @param i2s_reg	i2s register address
  * @param flush		Tx fifo flush command (0x00 - do not flush
  *				0x80 - flush tx fifo)
  */
@@ -122,7 +122,7 @@ static void i2s_fifo(struct i2s_reg *i2s_reg, unsigned int flush)
 /*
  * Set System Clock direction
  *
- * @param i2s_reg	i2s regiter address
+ * @param i2s_reg	i2s register address
  * @param dir		Clock direction
  *
  * @return		int value 0 for success, -1 in case of error
@@ -145,7 +145,7 @@ static int i2s_set_sysclk_dir(struct i2s_reg *i2s_reg, int dir)
  * Sets I2S Clcok format
  *
  * @param fmt		i2s clock properties
- * @param i2s_reg	i2s regiter address
+ * @param i2s_reg	i2s register address
  *
  * @return		int value 0 for success, -1 in case of error
  */
@@ -222,7 +222,7 @@ static int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
  * Sets the sample width in bits
  *
  * @param blc		samplewidth (size of sample in bits)
- * @param i2s_reg	i2s regiter address
+ * @param i2s_reg	i2s register address
  *
  * @return		int value 0 for success, -1 in case of error
  */
@@ -294,7 +294,7 @@ int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, void *data,
 	return 0;
 }
 
-int i2s_tx_init(struct i2s_uc_priv *pi2s_tx)
+static int i2s_tx_init(struct i2s_uc_priv *pi2s_tx)
 {
 	int ret;
 	struct i2s_reg *i2s_reg = (struct i2s_reg *)pi2s_tx->base_address;
