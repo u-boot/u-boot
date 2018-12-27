@@ -33,27 +33,27 @@ env__net_dhcp_server = True
 # static IP. If solely relying on DHCP, this variable may be omitted or set to
 # an empty list.
 env__net_static_env_vars = [
-    ("ipaddr", "10.0.0.100"),
-    ("netmask", "255.255.255.0"),
-    ("serverip", "10.0.0.1"),
+    ('ipaddr', '10.0.0.100'),
+    ('netmask', '255.255.255.0'),
+    ('serverip', '10.0.0.1'),
 ]
 
 # Details regarding a file that may be read from a TFTP server. This variable
 # may be omitted or set to None if TFTP testing is not possible or desired.
 env__net_tftp_readable_file = {
-    "fn": "ubtest-readable.bin",
-    "addr": 0x10000000,
-    "size": 5058624,
-    "crc32": "c2244b26",
+    'fn': 'ubtest-readable.bin',
+    'addr': 0x10000000,
+    'size': 5058624,
+    'crc32': 'c2244b26',
 }
 
 # Details regarding a file that may be read from a NFS server. This variable
 # may be omitted or set to None if NFS testing is not possible or desired.
 env__net_nfs_readable_file = {
-    "fn": "ubtest-readable.bin",
-    "addr": 0x10000000,
-    "size": 5058624,
-    "crc32": "c2244b26",
+    'fn': 'ubtest-readable.bin',
+    'addr': 0x10000000,
+    'size': 5058624,
+    'crc32': 'c2244b26',
 }
 """
 
