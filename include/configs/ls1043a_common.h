@@ -323,6 +323,8 @@
 			   "env exists secureboot && esbc_halt;"
 #define IFC_NOR_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;"
+#define IFC_NAND_BOOTCOMMAND "run distro_bootcmd; run nand_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;"
 #else
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
