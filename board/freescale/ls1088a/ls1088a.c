@@ -88,6 +88,9 @@ int fixup_ls1088ardb_pb_banner(void *fdt)
 #if !defined(CONFIG_SPL_BUILD)
 int checkboard(void)
 {
+#ifdef CONFIG_TFABOOT
+	enum boot_src src = get_boot_src();
+#endif
 	char buf[64];
 	u8 sw;
 	static const char *const freq[] = {"100", "125", "156.25",
@@ -117,9 +120,14 @@ int checkboard(void)
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
 
+#ifdef CONFIG_TFABOOT
+	if (src == BOOT_SOURCE_SD_MMC)
+		puts("SD card\n");
+#else
 #ifdef CONFIG_SD_BOOT
 	puts("SD card\n");
 #endif
+#endif /* CONFIG_TFABOOT */
 	switch (sw) {
 #ifdef CONFIG_TARGET_LS1088AQDS
 	case 0:
@@ -546,6 +554,10 @@ void fdt_fixup_board_enet(void *fdt)
 void fsl_fdt_fixup_flash(void *fdt)
 {
 	int offset;
+#ifdef CONFIG_TFABOOT
+	u32 __iomem *dcfg_ccsr = (u32 __iomem *)DCFG_BASE;
+	u32 val;
+#endif
 
 /*
  * IFC-NOR and QSPI are muxed on SoC.
@@ -553,6 +565,37 @@ void fsl_fdt_fixup_flash(void *fdt)
  * disable QSPI node in dts in case QSPI is not enabled.
  */
 
+#ifdef CONFIG_TFABOOT
+	enum boot_src src = get_boot_src();
+	bool disable_ifc = false;
+
+	switch (src) {
+	case BOOT_SOURCE_IFC_NOR:
+		disable_ifc = false;
+		break;
+	case BOOT_SOURCE_QSPI_NOR:
+		disable_ifc = true;
+		break;
+	default:
+		val = in_le32(dcfg_ccsr + DCFG_RCWSR15 / 4);
+		if (DCFG_RCWSR15_IFCGRPABASE_QSPI == (val & (u32)0x3))
+			disable_ifc = true;
+		break;
+	}
+
+	if (disable_ifc) {
+		offset = fdt_path_offset(fdt, "/soc/ifc/nor");
+
+		if (offset < 0)
+			offset = fdt_path_offset(fdt, "/ifc/nor");
+	} else {
+		offset = fdt_path_offset(fdt, "/soc/quadspi");
+
+		if (offset < 0)
+			offset = fdt_path_offset(fdt, "/quadspi");
+	}
+
+#else
 #ifdef CONFIG_FSL_QSPI
 	offset = fdt_path_offset(fdt, "/soc/ifc/nor");
 
@@ -563,6 +606,7 @@ void fsl_fdt_fixup_flash(void *fdt)
 
 	if (offset < 0)
 		offset = fdt_path_offset(fdt, "/quadspi");
+#endif
 #endif
 	if (offset < 0)
 		return;
@@ -613,3 +657,37 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 #endif /* defined(CONFIG_SPL_BUILD) */
+
+#ifdef CONFIG_TFABOOT
+#ifdef CONFIG_MTD_NOR_FLASH
+int is_flash_available(void)
+{
+	char *env_hwconfig = env_get("hwconfig");
+	enum boot_src src = get_boot_src();
+	int is_nor_flash_available = 1;
+
+	switch (src) {
+	case BOOT_SOURCE_IFC_NOR:
+		is_nor_flash_available = 1;
+		break;
+	case BOOT_SOURCE_QSPI_NOR:
+		is_nor_flash_available = 0;
+		break;
+	/*
+	 * In Case of SD boot,if qspi is defined in env_hwconfig
+	 * disable nor flash probe.
+	 */
+	default:
+		if (hwconfig_f("qspi", env_hwconfig))
+			is_nor_flash_available = 0;
+		break;
+	}
+	return is_nor_flash_available;
+}
+#endif
+
+void *env_sf_get_env_addr(void)
+{
+	return (void *)(CONFIG_SYS_FSL_QSPI_BASE + CONFIG_ENV_OFFSET);
+}
+#endif
