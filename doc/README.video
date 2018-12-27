@@ -75,3 +75,23 @@ The sunxi U-Boot driver supports the following video-mode options:
 For example to always use the hdmi connector, even if no cable is inserted,
 using edid info when available and otherwise initalizing it at 1024x768@60Hz,
 use: "setenv video-mode sunxi:1024x768-24@60,monitor=dvi,hpd=0,edid=1".
+
+
+TrueType fonts
+--------------
+
+U-Boot supports the use of antialiased TrueType fonts on some platforms. This
+has been tested in x86, ARMv7 and sandbox.
+
+To enable this, select CONFIG_CONSOLE_TRUETYPE. You can choose between several
+fonts, with CONSOLE_TRUETYPE_NIMBUS being the default.
+
+TrueType support requires floating point at present. On ARMv7 platforms you
+need to disable use of the private libgcc. You can do this by disabling
+CONFIG_USE_PRIVATE_LIBGCC. See chromebook_jerry for an example. Note that this
+increases U-Boot's size by about 70KB at present.
+
+On ARM you should also make sure your toolchain supports hardfp. This is
+normally given in the name of your toolchain, e.g. arm-linux-gnueabihf (hf
+means hardware floating point). You can also run gcc with -v to see if it has
+this option.
