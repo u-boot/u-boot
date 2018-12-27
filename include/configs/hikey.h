@@ -18,6 +18,8 @@
 
 #define CONFIG_REMAKE_ELF
 
+#define CONFIG_SYS_BOOTM_LEN		SZ_64M
+
 /* Physical Memory Map */
 
 /* CONFIG_SYS_TEXT_BASE needs to align with where ATF loads bl33.bin */
