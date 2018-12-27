@@ -675,7 +675,7 @@ enum boot_src __get_boot_src(u32 porsr1)
 			break;
 		case RCW_SRC_EMMC_VAL:
 		/* RCW SRC EMMC */
-			src = BOOT_SOURCE_SD_MMC2;
+			src = BOOT_SOURCE_SD_MMC;
 			break;
 		case RCW_SRC_I2C1_VAL:
 		/* RCW SRC I2C1 Extended */
