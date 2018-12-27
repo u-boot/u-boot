@@ -12,9 +12,6 @@
 #include <sound.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/clk.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/power.h>
 #include "maxim_codec.h"
 
 /*
