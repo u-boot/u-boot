@@ -428,7 +428,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 		"{ro,boot}(blob)0000000000000000");
 
 	/* Call our payload! */
-	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
+	debug("%s: Jumping to 0x%p\n", __func__, entry);
 
 	if (setjmp(&image_obj->exit_jmp)) {
 		ret = image_obj->exit_status;
