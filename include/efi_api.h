@@ -115,11 +115,11 @@ struct efi_boot_services {
 			struct efi_device_path *file_path, void *source_buffer,
 			efi_uintn_t source_size, efi_handle_t *image);
 	efi_status_t (EFIAPI *start_image)(efi_handle_t handle,
-					   unsigned long *exitdata_size,
-					   s16 **exitdata);
+					   efi_uintn_t *exitdata_size,
+					   u16 **exitdata);
 	efi_status_t (EFIAPI *exit)(efi_handle_t handle,
 				    efi_status_t exit_status,
-				    unsigned long exitdata_size, s16 *exitdata);
+				    efi_uintn_t exitdata_size, u16 *exitdata);
 	efi_status_t (EFIAPI *unload_image)(efi_handle_t image_handle);
 	efi_status_t (EFIAPI *exit_boot_services)(efi_handle_t, unsigned long);
 

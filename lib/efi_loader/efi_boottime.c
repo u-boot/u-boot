@@ -1706,8 +1706,8 @@ error:
  * Return: status code
  */
 static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
-					   unsigned long *exit_data_size,
-					   s16 **exit_data)
+					   efi_uintn_t *exit_data_size,
+					   u16 **exit_data)
 {
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
@@ -1773,8 +1773,8 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  */
 static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 				    efi_status_t exit_status,
-				    unsigned long exit_data_size,
-				    int16_t *exit_data)
+				    efi_uintn_t exit_data_size,
+				    u16 *exit_data)
 {
 	/*
 	 * TODO: We should call the unload procedure of the loaded
@@ -1783,7 +1783,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
 
-	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
+	EFI_ENTRY("%p, %ld, %zu, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
 
 	/* Make sure entry/exit counts for EFI world cross-overs match */
