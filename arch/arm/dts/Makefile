@@ -194,7 +194,8 @@ dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \
 	am335x-rut.dtb \
 	am335x-pdu001.dtb \
 	am335x-chiliboard.dtb \
-	am335x-sl50.dtb
+	am335x-sl50.dtb \
+	am335x-base0033.dtb
 dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 	am43x-epos-evm.dtb \
 	am437x-idk-evm.dtb \
