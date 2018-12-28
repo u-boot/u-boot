@@ -250,9 +250,9 @@ static u32 get_root_src_clk(enum clk_root_src root_src)
 	case OSC_25M_CLK:
 		return 25000000;
 	case OSC_27M_CLK:
-		return 25000000;
+		return 27000000;
 	case OSC_32K_CLK:
-		return 32000;
+		return 32768;
 	case ARM_PLL_CLK:
 		return decode_frac_pll(root_src);
 	case SYSTEM_PLL1_800M_CLK:
