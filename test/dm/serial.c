@@ -23,7 +23,7 @@ static int dm_test_serial(struct unit_test_state *uts)
 	 * test with default config which is the only one supported by
 	 * sandbox_serial driver
 	 */
-	ut_assertok(serial_setconfig(SERIAL_DEFAULT_CONFIG));
+	ut_assertok(serial_setconfig(dev_serial, SERIAL_DEFAULT_CONFIG));
 	ut_assertok(serial_getconfig(dev_serial, &value_serial));
 	ut_assert(value_serial == SERIAL_DEFAULT_CONFIG);
 	ut_assertok(serial_getinfo(&info_serial));
@@ -39,7 +39,8 @@ static int dm_test_serial(struct unit_test_state *uts)
 	 * sandbox_serial driver: test with wrong parity
 	 */
 	ut_asserteq(-ENOTSUPP,
-		    serial_setconfig(SERIAL_CONFIG(SERIAL_PAR_ODD,
+		    serial_setconfig(dev_serial,
+				     SERIAL_CONFIG(SERIAL_PAR_ODD,
 						   SERIAL_8_BITS,
 						   SERIAL_ONE_STOP)));
 	/*
@@ -47,7 +48,8 @@ static int dm_test_serial(struct unit_test_state *uts)
 	 * sandbox_serial driver: test with wrong bits number
 	 */
 	ut_asserteq(-ENOTSUPP,
-		    serial_setconfig(SERIAL_CONFIG(SERIAL_PAR_NONE,
+		    serial_setconfig(dev_serial,
+				     SERIAL_CONFIG(SERIAL_PAR_NONE,
 						   SERIAL_6_BITS,
 						   SERIAL_ONE_STOP)));
 
@@ -56,7 +58,8 @@ static int dm_test_serial(struct unit_test_state *uts)
 	 * sandbox_serial driver: test with wrong stop bits number
 	 */
 	ut_asserteq(-ENOTSUPP,
-		    serial_setconfig(SERIAL_CONFIG(SERIAL_PAR_NONE,
+		    serial_setconfig(dev_serial,
+				     SERIAL_CONFIG(SERIAL_PAR_NONE,
 						   SERIAL_8_BITS,
 						   SERIAL_TWO_STOP)));
 

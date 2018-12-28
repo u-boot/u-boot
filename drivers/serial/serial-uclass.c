@@ -305,16 +305,13 @@ int serial_getconfig(struct udevice *dev, uint *config)
 	return 0;
 }
 
-int serial_setconfig(uint config)
+int serial_setconfig(struct udevice *dev, uint config)
 {
 	struct dm_serial_ops *ops;
 
-	if (!gd->cur_serial_dev)
-		return 0;
-
-	ops = serial_get_ops(gd->cur_serial_dev);
+	ops = serial_get_ops(dev);
 	if (ops->setconfig)
-		return ops->setconfig(gd->cur_serial_dev, config);
+		return ops->setconfig(dev, config);
 
 	return 0;
 }
