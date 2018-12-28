@@ -354,7 +354,10 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	header->length = sizeof(struct acpi_spcr);
 	header->revision = 2;
 
-	ret = serial_getinfo(&serial_info);
+	/* Read the device once, here. It is reused below */
+	ret = uclass_first_device_err(UCLASS_SERIAL, &dev);
+	if (!ret)
+		ret = serial_getinfo(dev, &serial_info);
 	if (ret)
 		serial_info.type = SERIAL_CHIP_UNKNOWN;
 
@@ -432,11 +435,9 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 		break;
 	}
 
-	ret = uclass_first_device_err(UCLASS_SERIAL, &dev);
-	if (!ret)
+	serial_config = SERIAL_DEFAULT_CONFIG;
+	if (dev)
 		ret = serial_getconfig(dev, &serial_config);
-	if (ret)
-		serial_config = SERIAL_DEFAULT_CONFIG;
 
 	spcr->parity = SERIAL_GET_PARITY(serial_config);
 	spcr->stop_bits = SERIAL_GET_STOP(serial_config);

@@ -26,14 +26,14 @@ static int dm_test_serial(struct unit_test_state *uts)
 	ut_assertok(serial_setconfig(dev_serial, SERIAL_DEFAULT_CONFIG));
 	ut_assertok(serial_getconfig(dev_serial, &value_serial));
 	ut_assert(value_serial == SERIAL_DEFAULT_CONFIG);
-	ut_assertok(serial_getinfo(&info_serial));
+	ut_assertok(serial_getinfo(dev_serial, &info_serial));
 	ut_assert(info_serial.type == SERIAL_CHIP_UNKNOWN);
 	ut_assert(info_serial.addr == SERIAL_DEFAULT_ADDRESS);
 	/*
 	 * test with a parameter which is NULL pointer
 	 */
 	ut_asserteq(-EINVAL, serial_getconfig(dev_serial, NULL));
-	ut_asserteq(-EINVAL, serial_getinfo(NULL));
+	ut_asserteq(-EINVAL, serial_getinfo(dev_serial, NULL));
 	/*
 	 * test with a serial config which is not supported by
 	 * sandbox_serial driver: test with wrong parity

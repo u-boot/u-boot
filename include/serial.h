@@ -283,7 +283,7 @@ struct serial_dev_priv {
 
 int serial_getconfig(struct udevice *dev, uint *config);
 int serial_setconfig(struct udevice *dev, uint config);
-int serial_getinfo(struct serial_device_info *info);
+int serial_getinfo(struct udevice *dev, struct serial_device_info *info);
 
 void atmel_serial_initialize(void);
 void mcf_serial_initialize(void);
