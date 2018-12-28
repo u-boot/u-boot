@@ -649,6 +649,7 @@
 		interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_HIGH>;
 		#address-cells = <1>;
 		#size-cells = <0>;
+		#sound-dai-cells = <1>;
 		dmas = <&dmac_bus_s 0>, <&dmac_bus_s 1>;
 		dma-names = "tx", "rx";
 		clock-names = "i2s_hclk", "i2s_clk";
