@@ -1,5 +1,5 @@
 IGEP003X BOARD
-M:	Enric Balletbo i Serra <eballetbo@gmail.com>
+M:	Javier Martínez Canillas <javier@dowhile0.org>
 S:	Maintained
 F:	board/isee/igep003x/
 F:	include/configs/am335x_igep003x.h
