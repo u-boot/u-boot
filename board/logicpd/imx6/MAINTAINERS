@@ -4,3 +4,6 @@ S:     Maintained
 F:     board/logicpd/imx6/
 F:     include/configs/imx6_logic.h
 F:     configs/imx6q_logic_defconfig
+F:     arch/arm/dts/imx6-logicpd-baseboard.dtsi
+F:     arch/arm/dts/imx6-logicpd-som.dtsi
+F:     arch/arm/dts/imx6q-logicpd.dts
