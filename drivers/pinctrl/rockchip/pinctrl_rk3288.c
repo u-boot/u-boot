@@ -531,6 +531,17 @@ static void pinctrl_rk3288_hdmi_config(struct rk3288_grf *grf, int hdmi_id)
 		break;
 	}
 }
+
+static void pinctrl_rk3288_i2s_config(struct rk3288_grf *grf)
+{
+	rk_setreg(&grf->gpio6a_iomux, GPIO6A4_I2S_SDO0 << GPIO6A4_SHIFT |
+		  GPIO6A3_I2S_SDI << GPIO6A3_SHIFT |
+		  GPIO6A2_I2S_LRCKTX << GPIO6A2_SHIFT |
+		  GPIO6A1_I2S_LRCKRX << GPIO6A1_SHIFT |
+		  GPIO6A0_I2S_SCLK << GPIO6A0_SHIFT);
+	rk_setreg(&grf->gpio6b_iomux, GPIO6B0_I2S_CLK << GPIO6B0_SHIFT);
+	rk_setreg(&grf->io_vsel, AUDIO_V18SEL_1_8V << AUDIO_V18SEL_SHIFT);
+}
 #endif
 
 static int rk3288_pinctrl_request(struct udevice *dev, int func, int flags)
@@ -567,6 +578,9 @@ static int rk3288_pinctrl_request(struct udevice *dev, int func, int flags)
 		pinctrl_rk3288_uart_config(priv->grf, func);
 		break;
 #ifndef CONFIG_SPL_BUILD
+	case PERIPH_ID_I2S:
+		pinctrl_rk3288_i2s_config(priv->grf);
+		break;
 	case PERIPH_ID_LCDC0:
 	case PERIPH_ID_LCDC1:
 		pinctrl_rk3288_lcdc_config(priv->grf, func);
