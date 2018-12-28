@@ -281,6 +281,10 @@ struct serial_dev_priv {
 /* Access the serial operations for a device */
 #define serial_get_ops(dev)	((struct dm_serial_ops *)(dev)->driver->ops)
 
+int serial_getconfig(uint *config);
+int serial_setconfig(uint config);
+int serial_getinfo(struct serial_device_info *info);
+
 void atmel_serial_initialize(void);
 void mcf_serial_initialize(void);
 void mpc85xx_serial_initialize(void);
