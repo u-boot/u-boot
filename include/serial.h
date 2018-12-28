@@ -281,7 +281,7 @@ struct serial_dev_priv {
 /* Access the serial operations for a device */
 #define serial_get_ops(dev)	((struct dm_serial_ops *)(dev)->driver->ops)
 
-int serial_getconfig(uint *config);
+int serial_getconfig(struct udevice *dev, uint *config);
 int serial_setconfig(uint config);
 int serial_getinfo(struct serial_device_info *info);
 

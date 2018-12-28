@@ -342,6 +342,7 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	struct acpi_table_header *header = &(spcr->header);
 	struct serial_device_info serial_info = {0};
 	ulong serial_address, serial_offset;
+	struct udevice *dev;
 	uint serial_config;
 	uint serial_width;
 	int access_size;
@@ -431,7 +432,9 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 		break;
 	}
 
-	ret = serial_getconfig(&serial_config);
+	ret = uclass_first_device_err(UCLASS_SERIAL, &dev);
+	if (!ret)
+		ret = serial_getconfig(dev, &serial_config);
 	if (ret)
 		serial_config = SERIAL_DEFAULT_CONFIG;
 

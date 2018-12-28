@@ -24,7 +24,7 @@ static int dm_test_serial(struct unit_test_state *uts)
 	 * sandbox_serial driver
 	 */
 	ut_assertok(serial_setconfig(SERIAL_DEFAULT_CONFIG));
-	ut_assertok(serial_getconfig(&value_serial));
+	ut_assertok(serial_getconfig(dev_serial, &value_serial));
 	ut_assert(value_serial == SERIAL_DEFAULT_CONFIG);
 	ut_assertok(serial_getinfo(&info_serial));
 	ut_assert(info_serial.type == SERIAL_CHIP_UNKNOWN);
@@ -32,7 +32,7 @@ static int dm_test_serial(struct unit_test_state *uts)
 	/*
 	 * test with a parameter which is NULL pointer
 	 */
-	ut_asserteq(-EINVAL, serial_getconfig(NULL));
+	ut_asserteq(-EINVAL, serial_getconfig(dev_serial, NULL));
 	ut_asserteq(-EINVAL, serial_getinfo(NULL));
 	/*
 	 * test with a serial config which is not supported by

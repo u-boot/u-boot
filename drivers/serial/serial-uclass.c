@@ -294,16 +294,13 @@ void serial_setbrg(void)
 		ops->setbrg(gd->cur_serial_dev, gd->baudrate);
 }
 
-int serial_getconfig(uint *config)
+int serial_getconfig(struct udevice *dev, uint *config)
 {
 	struct dm_serial_ops *ops;
 
-	if (!gd->cur_serial_dev)
-		return 0;
-
-	ops = serial_get_ops(gd->cur_serial_dev);
+	ops = serial_get_ops(dev);
 	if (ops->getconfig)
-		return ops->getconfig(gd->cur_serial_dev, config);
+		return ops->getconfig(dev, config);
 
 	return 0;
 }
