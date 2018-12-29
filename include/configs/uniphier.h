@@ -124,6 +124,8 @@
 	"third_image=u-boot.bin\0"
 #endif
 
+#define CONFIG_PREBOOT			"env exist ${bootdev}preboot && run ${bootdev}preboot"
+
 #define CONFIG_ROOTPATH			"/nfs/root/path"
 #define CONFIG_NFSBOOTCOMMAND						\
 	"setenv bootargs $bootargs root=/dev/nfs rw "			\
@@ -169,8 +171,32 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"initrd_high=0xffffffffffffffff\0"			\
+	"script=boot.scr\0" \
 	"scriptaddr=0x85000000\0"				\
 	"nor_base=0x42000000\0"					\
+	"emmcboot=mmcsetn && run bootcmd_mmc${mmc_first_dev}\0" \
+	"nandboot=run bootcmd_ubifs0\0" \
+	"norboot=run tftpboot\0" \
+	"usbboot=run bootcmd_usb0\0" \
+	"emmcscript=setenv devtype mmc && " \
+		"mmcsetn && " \
+		"setenv devnum ${mmc_first_dev} && " \
+		"run loadscript_fat\0" \
+	"nandscript=echo Running ${script} from ubi ... && " \
+		"ubi part UBI && " \
+		"ubifsmount ubi0:boot && " \
+		"ubifsload ${loadaddr} ${script} && " \
+		"source\0" \
+	"norscript=echo Running ${script} from tftp ... && " \
+		"tftpboot ${script} &&" \
+		"source\0" \
+	"usbscript=usb start && " \
+		"setenv devtype usb && " \
+		"setenv devnum 0 && " \
+		"run loadscript_fat\0" \
+	"loadscript_fat=echo Running ${script} from ${devtype}${devnum} ... && " \
+		"load ${devtype} ${devnum}:1 ${loadaddr} ${script} && " \
+		"source\0" \
 	"sramupdate=setexpr tmp_addr $nor_base + 0x50000 &&"	\
 		"tftpboot $tmp_addr $second_image && " \
 		"setexpr tmp_addr $nor_base + 0x70000 && " \

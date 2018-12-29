@@ -73,11 +73,11 @@
 	status = "okay";
 };
 
-&usb0 {
+&usb2 {
 	status = "okay";
 };
 
-&usb1 {
+&usb3 {
 	status = "okay";
 };
 
@@ -92,10 +92,10 @@
 	};
 };
 
-&usb2 {
+&usb0 {
 	status = "okay";
 };
 
-&usb3 {
+&usb1 {
 	status = "okay";
 };

@@ -69,14 +69,6 @@ static int dma_mapping_error(void *dev, dma_addr_t addr)
 #define DENALI_INVALID_BANK	-1
 #define DENALI_NR_BANKS		4
 
-/*
- * The bus interface clock, clk_x, is phase aligned with the core clock.  The
- * clk_x is an integral multiple N of the core clk.  The value N is configured
- * at IP delivery time, and its available value is 4, 5, or 6.  We need to align
- * to the largest value to make it work with any possible configuration.
- */
-#define DENALI_CLK_X_MULT	6
-
 static inline struct denali_nand_info *mtd_to_denali(struct mtd_info *mtd)
 {
 	return container_of(mtd_to_nand(mtd), struct denali_nand_info, nand);
@@ -595,6 +587,12 @@ static int denali_dma_xfer(struct denali_nand_info *denali, void *buf,
 	}
 
 	iowrite32(DMA_ENABLE__FLAG, denali->reg + DMA_ENABLE);
+	/*
+	 * The ->setup_dma() hook kicks DMA by using the data/command
+	 * interface, which belongs to a different AXI port from the
+	 * register interface.  Read back the register to avoid a race.
+	 */
+	ioread32(denali->reg + DMA_ENABLE);
 
 	denali_reset_irq(denali);
 	denali->setup_dma(denali, dma_addr, page, write);
@@ -946,7 +944,7 @@ static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 {
 	struct denali_nand_info *denali = mtd_to_denali(mtd);
 	const struct nand_sdr_timings *timings;
-	unsigned long t_clk;
+	unsigned long t_x, mult_x;
 	int acc_clks, re_2_we, re_2_re, we_2_re, addr_2_data;
 	int rdwr_en_lo, rdwr_en_hi, rdwr_en_lo_hi, cs_setup;
 	int addr_2_data_mask;
@@ -957,15 +955,24 @@ static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 		return PTR_ERR(timings);
 
 	/* clk_x period in picoseconds */
-	t_clk = DIV_ROUND_DOWN_ULL(1000000000000ULL, denali->clk_x_rate);
-	if (!t_clk)
+	t_x = DIV_ROUND_DOWN_ULL(1000000000000ULL, denali->clk_x_rate);
+	if (!t_x)
+		return -EINVAL;
+
+	/*
+	 * The bus interface clock, clk_x, is phase aligned with the core clock.
+	 * The clk_x is an integral multiple N of the core clk.  The value N is
+	 * configured at IP delivery time, and its available value is 4, 5, 6.
+	 */
+	mult_x = DIV_ROUND_CLOSEST_ULL(denali->clk_x_rate, denali->clk_rate);
+	if (mult_x < 4 || mult_x > 6)
 		return -EINVAL;
 
 	if (chipnr == NAND_DATA_IFACE_CHECK_ONLY)
 		return 0;
 
 	/* tREA -> ACC_CLKS */
-	acc_clks = DIV_ROUND_UP(timings->tREA_max, t_clk);
+	acc_clks = DIV_ROUND_UP(timings->tREA_max, t_x);
 	acc_clks = min_t(int, acc_clks, ACC_CLKS__VALUE);
 
 	tmp = ioread32(denali->reg + ACC_CLKS);
@@ -974,7 +981,7 @@ static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 	iowrite32(tmp, denali->reg + ACC_CLKS);
 
 	/* tRWH -> RE_2_WE */
-	re_2_we = DIV_ROUND_UP(timings->tRHW_min, t_clk);
+	re_2_we = DIV_ROUND_UP(timings->tRHW_min, t_x);
 	re_2_we = min_t(int, re_2_we, RE_2_WE__VALUE);
 
 	tmp = ioread32(denali->reg + RE_2_WE);
@@ -983,7 +990,7 @@ static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 	iowrite32(tmp, denali->reg + RE_2_WE);
 
 	/* tRHZ -> RE_2_RE */
-	re_2_re = DIV_ROUND_UP(timings->tRHZ_max, t_clk);
+	re_2_re = DIV_ROUND_UP(timings->tRHZ_max, t_x);
 	re_2_re = min_t(int, re_2_re, RE_2_RE__VALUE);
 
 	tmp = ioread32(denali->reg + RE_2_RE);
@@ -997,8 +1004,7 @@ static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 	 * With WE_2_RE properly set, the Denali controller automatically takes
 	 * care of the delay; the driver need not set NAND_WAIT_TCCS.
 	 */
-	we_2_re = DIV_ROUND_UP(max(timings->tCCS_min, timings->tWHR_min),
-			       t_clk);
+	we_2_re = DIV_ROUND_UP(max(timings->tCCS_min, timings->tWHR_min), t_x);
 	we_2_re = min_t(int, we_2_re, TWHR2_AND_WE_2_RE__WE_2_RE);
 
 	tmp = ioread32(denali->reg + TWHR2_AND_WE_2_RE);
@@ -1013,7 +1019,7 @@ static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 	if (denali->revision < 0x0501)
 		addr_2_data_mask >>= 1;
 
-	addr_2_data = DIV_ROUND_UP(timings->tADL_min, t_clk);
+	addr_2_data = DIV_ROUND_UP(timings->tADL_min, t_x);
 	addr_2_data = min_t(int, addr_2_data, addr_2_data_mask);
 
 	tmp = ioread32(denali->reg + TCWAW_AND_ADDR_2_DATA);
@@ -1023,7 +1029,7 @@ static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 
 	/* tREH, tWH -> RDWR_EN_HI_CNT */
 	rdwr_en_hi = DIV_ROUND_UP(max(timings->tREH_min, timings->tWH_min),
-				  t_clk);
+				  t_x);
 	rdwr_en_hi = min_t(int, rdwr_en_hi, RDWR_EN_HI_CNT__VALUE);
 
 	tmp = ioread32(denali->reg + RDWR_EN_HI_CNT);
@@ -1032,11 +1038,10 @@ static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 	iowrite32(tmp, denali->reg + RDWR_EN_HI_CNT);
 
 	/* tRP, tWP -> RDWR_EN_LO_CNT */
-	rdwr_en_lo = DIV_ROUND_UP(max(timings->tRP_min, timings->tWP_min),
-				  t_clk);
+	rdwr_en_lo = DIV_ROUND_UP(max(timings->tRP_min, timings->tWP_min), t_x);
 	rdwr_en_lo_hi = DIV_ROUND_UP(max(timings->tRC_min, timings->tWC_min),
-				     t_clk);
-	rdwr_en_lo_hi = max(rdwr_en_lo_hi, DENALI_CLK_X_MULT);
+				     t_x);
+	rdwr_en_lo_hi = max_t(int, rdwr_en_lo_hi, mult_x);
 	rdwr_en_lo = max(rdwr_en_lo, rdwr_en_lo_hi - rdwr_en_hi);
 	rdwr_en_lo = min_t(int, rdwr_en_lo, RDWR_EN_LO_CNT__VALUE);
 
@@ -1046,8 +1051,8 @@ static int denali_setup_data_interface(struct mtd_info *mtd, int chipnr,
 	iowrite32(tmp, denali->reg + RDWR_EN_LO_CNT);
 
 	/* tCS, tCEA -> CS_SETUP_CNT */
-	cs_setup = max3((int)DIV_ROUND_UP(timings->tCS_min, t_clk) - rdwr_en_lo,
-			(int)DIV_ROUND_UP(timings->tCEA_max, t_clk) - acc_clks,
+	cs_setup = max3((int)DIV_ROUND_UP(timings->tCS_min, t_x) - rdwr_en_lo,
+			(int)DIV_ROUND_UP(timings->tCEA_max, t_x) - acc_clks,
 			0);
 	cs_setup = min_t(int, cs_setup, CS_SETUP_CNT__VALUE);
 
