@@ -185,6 +185,7 @@ static int mxs_nand_init(void)
 	mtd = nand_to_mtd(&nand_chip);
 	/* set mtd functions */
 	nand_chip.cmdfunc = mxs_nand_command;
+	nand_chip.scan_bbt = nand_default_bbt;
 	nand_chip.numchips = 1;
 
 	/* identify flash device */
