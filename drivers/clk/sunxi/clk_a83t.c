@@ -40,6 +40,12 @@ static struct ccu_reset a83t_resets[] = {
 	[RST_BUS_EHCI0]		= RESET(0x2c0, BIT(26)),
 	[RST_BUS_EHCI1]		= RESET(0x2c0, BIT(27)),
 	[RST_BUS_OHCI0]		= RESET(0x2c0, BIT(29)),
+
+	[RST_BUS_UART0]		= RESET(0x2d8, BIT(16)),
+	[RST_BUS_UART1]		= RESET(0x2d8, BIT(17)),
+	[RST_BUS_UART2]		= RESET(0x2d8, BIT(18)),
+	[RST_BUS_UART3]		= RESET(0x2d8, BIT(19)),
+	[RST_BUS_UART4]		= RESET(0x2d8, BIT(20)),
 };
 
 static const struct ccu_desc a83t_ccu_desc = {

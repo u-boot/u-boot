@@ -26,6 +26,10 @@ static struct ccu_reset v3s_resets[] = {
 	[RST_USB_PHY0]		= RESET(0x0cc, BIT(0)),
 
 	[RST_BUS_OTG]		= RESET(0x2c0, BIT(24)),
+
+	[RST_BUS_UART0]		= RESET(0x2d8, BIT(16)),
+	[RST_BUS_UART1]		= RESET(0x2d8, BIT(17)),
+	[RST_BUS_UART2]		= RESET(0x2d8, BIT(18)),
 };
 
 static const struct ccu_desc v3s_ccu_desc = {

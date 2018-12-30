@@ -43,6 +43,12 @@ static const struct ccu_reset a64_resets[] = {
 	[RST_BUS_EHCI1]         = RESET(0x2c0, BIT(25)),
 	[RST_BUS_OHCI0]         = RESET(0x2c0, BIT(28)),
 	[RST_BUS_OHCI1]         = RESET(0x2c0, BIT(29)),
+
+	[RST_BUS_UART0]		= RESET(0x2d8, BIT(16)),
+	[RST_BUS_UART1]		= RESET(0x2d8, BIT(17)),
+	[RST_BUS_UART2]		= RESET(0x2d8, BIT(18)),
+	[RST_BUS_UART3]		= RESET(0x2d8, BIT(19)),
+	[RST_BUS_UART4]		= RESET(0x2d8, BIT(20)),
 };
 
 static const struct ccu_desc a64_ccu_desc = {
