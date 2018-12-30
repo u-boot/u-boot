@@ -518,7 +518,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 					       const efi_guid_t *vendor);
 efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 				     const efi_guid_t *vendor, u32 attributes,
-				     efi_uintn_t data_size, void *data);
+				     efi_uintn_t data_size, const void *data);
 
 /*
  * See section 3.1.3 in the v2.7 UEFI spec for more details on

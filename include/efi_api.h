@@ -230,7 +230,8 @@ struct efi_runtime_services {
 	efi_status_t (EFIAPI *set_variable)(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 attributes,
-					    efi_uintn_t data_size, void *data);
+					    efi_uintn_t data_size,
+					    const void *data);
 	efi_status_t (EFIAPI *get_next_high_mono_count)(
 			uint32_t *high_count);
 	void (EFIAPI *reset_system)(enum efi_reset_type reset_type,

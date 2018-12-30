@@ -254,7 +254,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 /* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#SetVariable.28.29 */
 efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 				     const efi_guid_t *vendor, u32 attributes,
-				     efi_uintn_t data_size, void *data)
+				     efi_uintn_t data_size, const void *data)
 {
 	char *native_name = NULL, *val = NULL, *s;
 	efi_status_t ret = EFI_SUCCESS;
