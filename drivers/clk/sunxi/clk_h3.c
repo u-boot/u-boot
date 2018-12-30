@@ -23,6 +23,11 @@ static struct ccu_clk_gate h3_gates[] = {
 	[CLK_BUS_OHCI2]		= GATE(0x060, BIT(30)),
 	[CLK_BUS_OHCI3]		= GATE(0x060, BIT(31)),
 
+	[CLK_BUS_UART0]		= GATE(0x06c, BIT(16)),
+	[CLK_BUS_UART1]		= GATE(0x06c, BIT(17)),
+	[CLK_BUS_UART2]		= GATE(0x06c, BIT(18)),
+	[CLK_BUS_UART3]		= GATE(0x06c, BIT(19)),
+
 	[CLK_USB_PHY0]		= GATE(0x0cc, BIT(8)),
 	[CLK_USB_PHY1]		= GATE(0x0cc, BIT(9)),
 	[CLK_USB_PHY2]		= GATE(0x0cc, BIT(10)),

@@ -19,6 +19,12 @@ static const struct ccu_clk_gate a64_gates[] = {
 	[CLK_BUS_OHCI0]		= GATE(0x060, BIT(28)),
 	[CLK_BUS_OHCI1]		= GATE(0x060, BIT(29)),
 
+	[CLK_BUS_UART0]		= GATE(0x06c, BIT(16)),
+	[CLK_BUS_UART1]		= GATE(0x06c, BIT(17)),
+	[CLK_BUS_UART2]		= GATE(0x06c, BIT(18)),
+	[CLK_BUS_UART3]		= GATE(0x06c, BIT(19)),
+	[CLK_BUS_UART4]		= GATE(0x06c, BIT(20)),
+
 	[CLK_USB_PHY0]		= GATE(0x0cc, BIT(8)),
 	[CLK_USB_PHY1]		= GATE(0x0cc, BIT(9)),
 	[CLK_USB_HSIC]		= GATE(0x0cc, BIT(10)),
