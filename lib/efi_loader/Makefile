@@ -28,6 +28,7 @@ obj-y += efi_image_loader.o
 obj-y += efi_memory.o
 obj-y += efi_root_node.o
 obj-y += efi_runtime.o
+obj-y += efi_setup.o
 obj-y += efi_unicode_collation.o
 obj-y += efi_variable.o
 obj-y += efi_watchdog.o
