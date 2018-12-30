@@ -510,15 +510,15 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
 				 struct efi_system_table *systab);
 #endif
 
-efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
-				     u32 *attributes, efi_uintn_t *data_size,
-				     void *data);
+efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+				     const efi_guid_t *vendor, u32 *attributes,
+				     efi_uintn_t *data_size, void *data);
 efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 					       u16 *variable_name,
-					       efi_guid_t *vendor);
-efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
-				     u32 attributes, efi_uintn_t data_size,
-				     void *data);
+					       const efi_guid_t *vendor);
+efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+				     const efi_guid_t *vendor, u32 attributes,
+				     efi_uintn_t data_size, void *data);
 
 /*
  * See section 3.1.3 in the v2.7 UEFI spec for more details on

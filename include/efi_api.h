@@ -221,13 +221,15 @@ struct efi_runtime_services {
 			struct efi_mem_desc *virtmap);
 	efi_status_t (*convert_pointer)(unsigned long dbg, void **address);
 	efi_status_t (EFIAPI *get_variable)(u16 *variable_name,
-					    efi_guid_t *vendor, u32 *attributes,
+					    const efi_guid_t *vendor,
+					    u32 *attributes,
 					    efi_uintn_t *data_size, void *data);
 	efi_status_t (EFIAPI *get_next_variable_name)(
 			efi_uintn_t *variable_name_size,
-			u16 *variable_name, efi_guid_t *vendor);
+			u16 *variable_name, const efi_guid_t *vendor);
 	efi_status_t (EFIAPI *set_variable)(u16 *variable_name,
-					    efi_guid_t *vendor, u32 attributes,
+					    const efi_guid_t *vendor,
+					    u32 attributes,
 					    efi_uintn_t data_size, void *data);
 	efi_status_t (EFIAPI *get_next_high_mono_count)(
 			uint32_t *high_count);

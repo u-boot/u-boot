@@ -15,10 +15,10 @@
 
 static struct efi_boot_services *boottime;
 static struct efi_runtime_services *runtime;
-static efi_guid_t guid_vendor0 =
+static const efi_guid_t guid_vendor0 =
 	EFI_GUID(0x67029eb5, 0x0af2, 0xf6b1,
 		 0xda, 0x53, 0xfc, 0xb5, 0x66, 0xdd, 0x1c, 0xe6);
-static efi_guid_t guid_vendor1 =
+static const efi_guid_t guid_vendor1 =
 	EFI_GUID(0xff629290, 0x1fc1, 0xd73f,
 		 0x8f, 0xb1, 0x32, 0xf9, 0x0c, 0xa0, 0x42, 0xea);
 

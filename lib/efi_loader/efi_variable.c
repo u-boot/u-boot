@@ -99,7 +99,7 @@ static char *mem2hex(char *hexstr, const u8 *mem, int count)
 }
 
 static efi_status_t efi_to_native(char **native, const u16 *variable_name,
-				  efi_guid_t *vendor)
+				  const efi_guid_t *vendor)
 {
 	size_t len;
 	char *pos;
@@ -163,9 +163,9 @@ static const char *parse_attr(const char *str, u32 *attrp)
 }
 
 /* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#GetVariable.28.29 */
-efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
-				     u32 *attributes, efi_uintn_t *data_size,
-				     void *data)
+efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+				     const efi_guid_t *vendor, u32 *attributes,
+				     efi_uintn_t *data_size, void *data)
 {
 	char *native_name;
 	efi_status_t ret;
@@ -244,7 +244,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
 /* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#GetNextVariableName.28.29 */
 efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 					       u16 *variable_name,
-					       efi_guid_t *vendor)
+					       const efi_guid_t *vendor)
 {
 	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
 
@@ -252,9 +252,9 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 }
 
 /* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#SetVariable.28.29 */
-efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
-				     u32 attributes, efi_uintn_t data_size,
-				     void *data)
+efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+				     const efi_guid_t *vendor, u32 attributes,
+				     efi_uintn_t data_size, void *data)
 {
 	char *native_name = NULL, *val = NULL, *s;
 	efi_status_t ret = EFI_SUCCESS;
