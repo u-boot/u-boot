@@ -89,6 +89,12 @@
 				status = "disabled";
 			};
 
+			iomuxc: iomuxc@40048000 {
+				compatible = "fsl,vf610-iomuxc";
+				reg = <0x40048000 0x1000>;
+				fsl,mux_mask = <0x700000>;
+			};
+
 			gpio0: gpio@40049000 {
 				compatible = "fsl,vf610-gpio";
 				reg = <0x400ff000 0x40>;

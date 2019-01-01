@@ -33,19 +33,8 @@
 #include "../../../drivers/net/e1000.h"
 DECLARE_GLOBAL_DATA_PTR;
 
-struct vpd_cache;
-
 static int confidx = 3;  /* Default to b850v3. */
 static struct vpd_cache vpd;
-
-#ifndef CONFIG_SYS_I2C_EEPROM_ADDR
-# define CONFIG_SYS_I2C_EEPROM_ADDR     0x50
-# define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
-#endif
-
-#ifndef CONFIG_SYS_I2C_EEPROM_BUS
-#define CONFIG_SYS_I2C_EEPROM_BUS       4
-#endif
 
 #define NC_PAD_CTRL (PAD_CTL_PUS_100K_UP |	\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
@@ -569,6 +558,7 @@ int overwrite_console(void)
 #define VPD_MAC_ADDRESS_LENGTH 6
 
 struct vpd_cache {
+	bool is_read;
 	u8 product_id;
 	u8 has;
 	unsigned char mac1[VPD_MAC_ADDRESS_LENGTH];
@@ -578,11 +568,9 @@ struct vpd_cache {
 /*
  * Extracts MAC and product information from the VPD.
  */
-static int vpd_callback(void *userdata, u8 id, u8 version, u8 type,
+static int vpd_callback(struct vpd_cache *vpd, u8 id, u8 version, u8 type,
 			size_t size, u8 const *data)
 {
-	struct vpd_cache *vpd = (struct vpd_cache *)userdata;
-
 	if (id == VPD_BLOCK_HWID && version == 1 && type != VPD_TYPE_INVALID &&
 	    size >= 1) {
 		vpd->product_id = data[0];
@@ -605,6 +593,11 @@ static void process_vpd(struct vpd_cache *vpd)
 {
 	int fec_index = -1;
 	int i210_index = -1;
+
+	if (!vpd->is_read) {
+		printf("VPD wasn't read");
+		return;
+	}
 
 	switch (vpd->product_id) {
 	case VPD_PRODUCT_B450:
@@ -629,35 +622,6 @@ static void process_vpd(struct vpd_cache *vpd)
 
 	if (i210_index >= 0 && (vpd->has & VPD_HAS_MAC2))
 		eth_env_set_enetaddr_by_index("eth", i210_index, vpd->mac2);
-}
-
-static int read_vpd(uint eeprom_bus)
-{
-	int res;
-	int size = 1024;
-	uint8_t *data;
-	unsigned int current_i2c_bus = i2c_get_bus_num();
-
-	res = i2c_set_bus_num(eeprom_bus);
-	if (res < 0)
-		return res;
-
-	data = (uint8_t *)malloc(size);
-	if (!data)
-		return -ENOMEM;
-
-	res = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,
-			CONFIG_SYS_I2C_EEPROM_ADDR_LEN, data, size);
-
-	if (res == 0) {
-		memset(&vpd, 0, sizeof(vpd));
-		vpd_reader(size, data, &vpd, vpd_callback);
-	}
-
-	free(data);
-
-	i2c_set_bus_num(current_i2c_bus);
-	return res;
 }
 
 int board_eth_init(bd_t *bis)
@@ -718,9 +682,10 @@ int board_init(void)
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
 
-	read_vpd(CONFIG_SYS_I2C_EEPROM_BUS);
-
-	set_confidx(&vpd);
+	if (!read_vpd(&vpd, vpd_callback)) {
+		vpd.is_read = true;
+		set_confidx(&vpd);
+	}
 
 	gpio_direction_output(SUS_S3_OUT, 1);
 	gpio_direction_output(WIFI_EN, 1);

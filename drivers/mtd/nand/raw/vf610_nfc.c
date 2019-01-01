@@ -31,6 +31,11 @@
 #include <nand.h>
 #include <errno.h>
 #include <asm/io.h>
+#if CONFIG_NAND_VF610_NFC_DT
+#include <dm.h>
+#include <linux/io.h>
+#include <linux/ioport.h>
+#endif
 
 /* Register Offsets */
 #define NFC_FLASH_CMD1			0x3F00
@@ -641,7 +646,7 @@ static int vf610_nfc_nand_init(int devnum, void __iomem *addr)
 		.flash_bbt = 1,
 	};
 
-	nfc = malloc(sizeof(*nfc));
+	nfc = calloc(1, sizeof(*nfc));
 	if (!nfc) {
 		printf(KERN_ERR "%s: Memory exhausted!\n", __func__);
 		return -ENOMEM;
@@ -760,9 +765,51 @@ error:
 	return err;
 }
 
+#if CONFIG_NAND_VF610_NFC_DT
+static const struct udevice_id vf610_nfc_dt_ids[] = {
+	{
+		.compatible = "fsl,vf610-nfc",
+	},
+	{ /* sentinel */ }
+};
+
+static int vf610_nfc_dt_probe(struct udevice *dev)
+{
+	struct resource res;
+	int ret;
+
+	ret = dev_read_resource(dev, 0, &res);
+	if (ret)
+		return ret;
+
+	return vf610_nfc_nand_init(0, devm_ioremap(dev, res.start,
+						   resource_size(&res)));
+}
+
+U_BOOT_DRIVER(vf610_nfc_dt) = {
+	.name = "vf610-nfc-dt",
+	.id = UCLASS_MTD,
+	.of_match = vf610_nfc_dt_ids,
+	.probe = vf610_nfc_dt_probe,
+};
+
+void board_nand_init(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_MTD,
+					  DM_GET_DRIVER(vf610_nfc_dt),
+					  &dev);
+	if (ret && ret != -ENODEV)
+		pr_err("Failed to initialize NAND controller. (error %d)\n",
+		       ret);
+}
+#else
 void board_nand_init(void)
 {
 	int err = vf610_nfc_nand_init(0, (void __iomem *)CONFIG_SYS_NAND_BASE);
 	if (err)
 		printf("VF610 NAND init failed (err %d)\n", err);
 }
+#endif /* CONFIG_NAND_VF610_NFC_DT */

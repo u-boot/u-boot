@@ -3,8 +3,8 @@
  * Copyright (C) 2017 NXP
  */
 
-#ifndef __ARCH_MX8M_SYS_PROTO_H
-#define __ARCH_MX8M_SYS_PROTO_H
+#ifndef __ARCH_IMX8M_SYS_PROTO_H
+#define __ARCH_NMX8M_SYS_PROTO_H
 
 #include <asm/mach-imx/sys_proto.h>
 

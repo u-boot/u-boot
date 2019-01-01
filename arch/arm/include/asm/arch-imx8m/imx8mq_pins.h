@@ -3,8 +3,8 @@
  * Copyright (C) 2017 NXP
  */
 
-#ifndef __ASM_ARCH_MX8MQ_PINS_H__
-#define __ASM_ARCH_MX8MQ_PINS_H__
+#ifndef __ASM_ARCH_IMX8MQ_PINS_H__
+#define __ASM_ARCH_IMX8MQ_PINS_H__
 
 #include <asm/mach-imx/iomux-v3.h>
 

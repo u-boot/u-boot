@@ -525,41 +525,127 @@ u32 imx_get_fecclk(void)
 	return get_root_clk(ENET_AXI_CLK_ROOT);
 }
 
-#ifdef CONFIG_SPL_BUILD
-void dram_pll_init(void)
+static struct dram_bypass_clk_setting imx8mq_dram_bypass_tbl[] = {
+	DRAM_BYPASS_ROOT_CONFIG(MHZ(100), 2, CLK_ROOT_PRE_DIV1, 2,
+				CLK_ROOT_PRE_DIV2),
+	DRAM_BYPASS_ROOT_CONFIG(MHZ(250), 3, CLK_ROOT_PRE_DIV2, 2,
+				CLK_ROOT_PRE_DIV2),
+	DRAM_BYPASS_ROOT_CONFIG(MHZ(400), 1, CLK_ROOT_PRE_DIV2, 3,
+				CLK_ROOT_PRE_DIV2),
+};
+
+void dram_enable_bypass(ulong clk_val)
 {
-	struct src *src = (struct src *)SRC_BASE_ADDR;
-	void __iomem *pll_control_reg = &ana_pll->dram_pll_cfg0;
-	u32 pwdn_mask = 0, pll_clke = 0, bypass1 = 0, bypass2 = 0;
+	int i;
+	struct dram_bypass_clk_setting *config;
+
+	for (i = 0; i < ARRAY_SIZE(imx8mq_dram_bypass_tbl); i++) {
+		if (clk_val == imx8mq_dram_bypass_tbl[i].clk)
+			break;
+	}
+
+	if (i == ARRAY_SIZE(imx8mq_dram_bypass_tbl)) {
+		printf("No matched freq table %lu\n", clk_val);
+		return;
+	}
+
+	config = &imx8mq_dram_bypass_tbl[i];
+
+	clock_set_target_val(DRAM_ALT_CLK_ROOT, CLK_ROOT_ON |
+			     CLK_ROOT_SOURCE_SEL(config->alt_root_sel) |
+			     CLK_ROOT_PRE_DIV(config->alt_pre_div));
+	clock_set_target_val(DRAM_APB_CLK_ROOT, CLK_ROOT_ON |
+			     CLK_ROOT_SOURCE_SEL(config->apb_root_sel) |
+			     CLK_ROOT_PRE_DIV(config->apb_pre_div));
+	clock_set_target_val(DRAM_SEL_CFG, CLK_ROOT_ON |
+			     CLK_ROOT_SOURCE_SEL(1));
+}
+
+void dram_disable_bypass(void)
+{
+	clock_set_target_val(DRAM_SEL_CFG, CLK_ROOT_ON |
+			     CLK_ROOT_SOURCE_SEL(0));
+	clock_set_target_val(DRAM_APB_CLK_ROOT, CLK_ROOT_ON |
+			     CLK_ROOT_SOURCE_SEL(4) |
+			     CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV5));
+}
+
+#ifdef CONFIG_SPL_BUILD
+void dram_pll_init(ulong pll_val)
+{
 	u32 val;
-	int ret;
+	void __iomem *pll_control_reg = &ana_pll->dram_pll_cfg0;
+	void __iomem *pll_cfg_reg2 = &ana_pll->dram_pll_cfg2;
 
-	setbits_le32(GPC_BASE_ADDR + 0xEC, BIT(7));
-	setbits_le32(GPC_BASE_ADDR + 0xF8, BIT(5));
+	/* Bypass */
+	setbits_le32(pll_control_reg, SSCG_PLL_BYPASS1_MASK);
+	setbits_le32(pll_control_reg, SSCG_PLL_BYPASS2_MASK);
 
-	pwdn_mask = SSCG_PLL_PD_MASK;
-	pll_clke = SSCG_PLL_DRAM_PLL_CLKE_MASK;
-	bypass1 = SSCG_PLL_BYPASS1_MASK;
-	bypass2 = SSCG_PLL_BYPASS2_MASK;
-
-	/* Enable DDR1 and DDR2 domain */
-	writel(SRC_DDR1_ENABLE_MASK, &src->ddr1_rcr);
-	writel(SRC_DDR1_ENABLE_MASK, &src->ddr2_rcr);
+	switch (pll_val) {
+	case MHZ(800):
+		val = readl(pll_cfg_reg2);
+		val &= ~(SSCG_PLL_OUTPUT_DIV_VAL_MASK |
+			 SSCG_PLL_FEEDBACK_DIV_F2_MASK |
+			 SSCG_PLL_FEEDBACK_DIV_F1_MASK |
+			 SSCG_PLL_REF_DIVR2_MASK);
+		val |= SSCG_PLL_OUTPUT_DIV_VAL(0);
+		val |= SSCG_PLL_FEEDBACK_DIV_F2_VAL(11);
+		val |= SSCG_PLL_FEEDBACK_DIV_F1_VAL(39);
+		val |= SSCG_PLL_REF_DIVR2_VAL(29);
+		writel(val, pll_cfg_reg2);
+		break;
+	case MHZ(600):
+		val = readl(pll_cfg_reg2);
+		val &= ~(SSCG_PLL_OUTPUT_DIV_VAL_MASK |
+			 SSCG_PLL_FEEDBACK_DIV_F2_MASK |
+			 SSCG_PLL_FEEDBACK_DIV_F1_MASK |
+			 SSCG_PLL_REF_DIVR2_MASK);
+		val |= SSCG_PLL_OUTPUT_DIV_VAL(1);
+		val |= SSCG_PLL_FEEDBACK_DIV_F2_VAL(17);
+		val |= SSCG_PLL_FEEDBACK_DIV_F1_VAL(39);
+		val |= SSCG_PLL_REF_DIVR2_VAL(29);
+		writel(val, pll_cfg_reg2);
+		break;
+	case MHZ(400):
+		val = readl(pll_cfg_reg2);
+		val &= ~(SSCG_PLL_OUTPUT_DIV_VAL_MASK |
+			 SSCG_PLL_FEEDBACK_DIV_F2_MASK |
+			 SSCG_PLL_FEEDBACK_DIV_F1_MASK |
+			 SSCG_PLL_REF_DIVR2_MASK);
+		val |= SSCG_PLL_OUTPUT_DIV_VAL(1);
+		val |= SSCG_PLL_FEEDBACK_DIV_F2_VAL(11);
+		val |= SSCG_PLL_FEEDBACK_DIV_F1_VAL(39);
+		val |= SSCG_PLL_REF_DIVR2_VAL(29);
+		writel(val, pll_cfg_reg2);
+		break;
+	case MHZ(167):
+		val = readl(pll_cfg_reg2);
+		val &= ~(SSCG_PLL_OUTPUT_DIV_VAL_MASK |
+			 SSCG_PLL_FEEDBACK_DIV_F2_MASK |
+			 SSCG_PLL_FEEDBACK_DIV_F1_MASK |
+			 SSCG_PLL_REF_DIVR2_MASK);
+		val |= SSCG_PLL_OUTPUT_DIV_VAL(3);
+		val |= SSCG_PLL_FEEDBACK_DIV_F2_VAL(8);
+		val |= SSCG_PLL_FEEDBACK_DIV_F1_VAL(45);
+		val |= SSCG_PLL_REF_DIVR2_VAL(30);
+		writel(val, pll_cfg_reg2);
+		break;
+	default:
+		break;
+	}
 
 	/* Clear power down bit */
-	clrbits_le32(pll_control_reg, pwdn_mask);
+	clrbits_le32(pll_control_reg, SSCG_PLL_PD_MASK);
 	/* Eanble ARM_PLL/SYS_PLL  */
-	setbits_le32(pll_control_reg, pll_clke);
+	setbits_le32(pll_control_reg, SSCG_PLL_DRAM_PLL_CLKE_MASK);
 
 	/* Clear bypass */
-	clrbits_le32(pll_control_reg, bypass1);
+	clrbits_le32(pll_control_reg, SSCG_PLL_BYPASS1_MASK);
 	__udelay(100);
-	clrbits_le32(pll_control_reg, bypass2);
+	clrbits_le32(pll_control_reg, SSCG_PLL_BYPASS2_MASK);
 	/* Wait lock */
-	ret = readl_poll_timeout(pll_control_reg, val,
-				 val & SSCG_PLL_LOCK_MASK, 1);
-	if (ret)
-		printf("%s timeout\n", __func__);
+	while (!(readl(pll_control_reg) & SSCG_PLL_LOCK_MASK))
+		;
 }
 
 int frac_pll_init(u32 pll, enum frac_pll_out_val val)
@@ -730,7 +816,7 @@ int clock_init(void)
  * Dump some clockes.
  */
 #ifndef CONFIG_SPL_BUILD
-int do_mx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
+int do_imx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
 	u32 freq;
@@ -785,7 +871,7 @@ int do_mx8m_showclocks(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(
-	clocks,	CONFIG_SYS_MAXARGS, 1, do_mx8m_showclocks,
+	clocks,	CONFIG_SYS_MAXARGS, 1, do_imx8m_showclocks,
 	"display clocks",
 	""
 );

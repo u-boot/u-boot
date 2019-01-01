@@ -118,6 +118,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			struct spl_load_info *info, ulong sector, void *fdt);
 
 #define SPL_COPY_PAYLOAD_ONLY	1
+#define SPL_FIT_FOUND		2
 
 /* SPL common functions */
 void preloader_console_init(void);
@@ -351,6 +352,18 @@ void spl_optee_entry(void *arg0, void *arg1, void *arg2, void *arg3);
  * can implement 'board_return_to_bootrom'.
  */
 void board_return_to_bootrom(void);
+
+/**
+ * board_spl_fit_post_load - allow process images after loading finished
+ *
+ */
+void board_spl_fit_post_load(ulong load_addr, size_t length);
+
+/**
+ * board_spl_fit_size_align - specific size align before processing payload
+ *
+ */
+ulong board_spl_fit_size_align(ulong size);
 
 /**
  * spl_perform_fixups() - arch/board-specific callback before processing

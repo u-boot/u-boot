@@ -251,6 +251,16 @@ config FIT
 
 if FIT
 
+config FIT_EXTERNAL_OFFSET
+	hex "Text Base"
+	default 0x0
+	help
+	  This specifies a data offset in fit image.
+	  The offset is from data payload offset to the beginning of
+	  fit image header. When specifies a offset, specific data
+	  could be put in the hole between data payload and fit image
+	  header, such as CSF data on i.MX platform.
+
 config FIT_ENABLE_SHA256_SUPPORT
 	bool "Support SHA256 checksum of FIT image contents"
 	default y

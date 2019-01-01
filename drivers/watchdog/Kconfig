@@ -11,6 +11,12 @@ config WATCHDOG
 config HW_WATCHDOG
 	bool
 
+config WATCHDOG_RESET_DISABLE
+	bool "Disable reset watchdog"
+	help
+	   Disable reset watchdog, which can let WATCHDOG_RESET invalid, so
+	   that the watchdog will not be fed in u-boot.
+
 config BCM2835_WDT
 	bool "Enable BCM2835/2836 watchdog driver"
 	select HW_WATCHDOG

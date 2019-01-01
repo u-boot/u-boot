@@ -40,13 +40,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Index of I2C1, SEGMENT 1 (see CONFIG_SYS_I2C_BUSES). */
-#define VPD_EEPROM_BUS 2
-
-/* Address of 24C08 EEPROM. */
-#define VPD_EEPROM_ADDR		0x50
-#define VPD_EEPROM_ADDR_LEN	1
-
 static u32 mx53_dram_size[2];
 
 phys_size_t get_effective_memsize(void)
@@ -297,10 +290,10 @@ struct vpd_cache {
 /*
  * Extracts MAC and product information from the VPD.
  */
-static int vpd_callback(void *userdata, u8 id, u8 version, u8 type, size_t size,
-			u8 const *data)
+static int vpd_callback(struct vpd_cache *userdata, u8 id, u8 version,
+			u8 type, size_t size, u8 const *data)
 {
-	struct vpd_cache *vpd = (struct vpd_cache *)userdata;
+	struct vpd_cache *vpd = userdata;
 
 	if (id == VPD_BLOCK_HWID && version == 1 && type != VPD_TYPE_INVALID &&
 	    size >= 1) {
@@ -326,35 +319,6 @@ static void process_vpd(struct vpd_cache *vpd)
 
 	if (fec_index >= 0 && (vpd->has & VPD_HAS_MAC1))
 		eth_env_set_enetaddr("ethaddr", vpd->mac1);
-}
-
-static int read_vpd(uint eeprom_bus)
-{
-	struct vpd_cache vpd;
-	int res;
-	int size = 1024;
-	u8 *data;
-	unsigned int current_i2c_bus = i2c_get_bus_num();
-
-	res = i2c_set_bus_num(eeprom_bus);
-	if (res < 0)
-		return res;
-
-	data = malloc(size);
-	if (!data)
-		return -ENOMEM;
-
-	res = i2c_read(VPD_EEPROM_ADDR, 0, VPD_EEPROM_ADDR_LEN, data, size);
-	if (res == 0) {
-		memset(&vpd, 0, sizeof(vpd));
-		vpd_reader(size, data, &vpd, vpd_callback);
-		process_vpd(&vpd);
-	}
-
-	free(data);
-
-	i2c_set_bus_num(current_i2c_bus);
-	return res;
 }
 
 int board_init(void)
@@ -389,8 +353,14 @@ int misc_init_r(void)
 int board_late_init(void)
 {
 	int res;
+	struct vpd_cache vpd;
 
-	read_vpd(VPD_EEPROM_BUS);
+	memset(&vpd, 0, sizeof(vpd));
+	res = read_vpd(&vpd, vpd_callback);
+	if (!res)
+		process_vpd(&vpd);
+	else
+		printf("Can't read VPD");
 
 	res = clock_1GHz();
 	if (res != 0)
