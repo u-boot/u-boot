@@ -309,6 +309,43 @@ static int bcm6368_eth_start(struct udevice *dev)
 	struct bcm6368_eth_priv *priv = dev_get_priv(dev);
 	uint8_t i;
 
+	/* disable all ports */
+	for (i = 0; i < priv->num_ports; i++) {
+		setbits_8(priv->base + ETH_PORTOV_REG(i),
+			  ETH_PORTOV_ENABLE_MASK);
+		setbits_8(priv->base + ETH_PTCTRL_REG(i),
+			  ETH_PTCTRL_RXDIS_MASK | ETH_PTCTRL_TXDIS_MASK);
+		priv->sw_port_link[i] = 0;
+	}
+
+	/* enable external ports */
+	for (i = ETH_RGMII_PORT0; i < priv->num_ports; i++) {
+		u8 rgmii_ctrl = ETH_RGMII_CTRL_GMII_CLK_EN;
+
+		if (!priv->used_ports[i].used)
+			continue;
+
+		if (priv->rgmii_override)
+			rgmii_ctrl |= ETH_RGMII_CTRL_MII_OVERRIDE_EN;
+		if (priv->rgmii_timing)
+			rgmii_ctrl |= ETH_RGMII_CTRL_TIMING_SEL_EN;
+
+		setbits_8(priv->base + ETH_RGMII_CTRL_REG(i), rgmii_ctrl);
+	}
+
+	/* reset mib */
+	setbits_8(priv->base + ETH_GMCR_REG, ETH_GMCR_RST_MIB_MASK);
+	mdelay(1);
+	clrbits_8(priv->base + ETH_GMCR_REG, ETH_GMCR_RST_MIB_MASK);
+	mdelay(1);
+
+	/* force CPU port state */
+	setbits_8(priv->base + ETH_IMPOV_REG,
+		  ETH_IMPOV_FORCE_MASK | ETH_IMPOV_LINKUP_MASK);
+
+	/* enable switch forward engine */
+	setbits_8(priv->base + ETH_SWMODE_REG, ETH_SWMODE_FWD_EN_MASK);
+
 	/* prepare rx dma buffers */
 	for (i = 0; i < ETH_RX_DESC; i++) {
 		int ret = dma_prepare_rcv_buf(&priv->rx_dma, net_rx_packets[i],
@@ -368,6 +405,31 @@ static int bcm6368_eth_start(struct udevice *dev)
 static void bcm6368_eth_stop(struct udevice *dev)
 {
 	struct bcm6368_eth_priv *priv = dev_get_priv(dev);
+	uint8_t i;
+
+	/* disable all ports */
+	for (i = 0; i < priv->num_ports; i++) {
+		setbits_8(priv->base + ETH_PORTOV_REG(i),
+			  ETH_PORTOV_ENABLE_MASK);
+		setbits_8(priv->base + ETH_PTCTRL_REG(i),
+			  ETH_PTCTRL_RXDIS_MASK | ETH_PTCTRL_TXDIS_MASK);
+	}
+
+	/* disable external ports */
+	for (i = ETH_RGMII_PORT0; i < priv->num_ports; i++) {
+		if (!priv->used_ports[i].used)
+			continue;
+
+		clrbits_8(priv->base + ETH_RGMII_CTRL_REG(i),
+			  ETH_RGMII_CTRL_GMII_CLK_EN);
+	}
+
+	/* disable CPU port */
+	clrbits_8(priv->base + ETH_IMPOV_REG,
+		  ETH_IMPOV_FORCE_MASK | ETH_IMPOV_LINKUP_MASK);
+
+	/* disable switch forward engine */
+	clrbits_8(priv->base + ETH_SWMODE_REG, ETH_SWMODE_FWD_EN_MASK);
 
 	/* disable dma rx channel */
 	dma_disable(&priv->rx_dma);
@@ -444,7 +506,6 @@ static int bcm6368_eth_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct bcm6368_eth_priv *priv = dev_get_priv(dev);
 	int num_ports, ret, i;
-	uint32_t val;
 	ofnode node;
 
 	/* get base address */
@@ -560,52 +621,6 @@ static int bcm6368_eth_probe(struct udevice *dev)
 	ret = bcm6368_mdio_init(dev->name, priv);
 	if (ret)
 		return ret;
-
-	/* disable all ports */
-	for (i = 0; i < priv->num_ports; i++) {
-		writeb_be(ETH_PORTOV_ENABLE_MASK,
-			      priv->base + ETH_PORTOV_REG(i));
-		writeb_be(ETH_PTCTRL_RXDIS_MASK |
-			      ETH_PTCTRL_TXDIS_MASK,
-			      priv->base + ETH_PTCTRL_REG(i));
-
-		priv->sw_port_link[i] = 0;
-	}
-
-	/* enable external ports */
-	for (i = ETH_RGMII_PORT0; i < priv->num_ports; i++) {
-		u8 rgmii_ctrl;
-
-		if (!priv->used_ports[i].used)
-			continue;
-
-		rgmii_ctrl = readb_be(priv->base + ETH_RGMII_CTRL_REG(i));
-		rgmii_ctrl |= ETH_RGMII_CTRL_GMII_CLK_EN;
-		if (priv->rgmii_override)
-			rgmii_ctrl |= ETH_RGMII_CTRL_MII_OVERRIDE_EN;
-		if (priv->rgmii_timing)
-			rgmii_ctrl |= ETH_RGMII_CTRL_TIMING_SEL_EN;
-		writeb_be(rgmii_ctrl, priv->base + ETH_RGMII_CTRL_REG(i));
-	}
-
-	/* reset mib */
-	val = readb_be(priv->base + ETH_GMCR_REG);
-	val |= ETH_GMCR_RST_MIB_MASK;
-	writeb_be(val, priv->base + ETH_GMCR_REG);
-	mdelay(1);
-	val &= ~ETH_GMCR_RST_MIB_MASK;
-	writeb_be(val, priv->base + ETH_GMCR_REG);
-	mdelay(1);
-
-	/* force CPU port state */
-	val = readb_be(priv->base + ETH_IMPOV_REG);
-	val |= ETH_IMPOV_FORCE_MASK | ETH_IMPOV_LINKUP_MASK;
-	writeb_be(val, priv->base + ETH_IMPOV_REG);
-
-	/* enable switch forward engine */
-	val = readb_be(priv->base + ETH_SWMODE_REG);
-	val |= ETH_SWMODE_FWD_EN_MASK;
-	writeb_be(val, priv->base + ETH_SWMODE_REG);
 
 	/* enable jumbo on all ports */
 	writel_be(0x1ff, priv->base + ETH_JMBCTL_PORT_REG);
