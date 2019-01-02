@@ -206,7 +206,7 @@
 		clocks = <&cru SCLK_UART2>, <&cru PCLK_UART2>;
 		clock-names = "baudclk", "apb_pclk";
 		pinctrl-names = "default";
-		pinctrl-0 = <&uart2_xfer>;
+		pinctrl-0 = <&uart21_xfer>;
 		reg-shift = <2>;
 		reg-io-width = <4>;
 		status = "disabled";
@@ -748,7 +748,7 @@
 
 		uart2 {
 			uart2_xfer: uart2-xfer {
-				rockchip,pins = <1 RK_PC2 RK_FUNC_2 &pcfg_pull_none>,
+				rockchip,pins = <1 RK_PC2 RK_FUNC_2 &pcfg_pull_up>,
 						<1 RK_PC3 RK_FUNC_2 &pcfg_pull_none>;
 			};
 
@@ -758,6 +758,13 @@
 
 			uart2_rts: uart2-rts {
 				rockchip,pins = <0 RK_PD0 RK_FUNC_1 &pcfg_pull_none>;
+			};
+		};
+
+		uart2-1 {
+			uart21_xfer: uart21-xfer {
+				rockchip,pins = <1 10 RK_FUNC_2 &pcfg_pull_up>,
+						<1 9 RK_FUNC_2 &pcfg_pull_none>;
 			};
 		};
 	};
