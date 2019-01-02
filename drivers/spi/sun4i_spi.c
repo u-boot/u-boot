@@ -129,7 +129,8 @@ static inline void sun4i_spi_drain_fifo(struct sun4i_spi_priv *priv, int len)
 
 	while (len--) {
 		byte = readb(&priv->regs->rxdata);
-		*priv->rx_buf++ = byte;
+		if (priv->rx_buf)
+			*priv->rx_buf++ = byte;
 	}
 }
 
