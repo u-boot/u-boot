@@ -18,6 +18,33 @@
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		top_dimmer {
+			label = "pcb091:top:dimmer";
+			gpios = <&gpio 29 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+		};
+
+		status_green {
+			label = "pcb091:green:status";
+			gpios = <&sgpio 26 GPIO_ACTIVE_HIGH>; /* p26.0 */
+			default-state = "on";
+		};
+
+		status_red {
+			label = "pcb091:red:status";
+			gpios = <&sgpio 58 GPIO_ACTIVE_HIGH>; /* p26.1 */
+			default-state = "off";
+		};
+	};
+};
+
+&sgpio {
+	status = "okay";
+	mscc,sgpio-ports = <0xFFF000FF>;
 };
 
 &uart0 {
