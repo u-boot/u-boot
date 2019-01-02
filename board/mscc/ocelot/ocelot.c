@@ -9,6 +9,7 @@
 #include <asm/types.h>
 #include <environment.h>
 #include <spi.h>
+#include <led.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,6 +57,11 @@ int board_early_init_r(void)
 
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE;
+
+	/* LED setup */
+	if (IS_ENABLED(CONFIG_LED))
+		led_default_state();
+
 	return 0;
 }
 
