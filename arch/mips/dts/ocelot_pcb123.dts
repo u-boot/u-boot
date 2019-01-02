@@ -9,4 +9,29 @@
 / {
 	model = "Ocelot PCB123 Reference Board";
 	compatible = "mscc,ocelot-pcb123", "mscc,ocelot";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		status_green {
+			label = "pcb123:green:status";
+			gpios = <&sgpio 43 1>; /* p11.1 */
+			default-state = "on";
+		};
+
+		status_red {
+			label = "pcb123:red:status";
+			gpios = <&sgpio 11 1>; /* p11.0 */
+			default-state = "off";
+		};
+	};
+};
+
+&sgpio {
+	status = "okay";
+	mscc,sgpio-ports = <0x00FFFFFF>;
 };

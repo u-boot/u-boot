@@ -37,6 +37,12 @@
 		clock-frequency = <500000000>;
 	};
 
+	sys_clk: sys-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <250000000>;
+	};
+
 	ahb_clk: ahb-clk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -118,6 +124,11 @@
 			#gpio-cells = <2>;
 			gpio-ranges = <&gpio 0 0 22>;
 
+			sgpio_pins: sgpio-pins {
+				pins = "GPIO_0", "GPIO_1", "GPIO_2", "GPIO_3";
+				function = "sg0";
+			};
+
 			uart_pins: uart-pins {
 				pins = "GPIO_6", "GPIO_7";
 				function = "uart";
@@ -147,6 +158,18 @@
 				pins = "GPIO_17";
 				function = "si";
 			};
+		};
+
+		sgpio: gpio@10700f8 {
+			compatible = "mscc,ocelot-sgpio";
+			status = "disabled";
+			clocks = <&sys_clk>;
+			pinctrl-0 = <&sgpio_pins>;
+			pinctrl-names = "default";
+			reg = <0x10700f8 0x100>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&sgpio 0 0 64>;
 		};
 	};
 };
