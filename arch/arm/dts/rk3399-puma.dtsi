@@ -172,7 +172,7 @@
 		regulator-max-microvolt = <1400000>;
 		regulator-always-on;
 		regulator-boot-on;
-		regulator-init-microvolt = <900000>;
+		regulator-init-microvolt = <950000>;
 	};
 };
 
