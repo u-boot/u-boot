@@ -15,8 +15,10 @@
 #include <asm/arch/clock.h>
 #include <dm/pinctrl.h>
 
+#if CONFIG_IS_ENABLED(PINCTRL_ROCKCHIP_RK3399_FULL)
 static const u32 RK_GRF_P_PULLUP = 1;
 static const u32 RK_GRF_P_PULLDOWN = 2;
+#endif /* PINCTRL_ROCKCHIP_RK3399_FULL */
 
 struct rk3399_pinctrl_priv {
 	struct rk3399_grf_regs *grf;
@@ -24,6 +26,7 @@ struct rk3399_pinctrl_priv {
 	struct rockchip_pin_bank *banks;
 };
 
+#if CONFIG_IS_ENABLED(PINCTRL_ROCKCHIP_RK3399_FULL)
 /* Location of pinctrl/pinconf registers. */
 enum rk_grf_location {
 	RK_GRF,
@@ -243,6 +246,8 @@ end:
 	free(fields);
 	return ret;
 }
+
+#endif /* PINCTRL_ROCKCHIP_RK3399_FULL */
 
 static void pinctrl_rk3399_pwm_config(struct rk3399_grf_regs *grf,
 		struct rk3399_pmugrf_regs *pmugrf, int pwm_id)
@@ -693,7 +698,9 @@ static int rk3399_pinctrl_set_state_simple(struct udevice *dev,
 }
 
 static struct pinctrl_ops rk3399_pinctrl_ops = {
+#if CONFIG_IS_ENABLED(PINCTRL_ROCKCHIP_RK3399_FULL)
 	.set_state	= rk3399_pinctrl_set_state,
+#endif
 	.set_state_simple	= rk3399_pinctrl_set_state_simple,
 	.request	= rk3399_pinctrl_request,
 	.get_periph_id	= rk3399_pinctrl_get_periph_id,
@@ -707,7 +714,9 @@ static int rk3399_pinctrl_probe(struct udevice *dev)
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	priv->pmugrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
 	debug("%s: grf=%p, pmugrf=%p\n", __func__, priv->grf, priv->pmugrf);
+#if CONFIG_IS_ENABLED(PINCTRL_ROCKCHIP_RK3399_FULL)
 	priv->banks = rk3399_pin_banks;
+#endif /* PINCTRL_ROCKCHIP_RK3399_FULL */
 
 	return ret;
 }
