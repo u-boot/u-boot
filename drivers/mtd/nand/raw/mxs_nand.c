@@ -1163,6 +1163,12 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 
 	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+
+	if (is_mx6sx() || is_mx7())
+		nand_info->max_ecc_strength_supported = 62;
+	else
+		nand_info->max_ecc_strength_supported = 40;
+
 	err = mxs_nand_alloc_buffers(nand_info);
 	if (err)
 		return err;
