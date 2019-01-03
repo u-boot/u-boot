@@ -11,7 +11,6 @@ CONFIG_BOOT_INIT_FILE="board/topic/zynq/zynq-topic-miami/ps7_regs.txt"
 CONFIG_DEBUG_UART=y
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTDELAY=0
-CONFIG_BOOTCOMMAND="run $modeboot || run distro_bootcmd"
 CONFIG_SPL_STACK_R=y
 CONFIG_SPL_SPI_LOAD=y
 CONFIG_SYS_PROMPT="zynq-uboot> "

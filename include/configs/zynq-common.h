@@ -153,11 +153,18 @@
 #define BOOT_TARGET_DEVICES_DHCP(func)
 #endif
 
+#define BOOTENV_DEV_XILINX(devtypeu, devtypel, instance) \
+	"bootcmd_xilinx=run $modeboot\0"
+
+#define BOOTENV_DEV_NAME_XILINX(devtypeu, devtypel, instance) \
+	"xilinx "
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
-	BOOT_TARGET_DEVICES_DHCP(func)
+	BOOT_TARGET_DEVICES_DHCP(func) \
+	func(XILINX, xilinx, na)
 
 #include <config_distro_bootcmd.h>
 #endif /* CONFIG_SPL_BUILD */
