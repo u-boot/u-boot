@@ -201,13 +201,15 @@
 		"mmcinfo && " \
 		"load mmc 0 ${loadbit_addr} ${bitstream_image} && " \
 		"fpga load 0 ${loadbit_addr} ${filesize}\0" \
-	"norboot=echo Copying Linux from NOR flash to RAM... && " \
+	"norboot=run xilinxcmd && " \
+		"echo Copying Linux from NOR flash to RAM... && " \
 		"cp.b 0xE2100000 ${kernel_load_address} ${kernel_size} && " \
 		"cp.b 0xE2600000 ${devicetree_load_address} ${devicetree_size} && " \
 		"echo Copying ramdisk... && " \
 		"cp.b 0xE2620000 ${ramdisk_load_address} ${ramdisk_size} && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-	"qspiboot=echo Copying Linux from QSPI flash to RAM... && " \
+	"qspiboot=run xilinxcmd && " \
+		" echo Copying Linux from QSPI flash to RAM... && " \
 		"sf probe 0 0 0 && " \
 		"sf read ${kernel_load_address} 0x100000 ${kernel_size} && " \
 		"sf read ${devicetree_load_address} 0x600000 ${devicetree_size} && " \
@@ -223,7 +225,7 @@
 			"echo Running uenvcmd ...; " \
 			"run uenvcmd; " \
 		"fi\0" \
-	"sdboot=if mmcinfo; then " \
+	"sdboot=run xilinxcmd && if mmcinfo; then " \
 			"run uenvboot; " \
 			"echo Copying Linux from SD to RAM... && " \
 			"load mmc 0 ${kernel_load_address} ${kernel_image} && " \
@@ -231,7 +233,7 @@
 			"load mmc 0 ${ramdisk_load_address} ${ramdisk_image} && " \
 			"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}; " \
 		"fi\0" \
-	"usbboot=if usb start; then " \
+	"usbboot=run xilinxcmd && if usb start; then " \
 			"run uenvboot; " \
 			"echo Copying Linux from USB to RAM... && " \
 			"load usb 0 ${kernel_load_address} ${kernel_image} && " \
@@ -239,39 +241,46 @@
 			"load usb 0 ${ramdisk_load_address} ${ramdisk_image} && " \
 			"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}; " \
 		"fi\0" \
-	"nandboot=echo Copying Linux from NAND flash to RAM... && " \
+	"nandboot=run xilinxcmd && " \
+		"echo Copying Linux from NAND flash to RAM... && " \
 		"nand read ${kernel_load_address} 0x100000 ${kernel_size} && " \
 		"nand read ${devicetree_load_address} 0x600000 ${devicetree_size} && " \
 		"echo Copying ramdisk... && " \
 		"nand read ${ramdisk_load_address} 0x620000 ${ramdisk_size} && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-	"jtagboot=echo TFTPing Linux to RAM... && " \
+	"jtagboot=run xilinxcmd && echo TFTPing Linux to RAM... && " \
 		"tftpboot ${kernel_load_address} ${kernel_image} && " \
 		"tftpboot ${devicetree_load_address} ${devicetree_image} && " \
 		"tftpboot ${ramdisk_load_address} ${ramdisk_image} && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-	"rsa_norboot=echo Copying Image from NOR flash to RAM... && " \
+	"rsa_norboot=run xilinxcmd && " \
+		"echo Copying Image from NOR flash to RAM... && " \
 		"cp.b 0xE2100000 0x100000 ${boot_size} && " \
 		"zynqrsa 0x100000 && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-	"rsa_nandboot=echo Copying Image from NAND flash to RAM... && " \
+	"rsa_nandboot=run xilinxcmd && " \
+		"echo Copying Image from NAND flash to RAM... && " \
 		"nand read 0x100000 0x0 ${boot_size} && " \
 		"zynqrsa 0x100000 && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-	"rsa_qspiboot=echo Copying Image from QSPI flash to RAM... && " \
+	"rsa_qspiboot=run xilinxcmd && " \
+		"echo Copying Image from QSPI flash to RAM... && " \
 		"sf probe 0 0 0 && " \
 		"sf read 0x100000 0x0 ${boot_size} && " \
 		"zynqrsa 0x100000 && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-	"rsa_sdboot=echo Copying Image from SD to RAM... && " \
+	"rsa_sdboot=run xilinxcmd && echo Copying Image from SD to RAM... && " \
 		"load mmc 0 0x100000 ${boot_image} && " \
 		"zynqrsa 0x100000 && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
-	"rsa_jtagboot=echo TFTPing Image to RAM... && " \
+	"rsa_jtagboot=run xilinxcmd && echo TFTPing Image to RAM... && " \
 		"tftpboot 0x100000 ${boot_image} && " \
 		"zynqrsa 0x100000 && " \
 		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 		DFU_ALT_INFO \
+	"xilinxcmd=echo !!! && " \
+		"echo !!! Booting cmd is deprecated (will be removed in 2020). && " \
+		"echo !!! Please move to distro boocmd. && echo !!!\0" \
 		BOOTENV
 #endif
 
