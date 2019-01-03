@@ -7,6 +7,7 @@ menu "TrueType Fonts"
 config CONSOLE_TRUETYPE_NIMBUS
 	bool "Nimbus Sans Regular"
 	depends on CONSOLE_TRUETYPE
+	default y
 	help
 	  Nimbus Sans L is a version of Nimbus Sans using Adobe font sources.
 	  It was designed in 1987. A subset of Nimbus Sans L were released
