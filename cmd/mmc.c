@@ -101,6 +101,9 @@ static struct mmc *init_mmc_device(int dev, bool force_init)
 		return NULL;
 	}
 
+	if (!mmc_getcd(mmc))
+		force_init = true;
+
 	if (force_init)
 		mmc->has_init = 0;
 	if (mmc_init(mmc))
