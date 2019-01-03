@@ -99,20 +99,6 @@
 				MX53_PAD_KEY_COL1__AUDMUX_AUD5_TXFS	0x80000000
 				MX53_PAD_KEY_ROW1__AUDMUX_AUD5_RXD	0x80000000
 
-				MX53_PAD_SD1_DATA0__ESDHC1_DAT0		0x1d5
-				MX53_PAD_SD1_DATA1__ESDHC1_DAT1		0x1d5
-				MX53_PAD_SD1_DATA2__ESDHC1_DAT2		0x1d5
-				MX53_PAD_SD1_DATA3__ESDHC1_DAT3		0x1d5
-				MX53_PAD_SD1_CMD__ESDHC1_CMD		0x1d5
-				MX53_PAD_SD1_CLK__ESDHC1_CLK		0x1d5
-
-				MX53_PAD_SD2_DATA0__ESDHC2_DAT0		0x1d5
-				MX53_PAD_SD2_DATA1__ESDHC2_DAT1		0x1d5
-				MX53_PAD_SD2_DATA2__ESDHC2_DAT2		0x1d5
-				MX53_PAD_SD2_DATA3__ESDHC2_DAT3		0x1d5
-				MX53_PAD_SD2_CMD__ESDHC2_CMD		0x1d5
-				MX53_PAD_SD2_CLK__ESDHC2_CLK		0x1d5
-
 				MX53_PAD_FEC_MDC__FEC_MDC		0x4
 				MX53_PAD_FEC_MDIO__FEC_MDIO		0x1fc
 				MX53_PAD_FEC_REF_CLK__FEC_TX_CLK	0x180
@@ -162,6 +148,28 @@
 			>;
 		};
 
+		pinctrl_esdhc1: esdhc1grp {
+			fsl,pins = <
+				MX53_PAD_SD1_DATA0__ESDHC1_DAT0		0x1d5
+				MX53_PAD_SD1_DATA1__ESDHC1_DAT1		0x1d5
+				MX53_PAD_SD1_DATA2__ESDHC1_DAT2		0x1d5
+				MX53_PAD_SD1_DATA3__ESDHC1_DAT3		0x1d5
+				MX53_PAD_SD1_CMD__ESDHC1_CMD		0x1d5
+				MX53_PAD_SD1_CLK__ESDHC1_CLK		0x1d5
+			>;
+		};
+
+		pinctrl_esdhc2: esdhc2grp {
+			fsl,pins = <
+				MX53_PAD_SD2_DATA0__ESDHC2_DAT0		0x1d5
+				MX53_PAD_SD2_DATA1__ESDHC2_DAT1		0x1d5
+				MX53_PAD_SD2_DATA2__ESDHC2_DAT2		0x1d5
+				MX53_PAD_SD2_DATA3__ESDHC2_DAT3		0x1d5
+				MX53_PAD_SD2_CMD__ESDHC2_CMD		0x1d5
+				MX53_PAD_SD2_CLK__ESDHC2_CLK		0x1d5
+			>;
+		};
+
 		pinctrl_uart2: uart2grp {
 			fsl,pins = <
 				MX53_PAD_EIM_D26__UART2_RXD_MUX	0x1e4
@@ -178,6 +186,22 @@
 	uart-has-rtscts;
 	fsl,dte-mode;
 	pinctrl-0 = <&pinctrl_uart2>;
+	status = "okay";
+};
+
+&esdhc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_esdhc1>;
+	cd-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
+	bus-width = <4>;
+	status = "okay";
+};
+
+&esdhc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_esdhc2>;
+	cd-gpios = <&gpio1 4 GPIO_ACTIVE_LOW>;
+	bus-width = <4>;
 	status = "okay";
 };
 
