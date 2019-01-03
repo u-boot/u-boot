@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
- * (C) Copyright 2015 Google, Inc
+ * (C) Copyright 2015 Rockchip Electronics Co., Ltd
  */
 #include <common.h>
 #include <asm/io.h>
