@@ -108,6 +108,12 @@ static struct mmc *init_mmc_device(int dev, bool force_init)
 		mmc->has_init = 0;
 	if (mmc_init(mmc))
 		return NULL;
+
+#ifdef CONFIG_BLOCK_CACHE
+	struct blk_desc *bd = mmc_get_blk_desc(mmc);
+	blkcache_invalidate(bd->if_type, bd->devnum);
+#endif
+
 	return mmc;
 }
 static int do_mmcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
