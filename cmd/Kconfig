@@ -1399,6 +1399,7 @@ config CMD_DISPLAY
 
 config CMD_LED
 	bool "led"
+	depends on LED
 	default y if LED
 	help
 	  Enable the 'led' command which allows for control of LEDs supported
