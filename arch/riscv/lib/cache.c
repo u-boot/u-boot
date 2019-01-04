@@ -11,13 +11,12 @@ void invalidate_icache_all(void)
 	asm volatile ("fence.i" ::: "memory");
 }
 
-void flush_dcache_all(void)
+__weak void flush_dcache_all(void)
 {
-	asm volatile ("fence" :::"memory");
 }
-void flush_dcache_range(unsigned long start, unsigned long end)
+
+__weak void flush_dcache_range(unsigned long start, unsigned long end)
 {
-	flush_dcache_all();
 }
 
 void invalidate_icache_range(unsigned long start, unsigned long end)
@@ -29,9 +28,8 @@ void invalidate_icache_range(unsigned long start, unsigned long end)
 	invalidate_icache_all();
 }
 
-void invalidate_dcache_range(unsigned long start, unsigned long end)
+__weak void invalidate_dcache_range(unsigned long start, unsigned long end)
 {
-	flush_dcache_all();
 }
 
 void cache_flush(void)

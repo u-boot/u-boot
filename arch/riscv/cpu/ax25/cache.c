@@ -6,6 +6,28 @@
 
 #include <common.h>
 
+void flush_dcache_all(void)
+{
+	/*
+	 * Andes' AX25 does not have a coherence agent. U-Boot must use data
+	 * cache flush and invalidate functions to keep data in the system
+	 * coherent.
+	 * The implementation of the fence instruction in the AX25 flushes the
+	 * data cache and is used for this purpose.
+	 */
+	asm volatile ("fence" ::: "memory");
+}
+
+void flush_dcache_range(unsigned long start, unsigned long end)
+{
+	flush_dcache_all();
+}
+
+void invalidate_dcache_range(unsigned long start, unsigned long end)
+{
+	flush_dcache_all();
+}
+
 void icache_enable(void)
 {
 #ifndef CONFIG_SYS_ICACHE_OFF
