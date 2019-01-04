@@ -224,8 +224,8 @@ int spi_xchg_single(struct mxc_spi_slave *mxcs, unsigned int bitlen,
 	u32 ts;
 	int status;
 
-	debug("%s: bitlen %d dout 0x%x din 0x%x\n",
-		__func__, bitlen, (u32)dout, (u32)din);
+	debug("%s: bitlen %d dout 0x%lx din 0x%lx\n",
+		__func__, bitlen, (ulong)dout, (ulong)din);
 
 	mxcs->ctrl_reg = (mxcs->ctrl_reg &
 		~MXC_CSPICTRL_BITCOUNT(MXC_CSPICTRL_MAXBITS)) |
