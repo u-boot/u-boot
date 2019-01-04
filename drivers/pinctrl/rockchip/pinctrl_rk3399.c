@@ -130,13 +130,14 @@ static void rk3399_pinctrl_set_pin_pupd(uintptr_t grf_addr,
 
 	if (pinconfig & (1 << PIN_CONFIG_BIAS_PULL_UP))
 		pupdval = RK_GRF_P_PULLUP;
-	else if (pinconfig & (1 << PIN_CONFIG_BIAS_PULL_DOWN))
+	else if (pinconfig & (1 << PIN_CONFIG_BIAS_PULL_DOWN)) {
 		pupdval = RK_GRF_P_PULLDOWN;
-	else
+	} else {
 		/* Flag not supported. */
 		pr_warn("%s: Unsupported pinconfig flag: 0x%x\n", __func__,
 			pinconfig);
 		return;
+	}
 
 	pupd_base = grf_addr + (uintptr_t)bank->pupd_offset;
 	rk_pinctrl_get_info(pupd_base, index, &addr, &shift, &mask);
