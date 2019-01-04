@@ -22,7 +22,8 @@ static int imx_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 	const struct fdt_property *prop;
 	u32 *pin_data;
 	int npins, size, pin_size;
-	int mux_reg, conf_reg, input_reg, input_val, mux_mode, config_val;
+	int mux_reg, conf_reg, input_reg;
+	u32 input_val, mux_mode, config_val;
 	u32 mux_shift = info->mux_mask ? ffs(info->mux_mask) - 1 : 0;
 	int i, j = 0;
 
