@@ -17,6 +17,8 @@
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_16M
 
+#define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
+
 /* Environment options */
 #define CONFIG_ENV_SIZE			SZ_4K
 
