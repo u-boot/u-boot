@@ -40,8 +40,8 @@ void cache_flush(void)
 
 void flush_cache(unsigned long addr, unsigned long size)
 {
-	invalidate_icache_all();
-	flush_dcache_all();
+	invalidate_icache_range(addr, addr + size);
+	flush_dcache_range(addr, addr + size);
 }
 
 __weak void icache_enable(void)
