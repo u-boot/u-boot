@@ -427,4 +427,12 @@ EFI_UNIT_TEST(snp) = {
 	.setup = setup,
 	.execute = execute,
 	.teardown = teardown,
+#ifdef CONFIG_SANDBOX
+	/*
+	 * Running this test on the sandbox requires setting environment
+	 * variable ethact to a network interface connected to a DHCP server and
+	 * ethrotate to 'no'.
+	 */
+	.on_request = true,
+#endif
 };
