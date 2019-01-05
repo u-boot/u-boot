@@ -11,11 +11,11 @@
 	model = "LS1021A QDS Board";
 
 	aliases {
-		enet0_rgmii_phy = &rgmii_phy1;
-		enet1_rgmii_phy = &rgmii_phy2;
-		enet2_rgmii_phy = &rgmii_phy3;
-		enet0_sgmii_phy = &sgmii_phy1c;
-		enet1_sgmii_phy = &sgmii_phy1d;
+		enet0-rgmii-phy = &rgmii_phy1;
+		enet1-rgmii-phy = &rgmii_phy2;
+		enet2-rgmii-phy = &rgmii_phy3;
+		enet0-sgmii-phy = &sgmii_phy1c;
+		enet1-sgmii-phy = &sgmii_phy1d;
 		spi0 = &qspi;
 		spi1 = &dspi0;
 	};
