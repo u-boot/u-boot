@@ -413,7 +413,7 @@ static void show_time(struct test_info *test, int stage)
 		do_div(speed, test->time_ms[stage] * 1024);
 	bps = speed * 8;
 
-	printf("%d %s: %d ticks, %d KiB/s %d.%03d Mbps\n", stage,
+	printf("%d %s: %u ticks, %d KiB/s %d.%03d Mbps\n", stage,
 	       stage_name[stage], test->time_ms[stage],
 	       (int)speed, bps / 1000, bps % 1000);
 }
