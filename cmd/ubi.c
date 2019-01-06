@@ -472,12 +472,8 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	if (strcmp(argv[1], "detach") == 0) {
-		if (argc < 2)
-			return CMD_RET_USAGE;
-
+	if (strcmp(argv[1], "detach") == 0)
 		return ubi_detach();
-	}
 
 	if (strcmp(argv[1], "part") == 0) {
 		const char *vid_header_offset = NULL;
