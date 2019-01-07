@@ -19,6 +19,11 @@
 #define L310_AUX_CTRL_DATA_PREFETCH_MASK	(1 << 28)
 #define L310_AUX_CTRL_INST_PREFETCH_MASK	(1 << 29)
 
+#define L2X0_CACHE_ID_PART_MASK     (0xf << 6)
+#define L2X0_CACHE_ID_PART_L310     (3 << 6)
+#define L2X0_CACHE_ID_RTL_MASK          0x3f
+#define L2X0_CACHE_ID_RTL_R3P2          0x8
+
 struct pl310_regs {
 	u32 pl310_cache_id;
 	u32 pl310_cache_type;
