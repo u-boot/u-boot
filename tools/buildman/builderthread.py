@@ -229,6 +229,7 @@ class BuilderThread(threading.Thread):
                 config_args = ['%s_defconfig' % brd.target]
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
+                args.extend(self.toolchain.MakeArgs())
 
                 # If we need to reconfigure, do that now
                 if do_config:

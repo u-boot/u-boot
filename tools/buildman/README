@@ -1046,6 +1046,16 @@ value for 'altbootcmd', but lost one for ' altbootcmd'.
 
 The -U option uses the u-boot.env files which are produced by a build.
 
+
+Building with clang
+===================
+
+To build with clang (sandbox only), use the -O option to override the
+toolchain. For example:
+
+   buildman -O clang-7 --board sandbox
+
+
 Other options
 =============
 
