@@ -65,7 +65,7 @@ static int env_sata_save(void)
 		return 1;
 
 	printf("Writing to SATA(%d)...", env_sata);
-	if (write_env(sata, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, &env_new)) {
+	if (write_env(sata, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, (u_char *)env_new)) {
 		puts("failed\n");
 		return 1;
 	}
