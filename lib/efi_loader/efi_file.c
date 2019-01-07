@@ -221,8 +221,8 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 	struct file_handle *fh = to_fh(file);
 	efi_status_t ret;
 
-	EFI_ENTRY("%p, %p, \"%ls\", %llx, %llu", file, new_handle, file_name,
-		  open_mode, attributes);
+	EFI_ENTRY("%p, %p, \"%ls\", %llx, %llu", file, new_handle,
+		  (wchar_t *)file_name, open_mode, attributes);
 
 	/* Check parameters */
 	if (!file || !new_handle || !file_name) {
