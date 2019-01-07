@@ -69,12 +69,13 @@ static ulong ymodem_read_fit(struct spl_load_info *load, ulong offset,
 static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 				 struct spl_boot_device *bootdev)
 {
-	int size = 0;
+	ulong size = 0;
 	int err;
 	int res;
 	int ret;
 	connection_info_t info;
 	char buf[BUF_SIZE];
+	struct image_header *ih;
 	ulong addr = 0;
 
 	info.mode = xyzModem_ymodem;
@@ -107,12 +108,18 @@ static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 		while ((res = xyzModem_stream_read(buf, BUF_SIZE, &err)) > 0)
 			size += res;
 	} else {
-		ret = spl_parse_image_header(spl_image,
-					     (struct image_header *)buf);
+		ih = (struct image_header *)buf;
+		ret = spl_parse_image_header(spl_image, ih);
 		if (ret)
 			return ret;
-		addr = spl_image->load_addr;
+#ifdef CONFIG_SPL_GZIP
+		if (ih->ih_comp == IH_COMP_GZIP)
+			addr = CONFIG_SYS_LOAD_ADDR;
+		else
+#endif
+			addr = spl_image->load_addr;
 		memcpy((void *)addr, buf, res);
+		ih = (struct image_header *)addr;
 		size += res;
 		addr += res;
 
@@ -121,13 +128,25 @@ static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 			size += res;
 			addr += res;
 		}
+
+#ifdef CONFIG_SPL_GZIP
+		if (ih->ih_comp == IH_COMP_GZIP) {
+			if (gunzip((void *)(spl_image->load_addr + sizeof(*ih)),
+				   CONFIG_SYS_BOOTM_LEN,
+				   (void *)(CONFIG_SYS_LOAD_ADDR + sizeof(*ih)),
+				   &size)) {
+				puts("Uncompressing error\n");
+				return -EIO;
+			}
+		}
+#endif
 	}
 
 end_stream:
 	xyzModem_stream_close(&err);
 	xyzModem_stream_terminate(false, &getcymodem);
 
-	printf("Loaded %d bytes\n", size);
+	printf("Loaded %lu bytes\n", size);
 	return 0;
 }
 SPL_LOAD_IMAGE_METHOD("UART", 0, BOOT_DEVICE_UART, spl_ymodem_load_image);
