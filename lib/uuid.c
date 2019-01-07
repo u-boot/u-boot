@@ -271,7 +271,7 @@ void gen_rand_uuid_str(char *uuid_str, int str_format)
 	uuid_bin_to_str(uuid_bin, uuid_str, str_format);
 }
 
-#ifdef CONFIG_CMD_UUID
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CMD_UUID)
 int do_uuid(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char uuid[UUID_STR_LEN + 1];
