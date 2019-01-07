@@ -135,8 +135,8 @@ class Toolchain:
     def GetWrapper(self, show_warning=True):
         """Get toolchain wrapper from the setting file.
         """
-	value = ''
-	for name, value in bsettings.GetItems('toolchain-wrapper'):
+        value = ''
+        for name, value in bsettings.GetItems('toolchain-wrapper'):
             if not value:
                 print "Warning: Wrapper not found"
         if value:
