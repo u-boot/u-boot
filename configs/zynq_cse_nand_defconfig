@@ -41,7 +41,6 @@ CONFIG_SYS_PROMPT="Zynq> "
 # CONFIG_CMD_SOURCE is not set
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_MISC is not set
-# CONFIG_PARTITIONS is not set
 CONFIG_OF_EMBED=y
 CONFIG_DEFAULT_DEVICE_TREE="zynq-cse-nand"
 # CONFIG_NET is not set
