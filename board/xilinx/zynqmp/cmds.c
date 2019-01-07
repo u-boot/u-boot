@@ -201,11 +201,78 @@ static int do_zynqmp_tcm_init(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif
 
+static int do_zynqmp_rsa(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[])
+{
+	u64 srcaddr, mod, exp;
+	u32 srclen, rsaop, size, ret_payload[PAYLOAD_ARG_CNT];
+	int ret;
+
+	if (argc != cmdtp->maxargs)
+		return CMD_RET_USAGE;
+
+	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
+		puts("ERR: PMUFW v1.0 or less is detected\n");
+		puts("ERR: Encrypt/Decrypt feature is not supported\n");
+		puts("ERR: Please upgrade PMUFW\n");
+		return CMD_RET_FAILURE;
+	}
+
+	srcaddr = simple_strtoul(argv[2], NULL, 16);
+	srclen = simple_strtoul(argv[3], NULL, 16);
+	if (srclen != RSA_KEY_SIZE) {
+		puts("ERR: srclen should be equal to 0x200(512 bytes)\n");
+		return CMD_RET_USAGE;
+	}
+
+	mod = simple_strtoul(argv[4], NULL, 16);
+	exp = simple_strtoul(argv[5], NULL, 16);
+	rsaop = simple_strtoul(argv[6], NULL, 16);
+	if (!(rsaop == 0 || rsaop == 1)) {
+		puts("ERR: rsaop should be either 0 or 1\n");
+		return CMD_RET_USAGE;
+	}
+
+	memcpy((void *)srcaddr + srclen, (void *)mod, MODULUS_LEN);
+
+	/*
+	 * For encryption we load public exponent (key size 4096-bits),
+	 * for decryption we load private exponent (32-bits)
+	 */
+	if (rsaop) {
+		memcpy((void *)srcaddr + srclen + MODULUS_LEN,
+		       (void *)exp, PUB_EXPO_LEN);
+		size = srclen + MODULUS_LEN + PUB_EXPO_LEN;
+	} else {
+		memcpy((void *)srcaddr + srclen + MODULUS_LEN,
+		       (void *)exp, PRIV_EXPO_LEN);
+		size = srclen + MODULUS_LEN + PRIV_EXPO_LEN;
+	}
+
+	flush_dcache_range((ulong)srcaddr,
+			   (ulong)(srcaddr) + roundup(size, ARCH_DMA_MINALIGN));
+
+	ret = xilinx_pm_request(PM_SECURE_RSA,
+			 upper_32_bits((ulong)srcaddr),
+			 lower_32_bits((ulong)srcaddr),
+			 srclen,
+			 rsaop,
+			 ret_payload);
+	if (ret || ret_payload[1]) {
+		printf("Failed: RSA status:0x%x, errcode:0x%x\n",
+		       ret, ret_payload[1]);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static cmd_tbl_t cmd_zynqmp_sub[] = {
 	U_BOOT_CMD_MKENT(secure, 5, 0, do_zynqmp_verify_secure, "", ""),
 	U_BOOT_CMD_MKENT(mmio_read, 3, 0, do_zynqmp_mmio_read, "", ""),
 	U_BOOT_CMD_MKENT(mmio_write, 5, 0, do_zynqmp_mmio_write, "", ""),
 	U_BOOT_CMD_MKENT(aes, 9, 0, do_zynqmp_aes, "", ""),
+	U_BOOT_CMD_MKENT(rsa, 7, 0, do_zynqmp_rsa, "", ""),
 #ifdef CONFIG_DEFINE_TCM_OCM_MMAP
 	U_BOOT_CMD_MKENT(tcminit, 3, 0, do_zynqmp_tcm_init, "", ""),
 #endif
@@ -264,6 +331,14 @@ static char zynqmp_help_text[] =
 	"		       to be initialized. Supported modes will be\n"
 	"		       lock(0)/split(1)\n"
 #endif
+	"zynqmp rsa srcaddr srclen mod exp rsaop\n"
+	"	Performs RSA encryption and RSA decryption on blob of data\n"
+	"	at srcaddr and puts it back in srcaddr using modulus and\n"
+	"	public or private exponent\n"
+	"	srclen : must be key size(4096 bits)\n"
+	"	exp :	private key exponent for RSA decryption(4096 bits)\n"
+	"		public key exponent for RSA encryption(32 bits)\n"
+	"	rsaop :	0 for RSA Decryption, 1 for RSA Encryption\n"
 	;
 #endif
 
