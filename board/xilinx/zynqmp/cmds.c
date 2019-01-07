@@ -267,12 +267,77 @@ static int do_zynqmp_rsa(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
+static int do_zynqmp_sha3(cmd_tbl_t *cmdtp, int flag,
+			  int argc, char * const argv[])
+{
+	u64 srcaddr;
+	u32 srclen, ret_payload[PAYLOAD_ARG_CNT];
+	int ret;
+
+	if (argc != cmdtp->maxargs)
+		return CMD_RET_USAGE;
+
+	if (zynqmp_firmware_version() <= PMUFW_V1_0) {
+		puts("ERR: PMUFW v1.0 or less is detected\n");
+		puts("ERR: Encrypt/Decrypt feature is not supported\n");
+		puts("ERR: Please upgrade PMUFW\n");
+		return CMD_RET_FAILURE;
+	}
+
+	srcaddr = simple_strtoul(argv[2], NULL, 16);
+	srclen = simple_strtoul(argv[3], NULL, 16);
+
+	/* Check srcaddr or srclen != 0 */
+	if (!srcaddr || !srclen) {
+		puts("ERR: srcaddr & srclen should not be 0\n");
+		return CMD_RET_USAGE;
+	}
+
+	flush_dcache_range(srcaddr,
+			   srcaddr + roundup(srclen, ARCH_DMA_MINALIGN));
+
+	ret = xilinx_pm_request(PM_SECURE_SHA, 0, 0, 0,
+			 ZYNQMP_SHA3_INIT, ret_payload);
+	if (ret || ret_payload[1]) {
+		printf("Failed: SHA INIT status:0x%x, errcode:0x%x\n",
+		       ret, ret_payload[1]);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = xilinx_pm_request(PM_SECURE_SHA,
+			 upper_32_bits((ulong)srcaddr),
+			 lower_32_bits((ulong)srcaddr),
+			 srclen,
+			 ZYNQMP_SHA3_UPDATE,
+			 ret_payload);
+	if (ret || ret_payload[1]) {
+		printf("Failed: SHA UPDATE status:0x%x, errcode:0x%x\n",
+		       ret, ret_payload[1]);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = xilinx_pm_request(PM_SECURE_SHA,
+			 upper_32_bits((ulong)srcaddr),
+			 lower_32_bits((ulong)srcaddr),
+			 ZYNQMP_SHA3_SIZE,
+			 ZYNQMP_SHA3_FINAL,
+			 ret_payload);
+	if (ret || ret_payload[1]) {
+		printf("Failed: SHA FINAL status:0x%x, errcode:0x%x\n",
+		       ret, ret_payload[1]);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
 static cmd_tbl_t cmd_zynqmp_sub[] = {
 	U_BOOT_CMD_MKENT(secure, 5, 0, do_zynqmp_verify_secure, "", ""),
 	U_BOOT_CMD_MKENT(mmio_read, 3, 0, do_zynqmp_mmio_read, "", ""),
 	U_BOOT_CMD_MKENT(mmio_write, 5, 0, do_zynqmp_mmio_write, "", ""),
 	U_BOOT_CMD_MKENT(aes, 9, 0, do_zynqmp_aes, "", ""),
 	U_BOOT_CMD_MKENT(rsa, 7, 0, do_zynqmp_rsa, "", ""),
+	U_BOOT_CMD_MKENT(sha3, 4, 0, do_zynqmp_sha3, "", ""),
 #ifdef CONFIG_DEFINE_TCM_OCM_MMAP
 	U_BOOT_CMD_MKENT(tcminit, 3, 0, do_zynqmp_tcm_init, "", ""),
 #endif
@@ -339,6 +404,10 @@ static char zynqmp_help_text[] =
 	"	exp :	private key exponent for RSA decryption(4096 bits)\n"
 	"		public key exponent for RSA encryption(32 bits)\n"
 	"	rsaop :	0 for RSA Decryption, 1 for RSA Encryption\n"
+	"zynqmp sha3 srcaddr srclen\n"
+	"	Generates sha3 hash value for data blob at srcaddr and puts\n"
+	"	48 bytes hash value into srcaddr\n"
+	"	Note: srcaddr/srclen should not be 0\n"
 	;
 #endif
 
