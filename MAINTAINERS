@@ -524,6 +524,7 @@ F:	arch/mips/dts/ocelot*
 F:	board/mscc/
 F:	configs/mscc*
 F:	drivers/gpio/mscc_sgpio.c
+F:	drivers/spi/mscc_bb_spi.c
 F:	include/configs/vcoreiii.h
 
 MIPS JZ4780

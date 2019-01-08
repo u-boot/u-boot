@@ -29,6 +29,44 @@
 
 /* Common utility functions */
 
+/*
+ * Perform a number of NOP instructions, blocks of 8 instructions.
+ * The (inlined) function will not affect cache or processor state.
+ */
+static inline void mscc_vcoreiii_nop_delay(int delay)
+{
+	while (delay > 0) {
+#define DELAY_8_NOPS() asm volatile("nop; nop; nop; nop; nop; nop; nop; nop;")
+		switch (delay) {
+		case 8:
+			DELAY_8_NOPS();
+			/* fallthrough */
+		case 7:
+			DELAY_8_NOPS();
+			/* fallthrough */
+		case 6:
+			DELAY_8_NOPS();
+			/* fallthrough */
+		case 5:
+			DELAY_8_NOPS();
+			/* fallthrough */
+		case 4:
+			DELAY_8_NOPS();
+			/* fallthrough */
+		case 3:
+			DELAY_8_NOPS();
+			/* fallthrough */
+		case 2:
+			DELAY_8_NOPS();
+			/* fallthrough */
+		case 1:
+			DELAY_8_NOPS();
+		}
+		delay -= 8;
+#undef DELAY_8_NOPS
+	}
+}
+
 int mscc_phy_rd_wr(u8 read,
 		   u32 miim_controller,
 		   u8 miim_addr,
