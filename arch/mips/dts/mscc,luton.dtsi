@@ -84,21 +84,10 @@
 			gpio-ranges = <&sgpio 0 0 64>;
 		};
 
-		gpio_spi_bitbang: gpio@10000064 {
-			compatible = "mscc,spi-bitbang-gpio";
-			reg = <0x10000064 0x4>;
-			gpio-controller;
-			#gpio-cells = <2>;
-
-		};
-
 		spi0: spi-bitbang {
-			compatible = "spi-gpio";
+			compatible = "mscc,luton-bb-spi";
 			status = "okay";
-			gpio-sck = <&gpio_spi_bitbang 6 0>;
-			gpio-miso = <&gpio_spi_bitbang 0 0>;
-			gpio-mosi = <&gpio_spi_bitbang 5 0>;
-			cs-gpios = <&gpio_spi_bitbang 1 0>;
+			reg = <0x10000064 0x4>;
 			num-chipselects = <1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
