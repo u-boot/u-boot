@@ -196,7 +196,14 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zc1751-xm019-dc5.dtb
 dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-mini-emmc0.dtb \
-	versal-mini-emmc1.dtb
+	versal-mini-emmc1.dtb \
+	versal-mini-qspi-parallel.dtb \
+	versal-mini-qspi-single.dtb \
+	versal-mini-qspi-stacked.dtb \
+	versal-mini-qspi-x1-single.dtb \
+	versal-mini-qspi-x1-stacked.dtb \
+	versal-mini-qspi-x2-single.dtb \
+	versal-mini-qspi-x2-stacked.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \

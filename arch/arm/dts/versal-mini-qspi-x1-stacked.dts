@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Xilinx Versal QSPI x1 Stacked DTS
+ *
+ * Copyright (C) 2018-2019 Xilinx, Inc.
+ */
+
+#include "versal-mini-qspi.dtsi"
+
+&qspi {
+	is-dual = <0>;
+	is-stacked = <1>;
+};
+
+&flash0 {
+	spi-rx-bus-width = <1>;
+};
