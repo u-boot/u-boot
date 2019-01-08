@@ -912,6 +912,16 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	return buf;
 }
+
+/**
+ * switch_to_non_secure_mode() - switch to non-secure mode
+ *
+ * This routine is overridden by architectures requiring this feature.
+ */
+void __weak switch_to_non_secure_mode(void)
+{
+}
+
 #else /* USE_HOSTCC */
 
 void memmove_wd(void *to, void *from, size_t len, ulong chunksz)

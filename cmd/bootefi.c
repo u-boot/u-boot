@@ -5,8 +5,9 @@
  *  Copyright (c) 2016 Alexander Graf
  */
 
-#include <charset.h>
 #include <common.h>
+#include <bootm.h>
+#include <charset.h>
 #include <command.h>
 #include <dm.h>
 #include <efi_loader.h>
@@ -20,11 +21,6 @@
 #include <asm-generic/sections.h>
 #include <asm-generic/unaligned.h>
 #include <linux/linkage.h>
-
-#ifdef CONFIG_ARMV7_NONSEC
-#include <asm/armv7.h>
-#include <asm/secure.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -150,34 +146,6 @@ static efi_status_t efi_do_enter(
 	st->boottime->exit(image_handle, ret, 0, NULL);
 	return ret;
 }
-
-#ifdef CONFIG_ARM64
-static efi_status_t efi_run_in_el2(EFIAPI efi_status_t (*entry)(
-			efi_handle_t image_handle, struct efi_system_table *st),
-			efi_handle_t image_handle, struct efi_system_table *st)
-{
-	/* Enable caches again */
-	dcache_enable();
-
-	return efi_do_enter(image_handle, st, entry);
-}
-#endif
-
-#ifdef CONFIG_ARMV7_NONSEC
-static bool is_nonsec;
-
-static efi_status_t efi_run_in_hyp(EFIAPI efi_status_t (*entry)(
-			efi_handle_t image_handle, struct efi_system_table *st),
-			efi_handle_t image_handle, struct efi_system_table *st)
-{
-	/* Enable caches again */
-	dcache_enable();
-
-	is_nonsec = true;
-
-	return efi_do_enter(image_handle, st, entry);
-}
-#endif
 
 /*
  * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
@@ -358,39 +326,6 @@ static efi_status_t do_bootefi_exec(void *efi,
 		goto err_prepare;
 	}
 
-#ifdef CONFIG_ARM64
-	/* On AArch64 we need to make sure we call our payload in < EL3 */
-	if (current_el() == 3) {
-		smp_kick_all_cpus();
-		dcache_disable();	/* flush cache before switch to EL2 */
-
-		/* Move into EL2 and keep running there */
-		armv8_switch_to_el2((ulong)entry,
-				    (ulong)&image_obj->header,
-				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
-				    ES_TO_AARCH64);
-
-		/* Should never reach here, efi exits with longjmp */
-		while (1) { }
-	}
-#endif
-
-#ifdef CONFIG_ARMV7_NONSEC
-	if (armv7_boot_nonsec() && !is_nonsec) {
-		dcache_disable();	/* flush cache before switch to HYP */
-
-		armv7_init_nonsec();
-		secure_ram_addr(_do_nonsec_entry)(
-					efi_run_in_hyp,
-					(uintptr_t)entry,
-					(uintptr_t)&image_obj->header,
-					(uintptr_t)&systab);
-
-		/* Should never reach here, efi exits with longjmp */
-		while (1) { }
-	}
-#endif
-
 	ret = efi_do_enter(&image_obj->header, &systab, entry);
 
 err_prepare:
@@ -475,6 +410,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* Allow unaligned memory access */
 	allow_unaligned();
+
+	switch_to_non_secure_mode();
 
 	/* Initialize EFI drivers */
 	r = efi_init_obj_list();

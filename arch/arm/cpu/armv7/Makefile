@@ -14,6 +14,7 @@ obj-$(CONFIG_SYS_ARM_MPU) += mpu_v7r.o
 
 ifneq ($(CONFIG_SPL_BUILD),y)
 obj-$(CONFIG_EFI_LOADER) += sctlr.o
+obj-$(CONFIG_ARMV7_NONSEC) += exception_level.o
 endif
 
 ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
