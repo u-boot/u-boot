@@ -38,6 +38,15 @@
 	status = "okay";
 };
 
+&usdhc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc1 &pinctrl_cd_usdhc1>;
+	no-1-8-v;
+	cd-gpios = <&gpio1 0 GPIO_ACTIVE_LOW>;
+	disable-wp;
+	status = "okay";
+};
+
 &iomuxc {
 	pinctrl_i2c4: i2c4-grp {
 		fsl,pins = <
@@ -68,6 +77,17 @@
 			MX7D_PAD_SD2_DATA0__GPIO5_IO14		0x14 /* DTR */
 		>;
 	};
+
+	pinctrl_usdhc1: usdhc1-grp {
+		fsl,pins = <
+			MX7D_PAD_SD1_CMD__SD1_CMD	0x59
+			MX7D_PAD_SD1_CLK__SD1_CLK	0x19
+			MX7D_PAD_SD1_DATA0__SD1_DATA0	0x59
+			MX7D_PAD_SD1_DATA1__SD1_DATA1	0x59
+			MX7D_PAD_SD1_DATA2__SD1_DATA2	0x59
+			MX7D_PAD_SD1_DATA3__SD1_DATA3	0x59
+		>;
+	};
 };
 
 &iomuxc_lpsr {
@@ -82,6 +102,12 @@
 		fsl,pins = <
 			MX7D_PAD_LPSR_GPIO1_IO05__GPIO1_IO5	0x4000007f
 			MX7D_PAD_LPSR_GPIO1_IO04__GPIO1_IO4	0x4000007f
+		>;
+	};
+
+	pinctrl_cd_usdhc1: usdhc1-cd-grp {
+		fsl,pins = <
+			MX7D_PAD_LPSR_GPIO1_IO00__GPIO1_IO0	0x59 /* CD */
 		>;
 	};
 };
