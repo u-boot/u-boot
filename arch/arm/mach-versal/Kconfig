@@ -41,4 +41,11 @@ config VERSAL_OF_BOARD_DTB_ADDR
 	default 0x1000
 	depends on OF_BOARD
 
+config SYS_MEM_RSVD_FOR_MMU
+	bool "Reserve memory for MMU Table"
+	help
+	  If defined this option is used to setup different space for
+	  MMU table than the one which will be allocated during
+	  relocation.
+
 endif

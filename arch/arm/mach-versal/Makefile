@@ -6,3 +6,4 @@
 
 obj-y	+= clk.o
 obj-y	+= cpu.o
+obj-$(CONFIG_SYS_MEM_RSVD_FOR_MMU)	+= mp.o
