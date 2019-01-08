@@ -674,7 +674,7 @@ static int get_container_image_start_pos(image_t *image_stack, uint32_t align)
 			fclose(fd);
 
 			if (header.tag != IVT_HEADER_TAG_B0) {
-				fprintf(stderr, "header tag missmatched \n");
+				fprintf(stderr, "header tag mismatched \n");
 				exit(EXIT_FAILURE);
 			} else {
 				file_off +=
