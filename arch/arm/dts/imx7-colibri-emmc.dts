@@ -1,0 +1,16 @@
+// SPDX-License-Identifier: GPL-2.0+ OR X11
+/*
+ * Copyright 2019 Toradex AG
+ */
+
+/dts-v1/;
+#include "imx7-colibri.dtsi"
+
+/ {
+	model = "Toradex Colibri iMX7D 1GB (eMMC)";
+	compatible = "toradex,imx7d-colibri-emmc", "fsl,imx7d";
+
+	chosen {
+		stdout-path = &uart1;
+	};
+};
