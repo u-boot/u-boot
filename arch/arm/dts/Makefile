@@ -197,6 +197,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-mini-emmc0.dtb \
 	versal-mini-emmc1.dtb \
+	versal-mini-ospi.dtb \
 	versal-mini-qspi-parallel.dtb \
 	versal-mini-qspi-single.dtb \
 	versal-mini-qspi-stacked.dtb \
