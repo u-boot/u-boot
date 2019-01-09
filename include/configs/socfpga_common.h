@@ -72,28 +72,11 @@
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
 
-#ifndef CONFIG_SYS_HOSTNAME
-#define CONFIG_SYS_HOSTNAME	CONFIG_SYS_BOARD
-#endif
-
 /*
  * Cache
  */
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE		SOCFPGA_MPUL2_ADDRESS
-
-/*
- * EPCS/EPCQx1 Serial Flash Controller
- */
-#ifdef CONFIG_ALTERA_SPI
-/*
- * The base address is configurable in QSys, each board must specify the
- * base address based on it's particular FPGA configuration. Please note
- * that the address here is incremented by  0x400  from the Base address
- * selected in QSys, since the SPI registers are at offset +0x400.
- * #define CONFIG_SYS_SPI_BASE		0xff240400
- */
-#endif
 
 /*
  * Ethernet on SoC (EMAC)
@@ -163,15 +146,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #endif
 
 /*
- * Designware SPI support
- */
-
-/*
- * Serial Driver
- */
-#define CONFIG_SYS_NS16550_SERIAL
-
-/*
  * USB
  */
 
@@ -205,20 +179,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_ENV_OFFSET		0x00100000
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #endif
-
-/*
- * mtd partitioning for serial NOR flash
- *
- * device nor0 <ff705000.spi.0>, # parts = 6
- * #: name                size            offset          mask_flags
- * 0: u-boot              0x00100000      0x00000000      0
- * 1: env1                0x00040000      0x00100000      0
- * 2: env2                0x00040000      0x00140000      0
- * 3: UBI                 0x03e80000      0x00180000      0
- * 4: boot                0x00e80000      0x00180000      0
- * 5: rootfs              0x01000000      0x01000000      0
- *
- */
 
 /*
  * SPL
