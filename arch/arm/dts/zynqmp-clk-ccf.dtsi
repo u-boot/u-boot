@@ -268,7 +268,7 @@
 };
 
 &lpd_watchdog {
-	clocks = <&clk 75>;
+	clocks = <&clk 112>;
 };
 
 &xilinx_ams {
