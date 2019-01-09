@@ -19,6 +19,13 @@
 #include <asm/arch/mmc.h>
 #include <asm-generic/gpio.h>
 
+#ifdef CONFIG_DM_MMC
+struct sunxi_mmc_variant {
+	u16 gate_offset;
+	u16 mclk_offset;
+};
+#endif
+
 struct sunxi_mmc_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
@@ -32,6 +39,9 @@ struct sunxi_mmc_priv {
 	int cd_inverted;		/* Inverted Card Detect */
 	struct sunxi_mmc *reg;
 	struct mmc_config cfg;
+#ifdef CONFIG_DM_MMC
+	const struct sunxi_mmc_variant *variant;
+#endif
 };
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
@@ -599,7 +609,7 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	struct sunxi_mmc_priv *priv = dev_get_priv(dev);
 	struct mmc_config *cfg = &plat->cfg;
 	struct ofnode_phandle_args args;
-	u32 *gate_reg;
+	u32 *gate_reg, *ccu_reg;
 	int bus_width, ret;
 
 	cfg->name = dev->name;
@@ -618,21 +628,21 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	cfg->f_max = 52000000;
 
 	priv->reg = (void *)dev_read_addr(dev);
+	priv->variant =
+		(const struct sunxi_mmc_variant *)dev_get_driver_data(dev);
 
 	/* We don't have a sunxi clock driver so find the clock address here */
 	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
 					  1, &args);
 	if (ret)
 		return ret;
-	priv->mclkreg = (u32 *)ofnode_get_addr(args.node);
+	ccu_reg = (u32 *)ofnode_get_addr(args.node);
 
-	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
-					  0, &args);
-	if (ret)
-		return ret;
-	gate_reg = (u32 *)ofnode_get_addr(args.node);
-	setbits_le32(gate_reg, 1 << args.args[0]);
-	priv->mmc_no = args.args[0] - 8;
+	priv->mmc_no = ((uintptr_t)priv->reg - SUNXI_MMC0_BASE) / 0x1000;
+	priv->mclkreg = (void *)ccu_reg +
+			(priv->variant->mclk_offset + (priv->mmc_no * 4));
+	gate_reg = (void *)ccu_reg + priv->variant->gate_offset;
+	setbits_le32(gate_reg, BIT(AHB_GATE_OFFSET_MMC(priv->mmc_no)));
 
 	ret = mmc_set_mod_clk(priv, 24000000);
 	if (ret)
@@ -665,11 +675,25 @@ static int sunxi_mmc_bind(struct udevice *dev)
 	return mmc_bind(dev, &plat->mmc, &plat->cfg);
 }
 
+static const struct sunxi_mmc_variant sun4i_a10_variant = {
+	.gate_offset = 0x60,
+	.mclk_offset = 0x88,
+};
+
 static const struct udevice_id sunxi_mmc_ids[] = {
-	{ .compatible = "allwinner,sun4i-a10-mmc" },
-	{ .compatible = "allwinner,sun5i-a13-mmc" },
-	{ .compatible = "allwinner,sun7i-a20-mmc" },
-	{ }
+	{
+	  .compatible = "allwinner,sun4i-a10-mmc",
+	  .data = (ulong)&sun4i_a10_variant,
+	},
+	{
+	  .compatible = "allwinner,sun5i-a13-mmc",
+	  .data = (ulong)&sun4i_a10_variant,
+	},
+	{
+	  .compatible = "allwinner,sun7i-a20-mmc",
+	  .data = (ulong)&sun4i_a10_variant,
+	},
+	{ /* sentinel */ }
 };
 
 U_BOOT_DRIVER(sunxi_mmc_drv) = {
