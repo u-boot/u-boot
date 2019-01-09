@@ -148,16 +148,16 @@ static void set_load_options(struct efi_loaded_image *loaded_image_info,
 /**
  * copy_fdt() - Copy the device tree to a new location available to EFI
  *
- * The FDT is relocated into a suitable location within the EFI memory map.
- * An additional 12KB is added to the space in case the device tree needs to be
+ * The FDT is copied to a suitable location within the EFI memory map.
+ * Additional 12 KiB are added to the space in case the device tree needs to be
  * expanded later with fdt_open_into().
  *
- * @fdt_addr: On entry, address of start of FDT. On exit, address of relocated
- *	FDT start
- * @fdt_sizep: Returns new size of FDT, including
- * @return new relocated address of FDT
+ * @fdtp:	On entry a pointer to the flattened device tree.
+ *		On exit a pointer to the copy of the flattened device tree.
+ *		FDT start
+ * Return:	status code
  */
-static efi_status_t copy_fdt(ulong *fdt_addrp, ulong *fdt_sizep)
+static efi_status_t copy_fdt(void **fdtp)
 {
 	unsigned long fdt_ram_start = -1L, fdt_pages;
 	efi_status_t ret = 0;
@@ -178,17 +178,19 @@ static efi_status_t copy_fdt(ulong *fdt_addrp, ulong *fdt_sizep)
 	}
 
 	/*
-	 * Give us at least 4KB of breathing room in case the device tree needs
-	 * to be expanded later. Round up to the nearest EFI page boundary.
+	 * Give us at least 12 KiB of breathing room in case the device tree
+	 * needs to be expanded later.
 	 */
-	fdt = map_sysmem(*fdt_addrp, 0);
-	fdt_size = fdt_totalsize(fdt);
-	fdt_size += 4096 * 3;
-	fdt_size = ALIGN(fdt_size + EFI_PAGE_SIZE - 1, EFI_PAGE_SIZE);
-	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
+	fdt = *fdtp;
+	fdt_pages = efi_size_in_pages(fdt_totalsize(fdt) + 0x3000);
+	fdt_size = fdt_pages << EFI_PAGE_SHIFT;
 
-	/* Safe fdt location is at 127MB */
-	new_fdt_addr = fdt_ram_start + (127 * 1024 * 1024) + fdt_size;
+	/*
+	 * Safe fdt location is at 127 MiB.
+	 * On the sandbox convert from the sandbox address space.
+	 */
+	new_fdt_addr = (uintptr_t)map_sysmem(fdt_ram_start + 0x7f00000 +
+					     fdt_size, 0);
 	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
 				 EFI_RUNTIME_SERVICES_DATA, fdt_pages,
 				 &new_fdt_addr);
@@ -203,13 +205,11 @@ static efi_status_t copy_fdt(ulong *fdt_addrp, ulong *fdt_sizep)
 			goto done;
 		}
 	}
-
-	new_fdt = map_sysmem(new_fdt_addr, fdt_size);
+	new_fdt = (void *)(uintptr_t)new_fdt_addr;
 	memcpy(new_fdt, fdt, fdt_totalsize(fdt));
 	fdt_set_totalsize(new_fdt, fdt_size);
 
-	*fdt_addrp = new_fdt_addr;
-	*fdt_sizep = fdt_size;
+	*fdtp = (void *)(uintptr_t)new_fdt_addr;
 done:
 	return ret;
 }
@@ -277,7 +277,11 @@ static void efi_carve_out_dt_rsv(void *fdt)
 		if (fdt_get_mem_rsv(fdt, i, &addr, &size) != 0)
 			continue;
 
-		pages = ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT;
+		/* Convert from sandbox address space. */
+		addr = (uintptr_t)map_sysmem(addr, 0);
+
+		pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
+		addr &= ~EFI_PAGE_MASK;
 		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
 					false))
 			printf("FDT memrsv map %d: Failed to add to map\n", i);
@@ -287,7 +291,6 @@ static void efi_carve_out_dt_rsv(void *fdt)
 static efi_status_t efi_install_fdt(ulong fdt_addr)
 {
 	bootm_headers_t img = { 0 };
-	ulong fdt_pages, fdt_size, fdt_start;
 	efi_status_t ret;
 	void *fdt;
 
@@ -297,34 +300,58 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
 		return EFI_INVALID_PARAMETER;
 	}
 
+	/* Create memory reservation as indicated by the device tree */
+	efi_carve_out_dt_rsv(fdt);
+
 	/* Prepare fdt for payload */
-	ret = copy_fdt(&fdt_addr, &fdt_size);
+	ret = copy_fdt(&fdt);
 	if (ret)
 		return ret;
 
-	unmap_sysmem(fdt);
-	fdt = map_sysmem(fdt_addr, 0);
-	fdt_size = fdt_totalsize(fdt);
 	if (image_setup_libfdt(&img, fdt, 0, NULL)) {
 		printf("ERROR: failed to process device tree\n");
 		return EFI_LOAD_ERROR;
 	}
-
-	efi_carve_out_dt_rsv(fdt);
 
 	/* Link to it in the efi tables */
 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
 	if (ret != EFI_SUCCESS)
 		return EFI_OUT_OF_RESOURCES;
 
-	/* And reserve the space in the memory map */
-	fdt_start = fdt_addr;
-	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
-
-	ret = efi_add_memory_map(fdt_start, fdt_pages,
-				 EFI_BOOT_SERVICES_DATA, true);
-
 	return ret;
+}
+
+static efi_status_t bootefi_run_prepare(const char *load_options_path,
+		struct efi_device_path *device_path,
+		struct efi_device_path *image_path,
+		struct efi_loaded_image_obj **image_objp,
+		struct efi_loaded_image **loaded_image_infop)
+{
+	efi_status_t ret;
+
+	ret = efi_setup_loaded_image(device_path, image_path, image_objp,
+				     loaded_image_infop);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	/* Transfer environment variable as load options */
+	set_load_options(*loaded_image_infop, load_options_path);
+
+	return 0;
+}
+
+/**
+ * bootefi_run_finish() - finish up after running an EFI test
+ *
+ * @loaded_image_info: Pointer to a struct which holds the loaded image info
+ * @image_objj: Pointer to a struct which holds the loaded image object
+ */
+static void bootefi_run_finish(struct efi_loaded_image_obj *image_obj,
+			       struct efi_loaded_image *loaded_image_info)
+{
+	efi_restore_gd();
+	free(loaded_image_info->load_options);
+	efi_delete_handle(&image_obj->header);
 }
 
 /**
@@ -345,7 +372,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 	efi_handle_t mem_handle = NULL;
 	struct efi_device_path *memdp = NULL;
 	efi_status_t ret;
-	struct efi_loaded_image_obj *image_handle = NULL;
+	struct efi_loaded_image_obj *image_obj = NULL;
 	struct efi_loaded_image *loaded_image_info = NULL;
 
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
@@ -354,7 +381,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 	/*
 	 * Special case for efi payload not loaded from disk, such as
 	 * 'bootefi hello' or for example payload loaded directly into
-	 * memory via jtag, etc:
+	 * memory via JTAG, etc:
 	 */
 	if (!device_path && !image_path) {
 		printf("WARNING: using memory device/image path, this may confuse some payloads!\n");
@@ -367,27 +394,25 @@ static efi_status_t do_bootefi_exec(void *efi,
 		 */
 		ret = efi_create_handle(&mem_handle);
 		if (ret != EFI_SUCCESS)
-			goto exit;
+			return ret; /* TODO: leaks device_path */
 		ret = efi_add_protocol(mem_handle, &efi_guid_device_path,
 				       device_path);
 		if (ret != EFI_SUCCESS)
-			goto exit;
+			goto err_add_protocol;
 	} else {
 		assert(device_path && image_path);
 	}
 
-	ret = efi_setup_loaded_image(device_path, image_path, &image_handle,
-				     &loaded_image_info);
-	if (ret != EFI_SUCCESS)
-		goto exit;
+	ret = bootefi_run_prepare("bootargs", device_path, image_path,
+				  &image_obj, &loaded_image_info);
+	if (ret)
+		goto err_prepare;
 
-	/* Transfer environment variable bootargs as load options */
-	set_load_options(loaded_image_info, "bootargs");
 	/* Load the EFI payload */
-	entry = efi_load_pe(image_handle, efi, loaded_image_info);
+	entry = efi_load_pe(image_obj, efi, loaded_image_info);
 	if (!entry) {
 		ret = EFI_LOAD_ERROR;
-		goto exit;
+		goto err_prepare;
 	}
 
 	if (memdp) {
@@ -405,9 +430,9 @@ static efi_status_t do_bootefi_exec(void *efi,
 	/* Call our payload! */
 	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
 
-	if (setjmp(&image_handle->exit_jmp)) {
-		ret = image_handle->exit_status;
-		goto exit;
+	if (setjmp(&image_obj->exit_jmp)) {
+		ret = image_obj->exit_status;
+		goto err_prepare;
 	}
 
 #ifdef CONFIG_ARM64
@@ -418,7 +443,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 
 		/* Move into EL2 and keep running there */
 		armv8_switch_to_el2((ulong)entry,
-				    (ulong)image_handle,
+				    (ulong)&image_obj->header,
 				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
 				    ES_TO_AARCH64);
 
@@ -435,7 +460,7 @@ static efi_status_t do_bootefi_exec(void *efi,
 		secure_ram_addr(_do_nonsec_entry)(
 					efi_run_in_hyp,
 					(uintptr_t)entry,
-					(uintptr_t)image_handle,
+					(uintptr_t)&image_obj->header,
 					(uintptr_t)&systab);
 
 		/* Should never reach here, efi exits with longjmp */
@@ -443,17 +468,58 @@ static efi_status_t do_bootefi_exec(void *efi,
 	}
 #endif
 
-	ret = efi_do_enter(image_handle, &systab, entry);
+	ret = efi_do_enter(&image_obj->header, &systab, entry);
 
-exit:
+err_prepare:
 	/* image has returned, loaded-image obj goes *poof*: */
-	if (image_handle)
-		efi_delete_handle(&image_handle->parent);
+	bootefi_run_finish(image_obj, loaded_image_info);
+
+err_add_protocol:
 	if (mem_handle)
 		efi_delete_handle(mem_handle);
 
 	return ret;
 }
+
+#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+/**
+ * bootefi_test_prepare() - prepare to run an EFI test
+ *
+ * This sets things up so we can call EFI functions. This involves preparing
+ * the 'gd' pointer and setting up the load ed image data structures.
+ *
+ * @image_objp: loaded_image_infop: Pointer to a struct which will hold the
+ *    loaded image object. This struct will be inited by this function before
+ *    use.
+ * @loaded_image_infop: Pointer to a struct which will hold the loaded image
+ *    info. This struct will be inited by this function before use.
+ * @path: File path to the test being run (often just the test name with a
+ *    backslash before it
+ * @test_func: Address of the test function that is being run
+ * @load_options_path: U-Boot environment variable to use as load options
+ * @return 0 if OK, -ve on error
+ */
+static efi_status_t bootefi_test_prepare
+		(struct efi_loaded_image_obj **image_objp,
+		struct efi_loaded_image **loaded_image_infop, const char *path,
+		ulong test_func, const char *load_options_path)
+{
+	/* Construct a dummy device path */
+	bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
+					      (uintptr_t)test_func,
+					      (uintptr_t)test_func);
+	if (!bootefi_device_path)
+		return EFI_OUT_OF_RESOURCES;
+	bootefi_image_path = efi_dp_from_file(NULL, 0, path);
+	if (!bootefi_image_path)
+		return EFI_OUT_OF_RESOURCES;
+
+	return bootefi_run_prepare(load_options_path, bootefi_device_path,
+				   bootefi_image_path, image_objp,
+				   loaded_image_infop);
+}
+
+#endif /* CONFIG_CMD_BOOTEFI_SELFTEST */
 
 static int do_bootefi_bootmgr_exec(void)
 {
@@ -527,29 +593,17 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 	if (!strcmp(argv[1], "selftest")) {
-		struct efi_loaded_image_obj *image_handle;
+		struct efi_loaded_image_obj *image_obj;
 		struct efi_loaded_image *loaded_image_info;
 
-		/* Construct a dummy device path. */
-		bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-						      (uintptr_t)&efi_selftest,
-						      (uintptr_t)&efi_selftest);
-		bootefi_image_path = efi_dp_from_file(NULL, 0, "\\selftest");
-
-		r = efi_setup_loaded_image(bootefi_device_path,
-					   bootefi_image_path, &image_handle,
-					   &loaded_image_info);
-		if (r != EFI_SUCCESS)
+		if (bootefi_test_prepare(&image_obj, &loaded_image_info,
+					 "\\selftest", (uintptr_t)&efi_selftest,
+					 "efi_selftest"))
 			return CMD_RET_FAILURE;
 
-		efi_save_gd();
-		/* Transfer environment variable efi_selftest as load options */
-		set_load_options(loaded_image_info, "efi_selftest");
 		/* Execute the test */
-		r = efi_selftest(image_handle, &systab);
-		efi_restore_gd();
-		free(loaded_image_info->load_options);
-		efi_delete_handle(&image_handle->parent);
+		r = efi_selftest(&image_obj->header, &systab);
+		bootefi_run_finish(image_obj, loaded_image_info);
 		return r != EFI_SUCCESS;
 	} else
 #endif
@@ -608,45 +662,19 @@ U_BOOT_CMD(
 
 void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 {
-	char filename[32] = { 0 }; /* dp->str is u16[32] long */
-	char *s;
+	struct efi_device_path *device, *image;
+	efi_status_t ret;
 
 	/* efi_set_bootdev is typically called repeatedly, recover memory */
 	efi_free_pool(bootefi_device_path);
 	efi_free_pool(bootefi_image_path);
-	/* If blk_get_device_part_str fails, avoid duplicate free. */
-	bootefi_device_path = NULL;
-	bootefi_image_path = NULL;
 
-	if (strcmp(dev, "Net")) {
-		struct blk_desc *desc;
-		disk_partition_t fs_partition;
-		int part;
-
-		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
-					       1);
-		if (part < 0)
-			return;
-
-		bootefi_device_path = efi_dp_from_part(desc, part);
+	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
+	if (ret == EFI_SUCCESS) {
+		bootefi_device_path = device;
+		bootefi_image_path = image;
 	} else {
-#ifdef CONFIG_NET
-		bootefi_device_path = efi_dp_from_eth();
-#endif
+		bootefi_device_path = NULL;
+		bootefi_image_path = NULL;
 	}
-
-	if (!path)
-		return;
-
-	if (strcmp(dev, "Net")) {
-		/* Add leading / to fs paths, because they're absolute */
-		snprintf(filename, sizeof(filename), "/%s", path);
-	} else {
-		snprintf(filename, sizeof(filename), "%s", path);
-	}
-	/* DOS style file path: */
-	s = filename;
-	while ((s = strchr(s, '/')))
-		*s++ = '\\';
-	bootefi_image_path = efi_dp_from_file(NULL, 0, filename);
 }

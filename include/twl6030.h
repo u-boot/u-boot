@@ -186,6 +186,7 @@ struct twl6030_data{
 };
 
 /* Functions to read and write from TWL6030 */
+#ifndef CONFIG_DM_I2C
 static inline int twl6030_i2c_write_u8(u8 chip_no, u8 reg, u8 val)
 {
 	return i2c_write(chip_no, reg, 1, &val, 1);
@@ -195,6 +196,10 @@ static inline int twl6030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
 {
 	return i2c_read(chip_no, reg, 1, val, 1);
 }
+#else
+int twl6030_i2c_write_u8(u8 chip_no, u8 reg, u8 val);
+int twl6030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val);
+#endif
 
 /*
  * Power

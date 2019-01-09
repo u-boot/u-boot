@@ -180,6 +180,7 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 		printf("Failed to read RAM buffer '%s': %d\n", arg, err);
 		return err;
 	}
+	state->ram_buf_read = true;
 
 	return 0;
 }
@@ -283,6 +284,15 @@ static int sandbox_cmdline_cb_log_level(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(log_level, 'L', 1,
 			  "Set log level (0=panic, 7=debug)");
 
+static int sandbox_cmdline_cb_show_of_platdata(struct sandbox_state *state,
+					       const char *arg)
+{
+	state->show_of_platdata = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT(show_of_platdata, 0, "Show of-platdata in SPL");
+
 int board_run_command(const char *cmdline)
 {
 	printf("## Commands are disabled. Please enable CONFIG_CMDLINE.\n");
@@ -292,8 +302,24 @@ int board_run_command(const char *cmdline)
 
 static void setup_ram_buf(struct sandbox_state *state)
 {
+	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */
+	if (!state->ram_buf_read) {
+		memset(state->ram_buf, '\0', state->ram_size);
+		printf("clear %p %x\n", state->ram_buf, state->ram_size);
+	}
+
 	gd->arch.ram_buf = state->ram_buf;
 	gd->ram_size = state->ram_size;
+}
+
+void state_show(struct sandbox_state *state)
+{
+	char **p;
+
+	printf("Arguments:\n");
+	for (p = state->argv; *p; p++)
+		printf("%s ", *p);
+	printf("\n");
 }
 
 int main(int argc, char *argv[])

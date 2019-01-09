@@ -157,6 +157,7 @@ static int fit_image_setup_sig(struct image_sign_info *info,
 {
 	const char *node_name;
 	char *algo_name;
+	const char *padding_name;
 
 	node_name = fit_get_name(fit, noffset, NULL);
 	if (fit_image_hash_get_algo(fit, noffset, &algo_name)) {
@@ -164,6 +165,8 @@ static int fit_image_setup_sig(struct image_sign_info *info,
 		       node_name, image_name);
 		return -1;
 	}
+
+	padding_name = fdt_getprop(fit, noffset, "padding", NULL);
 
 	memset(info, '\0', sizeof(*info));
 	info->keydir = keydir;
@@ -173,6 +176,7 @@ static int fit_image_setup_sig(struct image_sign_info *info,
 	info->name = strdup(algo_name);
 	info->checksum = image_get_checksum_algo(algo_name);
 	info->crypto = image_get_crypto_algo(algo_name);
+	info->padding = image_get_padding_algo(padding_name);
 	info->require_keys = require_keys;
 	info->engine_id = engine_id;
 	if (!info->checksum || !info->crypto) {

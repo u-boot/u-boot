@@ -205,7 +205,7 @@ static int query_console_serial(int *rows, int *cols)
 	/*
 	 * Not all terminals understand CSI [18t for querying the console size.
 	 * We should adhere to escape sequences documented in the console_codes
-	 * manpage and the ECMA-48 standard.
+	 * man page and the ECMA-48 standard.
 	 *
 	 * So here we follow a different approach. We position the cursor to the
 	 * bottom right and query its position. Before leaving the function we
@@ -480,7 +480,7 @@ void set_shift_mask(int mod, struct efi_key_state *key_state)
  *
  * This gets called when we have already parsed CSI.
  *
- * @modifiers:  bitmask (shift, alt, ctrl)
+ * @modifiers:  bit mask (shift, alt, ctrl)
  * @return:	the unmodified code
  */
 static int analyze_modifiers(struct efi_key_state *key_state)
@@ -1051,34 +1051,34 @@ static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
 efi_status_t efi_console_register(void)
 {
 	efi_status_t r;
-	struct efi_object *efi_console_output_obj;
-	struct efi_object *efi_console_input_obj;
+	efi_handle_t console_output_handle;
+	efi_handle_t console_input_handle;
 
 	/* Set up mode information */
 	query_console_size();
 
 	/* Create handles */
-	r = efi_create_handle((efi_handle_t *)&efi_console_output_obj);
+	r = efi_create_handle(&console_output_handle);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
 
-	r = efi_add_protocol(efi_console_output_obj->handle,
+	r = efi_add_protocol(console_output_handle,
 			     &efi_guid_text_output_protocol, &efi_con_out);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
-	systab.con_out_handle = efi_console_output_obj->handle;
-	systab.stderr_handle = efi_console_output_obj->handle;
+	systab.con_out_handle = console_output_handle;
+	systab.stderr_handle = console_output_handle;
 
-	r = efi_create_handle((efi_handle_t *)&efi_console_input_obj);
+	r = efi_create_handle(&console_input_handle);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
 
-	r = efi_add_protocol(efi_console_input_obj->handle,
+	r = efi_add_protocol(console_input_handle,
 			     &efi_guid_text_input_protocol, &efi_con_in);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;
-	systab.con_in_handle = efi_console_input_obj->handle;
-	r = efi_add_protocol(efi_console_input_obj->handle,
+	systab.con_in_handle = console_input_handle;
+	r = efi_add_protocol(console_input_handle,
 			     &efi_guid_text_input_ex_protocol, &efi_con_in_ex);
 	if (r != EFI_SUCCESS)
 		goto out_of_memory;

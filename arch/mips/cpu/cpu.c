@@ -28,16 +28,6 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif
 
-void write_one_tlb(int index, u32 pagemask, u32 hi, u32 low0, u32 low1)
-{
-	write_c0_entrylo0(low0);
-	write_c0_pagemask(pagemask);
-	write_c0_entrylo1(low1);
-	write_c0_entryhi(hi);
-	write_c0_index(index);
-	tlb_write_indexed();
-}
-
 int arch_cpu_init(void)
 {
 	mips_cache_probe();

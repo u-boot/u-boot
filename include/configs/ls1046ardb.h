@@ -160,6 +160,13 @@
 #define CONFIG_ENV_OVERWRITE
 #endif
 
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_MMC_ENV_DEV		0
+
+#define CONFIG_ENV_SIZE			0x2000		/* 8KB */
+#define CONFIG_ENV_OFFSET		0x500000	/* 5MB */
+#define CONFIG_ENV_SECT_SIZE		0x40000		/* 256KB */
+#else
 #if defined(CONFIG_SD_BOOT)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_ENV_OFFSET		(3 * 1024 * 1024)
@@ -168,6 +175,7 @@
 #define CONFIG_ENV_SIZE			0x2000		/* 8KB */
 #define CONFIG_ENV_OFFSET		0x300000	/* 3MB */
 #define CONFIG_ENV_SECT_SIZE		0x40000		/* 256KB */
+#endif
 #endif
 
 #define AQR105_IRQ_MASK			0x80000000
@@ -206,12 +214,19 @@
 
 #ifndef SPL_NO_MISC
 #undef CONFIG_BOOTCOMMAND
+#ifdef CONFIG_TFABOOT
+#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;;"
+#define SD_BOOTCOMMAND "run distro_bootcmd;run sd_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;"
+#else
 #if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;;"
 #elif defined(CONFIG_SD_BOOT)
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd;run sd_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;"
+#endif
 #endif
 #endif
 

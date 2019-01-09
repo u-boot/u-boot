@@ -247,25 +247,28 @@ sudo /path/to/u-boot -D
 DHCP
 ....
 
-set autoload no
-set ethact eth1
+setenv autoload no
+setenv ethrotate no
+setenv ethact eth1
 dhcp
 
 PING
 ....
 
-set autoload no
-set ethact eth1
+setenv autoload no
+setenv ethrotate no
+setenv ethact eth1
 dhcp
 ping $gatewayip
 
 TFTP
 ....
 
-set autoload no
-set ethact eth1
+setenv autoload no
+setenv ethrotate no
+setenv ethact eth1
 dhcp
-set serverip WWW.XXX.YYY.ZZZ
+setenv serverip WWW.XXX.YYY.ZZZ
 tftpboot u-boot.bin
 
 The bridge also supports (to a lesser extent) the localhost interface, 'lo'.
@@ -287,7 +290,8 @@ operation being tested on the lo interface.
 TFTP
 ....
 
-set ethact eth5
+setenv ethrotate no
+setenv ethact eth5
 tftpboot u-boot.bin
 
 
@@ -418,7 +422,19 @@ coverage in U-Boot is limited, as we need to work to improve it.
 Note that many of these tests are implemented as commands which you can
 run natively on your board if desired (and enabled).
 
-It would be useful to have a central script to run all of these.
+To run all tests use "make check".
+
+
+Memory Map
+----------
+
+Sandbox has its own emulated memory starting at 0. Here are some of the things
+that are mapped into that memory:
+
+      0   CONFIG_SYS_FDT_LOAD_ADDR   Device tree
+   e000   CONFIG_BLOBLIST_ADDR       Blob list
+  10000   CONFIG_MALLOC_F_ADDR       Early memory allocation
+
 
 --
 Simon Glass <sjg@chromium.org>

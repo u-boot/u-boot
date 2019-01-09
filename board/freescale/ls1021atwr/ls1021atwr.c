@@ -467,6 +467,7 @@ void board_init_f(ulong dummy)
 
 	preloader_console_init();
 
+	timer_init();
 	dram_init();
 
 	/* Allow OCRAM access permission as R/W */

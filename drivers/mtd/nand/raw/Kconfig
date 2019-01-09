@@ -88,6 +88,15 @@ config NAND_VF610_NFC
 	  The driver supports a maximum 2k page size. The driver
 	  currently does not support hardware ECC.
 
+if NAND_VF610_NFC
+
+config NAND_VF610_NFC_DT
+        bool "Support Vybrid's vf610 NAND controller as a DT device"
+        depends on OF_CONTROL && MTD
+        help
+          Enable the driver for Vybrid's vf610 NAND flash on platforms
+	  using device tree.
+
 choice
 	prompt "Hardware ECC strength"
 	depends on NAND_VF610_NFC
@@ -102,6 +111,8 @@ config SYS_NAND_VF610_NFC_60_ECC_BYTES
 	bool "32-error correction (60 ECC bytes)"
 
 endchoice
+
+endif
 
 config NAND_PXA3XX
 	bool "Support for NAND on PXA3xx and Armada 370/XP/38x"

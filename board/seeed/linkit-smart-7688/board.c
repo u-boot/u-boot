@@ -6,12 +6,15 @@
 #include <common.h>
 #include <asm/io.h>
 
-#define MT76XX_GPIO1_MODE	0xb0000060
+#define MT76XX_GPIO1_MODE	0x10000060
 
 void board_debug_uart_init(void)
 {
+	void __iomem *gpio_mode;
+
 	/* Select UART2 mode instead of GPIO mode (default) */
-	clrbits_le32((void __iomem *)MT76XX_GPIO1_MODE, GENMASK(27, 26));
+	gpio_mode = ioremap_nocache(MT76XX_GPIO1_MODE, 0x100);
+	clrbits_le32(gpio_mode, GENMASK(27, 26));
 }
 
 int board_early_init_f(void)

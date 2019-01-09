@@ -99,9 +99,9 @@
 #define BOOTEFI_NAME "bootia32.efi"
 #elif defined(CONFIG_X86_RUN_64BIT)
 #define BOOTEFI_NAME "bootx64.efi"
-#elif defined(CONFIG_CPU_RISCV_32)
+#elif defined(CONFIG_ARCH_RV32I)
 #define BOOTEFI_NAME "bootriscv32.efi"
-#elif defined(CONFIG_CPU_RISCV_64)
+#elif defined(CONFIG_ARCH_RV64I)
 #define BOOTEFI_NAME "bootriscv64.efi"
 #endif
 #endif
@@ -242,6 +242,18 @@
 	BOOT_TARGET_DEVICES_references_USB_without_CONFIG_CMD_USB
 #endif
 
+#ifdef CONFIG_CMD_VIRTIO
+#define BOOTENV_SHARED_VIRTIO	BOOTENV_SHARED_BLKDEV(virtio)
+#define BOOTENV_DEV_VIRTIO	BOOTENV_DEV_BLKDEV
+#define BOOTENV_DEV_NAME_VIRTIO	BOOTENV_DEV_NAME_BLKDEV
+#else
+#define BOOTENV_SHARED_VIRTIO
+#define BOOTENV_DEV_VIRTIO \
+	BOOT_TARGET_DEVICES_references_VIRTIO_without_CONFIG_CMD_VIRTIO
+#define BOOTENV_DEV_NAME_VIRTIO \
+	BOOT_TARGET_DEVICES_references_VIRTIO_without_CONFIG_CMD_VIRTIO
+#endif
+
 #if defined(CONFIG_CMD_DHCP)
 #if defined(CONFIG_EFI_LOADER)
 /* http://www.iana.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml */
@@ -257,10 +269,10 @@
 #elif defined(__i386__)
 #define BOOTENV_EFI_PXE_ARCH "0x6"
 #define BOOTENV_EFI_PXE_VCI "PXEClient:Arch:00006:UNDI:003000"
-#elif defined(CONFIG_CPU_RISCV_32) || ((defined(__riscv) && __riscv_xlen == 32))
+#elif defined(CONFIG_ARCH_RV32I) || ((defined(__riscv) && __riscv_xlen == 32))
 #define BOOTENV_EFI_PXE_ARCH "0x19"
 #define BOOTENV_EFI_PXE_VCI "PXEClient:Arch:00025:UNDI:003000"
-#elif defined(CONFIG_CPU_RISCV_64) || ((defined(__riscv) && __riscv_xlen == 64))
+#elif defined(CONFIG_ARCH_RV64I) || ((defined(__riscv) && __riscv_xlen == 64))
 #define BOOTENV_EFI_PXE_ARCH "0x1b"
 #define BOOTENV_EFI_PXE_VCI "PXEClient:Arch:00027:UNDI:003000"
 #elif defined(CONFIG_SANDBOX)
@@ -350,20 +362,22 @@
 	BOOTENV_SHARED_IDE \
 	BOOTENV_SHARED_UBIFS \
 	BOOTENV_SHARED_EFI \
+	BOOTENV_SHARED_VIRTIO \
 	"boot_prefixes=/ /boot/\0" \
 	"boot_scripts=boot.scr.uimg boot.scr\0" \
 	"boot_script_dhcp=boot.scr.uimg\0" \
 	BOOTENV_BOOT_TARGETS \
 	\
+	"boot_syslinux_conf=extlinux/extlinux.conf\0" \
 	"boot_extlinux="                                                  \
 		"sysboot ${devtype} ${devnum}:${distro_bootpart} any "    \
-			"${scriptaddr} ${prefix}extlinux/extlinux.conf\0" \
+			"${scriptaddr} ${prefix}${boot_syslinux_conf}\0"  \
 	\
 	"scan_dev_for_extlinux="                                          \
 		"if test -e ${devtype} "                                  \
 				"${devnum}:${distro_bootpart} "           \
-				"${prefix}extlinux/extlinux.conf; then "  \
-			"echo Found ${prefix}extlinux/extlinux.conf; "    \
+				"${prefix}${boot_syslinux_conf}; then "   \
+			"echo Found ${prefix}${boot_syslinux_conf}; "     \
 			"run boot_extlinux; "                             \
 			"echo SCRIPT FAILED: continuing...; "             \
 		"fi\0"                                                    \

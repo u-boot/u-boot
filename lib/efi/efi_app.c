@@ -161,5 +161,4 @@ U_BOOT_DRIVER(efi_sysreset) = {
 	.id = UCLASS_SYSRESET,
 	.of_match = efi_sysreset_ids,
 	.ops = &efi_sysreset_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

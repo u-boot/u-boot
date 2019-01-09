@@ -83,7 +83,6 @@ U_BOOT_DRIVER(dw_apb_timer) = {
 	.id		= UCLASS_TIMER,
 	.ops		= &dw_apb_timer_ops,
 	.probe		= dw_apb_timer_probe,
-	.flags		= DM_FLAG_PRE_RELOC,
 	.of_match	= dw_apb_timer_ids,
 	.ofdata_to_platdata = dw_apb_timer_ofdata_to_platdata,
 	.priv_auto_alloc_size = sizeof(struct dw_apb_timer_priv),

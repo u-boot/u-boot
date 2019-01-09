@@ -30,6 +30,27 @@
 
 static struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
+
+/*
+ * FPGA programming support for SoC FPGA Arria 10
+ */
+static Altera_desc altera_fpga[] = {
+	{
+		/* Family */
+		Altera_SoCFPGA,
+		/* Interface type */
+		fast_passive_parallel,
+		/* No limitation as additional data will be ignored */
+		-1,
+		/* No device function table */
+		NULL,
+		/* Base interface address specified in driver */
+		NULL,
+		/* No cookie implementation */
+		0
+	},
+};
+
 #if defined(CONFIG_SPL_BUILD)
 static struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
@@ -73,7 +94,7 @@ void socfpga_sdram_remap_zero(void)
 int arch_early_init_r(void)
 {
 	/* Add device descriptor to FPGA device table */
-	socfpga_fpga_add();
+	socfpga_fpga_add(&altera_fpga[0]);
 
 	return 0;
 }

@@ -82,9 +82,26 @@
 	};
 
 	i2c@12C70000 {
-		soundcodec@1a {
+		wm8994: soundcodec@1a {
 			reg = <0x1a>;
-			compatible = "wolfson,wm8994-codec";
+			u-boot,i2c-offset-len = <2>;
+			compatible = "wolfson,wm8994";
+			#sound-dai-cells = <1>;
+		};
+	};
+
+	sound {
+		compatible = "samsung,smdk5420-audio-wm8994";
+
+		samsung,model = "Snow-I2S-MAX98095";
+		samsung,audio-codec = <&wm8994>;
+
+		cpu {
+			sound-dai = <&i2s0 0>;
+		};
+
+		codec {
+			sound-dai = <&wm8994 0>;
 		};
 	};
 

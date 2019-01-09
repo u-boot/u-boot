@@ -41,7 +41,8 @@ def GetActionSummary(is_summary, commits, selected, options):
             GetPlural(options.threads), options.jobs, GetPlural(options.jobs))
     return str
 
-def ShowActions(series, why_selected, boards_selected, builder, options):
+def ShowActions(series, why_selected, boards_selected, builder, options,
+                board_warnings):
     """Display a list of actions that we would take, if not a dry run.
 
     Args:
@@ -55,6 +56,7 @@ def ShowActions(series, why_selected, boards_selected, builder, options):
                 value is Board object
         builder: The builder that will be used to build the commits
         options: Command line options object
+        board_warnings: List of warnings obtained from board selected
     """
     col = terminal.Color()
     print 'Dry run, so not doing much. But I would do this:'
@@ -79,6 +81,9 @@ def ShowActions(series, why_selected, boards_selected, builder, options):
                 print '   %s' % ' '.join(why_selected[arg])
     print ('Total boards to build for each commit: %d\n' %
             len(why_selected['all']))
+    if board_warnings:
+        for warning in board_warnings:
+            print col.Color(col.YELLOW, warning)
 
 def CheckOutputDir(output_dir):
     """Make sure that the output directory is not within the current directory
@@ -159,7 +164,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
 
     if no_toolchains:
         toolchains.GetSettings()
-        toolchains.Scan(options.list_tool_chains)
+        toolchains.Scan(options.list_tool_chains and options.verbose)
     if options.list_tool_chains:
         toolchains.List()
         print
@@ -210,7 +215,15 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
         for arg in options.exclude:
             exclude += arg.split(',')
 
-    why_selected = boards.SelectBoards(args, exclude)
+
+    if options.boards:
+        requested_boards = []
+        for b in options.boards:
+            requested_boards += b.split(',')
+    else:
+        requested_boards = None
+    why_selected, board_warnings = boards.SelectBoards(args, exclude,
+                                                       requested_boards)
     selected = boards.GetSelected()
     if not len(selected):
         sys.exit(col.Color(col.RED, 'No matching boards found'))
@@ -292,7 +305,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
-        ShowActions(series, why_selected, selected, builder, options)
+        ShowActions(series, why_selected, selected, builder, options,
+                    board_warnings)
     else:
         builder.force_build = options.force_build
         builder.force_build_failures = options.force_build_failures

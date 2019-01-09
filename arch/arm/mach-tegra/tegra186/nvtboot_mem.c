@@ -6,10 +6,9 @@
 #include <common.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
+#include <linux/sizes.h>
 #include <asm/arch/tegra.h>
 #include <asm/armv8/mmu.h>
-
-#define SZ_4G 0x100000000ULL
 
 /*
  * Size of a region that's large enough to hold the relocated U-Boot and all

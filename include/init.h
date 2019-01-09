@@ -109,7 +109,14 @@ int arch_reserve_stacks(void);
  */
 int init_cache_f_r(void);
 
+#if !CONFIG_IS_ENABLED(CPU)
+/**
+ * print_cpuinfo() - Display information about the CPU
+ *
+ * Return: 0 if OK, -ve on error
+ */
 int print_cpuinfo(void);
+#endif
 int timer_init(void);
 int reserve_mmu(void);
 int misc_init_f(void);

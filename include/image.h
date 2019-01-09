@@ -30,6 +30,7 @@ struct fdt_region;
 #define IMAGE_ENABLE_FIT	1
 #define IMAGE_ENABLE_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
+#define CONFIG_FIT_ENABLE_RSASSA_PSS_SUPPORT 1
 #define CONFIG_FIT_ENABLE_SHA256_SUPPORT
 #define CONFIG_SHA1
 #define CONFIG_SHA256
@@ -125,7 +126,8 @@ enum ih_category {
  * Operating System Codes
  *
  * The following are exposed to uImage header.
- * Do not change values for backward compatibility.
+ * New IDs *MUST* be appended at the end of the list and *NEVER*
+ * inserted for backward compatibility.
  */
 enum {
 	IH_OS_INVALID		= 0,	/* Invalid OS	*/
@@ -163,7 +165,8 @@ enum {
  * CPU Architecture Codes (supported by Linux)
  *
  * The following are exposed to uImage header.
- * Do not change values for backward compatibility.
+ * New IDs *MUST* be appended at the end of the list and *NEVER*
+ * inserted for backward compatibility.
  */
 enum {
 	IH_ARCH_INVALID		= 0,	/* Invalid CPU	*/
@@ -236,7 +239,8 @@ enum {
  *	as command interpreter (=> Shell Scripts).
  *
  * The following are exposed to uImage header.
- * Do not change values for backward compatibility.
+ * New IDs *MUST* be appended at the end of the list and *NEVER*
+ * inserted for backward compatibility.
  */
 
 enum {
@@ -251,7 +255,6 @@ enum {
 	IH_TYPE_FLATDT,			/* Binary Flat Device Tree Blob	*/
 	IH_TYPE_KWBIMAGE,		/* Kirkwood Boot Image		*/
 	IH_TYPE_IMXIMAGE,		/* Freescale IMXBoot Image	*/
-	IH_TYPE_IMX8IMAGE,		/* Freescale IMX8Boot Image	*/
 	IH_TYPE_UBLIMAGE,		/* Davinci UBL Image		*/
 	IH_TYPE_OMAPIMAGE,		/* TI OMAP Config Header Image	*/
 	IH_TYPE_AISIMAGE,		/* TI Davinci AIS Image		*/
@@ -278,6 +281,9 @@ enum {
 	IH_TYPE_PMMC,            /* TI Power Management Micro-Controller Firmware */
 	IH_TYPE_STM32IMAGE,		/* STMicroelectronics STM32 Image */
 	IH_TYPE_SOCFPGAIMAGE_V1,	/* Altera SOCFPGA A10 Preloader	*/
+	IH_TYPE_MTKIMAGE,		/* MediaTek BootROM loadable Image */
+	IH_TYPE_IMX8MIMAGE,		/* Freescale IMX8MBoot Image	*/
+	IH_TYPE_IMX8IMAGE,		/* Freescale IMX8Boot Image	*/
 
 	IH_TYPE_COUNT,			/* Number of image types */
 };
@@ -286,7 +292,8 @@ enum {
  * Compression Types
  *
  * The following are exposed to uImage header.
- * Do not change values for backward compatibility.
+ * New IDs *MUST* be appended at the end of the list and *NEVER*
+ * inserted for backward compatibility.
  */
 enum {
 	IH_COMP_NONE		= 0,	/*  No	 Compression Used	*/
@@ -1100,6 +1107,7 @@ struct image_sign_info {
 	int node_offset;		/* Offset of signature node */
 	const char *name;		/* Algorithm name */
 	struct checksum_algo *checksum;	/* Checksum algorithm information */
+	struct padding_algo *padding;	/* Padding algorithm information */
 	struct crypto_algo *crypto;	/* Crypto algorithm information */
 	const void *fdt_blob;		/* FDT containing public keys */
 	int required_keynode;		/* Node offset of key to use: -1=any */
@@ -1185,6 +1193,13 @@ struct crypto_algo {
 		      uint8_t *sig, uint sig_len);
 };
 
+struct padding_algo {
+	const char *name;
+	int (*verify)(struct image_sign_info *info,
+		      uint8_t *pad, int pad_len,
+		      const uint8_t *hash, int hash_len);
+};
+
 /**
  * image_get_checksum_algo() - Look up a checksum algorithm
  *
@@ -1200,6 +1215,14 @@ struct checksum_algo *image_get_checksum_algo(const char *full_name);
  * @return pointer to algorithm information, or NULL if not found
  */
 struct crypto_algo *image_get_crypto_algo(const char *full_name);
+
+/**
+ * image_get_padding_algo() - Look up a padding algorithm
+ *
+ * @param name		Name of padding algorithm
+ * @return pointer to algorithm information, or NULL if not found
+ */
+struct padding_algo *image_get_padding_algo(const char *name);
 
 /**
  * fit_image_verify_required_sigs() - Verify signatures marked as 'required'

@@ -5,9 +5,8 @@
  */
 #include <common.h>
 #include <asm/io.h>
+#include <linux/ctype.h>
 
-/* R-Car Gen3 caches are enabled in memmap-gen3.c */
-#ifndef CONFIG_RCAR_GEN3
 #ifdef CONFIG_ARCH_CPU_INIT
 int arch_cpu_init(void)
 {
@@ -16,6 +15,8 @@ int arch_cpu_init(void)
 }
 #endif
 
+/* R-Car Gen3 D-cache is enabled in memmap-gen3.c */
+#ifndef CONFIG_RCAR_GEN3
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
@@ -67,19 +68,41 @@ static const struct {
 	{ 0x0, "CPU" },
 };
 
-int print_cpuinfo(void)
+static int rmobile_cpuinfo_idx(void)
 {
 	int i = 0;
 	u32 cpu_type = rmobile_get_cpu_type();
-	for (; i < ARRAY_SIZE(rmobile_cpuinfo); i++) {
-		if (rmobile_cpuinfo[i].cpu_type == cpu_type) {
-			printf("CPU: Renesas Electronics %s rev %d.%d\n",
-			       rmobile_cpuinfo[i].cpu_name,
-			       rmobile_get_cpu_rev_integer(),
-			       rmobile_get_cpu_rev_fraction());
+
+	for (; i < ARRAY_SIZE(rmobile_cpuinfo); i++)
+		if (rmobile_cpuinfo[i].cpu_type == cpu_type)
 			break;
-		}
-	}
+
+	return i;
+}
+
+#ifdef CONFIG_ARCH_MISC_INIT
+int arch_misc_init(void)
+{
+	int i, idx = rmobile_cpuinfo_idx();
+	char cpu[10] = { 0 };
+
+	for (i = 0; i < sizeof(cpu); i++)
+		cpu[i] = tolower(rmobile_cpuinfo[idx].cpu_name[i]);
+
+	env_set("platform", cpu);
+
+	return 0;
+}
+#endif
+
+int print_cpuinfo(void)
+{
+	int i = rmobile_cpuinfo_idx();
+
+	printf("CPU: Renesas Electronics %s rev %d.%d\n",
+		rmobile_cpuinfo[i].cpu_name, rmobile_get_cpu_rev_integer(),
+		rmobile_get_cpu_rev_fraction());
+
 	return 0;
 }
 #endif /* CONFIG_DISPLAY_CPUINFO */

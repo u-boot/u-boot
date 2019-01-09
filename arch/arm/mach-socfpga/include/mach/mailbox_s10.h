@@ -107,6 +107,12 @@ enum ALT_SDM_MBOX_RESP_CODE {
 #define RECONFIG_STATUS_PIN_STATUS			2
 #define RECONFIG_STATUS_SOFTFUNC_STATUS			3
 
+/* Macros for specifying number of arguments in mailbox command */
+#define MBOX_NUM_ARGS(n, b)				(((n) & 0xFF) << (b))
+#define MBOX_DIRECT_COUNT(n)				MBOX_NUM_ARGS((n), 0)
+#define MBOX_ARG_DESC_COUNT(n)				MBOX_NUM_ARGS((n), 8)
+#define MBOX_RESP_DESC_COUNT(n)				MBOX_NUM_ARGS((n), 16)
+
 #define MBOX_CFGSTAT_STATE_IDLE				0x00000000
 #define MBOX_CFGSTAT_STATE_CONFIG			0x10000000
 #define MBOX_CFGSTAT_STATE_FAILACK			0x08000000
@@ -140,5 +146,6 @@ int mbox_qspi_open(void);
 #endif
 
 int mbox_reset_cold(void);
-
+int mbox_get_fpga_config_status(u32 cmd);
+int mbox_get_fpga_config_status_psci(u32 cmd);
 #endif /* _MAILBOX_S10_H_ */

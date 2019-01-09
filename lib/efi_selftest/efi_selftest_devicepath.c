@@ -257,7 +257,7 @@ static int teardown(void)
 static int execute(void)
 {
 	struct efi_device_path *remaining_dp;
-	void *handle;
+	efi_handle_t handle;
 	/*
 	 * This device path node ends with the letter 't' of 'u-boot'.
 	 * The following '.bin' does not belong to the node but is

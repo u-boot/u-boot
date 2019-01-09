@@ -677,6 +677,26 @@ struct ccsr_gpio {
 #define SCR0_CLIENTPD_MASK		0x00000001
 #define SCR0_USFCFG_MASK		0x00000400
 
+#ifdef CONFIG_TFABOOT
+#define RCW_SRC_MASK			(0xFF800000)
+#define RCW_SRC_BIT			23
+
+/* RCW SRC NAND */
+#define RCW_SRC_NAND_MASK		(0x100)
+#define RCW_SRC_NAND_VAL		(0x100)
+#define NAND_RESERVED_MASK		(0xFC)
+#define NAND_RESERVED_1			(0x0)
+#define NAND_RESERVED_2			(0x80)
+
+/* RCW SRC NOR */
+#define RCW_SRC_NOR_MASK		(0x1F0)
+#define NOR_8B_VAL			(0x10)
+#define NOR_16B_VAL			(0x20)
+#define SD_VAL				(0x40)
+#define QSPI_VAL1			(0x44)
+#define QSPI_VAL2			(0x45)
+#endif
+
 uint get_svr(void);
 
 #endif	/* __ARCH_FSL_LSCH2_IMMAP_H__*/

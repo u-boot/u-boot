@@ -388,11 +388,6 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	/* do nothing */
 }
 
-void spi_init(void)
-{
-	/* do nothing */
-}
-
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 			unsigned int max_hz, unsigned int mode)
 {

@@ -623,7 +623,7 @@ void am57x_idk_lcd_detect(void)
 {
 	int r = -ENODEV;
 	char *idk_lcd = "no";
-	uint8_t buf = 0;
+	struct udevice *dev;
 
 	/* Only valid for IDKs */
 	if (board_is_x15() || board_is_am572x_evm())
@@ -633,32 +633,29 @@ void am57x_idk_lcd_detect(void)
 	if (board_is_am571x_idk() && !am571x_idk_needs_lcd())
 		goto out;
 
-	r = i2c_set_bus_num(OSD_TS_FT_BUS_ADDRESS);
+	r = i2c_get_chip_for_busnum(OSD_TS_FT_BUS_ADDRESS,
+				    OSD_TS_FT_CHIP_ADDRESS, 1, &dev);
 	if (r) {
-		printf("%s: Failed to set bus address to %d: %d\n",
-		       __func__, OSD_TS_FT_BUS_ADDRESS, r);
-		goto out;
-	}
-	r = i2c_probe(OSD_TS_FT_CHIP_ADDRESS);
-	if (r) {
+		printf("%s: Failed to get I2C device %d/%d (ret %d)\n",
+		       __func__, OSD_TS_FT_BUS_ADDRESS, OSD_TS_FT_CHIP_ADDRESS,
+		       r);
 		/* AM572x IDK has no explicit settings for optional LCD kit */
-		if (board_is_am571x_idk()) {
+		if (board_is_am571x_idk())
 			printf("%s: Touch screen detect failed: %d!\n",
 			       __func__, r);
-		}
 		goto out;
 	}
 
 	/* Read FT ID */
-	r = i2c_read(OSD_TS_FT_CHIP_ADDRESS, OSD_TS_FT_REG_ID, 1, &buf, 1);
-	if (r) {
+	r = dm_i2c_reg_read(dev, OSD_TS_FT_REG_ID);
+	if (r < 0) {
 		printf("%s: Touch screen ID read %d:0x%02x[0x%02x] failed:%d\n",
 		       __func__, OSD_TS_FT_BUS_ADDRESS, OSD_TS_FT_CHIP_ADDRESS,
 		       OSD_TS_FT_REG_ID, r);
 		goto out;
 	}
 
-	switch (buf) {
+	switch (r) {
 	case OSD_TS_FT_ID_5606:
 		idk_lcd = "osd101t2045";
 		break;
@@ -667,13 +664,26 @@ void am57x_idk_lcd_detect(void)
 		break;
 	default:
 		printf("%s: Unidentifed Touch screen ID 0x%02x\n",
-		       __func__, buf);
+		       __func__, r);
 		/* we will let default be "no lcd" */
 	}
 out:
 	env_set("idk_lcd", idk_lcd);
 	return;
 }
+
+#if CONFIG_IS_ENABLED(DM_USB) && CONFIG_IS_ENABLED(OF_CONTROL)
+static int device_okay(const char *path)
+{
+	int node;
+
+	node = fdt_path_offset(gd->fdt_blob, path);
+	if (node < 0)
+		return 0;
+
+	return fdtdec_get_is_enabled(gd->fdt_blob, node);
+}
+#endif
 
 int board_late_init(void)
 {
@@ -714,6 +724,12 @@ int board_late_init(void)
 	board_ti_set_ethaddr(2);
 #endif
 
+#if CONFIG_IS_ENABLED(DM_USB) && CONFIG_IS_ENABLED(OF_CONTROL)
+	if (device_okay("/ocp/omap_dwc3_1@48880000"))
+		enable_usb_clocks(0);
+	if (device_okay("/ocp/omap_dwc3_2@488c0000"))
+		enable_usb_clocks(1);
+#endif
 	return 0;
 }
 
@@ -863,93 +879,6 @@ int spl_start_uboot(void)
 	return 0;
 }
 #endif
-
-#ifdef CONFIG_USB_DWC3
-static struct dwc3_device usb_otg_ss2 = {
-	.maximum_speed = USB_SPEED_HIGH,
-	.base = DRA7_USB_OTG_SS2_BASE,
-	.tx_fifo_resize = false,
-	.index = 1,
-};
-
-static struct dwc3_omap_device usb_otg_ss2_glue = {
-	.base = (void *)DRA7_USB_OTG_SS2_GLUE_BASE,
-	.utmi_mode = DWC3_OMAP_UTMI_MODE_SW,
-	.index = 1,
-};
-
-static struct ti_usb_phy_device usb_phy2_device = {
-	.usb2_phy_power = (void *)DRA7_USB2_PHY2_POWER,
-	.index = 1,
-};
-
-int usb_gadget_handle_interrupts(int index)
-{
-	u32 status;
-
-	status = dwc3_omap_uboot_interrupt_status(index);
-	if (status)
-		dwc3_uboot_handle_interrupt(index);
-
-	return 0;
-}
-#endif /* CONFIG_USB_DWC3 */
-
-#if defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP)
-int board_usb_init(int index, enum usb_init_type init)
-{
-	enable_usb_clocks(index);
-	switch (index) {
-	case 0:
-		if (init == USB_INIT_DEVICE) {
-			printf("port %d can't be used as device\n", index);
-			disable_usb_clocks(index);
-			return -EINVAL;
-		}
-		break;
-	case 1:
-		if (init == USB_INIT_DEVICE) {
-#ifdef CONFIG_USB_DWC3
-			usb_otg_ss2.dr_mode = USB_DR_MODE_PERIPHERAL;
-			usb_otg_ss2_glue.vbus_id_status = OMAP_DWC3_VBUS_VALID;
-			ti_usb_phy_uboot_init(&usb_phy2_device);
-			dwc3_omap_uboot_init(&usb_otg_ss2_glue);
-			dwc3_uboot_init(&usb_otg_ss2);
-#endif
-		} else {
-			printf("port %d can't be used as host\n", index);
-			disable_usb_clocks(index);
-			return -EINVAL;
-		}
-
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-
-	return 0;
-}
-
-int board_usb_cleanup(int index, enum usb_init_type init)
-{
-#ifdef CONFIG_USB_DWC3
-	switch (index) {
-	case 0:
-	case 1:
-		if (init == USB_INIT_DEVICE) {
-			ti_usb_phy_uboot_exit(index);
-			dwc3_uboot_exit(index);
-			dwc3_omap_uboot_exit(index);
-		}
-		break;
-	default:
-		printf("Invalid Controller Index\n");
-	}
-#endif
-	disable_usb_clocks(index);
-	return 0;
-}
-#endif /* defined(CONFIG_USB_DWC3) || defined(CONFIG_USB_XHCI_OMAP) */
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 

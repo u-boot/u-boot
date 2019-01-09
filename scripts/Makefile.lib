@@ -381,7 +381,7 @@ $(obj)/%.efi: $(obj)/%_efi.so
 
 quiet_cmd_efi_ld = LD      $@
 cmd_efi_ld = $(LD) -nostdlib -znocombreloc -T $(EFI_LDS_PATH) -shared \
-		-Bsymbolic $^ -o $@
+		-Bsymbolic -s $^ -o $@
 
 EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
 

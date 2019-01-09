@@ -7,6 +7,8 @@
 #include <asm/opcodes-sec.h>
 #include <asm/opcodes-virt.h>
 
+	.section	.text.efi_runtime
+
 #define UNWIND(x...)
 	/*
 	 * Wrap c macros in asm macros to delay expansion until after the

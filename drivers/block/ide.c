@@ -1169,8 +1169,6 @@ static int ide_blk_probe(struct udevice *udev)
 		BLK_REV_SIZE);
 	desc->revision[BLK_REV_SIZE] = '\0';
 
-	part_init(desc);
-
 	return 0;
 }
 

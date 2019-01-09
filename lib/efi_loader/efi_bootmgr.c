@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  EFI utils
+ *  EFI boot manager
  *
  *  Copyright (c) 2017 Rob Clark
  */
@@ -9,6 +9,7 @@
 #include <charset.h>
 #include <malloc.h>
 #include <efi_loader.h>
+#include <asm/unaligned.h>
 
 static const struct efi_boot_services *bs;
 static const struct efi_runtime_services *rs;
@@ -30,42 +31,68 @@ static const struct efi_runtime_services *rs;
  */
 
 
-/*
- * See section 3.1.3 in the v2.7 UEFI spec for more details on
- * the layout of EFI_LOAD_OPTION.  In short it is:
- *
- *    typedef struct _EFI_LOAD_OPTION {
- *        UINT32 Attributes;
- *        UINT16 FilePathListLength;
- *        // CHAR16 Description[];   <-- variable length, NULL terminated
- *        // EFI_DEVICE_PATH_PROTOCOL FilePathList[];  <-- FilePathListLength bytes
- *        // UINT8 OptionalData[];
- *    } EFI_LOAD_OPTION;
- */
-struct load_option {
-	u32 attributes;
-	u16 file_path_length;
-	u16 *label;
-	struct efi_device_path *file_path;
-	u8 *optional_data;
-};
-
-/* parse an EFI_LOAD_OPTION, as described above */
-static void parse_load_option(struct load_option *lo, void *ptr)
+/* Parse serialized data and transform it into efi_load_option structure */
+void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data)
 {
-	lo->attributes = *(u32 *)ptr;
-	ptr += sizeof(u32);
+	lo->attributes = get_unaligned_le32(data);
+	data += sizeof(u32);
 
-	lo->file_path_length = *(u16 *)ptr;
-	ptr += sizeof(u16);
+	lo->file_path_length = get_unaligned_le16(data);
+	data += sizeof(u16);
 
-	lo->label = ptr;
-	ptr += (u16_strlen(lo->label) + 1) * 2;
+	/* FIXME */
+	lo->label = (u16 *)data;
+	data += (u16_strlen(lo->label) + 1) * sizeof(u16);
 
-	lo->file_path = ptr;
-	ptr += lo->file_path_length;
+	/* FIXME */
+	lo->file_path = (struct efi_device_path *)data;
+	data += lo->file_path_length;
 
-	lo->optional_data = ptr;
+	lo->optional_data = data;
+}
+
+/*
+ * Serialize efi_load_option structure into byte stream for BootXXXX.
+ * Return a size of allocated data.
+ */
+unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
+{
+	unsigned long label_len, option_len;
+	unsigned long size;
+	u8 *p;
+
+	label_len = (u16_strlen(lo->label) + 1) * sizeof(u16);
+	option_len = strlen((char *)lo->optional_data);
+
+	/* total size */
+	size = sizeof(lo->attributes);
+	size += sizeof(lo->file_path_length);
+	size += label_len;
+	size += lo->file_path_length;
+	size += option_len + 1;
+	p = malloc(size);
+	if (!p)
+		return 0;
+
+	/* copy data */
+	*data = p;
+	memcpy(p, &lo->attributes, sizeof(lo->attributes));
+	p += sizeof(lo->attributes);
+
+	memcpy(p, &lo->file_path_length, sizeof(lo->file_path_length));
+	p += sizeof(lo->file_path_length);
+
+	memcpy(p, lo->label, label_len);
+	p += label_len;
+
+	memcpy(p, lo->file_path, lo->file_path_length);
+	p += lo->file_path_length;
+
+	memcpy(p, lo->optional_data, option_len);
+	p += option_len;
+	*(char *)p = '\0';
+
+	return size;
 }
 
 /* free() the result */
@@ -100,7 +127,7 @@ static void *get_var(u16 *name, const efi_guid_t *vendor,
 static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
 			    struct efi_device_path **file_path)
 {
-	struct load_option lo;
+	struct efi_load_option lo;
 	u16 varname[] = L"Boot0000";
 	u16 hexmap[] = L"0123456789ABCDEF";
 	void *load_option, *image = NULL;
@@ -115,7 +142,7 @@ static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
 	if (!load_option)
 		return NULL;
 
-	parse_load_option(&lo, load_option);
+	efi_deserialize_load_option(&lo, load_option);
 
 	if (lo.attributes & LOAD_OPTION_ACTIVE) {
 		efi_status_t ret;

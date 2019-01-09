@@ -4,6 +4,9 @@
  */
 
 #include "ddr3_init.h"
+#include "mv_ddr_training_db.h"
+#include "ddr_training_ip_db.h"
+#include "mv_ddr_regs.h"
 
 #define WL_ITERATION_NUM	10
 
@@ -24,33 +27,6 @@ static int ddr3_tip_wl_supp_align_phase_shift(u32 dev_num, u32 if_id,
 static int ddr3_tip_xsb_compare_test(u32 dev_num, u32 if_id, u32 bus_id,
 				     u32 edge_offset);
 
-u32 ddr3_tip_max_cs_get(u32 dev_num)
-{
-	u32 c_cs, if_id, bus_id;
-	static u32 max_cs;
-	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
-	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
-
-	if (!max_cs) {
-		CHECK_STATUS(ddr3_tip_get_first_active_if((u8)dev_num,
-							  tm->if_act_mask,
-							  &if_id));
-		for (bus_id = 0; bus_id < octets_per_if_num; bus_id++) {
-			VALIDATE_BUS_ACTIVE(tm->bus_act_mask, bus_id);
-			break;
-		}
-
-		for (c_cs = 0; c_cs < NUM_OF_CS; c_cs++) {
-			VALIDATE_ACTIVE(tm->
-					interface_params[if_id].as_bus_params[bus_id].
-					cs_bitmask, c_cs);
-			max_cs++;
-		}
-	}
-
-	return max_cs;
-}
-
 enum {
 	PASS,
 	FAIL
@@ -61,20 +37,20 @@ Dynamic read leveling
 int ddr3_tip_dynamic_read_leveling(u32 dev_num, u32 freq)
 {
 	u32 data, mask;
-	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
+	unsigned int max_cs = mv_ddr_cs_num_get();
 	u32 bus_num, if_id, cl_val;
-	enum hws_speed_bin speed_bin_index;
+	enum mv_ddr_speed_bin speed_bin_index;
 	/* save current CS value */
 	u32 cs_enable_reg_val[MAX_INTERFACE_NUM] = { 0 };
 	int is_any_pup_fail = 0;
 	u32 data_read[MAX_INTERFACE_NUM + 1] = { 0 };
-	u8 rl_values[NUM_OF_CS][MAX_BUS_NUM][MAX_INTERFACE_NUM];
+	u8 rl_values[MAX_CS_NUM][MAX_BUS_NUM][MAX_INTERFACE_NUM];
 	struct pattern_info *pattern_table = ddr3_tip_get_pattern_table();
 	u16 *mask_results_pup_reg_map = ddr3_tip_get_mask_results_pup_reg_map();
 	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
-	for (effective_cs = 0; effective_cs < NUM_OF_CS; effective_cs++)
+	for (effective_cs = 0; effective_cs < MAX_CS_NUM; effective_cs++)
 		for (bus_num = 0; bus_num < MAX_BUS_NUM; bus_num++)
 			for (if_id = 0; if_id <= MAX_INTERFACE_NUM - 1; if_id++)
 				rl_values[effective_cs][bus_num][if_id] = 0;
@@ -143,8 +119,7 @@ int ddr3_tip_dynamic_read_leveling(u32 dev_num, u32 freq)
 			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 			speed_bin_index =
 				tm->interface_params[if_id].speed_bin_index;
-			cl_val =
-				cas_latency_table[speed_bin_index].cl_val[freq];
+			cl_val = mv_ddr_cl_val_get(speed_bin_index, freq);
 			data = (cl_val << 17) | (0x3 << 25);
 			mask = (0xff << 9) | (0x1f << 17) | (0x3 << 25);
 			CHECK_STATUS(ddr3_tip_if_write
@@ -340,7 +315,7 @@ int ddr3_tip_dynamic_read_leveling(u32 dev_num, u32 freq)
 int ddr3_tip_legacy_dynamic_write_leveling(u32 dev_num)
 {
 	u32 c_cs, if_id, cs_mask = 0;
-	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
+	unsigned int max_cs = mv_ddr_cs_num_get();
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
 	/*
@@ -381,7 +356,7 @@ int ddr3_tip_legacy_dynamic_write_leveling(u32 dev_num)
 int ddr3_tip_legacy_dynamic_read_leveling(u32 dev_num)
 {
 	u32 c_cs, if_id, cs_mask = 0;
-	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
+	unsigned int max_cs = mv_ddr_cs_num_get();
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
 	/*
@@ -426,7 +401,7 @@ int ddr3_tip_dynamic_per_bit_read_leveling(u32 dev_num, u32 freq)
 	u32 curr_numb, curr_min_delay;
 	int adll_array[3] = { 0, -0xa, 0x14 };
 	u32 phyreg3_arr[MAX_INTERFACE_NUM][MAX_BUS_NUM];
-	enum hws_speed_bin speed_bin_index;
+	enum mv_ddr_speed_bin speed_bin_index;
 	int is_any_pup_fail = 0;
 	int break_loop = 0;
 	u32 cs_enable_reg_val[MAX_INTERFACE_NUM]; /* save current CS value */
@@ -516,8 +491,7 @@ int ddr3_tip_dynamic_per_bit_read_leveling(u32 dev_num, u32 freq)
 			VALIDATE_IF_ACTIVE(tm->if_act_mask, if_id);
 			speed_bin_index =
 				tm->interface_params[if_id].speed_bin_index;
-			cl_val =
-				cas_latency_table[speed_bin_index].cl_val[freq];
+			cl_val = mv_ddr_cl_val_get(speed_bin_index, freq);
 			data = (cl_val << 17) | (0x3 << 25);
 			mask = (0xff << 9) | (0x1f << 17) | (0x3 << 25);
 			CHECK_STATUS(ddr3_tip_if_write
@@ -839,10 +813,10 @@ int ddr3_tip_dynamic_write_leveling(u32 dev_num, int phase_remove)
 	u32 res_values[MAX_INTERFACE_NUM * MAX_BUS_NUM] = { 0 };
 	u32 test_res = 0;	/* 0 - success for all pup */
 	u32 data_read[MAX_INTERFACE_NUM];
-	u8 wl_values[NUM_OF_CS][MAX_BUS_NUM][MAX_INTERFACE_NUM];
+	u8 wl_values[MAX_CS_NUM][MAX_BUS_NUM][MAX_INTERFACE_NUM];
 	u16 *mask_results_pup_reg_map = ddr3_tip_get_mask_results_pup_reg_map();
 	u32 cs_mask0[MAX_INTERFACE_NUM] = { 0 };
-	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
+	unsigned int max_cs = mv_ddr_cs_num_get();
 	u32 octets_per_if_num = ddr3_tip_dev_attr_get(dev_num, MV_ATTR_OCTET_PER_INTERFACE);
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 
@@ -1694,9 +1668,11 @@ enum rl_dqs_burst_state {
 	RL_INSIDE,
 	RL_BEHIND
 };
+
+
 int mv_ddr_rl_dqs_burst(u32 dev_num, u32 if_id, u32 freq)
 {
-	enum rl_dqs_burst_state rl_state[NUM_OF_CS][MAX_BUS_NUM][MAX_INTERFACE_NUM] = { { {0} } };
+	enum rl_dqs_burst_state rl_state[MAX_CS_NUM][MAX_BUS_NUM][MAX_INTERFACE_NUM] = { { {0} } };
 	enum hws_ddr_phy subphy_type = DDR_PHY_DATA;
 	struct mv_ddr_topology_map *tm = mv_ddr_topology_map_get();
 	int cl_val = tm->interface_params[0].cas_l;
@@ -1707,17 +1683,18 @@ int mv_ddr_rl_dqs_burst(u32 dev_num, u32 if_id, u32 freq)
 	int init_pass_lock_num;
 	int phase_delta;
 	int min_phase, max_phase;
-	u32 max_cs = ddr3_tip_max_cs_get(dev_num);
-	u32 rl_values[NUM_OF_CS][MAX_BUS_NUM][MAX_INTERFACE_NUM] = { { {0} } };
-	u32 rl_min_values[NUM_OF_CS][MAX_BUS_NUM][MAX_INTERFACE_NUM] = { { {0} } };
-	u32 rl_max_values[NUM_OF_CS][MAX_BUS_NUM][MAX_INTERFACE_NUM] = { { {0} } };
-	u32 rl_val, rl_min_val[NUM_OF_CS], rl_max_val[NUM_OF_CS];
+	unsigned int max_cs = mv_ddr_cs_num_get();
+	u32 rl_values[MAX_CS_NUM][MAX_BUS_NUM][MAX_INTERFACE_NUM] = { { {0} } };
+	u32 rl_min_values[MAX_CS_NUM][MAX_BUS_NUM][MAX_INTERFACE_NUM] = { { {0} } };
+	u32 rl_max_values[MAX_CS_NUM][MAX_BUS_NUM][MAX_INTERFACE_NUM] = { { {0} } };
+	u32 rl_val, rl_min_val[MAX_CS_NUM], rl_max_val[MAX_CS_NUM];
 	u32 reg_val_low, reg_val_high;
-	u32 reg_val,  reg_mask;
+	u32 reg_val, reg_mask;
 	uintptr_t test_addr = TEST_ADDR;
 
+
 	/* initialization */
-	if (ddr3_if_ecc_enabled()) {
+	if (mv_ddr_is_ecc_ena()) {
 		ddr3_tip_if_read(dev_num, ACCESS_TYPE_UNICAST, if_id, TRAINING_SW_2_REG,
 				 &reg_val, MASK_ALL_BITS);
 		reg_mask = (TRAINING_ECC_MUX_MASK << TRAINING_ECC_MUX_OFFS) |
@@ -1753,6 +1730,7 @@ int mv_ddr_rl_dqs_burst(u32 dev_num, u32 if_id, u32 freq)
 	/* search for dqs edges per subphy */
 	if_id = 0;
 	for (effective_cs = 0; effective_cs < max_cs; effective_cs++) {
+
 		pass_lock_num = init_pass_lock_num;
 		ddr3_tip_if_write(0, ACCESS_TYPE_MULTICAST, PARAM_NOT_CARE, ODPG_DATA_CTRL_REG,
 				  effective_cs << ODPG_DATA_CS_OFFS,
@@ -1971,6 +1949,7 @@ int mv_ddr_rl_dqs_burst(u32 dev_num, u32 if_id, u32 freq)
 		if (odt_config != 0)
 			CHECK_STATUS(ddr3_tip_write_additional_odt_setting(dev_num, if_id));
 	}
+
 
 	/* reset read fifo assertion */
 	ddr3_tip_if_write(dev_num, ACCESS_TYPE_MULTICAST, if_id, SDRAM_CFG_REG,

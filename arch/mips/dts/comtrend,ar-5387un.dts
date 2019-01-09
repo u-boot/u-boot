@@ -24,6 +24,38 @@
 	status = "okay";
 };
 
+&enet {
+	status = "okay";
+
+	port@0 {
+		compatible = "brcm,enetsw-port";
+		reg = <0>;
+		label = "fe1";
+		brcm,phy-id = <1>;
+	};
+
+	port@1 {
+		compatible = "brcm,enetsw-port";
+		reg = <1>;
+		label = "fe2";
+		brcm,phy-id = <2>;
+	};
+
+	port@2 {
+		compatible = "brcm,enetsw-port";
+		reg = <2>;
+		label = "fe3";
+		brcm,phy-id = <3>;
+	};
+
+	port@3 {
+		compatible = "brcm,enetsw-port";
+		reg = <3>;
+		label = "fe4";
+		brcm,phy-id = <4>;
+	};
+};
+
 &leds {
 	status = "okay";
 

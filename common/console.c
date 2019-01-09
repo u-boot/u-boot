@@ -535,6 +535,13 @@ void putc(const char c)
 
 void puts(const char *s)
 {
+#ifdef CONFIG_SANDBOX
+	/* sandbox can send characters to stdout before it has a console */
+	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
+		os_puts(s);
+		return;
+	}
+#endif
 #ifdef CONFIG_DEBUG_UART
 	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
 		while (*s) {

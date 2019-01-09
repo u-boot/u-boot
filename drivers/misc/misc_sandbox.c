@@ -20,7 +20,7 @@ int misc_sandbox_read(struct udevice *dev, int offset, void *buf, int size)
 
 	memcpy(buf, priv->mem + offset, size);
 
-	return 0;
+	return size;
 }
 
 int misc_sandbox_write(struct udevice *dev, int offset, const void *buf,
@@ -30,7 +30,7 @@ int misc_sandbox_write(struct udevice *dev, int offset, const void *buf,
 
 	memcpy(priv->mem + offset, buf, size);
 
-	return 0;
+	return size;
 }
 
 int misc_sandbox_ioctl(struct udevice *dev, unsigned long request, void *buf)

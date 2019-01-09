@@ -108,8 +108,6 @@
 					compatible = "ti,am437-padconf",
 						     "pinctrl-single";
 					reg = <0x800 0x31c>;
-					#address-cells = <1>;
-					#size-cells = <0>;
 					#interrupt-cells = <1>;
 					interrupt-controller;
 					pinctrl-single,register-width = <32>;
@@ -119,8 +117,6 @@
 				scm_conf: scm_conf@0 {
 					compatible = "syscon";
 					reg = <0x0 0x800>;
-					#address-cells = <1>;
-					#size-cells = <1>;
 
 					scm_clocks: clocks {
 						#address-cells = <1>;
@@ -764,7 +760,8 @@
 			reg = <0x48038000 0x2000>,
 			      <0x46000000 0x400000>;
 			reg-names = "mpu", "dat";
-			interrupts = <80>, <81>;
+			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 81 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "tx", "rx";
 			status = "disabled";
 			dmas = <&edma 8>,
@@ -778,7 +775,8 @@
 			reg = <0x4803C000 0x2000>,
 			      <0x46400000 0x400000>;
 			reg-names = "mpu", "dat";
-			interrupts = <82>, <83>;
+			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_HIGH>,
+				     <GIC_SPI 83 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "tx", "rx";
 			status = "disabled";
 			dmas = <&edma 10>,
@@ -807,6 +805,8 @@
 			gpmc,num-waitpins = <2>;
 			#address-cells = <2>;
 			#size-cells = <1>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
 			status = "disabled";
 		};
 

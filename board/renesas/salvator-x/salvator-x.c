@@ -31,7 +31,6 @@ void s_init(void)
 {
 }
 
-#define SCIF2_MSTP310		BIT(10)	/* SCIF2 */
 #define DVFS_MSTP926		BIT(26)
 #define HSUSB_MSTP704		BIT(4)	/* HSUSB */
 
@@ -100,3 +99,25 @@ void reset_cpu(ulong addr)
 	writel(RST_CODE, RST_CA57RESCNT);
 #endif
 }
+
+#ifdef CONFIG_MULTI_DTB_FIT
+int board_fit_config_name_match(const char *name)
+{
+	/* PRR driver is not available yet */
+	u32 cpu_type = rmobile_get_cpu_type();
+
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7795) &&
+	    !strcmp(name, "r8a7795-salvator-x-u-boot"))
+		return 0;
+
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A7796) &&
+	    !strcmp(name, "r8a7796-salvator-x-u-boot"))
+		return 0;
+
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A77965) &&
+	    !strcmp(name, "r8a77965-salvator-x-u-boot"))
+		return 0;
+
+	return -1;
+}
+#endif

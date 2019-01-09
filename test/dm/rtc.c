@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <i2c.h>
 #include <rtc.h>
 #include <asm/io.h>
 #include <asm/test.h>
@@ -60,7 +61,7 @@ static int dm_test_rtc_set_get(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_RTC, 0, &dev));
 	ut_assertok(dm_rtc_get(dev, &now));
 
-	ut_assertok(device_find_first_child(dev, &emul));
+	ut_assertok(i2c_emul_find(dev, &emul));
 	ut_assert(emul != NULL);
 
 	/* Tell the RTC to go into manual mode */
@@ -125,7 +126,7 @@ static int dm_test_rtc_reset(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_RTC, 0, &dev));
 	ut_assertok(dm_rtc_get(dev, &now));
 
-	ut_assertok(device_find_first_child(dev, &emul));
+	ut_assertok(i2c_emul_find(dev, &emul));
 	ut_assert(emul != NULL);
 
 	old_base_time = sandbox_i2c_rtc_get_set_base_time(emul, 0);
@@ -154,9 +155,9 @@ static int dm_test_rtc_dual(struct unit_test_state *uts)
 	ut_assertok(uclass_get_device(UCLASS_RTC, 1, &dev2));
 	ut_assertok(dm_rtc_get(dev2, &now2));
 
-	ut_assertok(device_find_first_child(dev1, &emul1));
+	ut_assertok(i2c_emul_find(dev1, &emul1));
 	ut_assert(emul1 != NULL);
-	ut_assertok(device_find_first_child(dev2, &emul2));
+	ut_assertok(i2c_emul_find(dev2, &emul2));
 	ut_assert(emul2 != NULL);
 
 	offset = sandbox_i2c_rtc_set_offset(emul1, false, -1);

@@ -60,6 +60,10 @@
 #define SC_ETCS_MASK		GENMASK(1, 0)
 #define SC_ETCS_EXT_GMII	0x1
 #define SC_ETCS_INT_GMII	0x2
+#define SC_ETXDC_MASK		GENMASK(12, 10)
+#define SC_ETXDC_OFFSET		10
+#define SC_ERXDC_MASK		GENMASK(9, 5)
+#define SC_ERXDC_OFFSET		5
 
 #define CONFIG_MDIO_TIMEOUT	(3 * CONFIG_SYS_HZ)
 
@@ -140,6 +144,8 @@ struct emac_eth_dev {
 struct sun8i_eth_pdata {
 	struct eth_pdata eth_pdata;
 	u32 reset_delays[3];
+	int tx_delay_ps;
+	int rx_delay_ps;
 };
 
 
@@ -273,7 +279,8 @@ static int sun8i_emac_set_syscon_ephy(struct emac_eth_dev *priv, u32 *reg)
 	return 0;
 }
 
-static int sun8i_emac_set_syscon(struct emac_eth_dev *priv)
+static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
+				 struct emac_eth_dev *priv)
 {
 	int ret;
 	u32 reg;
@@ -311,6 +318,14 @@ static int sun8i_emac_set_syscon(struct emac_eth_dev *priv)
 		debug("%s: Invalid PHY interface\n", __func__);
 		return -EINVAL;
 	}
+
+	if (pdata->tx_delay_ps)
+		reg |= ((pdata->tx_delay_ps / 100) << SC_ETXDC_OFFSET)
+			 & SC_ETXDC_MASK;
+
+	if (pdata->rx_delay_ps)
+		reg |= ((pdata->rx_delay_ps / 100) << SC_ERXDC_OFFSET)
+			 & SC_ERXDC_MASK;
 
 	writel(reg, priv->sysctl_reg + 0x30);
 
@@ -784,13 +799,14 @@ static void sun8i_emac_eth_stop(struct udevice *dev)
 
 static int sun8i_emac_eth_probe(struct udevice *dev)
 {
-	struct eth_pdata *pdata = dev_get_platdata(dev);
+	struct sun8i_eth_pdata *sun8i_pdata = dev_get_platdata(dev);
+	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
 
 	priv->mac_reg = (void *)pdata->iobase;
 
 	sun8i_emac_board_setup(priv);
-	sun8i_emac_set_syscon(priv);
+	sun8i_emac_set_syscon(sun8i_pdata, priv);
 
 	sun8i_mdio_init(dev->name, dev);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
@@ -890,6 +906,18 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 
 	if (!priv->use_internal_phy)
 		parse_phy_pins(dev);
+
+	sun8i_pdata->tx_delay_ps = fdtdec_get_int(gd->fdt_blob, node,
+						  "allwinner,tx-delay-ps", 0);
+	if (sun8i_pdata->tx_delay_ps < 0 || sun8i_pdata->tx_delay_ps > 700)
+		printf("%s: Invalid TX delay value %d\n", __func__,
+		       sun8i_pdata->tx_delay_ps);
+
+	sun8i_pdata->rx_delay_ps = fdtdec_get_int(gd->fdt_blob, node,
+						  "allwinner,rx-delay-ps", 0);
+	if (sun8i_pdata->rx_delay_ps < 0 || sun8i_pdata->rx_delay_ps > 3100)
+		printf("%s: Invalid RX delay value %d\n", __func__,
+		       sun8i_pdata->rx_delay_ps);
 
 #ifdef CONFIG_DM_GPIO
 	if (fdtdec_get_bool(gd->fdt_blob, dev_of_offset(dev),

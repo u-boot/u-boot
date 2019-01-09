@@ -12,6 +12,19 @@
 #include <dm/ofnode.h>
 
 /**
+ * uclass_find_next_free_req_seq() - Get the next free req_seq number
+ *
+ * This returns the next free req_seq number. This is useful only if
+ * OF_CONTROL is not used. The next free req_seq number is simply the
+ * maximum req_seq of the uclass + 1.
+ * This allows assiging req_seq number in the binding order.
+ *
+ * @id:		Id number of the uclass
+ * @return	The next free req_seq number
+ */
+int uclass_find_next_free_req_seq(enum uclass_id id);
+
+/**
  * uclass_get_device_tail() - handle the end of a get_device call
  *
  * This handles returning an error or probing a device as needed.
@@ -141,6 +154,23 @@ int uclass_find_device_by_of_offset(enum uclass_id id, int node,
  */
 int uclass_find_device_by_ofnode(enum uclass_id id, ofnode node,
 				 struct udevice **devp);
+
+/**
+ * uclass_find_device_by_phandle() - Find a uclass device by phandle
+ *
+ * This searches the devices in the uclass for one with the given phandle.
+ *
+ * The device is NOT probed, it is merely returned.
+ *
+ * @id: ID to look up
+ * @parent: Parent device containing the phandle pointer
+ * @name: Name of property in the parent device node
+ * @devp: Returns pointer to device (there is only one for each node)
+ * @return 0 if OK, -ENOENT if there is no @name present in the node, other
+ *	-ve on error
+ */
+int uclass_find_device_by_phandle(enum uclass_id id, struct udevice *parent,
+				  const char *name, struct udevice **devp);
 
 /**
  * uclass_bind_device() - Associate device with a uclass

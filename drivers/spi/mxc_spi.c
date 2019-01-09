@@ -400,10 +400,6 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	return mxc_spi_xfer_internal(mxcs, bitlen, dout, din, flags);
 }
 
-void spi_init(void)
-{
-}
-
 /*
  * Some SPI devices require active chip-select over multiple
  * transactions, we achieve this using a GPIO. Still, the SPI

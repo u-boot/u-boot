@@ -152,5 +152,4 @@ U_BOOT_DRIVER(serial_efi) = {
 	.priv_auto_alloc_size = sizeof(struct serial_efi_priv),
 	.probe = serial_efi_probe,
 	.ops	= &serial_efi_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

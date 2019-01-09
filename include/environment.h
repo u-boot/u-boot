@@ -157,7 +157,6 @@ extern env_t environment;
 #endif /* ENV_IS_EMBEDDED */
 
 extern const unsigned char default_environment[];
-extern env_t *env_ptr;
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 extern void env_reloc(void);

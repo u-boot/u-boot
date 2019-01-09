@@ -53,7 +53,7 @@ static int execute(void)
 		efi_st_error("ProtocolsPerHandle failed\n");
 		return EFI_ST_FAILURE;
 	}
-	if (!protocol_buffer_count | !protocol_buffer) {
+	if (!protocol_buffer_count || !protocol_buffer) {
 		efi_st_error("ProtocolsPerHandle returned no protocol\n");
 		return EFI_ST_FAILURE;
 	}

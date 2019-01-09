@@ -3,8 +3,8 @@
 # (C) Copyright 2000-2007
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifdef CONFIG_DM_USB
-obj-$(CONFIG_CMD_USB) += usb-uclass.o
+ifdef CONFIG_$(SPL_)DM_USB
+obj-y += usb-uclass.o
 obj-$(CONFIG_SANDBOX) += usb-sandbox.o
 endif
 
@@ -50,7 +50,6 @@ obj-$(CONFIG_USB_XHCI_DWC3) += xhci-dwc3.o
 obj-$(CONFIG_USB_XHCI_DWC3_OF_SIMPLE) += dwc3-of-simple.o
 obj-$(CONFIG_USB_XHCI_ROCKCHIP) += xhci-rockchip.o
 obj-$(CONFIG_USB_XHCI_ZYNQMP) += xhci-zynqmp.o
-obj-$(CONFIG_USB_XHCI_KEYSTONE) += xhci-keystone.o
 obj-$(CONFIG_USB_XHCI_EXYNOS) += xhci-exynos5.o
 obj-$(CONFIG_USB_XHCI_FSL) += xhci-fsl.o
 obj-$(CONFIG_USB_XHCI_MVEBU) += xhci-mvebu.o

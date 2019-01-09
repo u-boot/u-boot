@@ -26,6 +26,8 @@ enum tpm_duration {
 /* Max buffer size supported by our tpm */
 #define TPM_DEV_BUFSIZE		1260
 
+#define TPM_PCR_MINIMUM_DIGEST_SIZE 20
+
 /**
  * enum tpm_version - The version of the TPM stack to be used
  * @TPM_V1:		Use TPM v1.x stack
@@ -174,10 +176,46 @@ struct tpm_ops {
 int do_##cmd(cmd_tbl_t *cmdtp, int flag,		\
 	     int argc, char * const argv[])		\
 {							\
+	struct udevice *dev;				\
+	int rc;						\
+							\
+	rc = get_tpm(&dev);				\
+	if (rc)						\
+		return rc;				\
 	if (argc != 1)					\
 		return CMD_RET_USAGE;			\
-	return report_return_code(cmd());		\
+	return report_return_code(cmd(dev));		\
 }
+
+/**
+ * tpm_open() - Request access to locality 0 for the caller
+ *
+ * After all commands have been completed the caller is supposed to
+ * call tpm_close().
+ *
+ * @dev - TPM device
+ * Returns 0 on success, -ve on failure.
+ */
+int tpm_open(struct udevice *dev);
+
+/**
+ * tpm_close() - Close the current session
+ *
+ * Releasing the locked locality. Returns 0 on success, -ve 1 on
+ * failure (in case lock removal did not succeed).
+ *
+ * @dev - TPM device
+ * Returns 0 on success, -ve on failure.
+ */
+int tpm_close(struct udevice *dev);
+
+/**
+ * tpm_clear_and_reenable() - Force clear the TPM and reenable it
+ *
+ * @dev: TPM device
+ * @return 0 on success, -ve on failure
+ */
+u32 tpm_clear_and_reenable(struct udevice *dev);
 
 /**
  * tpm_get_desc() - Get a text description of the TPM
@@ -202,6 +240,7 @@ int tpm_get_desc(struct udevice *dev, char *buf, int size);
  * Note that the outgoing data is inspected to determine command type
  * (ordinal) and a timeout is used for that command type.
  *
+ * @dev - TPM device
  * @sendbuf - buffer of the data to send
  * @send_size size of the data to send
  * @recvbuf - memory to save the response to
@@ -216,9 +255,10 @@ int tpm_xfer(struct udevice *dev, const u8 *sendbuf, size_t send_size,
 /**
  * Initialize TPM device.  It must be called before any TPM commands.
  *
+ * @dev - TPM device
  * @return 0 on success, non-0 on error.
  */
-int tpm_init(void);
+int tpm_init(struct udevice *dev);
 
 /**
  * Retrieve the array containing all the v1 (resp. v2) commands.
@@ -241,5 +281,16 @@ static inline cmd_tbl_t *get_tpm2_commands(unsigned int *size)
 	return NULL;
 }
 #endif
+
+/**
+ * tpm_get_version() - Find the version of a TPM
+ *
+ * This checks the uclass data for a TPM device and returns the version number
+ * it supports.
+ *
+ * @dev: TPM device
+ * @return version number (TPM_V1 or TPMV2)
+ */
+enum tpm_version tpm_get_version(struct udevice *dev);
 
 #endif /* __TPM_COMMON_H */

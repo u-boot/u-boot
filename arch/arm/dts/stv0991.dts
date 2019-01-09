@@ -26,7 +26,7 @@
 	};
 
 	qspi: spi@80203000 {
-			compatible = "cadence,qspi";
+			compatible = "cdns,qspi-nor";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x80203000 0x100>,

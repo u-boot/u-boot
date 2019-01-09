@@ -8,6 +8,7 @@
 
 #include "ddr3_training_ip_def.h"
 #include "ddr3_training_ip_flow.h"
+#include "ddr3_training_ip_pbs.h"
 
 #define EDGE_1				0
 #define EDGE_2				1

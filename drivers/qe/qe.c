@@ -13,12 +13,15 @@
 #include <asm/io.h>
 #include <linux/immap_qe.h>
 #include <fsl_qe.h>
+#include <mmc.h>
+#include <environment.h>
+
 #ifdef CONFIG_ARCH_LS1021A
 #include <asm/arch/immap_ls102xa.h>
 #endif
-
-#ifdef CONFIG_SYS_QE_FMAN_FW_IN_MMC
-#include <mmc.h>
+#ifdef CONFIG_ARM64
+#include <asm/armv8/mmu.h>
+#include <asm/arch/cpu.h>
 #endif
 
 #define MPC85xx_DEVDISR_QE_DISABLE	0x1
@@ -170,6 +173,33 @@ void qe_put_snum(u8 snum)
 	}
 }
 
+#ifdef CONFIG_TFABOOT
+void qe_init(uint qe_base)
+{
+	enum boot_src src = get_boot_src();
+
+	/* Init the QE IMMR base */
+	qe_immr = (qe_map_t *)qe_base;
+
+	if (src == BOOT_SOURCE_IFC_NOR) {
+		/*
+		 * Upload microcode to IRAM for those SOCs
+		 * which do not have ROM in QE.
+		 */
+		qe_upload_firmware((const void *)(CONFIG_SYS_QE_FW_ADDR +
+				   CONFIG_SYS_FSL_IFC_BASE));
+
+		/* enable the microcode in IRAM */
+		out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
+	}
+
+	gd->arch.mp_alloc_base = QE_DATAONLY_BASE;
+	gd->arch.mp_alloc_top = gd->arch.mp_alloc_base + QE_DATAONLY_SIZE;
+
+	qe_sdma_init();
+	qe_snums_init();
+}
+#else
 void qe_init(uint qe_base)
 {
 	/* Init the QE IMMR base */
@@ -192,8 +222,53 @@ void qe_init(uint qe_base)
 	qe_snums_init();
 }
 #endif
+#endif
 
 #ifdef CONFIG_U_QE
+#ifdef CONFIG_TFABOOT
+void u_qe_init(void)
+{
+	enum boot_src src = get_boot_src();
+
+	qe_immr = (qe_map_t *)(CONFIG_SYS_IMMR + QE_IMMR_OFFSET);
+
+	void *addr = (void *)CONFIG_SYS_QE_FW_ADDR;
+
+	if (src == BOOT_SOURCE_IFC_NOR)
+		addr = (void *)(CONFIG_SYS_QE_FW_ADDR + CONFIG_SYS_FSL_IFC_BASE);
+
+	if (src == BOOT_SOURCE_QSPI_NOR)
+		addr = (void *)(CONFIG_SYS_QE_FW_ADDR + CONFIG_SYS_FSL_QSPI_BASE);
+
+	if (src == BOOT_SOURCE_SD_MMC) {
+		int dev = CONFIG_SYS_MMC_ENV_DEV;
+		u32 cnt = CONFIG_SYS_QE_FMAN_FW_LENGTH / 512;
+		u32 blk = CONFIG_SYS_QE_FW_ADDR / 512;
+
+		if (mmc_initialize(gd->bd)) {
+			printf("%s: mmc_initialize() failed\n", __func__);
+			return;
+		}
+		addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
+		struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+
+		if (!mmc) {
+			free(addr);
+			printf("\nMMC cannot find device for ucode\n");
+		} else {
+			printf("\nMMC read: dev # %u, block # %u, count %u ...\n",
+			       dev, blk, cnt);
+			mmc_init(mmc);
+			(void)blk_dread(mmc_get_blk_desc(mmc), blk, cnt,
+						addr);
+		}
+	}
+	if (!u_qe_upload_firmware(addr))
+		out_be32(&qe_immr->iram.iready, QE_IRAM_READY);
+	if (src == BOOT_SOURCE_SD_MMC)
+		free(addr);
+}
+#else
 void u_qe_init(void)
 {
 	qe_immr = (qe_map_t *)(CONFIG_SYS_IMMR + QE_IMMR_OFFSET);
@@ -228,6 +303,7 @@ void u_qe_init(void)
 	free(addr);
 #endif
 }
+#endif
 #endif
 
 #ifdef CONFIG_U_QE

@@ -37,13 +37,13 @@ instead use Flacon boot flow to reduce boot time.
 |    +--------+          |                       |                       |
 |         :              |                       |                       |
 |    +--------+          |   +-----------+       |                       |
-|    | *rom*  |----------|-->| Reset rls |       |                       |
+|    | *ROM*  |----------|-->| Reset rls |       |                       |
 |    +--------+          |   +-----------+       |                       |
 |    |        |          |         :             |                       |
-|    |  rom   |          |         :             |                       |
+|    |  ROM   |          |         :             |                       |
 |    |services|          |         :             |                       |
 |    |        |          |   +-------------+     |                       |
-|    |        |          |   |  *R5 rom*   |     |                       |
+|    |        |          |   |  *R5 ROM*   |     |                       |
 |    |        |          |   +-------------+     |                       |
 |    |        |<---------|---|Load and auth|     |                       |
 |    |        |          |   | tiboot3.bin |     |                       |
@@ -52,17 +52,25 @@ instead use Flacon boot flow to reduce boot time.
 |    |        |          |         :             |                       |
 |    |        |          |         :             |                       |
 |    |        |          |   +-------------+     |                       |
-|    | Start  |          |   |  *R5 SPL*   |     |                       |
-|    | System |          |   +-------------+     |                       |
-|    |Firmware|<---------|---|Load and auth|     |                       |
-|    +--------+          |   |  sysfw bin  |     |                       |
-|        :               |   +-------------+     |                       |
-|    +---------+         |   |     DDR     |     |                       |
-|    | *SYSFW* |         |   |    config   |     |                       |
-|    +---------+         |   +-------------+     |                       |
-|    |         |<--------|---|    Load     |     |                       |
-|    |         |         |   |  tispl.bin  |     |                       |
+|    |        |          |   |  *R5 SPL*   |     |                       |
+|    |        |          |   +-------------+     |                       |
+|    |        |          |   |    Load     |     |                       |
+|    |        |          |   |  sysfw.itb  |     |                       |
+|    | Start  |          |   +-------------+     |                       |
+|    | System |<---------|---|    Start    |     |                       |
+|    |Firmware|          |   |    SYSFW    |     |                       |
+|    +--------+          |   +-------------+     |                       |
+|        :               |   |             |     |                       |
+|    +---------+         |   |   Load      |     |                       |
+|    | *SYSFW* |         |   |   system    |     |                       |
+|    +---------+         |   | Config data |     |                       |
+|    |         |<--------|---|             |     |                       |
 |    |         |         |   +-------------+     |                       |
+|    |         |         |   |             |     |                       |
+|    |         |         |   |    DDR      |     |                       |
+|    |         |         |   |   config    |     |                       |
+|    |         |         |   +-------------+     |                       |
+|    |         |         |   |             |     |                       |
 |    |         |<--------|---| Start A53   |     |                       |
 |    |         |         |   |  and Reset  |     |                       |
 |    |         |         |   +-------------+     |                       |
@@ -82,7 +90,7 @@ instead use Flacon boot flow to reduce boot time.
 |    |         |         |                       |     +-----------+     |
 |    |         |         |                       |          :            |
 |    |         |         |                       |     +-----------+     |
-|    |         |<--------|-----------------------|---->| *u-boot*  |     |
+|    |         |<--------|-----------------------|---->| *U-Boot*  |     |
 |    |         |         |                       |     +-----------+     |
 |    |         |         |                       |     |  prompt   |     |
 |    |         |         |                       |     +-----------+     |
@@ -96,9 +104,8 @@ requests DMSC to get these services done as shown in the above diagram.
 Sources:
 --------
 1. SYSFW:
-	System Firmware repo is closed source and the binaries are delivered
-	to users with NDA. Please contact TI to get the System Firmware
-	Binary named ti-sci-firmware-am6x.bin that runs on AM65x SoC.
+	Tree: git://git.ti.com/processor-firmware/system-firmware-image-gen.git
+	Branch: master
 
 2. ATF:
 	Tree: https://github.com/ARM-software/arm-trusted-firmware.git
@@ -115,9 +122,7 @@ Sources:
 Build procedure:
 ----------------
 1. SYSFW:
-	ROM expects a signed binary that contains the X509 certificate. So
-the binary ti-sci-firmware-am6x.bin cannot be uses as-is and needs to be signed.
-Contact TI on the procedure to sign the system firmware binary.
+$ make CROSS_COMPILE=arm-linux-gnueabihf-
 
 2. ATF:
 $ make CROSS_COMPILE=aarch64-linux-gnu- ARCH=aarch64 PLAT=k3 TARGET_BOARD=generic SPD=opteed
@@ -128,14 +133,79 @@ $ make PLATFORM=k3-am65x CFG_ARM64_core=y
 4. U-Boot:
 
 4.1. R5:
-	TBD.
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- am65x_evm_r5_defconfig O=/tmp/r5
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- O=/tmp/r5
 
 4.2. A53:
 $ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- am65x_evm_a53_defconfig O=/tmp/a53
-$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu-  ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager.bin O=/tmp/a53
+$ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu- ATF=<path to ATF dir>/build/k3/generic/release/bl31.bin TEE=<path to OPTEE OS dir>/out/arm-plat-k3/core/tee-pager.bin O=/tmp/a53
 
 Target Images
 --------------
 Copy the below images to an SD card and boot:
+- sysfw.itb from step 1
 - tiboot3.bin from step 4.1
 - tispl.bin, u-boot.img from 4.2
+
+Image formats:
+--------------
+
+- tiboot3.bin:
+                +-----------------------+
+                |        X.509          |
+                |      Certificate      |
+                | +-------------------+ |
+                | |                   | |
+                | |        R5         | |
+                | |   u-boot-spl.bin  | |
+                | |                   | |
+                | +-------------------+ |
+                | |                   | |
+                | |     FIT header    | |
+                | | +---------------+ | |
+                | | |               | | |
+                | | |   DTB 1...N   | | |
+                | | +---------------+ | |
+                | +-------------------+ |
+                +-----------------------+
+
+- tispl.bin
+                +-----------------------+
+                |                       |
+                |       FIT HEADER      |
+                | +-------------------+ |
+                | |                   | |
+                | |      A53 ATF      | |
+                | +-------------------+ |
+                | |                   | |
+                | |     A53 OPTEE     | |
+                | +-------------------+ |
+                | |                   | |
+                | |      A53 SPL      | |
+                | +-------------------+ |
+                | |                   | |
+                | |   SPL DTB 1...N   | |
+                | +-------------------+ |
+                +-----------------------+
+
+- sysfw.itb
+                +-----------------------+
+                |                       |
+                |       FIT HEADER      |
+                | +-------------------+ |
+                | |                   | |
+                | |     sysfw.bin     | |
+                | +-------------------+ |
+                | |                   | |
+                | |    board config   | |
+                | +-------------------+ |
+                | |                   | |
+                | |     PM config     | |
+                | +-------------------+ |
+                | |                   | |
+                | |     RM config     | |
+                | +-------------------+ |
+                | |                   | |
+                | |    Secure config  | |
+                | +-------------------+ |
+                +-----------------------+

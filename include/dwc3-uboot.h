@@ -38,4 +38,23 @@ struct dwc3_device {
 int dwc3_uboot_init(struct dwc3_device *dev);
 void dwc3_uboot_exit(int index);
 void dwc3_uboot_handle_interrupt(int index);
+
+struct phy;
+#if CONFIG_IS_ENABLED(PHY) && CONFIG_IS_ENABLED(DM_USB)
+int dwc3_setup_phy(struct udevice *dev, struct phy **array, int *num_phys);
+int dwc3_shutdown_phy(struct udevice *dev, struct phy *usb_phys, int num_phys);
+#else
+static inline int dwc3_setup_phy(struct udevice *dev, struct phy **array,
+				 int *num_phys)
+{
+	return -ENOTSUPP;
+}
+
+static inline int dwc3_shutdown_phy(struct udevice *dev, struct phy *usb_phys,
+				    int num_phys)
+{
+	return -ENOTSUPP;
+}
+#endif
+
 #endif /* __DWC3_UBOOT_H_ */

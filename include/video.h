@@ -61,7 +61,9 @@ enum video_log2_bpp {
  * @font_size:	Font size in pixels (0 to use a default value)
  * @fb:		Frame buffer
  * @fb_size:	Frame buffer size
- * @line_length:	Length of each frame buffer line, in bytes
+ * @line_length:	Length of each frame buffer line, in bytes. This can be
+ *		set by the driver, but if not, the uclass will set it after
+ *		probing
  * @colour_fg:	Foreground colour (pixel value)
  * @colour_bg:	Background colour (pixel value)
  * @flush_dcache:	true to enable flushing of the data cache after
@@ -191,9 +193,10 @@ void video_set_flush_dcache(struct udevice *dev, bool flush);
 /**
  * Set default colors and attributes
  *
- * @priv	device information
+ * @dev:	video device
+ * @invert	true to invert colours
  */
-void video_set_default_colors(struct video_priv *priv);
+void video_set_default_colors(struct udevice *dev, bool invert);
 
 #endif /* CONFIG_DM_VIDEO */
 

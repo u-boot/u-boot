@@ -124,8 +124,14 @@ static int do_bmp_display(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		break;
 	case 4:
 		addr = simple_strtoul(argv[1], NULL, 16);
-		x = simple_strtoul(argv[2], NULL, 10);
-		y = simple_strtoul(argv[3], NULL, 10);
+		if (!strcmp(argv[2], "m"))
+			x = BMP_ALIGN_CENTER;
+		else
+			x = simple_strtoul(argv[2], NULL, 10);
+		if (!strcmp(argv[3], "m"))
+			y = BMP_ALIGN_CENTER;
+		else
+			y = simple_strtoul(argv[3], NULL, 10);
 		break;
 	default:
 		return CMD_RET_USAGE;
@@ -249,9 +255,11 @@ int bmp_display(ulong addr, int x, int y)
 	if (!ret) {
 		bool align = false;
 
-# ifdef CONFIG_SPLASH_SCREEN_ALIGN
-		align = true;
-# endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+		if (CONFIG_IS_ENABLED(SPLASH_SCREEN_ALIGN) ||
+		    x == BMP_ALIGN_CENTER ||
+		    y == BMP_ALIGN_CENTER)
+			align = true;
+
 		ret = video_bmp_display(dev, addr, x, y, align);
 	}
 #elif defined(CONFIG_LCD)

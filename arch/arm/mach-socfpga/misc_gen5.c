@@ -35,6 +35,26 @@ static struct scu_registers *scu_regs =
 	(struct scu_registers *)SOCFPGA_MPUSCU_ADDRESS;
 
 /*
+ * FPGA programming support for SoC FPGA Cyclone V
+ */
+static Altera_desc altera_fpga[] = {
+	{
+		/* Family */
+		Altera_SoCFPGA,
+		/* Interface type */
+		fast_passive_parallel,
+		/* No limitation as additional data will be ignored */
+		-1,
+		/* No device function table */
+		NULL,
+		/* Base interface address specified in driver */
+		NULL,
+		/* No cookie implementation */
+		0
+	},
+};
+
+/*
  * DesignWare Ethernet initialization
  */
 #ifdef CONFIG_ETH_DESIGNWARE
@@ -177,6 +197,8 @@ static void socfpga_nic301_slave_ns(void)
 
 void socfpga_sdram_remap_zero(void)
 {
+	u32 remap;
+
 	socfpga_nic301_slave_ns();
 
 	/*
@@ -187,7 +209,12 @@ void socfpga_sdram_remap_zero(void)
 	setbits_le32(&scu_regs->sacr, 0xfff);
 
 	/* Configure the L2 controller to make SDRAM start at 0 */
-	writel(0x1, &nic301_regs->remap);	/* remap.mpuzero */
+	remap = 0x1; /* remap.mpuzero */
+	/* Keep fpga bridge enabled when running from FPGA onchip RAM */
+	if (socfpga_is_booting_from_fpga())
+		remap |= 0x8; /* remap.hps2fpga */
+	writel(remap, &nic301_regs->remap);
+
 	writel(0x1, &pl310->pl310_addr_filter_start);
 }
 
@@ -214,7 +241,7 @@ int arch_early_init_r(void)
 	socfpga_sdram_remap_zero();
 
 	/* Add device descriptor to FPGA device table */
-	socfpga_fpga_add();
+	socfpga_fpga_add(&altera_fpga[0]);
 
 #ifdef CONFIG_DESIGNWARE_SPI
 	/* Get Designware SPI controller out of reset */

@@ -3,7 +3,6 @@
  * Copyright (C) 2015-2016 Wills Wang <wills.wang@live.com>
  */
 
-#include <dt-bindings/interrupt-controller/irq.h>
 #include "skeleton.dtsi"
 
 / {
@@ -63,7 +62,6 @@
 				reg = <0x18020000 0x20>;
 				reg-shift = <2>;
 				clock-frequency = <25000000>;
-				interrupts = <128 IRQ_TYPE_LEVEL_HIGH>;
 
 				status = "disabled";
 			};
@@ -72,7 +70,6 @@
 		spi0: spi@1f000000 {
 			compatible = "qca,ar7100-spi";
 			reg = <0x1f000000 0x10>;
-			interrupts = <129 IRQ_TYPE_LEVEL_HIGH>;
 
 			status = "disabled";
 

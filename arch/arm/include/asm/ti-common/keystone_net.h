@@ -57,19 +57,6 @@
 /* MDIO clock output frequency */
 #define EMAC_MDIO_CLOCK_FREQ		2500000	/* 2.5 MHz */
 
-/* MII Status Register */
-#define MII_STATUS_REG			1
-#define MII_STATUS_LINK_MASK		0x4
-
-#define MDIO_CONTROL_IDLE		0x80000000
-#define MDIO_CONTROL_ENABLE		0x40000000
-#define MDIO_CONTROL_FAULT_ENABLE	0x40000
-#define MDIO_CONTROL_FAULT		0x80000
-#define MDIO_USERACCESS0_GO		0x80000000
-#define MDIO_USERACCESS0_WRITE_READ	0x0
-#define MDIO_USERACCESS0_WRITE_WRITE	0x40000000
-#define MDIO_USERACCESS0_ACK		0x20000000
-
 #define EMAC_MACCONTROL_MIIEN_ENABLE		0x20
 #define EMAC_MACCONTROL_FULLDUPLEX_ENABLE	0x1
 #define EMAC_MACCONTROL_GIGABIT_ENABLE		BIT(7)
@@ -241,19 +228,5 @@ struct mdio_regs {
 	u32 useraccess1;
 	u32 userphysel1;
 };
-
-struct eth_priv_t {
-	char int_name[32];
-	int rx_flow;
-	int phy_addr;
-	int slave_port;
-	int sgmii_link_type;
-	phy_interface_t phy_if;
-	struct phy_device *phy_dev;
-};
-
-int keystone2_emac_initialize(struct eth_priv_t *eth_priv);
-void sgmii_serdes_setup_156p25mhz(void);
-void sgmii_serdes_shutdown(void);
 
 #endif  /* _KEYSTONE_NET_H_ */

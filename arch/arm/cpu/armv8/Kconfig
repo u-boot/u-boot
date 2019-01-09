@@ -96,6 +96,7 @@ endmenu
 config PSCI_RESET
 	bool "Use PSCI for reset and shutdown"
 	default y
+	select ARM_SMCCC if OF_CONTROL
 	depends on !ARCH_EXYNOS7 && !ARCH_BCM283X && \
 		   !TARGET_LS2080A_SIMU && !TARGET_LS2080AQDS && \
 		   !TARGET_LS2080ARDB && !TARGET_LS2080A_EMU && \
@@ -143,6 +144,13 @@ config ARMV8_PSCI_CPUS_PER_CLUSTER
 	  of CPU cores, platforms with asymmetric clusters don't apply here.
 	  A value 0 or no definition of it works for single cluster system.
 	  System with multi-cluster should difine their own exact value.
+
+config ARMV8_EA_EL3_FIRST
+	bool "External aborts and SError interrupt exception are taken in EL3"
+	default n
+	help
+	  Exception handling at all exception levels for External Abort and
+	  SError interrupt exception are taken in EL3.
 
 if SYS_HAS_ARMV8_SECURE_BASE
 

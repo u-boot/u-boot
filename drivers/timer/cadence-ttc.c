@@ -111,5 +111,4 @@ U_BOOT_DRIVER(cadence_ttc) = {
 	.priv_auto_alloc_size = sizeof(struct cadence_ttc_priv),
 	.probe = cadence_ttc_probe,
 	.ops = &cadence_ttc_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

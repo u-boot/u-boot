@@ -22,7 +22,12 @@
  *==========================================================================
  */
 
-#include "crc.h"
+#ifdef USE_HOSTCC
+#include <arpa/inet.h>
+#else
+#include <common.h>
+#endif
+#include <u-boot/crc.h>
 
 /* Table of CRC constants - implements x^16+x^12+x^5+1 */
 static const uint16_t crc16_tab[] = {
@@ -60,14 +65,20 @@ static const uint16_t crc16_tab[] = {
 	0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0,
 };
 
-uint16_t crc16_ccitt(uint16_t crc_start, unsigned char *buf, int len)
+uint16_t crc16_ccitt(uint16_t cksum, const unsigned char *buf, int len)
 {
-	int i;
-	uint16_t cksum;
-
-	cksum = crc_start;
-	for (i = 0;  i < len;  i++)
+	for (int i = 0;  i < len;  i++)
 		cksum = crc16_tab[((cksum>>8) ^ *buf++) & 0xff] ^ (cksum << 8);
 
 	return cksum;
+}
+
+void crc16_ccitt_wd_buf(const uint8_t *in, uint len,
+			uint8_t *out, uint chunk_sz)
+{
+	uint16_t crc;
+
+	crc = crc16_ccitt(0, in, len);
+	crc = htons(crc);
+	memcpy(out, &crc, sizeof(crc));
 }

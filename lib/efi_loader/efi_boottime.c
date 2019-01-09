@@ -26,6 +26,14 @@ LIST_HEAD(efi_obj_list);
 /* List of all events */
 LIST_HEAD(efi_events);
 
+/*
+ * If we're running on nasty systems (32bit ARM booting into non-EFI Linux)
+ * we need to do trickery with caches. Since we don't want to break the EFI
+ * aware boot path, only apply hacks when loading exiting directly (breaking
+ * direct Linux EFI booting along the way - oh well).
+ */
+static bool efi_is_direct_boot = true;
+
 #ifdef CONFIG_ARM
 /*
  * The "gd" pointer lives in a register on ARM and AArch64 that we declare
@@ -416,13 +424,12 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
  *
  * The protocols list is initialized. The object handle is set.
  */
-void efi_add_handle(struct efi_object *obj)
+void efi_add_handle(efi_handle_t handle)
 {
-	if (!obj)
+	if (!handle)
 		return;
-	INIT_LIST_HEAD(&obj->protocols);
-	obj->handle = obj;
-	list_add_tail(&obj->link, &efi_obj_list);
+	INIT_LIST_HEAD(&handle->protocols);
+	list_add_tail(&handle->link, &efi_obj_list);
 }
 
 /**
@@ -440,7 +447,7 @@ efi_status_t efi_create_handle(efi_handle_t *handle)
 		return EFI_OUT_OF_RESOURCES;
 
 	efi_add_handle(obj);
-	*handle = obj->handle;
+	*handle = obj;
 
 	return EFI_SUCCESS;
 }
@@ -536,13 +543,13 @@ efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
  *
  * @obj: handle to delete
  */
-void efi_delete_handle(struct efi_object *obj)
+void efi_delete_handle(efi_handle_t handle)
 {
-	if (!obj)
+	if (!handle)
 		return;
-	efi_remove_all_protocols(obj->handle);
-	list_del(&obj->link);
-	free(obj);
+	efi_remove_all_protocols(handle);
+	list_del(&handle->link);
+	free(handle);
 }
 
 /**
@@ -927,7 +934,7 @@ struct efi_object *efi_search_obj(const efi_handle_t handle)
 	struct efi_object *efiobj;
 
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		if (efiobj->handle == handle)
+		if (efiobj == handle)
 			return efiobj;
 	}
 
@@ -1019,7 +1026,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
  * Return: status code
  */
 static efi_status_t EFIAPI efi_install_protocol_interface(
-			void **handle, const efi_guid_t *protocol,
+			efi_handle_t *handle, const efi_guid_t *protocol,
 			int protocol_interface_type, void *protocol_interface)
 {
 	efi_status_t r;
@@ -1052,7 +1059,7 @@ out:
 
 /**
  * efi_get_drivers() - get all drivers associated to a controller
- * @efiobj:               handle of the controller
+ * @handle:               handle of the controller
  * @protocol:             protocol GUID (optional)
  * @number_of_drivers:    number of child controllers
  * @driver_handle_buffer: handles of the the drivers
@@ -1061,7 +1068,7 @@ out:
  *
  * Return: status code
  */
-static efi_status_t efi_get_drivers(struct efi_object *efiobj,
+static efi_status_t efi_get_drivers(efi_handle_t handle,
 				    const efi_guid_t *protocol,
 				    efi_uintn_t *number_of_drivers,
 				    efi_handle_t **driver_handle_buffer)
@@ -1072,7 +1079,7 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
 	bool duplicate;
 
 	/* Count all driver associations */
-	list_for_each_entry(handler, &efiobj->protocols, link) {
+	list_for_each_entry(handler, &handle->protocols, link) {
 		if (protocol && guidcmp(handler->guid, protocol))
 			continue;
 		list_for_each_entry(item, &handler->open_infos, link) {
@@ -1090,7 +1097,7 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
 	if (!*driver_handle_buffer)
 		return EFI_OUT_OF_RESOURCES;
 	/* Collect unique driver handles */
-	list_for_each_entry(handler, &efiobj->protocols, link) {
+	list_for_each_entry(handler, &handle->protocols, link) {
 		if (protocol && guidcmp(handler->guid, protocol))
 			continue;
 		list_for_each_entry(item, &handler->open_infos, link) {
@@ -1117,7 +1124,7 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
 
 /**
  * efi_disconnect_all_drivers() - disconnect all drivers from a controller
- * @efiobj:       handle of the controller
+ * @handle:       handle of the controller
  * @protocol:     protocol GUID (optional)
  * @child_handle: handle of the child to destroy
  *
@@ -1128,16 +1135,16 @@ static efi_status_t efi_get_drivers(struct efi_object *efiobj,
  *
  * Return: status code
  */
-static efi_status_t efi_disconnect_all_drivers(
-				struct efi_object *efiobj,
-				const efi_guid_t *protocol,
-				efi_handle_t child_handle)
+static efi_status_t efi_disconnect_all_drivers
+				(efi_handle_t handle,
+				 const efi_guid_t *protocol,
+				 efi_handle_t child_handle)
 {
 	efi_uintn_t number_of_drivers;
 	efi_handle_t *driver_handle_buffer;
 	efi_status_t r, ret;
 
-	ret = efi_get_drivers(efiobj, protocol, &number_of_drivers,
+	ret = efi_get_drivers(handle, protocol, &number_of_drivers,
 			      &driver_handle_buffer);
 	if (ret != EFI_SUCCESS)
 		return ret;
@@ -1145,7 +1152,7 @@ static efi_status_t efi_disconnect_all_drivers(
 	ret = EFI_NOT_FOUND;
 	while (number_of_drivers) {
 		r = EFI_CALL(efi_disconnect_controller(
-				efiobj->handle,
+				handle,
 				driver_handle_buffer[--number_of_drivers],
 				child_handle));
 		if (r == EFI_SUCCESS)
@@ -1156,29 +1163,25 @@ static efi_status_t efi_disconnect_all_drivers(
 }
 
 /**
- * efi_uninstall_protocol_interface() - uninstall protocol interface
+ * efi_uninstall_protocol() - uninstall protocol interface
+ *
  * @handle:             handle from which the protocol shall be removed
  * @protocol:           GUID of the protocol to be removed
  * @protocol_interface: interface to be removed
  *
- * This function implements the UninstallProtocolInterface service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
+ * This function DOES NOT delete a handle without installed protocol.
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_uninstall_protocol_interface(
-				efi_handle_t handle, const efi_guid_t *protocol,
-				void *protocol_interface)
+static efi_status_t efi_uninstall_protocol
+			(efi_handle_t handle, const efi_guid_t *protocol,
+			 void *protocol_interface)
 {
 	struct efi_object *efiobj;
 	struct efi_handler *handler;
 	struct efi_open_protocol_info_item *item;
 	struct efi_open_protocol_info_item *pos;
 	efi_status_t r;
-
-	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
 
 	/* Check handle */
 	efiobj = efi_search_obj(handle);
@@ -1210,7 +1213,41 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface(
 	}
 	r = efi_remove_protocol(handle, protocol, protocol_interface);
 out:
-	return EFI_EXIT(r);
+	return r;
+}
+
+/**
+ * efi_uninstall_protocol_interface() - uninstall protocol interface
+ * @handle:             handle from which the protocol shall be removed
+ * @protocol:           GUID of the protocol to be removed
+ * @protocol_interface: interface to be removed
+ *
+ * This function implements the UninstallProtocolInterface service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * Return: status code
+ */
+static efi_status_t EFIAPI efi_uninstall_protocol_interface
+			(efi_handle_t handle, const efi_guid_t *protocol,
+			 void *protocol_interface)
+{
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
+
+	ret = efi_uninstall_protocol(handle, protocol, protocol_interface);
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/* If the last protocol has been removed, delete the handle. */
+	if (list_empty(&handle->protocols)) {
+		list_del(&handle->link);
+		free(handle);
+	}
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -1240,7 +1277,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
  * @search_type: selection criterion
  * @protocol:    GUID of the protocol
  * @search_key:  registration key
- * @efiobj:      handle
+ * @handle:      handle
  *
  * See the documentation of the LocateHandle service in the UEFI specification.
  *
@@ -1248,7 +1285,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
  */
 static int efi_search(enum efi_locate_search_type search_type,
 		      const efi_guid_t *protocol, void *search_key,
-		      struct efi_object *efiobj)
+		      efi_handle_t handle)
 {
 	efi_status_t ret;
 
@@ -1259,7 +1296,7 @@ static int efi_search(enum efi_locate_search_type search_type,
 		/* TODO: RegisterProtocolNotify is not implemented yet */
 		return -1;
 	case BY_PROTOCOL:
-		ret = efi_search_protocol(efiobj->handle, protocol, NULL);
+		ret = efi_search_protocol(handle, protocol, NULL);
 		return (ret != EFI_SUCCESS);
 	default:
 		/* Invalid search type */
@@ -1331,7 +1368,7 @@ static efi_status_t efi_locate_handle(
 	/* Then fill the array */
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		if (!efi_search(search_type, protocol, search_key, efiobj))
-			*buffer++ = efiobj->handle;
+			*buffer++ = efiobj;
 	}
 
 	return EFI_SUCCESS;
@@ -1489,7 +1526,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	}
 
 	/* Add internal object to object list */
-	efi_add_handle(&obj->parent);
+	efi_add_handle(&obj->header);
 
 	if (info_ptr)
 		*info_ptr = info;
@@ -1506,7 +1543,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 		 * When asking for the device path interface, return
 		 * bootefi_device_path
 		 */
-		ret = efi_add_protocol(obj->parent.handle,
+		ret = efi_add_protocol(&obj->header,
 				       &efi_guid_device_path, device_path);
 		if (ret != EFI_SUCCESS)
 			goto failure;
@@ -1516,7 +1553,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	 * When asking for the loaded_image interface, just
 	 * return handle which points to loaded_image_info
 	 */
-	ret = efi_add_protocol(obj->parent.handle,
+	ret = efi_add_protocol(&obj->header,
 			       &efi_guid_loaded_image, info);
 	if (ret != EFI_SUCCESS)
 		goto failure;
@@ -1678,6 +1715,8 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
 
+	efi_is_direct_boot = false;
+
 	/* call the image! */
 	if (setjmp(&image_obj->exit_jmp)) {
 		/*
@@ -1786,6 +1825,21 @@ static efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
 }
 
 /**
+ * efi_exit_caches() - fix up caches for EFI payloads if necessary
+ */
+static void efi_exit_caches(void)
+{
+#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
+	/*
+	 * Grub on 32bit ARM needs to have caches disabled before jumping into
+	 * a zImage, but does not know of all cache layers. Give it a hand.
+	 */
+	if (efi_is_direct_boot)
+		cleanup_before_linux();
+#endif
+}
+
+/**
  * efi_exit_boot_services() - stop all boot services
  * @image_handle: handle of the loaded image
  * @map_key:      key of the memory map
@@ -1837,6 +1891,9 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	/* TODO: Should persist EFI variables here */
 
 	board_quiesce_devices();
+
+	/* Fix up caches for EFI payloads if necessary */
+	efi_exit_caches();
 
 	/* This stops all lingering devices */
 	bootm_disable_interrupts();
@@ -2176,7 +2233,7 @@ static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
 
 		efiobj = list_entry(lhandle, struct efi_object, link);
 
-		ret = efi_search_protocol(efiobj->handle, protocol, &handler);
+		ret = efi_search_protocol(efiobj, protocol, &handler);
 		if (ret == EFI_SUCCESS) {
 			*protocol_interface = handler->protocol_interface;
 			return EFI_EXIT(EFI_SUCCESS);
@@ -2279,8 +2336,8 @@ out:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
-			void **handle, ...)
+static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
+				(efi_handle_t *handle, ...)
 {
 	EFI_ENTRY("%p", handle);
 
@@ -2316,7 +2373,7 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
 	for (; i; --i) {
 		protocol = efi_va_arg(argptr, efi_guid_t*);
 		protocol_interface = efi_va_arg(argptr, void*);
-		EFI_CALL(efi_uninstall_protocol_interface(handle, protocol,
+		EFI_CALL(efi_uninstall_protocol_interface(*handle, protocol,
 							  protocol_interface));
 	}
 	efi_va_end(argptr);
@@ -2339,7 +2396,7 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
  * Return: status code
  */
 static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
-			void *handle, ...)
+			efi_handle_t handle, ...)
 {
 	EFI_ENTRY("%p", handle);
 
@@ -2358,16 +2415,21 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 		if (!protocol)
 			break;
 		protocol_interface = efi_va_arg(argptr, void*);
-		r = EFI_CALL(efi_uninstall_protocol_interface(
-						handle, protocol,
-						protocol_interface));
+		r = efi_uninstall_protocol(handle, protocol,
+					   protocol_interface);
 		if (r != EFI_SUCCESS)
 			break;
 		i++;
 	}
 	efi_va_end(argptr);
-	if (r == EFI_SUCCESS)
+	if (r == EFI_SUCCESS) {
+		/* If the last protocol has been removed, delete the handle. */
+		if (list_empty(&handle->protocols)) {
+			list_del(&handle->link);
+			free(handle);
+		}
 		return EFI_EXIT(r);
+	}
 
 	/* If an error occurred undo all changes. */
 	efi_va_start(argptr, handle);
@@ -2380,7 +2442,8 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
 	}
 	efi_va_end(argptr);
 
-	return EFI_EXIT(r);
+	/* In case of an error always return EFI_INVALID_PARAMETER */
+	return EFI_EXIT(EFI_INVALID_PARAMETER);
 }
 
 /**
@@ -2553,10 +2616,10 @@ out:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_open_protocol(
-			void *handle, const efi_guid_t *protocol,
-			void **protocol_interface, void *agent_handle,
-			void *controller_handle, uint32_t attributes)
+static efi_status_t EFIAPI efi_open_protocol
+			(efi_handle_t handle, const efi_guid_t *protocol,
+			 void **protocol_interface, efi_handle_t agent_handle,
+			 efi_handle_t controller_handle, uint32_t attributes)
 {
 	struct efi_handler *handler;
 	efi_status_t r = EFI_INVALID_PARAMETER;
@@ -2828,13 +2891,19 @@ static efi_status_t EFIAPI efi_reinstall_protocol_interface(
 
 	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, old_interface,
 		  new_interface);
-	ret = EFI_CALL(efi_uninstall_protocol_interface(handle, protocol,
-							old_interface));
+
+	/* Uninstall protocol but do not delete handle */
+	ret = efi_uninstall_protocol(handle, protocol, old_interface);
 	if (ret != EFI_SUCCESS)
 		goto out;
-	ret = EFI_CALL(efi_install_protocol_interface(&handle, protocol,
-						      EFI_NATIVE_INTERFACE,
-						      new_interface));
+
+	/* Install the new protocol */
+	ret = efi_add_protocol(handle, protocol, new_interface);
+	/*
+	 * The UEFI spec does not specify what should happen to the handle
+	 * if in case of an error no protocol interface remains on the handle.
+	 * So let's do nothing here.
+	 */
 	if (ret != EFI_SUCCESS)
 		goto out;
 	/*

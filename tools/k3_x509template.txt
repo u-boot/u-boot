@@ -1,0 +1,48 @@
+ [ req ]
+ distinguished_name     = req_distinguished_name
+ x509_extensions        = v3_ca
+ prompt                 = no
+ dirstring_type         = nobmp
+
+ [ req_distinguished_name ]
+ C                      = US
+ ST                     = TX
+ L                      = Dallas
+ O                      = Texas Instruments Incorporated
+ OU                     = Processors
+ CN                     = TI Support
+ emailAddress           = support@ti.com
+
+ [ v3_ca ]
+ basicConstraints = CA:true
+ 1.3.6.1.4.1.294.1.1 = ASN1:SEQUENCE:boot_seq
+ 1.3.6.1.4.1.294.1.2 = ASN1:SEQUENCE:image_integrity
+ 1.3.6.1.4.1.294.1.3 = ASN1:SEQUENCE:swrv
+# 1.3.6.1.4.1.294.1.4 = ASN1:SEQUENCE:encryption
+ 1.3.6.1.4.1.294.1.8 = ASN1:SEQUENCE:debug
+
+ [ boot_seq ]
+ certType = INTEGER:TEST_CERT_TYPE
+ bootCore = INTEGER:TEST_BOOT_CORE
+ bootCoreOpts = INTEGER:TEST_BOOT_ARCH_WIDTH
+ destAddr = FORMAT:HEX,OCT:TEST_BOOT_ADDR
+ imageSize = INTEGER:TEST_IMAGE_LENGTH
+
+ [ image_integrity ]
+ shaType = OID:2.16.840.1.101.3.4.2.3
+ shaValue = FORMAT:HEX,OCT:TEST_IMAGE_SHA_VAL
+
+ [ swrv ]
+ swrv = INTEGER:0
+
+# [ encryption ]
+# initalVector = FORMAT:HEX,OCT:TEST_IMAGE_ENC_IV
+# randomString = FORMAT:HEX,OCT:TEST_IMAGE_ENC_RS
+# iterationCnt = INTEGER:TEST_IMAGE_KEY_DERIVE_INDEX
+# salt = FORMAT:HEX,OCT:TEST_IMAGE_KEY_DERIVE_SALT
+
+ [ debug ]
+ debugType = INTEGER:4
+ coreDbgEn = INTEGER:0
+ coreDbgSecEn = INTEGER:0
+ debugUID = FORMAT:HEX,OCT:0000000000000000000000000000000000000000000000000000000000000000

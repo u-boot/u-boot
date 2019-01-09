@@ -27,6 +27,28 @@ int pinctrl_decode_pin_config(const void *blob, int node)
 	return flags;
 }
 
+/*
+ * TODO: this function is temporary for v2019.01.
+ * It should be renamed to pinctrl_decode_pin_config(),
+ * the original pinctrl_decode_pin_config() function should
+ * be removed and all callers of the original function should
+ * be migrated to use the new one.
+ */
+int pinctrl_decode_pin_config_dm(struct udevice *dev)
+{
+	int pinconfig = 0;
+
+	if (dev->uclass->uc_drv->id != UCLASS_PINCONFIG)
+		return -EINVAL;
+
+	if (dev_read_bool(dev, "bias-pull-up"))
+		pinconfig |= 1 << PIN_CONFIG_BIAS_PULL_UP;
+	else if (dev_read_bool(dev, "bias-pull-down"))
+		pinconfig |= 1 << PIN_CONFIG_BIAS_PULL_DOWN;
+
+	return pinconfig;
+}
+
 #if CONFIG_IS_ENABLED(PINCTRL_FULL)
 /**
  * pinctrl_config_one() - apply pinctrl settings for a single node
@@ -117,9 +139,9 @@ static int pinconfig_post_bind(struct udevice *dev)
 	int ret;
 
 	dev_for_each_subnode(node, dev) {
-		if (pre_reloc_only &&
-		    !ofnode_pre_reloc(node))
+		if (pre_reloc_only ^ ofnode_pre_reloc(node))
 			continue;
+
 		/*
 		 * If this node has "compatible" property, this is not
 		 * a pin configuration node, but a normal device. skip.
@@ -247,6 +269,40 @@ int pinctrl_get_gpio_mux(struct udevice *dev, int banknum, int index)
 		return -ENOSYS;
 
 	return ops->get_gpio_mux(dev, banknum, index);
+}
+
+int pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+
+	if (!ops->get_pins_count)
+		return -ENOSYS;
+
+	return ops->get_pins_count(dev);
+}
+
+int pinctrl_get_pin_name(struct udevice *dev, int selector, char *buf,
+			 int size)
+{
+	struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+
+	if (!ops->get_pin_name)
+		return -ENOSYS;
+
+	snprintf(buf, size, ops->get_pin_name(dev, selector));
+
+	return 0;
+}
+
+int pinctrl_get_pin_muxing(struct udevice *dev, int selector, char *buf,
+			   int size)
+{
+	struct pinctrl_ops *ops = pinctrl_get_ops(dev);
+
+	if (!ops->get_pin_muxing)
+		return -ENOSYS;
+
+	return ops->get_pin_muxing(dev, selector, buf, size);
 }
 
 /**

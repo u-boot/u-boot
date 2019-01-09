@@ -77,7 +77,8 @@ int last_stage_init(void)
 		timestamp_add_to_bootstage();
 
 	/* start usb so that usb keyboard can be used as input device */
-	usb_init();
+	if (CONFIG_IS_ENABLED(USB_KEYBOARD))
+		usb_init();
 
 	board_final_cleanup();
 

@@ -134,6 +134,7 @@
 #define SDRAM_OP_CMD_CS_BASE			8
 #define SDRAM_OP_CMD_CS_OFFS(cs)		(SDRAM_OP_CMD_CS_BASE + (cs))
 #define SDRAM_OP_CMD_CS_MASK			0x1
+#define SDRAM_OP_CMD_ALL_CS_MASK		0xf
 enum {
 	CMD_NORMAL,
 	CMD_PRECHARGE,
@@ -270,6 +271,10 @@ enum {
 #define ZQC_CFG_REG				0x15e4
 #define DRAM_PHY_CFG_REG			0x15ec
 #define ODPG_CTRL_CTRL_REG			0x1600
+#define ODPG_CTRL_AUTO_REFRESH_OFFS		21
+#define ODPG_CTRL_AUTO_REFRESH_MASK		0x1
+#define ODPG_CTRL_AUTO_REFRESH_DIS		1
+#define ODPG_CTRL_AUTO_REFRESH_ENA		0
 
 #define ODPG_DATA_CTRL_REG			0x1630
 #define ODPG_WRBUF_WR_CTRL_OFFS			0
@@ -406,6 +411,20 @@ enum {
 #define CRX_PHY_REG(cs)				(CRX_PHY_BASE + (cs) * 0x4)
 
 #define PHY_CTRL_PHY_REG			0x90
+#define INV_PAD0_OFFS				2
+#define INV_PAD1_OFFS				3
+#define INV_PAD2_OFFS				4
+#define INV_PAD3_OFFS				5
+#define INV_PAD4_OFFS				6
+#define INV_PAD5_OFFS				7
+#define INV_PAD6_OFFS				8
+#define INV_PAD7_OFFS				9
+#define INV_PAD8_OFFS				10
+#define INV_PAD9_OFFS				11
+#define INV_PAD10_OFFS				12
+#define INV_PAD_MASK				0x1
+#define INVERT_PAD				1
+
 #define ADLL_CFG0_PHY_REG			0x92
 #define ADLL_CFG1_PHY_REG			0x93
 #define ADLL_CFG2_PHY_REG			0x94

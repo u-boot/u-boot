@@ -390,11 +390,6 @@ static int fsl_dspi_cfg_speed(struct fsl_dspi_priv *priv, uint speed)
 	return 0;
 }
 #ifndef CONFIG_DM_SPI
-void spi_init(void)
-{
-	/* Nothing to do */
-}
-
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	if (((cs >= 0) && (cs < 8)) && ((bus >= 0) && (bus < 8)))

@@ -22,9 +22,13 @@
 static int dm_test_adc_bind(struct unit_test_state *uts)
 {
 	struct udevice *dev;
+	unsigned int channel_mask;
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_ADC, "adc", &dev));
 	ut_asserteq_str(SANDBOX_ADC_DEVNAME, dev->name);
+
+	ut_assertok(adc_channel_mask(dev, &channel_mask));
+	ut_asserteq((1 << SANDBOX_ADC_CHANNELS) - 1, channel_mask);
 
 	return 0;
 }
@@ -160,3 +164,34 @@ static int dm_test_adc_multi_channel_shot(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_adc_multi_channel_shot, DM_TESTF_SCAN_FDT);
+
+static const int dm_test_adc_uV_data[SANDBOX_ADC_CHANNELS] = {
+	((u64)SANDBOX_ADC_CHANNEL0_DATA * SANDBOX_BUCK2_INITIAL_EXPECTED_UV) /
+		SANDBOX_ADC_DATA_MASK,
+	((u64)SANDBOX_ADC_CHANNEL1_DATA * SANDBOX_BUCK2_INITIAL_EXPECTED_UV) /
+		SANDBOX_ADC_DATA_MASK,
+	((u64)SANDBOX_ADC_CHANNEL2_DATA * SANDBOX_BUCK2_INITIAL_EXPECTED_UV) /
+		SANDBOX_ADC_DATA_MASK,
+	((u64)SANDBOX_ADC_CHANNEL3_DATA * SANDBOX_BUCK2_INITIAL_EXPECTED_UV) /
+		SANDBOX_ADC_DATA_MASK,
+};
+
+static int dm_test_adc_raw_to_uV(struct unit_test_state *uts)
+{
+	struct adc_channel *tdata = adc_channel_test_data;
+	unsigned int i, data;
+	struct udevice *dev;
+	int uV;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_ADC, "adc", &dev));
+	/* Test each ADC channel's value in microvolts */
+	for (i = 0; i < SANDBOX_ADC_CHANNELS; i++, tdata++) {
+		ut_assertok(adc_start_channel(dev, tdata->id));
+		ut_assertok(adc_channel_data(dev, tdata->id, &data));
+		ut_assertok(adc_raw_to_uV(dev, data, &uV));
+		ut_asserteq(dm_test_adc_uV_data[i], uV);
+	}
+
+	return 0;
+}
+DM_TEST(dm_test_adc_raw_to_uV, DM_TESTF_SCAN_FDT);

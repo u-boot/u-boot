@@ -69,7 +69,7 @@ int efi_init(struct efi_priv *priv, const char *banner, efi_handle_t image,
 	efi_putc(priv, ' ');
 
 	ret = boot->open_protocol(priv->parent_image, &loaded_image_guid,
-				  (void **)&loaded_image, &priv->parent_image,
+				  (void **)&loaded_image, priv->parent_image,
 				  NULL, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
 	if (ret) {
 		efi_puts(priv, "Failed to get loaded image protocol\n");

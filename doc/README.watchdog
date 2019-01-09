@@ -14,7 +14,7 @@ CONFIG_WATCHDOG_TIMEOUT_MSECS
 	If not given, will default to maximum timeout. This would
 	be 128000 msec for i.mx31/35/5x/6x.
 
-CONFIG_AT91SAM9_WATCHDOG
+CONFIG_WDT_AT91
 	Available for AT91SAM9 to service the watchdog.
 
 CONFIG_FTWDT010_WATCHDOG

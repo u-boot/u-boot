@@ -60,6 +60,16 @@ config RTC_ISL1208
 	  This driver supports reading and writing the RTC/calendar and detects
 	  total power failures.
 
+config RTC_RV3029
+	bool "Enable RV3029 driver"
+	depends on DM_RTC
+	help
+	  The MicroCrystal RV3029 is a I2C Real Time Clock (RTC) with 8-byte
+	  battery-backed SRAM.
+
+	  This driver supports reading and writing the RTC/calendar and the
+	  battery-baced SRAM section.
+
 config RTC_RX8010SJ
 	bool "Enable RX8010SJ driver"
 	depends on DM_RTC
@@ -93,5 +103,11 @@ config RTC_MC146818
 	  and now available from NXP. It includes a battery-backed real-time
 	  clock with a wide array of features and 50 bytes of general-purpose,
 	  battery-backed RAM. The driver supports access to the clock and RAM.
+
+config RTC_M41T62
+	bool "Enable M41T62 driver"
+	help
+	  Enable driver for ST's M41T62 compatible RTC devices (like RV-4162).
+	  It is a serial (I2C) real-time clock (RTC) with alarm.
 
 endmenu

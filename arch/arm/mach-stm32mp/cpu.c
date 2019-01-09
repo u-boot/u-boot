@@ -306,7 +306,7 @@ static int setup_mac_address(void)
 
 	ret = misc_read(dev, BSEC_OTP_MAC * 4 + STM32_BSEC_OTP_OFFSET,
 			otp, sizeof(otp));
-	if (ret)
+	if (ret < 0)
 		return ret;
 
 	for (i = 0; i < 6; i++)
@@ -344,7 +344,7 @@ static int setup_serial_number(void)
 
 	ret = misc_read(dev, BSEC_OTP_SERIAL * 4 + STM32_BSEC_OTP_OFFSET,
 			otp, sizeof(otp));
-	if (ret)
+	if (ret < 0)
 		return ret;
 
 	sprintf(serial_string, "%08x%08x%08x", otp[0], otp[1], otp[2]);

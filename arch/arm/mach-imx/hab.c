@@ -6,6 +6,8 @@
 #include <common.h>
 #include <config.h>
 #include <fuse.h>
+#include <mapmem.h>
+#include <image.h>
 #include <asm/io.h>
 #include <asm/system.h>
 #include <asm/arch/clock.h>
@@ -302,18 +304,41 @@ static int do_hab_status(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
+static ulong get_image_ivt_offset(ulong img_addr)
+{
+	const void *buf;
+
+	buf = map_sysmem(img_addr, 0);
+	switch (genimg_get_format(buf)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+	case IMAGE_FORMAT_LEGACY:
+		return (image_get_image_size((image_header_t *)img_addr)
+			+ 0x1000 - 1)  & ~(0x1000 - 1);
+#endif
+#if IMAGE_ENABLE_FIT
+	case IMAGE_FORMAT_FIT:
+		return (fit_get_size(buf) + 0x1000 - 1)  & ~(0x1000 - 1);
+#endif
+	default:
+		return 0;
+	}
+}
+
 static int do_authenticate_image(cmd_tbl_t *cmdtp, int flag, int argc,
 				 char * const argv[])
 {
 	ulong	addr, length, ivt_offset;
 	int	rcode = 0;
 
-	if (argc < 4)
+	if (argc < 3)
 		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 	length = simple_strtoul(argv[2], NULL, 16);
-	ivt_offset = simple_strtoul(argv[3], NULL, 16);
+	if (argc == 3)
+		ivt_offset = get_image_ivt_offset(addr);
+	else
+		ivt_offset = simple_strtoul(argv[3], NULL, 16);
 
 	rcode = imx_hab_authenticate_image(addr, length, ivt_offset);
 	if (rcode == 0)

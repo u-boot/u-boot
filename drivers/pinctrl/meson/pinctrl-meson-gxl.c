@@ -11,7 +11,7 @@
 #include <dm/pinctrl.h>
 #include <dt-bindings/gpio/meson-gxl-gpio.h>
 
-#include "pinctrl-meson.h"
+#include "pinctrl-meson-gx.h"
 
 #define EE_OFF	11
 
@@ -699,6 +699,7 @@ struct meson_pinctrl_data meson_gxl_periphs_pinctrl_data = {
 	.num_groups	= ARRAY_SIZE(meson_gxl_periphs_groups),
 	.num_funcs	= ARRAY_SIZE(meson_gxl_periphs_functions),
 	.num_banks	= ARRAY_SIZE(meson_gxl_periphs_banks),
+	.gpio_driver	= &meson_gx_gpio_driver,
 };
 
 struct meson_pinctrl_data meson_gxl_aobus_pinctrl_data = {
@@ -711,6 +712,7 @@ struct meson_pinctrl_data meson_gxl_aobus_pinctrl_data = {
 	.num_groups	= ARRAY_SIZE(meson_gxl_aobus_groups),
 	.num_funcs	= ARRAY_SIZE(meson_gxl_aobus_functions),
 	.num_banks	= ARRAY_SIZE(meson_gxl_aobus_banks),
+	.gpio_driver	= &meson_gx_gpio_driver,
 };
 
 static const struct udevice_id meson_gxl_pinctrl_match[] = {
@@ -731,5 +733,5 @@ U_BOOT_DRIVER(meson_gxl_pinctrl) = {
 	.of_match = of_match_ptr(meson_gxl_pinctrl_match),
 	.probe = meson_pinctrl_probe,
 	.priv_auto_alloc_size = sizeof(struct meson_pinctrl),
-	.ops = &meson_pinctrl_ops,
+	.ops = &meson_gx_pinctrl_ops,
 };

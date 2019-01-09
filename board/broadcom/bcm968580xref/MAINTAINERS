@@ -1,0 +1,6 @@
+BROADCOM BCM968580XREF
+M:	Philippe Reynes <philippe.reynes@softathome.com>
+S:	Maintained
+F:	board/broadcom/bcm968580xref/
+F:	include/configs/broadcom_bcm968580xref.h
+F:	configs/bcm968580_ram_defconfig

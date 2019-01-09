@@ -197,6 +197,49 @@ config AXP_ALDO3_VOLT
 	On A83T / H8 boards aldo3 is AVCC, VCC-PL, and VCC-LED, and should be
 	3.0V.
 
+choice
+	prompt "axp pmic (a)ldo3 voltage rate control"
+	depends on AXP209_POWER
+	default AXP_ALDO3_VOLT_SLOPE_NONE
+	---help---
+	The AXP can slowly ramp up voltage to reduce the inrush current when
+	changing voltages.
+	Note, this does not apply when enabling/disabling LDO3. See
+	"axp pmic (a)ldo3 inrush quirk" below to enable a slew rate to limit
+	inrush current on broken board designs.
+
+config AXP_ALDO3_VOLT_SLOPE_NONE
+	bool "No voltage slope"
+	---help---
+	Tries to reach the next voltage setting near instantaneously. Measurements
+	indicate that this is about 0.0167 V/uS.
+
+config AXP_ALDO3_VOLT_SLOPE_16
+	bool "1.6 mV per uS"
+	---help---
+	Increases the voltage by 1.6 mV per uS until the final voltage has
+	been reached. Note that the scaling is in 25 mV steps and thus
+	the slew rate in reality is about 25 mV/31.250 uS.
+
+config AXP_ALDO3_VOLT_SLOPE_08
+	bool "0.8 mV per uS"
+	---help---
+	Increases the voltage by 0.8 mV per uS until the final voltage has
+	been reached. Note that the scaling is in 25 mV steps however and thus
+	the slew rate in reality is about 25 mV/15.625 uS.
+	This is the slowest supported rate.
+
+endchoice
+
+config AXP_ALDO3_INRUSH_QUIRK
+	bool "axp pmic (a)ldo3 inrush quirk"
+	depends on AXP209_POWER
+	default n
+	---help---
+	The reference design denotes a value of 4.7 uF for the output capacitor
+	of LDO3. Some boards have too high capacitance causing 	an inrush current
+	and resulting an AXP209 shutdown.
+
 config AXP_ALDO4_VOLT
 	int "axp pmic (a)ldo4 voltage"
 	depends on AXP209_POWER

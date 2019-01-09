@@ -65,7 +65,7 @@ static int dump_efuses(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	ret = misc_read(dev, 0, &fuses, sizeof(fuses));
-	if (ret) {
+	if (ret < 0) {
 		printf("%s: misc_read failed\n", __func__);
 		return 0;
 	}

@@ -16,7 +16,7 @@
 static struct efi_boot_services *boottime;
 static const char *fdt;
 
-/* This should be sufficent for */
+/* This should be sufficient for */
 #define BUFFERSIZE 0x100000
 
 static efi_guid_t fdt_guid = EFI_FDT_GUID;

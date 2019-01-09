@@ -774,15 +774,18 @@ int pci_bind_bus_devices(struct udevice *bus)
 			found_multi = false;
 		if (PCI_FUNC(bdf) && !found_multi)
 			continue;
+
 		/* Check only the first access, we don't expect problems */
-		ret = pci_bus_read_config(bus, bdf, PCI_HEADER_TYPE,
-					  &header_type, PCI_SIZE_8);
+		ret = pci_bus_read_config(bus, bdf, PCI_VENDOR_ID, &vendor,
+					  PCI_SIZE_16);
 		if (ret)
 			goto error;
-		pci_bus_read_config(bus, bdf, PCI_VENDOR_ID, &vendor,
-				    PCI_SIZE_16);
+
 		if (vendor == 0xffff || vendor == 0x0000)
 			continue;
+
+		pci_bus_read_config(bus, bdf, PCI_HEADER_TYPE,
+				    &header_type, PCI_SIZE_8);
 
 		if (!PCI_FUNC(bdf))
 			found_multi = header_type & 0x80;
@@ -1344,26 +1347,14 @@ void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 	return dm_pci_bus_to_virt(dev, pci_bus_addr, flags, 0, MAP_NOCACHE);
 }
 
-int dm_pci_find_capability(struct udevice *dev, int cap)
+static int _dm_pci_find_next_capability(struct udevice *dev, u8 pos, int cap)
 {
-	u16 status;
-	u8 header_type;
 	int ttl = PCI_FIND_CAP_TTL;
 	u8 id;
 	u16 ent;
-	u8 pos;
-
-	dm_pci_read_config16(dev, PCI_STATUS, &status);
-	if (!(status & PCI_STATUS_CAP_LIST))
-		return 0;
-
-	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &header_type);
-	if ((header_type & 0x7f) == PCI_HEADER_TYPE_CARDBUS)
-		pos = PCI_CB_CAPABILITY_LIST;
-	else
-		pos = PCI_CAPABILITY_LIST;
 
 	dm_pci_read_config8(dev, pos, &pos);
+
 	while (ttl--) {
 		if (pos < PCI_STD_HEADER_SIZEOF)
 			break;
@@ -1381,7 +1372,32 @@ int dm_pci_find_capability(struct udevice *dev, int cap)
 	return 0;
 }
 
-int dm_pci_find_ext_capability(struct udevice *dev, int cap)
+int dm_pci_find_next_capability(struct udevice *dev, u8 start, int cap)
+{
+	return _dm_pci_find_next_capability(dev, start + PCI_CAP_LIST_NEXT,
+					    cap);
+}
+
+int dm_pci_find_capability(struct udevice *dev, int cap)
+{
+	u16 status;
+	u8 header_type;
+	u8 pos;
+
+	dm_pci_read_config16(dev, PCI_STATUS, &status);
+	if (!(status & PCI_STATUS_CAP_LIST))
+		return 0;
+
+	dm_pci_read_config8(dev, PCI_HEADER_TYPE, &header_type);
+	if ((header_type & 0x7f) == PCI_HEADER_TYPE_CARDBUS)
+		pos = PCI_CB_CAPABILITY_LIST;
+	else
+		pos = PCI_CAPABILITY_LIST;
+
+	return _dm_pci_find_next_capability(dev, pos, cap);
+}
+
+int dm_pci_find_next_ext_capability(struct udevice *dev, int start, int cap)
 {
 	u32 header;
 	int ttl;
@@ -1389,6 +1405,9 @@ int dm_pci_find_ext_capability(struct udevice *dev, int cap)
 
 	/* minimum 8 bytes per capability */
 	ttl = (PCI_CFG_SPACE_EXP_SIZE - PCI_CFG_SPACE_SIZE) / 8;
+
+	if (start)
+		pos = start;
 
 	dm_pci_read_config32(dev, pos, &header);
 	/*
@@ -1410,6 +1429,11 @@ int dm_pci_find_ext_capability(struct udevice *dev, int cap)
 	}
 
 	return 0;
+}
+
+int dm_pci_find_ext_capability(struct udevice *dev, int cap)
+{
+	return dm_pci_find_next_ext_capability(dev, 0, cap);
 }
 
 UCLASS_DRIVER(pci) = {

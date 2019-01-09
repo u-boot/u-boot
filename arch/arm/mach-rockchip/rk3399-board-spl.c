@@ -202,13 +202,13 @@ void board_init_f(ulong dummy)
 
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
 	if (ret) {
-		debug("Pinctrl init failed: %d\n", ret);
+		pr_err("Pinctrl init failed: %d\n", ret);
 		return;
 	}
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
-		debug("DRAM init failed: %d\n", ret);
+		pr_err("DRAM init failed: %d\n", ret);
 		return;
 	}
 }

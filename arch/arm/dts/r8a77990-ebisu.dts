@@ -28,24 +28,6 @@
 		/* first 128MB is reserved for secure area. */
 		reg = <0x0 0x48000000 0x0 0x38000000>;
 	};
-
-	reg_1p8v: regulator0 {
-		compatible = "regulator-fixed";
-		regulator-name = "fixed-1.8V";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		regulator-boot-on;
-		regulator-always-on;
-	};
-
-	reg_3p3v: regulator1 {
-		compatible = "regulator-fixed";
-		regulator-name = "fixed-3.3V";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-boot-on;
-		regulator-always-on;
-	};
 };
 
 &avb {
@@ -73,10 +55,11 @@
 	clock-frequency = <48000000>;
 };
 
-&pfc {
-	pinctrl-0 = <&scif_clk_pins>;
-	pinctrl-names = "default";
+&ohci0 {
+	status = "okay";
+};
 
+&pfc {
 	avb_pins: avb {
 		mux {
 			groups = "avb_link", "avb_mii";
@@ -84,65 +67,35 @@
 		};
 	};
 
-	scif2_pins: scif2 {
-		groups = "scif2_data_a";
-		function = "scif2";
-	};
-
-	scif_clk_pins: scif_clk {
-		groups = "scif_clk_a";
-		function = "scif_clk";
-	};
-
-	sdhi3_pins: sd2 {
-		groups = "sdhi3_data8", "sdhi3_ctrl";
-		function = "sdhi3";
-		power-source = <1800>;
-	};
-
-	sdhi3_pins_uhs: sd2_uhs {
-		groups = "sdhi3_data8", "sdhi3_ctrl";
-		function = "sdhi3";
-		power-source = <1800>;
-	};
-
-	usb0_pins: usb0 {
-		groups = "usb0";
+	usb0_pins: usb {
+		groups = "usb0_b";
 		function = "usb0";
 	};
+
+	usb30_pins: usb30 {
+		groups = "usb30";
+		function = "usb30";
+	};
 };
 
-&usb2_phy0 {
-	pinctrl-0 = <&usb0_pins>;
-	pinctrl-name = "default";
-
-	status = "okay";
-};
-
-&sdhi0 {
-	status = "okay";
-};
-
-&sdhi1 {
-	status = "okay";
-};
-
-&sdhi3 {
-	/* used for on-board 8bit eMMC */
-	pinctrl-0 = <&sdhi3_pins>;
-	pinctrl-1 = <&sdhi3_pins_uhs>;
-	pinctrl-names = "default", "state_uhs";
-
-	vmmc-supply = <&reg_3p3v>;
-	vqmmc-supply = <&reg_1p8v>;
-	bus-width = <8>;
-	mmc-hs200-1_8v;
-	non-removable;
+&rwdt {
+	timeout-sec = <60>;
 	status = "okay";
 };
 
 &scif2 {
-	pinctrl-0 = <&scif2_pins>;
+	status = "okay";
+};
+
+&usb2_phy0 {
+	pinctrl-0 = <&usb0_pins>;
+	pinctrl-names = "default";
+
+	status = "okay";
+};
+
+&xhci0 {
+	pinctrl-0 = <&usb30_pins>;
 	pinctrl-names = "default";
 
 	status = "okay";

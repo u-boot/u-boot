@@ -55,11 +55,9 @@ static int select_fs_dev(struct device_platdata *plat)
 
 		node = ofnode_get_by_phandle(plat->phandlepart.phandle);
 
-		int of_offset = ofnode_to_offset(node);
-
 		struct udevice *dev;
 
-		ret = device_get_global_by_of_offset(of_offset, &dev);
+		ret = device_get_global_by_ofnode(node, &dev);
 		if (!ret) {
 			struct blk_desc *desc = blk_get_by_device(dev);
 			if (desc) {
@@ -190,8 +188,9 @@ static int fw_get_filesystem_firmware(struct device_platdata *plat,
 
 	ret = fs_read(fw_priv->name, (ulong)map_to_sysmem(firmware->data),
 			fw_priv->offset, firmware->size, &actread);
+
 	if (ret) {
-		debug("Error: %d Failed to read %s from flash %lld != %d.\n",
+		debug("Error: %d Failed to read %s from flash %lld != %zu.\n",
 		      ret, fw_priv->name, actread, firmware->size);
 	} else {
 		ret = actread;

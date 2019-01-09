@@ -13,7 +13,7 @@
  * @buf: pointer to data buffer
  * @size: data size in bytes to read the device
  *
- * Return: 0 if OK, -ve on error
+ * Return: number of bytes read if OK (may be 0 if EOF), -ve on error
  */
 int misc_read(struct udevice *dev, int offset, void *buf, int size);
 
@@ -24,7 +24,7 @@ int misc_read(struct udevice *dev, int offset, void *buf, int size);
  * @buf: pointer to data buffer
  * @size: data size in bytes to write the device
  *
- * Return: 0 if OK, -ve on error
+ * Return: number of bytes written if OK (may be < @size), -ve on error
  */
 int misc_write(struct udevice *dev, int offset, void *buf, int size);
 
@@ -90,7 +90,7 @@ struct misc_ops {
 	 * @buf: pointer to data buffer
 	 * @size: data size in bytes to read the device
 	 *
-	 * Return: 0 if OK, -ve on error
+	 * Return: number of bytes read if OK (may be 0 if EOF), -ve on error
 	 */
 	int (*read)(struct udevice *dev, int offset, void *buf, int size);
 
@@ -101,7 +101,7 @@ struct misc_ops {
 	 * @buf: pointer to data buffer
 	 * @size: data size in bytes to write the device
 	 *
-	 * Return: 0 if OK, -ve on error
+	 * Return: number of bytes written if OK (may be < @size), -ve on error
 	 */
 	int (*write)(struct udevice *dev, int offset, const void *buf,
 		     int size);

@@ -424,5 +424,4 @@ U_BOOT_DRIVER(tsc_timer) = {
 	.of_match = tsc_timer_ids,
 	.probe = tsc_timer_probe,
 	.ops	= &tsc_timer_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

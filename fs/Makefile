@@ -5,6 +5,7 @@
 # Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
 
 ifdef CONFIG_SPL_BUILD
+obj-$(CONFIG_FS_LOADER) += fs.o
 obj-$(CONFIG_SPL_FAT_SUPPORT) += fat/
 obj-$(CONFIG_SPL_EXT_SUPPORT) += ext4/
 else

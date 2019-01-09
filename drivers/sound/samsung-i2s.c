@@ -4,13 +4,14 @@
  * R. Chandrasekar <rcsekar@samsung.com>
  */
 
+#include <common.h>
+#include <dm.h>
+#include <i2s.h>
+#include <sound.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/i2s-regs.h>
 #include <asm/io.h>
-#include <common.h>
-#include <sound.h>
-#include <i2s.h>
 
 #define FIC_TX2COUNT(x)		(((x) >>  24) & 0xf)
 #define FIC_TX1COUNT(x)		(((x) >>  16) & 0xf)
@@ -111,7 +112,7 @@ static void i2s_set_bitclk_framesize(struct i2s_reg *i2s_reg, unsigned bfs)
  * @param flush		Tx fifo flush command (0x00 - do not flush
  *				0x80 - flush tx fifo)
  */
-void i2s_fifo(struct i2s_reg *i2s_reg, unsigned int flush)
+static void i2s_fifo(struct i2s_reg *i2s_reg, unsigned int flush)
 {
 	/* Flush the FIFO */
 	setbits_le32(&i2s_reg->fic, flush);
@@ -126,7 +127,7 @@ void i2s_fifo(struct i2s_reg *i2s_reg, unsigned int flush)
  *
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_set_sysclk_dir(struct i2s_reg *i2s_reg, int dir)
+static int i2s_set_sysclk_dir(struct i2s_reg *i2s_reg, int dir)
 {
 	unsigned int mod = readl(&i2s_reg->mod);
 
@@ -148,7 +149,7 @@ int i2s_set_sysclk_dir(struct i2s_reg *i2s_reg, int dir)
  *
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
+static int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 {
 	unsigned int mod = readl(&i2s_reg->mod);
 	unsigned int tmp = 0;
@@ -170,7 +171,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 	default:
 		debug("%s: Invalid format priority [0x%x]\n", __func__,
 		      (fmt & SND_SOC_DAIFMT_FORMAT_MASK));
-		return -1;
+		return -ERANGE;
 	}
 
 	/*
@@ -189,7 +190,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 	default:
 		debug("%s: Invalid clock ploarity input [0x%x]\n", __func__,
 		      (fmt & SND_SOC_DAIFMT_INV_MASK));
-		return -1;
+		return -ERANGE;
 	}
 
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
@@ -201,13 +202,13 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 		ret = i2s_set_sysclk_dir(i2s_reg, SND_SOC_CLOCK_OUT);
 		if (ret != 0) {
 			debug("%s:set i2s clock direction failed\n", __func__);
-			return -1;
+			return ret;
 		}
 		break;
 	default:
 		debug("%s: Invalid master selection [0x%x]\n", __func__,
 		      (fmt & SND_SOC_DAIFMT_MASTER_MASK));
-		return -1;
+		return -ERANGE;
 	}
 
 	mod &= ~(MOD_SDF_MASK | MOD_LR_RLOW | MOD_SLAVE);
@@ -225,7 +226,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
  *
  * @return		int value 0 for success, -1 in case of error
  */
-int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
+static int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
 {
 	unsigned int mod = readl(&i2s_reg->mod);
 
@@ -248,43 +249,43 @@ int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
 	default:
 		debug("%s: Invalid sample size input [0x%x]\n",
 		      __func__, blc);
-		return -1;
+		return -ERANGE;
 	}
 	writel(mod, &i2s_reg->mod);
 
 	return 0;
 }
 
-int i2s_transfer_tx_data(struct i2stx_info *pi2s_tx, unsigned int *data,
-				unsigned long data_size)
+int i2s_transfer_tx_data(struct i2s_uc_priv *pi2s_tx, void *data,
+			 uint data_size)
 {
+	struct i2s_reg *i2s_reg = (struct i2s_reg *)pi2s_tx->base_address;
+	u32 *ptr;
 	int i;
 	int start;
-	struct i2s_reg *i2s_reg =
-				(struct i2s_reg *)pi2s_tx->base_address;
 
 	if (data_size < FIFO_LENGTH) {
 		debug("%s : Invalid data size\n", __func__);
-		return -1; /* invalid pcm data size */
+		return -ENODATA; /* invalid pcm data size */
 	}
 
 	/* fill the tx buffer before stating the tx transmit */
-	for (i = 0; i < FIFO_LENGTH; i++)
-		writel(*data++, &i2s_reg->txd);
+	for (i = 0, ptr = data; i < FIFO_LENGTH; i++)
+		writel(*ptr++, &i2s_reg->txd);
 
-	data_size -= FIFO_LENGTH;
+	data_size -= sizeof(*ptr) * FIFO_LENGTH;
 	i2s_txctrl(i2s_reg, I2S_TX_ON);
 
 	while (data_size > 0) {
 		start = get_timer(0);
 		if (!(CON_TXFIFO_FULL & (readl(&i2s_reg->con)))) {
-			writel(*data++, &i2s_reg->txd);
-			data_size--;
+			writel(*ptr++, &i2s_reg->txd);
+			data_size -= sizeof(*ptr);
 		} else {
 			if (get_timer(start) > TIMEOUT_I2S_TX) {
 				i2s_txctrl(i2s_reg, I2S_TX_OFF);
 				debug("%s: I2S Transfer Timeout\n", __func__);
-				return -1;
+				return -ETIMEDOUT;
 			}
 		}
 	}
@@ -293,11 +294,11 @@ int i2s_transfer_tx_data(struct i2stx_info *pi2s_tx, unsigned int *data,
 	return 0;
 }
 
-int i2s_tx_init(struct i2stx_info *pi2s_tx)
+int i2s_tx_init(struct i2s_uc_priv *pi2s_tx)
 {
 	int ret;
-	struct i2s_reg *i2s_reg =
-				(struct i2s_reg *)pi2s_tx->base_address;
+	struct i2s_reg *i2s_reg = (struct i2s_reg *)pi2s_tx->base_address;
+
 	if (pi2s_tx->id == 0) {
 		/* Initialize GPIO for I2S-0 */
 		exynos_pinmux_config(PERIPH_ID_I2S0, 0);
@@ -312,20 +313,20 @@ int i2s_tx_init(struct i2stx_info *pi2s_tx)
 		ret = set_epll_clk(pi2s_tx->audio_pll_clk);
 	} else {
 		debug("%s: unsupported i2s-%d bus\n", __func__, pi2s_tx->id);
-		return -1;
+		return -ERANGE;
 	}
 
-	if (ret != 0) {
+	if (ret) {
 		debug("%s: epll clock set rate failed\n", __func__);
-		return -1;
+		return ret;
 	}
 
 	/* Select Clk Source for Audio 0 or 1 */
 	ret = set_i2s_clk_source(pi2s_tx->id);
-	if (ret == -1) {
+	if (ret) {
 		debug("%s: unsupported clock for i2s-%d\n", __func__,
 		      pi2s_tx->id);
-		return -1;
+		return ret;
 	}
 
 	if (pi2s_tx->id == 0) {
@@ -341,21 +342,21 @@ int i2s_tx_init(struct i2stx_info *pi2s_tx)
 				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
 				pi2s_tx->id);
 	}
-	if (ret == -1) {
+	if (ret) {
 		debug("%s: unsupported prescalar for i2s-%d\n", __func__,
 		      pi2s_tx->id);
-		return -1;
+		return ret;
 	}
 
 	/* Configure I2s format */
-	ret = i2s_set_fmt(i2s_reg, (SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
-			  SND_SOC_DAIFMT_CBM_CFM));
+	ret = i2s_set_fmt(i2s_reg, SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
+			  SND_SOC_DAIFMT_CBM_CFM);
 	if (ret == 0) {
 		i2s_set_lr_framesize(i2s_reg, pi2s_tx->rfs);
 		ret = i2s_set_samplesize(i2s_reg, pi2s_tx->bitspersample);
 		if (ret != 0) {
 			debug("%s:set sample rate failed\n", __func__);
-			return -1;
+			return ret;
 		}
 
 		i2s_set_bitclk_framesize(i2s_reg, pi2s_tx->bfs);
@@ -368,3 +369,87 @@ int i2s_tx_init(struct i2stx_info *pi2s_tx)
 
 	return ret;
 }
+
+static int samsung_i2s_tx_data(struct udevice *dev, void *data, uint data_size)
+{
+	struct i2s_uc_priv *priv = dev_get_uclass_priv(dev);
+
+	return i2s_transfer_tx_data(priv, data, data_size);
+}
+
+static int samsung_i2s_probe(struct udevice *dev)
+{
+	struct i2s_uc_priv *priv = dev_get_uclass_priv(dev);
+
+	return i2s_tx_init(priv);
+}
+
+static int samsung_i2s_ofdata_to_platdata(struct udevice *dev)
+{
+	struct i2s_uc_priv *priv = dev_get_uclass_priv(dev);
+	ulong base;
+
+	/*
+	 * Get the pre-defined sound specific values from FDT.
+	 * All of these are expected to be correct otherwise
+	 * wrong register values in i2s setup parameters
+	 * may result in no sound play.
+	 */
+	base = dev_read_addr(dev);
+	if (base == FDT_ADDR_T_NONE) {
+		debug("%s: Missing  i2s base\n", __func__);
+		return -EINVAL;
+	}
+	priv->base_address = base;
+
+	if (dev_read_u32u(dev, "samsung,i2s-epll-clock-frequency",
+			  &priv->audio_pll_clk))
+		goto err;
+	debug("audio_pll_clk = %d\n", priv->audio_pll_clk);
+	if (dev_read_u32u(dev, "samsung,i2s-sampling-rate",
+			  &priv->samplingrate))
+		goto err;
+	debug("samplingrate = %d\n", priv->samplingrate);
+	if (dev_read_u32u(dev, "samsung,i2s-bits-per-sample",
+			  &priv->bitspersample))
+		goto err;
+	debug("bitspersample = %d\n", priv->bitspersample);
+	if (dev_read_u32u(dev, "samsung,i2s-channels", &priv->channels))
+		goto err;
+	debug("channels = %d\n", priv->channels);
+	if (dev_read_u32u(dev, "samsung,i2s-lr-clk-framesize", &priv->rfs))
+		goto err;
+	debug("rfs = %d\n", priv->rfs);
+	if (dev_read_u32u(dev, "samsung,i2s-bit-clk-framesize", &priv->bfs))
+		goto err;
+	debug("bfs = %d\n", priv->bfs);
+
+	if (dev_read_u32u(dev, "samsung,i2s-id", &priv->id))
+		goto err;
+	debug("id = %d\n", priv->id);
+
+	return 0;
+
+err:
+	debug("fail to get sound i2s node properties\n");
+
+	return -EINVAL;
+}
+
+static const struct i2s_ops samsung_i2s_ops = {
+	.tx_data	= samsung_i2s_tx_data,
+};
+
+static const struct udevice_id samsung_i2s_ids[] = {
+	{ .compatible = "samsung,s5pv210-i2s" },
+	{ }
+};
+
+U_BOOT_DRIVER(samsung_i2s) = {
+	.name		= "samsung_i2s",
+	.id		= UCLASS_I2S,
+	.of_match	= samsung_i2s_ids,
+	.probe		= samsung_i2s_probe,
+	.ofdata_to_platdata	= samsung_i2s_ofdata_to_platdata,
+	.ops		= &samsung_i2s_ops,
+};

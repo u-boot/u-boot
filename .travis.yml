@@ -42,12 +42,12 @@ install:
  - ln -s travis-ci /tmp/uboot-test-hooks/py/`hostname`
  # prepare buildman environment
  - echo -e "[toolchain]\nroot = /usr" > ~/.buildman
- - echo -e "arc = /tmp/arc_gnu_2017.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
+ - echo -e "arc = /tmp/arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install" >> ~/.buildman
  - echo -e "\n[toolchain-alias]\nsh = sh2\n" >> ~/.buildman
  - cat ~/.buildman
  - virtualenv /tmp/venv
  - . /tmp/venv/bin/activate
- - pip install pytest
+ - pip install pytest==2.8.7
  - pip install python-subunit
  - grub-mkimage -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
  - grub-mkimage -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
@@ -75,8 +75,8 @@ before_script:
       echo -e "\n[toolchain-alias]\nx86 = i386" >> ~/.buildman;
     fi
   - if [[ "${TOOLCHAIN}" == arc ]]; then
-       wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2017.09-release/arc_gnu_2017.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
-       tar -C /tmp -xf arc_gnu_2017.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
+       wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2018.09-release/arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
+       tar -C /tmp -xf arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
     fi
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then
        wget https://github.com/foss-xtensa/toolchain/releases/download/2018.02/x86_64-2018.02-${TOOLCHAIN}.tar.gz &&
@@ -332,6 +332,14 @@ matrix:
     - name: "sloccount"
       script:
         - sloccount .
+    # ensure all configs have MAINTAINERS entries
+    - name: "Check for configs without MAINTAINERS entry"
+      script:
+        - if [ `./tools/genboardscfg.py -f 2>&1 | wc -l` -ne 0 ]; then exit 1; fi
+    # Ensure host tools build
+    - name: "Build tools-only"
+      script:
+        - make tools-only_config tools-only -j$(nproc)
 
     # test/py
     - name: "test/py sandbox"

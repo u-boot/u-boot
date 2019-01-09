@@ -1,0 +1,87 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2018 Microsemi Corporation
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	compatible = "mscc,luton";
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			compatible = "mips,mips24KEc";
+			device_type = "cpu";
+			reg = <0>;
+		};
+	};
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	ahb_clk: ahb-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <208333333>;
+	};
+
+	ahb {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x60000000 0x10200000>;
+
+		uart0: serial@10100000 {
+			pinctrl-0 = <&uart_pins>;
+			pinctrl-names = "default";
+
+			compatible = "ns16550a";
+			reg = <0x10100000 0x20>;
+			clocks = <&ahb_clk>;
+			reg-io-width = <4>;
+			reg-shift = <2>;
+
+			status = "disabled";
+		};
+
+		gpio: pinctrl@70068 {
+			compatible = "mscc,luton-pinctrl";
+			reg = <0x70068 0x68>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			gpio-ranges = <&gpio 0 0 32>;
+
+			uart_pins: uart-pins {
+				pins = "GPIO_30", "GPIO_31";
+				function = "uart";
+			};
+
+		};
+
+		gpio_spi_bitbang: gpio@10000064 {
+			compatible = "mscc,spi-bitbang-gpio";
+			reg = <0x10000064 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+		};
+
+		spi0: spi-bitbang {
+			compatible = "spi-gpio";
+			status = "okay";
+			gpio-sck = <&gpio_spi_bitbang 6 0>;
+			gpio-miso = <&gpio_spi_bitbang 0 0>;
+			gpio-mosi = <&gpio_spi_bitbang 5 0>;
+			cs-gpios = <&gpio_spi_bitbang 1 0>;
+			num-chipselects = <1>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+};

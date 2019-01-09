@@ -292,7 +292,7 @@ Each entry in the macro defines a single boot device (e.g. a specific eMMC
 device or SD card) or type of boot device (e.g. USB disk). The parameters to
 the func macro (passed in by the internal implementation of the header) are:
 
-- Upper-case disk type (MMC, SATA, SCSI, IDE, USB, DHCP, PXE).
+- Upper-case disk type (MMC, SATA, SCSI, IDE, USB, DHCP, PXE, VIRTIO).
 - Lower-case disk type (same options as above).
 - ID of the specific disk (MMC only) or ignored for other types.
 
@@ -398,6 +398,7 @@ The list of possible targets consists of:
   * scsi
   * ide
   * usb
+  * virtio
 
 Other *boot* variables than the ones defined above are only for internal use
 of the boot environment and are not guaranteed to exist or work in the same

@@ -8,7 +8,7 @@ ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_EFI) += efi/
 obj-$(CONFIG_EFI_LOADER) += efi_driver/
 obj-$(CONFIG_EFI_LOADER) += efi_loader/
-obj-$(CONFIG_EFI_LOADER) += efi_selftest/
+obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += efi_selftest/
 obj-$(CONFIG_LZMA) += lzma/
 obj-$(CONFIG_BZIP2) += bzip2/
 obj-$(CONFIG_TIZEN) += tizen/
@@ -38,7 +38,6 @@ obj-$(CONFIG_IMAGE_SPARSE) += image-sparse.o
 obj-y += initcall.o
 obj-$(CONFIG_LMB) += lmb.o
 obj-y += ldiv.o
-obj-$(CONFIG_LZ4) += lz4_wrapper.o
 obj-$(CONFIG_MD5) += md5.o
 obj-y += net_utils.o
 obj-$(CONFIG_PHYSMEM) += physmem.o
@@ -64,6 +63,7 @@ obj-$(CONFIG_SHA256) += sha256.o
 obj-$(CONFIG_$(SPL_)ZLIB) += zlib/
 obj-$(CONFIG_$(SPL_)GZIP) += gunzip.o
 obj-$(CONFIG_$(SPL_)LZO) += lzo/
+obj-$(CONFIG_$(SPL_)LZ4) += lz4_wrapper.o
 
 obj-$(CONFIG_LIBAVB) += libavb/
 
@@ -76,6 +76,7 @@ endif
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += crc16.o
+obj-$(CONFIG_$(SPL_TPL_)HASH_SUPPORT) += crc16.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += net_utils.o
 endif
 obj-$(CONFIG_ADDR_MAP) += addr_map.o

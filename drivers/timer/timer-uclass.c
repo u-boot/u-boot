@@ -108,7 +108,7 @@ int notrace dm_timer_init(void)
 		 * If the timer is not marked to be bound before
 		 * relocation, bind it anyway.
 		 */
-		if (!lists_bind_fdt(dm_root(), node, &dev)) {
+		if (!lists_bind_fdt(dm_root(), node, &dev, false)) {
 			ret = device_probe(dev);
 			if (ret)
 				return ret;

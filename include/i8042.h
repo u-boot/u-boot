@@ -72,19 +72,4 @@
 #define BRK		0x0100	/* make break flag for keyboard */
 #define ALT		0x0200	/* right alt */
 
-/* exports */
-
-/**
- * Flush all buffer from keyboard controller to host.
- */
-void i8042_flush(void);
-
-/**
- * Disables the keyboard so that key strokes no longer generate scancodes to
- * the host.
- *
- * @return 0 if ok, -1 if keyboard input was found while disabling
- */
-int i8042_disable(void);
-
 #endif /* _I8042_H_ */

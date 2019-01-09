@@ -7,10 +7,46 @@
 #include <dwmmc.h>
 #include <malloc.h>
 
+#include <asm/arcregs.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
-#define ARC_PERIPHERAL_BASE	0xF0000000
-#define SDIO_BASE		(ARC_PERIPHERAL_BASE + 0x10000)
+#define ARC_PERIPHERAL_BASE		0xF0000000
+
+#define CGU_ARC_FMEAS_ARC		(void *)(ARC_PERIPHERAL_BASE + 0x84)
+#define CGU_ARC_FMEAS_ARC_START		BIT(31)
+#define CGU_ARC_FMEAS_ARC_DONE		BIT(30)
+#define CGU_ARC_FMEAS_ARC_CNT_MASK	GENMASK(14, 0)
+#define CGU_ARC_FMEAS_ARC_RCNT_OFFSET	0
+#define CGU_ARC_FMEAS_ARC_FCNT_OFFSET	15
+
+#define SDIO_BASE			(void *)(ARC_PERIPHERAL_BASE + 0x10000)
+
+int mach_cpu_init(void)
+{
+	int rcnt, fcnt;
+	u32 data;
+
+	/* Start frequency measurement */
+	writel(CGU_ARC_FMEAS_ARC_START, CGU_ARC_FMEAS_ARC);
+
+	/* Poll DONE bit */
+	do {
+		data = readl(CGU_ARC_FMEAS_ARC);
+	} while (!(data & CGU_ARC_FMEAS_ARC_DONE));
+
+	/* Amount of reference 100 MHz clocks */
+	rcnt = ((data >> CGU_ARC_FMEAS_ARC_RCNT_OFFSET) &
+	       CGU_ARC_FMEAS_ARC_CNT_MASK);
+
+	/* Amount of CPU clocks */
+	fcnt = ((data >> CGU_ARC_FMEAS_ARC_FCNT_OFFSET) &
+	       CGU_ARC_FMEAS_ARC_CNT_MASK);
+
+	gd->cpu_clk = ((100 * fcnt) / rcnt) * 1000000;
+
+	return 0;
+}
 
 int board_mmc_init(bd_t *bis)
 {
@@ -24,7 +60,7 @@ int board_mmc_init(bd_t *bis)
 
 	memset(host, 0, sizeof(struct dwmci_host));
 	host->name = "Synopsys Mobile storage";
-	host->ioaddr = (void *)SDIO_BASE;
+	host->ioaddr = SDIO_BASE;
 	host->buswidth = 4;
 	host->dev_index = 0;
 	host->bus_hz = 50000000;
@@ -42,31 +78,32 @@ int board_mmc_getcd(struct mmc *mmc)
 }
 
 #define CREG_BASE		0xF0001000
-#define CREG_BOOT_OFFSET	0
-#define CREG_BOOT_WP_OFFSET	8
+#define CREG_BOOT		(void *)(CREG_BASE + 0x0FF0)
+#define CREG_IP_SW_RESET	(void *)(CREG_BASE + 0x0FF0)
+#define CREG_IP_VERSION		(void *)(CREG_BASE + 0x0FF8)
 
-#define CGU_BASE		0xF0000000
-#define CGU_IP_SW_RESET		0x0FF0
+/* Bits in CREG_BOOT register */
+#define CREG_BOOT_WP_BIT	BIT(8)
 
 void reset_cpu(ulong addr)
 {
-	writel(1, (u32 *)(CGU_BASE + CGU_IP_SW_RESET));
+	writel(1, CREG_IP_SW_RESET);
 	while (1)
 		; /* loop forever till reset */
 }
 
 static int do_emsdp_rom(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
-	u32 creg_boot = readl((u32 *)(CREG_BASE + CREG_BOOT_OFFSET));
+	u32 creg_boot = readl(CREG_BOOT);
 
 	if (!strcmp(argv[1], "unlock"))
-		creg_boot &= ~BIT(CREG_BOOT_WP_OFFSET);
+		creg_boot &= ~CREG_BOOT_WP_BIT;
 	else if (!strcmp(argv[1], "lock"))
-		creg_boot |= BIT(CREG_BOOT_WP_OFFSET);
+		creg_boot |= CREG_BOOT_WP_BIT;
 	else
 		return CMD_RET_USAGE;
 
-	writel(creg_boot, (u32 *)(CREG_BASE + CREG_BOOT_OFFSET));
+	writel(creg_boot, CREG_BOOT);
 
 	return CMD_RET_SUCCESS;
 }
@@ -97,3 +134,12 @@ U_BOOT_CMD(
 	"rom unlock - Unlock non-volatile memory for writing\n"
 	"emsdp rom lock - Lock non-volatile memory to prevent writing\n"
 );
+
+int checkboard(void)
+{
+	int version = readl(CREG_IP_VERSION);
+
+	printf("Board: ARC EM Software Development Platform v%d.%d\n",
+	       (version >> 16) & 0xff, version & 0xff);
+	return 0;
+};

@@ -571,6 +571,17 @@ static int get_fs_info(fsdata *mydata)
 				mydata->sect_size, cur_part_info.blksz);
 		return -1;
 	}
+	if (mydata->clust_size == 0) {
+		printf("Error: FAT cluster size not set\n");
+		return -1;
+	}
+	if ((unsigned int)mydata->clust_size * mydata->sect_size >
+	    MAX_CLUSTSIZE) {
+		printf("Error: FAT cluster size too big (cs=%u, max=%u)\n",
+		       (unsigned int)mydata->clust_size * mydata->sect_size,
+		       MAX_CLUSTSIZE);
+		return -1;
+	}
 
 	if (mydata->fatsize == 32) {
 		mydata->data_begin = mydata->rootdir_sect -
@@ -725,7 +736,10 @@ static void *next_cluster(fat_itr *itr)
 	if (itr->last_cluster)
 		return NULL;
 
-	sect = clust_to_sect(itr->fsdata, itr->next_clust);
+	if (itr->fsdata->fatsize != 32 && itr->is_root)
+		sect = mydata->rootdir_sect;
+	else
+		sect = clust_to_sect(itr->fsdata, itr->next_clust);
 
 	debug("FAT read(sect=%d), clust_size=%d, DIRENTSPERBLOCK=%zd\n",
 	      sect, itr->fsdata->clust_size, DIRENTSPERBLOCK);
@@ -806,6 +820,9 @@ static dir_entry *extract_vfat_name(fat_itr *itr)
 		int idx = 0;
 
 		slot2str((dir_slot *)dent, buf, &idx);
+
+		if (n + idx >= sizeof(itr->l_name))
+			return NULL;
 
 		/* shift accumulated long-name up and copy new part in: */
 		memmove(itr->l_name + idx, itr->l_name, n);

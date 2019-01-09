@@ -2,13 +2,12 @@
 /*
  * LPC32xx SLC NAND flash controller driver
  *
- * (C) Copyright 2015 Vladimir Zapolskiy <vz@mleia.com>
+ * (C) Copyright 2015-2018 Vladimir Zapolskiy <vz@mleia.com>
+ * Copyright (c) 2015 Tyco Fire Protection Products.
  *
  * Hardware ECC support original source code
  * Copyright (C) 2008 by NXP Semiconductors
  * Author: Kevin Wells
- *
- * Copyright (c) 2015 Tyco Fire Protection Products.
  */
 
 #include <common.h>
@@ -21,10 +20,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/dma.h>
 #include <asm/arch/cpu.h>
-
-#if defined(CONFIG_DMA_LPC32XX) && defined(CONFIG_SPL_BUILD)
-#warning "DMA support in SPL image is not tested"
-#endif
 
 struct lpc32xx_nand_slc_regs {
 	u32 data;
@@ -78,16 +73,14 @@ struct lpc32xx_nand_slc_regs {
  * Note: For large page devices, the default layouts are used. */
 static struct nand_ecclayout lpc32xx_nand_oob_16 = {
 	.eccbytes = 6,
-	.eccpos = {10, 11, 12, 13, 14, 15},
+	.eccpos = { 10, 11, 12, 13, 14, 15, },
 	.oobfree = {
-		{.offset = 0,
-		 . length = 4},
-		{.offset = 6,
-		 . length = 4}
-		}
+		{ .offset = 0, .length = 4, },
+		{ .offset = 6, .length = 4, },
+	}
 };
 
-#if defined(CONFIG_DMA_LPC32XX)
+#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_SPL_BUILD)
 #define ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / CONFIG_SYS_NAND_ECCSIZE)
 
 /*
@@ -165,7 +158,7 @@ static int lpc32xx_nand_dev_ready(struct mtd_info *mtd)
 	return readl(&lpc32xx_nand_slc_regs->stat) & STAT_NAND_READY;
 }
 
-#if defined(CONFIG_DMA_LPC32XX)
+#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_SPL_BUILD)
 /*
  * Prepares DMA descriptors for NAND RD/WR operations
  * If the size is < 256 Bytes then it is assumed to be
@@ -324,7 +317,6 @@ static void lpc32xx_nand_xfer(struct mtd_info *mtd, const u8 *buf,
 	if (unlikely(ret < 0))
 		BUG();
 
-
 	/* Wait for NAND to be ready */
 	while (!lpc32xx_nand_dev_ready(mtd))
 		;
@@ -404,46 +396,18 @@ int lpc32xx_correct_data(struct mtd_info *mtd, u_char *dat,
 
 	return ret2;
 }
-#endif
 
-#if defined(CONFIG_DMA_LPC32XX)
 static void lpc32xx_dma_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	lpc32xx_nand_xfer(mtd, buf, len, 1);
 }
-#else
-static void lpc32xx_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
-{
-	while (len-- > 0)
-		*buf++ = readl(&lpc32xx_nand_slc_regs->data);
-}
-#endif
 
-static uint8_t lpc32xx_read_byte(struct mtd_info *mtd)
-{
-	return readl(&lpc32xx_nand_slc_regs->data);
-}
-
-#if defined(CONFIG_DMA_LPC32XX)
 static void lpc32xx_dma_write_buf(struct mtd_info *mtd, const uint8_t *buf,
 				  int len)
 {
 	lpc32xx_nand_xfer(mtd, buf, len, 0);
 }
-#else
-static void lpc32xx_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
-{
-	while (len-- > 0)
-		writel(*buf++, &lpc32xx_nand_slc_regs->data);
-}
-#endif
 
-static void lpc32xx_write_byte(struct mtd_info *mtd, uint8_t byte)
-{
-	writel(byte, &lpc32xx_nand_slc_regs->data);
-}
-
-#if defined(CONFIG_DMA_LPC32XX)
 /* Reuse the logic from "nand_read_page_hwecc()" */
 static int lpc32xx_read_page_hwecc(struct mtd_info *mtd, struct nand_chip *chip,
 				uint8_t *buf, int oob_required, int page)
@@ -511,7 +475,29 @@ static int lpc32xx_write_page_hwecc(struct mtd_info *mtd,
 
 	return 0;
 }
+#else
+static void lpc32xx_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
+{
+	while (len-- > 0)
+		*buf++ = readl(&lpc32xx_nand_slc_regs->data);
+}
+
+static void lpc32xx_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
+{
+	while (len-- > 0)
+		writel(*buf++, &lpc32xx_nand_slc_regs->data);
+}
 #endif
+
+static uint8_t lpc32xx_read_byte(struct mtd_info *mtd)
+{
+	return readl(&lpc32xx_nand_slc_regs->data);
+}
+
+static void lpc32xx_write_byte(struct mtd_info *mtd, uint8_t byte)
+{
+	writel(byte, &lpc32xx_nand_slc_regs->data);
+}
 
 /*
  * LPC32xx has only one SLC NAND controller, don't utilize
@@ -520,7 +506,7 @@ static int lpc32xx_write_page_hwecc(struct mtd_info *mtd,
  */
 int board_nand_init(struct nand_chip *lpc32xx_chip)
 {
-#if defined(CONFIG_DMA_LPC32XX)
+#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_SPL_BUILD)
 	int ret;
 
 	/* Acquire a channel for our use */
@@ -543,7 +529,7 @@ int board_nand_init(struct nand_chip *lpc32xx_chip)
 	lpc32xx_chip->read_byte  = lpc32xx_read_byte;
 	lpc32xx_chip->write_byte = lpc32xx_write_byte;
 
-#if defined(CONFIG_DMA_LPC32XX)
+#if defined(CONFIG_DMA_LPC32XX) && !defined(CONFIG_SPL_BUILD)
 	/* Hardware ECC calculation is supported when DMA driver is selected */
 	lpc32xx_chip->ecc.mode		= NAND_ECC_HW;
 

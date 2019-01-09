@@ -53,6 +53,29 @@ static int syscon_pre_probe(struct udevice *dev)
 #endif
 }
 
+struct regmap *syscon_regmap_lookup_by_phandle(struct udevice *dev,
+					       const char *name)
+{
+	struct udevice *syscon;
+	struct regmap *r;
+	int err;
+
+	err = uclass_get_device_by_phandle(UCLASS_SYSCON, dev,
+					   name, &syscon);
+	if (err) {
+		dev_dbg(dev, "unable to find syscon device\n");
+		return ERR_PTR(err);
+	}
+
+	r = syscon_get_regmap(syscon);
+	if (!r) {
+		dev_dbg(dev, "unable to find regmap\n");
+		return ERR_PTR(-ENODEV);
+	}
+
+	return r;
+}
+
 int syscon_get_by_driver_data(ulong driver_data, struct udevice **devp)
 {
 	struct udevice *dev;
@@ -123,52 +146,31 @@ U_BOOT_DRIVER(generic_syscon) = {
  * The syscon node can be bound to another driver, but still works
  * as a syscon provider.
  */
-static LIST_HEAD(syscon_list);
-
-struct syscon {
-	ofnode node;
-	struct regmap *regmap;
-	struct list_head list;
-};
-
-static struct syscon *of_syscon_register(ofnode node)
+struct regmap *syscon_node_to_regmap(ofnode node)
 {
-	struct syscon *syscon;
+	struct udevice *dev, *parent;
 	int ret;
+
+	if (!uclass_get_device_by_ofnode(UCLASS_SYSCON, node, &dev))
+		return syscon_get_regmap(dev);
 
 	if (!ofnode_device_is_compatible(node, "syscon"))
 		return ERR_PTR(-EINVAL);
 
-	syscon = malloc(sizeof(*syscon));
-	if (!syscon)
-		return ERR_PTR(-ENOMEM);
+	/* bound to driver with same ofnode or to root if not found */
+	if (device_find_global_by_ofnode(node, &parent))
+		parent = dm_root();
 
-	ret = regmap_init_mem(node, &syscon->regmap);
-	if (ret) {
-		free(syscon);
+	/* force bound to syscon class */
+	ret = device_bind_driver_to_node(parent, "syscon",
+					 ofnode_get_name(node),
+					 node, &dev);
+	if (ret)
 		return ERR_PTR(ret);
-	}
 
-	list_add_tail(&syscon->list, &syscon_list);
+	ret = device_probe(dev);
+	if (ret)
+		return ERR_PTR(ret);
 
-	return syscon;
-}
-
-struct regmap *syscon_node_to_regmap(ofnode node)
-{
-	struct syscon *entry, *syscon = NULL;
-
-	list_for_each_entry(entry, &syscon_list, list)
-		if (ofnode_equal(entry->node, node)) {
-			syscon = entry;
-			break;
-		}
-
-	if (!syscon)
-		syscon = of_syscon_register(node);
-
-	if (IS_ERR(syscon))
-		return ERR_CAST(syscon);
-
-	return syscon->regmap;
+	return syscon_get_regmap(dev);
 }

@@ -36,7 +36,6 @@
 #include <onenand_uboot.h>
 #include <scsi.h>
 #include <serial.h>
-#include <spi.h>
 #include <stdio_dev.h>
 #include <timer.h>
 #include <trace.h>
@@ -379,20 +378,6 @@ static int initr_flash(void)
 }
 #endif
 
-#if defined(CONFIG_PPC) && !defined(CONFIG_DM_SPI)
-static int initr_spi(void)
-{
-	/* MPC8xx does this here */
-#ifdef CONFIG_MPC8XX_SPI
-#if !defined(CONFIG_ENV_IS_IN_EEPROM)
-	spi_init_f();
-#endif
-	spi_init_r();
-#endif
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_CMD_NAND
 /* go init the NAND */
 static int initr_nand(void)
@@ -453,7 +438,8 @@ static int initr_env(void)
 	else
 		set_default_env(NULL, 0);
 #ifdef CONFIG_OF_CONTROL
-	env_set_addr("fdtcontroladdr", gd->fdt_blob);
+	env_set_hex("fdtcontroladdr",
+		    (unsigned long)map_to_sysmem(gd->fdt_blob));
 #endif
 
 	/* Initialize from environment */
@@ -742,9 +728,6 @@ static init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_X86)
 	/* initialize higher level parts of CPU like time base and timers */
 	cpu_init_r,
-#endif
-#ifdef CONFIG_PPC
-	initr_spi,
 #endif
 #ifdef CONFIG_CMD_NAND
 	initr_nand,

@@ -8,12 +8,14 @@ import u_boot_utils
 
 @pytest.mark.buildconfigspec('cmd_bootefi_selftest')
 def test_efi_selftest(u_boot_console):
-	"""
-	Run bootefi selftest
-	"""
+	"""Test the UEFI implementation
 
+	:param u_boot_console: U-Boot console
+
+	This function executes all selftests that are not marked as on request.
+	"""
 	u_boot_console.run_command(cmd='setenv efi_selftest')
-	u_boot_console.run_command(cmd='bootefi selftest', wait_for_prompt=False)
+	u_boot_console.run_command(cmd='bootefi selftest ${fdtcontroladdr}', wait_for_prompt=False)
 	m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
 	if m != 0:
 		raise Exception('Failures occurred during the EFI selftest')

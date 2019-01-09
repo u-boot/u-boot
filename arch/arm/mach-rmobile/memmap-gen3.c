@@ -21,7 +21,13 @@ static struct mm_region gen3_mem_map[GEN3_NR_REGIONS] = {
 	}, {
 		.virt = 0x40000000UL,
 		.phys = 0x40000000UL,
-		.size = 0x80000000UL,
+		.size = 0x03F00000UL,
+		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+			 PTE_BLOCK_INNER_SHARE
+	}, {
+		.virt = 0x47E00000UL,
+		.phys = 0x47E00000UL,
+		.size = 0x78200000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
@@ -76,8 +82,16 @@ void enable_caches(void)
 
 		/* Mark memory reserved by ATF as cacheable too. */
 		if (start == 0x48000000) {
-			start = 0x40000000ULL;
-			size += 0x08000000ULL;
+			/* Unmark protection area (0x43F00000 to 0x47DFFFFF) */
+			gen3_mem_map[i].virt = 0x40000000ULL;
+			gen3_mem_map[i].phys = 0x40000000ULL;
+			gen3_mem_map[i].size = 0x03F00000ULL;
+			gen3_mem_map[i].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+						PTE_BLOCK_INNER_SHARE;
+			i++;
+
+			start = 0x47E00000ULL;
+			size += 0x00200000ULL;
 		}
 
 		gen3_mem_map[i].virt = start;
@@ -126,6 +140,8 @@ void enable_caches(void)
 		gen3_mem_map[i].attrs = 0;
 	}
 
-	icache_enable();
+	if (!icache_status())
+		icache_enable();
+
 	dcache_enable();
 }

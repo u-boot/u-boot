@@ -85,13 +85,6 @@
 #define CONFIG_RMII
 #define CONFIG_AT91_WANTS_COMMON_PHY
 
-#define CONFIG_AT91SAM9_WATCHDOG
-#define CONFIG_AT91_HW_WDT_TIMEOUT	15
-#if !defined(CONFIG_SPL_BUILD)
-/* Enable the watchdog */
-#define CONFIG_HW_WATCHDOG
-#endif
-
 /* USB */
 #if defined(CONFIG_BOARD_TAURUS)
 #define CONFIG_USB_ATMEL

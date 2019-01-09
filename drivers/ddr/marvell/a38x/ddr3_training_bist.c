@@ -4,6 +4,7 @@
  */
 
 #include "ddr3_init.h"
+#include "mv_ddr_regs.h"
 
 static u32 bist_offset = 32;
 enum hws_pattern sweep_pattern = PATTERN_KILLER_DQ0;

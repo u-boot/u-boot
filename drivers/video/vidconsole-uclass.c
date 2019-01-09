@@ -272,6 +272,14 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 		s++;    /* ; */
 		s = parsenum(s, &col);
 
+		/*
+		 * Video origin is [0, 0], terminal origin is [1, 1].
+		 */
+		if (row)
+			--row;
+		if (col)
+			--col;
+
 		set_cursor_position(priv, row, col);
 
 		break;
@@ -344,7 +352,7 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 			switch (val) {
 			case 0:
 				/* all attributes off */
-				video_set_default_colors(vid_priv);
+				video_set_default_colors(dev->parent, false);
 				break;
 			case 1:
 				/* bold */

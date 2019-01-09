@@ -70,7 +70,8 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 
 	dev->seq = -1;
 	dev->req_seq = -1;
-	if (CONFIG_IS_ENABLED(OF_CONTROL) && CONFIG_IS_ENABLED(DM_SEQ_ALIAS)) {
+	if (CONFIG_IS_ENABLED(DM_SEQ_ALIAS) &&
+	    (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS)) {
 		/*
 		 * Some devices, such as a SPI bus, I2C bus and serial ports
 		 * are numbered using aliases.
@@ -78,10 +79,11 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
 		 * This is just a 'requested' sequence, and will be
 		 * resolved (and ->seq updated) when the device is probed.
 		 */
-		if (uc->uc_drv->flags & DM_UC_FLAG_SEQ_ALIAS) {
-			if (uc->uc_drv->name && ofnode_valid(node)) {
+		if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
+			if (uc->uc_drv->name && ofnode_valid(node))
 				dev_read_alias_seq(dev, &dev->req_seq);
-			}
+		} else {
+			dev->req_seq = uclass_find_next_free_req_seq(drv->id);
 		}
 	}
 
@@ -699,6 +701,40 @@ int device_find_first_inactive_child(struct udevice *parent,
 	return -ENODEV;
 }
 
+int device_find_first_child_by_uclass(struct udevice *parent,
+				      enum uclass_id uclass_id,
+				      struct udevice **devp)
+{
+	struct udevice *dev;
+
+	*devp = NULL;
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		if (device_get_uclass_id(dev) == uclass_id) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
+int device_find_child_by_name(struct udevice *parent, const char *name,
+			      struct udevice **devp)
+{
+	struct udevice *dev;
+
+	*devp = NULL;
+
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		if (!strcmp(dev->name, name)) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
 struct udevice *dev_get_parent(const struct udevice *child)
 {
 	return child->parent;
@@ -834,5 +870,5 @@ int dev_enable_by_path(const char *path)
 	if (ret)
 		return ret;
 
-	return lists_bind_fdt(parent, node, NULL);
+	return lists_bind_fdt(parent, node, NULL, false);
 }

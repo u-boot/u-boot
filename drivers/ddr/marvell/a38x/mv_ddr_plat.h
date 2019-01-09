@@ -6,6 +6,7 @@
 #ifndef _MV_DDR_PLAT_H
 #define _MV_DDR_PLAT_H
 
+#define MAX_DEVICE_NUM			1
 #define MAX_INTERFACE_NUM		1
 #define MAX_BUS_NUM			5
 #define DDR_IF_CTRL_SUBPHYS_NUM		3
@@ -121,6 +122,9 @@
 #define DLB_QUEUE_MAP_REG		0x1784
 #define DLB_SPLIT_REG			0x1788
 
+/* ck swap control subphy number */
+#define CK_SWAP_CTRL_PHY_NUM	2
+
 /* Subphy result control per byte registers */
 #define RESULT_CONTROL_BYTE_PUP_0_REG		0x1830
 #define RESULT_CONTROL_BYTE_PUP_1_REG		0x1834
@@ -221,7 +225,7 @@ extern u16 odt_intercept[];
 int mv_ddr_pre_training_soc_config(const char *ddr_type);
 int mv_ddr_post_training_soc_config(const char *ddr_type);
 void mv_ddr_mem_scrubbing(void);
-
+u32 mv_ddr_init_freq_get(void);
 void mv_ddr_odpg_enable(void);
 void mv_ddr_odpg_disable(void);
 void mv_ddr_odpg_done_clr(void);
@@ -233,4 +237,5 @@ int mv_ddr_pre_training_fixup(void);
 int mv_ddr_post_training_fixup(void);
 int mv_ddr_manual_cal_do(void);
 int ddr3_calc_mem_cs_size(u32 cs, uint64_t *cs_size);
+
 #endif /* _MV_DDR_PLAT_H */

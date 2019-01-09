@@ -33,7 +33,11 @@
 #include <asm/arch/stream_id_lsch2.h>
 
 /* Link Definitions */
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
+#else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
+#endif
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -165,6 +169,13 @@
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
 #endif
 
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_FMAN_FW_ADDR		0x900000
+#define CONFIG_ENV_SPI_BUS		0
+#define CONFIG_ENV_SPI_CS		0
+#define CONFIG_ENV_SPI_MAX_HZ		1000000
+#define CONFIG_ENV_SPI_MODE		0x03
+#else
 #ifdef CONFIG_SD_BOOT
 /*
  * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
@@ -186,6 +197,7 @@
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_FMAN_FW_ADDR		0x60900000
+#endif
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)

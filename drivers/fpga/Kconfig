@@ -31,6 +31,17 @@ config FPGA_CYCLON2
 	  Enable FPGA driver for loading bitstream in BIT and BIN format
 	  on Altera Cyclone II device.
 
+config FPGA_STRATIX10
+	bool "Enable Altera FPGA driver for Stratix 10"
+	depends on TARGET_SOCFPGA_STRATIX10
+	select FPGA_ALTERA
+	help
+	  Say Y here to enable the Altera Stratix 10 FPGA specific driver
+
+	  This provides common functionality for Altera Stratix 10 devices.
+	  Enable FPGA driver for writing bitstream into Altera Stratix10
+	  device.
+
 config FPGA_XILINX
 	bool "Enable Xilinx FPGA drivers"
 	select FPGA

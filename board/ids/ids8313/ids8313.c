@@ -208,4 +208,4 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	/* deactivate the spi_cs */
 	setbits_be32(&iopd->dat, IDSCPLD_SPI_CS_MASK);
 }
-#endif /* CONFIG_HARD_SPI */
+#endif

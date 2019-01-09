@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/clock/bcm6362-clock.h>
+#include <dt-bindings/dma/bcm6362-dma.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/power-domain/bcm6362-power-domain.h>
 #include <dt-bindings/reset/bcm6362-reset.h>
@@ -210,6 +211,37 @@
 			compatible = "brcm,bcm6328-mc";
 			reg = <0x10003000 0x864>;
 			u-boot,dm-pre-reloc;
+		};
+
+		iudma: dma-controller@1000d800 {
+			compatible = "brcm,bcm6368-iudma";
+			reg = <0x1000d800 0x80>,
+			      <0x1000da00 0x80>,
+			      <0x1000dc00 0x80>;
+			reg-names = "dma",
+				    "dma-channels",
+				    "dma-sram";
+			#dma-cells = <1>;
+			dma-channels = <8>;
+		};
+
+		enet: ethernet@10e00000 {
+			compatible = "brcm,bcm6368-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10e00000 0x10000>;
+			clocks = <&periph_clk BCM6362_CLK_SWPKT_USB>,
+				 <&periph_clk BCM6362_CLK_SWPKT_SAR>,
+				 <&periph_clk BCM6362_CLK_ROBOSW>;
+			resets = <&periph_rst BCM6362_RST_ENETSW>,
+				 <&periph_rst BCM6362_RST_EPHY>;
+			dmas = <&iudma BCM6362_DMA_ENETSW_RX>,
+			       <&iudma BCM6362_DMA_ENETSW_TX>;
+			dma-names = "rx",
+				    "tx";
+			brcm,num-ports = <6>;
+
+			status = "disabled";
 		};
 	};
 };

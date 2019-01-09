@@ -78,9 +78,12 @@
 		#size-cells = <0>;
 	};
 
-	sound@3830000 {
-		compatible = "samsung,exynos-sound";
-		reg = <0x3830000 0x50>;
+	i2s0: i2s@3830000 {
+		compatible = "samsung,s5pv210-i2s";
+		reg = <0x03830000 0x100>;
+		samsung,idma-addr = <0x03000000>;
+		#clock-cells = <1>;
+		#sound-dai-cells = <1>;
 		samsung,i2s-epll-clock-frequency = <192000000>;
 		samsung,i2s-sampling-rate = <48000>;
 		samsung,i2s-bits-per-sample = <16>;
@@ -90,9 +93,11 @@
 		samsung,i2s-id = <0>;
 	};
 
-	sound@12d60000 {
-		compatible = "samsung,exynos-sound";
+	i2s1: i2s@12d60000 {
+		compatible = "samsung,s5pv210-i2s";
 		reg = <0x12d60000 0x20>;
+		#clock-cells = <1>;
+		#sound-dai-cells = <1>;
 		samsung,i2s-epll-clock-frequency = <192000000>;
 		samsung,i2s-sampling-rate = <48000>;
 		samsung,i2s-bits-per-sample = <16>;

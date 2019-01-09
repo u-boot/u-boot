@@ -104,7 +104,7 @@ static int sandbox_i2c_pmic_xfer(struct udevice *emul, struct i2c_msg *msg,
 static int sandbox_i2c_pmic_ofdata_to_platdata(struct udevice *emul)
 {
 	struct sandbox_i2c_pmic_plat_data *plat = dev_get_platdata(emul);
-	struct udevice *pmic_dev = dev_get_parent(emul);
+	struct udevice *pmic_dev = i2c_emul_get_device(emul);
 	struct uc_pmic_priv *priv = dev_get_uclass_priv(pmic_dev);
 	const u8 *reg_defaults;
 

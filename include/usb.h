@@ -140,7 +140,7 @@ struct usb_device {
 	int act_len;			/* transferred bytes */
 	int maxchild;			/* Number of ports if hub */
 	int portnr;			/* Port number, 1=first */
-#ifndef CONFIG_DM_USB
+#if !CONFIG_IS_ENABLED(DM_USB)
 	/* parent hub, or NULL if this is the root hub */
 	struct usb_device *parent;
 	struct usb_device *children[USB_MAXCHILDREN];
@@ -148,7 +148,7 @@ struct usb_device {
 #endif
 	/* slot_id - for xHCI enabled devices */
 	unsigned int slot_id;
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 	struct udevice *dev;		/* Pointer to associated device */
 	struct udevice *controller_dev;	/* Pointer to associated controller */
 #endif
@@ -173,7 +173,7 @@ enum usb_init_type {
 int usb_lowlevel_init(int index, enum usb_init_type init, void **controller);
 int usb_lowlevel_stop(int index);
 
-#if defined(CONFIG_USB_MUSB_HOST) || defined(CONFIG_DM_USB)
+#if defined(CONFIG_USB_MUSB_HOST) || CONFIG_IS_ENABLED(DM_USB)
 int usb_reset_root_port(struct usb_device *dev);
 #else
 #define usb_reset_root_port(dev)
@@ -187,7 +187,7 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 			int transfer_len, int interval);
 
 #if defined CONFIG_USB_EHCI_HCD || defined CONFIG_USB_MUSB_HOST \
-	|| defined(CONFIG_DM_USB)
+	|| CONFIG_IS_ENABLED(DM_USB)
 struct int_queue *create_int_queue(struct usb_device *dev, unsigned long pipe,
 	int queuesize, int elementsize, void *buffer, int interval);
 int destroy_int_queue(struct usb_device *dev, struct int_queue *queue);
@@ -588,7 +588,7 @@ struct usb_hub_device {
 	struct usb_tt tt;		/* Transaction Translator */
 };
 
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 /**
  * struct usb_platdata - Platform data about a USB controller
  *
@@ -912,7 +912,7 @@ int usb_setup_ehci_gadget(struct ehci_ctrl **ctlrp);
  */
 void usb_stor_reset(void);
 
-#else /* !CONFIG_DM_USB */
+#else /* !CONFIG_IS_ENABLED(DM_USB) */
 
 struct usb_device *usb_get_dev_index(int index);
 

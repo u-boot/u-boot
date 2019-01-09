@@ -47,5 +47,23 @@ config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	  Address at which ROM stores the value which determines if SPL
 	  is booted up by primary boot media or secondary boot media.
 
+config SYS_K3_KEY
+	string "Key used to generate x509 certificate"
+	help
+	  This option enables to provide a custom key that can be used for
+	  generating x509 certificate for spl binary. If not needed leave
+	  it blank so that a random key is generated and used.
+
+config SYS_K3_BOOT_CORE_ID
+	int
+	default 16
+
+config SYS_K3_SPL_ATF
+	bool "Start Cortex-A from SPL"
+	depends on SPL && CPU_V7R
+	help
+	  Enabling this will try to start Cortex-A (typically with ATF)
+	  after SPL from R5.
+
 source "board/ti/am65x/Kconfig"
 endif

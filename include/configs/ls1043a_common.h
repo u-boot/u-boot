@@ -33,7 +33,11 @@
 #include <asm/arch/config.h>
 
 /* Link Definitions */
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
+#else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
+#endif
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -119,7 +123,8 @@
 
 /* IFC */
 #ifndef SPL_NO_IFC
-#if !defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
+#if defined(CONFIG_TFABOOT) || \
+	(!defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI))
 #define CONFIG_FSL_IFC
 /*
  * CONFIG_SYS_FLASH_BASE has the final address (core view)
@@ -182,6 +187,16 @@
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_FM_MURAM_SIZE	0x60000
 
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_FMAN_FW_ADDR		0x900000
+#define CONFIG_SYS_QE_FW_ADDR		0x940000
+
+#define CONFIG_ENV_SPI_BUS		0
+#define CONFIG_ENV_SPI_CS		0
+#define CONFIG_ENV_SPI_MAX_HZ		1000000
+#define CONFIG_ENV_SPI_MODE		0x03
+
+#else
 #ifdef CONFIG_NAND_BOOT
 /* Store Fman ucode at offeset 0x900000(72 blocks). */
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
@@ -207,6 +222,7 @@
 /* FMan fireware Pre-load address */
 #define CONFIG_SYS_FMAN_FW_ADDR		0x60900000
 #define CONFIG_SYS_QE_FW_ADDR		0x60940000
+#endif
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
@@ -300,6 +316,14 @@
 
 
 #undef CONFIG_BOOTCOMMAND
+#ifdef CONFIG_TFABOOT
+#define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;"
+#define SD_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "  \
+			   "env exists secureboot && esbc_halt;"
+#define IFC_NOR_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
+			   "env exists secureboot && esbc_halt;"
+#else
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;"
@@ -309,6 +333,7 @@
 #else
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd; run nor_bootcmd; "	\
 			   "env exists secureboot && esbc_halt;"
+#endif
 #endif
 #endif
 

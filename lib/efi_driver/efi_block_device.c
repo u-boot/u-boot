@@ -38,7 +38,7 @@
  * handle	handle of the controller on which this driver is installed
  * io		block io protocol proxied by this driver
  */
-struct efi_blk_priv {
+struct efi_blk_platdata {
 	efi_handle_t		handle;
 	struct efi_block_io	*io;
 };
@@ -55,8 +55,8 @@ struct efi_blk_priv {
 static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			 void *buffer)
 {
-	struct efi_blk_priv *priv = dev->priv;
-	struct efi_block_io *io = priv->io;
+	struct efi_blk_platdata *platdata = dev_get_platdata(dev);
+	struct efi_block_io *io = platdata->io;
 	efi_status_t ret;
 
 	EFI_PRINT("%s: read '%s', from block " LBAFU ", " LBAFU " blocks\n",
@@ -84,8 +84,8 @@ static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			  const void *buffer)
 {
-	struct efi_blk_priv *priv = dev->priv;
-	struct efi_block_io *io = priv->io;
+	struct efi_blk_platdata *platdata = dev_get_platdata(dev);
+	struct efi_block_io *io = platdata->io;
 	efi_status_t ret;
 
 	EFI_PRINT("%s: write '%s', from block " LBAFU ", " LBAFU " blocks\n",
@@ -135,7 +135,7 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 	struct efi_object *obj = efi_search_obj(handle);
 	struct efi_block_io *io = interface;
 	int disks;
-	struct efi_blk_priv *priv;
+	struct efi_blk_platdata *platdata;
 
 	EFI_PRINT("%s: handle %p, interface %p\n", __func__, handle, io);
 
@@ -163,17 +163,15 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
 		return -ENOENT;
 	/* Set the DM_FLAG_NAME_ALLOCED flag to avoid a memory leak */
 	device_set_name_alloced(bdev);
-	/* Allocate priv */
+
+	platdata = dev_get_platdata(bdev);
+	platdata->handle = handle;
+	platdata->io = interface;
+
 	ret = device_probe(bdev);
 	if (ret)
 		return ret;
 	EFI_PRINT("%s: block device '%s' created\n", __func__, bdev->name);
-
-	priv = bdev->priv;
-	priv->handle = handle;
-	priv->io = interface;
-
-	ret = blk_prepare_device(bdev);
 
 	/* Create handles for the partions of the block device */
 	disks = efi_bl_bind_partitions(handle, bdev);
@@ -193,7 +191,7 @@ U_BOOT_DRIVER(efi_blk) = {
 	.name			= "efi_blk",
 	.id			= UCLASS_BLK,
 	.ops			= &efi_blk_ops,
-	.priv_auto_alloc_size	= sizeof(struct efi_blk_priv),
+	.platdata_auto_alloc_size = sizeof(struct efi_blk_platdata),
 };
 
 /* EFI driver operators */

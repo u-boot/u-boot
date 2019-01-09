@@ -74,8 +74,8 @@ int device_bind_with_driver_data(struct udevice *parent,
  * tree.
  *
  * @parent: Pointer to device's parent
- * @pre_reloc_only: If true, bind the driver only if its DM_INIT_F flag is set.
- * If false bind the driver always.
+ * @pre_reloc_only: If true, bind the driver only if its DM_FLAG_PRE_RELOC flag
+ * is set. If false bind the driver always.
  * @info: Name and platdata for this device
  * @devp: if non-NULL, returns a pointer to the bound device
  * @return 0 if OK, -ve on error

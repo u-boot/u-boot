@@ -75,32 +75,6 @@
 #define GET_RESULT_STATE(res)		(res)
 #define SET_RESULT_STATE(res, state)	(res = state)
 
-#define _1K				0x00000400
-#define _4K				0x00001000
-#define _8K				0x00002000
-#define _16K				0x00004000
-#define _32K				0x00008000
-#define _64K				0x00010000
-#define _128K				0x00020000
-#define _256K				0x00040000
-#define _512K				0x00080000
-
-#define _1M				0x00100000
-#define _2M				0x00200000
-#define _4M				0x00400000
-#define _8M				0x00800000
-#define _16M				0x01000000
-#define _32M				0x02000000
-#define _64M				0x04000000
-#define _128M				0x08000000
-#define _256M				0x10000000
-#define _512M				0x20000000
-
-#define _1G				0x40000000
-#define _2G				0x80000000
-#define _4G				0x100000000
-#define _8G				0x200000000
-
 #define ADDR_SIZE_512MB			0x04000000
 #define ADDR_SIZE_1GB			0x08000000
 #define ADDR_SIZE_2GB			0x10000000
@@ -124,11 +98,6 @@ enum hws_search_dir {
 	HWS_LOW2HIGH,
 	HWS_HIGH2LOW,
 	HWS_SEARCH_DIR_LIMIT
-};
-
-enum hws_page_size {
-	PAGE_SIZE_1K,
-	PAGE_SIZE_2K
 };
 
 enum hws_operation {

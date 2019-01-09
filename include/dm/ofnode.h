@@ -237,6 +237,16 @@ int ofnode_read_u32_default(ofnode ref, const char *propname, u32 def);
 int ofnode_read_s32_default(ofnode node, const char *propname, s32 def);
 
 /**
+ * ofnode_read_u64() - Read a 64-bit integer from a property
+ *
+ * @node:	valid node reference to read property from
+ * @propname:	name of the property to read from
+ * @outp:	place to put value (if found)
+ * @return 0 if OK, -ve on error
+ */
+int ofnode_read_u64(ofnode node, const char *propname, u64 *outp);
+
+/**
  * ofnode_read_u64_default() - Read a 64-bit integer from a property
  *
  * @ref:	valid node reference to read property from
@@ -323,7 +333,7 @@ ofnode ofnode_get_parent(ofnode node);
  * ofnode_get_name() - get the name of a node
  *
  * @node: valid node to look up
- * @return name or node
+ * @return name of node
  */
 const char *ofnode_get_name(ofnode node);
 

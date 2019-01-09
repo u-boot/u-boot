@@ -243,8 +243,8 @@ int clk_set_defaults(struct udevice *dev)
 {
 	int ret;
 
-	/* If this is running pre-reloc state, don't take any action. */
-	if (!(gd->flags & GD_FLG_RELOC))
+	/* If this not in SPL and pre-reloc state, don't take any action. */
+	if (!(IS_ENABLED(CONFIG_SPL_BUILD) || (gd->flags & GD_FLG_RELOC)))
 		return 0;
 
 	debug("%s(%s)\n", __func__, dev_read_name(dev));

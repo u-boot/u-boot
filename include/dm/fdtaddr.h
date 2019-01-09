@@ -56,6 +56,19 @@ void *devfdt_remap_addr(struct udevice *dev);
 void *devfdt_remap_addr_index(struct udevice *dev, int index);
 
 /**
+ * devfdt_remap_addr_name() - Get the reg property of a device, indexed by
+ *                            name, as a memory-mapped I/O pointer
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @index
+ *	  indicates the value to search for in 'reg-names'.
+ *
+ * @dev: Pointer to a device
+ *
+ * @return Pointer to addr, or NULL if there is no such property
+ */
+void *devfdt_remap_addr_name(struct udevice *dev, const char *name);
+
+/**
  * devfdt_map_physmem() - Read device address from reg property of the
  *                     device node and map the address into CPU address
  *                     space.

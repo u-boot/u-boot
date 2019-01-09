@@ -9,31 +9,38 @@
 #include <common.h>
 #include <dm.h>
 #include <dm/lists.h>
+#include <efi_loader.h>
 #include <linux/libfdt.h>
 #include <linux/arm-smccc.h>
 #include <linux/errno.h>
 #include <linux/printk.h>
 #include <linux/psci.h>
 
-psci_fn *invoke_psci_fn;
+#define DRIVER_NAME "psci"
 
-static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
-			unsigned long arg0, unsigned long arg1,
-			unsigned long arg2)
+#define PSCI_METHOD_HVC 1
+#define PSCI_METHOD_SMC 2
+
+int __efi_runtime_data psci_method;
+
+unsigned long __efi_runtime invoke_psci_fn
+		(unsigned long function_id, unsigned long arg0,
+		 unsigned long arg1, unsigned long arg2)
 {
 	struct arm_smccc_res res;
 
-	arm_smccc_hvc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
-	return res.a0;
-}
-
-static unsigned long __invoke_psci_fn_smc(unsigned long function_id,
-			unsigned long arg0, unsigned long arg1,
-			unsigned long arg2)
-{
-	struct arm_smccc_res res;
-
-	arm_smccc_smc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
+	/*
+	 * In the __efi_runtime we need to avoid the switch statement. In some
+	 * cases the compiler creates lookup tables to implement switch. These
+	 * tables are not correctly relocated when SetVirtualAddressMap is
+	 * called.
+	 */
+	if (psci_method == PSCI_METHOD_SMC)
+		arm_smccc_smc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
+	else if (psci_method == PSCI_METHOD_HVC)
+		arm_smccc_hvc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
+	else
+		res.a0 = PSCI_RET_DISABLED;
 	return res.a0;
 }
 
@@ -67,9 +74,9 @@ static int psci_probe(struct udevice *dev)
 	}
 
 	if (!strcmp("hvc", method)) {
-		invoke_psci_fn = __invoke_psci_fn_hvc;
+		psci_method = PSCI_METHOD_HVC;
 	} else if (!strcmp("smc", method)) {
-		invoke_psci_fn = __invoke_psci_fn_smc;
+		psci_method = PSCI_METHOD_SMC;
 	} else {
 		pr_warn("invalid \"method\" property: %s\n", method);
 		return -EINVAL;
@@ -77,6 +84,67 @@ static int psci_probe(struct udevice *dev)
 
 	return 0;
 }
+
+/**
+ * void do_psci_probe() - probe PSCI firmware driver
+ *
+ * Ensure that psci_method is initialized.
+ */
+static void __maybe_unused do_psci_probe(void)
+{
+	struct udevice *dev;
+
+	uclass_get_device_by_name(UCLASS_FIRMWARE, DRIVER_NAME, &dev);
+}
+
+#if IS_ENABLED(CONFIG_EFI_LOADER) && IS_ENABLED(CONFIG_PSCI_RESET)
+efi_status_t efi_reset_system_init(void)
+{
+	do_psci_probe();
+	return EFI_SUCCESS;
+}
+
+void __efi_runtime EFIAPI efi_reset_system(enum efi_reset_type reset_type,
+					   efi_status_t reset_status,
+					   unsigned long data_size,
+					   void *reset_data)
+{
+	if (reset_type == EFI_RESET_COLD ||
+	    reset_type == EFI_RESET_WARM ||
+	    reset_type == EFI_RESET_PLATFORM_SPECIFIC) {
+		invoke_psci_fn(PSCI_0_2_FN_SYSTEM_RESET, 0, 0, 0);
+	} else if (reset_type == EFI_RESET_SHUTDOWN) {
+		invoke_psci_fn(PSCI_0_2_FN_SYSTEM_OFF, 0, 0, 0);
+	}
+	while (1)
+		;
+}
+#endif /* IS_ENABLED(CONFIG_EFI_LOADER) && IS_ENABLED(CONFIG_PSCI_RESET) */
+
+#ifdef CONFIG_PSCI_RESET
+void reset_misc(void)
+{
+	do_psci_probe();
+	invoke_psci_fn(PSCI_0_2_FN_SYSTEM_RESET, 0, 0, 0);
+}
+#endif /* CONFIG_PSCI_RESET */
+
+#ifdef CONFIG_CMD_POWEROFF
+int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	do_psci_probe();
+
+	puts("poweroff ...\n");
+	udelay(50000); /* wait 50 ms */
+
+	disable_interrupts();
+	invoke_psci_fn(PSCI_0_2_FN_SYSTEM_OFF, 0, 0, 0);
+	enable_interrupts();
+
+	log_err("Power off not supported on this platform\n");
+	return CMD_RET_FAILURE;
+}
+#endif
 
 static const struct udevice_id psci_of_match[] = {
 	{ .compatible = "arm,psci" },
@@ -86,7 +154,7 @@ static const struct udevice_id psci_of_match[] = {
 };
 
 U_BOOT_DRIVER(psci) = {
-	.name = "psci",
+	.name = DRIVER_NAME,
 	.id = UCLASS_FIRMWARE,
 	.of_match = psci_of_match,
 	.bind = psci_bind,

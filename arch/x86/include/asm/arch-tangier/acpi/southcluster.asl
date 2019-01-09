@@ -295,16 +295,16 @@ Device (PCI0)
 
             Method (_CRS, 0, Serialized)
             {
-                Name (RBUF, ResourceTemplate ()
+                Name (RBUF, ResourceTemplate()
                 {
-                    UartSerialBus (0x0001C200, DataBitsEight, StopBitsOne,
+                    UartSerialBus(0x0001C200, DataBitsEight, StopBitsOne,
                         0xFC, LittleEndian, ParityTypeNone, FlowControlHardware,
                         0x20, 0x20, "\\_SB.PCI0.HSU0", 0, ResourceConsumer, , )
-                    GpioInt (Level, ActiveHigh, Exclusive, PullNone, 0,
+                    GpioInt(Level, ActiveHigh, Exclusive, PullNone, 0,
                         "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 185 }
-                    GpioIo (Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
+                    GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
                         "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 184 }
-                    GpioIo (Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
+                    GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionOutputOnly,
                         "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 71 }
                 })
                 Return (RBUF)
@@ -328,7 +328,7 @@ Device (FLIS)
     Name (_DDN, "Intel Merrifield Family-Level Interface Shim")
     Name (RBUF, ResourceTemplate()
     {
-        Memory32Fixed(ReadWrite, 0xFF0C0000, 0x00008000, )
+        Memory32Fixed(ReadWrite, 0xFF0C0000, 0x00008000)
         PinGroup("spi5", ResourceProducer, ) { 90, 91, 92, 93, 94, 95, 96 }
         PinGroup("uart0", ResourceProducer, ) { 115, 116, 117, 118 }
         PinGroup("uart1", ResourceProducer, ) { 119, 120, 121, 122 }

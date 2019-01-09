@@ -31,7 +31,7 @@ static int pfuze100_write(struct udevice *dev, uint reg, const uint8_t *buff,
 			  int len)
 {
 	if (dm_i2c_write(dev, reg, buff, len)) {
-		pr_err("write error to device: %p register: %#x!", dev, reg);
+		pr_err("write error to device: %p register: %#x!\n", dev, reg);
 		return -EIO;
 	}
 
@@ -41,7 +41,7 @@ static int pfuze100_write(struct udevice *dev, uint reg, const uint8_t *buff,
 static int pfuze100_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 {
 	if (dm_i2c_read(dev, reg, buff, len)) {
-		pr_err("read error from device: %p register: %#x!", dev, reg);
+		pr_err("read error from device: %p register: %#x!\n", dev, reg);
 		return -EIO;
 	}
 
@@ -55,7 +55,7 @@ static int pfuze100_bind(struct udevice *dev)
 
 	regulators_node = dev_read_subnode(dev, "regulators");
 	if (!ofnode_valid(regulators_node)) {
-		debug("%s: %s regulators subnode not found!", __func__,
+		debug("%s: %s regulators subnode not found!\n", __func__,
 		      dev->name);
 		return -ENXIO;
 	}

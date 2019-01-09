@@ -22,7 +22,6 @@
 	};
 
 	chosen {
-		bootargs = "console=ttyS0,57600";
 		stdout-path = &uart2;
 	};
 };

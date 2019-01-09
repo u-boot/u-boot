@@ -238,6 +238,16 @@ config PINCTRL_ROCKCHIP_RK3399
 	  the GPIO definitions and pin control functions for each available
 	  multiplex function.
 
+config PINCTRL_ROCKCHIP_RK3399_FULL
+	bool "Rockchip rk3399 pin control driver (full)"
+	depends on PINCTRL_FULL && PINCTRL_ROCKCHIP_RK3399
+	help
+	  Support full pin multiplexing control on Rockchip rk3399 SoCs.
+
+	  This enables the full pinctrl driver for the RK3399.
+	  Contrary to the non-full pinctrl driver, this will evaluate
+	  the board DTB to get the pinctrl settings.
+
 config PINCTRL_ROCKCHIP_RV1108
 	bool "Rockchip rv1108 pin control driver"
 	depends on DM
@@ -301,10 +311,12 @@ config ASPEED_AST2500_PINCTRL
 endif
 
 source "drivers/pinctrl/meson/Kconfig"
+source "drivers/pinctrl/mediatek/Kconfig"
 source "drivers/pinctrl/nxp/Kconfig"
 source "drivers/pinctrl/renesas/Kconfig"
 source "drivers/pinctrl/uniphier/Kconfig"
 source "drivers/pinctrl/exynos/Kconfig"
+source "drivers/pinctrl/mscc/Kconfig"
 source "drivers/pinctrl/mvebu/Kconfig"
 source "drivers/pinctrl/broadcom/Kconfig"
 

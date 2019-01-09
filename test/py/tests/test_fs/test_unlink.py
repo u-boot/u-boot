@@ -12,6 +12,7 @@ on file system.
 import pytest
 
 @pytest.mark.boardspec('sandbox')
+@pytest.mark.slow
 class TestUnlink(object):
     def test_unlink1(self, u_boot_console, fs_obj_unlink):
         """

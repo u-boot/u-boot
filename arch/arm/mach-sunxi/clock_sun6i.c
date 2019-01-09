@@ -149,7 +149,11 @@ void clock_set_pll3(unsigned int clk)
 {
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+#ifdef CONFIG_SUNXI_DE2
+	const int m = 4; /* 6 MHz steps to allow higher frequency for DE2 */
+#else
 	const int m = 8; /* 3 MHz steps just like sun4i, sun5i and sun7i */
+#endif
 
 	if (clk == 0) {
 		clrbits_le32(&ccm->pll3_cfg, CCM_PLL3_CTRL_EN);

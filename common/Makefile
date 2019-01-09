@@ -33,7 +33,7 @@ obj-$(CONFIG_MII) += miiphyutil.o
 obj-$(CONFIG_CMD_MII) += miiphyutil.o
 obj-$(CONFIG_PHYLIB) += miiphyutil.o
 
-ifdef CONFIG_CMD_USB
+ifdef CONFIG_USB
 obj-y += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
@@ -61,6 +61,7 @@ obj-$(CONFIG_CMDLINE) += cli_readline.o cli_simple.o
 endif # !CONFIG_SPL_BUILD
 
 obj-$(CONFIG_$(SPL_TPL_)BOOTSTAGE) += bootstage.o
+obj-$(CONFIG_$(SPL_TPL_)BLOBLIST) += bloblist.o
 
 ifdef CONFIG_SPL_BUILD
 ifdef CONFIG_SPL_DFU_SUPPORT
@@ -68,15 +69,20 @@ obj-$(CONFIG_DFU_OVER_USB) += dfu.o
 endif
 obj-$(CONFIG_SPL_DFU_SUPPORT) += cli_hush.o
 obj-$(CONFIG_SPL_HASH_SUPPORT) += hash.o
+obj-$(CONFIG_TPL_HASH_SUPPORT) += hash.o
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
 obj-$(CONFIG_SPL_LOAD_FIT) += common_fit.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += fdt_support.o
+
 ifdef CONFIG_SPL_USB_HOST_SUPPORT
 obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
+else
+obj-$(CONFIG_USB_MUSB_HOST) += usb.o
 endif
-endif
+endif # CONFIG_SPL_BUILD
+
 #others
 obj-$(CONFIG_DDR_SPD) += ddr_spd.o
 obj-$(CONFIG_SPD_EEPROM) += ddr_spd.o
@@ -90,14 +96,16 @@ obj-$(CONFIG_SPL_SERIAL_SUPPORT) += console.o
 endif
 else
 obj-y += console.o
-endif
+endif # CONFIG_SPL_BUILD
+
 obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-y += dlmalloc.o
 ifdef CONFIG_SYS_MALLOC_F
-ifneq ($(CONFIG_$(SPL_)SYS_MALLOC_F_LEN),0)
+ifneq ($(CONFIG_$(SPL_TPL_)SYS_MALLOC_F_LEN),0)
 obj-y += malloc_simple.o
 endif
 endif
+
 obj-y += image.o
 obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += image-fdt.o
@@ -118,8 +126,8 @@ obj-y += cli.o
 obj-$(CONFIG_FSL_DDR_INTERACTIVE) += cli_simple.o cli_readline.o
 obj-$(CONFIG_DFU_OVER_USB) += dfu.o
 obj-y += command.o
-obj-$(CONFIG_$(SPL_)LOG) += log.o
-obj-$(CONFIG_$(SPL_)LOG_CONSOLE) += log_console.o
+obj-$(CONFIG_$(SPL_TPL_)LOG) += log.o
+obj-$(CONFIG_$(SPL_TPL_)LOG_CONSOLE) += log_console.o
 obj-y += s_record.o
 obj-$(CONFIG_CMD_LOADB) += xyzModem.o
 obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o

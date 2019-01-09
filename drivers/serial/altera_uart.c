@@ -117,7 +117,6 @@ U_BOOT_DRIVER(altera_uart) = {
 	.platdata_auto_alloc_size = sizeof(struct altera_uart_platdata),
 	.probe = altera_uart_probe,
 	.ops	= &altera_uart_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 #ifdef CONFIG_DEBUG_UART_ALTERA_UART

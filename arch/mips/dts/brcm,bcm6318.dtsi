@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/clock/bcm6318-clock.h>
+#include <dt-bindings/dma/bcm6318-dma.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/power-domain/bcm6318-power-domain.h>
 #include <dt-bindings/reset/bcm6318-reset.h>
@@ -52,6 +53,12 @@
 		periph_clk: periph-clk {
 			compatible = "brcm,bcm6345-clk";
 			reg = <0x10000004 0x4>;
+			#clock-cells = <1>;
+		};
+
+		ubus_clk: ubus-clk {
+			compatible = "brcm,bcm6345-clk";
+			reg = <0x10000008 0x4>;
 			#clock-cells = <1>;
 		};
 	};
@@ -181,6 +188,37 @@
 			resets = <&periph_rst BCM6318_RST_USBH>;
 
 			status = "disabled";
+		};
+
+		enet: ethernet@10080000 {
+			compatible = "brcm,bcm6368-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10080000 0x8000>;
+			clocks = <&periph_clk BCM6318_CLK_ROBOSW250>,
+				 <&periph_clk BCM6318_CLK_ROBOSW025>,
+				 <&ubus_clk BCM6318_UCLK_ROBOSW>;
+			resets = <&periph_rst BCM6318_RST_ENETSW>,
+				 <&periph_rst BCM6318_RST_EPHY>;
+			dmas = <&iudma BCM6318_DMA_ENETSW_RX>,
+			       <&iudma BCM6318_DMA_ENETSW_TX>;
+			dma-names = "rx",
+				    "tx";
+			brcm,num-ports = <5>;
+
+			status = "disabled";
+		};
+
+		iudma: dma-controller@10088000 {
+			compatible = "brcm,bcm6368-iudma";
+			reg = <0x10088000 0x80>,
+			      <0x10088200 0x80>,
+			      <0x10088400 0x80>;
+			reg-names = "dma",
+				    "dma-channels",
+				    "dma-sram";
+			#dma-cells = <1>;
+			dma-channels = <8>;
 		};
 	};
 };

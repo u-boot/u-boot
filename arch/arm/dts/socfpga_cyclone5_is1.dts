@@ -55,6 +55,10 @@
 	status = "okay";
 };
 
+&porta {
+	bank-name = "porta";
+};
+
 &i2c0 {
 	status = "okay";
 
@@ -106,4 +110,8 @@
 
 &uart0 {
 	u-boot,dm-pre-reloc;
+};
+
+&watchdog0 {
+	status = "disabled";
 };

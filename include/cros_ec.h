@@ -187,6 +187,14 @@ int cros_ec_flash_protect(struct udevice *dev, uint32_t set_mask,
 			  uint32_t set_flags,
 			  struct ec_response_flash_protect *resp);
 
+/**
+ * Notify EC of current boot mode
+ *
+ * @param dev		CROS-EC device
+ * @param vboot_mode    Verified boot mode
+ * @return 0 if ok, <0 on error
+ */
+int cros_ec_entering_mode(struct udevice *dev, int mode);
 
 /**
  * Run internal tests on the cros_ec interface.
@@ -396,5 +404,86 @@ struct i2c_msg;
  */
 int cros_ec_i2c_tunnel(struct udevice *dev, int port, struct i2c_msg *msg,
 		       int nmsgs);
+
+/**
+ * cros_ec_get_events_b() - Get event mask B
+ *
+ * @return value of event mask, default value of 0 if it could not be read
+ */
+uint64_t cros_ec_get_events_b(struct udevice *dev);
+
+/**
+ * cros_ec_clear_events_b() - Clear even mask B
+ *
+ * Any pending events in the B range are cleared
+ *
+ * @return 0 if OK, -ve on error
+ */
+int cros_ec_clear_events_b(struct udevice *dev, uint64_t mask);
+
+/**
+ * cros_ec_efs_verify() - tell the EC to verify one of its images
+ *
+ * @param dev		CROS-EC device
+ * @param region	Flash region to query
+ * @return 0 if OK, -ve on error
+ */
+int cros_ec_efs_verify(struct udevice *dev, enum ec_flash_region region);
+
+/**
+ * cros_ec_battery_cutoff() - Request that the battery be cut off
+ *
+ * This tells the battery to stop supplying power. This is used before shipping
+ * a device to ensure that the battery remains charged while the device is
+ * shipped or sitting on the shelf waiting to be purchased.
+ *
+ * @param dev		CROS-EC device
+ * @param flags		Flags to use (EC_BATTERY_CUTOFF_FLAG_...)
+ * @return 0 if OK, -ve on error
+ */
+int cros_ec_battery_cutoff(struct udevice *dev, uint8_t flags);
+
+/**
+ * cros_ec_read_limit_power() - Check if power is limited by batter/charger
+ *
+ * Sometimes the battery is low and / or the device is connected to a charger
+ * that cannot supply much power.
+ *
+ * @param dev		CROS-EC device
+ * @param limit_powerp	Returns whether power is limited (0 or 1)
+ * @return 0 if OK, -ENOSYS if the EC does not support this comment, -EINVAL
+ *		if the EC returned an invalid response
+ */
+int cros_ec_read_limit_power(struct udevice *dev, int *limit_powerp);
+
+/**
+ * cros_ec_config_powerbtn() - Configure the behaviour of the power button
+ *
+ * @param dev		CROS-EC device
+ * @param flags		Flags to use (EC_POWER_BUTTON_...)
+ * @return 0 if OK, -ve on error
+ */
+int cros_ec_config_powerbtn(struct udevice *dev, uint32_t flags);
+
+/**
+ * cros_ec_get_lid_shutdown_mask() - Set the lid shutdown mask
+ *
+ * Determines whether a lid close event is reported
+ *
+ * @param dev		CROS-EC device
+ * @return shufdown mas if OK, -ve on error
+ */
+int cros_ec_get_lid_shutdown_mask(struct udevice *dev);
+
+/**
+ * cros_ec_set_lid_shutdown_mask() - Set the lid shutdown mask
+ *
+ * Set whether a lid close event is reported
+ *
+ * @param dev		CROS-EC device
+ * @param enable	true to enable reporting, false to disable
+ * @return shufdown mas if OK, -ve on error
+ */
+int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable);
 
 #endif

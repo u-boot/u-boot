@@ -10,21 +10,12 @@
 #ifdef __KERNEL__
 
 #include <linux/types.h>
+#include <asm/barrier.h>
 #include <asm/byteorder.h>
 
 static inline void sync(void)
 {
 }
-
-/*
- * Given a physical address and a length, return a virtual address
- * that can be used to access the memory range with the caching
- * properties specified by "flags".
- */
-#define MAP_NOCACHE	(0)
-#define MAP_WRCOMBINE	(0)
-#define MAP_WRBACK	(0)
-#define MAP_WRTHROUGH	(0)
 
 #ifdef CONFIG_ARCH_MAP_SYSMEM
 static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
@@ -48,24 +39,6 @@ static inline phys_addr_t map_to_sysmem(const void *ptr)
 }
 #endif
 
-static inline void *
-map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
-{
-	return (void *)paddr;
-}
-
-/*
- * Take down a mapping set up by map_physmem().
- */
-static inline void unmap_physmem(void *vaddr, unsigned long flags)
-{
-}
-
-static inline phys_addr_t virt_to_phys(void *vaddr)
-{
-	return (phys_addr_t)(vaddr);
-}
-
 /*
  * Generic virtual read/write.  Note that we don't support half-word
  * read/writes.  We define __arch_*[bl] here, and leave __arch_*w
@@ -74,12 +47,12 @@ static inline phys_addr_t virt_to_phys(void *vaddr)
 #define __arch_getb(a)			(*(unsigned char *)(a))
 #define __arch_getw(a)			(*(unsigned short *)(a))
 #define __arch_getl(a)			(*(unsigned int *)(a))
-#define __arch_getq(a)			(*(unsigned long *)(a))
+#define __arch_getq(a)			(*(unsigned long long *)(a))
 
 #define __arch_putb(v, a)		(*(unsigned char *)(a) = (v))
 #define __arch_putw(v, a)		(*(unsigned short *)(a) = (v))
 #define __arch_putl(v, a)		(*(unsigned int *)(a) = (v))
-#define __arch_putq(v, a)		(*(unsigned long *)(a) = (v))
+#define __arch_putq(v, a)		(*(unsigned long long *)(a) = (v))
 
 #define __raw_writeb(v, a)		__arch_putb(v, a)
 #define __raw_writew(v, a)		__arch_putw(v, a)
@@ -91,13 +64,9 @@ static inline phys_addr_t virt_to_phys(void *vaddr)
 #define __raw_readl(a)			__arch_getl(a)
 #define __raw_readq(a)			__arch_getq(a)
 
-/*
- * TODO: The kernel offers some more advanced versions of barriers, it might
- * have some advantages to use them instead of the simple one here.
- */
-#define dmb()		__asm__ __volatile__ ("" : : : "memory")
-#define __iormb()	dmb()
-#define __iowmb()	dmb()
+#define dmb()		mb()
+#define __iormb()	rmb()
+#define __iowmb()	wmb()
 
 static inline void writeb(u8 val, volatile void __iomem *addr)
 {
@@ -152,7 +121,7 @@ static inline u32 readl(const volatile void __iomem *addr)
 
 static inline u64 readq(const volatile void __iomem *addr)
 {
-	u32	val;
+	u64	val;
 
 	val = __arch_getq(addr);
 	__iormb();
@@ -487,4 +456,7 @@ out:
 
 #endif	/* __mem_isa */
 #endif	/* __KERNEL__ */
+
+#include <asm-generic/io.h>
+
 #endif	/* __ASM_RISCV_IO_H */

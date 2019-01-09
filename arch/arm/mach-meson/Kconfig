@@ -1,89 +1,49 @@
 if ARCH_MESON
 
-config MESON_GXBB
-	bool "Support Meson GXBaby"
+config MESON64_COMMON
+	bool
 	select ARM64
 	select CLK
 	select DM
 	select DM_SERIAL
+	select SYSCON
+	select REGMAP
+	select BOARD_LATE_INIT
 	imply CMD_DM
+
+config MESON_GX
+	bool
+	select MESON64_COMMON
+
+choice
+	prompt "Platform select"
+	default MESON_GXBB
+
+config MESON_GXBB
+	bool "GXBB"
+	select MESON_GX
 	help
-	  The Amlogic Meson GXBaby (S905) is an ARM SoC with a
-	  quad-core Cortex-A53 CPU and a Mali-450 GPU.
+	  Select this if your SoC is an S905
 
 config MESON_GXL
-	bool "Support Meson GXL"
-	select ARM64
-	select CLK
-	select DM
-	select DM_SERIAL
-	imply CMD_DM
+	bool "GXL"
+	select MESON_GX
 	help
-	  The Amlogic Meson GXL (S905X and S905D) is an ARM SoC with a
-	  quad-core Cortex-A53 CPU and a Mali-450 GPU.
+	  Select this if your SoC is an S905X/D or S805X
 
 config MESON_GXM
-	bool "Support Meson GXM"
-	select ARM64
-	select CLK
-	select DM
-	select DM_SERIAL
+	bool "GXM"
+	select MESON_GX
 	help
-	  The Amlogic Meson GXM (S912) is an ARM SoC with an
-	  octo-core Cortex-A53 CPU and a Mali-T860 GPU.
+	  Select this if your SoC is an S912
 
-if MESON_GXBB
-
-config TARGET_ODROID_C2
-	bool "ODROID-C2"
+config MESON_AXG
+	bool "AXG"
+	select MESON64_COMMON
 	help
-	  ODROID-C2 is a single board computer based on Meson GXBaby
-	  with 2 GiB of RAM, Gigabit Ethernet, HDMI, 4 USB, micro-SD
-	  slot, eMMC, IR receiver and a 40-pin GPIO header.
+		Select this if your SoC is an A113X/D
 
-config TARGET_NANOPI_K2
-	bool "NANOPI_K2"
-	help
-	  NANOPI_K2 is a single board computer based on Meson GXBaby
-	  with 2 GiB of RAM, Gigabit Ethernet,AP6212 Wifi, HDMI, 4 USB,
-	  micro-SD slot, eMMC, IR receiver and a 40-pin GPIO header.
-endif
-
-if MESON_GXL
-
-config TARGET_P212
-	bool "P212"
-	help
-	  P212 is a reference dessign board based on Meson GXL S905X SoC
-	  with 2 GiB of RAM, Ethernet, HDMI, 2 USB, micro-SD slot,
-	  eMMC, IR receiver, CVBS+Audio jack and a SDIO WiFi module.
-
-config TARGET_LIBRETECH_CC
-	bool "LIBRETECH-CC"
-	help
-	  LibreTech CC is a single board computer based on Meson GXL
-	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
-	  eMMC, IR receiver and a 40-pin GPIO header.
-
-config TARGET_KHADAS_VIM
-	bool "KHADAS-VIM"
-	help
-	  Khadas VIM is a single board computer based on Meson GXL
-	  with 2 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
-	  eMMC, IR receiver and a 40-pin GPIO header.
-
-endif
-
-if MESON_GXM
-
-config TARGET_KHADAS_VIM2
-	bool "KHADAS-VIM2"
-	help
-	  Khadas VIM2 is a single board computer based on Meson GXM
-	  with 2/3 GiB of RAM, Ethernet, HDMI, 4 USB, micro-SD slot,
-	  eMMC, IR receiver and a 40-pin GPIO header.
-
-endif
+endchoice
 
 config SYS_SOC
 	default "meson"
@@ -91,16 +51,32 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x1000
 
-source "board/amlogic/odroid-c2/Kconfig"
+config SYS_VENDOR
+	string "Vendor name"
+	default "amlogic"
+	help
+	  This option contains information about board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
+	  be used.
 
-source "board/amlogic/nanopi-k2/Kconfig"
+config SYS_BOARD
+	string "Board name"
+	default "odroid-c2" if MESON_GXBB
+	default "p212" if MESON_GXL
+	default "q200" if MESON_GXM
+	default "s400" if MESON_AXG
+	default ""
+	help
+	  This option contains information about board name.
+	  Based on this option board/<CONFIG_SYS_VENDOR>/<CONFIG_SYS_BOARD> will
+	  be used.
 
-source "board/amlogic/p212/Kconfig"
-
-source "board/amlogic/libretech-cc/Kconfig"
-
-source "board/amlogic/khadas-vim/Kconfig"
-
-source "board/amlogic/khadas-vim2/Kconfig"
+config SYS_CONFIG_NAME
+	string "Board configuration name"
+	default "meson64"
+	help
+	  This option contains information about board configuration name.
+	  Based on this option include/configs/<CONFIG_SYS_CONFIG_NAME>.h header
+	  will be used for board configuration.
 
 endif

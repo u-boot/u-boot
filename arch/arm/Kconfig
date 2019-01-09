@@ -528,6 +528,12 @@ config ARCH_BCM283X
 	imply CMD_DM
 	imply FAT_WRITE
 
+config ARCH_BCM6858
+	bool "Broadcom BCM6858 family"
+	select DM
+	select OF_CONTROL
+	imply CMD_DM
+
 config TARGET_VEXPRESS_CA15_TC2
 	bool "Support vexpress_ca15_tc2"
 	select CPU_V7A
@@ -601,6 +607,7 @@ config ARCH_EXYNOS
 	select DM_SPI
 	select DM_SPI_FLASH
 	select SPI
+	imply SYS_THUMB_BUILD
 	imply CMD_DM
 	imply FAT_WRITE
 
@@ -658,6 +665,20 @@ config ARCH_MESON
 	  targeted at media players and tablet computers. We currently
 	  support the S905 (GXBaby) 64-bit SoC.
 
+config ARCH_MEDIATEK
+	bool "MediaTek SoCs"
+	select BINMAN
+	select DM
+	select OF_CONTROL
+	select SPL_DM if SPL
+	select SPL_LIBCOMMON_SUPPORT if SPL
+	select SPL_LIBGENERIC_SUPPORT if SPL
+	select SPL_OF_CONTROL if SPL
+	select SUPPORT_SPL
+	help
+	  Support for the MediaTek SoCs family developed by MediaTek Inc.
+	  Please refer to doc/README.mediatek for more information.
+
 config ARCH_LPC32XX
 	bool "NXP LPC32xx platform"
 	select CPU_ARM926EJS
@@ -674,7 +695,7 @@ config ARCH_IMX8
 	select DM
 	select OF_CONTROL
 
-config ARCH_MX8M
+config ARCH_IMX8M
 	bool "NXP i.MX8M platform"
 	select ARM64
 	select DM
@@ -764,6 +785,7 @@ config ARCH_RMOBILE
 	imply CMD_DM
 	imply FAT_WRITE
 	imply SYS_THUMB_BUILD
+	imply ARCH_MISC_INIT if DISPLAY_CPUINFO
 
 config TARGET_S32V234EVB
 	bool "Support s32v234evb"
@@ -796,15 +818,11 @@ config ARCH_SOCFPGA
 	select SPL_DM_RESET if DM_RESET
 	select SPL_DM_SERIAL
 	select SPL_LIBCOMMON_SUPPORT
-	select SPL_LIBDISK_SUPPORT
 	select SPL_LIBGENERIC_SUPPORT
-	select SPL_MMC_SUPPORT if DM_MMC
 	select SPL_NAND_SUPPORT if SPL_NAND_DENALI
 	select SPL_OF_CONTROL
 	select SPL_SEPARATE_BSS if TARGET_SOCFPGA_STRATIX10
 	select SPL_SERIAL_SUPPORT
-	select SPL_SPI_FLASH_SUPPORT if SPL_SPI_SUPPORT
-	select SPL_SPI_SUPPORT if DM_SPI
 	select SPL_WATCHDOG_SUPPORT
 	select SUPPORT_SPL
 	select SYS_NS16550
@@ -815,8 +833,12 @@ config ARCH_SOCFPGA
 	imply DM_SPI
 	imply DM_SPI_FLASH
 	imply FAT_WRITE
+	imply SPL_LIBDISK_SUPPORT
+	imply SPL_MMC_SUPPORT
 	imply SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
 	imply SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION_TYPE
+	imply SPL_SPI_FLASH_SUPPORT
+	imply SPL_SPI_SUPPORT
 
 config ARCH_SUNXI
 	bool "Support sunxi (Allwinner) SoCs"
@@ -848,6 +870,7 @@ config ARCH_SUNXI
 	imply CMD_UBI if NAND
 	imply DISTRO_DEFAULTS
 	imply FAT_WRITE
+	imply FIT
 	imply OF_LIBFDT_OVERLAY
 	imply PRE_CONSOLE_BUFFER
 	imply SPL_GPIO_SUPPORT
@@ -910,6 +933,7 @@ config ARCH_ZYNQMP_R5
 	select DM_SERIAL
 	select OF_CONTROL
 	imply CMD_DM
+	imply DM_USB_GADGET
 
 config ARCH_ZYNQMP
 	bool "Xilinx ZynqMP based platform"
@@ -927,6 +951,7 @@ config ARCH_ZYNQMP
 	imply CMD_DM
 	imply FAT_WRITE
 	imply MP
+	imply DM_USB_GADGET
 
 config TEGRA
 	bool "NVIDIA Tegra"
@@ -1427,7 +1452,7 @@ source "arch/arm/mach-imx/mx7ulp/Kconfig"
 
 source "arch/arm/mach-imx/imx8/Kconfig"
 
-source "arch/arm/mach-imx/mx8m/Kconfig"
+source "arch/arm/mach-imx/imx8m/Kconfig"
 
 source "arch/arm/mach-imx/mxs/Kconfig"
 
@@ -1442,6 +1467,8 @@ source "arch/arm/mach-owl/Kconfig"
 source "arch/arm/mach-rmobile/Kconfig"
 
 source "arch/arm/mach-meson/Kconfig"
+
+source "arch/arm/mach-mediatek/Kconfig"
 
 source "arch/arm/mach-qemu/Kconfig"
 
@@ -1490,12 +1517,14 @@ source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/broadcom/bcm23550_w1d/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
+source "board/broadcom/bcm968580xref/Kconfig"
 source "board/broadcom/bcmcygnus/Kconfig"
 source "board/broadcom/bcmnsp/Kconfig"
 source "board/broadcom/bcmns2/Kconfig"
 source "board/cavium/thunderx/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/eets/pdu001/Kconfig"
+source "board/emulation/qemu-arm/Kconfig"
 source "board/freescale/ls2080a/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
 source "board/freescale/ls2080ardb/Kconfig"

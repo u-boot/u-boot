@@ -86,6 +86,7 @@ config DISTRO_DEFAULTS
 	select SUPPORT_RAW_INITRD
 	select SYS_LONGHELP
 	imply CMD_MII if NET
+	imply USB_STORAGE
 	imply USE_BOOTCOMMAND
 	help
 	  Select this to enable various options and commands which are suitable
@@ -125,6 +126,7 @@ config SYS_BOOT_GET_KBD
 config SYS_MALLOC_F
 	bool "Enable malloc() pool before relocation"
 	default y if DM
+
 	help
 	  Before relocation, memory is very limited on many platforms. Still,
 	  we can provide a small malloc() pool if needed. Driver model in
@@ -135,6 +137,7 @@ config SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool before relocation"
 	depends on SYS_MALLOC_F
 	default 0x1000 if AM33XX
+	default 0x2800 if SANDBOX
 	default 0x400
 	help
 	  Before relocation, memory is very limited on many platforms. Still,
@@ -248,6 +251,16 @@ config FIT
 
 if FIT
 
+config FIT_EXTERNAL_OFFSET
+	hex "Text Base"
+	default 0x0
+	help
+	  This specifies a data offset in fit image.
+	  The offset is from data payload offset to the beginning of
+	  fit image header. When specifies a offset, specific data
+	  could be put in the hole between data payload and fit image
+	  header, such as CSF data on i.MX platform.
+
 config FIT_ENABLE_SHA256_SUPPORT
 	bool "Support SHA256 checksum of FIT image contents"
 	default y
@@ -289,6 +302,14 @@ config FIT_SIGNATURE_MAX_SIZE
 	  A sane value of 256MB protects corrupted DTB structures from overlapping
 	  device memory. Assure this size does not extend past expected storage
 	  space.
+
+config FIT_ENABLE_RSASSA_PSS_SUPPORT
+	bool "Support rsassa-pss signature scheme of FIT image contents"
+	depends on FIT_SIGNATURE
+	default n
+	help
+	  Enable this to support the pss padding algorithm as described
+	  in the rfc8017 (https://tools.ietf.org/html/rfc8017).
 
 config FIT_VERBOSE
 	bool "Show verbose messages when FIT images fail"

@@ -100,6 +100,7 @@ struct f_sdp {
 	enum sdp_state			state;
 	enum sdp_state			next_state;
 	u32				dnl_address;
+	u32				dnl_bytes;
 	u32				dnl_bytes_remaining;
 	u32				jmp_address;
 	bool				always_send_status;
@@ -276,6 +277,7 @@ static void sdp_rx_command_complete(struct usb_ep *ep, struct usb_request *req)
 		sdp->state = SDP_STATE_RX_FILE_DATA;
 		sdp->dnl_address = be32_to_cpu(cmd->addr);
 		sdp->dnl_bytes_remaining = be32_to_cpu(cmd->cnt);
+		sdp->dnl_bytes = sdp->dnl_bytes_remaining;
 		sdp->next_state = SDP_STATE_IDLE;
 
 		printf("Downloading file of size %d to 0x%08x... ",
@@ -355,6 +357,9 @@ static void sdp_rx_data_complete(struct usb_ep *ep, struct usb_request *req)
 	if (sdp->dnl_bytes_remaining)
 		return;
 
+#ifndef CONFIG_SPL_BUILD
+	env_set_hex("filesize", sdp->dnl_bytes);
+#endif
 	printf("done\n");
 
 	switch (sdp->state) {

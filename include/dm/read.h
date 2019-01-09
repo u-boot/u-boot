@@ -65,6 +65,38 @@ int dev_read_u32(struct udevice *dev, const char *propname, u32 *outp);
 int dev_read_u32_default(struct udevice *dev, const char *propname, int def);
 
 /**
+ * dev_read_s32() - read a signed 32-bit integer from a device's DT property
+ *
+ * @dev:	device to read DT property from
+ * @propname:	name of the property to read from
+ * @outp:	place to put value (if found)
+ * @return 0 if OK, -ve on error
+ */
+int dev_read_s32(struct udevice *dev, const char *propname, s32 *outp);
+
+/**
+ * dev_read_s32_default() - read a signed 32-bit int from a device's DT property
+ *
+ * @dev:	device to read DT property from
+ * @propname:	name of the property to read from
+ * @def:	default value to return if the property has no value
+ * @return property value, or @def if not found
+ */
+int dev_read_s32_default(struct udevice *dev, const char *propname, int def);
+
+/**
+ * dev_read_u32u() - read a 32-bit integer from a device's DT property
+ *
+ * This version uses a standard uint type.
+ *
+ * @dev:	device to read DT property from
+ * @propname:	name of the property to read from
+ * @outp:	place to put value (if found)
+ * @return 0 if OK, -ve on error
+ */
+int dev_read_u32u(struct udevice *dev, const char *propname, uint *outp);
+
+/**
  * dev_read_string() - Read a string from a device's DT property
  *
  * @dev:	device to read DT property from
@@ -123,6 +155,31 @@ fdt_addr_t dev_read_addr_index(struct udevice *dev, int index);
  * @return pointer or NULL if not found
  */
 void *dev_remap_addr_index(struct udevice *dev, int index);
+
+/**
+ * dev_read_addr_name() - Get the reg property of a device, indexed by name
+ *
+ * @dev: Device to read from
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @index
+ *	  indicates the value to search for in 'reg-names'.
+ *
+ * @return address or FDT_ADDR_T_NONE if not found
+ */
+fdt_addr_t dev_read_addr_name(struct udevice *dev, const char* name);
+
+/**
+ * dev_remap_addr_name() - Get the reg property of a device, indexed by name,
+ *                         as a memory-mapped I/O pointer
+ *
+ * @dev: Device to read from
+ * @name: the 'reg' property can hold a list of <addr, size> pairs, with the
+ *	  'reg-names' property providing named-based identification. @index
+ *	  indicates the value to search for in 'reg-names'.
+ *
+ * @return pointer or NULL if not found
+ */
+void *dev_remap_addr_name(struct udevice *dev, const char* name);
 
 /**
  * dev_read_addr() - Get the reg property of a device
@@ -467,6 +524,32 @@ static inline int dev_read_u32_default(struct udevice *dev,
 	return ofnode_read_u32_default(dev_ofnode(dev), propname, def);
 }
 
+static inline int dev_read_s32(struct udevice *dev,
+			       const char *propname, s32 *outp)
+{
+	return ofnode_read_s32(dev_ofnode(dev), propname, outp);
+}
+
+static inline int dev_read_s32_default(struct udevice *dev,
+				       const char *propname, int def)
+{
+	return ofnode_read_s32_default(dev_ofnode(dev), propname, def);
+}
+
+static inline int dev_read_u32u(struct udevice *dev,
+				const char *propname, uint *outp)
+{
+	u32 val;
+	int ret;
+
+	ret = ofnode_read_u32(dev_ofnode(dev), propname, &val);
+	if (ret)
+		return ret;
+	*outp = val;
+
+	return 0;
+}
+
 static inline const char *dev_read_string(struct udevice *dev,
 					  const char *propname)
 {
@@ -494,6 +577,12 @@ static inline fdt_addr_t dev_read_addr_index(struct udevice *dev, int index)
 	return devfdt_get_addr_index(dev, index);
 }
 
+static inline fdt_addr_t dev_read_addr_name(struct udevice *dev,
+					    const char *name)
+{
+	return devfdt_get_addr_name(dev, name);
+}
+
 static inline fdt_addr_t dev_read_addr(struct udevice *dev)
 {
 	return devfdt_get_addr(dev);
@@ -512,6 +601,11 @@ static inline void *dev_remap_addr(struct udevice *dev)
 static inline void *dev_remap_addr_index(struct udevice *dev, int index)
 {
 	return devfdt_remap_addr_index(dev, index);
+}
+
+static inline void *dev_remap_addr_name(struct udevice *dev, const char *name)
+{
+	return devfdt_remap_addr_name(dev, name);
 }
 
 static inline fdt_addr_t dev_read_addr_size(struct udevice *dev,

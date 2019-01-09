@@ -230,6 +230,7 @@ config MACH_SUN8I_A83T
 	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
 	select MMC_SUNXI_HAS_NEW_MODE
+	select MMC_SUNXI_HAS_MODE_SWITCH
 	select SUPPORT_SPL
 
 config MACH_SUN8I_H3
@@ -278,8 +279,10 @@ config MACH_SUN50I
 	select ARM64
 	select DM_I2C
 	select PHY_SUN4I_USB
+	select SUN6I_PRCM
 	select SUNXI_DE2
 	select SUNXI_GEN_SUN6I
+	select MMC_SUNXI_HAS_NEW_MODE
 	select SUPPORT_SPL
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_32BIT

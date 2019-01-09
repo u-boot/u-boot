@@ -1,0 +1,85 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2018 Philippe Reynes <philippe.reynes@softathome.com>
+ */
+
+#include "skeleton64.dtsi"
+
+/ {
+	compatible = "brcm,bcm6858";
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus {
+		#address-cells = <2>;
+		#size-cells = <0>;
+		u-boot,dm-pre-reloc;
+
+		cpu0: cpu@0 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			device_type = "cpu";
+			reg = <0x0 0x0>;
+			next-level-cache = <&l2>;
+			u-boot,dm-pre-reloc;
+		};
+
+		cpu1: cpu@1 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			device_type = "cpu";
+			reg = <0x0 0x1>;
+			next-level-cache = <&l2>;
+			u-boot,dm-pre-reloc;
+		};
+
+		cpu2: cpu@2 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			device_type = "cpu";
+			reg = <0x0 0x2>;
+			next-level-cache = <&l2>;
+			u-boot,dm-pre-reloc;
+		};
+
+		cpu3: cpu@3 {
+			compatible = "arm,cortex-a53", "arm,armv8";
+			device_type = "cpu";
+			reg = <0x0 0x3>;
+			next-level-cache = <&l2>;
+			u-boot,dm-pre-reloc;
+		};
+
+		l2: l2-cache0 {
+			compatible = "cache";
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	clocks {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		u-boot,dm-pre-reloc;
+
+		periph_osc: periph-osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <200000000>;
+			u-boot,dm-pre-reloc;
+		};
+	};
+
+	ubus {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		u-boot,dm-pre-reloc;
+
+		uart0: serial@ff800640 {
+			compatible = "brcm,bcm6345-uart";
+			reg = <0x0 0xff800640 0x0 0x18>;
+			clocks = <&periph_osc>;
+
+			status = "disabled";
+		};
+	};
+};

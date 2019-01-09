@@ -209,7 +209,6 @@ void am33xx_spl_board_init(void)
 const struct dpll_params *get_dpll_ddr_params(void)
 {
 	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 
 	return &dpll_ddr;
 }

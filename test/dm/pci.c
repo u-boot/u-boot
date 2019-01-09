@@ -211,6 +211,16 @@ static int dm_test_pci_cap(struct unit_test_state *uts)
 	cap = dm_pci_find_capability(swap, PCI_CAP_ID_PCIX);
 	ut_asserteq(0, cap);
 
+	/* look up PCI_CAP_ID_MSIX starting from PCI_CAP_ID_PM_OFFSET */
+	cap = dm_pci_find_next_capability(swap, PCI_CAP_ID_PM_OFFSET,
+					  PCI_CAP_ID_MSIX);
+	ut_asserteq(PCI_CAP_ID_MSIX_OFFSET, cap);
+
+	/* look up PCI_CAP_ID_VNDR starting from PCI_CAP_ID_EXP_OFFSET */
+	cap = dm_pci_find_next_capability(swap, PCI_CAP_ID_EXP_OFFSET,
+					  PCI_CAP_ID_VNDR);
+	ut_asserteq(0, cap);
+
 	ut_assertok(uclass_get_device_by_seq(UCLASS_PCI, 1, &bus));
 	ut_assertok(dm_pci_bus_find_bdf(PCI_BDF(1, 0x08, 0), &swap));
 
@@ -220,6 +230,16 @@ static int dm_test_pci_cap(struct unit_test_state *uts)
 
 	/* look up PCI_EXT_CAP_ID_SRIOV */
 	cap = dm_pci_find_ext_capability(swap, PCI_EXT_CAP_ID_SRIOV);
+	ut_asserteq(0, cap);
+
+	/* look up PCI_EXT_CAP_ID_DSN starting from PCI_EXT_CAP_ID_ERR_OFFSET */
+	cap = dm_pci_find_next_ext_capability(swap, PCI_EXT_CAP_ID_ERR_OFFSET,
+					      PCI_EXT_CAP_ID_DSN);
+	ut_asserteq(PCI_EXT_CAP_ID_DSN_OFFSET, cap);
+
+	/* look up PCI_EXT_CAP_ID_RCRB starting from PCI_EXT_CAP_ID_VC_OFFSET */
+	cap = dm_pci_find_next_ext_capability(swap, PCI_EXT_CAP_ID_VC_OFFSET,
+					      PCI_EXT_CAP_ID_RCRB);
 	ut_asserteq(0, cap);
 
 	return 0;

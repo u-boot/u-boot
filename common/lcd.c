@@ -242,14 +242,6 @@ void lcd_clear(void)
 	lcd_sync();
 }
 
-static int do_lcd_clear(cmd_tbl_t *cmdtp, int flag, int argc,
-			char *const argv[])
-{
-	lcd_clear();
-	return 0;
-}
-U_BOOT_CMD(cls,	1, 1, do_lcd_clear, "clear screen", "");
-
 static int lcd_init(void *lcdbase)
 {
 	debug("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
@@ -389,7 +381,6 @@ static inline void lcd_logo_plot(int x, int y) {}
 
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
-#define BMP_ALIGN_CENTER	0x7FFF
 
 static void splash_align_axis(int *axis, unsigned long panel_size,
 					unsigned long picture_size)

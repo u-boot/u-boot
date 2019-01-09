@@ -729,12 +729,21 @@ config PCIE_ECAM_SIZE
 	  maximum number of PCI buses as defined by the PCI specification.
 
 config I8259_PIC
-	bool
+	bool "Enable Intel 8259 compatible interrupt controller"
 	default y
 	help
 	  Intel 8259 ISA compatible chipset incorporates two 8259 (master and
 	  slave) interrupt controllers. Include this to have U-Boot set up
 	  the interrupt correctly.
+
+config APIC
+	bool "Enable Intel Advanced Programmable Interrupt Controller"
+	default y
+	help
+	  The (A)dvanced (P)rogrammable (I)nterrupt (C)ontroller is responsible
+	  for catching interrupts and distributing them to one or more CPU
+	  cores. In most cases there are some LAPICs (local) for each core and
+	  one I/O APIC. This conjunction is found on most modern x86 systems.
 
 config PINCTRL_ICH6
 	bool

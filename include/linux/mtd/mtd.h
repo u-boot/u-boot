@@ -366,6 +366,8 @@ static inline bool mtd_has_partitions(const struct mtd_info *mtd)
 	return !list_empty(&mtd->partitions);
 }
 
+bool mtd_partitions_used(struct mtd_info *master);
+
 int mtd_ooblayout_ecc(struct mtd_info *mtd, int section,
 		      struct mtd_oob_region *oobecc);
 int mtd_ooblayout_find_eccregion(struct mtd_info *mtd, int eccbyte,
@@ -562,8 +564,23 @@ unsigned mtd_mmap_capabilities(struct mtd_info *mtd);
 /* drivers/mtd/mtdcore.h */
 int add_mtd_device(struct mtd_info *mtd);
 int del_mtd_device(struct mtd_info *mtd);
+
+#ifdef CONFIG_MTD_PARTITIONS
 int add_mtd_partitions(struct mtd_info *, const struct mtd_partition *, int);
 int del_mtd_partitions(struct mtd_info *);
+#else
+static inline int add_mtd_partitions(struct mtd_info *mtd,
+				     const struct mtd_partition *parts,
+				     int nparts)
+{
+	return 0;
+}
+
+static inline int del_mtd_partitions(struct mtd_info *mtd)
+{
+	return 0;
+}
+#endif
 
 struct mtd_info *__mtd_next_device(int i);
 #define mtd_for_each_device(mtd)			\
@@ -581,6 +598,7 @@ int mtd_arg_off_size(int argc, char *const argv[], int *idx, loff_t *off,
 void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
 			  const uint64_t length, uint64_t *len_incl_bad,
 			  int *truncated);
+bool mtd_dev_list_updated(void);
 
 /* drivers/mtd/mtd_uboot.c */
 int mtd_search_alternate_name(const char *mtdname, char *altname,

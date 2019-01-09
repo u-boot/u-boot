@@ -17,64 +17,19 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <mpc8xx.h>
+#include <spi.h>
+
 #include <asm/cpm_8xx.h>
-#include <linux/ctype.h>
-#include <malloc.h>
-#include <post.h>
-#include <serial.h>
-
-#define SPI_EEPROM_WREN		0x06
-#define SPI_EEPROM_RDSR		0x05
-#define SPI_EEPROM_READ		0x03
-#define SPI_EEPROM_WRITE	0x02
-
-/* ---------------------------------------------------------------
- * Offset for initial SPI buffers in DPRAM:
- * We need a 520 byte scratch DPRAM area to use at an early stage.
- * It is used between the two initialization calls (spi_init_f()
- * and spi_init_r()).
- * The value 0xb00 makes it far enough from the start of the data
- * area (as well as from the stack pointer).
- * --------------------------------------------------------------- */
-#ifndef	CONFIG_SYS_SPI_INIT_OFFSET
-#define	CONFIG_SYS_SPI_INIT_OFFSET	0xB00
-#endif
+#include <asm/io.h>
 
 #define CPM_SPI_BASE_RX	CPM_SPI_BASE
 #define CPM_SPI_BASE_TX	(CPM_SPI_BASE + sizeof(cbd_t))
 
-/* -------------------
- * Function prototypes
- * ------------------- */
-ssize_t spi_xfer(size_t);
-
-/* -------------------
- * Variables
- * ------------------- */
-
 #define MAX_BUFFER	0x104
 
-/* ----------------------------------------------------------------------
- * Initially we place the RX and TX buffers at a fixed location in DPRAM!
- * ---------------------------------------------------------------------- */
-static uchar *rxbuf =
-	(uchar *)&((cpm8xx_t *)&((immap_t *)CONFIG_SYS_IMMR)->im_cpm)->cp_dpmem
-			[CONFIG_SYS_SPI_INIT_OFFSET];
-static uchar *txbuf =
-	(uchar *)&((cpm8xx_t *)&((immap_t *)CONFIG_SYS_IMMR)->im_cpm)->cp_dpmem
-			[CONFIG_SYS_SPI_INIT_OFFSET+MAX_BUFFER];
-
-/* **************************************************************************
- *
- *  Function:    spi_init_f
- *
- *  Description: Init SPI-Controller (ROM part)
- *
- *  return:      ---
- *
- * *********************************************************************** */
-void spi_init_f(void)
+static int mpc8xx_spi_probe(struct udevice *dev)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immr->im_cpm;
@@ -180,117 +135,24 @@ void spi_init_f(void)
 	clrbits_be16(&tbdf->cbd_sc, BD_SC_READY);
 	clrbits_be16(&rbdf->cbd_sc, BD_SC_EMPTY);
 
-	/* Set the bd's rx and tx buffer address pointers */
-	out_be32(&rbdf->cbd_bufaddr, (ulong)rxbuf);
-	out_be32(&tbdf->cbd_bufaddr, (ulong)txbuf);
-
 /* 10 + 11 */
 	out_8(&cp->cp_spim, 0);			/* Mask  all SPI events */
 	out_8(&cp->cp_spie, SPI_EMASK);		/* Clear all SPI events	*/
 
-	return;
+	return 0;
 }
 
-/* **************************************************************************
- *
- *  Function:    spi_init_r
- *
- *  Description: Init SPI-Controller (RAM part) -
- *		 The malloc engine is ready and we can move our buffers to
- *		 normal RAM
- *
- *  return:      ---
- *
- * *********************************************************************** */
-void spi_init_r(void)
+static int mpc8xx_spi_xfer(struct udevice *dev, unsigned int bitlen,
+			    const void *dout, void *din, unsigned long flags)
 {
 	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
 	cpm8xx_t __iomem *cp = &immr->im_cpm;
-	spi_t __iomem *spi = (spi_t __iomem *)&cp->cp_dparam[PROFF_SPI];
-	cbd_t __iomem *tbdf, *rbdf;
-
-	/* Disable relocation */
-	out_be16(&spi->spi_rpbase, 0);
-
-	/* tx and rx buffer descriptors */
-	tbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_TX];
-	rbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_RX];
-
-	/* Allocate memory for RX and TX buffers */
-	rxbuf = (uchar *)malloc(MAX_BUFFER);
-	txbuf = (uchar *)malloc(MAX_BUFFER);
-
-	out_be32(&rbdf->cbd_bufaddr, (ulong)rxbuf);
-	out_be32(&tbdf->cbd_bufaddr, (ulong)txbuf);
-
-	return;
-}
-
-/****************************************************************************
- *  Function:    spi_write
- **************************************************************************** */
-ssize_t spi_write(uchar *addr, int alen, uchar *buffer, int len)
-{
-	int i;
-
-	memset(rxbuf, 0, MAX_BUFFER);
-	memset(txbuf, 0, MAX_BUFFER);
-	*txbuf = SPI_EEPROM_WREN;		/* write enable		*/
-	spi_xfer(1);
-	memcpy(txbuf, addr, alen);
-	*txbuf = SPI_EEPROM_WRITE;		/* WRITE memory array	*/
-	memcpy(alen + txbuf, buffer, len);
-	spi_xfer(alen + len);
-						/* ignore received data	*/
-	for (i = 0; i < 1000; i++) {
-		*txbuf = SPI_EEPROM_RDSR;	/* read status		*/
-		txbuf[1] = 0;
-		spi_xfer(2);
-		if (!(rxbuf[1] & 1))
-			break;
-		udelay(1000);
-	}
-	if (i >= 1000)
-		printf("*** spi_write: Time out while writing!\n");
-
-	return len;
-}
-
-/****************************************************************************
- *  Function:    spi_read
- **************************************************************************** */
-ssize_t spi_read(uchar *addr, int alen, uchar *buffer, int len)
-{
-	memset(rxbuf, 0, MAX_BUFFER);
-	memset(txbuf, 0, MAX_BUFFER);
-	memcpy(txbuf, addr, alen);
-	*txbuf = SPI_EEPROM_READ;		/* READ memory array	*/
-
-	/*
-	 * There is a bug in 860T (?) that cuts the last byte of input
-	 * if we're reading into DPRAM. The solution we choose here is
-	 * to always read len+1 bytes (we have one extra byte at the
-	 * end of the buffer).
-	 */
-	spi_xfer(alen + len + 1);
-	memcpy(buffer, alen + rxbuf, len);
-
-	return len;
-}
-
-/****************************************************************************
- *  Function:    spi_xfer
- **************************************************************************** */
-ssize_t spi_xfer(size_t count)
-{
-	immap_t __iomem *immr = (immap_t __iomem *)CONFIG_SYS_IMMR;
-	cpm8xx_t __iomem *cp = &immr->im_cpm;
-	spi_t __iomem *spi = (spi_t __iomem *)&cp->cp_dparam[PROFF_SPI];
 	cbd_t __iomem *tbdf, *rbdf;
 	int tm;
+	size_t count = (bitlen + 7) / 8;
 
-	/* Disable relocation */
-	out_be16(&spi->spi_rpbase, 0);
+	if (count > MAX_BUFFER)
+		return -EINVAL;
 
 	tbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_TX];
 	rbdf = (cbd_t __iomem *)&cp->cp_dpmem[CPM_SPI_BASE_RX];
@@ -299,10 +161,12 @@ ssize_t spi_xfer(size_t count)
 	clrbits_be32(&cp->cp_pbdat, 0x0001);
 
 	/* Setting tx bd status and data length */
+	out_be32(&tbdf->cbd_bufaddr, (ulong)dout);
 	out_be16(&tbdf->cbd_sc, BD_SC_READY | BD_SC_LAST | BD_SC_WRAP);
 	out_be16(&tbdf->cbd_datlen, count);
 
 	/* Setting rx bd status and data length */
+	out_be32(&rbdf->cbd_bufaddr, (ulong)din);
 	out_be16(&rbdf->cbd_sc, BD_SC_EMPTY | BD_SC_WRAP);
 	out_be16(&rbdf->cbd_datlen, 0);	 /* rx length has no significance */
 
@@ -333,3 +197,20 @@ ssize_t spi_xfer(size_t count)
 
 	return count;
 }
+
+static const struct dm_spi_ops mpc8xx_spi_ops = {
+	.xfer		= mpc8xx_spi_xfer,
+};
+
+static const struct udevice_id mpc8xx_spi_ids[] = {
+	{ .compatible = "fsl,mpc8xx-spi" },
+	{ }
+};
+
+U_BOOT_DRIVER(mpc8xx_spi) = {
+	.name	= "mpc8xx_spi",
+	.id	= UCLASS_SPI,
+	.of_match = mpc8xx_spi_ids,
+	.ops	= &mpc8xx_spi_ops,
+	.probe	= mpc8xx_spi_probe,
+};

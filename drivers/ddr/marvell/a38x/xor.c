@@ -4,6 +4,7 @@
  */
 
 #include "ddr3_init.h"
+#include "mv_ddr_common.h"
 #include "xor_regs.h"
 
 /* defines  */
@@ -339,16 +340,17 @@ void ddr3_new_tip_ecc_scrub(void)
 {
 	u32 cs_c, max_cs;
 	u32 cs_ena = 0;
-	u32 dev_num = 0;
 	uint64_t total_mem_size, cs_mem_size = 0;
 
 	printf("DDR Training Sequence - Start scrubbing\n");
-	max_cs = ddr3_tip_max_cs_get(dev_num);
+	max_cs = mv_ddr_cs_num_get();
 	for (cs_c = 0; cs_c < max_cs; cs_c++)
 		cs_ena |= 1 << cs_c;
 
-	/* assume that all CS have same size */
+#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
+	/* all chip-selects are of same size */
 	ddr3_calc_mem_cs_size(0, &cs_mem_size);
+#endif
 
 	mv_sys_xor_init(max_cs, cs_ena, cs_mem_size, 0);
 	total_mem_size = max_cs * cs_mem_size;

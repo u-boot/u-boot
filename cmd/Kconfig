@@ -445,6 +445,7 @@ config CRC32_VERIFY
 
 config CMD_EEPROM
 	bool "eeprom - EEPROM subsystem"
+	depends on !DM_I2C || DM_I2C_COMPAT
 	help
 	  (deprecated, needs conversion to driver model)
 	  Provides commands to read and write EEPROM (Electrically Erasable
@@ -953,6 +954,14 @@ config CMD_PCMCIA
 	  about 1990. These devices are typically removable memory or network
 	  cards using a standard 68-pin connector.
 
+config CMD_PINMUX
+	bool "pinmux - show pins muxing"
+	default y if PINCTRL
+	help
+	  Parse all available pin-controllers and show pins muxing. This
+	  is useful for debug purpoer to check the pin muxing and to know if
+	  a pin is configured as a GPIO or as an alternate function.
+
 config CMD_POWEROFF
 	bool "poweroff"
 	help
@@ -1064,6 +1073,13 @@ config CMD_USB_MASS_STORAGE
 	select USB_FUNCTION_MASS_STORAGE
 	help
 	  USB mass storage support
+
+config CMD_VIRTIO
+	bool "virtio"
+	depends on VIRTIO
+	default y if VIRTIO
+	help
+	  VirtIO block device support
 
 config CMD_AXI
 	bool "axi"
@@ -1364,6 +1380,14 @@ config CMD_CONITRACE
 	help
 	  Enable the 'conitrace' command which displays the codes received
 	  from the console input as hexadecimal numbers.
+
+config CMD_CLS
+	bool "Enable clear screen command 'cls'"
+	depends on CFB_CONSOLE || DM_VIDEO || LCD || VIDEO
+	default y if LCD
+	help
+	  Enable the 'cls' command which clears the screen contents
+	  on video frame buffer.
 
 config CMD_DISPLAY
 	bool "Enable the 'display' command, for character displays"

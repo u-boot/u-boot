@@ -9,16 +9,11 @@
  * Driver for ARM PL022 SPI Controller.
  */
 
-#include <asm/io.h>
 #include <clk.h>
 #include <common.h>
 #include <dm.h>
-#include <dm/platform_data/pl022_spi.h>
-#include <fdtdec.h>
-#include <linux/bitops.h>
-#include <linux/bug.h>
+#include <dm/platform_data/spi_pl022.h>
 #include <linux/io.h>
-#include <linux/kernel.h>
 #include <spi.h>
 
 #define SSP_CR0		0x000
@@ -72,11 +67,7 @@
 
 struct pl022_spi_slave {
 	void *base;
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	struct clk clk;
-#else
 	unsigned int freq;
-#endif
 };
 
 /*
@@ -96,30 +87,13 @@ static int pl022_is_supported(struct pl022_spi_slave *ps)
 	return 0;
 }
 
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-static int pl022_spi_ofdata_to_platdata(struct udevice *bus)
-{
-	struct pl022_spi_pdata *plat = bus->platdata;
-	const void *fdt = gd->fdt_blob;
-	int node = dev_of_offset(bus);
-
-	plat->addr = fdtdec_get_addr_size(fdt, node, "reg", &plat->size);
-
-	return clk_get_by_index(bus, 0, &plat->clk);
-}
-#endif
-
 static int pl022_spi_probe(struct udevice *bus)
 {
 	struct pl022_spi_pdata *plat = dev_get_platdata(bus);
 	struct pl022_spi_slave *ps = dev_get_priv(bus);
 
 	ps->base = ioremap(plat->addr, plat->size);
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	ps->clk = plat->clk;
-#else
 	ps->freq = plat->freq;
-#endif
 
 	/* Check the PL022 version */
 	if (!pl022_is_supported(ps))
@@ -240,11 +214,7 @@ static int pl022_spi_set_speed(struct udevice *bus, uint speed)
 	u16 scr = SSP_SCR_MIN, cr0 = 0, cpsr = SSP_CPSR_MIN, best_scr = scr,
 	    best_cpsr = cpsr;
 	u32 min, max, best_freq = 0, tmp;
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
-	u32 rate = clk_get_rate(&ps->clk);
-#else
 	u32 rate = ps->freq;
-#endif
 	bool found = false;
 
 	max = spi_rate(rate, SSP_CPSR_MIN, SSP_SCR_MIN);
@@ -316,6 +286,25 @@ static const struct dm_spi_ops pl022_spi_ops = {
 };
 
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
+static int pl022_spi_ofdata_to_platdata(struct udevice *bus)
+{
+	struct pl022_spi_pdata *plat = bus->platdata;
+	const void *fdt = gd->fdt_blob;
+	int node = dev_of_offset(bus);
+	struct clk clkdev;
+	int ret;
+
+	plat->addr = fdtdec_get_addr_size(fdt, node, "reg", &plat->size);
+
+	ret = clk_get_by_index(bus, 0, &clkdev);
+	if (ret)
+		return ret;
+
+	plat->freq = clk_get_rate(&clkdev);
+
+	return 0;
+}
+
 static const struct udevice_id pl022_spi_ids[] = {
 	{ .compatible = "arm,pl022-spi" },
 	{ }
@@ -327,11 +316,9 @@ U_BOOT_DRIVER(pl022_spi) = {
 	.id     = UCLASS_SPI,
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.of_match = pl022_spi_ids,
-#endif
-	.ops    = &pl022_spi_ops,
-#if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.ofdata_to_platdata = pl022_spi_ofdata_to_platdata,
 #endif
+	.ops    = &pl022_spi_ops,
 	.platdata_auto_alloc_size = sizeof(struct pl022_spi_pdata),
 	.priv_auto_alloc_size = sizeof(struct pl022_spi_slave),
 	.probe  = pl022_spi_probe,

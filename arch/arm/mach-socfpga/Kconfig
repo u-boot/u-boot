@@ -35,6 +35,7 @@ config TARGET_SOCFPGA_STRATIX10
 	select ARMV8_MULTIENTRY
 	select ARMV8_SET_SMPEN
 	select ARMV8_SPIN_TABLE
+	select FPGA_STRATIX10
 
 choice
 	prompt "Altera SOCFPGA board select"

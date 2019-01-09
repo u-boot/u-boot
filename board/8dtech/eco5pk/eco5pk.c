@@ -16,7 +16,7 @@
 #include <asm/arch/emac_defs.h>
 #include <asm/gpio.h>
 #include <i2c.h>
-#include <crc.h>
+#include <u-boot/crc.h>
 #include <asm/mach-types.h>
 #include "eco5pk.h"
 

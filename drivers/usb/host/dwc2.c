@@ -29,7 +29,7 @@
 #define MAX_ENDPOINT			16
 
 struct dwc2_priv {
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 	uint8_t aligned_buffer[DWC2_DATA_BUF_SIZE] __aligned(ARCH_DMA_MINALIGN);
 	uint8_t status_buffer[DWC2_STATUS_BUF_SIZE] __aligned(ARCH_DMA_MINALIGN);
 #ifdef CONFIG_DM_REGULATOR
@@ -54,7 +54,7 @@ struct dwc2_priv {
 	struct reset_ctl_bulk	resets;
 };
 
-#ifndef CONFIG_DM_USB
+#if !CONFIG_IS_ENABLED(DM_USB)
 /* We need cacheline-aligned buffers for DMA transfers and dcache support */
 DEFINE_ALIGN_BUFFER(uint8_t, aligned_buffer_addr, DWC2_DATA_BUF_SIZE,
 		ARCH_DMA_MINALIGN);
@@ -168,7 +168,7 @@ static void dwc_otg_core_reset(struct dwc2_core_regs *regs)
 	mdelay(100);
 }
 
-#if defined(CONFIG_DM_USB) && defined(CONFIG_DM_REGULATOR)
+#if CONFIG_IS_ENABLED(DM_USB) && defined(CONFIG_DM_REGULATOR)
 static int dwc_vbus_supply_init(struct udevice *dev)
 {
 	struct dwc2_priv *priv = dev_get_priv(dev);
@@ -211,7 +211,7 @@ static int dwc_vbus_supply_init(struct udevice *dev)
 	return 0;
 }
 
-#if defined(CONFIG_DM_USB)
+#if CONFIG_IS_ENABLED(DM_USB)
 static int dwc_vbus_supply_exit(struct udevice *dev)
 {
 	return 0;
@@ -1222,7 +1222,7 @@ static void dwc2_uninit_common(struct dwc2_core_regs *regs)
 			DWC2_HPRT0_PRTRST);
 }
 
-#ifndef CONFIG_DM_USB
+#if !CONFIG_IS_ENABLED(DM_USB)
 int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		       int len, struct devrequest *setup)
 {
@@ -1267,7 +1267,7 @@ int usb_lowlevel_stop(int index)
 }
 #endif
 
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 static int dwc2_submit_control_msg(struct udevice *dev, struct usb_device *udev,
 				   unsigned long pipe, void *buffer, int length,
 				   struct devrequest *setup)

@@ -46,8 +46,9 @@ make[1]: *** [main.o] Error 1
 make: *** [common/libcommon.o] Error 2
 Make failed
 ''',
-    '''main.c: In function 'main_loop3':
-main.c:280:6: warning: unused variable 'mary' [-Wunused-variable]
+    '''arch/arm/dts/socfpga_arria10_socdk_sdmmc.dtb: Warning \
+(avoid_unnecessary_addr_size): /clocks: unnecessary #address-cells/#size-cells \
+without "ranges" or child "reg" property
 ''',
     '''powerpc-linux-ld: warning: dot moved backwards before `.bss'
 powerpc-linux-ld: warning: dot moved backwards before `.bss'
@@ -95,6 +96,8 @@ boards = [
 ]
 
 BASE_DIR = 'base'
+
+OUTCOME_OK, OUTCOME_WARN, OUTCOME_ERR = range(3)
 
 class Options:
     """Class that holds build options"""
@@ -165,9 +168,10 @@ class TestBuild(unittest.TestCase):
         result.combined = result.stdout + result.stderr
         return result
 
-    def assertSummary(self, text, arch, plus, boards, ok=False):
+    def assertSummary(self, text, arch, plus, boards, outcome=OUTCOME_ERR):
         col = self._col
-        expected_colour = col.GREEN if ok else col.RED
+        expected_colour = (col.GREEN if outcome == OUTCOME_OK else
+                           col.YELLOW if outcome == OUTCOME_WARN else col.RED)
         expect = '%10s: ' % arch
         # TODO(sjg@chromium.org): If plus is '', we shouldn't need this
         expect += ' ' + col.Color(expected_colour, plus)
@@ -191,6 +195,8 @@ class TestBuild(unittest.TestCase):
         build.do_make = self.Make
         board_selected = self.boards.GetSelectedDict()
 
+        # Build the boards for the pre-defined commits and warnings/errors
+        # associated with each. This calls our Make() to inject the fake output.
         build.BuildBoards(self.commits, board_selected, keep_outputs=False,
                           verbose=False)
         lines = terminal.GetPrintTestLines()
@@ -206,33 +212,49 @@ class TestBuild(unittest.TestCase):
         build.ShowSummary(self.commits, board_selected)
         #terminal.EchoPrintTestLines()
         lines = terminal.GetPrintTestLines()
+
+        # Upstream commit: no errors
         self.assertEqual(lines[0].text, '01: %s' % commits[0][1])
+
+        # Second commit: all archs should fail with warnings
         self.assertEqual(lines[1].text, '02: %s' % commits[1][1])
 
-        # We expect all archs to fail
         col = terminal.Color()
-        self.assertSummary(lines[2].text, 'sandbox', '+', ['board4'])
-        self.assertSummary(lines[3].text, 'arm', '+', ['board1'])
-        self.assertSummary(lines[4].text, 'powerpc', '+', ['board2', 'board3'])
+        self.assertSummary(lines[2].text, 'sandbox', 'w+', ['board4'],
+                           outcome=OUTCOME_WARN)
+        self.assertSummary(lines[3].text, 'arm', 'w+', ['board1'],
+                           outcome=OUTCOME_WARN)
+        self.assertSummary(lines[4].text, 'powerpc', 'w+', ['board2', 'board3'],
+                           outcome=OUTCOME_WARN)
 
-        # Now we should have the compiler warning
+        # Second commit: The warnings should be listed
         self.assertEqual(lines[5].text, 'w+%s' %
                 errors[0].rstrip().replace('\n', '\nw+'))
         self.assertEqual(lines[5].colour, col.MAGENTA)
 
+        # Third commit: Still fails
         self.assertEqual(lines[6].text, '03: %s' % commits[2][1])
         self.assertSummary(lines[7].text, 'sandbox', '+', ['board4'])
-        self.assertSummary(lines[8].text, 'arm', '', ['board1'], ok=True)
+        self.assertSummary(lines[8].text, 'arm', '', ['board1'],
+                           outcome=OUTCOME_OK)
         self.assertSummary(lines[9].text, 'powerpc', '+', ['board2', 'board3'])
 
-        # Compiler error
+        # Expect a compiler error
         self.assertEqual(lines[10].text, '+%s' %
                 errors[1].rstrip().replace('\n', '\n+'))
 
+        # Fourth commit: Compile errors are fixed, just have warning for board3
         self.assertEqual(lines[11].text, '04: %s' % commits[3][1])
-        self.assertSummary(lines[12].text, 'sandbox', '', ['board4'], ok=True)
-        self.assertSummary(lines[13].text, 'powerpc', '', ['board2', 'board3'],
-                ok=True)
+        self.assertSummary(lines[12].text, 'sandbox', 'w+', ['board4'],
+                           outcome=OUTCOME_WARN)
+        expect = '%10s: ' % 'powerpc'
+        expect += ' ' + col.Color(col.GREEN, '')
+        expect += '  '
+        expect += col.Color(col.GREEN, ' %s' % 'board2')
+        expect += ' ' + col.Color(col.YELLOW, 'w+')
+        expect += '  '
+        expect += col.Color(col.YELLOW, ' %s' % 'board3')
+        self.assertEqual(lines[13].text, expect)
 
         # Compile error fixed
         self.assertEqual(lines[14].text, '-%s' %
@@ -243,9 +265,11 @@ class TestBuild(unittest.TestCase):
                 errors[2].rstrip().replace('\n', '\nw+'))
         self.assertEqual(lines[15].colour, col.MAGENTA)
 
+        # Fifth commit
         self.assertEqual(lines[16].text, '05: %s' % commits[4][1])
         self.assertSummary(lines[17].text, 'sandbox', '+', ['board4'])
-        self.assertSummary(lines[18].text, 'powerpc', '', ['board3'], ok=True)
+        self.assertSummary(lines[18].text, 'powerpc', '', ['board3'],
+                           outcome=OUTCOME_OK)
 
         # The second line of errors[3] is a duplicate, so buildman will drop it
         expect = errors[3].rstrip().split('\n')
@@ -256,8 +280,10 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(lines[20].text, 'w-%s' %
                 errors[2].rstrip().replace('\n', '\nw-'))
 
+        # Sixth commit
         self.assertEqual(lines[21].text, '06: %s' % commits[5][1])
-        self.assertSummary(lines[22].text, 'sandbox', '', ['board4'], ok=True)
+        self.assertSummary(lines[22].text, 'sandbox', '', ['board4'],
+                           outcome=OUTCOME_OK)
 
         # The second line of errors[3] is a duplicate, so buildman will drop it
         expect = errors[3].rstrip().split('\n')
@@ -268,6 +294,7 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(lines[24].text, 'w-%s' %
                 errors[0].rstrip().replace('\n', '\nw-'))
 
+        # Seventh commit
         self.assertEqual(lines[25].text, '07: %s' % commits[6][1])
         self.assertSummary(lines[26].text, 'sandbox', '+', ['board4'])
 
@@ -313,60 +340,63 @@ class TestBuild(unittest.TestCase):
     def testBoardSingle(self):
         """Test single board selection"""
         self.assertEqual(self.boards.SelectBoards(['sandbox']),
-                         {'all': ['board4'], 'sandbox': ['board4']})
+                         ({'all': ['board4'], 'sandbox': ['board4']}, []))
 
     def testBoardArch(self):
         """Test single board selection"""
         self.assertEqual(self.boards.SelectBoards(['arm']),
-                         {'all': ['board0', 'board1'],
-                          'arm': ['board0', 'board1']})
+                         ({'all': ['board0', 'board1'],
+                          'arm': ['board0', 'board1']}, []))
 
     def testBoardArchSingle(self):
         """Test single board selection"""
         self.assertEqual(self.boards.SelectBoards(['arm sandbox']),
-                         {'sandbox': ['board4'],
+                         ({'sandbox': ['board4'],
                           'all': ['board0', 'board1', 'board4'],
-                          'arm': ['board0', 'board1']})
+                          'arm': ['board0', 'board1']}, []))
 
 
     def testBoardArchSingleMultiWord(self):
         """Test single board selection"""
         self.assertEqual(self.boards.SelectBoards(['arm', 'sandbox']),
-                         {'sandbox': ['board4'], 'all': ['board0', 'board1', 'board4'], 'arm': ['board0', 'board1']})
+                         ({'sandbox': ['board4'],
+                          'all': ['board0', 'board1', 'board4'],
+                          'arm': ['board0', 'board1']}, []))
 
     def testBoardSingleAnd(self):
         """Test single board selection"""
         self.assertEqual(self.boards.SelectBoards(['Tester & arm']),
-                         {'Tester&arm': ['board0', 'board1'], 'all': ['board0', 'board1']})
+                         ({'Tester&arm': ['board0', 'board1'],
+                           'all': ['board0', 'board1']}, []))
 
     def testBoardTwoAnd(self):
         """Test single board selection"""
         self.assertEqual(self.boards.SelectBoards(['Tester', '&', 'arm',
                                                    'Tester' '&', 'powerpc',
                                                    'sandbox']),
-                         {'sandbox': ['board4'],
+                         ({'sandbox': ['board4'],
                           'all': ['board0', 'board1', 'board2', 'board3',
                                   'board4'],
                           'Tester&powerpc': ['board2', 'board3'],
-                          'Tester&arm': ['board0', 'board1']})
+                          'Tester&arm': ['board0', 'board1']}, []))
 
     def testBoardAll(self):
         """Test single board selection"""
         self.assertEqual(self.boards.SelectBoards([]),
-                         {'all': ['board0', 'board1', 'board2', 'board3',
-                                  'board4']})
+                         ({'all': ['board0', 'board1', 'board2', 'board3',
+                                  'board4']}, []))
 
     def testBoardRegularExpression(self):
         """Test single board selection"""
         self.assertEqual(self.boards.SelectBoards(['T.*r&^Po']),
-                         {'all': ['board2', 'board3'],
-                          'T.*r&^Po': ['board2', 'board3']})
+                         ({'all': ['board2', 'board3'],
+                          'T.*r&^Po': ['board2', 'board3']}, []))
 
     def testBoardDuplicate(self):
         """Test single board selection"""
         self.assertEqual(self.boards.SelectBoards(['sandbox sandbox',
                                                    'sandbox']),
-                         {'all': ['board4'], 'sandbox': ['board4']})
+                         ({'all': ['board4'], 'sandbox': ['board4']}, []))
     def CheckDirs(self, build, dirname):
         self.assertEqual('base%s' % dirname, build._GetOutputDir(1))
         self.assertEqual('base%s/fred' % dirname,

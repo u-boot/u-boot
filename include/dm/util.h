@@ -55,7 +55,7 @@ static inline void dm_dump_devres(void)
  * There are 3 settings currently in use
  * -
  * - u-boot,dm-pre-reloc: legacy and indicates any of TPL or SPL
- *   Existing platforms only use it to indicate nodes needee in
+ *   Existing platforms only use it to indicate nodes needed in
  *   SPL. Should probably be replaced by u-boot,dm-spl for
  *   existing platforms.
  * @blob: devicetree
@@ -64,5 +64,30 @@ static inline void dm_dump_devres(void)
  * Returns true if node is needed in SPL/TL, false otherwise.
  */
 bool dm_fdt_pre_reloc(const void *blob, int offset);
+
+/**
+ * Check if an of node should be or was bound before relocation.
+ *
+ * Devicetree nodes can be marked as needed to be bound
+ * in the loader stages via special devicetree properties.
+ *
+ * Before relocation this function can be used to check if nodes
+ * are required in either SPL or TPL stages.
+ *
+ * After relocation and jumping into the real U-Boot binary
+ * it is possible to determine if a node was bound in one of
+ * SPL/TPL stages.
+ *
+ * There are 3 settings currently in use
+ * -
+ * - u-boot,dm-pre-reloc: legacy and indicates any of TPL or SPL
+ *   Existing platforms only use it to indicate nodes needed in
+ *   SPL. Should probably be replaced by u-boot,dm-spl for
+ *   existing platforms.
+ * @node: of node
+ *
+ * Returns true if node is needed in SPL/TL, false otherwise.
+ */
+bool dm_ofnode_pre_reloc(ofnode node);
 
 #endif

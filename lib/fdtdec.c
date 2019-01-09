@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
+#include <mapmem.h>
 #include <linux/libfdt.h>
 #include <serial.h>
 #include <asm/sections.h>
@@ -199,7 +200,7 @@ fdt_addr_t fdtdec_get_addr(const void *blob, int node, const char *prop_name)
 	return fdtdec_get_addr_size(blob, node, prop_name, NULL);
 }
 
-#if defined(CONFIG_PCI) && defined(CONFIG_DM_PCI)
+#if CONFIG_IS_ENABLED(PCI) && defined(CONFIG_DM_PCI)
 int fdtdec_get_pci_addr(const void *blob, int node, enum fdt_pci_space type,
 			const char *prop_name, struct fdt_pci_addr *addr)
 {
@@ -1198,7 +1199,8 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 # else
 static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 {
-	return -ENOTSUPP;
+	*dstp = (void *)src;
+	return 0;
 }
 # endif
 #endif
@@ -1252,8 +1254,9 @@ int fdtdec_setup(void)
 #  if CONFIG_IS_ENABLED(OF_PRIOR_STAGE)
 	gd->fdt_blob = (void *)prior_stage_fdt_address;
 #  else
-	gd->fdt_blob = (void *)env_get_ulong("fdtcontroladdr", 16,
-						(uintptr_t)gd->fdt_blob);
+	gd->fdt_blob = map_sysmem
+		(env_get_ulong("fdtcontroladdr", 16,
+			       (unsigned long)map_to_sysmem(gd->fdt_blob)), 0);
 #  endif
 # endif
 
@@ -1272,13 +1275,54 @@ int fdtdec_setup(void)
 	 * If so, pick the most relevant
 	 */
 	fdt_blob = locate_dtb_in_fit(gd->fdt_blob);
-	if (fdt_blob)
+	if (fdt_blob) {
+		gd->multi_dtb_fit = gd->fdt_blob;
 		gd->fdt_blob = fdt_blob;
+	}
+
 # endif
 #endif
 
 	return fdtdec_prepare_fdt();
 }
+
+#if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
+int fdtdec_resetup(int *rescan)
+{
+	void *fdt_blob;
+
+	/*
+	 * If the current DTB is part of a compressed FIT image,
+	 * try to locate the best match from the uncompressed
+	 * FIT image stillpresent there. Save the time and space
+	 * required to uncompress it again.
+	 */
+	if (gd->multi_dtb_fit) {
+		fdt_blob = locate_dtb_in_fit(gd->multi_dtb_fit);
+
+		if (fdt_blob == gd->fdt_blob) {
+			/*
+			 * The best match did not change. no need to tear down
+			 * the DM and rescan the fdt.
+			 */
+			*rescan = 0;
+			return 0;
+		}
+
+		*rescan = 1;
+		gd->fdt_blob = fdt_blob;
+		return fdtdec_prepare_fdt();
+	}
+
+	/*
+	 * If multi_dtb_fit is NULL, it means that blob appended to u-boot is
+	 * not a FIT image containings DTB, but a single DTB. There is no need
+	 * to teard down DM and rescan the DT in this case.
+	 */
+	*rescan = 0;
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_NR_DRAM_BANKS
 int fdtdec_decode_ram_size(const void *blob, const char *area, int board_id,

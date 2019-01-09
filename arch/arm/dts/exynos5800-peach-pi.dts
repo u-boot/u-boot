@@ -79,12 +79,28 @@
 		};
 	};
 
+	sound {
+		compatible = "google,peach-audio-max98090";
+
+		samsung,model = "PEACH-I2S-MAX98090";
+		samsung,audio-codec = <&max98090>;
+
+		cpu {
+			sound-dai = <&i2s0 0>;
+		};
+
+		codec {
+			sound-dai = <&max98090 0>;
+		};
+	};
+
 	i2c@12CD0000 { /* i2c7 */
 		clock-frequency = <100000>;
-	       soundcodec@20 {
-	              reg = <0x20>;
-	              compatible = "maxim,max98090-codec";
-	       };
+		max98090: soundcodec@10 {
+			reg = <0x10>;
+			compatible = "maxim,max98090";
+			#sound-dai-cells = <1>;
+		};
 	};
 
         sound@3830000 {

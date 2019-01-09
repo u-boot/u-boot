@@ -36,9 +36,7 @@ In case c) it may be necessary for U-Boot to perform CM dependent initialization
 Configuring U-Boot :
 ------------------
 	The makefile contains targets for Integrator platforms of both types
-fitted with all current variants of CM. If these targets are to be used with
-boot process c) above then CONFIG_INIT_CRITICAL may need to be defined to ensure
-that the CM is correctly configured.
+fitted with all current variants of CM.
 
 	There are also targets independent of CM. These may not be suitable for
 boot process c) above. They have been preserved for backward compatibility with

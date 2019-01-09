@@ -539,7 +539,7 @@ static int probe_usb_keyboard(struct usb_device *dev)
 	return 0;
 }
 
-#ifndef CONFIG_DM_USB
+#if !CONFIG_IS_ENABLED(DM_USB)
 /* Search for keyboard and register it if found. */
 int drv_usb_kbd_init(void)
 {
@@ -602,7 +602,7 @@ int usb_kbd_deregister(int force)
 
 #endif
 
-#ifdef CONFIG_DM_USB
+#if CONFIG_IS_ENABLED(DM_USB)
 
 static int usb_kbd_probe(struct udevice *dev)
 {

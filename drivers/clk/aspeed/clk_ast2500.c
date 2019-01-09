@@ -165,6 +165,35 @@ static ulong ast2500_clk_get_rate(struct clk *clk)
 	return rate;
 }
 
+struct ast2500_clock_config {
+	ulong input_rate;
+	ulong rate;
+	struct ast2500_div_config cfg;
+};
+
+static const struct ast2500_clock_config ast2500_clock_config_defaults[] = {
+	{ 24000000, 250000000, { .num = 124, .denum = 1, .post_div = 5 } },
+};
+
+static bool ast2500_get_clock_config_default(ulong input_rate,
+					     ulong requested_rate,
+					     struct ast2500_div_config *cfg)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(ast2500_clock_config_defaults); i++) {
+		const struct ast2500_clock_config *default_cfg =
+			&ast2500_clock_config_defaults[i];
+		if (default_cfg->input_rate == input_rate &&
+		    default_cfg->rate == requested_rate) {
+			*cfg = default_cfg->cfg;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /*
  * @input_rate - the rate of input clock in Hz
  * @requested_rate - desired output rate in Hz
@@ -188,6 +217,12 @@ static ulong ast2500_calc_clock_config(ulong input_rate, ulong requested_rate,
 	struct ast2500_div_config it = { 0, 0, 0 };
 	ulong delta = rate_khz;
 	ulong new_rate_khz = 0;
+
+	/*
+	 * Look for a well known frequency first.
+	 */
+	if (ast2500_get_clock_config_default(input_rate, requested_rate, cfg))
+		return requested_rate;
 
 	for (; it.denum <= max_vals.denum; ++it.denum) {
 		for (it.post_div = 0; it.post_div <= max_vals.post_div;
@@ -318,6 +353,9 @@ static ulong ast2500_configure_d2pll(struct ast2500_scu *scu, ulong rate)
 	/*
 	 * The values and the meaning of the next three
 	 * parameters are undocumented. Taken from Aspeed SDK.
+	 *
+	 * TODO(clg@kaod.org): the SIP and SIC values depend on the
+	 * Numerator value
 	 */
 	const u32 d2_pll_ext_param = 0x2c;
 	const u32 d2_pll_sip = 0x11;
@@ -411,6 +449,7 @@ static int ast2500_clk_enable(struct clk *clk)
 		break;
 	case PLL_D2PLL:
 		ast2500_configure_d2pll(priv->scu, D2PLL_DEFAULT_RATE);
+		break;
 	default:
 		return -ENOENT;
 	}

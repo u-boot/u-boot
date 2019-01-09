@@ -180,7 +180,7 @@ int dev_get_uclass_index(struct udevice *dev, struct uclass **ucp)
 	if (list_empty(&uc->dev_head))
 		return -ENODEV;
 
-	list_for_each_entry(iter, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(iter, uc) {
 		if (iter == dev) {
 			if (ucp)
 				*ucp = uc;
@@ -205,7 +205,7 @@ int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 	if (list_empty(&uc->dev_head))
 		return -ENODEV;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		if (!index--) {
 			*devp = dev;
 			return 0;
@@ -259,7 +259,7 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		if (!strncmp(dev->name, name, strlen(name))) {
 			*devp = dev;
 			return 0;
@@ -268,6 +268,30 @@ int uclass_find_device_by_name(enum uclass_id id, const char *name,
 
 	return -ENODEV;
 }
+
+#if !CONFIG_IS_ENABLED(OF_CONTROL) || CONFIG_IS_ENABLED(OF_PLATDATA)
+int uclass_find_next_free_req_seq(enum uclass_id id)
+{
+	struct uclass *uc;
+	struct udevice *dev;
+	int ret;
+	int max = -1;
+
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return ret;
+
+	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		if ((dev->req_seq != -1) && (dev->req_seq > max))
+			max = dev->req_seq;
+	}
+
+	if (max == -1)
+		return 0;
+
+	return max + 1;
+}
+#endif
 
 int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 			      bool find_req_seq, struct udevice **devp)
@@ -284,7 +308,7 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		debug("   - %d %d '%s'\n", dev->req_seq, dev->seq, dev->name);
 		if ((find_req_seq ? dev->req_seq : dev->seq) ==
 				seq_or_req_seq) {
@@ -312,7 +336,7 @@ int uclass_find_device_by_of_offset(enum uclass_id id, int node,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		if (dev_of_offset(dev) == node) {
 			*devp = dev;
 			return 0;
@@ -337,7 +361,7 @@ int uclass_find_device_by_ofnode(enum uclass_id id, ofnode node,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		log(LOGC_DM, LOGL_DEBUG_CONTENT, "      - checking %s\n",
 		    dev->name);
 		if (ofnode_equal(dev_ofnode(dev), node)) {
@@ -354,10 +378,8 @@ done:
 }
 
 #if CONFIG_IS_ENABLED(OF_CONTROL)
-static int uclass_find_device_by_phandle(enum uclass_id id,
-					 struct udevice *parent,
-					 const char *name,
-					 struct udevice **devp)
+int uclass_find_device_by_phandle(enum uclass_id id, struct udevice *parent,
+				  const char *name, struct udevice **devp)
 {
 	struct udevice *dev;
 	struct uclass *uc;
@@ -372,7 +394,7 @@ static int uclass_find_device_by_phandle(enum uclass_id id,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		uint phandle;
 
 		phandle = dev_read_phandle(dev);
@@ -399,7 +421,7 @@ int uclass_get_device_by_driver(enum uclass_id id,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		if (dev->driver == find_drv)
 			return uclass_get_device_tail(dev, 0, devp);
 	}
@@ -499,7 +521,7 @@ int uclass_get_device_by_phandle_id(enum uclass_id id, uint phandle_id,
 	if (ret)
 		return ret;
 
-	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+	uclass_foreach_dev(dev, uc) {
 		uint phandle;
 
 		phandle = dev_read_phandle(dev);
@@ -560,6 +582,19 @@ int uclass_next_device(struct udevice **devp)
 	if (!dev)
 		return 0;
 	return uclass_get_device_tail(dev, ret, devp);
+}
+
+int uclass_next_device_err(struct udevice **devp)
+{
+	int ret;
+
+	ret = uclass_next_device(devp);
+	if (ret)
+		return ret;
+	else if (!*devp)
+		return -ENODEV;
+
+	return 0;
 }
 
 int uclass_first_device_check(enum uclass_id id, struct udevice **devp)
@@ -687,8 +722,19 @@ int uclass_pre_probe_device(struct udevice *dev)
 
 int uclass_post_probe_device(struct udevice *dev)
 {
-	struct uclass_driver *uc_drv = dev->uclass->uc_drv;
+	struct uclass_driver *uc_drv;
+	int ret;
 
+	if (dev->parent) {
+		uc_drv = dev->parent->uclass->uc_drv;
+		if (uc_drv->child_post_probe) {
+			ret = uc_drv->child_post_probe(dev);
+			if (ret)
+				return ret;
+		}
+	}
+
+	uc_drv = dev->uclass->uc_drv;
 	if (uc_drv->post_probe)
 		return uc_drv->post_probe(dev);
 

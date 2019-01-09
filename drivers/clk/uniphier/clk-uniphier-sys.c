@@ -6,13 +6,12 @@
 
 #include "clk-uniphier.h"
 
-/* Denali driver requires clk_x rate (clk: 50MHz, clk_x & ecc_clk: 200MHz) */
 #define UNIPHIER_LD4_SYS_CLK_NAND(_id)					\
-	UNIPHIER_CLK_RATE(128, 200000000),				\
+	UNIPHIER_CLK_RATE(128, 50000000),				\
 	UNIPHIER_CLK_GATE((_id), 128, 0x2104, 2)
 
 #define UNIPHIER_LD11_SYS_CLK_NAND(_id)					\
-	UNIPHIER_CLK_RATE(128, 200000000),				\
+	UNIPHIER_CLK_RATE(128, 50000000),				\
 	UNIPHIER_CLK_GATE((_id), 128, 0x210c, 0)
 
 const struct uniphier_clk_data uniphier_pxs2_sys_clk_data[] = {
@@ -20,6 +19,7 @@ const struct uniphier_clk_data uniphier_pxs2_sys_clk_data[] = {
     defined(CONFIG_ARCH_UNIPHIER_PRO4) || defined(CONFIG_ARCH_UNIPHIER_PRO5) ||\
     defined(CONFIG_ARCH_UNIPHIER_PXS2) || defined(CONFIG_ARCH_UNIPHIER_LD6B)
 	UNIPHIER_LD4_SYS_CLK_NAND(2),
+	UNIPHIER_CLK_RATE(3, 200000000),
 	UNIPHIER_CLK_GATE_SIMPLE(6, 0x2104, 12),	/* ether (Pro4, PXs2) */
 	UNIPHIER_CLK_GATE_SIMPLE(7, 0x2104, 5),		/* ether-gb (Pro4) */
 	UNIPHIER_CLK_GATE_SIMPLE(8, 0x2104, 10),	/* stdmac */
@@ -36,6 +36,7 @@ const struct uniphier_clk_data uniphier_pxs2_sys_clk_data[] = {
 const struct uniphier_clk_data uniphier_ld20_sys_clk_data[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_LD11) || defined(CONFIG_ARCH_UNIPHIER_LD20)
 	UNIPHIER_LD11_SYS_CLK_NAND(2),
+	UNIPHIER_CLK_RATE(3, 200000000),
 	UNIPHIER_CLK_GATE_SIMPLE(6, 0x210c, 6),		/* ether */
 	UNIPHIER_CLK_GATE_SIMPLE(8, 0x210c, 8),		/* stdmac */
 	UNIPHIER_CLK_GATE_SIMPLE(14, 0x210c, 14),	/* usb30 (LD20) */
@@ -48,6 +49,7 @@ const struct uniphier_clk_data uniphier_ld20_sys_clk_data[] = {
 const struct uniphier_clk_data uniphier_pxs3_sys_clk_data[] = {
 #if defined(CONFIG_ARCH_UNIPHIER_PXS3)
 	UNIPHIER_LD11_SYS_CLK_NAND(2),
+	UNIPHIER_CLK_RATE(3, 200000000),
 	UNIPHIER_CLK_GATE_SIMPLE(6, 0x210c, 9),		/* ether0 */
 	UNIPHIER_CLK_GATE_SIMPLE(7, 0x210c, 10),	/* ether1 */
 	UNIPHIER_CLK_GATE_SIMPLE(12, 0x210c, 4),	/* usb30 (gio0) */

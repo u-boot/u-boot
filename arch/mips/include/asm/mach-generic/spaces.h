@@ -7,7 +7,7 @@
 #ifndef _ASM_MACH_GENERIC_SPACES_H
 #define _ASM_MACH_GENERIC_SPACES_H
 
-#include <asm/const.h>
+#include <linux/const.h>
 
 /*
  * This gives the physical RAM offset.

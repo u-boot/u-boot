@@ -3,10 +3,12 @@
 # (C) Copyright 2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-obj-$(CONFIG_AT91SAM9_WATCHDOG) += at91sam9_wdt.o
+obj-$(CONFIG_WDT_AT91) += at91sam9_wdt.o
 obj-$(CONFIG_FTWDT010_WATCHDOG) += ftwdt010_wdt.o
 ifneq (,$(filter $(SOC), mx25 mx31 mx35 mx5 mx6 mx7 vf610))
 obj-y += imx_watchdog.o
+else
+obj-$(CONFIG_IMX_WATCHDOG) += imx_watchdog.o
 endif
 obj-$(CONFIG_S5P)               += s5p_wdt.o
 obj-$(CONFIG_XILINX_TB_WATCHDOG) += xilinx_tb_wdt.o
@@ -23,3 +25,5 @@ obj-$(CONFIG_BCM2835_WDT)       += bcm2835_wdt.o
 obj-$(CONFIG_WDT_ORION) += orion_wdt.o
 obj-$(CONFIG_WDT_CDNS) += cdns_wdt.o
 obj-$(CONFIG_MPC8xx_WATCHDOG) += mpc8xx_wdt.o
+obj-$(CONFIG_WDT_MT7621) += mt7621_wdt.o
+obj-$(CONFIG_WDT_MTK) += mtk_wdt.o

@@ -4,15 +4,17 @@
  * R. Chandrasekar <rcsekar@samsung.com>
  */
 #include <common.h>
-#include <asm/arch/clk.h>
-#include <asm/arch/cpu.h>
-#include <asm/gpio.h>
-#include <asm/io.h>
+#include <audio_codec.h>
+#include <dm.h>
 #include <div64.h>
 #include <fdtdec.h>
 #include <i2c.h>
 #include <i2s.h>
 #include <sound.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
+#include <asm/arch/clk.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/sound.h>
 #include "wm8994.h"
 #include "wm8994_registers.h"
@@ -38,6 +40,7 @@ struct wm8994_priv {
 	int mclk[WM8994_MAX_AIF];	/* master clock frequency in Hz */
 	int aifclk[WM8994_MAX_AIF];	/* audio interface clock in Hz   */
 	struct wm8994_fll_config fll[2]; /* fll config to configure fll */
+	struct udevice *dev;
 };
 
 /* wm 8994 supported sampling rate values */
@@ -60,29 +63,17 @@ static int bclk_divs[] = {
 	640, 880, 960, 1280, 1760, 1920
 };
 
-static struct wm8994_priv g_wm8994_info;
-static unsigned char g_wm8994_i2c_dev_addr;
-static struct sound_codec_info g_codec_info;
-
-/*
- * Initialise I2C for wm 8994
- *
- * @param bus no	i2c bus number in which wm8994 is connected
- */
-static void wm8994_i2c_init(int bus_no)
-{
-	i2c_set_bus_num(bus_no);
-}
-
 /*
  * Writes value to a device register through i2c
  *
+ * @param priv	Private data for driver
  * @param reg	reg number to be write
  * @param data	data to be writen to the above registor
  *
  * @return	int value 1 for change, 0 for no change or negative error code.
  */
-static int wm8994_i2c_write(unsigned int reg, unsigned short data)
+static int wm8994_i2c_write(struct wm8994_priv *priv, unsigned int reg,
+			    unsigned short data)
 {
 	unsigned char val[2];
 
@@ -90,23 +81,25 @@ static int wm8994_i2c_write(unsigned int reg, unsigned short data)
 	val[1] = (unsigned char)(data & 0xff);
 	debug("Write Addr : 0x%04X, Data :  0x%04X\n", reg, data);
 
-	return i2c_write(g_wm8994_i2c_dev_addr, reg, 2, val, 2);
+	return dm_i2c_write(priv->dev, reg, val, 2);
 }
 
 /*
  * Read a value from a device register through i2c
  *
+ * @param priv	Private data for driver
  * @param reg	reg number to be read
  * @param data	address of read data to be stored
  *
  * @return	int value 0 for success, -1 in case of error.
  */
-static unsigned int  wm8994_i2c_read(unsigned int reg , unsigned short *data)
+static unsigned int wm8994_i2c_read(struct wm8994_priv *priv, unsigned int reg,
+				    unsigned short *data)
 {
 	unsigned char val[2];
 	int ret;
 
-	ret = i2c_read(g_wm8994_i2c_dev_addr, reg, 2, val, 2);
+	ret = dm_i2c_read(priv->dev, reg, val, 1);
 	if (ret != 0) {
 		debug("%s: Error while reading register %#04x\n",
 		      __func__, reg);
@@ -123,6 +116,7 @@ static unsigned int  wm8994_i2c_read(unsigned int reg , unsigned short *data)
 /*
  * update device register bits through i2c
  *
+ * @param priv	Private data for driver
  * @param reg	codec register
  * @param mask	register mask
  * @param value	new value
@@ -130,18 +124,18 @@ static unsigned int  wm8994_i2c_read(unsigned int reg , unsigned short *data)
  * @return int value 1 if change in the register value,
  * 0 for no change or negative error code.
  */
-static int wm8994_update_bits(unsigned int reg, unsigned short mask,
-						unsigned short value)
+static int wm8994_bic_or(struct wm8994_priv *priv, unsigned int reg,
+			 unsigned short mask, unsigned short value)
 {
 	int change , ret = 0;
 	unsigned short old, new;
 
-	if (wm8994_i2c_read(reg, &old) != 0)
+	if (wm8994_i2c_read(priv, reg, &old) != 0)
 		return -1;
 	new = (old & ~mask) | (value & mask);
 	change  = (old != new) ? 1 : 0;
 	if (change)
-		ret = wm8994_i2c_write(reg, new);
+		ret = wm8994_i2c_write(priv, reg, new);
 	if (ret < 0)
 		return ret;
 
@@ -151,12 +145,13 @@ static int wm8994_update_bits(unsigned int reg, unsigned short mask,
 /*
  * Sets i2s set format
  *
+ * @param priv		wm8994 information
  * @param aif_id	Interface ID
  * @param fmt		i2S format
  *
  * @return -1 for error and 0  Success.
  */
-int wm8994_set_fmt(int aif_id, unsigned int fmt)
+static int wm8994_set_fmt(struct wm8994_priv *priv, int aif_id, uint fmt)
 {
 	int ms_reg;
 	int aif_reg;
@@ -254,12 +249,13 @@ int wm8994_set_fmt(int aif_id, unsigned int fmt)
 		return -1;
 	}
 
-	error = wm8994_update_bits(aif_reg, WM8994_AIF1_BCLK_INV |
-			WM8994_AIF1_LRCLK_INV_MASK | WM8994_AIF1_FMT_MASK, aif);
+	error = wm8994_bic_or(priv, aif_reg, WM8994_AIF1_BCLK_INV |
+			      WM8994_AIF1_LRCLK_INV_MASK |
+			       WM8994_AIF1_FMT_MASK, aif);
 
-	error |= wm8994_update_bits(ms_reg, WM8994_AIF1_MSTR_MASK, ms);
-	error |= wm8994_update_bits(aif_clk, WM8994_AIF1CLK_ENA_MASK,
-						WM8994_AIF1CLK_ENA);
+	error |= wm8994_bic_or(priv, ms_reg, WM8994_AIF1_MSTR_MASK, ms);
+	error |= wm8994_bic_or(priv, aif_clk, WM8994_AIF1CLK_ENA_MASK,
+			       WM8994_AIF1CLK_ENA);
 	if (error < 0) {
 		debug("%s: codec register access error\n", __func__);
 		return -1;
@@ -271,7 +267,7 @@ int wm8994_set_fmt(int aif_id, unsigned int fmt)
 /*
  * Sets hw params FOR WM8994
  *
- * @param wm8994		wm8994 information pointer
+ * @param priv			wm8994 information pointer
  * @param aif_id		Audio interface ID
  * @param sampling_rate		Sampling rate
  * @param bits_per_sample	Bits per sample
@@ -279,9 +275,9 @@ int wm8994_set_fmt(int aif_id, unsigned int fmt)
  *
  * @return -1 for error  and 0  Success.
  */
-static int wm8994_hw_params(struct wm8994_priv *wm8994, int aif_id,
-		unsigned int sampling_rate, unsigned int bits_per_sample,
-		unsigned int channels)
+static int wm8994_hw_params(struct wm8994_priv *priv, int aif_id,
+			    uint sampling_rate, uint bits_per_sample,
+			    uint channels)
 {
 	int aif1_reg;
 	int aif2_reg;
@@ -349,12 +345,10 @@ static int wm8994_hw_params(struct wm8994_priv *wm8994, int aif_id,
 
 	/* AIFCLK/fs ratio; look for a close match in either direction */
 	best = 0;
-	best_val = abs((fs_ratios[0] * sampling_rate)
-						- wm8994->aifclk[id]);
+	best_val = abs((fs_ratios[0] * sampling_rate) - priv->aifclk[id]);
 
 	for (i = 1; i < ARRAY_SIZE(fs_ratios); i++) {
-		cur_val = abs((fs_ratios[i] * sampling_rate)
-					- wm8994->aifclk[id]);
+		cur_val = abs(fs_ratios[i] * sampling_rate - priv->aifclk[id]);
 		if (cur_val >= best_val)
 			continue;
 		best = i;
@@ -371,7 +365,7 @@ static int wm8994_hw_params(struct wm8994_priv *wm8994, int aif_id,
 	 */
 	best = 0;
 	for (i = 0; i < ARRAY_SIZE(bclk_divs); i++) {
-		cur_val = (wm8994->aifclk[id] * 10 / bclk_divs[i]) - bclk_rate;
+		cur_val = (priv->aifclk[id] * 10 / bclk_divs[i]) - bclk_rate;
 		if (cur_val < 0) /* BCLK table is sorted */
 			break;
 		best = i;
@@ -383,10 +377,10 @@ static int wm8994_hw_params(struct wm8994_priv *wm8994, int aif_id,
 		return -1;
 	}
 
-	bclk_rate = wm8994->aifclk[id] * 10 / bclk_divs[best];
+	bclk_rate = priv->aifclk[id] * 10 / bclk_divs[best];
 	bclk |= best << WM8994_AIF1_BCLK_DIV_SHIFT;
 
-	if (wm8994_i2c_read(aif1_reg, &reg_data) != 0) {
+	if (wm8994_i2c_read(priv, aif1_reg, &reg_data) != 0) {
 		debug("%s: AIF1 register read Failed\n", __func__);
 		return -1;
 	}
@@ -394,16 +388,17 @@ static int wm8994_hw_params(struct wm8994_priv *wm8994, int aif_id,
 	if ((channels == 1) && ((reg_data & 0x18) == 0x18))
 		aif2 |= WM8994_AIF1_MONO;
 
-	if (wm8994->aifclk[id] == 0) {
+	if (priv->aifclk[id] == 0) {
 		debug("%s:Audio interface clock not set\n", __func__);
 		return -1;
 	}
 
-	ret = wm8994_update_bits(aif1_reg, WM8994_AIF1_WL_MASK, aif1);
-	ret |= wm8994_update_bits(aif2_reg, WM8994_AIF1_MONO, aif2);
-	ret |= wm8994_update_bits(bclk_reg, WM8994_AIF1_BCLK_DIV_MASK, bclk);
-	ret |= wm8994_update_bits(rate_reg, WM8994_AIF1_SR_MASK |
-				WM8994_AIF1CLK_RATE_MASK, rate_val);
+	ret = wm8994_bic_or(priv, aif1_reg, WM8994_AIF1_WL_MASK, aif1);
+	ret |= wm8994_bic_or(priv, aif2_reg, WM8994_AIF1_MONO, aif2);
+	ret |= wm8994_bic_or(priv, bclk_reg, WM8994_AIF1_BCLK_DIV_MASK,
+				  bclk);
+	ret |= wm8994_bic_or(priv, rate_reg, WM8994_AIF1_SR_MASK |
+				  WM8994_AIF1CLK_RATE_MASK, rate_val);
 
 	debug("rate vale = %x , bclk val= %x\n", rate_val, bclk);
 
@@ -418,12 +413,12 @@ static int wm8994_hw_params(struct wm8994_priv *wm8994, int aif_id,
 /*
  * Configures Audio interface Clock
  *
- * @param wm8994	wm8994 information pointer
+ * @param priv		wm8994 information pointer
  * @param aif		Audio Interface ID
  *
  * @return -1 for error  and 0  Success.
  */
-static int configure_aif_clock(struct wm8994_priv *wm8994, int aif)
+static int configure_aif_clock(struct wm8994_priv *priv, int aif)
 {
 	int rate;
 	int reg1 = 0;
@@ -436,30 +431,30 @@ static int configure_aif_clock(struct wm8994_priv *wm8994, int aif)
 	else
 		offset = 0;
 
-	switch (wm8994->sysclk[aif-1]) {
+	switch (priv->sysclk[aif - 1]) {
 	case WM8994_SYSCLK_MCLK1:
 		reg1 |= SEL_MCLK1;
-		rate = wm8994->mclk[0];
+		rate = priv->mclk[0];
 		break;
 
 	case WM8994_SYSCLK_MCLK2:
 		reg1 |= SEL_MCLK2;
-		rate = wm8994->mclk[1];
+		rate = priv->mclk[1];
 		break;
 
 	case WM8994_SYSCLK_FLL1:
 		reg1 |= SEL_FLL1;
-		rate = wm8994->fll[0].out;
+		rate = priv->fll[0].out;
 		break;
 
 	case WM8994_SYSCLK_FLL2:
 		reg1 |= SEL_FLL2;
-		rate = wm8994->fll[1].out;
+		rate = priv->fll[1].out;
 		break;
 
 	default:
 		debug("%s: Invalid input clock selection [%d]\n",
-		      __func__, wm8994->sysclk[aif-1]);
+		      __func__, priv->sysclk[aif - 1]);
 		return -1;
 	}
 
@@ -469,18 +464,18 @@ static int configure_aif_clock(struct wm8994_priv *wm8994, int aif)
 		reg1 |= WM8994_AIF1CLK_DIV;
 	}
 
-	wm8994->aifclk[aif-1] = rate;
+	priv->aifclk[aif - 1] = rate;
 
-	ret = wm8994_update_bits(WM8994_AIF1_CLOCKING_1 + offset,
-				WM8994_AIF1CLK_SRC_MASK | WM8994_AIF1CLK_DIV,
-				reg1);
+	ret = wm8994_bic_or(priv, WM8994_AIF1_CLOCKING_1 + offset,
+			    WM8994_AIF1CLK_SRC_MASK | WM8994_AIF1CLK_DIV,
+			    reg1);
 
 	if (aif == WM8994_AIF1)
-		ret |= wm8994_update_bits(WM8994_CLOCKING_1,
+		ret |= wm8994_bic_or(priv, WM8994_CLOCKING_1,
 			WM8994_AIF1DSPCLK_ENA_MASK | WM8994_SYSDSPCLK_ENA_MASK,
 			WM8994_AIF1DSPCLK_ENA | WM8994_SYSDSPCLK_ENA);
 	else if (aif == WM8994_AIF2)
-		ret |= wm8994_update_bits(WM8994_CLOCKING_1,
+		ret |= wm8994_bic_or(priv, WM8994_CLOCKING_1,
 			WM8994_SYSCLK_SRC | WM8994_AIF2DSPCLK_ENA_MASK |
 			WM8994_SYSDSPCLK_ENA_MASK, WM8994_SYSCLK_SRC |
 			WM8994_AIF2DSPCLK_ENA | WM8994_SYSDSPCLK_ENA);
@@ -496,33 +491,33 @@ static int configure_aif_clock(struct wm8994_priv *wm8994, int aif)
 /*
  * Configures Audio interface  for the given frequency
  *
- * @param wm8994	wm8994 information
+ * @param priv		wm8994 information
  * @param aif_id	Audio Interface
  * @param clk_id	Input Clock ID
  * @param freq		Sampling frequency in Hz
  *
  * @return -1 for error and 0 success.
  */
-static int wm8994_set_sysclk(struct wm8994_priv *wm8994, int aif_id,
-				int clk_id, unsigned int freq)
+static int wm8994_set_sysclk(struct wm8994_priv *priv, int aif_id, int clk_id,
+			     unsigned int freq)
 {
 	int i;
 	int ret = 0;
 
-	wm8994->sysclk[aif_id - 1] = clk_id;
+	priv->sysclk[aif_id - 1] = clk_id;
 
 	switch (clk_id) {
 	case WM8994_SYSCLK_MCLK1:
-		wm8994->mclk[0] = freq;
+		priv->mclk[0] = freq;
 		if (aif_id == 2) {
-			ret = wm8994_update_bits(WM8994_AIF1_CLOCKING_2 ,
-			WM8994_AIF2DAC_DIV_MASK , 0);
+			ret = wm8994_bic_or(priv, WM8994_AIF1_CLOCKING_2,
+					    WM8994_AIF2DAC_DIV_MASK, 0);
 		}
 		break;
 
 	case WM8994_SYSCLK_MCLK2:
 		/* TODO: Set GPIO AF */
-		wm8994->mclk[1] = freq;
+		priv->mclk[1] = freq;
 		break;
 
 	case WM8994_SYSCLK_FLL1:
@@ -543,13 +538,14 @@ static int wm8994_set_sysclk(struct wm8994_priv *wm8994, int aif_id,
 				      __func__);
 				return -1;
 			}
-			ret = wm8994_update_bits(WM8994_CLOCKING_2,
+			ret = wm8994_bic_or(priv, WM8994_CLOCKING_2,
 					    WM8994_OPCLK_DIV_MASK, i);
-			ret |= wm8994_update_bits(WM8994_POWER_MANAGEMENT_2,
-					    WM8994_OPCLK_ENA, WM8994_OPCLK_ENA);
+			ret |= wm8994_bic_or(priv, WM8994_POWER_MANAGEMENT_2,
+					     WM8994_OPCLK_ENA,
+					     WM8994_OPCLK_ENA);
 		} else {
-			ret |= wm8994_update_bits(WM8994_POWER_MANAGEMENT_2,
-					    WM8994_OPCLK_ENA, 0);
+			ret |= wm8994_bic_or(priv, WM8994_POWER_MANAGEMENT_2,
+					     WM8994_OPCLK_ENA, 0);
 		}
 
 	default:
@@ -558,7 +554,7 @@ static int wm8994_set_sysclk(struct wm8994_priv *wm8994, int aif_id,
 		return -1;
 	}
 
-	ret |= configure_aif_clock(wm8994, aif_id);
+	ret |= configure_aif_clock(priv, aif_id);
 
 	if (ret < 0) {
 		debug("%s: codec register access error\n", __func__);
@@ -571,37 +567,38 @@ static int wm8994_set_sysclk(struct wm8994_priv *wm8994, int aif_id,
 /*
  * Initializes Volume for AIF2 to HP path
  *
+ * @param priv		wm8994 information
  * @returns -1 for error  and 0 Success.
  *
  */
-static int wm8994_init_volume_aif2_dac1(void)
+static int wm8994_init_volume_aif2_dac1(struct wm8994_priv *priv)
 {
 	int ret;
 
 	/* Unmute AIF2DAC */
-	ret = wm8994_update_bits(WM8994_AIF2_DAC_FILTERS_1,
-			WM8994_AIF2DAC_MUTE_MASK, 0);
+	ret = wm8994_bic_or(priv, WM8994_AIF2_DAC_FILTERS_1,
+			    WM8994_AIF2DAC_MUTE_MASK, 0);
 
 
-	ret |= wm8994_update_bits(WM8994_AIF2_DAC_LEFT_VOLUME,
-			WM8994_AIF2DAC_VU_MASK | WM8994_AIF2DACL_VOL_MASK,
-			WM8994_AIF2DAC_VU | 0xff);
+	ret |= wm8994_bic_or(priv, WM8994_AIF2_DAC_LEFT_VOLUME,
+			     WM8994_AIF2DAC_VU_MASK | WM8994_AIF2DACL_VOL_MASK,
+			     WM8994_AIF2DAC_VU | 0xff);
 
-	ret |= wm8994_update_bits(WM8994_AIF2_DAC_RIGHT_VOLUME,
-			WM8994_AIF2DAC_VU_MASK | WM8994_AIF2DACR_VOL_MASK,
-			WM8994_AIF2DAC_VU | 0xff);
+	ret |= wm8994_bic_or(priv, WM8994_AIF2_DAC_RIGHT_VOLUME,
+			     WM8994_AIF2DAC_VU_MASK | WM8994_AIF2DACR_VOL_MASK,
+			     WM8994_AIF2DAC_VU | 0xff);
 
 
-	ret |= wm8994_update_bits(WM8994_DAC1_LEFT_VOLUME,
-			WM8994_DAC1_VU_MASK | WM8994_DAC1L_VOL_MASK |
-			WM8994_DAC1L_MUTE_MASK, WM8994_DAC1_VU | 0xc0);
+	ret |= wm8994_bic_or(priv, WM8994_DAC1_LEFT_VOLUME,
+			     WM8994_DAC1_VU_MASK | WM8994_DAC1L_VOL_MASK |
+			     WM8994_DAC1L_MUTE_MASK, WM8994_DAC1_VU | 0xc0);
 
-	ret |= wm8994_update_bits(WM8994_DAC1_RIGHT_VOLUME,
-			WM8994_DAC1_VU_MASK | WM8994_DAC1R_VOL_MASK |
-			WM8994_DAC1R_MUTE_MASK, WM8994_DAC1_VU | 0xc0);
+	ret |= wm8994_bic_or(priv, WM8994_DAC1_RIGHT_VOLUME,
+			     WM8994_DAC1_VU_MASK | WM8994_DAC1R_VOL_MASK |
+			     WM8994_DAC1R_MUTE_MASK, WM8994_DAC1_VU | 0xc0);
 	/* Head Phone Volume */
-	ret |= wm8994_i2c_write(WM8994_LEFT_OUTPUT_VOLUME, 0x12D);
-	ret |= wm8994_i2c_write(WM8994_RIGHT_OUTPUT_VOLUME, 0x12D);
+	ret |= wm8994_i2c_write(priv, WM8994_LEFT_OUTPUT_VOLUME, 0x12D);
+	ret |= wm8994_i2c_write(priv, WM8994_RIGHT_OUTPUT_VOLUME, 0x12D);
 
 	if (ret < 0) {
 		debug("%s: codec register access error\n", __func__);
@@ -614,26 +611,27 @@ static int wm8994_init_volume_aif2_dac1(void)
 /*
  * Initializes Volume for AIF1 to HP path
  *
+ * @param priv		wm8994 information
  * @returns -1 for error  and 0 Success.
  *
  */
-static int wm8994_init_volume_aif1_dac1(void)
+static int wm8994_init_volume_aif1_dac1(struct wm8994_priv *priv)
 {
 	int ret = 0;
 
 	/* Unmute AIF1DAC */
-	ret |= wm8994_i2c_write(WM8994_AIF1_DAC_FILTERS_1, 0x0000);
+	ret |= wm8994_i2c_write(priv, WM8994_AIF1_DAC_FILTERS_1, 0x0000);
 
-	ret |= wm8994_update_bits(WM8994_DAC1_LEFT_VOLUME,
-			WM8994_DAC1_VU_MASK | WM8994_DAC1L_VOL_MASK |
-			WM8994_DAC1L_MUTE_MASK, WM8994_DAC1_VU | 0xc0);
+	ret |= wm8994_bic_or(priv, WM8994_DAC1_LEFT_VOLUME,
+			     WM8994_DAC1_VU_MASK | WM8994_DAC1L_VOL_MASK |
+			     WM8994_DAC1L_MUTE_MASK, WM8994_DAC1_VU | 0xc0);
 
-	ret |= wm8994_update_bits(WM8994_DAC1_RIGHT_VOLUME,
-			WM8994_DAC1_VU_MASK | WM8994_DAC1R_VOL_MASK |
-			WM8994_DAC1R_MUTE_MASK, WM8994_DAC1_VU | 0xc0);
+	ret |= wm8994_bic_or(priv, WM8994_DAC1_RIGHT_VOLUME,
+			     WM8994_DAC1_VU_MASK | WM8994_DAC1R_VOL_MASK |
+			     WM8994_DAC1R_MUTE_MASK, WM8994_DAC1_VU | 0xc0);
 	/* Head Phone Volume */
-	ret |= wm8994_i2c_write(WM8994_LEFT_OUTPUT_VOLUME, 0x12D);
-	ret |= wm8994_i2c_write(WM8994_RIGHT_OUTPUT_VOLUME, 0x12D);
+	ret |= wm8994_i2c_write(priv, WM8994_LEFT_OUTPUT_VOLUME, 0x12D);
+	ret |= wm8994_i2c_write(priv, WM8994_RIGHT_OUTPUT_VOLUME, 0x12D);
 
 	if (ret < 0) {
 		debug("%s: codec register access error\n", __func__);
@@ -646,93 +644,99 @@ static int wm8994_init_volume_aif1_dac1(void)
 /*
  * Intialise wm8994 codec device
  *
- * @param wm8994	wm8994 information
+ * @param priv		wm8994 information
  *
  * @returns -1 for error  and 0 Success.
  */
-static int wm8994_device_init(struct wm8994_priv *wm8994,
-			      enum en_audio_interface aif_id)
+static int wm8994_device_init(struct wm8994_priv *priv)
 {
 	const char *devname;
 	unsigned short reg_data;
 	int ret;
 
-	wm8994_i2c_write(WM8994_SOFTWARE_RESET, WM8994_SW_RESET);/* Reset */
+	wm8994_i2c_write(priv, WM8994_SOFTWARE_RESET, WM8994_SW_RESET);
 
-	ret = wm8994_i2c_read(WM8994_SOFTWARE_RESET, &reg_data);
+	ret = wm8994_i2c_read(priv, WM8994_SOFTWARE_RESET, &reg_data);
 	if (ret < 0) {
 		debug("Failed to read ID register\n");
-		goto err;
+		return ret;
 	}
 
 	if (reg_data == WM8994_ID) {
 		devname = "WM8994";
-		debug("Device registered as type %d\n", wm8994->type);
-		wm8994->type = WM8994;
+		debug("Device registered as type %d\n", priv->type);
+		priv->type = WM8994;
 	} else {
 		debug("Device is not a WM8994, ID is %x\n", ret);
-		ret = -1;
-		goto err;
+		return -ENXIO;
 	}
 
-	ret = wm8994_i2c_read(WM8994_CHIP_REVISION, &reg_data);
+	ret = wm8994_i2c_read(priv, WM8994_CHIP_REVISION, &reg_data);
 	if (ret < 0) {
 		debug("Failed to read revision register: %d\n", ret);
-		goto err;
+		return ret;
 	}
-	wm8994->revision = reg_data;
-	debug("%s revision %c\n", devname, 'A' + wm8994->revision);
+	priv->revision = reg_data;
+	debug("%s revision %c\n", devname, 'A' + priv->revision);
+
+	return 0;
+}
+
+static int wm8994_setup_interface(struct wm8994_priv *priv,
+				  enum en_audio_interface aif_id)
+{
+	int ret;
 
 	/* VMID Selection */
-	ret |= wm8994_update_bits(WM8994_POWER_MANAGEMENT_1,
-			WM8994_VMID_SEL_MASK | WM8994_BIAS_ENA_MASK, 0x3);
+	ret = wm8994_bic_or(priv, WM8994_POWER_MANAGEMENT_1,
+			    WM8994_VMID_SEL_MASK | WM8994_BIAS_ENA_MASK, 0x3);
 
 	/* Charge Pump Enable */
-	ret |= wm8994_update_bits(WM8994_CHARGE_PUMP_1, WM8994_CP_ENA_MASK,
-					WM8994_CP_ENA);
+	ret |= wm8994_bic_or(priv, WM8994_CHARGE_PUMP_1, WM8994_CP_ENA_MASK,
+			     WM8994_CP_ENA);
 
 	/* Head Phone Power Enable */
-	ret |= wm8994_update_bits(WM8994_POWER_MANAGEMENT_1,
-			WM8994_HPOUT1L_ENA_MASK, WM8994_HPOUT1L_ENA);
+	ret |= wm8994_bic_or(priv, WM8994_POWER_MANAGEMENT_1,
+			     WM8994_HPOUT1L_ENA_MASK, WM8994_HPOUT1L_ENA);
 
-	ret |= wm8994_update_bits(WM8994_POWER_MANAGEMENT_1,
-				WM8994_HPOUT1R_ENA_MASK, WM8994_HPOUT1R_ENA);
+	ret |= wm8994_bic_or(priv, WM8994_POWER_MANAGEMENT_1,
+			     WM8994_HPOUT1R_ENA_MASK, WM8994_HPOUT1R_ENA);
 
 	if (aif_id == WM8994_AIF1) {
-		ret |= wm8994_i2c_write(WM8994_POWER_MANAGEMENT_2,
+		ret |= wm8994_i2c_write(priv, WM8994_POWER_MANAGEMENT_2,
 					WM8994_TSHUT_ENA | WM8994_MIXINL_ENA |
 					WM8994_MIXINR_ENA | WM8994_IN2L_ENA |
 					WM8994_IN2R_ENA);
 
-		ret |= wm8994_i2c_write(WM8994_POWER_MANAGEMENT_4,
+		ret |= wm8994_i2c_write(priv, WM8994_POWER_MANAGEMENT_4,
 					WM8994_ADCL_ENA | WM8994_ADCR_ENA |
 					WM8994_AIF1ADC1R_ENA |
 					WM8994_AIF1ADC1L_ENA);
 
 		/* Power enable for AIF1 and DAC1 */
-		ret |= wm8994_i2c_write(WM8994_POWER_MANAGEMENT_5,
+		ret |= wm8994_i2c_write(priv, WM8994_POWER_MANAGEMENT_5,
 					WM8994_AIF1DACL_ENA |
 					WM8994_AIF1DACR_ENA |
 					WM8994_DAC1L_ENA | WM8994_DAC1R_ENA);
 	} else if (aif_id == WM8994_AIF2) {
 		/* Power enable for AIF2 and DAC1 */
-		ret |= wm8994_update_bits(WM8994_POWER_MANAGEMENT_5,
+		ret |= wm8994_bic_or(priv, WM8994_POWER_MANAGEMENT_5,
 			WM8994_AIF2DACL_ENA_MASK | WM8994_AIF2DACR_ENA_MASK |
 			WM8994_DAC1L_ENA_MASK | WM8994_DAC1R_ENA_MASK,
 			WM8994_AIF2DACL_ENA | WM8994_AIF2DACR_ENA |
 			WM8994_DAC1L_ENA | WM8994_DAC1R_ENA);
 	}
 	/* Head Phone Initialisation */
-	ret |= wm8994_update_bits(WM8994_ANALOGUE_HP_1,
+	ret |= wm8994_bic_or(priv, WM8994_ANALOGUE_HP_1,
 		WM8994_HPOUT1L_DLY_MASK | WM8994_HPOUT1R_DLY_MASK,
 		WM8994_HPOUT1L_DLY | WM8994_HPOUT1R_DLY);
 
-	ret |= wm8994_update_bits(WM8994_DC_SERVO_1,
+	ret |= wm8994_bic_or(priv, WM8994_DC_SERVO_1,
 			WM8994_DCS_ENA_CHAN_0_MASK |
 			WM8994_DCS_ENA_CHAN_1_MASK , WM8994_DCS_ENA_CHAN_0 |
 			WM8994_DCS_ENA_CHAN_1);
 
-	ret |= wm8994_update_bits(WM8994_ANALOGUE_HP_1,
+	ret |= wm8994_bic_or(priv, WM8994_ANALOGUE_HP_1,
 			WM8994_HPOUT1L_DLY_MASK |
 			WM8994_HPOUT1R_DLY_MASK | WM8994_HPOUT1L_OUTP_MASK |
 			WM8994_HPOUT1R_OUTP_MASK |
@@ -743,172 +747,130 @@ static int wm8994_device_init(struct wm8994_priv *wm8994,
 			WM8994_HPOUT1R_RMV_SHORT);
 
 	/* MIXER Config DAC1 to HP */
-	ret |= wm8994_update_bits(WM8994_OUTPUT_MIXER_1,
-			WM8994_DAC1L_TO_HPOUT1L_MASK, WM8994_DAC1L_TO_HPOUT1L);
+	ret |= wm8994_bic_or(priv, WM8994_OUTPUT_MIXER_1,
+			     WM8994_DAC1L_TO_HPOUT1L_MASK,
+			     WM8994_DAC1L_TO_HPOUT1L);
 
-	ret |= wm8994_update_bits(WM8994_OUTPUT_MIXER_2,
-			WM8994_DAC1R_TO_HPOUT1R_MASK, WM8994_DAC1R_TO_HPOUT1R);
+	ret |= wm8994_bic_or(priv, WM8994_OUTPUT_MIXER_2,
+			     WM8994_DAC1R_TO_HPOUT1R_MASK,
+			     WM8994_DAC1R_TO_HPOUT1R);
 
 	if (aif_id == WM8994_AIF1) {
 		/* Routing AIF1 to DAC1 */
-		ret |= wm8994_i2c_write(WM8994_DAC1_LEFT_MIXER_ROUTING,
-				WM8994_AIF1DAC1L_TO_DAC1L);
+		ret |= wm8994_i2c_write(priv, WM8994_DAC1_LEFT_MIXER_ROUTING,
+					WM8994_AIF1DAC1L_TO_DAC1L);
 
-		ret |= wm8994_i2c_write(WM8994_DAC1_RIGHT_MIXER_ROUTING,
+		ret |= wm8994_i2c_write(priv, WM8994_DAC1_RIGHT_MIXER_ROUTING,
 					WM8994_AIF1DAC1R_TO_DAC1R);
 
 		/* GPIO Settings for AIF1 */
-		ret |=  wm8994_i2c_write(WM8994_GPIO_1, WM8994_GPIO_DIR_OUTPUT
-					 | WM8994_GPIO_FUNCTION_I2S_CLK
-					 | WM8994_GPIO_INPUT_DEBOUNCE);
+		ret |=  wm8994_i2c_write(priv, WM8994_GPIO_1,
+					 WM8994_GPIO_DIR_OUTPUT |
+					 WM8994_GPIO_FUNCTION_I2S_CLK |
+					 WM8994_GPIO_INPUT_DEBOUNCE);
 
-		ret |= wm8994_init_volume_aif1_dac1();
+		ret |= wm8994_init_volume_aif1_dac1(priv);
 	} else if (aif_id == WM8994_AIF2) {
 		/* Routing AIF2 to DAC1 */
-		ret |= wm8994_update_bits(WM8994_DAC1_LEFT_MIXER_ROUTING,
-				WM8994_AIF2DACL_TO_DAC1L_MASK,
-				WM8994_AIF2DACL_TO_DAC1L);
+		ret |= wm8994_bic_or(priv, WM8994_DAC1_LEFT_MIXER_ROUTING,
+				     WM8994_AIF2DACL_TO_DAC1L_MASK,
+				     WM8994_AIF2DACL_TO_DAC1L);
 
-		ret |= wm8994_update_bits(WM8994_DAC1_RIGHT_MIXER_ROUTING,
-				WM8994_AIF2DACR_TO_DAC1R_MASK,
-				WM8994_AIF2DACR_TO_DAC1R);
+		ret |= wm8994_bic_or(priv, WM8994_DAC1_RIGHT_MIXER_ROUTING,
+				     WM8994_AIF2DACR_TO_DAC1R_MASK,
+				     WM8994_AIF2DACR_TO_DAC1R);
 
 		/* GPIO Settings for AIF2 */
 		/* B CLK */
-		ret |= wm8994_update_bits(WM8994_GPIO_3, WM8994_GPIO_DIR_MASK |
-					WM8994_GPIO_FUNCTION_MASK ,
-					WM8994_GPIO_DIR_OUTPUT);
+		ret |= wm8994_bic_or(priv, WM8994_GPIO_3, WM8994_GPIO_DIR_MASK |
+				     WM8994_GPIO_FUNCTION_MASK,
+				     WM8994_GPIO_DIR_OUTPUT);
 
 		/* LR CLK */
-		ret |= wm8994_update_bits(WM8994_GPIO_4, WM8994_GPIO_DIR_MASK |
-					WM8994_GPIO_FUNCTION_MASK,
-					WM8994_GPIO_DIR_OUTPUT);
+		ret |= wm8994_bic_or(priv, WM8994_GPIO_4, WM8994_GPIO_DIR_MASK |
+				     WM8994_GPIO_FUNCTION_MASK,
+				     WM8994_GPIO_DIR_OUTPUT);
 
 		/* DATA */
-		ret |= wm8994_update_bits(WM8994_GPIO_5, WM8994_GPIO_DIR_MASK |
-					WM8994_GPIO_FUNCTION_MASK,
-					WM8994_GPIO_DIR_OUTPUT);
+		ret |= wm8994_bic_or(priv, WM8994_GPIO_5, WM8994_GPIO_DIR_MASK |
+				     WM8994_GPIO_FUNCTION_MASK,
+				     WM8994_GPIO_DIR_OUTPUT);
 
-		ret |= wm8994_init_volume_aif2_dac1();
+		ret |= wm8994_init_volume_aif2_dac1(priv);
 	}
 
 	if (ret < 0)
 		goto err;
 
-	debug("%s: Codec chip init ok\n", __func__);
+	debug("%s: Codec chip setup ok\n", __func__);
 	return 0;
 err:
-	debug("%s: Codec chip init error\n", __func__);
+	debug("%s: Codec chip setup error\n", __func__);
 	return -1;
 }
 
-/*
- * Gets fdt values for wm8994 config parameters
- *
- * @param pcodec_info	codec information structure
- * @param blob		FDT blob
- * @return		int value, 0 for success
- */
-static int get_codec_values(struct sound_codec_info *pcodec_info,
-			const void *blob)
+static int _wm8994_init(struct wm8994_priv *priv,
+			enum en_audio_interface aif_id, int sampling_rate,
+			int mclk_freq, int bits_per_sample,
+			unsigned int channels)
 {
-	int error = 0;
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-	enum fdt_compat_id compat;
-	int node;
-	int parent;
+	int ret;
 
-	/* Get the node from FDT for codec */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_WOLFSON_WM8994_CODEC);
-	if (node <= 0) {
-		debug("EXYNOS_SOUND: No node for codec in device tree\n");
-		debug("node = %d\n", node);
-		return -1;
-	}
-
-	parent = fdt_parent_offset(blob, node);
-	if (parent < 0) {
-		debug("%s: Cannot find node parent\n", __func__);
-		return -1;
-	}
-
-	compat = fdtdec_lookup(blob, parent);
-	switch (compat) {
-	case COMPAT_SAMSUNG_S3C2440_I2C:
-		pcodec_info->i2c_bus = i2c_get_bus_num_fdt(parent);
-		error |= pcodec_info->i2c_bus;
-		debug("i2c bus = %d\n", pcodec_info->i2c_bus);
-		pcodec_info->i2c_dev_addr = fdtdec_get_int(blob, node,
-							"reg", 0);
-		error |= pcodec_info->i2c_dev_addr;
-		debug("i2c dev addr = %d\n", pcodec_info->i2c_dev_addr);
-		break;
-	default:
-		debug("%s: Unknown compat id %d\n", __func__, compat);
-		return -1;
-	}
-#else
-	pcodec_info->i2c_bus = AUDIO_I2C_BUS;
-	pcodec_info->i2c_dev_addr = AUDIO_I2C_REG;
-	debug("i2c dev addr = %d\n", pcodec_info->i2c_dev_addr);
-#endif
-
-	pcodec_info->codec_type = CODEC_WM_8994;
-
-	if (error == -1) {
-		debug("fail to get wm8994 codec node properties\n");
-		return -1;
-	}
-
-	return 0;
-}
-
-/* WM8994 Device Initialisation */
-int wm8994_init(const void *blob, enum en_audio_interface aif_id,
-			int sampling_rate, int mclk_freq,
-			int bits_per_sample, unsigned int channels)
-{
-	int ret = 0;
-	struct sound_codec_info *pcodec_info = &g_codec_info;
-
-	/* Get the codec Values */
-	if (get_codec_values(pcodec_info, blob) < 0) {
-		debug("FDT Codec values failed\n");
-		return -1;
-	}
-
-	/* shift the device address by 1 for 7 bit addressing */
-	g_wm8994_i2c_dev_addr = pcodec_info->i2c_dev_addr;
-	wm8994_i2c_init(pcodec_info->i2c_bus);
-
-	if (pcodec_info->codec_type == CODEC_WM_8994) {
-		g_wm8994_info.type = WM8994;
-	} else {
-		debug("%s: Codec id [%d] not defined\n", __func__,
-		      pcodec_info->codec_type);
-		return -1;
-	}
-
-	ret = wm8994_device_init(&g_wm8994_info, aif_id);
+	ret = wm8994_setup_interface(priv, aif_id);
 	if (ret < 0) {
 		debug("%s: wm8994 codec chip init failed\n", __func__);
 		return ret;
 	}
 
-	ret =  wm8994_set_sysclk(&g_wm8994_info, aif_id, WM8994_SYSCLK_MCLK1,
-							mclk_freq);
+	ret = wm8994_set_sysclk(priv, aif_id, WM8994_SYSCLK_MCLK1, mclk_freq);
 	if (ret < 0) {
 		debug("%s: wm8994 codec set sys clock failed\n", __func__);
 		return ret;
 	}
 
-	ret = wm8994_hw_params(&g_wm8994_info, aif_id, sampling_rate,
-						bits_per_sample, channels);
+	ret = wm8994_hw_params(priv, aif_id, sampling_rate, bits_per_sample,
+			       channels);
 
 	if (ret == 0) {
-		ret = wm8994_set_fmt(aif_id, SND_SOC_DAIFMT_I2S |
-						SND_SOC_DAIFMT_NB_NF |
-						SND_SOC_DAIFMT_CBS_CFS);
+		ret = wm8994_set_fmt(priv, aif_id, SND_SOC_DAIFMT_I2S |
+				     SND_SOC_DAIFMT_NB_NF |
+				     SND_SOC_DAIFMT_CBS_CFS);
 	}
+
 	return ret;
 }
+
+static int wm8994_set_params(struct udevice *dev, int interface, int rate,
+			     int mclk_freq, int bits_per_sample, uint channels)
+{
+	struct wm8994_priv *priv = dev_get_priv(dev);
+
+	return _wm8994_init(priv, interface, rate, mclk_freq, bits_per_sample,
+			    channels);
+}
+
+static int wm8994_probe(struct udevice *dev)
+{
+	struct wm8994_priv *priv = dev_get_priv(dev);
+
+	priv->dev = dev;
+	return wm8994_device_init(priv);
+}
+
+static const struct audio_codec_ops wm8994_ops = {
+	.set_params	= wm8994_set_params,
+};
+
+static const struct udevice_id wm8994_ids[] = {
+	{ .compatible = "wolfson,wm8994" },
+	{ }
+};
+
+U_BOOT_DRIVER(wm8994) = {
+	.name		= "wm8994",
+	.id		= UCLASS_AUDIO_CODEC,
+	.of_match	= wm8994_ids,
+	.probe		= wm8994_probe,
+	.ops		= &wm8994_ops,
+	.priv_auto_alloc_size	= sizeof(struct wm8994_priv),
+};

@@ -42,6 +42,11 @@
 		osd0 = "/osd";
 	};
 
+	audio: audio-codec {
+		compatible = "sandbox,audio-codec";
+		#sound-dai-cells = <1>;
+	};
+
 	cros_ec: cros-ec {
 		reg = <0 0>;
 		compatible = "google,cros-ec-sandbox";
@@ -82,6 +87,8 @@
 		test2-gpios = <&gpio_a 1>, <&gpio_a 4>, <&gpio_b 6 1 3 2 1>,
 			<&gpio_b 7 2 3 2 1>, <&gpio_b 8 4 3 2 1>,
 			<&gpio_b 9 0xc 3 2 1>;
+		int-value = <1234>;
+		uint-value = <(-1234)>;
 	};
 
 	junk {
@@ -186,6 +193,10 @@
 		compatible = "denx,u-boot-fdt-test";
 	};
 
+	h-test {
+		compatible = "denx,u-boot-fdt-test1";
+	};
+
 	clocks {
 		clk_fixed: clk-fixed {
 			compatible = "fixed-clock";
@@ -262,35 +273,45 @@
 		eeprom@2c {
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
-			emul {
-				compatible = "sandbox,i2c-eeprom";
-				sandbox,filename = "i2c.bin";
-				sandbox,size = <256>;
-			};
+			sandbox,emul = <&emul_eeprom>;
 		};
 
 		rtc_0: rtc@43 {
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
-			emul {
-				compatible = "sandbox,i2c-rtc";
-			};
+			sandbox,emul = <&emul0>;
 		};
 
 		rtc_1: rtc@61 {
 			reg = <0x61>;
 			compatible = "sandbox-rtc";
-			emul {
+			sandbox,emul = <&emul1>;
+		};
+
+		i2c_emul: emul {
+			reg = <0xff>;
+			compatible = "sandbox,i2c-emul-parent";
+			emul_eeprom: emul-eeprom {
+				compatible = "sandbox,i2c-eeprom";
+				sandbox,filename = "i2c.bin";
+				sandbox,size = <256>;
+			};
+			emul0: emul0 {
+				compatible = "sandbox,i2c-rtc";
+			};
+			emul1: emull {
 				compatible = "sandbox,i2c-rtc";
 			};
 		};
 
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;
+			sandbox,emul = <&emul_pmic0>;
 		};
 
 		mc34708: pmic@41 {
 			reg = <0x41>;
+			sandbox,emul = <&emul_pmic1>;
 		};
 	};
 
@@ -346,14 +367,22 @@
 
 	cpu-test1 {
 		compatible = "sandbox,cpu_sandbox";
+		u-boot,dm-pre-reloc;
 	};
 
 	cpu-test2 {
 		compatible = "sandbox,cpu_sandbox";
+		u-boot,dm-pre-reloc;
 	};
 
 	cpu-test3 {
 		compatible = "sandbox,cpu_sandbox";
+		u-boot,dm-pre-reloc;
+	};
+
+	i2s: i2s {
+		compatible = "sandbox,i2s";
+		#sound-dai-cells = <1>;
 	};
 
 	misc-test {
@@ -443,6 +472,8 @@
 
 		test4 {
 			compatible = "denx,u-boot-probe-test";
+			first-syscon = <&syscon0>;
+			second-sys-ctrl = <&another_system_controller>;
 		};
 	};
 
@@ -509,6 +540,17 @@
 		compatible = "sandbox,smem";
 	};
 
+	sound {
+		compatible = "sandbox,sound";
+		cpu {
+			sound-dai = <&i2s 0>;
+		};
+
+		codec {
+			sound-dai = <&audio 0>;
+		};
+	};
+
 	spi@0 {
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -523,12 +565,12 @@
 		};
 	};
 
-	syscon@0 {
+	syscon0: syscon@0 {
 		compatible = "sandbox,syscon0";
-		reg = <0x10 4>;
+		reg = <0x10 16>;
 	};
 
-	syscon@1 {
+	another_system_controller: syscon@1 {
 		compatible = "sandbox,syscon1";
 		reg = <0x20 5
 			0x28 6
@@ -673,6 +715,7 @@
 		dev@0,0 {
 			compatible = "denx,u-boot-fdt-dummy";
 			reg = <0 0x0 0x1000>;
+			reg-names = "sandbox-dummy-0";
 		};
 
 		dev@1,100 {
@@ -711,6 +754,30 @@
 
 	sandbox_tee {
 		compatible = "sandbox,tee";
+	};
+
+	sandbox_virtio1 {
+		compatible = "sandbox,virtio1";
+	};
+
+	sandbox_virtio2 {
+		compatible = "sandbox,virtio2";
+	};
+
+	pinctrl {
+		compatible = "sandbox,pinctrl";
+	};
+
+	hwspinlock@0 {
+		compatible = "sandbox,hwspinlock";
+	};
+
+	dma: dma {
+		compatible = "sandbox,dma";
+		#dma-cells = <1>;
+
+		dmas = <&dma 0>, <&dma 1>, <&dma 2>;
+		dma-names = "m2m", "tx0", "rx0";
 	};
 };
 

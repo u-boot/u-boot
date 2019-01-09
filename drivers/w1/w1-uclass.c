@@ -84,10 +84,6 @@ static int w1_enumerate(struct udevice *bus)
 			rn |= (tmp64 << i);
 		}
 
-		/* last device or error, aborting here */
-		if ((triplet_ret & 0x03) == 0x03)
-			last_device = true;
-
 		if ((triplet_ret & 0x03) != 0x03) {
 			if (desc_bit == last_zero || last_zero < 0) {
 				last_device = 1;

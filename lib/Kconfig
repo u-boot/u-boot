@@ -21,6 +21,12 @@ config DYNAMIC_CRC_TABLE
 	  Enable this option to calculate entries for CRC tables at runtime.
 	  This can be helpful when reducing the size of the build image
 
+config HAVE_ARCH_IOMAP
+	bool
+	help
+	  Enable this option if architecture provides io{read,write}{8,16,32}
+	  I/O accessor functions.
+
 config HAVE_PRIVATE_LIBGCC
 	bool
 
@@ -294,6 +300,14 @@ config LZO
 	bool "Enable LZO decompression support"
 	help
 	  This enables support for LZO compression algorithm.r
+
+config SPL_LZ4
+	bool "Enable LZ4 decompression support in SPL"
+	help
+	  This enables support for tge LZ4 decompression algorithm in SPL. LZ4
+	  is a lossless data compression algorithm that is focused on
+	  fast compression and decompression speed. It belongs to the LZ77
+	  family of byte-oriented compression schemes.
 
 config SPL_LZO
 	bool "Enable LZO decompression support in SPL"

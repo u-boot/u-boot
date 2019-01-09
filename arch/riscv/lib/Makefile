@@ -9,6 +9,8 @@
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-$(CONFIG_CMD_GO) += boot.o
 obj-y	+= cache.o
+obj-$(CONFIG_RISCV_RDTIME) += rdtime.o
+obj-$(CONFIG_SIFIVE_CLINT) += sifive_clint.o
 obj-y	+= interrupts.o
 obj-y	+= reset.o
 obj-y   += setjmp.o

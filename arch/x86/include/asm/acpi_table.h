@@ -303,6 +303,57 @@ struct acpi_mcfg_mmconfig {
 /* ACPI global NVS structure */
 struct acpi_global_nvs;
 
+/* DBG2 definitions are partially used for SPCR interface_type */
+
+/* Types for port_type field */
+
+#define ACPI_DBG2_SERIAL_PORT		0x8000
+#define ACPI_DBG2_1394_PORT		0x8001
+#define ACPI_DBG2_USB_PORT		0x8002
+#define ACPI_DBG2_NET_PORT		0x8003
+
+/* Subtypes for port_subtype field */
+
+#define ACPI_DBG2_16550_COMPATIBLE	0x0000
+#define ACPI_DBG2_16550_SUBSET		0x0001
+#define ACPI_DBG2_ARM_PL011		0x0003
+#define ACPI_DBG2_ARM_SBSA_32BIT	0x000D
+#define ACPI_DBG2_ARM_SBSA_GENERIC	0x000E
+#define ACPI_DBG2_ARM_DCC		0x000F
+#define ACPI_DBG2_BCM2835		0x0010
+
+#define ACPI_DBG2_1394_STANDARD		0x0000
+
+#define ACPI_DBG2_USB_XHCI		0x0000
+#define ACPI_DBG2_USB_EHCI		0x0001
+
+#define ACPI_DBG2_UNKNOWN		0x00FF
+
+/* SPCR (Serial Port Console Redirection table) */
+struct __packed acpi_spcr {
+	struct acpi_table_header header;
+	u8 interface_type;
+	u8 reserved[3];
+	struct acpi_gen_regaddr serial_port;
+	u8 interrupt_type;
+	u8 pc_interrupt;
+	u32 interrupt;		/* Global system interrupt */
+	u8 baud_rate;
+	u8 parity;
+	u8 stop_bits;
+	u8 flow_control;
+	u8 terminal_type;
+	u8 reserved1;
+	u16 pci_device_id;	/* Must be 0xffff if not PCI device */
+	u16 pci_vendor_id;	/* Must be 0xffff if not PCI device */
+	u8 pci_bus;
+	u8 pci_device;
+	u8 pci_function;
+	u32 pci_flags;
+	u8 pci_segment;
+	u32 reserved2;
+};
+
 /* These can be used by the target port */
 
 void acpi_fill_header(struct acpi_table_header *header, char *signature);

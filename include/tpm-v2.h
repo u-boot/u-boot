@@ -128,48 +128,87 @@ enum tpm2_algorithms {
 	TPM2_ALG_NULL		= 0x10,
 };
 
+/* NV index attributes */
+enum tpm_index_attrs {
+	TPMA_NV_PPWRITE		= 1UL << 0,
+	TPMA_NV_OWNERWRITE	= 1UL << 1,
+	TPMA_NV_AUTHWRITE	= 1UL << 2,
+	TPMA_NV_POLICYWRITE	= 1UL << 3,
+	TPMA_NV_COUNTER		= 1UL << 4,
+	TPMA_NV_BITS		= 1UL << 5,
+	TPMA_NV_EXTEND		= 1UL << 6,
+	TPMA_NV_POLICY_DELETE	= 1UL << 10,
+	TPMA_NV_WRITELOCKED	= 1UL << 11,
+	TPMA_NV_WRITEALL	= 1UL << 12,
+	TPMA_NV_WRITEDEFINE	= 1UL << 13,
+	TPMA_NV_WRITE_STCLEAR	= 1UL << 14,
+	TPMA_NV_GLOBALLOCK	= 1UL << 15,
+	TPMA_NV_PPREAD		= 1UL << 16,
+	TPMA_NV_OWNERREAD	= 1UL << 17,
+	TPMA_NV_AUTHREAD	= 1UL << 18,
+	TPMA_NV_POLICYREAD	= 1UL << 19,
+	TPMA_NV_NO_DA		= 1UL << 25,
+	TPMA_NV_ORDERLY		= 1UL << 26,
+	TPMA_NV_CLEAR_STCLEAR	= 1UL << 27,
+	TPMA_NV_READLOCKED	= 1UL << 28,
+	TPMA_NV_WRITTEN		= 1UL << 29,
+	TPMA_NV_PLATFORMCREATE	= 1UL << 30,
+	TPMA_NV_READ_STCLEAR	= 1UL << 31,
+
+	TPMA_NV_MASK_READ	= TPMA_NV_PPREAD | TPMA_NV_OWNERREAD |
+				TPMA_NV_AUTHREAD | TPMA_NV_POLICYREAD,
+	TPMA_NV_MASK_WRITE	= TPMA_NV_PPWRITE | TPMA_NV_OWNERWRITE |
+					TPMA_NV_AUTHWRITE | TPMA_NV_POLICYWRITE,
+};
+
 /**
  * Issue a TPM2_Startup command.
  *
+ * @dev		TPM device
  * @mode	TPM startup mode
  *
  * @return code of the operation
  */
-u32 tpm2_startup(enum tpm2_startup_types mode);
+u32 tpm2_startup(struct udevice *dev, enum tpm2_startup_types mode);
 
 /**
  * Issue a TPM2_SelfTest command.
  *
+ * @dev		TPM device
  * @full_test	Asking to perform all tests or only the untested ones
  *
  * @return code of the operation
  */
-u32 tpm2_self_test(enum tpm2_yes_no full_test);
+u32 tpm2_self_test(struct udevice *dev, enum tpm2_yes_no full_test);
 
 /**
  * Issue a TPM2_Clear command.
  *
+ * @dev		TPM device
  * @handle	Handle
  * @pw		Password
  * @pw_sz	Length of the password
  *
  * @return code of the operation
  */
-u32 tpm2_clear(u32 handle, const char *pw, const ssize_t pw_sz);
+u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
+	       const ssize_t pw_sz);
 
 /**
  * Issue a TPM2_PCR_Extend command.
  *
+ * @dev		TPM device
  * @index	Index of the PCR
  * @digest	Value representing the event to be recorded
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_extend(u32 index, const uint8_t *digest);
+u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest);
 
 /**
  * Issue a TPM2_PCR_Read command.
  *
+ * @dev		TPM device
  * @idx		Index of the PCR
  * @idx_min_sz	Minimum size in bytes of the pcrSelect array
  * @data	Output buffer for contents of the named PCR
@@ -177,13 +216,14 @@ u32 tpm2_pcr_extend(u32 index, const uint8_t *digest);
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_read(u32 idx, unsigned int idx_min_sz, void *data,
-		  unsigned int *updates);
+u32 tpm2_pcr_read(struct udevice *dev, u32 idx, unsigned int idx_min_sz,
+		  void *data, unsigned int *updates);
 
 /**
  * Issue a TPM2_GetCapability command.  This implementation is limited
  * to query property index that is 4-byte wide.
  *
+ * @dev		TPM device
  * @capability	Partition of capabilities
  * @property	Further definition of capability, limited to be 4 bytes wide
  * @buf		Output buffer for capability information
@@ -191,22 +231,24 @@ u32 tpm2_pcr_read(u32 idx, unsigned int idx_min_sz, void *data,
  *
  * @return code of the operation
  */
-u32 tpm2_get_capability(u32 capability, u32 property, void *buf,
-			size_t prop_count);
+u32 tpm2_get_capability(struct udevice *dev, u32 capability, u32 property,
+			void *buf, size_t prop_count);
 
 /**
  * Issue a TPM2_DictionaryAttackLockReset command.
  *
+ * @dev		TPM device
  * @pw		Password
  * @pw_sz	Length of the password
  *
  * @return code of the operation
  */
-u32 tpm2_dam_reset(const char *pw, const ssize_t pw_sz);
+u32 tpm2_dam_reset(struct udevice *dev, const char *pw, const ssize_t pw_sz);
 
 /**
  * Issue a TPM2_DictionaryAttackParameters command.
  *
+ * @dev		TPM device
  * @pw		Password
  * @pw_sz	Length of the password
  * @max_tries	Count of authorizations before lockout
@@ -215,13 +257,15 @@ u32 tpm2_dam_reset(const char *pw, const ssize_t pw_sz);
  *
  * @return code of the operation
  */
-u32 tpm2_dam_parameters(const char *pw, const ssize_t pw_sz,
-			unsigned int max_tries, unsigned int recovery_time,
+u32 tpm2_dam_parameters(struct udevice *dev, const char *pw,
+			const ssize_t pw_sz, unsigned int max_tries,
+			unsigned int recovery_time,
 			unsigned int lockout_recovery);
 
 /**
  * Issue a TPM2_HierarchyChangeAuth command.
  *
+ * @dev		TPM device
  * @handle	Handle
  * @newpw	New password
  * @newpw_sz	Length of the new password
@@ -230,12 +274,14 @@ u32 tpm2_dam_parameters(const char *pw, const ssize_t pw_sz,
  *
  * @return code of the operation
  */
-int tpm2_change_auth(u32 handle, const char *newpw, const ssize_t newpw_sz,
-		     const char *oldpw, const ssize_t oldpw_sz);
+int tpm2_change_auth(struct udevice *dev, u32 handle, const char *newpw,
+		     const ssize_t newpw_sz, const char *oldpw,
+		     const ssize_t oldpw_sz);
 
 /**
  * Issue a TPM_PCR_SetAuthPolicy command.
  *
+ * @dev		TPM device
  * @pw		Platform password
  * @pw_sz	Length of the password
  * @index	Index of the PCR
@@ -243,12 +289,13 @@ int tpm2_change_auth(u32 handle, const char *newpw, const ssize_t newpw_sz,
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_setauthpolicy(const char *pw, const ssize_t pw_sz, u32 index,
-			   const char *key);
+u32 tpm2_pcr_setauthpolicy(struct udevice *dev, const char *pw,
+			   const ssize_t pw_sz, u32 index, const char *key);
 
 /**
  * Issue a TPM_PCR_SetAuthValue command.
  *
+ * @dev		TPM device
  * @pw		Platform password
  * @pw_sz	Length of the password
  * @index	Index of the PCR
@@ -257,7 +304,8 @@ u32 tpm2_pcr_setauthpolicy(const char *pw, const ssize_t pw_sz, u32 index,
  *
  * @return code of the operation
  */
-u32 tpm2_pcr_setauthvalue(const char *pw, const ssize_t pw_sz, u32 index,
-			  const char *key, const ssize_t key_sz);
+u32 tpm2_pcr_setauthvalue(struct udevice *dev, const char *pw,
+			  const ssize_t pw_sz, u32 index, const char *key,
+			  const ssize_t key_sz);
 
 #endif /* __TPM_V2_H */

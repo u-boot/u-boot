@@ -89,6 +89,8 @@ struct sandbox_state {
 	bool skip_delays;		/* Ignore any time delays (for test) */
 	bool show_test_output;		/* Don't suppress stdout in tests */
 	int default_log_level;		/* Default log level for sandbox */
+	bool show_of_platdata;		/* Show of-platdata in SPL */
+	bool ram_buf_read;		/* true if we read the RAM buffer */
 
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]
@@ -99,6 +101,7 @@ struct sandbox_state {
 
 	ulong next_tag;			/* Next address tag to allocate */
 	struct list_head mapmem_head;	/* struct sandbox_mapmem_entry */
+	bool hwspinlock;		/* Hardware Spinlock status */
 };
 
 /* Minimum space we guarantee in the state FDT when calling read/write*/
@@ -240,6 +243,13 @@ bool state_get_skip_delays(void);
  * This clears out any test state ready for another test run.
  */
 void state_reset_for_test(struct sandbox_state *state);
+
+/**
+ * state_show() - Show information about the sandbox state
+ *
+ * @param state		Sandbox state to show
+ */
+void state_show(struct sandbox_state *state);
 
 /**
  * Initialize the test system state

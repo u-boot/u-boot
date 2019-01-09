@@ -1,6 +1,0 @@
-KHADAS-VIM2
-M:	Neil Armstrong <narmstrong@baylibre.com>
-S:	Maintained
-F:	board/amlogic/khadas-vim2/
-F:	include/configs/khadas-vim2.h
-F:	configs/khadas-vim2_defconfig

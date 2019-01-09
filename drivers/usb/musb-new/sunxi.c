@@ -435,10 +435,13 @@ static int musb_usb_probe(struct udevice *dev)
 {
 	struct sunxi_glue *glue = dev_get_priv(dev);
 	struct musb_host_data *host = &glue->mdata;
-	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct musb_hdrc_platform_data pdata;
 	void *base = dev_read_addr_ptr(dev);
 	int ret;
+
+#ifdef CONFIG_USB_MUSB_HOST
+	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
+#endif
 
 	if (!base)
 		return -EINVAL;
@@ -459,7 +462,6 @@ static int musb_usb_probe(struct udevice *dev)
 		return ret;
 	}
 
-	priv->desc_before_addr = true;
 
 	memset(&pdata, 0, sizeof(pdata));
 	pdata.power = 250;
@@ -467,6 +469,8 @@ static int musb_usb_probe(struct udevice *dev)
 	pdata.config = glue->cfg->config;
 
 #ifdef CONFIG_USB_MUSB_HOST
+	priv->desc_before_addr = true;
+
 	pdata.mode = MUSB_HOST;
 	host->host = musb_init_controller(&pdata, &glue->dev, base);
 	if (!host->host)
@@ -535,7 +539,7 @@ U_BOOT_DRIVER(usb_musb) = {
 #ifdef CONFIG_USB_MUSB_HOST
 	.id		= UCLASS_USB,
 #else
-	.id		= UCLASS_USB_DEV_GENERIC,
+	.id		= UCLASS_USB_GADGET_GENERIC,
 #endif
 	.of_match	= sunxi_musb_ids,
 	.probe		= musb_usb_probe,

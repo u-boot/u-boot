@@ -1013,9 +1013,7 @@ do {									\
 #define __read_64bit_c0_split(source, sel)				\
 ({									\
 	unsigned long long __val;					\
-	unsigned long __flags;						\
 									\
-	local_irq_save(__flags);					\
 	if (sel == 0)							\
 		__asm__ __volatile__(					\
 			".set\tmips64\n\t"				\
@@ -1034,16 +1032,12 @@ do {									\
 			"dsra\t%L0, %L0, 32\n\t"			\
 			".set\tmips0"					\
 			: "=r" (__val));				\
-	local_irq_restore(__flags);					\
 									\
 	__val;								\
 })
 
 #define __write_64bit_c0_split(source, sel, val)			\
 do {									\
-	unsigned long __flags;						\
-									\
-	local_irq_save(__flags);					\
 	if (sel == 0)							\
 		__asm__ __volatile__(					\
 			".set\tmips64\n\t"				\
@@ -1064,7 +1058,6 @@ do {									\
 			"dmtc0\t%L0, " #source ", " #sel "\n\t"		\
 			".set\tmips0"					\
 			: : "r" (val));					\
-	local_irq_restore(__flags);					\
 } while (0)
 
 #define __readx_32bit_c0_register(source)				\
@@ -2003,6 +1996,17 @@ __BUILD_SET_C0(brcm_mode)
 static inline unsigned int get_ebase_cpunum(void)
 {
 	return read_c0_ebase() & 0x3ff;
+}
+
+static inline void write_one_tlb(int index, u32 pagemask, u32 hi, u32 low0,
+				 u32 low1)
+{
+	write_c0_entrylo0(low0);
+	write_c0_pagemask(pagemask);
+	write_c0_entrylo1(low1);
+	write_c0_entryhi(hi);
+	write_c0_index(index);
+	tlb_write_indexed();
 }
 
 #endif /* !__ASSEMBLY__ */

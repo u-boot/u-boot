@@ -210,7 +210,6 @@ U_BOOT_DRIVER(serial_zynq) = {
 	.platdata_auto_alloc_size = sizeof(struct zynq_uart_platdata),
 	.probe = zynq_serial_probe,
 	.ops	= &zynq_serial_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };
 
 #ifdef CONFIG_DEBUG_UART_ZYNQ

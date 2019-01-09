@@ -237,20 +237,30 @@ class Boards:
             terms.append(term)
         return terms
 
-    def SelectBoards(self, args, exclude=[]):
+    def SelectBoards(self, args, exclude=[], boards=None):
         """Mark boards selected based on args
+
+        Normally either boards (an explicit list of boards) or args (a list of
+        terms to match against) is used. It is possible to specify both, in
+        which case they are additive.
+
+        If boards and args are both empty, all boards are selected.
 
         Args:
             args: List of strings specifying boards to include, either named,
                   or by their target, architecture, cpu, vendor or soc. If
                   empty, all boards are selected.
             exclude: List of boards to exclude, regardless of 'args'
+            boards: List of boards to build
 
         Returns:
-            Dictionary which holds the list of boards which were selected
-            due to each argument, arranged by argument.
+            Tuple
+                Dictionary which holds the list of boards which were selected
+                    due to each argument, arranged by argument.
+                List of errors found
         """
         result = {}
+        warnings = []
         terms = self._BuildTerms(args)
 
         result['all'] = []
@@ -261,6 +271,7 @@ class Boards:
         for expr in exclude:
             exclude_list.append(Expr(expr))
 
+        found = []
         for board in self._boards:
             matching_term = None
             build_it = False
@@ -271,6 +282,10 @@ class Boards:
                         matching_term = str(term)
                         build_it = True
                         break
+            elif boards:
+                if board.target in boards:
+                    build_it = True
+                    found.append(board.target)
             else:
                 build_it = True
 
@@ -286,4 +301,9 @@ class Boards:
                     result[matching_term].append(board.target)
                 result['all'].append(board.target)
 
-        return result
+        if boards:
+            remaining = set(boards) - set(found)
+            if remaining:
+                warnings.append('Boards not found: %s\n' % ', '.join(remaining))
+
+        return result, warnings

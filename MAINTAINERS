@@ -2,6 +2,8 @@ Descriptions of section entries:
 
 	P: Person (obsolete)
 	M: Mail patches to: FullName <address@domain>
+	R: Designated reviewer: FullName <address@domain>
+	   These reviewers should be CCed on patches.
 	L: Mailing list that is relevant to this area
 	W: Web-page with status/info
 	Q: Patchwork web based patch tracking system site
@@ -157,6 +159,26 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-pxa.git
 F:	arch/arm/cpu/pxa/
 F:	arch/arm/include/asm/arch-pxa/
+
+ARM MEDIATEK
+M:	Ryder Lee <ryder.lee@mediatek.com>
+M:	Weijie Gao <weijie.gao@mediatek.com>
+S:	Maintained
+F:	arch/arm/mach-mediatek/
+F:	arch/arm/include/asm/arch-mediatek/
+F:	board/mediatek/
+F:	doc/README.mediatek
+F:	drivers/clk/mediatek/
+F:	drivers/mmc/mtk-sd.c
+F:	drivers/pinctrl/mediatek/
+F:	drivers/power/domain/mtk-power-domain.c
+F:	drivers/ram/mediatek/
+F:	drivers/spi/mtk_qspi.c
+F:	drivers/timer/mtk_timer.c
+F:	drivers/watchdog/mtk_wdt.c
+F:	tools/mtk_image.c
+F:	tools/mtk_image.h
+N:	mediatek
 
 ARM OWL
 M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
@@ -358,6 +380,11 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-microblaze.git
 F:	arch/arm/mach-zynqmp-r5/
 
+BINMAN
+M:	Simon Glass <sjg@chromium.org>
+S:	Maintained
+F:	tools/binman/
+
 BUILDMAN
 M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
@@ -394,6 +421,7 @@ F:	test/dm/
 
 EFI PAYLOAD
 M:	Alexander Graf <agraf@suse.de>
+R:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 S:	Maintained
 T:	git git://github.com/agraf/u-boot.git
 F:	doc/README.uefi
@@ -483,6 +511,24 @@ M:	Daniel Schwierzeck <daniel.schwierzeck@gmail.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-mips.git
 F:	arch/mips/
+
+MIPS MSCC
+M:	Gregory CLEMENT <gregory.clement@bootlin.com>
+M:	Lars Povlsen <lars.povlsen@microchip.com>
+M:	Horatiu Vultur <horatiu.vultur@microchip.com>
+S:	Maintained
+F:	arch/mips/mach-mscc/
+F:	arch/mips/dts/luton*
+F:	arch/mips/dts/mscc*
+F:	arch/mips/dts/ocelot*
+F:	board/mscc/
+F:	configs/mscc*
+F:	include/configs/vcoreiii.h
+
+MIPS JZ4780
+M:	Ezequiel Garcia <ezequiel@collabora.com>
+S:	Maintained
+F:	arch/mips/mach-jz47xx/
 
 MMC
 M:	Jaehoon Chung <jh80.chung@samsung.com>
@@ -691,5 +737,6 @@ L:	u-boot@lists.denx.de
 Q:	http://patchwork.ozlabs.org/project/uboot/list/
 S:	Maintained
 T:	git git://git.denx.de/u-boot.git
+F:	configs/tools-only_defconfig
 F:	*
 F:	*/

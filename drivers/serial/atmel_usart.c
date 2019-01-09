@@ -294,7 +294,9 @@ U_BOOT_DRIVER(serial_atmel) = {
 #endif
 	.probe = atmel_serial_probe,
 	.ops	= &atmel_serial_ops,
+#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
+#endif
 	.priv_auto_alloc_size	= sizeof(struct atmel_serial_priv),
 };
 #endif

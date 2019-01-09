@@ -27,6 +27,15 @@ config SPL_BOOTSTAGE
 	  information when SPL finishes and load it when U-Boot proper starts
 	  up.
 
+config TPL_BOOTSTAGE
+	bool "Boot timing and reported in TPL"
+	depends on BOOTSTAGE
+	help
+	  Enable recording of boot time in SPL. To make this visible to U-Boot
+	  proper, enable BOOTSTAGE_STASH as well. This will stash the timing
+	  information when TPL finishes and load it when U-Boot proper starts
+	  up.
+
 config BOOTSTAGE_REPORT
 	bool "Display a detailed boot timing report before booting the OS"
 	depends on BOOTSTAGE
@@ -290,6 +299,10 @@ config SPL_LOGLEVEL
 	int
 	default LOGLEVEL
 
+config TPL_LOGLEVEL
+	int
+	default LOGLEVEL
+
 config SILENT_CONSOLE
 	bool "Support a silent console"
 	help
@@ -444,6 +457,16 @@ config LOG
 
 config SPL_LOG
 	bool "Enable logging support in SPL"
+	depends on LOG
+	help
+	  This enables support for logging of status and debug messages. These
+	  can be displayed on the console, recorded in a memory buffer, or
+	  discarded if not needed. Logging supports various categories and
+	  levels of severity.
+
+config TPL_LOG
+	bool "Enable logging support in TPL"
+	depends on LOG
 	help
 	  This enables support for logging of status and debug messages. These
 	  can be displayed on the console, recorded in a memory buffer, or
@@ -486,6 +509,24 @@ config SPL_LOG_MAX_LEVEL
 	    6 - detail
 	    7 - debug
 
+config TPL_LOG_MAX_LEVEL
+	int "Maximum log level to record in TPL"
+	depends on TPL_LOG
+	default 3
+	help
+	  This selects the maximum log level that will be recorded. Any value
+	  higher than this will be ignored. If possible log statements below
+	  this level will be discarded at build time. Levels:
+
+	    0 - panic
+	    1 - critical
+	    2 - error
+	    3 - warning
+	    4 - note
+	    5 - info
+	    6 - detail
+	    7 - debug
+
 config LOG_CONSOLE
 	bool "Allow log output to the console"
 	depends on LOG
@@ -496,9 +537,19 @@ config LOG_CONSOLE
 	  log message is shown - other details like level, category, file and
 	  line number are omitted.
 
-config LOG_SPL_CONSOLE
+config SPL_LOG_CONSOLE
 	bool "Allow log output to the console in SPL"
-	depends on LOG_SPL
+	depends on SPL_LOG
+	default y
+	help
+	  Enables a log driver which writes log records to the console.
+	  Generally the console is the serial port or LCD display. Only the
+	  log message is shown - other details like level, category, file and
+	  line number are omitted.
+
+config TPL_LOG_CONSOLE
+	bool "Allow log output to the console in SPL"
+	depends on TPL_LOG
 	default y
 	help
 	  Enables a log driver which writes log records to the console.
@@ -660,6 +711,22 @@ config AVB_VERIFY
 	    * Helpers to access MMC, similar to drivers/fastboot/fb_mmc.c.
 	    * Helpers to alloc/init/free avb ops.
 
+config SPL_HASH
+	bool # "Support hashing API (SHA1, SHA256, etc.)"
+	help
+	  This provides a way to hash data in memory using various supported
+	  algorithms (such as SHA1, MD5, CRC32). The API is defined in hash.h
+	  and the algorithms it supports are defined in common/hash.c. See
+	  also CMD_HASH for command-line access.
+
+config TPL_HASH
+	bool # "Support hashing API (SHA1, SHA256, etc.)"
+	help
+	  This provides a way to hash data in memory using various supported
+	  algorithms (such as SHA1, MD5, CRC32). The API is defined in hash.h
+	  and the algorithms it supports are defined in common/hash.c. See
+	  also CMD_HASH for command-line access.
+
 endmenu
 
 menu "Update support"
@@ -680,6 +747,54 @@ config UPDATE_TFTP_MSEC_MAX
 	int "Delay in mSec to wait for the TFTP server during auto-update"
 	default 100
 	depends on UPDATE_TFTP
+
+endmenu
+
+menu "Blob list"
+
+config BLOBLIST
+	bool "Support for a bloblist"
+	help
+	  This enables support for a bloblist in U-Boot, which can be passed
+	  from TPL to SPL to U-Boot proper (and potentially to Linux). The
+	  blob list supports multiple binary blobs of data, each with a tag,
+	  so that different U-Boot components can store data which can survive
+	  through to the next stage of the boot.
+
+config SPL_BLOBLIST
+	bool "Support for a bloblist in SPL"
+	depends on BLOBLIST
+	default y if SPL
+	help
+	  This enables a bloblist in SPL. If this is the first part of U-Boot
+	  to run, then the bloblist is set up in SPL and passed to U-Boot
+	  proper. If TPL also has a bloblist, then SPL uses the one from there.
+
+config TPL_BLOBLIST
+	bool "Support for a bloblist in TPL"
+	depends on BLOBLIST
+	default y if TPL
+	help
+	  This enables a bloblist in TPL. The bloblist is set up in TPL and
+	  passed to SPL and U-Boot proper.
+
+config BLOBLIST_SIZE
+	hex "Size of bloblist"
+	depends on BLOBLIST
+	default 0x400
+	help
+	  Sets the size of the bloblist in bytes. This must include all
+	  overhead (alignment, bloblist header, record header). The bloblist
+	  is set up in the first part of U-Boot to run (TPL, SPL or U-Boot
+	  proper), and this sane bloblist is used for subsequent stages.
+
+config BLOBLIST_ADDR
+	hex "Address of bloblist"
+	depends on BLOBLIST
+	default 0xe000 if SANDBOX
+	help
+	  Sets the address of the bloblist, set up by the first part of U-Boot
+	  which runs. Subsequent U-Boot stages typically use the same address.
 
 endmenu
 

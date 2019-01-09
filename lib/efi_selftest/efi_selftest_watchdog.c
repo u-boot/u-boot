@@ -35,7 +35,7 @@ static struct notify_context notification_context;
 static bool watchdog_reset;
 
 /*
- * Notification function, increments the notfication count if parameter
+ * Notification function, increments the notification count if parameter
  * context is provided.
  *
  * @event	notified event

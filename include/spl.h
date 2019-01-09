@@ -11,6 +11,7 @@
 /* Platform-specific defines */
 #include <linux/compiler.h>
 #include <asm/spl.h>
+#include <handoff.h>
 
 /* Value in r0 indicates we booted from U-Boot */
 #define UBOOT_NOT_LOADED_FROM_SPL	0x13578642
@@ -20,6 +21,46 @@
 #define MMCSD_MODE_RAW		1
 #define MMCSD_MODE_FS		2
 #define MMCSD_MODE_EMMCBOOT	3
+
+/*
+ * u_boot_first_phase() - check if this is the first U-Boot phase
+ *
+ * U-Boot has up to three phases: TPL, SPL and U-Boot proper. Depending on the
+ * build flags we can determine whether the current build is for the first
+ * phase of U-Boot or not. If there is no SPL, then this is U-Boot proper. If
+ * there is SPL but no TPL, the the first phase is SPL. If there is TPL, then
+ * it is the first phase.
+ *
+ * @returns true if this is the first phase of U-Boot
+ *
+ */
+static inline bool u_boot_first_phase(void)
+{
+	if (IS_ENABLED(CONFIG_TPL)) {
+		if (IS_ENABLED(CONFIG_TPL_BUILD))
+			return true;
+	} else if (IS_ENABLED(CONFIG_SPL)) {
+		if (IS_ENABLED(CONFIG_SPL_BUILD))
+			return true;
+	} else {
+		return true;
+	}
+
+	return false;
+}
+
+/* A string name for SPL or TPL */
+#ifdef CONFIG_SPL_BUILD
+# ifdef CONFIG_TPL_BUILD
+#  define SPL_TPL_NAME	"TPL"
+# else
+#  define SPL_TPL_NAME	"SPL"
+# endif
+# define SPL_TPL_PROMPT	SPL_TPL_NAME ": "
+#else
+# define SPL_TPL_NAME	""
+# define SPL_TPL_PROMPT	""
+#endif
 
 struct spl_image_info {
 	const char *name;
@@ -77,6 +118,7 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 			struct spl_load_info *info, ulong sector, void *fdt);
 
 #define SPL_COPY_PAYLOAD_ONLY	1
+#define SPL_FIT_FOUND		2
 
 /* SPL common functions */
 void preloader_console_init(void);
@@ -310,6 +352,18 @@ void spl_optee_entry(void *arg0, void *arg1, void *arg2, void *arg3);
  * can implement 'board_return_to_bootrom'.
  */
 void board_return_to_bootrom(void);
+
+/**
+ * board_spl_fit_post_load - allow process images after loading finished
+ *
+ */
+void board_spl_fit_post_load(ulong load_addr, size_t length);
+
+/**
+ * board_spl_fit_size_align - specific size align before processing payload
+ *
+ */
+ulong board_spl_fit_size_align(ulong size);
 
 /**
  * spl_perform_fixups() - arch/board-specific callback before processing

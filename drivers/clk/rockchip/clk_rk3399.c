@@ -61,6 +61,11 @@ static const struct pll_div *apll_l_cfgs[] = {
 	[APLL_L_600_MHZ] = &apll_l_600_cfg,
 };
 
+static const struct pll_div apll_b_600_cfg = PLL_DIVISORS(600*MHz, 1, 2, 1);
+static const struct pll_div *apll_b_cfgs[] = {
+	[APLL_B_600_MHZ] = &apll_b_600_cfg,
+};
+
 enum {
 	/* PLL_CON0 */
 	PLL_FBDIV_MASK			= 0xfff,
@@ -127,6 +132,24 @@ enum {
 	PCLK_DBG_L_DIV_MASK		= 0x1f << PCLK_DBG_L_DIV_SHIFT,
 	ATCLK_CORE_L_DIV_SHIFT		= 0,
 	ATCLK_CORE_L_DIV_MASK		= 0x1f << ATCLK_CORE_L_DIV_SHIFT,
+
+	/* CLKSEL_CON2 */
+	ACLKM_CORE_B_DIV_CON_SHIFT	= 8,
+	ACLKM_CORE_B_DIV_CON_MASK	= 0x1f << ACLKM_CORE_B_DIV_CON_SHIFT,
+	CLK_CORE_B_PLL_SEL_SHIFT	= 6,
+	CLK_CORE_B_PLL_SEL_MASK		= 3 << CLK_CORE_B_PLL_SEL_SHIFT,
+	CLK_CORE_B_PLL_SEL_ALPLL	= 0x0,
+	CLK_CORE_B_PLL_SEL_ABPLL	= 0x1,
+	CLK_CORE_B_PLL_SEL_DPLL		= 0x10,
+	CLK_CORE_B_PLL_SEL_GPLL		= 0x11,
+	CLK_CORE_B_DIV_MASK		= 0x1f,
+	CLK_CORE_B_DIV_SHIFT		= 0,
+
+	/* CLKSEL_CON3 */
+	PCLK_DBG_B_DIV_SHIFT		= 0x8,
+	PCLK_DBG_B_DIV_MASK		= 0x1f << PCLK_DBG_B_DIV_SHIFT,
+	ATCLK_CORE_B_DIV_SHIFT		= 0,
+	ATCLK_CORE_B_DIV_MASK		= 0x1f << ATCLK_CORE_B_DIV_SHIFT,
 
 	/* CLKSEL_CON14 */
 	PCLK_PERIHP_DIV_CON_SHIFT	= 12,
@@ -395,25 +418,26 @@ static int pll_para_config(u32 freq_hz, struct pll_div *div)
 	return 0;
 }
 
-void rk3399_configure_cpu(struct rk3399_cru *cru,
-			  enum apll_l_frequencies apll_l_freq)
+void rk3399_configure_cpu_l(struct rk3399_cru *cru,
+			    enum apll_l_frequencies apll_l_freq)
 {
 	u32 aclkm_div;
 	u32 pclk_dbg_div;
 	u32 atclk_div;
 
+	/* Setup cluster L */
 	rkclk_set_pll(&cru->apll_l_con[0], apll_l_cfgs[apll_l_freq]);
 
-	aclkm_div = APLL_HZ / ACLKM_CORE_HZ - 1;
-	assert((aclkm_div + 1) * ACLKM_CORE_HZ == APLL_HZ &&
+	aclkm_div = LPLL_HZ / ACLKM_CORE_L_HZ - 1;
+	assert((aclkm_div + 1) * ACLKM_CORE_L_HZ == LPLL_HZ &&
 	       aclkm_div < 0x1f);
 
-	pclk_dbg_div = APLL_HZ / PCLK_DBG_HZ - 1;
-	assert((pclk_dbg_div + 1) * PCLK_DBG_HZ == APLL_HZ &&
+	pclk_dbg_div = LPLL_HZ / PCLK_DBG_L_HZ - 1;
+	assert((pclk_dbg_div + 1) * PCLK_DBG_L_HZ == LPLL_HZ &&
 	       pclk_dbg_div < 0x1f);
 
-	atclk_div = APLL_HZ / ATCLK_CORE_HZ - 1;
-	assert((atclk_div + 1) * ATCLK_CORE_HZ == APLL_HZ &&
+	atclk_div = LPLL_HZ / ATCLK_CORE_L_HZ - 1;
+	assert((atclk_div + 1) * ATCLK_CORE_L_HZ == LPLL_HZ &&
 	       atclk_div < 0x1f);
 
 	rk_clrsetreg(&cru->clksel_con[0],
@@ -428,6 +452,42 @@ void rk3399_configure_cpu(struct rk3399_cru *cru,
 		     pclk_dbg_div << PCLK_DBG_L_DIV_SHIFT |
 		     atclk_div << ATCLK_CORE_L_DIV_SHIFT);
 }
+
+void rk3399_configure_cpu_b(struct rk3399_cru *cru,
+			    enum apll_b_frequencies apll_b_freq)
+{
+	u32 aclkm_div;
+	u32 pclk_dbg_div;
+	u32 atclk_div;
+
+	/* Setup cluster B */
+	rkclk_set_pll(&cru->apll_b_con[0], apll_b_cfgs[apll_b_freq]);
+
+	aclkm_div = BPLL_HZ / ACLKM_CORE_B_HZ - 1;
+	assert((aclkm_div + 1) * ACLKM_CORE_B_HZ == BPLL_HZ &&
+	       aclkm_div < 0x1f);
+
+	pclk_dbg_div = BPLL_HZ / PCLK_DBG_B_HZ - 1;
+	assert((pclk_dbg_div + 1) * PCLK_DBG_B_HZ == BPLL_HZ &&
+	       pclk_dbg_div < 0x1f);
+
+	atclk_div = BPLL_HZ / ATCLK_CORE_B_HZ - 1;
+	assert((atclk_div + 1) * ATCLK_CORE_B_HZ == BPLL_HZ &&
+	       atclk_div < 0x1f);
+
+	rk_clrsetreg(&cru->clksel_con[2],
+		     ACLKM_CORE_B_DIV_CON_MASK | CLK_CORE_B_PLL_SEL_MASK |
+		     CLK_CORE_B_DIV_MASK,
+		     aclkm_div << ACLKM_CORE_B_DIV_CON_SHIFT |
+		     CLK_CORE_B_PLL_SEL_ABPLL << CLK_CORE_B_PLL_SEL_SHIFT |
+		     0 << CLK_CORE_B_DIV_SHIFT);
+
+	rk_clrsetreg(&cru->clksel_con[3],
+		     PCLK_DBG_B_DIV_MASK | ATCLK_CORE_B_DIV_MASK,
+		     pclk_dbg_div << PCLK_DBG_B_DIV_SHIFT |
+		     atclk_div << ATCLK_CORE_B_DIV_SHIFT);
+}
+
 #define I2C_CLK_REG_MASK(bus) \
 			(I2C_DIV_CON_MASK << \
 			CLK_I2C ##bus## _DIV_CON_SHIFT | \
@@ -1026,7 +1086,8 @@ static void rkclk_init(struct rk3399_cru *cru)
 	u32 hclk_div;
 	u32 pclk_div;
 
-	rk3399_configure_cpu(cru, APLL_L_600_MHZ);
+	rk3399_configure_cpu_l(cru, APLL_L_600_MHZ);
+	rk3399_configure_cpu_b(cru, APLL_B_600_MHZ);
 	/*
 	 * some cru registers changed by bootrom, we'd better reset them to
 	 * reset/default values described in TRM to avoid confusion in kernel.

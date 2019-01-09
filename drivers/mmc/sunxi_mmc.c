@@ -98,18 +98,20 @@ static int mmc_resource_init(int sdc_no)
 static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 {
 	unsigned int pll, pll_hz, div, n, oclk_dly, sclk_dly;
-	bool new_mode = false;
+	bool new_mode = true;
+	bool calibrate = false;
 	u32 val = 0;
 
-	if (IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE) && (priv->mmc_no == 2))
-		new_mode = true;
+	if (!IS_ENABLED(CONFIG_MMC_SUNXI_HAS_NEW_MODE))
+		new_mode = false;
 
-	/*
-	 * The MMC clock has an extra /2 post-divider when operating in the new
-	 * mode.
-	 */
-	if (new_mode)
-		hz = hz * 2;
+	/* A83T support new mode only on eMMC */
+	if (IS_ENABLED(CONFIG_MACH_SUN8I_A83T) && priv->mmc_no != 2)
+		new_mode = false;
+
+#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN50I_H6)
+	calibrate = true;
+#endif
 
 	if (hz <= 24000000) {
 		pll = CCM_MMC_CTRL_OSCM24;
@@ -171,10 +173,16 @@ static int mmc_set_mod_clk(struct sunxi_mmc_priv *priv, unsigned int hz)
 
 	if (new_mode) {
 #ifdef CONFIG_MMC_SUNXI_HAS_NEW_MODE
+#ifdef CONFIG_MMC_SUNXI_HAS_MODE_SWITCH
 		val = CCM_MMC_CTRL_MODE_SEL_NEW;
+#endif
 		setbits_le32(&priv->reg->ntsr, SUNXI_MMC_NTSR_MODE_SEL_NEW);
 #endif
-	} else {
+	} else if (!calibrate) {
+		/*
+		 * Use hardcoded delay values if controller doesn't support
+		 * calibration
+		 */
 		val = CCM_MMC_CTRL_OCLK_DLY(oclk_dly) |
 			CCM_MMC_CTRL_SCLK_DLY(sclk_dly);
 	}
@@ -227,6 +235,16 @@ static int mmc_config_clock(struct sunxi_mmc_priv *priv, struct mmc *mmc)
 	/* Clear internal divider */
 	rval &= ~SUNXI_MMC_CLK_DIVIDER_MASK;
 	writel(rval, &priv->reg->clkcr);
+
+#if defined(CONFIG_MACH_SUN50I) || defined(CONFIG_MACH_SUN50I_H6)
+	/* A64 supports calibration of delays on MMC controller and we
+	 * have to set delay of zero before starting calibration.
+	 * Allwinner BSP driver sets a delay only in the case of
+	 * using HS400 which is not supported by mainline U-Boot or
+	 * Linux at the moment
+	 */
+	writel(SUNXI_MMC_CAL_DL_SW_EN, &priv->reg->samp_dl);
+#endif
 
 	/* Re-enable Clock */
 	rval |= SUNXI_MMC_CLK_ENABLE;

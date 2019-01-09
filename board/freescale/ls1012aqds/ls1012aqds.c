@@ -18,12 +18,14 @@
 #include <ahci.h>
 #include <hwconfig.h>
 #include <mmc.h>
+#include <environment.h>
 #include <scsi.h>
 #include <fm_eth.h>
 #include <fsl_esdhc.h>
 #include <fsl_mmdc.h>
 #include <spl.h>
 #include <netdev.h>
+#include <fsl_sec.h>
 #include "../common/qixis.h"
 #include "ls1012aqds_qixis.h"
 #include "ls1012aqds_pfe.h"
@@ -55,6 +57,16 @@ int checkboard(void)
 	return 0;
 }
 
+#ifdef CONFIG_TFABOOT
+int dram_init(void)
+{
+	gd->ram_size = tfa_get_dram_size();
+	if (!gd->ram_size)
+		gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+
+	return 0;
+}
+#else
 int dram_init(void)
 {
 	static const struct fsl_mmdc_info mparam = {
@@ -74,7 +86,6 @@ int dram_init(void)
 	};
 
 	mmdc_init(&mparam);
-
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 	/* This will break-before-make MMU for DDR */
@@ -83,6 +94,7 @@ int dram_init(void)
 
 	return 0;
 }
+#endif
 
 int board_early_init_f(void)
 {
@@ -110,8 +122,9 @@ int board_init(void)
 
 	/* Set CCI-400 control override register to enable barrier
 	 * transaction */
-	out_le32(&cci->ctrl_ord,
-		 CCI400_CTRLORD_EN_BARRIER);
+	if (current_el() == 3)
+		out_le32(&cci->ctrl_ord,
+			 CCI400_CTRLORD_EN_BARRIER);
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A010315
 	erratum_a010315();
@@ -119,6 +132,10 @@ int board_init(void)
 
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
+#endif
+
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
 #endif
 
 #ifdef CONFIG_FSL_LS_PPA

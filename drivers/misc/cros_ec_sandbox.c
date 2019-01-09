@@ -74,7 +74,7 @@ struct ec_keymatrix_entry {
  * @recovery_req: Keyboard recovery requested
  */
 struct ec_state {
-	uint8_t vbnv_context[EC_VBNV_BLOCK_SIZE];
+	u8 vbnv_context[EC_VBNV_BLOCK_SIZE_V2];
 	struct fdt_cros_ec ec_config;
 	uint8_t *flash_data;
 	int flash_data_len;
@@ -313,13 +313,15 @@ static int process_cmd(struct ec_state *ec,
 
 		switch (req->op) {
 		case EC_VBNV_CONTEXT_OP_READ:
+			/* TODO(sjg@chromium.org): Support full-size context */
 			memcpy(resp->block, ec->vbnv_context,
-			       sizeof(resp->block));
-			len = sizeof(*resp);
+			       EC_VBNV_BLOCK_SIZE);
+			len = 16;
 			break;
 		case EC_VBNV_CONTEXT_OP_WRITE:
-			memcpy(ec->vbnv_context, resp->block,
-			       sizeof(resp->block));
+			/* TODO(sjg@chromium.org): Support full-size context */
+			memcpy(ec->vbnv_context, req->block,
+			       EC_VBNV_BLOCK_SIZE);
 			len = 0;
 			break;
 		default:

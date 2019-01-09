@@ -65,7 +65,12 @@
 		"$kernel_addr $kernel_size && bootm $load_addr#$board\0"
 
 #undef CONFIG_BOOTCOMMAND
+#ifdef CONFIG_TFABOOT
+#undef QSPI_NOR_BOOTCOMMAND
+#define QSPI_NOR_BOOTCOMMAND "pfe stop;run distro_bootcmd;run qspi_bootcmd"
+#else
 #define CONFIG_BOOTCOMMAND "pfe stop;run distro_bootcmd;run qspi_bootcmd"
+#endif
 
 #define CONFIG_CMD_MEMINFO
 #define CONFIG_SYS_MEMTEST_START	0x80000000

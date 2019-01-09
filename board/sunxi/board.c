@@ -28,7 +28,7 @@
 #endif
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <crc.h>
+#include <u-boot/crc.h>
 #include <environment.h>
 #include <linux/libfdt.h>
 #include <nand.h>
@@ -168,9 +168,15 @@ void i2c_init_board(void)
 #endif
 
 #ifdef CONFIG_R_I2C_ENABLE
+#ifdef CONFIG_MACH_SUN50I
+	clock_twi_onoff(5, 1);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(8), SUN50I_GPL_R_TWI);
+	sunxi_gpio_set_cfgpin(SUNXI_GPL(9), SUN50I_GPL_R_TWI);
+#else
 	clock_twi_onoff(5, 1);
 	sunxi_gpio_set_cfgpin(SUNXI_GPL(0), SUN8I_H3_GPL_R_TWI);
 	sunxi_gpio_set_cfgpin(SUNXI_GPL(1), SUN8I_H3_GPL_R_TWI);
+#endif
 #endif
 }
 
@@ -657,7 +663,7 @@ int g_dnl_board_usb_cable_connected(void)
 	struct phy phy;
 	int ret;
 
-	ret = uclass_get_device(UCLASS_USB_DEV_GENERIC, 0, &dev);
+	ret = uclass_get_device(UCLASS_USB_GADGET_GENERIC, 0, &dev);
 	if (ret) {
 		pr_err("%s: Cannot find USB device\n", __func__);
 		return ret;

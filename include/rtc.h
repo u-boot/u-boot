@@ -86,7 +86,7 @@ struct rtc_ops {
 int dm_rtc_get(struct udevice *dev, struct rtc_time *time);
 
 /**
- * dm_rtc_put() - Write a time to an RTC
+ * dm_rtc_set() - Write a time to an RTC
  *
  * @dev:	Device to read from
  * @time:	Time to write into the RTC

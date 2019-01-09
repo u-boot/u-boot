@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2017 NXP
+ * Copyright 2017-2018 NXP
  */
 #include <common.h>
 #include <i2c.h>
@@ -67,6 +67,24 @@ int init_func_vid(void)
 }
 #endif
 
+int is_pb_board(void)
+{
+	u8 board_id;
+
+	board_id = QIXIS_READ(id);
+	if (board_id == LS1088ARDB_PB_BOARD)
+		return 1;
+	else
+		return 0;
+}
+
+int fixup_ls1088ardb_pb_banner(void *fdt)
+{
+	fdt_setprop_string(fdt, 0, "model", "LS1088ARDB-PB Board");
+
+	return 0;
+}
+
 #if !defined(CONFIG_SPL_BUILD)
 int checkboard(void)
 {
@@ -79,7 +97,10 @@ int checkboard(void)
 #ifdef CONFIG_TARGET_LS1088AQDS
 	printf("Board: LS1088A-QDS, ");
 #else
-	printf("Board: LS1088A-RDB, ");
+	if (is_pb_board())
+		printf("Board: LS1088ARDB-PB, ");
+	else
+		printf("Board: LS1088A-RDB, ");
 #endif
 
 	sw = QIXIS_READ(arch);
@@ -585,6 +606,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 	if (err)
 		return err;
 #endif
+	if (is_pb_board())
+		fixup_ls1088ardb_pb_banner(blob);
 
 	return 0;
 }

@@ -11,3 +11,8 @@
 &scif0 {
 	u-boot,dm-pre-reloc;
 };
+
+&i2c6 {
+	status = "okay";
+	clock-frequency = <400000>;
+};

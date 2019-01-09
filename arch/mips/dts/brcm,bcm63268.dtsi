@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/clock/bcm63268-clock.h>
+#include <dt-bindings/dma/bcm63268-dma.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/power-domain/bcm63268-power-domain.h>
 #include <dt-bindings/reset/bcm63268-reset.h>
@@ -216,6 +217,43 @@
 			compatible = "brcm,bcm6328-mc";
 			reg = <0x10003000 0x894>;
 			u-boot,dm-pre-reloc;
+		};
+
+		iudma: dma-controller@1000d800 {
+			compatible = "brcm,bcm6368-iudma";
+			reg = <0x1000d800 0x80>,
+			      <0x1000da00 0x80>,
+			      <0x1000dc00 0x80>;
+			reg-names = "dma",
+				    "dma-channels",
+				    "dma-sram";
+			#dma-cells = <1>;
+			dma-channels = <8>;
+		};
+
+		enet: ethernet@10700000 {
+			compatible = "brcm,bcm6368-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10700000 0x10000>;
+			clocks = <&periph_clk BCM63268_CLK_GMAC>,
+				 <&periph_clk BCM63268_CLK_ROBOSW>,
+				 <&periph_clk BCM63268_CLK_ROBOSW250>,
+				 <&timer_clk BCM63268_TCLK_EPHY1>,
+				 <&timer_clk BCM63268_TCLK_EPHY2>,
+				 <&timer_clk BCM63268_TCLK_EPHY3>,
+				 <&timer_clk BCM63268_TCLK_GPHY>;
+			resets = <&periph_rst BCM63268_RST_ENETSW>,
+				 <&periph_rst BCM63268_RST_EPHY>,
+				 <&periph_rst BCM63268_RST_GPHY>;
+			dmas = <&iudma BCM63268_DMA_ENETSW_RX>,
+			       <&iudma BCM63268_DMA_ENETSW_TX>;
+			dma-names = "rx",
+				    "tx";
+			brcm,rgmii-override;
+			brcm,rgmii-timing;
+
+			status = "disabled";
 		};
 	};
 };

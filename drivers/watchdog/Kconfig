@@ -11,6 +11,12 @@ config WATCHDOG
 config HW_WATCHDOG
 	bool
 
+config WATCHDOG_RESET_DISABLE
+	bool "Disable reset watchdog"
+	help
+	   Disable reset watchdog, which can let WATCHDOG_RESET invalid, so
+	   that the watchdog will not be fed in u-boot.
+
 config BCM2835_WDT
 	bool "Enable BCM2835/2836 watchdog driver"
 	select HW_WATCHDOG
@@ -103,6 +109,14 @@ config WDT_CDNS
 	   Select this to enable Cadence watchdog timer, which can be found on some
 	   Xilinx Microzed Platform.
 
+config WDT_MTK
+	bool "MediaTek watchdog timer support"
+	depends on WDT && ARCH_MEDIATEK
+	help
+	  Select this to enable watchdog timer for MediaTek SoCs.
+	  The watchdog timer is stopped when initialized.
+	  It performs full SoC reset.
+
 config XILINX_TB_WATCHDOG
 	bool "Xilinx Axi watchdog timer support"
 	depends on WDT
@@ -117,5 +131,30 @@ config IMX_WATCHDOG
 	help
 	   Select this to enable the IMX and LSCH2 of Layerscape watchdog
 	   driver.
+
+config WDT_AT91
+	bool "AT91 watchdog timer support"
+	depends on WDT
+	help
+	   Select this to enable Microchip watchdog timer, which can be found on
+	   some AT91 devices.
+
+config AT91_HW_WDT_TIMEOUT
+	bool "AT91 watchdog timeout specified"
+	depends on WDT_AT91
+
+config WDT_MT7621
+	bool "MediaTek MT7621 watchdog timer support"
+	depends on WDT && ARCH_MT7620
+	help
+	   Select this to enable Ralink / Mediatek watchdog timer,
+	   which can be found on some MediaTek chips.
+
+config WDT_MPC8xx
+	bool "MPC8xx watchdog timer support"
+	depends on WDT && MPC8xx
+	select CONFIG_MPC8xx_WATCHDOG
+	help
+	   Select this to enable mpc8xx watchdog timer
 
 endmenu

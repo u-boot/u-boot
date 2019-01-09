@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/clock/bcm6348-clock.h>
+#include <dt-bindings/dma/bcm6348-dma.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/reset/bcm6348-reset.h>
 #include "skeleton.dtsi"
@@ -158,6 +159,47 @@
 			compatible = "brcm,bcm6338-mc";
 			reg = <0xfffe2300 0x38>;
 			u-boot,dm-pre-reloc;
+		};
+
+		enet0: ethernet@fffe6000 {
+			compatible = "brcm,bcm6348-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xfffe6000 0x2dc>;
+			dmas = <&iudma BCM6348_DMA_ENET0_RX>,
+			       <&iudma BCM6348_DMA_ENET0_TX>;
+			dma-names = "rx",
+				    "tx";
+
+			status = "disabled";
+		};
+
+		enet1: ethernet@fffe6800 {
+			compatible = "brcm,bcm6348-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xfffe6800 0x2dc>;
+			dmas = <&iudma BCM6348_DMA_ENET1_RX>,
+			       <&iudma BCM6348_DMA_ENET1_TX>;
+			dma-names = "rx",
+				    "tx";
+
+			status = "disabled";
+		};
+
+		iudma: dma-controller@fffe7000 {
+			compatible = "brcm,bcm6348-iudma";
+			reg = <0xfffe7000 0x1c>,
+			      <0xfffe7100 0x40>,
+			      <0xfffe7200 0x40>;
+			reg-names = "dma",
+				    "dma-channels",
+				    "dma-sram";
+			#dma-cells = <1>;
+			dma-channels = <4>;
+			clocks = <&periph_clk BCM6348_CLK_ENET>;
+			resets = <&periph_rst BCM6348_RST_ENET>,
+				 <&periph_rst BCM6348_RST_DMAMEM>;
 		};
 	};
 };

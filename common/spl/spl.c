@@ -7,8 +7,10 @@
  */
 
 #include <common.h>
+#include <bloblist.h>
 #include <binman_sym.h>
 #include <dm.h>
+#include <handoff.h>
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <nand.h>
@@ -44,6 +46,14 @@ static bd_t bdata __attribute__ ((section(".data")));
  */
 __weak void show_boot_progress(int val) {}
 
+#if defined(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF)
+/* weak, default platform-specific function to initialize dram banks */
+__weak int dram_init_banksize(void)
+{
+	return 0;
+}
+#endif
+
 /*
  * Default function to determine if u-boot or the OS should
  * be started. This implementation always returns 1.
@@ -57,17 +67,10 @@ __weak void show_boot_progress(int val) {}
 #ifdef CONFIG_SPL_OS_BOOT
 __weak int spl_start_uboot(void)
 {
-	puts("SPL: Please implement spl_start_uboot() for your board\n");
-	puts("SPL: Direct Linux boot not active!\n");
+	puts(SPL_TPL_PROMPT
+	     "Please implement spl_start_uboot() for your board\n");
+	puts(SPL_TPL_PROMPT "Direct Linux boot not active!\n");
 	return 1;
-}
-
-/* weak default platform specific function to initialize
- * dram banks
- */
-__weak int dram_init_banksize(void)
-{
-	return 0;
 }
 
 /*
@@ -100,13 +103,13 @@ void spl_fixup_fdt(void)
 	/* fixup the memory dt node */
 	err = fdt_shrink_to_minimum(fdt_blob, 0);
 	if (err == 0) {
-		printf("spl: fdt_shrink_to_minimum err - %d\n", err);
+		printf(SPL_TPL_PROMPT "fdt_shrink_to_minimum err - %d\n", err);
 		return;
 	}
 
 	err = arch_fixup_fdt(fdt_blob);
 	if (err) {
-		printf("spl: arch_fixup_fdt err - %d\n", err);
+		printf(SPL_TPL_PROMPT "arch_fixup_fdt err - %d\n", err);
 		return;
 	}
 #endif
@@ -185,7 +188,7 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 	spl_image->os = IH_OS_U_BOOT;
 	spl_image->name = "U-Boot";
 
-	debug("spl: payload image: %32s load addr: 0x%lx size: %d\n",
+	debug(SPL_TPL_PROMPT "payload image: %32s load addr: 0x%lx size: %d\n",
 	      spl_image->name, spl_image->load_addr, spl_image->size);
 
 #ifdef CONFIG_SPL_FIT_SIGNATURE
@@ -255,7 +258,8 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 		}
 		spl_image->os = image_get_os(header);
 		spl_image->name = image_get_name(header);
-		debug("spl: payload image: %32s load addr: 0x%lx size: %d\n",
+		debug(SPL_TPL_PROMPT
+		      "payload image: %32s load addr: 0x%lx size: %d\n",
 		      spl_image->name, spl_image->load_addr, spl_image->size);
 #else
 		/* LEGACY image not supported */
@@ -284,7 +288,8 @@ int spl_parse_image_header(struct spl_image_info *spl_image,
 			spl_image->load_addr = CONFIG_SYS_LOAD_ADDR;
 			spl_image->entry_point = CONFIG_SYS_LOAD_ADDR;
 			spl_image->size = end - start;
-			debug("spl: payload zImage, load addr: 0x%lx size: %d\n",
+			debug(SPL_TPL_PROMPT
+			      "payload zImage, load addr: 0x%lx size: %d\n",
 			      spl_image->load_addr, spl_image->size);
 			return 0;
 		}
@@ -316,6 +321,44 @@ __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	image_entry();
 }
 
+#if CONFIG_IS_ENABLED(HANDOFF)
+/**
+ * Set up the SPL hand-off information
+ *
+ * This is initially empty (zero) but can be written by
+ */
+static int setup_spl_handoff(void)
+{
+	struct spl_handoff *ho;
+
+	ho = bloblist_ensure(BLOBLISTT_SPL_HANDOFF, sizeof(struct spl_handoff));
+	if (!ho)
+		return -ENOENT;
+
+	return 0;
+}
+
+static int write_spl_handoff(void)
+{
+	struct spl_handoff *ho;
+
+	ho = bloblist_find(BLOBLISTT_SPL_HANDOFF, sizeof(struct spl_handoff));
+	if (!ho)
+		return -ENOENT;
+	handoff_save_dram(ho);
+#ifdef CONFIG_SANDBOX
+	ho->arch.magic = TEST_HANDOFF_MAGIC;
+#endif
+	debug(SPL_TPL_PROMPT "Wrote SPL handoff\n");
+
+	return 0;
+}
+#else
+static inline int setup_spl_handoff(void) { return 0; }
+static inline int write_spl_handoff(void) { return 0; }
+
+#endif /* HANDOFF */
+
 static int spl_common_init(bool setup_malloc)
 {
 	int ret;
@@ -336,6 +379,30 @@ static int spl_common_init(bool setup_malloc)
 		return ret;
 	}
 	bootstage_mark_name(BOOTSTAGE_ID_START_SPL, "spl");
+#if CONFIG_IS_ENABLED(LOG)
+	ret = log_init();
+	if (ret) {
+		debug("%s: Failed to set up logging\n", __func__);
+		return ret;
+	}
+#endif
+	if (CONFIG_IS_ENABLED(BLOBLIST)) {
+		ret = bloblist_init();
+		if (ret) {
+			debug("%s: Failed to set up bloblist: ret=%d\n",
+			      __func__, ret);
+			return ret;
+		}
+	}
+	if (CONFIG_IS_ENABLED(HANDOFF)) {
+		int ret;
+
+		ret = setup_spl_handoff();
+		if (ret) {
+			puts(SPL_TPL_PROMPT "Cannot set up SPL handoff\n");
+			hang();
+		}
+	}
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
 		ret = fdtdec_setup();
 		if (ret) {
@@ -359,6 +426,10 @@ static int spl_common_init(bool setup_malloc)
 
 void spl_set_bd(void)
 {
+	/*
+	 * NOTE: On some platforms (e.g. x86) bdata may be in flash and not
+	 * writeable.
+	 */
 	if (!gd->bd)
 		gd->bd = &bdata;
 }
@@ -453,7 +524,7 @@ static int boot_from_devices(struct spl_image_info *spl_image,
 		if (loader)
 			printf("Trying to boot from %s\n", loader->name);
 		else
-			puts("SPL: Unsupported Boot Device!\n");
+			puts(SPL_TPL_PROMPT "Unsupported Boot Device!\n");
 #endif
 		if (loader && !spl_load_image(spl_image, loader)) {
 			spl_image->boot_device = spl_boot_list[i];
@@ -474,14 +545,11 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		BOOT_DEVICE_NONE,
 	};
 	struct spl_image_info spl_image;
+	int ret;
 
-	debug(">>spl:board_init_r()\n");
+	debug(">>" SPL_TPL_PROMPT "board_init_r()\n");
 
 	spl_set_bd();
-
-#ifdef CONFIG_SPL_OS_BOOT
-	dram_init_banksize();
-#endif
 
 #if defined(CONFIG_SYS_SPL_MALLOC_START)
 	mem_malloc_init(CONFIG_SYS_SPL_MALLOC_START,
@@ -504,6 +572,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_board_init();
 #endif
 
+	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF))
+		dram_init_banksize();
+
 	bootcount_inc();
 
 	memset(&spl_image, '\0', sizeof(spl_image));
@@ -515,11 +586,23 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 
 	if (boot_from_devices(&spl_image, spl_boot_list,
 			      ARRAY_SIZE(spl_boot_list))) {
-		puts("SPL: failed to boot from all boot devices\n");
+		puts(SPL_TPL_PROMPT "failed to boot from all boot devices\n");
 		hang();
 	}
 
 	spl_perform_fixups(&spl_image);
+	if (CONFIG_IS_ENABLED(HANDOFF)) {
+		ret = write_spl_handoff();
+		if (ret)
+			printf(SPL_TPL_PROMPT
+			       "SPL hand-off write failed (err=%d)\n", ret);
+	}
+	if (CONFIG_IS_ENABLED(BLOBLIST)) {
+		ret = bloblist_finish();
+		if (ret)
+			printf("Warning: Failed to finish bloblist (ret=%d)\n",
+			       ret);
+	}
 
 #ifdef CONFIG_CPU_V7M
 	spl_image.entry_point |= 0x1;
@@ -556,8 +639,6 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	      gd->malloc_ptr / 1024);
 #endif
 #ifdef CONFIG_BOOTSTAGE_STASH
-	int ret;
-
 	bootstage_mark_name(BOOTSTAGE_ID_END_SPL, "end_spl");
 	ret = bootstage_stash((void *)CONFIG_BOOTSTAGE_STASH_ADDR,
 			      CONFIG_BOOTSTAGE_STASH_SIZE);
@@ -583,9 +664,9 @@ void preloader_console_init(void)
 
 	gd->have_console = 1;
 
-#ifndef CONFIG_SPL_DISABLE_BANNER_PRINT
-	puts("\nU-Boot SPL " PLAIN_VERSION " (" U_BOOT_DATE " - " \
-			U_BOOT_TIME " " U_BOOT_TZ ")\n");
+#if CONFIG_IS_ENABLED(BANNER_PRINT)
+	puts("\nU-Boot " SPL_TPL_NAME " " PLAIN_VERSION " (" U_BOOT_DATE " - "
+	     U_BOOT_TIME " " U_BOOT_TZ ")\n");
 #endif
 #ifdef CONFIG_SPL_DISPLAY_PRINT
 	spl_display_print();

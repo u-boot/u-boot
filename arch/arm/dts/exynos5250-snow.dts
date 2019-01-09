@@ -40,7 +40,6 @@
 		mmc3 = "/mmc@12230000";
 		serial0 = "/serial@12C30000";
 		console = "/serial@12C30000";
-		i2s = "/sound@3830000";
 	};
 
         memory {
@@ -88,7 +87,7 @@
 
 		ro-boot {
 			label = "u-boot";
-			reg = <0x6000 0x9a000>;
+			reg = <0x6000 0xb0000>;
 			read-only;
 			type = "blob boot,dtb";
 			required;
@@ -214,9 +213,10 @@
 			};
 		};
 
-		soundcodec@22 {
-			reg = <0x22>;
-			compatible = "maxim,max98095-codec";
+		max98095: codec@11 {
+			compatible = "maxim,max98095";
+			reg = <0x11>;
+			#sound-dai-cells = <1>;
 		};
 	};
 
@@ -273,9 +273,20 @@
 		};
 	};
 
-	sound@3830000 {
-		samsung,codec-type = "max98095";
+	sound {
+		compatible = "google,snow-audio-max98095";
+
+		samsung,model = "Snow-I2S-MAX98095";
+		samsung,audio-codec = <&max98095>;
 		codec-enable-gpio = <&gpx1 7 GPIO_ACTIVE_HIGH>;
+
+		cpu {
+			sound-dai = <&i2s0 0>;
+		};
+
+		codec {
+			sound-dai = <&max98095 0>;
+		};
 	};
 
 	sound@12d60000 {

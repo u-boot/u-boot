@@ -7,15 +7,12 @@
 #define _DDR_TOPOLOGY_DEF_H
 
 #include "ddr3_training_ip_def.h"
-#include "ddr3_topology_def.h"
-
-#if defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_39X)
-#include "mv_ddr_plat.h"
-#endif
-
 #include "mv_ddr_topology.h"
 #include "mv_ddr_spd.h"
 #include "ddr3_logging_def.h"
+
+#define MV_DDR_MAX_BUS_NUM	9
+#define MV_DDR_MAX_IFACE_NUM	1
 
 struct bus_params {
 	/* Chip Select (CS) bitmask (bits 0-CS0, bit 1- CS1 ...) */
@@ -36,10 +33,10 @@ struct bus_params {
 
 struct if_params {
 	/* bus configuration */
-	struct bus_params as_bus_params[MAX_BUS_NUM];
+	struct bus_params as_bus_params[MV_DDR_MAX_BUS_NUM];
 
 	/* Speed Bin Table */
-	enum hws_speed_bin speed_bin_index;
+	enum mv_ddr_speed_bin speed_bin_index;
 
 	/* sdram device width */
 	enum mv_ddr_dev_width bus_width;
@@ -48,7 +45,7 @@ struct if_params {
 	enum mv_ddr_die_capacity memory_size;
 
 	/* The DDR frequency for each interfaces */
-	enum hws_ddr_freq memory_freq;
+	enum mv_ddr_freq memory_freq;
 
 	/*
 	 * delay CAS Write Latency
@@ -69,6 +66,37 @@ struct if_params {
 	enum mv_ddr_timing timing;
 };
 
+/* memory electrical configuration */
+struct mv_ddr_mem_edata {
+	enum mv_ddr_rtt_nom_park_evalue rtt_nom;
+	enum mv_ddr_rtt_nom_park_evalue rtt_park[MAX_CS_NUM];
+	enum mv_ddr_rtt_wr_evalue rtt_wr[MAX_CS_NUM];
+	enum mv_ddr_dic_evalue dic;
+};
+
+/* phy electrical configuration */
+struct mv_ddr_phy_edata {
+	enum mv_ddr_ohm_evalue drv_data_p;
+	enum mv_ddr_ohm_evalue drv_data_n;
+	enum mv_ddr_ohm_evalue drv_ctrl_p;
+	enum mv_ddr_ohm_evalue drv_ctrl_n;
+	enum mv_ddr_ohm_evalue odt_p[MAX_CS_NUM];
+	enum mv_ddr_ohm_evalue odt_n[MAX_CS_NUM];
+};
+
+/* mac electrical configuration */
+struct mv_ddr_mac_edata {
+	enum mv_ddr_odt_cfg_evalue odt_cfg_pat;
+	enum mv_ddr_odt_cfg_evalue odt_cfg_wr;
+	enum mv_ddr_odt_cfg_evalue odt_cfg_rd;
+};
+
+struct mv_ddr_edata {
+	struct mv_ddr_mem_edata mem_edata;
+	struct mv_ddr_phy_edata phy_edata;
+	struct mv_ddr_mac_edata mac_edata;
+};
+
 struct mv_ddr_topology_map {
 	/* debug level configuration */
 	enum mv_ddr_debug_level debug_level;
@@ -77,7 +105,7 @@ struct mv_ddr_topology_map {
 	u8 if_act_mask;
 
 	/* Controller configuration per interface */
-	struct if_params interface_params[MAX_INTERFACE_NUM];
+	struct if_params interface_params[MV_DDR_MAX_IFACE_NUM];
 
 	/* Bit mask for active buses */
 	u16 bus_act_mask;
@@ -90,7 +118,66 @@ struct mv_ddr_topology_map {
 
 	/* timing parameters */
 	unsigned int timing_data[MV_DDR_TDATA_LAST];
+
+	/* electrical configuration */
+	struct mv_ddr_edata edata;
+
+	/* electrical parameters */
+	unsigned int electrical_data[MV_DDR_EDATA_LAST];
 };
+
+enum mv_ddr_iface_mode {
+	MV_DDR_RAR_ENA,
+	MV_DDR_RAR_DIS,
+};
+
+enum mv_ddr_iface_state {
+	MV_DDR_IFACE_NRDY,	/* not ready */
+	MV_DDR_IFACE_INIT,	/* init'd */
+	MV_DDR_IFACE_RDY,	/* ready */
+	MV_DDR_IFACE_DNE	/* does not exist */
+};
+
+enum mv_ddr_validation {
+	MV_DDR_VAL_DIS,
+	MV_DDR_VAL_RX,
+	MV_DDR_VAL_TX,
+	MV_DDR_VAL_RX_TX
+};
+
+struct mv_ddr_iface {
+	/* base addr of ap ddr interface belongs to */
+	unsigned int ap_base;
+
+	/* ddr interface id */
+	unsigned int id;
+
+	/* ddr interface state */
+	enum mv_ddr_iface_state state;
+
+	/* ddr interface mode (rar enabled/disabled) */
+	enum mv_ddr_iface_mode iface_mode;
+
+	/* ddr interface base address */
+	unsigned long long iface_base_addr;
+
+	/* ddr interface size - ddr flow will update this parameter */
+	unsigned long long iface_byte_size;
+
+	/* ddr i2c spd data address */
+	unsigned int spd_data_addr;
+
+	/* ddr i2c spd page 0 select address */
+	unsigned int spd_page_sel_addr;
+
+	/* ddr interface validation mode */
+	enum mv_ddr_validation validation;
+
+	/* ddr interface topology map */
+	struct mv_ddr_topology_map tm;
+};
+
+struct mv_ddr_iface *mv_ddr_iface_get(void);
 
 /* DDR3 training global configuration parameters */
 struct tune_train_params {

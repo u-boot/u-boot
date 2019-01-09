@@ -9,7 +9,7 @@
 #include <net.h>
 #include <miiphy.h>
 #include <asm/arch/emac_defs.h>
-#include "../../../drivers/net/davinci_emac.h"
+#include "../../../drivers/net/ti/davinci_emac.h"
 
 #ifdef CONFIG_DRIVER_TI_EMAC
 

@@ -96,8 +96,7 @@ static int file_cbfs_next_file(u8 *start, u32 size, u32 align,
 		}
 
 		swap_file_header(&header, fileHeader);
-		if (header.offset < sizeof(struct cbfs_fileheader) ||
-		    header.offset > header.len) {
+		if (header.offset < sizeof(struct cbfs_fileheader)) {
 			file_cbfs_result = CBFS_BAD_FILE;
 			return -1;
 		}
@@ -190,8 +189,8 @@ void file_cbfs_init(uintptr_t end_of_rom)
 
 	start_of_rom = (u8 *)(end_of_rom + 1 - cbfs_header.rom_size);
 
-	file_cbfs_fill_cache(start_of_rom + cbfs_header.offset,
-			     cbfs_header.rom_size, cbfs_header.align);
+	file_cbfs_fill_cache(start_of_rom, cbfs_header.rom_size,
+			     cbfs_header.align);
 	if (file_cbfs_result == CBFS_SUCCESS)
 		initialized = 1;
 }

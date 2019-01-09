@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0+
-#
+# Copyright 2016-2018 NXP
 # Copyright 2014-2015, Freescale Semiconductor
 
 obj-y += cpu.o
@@ -20,6 +20,10 @@ ifneq ($(CONFIG_FSL_LSCH2),)
 obj-y += fsl_lsch2_speed.o
 obj-$(CONFIG_SYS_HAS_SERDES) += fsl_lsch2_serdes.o
 endif
+endif
+
+ifneq ($(CONFIG_ARCH_LX2160A),)
+obj-$(CONFIG_SYS_HAS_SERDES) += lx2160a_serdes.o
 endif
 
 ifneq ($(CONFIG_ARCH_LS2080A),)

@@ -47,6 +47,25 @@ config DM_USB
 	  declared with the U_BOOT_USB_DEVICE() macro and will be
 	  automatically probed when found on the bus.
 
+config SPL_DM_USB
+	bool "Enable driver model for USB in SPL"
+	depends on SPL_DM && DM_USB
+	default y
+
+config DM_USB_GADGET
+	bool "Enable driver model for USB Gadget"
+	depends on DM_USB
+	help
+	  Enable driver model for USB Gadget (Peripheral
+	  mode)
+
+config SPL_DM_USB_GADGET
+	bool "Enable driver model for USB Gadget in sPL"
+	depends on SPL_DM_USB
+	help
+	  Enable driver model for USB Gadget in SPL
+	  (Peripheral mode)
+
 source "drivers/usb/host/Kconfig"
 
 source "drivers/usb/dwc3/Kconfig"
@@ -65,6 +84,7 @@ comment "USB peripherals"
 
 config USB_STORAGE
 	bool "USB Mass Storage support"
+	depends on !(BLK && !DM_USB)
 	---help---
 	  Say Y here if you want to connect USB mass storage devices to your
 	  board's USB port.

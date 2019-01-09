@@ -44,5 +44,4 @@ U_BOOT_DRIVER(tangier_sysreset) = {
 	.id = UCLASS_SYSRESET,
 	.of_match = tangier_sysreset_ids,
 	.ops = &tangier_sysreset_ops,
-	.flags = DM_FLAG_PRE_RELOC,
 };

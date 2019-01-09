@@ -662,7 +662,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 			return (-1);
 		}
 	} else {
-		size = totlen;
+		size = totlen + 1;
 	}
 
 	/* Check if the user provided a buffer */

@@ -82,6 +82,10 @@ struct lpc32xx_nand_mlc_registers {
 static struct lpc32xx_nand_mlc_registers __iomem *lpc32xx_nand_mlc_registers
 	= (struct lpc32xx_nand_mlc_registers __iomem *)MLC_NAND_BASE;
 
+#if !defined(CONFIG_SYS_MAX_NAND_CHIPS)
+#define CONFIG_SYS_MAX_NAND_CHIPS	1
+#endif
+
 #define clkdiv(v, w, o) (((1+(clk/v)) & w) << o)
 
 /**

@@ -205,6 +205,15 @@ ENTRY(cpu_init_cp15)
 	mov	r2, r3, lsl #4		@ shift variant field for combined value
 	orr	r2, r4, r2		@ r2 has combined CPU variant + revision
 
+/* Early stack for ERRATA that needs into call C code */
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
+	ldr	r0, =(CONFIG_SPL_STACK)
+#else
+	ldr	r0, =(CONFIG_SYS_INIT_SP_ADDR)
+#endif
+	bic	r0, r0, #7	/* 8-byte alignment for ABI compliance */
+	mov	sp, r0
+
 #ifdef CONFIG_ARM_ERRATA_798870
 	cmp	r2, #0x30		@ Applies to lower than R3p0
 	bge	skip_errata_798870      @ skip if not affected rev

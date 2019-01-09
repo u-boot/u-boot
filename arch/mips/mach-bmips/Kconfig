@@ -25,7 +25,6 @@ config SOC_BMIPS_BCM3380
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_WATCHDOG
 	help
 	  This supports BMIPS BCM3380 family.
@@ -36,7 +35,6 @@ config SOC_BMIPS_BCM6318
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM6318 family.
@@ -47,7 +45,6 @@ config SOC_BMIPS_BCM6328
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM6328 family including BCM63281 and BCM63283.
@@ -58,7 +55,6 @@ config SOC_BMIPS_BCM6338
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM6338 family.
@@ -69,7 +65,6 @@ config SOC_BMIPS_BCM6348
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_WATCHDOG
 	help
 	  This supports BMIPS BCM6348 family.
@@ -80,7 +75,6 @@ config SOC_BMIPS_BCM6358
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM6358 family including BCM6358 and BCM6359.
@@ -91,7 +85,6 @@ config SOC_BMIPS_BCM6368
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM6368 family including BCM6368 and BCM6369.
@@ -102,7 +95,6 @@ config SOC_BMIPS_BCM6362
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM6362 family including BCM6361 and BCM6362.
@@ -113,7 +105,6 @@ config SOC_BMIPS_BCM63268
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM63268 family including BCM63168, BCM63169,
@@ -125,7 +116,6 @@ config SOC_BMIPS_BCM6838
 	select MIPS_TUNE_4KC
 	select SUPPORTS_BIG_ENDIAN
 	select SUPPORTS_CPU_MIPS32_R1
-	select SWAP_IO_SPACE
 	select SYSRESET_SYSCON
 	help
 	  This supports BMIPS BCM6838 family including BCM68380, BCM68381,

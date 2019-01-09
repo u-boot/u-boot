@@ -5,7 +5,7 @@
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
  *
  * Provides a unit test for the EFI_SIMPLE_TEXT_INPUT_PROTOCOL.
- * The unicode character and the scan code are printed for text
+ * The Unicode character and the scan code are printed for text
  * input. To run the test:
  *
  *	setenv efi_selftest text input

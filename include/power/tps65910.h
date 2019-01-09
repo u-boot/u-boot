@@ -72,6 +72,7 @@ enum {
 #define TPS65910_DEVCTRL_REG_SR_CTL_I2C_SEL_SR_I2C	(0x0 << 4)
 #define TPS65910_DEVCTRL_REG_SR_CTL_I2C_SEL_CTL_I2C	(0x1 << 4)
 
+int power_tps65910_init(unsigned char bus);
 int tps65910_set_i2c_control(void);
 int tps65910_voltage_update(unsigned int module, unsigned char vddx_op_vol_sel);
 #endif	/* __POWER_TPS65910_H__ */

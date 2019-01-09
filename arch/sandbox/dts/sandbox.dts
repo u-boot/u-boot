@@ -18,8 +18,14 @@
 		stdout-path = "/serial";
 	};
 
+	audio: audio-codec {
+		compatible = "sandbox,audio-codec";
+		#sound-dai-cells = <1>;
+	};
+
 	cros_ec: cros-ec {
 		reg = <0 0>;
+		u-boot,dm-pre-reloc;
 		compatible = "google,cros-ec-sandbox";
 
 		/*
@@ -27,6 +33,7 @@
 		 * that the STM32L flash erases to 0, not 0xff.
 		 */
 		flash {
+			u-boot,dm-pre-reloc;
 			image-pos = <0x08000000>;
 			size = <0x20000>;
 			erase-value = <0>;
@@ -59,6 +66,7 @@
 	};
 
 	gpio_a: gpios@0 {
+		u-boot,dm-pre-reloc;
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <1>;
@@ -67,6 +75,7 @@
 	};
 
 	gpio_b: gpios@1 {
+		u-boot,dm-pre-reloc;
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <2>;
@@ -91,19 +100,11 @@
 		eeprom@2c {
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
-			emul {
-				compatible = "sandbox,i2c-eeprom";
-				sandbox,filename = "i2c.bin";
-				sandbox,size = <128>;
-			};
 		};
 
 		rtc_0: rtc@43 {
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
-			emul {
-				compatible = "sandbox,i2c-rtc";
-			};
 		};
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;
@@ -112,6 +113,28 @@
 		mc34708: pmic@41 {
 			reg = <0x41>;
 		};
+
+		i2c_emul: emul {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xff>;
+			compatible = "sandbox,i2c-emul-parent";
+			emul-eeprom {
+				reg = <0x2c>;
+				compatible = "sandbox,i2c-eeprom";
+				sandbox,filename = "i2c.bin";
+				sandbox,size = <256>;
+			};
+			emul0 {
+				reg = <0x43>;
+				compatible = "sandbox,i2c-rtc";
+			};
+		};
+	};
+
+	i2s: i2s {
+		compatible = "sandbox,i2s";
+		#sound-dai-cells = <1>;
 	};
 
 	lcd {
@@ -177,13 +200,26 @@
 		compatible = "sandbox,reset";
 	};
 
+	sound {
+		compatible = "sandbox,sound";
+		cpu {
+			sound-dai = <&i2s 0>;
+		};
+
+		codec {
+			sound-dai = <&audio 0>;
+		};
+	};
+
 	spi@0 {
+		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0 0>;
 		compatible = "sandbox,spi";
 		cs-gpios = <0>, <&gpio_a 0>;
 		firmware_storage_spi: flash@0 {
+			u-boot,dm-pre-reloc;
 			reg = <0>;
 			compatible = "spansion,m25p16", "sandbox,spi-flash";
 			spi-max-frequency = <40000000>;
@@ -239,6 +275,7 @@
 	};
 
 	tpm {
+		u-boot,dm-pre-reloc;
 		compatible = "google,sandbox-tpm";
 	};
 
@@ -256,6 +293,7 @@
 
 	/* Needs to be available prior to relocation */
 	uart0: serial {
+		u-boot,dm-spl;
 		compatible = "sandbox,serial";
 		sandbox,text-colour = "cyan";
 		pinctrl-names = "default";
@@ -350,3 +388,10 @@
 
 #include "cros-ec-keyboard.dtsi"
 #include "sandbox_pmic.dtsi"
+
+&cros_ec {
+	u-boot,dm-pre-reloc;
+	keyboard-controller {
+		u-boot,dm-pre-reloc;
+	};
+};

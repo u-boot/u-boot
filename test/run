@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Script to run all U-Boot tests that use sandbox.
+#  $1: tests to run (empty for all, 'quick' for quick ones only)
 
 # Runs a test and checks the exit code to decide if it passed
 #  $1:         Test name
@@ -12,14 +13,17 @@ run_test() {
 	[ $? -ne 0 ] && failures=$((failures+1))
 }
 
+# SKip slow tests if requested
+[ "$1" == "quick" ] && mark_expr="not slow"
+
 failures=0
 
 # Run all tests that the standard sandbox build can support
-run_test "sandbox" ./test/py/test.py --bd sandbox --build
+run_test "sandbox" ./test/py/test.py --bd sandbox --build -m "${mark_expr}"
 
 # Run tests which require sandbox_spl
 run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build \
-	-k test_ofplatdata.py
+	-k 'test_ofplatdata or test_handoff'
 
 # Run tests for the flat-device-tree version of sandbox. This is a special
 # build which does not enable CONFIG_OF_LIVE for the live device tree, so we can
@@ -36,7 +40,9 @@ export DTC=${DTC_DIR}/dtc
 
 run_test "binman" ./tools/binman/binman -t
 run_test "patman" ./tools/patman/patman --test
-run_test "buildman" ./tools/buildman/buildman -t
+
+[ "$1" == "quick" ] && skip=--skip-net-tests
+run_test "buildman" ./tools/buildman/buildman -t ${skip}
 run_test "fdt" ./tools/dtoc/test_fdt -t
 run_test "dtoc" ./tools/dtoc/dtoc -t
 

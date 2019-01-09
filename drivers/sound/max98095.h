@@ -1,19 +1,18 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * max98095.h -- MAX98095 ALSA SoC Audio driver
  *
  * Copyright 2011 Maxim Integrated Products
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
  */
 
 #ifndef _MAX98095_H
 #define _MAX98095_H
 
+#include "maxim_codec.h"
+
 /*  Available audio interface ports in wm8994 codec */
 enum en_max_audio_interface {
-	AIF1 = 1,
+	AIF1,
 	AIF2,
 };
 

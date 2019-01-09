@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/clock/bcm6368-clock.h>
+#include <dt-bindings/dma/bcm6368-dma.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/reset/bcm6368-reset.h>
 #include "skeleton.dtsi"
@@ -189,6 +190,37 @@
 			clocks = <&periph_clk BCM6368_CLK_USBH>;
 			clock-names = "usbh";
 			resets = <&periph_rst BCM6368_RST_USBH>;
+
+			status = "disabled";
+		};
+
+		iudma: dma-controller@10006800 {
+			compatible = "brcm,bcm6368-iudma";
+			reg = <0x10006800 0x80>,
+			      <0x10006a00 0x80>,
+			      <0x10006c00 0x80>;
+			reg-names = "dma",
+				    "dma-channels",
+				    "dma-sram";
+			#dma-cells = <1>;
+			dma-channels = <8>;
+		};
+
+		enet: ethernet@10f00000 {
+			compatible = "brcm,bcm6368-enet";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10f00000 0x10000>;
+			clocks = <&periph_clk BCM6368_CLK_SWPKT_USB>,
+				 <&periph_clk BCM6368_CLK_SWPKT_SAR>,
+				 <&periph_clk BCM6368_CLK_ROBOSW>;
+			resets = <&periph_rst BCM6368_RST_SWITCH>,
+				 <&periph_rst BCM6368_RST_EPHY>;
+			dmas = <&iudma BCM6368_DMA_ENETSW_RX>,
+			       <&iudma BCM6368_DMA_ENETSW_TX>;
+			dma-names = "rx",
+				    "tx";
+			brcm,num-ports = <6>;
 
 			status = "disabled";
 		};

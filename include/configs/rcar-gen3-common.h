@@ -59,8 +59,7 @@
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-	"fdt_high=0xffffffffffffffff\0"	\
-	"initrd_high=0xffffffffffffffff\0"
+	"bootm_size=0x10000000\0"
 
 #define CONFIG_BOOTCOMMAND	\
 	"tftp 0x48080000 Image; " \
