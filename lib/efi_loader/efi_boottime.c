@@ -2483,7 +2483,7 @@ static void EFIAPI efi_copy_mem(void *destination, const void *source,
 				size_t length)
 {
 	EFI_ENTRY("%p, %p, %ld", destination, source, (unsigned long)length);
-	memcpy(destination, source, length);
+	memmove(destination, source, length);
 	EFI_EXIT(EFI_SUCCESS);
 }
 
