@@ -86,3 +86,21 @@ Partially converted:
 Jagan Teki <jagan@openedev.com>
 12/24/2018
 03/14/2018
+
+
+CONFIG_DM_PCI
+-------------
+Deadline: 2019.07
+
+The PCI subsystem has supported driver model since mid 2015. Maintainers should
+submit patches switching over to using CONFIG_DM_PCI and other base driver
+model options in time for inclusion in the 2019.07 release.
+
+
+CONFIG_DM_VIDEO
+---------------
+Deadline: 2019.07
+
+The video subsystem has supported driver model since early 2016. Maintainers
+should submit patches switching over to using CONFIG_DM_VIDEO and other base
+driver model options in time for inclusion in the 2019.07 release.
