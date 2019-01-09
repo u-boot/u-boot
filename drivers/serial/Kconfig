@@ -442,6 +442,7 @@ config DEBUG_UART_ANNOUNCE
 
 config DEBUG_UART_SKIP_INIT
 	bool "Skip UART initialization"
+	depends on DEBUG_UART
 	help
 	  Select this if the UART you want to use for debug output is already
 	  initialized by the time U-Boot starts its execution.
