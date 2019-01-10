@@ -157,6 +157,9 @@
 /* IIM Fuses */
 #define CONFIG_FSL_IIM
 
+/* Watchdog */
+#define CONFIG_WATCHDOG_TIMEOUT_MSECS 8000
+
 /*
  * Boot Linux
  */
