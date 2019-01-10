@@ -17,6 +17,6 @@ LDFLAGS_STANDALONE	+= -T $(srctree)/examples/standalone/nds32.lds
 
 PLATFORM_RELFLAGS	+= -fno-common -mrelax
 PLATFORM_RELFLAGS	+= -gdwarf-2
-PLATFORM_CPPFLAGS	+= -D__nds32__ -G0 -ffixed-10 -fpie
+PLATFORM_CPPFLAGS	+= -D__nds32__ -ffixed-10 -fpie
 
 LDFLAGS_u-boot		= --gc-sections --relax -pie
