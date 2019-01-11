@@ -118,6 +118,17 @@ int regulator_set_enable(struct udevice *dev, bool enable)
 	return ops->set_enable(dev, enable);
 }
 
+int regulator_set_enable_if_allowed(struct udevice *dev, bool enable)
+{
+	int ret;
+
+	ret = regulator_set_enable(dev, enable);
+	if (ret == -ENOSYS || ret == -EACCES)
+		return 0;
+
+	return ret;
+}
+
 int regulator_get_mode(struct udevice *dev)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
