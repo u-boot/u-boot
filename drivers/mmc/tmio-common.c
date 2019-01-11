@@ -347,12 +347,10 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 		/*
 		 * The DMA READ completion flag position differs on Socionext
 		 * and Renesas SoCs. It is bit 20 on Socionext SoCs and using
-		 * bit 17 is a hardware bug and forbidden. It is bit 17 on
-		 * Renesas SoCs and bit 20 does not work on them.
+		 * bit 17 is a hardware bug and forbidden. It is either bit 17
+		 * or bit 20 on Renesas SoCs, depending on SoC.
 		 */
-		poll_flag = (priv->caps & TMIO_SD_CAP_RCAR) ?
-			    TMIO_SD_DMA_INFO1_END_RD :
-			    TMIO_SD_DMA_INFO1_END_RD2;
+		poll_flag = priv->read_poll_flag;
 		tmp |= TMIO_SD_DMA_MODE_DIR_RD;
 	} else {
 		buf = (void *)data->src;

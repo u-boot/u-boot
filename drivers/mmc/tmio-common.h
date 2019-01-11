@@ -119,6 +119,7 @@ struct tmio_sd_priv {
 	void __iomem			*regbase;
 	unsigned int			version;
 	u32				caps;
+	u32				read_poll_flag;
 #define TMIO_SD_CAP_NONREMOVABLE	BIT(0)	/* Nonremovable e.g. eMMC */
 #define TMIO_SD_CAP_DMA_INTERNAL	BIT(1)	/* have internal DMA engine */
 #define TMIO_SD_CAP_DIV1024		BIT(2)	/* divisor 1024 is available */

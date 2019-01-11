@@ -462,6 +462,16 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 		priv->nrtaps = 4;
 	else
 		priv->nrtaps = 8;
+
+	/* H3 ES1.x and M3W ES1.0 uses bit 17 for DTRAEND */
+	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
+	    (rmobile_get_cpu_rev_integer() <= 1)) ||
+	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
+	    (rmobile_get_cpu_rev_integer() == 1) &&
+	    (rmobile_get_cpu_rev_fraction() == 0)))
+		priv->read_poll_flag = TMIO_SD_DMA_INFO1_END_RD;
+	else
+		priv->read_poll_flag = TMIO_SD_DMA_INFO1_END_RD2;
 }
 
 static int renesas_sdhi_probe(struct udevice *dev)
