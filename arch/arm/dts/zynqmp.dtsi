@@ -777,6 +777,60 @@
 			xlnx,metric-count-scale = <1>;
 		};
 
+		perf_monitor_ddr: perf-monitor@fd0b0000 {
+			compatible = "xlnx,axi-perf-monitor";
+			reg = <0x0 0xfd0b0000 0x0 0x10000>;
+			interrupts = <0 27 4>;
+			interrupt-parent = <&gic>;
+			xlnx,enable-profile = <0>;
+			xlnx,enable-trace = <0>;
+			xlnx,num-monitor-slots = <6>;
+			xlnx,enable-event-count = <1>;
+			xlnx,enable-event-log = <0>;
+			xlnx,have-sampled-metric-cnt = <1>;
+			xlnx,num-of-counters = <10>;
+			xlnx,metric-count-width = <32>;
+			xlnx,metrics-sample-count-width = <32>;
+			xlnx,global-count-width = <32>;
+			xlnx,metric-count-scale = <1>;
+		};
+
+		perf_monitor_cci: perf-monitor@fd490000 {
+			compatible = "xlnx,axi-perf-monitor";
+			reg = <0x0 0xfd490000 0x0 0x10000>;
+			interrupts = <0 27 4>;
+			interrupt-parent = <&gic>;
+			xlnx,enable-profile = <0>;
+			xlnx,enable-trace = <0>;
+			xlnx,num-monitor-slots = <1>;
+			xlnx,enable-event-count = <1>;
+			xlnx,enable-event-log = <0>;
+			xlnx,have-sampled-metric-cnt = <1>;
+			xlnx,num-of-counters = <8>;
+			xlnx,metric-count-width = <32>;
+			xlnx,metrics-sample-count-width = <32>;
+			xlnx,global-count-width = <32>;
+			xlnx,metric-count-scale = <1>;
+		};
+
+		perf_monitor_lpd: perf-monitor@ffa10000 {
+			compatible = "xlnx,axi-perf-monitor";
+			reg = <0x0 0xffa10000 0x0 0x10000>;
+			interrupts = <0 25 4>;
+			interrupt-parent = <&gic>;
+			xlnx,enable-profile = <0>;
+			xlnx,enable-trace = <0>;
+			xlnx,num-monitor-slots = <1>;
+			xlnx,enable-event-count = <1>;
+			xlnx,enable-event-log = <1>;
+			xlnx,have-sampled-metric-cnt = <1>;
+			xlnx,num-of-counters = <8>;
+			xlnx,metric-count-width = <32>;
+			xlnx,metrics-sample-count-width = <32>;
+			xlnx,global-count-width = <32>;
+			xlnx,metric-count-scale = <1>;
+		};
+
 		pcie: pcie@fd0e0000 {
 			compatible = "xlnx,nwl-pcie-2.11";
 			status = "disabled";

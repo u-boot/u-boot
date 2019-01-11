@@ -203,6 +203,18 @@
 	clocks = <&clk 31>;
 };
 
+&perf_monitor_ddr {
+	clocks = <&clk 28>;
+};
+
+&perf_monitor_cci {
+	clocks = <&clk 28>;
+};
+
+&perf_monitor_lpd {
+	clocks = <&clk 31>;
+};
+
 &pcie {
 	clocks = <&clk 23>;
 };

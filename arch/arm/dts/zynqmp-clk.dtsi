@@ -182,6 +182,18 @@
 	clocks = <&clk100>;
 };
 
+&perf_monitor_ddr {
+	clocks = <&clk100>;
+};
+
+&perf_monitor_cci {
+	clocks = <&clk100>;
+};
+
+&perf_monitor_lpd {
+	clocks = <&clk100>;
+};
+
 &qspi {
 	clocks = <&clk300 &clk300>;
 };
