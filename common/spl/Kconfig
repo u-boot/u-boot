@@ -776,13 +776,13 @@ config SPL_USB_SUPPORT
 	  config options. This enables loading from USB using a configured
 	  device.
 
-config SPL_USB_GADGET_SUPPORT
+config SPL_USB_GADGET
 	bool "Suppport USB Gadget drivers"
 	help
 	  Enable USB Gadget API which allows to enable USB device functions
 	  in SPL.
 
-if SPL_USB_GADGET_SUPPORT
+if SPL_USB_GADGET
 
 config SPL_USB_ETHER
 	bool "Support USB Ethernet drivers"
