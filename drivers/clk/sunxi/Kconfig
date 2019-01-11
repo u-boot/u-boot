@@ -58,6 +58,13 @@ config CLK_SUN8I_V3S
 	  This enables common clock driver support for platforms based
 	  on Allwinner V3S SoC.
 
+config CLK_SUN9I_A80
+	bool "Clock driver for Allwinner A80"
+	default MACH_SUN9I
+	help
+	  This enables common clock driver support for platforms based
+	  on Allwinner A80 SoC.
+
 config CLK_SUN8I_H3
 	bool "Clock driver for Allwinner H3/H5"
 	default MACH_SUNXI_H3_H5
