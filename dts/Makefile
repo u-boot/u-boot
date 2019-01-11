@@ -43,9 +43,6 @@ endif
 arch-dtbs:
 	$(Q)$(MAKE) $(build)=$(ARCH_PATH) dtbs
 
-.SECONDARY: $(obj)/dt.dtb.S $(obj)/dt-spl.dtb.S
-
-
 ifeq ($(CONFIG_SPL_BUILD),y)
 obj-$(CONFIG_OF_EMBED) := dt-spl.dtb.o
 # support "out-of-tree" build for dtb-spl

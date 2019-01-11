@@ -11,9 +11,6 @@ targets += $(objs-before-objcopy)
 $(foreach m, $(objs-before-objcopy), $(eval CFLAGS_REMOVE_$m := -msoft-float))
 ccflags-y := -mhard-float -fkeep-inline-functions
 
-# Do not delete intermidiate files (*.o)
-.SECONDARY: $(call objectify, $(objs-before-objcopy))
-
 obj-y := $(objs-before-objcopy:.o=_.o)
 
 OBJCOPYFLAGS := -R .gnu.attributes
