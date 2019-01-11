@@ -367,6 +367,9 @@ static int tmio_sd_dma_xfer(struct udevice *dev, struct mmc_data *data)
 
 	ret = tmio_sd_dma_wait_for_irq(dev, poll_flag, data->blocks);
 
+	if (poll_flag == TMIO_SD_DMA_INFO1_END_RD)
+		udelay(1);
+
 	__dma_unmap_single(dma_addr, len, dir);
 
 	return ret;
