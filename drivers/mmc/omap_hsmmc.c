@@ -470,21 +470,21 @@ static int omap_hsmmc_set_io_regulator(struct mmc *mmc, int mV)
 		return 0;
 
 	/* Disable PBIAS */
-	ret = regulator_set_enable(priv->pbias_supply, false);
-	if (ret && ret != -ENOSYS)
+	ret = regulator_set_enable_if_allowed(priv->pbias_supply, false);
+	if (ret)
 		return ret;
 
 	/* Turn off IO voltage */
-	ret = regulator_set_enable(mmc->vqmmc_supply, false);
-	if (ret && ret != -ENOSYS)
+	ret = regulator_set_enable_if_allowed(mmc->vqmmc_supply, false);
+	if (ret)
 		return ret;
 	/* Program a new IO voltage value */
 	ret = regulator_set_value(mmc->vqmmc_supply, uV);
 	if (ret)
 		return ret;
 	/* Turn on IO voltage */
-	ret = regulator_set_enable(mmc->vqmmc_supply, true);
-	if (ret && ret != -ENOSYS)
+	ret = regulator_set_enable_if_allowed(mmc->vqmmc_supply, true);
+	if (ret)
 		return ret;
 
 	/* Program PBIAS voltage*/
@@ -492,8 +492,8 @@ static int omap_hsmmc_set_io_regulator(struct mmc *mmc, int mV)
 	if (ret && ret != -ENOSYS)
 		return ret;
 	/* Enable PBIAS */
-	ret = regulator_set_enable(priv->pbias_supply, true);
-	if (ret && ret != -ENOSYS)
+	ret = regulator_set_enable_if_allowed(priv->pbias_supply, true);
+	if (ret)
 		return ret;
 
 	return 0;
