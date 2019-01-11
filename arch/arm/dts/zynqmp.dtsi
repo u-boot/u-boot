@@ -829,7 +829,7 @@
 			interrupt-parent = <&gic>;
 			xlnx,enable-profile = <0>;
 			xlnx,enable-trace = <0>;
-			xlnx,num-monitor-slots = <4>;
+			xlnx,num-monitor-slots = <1>;
 			xlnx,enable-event-count = <1>;
 			xlnx,enable-event-log = <1>;
 			xlnx,have-sampled-metric-cnt = <1>;
