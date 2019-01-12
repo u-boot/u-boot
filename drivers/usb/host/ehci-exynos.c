@@ -152,9 +152,9 @@ static void exynos4412_setup_usb_phy(struct exynos4412_usb_phy *usb)
 	setbits_le32(&usb->usbphyrstcon, (RSTCON_HOSTPHY_SWRST | RSTCON_SWRST));
 	udelay(10);
 	clrbits_le32(&usb->usbphyrstcon, (RSTCON_HOSTPHY_SWRST | RSTCON_SWRST));
-    /* The following delay is necessary for the reset sequence to be
-     * completed */
-    udelay(80);
+	/* The following delay is necessary for the reset sequence to be
+	* completed */
+	udelay(80);
 }
 
 static void setup_usb_phy(struct exynos_usb_phy *usb)
