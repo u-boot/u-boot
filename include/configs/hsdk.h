@@ -33,11 +33,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /*
- * This board might be of different versions so handle it
- */
-#define CONFIG_BOARD_TYPES
-
-/*
  * UART configuration
  */
 #define CONFIG_SYS_NS16550_SERIAL

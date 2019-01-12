@@ -32,11 +32,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /*
- * This board might be of different versions so handle it
- */
-#define CONFIG_BOARD_TYPES
-
-/*
  * NAND Flash configuration
  */
 #define CONFIG_SYS_NAND_BASE		(ARC_FPGA_PERIPHERAL_BASE + 0x16000)
