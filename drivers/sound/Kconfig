@@ -40,6 +40,14 @@ config I2S_SAMSUNG
 	  option provides an implementation for sound_init() and
 	  sound_play().
 
+config SOUND_MAX98088
+	bool "Support Maxim max98088 audio codec"
+	depends on I2S_SAMSUNG
+	help
+	  Enable the max98088 audio codec. This is connected via I2S for
+	  audio data and I2C for codec control. At present it only works
+	  with the Samsung I2S driver.
+
 config SOUND_MAX98090
 	bool "Support Maxim max98090 audio codec"
 	depends on I2S_SAMSUNG

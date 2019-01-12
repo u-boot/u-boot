@@ -89,7 +89,7 @@ static const struct sound_ops samsung_sound_ops = {
 
 static const struct udevice_id samsung_sound_ids[] = {
 	{ .compatible = "google,snow-audio-max98095" },
-	{ .compatible = "google,spring-audio-max98095" },
+	{ .compatible = "google,spring-audio-max98088" },
 	{ .compatible = "samsung,smdk5420-audio-wm8994" },
 	{ .compatible = "google,peach-audio-max98090" },
 	{ }
