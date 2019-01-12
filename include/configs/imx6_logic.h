@@ -144,6 +144,8 @@
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x200000
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS 0x00500000
+#define CONFIG_SYS_NAND_USE_FLASH_BBT
+
 /* MTD device */
 
 /* DMA stuff, needed for GPMI/MXS NAND support */
@@ -162,7 +164,7 @@
 /* Falcon Mode */
 #define CONFIG_SPL_FS_LOAD_ARGS_NAME	"args"
 #define CONFIG_SPL_FS_LOAD_KERNEL_NAME	"uImage"
-#define CONFIG_SYS_SPL_ARGS_ADDR       0x15000000
+#define CONFIG_SYS_SPL_ARGS_ADDR       0x18000000
 
 /* Falcon Mode - MMC support: args@1MB kernel@2MB */
 #define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR  0x800   /* 1MB */
