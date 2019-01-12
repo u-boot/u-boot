@@ -249,44 +249,6 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-#ifdef CONFIG_MMC
-static int init_mmc(void)
-{
-#ifdef CONFIG_MMC_SDHCI
-	return exynos_mmc_init(gd->fdt_blob);
-#else
-	return 0;
-#endif
-}
-
-static int init_dwmmc(void)
-{
-#ifdef CONFIG_MMC_DW
-	return exynos_dwmmc_init(gd->fdt_blob);
-#else
-	return 0;
-#endif
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int ret;
-
-	if (get_boot_mode() == BOOT_MODE_SD) {
-		ret = init_mmc();
-		ret |= init_dwmmc();
-	} else {
-		ret = init_dwmmc();
-		ret |= init_mmc();
-	}
-
-	if (ret)
-		debug("mmc init failed\n");
-
-	return ret;
-}
-#endif
-
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
