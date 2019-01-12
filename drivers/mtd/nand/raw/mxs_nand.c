@@ -1092,7 +1092,7 @@ int mxs_nand_alloc_buffers(struct mxs_nand_info *nand_info)
 /*
  * Initializes the NFC hardware.
  */
-int mxs_nand_init_dma(struct mxs_nand_info *info)
+static int mxs_nand_init_dma(struct mxs_nand_info *info)
 {
 	int i = 0, j, ret = 0;
 
