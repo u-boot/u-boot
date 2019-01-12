@@ -141,7 +141,6 @@ enum fdt_compat_id {
 	COMPAT_GENERIC_SPI_FLASH,	/* Generic SPI Flash chip */
 	COMPAT_SAMSUNG_EXYNOS_SYSMMU,	/* Exynos sysmmu */
 	COMPAT_INTEL_MICROCODE,		/* Intel microcode update */
-	COMPAT_AMS_AS3722,		/* AMS AS3722 PMIC */
 	COMPAT_INTEL_QRK_MRC,		/* Intel Quark MRC */
 	COMPAT_ALTERA_SOCFPGA_DWMAC,	/* SoCFPGA Ethernet controller */
 	COMPAT_ALTERA_SOCFPGA_DWMMC,	/* SoCFPGA DWMMC controller */
