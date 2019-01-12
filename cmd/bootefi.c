@@ -318,38 +318,46 @@ err_add_protocol:
 /**
  * bootefi_test_prepare() - prepare to run an EFI test
  *
- * This sets things up so we can call EFI functions. This involves preparing
- * the 'gd' pointer and setting up the load ed image data structures.
+ * Prepare to run a test as if it were provided by a loaded image.
  *
- * @image_objp: loaded_image_infop: Pointer to a struct which will hold the
- *    loaded image object. This struct will be inited by this function before
- *    use.
- * @loaded_image_infop: Pointer to a struct which will hold the loaded image
- *    info. This struct will be inited by this function before use.
- * @path: File path to the test being run (often just the test name with a
- *    backslash before it
- * @test_func: Address of the test function that is being run
- * @load_options_path: U-Boot environment variable to use as load options
- * @return 0 if OK, -ve on error
+ * @image_objp:		pointer to be set to the loaded image handle
+ * @loaded_image_infop:	pointer to be set to the loaded image protocol
+ * @path:		dummy file path used to construct the device path
+ *			set in the loaded image protocol
+ * @load_options_path:	name of a U-Boot environment variable. Its value is
+ *			set as load options in the loaded image protocol.
+ * Return:		status code
  */
 static efi_status_t bootefi_test_prepare
 		(struct efi_loaded_image_obj **image_objp,
-		struct efi_loaded_image **loaded_image_infop, const char *path,
-		ulong test_func, const char *load_options_path)
+		 struct efi_loaded_image **loaded_image_infop, const char *path,
+		 const char *load_options_path)
 {
+	efi_status_t ret;
+
 	/* Construct a dummy device path */
-	bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-					      (uintptr_t)test_func,
-					      (uintptr_t)test_func);
+	bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE, 0, 0);
 	if (!bootefi_device_path)
 		return EFI_OUT_OF_RESOURCES;
-	bootefi_image_path = efi_dp_from_file(NULL, 0, path);
-	if (!bootefi_image_path)
-		return EFI_OUT_OF_RESOURCES;
 
-	return bootefi_run_prepare(load_options_path, bootefi_device_path,
-				   bootefi_image_path, image_objp,
-				   loaded_image_infop);
+	bootefi_image_path = efi_dp_from_file(NULL, 0, path);
+	if (!bootefi_image_path) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto failure;
+	}
+
+	ret = bootefi_run_prepare(load_options_path, bootefi_device_path,
+				  bootefi_image_path, image_objp,
+				  loaded_image_infop);
+	if (ret == EFI_SUCCESS)
+		return ret;
+
+	efi_free_pool(bootefi_image_path);
+	bootefi_image_path = NULL;
+failure:
+	efi_free_pool(bootefi_device_path);
+	bootefi_device_path = NULL;
+	return ret;
 }
 
 #endif /* CONFIG_CMD_BOOTEFI_SELFTEST */
@@ -431,9 +439,9 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		struct efi_loaded_image_obj *image_obj;
 		struct efi_loaded_image *loaded_image_info;
 
-		if (bootefi_test_prepare(&image_obj, &loaded_image_info,
-					 "\\selftest", (uintptr_t)&efi_selftest,
-					 "efi_selftest"))
+		r = bootefi_test_prepare(&image_obj, &loaded_image_info,
+					 "\\selftest", "efi_selftest");
+		if (r != EFI_SUCCESS)
 			return CMD_RET_FAILURE;
 
 		/* Execute the test */
