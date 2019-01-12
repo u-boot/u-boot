@@ -133,18 +133,12 @@ enum fdt_compat_id {
 					/* Tegra210 XUSB pad controller */
 	COMPAT_SMSC_LAN9215,		/* SMSC 10/100 Ethernet LAN9215 */
 	COMPAT_SAMSUNG_EXYNOS5_SROMC,	/* Exynos5 SROMC */
-	COMPAT_SAMSUNG_S3C2440_I2C,	/* Exynos I2C Controller */
-	COMPAT_SAMSUNG_EXYNOS5_SOUND,	/* Exynos Sound */
-	COMPAT_WOLFSON_WM8994_CODEC,	/* Wolfson WM8994 Sound Codec */
 	COMPAT_SAMSUNG_EXYNOS_USB_PHY,	/* Exynos phy controller for usb2.0 */
 	COMPAT_SAMSUNG_EXYNOS5_USB3_PHY,/* Exynos phy controller for usb3.0 */
 	COMPAT_SAMSUNG_EXYNOS_TMU,	/* Exynos TMU */
 	COMPAT_SAMSUNG_EXYNOS_MIPI_DSI,	/* Exynos mipi dsi */
 	COMPAT_SAMSUNG_EXYNOS_DWMMC,	/* Exynos DWMMC controller */
-	COMPAT_SAMSUNG_EXYNOS_MMC,	/* Exynos MMC controller */
 	COMPAT_GENERIC_SPI_FLASH,	/* Generic SPI Flash chip */
-	COMPAT_MAXIM_98095_CODEC,	/* MAX98095 Codec */
-	COMPAT_SAMSUNG_EXYNOS5_I2C,	/* Exynos5 High Speed I2C Controller */
 	COMPAT_SAMSUNG_EXYNOS_SYSMMU,	/* Exynos sysmmu */
 	COMPAT_INTEL_MICROCODE,		/* Intel microcode update */
 	COMPAT_AMS_AS3722,		/* AMS AS3722 PMIC */
