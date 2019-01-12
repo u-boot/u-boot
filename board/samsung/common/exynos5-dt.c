@@ -34,37 +34,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void board_enable_audio_codec(void)
-{
-	int node, ret;
-	struct gpio_desc en_gpio;
-
-	node = fdtdec_next_compatible(gd->fdt_blob, 0,
-		COMPAT_SAMSUNG_EXYNOS5_SOUND);
-	if (node <= 0)
-		return;
-
-	ret = gpio_request_by_name_nodev(offset_to_ofnode(node),
-					 "codec-enable-gpio", 0, &en_gpio,
-					 GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
-	if (ret == -FDT_ERR_NOTFOUND)
-		return;
-
-	/* Turn on the GPIO which connects to the codec's "enable" line. */
-	gpio_set_pull(gpio_get_number(&en_gpio), S5P_GPIO_PULL_NONE);
-
-#ifdef CONFIG_SOUND_MAX98095
-	/* Enable MAX98095 Codec */
-	gpio_request(EXYNOS5_GPIO_X17, "max98095_enable");
-	gpio_direction_output(EXYNOS5_GPIO_X17, 1);
-	gpio_set_pull(EXYNOS5_GPIO_X17, S5P_GPIO_PULL_NONE);
-#endif
-}
-
 int exynos_init(void)
 {
-	board_enable_audio_codec();
-
 	return 0;
 }
 
