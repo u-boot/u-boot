@@ -828,6 +828,9 @@ void board_mmc_power_init(void);
 int board_mmc_init(bd_t *bis);
 int cpu_mmc_init(bd_t *bis);
 int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr);
+# ifdef CONFIG_SYS_MMC_ENV_PART
+extern uint mmc_get_env_part(struct mmc *mmc);
+# endif
 int mmc_get_env_dev(void);
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
