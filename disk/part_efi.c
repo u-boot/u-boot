@@ -66,7 +66,7 @@ static char *print_efiname(gpt_entry *pte)
 	return name;
 }
 
-static efi_guid_t system_guid = PARTITION_SYSTEM_GUID;
+static const efi_guid_t system_guid = PARTITION_SYSTEM_GUID;
 
 static inline int is_bootable(gpt_entry *p)
 {
