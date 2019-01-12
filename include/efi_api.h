@@ -909,7 +909,7 @@ struct efi_file_handle {
 	u64 rev;
 	efi_status_t (EFIAPI *open)(struct efi_file_handle *file,
 			struct efi_file_handle **new_handle,
-			s16 *file_name, u64 open_mode, u64 attributes);
+			u16 *file_name, u64 open_mode, u64 attributes);
 	efi_status_t (EFIAPI *close)(struct efi_file_handle *file);
 	efi_status_t (EFIAPI *delete)(struct efi_file_handle *file);
 	efi_status_t (EFIAPI *read)(struct efi_file_handle *file,
