@@ -40,9 +40,46 @@
 		reg = <0x40000000 0x80000000>;
 	};
 
+	iram {
+		reg = <0x02020000 0x60000>;
+	};
+
+	config {
+		samsung,bl1-offset = <0x1400>;
+		samsung,bl2-offset = <0x3400>;
+		u-boot-memory = "/memory";
+		u-boot-offset = <0x3e00000 0x100000>;
+	};
+
 	flash@0 {
-		spl { /* spl size override */
-			size = <0x8000>;
+		reg = <0 0x100000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		pre-boot {
+			label = "bl1 pre-boot";
+			reg = <0 0x2000>;
+			read-only;
+			filename = "e5250.nbl1.bin";
+			type = "blob exynos-bl1";
+			required;
+		};
+
+		spl {
+			label = "bl2 spl";
+			reg = <0x2000 0x8000>;
+			read-only;
+			filename = "bl2.bin";
+			type = "blob exynos-bl2 boot,dtb";
+			payload = "/flash/ro-boot";
+			required;
+		};
+
+		ro-boot {
+			label = "u-boot";
+			reg = <0xa000 0xb0000>;
+			read-only;
+			type = "blob boot,dtb";
+			required;
 		};
 	};
 
