@@ -7,6 +7,8 @@ choice
 config TARGET_S5P_GONI
 	bool "S5P Goni board"
 	select OF_CONTROL
+	select BLK
+	select DM_MMC
 
 config TARGET_SMDKC100
 	bool "Support smdkc100 board"
