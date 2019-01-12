@@ -93,6 +93,22 @@
 		samsung,vbus-gpio = <&gpx2 7 GPIO_ACTIVE_HIGH>;
 	};
 
+	sound {
+		compatible = "google,spring-audio-max98088";
+
+		samsung,model = "Spring-I2S-MAX98088";
+		samsung,audio-codec = <&max98088>;
+		codec-enable-gpio = <&gpx1 7 0>;
+
+		cpu {
+			sound-dai = <&i2s1 0>;
+		};
+
+		codec {
+			sound-dai = <&max98088 0>;
+		};
+	};
+
 	spi@12d30000 {
 		spi-max-frequency = <50000000>;
 		firmware_storage_spi: flash@0 {
@@ -638,27 +654,11 @@
 		};
 	};
 
-	max98095: soundcodec@10 {
+	max98088: soundcodec@10 {
 		reg = <0x10>;
-		compatible = "maxim,max98095";
+		compatible = "maxim,max98088";
 		#sound-dai-cells = <1>;
 	};
-
-	sound {
-		compatible = "google,spring-audio-max98095";
-
-		samsung,model = "Spring-I2S-MAX98095";
-		samsung,audio-codec = <&max98095>;
-
-		cpu {
-			sound-dai = <&i2s0 0>;
-		};
-
-		codec {
-			sound-dai = <&max98095 0>;
-		};
-	};
-
 };
 
 #include "cros-ec-keyboard.dtsi"
