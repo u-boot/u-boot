@@ -19,6 +19,7 @@ dtb-$(CONFIG_BOARD_TPLINK_WDR4300) += tplink_wdr4300.dtb
 dtb-$(CONFIG_TARGET_JZ4780_CI20) += ci20.dtb
 dtb-$(CONFIG_SOC_LUTON) += luton_pcb090.dtb luton_pcb091.dtb
 dtb-$(CONFIG_SOC_OCELOT) += ocelot_pcb120.dtb ocelot_pcb123.dtb
+dtb-$(CONFIG_SOC_JR2) += jr2_pcb110.dtb jr2_pcb111.dtb serval2_pcb112.dtb
 
 targets += $(dtb-y)
 
