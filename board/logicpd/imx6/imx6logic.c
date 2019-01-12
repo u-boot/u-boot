@@ -60,57 +60,6 @@ static iomux_v3_cfg_t const uart3_pads[] = {
 	MX6_PAD_EIM_EB3__UART3_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-#ifndef CONFIG_SPL_BUILD
-static void fixup_enet_clock(void)
-{
-	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	struct gpio_desc nint;
-	struct gpio_desc reset;
-	int ret;
-
-	/* Set Ref Clock to 50 MHz */
-	enable_fec_anatop_clock(0, ENET_50MHZ);
-
-	/* Set GPIO_16 as ENET_REF_CLK_OUT */
-	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
-
-	/* Request GPIO Pins to reset Ethernet with new clock */
-	ret = dm_gpio_lookup_name("GPIO4_7", &nint);
-	if (ret) {
-		printf("Unable to lookup GPIO4_7\n");
-		return;
-	}
-
-	ret = dm_gpio_request(&nint, "eth0_nInt");
-	if (ret) {
-		printf("Unable to request eth0_nInt\n");
-		return;
-	}
-
-	/* Ensure nINT is input or PHY won't startup */
-	dm_gpio_set_dir_flags(&nint, GPIOD_IS_IN);
-
-	ret = dm_gpio_lookup_name("GPIO4_9", &reset);
-	if (ret) {
-		printf("Unable to lookup GPIO4_9\n");
-		return;
-	}
-
-	ret = dm_gpio_request(&reset, "eth0_reset");
-	if (ret) {
-		printf("Unable to request eth0_reset\n");
-		return;
-	}
-
-	/* Reset LAN8710A PHY */
-	dm_gpio_set_dir_flags(&reset, GPIOD_IS_OUT);
-	dm_gpio_set_value(&reset, 0);
-	udelay(150);
-	dm_gpio_set_value(&reset, 1);
-	mdelay(50);
-}
-#endif
-
 static void setup_iomux_uart(void)
 {
 	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
@@ -141,8 +90,33 @@ static void setup_nand_pins(void)
 	imx_iomux_v3_setup_multiple_pads(nand_pads, ARRAY_SIZE(nand_pads));
 }
 
+static int ar8031_phy_fixup(struct phy_device *phydev)
+{
+	unsigned short val;
+
+	/* To enable AR8031 output a 125MHz clk from CLK_25M */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x7);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
+
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
+	val &= 0xffe3;
+	val |= 0x18;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, val);
+
+	/* introduce tx clock delay */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x5);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
+	val |= 0x0100;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
+
+	return 0;
+}
+
 int board_phy_config(struct phy_device *phydev)
 {
+	ar8031_phy_fixup(phydev);
+
 	if (phydev->drv->config)
 		phydev->drv->config(phydev);
 
@@ -160,9 +134,6 @@ int overwrite_console(void)
 
 int board_early_init_f(void)
 {
-#ifndef CONFIG_SPL_BUILD
-	fixup_enet_clock();
-#endif
 	setup_iomux_uart();
 	setup_nand_pins();
 	return 0;
