@@ -16,6 +16,11 @@
 #include <mach/luton/luton_devcpu_gcb.h>
 #include <mach/luton/luton_devcpu_gcb_miim_regs.h>
 #include <mach/luton/luton_icpu_cfg.h>
+#elif defined(CONFIG_SOC_JR2)
+#include <mach/jr2/jr2.h>
+#include <mach/jr2/jr2_devcpu_gcb.h>
+#include <mach/jr2/jr2_devcpu_gcb_miim_regs.h>
+#include <mach/jr2/jr2_icpu_cfg.h>
 #else
 #error Unsupported platform
 #endif

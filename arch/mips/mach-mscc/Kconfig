@@ -33,6 +33,13 @@ config SOC_LUTON
 	help
 	  This supports MSCC Luton family of SOCs.
 
+config SOC_JR2
+	bool "Jaguar2 SOC Family"
+	select SOC_VCOREIII
+	select DESIGNWARE_SPI
+	help
+	  This supports MSCC Jaguar2 family of SOCs.
+
 endchoice
 
 config SYS_CONFIG_NAME
@@ -64,5 +71,7 @@ endchoice
 source "board/mscc/ocelot/Kconfig"
 
 source "board/mscc/luton/Kconfig"
+
+source "board/mscc/jr2/Kconfig"
 
 endmenu
