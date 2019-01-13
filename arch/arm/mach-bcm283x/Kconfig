@@ -41,7 +41,7 @@ config TARGET_RPI
 	  support BCM2836/BCM2837-based Raspberry Pis such as the RPi 2 and
 	  RPi 3 due to different peripheral address maps.
 
-	  This option creates a build targetting the ARM1176 ISA.
+	  This option creates a build targeting the ARM1176 ISA.
 	select BCM2835
 
 config TARGET_RPI_0_W
@@ -57,7 +57,7 @@ config TARGET_RPI_0_W
 	  This is required for U-Boot to operate correctly, even if you only
 	  care about the HDMI/usbkbd console.
 
-	  This option creates a build targetting the ARMv7/AArch32 ISA.
+	  This option creates a build targeting the ARMv7/AArch32 ISA.
 	select BCM2835
 
 config TARGET_RPI_2
@@ -80,7 +80,7 @@ config TARGET_RPI_2
 	  arm_loader: emmc clock depends on core clock See:
 	  https://github.com/raspberrypi/firmware/issues/572".
 
-	  This option creates a build targetting the ARMv7/AArch32 ISA.
+	  This option creates a build targeting the ARMv7/AArch32 ISA.
 	select BCM2836
 
 config TARGET_RPI_3_32B
@@ -96,7 +96,7 @@ config TARGET_RPI_3_32B
 	  required for U-Boot to operate correctly, even if you only care
 	  about the HDMI/usbkbd console.
 
-	  This option creates a build targetting the ARMv7/AArch32 ISA.
+	  This option creates a build targeting the ARMv7/AArch32 ISA.
 	select BCM2837_32B
 
 config TARGET_RPI_3
@@ -124,7 +124,7 @@ config TARGET_RPI_3
 	  duplicated here. The VC FW enhancement is tracked in
 	  https://github.com/raspberrypi/firmware/issues/579.
 
-	  This option creates a build targetting the ARMv8/AArch64 ISA.
+	  This option creates a build targeting the ARMv8/AArch64 ISA.
 	select BCM2837_64B
 
 endchoice
