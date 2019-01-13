@@ -232,7 +232,7 @@ config OF_ISA_BUS
 	  Is this option is enabled then support for the ISA bus will
 	  be included for addresses read from DT. This is something that
 	  should be known to be required or not based upon the board
-	  being targetted, and whether or not it makes use of an ISA bus.
+	  being targeted, and whether or not it makes use of an ISA bus.
 
 	  The bus is matched based upon its node name equalling "isa". The
 	  busses #address-cells should equal 2, with the first cell being
