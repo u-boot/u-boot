@@ -162,6 +162,8 @@ config ETH_DESIGNWARE
 	  provide the PHY (physical media interface).
 
 config ETH_DESIGNWARE_SOCFPGA
+	select REGMAP
+	select SYSCON
 	bool "Altera SoCFPGA extras for Synopsys Designware Ethernet MAC"
 	depends on DM_ETH && ETH_DESIGNWARE
 	help
