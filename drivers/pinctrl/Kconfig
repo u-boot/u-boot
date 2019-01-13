@@ -146,7 +146,7 @@ config PINCTRL_PIC32
 	  Supports individual pin selection and configuration for each
 	  remappable peripheral available on Microchip PIC32
 	  SoCs. This driver is controlled by a device tree node which
-	  contains both GPIO defintion and pin control functions.
+	  contains both GPIO definition and pin control functions.
 
 config PINCTRL_QCA953X
 	bool "QCA/Athores qca953x pin control driver"
