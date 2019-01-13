@@ -147,7 +147,7 @@ config SPL_TINY_MEMSET
 	  The faster memset() is the arch-specific one (if available) enabled
 	  by CONFIG_USE_ARCH_MEMSET. If that is not enabled, we can still get
 	  better performance by writing a word at a time. But in very
-	  size-constrained envrionments even this may be too big. Enable this
+	  size-constrained environments even this may be too big. Enable this
 	  option to reduce code size slightly at the cost of some speed.
 
 config TPL_TINY_MEMSET
@@ -156,7 +156,7 @@ config TPL_TINY_MEMSET
 	  The faster memset() is the arch-specific one (if available) enabled
 	  by CONFIG_USE_ARCH_MEMSET. If that is not enabled, we can still get
 	  better performance by writing a word at a time. But in very
-	  size-constrained envrionments even this may be too big. Enable this
+	  size-constrained environments even this may be too big. Enable this
 	  option to reduce code size slightly at the cost of some speed.
 
 config RBTREE
