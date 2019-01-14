@@ -98,6 +98,19 @@ void lmb_init(struct lmb *lmb)
 	lmb->reserved.size = 0;
 }
 
+/* Initialize the struct, add memory and call arch/board reserve functions */
+void lmb_init_and_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size,
+			  void *fdt_blob)
+{
+	lmb_init(lmb);
+	lmb_add(lmb, base, size);
+	arch_lmb_reserve(lmb);
+	board_lmb_reserve(lmb);
+
+	if (IMAGE_ENABLE_OF_LIBFDT && fdt_blob)
+		boot_fdt_add_mem_rsv_regions(lmb, fdt_blob);
+}
+
 /* This routine called with relocation disabled. */
 static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base, phys_size_t size)
 {
