@@ -28,8 +28,6 @@ struct lmb {
 	struct lmb_region reserved;
 };
 
-extern struct lmb lmb;
-
 extern void lmb_init(struct lmb *lmb);
 extern void lmb_init_and_reserve(struct lmb *lmb, phys_addr_t base,
 				 phys_size_t size, void *fdt_blob);
