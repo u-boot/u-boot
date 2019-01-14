@@ -64,13 +64,15 @@ void arch_lmb_reserve(struct lmb *lmb)
 	/* adjust sp by 4K to be safe */
 	sp -= 4096;
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		if (sp < gd->bd->bi_dram[bank].start)
+		if (!gd->bd->bi_dram[bank].size ||
+		    sp < gd->bd->bi_dram[bank].start)
 			continue;
+		/* Watch out for RAM at end of address space! */
 		bank_end = gd->bd->bi_dram[bank].start +
-			gd->bd->bi_dram[bank].size;
-		if (sp >= bank_end)
+			gd->bd->bi_dram[bank].size - 1;
+		if (sp > bank_end)
 			continue;
-		lmb_reserve(lmb, sp, bank_end - sp);
+		lmb_reserve(lmb, sp, bank_end - sp + 1);
 		break;
 	}
 }
