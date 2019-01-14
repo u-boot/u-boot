@@ -131,6 +131,9 @@ static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base, phys_size_t
 			rgn->region[i].size += size;
 			coalesced++;
 			break;
+		} else if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
+			/* regions overlap */
+			return -1;
 		}
 	}
 
@@ -269,11 +272,6 @@ static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 	return addr & ~(size - 1);
 }
 
-static phys_addr_t lmb_align_up(phys_addr_t addr, ulong size)
-{
-	return (addr + (size - 1)) & ~(size - 1);
-}
-
 phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_addr_t max_addr)
 {
 	long i, j;
@@ -302,8 +300,7 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 			if (j < 0) {
 				/* This area isn't reserved, take it */
 				if (lmb_add_region(&lmb->reserved, base,
-							lmb_align_up(size,
-								align)) < 0)
+						   size) < 0)
 					return 0;
 				return base;
 			}

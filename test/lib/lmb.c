@@ -227,13 +227,16 @@ static int lib_test_lmb_big(struct unit_test_state *uts)
 DM_TEST(lib_test_lmb_big, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Simulate 512 MiB RAM, allocate a block without previous reservation */
-static int test_noreserved(struct unit_test_state *uts, const phys_addr_t ram)
+static int test_noreserved(struct unit_test_state *uts, const phys_addr_t ram,
+			   const phys_addr_t alloc_size, const ulong align)
 {
 	const phys_size_t ram_size = 0x20000000;
 	const phys_addr_t ram_end = ram + ram_size;
 	struct lmb lmb;
 	long ret;
 	phys_addr_t a, b;
+	const phys_addr_t alloc_size_aligned = (alloc_size + align - 1) &
+		~(align - 1);
 
 	/* check for overflow */
 	ut_assert(ram_end == 0 || ram_end > ram);
@@ -242,20 +245,43 @@ static int test_noreserved(struct unit_test_state *uts, const phys_addr_t ram)
 
 	ret = lmb_add(&lmb, ram, ram_size);
 	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 0, 0, 0, 0, 0, 0, 0);
 
 	/* allocate a block */
-	a = lmb_alloc(&lmb, 4, 1);
+	a = lmb_alloc(&lmb, alloc_size, align);
 	ut_assert(a != 0);
-	/* and free it */
-	ret = lmb_free(&lmb, a, 4);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram + ram_size - alloc_size_aligned,
+		   alloc_size, 0, 0, 0, 0);
+	/* allocate another block */
+	b = lmb_alloc(&lmb, alloc_size, align);
+	ut_assert(b != 0);
+	if (alloc_size == alloc_size_aligned) {
+		ASSERT_LMB(&lmb, ram, ram_size, 1, ram + ram_size -
+			   (alloc_size_aligned * 2), alloc_size * 2, 0, 0, 0,
+			   0);
+	} else {
+		ASSERT_LMB(&lmb, ram, ram_size, 2, ram + ram_size -
+			   (alloc_size_aligned * 2), alloc_size, ram + ram_size
+			   - alloc_size_aligned, alloc_size, 0, 0);
+	}
+	/* and free them */
+	ret = lmb_free(&lmb, b, alloc_size);
 	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram + ram_size - alloc_size_aligned,
+		   alloc_size, 0, 0, 0, 0);
+	ret = lmb_free(&lmb, a, alloc_size);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 0, 0, 0, 0, 0, 0, 0);
 
 	/* allocate a block with base*/
-	b = lmb_alloc_base(&lmb, 4, 1, ram_end);
+	b = lmb_alloc_base(&lmb, alloc_size, align, ram_end);
 	ut_assert(a == b);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram + ram_size - alloc_size_aligned,
+		   alloc_size, 0, 0, 0, 0);
 	/* and free it */
-	ret = lmb_free(&lmb, b, 4);
+	ret = lmb_free(&lmb, b, alloc_size);
 	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 0, 0, 0, 0, 0, 0, 0);
 
 	return 0;
 }
@@ -265,16 +291,30 @@ static int lib_test_lmb_noreserved(struct unit_test_state *uts)
 	int ret;
 
 	/* simulate 512 MiB RAM beginning at 1GiB */
-	ret = test_noreserved(uts, 0x40000000);
+	ret = test_noreserved(uts, 0x40000000, 4, 1);
 	if (ret)
 		return ret;
 
 	/* simulate 512 MiB RAM beginning at 1.5GiB */
-	return test_noreserved(uts, 0xE0000000);
+	return test_noreserved(uts, 0xE0000000, 4, 1);
 }
 
 DM_TEST(lib_test_lmb_noreserved, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
+static int lib_test_lmb_unaligned_size(struct unit_test_state *uts)
+{
+	int ret;
+
+	/* simulate 512 MiB RAM beginning at 1GiB */
+	ret = test_noreserved(uts, 0x40000000, 5, 8);
+	if (ret)
+		return ret;
+
+	/* simulate 512 MiB RAM beginning at 1.5GiB */
+	return test_noreserved(uts, 0xE0000000, 5, 8);
+}
+
+DM_TEST(lib_test_lmb_unaligned_size, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 /*
  * Simulate a RAM that starts at 0 and allocate down to address 0, which must
  * fail as '0' means failure for the lmb_alloc functions.
@@ -318,3 +358,42 @@ static int lib_test_lmb_at_0(struct unit_test_state *uts)
 }
 
 DM_TEST(lib_test_lmb_at_0, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Check that calling lmb_reserve with overlapping regions fails. */
+static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
+{
+	const phys_addr_t ram = 0x40000000;
+	const phys_size_t ram_size = 0x20000000;
+	struct lmb lmb;
+	long ret;
+
+	lmb_init(&lmb);
+
+	ret = lmb_add(&lmb, ram, ram_size);
+	ut_asserteq(ret, 0);
+
+	ret = lmb_reserve(&lmb, 0x40010000, 0x10000);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x10000,
+		   0, 0, 0, 0);
+	/* allocate overlapping region should fail */
+	ret = lmb_reserve(&lmb, 0x40011000, 0x10000);
+	ut_asserteq(ret, -1);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x10000,
+		   0, 0, 0, 0);
+	/* allocate 3nd region */
+	ret = lmb_reserve(&lmb, 0x40030000, 0x10000);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 2, 0x40010000, 0x10000,
+		   0x40030000, 0x10000, 0, 0);
+	/* allocate 2nd region */
+	ret = lmb_reserve(&lmb, 0x40020000, 0x10000);
+	ut_assert(ret >= 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, 0x40010000, 0x30000,
+		   0, 0, 0, 0);
+
+	return 0;
+}
+
+DM_TEST(lib_test_lmb_overlapping_reserve,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
