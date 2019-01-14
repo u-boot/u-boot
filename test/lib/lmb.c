@@ -146,8 +146,15 @@ static int test_multi_alloc_512mb(struct unit_test_state *uts,
 /* Create a memory region with one reserved region and allocate */
 static int lib_test_lmb_simple(struct unit_test_state *uts)
 {
+	int ret;
+
 	/* simulate 512 MiB RAM beginning at 1GiB */
-	return test_multi_alloc_512mb(uts, 0x40000000);
+	ret = test_multi_alloc_512mb(uts, 0x40000000);
+	if (ret)
+		return ret;
+
+	/* simulate 512 MiB RAM beginning at 1.5GiB */
+	return test_multi_alloc_512mb(uts, 0xE0000000);
 }
 
 DM_TEST(lib_test_lmb_simple, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
@@ -206,7 +213,15 @@ static int test_bigblock(struct unit_test_state *uts, const phys_addr_t ram)
 
 static int lib_test_lmb_big(struct unit_test_state *uts)
 {
-	return test_bigblock(uts, 0x40000000);
+	int ret;
+
+	/* simulate 512 MiB RAM beginning at 1GiB */
+	ret = test_bigblock(uts, 0x40000000);
+	if (ret)
+		return ret;
+
+	/* simulate 512 MiB RAM beginning at 1.5GiB */
+	return test_bigblock(uts, 0xE0000000);
 }
 
 DM_TEST(lib_test_lmb_big, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
@@ -247,7 +262,15 @@ static int test_noreserved(struct unit_test_state *uts, const phys_addr_t ram)
 
 static int lib_test_lmb_noreserved(struct unit_test_state *uts)
 {
-	return test_noreserved(uts, 0x40000000);
+	int ret;
+
+	/* simulate 512 MiB RAM beginning at 1GiB */
+	ret = test_noreserved(uts, 0x40000000);
+	if (ret)
+		return ret;
+
+	/* simulate 512 MiB RAM beginning at 1.5GiB */
+	return test_noreserved(uts, 0xE0000000);
 }
 
 DM_TEST(lib_test_lmb_noreserved, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
