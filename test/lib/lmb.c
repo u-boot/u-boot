@@ -397,3 +397,205 @@ static int lib_test_lmb_overlapping_reserve(struct unit_test_state *uts)
 
 DM_TEST(lib_test_lmb_overlapping_reserve,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/*
+ * Simulate 512 MiB RAM, reserve 3 blocks, allocate addresses in between.
+ * Expect addresses outside the memory range to fail.
+ */
+static int test_alloc_addr(struct unit_test_state *uts, const phys_addr_t ram)
+{
+	const phys_size_t ram_size = 0x20000000;
+	const phys_addr_t ram_end = ram + ram_size;
+	const phys_size_t alloc_addr_a = ram + 0x8000000;
+	const phys_size_t alloc_addr_b = ram + 0x8000000 * 2;
+	const phys_size_t alloc_addr_c = ram + 0x8000000 * 3;
+	struct lmb lmb;
+	long ret;
+	phys_addr_t a, b, c, d, e;
+
+	/* check for overflow */
+	ut_assert(ram_end == 0 || ram_end > ram);
+
+	lmb_init(&lmb);
+
+	ret = lmb_add(&lmb, ram, ram_size);
+	ut_asserteq(ret, 0);
+
+	/*  reserve 3 blocks */
+	ret = lmb_reserve(&lmb, alloc_addr_a, 0x10000);
+	ut_asserteq(ret, 0);
+	ret = lmb_reserve(&lmb, alloc_addr_b, 0x10000);
+	ut_asserteq(ret, 0);
+	ret = lmb_reserve(&lmb, alloc_addr_c, 0x10000);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 3, alloc_addr_a, 0x10000,
+		   alloc_addr_b, 0x10000, alloc_addr_c, 0x10000);
+
+	/* allocate blocks */
+	a = lmb_alloc_addr(&lmb, ram, alloc_addr_a - ram);
+	ut_asserteq(a, ram);
+	ASSERT_LMB(&lmb, ram, ram_size, 3, ram, 0x8010000,
+		   alloc_addr_b, 0x10000, alloc_addr_c, 0x10000);
+	b = lmb_alloc_addr(&lmb, alloc_addr_a + 0x10000,
+			   alloc_addr_b - alloc_addr_a - 0x10000);
+	ut_asserteq(b, alloc_addr_a + 0x10000);
+	ASSERT_LMB(&lmb, ram, ram_size, 2, ram, 0x10010000,
+		   alloc_addr_c, 0x10000, 0, 0);
+	c = lmb_alloc_addr(&lmb, alloc_addr_b + 0x10000,
+			   alloc_addr_c - alloc_addr_b - 0x10000);
+	ut_asserteq(c, alloc_addr_b + 0x10000);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram, 0x18010000,
+		   0, 0, 0, 0);
+	d = lmb_alloc_addr(&lmb, alloc_addr_c + 0x10000,
+			   ram_end - alloc_addr_c - 0x10000);
+	ut_asserteq(d, alloc_addr_c + 0x10000);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram, ram_size,
+		   0, 0, 0, 0);
+
+	/* allocating anything else should fail */
+	e = lmb_alloc(&lmb, 1, 1);
+	ut_asserteq(e, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram, ram_size,
+		   0, 0, 0, 0);
+
+	ret = lmb_free(&lmb, d, ram_end - alloc_addr_c - 0x10000);
+	ut_asserteq(ret, 0);
+
+	/* allocate at 3 points in free range */
+
+	d = lmb_alloc_addr(&lmb, ram_end - 4, 4);
+	ut_asserteq(d, ram_end - 4);
+	ASSERT_LMB(&lmb, ram, ram_size, 2, ram, 0x18010000,
+		   d, 4, 0, 0);
+	ret = lmb_free(&lmb, d, 4);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram, 0x18010000,
+		   0, 0, 0, 0);
+
+	d = lmb_alloc_addr(&lmb, ram_end - 128, 4);
+	ut_asserteq(d, ram_end - 128);
+	ASSERT_LMB(&lmb, ram, ram_size, 2, ram, 0x18010000,
+		   d, 4, 0, 0);
+	ret = lmb_free(&lmb, d, 4);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram, 0x18010000,
+		   0, 0, 0, 0);
+
+	d = lmb_alloc_addr(&lmb, alloc_addr_c + 0x10000, 4);
+	ut_asserteq(d, alloc_addr_c + 0x10000);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram, 0x18010004,
+		   0, 0, 0, 0);
+	ret = lmb_free(&lmb, d, 4);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram, 0x18010000,
+		   0, 0, 0, 0);
+
+	/* allocate at the bottom */
+	ret = lmb_free(&lmb, a, alloc_addr_a - ram);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 1, ram + 0x8000000, 0x10010000,
+		   0, 0, 0, 0);
+	d = lmb_alloc_addr(&lmb, ram, 4);
+	ut_asserteq(d, ram);
+	ASSERT_LMB(&lmb, ram, ram_size, 2, d, 4,
+		   ram + 0x8000000, 0x10010000, 0, 0);
+
+	/* check that allocating outside memory fails */
+	if (ram_end != 0) {
+		ret = lmb_alloc_addr(&lmb, ram_end, 1);
+		ut_asserteq(ret, 0);
+	}
+	if (ram != 0) {
+		ret = lmb_alloc_addr(&lmb, ram - 1, 1);
+		ut_asserteq(ret, 0);
+	}
+
+	return 0;
+}
+
+static int lib_test_lmb_alloc_addr(struct unit_test_state *uts)
+{
+	int ret;
+
+	/* simulate 512 MiB RAM beginning at 1GiB */
+	ret = test_alloc_addr(uts, 0x40000000);
+	if (ret)
+		return ret;
+
+	/* simulate 512 MiB RAM beginning at 1.5GiB */
+	return test_alloc_addr(uts, 0xE0000000);
+}
+
+DM_TEST(lib_test_lmb_alloc_addr, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Simulate 512 MiB RAM, reserve 3 blocks, check addresses in between */
+static int test_get_unreserved_size(struct unit_test_state *uts,
+				    const phys_addr_t ram)
+{
+	const phys_size_t ram_size = 0x20000000;
+	const phys_addr_t ram_end = ram + ram_size;
+	const phys_size_t alloc_addr_a = ram + 0x8000000;
+	const phys_size_t alloc_addr_b = ram + 0x8000000 * 2;
+	const phys_size_t alloc_addr_c = ram + 0x8000000 * 3;
+	struct lmb lmb;
+	long ret;
+	phys_size_t s;
+
+	/* check for overflow */
+	ut_assert(ram_end == 0 || ram_end > ram);
+
+	lmb_init(&lmb);
+
+	ret = lmb_add(&lmb, ram, ram_size);
+	ut_asserteq(ret, 0);
+
+	/*  reserve 3 blocks */
+	ret = lmb_reserve(&lmb, alloc_addr_a, 0x10000);
+	ut_asserteq(ret, 0);
+	ret = lmb_reserve(&lmb, alloc_addr_b, 0x10000);
+	ut_asserteq(ret, 0);
+	ret = lmb_reserve(&lmb, alloc_addr_c, 0x10000);
+	ut_asserteq(ret, 0);
+	ASSERT_LMB(&lmb, ram, ram_size, 3, alloc_addr_a, 0x10000,
+		   alloc_addr_b, 0x10000, alloc_addr_c, 0x10000);
+
+	/* check addresses in between blocks */
+	s = lmb_get_unreserved_size(&lmb, ram);
+	ut_asserteq(s, alloc_addr_a - ram);
+	s = lmb_get_unreserved_size(&lmb, ram + 0x10000);
+	ut_asserteq(s, alloc_addr_a - ram - 0x10000);
+	s = lmb_get_unreserved_size(&lmb, alloc_addr_a - 4);
+	ut_asserteq(s, 4);
+
+	s = lmb_get_unreserved_size(&lmb, alloc_addr_a + 0x10000);
+	ut_asserteq(s, alloc_addr_b - alloc_addr_a - 0x10000);
+	s = lmb_get_unreserved_size(&lmb, alloc_addr_a + 0x20000);
+	ut_asserteq(s, alloc_addr_b - alloc_addr_a - 0x20000);
+	s = lmb_get_unreserved_size(&lmb, alloc_addr_b - 4);
+	ut_asserteq(s, 4);
+
+	s = lmb_get_unreserved_size(&lmb, alloc_addr_c + 0x10000);
+	ut_asserteq(s, ram_end - alloc_addr_c - 0x10000);
+	s = lmb_get_unreserved_size(&lmb, alloc_addr_c + 0x20000);
+	ut_asserteq(s, ram_end - alloc_addr_c - 0x20000);
+	s = lmb_get_unreserved_size(&lmb, ram_end - 4);
+	ut_asserteq(s, 4);
+
+	return 0;
+}
+
+static int lib_test_lmb_get_unreserved_size(struct unit_test_state *uts)
+{
+	int ret;
+
+	/* simulate 512 MiB RAM beginning at 1GiB */
+	ret = test_get_unreserved_size(uts, 0x40000000);
+	if (ret)
+		return ret;
+
+	/* simulate 512 MiB RAM beginning at 1.5GiB */
+	return test_get_unreserved_size(uts, 0xE0000000);
+}
+
+DM_TEST(lib_test_lmb_get_unreserved_size,
+	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

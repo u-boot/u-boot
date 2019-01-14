@@ -313,6 +313,59 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 	return 0;
 }
 
+/*
+ * Try to allocate a specific address range: must be in defined memory but not
+ * reserved
+ */
+phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size)
+{
+	long j;
+
+	/* Check if the requested address is in one of the memory regions */
+	j = lmb_overlaps_region(&lmb->memory, base, size);
+	if (j >= 0) {
+		/*
+		 * Check if the requested end address is in the same memory
+		 * region we found.
+		 */
+		if (lmb_addrs_overlap(lmb->memory.region[j].base,
+				      lmb->memory.region[j].size, base + size -
+				      1, 1)) {
+			/* ok, reserve the memory */
+			if (lmb_reserve(lmb, base, size) >= 0)
+				return base;
+		}
+	}
+	return 0;
+}
+
+/* Return number of bytes from a given address that are free */
+phys_size_t lmb_get_unreserved_size(struct lmb *lmb, phys_addr_t addr)
+{
+	int i;
+	long j;
+
+	/* check if the requested address is in the memory regions */
+	j = lmb_overlaps_region(&lmb->memory, addr, 1);
+	if (j >= 0) {
+		for (i = 0; i < lmb->reserved.cnt; i++) {
+			if (addr < lmb->reserved.region[i].base) {
+				/* first reserved range > requested address */
+				return lmb->reserved.region[i].base - addr;
+			}
+			if (lmb->reserved.region[i].base +
+			    lmb->reserved.region[i].size > addr) {
+				/* requested addr is in this reserved range */
+				return 0;
+			}
+		}
+		/* if we come here: no reserved ranges above requested addr */
+		return lmb->memory.region[lmb->memory.cnt - 1].base +
+		       lmb->memory.region[lmb->memory.cnt - 1].size - addr;
+	}
+	return 0;
+}
+
 int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr)
 {
 	int i;
