@@ -57,8 +57,6 @@
 /*
  * Environment settings
  */
-#define CONFIG_ENV_SIZE			SZ_16K
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"upgrade=if mmc rescan && " \
 		"fatload mmc 0:1 ${loadaddr} u-boot-update.scr && " \

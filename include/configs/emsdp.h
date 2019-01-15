@@ -21,7 +21,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_SIZE			SZ_4K
 #define CONFIG_BOOTFILE			"app.bin"
 #define CONFIG_LOADADDR			CONFIG_SYS_LOAD_ADDR
 

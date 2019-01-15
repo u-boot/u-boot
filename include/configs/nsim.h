@@ -25,12 +25,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /*
- * Environment settings
- */
-#define CONFIG_ENV_SIZE			SZ_512
-#define CONFIG_ENV_OFFSET		0
-
-/*
  * Environment configuration
  */
 #define CONFIG_BOOTFILE			"uImage"
