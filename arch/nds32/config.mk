@@ -17,6 +17,6 @@ LDFLAGS_STANDALONE	+= -T $(srctree)/examples/standalone/nds32.lds
 
 PLATFORM_RELFLAGS	+= -fno-common -mrelax -mno-ext-fpu-dp -mfloat-abi=soft
 PLATFORM_RELFLAGS	+= -gdwarf-2
-PLATFORM_CPPFLAGS	+= -D__nds32__ -ffixed-10 -fpie
+PLATFORM_CPPFLAGS	+= -D__nds32__ -ffixed-10 -fpie -mcmodel=large
 
 LDFLAGS_u-boot		= --gc-sections --relax -pie --mabi=AABI
