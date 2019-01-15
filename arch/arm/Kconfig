@@ -886,6 +886,8 @@ config ARCH_VERSAL
 	select ARM64
 	select CLK
 	select DM
+	select DM_ETH if NET
+	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
 
