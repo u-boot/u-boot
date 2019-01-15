@@ -929,9 +929,6 @@ struct efi_file_handle {
 	efi_status_t (EFIAPI *flush)(struct efi_file_handle *file);
 };
 
-#define EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID \
-	EFI_GUID(0x964e5b22, 0x6459, 0x11d2, \
-		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 #define EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_REVISION 0x00010000
 
 struct efi_simple_file_system_protocol {
