@@ -946,6 +946,8 @@ config ARCH_ZYNQMP
 	select DM_ETH if NET
 	select DM_MMC if MMC
 	select DM_SERIAL
+	select DM_SPI if SPI
+	select DM_SPI_FLASH if DM_SPI
 	select DM_USB if USB
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
