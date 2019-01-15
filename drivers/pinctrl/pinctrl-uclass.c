@@ -139,9 +139,9 @@ static int pinconfig_post_bind(struct udevice *dev)
 	int ret;
 
 	dev_for_each_subnode(node, dev) {
-		if (pre_reloc_only ^ ofnode_pre_reloc(node))
+		if (pre_reloc_only &&
+		    !ofnode_pre_reloc(node))
 			continue;
-
 		/*
 		 * If this node has "compatible" property, this is not
 		 * a pin configuration node, but a normal device. skip.

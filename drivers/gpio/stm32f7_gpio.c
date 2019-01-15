@@ -19,6 +19,7 @@
 #define MODE_BITS_MASK			3
 #define BSRR_BIT(gpio_pin, value)	BIT(gpio_pin + (value ? 0 : 16))
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * convert gpio offset to gpio index taking into account gpio holes
  * into gpio bank
@@ -145,23 +146,27 @@ static const struct dm_gpio_ops gpio_stm32_ops = {
 	.set_value		= stm32_gpio_set_value,
 	.get_function		= stm32_gpio_get_function,
 };
+#endif
 
 static int gpio_stm32_probe(struct udevice *dev)
 {
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
-	struct ofnode_phandle_args args;
 	struct clk clk;
 	fdt_addr_t addr;
-	const char *name;
 	int ret;
-	int i;
 
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
 	priv->regs = (struct stm32_gpio_regs *)addr;
+
+#ifndef CONFIG_SPL_BUILD
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct ofnode_phandle_args args;
+	const char *name;
+	int i;
+
 	name = dev_read_string(dev, "st,bank-name");
 	if (!name)
 		return -EINVAL;
@@ -170,6 +175,11 @@ static int gpio_stm32_probe(struct udevice *dev)
 	i = 0;
 	ret = dev_read_phandle_with_args(dev, "gpio-ranges",
 					 NULL, 3, i, &args);
+
+	if (ret == -ENOENT) {
+		uc_priv->gpio_count = STM32_GPIOS_PER_BANK;
+		priv->gpio_range = GENMASK(STM32_GPIOS_PER_BANK - 1, 0);
+	}
 
 	while (ret != -ENOENT) {
 		priv->gpio_range |= GENMASK(args.args[2] + args.args[0] - 1,
@@ -184,7 +194,7 @@ static int gpio_stm32_probe(struct udevice *dev)
 	dev_dbg(dev, "addr = 0x%p bank_name = %s gpio_count = %d gpio_range = 0x%x\n",
 		(u32 *)priv->regs, uc_priv->bank_name, uc_priv->gpio_count,
 		priv->gpio_range);
-
+#endif
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret < 0)
 		return ret;
@@ -210,7 +220,9 @@ U_BOOT_DRIVER(gpio_stm32) = {
 	.id	= UCLASS_GPIO,
 	.of_match = stm32_gpio_ids,
 	.probe	= gpio_stm32_probe,
+#ifndef CONFIG_SPL_BUILD
 	.ops	= &gpio_stm32_ops,
+#endif
 	.flags	= DM_UC_FLAG_SEQ_ALIAS,
 	.priv_auto_alloc_size	= sizeof(struct stm32_gpio_priv),
 };

@@ -968,7 +968,7 @@ int imx8image_copy_image(int outfd, struct image_tool_params *mparams)
 	fprintf(stdout, "CONTAINER SW VERSION:\t0x%04x\n", sw_version);
 
 	build_container(soc, sector_size, emmc_fastboot,
-			img_sp, false, fuse_version, sw_version, outfd);
+			img_sp, true, fuse_version, sw_version, outfd);
 
 	return 0;
 }

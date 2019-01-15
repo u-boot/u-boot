@@ -67,7 +67,7 @@ This table has to be evaluated in the command function of the main command, e.g.
 Command function
 ----------------
 
-The commmand function pointer has to be of type
+The command function pointer has to be of type
 int (*cmd)(struct cmd_tbl_s *cmdtp, int flag, int argc, const char *argv[]);
 
 cmdtp:		Table entry describing the command (see above).

@@ -13,7 +13,7 @@
 
 static inline void *dma_alloc_coherent(size_t len, unsigned long *handle)
 {
-	*handle = (unsigned long)memalign(ARCH_DMA_MINALIGN, len);
+	*handle = (unsigned long)memalign(ARCH_DMA_MINALIGN, ROUND(len, ARCH_DMA_MINALIGN));
 	return (void *)*handle;
 }
 

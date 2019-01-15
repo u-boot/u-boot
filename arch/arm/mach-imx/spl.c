@@ -154,7 +154,7 @@ u32 spl_boot_device(void)
 }
 #endif /* CONFIG_MX7 || CONFIG_IMX8M */
 
-#ifdef CONFIG_SPL_USB_GADGET_SUPPORT
+#ifdef CONFIG_SPL_USB_GADGET
 int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
 	put_unaligned(CONFIG_USB_GADGET_PRODUCT_NUM + 0xfff, &dev->idProduct);

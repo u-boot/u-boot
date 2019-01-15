@@ -122,6 +122,8 @@
 #define CONFIG_ENV_OFFSET		(384 * 1024)
 #define CONFIG_ENV_OVERWRITE
 
+#define CONFIG_BOARD_SIZE_LIMIT		392192 /* (CONFIG_ENV_OFFSET - 1024) */
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootargs_mmc1=console=ttymxc0,115200 di0_primary console=tty1\0" \
 	"bootargs_mmc2=video=mxcfb0:dev=hdmi,1920x1080M@60 " \

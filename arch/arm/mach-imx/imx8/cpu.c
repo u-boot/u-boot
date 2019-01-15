@@ -573,7 +573,7 @@ int cpu_imx_get_desc(struct udevice *dev, char *buf, int size)
 	if (size < 100)
 		return -ENOSPC;
 
-	snprintf(buf, size, "CPU:   Freescale i.MX8%s Rev%s %s at %u MHz\n",
+	snprintf(buf, size, "NXP i.MX8%s Rev%s %s at %u MHz\n",
 		 plat->type, plat->rev, plat->name, plat->freq_mhz);
 
 	return 0;

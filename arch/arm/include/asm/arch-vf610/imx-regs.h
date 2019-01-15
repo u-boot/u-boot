@@ -200,7 +200,8 @@
 #define DDRMC_CR78_Q_FULLNESS(v)			(((v) & 0x7) << 24)
 #define DDRMC_CR78_BUR_ON_FLY_BIT(v)			((v) & 0xf)
 #define DDRMC_CR79_CTLUPD_AREF(v)			(((v) & 0x1) << 24)
-#define DDRMC_CR82_INT_MASK				0x10000000
+#define DDRMC_CR80_MC_INIT_COMPLETE			(1 << 8)
+#define DDRMC_CR82_INT_MASK				(1 << 28)
 #define DDRMC_CR87_ODT_WR_MAPCS0(v)			((v) << 24)
 #define DDRMC_CR87_ODT_RD_MAPCS0(v)			((v) << 16)
 #define DDRMC_CR88_TODTL_CMD(v)				(((v) & 0x1f) << 16)
@@ -239,7 +240,7 @@
 #define DDRMC_CR132_RDLAT_ADJ(v)			((v) & 0x3f)
 #define DDRMC_CR137_PHYCTL_DL(v)			(((v) & 0xf) << 16)
 #define DDRMC_CR138_PHY_WRLV_MXDL(v)			(((v) & 0xffff) << 16)
-#define DDRMC_CR138_PHYDRAM_CK_EN(v)			(((v) & 0x8) << 8)
+#define DDRMC_CR138_PHYDRAM_CK_EN(v)			(((v) & 0x7) << 8)
 #define DDRMC_CR139_PHY_WRLV_RESPLAT(v)			(((v) & 0xff) << 24)
 #define DDRMC_CR139_PHY_WRLV_LOAD(v)			(((v) & 0xff) << 16)
 #define DDRMC_CR139_PHY_WRLV_DLL(v)			(((v) & 0xff) << 8)

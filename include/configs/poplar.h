@@ -44,7 +44,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 			"loader_mmc_blknum=0x0\0"			\
 			"loader_mmc_nblks=0x780\0"			\
-			"env_mmc_blknum=0x780\0"			\
+			"env_mmc_blknum=0xf80\0"			\
 			"env_mmc_nblks=0x80\0"				\
 			"kernel_addr_r=0x30000000\0"			\
 			"pxefile_addr_r=0x32000000\0"			\
@@ -57,8 +57,8 @@
 
 /* Command line configuration */
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET		(0x780 * 512)	/* env_mmc_blknum */
-#define CONFIG_ENV_SIZE			0x10000	/* env_mmc_nblks bytes */
+#define CONFIG_ENV_OFFSET		(0xf80 * 512) /* env_mmc_blknum bytes */
+#define CONFIG_ENV_SIZE			(0x80 * 512)  /* env_mmc_nblks bytes */
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512

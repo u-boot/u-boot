@@ -18,6 +18,7 @@ struct imx8_clks {
 	const char *name;
 };
 
+#if CONFIG_IS_ENABLED(CMD_CLK)
 static struct imx8_clks imx8_clk_names[] = {
 	{ IMX8QXP_A35_DIV, "A35_DIV" },
 	{ IMX8QXP_I2C0_CLK, "I2C0" },
@@ -39,6 +40,7 @@ static struct imx8_clks imx8_clk_names[] = {
 	{ IMX8QXP_ENET1_REF_DIV, "ENET1_REF" },
 	{ IMX8QXP_ENET1_PTP_CLK, "ENET1_PTP" },
 };
+#endif
 
 static ulong imx8_clk_get_rate(struct clk *clk)
 {
