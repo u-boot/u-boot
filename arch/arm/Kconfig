@@ -941,6 +941,8 @@ config ARCH_ZYNQMP
 	select ARM64
 	select CLK
 	select DM
+	select DM_ETH if NET
+	select DM_MMC if MMC
 	select DM_SERIAL
 	select DM_USB if USB
 	select OF_CONTROL
