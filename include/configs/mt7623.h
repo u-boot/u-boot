@@ -58,4 +58,7 @@
 #define CONFIG_IPADDR			192.168.1.1
 #define CONFIG_SERVERIP			192.168.1.2
 
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_ENV_OFFSET		0x100000
+
 #endif
