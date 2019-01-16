@@ -109,16 +109,9 @@ script:
  #
  # From buildman, exit code 129 means warnings only.  If we've been asked to
  # use clang only do one configuration.
- - if [[ "${TOOLCHAIN}" == "clang" ]]; then
+ - if [[ "${BUILDMAN}" != "" ]]; then
      ret=0;
-     make O=../.bm-work/${TEST_PY_BD} HOSTCC=clang-7 CC=clang-7 -j$(nproc)
-       KCFLAGS=-Werror sandbox_config all || ret=$?;
-     if [[ $ret -ne 0 ]]; then
-       exit $ret;
-     fi;
-   elif [[ "${BUILDMAN}" != "" ]]; then
-     ret=0;
-     tools/buildman/buildman -P -E ${BUILDMAN} || ret=$?;
+     tools/buildman/buildman -P -E ${BUILDMAN} ${OVERRIDE}|| ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
        tools/buildman/buildman -sdeP ${BUILDMAN};
        exit $ret;
@@ -351,7 +344,7 @@ matrix:
       env:
         - TEST_PY_BD="sandbox"
           BUILDMAN="^sandbox$"
-          TOOLCHAIN="clang"
+          OVERRIDE="clang-7"
     - name: "test/py sandbox_spl"
       env:
         - TEST_PY_BD="sandbox_spl"

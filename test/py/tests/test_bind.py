@@ -13,7 +13,8 @@ def in_tree(response, name, uclass, drv, depth, last_child):
 	else:
 		leaf = leaf + '`'
 	leaf = leaf + '-- ' + name
-	line = ' *{:10.10}  [0-9]*  \[ [ +] \]   {:20.20}  {}$'.format(uclass, drv, leaf)
+	line = (' *{:10.10}   [0-9]*  \[ [ +] \]   {:20.20}  {}$'
+	        .format(uclass, drv, leaf))
 	prog = re.compile(line)
 	for l in lines:
 		if prog.match(l):

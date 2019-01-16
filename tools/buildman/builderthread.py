@@ -156,7 +156,12 @@ class BuilderThread(threading.Thread):
         if result.already_done:
             # Get the return code from that build and use it
             with open(done_file, 'r') as fd:
-                result.return_code = int(fd.readline())
+                try:
+                    result.return_code = int(fd.readline())
+                except ValueError:
+                    # The file may be empty due to running out of disk space.
+                    # Try a rebuild
+                    result.return_code = RETURN_CODE_RETRY
 
             # Check the signal that the build needs to be retried
             if result.return_code == RETURN_CODE_RETRY:
@@ -224,6 +229,7 @@ class BuilderThread(threading.Thread):
                 config_args = ['%s_defconfig' % brd.target]
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
+                args.extend(self.toolchain.MakeArgs())
 
                 # If we need to reconfigure, do that now
                 if do_config:

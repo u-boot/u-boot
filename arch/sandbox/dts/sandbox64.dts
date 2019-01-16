@@ -90,11 +90,13 @@
 		eeprom@2c {
 			reg = <0x2c>;
 			compatible = "i2c-eeprom";
+			sandbox,emul = <&emul_eeprom>;
 		};
 
 		rtc_0: rtc@43 {
 			reg = <0x43>;
 			compatible = "sandbox-rtc";
+			sandbox,emul = <&emul0>;
 		};
 		sandbox_pmic: sandbox_pmic {
 			reg = <0x40>;
@@ -107,12 +109,12 @@
 		i2c_emul: emul {
 			reg = <0xff>;
 			compatible = "sandbox,i2c-emul-parent";
-			emul-eeprom {
+			emul_eeprom: emul-eeprom {
 				compatible = "sandbox,i2c-eeprom";
 				sandbox,filename = "i2c.bin";
 				sandbox,size = <256>;
 			};
-			emul0 {
+			emul0: emul0 {
 				compatible = "sandbox,i2c-rtc";
 			};
 		};

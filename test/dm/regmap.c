@@ -160,9 +160,10 @@ static int dm_test_regmap_poll(struct unit_test_state *uts)
 	start = get_timer(0);
 
 	ut_asserteq(-ETIMEDOUT,
-		    regmap_read_poll_timeout(map, 0, reg,
-					     (reg == 0xcacafafa),
-					     1, 5 * CONFIG_SYS_HZ));
+		    regmap_read_poll_timeout_test(map, 0, reg,
+						  (reg == 0xcacafafa),
+						  1, 5 * CONFIG_SYS_HZ,
+						  5 * CONFIG_SYS_HZ));
 
 	ut_assert(get_timer(start) > (5 * CONFIG_SYS_HZ));
 

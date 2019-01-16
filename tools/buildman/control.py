@@ -141,7 +141,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
 
     no_toolchains = toolchains is None
     if no_toolchains:
-        toolchains = toolchain.Toolchains()
+        toolchains = toolchain.Toolchains(options.override_toolchain)
 
     if options.fetch_arch:
         if options.fetch_arch == 'list':

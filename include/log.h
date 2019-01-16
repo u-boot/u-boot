@@ -73,7 +73,8 @@ static inline int log_uc_cat(enum uclass_id id)
  * @return 0 if log record was emitted, -ve on error
  */
 int _log(enum log_category_t cat, enum log_level_t level, const char *file,
-	 int line, const char *func, const char *fmt, ...);
+	 int line, const char *func, const char *fmt, ...)
+		__attribute__ ((format (__printf__, 6, 7)));
 
 /* Define this at the top of a file to add a prefix to debug messages */
 #ifndef pr_fmt

@@ -1025,7 +1025,7 @@ static u64 of_bus_default_map(fdt32_t *addr, const fdt32_t *range,
 	s  = fdt_read_number(range + na + pna, ns);
 	da = fdt_read_number(addr, na);
 
-	debug("OF: default map, cp=%llu, s=%llu, da=%llu\n", cp, s, da);
+	debug("OF: default map, cp=%llx, s=%llx, da=%llx\n", cp, s, da);
 
 	if (da < cp || da >= (cp + s))
 		return OF_BAD_ADDR;
@@ -1080,7 +1080,7 @@ static u64 of_bus_isa_map(fdt32_t *addr, const fdt32_t *range,
 	s  = fdt_read_number(range + na + pna, ns);
 	da = fdt_read_number(addr + 1, na - 1);
 
-	debug("OF: ISA map, cp=%llu, s=%llu, da=%llu\n", cp, s, da);
+	debug("OF: ISA map, cp=%llx, s=%llx, da=%llx\n", cp, s, da);
 
 	if (da < cp || da >= (cp + s))
 		return OF_BAD_ADDR;

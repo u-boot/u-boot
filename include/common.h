@@ -351,8 +351,6 @@ void smp_set_core_boot_addr(unsigned long addr, int corenr);
 void smp_kick_all_cpus(void);
 
 /* $(CPU)/serial.c */
-struct serial_device_info;
-
 int	serial_init   (void);
 void	serial_setbrg (void);
 void	serial_putc   (const char);
@@ -360,9 +358,6 @@ void	serial_putc_raw(const char);
 void	serial_puts   (const char *);
 int	serial_getc   (void);
 int	serial_tstc   (void);
-int	serial_getconfig(uint *config);
-int	serial_setconfig(uint config);
-int	serial_getinfo(struct serial_device_info *info);
 
 /* $(CPU)/speed.c */
 int	get_clocks (void);

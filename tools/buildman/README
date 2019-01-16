@@ -1046,6 +1046,16 @@ value for 'altbootcmd', but lost one for ' altbootcmd'.
 
 The -U option uses the u-boot.env files which are produced by a build.
 
+
+Building with clang
+===================
+
+To build with clang (sandbox only), use the -O option to override the
+toolchain. For example:
+
+   buildman -O clang-7 --board sandbox
+
+
 Other options
 =============
 
@@ -1169,8 +1179,6 @@ access to log files. Also it would be nice if buildman could 'hunt' for
 problems, perhaps by building a few boards for each arch, or checking
 commits for changed files and building only boards which use those files.
 
-A specific problem to fix is that Ctrl-C does not exit buildman cleanly when
-multiple builder threads are active.
 
 Credits
 =======
