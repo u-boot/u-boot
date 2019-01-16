@@ -157,7 +157,7 @@ matrix:
     - name: "buildman arm11 arm7 arm920t arm946es"
       env:
         - BUILDMAN="arm11 arm7 arm920t arm946es"
-    - name: "buildman arm926ejs (non-freescale,siemens,atmel,kirkwood,spear)"
+    - name: "buildman arm926ejs (non-NXP,siemens,atmel,kirkwood,spear)"
       env:
         - JOB="arm926ejs"
           BUILDMAN="arm926ejs -x freescale,siemens,atmel,kirkwood,spear"
@@ -167,19 +167,25 @@ matrix:
     - name: "buildman boundary engicam toradex"
       env:
         - BUILDMAN="boundary engicam toradex"
-    - name: "buildman Freescale ARM32"
+    - name: "buildman NXP ARM32"
       env:
         - BUILDMAN="freescale -x powerpc,m68k,aarch64"
-    - name: "buildman Freescale AArch64 LS10xx"
+    - name: "buildman NXP AArch64 LS101x"
       env:
-        - BUILDMAN="freescale&aarch64&&ls1"
-    - name: "buildman Freescale AArch64 LS20xx"
+        - BUILDMAN="freescale&aarch64&ls101"
+    - name: "buildman NXP AArch64 LS104x"
       env:
-        - BUILDMAN="freescale&aarch64&&ls2"
-    - name: "buildman i.MX6 (non-Freescale)"
+        - BUILDMAN="freescale&aarch64&ls104"
+    - name: "buildman NXP AArch64 LS108x"
+      env:
+        - BUILDMAN="freescale&aarch64&ls108"
+    - name: "buildman NXP AArch64 LS20xx"
+      env:
+        - BUILDMAN="freescale&aarch64&&ls20"
+    - name: "buildman i.MX6 (non-NXP)"
       env:
         - BUILDMAN="mx6 -x freescale,toradex,boundary,engicam"
-    - name: "buildman i.MX (non-Freescale,i.MX6,toradex)"
+    - name: "buildman i.MX (non-NXP,i.MX6,toradex)"
       env:
         - BUILDMAN="mx -x freescale,mx6,toradex"
     - name: "buildman k2"
