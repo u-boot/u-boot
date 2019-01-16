@@ -63,6 +63,7 @@ env:
     - BUILD_DIR=build
     - HOSTCC="cc"
     - HOSTCXX="c++"
+    - QEMU_VERSION="v3.0.0"
 
 before_script:
   # install toolchains based on TOOLCHAIN} variable
@@ -97,7 +98,7 @@ before_script:
        git clone git://git.qemu.org/qemu.git /tmp/qemu;
        pushd /tmp/qemu;
        git submodule update --init dtc &&
-       git checkout v3.0.0 &&
+       git checkout ${QEMU_VERSION} &&
        ./configure --prefix=/tmp/qemu-install --target-list=${QEMU_TARGET} &&
        make -j4 all install;
        popd;
