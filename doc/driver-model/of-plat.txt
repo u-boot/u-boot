@@ -64,17 +64,24 @@ strictly necessary. Notable problems include:
         normally also supports device tree it must use #ifdef to separate
         out this code, since the structures are only available in SPL.
 
+   - Correct relations between nodes are not implemented. This means that
+        parent/child relations (like bus device iteration) do not work yet.
+        Some phandles (those that are recognised as such) are converted into
+        a pointer to platform data. This pointer can potentially be used to
+        access the referenced device (by searching for the pointer value).
+        This feature is not yet implemented, however.
+
 
 How it works
 ------------
 
-The feature is enabled by CONFIG SPL_OF_PLATDATA. This is only available
-in SPL and should be tested with:
+The feature is enabled by CONFIG OF_PLATDATA. This is only available in
+SPL/TPL and should be tested with:
 
-        #if CONFIG_IS_ENABLED(SPL_OF_PLATDATA)
+        #if CONFIG_IS_ENABLED(OF_PLATDATA)
 
 A new tool called 'dtoc' converts a device tree file either into a set of
-struct declarations, one for each compatible node, or a set of
+struct declarations, one for each compatible node, and a set of
 U_BOOT_DEVICE() declarations along with the actual platform data for each
 device. As an example, consider this MMC node:
 
@@ -156,6 +163,13 @@ This avoids the code overhead of converting the device tree data to
 platform data in the driver. The ofdata_to_platdata() method should
 therefore do nothing in such a driver.
 
+Note that for the platform data to be matched with a driver, the 'name'
+property of the U_BOOT_DEVICE() declaration has to match a driver declared
+via U_BOOT_DRIVER(). This effectively means that a U_BOOT_DRIVER() with a
+'name' corresponding to the devicetree 'compatible' string (after converting
+it to a valid name for C) is needed, so a dedicated driver is required for
+each 'compatible' string.
+
 Where a node has multiple compatible strings, a #define is used to make them
 equivalent, e.g.:
 
@@ -165,8 +179,8 @@ equivalent, e.g.:
 Converting of-platdata to a useful form
 ---------------------------------------
 
-Of course it would be possible use the of-platdata directly in your driver
-whenever configuration information is required. However this meands that the
+Of course it would be possible to use the of-platdata directly in your driver
+whenever configuration information is required. However this means that the
 driver will not be able to support device tree, since the of-platdata
 structure is not available when device tree is used. It would make no sense
 to use this structure if device tree were available, since the structure has
@@ -281,11 +295,6 @@ prevents them being used inadvertently. All usage must be bracketed with
 
 The dt-platdata.c file contains the device declarations and is is built in
 spl/dt-platdata.c.
-
-Some phandles (thsoe that are recognised as such) are converted into
-points to platform data. This pointer can potentially be used to access the
-referenced device (by searching for the pointer value). This feature is not
-yet implemented, however.
 
 The beginnings of a libfdt Python module are provided. So far this only
 implements a subset of the features.
