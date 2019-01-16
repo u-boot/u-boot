@@ -308,7 +308,7 @@ config SILENT_CONSOLE
 	help
 	  This option allows the console to be silenced, meaning that no
 	  output will appear on the console devices. This is controlled by
-	  setting the environment vaariable 'silent' to a non-empty value.
+	  setting the environment variable 'silent' to a non-empty value.
 	  Note this also silences the console when booting Linux.
 
 	  When the console is set up, the variable is checked, and the
@@ -430,7 +430,7 @@ config SYS_CONSOLE_INFO_QUIET
 	help
 	  Normally U-Boot displays the current settings for stdout, stdin
 	  and stderr on boot when the post-relocation console is set up.
-	  Enable this option to supress this output. It can be obtained by
+	  Enable this option to suppress this output. It can be obtained by
 	  calling stdio_print_current_devices() from board code.
 
 config SYS_STDIO_DEREGISTER
@@ -565,14 +565,14 @@ config LOG_TEST
 	  This enables a 'log test' command to test logging. It is normally
 	  executed from a pytest and simply outputs logging information
 	  in various different ways to test that the logging system works
-	  correctly with varoius settings.
+	  correctly with various settings.
 
 config LOG_ERROR_RETURN
 	bool "Log all functions which return an error"
 	depends on LOG
 	help
 	  When an error is returned in U-Boot it is sometimes difficult to
-	  figure out the root cause. For eaxmple, reading from SPI flash may
+	  figure out the root cause. For example, reading from SPI flash may
 	  fail due to a problem in the SPI controller or due to the flash part
 	  not returning the expected information. This option changes
 	  log_ret() to log any errors it sees. With this option disabled,
@@ -661,7 +661,7 @@ config ARCH_MISC_INIT
 	  With this option U-Boot will call arch_misc_init() after
 	  relocation to allow miscellaneous arch-dependent initialisation
 	  to be performed. This function should be defined by the board
-	  and will be called after the console is set up, after relocaiton.
+	  and will be called after the console is set up, after relocation.
 
 config BOARD_EARLY_INIT_F
 	bool "Call board-specific init before relocation"

@@ -54,7 +54,7 @@ def pytest_configure(config):
 
     supported_fs = config.getoption('fs_type')
     if supported_fs:
-        print("*** FS TYPE modified: %s" % supported_fs)
+        print('*** FS TYPE modified: %s' % supported_fs)
         supported_fs_basic =  intersect(supported_fs, supported_fs_basic)
         supported_fs_ext =  intersect(supported_fs, supported_fs_ext)
         supported_fs_mkdir =  intersect(supported_fs, supported_fs_mkdir)
@@ -174,7 +174,7 @@ def tool_is_in_path(tool):
     Return:
         True if available, False if not.
     """
-    for path in os.environ["PATH"].split(os.pathsep):
+    for path in os.environ['PATH'].split(os.pathsep):
         fn = os.path.join(path, tool)
         if os.path.isfile(fn) and os.access(fn, os.X_OK):
             return True
@@ -202,9 +202,9 @@ def mount_fs(fs_type, device, mount_point):
             check_call('guestmount -a %s -m /dev/sda %s'
                 % (device, mount_point), shell=True)
         else:
-            mount_opt = "loop,rw"
+            mount_opt = 'loop,rw'
             if re.match('fat', fs_type):
-                mount_opt += ",umask=0000"
+                mount_opt += ',umask=0000'
 
             check_call('sudo mount -o %s %s %s'
                 % (mount_opt, device, mount_point), shell=True)

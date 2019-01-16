@@ -248,7 +248,8 @@ static inline int env_set_addr(const char *varname, const void *addr)
 }
 
 #ifdef CONFIG_AUTO_COMPLETE
-int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
+int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf,
+		 bool dollar_comp);
 #endif
 int get_env_id (void);
 

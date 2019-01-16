@@ -10,6 +10,7 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/power/mt7623-power.h>
+#include <dt-bindings/reset/mtk-reset.h>
 #include "skeleton.dtsi"
 
 / {
@@ -248,8 +249,26 @@
 	};
 
 	ethsys: syscon@1b000000 {
-		compatible = "mediatek,mt7623-ethsys";
+		compatible = "mediatek,mt7623-ethsys", "syscon";
 		reg = <0x1b000000 0x1000>;
 		#clock-cells = <1>;
+		#reset-cells = <1>;
+	};
+
+	eth: ethernet@1b100000 {
+		compatible = "mediatek,mt7623-eth", "syscon";
+		reg = <0x1b100000 0x20000>;
+		clocks = <&topckgen CLK_TOP_ETHIF_SEL>,
+			 <&ethsys CLK_ETHSYS_ESW>,
+			 <&ethsys CLK_ETHSYS_GP1>,
+			 <&ethsys CLK_ETHSYS_GP2>,
+			 <&apmixedsys CLK_APMIXED_TRGPLL>;
+		clock-names = "ethif", "esw", "gp1", "gp2", "trgpll";
+		power-domains = <&scpsys MT7623_POWER_DOMAIN_ETH>;
+		resets = <&ethsys ETHSYS_FE_RST>,
+			 <&ethsys ETHSYS_MCM_RST>;
+		reset-names = "fe", "mcm";
+		mediatek,ethsys = <&ethsys>;
+		status = "disabled";
 	};
 };

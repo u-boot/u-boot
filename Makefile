@@ -534,7 +534,7 @@ include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 	@# Otherwise, 'make silentoldconfig' would be invoked twice.
 	$(Q)touch include/config/auto.conf
 
-u-boot.cfg spl/u-boot.cfg tpl/u-boot.cfg: include/config.h FORCE
+u-boot.cfg spl/u-boot.cfg tpl/u-boot.cfg:
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.autoconf $(@)
 
 -include include/autoconf.mk
@@ -910,7 +910,7 @@ quiet_cmd_cfgcheck = CFGCHK  $2
 cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 		$(srctree)/scripts/config_whitelist.txt $(srctree)
 
-all:		$(ALL-y) cfg
+all:		$(ALL-y)
 ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
 	@echo >&2 "===================== WARNING ======================"
 	@echo >&2 "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
@@ -1198,6 +1198,7 @@ MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 u-boot-dtb.img u-boot.img u-boot.kwb u-boot.pbl u-boot-ivt.img: \
 		$(if $(CONFIG_SPL_LOAD_FIT),u-boot-nodtb.bin dts/dt.dtb,u-boot.bin) FORCE
 	$(call if_changed,mkimage)
+	$(BOARD_SIZE_CHECK)
 
 u-boot.itb: u-boot-nodtb.bin dts/dt.dtb $(U_BOOT_ITS) FORCE
 	$(call if_changed,mkfitimage)
@@ -1555,7 +1556,7 @@ ifneq ($(KBUILD_SRC),)
 endif
 
 # prepare2 creates a makefile if using a separate output directory
-prepare2: prepare3 outputmakefile
+prepare2: prepare3 outputmakefile cfg
 
 prepare1: prepare2 $(version_h) $(timestamp_h) \
                    include/config/auto.conf

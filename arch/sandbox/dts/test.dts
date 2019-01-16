@@ -315,6 +315,12 @@
 		};
 	};
 
+	bootcount@0 {
+		compatible = "u-boot,bootcount-rtc";
+		rtc = <&rtc_1>;
+		offset = <0x13>;
+	};
+
 	adc@0 {
 		compatible = "sandbox,adc";
 		vdd-supply = <&buck2>;

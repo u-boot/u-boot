@@ -51,22 +51,22 @@ def test_avb_mmc_uuid(u_boot_console):
 
     part_lines = u_boot_console.run_command('mmc part').splitlines()
     part_list = {}
-    cur_partname = ""
+    cur_partname = ''
 
     for line in part_lines:
-        if "\"" in line:
-            start_pt = line.find("\"")
-            end_pt = line.find("\"", start_pt + 1)
+        if '"' in line:
+            start_pt = line.find('"')
+            end_pt = line.find('"', start_pt + 1)
             cur_partname = line[start_pt + 1: end_pt]
 
-        if "guid:" in line:
-            guid_to_check = line.split("guid:\t")
+        if 'guid:' in line:
+            guid_to_check = line.split('guid:\t')
             part_list[cur_partname] = guid_to_check[1]
 
     # lets check all guids with avb get_guid
     for part, guid in part_list.iteritems():
         avb_guid_resp = u_boot_console.run_command('avb get_uuid %s' % part)
-        assert guid == avb_guid_resp.split("UUID: ")[1]
+        assert guid == avb_guid_resp.split('UUID: ')[1]
 
 
 @pytest.mark.buildconfigspec('cmd_avb')

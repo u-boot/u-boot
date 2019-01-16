@@ -162,6 +162,24 @@
 			#clock-cells = <1>;
 		};
 
+		mmc0: dwmmc@f723d000 {
+			compatible = "hisilicon,hi6220-dw-mshc";
+			reg = <0x0 0xf723d000 0x0 0x1000>;
+			interrupts = <0x0 0x48 0x4>;
+			clocks = <&sys_ctrl 2>, <&sys_ctrl 1>;
+			clock-names = "ciu", "biu";
+			status = "disabled";
+		};
+
+		mmc1: dwmmc@f723e000 {
+			compatible = "hisilicon,hi6220-dw-mshc";
+			reg = <0x0 0xf723e000 0x0 0x1000>;
+			interrupts = <0x0 0x49 0x4>;
+			clocks = <&sys_ctrl 4>, <&sys_ctrl 3>;
+			clock-names = "ciu", "biu";
+			status = "disabled";
+		};
+
 		uart0: uart@f8015000 {	/* console */
 			compatible = "arm,pl011", "arm,primecell";
 			reg = <0x0 0xf8015000 0x0 0x1000>;

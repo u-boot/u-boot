@@ -15,6 +15,7 @@ ifneq ($(CONFIG_SANDBOX),)
 obj-$(CONFIG_SOUND) += audio.o
 obj-$(CONFIG_BLK) += blk.o
 obj-$(CONFIG_BOARD) += board.o
+obj-$(CONFIG_DM_BOOTCOUNT) += bootcount.o
 obj-$(CONFIG_CLK) += clk.o
 obj-$(CONFIG_DM_ETH) += eth.o
 obj-$(CONFIG_FIRMWARE) += firmware.o

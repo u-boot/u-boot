@@ -41,7 +41,6 @@ obj-y += ldiv.o
 obj-$(CONFIG_MD5) += md5.o
 obj-y += net_utils.o
 obj-$(CONFIG_PHYSMEM) += physmem.o
-obj-y += qsort.o
 obj-y += rc4.o
 obj-$(CONFIG_SUPPORT_EMMC_RPMB) += sha256.o
 obj-$(CONFIG_RBTREE)	+= rbtree.o
@@ -67,7 +66,6 @@ obj-$(CONFIG_$(SPL_)LZ4) += lz4_wrapper.o
 
 obj-$(CONFIG_LIBAVB) += libavb/
 
-obj-$(CONFIG_$(SPL_TPL_)SAVEENV) += qsort.o
 obj-$(CONFIG_$(SPL_TPL_)OF_LIBFDT) += libfdt/
 ifneq ($(CONFIG_$(SPL_TPL_)BUILD)$(CONFIG_$(SPL_TPL_)OF_PLATDATA),yy)
 obj-$(CONFIG_$(SPL_TPL_)OF_CONTROL) += fdtdec_common.o
@@ -80,6 +78,7 @@ obj-$(CONFIG_$(SPL_TPL_)HASH_SUPPORT) += crc16.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += net_utils.o
 endif
 obj-$(CONFIG_ADDR_MAP) += addr_map.o
+obj-y += qsort.o
 obj-y += hashtable.o
 obj-y += errno.o
 obj-y += display_options.o

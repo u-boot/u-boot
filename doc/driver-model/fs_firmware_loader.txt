@@ -74,17 +74,16 @@ Firmware storage device described in device tree source
 File system firmware Loader API
 -------------------------------
 
-int request_firmware_into_buf(struct device_platdata *plat,
+int request_firmware_into_buf(struct udevice *dev,
 				 const char *name,
-				 void *buf, size_t size, u32 offset,
-				 struct firmware **firmwarep)
+				 void *buf, size_t size, u32 offset)
 --------------------------------------------------------------------
 Load firmware into a previously allocated buffer
 
 Parameters:
 
-1. struct device_platdata *plat
-	Platform data such as storage and partition firmware loading from
+1. struct udevice *dev
+	An instance of a driver
 
 2. const char *name
 	name of firmware file
@@ -98,36 +97,16 @@ Parameters:
 5. u32 offset
 	offset of a file for start reading into buffer
 
-6. struct firmware **firmwarep
-	pointer to firmware image
-
 return:
 	size of total read
 	-ve when error
 
 Description:
-	The firmware is loaded directly into the buffer pointed to by buf and
-	the @firmwarep data member is pointed at buf
-
-Note: Memory would be allocated for firmware image, hence user should
-	  free() *firmwarep and *firmwarep->priv structs after usage of
-	  request_firmware_into_buf(), otherwise it will always leak memory
-	  while subsequent calls of request_firmware_into_buf() with the same
-	  *firmwarep argument. Those arguments can be free through calling API
-	  below release_firmware();
+	The firmware is loaded directly into the buffer pointed to by buf
 
 Example of creating firmware loader instance and calling
 request_firmware_into_buf API:
 	if (uclass_get_device(UCLASS_FS_FIRMWARE_LOADER, 0, &dev)) {
-		request_firmware_into_buf(dev->plat, filename, buffer_location,
-					 buffer_size, offset_ofreading, &fw);
+		request_firmware_into_buf(dev, filename, buffer_location,
+					 buffer_size, offset_ofreading);
 	}
-
-void release_firmware(struct firmware *firmware)
-------------------------------------------------
-Release the resource associated with a firmware image
-
-Parameters:
-
-1. struct firmware *firmware
-	Firmware resource to release

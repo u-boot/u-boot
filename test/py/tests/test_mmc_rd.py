@@ -14,45 +14,45 @@ which MMC devices should be tested. For example:
 
 env__mmc_rd_configs = (
     {
-        "fixture_id": "emmc-boot0",
-        "is_emmc": True,
-        "devid": 0,
-        "partid": 1,
-        "sector": 0x10,
-        "count": 1,
+        'fixture_id': 'emmc-boot0',
+        'is_emmc': True,
+        'devid': 0,
+        'partid': 1,
+        'sector': 0x10,
+        'count': 1,
     },
     {
-        "fixture_id": "emmc-boot1",
-        "is_emmc": True,
-        "devid": 0,
-        "partid": 2,
-        "sector": 0x10,
-        "count": 1,
+        'fixture_id': 'emmc-boot1',
+        'is_emmc': True,
+        'devid': 0,
+        'partid': 2,
+        'sector': 0x10,
+        'count': 1,
     },
     {
-        "fixture_id": "emmc-data",
-        "is_emmc": True,
-        "devid": 0,
-        "partid": 0,
-        "sector": 0x10,
-        "count": 0x1000,
+        'fixture_id': 'emmc-data',
+        'is_emmc': True,
+        'devid': 0,
+        'partid': 0,
+        'sector': 0x10,
+        'count': 0x1000,
     },
     {
-        "fixture_id": "sd-mbr",
-        "is_emmc": False,
-        "devid": 1,
-        "partid": None,
-        "sector": 0,
-        "count": 1,
-        "crc32": "8f6ecf0d",
+        'fixture_id': 'sd-mbr',
+        'is_emmc': False,
+        'devid': 1,
+        'partid': None,
+        'sector': 0,
+        'count': 1,
+        'crc32': '8f6ecf0d',
     },
     {
-        "fixture_id": "sd-large",
-        "is_emmc": False,
-        "devid": 1,
-        "partid": None,
-        "sector": 0x10,
-        "count": 0x1000,
+        'fixture_id': 'sd-large',
+        'is_emmc': False,
+        'devid': 1,
+        'partid': None,
+        'sector': 0x10,
+        'count': 0x1000,
     },
 )
 """
@@ -92,9 +92,9 @@ def test_mmc_rd(u_boot_console, env__mmc_rd_config):
     response = u_boot_console.run_command(cmd)
     assert 'no card present' not in response
     if is_emmc:
-        partid_response = "(part %d)" % partid
+        partid_response = '(part %d)' % partid
     else:
-        partid_response = ""
+        partid_response = ''
     good_response = 'mmc%d%s is current device' % (devid, partid_response)
     assert good_response in response
 

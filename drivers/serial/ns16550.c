@@ -272,12 +272,28 @@ static inline void _debug_uart_init(void)
 	serial_dout(&com_port->lcr, UART_LCRVAL);
 }
 
+static inline int NS16550_read_baud_divisor(struct NS16550 *com_port)
+{
+	int ret;
+
+	serial_dout(&com_port->lcr, UART_LCR_BKSE | UART_LCRVAL);
+	ret = serial_din(&com_port->dll) & 0xff;
+	ret |= (serial_din(&com_port->dlm) & 0xff) << 8;
+	serial_dout(&com_port->lcr, UART_LCRVAL);
+
+	return ret;
+}
+
 static inline void _debug_uart_putc(int ch)
 {
 	struct NS16550 *com_port = (struct NS16550 *)CONFIG_DEBUG_UART_BASE;
 
-	while (!(serial_din(&com_port->lsr) & UART_LSR_THRE))
-		;
+	while (!(serial_din(&com_port->lsr) & UART_LSR_THRE)) {
+#ifdef CONFIG_DEBUG_UART_NS16550_CHECK_ENABLED
+		if (!NS16550_read_baud_divisor(com_port))
+			return;
+#endif
+	}
 	serial_dout(&com_port->thr, ch);
 }
 

@@ -442,9 +442,22 @@ config DEBUG_UART_ANNOUNCE
 
 config DEBUG_UART_SKIP_INIT
 	bool "Skip UART initialization"
+	depends on DEBUG_UART
 	help
 	  Select this if the UART you want to use for debug output is already
 	  initialized by the time U-Boot starts its execution.
+
+config DEBUG_UART_NS16550_CHECK_ENABLED
+	bool "Check if UART is enabled on output"
+	depends on DEBUG_UART
+	depends on DEBUG_UART_NS16550
+	help
+	  Select this if puts()/putc() might be called before the debug UART
+	  has been initialized. If this is disabled, putc() might sit in a
+	  tight loop if it is called before debug_uart_init() has been called.
+
+	  Note that this does not work for every ns16550-compatible UART and
+	  so has to be enabled carefully or you might notice lost characters.
 
 config ALTERA_JTAG_UART
 	bool "Altera JTAG UART support"

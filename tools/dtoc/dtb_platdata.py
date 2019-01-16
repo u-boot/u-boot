@@ -461,7 +461,7 @@ class DtbPlatdata(object):
         """
         struct_name, _ = get_compat_name(node)
         var_name = conv_name_to_c(node.name)
-        self.buf('static struct %s%s %s%s = {\n' %
+        self.buf('static const struct %s%s %s%s = {\n' %
                  (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
         for pname, prop in node.props.items():
             if pname in PROP_IGNORE_LIST or pname[0] == '#':

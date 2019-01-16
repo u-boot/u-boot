@@ -17,3 +17,4 @@ obj-$(CONFIG_AST2500_RESET) += ast2500-reset.o
 obj-$(CONFIG_RESET_ROCKCHIP) += reset-rockchip.o
 obj-$(CONFIG_RESET_MESON) += reset-meson.o
 obj-$(CONFIG_RESET_SOCFPGA) += reset-socfpga.o
+obj-$(CONFIG_RESET_MEDIATEK) += reset-mediatek.o

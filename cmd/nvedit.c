@@ -708,8 +708,8 @@ int env_get_f(const char *name, char *buf, unsigned len)
 		if (n)
 			*--buf = '\0';
 
-		printf("env_buf [%d bytes] too small for value of \"%s\"\n",
-			len, name);
+		printf("env_buf [%u bytes] too small for value of \"%s\"\n",
+		       len, name);
 
 		return n;
 	}

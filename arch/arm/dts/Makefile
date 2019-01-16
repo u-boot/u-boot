@@ -193,7 +193,9 @@ dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \
 	am335x-pxm50.dtb \
 	am335x-rut.dtb \
 	am335x-pdu001.dtb \
-	am335x-chiliboard.dtb
+	am335x-chiliboard.dtb \
+	am335x-sl50.dtb \
+	am335x-base0033.dtb
 dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 	am43x-epos-evm.dtb \
 	am437x-idk-evm.dtb \
@@ -521,6 +523,9 @@ dtb-$(CONFIG_TARGET_OMAP3_BEAGLE) += \
 	omap3-beagle-xm-ab.dtb \
 	omap3-beagle-xm.dtb \
 	omap3-beagle.dtb
+
+dtb-$(CONFIG_TARGET_OMAP3_IGEP00X0) += \
+	omap3-igep0020.dtb
 
 dtb-$(CONFIG_TARGET_SAMA5D2_PTC_EK) += \
 	at91-sama5d2_ptc_ek.dtb

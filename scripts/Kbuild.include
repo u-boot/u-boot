@@ -315,6 +315,12 @@ why =                                                                        \
 echo-why = $(call escsq, $(strip $(why)))
 endif
 
+# delete partially updated (i.e. corrupted) files on error
+.DELETE_ON_ERROR:
+
+# do not delete intermediate files automatically
+.SECONDARY:
+
 ifdef CONFIG_SPL_BUILD
 SPL_ := SPL_
 ifeq ($(CONFIG_TPL_BUILD),y)

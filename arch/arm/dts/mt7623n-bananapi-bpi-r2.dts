@@ -67,6 +67,19 @@
 	};
 };
 
+&eth {
+	status = "okay";
+	mediatek,gmac-id = <0>;
+	phy-mode = "rgmii";
+	mediatek,switch = "mt7530";
+	reset-gpios = <&gpio 33 GPIO_ACTIVE_HIGH>;
+
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
+	};
+};
+
 &mmc0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc0_pins_default>;

@@ -20,28 +20,28 @@ For example:
 
 env__usb_dev_ports = (
     {
-        "fixture_id": "micro_b",
-        "tgt_usb_ctlr": "0",
-        "host_usb_dev_node": "/dev/usbdev-p2371-2180",
+        'fixture_id': 'micro_b',
+        'tgt_usb_ctlr': '0',
+        'host_usb_dev_node': '/dev/usbdev-p2371-2180',
         # This parameter is optional /if/ you only have a single board
         # attached to your host at a time.
-        "host_usb_port_path": "3-13",
+        'host_usb_port_path': '3-13',
     },
 )
 
-# Optional entries (required only when "alt_id_test_file" and
-# "alt_id_dummy_file" are specified).
-test_file_name = "/dfu_test.bin"
-dummy_file_name = "/dfu_dummy.bin"
-# Above files are used to generate proper "alt_info" entry
-"alt_info": "/%s ext4 0 2;/%s ext4 0 2" % (test_file_name, dummy_file_name),
+# Optional entries (required only when 'alt_id_test_file' and
+# 'alt_id_dummy_file' are specified).
+test_file_name = '/dfu_test.bin'
+dummy_file_name = '/dfu_dummy.bin'
+# Above files are used to generate proper 'alt_info' entry
+'alt_info': '/%s ext4 0 2;/%s ext4 0 2' % (test_file_name, dummy_file_name),
 
 env__dfu_configs = (
     # eMMC, partition 1
     {
-        "fixture_id": "emmc",
-        "alt_info": "/dfu_test.bin ext4 0 1;/dfu_dummy.bin ext4 0 1",
-        "cmd_params": "mmc 0",
+        'fixture_id': 'emmc',
+        'alt_info': '/dfu_test.bin ext4 0 1;/dfu_dummy.bin ext4 0 1',
+        'cmd_params': 'mmc 0',
         # This value is optional.
         # If present, it specified the set of transfer sizes tested.
         # If missing, a default list of sizes will be used, which covers
@@ -49,7 +49,7 @@ env__dfu_configs = (
         # Manually specifying test sizes is useful if you wish to test 4 DFU
         # configurations, but don't want to test every single transfer size
         # on each, to avoid bloating the overall time taken by testing.
-        "test_sizes": (63, 64, 65),
+        'test_sizes': (63, 64, 65),
         # This value is optional.
         # The name of the environment variable that the the dfu command reads
         # alt info from. If unspecified, this defaults to dfu_alt_info, which is
@@ -57,17 +57,17 @@ env__dfu_configs = (
         # One example is the Odroid XU3,  which automatically generates
         # $dfu_alt_info, each time the dfu command is run, by concatenating
         # $dfu_alt_boot and $dfu_alt_system.
-        "alt_info_env_name": "dfu_alt_system",
+        'alt_info_env_name': 'dfu_alt_system',
         # This value is optional.
-        # For boards which require the "test file" alt setting number other than
+        # For boards which require the 'test file' alt setting number other than
         # default (0) it is possible to specify exact file name to be used as
         # this parameter.
-        "alt_id_test_file": test_file_name,
+        'alt_id_test_file': test_file_name,
         # This value is optional.
-        # For boards which require the "dummy file" alt setting number other
+        # For boards which require the 'dummy file' alt setting number other
         # than default (1) it is possible to specify exact file name to be used
         # as this parameter.
-        "alt_id_dummy_file": dummy_file_name,
+        'alt_id_dummy_file': dummy_file_name,
     },
 )
 

@@ -101,10 +101,19 @@ static struct mmc *init_mmc_device(int dev, bool force_init)
 		return NULL;
 	}
 
+	if (!mmc_getcd(mmc))
+		force_init = true;
+
 	if (force_init)
 		mmc->has_init = 0;
 	if (mmc_init(mmc))
 		return NULL;
+
+#ifdef CONFIG_BLOCK_CACHE
+	struct blk_desc *bd = mmc_get_blk_desc(mmc);
+	blkcache_invalidate(bd->if_type, bd->devnum);
+#endif
+
 	return mmc;
 }
 static int do_mmcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -247,7 +256,7 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
 
 	if (cp == NULL || argc > cp->maxargs)
 		return CMD_RET_USAGE;
-	if (flag == CMD_FLAG_REPEAT && !cp->repeatable)
+	if (flag == CMD_FLAG_REPEAT && !cmd_is_repeatable(cp))
 		return CMD_RET_SUCCESS;
 
 	mmc = init_mmc_device(curr_device, false);
@@ -907,7 +916,7 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (cp == NULL || argc > cp->maxargs)
 		return CMD_RET_USAGE;
-	if (flag == CMD_FLAG_REPEAT && !cp->repeatable)
+	if (flag == CMD_FLAG_REPEAT && !cmd_is_repeatable(cp))
 		return CMD_RET_SUCCESS;
 
 	if (curr_device < 0) {

@@ -24,6 +24,7 @@
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		SZ_4M
+#define CONFIG_SYS_NONCACHED_MEMORY	SZ_1M
 
 /* Environment */
 #define CONFIG_ENV_SIZE			SZ_4K
@@ -52,5 +53,9 @@
 /* Extra environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	FDT_HIGH
+
+/* Ethernet */
+#define CONFIG_IPADDR			192.168.1.1
+#define CONFIG_SERVERIP			192.168.1.2
 
 #endif

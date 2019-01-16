@@ -16,9 +16,22 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct firmware_priv {
-	const char *name;	/* Filename */
-	u32 offset;		/* Offset of reading a file */
+/**
+ * struct firmware - A place for storing firmware and its attribute data.
+ *
+ * This holds information about a firmware and its content.
+ *
+ * @size: Size of a file
+ * @data: Buffer for file
+ * @priv: Firmware loader private fields
+ * @name: Filename
+ * @offset: Offset of reading a file
+ */
+struct firmware {
+	size_t size;
+	const u8 *data;
+	const char *name;
+	u32 offset;
 };
 
 #ifdef CONFIG_CMD_UBIFS
@@ -88,74 +101,42 @@ static int select_fs_dev(struct device_platdata *plat)
 /**
  * _request_firmware_prepare - Prepare firmware struct.
  *
+ * @dev: An instance of a driver.
  * @name: Name of firmware file.
  * @dbuf: Address of buffer to load firmware into.
  * @size: Size of buffer.
  * @offset: Offset of a file for start reading into buffer.
- * @firmwarep: Pointer to pointer to firmware image.
  *
  * Return: Negative value if fail, 0 for successful.
  */
-static int _request_firmware_prepare(const char *name, void *dbuf,
-				    size_t size, u32 offset,
-				    struct firmware **firmwarep)
+static int _request_firmware_prepare(struct udevice *dev,
+				    const char *name, void *dbuf,
+				    size_t size, u32 offset)
 {
 	if (!name || name[0] == '\0')
 		return -EINVAL;
 
-	/* No memory allocation is required if *firmwarep is allocated */
-	if (!(*firmwarep)) {
-		(*firmwarep) = calloc(1, sizeof(struct firmware));
-		if (!(*firmwarep))
-			return -ENOMEM;
+	struct firmware *firmwarep = dev_get_priv(dev);
 
-		(*firmwarep)->priv = calloc(1, sizeof(struct firmware_priv));
-		if (!(*firmwarep)->priv) {
-			free(*firmwarep);
-			return -ENOMEM;
-		}
-	} else if (!(*firmwarep)->priv) {
-		(*firmwarep)->priv = calloc(1, sizeof(struct firmware_priv));
-		if (!(*firmwarep)->priv) {
-			free(*firmwarep);
-			return -ENOMEM;
-		}
-	}
+	if (!firmwarep)
+		return -ENOMEM;
 
-	((struct firmware_priv *)((*firmwarep)->priv))->name = name;
-	((struct firmware_priv *)((*firmwarep)->priv))->offset = offset;
-	(*firmwarep)->data = dbuf;
-	(*firmwarep)->size = size;
+	firmwarep->name = name;
+	firmwarep->offset = offset;
+	firmwarep->data = dbuf;
+	firmwarep->size = size;
 
 	return 0;
 }
 
 /**
- * release_firmware - Release the resource associated with a firmware image
- * @firmware: Firmware resource to release
- */
-void release_firmware(struct firmware *firmware)
-{
-	if (firmware) {
-		if (firmware->priv) {
-			free(firmware->priv);
-			firmware->priv = NULL;
-		}
-		free(firmware);
-	}
-}
-
-/**
  * fw_get_filesystem_firmware - load firmware into an allocated buffer.
- * @plat: Platform data such as storage and partition firmware loading from.
- * @firmware: pointer to firmware image.
+ * @dev: An instance of a driver.
  *
  * Return: Size of total read, negative value when error.
  */
-static int fw_get_filesystem_firmware(struct device_platdata *plat,
-				     struct firmware *firmware)
+static int fw_get_filesystem_firmware(struct udevice *dev)
 {
-	struct firmware_priv *fw_priv = NULL;
 	loff_t actread;
 	char *storage_interface, *dev_part, *ubi_mtdpart, *ubi_volume;
 	int ret;
@@ -178,20 +159,23 @@ static int fw_get_filesystem_firmware(struct device_platdata *plat,
 		else
 			ret = -ENODEV;
 	} else {
-		ret = select_fs_dev(plat);
+		ret = select_fs_dev(dev->platdata);
 	}
 
 	if (ret)
 		goto out;
 
-	fw_priv = firmware->priv;
+	struct firmware *firmwarep = dev_get_priv(dev);
 
-	ret = fs_read(fw_priv->name, (ulong)map_to_sysmem(firmware->data),
-			fw_priv->offset, firmware->size, &actread);
+	if (!firmwarep)
+		return -ENOMEM;
+
+	ret = fs_read(firmwarep->name, (ulong)map_to_sysmem(firmwarep->data),
+			firmwarep->offset, firmwarep->size, &actread);
 
 	if (ret) {
 		debug("Error: %d Failed to read %s from flash %lld != %zu.\n",
-		      ret, fw_priv->name, actread, firmware->size);
+		      ret, firmwarep->name, actread, firmwarep->size);
 	} else {
 		ret = actread;
 	}
@@ -205,33 +189,30 @@ out:
 
 /**
  * request_firmware_into_buf - Load firmware into a previously allocated buffer.
- * @plat: Platform data such as storage and partition firmware loading from.
+ * @dev: An instance of a driver.
  * @name: Name of firmware file.
  * @buf: Address of buffer to load firmware into.
  * @size: Size of buffer.
  * @offset: Offset of a file for start reading into buffer.
- * @firmwarep: Pointer to firmware image.
  *
- * The firmware is loaded directly into the buffer pointed to by @buf and
- * the @firmwarep data member is pointed at @buf.
+ * The firmware is loaded directly into the buffer pointed to by @buf.
  *
  * Return: Size of total read, negative value when error.
  */
-int request_firmware_into_buf(struct device_platdata *plat,
+int request_firmware_into_buf(struct udevice *dev,
 			      const char *name,
-			      void *buf, size_t size, u32 offset,
-			      struct firmware **firmwarep)
+			      void *buf, size_t size, u32 offset)
 {
 	int ret;
 
-	if (!plat)
+	if (!dev)
 		return -EINVAL;
 
-	ret = _request_firmware_prepare(name, buf, size, offset, firmwarep);
+	ret = _request_firmware_prepare(dev, name, buf, size, offset);
 	if (ret < 0) /* error */
 		return ret;
 
-	ret = fw_get_filesystem_firmware(plat, *firmwarep);
+	ret = fw_get_filesystem_firmware(dev);
 
 	return ret;
 }
@@ -286,6 +267,7 @@ U_BOOT_DRIVER(fs_loader) = {
 	.probe			= fs_loader_probe,
 	.ofdata_to_platdata	= fs_loader_ofdata_to_platdata,
 	.platdata_auto_alloc_size	= sizeof(struct device_platdata),
+	.priv_auto_alloc_size	= sizeof(struct firmware),
 };
 
 UCLASS_DRIVER(fs_loader) = {

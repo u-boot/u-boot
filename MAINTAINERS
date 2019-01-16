@@ -176,6 +176,8 @@ F:	drivers/ram/mediatek/
 F:	drivers/spi/mtk_qspi.c
 F:	drivers/timer/mtk_timer.c
 F:	drivers/watchdog/mtk_wdt.c
+F:	drivers/net/mtk_eth.c
+F:	drivers/reset/reset-mediatek.c
 F:	tools/mtk_image.c
 F:	tools/mtk_image.h
 N:	mediatek

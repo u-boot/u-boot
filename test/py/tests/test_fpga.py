@@ -24,40 +24,40 @@ env__net_dhcp_server = True
 # static IP. In this test case we atleast need serverip for performing tftpb
 # to get required files.
 env__net_static_env_vars = [
-    ("ipaddr", "10.0.0.100"),
-    ("netmask", "255.255.255.0"),
-    ("serverip", "10.0.0.1"),
+    ('ipaddr', '10.0.0.100'),
+    ('netmask', '255.255.255.0'),
+    ('serverip', '10.0.0.1'),
 ]
 
 # Details regarding the files that may be read from a TFTP server. .
 env__fpga_secure_readable_file = {
-    "fn": "auth_bhdr_ppk1_bit.bin",
-    "enckupfn": "auth_bhdr_enc_kup_load_bit.bin",
-    "addr": 0x1000000,
-    "keyaddr": 0x100000,
-    "keyfn": "key.txt",
+    'fn': 'auth_bhdr_ppk1_bit.bin',
+    'enckupfn': 'auth_bhdr_enc_kup_load_bit.bin',
+    'addr': 0x1000000,
+    'keyaddr': 0x100000,
+    'keyfn': 'key.txt',
 }
 
 env__fpga_under_test = {
-    "dev": 0,
-    "addr" : 0x1000000,
-    "bitstream_load": "compress.bin",
-    "bitstream_load_size": 1831960,
-    "bitstream_loadp": "compress_pr.bin",
-    "bitstream_loadp_size": 423352,
-    "bitstream_loadb": "compress.bit",
-    "bitstream_loadb_size": 1832086,
-    "bitstream_loadbp": "compress_pr.bit",
-    "bitstream_loadbp_size": 423491,
-    "mkimage_legacy": "download.ub",
-    "mkimage_legacy_size": 13321468,
-    "mkimage_legacy_gz": "download.gz.ub",
-    "mkimage_legacy_gz_size": 53632,
-    "mkimage_fit": "download-fit.ub",
-    "mkimage_fit_size": 13322784,
-    "loadfs": "mmc 0 compress.bin",
-    "loadfs_size": 1831960,
-    "loadfs_block_size": 0x10000,
+    'dev': 0,
+    'addr' : 0x1000000,
+    'bitstream_load': 'compress.bin',
+    'bitstream_load_size': 1831960,
+    'bitstream_loadp': 'compress_pr.bin',
+    'bitstream_loadp_size': 423352,
+    'bitstream_loadb': 'compress.bit',
+    'bitstream_loadb_size': 1832086,
+    'bitstream_loadbp': 'compress_pr.bit',
+    'bitstream_loadbp_size': 423491,
+    'mkimage_legacy': 'download.ub',
+    'mkimage_legacy_size': 13321468,
+    'mkimage_legacy_gz': 'download.gz.ub',
+    'mkimage_legacy_gz_size': 53632,
+    'mkimage_fit': 'download-fit.ub',
+    'mkimage_fit_size': 13322784,
+    'loadfs': 'mmc 0 compress.bin',
+    'loadfs_size': 1831960,
+    'loadfs_block_size': 0x10000,
 }
 """
 
