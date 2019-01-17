@@ -47,6 +47,7 @@
 #include <linux/errno.h>
 
 /* Define default oob placement schemes for large and small page devices */
+#ifdef CONFIG_SYS_NAND_DRIVER_ECC_LAYOUT
 static struct nand_ecclayout nand_oob_8 = {
 	.eccbytes = 3,
 	.eccpos = {0, 1, 2},
@@ -89,6 +90,7 @@ static struct nand_ecclayout nand_oob_128 = {
 		{.offset = 2,
 		 .length = 78} }
 };
+#endif
 
 static int nand_get_device(struct mtd_info *mtd, int new_state);
 
@@ -4339,6 +4341,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 	 */
 	if (!ecc->layout && (ecc->mode != NAND_ECC_SOFT_BCH)) {
 		switch (mtd->oobsize) {
+#ifdef CONFIG_SYS_NAND_DRIVER_ECC_LAYOUT
 		case 8:
 			ecc->layout = &nand_oob_8;
 			break;
@@ -4351,6 +4354,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 		case 128:
 			ecc->layout = &nand_oob_128;
 			break;
+#endif
 		default:
 			pr_warn("No oob scheme defined for oobsize %d\n",
 				   mtd->oobsize);

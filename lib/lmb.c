@@ -43,7 +43,10 @@ void lmb_dump_all(struct lmb *lmb)
 static long lmb_addrs_overlap(phys_addr_t base1,
 		phys_size_t size1, phys_addr_t base2, phys_size_t size2)
 {
-	return ((base1 < (base2+size2)) && (base2 < (base1+size1)));
+	const phys_addr_t base1_end = base1 + size1 - 1;
+	const phys_addr_t base2_end = base2 + size2 - 1;
+
+	return ((base1 <= base2_end) && (base2 <= base1_end));
 }
 
 static long lmb_addrs_adjacent(phys_addr_t base1, phys_size_t size1,
@@ -89,19 +92,23 @@ static void lmb_coalesce_regions(struct lmb_region *rgn,
 
 void lmb_init(struct lmb *lmb)
 {
-	/* Create a dummy zero size LMB which will get coalesced away later.
-	 * This simplifies the lmb_add() code below...
-	 */
-	lmb->memory.region[0].base = 0;
-	lmb->memory.region[0].size = 0;
-	lmb->memory.cnt = 1;
+	lmb->memory.cnt = 0;
 	lmb->memory.size = 0;
-
-	/* Ditto. */
-	lmb->reserved.region[0].base = 0;
-	lmb->reserved.region[0].size = 0;
-	lmb->reserved.cnt = 1;
+	lmb->reserved.cnt = 0;
 	lmb->reserved.size = 0;
+}
+
+/* Initialize the struct, add memory and call arch/board reserve functions */
+void lmb_init_and_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size,
+			  void *fdt_blob)
+{
+	lmb_init(lmb);
+	lmb_add(lmb, base, size);
+	arch_lmb_reserve(lmb);
+	board_lmb_reserve(lmb);
+
+	if (IMAGE_ENABLE_OF_LIBFDT && fdt_blob)
+		boot_fdt_add_mem_rsv_regions(lmb, fdt_blob);
 }
 
 /* This routine called with relocation disabled. */
@@ -110,9 +117,10 @@ static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base, phys_size_t
 	unsigned long coalesced = 0;
 	long adjacent, i;
 
-	if ((rgn->cnt == 1) && (rgn->region[0].size == 0)) {
+	if (rgn->cnt == 0) {
 		rgn->region[0].base = base;
 		rgn->region[0].size = size;
+		rgn->cnt = 1;
 		return 0;
 	}
 
@@ -136,6 +144,9 @@ static long lmb_add_region(struct lmb_region *rgn, phys_addr_t base, phys_size_t
 			rgn->region[i].size += size;
 			coalesced++;
 			break;
+		} else if (lmb_addrs_overlap(base, size, rgnbase, rgnsize)) {
+			/* regions overlap */
+			return -1;
 		}
 	}
 
@@ -183,7 +194,7 @@ long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 {
 	struct lmb_region *rgn = &(lmb->reserved);
 	phys_addr_t rgnbegin, rgnend;
-	phys_addr_t end = base + size;
+	phys_addr_t end = base + size - 1;
 	int i;
 
 	rgnbegin = rgnend = 0; /* supress gcc warnings */
@@ -191,7 +202,7 @@ long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 	/* Find the region where (base, size) belongs to */
 	for (i=0; i < rgn->cnt; i++) {
 		rgnbegin = rgn->region[i].base;
-		rgnend = rgnbegin + rgn->region[i].size;
+		rgnend = rgnbegin + rgn->region[i].size - 1;
 
 		if ((rgnbegin <= base) && (end <= rgnend))
 			break;
@@ -209,7 +220,7 @@ long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 
 	/* Check to see if region is matching at the front */
 	if (rgnbegin == base) {
-		rgn->region[i].base = end;
+		rgn->region[i].base = end + 1;
 		rgn->region[i].size -= size;
 		return 0;
 	}
@@ -225,7 +236,7 @@ long lmb_free(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 	 * beginging of the hole and add the region after hole.
 	 */
 	rgn->region[i].size = base - rgn->region[i].base;
-	return lmb_add_region(rgn, end, rgnend - end);
+	return lmb_add_region(rgn, end + 1, rgnend - end);
 }
 
 long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size)
@@ -274,11 +285,6 @@ static phys_addr_t lmb_align_down(phys_addr_t addr, phys_size_t size)
 	return addr & ~(size - 1);
 }
 
-static phys_addr_t lmb_align_up(phys_addr_t addr, ulong size)
-{
-	return (addr + (size - 1)) & ~(size - 1);
-}
-
 phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phys_addr_t max_addr)
 {
 	long i, j;
@@ -307,8 +313,7 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 			if (j < 0) {
 				/* This area isn't reserved, take it */
 				if (lmb_add_region(&lmb->reserved, base,
-							lmb_align_up(size,
-								align)) < 0)
+						   size) < 0)
 					return 0;
 				return base;
 			}
@@ -317,6 +322,59 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 				break;
 			base = lmb_align_down(res_base - size, align);
 		}
+	}
+	return 0;
+}
+
+/*
+ * Try to allocate a specific address range: must be in defined memory but not
+ * reserved
+ */
+phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size)
+{
+	long j;
+
+	/* Check if the requested address is in one of the memory regions */
+	j = lmb_overlaps_region(&lmb->memory, base, size);
+	if (j >= 0) {
+		/*
+		 * Check if the requested end address is in the same memory
+		 * region we found.
+		 */
+		if (lmb_addrs_overlap(lmb->memory.region[j].base,
+				      lmb->memory.region[j].size, base + size -
+				      1, 1)) {
+			/* ok, reserve the memory */
+			if (lmb_reserve(lmb, base, size) >= 0)
+				return base;
+		}
+	}
+	return 0;
+}
+
+/* Return number of bytes from a given address that are free */
+phys_size_t lmb_get_unreserved_size(struct lmb *lmb, phys_addr_t addr)
+{
+	int i;
+	long j;
+
+	/* check if the requested address is in the memory regions */
+	j = lmb_overlaps_region(&lmb->memory, addr, 1);
+	if (j >= 0) {
+		for (i = 0; i < lmb->reserved.cnt; i++) {
+			if (addr < lmb->reserved.region[i].base) {
+				/* first reserved range > requested address */
+				return lmb->reserved.region[i].base - addr;
+			}
+			if (lmb->reserved.region[i].base +
+			    lmb->reserved.region[i].size > addr) {
+				/* requested addr is in this reserved range */
+				return 0;
+			}
+		}
+		/* if we come here: no reserved ranges above requested addr */
+		return lmb->memory.region[lmb->memory.cnt - 1].base +
+		       lmb->memory.region[lmb->memory.cnt - 1].size - addr;
 	}
 	return 0;
 }

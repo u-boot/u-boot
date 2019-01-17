@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <fdt_support.h>
+#include <fdtdec.h>
 #include <errno.h>
 #include <image.h>
 #include <linux/libfdt.h>
@@ -67,30 +68,66 @@ static const image_header_t *image_get_fdt(ulong fdt_addr)
 }
 #endif
 
+static void boot_fdt_reserve_region(struct lmb *lmb, uint64_t addr,
+				    uint64_t size)
+{
+	int ret;
+
+	ret = lmb_reserve(lmb, addr, size);
+	if (!ret) {
+		debug("   reserving fdt memory region: addr=%llx size=%llx\n",
+		      (unsigned long long)addr, (unsigned long long)size);
+	} else {
+		puts("ERROR: reserving fdt memory region failed ");
+		printf("(addr=%llx size=%llx)\n",
+		       (unsigned long long)addr, (unsigned long long)size);
+	}
+}
+
 /**
- * boot_fdt_add_mem_rsv_regions - Mark the memreserve sections as unusable
+ * boot_fdt_add_mem_rsv_regions - Mark the memreserve and reserved-memory
+ * sections as unusable
  * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @fdt_blob: pointer to fdt blob base address
  *
- * Adds the memreserve regions in the dtb to the lmb block.  Adding the
- * memreserve regions prevents u-boot from using them to store the initrd
- * or the fdt blob.
+ * Adds the and reserved-memorymemreserve regions in the dtb to the lmb block.
+ * Adding the memreserve regions prevents u-boot from using them to store the
+ * initrd or the fdt blob.
  */
 void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
 {
 	uint64_t addr, size;
-	int i, total;
+	int i, total, ret;
+	int nodeoffset, subnode;
+	struct fdt_resource res;
 
 	if (fdt_check_header(fdt_blob) != 0)
 		return;
 
+	/* process memreserve sections */
 	total = fdt_num_mem_rsv(fdt_blob);
 	for (i = 0; i < total; i++) {
 		if (fdt_get_mem_rsv(fdt_blob, i, &addr, &size) != 0)
 			continue;
-		printf("   reserving fdt memory region: addr=%llx size=%llx\n",
-		       (unsigned long long)addr, (unsigned long long)size);
-		lmb_reserve(lmb, addr, size);
+		boot_fdt_reserve_region(lmb, addr, size);
+	}
+
+	/* process reserved-memory */
+	nodeoffset = fdt_subnode_offset(fdt_blob, 0, "reserved-memory");
+	if (nodeoffset >= 0) {
+		subnode = fdt_first_subnode(fdt_blob, nodeoffset);
+		while (subnode >= 0) {
+			/* check if this subnode has a reg property */
+			ret = fdt_get_resource(fdt_blob, subnode, "reg", 0,
+					       &res);
+			if (!ret) {
+				addr = res.start;
+				size = res.end - res.start + 1;
+				boot_fdt_reserve_region(lmb, addr, size);
+			}
+
+			subnode = fdt_next_subnode(fdt_blob, subnode);
+		}
 	}
 }
 
