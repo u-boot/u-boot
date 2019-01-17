@@ -183,7 +183,7 @@
 #endif
 
 /* SPL can't handle all huge variables - define just DFU */
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU_SUPPORT)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
 #undef CONFIG_EXTRA_ENV_SETTINGS
 # define CONFIG_EXTRA_ENV_SETTINGS \
 	"dfu_alt_info_ram=uboot.bin ram 0x8000000 0x1000000;" \
@@ -228,7 +228,7 @@
 # define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 #endif
 
-#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU_SUPPORT)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU)
 # undef CONFIG_CMD_BOOTD
 # define CONFIG_SPL_ENV_SUPPORT
 # define CONFIG_SPL_HASH_SUPPORT
