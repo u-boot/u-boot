@@ -161,7 +161,8 @@
 
 #endif
 
-#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2)
+#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2) || \
+	defined(CONFIG_SOC_SERVALT)
 #define MIPS_VCOREIII_MEMORY_16BIT 1
 #endif
 
@@ -239,7 +240,8 @@
 	ICPU_MEMCTRL_CFG_MSB_ROW_ADDR(VC3_MPAR_row_addr_cnt - 1) |	\
 	ICPU_MEMCTRL_CFG_MSB_COL_ADDR(VC3_MPAR_col_addr_cnt - 1)
 
-#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2)
+#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2) || \
+	defined(CONFIG_SOC_SERVALT)
 #define MSCC_MEMPARM_PERIOD					\
 	ICPU_MEMCTRL_REF_PERIOD_MAX_PEND_REF(8) |		\
 	ICPU_MEMCTRL_REF_PERIOD_REF_PERIOD(VC3_MPAR_tREFI)
@@ -378,7 +380,8 @@ static inline void memphy_soft_reset(void)
 	PAUSE();
 }
 
-#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2)
+#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2) || \
+	defined(CONFIG_SOC_SERVALT)
 static u8 training_data[] = { 0xfe, 0x11, 0x33, 0x55, 0x77, 0x99, 0xbb, 0xdd };
 
 static inline void sleep_100ns(u32 val)
@@ -449,7 +452,7 @@ static inline void hal_vcoreiii_ddr_failed(void)
 
 	panic("DDR init failed\n");
 }
-#else				/* JR2 */
+#else				/* JR2 || ServalT */
 static inline void hal_vcoreiii_ddr_reset_assert(void)
 {
 	/* Ensure the memory controller physical iface is forced reset */
@@ -759,7 +762,8 @@ static inline void hal_vcoreiii_init_memctl(void)
 	/* Wait for ZCAL to clear */
 	while (readl(BASE_CFG + ICPU_MEMPHY_ZCAL) & ICPU_MEMPHY_ZCAL_ZCAL_ENA)
 		;
-#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2)
+#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2) || \
+	defined(CONFIG_SOC_SERVALT)
 	/* Check no ZCAL_ERR */
 	if (readl(BASE_CFG + ICPU_MEMPHY_ZCAL_STAT)
 	    & ICPU_MEMPHY_ZCAL_STAT_ZCAL_ERR)
@@ -773,7 +777,8 @@ static inline void hal_vcoreiii_init_memctl(void)
 	writel(MSCC_MEMPARM_MEMCFG, BASE_CFG + ICPU_MEMCTRL_CFG);
 	writel(MSCC_MEMPARM_PERIOD, BASE_CFG + ICPU_MEMCTRL_REF_PERIOD);
 
-#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2)
+#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2) || \
+	defined(CONFIG_SOC_SERVALT)
 	writel(MSCC_MEMPARM_TIMING0, BASE_CFG + ICPU_MEMCTRL_TIMING0);
 #else /* Luton */
 	clrbits_le32(BASE_CFG + ICPU_MEMCTRL_TIMING0, ((1 << 20) - 1));
@@ -799,7 +804,7 @@ static inline void hal_vcoreiii_init_memctl(void)
 	hal_vcoreiii_ddr_reset_release();
 
 	writel(readl(BASE_CFG + ICPU_GPR(7)) + 1, BASE_CFG + ICPU_GPR(7));
-#elif defined(CONFIG_SOC_JR2)
+#elif defined(CONFIG_SOC_JR2) || defined(CONFIG_SOC_SERVALT)
 	writel(ICPU_MEMCTRL_TERMRES_CTRL_ODT_WR_ENA(3),
 	       BASE_CFG + ICPU_MEMCTRL_TERMRES_CTRL);
 #else				/* Luton */
@@ -820,7 +825,8 @@ static inline void hal_vcoreiii_wait_memctl(void)
 
 	/* Settle...? */
 	sleep_100ns(10000);
-#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2)
+#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2) || \
+	defined(CONFIG_SOC_SERVALT)
 	/* Establish data contents in DDR RAM for training */
 
 	__raw_writel(0xcacafefe, ((void __iomem *)MSCC_DDR_TO));

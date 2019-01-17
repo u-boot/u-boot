@@ -21,6 +21,11 @@
 #include <mach/jr2/jr2_devcpu_gcb.h>
 #include <mach/jr2/jr2_devcpu_gcb_miim_regs.h>
 #include <mach/jr2/jr2_icpu_cfg.h>
+#elif defined(CONFIG_SOC_SERVALT)
+#include <mach/servalt/servalt.h>
+#include <mach/servalt/servalt_devcpu_gcb.h>
+#include <mach/servalt/servalt_devcpu_gcb_miim_regs.h>
+#include <mach/servalt/servalt_icpu_cfg.h>
 #else
 #error Unsupported platform
 #endif

@@ -12,7 +12,7 @@
 
 void _machine_restart(void)
 {
-#if defined(CONFIG_SOC_JR2)
+#if defined(CONFIG_SOC_JR2) || defined(CONFIG_SOC_SERVALT)
 	register u32 reg = readl(BASE_CFG + ICPU_GENERAL_CTRL);
 	/* Set owner */
 	reg &= ~ICPU_GENERAL_CTRL_IF_SI_OWNER_M;
