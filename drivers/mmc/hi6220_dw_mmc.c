@@ -77,6 +77,7 @@ static int hi6220_dwmmc_bind(struct udevice *dev)
 
 static const struct udevice_id hi6220_dwmmc_ids[] = {
 	{ .compatible = "hisilicon,hi6220-dw-mshc" },
+	{ .compatible = "hisilicon,hi3798cv200-dw-mshc" },
 	{ }
 };
 
