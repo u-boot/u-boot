@@ -1191,9 +1191,6 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	nand->ecc.read_page	= mxs_nand_ecc_read_page;
 
 	nand->ecc.mode		= NAND_ECC_HW;
-	nand->ecc.bytes		= 9;
-	nand->ecc.size		= 512;
-	nand->ecc.strength	= 8;
 
 	return 0;
 }
