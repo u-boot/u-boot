@@ -30,6 +30,16 @@
 #include <ext4fs.h>
 #include <mmc.h>
 
+__weak const char *env_ext4_get_intf(void)
+{
+	return (const char *)CONFIG_ENV_EXT4_INTERFACE;
+}
+
+__weak const char *env_ext4_get_dev_part(void)
+{
+	return (const char *)CONFIG_ENV_EXT4_DEVICE_AND_PART;
+}
+
 #ifdef CONFIG_CMD_SAVEENV
 static int env_ext4_save(void)
 {
@@ -38,13 +48,14 @@ static int env_ext4_save(void)
 	disk_partition_t info;
 	int dev, part;
 	int err;
+	const char *ifname = env_ext4_get_intf();
+	const char *dev_and_part = env_ext4_get_dev_part();
 
 	err = env_export(&env_new);
 	if (err)
 		return err;
 
-	part = blk_get_device_part_str(CONFIG_ENV_EXT4_INTERFACE,
-				       CONFIG_ENV_EXT4_DEVICE_AND_PART,
+	part = blk_get_device_part_str(ifname, dev_and_part,
 				       &dev_desc, &info, 1);
 	if (part < 0)
 		return 1;
@@ -54,8 +65,7 @@ static int env_ext4_save(void)
 
 	if (!ext4fs_mount(info.size)) {
 		printf("\n** Unable to use %s %s for saveenv **\n",
-		       CONFIG_ENV_EXT4_INTERFACE,
-		       CONFIG_ENV_EXT4_DEVICE_AND_PART);
+		       ifname, dev_and_part);
 		return 1;
 	}
 
@@ -65,8 +75,7 @@ static int env_ext4_save(void)
 
 	if (err == -1) {
 		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",
-			CONFIG_ENV_EXT4_FILE, CONFIG_ENV_EXT4_INTERFACE, dev,
-			part);
+			CONFIG_ENV_EXT4_FILE, ifname, dev, part);
 		return 1;
 	}
 
@@ -83,14 +92,15 @@ static int env_ext4_load(void)
 	int dev, part;
 	int err;
 	loff_t off;
+	const char *ifname = env_ext4_get_intf();
+	const char *dev_and_part = env_ext4_get_dev_part();
 
 #ifdef CONFIG_MMC
-	if (!strcmp(CONFIG_ENV_EXT4_INTERFACE, "mmc"))
+	if (!strcmp(ifname, "mmc"))
 		mmc_initialize(NULL);
 #endif
 
-	part = blk_get_device_part_str(CONFIG_ENV_EXT4_INTERFACE,
-				       CONFIG_ENV_EXT4_DEVICE_AND_PART,
+	part = blk_get_device_part_str(ifname, dev_and_part,
 				       &dev_desc, &info, 1);
 	if (part < 0)
 		goto err_env_relocate;
@@ -100,8 +110,7 @@ static int env_ext4_load(void)
 
 	if (!ext4fs_mount(info.size)) {
 		printf("\n** Unable to use %s %s for loading the env **\n",
-		       CONFIG_ENV_EXT4_INTERFACE,
-		       CONFIG_ENV_EXT4_DEVICE_AND_PART);
+		       ifname, dev_and_part);
 		goto err_env_relocate;
 	}
 
@@ -111,8 +120,7 @@ static int env_ext4_load(void)
 
 	if (err == -1) {
 		printf("\n** Unable to read \"%s\" from %s%d:%d **\n",
-			CONFIG_ENV_EXT4_FILE, CONFIG_ENV_EXT4_INTERFACE, dev,
-			part);
+			CONFIG_ENV_EXT4_FILE, ifname, dev, part);
 		goto err_env_relocate;
 	}
 
