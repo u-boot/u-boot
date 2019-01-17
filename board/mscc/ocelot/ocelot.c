@@ -10,6 +10,7 @@
 #include <environment.h>
 #include <spi.h>
 #include <led.h>
+#include <wait_bit.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -17,6 +18,29 @@ enum {
 	BOARD_TYPE_PCB120 = 0xAABBCC00,
 	BOARD_TYPE_PCB123,
 };
+
+void mscc_switch_reset(bool enter)
+{
+	/* Nasty workaround to avoid GPIO19 (DDR!) being reset */
+	mscc_gpio_set_alternate(19, 2);
+
+	debug("applying SwC reset\n");
+
+	writel(ICPU_RESET_CORE_RST_PROTECT, BASE_CFG + ICPU_RESET);
+	writel(PERF_SOFT_RST_SOFT_CHIP_RST, BASE_DEVCPU_GCB + PERF_SOFT_RST);
+
+	if (wait_for_bit_le32(BASE_DEVCPU_GCB + PERF_SOFT_RST,
+			      PERF_SOFT_RST_SOFT_CHIP_RST, false, 5000, false))
+		pr_err("Tiemout while waiting for switch reset\n");
+
+	/*
+	 * Reset GPIO19 mode back as regular GPIO, output, high (DDR
+	 * not reset) (Order is important)
+	 */
+	setbits_le32(BASE_DEVCPU_GCB + PERF_GPIO_OE, BIT(19));
+	writel(BIT(19), BASE_DEVCPU_GCB + PERF_GPIO_OUT_SET);
+	mscc_gpio_set_alternate(19, 0);
+}
 
 void board_debug_uart_init(void)
 {
