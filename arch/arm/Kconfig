@@ -1503,13 +1503,13 @@ source "arch/arm/cpu/armv7/vf610/Kconfig"
 
 source "arch/arm/mach-zynq/Kconfig"
 
+source "arch/arm/mach-zynqmp/Kconfig"
+
 source "arch/arm/mach-versal/Kconfig"
 
 source "arch/arm/mach-zynqmp-r5/Kconfig"
 
 source "arch/arm/cpu/armv7/Kconfig"
-
-source "arch/arm/cpu/armv8/zynqmp/Kconfig"
 
 source "arch/arm/cpu/armv8/Kconfig"
 

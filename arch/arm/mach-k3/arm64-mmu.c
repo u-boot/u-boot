@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
  *	Lokesh Vutla <lokeshvutla@ti.com>
- * (This file is derived from arch/arm/cpu/armv8/zynqmp/cpu.c)
+ * (This file is derived from arch/arm/mach-zynqmp/cpu.c)
  *
  */
 
