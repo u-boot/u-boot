@@ -3,9 +3,9 @@
 # Copyright (C) 2012 Samsung Electronics
 # Lukasz Majewski <l.majewski@samsung.com>
 
-obj-$(CONFIG_DFU) += dfu.o
-obj-$(CONFIG_DFU_MMC) += dfu_mmc.o
-obj-$(CONFIG_DFU_NAND) += dfu_nand.o
-obj-$(CONFIG_DFU_RAM) += dfu_ram.o
-obj-$(CONFIG_DFU_SF) += dfu_sf.o
-obj-$(CONFIG_DFU_TFTP) += dfu_tftp.o
+obj-$(CONFIG_$(SPL_)DFU) += dfu.o
+obj-$(CONFIG_$(SPL_)DFU_MMC) += dfu_mmc.o
+obj-$(CONFIG_$(SPL_)DFU_NAND) += dfu_nand.o
+obj-$(CONFIG_$(SPL_)DFU_RAM) += dfu_ram.o
+obj-$(CONFIG_$(SPL_)DFU_SF) += dfu_sf.o
+obj-$(CONFIG_$(SPL_)DFU_TFTP) += dfu_tftp.o
