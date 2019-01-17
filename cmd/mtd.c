@@ -519,8 +519,8 @@ static int mtd_name_complete(int argc, char * const argv[], char last_char,
 }
 #endif /* CONFIG_AUTO_COMPLETE */
 
-static char mtd_help_text[] =
 #ifdef CONFIG_SYS_LONGHELP
+static char mtd_help_text[] =
 	"- generic operations on memory technology devices\n\n"
 	"mtd list\n"
 	"mtd read[.raw][.oob]                  <name> <addr> [<off> [<size>]]\n"
@@ -541,9 +541,8 @@ static char mtd_help_text[] =
 	"\t\t* must be a multiple of a block for erase\n"
 	"\t\t* must be a multiple of a page otherwise (special case: default is a page with dump)\n"
 	"\n"
-	"The .dontskipff option forces writing empty pages, don't use it if unsure.\n"
+	"The .dontskipff option forces writing empty pages, don't use it if unsure.\n";
 #endif
-	"";
 
 U_BOOT_CMD_WITH_SUBCMDS(mtd, "MTD utils", mtd_help_text,
 		U_BOOT_SUBCMD_MKENT(list, 1, 1, do_mtd_list),
