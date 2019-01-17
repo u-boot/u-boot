@@ -275,21 +275,6 @@ config SPL_RTC_DDR_SUPPORT
 endif
 
 if AM43XX || AM33XX
-config ISW_ENTRY_ADDR
-	hex "Address in memory or XIP flash of bootloader entry point"
-	default 0x402F4000 if AM43XX
-	default 0x402F0400 if AM33XX
-	help
-	  After any reset, the boot ROM on the AM43XX SOC
-	  searches the boot media for a valid boot image.
-	  For non-XIP devices, the ROM then copies the
-	  image into internal memory.
-	  For all boot modes, after the ROM processes the
-	  boot image it eventually computes the entry
-	  point address depending on the device type
-	  (secure/non-secure), boot media (xip/non-xip) and
-	  image headers.
-
 config PUB_ROM_DATA_SIZE
 	hex "Size in bytes of the L3 SRAM reserved by ROM to store data"
 	default 0x8400

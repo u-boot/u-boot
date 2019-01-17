@@ -81,7 +81,7 @@
  * RAM from address 0x40301350 (0x40300000+0x1000(reserved)+0x350(cert)).
  */
 #define TI_OMAP5_SECURE_BOOT_RESV_SRAM_SZ	0x1000
-#define CONFIG_SPL_TEXT_BASE	0x40301350
+#define CONFIG_SPL_TEXT_BASE	CONFIG_ISW_ENTRY_ADDR
 /* If no specific start address is specified then the secure EMIF
  * region will be placed at the end of the DDR space. In order to prevent
  * the main u-boot relocation from clobbering that memory and causing a
