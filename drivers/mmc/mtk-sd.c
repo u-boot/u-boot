@@ -554,6 +554,14 @@ static int msdc_pio_read(struct msdc_host *host, u8 *ptr, u32 size)
 			break;
 		}
 
+		chksz = min(size, (u32)MSDC_FIFO_SIZE);
+
+		if (msdc_fifo_rx_bytes(host) >= chksz) {
+			msdc_fifo_read(host, ptr, chksz);
+			ptr += chksz;
+			size -= chksz;
+		}
+
 		if (status & MSDC_INT_XFER_COMPL) {
 			if (size) {
 				pr_err("data not fully read\n");
@@ -562,15 +570,7 @@ static int msdc_pio_read(struct msdc_host *host, u8 *ptr, u32 size)
 
 			break;
 		}
-
-		chksz = min(size, (u32)MSDC_FIFO_SIZE);
-
-		if (msdc_fifo_rx_bytes(host) >= chksz) {
-			msdc_fifo_read(host, ptr, chksz);
-			ptr += chksz;
-			size -= chksz;
-		}
-	}
+}
 
 	return ret;
 }
