@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0+
 /*
  * pdu001.dts
  *
@@ -7,6 +6,8 @@
  * Copyright (C) 2018 EETS GmbH - http://www.eets.ch/
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+ *
+ * SPDX-License-Identifier:  GPL-2.0+
  */
 
 /dts-v1/;
@@ -17,7 +18,7 @@
 
 / {
 	model = "EETS,PDU001";
-	compatible = "eets,pdu001", "ti,am33xx";
+	compatible = "ti,am33xx";
 
 	chosen {
 		stdout-path = &uart3;
@@ -303,12 +304,12 @@
 	clock-frequency = <100000>;
 
 	board_24aa025e48: board_24aa025e48@50 {
-		compatible = "microchip,24aa025e48";
+		compatible = "atmel,24c02";
 		reg = <0x50>;
 	};
 
 	backplane_24aa025e48: backplane_24aa025e48@53 {
-		compatible = "microchip,24aa025e48";
+		compatible = "atmel,24c02";
 		reg = <0x53>;
 	};
 
@@ -372,8 +373,8 @@
 	ti,pindir-d0-out-d1-in;
 	status = "okay";
 
-	cfaf240320a032t {
-		compatible = "orise,otm3225a";
+	display-controller@0 {
+		compatible = "orisetech,otm3225a";
 		reg = <0>;
 		spi-max-frequency = <1000000>;
 		// SPI mode 3
@@ -532,16 +533,24 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&davinci_mdio_default>;
 	status = "okay";
+
+	ethphy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+
+	ethphy1: ethernet-phy@1 {
+		reg = <1>;
+	};
 };
 
 &cpsw_emac0 {
-	phy_id = <&davinci_mdio>, <0>;
+	phy-handle = <&ethphy0>;
 	phy-mode = "mii";
 	dual_emac_res_vlan = <1>;
 };
 
 &cpsw_emac1 {
-	phy_id = <&davinci_mdio>, <1>;
+	phy-handle = <&ethphy1>;
 	phy-mode = "mii";
 	dual_emac_res_vlan = <2>;
 };
