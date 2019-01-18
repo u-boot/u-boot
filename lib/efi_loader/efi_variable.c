@@ -47,6 +47,19 @@
 
 #define PREFIX_LEN (strlen("efi_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_"))
 
+/**
+ * efi_to_native() - convert the UEFI variable name and vendor GUID to U-Boot
+ *		     variable name
+ *
+ * The U-Boot variable name is a concatenation of prefix 'efi', the hexstring
+ * encoded vendor GUID, and the UTF-8 encoded UEFI variable name separated by
+ * underscores, e.g. 'efi_8be4df61-93ca-11d2-aa0d-00e098032b8c_BootOrder'.
+ *
+ * @native:		pointer to pointer to U-Boot variable name
+ * @variable_name:	UEFI variable name
+ * @vendor:		vendor GUID
+ * Return:		status code
+ */
 static efi_status_t efi_to_native(char **native, const u16 *variable_name,
 				  const efi_guid_t *vendor)
 {
@@ -65,6 +78,15 @@ static efi_status_t efi_to_native(char **native, const u16 *variable_name,
 	return EFI_SUCCESS;
 }
 
+/**
+ * prefix() - skip over prefix
+ *
+ * Skip over a prefix string.
+ *
+ * @str:	string with prefix
+ * @prefix:	prefix string
+ * Return:	string without prefix, or NULL if prefix not found
+ */
 static const char *prefix(const char *str, const char *prefix)
 {
 	size_t n = strlen(prefix);
@@ -73,7 +95,16 @@ static const char *prefix(const char *str, const char *prefix)
 	return NULL;
 }
 
-/* parse attributes part of variable value, if present: */
+/**
+ * parse_attr() - decode attributes part of variable value
+ *
+ * Convert the string encoded attributes of a UEFI variable to a bit mask.
+ * TODO: Several attributes are not supported.
+ *
+ * @str:	value of U-Boot variable
+ * @attrp:	pointer to UEFI attributes
+ * Return:	pointer to remainder of U-Boot variable value
+ */
 static const char *parse_attr(const char *str, u32 *attrp)
 {
 	u32 attr = 0;
@@ -111,7 +142,21 @@ static const char *parse_attr(const char *str, u32 *attrp)
 	return str;
 }
 
-/* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#GetVariable.28.29 */
+/**
+ * efi_efi_get_variable() - retrieve value of a UEFI variable
+ *
+ * This function implements the GetVariable runtime service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @variable_name:	name of the variable
+ * @vendor:		vendor GUID
+ * @attributes:		attributes of the variable
+ * @data_size:		size of the buffer to which the variable value is copied
+ * @data:		buffer to which the variable value is copied
+ * Return:		status code
+ */
 efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 				     const efi_guid_t *vendor, u32 *attributes,
 				     efi_uintn_t *data_size, void *data)
@@ -190,7 +235,21 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-/* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#GetNextVariableName.28.29 */
+/**
+ * efi_efi_get_next_variable() - get next UEFI variable
+ *
+ * This function implements the GetNextVariable runtime service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @variable_name_size:	on entry size of the buffer for the variable name, on
+ *			exit the length of the name of the next variable
+ * @variable_name:	on entry name of the current variable, on exit the name
+ *			of the next variable
+ * @vendor:		vendor GUID
+ * Return:		status code
+ */
 efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 					       u16 *variable_name,
 					       const efi_guid_t *vendor)
@@ -200,7 +259,21 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 	return EFI_EXIT(EFI_DEVICE_ERROR);
 }
 
-/* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#SetVariable.28.29 */
+/**
+ * efi_efi_set_variable() - set value of a UEFI variable
+ *
+ * This function implements the SetVariable runtime service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @variable_name:	name of the variable
+ * @vendor:		vendor GUID
+ * @attributes:		attributes of the variable
+ * @data_size:		size of the buffer with the variable value
+ * @data:		buffer with the variable value
+ * Return:		status code
+ */
 efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 				     const efi_guid_t *vendor, u32 attributes,
 				     efi_uintn_t data_size, const void *data)
@@ -250,7 +323,10 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 
 	s = val;
 
-	/* store attributes: */
+	/*
+	 * store attributes
+	 * TODO: several attributes are not supported
+	 */
 	attributes &= (EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS);
 	s += sprintf(s, "{");
 	while (attributes) {
