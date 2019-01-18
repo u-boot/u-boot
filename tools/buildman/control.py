@@ -99,7 +99,7 @@ def CheckOutputDir(output_dir):
     cwd_path = os.path.realpath('.')
     while True:
         if os.path.realpath(path) == cwd_path:
-            Print("Cannot use output directory '%s' since it is within the current directtory '%s'" %
+            Print("Cannot use output directory '%s' since it is within the current directory '%s'" %
                   (path, cwd_path))
             sys.exit(1)
         parent = os.path.dirname(path)
