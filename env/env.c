@@ -177,6 +177,7 @@ int env_get_char(int index)
 int env_load(void)
 {
 	struct env_driver *drv;
+	int best_prio = -1;
 	int prio;
 
 	for (prio = 0; (drv = env_driver_lookup(ENVOP_LOAD, prio)); prio++) {
@@ -195,20 +196,32 @@ int env_load(void)
 		 * one message.
 		 */
 		ret = drv->load();
-		if (ret) {
-			debug("Failed (%d)\n", ret);
-		} else {
+		if (!ret) {
 			printf("OK\n");
 			return 0;
+		} else if (ret == -ENOMSG) {
+			/* Handle "bad CRC" case */
+			if (best_prio == -1)
+				best_prio = prio;
+		} else {
+			debug("Failed (%d)\n", ret);
 		}
 	}
 
 	/*
 	 * In case of invalid environment, we set the 'default' env location
-	 * to the highest priority. In this way, next calls to env_save()
-	 * will restore the environment at the right place.
+	 * to the best choice, i.e.:
+	 *   1. Environment location with bad CRC, if such location was found
+	 *   2. Otherwise use the location with highest priority
+	 *
+	 * This way, next calls to env_save() will restore the environment
+	 * at the right place.
 	 */
-	env_get_location(ENVOP_LOAD, 0);
+	if (best_prio >= 0)
+		debug("Selecting environment with bad CRC\n");
+	else
+		best_prio = 0;
+	env_get_location(ENVOP_LOAD, best_prio);
 
 	return -ENODEV;
 }
