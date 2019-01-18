@@ -108,11 +108,6 @@
 # define PHY_ANEG_TIMEOUT       20000
 #endif
 
-/* I2C */
-#if defined(CONFIG_SYS_I2C_ZYNQ)
-# define CONFIG_SYS_I2C
-#endif
-
 /* EEPROM */
 #ifdef CONFIG_ZYNQMP_EEPROM
 # define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2

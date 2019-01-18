@@ -11,7 +11,4 @@
 
 #include <configs/xilinx_zynqmp_zcu104.h>
 
-#define CONFIG_ZYNQ_GEM_EEPROM_ADDR 0x54
-#define CONFIG_ZYNQ_EEPROM_BUS 1
-
 #endif /* __CONFIG_ZYNQMP_ZCU104_REVC_H */

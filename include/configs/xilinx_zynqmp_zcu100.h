@@ -9,21 +9,6 @@
 #ifndef __CONFIG_ZYNQMP_ZCU100_H
 #define __CONFIG_ZYNQMP_ZCU100_H
 
-/* FIXME Will go away soon */
-#define CONFIG_SYS_I2C_MAX_HOPS		1
-#define CONFIG_SYS_NUM_I2C_BUSES	9
-#define CONFIG_SYS_I2C_BUSES	{ \
-				{0, {I2C_NULL_HOP} }, \
-				{0, {{I2C_MUX_PCA9548, 0x75, 0} } }, \
-				{0, {{I2C_MUX_PCA9548, 0x75, 1} } }, \
-				{0, {{I2C_MUX_PCA9548, 0x75, 2} } }, \
-				{0, {{I2C_MUX_PCA9548, 0x75, 3} } }, \
-				{0, {{I2C_MUX_PCA9548, 0x75, 4} } }, \
-				{0, {{I2C_MUX_PCA9548, 0x75, 5} } }, \
-				{0, {{I2C_MUX_PCA9548, 0x75, 6} } }, \
-				{0, {{I2C_MUX_PCA9548, 0x75, 7} } }, \
-				}
-
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZCU100_H */

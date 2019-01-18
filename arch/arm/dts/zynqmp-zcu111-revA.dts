@@ -35,6 +35,7 @@
 	chosen {
 		bootargs = "earlycon";
 		stdout-path = "serial0:115200n8";
+		xlnx,eeprom = &eeprom;
 	};
 
 	memory@0 {
