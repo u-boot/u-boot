@@ -1,6 +1,7 @@
 config CLK_SUNXI
 	bool "Clock support for Allwinner SoCs"
 	depends on CLK && ARCH_SUNXI
+	select DM_RESET
 	default y
 	help
 	  This enables support for common clock driver API on Allwinner
