@@ -35,15 +35,20 @@ struct pass_over_info_t *get_pass_over_info(void)
 
 int arch_cpu_init(void)
 {
-	struct pass_over_info_t *pass_over = get_pass_over_info();
+#ifdef CONFIG_SPL_BUILD
+	struct pass_over_info_t *pass_over;
 
-	if (pass_over && pass_over->g_ap_mu == 0) {
-		/*
-		 * When ap_mu is 0, means the U-Boot booted
-		 * from first container
-		 */
-		sc_misc_boot_status(-1, SC_MISC_BOOT_STATUS_SUCCESS);
+	if (is_soc_rev(CHIP_REV_A)) {
+		pass_over = get_pass_over_info();
+		if (pass_over && pass_over->g_ap_mu == 0) {
+			/*
+			 * When ap_mu is 0, means the U-Boot booted
+			 * from first container
+			 */
+			sc_misc_boot_status(-1, SC_MISC_BOOT_STATUS_SUCCESS);
+		}
 	}
+#endif
 
 	return 0;
 }
@@ -507,15 +512,6 @@ err:
 	printf("%s: fuse %d, err: %d\n", __func__, word[i], ret);
 }
 
-#if CONFIG_IS_ENABLED(CPU)
-struct cpu_imx_platdata {
-	const char *name;
-	const char *rev;
-	const char *type;
-	u32 cpurev;
-	u32 freq_mhz;
-};
-
 u32 get_cpu_rev(void)
 {
 	u32 id = 0, rev = 0;
@@ -530,6 +526,15 @@ u32 get_cpu_rev(void)
 
 	return (id << 12) | rev;
 }
+
+#if CONFIG_IS_ENABLED(CPU)
+struct cpu_imx_platdata {
+	const char *name;
+	const char *rev;
+	const char *type;
+	u32 cpurev;
+	u32 freq_mhz;
+};
 
 const char *get_imx8_type(u32 imxtype)
 {
