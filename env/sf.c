@@ -98,7 +98,7 @@ static int spi_flash_read_env(struct spi_flash *flash, u32 offset, size_t len,
 	u32 addr = 0;
 	u32 page_size = flash->page_size;
 
-	memset(buf, 0x0, len);
+	memset(buf, 0xff, len);
 	for (int i = 0; i < len / page_size; ++i) {
 		int ret = spi_flash_read(flash, offset, page_size,
 					 &((char *)buf)[addr]);

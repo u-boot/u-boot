@@ -213,7 +213,7 @@ config PHYS_64BIT
 	help
 	  Say Y here to support 64bit physical memory address.
 	  This can be used not only for 64bit SoCs, but also for
-	  large physical address extention on 32bit SoCs.
+	  large physical address extension on 32bit SoCs.
 
 config BUILD_ROM
 	bool "Build U-Boot as BIOS replacement"

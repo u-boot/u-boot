@@ -608,7 +608,7 @@ config SPL_PAYLOAD
 	default "tpl/u-boot-with-tpl.bin" if TPL
 	default "u-boot.bin"
 	help
-	  Payload for SPL boot. For backward compability, default to
+	  Payload for SPL boot. For backward compatibility, default to
 	  u-boot.bin, i.e. RAW image without any header. In case of
 	  TPL, tpl/u-boot-with-tpl.bin. For new boards, suggest to
 	  use u-boot.img.
