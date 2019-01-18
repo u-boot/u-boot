@@ -230,6 +230,7 @@ config BUILD_TARGET
 	default "u-boot-spl.kwb" if ARCH_MVEBU && SPL_BUILD
 	default "u-boot-elf.srec" if RCAR_GEN3
 	default "u-boot.itb" if SPL_LOAD_FIT && ARCH_SUNXI
+	default "u-boot.kwb" if KIRKWOOD
 	help
 	  Some SoCs need special image types (e.g. U-Boot binary
 	  with a special header) as build targets. By defining
