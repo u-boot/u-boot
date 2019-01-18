@@ -11,4 +11,8 @@
 #define PERF_SOFT_RST_SOFT_SWC_RST                        BIT(1)
 #define PERF_SOFT_RST_SOFT_CHIP_RST                       BIT(0)
 
+#define GPIO_ALT(x)				(0x88 + 4 * (x))
+
+#define CHIP_ID					(0x08)
+
 #endif

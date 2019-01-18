@@ -1,0 +1,60 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2018 Microsemi Corporation
+ */
+
+/dts-v1/;
+#include "mscc,jr2.dtsi"
+
+/ {
+	model = "Serval2 NID PCB112 Reference Board";
+	compatible = "mscc,serval2-pcb110", "mscc,jr2";
+
+	aliases {
+		spi0 = &spi0;
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		status_green {
+			label = "pcb110:green:status";
+			gpios = <&gpio 12 0>;
+			default-state = "on";
+		};
+
+		status_red {
+			label = "pcb110:red:status";
+			gpios = <&gpio 13 0>;
+			default-state = "off";
+		};
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&spi0 {
+	status = "okay";
+	spi-flash@0 {
+		compatible = "spi-flash";
+		spi-max-frequency = <18000000>; /* input clock */
+		reg = <0>; /* CS0 */
+	};
+};
+
+&sgpio {
+	status = "okay";
+	sgpio-ports = <0x0000ffff>;
+};
+
+&sgpio2 {
+	status = "okay";
+	sgpio-ports = <0x3fe0ffff>;
+};

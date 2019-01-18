@@ -99,12 +99,16 @@ config LPC32XX_GPIO
 	help
 	  Support for the LPC32XX GPIO driver.
 
-config MSCC_BITBANG_SPI_GPIO
-	bool "Microsemi bitbang spi GPIO driver"
+config MSCC_SGPIO
+	bool "Microsemi Serial GPIO driver"
 	depends on DM_GPIO && SOC_VCOREIII
 	help
-	  Support controlling the GPIO used for SPI bitbang by software. Can
-	  be used by the VCoreIII SoCs, but it was mainly useful for Luton.
+	  Support for the VCoreIII SoC serial GPIO device. By using a
+          serial interface, the SIO controller significantly extends
+          the number of available GPIOs with a minimum number of
+          additional pins on the device. The primary purpose of the
+          SIO controller is to connect control signals from SFP
+          modules and to act as an LED controller.
 
 config MSM_GPIO
 	bool "Qualcomm GPIO driver"

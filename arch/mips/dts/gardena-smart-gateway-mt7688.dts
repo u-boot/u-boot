@@ -34,7 +34,7 @@
 		power_green {
 			label = "smartgw:power:green";
 			gpios = <&gpio0 19 GPIO_ACTIVE_HIGH>;
-			default-state = "off";
+			default-state = "on";
 		};
 
 		power_red {

@@ -18,4 +18,6 @@
 
 #define PERF_GPIO_OE                                      0x44
 
+#define GPIO_ALT(x)				(0x54 + 4 * (x))
+
 #endif

@@ -523,9 +523,14 @@ F:	arch/mips/mach-mscc/
 F:	arch/mips/dts/luton*
 F:	arch/mips/dts/mscc*
 F:	arch/mips/dts/ocelot*
+F:	arch/mips/dts/jr2*
+F:	arch/mips/dts/serval*
 F:	board/mscc/
 F:	configs/mscc*
+F:	drivers/gpio/mscc_sgpio.c
+F:	drivers/spi/mscc_bb_spi.c
 F:	include/configs/vcoreiii.h
+F:	drivers/pinctrl/mscc/
 
 MIPS JZ4780
 M:	Ezequiel Garcia <ezequiel@collabora.com>

@@ -9,4 +9,80 @@
 / {
 	model = "Ocelot PCB120 Reference Board";
 	compatible = "mscc,ocelot-pcb120", "mscc,ocelot";
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		poe_green {
+			label = "pcb120:green:poe";
+			gpios = <&sgpio 44 1>; /* p12.1 */
+			default-state = "off";
+		};
+
+		poe_red {
+			label = "pcb120:red:poe";
+			gpios = <&sgpio 12 1>; /* p12.0 */
+			default-state = "off";
+		};
+
+		alarm_green {
+			label = "pcb120:green:alarm";
+			gpios = <&sgpio 45 1>; /* p13.1 */
+			default-state = "off";
+		};
+
+		alarm_red {
+			label = "pcb120:red:alarm";
+			gpios = <&sgpio 13 1>; /* p13.0 */
+			default-state = "off";
+		};
+
+		dc_a_green {
+			label = "pcb120:green:dc_a";
+			gpios = <&sgpio 46 1>; /* p14.1 */
+			default-state = "off";
+		};
+
+		dc_a_red {
+			label = "pcb120:red:dc_a";
+			gpios = <&sgpio 14 1>; /* p14.0 */
+			default-state = "off";
+		};
+
+		dc_b_green {
+			label = "pcb120:green:dc_b";
+			gpios = <&sgpio 47 1>; /* p15.1 */
+			default-state = "off";
+		};
+
+		dc_b_red {
+			label = "pcb120:red:dc_b";
+			gpios = <&sgpio 15 1>; /* p15.0 */
+			default-state = "off";
+		};
+
+		status_green {
+			label = "pcb120:green:status";
+			gpios = <&sgpio 48 1>; /* p16.1 */
+			default-state = "on";
+		};
+
+		status_red {
+			label = "pcb120:red:alarm";
+			gpios = <&sgpio 16 1>; /* p16.0 */
+			default-state = "off";
+		};
+
+	};
+
 };
+
+&sgpio {
+	status = "okay";
+	mscc,sgpio-ports = <0x000FFFFF>;
+};
+

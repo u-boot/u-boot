@@ -65,13 +65,13 @@ err_out:
 	return err;
 }
 
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 ulong mmc_berase(struct udevice *dev, lbaint_t start, lbaint_t blkcnt)
 #else
 ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 #endif
 {
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
 #endif
 	int dev_num = block_dev->devnum;
@@ -183,7 +183,7 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	return blkcnt;
 }
 
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 ulong mmc_bwrite(struct udevice *dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src)
 #else
@@ -191,7 +191,7 @@ ulong mmc_bwrite(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt,
 		 const void *src)
 #endif
 {
-#ifdef CONFIG_BLK
+#if CONFIG_IS_ENABLED(BLK)
 	struct blk_desc *block_dev = dev_get_uclass_platdata(dev);
 #endif
 	int dev_num = block_dev->devnum;

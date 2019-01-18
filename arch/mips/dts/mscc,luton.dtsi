@@ -25,6 +25,11 @@
 		serial0 = &uart0;
 	};
 
+	sys_clk: sys-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <250000000>;
+	};
 	ahb_clk: ahb-clk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -57,28 +62,32 @@
 			#gpio-cells = <2>;
 			gpio-ranges = <&gpio 0 0 32>;
 
+			sgpio_pins: sgpio-pins {
+				pins = "GPIO_0", "GPIO_1", "GPIO_2", "GPIO_3";
+				function = "sio";
+			};
 			uart_pins: uart-pins {
 				pins = "GPIO_30", "GPIO_31";
 				function = "uart";
 			};
-
 		};
 
-		gpio_spi_bitbang: gpio@10000064 {
-			compatible = "mscc,spi-bitbang-gpio";
-			reg = <0x10000064 0x4>;
+		sgpio: gpio@70130 {
+			compatible = "mscc,luton-sgpio";
+			status = "disabled";
+			clocks = <&sys_clk>;
+			pinctrl-0 = <&sgpio_pins>;
+			pinctrl-names = "default";
+			reg = <0x0070130 0x100>;
 			gpio-controller;
 			#gpio-cells = <2>;
-
+			gpio-ranges = <&sgpio 0 0 64>;
 		};
 
 		spi0: spi-bitbang {
-			compatible = "spi-gpio";
+			compatible = "mscc,luton-bb-spi";
 			status = "okay";
-			gpio-sck = <&gpio_spi_bitbang 6 0>;
-			gpio-miso = <&gpio_spi_bitbang 0 0>;
-			gpio-mosi = <&gpio_spi_bitbang 5 0>;
-			cs-gpios = <&gpio_spi_bitbang 1 0>;
+			reg = <0x10000064 0x4>;
 			num-chipselects = <1>;
 			#address-cells = <1>;
 			#size-cells = <0>;

@@ -294,6 +294,13 @@ config SOFT_SPI
 	 Enable Soft SPI driver. This driver is to use GPIO simulate
 	 the SPI protocol.
 
+config MSCC_BB_SPI
+	bool "MSCC bitbang SPI driver"
+	depends on SOC_VCOREIII
+	help
+	  Enable MSCC bitbang SPI driver. This driver can be used on
+	  MSCC SOCs.
+
 config CF_SPI
 	bool "ColdFire SPI driver"
 	help
