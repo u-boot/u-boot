@@ -13,7 +13,6 @@
 #define CONFIG_KW88F6281	1	/* SOC Name */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
-#define CONFIG_BUILD_TARGET	"u-boot.kwb"
 
 /* additions for new ARM relocation support */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000

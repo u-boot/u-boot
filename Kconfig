@@ -224,6 +224,19 @@ config BUILD_ROM
 	  which are not shipped in the U-Boot source tree.
 	  Please, see doc/README.x86 for details.
 
+config BUILD_TARGET
+	string "Build target special images"
+	default "u-boot-with-spl.sfp" if ARCH_SOCFPGA
+	default "u-boot-spl.kwb" if ARCH_MVEBU && SPL_BUILD
+	default "u-boot-elf.srec" if RCAR_GEN3
+	default "u-boot.itb" if SPL_LOAD_FIT && ARCH_SUNXI
+	help
+	  Some SoCs need special image types (e.g. U-Boot binary
+	  with a special header) as build targets. By defining
+	  CONFIG_BUILD_TARGET in the SoC / board header, this
+	  special image will be automatically built upon calling
+	  make / buildman.
+
 endmenu		# General setup
 
 menu "Boot images"

@@ -14,9 +14,6 @@
 
 #define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
-/* add target to build it automatically upon "make" */
-#define CONFIG_BUILD_TARGET		"u-boot-with-spl.sfp"
-
 /*
  * Memory configurations
  */

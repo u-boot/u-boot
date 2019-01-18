@@ -13,9 +13,6 @@
 #define CONFIG_KW88F6281	1	/* SOC Name */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
-/* Add target to build it automatically upon "make" */
-#define CONFIG_BUILD_TARGET     "u-boot.kwb"
-
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
