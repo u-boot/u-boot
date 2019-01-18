@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <charset.h>
 #include <efi_loader.h>
+#include <hexdump.h>
 
 #define READ_ONLY BIT(31)
 
@@ -45,45 +46,6 @@
  */
 
 #define PREFIX_LEN (strlen("efi_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_"))
-
-static int hex(int ch)
-{
-	if (ch >= 'a' && ch <= 'f')
-		return ch-'a'+10;
-	if (ch >= '0' && ch <= '9')
-		return ch-'0';
-	if (ch >= 'A' && ch <= 'F')
-		return ch-'A'+10;
-	return -1;
-}
-
-static int hex2mem(u8 *mem, const char *hexstr, int size)
-{
-	int nibble;
-	int i;
-
-	for (i = 0; i < size; i++) {
-		if (*hexstr == '\0')
-			break;
-
-		nibble = hex(*hexstr);
-		if (nibble < 0)
-			return -1;
-
-		*mem = nibble;
-		hexstr++;
-
-		nibble = hex(*hexstr);
-		if (nibble < 0)
-			return -1;
-
-		*mem = (*mem << 4) | nibble;
-		hexstr++;
-		mem++;
-	}
-
-	return i;
-}
 
 static char *mem2hex(char *hexstr, const u8 *mem, int count)
 {
@@ -195,7 +157,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 	in_size = *data_size;
 
 	if ((s = prefix(val, "(blob)"))) {
-		unsigned len = strlen(s);
+		size_t len = strlen(s);
 
 		/* number of hexadecimal digits must be even */
 		if (len & 1)
@@ -211,7 +173,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 		if (!data)
 			return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-		if (hex2mem(data, s, len) != len)
+		if (hex2bin(data, s, len))
 			return EFI_EXIT(EFI_DEVICE_ERROR);
 
 		debug("%s: got value: \"%s\"\n", __func__, s);
