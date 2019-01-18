@@ -64,29 +64,24 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_POWER
-#define I2C_PMIC       0
-static struct pmic *pfuze;
+#ifdef CONFIG_DM_PMIC
 int power_init_board(void)
 {
-	int ret;
-	unsigned int reg, rev_id;
+	struct udevice *dev;
+	int ret, dev_id, rev_id;
 
-	ret = power_pfuze3000_init(I2C_PMIC);
-	if (ret)
+	ret = pmic_get("pfuze3000", &dev);
+	if (ret == -ENODEV)
+		return 0;
+	if (ret != 0)
 		return ret;
 
-	pfuze = pmic_get("PFUZE3000");
-	ret = pmic_probe(pfuze);
-	if (ret)
-		return ret;
-
-	pmic_reg_read(pfuze, PFUZE3000_DEVICEID, &reg);
-	pmic_reg_read(pfuze, PFUZE3000_REVID, &rev_id);
-	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", reg, rev_id);
+	dev_id = pmic_reg_read(dev, PFUZE3000_DEVICEID);
+	rev_id = pmic_reg_read(dev, PFUZE3000_REVID);
+	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", dev_id, rev_id);
 
 	/* disable Low Power Mode during standby mode */
-	pmic_reg_write(pfuze, PFUZE3000_LDOGCTL, 0x1);
+	pmic_clrsetbits(dev, PFUZE3000_LDOGCTL, 0, 1);
 
 	return 0;
 }

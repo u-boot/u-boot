@@ -129,12 +129,6 @@
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
 
-/* PMIC */
-#define CONFIG_POWER
-#define CONFIG_POWER_I2C
-#define CONFIG_POWER_PFUZE3000
-#define CONFIG_POWER_PFUZE3000_I2C_ADDR	0x08
-
 /* environment organization */
 #define CONFIG_ENV_SIZE			SZ_8K
 
