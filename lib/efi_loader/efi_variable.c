@@ -47,19 +47,6 @@
 
 #define PREFIX_LEN (strlen("efi_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_"))
 
-static char *mem2hex(char *hexstr, const u8 *mem, int count)
-{
-	static const char hexchars[] = "0123456789abcdef";
-
-	while (count-- > 0) {
-		u8 ch = *mem++;
-		*hexstr++ = hexchars[ch >> 4];
-		*hexstr++ = hexchars[ch & 0xf];
-	}
-
-	return hexstr;
-}
-
 static efi_status_t efi_to_native(char **native, const u16 *variable_name,
 				  const efi_guid_t *vendor)
 {
@@ -282,7 +269,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 
 	/* store payload: */
 	s += sprintf(s, "(blob)");
-	s = mem2hex(s, data, data_size);
+	s = bin2hex(s, data, data_size);
 	*s = '\0';
 
 	debug("%s: setting: %s=%s\n", __func__, native_name, val);
