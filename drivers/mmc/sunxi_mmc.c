@@ -658,7 +658,8 @@ static int sunxi_mmc_probe(struct udevice *dev)
 		return ret;
 
 	/* This GPIO is optional */
-	if (!gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
+	if (!dev_read_bool(dev, "non-removable") &&
+	    !gpio_request_by_name(dev, "cd-gpios", 0, &priv->cd_gpio,
 				  GPIOD_IS_IN)) {
 		int cd_pin = gpio_get_number(&priv->cd_gpio);
 
