@@ -104,6 +104,8 @@
         samsung,winid = <0>;
         samsung,interface-mode = <1>;
         samsung,rgb-mode = <0>;
+
+        status = "disable";
     };
 
     backlight: pwm-backlight {
@@ -112,11 +114,14 @@
         pwms = <&pwm 0 1000000>;
         brightness-levels = <0 100 500 1000 1500 2000 2500 2800>;
         default-brightness-level = <7>;
+        status = "diable";
     };
 
     panel {
         compatible = "simple-panel";
         backlight = <&backlight>;
+
+        status = "diable";
     };
 
     sromc {
