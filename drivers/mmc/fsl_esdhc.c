@@ -1545,7 +1545,6 @@ static int fsl_esdhc_get_cd(struct udevice *dev)
 {
 	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
 
-	return true;
 	return esdhc_getcd_common(priv);
 }
 

@@ -29,15 +29,22 @@
 
 #define LS1088ARDB_PB_BOARD            0x4A
 /* Link Definitions */
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_TEXT_BASE
+#else
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_FSL_OCRAM_BASE + 0xfff0)
+#endif
 
 /* Link Definitions */
-
+#ifdef CONFIG_TFABOOT
+#define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
+#else
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_SYS_FSL_QSPI_BASE	0x20000000
 #define CONFIG_ENV_OFFSET		0x300000        /* 3MB */
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FSL_QSPI_BASE + \
 						CONFIG_ENV_OFFSET)
+#endif
 #endif
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -192,6 +199,7 @@ unsigned long long get_qixis_addr(void);
 	"mcinitcmd=fsl_mc start mc 0x580a00000"	\
 	" 0x580e00000 \0"
 
+#ifndef CONFIG_TFABOOT
 #if defined(CONFIG_QSPI_BOOT)
 #define CONFIG_BOOTCOMMAND	"sf probe 0:0;" \
 				"sf read 0x80001000 0xd00000 0x100000;"\
@@ -208,6 +216,7 @@ unsigned long long get_qixis_addr(void);
 				" cp.b $kernel_start $kernel_load" \
 				" $kernel_size && bootm $kernel_load"
 #endif
+#endif /* CONFIG_TFABOOT  */
 #endif
 
 /* Monitor Command Prompt */

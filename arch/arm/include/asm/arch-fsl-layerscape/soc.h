@@ -80,6 +80,9 @@ enum boot_src get_boot_src(void);
 #define SVR_LS1012A		0x870400
 #define SVR_LS1043A		0x879200
 #define SVR_LS1023A		0x879208
+/* LS1043A/LS1023A 23x23 package silicon has different value of VAR_PER */
+#define SVR_LS1043A_P23		0x879202
+#define SVR_LS1023A_P23		0x87920A
 #define SVR_LS1046A		0x870700
 #define SVR_LS1026A		0x870708
 #define SVR_LS1048A		0x870320

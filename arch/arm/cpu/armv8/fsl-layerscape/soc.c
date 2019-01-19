@@ -684,7 +684,7 @@ int qspi_ahb_init(void)
 #endif
 
 #ifdef CONFIG_TFABOOT
-#define MAX_BOOTCMD_SIZE	256
+#define MAX_BOOTCMD_SIZE	512
 
 int fsl_setenv_bootcmd(void)
 {
@@ -812,6 +812,17 @@ int board_late_init(void)
 		fsl_setenv_bootcmd();
 		fsl_setenv_mcinitcmd();
 	}
+
+	/*
+	 * If the boot mode is secure, default environment is not present then
+	 * setenv command needs to be run by default
+	 */
+#ifdef CONFIG_CHAIN_OF_TRUST
+	if ((fsl_check_boot_mode_secure() == 1)) {
+		fsl_setenv_bootcmd();
+		fsl_setenv_mcinitcmd();
+	}
+#endif
 #endif
 #ifdef CONFIG_QSPI_AHB_INIT
 	qspi_ahb_init();

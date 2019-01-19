@@ -834,6 +834,11 @@ int get_dpl_apply_status(void)
 	return mc_dpl_applied;
 }
 
+int is_lazy_dpl_addr_valid(void)
+{
+	return !!mc_lazy_dpl_addr;
+}
+
 /*
  * Return the MC address of private DRAM block.
  * As per MC design document, MC initial base address

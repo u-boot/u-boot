@@ -9,8 +9,11 @@ F:	configs/ls2080ardb_nand_defconfig
 
 LS2088A_QSPI-boot BOARD
 M:	Priyanka Jain <priyanka.jain@nxp.com>
+M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
 S:	Maintained
 F:	configs/ls2088ardb_qspi_defconfig
+F:	configs/ls2088ardb_tfa_defconfig
+F:	configs/ls2088ardb_tfa_SECURE_BOOT_defconfig
 
 LS2081ARDB BOARD
 M:	Priyanka Jain <priyanka.jain@nxp.com>

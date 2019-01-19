@@ -225,6 +225,9 @@ static int ls_pcie_addr_valid(struct ls_pcie *pcie, pci_dev_t bdf)
 {
 	struct udevice *bus = pcie->bus;
 
+	if (pcie->mode == PCI_HEADER_TYPE_NORMAL)
+		return -ENODEV;
+
 	if (!pcie->enabled)
 		return -ENXIO;
 
@@ -438,9 +441,7 @@ static int ls_pcie_probe(struct udevice *dev)
 	struct ls_pcie *pcie = dev_get_priv(dev);
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
-	u8 header_type;
 	u16 link_sta;
-	bool ep_mode;
 	uint svr;
 	int ret;
 	fdt_size_t cfg_size;
@@ -524,15 +525,15 @@ static int ls_pcie_probe(struct udevice *dev)
 	      (unsigned long)pcie->ctrl, (unsigned long)pcie->cfg0,
 	      pcie->big_endian);
 
-	header_type = readb(pcie->dbi + PCI_HEADER_TYPE);
-	ep_mode = (header_type & 0x7f) == PCI_HEADER_TYPE_NORMAL;
-	printf("PCIe%u: %s %s", pcie->idx, dev->name,
-	       ep_mode ? "Endpoint" : "Root Complex");
+	pcie->mode = readb(pcie->dbi + PCI_HEADER_TYPE) & 0x7f;
 
-	if (ep_mode)
-		ls_pcie_setup_ep(pcie);
-	else
-		ls_pcie_setup_ctrl(pcie);
+	if (pcie->mode == PCI_HEADER_TYPE_NORMAL) {
+		printf("PCIe%u: %s %s", pcie->idx, dev->name, "Endpoint");
+			ls_pcie_setup_ep(pcie);
+	} else {
+		printf("PCIe%u: %s %s", pcie->idx, dev->name, "Root Complex");
+			ls_pcie_setup_ctrl(pcie);
+	}
 
 	if (!ls_pcie_link_up(pcie)) {
 		/* Let the user know there's no PCIe link */
