@@ -18,30 +18,6 @@ static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
 static const efi_guid_t smbios_guid = SMBIOS_TABLE_GUID;
 
 /**
- * hw_memcmp() - compare memory areas
- *
- * @buf1:	pointer to first area
- * @buf2:	pointer to second area
- * @length:	number of bytes to compare
- * Return:	0 if both memory areas are the same, otherwise the sign of the
- *		result value is the same as the sign of ghe difference between
- *		the first differing pair of bytes taken as u8.
- */
-static int hw_memcmp(const void *buf1, const void *buf2, size_t length)
-{
-	const u8 *pos1 = buf1;
-	const u8 *pos2 = buf2;
-
-	for (; length; --length) {
-		if (*pos1 != *pos2)
-			return *pos1 - *pos2;
-		++pos1;
-		++pos2;
-	}
-	return 0;
-}
-
-/**
  * efi_main() - entry point of the EFI application.
  *
  * @handle:	handle of the loaded image
@@ -88,16 +64,16 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 	}
 	/* Find configuration tables */
 	for (i = 0; i < systable->nr_tables; ++i) {
-		if (!hw_memcmp(&systable->tables[i].guid, &fdt_guid,
-			       sizeof(efi_guid_t)))
+		if (!memcmp(&systable->tables[i].guid, &fdt_guid,
+			    sizeof(efi_guid_t)))
 			con_out->output_string
 					(con_out, L"Have device tree\r\n");
-		if (!hw_memcmp(&systable->tables[i].guid, &acpi_guid,
-			       sizeof(efi_guid_t)))
+		if (!memcmp(&systable->tables[i].guid, &acpi_guid,
+			    sizeof(efi_guid_t)))
 			con_out->output_string
 					(con_out, L"Have ACPI 2.0 table\r\n");
-		if (!hw_memcmp(&systable->tables[i].guid, &smbios_guid,
-			       sizeof(efi_guid_t)))
+		if (!memcmp(&systable->tables[i].guid, &smbios_guid,
+			    sizeof(efi_guid_t)))
 			con_out->output_string
 					(con_out, L"Have SMBIOS table\r\n");
 	}
