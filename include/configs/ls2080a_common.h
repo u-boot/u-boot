@@ -10,7 +10,6 @@
 #define CONFIG_REMAKE_ELF
 #define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_GICV3
-#define CONFIG_FSL_TZPC_BP147
 
 #include <asm/arch/stream_id_lsch3.h>
 #include <asm/arch/config.h>

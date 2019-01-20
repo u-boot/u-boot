@@ -113,6 +113,8 @@ config ARCH_LS1088A
 	select SYS_FSL_SRDS_1
 	select SYS_FSL_SRDS_2
 	select FSL_TZASC_1
+	select FSL_TZASC_400
+	select FSL_TZPC_BP147
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
@@ -145,6 +147,8 @@ config ARCH_LS2080A
 	select SYS_FSL_SRDS_2
 	select FSL_TZASC_1
 	select FSL_TZASC_2
+	select FSL_TZASC_400
+	select FSL_TZPC_BP147
 	select SYS_FSL_ERRATUM_A008336 if !TFABOOT
 	select SYS_FSL_ERRATUM_A008511 if !TFABOOT
 	select SYS_FSL_ERRATUM_A008514 if !TFABOOT
@@ -410,6 +414,11 @@ config FSL_TZASC_1
 config FSL_TZASC_2
 	bool
 
+config FSL_TZASC_400
+	bool
+
+config FSL_TZPC_BP147
+	bool
 endmenu
 
 menu "Layerscape clock tree configuration"
