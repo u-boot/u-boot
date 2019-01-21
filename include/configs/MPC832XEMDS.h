@@ -21,7 +21,6 @@
  * DDR Setup
  */
 #define CONFIG_SYS_SDRAM_BASE	0x00000000	/* DDR is system memory */
-#define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_DDRCDR	0x73000002	/* DDR II voltage is 1.8V */
 
 #undef CONFIG_SPD_EEPROM

@@ -33,7 +33,7 @@ static long fixed_sdram(void)
 	u32 msize_log2 = __ilog2(msize);
 
 	out_be32(&im->sysconf.ddrlaw[0].bar,
-			CONFIG_SYS_DDR_SDRAM_BASE  & 0xfffff000);
+			CONFIG_SYS_SDRAM_BASE  & 0xfffff000);
 	out_be32(&im->sysconf.ddrlaw[0].ar, LBLAWAR_EN | (msize_log2 - 1));
 	out_be32(&im->sysconf.ddrcdr, CONFIG_SYS_DDRCDR_VALUE);
 
@@ -61,7 +61,7 @@ static long fixed_sdram(void)
 	setbits_be32(&im->ddr.sdram_cfg, SDRAM_CFG_MEM_EN);
 	sync();
 
-	return get_ram_size(CONFIG_SYS_DDR_SDRAM_BASE, msize);
+	return get_ram_size(CONFIG_SYS_SDRAM_BASE, msize);
 }
 
 int dram_init(void)

@@ -52,7 +52,6 @@
  * DDR Setup
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_SDRAM_BASE
 
 /*
  * Manually set up DDR parameters,

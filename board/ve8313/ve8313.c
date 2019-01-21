@@ -38,7 +38,7 @@ static long fixed_sdram(void)
 	u32 msize_log2 = __ilog2(msize);
 
 	out_be32(&im->sysconf.ddrlaw[0].bar,
-		(CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000));
+		(CONFIG_SYS_SDRAM_BASE & 0xfffff000));
 	out_be32(&im->sysconf.ddrlaw[0].ar, (LBLAWAR_EN | (msize_log2 - 1)));
 	out_be32(&im->sysconf.ddrcdr, CONFIG_SYS_DDRCDR_VALUE);
 
@@ -48,12 +48,12 @@ static long fixed_sdram(void)
 	 */
 	__udelay(50000);
 
-#if ((CONFIG_SYS_DDR_SDRAM_BASE & 0x00FFFFFF) != 0)
+#if ((CONFIG_SYS_SDRAM_BASE & 0x00FFFFFF) != 0)
 #warning Chip select bounds is only configurable in 16MB increments
 #endif
 	out_be32(&im->ddr.csbnds[0].csbnds,
-		((CONFIG_SYS_DDR_SDRAM_BASE >> CSBNDS_SA_SHIFT) & CSBNDS_SA) |
-		(((CONFIG_SYS_DDR_SDRAM_BASE + msize - 1) >> CSBNDS_EA_SHIFT) &
+		((CONFIG_SYS_SDRAM_BASE >> CSBNDS_SA_SHIFT) & CSBNDS_SA) |
+		(((CONFIG_SYS_SDRAM_BASE + msize - 1) >> CSBNDS_EA_SHIFT) &
 			CSBNDS_EA));
 	out_be32(&im->ddr.cs_config[0], CONFIG_SYS_DDR_CS0_CONFIG);
 

@@ -57,7 +57,7 @@ int fixed_sdram(unsigned long config)
 	u32 msize_log2 = __ilog2(msize);
 
 	out_be32(&im->sysconf.ddrlaw[0].bar,
-		 (CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000));
+		 (CONFIG_SYS_SDRAM_BASE & 0xfffff000));
 	out_be32(&im->sysconf.ddrlaw[0].ar, LBLAWAR_EN | (msize_log2 - 1));
 	out_be32(&im->sysconf.ddrcdr, CONFIG_SYS_DDRCDR_VALUE);
 	sync();

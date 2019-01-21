@@ -91,7 +91,7 @@ int fixed_sdram(void)
 	u32 ddr_size = msize << 20;	/* DDR size in bytes */
 	u32 ddr_size_log2 = __ilog2(ddr_size);
 
-	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_SDRAM_BASE & 0xfffff000;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_SDRAM_BASE & 0xfffff000;
 	im->sysconf.ddrlaw[0].ar = LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
 
 #if (CONFIG_SYS_DDR_SIZE != 256)
@@ -112,12 +112,12 @@ int fixed_sdram(void)
 	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
 #else
 
-#if ((CONFIG_SYS_DDR_SDRAM_BASE & 0x00FFFFFF) != 0)
+#if ((CONFIG_SYS_SDRAM_BASE & 0x00FFFFFF) != 0)
 #warning Chip select bounds is only configurable in 16MB increments
 #endif
 	im->ddr.csbnds[2].csbnds =
-		((CONFIG_SYS_DDR_SDRAM_BASE >> CSBNDS_SA_SHIFT) & CSBNDS_SA) |
-		(((CONFIG_SYS_DDR_SDRAM_BASE + ddr_size - 1) >>
+		((CONFIG_SYS_SDRAM_BASE >> CSBNDS_SA_SHIFT) & CSBNDS_SA) |
+		(((CONFIG_SYS_SDRAM_BASE + ddr_size - 1) >>
 				CSBNDS_EA_SHIFT) & CSBNDS_EA);
 	im->ddr.cs_config[2] = CONFIG_SYS_DDR_CS2_CONFIG;
 

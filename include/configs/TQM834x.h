@@ -25,7 +25,6 @@
  */
 				/* DDR is system memory*/
 #define CONFIG_SYS_SDRAM_BASE	0x00000000
-#define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_SDRAM_BASE
 #define DDR_CASLAT_25		/* CASLAT set to 2.5 */
 #undef CONFIG_DDR_ECC		/* only for ECC DDR module */
 #undef CONFIG_SPD_EEPROM	/* do not use SPD EEPROM for DDR setup */
