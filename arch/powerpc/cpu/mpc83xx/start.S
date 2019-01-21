@@ -288,6 +288,9 @@ in_flash:
 	/*------------------------------------------------------*/
 
 	GET_GOT			/* initialize GOT access	*/
+	/* Needed for -msingle-pic-base */
+	bl	_GLOBAL_OFFSET_TABLE_@local-4
+	mflr	r30
 
 	/* r3: IMMR */
 	lis	r3, CONFIG_SYS_IMMR@h
