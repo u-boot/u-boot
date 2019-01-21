@@ -17,7 +17,15 @@
 
 #define MAX_NUM_GPIOS (32 * MPC83XX_GPIO_CTRLRS)
 
+struct mpc8xxx_gpio_plat {
+       ulong addr;
+       unsigned long size;
+       uint ngpios;
+};
+
+#ifndef DM_GPIO
 void mpc83xx_gpio_init_f(void);
 void mpc83xx_gpio_init_r(void);
+#endif	/* DM_GPIO */
 
 #endif	/* MPC83XX_GPIO_H_ */
