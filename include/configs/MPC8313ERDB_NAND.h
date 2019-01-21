@@ -170,17 +170,6 @@
 #define CONFIG_SYS_FLASH_SIZE		8	/* flash size in MB */
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* display empty sectors */
 
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_FLASH_BASE \
-					| BR_PS_16	/* 16 bit port */ \
-					| BR_MS_GPCM	/* MSEL = GPCM */ \
-					| BR_V)		/* valid */
-#define CONFIG_SYS_OR1_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_9 \
-				| OR_GPCM_EHTR \
-				| OR_GPCM_EAD)
-				/* 0xFF006FF7	TODO SLOW 16 MB flash size */
-
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	135	/* sectors per device */
 
@@ -230,20 +219,13 @@
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
 #define CONFIG_SYS_NAND_WINDOW_SIZE (32 * 1024)
 
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
-				| BR_PS_8		/* 8 bit port */ \
-				| BR_MS_FCM		/* MSEL = FCM */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR0_PRELIM	\
-				(P2SZ_TO_AM(CONFIG_SYS_NAND_WINDOW_SIZE) \
-				| OR_FCM_CSCT \
-				| OR_FCM_CST \
-				| OR_FCM_CHT \
-				| OR_FCM_SCY_1 \
-				| OR_FCM_TRLX \
-				| OR_FCM_EHTR)
-				/* 0xFFFF8396 */
+/* NAND */
+#define CONFIG_SYS_BR0_PRELIM	(0xE2800000 | BR_DECC_CHK_GEN | BR_PS_8 | BR_MS_FCM | BR_V)
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_32KB | OR_FCM_CSCT | OR_FCM_CST | OR_FCM_CHT | OR_FCM_SCY_1 | OR_FCM_TRLX | OR_FCM_EHTR)
+
+/* FLASH */
+#define CONFIG_SYS_BR1_PRELIM	(0xFE000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_8MB | OR_GPCM_XACS | OR_GPCM_SCY_9 | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
 
 /* Still needed for spl_minimal.c */
 #define CONFIG_SYS_NAND_BR_PRELIM CONFIG_SYS_BR0_PRELIM
@@ -253,20 +235,10 @@
 #define CONFIG_SYS_BCSR_ADDR		0xFA000000
 #define CONFIG_SYS_BCSR_SIZE		(32 * 1024)	/* 0x00008000 */
 					/* map at 0xFA000000 on LCS3 */
-#define CONFIG_SYS_BR3_PRELIM		(CONFIG_SYS_BCSR_ADDR \
-					| BR_PS_8	/* 8 bit port */ \
-					| BR_MS_GPCM	/* MSEL = GPCM */ \
-					| BR_V)		/* valid */
-					/* 0xFA000801 */
-#define CONFIG_SYS_OR3_PRELIM		(OR_AM_32KB \
-					| OR_GPCM_CSNT \
-					| OR_GPCM_ACS_DIV2 \
-					| OR_GPCM_XACS \
-					| OR_GPCM_SCY_15 \
-					| OR_GPCM_TRLX_SET \
-					| OR_GPCM_EHTR_SET \
-					| OR_GPCM_EAD)
-					/* 0xFFFF8FF7 */
+/* BCSR */
+#define CONFIG_SYS_BR3_PRELIM		(0xFA000000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR3_PRELIM		(OR_AM_32KB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
+
 /* Vitesse 7385 */
 
 #ifdef CONFIG_VSC7385_ENET
@@ -275,19 +247,10 @@
 #define CONFIG_SYS_VSC7385_BASE		0xF0000000
 #define CONFIG_SYS_VSC7385_SIZE		(128 * 1024)	/* 0x00020000 */
 
-#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_VSC7385_BASE \
-					| BR_PS_8	/* 8 bit port */ \
-					| BR_MS_GPCM	/* MSEL = GPCM */ \
-					| BR_V)		/* valid */
-#define CONFIG_SYS_OR2_PRELIM		(OR_AM_128KB \
-					| OR_GPCM_CSNT \
-					| OR_GPCM_XACS \
-					| OR_GPCM_SCY_15 \
-					| OR_GPCM_SETA \
-					| OR_GPCM_TRLX_SET \
-					| OR_GPCM_EHTR_SET \
-					| OR_GPCM_EAD)
-					/* 0xFFFE09FF */
+/* VSC7385 */
+#define CONFIG_SYS_BR2_PRELIM		(0xF0000000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR2_PRELIM		(OR_AM_128KB | OR_GPCM_CSNT | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_SETA | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
+
 #endif
 
 #define CONFIG_MPC83XX_GPIO 1

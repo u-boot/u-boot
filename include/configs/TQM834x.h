@@ -76,22 +76,9 @@
 
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* max sectors per device */
 
-/* 32 bit device at 0x80000000 via GPCM (0x8000_1801) */
-#define CONFIG_SYS_BR0_PRELIM	((CONFIG_SYS_FLASH_BASE & BR_BA) \
-				| BR_MS_GPCM \
-				| BR_PS_32 \
-				| BR_V)
-
-/* FLASH timing (0x0000_0c54) */
-#define CONFIG_SYS_OR_TIMING_FLASH	(OR_GPCM_CSNT \
-					| OR_GPCM_ACS_DIV4 \
-					| OR_GPCM_SCY_5 \
-					| OR_GPCM_TRLX)
-
-#define CONFIG_SYS_PRELIM_OR_AM		OR_AM_1GB /* OR addr mask: 1 GiB */
-
-#define CONFIG_SYS_OR0_PRELIM		(CONFIG_SYS_PRELIM_OR_AM  \
-					| CONFIG_SYS_OR_TIMING_FLASH)
+/* FLASH */
+#define CONFIG_SYS_BR0_PRELIM	(0x80000000 | BR_MS_GPCM | BR_PS_32 | BR_V)
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_1GB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV4 | OR_GPCM_SCY_5 | OR_GPCM_TRLX_SET)
 
 /* disable remaining mappings */
 #define CONFIG_SYS_BR1_PRELIM		0x00000000

@@ -179,19 +179,9 @@
 #define CONFIG_SYS_FLASH_BASE		0xFC000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		64 /* FLASH size is 64M */
 
-/* Window base at flash base */
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| BR_PS_16	/* 16 bit port */ \
-				| BR_MS_GPCM	/* MSEL = GPCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(OR_AM_64MB \
-				| OR_UPM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_4 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET)
+/* FLASH */
+#define CONFIG_SYS_BR0_PRELIM	(0xFC000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_64MB | OR_UPM_XAM | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_4 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	512
@@ -205,27 +195,19 @@
  * SJA1000 CAN controller on Local Bus
  */
 #define CONFIG_SYS_SJA1000_BASE	0xFBFF0000
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_SJA1000_BASE \
-				| BR_PS_8	/* 8 bit port size */ \
-				| BR_MS_GPCM	/* MSEL = GPCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB \
-				| OR_GPCM_SCY_5 \
-				| OR_GPCM_EHTR_SET)
-				/* 0xFFFF8052 */
+
+/* SJA1000 */
+#define CONFIG_SYS_BR1_PRELIM	(0xFBFF0000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB | OR_GPCM_SCY_5 | OR_GPCM_EHTR_SET)
 
 /*
  * CPLD on Local Bus
  */
 #define CONFIG_SYS_CPLD_BASE	0xFBFF8000
-#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_CPLD_BASE \
-				| BR_PS_8	/* 8 bit port */ \
-				| BR_MS_GPCM	/* MSEL = GPCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR2_PRELIM	(OR_AM_32KB \
-				| OR_GPCM_SCY_4 \
-				| OR_GPCM_EHTR_SET)
-				/* 0xFFFF8042 */
+
+/* CPLD */
+#define CONFIG_SYS_BR2_PRELIM	(0xFBFF8000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR2_PRELIM	(OR_AM_32KB | OR_GPCM_SCY_4 | OR_GPCM_EHTR_SET)
 
 /*
  * Serial Port

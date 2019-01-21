@@ -123,19 +123,9 @@
 #define CONFIG_SYS_FLASH_BASE		0xFE000000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_SIZE		32	/* max flash size in MB */
 
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| BR_PS_16	/* 16 bit port  */ \
-				| BR_MS_GPCM	/* MSEL = GPCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(OR_AM_32MB \
-				| OR_UPM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
+/* FLASH */
+#define CONFIG_SYS_BR0_PRELIM  (0xFE000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR0_PRELIM  (OR_AM_32MB | OR_UPM_XAM | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	256	/* max sectors per device */
@@ -157,18 +147,9 @@
  */
 #define CONFIG_SYS_BCSR			0xE2400000
 					/* Access window base at BCSR base */
-#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_BCSR \
-					| BR_PS_8 \
-					| BR_MS_GPCM \
-					| BR_V)
-					/* 0x00000801 */
-#define CONFIG_SYS_OR1_PRELIM		(OR_AM_32KB \
-					| OR_GPCM_XAM \
-					| OR_GPCM_CSNT \
-					| OR_GPCM_SCY_15 \
-					| OR_GPCM_TRLX_CLEAR \
-					| OR_GPCM_EHTR_CLEAR)
-					/* 0xFFFFE8F0 */
+/* BCSR */
+#define CONFIG_SYS_BR1_PRELIM          (0xE2400000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR1_PRELIM          (OR_AM_32KB | OR_GPCM_XAM | OR_GPCM_CSNT | OR_GPCM_SCY_15 | OR_GPCM_TRLX_CLEAR | OR_GPCM_EHTR_CLEAR)
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFD000000	/* Initial RAM addr */
@@ -211,11 +192,9 @@
  * 1111 0000 0000 0000 0001 1000 0110 0001 = F0001861
  */
 
-#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_LBC_SDRAM_BASE \
-					| BR_PS_32	/* 32-bit port */ \
-					| BR_MS_SDRAM	/* MSEL = SDRAM */ \
-					| BR_V)		/* Valid */
-					/* 0xF0001861 */
+/* SDRAM */
+#define CONFIG_SYS_BR2_PRELIM	(0xF0000000 | BR_PS_32 | BR_MS_SDRAM | BR_V)
+#define CONFIG_SYS_OR2_PRELIM	(OR_AM_64MB | OR_SDRAM_XAM | ((9 - OR_SDRAM_MIN_COLS) << OR_SDRAM_COLS_SHIFT) | ((13 - OR_SDRAM_MIN_ROWS) << OR_SDRAM_ROWS_SHIFT) | OR_SDRAM_EAD)
 
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
@@ -231,12 +210,6 @@
  * 1111 1100 0000 0000 0110 1001 0000 0001 = FC006901
  */
 
-#define CONFIG_SYS_OR2_PRELIM	(OR_AM_64MB \
-			| OR_SDRAM_XAM \
-			| ((9 - OR_SDRAM_MIN_COLS) << OR_SDRAM_COLS_SHIFT) \
-			| ((13 - OR_SDRAM_MIN_ROWS) << OR_SDRAM_ROWS_SHIFT) \
-			| OR_SDRAM_EAD)
-			/* 0xFC006901 */
 
 				/* LB sdram refresh timer, about 6us */
 #define CONFIG_SYS_LBC_LSRT	0x32000000

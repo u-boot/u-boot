@@ -153,63 +153,25 @@
 #define CONFIG_NAND_FSL_ELBC 1
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
 
+/* FLASH */
+#define CONFIG_SYS_BR0_PRELIM (0xFE000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR0_PRELIM (OR_AM_32MB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV4 | OR_GPCM_SCY_5 | OR_GPCM_TRLX_SET | OR_GPCM_EAD)
 
-#define CONFIG_SYS_BR0_PRELIM (CONFIG_SYS_FLASH_BASE \
-					| BR_PS_16	/* 16 bit */ \
-					| BR_MS_GPCM	/* MSEL = GPCM */ \
-					| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM (OR_AM_32MB \
-					| OR_GPCM_CSNT \
-					| OR_GPCM_ACS_DIV4 \
-					| OR_GPCM_SCY_5 \
-					| OR_GPCM_TRLX_SET \
-					| OR_GPCM_EAD)
-					/* 0xfe000c55 */
-
-#define CONFIG_SYS_BR1_PRELIM (CONFIG_SYS_NAND_BASE \
-					| BR_PS_8		\
-					| BR_DECC_CHK_GEN	\
-					| BR_MS_FCM		\
-					| BR_V)	/* valid */
-					/* 0x61000c21 */
-#define CONFIG_SYS_OR1_PRELIM (OR_AM_32KB \
-					| OR_FCM_BCTLD \
-					| OR_FCM_CHT \
-					| OR_FCM_SCY_2 \
-					| OR_FCM_RST \
-					| OR_FCM_TRLX) /* 0xffff90ac */
+/* NAND */
+#define CONFIG_SYS_BR1_PRELIM (0x61000000 | BR_PS_8 | BR_DECC_CHK_GEN | BR_MS_FCM | BR_V)
+#define CONFIG_SYS_OR1_PRELIM (OR_AM_32KB | OR_FCM_BCTLD | OR_FCM_CHT | OR_FCM_SCY_2 | OR_FCM_RST | OR_FCM_TRLX)
 
 /* Still needed for spl_minimal.c */
 #define CONFIG_SYS_NAND_BR_PRELIM CONFIG_SYS_BR1_PRELIM
 #define CONFIG_SYS_NAND_OR_PRELIM CONFIG_SYS_OR1_PRELIM
 
-/* CS2 NvRAM */
-#define CONFIG_SYS_BR2_PRELIM	(0x60000000 \
-				| BR_PS_8 \
-				| BR_V)
-				/* 0x60000801 */
-#define CONFIG_SYS_OR2_PRELIM	(OR_AM_128KB \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_3 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-				/* 0xfffe0937 */
-/* local bus read write buffer mapping SRAM@0x64000000 */
-#define CONFIG_SYS_BR3_PRELIM	(0x62000000 \
-				| BR_PS_16 \
-				| BR_V)
-				/* 0x62001001 */
+/* NVRAM */
+#define CONFIG_SYS_BR2_PRELIM	(0x60000000 | BR_PS_8 | BR_V)
+#define CONFIG_SYS_OR2_PRELIM	(OR_AM_128KB | OR_GPCM_CSNT | OR_GPCM_XACS | OR_GPCM_SCY_3 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
 
-#define CONFIG_SYS_OR3_PRELIM	(OR_AM_32MB \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-				/* 0xfe0009f7 */
+/* SRAM */
+#define CONFIG_SYS_BR3_PRELIM	(0x62000000 | BR_PS_16 | BR_V)
+#define CONFIG_SYS_OR3_PRELIM	(OR_AM_32MB | OR_GPCM_CSNT | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
 
 /*
  * Serial Port

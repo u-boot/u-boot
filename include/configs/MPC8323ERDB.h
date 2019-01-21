@@ -142,20 +142,9 @@
 #define CONFIG_SYS_FLASH_SIZE		16	/* FLASH size is 16M */
 
 
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| BR_PS_16	/* 16 bit port */ \
-				| BR_MS_GPCM	/* MSEL = GPCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(OR_AM_16MB \
-				| OR_GPCM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-				/* 0xFE006FF7 */
+/* FLASH */
+#define CONFIG_SYS_BR0_PRELIM	(0xFE000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_16MB | OR_GPCM_XAM | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	128	/* sectors per device */

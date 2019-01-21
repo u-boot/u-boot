@@ -162,20 +162,9 @@
 #define CONFIG_SYS_FLASH_BASE	0xFE000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE	32 /* max FLASH size is 32M */
 
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| BR_PS_16	/* 16 bit port */ \
-				| BR_MS_GPCM	/* MSEL = GPCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(OR_AM_32MB \
-				| OR_UPM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-				/* 0xFE000FF7 */
+/* FLASH */
+#define CONFIG_SYS_BR0_PRELIM	(0xFE000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_32MB | OR_UPM_XAM | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	256 /* max sectors per device */
@@ -189,20 +178,9 @@
  */
 #define CONFIG_SYS_BCSR		0xF8000000
 					/* Access window base at BCSR base */
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_BCSR \
-				| BR_PS_8 \
-				| BR_MS_GPCM \
-				| BR_V)
-				/* 0xF8000801 */
-#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB \
-				| OR_GPCM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-				/* 0xFFFFE9F7 */
+/* BCSR */
+#define CONFIG_SYS_BR1_PRELIM	(0xF8000000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB | OR_GPCM_XAM | OR_GPCM_CSNT | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
 
 /*
  * NAND Flash on the Local Bus
@@ -211,20 +189,10 @@
 #define CONFIG_NAND_FSL_ELBC	1
 
 #define CONFIG_SYS_NAND_BASE	0xE0600000
-#define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
-				| BR_PS_8		/* 8 bit port */ \
-				| BR_MS_FCM		/* MSEL = FCM */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR3_PRELIM	(OR_AM_32KB \
-				| OR_FCM_BCTLD \
-				| OR_FCM_CST \
-				| OR_FCM_CHT \
-				| OR_FCM_SCY_1 \
-				| OR_FCM_RST \
-				| OR_FCM_TRLX \
-				| OR_FCM_EHTR)
-				/* 0xFFFF919E */
+
+/* NAND */
+#define CONFIG_SYS_BR3_PRELIM	(0xE0600000 | BR_DECC_CHK_GEN | BR_PS_8 | BR_MS_FCM | BR_V)
+#define CONFIG_SYS_OR3_PRELIM	(OR_AM_32KB | OR_FCM_BCTLD | OR_FCM_CST | OR_FCM_CHT | OR_FCM_SCY_1 | OR_FCM_RST | OR_FCM_TRLX | OR_FCM_EHTR)
 
 /*
  * Serial Port

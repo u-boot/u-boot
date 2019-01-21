@@ -175,19 +175,9 @@
 #define CONFIG_SYS_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		8 /* FLASH size is 8M */
 
-/* Window base at flash base */
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| BR_PS_16	/* 16 bit port */ \
-				| BR_MS_GPCM	/* MSEL = GPCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(OR_AM_8MB \
-				| OR_UPM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET)
+/* FLASH */
+#define CONFIG_SYS_BR0_PRELIM	(0xFE000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_8MB | OR_UPM_XAM | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 /* 127 64KB sectors and 8 8KB top sectors per device */
@@ -201,18 +191,9 @@
  */
 #define CONFIG_SYS_NAND_BASE	0xE0600000		/* 0xE0600000 */
 #define CONFIG_SYS_NAND_WINDOW_SIZE	(32 * 1024)	/* 0x00008000 */
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
-				| BR_PS_8		/* 8 bit Port */ \
-				| BR_MS_FCM		/* MSEL = FCM */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB \
-				| OR_FCM_CSCT \
-				| OR_FCM_CST \
-				| OR_FCM_CHT \
-				| OR_FCM_SCY_1 \
-				| OR_FCM_TRLX \
-				| OR_FCM_EHTR)
+/* NAND */
+#define CONFIG_SYS_BR1_PRELIM	(0xE0600000 | BR_DECC_CHK_GEN	| BR_PS_8 | BR_MS_FCM | BR_V)
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB | OR_FCM_CSCT | OR_FCM_CST | OR_FCM_CHT | OR_FCM_SCY_1 | OR_FCM_TRLX | OR_FCM_EHTR)
 				/* 0xFFFF8396 */
 
 #ifdef CONFIG_VSC7385_ENET
@@ -220,18 +201,9 @@
 					/* VSC7385 Base address on CS2 */
 #define CONFIG_SYS_VSC7385_BASE		0xF0000000
 #define CONFIG_SYS_VSC7385_SIZE		(128 * 1024) /* 0x00020000 */
-#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_VSC7385_BASE \
-					| BR_PS_8	/* 8-bit port */ \
-					| BR_MS_GPCM	/* MSEL = GPCM */ \
-					| BR_V)		/* valid */
-					/* 0xF0000801 */
-#define CONFIG_SYS_OR2_PRELIM		(OR_AM_128KB \
-					| OR_GPCM_CSNT \
-					| OR_GPCM_XACS \
-					| OR_GPCM_SCY_15 \
-					| OR_GPCM_SETA \
-					| OR_GPCM_TRLX_SET \
-					| OR_GPCM_EHTR_SET)
+/* VSC7385_BASE */
+#define CONFIG_SYS_BR2_PRELIM		(0xF0000000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR2_PRELIM		(OR_AM_128KB | OR_GPCM_CSNT | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_SETA | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET)
 					/* 0xFFFE09FF */
 /* The flash address and size of the VSC7385 firmware image */
 #define CONFIG_VSC7385_IMAGE		0xFE7FE000

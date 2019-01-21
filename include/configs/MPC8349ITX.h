@@ -211,56 +211,28 @@ boards, we say we have two, but don't display a message if we find only one. */
  * BRx, ORx, LBLAWBARx, and LBLAWARx
  */
 
-/* Flash */
+/* FLASH */
+#define CONFIG_SYS_BR0_PRELIM	(0xFE000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_16MB | OR_UPM_XAM | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
 
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| BR_PS_16 \
-				| BR_MS_GPCM \
-				| BR_V)
-#define CONFIG_SYS_OR0_PRELIM	(OR_AM_16MB \
-				| OR_UPM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
 /* Vitesse 7385 */
 
 #define CONFIG_SYS_VSC7385_BASE	0xF8000000
 
 #ifdef CONFIG_VSC7385_ENET
 
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_VSC7385_BASE \
-				| BR_PS_8 \
-				| BR_MS_GPCM \
-				| BR_V)
-#define CONFIG_SYS_OR1_PRELIM	(OR_AM_128KB \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_SETA \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
+/* VSC7385 */
+#define CONFIG_SYS_BR1_PRELIM	(0xF8000000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_128KB | OR_GPCM_CSNT | OR_GPCM_XACS | OR_GPCM_SCY_15 | OR_GPCM_SETA | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
+
 #endif
 
-/* LED */
 
 #define CONFIG_SYS_LED_BASE	0xF9000000
-#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_LED_BASE \
-				| BR_PS_8 \
-				| BR_MS_GPCM \
-				| BR_V)
-#define CONFIG_SYS_OR2_PRELIM	(OR_AM_2MB \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_9 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
+
+/* LED */
+#define CONFIG_SYS_BR2_PRELIM	(0xF9000000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR2_PRELIM	(OR_AM_2MB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_XACS | OR_GPCM_SCY_9 | OR_GPCM_TRLX_SET | OR_GPCM_EHTR_SET | OR_GPCM_EAD)
 
 /* Compact Flash */
 
@@ -268,11 +240,9 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_SYS_CF_BASE	0xF0000000
 
-#define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_CF_BASE \
-				| BR_PS_16 \
-				| BR_MS_UPMA \
-				| BR_V)
-#define CONFIG_SYS_OR3_PRELIM	(OR_UPM_AM | OR_UPM_BI)
+/* CF */
+#define CONFIG_SYS_BR3_PRELIM	(0xF0000000 | BR_PS_16 | BR_MS_UPMA | BR_V)
+#define CONFIG_SYS_OR3_PRELIM	(OR_AM_32KB | OR_UPM_BI)
 
 #endif
 

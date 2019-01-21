@@ -112,15 +112,9 @@
  */
 #define CONFIG_SYS_FLASH_SIZE		256 /* max FLASH size is 256M */
 
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE | \
-				BR_PS_16 | /* 16 bit port size */ \
-				BR_MS_GPCM | /* MSEL = GPCM */ \
-				BR_V)
-
-#define CONFIG_SYS_OR0_PRELIM	(OR_AM_256MB | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | \
-				OR_GPCM_SCY_5 | \
-				OR_GPCM_TRLX_SET | OR_GPCM_EAD)
+/* FLASH */
+#define CONFIG_SYS_BR0_PRELIM	(0xF0000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_256MB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_SCY_5 | OR_GPCM_TRLX_SET | OR_GPCM_EAD)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1   /* max num of flash banks	*/
 #define CONFIG_SYS_MAX_FLASH_SECT	512 /* max num of sects on one chip */
@@ -129,15 +123,10 @@
 /*
  * PRIO1/PIGGY on the local bus CS1
  */
-/* Window base at flash base */
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_KMBEC_FPGA_BASE | \
-				BR_PS_8 | /* 8 bit port size */ \
-				BR_MS_GPCM | /* MSEL = GPCM */ \
-				BR_V)
-#define CONFIG_SYS_OR1_PRELIM	(OR_AM_128MB | \
-				OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | \
-				OR_GPCM_SCY_2 | \
-				OR_GPCM_TRLX_SET | OR_GPCM_EAD)
+
+/* KMBEC_FPGA */
+#define CONFIG_SYS_BR1_PRELIM	(0xE8000000 | BR_PS_8 | BR_MS_GPCM | BR_V)
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_128MB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_SCY_2 | OR_GPCM_TRLX_SET | OR_GPCM_EAD)
 
 /*
  * Serial Port
@@ -400,24 +389,13 @@
  *
  */
 
-/*
- * APP1 on the local bus CS2
- */
-#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_APP1_BASE | \
-				 BR_PS_16 | \
-				 BR_MS_UPMA | \
-				 BR_V)
+/* APP1 */
+#define CONFIG_SYS_BR2_PRELIM	(0xA0000000 | BR_PS_16 | BR_MS_UPMA | BR_V)
 #define CONFIG_SYS_OR2_PRELIM	(OR_AM_256MB)
 
-#define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_APP2_BASE | \
-				 BR_PS_16 | \
-				 BR_V)
-
-#define CONFIG_SYS_OR3_PRELIM	(OR_AM_256MB | \
-				 OR_GPCM_CSNT | \
-				 OR_GPCM_ACS_DIV4 | \
-				 OR_GPCM_SCY_3 | \
-				 OR_GPCM_TRLX_SET)
+/* APP2 */
+#define CONFIG_SYS_BR3_PRELIM	(0xB0000000 | BR_PS_16 | BR_V)
+#define CONFIG_SYS_OR3_PRELIM	(OR_AM_256MB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV4 | OR_GPCM_SCY_3 | OR_GPCM_TRLX_SET)
 
 #define CONFIG_SYS_MAMR	(MxMR_GPL_x4DIS | \
 			 0x0000c000 | \
