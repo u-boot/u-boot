@@ -38,10 +38,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_SPL_BUILD) || \
-	(defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_DM_ETH))
-static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
-#endif
 static struct shc_eeprom __attribute__((section(".data"))) header;
 static int shc_eeprom_valid;
 
@@ -254,7 +250,7 @@ static void check_button_status(void)
 	}
 }
 
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#if defined(CONFIG_SPL_BUILD)
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
@@ -274,6 +270,8 @@ static void shc_board_early_init(void)
 # endif
 	leds_set_booting();
 }
+
+static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 #define MPU_SPREADING_PERMILLE 18 /* Spread 1.8 percent */
 #define OSC	(V_OSCK/1000000)
@@ -466,117 +464,13 @@ int board_late_init(void)
 }
 #endif
 
-#ifndef CONFIG_DM_ETH
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
-static void cpsw_control(int enabled)
-{
-	/* VTP can be added here */
-
-	return;
-}
-
-static struct cpsw_slave_data cpsw_slaves[] = {
-	{
-		.slave_reg_ofs	= 0x208,
-		.sliver_reg_ofs	= 0xd80,
-		.phy_addr	= 0,
-	},
-	{
-		.slave_reg_ofs	= 0x308,
-		.sliver_reg_ofs	= 0xdc0,
-		.phy_addr	= 1,
-	},
-};
-
-static struct cpsw_platform_data cpsw_data = {
-	.mdio_base		= CPSW_MDIO_BASE,
-	.cpsw_base		= CPSW_BASE,
-	.mdio_div		= 0xff,
-	.channels		= 8,
-	.cpdma_reg_ofs		= 0x800,
-	.slaves			= 1,
-	.slave_data		= cpsw_slaves,
-	.ale_reg_ofs		= 0xd00,
-	.ale_entries		= 1024,
-	.host_port_reg_ofs	= 0x108,
-	.hw_stats_reg_ofs	= 0x900,
-	.bd_ram_ofs		= 0x2000,
-	.mac_control		= (1 << 5),
-	.control		= cpsw_control,
-	.host_port_num		= 0,
-	.version		= CPSW_CTRL_VERSION_2,
-};
-#endif
-
-/*
- * This function will:
- * Read the eFuse for MAC addresses, and set ethaddr/eth1addr/usbnet_devaddr
- * in the environment
- * Perform fixups to the PHY present on certain boards.  We only need this
- * function in:
- * - SPL with either CPSW or USB ethernet support
- * - Full U-Boot, with either CPSW or USB ethernet
- * Build in only these cases to avoid warnings about unused variables
- * when we build an SPL that has neither option but full U-Boot will.
- */
-#if ((defined(CONFIG_SPL_ETH_SUPPORT) || \
-	defined(CONFIG_SPL_USB_ETHER)) && \
-	defined(CONFIG_SPL_BUILD)) || \
-	((defined(CONFIG_DRIVER_TI_CPSW) || \
-	  defined(CONFIG_USB_ETHER) && defined(CONFIG_USB_MUSB_GADGET)) && \
-	 !defined(CONFIG_SPL_BUILD))
-int board_eth_init(bd_t *bis)
-{
-	int rv, n = 0;
-	uint8_t mac_addr[6];
-	uint32_t mac_hi, mac_lo;
-
-	/* try reading mac address from efuse */
-	mac_lo = readl(&cdev->macid0l);
-	mac_hi = readl(&cdev->macid0h);
-	mac_addr[0] = mac_hi & 0xFF;
-	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
-	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
-	mac_addr[4] = mac_lo & 0xFF;
-	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
-
-#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
-	if (!env_get("ethaddr")) {
-		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
-
-		if (is_valid_ethaddr(mac_addr))
-			eth_env_set_enetaddr("ethaddr", mac_addr);
-	}
-
-	writel(MII_MODE_ENABLE, &cdev->miisel);
-	cpsw_slaves[0].phy_if =	PHY_INTERFACE_MODE_MII;
-	cpsw_slaves[1].phy_if = cpsw_slaves[0].phy_if;
-	rv = cpsw_register(&cpsw_data);
-	if (rv < 0)
-		printf("Error %d registering CPSW switch\n", rv);
-	else
-		n += rv;
-#endif
-
 #if defined(CONFIG_USB_ETHER) && \
 	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USB_ETHER))
-	if (is_valid_ethaddr(mac_addr))
-		eth_env_set_enetaddr("usbnet_devaddr", mac_addr);
-
-	rv = usb_eth_initialize(bis);
-	if (rv < 0)
-		printf("Error %d registering USB_ETHER\n", rv);
-	else
-		n += rv;
-#endif
-	return n;
+int board_eth_init(bd_t *bis)
+{
+	return usb_eth_initialize(bis);
 }
 #endif
-
-#endif /* CONFIG_DM_ETH */
 
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 static void bosch_check_reset_pin(void)
@@ -624,24 +518,9 @@ void show_boot_progress(int val)
 		break;
 	}
 }
-#endif
 
 void arch_preboot_os(void)
 {
 	leds_set_finish();
-}
-
-#if defined(CONFIG_MMC)
-int board_mmc_init(bd_t *bis)
-{
-	int ret;
-
-	/* Bosch: Do not enable 52MHz for eMMC device to avoid EMI */
-	ret = omap_mmc_init(0, MMC_MODE_HS_52MHz, 26000000, -1, -1);
-	if (ret)
-		return ret;
-
-	ret = omap_mmc_init(1, MMC_MODE_HS_52MHz, 26000000, -1, -1);
-	return ret;
 }
 #endif
