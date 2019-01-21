@@ -13,7 +13,6 @@
  */
 #define CONFIG_E300		1 /* E300 family */
 #define CONFIG_MPC83xx		1 /* MPC83xx family */
-#define CONFIG_STRIDER		1 /* STRIDER board specific */
 
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
 
