@@ -235,8 +235,8 @@ static int detect_num_flash_banks(void)
 	debug("Number of flash banks detected: %d\n", cfi_flash_num_flash_banks);
 
 	/* set OR0 and BR0 */
-	set_lbc_or(0, CONFIG_SYS_OR_TIMING_FLASH |
-		   (-(total_size) & OR_GPCM_AM));
+	set_lbc_or(0, OR_GPCM_CSNT | OR_GPCM_ACS_DIV4 | OR_GPCM_SCY_5 |
+		   OR_GPCM_TRLX | (-(total_size) & OR_GPCM_AM));
 	set_lbc_br(0, (CONFIG_SYS_FLASH_BASE & BR_BA) |
 		   (BR_MS_GPCM | BR_PS_32 | BR_V));
 
