@@ -262,7 +262,7 @@ To write an image that boots from SPI flash (e.g. for the Haier Chromebook):
    dd if=out.bin of=out.bin.pad bs=4M conv=sync
 
 This converts the SPL image to the required SPI format by adding the Rockchip
-header and skipping every 2KB block. Then the U-Boot image is written at
+header and skipping every second 2KB block. Then the U-Boot image is written at
 offset 128KB and the whole image is padded to 4MB which is the SPI flash size.
 The position of U-Boot is controlled with this setting in U-Boot:
 
