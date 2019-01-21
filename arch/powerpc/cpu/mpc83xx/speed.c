@@ -516,6 +516,11 @@ ulong get_ddr_freq(ulong dummy)
 	return gd->mem_clk;
 }
 
+int get_serial_clock(void)
+{
+	return get_bus_freq(0);
+}
+
 static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char buf[32];
