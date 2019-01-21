@@ -188,10 +188,6 @@
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* display empty sectors */
 
-					/* Window base at flash base */
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000016	/* 8 MB window size */
-
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
 				| BR_PS_16	/* 16 bit port */ \
 				| BR_MS_GPCM	/* MSEL = GPCM */ \
@@ -226,9 +222,6 @@
 				| OR_FCM_SCY_1 \
 				| OR_FCM_TRLX \
 				| OR_FCM_EHTR)
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
-
 /* Vitesse 7385 */
 
 #define CONFIG_SYS_VSC7385_BASE	0xF0000000
@@ -249,11 +242,6 @@
 					| OR_GPCM_EHTR_SET \
 					| OR_GPCM_EAD)
 					/* 0xfffe09ff */
-
-					/* Access Base */
-#define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_VSC7385_BASE
-#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_128KB)
-
 #endif
 
 /*

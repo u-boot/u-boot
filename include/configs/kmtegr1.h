@@ -120,9 +120,6 @@
  */
 #define CONFIG_SYS_FLASH_SIZE		256 /* max FLASH size is 256M */
 
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
-
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE | \
 				BR_PS_16 | /* 16 bit port size */ \
 				BR_MS_GPCM | /* MSEL = GPCM */ \
@@ -141,9 +138,6 @@
  * PRIO1/PIGGY on the local bus CS1
  */
 /* Window base at flash base */
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_KMBEC_FPGA_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_128MB)
-
 #define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_KMBEC_FPGA_BASE | \
 				BR_PS_8 | /* 8 bit port size */ \
 				BR_MS_GPCM | /* MSEL = GPCM */ \
@@ -426,9 +420,6 @@
 				 OR_GPCM_SCY_5 | \
 				 OR_GPCM_TRLX_CLEAR | \
 				 OR_GPCM_EHTR_CLEAR)
-
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_APP2_BASE
-#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
 
 /* ethernet port connected to piggy (UEC2) */
 #define CONFIG_HAS_ETH1

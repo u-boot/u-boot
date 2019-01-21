@@ -12,6 +12,8 @@
 #include <usb/ehci-ci.h>
 #endif
 
+#include "lblaw/lblaw.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_QE

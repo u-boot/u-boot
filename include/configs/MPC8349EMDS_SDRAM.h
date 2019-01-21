@@ -137,10 +137,6 @@
 				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
 
-					/* window base at flash base */
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_32MB)
-
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	256	/* max sectors per device */
 
@@ -161,8 +157,6 @@
  */
 #define CONFIG_SYS_BCSR			0xE2400000
 					/* Access window base at BCSR base */
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_BCSR
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 #define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_BCSR \
 					| BR_PS_8 \
 					| BR_MS_GPCM \
@@ -222,8 +216,6 @@
 					| BR_MS_SDRAM	/* MSEL = SDRAM */ \
 					| BR_V)		/* Valid */
 					/* 0xF0001861 */
-#define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_LBC_SDRAM_BASE
-#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_64MB)
 
 /*
  * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.

@@ -6,6 +6,8 @@
 #include <common.h>
 #include <mpc83xx.h>
 
+#include "lblaw/lblaw.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /*

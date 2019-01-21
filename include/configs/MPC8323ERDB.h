@@ -141,9 +141,6 @@
 #define CONFIG_SYS_FLASH_BASE	0xFE000000	/* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		16	/* FLASH size is 16M */
 
-					/* Window base at flash base */
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_32MB)
 
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
 				| BR_PS_16	/* 16 bit port */ \

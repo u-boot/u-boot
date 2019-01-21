@@ -226,9 +226,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 				| OR_GPCM_TRLX_SET \
 				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_16MB)
-
 /* Vitesse 7385 */
 
 #define CONFIG_SYS_VSC7385_BASE	0xF8000000
@@ -247,10 +244,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 				| OR_GPCM_TRLX_SET \
 				| OR_GPCM_EHTR_SET \
 				| OR_GPCM_EAD)
-
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_VSC7385_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_128KB)
-
 #endif
 
 /* LED */
@@ -280,9 +273,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 				| BR_MS_UPMA \
 				| BR_V)
 #define CONFIG_SYS_OR3_PRELIM	(OR_UPM_AM | OR_UPM_BI)
-
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_CF_BASE
-#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_64KB)
 
 #endif
 

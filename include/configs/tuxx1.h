@@ -113,9 +113,6 @@
  */
 #define CONFIG_SYS_FLASH_SIZE		256 /* max FLASH size is 256M */
 
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
-
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE | \
 				BR_PS_16 | /* 16 bit port size */ \
 				BR_MS_GPCM | /* MSEL = GPCM */ \
@@ -134,9 +131,6 @@
  * PRIO1/PIGGY on the local bus CS1
  */
 /* Window base at flash base */
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_KMBEC_FPGA_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_128MB)
-
 #define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_KMBEC_FPGA_BASE | \
 				BR_PS_8 | /* 8 bit port size */ \
 				BR_MS_GPCM | /* MSEL = GPCM */ \
@@ -367,11 +361,6 @@
 /*
  * Configuration for C2 on the local bus
  */
-/* Window base at flash base */
-#define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_APP1_BASE
-/* Window size: 256 MB */
-#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
-
 #define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_APP1_BASE | \
 				 BR_PS_8 | \
 				 BR_MS_GPCM | \
@@ -388,11 +377,6 @@
 /*
  * Configuration for C3 on the local bus
  */
-/* Access window base at PINC3 base */
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_APP2_BASE
-/* Window size: 256 MB */
-#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
-
 #define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_APP2_BASE | \
 				 BR_PS_8 |		\
 				 BR_MS_GPCM |		\

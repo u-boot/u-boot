@@ -168,9 +168,6 @@
 #define CONFIG_SYS_FLASH_SIZE		8 /* FLASH size is up to 8M */
 
 /* Window base at flash base */
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_8MB)
-
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
 				| BR_PS_16	/* 16 bit port */ \
 				| BR_MS_GPCM	/* MSEL = GPCM */ \
@@ -197,9 +194,6 @@
 #define CONFIG_SYS_FPGA0_SIZE		1 /* FPGA size is 1M */
 
 /* Window base at FPGA base */
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_FPGA0_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_1MB)
-
 #define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_FPGA0_BASE \
 				| BR_PS_16	/* 16 bit port */ \
 				| BR_MS_GPCM	/* MSEL = GPCM */ \

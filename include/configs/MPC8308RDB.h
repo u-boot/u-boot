@@ -176,9 +176,6 @@
 #define CONFIG_SYS_FLASH_SIZE		8 /* FLASH size is 8M */
 
 /* Window base at flash base */
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_8MB)
-
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
 				| BR_PS_16	/* 16 bit port */ \
 				| BR_MS_GPCM	/* MSEL = GPCM */ \
@@ -218,9 +215,6 @@
 				| OR_FCM_EHTR)
 				/* 0xFFFF8396 */
 
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
-
 #ifdef CONFIG_VSC7385_ENET
 #define CONFIG_TSEC2
 					/* VSC7385 Base address on CS2 */
@@ -239,10 +233,6 @@
 					| OR_GPCM_TRLX_SET \
 					| OR_GPCM_EHTR_SET)
 					/* 0xFFFE09FF */
-/* Access window base at VSC7385 base */
-#define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_VSC7385_BASE
-/* Access window size 128K */
-#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_128KB)
 /* The flash address and size of the VSC7385 firmware image */
 #define CONFIG_VSC7385_IMAGE		0xFE7FE000
 #define CONFIG_VSC7385_IMAGE_SIZE	8192
