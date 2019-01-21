@@ -20,7 +20,6 @@
 #include <usb.h>
 #include <dwc3-uboot.h>
 #include <zynqmppl.h>
-#include <i2c.h>
 #include <g_dnl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -406,22 +405,6 @@ int board_early_init_r(void)
 		writel(ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN,
 		       &iou_scntr_secure->counter_control_register);
 	}
-	return 0;
-}
-
-int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
-{
-#if defined(CONFIG_ZYNQ_GEM_EEPROM_ADDR) && \
-    defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET) && \
-    defined(CONFIG_ZYNQ_EEPROM_BUS)
-	i2c_set_bus_num(CONFIG_ZYNQ_EEPROM_BUS);
-
-	if (eeprom_read(CONFIG_ZYNQ_GEM_EEPROM_ADDR,
-			CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET,
-			ethaddr, 6))
-		printf("I2C EEPROM MAC address read failed\n");
-#endif
-
 	return 0;
 }
 

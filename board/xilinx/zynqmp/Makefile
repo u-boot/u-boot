@@ -4,6 +4,7 @@
 # Michal Simek <michal.simek@xilinx.com>
 
 obj-y	:= zynqmp.o
+obj-y	+= ../common/board.o
 
 ifneq ($(CONFIG_XILINX_PS_INIT_FILE),"")
 PS_INIT_FILE := $(shell cd $(srctree); readlink -f $(CONFIG_XILINX_PS_INIT_FILE))
