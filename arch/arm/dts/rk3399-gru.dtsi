@@ -11,7 +11,13 @@
 
 / {
 	chosen {
+		u-boot,dm-pre-reloc;
 		stdout-path = "serial2:115200n8";
+		u-boot,spl-boot-order = &spi_flash;
+	};
+
+	config {
+		u-boot,spl-payload-offset = <0x40000>;
 	};
 
 	/*
@@ -539,12 +545,14 @@ ap_i2c_audio: &i2c8 {
 
 &spi1 {
 	status = "okay";
+	u-boot,dm-pre-reloc;
 
 	pinctrl-names = "default", "sleep";
 	pinctrl-1 = <&spi1_sleep>;
 
-	spiflash@0 {
-		compatible = "jedec,spi-nor";
+	spi_flash: spiflash@0 {
+		u-boot,dm-pre-reloc;
+		compatible = "jedec,spi-nor", "spi-flash";
 		reg = <0>;
 
 		/* May run faster once verified. */
@@ -558,12 +566,16 @@ ap_i2c_audio: &i2c8 {
 
 &spi5 {
 	status = "okay";
+	spi-activate-delay = <100>;
+	spi-max-frequency = <3000000>;
+	spi-deactivate-delay = <200>;
 
 	cros_ec: ec@0 {
 		compatible = "google,cros-ec-spi";
 		reg = <0>;
 		interrupt-parent = <&gpio0>;
 		interrupts = <1 IRQ_TYPE_LEVEL_LOW>;
+		ec-interrupt = <&gpio0 1 GPIO_ACTIVE_LOW>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&ec_ap_int_l>;
 		spi-max-frequency = <3000000>;
@@ -618,6 +630,7 @@ ap_i2c_audio: &i2c8 {
 
 &uart2 {
 	status = "okay";
+	u-boot,dm-pre-reloc;
 };
 
 &usb_host0_ohci {
@@ -650,8 +663,8 @@ ap_i2c_audio: &i2c8 {
 	status = "okay";
 };
 
-#include <arm/cros-ec-keyboard.dtsi>
-#include <arm/cros-ec-sbs.dtsi>
+#include <cros-ec-keyboard.dtsi>
+#include <cros-ec-sbs.dtsi>
 
 &pinctrl {
 	/*
