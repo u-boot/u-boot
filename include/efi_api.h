@@ -39,6 +39,9 @@ typedef void *efi_hii_handle_t;
 typedef u16 *efi_string_t;
 typedef u16 efi_string_id_t;
 typedef u32 efi_hii_font_style_t;
+typedef u16 efi_question_id_t;
+typedef u16 efi_image_id_t;
+typedef u16 efi_form_id_t;
 
 #define EVT_TIMER				0x80000000
 #define EVT_RUNTIME				0x40000000
@@ -800,6 +803,101 @@ efi_hii_sibt_string_ucs2_block_next(struct efi_hii_sibt_string_ucs2_block *blk)
 }
 
 /*
+ * HII forms package
+ * TODO: full scope of definitions
+ */
+struct efi_hii_time {
+	u8 hour;
+	u8 minute;
+	u8 second;
+};
+
+struct efi_hii_date {
+	u16 year;
+	u8 month;
+	u8 day;
+};
+
+struct efi_hii_ref {
+	efi_question_id_t question_id;
+	efi_form_id_t form_id;
+	efi_guid_t form_set_guid;
+	efi_string_id_t device_path;
+};
+
+union efi_ifr_type_value {
+	u8 u8;				// EFI_IFR_TYPE_NUM_SIZE_8
+	u16 u16;			// EFI_IFR_TYPE_NUM_SIZE_16
+	u32 u32;			// EFI_IFR_TYPE_NUM_SIZE_32
+	u64 u64;			// EFI_IFR_TYPE_NUM_SIZE_64
+	bool b;				// EFI_IFR_TYPE_BOOLEAN
+	struct efi_hii_time time;	// EFI_IFR_TYPE_TIME
+	struct efi_hii_date date;	// EFI_IFR_TYPE_DATE
+	efi_string_id_t string;	// EFI_IFR_TYPE_STRING, EFI_IFR_TYPE_ACTION
+	struct efi_hii_ref ref;		// EFI_IFR_TYPE_REF
+	// u8 buffer[];			// EFI_IFR_TYPE_BUFFER
+};
+
+#define EFI_IFR_TYPE_NUM_SIZE_8		0x00
+#define EFI_IFR_TYPE_NUM_SIZE_16	0x01
+#define EFI_IFR_TYPE_NUM_SIZE_32	0x02
+#define EFI_IFR_TYPE_NUM_SIZE_64	0x03
+#define EFI_IFR_TYPE_BOOLEAN		0x04
+#define EFI_IFR_TYPE_TIME		0x05
+#define EFI_IFR_TYPE_DATE		0x06
+#define EFI_IFR_TYPE_STRING		0x07
+#define EFI_IFR_TYPE_OTHER		0x08
+#define EFI_IFR_TYPE_UNDEFINED		0x09
+#define EFI_IFR_TYPE_ACTION		0x0A
+#define EFI_IFR_TYPE_BUFFER		0x0B
+#define EFI_IFR_TYPE_REF		0x0C
+#define EFI_IFR_OPTION_DEFAULT		0x10
+#define EFI_IFR_OPTION_DEFAULT_MFG	0x20
+
+#define EFI_IFR_ONE_OF_OPTION_OP	0x09
+
+struct efi_ifr_op_header {
+	u8 opCode;
+	u8 length:7;
+	u8 scope:1;
+};
+
+struct efi_ifr_one_of_option {
+	struct efi_ifr_op_header header;
+	efi_string_id_t option;
+	u8 flags;
+	u8 type;
+	union efi_ifr_type_value value;
+};
+
+typedef efi_uintn_t efi_browser_action_t;
+
+#define EFI_BROWSER_ACTION_REQUEST_NONE			0
+#define EFI_BROWSER_ACTION_REQUEST_RESET		1
+#define EFI_BROWSER_ACTION_REQUEST_SUBMIT		2
+#define EFI_BROWSER_ACTION_REQUEST_EXIT			3
+#define EFI_BROWSER_ACTION_REQUEST_FORM_SUBMIT_EXIT	4
+#define EFI_BROWSER_ACTION_REQUEST_FORM_DISCARD_EXIT	5
+#define EFI_BROWSER_ACTION_REQUEST_FORM_APPLY		6
+#define EFI_BROWSER_ACTION_REQUEST_FORM_DISCARD		7
+#define EFI_BROWSER_ACTION_REQUEST_RECONNECT		8
+
+typedef efi_uintn_t efi_browser_action_request_t;
+
+#define EFI_BROWSER_ACTION_CHANGING			0
+#define EFI_BROWSER_ACTION_CHANGED			1
+#define EFI_BROWSER_ACTION_RETRIEVE			2
+#define EFI_BROWSER_ACTION_FORM_OPEN			3
+#define EFI_BROWSER_ACTION_FORM_CLOSE			4
+#define EFI_BROWSER_ACTION_SUBMITTED			5
+#define EFI_BROWSER_ACTION_DEFAULT_STANDARD		0x1000
+#define EFI_BROWSER_ACTION_DEFAULT_MANUFACTURING	0x1001
+#define EFI_BROWSER_ACTION_DEFAULT_SAFE			0x1002
+#define EFI_BROWSER_ACTION_DEFAULT_PLATFORM		0x2000
+#define EFI_BROWSER_ACTION_DEFAULT_HARDWARE		0x3000
+#define EFI_BROWSER_ACTION_DEFAULT_FIRMWARE		0x4000
+
+/*
  * HII keyboard package
  */
 typedef enum {
@@ -956,6 +1054,69 @@ struct efi_hii_database_protocol {
 		const struct efi_hii_database_protocol *this,
 		efi_hii_handle_t package_list_handle,
 		efi_handle_t *driver_handle);
+};
+
+#define EFI_HII_CONFIG_ROUTING_PROTOCOL_GUID \
+	EFI_GUID(0x587e72d7, 0xcc50, 0x4f79, \
+		 0x82, 0x09, 0xca, 0x29, 0x1f, 0xc1, 0xa1, 0x0f)
+
+struct efi_hii_config_routing_protocol {
+	efi_status_t(EFIAPI *extract_config)(
+		const struct efi_hii_config_routing_protocol *this,
+		const efi_string_t request,
+		efi_string_t *progress,
+		efi_string_t *results);
+	efi_status_t(EFIAPI *export_config)(
+		const struct efi_hii_config_routing_protocol *this,
+		efi_string_t *results);
+	efi_status_t(EFIAPI *route_config)(
+		const struct efi_hii_config_routing_protocol *this,
+		const efi_string_t configuration,
+		efi_string_t *progress);
+	efi_status_t(EFIAPI *block_to_config)(
+		const struct efi_hii_config_routing_protocol *this,
+		const efi_string_t config_request,
+		const uint8_t *block,
+		const efi_uintn_t block_size,
+		efi_string_t *config,
+		efi_string_t *progress);
+	efi_status_t(EFIAPI *config_to_block)(
+		const struct efi_hii_config_routing_protocol *this,
+		const efi_string_t config_resp,
+		const uint8_t *block,
+		const efi_uintn_t *block_size,
+		efi_string_t *progress);
+	efi_status_t(EFIAPI *get_alt_config)(
+		const struct efi_hii_config_routing_protocol *this,
+		const efi_string_t config_resp,
+		const efi_guid_t *guid,
+		const efi_string_t name,
+		const struct efi_device_path *device_path,
+		const efi_string_t alt_cfg_id,
+		efi_string_t *alt_cfg_resp);
+};
+
+#define EFI_HII_CONFIG_ACCESS_PROTOCOL_GUID \
+	EFI_GUID(0x330d4706, 0xf2a0, 0x4e4f, \
+		 0xa3, 0x69, 0xb6, 0x6f, 0xa8, 0xd5, 0x43, 0x85)
+
+struct efi_hii_config_access_protocol {
+	efi_status_t(EFIAPI *extract_config_access)(
+		const struct efi_hii_config_access_protocol *this,
+		const efi_string_t request,
+		efi_string_t *progress,
+		efi_string_t *results);
+	efi_status_t(EFIAPI *route_config_access)(
+		const struct efi_hii_config_access_protocol *this,
+		const efi_string_t configuration,
+		efi_string_t *progress);
+	efi_status_t(EFIAPI *form_callback)(
+		const struct efi_hii_config_access_protocol *this,
+		efi_browser_action_t action,
+		efi_question_id_t question_id,
+		u8 type,
+		union efi_ifr_type_value *value,
+		efi_browser_action_request_t *action_request);
 };
 
 #define EFI_GOP_GUID \
