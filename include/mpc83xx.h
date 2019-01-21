@@ -130,8 +130,8 @@
 #define SPCR_TSEC2EP_SHIFT		(31-31)
 
 #elif defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_ARCH_MPC831X) || \
-	defined(CONFIG_MPC837x)
-/* SPCR bits - MPC8308, MPC831x and MPC837x specific */
+	defined(CONFIG_ARCH_MPC837X)
+/* SPCR bits - MPC8308, MPC831x and MPC837X specific */
 /* TSEC data priority */
 #define SPCR_TSECDP			0x00003000
 #define SPCR_TSECDP_SHIFT		(31-19)
@@ -283,8 +283,8 @@
 #define SICRH_TSOBI1			0x00000002
 #define SICRH_TSOBI2			0x00000001
 
-#elif defined(CONFIG_MPC837x)
-/* SICRL bits - MPC837x specific */
+#elif defined(CONFIG_ARCH_MPC837X)
+/* SICRL bits - MPC837X specific */
 #define SICRL_USB_A			0xC0000000
 #define SICRL_USB_B			0x30000000
 #define SICRL_USB_B_SD			0x20000000
@@ -314,7 +314,7 @@
 #define SICRL_LDP_A			0x00000002
 #define SICRL_LDP_B			0x00000001
 
-/* SICRH bits - MPC837x specific */
+/* SICRH bits - MPC837X specific */
 #define SICRH_DDR			0x80000000
 #define SICRH_TSEC1_A			0x10000000
 #define SICRH_TSEC1_B			0x08000000
@@ -647,7 +647,7 @@
 #define HRCWL_SVCOD_DIV_8		0x20000000
 #define HRCWL_SVCOD_DIV_1		0x30000000
 
-#elif defined(CONFIG_MPC837x)
+#elif defined(CONFIG_ARCH_MPC837X)
 #define HRCWL_SVCOD			0x30000000
 #define HRCWL_SVCOD_SHIFT		28
 #define HRCWL_SVCOD_DIV_4		0x00000000
@@ -758,7 +758,7 @@
 #if defined(CONFIG_ARCH_MPC834X)
 #define HRCWH_ROM_LOC_PCI2		0x00200000
 #endif
-#if defined(CONFIG_MPC837x)
+#if defined(CONFIG_ARCH_MPC837X)
 #define HRCWH_ROM_LOC_ON_CHIP_ROM	0x00300000
 #endif
 #define HRCWH_ROM_LOC_LOCAL_8BIT	0x00500000
@@ -766,7 +766,7 @@
 #define HRCWH_ROM_LOC_LOCAL_32BIT	0x00700000
 
 #if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_ARCH_MPC831X) || \
-	defined(CONFIG_MPC837x)
+	defined(CONFIG_ARCH_MPC837X)
 #define HRCWH_ROM_LOC_NAND_SP_8BIT	0x00100000
 #define HRCWH_ROM_LOC_NAND_SP_16BIT	0x00200000
 #define HRCWH_ROM_LOC_NAND_LP_8BIT	0x00500000
@@ -819,7 +819,7 @@
  * RSR - Reset Status Register
  */
 #if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_ARCH_MPC831X) || \
-	defined(CONFIG_MPC837x)
+	defined(CONFIG_ARCH_MPC837X)
 #define RSR_RSTSRC			0xF0000000	/* Reset source */
 #define RSR_RSTSRC_SHIFT		28
 #else
@@ -1032,8 +1032,8 @@
 #define SCCR_TDMCM_2			0x00000020
 #define SCCR_TDMCM_3			0x00000030
 
-#elif defined(CONFIG_MPC837x)
-/* SCCR bits - MPC837x specific */
+#elif defined(CONFIG_ARCH_MPC837X)
+/* SCCR bits - MPC837X specific */
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30
 #define SCCR_TSEC1CM_0			0x00000000
@@ -1129,7 +1129,7 @@
 #elif defined(CONFIG_ARCH_MPC832X)
 #define CSCONFIG_ODT_RD_CFG		0x00400000
 #define CSCONFIG_ODT_WR_CFG		0x00040000
-#elif defined(CONFIG_ARCH_MPC8360) || defined(CONFIG_MPC837x)
+#elif defined(CONFIG_ARCH_MPC8360) || defined(CONFIG_ARCH_MPC837X)
 #define CSCONFIG_ODT_RD_NEVER		0x00000000
 #define CSCONFIG_ODT_RD_ONLY_CURRENT	0x00100000
 #define CSCONFIG_ODT_RD_ONLY_OTHER_CS	0x00200000

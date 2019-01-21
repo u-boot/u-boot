@@ -64,12 +64,14 @@ config TARGET_MPC8349ITX
 
 config TARGET_MPC837XEMDS
 	bool "Support MPC837XEMDS"
+	select ARCH_MPC837X
 	select BOARD_EARLY_INIT_F
 	imply CMD_SATA
 	imply FSL_SATA
 
 config TARGET_MPC837XERDB
 	bool "Support MPC837XERDB"
+	select ARCH_MPC837X
 	select BOARD_EARLY_INIT_F
 
 config TARGET_IDS8313
@@ -149,6 +151,9 @@ config ARCH_MPC8349
 	select ARCH_MPC834X
 
 config ARCH_MPC8360
+	bool
+
+config ARCH_MPC837X
 	bool
 
 source "board/esd/vme8349/Kconfig"

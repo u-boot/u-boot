@@ -759,7 +759,7 @@ typedef struct immap {
 	u8			res12[0x1CF00];
 } immap_t;
 
-#elif defined(CONFIG_MPC837x)
+#elif defined(CONFIG_ARCH_MPC837X)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */

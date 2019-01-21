@@ -170,7 +170,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 	switch (odt_rd_cfg) {
 	case ODT_RD_ONLY_OTHER_DIMM:
 		if (!IS_ENABLED(CONFIG_ARCH_MPC8360) &&
-		    !IS_ENABLED(CONFIG_MPC837x)) {
+		    !IS_ENABLED(CONFIG_ARCH_MPC837X)) {
 			debug("%s: odt_rd_cfg value %d invalid.\n",
 			      ofnode_get_name(node), odt_rd_cfg);
 			return -EINVAL;
@@ -182,7 +182,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 		if (!IS_ENABLED(CONFIG_ARCH_MPC830X) &&
 		    !IS_ENABLED(CONFIG_ARCH_MPC831X) &&
 		    !IS_ENABLED(CONFIG_ARCH_MPC8360) &&
-		    !IS_ENABLED(CONFIG_MPC837x)) {
+		    !IS_ENABLED(CONFIG_ARCH_MPC837X)) {
 			debug("%s: odt_rd_cfg value %d invalid.\n",
 			      ofnode_get_name(node), odt_rd_cfg);
 			return -EINVAL;
@@ -201,7 +201,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 	switch (odt_wr_cfg) {
 	case ODT_WR_ONLY_OTHER_DIMM:
 		if (!IS_ENABLED(CONFIG_ARCH_MPC8360) &&
-		    !IS_ENABLED(CONFIG_MPC837x)) {
+		    !IS_ENABLED(CONFIG_ARCH_MPC837X)) {
 			debug("%s: odt_wr_cfg value %d invalid.\n",
 			      ofnode_get_name(node), odt_wr_cfg);
 			return -EINVAL;
@@ -213,7 +213,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 		if (!IS_ENABLED(CONFIG_ARCH_MPC830X) &&
 		    !IS_ENABLED(CONFIG_ARCH_MPC831X) &&
 		    !IS_ENABLED(CONFIG_ARCH_MPC8360) &&
-		    !IS_ENABLED(CONFIG_MPC837x)) {
+		    !IS_ENABLED(CONFIG_ARCH_MPC837X)) {
 			debug("%s: odt_wr_cfg value %d invalid.\n",
 			      ofnode_get_name(node), odt_wr_cfg);
 			return -EINVAL;
