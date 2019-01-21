@@ -24,4 +24,11 @@ struct rockchip_gpio_regs {
 };
 check_member(rockchip_gpio_regs, ls_sync, 0x60);
 
+enum gpio_pu_pd {
+	GPIO_PULL_NORMAL = 0,
+	GPIO_PULL_UP,
+	GPIO_PULL_DOWN,
+	GPIO_PULL_REPEAT,
+};
+
 #endif

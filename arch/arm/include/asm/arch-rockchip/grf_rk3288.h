@@ -1149,13 +1149,6 @@ enum GPIO_BIAS {
 #define GPIO_BIAS_MASK	0x3
 #define GPIO_BIAS_SHIFT(x)  ((x) * 2)
 
-enum GPIO_PU_PD {
-	GPIO_PULL_NORMAL = 0,
-	GPIO_PULL_UP,
-	GPIO_PULL_DOWN,
-	GPIO_PULL_REPEAT,
-};
-
 #define GPIO_PULL_MASK	0x3
 #define GPIO_PULL_SHIFT(x)  ((x) * 2)
 
