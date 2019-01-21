@@ -843,7 +843,7 @@ typedef struct immap {
 	u8			qe[0x100000];	/* QE block */
 } immap_t;
 
-#elif defined(CONFIG_MPC832x)
+#elif defined(CONFIG_ARCH_MPC832X)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */

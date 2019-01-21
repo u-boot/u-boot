@@ -26,7 +26,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_QE	/* Has QE */
-#define CONFIG_MPC832x	/* MPC832x CPU specific */
 #define CONFIG_KM8321	/* Keymile PBEC8321 board specific */
 
 #define CONFIG_KM_DEF_ARCH	"arch=ppc_8xx\0"

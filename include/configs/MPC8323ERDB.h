@@ -14,7 +14,6 @@
  */
 #define CONFIG_E300		1	/* E300 family */
 #define CONFIG_QE		1	/* Has QE */
-#define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 
 /*
  * System Clock Setup

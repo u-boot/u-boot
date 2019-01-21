@@ -98,7 +98,7 @@ int get_clocks(void)
 #endif
 	u32 core_clk;
 	u32 i2c1_clk;
-#if !defined(CONFIG_MPC832x)
+#if !defined(CONFIG_ARCH_MPC832X)
 	u32 i2c2_clk;
 #endif
 #if defined(CONFIG_ARCH_MPC8315)
@@ -315,7 +315,7 @@ int get_clocks(void)
 	i2c1_clk = tsec2_clk;
 #elif defined(CONFIG_MPC8360)
 	i2c1_clk = csb_clk;
-#elif defined(CONFIG_MPC832x)
+#elif defined(CONFIG_ARCH_MPC832X)
 	i2c1_clk = enc_clk;
 #elif defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_ARCH_MPC831X)
 	i2c1_clk = enc_clk;
@@ -326,7 +326,7 @@ int get_clocks(void)
 #elif defined(CONFIG_ARCH_MPC8309)
 	i2c1_clk = csb_clk;
 #endif
-#if !defined(CONFIG_MPC832x)
+#if !defined(CONFIG_ARCH_MPC832X)
 	i2c2_clk = csb_clk; /* i2c-2 clk is equal to csb clk */
 #endif
 
@@ -467,7 +467,7 @@ int get_clocks(void)
 #endif
 	gd->arch.core_clk = core_clk;
 	gd->arch.i2c1_clk = i2c1_clk;
-#if !defined(CONFIG_MPC832x)
+#if !defined(CONFIG_ARCH_MPC832X)
 	gd->arch.i2c2_clk = i2c2_clk;
 #endif
 #if !defined(CONFIG_ARCH_MPC8309)
@@ -546,7 +546,7 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	printf("  I2C1:                %-4s MHz\n",
 	       strmhz(buf, gd->arch.i2c1_clk));
-#if !defined(CONFIG_MPC832x)
+#if !defined(CONFIG_ARCH_MPC832X)
 	printf("  I2C2:                %-4s MHz\n",
 	       strmhz(buf, gd->arch.i2c2_clk));
 #endif

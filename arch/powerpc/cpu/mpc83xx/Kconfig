@@ -40,9 +40,11 @@ config TARGET_MPC8315ERDB
 
 config TARGET_MPC8323ERDB
 	bool "Support MPC8323ERDB"
+	select ARCH_MPC832X
 
 config TARGET_MPC832XEMDS
 	bool "Support MPC832XEMDS"
+	select ARCH_MPC832X
 	select BOARD_EARLY_INIT_F
 
 config TARGET_MPC8349EMDS
@@ -82,11 +84,13 @@ config TARGET_SUVD3
 	bool "Support suvd3"
 	select ARCH_MPC8309 if SYS_EXTRA_OPTIONS="KMTEGR1"
 	select ARCH_MPC8309 if SYS_EXTRA_OPTIONS="KMVECT1"
+	select ARCH_MPC832X if SYS_EXTRA_OPTIONS="SUVD3"
 	imply CMD_CRAMFS
 	imply FS_CRAMFS
 
 config TARGET_TUXX1
 	bool "Support tuxx1"
+	select ARCH_MPC832X
 	imply CMD_CRAMFS
 	imply FS_CRAMFS
 
@@ -127,6 +131,9 @@ config ARCH_MPC8313
 config ARCH_MPC8315
 	bool
 	select ARCH_MPC831X
+
+config ARCH_MPC832X
+	bool
 
 source "board/esd/vme8349/Kconfig"
 source "board/freescale/mpc8308rdb/Kconfig"
