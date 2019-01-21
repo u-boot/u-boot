@@ -13,7 +13,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1
-#define CONFIG_MPC8313ERDB	1
 
 #define CONFIG_SPL_INIT_MINIMAL
 #define CONFIG_SPL_FLUSH_IMAGE

@@ -13,7 +13,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1
-#define CONFIG_MPC8313ERDB	1
 
 #ifndef CONFIG_SYS_MONITOR_BASE
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
