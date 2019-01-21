@@ -147,6 +147,9 @@ void sdram_init(void)
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile fsl_lbc_t *lbc = &immap->im_lbc;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
+	const u32 lsdmr_common = LSDMR_RFEN | LSDMR_BSMA1516 | LSDMR_RFCR8 |
+				 LSDMR_PRETOACT6 | LSDMR_ACTTORW3 | LSDMR_BL8 |
+				 LSDMR_WRC3 | LSDMR_CL3;
 
 	puts("\n   SDRAM on Local Bus: ");
 	print_size (CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
@@ -156,22 +159,27 @@ void sdram_init(void)
 	 */
 
 	/* setup mtrpt, lsrt and lbcr for LB bus */
-	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
-	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
-	lbc->lsrt = CONFIG_SYS_LBC_LSRT;
+	lbc->lbcr = 0x00000000;
+	/* LB refresh timer prescal, 266MHz/32 */
+	lbc->mrtpr = 0x20000000;
+	/* LB sdram refresh timer, about 6us */
+	lbc->lsrt = 0x32000000;
 	asm("sync");
 
 	/*
 	 * Configure the SDRAM controller Machine Mode Register.
 	 */
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_5; /* 0x40636733; normal operation */
+	/* 0x40636733; normal operation */
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_NORMAL;
 
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_1; /* 0x68636733; precharge all the banks */
+	/* 0x68636733; precharge all the banks */
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_PCHALL;
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);
 
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_2; /* 0x48636733; auto refresh */
+	/* 0x48636733; auto refresh */
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_ARFRSH;
 	asm("sync");
 	/*1 times*/
 	*sdram_addr = 0xff;
@@ -199,12 +207,13 @@ void sdram_init(void)
 	udelay(100);
 
 	/* 0x58636733; mode register write operation */
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_4;
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_MRW;
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);
 
-	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_5; /* 0x40636733; normal operation */
+	/* 0x40636733; normal operation */
+	lbc->lsdmr = lsdmr_common | LSDMR_OP_NORMAL;
 	asm("sync");
 	*sdram_addr = 0xff;
 	udelay(100);

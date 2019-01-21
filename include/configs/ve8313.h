@@ -129,13 +129,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024)
 
 /*
- * Local Bus LCRR and LBCR regs
- */
-#define CONFIG_SYS_LBC_LBCR	0x00040000
-
-#define CONFIG_SYS_LBC_MRTPR	0x20000000
-
-/*
  * NAND settings
  */
 #define CONFIG_SYS_NAND_BASE		0x61000000

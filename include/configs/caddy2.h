@@ -96,14 +96,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB */
 #define CONFIG_SYS_MALLOC_LEN		(256 * 1024)	/* Malloc size */
 
-/*
- * Local Bus LCRR and LBCR regs
- *    LCRR:  no DLL bypass, Clock divider is 4
- * External Local Bus rate is
- *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
- */
-#define CONFIG_SYS_LBC_LBCR	0x00000000
-
 #undef CONFIG_SYS_LB_SDRAM	/* if board has SDRAM on local bus */
 
 /*

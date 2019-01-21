@@ -100,8 +100,8 @@ int dram_init(void)
 	msize = fixed_sdram();
 
 	/* Local Bus setup lbcr and mrtpr */
-	out_be32(&lbc->lbcr, CONFIG_SYS_LBC_LBCR);
-	out_be32(&lbc->mrtpr, CONFIG_SYS_LBC_MRTPR);
+	out_be32(&lbc->lbcr, 0x00040000);
+	out_be32(&lbc->mrtpr, 0x20000000);
 	sync();
 
 	/* return total bus SDRAM size(bytes)  -- DDR */

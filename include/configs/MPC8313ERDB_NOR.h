@@ -159,16 +159,6 @@
 #define CONFIG_SYS_MONITOR_LEN	(512 * 1024)	/* Reserve 512 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN	(512 * 1024)	/* Reserved for malloc */
 
-/*
- * Local Bus LCRR and LBCR regs
- */
-#define CONFIG_SYS_LBC_LBCR	(0x00040000 /* TODO */ \
-				| (0xFF << LBCR_BMT_SHIFT) \
-				| 0xF)	/* 0x0004ff0f */
-
-				/* LB refresh timer prescal, 266MHz/32 */
-#define CONFIG_SYS_LBC_MRTPR	0x20000000  /*TODO */
-
 /* drivers/mtd/nand/nand.c */
 #define CONFIG_SYS_NAND_BASE		0xE2800000
 

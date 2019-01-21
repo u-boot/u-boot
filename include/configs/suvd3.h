@@ -286,11 +286,6 @@
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
-/*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LBC_LBCR	0x00000000
-
 #define CONFIG_SYS_APP1_BASE		0xA0000000
 #define CONFIG_SYS_APP1_SIZE		256 /* Megabytes */
 #define CONFIG_SYS_APP2_BASE		0xB0000000

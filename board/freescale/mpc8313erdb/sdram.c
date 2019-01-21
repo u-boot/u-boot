@@ -109,8 +109,9 @@ int dram_init(void)
 	msize = fixed_sdram();
 
 	/* Local Bus setup lbcr and mrtpr */
-	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
-	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;
+	lbc->lbcr = (0x00040000 | (0xFF << LBCR_BMT_SHIFT) | 0xF);
+	/* LB refresh timer prescal, 266MHz/32 */
+	lbc->mrtpr = 0x20000000;
 	sync();
 
 #ifndef CONFIG_SYS_8313ERDB_BROKEN_PMC

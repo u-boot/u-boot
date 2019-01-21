@@ -114,11 +114,6 @@
 			(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LBC_LBCR		0x00000000
-
-/*
  * FLASH on the Local Bus
  */
 #define CONFIG_SYS_FLASH_BASE	0xFE000000	/* FLASH base address */

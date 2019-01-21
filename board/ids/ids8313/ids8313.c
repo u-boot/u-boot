@@ -129,8 +129,8 @@ int dram_init(void)
 
 	msize = setup_sdram();
 
-	out_be32(&lbc->lbcr, CONFIG_SYS_LBC_LBCR);
-	out_be32(&lbc->mrtpr, CONFIG_SYS_LBC_MRTPR);
+	out_be32(&lbc->lbcr, (0x00040000 | (0xFF << LBCR_BMT_SHIFT) | 0xF));
+	out_be32(&lbc->mrtpr, 0x20000000);
 	sync();
 
 	gd->ram_size = msize;

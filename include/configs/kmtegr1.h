@@ -341,11 +341,6 @@
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
-/*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LBC_LBCR	0x00000000
-
 /* must be after the include because KMBEC_FPGA is otherwise undefined */
 #define CONFIG_SYS_NAND_BASE CONFIG_SYS_KMBEC_FPGA_BASE /* PRIO_BASE_ADDRESS */
 

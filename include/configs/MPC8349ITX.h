@@ -251,19 +251,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_MALLOC_LEN	(256 * 1024) /* Reserved for malloc */
 
 /*
- * Local Bus LCRR and LBCR regs
- *    LCRR:  DLL bypass, Clock divider is 4
- * External Local Bus rate is
- *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
- */
-#define CONFIG_SYS_LBC_LBCR	0x00000000
-
-				/* LB sdram refresh timer, about 6us */
-#define CONFIG_SYS_LBC_LSRT	0x32000000
-				/* LB refresh timer prescal, 266MHz/32*/
-#define CONFIG_SYS_LBC_MRTPR	0x20000000
-
-/*
  * Serial Port
  */
 #define CONFIG_SYS_NS16550_SERIAL

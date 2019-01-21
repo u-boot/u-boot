@@ -116,11 +116,7 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
 			(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
-/*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LBC_LBCR		0x00040000
-#define CONFIG_FSL_ELBC		1
+#define CONFIG_FSL_ELBC
 
 /*
  * FLASH on the Local Bus

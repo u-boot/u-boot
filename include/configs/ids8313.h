@@ -37,15 +37,6 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*
- * Local Bus LCRR and LBCR regs
- */
-#define CONFIG_SYS_LBC_LBCR		(0x00040000 |\
-					 (0xFF << LBCR_BMT_SHIFT) |\
-					 0xF)
-
-#define CONFIG_SYS_LBC_MRTPR		0x20000000
-
-/*
  * Internal Definitions
  */
 /*
