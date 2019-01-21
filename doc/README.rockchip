@@ -6,13 +6,7 @@
 U-Boot on Rockchip
 ==================
 
-There are several repositories available with versions of U-Boot that support
-many Rockchip devices [1] [2].
-
-The current mainline support is experimental only and is not useful for
-anything. It should provide a base on which to build.
-
-So far only support for the RK3288 and RK3036 is provided.
+A wide range of Rockchip SoCs are supported in mainline U-Boot
 
 
 Prerequisites
@@ -304,7 +298,6 @@ Immediate priorities are:
 - USB device
 - Run CPU at full speed (code exists but we only see ~60 DMIPS maximum)
 - NAND flash
-- Support for other Rockchip parts
 - Boot U-Boot proper over USB OTG (at present only SPL works)
 
 
