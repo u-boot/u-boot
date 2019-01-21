@@ -130,7 +130,7 @@ F:	include/configs/turris_*.h
 
 ARM FREESCALE IMX
 M:	Stefano Babic <sbabic@denx.de>
-M:	Fabio Estevam <fabio.estevam@nxp.com>
+M:	Fabio Estevam <festevam@gmail.com>
 R:	NXP i.MX U-Boot Team <uboot-imx@nxp.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-imx.git
