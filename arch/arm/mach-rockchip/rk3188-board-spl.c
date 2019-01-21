@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <ram.h>
 #include <spl.h>
+#include <syscon.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/bootrom.h>
@@ -27,7 +28,6 @@
 #include <dm/test.h>
 #include <dm/util.h>
 #include <power/regulator.h>
-#include <syscon.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

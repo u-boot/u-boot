@@ -5,18 +5,18 @@
  */
 
 #include <common.h>
+#include <debug_uart.h>
+#include <dm.h>
+#include <ram.h>
+#include <spl.h>
+#include <syscon.h>
+#include <asm/io.h>
 #include <asm/arch/bootrom.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/grf_rk3399.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
-#include <asm/io.h>
-#include <debug_uart.h>
-#include <dm.h>
 #include <dm/pinctrl.h>
-#include <ram.h>
-#include <spl.h>
-#include <syscon.h>
 
 void board_return_to_bootrom(void)
 {

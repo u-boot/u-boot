@@ -8,10 +8,10 @@
 #include <ram.h>
 #include <syscon.h>
 #include <asm/io.h>
+#include <asm/arch/boot_mode.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/periph.h>
 #include <asm/arch/grf_rk322x.h>
-#include <asm/arch/boot_mode.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

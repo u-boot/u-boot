@@ -4,18 +4,18 @@
  */
 
 #include <common.h>
-#include <asm/arch/clock.h>
 #include <debug_uart.h>
 #include <dm.h>
 #include <ram.h>
 #include <spl.h>
+#include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch/bootrom.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/cru_rk3368.h>
 #include <asm/arch/grf_rk3368.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/timer.h>
-#include <syscon.h>
 
 /*
  * The SPL (and also the full U-Boot stage on the RK3368) will run in

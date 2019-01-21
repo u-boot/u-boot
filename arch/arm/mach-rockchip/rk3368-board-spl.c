@@ -6,7 +6,6 @@
 #include <common.h>
 #include <debug_uart.h>
 #include <dm.h>
-#include <dm/pinctrl.h>
 #include <ram.h>
 #include <spl.h>
 #include <asm/io.h>
@@ -15,6 +14,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/periph.h>
 #include <asm/arch/timer.h>
+#include <dm/pinctrl.h>
 
 void board_debug_uart_init(void)
 {
