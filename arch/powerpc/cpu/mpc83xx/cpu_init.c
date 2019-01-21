@@ -14,6 +14,7 @@
 
 #include "lblaw/lblaw.h"
 #include "elbc/elbc.h"
+#include "sysio/sysio.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

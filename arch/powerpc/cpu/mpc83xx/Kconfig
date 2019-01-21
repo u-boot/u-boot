@@ -294,6 +294,7 @@ source "arch/powerpc/cpu/mpc83xx/bats/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/lblaw/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/elbc/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/hid/Kconfig"
+source "arch/powerpc/cpu/mpc83xx/sysio/Kconfig"
 
 menu "Legacy options"
 
