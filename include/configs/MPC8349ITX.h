@@ -425,11 +425,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 				/* USB DR as device + USB MPH as host */
 #define CONFIG_SYS_SICRL	(SICRL_LDP_A | SICRL_USB1)
 
-#define CONFIG_SYS_HID0_INIT	0x00000000
-#define CONFIG_SYS_HID0_FINAL	HID0_ENABLE_INSTRUCTION_CACHE
-
-#define CONFIG_SYS_HID2	HID2_HBE
-
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #endif

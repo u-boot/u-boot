@@ -30,13 +30,6 @@
 
 #define CONFIG_HWCONFIG
 
-#define CONFIG_SYS_HID0_INIT	0x000000000
-#define CONFIG_SYS_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK |\
-				 HID0_ENABLE_INSTRUCTION_CACHE |\
-				 HID0_DISABLE_DYNAMIC_POWER_MANAGMENT)
-
-#define CONFIG_SYS_HID2	(HID2_HBE | 0x00020000)
-
 /*
  * Definitions for initial stack pointer and data area (in DCACHE )
  */

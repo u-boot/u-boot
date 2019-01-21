@@ -26,6 +26,7 @@
 
 #include "hrcw/hrcw.h"
 #include "bats/bats.h"
+#include "hid/hid.h"
 
 /* We don't want the  MMU yet.
  */

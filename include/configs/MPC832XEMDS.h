@@ -290,14 +290,6 @@
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
-/*
- * Core HID Setup
- */
-#define CONFIG_SYS_HID0_INIT	0x000000000
-#define CONFIG_SYS_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK | \
-				 HID0_ENABLE_INSTRUCTION_CACHE)
-#define CONFIG_SYS_HID2		HID2_HBE
-
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
 #endif
