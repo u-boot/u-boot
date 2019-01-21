@@ -25,27 +25,6 @@
 #define CONFIG_SYS_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
 #define CONFIG_SYS_ACR_RPTCNT		3	/* Arbiter repeat count (0-7) */
 
-/*
- * Hardware Reset Configuration Word
- * if CLKIN is 66.000MHz, then
- * CSB = 132MHz, CORE = 264MHz, DDRC = 264MHz, LBC = 132MHz
- */
-#define CONFIG_SYS_HRCW_LOW (0x20000000 /* reserved, must be set */ |\
-			     HRCWL_DDR_TO_SCB_CLK_2X1 |\
-			     HRCWL_CSB_TO_CLKIN_2X1 |\
-			     HRCWL_CORE_TO_CSB_2X1)
-
-#define CONFIG_SYS_HRCW_HIGH	(HRCWH_PCI_HOST |\
-				 HRCWH_CORE_ENABLE |\
-				 HRCWH_FROM_0XFFF00100 |\
-				 HRCWH_BOOTSEQ_DISABLE |\
-				 HRCWH_SW_WATCHDOG_DISABLE |\
-				 HRCWH_ROM_LOC_LOCAL_8BIT |\
-				 HRCWH_RL_EXT_LEGACY |\
-				 HRCWH_TSEC1M_IN_MII |\
-				 HRCWH_TSEC2M_IN_MII |\
-				 HRCWH_BIG_ENDIAN)
-
 #define CONFIG_SYS_SICRH	0x00000000
 #define CONFIG_SYS_SICRL	(SICRL_LBC | SICRL_SPI_D)
 

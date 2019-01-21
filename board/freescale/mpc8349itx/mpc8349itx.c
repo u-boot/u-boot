@@ -19,6 +19,8 @@
 #include <linux/libfdt.h>
 #endif
 
+#include "../../../arch/powerpc/cpu/mpc83xx/hrcw/hrcw.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SPD_EEPROM

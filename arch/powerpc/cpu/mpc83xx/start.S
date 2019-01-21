@@ -24,6 +24,8 @@
 #include <asm/mmu.h>
 #include <asm/u-boot.h>
 
+#include "hrcw/hrcw.h"
+
 /* We don't want the  MMU yet.
  */
 #undef	MSR_KERNEL

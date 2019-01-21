@@ -28,38 +28,6 @@
 #define CONFIG_VSC7385_ENET
 
 /*
- * Hardware Reset Configuration Word
- * if CLKIN is 66.66MHz, then
- * CSB = 133MHz, DDRC = 266MHz, LBC = 133MHz
- * We choose the A type silicon as default, so the core is 400Mhz.
- */
-#define CONFIG_SYS_HRCW_LOW (\
-	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
-	HRCWL_DDR_TO_SCB_CLK_2X1 |\
-	HRCWL_SVCOD_DIV_2 |\
-	HRCWL_CSB_TO_CLKIN_4X1 |\
-	HRCWL_CORE_TO_CSB_3X1)
-/*
- * There are neither HRCWH_PCI_HOST nor HRCWH_PCI1_ARBITER_ENABLE bits
- * in 8308's HRCWH according to the manual, but original Freescale's
- * code has them and I've expirienced some problems using the board
- * with BDI3000 attached when I've tried to set these bits to zero
- * (UART doesn't work after the 'reset run' command).
- */
-#define CONFIG_SYS_HRCW_HIGH (\
-	HRCWH_PCI_HOST |\
-	HRCWH_PCI1_ARBITER_ENABLE |\
-	HRCWH_CORE_ENABLE |\
-	HRCWH_FROM_0X00000100 |\
-	HRCWH_BOOTSEQ_DISABLE |\
-	HRCWH_SW_WATCHDOG_DISABLE |\
-	HRCWH_ROM_LOC_LOCAL_16BIT |\
-	HRCWH_RL_EXT_LEGACY |\
-	HRCWH_TSEC1M_IN_RGMII |\
-	HRCWH_TSEC2M_IN_RGMII |\
-	HRCWH_BIG_ENDIAN)
-
-/*
  * System IO Config
  */
 #define CONFIG_SYS_SICRH (\
