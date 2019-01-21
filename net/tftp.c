@@ -609,7 +609,7 @@ static int tftp_init_load_addr(void)
 	lmb_init_and_reserve(&lmb, gd->bd->bi_dram[0].start,
 			     gd->bd->bi_dram[0].size, (void *)gd->fdt_blob);
 
-	max_size = lmb_get_unreserved_size(&lmb, load_addr);
+	max_size = lmb_get_free_size(&lmb, load_addr);
 	if (!max_size)
 		return -1;
 

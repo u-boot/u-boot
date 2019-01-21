@@ -560,31 +560,31 @@ static int test_get_unreserved_size(struct unit_test_state *uts,
 		   alloc_addr_b, 0x10000, alloc_addr_c, 0x10000);
 
 	/* check addresses in between blocks */
-	s = lmb_get_unreserved_size(&lmb, ram);
+	s = lmb_get_free_size(&lmb, ram);
 	ut_asserteq(s, alloc_addr_a - ram);
-	s = lmb_get_unreserved_size(&lmb, ram + 0x10000);
+	s = lmb_get_free_size(&lmb, ram + 0x10000);
 	ut_asserteq(s, alloc_addr_a - ram - 0x10000);
-	s = lmb_get_unreserved_size(&lmb, alloc_addr_a - 4);
+	s = lmb_get_free_size(&lmb, alloc_addr_a - 4);
 	ut_asserteq(s, 4);
 
-	s = lmb_get_unreserved_size(&lmb, alloc_addr_a + 0x10000);
+	s = lmb_get_free_size(&lmb, alloc_addr_a + 0x10000);
 	ut_asserteq(s, alloc_addr_b - alloc_addr_a - 0x10000);
-	s = lmb_get_unreserved_size(&lmb, alloc_addr_a + 0x20000);
+	s = lmb_get_free_size(&lmb, alloc_addr_a + 0x20000);
 	ut_asserteq(s, alloc_addr_b - alloc_addr_a - 0x20000);
-	s = lmb_get_unreserved_size(&lmb, alloc_addr_b - 4);
+	s = lmb_get_free_size(&lmb, alloc_addr_b - 4);
 	ut_asserteq(s, 4);
 
-	s = lmb_get_unreserved_size(&lmb, alloc_addr_c + 0x10000);
+	s = lmb_get_free_size(&lmb, alloc_addr_c + 0x10000);
 	ut_asserteq(s, ram_end - alloc_addr_c - 0x10000);
-	s = lmb_get_unreserved_size(&lmb, alloc_addr_c + 0x20000);
+	s = lmb_get_free_size(&lmb, alloc_addr_c + 0x20000);
 	ut_asserteq(s, ram_end - alloc_addr_c - 0x20000);
-	s = lmb_get_unreserved_size(&lmb, ram_end - 4);
+	s = lmb_get_free_size(&lmb, ram_end - 4);
 	ut_asserteq(s, 4);
 
 	return 0;
 }
 
-static int lib_test_lmb_get_unreserved_size(struct unit_test_state *uts)
+static int lib_test_lmb_get_free_size(struct unit_test_state *uts)
 {
 	int ret;
 
@@ -597,5 +597,5 @@ static int lib_test_lmb_get_unreserved_size(struct unit_test_state *uts)
 	return test_get_unreserved_size(uts, 0xE0000000);
 }
 
-DM_TEST(lib_test_lmb_get_unreserved_size,
+DM_TEST(lib_test_lmb_get_free_size,
 	DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

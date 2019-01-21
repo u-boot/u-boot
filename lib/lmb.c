@@ -353,7 +353,7 @@ phys_addr_t lmb_alloc_addr(struct lmb *lmb, phys_addr_t base, phys_size_t size)
 }
 
 /* Return number of bytes from a given address that are free */
-phys_size_t lmb_get_unreserved_size(struct lmb *lmb, phys_addr_t addr)
+phys_size_t lmb_get_free_size(struct lmb *lmb, phys_addr_t addr)
 {
 	int i;
 	long j;
