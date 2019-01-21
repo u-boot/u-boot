@@ -20,7 +20,7 @@
  * High Level Configuration Options
  */
 
-/* This needs to be set prior to including km/km83xx-common.h */
+/* This needs to be set prior to including km83xx-common.h */
 
 #define CONFIG_HOSTNAME   "kmtegr1"
 #define CONFIG_KM_BOARD_NAME   "kmtegr1"
@@ -36,7 +36,7 @@
 #define NAND_MAX_CHIPS				1
 
 /* include common defines/options for all 8309 Keymile boards */
-#include "km/km8309-common.h"
+#include "km8309-common.h"
 /* must be after the include because KMBEC_FPGA is otherwise undefined */
 #define CONFIG_SYS_NAND_BASE CONFIG_SYS_KMBEC_FPGA_BASE /* PRIO_BASE_ADDRESS */
 

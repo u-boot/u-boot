@@ -43,7 +43,7 @@
 #endif
 
 /* include common defines/options for all 8321 Keymile boards */
-#include "km/km8321-common.h"
+#include "km8321-common.h"
 
 #define CONFIG_SYS_APP1_BASE	0xA0000000    /* PAXG */
 #define	CONFIG_SYS_APP1_SIZE	256 /* Megabytes */

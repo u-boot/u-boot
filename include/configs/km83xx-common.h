@@ -8,8 +8,8 @@
 #define __CONFIG_KM83XX_H
 
 /* include common defines/options for all Keymile boards */
-#include "keymile-common.h"
-#include "km-powerpc.h"
+#include "km/keymile-common.h"
+#include "km/km-powerpc.h"
 
 /*
  * System Clock Setup

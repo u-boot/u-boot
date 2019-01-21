@@ -38,7 +38,7 @@
 #define CONFIG_QE			/* Has QE */
 
 /* include common defines/options for all 83xx Keymile boards */
-#include "km/km83xx-common.h"
+#include "km83xx-common.h"
 
 /*
  * System IO Setup

@@ -20,12 +20,12 @@
  * High Level Configuration Options
  */
 
-/* This needs to be set prior to including km/km83xx-common.h */
+/* This needs to be set prior to including km83xx-common.h */
 
 #define CONFIG_HOSTNAME		"suvd3"
 #define CONFIG_KM_BOARD_NAME   "suvd3"
 /* include common defines/options for all 8321 Keymile boards */
-#include "km/km8321-common.h"
+#include "km8321-common.h"
 
 #define CONFIG_SYS_APP1_BASE		0xA0000000
 #define CONFIG_SYS_APP1_SIZE		256 /* Megabytes */

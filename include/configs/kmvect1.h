@@ -20,14 +20,14 @@
  * High Level Configuration Options
  */
 
-/* This needs to be set prior to including km/km83xx-common.h */
+/* This needs to be set prior to including km83xx-common.h */
 
 #define CONFIG_HOSTNAME		"kmvect1"
 #define CONFIG_KM_BOARD_NAME   "kmvect1"
 /* at end of uboot partition, before env */
 #define CONFIG_SYS_QE_FW_ADDR   0xF00B0000
 /* include common defines/options for all 8309 Keymile boards */
-#include "km/km8309-common.h"
+#include "km8309-common.h"
 
 #define CONFIG_SYS_APP1_BASE		0xA0000000
 #define CONFIG_SYS_APP1_SIZE		256 /* Megabytes */
