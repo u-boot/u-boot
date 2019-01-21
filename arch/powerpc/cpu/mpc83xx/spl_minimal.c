@@ -7,6 +7,7 @@
 #include <mpc83xx.h>
 
 #include "lblaw/lblaw.h"
+#include "elbc/elbc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -76,9 +76,6 @@
 
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* max sectors per device */
 
-/* FLASH */
-#define CONFIG_SYS_BR0_PRELIM	(0x80000000 | BR_MS_GPCM | BR_PS_32 | BR_V)
-#define CONFIG_SYS_OR0_PRELIM	(OR_AM_1GB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV4 | OR_GPCM_SCY_5 | OR_GPCM_TRLX_SET)
 
 /* disable remaining mappings */
 #define CONFIG_SYS_BR1_PRELIM		0x00000000

@@ -13,6 +13,7 @@
 #endif
 
 #include "lblaw/lblaw.h"
+#include "elbc/elbc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

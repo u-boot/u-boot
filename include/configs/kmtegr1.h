@@ -120,9 +120,6 @@
  */
 #define CONFIG_SYS_FLASH_SIZE		256 /* max FLASH size is 256M */
 
-/* FLASH */
-#define CONFIG_SYS_BR0_PRELIM	(0xF0000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
-#define CONFIG_SYS_OR0_PRELIM	(OR_AM_256MB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_SCY_5 | OR_GPCM_TRLX_SET | OR_GPCM_EAD)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1   /* max num of flash banks	*/
 #define CONFIG_SYS_MAX_FLASH_SECT	512 /* max num of sects on one chip */
@@ -132,9 +129,6 @@
  * PRIO1/PIGGY on the local bus CS1
  */
 
-/* KMBEC_FPGA */
-#define CONFIG_SYS_BR1_PRELIM	(0xE8000000 | BR_PS_8 | BR_MS_GPCM | BR_V)
-#define CONFIG_SYS_OR1_PRELIM	(OR_AM_128MB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | OR_GPCM_SCY_2 | OR_GPCM_TRLX_SET | OR_GPCM_EAD)
 
 /*
  * Serial Port
@@ -400,9 +394,6 @@
  *
  */
 
-/* APP2 */
-#define CONFIG_SYS_BR3_PRELIM	(0xB0000000 | BR_PS_16 | BR_MS_GPCM | BR_V)
-#define CONFIG_SYS_OR3_PRELIM	(OR_AM_256MB | OR_GPCM_SCY_5 | OR_GPCM_TRLX_CLEAR | OR_GPCM_EHTR_CLEAR)
 
 /* ethernet port connected to piggy (UEC2) */
 #define CONFIG_HAS_ETH1

@@ -20,6 +20,7 @@
 #endif
 
 #include "../../../arch/powerpc/cpu/mpc83xx/hrcw/hrcw.h"
+#include "../../../arch/powerpc/cpu/mpc83xx/elbc/elbc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
