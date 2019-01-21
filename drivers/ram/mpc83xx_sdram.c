@@ -179,7 +179,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 	case ODT_RD_NEVER:
 	case ODT_RD_ONLY_CURRENT:
 	case ODT_RD_ONLY_OTHER_CS:
-		if (!IS_ENABLED(CONFIG_MPC830x) &&
+		if (!IS_ENABLED(CONFIG_ARCH_MPC830X) &&
 		    !IS_ENABLED(CONFIG_MPC831x) &&
 		    !IS_ENABLED(CONFIG_MPC8360) &&
 		    !IS_ENABLED(CONFIG_MPC837x)) {
@@ -210,7 +210,7 @@ static int mpc83xx_sdram_static_init(ofnode node, u32 cs, u32 mapaddr, u32 size)
 	case ODT_WR_NEVER:
 	case ODT_WR_ONLY_CURRENT:
 	case ODT_WR_ONLY_OTHER_CS:
-		if (!IS_ENABLED(CONFIG_MPC830x) &&
+		if (!IS_ENABLED(CONFIG_ARCH_MPC830X) &&
 		    !IS_ENABLED(CONFIG_MPC831x) &&
 		    !IS_ENABLED(CONFIG_MPC8360) &&
 		    !IS_ENABLED(CONFIG_MPC837x)) {

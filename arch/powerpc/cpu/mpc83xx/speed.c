@@ -85,12 +85,12 @@ int get_clocks(void)
 	u32 lcrr;
 
 	u32 csb_clk;
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbdr_clk;
-#elif defined(CONFIG_MPC8309)
+#elif defined(CONFIG_ARCH_MPC8309)
 	u32 usbdr_clk;
 #endif
 #ifdef CONFIG_MPC834x
@@ -107,7 +107,7 @@ int get_clocks(void)
 #if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
 #endif
-#if !defined(CONFIG_MPC8309)
+#if !defined(CONFIG_ARCH_MPC8309)
 	u32 enc_clk;
 #endif
 	u32 lbiu_clk;
@@ -122,7 +122,7 @@ int get_clocks(void)
 	u32 qe_clk;
 	u32 brg_clk;
 #endif
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
 	u32 pciexp1_clk;
 	u32 pciexp2_clk;
@@ -155,7 +155,7 @@ int get_clocks(void)
 
 	sccr = im->clk.sccr;
 
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	switch ((sccr & SCCR_TSEC1CM) >> SCCR_TSEC1CM_SHIFT) {
 	case 0:
@@ -176,7 +176,7 @@ int get_clocks(void)
 	}
 #endif
 
-#if defined(CONFIG_MPC830x) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC830X) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	switch ((sccr & SCCR_USBDRCM) >> SCCR_USBDRCM_SHIFT) {
 	case 0:
@@ -197,7 +197,7 @@ int get_clocks(void)
 	}
 #endif
 
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC8315) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC8315) || \
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	switch ((sccr & SCCR_TSEC2CM) >> SCCR_TSEC2CM_SHIFT) {
 	case 0:
@@ -252,7 +252,7 @@ int get_clocks(void)
 		return -6;
 	}
 #endif
-#if !defined(CONFIG_MPC8309)
+#if !defined(CONFIG_ARCH_MPC8309)
 	switch ((sccr & SCCR_ENCCM) >> SCCR_ENCCM_SHIFT) {
 	case 0:
 		enc_clk = 0;
@@ -317,20 +317,20 @@ int get_clocks(void)
 	i2c1_clk = csb_clk;
 #elif defined(CONFIG_MPC832x)
 	i2c1_clk = enc_clk;
-#elif defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x)
+#elif defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x)
 	i2c1_clk = enc_clk;
 #elif defined(CONFIG_FSL_ESDHC)
 	i2c1_clk = sdhc_clk;
 #elif defined(CONFIG_MPC837x)
 	i2c1_clk = enc_clk;
-#elif defined(CONFIG_MPC8309)
+#elif defined(CONFIG_ARCH_MPC8309)
 	i2c1_clk = csb_clk;
 #endif
 #if !defined(CONFIG_MPC832x)
 	i2c2_clk = csb_clk; /* i2c-2 clk is equal to csb clk */
 #endif
 
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
 	switch ((sccr & SCCR_PCIEXP1CM) >> SCCR_PCIEXP1CM_SHIFT) {
 	case 0:
@@ -448,12 +448,12 @@ int get_clocks(void)
 #endif
 
 	gd->arch.csb_clk = csb_clk;
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	gd->arch.tsec1_clk = tsec1_clk;
 	gd->arch.tsec2_clk = tsec2_clk;
 	gd->arch.usbdr_clk = usbdr_clk;
-#elif defined(CONFIG_MPC8309)
+#elif defined(CONFIG_ARCH_MPC8309)
 	gd->arch.usbdr_clk = usbdr_clk;
 #endif
 #if defined(CONFIG_MPC834x)
@@ -470,7 +470,7 @@ int get_clocks(void)
 #if !defined(CONFIG_MPC832x)
 	gd->arch.i2c2_clk = i2c2_clk;
 #endif
-#if !defined(CONFIG_MPC8309)
+#if !defined(CONFIG_ARCH_MPC8309)
 	gd->arch.enc_clk = enc_clk;
 #endif
 	gd->arch.lbiu_clk = lbiu_clk;
@@ -483,7 +483,7 @@ int get_clocks(void)
 	gd->arch.qe_clk = qe_clk;
 	gd->arch.brg_clk = brg_clk;
 #endif
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
 	gd->arch.pciexp1_clk = pciexp1_clk;
 	gd->arch.pciexp2_clk = pciexp2_clk;
@@ -540,7 +540,7 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("  DDR Secondary:       %-4s MHz\n",
 	       strmhz(buf, gd->arch.mem_sec_clk));
 #endif
-#if !defined(CONFIG_MPC8309)
+#if !defined(CONFIG_ARCH_MPC8309)
 	printf("  SEC:                 %-4s MHz\n",
 	       strmhz(buf, gd->arch.enc_clk));
 #endif
@@ -558,7 +558,7 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("  SDHC:                %-4s MHz\n",
 	       strmhz(buf, gd->arch.sdhc_clk));
 #endif
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	printf("  TSEC1:               %-4s MHz\n",
 	       strmhz(buf, gd->arch.tsec1_clk));
@@ -566,7 +566,7 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	       strmhz(buf, gd->arch.tsec2_clk));
 	printf("  USB DR:              %-4s MHz\n",
 	       strmhz(buf, gd->arch.usbdr_clk));
-#elif defined(CONFIG_MPC8309)
+#elif defined(CONFIG_ARCH_MPC8309)
 	printf("  USB DR:              %-4s MHz\n",
 	       strmhz(buf, gd->arch.usbdr_clk));
 #endif
@@ -574,7 +574,7 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("  USB MPH:             %-4s MHz\n",
 	       strmhz(buf, gd->arch.usbmph_clk));
 #endif
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
 	printf("  PCIEXP1:             %-4s MHz\n",
 	       strmhz(buf, gd->arch.pciexp1_clk));

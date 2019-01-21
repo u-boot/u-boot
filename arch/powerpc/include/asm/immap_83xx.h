@@ -59,12 +59,12 @@ typedef struct sysconf83xx {
 	u32 obir;		/* Output Buffer Impedance Register */
 	u8 res8[0xC];
 	u32 pecr1;		/* PCI Express control register 1 */
-#if defined(CONFIG_MPC830x)
+#if defined(CONFIG_ARCH_MPC830X)
 	u32 sdhccr;		/* eSDHC Control Registers for MPC830x */
 #else
 	u32 pecr2;		/* PCI Express control register 2 */
 #endif
-#if defined(CONFIG_MPC8309)
+#if defined(CONFIG_ARCH_MPC8309)
 	u32 can_dbg_ctrl;
 	u32 res9a;
 	u32 gpr1;
@@ -604,7 +604,7 @@ typedef struct serdes83xx {
  * On Chip ROM
  */
 typedef struct rom83xx {
-#if defined(CONFIG_MPC8309)
+#if defined(CONFIG_ARCH_MPC8309)
 	u8 mem[0x8000];
 #else
 	u8 mem[0x10000];
@@ -714,7 +714,7 @@ typedef struct immap {
 	u8			res7[0xC0000];
 } immap_t;
 
-#elif defined(CONFIG_MPC8308) || defined(CONFIG_MPC8315)
+#elif defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC8315)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
@@ -879,7 +879,7 @@ typedef struct immap {
 	u8			res8[0xC0000];
 	u8			qe[0x100000];	/* QE block */
 } immap_t;
-#elif defined(CONFIG_MPC8309)
+#elif defined(CONFIG_ARCH_MPC8309)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */

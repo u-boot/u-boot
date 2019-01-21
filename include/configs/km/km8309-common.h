@@ -14,8 +14,6 @@
  */
 #define CONFIG_E300		1	/* E300 family */
 #define CONFIG_QE		1	/* Has QE */
-#define CONFIG_MPC830x		1	/* MPC830x family */
-#define CONFIG_MPC8309		1	/* MPC8309 CPU specific */
 
 #define CONFIG_KM_DEF_ARCH	"arch=ppc_82xx\0"
 

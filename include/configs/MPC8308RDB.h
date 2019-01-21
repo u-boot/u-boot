@@ -12,8 +12,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1 /* E300 family */
-#define CONFIG_MPC830x		1 /* MPC830x family */
-#define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
 
 #ifdef CONFIG_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR

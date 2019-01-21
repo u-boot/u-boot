@@ -135,7 +135,7 @@
 #define CONFIG_UEC_ETH
 #define CONFIG_ETHPRIME		"UEC0"
 
-#if !defined(CONFIG_MPC8309)
+#if !defined(CONFIG_ARCH_MPC8309)
 #define CONFIG_UEC_ETH1		/* GETH1 */
 #define UEC_VERBOSE_DEBUG	1
 #endif

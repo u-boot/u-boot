@@ -129,7 +129,7 @@
 #define SPCR_TSEC2EP			0x00000003
 #define SPCR_TSEC2EP_SHIFT		(31-31)
 
-#elif defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#elif defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
 /* SPCR bits - MPC8308, MPC831x and MPC837x specific */
 /* TSEC data priority */
@@ -336,7 +336,7 @@
 #define SICRH_SPI			0x00000003
 #define SICRH_SPI_SD			0x00000001
 
-#elif defined(CONFIG_MPC8308)
+#elif defined(CONFIG_ARCH_MPC8308)
 /* SICRL bits - MPC8308 specific */
 #define SICRL_SPI_PF0			(0 << 28)
 #define SICRL_SPI_PF1			(1 << 28)
@@ -384,7 +384,7 @@
 #define SICRH_TSOBI2_V3P3		(0 << 0)
 #define SICRH_TSOBI2_V2P5		(1 << 0)
 
-#elif defined(CONFIG_MPC8309)
+#elif defined(CONFIG_ARCH_MPC8309)
 /* SICR_1 */
 #define SICR_1_UART1_UART1S		(0 << (30-2))
 #define SICR_1_UART1_UART1RTS		(1 << (30-2))
@@ -639,7 +639,7 @@
 #define HRCWL_CE_TO_PLL_1X30		0x0000001E
 #define HRCWL_CE_TO_PLL_1X31		0x0000001F
 
-#elif defined(CONFIG_MPC8308) || defined(CONFIG_MPC8315)
+#elif defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC8315)
 #define HRCWL_SVCOD			0x30000000
 #define HRCWL_SVCOD_SHIFT		28
 #define HRCWL_SVCOD_DIV_2		0x00000000
@@ -654,7 +654,7 @@
 #define HRCWL_SVCOD_DIV_8		0x10000000
 #define HRCWL_SVCOD_DIV_2		0x20000000
 #define HRCWL_SVCOD_DIV_1		0x30000000
-#elif defined(CONFIG_MPC8309)
+#elif defined(CONFIG_ARCH_MPC8309)
 
 #define HRCWL_CEVCOD			0x000000C0
 #define HRCWL_CEVCOD_SHIFT		6
@@ -765,7 +765,7 @@
 #define HRCWH_ROM_LOC_LOCAL_16BIT	0x00600000
 #define HRCWH_ROM_LOC_LOCAL_32BIT	0x00700000
 
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
 #define HRCWH_ROM_LOC_NAND_SP_8BIT	0x00100000
 #define HRCWH_ROM_LOC_NAND_SP_16BIT	0x00200000
@@ -818,7 +818,7 @@
 /*
  * RSR - Reset Status Register
  */
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
 #define RSR_RSTSRC			0xF0000000	/* Reset source */
 #define RSR_RSTSRC_SHIFT		28
@@ -986,7 +986,7 @@
 #define SCCR_USBDRCM_2			0x00200000
 #define SCCR_USBDRCM_3			0x00300000
 
-#elif defined(CONFIG_MPC8308) || defined(CONFIG_MPC8315)
+#elif defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC8315)
 /* SCCR bits - MPC8315/MPC8308 specific */
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30
@@ -1071,7 +1071,7 @@
 #define SCCR_SATACM_1			0x00000055
 #define SCCR_SATACM_2			0x000000aa
 #define SCCR_SATACM_3			0x000000ff
-#elif defined(CONFIG_MPC8309)
+#elif defined(CONFIG_ARCH_MPC8309)
 /* SCCR bits - MPC8309 specific */
 #define SCCR_SDHCCM			0x0c000000
 #define SCCR_SDHCCM_SHIFT		26
@@ -1117,7 +1117,7 @@
  */
 #define CSCONFIG_EN			0x80000000
 #define CSCONFIG_AP			0x00800000
-#if defined(CONFIG_MPC830x) || defined(CONFIG_MPC831x)
+#if defined(CONFIG_ARCH_MPC830X) || defined(CONFIG_MPC831x)
 #define CSCONFIG_ODT_RD_NEVER		0x00000000
 #define CSCONFIG_ODT_RD_ONLY_CURRENT	0x00100000
 #define CSCONFIG_ODT_RD_ONLY_OTHER_CS	0x00200000
@@ -1239,14 +1239,14 @@
 #define SDRAM_CFG_SDRAM_TYPE_MASK	0x07000000
 #define SDRAM_CFG_SDRAM_TYPE_SHIFT	24
 #define SDRAM_CFG_DYN_PWR		0x00200000
-#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x)
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x)
 #define SDRAM_CFG_DBW_MASK		0x00180000
 #define SDRAM_CFG_DBW_16		0x00100000
 #define SDRAM_CFG_DBW_32		0x00080000
 #else
 #define SDRAM_CFG_32_BE			0x00080000
 #endif
-#if !defined(CONFIG_MPC8308)
+#if !defined(CONFIG_ARCH_MPC8308)
 #define SDRAM_CFG_8_BE			0x00040000
 #endif
 #define SDRAM_CFG_NCAP			0x00020000

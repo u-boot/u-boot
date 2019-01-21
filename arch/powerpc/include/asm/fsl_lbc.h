@@ -133,7 +133,7 @@ void lbc_sdram_init(void);
 #define OR_GPCM_EHTR_SHIFT		1
 #define OR_GPCM_EHTR_CLEAR		0x00000000
 #define OR_GPCM_EHTR_SET		0x00000002
-#if !defined(CONFIG_MPC8308)
+#if !defined(CONFIG_ARCH_MPC8308)
 #define OR_GPCM_EAD			0x00000001
 #define OR_GPCM_EAD_SHIFT		0
 #endif

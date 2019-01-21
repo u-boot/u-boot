@@ -35,12 +35,12 @@ struct arch_global_data {
 #else
 	/* There are other clocks in the MPC83XX */
 	u32 csb_clk;
-# if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+# if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbdr_clk;
-# elif defined(CONFIG_MPC8309)
+# elif defined(CONFIG_ARCH_MPC8309)
 	u32 usbdr_clk;
 # endif
 # if defined(CONFIG_MPC834x)
@@ -53,7 +53,7 @@ struct arch_global_data {
 	u32 enc_clk;
 	u32 lbiu_clk;
 	u32 lclk_clk;
-# if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+# if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x) || \
 	defined(CONFIG_MPC837x)
 	u32 pciexp1_clk;
 	u32 pciexp2_clk;

@@ -56,7 +56,7 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{5,  2, 1, 0, 1}, /* UART2_RTS */
 	{5,  3, 2, 0, 2}, /* UART2_SIN */
 	{5,  1, 2, 0, 3}, /* UART2_CTS */
-#elif !defined(CONFIG_MPC8309)
+#elif !defined(CONFIG_ARCH_MPC8309)
 	/* Local Bus */
 	{0, 16, 1, 0, 3}, /* LA00 */
 	{0, 17, 1, 0, 3}, /* LA01 */

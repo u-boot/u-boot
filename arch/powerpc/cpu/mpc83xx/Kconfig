@@ -10,6 +10,7 @@ choice
 
 config TARGET_MPC8308_P1M
 	bool "Support mpc8308_p1m"
+	select ARCH_MPC8308
 
 config TARGET_SBC8349
 	bool "Support sbc8349"
@@ -22,6 +23,7 @@ config TARGET_VME8349
 
 config TARGET_MPC8308RDB
 	bool "Support MPC8308RDB"
+	select ARCH_MPC8308
 	select SYS_FSL_ERRATUM_ESDHC111
 
 config TARGET_MPC8313ERDB
@@ -74,6 +76,8 @@ config TARGET_KM8360
 
 config TARGET_SUVD3
 	bool "Support suvd3"
+	select ARCH_MPC8309 if SYS_EXTRA_OPTIONS="KMTEGR1"
+	select ARCH_MPC8309 if SYS_EXTRA_OPTIONS="KMVECT1"
 	imply CMD_CRAMFS
 	imply FS_CRAMFS
 
@@ -87,14 +91,27 @@ config TARGET_TQM834X
 
 config TARGET_HRCON
 	bool "Support hrcon"
+	select ARCH_MPC8308
 	select SYS_FSL_ERRATUM_ESDHC111
 
 config TARGET_STRIDER
 	bool "Support strider"
+	select ARCH_MPC8308
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply CMD_PCA953X
 
 endchoice
+
+config ARCH_MPC830X
+	bool
+
+config ARCH_MPC8308
+	bool
+	select ARCH_MPC830X
+
+config ARCH_MPC8309
+	bool
+	select ARCH_MPC830X
 
 source "board/esd/vme8349/Kconfig"
 source "board/freescale/mpc8308rdb/Kconfig"
