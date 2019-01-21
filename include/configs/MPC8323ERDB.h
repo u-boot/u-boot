@@ -21,11 +21,6 @@
 #define CONFIG_SYS_SICRL		0x00000000
 
 /*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * System performance
  */
 #define CONFIG_SYS_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */

@@ -47,11 +47,6 @@
 #define CONFIG_SYS_OBIR		0x30100000
 
 /*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * Device configurations
  */
 

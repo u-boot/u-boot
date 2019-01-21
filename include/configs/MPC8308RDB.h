@@ -53,11 +53,6 @@
 	SICRL_ETSEC1_GTX_CLK125)	/* 0x00000040 */
 
 /*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * SERDES
  */
 #define CONFIG_FSL_SERDES

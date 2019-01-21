@@ -45,11 +45,6 @@
 #define CONFIG_83XX_PCICLK		66000000
 
 /*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * Bus Arbitration Configuration Register (ACR)
  */
 #define CONFIG_SYS_ACR_PIPE_DEP 3       /* pipeline depth 4 transactions */

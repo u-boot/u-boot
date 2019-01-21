@@ -16,9 +16,6 @@
  */
 #define CONFIG_E300		1	/* E300 Family */
 
-/* IMMR Base Address Register, use Freescale default: 0xff400000 */
-#define CONFIG_SYS_IMMR		0xff400000
-
 /*
  * Local Bus LCRR
  *    LCRR:  DLL bypass, Clock divider is 8

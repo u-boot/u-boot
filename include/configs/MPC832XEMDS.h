@@ -18,11 +18,6 @@
 #define CONFIG_SYS_SICRL		0x00000000
 
 /*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * DDR Setup
  */
 #define CONFIG_SYS_DDR_BASE	0x00000000	/* DDR is system memory */

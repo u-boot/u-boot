@@ -39,11 +39,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_SYS_IMMR	0xE0000000	/* The IMMR is relocated to here */
-
 #define CONFIG_MISC_INIT_F
 
 /*

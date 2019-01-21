@@ -40,11 +40,6 @@
 #define CONFIG_HWCONFIG
 
 /*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * DDR Setup
  */
 #define CONFIG_SYS_DDR_BASE		0x00000000 /* DDR is system memory */

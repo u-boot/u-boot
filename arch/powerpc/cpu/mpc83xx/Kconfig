@@ -282,6 +282,13 @@ config ARCH_MPC837X
 	select MPC83XX_LDP_PIN
 	select MPC83XX_SECOND_I2C_SUPPORT
 
+config SYS_IMMR
+	hex "Value for IMMR"
+	default 0xE0000000
+	help
+	  Address for the Internal Memory-Mapped Registers (IMMR) window used
+	  to configure the features of the SoC.
+
 source "arch/powerpc/cpu/mpc83xx/hrcw/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/bats/Kconfig"
 source "arch/powerpc/cpu/mpc83xx/lblaw/Kconfig"

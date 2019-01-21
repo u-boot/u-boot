@@ -56,11 +56,6 @@
 #define CONFIG_SYS_GPIO1_DAT        0x08008C00
 
 /*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * SERDES
  */
 #define CONFIG_FSL_SERDES

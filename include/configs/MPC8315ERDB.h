@@ -32,11 +32,6 @@
 #define CONFIG_HWCONFIG
 
 /*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * Arbiter Setup
  */
 #define CONFIG_SYS_ACR_PIPE_DEP	3 /* Arbiter pipeline depth is 4 */

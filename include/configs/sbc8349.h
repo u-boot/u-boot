@@ -22,8 +22,6 @@
 /* Don't enable PCI2 on sbc834x - it doesn't exist physically. */
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 
-#define CONFIG_SYS_IMMR		0xE0000000
-
 #undef CONFIG_SYS_DRAM_TEST		/* memory test, takes time */
 #define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest region */
 #define CONFIG_SYS_MEMTEST_END		0x00100000
