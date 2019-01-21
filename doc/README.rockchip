@@ -52,13 +52,14 @@ One RK3328 board is supported:
 
    - EVB RK3328
 
-Five RK3399 boards are supported (aarch64):
+Size RK3399 boards are supported (aarch64):
 
    - EBV RK3399 - use evb_rk3399 configuration
    - Firefly RK3399 - use the firefly_rk3399 configuration
    - Puma - use puma_rk3399 configuration
    - Ficus - use ficus-rk3399 configuration
    - Rock960 (Vamrs) - use rock960-rk3399 configuration
+   - Bob - use chromebook_bob configuration
 
 Four RK3368 boards are supported:
 
@@ -253,7 +254,8 @@ You should see something like:
 Booting from SPI
 ================
 
-To write an image that boots from SPI flash (e.g. for the Haier Chromebook):
+To write an image that boots from SPI flash (e.g. for the Haier Chromebook or
+Bob):
 
    ./chromebook_jerry/tools/mkimage -n rk3288 -T rkspi \
 	-d chromebook_jerry/spl/u-boot-spl-dtb.bin spl.bin && \
