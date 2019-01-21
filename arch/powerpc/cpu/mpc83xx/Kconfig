@@ -80,8 +80,15 @@ config TARGET_IDS8313
 	select DM
 	imply CMD_DM
 
-config TARGET_KM8360
-	bool "Support km8360"
+config TARGET_KMETER1
+	bool "Support kmeter1"
+	select ARCH_MPC8360
+	imply CMD_CRAMFS
+	imply CMD_DIAG
+	imply FS_CRAMFS
+
+config TARGET_KMCOGE5NE
+	bool "Support kmcoge5ne"
 	select ARCH_MPC8360
 	imply CMD_CRAMFS
 	imply CMD_DIAG
