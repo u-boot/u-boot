@@ -285,7 +285,6 @@
 /*
  * BAT's
  */
-#define CONFIG_HIGH_BATS
 
 /* DDR @ 0x00000000 */
 #define CONFIG_SYS_IBAT0L		(CONFIG_SYS_SDRAM_BASE |\

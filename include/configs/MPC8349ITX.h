@@ -481,7 +481,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_HID0_FINAL	HID0_ENABLE_INSTRUCTION_CACHE
 
 #define CONFIG_SYS_HID2	HID2_HBE
-#define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* DDR  */
 #define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE \
