@@ -23,6 +23,7 @@ struct efi_hii_packagelist {
 	efi_handle_t driver_handle;
 	u32 max_string_id;
 	struct list_head string_tables;     /* list of efi_string_table */
+	struct list_head guid_list;
 
 	/* we could also track fonts, images, etc */
 };
@@ -78,6 +79,11 @@ struct efi_string_table {
 	 *  and strings[] is a array of stbl->nstrings elements
 	 */
 	struct efi_string_info *strings;
+};
+
+struct efi_guid_data {
+	struct list_head link;
+	struct efi_hii_guid_package package;
 };
 
 static void free_strings_table(struct efi_string_table *stbl)
@@ -218,6 +224,35 @@ error:
 	return ret;
 }
 
+static void remove_guid_package(struct efi_hii_packagelist *hii)
+{
+	struct efi_guid_data *data;
+
+	while (!list_empty(&hii->guid_list)) {
+		data = list_first_entry(&hii->guid_list,
+					struct efi_guid_data, link);
+		list_del(&data->link);
+		free(data);
+	}
+}
+
+static efi_status_t
+add_guid_package(struct efi_hii_packagelist *hii,
+		 struct efi_hii_guid_package *package)
+{
+	struct efi_guid_data *data;
+
+	data = calloc(sizeof(*data), 1);
+	if (!data)
+		return EFI_OUT_OF_RESOURCES;
+
+	/* TODO: we don't know any about data field */
+	memcpy(&data->package, package, sizeof(*package));
+	list_add_tail(&data->link, &hii->guid_list);
+
+	return EFI_SUCCESS;
+}
+
 static struct efi_hii_packagelist *new_packagelist(void)
 {
 	struct efi_hii_packagelist *hii;
@@ -225,6 +260,7 @@ static struct efi_hii_packagelist *new_packagelist(void)
 	hii = malloc(sizeof(*hii));
 	hii->max_string_id = 0;
 	INIT_LIST_HEAD(&hii->string_tables);
+	INIT_LIST_HEAD(&hii->guid_list);
 
 	return hii;
 }
@@ -232,6 +268,7 @@ static struct efi_hii_packagelist *new_packagelist(void)
 static void free_packagelist(struct efi_hii_packagelist *hii)
 {
 	remove_strings_package(hii);
+	remove_guid_package(hii);
 
 	list_del(&hii->link);
 	free(hii);
@@ -259,8 +296,8 @@ add_packages(struct efi_hii_packagelist *hii,
 
 		switch (efi_hii_package_type(package)) {
 		case EFI_HII_PACKAGE_TYPE_GUID:
-			printf("\tGuid package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
+			ret = add_guid_package(hii,
+				(struct efi_hii_guid_package *)package);
 			break;
 		case EFI_HII_PACKAGE_FORMS:
 			printf("\tForm package not supported\n");
@@ -395,8 +432,7 @@ update_package_list(const struct efi_hii_database_protocol *this,
 
 		switch (efi_hii_package_type(package)) {
 		case EFI_HII_PACKAGE_TYPE_GUID:
-			printf("\tGuid package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
+			remove_guid_package(hii);
 			break;
 		case EFI_HII_PACKAGE_FORMS:
 			printf("\tForm package not supported\n");
@@ -482,8 +518,8 @@ list_package_lists(const struct efi_hii_database_protocol *this,
 		case EFI_HII_PACKAGE_TYPE_ALL:
 			break;
 		case EFI_HII_PACKAGE_TYPE_GUID:
-			printf("\tGuid package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
+			if (!list_empty(&hii->guid_list))
+				break;
 			continue;
 		case EFI_HII_PACKAGE_FORMS:
 			printf("\tForm package not supported\n");

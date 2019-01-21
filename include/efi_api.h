@@ -745,6 +745,15 @@ struct efi_hii_package_header {
 #define EFI_HII_PACKAGE_TYPE_SYSTEM_END   0xFF
 
 /*
+ * HII GUID package
+ */
+struct efi_hii_guid_package {
+	struct efi_hii_package_header header;
+	efi_guid_t guid;
+	char data[];
+} __packed;
+
+/*
  * HII string package
  */
 struct efi_hii_strings_package {
