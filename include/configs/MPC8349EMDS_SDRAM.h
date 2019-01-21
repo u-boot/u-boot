@@ -357,13 +357,6 @@
 
 #if defined(CONFIG_PCI)
 
-#define PCI_ONE_PCI1
-#if defined(PCI_64BIT)
-#undef PCI_ALL_PCI1
-#undef PCI_TWO_PCI1
-#undef PCI_ONE_PCI1
-#endif
-
 #define CONFIG_83XX_PCI_STREAMING
 
 #undef CONFIG_EEPRO100
@@ -508,7 +501,7 @@
 	HRCWH_TSEC1M_IN_GMII |\
 	HRCWH_TSEC2M_IN_GMII)
 #else
-#if defined(PCI_64BIT)
+#if defined(CONFIG_PCI_64BIT)
 #define CONFIG_SYS_HRCW_HIGH (\
 	HRCWH_PCI_HOST |\
 	HRCWH_64_BIT_PCI |\
@@ -534,7 +527,7 @@
 	HRCWH_ROM_LOC_LOCAL_16BIT |\
 	HRCWH_TSEC1M_IN_GMII |\
 	HRCWH_TSEC2M_IN_GMII)
-#endif /* PCI_64BIT */
+#endif /* CONFIG_PCI_64BIT */
 #endif /* CONFIG_PCISLAVE */
 
 /*

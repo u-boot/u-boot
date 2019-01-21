@@ -307,14 +307,6 @@
 
 #if defined(CONFIG_PCI)
 
-#define PCI_64BIT
-#define PCI_ONE_PCI1
-#if defined(PCI_64BIT)
-#undef PCI_ALL_PCI1
-#undef PCI_TWO_PCI1
-#undef PCI_ONE_PCI1
-#endif
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 
@@ -435,7 +427,7 @@
 	HRCWL_CORE_TO_CSB_1X1)
 #endif
 
-#if defined(PCI_64BIT)
+#if defined(CONFIG_PCI_64BIT)
 #define CONFIG_SYS_HRCW_HIGH (\
 	HRCWH_PCI_HOST |\
 	HRCWH_64_BIT_PCI |\

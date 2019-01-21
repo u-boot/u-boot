@@ -212,14 +212,6 @@
 
 #if defined(CONFIG_PCI)
 
-#define PCI_64BIT
-#define PCI_ONE_PCI1
-#if defined(PCI_64BIT)
-#undef PCI_ALL_PCI1
-#undef PCI_TWO_PCI1
-#undef PCI_ONE_PCI1
-#endif
-
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
 

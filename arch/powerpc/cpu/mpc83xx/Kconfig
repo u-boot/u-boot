@@ -215,6 +215,32 @@ config ARCH_MPC8360
 config ARCH_MPC837X
 	bool
 
+menu "Legacy options"
+
+if ARCH_MPC8349
+
+#TODO(mario.six@gdsys.cc): Remove when mpc83xx PCI has been converted to DM/DT
+choice
+	prompt "PMC slot configuration"
+
+config PCI_ALL_PCI1
+	bool "All PMC slots on PCI1"
+
+config PCI_ONE_PCI1
+	bool "First PMC1 on PCI1"
+
+config PCI_TWO_PCI1
+	bool "First two PMC1 on PCI1"
+
+endchoice
+
+config PCI_64BIT
+	bool "PMC2 is 64bit"
+
+endif
+
+endmenu
+
 source "board/esd/vme8349/Kconfig"
 source "board/freescale/mpc8308rdb/Kconfig"
 source "board/freescale/mpc8313erdb/Kconfig"
