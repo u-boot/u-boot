@@ -217,7 +217,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 				| BR_PS_16 \
 				| BR_MS_GPCM \
 				| BR_V)
-#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_16MB \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \

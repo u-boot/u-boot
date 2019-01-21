@@ -137,7 +137,7 @@
 				| BR_PS_16	/* 16 bit port */ \
 				| BR_MS_GPCM	/* MSEL = GPCM */ \
 				| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_16MB \
 				| OR_GPCM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_ACS_DIV2 \
@@ -188,7 +188,7 @@
 				| BR_MS_GPCM \
 				| BR_V)
 				/* 0xF8008801 */
-#define CONFIG_SYS_OR2_PRELIM	(P2SZ_TO_AM(CONFIG_SYS_PIB_WINDOW_SIZE) \
+#define CONFIG_SYS_OR2_PRELIM	(OR_AM_32KB \
 				| OR_GPCM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_XACS \
@@ -207,7 +207,7 @@
 				| BR_MS_GPCM \
 				| BR_V)
 				/* 0xF8010801 */
-#define CONFIG_SYS_OR3_PRELIM	(P2SZ_TO_AM(CONFIG_SYS_PIB_WINDOW_SIZE) \
+#define CONFIG_SYS_OR3_PRELIM	(OR_AM_32KB \
 				| OR_GPCM_XAM \
 				| OR_GPCM_CSNT \
 				| OR_GPCM_XACS \

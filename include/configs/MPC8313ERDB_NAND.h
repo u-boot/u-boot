@@ -258,7 +258,7 @@
 					| BR_MS_GPCM	/* MSEL = GPCM */ \
 					| BR_V)		/* valid */
 					/* 0xFA000801 */
-#define CONFIG_SYS_OR3_PRELIM		(P2SZ_TO_AM(CONFIG_SYS_BCSR_SIZE) \
+#define CONFIG_SYS_OR3_PRELIM		(OR_AM_32KB \
 					| OR_GPCM_CSNT \
 					| OR_GPCM_ACS_DIV2 \
 					| OR_GPCM_XACS \
@@ -279,7 +279,7 @@
 					| BR_PS_8	/* 8 bit port */ \
 					| BR_MS_GPCM	/* MSEL = GPCM */ \
 					| BR_V)		/* valid */
-#define CONFIG_SYS_OR2_PRELIM		(P2SZ_TO_AM(CONFIG_SYS_VSC7385_SIZE) \
+#define CONFIG_SYS_OR2_PRELIM		(OR_AM_128KB \
 					| OR_GPCM_CSNT \
 					| OR_GPCM_XACS \
 					| OR_GPCM_SCY_15 \

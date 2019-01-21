@@ -192,7 +192,7 @@
 				| BR_PS_16	/* 16 bit port */ \
 				| BR_MS_GPCM	/* MSEL = GPCM */ \
 				| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
+#define CONFIG_SYS_OR0_PRELIM	(OR_AM_8MB \
 				| OR_GPCM_XACS \
 				| OR_GPCM_SCY_9 \
 				| OR_GPCM_EHTR_SET \

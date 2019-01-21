@@ -147,7 +147,7 @@
 					 BR_MS_GPCM |\
 					 BR_V)
 
-#define CONFIG_SYS_OR0_PRELIM		(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) |\
+#define CONFIG_SYS_OR0_PRELIM		(OR_AM_8MB |\
 					 OR_GPCM_SCY_10 |\
 					 OR_GPCM_EHTR |\
 					 OR_GPCM_TRLX |\
@@ -171,12 +171,12 @@
 #define NAND_CACHE_PAGES		64
 
 #define CONFIG_SYS_BR1_PRELIM	((CONFIG_SYS_NAND_BASE) |\
-				 (2<<BR_DECC_SHIFT) |\
+				 BR_DECC_CHK_GEN |\
 				 BR_PS_8 |\
 				 BR_MS_FCM |\
 				 BR_V)
 
-#define CONFIG_SYS_OR1_PRELIM	(0xFFFF8000 |\
+#define CONFIG_SYS_OR1_PRELIM	(OR_AM_32KB |\
 				 OR_FCM_PGS |\
 				 OR_FCM_CSCT |\
 				 OR_FCM_CST |\
@@ -199,7 +199,7 @@
 					 BR_MS_GPCM |\
 					 BR_V)
 
-#define CONFIG_SYS_OR2_PRELIM		0xFFFE0C74
+#define CONFIG_SYS_OR2_PRELIM		(OR_AM_128KB | OR_GPCM_CSNT | OR_GPCM_ACS_DIV4 | OR_GPCM_SCY_7 | OR_GPCM_TRLX_SET)
 
 /*
  * CPLD setup
@@ -214,7 +214,7 @@
 					 BR_MS_GPCM |\
 					 BR_V)
 
-#define CONFIG_SYS_OR3_PRELIM		0xFFFF8814
+#define CONFIG_SYS_OR3_PRELIM		(OR_AM_32KB | OR_GPCM_CSNT | OR_GPCM_SCY_1 | OR_GPCM_TRLX_SET)
 
 /*
  * HW-Watchdog
