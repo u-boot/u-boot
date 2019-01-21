@@ -23,8 +23,8 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_KM_BOARD_NAME	"tuxx1"
-#define CONFIG_HOSTNAME		"tuxx1"
+#define CONFIG_KM_BOARD_NAME    "kmtepr2"
+#define CONFIG_HOSTNAME         "kmtepr2"
 
 /*
  * High Level Configuration Options
@@ -184,26 +184,16 @@
 /*
  * Configuration for C3 on the local bus
  */
-/* Access window base at PINC3 base */
 #define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_APP2_BASE
-/* Window size: 256 MB */
 #define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
-
 #define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_APP2_BASE | \
-				 BR_PS_8 |		\
+				 BR_PS_16 |		\
 				 BR_MS_GPCM |		\
 				 BR_V)
-
 #define CONFIG_SYS_OR3_PRELIM	(MEG_TO_AM(CONFIG_SYS_APP2_SIZE) | \
-				 OR_GPCM_CSNT |	\
-				 OR_GPCM_ACS_DIV2 | \
-				 OR_GPCM_SCY_2 | \
-				 OR_GPCM_TRLX_SET | \
+				 OR_GPCM_SCY_4 | \
+				 OR_GPCM_TRLX_CLEAR | \
 				 OR_GPCM_EHTR_CLEAR)
-
-#define CONFIG_SYS_MAMR		(MxMR_GPL_x4DIS | \
-				 0x0000c000 | \
-				 MxMR_WLFx_2X)
 
 /*
  * MMU Setup

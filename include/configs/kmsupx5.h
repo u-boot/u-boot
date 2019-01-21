@@ -23,8 +23,8 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_KM_BOARD_NAME	"tuxx1"
-#define CONFIG_HOSTNAME		"tuxx1"
+#define CONFIG_KM_BOARD_NAME	"kmsupx5"
+#define CONFIG_HOSTNAME		"kmsupx5"
 
 /*
  * High Level Configuration Options
@@ -142,8 +142,6 @@
 
 #define CONFIG_SYS_APP1_BASE	0xA0000000    /* PAXG */
 #define	CONFIG_SYS_APP1_SIZE	256 /* Megabytes */
-#define CONFIG_SYS_APP2_BASE	0xB0000000    /* PINC3 */
-#define	CONFIG_SYS_APP2_SIZE	256 /* Megabytes */
 
 /*
  * Init Local Bus Memory Controller:
@@ -182,30 +180,6 @@
 				 OR_GPCM_EAD)
 
 /*
- * Configuration for C3 on the local bus
- */
-/* Access window base at PINC3 base */
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_APP2_BASE
-/* Window size: 256 MB */
-#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_256MB)
-
-#define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_APP2_BASE | \
-				 BR_PS_8 |		\
-				 BR_MS_GPCM |		\
-				 BR_V)
-
-#define CONFIG_SYS_OR3_PRELIM	(MEG_TO_AM(CONFIG_SYS_APP2_SIZE) | \
-				 OR_GPCM_CSNT |	\
-				 OR_GPCM_ACS_DIV2 | \
-				 OR_GPCM_SCY_2 | \
-				 OR_GPCM_TRLX_SET | \
-				 OR_GPCM_EHTR_CLEAR)
-
-#define CONFIG_SYS_MAMR		(MxMR_GPL_x4DIS | \
-				 0x0000c000 | \
-				 MxMR_WLFx_2X)
-
-/*
  * MMU Setup
  */
 /* APP1: icache cacheable, but dcache-inhibit and guarded */
@@ -223,18 +197,9 @@
 				 BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT5U	CONFIG_SYS_IBAT5U
 
-/* APP2:  icache cacheable, but dcache-inhibit and guarded */
-#define CONFIG_SYS_IBAT6L	(CONFIG_SYS_APP2_BASE | \
-				 BATL_PP_RW | \
-				 BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT6U	(CONFIG_SYS_APP2_BASE | \
-				 BATU_BL_256M | \
-				 BATU_VS | \
-				 BATU_VP)
-#define CONFIG_SYS_DBAT6L	(CONFIG_SYS_APP2_BASE | \
-				 BATL_PP_RW | \
-				 BATL_CACHEINHIBIT | \
-				 BATL_GUARDEDSTORAGE)
+#define CONFIG_SYS_IBAT6L	(0)
+#define CONFIG_SYS_IBAT6U	(0)
+#define CONFIG_SYS_DBAT6L	CONFIG_SYS_IBAT6L
 #define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
 
 #define CONFIG_SYS_IBAT7L	(0)

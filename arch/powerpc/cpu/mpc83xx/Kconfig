@@ -111,6 +111,30 @@ config TARGET_TUXX1
 	imply CMD_CRAMFS
 	imply FS_CRAMFS
 
+config TARGET_KMSUPX5
+	bool "Support kmsupx5"
+	select ARCH_MPC832X
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
+
+config TARGET_TUGE1
+	bool "Support tuge1"
+	select ARCH_MPC832X
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
+
+config TARGET_KMOPTI2
+	bool "Support kmopti2"
+	select ARCH_MPC832X
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
+
+config TARGET_KMTEPR2
+	bool "Support kmtepr2"
+	select ARCH_MPC832X
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
+
 config TARGET_TQM834X
 	bool "Support TQM834x"
 	select ARCH_MPC8349

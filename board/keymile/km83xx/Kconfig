@@ -62,3 +62,55 @@ config SYS_CONFIG_NAME
 	default "tuxx1"
 
 endif
+
+if TARGET_KMSUPX5
+
+config SYS_BOARD
+	default "km83xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "kmsupx5"
+
+endif
+
+if TARGET_TUGE1
+
+config SYS_BOARD
+	default "km83xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "tuge1"
+
+endif
+
+if TARGET_KMOPTI2
+
+config SYS_BOARD
+	default "km83xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "kmopti2"
+
+endif
+
+if TARGET_KMTEPR2
+
+config SYS_BOARD
+	default "km83xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "kmtepr2"
+
+endif
