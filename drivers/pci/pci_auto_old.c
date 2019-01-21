@@ -376,7 +376,8 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		      PCI_DEV(dev));
 		break;
 #endif
-#if defined(CONFIG_ARCH_MPC834X) && !defined(CONFIG_TARGET_VME8349)
+#if defined(CONFIG_ARCH_MPC834X) && !defined(CONFIG_TARGET_VME8349) && \
+		!defined(CONFIG_TARGET_CADDY2)
 	case PCI_CLASS_BRIDGE_OTHER:
 		/*
 		 * The host/PCI bridge 1 seems broken in 8349 - it presents

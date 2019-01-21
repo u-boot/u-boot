@@ -60,7 +60,7 @@ int dram_init(void)
 
 int checkboard(void)
 {
-#ifdef VME_CADDY2
+#ifdef CONFIG_TARGET_CADDY2
 	puts("Board: esd VME-CADDY/2\n");
 #else
 	puts("Board: esd VME-CPU/8349\n");
@@ -69,7 +69,7 @@ int checkboard(void)
 	return 0;
 }
 
-#ifdef VME_CADDY2
+#ifdef CONFIG_TARGET_CADDY2
 int board_eth_init(bd_t *bis)
 {
 	return pci_eth_init(bis);
@@ -102,7 +102,7 @@ int misc_init_r()
  * Provide SPD values for spd_sdram(). Both boards (VME-CADDY/2
  * and VME-CADDY/2) have different SDRAM configurations.
  */
-#ifdef VME_CADDY2
+#ifdef CONFIG_TARGET_CADDY2
 #define SMALL_RAM	0xff
 #define LARGE_RAM	0x00
 #else
@@ -165,7 +165,7 @@ static spd_eeprom_t default_spd_eeprom = {
 	SPD_VAL(0x7e, 0x1d),	/* 63 */
 	{ 'e', 's', 'd', '-', 'g', 'm', 'b', 'h' },
 	SPD_VAL(0x00, 0x00),	/* 72 */
-#ifdef VME_CADDY2
+#ifdef CONFIG_TARGET_CADDY2
 	{ "vme-caddy/2 ram   " }
 #else
 	{ "vme-cpu/2 ram     " }

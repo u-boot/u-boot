@@ -24,6 +24,10 @@ config TARGET_VME8349
 	bool "Support vme8349"
 	select ARCH_MPC8349
 
+config TARGET_CADDY2
+	bool "Support caddy2"
+	select ARCH_MPC8349
+
 config TARGET_MPC8308RDB
 	bool "Support MPC8308RDB"
 	select ARCH_MPC8308

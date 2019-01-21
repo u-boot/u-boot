@@ -84,8 +84,8 @@
 /*
  * FLASH on the Local Bus
  */
-#define CONFIG_SYS_FLASH_BASE		0xf8000000	/* start of FLASH   */
-#define CONFIG_SYS_FLASH_SIZE		128		/* flash size in MB */
+#define CONFIG_SYS_FLASH_BASE		0xffc00000	/* start of FLASH   */
+#define CONFIG_SYS_FLASH_SIZE		4		/* flash size in MB */
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | \
 					 BR_PS_16 |	/*  16bit */ \
 					 BR_MS_GPCM |	/*  MSEL = GPCM */ \
@@ -100,9 +100,9 @@
 					| OR_GPCM_TRLX_SET \
 					| OR_GPCM_EHTR_SET \
 					| OR_GPCM_EAD)
-					/* 0xf8006ff7 */
+					/* 0xffc06ff7 */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_128MB)
+#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_4MB)
 
 #define CONFIG_SYS_WINDOW1_BASE		0xf0000000
 #define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_WINDOW1_BASE \
