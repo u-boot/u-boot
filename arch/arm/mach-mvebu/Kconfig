@@ -132,6 +132,10 @@ config TARGET_CONTROLCENTERDC
 	bool "Support CONTROLCENTERDC"
 	select 88F6820
 
+config TARGET_X530
+	bool "Support Allied Telesis x530"
+	select 88F6820
+
 endchoice
 
 config SYS_BOARD
@@ -149,6 +153,7 @@ config SYS_BOARD
 	default "maxbcm" if TARGET_MAXBCM
 	default "theadorable" if TARGET_THEADORABLE
 	default "a38x" if TARGET_CONTROLCENTERDC
+	default "x530" if TARGET_X530
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
@@ -165,6 +170,7 @@ config SYS_CONFIG_NAME
 	default "turris_omnia" if TARGET_TURRIS_OMNIA
 	default "turris_mox" if TARGET_TURRIS_MOX
 	default "controlcenterdc" if TARGET_CONTROLCENTERDC
+	default "x530" if TARGET_X530
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
@@ -179,6 +185,7 @@ config SYS_VENDOR
 	default "CZ.NIC" if TARGET_TURRIS_OMNIA
 	default "CZ.NIC" if TARGET_TURRIS_MOX
 	default "gdsys" if TARGET_CONTROLCENTERDC
+	default "alliedtelesis" if TARGET_X530
 
 config SYS_SOC
 	default "mvebu"

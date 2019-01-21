@@ -109,7 +109,9 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-maxbcm.dtb			\
 	armada-xp-synology-ds414.dtb		\
 	armada-xp-theadorable.dtb		\
-	armada-38x-controlcenterdc.dtb
+	armada-38x-controlcenterdc.dtb		\
+	armada-385-atl-x530.dtb			\
+	armada-385-atl-x530DP.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-global.dtb \

@@ -24,6 +24,7 @@
 
 	aliases {
 		ethernet0 = &eth0;
+		ethernet1 = &eth1;
 		i2c0 = &i2c0;
 		spi0 = &spi0;
 	};
@@ -38,12 +39,16 @@
 		regulator-name = "usb3-vbus";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
+		startup-delay-us = <2000000>;
 		shutdown-delay-us = <1000000>;
 		gpio = <&gpiosb 0 GPIO_ACTIVE_HIGH>;
 		regulator-boot-on;
 	};
 
 	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
 		eth_phy1: ethernet-phy@1 {
 			reg = <1>;
 		};
@@ -59,7 +64,7 @@
 
 	phy1 {
 		phy-type = <PHY_TYPE_PEX0>;
-		phy-speed = <PHY_SPEED_2_5G>;
+		phy-speed = <PHY_SPEED_5G>;
 	};
 
 	phy2 {
@@ -80,6 +85,11 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins>;
 	status = "okay";
+
+	rtc@6f {
+		compatible = "microchip,mcp7941x";
+		reg = <0x6f>;
+	};
 };
 
 &sdhci1 {
@@ -109,6 +119,17 @@
 		reg = <0>;
 		spi-max-frequency = <20000000>;
 		m25p,fast-read;
+	};
+
+	moxtet@1 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "cznic,moxtet";
+		reg = <1>;
+		reset-gpios = <&gpiosb 2 GPIO_ACTIVE_LOW>;
+		spi-max-frequency = <1000000>;
+		spi-cpol;
+		spi-cpha;
 	};
 };
 

@@ -16,10 +16,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define ETH_PHY_CTRL_REG		0
-#define ETH_PHY_CTRL_POWER_DOWN_BIT	11
-#define ETH_PHY_CTRL_POWER_DOWN_MASK	(1 << ETH_PHY_CTRL_POWER_DOWN_BIT)
-
 /*
  * Those values and defines are taken from the Marvell U-Boot version
  * "u-boot-2013.01-15t1-clearfog"
