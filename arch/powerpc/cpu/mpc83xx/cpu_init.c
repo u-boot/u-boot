@@ -16,6 +16,7 @@
 #include "elbc/elbc.h"
 #include "sysio/sysio.h"
 #include "arbiter/arbiter.h"
+#include "initreg/initreg.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -52,34 +53,6 @@ static void config_qe_ioports(void)
  */
 void cpu_init_f (volatile immap_t * im)
 {
-	__be32 spcr_mask =
-#ifdef CONFIG_SYS_SPCR_OPT /* Optimize transactions between CSB and other dev */
-		SPCR_OPT |
-#endif
-#ifdef CONFIG_SYS_SPCR_TSECEP /* all eTSEC's Emergency priority */
-		SPCR_TSECEP |
-#endif
-#ifdef CONFIG_SYS_SPCR_TSEC1EP /* TSEC1 Emergency priority */
-		SPCR_TSEC1EP |
-#endif
-#ifdef CONFIG_SYS_SPCR_TSEC2EP /* TSEC2 Emergency priority */
-		SPCR_TSEC2EP |
-#endif
-		0;
-	__be32 spcr_val =
-#ifdef CONFIG_SYS_SPCR_OPT
-		(CONFIG_SYS_SPCR_OPT << SPCR_OPT_SHIFT) |
-#endif
-#ifdef CONFIG_SYS_SPCR_TSECEP /* all eTSEC's Emergency priority */
-		(CONFIG_SYS_SPCR_TSECEP << SPCR_TSECEP_SHIFT) |
-#endif
-#ifdef CONFIG_SYS_SPCR_TSEC1EP /* TSEC1 Emergency priority */
-		(CONFIG_SYS_SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT) |
-#endif
-#ifdef CONFIG_SYS_SPCR_TSEC2EP /* TSEC2 Emergency priority */
-		(CONFIG_SYS_SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT) |
-#endif
-		0;
 	__be32 sccr_mask =
 #ifdef CONFIG_SYS_SCCR_ENCCM /* Encryption clock mode */
 		SCCR_ENCCM |

@@ -20,9 +20,6 @@
  */
 #define CONFIG_SYS_SICRL		0x00000000
 
-/* (0-1) Optimize transactions between CSB and the SEC and QUICC Engine block */
-#define CONFIG_SYS_SPCR_OPT	1
-
 /*
  * DDR Setup
  */

@@ -31,8 +31,6 @@
 
 #define CONFIG_HWCONFIG
 
-#define CONFIG_SYS_SPCR_TSECEP	3 /* eTSEC emergency priority is highest */
-
 /*
  * DDR Setup
  */

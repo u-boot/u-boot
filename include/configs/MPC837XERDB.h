@@ -23,9 +23,6 @@
 /* System performance - define the value i.e. CONFIG_SYS_XXX
 */
 
-/* System Priority Control Regsiter */
-#define CONFIG_SYS_SPCR_TSECEP	3	/* eTSEC1&2 emergency priority (0-3) */
-
 /* System Clock Configuration Register */
 #define CONFIG_SYS_SCCR_TSEC1CM	1		/* eTSEC1 clock mode (0-3) */
 #define CONFIG_SYS_SCCR_TSEC2CM	1		/* eTSEC2 clock mode (0-3) */

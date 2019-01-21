@@ -12,9 +12,6 @@
  */
 #define CONFIG_E300		1 /* E300 family */
 
-/* System Priority Control Register */
-#define CONFIG_SYS_SPCR_TSECEP	3 /* eTSEC1/2 emergency has highest priority */
-
 /*
  * IP blocks clock configuration
  */
