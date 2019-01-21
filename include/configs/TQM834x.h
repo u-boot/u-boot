@@ -15,8 +15,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC834x		1	/* MPC834x specific */
-#define CONFIG_MPC8349		1	/* MPC8349 specific */
 
 /* IMMR Base Address Register, use Freescale default: 0xff400000 */
 #define CONFIG_SYS_IMMR		0xff400000

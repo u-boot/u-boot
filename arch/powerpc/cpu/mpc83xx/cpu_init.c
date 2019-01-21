@@ -240,7 +240,7 @@ void cpu_init_f (volatile immap_t * im)
 
 	/* System General Purpose Register */
 #ifdef CONFIG_SYS_SICRH
-#if defined(CONFIG_MPC834x) || defined(CONFIG_ARCH_MPC8313)
+#if defined(CONFIG_ARCH_MPC834X) || defined(CONFIG_ARCH_MPC8313)
 	/* regarding to MPC34x manual rev.1 bits 28..29 must be preserved */
 	__raw_writel((im->sysconf.sicrh & 0x0000000C) | CONFIG_SYS_SICRH,
 		     &im->sysconf.sicrh);

@@ -16,8 +16,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC834x		1	/* MPC834x family */
-#define CONFIG_MPC8349		1	/* MPC8349 specific */
 
 #define CONFIG_PCI_66M
 #ifdef CONFIG_PCI_66M

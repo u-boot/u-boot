@@ -426,7 +426,7 @@ long int spd_sdram()
 
 	/*
 	 * Errata DDR6 work around: input enable 2 cycles earlier.
-	 * including MPC834x Rev1.0/1.1 and MPC8360 Rev1.1/1.2.
+	 * including MPC834X Rev1.0/1.1 and MPC8360 Rev1.1/1.2.
 	 */
 	if(PVR_MAJ(pvr) <= 1 && spd.mem_type == SPD_MEMTYPE_DDR){
 		if (caslat == 2)

@@ -43,10 +43,10 @@ void lbc_sdram_init(void);
 #define BR_MSEL				0x000000E0
 #define BR_MSEL_SHIFT			5
 #define BR_MS_GPCM			0x00000000	/* GPCM */
-#if !defined(CONFIG_MPC834x) && !defined(CONFIG_MPC8360)
+#if !defined(CONFIG_ARCH_MPC834X) && !defined(CONFIG_MPC8360)
 #define BR_MS_FCM			0x00000020	/* FCM */
 #endif
-#if defined(CONFIG_MPC834x) || defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC834X) || defined(CONFIG_MPC8360)
 #define BR_MS_SDRAM			0x00000060	/* SDRAM */
 #elif defined(CONFIG_MPC85xx)
 #define BR_MS_SDRAM			0x00000000	/* SDRAM */
@@ -54,7 +54,7 @@ void lbc_sdram_init(void);
 #define BR_MS_UPMA			0x00000080	/* UPMA */
 #define BR_MS_UPMB			0x000000A0	/* UPMB */
 #define BR_MS_UPMC			0x000000C0	/* UPMC */
-#if !defined(CONFIG_MPC834x)
+#if !defined(CONFIG_ARCH_MPC834X)
 #define BR_ATOM				0x0000000C
 #define BR_ATOM_SHIFT			2
 #endif
@@ -67,7 +67,7 @@ void lbc_sdram_init(void);
 #define UPMB			1
 #define UPMC			2
 
-#if defined(CONFIG_MPC834x)
+#if defined(CONFIG_ARCH_MPC834X)
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_V)
 #else
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_ATOM | BR_V)

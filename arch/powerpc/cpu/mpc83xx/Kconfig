@@ -14,6 +14,7 @@ config TARGET_MPC8308_P1M
 
 config TARGET_SBC8349
 	bool "Support sbc8349"
+	select ARCH_MPC8349
 
 config TARGET_VE8313
 	bool "Support ve8313"
@@ -21,6 +22,7 @@ config TARGET_VE8313
 
 config TARGET_VME8349
 	bool "Support vme8349"
+	select ARCH_MPC8349
 
 config TARGET_MPC8308RDB
 	bool "Support MPC8308RDB"
@@ -49,6 +51,7 @@ config TARGET_MPC832XEMDS
 
 config TARGET_MPC8349EMDS
 	bool "Support MPC8349EMDS"
+	select ARCH_MPC8349
 	select BOARD_EARLY_INIT_F
 	select SYS_FSL_DDR
 	select SYS_FSL_DDR_BE
@@ -56,6 +59,7 @@ config TARGET_MPC8349EMDS
 
 config TARGET_MPC8349ITX
 	bool "Support MPC8349ITX"
+	select ARCH_MPC8349
 	imply CMD_IRQ
 
 config TARGET_MPC837XEMDS
@@ -96,6 +100,7 @@ config TARGET_TUXX1
 
 config TARGET_TQM834X
 	bool "Support TQM834x"
+	select ARCH_MPC8349
 
 config TARGET_HRCON
 	bool "Support hrcon"
@@ -134,6 +139,13 @@ config ARCH_MPC8315
 
 config ARCH_MPC832X
 	bool
+
+config ARCH_MPC834X
+	bool
+
+config ARCH_MPC8349
+	bool
+	select ARCH_MPC834X
 
 source "board/esd/vme8349/Kconfig"
 source "board/freescale/mpc8308rdb/Kconfig"

@@ -46,9 +46,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_MPC834x		/* MPC834x family (8343, 8347, 8349) */
-#define CONFIG_MPC8349		/* MPC8349 specific */
-
 #define CONFIG_SYS_IMMR	0xE0000000	/* The IMMR is relocated to here */
 
 #define CONFIG_MISC_INIT_F

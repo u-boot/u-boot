@@ -55,7 +55,7 @@
 #define SPRIDR_PARTID			0xFFFF0000	/* Part Id */
 #define SPRIDR_REVID			0x0000FFFF	/* Revision Id */
 
-#if defined(CONFIG_MPC834x)
+#if defined(CONFIG_ARCH_MPC834X)
 #define REVID_MAJOR(spridr)		((spridr & 0x0000FF00) >> 8)
 #define REVID_MINOR(spridr)		(spridr & 0x000000FF)
 #else
@@ -108,7 +108,7 @@
 #define SPCR_COREPR			0x00300000
 #define SPCR_COREPR_SHIFT		(31-11)
 
-#if defined(CONFIG_MPC834x)
+#if defined(CONFIG_ARCH_MPC834X)
 /* SPCR bits - MPC8349 specific */
 /* TSEC1 data priority */
 #define SPCR_TSEC1DP			0x00003000
@@ -145,7 +145,7 @@
 
 /* SICRL/H - System I/O Configuration Register Low/High
  */
-#if defined(CONFIG_MPC834x)
+#if defined(CONFIG_ARCH_MPC834X)
 /* SICRL bits - MPC8349 specific */
 #define SICRL_LDP_A			0x80000000
 #define SICRL_USB1			0x40000000
@@ -720,7 +720,7 @@
 #define HRCWH_PCI_HOST_SHIFT		31
 #define HRCWH_PCI_AGENT			0x00000000
 
-#if defined(CONFIG_MPC834x)
+#if defined(CONFIG_ARCH_MPC834X)
 #define HRCWH_32_BIT_PCI		0x00000000
 #define HRCWH_64_BIT_PCI		0x40000000
 #endif
@@ -731,7 +731,7 @@
 #define HRCWH_PCI_ARBITER_DISABLE	0x00000000
 #define HRCWH_PCI_ARBITER_ENABLE	0x20000000
 
-#if defined(CONFIG_MPC834x)
+#if defined(CONFIG_ARCH_MPC834X)
 #define HRCWH_PCI2_ARBITER_DISABLE	0x00000000
 #define HRCWH_PCI2_ARBITER_ENABLE	0x10000000
 
@@ -755,7 +755,7 @@
 
 #define HRCWH_ROM_LOC_DDR_SDRAM		0x00000000
 #define HRCWH_ROM_LOC_PCI1		0x00100000
-#if defined(CONFIG_MPC834x)
+#if defined(CONFIG_ARCH_MPC834X)
 #define HRCWH_ROM_LOC_PCI2		0x00200000
 #endif
 #if defined(CONFIG_MPC837x)
@@ -790,7 +790,7 @@
 #define HRCWH_TSEC2M_IN_SGMII		0x00001800
 #endif
 
-#if defined(CONFIG_MPC834x)
+#if defined(CONFIG_ARCH_MPC834X)
 #define HRCWH_TSEC1M_IN_RGMII		0x00000000
 #define HRCWH_TSEC1M_IN_RTBI		0x00004000
 #define HRCWH_TSEC1M_IN_GMII		0x00008000
@@ -937,8 +937,8 @@
 #define SCCR_PCICM			0x00010000
 #define SCCR_PCICM_SHIFT		16
 
-#if defined(CONFIG_MPC834x)
-/* SCCR bits - MPC834x specific */
+#if defined(CONFIG_ARCH_MPC834X)
+/* SCCR bits - MPC834X specific */
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30
 #define SCCR_TSEC1CM_0			0x00000000
