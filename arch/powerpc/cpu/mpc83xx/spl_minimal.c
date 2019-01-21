@@ -89,3 +89,11 @@ void puts(const char *str)
 	while (*str)
 		putc(*str++);
 }
+
+ulong get_bus_freq(ulong dummy)
+{
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	u8 spmf = (im->clk.spmr & SPMR_SPMF) >> SPMR_SPMF_SHIFT;
+
+	return CONFIG_83XX_CLKIN * spmf;
+}
