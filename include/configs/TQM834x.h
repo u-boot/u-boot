@@ -19,9 +19,6 @@
 /* IMMR Base Address Register, use Freescale default: 0xff400000 */
 #define CONFIG_SYS_IMMR		0xff400000
 
-/* System clock. Primary input clock when in PCI host mode */
-#define CONFIG_83XX_CLKIN	66666000	/* 66,666 MHz */
-
 /*
  * Local Bus LCRR
  *    LCRR:  DLL bypass, Clock divider is 8

@@ -24,10 +24,6 @@
  * On-board devices
  *
  */
-#define CONFIG_83XX_CLKIN	32000000	/* in Hz */
-
-#define CONFIG_SYS_CLK_FREQ	CONFIG_83XX_CLKIN
-
 #define CONFIG_SYS_IMMR		0xE0000000
 
 #define CONFIG_SYS_MEMTEST_START	0x00001000

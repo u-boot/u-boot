@@ -137,8 +137,8 @@ int get_clocks(void)
 	clkin_div = ((im->clk.spmr & SPMR_CKID) >> SPMR_CKID_SHIFT);
 
 	if (im->reset.rcwh & HRCWH_PCI_HOST) {
-#if defined(CONFIG_83XX_CLKIN)
-		pci_sync_in = CONFIG_83XX_CLKIN / (1 + clkin_div);
+#if defined(CONFIG_SYS_CLK_FREQ)
+		pci_sync_in = CONFIG_SYS_CLK_FREQ / (1 + clkin_div);
 #else
 		pci_sync_in = 0xDEADBEEF;
 #endif

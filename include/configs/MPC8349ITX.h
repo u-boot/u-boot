@@ -391,13 +391,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #endif
 
-#define CONFIG_PCI_66M
-#ifdef CONFIG_PCI_66M
-#define CONFIG_83XX_CLKIN	66666666	/* in Hz */
-#else
-#define CONFIG_83XX_CLKIN	33333333	/* in Hz */
-#endif
-
 /* TSEC */
 
 #ifdef CONFIG_TSEC_ENET

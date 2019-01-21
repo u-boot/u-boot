@@ -20,9 +20,6 @@
 #define CONFIG_BOOT_RETRY_MIN		30
 #define CONFIG_RESET_TO_RETRY
 
-#define CONFIG_83XX_CLKIN		66000000	/* in Hz */
-#define CONFIG_SYS_CLK_FREQ		CONFIG_83XX_CLKIN
-
 #define CONFIG_SYS_IMMR		0xF0000000
 
 #define CONFIG_SYS_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */

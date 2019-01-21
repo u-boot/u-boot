@@ -512,7 +512,7 @@ config SYS_TEXT_BASE
 
 
 config SYS_CLK_FREQ
-	depends on ARC || ARCH_SUNXI
+	depends on ARC || ARCH_SUNXI || MPC83xx
 	int "CPU clock frequency"
 	help
 	  TODO: Move CONFIG_SYS_CLK_FREQ for all the architecture

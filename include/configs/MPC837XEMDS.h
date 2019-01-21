@@ -13,19 +13,6 @@
 #define CONFIG_E300		1 /* E300 family */
 
 /*
- * System Clock Setup
- */
-#ifdef CONFIG_PCISLAVE
-#define CONFIG_83XX_PCICLK	66000000 /* in HZ */
-#else
-#define CONFIG_83XX_CLKIN	66000000 /* in Hz */
-#endif
-
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	66000000
-#endif
-
-/*
  * Hardware Reset Configuration Word
  * if CLKIN is 66MHz, then
  * CSB = 396MHz, CORE = 594MHz, DDRC = 396MHz, LBC = 396MHz

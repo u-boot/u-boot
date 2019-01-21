@@ -13,19 +13,6 @@
 #define CONFIG_QE		1	/* Has QE */
 
 /*
- * System Clock Setup
- */
-#ifdef CONFIG_PCISLAVE
-#define CONFIG_83XX_PCICLK	66000000	/* in HZ */
-#else
-#define CONFIG_83XX_CLKIN	66000000	/* in Hz */
-#endif
-
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	66000000
-#endif
-
-/*
  * Hardware Reset Configuration Word
  */
 #define CONFIG_SYS_HRCW_LOW (\

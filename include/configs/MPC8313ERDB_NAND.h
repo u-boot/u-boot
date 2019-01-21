@@ -54,16 +54,6 @@
 #define CONFIG_VSC7385_ENET
 #define CONFIG_TSEC2
 
-#ifdef CONFIG_SYS_66MHZ
-#define CONFIG_83XX_CLKIN	66666667	/* in Hz */
-#elif defined(CONFIG_SYS_33MHZ)
-#define CONFIG_83XX_CLKIN	33333333	/* in Hz */
-#else
-#error Unknown oscillator frequency.
-#endif
-
-#define CONFIG_SYS_CLK_FREQ	CONFIG_83XX_CLKIN
-
 #define CONFIG_SYS_IMMR		0xE0000000
 
 #if !defined(CONFIG_SPL_BUILD)
@@ -445,9 +435,6 @@
 	HRCWL_DDR_TO_SCB_CLK_2X1 |\
 	HRCWL_CSB_TO_CLKIN_2X1 |\
 	HRCWL_CORE_TO_CSB_2X1)
-
-#define CONFIG_SYS_NS16550_CLK (CONFIG_83XX_CLKIN * 2)
-
 #elif defined(CONFIG_SYS_33MHZ)
 
 /* 33MHz IN, 165MHz CSB, 330 DDR, 330 CORE */
@@ -459,9 +446,6 @@
 	HRCWL_DDR_TO_SCB_CLK_2X1 |\
 	HRCWL_CSB_TO_CLKIN_5X1 |\
 	HRCWL_CORE_TO_CSB_2X1)
-
-#define CONFIG_SYS_NS16550_CLK (CONFIG_83XX_CLKIN * 5)
-
 #endif
 
 #define CONFIG_SYS_HRCW_HIGH_BASE (\
@@ -478,6 +462,7 @@
 		       HRCWH_FROM_0XFFF00100 |\
 		       HRCWH_ROM_LOC_NAND_SP_8BIT |\
 		       HRCWH_RL_EXT_NAND)
+#define CONFIG_SYS_NS16550_CLK (get_bus_freq(0))
 
 /* System IO Config */
 #define CONFIG_SYS_SICRH	(SICRH_TSOBI1 | SICRH_TSOBI2)	/* RGMII */

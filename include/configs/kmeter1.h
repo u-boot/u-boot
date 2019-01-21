@@ -26,13 +26,6 @@
 #include "km/km-powerpc.h"
 
 /*
- * System Clock Setup
- */
-#define CONFIG_83XX_CLKIN		66000000
-#define CONFIG_SYS_CLK_FREQ		66000000
-#define CONFIG_83XX_PCICLK		66000000
-
-/*
  * IMMR new address
  */
 #define CONFIG_SYS_IMMR		0xE0000000

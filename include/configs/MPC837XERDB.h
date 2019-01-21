@@ -21,20 +21,6 @@
 #define CONFIG_VSC7385_ENET
 
 /*
- * System Clock Setup
- */
-#ifdef CONFIG_PCISLAVE
-#define CONFIG_83XX_PCICLK	66666667 /* in HZ */
-#else
-#define CONFIG_83XX_CLKIN	66666667 /* in Hz */
-#define CONFIG_PCIE
-#endif
-
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	CONFIG_83XX_CLKIN
-#endif
-
-/*
  * Hardware Reset Configuration Word
  */
 #define CONFIG_SYS_HRCW_LOW (\

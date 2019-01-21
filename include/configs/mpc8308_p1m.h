@@ -22,12 +22,6 @@
 #define CONFIG_TSEC2
 
 /*
- * System Clock Setup
- */
-#define CONFIG_83XX_CLKIN	33333333 /* in Hz */
-#define CONFIG_SYS_CLK_FREQ	CONFIG_83XX_CLKIN
-
-/*
  * Hardware Reset Configuration Word
  * if CLKIN is 66.66MHz, then
  * CSB = 133MHz, DDRC = 266MHz, LBC = 133MHz

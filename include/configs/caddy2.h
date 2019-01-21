@@ -25,21 +25,10 @@
 /* Don't enable PCI2 on vme834x - it doesn't exist physically. */
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 
-#define CONFIG_PCI_66M
 #ifdef CONFIG_PCI_66M
-#define CONFIG_83XX_CLKIN	66000000	/* in Hz */
-#else
-#define CONFIG_83XX_CLKIN	33000000	/* in Hz */
-#endif
-
-#ifndef CONFIG_SYS_CLK_FREQ
-#ifdef CONFIG_PCI_66M
-#define CONFIG_SYS_CLK_FREQ	66000000
 #define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_4X1
 #else
-#define CONFIG_SYS_CLK_FREQ	33000000
 #define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_8X1
-#endif
 #endif
 
 #define CONFIG_SYS_IMMR		0xE0000000
