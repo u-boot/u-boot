@@ -113,7 +113,7 @@ int get_clocks(void)
 	u32 lbiu_clk;
 	u32 lclk_clk;
 	u32 mem_clk;
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC8360)
 	u32 mem_sec_clk;
 #endif
 #if defined(CONFIG_QE)
@@ -313,7 +313,7 @@ int get_clocks(void)
 
 #if defined(CONFIG_ARCH_MPC834X)
 	i2c1_clk = tsec2_clk;
-#elif defined(CONFIG_MPC8360)
+#elif defined(CONFIG_ARCH_MPC8360)
 	i2c1_clk = csb_clk;
 #elif defined(CONFIG_ARCH_MPC832X)
 	i2c1_clk = enc_clk;
@@ -407,7 +407,7 @@ int get_clocks(void)
 		  (1 + ((im->clk.spmr & SPMR_DDRCM) >> SPMR_DDRCM_SHIFT));
 	corepll = (im->clk.spmr & SPMR_COREPLL) >> SPMR_COREPLL_SHIFT;
 
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC8360)
 	mem_sec_clk = csb_clk * (1 +
 		       ((im->clk.spmr & SPMR_LBIUCM) >> SPMR_LBIUCM_SHIFT));
 #endif
@@ -476,7 +476,7 @@ int get_clocks(void)
 	gd->arch.lbiu_clk = lbiu_clk;
 	gd->arch.lclk_clk = lclk_clk;
 	gd->mem_clk = mem_clk;
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC8360)
 	gd->arch.mem_sec_clk = mem_sec_clk;
 #endif
 #if defined(CONFIG_QE)
@@ -536,7 +536,7 @@ static int do_clocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("  Local Bus:           %-4s MHz\n",
 	       strmhz(buf, gd->arch.lclk_clk));
 	printf("  DDR:                 %-4s MHz\n", strmhz(buf, gd->mem_clk));
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC8360)
 	printf("  DDR Secondary:       %-4s MHz\n",
 	       strmhz(buf, gd->arch.mem_sec_clk));
 #endif

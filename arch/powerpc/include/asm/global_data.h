@@ -61,9 +61,9 @@ struct arch_global_data {
 # if defined(CONFIG_MPC837x) || defined(CONFIG_ARCH_MPC8315)
 	u32 sata_clk;
 # endif
-# if defined(CONFIG_MPC8360)
+# if defined(CONFIG_ARCH_MPC8360)
 	u32 mem_sec_clk;
-# endif /* CONFIG_MPC8360 */
+# endif /* CONFIG_ARCH_MPC8360 */
 #endif
 #endif
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)

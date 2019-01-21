@@ -43,10 +43,10 @@ void lbc_sdram_init(void);
 #define BR_MSEL				0x000000E0
 #define BR_MSEL_SHIFT			5
 #define BR_MS_GPCM			0x00000000	/* GPCM */
-#if !defined(CONFIG_ARCH_MPC834X) && !defined(CONFIG_MPC8360)
+#if !defined(CONFIG_ARCH_MPC834X) && !defined(CONFIG_ARCH_MPC8360)
 #define BR_MS_FCM			0x00000020	/* FCM */
 #endif
-#if defined(CONFIG_ARCH_MPC834X) || defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC834X) || defined(CONFIG_ARCH_MPC8360)
 #define BR_MS_SDRAM			0x00000060	/* SDRAM */
 #elif defined(CONFIG_MPC85xx)
 #define BR_MS_SDRAM			0x00000000	/* SDRAM */

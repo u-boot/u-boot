@@ -36,7 +36,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_QE			/* Has QE */
-#define CONFIG_MPC8360			/* MPC8360 CPU specific */
 
 /* include common defines/options for all 83xx Keymile boards */
 #include "km/km83xx-common.h"

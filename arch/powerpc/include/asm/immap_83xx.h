@@ -803,7 +803,7 @@ typedef struct immap {
 	rom83xx_t		rom;		/* On Chip ROM */
 } immap_t;
 
-#elif defined(CONFIG_MPC8360)
+#elif defined(CONFIG_ARCH_MPC8360)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */

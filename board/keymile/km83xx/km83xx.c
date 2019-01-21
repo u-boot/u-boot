@@ -33,7 +33,7 @@ static uchar ivm_content[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
 
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* port pin dir open_drain assign */
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC8360)
 	/* MDIO */
 	{0,  1, 3, 0, 2}, /* MDIO */
 	{0,  2, 1, 0, 1}, /* MDC */
@@ -148,7 +148,7 @@ int board_early_init_r(void)
 	u32 *mxmr = &lbc->mamr;
 #endif
 
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC8360)
 	unsigned short	svid;
 	/*
 	 * Because of errata in the UCCs, we have to write to the reserved

@@ -80,6 +80,7 @@ config TARGET_IDS8313
 
 config TARGET_KM8360
 	bool "Support km8360"
+	select ARCH_MPC8360
 	imply CMD_CRAMFS
 	imply CMD_DIAG
 	imply FS_CRAMFS
@@ -146,6 +147,9 @@ config ARCH_MPC834X
 config ARCH_MPC8349
 	bool
 	select ARCH_MPC834X
+
+config ARCH_MPC8360
+	bool
 
 source "board/esd/vme8349/Kconfig"
 source "board/freescale/mpc8308rdb/Kconfig"
