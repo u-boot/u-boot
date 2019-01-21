@@ -39,8 +39,6 @@
 /*
  * Local Bus LCRR and LBCR regs
  */
-#define CONFIG_SYS_LCRR_EADC		LCRR_EADC_1
-#define CONFIG_SYS_LCRR_CLKDIV		LCRR_CLKDIV_2
 #define CONFIG_SYS_LBC_LBCR		(0x00040000 |\
 					 (0xFF << LBCR_BMT_SHIFT) |\
 					 0xF)

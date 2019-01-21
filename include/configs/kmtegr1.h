@@ -346,10 +346,6 @@
 /*
  * Local Bus Configuration & Clock Setup
  */
-#define CONFIG_SYS_LCRR_DBYP	0x80000000
-#define CONFIG_SYS_LCRR_EADC	0x00010000
-#define CONFIG_SYS_LCRR_CLKDIV	0x00000002
-
 #define CONFIG_SYS_LBC_LBCR	0x00000000
 
 /* must be after the include because KMBEC_FPGA is otherwise undefined */

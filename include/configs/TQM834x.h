@@ -16,18 +16,6 @@
  */
 #define CONFIG_E300		1	/* E300 Family */
 
-/*
- * Local Bus LCRR
- *    LCRR:  DLL bypass, Clock divider is 8
- *
- *    for CSB = 266 MHz it gives LCB clock frequency = 33 MHz
- *
- * External Local Bus rate is
- *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
- */
-#define CONFIG_SYS_LCRR_DBYP	LCRR_DBYP
-#define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_8
-
 /* board pre init: do not call, nothing to do */
 
 /* detect the number of flash banks */

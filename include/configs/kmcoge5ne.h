@@ -297,13 +297,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
 
 /*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LCRR_DBYP		LCRR_DBYP
-#define CONFIG_SYS_LCRR_EADC		LCRR_EADC_2
-#define CONFIG_SYS_LCRR_CLKDIV		LCRR_CLKDIV_4
-
-/*
  * PAXE on the local bus CS3
  */
 #define CONFIG_SYS_PAXE_BASE		0xA0000000

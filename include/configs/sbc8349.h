@@ -131,8 +131,6 @@
  * External Local Bus rate is
  *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
  */
-#define CONFIG_SYS_LCRR_DBYP	LCRR_DBYP
-#define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_4
 #define CONFIG_SYS_LBC_LBCR	0x00000000
 
 #undef CONFIG_SYS_LB_SDRAM	/* if board has SDRAM on local bus */

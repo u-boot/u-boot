@@ -41,3 +41,39 @@
 		CONFIG_SPCR_TSEC2EP |
 #endif
 		0;
+
+	const __be32 lcrr_mask =
+#if defined(CONFIG_LCRR_DBYP) && !defined(CONFIG_LCRR_DBYP_UNSET)
+		LCRR_DBYP |
+#endif
+#if defined(CONFIG_LCRR_BUFCMDC) && !defined(CONFIG_LCRR_BUFCMDC_UNSET)
+		LCRR_BUFCMDC |
+#endif
+#if defined(CONFIG_LCRR_ECL) && !defined(CONFIG_LCRR_ECL_UNSET)
+		LCRR_ECL |
+#endif
+#if defined(CONFIG_LCRR_EADC) && !defined(CONFIG_LCRR_EADC_UNSET)
+		LCRR_EADC |
+#endif
+#if defined(CONFIG_LCRR_CLKDIV) && !defined(CONFIG_LCRR_CLKDIV_UNSET)
+		LCRR_CLKDIV |
+#endif
+		0;
+
+	const __be32 lcrr_val =
+#if defined(CONFIG_LCRR_DBYP) && !defined(CONFIG_LCRR_DBYP_UNSET)
+		CONFIG_LCRR_DBYP |
+#endif
+#if defined(CONFIG_LCRR_BUFCMDC) && !defined(CONFIG_LCRR_BUFCMDC_UNSET)
+		CONFIG_LCRR_BUFCMDC |
+#endif
+#if defined(CONFIG_LCRR_ECL) && !defined(CONFIG_LCRR_ECL_UNSET)
+		CONFIG_LCRR_ECL |
+#endif
+#if defined(CONFIG_LCRR_EADC) && !defined(CONFIG_LCRR_EADC_UNSET)
+		CONFIG_LCRR_EADC |
+#endif
+#if defined(CONFIG_LCRR_CLKDIV) && !defined(CONFIG_LCRR_CLKDIV_UNSET)
+		CONFIG_LCRR_CLKDIV |
+#endif
+		0;
