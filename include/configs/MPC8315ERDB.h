@@ -22,7 +22,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1 /* E300 family */
-#define CONFIG_MPC8315ERDB	1 /* MPC8315ERDB board specific */
 
 /*
  * System Clock Setup
