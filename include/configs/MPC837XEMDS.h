@@ -12,10 +12,6 @@
  */
 #define CONFIG_E300		1 /* E300 family */
 
-/* Arbiter Configuration Register */
-#define CONFIG_SYS_ACR_PIPE_DEP	3	/* Arbiter pipeline depth is 4 */
-#define CONFIG_SYS_ACR_RPTCNT	3	/* Arbiter repeat count is 4 */
-
 /* System Priority Control Register */
 #define CONFIG_SYS_SPCR_TSECEP	3 /* eTSEC1/2 emergency has highest priority */
 

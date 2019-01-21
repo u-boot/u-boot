@@ -26,14 +26,6 @@
 #include "km/km-powerpc.h"
 
 /*
- * Bus Arbitration Configuration Register (ACR)
- */
-#define CONFIG_SYS_ACR_PIPE_DEP 3       /* pipeline depth 4 transactions */
-#define CONFIG_SYS_ACR_RPTCNT   3       /* 4 consecutive transactions */
-#define CONFIG_SYS_ACR_APARK    0       /* park bus to master (below) */
-#define CONFIG_SYS_ACR_PARKM    3       /* parking master = QuiccEngine */
-
-/*
  * DDR Setup
  */
 #define CONFIG_SYS_DDR_BASE		0x00000000 /* DDR is system memory */

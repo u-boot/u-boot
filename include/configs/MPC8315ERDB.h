@@ -31,11 +31,6 @@
 
 #define CONFIG_HWCONFIG
 
-/*
- * Arbiter Setup
- */
-#define CONFIG_SYS_ACR_PIPE_DEP	3 /* Arbiter pipeline depth is 4 */
-#define CONFIG_SYS_ACR_RPTCNT	3 /* Arbiter repeat count is 4 */
 #define CONFIG_SYS_SPCR_TSECEP	3 /* eTSEC emergency priority is highest */
 
 /*

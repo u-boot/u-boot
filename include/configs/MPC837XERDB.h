@@ -23,10 +23,6 @@
 /* System performance - define the value i.e. CONFIG_SYS_XXX
 */
 
-/* Arbiter Configuration Register */
-#define CONFIG_SYS_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
-#define CONFIG_SYS_ACR_RPTCNT	3	/* Arbiter repeat count (0-7) */
-
 /* System Priority Control Regsiter */
 #define CONFIG_SYS_SPCR_TSECEP	3	/* eTSEC1&2 emergency priority (0-3) */
 

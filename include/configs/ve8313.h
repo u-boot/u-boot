@@ -27,9 +27,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x00001000
 #define CONFIG_SYS_MEMTEST_END		0x07000000
 
-#define CONFIG_SYS_ACR_PIPE_DEP		3	/* Arbiter pipeline depth */
-#define CONFIG_SYS_ACR_RPTCNT		3	/* Arbiter repeat count */
-
 /*
  * Device configurations
  */

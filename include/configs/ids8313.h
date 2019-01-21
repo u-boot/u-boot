@@ -20,9 +20,6 @@
 #define CONFIG_BOOT_RETRY_MIN		30
 #define CONFIG_RESET_TO_RETRY
 
-#define CONFIG_SYS_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
-#define CONFIG_SYS_ACR_RPTCNT		3	/* Arbiter repeat count (0-7) */
-
 #define CONFIG_SYS_SICRH	0x00000000
 #define CONFIG_SYS_SICRL	(SICRL_LBC | SICRL_SPI_D)
 

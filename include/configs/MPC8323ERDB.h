@@ -20,11 +20,6 @@
  */
 #define CONFIG_SYS_SICRL		0x00000000
 
-/*
- * System performance
- */
-#define CONFIG_SYS_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
-#define CONFIG_SYS_ACR_RPTCNT	3	/* Arbiter repeat count (0-7) */
 /* (0-1) Optimize transactions between CSB and the SEC and QUICC Engine block */
 #define CONFIG_SYS_SPCR_OPT	1
 

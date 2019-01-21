@@ -67,9 +67,6 @@
  */
 #define CONFIG_SYS_8313ERDB_BROKEN_PMC 1
 
-#define CONFIG_SYS_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
-#define CONFIG_SYS_ACR_RPTCNT		3	/* Arbiter repeat count (0-7) */
-
 /*
  * Device configurations
  */

@@ -15,6 +15,7 @@
 #include "lblaw/lblaw.h"
 #include "elbc/elbc.h"
 #include "sysio/sysio.h"
+#include "arbiter/arbiter.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,34 +52,6 @@ static void config_qe_ioports(void)
  */
 void cpu_init_f (volatile immap_t * im)
 {
-	__be32 acr_mask =
-#ifdef CONFIG_SYS_ACR_PIPE_DEP /* Arbiter pipeline depth */
-		ACR_PIPE_DEP |
-#endif
-#ifdef CONFIG_SYS_ACR_RPTCNT /* Arbiter repeat count */
-		ACR_RPTCNT |
-#endif
-#ifdef CONFIG_SYS_ACR_APARK	/* Arbiter address parking mode */
-		ACR_APARK |
-#endif
-#ifdef CONFIG_SYS_ACR_PARKM	/* Arbiter parking master */
-		ACR_PARKM |
-#endif
-		0;
-	__be32 acr_val =
-#ifdef CONFIG_SYS_ACR_PIPE_DEP /* Arbiter pipeline depth */
-		(CONFIG_SYS_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT) |
-#endif
-#ifdef CONFIG_SYS_ACR_RPTCNT /* Arbiter repeat count */
-		(CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT) |
-#endif
-#ifdef CONFIG_SYS_ACR_APARK	/* Arbiter address parking mode */
-		(CONFIG_SYS_ACR_APARK << ACR_APARK_SHIFT) |
-#endif
-#ifdef CONFIG_SYS_ACR_PARKM	/* Arbiter parking master */
-		(CONFIG_SYS_ACR_PARKM << ACR_PARKM_SHIFT) |
-#endif
-		0;
 	__be32 spcr_mask =
 #ifdef CONFIG_SYS_SPCR_OPT /* Optimize transactions between CSB and other dev */
 		SPCR_OPT |
