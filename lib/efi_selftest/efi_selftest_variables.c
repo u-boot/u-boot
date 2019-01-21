@@ -141,19 +141,22 @@ static int execute(void)
 		if (ret == EFI_NOT_FOUND)
 			break;
 		if (ret != EFI_SUCCESS) {
-			efi_st_todo("GetNextVariableName failed\n");
-			break;
+			efi_st_error("GetNextVariableName failed (%u)\n",
+				     (unsigned int)ret);
+			return EFI_ST_FAILURE;
 		}
 		if (!efi_st_memcmp(&guid, &guid_vendor0, sizeof(efi_guid_t)) &&
 		    !efi_st_strcmp_16_8(varname, "efi_st_var0"))
-			flag |= 2;
+			flag |= 1;
 		if (!efi_st_memcmp(&guid, &guid_vendor1, sizeof(efi_guid_t)) &&
 		    !efi_st_strcmp_16_8(varname, "efi_st_var1"))
 			flag |= 2;
 	}
-	if (flag != 3)
-		efi_st_todo(
+	if (flag != 3) {
+		efi_st_error(
 			"GetNextVariableName did not return all variables\n");
+		return EFI_ST_FAILURE;
+	}
 	/* Delete variable 1 */
 	ret = runtime->set_variable(L"efi_st_var1", &guid_vendor1,
 				    0, 0, NULL);
