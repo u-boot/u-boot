@@ -194,6 +194,7 @@ dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \
 	am335x-icev2.dtb \
 	am335x-pxm50.dtb \
 	am335x-rut.dtb \
+	am335x-shc.dtb \
 	am335x-pdu001.dtb \
 	am335x-chiliboard.dtb \
 	am335x-sl50.dtb \

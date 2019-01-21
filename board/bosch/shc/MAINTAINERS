@@ -9,3 +9,4 @@ F:	configs/am335x_shc_netboot_defconfig
 F:	configs/am335x_shc_prompt_defconfig
 F:	configs/am335x_shc_sdboot_defconfig
 F:	configs/am335x_shc_sdboot_prompt_defconfig
+F:	arch/arm/dts/am335x-shc.dts
