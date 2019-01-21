@@ -219,6 +219,78 @@
 #define CONFIG_SYS_LBC_LBCR	0x00000000
 
 /*
+ * The MPC834xEA MDS for 834xE rev3.1 may not be assembled SDRAM memory.
+ */
+
+/* Local bus BR2, OR2 definition for SDRAM if soldered on the MDS board */
+/*
+ * Base Register 2 and Option Register 2 configure SDRAM.
+ * The SDRAM base address, CONFIG_SYS_LBC_SDRAM_BASE, is 0xf0000000.
+ *
+ * For BR2, need:
+ *    Base address of 0xf0000000 = BR[0:16] = 1111 0000 0000 0000 0
+ *    port-size = 32-bits = BR2[19:20] = 11
+ *    no parity checking = BR2[21:22] = 00
+ *    SDRAM for MSEL = BR2[24:26] = 011
+ *    Valid = BR[31] = 1
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 0000 0000 0000 0001 1000 0110 0001 = F0001861
+ */
+
+#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_LBC_SDRAM_BASE \
+					| BR_PS_32	/* 32-bit port */ \
+					| BR_MS_SDRAM	/* MSEL = SDRAM */ \
+					| BR_V)		/* Valid */
+					/* 0xF0001861 */
+#define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_LBC_SDRAM_BASE
+#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_64MB)
+
+/*
+ * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
+ *
+ * For OR2, need:
+ *    64MB mask for AM, OR2[0:7] = 1111 1100
+ *                 XAM, OR2[17:18] = 11
+ *    9 columns OR2[19-21] = 010
+ *    13 rows   OR2[23-25] = 100
+ *    EAD set for extra time OR[31] = 1
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 1100 0000 0000 0110 1001 0000 0001 = FC006901
+ */
+
+#define CONFIG_SYS_OR2_PRELIM	(OR_AM_64MB \
+			| OR_SDRAM_XAM \
+			| ((9 - OR_SDRAM_MIN_COLS) << OR_SDRAM_COLS_SHIFT) \
+			| ((13 - OR_SDRAM_MIN_ROWS) << OR_SDRAM_ROWS_SHIFT) \
+			| OR_SDRAM_EAD)
+			/* 0xFC006901 */
+
+				/* LB sdram refresh timer, about 6us */
+#define CONFIG_SYS_LBC_LSRT	0x32000000
+				/* LB refresh timer prescal, 266MHz/32 */
+#define CONFIG_SYS_LBC_MRTPR	0x20000000
+
+#define CONFIG_SYS_LBC_LSDMR_COMMON    (LSDMR_RFEN	\
+				| LSDMR_BSMA1516	\
+				| LSDMR_RFCR8		\
+				| LSDMR_PRETOACT6	\
+				| LSDMR_ACTTORW3	\
+				| LSDMR_BL8		\
+				| LSDMR_WRC3		\
+				| LSDMR_CL3)
+
+/*
+ * SDRAM Controller configuration sequence.
+ */
+#define CONFIG_SYS_LBC_LSDMR_1	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_PCHALL)
+#define CONFIG_SYS_LBC_LSDMR_2	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_ARFRSH)
+#define CONFIG_SYS_LBC_LSDMR_3	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_ARFRSH)
+#define CONFIG_SYS_LBC_LSDMR_4	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_MRW)
+#define CONFIG_SYS_LBC_LSDMR_5	(CONFIG_SYS_LBC_LSDMR_COMMON | LSDMR_OP_NORMAL)
+
+/*
  * Serial Port
  */
 #define CONFIG_SYS_NS16550_SERIAL
