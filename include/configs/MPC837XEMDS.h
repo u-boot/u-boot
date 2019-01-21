@@ -11,7 +11,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1 /* E300 family */
-#define CONFIG_MPC837XEMDS	1 /* MPC837XEMDS board specific */
 
 /*
  * System Clock Setup
