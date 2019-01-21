@@ -25,6 +25,7 @@ efi_selftest_exception.o \
 efi_selftest_exitbootservices.o \
 efi_selftest_fdt.o \
 efi_selftest_gop.o \
+efi_selftest_hii.o \
 efi_selftest_loaded_image.o \
 efi_selftest_manageprotocols.o \
 efi_selftest_memory.o \
