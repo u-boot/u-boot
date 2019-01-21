@@ -11,8 +11,8 @@
 #include <asm/types.h>
 
 #if defined(CONFIG_ARCH_MPC8308) || \
-	defined(CONFIG_MPC8313) || \
-	defined(CONFIG_MPC8315) || \
+	defined(CONFIG_ARCH_MPC8313) || \
+	defined(CONFIG_ARCH_MPC8315) || \
 	defined(CONFIG_MPC834x) || \
 	defined(CONFIG_MPC837x)
 

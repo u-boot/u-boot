@@ -16,7 +16,7 @@ extern void ft_qe_setup(void *blob);
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_BOOTCOUNT_LIMIT) && \
-	(defined(CONFIG_QE) && !defined(CONFIG_MPC831x))
+	(defined(CONFIG_QE) && !defined(CONFIG_ARCH_MPC831X))
 #include <linux/immap_qe.h>
 
 void fdt_fixup_muram (void *blob)
@@ -52,7 +52,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
     defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3) ||\
     defined(CONFIG_HAS_ETH4) || defined(CONFIG_HAS_ETH5)
-#ifdef CONFIG_MPC8313
+#ifdef CONFIG_ARCH_MPC8313
 	/*
 	* mpc8313e erratum IPIC1 swapped TSEC interrupt ID numbers on rev. 1
 	* h/w (see AN3545).  The base device tree in use has rev. 1 ID numbers,
@@ -123,7 +123,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 
 #if defined(CONFIG_BOOTCOUNT_LIMIT) && \
-	(defined(CONFIG_QE) && !defined(CONFIG_MPC831x))
+	(defined(CONFIG_QE) && !defined(CONFIG_ARCH_MPC831X))
 	fdt_fixup_muram (blob);
 #endif
 }

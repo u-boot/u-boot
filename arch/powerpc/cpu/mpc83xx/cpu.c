@@ -18,7 +18,7 @@
 #include <tsec.h>
 #include <netdev.h>
 #include <fsl_esdhc.h>
-#if defined(CONFIG_BOOTCOUNT_LIMIT) && !defined(CONFIG_MPC831x)
+#if defined(CONFIG_BOOTCOUNT_LIMIT) && !defined(CONFIG_ARCH_MPC831X)
 #include <linux/immap_qe.h>
 #include <asm/io.h>
 #endif

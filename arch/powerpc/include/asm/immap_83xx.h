@@ -679,7 +679,7 @@ typedef struct immap {
 #define CONFIG_SYS_MPC83xx_USB2_OFFSET  0x23000
 #endif
 
-#elif defined(CONFIG_MPC8313)
+#elif defined(CONFIG_ARCH_MPC8313)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
@@ -714,7 +714,7 @@ typedef struct immap {
 	u8			res7[0xC0000];
 } immap_t;
 
-#elif defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC8315)
+#elif defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_ARCH_MPC8315)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */

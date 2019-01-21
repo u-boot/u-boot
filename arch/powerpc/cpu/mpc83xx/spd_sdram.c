@@ -31,7 +31,7 @@ void board_add_ram_info(int use_default)
 	printf(" (DDR%d", ((ddr->sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK)
 			   >> SDRAM_CFG_SDRAM_TYPE_SHIFT) - 1);
 
-#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_MPC831x)
+#if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_ARCH_MPC831X)
 	if ((ddr->sdram_cfg & SDRAM_CFG_DBW_MASK) == SDRAM_CFG_DBW_16)
 		puts(", 16-bit");
 	else if ((ddr->sdram_cfg & SDRAM_CFG_DBW_MASK) == SDRAM_CFG_DBW_32)
