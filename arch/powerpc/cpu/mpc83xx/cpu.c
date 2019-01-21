@@ -229,3 +229,21 @@ int cpu_mmc_init(bd_t *bis)
 	return 0;
 #endif
 }
+
+void ppcDWstore(unsigned int *addr, unsigned int *value)
+{
+	asm("lfd 1, 0(%1)\n\t"
+	    "stfd 1, 0(%0)"
+	    :
+	    : "r" (addr), "r" (value)
+	    : "memory");
+}
+
+void ppcDWload(unsigned int *addr, unsigned int *ret)
+{
+	asm("lfd 1, 0(%0)\n\t"
+	    "stfd 1, 0(%1)"
+	    :
+	    : "r" (addr), "r" (ret)
+	    : "memory");
+}

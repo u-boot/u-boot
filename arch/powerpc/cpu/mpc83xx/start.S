@@ -119,18 +119,6 @@ disable_addr_trans:
 	mtspr	SRR1, r3
 	rfi
 
-	.globl	ppcDWstore
-ppcDWstore:
-	lfd	1, 0(r4)
-	stfd	1, 0(r3)
-	blr
-
-	.globl	ppcDWload
-ppcDWload:
-	lfd	1, 0(r3)
-	stfd	1, 0(r4)
-	blr
-
 #ifndef CONFIG_DEFAULT_IMMR
 #error CONFIG_DEFAULT_IMMR must be defined
 #endif /* CONFIG_DEFAULT_IMMR */
