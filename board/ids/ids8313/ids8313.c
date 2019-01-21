@@ -96,7 +96,7 @@ int fixed_sdram(unsigned long config)
 	setbits_be32(&im->ddr.sdram_cfg, SDRAM_CFG_MEM_EN);
 	/* now check the real size */
 	disable_addr_trans();
-	msize = get_ram_size(CONFIG_SYS_DDR_BASE, msize);
+	msize = get_ram_size(CONFIG_SYS_SDRAM_BASE, msize);
 	enable_addr_trans();
 #endif
 	return msize;

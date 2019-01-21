@@ -34,9 +34,8 @@
 /*
  * DDR Setup
  */
-#define CONFIG_SYS_DDR_BASE		0x00000000 /* DDR is system memory*/
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_BASE
-#define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_DDR_BASE
+#define CONFIG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory*/
+#define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_SDRAM_BASE
 
 /*
  * Manually set up DDR parameters, as this board does not

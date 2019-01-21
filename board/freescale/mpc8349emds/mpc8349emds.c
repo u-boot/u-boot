@@ -56,7 +56,7 @@ int dram_init(void)
 		return -ENXIO;
 
 	/* DDR SDRAM - Main SODIMM */
-	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_SDRAM_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
 #ifndef CONFIG_SYS_FSL_DDR2
 	msize = spd_sdram() * 1024 * 1024;

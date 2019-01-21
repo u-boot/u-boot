@@ -72,13 +72,13 @@ int dram_init(void)
 	int cs;
 
 	/* during size detection, set up the max DDRLAW size */
-	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_SDRAM_BASE;
 	im->sysconf.ddrlaw[0].ar = (LAWAR_EN | LAWAR_SIZE_2G);
 
 	/* set CS bounds to maximum size */
 	for(cs = 0; cs < 4; ++cs) {
 		set_cs_bounds(cs,
-			CONFIG_SYS_DDR_BASE + (cs * DDR_MAX_SIZE_PER_CS),
+			CONFIG_SYS_SDRAM_BASE + (cs * DDR_MAX_SIZE_PER_CS),
 			DDR_MAX_SIZE_PER_CS);
 
 		set_cs_config(cs, INITIAL_CS_CONFIG);
@@ -102,7 +102,7 @@ int dram_init(void)
 		debug("\nDetecting Bank%d\n", cs);
 
 		bank_size = get_ddr_bank_size(cs,
-			(long *)(CONFIG_SYS_DDR_BASE + size));
+			(long *)(CONFIG_SYS_SDRAM_BASE + size));
 		size += bank_size;
 
 		debug("DDR Bank%d size: %ld MiB\n\n", cs, bank_size >> 20);

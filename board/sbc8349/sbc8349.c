@@ -45,7 +45,7 @@ int dram_init(void)
 		return -1;
 
 	/* DDR SDRAM - Main SODIMM */
-	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
+	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_SDRAM_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
 	msize = spd_sdram();
 #else

@@ -80,7 +80,7 @@ static long fixed_sdram(void)
 
 	/* now check the real size */
 	disable_addr_trans ();
-	msize = get_ram_size (CONFIG_SYS_DDR_BASE, msize);
+	msize = get_ram_size (CONFIG_SYS_SDRAM_BASE, msize);
 	enable_addr_trans ();
 #endif
 

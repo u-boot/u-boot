@@ -311,7 +311,7 @@ static int fixed_sdram(void)
 
 	msize = CONFIG_SYS_DDR_SIZE << 20;
 	disable_addr_trans();
-	msize = get_ram_size(CONFIG_SYS_DDR_BASE, msize);
+	msize = get_ram_size(CONFIG_SYS_SDRAM_BASE, msize);
 	enable_addr_trans();
 	msize /= (1024 * 1024);
 	if (CONFIG_SYS_DDR_SIZE != msize) {
@@ -338,7 +338,7 @@ int dram_init(void)
 		return -ENXIO;
 
 	out_be32(&im->sysconf.ddrlaw[0].bar,
-		CONFIG_SYS_DDR_BASE & LAWBAR_BAR);
+		CONFIG_SYS_SDRAM_BASE & LAWBAR_BAR);
 	msize = fixed_sdram();
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
