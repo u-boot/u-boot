@@ -9,6 +9,9 @@
 #include <charset.h>
 #include <efi_loader.h>
 #include <hexdump.h>
+#include <environment.h>
+#include <search.h>
+#include <uuid.h>
 
 #define READ_ONLY BIT(31)
 
@@ -235,28 +238,161 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
+static char *efi_variables_list;
+static char *efi_cur_variable;
+
 /**
- * efi_efi_get_next_variable() - get next UEFI variable
+ * parse_uboot_variable() - parse a u-boot variable and get uefi-related
+ *			    information
+ * @variable:		whole data of u-boot variable (ie. name=value)
+ * @variable_name_size: size of variable_name buffer in byte
+ * @variable_name:	name of uefi variable in u16, null-terminated
+ * @vendor:		vendor's guid
+ * @attributes:		attributes
  *
- * This function implements the GetNextVariable runtime service.
+ * A uefi variable is encoded into a u-boot variable as described above.
+ * This function parses such a u-boot variable and retrieve uefi-related
+ * information into respective parameters. In return, variable_name_size
+ * is the size of variable name including NULL.
+ *
+ * Return:		EFI_SUCCESS if parsing is OK, EFI_NOT_FOUND when
+			the entire variable list has been returned,
+			otherwise non-zero status code
+ */
+static efi_status_t parse_uboot_variable(char *variable,
+					 efi_uintn_t *variable_name_size,
+					 u16 *variable_name,
+					 const efi_guid_t *vendor,
+					 u32 *attributes)
+{
+	char *guid, *name, *end, c;
+	unsigned long name_len;
+	u16 *p;
+
+	guid = strchr(variable, '_');
+	if (!guid)
+		return EFI_INVALID_PARAMETER;
+	guid++;
+	name = strchr(guid, '_');
+	if (!name)
+		return EFI_INVALID_PARAMETER;
+	name++;
+	end = strchr(name, '=');
+	if (!end)
+		return EFI_INVALID_PARAMETER;
+
+	name_len = end - name;
+	if (*variable_name_size < (name_len + 1)) {
+		*variable_name_size = name_len + 1;
+		return EFI_BUFFER_TOO_SMALL;
+	}
+	end++; /* point to value */
+
+	/* variable name */
+	p = variable_name;
+	utf8_utf16_strncpy(&p, name, name_len);
+	variable_name[name_len] = 0;
+	*variable_name_size = name_len + 1;
+
+	/* guid */
+	c = *(name - 1);
+	*(name - 1) = '\0'; /* guid need be null-terminated here */
+	uuid_str_to_bin(guid, (unsigned char *)vendor, UUID_STR_FORMAT_GUID);
+	*(name - 1) = c;
+
+	/* attributes */
+	parse_attr(end, attributes);
+
+	return EFI_SUCCESS;
+}
+
+/**
+ * efi_get_next_variable_name() - enumerate the current variable names
+ * @variable_name_size:	size of variable_name buffer in byte
+ * @variable_name:	name of uefi variable's name in u16
+ * @vendor:		vendor's guid
+ *
+ * This function implements the GetNextVariableName service.
  *
  * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
+ * details: http://wiki.phoenix.com/wiki/index.php/
+ *		EFI_RUNTIME_SERVICES#GetNextVariableName.28.29
  *
- * @variable_name_size:	on entry size of the buffer for the variable name, on
- *			exit the length of the name of the next variable
- * @variable_name:	on entry name of the current variable, on exit the name
- *			of the next variable
- * @vendor:		vendor GUID
- * Return:		status code
+ * Return: status code
  */
 efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 					       u16 *variable_name,
 					       const efi_guid_t *vendor)
 {
+	char *native_name, *variable;
+	ssize_t name_len, list_len;
+	char regex[256];
+	char * const regexlist[] = {regex};
+	u32 attributes;
+	int i;
+	efi_status_t ret;
+
 	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
 
-	return EFI_EXIT(EFI_DEVICE_ERROR);
+	if (!variable_name_size || !variable_name || !vendor)
+		EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	if (variable_name[0]) {
+		/* check null-terminated string */
+		for (i = 0; i < *variable_name_size; i++)
+			if (!variable_name[i])
+				break;
+		if (i >= *variable_name_size)
+			return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+		/* search for the last-returned variable */
+		ret = efi_to_native(&native_name, variable_name, vendor);
+		if (ret)
+			return EFI_EXIT(ret);
+
+		name_len = strlen(native_name);
+		for (variable = efi_variables_list; variable && *variable;) {
+			if (!strncmp(variable, native_name, name_len) &&
+			    variable[name_len] == '=')
+				break;
+
+			variable = strchr(variable, '\n');
+			if (variable)
+				variable++;
+		}
+
+		free(native_name);
+		if (!(variable && *variable))
+			return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+		/* next variable */
+		variable = strchr(variable, '\n');
+		if (variable)
+			variable++;
+		if (!(variable && *variable))
+			return EFI_EXIT(EFI_NOT_FOUND);
+	} else {
+		/*
+		 *new search: free a list used in the previous search
+		 */
+		free(efi_variables_list);
+		efi_variables_list = NULL;
+		efi_cur_variable = NULL;
+
+		snprintf(regex, 256, "efi_.*-.*-.*-.*-.*_.*");
+		list_len = hexport_r(&env_htab, '\n',
+				     H_MATCH_REGEX | H_MATCH_KEY,
+				     &efi_variables_list, 0, 1, regexlist);
+		if (list_len <= 0)
+			return EFI_EXIT(EFI_NOT_FOUND);
+
+		variable = efi_variables_list;
+	}
+
+	ret = parse_uboot_variable(variable, variable_name_size, variable_name,
+				   vendor, &attributes);
+
+	return EFI_EXIT(ret);
 }
 
 /**
