@@ -289,9 +289,6 @@
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
-#define CONFIG_SYS_APP1_BASE	0xA0000000    /* PAXG */
-#define	CONFIG_SYS_APP1_SIZE	256 /* Megabytes */
-
 /*
  * Init Local Bus Memory Controller:
  *				      Device on board
