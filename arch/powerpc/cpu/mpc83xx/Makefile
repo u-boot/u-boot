@@ -29,7 +29,9 @@ obj-y += interrupts.o
 obj-y += ecc.o
 obj-$(CONFIG_QE) += qe_io.o
 obj-$(CONFIG_FSL_SERDES) += serdes.o
+ifndef CONFIG_ARCH_MPC8308
 obj-$(CONFIG_PCI) += pci.o
+endif
 obj-$(CONFIG_PCIE) += pcie.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 
