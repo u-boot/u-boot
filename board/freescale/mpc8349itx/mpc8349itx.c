@@ -152,7 +152,7 @@ int dram_init(void)
 
 int checkboard(void)
 {
-#ifdef CONFIG_MPC8349ITX
+#ifdef CONFIG_TARGET_MPC8349ITX
 	puts("Board: Freescale MPC8349E-mITX\n");
 #else
 	puts("Board: Freescale MPC8349E-mITX-GP\n");

@@ -54,7 +54,7 @@
  * On-board devices
  */
 
-#ifdef CONFIG_MPC8349ITX
+#ifdef CONFIG_TARGET_MPC8349ITX
 /* The CF card interface on the back of the board */
 #define CONFIG_COMPACT_FLASH
 #define CONFIG_VSC7385_ENET	/* VSC7385 ethernet support */
@@ -642,7 +642,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 				/* U-Boot image on TFTP server */
 #define CONFIG_UBOOTPATH	"u-boot.bin"
 
-#ifdef CONFIG_MPC8349ITX
+#ifdef CONFIG_TARGET_MPC8349ITX
 #define CONFIG_FDTFILE		"mpc8349emitx.dtb"
 #else
 #define CONFIG_FDTFILE		"mpc8349emitxgp.dtb"
