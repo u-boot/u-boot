@@ -1,6 +1,10 @@
 #include <config.h>
 
 / {
+	aliases {
+		mmc1 = &mmc2;
+	};
+
 	binman {
 		filename = "u-boot-sunxi-with-spl.bin";
 		pad-byte = <0xff>;
