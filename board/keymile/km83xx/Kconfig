@@ -11,6 +11,32 @@ config SYS_CONFIG_NAME
 
 endif
 
+if TARGET_KMVECT1
+
+config SYS_BOARD
+	default "km83xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "kmvect1"
+
+endif
+
+if TARGET_KMTEGR1
+
+config SYS_BOARD
+	default "km83xx"
+
+config SYS_VENDOR
+	default "keymile"
+
+config SYS_CONFIG_NAME
+	default "kmtegr1"
+
+endif
+
 if TARGET_SUVD3
 
 config SYS_BOARD

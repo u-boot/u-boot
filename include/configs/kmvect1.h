@@ -22,10 +22,12 @@
 
 /* This needs to be set prior to including km/km83xx-common.h */
 
-#define CONFIG_HOSTNAME		"suvd3"
-#define CONFIG_KM_BOARD_NAME   "suvd3"
-/* include common defines/options for all 8321 Keymile boards */
-#include "km/km8321-common.h"
+#define CONFIG_HOSTNAME		"kmvect1"
+#define CONFIG_KM_BOARD_NAME   "kmvect1"
+/* at end of uboot partition, before env */
+#define CONFIG_SYS_QE_FW_ADDR   0xF00B0000
+/* include common defines/options for all 8309 Keymile boards */
+#include "km/km8309-common.h"
 
 #define CONFIG_SYS_APP1_BASE		0xA0000000
 #define CONFIG_SYS_APP1_SIZE		256 /* Megabytes */
@@ -92,5 +94,40 @@
 #define CONFIG_SYS_DBAT6L	(CONFIG_SYS_APP2_BASE | BATL_PP_RW | \
 				 BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
+
+/*
+ * QE UEC ethernet configuration
+ */
+#define CONFIG_MV88E6352_SWITCH
+#define CONFIG_KM_MVEXTSW_ADDR		0x10
+
+/* ethernet port connected to simple switch 88e6122 (UEC0) */
+#define CONFIG_UEC_ETH1
+#define CONFIG_SYS_UEC1_UCC_NUM		0	/* UCC1 */
+#define CONFIG_SYS_UEC1_RX_CLK		QE_CLK9
+#define CONFIG_SYS_UEC1_TX_CLK		QE_CLK10
+
+#define CONFIG_FIXED_PHY		0xFFFFFFFF
+#define CONFIG_SYS_FIXED_PHY_ADDR	0x1E	/* unused address */
+#define CONFIG_SYS_FIXED_PHY_PORT(devnum, speed, duplex) \
+		{devnum, speed, duplex}
+#define CONFIG_SYS_FIXED_PHY_PORTS \
+		CONFIG_SYS_FIXED_PHY_PORT("UEC0", SPEED_100, DUPLEX_FULL)
+
+#define CONFIG_SYS_UEC1_ETH_TYPE	FAST_ETH
+#define CONFIG_SYS_UEC1_PHY_ADDR	CONFIG_SYS_FIXED_PHY_ADDR
+#define CONFIG_SYS_UEC1_INTERFACE_TYPE	PHY_INTERFACE_MODE_MII
+#define CONFIG_SYS_UEC1_INTERFACE_SPEED	100
+
+/* ethernet port connected to piggy (UEC2) */
+#define CONFIG_HAS_ETH1
+#define CONFIG_UEC_ETH2
+#define CONFIG_SYS_UEC2_UCC_NUM		2       /* UCC3 */
+#define CONFIG_SYS_UEC2_RX_CLK		QE_CLK_NONE /* not used in RMII Mode */
+#define CONFIG_SYS_UEC2_TX_CLK		QE_CLK12
+#define CONFIG_SYS_UEC2_ETH_TYPE	FAST_ETH
+#define CONFIG_SYS_UEC2_PHY_ADDR	0
+#define CONFIG_SYS_UEC2_INTERFACE_TYPE	PHY_INTERFACE_MODE_RMII
+#define CONFIG_SYS_UEC2_INTERFACE_SPEED	100
 
 #endif /* __CONFIG_H */

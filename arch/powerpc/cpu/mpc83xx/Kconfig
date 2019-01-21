@@ -89,9 +89,19 @@ config TARGET_KM8360
 
 config TARGET_SUVD3
 	bool "Support suvd3"
-	select ARCH_MPC8309 if SYS_EXTRA_OPTIONS="KMTEGR1"
-	select ARCH_MPC8309 if SYS_EXTRA_OPTIONS="KMVECT1"
-	select ARCH_MPC832X if SYS_EXTRA_OPTIONS="SUVD3"
+	select ARCH_MPC832X
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
+
+config TARGET_KMVECT1
+	bool "Support kmvect1"
+	select ARCH_MPC8309
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
+
+config TARGET_KMTEGR1
+	bool "Support kmtegr1"
+	select ARCH_MPC8309
 	imply CMD_CRAMFS
 	imply FS_CRAMFS
 
