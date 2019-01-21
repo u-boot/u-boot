@@ -116,8 +116,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #endif
 
 #ifdef CONFIG_SYS_NS16550
-	do_fixup_by_compat_u32(blob, "ns16550",
-		"clock-frequency", CONFIG_SYS_NS16550_CLK, 1);
+        do_fixup_by_compat_u32(blob, "ns16550",
+                "clock-frequency", get_serial_clock(), 1);
 #endif
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
