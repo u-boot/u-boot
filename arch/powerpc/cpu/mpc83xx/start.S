@@ -25,6 +25,7 @@
 #include <asm/u-boot.h>
 
 #include "hrcw/hrcw.h"
+#include "bats/bats.h"
 
 /* We don't want the  MMU yet.
  */
