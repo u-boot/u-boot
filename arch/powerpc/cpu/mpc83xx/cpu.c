@@ -133,18 +133,18 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #ifdef MPC83xx_RESET
 
 	/* Interrupts and MMU off */
-	__asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
-
-	msr &= ~( MSR_EE | MSR_IR | MSR_DR);
-	__asm__ __volatile__ ("mtmsr    %0"::"r" (msr));
+	msr = mfmsr();
+	msr &= ~(MSR_EE | MSR_IR | MSR_DR);
+	mtmsr(msr);
 
 	/* enable Reset Control Reg */
 	immap->reset.rpr = 0x52535445;
-	__asm__ __volatile__ ("sync");
-	__asm__ __volatile__ ("isync");
+	sync();
+	isync();
 
 	/* confirm Reset Control Reg is enabled */
-	while(!((immap->reset.rcer) & RCER_CRE));
+	while(!((immap->reset.rcer) & RCER_CRE))
+		;
 
 	udelay(200);
 
@@ -156,10 +156,9 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	immap->reset.rmr = RMR_CSRE;    /* Checkstop Reset enable */
 
 	/* Interrupts and MMU off */
-	__asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
-
+	msr = mfmsr();
 	msr &= ~(MSR_ME | MSR_EE | MSR_IR | MSR_DR);
-	__asm__ __volatile__ ("mtmsr    %0"::"r" (msr));
+	mtmsr(msr);
 
 	/*
 	 * Trying to execute the next instruction at a non-existing address

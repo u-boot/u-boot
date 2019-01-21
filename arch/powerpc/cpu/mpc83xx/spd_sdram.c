@@ -436,7 +436,7 @@ long int spd_sdram()
 		else if (caslat == 4)
 			ddr->debug_reg = 0x202c0000; /* CL=3.0 */
 
-		__asm__ __volatile__ ("sync");
+		sync();
 
 		debug("Errata DDR6 (debug_reg=0x%08x)\n", ddr->debug_reg);
 	}
@@ -765,7 +765,8 @@ long int spd_sdram()
 #endif
 	debug("DDR:sdram_clk_cntl=0x%08x\n", ddr->sdram_clk_cntl);
 
-	asm("sync;isync");
+	sync();
+	isync();
 
 	udelay(600);
 
@@ -834,7 +835,8 @@ long int spd_sdram()
 #endif
 	/* Enable controller, and GO! */
 	ddr->sdram_cfg = sdram_cfg;
-	asm("sync;isync");
+	sync();
+	isync();
 	udelay(500);
 
 	debug("DDR:sdram_cfg=0x%08x\n", ddr->sdram_cfg);
@@ -843,6 +845,22 @@ long int spd_sdram()
 #endif /* CONFIG_SPD_EEPROM */
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+static inline u32 mftbu(void)
+{
+	u32 rval;
+
+	asm volatile("mftbu %0" : "=r" (rval));
+	return rval;
+}
+
+static inline u32 mftb(void)
+{
+	u32 rval;
+
+	asm volatile("mftb %0" : "=r" (rval));
+	return rval;
+}
+
 /*
  * Use timebase counter, get_timer() is not available
  * at this point of initialization yet.
@@ -858,9 +876,9 @@ static __inline__ unsigned long get_tbms (void)
 
 	/* get the timebase ticks */
 	do {
-		asm volatile ("mftbu %0":"=r" (tbu1):);
-		asm volatile ("mftb %0":"=r" (tbl):);
-		asm volatile ("mftbu %0":"=r" (tbu2):);
+		tbu1 = mftbu();
+		tbl = mftb();
+		tbu2 = mftbu();
 	} while (tbu1 != tbu2);
 
 	/* convert ticks to ms */
@@ -897,7 +915,7 @@ void ddr_enable_ecc(unsigned int dram_size)
 	for (p = 0; p < (u64*)(size); p++) {
 		ppcDWstore((u32*)p, pattern);
 	}
-	__asm__ __volatile__ ("sync");
+	sync();
 #endif
 
 	t_end = get_tbms();
@@ -922,8 +940,8 @@ void ddr_enable_ecc(unsigned int dram_size)
 	/* Enable errors for ECC */
 	ddr->err_disable &= ECC_ERROR_ENABLE;
 
-	__asm__ __volatile__ ("sync");
-	__asm__ __volatile__ ("isync");
+	sync();
+	isync();
 }
 #endif	/* CONFIG_DDR_ECC */
 
