@@ -16,6 +16,7 @@ const efi_guid_t efi_guid_hii_database_protocol
 const efi_guid_t efi_guid_hii_string_protocol = EFI_HII_STRING_PROTOCOL_GUID;
 
 static LIST_HEAD(efi_package_lists);
+static LIST_HEAD(efi_keyboard_layout_list);
 
 struct efi_hii_packagelist {
 	struct list_head link;
@@ -24,6 +25,7 @@ struct efi_hii_packagelist {
 	u32 max_string_id;
 	struct list_head string_tables;     /* list of efi_string_table */
 	struct list_head guid_list;
+	struct list_head keyboard_packages;
 
 	/* we could also track fonts, images, etc */
 };
@@ -84,6 +86,17 @@ struct efi_string_table {
 struct efi_guid_data {
 	struct list_head link;
 	struct efi_hii_guid_package package;
+};
+
+struct efi_keyboard_layout_data {
+	struct list_head link;		/* in package */
+	struct list_head link_sys;	/* in global list */
+	struct efi_hii_keyboard_layout keyboard_layout;
+};
+
+struct efi_keyboard_package_data {
+	struct list_head link;		/* in package_list */
+	struct list_head keyboard_layout_list;
 };
 
 static void free_strings_table(struct efi_string_table *stbl)
@@ -253,6 +266,78 @@ add_guid_package(struct efi_hii_packagelist *hii,
 	return EFI_SUCCESS;
 }
 
+static void free_keyboard_layouts(struct efi_keyboard_package_data *package)
+{
+	struct efi_keyboard_layout_data *layout_data;
+
+	while (!list_empty(&package->keyboard_layout_list)) {
+		layout_data = list_first_entry(&package->keyboard_layout_list,
+					       struct efi_keyboard_layout_data,
+					       link);
+		list_del(&layout_data->link);
+		list_del(&layout_data->link_sys);
+		free(layout_data);
+	}
+}
+
+static void remove_keyboard_package(struct efi_hii_packagelist *hii)
+{
+	struct efi_keyboard_package_data *package;
+
+	while (!list_empty(&hii->keyboard_packages)) {
+		package = list_first_entry(&hii->keyboard_packages,
+					   struct efi_keyboard_package_data,
+					   link);
+		free_keyboard_layouts(package);
+		list_del(&package->link);
+		free(package);
+	}
+}
+
+static efi_status_t
+add_keyboard_package(struct efi_hii_packagelist *hii,
+		     struct efi_hii_keyboard_package *keyboard_package)
+{
+	struct efi_keyboard_package_data *package_data;
+	struct efi_hii_keyboard_layout *layout;
+	struct efi_keyboard_layout_data *layout_data;
+	u16 layout_count, layout_length;
+	int i;
+
+	package_data = malloc(sizeof(*package_data));
+	if (!package_data)
+		return EFI_OUT_OF_RESOURCES;
+	INIT_LIST_HEAD(&package_data->link);
+	INIT_LIST_HEAD(&package_data->keyboard_layout_list);
+
+	layout = &keyboard_package->layout[0];
+	layout_count = get_unaligned_le16(&keyboard_package->layout_count);
+	for (i = 0; i < layout_count; i++) {
+		layout_length = get_unaligned_le16(&layout->layout_length);
+		layout_data = malloc(sizeof(*layout_data) + layout_length);
+		if (!layout_data)
+			goto out;
+
+		memcpy(&layout_data->keyboard_layout, layout, layout_length);
+		list_add_tail(&layout_data->link,
+			      &package_data->keyboard_layout_list);
+		list_add_tail(&layout_data->link_sys,
+			      &efi_keyboard_layout_list);
+
+		layout += layout_length;
+	}
+
+	list_add_tail(&package_data->link, &hii->keyboard_packages);
+
+	return EFI_SUCCESS;
+
+out:
+	free_keyboard_layouts(package_data);
+	free(package_data);
+
+	return EFI_OUT_OF_RESOURCES;
+}
+
 static struct efi_hii_packagelist *new_packagelist(void)
 {
 	struct efi_hii_packagelist *hii;
@@ -261,6 +346,7 @@ static struct efi_hii_packagelist *new_packagelist(void)
 	hii->max_string_id = 0;
 	INIT_LIST_HEAD(&hii->string_tables);
 	INIT_LIST_HEAD(&hii->guid_list);
+	INIT_LIST_HEAD(&hii->keyboard_packages);
 
 	return hii;
 }
@@ -269,6 +355,7 @@ static void free_packagelist(struct efi_hii_packagelist *hii)
 {
 	remove_strings_package(hii);
 	remove_guid_package(hii);
+	remove_keyboard_package(hii);
 
 	list_del(&hii->link);
 	free(hii);
@@ -324,8 +411,8 @@ add_packages(struct efi_hii_packagelist *hii,
 			ret = EFI_INVALID_PARAMETER;
 			break;
 		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
-			printf("\tKeyboard layout package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
+			ret = add_keyboard_package(hii,
+				(struct efi_hii_keyboard_package *)package);
 			break;
 		case EFI_HII_PACKAGE_ANIMATIONS:
 			printf("\tAnimation package not supported\n");
@@ -458,7 +545,7 @@ update_package_list(const struct efi_hii_database_protocol *this,
 			ret = EFI_INVALID_PARAMETER;
 			break;
 		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
-			printf("\tKeyboard layout package not supported\n");
+			remove_keyboard_package(hii);
 			break;
 		case EFI_HII_PACKAGE_ANIMATIONS:
 			printf("\tAnimation package not supported\n");
@@ -546,7 +633,8 @@ list_package_lists(const struct efi_hii_database_protocol *this,
 			ret = EFI_INVALID_PARAMETER;
 			continue;
 		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
-			printf("\tKeyboard layout package not supported\n");
+			if (!list_empty(&hii->keyboard_packages))
+				break;
 			continue;
 		case EFI_HII_PACKAGE_ANIMATIONS:
 			printf("\tAnimation package not supported\n");
@@ -620,9 +708,30 @@ find_keyboard_layouts(const struct efi_hii_database_protocol *this,
 		      u16 *key_guid_buffer_length,
 		      efi_guid_t *key_guid_buffer)
 {
+	struct efi_keyboard_layout_data *layout_data;
+	int package_cnt, package_max;
+	efi_status_t ret = EFI_SUCCESS;
+
 	EFI_ENTRY("%p, %p, %p", this, key_guid_buffer_length, key_guid_buffer);
 
-	return EFI_EXIT(EFI_NOT_FOUND);
+	if (!key_guid_buffer_length ||
+	    (*key_guid_buffer_length && !key_guid_buffer))
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	package_cnt = 0;
+	package_max = *key_guid_buffer_length / sizeof(*key_guid_buffer);
+	list_for_each_entry(layout_data, &efi_keyboard_layout_list, link_sys) {
+		package_cnt++;
+		if (package_cnt <= package_max)
+			memcpy(key_guid_buffer++,
+			       &layout_data->keyboard_layout.guid,
+			       sizeof(*key_guid_buffer));
+		else
+			ret = EFI_BUFFER_TOO_SMALL;
+	}
+	*key_guid_buffer_length = package_cnt * sizeof(*key_guid_buffer);
+
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI
@@ -631,10 +740,38 @@ get_keyboard_layout(const struct efi_hii_database_protocol *this,
 		    u16 *keyboard_layout_length,
 		    struct efi_hii_keyboard_layout *keyboard_layout)
 {
+	struct efi_keyboard_layout_data *layout_data;
+	u16 layout_length;
+
 	EFI_ENTRY("%p, %pUl, %p, %p", this, key_guid, keyboard_layout_length,
 		  keyboard_layout);
 
+	if (!keyboard_layout_length ||
+	    (*keyboard_layout_length && !keyboard_layout))
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	/* TODO: no notion of current keyboard layout */
+	if (!key_guid)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	list_for_each_entry(layout_data, &efi_keyboard_layout_list, link_sys) {
+		if (!guidcmp(&layout_data->keyboard_layout.guid, key_guid))
+			goto found;
+	}
+
 	return EFI_EXIT(EFI_NOT_FOUND);
+
+found:
+	layout_length =
+		get_unaligned_le16(&layout_data->keyboard_layout.layout_length);
+	if (*keyboard_layout_length < layout_length) {
+		*keyboard_layout_length = layout_length;
+		return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
+	}
+
+	memcpy(keyboard_layout, &layout_data->keyboard_layout, layout_length);
+
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 static efi_status_t EFIAPI

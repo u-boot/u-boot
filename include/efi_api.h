@@ -845,6 +845,12 @@ struct efi_hii_keyboard_layout {
 	struct efi_key_descriptor descriptors[];
 } __packed;
 
+struct efi_hii_keyboard_package {
+	struct efi_hii_package_header header;
+	u16 layout_count;
+	struct efi_hii_keyboard_layout layout[];
+} __packed;
+
 /*
  * HII protocols
  */
