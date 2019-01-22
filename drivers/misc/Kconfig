@@ -245,6 +245,7 @@ config SPL_I2C_EEPROM
 config ZYNQ_GEM_I2C_MAC_OFFSET
 	hex "Set the I2C MAC offset"
 	default 0x0
+	depends on DM_I2C
 	help
 	  Set the MAC offset for i2C.
 
