@@ -383,7 +383,8 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 		list_len = hexport_r(&env_htab, '\n',
 				     H_MATCH_REGEX | H_MATCH_KEY,
 				     &efi_variables_list, 0, 1, regexlist);
-		if (list_len <= 0)
+		/* 1 indicates that no match was found */
+		if (list_len <= 1)
 			return EFI_EXIT(EFI_NOT_FOUND);
 
 		variable = efi_variables_list;
