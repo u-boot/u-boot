@@ -14,6 +14,8 @@
 # define CONFIG_CPU_FREQ_HZ	800000000
 #endif
 
+#define CONFIG_REMAKE_ELF
+
 /* Cache options */
 #define CONFIG_SYS_L2CACHE_OFF
 #ifndef CONFIG_SYS_L2CACHE_OFF
