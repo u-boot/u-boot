@@ -102,20 +102,6 @@
 # define DFU_ALT_INFO
 #endif
 
-/* I2C */
-#if defined(CONFIG_SYS_I2C_ZYNQ)
-# define CONFIG_SYS_I2C
-#endif
-
-/* EEPROM */
-#ifdef CONFIG_ZYNQ_EEPROM
-# define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-# define CONFIG_SYS_I2C_EEPROM_ADDR		0x54
-# define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
-# define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
-# define CONFIG_SYS_EEPROM_SIZE			1024 /* Bytes */
-#endif
-
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
