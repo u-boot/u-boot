@@ -7,3 +7,7 @@
 &mmc3 {
 	status = "disabled";
 };
+
+&usb0 {
+	dr_mode = "peripheral";
+};
