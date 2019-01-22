@@ -456,39 +456,6 @@ config SYS_I2C_XILINX_XIIC
 	help
 	  Support for Xilinx AXI I2C controller.
 
-config SYS_I2C_ZYNQ
-	bool "Xilinx I2C driver"
-	depends on ARCH_ZYNQMP || ARCH_ZYNQ
-	depends on !DM_I2C
-	help
-	  Support for Xilinx I2C controller.
-
-config SYS_I2C_ZYNQ_SLAVE
-	hex "Set slave addr"
-	depends on SYS_I2C_ZYNQ
-	default 0
-	help
-	  Set CONFIG_SYS_I2C_ZYNQ_SLAVE for slave addr.
-
-config SYS_I2C_ZYNQ_SPEED
-	int "Set I2C speed"
-	depends on SYS_I2C_ZYNQ
-	default 100000
-	help
-	  Set CONFIG_SYS_I2C_ZYNQ_SPEED for speed setting.
-
-config ZYNQ_I2C0
-	bool "Xilinx I2C0 controller"
-	depends on SYS_I2C_ZYNQ
-	help
-	  Enable Xilinx I2C0 controller.
-
-config ZYNQ_I2C1
-	bool "Xilinx I2C1 controller"
-	depends on SYS_I2C_ZYNQ
-	help
-	  Enable Xilinx I2C1 controller.
-
 config SYS_I2C_IHS
         bool "gdsys IHS I2C driver"
         depends on DM_I2C
