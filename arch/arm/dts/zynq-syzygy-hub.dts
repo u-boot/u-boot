@@ -16,6 +16,7 @@
 		ethernet0 = &gem0;
 		serial0 = &uart0;
 		mmc0 = &sdhci0;
+		i2c0 = &i2c1;
 	};
 
 	memory@0 {
@@ -26,6 +27,7 @@
 	chosen {
 		bootargs = "";
 		stdout-path = "serial0:115200n8";
+		xlnx,eeprom = &eeprom;
 	};
 
 	usb_phy0: phy0 {
@@ -52,6 +54,10 @@
 
 &i2c1 {
 	status = "okay";
+	eeprom: eeprom@57 {
+		compatible = "atmel,24c08"; /* not sure if this is correct */
+		reg = <0x57>;
+	};
 };
 
 &sdhci0 {

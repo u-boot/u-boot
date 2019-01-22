@@ -10,10 +10,6 @@
 #ifndef __CONFIG_SYZYGY_HUB_H
 #define __CONFIG_SYZYGY_HUB_H
 
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
-#define CONFIG_ZYNQ_GEM_EEPROM_ADDR    0x57
-#define CONFIG_ZYNQ_EEPROM_BUS		0
-
 #define CONFIG_EXTRA_ENV_SETTINGS       \
 	"fit_image=fit.itb\0"		\
 	"bitstream_image=download.bit\0"    \
