@@ -108,7 +108,7 @@
 #endif
 
 /* EEPROM */
-#ifdef CONFIG_ZYNQ_EEPROM
+#ifdef CONFIG_ENV_IS_IN_EEPROM
 # define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 # define CONFIG_SYS_I2C_EEPROM_ADDR		0x54
 # define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
@@ -116,10 +116,8 @@
 # define CONFIG_SYS_EEPROM_SIZE			1024 /* Bytes */
 # define CONFIG_SYS_I2C_MUX_ADDR		0x74
 # define CONFIG_SYS_I2C_MUX_EEPROM_SEL		0x4
-#endif
 
 /* Total Size of Environment Sector */
-#ifdef CONFIG_ENV_IS_IN_EEPROM
 # define CONFIG_EXTRA_ENV_SETTINGS
 #endif
 
