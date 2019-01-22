@@ -78,8 +78,8 @@ SECTIONS
 	.ARM.exidx : { *(.ARM.exidx*) }
 }
 
-#if defined(CONFIG_SPL_MAX_SIZE)
-ASSERT(__image_copy_end - __image_copy_start < (CONFIG_SPL_MAX_SIZE), \
+#if defined(IMAGE_MAX_SIZE)
+ASSERT(__image_copy_end - __image_copy_start < (IMAGE_MAX_SIZE), \
 	"SPL image too big");
 #endif
 
