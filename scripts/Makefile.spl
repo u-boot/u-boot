@@ -321,14 +321,9 @@ LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
 # Avoid 'Not enough room for program headers' error on binutils 2.28 onwards.
 LDFLAGS_$(SPL_BIN) += $(call ld-option, --no-dynamic-linker)
 
-# First try the best-match (i.e. SPL_TEXT_BASE for SPL, TPL_TEXT_BASE for TPL)
+# Pick the best-match (i.e. SPL_TEXT_BASE for SPL, TPL_TEXT_BASE for TPL)
 ifneq ($(CONFIG_$(SPL_TPL_)TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_$(SPL_TPL_)TEXT_BASE)
-else
-# And then fall back to just testing for SPL_TEXT_BASE, even if in TPL mode
-ifneq ($(CONFIG_SPL_TEXT_BASE),)
-LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
-endif
 endif
 
 ifdef CONFIG_TARGET_SOCFPGA_ARRIA10

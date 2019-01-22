@@ -18,7 +18,11 @@ PHDRS
 #endif
 SECTIONS
 {
+#ifdef CONFIG_TPL_BUILD
+	. = CONFIG_TPL_TEXT_BASE;
+#else
 	. = CONFIG_SPL_TEXT_BASE;
+#endif
 	.text : {
 		*(.text*)
 	}
