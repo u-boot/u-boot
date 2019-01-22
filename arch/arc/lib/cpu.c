@@ -87,7 +87,7 @@ const char *arc_em_version(int arcver, char *name, int name_len)
 	bool xymem = ARC_FEATURE_EXISTS(ARC_AUX_XY_BUILD);
 	int i;
 
-	for (i = 0; i++ < sizeof(em_versions) / sizeof(struct em_template_t);) {
+	for (i = 0; i < sizeof(em_versions) / sizeof(struct em_template_t); i++) {
 		if (em_versions[i].cache == cache &&
 		    em_versions[i].dsp == dsp &&
 		    em_versions[i].xymem == xymem) {
@@ -147,7 +147,7 @@ const char *arc_hs_version(int arcver, char *name, int name_len)
 	bool dual_issue = arcver == 0x54 ? true : false;
 	int i;
 
-	for (i = 0; i++ < sizeof(hs_versions) / sizeof(struct hs_template_t);) {
+	for (i = 0; i < sizeof(hs_versions) / sizeof(struct hs_template_t); i++) {
 		if (hs_versions[i].cache == cache &&
 		    hs_versions[i].mmu == mmu &&
 		    hs_versions[i].dual_issue == dual_issue &&
