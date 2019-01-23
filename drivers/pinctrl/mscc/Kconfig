@@ -38,3 +38,13 @@ config PINCTRL_MSCC_SERVALT
 	help
 	    Support pin multiplexing and pin configuration control on
 	    Microsemi servalt SoCs.
+
+config PINCTRL_MSCC_SERVAL
+	depends on SOC_SERVAL && PINCTRL_FULL && OF_CONTROL
+	select PINCTRL_MSCC
+	default y
+	bool "Microsemi serval family pin control driver"
+	help
+	    Support pin multiplexing and pin configuration control on
+	    Microsemi serval SoCs.
+
