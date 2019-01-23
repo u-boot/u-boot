@@ -79,6 +79,11 @@ before_script:
        wget https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases/download/arc-2018.09-release/arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install.tar.gz &&
        tar -C /tmp -xf arc_gnu_2018.09_prebuilt_uclibc_le_archs_linux_install.tar.gz;
     fi
+  - if [[ "${TOOLCHAIN}" == "nds32" ]]; then
+       wget https://github.com/vincentzwc/prebuilt-nds32-toolchain/releases/download/20180521/nds32le-linux-glibc-v3-upstream.tar.gz &&
+       tar -C /tmp -xf nds32le-linux-glibc-v3-upstream.tar.gz &&
+       echo -e "\n[toolchain-prefix]\nnds32 = /tmp/nds32le-linux-glibc-v3-upstream/bin/nds32le-linux-" >> ~/.buildman;
+    fi
   - if [[ "${TOOLCHAIN}" == *xtensa* ]]; then
        wget https://github.com/foss-xtensa/toolchain/releases/download/2018.02/x86_64-2018.02-${TOOLCHAIN}.tar.gz &&
        tar -C /tmp -xf x86_64-2018.02-${TOOLCHAIN}.tar.gz &&
@@ -311,6 +316,10 @@ matrix:
       env:
         - BUILDMAN="riscv"
           TOOLCHAIN="riscv"
+    - name: "buildman nds32"
+      env:
+        - BUILDMAN="nds32"
+          TOOLCHAIN="nds32"
 
     # QA jobs for code analytics
     # static code analysis with cppcheck (we can add --enable=all later)
