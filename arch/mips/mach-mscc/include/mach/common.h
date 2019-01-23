@@ -26,6 +26,11 @@
 #include <mach/servalt/servalt_devcpu_gcb.h>
 #include <mach/servalt/servalt_devcpu_gcb_miim_regs.h>
 #include <mach/servalt/servalt_icpu_cfg.h>
+#elif defined(CONFIG_SOC_SERVAL)
+#include <mach/serval/serval.h>
+#include <mach/serval/serval_devcpu_gcb.h>
+#include <mach/serval/serval_devcpu_gcb_miim_regs.h>
+#include <mach/serval/serval_icpu_cfg.h>
 #else
 #error Unsupported platform
 #endif

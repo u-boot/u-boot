@@ -20,7 +20,7 @@ static inline int vcoreiii_train_bytelane(void)
 	ret = hal_vcoreiii_train_bytelane(0);
 
 #if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_JR2) || \
-	defined(CONFIG_SOC_SERVALT)
+	defined(CONFIG_SOC_SERVALT) || defined(CONFIG_SOC_SERVAL)
 	if (ret)
 		return ret;
 	ret = hal_vcoreiii_train_bytelane(1);

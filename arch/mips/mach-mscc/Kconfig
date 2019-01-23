@@ -47,6 +47,13 @@ config SOC_SERVALT
 	help
 	  This supports MSCC Servalt family of SOCs.
 
+config SOC_SERVAL
+	bool "Serval SOC Family"
+	select SOC_VCOREIII
+	select MSCC_BB_SPI
+	help
+	  This supports MSCC Serval family of SOCs.
+
 endchoice
 
 config SYS_CONFIG_NAME
@@ -82,4 +89,6 @@ source "board/mscc/luton/Kconfig"
 source "board/mscc/jr2/Kconfig"
 
 source "board/mscc/servalt/Kconfig"
+
+source "board/mscc/serval/Kconfig"
 endmenu

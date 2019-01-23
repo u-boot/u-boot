@@ -87,7 +87,7 @@ int mach_cpu_init(void)
 	       ICPU_SPI_MST_CFG_CS_DESELECT_TIME(0x19) +
 	       ICPU_SPI_MST_CFG_CLK_DIV(9), BASE_CFG + ICPU_SPI_MST_CFG);
 #else
-#ifdef CONFIG_SOC_OCELOT
+#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_SERVAL)
 	writel(ICPU_SPI_MST_CFG_CS_DESELECT_TIME(0x19) +
 	       ICPU_SPI_MST_CFG_CLK_DIV(9), BASE_CFG + ICPU_SPI_MST_CFG);
 #endif
