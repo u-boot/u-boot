@@ -266,7 +266,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT
-#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_EXT_SUPPORT)
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME		"u-boot-dtb.img"
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION	1
 #endif

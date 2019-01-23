@@ -395,7 +395,7 @@ config SPL_EXT_SUPPORT
 	  filesystem from within SPL. Support for the underlying block
 	  device (e.g. MMC or USB) must be enabled separately.
 
-config SPL_FAT_SUPPORT
+config SPL_FS_FAT
 	bool "Support FAT filesystems"
 	select FS_FAT
 	help

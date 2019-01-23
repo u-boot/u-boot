@@ -181,7 +181,7 @@ u32 spl_boot_mode(const u32 boot_device)
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
 	case BOOT_DEVICE_MMC2_2:
-#if defined(CONFIG_SPL_FAT_SUPPORT)
+#if defined(CONFIG_SPL_FS_FAT)
 		return MMCSD_MODE_FS;
 #elif defined(CONFIG_SUPPORT_EMMC_BOOT)
 		return MMCSD_MODE_EMMCBOOT;
