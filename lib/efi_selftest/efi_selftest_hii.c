@@ -205,8 +205,6 @@ static int test_hii_database_list_package_lists(void)
 			     (unsigned int)ret);
 		goto out;
 	}
-	efi_st_printf("list_package_lists returned %ld handles\n",
-		      handles_size / sizeof(*handles));
 	free(handles);
 
 	/* STRINGS */
@@ -236,8 +234,6 @@ static int test_hii_database_list_package_lists(void)
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
-	efi_st_printf("list_package_lists returned %ld strings handles\n",
-		      handles_size / sizeof(*handles));
 	free(handles);
 
 	/* GUID */
@@ -267,8 +263,6 @@ static int test_hii_database_list_package_lists(void)
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
-	efi_st_printf("list_package_lists returned %ld guid handles\n",
-		      handles_size / sizeof(*handles));
 	free(handles);
 
 	/* KEYBOARD_LAYOUT */
@@ -298,8 +292,6 @@ static int test_hii_database_list_package_lists(void)
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
-	efi_st_printf("list_package_lists returned %ld keyboard layout handles\n",
-		      handles_size / sizeof(*handles));
 	free(handles);
 
 	result = EFI_ST_SUCCESS;
@@ -419,9 +411,6 @@ static int test_hii_database_find_keyboard_layouts(void)
 		goto out;
 	}
 	free(guids);
-
-	efi_st_printf("find_keyboard_layouts returned %ld guids\n",
-		      guids_size / sizeof(*guids));
 
 	result = EFI_ST_SUCCESS;
 
