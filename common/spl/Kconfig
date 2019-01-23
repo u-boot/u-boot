@@ -404,6 +404,13 @@ config SPL_FS_FAT
 	  filesystem from within SPL. Support for the underlying block
 	  device (e.g. MMC or USB) must be enabled separately.
 
+config SPL_FAT_WRITE
+	bool "Support write for FAT filesystems"
+	help
+	  Enable write support for FAT and VFAT filesystems with SPL.
+	  Support for the underlying block device (e.g. MMC or USB) must be
+	  enabled separately.
+
 config SPL_FPGA_SUPPORT
 	bool "Support FPGAs"
 	help
