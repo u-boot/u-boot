@@ -1,0 +1,56 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2018 Microsemi Corporation
+ */
+
+/dts-v1/;
+#include "mscc,serval.dtsi"
+
+/ {
+	model = "Serval PCB106 Reference Board";
+	compatible = "mscc,serval-pcb106", "mscc,serval";
+
+	aliases {
+		spi0 = &spi0;
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		status_green {
+			label = "pcb106:green:status";
+			gpios = <&sgpio 43 1>; /* p11.1 */
+			default-state = "on";
+		};
+
+		status_red {
+			label = "pcb106:red:status";
+			gpios = <&sgpio 11 1>; /* p11.0 */
+			default-state = "off";
+		};
+	};
+};
+
+&uart0 {
+	status = "okay";
+};
+
+&spi0 {
+	status = "okay";
+	spi-flash@0 {
+		compatible = "spi-flash";
+		spi-max-frequency = <18000000>; /* input clock */
+		reg = <0>; /* CS0 */
+		spi-cs-high;
+	};
+};
+
+&sgpio {
+	status = "okay";
+	sgpio-ports = <0x00FFFFFF>;
+};
