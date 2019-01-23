@@ -124,7 +124,7 @@ form_callback(const struct efi_hii_config_access_protocol *this,
 	      union efi_ifr_type_value *value,
 	      efi_browser_action_request_t *action_request)
 {
-	EFI_ENTRY("%p, 0x%lx, 0x%x, 0x%x, %p, %p", this, action,
+	EFI_ENTRY("%p, 0x%zx, 0x%x, 0x%x, %p, %p", this, action,
 		  question_id, type, value, action_request);
 
 	return EFI_EXIT(EFI_DEVICE_ERROR);

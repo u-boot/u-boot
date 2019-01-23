@@ -132,13 +132,13 @@ add_strings_package(struct efi_hii_packagelist *hii,
 	struct efi_string_table *stbl = NULL;
 	efi_status_t ret;
 
-	debug("header_size: %08x\n",
-	      get_unaligned_le32(&strings_package->header_size));
-	debug("string_info_offset: %08x\n",
-	      get_unaligned_le32(&strings_package->string_info_offset));
-	debug("language_name: %u\n",
-	      get_unaligned_le16(&strings_package->language_name));
-	debug("language: %s\n", strings_package->language);
+	EFI_PRINT("header_size: %08x\n",
+		  get_unaligned_le32(&strings_package->header_size));
+	EFI_PRINT("string_info_offset: %08x\n",
+		  get_unaligned_le32(&strings_package->string_info_offset));
+	EFI_PRINT("language_name: %u\n",
+		  get_unaligned_le16(&strings_package->language_name));
+	EFI_PRINT("language: %s\n", strings_package->language);
 
 	/* count # of string entries: */
 	end = ((void *)strings_package)
@@ -160,8 +160,8 @@ add_strings_package(struct efi_hii_packagelist *hii,
 			block = end;
 			break;
 		default:
-			debug("unknown HII string block type: %02x\n",
-			      block->block_type);
+			EFI_PRINT("unknown HII string block type: %02x\n",
+				  block->block_type);
 			return EFI_INVALID_PARAMETER;
 		}
 	}
@@ -195,7 +195,7 @@ add_strings_package(struct efi_hii_packagelist *hii,
 			struct efi_hii_sibt_string_ucs2_block *ucs2;
 
 			ucs2 = (void *)block;
-			debug("%4u: \"%ls\"\n", idx + 1, ucs2->string_text);
+			EFI_PRINT("%4u: \"%ls\"\n", idx + 1, ucs2->string_text);
 			stbl->strings[idx].string =
 				u16_strdup(ucs2->string_text);
 			if (!stbl->strings[idx].string) {
@@ -210,8 +210,8 @@ add_strings_package(struct efi_hii_packagelist *hii,
 		case EFI_HII_SIBT_END:
 			goto out;
 		default:
-			debug("unknown HII string block type: %02x\n",
-			      block->block_type);
+			EFI_PRINT("unknown HII string block type: %02x\n",
+				  block->block_type);
 			ret = EFI_INVALID_PARAMETER;
 			goto error;
 		}
@@ -372,14 +372,14 @@ add_packages(struct efi_hii_packagelist *hii,
 	end = ((void *)package_list)
 		+ get_unaligned_le32(&package_list->package_length);
 
-	debug("package_list: %pUl (%u)\n", &package_list->package_list_guid,
-	      get_unaligned_le32(&package_list->package_length));
+	EFI_PRINT("package_list: %pUl (%u)\n", &package_list->package_list_guid,
+		  get_unaligned_le32(&package_list->package_length));
 
 	package = ((void *)package_list) + sizeof(*package_list);
 	while ((void *)package < end) {
-		debug("package=%p, package type=%x, length=%u\n", package,
-		      efi_hii_package_type(package),
-		      efi_hii_package_len(package));
+		EFI_PRINT("package=%p, package type=%x, length=%u\n", package,
+			  efi_hii_package_type(package),
+			  efi_hii_package_len(package));
 
 		switch (efi_hii_package_type(package)) {
 		case EFI_HII_PACKAGE_TYPE_GUID:
@@ -505,17 +505,17 @@ update_package_list(const struct efi_hii_database_protocol *this,
 	if (!package_list)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	debug("package_list: %pUl (%u)\n", &package_list->package_list_guid,
-	      get_unaligned_le32(&package_list->package_length));
+	EFI_PRINT("package_list: %pUl (%u)\n", &package_list->package_list_guid,
+		  get_unaligned_le32(&package_list->package_length));
 
 	package = ((void *)package_list) + sizeof(*package_list);
 	end = ((void *)package_list)
 		+ get_unaligned_le32(&package_list->package_length);
 
 	while ((void *)package < end) {
-		debug("package=%p, package type=%x, length=%u\n", package,
-		      efi_hii_package_type(package),
-		      efi_hii_package_len(package));
+		EFI_PRINT("package=%p, package type=%x, length=%u\n", package,
+			  efi_hii_package_type(package),
+			  efi_hii_package_len(package));
 
 		switch (efi_hii_package_type(package)) {
 		case EFI_HII_PACKAGE_TYPE_GUID:
@@ -595,8 +595,8 @@ list_package_lists(const struct efi_hii_database_protocol *this,
 	    (package_type == EFI_HII_PACKAGE_TYPE_GUID && !package_guid))
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	debug("package type=%x, guid=%pUl, length=%lu\n", (int)package_type,
-	      package_guid, *handle_buffer_length);
+	EFI_PRINT("package type=%x, guid=%pUl, length=%zu\n", (int)package_type,
+		  package_guid, *handle_buffer_length);
 
 	package_cnt = 0;
 	package_max = *handle_buffer_length / sizeof(*handle);
@@ -1041,7 +1041,7 @@ get_languages(const struct efi_hii_string_protocol *this,
 	}
 	*p = '\0';
 
-	debug("languages: %s\n", languages);
+	EFI_PRINT("languages: %s\n", languages);
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
