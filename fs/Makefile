@@ -7,7 +7,7 @@
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_FS_LOADER) += fs.o
 obj-$(CONFIG_SPL_FS_FAT) += fat/
-obj-$(CONFIG_SPL_EXT_SUPPORT) += ext4/
+obj-$(CONFIG_SPL_FS_EXT4) += ext4/
 else
 obj-y				+= fs.o
 
