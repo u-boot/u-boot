@@ -897,7 +897,6 @@ struct mvpp2 {
 	void __iomem *base;
 	void __iomem *lms_base;
 	void __iomem *iface_base;
-	void __iomem *mdio_base;
 
 	void __iomem *mpcs_base;
 	void __iomem *xpcs_base;
@@ -928,8 +927,6 @@ struct mvpp2 {
 	/* Maximum number of RXQs per port */
 	unsigned int max_port_rxqs;
 
-	struct mii_dev *bus;
-
 	int probe_done;
 	u8 num_ports;
 };
@@ -955,6 +952,7 @@ struct mvpp2_port {
 
 	/* Per-port registers' base address */
 	void __iomem *base;
+	void __iomem *mdio_base;
 
 	struct mvpp2_rx_queue **rxqs;
 	struct mvpp2_tx_queue **txqs;
@@ -977,6 +975,7 @@ struct mvpp2_port {
 	phy_interface_t phy_interface;
 	int phy_node;
 	int phyaddr;
+	struct mii_dev *bus;
 #ifdef CONFIG_DM_GPIO
 	struct gpio_desc phy_reset_gpio;
 	struct gpio_desc phy_tx_disable_gpio;
@@ -4500,7 +4499,7 @@ static int mvpp2_phy_connect(struct udevice *dev, struct mvpp2_port *port)
 	struct phy_device *phy_dev;
 
 	if (!port->init || port->link == 0) {
-		phy_dev = phy_connect(port->priv->bus, port->phyaddr, dev,
+		phy_dev = phy_connect(port->bus, port->phyaddr, dev,
 				      port->phy_interface);
 		port->phy_dev = phy_dev;
 		if (!phy_dev) {
@@ -4705,39 +4704,34 @@ static int phy_info_parse(struct udevice *dev, struct mvpp2_port *port)
 {
 	int port_node = dev_of_offset(dev);
 	const char *phy_mode_str;
-	int phy_node, mdio_off, cp_node;
+	int phy_node;
 	u32 id;
 	u32 phyaddr = 0;
 	int phy_mode = -1;
-	phys_addr_t mdio_addr;
+
+	/* Default mdio_base from the same eth base */
+	if (port->priv->hw_version == MVPP21)
+		port->mdio_base = port->priv->lms_base + MVPP21_SMI;
+	else
+		port->mdio_base = port->priv->iface_base + MVPP22_SMI;
 
 	phy_node = fdtdec_lookup_phandle(gd->fdt_blob, port_node, "phy");
 
 	if (phy_node > 0) {
+		ofnode phy_ofnode;
+		fdt_addr_t phy_base;
+
 		phyaddr = fdtdec_get_int(gd->fdt_blob, phy_node, "reg", 0);
 		if (phyaddr < 0) {
 			dev_err(&pdev->dev, "could not find phy address\n");
 			return -1;
 		}
-		mdio_off = fdt_parent_offset(gd->fdt_blob, phy_node);
 
-		/* TODO: This WA for mdio issue. U-boot 2017 don't have
-		 * mdio driver and on MACHIATOBin board ports from CP1
-		 * connected to mdio on CP0.
-		 * WA is to get mdio address from phy handler parent
-		 * base address. WA should be removed after
-		 * mdio driver implementation.
-		 */
-		mdio_addr = fdtdec_get_uint(gd->fdt_blob,
-					    mdio_off, "reg", 0);
+		phy_ofnode = ofnode_get_parent(offset_to_ofnode(phy_node));
+		phy_base = ofnode_get_addr(phy_ofnode);
+		port->mdio_base = (void *)phy_base;
 
-		cp_node = fdt_parent_offset(gd->fdt_blob, mdio_off);
-		mdio_addr |= fdt_get_base_address((void *)gd->fdt_blob,
-						  cp_node);
-
-		port->priv->mdio_base = (void *)mdio_addr;
-
-		if (port->priv->mdio_base < 0) {
+		if (port->mdio_base < 0) {
 			dev_err(&pdev->dev, "could not find mdio base address\n");
 			return -1;
 		}
@@ -5059,7 +5053,7 @@ static int mvpp2_init(struct udevice *dev, struct mvpp2 *priv)
 
 /* SMI / MDIO functions */
 
-static int smi_wait_ready(struct mvpp2 *priv)
+static int smi_wait_ready(struct mvpp2_port *priv)
 {
 	u32 timeout = MVPP2_SMI_TIMEOUT;
 	u32 smi_reg;
@@ -5084,7 +5078,7 @@ static int smi_wait_ready(struct mvpp2 *priv)
  */
 static int mpp2_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
-	struct mvpp2 *priv = bus->priv;
+	struct mvpp2_port *priv = bus->priv;
 	u32 smi_reg;
 	u32 timeout;
 
@@ -5139,7 +5133,7 @@ static int mpp2_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 static int mpp2_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
 			   u16 value)
 {
-	struct mvpp2 *priv = bus->priv;
+	struct mvpp2_port *priv = bus->priv;
 	u32 smi_reg;
 
 	/* check parameters */
@@ -5338,7 +5332,6 @@ static int mvpp22_smi_phy_addr_cfg(struct mvpp2_port *port)
 static int mvpp2_base_probe(struct udevice *dev)
 {
 	struct mvpp2 *priv = dev_get_priv(dev);
-	struct mii_dev *bus;
 	void *bd_space;
 	u32 size = 0;
 	int i;
@@ -5397,14 +5390,10 @@ static int mvpp2_base_probe(struct udevice *dev)
 		priv->lms_base = (void *)devfdt_get_addr_index(dev, 1);
 		if (IS_ERR(priv->lms_base))
 			return PTR_ERR(priv->lms_base);
-
-		priv->mdio_base = priv->lms_base + MVPP21_SMI;
 	} else {
 		priv->iface_base = (void *)devfdt_get_addr_index(dev, 1);
 		if (IS_ERR(priv->iface_base))
 			return PTR_ERR(priv->iface_base);
-
-		priv->mdio_base = priv->iface_base + MVPP22_SMI;
 
 		/* Store common base addresses for all ports */
 		priv->mpcs_base = priv->iface_base + MVPP22_MPCS;
@@ -5417,7 +5406,23 @@ static int mvpp2_base_probe(struct udevice *dev)
 	else
 		priv->max_port_rxqs = 32;
 
-	/* Finally create and register the MDIO bus driver */
+	return 0;
+}
+
+static int mvpp2_probe(struct udevice *dev)
+{
+	struct mvpp2_port *port = dev_get_priv(dev);
+	struct mvpp2 *priv = dev_get_priv(dev->parent);
+	struct mii_dev *bus;
+	int err;
+
+	/* Only call the probe function for the parent once */
+	if (!priv->probe_done)
+		err = mvpp2_base_probe(dev->parent);
+
+	port->priv = dev_get_priv(dev->parent);
+
+	/* Create and register the MDIO bus driver */
 	bus = mdio_alloc();
 	if (!bus) {
 		printf("Failed to allocate MDIO bus\n");
@@ -5427,23 +5432,12 @@ static int mvpp2_base_probe(struct udevice *dev)
 	bus->read = mpp2_mdio_read;
 	bus->write = mpp2_mdio_write;
 	snprintf(bus->name, sizeof(bus->name), dev->name);
-	bus->priv = (void *)priv;
-	priv->bus = bus;
+	bus->priv = (void *)port;
+	port->bus = bus;
 
-	return mdio_register(bus);
-}
-
-static int mvpp2_probe(struct udevice *dev)
-{
-	struct mvpp2_port *port = dev_get_priv(dev);
-	struct mvpp2 *priv = dev_get_priv(dev->parent);
-	int err;
-
-	/* Only call the probe function for the parent once */
-	if (!priv->probe_done)
-		err = mvpp2_base_probe(dev->parent);
-
-	port->priv = dev_get_priv(dev->parent);
+	err = mdio_register(bus);
+	if (err)
+		return err;
 
 	err = phy_info_parse(dev, port);
 	if (err)

@@ -380,24 +380,28 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 		return -EPERM;
 	}
 
-	length = max(length, ETH_ZLEN);
-
 	memcpy((void *)data_start, packet, length);
+	if (length < ETH_ZLEN) {
+		memset(&((char *)data_start)[length], 0, ETH_ZLEN - length);
+		length = ETH_ZLEN;
+	}
 
 	/* Flush data to be sent */
 	flush_dcache_range(data_start, data_end);
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 	desc_p->txrx_status |= DESC_TXSTS_TXFIRST | DESC_TXSTS_TXLAST;
-	desc_p->dmamac_cntl |= (length << DESC_TXCTRL_SIZE1SHFT) &
-			       DESC_TXCTRL_SIZE1MASK;
+	desc_p->dmamac_cntl = (desc_p->dmamac_cntl & ~DESC_TXCTRL_SIZE1MASK) |
+			      ((length << DESC_TXCTRL_SIZE1SHFT) &
+			      DESC_TXCTRL_SIZE1MASK);
 
 	desc_p->txrx_status &= ~(DESC_TXSTS_MSK);
 	desc_p->txrx_status |= DESC_TXSTS_OWNBYDMA;
 #else
-	desc_p->dmamac_cntl |= ((length << DESC_TXCTRL_SIZE1SHFT) &
-			       DESC_TXCTRL_SIZE1MASK) | DESC_TXCTRL_TXLAST |
-			       DESC_TXCTRL_TXFIRST;
+	desc_p->dmamac_cntl = (desc_p->dmamac_cntl & ~DESC_TXCTRL_SIZE1MASK) |
+			      ((length << DESC_TXCTRL_SIZE1SHFT) &
+			      DESC_TXCTRL_SIZE1MASK) | DESC_TXCTRL_TXLAST |
+			      DESC_TXCTRL_TXFIRST;
 
 	desc_p->txrx_status = DESC_TXSTS_OWNBYDMA;
 #endif

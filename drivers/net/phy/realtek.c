@@ -57,6 +57,33 @@
 #define MIIM_RTL8211F_TX_DELAY		0x100
 #define MIIM_RTL8211F_LCR		0x10
 
+static int rtl8211f_phy_extread(struct phy_device *phydev, int addr,
+				int devaddr, int regnum)
+{
+	int oldpage = phy_read(phydev, MDIO_DEVAD_NONE,
+			       MIIM_RTL8211F_PAGE_SELECT);
+	int val;
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, devaddr);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, regnum);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, oldpage);
+
+	return val;
+}
+
+static int rtl8211f_phy_extwrite(struct phy_device *phydev, int addr,
+				 int devaddr, int regnum, u16 val)
+{
+	int oldpage = phy_read(phydev, MDIO_DEVAD_NONE,
+			       MIIM_RTL8211F_PAGE_SELECT);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, devaddr);
+	phy_write(phydev, MDIO_DEVAD_NONE, regnum, val);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_RTL8211F_PAGE_SELECT, oldpage);
+
+	return 0;
+}
+
 static int rtl8211b_probe(struct phy_device *phydev)
 {
 #ifdef CONFIG_RTL8211X_PHY_FORCE_MASTER
@@ -336,6 +363,8 @@ static struct phy_driver RTL8211F_driver = {
 	.config = &rtl8211f_config,
 	.startup = &rtl8211f_startup,
 	.shutdown = &genphy_shutdown,
+	.readext = &rtl8211f_phy_extread,
+	.writeext = &rtl8211f_phy_extwrite,
 };
 
 int phy_realtek_init(void)

@@ -3,6 +3,7 @@
  * Aquantia PHY drivers
  *
  * Copyright 2014 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  */
 #include <config.h>
 #include <common.h>
@@ -18,6 +19,18 @@
 
 #define AQUNTIA_SPEED_LSB_MASK	0x2000
 #define AQUNTIA_SPEED_MSB_MASK	0x40
+
+#define AQUANTIA_SYSTEM_INTERFACE_SR     0xe812
+#define AQUANTIA_VENDOR_PROVISIONING_REG 0xC441
+#define AQUANTIA_FIRMWARE_ID		 0x20
+#define AQUANTIA_RESERVED_STATUS	 0xc885
+#define AQUANTIA_FIRMWARE_MAJOR_MASK	 0xff00
+#define AQUANTIA_FIRMWARE_MINOR_MASK	 0xff
+#define AQUANTIA_FIRMWARE_BUILD_MASK	 0xf0
+
+#define AQUANTIA_USX_AUTONEG_CONTROL_ENA 0x0008
+#define AQUANTIA_SI_IN_USE_MASK          0x0078
+#define AQUANTIA_SI_USXGMII              0x0018
 
 /* registers in MDIO_MMD_VEND1 region */
 #define GLOBAL_FIRMWARE_ID 0x20
@@ -244,6 +257,7 @@ static int aquantia_upload_firmware(struct phy_device *phydev)
 int aquantia_config(struct phy_device *phydev)
 {
 	u32 val, id, rstatus, fault;
+	u32 reg_val1 = 0;
 
 	id = phy_read(phydev, MDIO_MMD_VEND1, GLOBAL_FIRMWARE_ID);
 	rstatus = phy_read(phydev, MDIO_MMD_VEND1, GLOBAL_RSTATUS_1);
@@ -284,6 +298,21 @@ int aquantia_config(struct phy_device *phydev)
 			phy_write(phydev, MDIO_MMD_PMAPMD, MII_BMCR,
 				  AQUNTIA_SPEED_LSB_MASK |
 				  AQUNTIA_SPEED_MSB_MASK);
+
+		val = phy_read(phydev, MDIO_MMD_PHYXS,
+			       AQUANTIA_SYSTEM_INTERFACE_SR);
+		/* If SI is USXGMII then start USXGMII autoneg */
+		if ((val & AQUANTIA_SI_IN_USE_MASK) == AQUANTIA_SI_USXGMII) {
+			phy_write(phydev, MDIO_MMD_PHYXS,
+				  AQUANTIA_VENDOR_PROVISIONING_REG,
+				  AQUANTIA_USX_AUTONEG_CONTROL_ENA);
+			printf("%s: system interface USXGMII\n",
+			       phydev->dev->name);
+		} else {
+			printf("%s: system interface XFI\n",
+			       phydev->dev->name);
+		}
+
 	} else if (phydev->interface == PHY_INTERFACE_MODE_SGMII_2500) {
 		/* 2.5GBASE-T mode */
 		phydev->advertising = SUPPORTED_1000baseT_Full;
@@ -299,6 +328,16 @@ int aquantia_config(struct phy_device *phydev)
 		val = (val & ~AQUNTIA_SPEED_MSB_MASK) | AQUNTIA_SPEED_LSB_MASK;
 		phy_write(phydev, MDIO_MMD_PMAPMD, MII_BMCR, val);
 	}
+
+	val = phy_read(phydev, MDIO_MMD_VEND1, AQUANTIA_RESERVED_STATUS);
+	reg_val1 = phy_read(phydev, MDIO_MMD_VEND1, AQUANTIA_FIRMWARE_ID);
+
+	printf("%s: %s Firmware Version %x.%x.%x\n", phydev->dev->name,
+	       phydev->drv->name,
+	       (reg_val1 & AQUANTIA_FIRMWARE_MAJOR_MASK) >> 8,
+	       reg_val1 & AQUANTIA_FIRMWARE_MINOR_MASK,
+	       (val & AQUANTIA_FIRMWARE_BUILD_MASK) >> 4);
+
 	return 0;
 }
 

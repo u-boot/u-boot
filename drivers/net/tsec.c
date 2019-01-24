@@ -78,7 +78,30 @@ static void tsec_configure_serdes(struct tsec_private *priv)
 			      0, TBI_CR, CONFIG_TSEC_TBICR_SETTINGS);
 }
 
-#ifdef CONFIG_MCAST_TFTP
+/* the 'way' for ethernet-CRC-32. Spliced in from Linux lib/crc32.c
+ * and this is the ethernet-crc method needed for TSEC -- and perhaps
+ * some other adapter -- hash tables
+ */
+#define CRCPOLY_LE 0xedb88320
+static u32 ether_crc(size_t len, unsigned char const *p)
+{
+	int i;
+	u32 crc;
+
+	crc = ~0;
+	while (len--) {
+		crc ^= *p++;
+		for (i = 0; i < 8; i++)
+			crc = (crc >> 1) ^ ((crc & 1) ? CRCPOLY_LE : 0);
+	}
+	/* an reverse the bits, cuz of way they arrive -- last-first */
+	crc = (crc >> 16) | (crc << 16);
+	crc = (crc >> 8 & 0x00ff00ff) | (crc << 8 & 0xff00ff00);
+	crc = (crc >> 4 & 0x0f0f0f0f) | (crc << 4 & 0xf0f0f0f0);
+	crc = (crc >> 2 & 0x33333333) | (crc << 2 & 0xcccccccc);
+	crc = (crc >> 1 & 0x55555555) | (crc << 1 & 0xaaaaaaaa);
+	return crc;
+}
 
 /* CREDITS: linux gianfar driver, slightly adjusted... thanx. */
 
@@ -99,9 +122,10 @@ static void tsec_configure_serdes(struct tsec_private *priv)
  * the entry.
  */
 #ifndef CONFIG_DM_ETH
-static int tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
+static int tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac,
+			   int join)
 #else
-static int tsec_mcast_addr(struct udevice *dev, const u8 *mcast_mac, int set)
+static int tsec_mcast_addr(struct udevice *dev, const u8 *mcast_mac, int join)
 #endif
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
@@ -115,14 +139,13 @@ static int tsec_mcast_addr(struct udevice *dev, const u8 *mcast_mac, int set)
 
 	value = BIT(31 - whichbit);
 
-	if (set)
+	if (join)
 		setbits_be32(&regs->hash.gaddr0 + whichreg, value);
 	else
 		clrbits_be32(&regs->hash.gaddr0 + whichreg, value);
 
 	return 0;
 }
-#endif /* Multicast TFTP ? */
 
 /*
  * Initialized required registers to appropriate values, zeroing
@@ -720,9 +743,7 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 	dev->halt = tsec_halt;
 	dev->send = tsec_send;
 	dev->recv = tsec_recv;
-#ifdef CONFIG_MCAST_TFTP
 	dev->mcast = tsec_mcast_addr;
-#endif
 
 	/* Tell U-Boot to get the addr from the env */
 	for (i = 0; i < 6; i++)
@@ -862,9 +883,7 @@ static const struct eth_ops tsec_ops = {
 	.recv = tsec_recv,
 	.free_pkt = tsec_free_pkt,
 	.stop = tsec_halt,
-#ifdef CONFIG_MCAST_TFTP
 	.mcast = tsec_mcast_addr,
-#endif
 };
 
 static const struct udevice_id tsec_ids[] = {

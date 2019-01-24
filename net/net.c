@@ -131,10 +131,6 @@ struct in_addr net_dns_server;
 struct in_addr net_dns_server2;
 #endif
 
-#ifdef CONFIG_MCAST_TFTP	/* Multicast TFTP */
-struct in_addr net_mcast_addr;
-#endif
-
 /** END OF BOOTP EXTENTIONS **/
 
 /* Our ethernet address */
@@ -657,6 +653,7 @@ restart:
 			/* Invalidate the last protocol */
 			eth_set_last_protocol(BOOTP);
 			debug_cond(DEBUG_INT_STATE, "--- net_loop Fail!\n");
+			ret = -ENONET;
 			goto done;
 
 		case NETLOOP_CONTINUE:
@@ -1215,9 +1212,6 @@ void net_process_received_packet(uchar *in_packet, int len)
 		dst_ip = net_read_ip(&ip->ip_dst);
 		if (net_ip.s_addr && dst_ip.s_addr != net_ip.s_addr &&
 		    dst_ip.s_addr != 0xFFFFFFFF) {
-#ifdef CONFIG_MCAST_TFTP
-			if (net_mcast_addr != dst_ip)
-#endif
 				return;
 		}
 		/* Read source IP address for later use */

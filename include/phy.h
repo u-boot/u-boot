@@ -138,6 +138,7 @@ struct phy_device {
 	int pause;
 	int asym_pause;
 	u32 phy_id;
+	bool is_c45;
 	u32 flags;
 };
 

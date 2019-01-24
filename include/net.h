@@ -140,9 +140,7 @@ struct eth_ops {
 	int (*recv)(struct udevice *dev, int flags, uchar **packetp);
 	int (*free_pkt)(struct udevice *dev, uchar *packet, int length);
 	void (*stop)(struct udevice *dev);
-#ifdef CONFIG_MCAST_TFTP
 	int (*mcast)(struct udevice *dev, const u8 *enetaddr, int join);
-#endif
 	int (*write_hwaddr)(struct udevice *dev);
 	int (*read_rom_hwaddr)(struct udevice *dev);
 };
@@ -175,9 +173,7 @@ struct eth_device {
 	int (*send)(struct eth_device *, void *packet, int length);
 	int (*recv)(struct eth_device *);
 	void (*halt)(struct eth_device *);
-#ifdef CONFIG_MCAST_TFTP
-	int (*mcast)(struct eth_device *, const u8 *enetaddr, u8 set);
-#endif
+	int (*mcast)(struct eth_device *, const u8 *enetaddr, int join);
 	int (*write_hwaddr)(struct eth_device *);
 	struct eth_device *next;
 	int index;
@@ -286,12 +282,7 @@ extern void (*push_packet)(void *packet, int length);
 int eth_rx(void);			/* Check for received packets */
 void eth_halt(void);			/* stop SCC */
 const char *eth_get_name(void);		/* get name of current device */
-
-#ifdef CONFIG_MCAST_TFTP
 int eth_mcast_join(struct in_addr mcast_addr, int join);
-u32 ether_crc(size_t len, unsigned char const *p);
-#endif
-
 
 /**********************************************************************/
 /*
@@ -576,10 +567,6 @@ static inline int is_cdp_packet(const uchar *ethaddr)
 #if defined(CONFIG_CMD_SNTP)
 extern struct in_addr	net_ntp_server;		/* the ip address to NTP */
 extern int net_ntp_time_offset;			/* offset time from UTC */
-#endif
-
-#if defined(CONFIG_MCAST_TFTP)
-extern struct in_addr net_mcast_addr;
 #endif
 
 /* Initialize the network adapter */

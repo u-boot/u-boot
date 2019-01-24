@@ -237,7 +237,7 @@ static int _dm_test_net_retry(struct unit_test_state *uts)
 	env_set("ethact", "eth@10004000");
 	env_set("netretry", "no");
 	sandbox_eth_skip_timeout();
-	ut_asserteq(-ETIMEDOUT, net_loop(PING));
+	ut_asserteq(-ENONET, net_loop(PING));
 	ut_asserteq_str("eth@10004000", env_get("ethact"));
 
 	return 0;
