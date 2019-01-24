@@ -306,4 +306,15 @@ static inline int reset_release_bulk(struct reset_ctl_bulk *bulk)
 }
 #endif
 
+/**
+ * reset_valid() - check if reset is valid
+ *
+ * @reset_ctl:		the reset to check
+ * @return TRUE if valid, or FALSE
+ */
+static inline bool reset_valid(struct reset_ctl *reset_ctl)
+{
+	return !!reset_ctl->dev;
+}
+
 #endif

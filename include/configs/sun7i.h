@@ -12,10 +12,6 @@
  * A20 specific configuration
  */
 
-#ifdef CONFIG_USB_EHCI_HCD
-#define CONFIG_USB_EHCI_SUNXI
-#endif
-
 #define CONFIG_ARMV7_SECURE_BASE	SUNXI_SRAM_B_BASE
 #define CONFIG_ARMV7_SECURE_MAX_SIZE	(64 * 1024) /* 64 KB */
 

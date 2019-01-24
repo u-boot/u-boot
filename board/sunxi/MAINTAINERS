@@ -182,6 +182,11 @@ M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Cubietruck_plus_defconfig
 
+EMLID NEUTIS N5 DEV BOARD
+M:	Aleksandr Aleksandrov <aleksandr.aleksandrov@emlid.com>
+S:	Maintained
+F:	configs/emlid_neutis_n5_devboard_defconfig
+
 GEMEI-G9 TABLET
 M:	Priit Laes <plaes@plaes.org>
 S:	Maintained
