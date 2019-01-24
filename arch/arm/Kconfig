@@ -886,6 +886,8 @@ config ARCH_VERSAL
 	select ARM64
 	select CLK
 	select DM
+	select DM_ETH if NET
+	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
 
@@ -929,6 +931,8 @@ config ARCH_ZYNQMP_R5
 	select CLK
 	select CPU_V7R
 	select DM
+	select DM_ETH if NET
+	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
 	imply CMD_DM
@@ -939,7 +943,11 @@ config ARCH_ZYNQMP
 	select ARM64
 	select CLK
 	select DM
+	select DM_ETH if NET
+	select DM_MMC if MMC
 	select DM_SERIAL
+	select DM_SPI if SPI
+	select DM_SPI_FLASH if DM_SPI
 	select DM_USB if USB
 	select OF_CONTROL
 	select SPL_BOARD_INIT if SPL
@@ -1495,13 +1503,13 @@ source "arch/arm/cpu/armv7/vf610/Kconfig"
 
 source "arch/arm/mach-zynq/Kconfig"
 
+source "arch/arm/mach-zynqmp/Kconfig"
+
 source "arch/arm/mach-versal/Kconfig"
 
 source "arch/arm/mach-zynqmp-r5/Kconfig"
 
 source "arch/arm/cpu/armv7/Kconfig"
-
-source "arch/arm/cpu/armv8/zynqmp/Kconfig"
 
 source "arch/arm/cpu/armv8/Kconfig"
 

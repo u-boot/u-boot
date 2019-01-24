@@ -174,11 +174,11 @@ static char zynqmp_help_text[] =
 	"zynqmp mmio_write address mask value - write value after masking to\n"
 	"					address\n"
 #ifdef CONFIG_DEFINE_TCM_OCM_MMAP
-	"zynqmp tcminit  mode - Initialize the TCM with zeros. TCM needs to be\n"
-	"		        initialized before accessing to avoid ECC\n"
-	"			errors. mode specifies in which mode TCM has\n"
-	"			to be initialized. Supported modes will be\n"
-	"			lock(0)/split(1)\n"
+	"zynqmp tcminit mode - Initialize the TCM with zeros. TCM needs to be\n"
+	"		       initialized before accessing to avoid ECC\n"
+	"		       errors. mode specifies in which mode TCM has\n"
+	"		       to be initialized. Supported modes will be\n"
+	"		       lock(0)/split(1)\n"
 #endif
 	;
 #endif

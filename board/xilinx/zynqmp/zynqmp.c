@@ -489,6 +489,7 @@ void reset_cpu(ulong addr)
 {
 }
 
+#if defined(CONFIG_BOARD_LATE_INIT)
 static const struct {
 	u32 bit;
 	const char *name;
@@ -587,6 +588,8 @@ int board_late_init(void)
 	case SD_MODE:
 		puts("SD_MODE\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@ff160000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
 					      "sdhci@ff160000", &dev)) {
 			puts("Boot from SD0 but without SD0 enabled!\n");
 			return -1;
@@ -603,6 +606,8 @@ int board_late_init(void)
 	case SD_MODE1:
 		puts("SD_MODE1\n");
 		if (uclass_get_device_by_name(UCLASS_MMC,
+					      "mmc@ff170000", &dev) &&
+		    uclass_get_device_by_name(UCLASS_MMC,
 					      "sdhci@ff170000", &dev)) {
 			puts("Boot from SD1 but without SD1 enabled!\n");
 			return -1;
@@ -655,6 +660,7 @@ int board_late_init(void)
 
 	return 0;
 }
+#endif
 
 int checkboard(void)
 {

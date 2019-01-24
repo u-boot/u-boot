@@ -28,7 +28,6 @@ struct arasan_sdhci_priv {
 	u8 deviceid;
 	u8 bank;
 	u8 no_1p8;
-	bool pwrseq;
 };
 
 #if defined(CONFIG_ARCH_ZYNQMP)

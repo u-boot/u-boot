@@ -570,11 +570,6 @@ static int zynq_gem_send(struct udevice *dev, void *ptr, int len)
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 	size = roundup(len, ARCH_DMA_MINALIGN);
 	flush_dcache_range(addr, addr + size);
-
-	addr = (ulong)priv->rxbuffers;
-	addr &= ~(ARCH_DMA_MINALIGN - 1);
-	size = roundup((RX_BUF * PKTSIZE_ALIGN), ARCH_DMA_MINALIGN);
-	flush_dcache_range(addr, addr + size);
 	barrier();
 
 	/* Start transmit */
@@ -620,6 +615,9 @@ static int zynq_gem_recv(struct udevice *dev, int flags, uchar **packetp)
 	addr &= ~(ARCH_DMA_MINALIGN - 1);
 
 	*packetp = (uchar *)(uintptr_t)addr;
+
+	invalidate_dcache_range(addr, addr + roundup(PKTSIZE_ALIGN, ARCH_DMA_MINALIGN));
+	barrier();
 
 	return frame_len;
 }
@@ -706,6 +704,9 @@ static int zynq_gem_probe(struct udevice *dev)
 		return -ENOMEM;
 
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
+	u32 addr = (ulong)priv->rxbuffers;
+	flush_dcache_range(addr, addr + roundup(RX_BUF * PKTSIZE_ALIGN, ARCH_DMA_MINALIGN));
+	barrier();
 
 	/* Align bd_space to MMU_SECTION_SHIFT */
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
