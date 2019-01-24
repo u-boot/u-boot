@@ -202,6 +202,26 @@ config RTL8211X_PHY_FORCE_MASTER
 
 	  If unsure, say N.
 
+config RTL8211F_PHY_FORCE_EEE_RXC_ON
+	bool "Ethernet PHY RTL8211F: do not stop receiving the xMII clock during LPI"
+	depends on PHY_REALTEK
+	default n
+	help
+	  The IEEE 802.3az-2010 (EEE) standard provides a protocol to coordinate
+	  transitions to/from a lower power consumption level (Low Power Idle
+	  mode) based on link utilization. When no packets are being
+	  transmitted, the system goes to Low Power Idle mode to save power.
+
+	  Under particular circumstances this setting can cause issues where
+	  the PHY is unable to transmit or receive any packet when in LPI mode.
+	  The problem is caused when the PHY is configured to stop receiving
+	  the xMII clock while it is signaling LPI. For some PHYs the bit
+	  configuring this behavior is set by the Linux kernel, causing the
+	  issue in U-Boot on reboot if the PHY retains the register value.
+
+	  Default n, which means that the PHY state is not changed. To work
+	  around the issues, change this setting to y.
+
 config PHY_SMSC
 	bool  "Microchip(SMSC) Ethernet PHYs support"
 
