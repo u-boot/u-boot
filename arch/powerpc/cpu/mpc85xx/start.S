@@ -1216,6 +1216,9 @@ _start_cont:
 	mr	r1,r3		/* Transfer to SP(r1) */
 
 	GET_GOT
+	/* Needed for -msingle-pic-base */
+	bl	_GLOBAL_OFFSET_TABLE_@local-4
+	mflr	r30
 
 	/* Pass our potential ePAPR device tree pointer to cpu_init_early_f */
 	mr	r3, r24
