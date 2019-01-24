@@ -87,21 +87,22 @@
 
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
-	"hwconfig=fsl_ddr:bank_intlv=auto\0"	\
-	"scriptaddr=0x80800000\0"		\
-	"kernel_addr_r=0x81000000\0"		\
-	"pxefile_addr_r=0x81000000\0"		\
-	"fdt_addr_r=0x88000000\0"		\
-	"ramdisk_addr_r=0x89000000\0"		\
-	"loadaddr=0x80100000\0"			\
-	"kernel_addr=0x100000\0"		\
-	"ramdisk_addr=0x800000\0"		\
-	"ramdisk_size=0x2000000\0"		\
-	"fdt_high=0xa0000000\0"			\
-	"initrd_high=0xffffffffffffffff\0"	\
-	"kernel_start=0x21000000\0"		\
+	EXTRA_ENV_SETTINGS			\
 	"lx2160ardb_vdd_mv=800\0"		\
-	"mcmemsize=0x40000000\0"
+	"BOARD=lx2160ardb\0"			\
+	"xspi_bootcmd=echo Trying load from flexspi..;"		\
+		"sf probe 0:0 && sf read $load_addr "		\
+		"$kernel_start $kernel_size ; env exists secureboot &&"	\
+		"sf read $kernelheader_addr_r $kernelheader_start "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; "\
+		" bootm $load_addr#$BOARD\0"			\
+	"sd_bootcmd=echo Trying load from sd card..;"		\
+		"mmcinfo; mmc read $load_addr "			\
+		"$kernel_addr_sd $kernel_size_sd ;"		\
+		"env exists secureboot && mmc read $kernelheader_addr_r "\
+		"$kernelhdr_addr_sd $kernelhdr_size_sd "	\
+		" && esbc_validate ${kernelheader_addr_r};"	\
+		"bootm $load_addr#$BOARD\0"
 
 #include <asm/fsl_secure_boot.h>
 
