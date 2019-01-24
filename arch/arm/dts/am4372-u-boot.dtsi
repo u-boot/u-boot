@@ -3,6 +3,13 @@
  * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
  */
 
+/{
+	aliases {
+		usb0 = &usb1;
+		usb1 = &usb2;
+	};
+};
+
 &am43xx_control_usb2phy1 {
 	compatible = "ti,control-phy-usb2-am437", "syscon";
 };
