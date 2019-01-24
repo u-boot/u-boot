@@ -181,7 +181,7 @@
 	"usbhostboot=usb start && load usb 0 $fdt_addr system.dtb && " \
 		     "load usb 0 $kernel_addr Image && " \
 		     "booti $kernel_addr - $fdt_addr\0" \
-	"xilinxcmd=echo !!! && echo !!! Booting cmd is deprecated (will be removed in 2020). && echo !!! Please move to distro boocmd. && echo !!!\0" \
+	"xilinxcmd=echo !!! && echo !!! Booting cmd is deprecated (will be removed in 2020). && echo !!! Please move to distro bootcmd. && echo !!!\0" \
 	PARTS_DEFAULT
 #endif
 

@@ -288,7 +288,7 @@
 		DFU_ALT_INFO \
 	"xilinxcmd=echo !!! && " \
 		"echo !!! Booting cmd is deprecated (will be removed in 2020). && " \
-		"echo !!! Please move to distro boocmd. && echo !!!\0" \
+		"echo !!! Please move to distro bootcmd. && echo !!!\0" \
 		BOOTENV
 #endif
 
