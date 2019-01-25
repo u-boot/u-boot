@@ -34,7 +34,6 @@
 
 /* PCIe support */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_PCI_MVEBU
 #define CONFIG_PCI_SCAN_SHOW
 #endif
 
