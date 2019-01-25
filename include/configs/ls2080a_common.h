@@ -8,7 +8,6 @@
 #define __LS2_COMMON_H
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_GICV3
 
 #include <asm/arch/stream_id_lsch3.h>
