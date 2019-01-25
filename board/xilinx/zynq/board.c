@@ -8,6 +8,7 @@
 #include <dm/uclass.h>
 #include <fdtdec.h>
 #include <fpga.h>
+#include <malloc.h>
 #include <mmc.h>
 #include <watchdog.h>
 #include <wdt.h>
@@ -53,26 +54,54 @@ int board_init(void)
 
 int board_late_init(void)
 {
+	int env_targets_len = 0;
+	const char *mode;
+	char *new_targets;
+	char *env_targets;
+
 	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
 	case ZYNQ_BM_QSPI:
+		mode = "qspi";
 		env_set("modeboot", "qspiboot");
 		break;
 	case ZYNQ_BM_NAND:
+		mode = "nand";
 		env_set("modeboot", "nandboot");
 		break;
 	case ZYNQ_BM_NOR:
+		mode = "nor";
 		env_set("modeboot", "norboot");
 		break;
 	case ZYNQ_BM_SD:
+		mode = "mmc";
 		env_set("modeboot", "sdboot");
 		break;
 	case ZYNQ_BM_JTAG:
+		mode = "pxe dhcp";
 		env_set("modeboot", "jtagboot");
 		break;
 	default:
+		mode = "";
 		env_set("modeboot", "");
 		break;
 	}
+
+	/*
+	 * One terminating char + one byte for space between mode
+	 * and default boot_targets
+	 */
+	env_targets = env_get("boot_targets");
+	if (env_targets)
+		env_targets_len = strlen(env_targets);
+
+	new_targets = calloc(1, strlen(mode) + env_targets_len + 2);
+	if (!new_targets)
+		return -ENOMEM;
+
+	sprintf(new_targets, "%s %s", mode,
+		env_targets ? env_targets : "");
+
+	env_set("boot_targets", new_targets);
 
 	return 0;
 }
