@@ -162,3 +162,17 @@
 		};
 	};
 };
+
+&pciec {
+	status = "okay";
+
+	pcie@1,0 {
+		/* Port 0, Lane 0 */
+		status = "okay";
+	};
+
+	pcie@9,0 {
+		/* Port 2, Lane 0 */
+		status = "okay";
+	};
+};
