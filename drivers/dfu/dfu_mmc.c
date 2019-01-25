@@ -108,17 +108,17 @@ static int mmc_file_buffer(struct dfu_entity *dfu, void *buf, long *len)
 static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 			void *buf, u64 *len)
 {
-	const char *fsname, *opname;
-	char cmd_buf[DFU_CMD_BUF_SIZE];
-	char *str_env;
+	char dev_part_str[8];
 	int ret;
+	int fstype;
+	loff_t size = 0;
 
 	switch (dfu->layout) {
 	case DFU_FS_FAT:
-		fsname = "fat";
+		fstype = FS_TYPE_FAT;
 		break;
 	case DFU_FS_EXT4:
-		fsname = "ext4";
+		fstype = FS_TYPE_EXT;
 		break;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
@@ -126,46 +126,41 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 		return -1;
 	}
 
-	switch (op) {
-	case DFU_OP_READ:
-		opname = "load";
-		break;
-	case DFU_OP_WRITE:
-		opname = "write";
-		break;
-	case DFU_OP_SIZE:
-		opname = "size";
-		break;
-	default:
-		return -1;
-	}
+	snprintf(dev_part_str, sizeof(dev_part_str), "%d:%d",
+		 dfu->data.mmc.dev, dfu->data.mmc.part);
 
-	sprintf(cmd_buf, "%s%s mmc %d:%d", fsname, opname,
-		dfu->data.mmc.dev, dfu->data.mmc.part);
-
-	if (op != DFU_OP_SIZE)
-		sprintf(cmd_buf + strlen(cmd_buf), " %p", buf);
-
-	sprintf(cmd_buf + strlen(cmd_buf), " %s", dfu->name);
-
-	if (op == DFU_OP_WRITE)
-		sprintf(cmd_buf + strlen(cmd_buf), " %llx", *len);
-
-	debug("%s: %s 0x%p\n", __func__, cmd_buf, cmd_buf);
-
-	ret = run_command(cmd_buf, 0);
+	ret = fs_set_blk_dev("mmc", dev_part_str, fstype);
 	if (ret) {
-		puts("dfu: Read error!\n");
+		puts("dfu: fs_set_blk_dev error!\n");
 		return ret;
 	}
 
-	if (op != DFU_OP_WRITE) {
-		str_env = env_get("filesize");
-		if (str_env == NULL) {
-			puts("dfu: Wrong file size!\n");
-			return -1;
+	switch (op) {
+	case DFU_OP_READ:
+		ret = fs_read(dfu->name, (size_t)buf, 0, 0, &size);
+		if (ret) {
+			puts("dfu: fs_read error!\n");
+			return ret;
 		}
-		*len = simple_strtoul(str_env, NULL, 16);
+		*len = size;
+		break;
+	case DFU_OP_WRITE:
+		ret = fs_write(dfu->name, (size_t)buf, 0, *len, &size);
+		if (ret) {
+			puts("dfu: fs_write error!\n");
+			return ret;
+		}
+		break;
+	case DFU_OP_SIZE:
+		ret = fs_size(dfu->name, &size);
+		if (ret) {
+			puts("dfu: fs_size error!\n");
+			return ret;
+		}
+		*len = size;
+		break;
+	default:
+		return -1;
 	}
 
 	return ret;
