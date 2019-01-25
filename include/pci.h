@@ -1560,6 +1560,16 @@ struct dm_pci_emul_ops {
 int sandbox_pci_get_emul(struct udevice *bus, pci_dev_t find_devfn,
 			 struct udevice **containerp, struct udevice **emulp);
 
+/**
+ * pci_get_devfn() - Extract the devfn from fdt_pci_addr of the device
+ *
+ * Get devfn from fdt_pci_addr of the specifified device
+ *
+ * @dev:	PCI device
+ * @return devfn in bits 15...8 if found, -ENODEV if not found
+ */
+int pci_get_devfn(struct udevice *dev);
+
 #endif /* CONFIG_DM_PCI */
 
 /**
