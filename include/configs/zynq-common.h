@@ -158,14 +158,58 @@
 #define BOOT_TARGET_DEVICES_DHCP(func)
 #endif
 
+#if defined(CONFIG_ZYNQ_QSPI)
+# define BOOT_TARGET_DEVICES_QSPI(func)	func(QSPI, qspi, na)
+#else
+# define BOOT_TARGET_DEVICES_QSPI(func)
+#endif
+
+#if defined(CONFIG_NAND_ZYNQ)
+# define BOOT_TARGET_DEVICES_NAND(func)	func(NAND, nand, na)
+#else
+# define BOOT_TARGET_DEVICES_NAND(func)
+#endif
+
+#if defined(CONFIG_MTD_NOR_FLASH)
+# define BOOT_TARGET_DEVICES_NOR(func)	func(NOR, nor, na)
+#else
+# define BOOT_TARGET_DEVICES_NOR(func)
+#endif
+
 #define BOOTENV_DEV_XILINX(devtypeu, devtypel, instance) \
 	"bootcmd_xilinx=run $modeboot\0"
 
 #define BOOTENV_DEV_NAME_XILINX(devtypeu, devtypel, instance) \
 	"xilinx "
 
+#define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
+	"bootcmd_qspi=sf probe 0 0 0 && " \
+		      "sf read $scriptaddr $script_offset_f $script_size_f && " \
+		      "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
+	"qspi "
+
+#define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
+	"bootcmd_nand=nand info && " \
+		      "nand read $scriptaddr $script_offset_f $script_size_f && " \
+		      "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
+	"nand "
+
+#define BOOTENV_DEV_NOR(devtypeu, devtypel, instance) \
+	"bootcmd_nor=cp.b $scropt_offset_nor $scriptaddr $script_size_f && " \
+		     "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_NOR(devtypeu, devtypel, instance) \
+	"nor "
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_QSPI(func) \
+	BOOT_TARGET_DEVICES_NAND(func) \
+	BOOT_TARGET_DEVICES_NOR(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \
 	BOOT_TARGET_DEVICES_DHCP(func) \
@@ -193,6 +237,10 @@
 	"boot_size=0xF00000\0"	\
 	"fdt_high=0x20000000\0"	\
 	"initrd_high=0x20000000\0"	\
+	"scriptaddr=0x20000\0"	\
+	"script_offser_nor=0xE2FC0000\0"	\
+	"script_offset_f=0xFC0000\0"	\
+	"script_size_f=0x40000\0"	\
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=load mmc 0 ${loadbootenv_addr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from SD ...; " \
