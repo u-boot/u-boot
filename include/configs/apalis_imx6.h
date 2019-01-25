@@ -83,10 +83,6 @@
 #define CONFIG_USBD_HS
 
 #define CONFIG_USB_GADGET_MASS_STORAGE
-/* USB DFU */
-#define CONFIG_DFU_MMC
-
-/* Miscellaneous commands */
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3
