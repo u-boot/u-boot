@@ -45,7 +45,6 @@
 /*
  * UART configuration
  */
-#define CONFIG_DW_SERIAL
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_CLK		33333333
 #define CONFIG_SYS_NS16550_MEM32
@@ -63,7 +62,6 @@
 /*
  * Environment settings
  */
-#define CONFIG_ENV_SIZE			SZ_16K
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"upgrade=if mmc rescan && " \
 		"fatload mmc 0:1 ${loadaddr} u-boot-update.img && " \
