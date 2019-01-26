@@ -196,9 +196,10 @@ static void usage(void)
 		"          -l ==> list image header information\n",
 		params.cmdname);
 	fprintf(stderr,
-		"       %s -T type [-p position] [-o outfile] image\n"
-		"          -T ==> set image type to 'type'\n"
-		"          -p ==> 'position' (starting at 0) of the component to extract from image\n",
+		"       %s [-T type] [-p position] [-o outfile] image\n"
+		"          -T ==> declare image type as 'type'\n"
+		"          -p ==> 'position' (starting at 0) of the component to extract from image\n"
+		"          -o ==> extract component to file 'outfile'\n",
 		params.cmdname);
 	fprintf(stderr,
 		"       %s -h ==> print usage information and exit\n",
