@@ -80,6 +80,8 @@ int main(int argc, char **argv)
 		case 'T':
 			params.type = genimg_get_type_id(optarg);
 			if (params.type < 0) {
+				fprintf(stderr, "%s: Invalid type\n",
+					params.cmdname);
 				usage();
 			}
 			break;
@@ -101,8 +103,10 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (optind >= argc)
+	if (optind >= argc) {
+		fprintf(stderr, "%s: image file missing\n", params.cmdname);
 		usage();
+	}
 
 	/* set tparams as per input type_id */
 	tparams = imagetool_get_type(params.type);
@@ -117,8 +121,11 @@ int main(int argc, char **argv)
 	 * as per image type to be generated/listed
 	 */
 	if (tparams->check_params) {
-		if (tparams->check_params(&params))
+		if (tparams->check_params(&params)) {
+			fprintf(stderr, "%s: Parameter check failed\n",
+				params.cmdname);
 			usage();
+		}
 	}
 
 	if (params.iflag)
