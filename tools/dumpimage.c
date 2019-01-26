@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
 	params.cmdname = *argv;
 
-	while ((opt = getopt(argc, argv, "lo:T:p:V")) != -1) {
+	while ((opt = getopt(argc, argv, "hlo:T:p:V")) != -1) {
 		switch (opt) {
 		case 'l':
 			params.lflag = 1;
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 			if (params.type < 0) {
 				fprintf(stderr, "%s: Invalid type\n",
 					params.cmdname);
-				usage();
+				exit(EXIT_FAILURE);
 			}
 			break;
 		case 'p':
@@ -94,15 +94,20 @@ int main(int argc, char **argv)
 		case 'V':
 			printf("dumpimage version %s\n", PLAIN_VERSION);
 			exit(EXIT_SUCCESS);
+		case 'h':
+			usage();
 		default:
 			usage();
 			break;
 		}
 	}
 
+	if (argc < 2)
+		usage();
+
 	if (optind >= argc) {
 		fprintf(stderr, "%s: image file missing\n", params.cmdname);
-		usage();
+		exit(EXIT_FAILURE);
 	}
 
 	params.imagefile = argv[optind];
@@ -123,7 +128,7 @@ int main(int argc, char **argv)
 		if (tparams->check_params(&params)) {
 			fprintf(stderr, "%s: Parameter check failed\n",
 				params.cmdname);
-			usage();
+			exit(EXIT_FAILURE);
 		}
 	}
 
@@ -196,8 +201,11 @@ static void usage(void)
 		"          -p ==> 'position' (starting at 0) of the component to extract from image\n",
 		params.cmdname);
 	fprintf(stderr,
+		"       %s -h ==> print usage information and exit\n",
+		params.cmdname);
+	fprintf(stderr,
 		"       %s -V ==> print version information and exit\n",
 		params.cmdname);
 
-	exit(EXIT_FAILURE);
+	exit(EXIT_SUCCESS);
 }
