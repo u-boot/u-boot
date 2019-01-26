@@ -59,8 +59,8 @@ static void boot_start_lmb(bootm_headers_t *images)
 	mem_start = env_get_bootm_low();
 	mem_size = env_get_bootm_size();
 
-	lmb_init_and_reserve(&images->lmb, (phys_addr_t)mem_start, mem_size,
-			     NULL);
+	lmb_init_and_reserve_range(&images->lmb, (phys_addr_t)mem_start,
+				   mem_size, NULL);
 }
 #else
 #define lmb_reserve(lmb, base, size)

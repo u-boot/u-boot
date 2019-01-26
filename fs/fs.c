@@ -454,8 +454,7 @@ static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
 	if (len && len < read_len)
 		read_len = len;
 
-	lmb_init_and_reserve(&lmb, gd->bd->bi_dram[0].start,
-			     gd->bd->bi_dram[0].size, (void *)gd->fdt_blob);
+	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
 	lmb_dump_all(&lmb);
 
 	if (lmb_alloc_addr(&lmb, addr, read_len) == addr)

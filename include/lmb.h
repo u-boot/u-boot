@@ -4,6 +4,8 @@
 #ifdef __KERNEL__
 
 #include <asm/types.h>
+#include <asm/u-boot.h>
+
 /*
  * Logical memory blocks.
  *
@@ -29,8 +31,9 @@ struct lmb {
 };
 
 extern void lmb_init(struct lmb *lmb);
-extern void lmb_init_and_reserve(struct lmb *lmb, phys_addr_t base,
-				 phys_size_t size, void *fdt_blob);
+extern void lmb_init_and_reserve(struct lmb *lmb, bd_t *bd, void *fdt_blob);
+extern void lmb_init_and_reserve_range(struct lmb *lmb, phys_addr_t base,
+				       phys_size_t size, void *fdt_blob);
 extern long lmb_add(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 extern long lmb_reserve(struct lmb *lmb, phys_addr_t base, phys_size_t size);
 extern phys_addr_t lmb_alloc(struct lmb *lmb, phys_size_t size, ulong align);
