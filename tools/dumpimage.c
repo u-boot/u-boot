@@ -65,17 +65,14 @@ int main(int argc, char **argv)
 
 	params.cmdname = *argv;
 
-	while ((opt = getopt(argc, argv, "li:o:T:p:V")) != -1) {
+	while ((opt = getopt(argc, argv, "lo:T:p:V")) != -1) {
 		switch (opt) {
 		case 'l':
 			params.lflag = 1;
 			break;
-		case 'i':
-			params.imagefile = optarg;
-			params.iflag = 1;
-			break;
 		case 'o':
 			params.outfile = optarg;
+			params.iflag = 1;
 			break;
 		case 'T':
 			params.type = genimg_get_type_id(optarg);
@@ -108,6 +105,8 @@ int main(int argc, char **argv)
 		usage();
 	}
 
+	params.imagefile = argv[optind];
+
 	/* set tparams as per input type_id */
 	tparams = imagetool_get_type(params.type);
 	if (tparams == NULL) {
@@ -128,12 +127,11 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (params.iflag)
-		params.datafile = argv[optind];
-	else
-		params.imagefile = argv[optind];
-	if (!params.outfile)
-		params.outfile = params.datafile;
+	if (!params.lflag && !params.outfile) {
+		fprintf(stderr, "%s: No output file provided\n",
+			params.cmdname);
+		exit(EXIT_FAILURE);
+	}
 
 	ifd = open(params.imagefile, O_RDONLY|O_BINARY);
 	if (ifd < 0) {
@@ -204,10 +202,9 @@ static void usage(void)
 		"          -l ==> list image header information\n",
 		params.cmdname);
 	fprintf(stderr,
-		"       %s -i image -T type [-p position] [-o outfile] data_file\n"
-		"          -i ==> extract from the 'image' a specific 'data_file'\n"
+		"       %s -T type [-p position] [-o outfile] image\n"
 		"          -T ==> set image type to 'type'\n"
-		"          -p ==> 'position' (starting at 0) of the 'data_file' inside the 'image'\n",
+		"          -p ==> 'position' (starting at 0) of the component to extract from image\n",
 		params.cmdname);
 	fprintf(stderr,
 		"       %s -V ==> print version information and exit\n",
