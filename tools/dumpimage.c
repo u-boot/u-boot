@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 	int ifd = -1;
 	struct stat sbuf;
 	char *ptr;
-	int retval = 0;
+	int retval = EXIT_SUCCESS;
 	struct image_type_params *tparams = NULL;
 
 	params.cmdname = *argv;
@@ -135,65 +135,54 @@ int main(int argc, char **argv)
 
 	ifd = open(params.imagefile, O_RDONLY|O_BINARY);
 	if (ifd < 0) {
-		fprintf(stderr, "%s: Can't open \"%s\": %s\n",
-			params.cmdname, params.imagefile,
-			strerror(errno));
+		fprintf(stderr, "%s: Can't open \"%s\": %s\n", params.cmdname,
+			params.imagefile, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
-	if (params.lflag || params.iflag) {
-		if (fstat(ifd, &sbuf) < 0) {
-			fprintf(stderr, "%s: Can't stat \"%s\": %s\n",
-				params.cmdname, params.imagefile,
-				strerror(errno));
-			exit(EXIT_FAILURE);
-		}
-
-		if ((uint32_t)sbuf.st_size < tparams->header_size) {
-			fprintf(stderr,
-				"%s: Bad size: \"%s\" is not valid image\n",
-				params.cmdname, params.imagefile);
-			exit(EXIT_FAILURE);
-		}
-
-		ptr = mmap(0, sbuf.st_size, PROT_READ, MAP_SHARED, ifd, 0);
-		if (ptr == MAP_FAILED) {
-			fprintf(stderr, "%s: Can't read \"%s\": %s\n",
-				params.cmdname, params.imagefile,
-				strerror(errno));
-			exit(EXIT_FAILURE);
-		}
-
-		/*
-		 * Both calls bellow scan through dumpimage registry for all
-		 * supported image types and verify the input image file
-		 * header for match
-		 */
-		if (params.iflag) {
-			/*
-			 * Extract the data files from within the matched
-			 * image type. Returns the error code if not matched
-			 */
-			retval = dumpimage_extract_subimage(tparams, ptr,
-					&sbuf);
-		} else {
-			/*
-			 * Print the image information for matched image type
-			 * Returns the error code if not matched
-			 */
-			retval = imagetool_verify_print_header(ptr, &sbuf,
-					tparams, &params);
-		}
-
-		(void)munmap((void *)ptr, sbuf.st_size);
-		(void)close(ifd);
-
-		return retval;
+	if (fstat(ifd, &sbuf) < 0) {
+		fprintf(stderr, "%s: Can't stat \"%s\": %s\n", params.cmdname,
+			params.imagefile, strerror(errno));
+		exit(EXIT_FAILURE);
 	}
 
+	if ((uint32_t)sbuf.st_size < tparams->header_size) {
+		fprintf(stderr, "%s: Bad size: \"%s\" is not valid image\n",
+			params.cmdname, params.imagefile);
+		exit(EXIT_FAILURE);
+	}
+
+	ptr = mmap(0, sbuf.st_size, PROT_READ, MAP_SHARED, ifd, 0);
+	if (ptr == MAP_FAILED) {
+		fprintf(stderr, "%s: Can't read \"%s\": %s\n", params.cmdname,
+			params.imagefile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	/*
+	 * Both calls bellow scan through dumpimage registry for all
+	 * supported image types and verify the input image file
+	 * header for match
+	 */
+	if (params.iflag) {
+		/*
+		 * Extract the data files from within the matched
+		 * image type. Returns the error code if not matched
+		 */
+		retval = dumpimage_extract_subimage(tparams, ptr, &sbuf);
+	} else {
+		/*
+		 * Print the image information for matched image type
+		 * Returns the error code if not matched
+		 */
+		retval = imagetool_verify_print_header(ptr, &sbuf, tparams,
+						       &params);
+	}
+
+	(void)munmap((void *)ptr, sbuf.st_size);
 	(void)close(ifd);
 
-	return EXIT_SUCCESS;
+	return retval;
 }
 
 static void usage(void)
