@@ -145,11 +145,12 @@ def test_net_tftpboot(u_boot_console):
         pytest.skip('No TFTP readable file to read')
 
     addr = f.get('addr', None)
-    if not addr:
-        addr = u_boot_utils.find_ram_base(u_boot_console)
 
     fn = f['fn']
-    output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
+    if not addr:
+        output = u_boot_console.run_command('tftpboot %s' % (fn))
+    else:
+        output = u_boot_console.run_command('tftpboot %x %s' % (addr, fn))
     expected_text = 'Bytes transferred = '
     sz = f.get('size', None)
     if sz:
@@ -163,7 +164,7 @@ def test_net_tftpboot(u_boot_console):
     if u_boot_console.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
         return
 
-    output = u_boot_console.run_command('crc32 %x $filesize' % addr)
+    output = u_boot_console.run_command('crc32 $fileaddr $filesize')
     assert expected_crc in output
 
 @pytest.mark.buildconfigspec('cmd_nfs')
