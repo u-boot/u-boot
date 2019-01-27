@@ -115,7 +115,7 @@ int env_import(const char *buf, int check)
 
 		if (crc32(0, ep->data, ENV_SIZE) != crc) {
 			set_default_env("bad CRC", 0);
-			return -EIO;
+			return -ENOMSG; /* needed for env_load() */
 		}
 	}
 
@@ -169,7 +169,7 @@ int env_import_redund(const char *buf1, int buf1_read_fail,
 
 	if (!crc1_ok && !crc2_ok) {
 		set_default_env("bad CRC", 0);
-		return -EIO;
+		return -ENOMSG; /* needed for env_load() */
 	} else if (crc1_ok && !crc2_ok) {
 		gd->env_valid = ENV_VALID;
 	} else if (!crc1_ok && crc2_ok) {

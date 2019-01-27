@@ -269,7 +269,7 @@ struct msdc_host {
 	bool builtin_cd;
 
 	/* card detection / write protection GPIOs */
-#ifdef CONFIG_DM_GPIO
+#if IS_ENABLED(DM_GPIO)
 	struct gpio_desc gpio_wp;
 	struct gpio_desc gpio_cd;
 #endif
@@ -554,6 +554,14 @@ static int msdc_pio_read(struct msdc_host *host, u8 *ptr, u32 size)
 			break;
 		}
 
+		chksz = min(size, (u32)MSDC_FIFO_SIZE);
+
+		if (msdc_fifo_rx_bytes(host) >= chksz) {
+			msdc_fifo_read(host, ptr, chksz);
+			ptr += chksz;
+			size -= chksz;
+		}
+
 		if (status & MSDC_INT_XFER_COMPL) {
 			if (size) {
 				pr_err("data not fully read\n");
@@ -562,15 +570,7 @@ static int msdc_pio_read(struct msdc_host *host, u8 *ptr, u32 size)
 
 			break;
 		}
-
-		chksz = min(size, (u32)MSDC_FIFO_SIZE);
-
-		if (msdc_fifo_rx_bytes(host) >= chksz) {
-			msdc_fifo_read(host, ptr, chksz);
-			ptr += chksz;
-			size -= chksz;
-		}
-	}
+}
 
 	return ret;
 }
@@ -849,7 +849,7 @@ static int msdc_ops_get_cd(struct udevice *dev)
 		return !(val & MSDC_PS_CDSTS);
 	}
 
-#ifdef CONFIG_DM_GPIO
+#if IS_ENABLED(DM_GPIO)
 	if (!host->gpio_cd.dev)
 		return 1;
 
@@ -861,9 +861,9 @@ static int msdc_ops_get_cd(struct udevice *dev)
 
 static int msdc_ops_get_wp(struct udevice *dev)
 {
+#if IS_ENABLED(DM_GPIO)
 	struct msdc_host *host = dev_get_priv(dev);
 
-#ifdef CONFIG_DM_GPIO
 	if (!host->gpio_wp.dev)
 		return 0;
 
@@ -1332,7 +1332,7 @@ static int msdc_ofdata_to_platdata(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-#ifdef CONFIG_DM_GPIO
+#if IS_ENABLED(DM_GPIO)
 	gpio_request_by_name(dev, "wp-gpios", 0, &host->gpio_wp, GPIOD_IS_IN);
 	gpio_request_by_name(dev, "cd-gpios", 0, &host->gpio_cd, GPIOD_IS_IN);
 #endif

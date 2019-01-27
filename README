@@ -1146,9 +1146,6 @@ The following options need to be configured:
 		CONFIG_DFU_OVER_USB
 		This enables the USB portion of the DFU USB class
 
-		CONFIG_DFU_MMC
-		This enables support for exposing (e)MMC devices via DFU.
-
 		CONFIG_DFU_NAND
 		This enables support for exposing NAND devices via DFU.
 

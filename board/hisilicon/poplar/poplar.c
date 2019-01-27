@@ -9,7 +9,6 @@
 #include <asm/io.h>
 #include <dm/platform_data/serial_pl01x.h>
 #include <asm/arch/hi3798cv200.h>
-#include <asm/arch/dwmmc.h>
 #include <asm/armv8/mmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -153,17 +152,6 @@ static void usb2_phy_init(void)
 	clrbits_le32(PERI_CRG46, USB2_BUS_SRST_REQ | USB2_UTMI0_SRST_REQ |
 			USB2_HST_PHY_SYST_REQ | USB2_OTG_PHY_SYST_REQ);
 	udelay(200);
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int ret;
-
-	ret = hi6220_dwmci_add_port(0, REG_BASE_MCI, 8);
-	if (ret)
-		printf("mmc init error (%d)\n", ret);
-
-	return ret;
 }
 
 #if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)

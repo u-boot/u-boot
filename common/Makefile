@@ -64,10 +64,9 @@ obj-$(CONFIG_$(SPL_TPL_)BOOTSTAGE) += bootstage.o
 obj-$(CONFIG_$(SPL_TPL_)BLOBLIST) += bloblist.o
 
 ifdef CONFIG_SPL_BUILD
-ifdef CONFIG_SPL_DFU_SUPPORT
+ifdef CONFIG_SPL_DFU
 obj-$(CONFIG_DFU_OVER_USB) += dfu.o
 endif
-obj-$(CONFIG_SPL_DFU_SUPPORT) += cli_hush.o
 obj-$(CONFIG_SPL_HASH_SUPPORT) += hash.o
 obj-$(CONFIG_TPL_HASH_SUPPORT) += hash.o
 obj-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o

@@ -2,6 +2,7 @@
 
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk/
 obj-$(CONFIG_$(SPL_TPL_)DM) += core/
+obj-$(CONFIG_$(SPL_TPL_)DFU) += dfu/
 obj-$(CONFIG_$(SPL_TPL_)GPIO_SUPPORT) += gpio/
 obj-$(CONFIG_$(SPL_TPL_)DRIVERS_MISC_SUPPORT) += misc/ sysreset/ firmware/
 obj-$(CONFIG_$(SPL_TPL_)I2C_SUPPORT) += i2c/
@@ -50,7 +51,6 @@ obj-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += usb/musb-new/
 obj-$(CONFIG_SPL_USB_GADGET) += usb/gadget/
 obj-$(CONFIG_SPL_USB_GADGET) += usb/common/
 obj-$(CONFIG_SPL_USB_GADGET) += usb/gadget/udc/
-obj-$(CONFIG_SPL_DFU_SUPPORT) += dfu/
 obj-$(CONFIG_SPL_WATCHDOG_SUPPORT) += watchdog/
 obj-$(CONFIG_SPL_USB_HOST_SUPPORT) += usb/host/
 obj-$(CONFIG_OMAP_USB_PHY) += usb/phy/
@@ -86,7 +86,6 @@ obj-y += misc/
 obj-$(CONFIG_MMC) += mmc/
 obj-$(CONFIG_NVME) += nvme/
 obj-y += pcmcia/
-obj-y += dfu/
 obj-$(CONFIG_X86) += pch/
 obj-y += phy/allwinner/
 obj-y += phy/marvell/

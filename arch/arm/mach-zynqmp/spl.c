@@ -93,7 +93,7 @@ u32 spl_boot_device(void)
 	case EMMC_MODE:
 		return BOOT_DEVICE_MMC1;
 #endif
-#ifdef CONFIG_SPL_DFU_SUPPORT
+#ifdef CONFIG_SPL_DFU
 	case USB_MODE:
 		return BOOT_DEVICE_DFU;
 #endif
