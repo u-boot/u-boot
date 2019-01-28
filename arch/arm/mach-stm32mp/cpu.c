@@ -59,6 +59,7 @@
 #define BSEC_OTP_MAC	57
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#ifndef CONFIG_STM32MP1_TRUSTED
 static void security_init(void)
 {
 	/* Disable the backup domain write protection */
@@ -114,6 +115,7 @@ static void security_init(void)
 	 */
 	writel(0x0, TAMP_CR1);
 }
+#endif /* CONFIG_STM32MP1_TRUSTED */
 
 /*
  * Debug init
@@ -130,7 +132,8 @@ static void dbgmcu_init(void)
 static u32 get_bootmode(void)
 {
 	u32 boot_mode;
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_STM32MP1_TRUSTED) && \
+	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 	u32 bootrom_itf = readl(BOOTROM_PARAM_ADDR);
 	u32 bootrom_device, bootrom_instance;
 
@@ -167,8 +170,9 @@ int arch_cpu_init(void)
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 	dbgmcu_init();
-
+#ifndef CONFIG_STM32MP1_TRUSTED
 	security_init();
+#endif
 #endif
 
 	/* get bootmode from BootRom context: saved in TAMP register */
@@ -177,6 +181,7 @@ int arch_cpu_init(void)
 	if ((boot_mode & TAMP_BOOT_DEVICE_MASK) == BOOT_SERIAL_UART)
 		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
 #if defined(CONFIG_DEBUG_UART) && \
+	!defined(CONFIG_STM32MP1_TRUSTED) && \
 	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 	else
 		debug_uart_init();

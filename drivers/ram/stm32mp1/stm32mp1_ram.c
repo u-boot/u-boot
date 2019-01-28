@@ -157,7 +157,8 @@ static int stm32mp1_ddr_probe(struct udevice *dev)
 
 	priv->info.base = STM32_DDR_BASE;
 
-#if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_STM32MP1_TRUSTED) && \
+	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
 	priv->info.size = 0;
 	return stm32mp1_ddr_setup(dev);
 #else

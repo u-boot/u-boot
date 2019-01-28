@@ -17,10 +17,12 @@
  */
 #define CONFIG_SYS_HZ				1000
 
+#ifndef CONFIG_STM32MP1_TRUSTED
 /* PSCI support */
 #define CONFIG_ARMV7_PSCI_1_0
 #define CONFIG_ARMV7_SECURE_BASE		STM32_SYSRAM_BASE
 #define CONFIG_ARMV7_SECURE_MAX_SIZE		STM32_SYSRAM_SIZE
+#endif
 
 /*
  * malloc() pool size

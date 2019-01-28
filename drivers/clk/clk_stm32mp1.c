@@ -15,9 +15,11 @@
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 
+#ifndef CONFIG_STM32MP1_TRUSTED
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 /* activate clock tree initialization in the driver */
 #define STM32MP1_CLOCK_TREE_INIT
+#endif
 #endif
 
 #define MAX_HSI_HZ		64000000
