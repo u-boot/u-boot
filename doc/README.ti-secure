@@ -108,7 +108,8 @@ Booting of U-Boot SPL
 	Invoking the script for DRA7xx/AM57xx Secure Devices
 	====================================================
 
-	create-boot-image.sh <IMAGE_TYPE> <INPUT_FILE> <OUTPUT_FILE>
+	create-boot-image.sh \
+		<IMAGE_TYPE> <INPUT_FILE> <OUTPUT_FILE> <SPL_LOAD_ADDR>
 
 	<IMAGE_TYPE> is a value that specifies the type of the image to
 	generate OR the action the image generation tool will take. Valid
@@ -116,7 +117,6 @@ Booting of U-Boot SPL
 		X-LOADER - Generates an image for NOR or QSPI boot modes
 		MLO - Generates an image for SD/MMC/eMMC boot modes
 		ULO - Generates an image for USB/UART peripheral boot modes
-		Note: ULO is not yet used by the u-boot build process
 
 	<INPUT_FILE> is the full path and filename of the public world boot
 	loader binary file (for this platform, this is always u-boot-spl.bin).
@@ -130,8 +130,12 @@ Booting of U-Boot SPL
 		the device ROM bootloader requires for loading from
 		the FAT partition of an SD card (same as on
 		non-secure devices)
+	u-boot-spl_HS_ULO - boot image for USB/UART peripheral boot modes
 	u-boot-spl_HS_X-LOADER - boot image for all other flash memories
 		including QSPI and NOR flash
+
+	<SPL_LOAD_ADDR> is the address at which SOC ROM should load the
+	<INPUT_FILE>
 
 	Invoking the script for Keystone2 Secure Devices
 	=============================================
