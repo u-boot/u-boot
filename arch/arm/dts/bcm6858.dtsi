@@ -81,5 +81,22 @@
 
 			status = "disabled";
 		};
+
+		wdt1: watchdog@ff802780 {
+			compatible = "brcm,bcm6345-wdt";
+			reg = <0x0 0xff802780 0x0 0x14>;
+			clocks = <&periph_osc>;
+		};
+
+		wdt2: watchdog@ff8027c0 {
+			compatible = "brcm,bcm6345-wdt";
+			reg = <0x0 0xff8027c0 0x0 0x14>;
+			clocks = <&periph_osc>;
+		};
+
+		wdt-reboot {
+			compatible = "wdt-reboot";
+			wdt = <&wdt1>;
+		};
 	};
 };
