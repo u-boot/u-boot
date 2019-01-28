@@ -108,8 +108,10 @@ static int wait_for_int(bool read)
 	while (!(val & (I2CINT_ERROR_EV
 	       | (read ? I2CINT_RECEIVE_EV : I2CINT_TRANSMIT_EV)))) {
 		udelay(10);
-		if (ctr++ > 5000)
-			return 1;
+		if (ctr++ > 5000) {
+			debug("%s: timed out\n", __func__);
+			return -ETIMEDOUT;
+		}
 #ifdef CONFIG_DM_I2C
 		ihs_i2c_get(priv->map, interrupt_status, &val);
 #else
@@ -117,7 +119,7 @@ static int wait_for_int(bool read)
 #endif
 	}
 
-	return (val & I2CINT_ERROR_EV) ? 1 : 0;
+	return (val & I2CINT_ERROR_EV) ? -EIO : 0;
 }
 
 #ifdef CONFIG_DM_I2C
@@ -130,6 +132,7 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 {
 	u16 val;
 	u16 data;
+	int res;
 #ifdef CONFIG_DM_I2C
 	struct ihs_i2c_priv *priv = dev_get_priv(dev);
 #endif
@@ -170,11 +173,16 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 #endif
 
 #ifdef CONFIG_DM_I2C
-	if (wait_for_int(dev, read))
+	res = wait_for_int(dev, read);
 #else
-	if (wait_for_int(read))
+	res = wait_for_int(read);
 #endif
-		return 1;
+	if (res) {
+		if (res == -ETIMEDOUT)
+			debug("%s: time out while waiting for event\n", __func__);
+
+		return res;
+	}
 
 	/* If we want to read, get the bytes from the mailbox */
 	if (read) {
@@ -198,19 +206,21 @@ static int ihs_i2c_send_buffer(uchar chip, u8 *data, int len, bool hold_bus,
 			       int read)
 #endif
 {
+	int res;
+
 	while (len) {
 		int transfer = min(len, 2);
 		bool is_last = len <= transfer;
 
 #ifdef CONFIG_DM_I2C
-		if (ihs_i2c_transfer(dev, chip, data, transfer, read,
-				     hold_bus ? false : is_last))
-			return 1;
+		res = ihs_i2c_transfer(dev, chip, data, transfer, read,
+				       hold_bus ? false : is_last);
 #else
-		if (ihs_i2c_transfer(chip, data, transfer, read,
-				     hold_bus ? false : is_last))
-			return 1;
+		res = ihs_i2c_transfer(chip, data, transfer, read,
+				       hold_bus ? false : is_last);
 #endif
+		if (res)
+			return res;
 
 		data += transfer;
 		len -= transfer;
@@ -241,14 +251,19 @@ static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, u8 *addr,
 			  int alen, uchar *buffer, int len, int read)
 #endif
 {
+	int res;
+
 	/* Don't hold the bus if length of data to send/receive is zero */
+	if (len <= 0)
+		return -EINVAL;
+
 #ifdef CONFIG_DM_I2C
-	if (len <= 0 || ihs_i2c_address(dev, chip, addr, alen, len))
-		return 1;
+	res = ihs_i2c_address(dev, chip, addr, alen, len);
 #else
-	if (len <= 0 || ihs_i2c_address(chip, addr, alen, len))
-		return 1;
+	res = ihs_i2c_address(chip, addr, alen, len);
 #endif
+	if (res)
+		return res;
 
 #ifdef CONFIG_DM_I2C
 	return ihs_i2c_send_buffer(dev, chip, buffer, len, false, read);
@@ -273,7 +288,7 @@ static int ihs_i2c_set_bus_speed(struct udevice *bus, uint speed)
 	struct ihs_i2c_priv *priv = dev_get_priv(bus);
 
 	if (speed != priv->speed && priv->speed != 0)
-		return 1;
+		return -EINVAL;
 
 	priv->speed = speed;
 
@@ -290,8 +305,8 @@ static int ihs_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
 	 * actucal data) or one message (just data)
 	 */
 	if (nmsgs > 2 || nmsgs == 0) {
-		debug("%s: Only one or two messages are supported.", __func__);
-		return -1;
+		debug("%s: Only one or two messages are supported\n", __func__);
+		return -ENOTSUPP;
 	}
 
 	omsg = nmsgs == 1 ? &dummy : msg;
@@ -311,9 +326,11 @@ static int ihs_i2c_probe_chip(struct udevice *bus, u32 chip_addr,
 			      u32 chip_flags)
 {
 	uchar buffer[2];
+	int res;
 
-	if (ihs_i2c_transfer(bus, chip_addr, buffer, 0, I2COP_READ, true))
-		return 1;
+	res = ihs_i2c_transfer(bus, chip_addr, buffer, 0, I2COP_READ, true);
+	if (res)
+		return res;
 
 	return 0;
 }
@@ -355,9 +372,11 @@ static void ihs_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 static int ihs_i2c_probe(struct i2c_adapter *adap, uchar chip)
 {
 	uchar buffer[2];
+	int res;
 
-	if (ihs_i2c_transfer(chip, buffer, 0, I2COP_READ, true))
-		return 1;
+	res = ihs_i2c_transfer(chip, buffer, 0, I2COP_READ, true);
+	if (res)
+		return res;
 
 	return 0;
 }
@@ -388,7 +407,7 @@ static unsigned int ihs_i2c_set_bus_speed(struct i2c_adapter *adap,
 					  unsigned int speed)
 {
 	if (speed != adap->speed)
-		return 1;
+		return -EINVAL;
 	return speed;
 }
 
