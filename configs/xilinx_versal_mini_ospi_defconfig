@@ -42,7 +42,6 @@ CONFIG_CMD_SF=y
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_MISC is not set
 # CONFIG_PARTITIONS is not set
-CONFIG_OF_EMBED=y
 CONFIG_DEFAULT_DEVICE_TREE="versal-mini-ospi"
 # CONFIG_NET is not set
 # CONFIG_DM_WARN is not set
