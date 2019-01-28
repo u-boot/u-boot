@@ -75,6 +75,20 @@ config PINCTRL_IMX8
 	  only parses the 'fsl,pins' property and configures related
 	  registers.
 
+config PINCTRL_IMX8M
+	bool "IMX8M pinctrl driver"
+	depends on ARCH_IMX8M && PINCTRL_FULL
+	select DEVRES
+	select PINCTRL_IMX
+	help
+	  Say Y here to enable the imx8m pinctrl driver
+
+	  This provides a simple pinctrl driver for i.MX8M SoC familiy.
+	  This feature depends on device tree configuration. This driver
+	  is different from the linux one, this is a simple implementation,
+	  only parses the 'fsl,pins' property and configure related
+	  registers.
+
 config PINCTRL_VYBRID
 	bool "Vybrid (vf610) pinctrl driver"
 	depends on ARCH_VF610 && PINCTRL_FULL
