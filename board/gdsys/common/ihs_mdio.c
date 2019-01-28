@@ -11,6 +11,7 @@
 #include <gdsys_fpga.h>
 #else
 #include <fdtdec.h>
+#include <dm.h>
 #include <regmap.h>
 #endif
 
@@ -28,7 +29,7 @@ static inline u16 read_reg(struct udevice *fpga, uint base, uint addr)
 	struct regmap *map;
 	u8 *ptr;
 
-	regmap_init_mem(fpga, &map);
+	regmap_init_mem(dev_ofnode(fpga), &map);
 	ptr = regmap_get_range(map, 0);
 
 	return in_le16((u16 *)(ptr + base + addr));
@@ -40,7 +41,7 @@ static inline void write_reg(struct udevice *fpga, uint base, uint addr,
 	struct regmap *map;
 	u8 *ptr;
 
-	regmap_init_mem(fpga, &map);
+	regmap_init_mem(dev_ofnode(fpga), &map);
 	ptr = regmap_get_range(map, 0);
 
 	out_le16((u16 *)(ptr + base + addr), val);
