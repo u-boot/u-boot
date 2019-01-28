@@ -98,7 +98,11 @@ enum boot_device {
 
 /* offset used for BSEC driver: misc_read and misc_write */
 #define STM32_BSEC_SHADOW_OFFSET	0x0
+#define STM32_BSEC_SHADOW(id)		(STM32_BSEC_SHADOW_OFFSET + (id) * 4)
 #define STM32_BSEC_OTP_OFFSET		0x80000000
+#define STM32_BSEC_OTP(id)		(STM32_BSEC_OTP_OFFSET + (id) * 4)
+
+#define BSEC_OTP_BOARD	59
 
 #endif /* __ASSEMBLY__*/
 #endif /* _MACH_STM32_H_ */
