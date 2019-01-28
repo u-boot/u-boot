@@ -8,8 +8,7 @@
 #include <i2c.h>
 #ifdef CONFIG_DM_I2C
 #include <dm.h>
-#include <fpgamap.h>
-#include "../misc/gdsys_soc.h"
+#include <regmap.h>
 #else
 #include <gdsys_fpga.h>
 #endif
@@ -18,17 +17,23 @@
 #ifdef CONFIG_DM_I2C
 struct ihs_i2c_priv {
 	uint speed;
-	phys_addr_t addr;
+	struct regmap *map;
 };
 
-enum {
-	REG_INTERRUPT_STATUS = 0x00,
-	REG_INTERRUPT_ENABLE_CONTROL = 0x02,
-	REG_WRITE_MAILBOX_EXT = 0x04,
-	REG_WRITE_MAILBOX = 0x06,
-	REG_READ_MAILBOX_EXT = 0x08,
-	REG_READ_MAILBOX = 0x0A,
+struct ihs_i2c_regs {
+	u16 interrupt_status;
+	u16 interrupt_enable_control;
+	u16 write_mailbox_ext;
+	u16 write_mailbox;
+	u16 read_mailbox_ext;
+	u16 read_mailbox;
 };
+
+#define ihs_i2c_set(map, member, val) \
+	regmap_set(map, struct ihs_i2c_regs, member, val)
+
+#define ihs_i2c_get(map, member, valp) \
+	regmap_get(map, struct ihs_i2c_regs, member, valp)
 
 #else /* !CONFIG_DM_I2C */
 DECLARE_GLOBAL_DATA_PTR;
@@ -92,14 +97,10 @@ static int wait_for_int(bool read)
 	uint ctr = 0;
 #ifdef CONFIG_DM_I2C
 	struct ihs_i2c_priv *priv = dev_get_priv(dev);
-	struct udevice *fpga;
-
-	gdsys_soc_get_fpga(dev, &fpga);
 #endif
 
 #ifdef CONFIG_DM_I2C
-	fpgamap_read(fpga, priv->addr + REG_INTERRUPT_STATUS, &val,
-		     FPGAMAP_SIZE_16);
+	ihs_i2c_get(priv->map, interrupt_status, &val);
 #else
 	I2C_GET_REG(interrupt_status, &val);
 #endif
@@ -110,8 +111,7 @@ static int wait_for_int(bool read)
 		if (ctr++ > 5000)
 			return 1;
 #ifdef CONFIG_DM_I2C
-		fpgamap_read(fpga, priv->addr + REG_INTERRUPT_STATUS, &val,
-			     FPGAMAP_SIZE_16);
+		ihs_i2c_get(priv->map, interrupt_status, &val);
 #else
 		I2C_GET_REG(interrupt_status, &val);
 #endif
@@ -132,18 +132,13 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 	u16 data;
 #ifdef CONFIG_DM_I2C
 	struct ihs_i2c_priv *priv = dev_get_priv(dev);
-	struct udevice *fpga;
-
-	gdsys_soc_get_fpga(dev, &fpga);
 #endif
 
 	/* Clear interrupt status */
 	data = I2CINT_ERROR_EV | I2CINT_RECEIVE_EV | I2CINT_TRANSMIT_EV;
 #ifdef CONFIG_DM_I2C
-	fpgamap_write(fpga, priv->addr + REG_INTERRUPT_STATUS, &data,
-		      FPGAMAP_SIZE_16);
-	fpgamap_read(fpga, priv->addr + REG_INTERRUPT_STATUS, &val,
-		     FPGAMAP_SIZE_16);
+	ihs_i2c_set(priv->map, interrupt_status, data);
+	ihs_i2c_get(priv->map, interrupt_status, &val);
 #else
 	I2C_SET_REG(interrupt_status, data);
 	I2C_GET_REG(interrupt_status, &val);
@@ -156,8 +151,7 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 		if (len > 1)
 			val |= buffer[1] << 8;
 #ifdef CONFIG_DM_I2C
-		fpgamap_write(fpga, priv->addr + REG_WRITE_MAILBOX_EXT, &val,
-			      FPGAMAP_SIZE_16);
+		ihs_i2c_set(priv->map, write_mailbox_ext, val);
 #else
 		I2C_SET_REG(write_mailbox_ext, val);
 #endif
@@ -170,8 +164,7 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 	       | (is_last ? 0 : I2CMB_HOLD_BUS);
 
 #ifdef CONFIG_DM_I2C
-	fpgamap_write(fpga, priv->addr + REG_WRITE_MAILBOX, &data,
-		      FPGAMAP_SIZE_16);
+	ihs_i2c_set(priv->map, write_mailbox, data);
 #else
 	I2C_SET_REG(write_mailbox, data);
 #endif
@@ -186,8 +179,7 @@ static int ihs_i2c_transfer(uchar chip, uchar *buffer, int len, bool read,
 	/* If we want to read, get the bytes from the mailbox */
 	if (read) {
 #ifdef CONFIG_DM_I2C
-		fpgamap_read(fpga, priv->addr + REG_READ_MAILBOX_EXT, &val,
-			     FPGAMAP_SIZE_16);
+		ihs_i2c_get(priv->map, read_mailbox_ext, &val);
 #else
 		I2C_GET_REG(read_mailbox_ext, &val);
 #endif
@@ -270,11 +262,8 @@ static int ihs_i2c_access(struct i2c_adapter *adap, uchar chip, u8 *addr,
 int ihs_i2c_probe(struct udevice *bus)
 {
 	struct ihs_i2c_priv *priv = dev_get_priv(bus);
-	int addr;
 
-	addr = dev_read_u32_default(bus, "reg", -1);
-
-	priv->addr = addr;
+	regmap_init_mem(dev_ofnode(bus), &priv->map);
 
 	return 0;
 }
