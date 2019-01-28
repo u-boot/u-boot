@@ -59,7 +59,7 @@ int gdsys_rxaui_ctrl_probe(struct udevice *dev)
 {
 	struct gdsys_rxaui_ctrl_priv *priv = dev_get_priv(dev);
 
-	regmap_init_mem(dev, &priv->map);
+	regmap_init_mem(dev_ofnode(dev), &priv->map);
 
 	priv->state = false;
 
