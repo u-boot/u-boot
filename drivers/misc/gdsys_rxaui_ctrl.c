@@ -29,12 +29,15 @@ struct gdsys_rxaui_ctrl_regs {
 
 struct gdsys_rxaui_ctrl_priv {
 	struct regmap *map;
+	bool state;
 };
 
 int gdsys_rxaui_set_polarity_inversion(struct udevice *dev, bool val)
 {
 	struct gdsys_rxaui_ctrl_priv *priv = dev_get_priv(dev);
 	u16 state;
+
+	priv->state = !priv->state;
 
 	rxaui_ctrl_get(priv->map, ctrl_1, &state);
 
@@ -45,7 +48,7 @@ int gdsys_rxaui_set_polarity_inversion(struct udevice *dev, bool val)
 
 	rxaui_ctrl_set(priv->map, ctrl_1, state);
 
-	return 0;
+	return !priv->state;
 }
 
 static const struct misc_ops gdsys_rxaui_ctrl_ops = {
@@ -57,6 +60,8 @@ int gdsys_rxaui_ctrl_probe(struct udevice *dev)
 	struct gdsys_rxaui_ctrl_priv *priv = dev_get_priv(dev);
 
 	regmap_init_mem(dev, &priv->map);
+
+	priv->state = false;
 
 	return 0;
 }
