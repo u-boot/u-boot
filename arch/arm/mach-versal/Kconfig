@@ -41,6 +41,12 @@ config VERSAL_OF_BOARD_DTB_ADDR
 	default 0x1000
 	depends on OF_BOARD
 
+config IOU_SWITCH_DIVISOR0
+	hex "IOU switch divisor0"
+	default 0x20
+	help
+	  Setup time clock divisor for input clock.
+
 config SYS_MEM_RSVD_FOR_MMU
 	bool "Reserve memory for MMU Table"
 	help

@@ -26,8 +26,11 @@ int board_early_init_r(void)
 	if (current_el() != 3)
 		return 0;
 
+	debug("iou_switch ctrl div0 %x\n",
+	      readl(&crlapb_base->iou_switch_ctrl));
+
 	writel(IOU_SWITCH_CTRL_CLKACT_BIT |
-	       (0x20 << IOU_SWITCH_CTRL_DIVISOR0_SHIFT),
+	       (CONFIG_IOU_SWITCH_DIVISOR0 << IOU_SWITCH_CTRL_DIVISOR0_SHIFT),
 	       &crlapb_base->iou_switch_ctrl);
 
 	/* Global timer init - Program time stamp reference clk */
