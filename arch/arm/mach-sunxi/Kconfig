@@ -154,7 +154,6 @@ config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7A
 	select ARM_CORTEX_CPU_IS_UP
-	select DM_MMC if MMC
 	select DM_SCSI if SCSI
 	select PHY_SUN4I_USB
 	select DRAM_SUN4I
