@@ -680,6 +680,10 @@ static const struct sunxi_mmc_variant sun4i_a10_variant = {
 	.mclk_offset = 0x88,
 };
 
+static const struct sunxi_mmc_variant sun50i_h6_variant = {
+	.mclk_offset = 0x830,
+};
+
 static const struct udevice_id sunxi_mmc_ids[] = {
 	{
 	  .compatible = "allwinner,sun4i-a10-mmc",
@@ -704,6 +708,14 @@ static const struct udevice_id sunxi_mmc_ids[] = {
 	{
 	  .compatible = "allwinner,sun50i-a64-emmc",
 	  .data = (ulong)&sun4i_a10_variant,
+	},
+	{
+	  .compatible = "allwinner,sun50i-h6-mmc",
+	  .data = (ulong)&sun50i_h6_variant,
+	},
+	{
+	  .compatible = "allwinner,sun50i-h6-emmc",
+	  .data = (ulong)&sun50i_h6_variant,
 	},
 	{ /* sentinel */ }
 };
