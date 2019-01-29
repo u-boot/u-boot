@@ -57,7 +57,7 @@ static int meson_gpio_calc_reg_and_bit(struct udevice *dev, unsigned int offset,
 				       enum meson_reg_type reg_type,
 				       unsigned int *reg, unsigned int *bit)
 {
-	struct meson_pinctrl *priv = dev_get_priv(dev->parent);
+	struct meson_pinctrl *priv = dev_get_priv(dev);
 	struct meson_bank *bank = NULL;
 	struct meson_reg_desc *desc;
 	unsigned int pin;
@@ -89,7 +89,8 @@ int meson_gpio_get(struct udevice *dev, unsigned int offset)
 	unsigned int reg, bit;
 	int ret;
 
-	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_IN, &reg, &bit);
+	ret = meson_gpio_calc_reg_and_bit(dev->parent, offset, REG_IN, &reg,
+					  &bit);
 	if (ret)
 		return ret;
 
@@ -102,7 +103,8 @@ int meson_gpio_set(struct udevice *dev, unsigned int offset, int value)
 	unsigned int reg, bit;
 	int ret;
 
-	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_OUT, &reg, &bit);
+	ret = meson_gpio_calc_reg_and_bit(dev->parent, offset, REG_OUT, &reg,
+					  &bit);
 	if (ret)
 		return ret;
 
@@ -117,7 +119,8 @@ int meson_gpio_get_direction(struct udevice *dev, unsigned int offset)
 	unsigned int reg, bit, val;
 	int ret;
 
-	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_DIR, &reg, &bit);
+	ret = meson_gpio_calc_reg_and_bit(dev->parent, offset, REG_DIR, &reg,
+					  &bit);
 	if (ret)
 		return ret;
 
@@ -132,7 +135,8 @@ int meson_gpio_direction_input(struct udevice *dev, unsigned int offset)
 	unsigned int reg, bit;
 	int ret;
 
-	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_DIR, &reg, &bit);
+	ret = meson_gpio_calc_reg_and_bit(dev->parent, offset, REG_DIR, &reg,
+					  &bit);
 	if (ret)
 		return ret;
 
@@ -148,17 +152,85 @@ int meson_gpio_direction_output(struct udevice *dev,
 	unsigned int reg, bit;
 	int ret;
 
-	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_DIR, &reg, &bit);
+	ret = meson_gpio_calc_reg_and_bit(dev->parent, offset, REG_DIR, &reg,
+					  &bit);
 	if (ret)
 		return ret;
 
 	clrbits_le32(priv->reg_gpio + reg, BIT(bit));
 
-	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_OUT, &reg, &bit);
+	ret = meson_gpio_calc_reg_and_bit(dev->parent, offset, REG_OUT, &reg,
+					  &bit);
 	if (ret)
 		return ret;
 
 	clrsetbits_le32(priv->reg_gpio + reg, BIT(bit), value ? BIT(bit) : 0);
+
+	return 0;
+}
+
+static int meson_pinconf_bias_set(struct udevice *dev, unsigned int pin,
+				  unsigned int param)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+	unsigned int offset = pin - priv->data->pin_base;
+	unsigned int reg, bit;
+	int ret;
+
+	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_PULLEN, &reg, &bit);
+	if (ret)
+		return ret;
+
+	if (param == PIN_CONFIG_BIAS_DISABLE) {
+		clrsetbits_le32(priv->reg_pullen + reg, BIT(bit), 0);
+		return 0;
+	}
+
+	/* othewise, enable the bias and select level */
+	clrsetbits_le32(priv->reg_pullen + reg, BIT(bit), 1);
+	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_PULL, &reg, &bit);
+	if (ret)
+		return ret;
+
+	clrsetbits_le32(priv->reg_pull + reg, BIT(bit),
+			param == PIN_CONFIG_BIAS_PULL_UP);
+
+	return 0;
+}
+
+int meson_pinconf_set(struct udevice *dev, unsigned int pin,
+		      unsigned int param, unsigned int arg)
+{
+	int ret;
+
+	switch (param) {
+	case PIN_CONFIG_BIAS_DISABLE:
+	case PIN_CONFIG_BIAS_PULL_UP:
+	case PIN_CONFIG_BIAS_PULL_DOWN:
+		ret = meson_pinconf_bias_set(dev, pin, param);
+		break;
+
+	default:
+		dev_err(dev, "unsupported configuration parameter %u\n", param);
+		return -EINVAL;
+	}
+
+	return ret;
+}
+
+int meson_pinconf_group_set(struct udevice *dev,
+			    unsigned int group_selector,
+			    unsigned int param, unsigned int arg)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+	struct meson_pmx_group *grp = &priv->data->groups[group_selector];
+	int i, ret;
+
+	for (i = 0; i < grp->num_pins; i++) {
+		ret = meson_pinconf_set(dev, grp->pins[i], param, arg);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -240,6 +312,21 @@ int meson_pinctrl_probe(struct udevice *dev)
 		return -EINVAL;
 	}
 	priv->reg_gpio = (void __iomem *)addr;
+
+	addr = parse_address(gpio, "pull", na, ns);
+	if (addr == FDT_ADDR_T_NONE) {
+		debug("pull address not found\n");
+		return -EINVAL;
+	}
+	priv->reg_pull = (void __iomem *)addr;
+
+	addr = parse_address(gpio, "pull-enable", na, ns);
+	/* Use pull region if pull-enable one is not present */
+	if (addr == FDT_ADDR_T_NONE)
+		priv->reg_pullen = priv->reg_pull;
+	else
+		priv->reg_pullen = (void __iomem *)addr;
+
 	priv->data = (struct meson_pinctrl_data *)dev_get_driver_data(dev);
 
 	/* Lookup GPIO driver */

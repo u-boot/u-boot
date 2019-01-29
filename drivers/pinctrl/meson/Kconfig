@@ -2,6 +2,7 @@ if ARCH_MESON
 
 config PINCTRL_MESON
 	select PINCTRL_GENERIC
+	select PINCONF
 	bool
 
 config PINCTRL_MESON_GX_PMX

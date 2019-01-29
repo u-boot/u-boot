@@ -39,6 +39,8 @@ struct meson_pinctrl {
 	struct meson_pinctrl_data *data;
 	void __iomem *reg_mux;
 	void __iomem *reg_gpio;
+	void __iomem *reg_pull;
+	void __iomem *reg_pullen;
 };
 
 /**
@@ -129,5 +131,11 @@ int meson_gpio_direction_input(struct udevice *dev, unsigned int offset);
 int meson_gpio_direction_output(struct udevice *dev, unsigned int offset,
 				int value);
 int meson_gpio_probe(struct udevice *dev);
+
+int meson_pinconf_set(struct udevice *dev, unsigned int pin,
+		      unsigned int param, unsigned int arg);
+int meson_pinconf_group_set(struct udevice *dev,
+			    unsigned int group_selector,
+			    unsigned int param, unsigned int arg);
 
 #endif /* __PINCTRL_MESON_H__ */

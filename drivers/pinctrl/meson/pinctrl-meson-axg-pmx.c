@@ -93,6 +93,12 @@ static int meson_axg_pinmux_group_set(struct udevice *dev,
 	return 0;
 }
 
+const struct pinconf_param meson_axg_pinconf_params[] = {
+	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, 0 },
+	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 1 },
+	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_DOWN, 1 },
+};
+
 const struct pinctrl_ops meson_axg_pinctrl_ops = {
 	.get_groups_count = meson_pinctrl_get_groups_count,
 	.get_group_name = meson_pinctrl_get_group_name,
@@ -100,6 +106,10 @@ const struct pinctrl_ops meson_axg_pinctrl_ops = {
 	.get_function_name = meson_pinmux_get_function_name,
 	.pinmux_group_set = meson_axg_pinmux_group_set,
 	.set_state = pinctrl_generic_set_state,
+	.pinconf_params = meson_axg_pinconf_params,
+	.pinconf_num_params = ARRAY_SIZE(meson_axg_pinconf_params),
+	.pinconf_set = meson_pinconf_set,
+	.pinconf_group_set = meson_pinconf_group_set,
 };
 
 static int meson_axg_gpio_request(struct udevice *dev,
