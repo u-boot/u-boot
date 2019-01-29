@@ -208,6 +208,10 @@ enum env_location env_get_location(enum env_operation op, int prio)
 }
 #endif
 
+#ifdef CONFIG_DM_MMC
+static void mmc_pinmux_setup(int sdc);
+#endif
+
 /* add board specific code here */
 int board_init(void)
 {
@@ -268,6 +272,17 @@ int board_init(void)
 	 */
 	i2c_init_board();
 #endif
+
+#ifdef CONFIG_DM_MMC
+	/*
+	 * Temporary workaround for enabling MMC clocks until a sunxi DM
+	 * pinctrl driver lands.
+	 */
+	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT);
+#if CONFIG_MMC_SUNXI_SLOT_EXTRA != -1
+	mmc_pinmux_setup(CONFIG_MMC_SUNXI_SLOT_EXTRA);
+#endif
+#endif	/* CONFIG_DM_MMC */
 
 	/* Uses dm gpio code so do this here and not in i2c_init_board() */
 	return soft_i2c_board_init();
