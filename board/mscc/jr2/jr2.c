@@ -64,6 +64,13 @@ static void vcoreiii_gpio_set_alternate(int gpio, int mode)
 	}
 }
 
+void board_debug_uart_init(void)
+{
+	/* too early for the pinctrl driver, so configure the UART pins here */
+	vcoreiii_gpio_set_alternate(10, 1);
+	vcoreiii_gpio_set_alternate(11, 1);
+}
+
 static void do_board_detect(void)
 {
 	int i;
