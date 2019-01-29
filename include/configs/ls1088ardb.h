@@ -393,12 +393,6 @@
 				"run scan_dev_for_boot; "	\
 			"fi; "					\
 		"done\0"					\
-	"scan_dev_for_boot="					\
-		"echo Scanning ${devtype} "			\
-		"${devnum}:${distro_bootpart}...; "		\
-		"for prefix in ${boot_prefixes}; do "		\
-			"run scan_dev_for_scripts; "		\
-		"done;\0"					\
 	"boot_a_script="					\
 		"load ${devtype} ${devnum}:${distro_bootpart} " \
 		"${scriptaddr} ${prefix}${script}; "		\
@@ -466,12 +460,6 @@
 				"run scan_dev_for_boot; "	\
 			"fi; "					\
 		"done\0"					\
-	"scan_dev_for_boot="					\
-		"echo Scanning ${devtype} "			\
-		"${devnum}:${distro_bootpart}...; "		\
-		"for prefix in ${boot_prefixes}; do "		\
-			"run scan_dev_for_scripts; "		\
-		"done;\0"					\
 	"boot_a_script="					\
 		"load ${devtype} ${devnum}:${distro_bootpart} " \
 		"${scriptaddr} ${prefix}${script}; "		\
