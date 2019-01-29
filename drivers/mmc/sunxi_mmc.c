@@ -12,6 +12,8 @@
 #include <errno.h>
 #include <malloc.h>
 #include <mmc.h>
+#include <clk.h>
+#include <reset.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
@@ -21,7 +23,6 @@
 
 #ifdef CONFIG_DM_MMC
 struct sunxi_mmc_variant {
-	u16 gate_offset;
 	u16 mclk_offset;
 };
 #endif
@@ -607,9 +608,11 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sunxi_mmc_plat *plat = dev_get_platdata(dev);
 	struct sunxi_mmc_priv *priv = dev_get_priv(dev);
+	struct reset_ctl_bulk reset_bulk;
+	struct clk gate_clk;
 	struct mmc_config *cfg = &plat->cfg;
 	struct ofnode_phandle_args args;
-	u32 *gate_reg, *ccu_reg;
+	u32 *ccu_reg;
 	int bus_width, ret;
 
 	cfg->name = dev->name;
@@ -641,8 +644,14 @@ static int sunxi_mmc_probe(struct udevice *dev)
 	priv->mmc_no = ((uintptr_t)priv->reg - SUNXI_MMC0_BASE) / 0x1000;
 	priv->mclkreg = (void *)ccu_reg +
 			(priv->variant->mclk_offset + (priv->mmc_no * 4));
-	gate_reg = (void *)ccu_reg + priv->variant->gate_offset;
-	setbits_le32(gate_reg, BIT(AHB_GATE_OFFSET_MMC(priv->mmc_no)));
+
+	ret = clk_get_by_name(dev, "ahb", &gate_clk);
+	if (!ret)
+		clk_enable(&gate_clk);
+
+	ret = reset_get_bulk(dev, &reset_bulk);
+	if (!ret)
+		reset_deassert_bulk(&reset_bulk);
 
 	ret = mmc_set_mod_clk(priv, 24000000);
 	if (ret)
@@ -676,7 +685,6 @@ static int sunxi_mmc_bind(struct udevice *dev)
 }
 
 static const struct sunxi_mmc_variant sun4i_a10_variant = {
-	.gate_offset = 0x60,
 	.mclk_offset = 0x88,
 };
 
