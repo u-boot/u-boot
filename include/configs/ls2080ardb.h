@@ -333,7 +333,8 @@ unsigned long get_board_sys_clk(void);
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \
-	func(SCSI, scsi, 0)
+	func(SCSI, scsi, 0) \
+	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
 #ifdef CONFIG_TFABOOT
