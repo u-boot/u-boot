@@ -13,6 +13,10 @@
 #include <dt-bindings/reset/sun6i-a31-ccu.h>
 
 static struct ccu_clk_gate a31_gates[] = {
+	[CLK_AHB1_MMC0]		= GATE(0x060, BIT(8)),
+	[CLK_AHB1_MMC1]		= GATE(0x060, BIT(9)),
+	[CLK_AHB1_MMC2]		= GATE(0x060, BIT(10)),
+	[CLK_AHB1_MMC3]		= GATE(0x060, BIT(11)),
 	[CLK_AHB1_OTG]		= GATE(0x060, BIT(24)),
 	[CLK_AHB1_EHCI0]	= GATE(0x060, BIT(26)),
 	[CLK_AHB1_EHCI1]	= GATE(0x060, BIT(27)),
@@ -40,6 +44,10 @@ static struct ccu_reset a31_resets[] = {
 	[RST_USB_PHY1]		= RESET(0x0cc, BIT(1)),
 	[RST_USB_PHY2]		= RESET(0x0cc, BIT(2)),
 
+	[RST_AHB1_MMC0]		= RESET(0x2c0, BIT(8)),
+	[RST_AHB1_MMC1]		= RESET(0x2c0, BIT(9)),
+	[RST_AHB1_MMC2]		= RESET(0x2c0, BIT(10)),
+	[RST_AHB1_MMC3]		= RESET(0x2c0, BIT(11)),
 	[RST_AHB1_OTG]		= RESET(0x2c0, BIT(24)),
 	[RST_AHB1_EHCI0]	= RESET(0x2c0, BIT(26)),
 	[RST_AHB1_EHCI1]	= RESET(0x2c0, BIT(27)),

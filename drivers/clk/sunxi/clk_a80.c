@@ -13,6 +13,8 @@
 #include <dt-bindings/reset/sun9i-a80-ccu.h>
 
 static const struct ccu_clk_gate a80_gates[] = {
+	[CLK_BUS_MMC]		= GATE(0x580, BIT(8)),
+
 	[CLK_BUS_UART0]		= GATE(0x594, BIT(16)),
 	[CLK_BUS_UART1]		= GATE(0x594, BIT(17)),
 	[CLK_BUS_UART2]		= GATE(0x594, BIT(18)),
@@ -22,6 +24,8 @@ static const struct ccu_clk_gate a80_gates[] = {
 };
 
 static const struct ccu_reset a80_resets[] = {
+	[RST_BUS_MMC]		= RESET(0x5a0, BIT(8)),
+
 	[RST_BUS_UART0]		= RESET(0x5b4, BIT(16)),
 	[RST_BUS_UART1]		= RESET(0x5b4, BIT(17)),
 	[RST_BUS_UART2]		= RESET(0x5b4, BIT(18)),

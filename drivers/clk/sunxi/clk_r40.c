@@ -13,6 +13,10 @@
 #include <dt-bindings/reset/sun8i-r40-ccu.h>
 
 static struct ccu_clk_gate r40_gates[] = {
+	[CLK_BUS_MMC0]		= GATE(0x060, BIT(8)),
+	[CLK_BUS_MMC1]		= GATE(0x060, BIT(9)),
+	[CLK_BUS_MMC2]		= GATE(0x060, BIT(10)),
+	[CLK_BUS_MMC3]		= GATE(0x060, BIT(11)),
 	[CLK_BUS_OTG]		= GATE(0x060, BIT(25)),
 	[CLK_BUS_EHCI0]		= GATE(0x060, BIT(26)),
 	[CLK_BUS_EHCI1]		= GATE(0x060, BIT(27)),
@@ -43,6 +47,10 @@ static struct ccu_reset r40_resets[] = {
 	[RST_USB_PHY1]		= RESET(0x0cc, BIT(1)),
 	[RST_USB_PHY2]		= RESET(0x0cc, BIT(2)),
 
+	[RST_BUS_MMC0]		= RESET(0x2c0, BIT(8)),
+	[RST_BUS_MMC1]		= RESET(0x2c0, BIT(9)),
+	[RST_BUS_MMC2]		= RESET(0x2c0, BIT(10)),
+	[RST_BUS_MMC3]		= RESET(0x2c0, BIT(11)),
 	[RST_BUS_OTG]		= RESET(0x2c0, BIT(25)),
 	[RST_BUS_EHCI0]		= RESET(0x2c0, BIT(26)),
 	[RST_BUS_EHCI1]		= RESET(0x2c0, BIT(27)),
