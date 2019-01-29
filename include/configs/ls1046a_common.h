@@ -212,7 +212,8 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(SCSI, scsi, 0) \
 	func(MMC, mmc, 0) \
-	func(USB, usb, 0)
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 #endif
 
