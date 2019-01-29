@@ -80,6 +80,9 @@ static void do_board_detect(void)
 	for (i = 56; i < 60; i++)
 		vcoreiii_gpio_set_alternate(i, 1);
 
+	/* small delay for settling the pins */
+	mdelay(30);
+
 	if (mscc_phy_rd(0, 0x10, 0x3, &pval) == 0 &&
 	    ((pval >> 4) & 0x3F) == 0x3c) {
 		gd->board_type = BOARD_TYPE_PCB112; /* Serval2-NID */
