@@ -1740,7 +1740,8 @@ CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
 MRPROPER_DIRS  += include/config include/generated spl tpl \
 		  .tmp_objdiff
 MRPROPER_FILES += .config .config.old include/autoconf.mk* include/config.h \
-		  ctags etags tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS
+		  ctags etags tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
+		  drivers/video/fonts/*.S
 
 # clean - Delete most, but leave enough to build external modules
 #
