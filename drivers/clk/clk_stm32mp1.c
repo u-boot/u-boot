@@ -1469,10 +1469,15 @@ static void stgen_config(struct stm32mp1_clk_priv *priv)
 	rate = stm32mp1_clk_get(priv, p);
 
 	if (cntfid0 != rate) {
+		u64 counter;
+
 		pr_debug("System Generic Counter (STGEN) update\n");
 		clrbits_le32(stgenc + STGENC_CNTCR, STGENC_CNTCR_EN);
-		writel(0x0, stgenc + STGENC_CNTCVL);
-		writel(0x0, stgenc + STGENC_CNTCVU);
+		counter = (u64)readl(stgenc + STGENC_CNTCVL);
+		counter |= ((u64)(readl(stgenc + STGENC_CNTCVU))) << 32;
+		counter = lldiv(counter * (u64)rate, cntfid0);
+		writel((u32)counter, stgenc + STGENC_CNTCVL);
+		writel((u32)(counter >> 32), stgenc + STGENC_CNTCVU);
 		writel(rate, stgenc + STGENC_CNTFID0);
 		setbits_le32(stgenc + STGENC_CNTCR, STGENC_CNTCR_EN);
 
