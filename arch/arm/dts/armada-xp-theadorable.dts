@@ -159,6 +159,31 @@
 					spi-max-frequency = <27777777>;
 				};
 			};
+
+			/* The LCD controller is only used on this board */
+			lcd0: lcd-controller@e0000 {
+				compatible = "marvell,armada-xp-lcd";
+				reg = <0xe0000 0x10000>;
+				status = "okay";
+				u-boot,dm-pre-reloc;
+
+				display-timings {
+					native-mode = <&timing0>;
+					timing0: panel0 {
+						hactive = <240>;
+						vactive = <320>;
+						hfront-porch = <1>;
+						hback-porch = <45>;
+						vfront-porch = <1>;
+						vback-porch = <3>;
+
+						/* Some dummy parameters */
+						clock-frequency = <0>;
+						hsync-len = <0>;
+						vsync-len = <0>;
+					};
+				};
+			};
 		};
 	};
 };
