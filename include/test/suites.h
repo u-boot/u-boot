@@ -27,6 +27,7 @@ int do_ut_bloblist(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
 int do_ut_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ut_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+int do_ut_lib(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
