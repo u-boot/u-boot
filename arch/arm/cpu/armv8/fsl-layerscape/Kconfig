@@ -51,8 +51,6 @@ config ARCH_LS1043A
 	select SYS_I2C_MXC_I2C2
 	select SYS_I2C_MXC_I2C3
 	select SYS_I2C_MXC_I2C4
-	imply SCSI
-	imply SCSI_AHCI
 	imply CMD_PCI
 
 config ARCH_LS1046A

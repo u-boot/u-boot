@@ -1263,6 +1263,7 @@ config TARGET_LS1043AQDS
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	imply SCSI
+	imply SCSI_AHCI
 	help
 	  Support for Freescale LS1043AQDS platform.
 
@@ -1274,7 +1275,6 @@ config TARGET_LS1043ARDB
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
-	imply SCSI
 	help
 	  Support for Freescale LS1043ARDB platform.
 
