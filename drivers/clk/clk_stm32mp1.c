@@ -1180,10 +1180,7 @@ static void stm32mp1_ls_osc_set(int enable, fdt_addr_t rcc, u32 offset,
 
 static void stm32mp1_hs_ocs_set(int enable, fdt_addr_t rcc, u32 mask_on)
 {
-	if (enable)
-		setbits_le32(rcc + RCC_OCENSETR, mask_on);
-	else
-		setbits_le32(rcc + RCC_OCENCLRR, mask_on);
+	writel(mask_on, rcc + (enable ? RCC_OCENSETR : RCC_OCENCLRR));
 }
 
 static int stm32mp1_osc_wait(int enable, fdt_addr_t rcc, u32 offset,
@@ -1254,20 +1251,20 @@ static void stm32mp1_lsi_set(fdt_addr_t rcc, int enable)
 static void stm32mp1_hse_enable(fdt_addr_t rcc, int bypass, int digbyp, int css)
 {
 	if (digbyp)
-		setbits_le32(rcc + RCC_OCENSETR, RCC_OCENR_DIGBYP);
+		writel(RCC_OCENR_DIGBYP, rcc + RCC_OCENSETR);
 	if (bypass || digbyp)
-		setbits_le32(rcc + RCC_OCENSETR, RCC_OCENR_HSEBYP);
+		writel(RCC_OCENR_HSEBYP, rcc + RCC_OCENSETR);
 
 	stm32mp1_hs_ocs_set(1, rcc, RCC_OCENR_HSEON);
 	stm32mp1_osc_wait(1, rcc, RCC_OCRDYR, RCC_OCRDYR_HSERDY);
 
 	if (css)
-		setbits_le32(rcc + RCC_OCENSETR, RCC_OCENR_HSECSSON);
+		writel(RCC_OCENR_HSECSSON, rcc + RCC_OCENSETR);
 }
 
 static void stm32mp1_csi_set(fdt_addr_t rcc, int enable)
 {
-	stm32mp1_ls_osc_set(enable, rcc, RCC_OCENSETR, RCC_OCENR_CSION);
+	stm32mp1_hs_ocs_set(enable, rcc, RCC_OCENR_CSION);
 	stm32mp1_osc_wait(enable, rcc, RCC_OCRDYR, RCC_OCRDYR_CSIRDY);
 }
 
