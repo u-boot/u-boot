@@ -666,8 +666,8 @@ static const u8 stm32mp1_axi_div[8] = {
 	1, 2, 3, 4, 4, 4, 4, 4
 };
 
-#ifdef DEBUG
-static const char * const stm32mp1_clk_parent_name[_PARENT_NB] = {
+static const __maybe_unused
+char * const stm32mp1_clk_parent_name[_PARENT_NB] = {
 	[_HSI] = "HSI",
 	[_HSE] = "HSE",
 	[_CSI] = "CSI",
@@ -705,7 +705,8 @@ static const char * const stm32mp1_clk_parent_name[_PARENT_NB] = {
 	[_DSI_PHY] = "DSI_PHY_PLL",
 };
 
-static const char * const stm32mp1_clk_parent_sel_name[_PARENT_SEL_NB] = {
+static const __maybe_unused
+char * const stm32mp1_clk_parent_sel_name[_PARENT_SEL_NB] = {
 	[_I2C12_SEL] = "I2C12",
 	[_I2C35_SEL] = "I2C35",
 	[_I2C46_SEL] = "I2C46",
@@ -724,7 +725,6 @@ static const char * const stm32mp1_clk_parent_sel_name[_PARENT_SEL_NB] = {
 	[_DSI_SEL] = "DSI",
 	[_ADC12_SEL] = "ADC12",
 };
-#endif
 
 static const struct stm32mp1_clk_data stm32mp1_data = {
 	.gate = stm32mp1_clk_gate,
@@ -1870,6 +1870,54 @@ static void stm32mp1_osc_init(struct udevice *dev)
 	}
 }
 
+static void  __maybe_unused stm32mp1_clk_dump(struct stm32mp1_clk_priv *priv)
+{
+	char buf[32];
+	int i, s, p;
+
+	printf("Clocks:\n");
+	for (i = 0; i < _PARENT_NB; i++) {
+		printf("- %s : %s MHz\n",
+		       stm32mp1_clk_parent_name[i],
+		       strmhz(buf, stm32mp1_clk_get(priv, i)));
+	}
+	printf("Source Clocks:\n");
+	for (i = 0; i < _PARENT_SEL_NB; i++) {
+		p = (readl(priv->base + priv->data->sel[i].offset) >>
+		     priv->data->sel[i].src) & priv->data->sel[i].msk;
+		if (p < priv->data->sel[i].nb_parent) {
+			s = priv->data->sel[i].parent[p];
+			printf("- %s(%d) => parent %s(%d)\n",
+			       stm32mp1_clk_parent_sel_name[i], i,
+			       stm32mp1_clk_parent_name[s], s);
+		} else {
+			printf("- %s(%d) => parent index %d is invalid\n",
+			       stm32mp1_clk_parent_sel_name[i], i, p);
+		}
+	}
+}
+
+#ifdef CONFIG_CMD_CLK
+int soc_clk_dump(void)
+{
+	struct udevice *dev;
+	struct stm32mp1_clk_priv *priv;
+	int ret;
+
+	ret = uclass_get_device_by_driver(UCLASS_CLK,
+					  DM_GET_DRIVER(stm32mp1_clock),
+					  &dev);
+	if (ret)
+		return ret;
+
+	priv = dev_get_priv(dev);
+
+	stm32mp1_clk_dump(priv);
+
+	return 0;
+}
+#endif
+
 static int stm32mp1_clk_probe(struct udevice *dev)
 {
 	int result = 0;
@@ -1891,6 +1939,33 @@ static int stm32mp1_clk_probe(struct udevice *dev)
 	/* clock tree init is done only one time, before relocation */
 	if (!(gd->flags & GD_FLG_RELOC))
 		result = stm32mp1_clktree(dev);
+#endif
+
+#ifndef CONFIG_SPL_BUILD
+#if defined(DEBUG)
+	/* display debug information for probe after relocation */
+	if (gd->flags & GD_FLG_RELOC)
+		stm32mp1_clk_dump(priv);
+#endif
+
+#if defined(CONFIG_DISPLAY_CPUINFO)
+	if (gd->flags & GD_FLG_RELOC) {
+		char buf[32];
+
+		printf("Clocks:\n");
+		printf("- MPU : %s MHz\n",
+		       strmhz(buf, stm32mp1_clk_get(priv, _CK_MPU)));
+		printf("- MCU : %s MHz\n",
+		       strmhz(buf, stm32mp1_clk_get(priv, _CK_MCU)));
+		printf("- AXI : %s MHz\n",
+		       strmhz(buf, stm32mp1_clk_get(priv, _ACLK)));
+		printf("- PER : %s MHz\n",
+		       strmhz(buf, stm32mp1_clk_get(priv, _CK_PER)));
+		/* DDRPHYC father */
+		printf("- DDR : %s MHz\n",
+		       strmhz(buf, stm32mp1_clk_get(priv, _PLL2_R)));
+	}
+#endif /* CONFIG_DISPLAY_CPUINFO */
 #endif
 
 	return result;
