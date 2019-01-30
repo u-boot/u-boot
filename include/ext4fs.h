@@ -117,6 +117,12 @@ struct ext_filesystem {
 	struct blk_desc *dev_desc;
 };
 
+struct ext_block_cache {
+	char *buf;
+	lbaint_t block;
+	int size;
+};
+
 extern struct ext2_data *ext4fs_root;
 extern struct ext2fs_node *ext4fs_file;
 
@@ -146,11 +152,15 @@ int ext4fs_size(const char *filename, loff_t *size);
 void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot);
 int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf);
 void ext4fs_set_blk_dev(struct blk_desc *rbdd, disk_partition_t *info);
-long int read_allocated_block(struct ext2_inode *inode, int fileblock);
+long int read_allocated_block(struct ext2_inode *inode, int fileblock,
+			      struct ext_block_cache *cache);
 int ext4fs_probe(struct blk_desc *fs_dev_desc,
 		 disk_partition_t *fs_partition);
 int ext4_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
 		   loff_t *actread);
 int ext4_read_superblock(char *buffer);
 int ext4fs_uuid(char *uuid_str);
+void ext_cache_init(struct ext_block_cache *cache);
+void ext_cache_fini(struct ext_block_cache *cache);
+int ext_cache_read(struct ext_block_cache *cache, lbaint_t block, int size);
 #endif
