@@ -132,15 +132,15 @@ Optional Properties:
 				frac = < 0x810 >;
 			};
 			st,pll@1 {
-				cfg = < 1 43 1 0 0 PQR(0,1,1)>;
-				csg = <10 20 1>;
+				cfg = < 1 43 1 0 0 PQR(0,1,1) >;
+				csg = < 10 20 1 >;
 			};
 			st,pll@2 {
-				cfg = < 2 85 3 13 3 0>;
-				csg = <10 20 SSCG_MODE_CENTER_SPREAD>;
+				cfg = < 2 85 3 13 3 0 >;
+				csg = < 10 20 SSCG_MODE_CENTER_SPREAD >;
 			};
 			st,pll@3 {
-				cfg = < 2 78 4 7 9 3>;
+				cfg = < 2 78 4 7 9 3 >;
 			};
 			st,pkcs = <
 					CLK_STGEN_HSE

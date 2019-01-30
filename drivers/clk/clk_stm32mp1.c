@@ -165,6 +165,7 @@
 /* used for ALL PLLNCR registers */
 #define RCC_PLLNCR_PLLON	BIT(0)
 #define RCC_PLLNCR_PLLRDY	BIT(1)
+#define RCC_PLLNCR_SSCG_CTRL	BIT(2)
 #define RCC_PLLNCR_DIVPEN	BIT(4)
 #define RCC_PLLNCR_DIVQEN	BIT(5)
 #define RCC_PLLNCR_DIVREN	BIT(6)
@@ -1319,7 +1320,10 @@ static void pll_start(struct stm32mp1_clk_priv *priv, int pll_id)
 {
 	const struct stm32mp1_clk_pll *pll = priv->data->pll;
 
-	writel(RCC_PLLNCR_PLLON, priv->base + pll[pll_id].pllxcr);
+	clrsetbits_le32(priv->base + pll[pll_id].pllxcr,
+			RCC_PLLNCR_DIVPEN | RCC_PLLNCR_DIVQEN |
+			RCC_PLLNCR_DIVREN,
+			RCC_PLLNCR_PLLON);
 }
 
 static int pll_output(struct stm32mp1_clk_priv *priv, int pll_id, int output)
@@ -1438,6 +1442,8 @@ static void pll_csg(struct stm32mp1_clk_priv *priv, int pll_id, u32 *csg)
 		    RCC_PLLNCSGR_SSCG_MODE_MASK);
 
 	writel(pllxcsg, priv->base + pll[pll_id].pllxcsgr);
+
+	setbits_le32(priv->base + pll[pll_id].pllxcr, RCC_PLLNCR_SSCG_CTRL);
 }
 
 static int set_clksrc(struct stm32mp1_clk_priv *priv, unsigned int clksrc)
