@@ -40,6 +40,9 @@
 #define	CONFIG_ENV_MAX_ENTRIES 512
 #endif
 
+#define USED_FREE 0
+#define USED_DELETED -1
+
 #include <env_callback.h>
 #include <env_flags.h>
 #include <search.h>
@@ -303,7 +306,7 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 		 */
 		unsigned hval2;
 
-		if (htab->table[idx].used == -1
+		if (htab->table[idx].used == USED_DELETED
 		    && !first_deleted)
 			first_deleted = idx;
 
@@ -335,13 +338,17 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 			if (idx == hval)
 				break;
 
+			if (htab->table[idx].used == USED_DELETED
+			    && !first_deleted)
+				first_deleted = idx;
+
 			/* If entry is found use it. */
 			ret = _compare_and_overwrite_entry(item, action, retval,
 				htab, flag, hval, idx);
 			if (ret != -1)
 				return ret;
 		}
-		while (htab->table[idx].used);
+		while (htab->table[idx].used != USED_FREE);
 	}
 
 	/* An empty bucket has been found. */
@@ -433,7 +440,7 @@ static void _hdelete(const char *key, struct hsearch_data *htab, ENTRY *ep,
 	free(ep->data);
 	ep->callback = NULL;
 	ep->flags = 0;
-	htab->table[idx].used = -1;
+	htab->table[idx].used = USED_DELETED;
 
 	--htab->filled;
 }
