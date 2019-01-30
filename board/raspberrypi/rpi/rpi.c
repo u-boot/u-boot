@@ -143,6 +143,11 @@ static const struct rpi_model rpi_models_new_scheme[] = {
 		DTB_DIR "bcm2837-rpi-3-a-plus.dtb",
 		false,
 	},
+	[0x10] = {
+		"Compute Module 3+",
+		DTB_DIR "bcm2837-rpi-cm3.dtb",
+		false,
+	},
 };
 
 static const struct rpi_model rpi_models_old_scheme[] = {
