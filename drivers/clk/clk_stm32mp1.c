@@ -241,7 +241,6 @@ enum stm32mp1_parent_id {
 	_LSI,
 	_LSE,
 	_I2S_CKIN,
-	_USB_PHY_48,
 	NB_OSC,
 
 /* other parent source */
@@ -273,6 +272,7 @@ enum stm32mp1_parent_id {
 	_CK_MPU,
 	_CK_MCU,
 	_DSI_PHY,
+	_USB_PHY_48,
 	_PARENT_NB,
 	_UNKNOWN_ID = 0xff,
 };
@@ -1079,7 +1079,7 @@ static ulong stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
 		break;
 	/* other */
 	case _USB_PHY_48:
-		clock = stm32mp1_clk_get_fixed(priv, _USB_PHY_48);
+		clock = 48000000;
 		break;
 	case _DSI_PHY:
 	{
@@ -1859,7 +1859,7 @@ static void stm32mp1_osc_init(struct udevice *dev)
 		[_HSE] = "clk-hse",
 		[_CSI] = "clk-csi",
 		[_I2S_CKIN] = "i2s_ckin",
-		[_USB_PHY_48] = "ck_usbo_48m"};
+	};
 
 	for (i = 0; i < NB_OSC; i++) {
 		stm32mp1_osc_clk_init(name[i], priv, i);
