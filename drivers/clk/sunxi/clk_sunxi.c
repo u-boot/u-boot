@@ -8,6 +8,7 @@
 #include <clk-uclass.h>
 #include <dm.h>
 #include <errno.h>
+#include <reset.h>
 #include <asm/io.h>
 #include <asm/arch/ccu.h>
 #include <linux/log2.h>
@@ -61,6 +62,9 @@ struct clk_ops sunxi_clk_ops = {
 int sunxi_clk_probe(struct udevice *dev)
 {
 	struct ccu_priv *priv = dev_get_priv(dev);
+	struct clk_bulk clk_bulk;
+	struct reset_ctl_bulk rst_bulk;
+	int ret;
 
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
@@ -69,6 +73,14 @@ int sunxi_clk_probe(struct udevice *dev)
 	priv->desc = (const struct ccu_desc *)dev_get_driver_data(dev);
 	if (!priv->desc)
 		return -EINVAL;
+
+	ret = clk_get_bulk(dev, &clk_bulk);
+	if (!ret)
+		clk_enable_bulk(&clk_bulk);
+
+	ret = reset_get_bulk(dev, &rst_bulk);
+	if (!ret)
+		reset_deassert_bulk(&rst_bulk);
 
 	return 0;
 }

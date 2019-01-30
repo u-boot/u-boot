@@ -13,6 +13,9 @@
 #include <dt-bindings/reset/sun50i-h6-ccu.h>
 
 static struct ccu_clk_gate h6_gates[] = {
+	[CLK_BUS_MMC0]		= GATE(0x84c, BIT(0)),
+	[CLK_BUS_MMC1]		= GATE(0x84c, BIT(1)),
+	[CLK_BUS_MMC2]		= GATE(0x84c, BIT(2)),
 	[CLK_BUS_UART0]		= GATE(0x90c, BIT(0)),
 	[CLK_BUS_UART1]		= GATE(0x90c, BIT(1)),
 	[CLK_BUS_UART2]		= GATE(0x90c, BIT(2)),
@@ -20,6 +23,9 @@ static struct ccu_clk_gate h6_gates[] = {
 };
 
 static struct ccu_reset h6_resets[] = {
+	[RST_BUS_MMC0]		= RESET(0x84c, BIT(16)),
+	[RST_BUS_MMC1]		= RESET(0x84c, BIT(17)),
+	[RST_BUS_MMC2]		= RESET(0x84c, BIT(18)),
 	[RST_BUS_UART0]		= RESET(0x90c, BIT(16)),
 	[RST_BUS_UART1]		= RESET(0x90c, BIT(17)),
 	[RST_BUS_UART2]		= RESET(0x90c, BIT(18)),

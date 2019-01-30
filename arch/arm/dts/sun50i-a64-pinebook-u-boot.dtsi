@@ -4,6 +4,8 @@
  *
  */
 
+#include "sunxi-u-boot.dtsi"
+
 /* The ANX6345 eDP-bridge is on r_i2c */
 &r_i2c {
 	anx6345: edp-bridge@38 {

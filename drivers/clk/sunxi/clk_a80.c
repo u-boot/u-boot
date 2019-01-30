@@ -13,6 +13,8 @@
 #include <dt-bindings/reset/sun9i-a80-ccu.h>
 
 static const struct ccu_clk_gate a80_gates[] = {
+	[CLK_BUS_MMC]		= GATE(0x580, BIT(8)),
+
 	[CLK_BUS_UART0]		= GATE(0x594, BIT(16)),
 	[CLK_BUS_UART1]		= GATE(0x594, BIT(17)),
 	[CLK_BUS_UART2]		= GATE(0x594, BIT(18)),
@@ -22,6 +24,8 @@ static const struct ccu_clk_gate a80_gates[] = {
 };
 
 static const struct ccu_reset a80_resets[] = {
+	[RST_BUS_MMC]		= RESET(0x5a0, BIT(8)),
+
 	[RST_BUS_UART0]		= RESET(0x5b4, BIT(16)),
 	[RST_BUS_UART1]		= RESET(0x5b4, BIT(17)),
 	[RST_BUS_UART2]		= RESET(0x5b4, BIT(18)),
@@ -30,19 +34,45 @@ static const struct ccu_reset a80_resets[] = {
 	[RST_BUS_UART5]		= RESET(0x5b4, BIT(21)),
 };
 
+static const struct ccu_clk_gate a80_mmc_gates[] = {
+	[0]			= GATE(0x0, BIT(16)),
+	[1]			= GATE(0x4, BIT(16)),
+	[2]			= GATE(0x8, BIT(16)),
+	[3]			= GATE(0xc, BIT(16)),
+};
+
+static const struct ccu_reset a80_mmc_resets[] = {
+	[0]			= GATE(0x0, BIT(18)),
+	[1]			= GATE(0x4, BIT(18)),
+	[2]			= GATE(0x8, BIT(18)),
+	[3]			= GATE(0xc, BIT(18)),
+};
+
 static const struct ccu_desc a80_ccu_desc = {
 	.gates = a80_gates,
 	.resets = a80_resets,
 };
 
+static const struct ccu_desc a80_mmc_clk_desc = {
+	.gates = a80_mmc_gates,
+	.resets = a80_mmc_resets,
+};
+
 static int a80_clk_bind(struct udevice *dev)
 {
-	return sunxi_reset_bind(dev, ARRAY_SIZE(a80_resets));
+	ulong count = ARRAY_SIZE(a80_resets);
+
+	if (device_is_compatible(dev, "allwinner,sun9i-a80-mmc-config-clk"))
+		count = ARRAY_SIZE(a80_mmc_resets);
+
+	return sunxi_reset_bind(dev, count);
 }
 
 static const struct udevice_id a80_ccu_ids[] = {
 	{ .compatible = "allwinner,sun9i-a80-ccu",
 	  .data = (ulong)&a80_ccu_desc },
+	{ .compatible = "allwinner,sun9i-a80-mmc-config-clk",
+	  .data = (ulong)&a80_mmc_clk_desc },
 	{ }
 };
 

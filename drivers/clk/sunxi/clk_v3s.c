@@ -13,6 +13,9 @@
 #include <dt-bindings/reset/sun8i-v3s-ccu.h>
 
 static struct ccu_clk_gate v3s_gates[] = {
+	[CLK_BUS_MMC0]		= GATE(0x060, BIT(8)),
+	[CLK_BUS_MMC1]		= GATE(0x060, BIT(9)),
+	[CLK_BUS_MMC2]		= GATE(0x060, BIT(10)),
 	[CLK_BUS_OTG]		= GATE(0x060, BIT(24)),
 
 	[CLK_BUS_UART0]		= GATE(0x06c, BIT(16)),
@@ -25,6 +28,9 @@ static struct ccu_clk_gate v3s_gates[] = {
 static struct ccu_reset v3s_resets[] = {
 	[RST_USB_PHY0]		= RESET(0x0cc, BIT(0)),
 
+	[RST_BUS_MMC0]		= RESET(0x2c0, BIT(8)),
+	[RST_BUS_MMC1]		= RESET(0x2c0, BIT(9)),
+	[RST_BUS_MMC2]		= RESET(0x2c0, BIT(10)),
 	[RST_BUS_OTG]		= RESET(0x2c0, BIT(24)),
 
 	[RST_BUS_UART0]		= RESET(0x2d8, BIT(16)),
