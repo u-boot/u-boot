@@ -190,16 +190,6 @@
 /* env defaults */
 #define CONFIG_BOOTFILE			"uImage"
 
-/* Override OMAP3 common serial console configuration from UART3
- * to UART2.
- *
- * Attention: for UART2, special MUX settings (MUX_DEFAULT(), MCBSP3)
- * are needed and peripheral clocks for UART2 must be enabled in
- * function per_clocks_enable().
- */
-#ifdef CONFIG_SPL_BUILD
-#endif
-
 /* Provide the MACH_TYPE value the vendor kernel requires */
 #define CONFIG_MACH_TYPE	3063
 
