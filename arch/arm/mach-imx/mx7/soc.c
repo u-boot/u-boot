@@ -368,8 +368,10 @@ void s_init(void)
 
 void reset_misc(void)
 {
+#ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_VIDEO_MXS
 	lcdif_power_down();
+#endif
 #endif
 }
 

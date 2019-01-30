@@ -60,6 +60,7 @@ static iomux_v3_cfg_t const uart3_pads[] = {
 	MX6_PAD_EIM_EB3__UART3_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
+#ifndef CONFIG_SPL_BUILD
 static void fixup_enet_clock(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
@@ -108,6 +109,7 @@ static void fixup_enet_clock(void)
 	dm_gpio_set_value(&reset, 1);
 	mdelay(50);
 }
+#endif
 
 static void setup_iomux_uart(void)
 {
@@ -158,7 +160,9 @@ int overwrite_console(void)
 
 int board_early_init_f(void)
 {
+#ifndef CONFIG_SPL_BUILD
 	fixup_enet_clock();
+#endif
 	setup_iomux_uart();
 	setup_nand_pins();
 	return 0;
@@ -197,6 +201,74 @@ int spl_start_uboot(void)
 		return 1;
 
 	return 0;
+}
+#endif
+
+/* SD interface */
+#define USDHC_PAD_CTRL							\
+	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |	\
+	 PAD_CTL_SRE_FAST | PAD_CTL_HYS)
+
+static iomux_v3_cfg_t const usdhc1_pads[] = {
+	MX6_PAD_SD1_CLK__SD1_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_CMD__SD1_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT0__SD1_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT1__SD1_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT2__SD1_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT3__SD1_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const usdhc2_pads[] = {
+	MX6_PAD_SD2_DAT0__SD2_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_DAT1__SD2_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_DAT2__SD2_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_DAT3__SD2_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_CLK__SD2_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD2_CMD__SD2_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_GPIO_4__GPIO1_IO04	| MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
+};
+
+#ifdef CONFIG_FSL_ESDHC
+struct fsl_esdhc_cfg usdhc_cfg[] = {
+	{USDHC1_BASE_ADDR}, /* SOM */
+	{USDHC2_BASE_ADDR}  /* Baseboard */
+};
+
+int board_mmc_init(bd_t *bis)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	unsigned int reg = readl(&psrc->sbmr1) >> 11;
+	/*
+	 * Upon reading BOOT_CFG register the following map is done:
+	 * Bit 11 and 12 of BOOT_CFG register can determine the current
+	 * mmc port
+	 * 0x1                  SD1-SOM
+	 * 0x2                  SD2-Baseboard
+	 */
+
+	reg &= 0x3; /* Only care about bottom 2 bits */
+
+	switch (reg) {
+	case 0:
+		SETUP_IOMUX_PADS(usdhc1_pads);
+		usdhc_cfg[0].esdhc_base = USDHC1_BASE_ADDR;
+		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+		gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
+		break;
+	case 1:
+		SETUP_IOMUX_PADS(usdhc2_pads);
+		usdhc_cfg[1].esdhc_base = USDHC2_BASE_ADDR;
+		usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+		gd->arch.sdhc_clk = usdhc_cfg[1].sdhc_clk;
+		break;
+	}
+
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[reg]);
+}
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	return 1;
 }
 #endif
 

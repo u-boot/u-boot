@@ -191,7 +191,11 @@ static int imx8_scu_probe(struct udevice *dev)
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
+#ifdef CONFIG_SPL_BUILD
+	plat->base = (struct mu_type *)CONFIG_MU_BASE_SPL;
+#else
 	plat->base = (struct mu_type *)addr;
+#endif
 
 	/* U-Boot not enable interrupts, so need to enable RX interrupts */
 	mu_hal_init(plat->base);

@@ -9,6 +9,7 @@
 [ -z "$BL31" ] && BL31="bl31.bin"
 [ -z "$TEE_LOAD_ADDR" ] && TEE_LOAD_ADDR="0xfe000000"
 [ -z "$ATF_LOAD_ADDR" ] && ATF_LOAD_ADDR="0x00910000"
+[ -z "$BL33_LOAD_ADDR" ] && BL33_LOAD_ADDR="0x40200000"
 
 if [ ! -f $BL31 ]; then
 	echo "ERROR: BL31 file $BL31 NOT found" >&2
@@ -58,7 +59,7 @@ cat << __HEADER_EOF
 			type = "standalone";
 			arch = "arm64";
 			compression = "none";
-			load = <0x40200000>;
+			load = <$BL33_LOAD_ADDR>;
 		};
 		atf@1 {
 			description = "ARM Trusted Firmware";

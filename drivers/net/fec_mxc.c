@@ -1264,10 +1264,31 @@ static const struct eth_ops fecmxc_ops = {
 	.read_rom_hwaddr	= fecmxc_read_rom_hwaddr,
 };
 
+static int device_get_phy_addr(struct udevice *dev)
+{
+	struct ofnode_phandle_args phandle_args;
+	int reg;
+
+	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
+				       &phandle_args)) {
+		debug("Failed to find phy-handle");
+		return -ENODEV;
+	}
+
+	reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
+
+	return reg;
+}
+
 static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 {
 	struct phy_device *phydev;
+	int addr;
 	int mask = 0xffffffff;
+
+	addr = device_get_phy_addr(dev);
+	if (addr >= 0)
+		mask = 1 << addr;
 
 #ifdef CONFIG_FEC_MXC_PHYADDR
 	mask = 1 << CONFIG_FEC_MXC_PHYADDR;

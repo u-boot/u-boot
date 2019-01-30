@@ -555,7 +555,8 @@ static void set_image_array_entry(flash_header_v3_t *container,
 		} else if (soc == QM && core == CORE_CA72) {
 			meta = IMAGE_A72_DEFAULT_META(custom_partition);
 		} else {
-			fprintf(stderr, "Error: invalid AP core id: %lu\n",
+			fprintf(stderr,
+				"Error: invalid AP core id: %" PRIu64 "\n",
 				core);
 			exit(EXIT_FAILURE);
 		}
@@ -577,7 +578,9 @@ static void set_image_array_entry(flash_header_v3_t *container,
 			core = CORE_CM4_1;
 			meta = IMAGE_M4_1_DEFAULT_META(custom_partition);
 		} else {
-			fprintf(stderr, "Error: invalid m4 core id: %lu\n", core);
+			fprintf(stderr,
+				"Error: invalid m4 core id: %" PRIu64 "\n",
+				core);
 			exit(EXIT_FAILURE);
 		}
 		img->hab_flags |= IMG_TYPE_EXEC;
@@ -968,7 +971,7 @@ int imx8image_copy_image(int outfd, struct image_tool_params *mparams)
 	fprintf(stdout, "CONTAINER SW VERSION:\t0x%04x\n", sw_version);
 
 	build_container(soc, sector_size, emmc_fastboot,
-			img_sp, true, fuse_version, sw_version, outfd);
+			img_sp, false, fuse_version, sw_version, outfd);
 
 	return 0;
 }

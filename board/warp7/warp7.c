@@ -30,28 +30,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_PUS_PU100KOHM | \
 			PAD_CTL_HYS)
-#define USDHC_PAD_CTRL (PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW |	\
-			PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PUS_PU47KOHM)
-
-#define I2C_PAD_CTRL	(PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PUS_PU100KOHM)
-
-#ifdef CONFIG_SYS_I2C_MXC
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-/* I2C1 for PMIC */
-static struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX7D_PAD_I2C1_SCL__I2C1_SCL | PC,
-		.gpio_mode = MX7D_PAD_I2C1_SCL__GPIO4_IO8 | PC,
-		.gp = IMX_GPIO_NR(4, 8),
-	},
-	.sda = {
-		.i2c_mode = MX7D_PAD_I2C1_SDA__I2C1_SDA | PC,
-		.gpio_mode = MX7D_PAD_I2C1_SDA__GPIO4_IO9 | PC,
-		.gp = IMX_GPIO_NR(4, 9),
-	},
-};
-#endif
 
 int dram_init(void)
 {
@@ -74,42 +52,10 @@ static iomux_v3_cfg_t const uart1_pads[] = {
 	MX7D_PAD_UART1_RX_DATA__UART1_DCE_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const usdhc3_pads[] = {
-	MX7D_PAD_SD3_CLK__SD3_CLK     | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_CMD__SD3_CMD     | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA4__SD3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA5__SD3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA6__SD3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_RESET_B__SD3_RESET_B | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
-
 static void setup_iomux_uart(void)
 {
 	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
 };
-
-static struct fsl_esdhc_cfg usdhc_cfg[1] = {
-	{USDHC3_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-		/* Assume uSDHC3 emmc is always present */
-		return 1;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	imx_iomux_v3_setup_multiple_pads(usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-}
 
 int board_early_init_f(void)
 {
@@ -118,29 +64,24 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_POWER
-#define I2C_PMIC       0
-static struct pmic *pfuze;
+#ifdef CONFIG_DM_PMIC
 int power_init_board(void)
 {
-	int ret;
-	unsigned int reg, rev_id;
+	struct udevice *dev;
+	int ret, dev_id, rev_id;
 
-	ret = power_pfuze3000_init(I2C_PMIC);
-	if (ret)
+	ret = pmic_get("pfuze3000", &dev);
+	if (ret == -ENODEV)
+		return 0;
+	if (ret != 0)
 		return ret;
 
-	pfuze = pmic_get("PFUZE3000");
-	ret = pmic_probe(pfuze);
-	if (ret)
-		return ret;
-
-	pmic_reg_read(pfuze, PFUZE3000_DEVICEID, &reg);
-	pmic_reg_read(pfuze, PFUZE3000_REVID, &rev_id);
-	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", reg, rev_id);
+	dev_id = pmic_reg_read(dev, PFUZE3000_DEVICEID);
+	rev_id = pmic_reg_read(dev, PFUZE3000_REVID);
+	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", dev_id, rev_id);
 
 	/* disable Low Power Mode during standby mode */
-	pmic_reg_write(pfuze, PFUZE3000_LDOGCTL, 0x1);
+	pmic_clrsetbits(dev, PFUZE3000_LDOGCTL, 0, 1);
 
 	return 0;
 }
@@ -163,10 +104,6 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
-	#ifdef CONFIG_SYS_I2C_MXC
-		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	#endif
 
 	return 0;
 }

@@ -23,7 +23,6 @@ $ cp firmware-imx-7.9/firmware-imx-7.9/firmware/ddr/synopsys/lpddr4*.bin $(srcte
 
 Build U-Boot
 ====================
-$ export ARCH=arm64
 $ export CROSS_COMPILE=aarch64-poky-linux-
 $ make imx8mq_evk_defconfig
 $ make flash.bin

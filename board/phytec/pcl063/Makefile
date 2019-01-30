@@ -1,8 +1,7 @@
-#
-# Copyright 2017 NXP
+# Copyright (C) 2018 Collabora Ltd.
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y += imx8qxp_mek.o
+obj-y  := pcl063.o
 obj-$(CONFIG_SPL_BUILD) += spl.o

@@ -24,7 +24,7 @@ obj-y	+= cpu.o speed.o
 obj-$(CONFIG_GPT_TIMER) += timer.o
 obj-$(CONFIG_SYS_I2C_MXC) += i2c-mxv7.o
 endif
-ifeq ($(SOC),$(filter $(SOC),mx7 mx6 mxs imx8m))
+ifeq ($(SOC),$(filter $(SOC),mx7 mx6 mxs imx8m imx8))
 obj-y	+= misc.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
 endif
@@ -106,6 +106,7 @@ IMX_CONFIG = $(CONFIG_IMX_CONFIG:"%"=%)
 ifeq ($(CONFIG_ARCH_IMX8), y)
 CNTR_DEPFILES := $(srctree)/tools/imx_cntr_image.sh
 IMAGE_TYPE := imx8image
+SPL_DEPFILE_EXISTS := $(shell $(CPP) $(cpp_flags) -x c -o spl/u-boot-spl.cfgout $(srctree)/$(IMX_CONFIG); if [ -f spl/u-boot-spl.cfgout ]; then $(CNTR_DEPFILES) spl/u-boot-spl.cfgout; echo $$?; fi)
 DEPFILE_EXISTS := $(shell $(CPP) $(cpp_flags) -x c -o u-boot-dtb.cfgout $(srctree)/$(IMX_CONFIG); if [ -f u-boot-dtb.cfgout ]; then $(CNTR_DEPFILES) u-boot-dtb.cfgout; echo $$?; fi)
 else ifeq ($(CONFIG_ARCH_IMX8M), y)
 IMAGE_TYPE := imx8mimage
@@ -150,6 +151,18 @@ endif
 
 flash.bin: spl/u-boot-spl-ddr.bin u-boot.itb FORCE
 ifeq ($(DEPFILE_EXISTS),0)
+	$(call if_changed,mkimage)
+endif
+endif
+
+ifeq ($(CONFIG_ARCH_IMX8), y)
+SPL:
+
+MKIMAGEFLAGS_flash.bin = -n spl/u-boot-spl.cfgout -T $(IMAGE_TYPE) -e 0x100000
+flash.bin: MKIMAGEOUTPUT = flash.log
+
+flash.bin: spl/u-boot-spl.bin u-boot.itb FORCE
+ifeq ($(SPL_DEPFILE_EXISTS),0)
 	$(call if_changed,mkimage)
 endif
 endif
