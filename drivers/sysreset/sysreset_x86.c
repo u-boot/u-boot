@@ -10,8 +10,10 @@
 #include <sysreset.h>
 #include <asm/io.h>
 #include <asm/processor.h>
+#include <efi_loader.h>
 
-static int x86_sysreset_request(struct udevice *dev, enum sysreset_t type)
+static __efi_runtime int x86_sysreset_request(struct udevice *dev,
+					      enum sysreset_t type)
 {
 	int value;
 
@@ -30,6 +32,25 @@ static int x86_sysreset_request(struct udevice *dev, enum sysreset_t type)
 
 	return -EINPROGRESS;
 }
+
+#ifdef CONFIG_EFI_LOADER
+void __efi_runtime EFIAPI efi_reset_system(
+			enum efi_reset_type reset_type,
+			efi_status_t reset_status,
+			unsigned long data_size, void *reset_data)
+{
+	if (reset_type == EFI_RESET_COLD ||
+		 reset_type == EFI_RESET_PLATFORM_SPECIFIC)
+		x86_sysreset_request(NULL, SYSRESET_COLD);
+	else if (reset_type == EFI_RESET_WARM)
+		x86_sysreset_request(NULL, SYSRESET_WARM);
+
+	/* TODO EFI_RESET_SHUTDOWN */
+
+	while (1) { }
+}
+#endif
+
 
 static const struct udevice_id x86_sysreset_ids[] = {
 	{ .compatible = "x86,reset" },
