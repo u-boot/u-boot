@@ -85,10 +85,10 @@
 	"nfsroot=/opt/springdale/rd\0" \
 	"bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs " \
 		"${kern_ipconf} nfsroot=${nfsserver}:${nfsroot},v3,tcp rw\0" \
-	"choose_ip=if test $use_dhcp = 1; then set kern_ipconf ip=dhcp; " \
-		"set getcmd dhcp; else set kern_ipconf " \
+	"choose_ip=if test $use_dhcp = 1; then setenv kern_ipconf ip=dhcp; " \
+		"setenv getcmd dhcp; else setenv kern_ipconf " \
 		"ip=${ipaddr}:${nfsserver}:${gatewayip}:${netmask}::eth0:off; " \
-		"set getcmd tftp; fi\0" \
+		"setenv getcmd tftp; fi\0" \
 	"nfs=run choose_ip setargs bootargs_nfs; ${getcmd} ${loadaddr} " \
 		"${nfsserver}:${image}; bootm ${loadaddr}\0" \
 
