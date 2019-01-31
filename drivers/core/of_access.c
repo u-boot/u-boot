@@ -812,6 +812,24 @@ int of_alias_get_id(const struct device_node *np, const char *stem)
 	return id;
 }
 
+int of_alias_get_highest_id(const char *stem)
+{
+	struct alias_prop *app;
+	int id = -1;
+
+	mutex_lock(&of_mutex);
+	list_for_each_entry(app, &aliases_lookup, link) {
+		if (strcmp(app->stem, stem) != 0)
+			continue;
+
+		if (app->id > id)
+			id = app->id;
+	}
+	mutex_unlock(&of_mutex);
+
+	return id;
+}
+
 struct device_node *of_get_stdout(void)
 {
 	return of_stdout;
