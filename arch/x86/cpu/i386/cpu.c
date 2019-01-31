@@ -462,6 +462,7 @@ int cpu_has_64bit(void)
 		has_long_mode();
 }
 
+#define PAGETABLE_BASE		0x80000
 #define PAGETABLE_SIZE		(6 * 4096)
 
 /**
@@ -523,10 +524,7 @@ int cpu_jump_to_64bit_uboot(ulong target)
 	uint32_t *pgtable;
 	func_t func;
 
-	/* TODO(sjg@chromium.org): Find a better place for this */
-	pgtable = (uint32_t *)0x1000000;
-	if (!pgtable)
-		return -ENOMEM;
+	pgtable = (uint32_t *)PAGETABLE_BASE;
 
 	build_pagetable(pgtable);
 
