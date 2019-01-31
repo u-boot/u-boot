@@ -699,6 +699,8 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7623n-bananapi-bpi-r2.dtb \
 	mt7629-rfb.dtb
 
+dtb-$(CONFIG_TARGET_GE_BX50V3) += imx6q-bx50v3.dtb
+
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here
