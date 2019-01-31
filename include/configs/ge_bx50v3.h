@@ -73,7 +73,32 @@
 
 #define CONFIG_LOADADDR	0x12000000
 
+#ifdef CONFIG_NFS_CMD
+#define NETWORKBOOT \
+        "setnetworkboot=" \
+                "setenv ipaddr 172.16.2.10; setenv serverip 172.16.2.20; " \
+                "setenv gatewayip 172.16.2.20; setenv nfsserver 172.16.2.20; " \
+                "setenv netmask 255.255.255.0; setenv ethaddr ca:fe:de:ca:f0:11; " \
+                "setenv bootargs root=/dev/nfs nfsroot=${nfsserver}:/srv/nfs/,v3,tcp rw rootwait" \
+                "setenv bootargs $bootargs ip=${ipaddr}:${nfsserver}:${gatewayip}:${netmask}::eth0:off " \
+                "setenv bootargs $bootargs cma=128M bootcause=POR console=${console} ${videoargs} " \
+                "setenv bootargs $bootargs systemd.mask=helix-network-defaults.service " \
+                "setenv bootargs $bootargs watchdog.handle_boot_enabled=1\0" \
+        "networkboot=" \
+                "run setnetworkboot; " \
+                "nfs ${loadaddr} /srv/nfs/fitImage; " \
+                "bootm ${loadaddr}#conf@${confidx}\0" \
+
+#define CONFIG_NETWORKBOOTCOMMAND \
+	"run networkboot; " \
+
+#else
+#define NETWORKBOOT \
+
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	NETWORKBOOT \
 	"bootcause=POR\0" \
 	"image=/boot/fitImage\0" \
 	"fdt_high=0xffffffff\0" \
@@ -136,7 +161,9 @@
 #define CONFIG_USBBOOTCOMMAND \
 	"echo Unsupported; " \
 
-#ifdef CONFIG_CMD_USB
+#ifdef CONFIG_NFS_CMD
+#define CONFIG_BOOTCOMMAND CONFIG_NETWORKBOOTCOMMAND
+#elif CONFIG_CMD_USB
 #define CONFIG_BOOTCOMMAND CONFIG_USBBOOTCOMMAND
 #else
 #define CONFIG_BOOTCOMMAND CONFIG_MMCBOOTCOMMAND
