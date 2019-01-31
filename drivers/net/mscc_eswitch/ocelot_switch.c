@@ -16,6 +16,7 @@
 #include <wait_bit.h>
 
 #include "mscc_miim.h"
+#include "mscc_xfer.h"
 
 #define PHY_CFG				0x0
 #define PHY_CFG_ENA				0xF
@@ -87,37 +88,16 @@
 #define QS_XTR_GRP_CFG_MODE(x)			((x) << 2)
 #define		QS_XTR_GRP_CFG_STATUS_WORD_POS	BIT(1)
 #define		QS_XTR_GRP_CFG_BYTE_SWAP	BIT(0)
-#define QS_XTR_RD(x)			(0x8 + 4 * (x))
-#define QS_XTR_FLUSH			0x18
-#define		QS_XTR_FLUSH_FLUSH		GENMASK(1, 0)
-#define QS_XTR_DATA_PRESENT		0x1c
 #define QS_INJ_GRP_CFG(x)		(0x24 + (x) * 4)
 #define		QS_INJ_GRP_CFG_MODE(x)		((x) << 2)
 #define		QS_INJ_GRP_CFG_BYTE_SWAP	BIT(0)
-#define QS_INJ_WR(x)			(0x2c + 4 * (x))
-#define QS_INJ_CTRL(x)			(0x34 + 4 * (x))
-#define		QS_INJ_CTRL_GAP_SIZE(x)		((x) << 21)
-#define		QS_INJ_CTRL_EOF			BIT(19)
-#define		QS_INJ_CTRL_SOF			BIT(18)
-#define		QS_INJ_CTRL_VLD_BYTES(x)	((x) << 16)
-
-#define XTR_EOF_0     ntohl(0x80000000u)
-#define XTR_EOF_1     ntohl(0x80000001u)
-#define XTR_EOF_2     ntohl(0x80000002u)
-#define XTR_EOF_3     ntohl(0x80000003u)
-#define XTR_PRUNED    ntohl(0x80000004u)
-#define XTR_ABORT     ntohl(0x80000005u)
-#define XTR_ESCAPE    ntohl(0x80000006u)
-#define XTR_NOT_READY ntohl(0x80000007u)
 
 #define IFH_INJ_BYPASS		BIT(31)
 #define	IFH_TAG_TYPE_C		0
-#define XTR_VALID_BYTES(x)	(4 - ((x) & 3))
 #define	MAC_VID			1
 #define CPU_PORT		11
 #define INTERNAL_PORT_MSK	0xF
 #define IFH_LEN			4
-#define OCELOT_BUF_CELL_SZ	60
 #define ETH_ALEN		6
 #define	PGID_BROADCAST		13
 #define	PGID_UNICAST		14
@@ -179,6 +159,14 @@ struct ocelot_private {
 
 	u8 tx_adj_packetbuf[PKTSIZE_ALIGN + PKTALIGN];
 	void *tx_adj_buf;
+};
+
+static const unsigned long ocelot_regs_qs[] = {
+	[MSCC_QS_XTR_RD] = 0x8,
+	[MSCC_QS_XTR_FLUSH] = 0x18,
+	[MSCC_QS_XTR_DATA_PRESENT] = 0x1c,
+	[MSCC_QS_INJ_WR] = 0x2c,
+	[MSCC_QS_INJ_CTRL] = 0x34,
 };
 
 struct mscc_miim_dev miim[NUM_PHY];
@@ -367,16 +355,6 @@ static int ocelot_switch_init(struct ocelot_private *priv)
 	return 0;
 }
 
-static void ocelot_switch_flush(struct ocelot_private *priv)
-{
-	/* All Queues flush */
-	setbits_le32(priv->regs[QS] + QS_XTR_FLUSH, QS_XTR_FLUSH_FLUSH);
-	/* Allow to drain */
-	mdelay(1);
-	/* All Queues normal */
-	clrbits_le32(priv->regs[QS] + QS_XTR_FLUSH, QS_XTR_FLUSH_FLUSH);
-}
-
 static int ocelot_initialize(struct ocelot_private *priv)
 {
 	int ret, i;
@@ -394,7 +372,7 @@ static int ocelot_initialize(struct ocelot_private *priv)
 		writel(0, priv->regs[ANA] + ANA_PGID(PGID_SRC + i));
 
 	/* Flush queues */
-	ocelot_switch_flush(priv);
+	mscc_flush(priv->regs[QS], ocelot_regs_qs);
 
 	/* Setup frame ageing - "2 sec" - The unit is 6.5us on Ocelot */
 	writel(SYS_FRM_AGING_ENA | (20000000 / 65),
@@ -503,12 +481,7 @@ static int ocelot_send(struct udevice *dev, void *packet, int length)
 	struct ocelot_private *priv = dev_get_priv(dev);
 	u32 ifh[IFH_LEN];
 	int port = BIT(0);	/* use port 0 */
-	u8 grp = 0;		/* Send everything on CPU group 0 */
-	int i, count = (length + 3) / 4, last = length % 4;
 	u32 *buf = packet;
-
-	writel(QS_INJ_CTRL_GAP_SIZE(1) | QS_INJ_CTRL_SOF,
-	       priv->regs[QS] + QS_INJ_CTRL(grp));
 
 	/*
 	 * Generate the IFH for frame injection
@@ -526,91 +499,18 @@ static int ocelot_send(struct udevice *dev, void *packet, int length)
 	ifh[2] = (0xff & port) << 24;
 	ifh[3] = (IFH_TAG_TYPE_C << 16);
 
-	for (i = 0; i < IFH_LEN; i++)
-		writel(ifh[i], priv->regs[QS] + QS_INJ_WR(grp));
-
-	for (i = 0; i < count; i++)
-		writel(buf[i], priv->regs[QS] + QS_INJ_WR(grp));
-
-	/* Add padding */
-	while (i < (OCELOT_BUF_CELL_SZ / 4)) {
-		writel(0, priv->regs[QS] + QS_INJ_WR(grp));
-		i++;
-	}
-
-	/* Indicate EOF and valid bytes in last word */
-	writel(QS_INJ_CTRL_GAP_SIZE(1) |
-	       QS_INJ_CTRL_VLD_BYTES(length < OCELOT_BUF_CELL_SZ ? 0 : last) |
-	       QS_INJ_CTRL_EOF, priv->regs[QS] + QS_INJ_CTRL(grp));
-
-	/* Add dummy CRC */
-	writel(0, priv->regs[QS] + QS_INJ_WR(grp));
-
-	return 0;
+	return mscc_send(priv->regs[QS], ocelot_regs_qs,
+			 ifh, IFH_LEN, buf, length);
 }
 
 static int ocelot_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct ocelot_private *priv = dev_get_priv(dev);
-	u8 grp = 0;		/* Send everything on CPU group 0 */
 	u32 *rxbuf = (u32 *)net_rx_packets[0];
-	int i, byte_cnt = 0;
-	bool eof_flag = false, pruned_flag = false, abort_flag = false;
+	int byte_cnt;
 
-	if (!(readl(priv->regs[QS] + QS_XTR_DATA_PRESENT) & BIT(grp)))
-		return -EAGAIN;
-
-	/* skip IFH */
-	for (i = 0; i < IFH_LEN; i++)
-		readl(priv->regs[QS] + QS_XTR_RD(grp));
-
-	while (!eof_flag) {
-		u32 val = readl(priv->regs[QS] + QS_XTR_RD(grp));
-
-		switch (val) {
-		case XTR_NOT_READY:
-			debug("%d NOT_READY...?\n", byte_cnt);
-			break;
-		case XTR_ABORT:
-			/* really nedeed?? not done in linux */
-			*rxbuf = readl(priv->regs[QS] + QS_XTR_RD(grp));
-			abort_flag = true;
-			eof_flag = true;
-			debug("XTR_ABORT\n");
-			break;
-		case XTR_EOF_0:
-		case XTR_EOF_1:
-		case XTR_EOF_2:
-		case XTR_EOF_3:
-			byte_cnt += XTR_VALID_BYTES(val);
-			*rxbuf = readl(priv->regs[QS] + QS_XTR_RD(grp));
-			eof_flag = true;
-			debug("EOF\n");
-			break;
-		case XTR_PRUNED:
-			/* But get the last 4 bytes as well */
-			eof_flag = true;
-			pruned_flag = true;
-			debug("PRUNED\n");
-			/* fallthrough */
-		case XTR_ESCAPE:
-			*rxbuf = readl(priv->regs[QS] + QS_XTR_RD(grp));
-			byte_cnt += 4;
-			rxbuf++;
-			debug("ESCAPED\n");
-			break;
-		default:
-			*rxbuf = val;
-			byte_cnt += 4;
-			rxbuf++;
-		}
-	}
-
-	if (abort_flag || pruned_flag || !eof_flag) {
-		debug("Discarded frame: abort:%d pruned:%d eof:%d\n",
-		      abort_flag, pruned_flag, eof_flag);
-		return -EAGAIN;
-	}
+	byte_cnt = mscc_recv(priv->regs[QS], ocelot_regs_qs, rxbuf, IFH_LEN,
+			     false);
 
 	*packetp = net_rx_packets[0];
 
