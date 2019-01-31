@@ -132,7 +132,7 @@ void am33xx_spl_board_init(void)
 		puts("ERROR: i2c_set_bus_speed failed! (turn on PWR_nEN)\n");
 	}
 
-	pmicsetup(0);
+	pmicsetup(0, 0);
 }
 
 const struct dpll_params *get_dpll_ddr_params(void)
