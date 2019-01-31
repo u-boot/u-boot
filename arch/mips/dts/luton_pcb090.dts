@@ -55,3 +55,54 @@
 	};
 };
 
+&mdio0 {
+	status = "okay";
+};
+
+&port0 {
+	phy-handle = <&phy0>;
+};
+
+&port1 {
+	phy-handle = <&phy1>;
+};
+
+&port2 {
+	phy-handle = <&phy2>;
+};
+
+&port3 {
+	phy-handle = <&phy3>;
+};
+
+&port4 {
+	phy-handle = <&phy4>;
+};
+
+&port5 {
+	phy-handle = <&phy5>;
+};
+
+&port6 {
+	phy-handle = <&phy6>;
+};
+
+&port7 {
+	phy-handle = <&phy7>;
+};
+
+&port8 {
+	phy-handle = <&phy8>;
+};
+
+&port9 {
+	phy-handle = <&phy9>;
+};
+
+&port10 {
+	phy-handle = <&phy10>;
+};
+
+&port11 {
+	phy-handle = <&phy11>;
+};
