@@ -45,10 +45,6 @@
 #define CONFIG_LBA48
 #endif
 
-/* MMC Configs */
-#define CONFIG_FSL_USDHC
-#define CONFIG_SYS_FSL_ESDHC_ADDR      0
-
 /* USB Configs */
 #ifdef CONFIG_USB
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
@@ -82,7 +78,7 @@
 	"image=/boot/fitImage\0" \
 	"fdt_high=0xffffffff\0" \
 	"dev=mmc\0" \
-	"devnum=1\0" \
+	"devnum=2\0" \
 	"rootdev=mmcblk0p\0" \
 	"quiet=quiet loglevel=0\0" \
 	"console=" CONSOLE_DEV "\0" \
