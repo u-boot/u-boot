@@ -10,6 +10,7 @@
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
 #include <linux/errno.h>
+#include <linux/libfdt.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/iomux-v3.h>
@@ -27,6 +28,7 @@
 #include <i2c.h>
 #include <input.h>
 #include <pwm.h>
+#include <version.h>
 #include <stdlib.h>
 #include "../common/ge_common.h"
 #include "../common/vpd_reader.h"
@@ -688,6 +690,15 @@ int checkboard(void)
 	printf("BOARD: %s\n", CONFIG_BOARD_NAME);
 	return 0;
 }
+
+#ifdef CONFIG_OF_BOARD_SETUP
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	fdt_setprop(blob, 0, "ge,boot-ver", version_string,
+	                                    strlen(version_string) + 1);
+	return 0;
+}
+#endif
 
 static int do_backlight_enable(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

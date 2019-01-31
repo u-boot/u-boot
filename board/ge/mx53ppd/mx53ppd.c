@@ -17,6 +17,7 @@
 #include <asm/arch/iomux-mx53.h>
 #include <asm/arch/clock.h>
 #include <linux/errno.h>
+#include <linux/libfdt.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/mx5_video.h>
 #include <environment.h>
@@ -30,6 +31,7 @@
 #include <fsl_pmic.h>
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
+#include <version.h>
 #include <watchdog.h>
 #include "ppd_gpio.h"
 #include <stdlib.h>
@@ -307,3 +309,12 @@ int checkboard(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_OF_BOARD_SETUP
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	fdt_setprop(blob, 0, "ge,boot-ver", version_string,
+	                                    strlen(version_string) + 1);
+	return 0;
+}
+#endif
