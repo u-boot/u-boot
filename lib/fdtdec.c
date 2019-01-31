@@ -549,6 +549,39 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 	return -ENOENT;
 }
 
+int fdtdec_get_alias_highest_id(const void *blob, const char *base)
+{
+	int base_len = strlen(base);
+	int prop_offset;
+	int aliases;
+	int max = -1;
+
+	debug("Looking for highest alias id for '%s'\n", base);
+
+	aliases = fdt_path_offset(blob, "/aliases");
+	for (prop_offset = fdt_first_property_offset(blob, aliases);
+	     prop_offset > 0;
+	     prop_offset = fdt_next_property_offset(blob, prop_offset)) {
+		const char *prop;
+		const char *name;
+		int len, val;
+
+		prop = fdt_getprop_by_offset(blob, prop_offset, &name, &len);
+		debug("   - %s, %s\n", name, prop);
+		if (*prop != '/' || prop[len - 1] ||
+		    strncmp(name, base, base_len))
+			continue;
+
+		val = trailing_strtol(name);
+		if (val > max) {
+			debug("Found seq %d\n", val);
+			max = val;
+		}
+	}
+
+	return max;
+}
+
 const char *fdtdec_get_chosen_prop(const void *blob, const char *name)
 {
 	int chosen_node;
