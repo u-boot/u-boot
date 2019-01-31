@@ -252,6 +252,29 @@ static int fs_loader_ofdata_to_platdata(struct udevice *dev)
 
 static int fs_loader_probe(struct udevice *dev)
 {
+#if CONFIG_IS_ENABLED(DM) && CONFIG_IS_ENABLED(BLK)
+	int ret;
+	struct device_platdata *plat = dev->platdata;
+
+	if (plat->phandlepart.phandle) {
+		ofnode node = ofnode_get_by_phandle(plat->phandlepart.phandle);
+		struct udevice *parent_dev = NULL;
+
+		ret = device_get_global_by_ofnode(node, &parent_dev);
+		if (!ret) {
+			struct udevice *dev;
+
+			ret = blk_get_from_parent(parent_dev, &dev);
+			if (ret) {
+				debug("fs_loader: No block device: %d\n",
+					ret);
+
+				return ret;
+			}
+		}
+	}
+#endif
+
 	return 0;
 };
 
