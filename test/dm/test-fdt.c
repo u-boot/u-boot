@@ -219,6 +219,29 @@ static int dm_test_fdt(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_fdt, 0);
 
+static int dm_test_alias_highest_id(struct unit_test_state *uts)
+{
+	int ret;
+
+	ret = dev_read_alias_highest_id("eth");
+	ut_asserteq(5, ret);
+
+	ret = dev_read_alias_highest_id("gpio");
+	ut_asserteq(2, ret);
+
+	ret = dev_read_alias_highest_id("pci");
+	ut_asserteq(2, ret);
+
+	ret = dev_read_alias_highest_id("i2c");
+	ut_asserteq(0, ret);
+
+	ret = dev_read_alias_highest_id("deadbeef");
+	ut_asserteq(-1, ret);
+
+	return 0;
+}
+DM_TEST(dm_test_alias_highest_id, 0);
+
 static int dm_test_fdt_pre_reloc(struct unit_test_state *uts)
 {
 	struct uclass *uc;
