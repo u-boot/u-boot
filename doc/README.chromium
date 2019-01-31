@@ -1,239 +1,177 @@
-Running U-Boot from coreboot on Chromebooks
-===========================================
+Chromium OS Support in U-Boot
+=============================
 
-U-Boot can be used as a secondary boot loader in a few situations such as from
-UEFI and coreboot (see README.x86). Recent Chromebooks use coreboot even on
-ARM platforms to start up the machine.
+Introduction
+------------
 
-This document aims to provide a guide to booting U-Boot on a Chromebook. It
-is only a starting point, and there are many guides on the interwebs. But
-placing this information in the U-Boot tree should make it easier to find for
-those who use U-Boot habitually.
+This describes how to use U-Boot with Chromium OS. Several options are
+available:
 
-Most of these platforms are supported by U-Boot natively, but it is risky to
-replace the ROM unless you have a servo board and cable to restore it with.
+   - Running U-Boot from the 'altfw' feature, which is available on selected
+        Chromebooks from 2019 onwards (initially Grunt). Press '1' from the
+        developer-mode screen to get into U-Boot. See here for details:
+        https://sites.google.com/a/chromium.org/dev/chromium-os/poking-around-your-chrome-os-device?pli=1
 
+   - Running U-Boot from the disk partition. This involves signing U-Boot and
+        placing it on the disk, for booting as a 'kernel'. See
+        README.chromium-chainload for information on this. This is the only
+        option on non-U-Boot Chromebooks from 2013 to 2018 and is somewhat
+        more involved.
 
-For all of these the standard U-Boot build instructions apply. For example on
-ARM:
-
-   sudo apt install gcc-arm-linux-gnueabi
-   mkdir b
-   make O=b/nyan_big CROSS_COMPILE=arm-linux-gnueabi- nyan-big_defconfig all
-
-You can obtain the vbutil_kernel utility here:
-
-   https://drive.google.com/open?id=0B7WYZbZ9zd-3dHlVVXo4VXE2T0U
+   - Running U-Boot with Chromium OS verified boot. This allows U-Boot to be
+        used instead of either or both of depthcharge (a bootloader which forked
+        from U-Boot in 2013) and coreboot. See below for more information on
+        this.
 
 
-Snow (Samsung ARM Chromebook)
------------------------------
+U-Boot with Chromium OS verified boot
+-------------------------------------
 
-See here:
+To obtain:
 
-https://www.chromium.org/chromium-os/firmware-porting-guide/using-nv-u-boot-on-the-samsung-arm-chromebook
+   git clone https://github.com/sglass68/u-boot.git
+   cd u-boot
+   git checkout cros-master
+
+To build for sandbox:
+
+   UB=/tmp/b/chromeos_sandbox    # U-Boot build directory
+   CROS=/home/sglass/cosarm      # Chromium OS directory
+   make O=$UB/chromeos_sandbox_defconfig
+   make O=$UB -j20 -s VBOOT_SOURCE=$CROS/src/platform/vboot_reference \
+	MAKEFLAGS_VBOOT=DEBUG=1 QUIET=1
+
+Replace sandbox with another supported target.
+
+This produces $UB/image.bin which contains the firmware binaries in a SPI
+flash image.
+
+To run on sandbox:
+
+   $UB/tpl/u-boot-tpl -d $UB/u-boot.dtb.out \
+	-L6 -c "host bind 0 $CROS/src/build/images/cheza/latest/chromiumos_image.bin; vboot go auto" \
+	-l -w -s state.dtb -r
+
+To run on other boards:
+   Install image.bin in the SPI flash of your device
+   Boot your system
 
 
-Nyan-big
+Sandbox
+-------
+
+Most Chromium OS development with U-Boot is undertaken using sandbox. There is
+a sandbox target available (chromeos_sandbox) which allows running U-Boot on
+a Linux machine completion with emulations of the display, TPM, disk, etc.
+
+Running sandbox starts TPL, which contains the first phase of vboot, providing
+a device tree and binding a Chromium OS disk image for use to find kernels
+(any Chromium OS image will do). It also saves driver state between U-Boot
+phases into state.dtb and will automatically ensure that memory is shared
+between all phases. TPL will jump to SPL and then on to U-Boot proper.
+
+It is possible to run with debugging on, e.g.
+
+   gdb --args $UB/tpl/u-boot-tpl -d ....
+
+Breakpoints can be set in any U-Boot phase. Overall this is a good debugging
+environment for new verified-boot features.
+
+
+Samus
+-----
+
+Basic support is available for samus, using the chromeos_samus target. If you
+have an em100, use:
+
+   sudo em100 -s -c W25Q128FW -d $UB/image.bin -t -r
+
+to write the image and then boot samus (Power-Refresh).
+
+
+Boot flow
+---------
+
+Verified boot starts in TPL, which selects the A or B SPL, which in turn selects
+the A or B U-Boot. Then this jumps to the selected kernel. If anything goes
+wrong, the device reboots and the recovery SPL and U-Boot are used instead.
+
+More details are available here:
+
+   https://www.chromium.org/chromium-os/chromiumos-design-docs/firmware-boot-and-recovery
+
+
+New uclasses
+------------
+
+Several uclasses are provided in cros/:
+
+	UCLASS_CROS_AUX_FW		Chrome OS auxiliary firmware
+	UCLASS_CROS_FWSTORE		Chrome OS firmware storage
+	UCLASS_CROS_NVDATA		Chrome OS non-volatile data device
+	UCLASS_CROS_VBOOT_EC		Chrome OS vboot EC operations
+	UCLASS_CROS_VBOOT_FLAG		Chrome OS verified boot flag
+
+The existing UCLASS_CROS_EC is also used.
+
+
+Commands
 --------
 
-Compiled based on information here:
-https://lists.denx.de/pipermail/u-boot/2015-March/209530.html
-https://git.collabora.com/cgit/user/tomeu/u-boot.git/commit/?h=nyan-big
-https://lists.denx.de/pipermail/u-boot/2017-May/289491.html
-https://github.com/chromeos-nvidia-androidtv/gnu-linux-on-acer-chromebook-13#copy-data-to-the-sd-card
+A new 'vboot' command is provided to run particular vboot stages. The most
+useful command is 'vboot go auto', which continues where the last stage left
+off.
 
-1. Build U-Boot
+Note that TPL and SPL do not supports commands as yet, so the vboot code is
+called directly from the SPL boot devices (BOOT_DEVICE_CROS_VBOOT). See
+cros_load_image_tpl() and cros_load_image_spl() which both call
+vboot_run_auto().
 
-   mkdir b
-   make -j8 O=b/nyan-big CROSS_COMPILE=arm-linux-gnueabi- nyan-big_defconfig all
 
+Config options
+--------------
 
-2. Select a .its file
+The main option is CONFIG_CHROMEOS, which enables a wide array of other options
+so that the required features are present.
 
-Select something from doc/chromium which matches your board, or create your
-own.
 
-Note that the device tree node is required, even though it is not actually
-used by U-Boot. This is because the Chromebook expects to pass it to the
-kernel, and crashes if it is not present.
+Device-tree config
+------------------
 
+Various options are available which control the operation of verified boot.
+See cros/dts/bindings/config.txt for details. Most config is handled at run-
+time, although build-time config (with Kconfig) could also be added fairly
+easily.
 
-3. Build and sign an image
 
-   ./b/nyan-big/tools/mkimage -f doc/chromium/nyan-big.its u-boot-chromium.fit
-   echo test >dummy.txt
-   vbutil_kernel --arch arm --keyblock doc/chromium/devkeys/kernel.keyblock \
-	--signprivate doc/chromium/devkeys/kernel_data_key.vbprivk \
-	--version 1 --config dummy.txt --vmlinuz u-boot-chromium.fit \
-	--bootloader dummy.txt --pack u-boot.kpart
+Porting to other hardware
+-------------------------
 
+A basic port to samus (Chromebook Pixel 2015) is in a basic working state,
+using the chromeos_samus target. Patches will likely be forthcoming in early
+2019. Ports to an ARM board and coreboot (for x86 Chromebooks) are in the
+dreaming state.
 
-4. Prepare an SD card
 
-   DISK=/dev/sdc   # Replace with your actual SD card device
-   sudo cgpt create $DISK
-   sudo cgpt add -b 34 -s 32768 -P 1 -S 1 -t kernel $DISK
-   sudo cgpt add -b 32802 -s 2000000 -t rootfs $DISK
-   sudo gdisk $DISK   # Enter command 'w' to write a protective MBR to the disk
+Tests
+-----
 
+Chromium OS firmware has a very limited set of tests. The tests that originally
+existed in U-Boot were not brought over to coreboot or depthcharge.
 
-5. Write U-Boot to the SD card
+The U-Boot tests ('make check') do operate, but at present there are no
+Chromium OS tests available. These will hopefully come together over time. Of
+course the above sandbox feature provides a sort of functional test and can
+detecte problems that affect the flow or particular vboot features.
 
-   sudo dd if=u-boot.kpart of=/dev/sdc1; sync
 
+TO DO
+-----
 
-6. Start it up
+- Support for booting from coreboot (patches expected March 2019)
+- Support for booting from an ARM board, e.g. bob
 
-Reboot the device in dev mode. Make sure that you have USB booting enabled. To
-do this, login as root (via Ctrl-Alt-forward_arrow) and type
-'enable_dev_usb_boot'. You only need to do this once.
 
-Reboot the device with the SD card inserted. Press Clrl-U at the developer
-mode screen. It should show something like the following on the display:
-
-   U-Boot 2017.07-00637-g242eb42-dirty (May 22 2017 - 06:14:21 -0600)
-
-   Model: Acer Chromebook 13 CB5-311
-   Board: Google/NVIDIA Nyan-big, ID: 1
-
-   Net:   No ethernet found.
-   Hit any key to stop autoboot:  0
-   Tegra124 (Nyan-big) #
-
-
-7. Known problems
-
-On the serial console the word MMC is chopped at the start of the line:
-
-C:   sdhci@700b0000: 2, sdhci@700b0400: 1, sdhci@700b0600: 0
-
-This is likely due to some problem with change-over of the serial driver
-during relocation (or perhaps updating the clock setup in board_init()).
-
-
-9. Notes
-
-To check that you copied the u-boot.its file correctly, use these commands.
-You should see that the data at 0x100 in u-boot-chromium.fit is the first few
-bytes of U-Boot:
-
-   hd u-boot-chromium.fit |head -20
-   ...
-   00000100  b8 00 00 ea 14 f0 9f e5  14 f0 9f e5 14 f0 9f e5  |................|
-
-   hd b/nyan-big/u-boot.bin |head
-   00000000  b8 00 00 ea 14 f0 9f e5  14 f0 9f e5 14 f0 9f e5  |................|
-
-
-The 'data' property of the FIT is set up to start at offset 0x100 bytes into
-the file. The change to CONFIG_SYS_TEXT_BASE is also an offset of 0x100 bytes
-from the load address. If this changes, you either need to modify U-Boot to be
-fully relocatable, or expect it to hang.
-
-
-chromebook_jerry
-----------------
-
-The instruction are similar to those for Nyan with changes as noted below:
-
-1. Patch U-Boot
-
-Open include/configs/rk3288_common.h
-
-Change:
-
-#define CONFIG_SYS_TEXT_BASE		0x00100000
-
-to:
-
-#define CONFIG_SYS_TEXT_BASE		0x02000100
-
-
-
-2. Build U-Boot
-
-   mkdir b
-   make -j8 O=b/chromebook_jerry CROSS_COMPILE=arm-linux-gnueabi- \
-	chromebook_jerry_defconfig all
-
-
-3. See above
-
-4. Build and sign an image
-
-   ./b/chromebook_jerry/tools/mkimage -f doc/chromium/chromebook_jerry.its \
-	u-boot-chromium.fit
-   echo test >dummy.txt
-   vbutil_kernel --arch arm --keyblock doc/chromium/devkeys/kernel.keyblock \
-	--signprivate doc/chromium/devkeys/kernel_data_key.vbprivk \
-	--version 1 --config dummy.txt --vmlinuz u-boot-chromium.fit \
-	--bootloader dummy.txt --pack u-boot.kpart
-
-
-5. See above
-
-6. See above
-
-7. Start it up
-
-Reboot the device in dev mode. Make sure that you have USB booting enabled. To
-do this, login as root (via Ctrl-Alt-forward_arrow) and type
-'enable_dev_usb_boot'. You only need to do this once.
-
-Reboot the device with the SD card inserted. Press Clrl-U at the developer
-mode screen. It should show something like the following on the display:
-
-   U-Boot 2017.05-00649-g72acdbf-dirty (May 29 2017 - 14:57:05 -0600)
-
-   Model: Google Jerry
-   Net:   Net Initialization Skipped
-   No ethernet found.
-   Hit any key to stop autoboot:  0
-
-
-8. Known problems
-
-None as yet.
-
-
-9. Notes
-
-None as yet.
-
-
-Other notes
-===========
-
-flashrom
---------
-
-   Used to make a backup of your firmware, or to replace it.
-
-   See: https://www.chromium.org/chromium-os/packages/cros-flashrom
-
-
-coreboot
---------
-
-Coreboot itself is not designed to actually boot an OS. Instead, a program
-called Depthcharge is used. This originally came out of U-Boot and was then
-heavily hacked and modified such that is is almost unrecognisable. It does
-include a very small part of the U-Boot command-line interface but is not
-usable as a general-purpose boot loader.
-
-In addition, it has a very unusual design in that it does not do device init
-itself, but instead relies on coreboot. This is similar to (in U-Boot) having
-a SPI driver with an empty probe() method, relying on whatever was set up
-beforehand. It can be quite hard to figure out between these two code bases
-what settings are actually used. When chain-loading into U-Boot we must be
-careful to reinit anything that U-Boot expects. If not, some peripherals (or
-the whole machine) may not work. This makes the process of chainloading more
-complicated than it could be on some platforms.
-
-Finally, it supports only a subset of the U-Boot's FIT format. In particular
-it uses a fixed address to load the FIT and does not support load/exec
-addresses. This means that U-Boot must be able to boot from whatever
-address Depthcharge happens to use (it is the CONFIG_KERNEL_START setting
-in Depthcharge). In practice this means that the data in the kernel@1 FIT node
-(see above) must start at the same address as U-Boot's CONFIG_SYS_TEXT_BASE.
+Simon Glass
+sjg@chromium.org
+7 October 2018
