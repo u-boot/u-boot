@@ -523,18 +523,23 @@ int cpu_jump_to_64bit_uboot(ulong target)
 	typedef void (*func_t)(ulong pgtable, ulong setup_base, ulong target);
 	uint32_t *pgtable;
 	func_t func;
+	char *ptr;
 
 	pgtable = (uint32_t *)PAGETABLE_BASE;
 
 	build_pagetable(pgtable);
 
-	/* TODO(sjg@chromium.org): Find a better place for this */
-	char *ptr = (char *)0x3000000;
+	extern long call64_stub_size;
+	ptr = malloc(call64_stub_size);
+	if (!ptr) {
+		printf("Failed to allocate the cpu_call64 stub\n");
+		return -ENOMEM;
+	}
 	char *gdt = (char *)0x3100000;
 
 	extern char gdt64[];
 
-	memcpy(ptr, cpu_call64, 0x1000);
+	memcpy(ptr, cpu_call64, call64_stub_size);
 	memcpy(gdt, gdt64, 0x100);
 
 	/*
