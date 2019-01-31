@@ -8,6 +8,7 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <asm/io.h>
+#include <media_bus_format.h>
 #include "dw_hdmi.h"
 
 struct tmds_n_cts {
@@ -52,7 +53,25 @@ static const struct tmds_n_cts n_cts_table[] = {
 	}
 };
 
-static void hdmi_write(struct dw_hdmi *hdmi, u8 val, int offset)
+static const u16 csc_coeff_default[3][4] = {
+	{ 0x2000, 0x0000, 0x0000, 0x0000 },
+	{ 0x0000, 0x2000, 0x0000, 0x0000 },
+	{ 0x0000, 0x0000, 0x2000, 0x0000 }
+};
+
+static const u16 csc_coeff_rgb_in_eitu601[3][4] = {
+	{ 0x2591, 0x1322, 0x074b, 0x0000 },
+	{ 0x6535, 0x2000, 0x7acc, 0x0200 },
+	{ 0x6acd, 0x7534, 0x2000, 0x0200 }
+};
+
+static const u16 csc_coeff_rgb_out_eitu601[3][4] = {
+	{ 0x2000, 0x6926, 0x74fd, 0x010e },
+	{ 0x2000, 0x2cdd, 0x0000, 0x7e9a },
+	{ 0x2000, 0x0000, 0x38b4, 0x7e3b }
+};
+
+static void dw_hdmi_write(struct dw_hdmi *hdmi, u8 val, int offset)
 {
 	switch (hdmi->reg_io_width) {
 	case 1:
@@ -67,7 +86,7 @@ static void hdmi_write(struct dw_hdmi *hdmi, u8 val, int offset)
 	}
 }
 
-static u8 hdmi_read(struct dw_hdmi *hdmi, int offset)
+static u8 dw_hdmi_read(struct dw_hdmi *hdmi, int offset)
 {
 	switch (hdmi->reg_io_width) {
 	case 1:
@@ -81,6 +100,10 @@ static u8 hdmi_read(struct dw_hdmi *hdmi, int offset)
 
 	return 0;
 }
+
+static u8 (*hdmi_read)(struct dw_hdmi *hdmi, int offset) = dw_hdmi_read;
+static void (*hdmi_write)(struct dw_hdmi *hdmi, u8 val, int offset) =
+								 dw_hdmi_write;
 
 static void hdmi_mod(struct dw_hdmi *hdmi, unsigned reg, u8 mask, u8 data)
 {
@@ -158,8 +181,51 @@ static void hdmi_audio_set_samplerate(struct dw_hdmi *hdmi, u32 pixel_clk)
  */
 static void hdmi_video_sample(struct dw_hdmi *hdmi)
 {
-	u32 color_format = 0x01;
+	u32 color_format;
 	uint val;
+
+	switch (hdmi->hdmi_data.enc_in_bus_format) {
+	case MEDIA_BUS_FMT_RGB888_1X24:
+		color_format = 0x01;
+		break;
+	case MEDIA_BUS_FMT_RGB101010_1X30:
+		color_format = 0x03;
+		break;
+	case MEDIA_BUS_FMT_RGB121212_1X36:
+		color_format = 0x05;
+		break;
+	case MEDIA_BUS_FMT_RGB161616_1X48:
+		color_format = 0x07;
+		break;
+	case MEDIA_BUS_FMT_YUV8_1X24:
+	case MEDIA_BUS_FMT_UYYVYY8_0_5X24:
+		color_format = 0x09;
+		break;
+	case MEDIA_BUS_FMT_YUV10_1X30:
+	case MEDIA_BUS_FMT_UYYVYY10_0_5X30:
+		color_format = 0x0B;
+		break;
+	case MEDIA_BUS_FMT_YUV12_1X36:
+	case MEDIA_BUS_FMT_UYYVYY12_0_5X36:
+		color_format = 0x0D;
+		break;
+	case MEDIA_BUS_FMT_YUV16_1X48:
+	case MEDIA_BUS_FMT_UYYVYY16_0_5X48:
+		color_format = 0x0F;
+		break;
+	case MEDIA_BUS_FMT_UYVY8_1X16:
+		color_format = 0x16;
+		break;
+	case MEDIA_BUS_FMT_UYVY10_1X20:
+		color_format = 0x14;
+		break;
+	case MEDIA_BUS_FMT_UYVY12_1X24:
+		color_format = 0x12;
+		break;
+	default:
+		color_format = 0x01;
+		break;
+	}
 
 	val = HDMI_TX_INVID0_INTERNAL_DE_GENERATOR_DISABLE |
 	      ((color_format << HDMI_TX_INVID0_VIDEO_MAPPING_OFFSET) &
@@ -453,6 +519,180 @@ static void hdmi_av_composer(struct dw_hdmi *hdmi,
 	hdmi_write(hdmi, edid->vsync_len.typ, HDMI_FC_VSYNCINWIDTH);
 }
 
+static bool hdmi_bus_fmt_is_rgb(unsigned int bus_format)
+{
+	switch (bus_format) {
+	case MEDIA_BUS_FMT_RGB888_1X24:
+	case MEDIA_BUS_FMT_RGB101010_1X30:
+	case MEDIA_BUS_FMT_RGB121212_1X36:
+	case MEDIA_BUS_FMT_RGB161616_1X48:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+static bool hdmi_bus_fmt_is_yuv444(unsigned int bus_format)
+{
+	switch (bus_format) {
+	case MEDIA_BUS_FMT_YUV8_1X24:
+	case MEDIA_BUS_FMT_YUV10_1X30:
+	case MEDIA_BUS_FMT_YUV12_1X36:
+	case MEDIA_BUS_FMT_YUV16_1X48:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+static bool hdmi_bus_fmt_is_yuv422(unsigned int bus_format)
+{
+	switch (bus_format) {
+	case MEDIA_BUS_FMT_UYVY8_1X16:
+	case MEDIA_BUS_FMT_UYVY10_1X20:
+	case MEDIA_BUS_FMT_UYVY12_1X24:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+static int is_color_space_interpolation(struct dw_hdmi *hdmi)
+{
+	if (!hdmi_bus_fmt_is_yuv422(hdmi->hdmi_data.enc_in_bus_format))
+		return 0;
+
+	if (hdmi_bus_fmt_is_rgb(hdmi->hdmi_data.enc_out_bus_format) ||
+	    hdmi_bus_fmt_is_yuv444(hdmi->hdmi_data.enc_out_bus_format))
+		return 1;
+
+	return 0;
+}
+
+static int is_color_space_decimation(struct dw_hdmi *hdmi)
+{
+	if (!hdmi_bus_fmt_is_yuv422(hdmi->hdmi_data.enc_out_bus_format))
+		return 0;
+
+	if (hdmi_bus_fmt_is_rgb(hdmi->hdmi_data.enc_in_bus_format) ||
+	    hdmi_bus_fmt_is_yuv444(hdmi->hdmi_data.enc_in_bus_format))
+		return 1;
+
+	return 0;
+}
+
+static int hdmi_bus_fmt_color_depth(unsigned int bus_format)
+{
+	switch (bus_format) {
+	case MEDIA_BUS_FMT_RGB888_1X24:
+	case MEDIA_BUS_FMT_YUV8_1X24:
+	case MEDIA_BUS_FMT_UYVY8_1X16:
+	case MEDIA_BUS_FMT_UYYVYY8_0_5X24:
+		return 8;
+
+	case MEDIA_BUS_FMT_RGB101010_1X30:
+	case MEDIA_BUS_FMT_YUV10_1X30:
+	case MEDIA_BUS_FMT_UYVY10_1X20:
+	case MEDIA_BUS_FMT_UYYVYY10_0_5X30:
+		return 10;
+
+	case MEDIA_BUS_FMT_RGB121212_1X36:
+	case MEDIA_BUS_FMT_YUV12_1X36:
+	case MEDIA_BUS_FMT_UYVY12_1X24:
+	case MEDIA_BUS_FMT_UYYVYY12_0_5X36:
+		return 12;
+
+	case MEDIA_BUS_FMT_RGB161616_1X48:
+	case MEDIA_BUS_FMT_YUV16_1X48:
+	case MEDIA_BUS_FMT_UYYVYY16_0_5X48:
+		return 16;
+
+	default:
+		return 0;
+	}
+}
+
+static int is_color_space_conversion(struct dw_hdmi *hdmi)
+{
+	return hdmi->hdmi_data.enc_in_bus_format !=
+	       hdmi->hdmi_data.enc_out_bus_format;
+}
+
+static void dw_hdmi_update_csc_coeffs(struct dw_hdmi *hdmi)
+{
+	const u16 (*csc_coeff)[3][4] = &csc_coeff_default;
+	unsigned int i;
+	u32 csc_scale = 1;
+
+	if (is_color_space_conversion(hdmi)) {
+		if (hdmi_bus_fmt_is_rgb(hdmi->hdmi_data.enc_out_bus_format)) {
+			csc_coeff = &csc_coeff_rgb_out_eitu601;
+		} else if (hdmi_bus_fmt_is_rgb(
+					hdmi->hdmi_data.enc_in_bus_format)) {
+			csc_coeff = &csc_coeff_rgb_in_eitu601;
+			csc_scale = 0;
+		}
+	}
+
+	/* The CSC registers are sequential, alternating MSB then LSB */
+	for (i = 0; i < ARRAY_SIZE(csc_coeff_default[0]); i++) {
+		u16 coeff_a = (*csc_coeff)[0][i];
+		u16 coeff_b = (*csc_coeff)[1][i];
+		u16 coeff_c = (*csc_coeff)[2][i];
+
+		hdmi_write(hdmi, coeff_a & 0xff, HDMI_CSC_COEF_A1_LSB + i * 2);
+		hdmi_write(hdmi, coeff_a >> 8, HDMI_CSC_COEF_A1_MSB + i * 2);
+		hdmi_write(hdmi, coeff_b & 0xff, HDMI_CSC_COEF_B1_LSB + i * 2);
+		hdmi_write(hdmi, coeff_b >> 8, HDMI_CSC_COEF_B1_MSB + i * 2);
+		hdmi_write(hdmi, coeff_c & 0xff, HDMI_CSC_COEF_C1_LSB + i * 2);
+		hdmi_write(hdmi, coeff_c >> 8, HDMI_CSC_COEF_C1_MSB + i * 2);
+	}
+
+	hdmi_mod(hdmi, HDMI_CSC_SCALE, HDMI_CSC_SCALE_CSCSCALE_MASK, csc_scale);
+}
+
+static void hdmi_video_csc(struct dw_hdmi *hdmi)
+{
+	int color_depth = 0;
+	int interpolation = HDMI_CSC_CFG_INTMODE_DISABLE;
+	int decimation = 0;
+
+	/* YCC422 interpolation to 444 mode */
+	if (is_color_space_interpolation(hdmi))
+		interpolation = HDMI_CSC_CFG_INTMODE_CHROMA_INT_FORMULA1;
+	else if (is_color_space_decimation(hdmi))
+		decimation = HDMI_CSC_CFG_DECMODE_CHROMA_INT_FORMULA3;
+
+	switch (hdmi_bus_fmt_color_depth(hdmi->hdmi_data.enc_out_bus_format)) {
+	case 8:
+		color_depth = HDMI_CSC_SCALE_CSC_COLORDE_PTH_24BPP;
+		break;
+	case 10:
+		color_depth = HDMI_CSC_SCALE_CSC_COLORDE_PTH_30BPP;
+		break;
+	case 12:
+		color_depth = HDMI_CSC_SCALE_CSC_COLORDE_PTH_36BPP;
+		break;
+	case 16:
+		color_depth = HDMI_CSC_SCALE_CSC_COLORDE_PTH_48BPP;
+		break;
+
+	default:
+		return;
+	}
+
+	/* Configure the CSC registers */
+	hdmi_write(hdmi, interpolation | decimation, HDMI_CSC_CFG);
+
+	hdmi_mod(hdmi, HDMI_CSC_SCALE, HDMI_CSC_SCALE_CSC_COLORDE_PTH_MASK,
+		 color_depth);
+
+	dw_hdmi_update_csc_coeffs(hdmi);
+}
+
 /* hdmi initialization step b.4 */
 static void hdmi_enable_video_path(struct dw_hdmi *hdmi, bool audio)
 {
@@ -478,6 +718,20 @@ static void hdmi_enable_video_path(struct dw_hdmi *hdmi, bool audio)
 
 	clkdis &= ~HDMI_MC_CLKDIS_TMDSCLK_DISABLE;
 	hdmi_write(hdmi, clkdis, HDMI_MC_CLKDIS);
+
+	/* Enable csc path */
+	if (is_color_space_conversion(hdmi)) {
+		clkdis &= ~HDMI_MC_CLKDIS_CSCCLK_DISABLE;
+		hdmi_write(hdmi, clkdis, HDMI_MC_CLKDIS);
+	}
+
+	/* Enable color space conversion if needed */
+	if (is_color_space_conversion(hdmi))
+		hdmi_write(hdmi, HDMI_MC_FLOWCTRL_FEED_THROUGH_OFF_CSC_IN_PATH,
+			   HDMI_MC_FLOWCTRL);
+	else
+		hdmi_write(hdmi, HDMI_MC_FLOWCTRL_FEED_THROUGH_OFF_CSC_BYPASS,
+			   HDMI_MC_FLOWCTRL);
 
 	if (audio) {
 		clkdis &= ~HDMI_MC_CLKDIS_AUDCLK_DISABLE;
@@ -732,6 +986,7 @@ int dw_hdmi_enable(struct dw_hdmi *hdmi, const struct display_timing *edid)
 	}
 
 	hdmi_video_packetize(hdmi);
+	hdmi_video_csc(hdmi);
 	hdmi_video_sample(hdmi);
 
 	hdmi_clear_overflow(hdmi);
@@ -753,6 +1008,12 @@ void dw_hdmi_init(struct dw_hdmi *hdmi)
 	ih_mute = /*hdmi_read(hdmi, HDMI_IH_MUTE) |*/
 		  HDMI_IH_MUTE_MUTE_WAKEUP_INTERRUPT |
 		  HDMI_IH_MUTE_MUTE_ALL_INTERRUPT;
+
+	if (hdmi->write_reg)
+		hdmi_write = hdmi->write_reg;
+
+	if (hdmi->read_reg)
+		hdmi_read = hdmi->read_reg;
 
 	hdmi_write(hdmi, ih_mute, HDMI_IH_MUTE);
 

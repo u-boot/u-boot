@@ -174,6 +174,34 @@
 #define HDMI_MC_LOCKONCLOCK                     0x4006
 #define HDMI_MC_HEACPHY_RST                     0x4007
 
+/* Color Space  Converter Registers */
+#define HDMI_CSC_CFG                            0x4100
+#define HDMI_CSC_SCALE                          0x4101
+#define HDMI_CSC_COEF_A1_MSB                    0x4102
+#define HDMI_CSC_COEF_A1_LSB                    0x4103
+#define HDMI_CSC_COEF_A2_MSB                    0x4104
+#define HDMI_CSC_COEF_A2_LSB                    0x4105
+#define HDMI_CSC_COEF_A3_MSB                    0x4106
+#define HDMI_CSC_COEF_A3_LSB                    0x4107
+#define HDMI_CSC_COEF_A4_MSB                    0x4108
+#define HDMI_CSC_COEF_A4_LSB                    0x4109
+#define HDMI_CSC_COEF_B1_MSB                    0x410A
+#define HDMI_CSC_COEF_B1_LSB                    0x410B
+#define HDMI_CSC_COEF_B2_MSB                    0x410C
+#define HDMI_CSC_COEF_B2_LSB                    0x410D
+#define HDMI_CSC_COEF_B3_MSB                    0x410E
+#define HDMI_CSC_COEF_B3_LSB                    0x410F
+#define HDMI_CSC_COEF_B4_MSB                    0x4110
+#define HDMI_CSC_COEF_B4_LSB                    0x4111
+#define HDMI_CSC_COEF_C1_MSB                    0x4112
+#define HDMI_CSC_COEF_C1_LSB                    0x4113
+#define HDMI_CSC_COEF_C2_MSB                    0x4114
+#define HDMI_CSC_COEF_C2_LSB                    0x4115
+#define HDMI_CSC_COEF_C3_MSB                    0x4116
+#define HDMI_CSC_COEF_C3_LSB                    0x4117
+#define HDMI_CSC_COEF_C4_MSB                    0x4118
+#define HDMI_CSC_COEF_C4_LSB                    0x4119
+
 /* I2C Master Registers (E-DDC) */
 #define HDMI_I2CM_SLAVE                         0x7E00
 #define HDMI_I2CM_ADDRESS                       0x7E01
@@ -416,7 +444,11 @@ enum {
 	HDMI_AUD_INPUTCLKFS_128 = 0x0,
 
 	/* mc_clkdis field values */
+	HDMI_MC_CLKDIS_HDCPCLK_DISABLE = 0x40,
+	HDMI_MC_CLKDIS_CECCLK_DISABLE = 0x20,
+	HDMI_MC_CLKDIS_CSCCLK_DISABLE = 0x10,
 	HDMI_MC_CLKDIS_AUDCLK_DISABLE = 0x8,
+	HDMI_MC_CLKDIS_PREPCLK_DISABLE = 0x4,
 	HDMI_MC_CLKDIS_TMDSCLK_DISABLE = 0x2,
 	HDMI_MC_CLKDIS_PIXELCLK_DISABLE = 0x1,
 
@@ -444,6 +476,27 @@ enum {
 	HDMI_I2CM_DIV_FAST_MODE = 0x8,
 	HDMI_I2CM_DIV_STD_MODE = 0x0,
 	HDMI_I2CM_SOFTRSTZ_MASK = 0x1,
+
+	/* CSC_CFG field values */
+	HDMI_CSC_CFG_INTMODE_MASK = 0x30,
+	HDMI_CSC_CFG_INTMODE_OFFSET = 4,
+	HDMI_CSC_CFG_INTMODE_DISABLE = 0x00,
+	HDMI_CSC_CFG_INTMODE_CHROMA_INT_FORMULA1 = 0x10,
+	HDMI_CSC_CFG_INTMODE_CHROMA_INT_FORMULA2 = 0x20,
+	HDMI_CSC_CFG_DECMODE_MASK = 0x3,
+	HDMI_CSC_CFG_DECMODE_OFFSET = 0,
+	HDMI_CSC_CFG_DECMODE_DISABLE = 0x0,
+	HDMI_CSC_CFG_DECMODE_CHROMA_INT_FORMULA1 = 0x1,
+	HDMI_CSC_CFG_DECMODE_CHROMA_INT_FORMULA2 = 0x2,
+	HDMI_CSC_CFG_DECMODE_CHROMA_INT_FORMULA3 = 0x3,
+
+	/* CSC_SCALE field values */
+	HDMI_CSC_SCALE_CSC_COLORDE_PTH_MASK = 0xF0,
+	HDMI_CSC_SCALE_CSC_COLORDE_PTH_24BPP = 0x00,
+	HDMI_CSC_SCALE_CSC_COLORDE_PTH_30BPP = 0x50,
+	HDMI_CSC_SCALE_CSC_COLORDE_PTH_36BPP = 0x60,
+	HDMI_CSC_SCALE_CSC_COLORDE_PTH_48BPP = 0x70,
+	HDMI_CSC_SCALE_CSCSCALE_MASK = 0x03,
 };
 
 struct hdmi_mpll_config {
@@ -463,6 +516,24 @@ struct hdmi_phy_config {
 	u32 vlev_ctr;   /* voltage level control */
 };
 
+struct hdmi_vmode {
+	bool mdataenablepolarity;
+
+	unsigned int mpixelclock;
+	unsigned int mpixelrepetitioninput;
+	unsigned int mpixelrepetitionoutput;
+};
+
+struct hdmi_data_info {
+	unsigned int enc_in_bus_format;
+	unsigned int enc_out_bus_format;
+	unsigned int enc_in_encoding;
+	unsigned int enc_out_encoding;
+	unsigned int pix_repet_factor;
+	unsigned int hdcp_enable;
+	struct hdmi_vmode video_mode;
+};
+
 struct dw_hdmi {
 	ulong ioaddr;
 	const struct hdmi_mpll_config *mpll_cfg;
@@ -470,8 +541,11 @@ struct dw_hdmi {
 	u8 i2c_clk_high;
 	u8 i2c_clk_low;
 	u8 reg_io_width;
+	struct hdmi_data_info hdmi_data;
 
 	int (*phy_set)(struct dw_hdmi *hdmi, uint mpixelclock);
+	void (*write_reg)(struct dw_hdmi *hdmi, u8 val, int offset);
+	u8 (*read_reg)(struct dw_hdmi *hdmi, int offset);
 };
 
 int dw_hdmi_phy_cfg(struct dw_hdmi *hdmi, uint mpixelclock);
