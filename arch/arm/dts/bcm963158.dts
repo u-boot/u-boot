@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2019 Philippe Reynes <philippe.reynes@softathome.com>
+ */
+
+/dts-v1/;
+
+#include "bcm63158.dtsi"
+
+/ {
+	model = "Broadcom bcm963158";
+	compatible = "broadcom,bcm963158", "brcm,bcm63158";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x0 0x0 0x40000000>;
+	};
+};
+
+&uart0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
