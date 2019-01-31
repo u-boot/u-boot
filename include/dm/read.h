@@ -510,6 +510,17 @@ int dev_read_resource_byname(struct udevice *dev, const char *name,
  * @return the translated address; OF_BAD_ADDR on error
  */
 u64 dev_translate_address(struct udevice *dev, const fdt32_t *in_addr);
+
+/**
+ * dev_read_alias_highest_id - Get highest alias id for the given stem
+ * @stem:	Alias stem to be examined
+ *
+ * The function travels the lookup table to get the highest alias id for the
+ * given alias stem.
+ * @return alias ID, if found, else -1
+ */
+int dev_read_alias_highest_id(const char *stem);
+
 #else /* CONFIG_DM_DEV_READ_INLINE is enabled */
 
 static inline int dev_read_u32(struct udevice *dev,
@@ -738,6 +749,11 @@ static inline int dev_read_resource_byname(struct udevice *dev,
 static inline u64 dev_translate_address(struct udevice *dev, const fdt32_t *in_addr)
 {
 	return ofnode_translate_address(dev_ofnode(dev), in_addr);
+}
+
+static inline int dev_read_alias_highest_id(const char *stem)
+{
+	return fdtdec_get_alias_highest_id(gd->fdt_blob, stem);
 }
 
 #endif /* CONFIG_DM_DEV_READ_INLINE */

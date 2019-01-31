@@ -264,3 +264,11 @@ u64 dev_translate_address(struct udevice *dev, const fdt32_t *in_addr)
 {
 	return ofnode_translate_address(dev_ofnode(dev), in_addr);
 }
+
+int dev_read_alias_highest_id(const char *stem)
+{
+	if (of_live_active())
+		return of_alias_get_highest_id(stem);
+
+	return fdtdec_get_alias_highest_id(gd->fdt_blob, stem);
+}
