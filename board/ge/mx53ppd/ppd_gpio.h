@@ -36,6 +36,8 @@ static const iomux_v3_cfg_t ppd_pads[] = {
 	MX53_PAD_KEY_COL2__GPIO4_10,
 	MX53_PAD_KEY_ROW2__GPIO4_11,
 	MX53_PAD_KEY_COL3__GPIO4_12,
+
+	MX53_PAD_PATA_DATA7__GPIO2_7,    /* BUFFERED_HOST_CONTROLLED_RESET_TO_DOCKING_CONNECTOR_N */
 };
 
 struct gpio_cfg {
@@ -61,6 +63,7 @@ struct gpio_cfg {
 #define ECSPI1_CS1 IMX_GPIO_NR(4, 10)
 #define ECSPI1_CS2 IMX_GPIO_NR(4, 11)
 #define ECSPI1_CS3 IMX_GPIO_NR(4, 12)
+#define BUFFERED_HOST_CONTROLLED_RESET_TO_DOCKING_CONNECTOR_N IMX_GPIO_NR(2, 7)
 
 static const struct gpio_cfg ppd_gpios[] = {
 	/* FEC */
@@ -90,6 +93,7 @@ static const struct gpio_cfg ppd_gpios[] = {
 	{ ECSPI1_CS1, 1 },
 	{ ECSPI1_CS2, 1 },
 	{ ECSPI1_CS3, 1 },
+	{ BUFFERED_HOST_CONTROLLED_RESET_TO_DOCKING_CONNECTOR_N, 1 },
 };
 
 #endif /* __PPD_GPIO_H_ */
