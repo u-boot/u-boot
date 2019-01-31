@@ -142,7 +142,6 @@
 #define CONFIG_BOOTCOMMAND CONFIG_MMCBOOTCOMMAND
 #endif
 
-#define CONFIG_ARP_TIMEOUT     200UL
 
 /* Miscellaneous configurable options */
 
