@@ -11,8 +11,10 @@
 #include <misc.h>
 #include <phy.h>
 #include <reset.h>
+#include <wdt.h>
 #include <usb.h>
 #include <asm/arch/stm32.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <power/regulator.h>
 #include <usb/dwc2_udc.h>
@@ -233,6 +235,8 @@ int board_init(void)
 
 	if (IS_ENABLED(CONFIG_LED))
 		led_default_state();
+
+	watchdog_start();
 
 	return 0;
 }

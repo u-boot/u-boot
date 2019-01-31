@@ -13,3 +13,5 @@ u32 get_cpu_type(void);
 
 /* return CPU_REV constants */
 u32 get_cpu_rev(void);
+
+int watchdog_start(void);

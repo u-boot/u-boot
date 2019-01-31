@@ -13,6 +13,7 @@
 #include <power/pmic.h>
 #include <power/stpmu1.h>
 #include <asm/arch/ddr.h>
+#include <asm/arch/sys_proto.h>
 
 void spl_board_init(void)
 {
@@ -29,4 +30,6 @@ void spl_board_init(void)
 				STPMU1_MASK_RESET_BUCK3,
 				STPMU1_MASK_RESET_BUCK3);
 #endif
+
+	watchdog_start();
 }

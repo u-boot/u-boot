@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <wdt.h>
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
 #include <power/pmic.h>
@@ -96,6 +97,55 @@ int board_ddr_power_init(void)
 
 	mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
 
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_WDT
+
+/* Called by macro WATCHDOG_RESET */
+void watchdog_reset(void)
+{
+	struct udevice *watchdog_dev;
+	static ulong next_reset;
+	ulong now;
+
+	now = timer_get_us();
+
+	/* Do not reset the watchdog too often, only every 1 sec */
+	if (now > next_reset) {
+		/*
+		 * Watchdog has been enabled at SPL stage, to avoid watchdog_dev bad
+		 * reference after relocation, we don't save it in a static variable,
+		 * we retrieve it each time using uclass_get_device() call.
+		 */
+		if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev))
+		    return;
+
+		wdt_reset(watchdog_dev);
+		next_reset = now + 1000000;
+	}
+}
+
+int watchdog_start(void)
+{
+	struct udevice *watchdog_dev;
+
+	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
+		debug("Watchdog: Not found by seq!\n");
+		if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
+			puts("Watchdog: Not found!\n");
+			return 0;
+		}
+	}
+	wdt_start(watchdog_dev, 0, 0);
+	puts("Watchdog: Started\n");
+
+	return 0;
+}
+#else
+int watchdog_start(void)
+{
 	return 0;
 }
 #endif
