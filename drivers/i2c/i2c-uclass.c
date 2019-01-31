@@ -623,6 +623,30 @@ struct i2c_priv {
 	int max_id;
 };
 
+static int i2c_post_bind(struct udevice *dev)
+{
+	struct uclass *class = dev->uclass;
+	struct i2c_priv *priv = class->priv;
+	int ret = 0;
+
+	/* Just for sure */
+	if (!priv)
+		return -ENOMEM;
+
+	debug("%s: %s, req_seq=%d\n", __func__, dev->name, dev->req_seq);
+
+	/* if there is no alias ID, use the first free */
+	if (dev->req_seq == -1)
+		dev->req_seq = ++priv->max_id;
+
+	debug("%s: %s, new req_seq=%d\n", __func__, dev->name, dev->req_seq);
+
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+	ret = dm_scan_fdt_dev(dev);
+#endif
+	return ret;
+}
+
 int i2c_uclass_init(struct uclass *class)
 {
 	struct i2c_priv *priv = class->priv;
@@ -647,9 +671,7 @@ UCLASS_DRIVER(i2c) = {
 	.id		= UCLASS_I2C,
 	.name		= "i2c",
 	.flags		= DM_UC_FLAG_SEQ_ALIAS,
-#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
-	.post_bind	= dm_scan_fdt_dev,
-#endif
+	.post_bind	= i2c_post_bind,
 	.init		= i2c_uclass_init,
 	.priv_auto_alloc_size = sizeof(struct i2c_priv),
 	.post_probe	= i2c_post_probe,
