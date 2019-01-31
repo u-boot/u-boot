@@ -980,6 +980,7 @@ config ARCH_VERSAL
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
+	imply BOARD_LATE_INIT
 
 config ARCH_VF610
 	bool "Freescale Vybrid"
