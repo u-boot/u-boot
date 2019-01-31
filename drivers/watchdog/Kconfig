@@ -125,6 +125,14 @@ config XILINX_TB_WATCHDOG
 	   Select this to enable Xilinx Axi watchdog timer, which can be found on some
 	   Xilinx Microblaze Platforms.
 
+config WDT_STM32MP
+	bool "IWDG watchdog driver for STM32 MP's family"
+	depends on WDT
+	default y if ARCH_STM32MP
+	help
+	  Enable the STM32 watchdog (IWDG) driver. Enable support to
+	  configure STM32's on-SoC watchdog.
+
 config IMX_WATCHDOG
 	bool "Enable Watchdog Timer support for IMX and LSCH2 of NXP"
 	select HW_WATCHDOG
