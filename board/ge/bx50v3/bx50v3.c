@@ -106,6 +106,7 @@ static void setup_iomux_enet(void)
 	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
 
 	/* Reset AR8033 PHY */
+	gpio_request(IMX_GPIO_NR(1, 28), "fec_rst");
 	gpio_direction_output(IMX_GPIO_NR(1, 28), 0);
 	mdelay(10);
 	gpio_set_value(IMX_GPIO_NR(1, 28), 1);
@@ -420,8 +421,8 @@ static void setup_display_bx50v3(void)
 	/* backlights off until needed */
 	imx_iomux_v3_setup_multiple_pads(backlight_pads,
 					 ARRAY_SIZE(backlight_pads));
+	gpio_request(LVDS_POWER_GP, "lvds_power");
 	gpio_direction_input(LVDS_POWER_GP);
-	gpio_direction_input(LVDS_BACKLIGHT_GP);
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
@@ -574,14 +575,22 @@ int board_init(void)
 		set_confidx(&vpd);
 	}
 
+	gpio_request(SUS_S3_OUT, "sus_s3_out");
 	gpio_direction_output(SUS_S3_OUT, 1);
+
+	gpio_request(WIFI_EN, "wifi_en");
 	gpio_direction_output(WIFI_EN, 1);
+
 #if defined(CONFIG_VIDEO_IPUV3)
 	if (is_b850v3())
 		setup_display_b850v3();
 	else
 		setup_display_bx50v3();
+
+	gpio_request(LVDS_BACKLIGHT_GP, "lvds_backlight");
+	gpio_direction_input(LVDS_BACKLIGHT_GP);
 #endif
+
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
