@@ -619,6 +619,30 @@ static int i2c_child_post_bind(struct udevice *dev)
 #endif
 }
 
+struct i2c_priv {
+	int max_id;
+};
+
+int i2c_uclass_init(struct uclass *class)
+{
+	struct i2c_priv *priv = class->priv;
+
+	/* Just for sure */
+	if (!priv)
+		return -ENOMEM;
+
+	/* Get the last allocated alias. */
+#if CONFIG_IS_ENABLED(OF_CONTROL)
+	priv->max_id = dev_read_alias_highest_id("i2c");
+#else
+	priv->max_id = -1;
+#endif
+
+	debug("%s: highest alias id is %d\n", __func__, priv->max_id);
+
+	return 0;
+}
+
 UCLASS_DRIVER(i2c) = {
 	.id		= UCLASS_I2C,
 	.name		= "i2c",
@@ -626,6 +650,8 @@ UCLASS_DRIVER(i2c) = {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
 	.post_bind	= dm_scan_fdt_dev,
 #endif
+	.init		= i2c_uclass_init,
+	.priv_auto_alloc_size = sizeof(struct i2c_priv),
 	.post_probe	= i2c_post_probe,
 	.per_device_auto_alloc_size = sizeof(struct dm_i2c_bus),
 	.per_child_platdata_auto_alloc_size = sizeof(struct dm_i2c_chip),
