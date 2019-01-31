@@ -38,7 +38,7 @@ struct stm32mp_wdt_priv {
 static int stm32mp_wdt_reset(struct udevice *dev)
 {
 	struct stm32mp_wdt_priv *priv = dev_get_priv(dev);
-
+printf("%s %d\n", __func__, __LINE__);
 	writel(KR_KEY_RELOAD, priv->base + IWDG_KR);
 
 	return 0;
@@ -85,7 +85,7 @@ static int stm32mp_wdt_probe(struct udevice *dev)
 	struct clk clk;
 	int ret;
 
-	debug("IWDG init\n");
+	printf("IWDG init\n");
 
 	priv->base = devfdt_get_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
@@ -110,7 +110,7 @@ static int stm32mp_wdt_probe(struct udevice *dev)
 
 	priv->wdt_clk_rate = clk_get_rate(&clk);
 
-	debug("IWDG init done\n");
+	printf("IWDG init done\n");
 
 	return 0;
 }
