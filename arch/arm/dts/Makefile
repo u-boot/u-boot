@@ -700,6 +700,7 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7629-rfb.dtb
 
 dtb-$(CONFIG_TARGET_GE_BX50V3) += imx6q-bx50v3.dtb
+dtb-$(CONFIG_TARGET_MX53PPD) += imx53-ppd.dtb
 
 targets += $(dtb-y)
 

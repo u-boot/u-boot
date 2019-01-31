@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: GPL-2.0+ OR X11 */
+/*
+ * Copyright 2018 General Electric Company
+ * Based on imx53-ppd.dts from kernel 4.20.5.
+ */
+
+/dts-v1/;
+
+#include "imx53.dtsi"
+
+/ {
+	model = "General Electric CS ONE";
+	compatible = "ge,imx53-cpuvo", "fsl,imx53";
+};
