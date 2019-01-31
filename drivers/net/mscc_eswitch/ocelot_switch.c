@@ -17,6 +17,7 @@
 
 #include "mscc_miim.h"
 #include "mscc_xfer.h"
+#include "mscc_mac_table.h"
 
 #define PHY_CFG				0x0
 #define PHY_CFG_ENA				0xF
@@ -30,17 +31,6 @@
 #define		ANA_PORT_VLAN_CFG_POP_CNT(x)	((x) << 18)
 #define ANA_PORT_PORT_CFG(x)		(0x7070 + 0x100 * (x))
 #define		ANA_PORT_PORT_CFG_RECV_ENA	BIT(6)
-#define	ANA_TABLES_MACHDATA		0x8b34
-#define	ANA_TABLES_MACLDATA		0x8b38
-#define ANA_TABLES_MACACCESS		0x8b3c
-#define		ANA_TABLES_MACACCESS_VALID	BIT(11)
-#define		ANA_TABLES_MACACCESS_ENTRYTYPE(x)   ((x) << 9)
-#define		ANA_TABLES_MACACCESS_DEST_IDX(x)    ((x) << 3)
-#define		ANA_TABLES_MACACCESS_MAC_TABLE_CMD(x)	(x)
-#define		ANA_TABLES_MACACCESS_MAC_TABLE_CMD_M	GENMASK(2, 0)
-#define		MACACCESS_CMD_IDLE                     0
-#define		MACACCESS_CMD_LEARN                    1
-#define		MACACCESS_CMD_GET_NEXT                 4
 #define ANA_PGID(x)			(0x8c00 + 4 * (x))
 
 #define SYS_FRM_AGING			0x574
@@ -119,19 +109,6 @@ enum ocelot_target {
 
 #define MAX_PORT (PORT3 - PORT0)
 
-/* MAC table entry types.
- * ENTRYTYPE_NORMAL is subject to aging.
- * ENTRYTYPE_LOCKED is not subject to aging.
- * ENTRYTYPE_MACv4 is not subject to aging. For IPv4 multicast.
- * ENTRYTYPE_MACv6 is not subject to aging. For IPv6 multicast.
- */
-enum macaccess_entry_type {
-	ENTRYTYPE_NORMAL = 0,
-	ENTRYTYPE_LOCKED,
-	ENTRYTYPE_MACv4,
-	ENTRYTYPE_MACv6,
-};
-
 enum ocelot_mdio_target {
 	MIIM,
 	PHY,
@@ -167,6 +144,12 @@ static const unsigned long ocelot_regs_qs[] = {
 	[MSCC_QS_XTR_DATA_PRESENT] = 0x1c,
 	[MSCC_QS_INJ_WR] = 0x2c,
 	[MSCC_QS_INJ_CTRL] = 0x34,
+};
+
+static const unsigned long ocelot_regs_ana_table[] = {
+	[MSCC_ANA_TABLES_MACHDATA] = 0x8b34,
+	[MSCC_ANA_TABLES_MACLDATA] = 0x8b38,
+	[MSCC_ANA_TABLES_MACACCESS] = 0x8b3c,
 };
 
 struct mscc_miim_dev miim[NUM_PHY];
@@ -388,62 +371,13 @@ static int ocelot_initialize(struct ocelot_private *priv)
 	return 0;
 }
 
-static inline int ocelot_vlant_wait_for_completion(struct ocelot_private *priv)
-{
-	unsigned int val, timeout = 10;
-
-	/* Wait for the issued mac table command to be completed, or timeout.
-	 * When the command read from ANA_TABLES_MACACCESS is
-	 * MACACCESS_CMD_IDLE, the issued command completed successfully.
-	 */
-	do {
-		val = readl(priv->regs[ANA] + ANA_TABLES_MACACCESS);
-		val &= ANA_TABLES_MACACCESS_MAC_TABLE_CMD_M;
-	} while (val != MACACCESS_CMD_IDLE && timeout--);
-
-	if (!timeout)
-		return -ETIMEDOUT;
-
-	return 0;
-}
-
-static int ocelot_mac_table_add(struct ocelot_private *priv,
-				const unsigned char mac[ETH_ALEN], int pgid)
-{
-	u32 macl = 0, mach = 0;
-	int ret;
-
-	/* Set the MAC address to handle and the vlan associated in a format
-	 * understood by the hardware.
-	 */
-	mach |= MAC_VID << 16;
-	mach |= ((u32)mac[0]) << 8;
-	mach |= ((u32)mac[1]) << 0;
-	macl |= ((u32)mac[2]) << 24;
-	macl |= ((u32)mac[3]) << 16;
-	macl |= ((u32)mac[4]) << 8;
-	macl |= ((u32)mac[5]) << 0;
-
-	writel(macl, priv->regs[ANA] + ANA_TABLES_MACLDATA);
-	writel(mach, priv->regs[ANA] + ANA_TABLES_MACHDATA);
-
-	writel(ANA_TABLES_MACACCESS_VALID |
-	       ANA_TABLES_MACACCESS_DEST_IDX(pgid) |
-	       ANA_TABLES_MACACCESS_ENTRYTYPE(ENTRYTYPE_LOCKED) |
-	       ANA_TABLES_MACACCESS_MAC_TABLE_CMD(MACACCESS_CMD_LEARN),
-	       priv->regs[ANA] + ANA_TABLES_MACACCESS);
-
-	ret = ocelot_vlant_wait_for_completion(priv);
-
-	return ret;
-}
-
 static int ocelot_write_hwaddr(struct udevice *dev)
 {
 	struct ocelot_private *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 
-	ocelot_mac_table_add(priv, pdata->enetaddr, PGID_UNICAST);
+	mscc_mac_table_add(priv->regs[ANA], ocelot_regs_ana_table,
+			   pdata->enetaddr, PGID_UNICAST);
 
 	writel(BIT(CPU_PORT), priv->regs[ANA] + ANA_PGID(PGID_UNICAST));
 
@@ -463,13 +397,15 @@ static int ocelot_start(struct udevice *dev)
 		return ret;
 
 	/* Set MAC address tables entries for CPU redirection */
-	ocelot_mac_table_add(priv, mac, PGID_BROADCAST);
+	mscc_mac_table_add(priv->regs[ANA], ocelot_regs_ana_table, mac,
+			   PGID_BROADCAST);
 
 	writel(BIT(CPU_PORT) | INTERNAL_PORT_MSK,
 	       priv->regs[ANA] + ANA_PGID(PGID_BROADCAST));
 
 	/* It should be setup latter in ocelot_write_hwaddr */
-	ocelot_mac_table_add(priv, pdata->enetaddr, PGID_UNICAST);
+	mscc_mac_table_add(priv->regs[ANA], ocelot_regs_ana_table,
+			   pdata->enetaddr, PGID_UNICAST);
 
 	writel(BIT(CPU_PORT), priv->regs[ANA] + ANA_PGID(PGID_UNICAST));
 
