@@ -561,7 +561,7 @@ F:	drivers/gpio/mscc_sgpio.c
 F:	drivers/spi/mscc_bb_spi.c
 F:	include/configs/vcoreiii.h
 F:	drivers/pinctrl/mscc/
-F:	drivers/net/ocelot_switch.c
+F:	drivers/net/mscc_eswitch/
 
 MIPS JZ4780
 M:	Ezequiel Garcia <ezequiel@collabora.com>
