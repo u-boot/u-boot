@@ -88,7 +88,7 @@ config WDT_ASPEED
 
 config WDT_BCM6345
 	bool "BCM6345 watchdog timer support"
-	depends on WDT && (ARCH_BMIPS || ARCH_BCM6858)
+	depends on WDT && (ARCH_BMIPS || ARCH_BCM6858 || ARCH_BCM63158)
 	help
 	  Select this to enable watchdog timer for BCM6345 SoCs.
 	  The watchdog timer is stopped when initialized.
