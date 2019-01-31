@@ -123,19 +123,7 @@ enum ocelot_phy_id {
 
 struct ocelot_private {
 	void __iomem *regs[TARGET_MAX];
-
 	struct mii_dev *bus[NUM_PHY];
-	struct phy_device *phydev;
-	int phy_mode;
-	int max_speed;
-
-	int rx_pos;
-	int rx_siz;
-	int rx_off;
-	int tx_num;
-
-	u8 tx_adj_packetbuf[PKTSIZE_ALIGN + PKTALIGN];
-	void *tx_adj_buf;
 };
 
 static const unsigned long ocelot_regs_qs[] = {
@@ -152,7 +140,7 @@ static const unsigned long ocelot_regs_ana_table[] = {
 	[MSCC_ANA_TABLES_MACACCESS] = 0x8b3c,
 };
 
-struct mscc_miim_dev miim[NUM_PHY];
+static struct mscc_miim_dev miim[NUM_PHY];
 
 static int mscc_miim_reset(struct mii_dev *bus)
 {
