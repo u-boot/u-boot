@@ -535,23 +535,9 @@ int cpu_jump_to_64bit_uboot(ulong target)
 		printf("Failed to allocate the cpu_call64 stub\n");
 		return -ENOMEM;
 	}
-	char *gdt = (char *)0x3100000;
-
-	extern char gdt64[];
-
 	memcpy(ptr, cpu_call64, call64_stub_size);
-	memcpy(gdt, gdt64, 0x100);
 
-	/*
-	 * TODO(sjg@chromium.org): This manually inserts the pointers into
-	 * the code. Tidy this up to avoid this.
-	 */
 	func = (func_t)ptr;
-	ulong ofs = (ulong)cpu_call64 - (ulong)ptr;
-	*(ulong *)(ptr + 7) = (ulong)gdt;
-	*(ulong *)(ptr + 0xc) = (ulong)gdt + 2;
-	*(ulong *)(ptr + 0x13) = (ulong)gdt;
-	*(ulong *)(ptr + 0x117 - 0xd4) -= ofs;
 
 	/*
 	 * Copy U-Boot from ROM
