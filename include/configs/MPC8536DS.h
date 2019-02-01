@@ -83,7 +83,6 @@
 
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM
-#undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
 

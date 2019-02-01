@@ -83,7 +83,6 @@
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
-#undef CONFIG_FSL_DDR_INTERACTIVE
 #undef CONFIG_DDR_ECC			/* only for ECC DDR module */
 /*
  * A hardware errata caused the LBC SDRAM SPD and the DDR2 SPD
