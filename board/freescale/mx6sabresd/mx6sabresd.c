@@ -94,13 +94,6 @@ static iomux_v3_cfg_t const enet_pads[] = {
 static void setup_iomux_enet(void)
 {
 	SETUP_IOMUX_PADS(enet_pads);
-
-	/* Reset AR8031 PHY */
-	gpio_request(IMX_GPIO_NR(1, 25), "ENET PHY Reset");
-	gpio_direction_output(IMX_GPIO_NR(1, 25) , 0);
-	mdelay(10);
-	gpio_set_value(IMX_GPIO_NR(1, 25), 1);
-	udelay(100);
 }
 
 static iomux_v3_cfg_t const usdhc2_pads[] = {
