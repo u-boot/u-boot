@@ -25,19 +25,27 @@
 #include <fsl_esdhc.h>
 #endif
 
-#if defined(CONFIG_DISPLAY_CPUINFO) && !defined(CONFIG_SPL_BUILD)
 static u32 reset_cause = -1;
 
-static char *get_reset_cause(void)
+u32 get_imx_reset_cause(void)
 {
-	u32 cause;
 	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
 
-	cause = readl(&src_regs->srsr);
-	writel(cause, &src_regs->srsr);
-	reset_cause = cause;
+	if (reset_cause == -1) {
+		reset_cause = readl(&src_regs->srsr);
+/* preserve the value for U-Boot proper */
+#if !defined(CONFIG_SPL_BUILD)
+		writel(reset_cause, &src_regs->srsr);
+#endif
+	}
 
-	switch (cause) {
+	return reset_cause;
+}
+
+#if defined(CONFIG_DISPLAY_CPUINFO) && !defined(CONFIG_SPL_BUILD)
+static char *get_reset_cause(void)
+{
+	switch (get_imx_reset_cause()) {
 	case 0x00001:
 	case 0x00011:
 		return "POR";
@@ -76,11 +84,6 @@ static char *get_reset_cause(void)
 	default:
 		return "unknown reset";
 	}
-}
-
-u32 get_imx_reset_cause(void)
-{
-	return reset_cause;
 }
 #endif
 
