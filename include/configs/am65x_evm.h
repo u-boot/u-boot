@@ -37,6 +37,8 @@
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE +	\
 					CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE - 4)
 
+#define CONFIG_SYS_BOOTM_LEN		SZ_64M
+
 /* U-Boot general configuration */
 #define EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	"findfdt="							\
