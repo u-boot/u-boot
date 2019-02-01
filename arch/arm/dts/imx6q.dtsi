@@ -234,8 +234,6 @@
 			};
 
 			ipu2_di0: port@2 {
-				#address-cells = <1>;
-				#size-cells = <0>;
 				reg = <2>;
 
 				ipu2_di0_disp0: endpoint@0 {
@@ -264,8 +262,6 @@
 			};
 
 			ipu2_di1: port@3 {
-				#address-cells = <1>;
-				#size-cells = <0>;
 				reg = <3>;
 
 				ipu2_di1_hdmi: endpoint@1 {
