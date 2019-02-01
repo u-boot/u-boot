@@ -185,10 +185,10 @@ void board_init_f(ulong dummy)
 
 #define EARLY_UART
 #ifdef EARLY_UART
+	debug_uart_init();
+
 # ifdef CONFIG_TARGET_CHROMEBOOK_BOB
 	int sum, i;
-
-	debug_uart_init();
 
 	/*
 	 * Add a delay and ensure that the compiler does not optimise this out.
