@@ -18,7 +18,7 @@
 #endif
 
 #define MAX_LANE_OPTIONS			10
-#define MAX_UTMI_PHY_COUNT			3
+#define MAX_UTMI_PHY_COUNT			6
 
 struct comphy_mux_options {
 	u32 type;
