@@ -96,6 +96,7 @@ static void setup_iomux_enet(void)
 	SETUP_IOMUX_PADS(enet_pads);
 
 	/* Reset AR8031 PHY */
+	gpio_request(IMX_GPIO_NR(1, 25), "ENET PHY Reset");
 	gpio_direction_output(IMX_GPIO_NR(1, 25) , 0);
 	mdelay(10);
 	gpio_set_value(IMX_GPIO_NR(1, 25), 1);
@@ -189,6 +190,7 @@ static iomux_v3_cfg_t const bl_pads[] = {
 static void enable_backlight(void)
 {
 	SETUP_IOMUX_PADS(bl_pads);
+	gpio_request(DISP0_PWR_EN, "Display Power Enable");
 	gpio_direction_output(DISP0_PWR_EN, 1);
 }
 
@@ -307,11 +309,13 @@ int board_mmc_init(bd_t *bis)
 		switch (i) {
 		case 0:
 			SETUP_IOMUX_PADS(usdhc2_pads);
+			gpio_request(USDHC2_CD_GPIO, "USDHC2 CD");
 			gpio_direction_input(USDHC2_CD_GPIO);
 			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 			break;
 		case 1:
 			SETUP_IOMUX_PADS(usdhc3_pads);
+			gpio_request(USDHC3_CD_GPIO, "USDHC3 CD");
 			gpio_direction_input(USDHC3_CD_GPIO);
 			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 			break;
@@ -729,6 +733,7 @@ int checkboard(void)
 #ifdef CONFIG_SPL_OS_BOOT
 int spl_start_uboot(void)
 {
+	gpio_request(KEY_VOL_UP, "KEY Volume UP");
 	gpio_direction_input(KEY_VOL_UP);
 
 	/* Only enter in Falcon mode if KEY_VOL_UP is pressed */
