@@ -53,7 +53,7 @@ Two RK3036 board are supported:
 
 For example:
 
-   CROSS_COMPILE=arm-linux-gnueabi- make O=firefly firefly-rk3288_defconfig all
+   CROSS_COMPILE=arm-linux-gnueabi- make O=firefly-rk3288 firefly-rk3288_defconfig all
 
 (or you can use another cross compiler if you prefer)
 
