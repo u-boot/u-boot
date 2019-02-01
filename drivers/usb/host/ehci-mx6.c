@@ -404,6 +404,7 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 	if (ret)
 		return ret;
 
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (priv->vbus_supply) {
 		ret = regulator_set_enable(priv->vbus_supply,
 					   (type == USB_INIT_DEVICE) ?
@@ -413,6 +414,7 @@ static int mx6_init_after_reset(struct ehci_ctrl *dev)
 			return ret;
 		}
 	}
+#endif
 
 	if (type == USB_INIT_DEVICE)
 		return 0;
@@ -514,15 +516,17 @@ static int ehci_usb_probe(struct udevice *dev)
 	priv->portnr = dev->seq;
 	priv->init_type = type;
 
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 	ret = device_get_supply_regulator(dev, "vbus-supply",
 					  &priv->vbus_supply);
 	if (ret)
 		debug("%s: No vbus supply\n", dev->name);
-
+#endif
 	ret = ehci_mx6_common_init(ehci, priv->portnr);
 	if (ret)
 		return ret;
 
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 	if (priv->vbus_supply) {
 		ret = regulator_set_enable(priv->vbus_supply,
 					   (type == USB_INIT_DEVICE) ?
@@ -532,6 +536,7 @@ static int ehci_usb_probe(struct udevice *dev)
 			return ret;
 		}
 	}
+#endif
 
 	if (priv->init_type == USB_INIT_HOST) {
 		setbits_le32(&ehci->usbmode, CM_HOST);
