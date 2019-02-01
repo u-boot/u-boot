@@ -1062,3 +1062,21 @@ void board_init_f(ulong dummy)
 	board_init_r(NULL, 0);
 }
 #endif
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (is_mx6dq()) {
+		if (!strcmp(name, "imx6q-sabresd"))
+			return 0;
+	} else if (is_mx6dqp()) {
+		if (!strcmp(name, "imx6qp-sabresd"))
+			return 0;
+	} else if (is_mx6dl()) {
+		if (!strcmp(name, "imx6dl-sabresd"))
+			return 0;
+	}
+
+	return -1;
+}
+#endif
