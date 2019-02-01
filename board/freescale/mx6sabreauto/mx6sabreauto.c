@@ -501,6 +501,7 @@ iomux_v3_cfg_t const backlight_pads[] = {
 
 static void setup_iomux_backlight(void)
 {
+	gpio_request(IMX_GPIO_NR(2, 9), "backlight");
 	gpio_direction_output(IMX_GPIO_NR(2, 9), 1);
 	SETUP_IOMUX_PADS(backlight_pads);
 }
@@ -594,6 +595,7 @@ int board_init(void)
 	else
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info1);
 	/* I2C 3 Steer */
+	gpio_request(IMX_GPIO_NR(5, 4), "steer logic");
 	gpio_direction_output(IMX_GPIO_NR(5, 4), 1);
 	SETUP_IOMUX_PADS(i2c3_pads);
 #ifndef CONFIG_SYS_FLASH_CFI
@@ -602,6 +604,7 @@ int board_init(void)
 	else
 		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info2);
 #endif
+	gpio_request(IMX_GPIO_NR(1, 15), "expander en");
 	gpio_direction_output(IMX_GPIO_NR(1, 15), 1);
 	SETUP_IOMUX_PADS(port_exp);
 
