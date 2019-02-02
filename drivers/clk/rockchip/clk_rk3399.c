@@ -925,7 +925,13 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 	case SCLK_SARADC:
 		rate = rk3399_saradc_get_clk(priv->cru);
 		break;
+	case ACLK_VIO:
+	case ACLK_HDCP:
+	case ACLK_GIC_PRE:
+	case PCLK_DDR:
+		break;
 	default:
+		log_debug("Unknown clock %lu\n", clk->id);
 		return -ENOENT;
 	}
 
@@ -993,7 +999,13 @@ static ulong rk3399_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_SARADC:
 		ret = rk3399_saradc_set_clk(priv->cru, rate);
 		break;
+	case ACLK_VIO:
+	case ACLK_HDCP:
+	case ACLK_GIC_PRE:
+	case PCLK_DDR:
+		return 0;
 	default:
+		log_debug("Unknown clock %lu\n", clk->id);
 		return -ENOENT;
 	}
 

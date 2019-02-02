@@ -71,50 +71,12 @@ u32 spl_boot_device(void)
 fallback:
 #elif defined(CONFIG_TARGET_CHROMEBOOK_JERRY) || \
 		defined(CONFIG_TARGET_CHROMEBIT_MICKEY) || \
-		defined(CONFIG_TARGET_CHROMEBOOK_MINNIE)
+		defined(CONFIG_TARGET_CHROMEBOOK_MINNIE) || \
+		defined(CONFIG_TARGET_CHROMEBOOK_SPEEDY)
 	return BOOT_DEVICE_SPI;
 #endif
 	return BOOT_DEVICE_MMC1;
 }
-
-#ifdef CONFIG_SPL_MMC_SUPPORT
-static int configure_emmc(struct udevice *pinctrl)
-{
-#if defined(CONFIG_TARGET_CHROMEBOOK_JERRY)
-
-	struct gpio_desc desc;
-	int ret;
-
-	pinctrl_request_noflags(pinctrl, PERIPH_ID_EMMC);
-
-	/*
-	 * TODO(sjg@chromium.org): Pick this up from device tree or perhaps
-	 * use the EMMC_PWREN setting.
-	 */
-	ret = dm_gpio_lookup_name("D9", &desc);
-	if (ret) {
-		debug("gpio ret=%d\n", ret);
-		return ret;
-	}
-	ret = dm_gpio_request(&desc, "emmc_pwren");
-	if (ret) {
-		debug("gpio_request ret=%d\n", ret);
-		return ret;
-	}
-	ret = dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
-	if (ret) {
-		debug("gpio dir ret=%d\n", ret);
-		return ret;
-	}
-	ret = dm_gpio_set_value(&desc, 1);
-	if (ret) {
-		debug("gpio value ret=%d\n", ret);
-		return ret;
-	}
-#endif
-	return 0;
-}
-#endif
 
 #if !defined(CONFIG_SPL_OF_PLATDATA)
 static int phycore_init(void)
@@ -144,7 +106,6 @@ static int phycore_init(void)
 
 void board_init_f(ulong dummy)
 {
-	struct udevice *pinctrl;
 	struct udevice *dev;
 	int ret;
 
@@ -180,12 +141,6 @@ void board_init_f(ulong dummy)
 	ret = rockchip_get_clk(&dev);
 	if (ret) {
 		debug("CLK init failed: %d\n", ret);
-		return;
-	}
-
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("Pinctrl init failed: %d\n", ret);
 		return;
 	}
 
@@ -239,40 +194,12 @@ static int setup_led(void)
 
 void spl_board_init(void)
 {
-	struct udevice *pinctrl;
 	int ret;
 
 	ret = setup_led();
-
 	if (ret) {
 		debug("LED ret=%d\n", ret);
 		hang();
-	}
-
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("%s: Cannot find pinctrl device\n", __func__);
-		goto err;
-	}
-
-#ifdef CONFIG_SPL_MMC_SUPPORT
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_SDCARD);
-	if (ret) {
-		debug("%s: Failed to set up SD card\n", __func__);
-		goto err;
-	}
-	ret = configure_emmc(pinctrl);
-	if (ret) {
-		debug("%s: Failed to set up eMMC\n", __func__);
-		goto err;
-	}
-#endif
-
-	/* Enable debug UART */
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART_DBG);
-	if (ret) {
-		debug("%s: Failed to set up console UART\n", __func__);
-		goto err;
 	}
 
 	preloader_console_init();
@@ -280,11 +207,6 @@ void spl_board_init(void)
 	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 #endif
 	return;
-err:
-	printf("spl_board_init: Error %d\n", ret);
-
-	/* No way to report error here */
-	hang();
 }
 
 #ifdef CONFIG_SPL_OS_BOOT

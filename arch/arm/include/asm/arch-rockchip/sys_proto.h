@@ -29,4 +29,7 @@ static void configure_l2ctlr(void)
 }
 #endif /* CONFIG_ROCKCHIP_RK3288 */
 
+/* provided to defeat compiler optimisation in board_init_f() */
+void gru_dummy_function(int i);
+
 #endif /* _ASM_ARCH_SYS_PROTO_H */

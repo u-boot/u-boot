@@ -21,6 +21,15 @@ config I2S
 	  I2S. It calls either of the two supported codecs (no use is made
 	  of driver model at present).
 
+config I2S_ROCKCHIP
+	bool "Enable I2S support for Rockchip SoCs"
+	depends on I2S
+	help
+	  Rockchip SoCs support an I2S interface for sending audio data to an
+	  audio codec. This option enables support for this, using one of the
+	  available audio codec drivers. This driver does not make use of
+	  DMA, but writes each word directly to the hardware.
+
 config I2S_SAMSUNG
 	bool "Enable I2C support for Samsung SoCs"
 	depends on SOUND

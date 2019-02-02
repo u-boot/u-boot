@@ -29,7 +29,6 @@ config ROCKCHIP_RK3188
 	select SUPPORT_SPL
 	select SPL
 	select SPL_CLK
-	select SPL_PINCTRL
 	select SPL_REGMAP
 	select SPL_SYSCON
 	select SPL_RAM

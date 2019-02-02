@@ -53,6 +53,15 @@ config TARGET_ROCK960_RK3399
 	   * 2x USB 3.0 type A, 2x USB 2.0 type A (host mode only),
 	     1x USB 3.0 type C OTG
 
+config TARGET_CHROMEBOOK_BOB
+	bool "Asus Flip C101PA Chromebook (RK3399)"
+	help
+	  Bob is a small RK3299-based device similar in apperance to Minnie.
+	  It has two USB 3.0 type-C ports, 4GB of SDRAM, WiFi and a 10.1",
+	  1280x800 display. It uses its USB ports for both power and external
+	  display. It includes a Chrome OS EC (Cortex-M3) to provide access to
+	  the keyboard and battery functions.
+
 endchoice
 
 config SYS_SOC
@@ -64,5 +73,6 @@ config SYS_MALLOC_F_LEN
 source "board/rockchip/evb_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
 source "board/vamrs/rock960_rk3399/Kconfig"
+source "board/google/gru/Kconfig"
 
 endif

@@ -6,13 +6,7 @@
 U-Boot on Rockchip
 ==================
 
-There are several repositories available with versions of U-Boot that support
-many Rockchip devices [1] [2].
-
-The current mainline support is experimental only and is not useful for
-anything. It should provide a base on which to build.
-
-So far only support for the RK3288 and RK3036 is provided.
+A wide range of Rockchip SoCs are supported in mainline U-Boot
 
 
 Prerequisites
@@ -34,22 +28,63 @@ You will need:
 Building
 ========
 
-At present nine RK3288 boards are supported:
+At present 12 RK3288 boards are supported:
 
    - EVB RK3288 - use evb-rk3288 configuration
    - Fennec RK3288 - use fennec-rk3288 configuration
    - Firefly RK3288 - use firefly-rk3288 configuration
    - Hisense Chromebook - use chromebook_jerry configuration
+   - Asus C100P Chromebook - use chromebook_minnie configuration
+   - Asus Chromebit - use chromebook_mickey configuration
    - MiQi RK3288 - use miqi-rk3288 configuration
    - phyCORE-RK3288 RDK - use phycore-rk3288 configuration
    - PopMetal RK3288 - use popmetal-rk3288 configuration
    - Radxa Rock 2 - use rock2 configuration
    - Tinker RK3288 - use tinker-rk3288 configuration
+   - Vyasa RK3288 - use vyasa-rk3288 configuration
 
-Two RK3036 board are supported:
+Two RK3036 boards are supported:
 
    - EVB RK3036 - use evb-rk3036 configuration
    - Kylin - use kylin_rk3036 configuration
+
+One RK3328 board is supported:
+
+   - EVB RK3328
+
+Size RK3399 boards are supported (aarch64):
+
+   - EBV RK3399 - use evb_rk3399 configuration
+   - Firefly RK3399 - use the firefly_rk3399 configuration
+   - Puma - use puma_rk3399 configuration
+   - Ficus - use ficus-rk3399 configuration
+   - Rock960 (Vamrs) - use rock960-rk3399 configuration
+   - Bob - use chromebook_bob configuration
+
+Four RK3368 boards are supported:
+
+   - Sheep - use sheep-rk3368 configuration
+   - Lion - use lion-rk3368 configuration
+   - Geekbox - use geekbox configuration
+   - EVB PX5 - use evb-px5  configuration
+
+One RK3128 board is supported:
+
+   - EVB RK3128 - use evb-rk3128 configuration
+
+One RK3229 board is supported:
+
+   - EVB RK3229 - use evb-rk3229 configuration
+
+Two RV1108 boards are supported:
+
+   - EVB RV1108 - use evb-rv1108 configuration
+   - Elgin R1 - use elgin-rv1108 configuration
+
+One RV3188 baord is supported:
+
+   - Raxda Rock - use rock configuration
+
 
 For example:
 
@@ -219,7 +254,8 @@ You should see something like:
 Booting from SPI
 ================
 
-To write an image that boots from SPI flash (e.g. for the Haier Chromebook):
+To write an image that boots from SPI flash (e.g. for the Haier Chromebook or
+Bob):
 
    ./chromebook_jerry/tools/mkimage -n rk3288 -T rkspi \
 	-d chromebook_jerry/spl/u-boot-spl-dtb.bin spl.bin && \
@@ -228,7 +264,7 @@ To write an image that boots from SPI flash (e.g. for the Haier Chromebook):
    dd if=out.bin of=out.bin.pad bs=4M conv=sync
 
 This converts the SPL image to the required SPI format by adding the Rockchip
-header and skipping every 2KB block. Then the U-Boot image is written at
+header and skipping every second 2KB block. Then the U-Boot image is written at
 offset 128KB and the whole image is padded to 4MB which is the SPI flash size.
 The position of U-Boot is controlled with this setting in U-Boot:
 
@@ -264,7 +300,6 @@ Immediate priorities are:
 - USB device
 - Run CPU at full speed (code exists but we only see ~60 DMIPS maximum)
 - NAND flash
-- Support for other Rockchip parts
 - Boot U-Boot proper over USB OTG (at present only SPL works)
 
 

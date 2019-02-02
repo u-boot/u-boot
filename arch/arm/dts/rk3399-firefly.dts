@@ -15,7 +15,7 @@
 
 	chosen {
 		stdout-path = &uart2;
-		u-boot,spl-boot-order = &sdhci, &sdmmc;
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
 	};
 
 	backlight: backlight {

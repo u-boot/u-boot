@@ -35,21 +35,29 @@ Get the Source and prebuild binary
   > git clone https://github.com/rockchip-linux/rkbin.git
   > git clone https://github.com/rockchip-linux/rkdeveloptool.git
 
-Compile the ATF
-===============
+Get some prerequisites
+======================
+
+You need the Python elftools.elf.elffile library for make_fit_atf.py to work:
+
+  > sudo apt-get install python-pyelftools
+
+Compile ATF
+===========
 
   > cd arm-trusted-firmware
   > make realclean
   > make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
 
-  Or you can get the bl31.elf directly from Rockchip:
-  cp rkbin/rk33/rk3399_bl31_v1.00.elf ../u-boot/bl31.elf
-
   Get bl31.elf in this step, copy it to U-Boot root dir:
-  > cp bl31.elf ../u-boot/
+  > cp build/rk3399/release/bl31/bl31.elf ../u-boot/
 
-Compile the U-Boot
-==================
+  Or you can get the bl31.elf directly from Rockchip:
+  > cp rkbin/rk33/rk3399_bl31_v1.00.elf ../u-boot/bl31.elf
+
+
+Compile U-Boot
+==============
 
   > cd ../u-boot
   > export ARCH=arm64
@@ -62,16 +70,17 @@ Compile the U-Boot
 
   Get spl/u-boot-spl.bin and u-boot.itb in this step.
 
-Compile the rkdeveloptool
-=======================
-  Follow instructions in latest README
+Compile rkdeveloptool
+=====================
+
+Get rkdeveloptool installed on your Host in this step.
+
+Follow instructions in latest README, example:
   > cd ../rkdeveloptool
   > autoreconf -i
   > ./configure
   > make
   > sudo make install
-
-  Get rkdeveloptool in you Host in this step.
 
 Both origin binaries and Tool are ready now, choose either option 1 or
 option 2 to deploy U-Boot.

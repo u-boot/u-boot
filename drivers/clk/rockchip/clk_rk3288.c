@@ -6,6 +6,7 @@
 #include <common.h>
 #include <bitfield.h>
 #include <clk-uclass.h>
+#include <div64.h>
 #include <dm.h>
 #include <dt-structs.h>
 #include <errno.h>
@@ -370,6 +371,50 @@ static int rockchip_vop_set_clk(struct rk3288_cru *cru, struct rk3288_grf *grf,
 	}
 
 	return 0;
+}
+
+static u32 rockchip_clk_gcd(u32 a, u32 b)
+{
+	while (b != 0) {
+		int r = b;
+
+		b = a % b;
+		a = r;
+	}
+	return a;
+}
+
+static ulong rockchip_i2s_get_clk(struct rk3288_cru *cru, uint gclk_rate)
+{
+	unsigned long long rate;
+	uint val;
+	int n, d;
+
+	val = readl(&cru->cru_clksel_con[8]);
+	n = (val & I2S0_FRAC_NUMER_MASK) >> I2S0_FRAC_NUMER_SHIFT;
+	d = (val & I2S0_FRAC_DENOM_MASK) >> I2S0_FRAC_DENOM_SHIFT;
+
+	rate = (unsigned long long)gclk_rate * n;
+	do_div(rate, d);
+
+	return (ulong)rate;
+}
+
+static ulong rockchip_i2s_set_clk(struct rk3288_cru *cru, uint gclk_rate,
+				  uint freq)
+{
+	int n, d;
+	int v;
+
+	/* set frac divider */
+	v = rockchip_clk_gcd(gclk_rate, freq);
+	n = gclk_rate / v;
+	d = freq / v;
+	assert(freq == gclk_rate / n * d);
+	writel(d << I2S0_FRAC_NUMER_SHIFT | n << I2S0_FRAC_DENOM_SHIFT,
+	       &cru->cru_clksel_con[8]);
+
+	return rockchip_i2s_get_clk(cru, gclk_rate);
 }
 #endif /* CONFIG_SPL_BUILD */
 
@@ -769,6 +814,9 @@ static ulong rk3288_clk_set_rate(struct clk *clk, ulong rate)
 		new_rate = rockchip_spi_set_clk(cru, gclk_rate, clk->id, rate);
 		break;
 #ifndef CONFIG_SPL_BUILD
+	case SCLK_I2S0:
+		new_rate = rockchip_i2s_set_clk(cru, gclk_rate, rate);
+		break;
 	case SCLK_MAC:
 		new_rate = rockchip_mac_set_clk(priv->cru, rate);
 		break;

@@ -18,10 +18,10 @@ __weak int name_to_gpio(const char *name)
 }
 
 enum gpio_cmd {
-	GPIO_INPUT,
-	GPIO_SET,
-	GPIO_CLEAR,
-	GPIO_TOGGLE,
+	GPIOC_INPUT,
+	GPIOC_SET,
+	GPIOC_CLEAR,
+	GPIOC_TOGGLE,
 };
 
 #if defined(CONFIG_DM_GPIO) && !defined(gpio_status)
@@ -158,11 +158,20 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* parse the behavior */
 	switch (*str_cmd) {
-		case 'i': sub_cmd = GPIO_INPUT;  break;
-		case 's': sub_cmd = GPIO_SET;    break;
-		case 'c': sub_cmd = GPIO_CLEAR;  break;
-		case 't': sub_cmd = GPIO_TOGGLE; break;
-		default:  goto show_usage;
+	case 'i':
+		sub_cmd = GPIOC_INPUT;
+		break;
+	case 's':
+		sub_cmd = GPIOC_SET;
+		break;
+	case 'c':
+		sub_cmd = GPIOC_CLEAR;
+		break;
+	case 't':
+		sub_cmd = GPIOC_TOGGLE;
+		break;
+	default:
+		goto show_usage;
 	}
 
 #if defined(CONFIG_DM_GPIO)
@@ -192,18 +201,18 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* finally, let's do it: set direction and exec command */
-	if (sub_cmd == GPIO_INPUT) {
+	if (sub_cmd == GPIOC_INPUT) {
 		gpio_direction_input(gpio);
 		value = gpio_get_value(gpio);
 	} else {
 		switch (sub_cmd) {
-		case GPIO_SET:
+		case GPIOC_SET:
 			value = 1;
 			break;
-		case GPIO_CLEAR:
+		case GPIOC_CLEAR:
 			value = 0;
 			break;
-		case GPIO_TOGGLE:
+		case GPIOC_TOGGLE:
 			value = gpio_get_value(gpio);
 			if (!IS_ERR_VALUE(value))
 				value = !value;
@@ -218,7 +227,7 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("unknown (ret=%d)\n", value);
 	else
 		printf("%d\n", value);
-	if (sub_cmd != GPIO_INPUT && !IS_ERR_VALUE(value)) {
+	if (sub_cmd != GPIOC_INPUT && !IS_ERR_VALUE(value)) {
 		int nval = gpio_get_value(gpio);
 
 		if (IS_ERR_VALUE(nval))

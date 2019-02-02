@@ -158,96 +158,6 @@ config PINCTRL_QCA953X
 	  the GPIO definitions and pin control functions for each available
 	  multiplex function.
 
-config PINCTRL_ROCKCHIP_RK3036
-	bool "Rockchip rk3036 pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip rk3036 SoCs.
-
-	  The driver is controlled by a device tree node which contains both
-	  the GPIO definitions and pin control functions for each available
-	  multiplex function.
-
-config PINCTRL_ROCKCHIP_RK3128
-	bool "Rockchip rk3128 pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip rk3128 SoCs.
-
-	  The driver is controlled by a device tree node which contains both
-	  the GPIO definitions and pin control functions for each available
-	  multiplex function.
-
-config PINCTRL_ROCKCHIP_RK3188
-	bool "Rockchip rk3188 pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip rk3188 SoCs.
-
-	  The driver is controlled by a device tree node which contains both
-	  the GPIO definitions and pin control functions for each available
-	  multiplex function.
-
-config PINCTRL_ROCKCHIP_RK322X
-	bool "Rockchip rk322x pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip rk322x SoCs.
-
-	  The driver is controlled by a device tree node which contains both
-	  the GPIO definitions and pin control functions for each available
-	  multiplex function.
-
-config PINCTRL_ROCKCHIP_RK3288
-	bool "Rockchip rk3288 pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip rk3288 SoCs.
-
-	  The driver is controlled by a device tree node which contains both
-	  the GPIO definitions and pin control functions for each available
-	  multiplex function.
-
-config PINCTRL_ROCKCHIP_RK3328
-	bool "Rockchip rk3328 pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip rk3328 SoCs.
-
-	  The driver is controlled by a device tree node which contains both
-	  the GPIO definitions and pin control functions for each available
-	  multiplex function.
-
-config PINCTRL_ROCKCHIP_RK3368
-	bool "Rockchip RK3368 pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip rk3368 SoCs.
-
-	  The driver is controlled by a device tree node which contains both
-	  the GPIO definitions and pin control functions for each available
-	  multiplex function.
-
-config PINCTRL_ROCKCHIP_RK3399
-	bool "Rockchip rk3399 pin control driver"
-	depends on DM
-	help
-	  Support pin multiplexing control on Rockchip rk3399 SoCs.
-
-	  The driver is controlled by a device tree node which contains both
-	  the GPIO definitions and pin control functions for each available
-	  multiplex function.
-
-config PINCTRL_ROCKCHIP_RK3399_FULL
-	bool "Rockchip rk3399 pin control driver (full)"
-	depends on PINCTRL_FULL && PINCTRL_ROCKCHIP_RK3399
-	help
-	  Support full pin multiplexing control on Rockchip rk3399 SoCs.
-
-	  This enables the full pinctrl driver for the RK3399.
-	  Contrary to the non-full pinctrl driver, this will evaluate
-	  the board DTB to get the pinctrl settings.
-
 config PINCTRL_ROCKCHIP_RV1108
 	bool "Rockchip rv1108 pin control driver"
 	depends on DM
@@ -310,14 +220,15 @@ config ASPEED_AST2500_PINCTRL
 
 endif
 
-source "drivers/pinctrl/meson/Kconfig"
-source "drivers/pinctrl/mediatek/Kconfig"
-source "drivers/pinctrl/nxp/Kconfig"
-source "drivers/pinctrl/renesas/Kconfig"
-source "drivers/pinctrl/uniphier/Kconfig"
+source "drivers/pinctrl/broadcom/Kconfig"
 source "drivers/pinctrl/exynos/Kconfig"
+source "drivers/pinctrl/mediatek/Kconfig"
+source "drivers/pinctrl/meson/Kconfig"
 source "drivers/pinctrl/mscc/Kconfig"
 source "drivers/pinctrl/mvebu/Kconfig"
-source "drivers/pinctrl/broadcom/Kconfig"
+source "drivers/pinctrl/nxp/Kconfig"
+source "drivers/pinctrl/renesas/Kconfig"
+source "drivers/pinctrl/rockchip/Kconfig"
+source "drivers/pinctrl/uniphier/Kconfig"
 
 endmenu

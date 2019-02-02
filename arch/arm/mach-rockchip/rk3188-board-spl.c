@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <ram.h>
 #include <spl.h>
+#include <syscon.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/bootrom.h>
@@ -27,7 +28,6 @@
 #include <dm/test.h>
 #include <dm/util.h>
 #include <power/regulator.h>
-#include <syscon.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -120,7 +120,7 @@ void board_debug_uart_init(void)
 
 void board_init_f(ulong dummy)
 {
-	struct udevice *pinctrl, *dev;
+	struct udevice *dev;
 	int ret;
 
 #define EARLY_UART
@@ -134,10 +134,7 @@ void board_init_f(ulong dummy)
 	 * printascii("string");
 	 */
 	debug_uart_init();
-	printch('s');
-	printch('p');
-	printch('l');
-	printch('\n');
+	printascii("U-Boot SPL board init");
 #endif
 
 #ifdef CONFIG_ROCKCHIP_USB_UART
@@ -168,12 +165,6 @@ void board_init_f(ulong dummy)
 	ret = rockchip_get_clk(&dev);
 	if (ret) {
 		debug("CLK init failed: %d\n", ret);
-		return;
-	}
-
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("Pinctrl init failed: %d\n", ret);
 		return;
 	}
 
@@ -214,7 +205,6 @@ static int setup_led(void)
 
 void spl_board_init(void)
 {
-	struct udevice *pinctrl;
 	int ret;
 
 	ret = setup_led();
@@ -223,36 +213,9 @@ void spl_board_init(void)
 		hang();
 	}
 
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("%s: Cannot find pinctrl device\n", __func__);
-		goto err;
-	}
-
-#ifdef CONFIG_SPL_MMC_SUPPORT
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_SDCARD);
-	if (ret) {
-		debug("%s: Failed to set up SD card\n", __func__);
-		goto err;
-	}
-#endif
-
-	/* Enable debug UART */
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART_DBG);
-	if (ret) {
-		debug("%s: Failed to set up console UART\n", __func__);
-		goto err;
-	}
-
 	preloader_console_init();
 #if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 #endif
 	return;
-
-err:
-	printf("spl_board_init: Error %d\n", ret);
-
-	/* No way to report error here */
-	hang();
 }

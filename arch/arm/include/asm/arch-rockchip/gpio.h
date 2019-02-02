@@ -24,4 +24,34 @@ struct rockchip_gpio_regs {
 };
 check_member(rockchip_gpio_regs, ls_sync, 0x60);
 
+enum gpio_pu_pd {
+	GPIO_PULL_NORMAL = 0,
+	GPIO_PULL_UP,
+	GPIO_PULL_DOWN,
+	GPIO_PULL_REPEAT,
+};
+
+/* These defines are only used by spl_gpio.h */
+enum {
+	/* Banks have 8 GPIOs, so 3 bits, and there are 4 banks, so 2 bits */
+	GPIO_BANK_SHIFT		= 3,
+	GPIO_BANK_MASK		= 3 << GPIO_BANK_SHIFT,
+
+	GPIO_OFFSET_MASK	= 0x1f,
+};
+
+#define GPIO(bank, offset)	((bank) << GPIO_BANK_SHIFT | (offset))
+
+enum gpio_bank_t {
+	BANK_A = 0,
+	BANK_B,
+	BANK_C,
+	BANK_D,
+};
+
+enum gpio_dir_t {
+	GPIO_INPUT = 0,
+	GPIO_OUTPUT,
+};
+
 #endif
