@@ -75,4 +75,4 @@ obj-$(CONFIG_FSL_PFE) += pfe_eth/
 obj-$(CONFIG_SNI_AVE) += sni_ave.o
 obj-y += ti/
 obj-$(CONFIG_MEDIATEK_ETH) += mtk_eth.o
-obj-$(CONFIG_MSCC_OCELOT_SWITCH) += ocelot_switch.o
+obj-y += mscc_eswitch/

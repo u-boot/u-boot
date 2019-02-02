@@ -64,6 +64,13 @@ static void vcoreiii_gpio_set_alternate(int gpio, int mode)
 	}
 }
 
+void board_debug_uart_init(void)
+{
+	/* too early for the pinctrl driver, so configure the UART pins here */
+	vcoreiii_gpio_set_alternate(10, 1);
+	vcoreiii_gpio_set_alternate(11, 1);
+}
+
 static void do_board_detect(void)
 {
 	int i;
@@ -72,6 +79,9 @@ static void do_board_detect(void)
 	/* MIIM 1 + 2  MDC/MDIO */
 	for (i = 56; i < 60; i++)
 		vcoreiii_gpio_set_alternate(i, 1);
+
+	/* small delay for settling the pins */
+	mdelay(30);
 
 	if (mscc_phy_rd(0, 0x10, 0x3, &pval) == 0 &&
 	    ((pval >> 4) & 0x3F) == 0x3c) {

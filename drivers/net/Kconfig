@@ -432,12 +432,7 @@ config SNI_AVE
 	  This driver implements support for the Socionext AVE Ethernet
 	  controller, as found on the Socionext UniPhier family.
 
-config MSCC_OCELOT_SWITCH
-	bool "Ocelot switch driver"
-	depends on DM_ETH && ARCH_MSCC
-	select PHYLIB
-	help
-	  This driver supports the Ocelot network switch device.
+source "drivers/net/mscc_eswitch/Kconfig"
 
 config ETHER_ON_FEC1
 	bool "FEC1"
