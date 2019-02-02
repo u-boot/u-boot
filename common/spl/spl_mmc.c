@@ -238,7 +238,7 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 {
 	int err = -ENOSYS;
 
-#ifdef CONFIG_SPL_FAT_SUPPORT
+#ifdef CONFIG_SPL_FS_FAT
 	if (!spl_start_uboot()) {
 		err = spl_load_image_fat_os(spl_image, mmc_get_blk_desc(mmc),
 			CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
@@ -253,7 +253,7 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 		return err;
 #endif
 #endif
-#ifdef CONFIG_SPL_EXT_SUPPORT
+#ifdef CONFIG_SPL_FS_EXT4
 	if (!spl_start_uboot()) {
 		err = spl_load_image_ext_os(spl_image, mmc_get_blk_desc(mmc),
 			CONFIG_SYS_MMCSD_FS_BOOT_PARTITION);
@@ -269,7 +269,7 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 #endif
 #endif
 
-#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 	err = -ENOENT;
 #endif
 
@@ -284,7 +284,7 @@ static int spl_mmc_do_fs_boot(struct spl_image_info *spl_image, struct mmc *mmc)
 
 u32 __weak spl_boot_mode(const u32 boot_device)
 {
-#if defined(CONFIG_SPL_FAT_SUPPORT) || defined(CONFIG_SPL_EXT_SUPPORT)
+#if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
 	return MMCSD_MODE_FS;
 #elif defined(CONFIG_SUPPORT_EMMC_BOOT)
 	return MMCSD_MODE_EMMCBOOT;

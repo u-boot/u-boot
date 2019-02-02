@@ -2333,6 +2333,8 @@ fail:
 }
 
 /*-------------------------------------------------------------------------*/
+static void _usb_eth_halt(struct ether_priv *priv);
+
 static int _usb_eth_init(struct ether_priv *priv)
 {
 	struct eth_dev *dev = &priv->ethdev;
@@ -2406,6 +2408,7 @@ static int _usb_eth_init(struct ether_priv *priv)
 	rx_submit(dev, dev->rx_req, 0);
 	return 0;
 fail:
+	_usb_eth_halt(priv);
 	return -1;
 }
 
@@ -2485,7 +2488,7 @@ static int _usb_eth_recv(struct ether_priv *priv)
 	return 0;
 }
 
-void _usb_eth_halt(struct ether_priv *priv)
+static void _usb_eth_halt(struct ether_priv *priv)
 {
 	struct eth_dev *dev = &priv->ethdev;
 

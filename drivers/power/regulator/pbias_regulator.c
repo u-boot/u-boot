@@ -14,6 +14,11 @@
 #include <linux/bitops.h>
 #include <linux/ioport.h>
 #include <dm/read.h>
+#ifdef CONFIG_MMC_OMAP36XX_PINS
+#include <asm/arch/sys_proto.h>
+#include <asm/io.h>
+#include <asm/arch/mux.h>
+#endif
 
 struct pbias_reg_info {
 	u32 enable;
@@ -223,8 +228,11 @@ static int pbias_regulator_get_value(struct udevice *dev)
 static int pbias_regulator_set_value(struct udevice *dev, int uV)
 {
 	const struct pbias_reg_info *p = dev_get_priv(dev);
-	int rc;
+	int rc, ret;
 	u32 reg;
+#ifdef CONFIG_MMC_OMAP36XX_PINS
+	u32 wkup_ctrl = readl(OMAP34XX_CTRL_WKUP_CTRL);
+#endif
 
 	rc = pmic_read(dev->parent, 0, (uint8_t *)&reg, sizeof(reg));
 	if (rc)
@@ -240,7 +248,23 @@ static int pbias_regulator_set_value(struct udevice *dev, int uV)
 	debug("Setting %s voltage to %s\n", p->name,
 	      (reg & p->vmode) ? "3.0v" : "1.8v");
 
-	return pmic_write(dev->parent, 0, (uint8_t *)&reg, sizeof(reg));
+#ifdef CONFIG_MMC_OMAP36XX_PINS
+	if (get_cpu_family() == CPU_OMAP36XX) {
+		/* Disable extended drain IO before changing PBIAS */
+		wkup_ctrl &= ~OMAP34XX_CTRL_WKUP_CTRL_GPIO_IO_PWRDNZ;
+		writel(wkup_ctrl, OMAP34XX_CTRL_WKUP_CTRL);
+	}
+#endif
+	ret = pmic_write(dev->parent, 0, (uint8_t *)&reg, sizeof(reg));
+#ifdef CONFIG_MMC_OMAP36XX_PINS
+	if (get_cpu_family() == CPU_OMAP36XX) {
+		/* Enable extended drain IO after changing PBIAS */
+		writel(wkup_ctrl |
+				OMAP34XX_CTRL_WKUP_CTRL_GPIO_IO_PWRDNZ,
+				OMAP34XX_CTRL_WKUP_CTRL);
+	}
+#endif
+	return ret;
 }
 
 static int pbias_regulator_get_enable(struct udevice *dev)
@@ -264,8 +288,19 @@ static int pbias_regulator_set_enable(struct udevice *dev, bool enable)
 	const struct pbias_reg_info *p = dev_get_priv(dev);
 	int rc;
 	u32 reg;
+#ifdef CONFIG_MMC_OMAP36XX_PINS
+	u32 wkup_ctrl = readl(OMAP34XX_CTRL_WKUP_CTRL);
+#endif
 
 	debug("Turning %s %s\n", enable ? "on" : "off", p->name);
+
+#ifdef CONFIG_MMC_OMAP36XX_PINS
+	if (get_cpu_family() == CPU_OMAP36XX) {
+		/* Disable extended drain IO before changing PBIAS */
+		wkup_ctrl &= ~OMAP34XX_CTRL_WKUP_CTRL_GPIO_IO_PWRDNZ;
+		writel(wkup_ctrl, OMAP34XX_CTRL_WKUP_CTRL);
+	}
+#endif
 
 	rc = pmic_read(dev->parent, 0, (uint8_t *)&reg, sizeof(reg));
 	if (rc)
@@ -278,6 +313,16 @@ static int pbias_regulator_set_enable(struct udevice *dev, bool enable)
 		reg |= p->disable_val;
 
 	rc = pmic_write(dev->parent, 0, (uint8_t *)&reg, sizeof(reg));
+
+#ifdef CONFIG_MMC_OMAP36XX_PINS
+	if (get_cpu_family() == CPU_OMAP36XX) {
+		/* Enable extended drain IO after changing PBIAS */
+		writel(wkup_ctrl |
+				OMAP34XX_CTRL_WKUP_CTRL_GPIO_IO_PWRDNZ,
+				OMAP34XX_CTRL_WKUP_CTRL);
+	}
+#endif
+
 	if (rc)
 		return rc;
 

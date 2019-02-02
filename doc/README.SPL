@@ -53,8 +53,8 @@ CONFIG_SPL_MMC_SUPPORT (drivers/mmc/libmmc.o)
 CONFIG_SPL_SERIAL_SUPPORT (drivers/serial/libserial.o)
 CONFIG_SPL_SPI_FLASH_SUPPORT (drivers/mtd/spi/libspi_flash.o)
 CONFIG_SPL_SPI_SUPPORT (drivers/spi/libspi.o)
-CONFIG_SPL_FAT_SUPPORT (fs/fat/libfat.o)
-CONFIG_SPL_EXT_SUPPORT
+CONFIG_SPL_FS_FAT (fs/fat/libfat.o)
+CONFIG_SPL_FS_EXT4
 CONFIG_SPL_LIBGENERIC_SUPPORT (lib/libgeneric.o)
 CONFIG_SPL_POWER_SUPPORT (drivers/power/libpower.o)
 CONFIG_SPL_NAND_SUPPORT (drivers/mtd/nand/raw/libnand.o)

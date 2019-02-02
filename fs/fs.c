@@ -168,7 +168,7 @@ static struct fstype_info fstypes[] = {
 		.exists = fat_exists,
 		.size = fat_size,
 		.read = fat_read_file,
-#ifdef CONFIG_FAT_WRITE
+#if CONFIG_IS_ENABLED(FAT_WRITE)
 		.write = file_fat_write,
 		.unlink = fat_unlink,
 		.mkdir = fat_mkdir,
@@ -183,7 +183,8 @@ static struct fstype_info fstypes[] = {
 		.closedir = fat_closedir,
 	},
 #endif
-#ifdef CONFIG_FS_EXT4
+
+#if CONFIG_IS_ENABLED(FS_EXT4)
 	{
 		.fstype = FS_TYPE_EXT,
 		.name = "ext4",
@@ -453,8 +454,7 @@ static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
 	if (len && len < read_len)
 		read_len = len;
 
-	lmb_init_and_reserve(&lmb, gd->bd->bi_dram[0].start,
-			     gd->bd->bi_dram[0].size, (void *)gd->fdt_blob);
+	lmb_init_and_reserve(&lmb, gd->bd, (void *)gd->fdt_blob);
 	lmb_dump_all(&lmb);
 
 	if (lmb_alloc_addr(&lmb, addr, read_len) == addr)

@@ -15,9 +15,11 @@ static int check_lmb(struct unit_test_state *uts, struct lmb *lmb,
 		     phys_addr_t base2, phys_size_t size2,
 		     phys_addr_t base3, phys_size_t size3)
 {
-	ut_asserteq(lmb->memory.cnt, 1);
-	ut_asserteq(lmb->memory.region[0].base, ram_base);
-	ut_asserteq(lmb->memory.region[0].size, ram_size);
+	if (ram_size) {
+		ut_asserteq(lmb->memory.cnt, 1);
+		ut_asserteq(lmb->memory.region[0].base, ram_base);
+		ut_asserteq(lmb->memory.region[0].size, ram_size);
+	}
 
 	ut_asserteq(lmb->reserved.cnt, num_reserved);
 	if (num_reserved > 0) {
@@ -45,8 +47,9 @@ static int check_lmb(struct unit_test_state *uts, struct lmb *lmb,
  * Test helper function that reserves 64 KiB somewhere in the simulated RAM and
  * then does some alloc + free tests.
  */
-static int test_multi_alloc(struct unit_test_state *uts,
-			    const phys_addr_t ram, const phys_size_t ram_size,
+static int test_multi_alloc(struct unit_test_state *uts, const phys_addr_t ram,
+			    const phys_size_t ram_size, const phys_addr_t ram0,
+			    const phys_size_t ram0_size,
 			    const phys_addr_t alloc_64k_addr)
 {
 	const phys_addr_t ram_end = ram + ram_size;
@@ -65,74 +68,103 @@ static int test_multi_alloc(struct unit_test_state *uts,
 
 	lmb_init(&lmb);
 
+	if (ram0_size) {
+		ret = lmb_add(&lmb, ram0, ram0_size);
+		ut_asserteq(ret, 0);
+	}
+
 	ret = lmb_add(&lmb, ram, ram_size);
 	ut_asserteq(ret, 0);
+
+	if (ram0_size) {
+		ut_asserteq(lmb.memory.cnt, 2);
+		ut_asserteq(lmb.memory.region[0].base, ram0);
+		ut_asserteq(lmb.memory.region[0].size, ram0_size);
+		ut_asserteq(lmb.memory.region[1].base, ram);
+		ut_asserteq(lmb.memory.region[1].size, ram_size);
+	} else {
+		ut_asserteq(lmb.memory.cnt, 1);
+		ut_asserteq(lmb.memory.region[0].base, ram);
+		ut_asserteq(lmb.memory.region[0].size, ram_size);
+	}
 
 	/* reserve 64KiB somewhere */
 	ret = lmb_reserve(&lmb, alloc_64k_addr, 0x10000);
 	ut_asserteq(ret, 0);
-	ASSERT_LMB(&lmb, ram, ram_size, 1, alloc_64k_addr, 0x10000,
+	ASSERT_LMB(&lmb, 0, 0, 1, alloc_64k_addr, 0x10000,
 		   0, 0, 0, 0);
 
 	/* allocate somewhere, should be at the end of RAM */
 	a = lmb_alloc(&lmb, 4, 1);
 	ut_asserteq(a, ram_end - 4);
-	ASSERT_LMB(&lmb, ram, ram_size, 2, alloc_64k_addr, 0x10000,
+	ASSERT_LMB(&lmb, 0, 0, 2, alloc_64k_addr, 0x10000,
 		   ram_end - 4, 4, 0, 0);
 	/* alloc below end of reserved region -> below reserved region */
 	b = lmb_alloc_base(&lmb, 4, 1, alloc_64k_end);
 	ut_asserteq(b, alloc_64k_addr - 4);
-	ASSERT_LMB(&lmb, ram, ram_size, 2,
+	ASSERT_LMB(&lmb, 0, 0, 2,
 		   alloc_64k_addr - 4, 0x10000 + 4, ram_end - 4, 4, 0, 0);
 
 	/* 2nd time */
 	c = lmb_alloc(&lmb, 4, 1);
 	ut_asserteq(c, ram_end - 8);
-	ASSERT_LMB(&lmb, ram, ram_size, 2,
+	ASSERT_LMB(&lmb, 0, 0, 2,
 		   alloc_64k_addr - 4, 0x10000 + 4, ram_end - 8, 8, 0, 0);
 	d = lmb_alloc_base(&lmb, 4, 1, alloc_64k_end);
 	ut_asserteq(d, alloc_64k_addr - 8);
-	ASSERT_LMB(&lmb, ram, ram_size, 2,
+	ASSERT_LMB(&lmb, 0, 0, 2,
 		   alloc_64k_addr - 8, 0x10000 + 8, ram_end - 8, 8, 0, 0);
 
 	ret = lmb_free(&lmb, a, 4);
 	ut_asserteq(ret, 0);
-	ASSERT_LMB(&lmb, ram, ram_size, 2,
+	ASSERT_LMB(&lmb, 0, 0, 2,
 		   alloc_64k_addr - 8, 0x10000 + 8, ram_end - 8, 4, 0, 0);
 	/* allocate again to ensure we get the same address */
 	a2 = lmb_alloc(&lmb, 4, 1);
 	ut_asserteq(a, a2);
-	ASSERT_LMB(&lmb, ram, ram_size, 2,
+	ASSERT_LMB(&lmb, 0, 0, 2,
 		   alloc_64k_addr - 8, 0x10000 + 8, ram_end - 8, 8, 0, 0);
 	ret = lmb_free(&lmb, a2, 4);
 	ut_asserteq(ret, 0);
-	ASSERT_LMB(&lmb, ram, ram_size, 2,
+	ASSERT_LMB(&lmb, 0, 0, 2,
 		   alloc_64k_addr - 8, 0x10000 + 8, ram_end - 8, 4, 0, 0);
 
 	ret = lmb_free(&lmb, b, 4);
 	ut_asserteq(ret, 0);
-	ASSERT_LMB(&lmb, ram, ram_size, 3,
+	ASSERT_LMB(&lmb, 0, 0, 3,
 		   alloc_64k_addr - 8, 4, alloc_64k_addr, 0x10000,
 		   ram_end - 8, 4);
 	/* allocate again to ensure we get the same address */
 	b2 = lmb_alloc_base(&lmb, 4, 1, alloc_64k_end);
 	ut_asserteq(b, b2);
-	ASSERT_LMB(&lmb, ram, ram_size, 2,
+	ASSERT_LMB(&lmb, 0, 0, 2,
 		   alloc_64k_addr - 8, 0x10000 + 8, ram_end - 8, 4, 0, 0);
 	ret = lmb_free(&lmb, b2, 4);
 	ut_asserteq(ret, 0);
-	ASSERT_LMB(&lmb, ram, ram_size, 3,
+	ASSERT_LMB(&lmb, 0, 0, 3,
 		   alloc_64k_addr - 8, 4, alloc_64k_addr, 0x10000,
 		   ram_end - 8, 4);
 
 	ret = lmb_free(&lmb, c, 4);
 	ut_asserteq(ret, 0);
-	ASSERT_LMB(&lmb, ram, ram_size, 2,
+	ASSERT_LMB(&lmb, 0, 0, 2,
 		   alloc_64k_addr - 8, 4, alloc_64k_addr, 0x10000, 0, 0);
 	ret = lmb_free(&lmb, d, 4);
 	ut_asserteq(ret, 0);
-	ASSERT_LMB(&lmb, ram, ram_size, 1, alloc_64k_addr, 0x10000,
+	ASSERT_LMB(&lmb, 0, 0, 1, alloc_64k_addr, 0x10000,
 		   0, 0, 0, 0);
+
+	if (ram0_size) {
+		ut_asserteq(lmb.memory.cnt, 2);
+		ut_asserteq(lmb.memory.region[0].base, ram0);
+		ut_asserteq(lmb.memory.region[0].size, ram0_size);
+		ut_asserteq(lmb.memory.region[1].base, ram);
+		ut_asserteq(lmb.memory.region[1].size, ram_size);
+	} else {
+		ut_asserteq(lmb.memory.cnt, 1);
+		ut_asserteq(lmb.memory.region[0].base, ram);
+		ut_asserteq(lmb.memory.region[0].size, ram_size);
+	}
 
 	return 0;
 }
@@ -140,7 +172,15 @@ static int test_multi_alloc(struct unit_test_state *uts,
 static int test_multi_alloc_512mb(struct unit_test_state *uts,
 				  const phys_addr_t ram)
 {
-	return test_multi_alloc(uts, ram, 0x20000000, ram + 0x10000000);
+	return test_multi_alloc(uts, ram, 0x20000000, 0, 0, ram + 0x10000000);
+}
+
+static int test_multi_alloc_512mb_x2(struct unit_test_state *uts,
+				     const phys_addr_t ram,
+				     const phys_addr_t ram0)
+{
+	return test_multi_alloc(uts, ram, 0x20000000, ram0, 0x20000000,
+				ram + 0x10000000);
 }
 
 /* Create a memory region with one reserved region and allocate */
@@ -158,6 +198,22 @@ static int lib_test_lmb_simple(struct unit_test_state *uts)
 }
 
 DM_TEST(lib_test_lmb_simple, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Create two memory regions with one reserved region and allocate */
+static int lib_test_lmb_simple_x2(struct unit_test_state *uts)
+{
+	int ret;
+
+	/* simulate 512 MiB RAM beginning at 2GiB and 1 GiB */
+	ret = test_multi_alloc_512mb_x2(uts, 0x80000000, 0x40000000);
+	if (ret)
+		return ret;
+
+	/* simulate 512 MiB RAM beginning at 3.5GiB and 1 GiB */
+	return test_multi_alloc_512mb_x2(uts, 0xE0000000, 0x40000000);
+}
+
+DM_TEST(lib_test_lmb_simple_x2,  DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
 
 /* Simulate 512 MiB RAM, allocate some blocks that fit/don't fit */
 static int test_bigblock(struct unit_test_state *uts, const phys_addr_t ram)

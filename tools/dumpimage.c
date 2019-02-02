@@ -60,27 +60,26 @@ int main(int argc, char **argv)
 	int ifd = -1;
 	struct stat sbuf;
 	char *ptr;
-	int retval = 0;
+	int retval = EXIT_SUCCESS;
 	struct image_type_params *tparams = NULL;
 
 	params.cmdname = *argv;
 
-	while ((opt = getopt(argc, argv, "li:o:T:p:V")) != -1) {
+	while ((opt = getopt(argc, argv, "hlo:T:p:V")) != -1) {
 		switch (opt) {
 		case 'l':
 			params.lflag = 1;
 			break;
-		case 'i':
-			params.imagefile = optarg;
-			params.iflag = 1;
-			break;
 		case 'o':
 			params.outfile = optarg;
+			params.iflag = 1;
 			break;
 		case 'T':
 			params.type = genimg_get_type_id(optarg);
 			if (params.type < 0) {
-				usage();
+				fprintf(stderr, "%s: Invalid type\n",
+					params.cmdname);
+				exit(EXIT_FAILURE);
 			}
 			break;
 		case 'p':
@@ -95,14 +94,23 @@ int main(int argc, char **argv)
 		case 'V':
 			printf("dumpimage version %s\n", PLAIN_VERSION);
 			exit(EXIT_SUCCESS);
+		case 'h':
+			usage();
 		default:
 			usage();
 			break;
 		}
 	}
 
-	if (optind >= argc)
+	if (argc < 2)
 		usage();
+
+	if (optind >= argc) {
+		fprintf(stderr, "%s: image file missing\n", params.cmdname);
+		exit(EXIT_FAILURE);
+	}
+
+	params.imagefile = argv[optind];
 
 	/* set tparams as per input type_id */
 	tparams = imagetool_get_type(params.type);
@@ -117,78 +125,69 @@ int main(int argc, char **argv)
 	 * as per image type to be generated/listed
 	 */
 	if (tparams->check_params) {
-		if (tparams->check_params(&params))
-			usage();
+		if (tparams->check_params(&params)) {
+			fprintf(stderr, "%s: Parameter check failed\n",
+				params.cmdname);
+			exit(EXIT_FAILURE);
+		}
 	}
 
-	if (params.iflag)
-		params.datafile = argv[optind];
-	else
-		params.imagefile = argv[optind];
-	if (!params.outfile)
-		params.outfile = params.datafile;
-
-	ifd = open(params.imagefile, O_RDONLY|O_BINARY);
-	if (ifd < 0) {
-		fprintf(stderr, "%s: Can't open \"%s\": %s\n",
-			params.cmdname, params.imagefile,
-			strerror(errno));
+	if (!params.lflag && !params.outfile) {
+		fprintf(stderr, "%s: No output file provided\n",
+			params.cmdname);
 		exit(EXIT_FAILURE);
 	}
 
-	if (params.lflag || params.iflag) {
-		if (fstat(ifd, &sbuf) < 0) {
-			fprintf(stderr, "%s: Can't stat \"%s\": %s\n",
-				params.cmdname, params.imagefile,
-				strerror(errno));
-			exit(EXIT_FAILURE);
-		}
-
-		if ((uint32_t)sbuf.st_size < tparams->header_size) {
-			fprintf(stderr,
-				"%s: Bad size: \"%s\" is not valid image\n",
-				params.cmdname, params.imagefile);
-			exit(EXIT_FAILURE);
-		}
-
-		ptr = mmap(0, sbuf.st_size, PROT_READ, MAP_SHARED, ifd, 0);
-		if (ptr == MAP_FAILED) {
-			fprintf(stderr, "%s: Can't read \"%s\": %s\n",
-				params.cmdname, params.imagefile,
-				strerror(errno));
-			exit(EXIT_FAILURE);
-		}
-
-		/*
-		 * Both calls bellow scan through dumpimage registry for all
-		 * supported image types and verify the input image file
-		 * header for match
-		 */
-		if (params.iflag) {
-			/*
-			 * Extract the data files from within the matched
-			 * image type. Returns the error code if not matched
-			 */
-			retval = dumpimage_extract_subimage(tparams, ptr,
-					&sbuf);
-		} else {
-			/*
-			 * Print the image information for matched image type
-			 * Returns the error code if not matched
-			 */
-			retval = imagetool_verify_print_header(ptr, &sbuf,
-					tparams, &params);
-		}
-
-		(void)munmap((void *)ptr, sbuf.st_size);
-		(void)close(ifd);
-
-		return retval;
+	ifd = open(params.imagefile, O_RDONLY|O_BINARY);
+	if (ifd < 0) {
+		fprintf(stderr, "%s: Can't open \"%s\": %s\n", params.cmdname,
+			params.imagefile, strerror(errno));
+		exit(EXIT_FAILURE);
 	}
 
+	if (fstat(ifd, &sbuf) < 0) {
+		fprintf(stderr, "%s: Can't stat \"%s\": %s\n", params.cmdname,
+			params.imagefile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	if ((uint32_t)sbuf.st_size < tparams->header_size) {
+		fprintf(stderr, "%s: Bad size: \"%s\" is not valid image\n",
+			params.cmdname, params.imagefile);
+		exit(EXIT_FAILURE);
+	}
+
+	ptr = mmap(0, sbuf.st_size, PROT_READ, MAP_SHARED, ifd, 0);
+	if (ptr == MAP_FAILED) {
+		fprintf(stderr, "%s: Can't read \"%s\": %s\n", params.cmdname,
+			params.imagefile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	/*
+	 * Both calls bellow scan through dumpimage registry for all
+	 * supported image types and verify the input image file
+	 * header for match
+	 */
+	if (params.iflag) {
+		/*
+		 * Extract the data files from within the matched
+		 * image type. Returns the error code if not matched
+		 */
+		retval = dumpimage_extract_subimage(tparams, ptr, &sbuf);
+	} else {
+		/*
+		 * Print the image information for matched image type
+		 * Returns the error code if not matched
+		 */
+		retval = imagetool_verify_print_header(ptr, &sbuf, tparams,
+						       &params);
+	}
+
+	(void)munmap((void *)ptr, sbuf.st_size);
 	(void)close(ifd);
 
-	return EXIT_SUCCESS;
+	return retval;
 }
 
 static void usage(void)
@@ -197,14 +196,17 @@ static void usage(void)
 		"          -l ==> list image header information\n",
 		params.cmdname);
 	fprintf(stderr,
-		"       %s -i image -T type [-p position] [-o outfile] data_file\n"
-		"          -i ==> extract from the 'image' a specific 'data_file'\n"
-		"          -T ==> set image type to 'type'\n"
-		"          -p ==> 'position' (starting at 0) of the 'data_file' inside the 'image'\n",
+		"       %s [-T type] [-p position] [-o outfile] image\n"
+		"          -T ==> declare image type as 'type'\n"
+		"          -p ==> 'position' (starting at 0) of the component to extract from image\n"
+		"          -o ==> extract component to file 'outfile'\n",
+		params.cmdname);
+	fprintf(stderr,
+		"       %s -h ==> print usage information and exit\n",
 		params.cmdname);
 	fprintf(stderr,
 		"       %s -V ==> print version information and exit\n",
 		params.cmdname);
 
-	exit(EXIT_FAILURE);
+	exit(EXIT_SUCCESS);
 }

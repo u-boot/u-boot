@@ -32,7 +32,6 @@
 #endif
 
 #ifdef CONFIG_ARM64
-#define CONFIG_BUILD_TARGET "u-boot.itb"
 #define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 #endif
 

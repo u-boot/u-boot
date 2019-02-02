@@ -1,6 +1,6 @@
 if ARCH_ZYNQMP
 
-config SPL_FAT_SUPPORT
+config SPL_FS_FAT
 	default y
 
 config SPL_LIBCOMMON_SUPPORT

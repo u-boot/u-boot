@@ -387,7 +387,7 @@ config SPL_ETH_SUPPORT
 	  is required since the network stack uses a number of environment
 	  variables. See also SPL_NET_SUPPORT.
 
-config SPL_EXT_SUPPORT
+config SPL_FS_EXT4
 	bool "Support EXT filesystems"
 	help
 	  Enable support for EXT2/3/4 filesystems with SPL. This permits
@@ -395,7 +395,7 @@ config SPL_EXT_SUPPORT
 	  filesystem from within SPL. Support for the underlying block
 	  device (e.g. MMC or USB) must be enabled separately.
 
-config SPL_FAT_SUPPORT
+config SPL_FS_FAT
 	bool "Support FAT filesystems"
 	select FS_FAT
 	help
@@ -403,6 +403,13 @@ config SPL_FAT_SUPPORT
 	  permits U-Boot (or Linux in Falcon mode) to be loaded from a FAT
 	  filesystem from within SPL. Support for the underlying block
 	  device (e.g. MMC or USB) must be enabled separately.
+
+config SPL_FAT_WRITE
+	bool "Support write for FAT filesystems"
+	help
+	  Enable write support for FAT and VFAT filesystems with SPL.
+	  Support for the underlying block device (e.g. MMC or USB) must be
+	  enabled separately.
 
 config SPL_FPGA_SUPPORT
 	bool "Support FPGAs"
