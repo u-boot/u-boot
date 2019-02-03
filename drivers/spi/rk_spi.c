@@ -277,7 +277,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	uint ctrlr0;
 
 	/* Disable the SPI hardware */
-	rkspi_enable_chip(regs, 0);
+	rkspi_enable_chip(regs, false);
 
 	if (priv->speed_hz != priv->last_speed_hz)
 		rkspi_set_clk(priv, priv->speed_hz);
