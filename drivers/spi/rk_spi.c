@@ -379,9 +379,18 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 				toread--;
 			}
 		}
-		ret = rkspi_wait_till_not_busy(regs);
-		if (ret)
-			break;
+
+		/*
+		 * In case that there's a transmit-component, we need to wait
+		 * until the control goes idle before we can disable the SPI
+		 * control logic (as this will implictly flush the FIFOs).
+		 */
+		if (out) {
+			ret = rkspi_wait_till_not_busy(regs);
+			if (ret)
+				break;
+		}
+
 		len -= todo;
 	}
 
