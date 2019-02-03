@@ -2,6 +2,8 @@
 /*
  * spi driver for rockchip
  *
+ * (C) 2019 Theobroma Systems Design und Consulting GmbH
+ *
  * (C) Copyright 2015 Google, Inc
  *
  * (C) Copyright 2008-2013 Rockchip Electronics
@@ -333,6 +335,81 @@ static int rockchip_spi_release_bus(struct udevice *dev)
 	return 0;
 }
 
+static inline int rockchip_spi_16bit_reader(struct udevice *dev,
+					    u8 **din, int *len)
+{
+	struct udevice *bus = dev->parent;
+	const struct rockchip_spi_params * const data =
+		(void *)dev_get_driver_data(bus);
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
+	struct rockchip_spi *regs = priv->regs;
+	const u32 saved_ctrlr0 = readl(&regs->ctrlr0);
+#if defined(DEBUG)
+	u32 statistics_rxlevels[33] = { };
+#endif
+	u32 frames = *len / 2;
+	u16 *in16 = (u16 *)(*din);
+	u32 max_chunk_size = SPI_FIFO_DEPTH;
+
+	if (!frames)
+		return 0;
+
+	/*
+	 * If the destination buffer is unaligned, we'd run into a problem
+	 * on ARMv8.  Given that this doesn't seem to be a real issue, we
+	 * just chicken out and fall back to the unoptimised implementation.
+	 */
+	if ((uintptr_t)*din & 1) {
+		debug("%s: unaligned buffer, din = %p\n", __func__, *din);
+		return 0;
+	}
+
+	// rockchip_spi_configure(dev, mode, size)
+	rkspi_enable_chip(regs, false);
+	clrsetbits_le32(&regs->ctrlr0,
+			TMOD_MASK << TMOD_SHIFT,
+			TMOD_RO << TMOD_SHIFT);
+	/* 16bit data frame size */
+	clrsetbits_le32(&regs->ctrlr0, DFS_MASK, DFS_16BIT);
+
+	/* Update caller's context */
+	const u32 bytes_to_process = 2 * frames;
+	*din += bytes_to_process;
+	*len -= bytes_to_process;
+
+	/* Process our frames */
+	while (frames) {
+		u32 chunk_size = min(frames, max_chunk_size);
+
+		frames -= chunk_size;
+
+		writew(chunk_size - 1, &regs->ctrlr1);
+		rkspi_enable_chip(regs, true);
+
+		do {
+			u32 rx_level = readw(&regs->rxflr);
+#if defined(DEBUG)
+			statistics_rxlevels[rx_level]++;
+#endif
+			chunk_size -= rx_level;
+			while (rx_level--)
+				*in16++ = readw(regs->rxdr);
+		} while (chunk_size);
+
+		rkspi_enable_chip(regs, false);
+	}
+
+#if defined(DEBUG)
+	debug("%s: observed rx_level during processing:\n", __func__);
+	for (int i = 0; i <= 32; ++i)
+		if (statistics_rxlevels[i])
+			debug("\t%2d: %d\n", i, statistics_rxlevels[i]);
+#endif
+	/* Restore the original transfer setup and return error-free. */
+	writel(saved_ctrlr0, &regs->ctrlr0);
+	return 0;
+}
+
 static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			   const void *dout, void *din, unsigned long flags)
 {
@@ -344,7 +421,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	const u8 *out = dout;
 	u8 *in = din;
 	int toread, towrite;
-	int ret;
+	int ret = 0;
 
 	debug("%s: dout=%p, din=%p, len=%x, flags=%lx\n", __func__, dout, din,
 	      len, flags);
@@ -355,6 +432,16 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(dev, slave_plat->cs);
 
+	/*
+	 * To ensure fast loading of firmware images (e.g. full U-Boot
+	 * stage, ATF, Linux kernel) from SPI flash, we optimise the
+	 * case of read-only transfers by using the full 16bits of each
+	 * FIFO element.
+	 */
+	if (!out)
+		ret = rockchip_spi_16bit_reader(dev, &in, &len);
+
+	/* This is the original 8bit reader/writer code */
 	while (len > 0) {
 		int todo = min(len, 0x10000);
 
