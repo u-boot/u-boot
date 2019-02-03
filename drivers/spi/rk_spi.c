@@ -356,7 +356,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		spi_cs_activate(dev, slave_plat->cs);
 
 	while (len > 0) {
-		int todo = min(len, 0xffff);
+		int todo = min(len, 0x10000);
 
 		rkspi_enable_chip(regs, false);
 		writel(todo - 1, &regs->ctrlr1);
