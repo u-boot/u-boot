@@ -130,8 +130,13 @@ static void spi_cs_activate(struct udevice *dev, uint cs)
 	if (plat->deactivate_delay_us && priv->last_transaction_us) {
 		ulong delay_us;		/* The delay completed so far */
 		delay_us = timer_get_us() - priv->last_transaction_us;
-		if (delay_us < plat->deactivate_delay_us)
-			udelay(plat->deactivate_delay_us - delay_us);
+		if (delay_us < plat->deactivate_delay_us) {
+			ulong additional_delay_us =
+				plat->deactivate_delay_us - delay_us;
+			debug("%s: delaying by %ld us\n",
+			      __func__, additional_delay_us);
+			udelay(additional_delay_us);
+		}
 	}
 
 	debug("activate cs%u\n", cs);
