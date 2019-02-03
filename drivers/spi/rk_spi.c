@@ -353,21 +353,11 @@ static inline int rockchip_spi_16bit_reader(struct udevice *dev,
 	u32 statistics_rxlevels[33] = { };
 #endif
 	u32 frames = *len / 2;
-	u16 *in16 = (u16 *)(*din);
+	u8 *in = (u8 *)(*din);
 	u32 max_chunk_size = SPI_FIFO_DEPTH;
 
 	if (!frames)
 		return 0;
-
-	/*
-	 * If the destination buffer is unaligned, we'd run into a problem
-	 * on ARMv8.  Given that this doesn't seem to be a real issue, we
-	 * just chicken out and fall back to the unoptimised implementation.
-	 */
-	if ((uintptr_t)*din & 1) {
-		debug("%s: unaligned buffer, din = %p\n", __func__, *din);
-		return 0;
-	}
 
 	/*
 	 * If we know that the hardware will manage RXFIFO overruns
@@ -406,8 +396,11 @@ static inline int rockchip_spi_16bit_reader(struct udevice *dev,
 			statistics_rxlevels[rx_level]++;
 #endif
 			chunk_size -= rx_level;
-			while (rx_level--)
-				*in16++ = readw(regs->rxdr);
+			while (rx_level--) {
+				u16 val = readw(regs->rxdr);
+				*in++ = val & 0xff;
+				*in++ = val >> 8;
+			}
 		} while (chunk_size);
 
 		rkspi_enable_chip(regs, false);
