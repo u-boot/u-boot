@@ -40,11 +40,8 @@ struct rockchip_spi_priv {
 	unsigned int max_freq;
 	unsigned int mode;
 	ulong last_transaction_us;	/* Time of last transaction end */
-	u8 bits_per_word;		/* max 16 bits per word */
-	u8 n_bytes;
 	unsigned int speed_hz;
 	unsigned int last_speed_hz;
-	unsigned int tmode;
 	uint input_rate;
 };
 
@@ -268,8 +265,6 @@ static int rockchip_spi_probe(struct udevice *bus)
 	}
 	priv->input_rate = ret;
 	debug("%s: rate = %u\n", __func__, priv->input_rate);
-	priv->bits_per_word = 8;
-	priv->tmode = TMOD_TR; /* Tx & Rx */
 
 	return 0;
 }
@@ -279,28 +274,10 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	struct rockchip_spi *regs = priv->regs;
-	u8 spi_dfs, spi_tf;
 	uint ctrlr0;
 
 	/* Disable the SPI hardware */
 	rkspi_enable_chip(regs, 0);
-
-	switch (priv->bits_per_word) {
-	case 8:
-		priv->n_bytes = 1;
-		spi_dfs = DFS_8BIT;
-		spi_tf = HALF_WORD_OFF;
-		break;
-	case 16:
-		priv->n_bytes = 2;
-		spi_dfs = DFS_16BIT;
-		spi_tf = HALF_WORD_ON;
-		break;
-	default:
-		debug("%s: unsupported bits: %dbits\n", __func__,
-		      priv->bits_per_word);
-		return -EPROTONOSUPPORT;
-	}
 
 	if (priv->speed_hz != priv->last_speed_hz)
 		rkspi_set_clk(priv, priv->speed_hz);
@@ -309,7 +286,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 = OMOD_MASTER << OMOD_SHIFT;
 
 	/* Data Frame Size */
-	ctrlr0 |= spi_dfs << DFS_SHIFT;
+	ctrlr0 |= DFS_8BIT << DFS_SHIFT;
 
 	/* set SPI mode 0..3 */
 	if (priv->mode & SPI_CPOL)
@@ -330,7 +307,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 |= FBM_MSB << FBM_SHIFT;
 
 	/* Byte and Halfword Transform */
-	ctrlr0 |= spi_tf << HALF_WORD_TX_SHIFT;
+	ctrlr0 |= HALF_WORD_OFF << HALF_WORD_TX_SHIFT;
 
 	/* Rxd Sample Delay */
 	ctrlr0 |= 0 << RXDSD_SHIFT;
@@ -339,7 +316,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 |= FRF_SPI << FRF_SHIFT;
 
 	/* Tx and Rx mode */
-	ctrlr0 |= (priv->tmode & TMOD_MASK) << TMOD_SHIFT;
+	ctrlr0 |= TMOD_TR << TMOD_SHIFT;
 
 	writel(ctrlr0, &regs->ctrlr0);
 
