@@ -132,7 +132,7 @@
 	num-lanes = <4>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&cpm_pcie_reset_pins>;
-	marvell,reset-gpio = <&cpm_gpio1 20 GPIO_ACTIVE_HIGH>; /* GPIO[52] */
+	marvell,reset-gpio = <&cpm_gpio1 20 GPIO_ACTIVE_LOW>; /* GPIO[52] */
 	status = "okay";
 };
 
