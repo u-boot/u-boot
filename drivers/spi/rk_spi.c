@@ -26,6 +26,11 @@
 /* Change to 1 to output registers at the start of each transaction */
 #define DEBUG_RK_SPI	0
 
+struct rockchip_spi_params {
+	/* RXFIFO overruns and TXFIFO underruns stop the master clock */
+	bool master_manages_fifo;
+};
+
 struct rockchip_spi_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	struct dtd_rockchip_rk3288_spi of_plat;
@@ -364,6 +369,15 @@ static inline int rockchip_spi_16bit_reader(struct udevice *dev,
 		return 0;
 	}
 
+	/*
+	 * If we know that the hardware will manage RXFIFO overruns
+	 * (i.e. stop the SPI clock until there's space in the FIFO),
+	 * we the allow largest possible chunk size that can be
+	 * represented in CTRLR1.
+	 */
+	if (data && data->master_manages_fifo)
+		max_chunk_size = 0x10000;
+
 	// rockchip_spi_configure(dev, mode, size)
 	rkspi_enable_chip(regs, false);
 	clrsetbits_le32(&regs->ctrlr0,
@@ -524,10 +538,16 @@ static const struct dm_spi_ops rockchip_spi_ops = {
 	 */
 };
 
+const  struct rockchip_spi_params rk3399_spi_params = {
+	.master_manages_fifo = true,
+};
+
 static const struct udevice_id rockchip_spi_ids[] = {
 	{ .compatible = "rockchip,rk3288-spi" },
-	{ .compatible = "rockchip,rk3368-spi" },
-	{ .compatible = "rockchip,rk3399-spi" },
+	{ .compatible = "rockchip,rk3368-spi",
+	  .data = (ulong)&rk3399_spi_params },
+	{ .compatible = "rockchip,rk3399-spi",
+	  .data = (ulong)&rk3399_spi_params },
 	{ }
 };
 
