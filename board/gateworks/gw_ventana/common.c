@@ -18,12 +18,6 @@
 
 #include "common.h"
 
-/* UART1: Function varies per baseboard */
-static iomux_v3_cfg_t const uart1_pads[] = {
-	IOMUX_PADS(PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
-};
-
 /* UART2: Serial Console */
 static iomux_v3_cfg_t const uart2_pads[] = {
 	IOMUX_PADS(PAD_SD4_DAT7__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
@@ -32,7 +26,6 @@ static iomux_v3_cfg_t const uart2_pads[] = {
 
 void setup_iomux_uart(void)
 {
-	SETUP_IOMUX_PADS(uart1_pads);
 	SETUP_IOMUX_PADS(uart2_pads);
 }
 
