@@ -83,8 +83,9 @@ static int stpmu1_output_find_sel(int uv,
  */
 
 static const struct stpmu1_range buck1_ranges[] = {
-	STPMU1_RANGE(600000, 0, 30, 25000),
-	STPMU1_RANGE(1350000, 31, 63, 0),
+	STPMU1_RANGE(725000, 0, 4, 0),
+	STPMU1_RANGE(725000, 5, 36, 25000),
+	STPMU1_RANGE(1500000, 37, 63, 0),
 };
 
 static const struct stpmu1_range buck2_ranges[] = {
