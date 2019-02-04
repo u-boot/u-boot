@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2018 NXP
+ * Copyright 2018-2019 NXP
  */
 
 #include <common.h>
@@ -111,6 +111,13 @@ int i2c_multiplexer_select_vid_channel(u8 channel)
 	return select_i2c_ch_pca9547(channel);
 }
 
+int init_func_vid(void)
+{
+	if (adjust_vdd(0) < 0)
+		printf("core voltage not adjusted\n");
+
+	return 0;
+}
 #endif
 
 int checkboard(void)
