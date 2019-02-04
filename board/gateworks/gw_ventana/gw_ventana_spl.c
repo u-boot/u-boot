@@ -217,6 +217,46 @@ static struct mx6_mmdc_calibration mx6sdl_64x16_mmdc_calib = {
 	.p0_mpwrdlctl = 0x33382C31,
 };
 
+/* TODO: update with calibrated values */
+static struct mx6_mmdc_calibration mx6dq_64x64_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x00190017,
+	.p0_mpwldectrl1 = 0x00140026,
+	.p1_mpwldectrl0 = 0x0021001C,
+	.p1_mpwldectrl1 = 0x0011001D,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x43380347,
+	.p0_mpdgctrl1 = 0x433C034D,
+	.p1_mpdgctrl0 = 0x032C0324,
+	.p1_mpdgctrl1 = 0x03310232,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x3C313539,
+	.p1_mprddlctl = 0x37343141,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x36393C39,
+	.p1_mpwrdlctl = 0x42344438,
+};
+
+/* TODO: update with calibrated values */
+static struct mx6_mmdc_calibration mx6sdl_64x64_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x003C003C,
+	.p0_mpwldectrl1 = 0x001F002A,
+	.p1_mpwldectrl0 = 0x00330038,
+	.p1_mpwldectrl1 = 0x0022003F,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x42410244,
+	.p0_mpdgctrl1 = 0x4234023A,
+	.p1_mpdgctrl0 = 0x022D022D,
+	.p1_mpdgctrl1 = 0x021C0228,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x484A4C4B,
+	.p1_mprddlctl = 0x4B4D4E4B,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x33342B32,
+	.p1_mpwrdlctl = 0x3933332B,
+};
+
 static struct mx6_mmdc_calibration mx6dq_256x16_mmdc_calib = {
 	/* write leveling calibration determine */
 	.p0_mpwldectrl0 = 0x001B0016,
@@ -530,6 +570,10 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 	} else if (width == 64 && size_mb == 512) {
 		mem = &mt41k64m16jt_125;
 		debug("1gB density\n");
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &mx6dq_64x64_mmdc_calib;
+		else
+			calib = &mx6sdl_64x64_mmdc_calib;
 	} else if (width == 64 && size_mb == 1024) {
 		mem = &mt41k128m16jt_125;
 		if (is_cpu_type(MXC_CPU_MX6Q))

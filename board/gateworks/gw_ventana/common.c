@@ -1112,6 +1112,27 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.wdis = IMX_GPIO_NR(7, 12),
 		.nand = true,
 	},
+
+	/* GW5908 */
+	{
+		.gpio_pads = gw53xx_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw53xx_gpio_pads)/2,
+		.dio_cfg = gw53xx_dio,
+		.dio_num = ARRAY_SIZE(gw53xx_dio),
+		.leds = {
+			IMX_GPIO_NR(4, 6),
+			IMX_GPIO_NR(4, 7),
+			IMX_GPIO_NR(4, 15),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 29),
+		.mezz_pwren = IMX_GPIO_NR(2, 19),
+		.mezz_irq = IMX_GPIO_NR(2, 18),
+		.gps_shdn = IMX_GPIO_NR(1, 27),
+		.vidin_en = IMX_GPIO_NR(3, 31),
+		.wdis = IMX_GPIO_NR(7, 12),
+		.msata_en = GP_MSATA_SEL,
+		.rs232_en = GP_RS232_EN,
+	},
 };
 
 #define SETUP_GPIO_OUTPUT(gpio, name, level) \
