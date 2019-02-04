@@ -817,6 +817,33 @@ struct dio_cfg gw5904_dio[] = {
 	},
 };
 
+struct dio_cfg gw5906_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT0__GPIO1_IO16) },
+		IMX_GPIO_NR(1, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT2__GPIO1_IO19) },
+		IMX_GPIO_NR(1, 19),
+		{ IOMUX_PADS(PAD_SD1_DAT2__PWM2_OUT) },
+		2
+	},
+	{
+		{ IOMUX_PADS(PAD_SD1_DAT1__GPIO1_IO17) },
+		IMX_GPIO_NR(1, 17),
+		{ IOMUX_PADS(PAD_SD1_DAT1__PWM3_OUT) },
+		3
+	},
+	{
+		{IOMUX_PADS(PAD_SD1_CLK__GPIO1_IO20) },
+		IMX_GPIO_NR(1, 20),
+		{ 0, 0 },
+		0
+	},
+};
+
 /*
  * Board Specific GPIO
  */
@@ -1051,6 +1078,24 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		},
 		.pcie_rst = IMX_GPIO_NR(7, 11),
 		.wdis = IMX_GPIO_NR(7, 13),
+	},
+
+	/* GW5906 */
+	{
+		.gpio_pads = gw552x_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw552x_gpio_pads)/2,
+		.dio_cfg = gw5906_dio,
+		.dio_num = ARRAY_SIZE(gw5906_dio),
+		.leds = {
+			IMX_GPIO_NR(4, 6),
+			IMX_GPIO_NR(4, 7),
+			IMX_GPIO_NR(4, 15),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 29),
+		.usb_sel = IMX_GPIO_NR(1, 7),
+		.wdis = IMX_GPIO_NR(7, 12),
+		.msata_en = GP_MSATA_SEL,
+		.nand = true,
 	},
 };
 

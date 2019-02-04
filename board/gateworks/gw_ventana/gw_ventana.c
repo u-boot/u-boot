@@ -155,6 +155,7 @@ int board_ehci_hcd_init(int port)
 	switch (board_type) {
 	case GW53xx:
 	case GW552x:
+	case GW5906:
 		gpio = (IMX_GPIO_NR(1, 9));
 		break;
 	case GW54proto:
