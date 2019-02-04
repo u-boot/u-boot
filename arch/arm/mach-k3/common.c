@@ -19,33 +19,25 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 
 	/*
 	 * It is assumed that remoteproc device 1 is the corresponding
-	 * cortex A core which runs ATF. Make sure DT reflects the same.
+	 * Cortex-A core which runs ATF. Make sure DT reflects the same.
 	 */
 	ret = rproc_dev_init(1);
-	if (ret) {
-		printf("%s: ATF failed to Initialize on rproc: ret= %d\n",
-		       __func__, ret);
-		hang();
-	}
+	if (ret)
+		panic("%s: ATF failed to initialize on rproc (%d)\n", __func__,
+		      ret);
 
 	ret = rproc_load(1, spl_image->entry_point, 0x200);
-	if (ret) {
-		printf("%s: ATF failed to load on rproc: ret= %d\n",
-		       __func__, ret);
-		hang();
-	}
+	if (ret)
+		panic("%s: ATF failed to load on rproc (%d)\n", __func__, ret);
 
-	/* Add an extra newline to differentiate the ATF logs from SPL*/
+	/* Add an extra newline to differentiate the ATF logs from SPL */
 	printf("Starting ATF on ARM64 core...\n\n");
 
 	ret = rproc_start(1);
-	if (ret) {
-		printf("%s: ATF failed to start on rproc: ret= %d\n",
-		       __func__, ret);
-		hang();
-	}
+	if (ret)
+		panic("%s: ATF failed to start on rproc (%d)\n", __func__, ret);
 
-	debug("ATF started. Wait indefiniely\n");
+	debug("ATF started. Waiting indefinitely...\n");
 	while (1)
 		asm volatile("wfe");
 }
