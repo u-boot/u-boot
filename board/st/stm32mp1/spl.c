@@ -11,7 +11,7 @@
 #include <asm/io.h>
 #include <post.h>
 #include <power/pmic.h>
-#include <power/stpmu1.h>
+#include <power/stpmic1.h>
 #include <asm/arch/ddr.h>
 
 void spl_board_init(void)

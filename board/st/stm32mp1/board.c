@@ -8,7 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
 #include <power/pmic.h>
-#include <power/stpmu1.h>
+#include <power/stpmic1.h>
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 void board_debug_uart_init(void)

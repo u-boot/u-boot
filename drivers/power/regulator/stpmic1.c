@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
-#include <power/stpmu1.h>
+#include <power/stpmic1.h>
 
 struct stpmu1_range {
 	int min_uv;

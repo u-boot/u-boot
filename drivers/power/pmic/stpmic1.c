@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <i2c.h>
 #include <power/pmic.h>
-#include <power/stpmu1.h>
+#include <power/stpmic1.h>
 
 #define STMPU1_NUM_OF_REGS 0x100
 

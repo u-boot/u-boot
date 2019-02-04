@@ -8,7 +8,7 @@
 #include "stm32mp157c.dtsi"
 #include "stm32mp157-pinctrl.dtsi"
 #include <dt-bindings/gpio/gpio.h>
-#include <dt-bindings/mfd/st,stpmu1.h>
+#include <dt-bindings/mfd/st,stpmic1.h>
 
 / {
 	model = "STMicroelectronics STM32MP157C eval daughter";
