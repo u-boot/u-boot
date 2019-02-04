@@ -1,5 +1,5 @@
 MPC8569MDS BOARD
-M:	York Sun <york.sun@nxp.com>
+M:	Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
 S:	Maintained
 F:	board/freescale/mpc8569mds/
 F:	include/configs/MPC8569MDS.h
