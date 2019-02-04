@@ -1313,6 +1313,12 @@ int ft_board_setup(void *blob, bd_t *bd)
 		if (rev < 'C')
 			ft_board_wdog_fixup(blob, WDOG1_PATH);
 		break;
+	case GW5901:
+	case GW5902:
+		/* GW5901/GW5901 revB adds WDOG1_B as an external reset */
+		if (rev < 'B')
+			ft_board_wdog_fixup(blob, WDOG1_PATH);
+		break;
 	}
 
 	/* Configure DIO */

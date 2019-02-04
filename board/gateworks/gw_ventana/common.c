@@ -389,6 +389,51 @@ static iomux_v3_cfg_t const gw560x_gpio_pads[] = {
 	IOMUX_PADS(PAD_DISP0_DAT5__GPIO4_IO26 | DIO_PAD_CFG),
 };
 
+static iomux_v3_cfg_t const gw5901_gpio_pads[] = {
+	/* MX6_LOCLED# */
+	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | DIO_PAD_CFG),
+	/* ETH1_EN */
+	IOMUX_PADS(PAD_GPIO_1__GPIO1_IO01 | DIO_PAD_CFG),
+	/* CAN_STBY */
+	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
+	/* PCI_RST# */
+	IOMUX_PADS(PAD_ENET_TXD1__GPIO1_IO29 | DIO_PAD_CFG),
+	/* PMIC reset */
+	IOMUX_PADS(PAD_DISP0_DAT8__WDOG1_B | DIO_PAD_CFG),
+	/* COM_CFGA/B/C/D */
+	IOMUX_PADS(PAD_DISP0_DAT20__GPIO5_IO14 | DIO_PAD_CFG),
+	IOMUX_PADS(PAD_DISP0_DAT21__GPIO5_IO15 | DIO_PAD_CFG),
+	IOMUX_PADS(PAD_DISP0_DAT22__GPIO5_IO16 | DIO_PAD_CFG),
+	IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17 | DIO_PAD_CFG),
+	/* ETI_IRQ# */
+	IOMUX_PADS(PAD_GPIO_5__GPIO1_IO05 | DIO_PAD_CFG),
+	/* DIO_IRQ# */
+	IOMUX_PADS(PAD_GPIO_7__GPIO1_IO07 | DIO_PAD_CFG),
+	/* FIBER_SIGDET */
+	IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG),
+};
+
+static iomux_v3_cfg_t const gw5902_gpio_pads[] = {
+	/* MX6_LOCLED# */
+	IOMUX_PADS(PAD_KEY_ROW4__GPIO4_IO15 | DIO_PAD_CFG),
+	/* CAN1_STBY */
+	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02 | DIO_PAD_CFG),
+	/* CAN2_STBY */
+	IOMUX_PADS(PAD_SD3_CLK__GPIO7_IO03 | DIO_PAD_CFG),
+	/* UART1_EN# */
+	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
+	/* PCI_RST# */
+	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | DIO_PAD_CFG),
+	/* 5V_UVLO */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
+	/* ETI_IRQ# */
+	IOMUX_PADS(PAD_GPIO_5__GPIO1_IO05 | DIO_PAD_CFG),
+	/* DIO_IRQ# */
+	IOMUX_PADS(PAD_GPIO_7__GPIO1_IO07 | DIO_PAD_CFG),
+	/* USBOTG_PEN */
+	IOMUX_PADS(PAD_EIM_D23__GPIO3_IO23 | DIO_PAD_CFG),
+};
+
 static iomux_v3_cfg_t const gw5903_gpio_pads[] = {
 	/* BKLT_12VEN */
 	IOMUX_PADS(PAD_GPIO_7__GPIO1_IO07 | DIO_PAD_CFG),
@@ -741,6 +786,60 @@ struct dio_cfg gw560x_dio[] = {
 	},
 };
 
+struct dio_cfg gw5901_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_DISP0_DAT20__GPIO5_IO14) },
+		IMX_GPIO_NR(5, 14),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_DISP0_DAT21__GPIO5_IO15) },
+		IMX_GPIO_NR(5, 15),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_DISP0_DAT22__GPIO5_IO16) },
+		IMX_GPIO_NR(5, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17) },
+		IMX_GPIO_NR(5, 17),
+		{ 0, 0 },
+		0
+	},
+};
+
+struct dio_cfg gw5902_dio[] = {
+	{
+		{ IOMUX_PADS(PAD_DISP0_DAT20__GPIO5_IO14) },
+		IMX_GPIO_NR(5, 14),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_DISP0_DAT21__GPIO5_IO15) },
+		IMX_GPIO_NR(5, 15),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_DISP0_DAT22__GPIO5_IO16) },
+		IMX_GPIO_NR(5, 16),
+		{ 0, 0 },
+		0
+	},
+	{
+		{ IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17) },
+		IMX_GPIO_NR(5, 17),
+		{ 0, 0 },
+		0
+	},
+};
+
 struct dio_cfg gw5903_dio[] = {
 };
 
@@ -1041,6 +1140,32 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mmc_cd = IMX_GPIO_NR(7, 0),
 	},
 
+	/* GW5901 */
+	{
+		.gpio_pads = gw5901_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw5901_gpio_pads)/2,
+		.dio_cfg = gw5901_dio,
+		.leds = {
+			IMX_GPIO_NR(4, 15),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 29),
+		.nand = true,
+	},
+
+	/* GW5902 */
+	{
+		.gpio_pads = gw5902_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw5902_gpio_pads)/2,
+		.dio_cfg = gw5902_dio,
+		.leds = {
+			IMX_GPIO_NR(4, 15),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 0),
+		.rs232_en = GP_RS232_EN,
+		.otgpwr_en = IMX_GPIO_NR(3, 23),
+		.nand = true,
+	},
+
 	/* GW5903 */
 	{
 		.gpio_pads = gw5903_gpio_pads,
@@ -1277,6 +1402,14 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 	case GW560x:
 		gpio_request(IMX_GPIO_NR(4, 26), "12p0_en");
 		gpio_direction_output(IMX_GPIO_NR(4, 26), 1);
+		break;
+	case GW5901:
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 2), "can_stby", 0);
+		break;
+	case GW5902:
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 2), "can1_stby", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(7, 3), "can2_stby", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(7, 12), "5P0V_EN", 1);
 		break;
 	case GW5903:
 		gpio_request(IMX_GPIO_NR(3, 31) , "usbh1-ehci_pwr");
