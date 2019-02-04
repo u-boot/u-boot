@@ -384,8 +384,8 @@ struct display_info_t const displays[] = {{
 		.vmode          = FB_VMODE_NONINTERLACED
 } }, {
 	/* DLC700JMG-T-4 */
-	.bus	= 0,
-	.addr	= 0,
+	.bus	= 2,
+	.addr	= 0x38,
 	.detect	= NULL,
 	.enable	= enable_lvds,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
@@ -405,8 +405,8 @@ struct display_info_t const displays[] = {{
 		.vmode          = FB_VMODE_NONINTERLACED
 } }, {
 	/* DLC800FIG-T-3 */
-	.bus	= 0,
-	.addr	= 0,
+	.bus	= 2,
+	.addr	= 0x14,
 	.detect	= NULL,
 	.enable	= enable_lvds,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
