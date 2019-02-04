@@ -267,11 +267,11 @@ int mv88e61xx_hw_reset(struct phy_device *phydev)
 	phydev->speed = SPEED_1000;
 	phydev->duplex = DUPLEX_FULL;
 
-	/* LED configuration: 7:4-green (8=Activity)  3:0 amber (9=10Link) */
-	bus->write(bus, 0x10, 0, 0x16, 0x8089);
-	bus->write(bus, 0x11, 0, 0x16, 0x8089);
-	bus->write(bus, 0x12, 0, 0x16, 0x8089);
-	bus->write(bus, 0x13, 0, 0x16, 0x8089);
+	/* LED configuration: 7:4-green (8=Activity)  3:0 amber (8=Link) */
+	bus->write(bus, 0x10, 0, 0x16, 0x8088);
+	bus->write(bus, 0x11, 0, 0x16, 0x8088);
+	bus->write(bus, 0x12, 0, 0x16, 0x8088);
+	bus->write(bus, 0x13, 0, 0x16, 0x8088);
 
 	return 0;
 }
