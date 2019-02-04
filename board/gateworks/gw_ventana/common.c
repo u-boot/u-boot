@@ -1429,6 +1429,8 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 		break;
 	case GW5909:
 	case GW5904:
+		gpio_request(IMX_GPIO_NR(4, 23), "rs485_en");
+		gpio_direction_output(IMX_GPIO_NR(4, 23), 0);
 		gpio_request(IMX_GPIO_NR(5, 11), "skt1_wdis#");
 		gpio_direction_output(IMX_GPIO_NR(5, 11), 1);
 		gpio_request(IMX_GPIO_NR(5, 12), "skt1_rst#");
