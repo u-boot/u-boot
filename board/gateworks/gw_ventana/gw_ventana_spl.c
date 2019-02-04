@@ -390,6 +390,25 @@ static struct mx6_mmdc_calibration mx6sdl_256x64x2_mmdc_calib = {
 	.p1_mpwrdlctl   = 0x3F36363F,
 };
 
+static struct mx6_mmdc_calibration mx6sdl_128x64x2_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x001F003F,
+	.p0_mpwldectrl1 = 0x001F001F,
+	.p1_mpwldectrl0 = 0x001F004E,
+	.p1_mpwldectrl1 = 0x0059001F,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0   = 0x42220225,
+	.p0_mpdgctrl1   = 0x0213021F,
+	.p1_mpdgctrl0   = 0x022C0242,
+	.p1_mpdgctrl1   = 0x022C0244,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl   = 0x474A4C4A,
+	.p1_mprddlctl   = 0x48494C45,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl   = 0x3F3F3F36,
+	.p1_mpwrdlctl   = 0x3F36363F,
+};
+
 static struct mx6_mmdc_calibration mx6dq_512x32_mmdc_calib = {
 	/* write leveling calibration determine */
 	.p0_mpwldectrl0 = 0x002A0025,
@@ -519,18 +538,33 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 			calib = &mx6sdl_128x64_mmdc_calib;
 		debug("2gB density\n");
 	} else if (width == 64 && size_mb == 2048) {
-		mem = &mt41k256m16ha_125;
-		if (is_cpu_type(MXC_CPU_MX6Q))
-			calib = &mx6dq_256x64_mmdc_calib;
-		else
-			calib = &mx6sdl_256x64_mmdc_calib;
-		debug("4gB density\n");
+		switch(board_model) {
+		case GW5905:
+			/* 8xMT41K128M16 (2GiB) fly-by mirrored 2-chipsels */
+			mem = &mt41k128m16jt_125;
+			debug("2gB density - 2 chipsel\n");
+			if (!is_cpu_type(MXC_CPU_MX6Q)) {
+				calib = &mx6sdl_128x64x2_mmdc_calib;
+				sysinfo.ncs = 2;
+				sysinfo.cs_density = 10; /* CS0_END=39 */
+				sysinfo.cs1_mirror = 1; /* mirror enabled */
+			}
+			break;
+		default:
+			mem = &mt41k256m16ha_125;
+			if (is_cpu_type(MXC_CPU_MX6Q))
+				calib = &mx6dq_256x64_mmdc_calib;
+			else
+				calib = &mx6sdl_256x64_mmdc_calib;
+			debug("4gB density\n");
+			break;
+		}
 	} else if (width == 64 && size_mb == 4096) {
 		switch(board_model) {
 		case GW5903:
 			/* 8xMT41K256M16 (4GiB) fly-by mirrored 2-chipsels */
 			mem = &mt41k256m16ha_125;
-			debug("4gB density\n");
+			debug("4gB density - 2 chipsel\n");
 			if (!is_cpu_type(MXC_CPU_MX6Q)) {
 				calib = &mx6sdl_256x64x2_mmdc_calib;
 				sysinfo.ncs = 2;

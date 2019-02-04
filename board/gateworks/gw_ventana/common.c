@@ -457,6 +457,47 @@ static iomux_v3_cfg_t const gw5904_gpio_pads[] = {
 	IOMUX_PADS(PAD_SD2_DAT2__GPIO1_IO13 | DIO_PAD_CFG),
 };
 
+static iomux_v3_cfg_t const gw5905_gpio_pads[] = {
+	/* EMMY_PDN# */
+	IOMUX_PADS(PAD_NANDF_D3__GPIO2_IO03 | DIO_PAD_CFG),
+	/* MX6_LOCLED# */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
+	/* MIPI_RST */
+	IOMUX_PADS(PAD_SD2_DAT0__GPIO1_IO15 | DIO_PAD_CFG),
+	/* MIPI_PWDN */
+	IOMUX_PADS(PAD_SD2_DAT1__GPIO1_IO14 | DIO_PAD_CFG),
+	/* USBEHCI_SEL */
+	IOMUX_PADS(PAD_GPIO_7__GPIO1_IO07 | DIO_PAD_CFG),
+	/* PCI_RST# */
+	IOMUX_PADS(PAD_GPIO_16__GPIO7_IO11 | DIO_PAD_CFG),
+	/* LVDS_BKLEN # */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_18__GPIO7_IO13 | DIO_PAD_CFG),
+	/* SPK_SHDN# */
+	IOMUX_PADS(PAD_GPIO_19__GPIO4_IO05 | DIO_PAD_CFG),
+	/* LOCLED# */
+	IOMUX_PADS(PAD_NANDF_CS1__GPIO6_IO14 | DIO_PAD_CFG),
+	/* FLASH LED1 */
+	IOMUX_PADS(PAD_DISP0_DAT11__GPIO5_IO05 | DIO_PAD_CFG),
+	/* FLASH LED2 */
+	IOMUX_PADS(PAD_DISP0_DAT12__GPIO5_IO06 | DIO_PAD_CFG),
+	/* DECT_RST# */
+	IOMUX_PADS(PAD_DISP0_DAT20__GPIO5_IO14 | DIO_PAD_CFG),
+	/* USBH1_PEN (EHCI) */
+	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
+	/* LVDS_PWM */
+	IOMUX_PADS(PAD_GPIO_9__GPIO1_IO09 | DIO_PAD_CFG),
+	/* CODEC_RST */
+	IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17 | DIO_PAD_CFG),
+	/* GYRO_CONTROL/DATA_EN */
+	IOMUX_PADS(PAD_CSI0_DAT8__GPIO5_IO26 | DIO_PAD_CFG),
+	/* TOUCH_RST */
+	IOMUX_PADS(PAD_KEY_COL1__GPIO4_IO08 | DIO_PAD_CFG),
+	/* TOUCH_IRQ */
+	IOMUX_PADS(PAD_KEY_COL0__GPIO4_IO06 | DIO_PAD_CFG),
+};
+
 /* Digital I/O */
 struct dio_cfg gw51xx_dio[] = {
 	{
@@ -993,8 +1034,25 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 		.otgpwr_en = IMX_GPIO_NR(3, 22),
 	},
+
+	/* GW5905 */
+	{
+		.gpio_pads = gw5905_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw5905_gpio_pads)/2,
+		.leds = {
+			IMX_GPIO_NR(6, 14),
+		},
+		.pcie_rst = IMX_GPIO_NR(7, 11),
+		.wdis = IMX_GPIO_NR(7, 13),
+	},
 };
 
+#define SETUP_GPIO_OUTPUT(gpio, name, level) \
+	gpio_request(gpio, name); \
+	gpio_direction_output(gpio, level);
+#define SETUP_GPIO_INPUT(gpio, name) \
+	gpio_request(gpio, name); \
+	gpio_direction_input(gpio);
 void setup_iomux_gpio(int board, struct ventana_board_info *info)
 {
 	int i;
@@ -1142,6 +1200,28 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 		gpio_direction_output(IMX_GPIO_NR(1, 14), 1);
 		gpio_request(IMX_GPIO_NR(1, 13), "m2_rst#");
 		gpio_direction_output(IMX_GPIO_NR(1, 13), 1);
+		break;
+	case GW5905:
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 7), "usb_pcisel", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 9), "lvds_cabc", 1);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 14), "mipi_pdwn", 1);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(1, 15), "mipi_rst#", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(2, 3), "emmy_pdwn#", 1);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(4, 5), "spk_shdn#", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(4, 8), "touch_rst", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(4, 6), "touch_irq", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(5, 5), "flash_en1", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(5, 6), "flash_en2", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(5, 14), "dect_rst#", 1);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(5, 17), "codec_rst#", 0);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(5, 26), "imu_den", 1);
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(7, 12), "lvds_cabc", 0);
+		mdelay(100);
+		/*
+		 * gauruntee touch controller comes out of reset with INT
+		 * low for address
+		 */
+		SETUP_GPIO_OUTPUT(IMX_GPIO_NR(4, 8), "touch_rst", 1);
 		break;
 	}
 }
@@ -1292,7 +1372,7 @@ void setup_pmic(void)
 			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
 			break;
 		case GW5903:
-			/* mask PGOOD during SW1 transition */
+			/* mask PGOOD during SW3 transition */
 			pmic_reg_write(p, LTC3676_DVB3B,
 				       0x1f | LTC3676_PGOOD_MASK);
 			/* set SW3 (VDD_ARM) */
@@ -1303,6 +1383,19 @@ void setup_pmic(void)
 				       0x1f | LTC3676_PGOOD_MASK);
 			/* set SW4 (VDD_SOC) */
 			pmic_reg_write(p, LTC3676_DVB4A, 0x1f);
+			break;
+		case GW5905:
+			/* mask PGOOD during SW1 transition */
+			pmic_reg_write(p, LTC3676_DVB1B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW1 (VDD_ARM) */
+			pmic_reg_write(p, LTC3676_DVB1A, 0x1f);
+
+			/* mask PGOOD during SW3 transition */
+			pmic_reg_write(p, LTC3676_DVB3B,
+				       0x1f | LTC3676_PGOOD_MASK);
+			/* set SW3 (VDD_SOC) */
+			pmic_reg_write(p, LTC3676_DVB3A, 0x1f);
 			break;
 		default:
 			/* mask PGOOD during SW1 transition */
@@ -1371,6 +1464,7 @@ int board_mmc_init(bd_t *bis)
 		usdhc_cfg[1].max_bus_width = 4;
 		return fsl_esdhc_initialize(bis, &usdhc_cfg[1]);
 	case GW5904:
+	case GW5905:
 		/* usdhc3: 8bit eMMC */
 		SETUP_IOMUX_PADS(gw5904_emmc_pads);
 		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
@@ -1399,6 +1493,7 @@ int board_mmc_getcd(struct mmc *mmc)
 		break;
 	case GW5903:
 	case GW5904:
+	case GW5905:
 		/* emmc is always present */
 		if (cfg->esdhc_base == USDHC3_BASE_ADDR)
 			return 1;

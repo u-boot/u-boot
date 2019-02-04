@@ -99,8 +99,10 @@ read_eeprom(int bus, struct ventana_board_info *info)
 	case '9':
 		if (info->model[4] == '0' && info->model[5] == '3')
 			type = GW5903;
-		if (info->model[4] == '0' && info->model[5] == '4')
+		else if (info->model[4] == '0' && info->model[5] == '4')
 			type = GW5904;
+		else if (info->model[4] == '0' && info->model[5] == '5')
+			type = GW5905;
 		break;
 	}
 	return type;
