@@ -7,6 +7,9 @@
 #include <dm.h>
 #include <errno.h>
 #include <i2c.h>
+#include <sysreset.h>
+#include <dm/device.h>
+#include <dm/lists.h>
 #include <power/pmic.h>
 #include <power/stpmic1.h>
 
@@ -72,6 +75,10 @@ static int stpmic1_bind(struct udevice *dev)
 		dev_dbg(dev, "no child found\n");
 #endif /* DM_REGULATOR */
 
+	if (CONFIG_IS_ENABLED(SYSRESET))
+		return device_bind_driver(dev, "stpmic1-sysreset",
+					  "stpmic1-sysreset", NULL);
+
 	return 0;
 }
 
@@ -93,3 +100,42 @@ U_BOOT_DRIVER(pmic_stpmic1) = {
 	.bind = stpmic1_bind,
 	.ops = &stpmic1_ops,
 };
+
+#ifdef CONFIG_SYSRESET
+static int stpmic1_sysreset_request(struct udevice *dev, enum sysreset_t type)
+{
+	struct udevice *pmic_dev;
+	int ret;
+
+	if (type != SYSRESET_POWER)
+		return -EPROTONOSUPPORT;
+
+	ret = uclass_get_device_by_driver(UCLASS_PMIC,
+					  DM_GET_DRIVER(pmic_stpmic1),
+					  &pmic_dev);
+
+	if (ret)
+		return -EOPNOTSUPP;
+
+	ret = pmic_reg_read(pmic_dev, STPMIC1_MAIN_CR);
+	if (ret < 0)
+		return ret;
+
+	ret = pmic_reg_write(pmic_dev, STPMIC1_MAIN_CR,
+			     ret | STPMIC1_SWOFF | STPMIC1_RREQ_EN);
+	if (ret < 0)
+		return ret;
+
+	return -EINPROGRESS;
+}
+
+static struct sysreset_ops stpmic1_sysreset_ops = {
+	.request = stpmic1_sysreset_request,
+};
+
+U_BOOT_DRIVER(stpmic1_sysreset) = {
+	.name = "stpmic1-sysreset",
+	.id = UCLASS_SYSRESET,
+	.ops = &stpmic1_sysreset_ops,
+};
+#endif
