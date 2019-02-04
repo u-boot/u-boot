@@ -647,21 +647,23 @@ int board_init(void)
 	/* address of linux boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
+	/* read Gateworks EEPROM into global struct (used later) */
+	setup_ventana_i2c(0);
+	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
+
 #ifdef CONFIG_CMD_NAND
-	setup_gpmi_nand();
+	if (gpio_cfg[board_type].nand)
+		setup_gpmi_nand();
 #endif
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
 #endif
-	setup_ventana_i2c(0);
 	setup_ventana_i2c(1);
 	setup_ventana_i2c(2);
 
 #ifdef CONFIG_SATA
 	setup_sata();
 #endif
-	/* read Gateworks EEPROM into global struct (used later) */
-	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 
 	setup_iomux_gpio(board_type, &ventana_info);
 

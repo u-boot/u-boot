@@ -80,6 +80,7 @@ struct ventana {
 	int mmc_cd;
 	/* various features */
 	bool usd_vsel;
+	bool nand;
 };
 
 extern struct ventana gpio_cfg[GW_UNKNOWN];
