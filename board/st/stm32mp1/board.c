@@ -50,39 +50,39 @@ int board_ddr_power_init(void)
 		return 0;
 
 	/* VTT = Set LDO3 to sync mode */
-	ret = pmic_reg_read(dev, STPMIC1_LDOX_CTRL_REG(STPMIC1_LDO3));
+	ret = pmic_reg_read(dev, STPMIC1_LDOX_MAIN_CR(STPMIC1_LDO3));
 	if (ret < 0)
 		return ret;
 
 	ret &= ~STPMIC1_LDO3_MODE;
-	ret &= ~STPMIC1_LDO12356_OUTPUT_MASK;
-	ret |= STPMIC1_LDO3_DDR_SEL << STPMIC1_LDO12356_OUTPUT_SHIFT;
+	ret &= ~STPMIC1_LDO12356_VOUT_MASK;
+	ret |= STPMIC1_LDO_VOUT(STPMIC1_LDO3_DDR_SEL);
 
-	ret = pmic_reg_write(dev, STPMIC1_LDOX_CTRL_REG(STPMIC1_LDO3),
+	ret = pmic_reg_write(dev, STPMIC1_LDOX_MAIN_CR(STPMIC1_LDO3),
 			     ret);
 	if (ret < 0)
 		return ret;
 
 	/* VDD_DDR = Set BUCK2 to 1.35V */
 	ret = pmic_clrsetbits(dev,
-			      STPMIC1_BUCKX_CTRL_REG(STPMIC1_BUCK2),
-			      STPMIC1_BUCK_OUTPUT_MASK,
+			      STPMIC1_BUCKX_MAIN_CR(STPMIC1_BUCK2),
+			      STPMIC1_BUCK_VOUT_MASK,
 			      STPMIC1_BUCK2_1350000V);
 	if (ret < 0)
 		return ret;
 
 	/* Enable VDD_DDR = BUCK2 */
 	ret = pmic_clrsetbits(dev,
-			      STPMIC1_BUCKX_CTRL_REG(STPMIC1_BUCK2),
-			      STPMIC1_BUCK_EN, STPMIC1_BUCK_EN);
+			      STPMIC1_BUCKX_MAIN_CR(STPMIC1_BUCK2),
+			      STPMIC1_BUCK_ENA, STPMIC1_BUCK_ENA);
 	if (ret < 0)
 		return ret;
 
 	mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
 
 	/* Enable VREF */
-	ret = pmic_clrsetbits(dev, STPMIC1_VREF_CTRL_REG,
-			      STPMIC1_VREF_EN, STPMIC1_VREF_EN);
+	ret = pmic_clrsetbits(dev, STPMIC1_REFDDR_MAIN_CR,
+			      STPMIC1_VREF_ENA, STPMIC1_VREF_ENA);
 	if (ret < 0)
 		return ret;
 
@@ -90,8 +90,8 @@ int board_ddr_power_init(void)
 
 	/* Enable LDO3 */
 	ret = pmic_clrsetbits(dev,
-			      STPMIC1_LDOX_CTRL_REG(STPMIC1_LDO3),
-			      STPMIC1_LDO_EN, STPMIC1_LDO_EN);
+			      STPMIC1_LDOX_MAIN_CR(STPMIC1_LDO3),
+			      STPMIC1_LDO_ENA, STPMIC1_LDO_ENA);
 	if (ret < 0)
 		return ret;
 

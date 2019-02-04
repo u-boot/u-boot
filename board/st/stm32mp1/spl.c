@@ -25,8 +25,8 @@ void spl_board_init(void)
 					  DM_GET_DRIVER(pmic_stpmic1), &dev);
 	if (!ret)
 		pmic_clrsetbits(dev,
-				STPMIC1_MASK_RESET_BUCK,
-				STPMIC1_MASK_RESET_BUCK3,
-				STPMIC1_MASK_RESET_BUCK3);
+				STPMIC1_BUCKS_MRST_CR,
+				STPMIC1_MRST_BUCK(STPMIC1_BUCK3),
+				STPMIC1_MRST_BUCK(STPMIC1_BUCK3));
 #endif
 }

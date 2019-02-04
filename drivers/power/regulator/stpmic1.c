@@ -132,20 +132,20 @@ static const struct stpmic1_output buck_voltage_range[] = {
 
 /* BUCK modes */
 static const struct dm_regulator_mode buck_modes[] = {
-	STPMIC1_MODE(STPMIC1_BUCK_MODE_HP, STPMIC1_BUCK_MODE_HP, "HP"),
-	STPMIC1_MODE(STPMIC1_BUCK_MODE_LP, STPMIC1_BUCK_MODE_LP, "LP"),
+	STPMIC1_MODE(STPMIC1_PREG_MODE_HP, STPMIC1_PREG_MODE_HP, "HP"),
+	STPMIC1_MODE(STPMIC1_PREG_MODE_LP, STPMIC1_PREG_MODE_LP, "LP"),
 };
 
 static int stpmic1_buck_get_uv(struct udevice *dev, int buck)
 {
 	int sel;
 
-	sel = pmic_reg_read(dev, STPMIC1_BUCKX_CTRL_REG(buck));
+	sel = pmic_reg_read(dev, STPMIC1_BUCKX_MAIN_CR(buck));
 	if (sel < 0)
 		return sel;
 
-	sel &= STPMIC1_BUCK_OUTPUT_MASK;
-	sel >>= STPMIC1_BUCK_OUTPUT_SHIFT;
+	sel &= STPMIC1_BUCK_VOUT_MASK;
+	sel >>= STPMIC1_BUCK_VOUT_SHIFT;
 
 	return stpmic1_output_find_uv(sel, &buck_voltage_range[buck]);
 }
@@ -164,9 +164,9 @@ static int stpmic1_buck_set_value(struct udevice *dev, int uv)
 		return sel;
 
 	return pmic_clrsetbits(dev->parent,
-			       STPMIC1_BUCKX_CTRL_REG(buck),
-			       STPMIC1_BUCK_OUTPUT_MASK,
-			       sel << STPMIC1_BUCK_OUTPUT_SHIFT);
+			       STPMIC1_BUCKX_MAIN_CR(buck),
+			       STPMIC1_BUCK_VOUT_MASK,
+			       sel << STPMIC1_BUCK_VOUT_SHIFT);
 }
 
 static int stpmic1_buck_get_enable(struct udevice *dev)
@@ -174,11 +174,11 @@ static int stpmic1_buck_get_enable(struct udevice *dev)
 	int ret;
 
 	ret = pmic_reg_read(dev->parent,
-			    STPMIC1_BUCKX_CTRL_REG(dev->driver_data - 1));
+			    STPMIC1_BUCKX_MAIN_CR(dev->driver_data - 1));
 	if (ret < 0)
 		return false;
 
-	return ret & STPMIC1_BUCK_EN ? true : false;
+	return ret & STPMIC1_BUCK_ENA ? true : false;
 }
 
 static int stpmic1_buck_set_enable(struct udevice *dev, bool enable)
@@ -200,8 +200,8 @@ static int stpmic1_buck_set_enable(struct udevice *dev, bool enable)
 	}
 
 	ret = pmic_clrsetbits(dev->parent,
-			      STPMIC1_BUCKX_CTRL_REG(dev->driver_data - 1),
-			      STPMIC1_BUCK_EN, enable ? STPMIC1_BUCK_EN : 0);
+			      STPMIC1_BUCKX_MAIN_CR(dev->driver_data - 1),
+			      STPMIC1_BUCK_ENA, enable ? STPMIC1_BUCK_ENA : 0);
 	mdelay(delay);
 
 	return ret;
@@ -212,20 +212,20 @@ static int stpmic1_buck_get_mode(struct udevice *dev)
 	int ret;
 
 	ret = pmic_reg_read(dev->parent,
-			    STPMIC1_BUCKX_CTRL_REG(dev->driver_data - 1));
+			    STPMIC1_BUCKX_MAIN_CR(dev->driver_data - 1));
 	if (ret < 0)
 		return ret;
 
-	return ret & STPMIC1_BUCK_MODE ? STPMIC1_BUCK_MODE_LP :
-					 STPMIC1_BUCK_MODE_HP;
+	return ret & STPMIC1_BUCK_PREG_MODE ? STPMIC1_PREG_MODE_LP :
+					      STPMIC1_PREG_MODE_HP;
 }
 
 static int stpmic1_buck_set_mode(struct udevice *dev, int mode)
 {
 	return pmic_clrsetbits(dev->parent,
-			       STPMIC1_BUCKX_CTRL_REG(dev->driver_data - 1),
-			       STPMIC1_BUCK_MODE,
-			       mode ? STPMIC1_BUCK_MODE : 0);
+			       STPMIC1_BUCKX_MAIN_CR(dev->driver_data - 1),
+			       STPMIC1_BUCK_PREG_MODE,
+			       mode ? STPMIC1_BUCK_PREG_MODE : 0);
 }
 
 static int stpmic1_buck_probe(struct udevice *dev)
@@ -312,7 +312,7 @@ static int stpmic1_ldo_get_value(struct udevice *dev)
 {
 	int sel, ldo = dev->driver_data - 1;
 
-	sel = pmic_reg_read(dev->parent, STPMIC1_LDOX_CTRL_REG(ldo));
+	sel = pmic_reg_read(dev->parent, STPMIC1_LDOX_MAIN_CR(ldo));
 	if (sel < 0)
 		return sel;
 
@@ -320,8 +320,8 @@ static int stpmic1_ldo_get_value(struct udevice *dev)
 	if (ldo == STPMIC1_LDO4)
 		return STPMIC1_LDO4_UV;
 
-	sel &= STPMIC1_LDO12356_OUTPUT_MASK;
-	sel >>= STPMIC1_LDO12356_OUTPUT_SHIFT;
+	sel &= STPMIC1_LDO12356_VOUT_MASK;
+	sel >>= STPMIC1_LDO12356_VOUT_SHIFT;
 
 	/* ldo3, sel = 31 => BUCK2/2 */
 	if (ldo == STPMIC1_LDO3 && sel == STPMIC1_LDO3_DDR_SEL)
@@ -343,9 +343,9 @@ static int stpmic1_ldo_set_value(struct udevice *dev, int uv)
 		return sel;
 
 	return pmic_clrsetbits(dev->parent,
-			       STPMIC1_LDOX_CTRL_REG(ldo),
-			       STPMIC1_LDO12356_OUTPUT_MASK,
-			       sel << STPMIC1_LDO12356_OUTPUT_SHIFT);
+			       STPMIC1_LDOX_MAIN_CR(ldo),
+			       STPMIC1_LDO12356_VOUT_MASK,
+			       sel << STPMIC1_LDO12356_VOUT_SHIFT);
 }
 
 static int stpmic1_ldo_get_enable(struct udevice *dev)
@@ -353,11 +353,11 @@ static int stpmic1_ldo_get_enable(struct udevice *dev)
 	int ret;
 
 	ret = pmic_reg_read(dev->parent,
-			    STPMIC1_LDOX_CTRL_REG(dev->driver_data - 1));
+			    STPMIC1_LDOX_MAIN_CR(dev->driver_data - 1));
 	if (ret < 0)
 		return false;
 
-	return ret & STPMIC1_LDO_EN ? true : false;
+	return ret & STPMIC1_LDO_ENA ? true : false;
 }
 
 static int stpmic1_ldo_set_enable(struct udevice *dev, bool enable)
@@ -379,8 +379,8 @@ static int stpmic1_ldo_set_enable(struct udevice *dev, bool enable)
 	}
 
 	ret = pmic_clrsetbits(dev->parent,
-			      STPMIC1_LDOX_CTRL_REG(dev->driver_data - 1),
-			      STPMIC1_LDO_EN, enable ? STPMIC1_LDO_EN : 0);
+			      STPMIC1_LDOX_MAIN_CR(dev->driver_data - 1),
+			      STPMIC1_LDO_ENA, enable ? STPMIC1_LDO_ENA : 0);
 	mdelay(delay);
 
 	return ret;
@@ -393,15 +393,15 @@ static int stpmic1_ldo_get_mode(struct udevice *dev)
 	if (ldo != STPMIC1_LDO3)
 		return -EINVAL;
 
-	ret = pmic_reg_read(dev->parent, STPMIC1_LDOX_CTRL_REG(ldo));
+	ret = pmic_reg_read(dev->parent, STPMIC1_LDOX_MAIN_CR(ldo));
 	if (ret < 0)
 		return ret;
 
 	if (ret & STPMIC1_LDO3_MODE)
 		return STPMIC1_LDO_MODE_BYPASS;
 
-	ret &= STPMIC1_LDO12356_OUTPUT_MASK;
-	ret >>= STPMIC1_LDO12356_OUTPUT_SHIFT;
+	ret &= STPMIC1_LDO12356_VOUT_MASK;
+	ret >>= STPMIC1_LDO12356_VOUT_SHIFT;
 
 	return ret == STPMIC1_LDO3_DDR_SEL ? STPMIC1_LDO_MODE_SINK_SOURCE :
 					     STPMIC1_LDO_MODE_NORMAL;
@@ -414,14 +414,14 @@ static int stpmic1_ldo_set_mode(struct udevice *dev, int mode)
 	if (ldo != STPMIC1_LDO3)
 		return -EINVAL;
 
-	ret = pmic_reg_read(dev->parent, STPMIC1_LDOX_CTRL_REG(ldo));
+	ret = pmic_reg_read(dev->parent, STPMIC1_LDOX_MAIN_CR(ldo));
 	if (ret < 0)
 		return ret;
 
 	switch (mode) {
 	case STPMIC1_LDO_MODE_SINK_SOURCE:
-		ret &= ~STPMIC1_LDO12356_OUTPUT_MASK;
-		ret |= STPMIC1_LDO3_DDR_SEL << STPMIC1_LDO12356_OUTPUT_SHIFT;
+		ret &= ~STPMIC1_LDO12356_VOUT_MASK;
+		ret |= STPMIC1_LDO3_DDR_SEL << STPMIC1_LDO12356_VOUT_SHIFT;
 	case STPMIC1_LDO_MODE_NORMAL:
 		ret &= ~STPMIC1_LDO3_MODE;
 		break;
@@ -430,7 +430,7 @@ static int stpmic1_ldo_set_mode(struct udevice *dev, int mode)
 		break;
 	}
 
-	return pmic_reg_write(dev->parent, STPMIC1_LDOX_CTRL_REG(ldo), ret);
+	return pmic_reg_write(dev->parent, STPMIC1_LDOX_MAIN_CR(ldo), ret);
 }
 
 static int stpmic1_ldo_probe(struct udevice *dev)
@@ -483,11 +483,11 @@ static int stpmic1_vref_ddr_get_enable(struct udevice *dev)
 {
 	int ret;
 
-	ret = pmic_reg_read(dev->parent, STPMIC1_VREF_CTRL_REG);
+	ret = pmic_reg_read(dev->parent, STPMIC1_REFDDR_MAIN_CR);
 	if (ret < 0)
 		return false;
 
-	return ret & STPMIC1_VREF_EN ? true : false;
+	return ret & STPMIC1_VREF_ENA ? true : false;
 }
 
 static int stpmic1_vref_ddr_set_enable(struct udevice *dev, bool enable)
@@ -500,8 +500,8 @@ static int stpmic1_vref_ddr_set_enable(struct udevice *dev, bool enable)
 	if (stpmic1_vref_ddr_get_enable(dev) == enable)
 		return 0;
 
-	ret = pmic_clrsetbits(dev->parent, STPMIC1_VREF_CTRL_REG,
-			      STPMIC1_VREF_EN, enable ? STPMIC1_VREF_EN : 0);
+	ret = pmic_clrsetbits(dev->parent, STPMIC1_REFDDR_MAIN_CR,
+			      STPMIC1_VREF_ENA, enable ? STPMIC1_VREF_ENA : 0);
 	mdelay(delay);
 
 	return ret;
@@ -540,31 +540,31 @@ static int stpmic1_boost_get_enable(struct udevice *dev)
 {
 	int ret;
 
-	ret = pmic_reg_read(dev->parent, STPMIC1_USB_CTRL_REG);
+	ret = pmic_reg_read(dev->parent, STPMIC1_BST_SW_CR);
 	if (ret < 0)
 		return false;
 
-	return ret & STPMIC1_USB_BOOST_EN ? true : false;
+	return ret & STPMIC1_BST_ON ? true : false;
 }
 
 static int stpmic1_boost_set_enable(struct udevice *dev, bool enable)
 {
 	int ret;
 
-	ret = pmic_reg_read(dev->parent, STPMIC1_USB_CTRL_REG);
+	ret = pmic_reg_read(dev->parent, STPMIC1_BST_SW_CR);
 	if (ret < 0)
 		return ret;
 
-	if (!enable && ret & STPMIC1_USB_PWR_SW_EN)
+	if (!enable && ret & STPMIC1_PWR_SW_ON)
 		return -EINVAL;
 
 	/* if regulator is already in the wanted state, nothing to do */
-	if (!!(ret & STPMIC1_USB_BOOST_EN) == enable)
+	if (!!(ret & STPMIC1_BST_ON) == enable)
 		return 0;
 
-	ret = pmic_clrsetbits(dev->parent, STPMIC1_USB_CTRL_REG,
-			      STPMIC1_USB_BOOST_EN,
-			      enable ? STPMIC1_USB_BOOST_EN : 0);
+	ret = pmic_clrsetbits(dev->parent, STPMIC1_BST_SW_CR,
+			      STPMIC1_BST_ON,
+			      enable ? STPMIC1_BST_ON : 0);
 	if (enable)
 		mdelay(STPMIC1_USB_BOOST_START_UP_DELAY_MS);
 
@@ -604,7 +604,7 @@ static int stpmic1_pwr_sw_get_enable(struct udevice *dev)
 	uint mask = 1 << dev->driver_data;
 	int ret;
 
-	ret = pmic_reg_read(dev->parent, STPMIC1_USB_CTRL_REG);
+	ret = pmic_reg_read(dev->parent, STPMIC1_BST_SW_CR);
 	if (ret < 0)
 		return false;
 
@@ -618,7 +618,7 @@ static int stpmic1_pwr_sw_set_enable(struct udevice *dev, bool enable)
 			     STPMIC1_DEFAULT_STOP_DELAY_MS;
 	int ret;
 
-	ret = pmic_reg_read(dev->parent, STPMIC1_USB_CTRL_REG);
+	ret = pmic_reg_read(dev->parent, STPMIC1_BST_SW_CR);
 	if (ret < 0)
 		return ret;
 
@@ -627,17 +627,17 @@ static int stpmic1_pwr_sw_set_enable(struct udevice *dev, bool enable)
 		return 0;
 
 	/* Boost management */
-	if (enable && !(ret & STPMIC1_USB_BOOST_EN)) {
-		pmic_clrsetbits(dev->parent, STPMIC1_USB_CTRL_REG,
-				STPMIC1_USB_BOOST_EN, STPMIC1_USB_BOOST_EN);
+	if (enable && !(ret & STPMIC1_BST_ON)) {
+		pmic_clrsetbits(dev->parent, STPMIC1_BST_SW_CR,
+				STPMIC1_BST_ON, STPMIC1_BST_ON);
 		mdelay(STPMIC1_USB_BOOST_START_UP_DELAY_MS);
-	} else if (!enable && ret & STPMIC1_USB_BOOST_EN &&
-		   (ret & STPMIC1_USB_PWR_SW_EN) != STPMIC1_USB_PWR_SW_EN) {
-		pmic_clrsetbits(dev->parent, STPMIC1_USB_CTRL_REG,
-				STPMIC1_USB_BOOST_EN, 0);
+	} else if (!enable && ret & STPMIC1_BST_ON &&
+		   (ret & STPMIC1_PWR_SW_ON) != STPMIC1_PWR_SW_ON) {
+		pmic_clrsetbits(dev->parent, STPMIC1_BST_SW_CR,
+				STPMIC1_BST_ON, 0);
 	}
 
-	ret = pmic_clrsetbits(dev->parent, STPMIC1_USB_CTRL_REG,
+	ret = pmic_clrsetbits(dev->parent, STPMIC1_BST_SW_CR,
 			      mask, enable ? mask : 0);
 	mdelay(delay);
 
