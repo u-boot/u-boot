@@ -631,7 +631,9 @@ int board_init(void)
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
 #endif
-	setup_ventana_i2c();
+	setup_ventana_i2c(0);
+	setup_ventana_i2c(1);
+	setup_ventana_i2c(2);
 
 #ifdef CONFIG_SATA
 	setup_sata();

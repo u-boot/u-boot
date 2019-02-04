@@ -599,9 +599,10 @@ void board_init_f(ulong dummy)
 	/* setup AXI */
 	gpr_init();
 
-	/* iomux and setup of i2c */
+	/* iomux and setup of uart/i2c */
 	setup_iomux_uart();
-	setup_ventana_i2c();
+	setup_ventana_i2c(0);
+	setup_ventana_i2c(1);
 
 	/* setup GP timer */
 	timer_init();

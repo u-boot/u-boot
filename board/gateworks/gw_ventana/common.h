@@ -85,7 +85,7 @@ struct ventana {
 extern struct ventana gpio_cfg[GW_UNKNOWN];
 
 /* configure i2c iomux */
-void setup_ventana_i2c(void);
+void setup_ventana_i2c(int);
 /* configure uart iomux */
 void setup_iomux_uart(void);
 /* conifgure PMIC */
