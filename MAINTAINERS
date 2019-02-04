@@ -295,7 +295,9 @@ F:	drivers/misc/stm32mp_fuse.c
 F:	drivers/mmc/stm32_sdmmc2.c
 F:	drivers/phy/phy-stm32-usbphyc.c
 F:	drivers/pinctrl/pinctrl_stm32.c
+F:	drivers/power/pmic/stpmic1.c
 F:	drivers/power/regulator/stm32-vrefbuf.c
+F:	drivers/power/regulator/stpmic1.c
 F:	drivers/ram/stm32mp1/
 F:	drivers/misc/stm32_rcc.c
 F:	drivers/reset/stm32-reset.c

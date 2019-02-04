@@ -54,8 +54,8 @@
 	i2c-scl-falling-time-ns = <20>;
 	status = "okay";
 
-	pmic: stpmu1@33 {
-		compatible = "st,stpmu1";
+	pmic: stpmic1@33 {
+		compatible = "st,stpmic1";
 		reg = <0x33>;
 		interrupts = <0 2>;
 		interrupt-parent = <&gpioa>;
@@ -68,7 +68,7 @@
 		st,usb_control_register = <0x30>;
 
 		regulators {
-			compatible = "st,stpmu1-regulators";
+			compatible = "st,stpmic1-regulators";
 
 			ldo1-supply = <&v3v3>;
 			ldo2-supply = <&v3v3>;

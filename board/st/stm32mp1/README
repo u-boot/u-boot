@@ -28,7 +28,7 @@ Everything is supported in Linux but U-Boot is limited to:
 
 And the necessary drivers
 1. I2C
-2. STPMU1 (PMIC and regulator)
+2. STPMIC1 (PMIC and regulator)
 3. Clock, Reset, Sysreset
 4. Fuse
 
@@ -70,10 +70,10 @@ Each board is configurated only with the associated device tree.
 You need to select the appropriate device tree for your board,
 the supported device trees for stm32mp157 are:
 
-+ ev1: eval board with pmic stpmu1 (ev1 = mother board + daughter ed1)
++ ev1: eval board with pmic stpmic1 (ev1 = mother board + daughter ed1)
   dts: stm32mp157c-ev1
 
-+ ed1: daughter board with pmic stpmu1
++ ed1: daughter board with pmic stpmic1
   dts: stm32mp157c-ed1
 
 5. Build Procedure
