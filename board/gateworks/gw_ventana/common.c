@@ -455,6 +455,8 @@ static iomux_v3_cfg_t const gw5904_gpio_pads[] = {
 	IOMUX_PADS(PAD_SD2_DAT1__GPIO1_IO14 | DIO_PAD_CFG),
 	/* M2_RST# */
 	IOMUX_PADS(PAD_SD2_DAT2__GPIO1_IO13 | DIO_PAD_CFG),
+	/* RS232_EN# */
+	IOMUX_PADS(PAD_SD4_DAT3__GPIO2_IO11 | DIO_PAD_CFG),
 };
 
 static iomux_v3_cfg_t const gw5905_gpio_pads[] = {
@@ -1133,6 +1135,23 @@ struct ventana gpio_cfg[GW_UNKNOWN] = {
 		.msata_en = GP_MSATA_SEL,
 		.rs232_en = GP_RS232_EN,
 	},
+
+	/* GW5909 */
+	{
+		.gpio_pads = gw5904_gpio_pads,
+		.num_pads = ARRAY_SIZE(gw5904_gpio_pads)/2,
+		.dio_cfg = gw5904_dio,
+		.dio_num = ARRAY_SIZE(gw5904_dio),
+		.leds = {
+			IMX_GPIO_NR(4, 6),
+			IMX_GPIO_NR(4, 7),
+			IMX_GPIO_NR(4, 15),
+		},
+		.pcie_rst = IMX_GPIO_NR(1, 0),
+		.mezz_pwren = IMX_GPIO_NR(2, 19),
+		.mezz_irq = IMX_GPIO_NR(2, 18),
+		.otgpwr_en = IMX_GPIO_NR(3, 22),
+	},
 };
 
 #define SETUP_GPIO_OUTPUT(gpio, name, level) \
@@ -1275,6 +1294,7 @@ void setup_iomux_gpio(int board, struct ventana_board_info *info)
 		gpio_request(IMX_GPIO_NR(1, 7) , "bklt_12ven");
 		gpio_direction_output(IMX_GPIO_NR(1, 7), 1);
 		break;
+	case GW5909:
 	case GW5904:
 		gpio_request(IMX_GPIO_NR(5, 11), "skt1_wdis#");
 		gpio_direction_output(IMX_GPIO_NR(5, 11), 1);
@@ -1553,6 +1573,7 @@ int board_mmc_init(bd_t *bis)
 		return fsl_esdhc_initialize(bis, &usdhc_cfg[1]);
 	case GW5904:
 	case GW5905:
+	case GW5909:
 		/* usdhc3: 8bit eMMC */
 		SETUP_IOMUX_PADS(gw5904_emmc_pads);
 		usdhc_cfg[0].esdhc_base = USDHC3_BASE_ADDR;
@@ -1582,6 +1603,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	case GW5903:
 	case GW5904:
 	case GW5905:
+	case GW5909:
 		/* emmc is always present */
 		if (cfg->esdhc_base == USDHC3_BASE_ADDR)
 			return 1;
