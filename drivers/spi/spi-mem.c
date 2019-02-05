@@ -412,6 +412,25 @@ int spi_mem_adjust_op_size(struct spi_slave *slave, struct spi_mem_op *op)
 	if (ops->mem_ops && ops->mem_ops->adjust_op_size)
 		return ops->mem_ops->adjust_op_size(slave, op);
 
+	if (!ops->mem_ops || !ops->mem_ops->exec_op) {
+		unsigned int len;
+
+		len = sizeof(op->cmd.opcode) + op->addr.nbytes +
+			op->dummy.nbytes;
+		if (slave->max_write_size && len > slave->max_write_size)
+			return -EINVAL;
+
+		if (op->data.dir == SPI_MEM_DATA_IN && slave->max_read_size)
+			op->data.nbytes = min(op->data.nbytes,
+					      slave->max_read_size);
+		else if (slave->max_write_size)
+			op->data.nbytes = min(op->data.nbytes,
+					      slave->max_write_size - len);
+
+		if (!op->data.nbytes)
+			return -EINVAL;
+	}
+
 	return 0;
 }
 EXPORT_SYMBOL_GPL(spi_mem_adjust_op_size);
