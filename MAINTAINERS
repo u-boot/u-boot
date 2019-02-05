@@ -113,12 +113,6 @@ F:	drivers/video/meson/
 F:	include/configs/meson64.h
 N:	meson
 
-ARM ATMEL AT91
-M:	Andreas Bießmann <andreas@biessmann.org>
-S:	Maintained
-T:	git git://git.denx.de/u-boot-atmel.git
-F:	arch/arm/mach-at91/
-
 ARM BROADCOM BCM283X
 M:	Alexander Graf <agraf@suse.de>
 S:	Maintained
@@ -211,6 +205,13 @@ F:	drivers/reset/reset-mediatek.c
 F:	tools/mtk_image.c
 F:	tools/mtk_image.h
 N:	mediatek
+
+ARM MICROCHIP/ATMEL AT91
+M:	Eugen Hristev <eugen.hristev@microchip.com>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-atmel.git
+F:	arch/arm/mach-at91/
+F:	board/atmel/
 
 ARM OWL
 M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
