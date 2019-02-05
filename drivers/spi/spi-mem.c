@@ -210,6 +210,10 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	if (!spi_mem_supports_op(slave, op))
 		return -ENOTSUPP;
 
+	ret = spi_claim_bus(slave);
+	if (ret < 0)
+		return ret;
+
 	if (ops->mem_ops) {
 #ifndef __UBOOT__
 		/*
@@ -232,6 +236,7 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 		mutex_lock(&ctlr->io_mutex);
 #endif
 		ret = ops->mem_ops->exec_op(slave, op);
+
 #ifndef __UBOOT__
 		mutex_unlock(&ctlr->io_mutex);
 		mutex_unlock(&ctlr->bus_lock_mutex);
@@ -245,8 +250,10 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 		 * read path) and expect the core to use the regular SPI
 		 * interface in other cases.
 		 */
-		if (!ret || ret != -ENOTSUPP)
+		if (!ret || ret != -ENOTSUPP) {
+			spi_release_bus(slave);
 			return ret;
+		}
 	}
 
 #ifndef __UBOOT__
@@ -332,10 +339,6 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 
 	op_len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
 	op_buf = calloc(1, op_len);
-
-	ret = spi_claim_bus(slave);
-	if (ret < 0)
-		return ret;
 
 	op_buf[pos++] = op->cmd.opcode;
 
