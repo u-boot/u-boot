@@ -27,6 +27,8 @@ config SPI_FLASH_SANDBOX
 
 config SPI_FLASH
 	bool "Legacy SPI Flash Interface support"
+	depends on SPI
+	select SPI_MEM
 	help
 	  Enable the legacy SPI flash support. This will include basic
 	  standard support for things like probing, read / write, and
