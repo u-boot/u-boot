@@ -742,6 +742,7 @@ if SPL_SPI_FLASH_SUPPORT
 config SPL_SPI_FLASH_TINY
 	bool "Enable low footprint SPL SPI Flash support"
 	depends on !SPI_FLASH_BAR
+	default y if SPI_FLASH
 	help
 	 Enable lightweight SPL SPI Flash support that supports just reading
 	 data/images from flash. No support to write/erase flash. Enable
