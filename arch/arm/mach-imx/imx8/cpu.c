@@ -616,26 +616,32 @@ static const struct udevice_id cpu_imx8_ids[] = {
 	{ }
 };
 
+static ulong imx8_get_cpu_rate(void)
+{
+	ulong rate;
+	int ret;
+
+	ret = sc_pm_get_clock_rate(-1, SC_R_A35, SC_PM_CLK_CPU,
+				   (sc_pm_clock_rate_t *)&rate);
+	if (ret) {
+		printf("Could not read CPU frequency: %d\n", ret);
+		return 0;
+	}
+
+	return rate;
+}
+
 static int imx8_cpu_probe(struct udevice *dev)
 {
 	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
-	struct clk cpu_clk;
 	u32 cpurev;
-	int ret;
 
 	cpurev = get_cpu_rev();
 	plat->cpurev = cpurev;
 	plat->name = get_core_name();
 	plat->rev = get_imx8_rev(cpurev & 0xFFF);
 	plat->type = get_imx8_type((cpurev & 0xFF000) >> 12);
-
-	ret = clk_get_by_index(dev, 0, &cpu_clk);
-	if (ret) {
-		debug("%s: Failed to get CPU clk: %d\n", __func__, ret);
-		return 0;
-	}
-
-	plat->freq_mhz = clk_get_rate(&cpu_clk) / 1000000;
+	plat->freq_mhz = imx8_get_cpu_rate() / 1000000;
 	return 0;
 }
 
