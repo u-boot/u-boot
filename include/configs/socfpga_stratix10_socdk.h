@@ -57,7 +57,6 @@
  */
  #ifdef CONFIG_CADENCE_QSPI
 /* Enable it if you want to use dual-stacked mode */
-#undef CONFIG_SF_DUAL_FLASH
 /*#define CONFIG_QSPI_RBF_ADDR		0x720000*/
 
 /* Flash device info */
