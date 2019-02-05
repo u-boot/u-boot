@@ -16,14 +16,14 @@ config DM_SPI
 	  typically use driver-private data instead of extending the
 	  spi_slave structure.
 
-if DM_SPI
-
 config SPI_MEM
 	bool "SPI memory extension"
 	help
 	  Enable this option if you want to enable the SPI memory extension.
 	  This extension is meant to simplify interaction with SPI memories
 	  by providing an high-level interface to send memory-like commands.
+
+if DM_SPI
 
 config ALTERA_SPI
 	bool "Altera SPI driver"
