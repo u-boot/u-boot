@@ -62,15 +62,12 @@
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_LBA48
 
-/* PCIe support */
-#ifdef CONFIG_CMD_PCI
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_PCI_MVEBU
-#endif
-#endif
-
 /* Enable LCD and reserve 512KB from top of memory*/
 #define CONFIG_SYS_MEM_TOP_HIDE		0x80000
+
+#define CONFIG_BMP_16BPP
+#define CONFIG_BMP_24BPP
+#define CONFIG_BMP_32BPP
 
 /* FPGA programming support */
 #define CONFIG_FPGA_STRATIX_V

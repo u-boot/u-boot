@@ -6,74 +6,96 @@
  */
 
 #include <common.h>
-#include <video_fb.h>
+#include <dm.h>
+#include <video.h>
 #include <linux/mbus.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 
-#define MVEBU_LCD_WIN_CONTROL(w)        (MVEBU_LCD_BASE + 0xf000 + ((w) << 4))
-#define MVEBU_LCD_WIN_BASE(w)           (MVEBU_LCD_BASE + 0xf004 + ((w) << 4))
-#define MVEBU_LCD_WIN_REMAP(w)          (MVEBU_LCD_BASE + 0xf00c + ((w) << 4))
+#define MVEBU_LCD_WIN_CONTROL(w)	(0xf000 + ((w) << 4))
+#define MVEBU_LCD_WIN_BASE(w)		(0xf004 + ((w) << 4))
+#define MVEBU_LCD_WIN_REMAP(w)		(0xf00c + ((w) << 4))
 
-#define MVEBU_LCD_CFG_DMA_START_ADDR_0	(MVEBU_LCD_BASE + 0x00cc)
-#define MVEBU_LCD_CFG_DMA_START_ADDR_1	(MVEBU_LCD_BASE + 0x00dc)
+#define MVEBU_LCD_CFG_DMA_START_ADDR_0	0x00cc
+#define MVEBU_LCD_CFG_DMA_START_ADDR_1	0x00dc
 
-#define MVEBU_LCD_CFG_GRA_START_ADDR0	(MVEBU_LCD_BASE + 0x00f4)
-#define MVEBU_LCD_CFG_GRA_START_ADDR1	(MVEBU_LCD_BASE + 0x00f8)
-#define MVEBU_LCD_CFG_GRA_PITCH		(MVEBU_LCD_BASE + 0x00fc)
-#define MVEBU_LCD_SPU_GRA_OVSA_HPXL_VLN	(MVEBU_LCD_BASE + 0x0100)
-#define MVEBU_LCD_SPU_GRA_HPXL_VLN	(MVEBU_LCD_BASE + 0x0104)
-#define MVEBU_LCD_SPU_GZM_HPXL_VLN	(MVEBU_LCD_BASE + 0x0108)
-#define MVEBU_LCD_SPU_HWC_OVSA_HPXL_VLN	(MVEBU_LCD_BASE + 0x010c)
-#define MVEBU_LCD_SPU_HWC_HPXL_VLN	(MVEBU_LCD_BASE + 0x0110)
-#define MVEBU_LCD_SPUT_V_H_TOTAL	(MVEBU_LCD_BASE + 0x0114)
-#define MVEBU_LCD_SPU_V_H_ACTIVE	(MVEBU_LCD_BASE + 0x0118)
-#define MVEBU_LCD_SPU_H_PORCH		(MVEBU_LCD_BASE + 0x011c)
-#define MVEBU_LCD_SPU_V_PORCH		(MVEBU_LCD_BASE + 0x0120)
-#define MVEBU_LCD_SPU_BLANKCOLOR	(MVEBU_LCD_BASE + 0x0124)
-#define MVEBU_LCD_SPU_ALPHA_COLOR1	(MVEBU_LCD_BASE + 0x0128)
-#define MVEBU_LCD_SPU_ALPHA_COLOR2	(MVEBU_LCD_BASE + 0x012c)
-#define MVEBU_LCD_SPU_COLORKEY_Y	(MVEBU_LCD_BASE + 0x0130)
-#define MVEBU_LCD_SPU_COLORKEY_U	(MVEBU_LCD_BASE + 0x0134)
-#define MVEBU_LCD_SPU_COLORKEY_V	(MVEBU_LCD_BASE + 0x0138)
-#define MVEBU_LCD_CFG_RDREG4F		(MVEBU_LCD_BASE + 0x013c)
-#define MVEBU_LCD_SPU_SPI_RXDATA	(MVEBU_LCD_BASE + 0x0140)
-#define MVEBU_LCD_SPU_ISA_RXDATA	(MVEBU_LCD_BASE + 0x0144)
-#define MVEBU_LCD_SPU_DBG_ISA		(MVEBU_LCD_BASE + 0x0148)
+#define MVEBU_LCD_CFG_GRA_START_ADDR0	0x00f4
+#define MVEBU_LCD_CFG_GRA_START_ADDR1	0x00f8
+#define MVEBU_LCD_CFG_GRA_PITCH		0x00fc
+#define MVEBU_LCD_SPU_GRA_OVSA_HPXL_VLN	0x0100
+#define MVEBU_LCD_SPU_GRA_HPXL_VLN	0x0104
+#define MVEBU_LCD_SPU_GZM_HPXL_VLN	0x0108
+#define MVEBU_LCD_SPU_HWC_OVSA_HPXL_VLN	0x010c
+#define MVEBU_LCD_SPU_HWC_HPXL_VLN	0x0110
+#define MVEBU_LCD_SPUT_V_H_TOTAL	0x0114
+#define MVEBU_LCD_SPU_V_H_ACTIVE	0x0118
+#define MVEBU_LCD_SPU_H_PORCH		0x011c
+#define MVEBU_LCD_SPU_V_PORCH		0x0120
+#define MVEBU_LCD_SPU_BLANKCOLOR	0x0124
+#define MVEBU_LCD_SPU_ALPHA_COLOR1	0x0128
+#define MVEBU_LCD_SPU_ALPHA_COLOR2	0x012c
+#define MVEBU_LCD_SPU_COLORKEY_Y	0x0130
+#define MVEBU_LCD_SPU_COLORKEY_U	0x0134
+#define MVEBU_LCD_SPU_COLORKEY_V	0x0138
+#define MVEBU_LCD_CFG_RDREG4F		0x013c
+#define MVEBU_LCD_SPU_SPI_RXDATA	0x0140
+#define MVEBU_LCD_SPU_ISA_RXDATA	0x0144
+#define MVEBU_LCD_SPU_DBG_ISA		0x0148
 
-#define MVEBU_LCD_SPU_HWC_RDDAT		(MVEBU_LCD_BASE + 0x0158)
-#define MVEBU_LCD_SPU_GAMMA_RDDAT	(MVEBU_LCD_BASE + 0x015c)
-#define MVEBU_LCD_SPU_PALETTE_RDDAT	(MVEBU_LCD_BASE + 0x0160)
-#define MVEBU_LCD_SPU_IOPAD_IN		(MVEBU_LCD_BASE + 0x0178)
-#define MVEBU_LCD_FRAME_COUNT		(MVEBU_LCD_BASE + 0x017c)
-#define MVEBU_LCD_SPU_DMA_CTRL0		(MVEBU_LCD_BASE + 0x0190)
-#define MVEBU_LCD_SPU_DMA_CTRL1		(MVEBU_LCD_BASE + 0x0194)
-#define MVEBU_LCD_SPU_SRAM_CTRL		(MVEBU_LCD_BASE + 0x0198)
-#define MVEBU_LCD_SPU_SRAM_WRDAT	(MVEBU_LCD_BASE + 0x019c)
-#define MVEBU_LCD_SPU_SRAM_PARA0	(MVEBU_LCD_BASE + 0x01a0)
-#define MVEBU_LCD_SPU_SRAM_PARA1	(MVEBU_LCD_BASE + 0x01a4)
-#define MVEBU_LCD_CFG_SCLK_DIV		(MVEBU_LCD_BASE + 0x01a8)
-#define MVEBU_LCD_SPU_CONTRAST		(MVEBU_LCD_BASE + 0x01ac)
-#define MVEBU_LCD_SPU_SATURATION	(MVEBU_LCD_BASE + 0x01b0)
-#define MVEBU_LCD_SPU_CBSH_HUE		(MVEBU_LCD_BASE + 0x01b4)
-#define MVEBU_LCD_SPU_DUMB_CTRL		(MVEBU_LCD_BASE + 0x01b8)
-#define MVEBU_LCD_SPU_IOPAD_CONTROL	(MVEBU_LCD_BASE + 0x01bc)
-#define MVEBU_LCD_SPU_IRQ_ENA_2		(MVEBU_LCD_BASE + 0x01d8)
-#define MVEBU_LCD_SPU_IRQ_ISR_2		(MVEBU_LCD_BASE + 0x01dc)
-#define MVEBU_LCD_SPU_IRQ_ENA		(MVEBU_LCD_BASE + 0x01c0)
-#define MVEBU_LCD_SPU_IRQ_ISR		(MVEBU_LCD_BASE + 0x01c4)
-#define MVEBU_LCD_ADLL_CTRL		(MVEBU_LCD_BASE + 0x01c8)
-#define MVEBU_LCD_CLK_DIS		(MVEBU_LCD_BASE + 0x01cc)
-#define MVEBU_LCD_VGA_HVSYNC_DELAY	(MVEBU_LCD_BASE + 0x01d4)
-#define MVEBU_LCD_CLK_CFG_0		(MVEBU_LCD_BASE + 0xf0a0)
-#define MVEBU_LCD_CLK_CFG_1		(MVEBU_LCD_BASE + 0xf0a4)
-#define MVEBU_LCD_LVDS_CLK_CFG		(MVEBU_LCD_BASE + 0xf0ac)
+#define MVEBU_LCD_SPU_HWC_RDDAT		0x0158
+#define MVEBU_LCD_SPU_GAMMA_RDDAT	0x015c
+#define MVEBU_LCD_SPU_PALETTE_RDDAT	0x0160
+#define MVEBU_LCD_SPU_IOPAD_IN		0x0178
+#define MVEBU_LCD_FRAME_COUNT		0x017c
+#define MVEBU_LCD_SPU_DMA_CTRL0		0x0190
+#define MVEBU_LCD_SPU_DMA_CTRL1		0x0194
+#define MVEBU_LCD_SPU_SRAM_CTRL		0x0198
+#define MVEBU_LCD_SPU_SRAM_WRDAT	0x019c
+#define MVEBU_LCD_SPU_SRAM_PARA0	0x01a0
+#define MVEBU_LCD_SPU_SRAM_PARA1	0x01a4
+#define MVEBU_LCD_CFG_SCLK_DIV		0x01a8
+#define MVEBU_LCD_SPU_CONTRAST		0x01ac
+#define MVEBU_LCD_SPU_SATURATION	0x01b0
+#define MVEBU_LCD_SPU_CBSH_HUE		0x01b4
+#define MVEBU_LCD_SPU_DUMB_CTRL		0x01b8
+#define MVEBU_LCD_SPU_IOPAD_CONTROL	0x01bc
+#define MVEBU_LCD_SPU_IRQ_ENA_2		0x01d8
+#define MVEBU_LCD_SPU_IRQ_ISR_2		0x01dc
+#define MVEBU_LCD_SPU_IRQ_ENA		0x01c0
+#define MVEBU_LCD_SPU_IRQ_ISR		0x01c4
+#define MVEBU_LCD_ADLL_CTRL		0x01c8
+#define MVEBU_LCD_CLK_DIS		0x01cc
+#define MVEBU_LCD_VGA_HVSYNC_DELAY	0x01d4
+#define MVEBU_LCD_CLK_CFG_0		0xf0a0
+#define MVEBU_LCD_CLK_CFG_1		0xf0a4
+#define MVEBU_LCD_LVDS_CLK_CFG		0xf0ac
 
 #define MVEBU_LVDS_PADS_REG		(MVEBU_SYSTEM_REG_BASE + 0xf0)
 
+enum {
+	/* Maximum LCD size we support */
+	LCD_MAX_WIDTH		= 640,
+	LCD_MAX_HEIGHT		= 480,
+	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
+};
+
+struct mvebu_lcd_info {
+	u32 fb_base;
+	int x_res;
+	int y_res;
+	int x_fp;
+	int y_fp;
+	int x_bp;
+	int y_bp;
+};
+
+struct mvebu_video_priv {
+	uintptr_t regs;
+};
+
 /* Setup Mbus Bridge Windows for LCD */
-static void mvebu_lcd_conf_mbus_registers(void)
+static void mvebu_lcd_conf_mbus_registers(uintptr_t regs)
 {
 	const struct mbus_dram_target_info *dram;
 	int i;
@@ -82,9 +104,9 @@ static void mvebu_lcd_conf_mbus_registers(void)
 
 	/* Disable windows, set size/base/remap to 0  */
 	for (i = 0; i < 6; i++) {
-		writel(0, MVEBU_LCD_WIN_CONTROL(i));
-		writel(0, MVEBU_LCD_WIN_BASE(i));
-		writel(0, MVEBU_LCD_WIN_REMAP(i));
+		writel(0, regs + MVEBU_LCD_WIN_CONTROL(i));
+		writel(0, regs + MVEBU_LCD_WIN_BASE(i));
+		writel(0, regs + MVEBU_LCD_WIN_REMAP(i));
 	}
 
 	/* Write LCD bridge window registers */
@@ -92,14 +114,15 @@ static void mvebu_lcd_conf_mbus_registers(void)
 		const struct mbus_dram_window *cs = dram->cs + i;
 		writel(((cs->size - 1) & 0xffff0000) | (cs->mbus_attr << 8) |
 		       (dram->mbus_dram_target_id << 4) | 1,
-		       MVEBU_LCD_WIN_CONTROL(i));
+		       regs + MVEBU_LCD_WIN_CONTROL(i));
 
-		writel(cs->base & 0xffff0000, MVEBU_LCD_WIN_BASE(i));
+		writel(cs->base & 0xffff0000, regs + MVEBU_LCD_WIN_BASE(i));
 	}
 }
 
 /* Initialize LCD registers */
-int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
+static void mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info,
+				    uintptr_t regs)
 {
 	/* Local variable for easier handling */
 	int x = lcd_info->x_res;
@@ -107,7 +130,7 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	u32 val;
 
 	/* Setup Mbus Bridge Windows */
-	mvebu_lcd_conf_mbus_registers();
+	mvebu_lcd_conf_mbus_registers(regs);
 
 	/*
 	 * Set LVDS Pads Control Register
@@ -121,8 +144,8 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * end (currently 1GB-64MB but also may be 2GB-64MB).
 	 * See also the Window 0 settings!
 	 */
-	writel(lcd_info->fb_base, MVEBU_LCD_CFG_GRA_START_ADDR0);
-	writel(lcd_info->fb_base, MVEBU_LCD_CFG_GRA_START_ADDR1);
+	writel(lcd_info->fb_base, regs + MVEBU_LCD_CFG_GRA_START_ADDR0);
+	writel(lcd_info->fb_base, regs + MVEBU_LCD_CFG_GRA_START_ADDR1);
 
 	/*
 	 * Set the LCD_CFG_GRA_PITCH Register
@@ -132,14 +155,14 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bits 15-00: Line Length in Bytes
 	 *             240*2 (for RGB1555)=480=0x1E0
 	 */
-	writel(0x80100000 + 2 * x, MVEBU_LCD_CFG_GRA_PITCH);
+	writel(0x80100000 + 2 * x, regs + MVEBU_LCD_CFG_GRA_PITCH);
 
 	/*
 	 * Set the LCD_SPU_GRA_OVSA_HPXL_VLN Register
 	 * Bits 31-16: Vertical start of graphical overlay on screen
 	 * Bits 15-00: Horizontal start of graphical overlay on screen
 	 */
-	writel(0x00000000, MVEBU_LCD_SPU_GRA_OVSA_HPXL_VLN);
+	writel(0x00000000, regs + MVEBU_LCD_SPU_GRA_OVSA_HPXL_VLN);
 
 	/*
 	 * Set the LCD_SPU_GRA_HPXL_VLN Register
@@ -147,7 +170,7 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bits 15-00: Horizontal size of graphical overlay 240=0xF0
 	 * Values before zooming
 	 */
-	writel((y << 16) | x, MVEBU_LCD_SPU_GRA_HPXL_VLN);
+	writel((y << 16) | x, regs + MVEBU_LCD_SPU_GRA_HPXL_VLN);
 
 	/*
 	 * Set the LCD_SPU_GZM_HPXL_VLN Register
@@ -155,21 +178,21 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bits 15-00: Horizontal size of graphical overlay 240=0xF0
 	 * Values after zooming
 	 */
-	writel((y << 16) | x, MVEBU_LCD_SPU_GZM_HPXL_VLN);
+	writel((y << 16) | x, regs + MVEBU_LCD_SPU_GZM_HPXL_VLN);
 
 	/*
 	 * Set the LCD_SPU_HWC_OVSA_HPXL_VLN Register
 	 * Bits 31-16: Vertical position of HW Cursor 320=0x140
 	 * Bits 15-00: Horizontal position of HW Cursor 240=0xF0
 	 */
-	writel((y << 16) | x, MVEBU_LCD_SPU_HWC_OVSA_HPXL_VLN);
+	writel((y << 16) | x, regs + MVEBU_LCD_SPU_HWC_OVSA_HPXL_VLN);
 
 	/*
 	 * Set the LCD_SPU_HWC_OVSA_HPXL_VLN Register
 	 * Bits 31-16: Vertical size of HW Cursor
 	 * Bits 15-00: Horizontal size of HW Cursor
 	 */
-	writel(0x00000000, MVEBU_LCD_SPU_HWC_HPXL_VLN);
+	writel(0x00000000, regs + MVEBU_LCD_SPU_HWC_HPXL_VLN);
 
 	/*
 	 * Set the LCD_SPU_HWC_OVSA_HPXL_VLN Register
@@ -191,14 +214,14 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 */
 	val = ((y + lcd_info->y_fp + lcd_info->y_bp + 1) << 16) |
 		(x + lcd_info->x_fp + lcd_info->x_bp + 1);
-	writel(val, MVEBU_LCD_SPUT_V_H_TOTAL);
+	writel(val, regs + MVEBU_LCD_SPUT_V_H_TOTAL);
 
 	/*
 	 * Set the LCD_SPU_V_H_ACTIVE Register
 	 * Bits 31-16: Screen active vertical lines 320=0x140
 	 * Bits 15-00: Screen active horizontakl pixels 240=0x00F0
 	 */
-	writel((y << 16) | x, MVEBU_LCD_SPU_V_H_ACTIVE);
+	writel((y << 16) | x, regs + MVEBU_LCD_SPU_V_H_ACTIVE);
 
 	/*
 	 * Set the LCD_SPU_H_PORCH Register
@@ -207,7 +230,8 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Note: The terms "front" and "back" for the Marvell seem to be
 	 *       exactly opposite to the display.
 	 */
-	writel((lcd_info->x_fp << 16) | lcd_info->x_bp, MVEBU_LCD_SPU_H_PORCH);
+	writel((lcd_info->x_fp << 16) | lcd_info->x_bp,
+	       regs + MVEBU_LCD_SPU_H_PORCH);
 
 	/*
 	 * Set the LCD_SPU_V_PORCH Register
@@ -216,14 +240,15 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Note: The terms "front" and "back" for the Marvell seem to be exactly
 	 *       opposite to the display.
 	 */
-	writel((lcd_info->y_fp << 16) | lcd_info->y_bp, MVEBU_LCD_SPU_V_PORCH);
+	writel((lcd_info->y_fp << 16) | lcd_info->y_bp,
+	       regs + MVEBU_LCD_SPU_V_PORCH);
 
 	/*
 	 * Set the LCD_SPU_BLANKCOLOR Register
 	 * This should be black = 0
 	 * For tests this is magenta=00FF00FF
 	 */
-	writel(0x00FF00FF, MVEBU_LCD_SPU_BLANKCOLOR);
+	writel(0x00FF00FF, regs + MVEBU_LCD_SPU_BLANKCOLOR);
 
 	/*
 	 * Registers in the range of 0x0128 to 0x012C are colors for the cursor
@@ -240,7 +265,7 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bit      8: FIFO watermark for DMA: 0=disable
 	 * Bits 07-00: Empty 8B FIFO entries to trigger DMA, default=0x80
 	 */
-	writel(0x00000780, MVEBU_LCD_CFG_RDREG4F);
+	writel(0x00000780, regs + MVEBU_LCD_CFG_RDREG4F);
 
 	/*
 	 * Set the LCD_SPU_DMACTRL 0 Register
@@ -271,7 +296,7 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bit     01: Video YUV to RGB Conversion: 0=disable
 	 * Bit     00: Video  Transfer: 0=disable
 	 */
-	writel(0x88111100, MVEBU_LCD_SPU_DMA_CTRL0);
+	writel(0x88111100, regs + MVEBU_LCD_SPU_DMA_CTRL0);
 
 	/*
 	 * Set the LCD_SPU_DMA_CTRL1 Register
@@ -288,7 +313,7 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bits 15-08: Configure Alpha: 0x00.
 	 * Bits 07-00: Reserved.
 	 */
-	writel(0x20010000, MVEBU_LCD_SPU_DMA_CTRL1);
+	writel(0x20010000, regs + MVEBU_LCD_SPU_DMA_CTRL1);
 
 	/*
 	 * Set the LCD_SPU_SRAM_CTRL Register
@@ -297,14 +322,14 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bits 11-08: SRAM address ID: 0=gamma_yr, 1=gammy_ug, 2=gamma_vb,
 	 *             3=palette, 15=cursor
 	 */
-	writel(0x0000C000, MVEBU_LCD_SPU_SRAM_CTRL);
+	writel(0x0000C000, regs + MVEBU_LCD_SPU_SRAM_CTRL);
 
 	/*
 	 * LCD_SPU_SRAM_WRDAT register: 019C
 	 * LCD_SPU_SRAM_PARA0 register: 01A0
 	 * LCD_SPU_SRAM_PARA1 register: 01A4 - Cursor control/Power settings
 	 */
-	writel(0x00000000, MVEBU_LCD_SPU_SRAM_PARA1);
+	writel(0x00000000, regs + MVEBU_LCD_SPU_SRAM_PARA1);
 
 
 	/* Clock settings in the at 01A8 and in the range F0A0 see below */
@@ -314,21 +339,21 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bits 31-16: Brightness sign ext. 8-bit value +255 to -255: default=0
 	 * Bits 15-00: Contrast sign ext. 8-bit value +255 to -255: default=0
 	 */
-	writel(0x00000000, MVEBU_LCD_SPU_CONTRAST);
+	writel(0x00000000, regs + MVEBU_LCD_SPU_CONTRAST);
 
 	/*
 	 * Set LCD_SPU_SATURATION
 	 * Bits 31-16: Multiplier signed 4.12 fixed point value
 	 * Bits 15-00: Saturation signed 4.12 fixed point value
 	 */
-	writel(0x10001000, MVEBU_LCD_SPU_SATURATION);
+	writel(0x10001000, regs + MVEBU_LCD_SPU_SATURATION);
 
 	/*
 	 * Set LCD_SPU_HUE
 	 * Bits 31-16: Sine signed 2.14 fixed point value
 	 * Bits 15-00: Cosine signed 2.14 fixed point value
 	 */
-	writel(0x00000000, MVEBU_LCD_SPU_CBSH_HUE);
+	writel(0x00000000, regs + MVEBU_LCD_SPU_CBSH_HUE);
 
 	/*
 	 * Set LCD_SPU_DUMB_CTRL
@@ -348,7 +373,7 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Question: Do we have to disable Smart and Dumb LCD
 	 * and separately enable LVDS?
 	 */
-	writel(0x6000080F, MVEBU_LCD_SPU_DUMB_CTRL);
+	writel(0x6000080F, regs + MVEBU_LCD_SPU_DUMB_CTRL);
 
 	/*
 	 * Set LCD_SPU_IOPAD_CTRL
@@ -366,17 +391,17 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 *             128 Bytes burst
 	 * Bits 03-00: LCD pins: ??? 0=24-bit Dump panel ??
 	 */
-	writel(0x000000C0, MVEBU_LCD_SPU_IOPAD_CONTROL);
+	writel(0x000000C0, regs + MVEBU_LCD_SPU_IOPAD_CONTROL);
 
 	/*
 	 * Set SUP_IRQ_ENA_2: Disable all interrupts
 	 */
-	writel(0x00000000, MVEBU_LCD_SPU_IRQ_ENA_2);
+	writel(0x00000000, regs + MVEBU_LCD_SPU_IRQ_ENA_2);
 
 	/*
 	 * Set SUP_IRQ_ENA: Disable all interrupts.
 	 */
-	writel(0x00000000, MVEBU_LCD_SPU_IRQ_ENA);
+	writel(0x00000000, regs + MVEBU_LCD_SPU_IRQ_ENA);
 
 	/*
 	 * Set up ADDL Control Register
@@ -399,19 +424,19 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bits 05-00: Delay taps, 0x3F=Half Cycle, 0x00=No delay
 	 * Note: ADLL is used for a VGA interface with DAC - not used here
 	 */
-	writel(0x00000000, MVEBU_LCD_ADLL_CTRL);
+	writel(0x00000000, regs + MVEBU_LCD_ADLL_CTRL);
 
 	/*
 	 * Set the LCD_CLK_DIS Register:
 	 * Bits 3 and 4 must be 1
 	 */
-	writel(0x00000018, MVEBU_LCD_CLK_DIS);
+	writel(0x00000018, regs + MVEBU_LCD_CLK_DIS);
 
 	/*
 	 * Set the LCD_VGA_HSYNC/VSYNC Delay Register:
 	 * Bits 03-00: Sets the delay for the HSYNC and VSYNC signals
 	 */
-	writel(0x00000000, MVEBU_LCD_VGA_HVSYNC_DELAY);
+	writel(0x00000000, regs + MVEBU_LCD_VGA_HVSYNC_DELAY);
 
 	/*
 	 * Clock registers
@@ -423,12 +448,12 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	/*
 	 * Disable PLL, see "LCD Clock Configuration 1 Register" below
 	 */
-	writel(0x8FF40007, MVEBU_LCD_CLK_CFG_1);
+	writel(0x8FF40007, regs + MVEBU_LCD_CLK_CFG_1);
 
 	/*
 	 * Powerdown, see "LCD Clock Configuration 0 Register" below
 	 */
-	writel(0x94000174, MVEBU_LCD_CLK_CFG_0);
+	writel(0x94000174, regs + MVEBU_LCD_CLK_CFG_0);
 
 	/*
 	 * Set the LCD_CFG_SCLK_DIV Register
@@ -437,7 +462,7 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bits 15-01: Clock Divider: Bypass for LVDS=0x0001
 	 * See page 475 in section 28.5.
 	 */
-	writel(0x80000001, MVEBU_LCD_CFG_SCLK_DIV);
+	writel(0x80000001, regs + MVEBU_LCD_CFG_SCLK_DIV);
 
 	/*
 	 * Set the LCD Clock Configuration 0 Register:
@@ -452,7 +477,7 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 *             N=28=0x1C => 0x1B
 	 * Bits 03-00: R1_CTRL (for N=28 => 0x4)
 	 */
-	writel(0x940021B4, MVEBU_LCD_CLK_CFG_0);
+	writel(0x940021B4, regs + MVEBU_LCD_CLK_CFG_0);
 
 	/*
 	 * Set the LCD Clock Configuration 1 Register:
@@ -465,7 +490,7 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Bits 12-00: PLL Full Divider [Note: Assumed to be the Post-Divider
 	 *             M' for LVDS=7!]
 	 */
-	writel(0x8FF40007, MVEBU_LCD_CLK_CFG_1);
+	writel(0x8FF40007, regs + MVEBU_LCD_CLK_CFG_1);
 
 	/*
 	 * Set the LVDS Clock Configuration Register:
@@ -479,12 +504,12 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	 * Note: Bits 0 and must be verified with the help of the
 	 *       Interface/display
 	 */
-	writel(0xC0000201, MVEBU_LCD_LVDS_CLK_CFG);
+	writel(0xC0000201, regs + MVEBU_LCD_LVDS_CLK_CFG);
 
 	/*
 	 * Power up PLL (Clock Config 0)
 	 */
-	writel(0x140021B4, MVEBU_LCD_CLK_CFG_0);
+	writel(0x140021B4, regs + MVEBU_LCD_CLK_CFG_0);
 
 	/* wait 10 ms */
 	mdelay(10);
@@ -492,40 +517,78 @@ int mvebu_lcd_register_init(struct mvebu_lcd_info *lcd_info)
 	/*
 	 * Enable PLL (Clock Config 1)
 	 */
-	writel(0x8FF60007, MVEBU_LCD_CLK_CFG_1);
+	writel(0x8FF60007, regs + MVEBU_LCD_CLK_CFG_1);
+}
+
+static int mvebu_video_probe(struct udevice *dev)
+{
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct mvebu_video_priv *priv = dev_get_priv(dev);
+	struct mvebu_lcd_info lcd_info;
+	struct display_timing timings;
+	u32 fb_start, fb_end;
+	int ret;
+
+	priv->regs = dev_read_addr(dev);
+	if (priv->regs == FDT_ADDR_T_NONE) {
+		dev_err(dev, "failed to get LCD address\n");
+		return -ENXIO;
+	}
+
+	ret = ofnode_decode_display_timing(dev_ofnode(dev), 0, &timings);
+	if (ret) {
+		dev_err(dev, "failed to get any display timings\n");
+		return -EINVAL;
+	}
+
+	/* Use DT timing (resolution) in internal info struct */
+	lcd_info.fb_base = plat->base;
+	lcd_info.x_res = timings.hactive.typ;
+	lcd_info.x_fp = timings.hfront_porch.typ;
+	lcd_info.x_bp = timings.hback_porch.typ;
+	lcd_info.y_res = timings.vactive.typ;
+	lcd_info.y_fp = timings.vfront_porch.typ;
+	lcd_info.y_bp = timings.vback_porch.typ;
+
+	/* Initialize the LCD controller */
+	mvebu_lcd_register_init(&lcd_info, priv->regs);
+
+	/* Enable dcache for the frame buffer */
+	fb_start = plat->base & ~(MMU_SECTION_SIZE - 1);
+	fb_end = plat->base + plat->size;
+	fb_end = ALIGN(fb_end, 1 << MMU_SECTION_SHIFT);
+	mmu_set_region_dcache_behaviour(fb_start, fb_end - fb_start,
+					DCACHE_WRITEBACK);
+	video_set_flush_dcache(dev, true);
+
+	uc_priv->xsize = lcd_info.x_res;
+	uc_priv->ysize = lcd_info.y_res;
+	uc_priv->bpix = VIDEO_BPP16;	/* Uses RGB555 format */
 
 	return 0;
 }
 
-int __weak board_video_init(void)
+static int mvebu_video_bind(struct udevice *dev)
 {
-	return -1;
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+
+	plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
+		(1 << LCD_MAX_LOG2_BPP) / 8;
+
+	return 0;
 }
 
-void *video_hw_init(void)
-{
-	static GraphicDevice mvebufb;
-	GraphicDevice *pGD = &mvebufb;
-	u32 val;
+static const struct udevice_id mvebu_video_ids[] = {
+	{ .compatible = "marvell,armada-xp-lcd" },
+	{ }
+};
 
-	/*
-	 * The board code needs to call mvebu_lcd_register_init()
-	 * in its board_video_init() implementation, with the board
-	 * specific parameters for its LCD.
-	 */
-	if (board_video_init() || !readl(MVEBU_LCD_CFG_GRA_START_ADDR0))
-		return NULL;
-
-	/* Provide the necessary values for the U-Boot video IF */
-	val = readl(MVEBU_LCD_SPU_V_H_ACTIVE);
-	pGD->winSizeY = val >> 16;
-	pGD->winSizeX = val & 0x0000ffff;
-	pGD->gdfBytesPP = 2;
-	pGD->gdfIndex = GDF_15BIT_555RGB;
-	pGD->frameAdrs = readl(MVEBU_LCD_CFG_GRA_START_ADDR0);
-
-	debug("LCD: buffer at 0x%08x resolution %dx%d\n", pGD->frameAdrs,
-	      pGD->winSizeX, pGD->winSizeY);
-
-	return pGD;
-}
+U_BOOT_DRIVER(mvebu_video) = {
+	.name	= "mvebu_video",
+	.id	= UCLASS_VIDEO,
+	.of_match = mvebu_video_ids,
+	.bind	= mvebu_video_bind,
+	.probe	= mvebu_video_probe,
+	.priv_auto_alloc_size = sizeof(struct mvebu_video_priv),
+};

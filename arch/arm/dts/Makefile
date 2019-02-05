@@ -96,6 +96,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-3720-db.dtb			\
 	armada-3720-espressobin.dtb		\
 	armada-3720-turris-mox.dtb		\
+	armada-3720-uDPU.dts			\
 	armada-375-db.dtb			\
 	armada-388-clearfog.dtb			\
 	armada-388-gp.dtb			\
