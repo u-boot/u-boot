@@ -16,5 +16,11 @@ config TI_K3_NAVSS_RINGACC
 	  and a consumer. There is one RINGACC module per NAVSS on TI AM65x SoCs
 	  If unsure, say N.
 
+config TI_KEYSTONE_SERDES
+	bool "Keystone SerDes driver for ethernet"
+	depends on ARCH_KEYSTONE
+	help
+	 SerDes driver for Keystone SoC used for ethernet support on TI
+	 K2 platforms.
 
 endif # SOC_TI
