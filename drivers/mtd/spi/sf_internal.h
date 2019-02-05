@@ -16,7 +16,9 @@
 #define SPI_NOR_MAX_ADDR_WIDTH	4
 
 struct flash_info {
+#if !CONFIG_IS_ENABLED(SPI_FLASH_TINY)
 	char		*name;
+#endif
 
 	/*
 	 * This array stores the ID bytes.

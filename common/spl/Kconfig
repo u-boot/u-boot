@@ -739,9 +739,18 @@ config SPL_SPI_FLASH_SUPPORT
 
 if SPL_SPI_FLASH_SUPPORT
 
+config SPL_SPI_FLASH_TINY
+	bool "Enable low footprint SPL SPI Flash support"
+	depends on !SPI_FLASH_BAR
+	help
+	 Enable lightweight SPL SPI Flash support that supports just reading
+	 data/images from flash. No support to write/erase flash. Enable
+	 this if you have SPL size limitations and don't need full
+	 fledged SPI flash support.
+
 config SPL_SPI_FLASH_SFDP_SUPPORT
 	bool "SFDP table parsing support for SPI NOR flashes"
-	depends on !SPI_FLASH_BAR
+	depends on !SPI_FLASH_BAR && !SPL_SPI_FLASH_TINY
 	help
 	 Enable support for parsing and auto discovery of parameters for
 	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
