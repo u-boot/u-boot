@@ -196,6 +196,7 @@ static const struct dm_spi_flash_ops spi_flash_std_ops = {
 
 static const struct udevice_id spi_flash_std_ids[] = {
 	{ .compatible = "spi-flash" },
+	{ .compatible = "jedec,spi-nor" },
 	{ }
 };
 
