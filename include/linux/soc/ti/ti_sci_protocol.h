@@ -213,6 +213,31 @@ struct ti_sci_clk_ops {
 };
 
 /**
+ * struct ti_sci_rm_core_ops - Resource management core operations
+ * @get_range:		Get a range of resources belonging to ti sci host.
+ * @get_rage_from_shost:	Get a range of resources belonging to
+ *				specified host id.
+ *			- s_host: Host processing entity to which the
+ *				  resources are allocated
+ *
+ * NOTE: for these functions, all the parameters are consolidated and defined
+ * as below:
+ * - handle:	Pointer to TISCI handle as retrieved by *ti_sci_get_handle
+ * - dev_id:	TISCI device ID.
+ * - subtype:	Resource assignment subtype that is being requested
+ *		from the given device.
+ * - range_start:	Start index of the resource range
+ * - range_end:		Number of resources in the range
+ */
+struct ti_sci_rm_core_ops {
+	int (*get_range)(const struct ti_sci_handle *handle, u32 dev_id,
+			 u8 subtype, u16 *range_start, u16 *range_num);
+	int (*get_range_from_shost)(const struct ti_sci_handle *handle,
+				    u32 dev_id, u8 subtype, u8 s_host,
+				    u16 *range_start, u16 *range_num);
+};
+
+/**
  * struct ti_sci_core_ops - SoC Core Operations
  * @reboot_device: Reboot the SoC
  *		Returns 0 for successful request(ideally should never return),
@@ -257,6 +282,230 @@ struct ti_sci_proc_ops {
 				    u32 *sts_flags);
 };
 
+#define TI_SCI_RING_MODE_RING			(0)
+#define TI_SCI_RING_MODE_MESSAGE		(1)
+#define TI_SCI_RING_MODE_CREDENTIALS		(2)
+#define TI_SCI_RING_MODE_QM			(3)
+
+#define TI_SCI_MSG_UNUSED_SECONDARY_HOST TI_SCI_RM_NULL_U8
+
+/* RA config.addr_lo parameter is valid for RM ring configure TI_SCI message */
+#define TI_SCI_MSG_VALUE_RM_RING_ADDR_LO_VALID	BIT(0)
+/* RA config.addr_hi parameter is valid for RM ring configure TI_SCI message */
+#define TI_SCI_MSG_VALUE_RM_RING_ADDR_HI_VALID	BIT(1)
+ /* RA config.count parameter is valid for RM ring configure TI_SCI message */
+#define TI_SCI_MSG_VALUE_RM_RING_COUNT_VALID	BIT(2)
+/* RA config.mode parameter is valid for RM ring configure TI_SCI message */
+#define TI_SCI_MSG_VALUE_RM_RING_MODE_VALID	BIT(3)
+/* RA config.size parameter is valid for RM ring configure TI_SCI message */
+#define TI_SCI_MSG_VALUE_RM_RING_SIZE_VALID	BIT(4)
+/* RA config.order_id parameter is valid for RM ring configure TISCI message */
+#define TI_SCI_MSG_VALUE_RM_RING_ORDER_ID_VALID	BIT(5)
+
+#define TI_SCI_MSG_VALUE_RM_ALL_NO_ORDER \
+	(TI_SCI_MSG_VALUE_RM_RING_ADDR_LO_VALID | \
+	TI_SCI_MSG_VALUE_RM_RING_ADDR_HI_VALID | \
+	TI_SCI_MSG_VALUE_RM_RING_COUNT_VALID | \
+	TI_SCI_MSG_VALUE_RM_RING_MODE_VALID | \
+	TI_SCI_MSG_VALUE_RM_RING_SIZE_VALID)
+
+/**
+ * struct ti_sci_rm_ringacc_ops - Ring Accelerator Management operations
+ * @config: configure the SoC Navigator Subsystem Ring Accelerator ring
+ * @get_config: get the SoC Navigator Subsystem Ring Accelerator ring
+ *		configuration
+ */
+struct ti_sci_rm_ringacc_ops {
+	int (*config)(const struct ti_sci_handle *handle,
+		      u32 valid_params, u16 nav_id, u16 index,
+		      u32 addr_lo, u32 addr_hi, u32 count, u8 mode,
+		      u8 size, u8 order_id
+	);
+	int (*get_config)(const struct ti_sci_handle *handle,
+			  u32 nav_id, u32 index, u8 *mode,
+			  u32 *addr_lo, u32 *addr_hi, u32 *count,
+			  u8 *size, u8 *order_id);
+};
+
+/**
+ * struct ti_sci_rm_psil_ops - PSI-L thread operations
+ * @pair: pair PSI-L source thread to a destination thread.
+ *	If the src_thread is mapped to UDMA tchan, the corresponding channel's
+ *	TCHAN_THRD_ID register is updated.
+ *	If the dst_thread is mapped to UDMA rchan, the corresponding channel's
+ *	RCHAN_THRD_ID register is updated.
+ * @unpair: unpair PSI-L source thread from a destination thread.
+ *	If the src_thread is mapped to UDMA tchan, the corresponding channel's
+ *	TCHAN_THRD_ID register is cleared.
+ *	If the dst_thread is mapped to UDMA rchan, the corresponding channel's
+ *	RCHAN_THRD_ID register is cleared.
+ */
+struct ti_sci_rm_psil_ops {
+	int (*pair)(const struct ti_sci_handle *handle, u32 nav_id,
+		    u32 src_thread, u32 dst_thread);
+	int (*unpair)(const struct ti_sci_handle *handle, u32 nav_id,
+		      u32 src_thread, u32 dst_thread);
+};
+
+/* UDMAP channel types */
+#define TI_SCI_RM_UDMAP_CHAN_TYPE_PKT_PBRR		2
+#define TI_SCI_RM_UDMAP_CHAN_TYPE_PKT_PBRR_SB		3	/* RX only */
+#define TI_SCI_RM_UDMAP_CHAN_TYPE_3RDP_PBRR		10
+#define TI_SCI_RM_UDMAP_CHAN_TYPE_3RDP_PBVR		11
+#define TI_SCI_RM_UDMAP_CHAN_TYPE_3RDP_BCOPY_PBRR	12
+#define TI_SCI_RM_UDMAP_CHAN_TYPE_3RDP_BCOPY_PBVR	13
+
+/* UDMAP channel atypes */
+#define TI_SCI_RM_UDMAP_ATYPE_PHYS			0
+#define TI_SCI_RM_UDMAP_ATYPE_INTERMEDIATE		1
+#define TI_SCI_RM_UDMAP_ATYPE_VIRTUAL			2
+
+/* UDMAP channel scheduling priorities */
+#define TI_SCI_RM_UDMAP_SCHED_PRIOR_HIGH		0
+#define TI_SCI_RM_UDMAP_SCHED_PRIOR_MEDHIGH		1
+#define TI_SCI_RM_UDMAP_SCHED_PRIOR_MEDLOW		2
+#define TI_SCI_RM_UDMAP_SCHED_PRIOR_LOW			3
+
+#define TI_SCI_RM_UDMAP_RX_FLOW_DESC_HOST		0
+#define TI_SCI_RM_UDMAP_RX_FLOW_DESC_MONO		2
+
+/* UDMAP TX/RX channel valid_params common declarations */
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_PAUSE_ON_ERR_VALID		BIT(0)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_ATYPE_VALID                BIT(1)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_CHAN_TYPE_VALID            BIT(2)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_FETCH_SIZE_VALID           BIT(3)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_CQ_QNUM_VALID              BIT(4)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_PRIORITY_VALID             BIT(5)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_QOS_VALID                  BIT(6)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_ORDER_ID_VALID             BIT(7)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_SCHED_PRIORITY_VALID       BIT(8)
+
+/**
+ * Configures a Navigator Subsystem UDMAP transmit channel
+ *
+ * Configures a Navigator Subsystem UDMAP transmit channel registers.
+ * See @ti_sci_msg_rm_udmap_tx_ch_cfg_req
+ */
+struct ti_sci_msg_rm_udmap_tx_ch_cfg {
+	u32 valid_params;
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_TX_FILT_EINFO_VALID        BIT(9)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_TX_FILT_PSWORDS_VALID      BIT(10)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_TX_SUPR_TDPKT_VALID        BIT(11)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_TX_CREDIT_COUNT_VALID      BIT(12)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_TX_FDEPTH_VALID            BIT(13)
+	u16 nav_id;
+	u16 index;
+	u8 tx_pause_on_err;
+	u8 tx_filt_einfo;
+	u8 tx_filt_pswords;
+	u8 tx_atype;
+	u8 tx_chan_type;
+	u8 tx_supr_tdpkt;
+	u16 tx_fetch_size;
+	u8 tx_credit_count;
+	u16 txcq_qnum;
+	u8 tx_priority;
+	u8 tx_qos;
+	u8 tx_orderid;
+	u16 fdepth;
+	u8 tx_sched_priority;
+};
+
+/**
+ * Configures a Navigator Subsystem UDMAP receive channel
+ *
+ * Configures a Navigator Subsystem UDMAP receive channel registers.
+ * See @ti_sci_msg_rm_udmap_rx_ch_cfg_req
+ */
+struct ti_sci_msg_rm_udmap_rx_ch_cfg {
+	u32 valid_params;
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_START_VALID      BIT(9)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_FLOWID_CNT_VALID        BIT(10)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_IGNORE_SHORT_VALID      BIT(11)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_CH_RX_IGNORE_LONG_VALID       BIT(12)
+	u16 nav_id;
+	u16 index;
+	u16 rx_fetch_size;
+	u16 rxcq_qnum;
+	u8 rx_priority;
+	u8 rx_qos;
+	u8 rx_orderid;
+	u8 rx_sched_priority;
+	u16 flowid_start;
+	u16 flowid_cnt;
+	u8 rx_pause_on_err;
+	u8 rx_atype;
+	u8 rx_chan_type;
+	u8 rx_ignore_short;
+	u8 rx_ignore_long;
+};
+
+/**
+ * Configures a Navigator Subsystem UDMAP receive flow
+ *
+ * Configures a Navigator Subsystem UDMAP receive flow's registers.
+ * See @tis_ci_msg_rm_udmap_flow_cfg_req
+ */
+struct ti_sci_msg_rm_udmap_flow_cfg {
+	u32 valid_params;
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_EINFO_PRESENT_VALID	BIT(0)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_PSINFO_PRESENT_VALID     BIT(1)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_ERROR_HANDLING_VALID     BIT(2)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_DESC_TYPE_VALID          BIT(3)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_SOP_OFFSET_VALID         BIT(4)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_DEST_QNUM_VALID          BIT(5)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_SRC_TAG_HI_VALID         BIT(6)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_SRC_TAG_LO_VALID         BIT(7)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_DEST_TAG_HI_VALID        BIT(8)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_DEST_TAG_LO_VALID        BIT(9)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_SRC_TAG_HI_SEL_VALID     BIT(10)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_SRC_TAG_LO_SEL_VALID     BIT(11)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_DEST_TAG_HI_SEL_VALID    BIT(12)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_DEST_TAG_LO_SEL_VALID    BIT(13)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_FDQ0_SZ0_QNUM_VALID      BIT(14)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_FDQ1_QNUM_VALID          BIT(15)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_FDQ2_QNUM_VALID          BIT(16)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_FDQ3_QNUM_VALID          BIT(17)
+#define TI_SCI_MSG_VALUE_RM_UDMAP_FLOW_PS_LOCATION_VALID        BIT(18)
+	u16 nav_id;
+	u16 flow_index;
+	u8 rx_einfo_present;
+	u8 rx_psinfo_present;
+	u8 rx_error_handling;
+	u8 rx_desc_type;
+	u16 rx_sop_offset;
+	u16 rx_dest_qnum;
+	u8 rx_src_tag_hi;
+	u8 rx_src_tag_lo;
+	u8 rx_dest_tag_hi;
+	u8 rx_dest_tag_lo;
+	u8 rx_src_tag_hi_sel;
+	u8 rx_src_tag_lo_sel;
+	u8 rx_dest_tag_hi_sel;
+	u8 rx_dest_tag_lo_sel;
+	u16 rx_fdq0_sz0_qnum;
+	u16 rx_fdq1_qnum;
+	u16 rx_fdq2_qnum;
+	u16 rx_fdq3_qnum;
+	u8 rx_ps_location;
+};
+
+/**
+ * struct ti_sci_rm_udmap_ops - UDMA Management operations
+ * @tx_ch_cfg: configure SoC Navigator Subsystem UDMA transmit channel.
+ * @rx_ch_cfg: configure SoC Navigator Subsystem UDMA receive channel.
+ * @rx_flow_cfg: configure SoC Navigator Subsystem UDMA receive flow.
+ */
+struct ti_sci_rm_udmap_ops {
+	int (*tx_ch_cfg)(const struct ti_sci_handle *handle,
+			 const struct ti_sci_msg_rm_udmap_tx_ch_cfg *params);
+	int (*rx_ch_cfg)(const struct ti_sci_handle *handle,
+			 const struct ti_sci_msg_rm_udmap_rx_ch_cfg *params);
+	int (*rx_flow_cfg)(
+		const struct ti_sci_handle *handle,
+		const struct ti_sci_msg_rm_udmap_flow_cfg *params);
+};
+
 /**
  * struct ti_sci_ops - Function support for TI SCI
  * @board_ops:	Miscellaneous operations
@@ -264,6 +513,7 @@ struct ti_sci_proc_ops {
  * @clk_ops:	Clock specific operations
  * @core_ops:	Core specific operations
  * @proc_ops:	Processor specific operations
+ * @ring_ops: Ring Accelerator Management operations
  */
 struct ti_sci_ops {
 	struct ti_sci_board_ops board_ops;
@@ -271,6 +521,10 @@ struct ti_sci_ops {
 	struct ti_sci_clk_ops clk_ops;
 	struct ti_sci_core_ops core_ops;
 	struct ti_sci_proc_ops proc_ops;
+	struct ti_sci_rm_core_ops rm_core_ops;
+	struct ti_sci_rm_ringacc_ops rm_ring_ops;
+	struct ti_sci_rm_psil_ops rm_psil_ops;
+	struct ti_sci_rm_udmap_ops rm_udmap_ops;
 };
 
 /**
@@ -283,12 +537,42 @@ struct ti_sci_handle {
 	struct ti_sci_version_info version;
 };
 
+#define TI_SCI_RESOURCE_NULL	0xffff
+
+/**
+ * struct ti_sci_resource_desc - Description of TI SCI resource instance range.
+ * @start:	Start index of the resource.
+ * @num:	Number of resources.
+ * @res_map:	Bitmap to manage the allocation of these resources.
+ */
+struct ti_sci_resource_desc {
+	u16 start;
+	u16 num;
+	unsigned long *res_map;
+};
+
+/**
+ * struct ti_sci_resource - Structure representing a resource assigned
+ *			    to a device.
+ * @sets:	Number of sets available from this resource type
+ * @desc:	Array of resource descriptors.
+ */
+struct ti_sci_resource {
+	u16 sets;
+	struct ti_sci_resource_desc *desc;
+};
+
 #if IS_ENABLED(CONFIG_TI_SCI_PROTOCOL)
 
 const struct ti_sci_handle *ti_sci_get_handle_from_sysfw(struct udevice *dev);
 const struct ti_sci_handle *ti_sci_get_handle(struct udevice *dev);
 const struct ti_sci_handle *ti_sci_get_by_phandle(struct udevice *dev,
 						  const char *property);
+u16 ti_sci_get_free_resource(struct ti_sci_resource *res);
+void ti_sci_release_resource(struct ti_sci_resource *res, u16 id);
+struct ti_sci_resource *
+devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
+			    struct udevice *dev, u32 dev_id, char *of_prop);
 
 #else	/* CONFIG_TI_SCI_PROTOCOL */
 
@@ -306,6 +590,22 @@ static inline const struct ti_sci_handle *ti_sci_get_handle(struct udevice *dev)
 static inline
 const struct ti_sci_handle *ti_sci_get_by_phandle(struct udevice *dev,
 						  const char *property)
+{
+	return ERR_PTR(-EINVAL);
+}
+
+static inline u16 ti_sci_get_free_resource(struct ti_sci_resource *res)
+{
+	return TI_SCI_RESOURCE_NULL;
+}
+
+static inline void ti_sci_release_resource(struct ti_sci_resource *res, u16 id)
+{
+}
+
+static inline struct ti_sci_resource *
+devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
+			    struct udevice *dev, u32 dev_id, char *of_prop)
 {
 	return ERR_PTR(-EINVAL);
 }
