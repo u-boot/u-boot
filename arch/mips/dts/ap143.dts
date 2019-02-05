@@ -40,3 +40,8 @@
 		reg = <0>;
 	};
 };
+
+&gmac1 {
+	status = "okay";
+	phy-mode = "rgmii";
+};

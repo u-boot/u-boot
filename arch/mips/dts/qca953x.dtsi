@@ -65,6 +65,37 @@
 
 				status = "disabled";
 			};
+
+			gmac0: eth0@0x19000000 {
+				compatible = "qca,ag953x-mac";
+				reg = <0x19000000 0x200>;
+				phy = <&phy4>;
+				phy-mode = "rmii";
+
+				status = "disabled";
+			};
+
+			gmac1: eth1@0x1a000000 {
+				compatible = "qca,ag953x-mac";
+				reg = <0x1a000000 0x200>;
+				phy = <&phy0>;
+				phy-mode = "rgmii";
+
+				status = "disabled";
+
+				mdio {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					phy0: ethernet-phy@0 {
+						reg = <0>;
+						phy-mode = "rmii";
+					};
+					phy4: ethernet-phy@4 {
+						reg = <4>;
+						phy-mode = "rmii";
+					};
+				};
+			};
 		};
 
 		spi0: spi@1f000000 {
