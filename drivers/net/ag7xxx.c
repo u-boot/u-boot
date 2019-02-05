@@ -23,6 +23,7 @@ DECLARE_GLOBAL_DATA_PTR;
 enum ag7xxx_model {
 	AG7XXX_MODEL_AG933X,
 	AG7XXX_MODEL_AG934X,
+	AG7XXX_MODEL_AG953X
 };
 
 /* MAC Configuration 1 */
@@ -99,8 +100,29 @@ enum ag7xxx_model {
 /* Rx Status */
 #define AG7XXX_ETH_DMA_RX_STATUS		0x194
 
+/* Custom register at 0x1805002C */
+#define AG7XXX_ETH_XMII			0x2C
+#define AG7XXX_ETH_XMII_TX_INVERT		BIT(31)
+#define AG7XXX_ETH_XMII_RX_DELAY_LSB		28
+#define AG7XXX_ETH_XMII_RX_DELAY_MASK		0x30000000
+#define AG7XXX_ETH_XMII_RX_DELAY_SET(x) \
+	(((x) << AG7XXX_ETH_XMII_RX_DELAY_LSB) & AG7XXX_ETH_XMII_RX_DELAY_MASK)
+#define AG7XXX_ETH_XMII_TX_DELAY_LSB		26
+#define AG7XXX_ETH_XMII_TX_DELAY_MASK		0x0c000000
+#define AG7XXX_ETH_XMII_TX_DELAY_SET(x) \
+	(((x) << AG7XXX_ETH_XMII_TX_DELAY_LSB) & AG7XXX_ETH_XMII_TX_DELAY_MASK)
+#define AG7XXX_ETH_XMII_GIGE		BIT(25)
+
 /* Custom register at 0x18070000 */
 #define AG7XXX_GMAC_ETH_CFG			0x00
+#define AG7XXX_ETH_CFG_RXDV_DELAY_LSB		16
+#define AG7XXX_ETH_CFG_RXDV_DELAY_MASK		0x00030000
+#define AG7XXX_ETH_CFG_RXDV_DELAY_SET(x) \
+	(((x) << AG7XXX_ETH_CFG_RXDV_DELAY_LSB) & AG7XXX_ETH_CFG_RXDV_DELAY_MASK)
+#define AG7XXX_ETH_CFG_RXD_DELAY_LSB		14
+#define AG7XXX_ETH_CFG_RXD_DELAY_MASK		0x0000c000
+#define AG7XXX_ETH_CFG_RXD_DELAY_SET(x)	\
+	(((x) << AG7XXX_ETH_CFG_RXD_DELAY_LSB) & AG7XXX_ETH_CFG_RXD_DELAY_MASK)
 #define AG7XXX_ETH_CFG_SW_PHY_ADDR_SWAP		BIT(8)
 #define AG7XXX_ETH_CFG_SW_PHY_SWAP		BIT(7)
 #define AG7XXX_ETH_CFG_SW_ONLY_MODE		BIT(6)
@@ -200,7 +222,8 @@ static int ag7xxx_switch_reg_read(struct mii_dev *bus, int reg, u32 *val)
 	u16 rv = 0;
 	int ret;
 
-	if (priv->model == AG7XXX_MODEL_AG933X) {
+	if (priv->model == AG7XXX_MODEL_AG933X ||
+	    priv->model == AG7XXX_MODEL_AG953X) {
 		phy_addr = 0x1f;
 		reg_addr = 0x10;
 	} else if (priv->model == AG7XXX_MODEL_AG934X) {
@@ -239,7 +262,8 @@ static int ag7xxx_switch_reg_write(struct mii_dev *bus, int reg, u32 val)
 	u32 reg_temp;
 	int ret;
 
-	if (priv->model == AG7XXX_MODEL_AG933X) {
+	if (priv->model == AG7XXX_MODEL_AG933X ||
+	    priv->model == AG7XXX_MODEL_AG953X) {
 		phy_addr = 0x1f;
 		reg_addr = 0x10;
 	} else if (priv->model == AG7XXX_MODEL_AG934X) {
@@ -598,10 +622,16 @@ static int ag7xxx_mii_setup(struct udevice *dev)
 			return 0;
 	}
 
-	if (priv->model == AG7XXX_MODEL_AG934X) {
-		writel(AG7XXX_ETH_MII_MGMT_CFG_RESET | 0x4,
+	if (priv->model == AG7XXX_MODEL_AG934X)
+		reg = 0x4;
+	else if (priv->model == AG7XXX_MODEL_AG953X)
+		reg = 0x2;
+
+	if (priv->model == AG7XXX_MODEL_AG934X ||
+	    priv->model == AG7XXX_MODEL_AG953X) {
+		writel(AG7XXX_ETH_MII_MGMT_CFG_RESET | reg,
 		       priv->regs + AG7XXX_ETH_MII_MGMT_CFG);
-		writel(0x4, priv->regs + AG7XXX_ETH_MII_MGMT_CFG);
+		writel(reg, priv->regs + AG7XXX_ETH_MII_MGMT_CFG);
 		return 0;
 	}
 
@@ -698,14 +728,125 @@ static int ag933x_phy_setup_lan(struct udevice *dev)
 	return 0;
 }
 
+static int ag953x_phy_setup_wan(struct udevice *dev)
+{
+	int ret;
+	u32 reg = 0;
+	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
+
+	/* Set wan port connect to GE0 */
+	ret = ag7xxx_switch_reg_read(priv->bus, 0x8, &reg);
+	if (ret)
+		return ret;
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x8, reg | BIT(28));
+	if (ret)
+		return ret;
+
+	/* Configure switch port 4 (GMAC0) */
+	ret = ag7xxx_switch_write(priv->bus, 4, MII_BMCR, 0x9000);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int ag953x_phy_setup_lan(struct udevice *dev)
+{
+	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
+	int i, ret;
+	u32 reg = 0;
+
+	/* Reset the switch */
+	ret = ag7xxx_switch_reg_read(priv->bus, 0, &reg);
+	if (ret)
+		return ret;
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0, reg | BIT(31));
+	if (ret)
+		return ret;
+
+	do {
+		ret = ag7xxx_switch_reg_read(priv->bus, 0, &reg);
+		if (ret)
+			return ret;
+	} while (reg & BIT(31));
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x100, 0x4e);
+	if (ret)
+		return ret;
+
+	/* Set GMII mode */
+	ret = ag7xxx_switch_reg_read(priv->bus, 0x4, &reg);
+	if (ret)
+		return ret;
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x4, reg | BIT(6));
+	if (ret)
+		return ret;
+
+	/* Configure switch ports 0...4 (GMAC1) */
+	for (i = 0; i < 5; i++) {
+		ret = ag7xxx_switch_write(priv->bus, i, MII_BMCR, 0x9000);
+		if (ret)
+			return ret;
+	}
+
+	for (i = 0; i < 5; i++) {
+		ret = ag7xxx_switch_reg_write(priv->bus, (i + 2) * 0x100, BIT(9));
+		if (ret)
+			return ret;
+	}
+
+	/* QM Control */
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x38, 0xc000050e);
+	if (ret)
+		return ret;
+
+	/* Disable Atheros header */
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x104, 0x4004);
+	if (ret)
+		return ret;
+
+	/* Tag priority mapping */
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x70, 0xfa50);
+	if (ret)
+		return ret;
+
+	/* Enable ARP packets to the CPU */
+	ret = ag7xxx_switch_reg_read(priv->bus, 0x5c, &reg);
+	if (ret)
+		return ret;
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x5c, reg | 0x100000);
+	if (ret)
+		return ret;
+
+	/* Enable broadcast packets to the CPU */
+	ret = ag7xxx_switch_reg_read(priv->bus, 0x2c, &reg);
+	if (ret)
+		return ret;
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x2c, reg | BIT(25) | BIT(26));
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int ag933x_phy_setup_reset_set(struct udevice *dev, int port)
 {
 	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	ret = ag7xxx_mdio_write(priv->bus, port, 0, MII_ADVERTISE,
-				ADVERTISE_ALL | ADVERTISE_PAUSE_CAP |
-				ADVERTISE_PAUSE_ASYM);
+	if (priv->model == AG7XXX_MODEL_AG953X) {
+		ret = ag7xxx_switch_write(priv->bus, port, MII_ADVERTISE,
+					ADVERTISE_ALL);
+	} else {
+		ret = ag7xxx_mdio_write(priv->bus, port, 0, MII_ADVERTISE,
+					ADVERTISE_ALL | ADVERTISE_PAUSE_CAP |
+					ADVERTISE_PAUSE_ASYM);
+	}
 	if (ret)
 		return ret;
 
@@ -716,6 +857,10 @@ static int ag933x_phy_setup_reset_set(struct udevice *dev, int port)
 			return ret;
 	}
 
+	if (priv->model == AG7XXX_MODEL_AG953X)
+		return ag7xxx_switch_write(priv->bus, port, MII_BMCR,
+					 BMCR_ANENABLE | BMCR_RESET);
+
 	return ag7xxx_mdio_write(priv->bus, port, 0, MII_BMCR,
 				 BMCR_ANENABLE | BMCR_RESET);
 }
@@ -724,13 +869,23 @@ static int ag933x_phy_setup_reset_fin(struct udevice *dev, int port)
 {
 	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
 	int ret;
+	u16 reg;
 
-	do {
-		ret = ag7xxx_mdio_read(priv->bus, port, 0, MII_BMCR);
-		if (ret < 0)
-			return ret;
-		mdelay(10);
-	} while (ret & BMCR_RESET);
+	if (priv->model == AG7XXX_MODEL_AG953X) {
+		do {
+			ret = ag7xxx_switch_read(priv->bus, port, MII_BMCR, &reg);
+			if (ret < 0)
+				return ret;
+			mdelay(10);
+		} while (reg & BMCR_RESET);
+	} else {
+		do {
+			ret = ag7xxx_mdio_read(priv->bus, port, 0, MII_BMCR);
+			if (ret < 0)
+				return ret;
+			mdelay(10);
+		} while (ret & BMCR_RESET);
+	}
 
 	return 0;
 }
@@ -739,10 +894,12 @@ static int ag933x_phy_setup_common(struct udevice *dev)
 {
 	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
 	int i, ret, phymax;
+	u16 reg;
 
 	if (priv->model == AG7XXX_MODEL_AG933X)
 		phymax = 4;
-	else if (priv->model == AG7XXX_MODEL_AG934X)
+	else if (priv->model == AG7XXX_MODEL_AG934X ||
+		priv->model == AG7XXX_MODEL_AG953X)
 		phymax = 5;
 	else
 		return -EINVAL;
@@ -757,7 +914,10 @@ static int ag933x_phy_setup_common(struct udevice *dev)
 			return ret;
 
 		/* Read out link status */
-		ret = ag7xxx_mdio_read(priv->bus, phymax, 0, MII_MIPSCR);
+		if (priv->model == AG7XXX_MODEL_AG953X)
+			ret = ag7xxx_switch_read(priv->bus, phymax, MII_MIPSCR, &reg);
+		else
+			ret = ag7xxx_mdio_read(priv->bus, phymax, 0, MII_MIPSCR);
 		if (ret < 0)
 			return ret;
 
@@ -779,7 +939,10 @@ static int ag933x_phy_setup_common(struct udevice *dev)
 
 	for (i = 0; i < phymax; i++) {
 		/* Read out link status */
-		ret = ag7xxx_mdio_read(priv->bus, i, 0, MII_MIPSCR);
+		if (priv->model == AG7XXX_MODEL_AG953X)
+			ret = ag7xxx_switch_read(priv->bus, i, MII_MIPSCR, &reg);
+		else
+			ret = ag7xxx_mdio_read(priv->bus, i, 0, MII_MIPSCR);
 		if (ret < 0)
 			return ret;
 	}
@@ -858,6 +1021,11 @@ static int ag7xxx_mac_probe(struct udevice *dev)
 			ret = ag933x_phy_setup_wan(dev);
 		else
 			ret = ag933x_phy_setup_lan(dev);
+	} else if (priv->model == AG7XXX_MODEL_AG953X) {
+		if (priv->interface == PHY_INTERFACE_MODE_RMII)
+			ret = ag953x_phy_setup_wan(dev);
+		else
+			ret = ag953x_phy_setup_lan(dev);
 	} else if (priv->model == AG7XXX_MODEL_AG934X) {
 		ret = ag934x_phy_setup(dev);
 	} else {
@@ -997,6 +1165,7 @@ static int ag7xxx_eth_ofdata_to_platdata(struct udevice *dev)
 static const struct udevice_id ag7xxx_eth_ids[] = {
 	{ .compatible = "qca,ag933x-mac", .data = AG7XXX_MODEL_AG933X },
 	{ .compatible = "qca,ag934x-mac", .data = AG7XXX_MODEL_AG934X },
+	{ .compatible = "qca,ag953x-mac", .data = AG7XXX_MODEL_AG953X },
 	{ }
 };
 
