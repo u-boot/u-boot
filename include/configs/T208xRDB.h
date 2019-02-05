@@ -437,7 +437,6 @@ unsigned long get_board_ddr_clk(void);
  * eSPI - Enhanced SPI
  */
 #ifdef CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SF_DEFAULT_SPEED	 10000000
 #define CONFIG_SF_DEFAULT_MODE	  0
 #endif

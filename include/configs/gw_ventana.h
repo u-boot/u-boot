@@ -52,7 +52,6 @@
 /* SPI */
 #ifdef CONFIG_CMD_SF
   #define CONFIG_SPI_FLASH_MTD
-  #define CONFIG_SPI_FLASH_BAR
   #define CONFIG_SF_DEFAULT_BUS              0
   #define CONFIG_SF_DEFAULT_CS               0
 					     /* GPIO 3-19 (21248) */
