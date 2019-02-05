@@ -686,9 +686,17 @@ SPI
 M:	Jagan Teki <jagan@openedev.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-spi.git
-F:	drivers/mtd/spi/
 F:	drivers/spi/
 F:	include/spi*
+
+SPI-NOR
+M:	Jagan Teki <jagan@openedev.com>
+M:	Vignesh R <vigneshr@ti.com>
+S:	Maintained
+F:	drivers/mtd/spi/
+F:	include/spi_flash.h
+F:	include/linux/mtd/cfi.h
+F:	include/linux/mtd/spi-nor.h
 
 SPMI
 M:	Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
