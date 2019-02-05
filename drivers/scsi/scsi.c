@@ -594,7 +594,7 @@ static int do_scsi_scan_one(struct udevice *dev, int id, int lun, bool verbose)
 	memcpy(&bdesc->revision, &bd.revision,	sizeof(bd.revision));
 
 	if (verbose) {
-		printf("  Device %d: ", 0);
+		printf("  Device %d: ", bdesc->devnum);
 		dev_print(bdesc);
 	}
 	return 0;
@@ -659,15 +659,16 @@ int scsi_scan(bool verbose)
 	scsi_max_devs = 0;
 	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
 		for (lun = 0; lun < CONFIG_SYS_SCSI_MAX_LUN; lun++) {
-			ret = scsi_detect_dev(NULL, i, lun,
-					      &scsi_dev_desc[scsi_max_devs]);
+			struct blk_desc *bdesc = &scsi_dev_desc[scsi_max_devs];
+
+			ret = scsi_detect_dev(NULL, i, lun, bdesc);
 			if (ret)
 				continue;
-			part_init(&scsi_dev_desc[scsi_max_devs]);
+			part_init(bdesc);
 
 			if (verbose) {
-				printf("  Device %d: ", 0);
-				dev_print(&scsi_dev_desc[scsi_max_devs]);
+				printf("  Device %d: ", bdesc->devnum);
+				dev_print(bdesc);
 			}
 			scsi_max_devs++;
 		} /* next LUN */
