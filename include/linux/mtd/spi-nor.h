@@ -105,6 +105,7 @@
 
 /* Used for Spansion flashes only. */
 #define SPINOR_OP_BRWR		0x17	/* Bank register write */
+#define SPINOR_OP_BRRD		0x16	/* Bank register read */
 #define SPINOR_OP_CLSR		0x30	/* Clear status register 1 */
 
 /* Used for Micron flashes only. */
@@ -256,6 +257,9 @@ struct flash_info;
  * @read_opcode:	the read opcode
  * @read_dummy:		the dummy needed by the read operation
  * @program_opcode:	the program opcode
+ * @bank_read_cmd:	Bank read cmd
+ * @bank_write_cmd:	Bank write cmd
+ * @bank_curr:		Current flash bank
  * @sst_write_second:	used by the SST write operation
  * @flags:		flag options for the current SPI-NOR (SNOR_F_*)
  * @read_proto:		the SPI protocol for read operations
@@ -291,6 +295,11 @@ struct spi_nor {
 	u8			read_opcode;
 	u8			read_dummy;
 	u8			program_opcode;
+#ifdef CONFIG_SPI_FLASH_BAR
+	u8			bank_read_cmd;
+	u8			bank_write_cmd;
+	u8			bank_curr;
+#endif
 	enum spi_nor_protocol	read_proto;
 	enum spi_nor_protocol	write_proto;
 	enum spi_nor_protocol	reg_proto;
