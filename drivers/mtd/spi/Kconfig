@@ -34,9 +34,18 @@ config SPI_FLASH
 
 	  If unsure, say N
 
+if SPI_FLASH
+
+config SPI_FLASH_SFDP_SUPPORT
+	bool "SFDP table parsing support for SPI NOR flashes"
+	depends on !SPI_FLASH_BAR
+	help
+	 Enable support for parsing and auto discovery of parameters for
+	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
+	 tables as per JESD216 standard.
+
 config SPI_FLASH_BAR
 	bool "SPI flash Bank/Extended address register support"
-	depends on SPI_FLASH
 	help
 	  Enable the SPI flash Bank/Extended address register support.
 	  Bank/Extended address registers are used to access the flash
@@ -44,12 +53,9 @@ config SPI_FLASH_BAR
 
 config SF_DUAL_FLASH
 	bool "SPI DUAL flash memory support"
-	depends on SPI_FLASH
 	help
 	  Enable this option to support two flash memories connected to a single
 	  controller. Currently Xilinx Zynq qspi supports this.
-
-if SPI_FLASH
 
 config SPI_FLASH_ATMEL
 	bool "Atmel SPI flash support"

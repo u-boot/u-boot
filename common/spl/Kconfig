@@ -737,12 +737,23 @@ config SPL_SPI_FLASH_SUPPORT
 	  lines). This enables the drivers in drivers/mtd/spi as part of an
 	  SPL build. This normally requires SPL_SPI_SUPPORT.
 
+if SPL_SPI_FLASH_SUPPORT
+
+config SPL_SPI_FLASH_SFDP_SUPPORT
+	bool "SFDP table parsing support for SPI NOR flashes"
+	depends on !SPI_FLASH_BAR
+	help
+	 Enable support for parsing and auto discovery of parameters for
+	 SPI NOR flashes using Serial Flash Discoverable Parameters (SFDP)
+	 tables as per JESD216 standard in SPL.
+
 config SPL_SPI_LOAD
 	bool "Support loading from SPI flash"
-	depends on SPL_SPI_FLASH_SUPPORT
 	help
 	  Enable support for loading next stage, U-Boot or otherwise, from
 	  SPI NOR in U-Boot SPL.
+
+endif # SPL_SPI_FLASH_SUPPORT
 
 config SPL_SPI_SUPPORT
 	bool "Support SPI drivers"
