@@ -1497,15 +1497,18 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
 
 /**
  * efi_setup_loaded_image() - initialize a loaded image
- * @info:        loaded image info to be passed to the entry point of the image
- * @obj:         internal object associated with the loaded image
- * @device_path: device path of the loaded image
- * @file_path:   file path of the loaded image
  *
  * Initialize a loaded_image_info and loaded_image_info object with correct
  * protocols, boot-device, etc.
  *
- * Return: status code
+ * In case of an error *handle_ptr and *info_ptr are set to NULL and an error
+ * code is returned.
+ *
+ * @device_path:	device path of the loaded image
+ * @file_path:		file path of the loaded image
+ * @handle_ptr:		handle of the loaded image
+ * @info_ptr:		loaded image protocol
+ * Return:		status code
  */
 efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 				    struct efi_device_path *file_path,
@@ -1513,8 +1516,12 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 				    struct efi_loaded_image **info_ptr)
 {
 	efi_status_t ret;
-	struct efi_loaded_image *info;
-	struct efi_loaded_image_obj *obj;
+	struct efi_loaded_image *info = NULL;
+	struct efi_loaded_image_obj *obj = NULL;
+
+	/* In case of EFI_OUT_OF_RESOURCES avoid illegal free by caller. */
+	*handle_ptr = NULL;
+	*info_ptr = NULL;
 
 	info = calloc(1, sizeof(*info));
 	if (!info)
@@ -1527,11 +1534,6 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 
 	/* Add internal object to object list */
 	efi_add_handle(&obj->header);
-
-	if (info_ptr)
-		*info_ptr = info;
-	if (handle_ptr)
-		*handle_ptr = obj;
 
 	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
 	info->file_path = file_path;
@@ -1578,9 +1580,16 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 		goto failure;
 #endif
 
+	if (info_ptr)
+		*info_ptr = info;
+	if (handle_ptr)
+		*handle_ptr = obj;
+
 	return ret;
 failure:
 	printf("ERROR: Failure to install protocols for loaded image\n");
+	efi_delete_handle(&obj->header);
+	free(info);
 	return ret;
 }
 
