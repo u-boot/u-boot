@@ -22,6 +22,7 @@
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
+#include <dm.h>
 #include <i2c.h>
 #include <power/tps65217.h>
 #include "../common/bur_common.h"
@@ -47,6 +48,25 @@
 #define	RSTCTRL_CAN_STB				0x4040
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static int rstctrl_rw(u8 reg, unsigned char rnw, void *pdat, int size)
+{
+	struct udevice *i2cdev;
+	int rc;
+
+	rc = i2c_get_chip_for_busnum(0, RSTCTRL_ADDR, 1, &i2cdev);
+	if (rc >= 0) {
+		if (rnw)
+			rc = dm_i2c_read(i2cdev, reg, pdat, size);
+		else
+			rc = dm_i2c_write(i2cdev, reg, pdat, size);
+	} else {
+		printf("%s: cannot get udevice for chip 0x%02x!\n",
+		       __func__, RSTCTRL_ADDR);
+	}
+
+	return rc;
+}
 
 #if defined(CONFIG_SPL_BUILD)
 /* TODO: check ram-timing ! */
@@ -89,8 +109,8 @@ const struct dpll_params dpll_ddr3 = { 400, OSC-1, 1, -1, -1, -1, -1};
 
 void am33xx_spl_board_init(void)
 {
-	unsigned int oldspeed;
 	unsigned short buf;
+	int rc;
 
 	struct cm_perpll *const cmper = (struct cm_perpll *)CM_PER;
 	struct cm_wkuppll *const cmwkup = (struct cm_wkuppll *)CM_WKUP;
@@ -114,23 +134,19 @@ void am33xx_spl_board_init(void)
 	};
 	do_enable_clocks(clk_domains, clk_modules_xre1specific, 1);
 	/* power-OFF LCD-Display */
-	gpio_direction_output(LCD_PWR, 0);
+	if (gpio_request(LCD_PWR, "LCD_PWR") != 0)
+		printf("cannot request gpio for LCD_PWR!\n");
+	else if (gpio_direction_output(LCD_PWR, 0) != 0)
+		printf("cannot set direction output on LCD_PWR!\n");
 
 	/* setup I2C */
 	enable_i2c_pin_mux();
-	i2c_set_bus_num(0);
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 
-	/* power-ON  3V3 via Resetcontroller */
-	oldspeed = i2c_get_bus_speed();
-	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
-		buf = RSTCTRL_FORCE_PWR_NEN | RSTCTRL_CAN_STB;
-		i2c_write(RSTCTRL_ADDR, RSTCTRL_CTRLREG, 1,
-			  (uint8_t *)&buf, sizeof(buf));
-		i2c_set_bus_speed(oldspeed);
-	} else {
-		puts("ERROR: i2c_set_bus_speed failed! (turn on PWR_nEN)\n");
-	}
+	/* power-ON 3V3 via Resetcontroller */
+	buf = RSTCTRL_FORCE_PWR_NEN | RSTCTRL_CAN_STB;
+	rc = rstctrl_rw(RSTCTRL_CTRLREG, 0, (uint8_t *)&buf, sizeof(buf));
+	if (rc != 0)
+		printf("ERROR: cannot write to resetc (turn on PWR_nEN)\n");
 
 	pmicsetup(0, 0);
 }
@@ -153,7 +169,9 @@ void sdram_init(void)
  */
 int board_init(void)
 {
-	gpmc_init();
+	if (power_tps65217_init(0))
+		printf("WARN: cannot setup PMIC 0x24 @ bus #0, not found!.\n");
+
 	return 0;
 }
 
@@ -164,19 +182,16 @@ int board_late_init(void)
 	unsigned int cnt  = 3;
 	unsigned short buf = 0xAAAA;
 	unsigned char scratchreg = 0;
-	unsigned int oldspeed;
+	int rc;
 
 	/* try to read out some boot-instruction from resetcontroller */
-	oldspeed = i2c_get_bus_speed();
-	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
-		i2c_read(RSTCTRL_ADDR, RSTCTRL_SCRATCHREG, 1,
-			 &scratchreg, sizeof(scratchreg));
-		i2c_set_bus_speed(oldspeed);
-	} else {
-		puts("ERROR: i2c_set_bus_speed failed! (scratchregister)\n");
-	}
+	rc = rstctrl_rw(RSTCTRL_SCRATCHREG, 1, &scratchreg, sizeof(scratchreg));
+	if (rc != 0)
+		printf("ERROR: read scratchregister (resetc) failed!\n");
 
-	if (gpio_get_value(ESC_KEY)) {
+	if (gpio_request(ESC_KEY, "boot-key") != 0) {
+		printf("cannot request boot-key!\n");
+	} else if (gpio_get_value(ESC_KEY)) {
 		do {
 			lcd_position_cursor(1, 8);
 			switch (cnt) {
@@ -266,14 +281,10 @@ int board_late_init(void)
 		break;
 	}
 	/* write bootinfo into scratchregister of resetcontroller */
-	oldspeed = i2c_get_bus_speed();
-	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
-		i2c_write(RSTCTRL_ADDR, RSTCTRL_SCRATCHREG, 1,
-			  (uint8_t *)&buf, sizeof(buf));
-		i2c_set_bus_speed(oldspeed);
-	} else {
-		puts("ERROR: i2c_set_bus_speed failed! (scratchregister)\n");
-	}
+	rc = rstctrl_rw(RSTCTRL_SCRATCHREG, 0, (uint8_t *)&buf, sizeof(buf));
+	if (rc != 0)
+		printf("ERROR: write scratchregister (resetc) failed!\n");
+
 	/* setup othbootargs for bootvx-command (vxWorks bootline) */
 	char othbootargs[128];
 	snprintf(othbootargs, sizeof(othbootargs),
