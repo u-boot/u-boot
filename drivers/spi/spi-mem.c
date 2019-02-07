@@ -210,6 +210,10 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	if (!spi_mem_supports_op(slave, op))
 		return -ENOTSUPP;
 
+	ret = spi_claim_bus(slave);
+	if (ret < 0)
+		return ret;
+
 	if (ops->mem_ops) {
 #ifndef __UBOOT__
 		/*
@@ -232,6 +236,7 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 		mutex_lock(&ctlr->io_mutex);
 #endif
 		ret = ops->mem_ops->exec_op(slave, op);
+
 #ifndef __UBOOT__
 		mutex_unlock(&ctlr->io_mutex);
 		mutex_unlock(&ctlr->bus_lock_mutex);
@@ -245,8 +250,10 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 		 * read path) and expect the core to use the regular SPI
 		 * interface in other cases.
 		 */
-		if (!ret || ret != -ENOTSUPP)
+		if (!ret || ret != -ENOTSUPP) {
+			spi_release_bus(slave);
 			return ret;
+		}
 	}
 
 #ifndef __UBOOT__
@@ -323,15 +330,6 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 		return -EIO;
 #else
 
-	/* U-Boot does not support parallel SPI data lanes */
-	if ((op->cmd.buswidth != 1) ||
-	    (op->addr.nbytes && op->addr.buswidth != 1) ||
-	    (op->dummy.nbytes && op->dummy.buswidth != 1) ||
-	    (op->data.nbytes && op->data.buswidth != 1)) {
-		printf("Dual/Quad raw SPI transfers not supported\n");
-		return -ENOTSUPP;
-	}
-
 	if (op->data.nbytes) {
 		if (op->data.dir == SPI_MEM_DATA_IN)
 			rx_buf = op->data.buf.in;
@@ -341,10 +339,6 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 
 	op_len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
 	op_buf = calloc(1, op_len);
-
-	ret = spi_claim_bus(slave);
-	if (ret < 0)
-		return ret;
 
 	op_buf[pos++] = op->cmd.opcode;
 
@@ -420,6 +414,25 @@ int spi_mem_adjust_op_size(struct spi_slave *slave, struct spi_mem_op *op)
 
 	if (ops->mem_ops && ops->mem_ops->adjust_op_size)
 		return ops->mem_ops->adjust_op_size(slave, op);
+
+	if (!ops->mem_ops || !ops->mem_ops->exec_op) {
+		unsigned int len;
+
+		len = sizeof(op->cmd.opcode) + op->addr.nbytes +
+			op->dummy.nbytes;
+		if (slave->max_write_size && len > slave->max_write_size)
+			return -EINVAL;
+
+		if (op->data.dir == SPI_MEM_DATA_IN && slave->max_read_size)
+			op->data.nbytes = min(op->data.nbytes,
+					      slave->max_read_size);
+		else if (slave->max_write_size)
+			op->data.nbytes = min(op->data.nbytes,
+					      slave->max_write_size - len);
+
+		if (!op->data.nbytes)
+			return -EINVAL;
+	}
 
 	return 0;
 }

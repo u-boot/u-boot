@@ -253,7 +253,6 @@ int get_scl(void);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_SPI_FLASH_BAR	/* 4 byte-addressing */
 #define CONFIG_SF_DEFAULT_SPEED         20000000
 #define CONFIG_SF_DEFAULT_MODE          0
 

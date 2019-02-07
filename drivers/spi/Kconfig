@@ -16,14 +16,14 @@ config DM_SPI
 	  typically use driver-private data instead of extending the
 	  spi_slave structure.
 
-if DM_SPI
-
 config SPI_MEM
 	bool "SPI memory extension"
 	help
 	  Enable this option if you want to enable the SPI memory extension.
 	  This extension is meant to simplify interaction with SPI memories
 	  by providing an high-level interface to send memory-like commands.
+
+if DM_SPI
 
 config ALTERA_SPI
 	bool "Altera SPI driver"
@@ -111,6 +111,7 @@ config FSL_DSPI
 
 config ICH_SPI
 	bool "Intel ICH SPI driver"
+	imply SPI_FLASH_BAR
 	help
 	  Enable the Intel ICH SPI driver. This driver can be used to
 	  access the SPI NOR flash on platforms embedding this Intel
@@ -140,6 +141,7 @@ config MT7621_SPI
 
 config MTK_QSPI
 	bool "Mediatek QSPI driver"
+	imply SPI_FLASH_BAR
 	help
 	  Enable the Mediatek QSPI driver. This driver can be
 	  used to access the SPI NOR flash on platforms embedding this
@@ -172,6 +174,7 @@ config PL022_SPI
 config RENESAS_RPC_SPI
 	bool "Renesas RPC SPI driver"
 	depends on RCAR_GEN3
+	imply SPI_FLASH_BAR
 	help
 	  Enable the Renesas RPC SPI driver, used to access SPI NOR flash
 	  on Renesas RCar Gen3 SoCs. This uses driver model and requires a
@@ -213,6 +216,7 @@ config SANDBOX_SPI
 config STM32_QSPI
 	bool "STM32F7 QSPI driver"
 	depends on STM32F7
+	imply SPI_FLASH_BAR
 	help
 	  Enable the STM32F7 Quad-SPI (QSPI) driver. This driver can be
 	  used to access the SPI NOR flash chips on platforms embedding
@@ -273,6 +277,7 @@ config ZYNQ_SPI
 config ZYNQ_QSPI
 	bool "Zynq QSPI driver"
 	depends on ARCH_ZYNQ
+	imply SPI_FLASH_BAR
 	help
 	  Enable the Zynq Quad-SPI (QSPI) driver. This driver can be
 	  used to access the SPI NOR flash on platforms embedding this
@@ -316,6 +321,7 @@ config FSL_ESPI
 
 config FSL_QSPI
 	bool "Freescale QSPI driver"
+	imply SPI_FLASH_BAR
 	help
 	  Enable the Freescale Quad-SPI (QSPI) driver. This driver can be
 	  used to access the SPI NOR flash on platforms embedding this

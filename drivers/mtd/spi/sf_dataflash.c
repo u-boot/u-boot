@@ -18,6 +18,7 @@
 
 #include "sf_internal.h"
 
+#define CMD_READ_ID		0x9f
 /* reads can bypass the buffers */
 #define OP_READ_CONTINUOUS	0xE8
 #define OP_READ_PAGE		0xD2
@@ -441,7 +442,7 @@ static int add_dataflash(struct udevice *dev, char *name, int nr_pages,
 	return 0;
 }
 
-struct flash_info {
+struct data_flash_info {
 	char		*name;
 
 	/*
@@ -460,7 +461,7 @@ struct flash_info {
 #define IS_POW2PS	0x0001		/* uses 2^N byte pages */
 };
 
-static struct flash_info dataflash_data[] = {
+static struct data_flash_info dataflash_data[] = {
 	/*
 	 * NOTE:  chips with SUP_POW2PS (rev D and up) need two entries,
 	 * one with IS_POW2PS and the other without.  The entry with the
@@ -501,12 +502,12 @@ static struct flash_info dataflash_data[] = {
 	{ "at45db642d",  0x1f2800, 8192, 1024, 10, SUP_POW2PS | IS_POW2PS},
 };
 
-static struct flash_info *jedec_probe(struct spi_slave *spi)
+static struct data_flash_info *jedec_probe(struct spi_slave *spi)
 {
 	int			tmp;
 	uint8_t			id[5];
 	uint32_t		jedec;
-	struct flash_info	*info;
+	struct data_flash_info	*info;
 	int status;
 
 	/*
@@ -583,7 +584,7 @@ static int spi_dataflash_probe(struct udevice *dev)
 {
 	struct spi_slave *spi = dev_get_parent_priv(dev);
 	struct spi_flash *spi_flash;
-	struct flash_info *info;
+	struct data_flash_info *info;
 	int status;
 
 	spi_flash = dev_get_uclass_priv(dev);
