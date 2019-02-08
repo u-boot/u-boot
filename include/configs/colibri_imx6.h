@@ -237,8 +237,6 @@
 #define CONFIG_SYS_MMC_ENV_PART		1
 #endif
 
-#define CONFIG_OF_SYSTEM_SETUP
-
 #define CONFIG_CMD_TIME
 
 #endif	/* __CONFIG_H */
