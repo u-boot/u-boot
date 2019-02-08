@@ -663,6 +663,14 @@ int board_late_init(void)
 	env_set("board_rev", env_str);
 #endif
 
+#ifdef CONFIG_CMD_USB_SDP
+	if (is_boot_from_usb()) {
+		printf("Serial Downloader recovery mode, using sdp command\n");
+		env_set("bootdelay", "0");
+		env_set("bootcmd", "sdp 0");
+	}
+#endif /* CONFIG_CMD_USB_SDP */
+
 	return 0;
 }
 #endif /* CONFIG_BOARD_LATE_INIT */
@@ -693,7 +701,7 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 	ft_common_board_setup(blob, bd);
 
-	cma_size = getenv_ulong("cma-size", 10, 320 * 1024 * 1024);
+	cma_size = env_get_ulong("cma-size", 10, 320 * 1024 * 1024);
 	cma_size = min((u32)(gd->ram_size >> 1), cma_size);
 
 	fdt_setprop_u32(blob,
