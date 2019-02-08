@@ -77,6 +77,7 @@ iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_CSI0_DAT11__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
+#if defined(CONFIG_FSL_ESDHC) && defined(CONFIG_SPL_BUILD)
 /* Colibri MMC */
 iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_CLK__SD1_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -103,6 +104,7 @@ iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6_PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD3_RST__SD3_RESET  | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
+#endif /* CONFIG_FSL_ESDHC & CONFIG_SPL_BUILD */
 
 iomux_v3_cfg_t const enet_pads[] = {
 	MX6_PAD_ENET_MDC__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -310,7 +312,7 @@ int board_ehci_power(int port, int on)
 }
 #endif /* CONFIG_USB_EHCI_MX6 */
 
-#ifdef CONFIG_FSL_ESDHC
+#if defined(CONFIG_FSL_ESDHC) && defined(CONFIG_SPL_BUILD)
 /* use the following sequence: eMMC, MMC */
 struct fsl_esdhc_cfg usdhc_cfg[CONFIG_SYS_FSL_USDHC_NUM] = {
 	{USDHC3_BASE_ADDR},
@@ -335,37 +337,6 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
-#ifndef CONFIG_SPL_BUILD
-	s32 status = 0;
-	u32 index = 0;
-
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-
-	usdhc_cfg[0].max_bus_width = 8;
-	usdhc_cfg[1].max_bus_width = 4;
-
-	for (index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
-		switch (index) {
-		case 0:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-			break;
-		case 1:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
-			break;
-		default:
-			printf("Warning: you configured more USDHC controllers (%d) then supported by the board (%d)\n",
-			       index + 1, CONFIG_SYS_FSL_USDHC_NUM);
-			return status;
-		}
-
-		status |= fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
-	}
-
-	return status;
-#else /* !CONFIG_SPL_BUILD */
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	unsigned reg = readl(&psrc->sbmr1) >> 11;
 	/*
@@ -397,9 +368,8 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-#endif /* !CONFIG_SPL_BUILD */
 }
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC & CONFIG_SPL_BUILD */
 
 int board_phy_config(struct phy_device *phydev)
 {
