@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2013-2015 Toradex, Inc.
+ * Copyright 2013-2019 Toradex, Inc.
  *
  * Configuration settings for the Toradex Colibri iMX6
  */
@@ -74,7 +74,6 @@
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
