@@ -723,6 +723,14 @@ int board_late_init(void)
 #endif /* CONFIG_TDX_APALIS_IMX6_V1_0 */
 #endif /* CONFIG_REVISION_TAG */
 
+#ifdef CONFIG_CMD_USB_SDP
+	if (is_boot_from_usb()) {
+		printf("Serial Downloader recovery mode, using sdp command\n");
+		env_set("bootdelay", "0");
+		env_set("bootcmd", "sdp 0");
+	}
+#endif /* CONFIG_CMD_USB_SDP */
+
 	return 0;
 }
 #endif /* CONFIG_BOARD_LATE_INIT */
