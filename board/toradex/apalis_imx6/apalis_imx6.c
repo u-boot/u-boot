@@ -271,28 +271,6 @@ int board_ehci_hcd_init(int port)
 	imx_iomux_v3_setup_multiple_pads(usb_pads, ARRAY_SIZE(usb_pads));
 	return 0;
 }
-
-int board_ehci_power(int port, int on)
-{
-	switch (port) {
-	case 0:
-		/* control OTG power */
-		gpio_direction_output(GPIO_USBO_EN, on);
-		mdelay(100);
-		break;
-	case 1:
-		/* Control MXM USBH */
-		gpio_direction_output(GPIO_USBH_EN, on);
-		mdelay(2);
-		/* Control onboard USB Hub VBUS */
-		gpio_direction_output(GPIO_USB_VBUS_DET, on);
-		mdelay(100);
-		break;
-	default:
-		break;
-	}
-	return 0;
-}
 #endif
 
 #if defined(CONFIG_FSL_ESDHC) && defined(CONFIG_SPL_BUILD)
