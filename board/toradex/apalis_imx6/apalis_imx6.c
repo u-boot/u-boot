@@ -2,38 +2,32 @@
 /*
  * Copyright (C) 2010-2013 Freescale Semiconductor, Inc.
  * Copyright (C) 2013, Boundary Devices <info@boundarydevices.com>
- * Copyright (C) 2014-2016, Toradex AG
+ * Copyright (C) 2014-2019, Toradex AG
  * copied from nitrogen6x
  */
 
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
+
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/iomux.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/mx6-pins.h>
 #include <asm/arch/mx6-ddr.h>
+#include <asm/arch/mx6-pins.h>
+#include <asm/arch/mxc_hdmi.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/bootm.h>
 #include <asm/gpio.h>
-#include <asm/io.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
-#include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
 #include <dm/platform_data/serial_mxc.h>
-#include <dm/platdata.h>
+#include <environment.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
-#include <input.h>
 #include <imx_thermal.h>
-#include <linux/errno.h>
-#include <malloc.h>
-#include <mmc.h>
 #include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -200,7 +194,7 @@ iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6_PAD_SD3_DAT5__SD3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD3_DAT6__SD3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(WEAK_PULLUP) | MUX_MODE_SION,
 };
 
 int mx6_rgmii_rework(struct phy_device *phydev)
@@ -241,7 +235,8 @@ iomux_v3_cfg_t const enet_pads[] = {
 	MX6_PAD_RGMII_RD3__RGMII_RD3		| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL	| MUX_PAD_CTRL(ENET_PAD_CTRL),
 	/* KSZ9031 PHY Reset */
-	MX6_PAD_ENET_CRS_DV__GPIO1_IO25		| MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_ENET_CRS_DV__GPIO1_IO25		| MUX_PAD_CTRL(NO_PAD_CTRL) |
+						  MUX_MODE_SION,
 #	define GPIO_ENET_PHY_RESET IMX_GPIO_NR(1, 25)
 };
 
@@ -253,6 +248,7 @@ static void setup_iomux_enet(void)
 static int reset_enet_phy(struct mii_dev *bus)
 {
 	/* Reset KSZ9031 PHY */
+	gpio_request(GPIO_ENET_PHY_RESET, "ETH_RESET#");
 	gpio_direction_output(GPIO_ENET_PHY_RESET, 0);
 	mdelay(10);
 	gpio_set_value(GPIO_ENET_PHY_RESET, 1);
@@ -263,15 +259,24 @@ static int reset_enet_phy(struct mii_dev *bus)
 /* mux the Apalis GPIO pins, so they can be used from the U-Boot cmdline */
 iomux_v3_cfg_t const gpio_pads[] = {
 	/* Apalis GPIO1 - GPIO8 */
-	MX6_PAD_NANDF_D4__GPIO2_IO04	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_D5__GPIO2_IO05	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_D6__GPIO2_IO06	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_D7__GPIO2_IO07	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_RB0__GPIO6_IO10	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_WP_B__GPIO6_IO09	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_GPIO_2__GPIO1_IO02	| MUX_PAD_CTRL(WEAK_PULLDOWN),
-	MX6_PAD_GPIO_6__GPIO1_IO06	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_GPIO_4__GPIO1_IO04	| MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_NANDF_D4__GPIO2_IO04	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_D5__GPIO2_IO05	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_D6__GPIO2_IO06	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_D7__GPIO2_IO07	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_RB0__GPIO6_IO10	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_WP_B__GPIO6_IO09	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_GPIO_2__GPIO1_IO02	| MUX_PAD_CTRL(WEAK_PULLDOWN) |
+					  MUX_MODE_SION,
+	MX6_PAD_GPIO_6__GPIO1_IO06	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_GPIO_4__GPIO1_IO04	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
 };
 
 static void setup_iomux_gpio(void)
@@ -281,7 +286,7 @@ static void setup_iomux_gpio(void)
 
 iomux_v3_cfg_t const usb_pads[] = {
 	/* USBH_EN */
-	MX6_PAD_GPIO_0__GPIO1_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_GPIO_0__GPIO1_IO00 | MUX_PAD_CTRL(NO_PAD_CTRL) | MUX_MODE_SION,
 #	define GPIO_USBH_EN IMX_GPIO_NR(1, 0)
 	/* USB_VBUS_DET */
 	MX6_PAD_EIM_D28__GPIO3_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -289,7 +294,7 @@ iomux_v3_cfg_t const usb_pads[] = {
 	/* USBO1_ID */
 	MX6_PAD_ENET_RX_ER__USB_OTG_ID	| MUX_PAD_CTRL(WEAK_PULLUP),
 	/* USBO1_EN */
-	MX6_PAD_EIM_D22__GPIO3_IO22 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_EIM_D22__GPIO3_IO22 | MUX_PAD_CTRL(NO_PAD_CTRL) | MUX_MODE_SION,
 #	define GPIO_USBO_EN IMX_GPIO_NR(3, 22)
 };
 
@@ -321,7 +326,6 @@ static void setup_iomux_dte_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart1_pads_dte,
 					 ARRAY_SIZE(uart1_pads_dte));
 }
-
 static void setup_iomux_dce_uart(void)
 {
 	setup_dcemode_uart();
@@ -360,7 +364,7 @@ int board_ehci_power(int port, int on)
 #endif
 
 #ifdef CONFIG_FSL_ESDHC
-/* use the following sequence: eMMC, MMC, SD */
+/* use the following sequence: eMMC, MMC1, SD1 */
 struct fsl_esdhc_cfg usdhc_cfg[CONFIG_SYS_FSL_USDHC_NUM] = {
 	{USDHC3_BASE_ADDR},
 	{USDHC1_BASE_ADDR},
@@ -374,10 +378,12 @@ int board_mmc_getcd(struct mmc *mmc)
 
 	switch (cfg->esdhc_base) {
 	case USDHC1_BASE_ADDR:
+		gpio_request(GPIO_MMC_CD, "MMC_CD");
 		gpio_direction_input(GPIO_MMC_CD);
 		ret = !gpio_get_value(GPIO_MMC_CD);
 		break;
 	case USDHC2_BASE_ADDR:
+		gpio_request(GPIO_MMC_CD, "SD_CD");
 		gpio_direction_input(GPIO_SD_CD);
 		ret = !gpio_get_value(GPIO_SD_CD);
 		break;
@@ -424,7 +430,7 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return status;
-#else
+#else /* CONFIG_SPL_BUILD */
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	unsigned reg = readl(&psrc->sbmr1) >> 11;
 	/*
@@ -463,9 +469,9 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-#endif
+#endif /* CONFIG_SPL_BUILD */
 }
-#endif
+#endif /* CONFIG_FSL_ESDHC */
 
 int board_phy_config(struct phy_device *phydev)
 {
@@ -489,6 +495,7 @@ int board_eth_init(bd_t *bis)
 	bus = fec_get_miibus(base, -1);
 	if (!bus)
 		return 0;
+
 	bus->reset = reset_enet_phy;
 	/* scan PHY 4,5,6,7 */
 	phydev = phy_find_by_mask(bus, (0xf << 4), PHY_INTERFACE_MODE_RGMII);
@@ -497,6 +504,7 @@ int board_eth_init(bd_t *bis)
 		puts("no PHY found\n");
 		return 0;
 	}
+
 	printf("using PHY at %d\n", phydev->addr);
 	ret = fec_probe(bis, -1, base, bus, phydev);
 	if (ret) {
@@ -504,7 +512,8 @@ int board_eth_init(bd_t *bis)
 		free(phydev);
 		free(bus);
 	}
-#endif
+#endif /* CONFIG_FEC_MXC */
+
 	return 0;
 }
 
@@ -520,18 +529,21 @@ static iomux_v3_cfg_t const pwr_intb_pads[] = {
 
 static iomux_v3_cfg_t const backlight_pads[] = {
 	/* Backlight on RGB connector: J15 */
-	MX6_PAD_EIM_DA13__GPIO3_IO13 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_EIM_DA13__GPIO3_IO13 | MUX_PAD_CTRL(NO_PAD_CTRL) |
+				       MUX_MODE_SION,
 #define RGB_BACKLIGHT_GP IMX_GPIO_NR(3, 13)
 	/* additional CPU pin on BKL_PWM, keep in tristate */
 	MX6_PAD_EIM_DA14__GPIO3_IO14 | MUX_PAD_CTRL(TRISTATE),
 	/* Backlight PWM, used as GPIO in U-Boot */
-	MX6_PAD_SD4_DAT2__GPIO2_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_SD4_DAT2__GPIO2_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL) |
+				       MUX_MODE_SION,
 #define RGB_BACKLIGHTPWM_GP IMX_GPIO_NR(2, 10)
 	/* buffer output enable 0: buffer enabled */
-	MX6_PAD_EIM_A25__GPIO5_IO02 | MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_EIM_A25__GPIO5_IO02 | MUX_PAD_CTRL(WEAK_PULLUP) | MUX_MODE_SION,
 #define RGB_BACKLIGHTPWM_OE IMX_GPIO_NR(5, 2)
 	/* PSAVE# integrated VDAC */
-	MX6_PAD_EIM_BCLK__GPIO6_IO31 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_EIM_BCLK__GPIO6_IO31 | MUX_PAD_CTRL(NO_PAD_CTRL) |
+				       MUX_MODE_SION,
 #define VGA_PSAVE_NOT_GP IMX_GPIO_NR(6, 31)
 };
 
@@ -741,6 +753,9 @@ static void setup_display(void)
 	imx_iomux_v3_setup_multiple_pads(backlight_pads,
 					 ARRAY_SIZE(backlight_pads));
 	/* use 0 for EDT 7", use 1 for LG fullHD panel */
+	gpio_request(RGB_BACKLIGHTPWM_GP, "BKL1_PWM");
+	gpio_request(RGB_BACKLIGHTPWM_OE, "BKL1_PWM_EN");
+	gpio_request(RGB_BACKLIGHT_GP, "BKL1_ON");
 	gpio_direction_output(RGB_BACKLIGHTPWM_GP, 0);
 	gpio_direction_output(RGB_BACKLIGHTPWM_OE, 0);
 	gpio_direction_output(RGB_BACKLIGHT_GP, 1);
@@ -1143,7 +1158,6 @@ MX6_MMDC_P0_MDSCR, 0x00000000,
 MX6_MMDC_P0_MAPSR, 0x00011006,
 };
 
-
 static void ccgr_init(void)
 {
 	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -1232,7 +1246,7 @@ void reset_cpu(ulong addr)
 {
 }
 
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
 static struct mxc_serial_platdata mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART1_BASE,
