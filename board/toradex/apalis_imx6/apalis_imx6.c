@@ -715,13 +715,6 @@ int board_late_init(void)
 }
 #endif /* CONFIG_BOARD_LATE_INIT */
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_SYSTEM_SETUP)
-int ft_system_setup(void *blob, bd_t *bd)
-{
-	return 0;
-}
-#endif
-
 int checkboard(void)
 {
 	char it[] = " IT";
