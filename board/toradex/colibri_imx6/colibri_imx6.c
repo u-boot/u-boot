@@ -30,6 +30,7 @@
 #include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <cpu.h>
 
 #include "../common/tdx-cfg-block.h"
 #ifdef CONFIG_TDX_CMD_IMX_MFGR
@@ -1070,6 +1071,26 @@ static void spl_dram_init(void)
 	udelay(100);
 }
 
+static iomux_v3_cfg_t const gpio_reset_pad[] = {
+	MX6_PAD_RGMII_RD1__GPIO6_IO27 | MUX_PAD_CTRL(NO_PAD_CTRL) |
+					MUX_MODE_SION
+#define GPIO_NRESET IMX_GPIO_NR(6, 27)
+};
+
+#define IMX_RESET_CAUSE_POR 0x00011
+static void nreset_out(void)
+{
+	int reset_cause = get_imx_reset_cause();
+
+	if (reset_cause != IMX_RESET_CAUSE_POR) {
+		imx_iomux_v3_setup_multiple_pads(gpio_reset_pad,
+						 ARRAY_SIZE(gpio_reset_pad));
+		gpio_direction_output(GPIO_NRESET, 1);
+		udelay(100);
+		gpio_direction_output(GPIO_NRESET, 0);
+	}
+}
+
 void board_init_f(ulong dummy)
 {
 	/* setup AIPS and disable watchdog */
@@ -1095,6 +1116,9 @@ void board_init_f(ulong dummy)
 
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* Assert nReset_Out */
+	nreset_out();
 
 	/* load/boot image from boot device */
 	board_init_r(NULL, 0);
