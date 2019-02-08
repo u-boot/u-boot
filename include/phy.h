@@ -101,6 +101,14 @@ struct phy_driver {
 	int (*readext)(struct phy_device *phydev, int addr, int devad, int reg);
 	int (*writeext)(struct phy_device *phydev, int addr, int devad, int reg,
 			u16 val);
+
+	/* Phy specific driver override for reading a MMD register */
+	int (*read_mmd)(struct phy_device *phydev, int devad, int reg);
+
+	/* Phy specific driver override for writing a MMD register */
+	int (*write_mmd)(struct phy_device *phydev, int devad, int reg,
+			 u16 val);
+
 	struct list_head list;
 };
 
@@ -163,6 +171,68 @@ static inline int phy_write(struct phy_device *phydev, int devad, int regnum,
 	struct mii_dev *bus = phydev->bus;
 
 	return bus->write(bus, phydev->addr, devad, regnum, val);
+}
+
+static inline void phy_mmd_start_indirect(struct phy_device *phydev, int devad,
+					  int regnum)
+{
+	/* Write the desired MMD Devad */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_CTRL, devad);
+
+	/* Write the desired MMD register address */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA, regnum);
+
+	/* Select the Function : DATA with no post increment */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_CTRL,
+		  (devad | MII_MMD_CTRL_NOINCR));
+}
+
+static inline int phy_read_mmd(struct phy_device *phydev, int devad,
+			       int regnum)
+{
+	struct phy_driver *drv = phydev->drv;
+
+	if (regnum > (u16)~0 || devad > 32)
+		return -EINVAL;
+
+	/* driver-specific access */
+	if (drv->read_mmd)
+		return drv->read_mmd(phydev, devad, regnum);
+
+	/* direct C45 / C22 access */
+	if ((drv->features & PHY_10G_FEATURES) == PHY_10G_FEATURES ||
+	    devad == MDIO_DEVAD_NONE || !devad)
+		return phy_read(phydev, devad, regnum);
+
+	/* indirect C22 access */
+	phy_mmd_start_indirect(phydev, devad, regnum);
+
+	/* Read the content of the MMD's selected register */
+	return phy_read(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA);
+}
+
+static inline int phy_write_mmd(struct phy_device *phydev, int devad,
+				int regnum, u16 val)
+{
+	struct phy_driver *drv = phydev->drv;
+
+	if (regnum > (u16)~0 || devad > 32)
+		return -EINVAL;
+
+	/* driver-specific access */
+	if (drv->write_mmd)
+		return drv->write_mmd(phydev, devad, regnum, val);
+
+	/* direct C45 / C22 access */
+	if ((drv->features & PHY_10G_FEATURES) == PHY_10G_FEATURES ||
+	    devad == MDIO_DEVAD_NONE || !devad)
+		return phy_write(phydev, devad, regnum, val);
+
+	/* indirect C22 access */
+	phy_mmd_start_indirect(phydev, devad, regnum);
+
+	/* Write the data into MMD's selected register */
+	return phy_write(phydev, MDIO_DEVAD_NONE, MII_MMD_DATA, val);
 }
 
 #ifdef CONFIG_PHYLIB_10G

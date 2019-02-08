@@ -549,6 +549,10 @@ int phy_register(struct phy_driver *drv)
 		drv->readext += gd->reloc_off;
 	if (drv->writeext)
 		drv->writeext += gd->reloc_off;
+	if (drv->read_mmd)
+		drv->read_mmd += gd->reloc_off;
+	if (drv->write_mmd)
+		drv->write_mmd += gd->reloc_off;
 #endif
 	return 0;
 }
