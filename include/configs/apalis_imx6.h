@@ -109,19 +109,18 @@
 
 #define CONFIG_LOADADDR			0x12000000
 
-#ifdef CONFIG_CMD_SATA
-#define CONFIG_DRIVE_SATA "sata "
+#ifndef CONFIG_SPL_BUILD
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 2) \
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
+#include <config_distro_bootcmd.h>
+#undef BOOTENV_RUN_NET_USB_START
+#define BOOTENV_RUN_NET_USB_START ""
 #else
-#define CONFIG_DRIVE_SATA
+#define BOOTENV
 #endif
-
-#ifdef CONFIG_CMD_MMC
-#define CONFIG_DRIVE_MMC "mmc "
-#else
-#define CONFIG_DRIVE_MMC
-#endif
-
-#define CONFIG_DRIVE_TYPES CONFIG_DRIVE_SATA CONFIG_DRIVE_MMC
 
 #define DFU_ALT_EMMC_INFO \
 	"u-boot.imx raw 0x2 0x3ff mmcpart 0;" \
@@ -149,7 +148,9 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"kernel_addr_r=0x11000000\0" \
-	"ramdisk_addr_r=0x12100000\0"
+	"pxefile_addr_r=0x17100000\0" \
+	"ramdisk_addr_r=0x12100000\0" \
+	"scriptaddr=0x17000000\0"
 
 #define NFS_BOOTCMD \
 	"nfsargs=ip=:::::eth0:on root=/dev/nfs rw\0" \
@@ -191,9 +192,10 @@
 #define FDT_FILE "imx6q-apalis_v1_0-eval.dtb"
 #endif
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	BOOTENV \
 	"bootcmd=run emmcboot ; echo ; echo emmcboot failed ; " \
-		"run nfsboot ; echo ; echo nfsboot failed ; " \
-		"usb start ;" \
+		"run distro_bootcmd ; " \
+		"usb start ; " \
 		"setenv stdout serial,vga ; setenv stdin serial,usbkbd\0" \
 	"boot_file=uImage\0" \
 	"console=ttymxc0\0" \
