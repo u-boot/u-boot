@@ -21,6 +21,8 @@
 /* define for PMIC register dump */
 /*#define DEBUG */
 
+#define WARNBAR "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n"
+
 /* use Apalis GPIO1 to switch on VPGM, ON: 1 */
 static __maybe_unused iomux_v3_cfg_t const pmic_prog_pads[] = {
 	MX6_PAD_NANDF_D4__GPIO2_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -42,6 +44,55 @@ unsigned pmic_init(void)
 		       PFUZE100_I2C_ADDR);
 		return 0;
 	}
+
+	/* check for errors in PMIC fuses */
+	if (dm_i2c_read(dev, PFUZE100_INTSTAT3, &val, 1) < 0) {
+		puts("i2c pmic INTSTAT3 register read failed\n");
+		return 0;
+	}
+	if (val & PFUZE100_BIT_OTP_ECCI) {
+		puts("\n" WARNBAR);
+		puts("WARNING: ecc errors found in pmic fuse banks\n");
+		puts(WARNBAR);
+	}
+	if (dm_i2c_read(dev, PFUZE100_OTP_ECC_SE1, &val, 1) < 0) {
+		puts("i2c pmic ECC_SE1 register read failed\n");
+		return 0;
+	}
+	if (val & PFUZE100_BITS_ECC_SE1) {
+		puts(WARNBAR);
+		puts("WARNING: ecc has made bit corrections in banks 1 to 5\n");
+		puts(WARNBAR);
+	}
+	if (dm_i2c_read(dev, PFUZE100_OTP_ECC_SE2, &val, 1) < 0) {
+		puts("i2c pmic ECC_SE2 register read failed\n");
+		return 0;
+	}
+	if (val & PFUZE100_BITS_ECC_SE2) {
+		puts(WARNBAR);
+		puts("WARNING: ecc has made bit corrections in banks 6 to 10\n"
+		    );
+		puts(WARNBAR);
+	}
+	if (dm_i2c_read(dev, PFUZE100_OTP_ECC_DE1, &val, 1) < 0) {
+		puts("i2c pmic ECC_DE register read failed\n");
+		return 0;
+	}
+	if (val & PFUZE100_BITS_ECC_DE1) {
+		puts(WARNBAR);
+		puts("ERROR: banks 1 to 5 have uncorrectable bits\n");
+		puts(WARNBAR);
+	}
+	if (dm_i2c_read(dev, PFUZE100_OTP_ECC_DE2, &val, 1) < 0) {
+		puts("i2c pmic ECC_DE register read failed\n");
+		return 0;
+	}
+	if (val & PFUZE100_BITS_ECC_DE2) {
+		puts(WARNBAR);
+		puts("ERROR: banks 6 to 10 have uncorrectable bits\n");
+		puts(WARNBAR);
+	}
+
 	/* get device ident */
 	if (dm_i2c_read(dev, PFUZE100_DEVICEID, &devid, 1) < 0) {
 		puts("i2c pmic devid read failed\n");
