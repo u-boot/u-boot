@@ -210,8 +210,10 @@
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \
 		"flash_eth.img && source ${loadaddr}\0" \
-	"setsdupdate=setenv interface mmc; setenv drive 1; mmc rescan; load " \
-		"${interface} ${drive}:1 ${loadaddr} flash_blk.img && " \
+	"setsdupdate=setenv interface mmc; setenv drive 1; mmc rescan; " \
+		"load ${interface} ${drive}:1 ${loadaddr} flash_blk.img " \
+		"|| setenv drive 2; mmc rescan; load ${interface} ${drive}:1" \
+		" ${loadaddr} flash_blk.img && " \
 		"source ${loadaddr}\0" \
 	"setup=setenv setupargs fec_mac=${ethaddr} " \
 		"consoleblank=0 no_console_suspend=1 console=tty1 " \
