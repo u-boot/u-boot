@@ -35,7 +35,7 @@ unsigned pmic_init(void)
 	uchar bus = 1;
 	uchar devid, revid, val;
 
-	puts("PMIC: ");
+	puts("PMIC:  ");
 	rc = i2c_get_chip_for_busnum(bus, PFUZE100_I2C_ADDR, 1, &dev);
 	if (rc) {
 		printf("failed to get device for PMIC at address 0x%x\n",
@@ -51,11 +51,65 @@ unsigned pmic_init(void)
 		puts("i2c pmic revid read failed\n");
 		return 0;
 	}
-	printf("device id: 0x%.2x, revision id: 0x%.2x\n", devid, revid);
+	printf("device id: 0x%.2x, revision id: 0x%.2x, ", devid, revid);
+
+	/* get device programmed state */
+	val = PFUZE100_PAGE_REGISTER_PAGE1;
+	if (dm_i2c_write(dev, PFUZE100_PAGE_REGISTER, &val, 1)) {
+		puts("i2c write failed\n");
+		return 0;
+	}
+	if (dm_i2c_read(dev, PFUZE100_FUSE_POR1, &val, 1) < 0) {
+		puts("i2c fuse_por read failed\n");
+		return 0;
+	}
+	if (val & PFUZE100_FUSE_POR_M)
+		programmed++;
+
+	if (dm_i2c_read(dev, PFUZE100_FUSE_POR2, &val, 1) < 0) {
+		puts("i2c fuse_por read failed\n");
+		return programmed;
+	}
+	if (val & PFUZE100_FUSE_POR_M)
+		programmed++;
+
+	if (dm_i2c_read(dev, PFUZE100_FUSE_POR3, &val, 1) < 0) {
+		puts("i2c fuse_por read failed\n");
+		return programmed;
+	}
+	if (val & PFUZE100_FUSE_POR_M)
+		programmed++;
+
+	switch (programmed) {
+	case 0:
+		puts("not programmed\n");
+		break;
+	case 3:
+		puts("programmed\n");
+		break;
+	default:
+		puts("undefined programming state\n");
+		break;
+	}
+
+	/* The following is needed during production */
+	if (programmed != 3) {
+		/* set VGEN1 to 1.2V */
+		val = PFUZE100_VGEN1_VAL;
+		if (dm_i2c_write(dev, PFUZE100_VGEN1CTL, &val, 1)) {
+			puts("i2c write failed\n");
+			return programmed;
+		}
+
+		/* set SWBST to 5.0V */
+		val = PFUZE100_SWBST_VAL;
+		if (dm_i2c_write(dev, PFUZE100_SWBSTCTL, &val, 1))
+			puts("i2c write failed\n");
+	}
 
 #ifdef DEBUG
 	{
-		unsigned i, j;
+		unsigned int i, j;
 
 		for (i = 0; i < 16; i++)
 			printf("\t%x", i);
@@ -102,59 +156,7 @@ unsigned pmic_init(void)
 		printf("\n");
 	}
 #endif /* DEBUG */
-	/* get device programmed state */
-	val = PFUZE100_PAGE_REGISTER_PAGE1;
-	if (dm_i2c_write(dev, PFUZE100_PAGE_REGISTER, &val, 1)) {
-		puts("i2c write failed\n");
-		return 0;
-	}
-	if (dm_i2c_read(dev, PFUZE100_FUSE_POR1, &val, 1) < 0) {
-		puts("i2c fuse_por read failed\n");
-		return 0;
-	}
-	if (val & PFUZE100_FUSE_POR_M)
-		programmed++;
 
-	if (dm_i2c_read(dev, PFUZE100_FUSE_POR2, &val, 1) < 0) {
-		puts("i2c fuse_por read failed\n");
-		return programmed;
-	}
-	if (val & PFUZE100_FUSE_POR_M)
-		programmed++;
-
-	if (dm_i2c_read(dev, PFUZE100_FUSE_POR3, &val, 1) < 0) {
-		puts("i2c fuse_por read failed\n");
-		return programmed;
-	}
-	if (val & PFUZE100_FUSE_POR_M)
-		programmed++;
-
-	switch (programmed) {
-	case 0:
-		printf("PMIC: not programmed\n");
-		break;
-	case 3:
-		printf("PMIC: programmed\n");
-		break;
-	default:
-		printf("PMIC: undefined programming state\n");
-		break;
-	}
-
-	/* The following is needed during production */
-	if (programmed != 3) {
-		/* set VGEN1 to 1.2V */
-		val = PFUZE100_VGEN1_VAL;
-		if (dm_i2c_write(dev, PFUZE100_VGEN1CTL, &val, 1)) {
-			puts("i2c write failed\n");
-			return programmed;
-		}
-
-		/* set SWBST to 5.0V */
-		val = PFUZE100_SWBST_VAL;
-		if (dm_i2c_write(dev, PFUZE100_SWBSTCTL, &val, 1))
-			puts("i2c write failed\n");
-	}
 	return programmed;
 }
 
