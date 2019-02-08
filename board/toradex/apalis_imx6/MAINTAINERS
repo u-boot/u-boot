@@ -5,5 +5,3 @@ S:	Maintained
 F:	board/toradex/apalis_imx6/
 F:	include/configs/apalis_imx6.h
 F:	configs/apalis_imx6_defconfig
-F:	configs/apalis_imx6_nospl_com_defconfig
-F:	configs/apalis_imx6_nospl_it_defconfig
