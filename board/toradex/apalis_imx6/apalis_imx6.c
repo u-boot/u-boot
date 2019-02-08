@@ -9,6 +9,7 @@
 #include <common.h>
 #include <dm.h>
 
+#include <ahci.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
@@ -22,7 +23,9 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
+#include <dm/device-internal.h>
 #include <dm/platform_data/serial_mxc.h>
+#include <dwc_ahsata.h>
 #include <environment.h>
 #include <fsl_esdhc.h>
 #include <imx_thermal.h>
@@ -60,6 +63,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define OUTPUT_RGB (PAD_CTL_SPEED_MED|PAD_CTL_DSE_60ohm|PAD_CTL_SRE_FAST)
 
+#define APALIS_IMX6_SATA_INIT_RETRIES	10
+
 int dram_init(void)
 {
 	/* use the DDR controllers configured size */
@@ -79,6 +84,7 @@ iomux_v3_cfg_t const uart1_pads_dte[] = {
 	MX6_PAD_CSI0_DAT11__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
+#if defined(CONFIG_FSL_ESDHC) && defined(CONFIG_SPL_BUILD)
 /* Apalis MMC1 */
 iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_CLK__SD1_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -121,6 +127,7 @@ iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6_PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(WEAK_PULLUP) | MUX_MODE_SION,
 };
+#endif /* CONFIG_FSL_ESDHC & CONFIG_SPL_BUILD */
 
 int mx6_rgmii_rework(struct phy_device *phydev)
 {
@@ -288,7 +295,7 @@ int board_ehci_power(int port, int on)
 }
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
+#if defined(CONFIG_FSL_ESDHC) && defined(CONFIG_SPL_BUILD)
 /* use the following sequence: eMMC, MMC1, SD1 */
 struct fsl_esdhc_cfg usdhc_cfg[CONFIG_SYS_FSL_USDHC_NUM] = {
 	{USDHC3_BASE_ADDR},
@@ -319,43 +326,6 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
-#ifndef CONFIG_SPL_BUILD
-	s32 status = 0;
-	u32 index = 0;
-
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-	usdhc_cfg[2].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-
-	usdhc_cfg[0].max_bus_width = 8;
-	usdhc_cfg[1].max_bus_width = 8;
-	usdhc_cfg[2].max_bus_width = 4;
-
-	for (index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
-		switch (index) {
-		case 0:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-			break;
-		case 1:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
-			break;
-		case 2:
-			imx_iomux_v3_setup_multiple_pads(
-				usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-			break;
-		default:
-			printf("Warning: you configured more USDHC controllers (%d) then supported by the board (%d)\n",
-			       index + 1, CONFIG_SYS_FSL_USDHC_NUM);
-			return status;
-		}
-
-		status |= fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
-	}
-
-	return status;
-#else /* CONFIG_SPL_BUILD */
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	unsigned reg = readl(&psrc->sbmr1) >> 11;
 	/*
@@ -394,9 +364,8 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-#endif /* CONFIG_SPL_BUILD */
 }
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC & CONFIG_SPL_BUILD */
 
 int board_phy_config(struct phy_device *phydev)
 {
@@ -1171,3 +1140,52 @@ U_BOOT_DEVICE(mxc_serial) = {
 	.name = "serial_mxc",
 	.platdata = &mxc_serial_plat,
 };
+
+#if CONFIG_IS_ENABLED(AHCI)
+static int sata_imx_probe(struct udevice *dev)
+{
+	int i, err;
+
+	for (i = 0; i < APALIS_IMX6_SATA_INIT_RETRIES; i++) {
+		err = setup_sata();
+		if (err) {
+			printf("SATA setup failed: %d\n", err);
+			return err;
+		}
+
+		udelay(100);
+
+		err = dwc_ahsata_probe(dev);
+		if (!err)
+			break;
+
+		/* There is no device on the SATA port */
+		if (sata_dm_port_status(0, 0) == 0)
+			break;
+
+		/* There's a device, but link not established. Retry */
+		device_remove(dev, DM_REMOVE_NORMAL);
+	}
+
+	return 0;
+}
+
+struct ahci_ops sata_imx_ops = {
+	.port_status = dwc_ahsata_port_status,
+	.reset	= dwc_ahsata_bus_reset,
+	.scan	= dwc_ahsata_scan,
+};
+
+static const struct udevice_id sata_imx_ids[] = {
+	{ .compatible = "fsl,imx6q-ahci" },
+	{ }
+};
+
+U_BOOT_DRIVER(sata_imx) = {
+	.name		= "dwc_ahci",
+	.id		= UCLASS_AHCI,
+	.of_match	= sata_imx_ids,
+	.ops		= &sata_imx_ops,
+	.probe		= sata_imx_probe,
+};
+#endif /* AHCI */
