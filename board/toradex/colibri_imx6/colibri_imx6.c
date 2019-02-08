@@ -22,6 +22,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
+#include <cpu.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <environment.h>
 #include <fsl_esdhc.h>
@@ -688,7 +689,18 @@ int checkboard(void)
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	return ft_common_board_setup(blob, bd);
+	u32 cma_size;
+
+	ft_common_board_setup(blob, bd);
+
+	cma_size = getenv_ulong("cma-size", 10, 320 * 1024 * 1024);
+	cma_size = min((u32)(gd->ram_size >> 1), cma_size);
+
+	fdt_setprop_u32(blob,
+			fdt_path_offset(blob, "/reserved-memory/linux,cma"),
+			"size",
+			cma_size);
+	return 0;
 }
 #endif
 
