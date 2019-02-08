@@ -82,8 +82,6 @@
 /* Client */
 #define CONFIG_USBD_HS
 
-#define CONFIG_USB_GADGET_MASS_STORAGE
-
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
