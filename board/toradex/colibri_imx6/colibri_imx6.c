@@ -1028,6 +1028,7 @@ static void spl_dram_init(void)
 	case TEMP_AUTOMOTIVE:
 	default:
 		if (is_cpu_type(MXC_CPU_MX6DL)) {
+			puts("Industrial temperature grade DDR3 timings, 64bit bus width.\n");
 			ddr_init(mx6dl_dcd_table, ARRAY_SIZE(mx6dl_dcd_table));
 		} else {
 			puts("Industrial temperature grade DDR3 timings, 32bit bus width.\n");
