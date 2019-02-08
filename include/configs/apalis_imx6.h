@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2013-2015 Toradex, Inc.
+ * Copyright 2013-2019 Toradex, Inc.
  *
  * Configuration settings for the Toradex Apalis iMX6
  */
@@ -86,7 +86,6 @@
 
 /* Framebuffer and LCD */
 #define CONFIG_VIDEO_IPUV3
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
@@ -255,7 +254,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* environment organization */
-
 #define CONFIG_ENV_SIZE			(8 * 1024)
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
