@@ -35,11 +35,22 @@
 
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
+#ifdef CONFIG_SPL_DFU
+#ifndef CONFIG_SPL_BUILD
 #define DFUARGS \
 	"dfu_bufsiz=0x10000\0" \
 	DFU_ALT_INFO_MMC \
 	DFU_ALT_INFO_EMMC \
 	DFU_ALT_INFO_RAM \
+	DFU_ALT_INFO_QSPI
+#else
+#undef CONFIG_CMD_BOOTD
+#define CONFIG_SPL_LOAD_FIT_ADDRESS 0x80200000
+#define DFUARGS \
+	"dfu_bufsiz=0x10000\0" \
+	DFU_ALT_INFO_RAM
+#endif
+#endif
 
 #include <configs/ti_omap5_common.h>
 
