@@ -314,11 +314,11 @@ int meson_pinctrl_probe(struct udevice *dev)
 	priv->reg_gpio = (void __iomem *)addr;
 
 	addr = parse_address(gpio, "pull", na, ns);
-	if (addr == FDT_ADDR_T_NONE) {
-		debug("pull address not found\n");
-		return -EINVAL;
-	}
-	priv->reg_pull = (void __iomem *)addr;
+	/* Use gpio region if pull one is not present */
+	if (addr == FDT_ADDR_T_NONE)
+		priv->reg_pull = priv->reg_gpio;
+	else
+		priv->reg_pull = (void __iomem *)addr;
 
 	addr = parse_address(gpio, "pull-enable", na, ns);
 	/* Use pull region if pull-enable one is not present */
@@ -326,6 +326,13 @@ int meson_pinctrl_probe(struct udevice *dev)
 		priv->reg_pullen = priv->reg_pull;
 	else
 		priv->reg_pullen = (void __iomem *)addr;
+
+	addr = parse_address(gpio, "ds", na, ns);
+	/* Drive strength region is optional */
+	if (addr == FDT_ADDR_T_NONE)
+		priv->reg_ds = NULL;
+	else
+		priv->reg_ds = (void __iomem *)addr;
 
 	priv->data = (struct meson_pinctrl_data *)dev_get_driver_data(dev);
 

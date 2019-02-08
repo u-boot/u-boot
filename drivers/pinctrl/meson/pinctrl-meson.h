@@ -41,6 +41,7 @@ struct meson_pinctrl {
 	void __iomem *reg_gpio;
 	void __iomem *reg_pull;
 	void __iomem *reg_pullen;
+	void __iomem *reg_ds;
 };
 
 /**
