@@ -2,39 +2,34 @@
 /*
  * Copyright (C) 2010-2013 Freescale Semiconductor, Inc.
  * Copyright (C) 2013, Boundary Devices <info@boundarydevices.com>
- * Copyright (C) 2014-2016, Toradex AG
+ * Copyright (C) 2014-2019, Toradex AG
  * copied from nitrogen6x
  */
 
 #include <common.h>
 #include <dm.h>
+
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/iomux.h>
-#include <asm/arch/mx6-pins.h>
 #include <asm/arch/mx6-ddr.h>
+#include <asm/arch/mx6-pins.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/bootm.h>
 #include <asm/gpio.h>
+#include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
-#include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
-#include <asm/io.h>
 #include <dm/platform_data/serial_mxc.h>
-#include <dm/platdata.h>
+#include <environment.h>
 #include <fsl_esdhc.h>
 #include <i2c.h>
-#include <input.h>
 #include <imx_thermal.h>
-#include <linux/errno.h>
-#include <malloc.h>
 #include <micrel.h>
 #include <miiphy.h>
-#include <mmc.h>
 #include <netdev.h>
 
 #include "../common/tdx-cfg-block.h"
@@ -173,68 +168,123 @@ static void setup_iomux_enet(void)
 /* mux auxiliary pins to GPIO, so they can be used from the U-Boot cmdline */
 iomux_v3_cfg_t const gpio_pads[] = {
 	/* ADDRESS[17:18] [25] used as GPIO */
-	MX6_PAD_KEY_ROW2__GPIO4_IO11	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_KEY_COL2__GPIO4_IO10	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_D1__GPIO2_IO01	| MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_KEY_ROW2__GPIO4_IO11	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_KEY_COL2__GPIO4_IO10	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_D1__GPIO2_IO01	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
 	/* ADDRESS[19:24] used as GPIO */
-	MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_DISP0_DAT22__GPIO5_IO16 | MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_DISP0_DAT21__GPIO5_IO15 | MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_DISP0_DAT20__GPIO5_IO14 | MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_DISP0_DAT19__GPIO5_IO13 | MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_DISP0_DAT18__GPIO5_IO12 | MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_DISP0_DAT22__GPIO5_IO16 | MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_DISP0_DAT21__GPIO5_IO15 | MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_DISP0_DAT20__GPIO5_IO14 | MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_DISP0_DAT19__GPIO5_IO13 | MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_DISP0_DAT18__GPIO5_IO12 | MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
 	/* DATA[16:29] [31]	 used as GPIO */
-	MX6_PAD_EIM_LBA__GPIO2_IO27	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_BCLK__GPIO6_IO31	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_CS3__GPIO6_IO16	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_CS1__GPIO6_IO14	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_RB0__GPIO6_IO10	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_ALE__GPIO6_IO08	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_WP_B__GPIO6_IO09	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_CS0__GPIO6_IO11	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_CLE__GPIO6_IO07	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_GPIO_19__GPIO4_IO05	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_CSI0_MCLK__GPIO5_IO19	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_CSI0_PIXCLK__GPIO5_IO18 | MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_GPIO_4__GPIO1_IO04	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_GPIO_5__GPIO1_IO05	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_GPIO_2__GPIO1_IO02	| MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_EIM_LBA__GPIO2_IO27	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_BCLK__GPIO6_IO31	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_CS3__GPIO6_IO16	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_CS1__GPIO6_IO14	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_RB0__GPIO6_IO10	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_ALE__GPIO6_IO08	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_WP_B__GPIO6_IO09	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_CS0__GPIO6_IO11	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_CLE__GPIO6_IO07	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_GPIO_19__GPIO4_IO05	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_CSI0_MCLK__GPIO5_IO19	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_CSI0_PIXCLK__GPIO5_IO18 | MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_GPIO_4__GPIO1_IO04	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_GPIO_5__GPIO1_IO05	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_GPIO_2__GPIO1_IO02	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
 	/* DQM[0:3]	 used as GPIO */
-	MX6_PAD_EIM_EB0__GPIO2_IO28	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_EB1__GPIO2_IO29	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_SD2_DAT2__GPIO1_IO13	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_D0__GPIO2_IO00	| MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_EIM_EB0__GPIO2_IO28	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_EB1__GPIO2_IO29	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_SD2_DAT2__GPIO1_IO13	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_D0__GPIO2_IO00	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
 	/* RDY	used as GPIO */
-	MX6_PAD_EIM_WAIT__GPIO5_IO00	| MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_EIM_WAIT__GPIO5_IO00	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
 	/* ADDRESS[16] DATA[30]	 used as GPIO */
-	MX6_PAD_KEY_ROW4__GPIO4_IO15	| MUX_PAD_CTRL(WEAK_PULLDOWN),
-	MX6_PAD_KEY_COL4__GPIO4_IO14	| MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_KEY_ROW4__GPIO4_IO15	| MUX_PAD_CTRL(WEAK_PULLDOWN) |
+					  MUX_MODE_SION,
+	MX6_PAD_KEY_COL4__GPIO4_IO14	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
 	/* CSI pins used as GPIO */
-	MX6_PAD_EIM_A24__GPIO5_IO04	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_SD2_CMD__GPIO1_IO11	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_CS2__GPIO6_IO15	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_D18__GPIO3_IO18	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_A19__GPIO2_IO19	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_D29__GPIO3_IO29	| MUX_PAD_CTRL(WEAK_PULLDOWN),
-	MX6_PAD_EIM_A23__GPIO6_IO06	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_A20__GPIO2_IO18	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_A17__GPIO2_IO21	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_A18__GPIO2_IO20	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_EB3__GPIO2_IO31	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_D17__GPIO3_IO17	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_SD2_DAT0__GPIO1_IO15	| MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_EIM_A24__GPIO5_IO04	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_SD2_CMD__GPIO1_IO11	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_CS2__GPIO6_IO15	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_D18__GPIO3_IO18	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_A19__GPIO2_IO19	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_D29__GPIO3_IO29	| MUX_PAD_CTRL(WEAK_PULLDOWN) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_A23__GPIO6_IO06	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_A20__GPIO2_IO18	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_A17__GPIO2_IO21	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_A18__GPIO2_IO20	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_EB3__GPIO2_IO31	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_D17__GPIO3_IO17	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_SD2_DAT0__GPIO1_IO15	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
 	/* GPIO */
-	MX6_PAD_EIM_D26__GPIO3_IO26	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_EIM_D27__GPIO3_IO27	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_D6__GPIO2_IO06	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_D3__GPIO2_IO03	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_ENET_REF_CLK__GPIO1_IO23 | MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_DI0_PIN4__GPIO4_IO20	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_SD4_DAT3__GPIO2_IO11	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_NANDF_D4__GPIO2_IO04	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_SD4_DAT0__GPIO2_IO08	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_GPIO_7__GPIO1_IO07	| MUX_PAD_CTRL(WEAK_PULLUP),
-	MX6_PAD_GPIO_8__GPIO1_IO08	| MUX_PAD_CTRL(WEAK_PULLUP),
+	MX6_PAD_EIM_D26__GPIO3_IO26	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_EIM_D27__GPIO3_IO27	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_D6__GPIO2_IO06	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_D3__GPIO2_IO03	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_ENET_REF_CLK__GPIO1_IO23 | MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_DI0_PIN4__GPIO4_IO20	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_SD4_DAT3__GPIO2_IO11	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_NANDF_D4__GPIO2_IO04	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_SD4_DAT0__GPIO2_IO08	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_GPIO_7__GPIO1_IO07	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
+	MX6_PAD_GPIO_8__GPIO1_IO08	| MUX_PAD_CTRL(WEAK_PULLUP) |
+					  MUX_MODE_SION,
 	/* USBH_OC */
 	MX6_PAD_EIM_D30__GPIO3_IO30	| MUX_PAD_CTRL(WEAK_PULLUP),
 	/* USBC_ID */
@@ -249,8 +299,8 @@ static void setup_iomux_gpio(void)
 }
 
 iomux_v3_cfg_t const usb_pads[] = {
-	/* USB_PE */
-	MX6_PAD_EIM_D31__GPIO3_IO31 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	/* USBH_PEN */
+	MX6_PAD_EIM_D31__GPIO3_IO31 | MUX_PAD_CTRL(NO_PAD_CTRL) | MUX_MODE_SION,
 #	define GPIO_USBH_EN IMX_GPIO_NR(3, 31)
 };
 
@@ -292,6 +342,7 @@ int board_ehci_power(int port, int on)
 	case 1:
 		/* Control MXM USBH */
 		/* Set MXM USBH power enable, '0' means on */
+		gpio_request(GPIO_USBH_EN, "USBH_EN");
 		gpio_direction_output(GPIO_USBH_EN, !on);
 		mdelay(100);
 		break;
@@ -300,7 +351,7 @@ int board_ehci_power(int port, int on)
 	}
 	return 0;
 }
-#endif
+#endif /* CONFIG_USB_EHCI_MX6 */
 
 #ifdef CONFIG_FSL_ESDHC
 /* use the following sequence: eMMC, MMC */
@@ -316,6 +367,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 	switch (cfg->esdhc_base) {
 	case USDHC1_BASE_ADDR:
+		gpio_request(GPIO_MMC_CD, "MMC_CD");
 		gpio_direction_input(GPIO_MMC_CD);
 		ret = !gpio_get_value(GPIO_MMC_CD);
 		break;
@@ -356,7 +408,7 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return status;
-#else
+#else /* !CONFIG_SPL_BUILD */
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	unsigned reg = readl(&psrc->sbmr1) >> 11;
 	/*
@@ -388,9 +440,9 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-#endif
+#endif /* !CONFIG_SPL_BUILD */
 }
-#endif
+#endif /* CONFIG_FSL_ESDHC */
 
 int board_phy_config(struct phy_device *phydev)
 {
@@ -412,6 +464,7 @@ int board_eth_init(bd_t *bis)
 	ret = enable_fec_anatop_clock(0, ENET_50MHZ);
 	if (ret)
 		return ret;
+
 	/* set gpr1[ENET_CLK_SEL] */
 	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
 
@@ -421,6 +474,7 @@ int board_eth_init(bd_t *bis)
 	bus = fec_get_miibus(base, -1);
 	if (!bus)
 		return 0;
+
 	/* scan PHY 1..7 */
 	phydev = phy_find_by_mask(bus, 0xff, PHY_INTERFACE_MODE_RMII);
 	if (!phydev) {
@@ -428,6 +482,7 @@ int board_eth_init(bd_t *bis)
 		puts("no PHY found\n");
 		return 0;
 	}
+
 	phy_reset(phydev);
 	printf("using PHY at %d\n", phydev->addr);
 	ret = fec_probe(bis, -1, base, bus, phydev);
@@ -436,7 +491,8 @@ int board_eth_init(bd_t *bis)
 		free(phydev);
 		free(bus);
 	}
-#endif
+#endif /* CONFIG_FEC_MXC */
+
 	return 0;
 }
 
@@ -452,11 +508,12 @@ static iomux_v3_cfg_t const pwr_intb_pads[] = {
 
 static iomux_v3_cfg_t const backlight_pads[] = {
 	/* Backlight On */
-	MX6_PAD_EIM_D26__GPIO3_IO26 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_EIM_D26__GPIO3_IO26 | MUX_PAD_CTRL(NO_PAD_CTRL) | MUX_MODE_SION,
 #define RGB_BACKLIGHT_GP IMX_GPIO_NR(3, 26)
 	/* Backlight PWM, used as GPIO in U-Boot */
 	MX6_PAD_EIM_A22__GPIO2_IO16  | MUX_PAD_CTRL(NO_PULLUP),
-	MX6_PAD_SD4_DAT1__GPIO2_IO09 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_SD4_DAT1__GPIO2_IO09 | MUX_PAD_CTRL(NO_PAD_CTRL) |
+				       MUX_MODE_SION,
 #define RGB_BACKLIGHTPWM_GP IMX_GPIO_NR(2, 9)
 };
 
@@ -619,6 +676,8 @@ static void setup_display(void)
 	imx_iomux_v3_setup_multiple_pads(backlight_pads,
 					 ARRAY_SIZE(backlight_pads));
 	/* use 0 for EDT 7", use 1 for LG fullHD panel */
+	gpio_request(RGB_BACKLIGHTPWM_GP, "PWM<A>");
+	gpio_request(RGB_BACKLIGHT_GP, "BL_ON");
 	gpio_direction_output(RGB_BACKLIGHTPWM_GP, 0);
 	gpio_direction_output(RGB_BACKLIGHT_GP, 1);
 }
@@ -1117,7 +1176,7 @@ void reset_cpu(ulong addr)
 {
 }
 
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
 static struct mxc_serial_platdata mxc_serial_plat = {
 	.reg = (struct mxc_uart *)UART1_BASE,
