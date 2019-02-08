@@ -108,17 +108,17 @@
 #include <config_distro_bootcmd.h>
 #undef BOOTENV_RUN_NET_USB_START
 #define BOOTENV_RUN_NET_USB_START ""
-#else
+#else /* CONFIG_SPL_BUILD */
 #define BOOTENV
-#endif
+#endif /* CONFIG_SPL_BUILD */
 
 #define DFU_ALT_EMMC_INFO \
 	"u-boot.imx raw 0x2 0x3ff mmcpart 0;" \
 	"boot part 0 1;" \
 	"rootfs part 0 2;" \
-	"uImage fat 0 1;" \
-	"imx6q-colibri-eval-v3.dtb fat 0 1;" \
-	"imx6q-colibri-cam-eval-v3.dtb fat 0 1"
+	"zImage fat 0 1;" \
+	"imx6dl-colibri-eval-v3.dtb fat 0 1;" \
+	"imx6dl-colibri-cam-eval-v3.dtb fat 0 1"
 
 #define EMMC_BOOTCMD \
 	"emmcargs=ip=off root=/dev/mmcblk0p2 rw,noatime rootfstype=ext4 " \
@@ -128,7 +128,7 @@
 		"${vidargs}; echo Booting from internal eMMC chip...; "	\
 		"run emmcdtbload; load mmc 0:1 ${kernel_addr_r} " \
 		"${boot_file} && run fdt_fixup && " \
-		"bootm ${kernel_addr_r} ${dtbparam}\0" \
+		"bootz ${kernel_addr_r} ${dtbparam}\0" \
 	"emmcdtbload=setenv dtbparam; load mmc 0:1 ${fdt_addr_r} " \
 		"${fdt_file} && setenv dtbparam \" - ${fdt_addr_r}\" && true\0"
 
@@ -148,11 +148,11 @@
 		"setenv bootargs ${defargs} ${nfsargs} ${setupargs} " \
 		"${vidargs}; echo Booting via DHCP/TFTP/NFS...; " \
 		"run nfsdtbload; dhcp ${kernel_addr_r} " \
-		"&& run fdt_fixup && bootm ${kernel_addr_r} ${dtbparam}\0" \
+		"&& run fdt_fixup && bootz ${kernel_addr_r} ${dtbparam}\0" \
 	"nfsdtbload=setenv dtbparam; tftp ${fdt_addr_r} ${fdt_file} " \
 		"&& setenv dtbparam \" - ${fdt_addr_r}\" && true\0"
 
-#define SD_BOOTCMD						\
+#define SD_BOOTCMD \
 	"sdargs=ip=off root=/dev/mmcblk1p2 rw,noatime rootfstype=ext4 " \
 		"rootwait\0" \
 	"sdboot=run setup; " \
@@ -160,7 +160,7 @@
 		"${vidargs}; echo Booting from SD card; " \
 		"run sddtbload; load mmc 1:1 ${kernel_addr_r} " \
 		"${boot_file} && run fdt_fixup && " \
-		"bootm ${kernel_addr_r} ${dtbparam}\0" \
+		"bootz ${kernel_addr_r} ${dtbparam}\0" \
 	"sddtbload=setenv dtbparam; load mmc 1:1 ${fdt_addr_r} " \
 		"${fdt_file} && setenv dtbparam \" - ${fdt_addr_r}\" && true\0"
 
@@ -171,7 +171,7 @@
 		"${usbargs} ${vidargs}; echo Booting from USB stick...; " \
 		"usb start && run usbdtbload; load usb 0:1 ${kernel_addr_r} " \
 		"${boot_file} && run fdt_fixup && " \
-		"bootm ${kernel_addr_r} ${dtbparam}\0" \
+		"bootz ${kernel_addr_r} ${dtbparam}\0" \
 	"usbdtbload=setenv dtbparam; load usb 0:1 ${fdt_addr_r} " \
 		"${fdt_file} && setenv dtbparam \" - ${fdt_addr_r}\" && true\0"
 
@@ -182,7 +182,7 @@
 		"run distro_bootcmd ; " \
 		"usb start ; " \
 		"setenv stdout serial,vga ; setenv stdin serial,usbkbd\0" \
-	"boot_file=uImage\0" \
+	"boot_file=zImage\0" \
 	"console=ttymxc0\0" \
 	"defargs=enable_wait_mode=off galcore.contiguousSize=50331648\0" \
 	"dfu_alt_info=" DFU_ALT_EMMC_INFO "\0" \
