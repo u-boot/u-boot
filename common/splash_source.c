@@ -303,6 +303,7 @@ static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
 {
 	int res;
 	int node_offset;
+	const char *splash_file;
 	int splash_offset;
 	int splash_size;
 	struct image_header *img_header;
@@ -335,10 +336,15 @@ static int splash_load_fit(struct splash_location *location, u32 bmp_load_addr)
 		return -EINVAL;
 	}
 
-	node_offset = fit_image_get_node(fit_header, location->name);
+	/* Get the splash image node */
+	splash_file = env_get("splashfile");
+	if (!splash_file)
+		splash_file = SPLASH_SOURCE_DEFAULT_FILE_NAME;
+
+	node_offset = fit_image_get_node(fit_header, splash_file);
 	if (node_offset < 0) {
 		debug("Could not find splash image '%s' in FIT\n",
-		      location->name);
+		      splash_file);
 		return -ENOENT;
 	}
 

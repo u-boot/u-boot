@@ -26,6 +26,9 @@ screen data is loaded as a file. The name of the splash screen file can be
 controlled with the environment variable "splashfile".
 
 To enable loading the splash image from a FIT image, CONFIG_FIT must be
-enabled. Struct splash_location field 'name' should match the splash image
-name within the FIT and the FIT should start at the 'offset' field address in
-the specified storage.
+enabled. The FIT image has to start at the 'offset' field address in the
+selected splash location. The name of splash image within the FIT shall be
+specified by the environment variable "splashfile".
+
+In case the environment variable "splashfile" is not defined the default name
+'splash.bmp' will be used.
