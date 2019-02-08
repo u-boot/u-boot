@@ -7,3 +7,4 @@
 obj-y += lx2160a.o
 obj-y += ddr.o
 obj-$(CONFIG_TARGET_LX2160ARDB) += eth_lx2160ardb.o
+obj-$(CONFIG_TARGET_LX2160AQDS) += eth_lx2160aqds.o

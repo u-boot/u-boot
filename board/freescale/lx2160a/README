@@ -77,3 +77,121 @@ DPAA2 MC Firmware					0x05000
 DPAA2 DPL						0x06800
 DPAA2 DPC						0x07000
 Kernel.itb						0x08000
+
+LX2160AQDS board Overview
+----------------------
+Various Mezzanine cards and their connection for different SERDES protocols is
+as below:
+
+SERDES1	|CARDS
+-----------------------------------------------------------------------
+1	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT1 (J108)
+	|Connect I/O cable to IO_SLOT1(J110)
+	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT2 (J111)
+	|Connect I/O cable to IO_SLOT2(J113)
+------------------------------------------------------------------------
+3	|Mezzanine:X-M11-USXGMII (29828)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT1 (J108)
+	|Connect I/O cable to IO_SLOT1(J110)
+	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT2 (J111)
+	|Connect I/O cable to IO_SLOT2(J113)
+------------------------------------------------------------------------
+7	|Mezzanine:X-M11-USXGMII (29828)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT1 (J108)
+	|Connect I/O cable to IO_SLOT1(J110)
+	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT2 (J111)
+	|Connect I/O cable to IO_SLOT2(J113)
+------------------------------------------------------------------------
+8	|Mezzanine:X-M12-XFI (29829)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT1 (J108)
+	|Connect I/O cable to IO_SLOT1(J110)
+	|Mezzanine:X-M12-XFI (29829)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT2 (J111)
+	|Connect I/O cable to IO_SLOT2(J113)
+------------------------------------------------------------------------
+13	|Mezzanine:X-M8-100G (29734)
+	|Connect Hydra Cable (HDR-198816-XX-ECUE) to SD_SLOT1 (J108)
+	|Connect I/O cable to IO_SLOT1(J110)
+	|Mezzanine:X-M8-100G (29734)
+	|Connect Hydra Cable (HDR-198816-XX-ECUE) to SD_SLOT2(J111)
+	|Connect I/O cable to IO_SLOT2(J113)
+------------------------------------------------------------------------
+15	|Mezzanine:X-M8-100G (29734)
+	|Connect Hydra Cable (HDR-198816-XX-ECUE) to SD_SLOT1 (J108)
+	|Connect I/O cable to IO_SLOT1(J110)
+	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT2 (J111)
+	|Connect I/O cable to IO_SLOT2(J113)
+------------------------------------------------------------------------
+17	|Mezzanine:X-M13-25G  (32133)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT1 (J108)
+	|Connect I/O cable to IO_SLOT1(J110)
+	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT2 (J111)
+	|Connect I/O cable to IO_SLOT2(J113)
+------------------------------------------------------------------------
+19	|Mezzanine:X-M11-USXGMII (29828), X-M13-25G (32133)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT1 (J108)
+	|Connect M11 I/O cable to IO_SLOT1(J110), M13 I/O cable to IO_SLOT6(J125)
+	|Mezzanine:X-M7-40G (29738)
+	|Connect Straight Cable (HDR-198816-XX-ECUE) to SD_SLOT2 (J111)
+	|Connect I/O cable to IO_SLOT2(J113)
+------------------------------------------------------------------------
+20	|Mezzanine:X-M7-40G (29738)
+	|Connect Straight Cable (HDR-198816-XX-ECUE) to SD_SLOT1 (J108)
+	|Connect  I/O cable to IO_SLOT1(J108)
+	|Mezzanine:X-M7-40G (29738)
+	|Connect Straight Cable (HDR-198816-XX-ECUE) to SD_SLOT2 (J111)
+	|Connect I/O cable to IO_SLOT2(J113)
+------------------------------------------------------------------------
+
+
+SERDES2	|CARDS
+-----------------------------------------------------------------------
+2	|Mezzanine:X-M6-PCIE-X8 (29737) *
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT3 (J114)
+	|Connect Straight Cable (HDR-198816-XX-ECUE) to SD_SLOT4 (J117)
+	|Connect I/O cable to IO_SLOT3(J116)
+------------------------------------------------------------------------
+3	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT3 (J114)
+	|Connect I/O cable to IO_SLOT3(J116)
+	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT4 (J117)
+	|Connect I/O cable to IO_SLOT4(J119)
+------------------------------------------------------------------------
+5	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT3 (J114)
+	|Connect I/O cable to IO_SLOT3(J116)
+	|Mezzanine:X-M5-SATA (29687)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT4 (J117)
+	|Connect I/O cable to IO_SLOT4(J119)
+------------------------------------------------------------------------
+11	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT3 (J114)
+	|Connect I/O cable to IO_SLOT7(J127)
+	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT4 (J117)
+	|Connect I/O cable to IO_SLOT8(J131)
+------------------------------------------------------------------------
+
+
+SERDES3	|CARDS
+-----------------------------------------------------------------------
+2	|Mezzanine:X-M6-PCIE-X8 (29737) *
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT5 (J120)
+	|Connect Straight Cable (HDR-198816-XX-ECUE) to SD_SLOT6 (J123)
+	|Connect I/O cable to IO_SLOT5(J122)
+-------------------------------------------------------------------------
+3	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT5 (J120)
+	|Connect I/O cable to IO_SLOT5(J122)
+	|Mezzanine:X-M4-PCIE-SGMII (29733)
+	|Connect Hydra Cable (HDR-198564-01-ECUE) to SD_SLOT6 (J123)
+	|Connect I/O cable to IO_SLOT6(J125)
+-------------------------------------------------------------------------
+
