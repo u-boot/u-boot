@@ -238,8 +238,11 @@ iomux_v3_cfg_t const usb_pads[] = {
  * UARTs are used in DTE mode, switch the mode on all UARTs before
  * any pinmuxing connects a (DCE) output to a transceiver output.
  */
+#define UCR3		0x88	/* FIFO Control Register */
+#define UCR3_RI		BIT(8)	/* RIDELT DTE mode */
+#define UCR3_DCD	BIT(9)	/* DCDDELT DTE mode */
 #define UFCR		0x90	/* FIFO Control Register */
-#define UFCR_DCEDTE	(1<<6)	/* DCE=0 */
+#define UFCR_DCEDTE	BIT(6)	/* DCE=0 */
 
 static void setup_dtemode_uart(void)
 {
@@ -247,6 +250,11 @@ static void setup_dtemode_uart(void)
 	setbits_le32((u32 *)(UART2_BASE + UFCR), UFCR_DCEDTE);
 	setbits_le32((u32 *)(UART4_BASE + UFCR), UFCR_DCEDTE);
 	setbits_le32((u32 *)(UART5_BASE + UFCR), UFCR_DCEDTE);
+
+	clrbits_le32((u32 *)(UART1_BASE + UCR3), UCR3_DCD | UCR3_RI);
+	clrbits_le32((u32 *)(UART2_BASE + UCR3), UCR3_DCD | UCR3_RI);
+	clrbits_le32((u32 *)(UART4_BASE + UCR3), UCR3_DCD | UCR3_RI);
+	clrbits_le32((u32 *)(UART5_BASE + UCR3), UCR3_DCD | UCR3_RI);
 }
 static void setup_dcemode_uart(void)
 {
