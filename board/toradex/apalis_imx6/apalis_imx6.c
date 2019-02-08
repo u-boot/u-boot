@@ -20,13 +20,11 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <environment.h>
 #include <fsl_esdhc.h>
-#include <i2c.h>
 #include <imx_thermal.h>
 #include <micrel.h>
 #include <miiphy.h>
@@ -50,21 +48,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
-#define SPI_PAD_CTRL (PAD_CTL_HYS | PAD_CTL_SPEED_MED |		\
-	PAD_CTL_DSE_40ohm     | PAD_CTL_SRE_FAST)
-
-#define BUTTON_PAD_CTRL (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
-
-#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
 #define WEAK_PULLUP	(PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_SRE_SLOW)
-
-#define NO_PULLUP	(					\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
 	PAD_CTL_SRE_SLOW)
 
@@ -73,8 +57,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_HYS | PAD_CTL_SRE_SLOW)
 
 #define TRISTATE	(PAD_CTL_HYS | PAD_CTL_SPEED_MED)
-
-#define OUTPUT_40OHM (PAD_CTL_SPEED_MED|PAD_CTL_DSE_40ohm)
 
 #define OUTPUT_RGB (PAD_CTL_SPEED_MED|PAD_CTL_DSE_60ohm|PAD_CTL_SRE_FAST)
 
@@ -95,63 +77,6 @@ iomux_v3_cfg_t const uart1_pads_dce[] = {
 iomux_v3_cfg_t const uart1_pads_dte[] = {
 	MX6_PAD_CSI0_DAT10__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_CSI0_DAT11__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
-/* Apalis I2C1 */
-struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_CSI0_DAT9__I2C1_SCL | PC,
-		.gpio_mode = MX6_PAD_CSI0_DAT9__GPIO5_IO27 | PC,
-		.gp = IMX_GPIO_NR(5, 27)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_CSI0_DAT8__I2C1_SDA | PC,
-		.gpio_mode = MX6_PAD_CSI0_DAT8__GPIO5_IO26 | PC,
-		.gp = IMX_GPIO_NR(5, 26)
-	}
-};
-
-/* Apalis local, PMIC, SGTL5000, STMPE811 */
-struct i2c_pads_info i2c_pad_info_loc = {
-	.scl = {
-		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL | PC,
-		.gpio_mode = MX6_PAD_KEY_COL3__GPIO4_IO12 | PC,
-		.gp = IMX_GPIO_NR(4, 12)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_KEY_ROW3__I2C2_SDA | PC,
-		.gpio_mode = MX6_PAD_KEY_ROW3__GPIO4_IO13 | PC,
-		.gp = IMX_GPIO_NR(4, 13)
-	}
-};
-
-/* Apalis I2C3 / CAM */
-struct i2c_pads_info i2c_pad_info3 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_EIM_D17__I2C3_SCL | PC,
-		.gpio_mode = MX6_PAD_EIM_D17__GPIO3_IO17 | PC,
-		.gp = IMX_GPIO_NR(3, 17)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_EIM_D18__I2C3_SDA | PC,
-		.gpio_mode = MX6_PAD_EIM_D18__GPIO3_IO18 | PC,
-		.gp = IMX_GPIO_NR(3, 18)
-	}
-};
-
-/* Apalis I2C2 / DDC */
-struct i2c_pads_info i2c_pad_info_ddc = {
-	.scl = {
-		.i2c_mode = MX6_PAD_EIM_EB2__HDMI_TX_DDC_SCL | PC,
-		.gpio_mode = MX6_PAD_EIM_EB2__GPIO2_IO30 | PC,
-		.gp = IMX_GPIO_NR(2, 30)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_EIM_D16__HDMI_TX_DDC_SDA | PC,
-		.gpio_mode = MX6_PAD_EIM_D16__GPIO3_IO16 | PC,
-		.gp = IMX_GPIO_NR(3, 16)
-	}
 };
 
 /* Apalis MMC1 */
@@ -583,12 +508,6 @@ static void do_enable_hdmi(struct display_info_t const *dev)
 	imx_enable_hdmi_phy();
 }
 
-static int detect_i2c(struct display_info_t const *dev)
-{
-	return (0 == i2c_set_bus_num(dev->bus)) &&
-	       (0 == i2c_probe(dev->addr));
-}
-
 static void enable_lvds(struct display_info_t const *dev)
 {
 	struct iomuxc *iomux = (struct iomuxc *)
@@ -682,7 +601,6 @@ struct display_info_t const displays[] = {{
 	.bus	= -1,
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_LVDS666,
-	.detect	= detect_i2c,
 	.enable	= enable_lvds,
 	.mode	= {
 		.name           = "wsvga-lvds",
@@ -796,10 +714,6 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info_loc);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
 
 #if defined(CONFIG_VIDEO_IPUV3)
 	setup_display();
@@ -1218,7 +1132,7 @@ void board_init_f(ulong dummy)
 	ccgr_init();
 	gpr_init();
 
-	/* iomux and setup of i2c */
+	/* iomux */
 	board_early_init_f();
 
 	/* setup GP timer */
