@@ -26,11 +26,10 @@ config SPI_FLASH_SANDBOX
 	  stored in a file on the host filesystem.
 
 config SPI_FLASH
-	bool "Legacy SPI Flash Interface support"
-	depends on SPI
+	bool "SPI Flash Core Interface support"
 	select SPI_MEM
 	help
-	  Enable the legacy SPI flash support. This will include basic
+	  Enable the SPI flash Core support. This will include basic
 	  standard support for things like probing, read / write, and
 	  erasing through cmd_sf interface.
 
