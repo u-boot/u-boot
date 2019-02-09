@@ -200,6 +200,10 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 			     fs_exists(fh->path)))
 			goto error;
 
+		/* fs_exists() calls fs_close(), so open file system again */
+		if (set_blk_dev(fh))
+			goto error;
+
 		/* figure out if file is a directory: */
 		fh->isdir = is_dir(fh);
 	} else {
