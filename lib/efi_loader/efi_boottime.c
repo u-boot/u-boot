@@ -44,7 +44,8 @@ static bool efi_is_direct_boot = true;
 static volatile void *efi_gd, *app_gd;
 #endif
 
-static int entry_count;
+/* 1 if inside U-Boot code, 0 if inside EFI payload code */
+static int entry_count = 1;
 static int nesting_level;
 /* GUID of the device tree table */
 const efi_guid_t efi_guid_fdt = EFI_FDT_GUID;

@@ -437,7 +437,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return CMD_RET_FAILURE;
 
 		/* Execute the test */
-		r = efi_selftest(&image_obj->header, &systab);
+		r = EFI_CALL(efi_selftest(&image_obj->header, &systab));
 		bootefi_run_finish(image_obj, loaded_image_info);
 		return r != EFI_SUCCESS;
 	} else
