@@ -1,0 +1,15 @@
+config CLK_MESON_GX
+	bool "Enable clock support for Amlogic GX"
+	depends on CLK && ARCH_MESON
+	default MESON_GX
+	help
+	  Enable clock support for the Amlogic GX SoC family, such as
+	  the S905, S905X/D and S912.
+
+config CLK_MESON_AXG
+	bool "Enable clock support for Amlogic AXG"
+	depends on CLK && ARCH_MESON
+	default MESON_AXG
+	help
+	  Enable clock support for the Amlogic AXG SoC family, such as
+	  the A113X/D
