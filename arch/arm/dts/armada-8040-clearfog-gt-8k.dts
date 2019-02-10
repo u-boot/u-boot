@@ -240,7 +240,7 @@
 	status = "okay";
 
 	spi-flash@0 {
-		compatible = "jedec,spi-nor", "spi-flash";
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <10000000>;
 

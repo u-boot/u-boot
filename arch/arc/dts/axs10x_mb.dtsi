@@ -71,7 +71,7 @@
 			clock-names = "spi_clk";
 			cs-gpio = <&cs_gpio 0>;
 			spi_flash@0 {
-				compatible = "spi-flash";
+				compatible = "jedec,spi-nor";
 				reg = <0>;
 				spi-max-frequency = <4000000>;
 			};

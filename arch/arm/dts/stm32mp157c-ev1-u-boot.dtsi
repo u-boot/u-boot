@@ -14,11 +14,11 @@
 };
 
 &flash0 {
-	compatible = "spi-flash";
+	compatible = "jedec,spi-nor";
 };
 
 &flash1 {
-	compatible = "spi-flash";
+	compatible = "jedec,spi-nor";
 };
 
 &v3v3 {

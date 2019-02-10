@@ -62,7 +62,7 @@
 	status = "okay";
 
 	spi-flash@0{
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 		u-boot,dm-pre-reloc;
 	};

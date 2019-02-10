@@ -658,7 +658,7 @@
 	spiflash: w25q32dw@0 {
 		u-boot,dm-pre-reloc;
 
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <49500000>;
 		spi-cpol;

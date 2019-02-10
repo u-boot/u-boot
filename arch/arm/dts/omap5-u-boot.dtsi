@@ -68,7 +68,7 @@
 	u-boot,dm-spl;
 
 	m25p80@0 {
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		u-boot,dm-spl;
 	};
 };

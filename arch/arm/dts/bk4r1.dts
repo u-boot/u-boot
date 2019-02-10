@@ -32,7 +32,7 @@
 	qflash0: spi_flash@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <108000000>;
 		reg = <0>;
 	};
@@ -40,7 +40,7 @@
 	qflash1: spi_flash@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <66000000>;
 		reg = <1>;
 	};

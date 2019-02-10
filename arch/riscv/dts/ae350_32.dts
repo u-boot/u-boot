@@ -256,7 +256,7 @@
 		interrupts = <4 4>;
 		interrupt-parent = <&plic0>;
 		flash@0 {
-			compatible = "spi-flash";
+			compatible = "jedec,spi-nor";
 			spi-max-frequency = <50000000>;
 			reg = <0>;
 			spi-cpol;

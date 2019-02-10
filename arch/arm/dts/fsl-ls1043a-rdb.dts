@@ -26,7 +26,7 @@
 	dspiflash: n25q12a {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <1000000>; /* input clock */
 	};
