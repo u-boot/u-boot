@@ -15,10 +15,6 @@
 #include <i2c.h>
 #include <sound.h>
 #include <asm/gpio.h>
-#include <asm/io.h>
-#include <asm/arch/clk.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/power.h>
 #include "i2s.h"
 #include "max98095.h"
 
@@ -305,9 +301,6 @@ static int max98095_device_init(struct maxim_priv *priv)
 {
 	unsigned char id;
 	int ret;
-
-	/* Enable codec clock */
-	set_xclkout();
 
 	/* reset the codec, the DSP core, and disable all interrupts */
 	ret = max98095_reset(priv);

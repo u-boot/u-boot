@@ -8,6 +8,8 @@ config ARCH_EXYNOS4
 	bool "Exynos4 SoC family"
 	select BOARD_EARLY_INIT_F
 	select CPU_V7A
+	select BLK
+	select DM_MMC
 	help
 	  Samsung Exynos4 SoC family are based on ARM Cortex-A9 CPU. There
 	  are multiple SoCs in this family including Exynos4210, Exynos4412,
@@ -24,6 +26,9 @@ config ARCH_EXYNOS5
 	imply USB_ETHER_ASIX
 	imply USB_ETHER_RTL8152
 	imply USB_ETHER_SMSC95XX
+	select BLK
+	select DM_MMC
+
 	help
 	  Samsung Exynos5 SoC family are based on ARM Cortex-A15 CPU (and
 	  Cortex-A7 CPU in big.LITTLE configuration). There are multiple SoCs
@@ -33,6 +38,8 @@ config ARCH_EXYNOS7
 	bool "Exynos7 SoC family"
 	select ARM64
 	select BOARD_EARLY_INIT_F
+	select BLK
+	select DM_MMC
 	help
 	  Samsung Exynos7 SoC family are based on ARM Cortex-A57 CPU or
 	  Cortex-A53 CPU (and some in a big.LITTLE configuration). There are

@@ -265,8 +265,7 @@ config SPL_OF_PLATDATA
 
 	  This option works by generating C structure declarations for each
 	  compatible string, then adding platform data and U_BOOT_DEVICE
-	  declarations for each node. See README.platdata for more
-	  information.
+	  declarations for each node. See of-plat.txt for more information.
 
 config TPL_OF_PLATDATA
 	bool "Generate platform data for use in TPL"
@@ -287,8 +286,7 @@ config TPL_OF_PLATDATA
 
 	  This option works by generating C structure declarations for each
 	  compatible string, then adding platform data and U_BOOT_DEVICE
-	  declarations for each node. See README.platdata for more
-	  information.
+	  declarations for each node. See of-plat.txt for more information.
 
 endmenu
 

@@ -10,6 +10,7 @@
 #include <i2s.h>
 #include <sound.h>
 #include <asm/gpio.h>
+#include <asm/arch/power.h>
 
 static int samsung_sound_setup(struct udevice *dev)
 {
@@ -79,6 +80,9 @@ static int samsung_sound_probe(struct udevice *dev)
 	debug("Probed sound '%s' with codec '%s' and i2s '%s'\n", dev->name,
 	      uc_priv->codec->name, uc_priv->i2s->name);
 
+	/* Enable codec clock */
+	set_xclkout();
+
 	return 0;
 }
 
@@ -89,7 +93,7 @@ static const struct sound_ops samsung_sound_ops = {
 
 static const struct udevice_id samsung_sound_ids[] = {
 	{ .compatible = "google,snow-audio-max98095" },
-	{ .compatible = "google,spring-audio-max98095" },
+	{ .compatible = "google,spring-audio-max98088" },
 	{ .compatible = "samsung,smdk5420-audio-wm8994" },
 	{ .compatible = "google,peach-audio-max98090" },
 	{ }

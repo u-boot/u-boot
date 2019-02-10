@@ -304,6 +304,17 @@ int regulator_get_enable(struct udevice *dev);
 int regulator_set_enable(struct udevice *dev, bool enable);
 
 /**
+ * regulator_set_enable_if_allowed: set regulator enable state if allowed by
+ *					regulator
+ *
+ * @dev    - pointer to the regulator device
+ * @enable - set true or false
+ * @return - 0 on success or if enabling is not supported
+ *	     -errno val if fails.
+ */
+int regulator_set_enable_if_allowed(struct udevice *dev, bool enable);
+
+/**
  * regulator_get_mode: get active operation mode id of a given regulator
  *
  * @dev    - pointer to the regulator device

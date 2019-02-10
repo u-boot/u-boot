@@ -113,9 +113,20 @@ int regulator_set_enable(struct udevice *dev, bool enable)
 
 	uc_pdata = dev_get_uclass_platdata(dev);
 	if (!enable && uc_pdata->always_on)
-		return 0;
+		return -EACCES;
 
 	return ops->set_enable(dev, enable);
+}
+
+int regulator_set_enable_if_allowed(struct udevice *dev, bool enable)
+{
+	int ret;
+
+	ret = regulator_set_enable(dev, enable);
+	if (ret == -ENOSYS || ret == -EACCES)
+		return 0;
+
+	return ret;
 }
 
 int regulator_get_mode(struct udevice *dev)

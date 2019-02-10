@@ -186,7 +186,6 @@
  * TODO: Add Odroid X support
  */
 #define CONFIG_MISC_COMMON
-#define CONFIG_BOARD_TYPES
 
 #undef CONFIG_REVISION_TAG
 

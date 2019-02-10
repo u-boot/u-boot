@@ -118,9 +118,6 @@ int s5p_sdhci_init(u32 regbase, int index, int bus_width)
 	return s5p_sdhci_core_init(host);
 }
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
-struct sdhci_host sdhci_host[SDHCI_MAX_HOSTS];
-
 static int do_sdhci_init(struct sdhci_host *host)
 {
 	int dev_id, flag, ret;
@@ -190,53 +187,6 @@ static int sdhci_get_config(const void *blob, int node, struct sdhci_host *host)
 
 	return 0;
 }
-
-static int process_nodes(const void *blob, int node_list[], int count)
-{
-	struct sdhci_host *host;
-	int i, node, ret;
-	int failed = 0;
-
-	debug("%s: count = %d\n", __func__, count);
-
-	/* build sdhci_host[] for each controller */
-	for (i = 0; i < count; i++) {
-		node = node_list[i];
-		if (node <= 0)
-			continue;
-
-		host = &sdhci_host[i];
-
-		ret = sdhci_get_config(blob, node, host);
-		if (ret) {
-			printf("%s: failed to decode dev %d (%d)\n",	__func__, i, ret);
-			failed++;
-			continue;
-		}
-
-		ret = do_sdhci_init(host);
-		if (ret && ret != -ENODEV) {
-			printf("%s: failed to initialize dev %d (%d)\n", __func__, i, ret);
-			failed++;
-		}
-	}
-
-	/* we only consider it an error when all nodes fail */
-	return (failed == count ? -1 : 0);
-}
-
-int exynos_mmc_init(const void *blob)
-{
-	int count;
-	int node_list[SDHCI_MAX_HOSTS];
-
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-			COMPAT_SAMSUNG_EXYNOS_MMC, node_list,
-			SDHCI_MAX_HOSTS);
-
-	return process_nodes(blob, node_list, count);
-}
-#endif
 
 #ifdef CONFIG_DM_MMC
 static int s5p_sdhci_probe(struct udevice *dev)

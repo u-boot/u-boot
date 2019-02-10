@@ -656,6 +656,14 @@ config BOUNCE_BUFFER
 	  A second possible use of bounce buffers is their ability to
 	  provide aligned buffers for DMA operations.
 
+config BOARD_TYPES
+	bool "Call get_board_type() to get and display the board type"
+	help
+	  If this option is enabled, checkboard() will call get_board_type()
+	  to get a string containing the board type and this will be
+	  displayed immediately after the model is shown on the console
+	  early in boot.
+
 menu "Start-up hooks"
 
 config ARCH_EARLY_INIT_R

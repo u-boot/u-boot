@@ -87,7 +87,6 @@
 /* Set soc_rev, soc_id, board_rev, boardname, fdtfile */
 #define CONFIG_ODROID_REV_AIN			9
 #define CONFIG_REVISION_TAG
-#define CONFIG_BOARD_TYPES
 
 #undef CONFIG_SYS_BOARD
 #define CONFIG_SYS_BOARD	"odroid"
