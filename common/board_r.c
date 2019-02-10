@@ -633,10 +633,7 @@ static int run_main_loop(void)
 }
 
 /*
- * Over time we hope to remove these functions with code fragments and
- * stub functions, and instead call the relevant function directly.
- *
- * We also hope to remove most of the driver-related init and do it if/when
+ * We hope to remove most of the driver-related init and do it if/when
  * the driver is later used.
  *
  * TODO: perhaps reset the watchdog in the initcall function after each call?

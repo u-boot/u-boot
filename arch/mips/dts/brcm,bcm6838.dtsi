@@ -73,6 +73,23 @@
 			status = "disabled";
 		};
 
+		wdt0: watchdog@14e002d0 {
+			compatible = "brcm,bcm6345-wdt";
+			reg = <0x14e002d0 0xc>;
+			clocks = <&periph_osc>;
+		};
+
+		wdt1: watchdog@14e002dc {
+			compatible = "brcm,bcm6345-wdt";
+			reg = <0x14e002dc 0xc>;
+			clocks = <&periph_osc>;
+		};
+
+		wdt-reboot {
+			compatible = "wdt-reboot";
+			wdt = <&wdt0>;
+		};
+
 		leds: led-controller@14e00f00 {
 			compatible = "brcm,bcm6328-leds";
 			reg = <0x14e00f00 0x28>;

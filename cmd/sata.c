@@ -60,6 +60,10 @@ int sata_probe(int devnum)
 		printf("Cannot probe SATA device %d (err=%d)\n", devnum, rc);
 		return CMD_RET_FAILURE;
 	}
+	if (!dev) {
+		printf("No SATA device found!\n");
+		return CMD_RET_FAILURE;
+	}
 	rc = sata_scan(dev);
 	if (rc) {
 		printf("Cannot scan SATA device %d (err=%d)\n", devnum, rc);

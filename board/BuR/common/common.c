@@ -269,13 +269,14 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-void pmicsetup(u32 mpupll)
+void pmicsetup(u32 mpupll, unsigned int bus)
 {
 	int mpu_vdd;
 	int usb_cur_lim;
 
-	if (i2c_probe(TPS65217_CHIP_PM)) {
-		puts("PMIC (0x24) not found! skip further initalization.\n");
+	if (power_tps65217_init(bus)) {
+		printf("WARN: cannot setup PMIC 0x24 @ bus #%d, not found!.\n",
+		       bus);
 		return;
 	}
 

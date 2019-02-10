@@ -6,6 +6,14 @@ menuconfig UNIT_TEST
 	  This does not require sandbox to be included, but it is most
 	  often used there.
 
+config UT_LIB
+	bool "Unit tests for library functions"
+	depends on UNIT_TEST
+	default y
+	help
+	  Enables the 'ut lib' command which tests library functions like
+	  memcat(), memcyp(), memmove().
+
 config UT_TIME
 	bool "Unit tests for time functions"
 	depends on UNIT_TEST

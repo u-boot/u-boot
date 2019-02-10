@@ -363,9 +363,7 @@ U_BOOT_DRIVER(serial_pl01x) = {
 	.platdata_auto_alloc_size = sizeof(struct pl01x_serial_platdata),
 	.probe = pl01x_serial_probe,
 	.ops	= &pl01x_serial_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
-#endif
 	.priv_auto_alloc_size = sizeof(struct pl01x_priv),
 };
 

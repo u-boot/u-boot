@@ -268,6 +268,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	ulong		load, load_end;
 	ulong		image_start, image_data, image_end;
 #endif
+	ulong		img_addr;
 	ulong		fdt_addr;
 	char		*fdt_blob = NULL;
 	void		*buf;
@@ -282,6 +283,9 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 
 	*of_flat_tree = NULL;
 	*of_size = 0;
+
+	img_addr = simple_strtoul(argv[0], NULL, 16);
+	buf = map_sysmem(img_addr, 0);
 
 	if (argc > 2)
 		select = argv[2];
@@ -453,6 +457,23 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 			debug("## No Flattened Device Tree\n");
 			goto no_fdt;
 		}
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+	} else if (genimg_get_format(buf) == IMAGE_FORMAT_ANDROID) {
+		struct andr_img_hdr *hdr = buf;
+		ulong fdt_data, fdt_len;
+
+		if (android_image_get_second(hdr, &fdt_data, &fdt_len) != 0)
+			goto no_fdt;
+
+		fdt_blob = (char *)fdt_data;
+		if (fdt_check_header(fdt_blob) != 0)
+			goto no_fdt;
+
+		if (fdt_totalsize(fdt_blob) != fdt_len)
+			goto error;
+
+		debug("## Using FDT found in Android image second area\n");
+#endif
 	} else {
 		debug("## No Flattened Device Tree\n");
 		goto no_fdt;
