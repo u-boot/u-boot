@@ -100,6 +100,16 @@ config SPL_LEGACY_IMAGE_SUPPORT
 	  is y. If this is not set, SPL will move on to other available
 	  boot media to find a suitable image.
 
+config SPL_LEGACY_IMAGE_CRC_CHECK
+	bool "Check CRC of Legacy images"
+	depends on SPL_LEGACY_IMAGE_SUPPORT
+	select SPL_CRC32_SUPPORT
+	help
+	  Enable this to check the CRC of Legacy images. While this increases
+	  reliability, it affects both code size and boot duration.
+	  If disabled, Legacy images are booted if the image magic and size
+	  are correct, without further integrity checks.
+
 config SPL_SYS_MALLOC_SIMPLE
 	bool
 	prompt "Only use malloc_simple functions in the SPL"
@@ -236,13 +246,13 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_TYPE
 
 config SPL_CRC32_SUPPORT
 	bool "Support CRC32"
-	depends on SPL_FIT
+	default y if SPL_LEGACY_IMAGE_SUPPORT
 	help
-	  Enable this to support CRC32 in FIT images within SPL. This is a
-	  32-bit checksum value that can be used to verify images. This is
-	  the least secure type of checksum, suitable for detected
-	  accidental image corruption. For secure applications you should
-	  consider SHA1 or SHA256.
+	  Enable this to support CRC32 in uImages or FIT images within SPL.
+	  This is a 32-bit checksum value that can be used to verify images.
+	  For FIT images, this is the least secure type of checksum, suitable
+	  for detected accidental image corruption. For secure applications you
+	  should consider SHA1 or SHA256.
 
 config SPL_MD5_SUPPORT
 	bool "Support MD5"
