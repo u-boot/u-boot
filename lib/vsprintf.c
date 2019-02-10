@@ -279,13 +279,17 @@ static char *string(char *buf, char *end, char *s, int field_width,
 static char *string16(char *buf, char *end, u16 *s, int field_width,
 		int precision, int flags)
 {
-	u16 *str = s ? s : L"<NULL>";
-	ssize_t len = utf16_strnlen(str, precision);
+	const u16 *str = s ? s : L"<NULL>";
+	ssize_t i, len = utf16_strnlen(str, precision);
 
 	if (!(flags & LEFT))
 		for (; len < field_width; --field_width)
 			ADDCH(buf, ' ');
-	utf16_utf8_strncpy(&buf, str, len);
+	for (i = 0; i < len && buf + utf16_utf8_strnlen(str, 1) <= end; ++i) {
+		s32 s = utf16_get(&str);
+
+		utf8_put(s, &buf);
+	}
 	for (; len < field_width; --field_width)
 		ADDCH(buf, ' ');
 	return buf;
