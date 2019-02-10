@@ -801,6 +801,8 @@ int do_fs_type(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	else
 		printf("%s\n", info->name);
 
+	fs_close();
+
 	return CMD_RET_SUCCESS;
 }
 
