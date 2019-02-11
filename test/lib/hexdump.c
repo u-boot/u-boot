@@ -6,7 +6,8 @@
 
 #include <common.h>
 #include <hexdump.h>
-#include <dm/test.h>
+#include <test/lib.h>
+#include <test/test.h>
 #include <test/ut.h>
 
 static int lib_test_hex_to_bin(struct unit_test_state *uts)
@@ -32,7 +33,7 @@ static int lib_test_hex_to_bin(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(lib_test_hex_to_bin, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_hex_to_bin, 0);
 
 static int lib_test_hex2bin(struct unit_test_state *uts)
 {
@@ -62,7 +63,7 @@ static int lib_test_hex2bin(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(lib_test_hex2bin, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_hex2bin, 0);
 
 static int lib_test_bin2hex(struct unit_test_state *uts)
 {
@@ -92,4 +93,4 @@ static int lib_test_bin2hex(struct unit_test_state *uts)
 	return 0;
 }
 
-DM_TEST(lib_test_bin2hex, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+LIB_TEST(lib_test_bin2hex, 0);
