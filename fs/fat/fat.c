@@ -306,9 +306,6 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
  * into 'buffer'.
  * Update the number of bytes read in *gotsize or return -1 on fatal errors.
  */
-__u8 get_contents_vfatname_block[MAX_CLUSTSIZE]
-	__aligned(ARCH_DMA_MINALIGN);
-
 static int get_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos,
 			__u8 *buffer, loff_t maxsize, loff_t *gotsize)
 {
@@ -351,15 +348,24 @@ static int get_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos,
 
 	/* align to beginning of next cluster if any */
 	if (pos) {
+		__u8 *tmp_buffer;
+
 		actsize = min(filesize, (loff_t)bytesperclust);
-		if (get_cluster(mydata, curclust, get_contents_vfatname_block,
-				(int)actsize) != 0) {
+		tmp_buffer = malloc_cache_aligned(actsize);
+		if (!tmp_buffer) {
+			debug("Error: allocating buffer\n");
+			return -ENOMEM;
+		}
+
+		if (get_cluster(mydata, curclust, tmp_buffer, actsize) != 0) {
 			printf("Error reading cluster\n");
+			free(tmp_buffer);
 			return -1;
 		}
 		filesize -= actsize;
 		actsize -= pos;
-		memcpy(buffer, get_contents_vfatname_block + pos, actsize);
+		memcpy(buffer, tmp_buffer + pos, actsize);
+		free(tmp_buffer);
 		*gotsize += actsize;
 		if (!filesize)
 			return 0;
