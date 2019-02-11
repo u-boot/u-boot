@@ -1148,7 +1148,15 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
 		goto out_free_both;
 
 	debug("reading %s at pos %llu\n", filename, pos);
-	ret = get_contents(&fsdata, itr->dent, pos, buffer, maxsize, actread);
+
+	/* For saving default max clustersize memory allocated to malloc pool */
+	dir_entry *dentptr = itr->dent;
+
+	free(itr);
+
+	itr = NULL;
+
+	ret = get_contents(&fsdata, dentptr, pos, buffer, maxsize, actread);
 
 out_free_both:
 	free(fsdata.fatbuf);
