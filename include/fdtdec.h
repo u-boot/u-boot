@@ -619,6 +619,19 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int node,
 			 int *seqp);
 
 /**
+ * Get the highest alias number for susbystem.
+ *
+ * It parses all aliases and find out highest recorded alias for subsystem.
+ * Aliases are of the form <base><num> where <num> is the sequence number.
+ *
+ * @param blob		Device tree blob (if NULL, then error is returned)
+ * @param base		Base name for alias susbystem (before the number)
+ *
+ * @return 0 highest alias ID, -1 if not found
+ */
+int fdtdec_get_alias_highest_id(const void *blob, const char *base);
+
+/**
  * Get a property from the /chosen node
  *
  * @param blob		Device tree blob (if NULL, then NULL is returned)

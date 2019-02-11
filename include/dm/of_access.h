@@ -425,6 +425,16 @@ int of_alias_scan(void);
 int of_alias_get_id(const struct device_node *np, const char *stem);
 
 /**
+ * of_alias_get_highest_id - Get highest alias id for the given stem
+ * @stem:	Alias stem to be examined
+ *
+ * The function travels the lookup table to get the highest alias id for the
+ * given alias stem.
+ * @return alias ID, if found, else -1
+ */
+int of_alias_get_highest_id(const char *stem);
+
+/**
  * of_get_stdout() - Get node to use for stdout
  *
  * @return node referred to by stdout-path alias, or NULL if none
