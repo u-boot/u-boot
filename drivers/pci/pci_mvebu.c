@@ -369,6 +369,12 @@ static int mvebu_get_tgt_attr(ofnode node, int devfn,
 	if (!range)
 		return -EINVAL;
 
+	/*
+	 * Linux uses of_n_addr_cells() to get the number of address cells
+	 * here. Currently this function is only available in U-Boot when
+	 * CONFIG_OF_LIVE is enabled. Until this is enabled for MVEBU in
+	 * general, lets't hardcode the "pna" value in the U-Boot code.
+	 */
 	pna = 2; /* hardcoded for now because of lack of of_n_addr_cells() */
 	rangesz = pna + na + ns;
 	nranges = rlen / sizeof(__be32) / rangesz;
