@@ -33,16 +33,15 @@ int list_count_items(struct list_head *head)
 
 bool dm_fdt_pre_reloc(const void *blob, int offset)
 {
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_TPL_BUILD)
+	/* for SPL and TPL the remaining nodes after the fdtgrep 1st pass
+	 * had property dm-pre-reloc or u-boot,dm-spl/tpl.
+	 * They are removed in final dtb (fdtgrep 2nd pass)
+	 */
+	return true;
+#else
 	if (fdt_getprop(blob, offset, "u-boot,dm-pre-reloc", NULL))
 		return true;
-
-#ifdef CONFIG_TPL_BUILD
-	if (fdt_getprop(blob, offset, "u-boot,dm-tpl", NULL))
-		return true;
-#elif defined(CONFIG_SPL_BUILD)
-	if (fdt_getprop(blob, offset, "u-boot,dm-spl", NULL))
-		return true;
-#else
 	/*
 	 * In regular builds individual spl and tpl handling both
 	 * count as handled pre-relocation for later second init.
@@ -57,16 +56,16 @@ bool dm_fdt_pre_reloc(const void *blob, int offset)
 
 bool dm_ofnode_pre_reloc(ofnode node)
 {
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_TPL_BUILD)
+	/* for SPL and TPL the remaining nodes after the fdtgrep 1st pass
+	 * had property dm-pre-reloc or u-boot,dm-spl/tpl.
+	 * They are removed in final dtb (fdtgrep 2nd pass)
+	 */
+	return true;
+#else
 	if (ofnode_read_bool(node, "u-boot,dm-pre-reloc"))
 		return true;
 
-#ifdef CONFIG_TPL_BUILD
-	if (ofnode_read_bool(node, "u-boot,dm-tpl"))
-		return true;
-#elif defined(CONFIG_SPL_BUILD)
-	if (ofnode_read_bool(node, "u-boot,dm-spl"))
-		return true;
-#else
 	/*
 	 * In regular builds individual spl and tpl handling both
 	 * count as handled pre-relocation for later second init.
@@ -74,7 +73,7 @@ bool dm_ofnode_pre_reloc(ofnode node)
 	if (ofnode_read_bool(node, "u-boot,dm-spl") ||
 	    ofnode_read_bool(node, "u-boot,dm-tpl"))
 		return true;
-#endif
 
 	return false;
+#endif
 }

@@ -525,4 +525,5 @@ quiet_cmd_fdtgrep = FDTGREP $@
       cmd_fdtgrep = $(objtree)/tools/fdtgrep $(fdtgrep_props) -RT $< \
 		-n /chosen -n /config -O dtb | \
 	$(objtree)/tools/fdtgrep -r -O dtb - -o $@ \
+		-P u-boot,dm-pre-reloc -P u-boot,dm-spl -P u-boot,dm-tpl \
 		$(addprefix -P ,$(subst $\",,$(CONFIG_OF_SPL_REMOVE_PROPS)))
