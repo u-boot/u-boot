@@ -99,6 +99,11 @@
 		     0    0    0    0    0    0    0xe  0xe  0xe  0xe
 		     0xe  0xe  0 >;
 
+	cpm_pcie_reset_pins: cpm-pcie-reset-pins {
+		marvell,pins = < 32 >;
+		marvell,function = <0>;
+	};
+
 	cpm_xhci_vbus_pins: cpm-xhci-vbus-pins {
 		marvell,pins = < 47 >;
 		marvell,function = <0>;
@@ -120,6 +125,9 @@
 
 &cpm_pcie0 {
 	num-lanes = <1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&cpm_pcie_reset_pins>;
+	marvell,reset-gpio = <&cpm_gpio1 0 GPIO_ACTIVE_LOW>;
 	status = "okay";
 };
 
