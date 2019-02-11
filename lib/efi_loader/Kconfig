@@ -34,3 +34,18 @@ config EFI_LOADER_BOUNCE_BUFFER
 	  Some hardware does not support DMA to full 64bit addresses. For this
 	  hardware we can create a bounce buffer so that payloads don't have to
 	  worry about platform details.
+
+config EFI_LOADER_HII
+	bool "Expose HII protocols to EFI applications"
+	depends on EFI_LOADER
+	default n
+	help
+	  The Human Interface Infrastructure is a complicated framework that
+	  allows UEFI applications to draw fancy menus and hook strings using
+	  a translation framework.
+
+	  U-Boot implements enough of its features to be able to run the UEFI
+	  Shell, but not more than that. The code is experimental still, so
+	  beware that your system might break with HII enabled.
+
+	  If unsure, say n.
