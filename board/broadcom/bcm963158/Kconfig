@@ -1,4 +1,4 @@
-if ARCH_BCM63158
+if TARGET_BCM963158
 
 config SYS_VENDOR
 	default "broadcom"
