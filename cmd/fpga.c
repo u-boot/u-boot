@@ -343,9 +343,9 @@ static int do_fpga_loadmk(cmd_tbl_t *cmdtp, int flag, int argc,
 			return CMD_RET_FAILURE;
 		}
 
-		/* get fpga subimage data address and length */
-		if (fit_image_get_data(fit_hdr, noffset, &fit_data,
-				       &data_size)) {
+		/* get fpga subimage/external data address and length */
+		if (fit_image_get_data_and_size(fit_hdr, noffset,
+					       &fit_data, &data_size)) {
 			puts("Fpga subimage data not found\n");
 			return CMD_RET_FAILURE;
 		}
