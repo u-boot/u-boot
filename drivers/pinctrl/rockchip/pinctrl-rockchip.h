@@ -26,6 +26,7 @@ enum rockchip_pinctrl_type {
 #define IOMUX_SOURCE_PMU	BIT(2)
 #define IOMUX_UNROUTED		BIT(3)
 #define IOMUX_WIDTH_3BIT	BIT(4)
+#define IOMUX_WRITABLE_32BIT	BIT(5)
 
 /**
  * Defined some common pins constants
@@ -49,6 +50,9 @@ struct rockchip_iomux {
 	int				offset;
 };
 
+#define DRV_TYPE_IO_MASK		GENMASK(31, 16)
+#define DRV_TYPE_WRITABLE_32BIT		BIT(31)
+
 /**
  * enum type index corresponding to rockchip_perpin_drv_list arrays index.
  */
@@ -60,6 +64,9 @@ enum rockchip_pin_drv_type {
 	DRV_TYPE_IO_3V3_ONLY,
 	DRV_TYPE_MAX
 };
+
+#define PULL_TYPE_IO_MASK		GENMASK(31, 16)
+#define PULL_TYPE_WRITABLE_32BIT	BIT(31)
 
 /**
  * enum type index corresponding to rockchip_pull_list arrays index.
@@ -198,6 +205,32 @@ struct rockchip_pin_bank {
 			{ .drv_type = drv2, .offset = offset2 },	\
 			{ .drv_type = drv3, .offset = offset3 },	\
 		},							\
+	}
+
+#define PIN_BANK_IOMUX_DRV_PULL_FLAGS(id, pins, label, iom0, iom1,	\
+				      iom2, iom3, drv0, drv1, drv2,	\
+				      drv3, pull0, pull1, pull2,	\
+				      pull3)				\
+	{								\
+		.bank_num	= id,					\
+		.nr_pins	= pins,					\
+		.name		= label,				\
+		.iomux		= {					\
+			{ .type = iom0, .offset = -1 },			\
+			{ .type = iom1, .offset = -1 },			\
+			{ .type = iom2, .offset = -1 },			\
+			{ .type = iom3, .offset = -1 },			\
+		},							\
+		.drv		= {					\
+			{ .drv_type = drv0, .offset = -1 },		\
+			{ .drv_type = drv1, .offset = -1 },		\
+			{ .drv_type = drv2, .offset = -1 },		\
+			{ .drv_type = drv3, .offset = -1 },		\
+		},							\
+		.pull_type[0] = pull0,					\
+		.pull_type[1] = pull1,					\
+		.pull_type[2] = pull2,					\
+		.pull_type[3] = pull3,					\
 	}
 
 #define PIN_BANK_IOMUX_FLAGS_DRV_FLAGS_OFFSET_PULL_FLAGS(id, pins,	\
