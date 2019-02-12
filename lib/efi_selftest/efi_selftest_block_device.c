@@ -264,7 +264,7 @@ static int teardown(void)
 	}
 
 	if (image) {
-		r = efi_free_pool(image);
+		r = boottime->free_pool(image);
 		if (r != EFI_SUCCESS) {
 			efi_st_error("Failed to free image\n");
 			return EFI_ST_FAILURE;
