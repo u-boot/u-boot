@@ -2,9 +2,10 @@
 /*
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
+#include <common.h>
+#include <adc.h>
 #include <config.h>
 #include <clk.h>
-#include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
 #include <led.h>
@@ -61,6 +62,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define STM32MP_GGPIO 0x38
 #define STM32MP_GGPIO_VBUS_SENSING BIT(21)
+
+#define USB_WARNING_LOW_THRESHOLD_UV	660000
+#define USB_START_LOW_THRESHOLD_UV	1230000
+#define USB_START_HIGH_THRESHOLD_UV	2100000
 
 int checkboard(void)
 {
@@ -294,6 +299,145 @@ clk_err:
 	return ret;
 }
 
+static int get_led(struct udevice **dev, char *led_string)
+{
+	char *led_name;
+	int ret;
+
+	led_name = fdtdec_get_config_string(gd->fdt_blob, led_string);
+	if (!led_name) {
+		pr_debug("%s: could not find %s config string\n",
+			 __func__, led_string);
+		return -ENOENT;
+	}
+	ret = led_get_by_label(led_name, dev);
+	if (ret) {
+		debug("%s: get=%d\n", __func__, ret);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int setup_led(enum led_state_t cmd)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = get_led(&dev, "u-boot,boot-led");
+	if (ret)
+		return ret;
+
+	ret = led_set_state(dev, cmd);
+	return ret;
+}
+
+static int board_check_usb_power(void)
+{
+	struct ofnode_phandle_args adc_args;
+	struct udevice *adc;
+	struct udevice *led;
+	ofnode node;
+	unsigned int raw;
+	int max_uV = 0;
+	int ret, uV, adc_count;
+	u8 i, nb_blink;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node)) {
+		debug("%s: no /config node?\n", __func__);
+		return -ENOENT;
+	}
+
+	/*
+	 * Retrieve the ADC channels devices and get measurement
+	 * for each of them
+	 */
+	adc_count = ofnode_count_phandle_with_args(node, "st,adc_usb_pd",
+						   "#io-channel-cells");
+	if (adc_count < 0) {
+		if (adc_count == -ENOENT)
+			return 0;
+
+		pr_err("%s: can't find adc channel (%d)\n", __func__,
+		       adc_count);
+
+		return adc_count;
+	}
+
+	for (i = 0; i < adc_count; i++) {
+		if (ofnode_parse_phandle_with_args(node, "st,adc_usb_pd",
+						   "#io-channel-cells", 0, i,
+						   &adc_args)) {
+			pr_debug("%s: can't find /config/st,adc_usb_pd\n",
+				 __func__);
+			return 0;
+		}
+
+		ret = uclass_get_device_by_ofnode(UCLASS_ADC, adc_args.node,
+						  &adc);
+
+		if (ret) {
+			pr_err("%s: Can't get adc device(%d)\n", __func__,
+			       ret);
+			return ret;
+		}
+
+		ret = adc_channel_single_shot(adc->name, adc_args.args[0],
+					      &raw);
+		if (ret) {
+			pr_err("%s: single shot failed for %s[%d]!\n",
+			       __func__, adc->name, adc_args.args[0]);
+			return ret;
+		}
+		/* Convert to uV */
+		if (!adc_raw_to_uV(adc, raw, &uV)) {
+			if (uV > max_uV)
+				max_uV = uV;
+			pr_debug("%s: %s[%02d] = %u, %d uV\n", __func__,
+				 adc->name, adc_args.args[0], raw, uV);
+		} else {
+			pr_err("%s: Can't get uV value for %s[%d]\n",
+			       __func__, adc->name, adc_args.args[0]);
+		}
+	}
+
+	/*
+	 * If highest value is inside 1.23 Volts and 2.10 Volts, that means
+	 * board is plugged on an USB-C 3A power supply and boot process can
+	 * continue.
+	 */
+	if (max_uV > USB_START_LOW_THRESHOLD_UV &&
+	    max_uV < USB_START_HIGH_THRESHOLD_UV)
+		return 0;
+
+	/* Display warning message and make u-boot,error-led blinking */
+	pr_err("\n*******************************************\n");
+
+	if (max_uV < USB_WARNING_LOW_THRESHOLD_UV) {
+		pr_err("*   WARNING 500mA power supply detected   *\n");
+		nb_blink = 2;
+	} else {
+		pr_err("* WARNING 1.5A power supply detected      *\n");
+		nb_blink = 3;
+	}
+
+	pr_err("* Current too low, use a 3A power supply! *\n");
+	pr_err("*******************************************\n\n");
+
+	ret = get_led(&led, "u-boot,error-led");
+	if (ret)
+		return ret;
+
+	for (i = 0; i < nb_blink * 2; i++) {
+		led_set_state(led, LEDST_TOGGLE);
+		mdelay(125);
+	}
+	led_set_state(led, LEDST_ON);
+
+	return 0;
+}
+
 int board_usb_cleanup(int index, enum usb_init_type init)
 {
 	/* Reset usbotg */
@@ -428,5 +572,13 @@ int board_late_init(void)
 	}
 #endif
 
+	/* for DK1/DK2 boards */
+	board_check_usb_power();
+
 	return 0;
+}
+
+void board_quiesce_devices(void)
+{
+	setup_led(LEDST_OFF);
 }
