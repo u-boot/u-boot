@@ -1406,8 +1406,10 @@ config ARCH_STM32MP
 	help
 	  Support for STM32MP SoC family developed by STMicroelectronics,
 	  MPUs based on ARM cortex A core
-	  U-BOOT is running in DDR and SPL support is the unsecure First Stage
-	  BootLoader (FSBL)
+	  U-BOOT is running in DDR, loaded by the First Stage BootLoader (FSBL).
+	  FSBL can be TF-A: Trusted Firmware for Cortex A, for trusted boot
+	  chain.
+	  SPL is the unsecure FSBL for the basic boot chain.
 
 config ARCH_ROCKCHIP
 	bool "Support Rockchip SoCs"

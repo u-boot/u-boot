@@ -25,18 +25,29 @@ config SYS_SOC
 
 config TARGET_STM32MP1
 	bool "Support stm32mp1xx"
-	select ARCH_SUPPORT_PSCI
+	select ARCH_SUPPORT_PSCI if !STM32MP1_TRUSTED
 	select CPU_V7A
-	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_NONSEC if !STM32MP1_TRUSTED
 	select CPU_V7_HAS_VIRT
 	select PINCTRL_STM32
 	select STM32_RCC
 	select STM32_RESET
 	select SYS_ARCH_TIMER
-	select SYSRESET_SYSCON
+	imply SYSRESET_PSCI if STM32MP1_TRUSTED
+	imply SYSRESET_SYSCON if !STM32MP1_TRUSTED
 	help
 		target STMicroelectronics SOC STM32MP1 family
 		STMicroelectronics MPU with core ARMv7
+
+config STM32MP1_TRUSTED
+	bool "Support trusted boot with TF-A"
+	default y if !SPL
+	select ARM_SMCCC
+	help
+		Say Y here to enable boot with TF-A
+		Trusted boot chain is :
+		BootRom => TF-A.stm32 (clock & DDR) => U-Boot.stm32
+		TF-A monitor provides proprietary smc to manage secure devices
 
 config SYS_TEXT_BASE
 	prompt "U-Boot base address"
