@@ -35,6 +35,8 @@ And the necessary drivers
 Currently the following boards are supported:
 + stm32mp157c-ev1
 + stm32mp157c-ed1
++ stm32mp157a-dk1
++ stm32mp157c-dk2
 
 3. Boot Sequences
 =================
@@ -75,6 +77,12 @@ the supported device trees for stm32mp157 are:
 
 + ed1: daughter board with pmic stpmic1
   dts: stm32mp157c-ed1
+
++ dk1: Discovery board
+  dts: stm32mp157a-dk1
+
++ dk2: Discovery board = dk1 with a BT/WiFI combo and a DSI panel
+  dts: stm32mp157c-dk2
 
 5. Build Procedure
 ==================
@@ -127,6 +135,11 @@ the supported device trees for stm32mp157 are:
 	# make stm32mp15_basic_defconfig
 	# make DEVICE_TREE=stm32mp157c-ed1 all
 
+  d) basic boot on dk2
+	# export KBUILD_OUTPUT=stm32mp15_basic
+	# make stm32mp15_basic_defconfig
+	# make DEVICE_TREE=stm32mp157c-dk2 all
+
 6. Output files
 
   BootRom and TF-A expect binaries with STM32 image header
@@ -158,6 +171,16 @@ You can select the boot mode, on the board ed1 with the switch SW1
   NAND		0	1	1
   Recovery	1	1	0
   Recovery	0	0	0
+
+- on board DK1/DK2 with the switch SW1 : BOOT0, BOOT2
+  (BOOT1 forced to 0, NOR not supported)
+
+ --------------------------
+  Boot Mode   BOOT2  BOOT0
+ --------------------------
+  Reserved	1      0
+  SD-Card	1      1
+  Recovery	0      0
 
 Recovery is a boot from serial link (UART/USB) and it is used with
 STM32CubeProgrammer tool to load executable in RAM and to update the flash
