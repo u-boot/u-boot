@@ -342,9 +342,9 @@
 &sdmmc1 {
 	pinctrl-0 = <&sdmmc1_b4_pins_a &sdmmc1_dir_pins_a>;
 	broken-cd;
-	st,dirpol;
-	st,negedge;
-	st,pin-ckin;
+	st,sig-dir;
+	st,neg-edge;
+	st,use-ckin;
 	bus-width = <4>;
 	vmmc-supply = <&vdd_sd>;
 	vqmmc-supply = <&sd_switch>;
@@ -361,8 +361,8 @@
 	non-removable;
 	no-sd;
 	no-sdio;
-	st,dirpol;
-	st,negedge;
+	st,sig-dir;
+	st,neg-edge;
 	bus-width = <8>;
 	vmmc-supply = <&v3v3>;
 	vqmmc-supply = <&vdd>;
