@@ -462,6 +462,7 @@ int cpu_has_64bit(void)
 		has_long_mode();
 }
 
+#define PAGETABLE_BASE		0x80000
 #define PAGETABLE_SIZE		(6 * 4096)
 
 /**
@@ -522,33 +523,21 @@ int cpu_jump_to_64bit_uboot(ulong target)
 	typedef void (*func_t)(ulong pgtable, ulong setup_base, ulong target);
 	uint32_t *pgtable;
 	func_t func;
+	char *ptr;
 
-	/* TODO(sjg@chromium.org): Find a better place for this */
-	pgtable = (uint32_t *)0x1000000;
-	if (!pgtable)
-		return -ENOMEM;
+	pgtable = (uint32_t *)PAGETABLE_BASE;
 
 	build_pagetable(pgtable);
 
-	/* TODO(sjg@chromium.org): Find a better place for this */
-	char *ptr = (char *)0x3000000;
-	char *gdt = (char *)0x3100000;
+	extern long call64_stub_size;
+	ptr = malloc(call64_stub_size);
+	if (!ptr) {
+		printf("Failed to allocate the cpu_call64 stub\n");
+		return -ENOMEM;
+	}
+	memcpy(ptr, cpu_call64, call64_stub_size);
 
-	extern char gdt64[];
-
-	memcpy(ptr, cpu_call64, 0x1000);
-	memcpy(gdt, gdt64, 0x100);
-
-	/*
-	 * TODO(sjg@chromium.org): This manually inserts the pointers into
-	 * the code. Tidy this up to avoid this.
-	 */
 	func = (func_t)ptr;
-	ulong ofs = (ulong)cpu_call64 - (ulong)ptr;
-	*(ulong *)(ptr + 7) = (ulong)gdt;
-	*(ulong *)(ptr + 0xc) = (ulong)gdt + 2;
-	*(ulong *)(ptr + 0x13) = (ulong)gdt;
-	*(ulong *)(ptr + 0x117 - 0xd4) -= ofs;
 
 	/*
 	 * Copy U-Boot from ROM
