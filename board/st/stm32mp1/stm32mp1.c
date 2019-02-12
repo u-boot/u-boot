@@ -3,11 +3,12 @@
  * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
  */
 #include <config.h>
-#include <common.h>
-#include <led.h>
 #include <clk.h>
+#include <common.h>
 #include <dm.h>
 #include <generic-phy.h>
+#include <led.h>
+#include <misc.h>
 #include <phy.h>
 #include <reset.h>
 #include <usb.h>
@@ -25,6 +26,45 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define STM32MP_GGPIO 0x38
 #define STM32MP_GGPIO_VBUS_SENSING BIT(21)
+
+int checkboard(void)
+{
+	int ret;
+	char *mode;
+	u32 otp;
+	struct udevice *dev;
+	const char *fdt_compat;
+	int fdt_compat_len;
+
+	if (IS_ENABLED(CONFIG_STM32MP1_TRUSTED))
+		mode = "trusted";
+	else
+		mode = "basic";
+
+	printf("Board: stm32mp1 in %s mode", mode);
+	fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
+				 &fdt_compat_len);
+	if (fdt_compat && fdt_compat_len)
+		printf(" (%s)", fdt_compat);
+	puts("\n");
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(stm32mp_bsec),
+					  &dev);
+
+	if (!ret)
+		ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_BOARD),
+				&otp, sizeof(otp));
+	if (!ret && otp) {
+		printf("Board: MB%04x Var%d Rev.%c-%02d\n",
+		       otp >> 16,
+		       (otp >> 12) & 0xF,
+		       ((otp >> 8) & 0xF) - 1 + 'A',
+		       otp & 0xF);
+	}
+
+	return 0;
+}
 
 static struct dwc2_plat_otg_data stm32mp_otg_data = {
 	.usb_gusbcfg = STM32MP_GUSBCFG,
