@@ -7,29 +7,21 @@
 
 / {
 	aliases {
-		spi0 = &qspi;
 		i2c1 = &i2c2;
 		i2c4 = &i2c5;
+		spi0 = &qspi;
 	};
 };
 
 &flash0 {
 	compatible = "spi-flash";
+	u-boot,dm-spl;
 };
 
 &flash1 {
 	compatible = "spi-flash";
 };
 
-&v3v3 {
-	regulator-always-on;
-};
-
-&usbotg_hs {
-	g-tx-fifo-size = <576>;
-};
-
-/* SPL part **************************************/
 &qspi {
 	u-boot,dm-spl;
 };
@@ -61,7 +53,10 @@
 	};
 };
 
-&flash0 {
-	u-boot,dm-spl;
+&usbotg_hs {
+	g-tx-fifo-size = <576>;
 };
 
+&v3v3 {
+	regulator-always-on;
+};

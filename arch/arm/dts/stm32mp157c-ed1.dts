@@ -15,11 +15,15 @@
 	compatible = "st,stm32mp157c-ed1", "st,stm32mp157";
 
 	chosen {
-		stdout-path = "serial3:115200n8";
+		stdout-path = "serial0:115200n8";
 	};
 
 	memory@c0000000 {
 		reg = <0xC0000000 0x40000000>;
+	};
+
+	aliases {
+		serial0 = &uart4;
 	};
 
 	sd_switch: regulator-sd_switch {
@@ -36,15 +40,8 @@
 	};
 };
 
-&rng1 {
+&hwspinlock {
 	status = "okay";
-};
-
-&timers6 {
-	status = "okay";
-	timer@5 {
-		status = "okay";
-	};
 };
 
 &i2c4 {
@@ -321,8 +318,25 @@
 	};
 };
 
+&iwdg2 {
+	timeout-sec = <32>;
+	status = "okay";
+};
+
+&pinctrl {
+	hwlocks = <&hwspinlock 0>;
+};
+
 &pwr {
 	pwr-supply = <&vdd>;
+};
+
+&rng1 {
+	status = "okay";
+};
+
+&rtc {
+	status = "okay";
 };
 
 &sdmmc1 {
@@ -355,6 +369,13 @@
 	status = "okay";
 };
 
+&timers6 {
+	status = "okay";
+	timer@5 {
+		status = "okay";
+	};
+};
+
 &uart4 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart4_pins_a>;
@@ -363,14 +384,6 @@
 
 &usbotg_hs {
 	usb33d-supply = <&usb33>;
-};
-
-&hwspinlock {
-	status = "okay";
-};
-
-&pinctrl {
-	hwlocks = <&hwspinlock 0>;
 };
 
 &usbphyc_port0 {
