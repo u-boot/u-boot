@@ -8,9 +8,12 @@
 #include <misc.h>
 #include <asm/io.h>
 #include <linux/iopoll.h>
+#include <asm/arch/stm32mp1_smc.h>
+#include <linux/arm-smccc.h>
 
 #define BSEC_OTP_MAX_VALUE		95
 
+#ifndef CONFIG_STM32MP1_TRUSTED
 #define BSEC_TIMEOUT_US			10000
 
 /* BSEC REGISTER OFFSET (base relative) */
@@ -270,6 +273,7 @@ static int bsec_program_otp(long base, u32 val, u32 otp)
 
 	return ret;
 }
+#endif /* CONFIG_STM32MP1_TRUSTED */
 
 /* BSEC MISC driver *******************************************************/
 struct stm32mp_bsec_platdata {
@@ -278,6 +282,11 @@ struct stm32mp_bsec_platdata {
 
 static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 {
+#ifdef CONFIG_STM32MP1_TRUSTED
+	return stm32_smc(STM32_SMC_BSEC,
+			 STM32_SMC_READ_OTP,
+			 otp, 0, val);
+#else
 	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
 	u32 tmp_data = 0;
 	int ret;
@@ -299,27 +308,46 @@ static int stm32mp_bsec_read_otp(struct udevice *dev, u32 *val, u32 otp)
 	/* restore shadow value */
 	ret = bsec_write_shadow(plat->base, tmp_data, otp);
 	return ret;
+#endif
 }
 
 static int stm32mp_bsec_read_shadow(struct udevice *dev, u32 *val, u32 otp)
 {
+#ifdef CONFIG_STM32MP1_TRUSTED
+	return stm32_smc(STM32_SMC_BSEC,
+			 STM32_SMC_READ_SHADOW,
+			 otp, 0, val);
+#else
 	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
 
 	return bsec_read_shadow(plat->base, val, otp);
+#endif
 }
 
 static int stm32mp_bsec_write_otp(struct udevice *dev, u32 val, u32 otp)
 {
+#ifdef CONFIG_STM32MP1_TRUSTED
+	return stm32_smc_exec(STM32_SMC_BSEC,
+			      STM32_SMC_PROG_OTP,
+			      otp, val);
+#else
 	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
 
 	return bsec_program_otp(plat->base, val, otp);
+#endif
 }
 
 static int stm32mp_bsec_write_shadow(struct udevice *dev, u32 val, u32 otp)
 {
+#ifdef CONFIG_STM32MP1_TRUSTED
+	return stm32_smc_exec(STM32_SMC_BSEC,
+			      STM32_SMC_WRITE_SHADOW,
+			      otp, val);
+#else
 	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
 
 	return bsec_write_shadow(plat->base, val, otp);
+#endif
 }
 
 static int stm32mp_bsec_read(struct udevice *dev, int offset,
