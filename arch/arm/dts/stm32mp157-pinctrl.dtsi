@@ -148,6 +148,13 @@
 				gpio-ranges = <&pinctrl 0 160 8>;
 			};
 
+			adc12_usb_pwr_pins_a: adc12-usb-pwr-pins-0 {
+				pins {
+					pinmux = <STM32_PINMUX('A', 4, ANALOG)>, /* ADC12 in18 */
+						 <STM32_PINMUX('A', 5, ANALOG)>; /* ADC12 in19 */
+				};
+			};
+
 			cec_pins_a: cec-0 {
 				pins {
 					pinmux = <STM32_PINMUX('A', 15, AF4)>;

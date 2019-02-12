@@ -31,6 +31,27 @@
 	};
 };
 
+&adc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&adc12_usb_pwr_pins_a>;
+	vdd-supply = <&vdd>;
+	vdda-supply = <&vdd>;
+	vref-supply = <&vrefbuf>;
+	status = "okay";
+	adc1: adc@0 {
+		/*
+		 * Type-C USB_PWR_CC1 & USB_PWR_CC2 on in18 & in19.
+		 * Use at least 5 * RC time, e.g. 5 * (Rp + Rd) * C:
+		 * 5 * (56 + 47kOhms) * 5pF => 2.5us.
+		 * Use arbitrary margin here (e.g. 5µs).
+		 */
+		st,min-sample-time-nsecs = <5000>;
+		/* ANA0, ANA1, USB Type-C CC1 & CC2 */
+		st,adc-channels = <0 1 18 19>;
+		status = "okay";
+	};
+};
+
 &clk_hse {
 	st,digbypass;
 };
