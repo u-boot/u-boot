@@ -143,6 +143,8 @@ def mk_fs(config, fs_type, size, id):
         mkfs_opt = '-F 16'
     elif fs_type == 'fat32':
         mkfs_opt = '-F 32'
+    elif fs_type == 'ext4':
+        mkfs_opt = '-O ^metadata_csum'
     else:
         mkfs_opt = ''
 
