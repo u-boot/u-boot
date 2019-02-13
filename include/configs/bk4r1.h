@@ -200,6 +200,24 @@
 		"ubi create rootfs2 15E15000 d; " \
 		"ubi create userdata; " \
 		"ubi detach\0" \
+	"setup_nor1=" BK4_NET_INIT \
+		"if tftp ${sys_addr} ${tftpdir}ubinor1.img; " \
+		"then sf probe 0:0; " \
+		"sf erase 0 01000000; " \
+		"mtdparts default; " \
+		"ubi part nor; " \
+		"ubi create nor1fs; " \
+		"ubi write ${sys_addr} nor1fs ${filesize}; " \
+		"ubi detach; fi\0" \
+	"setup_nor2=" BK4_NET_INIT \
+		"if tftp ${sys_addr} ${tftpdir}ubinor2.img; " \
+		"then sf probe 0:1; " \
+		"sf erase 0 01000000; " \
+		"mtdparts default; " \
+		"ubi part nor; " \
+		"ubi create nor2fs; " \
+		"ubi write ${sys_addr} nor2fs ${filesize}; " \
+		"ubi detach; fi\0" \
 	"prepare_install_bk4r1_envs=" \
 		"echo 'Preparing envs for SD card recovery!';" \
 		"setenv ipaddr 192.168.0.99;" \
