@@ -10,7 +10,7 @@ CFLAGS_efi_boottime.o += \
   -DFW_VERSION="0x$(VERSION)" \
   -DFW_PATCHLEVEL="0x$(PATCHLEVEL)"
 CFLAGS_helloworld.o := $(CFLAGS_EFI) -Os -ffreestanding
-CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI) -Os
+CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI)
 
 ifneq ($(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
 always += helloworld.efi
@@ -24,10 +24,12 @@ obj-y += efi_device_path.o
 obj-y += efi_device_path_to_text.o
 obj-y += efi_device_path_utilities.o
 obj-y += efi_file.o
+obj-y += efi_hii.o efi_hii_config.o
 obj-y += efi_image_loader.o
 obj-y += efi_memory.o
 obj-y += efi_root_node.o
 obj-y += efi_runtime.o
+obj-y += efi_setup.o
 obj-y += efi_unicode_collation.o
 obj-y += efi_variable.o
 obj-y += efi_watchdog.o

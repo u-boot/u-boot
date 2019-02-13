@@ -1558,6 +1558,26 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
+#if CONFIG_IS_ENABLED(EFI_LOADER_HII)
+	ret = efi_add_protocol(&obj->header,
+			       &efi_guid_hii_string_protocol,
+			       (void *)&efi_hii_string);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
+	ret = efi_add_protocol(&obj->header,
+			       &efi_guid_hii_database_protocol,
+			       (void *)&efi_hii_database);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
+	ret = efi_add_protocol(&obj->header,
+			       &efi_guid_hii_config_routing_protocol,
+			       (void *)&efi_hii_config_routing);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+#endif
+
 	return ret;
 failure:
 	printf("ERROR: Failure to install protocols for loaded image\n");
@@ -1706,8 +1726,8 @@ error:
  * Return: status code
  */
 static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
-					   unsigned long *exit_data_size,
-					   s16 **exit_data)
+					   efi_uintn_t *exit_data_size,
+					   u16 **exit_data)
 {
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
@@ -1773,8 +1793,8 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  */
 static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 				    efi_status_t exit_status,
-				    unsigned long exit_data_size,
-				    int16_t *exit_data)
+				    efi_uintn_t exit_data_size,
+				    u16 *exit_data)
 {
 	/*
 	 * TODO: We should call the unload procedure of the loaded
@@ -1783,7 +1803,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
 
-	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
+	EFI_ENTRY("%p, %ld, %zu, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
 
 	/* Make sure entry/exit counts for EFI world cross-overs match */
@@ -2483,7 +2503,7 @@ static void EFIAPI efi_copy_mem(void *destination, const void *source,
 				size_t length)
 {
 	EFI_ENTRY("%p, %p, %ld", destination, source, (unsigned long)length);
-	memcpy(destination, source, length);
+	memmove(destination, source, length);
 	EFI_EXIT(EFI_SUCCESS);
 }
 
@@ -2825,7 +2845,7 @@ static efi_status_t EFIAPI efi_connect_controller(
 	efi_status_t ret = EFI_NOT_FOUND;
 	struct efi_object *efiobj;
 
-	EFI_ENTRY("%p, %p, %p, %d", controller_handle, driver_image_handle,
+	EFI_ENTRY("%p, %p, %pD, %d", controller_handle, driver_image_handle,
 		  remain_device_path, recursive);
 
 	efiobj = efi_search_obj(controller_handle);

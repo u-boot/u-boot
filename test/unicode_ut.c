@@ -50,6 +50,29 @@ static const char j1[] = {0x6a, 0x31, 0xa1, 0x6c, 0x00};
 static const char j2[] = {0x6a, 0x32, 0xc3, 0xc3, 0x6c, 0x00};
 static const char j3[] = {0x6a, 0x33, 0xf0, 0x90, 0xf0, 0x00};
 
+static int ut_u16_strdup(struct unit_test_state *uts)
+{
+	u16 *copy = u16_strdup(c4);
+
+	ut_assert(copy != c4);
+	ut_assert(!memcmp(copy, c4, sizeof(c4)));
+	free(copy);
+	return 0;
+}
+UNICODE_TEST(ut_u16_strdup);
+
+static int ut_u16_strcpy(struct unit_test_state *uts)
+{
+	u16 *r;
+	u16 copy[10];
+
+	r = u16_strcpy(copy, c1);
+	ut_assert(r == copy);
+	ut_assert(!memcmp(copy, c1, sizeof(c1)));
+	return 0;
+}
+UNICODE_TEST(ut_u16_strcpy);
+
 /* U-Boot uses UTF-16 strings in the EFI context only. */
 #if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
 static int ut_string16(struct unit_test_state *uts)

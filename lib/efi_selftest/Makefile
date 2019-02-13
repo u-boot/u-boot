@@ -6,9 +6,9 @@
 # object inclusion implicitly depends on it
 
 CFLAGS_efi_selftest_miniapp_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
-CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI) -Os
+CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI)
 CFLAGS_efi_selftest_miniapp_return.o := $(CFLAGS_EFI) -Os -ffreestanding
-CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI) -Os
+CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI)
 
 obj-y += \
 efi_selftest.o \
@@ -40,14 +40,15 @@ efi_selftest_variables.o \
 efi_selftest_watchdog.o
 
 obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
+obj-$(CONFIG_EFI_LOADER_HII) += efi_selftest_hii.o
 
 ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
 obj-y += efi_selftest_block_device.o
 endif
 
-# TODO: As of v2018.01 the relocation code for the EFI application cannot
-# be built on x86_64.
-ifeq ($(CONFIG_X86_64)$(CONFIG_SANDBOX),)
+# TODO: As of v2019.01 the relocation code for the EFI application cannot
+# be built on ARMv7-M, Sandbox, and x86_64.
+ifeq ($(CONFIG_SANDBOX)$(CONFIG_CPU_V7M)$(CONFIG_X86_64),)
 
 obj-y += \
 efi_selftest_startimage_exit.o \

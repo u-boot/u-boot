@@ -233,8 +233,7 @@ static efi_status_t EFIAPI efi_uc_stop(
 	}
 	ret = EFI_CALL(systab.boottime->free_pool(entry_buffer));
 	if (ret != EFI_SUCCESS)
-		printf("%s(%u) %s: ERROR: Cannot free pool\n",
-		       __FILE__, __LINE__, __func__);
+		printf("%s: ERROR: Cannot free pool\n", __func__);
 
 	/* Detach driver from controller */
 	ret = EFI_CALL(systab.boottime->close_protocol(

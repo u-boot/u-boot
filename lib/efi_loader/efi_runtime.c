@@ -530,7 +530,8 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
  * This function adds a memory-mapped IO region to the memory map to make it
  * available at runtime.
  *
- * @mmio_ptr:		address of the memory-mapped IO region
+ * @mmio_ptr:		pointer to a pointer to the start of the memory-mapped
+ *			IO region
  * @len:		size of the memory-mapped IO region
  * Returns:		status code
  */

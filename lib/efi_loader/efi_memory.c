@@ -554,6 +554,12 @@ __weak void efi_add_known_memory(void)
 	u64 ram_top = board_get_usable_ram_top(0) & ~EFI_PAGE_MASK;
 	int i;
 
+	/*
+	 * ram_top is just outside mapped memory. So use an offset of one for
+	 * mapping the sandbox address.
+	 */
+	ram_top = (uintptr_t)map_sysmem(ram_top - 1, 0) + 1;
+
 	/* Fix for 32bit targets with ram_top at 4G */
 	if (!ram_top)
 		ram_top = 0x100000000ULL;

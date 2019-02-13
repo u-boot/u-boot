@@ -49,7 +49,7 @@ struct efi_device_path;
 
 typedef struct {
 	u8 b[16];
-} efi_guid_t;
+} efi_guid_t __attribute__((aligned(8)));
 
 #define EFI_BITS_PER_LONG	(sizeof(long) * 8)
 

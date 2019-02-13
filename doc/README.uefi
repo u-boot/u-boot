@@ -14,7 +14,7 @@ and boot loaders like GRUB or the FreeBSD loader can be executed.
 
 ## Building for UEFI
 
-The UEFI standard supports only little endian systems. The UEFI support can be
+The UEFI standard supports only little-endian systems. The UEFI support can be
 activated for ARM and x86 by specifying
 
     CONFIG_CMD_BOOTEFI=y
@@ -53,7 +53,7 @@ arguments.
 
 ### Executing the boot manager
 
-The UEFI specfication foresees to define boot entries and boot sequence via UEFI
+The UEFI specification foresees to define boot entries and boot sequence via UEFI
 variables. Booting according to these variables is possible via
 
     bootefi bootmgr [fdt address]
@@ -90,14 +90,14 @@ Below you find the output of an example session.
 The environment variable fdtcontroladdr points to U-Boot's internal device tree
 (if available).
 
-### Executing the built-in selftest
+### Executing the built-in self-test
 
-An UEFI selftest suite can be embedded in U-Boot by building with
+An UEFI self-test suite can be embedded in U-Boot by building with
 
     CONFIG_CMD_BOOTEFI_SELFTEST=y
 
 For testing the UEFI implementation the bootefi command can be used to start the
-selftest.
+self-test.
 
     bootefi selftest [fdt address]
 

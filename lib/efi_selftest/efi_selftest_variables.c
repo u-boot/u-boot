@@ -15,10 +15,10 @@
 
 static struct efi_boot_services *boottime;
 static struct efi_runtime_services *runtime;
-static efi_guid_t guid_vendor0 =
+static const efi_guid_t guid_vendor0 =
 	EFI_GUID(0x67029eb5, 0x0af2, 0xf6b1,
 		 0xda, 0x53, 0xfc, 0xb5, 0x66, 0xdd, 0x1c, 0xe6);
-static efi_guid_t guid_vendor1 =
+static const efi_guid_t guid_vendor1 =
 	EFI_GUID(0xff629290, 0x1fc1, 0xd73f,
 		 0x8f, 0xb1, 0x32, 0xf9, 0x0c, 0xa0, 0x42, 0xea);
 
@@ -141,19 +141,22 @@ static int execute(void)
 		if (ret == EFI_NOT_FOUND)
 			break;
 		if (ret != EFI_SUCCESS) {
-			efi_st_todo("GetNextVariableName failed\n");
-			break;
+			efi_st_error("GetNextVariableName failed (%u)\n",
+				     (unsigned int)ret);
+			return EFI_ST_FAILURE;
 		}
 		if (!efi_st_memcmp(&guid, &guid_vendor0, sizeof(efi_guid_t)) &&
 		    !efi_st_strcmp_16_8(varname, "efi_st_var0"))
-			flag |= 2;
+			flag |= 1;
 		if (!efi_st_memcmp(&guid, &guid_vendor1, sizeof(efi_guid_t)) &&
 		    !efi_st_strcmp_16_8(varname, "efi_st_var1"))
 			flag |= 2;
 	}
-	if (flag != 3)
-		efi_st_todo(
+	if (flag != 3) {
+		efi_st_error(
 			"GetNextVariableName did not return all variables\n");
+		return EFI_ST_FAILURE;
+	}
 	/* Delete variable 1 */
 	ret = runtime->set_variable(L"efi_st_var1", &guid_vendor1,
 				    0, 0, NULL);

@@ -82,4 +82,9 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
  */
 void board_quiesce_devices(void);
 
+/**
+ * switch_to_non_secure_mode() - switch to non-secure mode
+ */
+void switch_to_non_secure_mode(void);
+
 #endif
