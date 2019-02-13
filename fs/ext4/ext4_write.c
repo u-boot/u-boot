@@ -752,7 +752,7 @@ void ext4fs_deinit(void)
  * contigous sectors as ext4fs_read_file
  */
 static int ext4fs_write_file(struct ext2_inode *file_inode,
-			     int pos, unsigned int len, char *buf)
+			     int pos, unsigned int len, const char *buf)
 {
 	int i;
 	int blockcnt;
@@ -764,7 +764,7 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 	int delayed_start = 0;
 	int delayed_extent = 0;
 	int delayed_next = 0;
-	char *delayed_buf = NULL;
+	const char *delayed_buf = NULL;
 
 	/* Adjust len so it we can't read past the end of the file. */
 	if (len > filesize)
@@ -816,7 +816,6 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 					 (uint32_t) delayed_extent);
 				previous_block_number = -1;
 			}
-			memset(buf, 0, fs->blksz - skipfirst);
 		}
 		buf += fs->blksz - skipfirst;
 	}
@@ -830,8 +829,8 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 	return len;
 }
 
-int ext4fs_write(const char *fname, unsigned char *buffer,
-					unsigned long sizebytes)
+int ext4fs_write(const char *fname, const char *buffer,
+		 unsigned long sizebytes)
 {
 	int ret = 0;
 	struct ext2_inode *file_inode = NULL;
@@ -949,7 +948,7 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	if (ext4fs_put_metadata(temp_ptr, itable_blkno))
 		goto fail;
 	/* copy the file content into data blocks */
-	if (ext4fs_write_file(file_inode, 0, sizebytes, (char *)buffer) == -1) {
+	if (ext4fs_write_file(file_inode, 0, sizebytes, buffer) == -1) {
 		printf("Error in copying content\n");
 		/* FIXME: Deallocate data blocks */
 		goto fail;

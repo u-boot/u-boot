@@ -190,7 +190,7 @@ uint32_t ext4fs_div_roundup(uint32_t size, uint32_t n)
 	return res;
 }
 
-void put_ext4(uint64_t off, void *buf, uint32_t size)
+void put_ext4(uint64_t off, const void *buf, uint32_t size)
 {
 	uint64_t startblock;
 	uint64_t remainder;
