@@ -18,6 +18,7 @@ void ubi_dump_vid_hdr(const struct ubi_vid_hdr *vid_hdr);
 
 #include <hexdump.h>
 
+#ifndef __UBOOT__
 #define ubi_assert(expr)  do {                                               \
 	if (unlikely(!(expr))) {                                             \
 		pr_crit("UBI assert failed in %s at %u (pid %d)\n",          \
@@ -25,6 +26,15 @@ void ubi_dump_vid_hdr(const struct ubi_vid_hdr *vid_hdr);
 		dump_stack();                                                \
 	}                                                                    \
 } while (0)
+#else
+#define ubi_assert(expr)  do {                                               \
+	if (unlikely(!(expr))) {                                             \
+		pr_crit("UBI assert failed in %s at %u\n",                   \
+		       __func__, __LINE__);                                  \
+		dump_stack();                                                \
+	}                                                                    \
+} while (0)
+#endif
 
 #define ubi_dbg_print_hex_dump(ps, pt, r, g, b, len, a)                      \
 		print_hex_dump(ps, pt, r, g, b, len, a)
