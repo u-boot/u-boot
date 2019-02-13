@@ -13,6 +13,7 @@
 #include <asm/arch/ddrmc-vf610.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
+#include <led.h>
 #include <environment.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -313,6 +314,9 @@ int board_late_init(void)
 {
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
 	u32 reg;
+
+	if (IS_ENABLED(CONFIG_LED))
+		led_default_state();
 
 	/*
 	 * BK4r1 handle emergency/service SD card boot
