@@ -310,6 +310,47 @@ int board_init(void)
 }
 
 #ifdef CONFIG_TARGET_BK4R1
+void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
+{
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[4];
+	struct fuse_bank4_regs *fuse =
+		(struct fuse_bank4_regs *)bank->fuse_regs;
+	u32 value;
+
+	/*
+	 * BK4 has different layout of stored MAC address
+	 * than one used in imx_get_mac_from_fuse() @ generic.c
+	 */
+
+	switch (dev_id) {
+	case 0:
+		value = readl(&fuse->mac_addr1);
+
+		mac[0] = value >> 8;
+		mac[1] = value;
+
+		value = readl(&fuse->mac_addr0);
+		mac[2] = value >> 24;
+		mac[3] = value >> 16;
+		mac[4] = value >> 8;
+		mac[5] = value;
+		break;
+	case 1:
+		value = readl(&fuse->mac_addr2);
+
+		mac[0] = value >> 24;
+		mac[1] = value >> 16;
+		mac[2] = value >> 8;
+		mac[3] = value;
+
+		value = readl(&fuse->mac_addr1);
+		mac[4] = value >> 24;
+		mac[5] = value >> 16;
+		break;
+	}
+}
+
 int board_late_init(void)
 {
 	struct src *psrc = (struct src *)SRC_BASE_ADDR;
