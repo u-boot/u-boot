@@ -13,6 +13,7 @@
 #include <asm/arch/ddrmc-vf610.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
+#include <environment.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -306,6 +307,37 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_TARGET_BK4R1
+int board_late_init(void)
+{
+	struct src *psrc = (struct src *)SRC_BASE_ADDR;
+	u32 reg;
+
+	/*
+	 * BK4r1 handle emergency/service SD card boot
+	 * Checking the SBMR1 register BOOTCFG1 byte:
+	 * NAND:
+	 *      bit [2] - NAND data width - 16
+	 *	bit [5] - NAND fast boot
+	 *	bit [7] = 1 - NAND as a source of booting
+	 * SD card (0x64):
+	 *      bit [4] = 0 - SD card source
+	 *	bit [6] = 1 - SD/MMC source
+	 */
+
+	reg = readl(&psrc->sbmr1);
+	if ((reg & SRC_SBMR1_BOOTCFG1_SDMMC) &&
+	    !(reg & SRC_SBMR1_BOOTCFG1_MMC)) {
+		printf("------ SD card boot -------\n");
+		set_default_env("!LVFBootloader", 0);
+		env_set("bootcmd",
+			"run prepare_install_bk4r1_envs; run install_bk4r1rs");
+	}
+
+	return 0;
+}
+#endif /* CONFIG_TARGET_BK4R1 */
 
 int checkboard(void)
 {
