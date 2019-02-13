@@ -400,26 +400,6 @@
 			#size-cells = <0>;
 			reg = <3>;
 			/* DDR4 SODIMM */
-			dev@19 { /* u-boot detection FIXME */
-				compatible = "xxx";
-				reg = <0x19>;
-			};
-			dev@30 { /* u-boot detection */
-				compatible = "xxx";
-				reg = <0x30>;
-			};
-			dev@35 { /* u-boot detection */
-				compatible = "xxx";
-				reg = <0x35>;
-			};
-			dev@36 { /* u-boot detection */
-				compatible = "xxx";
-				reg = <0x36>;
-			};
-			dev@51 { /* u-boot detection - maybe SPD */
-				compatible = "xxx";
-				reg = <0x51>;
-			};
 		};
 		i2c@4 {
 			#address-cells = <1>;
