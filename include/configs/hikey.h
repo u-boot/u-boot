@@ -81,8 +81,10 @@
 				"initrd_high=0xffffffffffffffff\0" \
 				BOOTENV
 
-/* Preserve environment on sd card */
+/* Preserve environment on eMMC */
 #define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_SYS_MMC_ENV_DEV		0	/* Use eMMC */
+#define CONFIG_SYS_MMC_ENV_PART		2	/* Use Boot1 partition */
 
 /* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
