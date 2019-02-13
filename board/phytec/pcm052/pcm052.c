@@ -15,6 +15,7 @@
 #include <asm/arch/clock.h>
 #include <led.h>
 #include <environment.h>
+#include <miiphy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -381,6 +382,21 @@ int board_late_init(void)
 	}
 
 	return 0;
+}
+
+/**
+ * KSZ8081
+ */
+#define MII_KSZ8081_REFERENCE_CLOCK_SELECT	0x1f
+#define RMII_50MHz_CLOCK	0x8180
+
+int board_phy_config(struct phy_device *phydev)
+{
+	/* Set 50 MHz reference clock */
+	phy_write(phydev, MDIO_DEVAD_NONE, MII_KSZ8081_REFERENCE_CLOCK_SELECT,
+		  RMII_50MHz_CLOCK);
+
+	return genphy_config(phydev);
 }
 #endif /* CONFIG_TARGET_BK4R1 */
 
