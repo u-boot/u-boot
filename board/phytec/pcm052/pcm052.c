@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
+ * (C) Copyright 2018
+ * Lukasz Majewski, DENX Software Engineering, lukma@denx.de.
+ *
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
