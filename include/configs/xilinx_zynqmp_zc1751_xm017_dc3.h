@@ -9,8 +9,6 @@
 #ifndef __CONFIG_ZYNQMP_ZC1751_XM017_DC3_H
 #define __CONFIG_ZYNQMP_ZC1751_XM017_DC3_H
 
-#define CONFIG_ZYNQ_SDHCI1
-
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZC1751_XM017_DC3_H */
