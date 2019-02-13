@@ -271,20 +271,20 @@
 	"xilinx "
 
 #define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
-	"bootcmd_qspi0=sf probe 0 0 0 && " \
+	"bootcmd_" #devtypel #instance "=sf probe " #instance " 0 0 && " \
 		       "sf read $scriptaddr $script_offset_f $script_size_f && " \
 		       "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
-	"qspi "
+	#devtypel #instance " "
 
 #define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
-	"bootcmd_nand0= nand info && " \
+	"bootcmd_" #devtypel #instance "= nand info && " \
 		       "nand read $scriptaddr $script_offset_f $script_size_f && " \
 		       "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
 
 #define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
-	"nand "
+	#devtypel #instance " "
 
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
