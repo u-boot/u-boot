@@ -303,9 +303,14 @@ int aquantia_config(struct phy_device *phydev)
 			       AQUANTIA_SYSTEM_INTERFACE_SR);
 		/* If SI is USXGMII then start USXGMII autoneg */
 		if ((val & AQUANTIA_SI_IN_USE_MASK) == AQUANTIA_SI_USXGMII) {
+			reg_val1 =  phy_read(phydev, MDIO_MMD_PHYXS,
+					     AQUANTIA_VENDOR_PROVISIONING_REG);
+
+			reg_val1 |= AQUANTIA_USX_AUTONEG_CONTROL_ENA;
+
 			phy_write(phydev, MDIO_MMD_PHYXS,
 				  AQUANTIA_VENDOR_PROVISIONING_REG,
-				  AQUANTIA_USX_AUTONEG_CONTROL_ENA);
+				  reg_val1);
 			printf("%s: system interface USXGMII\n",
 			       phydev->dev->name);
 		} else {
