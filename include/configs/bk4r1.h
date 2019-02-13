@@ -189,6 +189,37 @@
 		"ubi part system; " \
 		"ubi write ${sys_addr} rootfs${active_workset} ${filesize}; " \
 		"ubi detach; fi\0" \
+	"setup_dtbkernel=nand erase.part dtbkernel; " \
+		"ubi part dtbkernel; " \
+		"ubi create dtbkernel1 972000 s; " \
+		"ubi create dtbkernel2 972000 s; " \
+		"ubi detach\0" \
+	"setup_system=nand erase.part system; " \
+		"ubi part system; " \
+		"ubi create rootfs1 15E15000 d; " \
+		"ubi create rootfs2 15E15000 d; " \
+		"ubi create userdata; " \
+		"ubi detach\0" \
+	"prepare_install_bk4r1_envs=" \
+		"echo 'Preparing envs for SD card recovery!';" \
+		"setenv ipaddr 192.168.0.99;" \
+		"setenv serverip 192.168.0.50;" \
+		"\0" \
+	"install_bk4r1rs="\
+		"led 0 on; " \
+		"nand erase.chip; mtdparts default; "\
+		"led 1 on; "\
+		"run setup_dtbkernel; " \
+		"run setup_system; " \
+		"led 2 on;" \
+		"run update_bootloader_from_sd; "\
+		"run update_dtbkernel_from_sd; "\
+		"run update_rootfs_from_sd; "\
+		"setenv bootcmd 'run bootcmd_nand'; "\
+		"saveenv; " \
+		"led 3 on; " \
+		"echo Finished - Please Power off, REMOVE SDCARD and set boot" \
+			"source to NAND\0" \
 	"active_workset=1\0"
 
 /* Miscellaneous configurable options */
