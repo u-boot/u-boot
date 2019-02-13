@@ -573,7 +573,10 @@ int board_init(void)
 
 int checkboard(void)
 {
+#ifdef CONFIG_TARGET_BK4R1
+	puts("Board: BK4r1 (L333)\n");
+#else
 	puts("Board: PCM-052\n");
-
+#endif
 	return 0;
 }
