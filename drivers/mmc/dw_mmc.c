@@ -74,15 +74,15 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 		dwmci_set_idma_desc(cur_idmac, flags, cnt,
 				    (ulong)bounce_buffer + (i * PAGE_SIZE));
 
+		cur_idmac++;
 		if (blk_cnt <= 8)
 			break;
 		blk_cnt -= 8;
-		cur_idmac++;
 		i++;
 	} while(1);
 
 	data_end = (ulong)cur_idmac;
-	flush_dcache_range(data_start, data_end + ARCH_DMA_MINALIGN);
+	flush_dcache_range(data_start, roundup(data_end, ARCH_DMA_MINALIGN));
 
 	ctrl = dwmci_readl(host, DWMCI_CTRL);
 	ctrl |= DWMCI_IDMAC_EN | DWMCI_DMA_EN;
