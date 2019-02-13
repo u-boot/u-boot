@@ -296,7 +296,6 @@
 		compatible = "ti,wl1831-st";
 		enable-gpios = <&gpio 8 GPIO_ACTIVE_HIGH>;
 	};
-
 };
 
 &uart1 {
