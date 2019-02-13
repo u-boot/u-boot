@@ -485,7 +485,7 @@ static void clock_init(void)
 	clrsetbits_le32(&ccm->ccgr9, CCM_REG_CTRL_MASK,
 			CCM_CCGR9_FEC0_CTRL_MASK | CCM_CCGR9_FEC1_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr10, CCM_REG_CTRL_MASK,
-			CCM_CCGR10_NFC_CTRL_MASK | CCM_CCGR10_I2C2_CTRL_MASK);
+			CCM_CCGR10_NFC_CTRL_MASK);
 
 	clrsetbits_le32(&anadig->pll2_ctrl, ANADIG_PLL2_CTRL_POWERDOWN,
 			ANADIG_PLL2_CTRL_ENABLE | ANADIG_PLL2_CTRL_DIV_SELECT);
