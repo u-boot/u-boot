@@ -13,6 +13,7 @@ supported_fs_basic = ['fat16', 'fat32', 'ext4']
 supported_fs_ext = ['fat16', 'fat32']
 supported_fs_mkdir = ['fat16', 'fat32']
 supported_fs_unlink = ['fat16', 'fat32']
+supported_fs_symlink = ['ext4']
 
 #
 # Filesystem test specific setup
@@ -48,6 +49,7 @@ def pytest_configure(config):
     global supported_fs_ext
     global supported_fs_mkdir
     global supported_fs_unlink
+    global supported_fs_symlink
 
     def intersect(listA, listB):
         return  [x for x in listA if x in listB]
@@ -59,6 +61,7 @@ def pytest_configure(config):
         supported_fs_ext =  intersect(supported_fs, supported_fs_ext)
         supported_fs_mkdir =  intersect(supported_fs, supported_fs_mkdir)
         supported_fs_unlink =  intersect(supported_fs, supported_fs_unlink)
+        supported_fs_symlink =  intersect(supported_fs, supported_fs_symlink)
 
 def pytest_generate_tests(metafunc):
     """Parametrize fixtures, fs_obj_xxx
@@ -83,6 +86,9 @@ def pytest_generate_tests(metafunc):
             indirect=True, scope='module')
     if 'fs_obj_unlink' in metafunc.fixturenames:
         metafunc.parametrize('fs_obj_unlink', supported_fs_unlink,
+            indirect=True, scope='module')
+    if 'fs_obj_symlink' in metafunc.fixturenames:
+        metafunc.parametrize('fs_obj_symlink', supported_fs_symlink,
             indirect=True, scope='module')
 
 #
@@ -520,6 +526,75 @@ def fs_obj_unlink(request, u_boot_config):
         return
     else:
         yield [fs_ubtype, fs_img]
+    finally:
+        umount_fs(mount_dir)
+        call('rmdir %s' % mount_dir, shell=True)
+        if fs_img:
+            call('rm -f %s' % fs_img, shell=True)
+
+#
+# Fixture for symlink fs test
+#
+# NOTE: yield_fixture was deprecated since pytest-3.0
+@pytest.yield_fixture()
+def fs_obj_symlink(request, u_boot_config):
+    """Set up a file system to be used in symlink fs test.
+
+    Args:
+        request: Pytest request object.
+        u_boot_config: U-boot configuration.
+
+    Return:
+        A fixture for basic fs test, i.e. a triplet of file system type,
+        volume file name and  a list of MD5 hashes.
+    """
+    fs_type = request.param
+    fs_img = ''
+
+    fs_ubtype = fstype_to_ubname(fs_type)
+    check_ubconfig(u_boot_config, fs_ubtype)
+
+    mount_dir = u_boot_config.persistent_data_dir + '/mnt'
+
+    small_file = mount_dir + '/' + SMALL_FILE
+    medium_file = mount_dir + '/' + MEDIUM_FILE
+
+    try:
+
+        # 3GiB volume
+        fs_img = mk_fs(u_boot_config, fs_type, 0x40000000, '1GB')
+
+        # Mount the image so we can populate it.
+        check_call('mkdir -p %s' % mount_dir, shell=True)
+        mount_fs(fs_type, fs_img, mount_dir)
+
+        # Create a subdirectory.
+        check_call('mkdir %s/SUBDIR' % mount_dir, shell=True)
+
+        # Create a small file in this image.
+        check_call('dd if=/dev/urandom of=%s bs=1M count=1'
+                   % small_file, shell=True)
+
+        # Create a medium file in this image.
+        check_call('dd if=/dev/urandom of=%s bs=10M count=1'
+                   % medium_file, shell=True)
+
+        # Generate the md5sums of reads that we will test against small file
+        out = check_output(
+            'dd if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
+            % small_file, shell=True)
+        md5val = [out.split()[0]]
+        out = check_output(
+            'dd if=%s bs=10M skip=0 count=1 2> /dev/null | md5sum'
+            % medium_file, shell=True)
+        md5val.extend([out.split()[0]])
+
+        umount_fs(mount_dir)
+    except CalledProcessError:
+        pytest.skip('Setup failed for filesystem: ' + fs_type)
+        return
+    else:
+        yield [fs_ubtype, fs_img, md5val]
     finally:
         umount_fs(mount_dir)
         call('rmdir %s' % mount_dir, shell=True)
