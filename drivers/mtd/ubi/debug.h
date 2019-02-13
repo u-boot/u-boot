@@ -29,7 +29,7 @@ void ubi_dump_vid_hdr(const struct ubi_vid_hdr *vid_hdr);
 #else
 #define ubi_assert(expr)  do {                                               \
 	if (unlikely(!(expr))) {                                             \
-		pr_crit("UBI assert failed in %s at %u\n",                   \
+		pr_debug("UBI assert failed in %s at %u\n",                  \
 		       __func__, __LINE__);                                  \
 		dump_stack();                                                \
 	}                                                                    \
