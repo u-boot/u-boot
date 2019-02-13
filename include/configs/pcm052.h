@@ -24,47 +24,13 @@
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
-#ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
-
-#define CONFIG_JFFS2_NAND
-
-/* Dynamic MTD partition support */
-
-#endif
-
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_ESDHC_NUM	1
-
-/*#define CONFIG_ESDHC_DETECT_USE_EXTERN_IRQ1*/
-
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RMII
-#define CONFIG_FEC_MXC_PHYADDR          0
-
 /* QSPI Configs*/
-
 #ifdef CONFIG_FSL_QSPI
 #define FSL_QSPI_FLASH_SIZE		(1 << 24)
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SYS_FSL_QSPI_LE
 #endif
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC_I2C3
-#define CONFIG_SYS_I2C_MXC
-
-/* RTC (actually an RV-4162 but M41T62-compatible) */
-#define CONFIG_SYS_I2C_RTC_ADDR 0x68
-#define CONFIG_SYS_RTC_BUS_NUM 2
-
-/* EEPROM (24FC256) */
-#define CONFIG_SYS_I2C_EEPROM_ADDR 0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
-#define CONFIG_SYS_I2C_EEPROM_BUS 2
 
 
 #define CONFIG_LOADADDR			0x82000000
