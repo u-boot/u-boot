@@ -22,6 +22,10 @@
 		spi1 = &dspi1;
 		ehci0 = &ehci0;
 		ehci1 = &ehci1;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
 	};
 
 	soc {
@@ -86,6 +90,22 @@
 				reg = <0x40044000 0x1000>,
 					  <0x20000000 0x10000000>;
 				reg-names = "QuadSPI", "QuadSPI-memory";
+				status = "disabled";
+			};
+
+			i2c0: i2c@40066000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "fsl,vf610-i2c";
+				reg = <0x40066000 0x1000>;
+				status = "disabled";
+			};
+
+			i2c1: i2c@40067000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "fsl,vf610-i2c";
+				reg = <0x40067000 0x1000>;
 				status = "disabled";
 			};
 
@@ -154,6 +174,48 @@
 			ehci1: ehci@400b4000 {
 				compatible = "fsl,vf610-usb";
 				reg = <0x400b4000 0x800>;
+				status = "disabled";
+			};
+
+			esdhc1: esdhc@400b2000 {
+				compatible = "fsl,esdhc";
+				reg = <0x400b2000 0x1000>;
+				status = "disabled";
+			};
+
+			fec0: fec@400d0000 {
+			      compatible = "fsl,mvf600-fec";
+			      reg = <0x400d0000 0x1000>;
+			      status = "disabled";
+			};
+
+			fec1: fec@400d1000 {
+			      compatible = "fsl,mvf600-fec";
+			      reg = <0x400d1000 0x1000>;
+			      status = "disabled";
+			};
+
+			nfc: nand@400e0000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "fsl,vf610-nfc";
+				reg = <0x400e0000 0x4000>;
+				status = "disabled";
+			};
+
+			i2c2: i2c@400e6000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "fsl,vf610-i2c";
+				reg = <0x400e6000 0x1000>;
+				status = "disabled";
+			};
+
+			i2c3: i2c@400e7000 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				compatible = "fsl,vf610-i2c";
+				reg = <0x400e7000 0x1000>;
 				status = "disabled";
 			};
 		};
