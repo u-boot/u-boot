@@ -10,6 +10,7 @@ on file system.
 """
 
 import pytest
+from fstest_helpers import assert_fs_integrity
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.slow
@@ -30,6 +31,7 @@ class TestUnlink(object):
                 '%sls host 0:0 dir1/' % fs_type)
             assert(not 'file1' in output)
             assert('file2' in output)
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_unlink2(self, u_boot_console, fs_obj_unlink):
         """
@@ -48,6 +50,7 @@ class TestUnlink(object):
             output = u_boot_console.run_command(
                 '%sls host 0:0 dir2' % fs_type)
             assert('0 file(s), 2 dir(s)' in output)
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_unlink3(self, u_boot_console, fs_obj_unlink):
         """
@@ -59,6 +62,7 @@ class TestUnlink(object):
                 'host bind 0 %s' % fs_img,
                 '%srm host 0:0 dir1/nofile' % fs_type])
             assert('nofile: doesn\'t exist' in ''.join(output))
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_unlink4(self, u_boot_console, fs_obj_unlink):
         """
@@ -71,9 +75,10 @@ class TestUnlink(object):
                 '%srm host 0:0 dir4' % fs_type])
             assert('' == ''.join(output))
 
-        output = u_boot_console.run_command(
-            '%sls host 0:0 /' % fs_type)
-        assert(not 'dir4' in output)
+            output = u_boot_console.run_command(
+                '%sls host 0:0 /' % fs_type)
+            assert(not 'dir4' in output)
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_unlink5(self, u_boot_console, fs_obj_unlink):
         """
@@ -86,6 +91,7 @@ class TestUnlink(object):
                 'host bind 0 %s' % fs_img,
                 '%srm host 0:0 dir5' % fs_type])
             assert('directory is not empty' in ''.join(output))
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_unlink6(self, u_boot_console, fs_obj_unlink):
         """
@@ -97,6 +103,7 @@ class TestUnlink(object):
                 'host bind 0 %s' % fs_img,
                 '%srm host 0:0 dir5/.' % fs_type])
             assert('directory is not empty' in ''.join(output))
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_unlink7(self, u_boot_console, fs_obj_unlink):
         """
@@ -108,3 +115,4 @@ class TestUnlink(object):
                 'host bind 0 %s' % fs_img,
                 '%srm host 0:0 dir5/..' % fs_type])
             assert('directory is not empty' in ''.join(output))
+            assert_fs_integrity(fs_type, fs_img)
