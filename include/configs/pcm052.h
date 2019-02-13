@@ -9,6 +9,7 @@
 #define __CONFIG_H
 
 #include <asm/arch/imx-regs.h>
+#include <linux/sizes.h>
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -16,7 +17,7 @@
 #define CONFIG_CMDLINE_TAG
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * SZ_1M)
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -27,7 +28,7 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 /* QSPI Configs*/
 #ifdef CONFIG_FSL_QSPI
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
+#define FSL_QSPI_FLASH_SIZE		(SZ_16M)
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SYS_FSL_QSPI_LE
 #endif
@@ -154,7 +155,7 @@
 
 /* Physical memory map */
 #define PHYS_SDRAM			(0x80000000)
-#define PHYS_SDRAM_SIZE			(CONFIG_PCM052_DDR_SIZE * 1024 * 1024)
+#define PHYS_SDRAM_SIZE			(CONFIG_PCM052_DDR_SIZE * SZ_1M)
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -167,17 +168,17 @@
 
 /* environment organization */
 #ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_SIZE			(8 * 1024)
+#define CONFIG_ENV_SIZE			(SZ_8K)
 
-#define CONFIG_ENV_OFFSET		(12 * 64 * 1024)
+#define CONFIG_ENV_OFFSET		(12 * SZ_64K)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_SECT_SIZE		(128 * 1024)
-#define CONFIG_ENV_SIZE			(8 * 1024)
+#define CONFIG_ENV_SECT_SIZE		(SZ_128K)
+#define CONFIG_ENV_SIZE			(SZ_8K)
 #define CONFIG_ENV_OFFSET		0xA0000
-#define CONFIG_ENV_SIZE_REDUND		(8 * 1024)
+#define CONFIG_ENV_SIZE_REDUND		(SZ_8K)
 #define CONFIG_ENV_OFFSET_REDUND	0xC0000
 #endif
 
