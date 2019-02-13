@@ -465,6 +465,15 @@ static int ext4fs_delete_file(int inodeno)
 	if (le32_to_cpu(inode.size) % fs->blksz)
 		no_blocks++;
 
+	/*
+	 * special case for symlinks whose target are small enough that
+	 *it fits in struct ext2_inode.b.symlink: no block had been allocated
+	 */
+	if ((le16_to_cpu(inode.mode) & S_IFLNK) &&
+	    le32_to_cpu(inode.size) <= sizeof(inode.b.symlink)) {
+		no_blocks = 0;
+	}
+
 	if (le32_to_cpu(inode.flags) & EXT4_EXTENTS_FL) {
 		/* FIXME delete extent index blocks, i.e. eh_depth >= 1 */
 		struct ext4_extent_header *eh =
@@ -830,7 +839,7 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 }
 
 int ext4fs_write(const char *fname, const char *buffer,
-		 unsigned long sizebytes)
+		 unsigned long sizebytes, int type)
 {
 	int ret = 0;
 	struct ext2_inode *file_inode = NULL;
@@ -853,7 +862,11 @@ int ext4fs_write(const char *fname, const char *buffer,
 	struct ext2_block_group *bgd = NULL;
 	struct ext_filesystem *fs = get_fs();
 	ALLOC_CACHE_ALIGN_BUFFER(char, filename, 256);
+	bool store_link_in_inode = false;
 	memset(filename, 0x00, 256);
+
+	if (type != FILETYPE_REG && type != FILETYPE_SYMLINK)
+		return -1;
 
 	g_parent_inode = zalloc(fs->inodesz);
 	if (!g_parent_inode)
@@ -892,8 +905,16 @@ int ext4fs_write(const char *fname, const char *buffer,
 		if (ret)
 			goto fail;
 	}
-	/* calucalate how many blocks required */
-	bytes_reqd_for_file = sizebytes;
+
+	/* calculate how many blocks required */
+	if (type == FILETYPE_SYMLINK &&
+	    sizebytes <= sizeof(file_inode->b.symlink)) {
+		store_link_in_inode = true;
+		bytes_reqd_for_file = 0;
+	} else {
+		bytes_reqd_for_file = sizebytes;
+	}
+
 	blks_reqd_for_file = lldiv(bytes_reqd_for_file, fs->blksz);
 	if (do_div(bytes_reqd_for_file, fs->blksz) != 0) {
 		blks_reqd_for_file++;
@@ -906,7 +927,7 @@ int ext4fs_write(const char *fname, const char *buffer,
 		goto fail;
 	}
 
-	inodeno = ext4fs_update_parent_dentry(filename, FILETYPE_REG);
+	inodeno = ext4fs_update_parent_dentry(filename, type);
 	if (inodeno == -1)
 		goto fail;
 	/* prepare file inode */
@@ -914,14 +935,23 @@ int ext4fs_write(const char *fname, const char *buffer,
 	if (!inode_buffer)
 		goto fail;
 	file_inode = (struct ext2_inode *)inode_buffer;
-	file_inode->mode = cpu_to_le16(S_IFREG | S_IRWXU |
-	    S_IRGRP | S_IROTH | S_IXGRP | S_IXOTH);
+	file_inode->size = cpu_to_le32(sizebytes);
+	if (type == FILETYPE_SYMLINK) {
+		file_inode->mode = cpu_to_le16(S_IFLNK | S_IRWXU | S_IRWXG |
+					       S_IRWXO);
+		if (store_link_in_inode) {
+			strncpy(file_inode->b.symlink, buffer, sizebytes);
+			sizebytes = 0;
+		}
+	} else {
+		file_inode->mode = cpu_to_le16(S_IFREG | S_IRWXU | S_IRGRP |
+					       S_IROTH | S_IXGRP | S_IXOTH);
+	}
 	/* ToDo: Update correct time */
 	file_inode->mtime = cpu_to_le32(timestamp);
 	file_inode->atime = cpu_to_le32(timestamp);
 	file_inode->ctime = cpu_to_le32(timestamp);
 	file_inode->nlinks = cpu_to_le16(1);
-	file_inode->size = cpu_to_le32(sizebytes);
 
 	/* Allocate data blocks */
 	ext4fs_allocate_blocks(file_inode, blocks_remaining,
@@ -1013,7 +1043,7 @@ int ext4_write_file(const char *filename, void *buf, loff_t offset,
 		return -1;
 	}
 
-	ret = ext4fs_write(filename, buf, len);
+	ret = ext4fs_write(filename, buf, len, FILETYPE_REG);
 	if (ret) {
 		printf("** Error ext4fs_write() **\n");
 		goto fail;
@@ -1027,4 +1057,9 @@ fail:
 	*actwrite = 0;
 
 	return -1;
+}
+
+int ext4fs_create_link(const char *target, const char *fname)
+{
+	return ext4fs_write(fname, target, strlen(target), FILETYPE_SYMLINK);
 }

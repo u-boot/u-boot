@@ -135,9 +135,10 @@ int ext4fs_init(void);
 void ext4fs_deinit(void);
 int ext4fs_filename_unlink(char *filename);
 int ext4fs_write(const char *fname, const char *buffer,
-		 unsigned long sizebytes);
+				 unsigned long sizebytes, int type);
 int ext4_write_file(const char *filename, void *buf, loff_t offset, loff_t len,
 		    loff_t *actwrite);
+int ext4fs_create_link(const char *target, const char *fname);
 #endif
 
 struct ext_filesystem *get_fs(void);

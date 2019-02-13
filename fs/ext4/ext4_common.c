@@ -608,7 +608,7 @@ restart_read:
 		dir->direntlen = cpu_to_le16(fs->blksz - totalbytes);
 
 	dir->namelen = strlen(filename);
-	dir->filetype = FILETYPE_REG;	/* regular file */
+	dir->filetype = file_type;
 	temp_dir = (char *)dir;
 	temp_dir = temp_dir + sizeof(struct ext2_dirent);
 	memcpy(temp_dir, filename, strlen(filename));
