@@ -375,3 +375,25 @@ void enable_caches(void)
 	mmu_set_region_dcache_behaviour(IRAM_BASE_ADDR, IRAM_SIZE, option);
 }
 #endif
+
+#ifdef CONFIG_SYS_I2C_MXC
+/* i2c_num can be from 0 - 3 */
+int enable_i2c_clk(unsigned char enable, unsigned int i2c_num)
+{
+	struct ccm_reg *ccm = (struct ccm_reg *)CCM_BASE_ADDR;
+
+	switch (i2c_num) {
+	case 0:
+		clrsetbits_le32(&ccm->ccgr4, CCM_CCGR4_I2C0_CTRL_MASK,
+				CCM_CCGR4_I2C0_CTRL_MASK);
+	case 2:
+		clrsetbits_le32(&ccm->ccgr10, CCM_CCGR10_I2C2_CTRL_MASK,
+				CCM_CCGR10_I2C2_CTRL_MASK);
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+#endif
