@@ -99,6 +99,17 @@ config SPL_ZYNQMP_ALT_BOOTMODE_ENABLED
 config ZYNQ_SDHCI_MAX_FREQ
 	default 200000000
 
+config SPL_ZYNQMP_TWO_SDHCI
+	bool "Enable booting from both SDHCIs"
+	depends on SPL
+	help
+	  This option reflects that board has two SDHCI controllers which
+	  platform can use as boot device. This option ensures that SPL will
+	  setup BOOT_DEVICE_MMC2 for SDHCI1 controller and BOOT_DEVICE_MMC1 for
+	  SDHCI0 controller. Platforms which have only one SDHCI controller
+	  shouldn't enable this option because it for software SDHCI0 or SDHCI1
+	  are both covered by BOOT_DEVICE_MMC1.
+
 config SPL_ZYNQMP_ALT_BOOTMODE
 	hex
 	default 0x0 if JTAG_MODE
