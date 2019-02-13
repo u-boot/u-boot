@@ -9,9 +9,6 @@
 #ifndef __CONFIG_ZYNQMP_ZCU102_H
 #define __CONFIG_ZYNQMP_ZCU102_H
 
-#define CONFIG_SPD_EEPROM
-#define CONFIG_DDR_SPD
-
 #include <configs/xilinx_zynqmp.h>
 
 #endif /* __CONFIG_ZYNQMP_ZCU102_H */
