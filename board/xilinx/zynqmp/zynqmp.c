@@ -514,6 +514,36 @@ static u32 reset_reason(void)
 	return ret;
 }
 
+static int set_fdtfile(void)
+{
+	char *compatible, *fdtfile;
+	const char *suffix = ".dtb";
+	const char *vendor = "xilinx/";
+
+	if (env_get("fdtfile"))
+		return 0;
+
+	compatible = (char *)fdt_getprop(gd->fdt_blob, 0, "compatible", NULL);
+	if (compatible) {
+		debug("Compatible: %s\n", compatible);
+
+		/* Discard vendor prefix */
+		strsep(&compatible, ",");
+
+		fdtfile = calloc(1, strlen(vendor) + strlen(compatible) +
+				 strlen(suffix) + 1);
+		if (!fdtfile)
+			return -ENOMEM;
+
+		sprintf(fdtfile, "%s%s%s", vendor, compatible, suffix);
+
+		env_set("fdtfile", fdtfile);
+		free(fdtfile);
+	}
+
+	return 0;
+}
+
 int board_late_init(void)
 {
 	u32 reg = 0;
@@ -535,6 +565,10 @@ int board_late_init(void)
 		debug("Saved variables - Skipping\n");
 		return 0;
 	}
+
+	ret = set_fdtfile();
+	if (ret)
+		return ret;
 
 	ret = zynqmp_mmio_read((ulong)&crlapb_base->boot_mode, &reg);
 	if (ret)
