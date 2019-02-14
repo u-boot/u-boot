@@ -77,7 +77,7 @@ int power_init_board(void)
 	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", dev_id, rev_id);
 
 	/* disable Low Power Mode during standby mode */
-	pmic_clrsetbits(dev, PFUZE3000_LDOGCTL, 0, 1);
+	pmic_reg_write(dev, PFUZE3000_LDOGCTL, 1);
 
 	return 0;
 }
