@@ -453,8 +453,8 @@ F:	include/dm/
 F:	test/dm/
 
 EFI PAYLOAD
-M:	Alexander Graf <agraf@suse.de>
-R:	Heinrich Schuchardt <xypron.glpk@gmx.de>
+M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
+R:	Alexander Graf <agraf@csgraf.de>
 S:	Maintained
 T:	git git://github.com/agraf/u-boot.git
 F:	doc/README.uefi
