@@ -91,6 +91,7 @@ int board_eth_init(bd_t *bis)
 {
 	setup_iomux_fec();
 
+	gpio_request(RMII_PHY_RESET, "enet_phy_reset");
 	gpio_direction_output(RMII_PHY_RESET, 0);
 	/*
 	 * According to KSZ8081MNX-RNB manual:
