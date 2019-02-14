@@ -13,7 +13,7 @@ $ make mrproper
 $ make pico-imx6ul_defconfig
 $ make
 
-This generates the SPL and u-boot.img binaries.
+This generates the SPL and u-boot-dtb.img binaries.
 
 1. Loading U-Boot via USB Serial Download Protocol
 
@@ -31,15 +31,15 @@ Connect a USB cable between the OTG pico port and the host PC.
 
 Open a terminal program such as minicom.
 
-Copy SPL and u-boot.img to the imx_usb_loader folder.
+Copy SPL and u-boot-dtb.img to the imx_usb_loader folder.
 
 Load the SPL binary via USB:
 
 $ sudo ./imx_usb SPL
 
-Load the u-boot.img binary via USB:
+Load the u-boot-dtb.img binary via USB:
 
-$ sudo ./imx_usb u-boot.img
+$ sudo ./imx_usb u-boot-dtb.img
 
 Then U-Boot starts and its messages appear in the console program.
 
@@ -54,11 +54,11 @@ Run the DFU agent so we can flash the new images using dfu-util tool:
 
 => dfu 0 mmc 0
 
-Flash SPL and u-boot.img into the eMMC running the following commands on a PC:
+Flash SPL and u-boot-dtb.img into the eMMC running the following commands on a PC:
 
 $ sudo dfu-util -D SPL -a spl
 
-$ sudo dfu-util -D u-boot.img -a u-boot
+$ sudo dfu-util -D u-boot-dtb.img -a u-boot
 
 Remove power from the pico board.
 
@@ -142,7 +142,7 @@ Launch UMS:
 Flash the new binaries:
 
 $ sudo dd if=SPL of=/dev/sdX bs=1k seek=1; sync
-$ sudo dd if=u-boot.img  of=/dev/sdX bs=1k seek=69; sync
+$ sudo dd if=u-boot-dtb.img  of=/dev/sdX bs=1k seek=69; sync
 
 And then SPL binary will load and jump directly to the kernel:
 
