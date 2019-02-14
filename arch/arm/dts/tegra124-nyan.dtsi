@@ -414,6 +414,7 @@
 
 	usb@7d000000 { /* Rear external USB port. */
 		status = "okay";
+		dr_mode = "otg";
 		nvidia,vbus-gpio = <&gpio TEGRA_GPIO(N, 4) GPIO_ACTIVE_HIGH>;
 	};
 
