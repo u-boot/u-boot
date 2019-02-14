@@ -705,10 +705,14 @@ static void tmio_sd_host_init(struct tmio_sd_priv *priv)
 	 * This register dropped backward compatibility at version 0x10.
 	 * Write an appropriate value depending on the IP version.
 	 */
-	if (priv->version >= 0x10)
-		tmio_sd_writel(priv, 0x101, TMIO_SD_HOST_MODE);
-	else
+	if (priv->version >= 0x10) {
+		if (priv->caps & TMIO_SD_CAP_64BIT)
+			tmio_sd_writel(priv, 0x100, TMIO_SD_HOST_MODE);
+		else
+			tmio_sd_writel(priv, 0x101, TMIO_SD_HOST_MODE);
+	} else {
 		tmio_sd_writel(priv, 0x0, TMIO_SD_HOST_MODE);
+	}
 
 	if (priv->caps & TMIO_SD_CAP_DMA_INTERNAL) {
 		tmp = tmio_sd_readl(priv, TMIO_SD_DMA_MODE);
