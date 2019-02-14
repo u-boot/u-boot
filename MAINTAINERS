@@ -114,7 +114,7 @@ F:	include/configs/meson64.h
 N:	meson
 
 ARM BROADCOM BCM283X
-M:	Alexander Graf <agraf@suse.de>
+M:	Matthias Brugger <mbrugger@suse.com>
 S:	Maintained
 F:	arch/arm/mach-bcm283x/
 F:	drivers/gpio/bcm2835_gpio.c
