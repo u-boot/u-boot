@@ -148,6 +148,9 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 		tmio_sd_writel(priv, priv->tap_set, RENESAS_SDHI_SCC_TAPSET);
 	}
 
+	tmio_sd_writel(priv, hs400 ? 0x704 : 0x300,
+		       RENESAS_SDHI_SCC_DT2FF);
+
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_CKSEL);
 	reg |= RENESAS_SDHI_SCC_CKSEL_DTSEL;
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_CKSEL);
