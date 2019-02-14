@@ -232,6 +232,24 @@ config BOOTCOMMAND
 	  This is the string of commands that will be used as bootcmd and if
 	  AUTOBOOT is set, automatically run.
 
+config USE_PREBOOT
+	bool "Enable preboot"
+	help
+	  When this option is enabled, the existence of the environment
+	  variable "preboot" will be checked immediately before starting the
+	  CONFIG_BOOTDELAY countdown and/or running the auto-boot command resp.
+	  entering interactive mode.
+
+	  This feature is especially useful when "preboot" is automatically
+	  generated or modified. For example, the boot code can modify the
+	  "preboot" when a user holds down a certain combination of keys.
+
+config PREBOOT
+	string "preboot default value"
+	depends on USE_PREBOOT
+	help
+	  This is the default of "preboot" environment variable.
+
 menu "Console"
 
 config MENU
