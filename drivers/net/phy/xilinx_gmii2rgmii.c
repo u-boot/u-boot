@@ -75,7 +75,7 @@ static int xilinxgmiitorgmii_probe(struct phy_device *phydev)
 					     "reg", -1);
 	phydev->priv = phy_find_by_mask(phydev->bus,
 					1 << ext_phyaddr,
-					phydev->interface);
+					PHY_INTERFACE_MODE_RGMII);
 
 	debug("%s, gmii2rgmmi:0x%x, extphy:0x%x\n", __func__, phydev->addr,
 	      ext_phyaddr);
