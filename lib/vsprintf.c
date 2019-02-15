@@ -288,6 +288,8 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
 	for (i = 0; i < len && buf + utf16_utf8_strnlen(str, 1) <= end; ++i) {
 		s32 s = utf16_get(&str);
 
+		if (s < 0)
+			s = '?';
 		utf8_put(s, &buf);
 	}
 	for (; len < field_width; --field_width)
