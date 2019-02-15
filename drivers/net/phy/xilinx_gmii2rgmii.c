@@ -62,6 +62,11 @@ static int xilinxgmiitorgmii_probe(struct phy_device *phydev)
 
 	debug("%s\n", __func__);
 
+	if (phydev->interface != PHY_INTERFACE_MODE_GMII) {
+		printf("Incorrect interface type\n");
+		return -EINVAL;
+	}
+
 	/*
 	 * Read the phy address again as the one we read in ethernet driver
 	 * was overwritten for the purpose of storing the ofnode
