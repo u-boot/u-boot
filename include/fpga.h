@@ -41,7 +41,7 @@ typedef struct {                /* typedef fpga_desc */
 	unsigned int blocksize;
 	char *interface;
 	char *dev_part;
-	char *filename;
+	const char *filename;
 	int fstype;
 } fpga_fs_info;
 
