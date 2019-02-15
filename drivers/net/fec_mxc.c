@@ -1284,21 +1284,15 @@ static int fec_phy_init(struct fec_priv *priv, struct udevice *dev)
 {
 	struct phy_device *phydev;
 	int addr;
-	int mask = 0xffffffff;
 
 	addr = device_get_phy_addr(dev);
-	if (addr >= 0)
-		mask = 1 << addr;
-
 #ifdef CONFIG_FEC_MXC_PHYADDR
-	mask = 1 << CONFIG_FEC_MXC_PHYADDR;
+	addr = CONFIG_FEC_MXC_PHYADDR;
 #endif
 
-	phydev = phy_find_by_mask(priv->bus, mask, priv->interface);
+	phydev = phy_connect(priv->bus, addr, dev, priv->interface);
 	if (!phydev)
 		return -ENODEV;
-
-	phy_connect_dev(phydev, dev);
 
 	priv->phydev = phydev;
 	phy_config(phydev);
