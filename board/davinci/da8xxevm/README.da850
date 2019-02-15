@@ -88,6 +88,14 @@ In this case the commands would be simplified to:
   U-Boot > nand erase.part bootloader
   U-Boot > nand write 0xc0700000 bootloader
 
+On the DA850-EVM, NAND can also be written with SW7:7-8 ON and
+
+  sudo mono sfh_OMAP-L138.exe -targetType AM1808 -p /dev/ttyUSB0 \
+	-flash_noubl -flashType NAND ~/src/u-boot/u-boot.ais
+
+To boot the DA850-EVM from NAND, SW7:5 should be switched on and all others
+off.
+
 Flashing the images to MMC
 ==========================
 If the boot pins are set to boot from mmc, the RBL will try to load the
