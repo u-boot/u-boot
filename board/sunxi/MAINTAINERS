@@ -137,11 +137,12 @@ M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/bananapi_m2_berry_defconfig
 
-BANANAPI M2 PLUS H3 BOARD
+BANANAPI M2 PLUS BOARDS
 M:	Icenowy Zheng <icenowy@aosc.io>
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/bananapi_m2_plus_h3_defconfig
+F:	configs/bananapi_m2_plus_h5_defconfig
 
 BANANAPI M2 ULTRA BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
