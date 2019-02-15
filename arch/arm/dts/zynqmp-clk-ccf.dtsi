@@ -11,25 +11,25 @@
 	fclk0: fclk0 {
 		status = "disabled";
 		compatible = "xlnx,fclk";
-		clocks = <&clk 71>;
+		clocks = <&zynqmp_clk 71>;
 	};
 
 	fclk1: fclk1 {
 		status = "disabled";
 		compatible = "xlnx,fclk";
-		clocks = <&clk 72>;
+		clocks = <&zynqmp_clk 72>;
 	};
 
 	fclk2: fclk2 {
 		status = "disabled";
 		compatible = "xlnx,fclk";
-		clocks = <&clk 73>;
+		clocks = <&zynqmp_clk 73>;
 	};
 
 	fclk3: fclk3 {
 		status = "disabled";
 		compatible = "xlnx,fclk";
-		clocks = <&clk 74>;
+		clocks = <&zynqmp_clk 74>;
 	};
 
 	pss_ref_clk: pss_ref_clk {
@@ -67,14 +67,6 @@
 		clock-frequency = <27000000>;
 	};
 
-	clk: clk {
-		u-boot,dm-pre-reloc;
-		#clock-cells = <1>;
-		compatible = "xlnx,zynqmp-clk";
-		clocks = <&pss_ref_clk>, <&video_clk>, <&pss_alt_ref_clk>, <&aux_ref_clk>, <&gt_crx_ref_clk>;
-		clock-names = "pss_ref_clk", "video_clk", "pss_alt_ref_clk", "aux_ref_clk", "gt_crx_ref_clk";
-	};
-
 	dp_aclk: dp_aclk {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
@@ -83,222 +75,238 @@
 	};
 };
 
+&zynqmp_firmware {
+	zynqmp_clk: clock-controller {
+		u-boot,dm-pre-reloc;
+		#clock-cells = <1>;
+		compatible = "xlnx,zynqmp-clk";
+		clocks = <&pss_ref_clk>, <&video_clk>, <&pss_alt_ref_clk>,
+			 <&aux_ref_clk>, <&gt_crx_ref_clk>;
+		clock-names = "pss_ref_clk", "video_clk", "pss_alt_ref_clk",
+			      "aux_ref_clk", "gt_crx_ref_clk";
+	};
+};
+
 &can0 {
-	clocks = <&clk 63>, <&clk 31>;
+	clocks = <&zynqmp_clk 63>, <&zynqmp_clk 31>;
 };
 
 &can1 {
-	clocks = <&clk 64>, <&clk 31>;
+	clocks = <&zynqmp_clk 64>, <&zynqmp_clk 31>;
 };
 
 &cpu0 {
-	clocks = <&clk 10>;
+	clocks = <&zynqmp_clk 10>;
 };
 
 &fpd_dma_chan1 {
-	clocks = <&clk 19>, <&clk 31>;
+	clocks = <&zynqmp_clk 19>, <&zynqmp_clk 31>;
 };
 
 &fpd_dma_chan2 {
-	clocks = <&clk 19>, <&clk 31>;
+	clocks = <&zynqmp_clk 19>, <&zynqmp_clk 31>;
 };
 
 &fpd_dma_chan3 {
-	clocks = <&clk 19>, <&clk 31>;
+	clocks = <&zynqmp_clk 19>, <&zynqmp_clk 31>;
 };
 
 &fpd_dma_chan4 {
-	clocks = <&clk 19>, <&clk 31>;
+	clocks = <&zynqmp_clk 19>, <&zynqmp_clk 31>;
 };
 
 &fpd_dma_chan5 {
-	clocks = <&clk 19>, <&clk 31>;
+	clocks = <&zynqmp_clk 19>, <&zynqmp_clk 31>;
 };
 
 &fpd_dma_chan6 {
-	clocks = <&clk 19>, <&clk 31>;
+	clocks = <&zynqmp_clk 19>, <&zynqmp_clk 31>;
 };
 
 &fpd_dma_chan7 {
-	clocks = <&clk 19>, <&clk 31>;
+	clocks = <&zynqmp_clk 19>, <&zynqmp_clk 31>;
 };
 
 &fpd_dma_chan8 {
-	clocks = <&clk 19>, <&clk 31>;
+	clocks = <&zynqmp_clk 19>, <&zynqmp_clk 31>;
 };
 
 &gpu {
-	clocks = <&clk 24>, <&clk 25>, <&clk 26>;
+	clocks = <&zynqmp_clk 24>, <&zynqmp_clk 25>, <&zynqmp_clk 26>;
 };
 
 &lpd_dma_chan1 {
-	clocks = <&clk 68>, <&clk 31>;
+	clocks = <&zynqmp_clk 68>, <&zynqmp_clk 31>;
 };
 
 &lpd_dma_chan2 {
-	clocks = <&clk 68>, <&clk 31>;
+	clocks = <&zynqmp_clk 68>, <&zynqmp_clk 31>;
 };
 
 &lpd_dma_chan3 {
-	clocks = <&clk 68>, <&clk 31>;
+	clocks = <&zynqmp_clk 68>, <&zynqmp_clk 31>;
 };
 
 &lpd_dma_chan4 {
-	clocks = <&clk 68>, <&clk 31>;
+	clocks = <&zynqmp_clk 68>, <&zynqmp_clk 31>;
 };
 
 &lpd_dma_chan5 {
-	clocks = <&clk 68>, <&clk 31>;
+	clocks = <&zynqmp_clk 68>, <&zynqmp_clk 31>;
 };
 
 &lpd_dma_chan6 {
-	clocks = <&clk 68>, <&clk 31>;
+	clocks = <&zynqmp_clk 68>, <&zynqmp_clk 31>;
 };
 
 &lpd_dma_chan7 {
-	clocks = <&clk 68>, <&clk 31>;
+	clocks = <&zynqmp_clk 68>, <&zynqmp_clk 31>;
 };
 
 &lpd_dma_chan8 {
-	clocks = <&clk 68>, <&clk 31>;
+	clocks = <&zynqmp_clk 68>, <&zynqmp_clk 31>;
 };
 
 &nand0 {
-	clocks = <&clk 60>, <&clk 31>;
+	clocks = <&zynqmp_clk 60>, <&zynqmp_clk 31>;
 };
 
 &gem0 {
-	clocks = <&clk 31>, <&clk 104>, <&clk 45>, <&clk 49>, <&clk 44>;
+	clocks = <&zynqmp_clk 31>, <&zynqmp_clk 104>, <&zynqmp_clk 45>,
+		 <&zynqmp_clk 49>, <&zynqmp_clk 44>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gem1 {
-	clocks = <&clk 31>, <&clk 105>, <&clk 46>, <&clk 50>, <&clk 44>;
+	clocks = <&zynqmp_clk 31>, <&zynqmp_clk 105>, <&zynqmp_clk 46>,
+		 <&zynqmp_clk 50>, <&zynqmp_clk 44>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gem2 {
-	clocks = <&clk 31>, <&clk 106>, <&clk 47>, <&clk 51>, <&clk 44>;
+	clocks = <&zynqmp_clk 31>, <&zynqmp_clk 106>, <&zynqmp_clk 47>,
+		 <&zynqmp_clk 51>, <&zynqmp_clk 44>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gem3 {
-	clocks = <&clk 31>, <&clk 107>, <&clk 48>, <&clk 52>, <&clk 44>;
+	clocks = <&zynqmp_clk 31>, <&zynqmp_clk 107>, <&zynqmp_clk 48>,
+		 <&zynqmp_clk 52>, <&zynqmp_clk 44>;
 	clock-names = "pclk", "hclk", "tx_clk", "rx_clk", "tsu_clk";
 };
 
 &gpio {
-	clocks = <&clk 31>;
+	clocks = <&zynqmp_clk 31>;
 };
 
 &i2c0 {
-	clocks = <&clk 61>;
+	clocks = <&zynqmp_clk 61>;
 };
 
 &i2c1 {
-	clocks = <&clk 62>;
+	clocks = <&zynqmp_clk 62>;
 };
 
 &perf_monitor_ocm {
-	clocks = <&clk 31>;
+	clocks = <&zynqmp_clk 31>;
 };
 
 &perf_monitor_ddr {
-	clocks = <&clk 28>;
+	clocks = <&zynqmp_clk 28>;
 };
 
 &perf_monitor_cci {
-	clocks = <&clk 28>;
+	clocks = <&zynqmp_clk 28>;
 };
 
 &perf_monitor_lpd {
-	clocks = <&clk 31>;
+	clocks = <&zynqmp_clk 31>;
 };
 
 &pcie {
-	clocks = <&clk 23>;
+	clocks = <&zynqmp_clk 23>;
 };
 
 &qspi {
-	clocks = <&clk 53>, <&clk 31>;
+	clocks = <&zynqmp_clk 53>, <&zynqmp_clk 31>;
 };
 
 &sata {
-	clocks = <&clk 22>;
+	clocks = <&zynqmp_clk 22>;
 };
 
 &sdhci0 {
-	clocks = <&clk 54>, <&clk 31>;
+	clocks = <&zynqmp_clk 54>, <&zynqmp_clk 31>;
 };
 
 &sdhci1 {
-	clocks = <&clk 55>, <&clk 31>;
+	clocks = <&zynqmp_clk 55>, <&zynqmp_clk 31>;
 };
 
 &spi0 {
-	clocks = <&clk 58>, <&clk 31>;
+	clocks = <&zynqmp_clk 58>, <&zynqmp_clk 31>;
 };
 
 &spi1 {
-	clocks = <&clk 59>, <&clk 31>;
+	clocks = <&zynqmp_clk 59>, <&zynqmp_clk 31>;
 };
 
 &ttc0 {
-	clocks = <&clk 31>;
+	clocks = <&zynqmp_clk 31>;
 };
 
 &ttc1 {
-	clocks = <&clk 31>;
+	clocks = <&zynqmp_clk 31>;
 };
 
 &ttc2 {
-	clocks = <&clk 31>;
+	clocks = <&zynqmp_clk 31>;
 };
 
 &ttc3 {
-	clocks = <&clk 31>;
+	clocks = <&zynqmp_clk 31>;
 };
 
 &uart0 {
-	clocks = <&clk 56>, <&clk 31>;
+	clocks = <&zynqmp_clk 56>, <&zynqmp_clk 31>;
 };
 
 &uart1 {
-	clocks = <&clk 57>, <&clk 31>;
+	clocks = <&zynqmp_clk 57>, <&zynqmp_clk 31>;
 };
 
 &usb0 {
-	clocks = <&clk 32>, <&clk 34>;
+	clocks = <&zynqmp_clk 32>, <&zynqmp_clk 34>;
 };
 
 &usb1 {
-	clocks = <&clk 33>, <&clk 34>;
+	clocks = <&zynqmp_clk 33>, <&zynqmp_clk 34>;
 };
 
 &watchdog0 {
-	clocks = <&clk 75>;
+	clocks = <&zynqmp_clk 75>;
 };
 
 &lpd_watchdog {
-	clocks = <&clk 112>;
+	clocks = <&zynqmp_clk 112>;
 };
 
 &xilinx_ams {
-	clocks = <&clk 70>;
+	clocks = <&zynqmp_clk 70>;
 };
 
 &zynqmp_dpsub {
-	clocks = <&dp_aclk>, <&clk 17>, <&clk 16>;
+	clocks = <&dp_aclk>, <&zynqmp_clk 17>, <&zynqmp_clk 16>;
 };
 
 &xlnx_dpdma {
-	clocks = <&clk 20>;
+	clocks = <&zynqmp_clk 20>;
 };
 
 &zynqmp_dp_snd_codec0 {
-	clocks = <&clk 17>;
+	clocks = <&zynqmp_clk 17>;
 };
 
 &pcap {
-	clocks = <&clk 41>;
+	clocks = <&zynqmp_clk 41>;
 };
