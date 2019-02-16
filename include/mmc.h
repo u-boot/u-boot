@@ -690,6 +690,12 @@ int mmc_initialize(bd_t *bis);
 int mmc_init(struct mmc *mmc);
 int mmc_send_tuning(struct mmc *mmc, u32 opcode, int *cmd_error);
 
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+int mmc_deinit(struct mmc *mmc);
+#endif
+
 /**
  * mmc_of_parse() - Parse the device tree to get the capabilities of the host
  *

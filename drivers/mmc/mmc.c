@@ -2781,6 +2781,32 @@ int mmc_init(struct mmc *mmc)
 	return err;
 }
 
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+int mmc_deinit(struct mmc *mmc)
+{
+	u32 caps_filtered;
+
+	if (!mmc->has_init)
+		return 0;
+
+	if (IS_SD(mmc)) {
+		caps_filtered = mmc->card_caps &
+			~(MMC_CAP(UHS_SDR12) | MMC_CAP(UHS_SDR25) |
+			  MMC_CAP(UHS_SDR50) | MMC_CAP(UHS_DDR50) |
+			  MMC_CAP(UHS_SDR104));
+
+		return sd_select_mode_and_width(mmc, caps_filtered);
+	} else {
+		caps_filtered = mmc->card_caps &
+			~(MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_HS_400));
+
+		return mmc_select_mode_and_width(mmc, caps_filtered);
+	}
+}
+#endif
+
 int mmc_set_dsr(struct mmc *mmc, u16 val)
 {
 	mmc->dsr = val;

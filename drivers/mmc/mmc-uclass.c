@@ -368,6 +368,19 @@ static int mmc_blk_probe(struct udevice *dev)
 	return 0;
 }
 
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+static int mmc_blk_remove(struct udevice *dev)
+{
+	struct udevice *mmc_dev = dev_get_parent(dev);
+	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc_dev);
+	struct mmc *mmc = upriv->mmc;
+
+	return mmc_deinit(mmc);
+}
+#endif
+
 static const struct blk_ops mmc_blk_ops = {
 	.read	= mmc_bread,
 #if CONFIG_IS_ENABLED(MMC_WRITE)
@@ -382,6 +395,12 @@ U_BOOT_DRIVER(mmc_blk) = {
 	.id		= UCLASS_BLK,
 	.ops		= &mmc_blk_ops,
 	.probe		= mmc_blk_probe,
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	.remove		= mmc_blk_remove,
+	.flags		= DM_FLAG_OS_PREPARE,
+#endif
 };
 #endif /* CONFIG_BLK */
 
