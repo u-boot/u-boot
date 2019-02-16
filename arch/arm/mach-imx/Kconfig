@@ -78,3 +78,15 @@ config NXP_BOARD_REVISION
 	  NXP boards based on i.MX6/7 contain the board revision information
 	  stored in the fuses. Select this option if you want to be able to
 	  retrieve the board revision information.
+
+config DDRMC_VF610_CALIBRATION
+	bool "Enable DDRMC (DDR3) on-chip calibration"
+	depends on ARCH_VF610
+	help
+	  Vybrid (vf610) SoC provides some on-chip facility to tune the DDR3
+	  memory parameters. Select this option if you want to calculate them
+	  at boot time.
+	  NOTE:
+	  NXP does NOT recommend to perform this calibration at each boot. One
+	  shall perform it on a new PCB and then use those values to program
+	  the ddrmc_cr_setting on relevant board file.

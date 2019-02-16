@@ -945,14 +945,14 @@ static int mv88e61xx_phy_config(struct phy_device *phydev)
 				continue;
 			}
 
-			res = genphy_config_aneg(phydev);
-			if (res < 0) {
-				printf("Error setting PHY %i autoneg\n", i);
-				continue;
-			}
 			res = phy_reset(phydev);
 			if (res < 0) {
 				printf("Error resetting PHY %i\n", i);
+				continue;
+			}
+			res = genphy_config_aneg(phydev);
+			if (res < 0) {
+				printf("Error setting PHY %i autoneg\n", i);
 				continue;
 			}
 

@@ -794,9 +794,9 @@ config SPL_USB_HOST_SUPPORT
 	  device can be attached. This option enables the drivers in
 	  drivers/usb/host as part of an SPL build.
 
-config SPL_USB_SUPPORT
+config SPL_USB_STORAGE
 	bool "Support loading from USB"
-	depends on SPL_USB_HOST_SUPPORT
+	depends on SPL_USB_HOST_SUPPORT && !(BLK && !DM_USB)
 	help
 	  Enable support for USB devices in SPL. This allows use of USB
 	  devices such as hard drives and flash drivers for loading U-Boot.

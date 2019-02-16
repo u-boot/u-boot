@@ -7,11 +7,11 @@
 	soc {
 		u-boot,dm-spl;
 
-		aips-bus@02000000 {
+		aips-bus@2000000 {
 			u-boot,dm-spl;
 		};
 
-		aips-bus@02100000 {
+		aips-bus@2100000 {
 			u-boot,dm-spl;
 		};
 	};

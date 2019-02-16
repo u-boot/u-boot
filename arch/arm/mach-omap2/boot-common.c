@@ -93,7 +93,7 @@ void save_omap_boot_params(void)
 			sys_boot_device = 1;
 			break;
 #endif
-#if defined(BOOT_DEVICE_USB) && !defined(CONFIG_SPL_USB_SUPPORT)
+#if defined(BOOT_DEVICE_USB) && !defined(CONFIG_SPL_USB_STORAGE)
 		case BOOT_DEVICE_USB:
 			sys_boot_device = 1;
 			break;

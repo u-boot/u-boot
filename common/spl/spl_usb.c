@@ -15,9 +15,7 @@
 #include <usb.h>
 #include <fat.h>
 
-#ifdef CONFIG_USB_STORAGE
 static int usb_stor_curr_dev = -1; /* current device */
-#endif
 
 static int spl_usb_load_image(struct spl_image_info *spl_image,
 			      struct spl_boot_device *bootdev)
@@ -34,13 +32,11 @@ static int spl_usb_load_image(struct spl_image_info *spl_image,
 		return err;
 	}
 
-#ifdef CONFIG_USB_STORAGE
 	/* try to recognize storage devices immediately */
 	usb_stor_curr_dev = usb_stor_scan(1);
 	stor_dev = blk_get_devnum_by_type(IF_TYPE_USB, usb_stor_curr_dev);
 	if (!stor_dev)
 		return -ENODEV;
-#endif
 
 	debug("boot mode - FAT\n");
 

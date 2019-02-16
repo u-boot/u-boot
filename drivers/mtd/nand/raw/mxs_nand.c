@@ -1092,7 +1092,7 @@ int mxs_nand_alloc_buffers(struct mxs_nand_info *nand_info)
 /*
  * Initializes the NFC hardware.
  */
-int mxs_nand_init_dma(struct mxs_nand_info *info)
+static int mxs_nand_init_dma(struct mxs_nand_info *info)
 {
 	int i = 0, j, ret = 0;
 
@@ -1163,6 +1163,12 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 
 	nand_info->gpmi_regs = (struct mxs_gpmi_regs *)MXS_GPMI_BASE;
 	nand_info->bch_regs = (struct mxs_bch_regs *)MXS_BCH_BASE;
+
+	if (is_mx6sx() || is_mx7())
+		nand_info->max_ecc_strength_supported = 62;
+	else
+		nand_info->max_ecc_strength_supported = 40;
+
 	err = mxs_nand_alloc_buffers(nand_info);
 	if (err)
 		return err;
@@ -1185,9 +1191,6 @@ int mxs_nand_init_spl(struct nand_chip *nand)
 	nand->ecc.read_page	= mxs_nand_ecc_read_page;
 
 	nand->ecc.mode		= NAND_ECC_HW;
-	nand->ecc.bytes		= 9;
-	nand->ecc.size		= 512;
-	nand->ecc.strength	= 8;
 
 	return 0;
 }
