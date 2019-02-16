@@ -4,6 +4,8 @@
  * Logic PD - http://www.logicpd.com
  */
 
+#include "omap3-u-boot.dtsi"
+
 / {
 	chosen {
 		stdout-path = &uart1;
@@ -16,10 +18,6 @@
 
 &i2c2 {
 	clock-frequency = <400000>;
-};
-
-&mmc1 {
-	cd-gpios = <&gpio4 14 GPIO_ACTIVE_LOW>;		/* gpio_110 */
 };
 
 &mmc2 {
