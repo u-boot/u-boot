@@ -108,11 +108,6 @@
 # define PHY_ANEG_TIMEOUT       20000
 #endif
 
-/* I2C */
-#if defined(CONFIG_SYS_I2C_ZYNQ)
-# define CONFIG_SYS_I2C
-#endif
-
 /* EEPROM */
 #ifdef CONFIG_ZYNQMP_EEPROM
 # define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2
@@ -134,6 +129,8 @@
 	"kernel_addr_r=0x18000000\0" \
 	"scriptaddr=0x02000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
+	"script_offset_f=0x3e80000\0" \
+	"script_size_f=0x80000\0" \
 
 #if defined(CONFIG_MMC_SDHCI_ZYNQ)
 # define BOOT_TARGET_DEVICES_MMC(func)	func(MMC, mmc, 0) func(MMC, mmc, 1)
@@ -165,8 +162,38 @@
 # define BOOT_TARGET_DEVICES_DHCP(func)
 #endif
 
+#if defined(CONFIG_ZYNQMP_GQSPI)
+# define BOOT_TARGET_DEVICES_QSPI(func)	func(QSPI, qspi, 0)
+#else
+# define BOOT_TARGET_DEVICES_QSPI(func)
+#endif
+
+#if defined(CONFIG_NAND_ARASAN)
+# define BOOT_TARGET_DEVICES_NAND(func)	func(NAND, nand, 0)
+#else
+# define BOOT_TARGET_DEVICES_NAND(func)
+#endif
+
+#define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "=sf probe " #instance " 0 0 && " \
+		       "sf read $scriptaddr $script_offset_f $script_size_f && " \
+		       "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
+	#devtypel #instance " "
+
+#define BOOTENV_DEV_NAND(devtypeu, devtypel, instance) \
+	"bootcmd_" #devtypel #instance "= nand info && " \
+		       "nand read $scriptaddr $script_offset_f $script_size_f && " \
+		       "source ${scriptaddr}; echo SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_NAND(devtypeu, devtypel, instance) \
+	#devtypel #instance " "
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
+	BOOT_TARGET_DEVICES_QSPI(func) \
+	BOOT_TARGET_DEVICES_NAND(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
 	BOOT_TARGET_DEVICES_SCSI(func) \
 	BOOT_TARGET_DEVICES_PXE(func) \

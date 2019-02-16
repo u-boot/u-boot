@@ -85,7 +85,7 @@ u32 spl_boot_device(void)
 	case SD_MODE1:
 	case SD1_LSHFT_MODE: /* not working on silicon v1 */
 /* if both controllers enabled, then these two are the second controller */
-#if defined(CONFIG_ZYNQ_SDHCI0) && defined(CONFIG_ZYNQ_SDHCI1)
+#if defined(SPL_ZYNQMP_TWO_SDHCI)
 		return BOOT_DEVICE_MMC2;
 /* else, fall through, the one SDHCI controller that is enabled is number 1 */
 #endif

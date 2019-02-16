@@ -186,6 +186,10 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-zc1751-xm017-dc3.dtb		\
 	zynqmp-zc1751-xm018-dc4.dtb		\
 	zynqmp-zc1751-xm019-dc5.dtb
+dtb-$(CONFIG_ARCH_VERSAL) += \
+	versal-mini.dtb \
+	versal-mini-emmc0.dtb \
+	versal-mini-emmc1.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
 dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb am335x-bone.dtb \

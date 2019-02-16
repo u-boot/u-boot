@@ -714,6 +714,7 @@ static const struct dm_spi_ops zynqmp_qspi_ops = {
 
 static const struct udevice_id zynqmp_qspi_ids[] = {
 	{ .compatible = "xlnx,zynqmp-qspi-1.0" },
+	{ .compatible = "xlnx,versal-qspi-1.0" },
 	{ }
 };
 

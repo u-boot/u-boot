@@ -36,6 +36,7 @@
 	chosen {
 		bootargs = "earlycon";
 		stdout-path = "serial0:115200n8";
+		xlnx,eeprom = &eeprom;
 	};
 
 	memory@0 {
@@ -360,7 +361,6 @@
 				status = "disabled"; /* unreachable */
 				reg = <0x20>;
 			};
-
 			max20751@72 { /* u95 */
 				compatible = "maxim,max20751";
 				reg = <0x72>;
@@ -485,21 +485,6 @@
 			#size-cells = <0>;
 			reg = <3>;
 			/* DDR4 SODIMM */
-			dev@19 {
-				reg = <0x19>;
-			};
-			dev@30 {
-				reg = <0x30>;
-			};
-			dev@35 {
-				reg = <0x35>;
-			};
-			dev@36 {
-				reg = <0x36>;
-			};
-			dev@51 {
-				reg = <0x51>;
-			};
 		};
 		i2c@4 {
 			#address-cells = <1>;

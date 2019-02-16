@@ -11,11 +11,15 @@
 #define IOU_SWITCH_CTRL_DIVISOR0_SHIFT	8
 
 struct crlapb_regs {
-	u32 reserved0[69];
+	u32 reserved0[67];
+	u32 cpu_r5_ctrl;
+	u32 reserved;
 	u32 iou_switch_ctrl; /* 0x114 */
 	u32 reserved1[13];
 	u32 timestamp_ref_ctrl; /* 0x14c */
-	u32 reserved2[126];
+	u32 reserved3[108];
+	u32 rst_cpu_r5;
+	u32 reserved2[17];
 	u32 rst_timestamp; /* 0x348 */
 };
 
@@ -32,3 +36,18 @@ struct iou_scntrs_regs {
 };
 
 #define iou_scntr_secure ((struct iou_scntrs_regs *)VERSAL_IOU_SCNTR_SECURE)
+
+#define VERSAL_TCM_BASE_ADDR	0xFFE00000
+#define VERSAL_TCM_SIZE		0x40000
+
+#define VERSAL_RPU_BASEADDR	0xFF9A0000
+
+struct rpu_regs {
+	u32 rpu_glbl_ctrl;
+	u32 reserved0[63];
+	u32 rpu0_cfg; /* 0x100 */
+	u32 reserved1[63];
+	u32 rpu1_cfg; /* 0x200 */
+};
+
+#define rpu_base ((struct rpu_regs *)VERSAL_RPU_BASEADDR)
