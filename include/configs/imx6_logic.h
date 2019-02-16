@@ -68,8 +68,8 @@
 	"nandboot=echo Booting from nand ...; " \
 	" run nandargs;" \
 	" nand read ${loadaddr} kernel ${kernelsize};" \
-	" nand read ${fdt_addr} dtb;" \
-	" bootz ${loadaddr} - ${fdt_addr}\0" \
+	" nand read ${fdt_addr_r} dtb;" \
+	" bootz ${loadaddr} - ${fdt_addr_r}\0" \
 	"nandramboot=echo Booting RAMdisk from nand ...; " \
 	" nand read ${ramdisk_addr_r} fs ${ramdisksize};" \
 	" nand read ${loadaddr} kernel ${kernelsize};" \
@@ -88,8 +88,8 @@
 	"fi; " \
 	"${get_cmd} ${image}; " \
 	"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-		"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-			"bootz ${loadaddr} - ${fdt_addr}; " \
+		"if ${get_cmd} ${fdt_addr_r} ${fdt_file}; then " \
+			"bootz ${loadaddr} - ${fdt_addr_r}; " \
 		"else " \
 			"if test ${boot_fdt} = try; then " \
 				"bootz; " \
