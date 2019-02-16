@@ -9,6 +9,12 @@ Boot services
 .. kernel-doc:: lib/efi_loader/efi_boottime.c
    :internal:
 
+Image relocation
+~~~~~~~~~~~~~~~~
+
+.. kernel-doc:: lib/efi_loader/efi_image_loader.c
+   :internal:
+
 Runtime services
 ----------------
 

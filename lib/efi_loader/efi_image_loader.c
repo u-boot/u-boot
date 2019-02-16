@@ -42,8 +42,8 @@ static int machines[] = {
 #endif
 	0 };
 
-/*
- * Print information about a loaded image.
+/**
+ * efi_print_image_info() - print information about a loaded image
  *
  * If the program counter is located within the image the offset to the base
  * address is shown.
@@ -51,7 +51,7 @@ static int machines[] = {
  * @obj:	EFI object
  * @image:	loaded image
  * @pc:		program counter (use NULL to suppress offset output)
- * @return:	status code
+ * Return:	status code
  */
 static efi_status_t efi_print_image_info(struct efi_loaded_image_obj *obj,
 					 struct efi_loaded_image *image,
@@ -69,8 +69,8 @@ static efi_status_t efi_print_image_info(struct efi_loaded_image_obj *obj,
 	return EFI_SUCCESS;
 }
 
-/*
- * Print information about all loaded images.
+/**
+ * efi_print_image_infos() - print information about all loaded images
  *
  * @pc:		program counter (use NULL to suppress offset output)
  */
@@ -90,6 +90,15 @@ void efi_print_image_infos(void *pc)
 	}
 }
 
+/**
+ * efi_loader_relocate() - relocate UEFI binary
+ *
+ * @rel:		pointer to the relocation table
+ * @rel_size:		size of the relocation table in bytes
+ * @efi_reloc:		actual load address of the image
+ * @pref_address:	preferred load address of the image
+ * Return:		status code
+ */
 static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
 			unsigned long rel_size, void *efi_reloc,
 			unsigned long pref_address)
@@ -159,11 +168,12 @@ void __weak invalidate_icache_all(void)
 	/* If the system doesn't support icache_all flush, cross our fingers */
 }
 
-/*
- * Determine the memory types to be used for code and data.
+/**
+ * efi_set_code_and_data_type() - determine the memory types to be used for code
+ *				  and data.
  *
- * @loaded_image_info	image descriptor
- * @image_type		field Subsystem of the optional header for
+ * @loaded_image_info:	image descriptor
+ * @image_type:		field Subsystem of the optional header for
  *			Windows specific field
  */
 static void efi_set_code_and_data_type(
