@@ -113,6 +113,13 @@ static int sunxi_hdmi_hpd_detect(int hpd_delay)
 	writel(SUNXI_HDMI_CTRL_ENABLE, &hdmi->ctrl);
 	writel(SUNXI_HDMI_PAD_CTRL0_HDP, &hdmi->pad_ctrl0);
 
+	/* Enable PLLs for eventual DDC */
+	writel(SUNXI_HDMI_PAD_CTRL1 | SUNXI_HDMI_PAD_CTRL1_HALVE,
+	       &hdmi->pad_ctrl1);
+	writel(SUNXI_HDMI_PLL_CTRL | SUNXI_HDMI_PLL_CTRL_DIV(15),
+	       &hdmi->pll_ctrl);
+	writel(SUNXI_HDMI_PLL_DBG0_PLL3, &hdmi->pll_dbg0);
+
 	while (timer_get_us() < tmo) {
 		if (readl(&hdmi->hpd) & SUNXI_HDMI_HPD_DETECT)
 			return 1;
@@ -203,7 +210,8 @@ static int sunxi_hdmi_edid_get_block(int block, u8 *buf)
 	return r;
 }
 
-static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
+static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode,
+				    bool verbose_mode)
 {
 	struct edid1_info edid1;
 	struct edid_cea861_info cea681[4];
@@ -214,13 +222,6 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 	struct sunxi_ccm_reg * const ccm =
 		(struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	int i, r, ext_blocks = 0;
-
-	/* SUNXI_HDMI_CTRL_ENABLE & PAD_CTRL0 are already set by hpd_detect */
-	writel(SUNXI_HDMI_PAD_CTRL1 | SUNXI_HDMI_PAD_CTRL1_HALVE,
-	       &hdmi->pad_ctrl1);
-	writel(SUNXI_HDMI_PLL_CTRL | SUNXI_HDMI_PLL_CTRL_DIV(15),
-	       &hdmi->pll_ctrl);
-	writel(SUNXI_HDMI_PLL_DBG0_PLL3, &hdmi->pll_dbg0);
 
 	/* Reset i2c controller */
 	setbits_le32(&ccm->hdmi_clk_cfg, CCM_HDMI_CTRL_DDC_GATE);
@@ -241,7 +242,8 @@ static int sunxi_hdmi_edid_get_mode(struct ctfb_res_modes *mode)
 	if (r == 0) {
 		r = edid_check_info(&edid1);
 		if (r) {
-			printf("EDID: invalid EDID data\n");
+			if (verbose_mode)
+				printf("EDID: invalid EDID data\n");
 			r = -EINVAL;
 		}
 	}
@@ -1082,7 +1084,8 @@ void *video_hw_init(void)
 	struct ctfb_res_modes custom;
 	const char *options;
 #ifdef CONFIG_VIDEO_HDMI
-	int ret, hpd, hpd_delay, edid;
+	int hpd, hpd_delay, edid;
+	bool hdmi_present;
 #endif
 	int i, overscan_offset, overscan_x, overscan_y;
 	unsigned int fb_dma_addr;
@@ -1118,12 +1121,23 @@ void *video_hw_init(void)
 	if (sunxi_display.monitor == sunxi_monitor_dvi ||
 	    sunxi_display.monitor == sunxi_monitor_hdmi) {
 		/* Always call hdp_detect, as it also enables clocks, etc. */
-		ret = sunxi_hdmi_hpd_detect(hpd_delay);
-		if (ret) {
+		hdmi_present = (sunxi_hdmi_hpd_detect(hpd_delay) == 1);
+		if (hdmi_present && edid) {
 			printf("HDMI connected: ");
-			if (edid && sunxi_hdmi_edid_get_mode(&custom) == 0)
+			if (sunxi_hdmi_edid_get_mode(&custom, true) == 0)
 				mode = &custom;
-		} else if (hpd) {
+			else
+				hdmi_present = false;
+		}
+		/* Fall back to EDID in case HPD failed */
+		if (edid && !hdmi_present) {
+			if (sunxi_hdmi_edid_get_mode(&custom, false) == 0) {
+				mode = &custom;
+				hdmi_present = true;
+			}
+		}
+		/* Shut down when display was not found */
+		if ((hpd || edid) && !hdmi_present) {
 			sunxi_hdmi_shutdown();
 			sunxi_display.monitor = sunxi_get_default_mon(false);
 		} /* else continue with hdmi/dvi without a cable connected */
