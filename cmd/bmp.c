@@ -57,7 +57,7 @@ struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
 	bmp = dst;
 
 	/* align to 32-bit-aligned-address + 2 */
-	bmp = (struct bmp_image *)((((unsigned int)dst + 1) & ~3) + 2);
+	bmp = (struct bmp_image *)((((uintptr_t)dst + 1) & ~3) + 2);
 
 	if (gunzip(bmp, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE, map_sysmem(addr, 0),
 		   &len) != 0) {
