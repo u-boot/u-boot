@@ -161,4 +161,12 @@ int sandbox_get_setup_called(struct udevice *dev);
  */
 int sandbox_get_sound_sum(struct udevice *dev);
 
+/**
+ * sandbox_get_pch_spi_protect() - Get the PCI SPI protection status
+ *
+ * @dev: Device to check
+ * @return 0 if not protected, 1 if protected
+ */
+int sandbox_get_pch_spi_protect(struct udevice *dev);
+
 #endif

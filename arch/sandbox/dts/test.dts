@@ -407,6 +407,10 @@
 		compatible = "sandbox,mmc";
 	};
 
+	pch {
+		compatible = "sandbox,pch";
+	};
+
 	pci0: pci-controller0 {
 		compatible = "sandbox,pci";
 		device_type = "pci";
