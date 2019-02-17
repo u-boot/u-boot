@@ -34,7 +34,7 @@ enum {
 };
 
 static void gpio_get_description(struct udevice *dev, const char *bank_name,
-				 int offset, int *flagsp)
+				 int offset, int *flagsp, bool show_all)
 {
 	char buf[80];
 	int ret;
@@ -42,7 +42,7 @@ static void gpio_get_description(struct udevice *dev, const char *bank_name,
 	ret = gpio_get_function(dev, offset, NULL);
 	if (ret < 0)
 		goto err;
-	if (!(*flagsp & FLAG_SHOW_ALL) && ret == GPIOF_UNUSED)
+	if (!show_all && !(*flagsp & FLAG_SHOW_ALL) && ret == GPIOF_UNUSED)
 		return;
 	if ((*flagsp & FLAG_SHOW_BANK) && bank_name) {
 		if (*flagsp & FLAG_SHOW_NEWLINE) {
@@ -98,11 +98,11 @@ static int do_gpio_status(bool all, const char *gpio_name)
 			if (gpio_name && *p) {
 				offset = simple_strtoul(p, NULL, 10);
 				gpio_get_description(dev, bank_name, offset,
-						     &flags);
+						     &flags, true);
 			} else {
 				for (offset = 0; offset < num_bits; offset++) {
 					gpio_get_description(dev, bank_name,
-							     offset, &flags);
+						     offset, &flags, false);
 				}
 			}
 		}
