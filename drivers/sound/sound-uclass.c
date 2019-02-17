@@ -16,7 +16,7 @@ int sound_setup(struct udevice *dev)
 	struct sound_ops *ops = sound_get_ops(dev);
 
 	if (!ops->setup)
-		return -ENOSYS;
+		return 0;
 
 	return ops->setup(dev);
 }

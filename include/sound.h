@@ -54,7 +54,7 @@ void sound_create_square_wave(uint sample_rate, unsigned short *data, int size,
 /* Operations for sound */
 struct sound_ops {
 	/**
-	 * setup() - Set up to play a sound
+	 * setup() - Set up to play a sound (optional)
 	 */
 	int (*setup)(struct udevice *dev);
 
