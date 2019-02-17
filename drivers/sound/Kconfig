@@ -95,6 +95,15 @@ config SOUND_MAX98095
 	  audio data and I2C for codec control. At present it only works
 	  with the Samsung I2S driver.
 
+config SOUND_RT5677
+	bool "Support Realtek RT5677 audio codec"
+	depends on SOUND
+	help
+	  Enable the Realtek RT5677 audio codec. This is an I2S device used on
+	  some Chromebooks from around 2015 ('auron'). It is configured using
+	  an I2C interface and supports multiple sound inputs and outputs,
+	  including digital microphones.
+
 config SOUND_SANDBOX
 	bool "Support sandbox emulated audio codec"
 	depends on SANDBOX && SOUND
