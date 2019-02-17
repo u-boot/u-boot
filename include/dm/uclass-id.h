@@ -106,7 +106,7 @@ enum uclass_id {
 	UCLASS_VIRTIO,		/* VirtIO transport device */
 	UCLASS_W1,		/* Dallas 1-Wire bus */
 	UCLASS_W1_EEPROM,	/* one-wire EEPROMs */
-	UCLASS_WDT,		/* Watchdot Timer driver */
+	UCLASS_WDT,		/* Watchdog Timer driver */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
