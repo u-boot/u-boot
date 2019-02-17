@@ -13,6 +13,9 @@
 
 /* All the supported PCH ioctls */
 enum pch_req_t {
+	/* Returns HDA config info if Azalia V1CTL enabled, -ENOENT if not */
+	PCH_REQ_HDA_CONFIG,
+
 	PCH_REQ_TEST1,		/* Test requests for sandbox driver */
 	PCH_REQ_TEST2,
 	PCH_REQ_TEST3,
