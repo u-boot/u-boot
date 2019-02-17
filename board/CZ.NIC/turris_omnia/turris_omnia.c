@@ -379,7 +379,7 @@ int board_init(void)
 		puts("Cannot find Armada 385 watchdog!\n");
 	} else {
 		puts("Enabling Armada 385 watchdog.\n");
-		wdt_start(watchdog_dev, (u32) 25000000 * 120, 0);
+		wdt_start(watchdog_dev, 120000, 0);
 	}
 # endif
 

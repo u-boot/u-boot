@@ -97,6 +97,7 @@ config WDT_BCM6345
 config WDT_ORION
 	bool "Orion watchdog timer support"
 	depends on WDT
+	select CLK
 	help
 	   Select this to enable Orion watchdog timer, which can be found on some
 	   Marvell Armada chips.
