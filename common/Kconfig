@@ -286,14 +286,16 @@ config LOGLEVEL
 	  All Messages with a loglevel smaller than the console loglevel will
 	  be compiled in. The loglevels are defined as follows:
 
-	  0 (KERN_EMERG)          system is unusable
-	  1 (KERN_ALERT)          action must be taken immediately
-	  2 (KERN_CRIT)           critical conditions
-	  3 (KERN_ERR)            error conditions
-	  4 (KERN_WARNING)        warning conditions
-	  5 (KERN_NOTICE)         normal but significant condition
-	  6 (KERN_INFO)           informational
-	  7 (KERN_DEBUG)          debug-level messages
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
+	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
 
 config SPL_LOGLEVEL
 	int
@@ -482,14 +484,16 @@ config LOG_MAX_LEVEL
 	  higher than this will be ignored. If possible log statements below
 	  this level will be discarded at build time. Levels:
 
-	    0 - panic
-	    1 - critical
-	    2 - error
-	    3 - warning
-	    4 - note
-	    5 - info
-	    6 - detail
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
 	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
 
 config SPL_LOG_MAX_LEVEL
 	int "Maximum log level to record in SPL"
@@ -500,14 +504,16 @@ config SPL_LOG_MAX_LEVEL
 	  higher than this will be ignored. If possible log statements below
 	  this level will be discarded at build time. Levels:
 
-	    0 - panic
-	    1 - critical
-	    2 - error
-	    3 - warning
-	    4 - note
-	    5 - info
-	    6 - detail
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
 	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
 
 config TPL_LOG_MAX_LEVEL
 	int "Maximum log level to record in TPL"
@@ -518,14 +524,16 @@ config TPL_LOG_MAX_LEVEL
 	  higher than this will be ignored. If possible log statements below
 	  this level will be discarded at build time. Levels:
 
-	    0 - panic
-	    1 - critical
-	    2 - error
-	    3 - warning
-	    4 - note
-	    5 - info
-	    6 - detail
+	    0 - emergency
+	    1 - alert
+	    2 - critical
+	    3 - error
+	    4 - warning
+	    5 - note
+	    6 - info
 	    7 - debug
+	    8 - debug content
+	    9 - debug hardware I/O
 
 config LOG_CONSOLE
 	bool "Allow log output to the console"

@@ -14,7 +14,7 @@
 
 /** Log levels supported, ranging from most to least important */
 enum log_level_t {
-	LOGL_EMERG = 0,		/*U-Boot is unstable */
+	LOGL_EMERG = 0,		/* U-Boot is unstable */
 	LOGL_ALERT,		/* Action must be taken immediately */
 	LOGL_CRIT,		/* Critical conditions */
 	LOGL_ERR,		/* Error that prevents something from working */
