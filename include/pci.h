@@ -735,12 +735,6 @@ extern pci_dev_t pci_find_device (unsigned int vendor, unsigned int device, int 
 extern pci_dev_t pci_find_devices (struct pci_device_id *ids, int index);
 pci_dev_t pci_find_class(unsigned int find_class, int index);
 
-extern int pci_hose_config_device(struct pci_controller *hose,
-				  pci_dev_t dev,
-				  unsigned long io,
-				  pci_addr_t mem,
-				  unsigned long command);
-
 extern int pci_hose_find_capability(struct pci_controller *hose, pci_dev_t dev,
 				    int cap);
 extern int pci_hose_find_cap_start(struct pci_controller *hose, pci_dev_t dev,
