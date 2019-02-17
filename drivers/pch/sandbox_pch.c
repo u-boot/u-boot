@@ -48,11 +48,28 @@ static int sandbox_pch_get_io_base(struct udevice *dev, u32 *iobasep)
 	return 0;
 }
 
+int sandbox_pch_ioctl(struct udevice *dev, enum pch_req_t req, void *data,
+		      int size)
+{
+	switch (req) {
+	case PCH_REQ_TEST1:
+		return -ENOSYS;
+	case PCH_REQ_TEST2:
+		return *(char *)data;
+	case PCH_REQ_TEST3:
+		*(char *)data = 'x';
+		return 1;
+	default:
+		return -ENOSYS;
+	}
+}
+
 static const struct pch_ops sandbox_pch_ops = {
 	.get_spi_base	= sandbox_pch_get_spi_base,
 	.set_spi_protect = sandbox_pch_set_spi_protect,
 	.get_gpio_base	= sandbox_pch_get_gpio_base,
 	.get_io_base = sandbox_pch_get_io_base,
+	.ioctl		= sandbox_pch_ioctl,
 };
 
 static const struct udevice_id sandbox_pch_ids[] = {

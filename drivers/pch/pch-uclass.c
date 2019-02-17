@@ -51,6 +51,16 @@ int pch_get_io_base(struct udevice *dev, u32 *iobasep)
 	return ops->get_io_base(dev, iobasep);
 }
 
+int pch_ioctl(struct udevice *dev, ulong req, void *data, int size)
+{
+	struct pch_ops *ops = pch_get_ops(dev);
+
+	if (!ops->ioctl)
+		return -ENOSYS;
+
+	return ops->ioctl(dev, req, data, size);
+}
+
 UCLASS_DRIVER(pch) = {
 	.id		= UCLASS_PCH,
 	.name		= "pch",

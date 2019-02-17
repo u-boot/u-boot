@@ -11,7 +11,20 @@
 
 #define BIOS_CTRL_BIOSWE	BIT(0)
 
-/* Operations for the Platform Controller Hub */
+/* All the supported PCH ioctls */
+enum pch_req_t {
+	PCH_REQ_TEST1,		/* Test requests for sandbox driver */
+	PCH_REQ_TEST2,
+	PCH_REQ_TEST3,
+
+	PCH_REQ_COUNT,		/* Number of ioctrls supported */
+};
+
+/**
+ * struct pch_ops - Operations for the Platform Controller Hub
+ *
+ * Consider using ioctl() to add rarely used or driver-specific operations.
+ */
 struct pch_ops {
 	/**
 	 * get_spi_base() - get the address of SPI base
@@ -49,6 +62,23 @@ struct pch_ops {
 	 * @return 0 if OK, -ve on error (e.g. there is no IO base)
 	 */
 	int (*get_io_base)(struct udevice *dev, u32 *iobasep);
+
+	/**
+	 * ioctl() - perform misc read/write operations
+	 *
+	 * This is a catch-all operation intended to avoid adding lots of
+	 * methods to this uclass, of which few are commonly used. Uncommon
+	 * operations that pertain only to a few devices in this uclass should
+	 * use this method instead of adding new methods.
+	 *
+	 * @dev:	PCH device to check
+	 * @req:	PCH request ID
+	 * @data:	Input/output data
+	 * @size:	Size of input data (and maximum size of output data)
+	 * @return size of output data on sucesss, -ve on error
+	 */
+	int (*ioctl)(struct udevice *dev, enum pch_req_t req, void *data,
+		     int size);
 };
 
 #define pch_get_ops(dev)        ((struct pch_ops *)(dev)->driver->ops)
@@ -89,5 +119,21 @@ int pch_get_gpio_base(struct udevice *dev, u32 *gbasep);
  * @return 0 if OK, -ve on error (e.g. there is no IO base)
  */
 int pch_get_io_base(struct udevice *dev, u32 *iobasep);
+
+/**
+ * pch_ioctl() - perform misc read/write operations
+ *
+ * This is a catch-all operation intended to avoid adding lots of
+ * methods to this uclass, of which few are commonly used. Uncommon
+ * operations that pertain only to a few devices in this uclass should
+ * use this method instead of adding new methods.
+ *
+ * @dev:	PCH device to check
+ * @req:	PCH request ID
+ * @data:	Input/output data
+ * @size:	Size of input data (and maximum size of output data)
+ * @return size of output data on sucesss, -ve on error
+ */
+int pch_ioctl(struct udevice *dev, ulong req, void *data, int size);
 
 #endif

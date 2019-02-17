@@ -34,3 +34,22 @@ static int dm_test_pch_base(struct unit_test_state *uts)
 	return 0;
 }
 DM_TEST(dm_test_pch_base, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test sandbox PCH ioctl */
+static int dm_test_pch_ioctl(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	char data;
+
+	ut_assertok(uclass_first_device_err(UCLASS_PCH, &dev));
+
+	ut_asserteq(-ENOSYS, pch_ioctl(dev, PCH_REQ_TEST1, NULL, 0));
+
+	ut_asserteq('a', pch_ioctl(dev, PCH_REQ_TEST2, "a", 1));
+
+	ut_asserteq(1, pch_ioctl(dev, PCH_REQ_TEST3, &data, 1));
+	ut_asserteq('x', data);
+
+	return 0;
+}
+DM_TEST(dm_test_pch_ioctl, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
