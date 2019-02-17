@@ -40,6 +40,18 @@ config I2S_SAMSUNG
 	  option provides an implementation for sound_init() and
 	  sound_play().
 
+config SOUND_I8254
+	bool "Intel i8254 timer / beeper"
+	depends on SOUND
+	help
+	  This enables support for a beeper that uses the i8254 timer chip.
+	  This can emit beeps at a fixed frequency. It is possible to control
+	  the length of the beeps, by turning a beep on, waiting for a period
+	  of time, then turning it off.
+
+	  This is quite an old feature, called PIT (Programmable Interval
+	  Timer), but is nonetheless still available on modern x86 machines.
+
 config SOUND_INTEL_HDA
 	bool "Intel HDA audio codec"
 	depends on SOUND
