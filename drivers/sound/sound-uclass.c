@@ -31,10 +31,30 @@ int sound_play(struct udevice *dev, void *data, uint data_size)
 	return ops->play(dev, data, data_size);
 }
 
+int sound_start_beep(struct udevice *dev, int frequency_hz)
+{
+	struct sound_ops *ops = sound_get_ops(dev);
+
+	if (!ops->start_beep)
+		return -ENOSYS;
+
+	return ops->start_beep(dev, frequency_hz);
+}
+
+int sound_stop_beep(struct udevice *dev)
+{
+	struct sound_ops *ops = sound_get_ops(dev);
+
+	if (!ops->stop_beep)
+		return -ENOSYS;
+
+	return ops->stop_beep(dev);
+}
+
 int sound_beep(struct udevice *dev, int msecs, int frequency_hz)
 {
 	struct sound_uc_priv *uc_priv = dev_get_uclass_priv(dev);
-	struct i2s_uc_priv *i2s_uc_priv = dev_get_uclass_priv(uc_priv->i2s);
+	struct i2s_uc_priv *i2s_uc_priv;
 	unsigned short *data;
 	uint data_size;
 	int ret;
@@ -43,7 +63,19 @@ int sound_beep(struct udevice *dev, int msecs, int frequency_hz)
 	if (ret && ret != -EALREADY)
 		return ret;
 
+	/* Try using the beep interface if available */
+	ret = sound_start_beep(dev, frequency_hz);
+	if (ret != -ENOSYS) {
+		if (ret)
+			return ret;
+		mdelay(msecs);
+		ret = sound_stop_beep(dev);
+
+		return ret;
+	}
+
 	/* Buffer length computation */
+	i2s_uc_priv = dev_get_uclass_priv(uc_priv->i2s);
 	data_size = i2s_uc_priv->samplingrate * i2s_uc_priv->channels;
 	data_size *= (i2s_uc_priv->bitspersample / SOUND_BITS_IN_BYTE);
 	data = malloc(data_size);

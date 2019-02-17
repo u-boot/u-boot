@@ -24,7 +24,9 @@ struct sandbox_i2s_priv {
 
 struct sandbox_sound_priv {
 	int setup_called;
-	int sum;	/* Use to sum the provided audio data */
+	int sum;		/* Use to sum the provided audio data */
+	bool allow_beep;	/* true to allow the start_beep() interface */
+	int frequency_hz;	/* Beep frequency if active, else 0 */
 };
 
 void sandbox_get_codec_params(struct udevice *dev, int *interfacep, int *ratep,
@@ -59,6 +61,20 @@ int sandbox_get_sound_sum(struct udevice *dev)
 	struct sandbox_sound_priv *priv = dev_get_priv(dev);
 
 	return priv->sum;
+}
+
+void sandbox_set_allow_beep(struct udevice *dev, bool allow)
+{
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
+
+	priv->allow_beep = allow;
+}
+
+int sandbox_get_beep_frequency(struct udevice *dev)
+{
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
+
+	return priv->frequency_hz;
 }
 
 static int sandbox_codec_set_params(struct udevice *dev, int interface,
@@ -128,6 +144,28 @@ static int sandbox_sound_play(struct udevice *dev, void *data, uint data_size)
 	return i2s_tx_data(uc_priv->i2s, data, data_size);
 }
 
+int sandbox_sound_start_beep(struct udevice *dev, int frequency_hz)
+{
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
+
+	if (!priv->allow_beep)
+		return -ENOSYS;
+	priv->frequency_hz = frequency_hz;
+
+	return 0;
+}
+
+int sandbox_sound_stop_beep(struct udevice *dev)
+{
+	struct sandbox_sound_priv *priv = dev_get_priv(dev);
+
+	if (!priv->allow_beep)
+		return -ENOSYS;
+	priv->frequency_hz = 0;
+
+	return 0;
+}
+
 static int sandbox_sound_probe(struct udevice *dev)
 {
 	return sound_find_codec_i2s(dev);
@@ -169,8 +207,10 @@ U_BOOT_DRIVER(sandbox_i2s) = {
 };
 
 static const struct sound_ops sandbox_sound_ops = {
-	.setup	= sandbox_sound_setup,
-	.play	= sandbox_sound_play,
+	.setup		= sandbox_sound_setup,
+	.play		= sandbox_sound_play,
+	.start_beep	= sandbox_sound_start_beep,
+	.stop_beep	= sandbox_sound_stop_beep,
 };
 
 static const struct udevice_id sandbox_sound_ids[] = {
