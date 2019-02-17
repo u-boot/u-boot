@@ -389,6 +389,7 @@
 	i2s: i2s {
 		compatible = "sandbox,i2s";
 		#sound-dai-cells = <1>;
+		sandbox,silent;	/* Don't emit sounds while testing */
 	};
 
 	misc-test {

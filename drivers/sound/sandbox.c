@@ -3,6 +3,8 @@
  * Copyright (c) 2013 Google, Inc
  */
 
+#define LOG_CATEGORY UCLASS_SOUND
+
 #include <common.h>
 #include <audio_codec.h>
 #include <dm.h>
@@ -20,6 +22,7 @@ struct sandbox_codec_priv {
 
 struct sandbox_i2s_priv {
 	int sum;	/* Use to sum the provided audio data */
+	bool silent;	/* Sound is silent, don't use SDL */
 };
 
 struct sandbox_sound_priv {
@@ -101,12 +104,21 @@ static int sandbox_i2s_tx_data(struct udevice *dev, void *data,
 	for (i = 0; i < data_size; i++)
 		priv->sum += ((uint8_t *)data)[i];
 
-	return sandbox_sdl_sound_play(data, data_size);
+	if (!priv->silent) {
+		int ret;
+
+		ret = sandbox_sdl_sound_play(data, data_size);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
 
 static int sandbox_i2s_probe(struct udevice *dev)
 {
 	struct i2s_uc_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct sandbox_i2s_priv *priv = dev_get_priv(dev);
 
 	/* Use hard-coded values here */
 	uc_priv->rfs = 256;
@@ -117,8 +129,15 @@ static int sandbox_i2s_probe(struct udevice *dev)
 	uc_priv->channels = 2;
 	uc_priv->id = 1;
 
-	/* Ignore any error here - we'll just have no sound */
-	sandbox_sdl_sound_init(uc_priv->samplingrate, uc_priv->channels);
+	priv->silent = dev_read_bool(dev, "sandbox,silent");
+
+	if (priv->silent) {
+		log_warning("Sound is silenced\n");
+	} else if (sandbox_sdl_sound_init(uc_priv->samplingrate,
+					  uc_priv->channels)) {
+		/* Ignore any error here - we'll just have no sound */
+		priv->silent = true;
+	}
 
 	return 0;
 }
