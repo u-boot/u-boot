@@ -20,7 +20,9 @@
 #include <asm/arch/pch.h>
 #include <asm/arch/pm.h>
 #include <asm/arch/rcb.h>
+#include <asm/arch/serialio.h>
 #include <asm/arch/spi.h>
+#include <dm/uclass-internal.h>
 
 #define BIOS_CTRL	0xdc
 
@@ -456,6 +458,111 @@ static void systemagent_init(void)
 	cpu_set_power_limits(28);
 }
 
+/* Enable LTR Auto Mode for D21:F1-F6 */
+static void serialio_d21_ltr(u32 bar0)
+{
+	/* 1. Program BAR0 + 808h[2] = 0b */
+	clrbits_le32(bar0 + SIO_REG_PPR_GEN, SIO_REG_PPR_GEN_LTR_MODE_MASK);
+
+	/* 2. Program BAR0 + 804h[1:0] = 00b */
+	clrbits_le32(bar0 + SIO_REG_PPR_RST, SIO_REG_PPR_RST_ASSERT);
+
+	/* 3. Program BAR0 + 804h[1:0] = 11b */
+	setbits_le32(bar0 + SIO_REG_PPR_RST, SIO_REG_PPR_RST_ASSERT);
+
+	/* 4. Program BAR0 + 814h[31:0] = 00000000h */
+	writel(0, bar0 + SIO_REG_AUTO_LTR);
+}
+
+/* Select I2C voltage of 1.8V or 3.3V */
+static void serialio_i2c_voltage_sel(u32 bar0, uint voltage)
+{
+	clrsetbits_le32(bar0 + SIO_REG_PPR_GEN, SIO_REG_PPR_GEN_VOLTAGE_MASK,
+			SIO_REG_PPR_GEN_VOLTAGE(voltage));
+}
+
+/* Put Serial IO D21:F0-F6 device into desired mode */
+static void serialio_d21_mode(int sio_index, int int_pin, bool acpi_mode)
+{
+	u32 portctrl = SIO_IOBP_PORTCTRL_PM_CAP_PRSNT;
+
+	/* Snoop select 1 */
+	portctrl |= SIO_IOBP_PORTCTRL_SNOOP_SELECT(1);
+
+	/* Set interrupt pin */
+	portctrl |= SIO_IOBP_PORTCTRL_INT_PIN(int_pin);
+
+	if (acpi_mode) {
+		/* Enable ACPI interrupt mode */
+		portctrl |= SIO_IOBP_PORTCTRL_ACPI_IRQ_EN;
+	}
+
+	pch_iobp_update(SIO_IOBP_PORTCTRLX(sio_index), 0, portctrl);
+}
+
+/* Init sequence to be run once, done as part of D21:F0 (SDMA) init */
+static void serialio_init_once(bool acpi_mode)
+{
+	if (acpi_mode) {
+		/* Enable ACPI IRQ for IRQ13, IRQ7, IRQ6, IRQ5 in RCBA */
+		setbits_le32(RCB_REG(ACPIIRQEN),
+			     1 << 13 | 1 << 7 | 1 << 6 | 1 << 5);
+	}
+
+	/* Program IOBP CB000154h[12,9:8,4:0] = 1001100011111b */
+	pch_iobp_update(SIO_IOBP_GPIODF, ~0x0000131f, 0x0000131f);
+
+	/* Program IOBP CB000180h[5:0] = 111111b (undefined register) */
+	pch_iobp_update(0xcb000180, ~0x0000003f, 0x0000003f);
+}
+
+/**
+ * pch_serialio_init() - set up serial I/O devices
+ *
+ * @return 0 if OK, -ve on error
+ */
+static int pch_serialio_init(void)
+{
+	struct udevice *dev, *hda;
+	bool acpi_mode = true;
+	u32 bar0, bar1;
+	int ret;
+
+	ret = uclass_find_first_device(UCLASS_I2C, &dev);
+	if (ret)
+		return ret;
+	bar0 = dm_pci_read_bar32(dev, 0);
+	if (!bar0)
+		return -EINVAL;
+	bar1 = dm_pci_read_bar32(dev, 1);
+	if (!bar1)
+		return -EINVAL;
+
+	serialio_init_once(acpi_mode);
+	serialio_d21_mode(SIO_ID_SDMA, SIO_PIN_INTB, acpi_mode);
+
+	serialio_d21_ltr(bar0);
+	serialio_i2c_voltage_sel(bar0, 1); /* Select 1.8V always */
+	serialio_d21_mode(SIO_ID_I2C0, SIO_PIN_INTC, acpi_mode);
+	setbits_le32(bar1 + PCH_PCS, PCH_PCS_PS_D3HOT);
+
+	clrbits_le32(bar1 + PCH_PCS, PCH_PCS_PS_D3HOT);
+
+	setbits_le32(bar0 + SIO_REG_PPR_CLOCK, SIO_REG_PPR_CLOCK_EN);
+
+	/* Manually find the High-definition audio, to turn it off */
+	ret = dm_pci_bus_find_bdf(PCI_BDF(0, 0x1b, 0), &hda);
+	if (ret)
+		return -ENOENT;
+	dm_pci_clrset_config8(hda, 0x43, 0, 0x6f);
+
+	/* Route I/O buffers to ADSP function */
+	dm_pci_clrset_config8(hda, 0x42, 0, 1 << 7 | 1 << 6);
+	log_debug("HDA disabled, I/O buffers routed to ADSP\n");
+
+	return 0;
+}
+
 static int broadwell_pch_init(struct udevice *dev)
 {
 	int ret;
@@ -482,6 +589,9 @@ static int broadwell_pch_init(struct udevice *dev)
 		return ret;
 	pch_pm_init(dev);
 	pch_cg_init(dev);
+	ret = pch_serialio_init();
+	if (ret)
+		return ret;
 	systemagent_init();
 
 	return 0;
