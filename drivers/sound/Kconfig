@@ -49,6 +49,16 @@ config SOUND_INTEL_HDA
 	  Azalia which was the development code-name. It requires setup
 	  information in the device tree (see intel-hda.txt).
 
+config SOUND_IVYBRIDGE
+	bool "Intel Ivybridge sound support"
+	depends on SOUND
+	select SOUND_INTEL_HDA
+	help
+	  Enable sound output on supported Intel Ivybridge-based boards. This
+	  driver uses Intel's High-definition Audio (HDA) architecture,
+	  sometimes called Azalia. The audio codec is detected using a
+	  semi-automatic mechanism.
+
 config SOUND_MAX98088
 	bool "Support Maxim max98088 audio codec"
 	depends on I2S

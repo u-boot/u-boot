@@ -177,6 +177,35 @@ static void sandybridge_setup_northbridge_bars(struct udevice *dev)
 	dm_pci_write_config8(dev, PAM6, 0x33);
 }
 
+/**
+ * sandybridge_init_iommu() - Set up IOMMU so that azalia can be used
+ *
+ * It is not obvious where these values come from. They may be undocumented.
+ */
+static void sandybridge_init_iommu(struct udevice *dev)
+{
+	u32 capid0_a;
+
+	dm_pci_read_config32(dev, 0xe4, &capid0_a);
+	if (capid0_a & (1 << 23)) {
+		log_debug("capid0_a not needed\n");
+		return;
+	}
+
+	/* setup BARs */
+	writel(IOMMU_BASE1 >> 32, MCHBAR_REG(0x5404));
+	writel(IOMMU_BASE1 | 1, MCHBAR_REG(0x5400));
+	writel(IOMMU_BASE2 >> 32, MCHBAR_REG(0x5414));
+	writel(IOMMU_BASE2 | 1, MCHBAR_REG(0x5410));
+
+	/* lock policies */
+	writel(0x80000000, IOMMU_BASE1 + 0xff0);
+
+	/* Enable azalia sound */
+	writel(0x20000000, IOMMU_BASE2 + 0xff0);
+	writel(0xa0000000, IOMMU_BASE2 + 0xff0);
+}
+
 static int bd82x6x_northbridge_early_init(struct udevice *dev)
 {
 	const int chipset_type = SANDYBRIDGE_MOBILE;
@@ -196,6 +225,9 @@ static int bd82x6x_northbridge_early_init(struct udevice *dev)
 	}
 
 	sandybridge_setup_northbridge_bars(dev);
+
+	/* Setup IOMMU BARs */
+	sandybridge_init_iommu(dev);
 
 	/* Device Enable */
 	dm_pci_write_config32(dev, DEVEN, DEVEN_HOST | DEVEN_IGD);

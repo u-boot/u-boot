@@ -16,3 +16,4 @@ obj-$(CONFIG_SOUND_MAX98088)	+= max98088.o maxim_codec.o
 obj-$(CONFIG_SOUND_MAX98090)	+= max98090.o maxim_codec.o
 obj-$(CONFIG_SOUND_MAX98095)	+= max98095.o maxim_codec.o
 obj-$(CONFIG_SOUND_INTEL_HDA)	+= hda_codec.o
+obj-$(CONFIG_SOUND_IVYBRIDGE)	+= ivybridge_sound.o
