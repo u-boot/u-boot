@@ -114,9 +114,7 @@ static inline bool save_reg_from_ofdata(struct udevice *dev, int index,
 	fdt_addr_t addr;
 	fdt_size_t off;
 
-	addr = fdtdec_get_addr_size_auto_noparent(
-		gd->fdt_blob, dev_of_offset(dev), "reg", index, &off, true);
-
+	addr = devfdt_get_addr_size_index(dev, index, &off);
 	if (addr == FDT_ADDR_T_NONE)
 		return false;
 
