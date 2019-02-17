@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2016 Google, Inc
 
+obj-y += adsp.o
 obj-y += cpu.o
 obj-y += iobp.o
 obj-y += lpc.o

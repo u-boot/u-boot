@@ -109,6 +109,9 @@
 #define SATA_DTLE_EDGE_SHIFT	16
 
 /* Power Management */
+#define PCH_PCS			0x84
+#define  PCH_PCS_PS_D3HOT	3
+
 #define GEN_PMCON_1		0xa0
 #define  SMI_LOCK		(1 << 4)
 #define GEN_PMCON_2		0xa2
