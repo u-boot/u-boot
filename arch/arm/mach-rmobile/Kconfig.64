@@ -6,22 +6,27 @@ choice
 config R8A7795
 	bool "Renesas SoC R8A7795"
 	imply CLK_R8A7795
+	imply PINCTRL_PFC_R8A7795
 
 config R8A7796
 	bool "Renesas SoC R8A7796"
 	imply CLK_R8A7796
+	imply PINCTRL_PFC_R8A7796
 
 config R8A77970
 	bool "Renesas SoC R8A77970"
 	imply CLK_R8A77970
+	imply PINCTRL_PFC_R8A77970
 
 config R8A77990
 	bool "Renesas SoC R8A77990"
 	imply CLK_R8A77990
+	imply PINCTRL_PFC_R8A77990
 
 config R8A77995
 	bool "Renesas SoC R8A77995"
 	imply CLK_R8A77995
+	imply PINCTRL_PFC_R8A77995
 
 endchoice
 
