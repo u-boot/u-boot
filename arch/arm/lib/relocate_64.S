@@ -85,6 +85,7 @@ relocate_done:
 	isb	sy
 4:	ldp	x0, x1, [sp, #16]
 	bl	__asm_flush_dcache_range
+	bl     __asm_flush_l3_dcache
 5:	ldp	x29, x30, [sp],#32
 	ret
 ENDPROC(relocate_code)
