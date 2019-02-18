@@ -910,9 +910,17 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
 	return start;
 }
 
-/*
- * Helper to split a full device path (containing both device and file
- * parts) into it's constituent parts.
+/**
+ * efi_dp_split_file_path() - split of relative file path from device path
+ *
+ * Given a device path indicating a file on a device, separate the device
+ * path in two: the device path of the actual device and the file path
+ * relative to this device.
+ *
+ * @full_path:		device path including device and file path
+ * @device_path:	path of the device
+ * @file_path:		relative path of the file
+ * Return:		status code
  */
 efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 				    struct efi_device_path **device_path,
@@ -929,7 +937,7 @@ efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 	while (!EFI_DP_TYPE(p, MEDIA_DEVICE, FILE_PATH)) {
 		p = efi_dp_next(p);
 		if (!p)
-			return EFI_OUT_OF_RESOURCES;
+			return EFI_INVALID_PARAMETER;
 	}
 	fp = efi_dp_dup(p);
 	if (!fp)

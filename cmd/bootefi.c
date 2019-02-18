@@ -133,20 +133,6 @@ done:
 	return ret;
 }
 
-static efi_status_t efi_do_enter(
-			efi_handle_t image_handle, struct efi_system_table *st,
-			EFIAPI efi_status_t (*entry)(
-				efi_handle_t image_handle,
-				struct efi_system_table *st))
-{
-	efi_status_t ret = EFI_LOAD_ERROR;
-
-	if (entry)
-		ret = entry(image_handle, st);
-	st->boottime->exit(image_handle, ret, 0, NULL);
-	return ret;
-}
-
 /*
  * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
  *
@@ -266,9 +252,6 @@ static efi_status_t do_bootefi_exec(void *efi,
 	struct efi_loaded_image_obj *image_obj = NULL;
 	struct efi_loaded_image *loaded_image_info = NULL;
 
-	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
-				     struct efi_system_table *st);
-
 	/*
 	 * Special case for efi payload not loaded from disk, such as
 	 * 'bootefi hello' or for example payload loaded directly into
@@ -300,11 +283,9 @@ static efi_status_t do_bootefi_exec(void *efi,
 		goto err_prepare;
 
 	/* Load the EFI payload */
-	entry = efi_load_pe(image_obj, efi, loaded_image_info);
-	if (!entry) {
-		ret = EFI_LOAD_ERROR;
+	ret = efi_load_pe(image_obj, efi, loaded_image_info);
+	if (ret != EFI_SUCCESS)
 		goto err_prepare;
-	}
 
 	if (memdp) {
 		struct efi_device_path_memory *mdp = (void *)memdp;
@@ -319,14 +300,8 @@ static efi_status_t do_bootefi_exec(void *efi,
 		"{ro,boot}(blob)0000000000000000");
 
 	/* Call our payload! */
-	debug("%s: Jumping to 0x%p\n", __func__, entry);
-
-	if (setjmp(&image_obj->exit_jmp)) {
-		ret = image_obj->exit_status;
-		goto err_prepare;
-	}
-
-	ret = efi_do_enter(&image_obj->header, &systab, entry);
+	debug("%s: Jumping to 0x%p\n", __func__, image_obj->entry);
+	ret = EFI_CALL(efi_start_image(&image_obj->header, NULL, NULL));
 
 err_prepare:
 	/* image has returned, loaded-image obj goes *poof*: */
@@ -343,38 +318,46 @@ err_add_protocol:
 /**
  * bootefi_test_prepare() - prepare to run an EFI test
  *
- * This sets things up so we can call EFI functions. This involves preparing
- * the 'gd' pointer and setting up the load ed image data structures.
+ * Prepare to run a test as if it were provided by a loaded image.
  *
- * @image_objp: loaded_image_infop: Pointer to a struct which will hold the
- *    loaded image object. This struct will be inited by this function before
- *    use.
- * @loaded_image_infop: Pointer to a struct which will hold the loaded image
- *    info. This struct will be inited by this function before use.
- * @path: File path to the test being run (often just the test name with a
- *    backslash before it
- * @test_func: Address of the test function that is being run
- * @load_options_path: U-Boot environment variable to use as load options
- * @return 0 if OK, -ve on error
+ * @image_objp:		pointer to be set to the loaded image handle
+ * @loaded_image_infop:	pointer to be set to the loaded image protocol
+ * @path:		dummy file path used to construct the device path
+ *			set in the loaded image protocol
+ * @load_options_path:	name of a U-Boot environment variable. Its value is
+ *			set as load options in the loaded image protocol.
+ * Return:		status code
  */
 static efi_status_t bootefi_test_prepare
 		(struct efi_loaded_image_obj **image_objp,
-		struct efi_loaded_image **loaded_image_infop, const char *path,
-		ulong test_func, const char *load_options_path)
+		 struct efi_loaded_image **loaded_image_infop, const char *path,
+		 const char *load_options_path)
 {
+	efi_status_t ret;
+
 	/* Construct a dummy device path */
-	bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-					      (uintptr_t)test_func,
-					      (uintptr_t)test_func);
+	bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE, 0, 0);
 	if (!bootefi_device_path)
 		return EFI_OUT_OF_RESOURCES;
-	bootefi_image_path = efi_dp_from_file(NULL, 0, path);
-	if (!bootefi_image_path)
-		return EFI_OUT_OF_RESOURCES;
 
-	return bootefi_run_prepare(load_options_path, bootefi_device_path,
-				   bootefi_image_path, image_objp,
-				   loaded_image_infop);
+	bootefi_image_path = efi_dp_from_file(NULL, 0, path);
+	if (!bootefi_image_path) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto failure;
+	}
+
+	ret = bootefi_run_prepare(load_options_path, bootefi_device_path,
+				  bootefi_image_path, image_objp,
+				  loaded_image_infop);
+	if (ret == EFI_SUCCESS)
+		return ret;
+
+	efi_free_pool(bootefi_image_path);
+	bootefi_image_path = NULL;
+failure:
+	efi_free_pool(bootefi_device_path);
+	bootefi_device_path = NULL;
+	return ret;
 }
 
 #endif /* CONFIG_CMD_BOOTEFI_SELFTEST */
@@ -456,13 +439,13 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		struct efi_loaded_image_obj *image_obj;
 		struct efi_loaded_image *loaded_image_info;
 
-		if (bootefi_test_prepare(&image_obj, &loaded_image_info,
-					 "\\selftest", (uintptr_t)&efi_selftest,
-					 "efi_selftest"))
+		r = bootefi_test_prepare(&image_obj, &loaded_image_info,
+					 "\\selftest", "efi_selftest");
+		if (r != EFI_SUCCESS)
 			return CMD_RET_FAILURE;
 
 		/* Execute the test */
-		r = efi_selftest(&image_obj->header, &systab);
+		r = EFI_CALL(efi_selftest(&image_obj->header, &systab));
 		bootefi_run_finish(image_obj, loaded_image_info);
 		return r != EFI_SUCCESS;
 	} else

@@ -641,6 +641,12 @@ static const struct efi_file_handle efi_file_handle_protocol = {
 	.flush = efi_file_flush,
 };
 
+/**
+ * efi_file_from_path() - open file via device path
+ *
+ * @fp:		device path
+ * @return:	EFI_FILE_PROTOCOL for the file or NULL
+ */
 struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 {
 	struct efi_simple_file_system_protocol *v;
@@ -655,10 +661,14 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 	if (ret != EFI_SUCCESS)
 		return NULL;
 
-	/* skip over device-path nodes before the file path: */
+	/* Skip over device-path nodes before the file path. */
 	while (fp && !EFI_DP_TYPE(fp, MEDIA_DEVICE, FILE_PATH))
 		fp = efi_dp_next(fp);
 
+	/*
+	 * Step through the nodes of the directory path until the actual file
+	 * node is reached which is the final node in the device path.
+	 */
 	while (fp) {
 		struct efi_device_path_file_path *fdp =
 			container_of(fp, struct efi_device_path_file_path, dp);

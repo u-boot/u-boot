@@ -8,7 +8,6 @@
  */
 
 #include <efi_selftest.h>
-#include <malloc.h>
 #include "efi_selftest_hii_data.c"
 
 #define PRINT_TESTNAME efi_st_printf("%s:\n", __func__)
@@ -192,9 +191,10 @@ static int test_hii_database_list_package_lists(void)
 			     (unsigned int)ret);
 		goto out;
 	}
-	handles = malloc(handles_size);
-	if (!handles) {
-		efi_st_error("malloc failed\n");
+	ret = boottime->allocate_pool(EFI_LOADER_DATA, handles_size,
+				      (void **)&handles);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("AllocatePool failed\n");
 		goto out;
 	}
 	ret = hii_database_protocol->list_package_lists(hii_database_protocol,
@@ -205,7 +205,11 @@ static int test_hii_database_list_package_lists(void)
 			     (unsigned int)ret);
 		goto out;
 	}
-	free(handles);
+	ret = boottime->free_pool(handles);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
+		goto out;
+	}
 
 	/* STRINGS */
 	handles = NULL;
@@ -219,9 +223,10 @@ static int test_hii_database_list_package_lists(void)
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
-	handles = malloc(handles_size);
-	if (!handles) {
-		efi_st_error("malloc failed\n");
+	ret = boottime->allocate_pool(EFI_LOADER_DATA, handles_size,
+				      (void **)&handles);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("AllocatePool failed\n");
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
@@ -234,7 +239,11 @@ static int test_hii_database_list_package_lists(void)
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
-	free(handles);
+	ret = boottime->free_pool(handles);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
+		goto out;
+	}
 
 	/* GUID */
 	handles = NULL;
@@ -248,9 +257,10 @@ static int test_hii_database_list_package_lists(void)
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
-	handles = malloc(handles_size);
-	if (!handles) {
-		efi_st_error("malloc failed\n");
+	ret = boottime->allocate_pool(EFI_LOADER_DATA, handles_size,
+				      (void **)&handles);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("AllocatePool failed\n");
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
@@ -263,7 +273,12 @@ static int test_hii_database_list_package_lists(void)
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
-	free(handles);
+	ret = boottime->free_pool(handles);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
+		ret = EFI_ST_FAILURE;
+		goto out;
+	}
 
 	/* KEYBOARD_LAYOUT */
 	handles = NULL;
@@ -277,9 +292,10 @@ static int test_hii_database_list_package_lists(void)
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
-	handles = malloc(handles_size);
-	if (!handles) {
-		efi_st_error("malloc failed\n");
+	ret = boottime->allocate_pool(EFI_LOADER_DATA, handles_size,
+				      (void **)&handles);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("AllocatePool failed\n");
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
@@ -292,7 +308,12 @@ static int test_hii_database_list_package_lists(void)
 		ret = EFI_ST_FAILURE;
 		goto out;
 	}
-	free(handles);
+	ret = boottime->free_pool(handles);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
+		ret = EFI_ST_FAILURE;
+		goto out;
+	}
 
 	result = EFI_ST_SUCCESS;
 
@@ -398,9 +419,10 @@ static int test_hii_database_find_keyboard_layouts(void)
 			     (unsigned int)ret);
 		goto out;
 	}
-	guids = malloc(guids_size);
-	if (!guids) {
-		efi_st_error("malloc failed\n");
+	ret = boottime->allocate_pool(EFI_LOADER_DATA, guids_size,
+				      (void **)&guids);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("AllocatePool failed\n");
 		goto out;
 	}
 	ret = hii_database_protocol->find_keyboard_layouts(
@@ -410,7 +432,11 @@ static int test_hii_database_find_keyboard_layouts(void)
 			     (unsigned int)ret);
 		goto out;
 	}
-	free(guids);
+	ret = boottime->free_pool(guids);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
+		goto out;
+	}
 
 	result = EFI_ST_SUCCESS;
 
@@ -479,9 +505,10 @@ static int test_hii_database_get_keyboard_layout(void)
 			     (unsigned int)ret);
 		goto out;
 	}
-	kb_layout = malloc(kb_layout_size);
-	if (!kb_layout) {
-		efi_st_error("malloc failed\n");
+	ret = boottime->allocate_pool(EFI_LOADER_DATA, kb_layout_size,
+				      (void **)&kb_layout);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("AllocatePool failed\n");
 		goto out;
 	}
 	ret = hii_database_protocol->get_keyboard_layout(hii_database_protocol,
@@ -491,7 +518,11 @@ static int test_hii_database_get_keyboard_layout(void)
 			     (unsigned int)ret);
 		goto out;
 	}
-	free(kb_layout);
+	ret = boottime->free_pool(kb_layout);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("FreePool failed\n");
+		goto out;
+	}
 
 	/* current */
 	kb_layout = NULL;
@@ -738,9 +769,10 @@ static int test_hii_string_get_string(void)
 		goto out;
 	}
 	string_len += sizeof(u16);
-	string = malloc(string_len);
-	if (!string) {
-		efi_st_error("malloc failed\n");
+	ret = boottime->allocate_pool(EFI_LOADER_DATA, string_len,
+				      (void **)&string);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("AllocatePool failed\n");
 		goto out;
 	}
 	ret = hii_string_protocol->get_string(hii_string_protocol,
@@ -875,9 +907,10 @@ static int test_hii_string_get_languages(void)
 			     (unsigned int)ret);
 		goto out;
 	}
-	languages = malloc(languages_len);
-	if (!languages) {
-		efi_st_error("malloc failed\n");
+	ret = boottime->allocate_pool(EFI_LOADER_DATA, languages_len,
+				      (void **)&languages);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("AllocatePool failed\n");
 		goto out;
 	}
 	ret = hii_string_protocol->get_languages(hii_string_protocol, handle,
@@ -947,9 +980,10 @@ static int test_hii_string_get_secondary_languages(void)
 			     (unsigned int)ret);
 		goto out;
 	}
-	languages = malloc(languages_len);
-	if (!languages) {
-		efi_st_error("malloc failed\n");
+	ret = boottime->allocate_pool(EFI_LOADER_DATA, languages_len,
+				      (void **)&languages);
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("AllocatePool failed\n");
 		goto out;
 	}
 	ret = hii_string_protocol->get_secondary_languages(hii_string_protocol,

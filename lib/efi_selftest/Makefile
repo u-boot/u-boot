@@ -51,6 +51,7 @@ endif
 ifeq ($(CONFIG_SANDBOX)$(CONFIG_CPU_V7M)$(CONFIG_X86_64),)
 
 obj-y += \
+efi_selftest_loadimage.o \
 efi_selftest_startimage_exit.o \
 efi_selftest_startimage_return.o
 
@@ -67,6 +68,8 @@ $(obj)/efi_miniapp_file_image_exit.h: $(obj)/efi_selftest_miniapp_exit.efi
 $(obj)/efi_miniapp_file_image_return.h: $(obj)/efi_selftest_miniapp_return.efi
 	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_return.efi > \
 	$(obj)/efi_miniapp_file_image_return.h
+
+$(obj)/efi_selftest_loadimage.o: $(obj)/efi_miniapp_file_image_exit.h
 
 $(obj)/efi_selftest_startimage_exit.o: $(obj)/efi_miniapp_file_image_exit.h
 

@@ -301,8 +301,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
 /* Called from places to check whether a timer expired */
 void efi_timer_check(void);
 /* PE loader implementation */
-void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
-		  struct efi_loaded_image *loaded_image_info);
+efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+			 struct efi_loaded_image *loaded_image_info);
 /* Called once to store the pristine gd pointer */
 void efi_save_gd(void);
 /* Special case handler for error/abort that just tries to dtrt to get
@@ -320,6 +320,10 @@ efi_status_t efi_create_handle(efi_handle_t *handle);
 void efi_delete_handle(efi_handle_t obj);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(const efi_handle_t handle);
+/* Start image */
+efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+				    efi_uintn_t *exit_data_size,
+				    u16 **exit_data);
 /* Find a protocol on a handle */
 efi_status_t efi_search_protocol(const efi_handle_t handle,
 				 const efi_guid_t *protocol_guid,
@@ -397,7 +401,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 				    struct efi_loaded_image_obj **handle_ptr,
 				    struct efi_loaded_image **info_ptr);
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
-				      void **buffer);
+				      void **buffer, efi_uintn_t *size);
 /* Print information about all loaded images */
 void efi_print_image_infos(void *pc);
 
