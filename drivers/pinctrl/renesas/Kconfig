@@ -8,7 +8,6 @@ config PINCTRL_PFC
 
 config PINCTRL_PFC_R8A7790
 	bool "Renesas RCar Gen2 R8A7790 pin control driver"
-	def_bool y if R8A7790
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A7790 SoCs.
@@ -19,7 +18,6 @@ config PINCTRL_PFC_R8A7790
 
 config PINCTRL_PFC_R8A7791
 	bool "Renesas RCar Gen2 R8A7791 pin control driver"
-	def_bool y if R8A7791
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A7791 SoCs.
@@ -30,7 +28,6 @@ config PINCTRL_PFC_R8A7791
 
 config PINCTRL_PFC_R8A7792
 	bool "Renesas RCar Gen2 R8A7792 pin control driver"
-	def_bool y if R8A7792
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A7792 SoCs.
@@ -41,7 +38,6 @@ config PINCTRL_PFC_R8A7792
 
 config PINCTRL_PFC_R8A7793
 	bool "Renesas RCar Gen2 R8A7793 pin control driver"
-	def_bool y if R8A7793
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A7793 SoCs.
@@ -52,7 +48,6 @@ config PINCTRL_PFC_R8A7793
 
 config PINCTRL_PFC_R8A7794
 	bool "Renesas RCar Gen2 R8A7794 pin control driver"
-	def_bool y if R8A7794
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A7794 SoCs.
@@ -63,7 +58,6 @@ config PINCTRL_PFC_R8A7794
 
 config PINCTRL_PFC_R8A7795
 	bool "Renesas RCar Gen3 R8A7795 pin control driver"
-	def_bool y if R8A7795
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A7795 SoCs.
@@ -74,7 +68,6 @@ config PINCTRL_PFC_R8A7795
 
 config PINCTRL_PFC_R8A7796
 	bool "Renesas RCar Gen3 R8A7796 pin control driver"
-	def_bool y if R8A7796
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A7796 SoCs.
@@ -85,7 +78,6 @@ config PINCTRL_PFC_R8A7796
 
 config PINCTRL_PFC_R8A77970
 	bool "Renesas RCar Gen3 R8A77970 pin control driver"
-	def_bool y if R8A77970
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A77970 SoCs.
@@ -96,7 +88,6 @@ config PINCTRL_PFC_R8A77970
 
 config PINCTRL_PFC_R8A77990
 	bool "Renesas RCar Gen3 R8A77990 pin control driver"
-	def_bool y if R8A77990
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A77990 SoCs.
@@ -107,7 +98,6 @@ config PINCTRL_PFC_R8A77990
 
 config PINCTRL_PFC_R8A77995
 	bool "Renesas RCar Gen3 R8A77995 pin control driver"
-	def_bool y if R8A77995
 	depends on PINCTRL_PFC
 	help
 	  Support pin multiplexing control on Renesas RCar Gen3 R8A77995 SoCs.
