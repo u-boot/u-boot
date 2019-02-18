@@ -65,62 +65,8 @@
 
 	aliases {
 		serial0 = &usart1;
-		spi0 = &qspi;
-		mmc0 = &sdio;
-		/* Aliases for gpios so as to use sequence */
-		gpio0 = &gpioa;
-		gpio1 = &gpiob;
-		gpio2 = &gpioc;
-		gpio3 = &gpiod;
-		gpio4 = &gpioe;
-		gpio5 = &gpiof;
-		gpio6 = &gpiog;
-		gpio7 = &gpioh;
-		gpio8 = &gpioi;
-		gpio9 = &gpioj;
-		gpio10 = &gpiok;
 	};
 
-	led1 {
-		compatible = "st,led1";
-		led-gpio = <&gpioi 1 0>;
-	};
-
-	button1 {
-		compatible = "st,button1";
-		button-gpio = <&gpioi 11 0>;
-	};
-
-	backlight: backlight {
-		compatible = "gpio-backlight";
-		gpios = <&gpiok 3 0>;
-		status = "okay";
-	};
-
-	panel-rgb@0 {
-		compatible = "simple-panel";
-		backlight = <&backlight>;
-		enable-gpios = <&gpioi 12 0>;
-		status = "okay";
-
-		display-timings {
-			timing@0 {
-				clock-frequency = <9000000>;
-				hactive = <480>;
-				vactive = <272>;
-				hfront-porch = <2>;
-				hback-porch = <2>;
-				hsync-len = <41>;
-				vfront-porch = <2>;
-				vback-porch = <2>;
-				vsync-len = <10>;
-				hsync-active = <0>;
-				vsync-active = <0>;
-				de-active = <0>;
-				pixelclk-active = <1>;
-			};
-		};
-	};
 };
 
 &clk_hse {
@@ -140,170 +86,12 @@
 			bias-disable;
 		};
 	};
-
-	ethernet_mii: mii@0 {
-	      pins {
-		      pinmux = <STM32F746_PG13_FUNC_ETH_MII_TXD0_ETH_RMII_TXD0>,
-			     <STM32F746_PG14_FUNC_ETH_MII_TXD1_ETH_RMII_TXD1>,
-			     <STM32F746_PG11_FUNC_ETH_MII_TX_EN_ETH_RMII_TX_EN>,
-			     <STM32F746_PA2_FUNC_ETH_MDIO>,
-			     <STM32F746_PC1_FUNC_ETH_MDC>,
-			     <STM32F746_PA1_FUNC_ETH_MII_RX_CLK_ETH_RMII_REF_CLK>,
-			     <STM32F746_PA7_FUNC_ETH_MII_RX_DV_ETH_RMII_CRS_DV>,
-			     <STM32F746_PC4_FUNC_ETH_MII_RXD0_ETH_RMII_RXD0>,
-			     <STM32F746_PC5_FUNC_ETH_MII_RXD1_ETH_RMII_RXD1>;
-		      slew-rate = <2>;
-	      };
-	};
-
-	qspi_pins: qspi@0 {
-		pins {
-			pinmux = <STM32F746_PB2_FUNC_QUADSPI_CLK>,
-			       <STM32F746_PB6_FUNC_QUADSPI_BK1_NCS>,
-			       <STM32F746_PD11_FUNC_QUADSPI_BK1_IO0>,
-			       <STM32F746_PD12_FUNC_QUADSPI_BK1_IO1>,
-			       <STM32F746_PD13_FUNC_QUADSPI_BK1_IO3>,
-			       <STM32F746_PE2_FUNC_QUADSPI_BK1_IO2>;
-			slew-rate = <2>;
-		};
-	};
-
-	fmc_pins: fmc@0 {
-		pins {
-			pinmux = <STM32F746_PD10_FUNC_FMC_D15>,
-				 <STM32F746_PD9_FUNC_FMC_D14>,
-				 <STM32F746_PD8_FUNC_FMC_D13>,
-				 <STM32F746_PE15_FUNC_FMC_D12>,
-				 <STM32F746_PE14_FUNC_FMC_D11>,
-				 <STM32F746_PE13_FUNC_FMC_D10>,
-				 <STM32F746_PE12_FUNC_FMC_D9>,
-				 <STM32F746_PE11_FUNC_FMC_D8>,
-				 <STM32F746_PE10_FUNC_FMC_D7>,
-				 <STM32F746_PE9_FUNC_FMC_D6>,
-				 <STM32F746_PE8_FUNC_FMC_D5>,
-				 <STM32F746_PE7_FUNC_FMC_D4>,
-				 <STM32F746_PD1_FUNC_FMC_D3>,
-				 <STM32F746_PD0_FUNC_FMC_D2>,
-				 <STM32F746_PD15_FUNC_FMC_D1>,
-				 <STM32F746_PD14_FUNC_FMC_D0>,
-
-				 <STM32F746_PE1_FUNC_FMC_NBL1>,
-				 <STM32F746_PE0_FUNC_FMC_NBL0>,
-
-				 <STM32F746_PG5_FUNC_FMC_A15_FMC_BA1>,
-				 <STM32F746_PG4_FUNC_FMC_A14_FMC_BA0>,
-
-				 <STM32F746_PG1_FUNC_FMC_A11>,
-				 <STM32F746_PG0_FUNC_FMC_A10>,
-				 <STM32F746_PF15_FUNC_FMC_A9>,
-				 <STM32F746_PF14_FUNC_FMC_A8>,
-				 <STM32F746_PF13_FUNC_FMC_A7>,
-				 <STM32F746_PF12_FUNC_FMC_A6>,
-				 <STM32F746_PF5_FUNC_FMC_A5>,
-				 <STM32F746_PF4_FUNC_FMC_A4>,
-				 <STM32F746_PF3_FUNC_FMC_A3>,
-				 <STM32F746_PF2_FUNC_FMC_A2>,
-				 <STM32F746_PF1_FUNC_FMC_A1>,
-				 <STM32F746_PF0_FUNC_FMC_A0>,
-
-				 <STM32F746_PH3_FUNC_FMC_SDNE0>,
-				 <STM32F746_PH5_FUNC_FMC_SDNWE>,
-				 <STM32F746_PF11_FUNC_FMC_SDNRAS>,
-				 <STM32F746_PG15_FUNC_FMC_SDNCAS>,
-				 <STM32F746_PC3_FUNC_FMC_SDCKE0>,
-				 <STM32F746_PG8_FUNC_FMC_SDCLK>;
-			  slew-rate = <2>;
-		};
-	};
-
-	ltdc_pins: ltdc@0 {
-		pins {
-			pinmux = <STM32F746_PE4_FUNC_LCD_B0>,
-			       <STM32F746_PG12_FUNC_LCD_B4>,
-			       <STM32F746_PI9_FUNC_LCD_VSYNC>,
-			       <STM32F746_PI10_FUNC_LCD_HSYNC>,
-			       <STM32F746_PI14_FUNC_LCD_CLK>,
-			       <STM32F746_PI15_FUNC_LCD_R0>,
-			       <STM32F746_PJ0_FUNC_LCD_R1>,
-			       <STM32F746_PJ1_FUNC_LCD_R2>,
-			       <STM32F746_PJ2_FUNC_LCD_R3>,
-			       <STM32F746_PJ3_FUNC_LCD_R4>,
-			       <STM32F746_PJ4_FUNC_LCD_R5>,
-			       <STM32F746_PJ5_FUNC_LCD_R6>,
-			       <STM32F746_PJ6_FUNC_LCD_R7>,
-			       <STM32F746_PJ7_FUNC_LCD_G0>,
-			       <STM32F746_PJ8_FUNC_LCD_G1>,
-			       <STM32F746_PJ9_FUNC_LCD_G2>,
-			       <STM32F746_PJ10_FUNC_LCD_G3>,
-			       <STM32F746_PJ11_FUNC_LCD_G4>,
-			       <STM32F746_PJ13_FUNC_LCD_B1>,
-			       <STM32F746_PJ14_FUNC_LCD_B2>,
-			       <STM32F746_PJ15_FUNC_LCD_B3>,
-			       <STM32F746_PK0_FUNC_LCD_G5>,
-			       <STM32F746_PK1_FUNC_LCD_G6>,
-			       <STM32F746_PK2_FUNC_LCD_G7>,
-			       <STM32F746_PK4_FUNC_LCD_B5>,
-			       <STM32F746_PK5_FUNC_LCD_B6>,
-			       <STM32F746_PK6_FUNC_LCD_B7>,
-			       <STM32F746_PK7_FUNC_LCD_DE>;
-			slew-rate = <2>;
-		};
-	};
 };
 
 &usart1 {
 	pinctrl-0 = <&usart1_pins_a>;
 	pinctrl-names = "default";
 	status = "okay";
-};
-
-&fmc {
-	pinctrl-0 = <&fmc_pins>;
-	pinctrl-names = "default";
-	status = "okay";
-
-	/* Memory configuration from sdram datasheet MT48LC_4M32_B2B5-6A */
-	bank1: bank@0 {
-	       st,sdram-control = /bits/ 8 <NO_COL_8 NO_ROW_12 MWIDTH_16 BANKS_4
-	       				    CAS_3 SDCLK_2 RD_BURST_EN
-					    RD_PIPE_DL_0>;
-	       st,sdram-timing = /bits/ 8 <TMRD_2 TXSR_6 TRAS_4 TRC_6 TWR_2
-	       				   TRP_2 TRCD_2>;
-		/* refcount = (64msec/total_row_sdram)*freq - 20 */
-	       st,sdram-refcount = < 1542 >;
-       };
-};
-
-&mac {
-	status = "okay";
-	pinctrl-0 = <&ethernet_mii>;
-	phy-mode = "rmii";
-	phy-handle = <&phy0>;
-
-	mdio0 {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		compatible = "snps,dwmac-mdio";
-		phy0: ethernet-phy@0 {
-			reg = <0>;
-		};
-	};
-};
-
-&qspi {
-	pinctrl-0 = <&qspi_pins>;
-	status = "okay";
-
-	qflash0: n25q128a {
-			#address-cells = <1>;
-			#size-cells = <1>;
-			compatible = "micron,n25q128a13", "jedec,spi-nor";
-			spi-max-frequency = <108000000>;
-			spi-tx-bus-width = <1>;
-			spi-rx-bus-width = <1>;
-			memory-map = <0x90000000 0x1000000>;
-			reg = <0>;
-	};
 };
 
 &sdio {
@@ -314,9 +102,4 @@
 	pinctrl-1 = <&sdio_pins_od>;
 	bus-width = <4>;
 	max-frequency = <25000000>;
-};
-
-&ltdc {
-	status = "okay";
-	pinctrl-0 = <&ltdc_pins>;
 };

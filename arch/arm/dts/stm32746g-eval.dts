@@ -53,7 +53,6 @@
 	compatible = "st,stm32f746g-eval", "st,stm32f746";
 
 	chosen {
-		bootargs = "root=/dev/mmcblk0p1 rw rootwait";
 		stdout-path = "serial0:115200n8";
 	};
 
@@ -63,30 +62,6 @@
 
 	aliases {
 		serial0 = &usart1;
-		spi0 = &qspi;
-		mmc0 = &sdio;
-		/* Aliases for gpios so as to use sequence */
-		gpio0 = &gpioa;
-		gpio1 = &gpiob;
-		gpio2 = &gpioc;
-		gpio3 = &gpiod;
-		gpio4 = &gpioe;
-		gpio5 = &gpiof;
-		gpio6 = &gpiog;
-		gpio7 = &gpioh;
-		gpio8 = &gpioi;
-		gpio9 = &gpioj;
-		gpio10 = &gpiok;
-	};
-
-	led1 {
-		compatible = "st,led1";
-		led-gpio = <&gpiof 10 0>;
-	};
-
-	button1 {
-		compatible = "st,button1";
-		button-gpio = <&gpioc 13 0>;
 	};
 };
 
@@ -97,7 +72,7 @@
 &pinctrl {
 	usart1_pins_a: usart1@0	{
 		pins1 {
-		       pinmux = <STM32F746_PA9_FUNC_USART1_TX>;
+			pinmux = <STM32F746_PA9_FUNC_USART1_TX>;
 				bias-disable;
 				drive-push-pull;
 				slew-rate = <2>;
@@ -107,127 +82,12 @@
 			bias-disable;
 		};
 	};
-
-	ethernet_mii: mii@0 {
-	      pins {
-		      pinmux = <STM32F746_PG13_FUNC_ETH_MII_TXD0_ETH_RMII_TXD0>,
-			     <STM32F746_PG14_FUNC_ETH_MII_TXD1_ETH_RMII_TXD1>,
-			     <STM32F746_PG11_FUNC_ETH_MII_TX_EN_ETH_RMII_TX_EN>,
-			     <STM32F746_PA2_FUNC_ETH_MDIO>,
-			     <STM32F746_PC1_FUNC_ETH_MDC>,
-			     <STM32F746_PA1_FUNC_ETH_MII_RX_CLK_ETH_RMII_REF_CLK>,
-			     <STM32F746_PA7_FUNC_ETH_MII_RX_DV_ETH_RMII_CRS_DV>,
-			     <STM32F746_PC4_FUNC_ETH_MII_RXD0_ETH_RMII_RXD0>,
-			     <STM32F746_PC5_FUNC_ETH_MII_RXD1_ETH_RMII_RXD1>;
-		      slew-rate = <2>;
-	      };
-	};
-
-	fmc_pins: fmc@0 {
-		pins {
-			pinmux = <STM32F746_PI10_FUNC_FMC_D31>, /* FMC_D31 */
-				 <STM32F746_PI9_FUNC_FMC_D30>,  /* FMC_D30*/
-				 <STM32F746_PI7_FUNC_FMC_D29>,  /* FMC_D29 */
-				 <STM32F746_PI6_FUNC_FMC_D28>,  /* FMC_D28 */
-				 <STM32F746_PI3_FUNC_FMC_D27>,  /* FMC_D27 */
-				 <STM32F746_PI2_FUNC_FMC_D26>,  /* FMC_D26 */
-				 <STM32F746_PI1_FUNC_FMC_D25>,  /* FMC_D25 */
-				 <STM32F746_PI0_FUNC_FMC_D24>,  /* FMC_D24 */
-				 <STM32F746_PH15_FUNC_FMC_D23>, /* FMC_D23 */
-				 <STM32F746_PH14_FUNC_FMC_D22>, /* FMC_D22 */
-				 <STM32F746_PH13_FUNC_FMC_D21>, /* FMC_D21 */
-				 <STM32F746_PH12_FUNC_FMC_D20>, /* FMC_D20 */
-				 <STM32F746_PH11_FUNC_FMC_D19>, /* FMC_D19 */
-				 <STM32F746_PH10_FUNC_FMC_D18>, /* FMC_D18 */
-				 <STM32F746_PH9_FUNC_FMC_D17>,  /* FMC_D17 */
-				 <STM32F746_PH8_FUNC_FMC_D16>,  /* FMC_D16 */
-
-				 <STM32F746_PD10_FUNC_FMC_D15>, /* FMC_D15 */
-				 <STM32F746_PD9_FUNC_FMC_D14>, /* FMC_D14*/
-				 <STM32F746_PD8_FUNC_FMC_D13>, /* FMC_D13 */
-				 <STM32F746_PE15_FUNC_FMC_D12>,/* FMC_D12 */
-				 <STM32F746_PE14_FUNC_FMC_D11>,/* FMC_D11 */
-				 <STM32F746_PE13_FUNC_FMC_D10>,/* FMC_D10 */
-				 <STM32F746_PE12_FUNC_FMC_D9>, /* FMC_D9 */
-				 <STM32F746_PE11_FUNC_FMC_D8>, /* FMC_D8 */
-				 <STM32F746_PE10_FUNC_FMC_D7>, /* FMC_D7 */
-				 <STM32F746_PE9_FUNC_FMC_D6>,  /* FMC_D6 */
-				 <STM32F746_PE8_FUNC_FMC_D5>,  /* FMC_D5*/
-				 <STM32F746_PE7_FUNC_FMC_D4>,  /* FMC_D4 */
-				 <STM32F746_PD1_FUNC_FMC_D3>,  /* FMC_D3 */
-				 <STM32F746_PD0_FUNC_FMC_D2>,  /* FMC_D2 */
-				 <STM32F746_PD15_FUNC_FMC_D1>, /* FMC_D1 */
-				 <STM32F746_PD14_FUNC_FMC_D0>, /* FMC_D0 */
-
-				 <STM32F746_PI5_FUNC_FMC_NBL3>, /* FMC_NBL3 */
-				 <STM32F746_PI4_FUNC_FMC_NBL2>, /* FMC_NBL2 */
-				 <STM32F746_PE1_FUNC_FMC_NBL1>, /* FMC_NBL1 */
-				 <STM32F746_PE0_FUNC_FMC_NBL0>, /* FMC_NBL0 */
-
-				 <STM32F746_PG5_FUNC_FMC_A15_FMC_BA1>, /* FMC_A15 FMC_BA1 */
-				 <STM32F746_PG4_FUNC_FMC_A14_FMC_BA0>, /* FMC_A14 FMC_BA0*/
-
-				 <STM32F746_PG1_FUNC_FMC_A11>, /* FMC_A11 */
-				 <STM32F746_PG0_FUNC_FMC_A10>, /* FMC_A10 */
-				 <STM32F746_PF15_FUNC_FMC_A9>, /* FMC_A9 */
-				 <STM32F746_PF14_FUNC_FMC_A8>, /* FMC_A8 */
-				 <STM32F746_PF13_FUNC_FMC_A7>, /* FMC_A7 */
-				 <STM32F746_PF12_FUNC_FMC_A6>, /* FMC_A6 */
-				 <STM32F746_PF5_FUNC_FMC_A5>,  /* FUNC_FMC_A5 */
-				 <STM32F746_PF4_FUNC_FMC_A4>,  /* FMC_A4 */
-				 <STM32F746_PF3_FUNC_FMC_A3>,  /* FMC_A3 */
-				 <STM32F746_PF2_FUNC_FMC_A2>,  /* FMC_A2 */
-				 <STM32F746_PF1_FUNC_FMC_A1>,  /* FMC_A1 */
-				 <STM32F746_PF0_FUNC_FMC_A0>,  /* FMC_A0 */
-
-				 <STM32F746_PH3_FUNC_FMC_SDNE0>,/* FMC_SDNE0 */
-				 <STM32F746_PH5_FUNC_FMC_SDNWE>, /* FMC_SDNWE */
-				 <STM32F746_PF11_FUNC_FMC_SDNRAS>, /* FMC_SDNRAS */
-				 <STM32F746_PG15_FUNC_FMC_SDNCAS>, /* FMC_SDNCAS */
-				 <STM32F746_PH2_FUNC_FMC_SDCKE0>, /* FMC_SDCKE0 */
-				 <STM32F746_PG8_FUNC_FMC_SDCLK>; /* FMC_SDCLK */
-			  slew-rate = <2>;
-		};
-	};
 };
 
 &usart1 {
 	pinctrl-0 = <&usart1_pins_a>;
 	pinctrl-names = "default";
 	status = "okay";
-};
-
-&mac {
-	status = "okay";
-	pinctrl-0 = <&ethernet_mii>;
-	phy-mode = "rmii";
-	phy-handle = <&phy0>;
-
-	mdio0 {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		compatible = "snps,dwmac-mdio";
-		phy0: ethernet-phy@0 {
-			reg = <0>;
-		};
-	};
-};
-
-&fmc {
-	pinctrl-0 = <&fmc_pins>;
-	pinctrl-names = "default";
-	status = "okay";
-
-	/*
-	 * Memory configuration from sdram datasheet IS42S32800G-6BLI
-	 */
-	bank1: bank@0 {
-		st,sdram-control = /bits/ 8 <NO_COL_9 NO_ROW_12 MWIDTH_32 BANKS_4
-				  CAS_2 SDCLK_3 RD_BURST_EN RD_PIPE_DL_0>;
-		st,sdram-timing = /bits/ 8 <TMRD_1 TXSR_1 TRAS_1 TRC_6 TRP_2
-				  TWR_1 TRCD_1>;
-		st,sdram-refcount = <1539>;
-	};
 };
 
 &sdio {

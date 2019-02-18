@@ -57,51 +57,15 @@
 			compatible = "fixed-clock";
 			clock-frequency = <0>;
 		};
-};
+	};
 
 	soc {
-		u-boot,dm-pre-reloc;
-		mac: ethernet@40028000 {
-			compatible = "st,stm32-dwmac";
-			reg = <0x40028000 0x8000>;
-			reg-names = "stmmaceth";
-			clocks = <&rcc 0 STM32F7_AHB1_CLOCK(ETHMAC)>,
-				 <&rcc 0 STM32F7_AHB1_CLOCK(ETHMACTX)>,
-				 <&rcc 0 STM32F7_AHB1_CLOCK(ETHMACRX)>;
-			interrupts = <61>, <62>;
-			interrupt-names = "macirq", "eth_wake_irq";
-			snps,pbl = <8>;
-			snps,mixed-burst;
-			dma-ranges;
-			status = "disabled";
-		};
-
-		fmc: fmc@A0000000 {
-			compatible = "st,stm32-fmc";
-			reg = <0xA0000000 0x1000>;
-			clocks = <&rcc 0 STM32F7_AHB3_CLOCK(FMC)>;
-			u-boot,dm-pre-reloc;
-		};
-
-		qspi: quadspi@A0001000 {
-			compatible = "st,stm32-qspi";
-			#address-cells = <1>;
-			#size-cells = <0>;
-			reg = <0xA0001000 0x1000>, <0x90000000 0x10000000>;
-			reg-names = "qspi", "qspi_mm";
-			interrupts = <92>;
-			spi-max-frequency = <108000000>;
-			clocks = <&rcc 0 STM32F7_AHB3_CLOCK(QSPI)>;
-			resets = <&rcc STM32F7_AHB3_RESET(QSPI)>;
-			status = "disabled";
-		};
 		usart1: serial@40011000 {
 			compatible = "st,stm32f7-usart", "st,stm32f7-uart";
 			reg = <0x40011000 0x400>;
 			interrupts = <37>;
 			clocks = <&rcc 0 STM32F7_APB2_CLOCK(USART1)>;
 			status = "disabled";
-			u-boot,dm-pre-reloc;
 		};
 
 		pwrcfg: power-config@58024800 {
@@ -116,7 +80,6 @@
 			reg = <0x40023800 0x400>;
 			clocks = <&clk_hse>;
 			st,syscfg = <&pwrcfg>;
-			u-boot,dm-pre-reloc;
 		};
 
 		pinctrl: pin-controller {
@@ -124,7 +87,6 @@
 			#size-cells = <1>;
 			compatible = "st,stm32f746-pinctrl";
 			ranges = <0 0x40020000 0x3000>;
-			u-boot,dm-pre-reloc;
 			pins-are-numbered;
 
 			gpioa: gpio@40020000 {
@@ -134,7 +96,6 @@
 				reg = <0x0 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOA)>;
 				st,bank-name = "GPIOA";
-				u-boot,dm-pre-reloc;
 			};
 
 			gpiob: gpio@40020400 {
@@ -144,7 +105,6 @@
 				reg = <0x400 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOB)>;
 				st,bank-name = "GPIOB";
-				u-boot,dm-pre-reloc;
 			};
 
 
@@ -155,7 +115,6 @@
 				reg = <0x800 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOC)>;
 				st,bank-name = "GPIOC";
-				u-boot,dm-pre-reloc;
 			};
 
 			gpiod: gpio@40020c00 {
@@ -165,7 +124,6 @@
 				reg = <0xc00 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOD)>;
 				st,bank-name = "GPIOD";
-				u-boot,dm-pre-reloc;
 			};
 
 			gpioe: gpio@40021000 {
@@ -175,7 +133,6 @@
 				reg = <0x1000 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOE)>;
 				st,bank-name = "GPIOE";
-				u-boot,dm-pre-reloc;
 			};
 
 			gpiof: gpio@40021400 {
@@ -185,7 +142,6 @@
 				reg = <0x1400 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOF)>;
 				st,bank-name = "GPIOF";
-				u-boot,dm-pre-reloc;
 			};
 
 			gpiog: gpio@40021800 {
@@ -195,7 +151,6 @@
 				reg = <0x1800 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOG)>;
 				st,bank-name = "GPIOG";
-				u-boot,dm-pre-reloc;
 			};
 
 			gpioh: gpio@40021c00 {
@@ -205,7 +160,6 @@
 				reg = <0x1c00 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOH)>;
 				st,bank-name = "GPIOH";
-				u-boot,dm-pre-reloc;
 			};
 
 			gpioi: gpio@40022000 {
@@ -215,7 +169,6 @@
 				reg = <0x2000 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOI)>;
 				st,bank-name = "GPIOI";
-				u-boot,dm-pre-reloc;
 			};
 
 			gpioj: gpio@40022400 {
@@ -225,7 +178,6 @@
 				reg = <0x2400 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOJ)>;
 				st,bank-name = "GPIOJ";
-				u-boot,dm-pre-reloc;
 			};
 
 			gpiok: gpio@40022800 {
@@ -235,7 +187,6 @@
 				reg = <0x2800 0x400>;
 				clocks = <&rcc 0 STM32F7_AHB1_CLOCK(GPIOK)>;
 				st,bank-name = "GPIOK";
-				u-boot,dm-pre-reloc;
 			};
 
 			sdio_pins: sdio_pins@0 {
@@ -330,15 +281,6 @@
 			reg = <0x40000c00 0x400>;
 			interrupts = <50>;
 			clocks = <&rcc 0 STM32F7_APB1_CLOCK(TIM5)>;
-		};
-
-		ltdc: display-controller@40016800 {
-			compatible = "st,stm32-ltdc";
-			reg = <0x40016800 0x200>;
-			resets = <&rcc STM32F7_APB2_RESET(LTDC)>;
-			clocks = <&rcc 0 STM32F7_APB2_CLOCK(LTDC)>;
-			u-boot,dm-pre-reloc;
-			status = "disabled";
 		};
 	};
 };
