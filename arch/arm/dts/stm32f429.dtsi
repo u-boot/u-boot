@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2015, STMicroelectronics - All Rights Reserved
- * Author(s):  Maxime Coquelin <mcoquelin.stm32@gmail.com> for STMicroelectronics.
+ * Copyright 2015 - Maxime Coquelin <mcoquelin.stm32@gmail.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -259,6 +258,7 @@
 		};
 
 		timers13: timers@40001c00 {
+			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "st,stm32-timers";
 			reg = <0x40001C00 0x400>;
@@ -273,6 +273,7 @@
 		};
 
 		timers14: timers@40002000 {
+			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "st,stm32-timers";
 			reg = <0x40002000 0x400>;
@@ -296,7 +297,7 @@
 			interrupt-parent = <&exti>;
 			interrupts = <17 1>;
 			interrupt-names = "alarm";
-			st,syscfg = <&pwrcfg>;
+			st,syscfg = <&pwrcfg 0x00 0x100>;
 			status = "disabled";
 		};
 
@@ -304,6 +305,7 @@
 			compatible = "st,stm32-iwdg";
 			reg = <0x40003000 0x400>;
 			clocks = <&clk_lsi>;
+			clock-names = "lsi";
 			status = "disabled";
 		};
 
@@ -505,6 +507,17 @@
 			};
 		};
 
+		sdio: sdio@40012c00 {
+			compatible = "arm,pl180", "arm,primecell";
+			arm,primecell-periphid = <0x00880180>;
+			reg = <0x40012c00 0x400>;
+			clocks = <&rcc 0 STM32F4_APB2_CLOCK(SDIO)>;
+			clock-names = "apb_pclk";
+			interrupts = <49>;
+			max-frequency = <48000000>;
+			status = "disabled";
+		};
+
 		syscfg: system-config@40013800 {
 			compatible = "syscon";
 			reg = <0x40013800 0x400>;
@@ -540,6 +553,7 @@
 		};
 
 		timers10: timers@40014400 {
+			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "st,stm32-timers";
 			reg = <0x40014400 0x400>;
@@ -554,6 +568,7 @@
 		};
 
 		timers11: timers@40014800 {
+			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "st,stm32-timers";
 			reg = <0x40014800 0x400>;
@@ -570,18 +585,6 @@
 		pwrcfg: power-config@40007000 {
 			compatible = "syscon";
 			reg = <0x40007000 0x400>;
-		};
-
-		sdio: sdio@40012c00 {
-			compatible = "st,stm32f4xx-sdio";
-			reg = <0x40012c00 0x400>;
-			clocks = <&rcc 0 171>;
-			interrupts = <49>;
-			status = "disabled";
-			pinctrl-0 = <&sdio_pins>;
-			pinctrl-1 = <&sdio_pins_od>;
-			pinctrl-names = "default", "opendrain";
-			max-frequency = <48000000>;
 		};
 
 		ltdc: display-controller@40016800 {
