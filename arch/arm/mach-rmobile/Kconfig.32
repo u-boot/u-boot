@@ -16,25 +16,30 @@ config R8A7790
 	bool "Renesas SoC R8A7790"
 	select RCAR_GEN2
 	select ARM_CORTEX_A15_CVE_2017_5715
+	imply CLK_R8A7790
 
 config R8A7791
 	bool "Renesas SoC R8A7791"
 	select RCAR_GEN2
 	select ARM_CORTEX_A15_CVE_2017_5715
+	imply CLK_R8A7791
 
 config R8A7792
 	bool "Renesas SoC R8A7792"
 	select RCAR_GEN2
 	select ARM_CORTEX_A15_CVE_2017_5715
+	imply CLK_R8A7792
 
 config R8A7793
 	bool "Renesas SoC R8A7793"
 	select RCAR_GEN2
 	select ARM_CORTEX_A15_CVE_2017_5715
+	imply CLK_R8A7793
 
 config R8A7794
 	bool "Renesas SoC R8A7794"
 	select RCAR_GEN2
+	imply CLK_R8A7794
 
 choice
 	prompt "Renesas ARM SoCs board select"
