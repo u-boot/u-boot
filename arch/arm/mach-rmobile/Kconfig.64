@@ -1,7 +1,6 @@
 if RCAR_GEN3
 
-choice
-	prompt "Select Target SoC"
+menu "Select Target SoC"
 
 config R8A7795
 	bool "Renesas SoC R8A7795"
@@ -28,34 +27,41 @@ config R8A77995
 	imply CLK_R8A77995
 	imply PINCTRL_PFC_R8A77995
 
-endchoice
+endmenu
 
 choice
-	prompt "Renesus ARM64 SoCs board select"
+	prompt "Renesas ARM64 SoCs board select"
 	optional
 
 config TARGET_DRAAK
 	bool "Draak board"
+	imply R8A77995
 	help
           Support for Renesas R-Car Gen3 Draak platform
 
 config TARGET_EAGLE
 	bool "Eagle board"
+	imply R8A77970
 	help
           Support for Renesas R-Car Gen3 Eagle platform
 
 config TARGET_EBISU
 	bool "Ebisu board"
+	imply R8A77990
 	help
           Support for Renesas R-Car Gen3 Ebisu platform
 
 config TARGET_SALVATOR_X
 	bool "Salvator-X board"
+	imply R8A7795
+	imply R8A7796
 	help
           Support for Renesas R-Car Gen3 platform
 
 config TARGET_ULCB
 	bool "ULCB board"
+	imply R8A7795
+	imply R8A7796
 	help
           Support for Renesas R-Car Gen3 ULCB platform
 
