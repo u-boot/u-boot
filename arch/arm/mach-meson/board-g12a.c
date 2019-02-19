@@ -12,7 +12,12 @@
 #include <asm/io.h>
 #include <asm/armv8/mmu.h>
 #include <linux/sizes.h>
+#include <usb.h>
+#include <linux/usb/otg.h>
+#include <asm/arch/usb.h>
+#include <usb/dwc2_udc.h>
 #include <phy.h>
+#include <clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -148,3 +153,124 @@ void meson_eth_init(phy_interface_t mode, unsigned int flags)
 	/* Enable power gate */
 	clrbits_le32(G12A_MEM_PD_REG_0, G12A_MEM_PD_REG_0_ETH_MASK);
 }
+
+#if CONFIG_IS_ENABLED(USB_DWC3_MESON_G12A) && \
+	CONFIG_IS_ENABLED(USB_GADGET_DWC2_OTG)
+static struct dwc2_plat_otg_data meson_g12a_dwc2_data;
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	struct fdtdec_phandle_args args;
+	const void *blob = gd->fdt_blob;
+	int node, dwc2_node;
+	struct udevice *dev, *clk_dev;
+	struct clk clk;
+	int ret;
+
+	/* find the usb glue node */
+	node = fdt_node_offset_by_compatible(blob, -1,
+					     "amlogic,meson-g12a-usb-ctrl");
+	if (node < 0) {
+		debug("Not found usb-control node\n");
+		return -ENODEV;
+	}
+
+	if (!fdtdec_get_is_enabled(blob, node)) {
+		debug("usb is disabled in the device tree\n");
+		return -ENODEV;
+	}
+
+	ret = uclass_get_device_by_of_offset(UCLASS_SIMPLE_BUS, node, &dev);
+	if (ret) {
+		debug("Not found usb-control device\n");
+		return ret;
+	}
+
+	/* find the dwc2 node */
+	dwc2_node = fdt_node_offset_by_compatible(blob, node,
+						  "amlogic,meson-g12a-usb");
+	if (dwc2_node < 0) {
+		debug("Not found dwc2 node\n");
+		return -ENODEV;
+	}
+
+	if (!fdtdec_get_is_enabled(blob, dwc2_node)) {
+		debug("dwc2 is disabled in the device tree\n");
+		return -ENODEV;
+	}
+
+	meson_g12a_dwc2_data.regs_otg = fdtdec_get_addr(blob, dwc2_node, "reg");
+	if (meson_g12a_dwc2_data.regs_otg == FDT_ADDR_T_NONE) {
+		debug("usbotg: can't get base address\n");
+		return -ENODATA;
+	}
+
+	/* Enable clock */
+	ret = fdtdec_parse_phandle_with_args(blob, dwc2_node, "clocks",
+					     "#clock-cells", 0, 0, &args);
+	if (ret) {
+		debug("usbotg has no clocks defined in the device tree\n");
+		return ret;
+	}
+
+	ret = uclass_get_device_by_of_offset(UCLASS_CLK, args.node, &clk_dev);
+	if (ret)
+		return ret;
+
+	if (args.args_count != 1) {
+		debug("Can't find clock ID in the device tree\n");
+		return -ENODATA;
+	}
+
+	clk.dev = clk_dev;
+	clk.id = args.args[0];
+
+	ret = clk_enable(&clk);
+	if (ret) {
+		debug("Failed to enable usbotg clock\n");
+		return ret;
+	}
+
+	meson_g12a_dwc2_data.rx_fifo_sz = fdtdec_get_int(blob, dwc2_node,
+						     "g-rx-fifo-size", 0);
+	meson_g12a_dwc2_data.np_tx_fifo_sz = fdtdec_get_int(blob, dwc2_node,
+							"g-np-tx-fifo-size", 0);
+	meson_g12a_dwc2_data.tx_fifo_sz = fdtdec_get_int(blob, dwc2_node,
+						     "g-tx-fifo-size", 0);
+
+	/* Switch to peripheral mode */
+	ret = dwc3_meson_g12a_force_mode(dev, USB_DR_MODE_PERIPHERAL);
+	if (ret)
+		return ret;
+
+	return dwc2_udc_probe(&meson_g12a_dwc2_data);
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	const void *blob = gd->fdt_blob;
+	struct udevice *dev;
+	int node;
+	int ret;
+
+	/* find the usb glue node */
+	node = fdt_node_offset_by_compatible(blob, -1,
+					     "amlogic,meson-g12a-usb-ctrl");
+	if (node < 0)
+		return -ENODEV;
+
+	if (!fdtdec_get_is_enabled(blob, node))
+		return -ENODEV;
+
+	ret = uclass_get_device_by_of_offset(UCLASS_SIMPLE_BUS, node, &dev);
+	if (ret)
+		return ret;
+
+	/* Switch to OTG mode */
+	ret = dwc3_meson_g12a_force_mode(dev, USB_DR_MODE_HOST);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+#endif
