@@ -156,12 +156,15 @@ config ETH_SANDBOX_RAW
 config ETH_DESIGNWARE
 	bool "Synopsys Designware Ethernet MAC"
 	select PHYLIB
+	imply ETH_DESIGNWARE_SOCFPGA if ARCH_SOCFPGA
 	help
 	  This MAC is present in SoCs from various vendors. It supports
 	  100Mbit and 1 Gbit operation. You must enable CONFIG_PHYLIB to
 	  provide the PHY (physical media interface).
 
 config ETH_DESIGNWARE_SOCFPGA
+	select REGMAP
+	select SYSCON
 	bool "Altera SoCFPGA extras for Synopsys Designware Ethernet MAC"
 	depends on DM_ETH && ETH_DESIGNWARE
 	help

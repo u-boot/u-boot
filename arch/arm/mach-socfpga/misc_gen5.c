@@ -54,48 +54,6 @@ static Altera_desc altera_fpga[] = {
 	},
 };
 
-/*
- * DesignWare Ethernet initialization
- */
-#ifdef CONFIG_ETH_DESIGNWARE
-static void gen5_dwmac_reset(const u8 of_reset_id, const u8 phymode)
-{
-	u32 physhift, reset;
-
-	if (of_reset_id == EMAC0_RESET) {
-		physhift = SYSMGR_EMACGRP_CTRL_PHYSEL0_LSB;
-		reset = SOCFPGA_RESET(EMAC0);
-	} else if (of_reset_id == EMAC1_RESET) {
-		physhift = SYSMGR_EMACGRP_CTRL_PHYSEL1_LSB;
-		reset = SOCFPGA_RESET(EMAC1);
-	} else {
-		printf("GMAC: Invalid reset ID (%i)!\n", of_reset_id);
-		return;
-	}
-
-	/* configure to PHY interface select choosed */
-	clrsetbits_le32(&sysmgr_regs->emacgrp_ctrl,
-			SYSMGR_EMACGRP_CTRL_PHYSEL_MASK << physhift,
-			phymode << physhift);
-
-	/* Release the EMAC controller from reset */
-	socfpga_per_reset(reset, 0);
-}
-
-static int socfpga_eth_reset(void)
-{
-	/* Put all GMACs into RESET state. */
-	socfpga_per_reset(SOCFPGA_RESET(EMAC0), 1);
-	socfpga_per_reset(SOCFPGA_RESET(EMAC1), 1);
-	return socfpga_eth_reset_common(gen5_dwmac_reset);
-};
-#else
-static int socfpga_eth_reset(void)
-{
-	return 0;
-};
-#endif
-
 static const struct {
 	const u16	pn;
 	const char	*name;
@@ -178,7 +136,7 @@ int arch_misc_init(void)
 	env_set("bootmode", bsel_str[bsel].mode);
 	if (fpga_id >= 0)
 		env_set("fpgatype", socfpga_fpga_model[fpga_id].var);
-	return socfpga_eth_reset();
+	return 0;
 }
 #endif
 

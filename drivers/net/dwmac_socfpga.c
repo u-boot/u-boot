@@ -17,16 +17,10 @@
 
 #include <asm/arch/system_manager.h>
 
-enum dwmac_type {
-	DWMAC_SOCFPGA_GEN5 = 0,
-	DWMAC_SOCFPGA_ARRIA10,
-	DWMAC_SOCFPGA_STRATIX10,
-};
-
 struct dwmac_socfpga_platdata {
 	struct dw_eth_pdata	dw_eth_pdata;
-	enum dwmac_type		type;
 	void			*phy_intf;
+	u32			reg_shift;
 };
 
 static int dwmac_socfpga_ofdata_to_platdata(struct udevice *dev)
@@ -63,21 +57,7 @@ static int dwmac_socfpga_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	pdata->phy_intf = range + args.args[0];
-
-	/*
-	 * Sadly, the Altera DT bindings don't have SoC-specific compatibles,
-	 * so we have to guesstimate which SoC we are running on from the
-	 * DWMAC version. Luckily, Altera at least updated the DWMAC with
-	 * each SoC.
-	 */
-	if (ofnode_device_is_compatible(dev->node, "snps,dwmac-3.70a"))
-		pdata->type = DWMAC_SOCFPGA_GEN5;
-
-	if (ofnode_device_is_compatible(dev->node, "snps,dwmac-3.72a"))
-		pdata->type = DWMAC_SOCFPGA_ARRIA10;
-
-	if (ofnode_device_is_compatible(dev->node, "snps,dwmac-3.74a"))
-		pdata->type = DWMAC_SOCFPGA_STRATIX10;
+	pdata->reg_shift = args.args[1];
 
 	return designware_eth_ofdata_to_platdata(dev);
 }
@@ -88,39 +68,38 @@ static int dwmac_socfpga_probe(struct udevice *dev)
 	struct eth_pdata *edata = &pdata->dw_eth_pdata.eth_pdata;
 	struct reset_ctl_bulk reset_bulk;
 	int ret;
-	u8 modereg;
+	u32 modereg;
+	u32 modemask;
 
-	if (pdata->type == DWMAC_SOCFPGA_ARRIA10) {
-		switch (edata->phy_interface) {
-		case PHY_INTERFACE_MODE_MII:
-		case PHY_INTERFACE_MODE_GMII:
-			modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII;
-			break;
-		case PHY_INTERFACE_MODE_RMII:
-			modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII;
-			break;
-		case PHY_INTERFACE_MODE_RGMII:
-			modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII;
-			break;
-		default:
-			dev_err(dev, "Unsupported PHY mode\n");
-			return -EINVAL;
-		}
-
-		ret = reset_get_bulk(dev, &reset_bulk);
-		if (ret) {
-			dev_err(dev, "Failed to get reset: %d\n", ret);
-			return ret;
-		}
-
-		reset_assert_bulk(&reset_bulk);
-
-		clrsetbits_le32(pdata->phy_intf,
-				SYSMGR_EMACGRP_CTRL_PHYSEL_MASK,
-				modereg);
-
-		reset_release_bulk(&reset_bulk);
+	switch (edata->phy_interface) {
+	case PHY_INTERFACE_MODE_MII:
+	case PHY_INTERFACE_MODE_GMII:
+		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII;
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII;
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+		modereg = SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII;
+		break;
+	default:
+		dev_err(dev, "Unsupported PHY mode\n");
+		return -EINVAL;
 	}
+
+	ret = reset_get_bulk(dev, &reset_bulk);
+	if (ret) {
+		dev_err(dev, "Failed to get reset: %d\n", ret);
+		return ret;
+	}
+
+	reset_assert_bulk(&reset_bulk);
+
+	modemask = SYSMGR_EMACGRP_CTRL_PHYSEL_MASK << pdata->reg_shift;
+	clrsetbits_le32(pdata->phy_intf, modemask,
+			modereg << pdata->reg_shift);
+
+	reset_release_bulk(&reset_bulk);
 
 	return designware_eth_probe(dev);
 }

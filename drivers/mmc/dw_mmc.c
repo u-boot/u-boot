@@ -12,6 +12,7 @@
 #include <memalign.h>
 #include <mmc.h>
 #include <dwmmc.h>
+#include <wait_bit.h>
 
 #define PAGE_SIZE 4096
 
@@ -54,6 +55,9 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 	blk_cnt = data->blocks;
 
 	dwmci_wait_reset(host, DWMCI_CTRL_FIFO_RESET);
+
+	/* Clear IDMAC interrupt */
+	dwmci_writel(host, DWMCI_IDSTS, 0xFFFFFFFF);
 
 	data_start = (ulong)cur_idmac;
 	dwmci_writel(host, DWMCI_DBADDR, (ulong)cur_idmac);
@@ -340,6 +344,18 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 		/* only dma mode need it */
 		if (!host->fifo_mode) {
+			if (data->flags == MMC_DATA_READ)
+				mask = DWMCI_IDINTEN_RI;
+			else
+				mask = DWMCI_IDINTEN_TI;
+			ret = wait_for_bit_le32(host->ioaddr + DWMCI_IDSTS,
+						mask, true, 1000, false);
+			if (ret)
+				debug("%s: DWMCI_IDINTEN mask 0x%x timeout.\n",
+				      __func__, mask);
+			/* clear interrupts */
+			dwmci_writel(host, DWMCI_IDSTS, DWMCI_IDINTEN_MASK);
+
 			ctrl = dwmci_readl(host, DWMCI_CTRL);
 			ctrl &= ~(DWMCI_DMA_EN);
 			dwmci_writel(host, DWMCI_CTRL, ctrl);
@@ -493,6 +509,9 @@ static int dwmci_init(struct mmc *mmc)
 
 	dwmci_writel(host, DWMCI_CLKENA, 0);
 	dwmci_writel(host, DWMCI_CLKSRC, 0);
+
+	if (!host->fifo_mode)
+		dwmci_writel(host, DWMCI_IDINTEN, DWMCI_IDINTEN_MASK);
 
 	return 0;
 }
