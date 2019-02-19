@@ -44,6 +44,14 @@ config USB_DWC3_GENERIC
 	  Select this for Xilinx ZynqMP and similar Platforms.
 	  This wrapper supports Host and Peripheral operation modes.
 
+config USB_DWC3_MESON_G12A
+	bool "Amlogic Meson G12A USB wrapper"
+	depends on DM_USB && USB_DWC3 && ARCH_MESON
+	imply PHY
+	help
+	  Select this for Amlogic Meson G12A Platforms.
+	  This wrapper supports Host and Peripheral operation modes.
+
 config USB_DWC3_UNIPHIER
 	bool "DesignWare USB3 Host Support on UniPhier Platforms"
 	depends on ARCH_UNIPHIER && USB_XHCI_DWC3
