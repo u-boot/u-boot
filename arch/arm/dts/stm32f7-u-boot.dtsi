@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 
+#include <dt-bindings/memory/stm32-sdram.h>
 /{
 	soc {
 		u-boot,dm-pre-reloc;
@@ -124,16 +125,6 @@
 		pins
 		{
 		 u-boot,dm-pre-reloc;
-		};
-	};
-
-	usart1_pins_a: usart1@0	{
-		u-boot,dm-pre-reloc;
-		pins1 {
-			u-boot,dm-pre-reloc;
-		};
-		pins2 {
-			u-boot,dm-pre-reloc;
 		};
 	};
 };
