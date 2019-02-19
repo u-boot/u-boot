@@ -10,7 +10,7 @@
 
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 {
-	int ret = -ENOSYS;
+	int ret = -EINVAL;
 
 #if defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET)
 	struct udevice *dev;
@@ -31,7 +31,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 	if (ret)
 		debug("%s: I2C EEPROM MAC address read failed\n", __func__);
 	else
-		debug("%s: I2C eeprom MAC %pM\n", __func__, ethaddr);
+		debug("%s: I2C EEPROM MAC %pM\n", __func__, ethaddr);
 #endif
 
 	return ret;
