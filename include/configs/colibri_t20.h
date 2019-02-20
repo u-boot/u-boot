@@ -17,10 +17,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_COLIBRI_TEGRA2
 
-/* USB host support */
-#define CONFIG_USB_EHCI_TEGRA
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	3
-
 /* General networking support */
 #define CONFIG_IP_DEFRAG
 #define CONFIG_TFTP_BLOCKSIZE		1536

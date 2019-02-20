@@ -30,9 +30,6 @@
 /* 1MiB flash, environment located as high as possible */
 #define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)
 
-/* USB Host support */
-#define CONFIG_USB_EHCI_TEGRA
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

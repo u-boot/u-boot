@@ -31,9 +31,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV 0
 #define CONFIG_SYS_MMC_ENV_PART 2
 
-/* USB Host support */
-#define CONFIG_USB_EHCI_TEGRA
-
 /* Enable keyboard */
 #define CONFIG_TEGRA_KEYBOARD
 #define CONFIG_KEYBOARD

@@ -27,9 +27,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		1
 
-/* USB host support */
-#define CONFIG_USB_EHCI_TEGRA
-
 /* PCI host support */
 #undef CONFIG_PCI_SCAN_SHOW
 
