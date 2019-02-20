@@ -117,8 +117,8 @@ def pytest_configure(config):
     mkdir_p(persistent_data_dir)
 
     gdbserver = config.getoption('gdbserver')
-    if gdbserver and board_type != 'sandbox':
-        raise Exception('--gdbserver only supported with sandbox')
+    if gdbserver and not board_type.startswith('sandbox'):
+        raise Exception('--gdbserver only supported with sandbox targets')
 
     import multiplexed_log
     log = multiplexed_log.Logfile(result_dir + '/test-log.html')

@@ -71,18 +71,6 @@ static struct {
 	char env_setting[64];
 } expansion_config;
 
-static const struct ns16550_platdata beagle_serial = {
-	.base = OMAP34XX_UART3,
-	.reg_shift = 2,
-	.clock = V_NS16550_CLK,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DEVICE(beagle_uart) = {
-	"ns16550_serial",
-	&beagle_serial
-};
-
 /*
  * Routine: board_init
  * Description: Early hardware init.

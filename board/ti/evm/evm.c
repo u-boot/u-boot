@@ -40,18 +40,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct ns16550_platdata omap3_evm_serial = {
-	.base = OMAP34XX_UART1,
-	.reg_shift = 2,
-	.clock = V_NS16550_CLK,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DEVICE(omap3_evm_uart) = {
-	"ns16550_serial",
-	&omap3_evm_serial
-};
-
 static u32 omap3_evm_version;
 
 u32 get_omap3_evm_rev(void)

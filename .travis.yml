@@ -166,7 +166,7 @@ matrix:
     - name: "buildman arm926ejs (non-NXP,siemens,atmel,kirkwood,spear)"
       env:
         - JOB="arm926ejs"
-          BUILDMAN="arm926ejs -x freescale,siemens,atmel,kirkwood,spear"
+          BUILDMAN="arm926ejs -x freescale,siemens,atmel,kirkwood,spear,omap"
     - name: "buildman atmel"
       env:
         - BUILDMAN="atmel"

@@ -181,6 +181,7 @@ void br_summaryscreen(void)
 void lcdpower(int on)
 {
 	u32 pin, swval, i;
+	char buf[16] = { 0 };
 
 	pin = env_get_ulong("ds1_pwr", 16, ~0UL);
 
@@ -191,6 +192,12 @@ void lcdpower(int on)
 
 	for (i = 0; i < 3; i++) {
 		if (pin != 0) {
+			snprintf(buf, sizeof(buf), "ds1_pwr#%d", i);
+			if (gpio_request(pin & 0x7F, buf) != 0) {
+				printf("%s: not able to request gpio %s",
+				       __func__, buf);
+				continue;
+			}
 			swval = pin & 0x80 ? 0 : 1;
 			if (on)
 				gpio_direction_output(pin & 0x7F, swval);

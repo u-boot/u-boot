@@ -74,6 +74,11 @@ struct spl_image_info {
 	u32 size;
 	u32 flags;
 	void *arg;
+#ifdef CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK
+	ulong dcrc_data;
+	ulong dcrc_length;
+	ulong dcrc;
+#endif
 };
 
 /*

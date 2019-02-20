@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/BuR/brxre1/
 F:	include/configs/brxre1.h
 F:	configs/brxre1_defconfig
+F:	arch/arm/dts/am335x-brxre1.dts

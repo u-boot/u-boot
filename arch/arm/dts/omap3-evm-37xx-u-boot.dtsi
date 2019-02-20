@@ -5,20 +5,10 @@
  * (C) Copyright 2017 Derald D. Woods <woods.technical@gmail.com>
  */
 
+#include "omap3-u-boot.dtsi"
+
 / {
 	chosen {
 		stdout-path = &uart1;
 	};
-};
-
-&uart1 {
-	reg-shift = <2>;
-};
-
-&uart2 {
-	reg-shift = <2>;
-};
-
-&uart3 {
-	reg-shift = <2>;
 };

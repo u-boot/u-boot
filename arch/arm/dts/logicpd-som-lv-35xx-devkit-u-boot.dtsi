@@ -4,6 +4,8 @@
  * Logic PD - http://www.logicpd.com
  */
 
+#include "omap3-u-boot.dtsi"
+
 / {
 	chosen {
 		stdout-path = &uart1;
