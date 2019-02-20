@@ -37,6 +37,10 @@ static int syscon_pre_probe(struct udevice *dev)
 {
 	struct syscon_uc_info *priv = dev_get_uclass_priv(dev);
 
+	/* Special case for PCI devices, which don't have a regmap */
+	if (device_get_uclass_id(dev->parent) == UCLASS_PCI)
+		return 0;
+
 	/*
 	 * With OF_PLATDATA we really have no way of knowing the format of
 	 * the device-specific platform data. So we assume that it starts with

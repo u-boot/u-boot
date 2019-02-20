@@ -14,7 +14,7 @@
 
 /** Log levels supported, ranging from most to least important */
 enum log_level_t {
-	LOGL_EMERG = 0,		/*U-Boot is unstable */
+	LOGL_EMERG = 0,		/* U-Boot is unstable */
 	LOGL_ALERT,		/* Action must be taken immediately */
 	LOGL_CRIT,		/* Critical conditions */
 	LOGL_ERR,		/* Error that prevents something from working */
@@ -111,11 +111,16 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
 #endif
 
 #if CONFIG_IS_ENABLED(LOG)
+#ifdef LOG_DEBUG
+#define _LOG_DEBUG	1
+#else
+#define _LOG_DEBUG	0
+#endif
 
 /* Emit a log record if the level is less that the maximum */
 #define log(_cat, _level, _fmt, _args...) ({ \
 	int _l = _level; \
-	if (CONFIG_IS_ENABLED(LOG) && _l <= _LOG_MAX_LEVEL) \
+	if (CONFIG_IS_ENABLED(LOG) && (_l <= _LOG_MAX_LEVEL || _LOG_DEBUG)) \
 		_log((enum log_category_t)(_cat), _l, __FILE__, __LINE__, \
 		      __func__, \
 		      pr_fmt(_fmt), ##_args); \

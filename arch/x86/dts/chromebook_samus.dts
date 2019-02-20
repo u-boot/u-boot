@@ -494,15 +494,44 @@
 			intel,pre-graphics-delay = <200>;
 		};
 
-		me@16,0 {
-			reg = <0x0000b000 0 0 0 0>;
-			compatible = "intel,me";
-			u-boot,dm-pre-reloc;
+		adsp@13,0 {
+			reg = <0x00009800 0 0 0 0>;
+			compatible = "intel,wildcatpoint-adsp";
+			intel,adsp-d3-pg-enable = <0>;
+			intel,adsp-sram-pg-enable = <0>;
+			intel,sio-acpi-mode;
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			i2s: shim {
+				compatible = "intel,broadwell-i2s";
+				#sound-dai-cells = <1>;
+				reg = <0xfb000 0xfc000 0xfd000>;
+			};
 		};
 
 		usb_1: usb@14,0 {
 			reg = <0x0000a000 0 0 0 0>;
 			compatible = "xhci-pci";
+		};
+
+		i2c0: i2c@15,1 {
+			reg = <0x0000a900 0 0 0 0>;
+			compatible = "snps,designware-i2c";
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			rt5677: rt5677@2c {
+				compatible = "realtek,rt5677";
+				#sound-dai-cells = <1>;
+				reg = <0x2c>;
+			};
+		};
+
+		me@16,0 {
+			reg = <0x0000b000 0 0 0 0>;
+			compatible = "intel,me";
+			u-boot,dm-pre-reloc;
 		};
 
 		usb_0: usb@1d,0 {
@@ -623,6 +652,18 @@
 	microcode {
 		update@0 {
 #include "microcode/mc0306d4_00000018.dtsi"
+		};
+	};
+
+	sound {
+		compatible = "google,samus-sound";
+		codec-enable-gpio = <&gpio_b 11 GPIO_ACTIVE_HIGH>;
+		cpu {
+			sound-dai = <&i2s 0>;
+		};
+
+		codec {
+			sound-dai = <&rt5677 0>;
 		};
 	};
 

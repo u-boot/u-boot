@@ -57,19 +57,19 @@
  * memory location directly.
  */
 
-#define readb(addr) (*(volatile unsigned char *) (addr))
-#define readw(addr) (*(volatile unsigned short *) (addr))
-#define readl(addr) (*(volatile unsigned int *) (addr))
-#define readq(addr) (*(volatile unsigned long long *) (addr))
+#define readb(addr) (*(volatile u8 *)(uintptr_t)(addr))
+#define readw(addr) (*(volatile u16 *)(uintptr_t)(addr))
+#define readl(addr) (*(volatile u32 *)(uintptr_t)(addr))
+#define readq(addr) (*(volatile u64 *)(uintptr_t)(addr))
 #define __raw_readb readb
 #define __raw_readw readw
 #define __raw_readl readl
 #define __raw_readq readq
 
-#define writeb(b,addr) (*(volatile unsigned char *) (addr) = (b))
-#define writew(b,addr) (*(volatile unsigned short *) (addr) = (b))
-#define writel(b,addr) (*(volatile unsigned int *) (addr) = (b))
-#define writeq(b,addr) (*(volatile unsigned long long *) (addr) = (b))
+#define writeb(b, addr) (*(volatile u8 *)(addr) = (b))
+#define writew(b, addr) (*(volatile u16 *)(addr) = (b))
+#define writel(b, addr) (*(volatile u32 *)(addr) = (b))
+#define writeq(b, addr) (*(volatile u64 *)(addr) = (b))
 #define __raw_writeb writeb
 #define __raw_writew writew
 #define __raw_writel writel

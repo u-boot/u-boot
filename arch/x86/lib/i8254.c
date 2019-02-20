@@ -8,8 +8,20 @@
 #include <asm/io.h>
 #include <asm/i8254.h>
 
-#define TIMER1_VALUE	18	/* 15.6us */
-#define TIMER2_VALUE	0x0a8e	/* 440Hz */
+#define TIMER1_VALUE		18	/* 15.6us */
+#define BEEP_FREQUENCY_HZ	440
+#define SYSCTL_PORTB		0x61
+#define PORTB_BEEP_ENABLE	0x3
+
+static void i8254_set_beep_freq(uint frequency_hz)
+{
+	uint countdown;
+
+	countdown = PIT_TICK_RATE / frequency_hz;
+
+	outb(countdown & 0xff, PIT_BASE + PIT_T2);
+	outb((countdown >> 8) & 0xff, PIT_BASE + PIT_T2);
+}
 
 int i8254_init(void)
 {
@@ -29,8 +41,23 @@ int i8254_init(void)
 	 */
 	outb(PIT_CMD_CTR2 | PIT_CMD_BOTH | PIT_CMD_MODE3,
 	     PIT_BASE + PIT_COMMAND);
-	outb(TIMER2_VALUE & 0xff, PIT_BASE + PIT_T2);
-	outb(TIMER2_VALUE >> 8, PIT_BASE + PIT_T2);
+	i8254_set_beep_freq(BEEP_FREQUENCY_HZ);
 
 	return 0;
+}
+
+int i8254_enable_beep(uint frequency_hz)
+{
+	if (!frequency_hz)
+		return -EINVAL;
+
+	i8254_set_beep_freq(frequency_hz);
+	setio_8(SYSCTL_PORTB, PORTB_BEEP_ENABLE);
+
+	return 0;
+}
+
+void i8254_disable_beep(void)
+{
+	clrio_8(SYSCTL_PORTB, PORTB_BEEP_ENABLE);
 }

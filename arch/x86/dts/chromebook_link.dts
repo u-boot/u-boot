@@ -1,6 +1,8 @@
 /dts-v1/;
 
 #include <dt-bindings/gpio/x86-gpio.h>
+#include <dt-bindings/sound/azalia.h>
+#include <pci_ids.h>
 
 /include/ "skeleton.dtsi"
 /include/ "keyboard.dtsi"
@@ -372,6 +374,32 @@
 			compatible = "ehci-pci";
 		};
 
+		hda@1b,0 {
+			reg = <0x0000d800 0 0 0 0>;
+			compatible = "intel,bd82x6x-hda";
+
+			/* These correspond to the Intel HDA specification */
+			beep-verbs = <
+				0x00170500	/* power up codec */
+				0x00270500	/* power up DAC */
+				0x00b70500	/* power up speaker */
+				0x00b70740	/* enable speaker out */
+				0x00b78d00	/* enable EAPD pin */
+				0x00b70c02	/* set EAPD pin */
+				0x0143b013>;	/* beep volume */
+
+			codecs {
+				creative_codec: creative-ca0132 {
+					vendor-id = <PCI_VENDOR_ID_CREATIVE>;
+					device-id = <PCI_DEVICE_ID_CREATIVE_CA01322>;
+				};
+				intel_hdmi: hdmi {
+					vendor-id = <PCI_VENDOR_ID_INTEL>;
+					device-id = <PCI_DEVICE_ID_INTEL_COUGARPOINT_HDMI>;
+				};
+			};
+		};
+
 		usb_0: usb@1d,0 {
 			reg = <0x0000e800 0 0 0 0>;
 			compatible = "ehci-pci";
@@ -491,4 +519,72 @@
 		};
 	};
 
+};
+
+&creative_codec {
+	verbs =  <
+		/**
+		 * Malcolm Setup. These correspond to the Intel HDA
+		 * specification.
+		 */
+		0x01570d09 0x01570c23 0x01570a01 0x01570df0
+		0x01570efe 0x01570775 0x015707d3 0x01570709
+		0x01570753 0x015707d4 0x015707ef 0x01570775
+		0x015707d3 0x01570709 0x01570702 0x01570737
+		0x01570778 0x01553cce 0x015575c9 0x01553dce
+		0x0155b7c9 0x01570de8 0x01570efe 0x01570702
+		0x01570768 0x01570762 0x01553ace 0x015546c9
+		0x01553bce 0x0155e8c9 0x01570d49 0x01570c88
+		0x01570d20 0x01570e19 0x01570700 0x01571a05
+		0x01571b29 0x01571a04 0x01571b29 0x01570a01
+
+		/* Pin Widget Verb Table */
+
+		/* NID 0x01, HDA Codec Subsystem ID Verb Table: 0x144dc0c2 */
+		AZALIA_SUBVENDOR(0x0, 0x144dc0c2)
+
+		/*
+		 * Pin Complex (NID 0x0B)  Port-G Analog Unknown
+		 * Speaker at Int N/A
+		 */
+		AZALIA_PIN_CFG(0x0, 0x0b, 0x901700f0)
+
+		/* Pin Complex (NID 0x0C)  N/C */
+		AZALIA_PIN_CFG(0x0, 0x0c, 0x70f000f0)
+
+		/* Pin Complex (NID 0x0D)  N/C */
+		AZALIA_PIN_CFG(0x0, 0x0d, 0x70f000f0)
+
+		/* Pin Complex (NID 0x0E)  N/C */
+		AZALIA_PIN_CFG(0x0, 0x0e, 0x70f000f0)
+
+		/* Pin Complex (NID 0x0F)  N/C */
+		AZALIA_PIN_CFG(0x0, 0x0f, 0x70f000f0)
+
+		/* Pin Complex (NID 0x10) Port-D 1/8 Black HP Out at Ext Left */
+		AZALIA_PIN_CFG(0x0, 0x10, 0x032110f0)
+
+		/* Pin Complex (NID 0x11) Port-B Click Mic */
+		AZALIA_PIN_CFG(0x0, 0x11, 0x90a700f0)
+
+		/* Pin Complex (NID 0x12) Port-C Combo Jack Mic or D-Mic */
+		AZALIA_PIN_CFG(0x0, 0x12, 0x03a110f0)
+
+		/* Pin Complex (NID 0x13) What you hear */
+		AZALIA_PIN_CFG(0x0, 0x13, 0x90d600f0)>;
+};
+
+&intel_hdmi {
+	verbs = <
+		/* NID 0x01, HDA Codec Subsystem ID Verb Table: 0x80860101 */
+		AZALIA_SUBVENDOR(0x3, 0x80860101)
+
+		/* Pin Complex (NID 0x05) Digital Out at Int HDMI */
+		AZALIA_PIN_CFG(0x3, 0x05, 0x18560010)
+
+		/* Pin Complex (NID 0x06) Digital Out at Int HDMI */
+		AZALIA_PIN_CFG(0x3, 0x06, 0x18560020)
+
+		/* Pin Complex (NID 0x07) Digital Out at Int HDMI */
+		AZALIA_PIN_CFG(0x3, 0x07, 0x18560030)>;
 };

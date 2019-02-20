@@ -69,6 +69,47 @@ If CONFIG_LOG is not set, then no logging will be available.
 The above have SPL versions also, e.g. CONFIG_SPL_MAX_LOG_LEVEL.
 
 
+Temporary logging within a single file
+--------------------------------------
+
+Sometimes it is useful to turn on logging just in one file. You can use this:
+
+   #define LOG_DEBUG
+
+to enable building in of all logging statements in a single file. Put it at
+the top of the file, before any #includes.
+
+To actually get U-Boot to output this you need to also set the default logging
+level - e.g. set CONFIG_LOG_DEFAULT_LEVEL to 7 (LOGL_DEBUG) or more. Otherwise
+debug output is suppressed and will not be generated.
+
+
+Convenience functions
+---------------------
+
+A number of convenience functions are available to shorten the code needed
+for logging:
+
+	log_err(_fmt...)
+	log_warning(_fmt...)
+	log_notice(_fmt...)
+	log_info(_fmt...)
+	log_debug(_fmt...)
+	log_content(_fmt...)
+	log_io(_fmt...)
+
+With these the log level is implicit in the name. The category is set by
+LOG_CATEGORY, which you can only define once per file, above all #includes:
+
+	#define LOG_CATEGORY LOGC_ALLOC
+
+or
+
+	#define LOG_CATEGORY UCLASS_SPI
+
+Remember that all uclasses IDs are log categories too.
+
+
 Log commands
 ------------
 
@@ -186,16 +227,6 @@ Convenience functions to support setting the category:
    log_board(level, format_string, ...) - category LOGC_BOARD
    log_core(level, format_string, ...) - category LOGC_CORE
    log_dt(level, format_string, ...) - category LOGC_DT
-
-Convenience functions to support a category defined for a single file, for
-example:
-
-   #define LOG_CATEGORY   UCLASS_USB
-
-all of these can use LOG_CATEGORY as the category, and a log level
-corresponding to the function name:
-
-   logc(level, format_string, ...)
 
 More logging destinations:
 

@@ -20,8 +20,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define GPIO_BASE	0x48
-#define BIOS_CTRL	0xdc
+#define GPIO_BASE		0x48
+#define BIOS_CTRL		0xdc
+
+#define RCBA_AUDIO_CONFIG	0x2030
+#define RCBA_AUDIO_CONFIG_HDA	BIT(31)
+#define RCBA_AUDIO_CONFIG_MASK	0xfe
 
 #ifndef CONFIG_HAVE_FSP
 static int pch_revision_id = -1;
@@ -212,10 +216,29 @@ static int bd82x6x_get_gpio_base(struct udevice *dev, u32 *gbasep)
 	return 0;
 }
 
+static int bd82x6x_ioctl(struct udevice *dev, enum pch_req_t req, void *data,
+			 int size)
+{
+	u32 rcba, val;
+
+	switch (req) {
+	case PCH_REQ_HDA_CONFIG:
+		dm_pci_read_config32(dev, PCH_RCBA, &rcba);
+		val = readl(rcba + RCBA_AUDIO_CONFIG);
+		if (!(val & RCBA_AUDIO_CONFIG_HDA))
+			return -ENOENT;
+
+		return val & RCBA_AUDIO_CONFIG_MASK;
+	default:
+		return -ENOSYS;
+	}
+}
+
 static const struct pch_ops bd82x6x_pch_ops = {
 	.get_spi_base	= bd82x6x_pch_get_spi_base,
 	.set_spi_protect = bd82x6x_set_spi_protect,
 	.get_gpio_base	= bd82x6x_get_gpio_base,
+	.ioctl		= bd82x6x_ioctl,
 };
 
 static const struct udevice_id bd82x6x_ids[] = {

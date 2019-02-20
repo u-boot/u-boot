@@ -161,4 +161,28 @@ int sandbox_get_setup_called(struct udevice *dev);
  */
 int sandbox_get_sound_sum(struct udevice *dev);
 
+/**
+ * sandbox_set_allow_beep() - Set whether the 'beep' interface is supported
+ *
+ * @dev: Device to update
+ * @allow: true to allow the start_beep() method, false to disallow it
+ */
+void sandbox_set_allow_beep(struct udevice *dev, bool allow);
+
+/**
+ * sandbox_get_beep_frequency() - Get the frequency of the current beep
+ *
+ * @dev: Device to check
+ * @return frequency of beep, if there is an active beep, else 0
+ */
+int sandbox_get_beep_frequency(struct udevice *dev);
+
+/**
+ * sandbox_get_pch_spi_protect() - Get the PCI SPI protection status
+ *
+ * @dev: Device to check
+ * @return 0 if not protected, 1 if protected
+ */
+int sandbox_get_pch_spi_protect(struct udevice *dev);
+
 #endif

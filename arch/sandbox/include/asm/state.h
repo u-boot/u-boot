@@ -102,6 +102,15 @@ struct sandbox_state {
 	ulong next_tag;			/* Next address tag to allocate */
 	struct list_head mapmem_head;	/* struct sandbox_mapmem_entry */
 	bool hwspinlock;		/* Hardware Spinlock status */
+
+	/*
+	 * This struct is getting large.
+	 *
+	 * Consider putting test data in driver-private structs, like
+	 * sandbox_pch.c.
+	 *
+	 * If you add new members, please put them above this comment.
+	 */
 };
 
 /* Minimum space we guarantee in the state FDT when calling read/write*/
