@@ -178,7 +178,7 @@ static void _mxc_serial_setbrg(struct mxc_uart *base, unsigned long clk,
 	writel(UCR1_UARTEN, &base->cr1);
 }
 
-#ifndef CONFIG_DM_SERIAL
+#if !CONFIG_IS_ENABLED(DM_SERIAL)
 
 #ifndef CONFIG_MXC_UART_BASE
 #error "define CONFIG_MXC_UART_BASE to use the MXC UART driver"
@@ -260,7 +260,7 @@ __weak struct serial_device *default_serial_console(void)
 }
 #endif
 
-#ifdef CONFIG_DM_SERIAL
+#if CONFIG_IS_ENABLED(DM_SERIAL)
 
 int mxc_serial_setbrg(struct udevice *dev, int baudrate)
 {
