@@ -31,10 +31,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV 0
 #define CONFIG_SYS_MMC_ENV_PART 2
 
-/* Enable keyboard */
-#define CONFIG_TEGRA_KEYBOARD
-#define CONFIG_KEYBOARD
-
 /* NAND support */
 #define CONFIG_TEGRA_NAND
 
