@@ -19,9 +19,6 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_DALMORE
 
-/* I2C */
-#define CONFIG_SYS_I2C_TEGRA
-
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		2

@@ -23,9 +23,6 @@
 /* SPI */
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 
-/* I2C */
-#define CONFIG_SYS_I2C_TEGRA
-
 /* Environment in SPI */
 #define CONFIG_ENV_SPI_MAX_HZ		48000000
 #define CONFIG_ENV_SPI_MODE		SPI_MODE_0

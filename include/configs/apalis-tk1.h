@@ -18,9 +18,6 @@
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
-/* I2C */
-#define CONFIG_SYS_I2C_TEGRA
-
 /* SD/MMC support */
 #define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 
