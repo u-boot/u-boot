@@ -2,6 +2,7 @@ config ARCH_LS1012A
 	bool
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873 if !TFABOOT
+	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -23,6 +24,7 @@ config ARCH_LS1043A
 	bool
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873 if !TFABOOT
+	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -49,13 +51,12 @@ config ARCH_LS1043A
 	select SYS_I2C_MXC_I2C2
 	select SYS_I2C_MXC_I2C3
 	select SYS_I2C_MXC_I2C4
-	imply SCSI
-	imply SCSI_AHCI
 	imply CMD_PCI
 
 config ARCH_LS1046A
 	bool
 	select ARMV8_SET_SMPEN
+	select FSL_LAYERSCAPE
 	select FSL_LSCH2
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -90,6 +91,7 @@ config ARCH_LS1088A
 	bool
 	select ARMV8_SET_SMPEN
 	select ARM_ERRATA_855873 if !TFABOOT
+	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -113,6 +115,8 @@ config ARCH_LS1088A
 	select SYS_FSL_SRDS_1
 	select SYS_FSL_SRDS_2
 	select FSL_TZASC_1
+	select FSL_TZASC_400
+	select FSL_TZPC_BP147
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
@@ -130,6 +134,7 @@ config ARCH_LS2080A
 	select ARM_ERRATA_828024
 	select ARM_ERRATA_829520
 	select ARM_ERRATA_833471
+	select FSL_LAYERSCAPE
 	select FSL_LSCH3
 	select SYS_FSL_SRDS_1
 	select SYS_HAS_SERDES
@@ -145,6 +150,8 @@ config ARCH_LS2080A
 	select SYS_FSL_SRDS_2
 	select FSL_TZASC_1
 	select FSL_TZASC_2
+	select FSL_TZASC_400
+	select FSL_TZPC_BP147
 	select SYS_FSL_ERRATUM_A008336 if !TFABOOT
 	select SYS_FSL_ERRATUM_A008511 if !TFABOOT
 	select SYS_FSL_ERRATUM_A008514 if !TFABOOT
@@ -229,6 +236,9 @@ config FSL_MC_ENET
 
 menu "Layerscape architecture"
 	depends on FSL_LSCH2 || FSL_LSCH3
+
+config FSL_LAYERSCAPE
+	bool
 
 config FSL_PCIE_COMPAT
 	string "PCIe compatible of Kernel DT"
@@ -346,6 +356,12 @@ config MAX_CPUS
 	  cores, count the reserved ports. This will allocate enough memory
 	  in spin table to properly handle all cores.
 
+config EMC2305
+	bool "Fan controller"
+	help
+	 Enable the EMC2305 fan controller for configuration of fan
+	 speed.
+
 config SECURE_BOOT
 	bool "Secure Boot"
 	help
@@ -404,6 +420,11 @@ config FSL_TZASC_1
 config FSL_TZASC_2
 	bool
 
+config FSL_TZASC_400
+	bool
+
+config FSL_TZPC_BP147
+	bool
 endmenu
 
 menu "Layerscape clock tree configuration"

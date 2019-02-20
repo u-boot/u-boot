@@ -26,7 +26,6 @@
 #endif
 
 #define CONFIG_REMAKE_ELF
-#define CONFIG_FSL_LAYERSCAPE
 #define CONFIG_GICV2
 
 #include <asm/arch/stream_id_lsch2.h>
@@ -209,7 +208,7 @@
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_MMC
 #define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x4800)
-#define CONFIG_SYS_QE_FW_ADDR		(512 * 0x4a08)
+#define CONFIG_SYS_QE_FW_ADDR		(512 * 0x4A00)
 #elif defined(CONFIG_QSPI_BOOT)
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR		0x40900000
@@ -255,6 +254,8 @@
 	"fdtheader_addr_r=0x80100000\0"		\
 	"kernelheader_addr_r=0x80200000\0"	\
 	"kernel_addr_r=0x81000000\0"		\
+	"kernel_start=0x1000000\0"		\
+	"kernelheader_start=0x800000\0"		\
 	"fdt_addr_r=0x90000000\0"		\
 	"load_addr=0xa0000000\0"		\
 	"kernelheader_addr=0x60800000\0"	\
@@ -306,6 +307,12 @@
 		"&& cp.b $kernelheader_addr $kernelheader_addr_r "	\
 		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
 		"bootm $load_addr#$board\0"	    \
+	"nand_bootcmd=echo Trying load from NAND..;"	\
+		"nand info; nand read $load_addr "	\
+		"$kernel_start $kernel_size; env exists secureboot "	\
+		"&& nand read $kernelheader_addr_r $kernelheader_start "	\
+		"$kernelheader_size && esbc_validate ${kernelheader_addr_r}; " \
+		"bootm $load_addr#$board\0"	\
 	"sd_bootcmd=echo Trying load from SD ..;"       \
 		"mmcinfo; mmc read $load_addr "         \
 		"$kernel_addr_sd $kernel_size_sd && "     \

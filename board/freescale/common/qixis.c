@@ -227,8 +227,12 @@ static int qixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 #ifdef QIXIS_LBMAP_SD
 		QIXIS_WRITE(rst_ctl, 0x30);
 		QIXIS_WRITE(rcfg_ctl, 0);
+#ifdef NON_EXTENDED_DUTCFG
+		QIXIS_WRITE(dutcfg[0], QIXIS_RCW_SRC_SD);
+#else
 		set_lbmap(QIXIS_LBMAP_SD);
 		set_rcw_src(QIXIS_RCW_SRC_SD);
+#endif
 		QIXIS_WRITE(rcfg_ctl, 0x20);
 		QIXIS_WRITE(rcfg_ctl, 0x21);
 #else

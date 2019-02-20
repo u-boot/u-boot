@@ -89,7 +89,7 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x0 0x2110000 0x0 0x10000>;
-		interrupts = <0 240 0x4>; /* Level high type */
+		interrupts = <0 26 0x4>; /* Level high type */
 		num-cs = <6>;
 	};
 
@@ -114,5 +114,66 @@
 		reg = <0x0 0x3110000 0x0 0x10000>;
 		interrupts = <0 81 0x4>; /* Level high type */
 		dr_mode = "host";
+	};
+
+	esdhc0: esdhc@2140000 {
+		compatible = "fsl,esdhc";
+		reg = <0x0 0x2140000 0x0 0x10000>;
+		interrupts = <0 28 0x4>; /* Level high type */
+		clocks = <&clockgen 4 1>;
+		voltage-ranges = <1800 1800 3300 3300>;
+		sdhci,auto-cmd12;
+		little-endian;
+		bus-width = <4>;
+		status = "disabled";
+	};
+
+	esdhc1: esdhc@2150000 {
+		compatible = "fsl,esdhc";
+		reg = <0x0 0x2150000 0x0 0x10000>;
+		interrupts = <0 63 0x4>; /* Level high type */
+		clocks = <&clockgen 4 1>;
+		voltage-ranges = <1800 1800 3300 3300>;
+		sdhci,auto-cmd12;
+		non-removable;
+		little-endian;
+		bus-width = <4>;
+		status = "disabled";
+	};
+
+	sata0: sata@3200000 {
+			compatible = "fsl,ls2080a-ahci";
+			reg = <0x0 0x3200000 0x0 0x10000>;
+			interrupts = <0 133 4>;
+			clocks = <&clockgen 4 3>;
+			status = "disabled";
+
+	};
+
+	sata1: sata@3210000 {
+			compatible = "fsl,ls2080a-ahci";
+			reg = <0x0 0x3210000 0x0 0x10000>;
+			interrupts = <0 136 4>;
+			clocks = <&clockgen 4 3>;
+			status = "disabled";
+
+	};
+
+	sata2: sata@3220000 {
+			compatible = "fsl,ls2080a-ahci";
+			reg = <0x0 0x3220000 0x0 0x10000>;
+			interrupts = <0 97 4>;
+			clocks = <&clockgen 4 3>;
+			status = "disabled";
+
+	};
+
+	sata3: sata@3230000 {
+			compatible = "fsl,ls2080a-ahci";
+			reg = <0x0 0x3230000 0x0 0x10000>;
+			interrupts = <0 100 4>;
+			clocks = <&clockgen 4 3>;
+			status = "disabled";
+
 	};
 };

@@ -1083,6 +1083,32 @@ config TARGET_LS2081ARDB
 	  development platform that supports the QorIQ LS2081A/LS2041A
 	  Layerscape Architecture processor.
 
+config TARGET_LX2160ARDB
+	bool "Support lx2160ardb"
+	select ARCH_LX2160A
+	select ARCH_MISC_INIT
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select BOARD_LATE_INIT
+	help
+	  Support for NXP LX2160ARDB platform.
+	  The lx2160ardb (LX2160A Reference design board (RDB)
+	  is a high-performance development platform that supports the
+	  QorIQ LX2160A/LX2120A/LX2080A Layerscape Architecture processor.
+
+config TARGET_LX2160AQDS
+	bool "Support lx2160aqds"
+	select ARCH_LX2160A
+	select ARCH_MISC_INIT
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select BOARD_LATE_INIT
+	help
+	  Support for NXP LX2160AQDS platform.
+	  The lx2160aqds (LX2160A QorIQ Development System (QDS)
+	  is a high-performance development platform that supports the
+	  QorIQ LX2160A/LX2120A/LX2080A Layerscape Architecture processor.
+
 config TARGET_HIKEY
 	bool "Support HiKey 96boards Consumer Edition Platform"
 	select ARM64
@@ -1237,6 +1263,7 @@ config TARGET_LS1043AQDS
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	imply SCSI
+	imply SCSI_AHCI
 	help
 	  Support for Freescale LS1043AQDS platform.
 
@@ -1248,7 +1275,6 @@ config TARGET_LS1043ARDB
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
-	imply SCSI
 	help
 	  Support for Freescale LS1043ARDB platform.
 
@@ -1555,6 +1581,7 @@ source "board/freescale/ls1046ardb/Kconfig"
 source "board/freescale/ls1012aqds/Kconfig"
 source "board/freescale/ls1012ardb/Kconfig"
 source "board/freescale/ls1012afrdm/Kconfig"
+source "board/freescale/lx2160a/Kconfig"
 source "board/freescale/mx35pdk/Kconfig"
 source "board/freescale/s32v234evb/Kconfig"
 source "board/grinn/chiliboard/Kconfig"

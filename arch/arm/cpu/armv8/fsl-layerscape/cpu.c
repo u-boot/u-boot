@@ -1099,14 +1099,28 @@ int arch_early_init_r(void)
 			printf("Did not wake secondary cores\n");
 	}
 
-#ifdef CONFIG_SYS_FSL_HAS_RGMII
-	fsl_rgmii_init();
-#endif
-
 	config_core_prefetch();
 
 #ifdef CONFIG_SYS_HAS_SERDES
 	fsl_serdes_init();
+#endif
+#ifdef CONFIG_SYS_FSL_HAS_RGMII
+	/* some dpmacs in armv8a based freescale layerscape SOCs can be
+	 * configured via both serdes(sgmii, xfi, xlaui etc) bits and via
+	 * EC*_PMUX(rgmii) bits in RCW.
+	 * e.g. dpmac 17 and 18 in LX2160A can be configured as SGMII from
+	 * serdes bits and as RGMII via EC1_PMUX/EC2_PMUX bits
+	 * Now if a dpmac is enabled by serdes bits then it takes precedence
+	 * over EC*_PMUX bits. i.e. in LX2160A if we select serdes protocol
+	 * that configures dpmac17 as SGMII and set the EC1_PMUX as RGMII,
+	 * then the dpmac is SGMII and not RGMII.
+	 *
+	 * Therefore, move the fsl_rgmii_init after fsl_serdes_init. in
+	 * fsl_rgmii_init function of SOC, we will check if the dpmac is enabled
+	 * or not? if it is (fsl_serdes_init has already enabled the dpmac),
+	 * then don't enable it.
+	 */
+	fsl_rgmii_init();
 #endif
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();
