@@ -20,19 +20,11 @@
 
 #define CONFIG_MACH_TYPE		MACH_TYPE_COLIBRI_T30
 
-/* I2C */
-#define CONFIG_SYS_I2C_TEGRA
-
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE + \
 					 CONFIG_TDX_CFG_BLOCK_OFFSET)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #define CONFIG_SYS_MMC_ENV_PART		1
-
-/* USB host support */
-#define CONFIG_USB_EHCI_TEGRA
-
-/* USB networking support */
 
 /* General networking support */
 #define CONFIG_IP_DEFRAG

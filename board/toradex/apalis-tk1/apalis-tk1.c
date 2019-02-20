@@ -240,3 +240,12 @@ void tegra_pcie_board_port_reset(struct tegra_pcie_port *port)
 	}
 }
 #endif /* CONFIG_PCI_TEGRA */
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_request(TEGRA_GPIO(BB, 5), "BL_ON");
+	gpio_direction_output(TEGRA_GPIO(BB, 5), 0);
+}

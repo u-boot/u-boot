@@ -150,4 +150,13 @@ void pin_mux_display(void)
 	pinmux_set_func(PMUX_PINGRP_SDC, PMUX_FUNC_PWM);
 	pinmux_tristate_disable(PMUX_PINGRP_SDC);
 }
+
+/*
+ * Backlight off before OS handover
+ */
+void board_preboot_os(void)
+{
+	gpio_request(TEGRA_GPIO(T, 4), "BL_ON");
+	gpio_direction_output(TEGRA_GPIO(T, 4), 0);
+}
 #endif

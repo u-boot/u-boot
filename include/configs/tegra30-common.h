@@ -16,11 +16,7 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_STACKBASE	0x82800000	/* 40MB */
-
-/*-----------------------------------------------------------------------
- * Physical Memory Map
- */
+#define CONFIG_STACKBASE	0x83800000	/* 56MB */
 
 /*
  * Memory layout for where various images get loaded by boot scripts:
@@ -37,13 +33,13 @@
  *   should not overlap that area, or the kernel will have to copy itself
  *   somewhere else before decompression. Similarly, the address of any other
  *   data passed to the kernel shouldn't overlap the start of RAM. Pushing
- *   this up to 16M allows for a sizable kernel to be decompressed below the
+ *   this up to 32M allows for a sizable kernel to be decompressed below the
  *   compressed load address.
  *
- * fdt_addr_r simply shouldn't overlap anything else. Choosing 32M allows for
- *   the compressed kernel to be up to 16M too.
+ * fdt_addr_r simply shouldn't overlap anything else. Choosing 48M allows for
+ *   the compressed kernel to be up to 32M too.
  *
- * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 33M allows
+ * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 49M allows
  *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
  */
 #define CONFIG_LOADADDR 0x81000000
@@ -51,8 +47,8 @@
 	"scriptaddr=0x90000000\0" \
 	"pxefile_addr_r=0x90100000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
-	"fdt_addr_r=0x82000000\0" \
-	"ramdisk_addr_r=0x82100000\0"
+	"fdt_addr_r=0x83000000\0" \
+	"ramdisk_addr_r=0x83100000\0"
 
 /* Defines for SPL */
 #define CONFIG_SPL_TEXT_BASE		0x80108000

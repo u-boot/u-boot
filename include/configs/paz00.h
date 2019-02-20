@@ -26,11 +26,6 @@
 #define CONFIG_SYS_MMC_ENV_DEV 0
 #define CONFIG_SYS_MMC_ENV_PART 2
 
-/* USB Host support */
-#define CONFIG_USB_EHCI_TEGRA
-
-/* USB networking support */
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

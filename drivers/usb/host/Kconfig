@@ -179,6 +179,12 @@ config USB_EHCI_PCI
 	help
 	  Enables support for the PCI-based EHCI controller.
 
+config USB_EHCI_TEGRA
+	bool "Support for NVIDIA Tegra on-chip EHCI USB controller"
+	depends on TEGRA
+	---help---
+	  Enable support for Tegra on-chip EHCI USB controller
+
 config USB_EHCI_ZYNQ
 	bool "Support for Xilinx Zynq on-chip EHCI USB controller"
 	depends on ARCH_ZYNQ

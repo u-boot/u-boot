@@ -25,13 +25,6 @@
 /* Environment in NAND, aligned to start of last sector */
 #define CONFIG_ENV_OFFSET		(SZ_512M - SZ_128K) /* 128K sectors */
 
-/* USB host support */
-#define CONFIG_USB_EHCI_TEGRA
-
-/* USB networking support */
-
-/* General networking support */
-
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */
