@@ -27,6 +27,11 @@
 #define PIN_PTU	(1 << 17) /* pull up */
 #define PIN_PTD	(0 << 17) /* pull down */
 
+#define BUFFER_CLASS_B	(0 << 19)
+#define BUFFER_CLASS_C	(1 << 19)
+#define BUFFER_CLASS_D	(2 << 19)
+#define BUFFER_CLASS_E	(3 << 19)
+
 #define MODE(m)	((m) & 0x7)
 #define MAX_PIN_N	260
 
