@@ -27,6 +27,7 @@ void board_init_f(ulong dummy)
 	/* Delay is required for clocks to be propagated */
 	udelay(1000000);
 
+	debug("Clearing BSS 0x%p - 0x%p\n", __bss_start, __bss_end);
 	/* Clear the BSS */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
