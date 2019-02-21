@@ -540,6 +540,11 @@ static void spl_dram_init(int width, int size_mb, int board_model)
 		else
 			calib = &mx6sdl_256x16_mmdc_calib;
 		debug("4gB density\n");
+	} else if (width == 16 && size_mb == 1024) {
+		mem = &mt41k512m16ha_125;
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &mx6dq_512x32_mmdc_calib;
+		debug("8gB density\n");
 	} else if (width == 32 && size_mb == 256) {
 		/* Same calib as width==16, size==128 */
 		mem = &mt41k64m16jt_125;
