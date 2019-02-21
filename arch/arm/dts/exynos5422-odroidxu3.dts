@@ -276,7 +276,7 @@
 	};
 
 	serial@12C20000 {
-		status="okay";
+		status = "okay";
 	};
 
 	mmc@12200000 {
