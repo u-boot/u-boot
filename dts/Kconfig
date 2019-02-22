@@ -291,10 +291,10 @@ config SPL_MULTI_DTB_FIT_USER_DEF_ADDR
 config OF_SPL_REMOVE_PROPS
 	string "List of device tree properties to drop for SPL"
 	depends on SPL_OF_CONTROL
-	default "interrupt-parent" if SPL_PINCTRL && SPL_CLK
-	default "clocks clock-names interrupt-parent" if SPL_PINCTRL
-	default "pinctrl-0 pinctrl-names interrupt-parent" if SPL_CLK
-	default "pinctrl-0 pinctrl-names clocks clock-names interrupt-parent"
+	default "interrupt-parent interrupts" if SPL_PINCTRL && SPL_CLK
+	default "clocks clock-names interrupt-parent interrupts" if SPL_PINCTRL
+	default "pinctrl-0 pinctrl-names interrupt-parent interrupts" if SPL_CLK
+	default "pinctrl-0 pinctrl-names clocks clock-names interrupt-parent interrupts"
 	help
 	  Since SPL normally runs in a reduced memory space, the device tree
 	  is cut down to only what is needed to load and start U-Boot. Only
