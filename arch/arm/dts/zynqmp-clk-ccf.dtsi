@@ -7,7 +7,7 @@
  * Michal Simek <michal.simek@xilinx.com>
  */
 
-#include <dt-bindings/clock/xlnx,zynqmp-clk.h>
+#include <dt-bindings/clock/xlnx-zynqmp-clk.h>
 / {
 	fclk0: fclk0 {
 		status = "okay";
