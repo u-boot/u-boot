@@ -18,7 +18,7 @@
 
 #define TZPC_BASE_OFFSET		0x10000
 
-#define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
+#define SDRAM_BANK_SIZE			(256UL << 20UL)	/* 256 MB */
 /* Reserve the last 22 MiB for the secure firmware */
 #define CONFIG_SYS_MEM_TOP_HIDE		(22UL << 20UL)
 #define CONFIG_TZSW_RESERVED_DRAM_SIZE	CONFIG_SYS_MEM_TOP_HIDE
@@ -28,7 +28,7 @@
 #define CONFIG_ENV_SIZE			(SZ_1K * 16)
 #define CONFIG_ENV_OFFSET		(SZ_1K * 3136) /* ~3 MiB offset */
 
-#define CONFIG_SYS_INIT_SP_ADDR        (CONFIG_SYS_LOAD_ADDR - 0x1000000)
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
 #define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
@@ -38,7 +38,7 @@
 /* DFU */
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE	SZ_32M
 #define DFU_DEFAULT_POLL_TIMEOUT	300
-#define DFU_MANIFEST_POLL_TIMEOUT       25000
+#define DFU_MANIFEST_POLL_TIMEOUT	25000
 
 /* THOR */
 #define CONFIG_G_DNL_THOR_VENDOR_NUM	CONFIG_USB_GADGET_VENDOR_NUM
@@ -85,11 +85,11 @@
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 
 /* Set soc_rev, soc_id, board_rev, boardname, fdtfile */
-#define CONFIG_ODROID_REV_AIN			9
+#define CONFIG_ODROID_REV_AIN		9
 #define CONFIG_REVISION_TAG
 
 #undef CONFIG_SYS_BOARD
-#define CONFIG_SYS_BOARD	"odroid"
+#define CONFIG_SYS_BOARD		"odroid"
 
 /* Define new extra env settings, including DFU settings */
 #undef CONFIG_EXTRA_ENV_SETTINGS
