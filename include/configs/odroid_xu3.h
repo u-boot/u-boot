@@ -7,7 +7,7 @@
 #ifndef __CONFIG_ODROID_XU3_H
 #define __CONFIG_ODROID_XU3_H
 
-#include "exynos5420-common.h"
+#include <configs/exynos5420-common.h>
 #include <configs/exynos5-common.h>
 
 #define CONFIG_BOARD_COMMON
