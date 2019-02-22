@@ -7,6 +7,8 @@
 #include <common.h>
 #include <dm.h>
 #include <lcd.h>
+#include <miiphy.h>
+#include <phy_interface.h>
 #include <ram.h>
 #include <spl.h>
 #include <splash.h>
@@ -123,8 +125,25 @@ int board_init(void)
 	gd->bd->bi_boot_params = gd->bd->bi_dram[0].start + 0x100;
 
 #ifdef CONFIG_ETH_DESIGNWARE
-	/* Set >RMII mode */
-	STM32_SYSCFG->pmc |= SYSCFG_PMC_MII_RMII_SEL;
+	const char *phy_mode;
+	int node;
+
+	node = fdt_node_offset_by_compatible(gd->fdt_blob, 0, "st,stm32-dwmac");
+	if (node < 0)
+		return -1;
+
+	phy_mode = fdt_getprop(gd->fdt_blob, node, "phy-mode", NULL);
+
+	switch (phy_get_interface_by_name(phy_mode)) {
+	case PHY_INTERFACE_MODE_RMII:
+		STM32_SYSCFG->pmc |= SYSCFG_PMC_MII_RMII_SEL;
+		break;
+	case PHY_INTERFACE_MODE_MII:
+		STM32_SYSCFG->pmc &= ~SYSCFG_PMC_MII_RMII_SEL;
+		break;
+	default:
+		printf("PHY interface %s not supported !\n", phy_mode);
+	}
 #endif
 
 #if defined(CONFIG_CMD_BMP)
