@@ -84,10 +84,14 @@
 #define CONFIG_SET_DFU_ALT_INFO
 #define CONFIG_SET_DFU_ALT_BUF_LEN	(SZ_1K)
 
-/* Set soc_rev, soc_id, board_rev, boardname, fdtfile */
+/* Set soc_rev, soc_id, board_rev, board_name, fdtfile */
 #define CONFIG_ODROID_REV_AIN		9
 #define CONFIG_REVISION_TAG
 
+/*
+ * Need to override existing one (smdk5420) with odroid so set_board_info will
+ * use proper prefix when creating full board_name (SYS_BOARD + type)
+ */
 #undef CONFIG_SYS_BOARD
 #define CONFIG_SYS_BOARD		"odroid"
 
@@ -101,7 +105,7 @@
 	"rootfstype=ext4\0" \
 	"console=" CONFIG_DEFAULT_CONSOLE \
 	"fdtfile=exynos5422-odroidxu3.dtb\0" \
-	"boardname=odroidxu3\0" \
+	"board_name=odroidxu3\0" \
 	"mmcbootdev=0\0" \
 	"mmcrootdev=0\0" \
 	"mmcbootpart=1\0" \
