@@ -985,12 +985,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (!path)
 		return EFI_SUCCESS;
 
-	if (!is_net) {
-		/* Add leading / to fs paths, because they're absolute */
-		snprintf(filename, sizeof(filename), "/%s", path);
-	} else {
-		snprintf(filename, sizeof(filename), "%s", path);
-	}
+	snprintf(filename, sizeof(filename), "%s", path);
 	/* DOS style file path: */
 	s = filename;
 	while ((s = strchr(s, '/')))
