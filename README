@@ -687,22 +687,6 @@ The following options need to be configured:
 		as a convenience, when switching between booting from
 		RAM and NFS.
 
-- Pre-Boot Commands:
-		CONFIG_PREBOOT
-
-		When this option is #defined, the existence of the
-		environment variable "preboot" will be checked
-		immediately before starting the CONFIG_BOOTDELAY
-		countdown and/or running the auto-boot command resp.
-		entering interactive mode.
-
-		This feature is especially useful when "preboot" is
-		automatically generated or modified. For an example
-		see the LWMON board specific code: here "preboot" is
-		modified when the user holds down a certain
-		combination of keys on the (special) keyboard when
-		booting the systems
-
 - Serial Download Echo Mode:
 		CONFIG_LOADS_ECHO
 		If defined to 1, all characters received during a
