@@ -184,8 +184,10 @@ void *efi_bootmgr_load(struct efi_device_path **device_path,
 	rs = systab.runtime;
 
 	bootorder = get_var(L"BootOrder", &efi_global_variable_guid, &size);
-	if (!bootorder)
+	if (!bootorder) {
+		printf("BootOrder not defined\n");
 		goto error;
+	}
 
 	num = size / sizeof(uint16_t);
 	for (i = 0; i < num; i++) {
