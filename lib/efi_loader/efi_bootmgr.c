@@ -178,8 +178,6 @@ void *efi_bootmgr_load(struct efi_device_path **device_path,
 	void *image = NULL;
 	int i, num;
 
-	__efi_entry_check();
-
 	bs = systab.boottime;
 	rs = systab.runtime;
 
@@ -200,7 +198,5 @@ void *efi_bootmgr_load(struct efi_device_path **device_path,
 	free(bootorder);
 
 error:
-	__efi_exit_check();
-
 	return image;
 }
