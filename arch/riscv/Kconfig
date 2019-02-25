@@ -14,11 +14,15 @@ config TARGET_AX25_AE350
 config TARGET_QEMU_VIRT
 	bool "Support QEMU Virt Board"
 
+config TARGET_SIFIVE_FU540
+	bool "Support SiFive FU540 Board"
+
 endchoice
 
 # board-specific options below
 source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
+source "board/sifive/fu540/Kconfig"
 
 # platform-specific options below
 source "arch/riscv/cpu/ax25/Kconfig"
