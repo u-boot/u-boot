@@ -119,6 +119,11 @@ static int do_env_print(cmd_tbl_t *cmdtp, int flag, int argc,
 	int rcode = 0;
 	int env_flag = H_HIDE_DOT;
 
+#if defined(CONFIG_CMD_NVEDIT_EFI)
+	if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'e')
+		return do_env_print_efi(cmdtp, flag, --argc, ++argv);
+#endif
+
 	if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'a') {
 		argc--;
 		argv++;
@@ -216,6 +221,12 @@ static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
 	ENTRY e, *ep;
 
 	debug("Initial value for argc=%d\n", argc);
+
+#if CONFIG_IS_ENABLED(CMD_NVEDIT_EFI)
+	if (argc > 1 && argv[1][0] == '-' && argv[1][1] == 'e')
+		return do_env_set_efi(NULL, flag, --argc, ++argv);
+#endif
+
 	while (argc > 1 && **(argv + 1) == '-') {
 		char *arg = *++argv;
 
@@ -1263,11 +1274,17 @@ static char env_help_text[] =
 	"env import [-d] [-t [-r] | -b | -c] addr [size] [var ...] - import environment\n"
 #endif
 	"env print [-a | name ...] - print environment\n"
+#if defined(CONFIG_CMD_NVEDIT_EFI)
+	"env print -e [name ...] - print UEFI environment\n"
+#endif
 #if defined(CONFIG_CMD_RUN)
 	"env run var [...] - run commands in an environment variable\n"
 #endif
 #if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
 	"env save - save environment\n"
+#endif
+#if defined(CONFIG_CMD_NVEDIT_EFI)
+	"env set -e name [arg ...] - set UEFI variable; unset if 'arg' not specified\n"
 #endif
 	"env set [-f] name [arg ...]\n";
 #endif
@@ -1295,6 +1312,10 @@ U_BOOT_CMD_COMPLETE(
 	printenv, CONFIG_SYS_MAXARGS, 1,	do_env_print,
 	"print environment variables",
 	"[-a]\n    - print [all] values of all environment variables\n"
+#if defined(CONFIG_CMD_NVEDIT_EFI)
+	"printenv -e [name ...]\n"
+	"    - print UEFI variable 'name' or all the variables\n"
+#endif
 	"printenv name ...\n"
 	"    - print value of environment variable 'name'",
 	var_complete
@@ -1322,7 +1343,12 @@ U_BOOT_CMD_COMPLETE(
 U_BOOT_CMD_COMPLETE(
 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,
 	"set environment variables",
-	"[-f] name value ...\n"
+#if defined(CONFIG_CMD_NVEDIT_EFI)
+	"-e name [value ...]\n"
+	"    - set UEFI variable 'name' to 'value' ...'\n"
+	"    - delete UEFI variable 'name' if 'value' not specified\n"
+#endif
+	"setenv [-f] name value ...\n"
 	"    - [forcibly] set environment variable 'name' to 'value ...'\n"
 	"setenv [-f] name\n"
 	"    - [forcibly] delete environment variable 'name'",

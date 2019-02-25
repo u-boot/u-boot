@@ -420,6 +420,16 @@ config CMD_ENV_FLAGS
 	  be deleted. This command shows the variables that have special
 	  flags.
 
+config CMD_NVEDIT_EFI
+	bool "env [set|print] -e - set/print UEFI variables"
+	depends on EFI_LOADER
+	default y
+	imply HEXDUMP
+	help
+	  UEFI variables are encoded as some form of U-Boot variables.
+	  If enabled, we are allowed to set/print UEFI variables using
+	  "env" command with "-e" option without knowing details.
+
 endmenu
 
 menu "Memory commands"

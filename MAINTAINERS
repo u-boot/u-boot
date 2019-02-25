@@ -471,6 +471,7 @@ F:	lib/efi*/
 F:	test/py/tests/test_efi*
 F:	test/unicode_ut.c
 F:	cmd/bootefi.c
+F:	cmd/nvedit_efi.c
 F:	tools/file2include.c
 
 FPGA
