@@ -15,7 +15,80 @@
 #include <search.h>
 #include <linux/ctype.h>
 
+#define BS systab.boottime
 #define RT systab.runtime
+
+/**
+ * efi_get_device_handle_info() - get information of UEFI device
+ *
+ * @handle:		Handle of UEFI device
+ * @dev_path_text:	Pointer to text of device path
+ * Return:		0 on success, -1 on failure
+ *
+ * Currently return a formatted text of device path.
+ */
+static int efi_get_device_handle_info(efi_handle_t handle, u16 **dev_path_text)
+{
+	struct efi_device_path *dp;
+	efi_status_t ret;
+
+	ret = EFI_CALL(BS->open_protocol(handle, &efi_guid_device_path,
+					 (void **)&dp, NULL /* FIXME */, NULL,
+					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
+	if (ret == EFI_SUCCESS) {
+		*dev_path_text = efi_dp_str(dp);
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
+#define EFI_HANDLE_WIDTH ((int)sizeof(efi_handle_t) * 2)
+
+static const char spc[] = "                ";
+static const char sep[] = "================";
+
+/**
+ * do_efi_show_devices() - show UEFI devices
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "devices" sub-command.
+ * Show all UEFI devices and their information.
+ */
+static int do_efi_show_devices(cmd_tbl_t *cmdtp, int flag,
+			       int argc, char * const argv[])
+{
+	efi_handle_t *handles;
+	efi_uintn_t num, i;
+	u16 *dev_path_text;
+	efi_status_t ret;
+
+	ret = EFI_CALL(BS->locate_handle_buffer(ALL_HANDLES, NULL, NULL,
+						&num, &handles));
+	if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
+	if (!num)
+		return CMD_RET_SUCCESS;
+
+	printf("Device%.*s Device Path\n", EFI_HANDLE_WIDTH - 6, spc);
+	printf("%.*s ====================\n", EFI_HANDLE_WIDTH, sep);
+	for (i = 0; i < num; i++) {
+		if (!efi_get_device_handle_info(handles[i], &dev_path_text)) {
+			printf("%p %ls\n", handles[i], dev_path_text);
+			efi_free_pool(dev_path_text);
+		}
+	}
+
+	EFI_CALL(BS->free_pool(handles));
+
+	return CMD_RET_SUCCESS;
+}
 
 /**
  * do_efi_boot_add() - set UEFI load option
@@ -519,6 +592,8 @@ static int do_efi_boot_opt(cmd_tbl_t *cmdtp, int flag,
 
 static cmd_tbl_t cmd_efidebug_sub[] = {
 	U_BOOT_CMD_MKENT(boot, CONFIG_SYS_MAXARGS, 1, do_efi_boot_opt, "", ""),
+	U_BOOT_CMD_MKENT(devices, CONFIG_SYS_MAXARGS, 1, do_efi_show_devices,
+			 "", ""),
 };
 
 /**
@@ -577,7 +652,9 @@ static char efidebug_help_text[] =
 	"  - set UEFI BootNext variable\n"
 	"efidebug boot order [<bootid#1> [<bootid#2> [<bootid#3> [...]]]]\n"
 	"  - set/show UEFI boot order\n"
-	"\n";
+	"\n"
+	"efidebug devices\n"
+	"  - show uefi devices\n";
 #endif
 
 U_BOOT_CMD(
