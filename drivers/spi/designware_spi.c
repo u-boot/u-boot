@@ -9,8 +9,8 @@
  * Copyright (c) 2009, Intel Corporation.
  */
 
-#include <asm-generic/gpio.h>
 #include <common.h>
+#include <asm-generic/gpio.h>
 #include <clk.h>
 #include <dm.h>
 #include <errno.h>
