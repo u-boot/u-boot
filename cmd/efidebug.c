@@ -91,6 +91,95 @@ static int do_efi_show_devices(cmd_tbl_t *cmdtp, int flag,
 }
 
 /**
+ * efi_get_driver_handle_info() - get information of UEFI driver
+ *
+ * @handle:		Handle of UEFI device
+ * @driver_name:	Driver name
+ * @image_path:		Pointer to text of device path
+ * Return:		0 on success, -1 on failure
+ *
+ * Currently return no useful information as all UEFI drivers are
+ * built-in..
+ */
+static int efi_get_driver_handle_info(efi_handle_t handle, u16 **driver_name,
+				      u16 **image_path)
+{
+	struct efi_handler *handler;
+	struct efi_loaded_image *image;
+	efi_status_t ret;
+
+	/*
+	 * driver name
+	 * TODO: support EFI_COMPONENT_NAME2_PROTOCOL
+	 */
+	*driver_name = NULL;
+
+	/* image name */
+	ret = efi_search_protocol(handle, &efi_guid_loaded_image, &handler);
+	if (ret != EFI_SUCCESS) {
+		*image_path = NULL;
+		return 0;
+	}
+
+	image = handler->protocol_interface;
+	*image_path = efi_dp_str(image->file_path);
+
+	return 0;
+}
+
+/**
+ * do_efi_show_drivers() - show UEFI drivers
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "drivers" sub-command.
+ * Show all UEFI drivers and their information.
+ */
+static int do_efi_show_drivers(cmd_tbl_t *cmdtp, int flag,
+			       int argc, char * const argv[])
+{
+	efi_handle_t *handles;
+	efi_uintn_t num, i;
+	u16 *driver_name, *image_path_text;
+	efi_status_t ret;
+
+	ret = EFI_CALL(BS->locate_handle_buffer(
+				BY_PROTOCOL, &efi_guid_driver_binding_protocol,
+				NULL, &num, &handles));
+	if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
+	if (!num)
+		return CMD_RET_SUCCESS;
+
+	printf("Driver%.*s Name                 Image Path\n",
+	       EFI_HANDLE_WIDTH - 6, spc);
+	printf("%.*s ==================== ====================\n",
+	       EFI_HANDLE_WIDTH, sep);
+	for (i = 0; i < num; i++) {
+		if (!efi_get_driver_handle_info(handles[i], &driver_name,
+						&image_path_text)) {
+			if (image_path_text)
+				printf("%p %-20ls %ls\n", handles[i],
+				       driver_name, image_path_text);
+			else
+				printf("%p %-20ls <built-in>\n",
+				       handles[i], driver_name);
+			EFI_CALL(BS->free_pool(driver_name));
+			EFI_CALL(BS->free_pool(image_path_text));
+		}
+	}
+
+	EFI_CALL(BS->free_pool(handles));
+
+	return CMD_RET_SUCCESS;
+}
+
+/**
  * do_efi_boot_add() - set UEFI load option
  *
  * @cmdtp:	Command table
@@ -594,6 +683,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
 	U_BOOT_CMD_MKENT(boot, CONFIG_SYS_MAXARGS, 1, do_efi_boot_opt, "", ""),
 	U_BOOT_CMD_MKENT(devices, CONFIG_SYS_MAXARGS, 1, do_efi_show_devices,
 			 "", ""),
+	U_BOOT_CMD_MKENT(drivers, CONFIG_SYS_MAXARGS, 1, do_efi_show_drivers,
+			 "", ""),
 };
 
 /**
@@ -654,7 +745,9 @@ static char efidebug_help_text[] =
 	"  - set/show UEFI boot order\n"
 	"\n"
 	"efidebug devices\n"
-	"  - show uefi devices\n";
+	"  - show uefi devices\n"
+	"efidebug drivers\n"
+	"  - show uefi drivers\n";
 #endif
 
 U_BOOT_CMD(
