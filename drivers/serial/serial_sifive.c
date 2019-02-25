@@ -99,27 +99,27 @@ static int _sifive_serial_getc(struct uart_sifive *regs)
 
 static int sifive_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	int err;
+	int ret;
 	struct clk clk;
 	struct sifive_uart_platdata *platdata = dev_get_platdata(dev);
+	u32 clock = 0;
 
-	err = clk_get_by_index(dev, 0, &clk);
-	if (!err) {
-		err = clk_get_rate(&clk);
-		if (!IS_ERR_VALUE(err))
-			platdata->clock = err;
-	} else if (err != -ENOENT && err != -ENODEV && err != -ENOSYS) {
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (IS_ERR_VALUE(ret)) {
 		debug("SiFive UART failed to get clock\n");
-		return err;
+		ret = dev_read_u32(dev, "clock-frequency", &clock);
+		if (IS_ERR_VALUE(ret)) {
+			debug("SiFive UART clock not defined\n");
+			return 0;
+		}
+	} else {
+		clock = clk_get_rate(&clk);
+		if (IS_ERR_VALUE(clock)) {
+			debug("SiFive UART clock get rate failed\n");
+			return 0;
+		}
 	}
-
-	if (!platdata->clock)
-		platdata->clock = dev_read_u32_default(dev, "clock-frequency", 0);
-	if (!platdata->clock) {
-		debug("SiFive UART clock not defined\n");
-		return -EINVAL;
-	}
-
+	platdata->clock = clock;
 	_sifive_serial_setbrg(platdata->regs, platdata->clock, baudrate);
 
 	return 0;
