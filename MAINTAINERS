@@ -74,6 +74,13 @@ L:	uboot-snps-arc@synopsys.com
 F:	doc/device-tree-bindings/gpio/snps,creg-gpio.txt
 F:	drivers/gpio/hsdk-creg-gpio.c
 
+ARC SYNOPSYS DW MMC EXTENSIONS
+M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+S:	Maintained
+L:	uboot-snps-arc@synopsys.com
+F:	doc/device-tree-bindings/mmc/snps,dw-mmc.txt
+F:	drivers/mmc/snps_dw_mmc.c
+
 ARM
 M:	Albert Aribaud <albert.u.boot@aribaud.net>
 S:	Maintained
