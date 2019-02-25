@@ -10,6 +10,8 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static int riscv_cpu_get_desc(struct udevice *dev, char *buf, int size)
 {
 	const char *isa;
@@ -62,7 +64,6 @@ static int riscv_cpu_bind(struct udevice *dev)
 
 	/* save the hart id */
 	plat->cpu_id = dev_read_addr(dev);
-
 	/* first examine the property in current cpu node */
 	ret = dev_read_u32(dev, "timebase-frequency", &plat->timebase_freq);
 	/* if not found, then look at the parent /cpus node */
@@ -71,7 +72,7 @@ static int riscv_cpu_bind(struct udevice *dev)
 			     &plat->timebase_freq);
 
 	/*
-	 * Bind riscv-timer driver on hart 0
+	 * Bind riscv-timer driver on boot hart.
 	 *
 	 * We only instantiate one timer device which is enough for U-Boot.
 	 * Pass the "timebase-frequency" value as the driver data for the
@@ -80,7 +81,7 @@ static int riscv_cpu_bind(struct udevice *dev)
 	 * Return value is not checked since it's possible that the timer
 	 * driver is not included.
 	 */
-	if (!plat->cpu_id && plat->timebase_freq) {
+	if (plat->cpu_id == gd->arch.boot_hart && plat->timebase_freq) {
 		drv = lists_driver_lookup_name("riscv_timer");
 		if (!drv) {
 			debug("Cannot find the timer driver, not included?\n");
