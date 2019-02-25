@@ -1,0 +1,6 @@
+Guardian BOARD
+M:	Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+S:	Maintained
+F:	board/bosch/guardian/
+F:	include/configs/am335x_guardian.h
+F:	configs/am335x_guardian_defconfig
