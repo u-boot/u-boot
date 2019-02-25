@@ -179,6 +179,142 @@ static int do_efi_show_drivers(cmd_tbl_t *cmdtp, int flag,
 	return CMD_RET_SUCCESS;
 }
 
+static const struct {
+	const char *text;
+	const efi_guid_t guid;
+} guid_list[] = {
+	{
+		"Device Path",
+		DEVICE_PATH_GUID,
+	},
+	{
+		"Device Path To Text",
+		EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID,
+	},
+	{
+		"Device Path Utilities",
+		EFI_DEVICE_PATH_UTILITIES_PROTOCOL_GUID,
+	},
+	{
+		"Unicode Collation 2",
+		EFI_UNICODE_COLLATION_PROTOCOL2_GUID,
+	},
+	{
+		"Driver Binding",
+		EFI_DRIVER_BINDING_PROTOCOL_GUID,
+	},
+	{
+		"Simple Text Input",
+		EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID,
+	},
+	{
+		"Simple Text Input Ex",
+		EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID,
+	},
+	{
+		"Simple Text Output",
+		EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID,
+	},
+	{
+		"Block IO",
+		BLOCK_IO_GUID,
+	},
+	{
+		"Simple File System",
+		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID,
+	},
+	{
+		"Loaded Image",
+		LOADED_IMAGE_PROTOCOL_GUID,
+	},
+	{
+		"GOP",
+		EFI_GOP_GUID,
+	},
+};
+
+/**
+ * get_guid_text - get string of protocol guid
+ * @guid:	Protocol guid
+ * Return:	String
+ *
+ * Return string for display to represent the protocol.
+ */
+static const char *get_guid_text(const efi_guid_t *guid)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(guid_list); i++)
+		if (!guidcmp(&guid_list[i].guid, guid))
+			break;
+
+	if (i != ARRAY_SIZE(guid_list))
+		return guid_list[i].text;
+	else
+		return NULL;
+}
+
+/**
+ * do_efi_show_handles() - show UEFI handles
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "dh" sub-command.
+ * Show all UEFI handles and their information, currently all protocols
+ * added to handle.
+ */
+static int do_efi_show_handles(cmd_tbl_t *cmdtp, int flag,
+			       int argc, char * const argv[])
+{
+	efi_handle_t *handles;
+	efi_guid_t **guid;
+	efi_uintn_t num, count, i, j;
+	const char *guid_text;
+	efi_status_t ret;
+
+	ret = EFI_CALL(BS->locate_handle_buffer(ALL_HANDLES, NULL, NULL,
+						&num, &handles));
+	if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
+	if (!num)
+		return CMD_RET_SUCCESS;
+
+	printf("Handle%.*s Protocols\n", EFI_HANDLE_WIDTH - 6, spc);
+	printf("%.*s ====================\n", EFI_HANDLE_WIDTH, sep);
+	for (i = 0; i < num; i++) {
+		printf("%p", handles[i]);
+		ret = EFI_CALL(BS->protocols_per_handle(handles[i], &guid,
+							&count));
+		if (ret || !count) {
+			putc('\n');
+			continue;
+		}
+
+		for (j = 0; j < count; j++) {
+			if (j)
+				printf(", ");
+			else
+				putc(' ');
+
+			guid_text = get_guid_text(guid[j]);
+			if (guid_text)
+				puts(guid_text);
+			else
+				printf("%pUl", guid[j]);
+		}
+		putc('\n');
+	}
+
+	EFI_CALL(BS->free_pool(handles));
+
+	return CMD_RET_SUCCESS;
+}
+
 /**
  * do_efi_boot_add() - set UEFI load option
  *
@@ -685,6 +821,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(drivers, CONFIG_SYS_MAXARGS, 1, do_efi_show_drivers,
 			 "", ""),
+	U_BOOT_CMD_MKENT(dh, CONFIG_SYS_MAXARGS, 1, do_efi_show_handles,
+			 "", ""),
 };
 
 /**
@@ -747,7 +885,9 @@ static char efidebug_help_text[] =
 	"efidebug devices\n"
 	"  - show uefi devices\n"
 	"efidebug drivers\n"
-	"  - show uefi drivers\n";
+	"  - show uefi drivers\n"
+	"efidebug dh\n"
+	"  - show uefi handles\n";
 #endif
 
 U_BOOT_CMD(
