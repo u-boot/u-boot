@@ -143,7 +143,7 @@ struct macb_device {
 
 static int macb_is_gem(struct macb_device *macb)
 {
-	return MACB_BFEXT(IDNUM, macb_readl(macb, MID)) == 0x2;
+	return MACB_BFEXT(IDNUM, macb_readl(macb, MID)) >= 0x2;
 }
 
 #ifndef cpu_is_sama5d2
