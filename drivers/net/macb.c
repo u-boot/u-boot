@@ -1061,14 +1061,13 @@ static int macb_enable_clk(struct udevice *dev)
 		return -EINVAL;
 
 	/*
-	 * Zynq clock driver didn't support for enable or disable
-	 * clock. Hence, clk_enable() didn't apply for Zynq
+	 * If clock driver didn't support enable or disable then
+	 * we get -ENOSYS from clk_enable(). To handle this, we
+	 * don't fail for ret == -ENOSYS.
 	 */
-#ifndef CONFIG_MACB_ZYNQ
 	ret = clk_enable(&clk);
-	if (ret)
+	if (ret && ret != -ENOSYS)
 		return ret;
-#endif
 
 	clk_rate = clk_get_rate(&clk);
 	if (!clk_rate)
