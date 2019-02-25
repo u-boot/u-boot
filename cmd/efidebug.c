@@ -316,6 +316,26 @@ static int do_efi_show_handles(cmd_tbl_t *cmdtp, int flag,
 }
 
 /**
+ * do_efi_show_images() - show UEFI images
+ *
+ * @cmdtp:	Command table
+ * @flag:	Command flag
+ * @argc:	Number of arguments
+ * @argv:	Argument array
+ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
+ *
+ * Implement efidebug "images" sub-command.
+ * Show all UEFI loaded images and their information.
+ */
+static int do_efi_show_images(cmd_tbl_t *cmdtp, int flag,
+			      int argc, char * const argv[])
+{
+	efi_print_image_infos(NULL);
+
+	return CMD_RET_SUCCESS;
+}
+
+/**
  * do_efi_boot_add() - set UEFI load option
  *
  * @cmdtp:	Command table
@@ -823,6 +843,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
 			 "", ""),
 	U_BOOT_CMD_MKENT(dh, CONFIG_SYS_MAXARGS, 1, do_efi_show_handles,
 			 "", ""),
+	U_BOOT_CMD_MKENT(images, CONFIG_SYS_MAXARGS, 1, do_efi_show_images,
+			 "", ""),
 };
 
 /**
@@ -887,7 +909,9 @@ static char efidebug_help_text[] =
 	"efidebug drivers\n"
 	"  - show uefi drivers\n"
 	"efidebug dh\n"
-	"  - show uefi handles\n";
+	"  - show uefi handles\n"
+	"efidebug images\n"
+	"  - show loaded images\n";
 #endif
 
 U_BOOT_CMD(
