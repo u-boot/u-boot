@@ -7,7 +7,7 @@ config SYS_VENDOR
 	default "emulation"
 
 config SYS_CPU
-	default "qemu"
+	default "generic"
 
 config SYS_CONFIG_NAME
 	default "qemu-riscv"
@@ -18,7 +18,7 @@ config SYS_TEXT_BASE
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
-	select QEMU_RISCV
+	select GENERIC_RISCV
 	imply SYS_NS16550
 	imply VIRTIO_MMIO
 	imply VIRTIO_NET
