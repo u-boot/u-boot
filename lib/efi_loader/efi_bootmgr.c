@@ -14,10 +14,6 @@
 static const struct efi_boot_services *bs;
 static const struct efi_runtime_services *rs;
 
-#define LOAD_OPTION_ACTIVE		0x00000001
-#define LOAD_OPTION_FORCE_RECONNECT	0x00000002
-#define LOAD_OPTION_HIDDEN		0x00000008
-
 /*
  * bootmgr implements the logic of trying to find a payload to boot
  * based on the BootOrder + BootXXXX variables, and then loading it.
