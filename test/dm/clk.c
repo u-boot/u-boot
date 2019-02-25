@@ -12,11 +12,14 @@
 
 static int dm_test_clk(struct unit_test_state *uts)
 {
-	struct udevice *dev_fixed, *dev_clk, *dev_test;
+	struct udevice *dev_fixed, *dev_fixed_factor, *dev_clk, *dev_test;
 	ulong rate;
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_CLK, "clk-fixed",
 					      &dev_fixed));
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_CLK, "clk-fixed-factor",
+					      &dev_fixed_factor));
 
 	ut_assertok(uclass_get_device_by_name(UCLASS_CLK, "clk-sbox",
 					      &dev_clk));

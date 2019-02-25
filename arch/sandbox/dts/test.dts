@@ -203,6 +203,14 @@
 			#clock-cells = <0>;
 			clock-frequency = <1234>;
 		};
+
+		clk_fixed_factor: clk-fixed-factor {
+			compatible = "fixed-factor-clock";
+			#clock-cells = <0>;
+			clock-div = <3>;
+			clock-mult = <2>;
+			clocks = <&clk_fixed>;
+		};
 	};
 
 	clk_sandbox: clk-sbox {
