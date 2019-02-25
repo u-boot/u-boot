@@ -33,16 +33,40 @@ struct uart_sifive {
 };
 
 struct sifive_uart_platdata {
-	unsigned int clock;
+	unsigned long clock;
 	int saved_input_char;
 	struct uart_sifive *regs;
 };
+
+/**
+ * Find minimum divisor divides in_freq to max_target_hz;
+ * Based on uart driver n SiFive FSBL.
+ *
+ * f_baud = f_in / (div + 1) => div = (f_in / f_baud) - 1
+ * The nearest integer solution requires rounding up as to not exceed
+ * max_target_hz.
+ * div  = ceil(f_in / f_baud) - 1
+ *	= floor((f_in - 1 + f_baud) / f_baud) - 1
+ * This should not overflow as long as (f_in - 1 + f_baud) does not exceed
+ * 2^32 - 1, which is unlikely since we represent frequencies in kHz.
+ */
+static inline unsigned int uart_min_clk_divisor(unsigned long in_freq,
+						unsigned long max_target_hz)
+{
+	unsigned long quotient =
+			(in_freq + max_target_hz - 1) / (max_target_hz);
+	/* Avoid underflow */
+	if (quotient == 0)
+		return 0;
+	else
+		return quotient - 1;
+}
 
 /* Set up the baud rate in gd struct */
 static void _sifive_serial_setbrg(struct uart_sifive *regs,
 				  unsigned long clock, unsigned long baud)
 {
-	writel((u32)((clock / baud) - 1), &regs->div);
+	writel((uart_min_clk_divisor(clock, baud)), &regs->div);
 }
 
 static void _sifive_serial_init(struct uart_sifive *regs)
