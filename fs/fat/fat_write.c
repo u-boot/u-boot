@@ -696,11 +696,11 @@ static int
 set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
 	     loff_t maxsize, loff_t *gotsize)
 {
-	loff_t filesize;
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
 	__u32 curclust = START(dentptr);
 	__u32 endclust = 0, newclust = 0;
-	loff_t cur_pos, offset, actsize, wsize;
+	u64 cur_pos, filesize;
+	loff_t offset, actsize, wsize;
 
 	*gotsize = 0;
 	filesize = pos + maxsize;
@@ -828,7 +828,7 @@ set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
 
 	curclust = endclust;
 	filesize -= cur_pos;
-	assert(!(cur_pos % bytesperclust));
+	assert(!do_div(cur_pos, bytesperclust));
 
 set_clusters:
 	/* allocate and write */
