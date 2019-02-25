@@ -127,6 +127,9 @@ static int pinconfig_post_bind(struct udevice *dev)
 		ofnode_get_property(node, "compatible", &ret);
 		if (ret >= 0)
 			continue;
+		/* If this node has "gpio-controller" property, skip */
+		if (ofnode_read_bool(node, "gpio-controller"))
+			continue;
 
 		if (ret != -FDT_ERR_NOTFOUND)
 			return ret;
