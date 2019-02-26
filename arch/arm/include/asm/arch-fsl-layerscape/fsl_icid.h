@@ -9,6 +9,7 @@
 #include <asm/types.h>
 #include <fsl_qbman.h>
 #include <fsl_sec.h>
+#include <asm/armv8/sec_firmware.h>
 
 struct icid_id_table {
 	const char *compat;
@@ -98,7 +99,13 @@ void fdt_fixup_icid(void *blob);
 		CONFIG_SYS_FSL_SEC_ADDR)
 
 #define SET_SEC_JR_ICID_ENTRY(jr_num, streamid) \
-	SET_ICID_ENTRY("fsl,sec-v4.0-job-ring", streamid, \
+	SET_ICID_ENTRY( \
+		(CONFIG_ARMV8_SEC_FIRMWARE_SUPPORT && \
+		(FSL_SEC_JR##jr_num##_OFFSET ==  \
+			SEC_JR3_OFFSET + CONFIG_SYS_FSL_SEC_OFFSET) \
+			? NULL \
+			: "fsl,sec-v4.0-job-ring"), \
+		streamid, \
 		(((streamid) << 16) | (streamid)), \
 		offsetof(ccsr_sec_t, jrliodnr[jr_num].ls) + \
 		CONFIG_SYS_FSL_SEC_ADDR, \
