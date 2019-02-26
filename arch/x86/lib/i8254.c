@@ -51,6 +51,10 @@ int i8254_enable_beep(uint frequency_hz)
 	if (!frequency_hz)
 		return -EINVAL;
 
+	/* make sure i8254 is setup correctly before generating beeps */
+	outb(PIT_CMD_CTR2 | PIT_CMD_BOTH | PIT_CMD_MODE3,
+	     PIT_BASE + PIT_COMMAND);
+
 	i8254_set_beep_freq(frequency_hz);
 	setio_8(SYSCTL_PORTB, PORTB_BEEP_ENABLE);
 
