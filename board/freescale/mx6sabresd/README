@@ -21,15 +21,15 @@ $ make mx6sabresd_defconfig
 
 $ make
 
-This will generate the SPL and u-boot.img binaries.
+This will generate the SPL and u-boot-dtb.img binaries.
 
 - Flash the SPL binary into the SD card:
 
 $ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 && sync
 
-- Flash the u-boot.img binary into the SD card:
+- Flash the u-boot-dtb.img binary into the SD card:
 
-$ sudo dd if=u-boot.img of=/dev/sdX bs=1K seek=69 && sync
+$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 && sync
 
 
 2. Booting from eMMC
@@ -39,7 +39,7 @@ $ make mx6sabresd_defconfig
 
 $ make
 
-This will generate the SPL and u-boot.img binaries.
+This will generate the SPL and u-boot-dtb.img binaries.
 
 - Boot first from SD card as shown in the previous section
 
@@ -51,10 +51,10 @@ Mount the eMMC in the host PC:
 
 => ums 0 mmc 2
 
-- Flash SPL and u-boot.img binaries into the eMMC:
+- Flash SPL and u-boot-dtb.img binaries into the eMMC:
 
 $ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 && sync
-$ sudo dd if=u-boot.img of=/dev/sdX bs=1K seek=69 && sync
+$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 && sync
 
 Set SW6 to eMMC 8-bit boot: 11010110
 
@@ -65,15 +65,15 @@ Set SW6 to eMMC 8-bit boot: 11010110
 $ make mx6sabresd_defconfig
 $ make
 
-This will generate the SPL image called SPL and the u-boot.img.
+This will generate the SPL image called SPL and the u-boot-dtb.img.
 
 - Flash the SPL image into the SD card:
 
 $ sudo dd if=SPL of=/dev/sdX bs=1K seek=1 oflag=sync status=none && sync
 
-- Flash the u-boot.img image into the SD card:
+- Flash the u-boot-dtb.img image into the SD card:
 
-$ sudo dd if=u-boot.img of=/dev/sdX bs=1K seek=69 oflag=sync status=none && sync
+$ sudo dd if=u-boot-dtb.img of=/dev/sdX bs=1K seek=69 oflag=sync status=none && sync
 
 Create a partition for root file system and extract it there:
 
