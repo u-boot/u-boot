@@ -49,33 +49,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define CFG_MAC_ADDR_OFFSET	(flash->size - SZ_64K)
 
-#ifdef CONFIG_SPL_BUILD
-#include <ns16550.h>
-#include <dm/platform_data/spi_davinci.h>
-
-static const struct ns16550_platdata da850evm_serial = {
-	.base = DAVINCI_UART2_BASE,
-	.reg_shift = 2,
-	.clock = 150000000,
-	.fcr = UART_FCR_DEFVAL,
-};
-
-U_BOOT_DEVICE(da850evm_uart) = {
-	.name = "ns16550_serial",
-	.platdata = &da850evm_serial,
-};
-
-static const struct davinci_spi_platdata davinci_spi_data = {
-        .regs = (struct davinci_spi_regs *)0x01f0e000,
-        .num_cs = 4,
-};
-
-U_BOOT_DEVICE(davinci_spi) = {
-        .name = "davinci_spi",
-        .platdata = &davinci_spi_data,
-};
-#endif
-
 #ifdef CONFIG_MAC_ADDR_IN_SPIFLASH
 static int get_mac_addr(u8 *addr)
 {
