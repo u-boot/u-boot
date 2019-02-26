@@ -93,8 +93,7 @@ void fdt_fixup_icid(void *blob);
 
 #define SET_SEC_QI_ICID(streamid) \
 	SET_ICID_ENTRY("fsl,sec-v4.0", streamid, \
-		(((streamid) << 16) | (streamid)), \
-		offsetof(ccsr_sec_t, qilcr_ls) + \
+		0, offsetof(ccsr_sec_t, qilcr_ls) + \
 		CONFIG_SYS_FSL_SEC_ADDR, \
 		CONFIG_SYS_FSL_SEC_ADDR)
 
