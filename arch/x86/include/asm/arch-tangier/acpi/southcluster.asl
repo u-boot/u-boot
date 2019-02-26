@@ -222,6 +222,17 @@ Device (PCI0)
         {
             Return (STA_VISIBLE)
         }
+
+        Name (RBUF, ResourceTemplate()
+        {
+            FixedDMA(0x0009, 0x0000, Width32bit, )
+            FixedDMA(0x0008, 0x0001, Width32bit, )
+        })
+
+        Method (_CRS, 0, NotSerialized)
+        {
+            Return (RBUF)
+        }
     }
 
     Device (I2C6)
