@@ -420,6 +420,16 @@ config CMD_ENV_FLAGS
 	  be deleted. This command shows the variables that have special
 	  flags.
 
+config CMD_NVEDIT_EFI
+	bool "env [set|print] -e - set/print UEFI variables"
+	depends on EFI_LOADER
+	default y
+	imply HEXDUMP
+	help
+	  UEFI variables are encoded as some form of U-Boot variables.
+	  If enabled, we are allowed to set/print UEFI variables using
+	  "env" command with "-e" option without knowing details.
+
 endmenu
 
 menu "Memory commands"
@@ -1396,6 +1406,16 @@ config CMD_DISPLAY
 	  This enables the 'display' command which allows a string to be
 	  displayed on a simple board-specific display. Implement
 	  display_putc() to use it.
+
+config CMD_EFIDEBUG
+	bool "efidebug - display/configure UEFI environment"
+	depends on EFI_LOADER
+	default n
+	help
+	  Enable the 'efidebug' command which provides a subset of UEFI
+	  shell utility with simplified functionality. It will be useful
+	  particularly for managing boot parameters as  well as examining
+	  various EFI status for debugging.
 
 config CMD_LED
 	bool "led"
