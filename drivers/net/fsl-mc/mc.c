@@ -421,9 +421,11 @@ static int mc_fixup_dpc(u64 dpc_addr)
 	/* fixup MAC addresses for dpmac ports */
 	nodeoffset = fdt_path_offset(blob, "/board_info/ports");
 	if (nodeoffset < 0)
-		return 0;
+		goto out;
 
 	err = mc_fixup_mac_addrs(blob, MC_FIXUP_DPC);
+
+out:
 	flush_dcache_range(dpc_addr, dpc_addr + fdt_totalsize(blob));
 
 	return err;
