@@ -1547,8 +1547,12 @@ static struct ext4_extent_header *ext4fs_get_extent_block
 				break;
 		} while (fileblock >= le32_to_cpu(index[i].ei_block));
 
-		if (--i < 0)
-			return NULL;
+		/*
+		 * If first logical block number is higher than requested fileblock,
+		 * it is a sparse file. This is handled on upper layer.
+		 */
+		if (i > 0)
+			i--;
 
 		block = le16_to_cpu(index[i].ei_leaf_hi);
 		block = (block << 32) + le32_to_cpu(index[i].ei_leaf_lo);
