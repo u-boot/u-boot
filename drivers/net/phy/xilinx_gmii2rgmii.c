@@ -82,6 +82,11 @@ static int xilinxgmiitorgmii_probe(struct phy_device *phydev)
 					1 << ext_phyaddr,
 					PHY_INTERFACE_MODE_RGMII);
 
+	if (!phydev->priv) {
+		printf("%s, No external phy device found\n", __func__);
+		return -EINVAL;
+	}
+
 	debug("%s, gmii2rgmmi:0x%x, extphy:0x%x\n", __func__, phydev->addr,
 	      ext_phyaddr);
 
