@@ -61,6 +61,7 @@ config PPC
 
 config RISCV
 	bool "RISC-V architecture"
+	select CREATE_ARCH_SYMLINK
 	select SUPPORT_OF_CONTROL
 	select OF_CONTROL
 	select DM

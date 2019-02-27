@@ -4,7 +4,9 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 
-obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o clk_fixed_rate.o
+obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o
+obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_rate.o
+obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_factor.o
 
 obj-y += imx/
 obj-y += tegra/
@@ -22,6 +24,7 @@ obj-$(CONFIG_CLK_HSDK) += clk-hsdk-cgu.o
 obj-$(CONFIG_CLK_MPC83XX) += mpc83xx_clk.o
 obj-$(CONFIG_CLK_OWL) += owl/
 obj-$(CONFIG_CLK_RENESAS) += renesas/
+obj-$(CONFIG_CLK_SIFIVE) += sifive/
 obj-$(CONFIG_ARCH_SUNXI) += sunxi/
 obj-$(CONFIG_CLK_STM32F) += clk_stm32f.o
 obj-$(CONFIG_CLK_STM32MP1) += clk_stm32mp1.o

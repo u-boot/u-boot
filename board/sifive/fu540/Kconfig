@@ -1,16 +1,16 @@
-if TARGET_QEMU_VIRT
+if TARGET_SIFIVE_FU540
 
 config SYS_BOARD
-	default "qemu-riscv"
+	default "fu540"
 
 config SYS_VENDOR
-	default "emulation"
+	default "sifive"
 
 config SYS_CPU
 	default "generic"
 
 config SYS_CONFIG_NAME
-	default "qemu-riscv"
+	default "sifive-fu540"
 
 config SYS_TEXT_BASE
 	default 0x80000000 if !RISCV_SMODE
@@ -19,20 +19,24 @@ config SYS_TEXT_BASE
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select GENERIC_RISCV
-	imply SYS_NS16550
-	imply VIRTIO_MMIO
-	imply VIRTIO_NET
-	imply VIRTIO_BLK
-	imply CMD_PING
-	imply CMD_FS_GENERIC
-	imply DOS_PARTITION
-	imply EFI_PARTITION
-	imply ISO_PARTITION
+	imply CMD_DHCP
 	imply CMD_EXT2
 	imply CMD_EXT4
 	imply CMD_FAT
-	imply BOARD_LATE_INIT
-	imply OF_BOARD_SETUP
+	imply CMD_FS_GENERIC
+	imply CMD_NET
+	imply CMD_PING
+	imply CLK_SIFIVE
+	imply CLK_SIFIVE_FU540_PRCI
+	imply DOS_PARTITION
+	imply EFI_PARTITION
+	imply IP_DYN
+	imply ISO_PARTITION
+	imply MACB
+	imply MII
+	imply NET_RANDOM_ETHADDR
+	imply PHY_LIB
+	imply PHY_MSCC
 	imply SIFIVE_SERIAL
 
 endif

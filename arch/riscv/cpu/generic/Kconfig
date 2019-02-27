@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
 
-config QEMU_RISCV
+config GENERIC_RISCV
 	bool
 	select ARCH_EARLY_INIT_R
 	imply CPU
