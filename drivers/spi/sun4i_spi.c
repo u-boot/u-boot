@@ -31,6 +31,8 @@
 
 #include <asm/arch/clock.h>
 
+#include <linux/iopoll.h>
+
 #define SUN4I_FIFO_DEPTH	64
 
 #define SUN4I_RXDATA_REG	0x00
@@ -46,7 +48,6 @@
 #define SUN4I_CTL_LMTF			BIT(6)
 #define SUN4I_CTL_TF_RST		BIT(8)
 #define SUN4I_CTL_RF_RST		BIT(9)
-#define SUN4I_CTL_XCH_MASK		0x0400
 #define SUN4I_CTL_XCH			BIT(10)
 #define SUN4I_CTL_CS_MASK		0x3000
 #define SUN4I_CTL_CS(cs)		(((cs) << 12) & SUN4I_CTL_CS_MASK)
@@ -308,7 +309,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 
 	u32 len = bitlen / 8;
-	u32 reg;
+	u32 reg, rx_fifocnt;
 	u8 nbytes;
 	int ret;
 
@@ -343,10 +344,12 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		reg = readl(&priv->regs->ctl);
 		writel(reg | SUN4I_CTL_XCH, &priv->regs->ctl);
 
-		/* Wait transfer to complete */
-		ret = wait_for_bit_le32(&priv->regs->ctl, SUN4I_CTL_XCH_MASK,
-					false, SUN4I_SPI_TIMEOUT_US, false);
-		if (ret) {
+		/* Wait till RX FIFO to be empty */
+		ret = readl_poll_timeout(&priv->regs->fifo_sta, rx_fifocnt,
+					 (((rx_fifocnt & SUN4I_FIFO_STA_RF_CNT_MASK) >>
+					 SUN4I_FIFO_STA_RF_CNT_BITS) >= nbytes),
+					 SUN4I_SPI_TIMEOUT_US);
+		if (ret < 0) {
 			printf("ERROR: sun4i_spi: Timeout transferring data\n");
 			sun4i_spi_set_cs(bus, slave_plat->cs, false);
 			return ret;
