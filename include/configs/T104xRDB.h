@@ -521,8 +521,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_SF_DEFAULT_SPEED         10000000
-#define CONFIG_SF_DEFAULT_MODE          0
 #define CONFIG_ENV_SPI_BUS              0
 #define CONFIG_ENV_SPI_CS               0
 #define CONFIG_ENV_SPI_MAX_HZ           10000000

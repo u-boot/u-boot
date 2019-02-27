@@ -52,11 +52,7 @@
 /* SPI */
 #ifdef CONFIG_CMD_SF
   #define CONFIG_SPI_FLASH_MTD
-  #define CONFIG_SF_DEFAULT_BUS              0
-  #define CONFIG_SF_DEFAULT_CS               0
 					     /* GPIO 3-19 (21248) */
-  #define CONFIG_SF_DEFAULT_SPEED            30000000
-  #define CONFIG_SF_DEFAULT_MODE             (SPI_MODE_0)
 #endif
 
 #elif defined(CONFIG_SPL_NAND_SUPPORT)

@@ -388,9 +388,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #define CONFIG_SYS_EEPROM_BUS_NUM	1
 
-#define CONFIG_SF_DEFAULT_SPEED		10000000
-#define CONFIG_SF_DEFAULT_MODE		0
-
 /*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.

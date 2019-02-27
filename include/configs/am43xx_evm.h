@@ -124,8 +124,6 @@
 /* SPI */
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_QSPI_SEL_GPIO                   48
-#define CONFIG_SF_DEFAULT_SPEED                48000000
-#define CONFIG_SF_DEFAULT_MODE                 SPI_MODE_3
 #define CONFIG_QSPI_QUAD_SUPPORT
 #define CONFIG_TI_EDMA3
 

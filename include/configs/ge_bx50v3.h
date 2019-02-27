@@ -71,12 +71,6 @@
 #endif
 
 /* Serial Flash */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED	20000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#endif
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

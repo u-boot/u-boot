@@ -48,8 +48,6 @@
 /* ST M25P40 */
 #undef CONFIG_ENV_SPI_MAX_HZ
 #define CONFIG_ENV_SPI_MAX_HZ		25000000
-#undef CONFIG_SF_DEFAULT_SPEED
-#define CONFIG_SF_DEFAULT_SPEED		25000000
 
 /*
  *  Environment variables configurations

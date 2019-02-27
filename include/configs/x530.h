@@ -47,9 +47,6 @@
 #define BBT_CUSTOM_SCAN_POSITION 2048
 
 /* SPI NOR flash default params, used by sf commands */
-#define CONFIG_SF_DEFAULT_BUS		1
-#define CONFIG_SF_DEFAULT_SPEED		50000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 
 #define MTDIDS_DEFAULT			"nand0=nand"
 #define MTDPARTS_DEFAULT		"mtdparts=nand:240M(user),8M(errlog),8M(nand-bbt)"

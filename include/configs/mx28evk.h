@@ -78,16 +78,6 @@
 #ifdef CONFIG_CMD_SPI
 #define CONFIG_DEFAULT_SPI_BUS		2
 #define CONFIG_DEFAULT_SPI_MODE		SPI_MODE_0
-
-/* SPI Flash */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_BUS		2
-#define CONFIG_SF_DEFAULT_CS		0
-/* this may vary and depends on the installed chip */
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#define CONFIG_SF_DEFAULT_SPEED		24000000
-#endif
-
 #endif
 
 /* Framebuffer support */

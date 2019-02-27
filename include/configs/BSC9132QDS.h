@@ -406,10 +406,6 @@ combinations. this should be removed later
  * used for SLIC
  */
 /* eSPI - Enhanced SPI */
-#ifdef CONFIG_FSL_ESPI
-#define CONFIG_SF_DEFAULT_SPEED		10000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#endif
 
 #if defined(CONFIG_TSEC_ENET)
 

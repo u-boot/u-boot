@@ -466,7 +466,6 @@ DEFAULT_LINUX_BOOT_ENV \
 #endif
 
 /* SPI flash. */
-#define CONFIG_SF_DEFAULT_SPEED		24000000
 
 /* Network. */
 #define CONFIG_PHY_SMSC

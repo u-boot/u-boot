@@ -20,9 +20,6 @@
 
 #define CONFIG_FEC_XCV_TYPE		RGMII
 
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-
 #define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
 	"board_type=aristainetos2_7@1\0" \
 	"nor_bootdelay=-2\0" \

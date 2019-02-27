@@ -357,8 +357,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 
 /* eSPI - Enhanced SPI */
-#define CONFIG_SF_DEFAULT_SPEED		10000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 
 #ifdef CONFIG_TSEC_ENET
 #define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */

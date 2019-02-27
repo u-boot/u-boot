@@ -140,10 +140,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* SPI Flash support */
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED		20000000
-#define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
 
 /* FLASH and environment organization */
 #define CONFIG_ENV_SIZE			SZ_8K

@@ -350,8 +350,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_SF_DEFAULT_SPEED         10000000
-#define CONFIG_SF_DEFAULT_MODE          0
 
 /*
  * General PCI

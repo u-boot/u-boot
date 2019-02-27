@@ -76,12 +76,6 @@
 #endif
 
 /* SPI Flash Configs */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED		25000000
-#define CONFIG_SF_DEFAULT_MODE		(SPI_MODE_0)
-#endif
 
 /* UART */
 #define CONFIG_MXC_UART

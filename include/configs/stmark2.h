@@ -64,7 +64,6 @@
 
 /* DSPI and Serial Flash */
 #define CONFIG_CF_DSPI
-#define CONFIG_SF_DEFAULT_SPEED		50000000
 #define CONFIG_SERIAL_FLASH
 #define CONFIG_ENV_SPI_BUS		0
 #define CONFIG_ENV_SPI_CS		1

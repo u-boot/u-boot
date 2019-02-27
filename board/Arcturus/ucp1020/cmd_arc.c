@@ -15,19 +15,6 @@
 
 #include <asm/io.h>
 
-#ifndef CONFIG_SF_DEFAULT_SPEED
-#   define CONFIG_SF_DEFAULT_SPEED	1000000
-#endif
-#ifndef CONFIG_SF_DEFAULT_MODE
-#   define CONFIG_SF_DEFAULT_MODE	SPI_MODE0
-#endif
-#ifndef CONFIG_SF_DEFAULT_CS
-#   define CONFIG_SF_DEFAULT_CS		0
-#endif
-#ifndef CONFIG_SF_DEFAULT_BUS
-#   define CONFIG_SF_DEFAULT_BUS	0
-#endif
-
 #define MAX_SERIAL_SIZE 15
 #define MAX_HWADDR_SIZE 17
 

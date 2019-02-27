@@ -42,9 +42,6 @@
 #endif
 
 /* QSPI */
-#ifdef CONFIG_ZYNQ_QSPI
-# define CONFIG_SF_DEFAULT_SPEED	30000000
-#endif
 
 /* NOR */
 #ifdef CONFIG_MTD_NOR_FLASH

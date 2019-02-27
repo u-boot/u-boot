@@ -13,19 +13,6 @@
 #include <linux/types.h>
 #include <linux/mtd/spi-nor.h>
 
-#ifndef CONFIG_SF_DEFAULT_SPEED
-# define CONFIG_SF_DEFAULT_SPEED	1000000
-#endif
-#ifndef CONFIG_SF_DEFAULT_MODE
-# define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
-#endif
-#ifndef CONFIG_SF_DEFAULT_CS
-# define CONFIG_SF_DEFAULT_CS		0
-#endif
-#ifndef CONFIG_SF_DEFAULT_BUS
-# define CONFIG_SF_DEFAULT_BUS		0
-#endif
-
 struct spi_slave;
 
 struct dm_spi_flash_ops {

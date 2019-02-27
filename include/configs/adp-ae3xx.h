@@ -212,10 +212,6 @@
 
 
 /* SPI FLASH */
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED		1000000
-#define CONFIG_SF_DEFAULT_MODE		0
 
 /*
  * For booting Linux, the board info and command line data

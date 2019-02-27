@@ -384,8 +384,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SPI_FLASH_EON
 #if !defined(CONFIG_TFABOOT) && \
 	!defined(CONFIG_QSPI_BOOT) && !defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_SF_DEFAULT_BUS		1
-#define CONFIG_SF_DEFAULT_CS		0
 #endif
 #endif
 

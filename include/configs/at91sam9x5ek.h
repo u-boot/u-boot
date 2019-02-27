@@ -38,9 +38,6 @@
 	(CONFIG_SYS_SDRAM_BASE + 16 * 1024 - GENERATED_GBL_DATA_SIZE)
 
 /* DataFlash */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_SPEED		30000000
-#endif
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

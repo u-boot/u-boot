@@ -99,11 +99,6 @@
 				DSPI_CTAR_DT(0))
 #define CONFIG_SPI_FLASH_EON /* cs3 */
 
-#define CONFIG_SF_DEFAULT_SPEED      10000000
-#define CONFIG_SF_DEFAULT_MODE       SPI_MODE_0
-#define CONFIG_SF_DEFAULT_BUS        1
-#define CONFIG_SF_DEFAULT_CS         0
-
 /*  MMC  */
 #ifdef CONFIG_MMC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33

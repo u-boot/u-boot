@@ -39,7 +39,6 @@
 #define CONFIG_ENV_SPI_CS	0
 #define CONFIG_ENV_SPI_MODE	SPI_MODE_3
 #define CONFIG_ENV_SPI_MAX_HZ	100000000	/* Use max of 100MHz */
-#define CONFIG_SF_DEFAULT_SPEED	100000000
 
 /*
  * The QSPI NOR flash layout on SR1500:

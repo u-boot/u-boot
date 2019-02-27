@@ -61,8 +61,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
 
-#define CONFIG_SF_DEFAULT_SPEED		(75000000)
-
  /* Physical Memory Map */
 #define PHYS_DRAM_1			0x80000000	/* DRAM Bank #1 */
 

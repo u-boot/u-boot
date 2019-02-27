@@ -573,8 +573,6 @@ extern unsigned long get_sdram_size(void);
  */
 #if !defined(CONFIG_NAND) || !defined(CONFIG_NAND_SECBOOT)
 /* eSPI - Enhanced SPI */
-#define CONFIG_SF_DEFAULT_SPEED		10000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
 
 #if defined(CONFIG_TSEC_ENET)

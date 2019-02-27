@@ -22,7 +22,6 @@
  */
 
 /* SPI NOR flash default params, used by sf commands */
-#define CONFIG_SF_DEFAULT_BUS		1
 
 /*
  * SDIO/MMC Card Configuration
