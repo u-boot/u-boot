@@ -14,12 +14,14 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <fdt_support.h>
 #include <linux/err.h>
 #include <malloc.h>
 #include <miiphy.h>
 #include <net.h>
+#include <reset.h>
 #include <dt-bindings/pinctrl/sun4i-a10.h>
 #ifdef CONFIG_DM_GPIO
 #include <asm-generic/gpio.h>
@@ -135,6 +137,8 @@ struct emac_eth_dev {
 	phys_addr_t sysctl_reg;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
+	struct clk tx_clk;
+	struct reset_ctl tx_rst;
 #ifdef CONFIG_DM_GPIO
 	struct gpio_desc reset_gpio;
 #endif
@@ -647,9 +651,24 @@ static int sun8i_eth_write_hwaddr(struct udevice *dev)
 	return _sun8i_write_hwaddr(priv, pdata->enetaddr);
 }
 
-static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
+static int sun8i_emac_board_setup(struct emac_eth_dev *priv)
 {
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+	int ret;
+
+	ret = clk_enable(&priv->tx_clk);
+	if (ret) {
+		dev_err(dev, "failed to enable TX clock\n");
+		return ret;
+	}
+
+	if (reset_valid(&priv->tx_rst)) {
+		ret = reset_deassert(&priv->tx_rst);
+		if (ret) {
+			dev_err(dev, "failed to deassert TX reset\n");
+			goto err_tx_clk;
+		}
+	}
 
 	if (priv->variant == H3_EMAC) {
 		/* Only H3/H5 have clock controls for internal EPHY */
@@ -664,19 +683,11 @@ static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
 		}
 	}
 
-	if (priv->variant == R40_GMAC) {
-		/* Set clock gating for emac */
-		setbits_le32(&ccm->ahb_reset1_cfg, BIT(AHB_RESET_OFFSET_GMAC));
+	return 0;
 
-		/* De-assert EMAC */
-		setbits_le32(&ccm->ahb_gate1, BIT(AHB_GATE_OFFSET_GMAC));
-	} else {
-		/* Set clock gating for emac */
-		setbits_le32(&ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_GMAC));
-
-		/* De-assert EMAC */
-		setbits_le32(&ccm->ahb_reset0_cfg, BIT(AHB_RESET_OFFSET_GMAC));
-	}
+err_tx_clk:
+	clk_disable(&priv->tx_clk);
+	return ret;
 }
 
 #if defined(CONFIG_DM_GPIO)
@@ -803,10 +814,14 @@ static int sun8i_emac_eth_probe(struct udevice *dev)
 	struct sun8i_eth_pdata *sun8i_pdata = dev_get_platdata(dev);
 	struct eth_pdata *pdata = &sun8i_pdata->eth_pdata;
 	struct emac_eth_dev *priv = dev_get_priv(dev);
+	int ret;
 
 	priv->mac_reg = (void *)pdata->iobase;
 
-	sun8i_emac_board_setup(priv);
+	ret = sun8i_emac_board_setup(priv);
+	if (ret)
+		return ret;
+
 	sun8i_emac_set_syscon(sun8i_pdata, priv);
 
 	sun8i_mdio_init(dev->name, dev);
@@ -835,8 +850,8 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	int offset = 0;
 #ifdef CONFIG_DM_GPIO
 	int reset_flags = GPIOD_IS_OUT;
-	int ret = 0;
 #endif
+	int ret;
 
 	pdata->iobase = devfdt_get_addr(dev);
 	if (pdata->iobase == FDT_ADDR_T_NONE) {
@@ -849,6 +864,18 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	if (!priv->variant) {
 		printf("%s: Missing variant\n", __func__);
 		return -EINVAL;
+	}
+
+	ret = clk_get_by_name(dev, "stmmaceth", &priv->tx_clk);
+	if (ret) {
+		dev_err(dev, "failed to get TX clock\n");
+		return ret;
+	}
+
+	ret = reset_get_by_name(dev, "stmmaceth", &priv->tx_rst);
+	if (ret && ret != -ENOENT) {
+		dev_err(dev, "failed to get TX reset\n");
+		return ret;
 	}
 
 	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "syscon");
