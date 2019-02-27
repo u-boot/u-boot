@@ -24,6 +24,7 @@
 #include <spi.h>
 #include <errno.h>
 #include <fdt_support.h>
+#include <reset.h>
 #include <wait_bit.h>
 
 #include <asm/bitops.h>
@@ -84,6 +85,18 @@
 #define SUN4I_FIFO_STA_TF_CNT_MASK	0x7f
 #define SUN4I_FIFO_STA_TF_CNT_BITS	16
 
+/* sun6i spi registers */
+#define SUN6I_GBL_CTL_REG		0x04
+#define SUN6I_TFR_CTL_REG		0x08
+#define SUN6I_FIFO_CTL_REG		0x18
+#define SUN6I_FIFO_STA_REG		0x1c
+#define SUN6I_CLK_CTL_REG		0x24
+#define SUN6I_BURST_CNT_REG		0x30
+#define SUN6I_XMIT_CNT_REG		0x34
+#define SUN6I_BURST_CTL_REG		0x38
+#define SUN6I_TXDATA_REG		0x200
+#define SUN6I_RXDATA_REG		0x300
+
 #define SUN4I_SPI_MAX_RATE	24000000
 #define SUN4I_SPI_MIN_RATE	3000
 #define SUN4I_SPI_DEFAULT_RATE	1000000
@@ -112,6 +125,7 @@ enum sun4i_spi_regs {
 /* sun spi register bits */
 enum sun4i_spi_bits {
 	SPI_GCR_TP,
+	SPI_GCR_SRST,
 	SPI_TCR_CPHA,
 	SPI_TCR_CPOL,
 	SPI_TCR_CS_ACTIVE_LOW,
@@ -129,6 +143,8 @@ struct sun4i_spi_variant {
 	const unsigned long *regs;
 	const u32 *bits;
 	u32 fifo_depth;
+	bool has_soft_reset;
+	bool has_burst_ctl;
 };
 
 struct sun4i_spi_platdata {
@@ -140,6 +156,7 @@ struct sun4i_spi_platdata {
 struct sun4i_spi_priv {
 	struct sun4i_spi_variant *variant;
 	struct clk clk_ahb, clk_mod;
+	struct reset_ctl reset;
 	u32 base_addr;
 	u32 freq;
 	u32 mode;
@@ -258,7 +275,10 @@ static int sun4i_spi_parse_pins(struct udevice *dev)
 			if (pin < 0)
 				break;
 
-			sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SPI0);
+			if (IS_ENABLED(CONFIG_MACH_SUN50I))
+				sunxi_gpio_set_cfgpin(pin, SUN50I_GPC_SPI0);
+			else
+				sunxi_gpio_set_cfgpin(pin, SUNXI_GPC_SPI0);
 			sunxi_gpio_set_drv(pin, drive);
 			sunxi_gpio_set_pull(pin, pull);
 		}
@@ -274,6 +294,8 @@ static inline int sun4i_spi_set_clock(struct udevice *dev, bool enable)
 	if (!enable) {
 		clk_disable(&priv->clk_ahb);
 		clk_disable(&priv->clk_mod);
+		if (reset_valid(&priv->reset))
+			reset_assert(&priv->reset);
 		return 0;
 	}
 
@@ -289,8 +311,18 @@ static inline int sun4i_spi_set_clock(struct udevice *dev, bool enable)
 		goto err_ahb;
 	}
 
+	if (reset_valid(&priv->reset)) {
+		ret = reset_deassert(&priv->reset);
+		if (ret) {
+			dev_err(dev, "failed to deassert reset\n");
+			goto err_mod;
+		}
+	}
+
 	return 0;
 
+err_mod:
+	clk_disable(&priv->clk_mod);
 err_ahb:
 	clk_disable(&priv->clk_ahb);
 	return ret;
@@ -331,6 +363,12 @@ static int sun4i_spi_probe(struct udevice *bus)
 		return ret;
 	}
 
+	ret = reset_get_by_index(bus, 0, &priv->reset);
+	if (ret && ret != -ENOENT) {
+		dev_err(dev, "failed to get reset\n");
+		return ret;
+	}
+
 	sun4i_spi_parse_pins(bus);
 
 	priv->variant = plat->variant;
@@ -351,6 +389,10 @@ static int sun4i_spi_claim_bus(struct udevice *dev)
 
 	setbits_le32(SPI_REG(priv, SPI_GCR), SUN4I_CTL_ENABLE |
 		     SUN4I_CTL_MASTER | SPI_BIT(priv, SPI_GCR_TP));
+
+	if (priv->variant->has_soft_reset)
+		setbits_le32(SPI_REG(priv, SPI_GCR),
+			     SPI_BIT(priv, SPI_GCR_SRST));
 
 	setbits_le32(SPI_REG(priv, SPI_TCR), SPI_BIT(priv, SPI_TCR_CS_MANUAL) |
 		     SPI_BIT(priv, SPI_TCR_CS_ACTIVE_LOW));
@@ -403,6 +445,10 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		/* Setup the counters */
 		writel(SUN4I_BURST_CNT(nbytes), SPI_REG(priv, SPI_BC));
 		writel(SUN4I_XMIT_CNT(nbytes), SPI_REG(priv, SPI_TC));
+
+		if (priv->variant->has_burst_ctl)
+			writel(SUN4I_BURST_CNT(nbytes),
+			       SPI_REG(priv, SPI_BCTL));
 
 		/* Fill the TX FIFO */
 		sun4i_spi_fill_fifo(priv, nbytes);
@@ -539,16 +585,69 @@ static const u32 sun4i_spi_bits[] = {
 	[SPI_FSR_RF_CNT_MASK]	= GENMASK(6, 0),
 };
 
+static const unsigned long sun6i_spi_regs[] = {
+	[SPI_GCR]		= SUN6I_GBL_CTL_REG,
+	[SPI_TCR]		= SUN6I_TFR_CTL_REG,
+	[SPI_FCR]		= SUN6I_FIFO_CTL_REG,
+	[SPI_FSR]		= SUN6I_FIFO_STA_REG,
+	[SPI_CCR]		= SUN6I_CLK_CTL_REG,
+	[SPI_BC]		= SUN6I_BURST_CNT_REG,
+	[SPI_TC]		= SUN6I_XMIT_CNT_REG,
+	[SPI_BCTL]		= SUN6I_BURST_CTL_REG,
+	[SPI_TXD]		= SUN6I_TXDATA_REG,
+	[SPI_RXD]		= SUN6I_RXDATA_REG,
+};
+
+static const u32 sun6i_spi_bits[] = {
+	[SPI_GCR_TP]		= BIT(7),
+	[SPI_GCR_SRST]		= BIT(31),
+	[SPI_TCR_CPHA]		= BIT(0),
+	[SPI_TCR_CPOL]		= BIT(1),
+	[SPI_TCR_CS_ACTIVE_LOW] = BIT(2),
+	[SPI_TCR_CS_SEL]	= 4,
+	[SPI_TCR_CS_MASK]	= 0x30,
+	[SPI_TCR_CS_MANUAL]	= BIT(6),
+	[SPI_TCR_CS_LEVEL]	= BIT(7),
+	[SPI_TCR_XCH]		= BIT(31),
+	[SPI_FCR_RF_RST]	= BIT(15),
+	[SPI_FCR_TF_RST]	= BIT(31),
+	[SPI_FSR_RF_CNT_MASK]	= GENMASK(7, 0),
+};
+
 static const struct sun4i_spi_variant sun4i_a10_spi_variant = {
 	.regs			= sun4i_spi_regs,
 	.bits			= sun4i_spi_bits,
 	.fifo_depth		= 64,
 };
 
+static const struct sun4i_spi_variant sun6i_a31_spi_variant = {
+	.regs			= sun6i_spi_regs,
+	.bits			= sun6i_spi_bits,
+	.fifo_depth		= 128,
+	.has_soft_reset		= true,
+	.has_burst_ctl		= true,
+};
+
+static const struct sun4i_spi_variant sun8i_h3_spi_variant = {
+	.regs			= sun6i_spi_regs,
+	.bits			= sun6i_spi_bits,
+	.fifo_depth		= 64,
+	.has_soft_reset		= true,
+	.has_burst_ctl		= true,
+};
+
 static const struct udevice_id sun4i_spi_ids[] = {
 	{
 	  .compatible = "allwinner,sun4i-a10-spi",
 	  .data = (ulong)&sun4i_a10_spi_variant,
+	},
+	{
+	  .compatible = "allwinner,sun6i-a31-spi",
+	  .data = (ulong)&sun6i_a31_spi_variant,
+	},
+	{
+	  .compatible = "allwinner,sun8i-h3-spi",
+	  .data = (ulong)&sun8i_h3_spi_variant,
 	},
 	{ }
 };
