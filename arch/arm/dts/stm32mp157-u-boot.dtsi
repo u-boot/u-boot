@@ -39,6 +39,10 @@
 	};
 };
 
+&bsec {
+	u-boot,dm-pre-reloc;
+};
+
 &clk_hsi {
 	u-boot,dm-pre-reloc;
 };

@@ -434,7 +434,7 @@ static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id stm32mp_bsec_ids[] = {
-	{ .compatible = "st,stm32mp-bsec" },
+	{ .compatible = "st,stm32mp15-bsec" },
 	{}
 };
 
@@ -445,14 +445,4 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.ofdata_to_platdata = stm32mp_bsec_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct stm32mp_bsec_platdata),
 	.ops = &stm32mp_bsec_ops,
-};
-
-/* bsec IP is not present in device tee, manage IP address by platdata */
-static struct stm32mp_bsec_platdata stm32_bsec_platdata = {
-	.base = STM32_BSEC_BASE,
-};
-
-U_BOOT_DEVICE(stm32mp_bsec) = {
-	.name = "stm32mp_bsec",
-	.platdata = &stm32_bsec_platdata,
 };
