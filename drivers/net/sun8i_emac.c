@@ -138,7 +138,9 @@ struct emac_eth_dev {
 	struct phy_device *phydev;
 	struct mii_dev *bus;
 	struct clk tx_clk;
+	struct clk ephy_clk;
 	struct reset_ctl tx_rst;
+	struct reset_ctl ephy_rst;
 #ifdef CONFIG_DM_GPIO
 	struct gpio_desc reset_gpio;
 #endif
@@ -653,7 +655,6 @@ static int sun8i_eth_write_hwaddr(struct udevice *dev)
 
 static int sun8i_emac_board_setup(struct emac_eth_dev *priv)
 {
-	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
 	int ret;
 
 	ret = clk_enable(&priv->tx_clk);
@@ -670,16 +671,20 @@ static int sun8i_emac_board_setup(struct emac_eth_dev *priv)
 		}
 	}
 
-	if (priv->variant == H3_EMAC) {
-		/* Only H3/H5 have clock controls for internal EPHY */
-		if (priv->use_internal_phy) {
-			/* Set clock gating for ephy */
-			setbits_le32(&ccm->bus_gate4,
-				     BIT(AHB_GATE_OFFSET_EPHY));
+	/* Only H3/H5 have clock controls for internal EPHY */
+	if (clk_valid(&priv->ephy_clk)) {
+		ret = clk_enable(&priv->ephy_clk);
+		if (ret) {
+			dev_err(dev, "failed to enable EPHY TX clock\n");
+			return ret;
+		}
+	}
 
-			/* Deassert EPHY */
-			setbits_le32(&ccm->ahb_reset2_cfg,
-				     BIT(AHB_RESET_OFFSET_EPHY));
+	if (reset_valid(&priv->ephy_rst)) {
+		ret = reset_deassert(&priv->ephy_rst);
+		if (ret) {
+			dev_err(dev, "failed to deassert EPHY TX clock\n");
+			return ret;
 		}
 	}
 
@@ -839,6 +844,44 @@ static const struct eth_ops sun8i_emac_eth_ops = {
 	.stop                   = sun8i_emac_eth_stop,
 };
 
+static int sun8i_get_ephy_nodes(struct emac_eth_dev *priv)
+{
+	int node, ret;
+
+	/* look for mdio-mux node for internal PHY node */
+	node = fdt_path_offset(gd->fdt_blob,
+			"/soc/ethernet@1c30000/mdio-mux/mdio@1/ethernet-phy@1");
+	if (node < 0) {
+		debug("failed to get mdio-mux with internal PHY\n");
+		return node;
+	}
+
+	ret = fdt_node_check_compatible(gd->fdt_blob, node,
+					"allwinner,sun8i-h3-mdio-internal");
+	if (ret < 0) {
+		debug("failed to find mdio-internal node\n");
+		return ret;
+	}
+
+	ret = clk_get_by_index_nodev(offset_to_ofnode(node), 0,
+				     &priv->ephy_clk);
+	if (ret) {
+		dev_err(dev, "failed to get EPHY TX clock\n");
+		return ret;
+	}
+
+	ret = reset_get_by_index_nodev(offset_to_ofnode(node), 0,
+				       &priv->ephy_rst);
+	if (ret) {
+		dev_err(dev, "failed to get EPHY TX reset\n");
+		return ret;
+	}
+
+	priv->use_internal_phy = true;
+
+	return 0;
+}
+
 static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct sun8i_eth_pdata *sun8i_pdata = dev_get_platdata(dev);
@@ -920,12 +963,9 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	if (priv->variant == H3_EMAC) {
-		int parent = fdt_parent_offset(gd->fdt_blob, offset);
-
-		if (parent >= 0 &&
-		    !fdt_node_check_compatible(gd->fdt_blob, parent,
-				"allwinner,sun8i-h3-mdio-internal"))
-			priv->use_internal_phy = true;
+		ret = sun8i_get_ephy_nodes(priv);
+		if (ret)
+			return ret;
 	}
 
 	priv->interface = pdata->phy_interface;
