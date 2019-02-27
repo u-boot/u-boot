@@ -220,11 +220,6 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 	return 0;
 }
 
-int board_late_init(void)
-{
-	return 0;
-}
-
 /* board dependent setup after realloc */
 int board_init(void)
 {
@@ -233,6 +228,25 @@ int board_init(void)
 
 	if (IS_ENABLED(CONFIG_LED))
 		led_default_state();
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	const void *fdt_compat;
+	int fdt_compat_len;
+
+	fdt_compat = fdt_getprop(gd->fdt_blob, 0, "compatible",
+				 &fdt_compat_len);
+	if (fdt_compat && fdt_compat_len) {
+		if (strncmp(fdt_compat, "st,", 3) != 0)
+			env_set("board_name", fdt_compat);
+		else
+			env_set("board_name", fdt_compat + 3);
+	}
+#endif
 
 	return 0;
 }
