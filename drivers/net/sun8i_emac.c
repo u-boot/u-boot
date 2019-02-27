@@ -285,10 +285,18 @@ static int sun8i_emac_set_syscon(struct sun8i_eth_pdata *pdata,
 	int ret;
 	u32 reg;
 
-	reg = readl(priv->sysctl_reg + 0x30);
+	if (priv->variant == R40_GMAC) {
+		/* Select RGMII for R40 */
+		reg = readl(priv->sysctl_reg + 0x164);
+		reg |= CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII |
+		       CCM_GMAC_CTRL_GPIT_RGMII |
+		       CCM_GMAC_CTRL_TX_CLK_DELAY(CONFIG_GMAC_TX_DELAY);
 
-	if (priv->variant == R40_GMAC)
+		writel(reg, priv->sysctl_reg + 0x164);
 		return 0;
+	}
+
+	reg = readl(priv->sysctl_reg + 0x30);
 
 	if (priv->variant == H3_EMAC) {
 		ret = sun8i_emac_set_syscon_ephy(priv, &reg);
@@ -662,13 +670,6 @@ static void sun8i_emac_board_setup(struct emac_eth_dev *priv)
 
 		/* De-assert EMAC */
 		setbits_le32(&ccm->ahb_gate1, BIT(AHB_GATE_OFFSET_GMAC));
-
-		/* Select RGMII for R40 */
-		setbits_le32(&ccm->gmac_clk_cfg,
-			     CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII |
-			     CCM_GMAC_CTRL_GPIT_RGMII);
-		setbits_le32(&ccm->gmac_clk_cfg,
-			     CCM_GMAC_CTRL_TX_CLK_DELAY(CONFIG_GMAC_TX_DELAY));
 	} else {
 		/* Set clock gating for emac */
 		setbits_le32(&ccm->ahb_gate0, BIT(AHB_GATE_OFFSET_GMAC));
@@ -850,25 +851,23 @@ static int sun8i_emac_eth_ofdata_to_platdata(struct udevice *dev)
 		return -EINVAL;
 	}
 
-	if (priv->variant != R40_GMAC) {
-		offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "syscon");
-		if (offset < 0) {
-			debug("%s: cannot find syscon node\n", __func__);
-			return -EINVAL;
-		}
-		reg = fdt_getprop(gd->fdt_blob, offset, "reg", NULL);
-		if (!reg) {
-			debug("%s: cannot find reg property in syscon node\n",
-			      __func__);
-			return -EINVAL;
-		}
-		priv->sysctl_reg = fdt_translate_address((void *)gd->fdt_blob,
-							 offset, reg);
-		if (priv->sysctl_reg == FDT_ADDR_T_NONE) {
-			debug("%s: Cannot find syscon base address\n",
-			      __func__);
-			return -EINVAL;
-		}
+	offset = fdtdec_lookup_phandle(gd->fdt_blob, node, "syscon");
+	if (offset < 0) {
+		debug("%s: cannot find syscon node\n", __func__);
+		return -EINVAL;
+	}
+
+	reg = fdt_getprop(gd->fdt_blob, offset, "reg", NULL);
+	if (!reg) {
+		debug("%s: cannot find reg property in syscon node\n",
+		      __func__);
+		return -EINVAL;
+	}
+	priv->sysctl_reg = fdt_translate_address((void *)gd->fdt_blob,
+						 offset, reg);
+	if (priv->sysctl_reg == FDT_ADDR_T_NONE) {
+		debug("%s: Cannot find syscon base address\n", __func__);
+		return -EINVAL;
 	}
 
 	pdata->phy_interface = -1;
