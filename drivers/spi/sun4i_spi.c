@@ -33,8 +33,6 @@
 
 #include <linux/iopoll.h>
 
-#define SUN4I_FIFO_DEPTH	64
-
 #define SUN4I_RXDATA_REG	0x00
 
 #define SUN4I_TXDATA_REG	0x04
@@ -131,6 +129,7 @@ enum sun4i_spi_bits {
 struct sun4i_spi_variant {
 	const unsigned long *regs;
 	const u32 *bits;
+	u32 fifo_depth;
 };
 
 struct sun4i_spi_platdata {
@@ -359,7 +358,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 	while (len) {
 		/* Setup the transfer now... */
-		nbytes = min(len, (u32)(SUN4I_FIFO_DEPTH - 1));
+		nbytes = min(len, (priv->variant->fifo_depth - 1));
 
 		/* Setup the counters */
 		writel(SUN4I_BURST_CNT(nbytes), SPI_REG(priv, SPI_BC));
@@ -503,6 +502,7 @@ static const u32 sun4i_spi_bits[] = {
 static const struct sun4i_spi_variant sun4i_a10_spi_variant = {
 	.regs			= sun4i_spi_regs,
 	.bits			= sun4i_spi_bits,
+	.fifo_depth		= 64,
 };
 
 static const struct udevice_id sun4i_spi_ids[] = {
