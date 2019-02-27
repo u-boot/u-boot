@@ -99,8 +99,6 @@ static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
 {
 	int ret;
 	struct ofnode_phandle_args args;
-	struct udevice *dev_clk;
-	const struct clk_ops *ops;
 
 	debug("%s(dev=%p, index=%d, clk=%p)\n", __func__, dev, index, clk);
 
@@ -115,27 +113,9 @@ static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
 		return ret;
 	}
 
-	ret = uclass_get_device_by_ofnode(UCLASS_CLK, args.node, &dev_clk);
-	if (ret) {
-		debug("%s: uclass_get_device_by_of_offset failed: err=%d\n",
-		      __func__, ret);
-		return ret;
-	}
 
-	clk->dev = dev_clk;
-
-	ops = clk_dev_ops(dev_clk);
-
-	if (ops->of_xlate)
-		ret = ops->of_xlate(clk, &args);
-	else
-		ret = clk_of_xlate_default(clk, &args);
-	if (ret) {
-		debug("of_xlate() failed: %d\n", ret);
-		return ret;
-	}
-
-	return clk_request(dev_clk, clk);
+	return clk_get_by_index_tail(ret, dev_ofnode(dev), &args, "clocks",
+				     index > 0, clk);
 }
 
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
