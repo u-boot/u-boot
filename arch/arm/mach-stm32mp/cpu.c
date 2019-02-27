@@ -507,7 +507,7 @@ static int setup_serial_number(void)
 	if (ret < 0)
 		return ret;
 
-	sprintf(serial_string, "%08x%08x%08x", otp[0], otp[1], otp[2]);
+	sprintf(serial_string, "%08X%08X%08X", otp[0], otp[1], otp[2]);
 	env_set("serial#", serial_string);
 
 	return 0;
