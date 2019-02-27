@@ -171,7 +171,7 @@ static int bsec_shadow_register(u32 base, u32 otp)
 		ret = bsec_power_safmem(base, true);
 		if (ret)
 			return ret;
-		power_up = 1;
+		power_up = true;
 	}
 	/* set BSEC_OTP_CTRL_OFF with the otp value*/
 	writel(otp | BSEC_READ, base + BSEC_OTP_CTRL_OFF);
@@ -433,6 +433,21 @@ static int stm32mp_bsec_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+#ifndef CONFIG_STM32MP1_TRUSTED
+static int stm32mp_bsec_probe(struct udevice *dev)
+{
+	int otp;
+	struct stm32mp_bsec_platdata *plat = dev_get_platdata(dev);
+
+	/* update unlocked shadow for OTP cleared by the rom code */
+	for (otp = 57; otp <= BSEC_OTP_MAX_VALUE; otp++)
+		if (!bsec_read_SR_lock(plat->base, otp))
+			bsec_shadow_register(plat->base, otp);
+
+	return 0;
+}
+#endif
+
 static const struct udevice_id stm32mp_bsec_ids[] = {
 	{ .compatible = "st,stm32mp15-bsec" },
 	{}
@@ -445,4 +460,7 @@ U_BOOT_DRIVER(stm32mp_bsec) = {
 	.ofdata_to_platdata = stm32mp_bsec_ofdata_to_platdata,
 	.platdata_auto_alloc_size = sizeof(struct stm32mp_bsec_platdata),
 	.ops = &stm32mp_bsec_ops,
+#ifndef CONFIG_STM32MP1_TRUSTED
+	.probe = stm32mp_bsec_probe,
+#endif
 };
