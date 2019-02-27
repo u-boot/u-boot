@@ -55,8 +55,29 @@
 #define BOOTROM_INSTANCE_SHIFT	16
 
 /* BSEC OTP index */
+#define BSEC_OTP_RPN	1
 #define BSEC_OTP_SERIAL	13
+#define BSEC_OTP_PKG	16
 #define BSEC_OTP_MAC	57
+
+/* Device Part Number (RPN) = OTP_DATA1 lower 8 bits */
+#define RPN_SHIFT	0
+#define RPN_MASK	GENMASK(7, 0)
+
+/* Package = bit 27:29 of OTP16
+ * - 100: LBGA448 (FFI) => AA = LFBGA 18x18mm 448 balls p. 0.8mm
+ * - 011: LBGA354 (LCI) => AB = LFBGA 16x16mm 359 balls p. 0.8mm
+ * - 010: TFBGA361 (FFC) => AC = TFBGA 12x12mm 361 balls p. 0.5mm
+ * - 001: TFBGA257 (LCC) => AD = TFBGA 10x10mm 257 balls p. 0.5mm
+ * - others: Reserved
+ */
+#define PKG_SHIFT	27
+#define PKG_MASK	GENMASK(2, 0)
+
+#define PKG_AA_LBGA448	4
+#define PKG_AB_LBGA354	3
+#define PKG_AC_TFBGA361	2
+#define PKG_AD_TFBGA257	1
 
 #if !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD)
 #ifndef CONFIG_STM32MP1_TRUSTED
@@ -215,25 +236,94 @@ u32 get_cpu_rev(void)
 	return (read_idc() & DBGMCU_IDC_REV_ID_MASK) >> DBGMCU_IDC_REV_ID_SHIFT;
 }
 
+static u32 get_otp(int index, int shift, int mask)
+{
+	int ret;
+	struct udevice *dev;
+	u32 otp = 0;
+
+	ret = uclass_get_device_by_driver(UCLASS_MISC,
+					  DM_GET_DRIVER(stm32mp_bsec),
+					  &dev);
+
+	if (!ret)
+		ret = misc_read(dev, STM32_BSEC_SHADOW(index),
+				&otp, sizeof(otp));
+
+	return (otp >> shift) & mask;
+}
+
+/* Get Device Part Number (RPN) from OTP */
+static u32 get_cpu_rpn(void)
+{
+	return get_otp(BSEC_OTP_RPN, RPN_SHIFT, RPN_MASK);
+}
+
 u32 get_cpu_type(void)
 {
-	return (read_idc() & DBGMCU_IDC_DEV_ID_MASK) >> DBGMCU_IDC_DEV_ID_SHIFT;
+	u32 id;
+
+	id = (read_idc() & DBGMCU_IDC_DEV_ID_MASK) >> DBGMCU_IDC_DEV_ID_SHIFT;
+
+	return (id << 16) | get_cpu_rpn();
+}
+
+/* Get Package options from OTP */
+static u32 get_cpu_package(void)
+{
+	return get_otp(BSEC_OTP_PKG, PKG_SHIFT, PKG_MASK);
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	char *cpu_s, *cpu_r;
+	char *cpu_s, *cpu_r, *pkg;
 
+	/* MPUs Part Numbers */
 	switch (get_cpu_type()) {
-	case CPU_STMP32MP15x:
-		cpu_s = "15x";
+	case CPU_STM32MP157Cxx:
+		cpu_s = "157C";
+		break;
+	case CPU_STM32MP157Axx:
+		cpu_s = "157A";
+		break;
+	case CPU_STM32MP153Cxx:
+		cpu_s = "153C";
+		break;
+	case CPU_STM32MP153Axx:
+		cpu_s = "153A";
+		break;
+	case CPU_STM32MP151Cxx:
+		cpu_s = "151C";
+		break;
+	case CPU_STM32MP151Axx:
+		cpu_s = "151A";
 		break;
 	default:
-		cpu_s = "?";
+		cpu_s = "????";
 		break;
 	}
 
+	/* Package */
+	switch (get_cpu_package()) {
+	case PKG_AA_LBGA448:
+		pkg = "AA";
+		break;
+	case PKG_AB_LBGA354:
+		pkg = "AB";
+		break;
+	case PKG_AC_TFBGA361:
+		pkg = "AC";
+		break;
+	case PKG_AD_TFBGA257:
+		pkg = "AD";
+		break;
+	default:
+		pkg = "??";
+		break;
+	}
+
+	/* REVISION */
 	switch (get_cpu_rev()) {
 	case CPU_REVA:
 		cpu_r = "A";
@@ -246,7 +336,7 @@ int print_cpuinfo(void)
 		break;
 	}
 
-	printf("CPU: STM32MP%s.%s\n", cpu_s, cpu_r);
+	printf("CPU: STM32MP%s%s Rev.%s\n", cpu_s, pkg, cpu_r);
 
 	return 0;
 }
