@@ -33,57 +33,16 @@
 
 #include <linux/iopoll.h>
 
-#define SUN4I_RXDATA_REG	0x00
+DECLARE_GLOBAL_DATA_PTR;
 
-#define SUN4I_TXDATA_REG	0x04
-
-#define SUN4I_CTL_REG		0x08
-#define SUN4I_CTL_ENABLE		BIT(0)
-#define SUN4I_CTL_MASTER		BIT(1)
-#define SUN4I_CTL_CPHA			BIT(2)
-#define SUN4I_CTL_CPOL			BIT(3)
-#define SUN4I_CTL_CS_ACTIVE_LOW		BIT(4)
-#define SUN4I_CTL_LMTF			BIT(6)
-#define SUN4I_CTL_TF_RST		BIT(8)
-#define SUN4I_CTL_RF_RST		BIT(9)
-#define SUN4I_CTL_XCH			BIT(10)
-#define SUN4I_CTL_CS_MASK		0x3000
-#define SUN4I_CTL_CS(cs)		(((cs) << 12) & SUN4I_CTL_CS_MASK)
-#define SUN4I_CTL_DHB			BIT(15)
-#define SUN4I_CTL_CS_MANUAL		BIT(16)
-#define SUN4I_CTL_CS_LEVEL		BIT(17)
-#define SUN4I_CTL_TP			BIT(18)
-
-#define SUN4I_INT_CTL_REG	0x0c
-#define SUN4I_INT_CTL_RF_F34		BIT(4)
-#define SUN4I_INT_CTL_TF_E34		BIT(12)
-#define SUN4I_INT_CTL_TC		BIT(16)
-
-#define SUN4I_INT_STA_REG	0x10
-
-#define SUN4I_DMA_CTL_REG	0x14
-
-#define SUN4I_WAIT_REG		0x18
-
-#define SUN4I_CLK_CTL_REG	0x1c
-#define SUN4I_CLK_CTL_CDR2_MASK		0xff
-#define SUN4I_CLK_CTL_CDR2(div)		((div) & SUN4I_CLK_CTL_CDR2_MASK)
-#define SUN4I_CLK_CTL_CDR1_MASK		0xf
-#define SUN4I_CLK_CTL_CDR1(div)		(((div) & SUN4I_CLK_CTL_CDR1_MASK) << 8)
-#define SUN4I_CLK_CTL_DRS		BIT(12)
-
-#define SUN4I_MAX_XFER_SIZE		0xffffff
-
-#define SUN4I_BURST_CNT_REG	0x20
-#define SUN4I_BURST_CNT(cnt)		((cnt) & SUN4I_MAX_XFER_SIZE)
-
-#define SUN4I_XMIT_CNT_REG	0x24
-#define SUN4I_XMIT_CNT(cnt)		((cnt) & SUN4I_MAX_XFER_SIZE)
-
-#define SUN4I_FIFO_STA_REG	0x28
-#define SUN4I_FIFO_STA_RF_CNT_BITS	0
-#define SUN4I_FIFO_STA_TF_CNT_MASK	0x7f
-#define SUN4I_FIFO_STA_TF_CNT_BITS	16
+/* sun4i spi registers */
+#define SUN4I_RXDATA_REG		0x00
+#define SUN4I_TXDATA_REG		0x04
+#define SUN4I_CTL_REG			0x08
+#define SUN4I_CLK_CTL_REG		0x1c
+#define SUN4I_BURST_CNT_REG		0x20
+#define SUN4I_XMIT_CNT_REG		0x24
+#define SUN4I_FIFO_STA_REG		0x28
 
 /* sun6i spi registers */
 #define SUN6I_GBL_CTL_REG		0x04
@@ -97,12 +56,25 @@
 #define SUN6I_TXDATA_REG		0x200
 #define SUN6I_RXDATA_REG		0x300
 
-#define SUN4I_SPI_MAX_RATE	24000000
-#define SUN4I_SPI_MIN_RATE	3000
-#define SUN4I_SPI_DEFAULT_RATE	1000000
-#define SUN4I_SPI_TIMEOUT_US	1000000
+/* sun spi bits */
+#define SUN4I_CTL_ENABLE		BIT(0)
+#define SUN4I_CTL_MASTER		BIT(1)
+#define SUN4I_CLK_CTL_CDR2_MASK		0xff
+#define SUN4I_CLK_CTL_CDR2(div)		((div) & SUN4I_CLK_CTL_CDR2_MASK)
+#define SUN4I_CLK_CTL_CDR1_MASK		0xf
+#define SUN4I_CLK_CTL_CDR1(div)		(((div) & SUN4I_CLK_CTL_CDR1_MASK) << 8)
+#define SUN4I_CLK_CTL_DRS		BIT(12)
+#define SUN4I_MAX_XFER_SIZE		0xffffff
+#define SUN4I_BURST_CNT(cnt)		((cnt) & SUN4I_MAX_XFER_SIZE)
+#define SUN4I_XMIT_CNT(cnt)		((cnt) & SUN4I_MAX_XFER_SIZE)
+#define SUN4I_FIFO_STA_RF_CNT_BITS	0
 
-#define SPI_REG(priv, reg)		((priv)->base_addr + \
+#define SUN4I_SPI_MAX_RATE		24000000
+#define SUN4I_SPI_MIN_RATE		3000
+#define SUN4I_SPI_DEFAULT_RATE		1000000
+#define SUN4I_SPI_TIMEOUT_US		1000000
+
+#define SPI_REG(priv, reg)		((priv)->base + \
 					(priv)->variant->regs[reg])
 #define SPI_BIT(priv, bit)		((priv)->variant->bits[bit])
 #define SPI_CS(priv, cs)		(((cs) << SPI_BIT(priv, SPI_TCR_CS_SEL)) & \
@@ -149,7 +121,7 @@ struct sun4i_spi_variant {
 
 struct sun4i_spi_platdata {
 	struct sun4i_spi_variant *variant;
-	u32 base_addr;
+	u32 base;
 	u32 max_hz;
 };
 
@@ -157,15 +129,13 @@ struct sun4i_spi_priv {
 	struct sun4i_spi_variant *variant;
 	struct clk clk_ahb, clk_mod;
 	struct reset_ctl reset;
-	u32 base_addr;
+	u32 base;
 	u32 freq;
 	u32 mode;
 
 	const u8 *tx_buf;
 	u8 *rx_buf;
 };
-
-DECLARE_GLOBAL_DATA_PTR;
 
 static inline void sun4i_spi_drain_fifo(struct sun4i_spi_priv *priv, int len)
 {
@@ -326,56 +296,6 @@ err_mod:
 err_ahb:
 	clk_disable(&priv->clk_ahb);
 	return ret;
-}
-
-static int sun4i_spi_ofdata_to_platdata(struct udevice *bus)
-{
-	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
-	int node = dev_of_offset(bus);
-
-	plat->base_addr = devfdt_get_addr(bus);
-	plat->variant = (struct sun4i_spi_variant *)dev_get_driver_data(bus);
-	plat->max_hz = fdtdec_get_int(gd->fdt_blob, node,
-				      "spi-max-frequency",
-				      SUN4I_SPI_DEFAULT_RATE);
-
-	if (plat->max_hz > SUN4I_SPI_MAX_RATE)
-		plat->max_hz = SUN4I_SPI_MAX_RATE;
-
-	return 0;
-}
-
-static int sun4i_spi_probe(struct udevice *bus)
-{
-	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
-	struct sun4i_spi_priv *priv = dev_get_priv(bus);
-	int ret;
-
-	ret = clk_get_by_name(bus, "ahb", &priv->clk_ahb);
-	if (ret) {
-		dev_err(dev, "failed to get ahb clock\n");
-		return ret;
-	}
-
-	ret = clk_get_by_name(bus, "mod", &priv->clk_mod);
-	if (ret) {
-		dev_err(dev, "failed to get mod clock\n");
-		return ret;
-	}
-
-	ret = reset_get_by_index(bus, 0, &priv->reset);
-	if (ret && ret != -ENOENT) {
-		dev_err(dev, "failed to get reset\n");
-		return ret;
-	}
-
-	sun4i_spi_parse_pins(bus);
-
-	priv->variant = plat->variant;
-	priv->base_addr = plat->base_addr;
-	priv->freq = plat->max_hz;
-
-	return 0;
 }
 
 static int sun4i_spi_claim_bus(struct udevice *dev)
@@ -558,6 +478,56 @@ static const struct dm_spi_ops sun4i_spi_ops = {
 	.set_mode		= sun4i_spi_set_mode,
 };
 
+static int sun4i_spi_probe(struct udevice *bus)
+{
+	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
+	struct sun4i_spi_priv *priv = dev_get_priv(bus);
+	int ret;
+
+	ret = clk_get_by_name(bus, "ahb", &priv->clk_ahb);
+	if (ret) {
+		dev_err(dev, "failed to get ahb clock\n");
+		return ret;
+	}
+
+	ret = clk_get_by_name(bus, "mod", &priv->clk_mod);
+	if (ret) {
+		dev_err(dev, "failed to get mod clock\n");
+		return ret;
+	}
+
+	ret = reset_get_by_index(bus, 0, &priv->reset);
+	if (ret && ret != -ENOENT) {
+		dev_err(dev, "failed to get reset\n");
+		return ret;
+	}
+
+	sun4i_spi_parse_pins(bus);
+
+	priv->variant = plat->variant;
+	priv->base = plat->base;
+	priv->freq = plat->max_hz;
+
+	return 0;
+}
+
+static int sun4i_spi_ofdata_to_platdata(struct udevice *bus)
+{
+	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
+	int node = dev_of_offset(bus);
+
+	plat->base = devfdt_get_addr(bus);
+	plat->variant = (struct sun4i_spi_variant *)dev_get_driver_data(bus);
+	plat->max_hz = fdtdec_get_int(gd->fdt_blob, node,
+				      "spi-max-frequency",
+				      SUN4I_SPI_DEFAULT_RATE);
+
+	if (plat->max_hz > SUN4I_SPI_MAX_RATE)
+		plat->max_hz = SUN4I_SPI_MAX_RATE;
+
+	return 0;
+}
+
 static const unsigned long sun4i_spi_regs[] = {
 	[SPI_GCR]		= SUN4I_CTL_REG,
 	[SPI_TCR]		= SUN4I_CTL_REG,
@@ -649,7 +619,7 @@ static const struct udevice_id sun4i_spi_ids[] = {
 	  .compatible = "allwinner,sun8i-h3-spi",
 	  .data = (ulong)&sun8i_h3_spi_variant,
 	},
-	{ }
+	{ /* sentinel */ }
 };
 
 U_BOOT_DRIVER(sun4i_spi) = {
