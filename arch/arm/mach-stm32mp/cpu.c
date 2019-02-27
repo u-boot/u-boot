@@ -359,12 +359,12 @@ static void setup_boot_mode(void)
 	u32 boot_mode =
 		(boot_ctx & TAMP_BOOT_MODE_MASK) >> TAMP_BOOT_MODE_SHIFT;
 	int instance = (boot_mode & TAMP_BOOT_INSTANCE_MASK) - 1;
+	u32 forced_mode = (boot_ctx & TAMP_BOOT_FORCED_MASK);
 	struct udevice *dev;
 	int alias;
 
-	pr_debug("%s: boot_ctx=0x%x => boot_mode=%x, instance=%d\n",
-		 __func__, boot_ctx, boot_mode, instance);
-
+	pr_debug("%s: boot_ctx=0x%x => boot_mode=%x, instance=%d forced=%x\n",
+		 __func__, boot_ctx, boot_mode, instance, forced_mode);
 	switch (boot_mode & TAMP_BOOT_DEVICE_MASK) {
 	case BOOT_SERIAL_UART:
 		if (instance > ARRAY_SIZE(serial_addr))
@@ -409,6 +409,36 @@ static void setup_boot_mode(void)
 		pr_debug("unexpected boot mode = %x\n", boot_mode);
 		break;
 	}
+
+	switch (forced_mode) {
+	case BOOT_FASTBOOT:
+		printf("Enter fastboot!\n");
+		env_set("preboot", "env set preboot; fastboot 0");
+		break;
+	case BOOT_STM32PROG:
+		env_set("boot_device", "usb");
+		env_set("boot_instance", "0");
+		break;
+	case BOOT_UMS_MMC0:
+	case BOOT_UMS_MMC1:
+	case BOOT_UMS_MMC2:
+		printf("Enter UMS!\n");
+		instance = forced_mode - BOOT_UMS_MMC0;
+		sprintf(cmd, "env set preboot; ums 0 mmc %d", instance);
+		env_set("preboot", cmd);
+		break;
+	case BOOT_RECOVERY:
+		env_set("preboot", "env set preboot; run altbootcmd");
+		break;
+	case BOOT_NORMAL:
+		break;
+	default:
+		pr_debug("unexpected forced boot mode = %x\n", forced_mode);
+		break;
+	}
+
+	/* clear TAMP for next reboot */
+	clrsetbits_le32(TAMP_BOOT_CONTEXT, TAMP_BOOT_FORCED_MASK, BOOT_NORMAL);
 }
 
 /*

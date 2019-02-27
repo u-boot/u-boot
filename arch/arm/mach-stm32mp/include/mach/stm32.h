@@ -92,6 +92,17 @@ enum boot_device {
 #define TAMP_BOOT_MODE_SHIFT		8
 #define TAMP_BOOT_DEVICE_MASK		GENMASK(7, 4)
 #define TAMP_BOOT_INSTANCE_MASK		GENMASK(3, 0)
+#define TAMP_BOOT_FORCED_MASK		GENMASK(7, 0)
+
+enum forced_boot_mode {
+	BOOT_NORMAL = 0x00,
+	BOOT_FASTBOOT = 0x01,
+	BOOT_RECOVERY = 0x02,
+	BOOT_STM32PROG = 0x03,
+	BOOT_UMS_MMC0 = 0x10,
+	BOOT_UMS_MMC1 = 0x11,
+	BOOT_UMS_MMC2 = 0x12,
+};
 
 /* offset used for BSEC driver: misc_read and misc_write */
 #define STM32_BSEC_SHADOW_OFFSET	0x0

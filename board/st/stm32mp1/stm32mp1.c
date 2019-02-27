@@ -67,6 +67,55 @@ int checkboard(void)
 	return 0;
 }
 
+static void board_key_check(void)
+{
+#if defined(CONFIG_FASTBOOT) || defined(CONFIG_CMD_STM32PROG)
+	ofnode node;
+	struct gpio_desc gpio;
+	enum forced_boot_mode boot_mode = BOOT_NORMAL;
+
+	node = ofnode_path("/config");
+	if (!ofnode_valid(node)) {
+		debug("%s: no /config node?\n", __func__);
+		return;
+	}
+#ifdef CONFIG_FASTBOOT
+	if (gpio_request_by_name_nodev(node, "st,fastboot-gpios", 0,
+				       &gpio, GPIOD_IS_IN)) {
+		debug("%s: could not find a /config/st,fastboot-gpios\n",
+		      __func__);
+	} else {
+		if (dm_gpio_get_value(&gpio)) {
+			puts("Fastboot key pressed, ");
+			boot_mode = BOOT_FASTBOOT;
+		}
+
+		dm_gpio_free(NULL, &gpio);
+	}
+#endif
+#ifdef CONFIG_CMD_STM32PROG
+	if (gpio_request_by_name_nodev(node, "st,stm32prog-gpios", 0,
+				       &gpio, GPIOD_IS_IN)) {
+		debug("%s: could not find a /config/st,stm32prog-gpios\n",
+		      __func__);
+	} else {
+		if (dm_gpio_get_value(&gpio)) {
+			puts("STM32Programmer key pressed, ");
+			boot_mode = BOOT_STM32PROG;
+		}
+		dm_gpio_free(NULL, &gpio);
+	}
+#endif
+
+	if (boot_mode != BOOT_NORMAL) {
+		puts("entering download mode...\n");
+		clrsetbits_le32(TAMP_BOOT_CONTEXT,
+				TAMP_BOOT_FORCED_MASK,
+				boot_mode);
+	}
+#endif
+}
+
 static struct dwc2_plat_otg_data stm32mp_otg_data = {
 	.usb_gusbcfg = STM32MP_GUSBCFG,
 };
@@ -226,6 +275,8 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = STM32_DDR_BASE + 0x100;
+
+	board_key_check();
 
 	if (IS_ENABLED(CONFIG_LED))
 		led_default_state();
