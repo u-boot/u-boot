@@ -74,9 +74,7 @@
 
 /* DSPI */
 #define CONFIG_FSL_DSPI1
-#define CONFIG_DEFAULT_SPI_BUS 1
 
-#define CONFIG_CMD_SPI
 #define MMAP_DSPI          DSPI1_BASE_ADDR
 
 #define CONFIG_SYS_DSPI_CTAR0   1

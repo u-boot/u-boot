@@ -27,7 +27,6 @@
 
 /* SPI Flash support */
 #define CONFIG_TI_SPI_MMAP
-#define CONFIG_DEFAULT_SPI_MODE		SPI_MODE_3
 
 /* SPI SPL defines */
 /* Offsets: 0K - SPL1, 64K - SPL2, 128K - SPL3, 192K - SPL4, 256K - U-Boot */
