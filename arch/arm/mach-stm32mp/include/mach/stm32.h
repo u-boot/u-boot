@@ -37,8 +37,10 @@
 /* enumerated used to identify the SYSCON driver instance */
 enum {
 	STM32MP_SYSCON_UNKNOWN,
-	STM32MP_SYSCON_STGEN,
+	STM32MP_SYSCON_ETZPC,
 	STM32MP_SYSCON_PWR,
+	STM32MP_SYSCON_STGEN,
+	STM32MP_SYSCON_SYSCFG,
 };
 
 /*
