@@ -19,6 +19,7 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <spi.h>
 #include <errno.h>
@@ -28,8 +29,6 @@
 #include <asm/bitops.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-
-#include <asm/arch/clock.h>
 
 #include <linux/iopoll.h>
 
@@ -140,6 +139,7 @@ struct sun4i_spi_platdata {
 
 struct sun4i_spi_priv {
 	struct sun4i_spi_variant *variant;
+	struct clk clk_ahb, clk_mod;
 	u32 base_addr;
 	u32 freq;
 	u32 mode;
@@ -266,13 +266,34 @@ static int sun4i_spi_parse_pins(struct udevice *dev)
 	return 0;
 }
 
-static inline void sun4i_spi_enable_clock(void)
+static inline int sun4i_spi_set_clock(struct udevice *dev, bool enable)
 {
-	struct sunxi_ccm_reg *const ccm =
-		(struct sunxi_ccm_reg *const)SUNXI_CCM_BASE;
+	struct sun4i_spi_priv *priv = dev_get_priv(dev);
+	int ret;
 
-	setbits_le32(&ccm->ahb_gate0, (1 << AHB_GATE_OFFSET_SPI0));
-	writel((1 << 31), &ccm->spi0_clk_cfg);
+	if (!enable) {
+		clk_disable(&priv->clk_ahb);
+		clk_disable(&priv->clk_mod);
+		return 0;
+	}
+
+	ret = clk_enable(&priv->clk_ahb);
+	if (ret) {
+		dev_err(dev, "failed to enable ahb clock (ret=%d)\n", ret);
+		return ret;
+	}
+
+	ret = clk_enable(&priv->clk_mod);
+	if (ret) {
+		dev_err(dev, "failed to enable mod clock (ret=%d)\n", ret);
+		goto err_ahb;
+	}
+
+	return 0;
+
+err_ahb:
+	clk_disable(&priv->clk_ahb);
+	return ret;
 }
 
 static int sun4i_spi_ofdata_to_platdata(struct udevice *bus)
@@ -296,8 +317,20 @@ static int sun4i_spi_probe(struct udevice *bus)
 {
 	struct sun4i_spi_platdata *plat = dev_get_platdata(bus);
 	struct sun4i_spi_priv *priv = dev_get_priv(bus);
+	int ret;
 
-	sun4i_spi_enable_clock();
+	ret = clk_get_by_name(bus, "ahb", &priv->clk_ahb);
+	if (ret) {
+		dev_err(dev, "failed to get ahb clock\n");
+		return ret;
+	}
+
+	ret = clk_get_by_name(bus, "mod", &priv->clk_mod);
+	if (ret) {
+		dev_err(dev, "failed to get mod clock\n");
+		return ret;
+	}
+
 	sun4i_spi_parse_pins(bus);
 
 	priv->variant = plat->variant;
@@ -310,6 +343,11 @@ static int sun4i_spi_probe(struct udevice *bus)
 static int sun4i_spi_claim_bus(struct udevice *dev)
 {
 	struct sun4i_spi_priv *priv = dev_get_priv(dev->parent);
+	int ret;
+
+	ret = sun4i_spi_set_clock(dev->parent, true);
+	if (ret)
+		return ret;
 
 	setbits_le32(SPI_REG(priv, SPI_GCR), SUN4I_CTL_ENABLE |
 		     SUN4I_CTL_MASTER | SPI_BIT(priv, SPI_GCR_TP));
@@ -325,6 +363,8 @@ static int sun4i_spi_release_bus(struct udevice *dev)
 	struct sun4i_spi_priv *priv = dev_get_priv(dev->parent);
 
 	clrbits_le32(SPI_REG(priv, SPI_GCR), SUN4I_CTL_ENABLE);
+
+	sun4i_spi_set_clock(dev->parent, false);
 
 	return 0;
 }
