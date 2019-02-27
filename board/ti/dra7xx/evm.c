@@ -27,6 +27,7 @@
 #include <environment.h>
 #include <dwc3-uboot.h>
 #include <dwc3-omap-uboot.h>
+#include <i2c.h>
 #include <ti-usb-phy-uboot.h>
 #include <miiphy.h>
 
@@ -54,6 +55,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GPIO_DDR_VTT_EN 203
 
 #define SYSINFO_BOARD_NAME_MAX_LEN	37
+
+/* I2C I/O Expander */
+#define NAND_PCF8575_ADDR	0x21
+#define NAND_PCF8575_I2C_BUS_NUM	0
 
 const struct omap_sysinfo sysinfo = {
 	"Board: UNKNOWN(DRA7 EVM) REV UNKNOWN\n"
@@ -777,6 +782,44 @@ void set_muxconf_regs(void)
 		     early_padconf, ARRAY_SIZE(early_padconf));
 }
 
+#if defined(CONFIG_NAND)
+static int nand_sw_detect(void)
+{
+	int rc;
+	uchar data[2];
+	struct udevice *dev;
+
+	rc = i2c_get_chip_for_busnum(NAND_PCF8575_I2C_BUS_NUM,
+				     NAND_PCF8575_ADDR, 0, &dev);
+	if (rc)
+		return -1;
+
+	rc = dm_i2c_read(dev, 0, (uint8_t *)&data, sizeof(data));
+	if (rc)
+		return -1;
+
+	/* We are only interested in P10 and P11 on PCF8575 which is equal to
+	 * bits 8 and 9.
+	 */
+	data[1] = data[1] & 0x3;
+
+	/* Ensure only P11 is set and P10 is cleared. This ensures only
+	 * NAND (P10) is configured and not NOR (P11) which are both low
+	 * true signals. NAND and NOR settings should not be enabled at
+	 * the same time.
+	 */
+	if (data[1] == 0x2)
+		return 0;
+
+	return -1;
+}
+#else
+int nand_sw_detect(void)
+{
+	return -1;
+}
+#endif
+
 #ifdef CONFIG_IODELAY_RECALIBRATION
 void recalibrate_iodelay(void)
 {
@@ -796,6 +839,19 @@ void recalibrate_iodelay(void)
 			npads = ARRAY_SIZE(dra71x_core_padconf_array);
 			iodelay = dra71_iodelay_cfg_array;
 			niodelays = ARRAY_SIZE(dra71_iodelay_cfg_array);
+			/* If SW8 on the EVM is set to enable NAND then
+			 * overwrite the pins used by VOUT3 with NAND.
+			 */
+			if (!nand_sw_detect()) {
+				delta_pads = dra71x_nand_padconf_array;
+				delta_npads =
+					ARRAY_SIZE(dra71x_nand_padconf_array);
+			} else {
+				delta_pads = dra71x_vout3_padconf_array;
+				delta_npads =
+					ARRAY_SIZE(dra71x_vout3_padconf_array);
+			}
+
 		} else if (board_is_dra72x_revc_or_later()) {
 			delta_pads = dra72x_rgmii_padconf_array_revc;
 			delta_npads =
