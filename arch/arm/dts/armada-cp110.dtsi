@@ -192,22 +192,28 @@
 				max-lanes = <6>;
 			};
 
-			CP110_LABEL(utmi0): utmi@580000 {
-				compatible = "marvell,mvebu-utmi-2.6.0";
-				reg = <0x580000 0x1000>,	/* utmi-unit */
-				      <0x440420 0x4>,		/* usb-cfg */
-				      <0x440440 0x4>;		/* utmi-cfg */
-				utmi-port = <UTMI_PHY_TO_USB3_HOST0>;
-				status = "disabled";
-			};
+			CP110_LABEL(utmi): utmi@580000 {
+				compatible = "marvell,mvebu-utmi";
+				reg = <0x580000 0xc>; /* utmi-common-pll */
+				#address-cells = <1>;
+				#size-cells = <1>;
+				CP110_LABEL(utmi0): utmi@58000c {
+					compatible = "marvell,mvebu-utmi-2.6.0";
+					reg = <0x58000c 0x100>,/* utmi-unit */
+					      <0x440420 0x4>,	/* usb-cfg */
+					      <0x440440 0x4>;	/* utmi-cfg */
+					utmi-port = <UTMI_PHY_TO_USB3_HOST0>;
+					status = "disabled";
+				};
 
-			CP110_LABEL(utmi1): utmi@581000 {
-				compatible = "marvell,mvebu-utmi-2.6.0";
-				reg = <0x581000 0x1000>,	/* utmi-unit */
-				      <0x440420 0x4>,		/* usb-cfg */
-				      <0x440444 0x4>;		/* utmi-cfg */
-				utmi-port = <UTMI_PHY_TO_USB3_HOST1>;
-				status = "disabled";
+				CP110_LABEL(utmi1): utmi@58100c {
+					compatible = "marvell,mvebu-utmi-2.6.0";
+					reg = <0x58100c 0x100>,/* utmi-unit */
+					      <0x440420 0x4>,	/* usb-cfg */
+					      <0x440444 0x4>;	/* utmi-cfg */
+					utmi-port = <UTMI_PHY_TO_USB3_HOST1>;
+					status = "disabled";
+				};
 			};
 
 			CP110_LABEL(sdhci0): sdhci@780000 {

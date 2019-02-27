@@ -55,6 +55,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define COMPHY_UNIT_ID3		3
 
 struct utmi_phy_data {
+	void __iomem *utmi_pll_addr;
 	void __iomem *utmi_base_addr;
 	void __iomem *usb_cfg_addr;
 	void __iomem *utmi_cfg_addr;
@@ -264,7 +265,8 @@ static void comphy_utmi_power_down(u32 utmi_index, void __iomem *utmi_base_addr,
 	return;
 }
 
-static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
+static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_pll_addr,
+				   void __iomem *utmi_base_addr,
 				   void __iomem *usb_cfg_addr,
 				   void __iomem *utmi_cfg_addr,
 				   u32 utmi_phy_port)
@@ -282,10 +284,10 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
 	/* Select LPFR - 0x0 for 25Mhz/5=5Mhz*/
 	mask |= UTMI_PLL_CTRL_SEL_LPFR_MASK;
 	data |= 0x0 << UTMI_PLL_CTRL_SEL_LPFR_OFFSET;
-	reg_set(utmi_base_addr + UTMI_PLL_CTRL_REG, data, mask);
+	reg_set(utmi_pll_addr + UTMI_PLL_CTRL_REG, data, mask);
 
 	/* Impedance Calibration Threshold Setting */
-	reg_set(utmi_base_addr + UTMI_CALIB_CTRL_REG,
+	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG,
 		0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET,
 		UTMI_CALIB_CTRL_IMPCAL_VTH_MASK);
 
@@ -322,7 +324,8 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_base_addr,
 	return;
 }
 
-static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
+static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_pll_addr,
+				void __iomem *utmi_base_addr,
 				void __iomem *usb_cfg_addr,
 				void __iomem *utmi_cfg_addr, u32 utmi_phy_port)
 {
@@ -341,7 +344,7 @@ static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
 		UTMI_CTRL_STATUS0_TEST_SEL_MASK);
 
 	debug("stage: Polling for PLL and impedance calibration done, and PLL ready done\n");
-	addr = utmi_base_addr + UTMI_CALIB_CTRL_REG;
+	addr = utmi_pll_addr + UTMI_CALIB_CTRL_REG;
 	data = UTMI_CALIB_CTRL_IMPCAL_DONE_MASK;
 	mask = data;
 	data = polling_with_timeout(addr, data, mask, 100);
@@ -360,7 +363,7 @@ static int comphy_utmi_power_up(u32 utmi_index, void __iomem *utmi_base_addr,
 		ret = 0;
 	}
 
-	addr = utmi_base_addr + UTMI_PLL_CTRL_REG;
+	addr = utmi_pll_addr + UTMI_PLL_CTRL_REG;
 	data = UTMI_PLL_CTRL_PLL_RDY_MASK;
 	mask = data;
 	data = polling_with_timeout(addr, data, mask, 100);
@@ -411,14 +414,16 @@ static void comphy_utmi_phy_init(u32 utmi_phy_count,
 	}
 	/* UTMI configure */
 	for (i = 0; i < utmi_phy_count; i++) {
-		comphy_utmi_phy_config(i, cp110_utmi_data[i].utmi_base_addr,
+		comphy_utmi_phy_config(i, cp110_utmi_data[i].utmi_pll_addr,
+				       cp110_utmi_data[i].utmi_base_addr,
 				       cp110_utmi_data[i].usb_cfg_addr,
 				       cp110_utmi_data[i].utmi_cfg_addr,
 				       cp110_utmi_data[i].utmi_phy_port);
 	}
 	/* UTMI Power up */
 	for (i = 0; i < utmi_phy_count; i++) {
-		if (!comphy_utmi_power_up(i, cp110_utmi_data[i].utmi_base_addr,
+		if (!comphy_utmi_power_up(i, cp110_utmi_data[i].utmi_pll_addr,
+					  cp110_utmi_data[i].utmi_base_addr,
 					  cp110_utmi_data[i].usb_cfg_addr,
 					  cp110_utmi_data[i].utmi_cfg_addr,
 					  cp110_utmi_data[i].utmi_phy_port)) {
@@ -453,6 +458,7 @@ void comphy_dedicated_phys_init(void)
 	struct utmi_phy_data cp110_utmi_data[MAX_UTMI_PHY_COUNT];
 	int node = -1;
 	int node_idx;
+	int parent = -1;
 
 	debug_enter();
 	debug("Initialize USB UTMI PHYs\n");
@@ -467,6 +473,19 @@ void comphy_dedicated_phys_init(void)
 		/* check if node is enabled */
 		if (!fdtdec_get_is_enabled(gd->fdt_blob, node))
 			continue;
+
+		parent = fdt_parent_offset(gd->fdt_blob, node);
+		if (parent <= 0)
+			break;
+
+		/* get base address of UTMI PLL */
+		cp110_utmi_data[node_idx].utmi_pll_addr =
+			(void __iomem *)fdtdec_get_addr_size_auto_noparent(
+				gd->fdt_blob, parent, "reg", 0, NULL, true);
+		if (!cp110_utmi_data[node_idx].utmi_pll_addr) {
+			pr_err("UTMI PHY PLL address is invalid\n");
+			continue;
+		}
 
 		/* get base address of UTMI phy */
 		cp110_utmi_data[node_idx].utmi_base_addr =
