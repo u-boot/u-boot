@@ -18,6 +18,7 @@
 #define RCC_DBGCFGR		(STM32_RCC_BASE + 0x080C)
 #define RCC_BDCR		(STM32_RCC_BASE + 0x0140)
 #define RCC_MP_APB5ENSETR	(STM32_RCC_BASE + 0x0208)
+#define RCC_MP_AHB5ENSETR	(STM32_RCC_BASE + 0x0210)
 #define RCC_BDCR_VSWRST		BIT(31)
 #define RCC_BDCR_RTCSRC		GENMASK(17, 16)
 #define RCC_DBGCFGR_DBGCKEN	BIT(8)
@@ -43,6 +44,9 @@
 #define DBGMCU_IDC_DEV_ID_SHIFT	0
 #define DBGMCU_IDC_REV_ID_MASK	GENMASK(31, 16)
 #define DBGMCU_IDC_REV_ID_SHIFT	16
+
+/* GPIOZ registers */
+#define GPIOZ_SECCFGR		0x54004030
 
 /* boot interface from Bootrom
  * - boot instance = bit 31:16
@@ -135,6 +139,10 @@ static void security_init(void)
 	 * Bit 16 ITAMP1E: RTC power domain supply monitoring
 	 */
 	writel(0x0, TAMP_CR1);
+
+	/* GPIOZ: deactivate the security */
+	writel(BIT(0), RCC_MP_AHB5ENSETR);
+	writel(0x0, GPIOZ_SECCFGR);
 }
 #endif /* CONFIG_STM32MP1_TRUSTED */
 
