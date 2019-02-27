@@ -6,6 +6,7 @@
 #ifndef _RESET_H
 #define _RESET_H
 
+#include <dm/ofnode.h>
 #include <linux/errno.h>
 
 /**
@@ -98,6 +99,21 @@ struct reset_ctl_bulk {
  */
 int reset_get_by_index(struct udevice *dev, int index,
 		       struct reset_ctl *reset_ctl);
+
+/**
+ * reset_get_by_index_nodev - Get/request a reset signal by integer index
+ * without a device.
+ *
+ * This is a version of reset_get_by_index() that does not use a device.
+ *
+ * @node:	The client ofnode.
+ * @index:	The index of the reset signal to request, within the client's
+ *		list of reset signals.
+ * @reset_ctl	A pointer to a reset control struct to initialize.
+ * @return 0 if OK, or a negative error code.
+ */
+int reset_get_by_index_nodev(ofnode node, int index,
+			     struct reset_ctl *reset_ctl);
 
 /**
  * reset_get_bulk - Get/request all reset signals of a device.
