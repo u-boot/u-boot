@@ -7,6 +7,8 @@
 #include <dm.h>
 #include <spl.h>
 #include <asm/io.h>
+#include <asm/arch/sys_proto.h>
+#include <linux/libfdt.h>
 
 u32 spl_boot_device(void)
 {
@@ -57,6 +59,21 @@ int spl_boot_partition(const u32 boot_device)
 		return -EINVAL;
 	}
 }
+
+#ifdef CONFIG_SPL_DISPLAY_PRINT
+void spl_display_print(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	const char *model;
+
+	/* same code than show_board_info() but not compiled for SPL
+	 * see CONFIG_DISPLAY_BOARDINFO & common/board_info.c
+	 */
+	model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
+	if (model)
+		printf("Model: %s\n", model);
+}
+#endif
 
 void board_init_f(ulong dummy)
 {
