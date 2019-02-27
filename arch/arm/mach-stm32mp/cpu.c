@@ -472,7 +472,7 @@ static int setup_mac_address(void)
 	if (ret)
 		return ret;
 
-	ret = misc_read(dev, BSEC_OTP_MAC * 4 + STM32_BSEC_OTP_OFFSET,
+	ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_MAC),
 			otp, sizeof(otp));
 	if (ret < 0)
 		return ret;
@@ -510,7 +510,7 @@ static int setup_serial_number(void)
 	if (ret)
 		return ret;
 
-	ret = misc_read(dev, BSEC_OTP_SERIAL * 4 + STM32_BSEC_OTP_OFFSET,
+	ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_SERIAL),
 			otp, sizeof(otp));
 	if (ret < 0)
 		return ret;
