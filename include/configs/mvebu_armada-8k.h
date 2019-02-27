@@ -52,11 +52,6 @@
 /*
  * SPI Flash configuration
  */
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-
-/* SPI NOR flash default params, used by sf commands */
-#define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
 
 #define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */

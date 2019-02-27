@@ -45,21 +45,6 @@
 
 #define MV_UART_CONSOLE_BASE		MVEBU_UART0_BASE
 
-/*
- * SPI Flash configuration
- */
-#ifdef CONFIG_CMD_SF
-#ifndef CONFIG_ENV_SPI_BUS
-# define CONFIG_ENV_SPI_BUS		0
-#endif
-#ifndef CONFIG_ENV_SPI_CS
-# define CONFIG_ENV_SPI_CS		0
-#endif
-#ifndef CONFIG_ENV_SPI_MAX_HZ
-# define CONFIG_ENV_SPI_MAX_HZ		50000000
-#endif
-#endif
-
 /* Needed for SPI NOR booting in SPL */
 #define CONFIG_DM_SEQ_ALIAS		1
 

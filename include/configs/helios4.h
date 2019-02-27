@@ -45,13 +45,6 @@
 					CONFIG_SYS_SCSI_MAX_LUN)
 
 #ifdef CONFIG_MVEBU_SPL_BOOT_DEVICE_SPI
-/*
- * SPI Flash configuration for the environment access
- */
-#define CONFIG_ENV_SPI_BUS		CONFIG_SF_DEFAULT_BUS
-#define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
-#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
-
 /* Environment in SPI NOR flash */
 #define CONFIG_ENV_SECT_SIZE		SZ_64K
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE

@@ -56,10 +56,6 @@
 /*
  *  Environment variables configurations
  */
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		20000000	/* 20Mhz */
-#define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
 #define CONFIG_ENV_SECT_SIZE		0x40000		/* 256K */
 #define CONFIG_ENV_SIZE			0x02000
 #define CONFIG_ENV_OFFSET		0xc0000		/* env starts here - 768K */

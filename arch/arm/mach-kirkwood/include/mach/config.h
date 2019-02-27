@@ -61,21 +61,6 @@
 #endif
 
 /*
- * SPI Flash configuration
- */
-#ifdef CONFIG_CMD_SF
-#ifndef CONFIG_ENV_SPI_BUS
-# define CONFIG_ENV_SPI_BUS		0
-#endif
-#ifndef CONFIG_ENV_SPI_CS
-# define CONFIG_ENV_SPI_CS		0
-#endif
-#ifndef CONFIG_ENV_SPI_MAX_HZ
-# define CONFIG_ENV_SPI_MAX_HZ		50000000
-#endif
-#endif
-
-/*
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET

@@ -45,10 +45,6 @@
 
 /* loading initramfs images without uimage header */
 
-/* ST M25P40 */
-#undef CONFIG_ENV_SPI_MAX_HZ
-#define CONFIG_ENV_SPI_MAX_HZ		25000000
-
 /*
  *  Environment variables configurations
  */

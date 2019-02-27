@@ -35,10 +35,6 @@
 /* SPI NOR Flash default params, used by sf commands */
 
 #if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		8100000
-#define CONFIG_ENV_SPI_MODE		SPI_MODE_3
 #endif
 
 /* Reserve 4 MB for malloc */

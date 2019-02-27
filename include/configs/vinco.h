@@ -38,8 +38,6 @@
 #ifdef CONFIG_CMD_SF
 #define CONFIG_ATMEL_SPI0
 #define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_ENV_SPI_MAX_HZ		50000000
-#define CONFIG_ENV_SPI_MODE		(SPI_MODE_0)
 #endif
 
 /* MMC */
@@ -65,8 +63,6 @@
 
 #ifdef CONFIG_SPI_BOOT
 /* bootstrap + u-boot + env + linux in serial flash */
-#define CONFIG_ENV_SPI_BUS	CONFIG_SF_DEFAULT_BUS
-#define CONFIG_ENV_SPI_CS	CONFIG_SF_DEFAULT_CS
 /* Use our own mapping for the VInCo platform */
 #undef CONFIG_ENV_OFFSET
 #undef CONFIG_ENV_SIZE

@@ -181,10 +181,6 @@
   #define CONFIG_ENV_OFFSET		(512 * SZ_1K)
   #define CONFIG_ENV_SECT_SIZE		(64 * SZ_1K)
   #define CONFIG_ENV_SIZE		(8 * SZ_1K)
-  #define CONFIG_ENV_SPI_BUS             CONFIG_SF_DEFAULT_BUS
-  #define CONFIG_ENV_SPI_CS              CONFIG_SF_DEFAULT_CS
-  #define CONFIG_ENV_SPI_MODE            CONFIG_SF_DEFAULT_MODE
-  #define CONFIG_ENV_SPI_MAX_HZ          CONFIG_SF_DEFAULT_SPEED
 #endif
 
 /* Environment */

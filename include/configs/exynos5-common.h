@@ -110,10 +110,7 @@
 /* SPI */
 
 #ifdef CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SPI_MODE	SPI_MODE_0
 #define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
-#define CONFIG_ENV_SPI_BUS	1
-#define CONFIG_ENV_SPI_MAX_HZ	50000000
 #endif
 
 /* Ethernet Controllor Driver */

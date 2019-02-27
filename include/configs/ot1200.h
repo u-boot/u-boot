@@ -99,10 +99,6 @@
 #define CONFIG_ENV_OFFSET               (1024 * 1024)
 /* M25P16 has an erase size of 64 KiB */
 #define CONFIG_ENV_SECT_SIZE            (64 * 1024)
-#define CONFIG_ENV_SPI_BUS              CONFIG_SF_DEFAULT_BUS
-#define CONFIG_ENV_SPI_CS               CONFIG_SF_DEFAULT_CS
-#define CONFIG_ENV_SPI_MODE             CONFIG_SF_DEFAULT_MODE
-#define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
 
 #define CONFIG_BOOTP_SERVERIP
 #define CONFIG_BOOTP_BOOTFILE

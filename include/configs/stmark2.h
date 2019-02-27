@@ -65,8 +65,6 @@
 /* DSPI and Serial Flash */
 #define CONFIG_CF_DSPI
 #define CONFIG_SERIAL_FLASH
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		1
 
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 
@@ -152,7 +150,6 @@
 
 #if defined(CONFIG_CF_SBF)
 #define CONFIG_ENV_IS_IN_SPI_FLASH	1
-#define CONFIG_ENV_SPI_CS		1
 #define CONFIG_ENV_OFFSET		0x40000
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_SECT_SIZE		0x10000
