@@ -14,6 +14,7 @@
 #include <usb.h>
 #include <asm/arch/stm32.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <power/regulator.h>
 #include <usb/dwc2_udc.h>
 
