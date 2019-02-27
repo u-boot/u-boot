@@ -53,6 +53,9 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
+/* Extend size of kernel image for uncompression */
+#define CONFIG_SYS_BOOTM_LEN			SZ_32M
+
 /* SPL support */
 #ifdef CONFIG_SPL
 /* BOOTROM load address */
@@ -106,12 +109,18 @@
 
 #include <config_distro_bootcmd.h>
 
+/*
+ * memory layout for 32M uncompressed/compressed kernel,
+ * 1M fdt, 1M script, 1M pxe and 1M for splashimage
+ * and the ramdisk at the end.
+ */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"scriptaddr=0xC0000000\0" \
-	"pxefile_addr_r=0xC0000000\0" \
-	"kernel_addr_r=0xC1000000\0" \
-	"fdt_addr_r=0xC4000000\0" \
-	"ramdisk_addr_r=0xC4100000\0" \
+	"kernel_addr_r=0xc2000000\0" \
+	"fdt_addr_r=0xc4000000\0" \
+	"scriptaddr=0xc4100000\0" \
+	"pxefile_addr_r=0xc4200000\0" \
+	"splashimage=0xc4300000\0"  \
+	"ramdisk_addr_r=0xc4400000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	STM32MP_BOOTCMD \
