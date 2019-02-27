@@ -25,12 +25,6 @@
 
 #define CONFIG_LOADADDR 		1000000
 
-/*
- * Commands configuration
- */
-#define CONFIG_CMD_I2C
-#define CONFIG_CMD_SPI
-
 /* SPI NOR flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_BUS		1
 #define CONFIG_SF_DEFAULT_SPEED		1000000
