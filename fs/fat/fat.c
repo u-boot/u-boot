@@ -602,8 +602,13 @@ static int get_fs_info(fsdata *mydata)
 		mydata->data_begin = mydata->rootdir_sect +
 					mydata->rootdir_size -
 					(mydata->clust_size * 2);
-		mydata->root_cluster =
-			sect_to_clust(mydata, mydata->rootdir_sect);
+
+		/*
+		 * The root directory is not cluster-aligned and may be on a
+		 * "negative" cluster, this will be handled specially in
+		 * next_cluster().
+		 */
+		mydata->root_cluster = 0;
 	}
 
 	mydata->fatbufnum = -1;
@@ -733,20 +738,38 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
 	itr->last_cluster = 0;
 }
 
-static void *next_cluster(fat_itr *itr)
+static void *next_cluster(fat_itr *itr, unsigned *nbytes)
 {
 	fsdata *mydata = itr->fsdata;  /* for silly macros */
 	int ret;
 	u32 sect;
+	u32 read_size;
 
 	/* have we reached the end? */
 	if (itr->last_cluster)
 		return NULL;
 
-	sect = clust_to_sect(itr->fsdata, itr->next_clust);
+	if (itr->is_root && itr->fsdata->fatsize != 32) {
+		/*
+		 * The root directory is located before the data area and
+		 * cannot be indexed using the regular unsigned cluster
+		 * numbers (it may start at a "negative" cluster or not at a
+		 * cluster boundary at all), so consider itr->next_clust to be
+		 * a offset in cluster-sized units from the start of rootdir.
+		 */
+		unsigned sect_offset = itr->next_clust * itr->fsdata->clust_size;
+		unsigned remaining_sects = itr->fsdata->rootdir_size - sect_offset;
+		sect = itr->fsdata->rootdir_sect + sect_offset;
+		/* do not read past the end of rootdir */
+		read_size = min_t(u32, itr->fsdata->clust_size,
+				  remaining_sects);
+	} else {
+		sect = clust_to_sect(itr->fsdata, itr->next_clust);
+		read_size = itr->fsdata->clust_size;
+	}
 
-	debug("FAT read(sect=%d), clust_size=%d, DIRENTSPERBLOCK=%zd\n",
-	      sect, itr->fsdata->clust_size, DIRENTSPERBLOCK);
+	debug("FAT read(sect=%d), clust_size=%d, read_size=%u, DIRENTSPERBLOCK=%zd\n",
+	      sect, itr->fsdata->clust_size, read_size, DIRENTSPERBLOCK);
 
 	/*
 	 * NOTE: do_fat_read_at() had complicated logic to deal w/
@@ -757,18 +780,17 @@ static void *next_cluster(fat_itr *itr)
 	 * dent at a time and iteratively constructing the vfat long
 	 * name.
 	 */
-	ret = disk_read(sect, itr->fsdata->clust_size,
-			itr->block);
+	ret = disk_read(sect, read_size, itr->block);
 	if (ret < 0) {
 		debug("Error: reading block\n");
 		return NULL;
 	}
 
+	*nbytes = read_size * itr->fsdata->sect_size;
 	itr->clust = itr->next_clust;
 	if (itr->is_root && itr->fsdata->fatsize != 32) {
 		itr->next_clust++;
-		sect = clust_to_sect(itr->fsdata, itr->next_clust);
-		if (sect - itr->fsdata->rootdir_sect >=
+		if (itr->next_clust * itr->fsdata->clust_size >=
 		    itr->fsdata->rootdir_size) {
 			debug("nextclust: 0x%x\n", itr->next_clust);
 			itr->last_cluster = 1;
@@ -787,9 +809,8 @@ static void *next_cluster(fat_itr *itr)
 static dir_entry *next_dent(fat_itr *itr)
 {
 	if (itr->remaining == 0) {
-		struct dir_entry *dent = next_cluster(itr);
-		unsigned nbytes = itr->fsdata->sect_size *
-			itr->fsdata->clust_size;
+		unsigned nbytes;
+		struct dir_entry *dent = next_cluster(itr, &nbytes);
 
 		/* have we reached the last cluster? */
 		if (!dent) {
