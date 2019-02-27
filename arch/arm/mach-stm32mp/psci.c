@@ -103,7 +103,13 @@ int __secure psci_affinity_info(u32 function_id, u32 target_affinity,
 
 int __secure psci_migrate_info_type(u32 function_id)
 {
-	/* Trusted OS is either not present or does not require migration */
+	/*
+	 * in Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
+	 * return 2 = Trusted OS is either not present or does not require
+	 * migration, system of this type does not require the caller
+	 * to use the MIGRATE function.
+	 * MIGRATE function calls return NOT_SUPPORTED.
+	 */
 	return 2;
 }
 
