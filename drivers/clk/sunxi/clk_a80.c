@@ -13,7 +13,16 @@
 #include <dt-bindings/reset/sun9i-a80-ccu.h>
 
 static const struct ccu_clk_gate a80_gates[] = {
+	[CLK_SPI0]		= GATE(0x430, BIT(31)),
+	[CLK_SPI1]		= GATE(0x434, BIT(31)),
+	[CLK_SPI2]		= GATE(0x438, BIT(31)),
+	[CLK_SPI3]		= GATE(0x43c, BIT(31)),
+
 	[CLK_BUS_MMC]		= GATE(0x580, BIT(8)),
+	[CLK_BUS_SPI0]		= GATE(0x580, BIT(20)),
+	[CLK_BUS_SPI1]		= GATE(0x580, BIT(21)),
+	[CLK_BUS_SPI2]		= GATE(0x580, BIT(22)),
+	[CLK_BUS_SPI3]		= GATE(0x580, BIT(23)),
 
 	[CLK_BUS_UART0]		= GATE(0x594, BIT(16)),
 	[CLK_BUS_UART1]		= GATE(0x594, BIT(17)),
@@ -25,6 +34,10 @@ static const struct ccu_clk_gate a80_gates[] = {
 
 static const struct ccu_reset a80_resets[] = {
 	[RST_BUS_MMC]		= RESET(0x5a0, BIT(8)),
+	[RST_BUS_SPI0]		= RESET(0x5a0, BIT(20)),
+	[RST_BUS_SPI1]		= RESET(0x5a0, BIT(21)),
+	[RST_BUS_SPI2]		= RESET(0x5a0, BIT(22)),
+	[RST_BUS_SPI3]		= RESET(0x5a0, BIT(23)),
 
 	[RST_BUS_UART0]		= RESET(0x5b4, BIT(16)),
 	[RST_BUS_UART1]		= RESET(0x5b4, BIT(17)),
