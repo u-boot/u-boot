@@ -19,6 +19,7 @@ static struct ccu_clk_gate a10s_gates[] = {
 	[CLK_AHB_MMC0]		= GATE(0x060, BIT(8)),
 	[CLK_AHB_MMC1]		= GATE(0x060, BIT(9)),
 	[CLK_AHB_MMC2]		= GATE(0x060, BIT(10)),
+	[CLK_AHB_EMAC]		= GATE(0x060, BIT(17)),
 	[CLK_AHB_SPI0]		= GATE(0x060, BIT(20)),
 	[CLK_AHB_SPI1]		= GATE(0x060, BIT(21)),
 	[CLK_AHB_SPI2]		= GATE(0x060, BIT(22)),
