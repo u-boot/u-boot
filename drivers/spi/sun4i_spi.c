@@ -283,20 +283,18 @@ static int sun4i_spi_claim_bus(struct udevice *dev)
 {
 	struct sun4i_spi_priv *priv = dev_get_priv(dev->parent);
 
-	writel(SUN4I_CTL_ENABLE | SUN4I_CTL_MASTER | SUN4I_CTL_TP |
-	       SUN4I_CTL_CS_MANUAL | SUN4I_CTL_CS_ACTIVE_LOW,
-	       &priv->regs->ctl);
+	setbits_le32(&priv->regs->ctl, SUN4I_CTL_ENABLE |
+		     SUN4I_CTL_MASTER | SUN4I_CTL_TP |
+		     SUN4I_CTL_CS_MANUAL | SUN4I_CTL_CS_ACTIVE_LOW);
+
 	return 0;
 }
 
 static int sun4i_spi_release_bus(struct udevice *dev)
 {
 	struct sun4i_spi_priv *priv = dev_get_priv(dev->parent);
-	u32 reg;
 
-	reg = readl(&priv->regs->ctl);
-	reg &= ~SUN4I_CTL_ENABLE;
-	writel(reg, &priv->regs->ctl);
+	clrbits_le32(&priv->regs->ctl, SUN4I_CTL_ENABLE);
 
 	return 0;
 }
@@ -309,7 +307,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 
 	u32 len = bitlen / 8;
-	u32 reg, rx_fifocnt;
+	u32 rx_fifocnt;
 	u8 nbytes;
 	int ret;
 
@@ -324,10 +322,8 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (flags & SPI_XFER_BEGIN)
 		sun4i_spi_set_cs(bus, slave_plat->cs, true);
 
-	reg = readl(&priv->regs->ctl);
-
 	/* Reset FIFOs */
-	writel(reg | SUN4I_CTL_RF_RST | SUN4I_CTL_TF_RST, &priv->regs->ctl);
+	setbits_le32(&priv->regs->ctl, SUN4I_CTL_RF_RST | SUN4I_CTL_TF_RST);
 
 	while (len) {
 		/* Setup the transfer now... */
@@ -341,8 +337,7 @@ static int sun4i_spi_xfer(struct udevice *dev, unsigned int bitlen,
 		sun4i_spi_fill_fifo(priv, nbytes);
 
 		/* Start the transfer */
-		reg = readl(&priv->regs->ctl);
-		writel(reg | SUN4I_CTL_XCH, &priv->regs->ctl);
+		setbits_le32(&priv->regs->ctl, SUN4I_CTL_XCH);
 
 		/* Wait till RX FIFO to be empty */
 		ret = readl_poll_timeout(&priv->regs->fifo_sta, rx_fifocnt,
