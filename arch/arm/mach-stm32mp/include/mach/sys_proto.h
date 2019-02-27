@@ -13,3 +13,5 @@ u32 get_cpu_type(void);
 
 /* return CPU_REV constants */
 u32 get_cpu_rev(void);
+/* return boot mode */
+u32 get_bootmode(void);

@@ -12,8 +12,7 @@ u32 spl_boot_device(void)
 {
 	u32 boot_mode;
 
-	boot_mode = (readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_MODE_MASK) >>
-		    TAMP_BOOT_MODE_SHIFT;
+	boot_mode = get_bootmode();
 
 	switch (boot_mode) {
 	case BOOT_FLASH_SD_1:
@@ -22,6 +21,21 @@ u32 spl_boot_device(void)
 	case BOOT_FLASH_SD_2:
 	case BOOT_FLASH_EMMC_2:
 		return BOOT_DEVICE_MMC2;
+	case BOOT_SERIAL_UART_1:
+	case BOOT_SERIAL_UART_2:
+	case BOOT_SERIAL_UART_3:
+	case BOOT_SERIAL_UART_4:
+	case BOOT_SERIAL_UART_5:
+	case BOOT_SERIAL_UART_6:
+	case BOOT_SERIAL_UART_7:
+	case BOOT_SERIAL_UART_8:
+		return BOOT_DEVICE_UART;
+	case BOOT_SERIAL_USB_OTG:
+		return BOOT_DEVICE_USB;
+	case BOOT_FLASH_NAND_FMC:
+		return BOOT_DEVICE_NAND;
+	case BOOT_FLASH_NOR_QSPI:
+		return BOOT_DEVICE_SPI;
 	}
 
 	return BOOT_DEVICE_MMC1;

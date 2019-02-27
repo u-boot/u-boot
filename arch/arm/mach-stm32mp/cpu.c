@@ -129,14 +129,19 @@ static void dbgmcu_init(void)
 }
 #endif /* !defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD) */
 
-static u32 get_bootmode(void)
-{
-	u32 boot_mode;
 #if !defined(CONFIG_STM32MP1_TRUSTED) && \
 	(!defined(CONFIG_SPL) || defined(CONFIG_SPL_BUILD))
+/* get bootmode from ROM code boot context: saved in TAMP register */
+static void update_bootmode(void)
+{
+	u32 boot_mode;
 	u32 bootrom_itf = readl(BOOTROM_PARAM_ADDR);
 	u32 bootrom_device, bootrom_instance;
 
+	/* enable TAMP clock = RTCAPBEN */
+	writel(BIT(8), RCC_MP_APB5ENSETR);
+
+	/* read bootrom context */
 	bootrom_device =
 		(bootrom_itf & BOOTROM_MODE_MASK) >> BOOTROM_MODE_SHIFT;
 	bootrom_instance =
@@ -150,12 +155,14 @@ static u32 get_bootmode(void)
 	clrsetbits_le32(TAMP_BOOT_CONTEXT,
 			TAMP_BOOT_MODE_MASK,
 			boot_mode << TAMP_BOOT_MODE_SHIFT);
-#else
-	/* read TAMP backup register */
-	boot_mode = (readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_MODE_MASK) >>
-		    TAMP_BOOT_MODE_SHIFT;
+}
 #endif
-	return boot_mode;
+
+u32 get_bootmode(void)
+{
+	/* read bootmode from TAMP backup register */
+	return (readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_MODE_MASK) >>
+		    TAMP_BOOT_MODE_SHIFT;
 }
 
 /*
@@ -172,10 +179,10 @@ int arch_cpu_init(void)
 	dbgmcu_init();
 #ifndef CONFIG_STM32MP1_TRUSTED
 	security_init();
+	update_bootmode();
 #endif
 #endif
 
-	/* get bootmode from BootRom context: saved in TAMP register */
 	boot_mode = get_bootmode();
 
 	if ((boot_mode & TAMP_BOOT_DEVICE_MASK) == BOOT_SERIAL_UART)
@@ -247,20 +254,48 @@ int print_cpuinfo(void)
 
 static void setup_boot_mode(void)
 {
+	const u32 serial_addr[] = {
+		STM32_USART1_BASE,
+		STM32_USART2_BASE,
+		STM32_USART3_BASE,
+		STM32_UART4_BASE,
+		STM32_UART5_BASE,
+		STM32_USART6_BASE,
+		STM32_UART7_BASE,
+		STM32_UART8_BASE
+	};
 	char cmd[60];
 	u32 boot_ctx = readl(TAMP_BOOT_CONTEXT);
 	u32 boot_mode =
 		(boot_ctx & TAMP_BOOT_MODE_MASK) >> TAMP_BOOT_MODE_SHIFT;
 	int instance = (boot_mode & TAMP_BOOT_INSTANCE_MASK) - 1;
+	struct udevice *dev;
+	int alias;
 
 	pr_debug("%s: boot_ctx=0x%x => boot_mode=%x, instance=%d\n",
 		 __func__, boot_ctx, boot_mode, instance);
 
 	switch (boot_mode & TAMP_BOOT_DEVICE_MASK) {
 	case BOOT_SERIAL_UART:
-		sprintf(cmd, "%d", instance);
-		env_set("boot_device", "uart");
+		if (instance > ARRAY_SIZE(serial_addr))
+			break;
+		/* serial : search associated alias in devicetree */
+		sprintf(cmd, "serial@%x", serial_addr[instance]);
+		if (uclass_get_device_by_name(UCLASS_SERIAL, cmd, &dev))
+			break;
+		if (fdtdec_get_alias_seq(gd->fdt_blob, "serial",
+					 dev_of_offset(dev), &alias))
+			break;
+		sprintf(cmd, "%d", alias);
+		env_set("boot_device", "serial");
 		env_set("boot_instance", cmd);
+
+		/* restore console on uart when not used */
+		if (gd->cur_serial_dev != dev) {
+			gd->flags &= ~(GD_FLG_SILENT |
+				       GD_FLG_DISABLE_CONSOLE);
+			printf("serial boot with console enabled!\n");
+		}
 		break;
 	case BOOT_SERIAL_USB:
 		env_set("boot_device", "usb");
