@@ -17,11 +17,11 @@
 	compatible = "intel,edison";
 
 	aliases {
-		serial0 = &serial0;
+		serial2 = &serial2;
 	};
 
 	chosen {
-		stdout-path = &serial0;
+		stdout-path = &serial2;
 	};
 
 	cpus {
@@ -53,7 +53,7 @@
 			  0x01000000 0x0 0x2000 0x2000 0 0xe000>;
 	};
 
-	serial0: serial@ff010180 {
+	serial2: serial@ff010180 {
 		compatible = "intel,mid-uart";
 		reg = <0xff010180 0x100>;
 		reg-shift = <0>;
