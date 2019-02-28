@@ -420,13 +420,13 @@ unsigned int mv_ddr_speed_bin_timing_get(enum mv_ddr_speed_bin index, enum mv_dd
 		result = speed_bin_table_t_rcd_t_rp[index];
 		break;
 	case SPEED_BIN_TRAS:
-		if (index < SPEED_BIN_DDR_1066G)
+		if (index <= SPEED_BIN_DDR_1066G)
 			result = 37500;
-		else if (index < SPEED_BIN_DDR_1333J)
+		else if (index <= SPEED_BIN_DDR_1333J)
 			result = 36000;
-		else if (index < SPEED_BIN_DDR_1600K)
+		else if (index <= SPEED_BIN_DDR_1600K)
 			result = 35000;
-		else if (index < SPEED_BIN_DDR_1866M)
+		else if (index <= SPEED_BIN_DDR_1866M)
 			result = 34000;
 		else
 			result = 33000;
