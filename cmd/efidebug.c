@@ -491,7 +491,7 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 
 	id = (int)simple_strtoul(argv[1], &endp, 16);
 	if (*endp != '\0' || id > 0xffff)
-		return CMD_RET_FAILURE;
+		return CMD_RET_USAGE;
 
 	sprintf(var_name, "Boot%04X", id);
 	p = var_name16;
