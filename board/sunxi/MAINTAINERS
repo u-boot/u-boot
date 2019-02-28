@@ -137,6 +137,13 @@ M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/bananapi_m2_berry_defconfig
 
+BANANAPI M2 PLUS BOARDS
+M:	Icenowy Zheng <icenowy@aosc.io>
+M:	Chen-Yu Tsai <wens@csie.org>
+S:	Maintained
+F:	configs/bananapi_m2_plus_h3_defconfig
+F:	configs/bananapi_m2_plus_h5_defconfig
+
 BANANAPI M2 ULTRA BOARD
 M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
@@ -417,11 +424,6 @@ M:	Chen-Yu Tsai <wens@csie.org>
 S:	Maintained
 F:	configs/Sinlinx_SinA33_defconfig
 W:	http://linux-sunxi.org/Sinlinx_SinA33
-
-SINOVOIP BPI M2 PLUS H3 BOARD
-M:	Icenowy Zheng <icenowy@aosc.io>
-S:	Maintained
-F:	configs/Sinovoip_BPI_M2_Plus_defconfig
 
 SINOVOIP BPI M3 A83T BOARD
 M:	VishnuPatekar <vishnupatekar0510@gmail.com>
