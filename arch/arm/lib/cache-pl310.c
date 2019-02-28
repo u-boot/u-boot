@@ -33,7 +33,7 @@ static void pl310_background_op_all_ways(u32 *op_reg)
 	/* Invalidate all ways */
 	writel(way_mask, op_reg);
 	/* Wait for all ways to be invalidated */
-	while (readl(op_reg) && way_mask)
+	while (readl(op_reg) & way_mask)
 		;
 	pl310_cache_sync();
 }

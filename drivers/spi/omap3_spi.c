@@ -415,7 +415,7 @@ static void _omap3_spi_set_wordlen(struct omap3_spi_priv *priv)
 	unsigned int confr;
 
 	/* McSPI individual channel configuration */
-	confr = readl(&priv->regs->channel[priv->wordlen].chconf);
+	confr = readl(&priv->regs->channel[priv->cs].chconf);
 
 	/* wordlength */
 	confr &= ~OMAP3_MCSPI_CHCONF_WL_MASK;

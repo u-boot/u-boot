@@ -10,6 +10,7 @@
 *.bin
 *.cfgout
 *.dtb
+*.dtbo
 *.dtb.S
 *.elf
 *.exe

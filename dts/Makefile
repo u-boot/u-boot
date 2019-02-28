@@ -40,6 +40,7 @@ endif
 	echo >&2;							\
 	/bin/false)
 
+PHONY += arch-dtbs
 arch-dtbs:
 	$(Q)$(MAKE) $(build)=$(ARCH_PATH) dtbs
 
