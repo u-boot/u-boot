@@ -707,7 +707,7 @@ static void tmio_sd_host_init(struct tmio_sd_priv *priv)
 	 */
 	if (priv->version >= 0x10) {
 		if (priv->caps & TMIO_SD_CAP_64BIT)
-			tmio_sd_writel(priv, 0x100, TMIO_SD_HOST_MODE);
+			tmio_sd_writel(priv, 0x000, TMIO_SD_HOST_MODE);
 		else
 			tmio_sd_writel(priv, 0x101, TMIO_SD_HOST_MODE);
 	} else {
