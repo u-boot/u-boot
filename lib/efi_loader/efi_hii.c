@@ -343,6 +343,7 @@ static struct efi_hii_packagelist *new_packagelist(void)
 	struct efi_hii_packagelist *hii;
 
 	hii = malloc(sizeof(*hii));
+	list_add_tail(&hii->link, &efi_package_lists);
 	hii->max_string_id = 0;
 	INIT_LIST_HEAD(&hii->string_tables);
 	INIT_LIST_HEAD(&hii->guid_list);
@@ -465,7 +466,6 @@ new_package_list(const struct efi_hii_database_protocol *this,
 	}
 
 	hii->driver_handle = driver_handle;
-	list_add_tail(&hii->link, &efi_package_lists);
 	*handle = hii;
 
 	return EFI_EXIT(EFI_SUCCESS);
