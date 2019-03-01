@@ -446,9 +446,3 @@ int board_init(void)
 #endif
 	return 0;
 }
-
-int checkboard(void)
-{
-	puts("Board: TBS2910 Matrix ARM mini PC\n");
-	return 0;
-}
