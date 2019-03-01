@@ -10,7 +10,6 @@
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
 #include <mmc.h>
@@ -373,9 +372,6 @@ int board_init(void)
 
 #ifdef CONFIG_VIDEO_IPUV3
 	setup_display();
-#endif
-#ifdef CONFIG_DWC_AHSATA
-	setup_sata();
 #endif
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
