@@ -40,13 +40,6 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE /* select UART1/UART2 */
 
-/* Filesystems / image support */
-
-/* MMC */
-#define CONFIG_SYS_FSL_USDHC_NUM	3
-#define CONFIG_SYS_FSL_ESDHC_ADDR	USDHC4_BASE_ADDR
-#define CONFIG_SUPPORT_EMMC_BOOT
-
 /* Ethernet */
 #define CONFIG_FEC_MXC
 #define CONFIG_FEC_MXC
