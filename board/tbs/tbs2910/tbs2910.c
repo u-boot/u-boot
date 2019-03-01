@@ -418,12 +418,6 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
-#ifdef CONFIG_USB_EHCI_MX6
-static iomux_v3_cfg_t const usb_otg_pads[] = {
-	MX6_PAD_ENET_RX_ER__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-#endif
-
 int board_init(void)
 {
 	/* address of boot parameters */
@@ -442,10 +436,6 @@ int board_init(void)
 #endif
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
-#endif
-#ifdef CONFIG_USB_EHCI_MX6
-	imx_iomux_v3_setup_multiple_pads(
-		usb_otg_pads, ARRAY_SIZE(usb_otg_pads));
 #endif
 	return 0;
 }
