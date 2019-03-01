@@ -511,15 +511,9 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 static void dwc_ahsata_print_info(struct blk_desc *pdev)
 {
 	printf("SATA Device Info:\n\r");
-#ifdef CONFIG_SYS_64BIT_LBA
 	printf("S/N: %s\n\rProduct model number: %s\n\r"
-		"Firmware version: %s\n\rCapacity: %lld sectors\n\r",
+		"Firmware version: %s\n\rCapacity: " LBAFU " sectors\n\r",
 		pdev->product, pdev->vendor, pdev->revision, pdev->lba);
-#else
-	printf("S/N: %s\n\rProduct model number: %s\n\r"
-		"Firmware version: %s\n\rCapacity: %ld sectors\n\r",
-		pdev->product, pdev->vendor, pdev->revision, pdev->lba);
-#endif
 }
 
 static void dwc_ahsata_identify(struct ahci_uc_priv *uc_priv, u16 *id)
@@ -754,7 +748,6 @@ static int dwc_ahsata_scan_common(struct ahci_uc_priv *uc_priv,
 	u8 serial[ATA_ID_SERNO_LEN + 1] = { 0 };
 	u8 firmware[ATA_ID_FW_REV_LEN + 1] = { 0 };
 	u8 product[ATA_ID_PROD_LEN + 1] = { 0 };
-	u64 n_sectors;
 	u8 port = uc_priv->hard_port_no;
 	ALLOC_CACHE_ALIGN_BUFFER(u16, id, ATA_ID_WORDS);
 
@@ -773,9 +766,8 @@ static int dwc_ahsata_scan_common(struct ahci_uc_priv *uc_priv,
 	ata_id_c_string(id, product, ATA_ID_PROD, sizeof(product));
 	memcpy(pdev->vendor, product, sizeof(product));
 
-	/* Totoal sectors */
-	n_sectors = ata_id_n_sectors(id);
-	pdev->lba = (u32)n_sectors;
+	/* Total sectors */
+	pdev->lba = ata_id_n_sectors(id);
 
 	pdev->type = DEV_TYPE_HARDDISK;
 	pdev->blksz = ATA_SECT_SIZE;
