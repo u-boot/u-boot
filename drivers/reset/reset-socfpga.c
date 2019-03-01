@@ -24,7 +24,7 @@
 #define NR_BANKS		8
 
 struct socfpga_reset_data {
-	void __iomem *membase;
+	void __iomem *modrst_base;
 };
 
 static int socfpga_reset_assert(struct reset_ctl *reset_ctl)
@@ -35,7 +35,7 @@ static int socfpga_reset_assert(struct reset_ctl *reset_ctl)
 	int bank = id / (reg_width * BITS_PER_BYTE);
 	int offset = id % (reg_width * BITS_PER_BYTE);
 
-	setbits_le32(data->membase + (bank * BANK_INCREMENT), BIT(offset));
+	setbits_le32(data->modrst_base + (bank * BANK_INCREMENT), BIT(offset));
 	return 0;
 }
 
@@ -47,7 +47,7 @@ static int socfpga_reset_deassert(struct reset_ctl *reset_ctl)
 	int bank = id / (reg_width * BITS_PER_BYTE);
 	int offset = id % (reg_width * BITS_PER_BYTE);
 
-	clrbits_le32(data->membase + (bank * BANK_INCREMENT), BIT(offset));
+	clrbits_le32(data->modrst_base + (bank * BANK_INCREMENT), BIT(offset));
 	return 0;
 }
 
@@ -80,11 +80,12 @@ static int socfpga_reset_probe(struct udevice *dev)
 	const void *blob = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	u32 modrst_offset;
+	void __iomem *membase;
 
-	data->membase = devfdt_get_addr_ptr(dev);
+	membase = devfdt_get_addr_ptr(dev);
 
 	modrst_offset = fdtdec_get_int(blob, node, "altr,modrst-offset", 0x10);
-	data->membase += modrst_offset;
+	data->modrst_base = membase + modrst_offset;
 
 	return 0;
 }
