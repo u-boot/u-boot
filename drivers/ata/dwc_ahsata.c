@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/sata.h>
 #include <linux/bitops.h>
 #include <linux/ctype.h>
 #include <linux/errno.h>
@@ -1020,6 +1021,9 @@ int dwc_ahsata_probe(struct udevice *dev)
 	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 
+#if defined(CONFIG_MX6)
+	setup_sata();
+#endif
 	uc_priv->host_flags = ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
 			ATA_FLAG_MMIO | ATA_FLAG_PIO_DMA | ATA_FLAG_NO_ATAPI;
 	uc_priv->mmio_base = (void __iomem *)dev_read_addr(dev);
@@ -1067,4 +1071,24 @@ U_BOOT_DRIVER(dwc_ahsata_blk) = {
 	.ops		= &dwc_ahsata_blk_ops,
 };
 
+#if CONFIG_IS_ENABLED(DWC_AHSATA_AHCI)
+struct ahci_ops dwc_ahsata_ahci_ops = {
+	.port_status = dwc_ahsata_port_status,
+	.reset       = dwc_ahsata_bus_reset,
+	.scan        = dwc_ahsata_scan,
+};
+
+static const struct udevice_id dwc_ahsata_ahci_ids[] = {
+	{ .compatible = "fsl,imx6q-ahci" },
+	{ }
+};
+
+U_BOOT_DRIVER(dwc_ahsata_ahci) = {
+	.name     = "dwc_ahsata_ahci",
+	.id       = UCLASS_AHCI,
+	.of_match = dwc_ahsata_ahci_ids,
+	.ops      = &dwc_ahsata_ahci_ops,
+	.probe    = dwc_ahsata_probe,
+};
+#endif
 #endif
