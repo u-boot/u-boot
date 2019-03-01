@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= mpc8260ads.o flash.o
+obj-y	:= mpc8260ads.o 

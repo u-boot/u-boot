@@ -6,6 +6,7 @@
  */
 
 OUTPUT_ARCH(powerpc)
+ENTRY(_start)
 
 SECTIONS
 {

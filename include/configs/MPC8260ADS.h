@@ -32,6 +32,8 @@
 
 #define CONFIG_MPC8260ADS	1	/* Motorola PQ2 ADS family board */
 
+#define CONFIG_SYS_TEXT_BASE	0xFE100000
+
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xFFF00000	/* Standard: boot high */
 #endif
@@ -86,8 +88,8 @@
  * ports on the motherboard which are used for the serial console - see
  * cogent/cma101/serial.[ch]).
  */
-#undef	CONFIG_CONS_ON_SMC		/* define if console on SMC */
-#define CONFIG_CONS_ON_SCC		/* define if console on SCC */
+#define	CONFIG_CONS_ON_SMC		/* define if console on SMC */
+#undef	CONFIG_CONS_ON_SCC		/* define if console on SCC */
 #undef	CONFIG_CONS_NONE		/* define if console on something else */
 #define CONFIG_CONS_INDEX	1	/* which serial channel for console */
 
@@ -104,6 +106,12 @@
 #undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC   */
 #define CONFIG_ETHER_ON_FCC		/* define if ether on FCC   */
 #undef	CONFIG_ETHER_NONE		/* define if ether on something else */
+
+#undef	CONFIG_ETHER_ON_FCC
+#define CONFIG_ETHER_ON_SCC	
+#define CONFIG_ETHER_INDEX	1
+#define CONFIG_SYS_CMXSCR_VALUE 0x37000000
+
 
 #ifdef CONFIG_ETHER_ON_FCC
 
@@ -178,7 +186,7 @@
 
 /*PCI*/
 #if CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
-#define CONFIG_PCI
+//#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_BOOTDELAY 0
@@ -288,15 +296,22 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-#define CONFIG_SYS_FLASH_BASE		0xff800000
+#define CONFIG_SYS_FLASH_CFI          1               /* Flash is CFI conformant */
+#define CONFIG_FLASH_CFI_DRIVER   1               /* Use the common driver */
+#define CONFIG_FLASH_CFI_AMD_RESET        1
+
+//#define CONFIG_SYS_FLASH_BANKS_LIST {CONFIG_SYS_FLASH_BASE,CONFIG_SYS_FLASH_BASE1}
+
+#define CONFIG_SYS_FLASH_BASE		0xFE000000
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks	*/
-#define CONFIG_SYS_MAX_FLASH_SECT	32	/* max num of sects on one chip */
-#define CONFIG_SYS_FLASH_SIZE		8
-#define CONFIG_SYS_FLASH_ERASE_TOUT	8000	/* Timeout for Flash Erase (in ms)    */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	5	/* Timeout for Flash Write (in ms)    */
-#define CONFIG_SYS_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
-#define CONFIG_SYS_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
-#define CONFIG_SYS_FLASH_PROTECTION		/* "Real" (hardware) sectors protection */
+#define CONFIG_SYS_MAX_FLASH_SECT	1024	/* max num of sects on one chip */
+//#define CONFIG_SYS_FLASH_SIZE		8
+//#define CONFIG_SYS_FLASH_ERASE_TOUT	8000	/* Timeout for Flash Erase (in ms)    */
+//#define CONFIG_SYS_FLASH_WRITE_TOUT	5	/* Timeout for Flash Write (in ms)    */
+//#define CONFIG_SYS_FLASH_LOCK_TOUT	5	/* Timeout for Flash Set Lock Bit (in ms) */
+//#define CONFIG_SYS_FLASH_UNLOCK_TOUT	10000	/* Timeout for Flash Clear Lock Bits (in ms) */
+//#define CONFIG_SYS_FLASH_PROTECTION		/* "Real" (hardware) sectors protection */
+#define CONFIG_SYS_FLASH_BASE2		0xC0000000
 
 /*
  * JFFS2 partitions
@@ -309,16 +324,16 @@
 
 /* this is stuff came out of the Motorola docs */
 #ifndef CONFIG_SYS_LOWBOOT
-#define CONFIG_SYS_DEFAULT_IMMR	0x0F010000
+//#define CONFIG_SYS_DEFAULT_IMMR	0x0F010000
 #endif
 
 #define CONFIG_SYS_IMMR		0xF0000000
-#define CONFIG_SYS_BCSR		0xF4500000
+//#define CONFIG_SYS_BCSR		0xF4500000
 #if CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
 #define CONFIG_SYS_PCI_INT		0xF8200000
 #endif
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_LSDRAM_BASE		0xFD000000
+//#define CONFIG_SYS_LSDRAM_BASE		0xFD000000
 
 #define RS232EN_1		0x02000002
 #define RS232EN_2		0x01000001
@@ -374,13 +389,19 @@
 
 #ifndef CONFIG_SYS_RAMBOOT
 #  define CONFIG_ENV_IS_IN_FLASH	1
-#  define CONFIG_ENV_SECT_SIZE	0x40000
-#  define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_ENV_SECT_SIZE)
+#  define CONFIG_ENV_SECT_SIZE	0x10000
+#  define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
 #else
-#  define CONFIG_ENV_IS_IN_NVRAM	1
-#  define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-#  define CONFIG_ENV_SIZE		0x200
+//#  define CONFIG_ENV_IS_IN_NVRAM	1
+//#  define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
+//#  define CONFIG_ENV_SIZE		0x200
+#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_SIZE		0x2000
+#define CONFIG_IPADDR 192.168.1.68
+#define CONFIG_ETHADDR 00:11:22:33:44:55
 #endif /* CONFIG_SYS_RAMBOOT */
+
+
 
 #define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC8260 CPU */
 #if defined(CONFIG_CMD_KGDB)
@@ -394,12 +415,17 @@
 
 #define CONFIG_SYS_SYPCR		0xFFFFFFC3
 #define CONFIG_SYS_BCR			0x100C0000
-#define CONFIG_SYS_SIUMCR		0x0A200000
+#define CONFIG_SYS_SIUMCR		0x00640000
 #define CONFIG_SYS_SCCR		SCCR_DFBRG01
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | 0x00001801)
-#define CONFIG_SYS_OR0_PRELIM		0xFF800876
-#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_BCSR | 0x00001801)
-#define CONFIG_SYS_OR1_PRELIM		0xFFFF8010
+//#define CONFIG_SYS_OR0_PRELIM		0xFe000c74
+#define CONFIG_SYS_OR0_PRELIM		0xFE000EF4
+
+#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_FLASH_BASE2 | 0x00001001)
+#define CONFIG_SYS_OR1_PRELIM		0xFC000C54	/*32MB*/
+
+#define	CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_SDRAM_BASE | 0x00000041)
+#define CONFIG_SYS_OR2_PRELIM		0xf8002b00
 
 /*We need to configure chip select to use CPLD PCI IC on MPC8272ADS*/
 
@@ -428,9 +454,14 @@
 #define CONFIG_SYS_LSRT		0x13
 #define CONFIG_SYS_MPTPR		0x2800
 #elif CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
-#define CONFIG_SYS_OR2			0xFC002CC0
-#define CONFIG_SYS_PSDMR		0x834E24A3
-#define CONFIG_SYS_PSRT		0x13
+//#define CONFIG_SYS_OR2			0xFC002CC0
+//#define CONFIG_SYS_PSDMR		0x834E24A3
+//#define CONFIG_SYS_PSRT		0x13
+//#define CONFIG_SYS_MPTPR		0x2800
+
+#define CONFIG_SYS_OR2			0xF8002B00
+#define CONFIG_SYS_PSDMR		0x832E3662
+#define CONFIG_SYS_PSRT			0x13
 #define CONFIG_SYS_MPTPR		0x2800
 #else
 #define CONFIG_SYS_OR2			0xFF000CA0

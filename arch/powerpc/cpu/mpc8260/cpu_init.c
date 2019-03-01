@@ -78,6 +78,34 @@ static void config_8260_ioports (volatile immap_t * immr)
 	}
 }
 
+static void config_8260_ioports1 (volatile immap_t * immr)
+{
+	immr->im_ioport.iop_podra=0x00000000;
+	immr->im_ioport.iop_pdata=0x00ffffff;
+	immr->im_ioport.iop_pdira=0x00100000;
+	immr->im_ioport.iop_ppara=0;
+	immr->im_ioport.iop_psora=0;
+	
+	immr->im_ioport.iop_podrb=0;
+	immr->im_ioport.iop_pdatb=0x00003fff;
+	immr->im_ioport.iop_pdirb=0;
+	immr->im_ioport.iop_pparb=0;
+	immr->im_ioport.iop_psorb=0;
+
+	immr->im_ioport.iop_podrc=0x00000003;
+	immr->im_ioport.iop_pdatc=0xcffdfff3;
+	immr->im_ioport.iop_pdirc=0x04000003;
+	immr->im_ioport.iop_pparc=0x0c03000f;
+	immr->im_ioport.iop_psorc=0x00000003;
+	
+	immr->im_ioport.iop_podrd=0x00030000;
+	immr->im_ioport.iop_pdatd=0x0103ffc6;
+	immr->im_ioport.iop_pdird=0x00000006;
+	immr->im_ioport.iop_ppard=0x00030007;
+	immr->im_ioport.iop_psord=0x00030002;
+
+}
+
 #define SET_VAL_MASK(a, b, mask) ((a & mask) | (b & ~mask))
 /*
  * Breath some life into the CPU...
@@ -133,7 +161,7 @@ void cpu_init_f (volatile immap_t * immr)
 	immr->im_siu_conf.sc_siumcr = CONFIG_SYS_SIUMCR;
 #endif
 
-	config_8260_ioports (immr);
+	config_8260_ioports1 (immr);
 
 	/* initialize time counter status and control register (4-40) */
 	immr->im_sit.sit_tmcntsc = CONFIG_SYS_TMCNTSC;

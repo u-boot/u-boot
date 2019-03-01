@@ -2161,7 +2161,7 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 				if (sector - base >= info->size)
 					break;
 				if (sect_cnt >= CONFIG_SYS_MAX_FLASH_SECT) {
-					printf("ERROR: too many flash sectors\n");
+					printf("ERROR: too many flash sectors:%x\n",sect_cnt);
 					break;
 				}
 				info->start[sect_cnt] =

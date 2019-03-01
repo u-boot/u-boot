@@ -160,8 +160,8 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC8  */ { 0,          0,   0,   0,   0,   0 }, /* PC8 */
 	/* PC7  */ { 0,          0,   0,   0,   0,   0 }, /* PC7 */
 	/* PC6  */ { 0,          0,   0,   0,   0,   0 }, /* PC6 */
-	/* PC5  */ { 0,          0,   0,   0,   0,   0 }, /* PC5 */
-	/* PC4  */ { 0,          0,   0,   0,   0,   0 }, /* PC4 */
+	/* PC5  */ { 1,          1,   0,   1,   0,   0 }, /* PC5 */  /*SMTXD*
+	/* PC4  */ { 1,          1,   0,   0,   0,   0 }, /* PC4 */	 /*SMRXD*/
 	/* PC3  */ { 0,          0,   0,   0,   0,   0 }, /* PC3 */
 	/* PC2  */ { 0,          0,   0,   0,   0,   0 }, /* PC2 */
 	/* PC1  */ { 0,          0,   0,   0,   0,   0 }, /* PC1 */
@@ -172,7 +172,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
     {   /*	      conf ppar psor pdir podr pdat */
 	/* PD31 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 UART RxD */
 	/* PD30 */ {   1,   1,   1,   1,   0,   0   }, /* SCC1 UART TxD */
-	/* PD29 */ {   0,   0,   0,   0,   0,   0   }, /* PD29 */
+	/* PD29 */ {   1,   1,   0,   1,   0,   0   }, /* PD29 */ /*!!!*/
 	/* PD28 */ {   0,   1,   0,   0,   0,   0   }, /* PD28 */
 	/* PD27 */ {   0,   1,   1,   1,   0,   0   }, /* PD27 */
 	/* PD26 */ {   0,   0,   0,   1,   0,   0   }, /* PD26 */
@@ -207,17 +207,17 @@ const iop_conf_t iop_conf_tab[4][32] = {
 
 void reset_phy (void)
 {
-	vu_long *bcsr = (vu_long *)CONFIG_SYS_BCSR;
+	//vu_long *bcsr = (vu_long *)CONFIG_SYS_BCSR;
 
 	/* Reset the PHY */
 #if CONFIG_SYS_PHY_ADDR == 0
-	bcsr[1] &= ~(FETHIEN1 | FETH1_RST);
+	//bcsr[1] &= ~(FETHIEN1 | FETH1_RST);
 	udelay(2);
-	bcsr[1] |=  FETH1_RST;
+	//bcsr[1] |=  FETH1_RST;
 #else
-	bcsr[3] &= ~(FETHIEN2 | FETH2_RST);
+	//bcsr[3] &= ~(FETHIEN2 | FETH2_RST);
 	udelay(2);
-	bcsr[3] |=  FETH2_RST;
+	//bcsr[3] |=  FETH2_RST;
 #endif /* CONFIG_SYS_PHY_ADDR == 0 */
 	udelay(1000);
 #ifdef CONFIG_MII
@@ -258,7 +258,7 @@ typedef struct pci_ic_s {
 
 int board_early_init_f (void)
 {
-	vu_long *bcsr = (vu_long *)CONFIG_SYS_BCSR;
+	//vu_long *bcsr = (vu_long *)CONFIG_SYS_BCSR;
 
 #ifdef CONFIG_PCI
 	volatile pci_ic_t* pci_ic = (pci_ic_t *) CONFIG_SYS_PCI_INT;
@@ -267,10 +267,10 @@ int board_early_init_f (void)
 	pci_ic->pci_int_mask |= 0xfff00000;
 #endif
 #if (CONFIG_CONS_INDEX == 1) || (CONFIG_KGDB_INDEX == 1)
-	bcsr[1] &= ~RS232EN_1;
+	//bcsr[1] &= ~RS232EN_1;
 #endif
 #if (CONFIG_CONS_INDEX > 1) || (CONFIG_KGDB_INDEX > 1)
-	bcsr[1] &= ~RS232EN_2;
+	//bcsr[1] &= ~RS232EN_2;
 #endif
 
 #if CONFIG_ADSTYPE != CONFIG_SYS_8260ADS /* PCI mode can be selected */
@@ -291,6 +291,7 @@ int board_early_init_f (void)
 }
 
 #define ns2clk(ns) (ns / (1000000000 / CONFIG_8260_CLKIN) + 1)
+
 
 phys_size_t initdram (int board_type)
 {
@@ -313,8 +314,8 @@ phys_size_t initdram (int board_type)
 	int i;
 
 	immap->im_siu_conf.sc_ppc_acr  = 0x00000002;
-	immap->im_siu_conf.sc_ppc_alrh = 0x01267893;
-	immap->im_siu_conf.sc_tescr1   = 0x00004000;
+	immap->im_siu_conf.sc_ppc_alrh = 0x01267893;	/*30126745*/
+	immap->im_siu_conf.sc_tescr1   = 0x00004000;	/*no use in mpc8247*/
 
 	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
 #ifdef CONFIG_SYS_LSDRAM_BASE
