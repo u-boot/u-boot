@@ -4,6 +4,7 @@
  */
 
 #include "socfpga_cyclone5.dtsi"
+#include "socfpga-common-u-boot.dtsi"
 
 / {
 	model = "SoCFPGA Cyclone V IS1";
@@ -30,10 +31,6 @@
 		regulator-name = "3.3V";
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
-	};
-
-	soc {
-		u-boot,dm-pre-reloc;
 	};
 };
 
