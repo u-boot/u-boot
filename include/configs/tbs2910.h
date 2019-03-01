@@ -97,23 +97,6 @@
 #endif /* CONFIG_USB_KEYBOARD */
 #endif /* CONFIG_CMD_USB      */
 
-/* RTC */
-#ifdef CONFIG_CMD_DATE
-#define CONFIG_RTC_DS1307
-#define CONFIG_SYS_RTC_BUS_NUM		2
-#endif
-
-/* I2C */
-#ifdef CONFIG_CMD_I2C
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
-#define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_I2C_EDID
-#endif
-
 /* Environment organization */
 #define CONFIG_SYS_MMC_ENV_DEV		2 /* overwritten on SD boot */
 #define CONFIG_SYS_MMC_ENV_PART		1 /* overwritten on SD boot */

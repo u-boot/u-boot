@@ -9,7 +9,6 @@
 #include <asm/arch/mx6-pins.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/boot_mode.h>
@@ -22,7 +21,6 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
-#include <i2c.h>
 DECLARE_GLOBAL_DATA_PTR;
 
 #define WEAK_PULLUP	(PAD_CTL_PUS_47K_UP |			\
@@ -39,56 +37,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
-
-#define I2C_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
-	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
-
-#define I2C_PAD MUX_PAD_CTRL(I2C_PAD_CTRL)
-
-#ifdef CONFIG_SYS_I2C
-/* I2C1, SGTL5000 */
-static struct i2c_pads_info i2c_pad_info0 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_CSI0_DAT9__I2C1_SCL | I2C_PAD,
-		.gpio_mode = MX6_PAD_CSI0_DAT9__GPIO5_IO27 | I2C_PAD,
-		.gp = IMX_GPIO_NR(5, 27)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_CSI0_DAT8__I2C1_SDA | I2C_PAD,
-		.gpio_mode = MX6_PAD_CSI0_DAT8__GPIO5_IO26 | I2C_PAD,
-		.gp = IMX_GPIO_NR(5, 26)
-	}
-};
-
-/* I2C2 HDMI */
-static struct i2c_pads_info i2c_pad_info1 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL | I2C_PAD,
-		.gpio_mode = MX6_PAD_KEY_COL3__GPIO4_IO12 | I2C_PAD,
-		.gp = IMX_GPIO_NR(4, 12)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_KEY_ROW3__I2C2_SDA | I2C_PAD,
-		.gpio_mode = MX6_PAD_KEY_ROW3__GPIO4_IO13 | I2C_PAD,
-		.gp = IMX_GPIO_NR(4, 13)
-	}
-};
-
-/* I2C3, CON11, DS1307, PCIe_SMB */
-static struct i2c_pads_info i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX6_PAD_GPIO_3__I2C3_SCL | I2C_PAD,
-		.gpio_mode = MX6_PAD_GPIO_3__GPIO1_IO03 | I2C_PAD,
-		.gp = IMX_GPIO_NR(1, 3)
-	},
-	.sda = {
-		.i2c_mode = MX6_PAD_GPIO_6__I2C3_SDA | I2C_PAD,
-		.gpio_mode = MX6_PAD_GPIO_6__GPIO1_IO06 | I2C_PAD,
-		.gp = IMX_GPIO_NR(1, 6)
-	}
-};
-#endif /* CONFIG_SYS_I2C */
 
 static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_CSI0_DAT10__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
@@ -425,11 +373,6 @@ int board_init(void)
 
 #ifdef CONFIG_VIDEO_IPUV3
 	setup_display();
-#endif
-#ifdef CONFIG_SYS_I2C
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
-	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 #endif
 #ifdef CONFIG_DWC_AHSATA
 	setup_sata();
