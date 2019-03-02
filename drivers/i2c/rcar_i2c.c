@@ -45,12 +45,20 @@
 #define RCAR_I2C_ICSAR			0x1c
 #define RCAR_I2C_ICMAR			0x20
 #define RCAR_I2C_ICRXD_ICTXD		0x24
+#define RCAR_I2C_ICFBSCR		0x38
+#define RCAR_I2C_ICFBSCR_TCYC17		0x0f
+
+enum rcar_i2c_type {
+	RCAR_I2C_TYPE_GEN2,
+	RCAR_I2C_TYPE_GEN3,
+};
 
 struct rcar_i2c_priv {
 	void __iomem		*base;
 	struct clk		clk;
 	u32			intdelay;
 	u32			icccr;
+	enum rcar_i2c_type	type;
 };
 
 static int rcar_i2c_finish(struct udevice *dev)
@@ -108,6 +116,9 @@ static int rcar_i2c_set_addr(struct udevice *dev, u8 chip, u8 read)
 	writel(0, priv->base + RCAR_I2C_ICMSR);
 	writel(priv->icccr, priv->base + RCAR_I2C_ICCCR);
 
+	if (priv->type == RCAR_I2C_TYPE_GEN3)
+		writel(RCAR_I2C_ICFBSCR_TCYC17, priv->base + RCAR_I2C_ICFBSCR);
+
 	ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMCR,
 				RCAR_I2C_ICMCR_FSDA, false, 2, true);
 	if (ret) {
@@ -151,7 +162,7 @@ static int rcar_i2c_read_common(struct udevice *dev, struct i2c_msg *msg)
 			icmcr |= RCAR_I2C_ICMCR_FSB;
 
 		writel(icmcr, priv->base + RCAR_I2C_ICMCR);
-		writel(~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
+		writel((u32)~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
 
 		ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMSR,
 					RCAR_I2C_ICMSR_MDR, true, 100, true);
@@ -161,7 +172,7 @@ static int rcar_i2c_read_common(struct udevice *dev, struct i2c_msg *msg)
 		msg->buf[i] = readl(priv->base + RCAR_I2C_ICRXD_ICTXD) & 0xff;
 	}
 
-	writel(~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
+	writel((u32)~RCAR_I2C_ICMSR_MDR, priv->base + RCAR_I2C_ICMSR);
 
 	return rcar_i2c_finish(dev);
 }
@@ -179,7 +190,7 @@ static int rcar_i2c_write_common(struct udevice *dev, struct i2c_msg *msg)
 	for (i = 0; i < msg->len; i++) {
 		writel(msg->buf[i], priv->base + RCAR_I2C_ICRXD_ICTXD);
 		writel(icmcr, priv->base + RCAR_I2C_ICMCR);
-		writel(~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
+		writel((u32)~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
 
 		ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMSR,
 					RCAR_I2C_ICMSR_MDE, true, 100, true);
@@ -187,7 +198,7 @@ static int rcar_i2c_write_common(struct udevice *dev, struct i2c_msg *msg)
 			return ret;
 	}
 
-	writel(~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
+	writel((u32)~RCAR_I2C_ICMSR_MDE, priv->base + RCAR_I2C_ICMSR);
 	icmcr |= RCAR_I2C_ICMCR_FSB;
 	writel(icmcr, priv->base + RCAR_I2C_ICMCR);
 
@@ -304,6 +315,7 @@ static int rcar_i2c_probe(struct udevice *dev)
 	priv->base = dev_read_addr_ptr(dev);
 	priv->intdelay = dev_read_u32_default(dev,
 					      "i2c-scl-internal-delay-ns", 5);
+	priv->type = dev_get_driver_data(dev);
 
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret)
@@ -339,7 +351,8 @@ static const struct dm_i2c_ops rcar_i2c_ops = {
 };
 
 static const struct udevice_id rcar_i2c_ids[] = {
-	{ .compatible = "renesas,rcar-gen2-i2c" },
+	{ .compatible = "renesas,rcar-gen2-i2c", .data = RCAR_I2C_TYPE_GEN2 },
+	{ .compatible = "renesas,rcar-gen3-i2c", .data = RCAR_I2C_TYPE_GEN3 },
 	{ }
 };
 
