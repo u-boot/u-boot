@@ -23,7 +23,7 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 #define CONFIG_SYS_FSL_USDHC_NUM       2
-#define CONFIG_MMCROOT         "/dev/mmcblk1p2" /* Dev kit SD card */
+
 
 /* Ethernet Configs */
 #define CONFIG_FEC_XCV_TYPE            RMII
@@ -43,10 +43,10 @@
 	"console=" CONSOLE_DEV "\0" \
 	"mmcdev=1\0" \
 	"mmcpart=1\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
+	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
 	"nandroot=ubi0:rootfs rootfstype=ubifs\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate}" \
-	" root=${mmcroot} ${mtdparts}\0" \
+	" root=PARTUUID=${uuid} rootwait rw\0 ${mtdparts}\0" \
 	"nandargs=setenv bootargs console=${console},${baudrate}" \
 	" ubi.mtd=fs root=${nandroot} ${mtdparts}\0" \
 	"ramargs=setenv bootargs console=${console},${baudrate}" \
@@ -60,8 +60,8 @@
 	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr_r} ${fdt_file}\0" \
 	"loadramdisk=fatload mmc ${mmcdev}:${mmcpart} ${ramdisk_addr_r}" \
 	" ${ramdisk_file}; setenv ramdisksize ${filesize}\0" \
-	"mmcboot=echo Booting from mmc...; run mmcargs; run loadimage;" \
-	" run loadfdt; bootz ${loadaddr} - ${fdt_addr_r}\0" \
+	"mmcboot=echo Booting from mmc...; run finduuid; run mmcargs;" \
+	"run loadimage; run loadfdt; bootz ${loadaddr} - ${fdt_addr_r}\0" \
 	"mmcramboot=run ramargs; run loadimage;" \
 	" run loadfdt; run loadramdisk;" \
 	" bootz ${loadaddr} ${ramdisk_addr_r} ${fdt_addr_r}\0" \
