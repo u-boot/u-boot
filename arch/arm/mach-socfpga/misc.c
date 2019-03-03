@@ -62,8 +62,8 @@ void v7_outer_cache_enable(void)
 	/* Disable the L2 cache */
 	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 
-	writel(0x111, &pl310->pl310_tag_latency_ctrl);
-	writel(0x121, &pl310->pl310_data_latency_ctrl);
+	writel(0x0, &pl310->pl310_tag_latency_ctrl);
+	writel(0x10, &pl310->pl310_data_latency_ctrl);
 
 	/* enable BRESP, instruction and data prefetch, full line of zeroes */
 	setbits_le32(&pl310->pl310_aux_ctrl,
