@@ -7,36 +7,14 @@
 
 #include "r8a779x-u-boot.dtsi"
 
-&soc {
-	rpc: rpc@0xee200000 {
-		compatible = "renesas,rpc-r8a77990", "renesas,rpc";
-		reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0>;
-		clocks = <&cpg CPG_MOD 917>;
-		bank-width = <2>;
-		status = "disabled";
-	};
-
-	sdhi0: sd@ee100000 {
-		compatible = "renesas,sdhi-r8a77990";
-		reg = <0 0xee100000 0 0x2000>;
-		clocks = <&cpg CPG_MOD 314>;
-		max-frequency = <200000000>;
-		status = "disabled";
-	};
-
-	sdhi1: sd@ee120000 {
-		compatible = "renesas,sdhi-r8a77990";
-		reg = <0 0xee120000 0 0x2000>;
-		clocks = <&cpg CPG_MOD 313>;
-		max-frequency = <200000000>;
-		status = "disabled";
-	};
-
-	sdhi3: sd@ee160000 {
-		compatible = "renesas,sdhi-r8a77990";
-		reg = <0 0xee160000 0 0x2000>;
-		clocks = <&cpg CPG_MOD 311>;
-		max-frequency = <200000000>;
-		status = "disabled";
+/ {
+	soc {
+		rpc: rpc@0xee200000 {
+			compatible = "renesas,rpc-r8a77990", "renesas,rpc";
+			reg = <0 0xee200000 0 0x100>, <0 0x08000000 0 0>;
+			clocks = <&cpg CPG_MOD 917>;
+			bank-width = <2>;
+			status = "disabled";
+		};
 	};
 };

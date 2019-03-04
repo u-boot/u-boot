@@ -19,19 +19,6 @@
 	};
 };
 
-&vcc_sdhi0 {
-	u-boot,off-on-delay-us = <20000>;
-};
-
-&sdhi2_pins {
-	groups = "sdhi2_data8", "sdhi2_ctrl", "sdhi2_ds";
-	power-source = <1800>;
-};
-
-&sdhi2_pins_uhs {
-	groups = "sdhi2_data8", "sdhi2_ctrl", "sdhi2_ds";
-};
-
 &sdhi0 {
 	sd-uhs-sdr12;
 	sd-uhs-sdr25;
