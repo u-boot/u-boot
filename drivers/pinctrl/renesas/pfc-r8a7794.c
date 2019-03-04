@@ -5563,7 +5563,18 @@ static int r8a7794_pin_to_pocctrl(struct sh_pfc *pfc, unsigned int pin, u32 *poc
 	return -EINVAL;
 }
 
+static int r8a7794_pinmux_soc_init(struct sh_pfc *pfc)
+{
+	/* Initialize TDSEL on old revisions */
+	if ((rmobile_get_cpu_rev_integer() == 1) &&
+	    (rmobile_get_cpu_rev_fraction() == 0))
+		sh_pfc_write(pfc, 0xe6060068, 0x55555500);
+
+	return 0;
+}
+
 static const struct sh_pfc_soc_operations r8a7794_pinmux_ops = {
+	.init = r8a7794_pinmux_soc_init,
 	.pin_to_pocctrl = r8a7794_pin_to_pocctrl,
 };
 
