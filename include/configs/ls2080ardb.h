@@ -57,7 +57,6 @@ unsigned long get_board_sys_clk(void);
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 #define CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR	1
 #endif
-#define CONFIG_FSL_DDR_BIST	/* enable built-in memory test */
 
 /* SATA */
 #define CONFIG_SCSI_AHCI_PLAT
@@ -80,7 +79,6 @@ unsigned long get_board_sys_clk(void);
 #endif
 
 #if !defined(CONFIG_FSL_QSPI) || defined(CONFIG_TFABOOT)
-/* undefined CONFIG_FSL_DDR_SYNC_REFRESH for simulator */
 
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NOR_AMASK		IFC_AMASK(128*1024*1024)
@@ -333,7 +331,8 @@ unsigned long get_board_sys_clk(void);
 #define BOOT_TARGET_DEVICES(func) \
 	func(USB, usb, 0) \
 	func(MMC, mmc, 0) \
-	func(SCSI, scsi, 0)
+	func(SCSI, scsi, 0) \
+	func(DHCP, dhcp, na)
 #include <config_distro_bootcmd.h>
 
 #ifdef CONFIG_TFABOOT
@@ -428,12 +427,6 @@ unsigned long get_board_sys_clk(void);
 				"run scan_dev_for_boot; "	\
 			"fi; "					\
 		"done\0"					\
-	"scan_dev_for_boot="					\
-		"echo Scanning ${devtype} "			\
-			"${devnum}:${distro_bootpart}...; "	\
-		"for prefix in ${boot_prefixes}; do "		\
-			"run scan_dev_for_scripts; "		\
-		"done;\0"					\
 	"boot_a_script="					\
 		"load ${devtype} ${devnum}:${distro_bootpart} "	\
 			"${scriptaddr} ${prefix}${script}; "	\
@@ -497,12 +490,6 @@ unsigned long get_board_sys_clk(void);
 				"run scan_dev_for_boot; "	\
 			"fi; "					\
 		"done\0"					\
-	"scan_dev_for_boot="					\
-		"echo Scanning ${devtype} "			\
-			"${devnum}:${distro_bootpart}...; "	\
-		"for prefix in ${boot_prefixes}; do "		\
-			"run scan_dev_for_scripts; "		\
-		"done;\0"					\
 	"boot_a_script="					\
 		"load ${devtype} ${devnum}:${distro_bootpart} "	\
 			"${scriptaddr} ${prefix}${script}; "	\

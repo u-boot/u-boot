@@ -21,8 +21,6 @@
 
 #ifndef CONFIG_SPL
 #define CONFIG_SYS_DDR_RAW_TIMING
-#define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
-#define CONFIG_FSL_DDR_BIST
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE           0xdeadbeef
 #endif

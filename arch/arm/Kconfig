@@ -1005,6 +1005,7 @@ config TARGET_LS2080A_EMU
 	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select FSL_DDR_SYNC_REFRESH
 	help
 	  Support for Freescale LS2080A_EMU platform
 	  The LS2080A Development System (EMULATOR) is a pre silicon
@@ -1031,6 +1032,7 @@ config TARGET_LS1088AQDS
 	select ARMV8_MULTIENTRY
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select FSL_DDR_INTERACTIVE if !SD_BOOT
 	help
 	  Support for NXP LS1088AQDS platform
 	  The LS1088A Development System (QDS) is a high-performance
@@ -1047,6 +1049,8 @@ config TARGET_LS2080AQDS
 	select SUPPORT_SPL
 	imply SCSI
 	imply SCSI_AHCI
+	select FSL_DDR_BIST
+	select FSL_DDR_INTERACTIVE if !SPL
 	help
 	  Support for Freescale LS2080AQDS platform
 	  The LS2080A Development System (QDS) is a high-performance
@@ -1061,6 +1065,8 @@ config TARGET_LS2080ARDB
 	select ARMV8_MULTIENTRY
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select FSL_DDR_BIST
+	select FSL_DDR_INTERACTIVE if !SPL
 	imply SCSI
 	imply SCSI_AHCI
 	help
@@ -1205,6 +1211,7 @@ config TARGET_LS1088ARDB
 	select ARMV8_MULTIENTRY
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select FSL_DDR_INTERACTIVE if !SD_BOOT
 	help
 	  Support for NXP LS1088ARDB platform.
 	  The LS1088A Reference design board (RDB) is a high-performance
@@ -1223,6 +1230,7 @@ config TARGET_LS1021AQDS
 	select LS1_DEEP_SLEEP
 	select SUPPORT_SPL
 	select SYS_FSL_DDR
+	select FSL_DDR_INTERACTIVE
 	imply SCSI
 
 config TARGET_LS1021ATWR
@@ -1262,6 +1270,7 @@ config TARGET_LS1043AQDS
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
+	select FSL_DDR_INTERACTIVE if !SPL
 	imply SCSI
 	imply SCSI_AHCI
 	help
@@ -1287,6 +1296,9 @@ config TARGET_LS1046AQDS
 	select BOARD_LATE_INIT
 	select DM_SPI_FLASH if DM_SPI
 	select SUPPORT_SPL
+	select FSL_DDR_BIST if !SPL
+	select FSL_DDR_INTERACTIVE  if !SPL
+	select FSL_DDR_INTERACTIVE if !SPL
 	imply SCSI
 	help
 	  Support for Freescale LS1046AQDS platform.
@@ -1304,6 +1316,8 @@ config TARGET_LS1046ARDB
 	select DM_SPI_FLASH if DM_SPI
 	select POWER_MC34VR500
 	select SUPPORT_SPL
+	select FSL_DDR_BIST
+	select FSL_DDR_INTERACTIVE if !SPL
 	imply SCSI
 	help
 	  Support for Freescale LS1046ARDB platform.

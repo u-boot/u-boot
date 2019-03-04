@@ -194,9 +194,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_DDR_RAW_TIMING
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_FSL_DDR_INTERACTIVE
-#endif
 
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS1	0x51

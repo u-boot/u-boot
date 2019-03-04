@@ -42,7 +42,6 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_SYS_FSL_HAS_DP_DDR
 #define CONFIG_DP_DDR_DIMM_SLOTS_PER_CTLR	1
 #endif
-#define CONFIG_FSL_DDR_BIST	/* enable built-in memory test */
 
 /* SATA */
 #define CONFIG_SCSI_AHCI_PLAT
@@ -63,8 +62,6 @@ unsigned long get_board_ddr_clk(void);
 					 CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SECT_SIZE		0x20000
 #endif
-
-/* undefined CONFIG_FSL_DDR_SYNC_REFRESH for simulator */
 
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0x0)
 #define CONFIG_SYS_NOR_AMASK		IFC_AMASK(128*1024*1024)

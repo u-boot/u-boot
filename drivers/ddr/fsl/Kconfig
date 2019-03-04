@@ -20,6 +20,18 @@ config SYS_FSL_DDR_LE
 	help
 		Access DDR registers in little-endian
 
+config FSL_DDR_BIST
+	bool
+
+config FSL_DDR_INTERACTIVE
+	bool
+
+config FSL_DDR_SYNC_REFRESH
+	bool
+
+config FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
+	bool
+
 menu "Freescale DDR controllers"
 	depends on SYS_FSL_DDR
 

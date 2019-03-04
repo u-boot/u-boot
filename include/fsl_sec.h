@@ -121,10 +121,18 @@ typedef struct ccsr_sec {
 	u32	chanum_ls;	/* CHA Number Register, LS */
 	u32	secvid_ms;	/* SEC Version ID Register, MS */
 	u32	secvid_ls;	/* SEC Version ID Register, LS */
+#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3)
+	u8	res9[0x6f020];
+#else
 	u8	res9[0x6020];
+#endif
 	u32	qilcr_ms;	/* Queue Interface LIODN CFG Register, MS */
 	u32	qilcr_ls;	/* Queue Interface LIODN CFG Register, LS */
+#if defined(CONFIG_FSL_LSCH2) || defined(CONFIG_FSL_LSCH3)
+	u8	res10[0x8ffd8];
+#else
 	u8	res10[0x8fd8];
+#endif
 } ccsr_sec_t;
 
 #define SEC_CTPR_MS_AXI_LIODN		0x08000000

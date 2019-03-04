@@ -643,6 +643,11 @@ int arch_misc_init(void)
 #endif
 
 #ifdef CONFIG_FSL_MC_ENET
+void board_quiesce_devices(void)
+{
+	fsl_mc_ldpaa_exit(gd->bd);
+}
+
 void fdt_fixup_board_enet(void *fdt)
 {
 	int offset;
@@ -650,7 +655,7 @@ void fdt_fixup_board_enet(void *fdt)
 	offset = fdt_path_offset(fdt, "/fsl-mc");
 
 	if (offset < 0)
-		offset = fdt_path_offset(fdt, "/fsl,dprc@0");
+		offset = fdt_path_offset(fdt, "/soc/fsl-mc");
 
 	if (offset < 0) {
 		printf("%s: ERROR: fsl-mc node not found in device tree (error %d)\n",
@@ -732,7 +737,7 @@ void fsl_fdt_fixup_flash(void *fdt)
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	int err, i;
+	int i;
 	u64 base[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
@@ -762,9 +767,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_FSL_MC_ENET
 	fdt_fixup_board_enet(blob);
-	err = fsl_mc_ldpaa_exit(bd);
-	if (err)
-		return err;
 #endif
 	if (is_pb_board())
 		fixup_ls1088ardb_pb_banner(blob);
