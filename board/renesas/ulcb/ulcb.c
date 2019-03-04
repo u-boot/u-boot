@@ -97,6 +97,10 @@ int board_fit_config_name_match(const char *name)
 	    !strcmp(name, "r8a7796-m3ulcb-u-boot"))
 		return 0;
 
+	if ((cpu_type == RMOBILE_CPU_TYPE_R8A77965) &&
+	    !strcmp(name, "r8a77965-m3nulcb-u-boot"))
+		return 0;
+
 	return -1;
 }
 #endif
