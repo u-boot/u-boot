@@ -462,6 +462,18 @@ static LIST_HEAD(phy_drivers);
 
 int phy_init(void)
 {
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	/*
+	 * The pointers inside phy_drivers also needs to be updated incase of
+	 * manual reloc, without which these points to some invalid
+	 * pre reloc address and leads to invalid accesses, hangs.
+	 */
+	struct list_head *head = &phy_drivers;
+
+	head->next = (void *)head->next + gd->reloc_off;
+	head->prev = (void *)head->prev + gd->reloc_off;
+#endif
+
 #ifdef CONFIG_B53_SWITCH
 	phy_b53_init();
 #endif
