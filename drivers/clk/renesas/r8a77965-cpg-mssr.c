@@ -69,7 +69,14 @@ static const struct cpg_core_clk r8a77965_core_clks[] = {
 	DEF_FIXED(".sdsrc",	CLK_SDSRC,		CLK_PLL1_DIV2,	2, 1),
 	DEF_FIXED(".rpcsrc",	CLK_RPCSRC,		CLK_PLL1,	2, 1),
 
+	DEF_GEN3_OSC(".r",	CLK_RINT,		CLK_EXTAL,	32),
+
 	/* Core Clock Outputs */
+	DEF_BASE("z",		R8A77965_CLK_Z,		CLK_TYPE_GEN3_Z, CLK_PLL0),
+	DEF_FIXED("ztr",	R8A77965_CLK_ZTR,	CLK_PLL1_DIV2,	6, 1),
+	DEF_FIXED("ztrd2",	R8A77965_CLK_ZTRD2,	CLK_PLL1_DIV2,	12, 1),
+	DEF_FIXED("zt",		R8A77965_CLK_ZT,	CLK_PLL1_DIV2,	4, 1),
+	DEF_FIXED("zx",		R8A77965_CLK_ZX,	CLK_PLL1_DIV2,	2, 1),
 	DEF_FIXED("s0d1",	R8A77965_CLK_S0D1,	CLK_S0,		1, 1),
 	DEF_FIXED("s0d2",	R8A77965_CLK_S0D2,	CLK_S0,		2, 1),
 	DEF_FIXED("s0d3",	R8A77965_CLK_S0D3,	CLK_S0,		3, 1),
@@ -102,6 +109,10 @@ static const struct cpg_core_clk r8a77965_core_clks[] = {
 	DEF_DIV6P1("csi0",	R8A77965_CLK_CSI0,	CLK_PLL1_DIV4,	0x00c),
 	DEF_DIV6P1("mso",	R8A77965_CLK_MSO,	CLK_PLL1_DIV4,	0x014),
 	DEF_DIV6P1("hdmi",	R8A77965_CLK_HDMI,	CLK_PLL1_DIV4,	0x250),
+
+	DEF_GEN3_OSC("osc",	R8A77965_CLK_OSC,	CLK_EXTAL,	8),
+
+	DEF_BASE("r",		R8A77965_CLK_R,	CLK_TYPE_GEN3_R, CLK_RINT),
 };
 
 static const struct mssr_mod_clk r8a77965_mod_clks[] = {
@@ -119,6 +130,10 @@ static const struct mssr_mod_clk r8a77965_mod_clks[] = {
 	DEF_MOD("sys-dmac1",		218,	R8A77965_CLK_S0D3),
 	DEF_MOD("sys-dmac0",		219,	R8A77965_CLK_S0D3),
 
+	DEF_MOD("cmt3",			300,	R8A77965_CLK_R),
+	DEF_MOD("cmt2",			301,	R8A77965_CLK_R),
+	DEF_MOD("cmt1",			302,	R8A77965_CLK_R),
+	DEF_MOD("cmt0",			303,	R8A77965_CLK_R),
 	DEF_MOD("scif2",		310,	R8A77965_CLK_S3D4),
 	DEF_MOD("sdif3",		311,	R8A77965_CLK_SD3),
 	DEF_MOD("sdif2",		312,	R8A77965_CLK_SD2),
@@ -130,6 +145,7 @@ static const struct mssr_mod_clk r8a77965_mod_clks[] = {
 	DEF_MOD("usb-dmac0",		330,	R8A77965_CLK_S3D1),
 	DEF_MOD("usb-dmac1",		331,	R8A77965_CLK_S3D1),
 
+	DEF_MOD("rwdt",			402,	R8A77965_CLK_R),
 	DEF_MOD("intc-ex",		407,	R8A77965_CLK_CP),
 	DEF_MOD("intc-ap",		408,	R8A77965_CLK_S0D3),
 
@@ -266,23 +282,23 @@ static const struct mssr_mod_clk r8a77965_mod_clks[] = {
 					 (((md) & BIT(17)) >> 17))
 
 static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[16] = {
-	/* EXTAL div	PLL1 mult/div	PLL3 mult/div */
-	{ 1,		192,	1,	192,	1,	},
-	{ 1,		192,	1,	128,	1,	},
-	{ 0, /* Prohibited setting */			},
-	{ 1,		192,	1,	192,	1,	},
-	{ 1,		160,	1,	160,	1,	},
-	{ 1,		160,	1,	106,	1,	},
-	{ 0, /* Prohibited setting */			},
-	{ 1,		160,	1,	160,	1,	},
-	{ 1,		128,	1,	128,	1,	},
-	{ 1,		128,	1,	84,	1,	},
-	{ 0, /* Prohibited setting */			},
-	{ 1,		128,	1,	128,	1,	},
-	{ 2,		192,	1,	192,	1,	},
-	{ 2,		192,	1,	128,	1,	},
-	{ 0, /* Prohibited setting */			},
-	{ 2,		192,	1,	192,	1,	},
+	/* EXTAL div	PLL1 mult/div	PLL3 mult/div	OSC prediv */
+	{ 1,		192,	1,	192,	1,	16,	},
+	{ 1,		192,	1,	128,	1,	16,	},
+	{ 0, /* Prohibited setting */				},
+	{ 1,		192,	1,	192,	1,	16,	},
+	{ 1,		160,	1,	160,	1,	19,	},
+	{ 1,		160,	1,	106,	1,	19,	},
+	{ 0, /* Prohibited setting */				},
+	{ 1,		160,	1,	160,	1,	19,	},
+	{ 1,		128,	1,	128,	1,	24,	},
+	{ 1,		128,	1,	84,	1,	24,	},
+	{ 0, /* Prohibited setting */				},
+	{ 1,		128,	1,	128,	1,	24,	},
+	{ 2,		192,	1,	192,	1,	32,	},
+	{ 2,		192,	1,	128,	1,	32,	},
+	{ 0, /* Prohibited setting */				},
+	{ 2,		192,	1,	192,	1,	32,	},
 };
 
 static const struct mstp_stop_table r8a77965_mstp_table[] = {

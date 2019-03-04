@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0
 /*
  * Renesas R8A7796 CPG MSSR driver
  *
@@ -8,6 +8,11 @@
  * r8a7796 Clock Pulse Generator / Module Standby and Software Reset
  *
  * Copyright (C) 2016 Glider bvba
+ *
+ * Based on r8a7795-cpg-mssr.c
+ *
+ * Copyright (C) 2015 Glider bvba
+ * Copyright (C) 2015 Renesas Electronics Corp.
  */
 
 #include <common.h>
@@ -71,7 +76,11 @@ static const struct cpg_core_clk r8a7796_core_clks[] = {
 	DEF_FIXED(".sdsrc",     CLK_SDSRC,         CLK_PLL1_DIV2,  2, 1),
 	DEF_FIXED(".rpcsrc",    CLK_RPCSRC,        CLK_PLL1,       2, 1),
 
+	DEF_GEN3_OSC(".r",      CLK_RINT,          CLK_EXTAL,      32),
+
 	/* Core Clock Outputs */
+	DEF_BASE("z",           R8A7796_CLK_Z,     CLK_TYPE_GEN3_Z, CLK_PLL0),
+	DEF_BASE("z2",          R8A7796_CLK_Z2,    CLK_TYPE_GEN3_Z2, CLK_PLL2),
 	DEF_FIXED("ztr",        R8A7796_CLK_ZTR,   CLK_PLL1_DIV2,  6, 1),
 	DEF_FIXED("ztrd2",      R8A7796_CLK_ZTRD2, CLK_PLL1_DIV2, 12, 1),
 	DEF_FIXED("zt",         R8A7796_CLK_ZT,    CLK_PLL1_DIV2,  4, 1),
@@ -102,13 +111,20 @@ static const struct cpg_core_clk r8a7796_core_clks[] = {
 
 	DEF_FIXED("cl",         R8A7796_CLK_CL,    CLK_PLL1_DIV2, 48, 1),
 	DEF_FIXED("cp",         R8A7796_CLK_CP,    CLK_EXTAL,      2, 1),
+	DEF_FIXED("cpex",       R8A7796_CLK_CPEX,  CLK_EXTAL,      2, 1),
 
-	/* NOTE: HDMI, CSI, CAN etc. clock are missing */
+	DEF_DIV6P1("canfd",     R8A7796_CLK_CANFD, CLK_PLL1_DIV4, 0x244),
+	DEF_DIV6P1("csi0",      R8A7796_CLK_CSI0,  CLK_PLL1_DIV4, 0x00c),
+	DEF_DIV6P1("mso",       R8A7796_CLK_MSO,   CLK_PLL1_DIV4, 0x014),
+	DEF_DIV6P1("hdmi",      R8A7796_CLK_HDMI,  CLK_PLL1_DIV4, 0x250),
+
+	DEF_GEN3_OSC("osc",     R8A7796_CLK_OSC,   CLK_EXTAL,     8),
 
 	DEF_BASE("r",           R8A7796_CLK_R,     CLK_TYPE_GEN3_R, CLK_RINT),
 };
 
 static const struct mssr_mod_clk r8a7796_mod_clks[] = {
+	DEF_MOD("fdp1-0",		 119,	R8A7796_CLK_S0D1),
 	DEF_MOD("scif5",		 202,	R8A7796_CLK_S3D4),
 	DEF_MOD("scif4",		 203,	R8A7796_CLK_S3D4),
 	DEF_MOD("scif3",		 204,	R8A7796_CLK_S3D4),
@@ -137,7 +153,7 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] = {
 	DEF_MOD("usb-dmac1",		 331,	R8A7796_CLK_S3D1),
 	DEF_MOD("rwdt",			 402,	R8A7796_CLK_R),
 	DEF_MOD("intc-ex",		 407,	R8A7796_CLK_CP),
-	DEF_MOD("intc-ap",		 408,	R8A7796_CLK_S3D1),
+	DEF_MOD("intc-ap",		 408,	R8A7796_CLK_S0D3),
 	DEF_MOD("audmac1",		 501,	R8A7796_CLK_S0D3),
 	DEF_MOD("audmac0",		 502,	R8A7796_CLK_S0D3),
 	DEF_MOD("drif7",		 508,	R8A7796_CLK_S3D2),
@@ -242,25 +258,25 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] = {
  */
 
 /*
- *   MD		EXTAL		PLL0	PLL1	PLL2	PLL3	PLL4
+ *   MD		EXTAL		PLL0	PLL1	PLL2	PLL3	PLL4	OSC
  * 14 13 19 17	(MHz)
- *-------------------------------------------------------------------
- * 0  0  0  0	16.66 x 1	x180	x192	x144	x192	x144
- * 0  0  0  1	16.66 x 1	x180	x192	x144	x128	x144
+ *-------------------------------------------------------------------------
+ * 0  0  0  0	16.66 x 1	x180	x192	x144	x192	x144	/16
+ * 0  0  0  1	16.66 x 1	x180	x192	x144	x128	x144	/16
  * 0  0  1  0	Prohibited setting
- * 0  0  1  1	16.66 x 1	x180	x192	x144	x192	x144
- * 0  1  0  0	20    x 1	x150	x160	x120	x160	x120
- * 0  1  0  1	20    x 1	x150	x160	x120	x106	x120
+ * 0  0  1  1	16.66 x 1	x180	x192	x144	x192	x144	/16
+ * 0  1  0  0	20    x 1	x150	x160	x120	x160	x120	/19
+ * 0  1  0  1	20    x 1	x150	x160	x120	x106	x120	/19
  * 0  1  1  0	Prohibited setting
- * 0  1  1  1	20    x 1	x150	x160	x120	x160	x120
- * 1  0  0  0	25    x 1	x120	x128	x96	x128	x96
- * 1  0  0  1	25    x 1	x120	x128	x96	x84	x96
+ * 0  1  1  1	20    x 1	x150	x160	x120	x160	x120	/19
+ * 1  0  0  0	25    x 1	x120	x128	x96	x128	x96	/24
+ * 1  0  0  1	25    x 1	x120	x128	x96	x84	x96	/24
  * 1  0  1  0	Prohibited setting
- * 1  0  1  1	25    x 1	x120	x128	x96	x128	x96
- * 1  1  0  0	33.33 / 2	x180	x192	x144	x192	x144
- * 1  1  0  1	33.33 / 2	x180	x192	x144	x128	x144
+ * 1  0  1  1	25    x 1	x120	x128	x96	x128	x96	/24
+ * 1  1  0  0	33.33 / 2	x180	x192	x144	x192	x144	/32
+ * 1  1  0  1	33.33 / 2	x180	x192	x144	x128	x144	/32
  * 1  1  1  0	Prohibited setting
- * 1  1  1  1	33.33 / 2	x180	x192	x144	x192	x144
+ * 1  1  1  1	33.33 / 2	x180	x192	x144	x192	x144	/32
  */
 #define CPG_PLL_CONFIG_INDEX(md)	((((md) & BIT(14)) >> 11) | \
 					 (((md) & BIT(13)) >> 11) | \
@@ -268,23 +284,23 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] = {
 					 (((md) & BIT(17)) >> 17))
 
 static const struct rcar_gen3_cpg_pll_config cpg_pll_configs[16] = {
-	/* EXTAL div	PLL1 mult/div	PLL3 mult/div */
-	{ 1,		192,	1,	192,	1,	},
-	{ 1,		192,	1,	128,	1,	},
-	{ 0, /* Prohibited setting */			},
-	{ 1,		192,	1,	192,	1,	},
-	{ 1,		160,	1,	160,	1,	},
-	{ 1,		160,	1,	106,	1,	},
-	{ 0, /* Prohibited setting */			},
-	{ 1,		160,	1,	160,	1,	},
-	{ 1,		128,	1,	128,	1,	},
-	{ 1,		128,	1,	84,	1,	},
-	{ 0, /* Prohibited setting */			},
-	{ 1,		128,	1,	128,	1,	},
-	{ 2,		192,	1,	192,	1,	},
-	{ 2,		192,	1,	128,	1,	},
-	{ 0, /* Prohibited setting */			},
-	{ 2,		192,	1,	192,	1,	},
+	/* EXTAL div	PLL1 mult/div	PLL3 mult/div	OSC prediv */
+	{ 1,		192,	1,	192,	1,	16,	},
+	{ 1,		192,	1,	128,	1,	16,	},
+	{ 0, /* Prohibited setting */				},
+	{ 1,		192,	1,	192,	1,	16,	},
+	{ 1,		160,	1,	160,	1,	19,	},
+	{ 1,		160,	1,	106,	1,	19,	},
+	{ 0, /* Prohibited setting */				},
+	{ 1,		160,	1,	160,	1,	19,	},
+	{ 1,		128,	1,	128,	1,	24,	},
+	{ 1,		128,	1,	84,	1,	24,	},
+	{ 0, /* Prohibited setting */				},
+	{ 1,		128,	1,	128,	1,	24,	},
+	{ 2,		192,	1,	192,	1,	32,	},
+	{ 2,		192,	1,	128,	1,	32,	},
+	{ 0, /* Prohibited setting */				},
+	{ 2,		192,	1,	192,	1,	32,	},
 };
 
 static const struct mstp_stop_table r8a7796_mstp_table[] = {
