@@ -14,6 +14,33 @@ KSZ9021:
   value is 0, the maximum value is 1800, and it is incremented by 120ps
   steps.
 
+  The KSZ9021 hardware supports a range of skew values from negative to
+  positive, where the specific range is property dependent. All values
+  specified in the devicetree are offset by the minimum value so they
+  can be represented as positive integers in the devicetree since it's
+  difficult to represent a negative number in the devictree.
+
+  The following 4-bit values table applies to all the skew properties:
+
+  Pad Skew Value	Delay (ps)	Devicetree Value
+  ------------------------------------------------------
+  0000			-840ps		0
+  0001			-720ps		120
+  0010			-600ps		240
+  0011			-480ps		360
+  0100			-360ps		480
+  0101			-240ps		600
+  0110			-120ps		720
+  0111			0ps		840
+  1000			120ps		960
+  1001			240ps		1080
+  1010			360ps		1200
+  1011			480ps		1320
+  1100			600ps		1440
+  1101			720ps		1560
+  1110			840ps		1680
+  1111			960ps		1800
+
   Optional properties:
 
     - rxc-skew-ps : Skew control of RXC pad
