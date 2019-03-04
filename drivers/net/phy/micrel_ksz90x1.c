@@ -114,12 +114,20 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 	int val[4];
 	int i, changed = 0, offset, max;
 	u16 regval = 0;
+	ofnode node;
 
 	if (!drv || !drv->writeext)
 		return -EOPNOTSUPP;
 
+	/* Look for a PHY node under the Ethernet node */
+	node = dev_read_subnode(dev, "ethernet-phy");
+	if (!ofnode_valid(node)) {
+		/* No node found, look in the Ethernet node */
+		node = dev_ofnode(dev);
+	}
+
 	for (i = 0; i < ofcfg->grpsz; i++) {
-		val[i] = dev_read_u32_default(dev, ofcfg->grp[i].name, ~0);
+		val[i] = ofnode_read_u32_default(node, ofcfg->grp[i].name, ~0);
 		offset = ofcfg->grp[i].off;
 		if (val[i] == -1) {
 			/* Default register value for KSZ9021 */
