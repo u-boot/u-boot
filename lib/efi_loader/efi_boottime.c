@@ -1691,6 +1691,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	struct efi_loaded_image_obj **image_obj =
 		(struct efi_loaded_image_obj **)image_handle;
 	efi_status_t ret;
+	void *dest_buffer;
 
 	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
@@ -1706,7 +1707,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	}
 
 	if (!source_buffer) {
-		ret = efi_load_image_from_path(file_path, &source_buffer,
+		ret = efi_load_image_from_path(file_path, &dest_buffer,
 					       &source_size);
 		if (ret != EFI_SUCCESS)
 			goto error;
@@ -1719,41 +1720,26 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		/* In this case, file_path is the "device" path, i.e.
 		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
 		 */
-		u64 addr;
-		void *dest_buffer;
-
-		ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
-					 EFI_RUNTIME_SERVICES_CODE,
-					 efi_size_in_pages(source_size), &addr);
-		if (ret != EFI_SUCCESS)
-			goto error;
-		dest_buffer = (void *)(uintptr_t)addr;
-		memcpy(dest_buffer, source_buffer, source_size);
-		source_buffer = dest_buffer;
-
+		dest_buffer = source_buffer;
 		dp = file_path;
 		fp = NULL;
 	}
 	ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
-	if (ret != EFI_SUCCESS)
-		goto error_invalid_image;
-	ret = efi_load_pe(*image_obj, source_buffer, info);
-	if (ret != EFI_SUCCESS)
-		goto error_invalid_image;
-	/* Update the type of the allocated memory */
-	efi_add_memory_map((uintptr_t)source_buffer,
-			   efi_size_in_pages(source_size),
-			   info->image_code_type, false);
-	info->system_table = &systab;
-	info->parent_handle = parent_image;
-	return EFI_EXIT(EFI_SUCCESS);
-error_invalid_image:
-	/* The image is invalid. Release all associated resources. */
-	efi_free_pages((uintptr_t)source_buffer,
-		       efi_size_in_pages(source_size));
-	efi_delete_handle(*image_handle);
-	*image_handle = NULL;
-	free(info);
+	if (ret == EFI_SUCCESS)
+		ret = efi_load_pe(*image_obj, dest_buffer, info);
+	if (!source_buffer)
+		/* Release buffer to which file was loaded */
+		efi_free_pages((uintptr_t)dest_buffer,
+			       efi_size_in_pages(source_size));
+	if (ret == EFI_SUCCESS) {
+		info->system_table = &systab;
+		info->parent_handle = parent_image;
+	} else {
+		/* The image is invalid. Release all associated resources. */
+		efi_delete_handle(*image_handle);
+		*image_handle = NULL;
+		free(info);
+	}
 error:
 	return EFI_EXIT(ret);
 }
