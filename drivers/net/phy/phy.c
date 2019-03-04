@@ -671,7 +671,10 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 
 	dev->drv = get_phy_driver(dev, interface);
 
-	phy_probe(dev);
+	if (phy_probe(dev)) {
+		printf("%s, PHY probe failed\n", __func__);
+		return NULL;
+	}
 
 	if (addr >= 0 && addr < PHY_MAX_ADDR)
 		bus->phymap[addr] = dev;
