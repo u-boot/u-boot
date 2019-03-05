@@ -179,6 +179,25 @@ int imagetool_verify_print_header(
 	struct image_type_params *tparams,
 	struct image_tool_params *params);
 
+/*
+ * imagetool_verify_print_header_by_type() - verifies the image header
+ *
+ * Verify the image_header for the image type given by tparams.
+ * If verification is successful, this prints the respective header.
+ * @ptr: pointer the the image header
+ * @sbuf: stat information about the file pointed to by ptr
+ * @tparams: image type parameters
+ * @params: mkimage parameters
+ *
+ * @return 0 on success, negative if input image format does not match with
+ * the given image type
+ */
+int imagetool_verify_print_header_by_type(
+	void *ptr,
+	struct stat *sbuf,
+	struct image_type_params *tparams,
+	struct image_tool_params *params);
+
 /**
  * imagetool_save_subimage - store data into a file
  * @file_name: name of the destination file
