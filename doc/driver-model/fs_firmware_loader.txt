@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Intel Corporation <www.intel.com>
+# Copyright (C) 2018-2019 Intel Corporation <www.intel.com>
 #
 # SPDX-License-Identifier:    GPL-2.0
 
@@ -27,7 +27,7 @@ Firmware storage device described in device tree source
 	defined in fs-loader node as shown in below:
 
 	Example for block device:
-	fs_loader0: fs-loader@0 {
+	fs_loader0: fs-loader {
 		u-boot,dm-pre-reloc;
 		compatible = "u-boot,fs-loader";
 		phandlepart = <&mmc 1>;
@@ -39,22 +39,55 @@ Firmware storage device described in device tree source
 	device, it can be described in FDT as shown in below:
 
 	Example for ubi:
-	fs_loader1: fs-loader@1 {
+	fs_loader1: fs-loader {
 		u-boot,dm-pre-reloc;
 		compatible = "u-boot,fs-loader";
 		mtdpart = "UBI",
 		ubivol = "ubi0";
 	};
 
-	Then, firmware_loader property would be set with the path of fs_loader
-	node under /chosen node such as:
+	Then, firmware-loader property can be added with any device node, which
+	driver would use the firmware loader for loading.
+
+	The value of the firmware-loader property should be set with phandle
+	of the fs-loader node.
+	For example:
+		firmware-loader = <&fs_loader0>;
+
+	If there are majority of devices using the same fs-loader node, then
+	firmware-loader property can be added under /chosen node instead of
+	adding to each of device node.
+
+	For example:
 	/{
 		chosen {
-			firmware_loader = &fs_loader0;
+			firmware-loader = <&fs_loader0>;
 		};
 	};
 
-	However, this driver is also designed to support U-boot environment
+	In each respective driver of devices using firmware loader, the firmware
+	loaded instance	should be created by DT phandle.
+
+	For example of getting DT phandle from /chosen and creating instance:
+	chosen_node = ofnode_path("/chosen");
+	if (!ofnode_valid(chosen_node)) {
+		debug("/chosen node was not found.\n");
+		return -ENOENT;
+	}
+
+	phandle_p = ofnode_get_property(chosen_node, "firmware-loader", &size);
+	if (!phandle_p) {
+		debug("firmware-loader property was not found.\n");
+		return -ENOENT;
+	}
+
+	phandle = fdt32_to_cpu(*phandle_p);
+	ret = uclass_get_device_by_phandle_id(UCLASS_FS_FIRMWARE_LOADER,
+					     phandle, &dev);
+	if (ret)
+		return ret;
+
+	Firmware loader driver is also designed to support U-boot environment
 	variables, so all these data from FDT can be overwritten
 	through the U-boot environment variable during run time.
 	For examples:
@@ -104,9 +137,12 @@ return:
 Description:
 	The firmware is loaded directly into the buffer pointed to by buf
 
-Example of creating firmware loader instance and calling
-request_firmware_into_buf API:
-	if (uclass_get_device(UCLASS_FS_FIRMWARE_LOADER, 0, &dev)) {
-		request_firmware_into_buf(dev, filename, buffer_location,
-					 buffer_size, offset_ofreading);
-	}
+Example of calling request_firmware_into_buf API after creating firmware loader
+instance:
+	ret = uclass_get_device_by_phandle_id(UCLASS_FS_FIRMWARE_LOADER,
+					     phandle, &dev);
+	if (ret)
+		return ret;
+
+	request_firmware_into_buf(dev, filename, buffer_location, buffer_size,
+				 offset_ofreading);
