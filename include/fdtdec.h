@@ -956,6 +956,25 @@ int fdtdec_setup_mem_size_base_fdt(const void *blob);
 int fdtdec_setup_mem_size_base(void);
 
 /**
+ * fdtdec_setup_memory_banksize_fdt() - decode and populate gd->bd->bi_dram
+ *
+ * Decode the /memory 'reg' property to determine the address and size of the
+ * memory banks. Use this data to populate the global data board info with the
+ * phys address and size of memory banks.
+ *
+ * This function should be called from a boards dram_init_banksize(). This
+ * helper function allows for boards to query the device tree for memory bank
+ * information instead of hard coding the information in cases where it cannot
+ * be detected automatically.
+ *
+ * @param blob		FDT blob
+ *
+ * @return 0 if OK, -EINVAL if the /memory node or reg property is missing or
+ * invalid
+ */
+int fdtdec_setup_memory_banksize_fdt(const void *blob);
+
+/**
  * fdtdec_setup_memory_banksize() - decode and populate gd->bd->bi_dram
  *
  * Decode the /memory 'reg' property to determine the address and size of the

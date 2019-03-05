@@ -1123,33 +1123,33 @@ int fdtdec_setup_mem_size_base(void)
 static int get_next_memory_node(const void *blob, int mem)
 {
 	do {
-		mem = fdt_node_offset_by_prop_value(gd->fdt_blob, mem,
+		mem = fdt_node_offset_by_prop_value(blob, mem,
 						    "device_type", "memory", 7);
 	} while (!fdtdec_get_is_enabled(blob, mem));
 
 	return mem;
 }
 
-int fdtdec_setup_memory_banksize(void)
+int fdtdec_setup_memory_banksize_fdt(const void *blob)
 {
 	int bank, ret, mem, reg = 0;
 	struct fdt_resource res;
 
-	mem = get_next_memory_node(gd->fdt_blob, -1);
+	mem = get_next_memory_node(blob, -1);
 	if (mem < 0) {
 		debug("%s: Missing /memory node\n", __func__);
 		return -EINVAL;
 	}
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
+		ret = fdt_get_resource(blob, mem, "reg", reg++, &res);
 		if (ret == -FDT_ERR_NOTFOUND) {
 			reg = 0;
-			mem = get_next_memory_node(gd->fdt_blob, mem);
+			mem = get_next_memory_node(blob, mem);
 			if (mem == -FDT_ERR_NOTFOUND)
 				break;
 
-			ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
+			ret = fdt_get_resource(blob, mem, "reg", reg++, &res);
 			if (ret == -FDT_ERR_NOTFOUND)
 				break;
 		}
@@ -1168,6 +1168,12 @@ int fdtdec_setup_memory_banksize(void)
 	}
 
 	return 0;
+}
+
+int fdtdec_setup_memory_banksize(void)
+{
+	return fdtdec_setup_memory_banksize_fdt(gd->fdt_blob);
+
 }
 #endif
 
