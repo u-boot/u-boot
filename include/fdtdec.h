@@ -918,6 +918,26 @@ int fdtdec_decode_display_timing(const void *blob, int node, int index,
 				 struct display_timing *config);
 
 /**
+ * fdtdec_setup_mem_size_base_fdt() - decode and setup gd->ram_size and
+ * gd->ram_start
+ *
+ * Decode the /memory 'reg' property to determine the size and start of the
+ * first memory bank, populate the global data with the size and start of the
+ * first bank of memory.
+ *
+ * This function should be called from a boards dram_init(). This helper
+ * function allows for boards to query the device tree for DRAM size and start
+ * address instead of hard coding the value in the case where the memory size
+ * and start address cannot be detected automatically.
+ *
+ * @param blob		FDT blob
+ *
+ * @return 0 if OK, -EINVAL if the /memory node or reg property is missing or
+ * invalid
+ */
+int fdtdec_setup_mem_size_base_fdt(const void *blob);
+
+/**
  * fdtdec_setup_mem_size_base() - decode and setup gd->ram_size and
  * gd->ram_start
  *
