@@ -304,7 +304,7 @@ static void sdram_mmr_init(void)
 	 *	bit[9:6] = Minor Release #
 	 *	bit[14:10] = Major Release #
 	 */
-	if ((socfpga_io48_mmr_base->niosreserve1 >> 6) & 0x1FF) {
+	if ((readl(&socfpga_io48_mmr_base->niosreserve1) >> 6) & 0x1FF) {
 		update_value = readl(&socfpga_io48_mmr_base->niosreserve0);
 		writel(((update_value & 0xFF) >> 5),
 		       &socfpga_ecc_hmc_base->ddrioctrl);
@@ -394,7 +394,7 @@ static void sdram_mmr_init(void)
 			caltim0_cfg_act_to_rdwr -
 			(ctrlcfg0_cfg_ctrl_burst_len >> 2));
 
-	io48_value = ((((socfpga_io48_mmr_base->dramtiming0 &
+	io48_value = ((((readl(&socfpga_io48_mmr_base->dramtiming0) &
 		      ALT_IO48_DRAMTIME_MEM_READ_LATENCY_MASK) + 2 + 15 +
 		      (ctrlcfg0_cfg_ctrl_burst_len >> 1)) >> 1) -
 		      /* Up to here was in memory cycles so divide by 2 */
@@ -424,7 +424,7 @@ static void sdram_mmr_init(void)
 		&socfpga_noc_ddr_scheduler_base->ddr_t_main_scheduler_ddrmode);
 
 	/* Configure the read latency [0xFFD12414] */
-	writel(((socfpga_io48_mmr_base->dramtiming0 &
+	writel(((readl(&socfpga_io48_mmr_base->dramtiming0) &
 		ALT_IO48_DRAMTIME_MEM_READ_LATENCY_MASK) >> 1) +
 		DDR_READ_LATENCY_DELAY,
 		&socfpga_noc_ddr_scheduler_base->
