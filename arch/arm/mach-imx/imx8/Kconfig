@@ -32,8 +32,14 @@ config TARGET_IMX8QXP_MEK
 	select BOARD_LATE_INIT
 	select IMX8QXP
 
+config TARGET_IMX8QM_MEK
+	bool "Support i.MX8QM MEK board"
+	select BOARD_LATE_INIT
+	select IMX8QM
+
 endchoice
 
 source "board/freescale/imx8qxp_mek/Kconfig"
+source "board/freescale/imx8qm_mek/Kconfig"
 
 endif
