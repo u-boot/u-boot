@@ -1687,12 +1687,12 @@ error:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_load_image(bool boot_policy,
-					  efi_handle_t parent_image,
-					  struct efi_device_path *file_path,
-					  void *source_buffer,
-					  efi_uintn_t source_size,
-					  efi_handle_t *image_handle)
+efi_status_t EFIAPI efi_load_image(bool boot_policy,
+				   efi_handle_t parent_image,
+				   struct efi_device_path *file_path,
+				   void *source_buffer,
+				   efi_uintn_t source_size,
+				   efi_handle_t *image_handle)
 {
 	struct efi_device_path *dp, *fp;
 	struct efi_loaded_image *info = NULL;
@@ -1763,7 +1763,7 @@ error:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
+efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
 {
 	struct efi_object *efiobj;
 
