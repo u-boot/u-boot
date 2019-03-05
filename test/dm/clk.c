@@ -4,11 +4,32 @@
  */
 
 #include <common.h>
+#include <clk.h>
 #include <dm.h>
 #include <asm/clk.h>
 #include <dm/test.h>
 #include <linux/err.h>
 #include <test/ut.h>
+
+/* Base test of the clk uclass */
+static int dm_test_clk_base(struct unit_test_state *uts)
+{
+	struct udevice *dev;
+	struct clk clk_method1;
+	struct clk clk_method2;
+
+	/* Get the device using the clk device */
+	ut_assertok(uclass_get_device_by_name(UCLASS_MISC, "clk-test", &dev));
+
+	/* Get the same clk port in 2 different ways and compare */
+	ut_assertok(clk_get_by_index(dev, 1, &clk_method1));
+	ut_assertok(clk_get_by_index_nodev(dev_ofnode(dev), 1, &clk_method2));
+	ut_asserteq(clk_method1.id, clk_method2.id);
+
+	return 0;
+}
+
+DM_TEST(dm_test_clk_base, DM_TESTF_SCAN_FDT);
 
 static int dm_test_clk(struct unit_test_state *uts)
 {
