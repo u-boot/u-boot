@@ -101,6 +101,7 @@ static int imx8_clk_probe(struct udevice *dev)
 
 static const struct udevice_id imx8_clk_ids[] = {
 	{ .compatible = "fsl,imx8qxp-clk" },
+	{ .compatible = "fsl,imx8qm-clk" },
 	{ },
 };
 
