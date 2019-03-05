@@ -10,6 +10,11 @@ config MU_BASE_SPL
 	  SPL runs in EL3 mode, it use MU0_A to communicate with SCU.
 	  So we could not reuse the one in dts which is for normal U-Boot.
 
+config IMX8QM
+	select IMX8
+	select SUPPORT_SPL
+	bool
+
 config IMX8QXP
 	select IMX8
 	select SUPPORT_SPL

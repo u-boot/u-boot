@@ -542,6 +542,8 @@ const char *get_imx8_type(u32 imxtype)
 	case MXC_CPU_IMX8QXP:
 	case MXC_CPU_IMX8QXP_A0:
 		return "QXP";
+	case MXC_CPU_IMX8QM:
+		return "QM";
 	default:
 		return "??";
 	}
@@ -613,6 +615,7 @@ static const struct cpu_ops cpu_imx8_ops = {
 
 static const struct udevice_id cpu_imx8_ids[] = {
 	{ .compatible = "arm,cortex-a35" },
+	{ .compatible = "arm,cortex-a53" },
 	{ }
 };
 
