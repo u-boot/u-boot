@@ -119,21 +119,19 @@ config PHY_MICREL
 	bool "Micrel Ethernet PHYs support"
 	help
 	  Enable support for the GbE PHYs manufactured by Micrel (now
-	  a part of Microchip). This includes drivers for the KSZ804,
-	  KSZ8031, KSZ8051, KSZ8081, KSZ8895, KSZ886x, KSZ8721
-	  either/or KSZ9021 (see the "Micrel KSZ9021 family support"
-	  config option for details), and KSZ9031 (if configured).
+	  a part of Microchip). This includes drivers for the KSZ804, KSZ8031,
+	  KSZ8051, KSZ8081, KSZ8895, KSZ886x and KSZ8721 (if "Micrel KSZ8xxx
+	  family support" is selected) and the KSZ9021 and KSZ9031 (if "Micrel
+	  KSZ90x1 family support" is selected).
 
 if PHY_MICREL
 
 config PHY_MICREL_KSZ9021
 	bool
-	select PHY_GIGE
 	select PHY_MICREL_KSZ90X1
 
 config PHY_MICREL_KSZ9031
 	bool
-	select PHY_GIGE
 	select PHY_MICREL_KSZ90X1
 
 config PHY_MICREL_KSZ90X1
@@ -146,19 +144,12 @@ config PHY_MICREL_KSZ90X1
 	  delays configured in the device tree will be applied to the
 	  PHY during initialization.
 
-	  This should not be enabled at the same time with PHY_MICREL_KSZ8XXX
-	  as the KSZ9021 and KS8721 share the same ID.
-
 config PHY_MICREL_KSZ8XXX
 	bool "Micrel KSZ8xxx family support"
-	default y if !PHY_MICREL_KSZ90X1
 	help
-	  Enable support for the 8000 series GbE PHYs manufactured by Micrel
+	  Enable support for the 8000 series 10/100 PHYs manufactured by Micrel
 	  (now a part of Microchip). This includes drivers for the KSZ804,
 	  KSZ8031, KSZ8051, KSZ8081, KSZ8895, KSZ886x, and KSZ8721.
-
-	  This should not be enabled at the same time with PHY_MICREL_KSZ90X1
-	  as the KSZ9021 and KS8721 share the same ID.
 
 endif # PHY_MICREL
 
