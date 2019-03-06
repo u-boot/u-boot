@@ -32,6 +32,7 @@
 
 	adc@12D10000 {
 		u-boot,dm-pre-reloc;
+		vdd-supply = <&ldo4_reg>;
 		status = "okay";
 	};
 
