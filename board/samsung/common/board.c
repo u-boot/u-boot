@@ -249,7 +249,7 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-#ifdef CONFIG_DISPLAY_BOARDINFO
+#if defined(CONFIG_DISPLAY_BOARDINFO) || defined(CONFIG_DISPLAY_BOARDINFO_LATE)
 int checkboard(void)
 {
 	if (IS_ENABLED(CONFIG_BOARD_TYPES)) {
