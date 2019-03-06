@@ -71,10 +71,10 @@ static const image_header_t *image_get_fdt(ulong fdt_addr)
 static void boot_fdt_reserve_region(struct lmb *lmb, uint64_t addr,
 				    uint64_t size)
 {
-	int ret;
+	long ret;
 
 	ret = lmb_reserve(lmb, addr, size);
-	if (!ret) {
+	if (ret >= 0) {
 		debug("   reserving fdt memory region: addr=%llx size=%llx\n",
 		      (unsigned long long)addr, (unsigned long long)size);
 	} else {
