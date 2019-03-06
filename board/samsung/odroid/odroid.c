@@ -470,18 +470,33 @@ struct dwc2_plat_otg_data s5pc210_otg_data = {
 
 #if defined(CONFIG_USB_GADGET) || defined(CONFIG_CMD_USB)
 
+static void set_usb3503_ref_clk(void)
+{
+#ifdef CONFIG_BOARD_TYPES
+	/*
+	 * gpx3-0 chooses primary (low) or secondary (high) reference clock
+	 * frequencies table.  The choice of clock is done through hard-wired
+	 * REF_SEL pins.
+	 * The Odroid Us have reference clock at 24 MHz (00 entry from secondary
+	 * table) and Odroid Xs have it at 26 MHz (01 entry from primary table).
+	 */
+	if (gd->board_type == ODROID_TYPE_U3)
+		gpio_direction_output(EXYNOS4X12_GPIO_X30, 0);
+	else
+		gpio_direction_output(EXYNOS4X12_GPIO_X30, 1);
+#else
+	/* Choose Odroid Xs frequency without board types */
+	gpio_direction_output(EXYNOS4X12_GPIO_X30, 1);
+#endif /* CONFIG_BOARD_TYPES */
+}
+
 int board_usb_init(int index, enum usb_init_type init)
 {
 #ifdef CONFIG_CMD_USB
 	struct udevice *dev;
 	int ret;
 
-	/* Set Ref freq 0 => 24MHz, 1 => 26MHz*/
-	/* Odroid Us have it at 24MHz, Odroid Xs at 26MHz */
-	if (gd->board_type == ODROID_TYPE_U3)
-		gpio_direction_output(EXYNOS4X12_GPIO_X30, 0);
-	else
-		gpio_direction_output(EXYNOS4X12_GPIO_X30, 1);
+	set_usb3503_ref_clk();
 
 	/* Disconnect, Reset, Connect */
 	gpio_direction_output(EXYNOS4X12_GPIO_X34, 0);
