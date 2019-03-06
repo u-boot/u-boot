@@ -270,7 +270,7 @@ static u64 sdram_size_calc(void)
 	size *= (2 << (readl(&socfpga_ecc_hmc_base->ddrioctrl) &
 		       ALT_ECC_HMC_OCP_DDRIOCTRL_IO_SIZE_MSK));
 
-	debug("SDRAM size=%llu", size);
+	debug("SDRAM size=%llu\n", size);
 
 	return size;
 }
