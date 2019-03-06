@@ -35,10 +35,22 @@ int regulator_get_value(struct udevice *dev)
 	return ops->get_value(dev);
 }
 
+static void regulator_set_value_ramp_delay(struct udevice *dev, int old_uV,
+					   int new_uV, unsigned int ramp_delay)
+{
+	int delay = DIV_ROUND_UP(abs(new_uV - old_uV), ramp_delay);
+
+	debug("regulator %s: delay %u us (%d uV -> %d uV)\n", dev->name, delay,
+	      old_uV, new_uV);
+
+	udelay(delay);
+}
+
 int regulator_set_value(struct udevice *dev, int uV)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
 	struct dm_regulator_uclass_platdata *uc_pdata;
+	int ret, old_uV = uV, is_enabled = 0;
 
 	uc_pdata = dev_get_uclass_platdata(dev);
 	if (uc_pdata->min_uV != -ENODATA && uV < uc_pdata->min_uV)
@@ -49,7 +61,20 @@ int regulator_set_value(struct udevice *dev, int uV)
 	if (!ops || !ops->set_value)
 		return -ENOSYS;
 
-	return ops->set_value(dev, uV);
+	if (uc_pdata->ramp_delay) {
+		is_enabled = regulator_get_enable(dev);
+		old_uV = regulator_get_value(dev);
+	}
+
+	ret = ops->set_value(dev, uV);
+
+	if (!ret) {
+		if (uc_pdata->ramp_delay && old_uV > 0 && is_enabled)
+			regulator_set_value_ramp_delay(dev, old_uV, uV,
+						       uc_pdata->ramp_delay);
+	}
+
+	return ret;
 }
 
 /*
@@ -107,6 +132,7 @@ int regulator_set_enable(struct udevice *dev, bool enable)
 {
 	const struct dm_regulator_ops *ops = dev_get_driver_ops(dev);
 	struct dm_regulator_uclass_platdata *uc_pdata;
+	int ret, old_enable = 0;
 
 	if (!ops || !ops->set_enable)
 		return -ENOSYS;
@@ -115,7 +141,22 @@ int regulator_set_enable(struct udevice *dev, bool enable)
 	if (!enable && uc_pdata->always_on)
 		return -EACCES;
 
-	return ops->set_enable(dev, enable);
+	if (uc_pdata->ramp_delay)
+		old_enable = regulator_get_enable(dev);
+
+	ret = ops->set_enable(dev, enable);
+	if (!ret) {
+		if (uc_pdata->ramp_delay && !old_enable && enable) {
+			int uV = regulator_get_value(dev);
+
+			if (uV > 0) {
+				regulator_set_value_ramp_delay(dev, 0, uV,
+							       uc_pdata->ramp_delay);
+			}
+		}
+	}
+
+	return ret;
 }
 
 int regulator_set_enable_if_allowed(struct udevice *dev, bool enable)
@@ -335,6 +376,8 @@ static int regulator_pre_probe(struct udevice *dev)
 						-ENODATA);
 	uc_pdata->always_on = dev_read_bool(dev, "regulator-always-on");
 	uc_pdata->boot_on = dev_read_bool(dev, "regulator-boot-on");
+	uc_pdata->ramp_delay = dev_read_u32_default(dev, "regulator-ramp-delay",
+						    0);
 
 	/* Those values are optional (-ENODATA if unset) */
 	if ((uc_pdata->min_uV != -ENODATA) &&
