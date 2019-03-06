@@ -1,4 +1,4 @@
-if TARGET_SOCFPGA_ARRIA10
+if TARGET_SOCFPGA_ARRIA10_SOCDK
 
 config SYS_CPU
 	default "armv7"
