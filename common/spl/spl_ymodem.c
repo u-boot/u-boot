@@ -89,7 +89,25 @@ static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 	if (res <= 0)
 		goto end_stream;
 
-	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
+	if (IS_ENABLED(CONFIG_SPL_LOAD_FIT_FULL) &&
+	    image_get_magic((struct image_header *)buf) == FDT_MAGIC) {
+		addr = CONFIG_SYS_LOAD_ADDR;
+		ih = (struct image_header *)addr;
+
+		memcpy((void *)addr, buf, res);
+		size += res;
+		addr += res;
+
+		while ((res = xyzModem_stream_read(buf, BUF_SIZE, &err)) > 0) {
+			memcpy((void *)addr, buf, res);
+			size += res;
+			addr += res;
+		}
+
+		ret = spl_parse_image_header(spl_image, ih);
+		if (ret)
+			return ret;
+	} else if (IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
 	    image_get_magic((struct image_header *)buf) == FDT_MAGIC) {
 		struct spl_load_info load;
 		struct ymodem_fit_info info;
