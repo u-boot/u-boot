@@ -192,8 +192,11 @@ const char *get_board_type(void)
 
 /**
  * set_board_type() - set board type in gd->board_type.
- * As default type set EXYNOS5_BOARD_GENERIC, if detect Odroid,
- * then set its proper type.
+ * As default type set EXYNOS5_BOARD_GENERIC. If Odroid is detected,
+ * set its proper type based on device tree.
+ *
+ * This might be called early when some more specific ways to detect revision
+ * are not yet available.
  */
 void set_board_type(void)
 {
@@ -211,8 +214,15 @@ void set_board_type(void)
 		gd->board_type = of_match->data;
 		break;
 	}
+}
 
-	/* If Odroid, then check its revision */
+/**
+ * set_board_revision() - set detailed board type in gd->board_type.
+ * Should be called when resources (e.g. regulators) are available
+ * so ADC can be used to detect the specific revision of a board.
+ */
+void set_board_revision(void)
+{
 	if (board_is_odroidxu3())
 		gd->board_type = odroid_get_board_type();
 }

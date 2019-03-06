@@ -54,6 +54,14 @@ void set_board_type(void)
 		gd->board_type = ODROID_TYPE_U3;
 }
 
+void set_board_revision(void)
+{
+	/*
+	 * Revision already set by set_board_type() because it can be
+	 * executed early.
+	 */
+}
+
 const char *get_board_type(void)
 {
 	const char *board_type[] = {"u3", "x2"};
