@@ -341,6 +341,11 @@ M:	FUKAUMI Naoki <naobsd@gmail.com>
 S:	Maintained
 F:	configs/Nintendo_NES_Classic_Edition_defconfig
 
+OCEANIC 5205 5INMFD BOARD
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/oceanic_5205_5inmfd_defconfig
+
 OLIMEX A20-SOM204 BOARD
 M:	Stefan Mavrodiev <stefan@olimex.com>
 S:	Maintained
