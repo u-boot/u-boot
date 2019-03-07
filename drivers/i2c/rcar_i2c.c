@@ -116,9 +116,7 @@ static int rcar_i2c_set_addr(struct udevice *dev, u8 chip, u8 read)
 	writel(0, priv->base + RCAR_I2C_ICMSR);
 	writel(priv->icccr, priv->base + RCAR_I2C_ICCCR);
 
-	if (priv->type == RCAR_I2C_TYPE_GEN3)
-		writel(RCAR_I2C_ICFBSCR_TCYC17, priv->base + RCAR_I2C_ICFBSCR);
-
+	/* Wait for the bus */
 	ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMCR,
 				RCAR_I2C_ICMCR_FSDA, false, 2, true);
 	if (ret) {
@@ -303,6 +301,11 @@ scgd_find:
 
 	priv->icccr = (scgd << RCAR_I2C_ICCCR_SCGD_OFF) | cdf;
 	writel(priv->icccr, priv->base + RCAR_I2C_ICCCR);
+
+	if (priv->type == RCAR_I2C_TYPE_GEN3) {
+		/* Set SCL/SDA delay */
+		writel(RCAR_I2C_ICFBSCR_TCYC17, priv->base + RCAR_I2C_ICFBSCR);
+	}
 
 	return 0;
 }
