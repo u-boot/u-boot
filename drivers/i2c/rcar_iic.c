@@ -58,12 +58,14 @@ static void sh_irq_dte(struct udevice *dev)
 static int sh_irq_dte_with_tack(struct udevice *dev)
 {
 	struct rcar_iic_priv *priv = dev_get_priv(dev);
+	u8 icsr;
 	int i;
 
 	for (i = 0; i < IRQ_WAIT; i++) {
-		if (RCAR_IC_DTE & readb(priv->base + RCAR_IIC_ICSR))
+		icsr = readb(priv->base + RCAR_IIC_ICSR);
+		if (RCAR_IC_DTE & icsr)
 			break;
-		if (RCAR_IC_TACK & readb(priv->base + RCAR_IIC_ICSR))
+		if (RCAR_IC_TACK & icsr)
 			return -ETIMEDOUT;
 		udelay(10);
 	}
