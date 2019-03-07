@@ -221,7 +221,7 @@ static int rcar_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 			ret = rcar_i2c_write_common(dev, msg);
 
 		if (ret)
-			return -EREMOTEIO;
+			return ret;
 	}
 
 	return ret;
