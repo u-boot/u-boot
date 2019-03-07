@@ -80,6 +80,8 @@ struct cdns_i2c_regs {
 
 #define CDNS_I2C_BROKEN_HOLD_BIT	BIT(0)
 
+#define CDNS_I2C_ARB_LOST_MAX_RETRIES	10
+
 #ifdef DEBUG
 static void cdns_i2c_debug_status(struct cdns_i2c_regs *cdns_i2c)
 {
@@ -234,11 +236,17 @@ static int cdns_i2c_set_bus_speed(struct udevice *dev, unsigned int speed)
 	return 0;
 }
 
+static inline u32 is_arbitration_lost(struct cdns_i2c_regs *regs)
+{
+	return (readl(&regs->interrupt_status) & CDNS_I2C_INTERRUPT_ARBLOST);
+}
+
 static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 			       u32 len)
 {
 	u8 *cur_data = data;
 	struct cdns_i2c_regs *regs = i2c_bus->regs;
+	u32 ret;
 
 	/* Set the controller in Master transmit mode and clear FIFO */
 	setbits_le32(&regs->control, CDNS_I2C_CONTROL_CLR_FIFO);
@@ -255,25 +263,38 @@ static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 
 	writel(addr, &regs->address);
 
-	while (len--) {
+	while (len-- && !is_arbitration_lost(regs)) {
 		writel(*(cur_data++), &regs->data);
 		if (readl(&regs->transfer_size) == CDNS_I2C_FIFO_DEPTH) {
-			if (!cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP)) {
-				/* Release the bus */
-				clrbits_le32(&regs->control,
-					     CDNS_I2C_CONTROL_HOLD);
-				return -ETIMEDOUT;
-			}
+			ret = cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP |
+					    CDNS_I2C_INTERRUPT_ARBLOST);
+			if (ret & CDNS_I2C_INTERRUPT_ARBLOST)
+				return -EAGAIN;
+			if (ret & CDNS_I2C_INTERRUPT_COMP)
+				continue;
+			/* Release the bus */
+			clrbits_le32(&regs->control,
+				     CDNS_I2C_CONTROL_HOLD);
+			return -ETIMEDOUT;
 		}
 	}
+
+	if (len && is_arbitration_lost(regs))
+		return -EAGAIN;
 
 	/* All done... release the bus */
 	if (!i2c_bus->hold_flag)
 		clrbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
 
 	/* Wait for the address and data to be sent */
-	if (!cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP))
+	ret = cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP |
+			    CDNS_I2C_INTERRUPT_ARBLOST);
+	if (!(ret & (CDNS_I2C_INTERRUPT_ARBLOST |
+		     CDNS_I2C_INTERRUPT_COMP)))
 		return -ETIMEDOUT;
+	if (ret & CDNS_I2C_INTERRUPT_ARBLOST)
+		return -EAGAIN;
+
 	return 0;
 }
 
@@ -289,6 +310,7 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 	struct cdns_i2c_regs *regs = i2c_bus->regs;
 	int curr_recv_count;
 	int updatetx, hold_quirk;
+	u32 ret;
 
 	/* Check the hardware can handle the requested bytes */
 	if ((recv_count < 0))
@@ -317,7 +339,7 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 
 	hold_quirk = (i2c_bus->quirks & CDNS_I2C_BROKEN_HOLD_BIT) && updatetx;
 
-	while (recv_count) {
+	while (recv_count && !is_arbitration_lost(regs)) {
 		while (readl(&regs->status) & CDNS_I2C_STATUS_RXDV) {
 			if (recv_count < CDNS_I2C_FIFO_DEPTH &&
 			    !i2c_bus->hold_flag) {
@@ -366,8 +388,13 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 	}
 
 	/* Wait for the address and data to be sent */
-	if (!cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP))
+	ret = cdns_i2c_wait(regs, CDNS_I2C_INTERRUPT_COMP |
+			    CDNS_I2C_INTERRUPT_ARBLOST);
+	if (!(ret & (CDNS_I2C_INTERRUPT_ARBLOST |
+		     CDNS_I2C_INTERRUPT_COMP)))
 		return -ETIMEDOUT;
+	if (ret & CDNS_I2C_INTERRUPT_ARBLOST)
+		return -EAGAIN;
 
 	return 0;
 }
@@ -376,8 +403,11 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 			 int nmsgs)
 {
 	struct i2c_cdns_bus *i2c_bus = dev_get_priv(dev);
-	int ret, count;
+	int ret = 0;
+	int count;
 	bool hold_quirk;
+	struct i2c_msg *message = msg;
+	int num_msgs = nmsgs;
 
 	hold_quirk = !!(i2c_bus->quirks & CDNS_I2C_BROKEN_HOLD_BIT);
 
@@ -403,7 +433,8 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 	}
 
 	debug("i2c_xfer: %d messages\n", nmsgs);
-	for (; nmsgs > 0; nmsgs--, msg++) {
+	for (u8 retry = 0; retry < CDNS_I2C_ARB_LOST_MAX_RETRIES &&
+	     nmsgs > 0; nmsgs--, msg++) {
 		debug("i2c_xfer: chip=0x%x, len=0x%x\n", msg->addr, msg->len);
 		if (msg->flags & I2C_M_RD) {
 			ret = cdns_i2c_read_data(i2c_bus, msg->addr, msg->buf,
@@ -412,13 +443,22 @@ static int cdns_i2c_xfer(struct udevice *dev, struct i2c_msg *msg,
 			ret = cdns_i2c_write_data(i2c_bus, msg->addr, msg->buf,
 						  msg->len);
 		}
+		if (ret == -EAGAIN) {
+			msg = message;
+			nmsgs = num_msgs;
+			retry++;
+			printf("%s,arbitration lost, retrying:%d\n", __func__,
+			       retry);
+			continue;
+		}
+
 		if (ret) {
 			debug("i2c_write: error sending\n");
 			return -EREMOTEIO;
 		}
 	}
 
-	return 0;
+	return ret;
 }
 
 static int cdns_i2c_ofdata_to_platdata(struct udevice *dev)
