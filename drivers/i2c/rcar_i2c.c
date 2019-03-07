@@ -81,12 +81,13 @@ static int rcar_i2c_finish(struct udevice *dev)
 	return ret;
 }
 
-static void rcar_i2c_recover(struct udevice *dev)
+static int rcar_i2c_recover(struct udevice *dev)
 {
 	struct rcar_i2c_priv *priv = dev_get_priv(dev);
 	u32 mcr = RCAR_I2C_ICMCR_MDBS | RCAR_I2C_ICMCR_OBPC;
 	u32 mcra = mcr | RCAR_I2C_ICMCR_FSDA;
 	int i;
+	u32 mstat;
 
 	/* Send 9 SCL pulses */
 	for (i = 0; i < 9; i++) {
@@ -106,6 +107,9 @@ static void rcar_i2c_recover(struct udevice *dev)
 	udelay(5);
 	writel(mcra | RCAR_I2C_ICMCR_FSCL, priv->base + RCAR_I2C_ICMCR);
 	udelay(5);
+
+	mstat = readl(priv->base + RCAR_I2C_ICMSR);
+	return mstat & RCAR_I2C_ICMCR_FSDA ? -EBUSY : 0;
 }
 
 static int rcar_i2c_set_addr(struct udevice *dev, u8 chip, u8 read)
@@ -113,7 +117,6 @@ static int rcar_i2c_set_addr(struct udevice *dev, u8 chip, u8 read)
 	struct rcar_i2c_priv *priv = dev_get_priv(dev);
 	u32 mask = RCAR_I2C_ICMSR_MAT |
 		   (read ? RCAR_I2C_ICMSR_MDR : RCAR_I2C_ICMSR_MDE);
-	u32 val;
 	int ret;
 
 	writel(0, priv->base + RCAR_I2C_ICMIER);
@@ -125,9 +128,7 @@ static int rcar_i2c_set_addr(struct udevice *dev, u8 chip, u8 read)
 	ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMCR,
 				RCAR_I2C_ICMCR_FSDA, false, 2, true);
 	if (ret) {
-		rcar_i2c_recover(dev);
-		val = readl(priv->base + RCAR_I2C_ICMSR);
-		if (val & RCAR_I2C_ICMCR_FSDA) {
+		if (rcar_i2c_recover(dev)) {
 			dev_err(dev, "Bus busy, aborting\n");
 			return ret;
 		}
