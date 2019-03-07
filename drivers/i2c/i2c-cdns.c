@@ -64,6 +64,16 @@ struct cdns_i2c_regs {
 #define CDNS_I2C_INTERRUPT_RXUNF	0x00000080
 #define CDNS_I2C_INTERRUPT_ARBLOST	0x00000200
 
+#define CDNS_I2C_INTERRUPTS_MASK	(CDNS_I2C_INTERRUPT_COMP | \
+					CDNS_I2C_INTERRUPT_DATA | \
+					CDNS_I2C_INTERRUPT_NACK | \
+					CDNS_I2C_INTERRUPT_TO | \
+					CDNS_I2C_INTERRUPT_SLVRDY | \
+					CDNS_I2C_INTERRUPT_RXOVF | \
+					CDNS_I2C_INTERRUPT_TXOVF | \
+					CDNS_I2C_INTERRUPT_RXUNF | \
+					CDNS_I2C_INTERRUPT_ARBLOST)
+
 #define CDNS_I2C_FIFO_DEPTH		16
 #define CDNS_I2C_TRANSFER_SIZE_MAX	255 /* Controller transfer limit */
 #define CDNS_I2C_TRANSFER_SIZE		(CDNS_I2C_TRANSFER_SIZE_MAX - 3)
@@ -241,7 +251,7 @@ static int cdns_i2c_write_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 		setbits_le32(&regs->control, CDNS_I2C_CONTROL_HOLD);
 
 	/* Clear the interrupts in status register */
-	writel(0xFF, &regs->interrupt_status);
+	writel(CDNS_I2C_INTERRUPTS_MASK, &regs->interrupt_status);
 
 	writel(addr, &regs->address);
 
