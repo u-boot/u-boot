@@ -134,9 +134,11 @@ static int rcar_i2c_set_addr(struct udevice *dev, u8 chip, u8 read)
 	}
 
 	writel((chip << 1) | read, priv->base + RCAR_I2C_ICMAR);
-	writel(0, priv->base + RCAR_I2C_ICMSR);
+	/* Reset */
 	writel(RCAR_I2C_ICMCR_MDBS | RCAR_I2C_ICMCR_MIE | RCAR_I2C_ICMCR_ESG,
 	       priv->base + RCAR_I2C_ICMCR);
+	/* Clear Status */
+	writel(0, priv->base + RCAR_I2C_ICMSR);
 
 	ret = wait_for_bit_le32(priv->base + RCAR_I2C_ICMSR, mask,
 				true, 100, true);
