@@ -213,6 +213,13 @@ config SANDBOX_SPI
 		};
 	  };
 
+config SPI_SUNXI
+	bool "Allwinner SoC SPI controllers"
+	help
+	  Enable the Allwinner SoC SPi controller driver.
+
+	  Same controller driver can reuse in all Allwinner SoC variants.
+
 config STM32_QSPI
 	bool "STM32F7 QSPI driver"
 	depends on STM32F7
@@ -221,11 +228,6 @@ config STM32_QSPI
 	  Enable the STM32F7 Quad-SPI (QSPI) driver. This driver can be
 	  used to access the SPI NOR flash chips on platforms embedding
 	  this ST IP core.
-
-config SUN4I_SPI
-	bool "Allwinner A10 SoCs SPI controller"
-	help
-	  SPI driver for Allwinner sun4i, sun5i and sun7i SoCs
 
 config TEGRA114_SPI
 	bool "nVidia Tegra114 SPI driver"

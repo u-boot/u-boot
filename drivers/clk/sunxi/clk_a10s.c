@@ -19,11 +19,18 @@ static struct ccu_clk_gate a10s_gates[] = {
 	[CLK_AHB_MMC0]		= GATE(0x060, BIT(8)),
 	[CLK_AHB_MMC1]		= GATE(0x060, BIT(9)),
 	[CLK_AHB_MMC2]		= GATE(0x060, BIT(10)),
+	[CLK_AHB_SPI0]		= GATE(0x060, BIT(20)),
+	[CLK_AHB_SPI1]		= GATE(0x060, BIT(21)),
+	[CLK_AHB_SPI2]		= GATE(0x060, BIT(22)),
 
 	[CLK_APB1_UART0]	= GATE(0x06c, BIT(16)),
 	[CLK_APB1_UART1]	= GATE(0x06c, BIT(17)),
 	[CLK_APB1_UART2]	= GATE(0x06c, BIT(18)),
 	[CLK_APB1_UART3]	= GATE(0x06c, BIT(19)),
+
+	[CLK_SPI0]		= GATE(0x0a0, BIT(31)),
+	[CLK_SPI1]		= GATE(0x0a4, BIT(31)),
+	[CLK_SPI2]		= GATE(0x0a8, BIT(31)),
 
 	[CLK_USB_OHCI]		= GATE(0x0cc, BIT(6)),
 	[CLK_USB_PHY0]		= GATE(0x0cc, BIT(8)),
