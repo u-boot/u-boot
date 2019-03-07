@@ -38,3 +38,15 @@
 		label = "bcm968380gerg:green:usb";
 	};
 };
+
+&gpio_lo {
+	status = "okay";
+};
+
+&gpio_mid0 {
+	status = "okay";
+};
+
+&gpio_mid1 {
+	status = "okay";
+};
