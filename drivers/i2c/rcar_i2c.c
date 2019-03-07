@@ -158,10 +158,6 @@ static int rcar_i2c_read_common(struct udevice *dev, struct i2c_msg *msg)
 	u32 icmcr = RCAR_I2C_ICMCR_MDBS | RCAR_I2C_ICMCR_MIE;
 	int i, ret = -EREMOTEIO;
 
-	ret = rcar_i2c_set_addr(dev, msg->addr, 1);
-	if (ret)
-		return ret;
-
 	for (i = 0; i < msg->len; i++) {
 		if (msg->len - 1 == i)
 			icmcr |= RCAR_I2C_ICMCR_FSB;
@@ -188,10 +184,6 @@ static int rcar_i2c_write_common(struct udevice *dev, struct i2c_msg *msg)
 	u32 icmcr = RCAR_I2C_ICMCR_MDBS | RCAR_I2C_ICMCR_MIE;
 	int i, ret = -EREMOTEIO;
 
-	ret = rcar_i2c_set_addr(dev, msg->addr, 0);
-	if (ret)
-		return ret;
-
 	for (i = 0; i < msg->len; i++) {
 		writel(msg->buf[i], priv->base + RCAR_I2C_ICRXD_ICTXD);
 		writel(icmcr, priv->base + RCAR_I2C_ICMCR);
@@ -215,6 +207,10 @@ static int rcar_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 	int ret;
 
 	for (; nmsgs > 0; nmsgs--, msg++) {
+		ret = rcar_i2c_set_addr(dev, msg->addr, 1);
+		if (ret)
+			return ret;
+
 		if (msg->flags & I2C_M_RD)
 			ret = rcar_i2c_read_common(dev, msg);
 		else
@@ -224,7 +220,7 @@ static int rcar_i2c_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 			return ret;
 	}
 
-	return ret;
+	return 0;
 }
 
 static int rcar_i2c_probe_chip(struct udevice *dev, uint addr, uint flags)
