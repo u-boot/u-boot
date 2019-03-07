@@ -98,5 +98,32 @@
 
 			status = "disabled";
 		};
+
+		gpio_lo: gpio-controller@14e00100 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x14e00100 0x4>, <0x14e0012c 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		gpio_mid0: gpio-controller@14e00104 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x14e00104 0x4>, <0x14e00130 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		gpio_mid1: gpio-controller@14e00108 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x14e00108 0x4>, <0x14e00134 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
 	};
 };
