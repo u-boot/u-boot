@@ -11,5 +11,5 @@ void sdelay(unsigned long loops);
 u32 wait_on_value(u32 read_bit_mask, u32 match_value, void *read_addr,
 		  u32 bound);
 struct ti_sci_handle *get_ti_sci_handle(void);
-
+int fdt_fixup_msmc_ram(void *blob, char *parent_path, char *node_name);
 #endif
