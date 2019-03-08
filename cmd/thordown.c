@@ -65,7 +65,7 @@ done:
 U_BOOT_CMD(thordown, CONFIG_SYS_MAXARGS, 1, do_thor_down,
 	   "TIZEN \"THOR\" downloader",
 	   "<USB_controller> <interface> <dev>\n"
-	   "  - device software upgrade via LTHOR TIZEN dowload\n"
+	   "  - device software upgrade via LTHOR TIZEN download\n"
 	   "    program via <USB_controller> on device <dev>,\n"
 	   "	attached to interface <interface>\n"
 );

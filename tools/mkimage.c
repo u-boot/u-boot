@@ -409,7 +409,7 @@ int main(int argc, char **argv)
 		 * Print the image information for matched image type
 		 * Returns the error code if not matched
 		 */
-		retval = imagetool_verify_print_header(ptr, &sbuf,
+		retval = imagetool_verify_print_header_by_type(ptr, &sbuf,
 				tparams, &params);
 
 		(void) munmap((void *)ptr, sbuf.st_size);
