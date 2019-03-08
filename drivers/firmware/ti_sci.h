@@ -25,6 +25,7 @@
 #define TI_SCI_MSG_BOARD_CONFIG_RM	0x000c
 #define TI_SCI_MSG_BOARD_CONFIG_SECURITY  0x000d
 #define TI_SCI_MSG_BOARD_CONFIG_PM	0x000e
+#define TISCI_MSG_QUERY_MSMC		0x0020
 
 /* Device requests */
 #define TI_SCI_MSG_SET_DEVICE_STATE	0x0200
@@ -159,6 +160,24 @@ struct ti_sci_msg_board_config {
 	u32 boardcfgp_low;
 	u32 boardcfgp_high;
 	u16 boardcfg_size;
+} __packed;
+
+/**
+ * struct ti_sci_msg_resp_query_msmc - Query msmc message response structure
+ * @hdr:		Generic Header
+ * @msmc_start_low:	Lower 32 bit of msmc start
+ * @msmc_start_high:	Upper 32 bit of msmc start
+ * @msmc_end_low:	Lower 32 bit of msmc end
+ * @msmc_end_high:	Upper 32 bit of msmc end
+ *
+ * Response to a generic message with message type TISCI_MSG_QUERY_MSMC
+ */
+struct ti_sci_msg_resp_query_msmc {
+	struct ti_sci_msg_hdr hdr;
+	u32 msmc_start_low;
+	u32 msmc_start_high;
+	u32 msmc_end_low;
+	u32 msmc_end_high;
 } __packed;
 
 /**

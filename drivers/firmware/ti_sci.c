@@ -1605,6 +1605,58 @@ int ti_sci_cmd_get_resource_range_from_shost(const struct ti_sci_handle *handle,
 }
 
 /**
+ * ti_sci_cmd_query_msmc() - Command to query currently available msmc memory
+ * @handle:		pointer to TI SCI handle
+ * @msms_start:		MSMC start as returned by tisci
+ * @msmc_end:		MSMC end as returned by tisci
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static int ti_sci_cmd_query_msmc(const struct ti_sci_handle *handle,
+				 u64 *msmc_start, u64 *msmc_end)
+{
+	struct ti_sci_msg_resp_query_msmc *resp;
+	struct ti_sci_msg_hdr req;
+	struct ti_sci_info *info;
+	struct ti_sci_xfer *xfer;
+	int ret = 0;
+
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+	if (!handle)
+		return -EINVAL;
+
+	info = handle_to_ti_sci_info(handle);
+
+	xfer = ti_sci_setup_one_xfer(info, TISCI_MSG_QUERY_MSMC,
+				     TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				     (u32 *)&req, sizeof(req), sizeof(*resp));
+	if (IS_ERR(xfer)) {
+		ret = PTR_ERR(xfer);
+		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
+		return ret;
+	}
+
+	ret = ti_sci_do_xfer(info, xfer);
+	if (ret) {
+		dev_err(dev, "Mbox send fail %d\n", ret);
+		return ret;
+	}
+
+	resp = (struct ti_sci_msg_resp_query_msmc *)xfer->tx_message.buf;
+
+	if (!ti_sci_is_response_ack(resp))
+		return -ENODEV;
+
+	*msmc_start = ((u64)resp->msmc_start_high << TISCI_ADDR_HIGH_SHIFT) |
+			resp->msmc_start_low;
+	*msmc_end = ((u64)resp->msmc_end_high << TISCI_ADDR_HIGH_SHIFT) |
+			resp->msmc_end_low;
+
+	return ret;
+}
+
+/**
  * ti_sci_cmd_proc_request() - Command to request a physical processor control
  * @handle:	Pointer to TI SCI handle
  * @proc_id:	Processor ID this request is for
@@ -2426,6 +2478,7 @@ static void ti_sci_setup_ops(struct ti_sci_info *info)
 	cops->get_freq = ti_sci_cmd_clk_get_freq;
 
 	core_ops->reboot_device = ti_sci_cmd_core_reboot;
+	core_ops->query_msmc = ti_sci_cmd_query_msmc;
 
 	rm_core_ops->get_range = ti_sci_cmd_get_resource_range;
 	rm_core_ops->get_range_from_shost =

@@ -242,9 +242,13 @@ struct ti_sci_rm_core_ops {
  * @reboot_device: Reboot the SoC
  *		Returns 0 for successful request(ideally should never return),
  *		else returns corresponding error value.
+ * @query_msmc: Query the size of available msmc
+ *		Return 0 for successful query else appropriate error value.
  */
 struct ti_sci_core_ops {
 	int (*reboot_device)(const struct ti_sci_handle *handle);
+	int (*query_msmc)(const struct ti_sci_handle *handle,
+			  u64 *msmc_start, u64 *msmc_end);
 };
 
 /**
