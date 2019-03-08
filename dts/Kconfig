@@ -130,6 +130,63 @@ config OF_LIST
 	  device tree files (without the directory or .dtb suffix)
 	  separated by <space>.
 
+choice
+	prompt "SPL OF LIST compression"
+	depends on MULTI_DTB_FIT
+	default MULTI_DTB_FIT_NO_COMPRESSION
+
+config MULTI_DTB_FIT_LZO
+	bool "LZO"
+	depends on SYS_MALLOC_F
+	select LZO
+	help
+	  Compress the FIT image containing the DTBs available for the SPL
+	  using LZO compression. (requires lzop on host).
+
+config MULTI_DTB_FIT_GZIP
+	bool "GZIP"
+	depends on SYS_MALLOC_F
+	select GZIP
+	help
+	  Compress the FIT image containing the DTBs available for the SPL
+	  using GZIP compression. (requires gzip on host)
+
+config MULTI_DTB_FIT_NO_COMPRESSION
+	bool "No compression"
+	help
+	  Do not compress the FIT image containing the DTBs available for the SPL.
+	  Use this options only if LZO is not available and the DTBs are very small.
+endchoice
+
+choice
+	prompt "Location of uncompressed DTBs"
+	depends on (MULTI_DTB_FIT_GZIP || MULTI_DTB_FIT_LZO)
+	default MULTI_DTB_FIT_DYN_ALLOC if SYS_MALLOC_F
+
+config MULTI_DTB_FIT_DYN_ALLOC
+	bool "Dynamically allocate the memory"
+	depends on SYS_MALLOC_F
+
+config MULTI_DTB_FIT_USER_DEFINED_AREA
+	bool "User-defined location"
+endchoice
+
+config MULTI_DTB_FIT_UNCOMPRESS_SZ
+	hex "Size of memory reserved to uncompress the DTBs"
+	depends on (MULTI_DTB_FIT_GZIP || MULTI_DTB_FIT_LZO)
+	default 0x8000
+	help
+	   This is the size of this area where the DTBs are uncompressed.
+	   If this area is dynamically allocated, make sure that
+	   SYS_MALLOC_F_LEN is big enough to contain it.
+
+config MULTI_DTB_FIT_USER_DEF_ADDR
+	hex "Address of memory where dtbs are uncompressed"
+	depends on MULTI_DTB_FIT_USER_DEFINED_AREA
+	help
+	   the FIT image containing the DTBs is uncompressed in an area defined
+	   at compilation time. This is the address of this area. It must be
+	   aligned on 2-byte boundary.
 
 config DTB_RESELECT
 	bool "Support swapping dtbs at a later point in boot"

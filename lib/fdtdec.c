@@ -1182,7 +1182,7 @@ int fdtdec_setup_memory_banksize(void)
 	CONFIG_IS_ENABLED(MULTI_DTB_FIT_LZO)
 static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 {
-	size_t sz_out = CONFIG_SPL_MULTI_DTB_FIT_UNCOMPRESS_SZ;
+	size_t sz_out = CONFIG_VAL(MULTI_DTB_FIT_UNCOMPRESS_SZ);
 	bool gzip = 0, lzo = 0;
 	ulong sz_in = sz_src;
 	void *dst;

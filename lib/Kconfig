@@ -301,6 +301,19 @@ config LZO
 	help
 	  This enables support for LZO compression algorithm.r
 
+config GZIP
+	bool "Enable gzip decompression support for SPL build"
+	select ZLIB
+	default y
+	help
+	  This enables support for GZIP compression algorithm.
+
+config ZLIB
+	bool
+	default y
+	help
+	  This enables ZLIB compression lib.
+
 config SPL_LZ4
 	bool "Enable LZ4 decompression support in SPL"
 	help
