@@ -31,7 +31,6 @@ static u64 sdram_size_calc(void);
 #define DDR_REG_CORE2SEQ        0xFFD05078
 #define DDR_READ_LATENCY_DELAY	40
 #define DDR_SIZE_2GB_HEX	0x80000000
-#define DDR_MAX_TRIES		0x00100000
 
 #define IO48_MMR_DRAMSTS	0xFFCFA0EC
 #define IO48_MMR_NIOS2_RESERVE0	0xFFCFA110
@@ -133,22 +132,16 @@ static unsigned char ddr_wait_bit(u32 ereg, u32 bit,
 
 static int emif_clear(void)
 {
-	u32 i = DDR_MAX_TRIES;
-	u8 ret = 0;
-
 	writel(0, DDR_REG_CORE2SEQ);
 
-	do {
-		ret = !wait_for_bit_le32((u32 *)DDR_REG_SEQ2CORE,
-				   SEQ2CORE_MASK, 1, 50, 0);
-	} while (ret && (--i > 0));
-
-	return !i;
+	return wait_for_bit_le32((u32 *)DDR_REG_SEQ2CORE,
+				SEQ2CORE_MASK, 0, 1000, 0);
 }
 
 static int emif_reset(void)
 {
 	u32 c2s, s2c;
+	int ret;
 
 	c2s = readl(DDR_REG_CORE2SEQ);
 	s2c = readl(DDR_REG_SEQ2CORE);
@@ -159,9 +152,12 @@ static int emif_reset(void)
 	     readl(IO48_MMR_NIOS2_RESERVE2),
 	     readl(IO48_MMR_DRAMSTS));
 
-	if ((s2c & SEQ2CORE_MASK) && emif_clear()) {
-		debug("failed emif_clear()\n");
-		return -EPERM;
+	if (s2c & SEQ2CORE_MASK) {
+		ret = emif_clear();
+		if (ret) {
+			debug("failed emif_clear()\n");
+			return -EPERM;
+		}
 	}
 
 	writel(CORE2SEQ_INT_REQ, DDR_REG_CORE2SEQ);
@@ -173,7 +169,8 @@ static int emif_reset(void)
 		debug("emif_reset interrupt acknowledged\n");
 	}
 
-	if (emif_clear()) {
+	ret = emif_clear();
+	if (ret) {
 		debug("emif_clear() failed\n");
 		return -EPERM;
 	}
