@@ -11,6 +11,19 @@
 #include "common.h"
 #include <dm.h>
 #include <remoteproc.h>
+#include <linux/soc/ti/ti_sci_protocol.h>
+
+struct ti_sci_handle *get_ti_sci_handle(void)
+{
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device_by_name(UCLASS_FIRMWARE, "dmsc", &dev);
+	if (ret)
+		panic("Failed to get SYSFW (%d)\n", ret);
+
+	return (struct ti_sci_handle *)ti_sci_get_handle_from_sysfw(dev);
+}
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
