@@ -254,14 +254,13 @@ int ofnode_read_size(ofnode node, const char *propname)
 fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
 {
 	int na, ns;
-	fdt_size_t size;
 
 	if (ofnode_is_np(node)) {
 		const __be32 *prop_val;
 		uint flags;
 
 		prop_val = of_get_address(ofnode_to_np(node), index,
-					  (u64 *)&size, &flags);
+					  NULL, &flags);
 		if (!prop_val)
 			return FDT_ADDR_T_NONE;
 
@@ -278,7 +277,7 @@ fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
 		ns = ofnode_read_simple_size_cells(ofnode_get_parent(node));
 		return fdtdec_get_addr_size_fixed(gd->fdt_blob,
 						  ofnode_to_offset(node), "reg",
-						  index, na, ns, &size, true);
+						  index, na, ns, NULL, true);
 	}
 
 	return FDT_ADDR_T_NONE;
