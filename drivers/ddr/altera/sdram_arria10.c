@@ -108,28 +108,6 @@ static int is_sdram_cal_success(void)
 	return readl(&socfpga_ecc_hmc_base->ddrcalstat);
 }
 
-static unsigned char ddr_get_bit(u32 ereg, unsigned char bit)
-{
-	u32 reg = readl(ereg);
-
-	return (reg & BIT(bit)) ? 1 : 0;
-}
-
-static unsigned char ddr_wait_bit(u32 ereg, u32 bit,
-			   u32 expected, u32 timeout_usec)
-{
-	u32 tmr;
-
-	for (tmr = 0; tmr < timeout_usec; tmr += 100) {
-		udelay(100);
-		WATCHDOG_RESET();
-		if (ddr_get_bit(ereg, bit) == expected)
-			return 0;
-	}
-
-	return 1;
-}
-
 static int emif_clear(void)
 {
 	writel(0, DDR_REG_CORE2SEQ);
@@ -162,12 +140,15 @@ static int emif_reset(void)
 
 	writel(CORE2SEQ_INT_REQ, DDR_REG_CORE2SEQ);
 
-	if (ddr_wait_bit(DDR_REG_SEQ2CORE, SEQ2CORE_INT_RESP_BIT, 0, 1000000)) {
+	ret = wait_for_bit_le32((u32 *)DDR_REG_SEQ2CORE,
+				SEQ2CORE_INT_RESP_BIT, false, 1000, false);
+	if (ret) {
 		debug("emif_reset failed to see interrupt acknowledge\n");
-		return -EPERM;
-	} else {
-		debug("emif_reset interrupt acknowledged\n");
+		emif_clear();
+		return ret;
 	}
+
+	mdelay(1);
 
 	ret = emif_clear();
 	if (ret) {
