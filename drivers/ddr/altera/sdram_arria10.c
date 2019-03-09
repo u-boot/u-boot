@@ -102,12 +102,6 @@ static int match_ddr_conf(u32 ddr_conf)
 	return 0;
 }
 
-/* Check whether SDRAM is successfully Calibrated */
-static int is_sdram_cal_success(void)
-{
-	return readl(&socfpga_ecc_hmc_base->ddrcalstat);
-}
-
 static int emif_clear(void)
 {
 	writel(0, DDR_REG_CORE2SEQ);
@@ -167,30 +161,23 @@ static int emif_reset(void)
 
 static int ddr_setup(void)
 {
-	int i, j, ddr_setup_complete = 0;
+	int i, ret;
 
-	/* Try 3 times to do a calibration */
-	for (i = 0; (i < 3) && !ddr_setup_complete; i++) {
-		WATCHDOG_RESET();
+	/* Try 32 times to do a calibration */
+	for (i = 0; i < 32; i++) {
+		mdelay(500);
+		ret = wait_for_bit_le32(&socfpga_ecc_hmc_base->ddrcalstat,
+					BIT(0), true, 500, false);
+		if (!ret)
+			return 0;
 
-		/* A delay to wait for calibration bit to set */
-		for (j = 0; (j < 10) && !ddr_setup_complete; j++) {
-			mdelay(500);
-			ddr_setup_complete = is_sdram_cal_success();
-		}
-
-		if (!ddr_setup_complete)
-			if (emif_reset())
-				puts("Error: Failed to reset EMIF\n");
+		ret = emif_reset();
+		if (ret)
+			puts("Error: Failed to reset EMIF\n");
 	}
 
-	/* After 3 times trying calibration */
-	if (!ddr_setup_complete) {
-		puts("Error: Could Not Calibrate SDRAM\n");
-		return -EPERM;
-	}
-
-	return 0;
+	puts("Error: Could Not Calibrate SDRAM\n");
+	return -EPERM;
 }
 
 static int sdram_is_ecc_enabled(void)
