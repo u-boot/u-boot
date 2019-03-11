@@ -10,25 +10,25 @@
 #include <dt-bindings/clock/xlnx,zynqmp-clk.h>
 / {
 	fclk0: fclk0 {
-		status = "disabled";
+		status = "okay";
 		compatible = "xlnx,fclk";
 		clocks = <&zynqmp_clk PL0_REF>;
 	};
 
 	fclk1: fclk1 {
-		status = "disabled";
+		status = "okay";
 		compatible = "xlnx,fclk";
 		clocks = <&zynqmp_clk PL1_REF>;
 	};
 
 	fclk2: fclk2 {
-		status = "disabled";
+		status = "okay";
 		compatible = "xlnx,fclk";
 		clocks = <&zynqmp_clk PL2_REF>;
 	};
 
 	fclk3: fclk3 {
-		status = "disabled";
+		status = "okay";
 		compatible = "xlnx,fclk";
 		clocks = <&zynqmp_clk PL3_REF>;
 	};
