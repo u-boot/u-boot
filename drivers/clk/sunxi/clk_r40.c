@@ -29,6 +29,8 @@ static struct ccu_clk_gate r40_gates[] = {
 	[CLK_BUS_OHCI1]		= GATE(0x060, BIT(30)),
 	[CLK_BUS_OHCI2]		= GATE(0x060, BIT(31)),
 
+	[CLK_BUS_GMAC]		= GATE(0x064, BIT(17)),
+
 	[CLK_BUS_UART0]		= GATE(0x06c, BIT(16)),
 	[CLK_BUS_UART1]		= GATE(0x06c, BIT(17)),
 	[CLK_BUS_UART2]		= GATE(0x06c, BIT(18)),
@@ -60,6 +62,7 @@ static struct ccu_reset r40_resets[] = {
 	[RST_BUS_MMC1]		= RESET(0x2c0, BIT(9)),
 	[RST_BUS_MMC2]		= RESET(0x2c0, BIT(10)),
 	[RST_BUS_MMC3]		= RESET(0x2c0, BIT(11)),
+	[RST_BUS_GMAC]		= RESET(0x2c0, BIT(17)),
 	[RST_BUS_SPI0]		= RESET(0x2c0, BIT(20)),
 	[RST_BUS_SPI1]		= RESET(0x2c0, BIT(21)),
 	[RST_BUS_SPI2]		= RESET(0x2c0, BIT(22)),

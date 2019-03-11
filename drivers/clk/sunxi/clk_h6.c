@@ -26,6 +26,8 @@ static struct ccu_clk_gate h6_gates[] = {
 
 	[CLK_BUS_SPI0]		= GATE(0x96c, BIT(0)),
 	[CLK_BUS_SPI1]		= GATE(0x96c, BIT(1)),
+
+	[CLK_BUS_EMAC]		= GATE(0x97c, BIT(0)),
 };
 
 static struct ccu_reset h6_resets[] = {
@@ -39,6 +41,8 @@ static struct ccu_reset h6_resets[] = {
 
 	[RST_BUS_SPI0]		= RESET(0x96c, BIT(16)),
 	[RST_BUS_SPI1]		= RESET(0x96c, BIT(17)),
+
+	[RST_BUS_EMAC]		= RESET(0x97c, BIT(16)),
 };
 
 static const struct ccu_desc h6_ccu_desc = {
