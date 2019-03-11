@@ -17,8 +17,6 @@
 #include <asm/arch/at91_matrix.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
-#include <lcd.h>
-#include <atmel_lcdc.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
@@ -109,32 +107,6 @@ static void pm9263_macb_hw_init(void)
 #endif
 
 #ifdef CONFIG_LCD
-vidinfo_t panel_info = {
-	.vl_col =		240,
-	.vl_row =		320,
-	.vl_clk =		4965000,
-	.vl_sync =		ATMEL_LCDC_INVLINE_INVERTED |
-					ATMEL_LCDC_INVFRAME_INVERTED,
-	.vl_bpix =		3,
-	.vl_tft =		1,
-	.vl_hsync_len =		5,
-	.vl_left_margin =	1,
-	.vl_right_margin =	33,
-	.vl_vsync_len =		1,
-	.vl_upper_margin =	1,
-	.vl_lower_margin =	0,
-	.mmio =			ATMEL_BASE_LCDC,
-};
-
-void lcd_enable(void)
-{
-	at91_set_pio_value(AT91_PIO_PORTA, 22, 1); /* power up */
-}
-
-void lcd_disable(void)
-{
-	at91_set_pio_value(AT91_PIO_PORTA, 22, 0); /* power down */
-}
 
 #ifdef CONFIG_LCD_IN_PSRAM
 
@@ -226,32 +198,6 @@ static int pm9263_lcd_hw_psram_init(void)
 
 static void pm9263_lcd_hw_init(void)
 {
-	at91_set_a_periph(AT91_PIO_PORTC, 0, 0);	/* LCDVSYNC */
-	at91_set_a_periph(AT91_PIO_PORTC, 1, 0);	/* LCDHSYNC */
-	at91_set_a_periph(AT91_PIO_PORTC, 2, 0);	/* LCDDOTCK */
-	at91_set_a_periph(AT91_PIO_PORTC, 3, 0);	/* LCDDEN */
-	at91_set_b_periph(AT91_PIO_PORTB, 9, 0);	/* LCDCC */
-	at91_set_a_periph(AT91_PIO_PORTC, 6, 0);	/* LCDD2 */
-	at91_set_a_periph(AT91_PIO_PORTC, 7, 0);	/* LCDD3 */
-	at91_set_a_periph(AT91_PIO_PORTC, 8, 0);	/* LCDD4 */
-	at91_set_a_periph(AT91_PIO_PORTC, 9, 0);	/* LCDD5 */
-	at91_set_a_periph(AT91_PIO_PORTC, 10, 0);	/* LCDD6 */
-	at91_set_a_periph(AT91_PIO_PORTC, 11, 0);	/* LCDD7 */
-	at91_set_a_periph(AT91_PIO_PORTC, 14, 0);	/* LCDD10 */
-	at91_set_a_periph(AT91_PIO_PORTC, 15, 0);	/* LCDD11 */
-	at91_set_a_periph(AT91_PIO_PORTC, 16, 0);	/* LCDD12 */
-	at91_set_b_periph(AT91_PIO_PORTC, 12, 0);	/* LCDD13 */
-	at91_set_a_periph(AT91_PIO_PORTC, 18, 0);	/* LCDD14 */
-	at91_set_a_periph(AT91_PIO_PORTC, 19, 0);	/* LCDD15 */
-	at91_set_a_periph(AT91_PIO_PORTC, 22, 0);	/* LCDD18 */
-	at91_set_a_periph(AT91_PIO_PORTC, 23, 0);	/* LCDD19 */
-	at91_set_a_periph(AT91_PIO_PORTC, 24, 0);	/* LCDD20 */
-	at91_set_b_periph(AT91_PIO_PORTC, 17, 0);	/* LCDD21 */
-	at91_set_a_periph(AT91_PIO_PORTC, 26, 0);	/* LCDD22 */
-	at91_set_a_periph(AT91_PIO_PORTC, 27, 0);	/* LCDD23 */
-
-	at91_periph_clk_enable(ATMEL_ID_LCDC);
-
 	/* Power Control */
 	at91_set_pio_output(AT91_PIO_PORTA, 22, 1);
 	at91_set_pio_value(AT91_PIO_PORTA, 22, 0);	/* power down */
@@ -266,45 +212,6 @@ static void pm9263_lcd_hw_init(void)
 #endif
 
 }
-
-#ifdef CONFIG_LCD_INFO
-#include <nand.h>
-#include <version.h>
-
-extern flash_info_t flash_info[];
-
-void lcd_show_board_info(void)
-{
-	ulong dram_size, nand_size, flash_size;
-	int i;
-	char temp[32];
-
-	lcd_printf ("%s\n", U_BOOT_VERSION);
-	lcd_printf ("(C) 2009 Ronetix GmbH\n");
-	lcd_printf ("support@ronetix.at\n");
-	lcd_printf ("%s CPU at %s MHz",
-		CONFIG_SYS_AT91_CPU_NAME,
-		strmhz(temp, get_cpu_clk_rate()));
-
-	dram_size = 0;
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++)
-		dram_size += gd->bd->bi_dram[i].size;
-
-	nand_size = 0;
-	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
-		nand_size += get_nand_dev_by_index(i)->size;
-
-	flash_size = 0;
-	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
-		flash_size += flash_info[i].size;
-
-	lcd_printf ("%ld MB SDRAM, %ld MB NAND\n%ld MB NOR Flash\n"
-			"4 MB PSRAM\n",
-		dram_size >> 20,
-		nand_size >> 20,
-		flash_size >> 20);
-}
-#endif /* CONFIG_LCD_INFO */
 
 #endif /* CONFIG_LCD */
 
