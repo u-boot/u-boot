@@ -18,10 +18,12 @@
 
 	aliases {
 		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
 	};
 
 	chosen {
-		stdout-path = &serial0;
+		stdout-path = &serial2;
 	};
 
 	cpus {
@@ -53,7 +55,23 @@
 			  0x01000000 0x0 0x2000 0x2000 0 0xe000>;
 	};
 
-	serial0: serial@ff010180 {
+	serial0: serial@ff010080 {
+		compatible = "intel,mid-uart";
+		reg = <0xff010080 0x100>;
+		reg-shift = <0>;
+		clock-frequency = <29491200>;
+		current-speed = <115200>;
+	};
+
+	serial1: serial@ff010100 {
+		compatible = "intel,mid-uart";
+		reg = <0xff010100 0x100>;
+		reg-shift = <0>;
+		clock-frequency = <29491200>;
+		current-speed = <115200>;
+	};
+
+	serial2: serial@ff010180 {
 		compatible = "intel,mid-uart";
 		reg = <0xff010180 0x100>;
 		reg-shift = <0>;

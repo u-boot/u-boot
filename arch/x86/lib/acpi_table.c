@@ -347,7 +347,7 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	uint serial_width;
 	int access_size;
 	int space_id;
-	int ret;
+	int ret = -ENODEV;
 
 	/* Fill out header fields */
 	acpi_fill_header(header, "SPCR");
@@ -355,8 +355,8 @@ static void acpi_create_spcr(struct acpi_spcr *spcr)
 	header->revision = 2;
 
 	/* Read the device once, here. It is reused below */
-	ret = uclass_first_device_err(UCLASS_SERIAL, &dev);
-	if (!ret)
+	dev = gd->cur_serial_dev;
+	if (dev)
 		ret = serial_getinfo(dev, &serial_info);
 	if (ret)
 		serial_info.type = SERIAL_CHIP_UNKNOWN;

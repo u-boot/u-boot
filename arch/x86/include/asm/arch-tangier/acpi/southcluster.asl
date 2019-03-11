@@ -179,6 +179,9 @@ Device (PCI0)
                 "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 112 }
             GpioIo(Exclusive, PullUp, 0, 0, IoRestrictionOutputOnly,
                 "\\_SB.PCI0.GPIO", 0, ResourceConsumer, , ) { 113 }
+
+            FixedDMA(0x000d, 0x0002, Width32bit, )
+            FixedDMA(0x000c, 0x0003, Width32bit, )
         })
 
         Method (_CRS, 0, NotSerialized)
@@ -218,6 +221,17 @@ Device (PCI0)
         Method (_STA, 0, NotSerialized)
         {
             Return (STA_VISIBLE)
+        }
+
+        Name (RBUF, ResourceTemplate()
+        {
+            FixedDMA(0x0009, 0x0000, Width32bit, )
+            FixedDMA(0x0008, 0x0001, Width32bit, )
+        })
+
+        Method (_CRS, 0, NotSerialized)
+        {
+            Return (RBUF)
         }
     }
 
