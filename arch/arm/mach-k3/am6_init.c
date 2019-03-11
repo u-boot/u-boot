@@ -83,10 +83,8 @@ void board_init_f(ulong dummy)
 
 #ifdef CONFIG_K3_AM654_DDRSS
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
-	if (ret) {
-		printf("DRAM init failed: %d\n", ret);
-		return;
-	}
+	if (ret)
+		panic("DRAM init failed: %d\n", ret);
 #endif
 }
 
