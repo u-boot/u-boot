@@ -543,8 +543,17 @@ static void sysconf_init(void)
 /* board dependent setup after realloc */
 int board_init(void)
 {
+	struct udevice *dev;
+
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = STM32_DDR_BASE + 0x100;
+
+	/* probe all PINCTRL for hog */
+	for (uclass_first_device(UCLASS_PINCTRL, &dev);
+	     dev;
+	     uclass_next_device(&dev)) {
+		pr_debug("probe pincontrol = %s\n", dev->name);
+	}
 
 	board_key_check();
 
