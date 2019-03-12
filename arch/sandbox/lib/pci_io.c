@@ -34,7 +34,7 @@ int pci_map_physmem(phys_addr_t paddr, unsigned long *lenp,
 		return 0;
 	}
 
-	debug("%s: failed: addr=%x\n", __func__, paddr);
+	debug("%s: failed: addr=%pap\n", __func__, &paddr);
 	return -ENOSYS;
 }
 
