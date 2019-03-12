@@ -49,7 +49,7 @@ def zynq_aes_pre_commands(u_boot_console):
     if not m:
        pytest.skip('bootmode cannnot be determined')
     bootmode=m.group(1)
-    if bootmode is "jtag":
+    if bootmode == "jtag":
        pytest.skip('skipping due to jtag bootmode')
 
 @pytest.mark.buildconfigspec('cmd_zynq_aes')
