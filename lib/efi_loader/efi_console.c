@@ -62,6 +62,21 @@ static struct simple_text_output_mode efi_con_mode = {
 	.cursor_visible = 1,
 };
 
+static int term_get_char(s32 *c)
+{
+	u64 timeout;
+
+	/* Wait up to 100 ms for a character */
+	timeout = timer_get_us() + 100000;
+
+	while (!tstc())
+		if (timer_get_us() > timeout)
+			return 1;
+
+	*c = getc();
+	return 0;
+}
+
 /*
  * Receive and parse a reply from the terminal.
  *
@@ -72,34 +87,36 @@ static struct simple_text_output_mode efi_con_mode = {
  */
 static int term_read_reply(int *n, int num, char end_char)
 {
-	char c;
+	s32 c;
 	int i = 0;
 
-	c = getc();
-	if (c != cESC)
+	if (term_get_char(&c) || c != cESC)
 		return -1;
-	c = getc();
-	if (c != '[')
+
+	if (term_get_char(&c) || c != '[')
 		return -1;
 
 	n[0] = 0;
 	while (1) {
-		c = getc();
-		if (c == ';') {
-			i++;
-			if (i >= num)
+		if (!term_get_char(&c)) {
+			if (c == ';') {
+				i++;
+				if (i >= num)
+					return -1;
+				n[i] = 0;
+				continue;
+			} else if (c == end_char) {
+				break;
+			} else if (c > '9' || c < '0') {
 				return -1;
-			n[i] = 0;
-			continue;
-		} else if (c == end_char) {
-			break;
-		} else if (c > '9' || c < '0') {
+			}
+
+			/* Read one more decimal position */
+			n[i] *= 10;
+			n[i] += c - '0';
+		} else {
 			return -1;
 		}
-
-		/* Read one more decimal position */
-		n[i] *= 10;
-		n[i] += c - '0';
 	}
 	if (i != num - 1)
 		return -1;
@@ -196,7 +213,6 @@ static int query_console_serial(int *rows, int *cols)
 {
 	int ret = 0;
 	int n[2];
-	u64 timeout;
 
 	/* Empty input buffer */
 	while (tstc())
@@ -215,14 +231,6 @@ static int query_console_serial(int *rows, int *cols)
 	       ESC "[r"		/* Set scrolling region to full window */
 	       ESC "[999;999H"	/* Move to bottom right corner */
 	       ESC "[6n");	/* Query cursor position */
-
-	/* Allow up to one second for a response */
-	timeout = timer_get_us() + 1000000;
-	while (!tstc())
-		if (timer_get_us() > timeout) {
-			ret = -1;
-			goto out;
-		}
 
 	/* Read {rows,cols} */
 	if (term_read_reply(n, 2, 'R')) {
