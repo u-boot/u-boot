@@ -111,7 +111,7 @@ static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 		ih = (struct image_header *)buf;
 		ret = spl_parse_image_header(spl_image, ih);
 		if (ret)
-			return ret;
+			goto end_stream;
 #ifdef CONFIG_SPL_GZIP
 		if (ih->ih_comp == IH_COMP_GZIP)
 			addr = CONFIG_SYS_LOAD_ADDR;
@@ -147,6 +147,7 @@ end_stream:
 	xyzModem_stream_terminate(false, &getcymodem);
 
 	printf("Loaded %lu bytes\n", size);
-	return 0;
+
+	return ret;
 }
 SPL_LOAD_IMAGE_METHOD("UART", 0, BOOT_DEVICE_UART, spl_ymodem_load_image);
