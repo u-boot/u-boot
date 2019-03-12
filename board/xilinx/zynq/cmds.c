@@ -441,18 +441,37 @@ static int zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (argc < 5 && argc > cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
-	srcaddr = simple_strtoul(argv[2], &endp, 16);
-	if (*argv[2] == 0 || *endp != 0)
-		return CMD_RET_USAGE;
-	srclen = simple_strtoul(argv[3], &endp, 16);
-	if (*argv[3] == 0 || *endp != 0)
-		return CMD_RET_USAGE;
-	dstaddr = simple_strtoul(argv[4], &endp, 16);
-	if (*argv[4] == 0 || *endp != 0)
-		return CMD_RET_USAGE;
-	dstlen = simple_strtoul(argv[5], &endp, 16);
-	if (*argv[5] == 0 || *endp != 0)
-		return CMD_RET_USAGE;
+	if (argc == 5) {
+		if (!strcmp("load", argv[2]))
+			imgtype = BIT_FULL;
+		else if (!strcmp("loadp", argv[2]))
+			imgtype = BIT_PARTIAL;
+		else
+			return CMD_RET_USAGE;
+
+		srcaddr = simple_strtoul(argv[3], &endp, 16);
+		if (*argv[3] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+		srclen = simple_strtoul(argv[4], &endp, 16);
+		if (*argv[4] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+
+		dstaddr = 0xFFFFFFFF;
+		dstlen = srclen;
+	} else {
+		srcaddr = simple_strtoul(argv[2], &endp, 16);
+		if (*argv[2] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+		srclen = simple_strtoul(argv[3], &endp, 16);
+		if (*argv[3] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+		dstaddr = simple_strtoul(argv[4], &endp, 16);
+		if (*argv[4] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+		dstlen = simple_strtoul(argv[5], &endp, 16);
+		if (*argv[5] == 0 || *endp != 0)
+			return CMD_RET_USAGE;
+	}
 
 	/*
 	 * Roundup source and destination lengths to
@@ -516,6 +535,10 @@ static char zynq_help_text[] =
 	"                - Decrypts the encrypted image present in source\n"
 	"                  address and places the decrypted image at\n"
 	"                  destination address\n"
+	"aes load <srcaddr> <srclen>\n"
+	"aes loadp <srcaddr> <srclen>\n"
+	"       if operation type is load or loadp, it loads the encrypted\n"
+	"       full or partial bitstream on to PL respectively.\n"
 #endif
 	;
 #endif
