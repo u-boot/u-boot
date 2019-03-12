@@ -32,7 +32,7 @@
 
 #define CONFIG_MPC8260ADS	1	/* Motorola PQ2 ADS family board */
 
-#define CONFIG_SYS_TEXT_BASE	0xFE100000
+#define CONFIG_SYS_TEXT_BASE	0x100000
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xFFF00000	/* Standard: boot high */
@@ -103,24 +103,25 @@
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
  * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
-#undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC   */
-#define CONFIG_ETHER_ON_FCC		/* define if ether on FCC   */
-#undef	CONFIG_ETHER_NONE		/* define if ether on something else */
 
-#undef	CONFIG_ETHER_ON_FCC
-#define CONFIG_ETHER_ON_SCC	
+
+#define CONFIG_ETHER_ON_FCC	
+//#define CONFIG_ETHER_ON_SCC	
+
+#ifdef CONFIG_ETHER_ON_SCC
 #define CONFIG_ETHER_INDEX	1
 #define CONFIG_SYS_CMXSCR_VALUE 0x37000000
-
+#endif
 
 #ifdef CONFIG_ETHER_ON_FCC
 
-#define CONFIG_ETHER_INDEX	2	/* which SCC/FCC channel for ethernet */
+#define CONFIG_ETHER_INDEX	1	/* which SCC/FCC channel for ethernet */
 
 #if   CONFIG_ETHER_INDEX == 1
+#define CONFIG_ETHER_ON_FCC1
 
 # define CONFIG_SYS_PHY_ADDR		0
-# define CONFIG_SYS_CMXFCR_VALUE1	(CMXFCR_RF1CS_CLK11 | CMXFCR_TF1CS_CLK10)
+# define CONFIG_SYS_CMXFCR_VALUE1	(CMXFCR_RF1CS_CLK10 | CMXFCR_TF1CS_CLK9)
 # define CONFIG_SYS_CMXFCR_MASK1	(CMXFCR_FC1 | CMXFCR_RF1CS_MSK | CMXFCR_TF1CS_MSK)
 
 #elif CONFIG_ETHER_INDEX == 2
@@ -279,6 +280,7 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size  */
@@ -546,6 +548,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"netdev=" __stringify(CONFIG_NETDEV) "\0"			\
+	"boot=0xfff00100\0"			\	
 	"tftpflash=tftpboot $loadaddr $uboot; "				\
 		"protect off " __stringify(CONFIG_SYS_TEXT_BASE)	\
 			" +$filesize; "	\
