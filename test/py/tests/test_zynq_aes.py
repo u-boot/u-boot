@@ -32,6 +32,7 @@ env__net_static_env_vars = [
 env__zynq_aes_readable_file = {
     "fn": "zynq_aes_image.bin",
     "fnbit": "zynq_aes_bit.bin",
+    "fnpbit": "zynq_aes_par_bit.bin",
     "srcaddr": 0x1000000,
     "dstaddr": 0x2000000,
     "dstlen": "0x1000000",
@@ -116,4 +117,34 @@ def test_zynq_aes_bitstream(u_boot_console):
 
     expected_zynqaes = 'zynq aes [operation type] <srcaddr>'
     output = u_boot_console.run_command('zynq aes load %x $filesize' % (srcaddr))
+    assert expected_zynqaes not in output
+
+
+@pytest.mark.buildconfigspec('cmd_zynq_aes')
+@pytest.mark.buildconfigspec('cmd_net')
+@pytest.mark.buildconfigspec('cmd_dhcp')
+@pytest.mark.buildconfigspec('net')
+# Can be tested on board xhd-zc702-2 - efuse must be blown
+@pytest.mark.xfail
+def test_zynq_aes_partial_bitstream(u_boot_console):
+
+    zynq_aes_pre_commands(u_boot_console)
+    test_net.test_net_dhcp(u_boot_console)
+    test_net.test_net_setup_static(u_boot_console)
+
+    f = u_boot_console.config.env.get('env__zynq_aes_readable_file', None)
+    if not f:
+        pytest.skip('No TFTP readable file to read')
+
+    srcaddr = f.get('srcaddr', None)
+    if not srcaddr:
+      addr = u_boot_utils.find_ram_base(u_boot_console)
+
+    expected_tftp = 'Bytes transferred = '
+    fn = f['fnpbit']
+    output = u_boot_console.run_command('tftpboot %x %s' % (srcaddr, fn))
+    assert expected_tftp in output
+
+    expected_zynqaes = 'zynq aes [operation type] <srcaddr>'
+    output = u_boot_console.run_command('zynq aes loadp %x $filesize' % (srcaddr))
     assert expected_zynqaes not in output
