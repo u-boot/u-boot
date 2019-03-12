@@ -414,9 +414,13 @@ static int do_zynq_rsa(cmd_tbl_t *cmdtp, int flag, int argc,
 	u32 src_ptr;
 	char *endp;
 
+	if (argc != cmdtp->maxargs)
+		return CMD_RET_FAILURE;
+
 	src_ptr = simple_strtoul(argv[2], &endp, 16);
 	if (*argv[2] == 0 || *endp != 0)
 		return CMD_RET_USAGE;
+
 	if (zynq_verify_image(src_ptr))
 		return CMD_RET_FAILURE;
 
@@ -431,6 +435,9 @@ static int zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	char *endp;
 	u32 srcaddr, srclen, dstaddr, dstlen;
 	int status;
+
+	if (argc < 5 && argc > cmdtp->maxargs)
+		return CMD_RET_USAGE;
 
 	srcaddr = simple_strtoul(argv[2], &endp, 16);
 	if (*argv[2] == 0 || *endp != 0)
@@ -485,7 +492,7 @@ static int do_zynq(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_USAGE;
 	zynq_cmd = find_cmd_tbl(argv[1], zynq_commands,
 				ARRAY_SIZE(zynq_commands));
-	if (!zynq_cmd || argc != zynq_cmd->maxargs)
+	if (!zynq_cmd)
 		return CMD_RET_USAGE;
 
 	ret = zynq_cmd->cmd(zynq_cmd, flag, argc, argv);
