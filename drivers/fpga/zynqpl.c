@@ -541,7 +541,7 @@ int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
 	 * Flush destination address range only if image is not
 	 * bitstream.
 	 */
-	if (dstaddr != 0xFFFFFFFF)
+	if (bstype == BIT_NONE && dstaddr != 0xFFFFFFFF)
 		flush_dcache_range((u32)dstaddr, (u32)dstaddr +
 				   roundup(dstlen << 2, ARCH_DMA_MINALIGN));
 
