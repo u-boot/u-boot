@@ -505,7 +505,8 @@ struct xilinx_fpga_op zynq_op = {
  * Load the encrypted image from src addr and decrypt the image and
  * place it back the decrypted image into dstaddr.
  */
-int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen)
+int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen,
+		      u8 bstype)
 {
 	u32 isr_status, ts;
 
@@ -522,7 +523,7 @@ int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen)
 		return FPGA_FAIL;
 	}
 
-	if (zynq_dma_xfer_init(BIT_NONE)) {
+	if (zynq_dma_xfer_init(bstype)) {
 		printf("%s: zynq_dma_xfer_init FAIL\n", __func__);
 		return FPGA_FAIL;
 	}

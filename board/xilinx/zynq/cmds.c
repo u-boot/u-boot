@@ -396,7 +396,8 @@ static int zynq_verify_image(u32 src_ptr)
 			status = zynq_decrypt_load(part_load_addr,
 						   part_img_len,
 						   part_dst_addr,
-						   part_data_len);
+						   part_data_len,
+						   BIT_NONE);
 			if (status != 0) {
 				printf("DECRYPTION_FAIL\n");
 				return -1;
@@ -431,6 +432,7 @@ static int zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	char *endp;
 	u32 srcaddr, srclen, dstaddr, dstlen;
 	int status;
+	u8 imgtype = BIT_NONE;
 
 	srcaddr = simple_strtoul(argv[2], &endp, 16);
 	if (*argv[2] == 0 || *endp != 0)
@@ -454,7 +456,8 @@ static int zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (dstlen % 4)
 		dstlen = roundup(dstlen, 4);
 
-	status = zynq_decrypt_load(srcaddr, srclen >> 2, dstaddr, dstlen >> 2);
+	status = zynq_decrypt_load(srcaddr, srclen >> 2, dstaddr,
+				   dstlen >> 2, imgtype);
 	if (status != 0)
 		return CMD_RET_FAILURE;
 
