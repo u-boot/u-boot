@@ -85,8 +85,8 @@ def test_zynq_aes_image(u_boot_console):
     if not dstsize:
        pytest.skip('No dstlen specified in env file to read')
 
-    expected_zynqaes = 'zynqaes [operation type] <srcaddr>'
-    output = u_boot_console.run_command('zynqaes %x $filesize %x %x' % (srcaddr, dstaddr, dstsize))
+    expected_zynqaes = 'zynq aes [operation type] <srcaddr>'
+    output = u_boot_console.run_command('zynq aes %x $filesize %x %x' % (srcaddr, dstaddr, dstsize))
     assert expected_zynqaes not in output
 
 @pytest.mark.buildconfigspec('cmd_zynq_aes')
@@ -114,6 +114,6 @@ def test_zynq_aes_bitstream(u_boot_console):
     output = u_boot_console.run_command('tftpboot %x %s' % (srcaddr, fn))
     assert expected_tftp in output
 
-    expected_zynqaes = 'zynqaes [operation type] <srcaddr>'
-    output = u_boot_console.run_command('zynqaes load %x $filesize' % (srcaddr))
+    expected_zynqaes = 'zynq aes [operation type] <srcaddr>'
+    output = u_boot_console.run_command('zynq aes load %x $filesize' % (srcaddr))
     assert expected_zynqaes not in output
