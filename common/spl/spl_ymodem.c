@@ -75,7 +75,7 @@ static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 	int ret;
 	connection_info_t info;
 	char buf[BUF_SIZE];
-	struct image_header *ih;
+	struct image_header *ih = NULL;
 	ulong addr = 0;
 
 	info.mode = xyzModem_ymodem;
@@ -128,18 +128,6 @@ static int spl_ymodem_load_image(struct spl_image_info *spl_image,
 			size += res;
 			addr += res;
 		}
-
-#ifdef CONFIG_SPL_GZIP
-		if (ih->ih_comp == IH_COMP_GZIP) {
-			if (gunzip((void *)(spl_image->load_addr + sizeof(*ih)),
-				   CONFIG_SYS_BOOTM_LEN,
-				   (void *)(CONFIG_SYS_LOAD_ADDR + sizeof(*ih)),
-				   &size)) {
-				puts("Uncompressing error\n");
-				return -EIO;
-			}
-		}
-#endif
 	}
 
 end_stream:
@@ -147,6 +135,20 @@ end_stream:
 	xyzModem_stream_terminate(false, &getcymodem);
 
 	printf("Loaded %lu bytes\n", size);
+
+#ifdef CONFIG_SPL_GZIP
+	if (!(IS_ENABLED(CONFIG_SPL_LOAD_FIT) &&
+	      image_get_magic((struct image_header *)buf) == FDT_MAGIC) &&
+	    (ih->ih_comp == IH_COMP_GZIP)) {
+		if (gunzip((void *)(spl_image->load_addr + sizeof(*ih)),
+			   CONFIG_SYS_BOOTM_LEN,
+			   (void *)(CONFIG_SYS_LOAD_ADDR + sizeof(*ih)),
+			   &size)) {
+			puts("Uncompressing error\n");
+			return -EIO;
+		}
+	}
+#endif
 
 	return ret;
 }
