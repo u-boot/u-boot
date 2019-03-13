@@ -105,6 +105,32 @@ def test_mmc_dev(u_boot_console, env__mmc_rd_config):
     mmc_dev(u_boot_console, is_emmc, devid, partid)
 
 @pytest.mark.buildconfigspec('cmd_mmc')
+def test_mmc_rescan(u_boot_console, env__mmc_rd_config):
+    """Test the "mmc rescan" command.
+
+    Args:
+        u_boot_console: A U-Boot console connection.
+        env__mmc_rd_config: The single MMC configuration on which
+            to run the test. See the file-level comment above for details
+            of the format.
+
+    Returns:
+        Nothing.
+    """
+
+    is_emmc = env__mmc_rd_config['is_emmc']
+    devid = env__mmc_rd_config['devid']
+    partid = env__mmc_rd_config.get('partid', 0)
+
+    # Select MMC device
+    mmc_dev(u_boot_console, is_emmc, devid, partid)
+
+    # Rescan MMC device
+    cmd = 'mmc rescan'
+    response = u_boot_console.run_command(cmd)
+    assert 'no card present' not in response
+
+@pytest.mark.buildconfigspec('cmd_mmc')
 def test_mmc_rd(u_boot_console, env__mmc_rd_config):
     """Test the "mmc read" command.
 
