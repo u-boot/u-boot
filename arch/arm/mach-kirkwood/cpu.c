@@ -62,7 +62,7 @@ unsigned int kw_winctrl_calcsize(unsigned int sizeval)
 int kw_config_adr_windows(void)
 {
 	struct kwwin_registers *winregs =
-		(struct kwwin_registers *)KW_CPU_WIN_BASE;
+		(struct kwwin_registers *)MVEBU_CPU_WIN_BASE;
 
 	/* Window 0: PCIE MEM address space */
 	writel(KWCPU_WIN_CTRL_DATA(1024 * 1024 * 256, KWCPU_TARGET_PCIE,
