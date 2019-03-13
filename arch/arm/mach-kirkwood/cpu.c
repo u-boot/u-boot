@@ -76,7 +76,7 @@ int kw_config_adr_windows(void)
 	writel(KWCPU_WIN_CTRL_DATA(1024 * 64, KWCPU_TARGET_PCIE,
 		KWCPU_ATTR_PCIE_IO, KWCPU_WIN_ENABLE), &winregs[1].ctrl);
 	writel(KW_DEFADR_PCI_IO, &winregs[1].base);
-	writel(KW_DEFADR_PCI_IO_REMAP, &winregs[1].remap_lo);
+	writel(KW_DEFADR_PCI_IO, &winregs[1].remap_lo);
 	writel(0x0, &winregs[1].remap_hi);
 
 	/* Window 2: NAND Flash address space */
