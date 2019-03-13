@@ -87,6 +87,12 @@ config CADENCE_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Cadence IP core.
 
+config CF_SPI
+        bool "ColdFire SPI driver"
+        help
+          Enable the ColdFire SPI driver. This driver can be used on
+          some m68k SoCs.
+
 config DESIGNWARE_SPI
 	bool "Designware SPI driver"
 	help
