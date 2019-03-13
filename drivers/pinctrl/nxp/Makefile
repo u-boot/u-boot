@@ -5,4 +5,5 @@ obj-$(CONFIG_PINCTRL_IMX7)		+= pinctrl-imx7.o
 obj-$(CONFIG_PINCTRL_IMX7ULP)		+= pinctrl-imx7ulp.o
 obj-$(CONFIG_PINCTRL_IMX_SCU)		+= pinctrl-scu.o
 obj-$(CONFIG_PINCTRL_IMX8)		+= pinctrl-imx8.o
+obj-$(CONFIG_PINCTRL_IMX8M)		+= pinctrl-imx8m.o
 obj-$(CONFIG_PINCTRL_VYBRID)		+= pinctrl-vf610.o

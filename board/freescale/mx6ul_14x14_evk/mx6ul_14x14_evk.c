@@ -86,16 +86,13 @@ int power_init_board(void)
 	pmic_reg_write(dev, PFUZE3000_LDOGCTL, reg);
 
 	/* SW1B step ramp up time from 2us to 4us/25mV */
-	reg = 0x40;
-	pmic_reg_write(dev, PFUZE3000_SW1BCONF, reg);
+	pmic_reg_write(dev, PFUZE3000_SW1BCONF, 0x40);
 
 	/* SW1B mode to APS/PFM */
-	reg = 0xc;
-	pmic_reg_write(dev, PFUZE3000_SW1BMODE, reg);
+	pmic_reg_write(dev, PFUZE3000_SW1BMODE, 0xc);
 
 	/* SW1B standby voltage set to 0.975V */
-	reg = 0xb;
-	pmic_reg_write(dev, PFUZE3000_SW1BSTBY, reg);
+	pmic_reg_write(dev, PFUZE3000_SW1BSTBY, 0xb);
 
 	return 0;
 }

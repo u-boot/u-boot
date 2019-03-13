@@ -9,6 +9,9 @@
 
 		aips-bus@2000000 {
 			u-boot,dm-spl;
+			spba-bus@2000000 {
+				u-boot,dm-spl;
+			};
 		};
 
 		aips-bus@2100000 {

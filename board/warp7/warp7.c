@@ -11,12 +11,8 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/hab.h>
 #include <asm/mach-imx/iomux-v3.h>
-#include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
 #include <common.h>
-#include <fsl_esdhc.h>
-#include <i2c.h>
-#include <mmc.h>
 #include <asm/arch/crm_regs.h>
 #include <usb.h>
 #include <netdev.h>
@@ -81,7 +77,7 @@ int power_init_board(void)
 	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", dev_id, rev_id);
 
 	/* disable Low Power Mode during standby mode */
-	pmic_clrsetbits(dev, PFUZE3000_LDOGCTL, 0, 1);
+	pmic_reg_write(dev, PFUZE3000_LDOGCTL, 1);
 
 	return 0;
 }

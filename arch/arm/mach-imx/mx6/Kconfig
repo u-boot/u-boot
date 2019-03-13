@@ -403,7 +403,9 @@ config TARGET_OT1200
 config TARGET_PICO_IMX6UL
 	bool "PICO-IMX6UL-EMMC"
 	select MX6UL
+	select DM
 	select SUPPORT_SPL
+	imply CMD_DM
 
 config TARGET_LITEBOARD
 	bool "Grinn liteBoard (i.MX6UL)"

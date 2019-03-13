@@ -8,6 +8,7 @@
 #include <common.h>
 #include <mmc.h>
 #include <asm/arch/sys_proto.h>
+#include <watchdog.h>
 
 #include "board.h"
 
@@ -87,6 +88,10 @@ int board_late_init(void)
 		env_set("console", "ttymxc3");
 
 	setenv_fdt_file();
+
+#ifdef CONFIG_HW_WATCHDOG
+	hw_watchdog_init();
+#endif
 
 	return 0;
 }
