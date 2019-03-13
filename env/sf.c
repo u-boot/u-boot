@@ -81,40 +81,6 @@ static int setup_flash_device(void)
 	return 0;
 }
 
-static int is_end(const char *addr, size_t size)
-{
-	/* The end of env variables is marked by '\0\0' */
-	int i = 0;
-
-	for (i = 0; i < size - 1; ++i)
-		if (addr[i] == 0x0 && addr[i + 1] == 0x0)
-			return 1;
-	return 0;
-}
-
-static int spi_flash_read_env(struct spi_flash *flash, u32 offset, size_t len,
-			      void *buf)
-{
-	u32 addr = 0;
-	u32 page_size = flash->page_size;
-
-	memset(buf, 0x0, len);
-	for (int i = 0; i < len / page_size; ++i) {
-		int ret = spi_flash_read(flash, offset, page_size,
-					 &((char *)buf)[addr]);
-
-		if (ret < 0)
-			return ret;
-
-		if (is_end(&((char *)buf)[addr], page_size))
-			return 0;
-
-		addr += page_size;
-		offset += page_size;
-	}
-	return 0;
-}
-
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 #ifdef CMD_SAVEENV
 static int env_sf_save(void)
@@ -150,8 +116,8 @@ static int env_sf_save(void)
 			ret = -ENOMEM;
 			goto done;
 		}
-		ret = spi_flash_read_env(env_flash, saved_offset,
-					 saved_size, saved_buffer);
+		ret = spi_flash_read(env_flash, saved_offset,
+					saved_size, saved_buffer);
 		if (ret)
 			goto done;
 	}
@@ -217,10 +183,10 @@ static int env_sf_load(void)
 	if (ret)
 		goto out;
 
-	read1_fail = spi_flash_read_env(env_flash, CONFIG_ENV_OFFSET,
-					CONFIG_ENV_SIZE, tmp_env1);
-	read2_fail = spi_flash_read_env(env_flash, CONFIG_ENV_OFFSET_REDUND,
-					CONFIG_ENV_SIZE, tmp_env2);
+	read1_fail = spi_flash_read(env_flash, CONFIG_ENV_OFFSET,
+				    CONFIG_ENV_SIZE, tmp_env1);
+	read2_fail = spi_flash_read(env_flash, CONFIG_ENV_OFFSET_REDUND,
+				    CONFIG_ENV_SIZE, tmp_env2);
 
 	ret = env_import_redund((char *)tmp_env1, read1_fail, (char *)tmp_env2,
 				read2_fail);
@@ -254,8 +220,8 @@ static int env_sf_save(void)
 		if (!saved_buffer)
 			goto done;
 
-		ret = spi_flash_read_env(env_flash, saved_offset,
-					 saved_size, saved_buffer);
+		ret = spi_flash_read(env_flash, saved_offset,
+			saved_size, saved_buffer);
 		if (ret)
 			goto done;
 	}
@@ -311,10 +277,10 @@ static int env_sf_load(void)
 	if (ret)
 		goto out;
 
-	ret = spi_flash_read_env(env_flash, CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-				 buf);
+	ret = spi_flash_read(env_flash,
+		CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE, buf);
 	if (ret) {
-		set_default_env("spi_flash_read_env() failed", 0);
+		set_default_env("spi_flash_read() failed", 0);
 		goto err_read;
 	}
 
