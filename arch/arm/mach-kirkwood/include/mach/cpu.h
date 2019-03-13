@@ -150,7 +150,6 @@ extern struct mvebu_mbus_state mbus_state;
 unsigned int mvebu_sdram_bar(enum memory_bank bank);
 unsigned int mvebu_sdram_bs(enum memory_bank bank);
 void mvebu_sdram_size_adjust(enum memory_bank bank);
-int kw_config_adr_windows(void);
 int mvebu_mbus_probe(struct mbus_win windows[], int count);
 void mvebu_config_gpio(unsigned int gpp0_oe_val, unsigned int gpp1_oe_val,
 		unsigned int gpp0_oe, unsigned int gpp1_oe);
