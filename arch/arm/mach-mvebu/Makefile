@@ -14,6 +14,7 @@ ifdef CONFIG_KIRKWOOD
 
 obj-y	= dram.o
 obj-y	+= gpio.o
+obj-y	+= mbus.o
 obj-y	+= timer.o
 
 else # CONFIG_KIRKWOOD

@@ -110,6 +110,32 @@ int kw_config_adr_windows(void)
 	return 0;
 }
 
+static struct mbus_win windows[] = {
+	/* Window 0: PCIE MEM address space */
+	{ KW_DEFADR_PCI_MEM, 1024 * 1024 * 256,
+	  KWCPU_TARGET_PCIE, KWCPU_ATTR_PCIE_MEM },
+
+	/* Window 1: PCIE IO address space */
+	{ KW_DEFADR_PCI_IO, 1024 * 64,
+	  KWCPU_TARGET_PCIE, KWCPU_ATTR_PCIE_IO },
+
+	/* Window 2: NAND Flash address space */
+	{ KW_DEFADR_NANDF, 1024 * 1024 * 128,
+	  KWCPU_TARGET_MEMORY, KWCPU_ATTR_NANDFLASH },
+
+	/* Window 3: SPI Flash address space */
+	{ KW_DEFADR_SPIF, 1024 * 1024 * 128,
+	  KWCPU_TARGET_MEMORY, KWCPU_ATTR_SPIFLASH },
+
+	/* Window 4: BOOT Memory address space */
+	{ KW_DEFADR_BOOTROM, 1024 * 1024 * 128,
+	  KWCPU_TARGET_MEMORY, KWCPU_ATTR_BOOTROM },
+
+	/* Window 5: Security SRAM address space */
+	{ KW_DEFADR_SASRAM, 1024 * 64,
+	  KWCPU_TARGET_SASRAM, KWCPU_ATTR_SASRAM },
+};
+
 /*
  * SYSRSTn Duration Counter Support
  *
@@ -221,14 +247,12 @@ int arch_cpu_init(void)
 	struct kwcpu_registers *cpureg =
 		(struct kwcpu_registers *)KW_CPU_REG_BASE;
 
-	/* Linux expects` the internal registers to be at 0xf1000000 */
+	/* Linux expects the internal registers to be at 0xf1000000 */
 	writel(KW_REGS_PHY_BASE, KW_OFFSET_REG);
 
 	/* Enable and invalidate L2 cache in write through mode */
 	writel(readl(&cpureg->l2_cfg) | 0x18, &cpureg->l2_cfg);
 	invalidate_l2_cache();
-
-	kw_config_adr_windows();
 
 #ifdef CONFIG_KIRKWOOD_RGMII_PAD_1V8
 	/*
@@ -295,6 +319,9 @@ int arch_misc_init(void)
 	/* Change reset vector to address 0x0 */
 	temp = get_cr();
 	set_cr(temp & ~CR_V);
+
+	/* Configure mbus windows */
+	mvebu_mbus_probe(windows, ARRAY_SIZE(windows));
 
 	/* checks and execute resset to factory event */
 	kw_sysrst_check();

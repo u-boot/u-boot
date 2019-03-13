@@ -405,6 +405,7 @@ int mvebu_mbus_del_window(phys_addr_t base, size_t size)
 	return 0;
 }
 
+#ifndef CONFIG_KIRKWOOD
 static void mvebu_mbus_get_lowest_base(struct mvebu_mbus_state *mbus,
 				       phys_addr_t *base)
 {
@@ -451,6 +452,7 @@ static void mvebu_config_mbus_bridge(struct mvebu_mbus_state *mbus)
 	val = (size / (64 << 10)) - 1;
 	writel((val << 16) | 0x1, MBUS_BRIDGE_WIN_CTRL_REG);
 }
+#endif
 
 int mbus_dt_setup_win(struct mvebu_mbus_state *mbus,
 		      u32 base, u32 size, u8 target, u8 attr)
@@ -471,12 +473,14 @@ int mbus_dt_setup_win(struct mvebu_mbus_state *mbus,
 			return -ENOMEM;
 	}
 
+#ifndef CONFIG_KIRKWOOD
 	/*
 	 * Re-configure the mbus bridge registers each time this function
 	 * is called. Since it may get called from the board code in
 	 * later boot stages as well.
 	 */
 	mvebu_config_mbus_bridge(mbus);
+#endif
 
 	return 0;
 }
