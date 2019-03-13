@@ -1183,16 +1183,21 @@ int fdtdec_setup_memory_banksize(void)
 static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 {
 	size_t sz_out = CONFIG_SPL_MULTI_DTB_FIT_UNCOMPRESS_SZ;
+	bool gzip = 0, lzo = 0;
 	ulong sz_in = sz_src;
 	void *dst;
 	int rc;
 
 	if (CONFIG_IS_ENABLED(GZIP))
-		if (gzip_parse_header(src, sz_in) < 0)
-			return -1;
+		if (gzip_parse_header(src, sz_in) >= 0)
+			gzip = 1;
 	if (CONFIG_IS_ENABLED(LZO))
-		if (!lzop_is_valid_header(src))
-			return -EBADMSG;
+		if (!gzip && lzop_is_valid_header(src))
+			lzo = 1;
+
+	if (!gzip && !lzo)
+		return -EBADMSG;
+
 
 	if (CONFIG_IS_ENABLED(MULTI_DTB_FIT_DYN_ALLOC)) {
 		dst = malloc(sz_out);
@@ -1208,10 +1213,12 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 #  endif
 	}
 
-	if (CONFIG_IS_ENABLED(GZIP))
+	if (CONFIG_IS_ENABLED(GZIP) && gzip)
 		rc = gunzip(dst, sz_out, (u8 *)src, &sz_in);
-	else if (CONFIG_IS_ENABLED(LZO))
+	else if (CONFIG_IS_ENABLED(LZO) && lzo)
 		rc = lzop_decompress(src, sz_in, dst, &sz_out);
+	else
+		hang();
 
 	if (rc < 0) {
 		/* not a valid compressed blob */
