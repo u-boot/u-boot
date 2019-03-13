@@ -9,13 +9,14 @@ Quick Start
 
 Get and Build the ARM Trusted firmware
 ====================
+Note: srctree is U-Boot source directory
 Get ATF from: https://source.codeaurora.org/external/imx/imx-atf
 branch: imx_4.14.62_1.0.0_beta
 $ make PLAT=imx8mq bl31
+$ cp build/imx8mq/release/bl31.bin $(srctree)
 
 Get the ddr and hdmi firmware
 ====================
-Note: srctree is U-Boot source directory
 $ wget https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-7.9.bin
 $ chmod +x firmware-imx-7.9.bin
 $ ./firmware-imx-7.9.bin
