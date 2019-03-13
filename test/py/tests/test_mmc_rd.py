@@ -6,6 +6,7 @@
 # read if the test configuration contains a CRC of the expected data.
 
 import pytest
+import time
 import u_boot_utils
 
 """
@@ -187,6 +188,7 @@ def test_mmc_rd(u_boot_console, env__mmc_rd_config):
     sector = env__mmc_rd_config.get('sector', 0)
     count_sectors = env__mmc_rd_config.get('count', 1)
     expected_crc32 = env__mmc_rd_config.get('crc32', None)
+    read_duration_max = env__mmc_rd_config.get('read_duration_max', 0)
 
     count_bytes = count_sectors * 512
     bcfg = u_boot_console.config.buildconfig
@@ -213,7 +215,9 @@ def test_mmc_rd(u_boot_console, env__mmc_rd_config):
 
     # Read data
     cmd = 'mmc read %s %x %x' % (addr, sector, count_sectors)
+    tstart = time.time()
     response = u_boot_console.run_command(cmd)
+    tend = time.time()
     good_response = 'MMC read: dev # %d, block # %d, count %d ... %d blocks read: OK' % (
         devid, sector, count_sectors, count_sectors)
     assert good_response in response
@@ -226,3 +230,10 @@ def test_mmc_rd(u_boot_console, env__mmc_rd_config):
             assert expected_crc32 in response
         else:
             u_boot_console.log.warning('CONFIG_CMD_CRC32 != y: Skipping check')
+
+    # Check if the command did not take too long
+    if read_duration_max:
+        elapsed = tend - tstart
+        u_boot_console.log.info('Reading %d bytes took %f seconds' %
+                                (count_bytes, elapsed))
+        assert elapsed <= (read_duration_max - 0.01)
