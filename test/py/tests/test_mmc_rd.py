@@ -131,6 +131,43 @@ def test_mmc_rescan(u_boot_console, env__mmc_rd_config):
     assert 'no card present' not in response
 
 @pytest.mark.buildconfigspec('cmd_mmc')
+def test_mmc_info(u_boot_console, env__mmc_rd_config):
+    """Test the "mmc info" command.
+
+    Args:
+        u_boot_console: A U-Boot console connection.
+        env__mmc_rd_config: The single MMC configuration on which
+            to run the test. See the file-level comment above for details
+            of the format.
+
+    Returns:
+        Nothing.
+    """
+
+    is_emmc = env__mmc_rd_config['is_emmc']
+    devid = env__mmc_rd_config['devid']
+    partid = env__mmc_rd_config.get('partid', 0)
+    info_device = env__mmc_rd_config['info_device']
+    info_speed = env__mmc_rd_config['info_speed']
+    info_mode = env__mmc_rd_config['info_mode']
+    info_buswidth = env__mmc_rd_config['info_buswidth']
+
+    # Select MMC device
+    mmc_dev(u_boot_console, is_emmc, devid, partid)
+
+    # Read MMC device information
+    cmd = 'mmc info'
+    response = u_boot_console.run_command(cmd)
+    good_response = "Device: %s" % info_device
+    assert good_response in response
+    good_response = "Bus Speed: %s" % info_speed
+    assert good_response in response
+    good_response = "Mode : %s" % info_mode
+    assert good_response in response
+    good_response = "Bus Width: %s" % info_buswidth
+    assert good_response in response
+
+@pytest.mark.buildconfigspec('cmd_mmc')
 def test_mmc_rd(u_boot_console, env__mmc_rd_config):
     """Test the "mmc read" command.
 
