@@ -143,16 +143,6 @@
 /* DSPI and Serial Flash */
 #define CONFIG_CF_DSPI
 #define CONFIG_SYS_SBFHDR_SIZE		0x13
-#ifdef CONFIG_CMD_SPI
-
-#	define CONFIG_SYS_DSPI_CTAR0		(DSPI_CTAR_TRSZ(7) | \
-					 DSPI_CTAR_PCSSCK_1CLK | \
-					 DSPI_CTAR_PASC(0) | \
-					 DSPI_CTAR_PDT(0) | \
-					 DSPI_CTAR_CSSCK(0) | \
-					 DSPI_CTAR_ASC(0) | \
-					 DSPI_CTAR_DT(1))
-#endif
 
 /* PCI */
 #ifdef CONFIG_CMD_PCI
