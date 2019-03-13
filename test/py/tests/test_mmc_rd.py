@@ -57,6 +57,32 @@ env__mmc_rd_configs = (
 )
 """
 
+def mmc_dev(u_boot_console, is_emmc, devid, partid):
+    """Run the "mmc dev" command.
+
+    Args:
+        u_boot_console: A U-Boot console connection.
+        is_emmc: Whether the device is eMMC
+        devid: Device ID
+        partid: Partition ID
+
+    Returns:
+        Nothing.
+    """
+
+    # Select MMC device
+    cmd = 'mmc dev %d' % devid
+    if is_emmc:
+        cmd += ' %d' % partid
+    response = u_boot_console.run_command(cmd)
+    assert 'no card present' not in response
+    if is_emmc:
+        partid_response = '(part %d)' % partid
+    else:
+        partid_response = ''
+    good_response = 'mmc%d%s is current device' % (devid, partid_response)
+    assert good_response in response
+
 @pytest.mark.buildconfigspec('cmd_mmc')
 def test_mmc_rd(u_boot_console, env__mmc_rd_config):
     """Test the "mmc read" command.
@@ -86,17 +112,7 @@ def test_mmc_rd(u_boot_console, env__mmc_rd_config):
     addr = '0x%08x' % ram_base
 
     # Select MMC device
-    cmd = 'mmc dev %d' % devid
-    if is_emmc:
-        cmd += ' %d' % partid
-    response = u_boot_console.run_command(cmd)
-    assert 'no card present' not in response
-    if is_emmc:
-        partid_response = '(part %d)' % partid
-    else:
-        partid_response = ''
-    good_response = 'mmc%d%s is current device' % (devid, partid_response)
-    assert good_response in response
+    mmc_dev(u_boot_console, is_emmc, devid, partid)
 
     # Clear target RAM
     if expected_crc32:
