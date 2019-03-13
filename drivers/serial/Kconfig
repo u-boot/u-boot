@@ -559,6 +559,14 @@ config MVEBU_A3700_UART
 	  Choose this option to add support for UART driver on the Marvell
 	  Armada 3700 SoC. The base address is configured via DT.
 
+config MCFUART
+	bool "Freescale ColdFire UART support"
+        help
+          Choose this option to add support for UART driver on the ColdFire
+          SoC's family. The serial communication channel provides a full-duplex
+          asynchronous/synchronous receiver and transmitter deriving an
+          operating frequency from the internal bus clock or an external clock.
+
 config MXC_UART
 	bool "IMX serial port support"
 	depends on MX5 || MX6

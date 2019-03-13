@@ -5,6 +5,9 @@
  *
  * Modified to add device model (DM) support
  * (C) Copyright 2015  Angelo Dureghello <angelo@sysam.it>
+ *
+ * Modified to add DM and fdt support, removed non DM code
+ * (C) Copyright 2018  Angelo Dureghello <angelo@sysam.it>
  */
 
 /*
@@ -78,83 +81,6 @@ static void mcf_serial_setbrg_common(uart_t *uart, int baudrate)
 	writeb(UART_UCR_RX_ENABLED | UART_UCR_TX_ENABLED, &uart->ucr);
 }
 
-#ifndef CONFIG_DM_SERIAL
-
-static int mcf_serial_init(void)
-{
-	uart_t *uart_base;
-	int port_idx;
-
-	uart_base = (uart_t *)CONFIG_SYS_UART_BASE;
-	port_idx = CONFIG_SYS_UART_PORT;
-
-	return mcf_serial_init_common(uart_base, port_idx, gd->baudrate);
-}
-
-static void mcf_serial_putc(const char c)
-{
-	uart_t *uart = (uart_t *)CONFIG_SYS_UART_BASE;
-
-	if (c == '\n')
-		serial_putc('\r');
-
-	/* Wait for last character to go. */
-	while (!(readb(&uart->usr) & UART_USR_TXRDY))
-		;
-
-	writeb(c, &uart->utb);
-}
-
-static int mcf_serial_getc(void)
-{
-	uart_t *uart = (uart_t *)CONFIG_SYS_UART_BASE;
-
-	/* Wait for a character to arrive. */
-	while (!(readb(&uart->usr) & UART_USR_RXRDY))
-		;
-
-	return readb(&uart->urb);
-}
-
-static void mcf_serial_setbrg(void)
-{
-	uart_t *uart = (uart_t *)CONFIG_SYS_UART_BASE;
-
-	mcf_serial_setbrg_common(uart, gd->baudrate);
-}
-
-static int mcf_serial_tstc(void)
-{
-	uart_t *uart = (uart_t *)CONFIG_SYS_UART_BASE;
-
-	return readb(&uart->usr) & UART_USR_RXRDY;
-}
-
-static struct serial_device mcf_serial_drv = {
-	.name	= "mcf_serial",
-	.start	= mcf_serial_init,
-	.stop	= NULL,
-	.setbrg	= mcf_serial_setbrg,
-	.putc	= mcf_serial_putc,
-	.puts	= default_serial_puts,
-	.getc	= mcf_serial_getc,
-	.tstc	= mcf_serial_tstc,
-};
-
-void mcf_serial_initialize(void)
-{
-	serial_register(&mcf_serial_drv);
-}
-
-__weak struct serial_device *default_serial_console(void)
-{
-	return &mcf_serial_drv;
-}
-
-#endif
-
-#ifdef CONFIG_DM_SERIAL
-
 static int coldfire_serial_probe(struct udevice *dev)
 {
 	struct coldfire_serial_platdata *plat = dev->platdata;
@@ -212,6 +138,23 @@ static int coldfire_serial_pending(struct udevice *dev, bool input)
 	return 0;
 }
 
+static int coldfire_ofdata_to_platdata(struct udevice *dev)
+{
+	struct coldfire_serial_platdata *plat = dev_get_platdata(dev);
+	fdt_addr_t addr_base;
+
+	addr_base = devfdt_get_addr(dev);
+	if (addr_base == FDT_ADDR_T_NONE)
+		return -ENODEV;
+
+	plat->base = (uint32_t)addr_base;
+
+	plat->port = dev->seq;
+	plat->baudrate = gd->baudrate;
+
+	return 0;
+}
+
 static const struct dm_serial_ops coldfire_serial_ops = {
 	.putc = coldfire_serial_putc,
 	.pending = coldfire_serial_pending,
@@ -219,11 +162,18 @@ static const struct dm_serial_ops coldfire_serial_ops = {
 	.setbrg = coldfire_serial_setbrg,
 };
 
+static const struct udevice_id coldfire_serial_ids[] = {
+	{ .compatible = "fsl,mcf-uart" },
+	{ }
+};
+
 U_BOOT_DRIVER(serial_coldfire) = {
 	.name = "serial_coldfire",
 	.id = UCLASS_SERIAL,
+	.of_match = coldfire_serial_ids,
+	.ofdata_to_platdata = coldfire_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct coldfire_serial_platdata),
 	.probe = coldfire_serial_probe,
 	.ops = &coldfire_serial_ops,
 	.flags = DM_FLAG_PRE_RELOC,
 };
-#endif
