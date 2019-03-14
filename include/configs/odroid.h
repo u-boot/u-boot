@@ -132,7 +132,7 @@
 		"setenv kernelname Image.itb;" \
 		"run loadkernel;" \
 		"run kernel_args;" \
-		"bootm ${kernel_addr_r}#${boardname}\0" \
+		"bootm ${kernel_addr_r}#${board_name}\0" \
 	"boot_uimg=" \
 		"setenv kernelname uImage;" \
 		"run check_dtb;" \

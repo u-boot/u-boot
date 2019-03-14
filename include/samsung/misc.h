@@ -33,6 +33,7 @@ char *get_dfu_alt_system(char *interface, char *devstr);
 char *get_dfu_alt_boot(char *interface, char *devstr);
 #endif
 void set_board_type(void);
+void set_board_revision(void);
 const char *get_board_type(void);
 
 #endif /* __SAMSUNG_MISC_COMMON_H__ */

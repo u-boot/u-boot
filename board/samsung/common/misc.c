@@ -101,7 +101,7 @@ void set_board_info(void)
 		bdtype = "";
 
 	sprintf(info, "%s%s", bdname, bdtype);
-	env_set("boardname", info);
+	env_set("board_name", info);
 #endif
 	snprintf(info, ARRAY_SIZE(info),  "%s%x-%s%s.dtb",
 		 CONFIG_SYS_SOC, s5p_cpu_id, bdname, bdtype);
