@@ -426,7 +426,9 @@ endif
 
 config DRAM_ZQ
 	int "sunxi dram zq value"
-	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
+	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || \
+		       MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_A83T || \
+		       MACH_SUNXI_H3_H5
 	default 127 if MACH_SUN7I
 	default 14779 if MACH_SUN8I_V3S
 	default 3881979 if MACH_SUN8I_R40 || MACH_SUN50I_H6
