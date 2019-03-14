@@ -308,13 +308,9 @@ static int cdns_i2c_read_data(struct i2c_cdns_bus *i2c_bus, u32 addr, u8 *data,
 {
 	u8 *cur_data = data;
 	struct cdns_i2c_regs *regs = i2c_bus->regs;
-	int curr_recv_count;
+	u32 curr_recv_count;
 	int updatetx, hold_quirk;
 	u32 ret;
-
-	/* Check the hardware can handle the requested bytes */
-	if ((recv_count < 0))
-		return -EINVAL;
 
 	curr_recv_count = recv_count;
 
