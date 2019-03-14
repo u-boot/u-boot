@@ -10,14 +10,10 @@ ifeq ($(DEVICE_TREE),)
 DEVICE_TREE := unset
 endif
 
-ARCH_PATH := arch/$(ARCH)/dts
-dtb_depends := arch-dtbs
-
 ifneq ($(EXT_DTB),)
 DTB := $(EXT_DTB)
 else
-DTB := $(ARCH_PATH)/$(DEVICE_TREE).dtb
-dtb_depends += $(DTB:.dtb=.dts)
+DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
 endif
 
 $(obj)/dt-spl.dtb: $(DTB) $(objtree)/tools/fdtgrep FORCE
@@ -28,10 +24,7 @@ $(obj)/dt.dtb: $(DTB) FORCE
 
 targets += dt.dtb dt-spl.dtb
 
-$(DTB): $(dtb_depends)
-ifeq ($(EXT_DTB),)
-	$(Q)$(MAKE) $(build)=$(ARCH_PATH) $@
-endif
+$(DTB): arch-dtbs
 	$(Q)test -e $@ || (						\
 	echo >&2;							\
 	echo >&2 "Device Tree Source is not correctly specified.";	\
@@ -42,7 +35,7 @@ endif
 
 PHONY += arch-dtbs
 arch-dtbs:
-	$(Q)$(MAKE) $(build)=$(ARCH_PATH) dtbs
+	$(Q)$(MAKE) $(build)=arch/$(ARCH)/dts dtbs
 
 ifeq ($(CONFIG_SPL_BUILD),y)
 obj-$(CONFIG_OF_EMBED) := dt-spl.dtb.o
