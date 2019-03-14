@@ -313,9 +313,21 @@ static int sun4i_usb_phy_init(struct phy *phy)
 				    data->cfg->disc_thresh, PHY_DISCON_TH_LEN);
 	}
 
+#ifdef CONFIG_USB_MUSB_SUNXI
+	/* Needed for HCI and conflicts with MUSB, keep PHY0 on MUSB */
+	if (usb_phy->id != 0)
+		sun4i_usb_phy_passby(phy, true);
+
+	/* Route PHY0 to MUSB to allow USB gadget */
+	if (data->cfg->phy0_dual_route)
+		sun4i_usb_phy0_reroute(data, true);
+#else
 	sun4i_usb_phy_passby(phy, true);
 
-	sun4i_usb_phy0_reroute(data, true);
+	/* Route PHY0 to HCI to allow USB host */
+	if (data->cfg->phy0_dual_route)
+		sun4i_usb_phy0_reroute(data, false);
+#endif
 
 	return 0;
 }
