@@ -288,21 +288,34 @@ static void comphy_utmi_phy_config(u32 utmi_index, void __iomem *utmi_pll_addr,
 	reg_set(utmi_pll_addr + UTMI_PLL_CTRL_REG, data, mask);
 
 	/* Impedance Calibration Threshold Setting */
-	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG,
-		0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET,
-		UTMI_CALIB_CTRL_IMPCAL_VTH_MASK);
+	mask = UTMI_CALIB_CTRL_IMPCAL_VTH_MASK;
+	data = 0x7 << UTMI_CALIB_CTRL_IMPCAL_VTH_OFFSET;
+	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG, data, mask);
+
+	/* Start Impedance and PLL Calibration */
+	mask = UTMI_CALIB_CTRL_PLLCAL_START_MASK;
+	data = (0x1 << UTMI_CALIB_CTRL_PLLCAL_START_OFFSET);
+	mask |= UTMI_CALIB_CTRL_IMPCAL_START_MASK;
+	data |= (0x1 << UTMI_CALIB_CTRL_IMPCAL_START_OFFSET);
+	reg_set(utmi_pll_addr + UTMI_CALIB_CTRL_REG, data, mask);
 
 	/* Set LS TX driver strength coarse control */
 	mask = UTMI_TX_CH_CTRL_AMP_MASK;
 	data = 0x4 << UTMI_TX_CH_CTRL_AMP_OFFSET;
+	mask |= UTMI_TX_CH_CTRL_IMP_SEL_LS_MASK;
+	data |= 0x3 << UTMI_TX_CH_CTRL_IMP_SEL_LS_OFFSET;
+	mask |= UTMI_TX_CH_CTRL_DRV_EN_LS_MASK;
+	data |= 0x3 << UTMI_TX_CH_CTRL_DRV_EN_LS_OFFSET;
 	reg_set(utmi_base_addr + UTMI_TX_CH_CTRL_REG, data, mask);
 
 	/* Enable SQ */
 	mask = UTMI_RX_CH_CTRL0_SQ_DET_MASK;
-	data = 0x0 << UTMI_RX_CH_CTRL0_SQ_DET_OFFSET;
+	data = 0x1 << UTMI_RX_CH_CTRL0_SQ_DET_OFFSET;
 	/* Enable analog squelch detect */
 	mask |= UTMI_RX_CH_CTRL0_SQ_ANA_DTC_MASK;
-	data |= 0x1 << UTMI_RX_CH_CTRL0_SQ_ANA_DTC_OFFSET;
+	data |= 0x0 << UTMI_RX_CH_CTRL0_SQ_ANA_DTC_OFFSET;
+	mask |= UTMI_RX_CH_CTRL0_DISCON_THRESH_MASK;
+	data |= 0x0 << UTMI_RX_CH_CTRL0_DISCON_THRESH_OFFSET;
 	reg_set(utmi_base_addr + UTMI_RX_CH_CTRL0_REG, data, mask);
 
 	/* Set External squelch calibration number */
