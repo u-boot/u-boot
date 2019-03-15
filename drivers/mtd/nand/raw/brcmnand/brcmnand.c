@@ -113,6 +113,7 @@ struct brcmnand_controller {
 	unsigned int		irq;
 	unsigned int		dma_irq;
 	int			nand_version;
+	int			parameter_page_big_endian;
 
 	/* Some SoCs provide custom interrupt status register(s) */
 	struct brcmnand_soc	*soc;
@@ -1439,12 +1440,20 @@ static void brcmnand_cmdfunc(struct mtd_info *mtd, unsigned command,
 		 * Must cache the FLASH_CACHE now, since changes in
 		 * SECTOR_SIZE_1K may invalidate it
 		 */
-		for (i = 0; i < FC_WORDS; i++)
+		for (i = 0; i < FC_WORDS; i++) {
+			u32 fc;
+
+			fc = brcmnand_read_fc(ctrl, i);
+
 			/*
 			 * Flash cache is big endian for parameter pages, at
 			 * least on STB SoCs
 			 */
-			flash_cache[i] = be32_to_cpu(brcmnand_read_fc(ctrl, i));
+			if (ctrl->parameter_page_big_endian)
+				flash_cache[i] = be32_to_cpu(fc);
+			else
+				flash_cache[i] = le32_to_cpu(fc);
+		}
 
 		brcmnand_soc_data_bus_unprepare(ctrl->soc, true);
 
@@ -2549,6 +2558,10 @@ int brcmnand_probe(struct udevice *dev, struct brcmnand_soc *soc)
 	init_completion(&ctrl->dma_done);
 	nand_hw_control_init(&ctrl->controller);
 	INIT_LIST_HEAD(&ctrl->host_list);
+
+	/* Is parameter page in big endian ? */
+	ctrl->parameter_page_big_endian =
+	    dev_read_u32_default(dev, "parameter-page-big-endian", 1);
 
 	/* NAND register range */
 #ifndef __UBOOT__
