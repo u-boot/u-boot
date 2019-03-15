@@ -60,6 +60,31 @@ config SPL_GENERATE_ATMEL_PMECC_HEADER
 
 endif
 
+config NAND_BRCMNAND
+	bool "Support Broadcom NAND controller"
+	depends on OF_CONTROL && DM && MTD
+	help
+	  Enable the driver for NAND flash on platforms using a Broadcom NAND
+	  controller.
+
+config NAND_BRCMNAND_6838
+       bool "Support Broadcom NAND controller on bcm6838"
+       depends on NAND_BRCMNAND && ARCH_BMIPS && SOC_BMIPS_BCM6838
+       help
+         Enable support for broadcom nand driver on bcm6838.
+
+config NAND_BRCMNAND_6858
+       bool "Support Broadcom NAND controller on bcm6858"
+       depends on NAND_BRCMNAND && ARCH_BCM6858
+       help
+         Enable support for broadcom nand driver on bcm6858.
+
+config NAND_BRCMNAND_63158
+       bool "Support Broadcom NAND controller on bcm63158"
+       depends on NAND_BRCMNAND && ARCH_BCM63158
+       help
+         Enable support for broadcom nand driver on bcm63158.
+
 config NAND_DAVINCI
 	bool "Support TI Davinci NAND controller"
 	help
