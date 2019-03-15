@@ -14,6 +14,7 @@ Required properties:
 		TX/RX lanes.
 	- ti,clk-output-sel - Clock output select - see dt-bindings/net/ti-dp83867.h
 		for applicable values
+	- ti,6-wire-mode - Indicates that it enables SGMII differntial clock to MAC
 
 Default child nodes are standard Ethernet PHY device
 nodes as described in doc/devicetree/bindings/net/ethernet.txt
