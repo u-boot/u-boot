@@ -458,6 +458,11 @@ static struct phy_driver genphy_driver = {
 	.shutdown	= genphy_shutdown,
 };
 
+int genphy_init(void)
+{
+	return phy_register(&genphy_driver);
+}
+
 static LIST_HEAD(phy_drivers);
 
 int phy_init(void)
@@ -540,6 +545,8 @@ int phy_init(void)
 #ifdef CONFIG_PHY_FIXED
 	phy_fixed_init();
 #endif
+	genphy_init();
+
 	return 0;
 }
 
