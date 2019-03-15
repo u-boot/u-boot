@@ -28,6 +28,7 @@
 #define MC_MEM_SIZE_ENV_VAR	"mcmemsize"
 #define MC_BOOT_TIMEOUT_ENV_VAR	"mcboottimeout"
 #define MC_BOOT_ENV_VAR		"mcinitcmd"
+#define MC_DRAM_BLOCK_DEFAULT_SIZE (512UL * 1024 * 1024)
 
 DECLARE_GLOBAL_DATA_PTR;
 static int mc_memset_resv_ram;
@@ -421,9 +422,11 @@ static int mc_fixup_dpc(u64 dpc_addr)
 	/* fixup MAC addresses for dpmac ports */
 	nodeoffset = fdt_path_offset(blob, "/board_info/ports");
 	if (nodeoffset < 0)
-		return 0;
+		goto out;
 
 	err = mc_fixup_mac_addrs(blob, MC_FIXUP_DPC);
+
+out:
 	flush_dcache_range(dpc_addr, dpc_addr + fdt_totalsize(blob));
 
 	return err;
@@ -680,12 +683,19 @@ int mc_init(u64 mc_fw_addr, u64 mc_dpc_addr)
 	size_t mc_ram_size = mc_get_dram_block_size();
 
 	mc_ram_num_256mb_blocks = mc_ram_size / MC_RAM_SIZE_ALIGNMENT;
-	if (mc_ram_num_256mb_blocks < 1 || mc_ram_num_256mb_blocks > 0xff) {
+
+	if (mc_ram_num_256mb_blocks >= 0xff) {
 		error = -EINVAL;
 		printf("fsl-mc: ERROR: invalid MC private RAM size (%lu)\n",
 		       mc_ram_size);
 		goto out;
 	}
+
+	/*
+	 * To support 128 MB DDR Size for MC
+	 */
+	if (mc_ram_num_256mb_blocks == 0)
+		mc_ram_num_256mb_blocks = 0xFF;
 
 	/*
 	 * Management Complex cores should be held at reset out of POR.
@@ -727,8 +737,14 @@ int mc_init(u64 mc_fw_addr, u64 mc_dpc_addr)
 	/*
 	 * Tell MC what is the address range of the DRAM block assigned to it:
 	 */
-	reg_mcfbalr = (u32)mc_ram_addr |
-		      (mc_ram_num_256mb_blocks - 1);
+	if (mc_ram_num_256mb_blocks < 0xFF) {
+		reg_mcfbalr = (u32)mc_ram_addr |
+				(mc_ram_num_256mb_blocks - 1);
+	} else {
+		reg_mcfbalr = (u32)mc_ram_addr |
+				(mc_ram_num_256mb_blocks);
+	}
+
 	out_le32(&mc_ccsr_regs->reg_mcfbalr, reg_mcfbalr);
 	out_le32(&mc_ccsr_regs->reg_mcfbahr,
 		 (u32)(mc_ram_addr >> 32));
@@ -878,7 +894,7 @@ unsigned long mc_get_dram_block_size(void)
 			       "\' environment variable: %lu\n",
 			       dram_block_size);
 
-			dram_block_size = CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE;
+			dram_block_size = MC_DRAM_BLOCK_DEFAULT_SIZE;
 		}
 	}
 

@@ -147,7 +147,7 @@ unsigned long long get_qixis_addr(void);
  */
 
 #if defined(CONFIG_FSL_MC_ENET)
-#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(512UL * 1024 * 1024)
+#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(128UL * 1024 * 1024)
 #endif
 /* Command line configuration */
 #define CONFIG_CMD_CACHE
