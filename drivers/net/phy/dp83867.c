@@ -28,6 +28,7 @@
 #define DP83867_STRAP_STS2	0x006f
 #define DP83867_RGMIIDCTL	0x0086
 #define DP83867_IO_MUX_CFG	0x0170
+#define DP83867_SGMIITYPE	0x00D3
 
 #define DP83867_SW_RESET	BIT(15)
 #define DP83867_SW_RESTART	BIT(14)
@@ -99,6 +100,8 @@
 /* CFG4 bits */
 #define DP83867_CFG4_PORT_MIRROR_EN		BIT(0)
 
+#define DP83867_SGMIICLK_EN			0x4000
+
 enum {
 	DP83867_PORT_MIRRORING_KEEP,
 	DP83867_PORT_MIRRORING_EN,
@@ -114,6 +117,7 @@ struct dp83867_private {
 	int port_mirroring;
 	bool set_clk_output;
 	unsigned int clk_output_sel;
+	bool wiremode_6;
 };
 
 static int dp83867_config_port_mirroring(struct phy_device *phydev)
@@ -234,6 +238,12 @@ static int dp83867_of_init(struct phy_device *phydev)
 	if (ofnode_read_bool(node, "enet-phy-lane-no-swap"))
 		dp83867->port_mirroring = DP83867_PORT_MIRRORING_DIS;
 
+	/*
+	 * 6-wire mode enables differential SGMII clock to MAC
+	 */
+	if (ofnode_read_bool(node, "ti,6-wire-mode"))
+		dp83867->wiremode_6 = true;
+
 	return 0;
 }
 #else
@@ -323,9 +333,11 @@ static int dp83867_config(struct phy_device *phydev)
 
 		phy_write_mmd(phydev, DP83867_DEVADDR,
 			      DP83867_RGMIIDCTL, delay);
-	}
+	} else if (phy_interface_is_sgmii(phydev)) {
+		if (dp83867->wiremode_6)
+			phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_SGMIITYPE,
+				      DP83867_SGMIICLK_EN);
 
-	if (phy_interface_is_sgmii(phydev)) {
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR,
 			  (BMCR_ANENABLE | BMCR_FULLDPLX | BMCR_SPEED1000));
 

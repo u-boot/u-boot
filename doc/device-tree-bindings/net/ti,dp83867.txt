@@ -16,6 +16,7 @@ Required properties:
 			      for applicable values.  The CLK_OUT pin can also
 			      be disabled by this property.  When omitted, the
 			      PHY's default will be left as is.
+	- ti,6-wire-mode - Indicates that it enables SGMII differntial clock to MAC
 
 Default child nodes are standard Ethernet PHY device
 nodes as described in doc/devicetree/bindings/net/ethernet.txt
