@@ -2671,6 +2671,9 @@ int brcmnand_probe(struct udevice *dev, struct brcmnand_soc *soc)
 	/* Disable XOR addressing */
 	brcmnand_rmw_reg(ctrl, BRCMNAND_CS_XOR, 0xff, 0, 0);
 
+	/* Read the write-protect configuration in the device tree */
+	wp_on = dev_read_u32_default(dev, "write-protect", wp_on);
+
 	if (ctrl->features & BRCMNAND_HAS_WP) {
 		/* Permanently disable write protection */
 		if (wp_on == 2)
