@@ -499,6 +499,13 @@ struct nand_hw_control {
 	struct nand_chip *active;
 };
 
+static inline void nand_hw_control_init(struct nand_hw_control *nfc)
+{
+	nfc->active = NULL;
+	spin_lock_init(&nfc->lock);
+	init_waitqueue_head(&nfc->wq);
+}
+
 /**
  * struct nand_ecc_step_info - ECC step information of ECC engine
  * @stepsize: data bytes per ECC step
