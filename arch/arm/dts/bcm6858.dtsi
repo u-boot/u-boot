@@ -178,5 +178,18 @@
 
 			status = "disabled";
 		};
+
+		nand: nand-controller@ff801800 {
+			compatible = "brcm,nand-bcm6858",
+				     "brcm,brcmnand-v5.0",
+				     "brcm,brcmnand";
+			reg-names = "nand", "nand-int-base", "nand-cache";
+			reg = <0x0 0xff801800 0x0 0x180>,
+			      <0x0 0xff802000 0x0 0x10>,
+			      <0x0 0xff801c00 0x0 0x200>;
+			parameter-page-big-endian = <0>;
+
+			status = "disabled";
+		};
 	};
 };
