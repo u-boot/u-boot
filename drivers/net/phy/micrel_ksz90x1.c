@@ -10,7 +10,6 @@
  */
 #include <common.h>
 #include <dm.h>
-#include <env.h>
 #include <errno.h>
 #include <micrel.h>
 #include <phy.h>
@@ -34,13 +33,9 @@
 #define CTRL1000_CONFIG_MASTER		(1 << 11)
 #define CTRL1000_MANUAL_CONFIG		(1 << 12)
 
-#define KSZ9021_PS_TO_REG		120
-
 /* KSZ9031 PHY Registers */
 #define MII_KSZ9031_MMD_ACCES_CTRL	0x0d
 #define MII_KSZ9031_MMD_REG_DATA	0x0e
-
-#define KSZ9031_PS_TO_REG		60
 
 static int ksz90xx_startup(struct phy_device *phydev)
 {
@@ -107,11 +102,10 @@ static const struct ksz90x1_reg_field ksz9031_clk_grp[] = {
 };
 
 static int ksz90x1_of_config_group(struct phy_device *phydev,
-				   struct ksz90x1_ofcfg *ofcfg,
-				   int ps_to_regval)
+				   struct ksz90x1_ofcfg *ofcfg)
 {
-	struct udevice *dev = phydev->dev;
 	struct phy_driver *drv = phydev->drv;
+	const int ps_to_regval = 60;
 	int val[4];
 	int i, changed = 0, offset, max;
 	u16 regval = 0;
@@ -120,12 +114,9 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 	if (!drv || !drv->writeext)
 		return -EOPNOTSUPP;
 
-	/* Look for a PHY node under the Ethernet node */
-	node = dev_read_subnode(dev, "ethernet-phy");
-	if (!ofnode_valid(node)) {
-		/* No node found, look in the Ethernet node */
-		node = dev_ofnode(dev);
-	}
+	node = phy_get_ofnode(phydev);
+	if (!ofnode_valid(node))
+		return -EINVAL;
 
 	for (i = 0; i < ofcfg->grpsz; i++) {
 		val[i] = ofnode_read_u32_default(node, ofcfg->grp[i].name, ~0);
@@ -136,8 +127,8 @@ static int ksz90x1_of_config_group(struct phy_device *phydev,
 		} else {
 			changed = 1;	/* Value was changed in OF */
 			/* Calculate the register value and fix corner cases */
-			max = (1 << ofcfg->grp[i].size) - 1;
-			if (val[i] > ps_to_regval * max) {
+			if (val[i] > ps_to_regval * 0xf) {
+				max = (1 << ofcfg->grp[i].size) - 1;
 				regval |= max << offset;
 			} else {
 				regval |= (val[i] / ps_to_regval) << offset;
@@ -161,8 +152,7 @@ static int ksz9021_of_config(struct phy_device *phydev)
 	int i, ret = 0;
 
 	for (i = 0; i < ARRAY_SIZE(ofcfg); i++) {
-		ret = ksz90x1_of_config_group(phydev, &ofcfg[i],
-					      KSZ9021_PS_TO_REG);
+		ret = ksz90x1_of_config_group(phydev, &(ofcfg[i]));
 		if (ret)
 			return ret;
 	}
@@ -181,8 +171,7 @@ static int ksz9031_of_config(struct phy_device *phydev)
 	int i, ret = 0;
 
 	for (i = 0; i < ARRAY_SIZE(ofcfg); i++) {
-		ret = ksz90x1_of_config_group(phydev, &ofcfg[i],
-					      KSZ9031_PS_TO_REG);
+		ret = ksz90x1_of_config_group(phydev, &(ofcfg[i]));
 		if (ret)
 			return ret;
 	}
@@ -286,7 +275,7 @@ static int ksz9021_config(struct phy_device *phydev)
 static struct phy_driver ksz9021_driver = {
 	.name = "Micrel ksz9021",
 	.uid  = 0x221610,
-	.mask = 0xfffffe,
+	.mask = 0xfffff0,
 	.features = PHY_GBIT_FEATURES,
 	.config = &ksz9021_config,
 	.startup = &ksz90xx_startup,
