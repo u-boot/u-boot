@@ -133,7 +133,7 @@
 			};
 		};
 
-		pcie-controller {
+		pcie {
 			status = "okay";
 			pcie@1,0 {
 				/* Port 0, Lane 0 */
