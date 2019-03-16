@@ -138,6 +138,10 @@ static int dp83867_of_init(struct phy_device *phydev)
 
 	/* Optional configuration */
 
+	node = phy_get_ofnode(phydev);
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
 	/*
 	 * Keep the default value if ti,clk-output-sel is not set
 	 * or to high
@@ -146,10 +150,6 @@ static int dp83867_of_init(struct phy_device *phydev)
 	dp83867->clk_output_sel =
 		ofnode_read_u32_default(node, "ti,clk-output-sel",
 					DP83867_CLK_O_SEL_REF_CLK);
-
-	node = phy_get_ofnode(phydev);
-	if (!ofnode_valid(node))
-		return -EINVAL;
 
 	if (ofnode_read_bool(node, "ti,max-output-impedance"))
 		dp83867->io_impedance = DP83867_IO_MUX_CFG_IO_IMPEDANCE_MAX;
