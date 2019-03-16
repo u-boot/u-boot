@@ -26,6 +26,32 @@ static int xilinxgmiitorgmii_config(struct phy_device *phydev)
 	return 0;
 }
 
+static int xilinxgmiitorgmii_extread(struct phy_device *phydev, int addr,
+				     int devaddr, int regnum)
+{
+	struct phy_device *ext_phydev = phydev->priv;
+
+	debug("%s\n", __func__);
+	if (ext_phydev->drv->readext)
+		ext_phydev->drv->readext(ext_phydev, addr, devaddr, regnum);
+
+	return 0;
+}
+
+static int xilinxgmiitorgmii_extwrite(struct phy_device *phydev, int addr,
+				      int devaddr, int regnum, u16 val)
+
+{
+	struct phy_device *ext_phydev = phydev->priv;
+
+	debug("%s\n", __func__);
+	if (ext_phydev->drv->writeext)
+		ext_phydev->drv->writeext(ext_phydev, addr, devaddr, regnum,
+					  val);
+
+	return 0;
+}
+
 static int xilinxgmiitorgmii_startup(struct phy_device *phydev)
 {
 	u16 val = 0;
@@ -103,6 +129,8 @@ static struct phy_driver gmii2rgmii_driver = {
 	.probe = xilinxgmiitorgmii_probe,
 	.config = xilinxgmiitorgmii_config,
 	.startup = xilinxgmiitorgmii_startup,
+	.writeext = xilinxgmiitorgmii_extwrite,
+	.readext = xilinxgmiitorgmii_extread,
 };
 
 int phy_xilinx_gmii2rgmii_init(void)
