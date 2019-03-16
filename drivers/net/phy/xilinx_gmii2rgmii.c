@@ -85,6 +85,7 @@ static int xilinxgmiitorgmii_probe(struct phy_device *phydev)
 	int ofnode = phydev->addr;
 	u32 phy_of_handle;
 	int ext_phyaddr = -1;
+	struct phy_device *ext_phydev;
 
 	debug("%s\n", __func__);
 
@@ -104,14 +105,16 @@ static int xilinxgmiitorgmii_probe(struct phy_device *phydev)
 		ext_phyaddr = fdtdec_get_int(gd->fdt_blob,
 					     phy_of_handle,
 					     "reg", -1);
-	phydev->priv = phy_find_by_mask(phydev->bus,
-					1 << ext_phyaddr,
-					PHY_INTERFACE_MODE_RGMII);
-
-	if (!phydev->priv) {
+	ext_phydev = phy_find_by_mask(phydev->bus,
+				      1 << ext_phyaddr,
+				      PHY_INTERFACE_MODE_RGMII);
+	if (!ext_phydev) {
 		printf("%s, No external phy device found\n", __func__);
 		return -EINVAL;
 	}
+
+	ext_phydev->node = offset_to_ofnode(phy_of_handle);
+	phydev->priv = ext_phydev;
 
 	debug("%s, gmii2rgmmi:0x%x, extphy:0x%x\n", __func__, phydev->addr,
 	      ext_phyaddr);
