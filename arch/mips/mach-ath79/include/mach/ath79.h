@@ -2,6 +2,7 @@
 /*
  * Atheros AR71XX/AR724X/AR913X common definitions
  *
+ * Copyright (C) 2018-2019 Rosy Song <rosysong@rosinson.com>
  * Copyright (C) 2015-2016 Wills Wang <wills.wang@live.com>
  * Copyright (C) 2008-2011 Gabor Juhos <juhosg@openwrt.org>
  * Copyright (C) 2008 Imre Kaloz <kaloz@openwrt.org>
@@ -146,4 +147,6 @@ int ath79_usb_reset(void);
 void ar934x_pll_init(const u16 cpu_mhz, const u16 ddr_mhz, const u16 ahb_mhz);
 void ar934x_ddr_init(const u16 cpu_mhz, const u16 ddr_mhz, const u16 ahb_mhz);
 
+void qca956x_pll_init(void);
+void qca956x_ddr_init(void);
 #endif /* __ASM_MACH_ATH79_H */
