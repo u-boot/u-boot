@@ -104,18 +104,22 @@ static const struct ksz90x1_reg_field ksz9031_clk_grp[] = {
 static int ksz90x1_of_config_group(struct phy_device *phydev,
 				   struct ksz90x1_ofcfg *ofcfg)
 {
-	struct udevice *dev = phydev->dev;
 	struct phy_driver *drv = phydev->drv;
 	const int ps_to_regval = 60;
 	int val[4];
 	int i, changed = 0, offset, max;
 	u16 regval = 0;
+	ofnode node;
 
 	if (!drv || !drv->writeext)
 		return -EOPNOTSUPP;
 
+	node = phy_get_ofnode(phydev);
+	if (!ofnode_valid(node))
+		return -EINVAL;
+
 	for (i = 0; i < ofcfg->grpsz; i++) {
-		val[i] = dev_read_u32_default(dev, ofcfg->grp[i].name, ~0);
+		val[i] = ofnode_read_u32_default(node, ofcfg->grp[i].name, ~0);
 		offset = ofcfg->grp[i].off;
 		if (val[i] == -1) {
 			/* Default register value for KSZ9021 */
