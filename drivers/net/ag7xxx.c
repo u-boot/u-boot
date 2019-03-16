@@ -3,6 +3,7 @@
  * Atheros AR71xx / AR9xxx GMAC driver
  *
  * Copyright (C) 2016 Marek Vasut <marex@denx.de>
+ * Copyright (C) 2019 Rosy Song <rosysong@rosinson.com>
  */
 
 #include <common.h>
@@ -23,7 +24,8 @@ DECLARE_GLOBAL_DATA_PTR;
 enum ag7xxx_model {
 	AG7XXX_MODEL_AG933X,
 	AG7XXX_MODEL_AG934X,
-	AG7XXX_MODEL_AG953X
+	AG7XXX_MODEL_AG953X,
+	AG7XXX_MODEL_AG956X
 };
 
 /* MAC Configuration 1 */
@@ -219,6 +221,7 @@ static int ag7xxx_switch_reg_read(struct mii_dev *bus, int reg, u32 *val)
 	u32 reg_addr;
 	u32 phy_temp;
 	u32 reg_temp;
+	u32 reg_temp_w = (reg & 0xfffffffc) >> 1;
 	u16 rv = 0;
 	int ret;
 
@@ -226,18 +229,25 @@ static int ag7xxx_switch_reg_read(struct mii_dev *bus, int reg, u32 *val)
 	    priv->model == AG7XXX_MODEL_AG953X) {
 		phy_addr = 0x1f;
 		reg_addr = 0x10;
-	} else if (priv->model == AG7XXX_MODEL_AG934X) {
+	} else if (priv->model == AG7XXX_MODEL_AG934X ||
+		   priv->model == AG7XXX_MODEL_AG956X) {
 		phy_addr = 0x18;
 		reg_addr = 0x00;
 	} else
 		return -EINVAL;
 
-	ret = ag7xxx_switch_write(bus, phy_addr, reg_addr, reg >> 9);
+	if (priv->model == AG7XXX_MODEL_AG956X)
+		ret = ag7xxx_switch_write(bus, phy_addr, reg_addr, (reg >> 9) & 0x1ff);
+	else
+		ret = ag7xxx_switch_write(bus, phy_addr, reg_addr, reg >> 9);
 	if (ret)
 		return ret;
 
 	phy_temp = ((reg >> 6) & 0x7) | 0x10;
-	reg_temp = (reg >> 1) & 0x1e;
+	if (priv->model == AG7XXX_MODEL_AG956X)
+		reg_temp = reg_temp_w & 0x1f;
+	else
+		reg_temp = (reg >> 1) & 0x1e;
 	*val = 0;
 
 	ret = ag7xxx_switch_read(bus, phy_temp, reg_temp | 0, &rv);
@@ -245,7 +255,13 @@ static int ag7xxx_switch_reg_read(struct mii_dev *bus, int reg, u32 *val)
 		return ret;
 	*val |= rv;
 
-	ret = ag7xxx_switch_read(bus, phy_temp, reg_temp | 1, &rv);
+	if (priv->model == AG7XXX_MODEL_AG956X) {
+		phy_temp = (((reg_temp_w + 1) >> 5) & 0x7) | 0x10;
+		reg_temp = (reg_temp_w + 1) & 0x1f;
+		ret = ag7xxx_switch_read(bus, phy_temp, reg_temp, &rv);
+	} else {
+		ret = ag7xxx_switch_read(bus, phy_temp, reg_temp | 1, &rv);
+	}
 	if (ret < 0)
 		return ret;
 	*val |= (rv << 16);
@@ -260,24 +276,34 @@ static int ag7xxx_switch_reg_write(struct mii_dev *bus, int reg, u32 val)
 	u32 reg_addr;
 	u32 phy_temp;
 	u32 reg_temp;
+	u32 reg_temp_w = (reg & 0xfffffffc) >> 1;
 	int ret;
 
 	if (priv->model == AG7XXX_MODEL_AG933X ||
 	    priv->model == AG7XXX_MODEL_AG953X) {
 		phy_addr = 0x1f;
 		reg_addr = 0x10;
-	} else if (priv->model == AG7XXX_MODEL_AG934X) {
+	} else if (priv->model == AG7XXX_MODEL_AG934X ||
+		   priv->model == AG7XXX_MODEL_AG956X) {
 		phy_addr = 0x18;
 		reg_addr = 0x00;
 	} else
 		return -EINVAL;
 
-	ret = ag7xxx_switch_write(bus, phy_addr, reg_addr, reg >> 9);
+	if (priv->model == AG7XXX_MODEL_AG956X)
+		ret = ag7xxx_switch_write(bus, phy_addr, reg_addr, (reg >> 9) & 0x1ff);
+	else
+		ret = ag7xxx_switch_write(bus, phy_addr, reg_addr, reg >> 9);
 	if (ret)
 		return ret;
 
-	phy_temp = ((reg >> 6) & 0x7) | 0x10;
-	reg_temp = (reg >> 1) & 0x1e;
+	if (priv->model == AG7XXX_MODEL_AG956X) {
+		reg_temp = (reg_temp_w + 1) & 0x1f;
+		phy_temp = (((reg_temp_w + 1) >> 5) & 0x7) | 0x10;
+	} else {
+		phy_temp = ((reg >> 6) & 0x7) | 0x10;
+		reg_temp = (reg >> 1) & 0x1e;
+	}
 
 	/*
 	 * The switch on AR933x has some special register behavior, which
@@ -296,9 +322,17 @@ static int ag7xxx_switch_reg_write(struct mii_dev *bus, int reg, u32 val)
 		if (ret < 0)
 			return ret;
 	} else {
-		ret = ag7xxx_switch_write(bus, phy_temp, reg_temp | 1, val >> 16);
+		if (priv->model == AG7XXX_MODEL_AG956X)
+			ret = ag7xxx_switch_write(bus, phy_temp, reg_temp, val >> 16);
+		else
+			ret = ag7xxx_switch_write(bus, phy_temp, reg_temp | 1, val >> 16);
 		if (ret < 0)
 			return ret;
+
+		if (priv->model == AG7XXX_MODEL_AG956X) {
+			phy_temp = ((reg_temp_w >> 5) & 0x7) | 0x10;
+			reg_temp = reg_temp_w & 0x1f;
+		}
 
 		ret = ag7xxx_switch_write(bus, phy_temp, reg_temp | 0, val & 0xffff);
 		if (ret < 0)
@@ -626,9 +660,12 @@ static int ag7xxx_mii_setup(struct udevice *dev)
 		reg = 0x4;
 	else if (priv->model == AG7XXX_MODEL_AG953X)
 		reg = 0x2;
+	else if (priv->model == AG7XXX_MODEL_AG956X)
+		reg = 0x7;
 
 	if (priv->model == AG7XXX_MODEL_AG934X ||
-	    priv->model == AG7XXX_MODEL_AG953X) {
+	    priv->model == AG7XXX_MODEL_AG953X ||
+	    priv->model == AG7XXX_MODEL_AG956X) {
 		writel(AG7XXX_ETH_MII_MGMT_CFG_RESET | reg,
 		       priv->regs + AG7XXX_ETH_MII_MGMT_CFG);
 		writel(reg, priv->regs + AG7XXX_ETH_MII_MGMT_CFG);
@@ -839,7 +876,8 @@ static int ag933x_phy_setup_reset_set(struct udevice *dev, int port)
 	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
 	int ret;
 
-	if (priv->model == AG7XXX_MODEL_AG953X) {
+	if (priv->model == AG7XXX_MODEL_AG953X ||
+	    priv->model == AG7XXX_MODEL_AG956X) {
 		ret = ag7xxx_switch_write(priv->bus, port, MII_ADVERTISE,
 					ADVERTISE_ALL);
 	} else {
@@ -855,9 +893,15 @@ static int ag933x_phy_setup_reset_set(struct udevice *dev, int port)
 					ADVERTISE_1000FULL);
 		if (ret)
 			return ret;
+	} else if (priv->model == AG7XXX_MODEL_AG956X) {
+		ret = ag7xxx_switch_write(priv->bus, port, MII_CTRL1000,
+					  ADVERTISE_1000FULL);
+		if (ret)
+			return ret;
 	}
 
-	if (priv->model == AG7XXX_MODEL_AG953X)
+	if (priv->model == AG7XXX_MODEL_AG953X ||
+	    priv->model == AG7XXX_MODEL_AG956X)
 		return ag7xxx_switch_write(priv->bus, port, MII_BMCR,
 					 BMCR_ANENABLE | BMCR_RESET);
 
@@ -871,7 +915,8 @@ static int ag933x_phy_setup_reset_fin(struct udevice *dev, int port)
 	int ret;
 	u16 reg;
 
-	if (priv->model == AG7XXX_MODEL_AG953X) {
+	if (priv->model == AG7XXX_MODEL_AG953X ||
+	    priv->model == AG7XXX_MODEL_AG956X) {
 		do {
 			ret = ag7xxx_switch_read(priv->bus, port, MII_BMCR, &reg);
 			if (ret < 0)
@@ -899,7 +944,8 @@ static int ag933x_phy_setup_common(struct udevice *dev)
 	if (priv->model == AG7XXX_MODEL_AG933X)
 		phymax = 4;
 	else if (priv->model == AG7XXX_MODEL_AG934X ||
-		priv->model == AG7XXX_MODEL_AG953X)
+		priv->model == AG7XXX_MODEL_AG953X ||
+		priv->model == AG7XXX_MODEL_AG956X)
 		phymax = 5;
 	else
 		return -EINVAL;
@@ -939,7 +985,8 @@ static int ag933x_phy_setup_common(struct udevice *dev)
 
 	for (i = 0; i < phymax; i++) {
 		/* Read out link status */
-		if (priv->model == AG7XXX_MODEL_AG953X)
+		if (priv->model == AG7XXX_MODEL_AG953X ||
+		    priv->model == AG7XXX_MODEL_AG956X)
 			ret = ag7xxx_switch_read(priv->bus, i, MII_MIPSCR, &reg);
 		else
 			ret = ag7xxx_mdio_read(priv->bus, i, 0, MII_MIPSCR);
@@ -1004,6 +1051,63 @@ static int ag934x_phy_setup(struct udevice *dev)
 	return 0;
 }
 
+static int ag956x_phy_setup(struct udevice *dev)
+{
+	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
+	int i, ret;
+	u32 reg, ctrl;
+
+	ret = ag7xxx_switch_reg_read(priv->bus, 0x0, &reg);
+	if (ret)
+		return ret;
+	if ((reg & 0xffff) >= 0x1301)
+		ctrl = 0xc74164de;
+	else
+		ctrl = 0xc74164d0;
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x4, BIT(7));
+	if (ret)
+		return ret;
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0xe0, ctrl);
+	if (ret)
+		return ret;
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x624, 0x7f7f7f7f);
+	if (ret)
+		return ret;
+
+	/*
+	 * Values suggested by the switch team when s17 in sgmii
+	 * configuration. 0x10(S17_PWS_REG) = 0x602613a0
+	 */
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x10, 0x602613a0);
+	if (ret)
+		return ret;
+
+	ret = ag7xxx_switch_reg_write(priv->bus, 0x7c, 0x0000007e);
+	if (ret)
+		return ret;
+
+	/* AR8337/AR8334 v1.0 fixup */
+	ret = ag7xxx_switch_reg_read(priv->bus, 0, &reg);
+	if (ret)
+		return ret;
+	if ((reg & 0xffff) == 0x1301) {
+		for (i = 0; i < 5; i++) {
+			/* Turn on Gigabit clock */
+			ret = ag7xxx_switch_write(priv->bus, i, 0x1d, 0x3d);
+			if (ret)
+				return ret;
+			ret = ag7xxx_switch_write(priv->bus, i, 0x1e, 0x6820);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return 0;
+}
+
 static int ag7xxx_mac_probe(struct udevice *dev)
 {
 	struct ar7xxx_eth_priv *priv = dev_get_priv(dev);
@@ -1028,6 +1132,8 @@ static int ag7xxx_mac_probe(struct udevice *dev)
 			ret = ag953x_phy_setup_lan(dev);
 	} else if (priv->model == AG7XXX_MODEL_AG934X) {
 		ret = ag934x_phy_setup(dev);
+	} else if (priv->model == AG7XXX_MODEL_AG956X) {
+		ret = ag956x_phy_setup(dev);
 	} else {
 		return -EINVAL;
 	}
@@ -1166,6 +1272,7 @@ static const struct udevice_id ag7xxx_eth_ids[] = {
 	{ .compatible = "qca,ag933x-mac", .data = AG7XXX_MODEL_AG933X },
 	{ .compatible = "qca,ag934x-mac", .data = AG7XXX_MODEL_AG934X },
 	{ .compatible = "qca,ag953x-mac", .data = AG7XXX_MODEL_AG953X },
+	{ .compatible = "qca,ag956x-mac", .data = AG7XXX_MODEL_AG956X },
 	{ }
 };
 
