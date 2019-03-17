@@ -120,4 +120,23 @@ config RISCV_RDTIME
 config SYS_MALLOC_F_LEN
 	default 0x1000
 
+config SMP
+	bool "Symmetric Multi-Processing"
+	help
+	  This enables support for systems with more than one CPU. If
+	  you say N here, U-Boot will run on single and multiprocessor
+	  machines, but will use only one CPU of a multiprocessor
+	  machine. If you say Y here, U-Boot will run on many, but not
+	  all, single processor machines.
+
+config NR_CPUS
+	int "Maximum number of CPUs (2-32)"
+	range 2 32
+	depends on SMP
+	default 8
+	help
+	  On multiprocessor machines, U-Boot sets up a stack for each CPU.
+	  Stack memory is pre-allocated. U-Boot must therefore know the
+	  maximum number of CPUs that may be present.
+
 endmenu
