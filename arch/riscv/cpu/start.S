@@ -36,6 +36,10 @@
 .section .text
 .globl _start
 _start:
+#ifdef CONFIG_RISCV_MMODE
+	csrr	a0, mhartid
+#endif
+
 	/* save hart id and dtb pointer */
 	mv	tp, a0
 	mv	s1, a1
