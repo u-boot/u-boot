@@ -33,6 +33,10 @@
 #define SYM_SIZE		0x18
 #endif
 
+.section .data
+secondary_harts_relocation_error:
+	.ascii "Relocation of secondary harts has failed, error %d\n"
+
 .section .text
 .globl _start
 _start:
@@ -274,8 +278,15 @@ relocate_secondary_harts:
 	mv	a2, s3
 	jal	smp_call_function
 
+	/* hang if relocation of secondary harts has failed */
+	beqz	a0, 1f
+	mv	a1, a0
+	la	a0, secondary_harts_relocation_error
+	jal	printf
+	jal	hang
+
 	/* restore relocation offset */
-	mv	t6, s5
+1:	mv	t6, s5
 #endif
 
 /*
