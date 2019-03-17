@@ -13,6 +13,7 @@ obj-$(CONFIG_RISCV_RDTIME) += rdtime.o
 obj-$(CONFIG_SIFIVE_CLINT) += sifive_clint.o
 obj-y	+= interrupts.o
 obj-y	+= reset.o
+obj-$(CONFIG_SBI_IPI) += sbi_ipi.o
 obj-y   += setjmp.o
 obj-$(CONFIG_SMP) += smp.o
 

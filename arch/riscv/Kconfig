@@ -139,4 +139,9 @@ config NR_CPUS
 	  Stack memory is pre-allocated. U-Boot must therefore know the
 	  maximum number of CPUs that may be present.
 
+config SBI_IPI
+	bool
+	default y if RISCV_SMODE
+	depends on SMP
+
 endmenu
