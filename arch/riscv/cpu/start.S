@@ -45,10 +45,6 @@ _start:
 	/* mask all interrupts */
 	csrw	MODE_PREFIX(ie), zero
 
-	/* Enable cache */
-	jal	icache_enable
-	jal	dcache_enable
-
 /*
  * Set stackpointer in internal/ex RAM to call board_init_f
  */
@@ -56,10 +52,6 @@ call_board_init_f:
 	li	t0, -16
 	li	t1, CONFIG_SYS_INIT_SP_ADDR
 	and	sp, t1, t0		/* force 16 byte alignment */
-
-#ifdef CONFIG_DEBUG_UART
-	jal	debug_uart_init
-#endif
 
 call_board_init_f_0:
 	mv	a0, sp
@@ -73,6 +65,14 @@ call_board_init_f_0:
 
 	/* save the boot hart id to global_data */
 	SREG	s0, GD_BOOT_HART(gp)
+
+	/* Enable cache */
+	jal	icache_enable
+	jal	dcache_enable
+
+#ifdef CONFIG_DEBUG_UART
+	jal	debug_uart_init
+#endif
 
 	mv	a0, zero		/* a0 <-- boot_flags = 0 */
 	la	t5, board_init_f
