@@ -144,4 +144,8 @@ config SBI_IPI
 	default y if RISCV_SMODE
 	depends on SMP
 
+config STACK_SIZE_SHIFT
+	int
+	default 13
+
 endmenu
