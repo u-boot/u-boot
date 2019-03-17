@@ -36,7 +36,7 @@
 .globl _start
 _start:
 	/* save hart id and dtb pointer */
-	mv	s0, a0
+	mv	tp, a0
 	mv	s1, a1
 
 	la	t0, trap_entry
@@ -64,7 +64,7 @@ call_board_init_f_0:
 	jal	board_init_f_init_reserve
 
 	/* save the boot hart id to global_data */
-	SREG	s0, GD_BOOT_HART(gp)
+	SREG	tp, GD_BOOT_HART(gp)
 
 	/* Enable cache */
 	jal	icache_enable
