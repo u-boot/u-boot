@@ -696,7 +696,7 @@ static int sh_mmcif_dm_probe(struct udevice *dev)
 		return ret;
 	}
 
-	host->clk = clk_get_rate(&sh_mmcif_clk);
+	host->clk = clk_set_rate(&sh_mmcif_clk, 97500000);
 
 	plat->cfg.name = dev->name;
 	plat->cfg.host_caps = MMC_MODE_HS_52MHz | MMC_MODE_HS;
