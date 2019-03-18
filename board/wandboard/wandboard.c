@@ -355,8 +355,21 @@ static void do_enable_hdmi(struct display_info_t const *dev)
 
 static int detect_i2c(struct display_info_t const *dev)
 {
+#ifdef CONFIG_DM_I2C
+	struct udevice *bus, *udev;
+	int rc;
+
+	rc = uclass_get_device_by_seq(UCLASS_I2C, dev->bus, &bus);
+	if (rc)
+		return rc;
+	rc = dm_i2c_probe(bus, dev->addr, 0, &udev);
+	if (rc)
+		return 0;
+	return 1;
+#else
 	return (0 == i2c_set_bus_num(dev->bus)) &&
 			(0 == i2c_probe(dev->addr));
+#endif
 }
 
 static void enable_fwadapt_7wvga(struct display_info_t const *dev)
@@ -547,13 +560,13 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 #if defined(CONFIG_VIDEO_IPUV3)
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c2_pad_info);
+	setup_i2c(1, CONFIG_SYS_MXC_I2C1_SPEED, 0x7f, &mx6dl_i2c2_pad_info);
 	if (is_mx6dq() || is_mx6dqp()) {
-		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c2_pad_info);
-		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c3_pad_info);
+		setup_i2c(1, CONFIG_SYS_MXC_I2C1_SPEED, 0x7f, &mx6q_i2c2_pad_info);
+		setup_i2c(2, CONFIG_SYS_MXC_I2C2_SPEED, 0x7f, &mx6q_i2c3_pad_info);
 	} else {
-		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c2_pad_info);
-		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c3_pad_info);
+		setup_i2c(1, CONFIG_SYS_MXC_I2C1_SPEED, 0x7f, &mx6dl_i2c2_pad_info);
+		setup_i2c(2, CONFIG_SYS_MXC_I2C2_SPEED, 0x7f, &mx6dl_i2c3_pad_info);
 	}
 
 	setup_display();
