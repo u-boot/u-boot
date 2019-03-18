@@ -131,12 +131,14 @@ static void setup_iomux_enet(void)
 	if (with_pmic) {
 		SETUP_IOMUX_PADS(enet_ar8035_power_pads);
 		/* enable AR8035 POWER */
+		gpio_request(ETH_PHY_AR8035_POWER, "PHY_POWER");
 		gpio_direction_output(ETH_PHY_AR8035_POWER, 0);
 	}
 	/* wait until 3.3V of PHY and clock become stable */
 	mdelay(10);
 
 	/* Reset AR8031 PHY */
+	gpio_request(ETH_PHY_RESET, "PHY_RESET");
 	gpio_direction_output(ETH_PHY_RESET, 0);
 	mdelay(10);
 	gpio_set_value(ETH_PHY_RESET, 1);
@@ -169,6 +171,11 @@ int board_mmc_init(bd_t *bis)
 {
 	int ret;
 	u32 index = 0;
+
+#if !CONFIG_IS_ENABLED(DM_MMC)
+	gpio_request(USDHC1_CD_GPIO, "USDHC1_CD");
+	gpio_request(USDHC3_CD_GPIO, "USDHC3_CD");
+#endif
 
 	/*
 	 * Following map is done:
@@ -356,6 +363,8 @@ static void enable_fwadapt_7wvga(struct display_info_t const *dev)
 {
 	SETUP_IOMUX_PADS(fwadapt_7wvga_pads);
 
+	gpio_request(IMX_GPIO_NR(2, 10), "DISP0_BKLEN");
+	gpio_request(IMX_GPIO_NR(2, 11), "DISP0_VDDEN");
 	gpio_direction_output(IMX_GPIO_NR(2, 10), 1);
 	gpio_direction_output(IMX_GPIO_NR(2, 11), 1);
 }
@@ -418,6 +427,7 @@ static void setup_display(void)
 
 	/* Disable LCD backlight */
 	SETUP_IOMUX_PAD(PAD_DI0_PIN4__GPIO4_IO20);
+	gpio_request(IMX_GPIO_NR(4, 20), "LCD_BKLEN");
 	gpio_direction_input(IMX_GPIO_NR(4, 20));
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
@@ -548,6 +558,8 @@ int board_init(void)
 
 int checkboard(void)
 {
+	gpio_request(REV_DETECTION, "REV_DETECT");
+
 	if (is_revd1())
 		puts("Board: Wandboard rev D1\n");
 	else if (is_revc1())
