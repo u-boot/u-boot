@@ -783,7 +783,10 @@ int tmio_sd_probe(struct udevice *dev, u32 quirks)
 	plat->cfg.f_min = mclk /
 			(priv->caps & TMIO_SD_CAP_DIV1024 ? 1024 : 512);
 	plat->cfg.f_max = mclk;
-	plat->cfg.b_max = U32_MAX; /* max value of TMIO_SD_SECCNT */
+	if (quirks & TMIO_SD_CAP_16BIT)
+		plat->cfg.b_max = U16_MAX; /* max value of TMIO_SD_SECCNT */
+	else
+		plat->cfg.b_max = U32_MAX; /* max value of TMIO_SD_SECCNT */
 
 	upriv->mmc = &plat->mmc;
 
