@@ -22,8 +22,6 @@
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>
-#include <fsl_esdhc.h>
-#include <mmc.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <phy.h>
@@ -37,10 +35,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
 	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP |			\
-	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\
-	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
@@ -48,8 +42,6 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
 	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
 
-#define USDHC1_CD_GPIO		IMX_GPIO_NR(1, 2)
-#define USDHC3_CD_GPIO		IMX_GPIO_NR(3, 9)
 #define ETH_PHY_RESET		IMX_GPIO_NR(3, 29)
 #define ETH_PHY_AR8035_POWER	IMX_GPIO_NR(7, 13)
 #define REV_DETECTION		IMX_GPIO_NR(2, 28)
@@ -66,28 +58,6 @@ int dram_init(void)
 static iomux_v3_cfg_t const uart1_pads[] = {
 	IOMUX_PADS(PAD_CSI0_DAT10__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
 	IOMUX_PADS(PAD_CSI0_DAT11__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL)),
-};
-
-static iomux_v3_cfg_t const usdhc1_pads[] = {
-	IOMUX_PADS(PAD_SD1_CLK__SD1_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_CMD__SD1_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_DAT0__SD1_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_DAT1__SD1_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_DAT2__SD1_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD1_DAT3__SD1_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	/* Carrier MicroSD Card Detect */
-	IOMUX_PADS(PAD_GPIO_2__GPIO1_IO02  | MUX_PAD_CTRL(NO_PAD_CTRL)),
-};
-
-static iomux_v3_cfg_t const usdhc3_pads[] = {
-	IOMUX_PADS(PAD_SD3_CLK__SD3_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_CMD__SD3_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	/* SOM MicroSD Card Detect */
-	IOMUX_PADS(PAD_EIM_DA9__GPIO3_IO09  | MUX_PAD_CTRL(NO_PAD_CTRL)),
 };
 
 static iomux_v3_cfg_t const enet_pads[] = {
@@ -143,73 +113,6 @@ static void setup_iomux_enet(void)
 	mdelay(10);
 	gpio_set_value(ETH_PHY_RESET, 1);
 	udelay(100);
-}
-
-static struct fsl_esdhc_cfg usdhc_cfg[2] = {
-	{USDHC3_BASE_ADDR},
-	{USDHC1_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int ret = 0;
-
-	switch (cfg->esdhc_base) {
-	case USDHC1_BASE_ADDR:
-		ret = !gpio_get_value(USDHC1_CD_GPIO);
-		break;
-	case USDHC3_BASE_ADDR:
-		ret = !gpio_get_value(USDHC3_CD_GPIO);
-		break;
-	}
-
-	return ret;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int ret;
-	u32 index = 0;
-
-#if !CONFIG_IS_ENABLED(DM_MMC)
-	gpio_request(USDHC1_CD_GPIO, "USDHC1_CD");
-	gpio_request(USDHC3_CD_GPIO, "USDHC3_CD");
-#endif
-
-	/*
-	 * Following map is done:
-	 * (U-Boot device node)    (Physical Port)
-	 * mmc0                    SOM MicroSD
-	 * mmc1                    Carrier board MicroSD
-	 */
-	for (index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
-		switch (index) {
-		case 0:
-			SETUP_IOMUX_PADS(usdhc3_pads);
-			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-			usdhc_cfg[0].max_bus_width = 4;
-			gpio_direction_input(USDHC3_CD_GPIO);
-			break;
-		case 1:
-			SETUP_IOMUX_PADS(usdhc1_pads);
-			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-			usdhc_cfg[1].max_bus_width = 4;
-			gpio_direction_input(USDHC1_CD_GPIO);
-			break;
-		default:
-			printf("Warning: you configured more USDHC controllers"
-			       "(%d) then supported by the board (%d)\n",
-			       index + 1, CONFIG_SYS_FSL_USDHC_NUM);
-			return -EINVAL;
-		}
-
-		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
 }
 
 static int ar8031_phy_fixup(struct phy_device *phydev)
