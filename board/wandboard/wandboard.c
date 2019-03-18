@@ -453,24 +453,30 @@ int board_early_init_f(void)
 
 int power_init_board(void)
 {
-	struct pmic *p;
-	u32 reg;
+	struct udevice *dev;
+	int reg, ret;
 
-	/* configure PFUZE100 PMIC */
-	power_pfuze100_init(PMIC_I2C_BUS);
-	p = pmic_get("PFUZE100");
-	if (p && !pmic_probe(p)) {
-		pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-		printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
-		with_pmic = true;
+	puts("PMIC:  ");
 
-		/* Set VGEN2 to 1.5V and enable */
-		pmic_reg_read(p, PFUZE100_VGEN2VOL, &reg);
-		reg &= ~(LDO_VOL_MASK);
-		reg |= (LDOA_1_50V | (1 << (LDO_EN)));
-		pmic_reg_write(p, PFUZE100_VGEN2VOL, reg);
+	ret = pmic_get("pfuze100", &dev);
+	if (ret < 0) {
+		printf("pmic_get() ret %d\n", ret);
+		return 0;
 	}
 
+	reg = pmic_reg_read(dev, PFUZE100_DEVICEID);
+	if (reg < 0) {
+		printf("pmic_reg_read() ret %d\n", reg);
+		return 0;
+	}
+	printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+	with_pmic = true;
+
+	/* Set VGEN2 to 1.5V and enable */
+	reg = pmic_reg_read(dev, PFUZE100_VGEN2VOL);
+	reg &= ~(LDO_VOL_MASK);
+	reg |= (LDOA_1_50V | (1 << (LDO_EN)));
+	pmic_reg_write(dev, PFUZE100_VGEN2VOL, reg);
 	return 0;
 }
 
