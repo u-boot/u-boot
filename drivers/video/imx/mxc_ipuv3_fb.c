@@ -20,7 +20,7 @@
 #include <asm/mach-imx/video.h>
 #include <malloc.h>
 #include <video_fb.h>
-#include "videomodes.h"
+#include "../videomodes.h"
 #include "ipu.h"
 #include "mxcfb.h"
 #include "ipu_regs.h"
