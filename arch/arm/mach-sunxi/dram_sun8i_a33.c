@@ -152,7 +152,7 @@ static void auto_set_timing_para(struct dram_para *para)
 	reg_val &= ~(0xff << 8);
 	reg_val &= ~(0xff << 0);
 	reg_val |= (0x33 << 8);
-	reg_val |= (0x8 << 0);
+	reg_val |= (0x10 << 0);
 	writel(reg_val, &mctl_ctl->dramtmg8);
 	/* Set phy interface time */
 	reg_val = (0x2 << 24) | (t_rdata_en << 16) | (0x1 << 8)
