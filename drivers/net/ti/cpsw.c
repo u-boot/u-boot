@@ -209,10 +209,10 @@ struct cpdma_chan {
 #define chan_read_ptr(chan, fld)	((void *)__raw_readl((chan)->fld))
 
 #define for_active_slave(slave, priv) \
-	slave = (priv)->slaves + (priv)->data.active_slave; if (slave)
+	slave = (priv)->slaves + ((priv)->data)->active_slave; if (slave)
 #define for_each_slave(slave, priv) \
 	for (slave = (priv)->slaves; slave != (priv)->slaves + \
-				(priv)->data.slaves; slave++)
+				((priv)->data)->slaves; slave++)
 
 struct cpsw_priv {
 #ifdef CONFIG_DM_ETH
@@ -220,7 +220,7 @@ struct cpsw_priv {
 #else
 	struct eth_device		*dev;
 #endif
-	struct cpsw_platform_data	data;
+	struct cpsw_platform_data	*data;
 	int				host_port;
 
 	struct cpsw_regs		*regs;
@@ -327,7 +327,7 @@ static int cpsw_ale_match_addr(struct cpsw_priv *priv, const u8 *addr)
 	u32 ale_entry[ALE_ENTRY_WORDS];
 	int type, idx;
 
-	for (idx = 0; idx < priv->data.ale_entries; idx++) {
+	for (idx = 0; idx < priv->data->ale_entries; idx++) {
 		u8 entry_addr[6];
 
 		cpsw_ale_read(priv, idx, ale_entry);
@@ -346,7 +346,7 @@ static int cpsw_ale_match_free(struct cpsw_priv *priv)
 	u32 ale_entry[ALE_ENTRY_WORDS];
 	int type, idx;
 
-	for (idx = 0; idx < priv->data.ale_entries; idx++) {
+	for (idx = 0; idx < priv->data->ale_entries; idx++) {
 		cpsw_ale_read(priv, idx, ale_entry);
 		type = cpsw_ale_get_entry_type(ale_entry);
 		if (type == ALE_TYPE_FREE)
@@ -360,7 +360,7 @@ static int cpsw_ale_find_ageable(struct cpsw_priv *priv)
 	u32 ale_entry[ALE_ENTRY_WORDS];
 	int type, idx;
 
-	for (idx = 0; idx < priv->data.ale_entries; idx++) {
+	for (idx = 0; idx < priv->data->ale_entries; idx++) {
 		cpsw_ale_read(priv, idx, ale_entry);
 		type = cpsw_ale_get_entry_type(ale_entry);
 		if (type != ALE_TYPE_ADDR && type != ALE_TYPE_VLAN_ADDR)
@@ -500,7 +500,7 @@ static int cpsw_slave_update_link(struct cpsw_slave *slave,
 		*link = phy->link;
 
 	if (phy->link) { /* link up */
-		mac_control = priv->data.mac_control;
+		mac_control = priv->data->mac_control;
 		if (phy->speed == 1000)
 			mac_control |= GIGABITEN;
 		if (phy->duplex == DUPLEX_FULL)
@@ -710,7 +710,7 @@ static int _cpsw_init(struct cpsw_priv *priv, u8 *enetaddr)
 	priv->desc_free = &priv->descs[0];
 
 	/* initialize channels */
-	if (priv->data.version == CPSW_CTRL_VERSION_2) {
+	if (priv->data->version == CPSW_CTRL_VERSION_2) {
 		memset(&priv->rx_chan, 0, sizeof(struct cpdma_chan));
 		priv->rx_chan.hdp       = priv->dma_regs + CPDMA_RXHDP_VER2;
 		priv->rx_chan.cp        = priv->dma_regs + CPDMA_RXCP_VER2;
@@ -733,8 +733,8 @@ static int _cpsw_init(struct cpsw_priv *priv, u8 *enetaddr)
 	/* clear dma state */
 	setbit_and_wait_for_clear32(priv->dma_regs + CPDMA_SOFTRESET);
 
-	if (priv->data.version == CPSW_CTRL_VERSION_2) {
-		for (i = 0; i < priv->data.channels; i++) {
+	if (priv->data->version == CPSW_CTRL_VERSION_2) {
+		for (i = 0; i < priv->data->channels; i++) {
 			__raw_writel(0, priv->dma_regs + CPDMA_RXHDP_VER2 + 4
 					* i);
 			__raw_writel(0, priv->dma_regs + CPDMA_RXFREE + 4
@@ -747,7 +747,7 @@ static int _cpsw_init(struct cpsw_priv *priv, u8 *enetaddr)
 					* i);
 		}
 	} else {
-		for (i = 0; i < priv->data.channels; i++) {
+		for (i = 0; i < priv->data->channels; i++) {
 			__raw_writel(0, priv->dma_regs + CPDMA_RXHDP_VER1 + 4
 					* i);
 			__raw_writel(0, priv->dma_regs + CPDMA_RXFREE + 4
@@ -843,7 +843,7 @@ static void cpsw_slave_setup(struct cpsw_slave *slave, int slave_num,
 			    struct cpsw_priv *priv)
 {
 	void			*regs = priv->regs;
-	struct cpsw_slave_data	*data = priv->data.slave_data + slave_num;
+	struct cpsw_slave_data	*data = priv->data->slave_data + slave_num;
 	slave->slave_num = slave_num;
 	slave->data	= data;
 	slave->regs	= regs + data->slave_reg_ofs;
@@ -879,7 +879,7 @@ static int cpsw_phy_init(struct cpsw_priv *priv, struct cpsw_slave *slave)
 
 static void cpsw_phy_addr_update(struct cpsw_priv *priv)
 {
-	struct cpsw_platform_data *data = &priv->data;
+	struct cpsw_platform_data *data = priv->data;
 	u16 alive = cpsw_mdio_get_alive(priv->bus);
 	int active = data->active_slave;
 	int new_addr = ffs(alive) - 1;
@@ -899,7 +899,7 @@ static void cpsw_phy_addr_update(struct cpsw_priv *priv)
 int _cpsw_register(struct cpsw_priv *priv)
 {
 	struct cpsw_slave	*slave;
-	struct cpsw_platform_data *data = &priv->data;
+	struct cpsw_platform_data *data = priv->data;
 	void			*regs = (void *)data->cpsw_base;
 
 	priv->slaves = malloc(sizeof(struct cpsw_slave) * data->slaves);
@@ -988,7 +988,7 @@ int cpsw_register(struct cpsw_platform_data *data)
 	}
 
 	priv->dev = dev;
-	priv->data = *data;
+	priv->data = data;
 
 	strcpy(dev->name, "cpsw");
 	dev->iobase	= 0;
@@ -1069,9 +1069,9 @@ static void cpsw_gmii_sel_am3352(struct cpsw_priv *priv,
 	u32 mask;
 	u32 mode = 0;
 	bool rgmii_id = false;
-	int slave = priv->data.active_slave;
+	int slave = priv->data->active_slave;
 
-	reg = readl(priv->data.gmii_sel);
+	reg = readl(priv->data->gmii_sel);
 
 	switch (phy_mode) {
 	case PHY_INTERFACE_MODE_RMII:
@@ -1097,7 +1097,7 @@ static void cpsw_gmii_sel_am3352(struct cpsw_priv *priv,
 	mask = GMII_SEL_MODE_MASK << (slave * 2) | BIT(slave + 6);
 	mode <<= slave * 2;
 
-	if (priv->data.rmii_clock_external) {
+	if (priv->data->rmii_clock_external) {
 		if (slave == 0)
 			mode |= AM33XX_GMII_SEL_RMII1_IO_CLK_EN;
 		else
@@ -1114,7 +1114,7 @@ static void cpsw_gmii_sel_am3352(struct cpsw_priv *priv,
 	reg &= ~mask;
 	reg |= mode;
 
-	writel(reg, priv->data.gmii_sel);
+	writel(reg, priv->data->gmii_sel);
 }
 
 static void cpsw_gmii_sel_dra7xx(struct cpsw_priv *priv,
@@ -1123,9 +1123,9 @@ static void cpsw_gmii_sel_dra7xx(struct cpsw_priv *priv,
 	u32 reg;
 	u32 mask;
 	u32 mode = 0;
-	int slave = priv->data.active_slave;
+	int slave = priv->data->active_slave;
 
-	reg = readl(priv->data.gmii_sel);
+	reg = readl(priv->data->gmii_sel);
 
 	switch (phy_mode) {
 	case PHY_INTERFACE_MODE_RMII:
@@ -1158,13 +1158,13 @@ static void cpsw_gmii_sel_dra7xx(struct cpsw_priv *priv,
 		return;
 	}
 
-	if (priv->data.rmii_clock_external)
+	if (priv->data->rmii_clock_external)
 		dev_err(priv->dev, "RMII External clock is not supported\n");
 
 	reg &= ~mask;
 	reg |= mode;
 
-	writel(reg, priv->data.gmii_sel);
+	writel(reg, priv->data->gmii_sel);
 }
 
 static void cpsw_phy_sel(struct cpsw_priv *priv, const char *compat,
@@ -1184,8 +1184,9 @@ static int cpsw_eth_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 
 	priv->dev = dev;
+	priv->data = pdata->priv_pdata;
 	/* Select phy interface in control module */
-	cpsw_phy_sel(priv, priv->data.phy_sel_compat,
+	cpsw_phy_sel(priv, priv->data->phy_sel_compat,
 		     pdata->phy_interface);
 
 	return _cpsw_register(priv);
@@ -1194,7 +1195,7 @@ static int cpsw_eth_probe(struct udevice *dev)
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
-	struct cpsw_priv *priv = dev_get_priv(dev);
+	struct cpsw_platform_data *data;
 	struct gpio_desc *mode_gpios;
 	const char *phy_mode;
 	const void *fdt = gd->fdt_blob;
@@ -1205,45 +1206,47 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	int num_mode_gpios;
 	int ret;
 
+	data = calloc(1, sizeof(struct cpsw_platform_data));
+	pdata->priv_pdata = data;
 	pdata->iobase = devfdt_get_addr(dev);
-	priv->data.version = CPSW_CTRL_VERSION_2;
-	priv->data.bd_ram_ofs = CPSW_BD_OFFSET;
-	priv->data.ale_reg_ofs = CPSW_ALE_OFFSET;
-	priv->data.cpdma_reg_ofs = CPSW_CPDMA_OFFSET;
-	priv->data.mdio_div = CPSW_MDIO_DIV;
-	priv->data.host_port_reg_ofs = CPSW_HOST_PORT_OFFSET,
+	data->version = CPSW_CTRL_VERSION_2;
+	data->bd_ram_ofs = CPSW_BD_OFFSET;
+	data->ale_reg_ofs = CPSW_ALE_OFFSET;
+	data->cpdma_reg_ofs = CPSW_CPDMA_OFFSET;
+	data->mdio_div = CPSW_MDIO_DIV;
+	data->host_port_reg_ofs = CPSW_HOST_PORT_OFFSET,
 
 	pdata->phy_interface = -1;
 
-	priv->data.cpsw_base = pdata->iobase;
-	priv->data.channels = fdtdec_get_int(fdt, node, "cpdma_channels", -1);
-	if (priv->data.channels <= 0) {
+	data->cpsw_base = pdata->iobase;
+	data->channels = fdtdec_get_int(fdt, node, "cpdma_channels", -1);
+	if (data->channels <= 0) {
 		printf("error: cpdma_channels not found in dt\n");
 		return -ENOENT;
 	}
 
-	priv->data.slaves = fdtdec_get_int(fdt, node, "slaves", -1);
-	if (priv->data.slaves <= 0) {
+	data->slaves = fdtdec_get_int(fdt, node, "slaves", -1);
+	if (data->slaves <= 0) {
 		printf("error: slaves not found in dt\n");
 		return -ENOENT;
 	}
-	priv->data.slave_data = malloc(sizeof(struct cpsw_slave_data) *
-				       priv->data.slaves);
+	data->slave_data = malloc(sizeof(struct cpsw_slave_data) *
+				       data->slaves);
 
-	priv->data.ale_entries = fdtdec_get_int(fdt, node, "ale_entries", -1);
-	if (priv->data.ale_entries <= 0) {
+	data->ale_entries = fdtdec_get_int(fdt, node, "ale_entries", -1);
+	if (data->ale_entries <= 0) {
 		printf("error: ale_entries not found in dt\n");
 		return -ENOENT;
 	}
 
-	priv->data.bd_ram_ofs = fdtdec_get_int(fdt, node, "bd_ram_size", -1);
-	if (priv->data.bd_ram_ofs <= 0) {
+	data->bd_ram_ofs = fdtdec_get_int(fdt, node, "bd_ram_size", -1);
+	if (data->bd_ram_ofs <= 0) {
 		printf("error: bd_ram_size not found in dt\n");
 		return -ENOENT;
 	}
 
-	priv->data.mac_control = fdtdec_get_int(fdt, node, "mac_control", -1);
-	if (priv->data.mac_control <= 0) {
+	data->mac_control = fdtdec_get_int(fdt, node, "mac_control", -1);
+	if (data->mac_control <= 0) {
 		printf("error: ale_entries not found in dt\n");
 		return -ENOENT;
 	}
@@ -1258,7 +1261,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	}
 
 	active_slave = fdtdec_get_int(fdt, node, "active_slave", 0);
-	priv->data.active_slave = active_slave;
+	data->active_slave = active_slave;
 
 	fdt_for_each_subnode(subnode, fdt, node) {
 		int len;
@@ -1273,65 +1276,64 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 				pr_err("Not able to get MDIO address space\n");
 				return -ENOENT;
 			}
-			priv->data.mdio_base = mdio_base;
+			data->mdio_base = mdio_base;
 		}
 
 		if (!strncmp(name, "slave", 5)) {
 			u32 phy_id[2];
 
-			if (slave_index >= priv->data.slaves)
+			if (slave_index >= data->slaves)
 				continue;
 			phy_mode = fdt_getprop(fdt, subnode, "phy-mode", NULL);
 			if (phy_mode)
-				priv->data.slave_data[slave_index].phy_if =
+				data->slave_data[slave_index].phy_if =
 					phy_get_interface_by_name(phy_mode);
 
-			priv->data.slave_data[slave_index].phy_of_handle =
+			data->slave_data[slave_index].phy_of_handle =
 				fdtdec_lookup_phandle(fdt, subnode,
 						      "phy-handle");
 
-			if (priv->data.slave_data[slave_index].phy_of_handle >= 0) {
-				priv->data.slave_data[slave_index].phy_addr =
+			if (data->slave_data[slave_index].phy_of_handle >= 0) {
+				data->slave_data[slave_index].phy_addr =
 						fdtdec_get_int(gd->fdt_blob,
-							       priv->data.slave_data[slave_index].phy_of_handle,
+						data->slave_data[slave_index].phy_of_handle,
 							       "reg", -1);
 			} else {
 				fdtdec_get_int_array(fdt, subnode, "phy_id",
 						     phy_id, 2);
-				priv->data.slave_data[slave_index].phy_addr =
+				data->slave_data[slave_index].phy_addr =
 						phy_id[1];
 			}
 			slave_index++;
 		}
 
 		if (!strncmp(name, "cpsw-phy-sel", 12)) {
-			priv->data.gmii_sel = cpsw_get_addr_by_node(fdt,
-								    subnode);
+			data->gmii_sel = cpsw_get_addr_by_node(fdt, subnode);
 
-			if (priv->data.gmii_sel == FDT_ADDR_T_NONE) {
+			if (data->gmii_sel == FDT_ADDR_T_NONE) {
 				pr_err("Not able to get gmii_sel reg address\n");
 				return -ENOENT;
 			}
 
 			if (fdt_get_property(fdt, subnode, "rmii-clock-ext",
 					     NULL))
-				priv->data.rmii_clock_external = true;
+				data->rmii_clock_external = true;
 
-			priv->data.phy_sel_compat = fdt_getprop(fdt, subnode,
-								"compatible", NULL);
-			if (!priv->data.phy_sel_compat) {
+			data->phy_sel_compat = fdt_getprop(fdt, subnode,
+							   "compatible", NULL);
+			if (!data->phy_sel_compat) {
 				pr_err("Not able to get gmii_sel compatible\n");
 				return -ENOENT;
 			}
 		}
 	}
 
-	priv->data.slave_data[0].slave_reg_ofs = CPSW_SLAVE0_OFFSET;
-	priv->data.slave_data[0].sliver_reg_ofs = CPSW_SLIVER0_OFFSET;
+	data->slave_data[0].slave_reg_ofs = CPSW_SLAVE0_OFFSET;
+	data->slave_data[0].sliver_reg_ofs = CPSW_SLIVER0_OFFSET;
 
-	if (priv->data.slaves == 2) {
-		priv->data.slave_data[1].slave_reg_ofs = CPSW_SLAVE1_OFFSET;
-		priv->data.slave_data[1].sliver_reg_ofs = CPSW_SLIVER1_OFFSET;
+	if (data->slaves == 2) {
+		data->slave_data[1].slave_reg_ofs = CPSW_SLAVE1_OFFSET;
+		data->slave_data[1].sliver_reg_ofs = CPSW_SLIVER1_OFFSET;
 	}
 
 	ret = ti_cm_get_macid(dev, active_slave, pdata->enetaddr);
@@ -1340,7 +1342,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		return ret;
 	}
 
-	pdata->phy_interface = priv->data.slave_data[active_slave].phy_if;
+	pdata->phy_interface = data->slave_data[active_slave].phy_if;
 	if (pdata->phy_interface == -1) {
 		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
@@ -1352,7 +1354,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 int cpsw_get_slave_phy_addr(struct udevice *dev, int slave)
 {
 	struct cpsw_priv *priv = dev_get_priv(dev);
-	struct cpsw_platform_data *data = &priv->data;
+	struct cpsw_platform_data *data = priv->data;
 
 	return data->slave_data[slave].phy_addr;
 }
