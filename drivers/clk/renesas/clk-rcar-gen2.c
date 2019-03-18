@@ -44,13 +44,17 @@ static const struct clk_div_table cpg_sd01_div_table[] = {
 	{  0,  0 },
 };
 
-static u8 gen2_clk_get_sdh_div(const struct clk_div_table *table, u8 div)
+static u8 gen2_clk_get_sdh_div(const struct clk_div_table *table, u8 val)
 {
-	while ((*table++).val) {
-		if ((*table).div == div)
-			return div;
+	for (;;) {
+		if (!(*table).div)
+			return 0xff;
+
+		if ((*table).val == val)
+			return (*table).div;
+
+		table++;
 	}
-	return 0xff;
 }
 
 static int gen2_clk_enable(struct clk *clk)
