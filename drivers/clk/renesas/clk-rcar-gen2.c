@@ -206,8 +206,50 @@ static ulong gen2_clk_get_rate(struct clk *clk)
 	return -ENOENT;
 }
 
+static int gen2_clk_setup_mmcif_div(struct clk *clk, ulong rate)
+{
+	struct gen2_clk_priv *priv = dev_get_priv(clk->dev);
+	struct cpg_mssr_info *info = priv->info;
+	const struct cpg_core_clk *core;
+	struct clk parent, pparent;
+	u32 val;
+	int ret;
+
+	ret = renesas_clk_get_parent(clk, info, &parent);
+	if (ret) {
+		debug("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
+		return ret;
+	}
+
+	if (renesas_clk_is_mod(&parent))
+		return 0;
+
+	ret = renesas_clk_get_core(&parent, info, &core);
+	if (ret)
+		return ret;
+
+	if (strcmp(core->name, "mmc0") && strcmp(core->name, "mmc1"))
+		return 0;
+
+	ret = renesas_clk_get_parent(&parent, info, &pparent);
+	if (ret) {
+		debug("%s[%i] parent fail, ret=%i\n", __func__, __LINE__, ret);
+		return ret;
+	}
+
+	val = (gen2_clk_get_rate(&pparent) / rate) - 1;
+
+	debug("%s[%i] MMCIF offset=%x\n", __func__, __LINE__, core->offset);
+
+	writel(val, priv->base + core->offset);
+
+	return 0;
+}
+
 static ulong gen2_clk_set_rate(struct clk *clk, ulong rate)
 {
+	/* Force correct MMC-IF divider configuration if applicable */
+	gen2_clk_setup_mmcif_div(clk, rate);
 	return gen2_clk_get_rate(clk);
 }
 
