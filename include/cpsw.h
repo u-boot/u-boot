@@ -51,10 +51,15 @@ struct cpsw_platform_data {
 	bool	rmii_clock_external;
 	u8	version;
 	const char *phy_sel_compat;
+	u32	syscon_addr;
+	const char *macid_sel_compat;
 };
 
 int cpsw_register(struct cpsw_platform_data *data);
-int ti_cm_get_macid(struct udevice *dev, int slave, u8 *mac_addr);
+int ti_cm_get_macid_addr(struct udevice *dev, int slave,
+			 struct cpsw_platform_data *data);
+void ti_cm_get_macid(struct udevice *dev, struct cpsw_platform_data *data,
+		     u8 *mac_addr);
 int cpsw_get_slave_phy_addr(struct udevice *dev, int slave);
 
 #endif /* _CPSW_H_  */

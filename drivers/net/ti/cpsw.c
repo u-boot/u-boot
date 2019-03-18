@@ -1185,6 +1185,7 @@ static int cpsw_eth_probe(struct udevice *dev)
 
 	priv->dev = dev;
 	priv->data = pdata->priv_pdata;
+	ti_cm_get_macid(dev, priv->data, pdata->enetaddr);
 	/* Select phy interface in control module */
 	cpsw_phy_sel(priv, priv->data->phy_sel_compat,
 		     pdata->phy_interface);
@@ -1336,7 +1337,7 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		data->slave_data[1].sliver_reg_ofs = CPSW_SLIVER1_OFFSET;
 	}
 
-	ret = ti_cm_get_macid(dev, active_slave, pdata->enetaddr);
+	ret = ti_cm_get_macid_addr(dev, active_slave, data);
 	if (ret < 0) {
 		pr_err("cpsw read efuse mac failed\n");
 		return ret;
