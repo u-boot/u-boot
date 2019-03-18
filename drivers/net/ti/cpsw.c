@@ -1048,16 +1048,6 @@ static void cpsw_eth_stop(struct udevice *dev)
 	return _cpsw_halt(priv);
 }
 
-
-static int cpsw_eth_probe(struct udevice *dev)
-{
-	struct cpsw_priv *priv = dev_get_priv(dev);
-
-	priv->dev = dev;
-
-	return _cpsw_register(priv);
-}
-
 static const struct eth_ops cpsw_eth_ops = {
 	.start		= cpsw_eth_start,
 	.send		= cpsw_eth_send,
@@ -1188,13 +1178,25 @@ static void cpsw_phy_sel(struct cpsw_priv *priv, const char *compat,
 		cpsw_gmii_sel_dra7xx(priv, phy_mode);
 }
 
+static int cpsw_eth_probe(struct udevice *dev)
+{
+	struct cpsw_priv *priv = dev_get_priv(dev);
+	struct eth_pdata *pdata = dev_get_platdata(dev);
+
+	priv->dev = dev;
+	/* Select phy interface in control module */
+	cpsw_phy_sel(priv, priv->data.phy_sel_compat,
+		     pdata->phy_interface);
+
+	return _cpsw_register(priv);
+}
+
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct cpsw_priv *priv = dev_get_priv(dev);
 	struct gpio_desc *mode_gpios;
 	const char *phy_mode;
-	const char *phy_sel_compat = NULL;
 	const void *fdt = gd->fdt_blob;
 	int node = dev_of_offset(dev);
 	int subnode;
@@ -1315,9 +1317,9 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 					     NULL))
 				priv->data.rmii_clock_external = true;
 
-			phy_sel_compat = fdt_getprop(fdt, subnode, "compatible",
-						     NULL);
-			if (!phy_sel_compat) {
+			priv->data.phy_sel_compat = fdt_getprop(fdt, subnode,
+								"compatible", NULL);
+			if (!priv->data.phy_sel_compat) {
 				pr_err("Not able to get gmii_sel compatible\n");
 				return -ENOENT;
 			}
@@ -1343,9 +1345,6 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 		debug("%s: Invalid PHY interface '%s'\n", __func__, phy_mode);
 		return -EINVAL;
 	}
-
-	/* Select phy interface in control module */
-	cpsw_phy_sel(priv, phy_sel_compat, pdata->phy_interface);
 
 	return 0;
 }

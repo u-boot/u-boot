@@ -50,6 +50,7 @@ struct cpsw_platform_data {
 	u32	active_slave;
 	bool	rmii_clock_external;
 	u8	version;
+	const char *phy_sel_compat;
 };
 
 int cpsw_register(struct cpsw_platform_data *data);
