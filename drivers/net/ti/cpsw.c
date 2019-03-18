@@ -1193,6 +1193,7 @@ static int cpsw_eth_probe(struct udevice *dev)
 	return _cpsw_register(priv);
 }
 
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
@@ -1352,6 +1353,13 @@ static int cpsw_eth_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static const struct udevice_id cpsw_eth_ids[] = {
+	{ .compatible = "ti,cpsw" },
+	{ .compatible = "ti,am335x-cpsw" },
+	{ }
+};
+#endif
+
 int cpsw_get_slave_phy_addr(struct udevice *dev, int slave)
 {
 	struct cpsw_priv *priv = dev_get_priv(dev);
@@ -1360,21 +1368,17 @@ int cpsw_get_slave_phy_addr(struct udevice *dev, int slave)
 	return data->slave_data[slave].phy_addr;
 }
 
-static const struct udevice_id cpsw_eth_ids[] = {
-	{ .compatible = "ti,cpsw" },
-	{ .compatible = "ti,am335x-cpsw" },
-	{ }
-};
-
 U_BOOT_DRIVER(eth_cpsw) = {
 	.name	= "eth_cpsw",
 	.id	= UCLASS_ETH,
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	.of_match = cpsw_eth_ids,
 	.ofdata_to_platdata = cpsw_eth_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
+#endif
 	.probe	= cpsw_eth_probe,
 	.ops	= &cpsw_eth_ops,
 	.priv_auto_alloc_size = sizeof(struct cpsw_priv),
-	.platdata_auto_alloc_size = sizeof(struct eth_pdata),
 	.flags = DM_FLAG_ALLOC_PRIV_DMA,
 };
 #endif /* CONFIG_DM_ETH */
