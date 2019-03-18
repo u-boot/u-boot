@@ -215,9 +215,4 @@
 #define CONFIG_PWM_IMX
 #define CONFIG_IMX6_PWM_PER_CLK 66666000
 
-/* Framebuffer and LCD */
-#ifdef CONFIG_VIDEO
-	#define CONFIG_VIDEO_IPUV3
-#endif
-
 #endif				/* __CONFIG_H */

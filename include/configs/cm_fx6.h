@@ -212,7 +212,6 @@
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
 
 /* Display */
-#define CONFIG_VIDEO_IPUV3
 #define CONFIG_IMX_HDMI
 
 #define CONFIG_SPLASH_SCREEN
