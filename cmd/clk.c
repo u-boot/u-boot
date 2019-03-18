@@ -17,6 +17,7 @@ int __weak soc_clk_dump(void)
 	struct uclass *uc;
 	struct clk clk;
 	int ret;
+	ulong rate;
 
 	/* Device addresses start at 1 */
 	ret = uclass_get(UCLASS_CLK, &uc);
@@ -26,20 +27,23 @@ int __weak soc_clk_dump(void)
 	uclass_foreach_dev(dev, uc) {
 		memset(&clk, 0, sizeof(clk));
 		ret = device_probe(dev);
-		if (ret) {
-			printf("%-30.30s : ? Hz\n", dev->name);
-			continue;
-		}
+		if (ret)
+			goto noclk;
 
 		ret = clk_request(dev, &clk);
-		if (ret) {
-			printf("%-30.30s : ? Hz\n", dev->name);
-			continue;
-		}
+		if (ret)
+			goto noclk;
 
-		printf("%-30.30s : %lu Hz\n", dev->name, clk_get_rate(&clk));
-
+		rate = clk_get_rate(&clk);
 		clk_free(&clk);
+
+		if (rate == -ENODEV)
+			goto noclk;
+
+		printf("%-30.30s : %lu Hz\n", dev->name, rate);
+		continue;
+	noclk:
+		printf("%-30.30s : ? Hz\n", dev->name);
 	}
 
 	return 0;
