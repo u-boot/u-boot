@@ -63,7 +63,6 @@
 #define CONFIG_PHY_ATHEROS
 
 /* Framebuffer */
-#ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
@@ -72,7 +71,6 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
-#endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0\0" \
