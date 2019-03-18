@@ -121,7 +121,7 @@ static ulong gen2_clk_get_rate(struct clk *clk)
 
 	case CLK_TYPE_FF:
 		rate = (gen2_clk_get_rate(&parent) * core->mult) / core->div;
-		debug("%s[%i] FIXED clk: parent=%i div=%i mul=%i => rate=%u\n",
+		debug("%s[%i] FIXED clk: parent=%i mul=%i div=%i => rate=%u\n",
 		      __func__, __LINE__,
 		      core->parent, core->mult, core->div, rate);
 		return rate;
