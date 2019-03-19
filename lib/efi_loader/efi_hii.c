@@ -227,9 +227,8 @@ out:
 error:
 	if (stbl) {
 		free(stbl->language);
-		if (idx > 0)
-			while (--idx >= 0)
-				free(stbl->strings[idx].string);
+		while (idx > 0)
+			free(stbl->strings[--idx].string);
 		free(stbl->strings);
 	}
 	free(stbl);
