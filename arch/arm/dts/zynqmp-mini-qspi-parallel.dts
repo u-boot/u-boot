@@ -5,7 +5,7 @@
  * Copyright (C) 2015 - 2017 Xilinx, Inc.
  */
 
-#include "zynqmp-mini-qspi.dtsi"
+#include "zynqmp-mini-qspi.dts"
 
 &qspi {
 	is-dual = <1>;
