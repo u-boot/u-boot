@@ -1464,6 +1464,21 @@ config TI_SECURE_DEVICE
 	  authenticated) and the code. See the doc/README.ti-secure
 	  file for further details.
 
+if AM43XX || AM33XX || OMAP54XX || ARCH_KEYSTONE
+config ISW_ENTRY_ADDR
+	hex "Address in memory or XIP address of bootloader entry point"
+	default 0x402F4000 if AM43XX
+	default 0x402F0400 if AM33XX
+	default 0x40301350 if OMAP54XX
+	help
+	  After any reset, the boot ROM searches the boot media for a valid
+	  boot image. For non-XIP devices, the ROM then copies the image into
+	  internal memory. For all boot modes, after the ROM processes the
+	  boot image it eventually computes the entry point address depending
+	  on the device type (secure/non-secure), boot media (xip/non-xip) and
+	  image headers.
+endif
+
 source "arch/arm/mach-aspeed/Kconfig"
 
 source "arch/arm/mach-at91/Kconfig"

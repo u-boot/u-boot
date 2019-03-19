@@ -40,9 +40,6 @@
 
 #include <configs/ti_armv7_keystone2.h>
 
-/* SPL SPI Loader Configuration */
-#define CONFIG_SPL_TEXT_BASE		0x0c100000
-
 #define SPI_MTD_PARTS KEYSTONE_SPI0_MTD_PARTS
 
 /* NAND Configuration */
