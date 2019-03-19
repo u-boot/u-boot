@@ -119,7 +119,7 @@ void fastboot_boot(void)
 	if (s) {
 		run_command(s, CMD_FLAG_ENV);
 	} else {
-		static char boot_addr_start[12];
+		static char boot_addr_start[20];
 		static char *const bootm_args[] = {
 			"bootm", boot_addr_start, NULL
 		};
