@@ -251,7 +251,6 @@ int arch_misc_init(void)
 	temp |= (1 << 22);
 	writefr_extra_feature_reg(temp);
 
-	icache_enable();
 	/* Change reset vector to address 0x0 */
 	temp = get_cr();
 	set_cr(temp & ~CR_V);
