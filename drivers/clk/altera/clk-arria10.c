@@ -254,7 +254,8 @@ static int socfpga_a10_clk_bind(struct udevice *dev)
 		    fdt_node_check_compatible(fdt, offset, "fixed-clock"))
 			continue;
 
-		if (pre_reloc_only && !dm_fdt_pre_reloc(fdt, offset))
+		if (pre_reloc_only &&
+		    !dm_ofnode_pre_reloc(offset_to_ofnode(offset)))
 			continue;
 
 		ret = device_bind_driver_to_node(dev, "clk-a10", name,
