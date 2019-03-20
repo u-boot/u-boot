@@ -121,4 +121,10 @@ config RESET_SUNXI
 	  This enables support for common reset driver for
 	  Allwinner SoCs.
 
+config RESET_HISILICON
+	bool "Reset controller driver for HiSilicon SoCs"
+	depends on DM_RESET
+	help
+	  Support for reset controller on HiSilicon SoCs.
+
 endmenu
