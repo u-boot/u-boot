@@ -43,6 +43,8 @@ struct udevice;
  * @data: An optional data field for scenarios where a single integer ID is not
  *	  sufficient. If used, it can be populated through an .of_xlate op and
  *	  processed during the various reset ops.
+ * @polarity: An optional polarity field for drivers that support
+ *	  different reset polarities.
  *
  * Should additional information to identify and configure any reset signal
  * for any provider be required in the future, the struct could be expanded to
@@ -59,6 +61,7 @@ struct reset_ctl {
 	 */
 	unsigned long id;
 	unsigned long data;
+	unsigned long polarity;
 };
 
 /**
