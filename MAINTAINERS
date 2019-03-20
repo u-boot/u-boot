@@ -454,7 +454,7 @@ EFI PAYLOAD
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 R:	Alexander Graf <agraf@csgraf.de>
 S:	Maintained
-T:	git git://github.com/agraf/u-boot.git
+T:	git git://git.denx.de/u-boot-efi.git
 F:	doc/README.uefi
 F:	doc/README.iscsi
 F:	Documentation/efi.rst
