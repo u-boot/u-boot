@@ -261,7 +261,7 @@ static int dp83867_of_init(struct phy_device *phydev)
 	/*
 	 * 6-wire mode enables differential SGMII clock to MAC
 	 */
-	if (dev_read_bool(phydev->dev, "ti,6-wire-mode"))
+	if (ofnode_read_bool(node, "ti,6-wire-mode"))
 		dp83867->wiremode_6 = true;
 
 	/* Clock output selection if muxing property is set */
