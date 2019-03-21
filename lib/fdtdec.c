@@ -1399,6 +1399,93 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	return 0;
 }
 
+int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
+			unsigned int index, struct fdt_memory *carveout)
+{
+	const fdt32_t *prop;
+	uint32_t phandle;
+	int offset, len;
+	fdt_size_t size;
+
+	offset = fdt_path_offset(blob, node);
+	if (offset < 0)
+		return offset;
+
+	prop = fdt_getprop(blob, offset, name, &len);
+	if (!prop) {
+		debug("failed to get %s for %s\n", name, node);
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	if ((len % sizeof(phandle)) != 0) {
+		debug("invalid phandle property\n");
+		return -FDT_ERR_BADPHANDLE;
+	}
+
+	if (len < (sizeof(phandle) * (index + 1))) {
+		debug("invalid phandle index\n");
+		return -FDT_ERR_BADPHANDLE;
+	}
+
+	phandle = fdt32_to_cpu(prop[index]);
+
+	offset = fdt_node_offset_by_phandle(blob, phandle);
+	if (offset < 0) {
+		debug("failed to find node for phandle %u\n", phandle);
+		return offset;
+	}
+
+	carveout->start = fdtdec_get_addr_size_auto_noparent(blob, offset,
+							     "reg", 0, &size,
+							     true);
+	if (carveout->start == FDT_ADDR_T_NONE) {
+		debug("failed to read address/size from \"reg\" property\n");
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	carveout->end = carveout->start + size - 1;
+
+	return 0;
+}
+
+int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
+			unsigned int index, const char *name,
+			const struct fdt_memory *carveout)
+{
+	uint32_t phandle;
+	int err, offset;
+	fdt32_t value;
+
+	/* XXX implement support for multiple phandles */
+	if (index > 0) {
+		debug("invalid index %u\n", index);
+		return -FDT_ERR_BADOFFSET;
+	}
+
+	err = fdtdec_add_reserved_memory(blob, name, carveout, &phandle);
+	if (err < 0) {
+		debug("failed to add reserved memory: %d\n", err);
+		return err;
+	}
+
+	offset = fdt_path_offset(blob, node);
+	if (offset < 0) {
+		debug("failed to find offset for node %s: %d\n", node, offset);
+		return offset;
+	}
+
+	value = cpu_to_fdt32(phandle);
+
+	err = fdt_setprop(blob, offset, prop_name, &value, sizeof(value));
+	if (err < 0) {
+		debug("failed to set %s property for node %s: %d\n", prop_name,
+		      node, err);
+		return err;
+	}
+
+	return 0;
+}
+
 int fdtdec_setup(void)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
