@@ -1032,6 +1032,54 @@ int fdtdec_setup_memory_banksize(void);
 int fdtdec_set_phandle(void *blob, int node, uint32_t phandle);
 
 /**
+ * fdtdec_add_reserved_memory() - add or find a reserved-memory node
+ *
+ * If a reserved-memory node already exists for the given carveout, a phandle
+ * for that node will be returned. Otherwise a new node will be created and a
+ * phandle corresponding to it will be returned.
+ *
+ * See Documentation/devicetree/bindings/reserved-memory/reserved-memory.txt
+ * for details on how to use reserved memory regions.
+ *
+ * As an example, consider the following code snippet:
+ *
+ *     struct fdt_memory fb = {
+ *         .start = 0x92cb3000,
+ *         .end = 0x934b2fff,
+ *     };
+ *     uint32_t phandle;
+ *
+ *     fdtdec_add_reserved_memory(fdt, "framebuffer", &fb, &phandle);
+ *
+ * This results in the following subnode being added to the top-level
+ * /reserved-memory node:
+ *
+ *     reserved-memory {
+ *         #address-cells = <0x00000002>;
+ *         #size-cells = <0x00000002>;
+ *         ranges;
+ *
+ *         framebuffer@92cb3000 {
+ *             reg = <0x00000000 0x92cb3000 0x00000000 0x00800000>;
+ *             phandle = <0x0000004d>;
+ *         };
+ *     };
+ *
+ * If the top-level /reserved-memory node does not exist, it will be created.
+ * The phandle returned from the function call can be used to reference this
+ * reserved memory region from other nodes.
+ *
+ * @param blob		FDT blob
+ * @param basename	base name of the node to create
+ * @param carveout	information about the carveout region
+ * @param phandlep	return location for the phandle of the carveout region
+ * @return 0 on success or a negative error code on failure
+ */
+int fdtdec_add_reserved_memory(void *blob, const char *basename,
+			       const struct fdt_memory *carveout,
+			       uint32_t *phandlep);
+
+/**
  * Set up the device tree ready for use
  */
 int fdtdec_setup(void);

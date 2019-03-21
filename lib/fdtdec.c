@@ -1268,6 +1268,137 @@ int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
 	return fdt_setprop(blob, node, "phandle", &value, sizeof(value));
 }
 
+static int fdtdec_init_reserved_memory(void *blob)
+{
+	int na, ns, node, err;
+	fdt32_t value;
+
+	/* inherit #address-cells and #size-cells from the root node */
+	na = fdt_address_cells(blob, 0);
+	ns = fdt_size_cells(blob, 0);
+
+	node = fdt_add_subnode(blob, 0, "reserved-memory");
+	if (node < 0)
+		return node;
+
+	err = fdt_setprop(blob, node, "ranges", NULL, 0);
+	if (err < 0)
+		return err;
+
+	value = cpu_to_fdt32(ns);
+
+	err = fdt_setprop(blob, node, "#size-cells", &value, sizeof(value));
+	if (err < 0)
+		return err;
+
+	value = cpu_to_fdt32(na);
+
+	err = fdt_setprop(blob, node, "#address-cells", &value, sizeof(value));
+	if (err < 0)
+		return err;
+
+	return node;
+}
+
+int fdtdec_add_reserved_memory(void *blob, const char *basename,
+			       const struct fdt_memory *carveout,
+			       uint32_t *phandlep)
+{
+	fdt32_t cells[4] = {}, *ptr = cells;
+	uint32_t upper, lower, phandle;
+	int parent, node, na, ns, err;
+	char name[64];
+
+	/* create an empty /reserved-memory node if one doesn't exist */
+	parent = fdt_path_offset(blob, "/reserved-memory");
+	if (parent < 0) {
+		parent = fdtdec_init_reserved_memory(blob);
+		if (parent < 0)
+			return parent;
+	}
+
+	/* only 1 or 2 #address-cells and #size-cells are supported */
+	na = fdt_address_cells(blob, parent);
+	if (na < 1 || na > 2)
+		return -FDT_ERR_BADNCELLS;
+
+	ns = fdt_size_cells(blob, parent);
+	if (ns < 1 || ns > 2)
+		return -FDT_ERR_BADNCELLS;
+
+	/* find a matching node and return the phandle to that */
+	fdt_for_each_subnode(node, blob, parent) {
+		const char *name = fdt_get_name(blob, node, NULL);
+		phys_addr_t addr, size;
+
+		addr = fdtdec_get_addr_size(blob, node, "reg", &size);
+		if (addr == FDT_ADDR_T_NONE) {
+			debug("failed to read address/size for %s\n", name);
+			continue;
+		}
+
+		if (addr == carveout->start && (addr + size) == carveout->end) {
+			*phandlep = fdt_get_phandle(blob, node);
+			return 0;
+		}
+	}
+
+	/*
+	 * Unpack the start address and generate the name of the new node
+	 * base on the basename and the unit-address.
+	 */
+	lower = fdt_addr_unpack(carveout->start, &upper);
+
+	if (na > 1 && upper > 0)
+		snprintf(name, sizeof(name), "%s@%x,%x", basename, upper,
+			 lower);
+	else {
+		if (upper > 0) {
+			debug("address %08x:%08x exceeds addressable space\n",
+			      upper, lower);
+			return -FDT_ERR_BADVALUE;
+		}
+
+		snprintf(name, sizeof(name), "%s@%x", basename, lower);
+	}
+
+	node = fdt_add_subnode(blob, parent, name);
+	if (node < 0)
+		return node;
+
+	err = fdt_generate_phandle(blob, &phandle);
+	if (err < 0)
+		return err;
+
+	err = fdtdec_set_phandle(blob, node, phandle);
+	if (err < 0)
+		return err;
+
+	/* store one or two address cells */
+	if (na > 1)
+		*ptr++ = cpu_to_fdt32(upper);
+
+	*ptr++ = cpu_to_fdt32(lower);
+
+	/* store one or two size cells */
+	lower = fdt_size_unpack(carveout->end - carveout->start + 1, &upper);
+
+	if (ns > 1)
+		*ptr++ = cpu_to_fdt32(upper);
+
+	*ptr++ = cpu_to_fdt32(lower);
+
+	err = fdt_setprop(blob, node, "reg", cells, (na + ns) * sizeof(*cells));
+	if (err < 0)
+		return err;
+
+	/* return the phandle for the new node for the caller to use */
+	if (phandlep)
+		*phandlep = phandle;
+
+	return 0;
+}
+
 int fdtdec_setup(void)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL)
