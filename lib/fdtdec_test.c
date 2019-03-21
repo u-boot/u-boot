@@ -15,48 +15,28 @@
 /* The size of our test fdt blob */
 #define FDT_SIZE	(16 * 1024)
 
-/**
- * Check if an operation failed, and if so, print an error
- *
- * @param oper_name	Name of operation
- * @param err		Error code to check
- *
- * @return 0 if ok, -1 if there was an error
- */
-static int fdt_checkerr(const char *oper_name, int err)
-{
-	if (err) {
-		printf("%s: %s: %s\n", __func__, oper_name, fdt_strerror(err));
-		return -1;
-	}
+#define CHECK(op) ({							\
+		int err = op;						\
+		if (err < 0) {						\
+			printf("%s: %s: %s\n", __func__, #op,		\
+			       fdt_strerror(err));			\
+			return err;					\
+		}							\
+									\
+		err;							\
+	})
 
-	return 0;
-}
+#define CHECKVAL(op, expected) ({					\
+		int err = op;						\
+		if (err != expected) {					\
+			printf("%s: %s: expected %d, but returned %d\n",\
+			       __func__, #op, expected, err);		\
+			return err;					\
+		}							\
+									\
+		err;							\
+	})
 
-/**
- * Check the result of an operation and if incorrect, print an error
- *
- * @param oper_name	Name of operation
- * @param expected	Expected value
- * @param value		Actual value
- *
- * @return 0 if ok, -1 if there was an error
- */
-static int checkval(const char *oper_name, int expected, int value)
-{
-	if (expected != value) {
-		printf("%s: %s: expected %d, but returned %d\n", __func__,
-		       oper_name, expected, value);
-		return -1;
-	}
-
-	return 0;
-}
-
-#define CHECK(op)	if (fdt_checkerr(#op, op)) return -1
-#define CHECKVAL(op, expected)	\
-	if (checkval(#op, expected, op)) \
-		return -1
 #define CHECKOK(op)	CHECKVAL(op, 0)
 
 /* maximum number of nodes / aliases to generate */
@@ -138,7 +118,7 @@ static int run_test(const char *aliases, const char *nodes, const char *expect)
 	CHECKVAL(make_fdt(blob, FDT_SIZE, aliases, nodes), 0);
 	CHECKVAL(fdtdec_find_aliases_for_id(blob, "i2c",
 			COMPAT_UNKNOWN,
-			list, ARRAY_SIZE(list)), strlen(expect));
+			list, ARRAY_SIZE(list)), (int)strlen(expect));
 
 	/* Check we got the right ones */
 	for (i = 0, s = expect; *s; s++, i++) {
