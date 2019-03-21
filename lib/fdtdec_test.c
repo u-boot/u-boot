@@ -79,7 +79,9 @@ static int make_fdt(void *fdt, int size, const char *aliases,
 {
 	char name[20], value[20];
 	const char *s;
+#if defined(DEBUG) && defined(CONFIG_SANDBOX)
 	int fd;
+#endif
 
 	CHECK(fdt_create(fdt, size));
 	CHECK(fdt_finish_reservemap(fdt));
