@@ -27,11 +27,15 @@ typedef phys_size_t fdt_size_t;
 #define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be64_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be64_to_cpu(reg)
+#define cpu_to_fdt_addr(reg) cpu_to_be64(reg)
+#define cpu_to_fdt_size(reg) cpu_to_be64(reg)
 typedef fdt64_t fdt_val_t;
 #else
 #define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be32_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be32_to_cpu(reg)
+#define cpu_to_fdt_addr(reg) cpu_to_be32(reg)
+#define cpu_to_fdt_size(reg) cpu_to_be32(reg)
 typedef fdt32_t fdt_val_t;
 #endif
 
