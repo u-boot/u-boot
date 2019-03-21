@@ -80,7 +80,6 @@ static void efi_dump_single_var(u16 *name, efi_guid_t *guid)
 	printf(", DataSize = 0x%zx\n", size);
 	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1, data, size, true);
 
-	return;
 out:
 	free(data);
 }

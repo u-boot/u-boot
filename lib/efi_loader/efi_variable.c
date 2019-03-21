@@ -335,7 +335,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
 
 	if (!variable_name_size || !variable_name || !vendor)
-		EFI_EXIT(EFI_INVALID_PARAMETER);
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
 	if (variable_name[0]) {
 		/* check null-terminated string */

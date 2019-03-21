@@ -1581,10 +1581,8 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 		goto failure;
 #endif
 
-	if (info_ptr)
-		*info_ptr = info;
-	if (handle_ptr)
-		*handle_ptr = obj;
+	*info_ptr = info;
+	*handle_ptr = obj;
 
 	return ret;
 failure:

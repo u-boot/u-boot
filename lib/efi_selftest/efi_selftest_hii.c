@@ -783,19 +783,10 @@ static int test_hii_string_get_string(void)
 		goto out;
 	}
 
-#if 1
-	u16 *c1, *c2;
-
-	for (c1 = string, c2 = L"Japanese"; *c1 == *c2; c1++, c2++)
-		;
-	if (!*c1 && !*c2)
-		result = EFI_ST_SUCCESS;
-	else
-		result = EFI_ST_FAILURE;
-#else
-	/* TODO: %ls */
-	efi_st_printf("got string is %s (can be wrong)\n", string);
-#endif
+	if (efi_st_strcmp_16_8(string, "Japanese")) {
+		efi_st_error("get_string returned incorrect string\n");
+		goto out;
+	}
 
 	result = EFI_ST_SUCCESS;
 
