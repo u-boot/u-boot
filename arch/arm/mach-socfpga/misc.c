@@ -70,6 +70,60 @@ void v7_outer_cache_disable(void)
 	/* Disable the L2 cache */
 	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
 }
+
+void socfpga_pl310_clear(void)
+{
+	u32 mask = 0xff, ena = 0;
+
+	icache_enable();
+
+	/* Disable the L2 cache */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+
+	writel(0x0, &pl310->pl310_tag_latency_ctrl);
+	writel(0x10, &pl310->pl310_data_latency_ctrl);
+
+	/* enable BRESP, instruction and data prefetch, full line of zeroes */
+	setbits_le32(&pl310->pl310_aux_ctrl,
+		     L310_AUX_CTRL_DATA_PREFETCH_MASK |
+		     L310_AUX_CTRL_INST_PREFETCH_MASK |
+		     L310_SHARED_ATT_OVERRIDE_ENABLE);
+
+	/* Enable the L2 cache */
+	ena = readl(&pl310->pl310_ctrl);
+	ena |= L2X0_CTRL_EN;
+
+	/*
+	 * Invalidate the PL310 L2 cache. Keep the invalidation code
+	 * entirely in L1 I-cache to avoid any bus traffic through
+	 * the L2.
+	 */
+	asm volatile(
+		".align	5			\n"
+		"	b	3f		\n"
+		"1:	str	%1,	[%4]	\n"
+		"	dsb			\n"
+		"	isb			\n"
+		"	str	%0,	[%2]	\n"
+		"	dsb			\n"
+		"	isb			\n"
+		"2:	ldr	%0,	[%2]	\n"
+		"	cmp	%0,	#0	\n"
+		"	bne	2b		\n"
+		"	str	%0,	[%3]	\n"
+		"	dsb			\n"
+		"	isb			\n"
+		"	b	4f		\n"
+		"3:	b	1b		\n"
+		"4:	nop			\n"
+	: "+r"(mask), "+r"(ena)
+	: "r"(&pl310->pl310_inv_way),
+	  "r"(&pl310->pl310_cache_sync), "r"(&pl310->pl310_ctrl)
+	: "memory", "cc");
+
+	/* Disable the L2 cache */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+}
 #endif
 
 #if defined(CONFIG_SYS_CONSOLE_IS_IN_ENV) && \
