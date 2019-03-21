@@ -23,6 +23,31 @@
  */
 typedef phys_addr_t fdt_addr_t;
 typedef phys_size_t fdt_size_t;
+
+static inline fdt32_t fdt_addr_unpack(fdt_addr_t addr, fdt32_t *upper)
+{
+	if (upper)
+#ifdef CONFIG_PHYS_64BIT
+		*upper = addr >> 32;
+#else
+		*upper = 0;
+#endif
+
+	return addr;
+}
+
+static inline fdt32_t fdt_size_unpack(fdt_size_t size, fdt32_t *upper)
+{
+	if (upper)
+#ifdef CONFIG_PHYS_64BIT
+		*upper = size >> 32;
+#else
+		*upper = 0;
+#endif
+
+	return size;
+}
+
 #ifdef CONFIG_PHYS_64BIT
 #define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be64_to_cpu(reg)
