@@ -28,6 +28,13 @@ config LED_BCM6358
 	  LED HW controller accessed via MMIO registers.
 	  HW has no blinking capabilities and up to 32 LEDs can be controlled.
 
+config LED_BCM6858
+	bool "LED Support for BCM6858"
+	depends on LED && ARCH_BCM6858
+	help
+	  This option enables support for LEDs connected to the BCM6858
+	  HW has blinking capabilities and up to 32 LEDs can be controlled.
+
 config LED_BLINK
 	bool "Support LED blinking"
 	depends on LED
