@@ -3,7 +3,7 @@ if ARM64
 config ARMV8_SPL_EXCEPTION_VECTORS
 	bool "Install crash dump exception vectors"
 	depends on SPL
-	default y
+	default n
 	help
 	  The default exception vector table is only used for the crash
 	  dump, but still takes quite a lot of space in the image size.

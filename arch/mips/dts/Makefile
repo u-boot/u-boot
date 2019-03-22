@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 
+dtb-$(CONFIG_ARCH_MT7620) += \
+	gardena-smart-gateway-mt7688.dtb \
+	linkit-smart-7688.dtb
 dtb-$(CONFIG_TARGET_AP121) += ap121.dtb
 dtb-$(CONFIG_TARGET_AP143) += ap143.dtb
 dtb-$(CONFIG_TARGET_BOSTON) += img,boston.dtb
@@ -17,6 +20,8 @@ dtb-$(CONFIG_BOARD_NETGEAR_DGND3700V2) += netgear,dgnd3700v2.dtb
 dtb-$(CONFIG_BOARD_SAGEM_FAST1704) += sagem,f@st1704.dtb
 dtb-$(CONFIG_BOARD_TPLINK_WDR4300) += tplink_wdr4300.dtb
 dtb-$(CONFIG_TARGET_JZ4780_CI20) += ci20.dtb
+dtb-$(CONFIG_SOC_BMIPS_BCM6358) += sfr,nb4-ser.dtb
+dtb-$(CONFIG_SOC_BMIPS_BCM6838) += brcm,bcm968380gerg.dtb
 dtb-$(CONFIG_SOC_LUTON) += luton_pcb090.dtb luton_pcb091.dtb
 dtb-$(CONFIG_SOC_OCELOT) += ocelot_pcb120.dtb ocelot_pcb123.dtb
 dtb-$(CONFIG_SOC_JR2) += jr2_pcb110.dtb jr2_pcb111.dtb serval2_pcb112.dtb

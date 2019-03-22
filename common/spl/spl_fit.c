@@ -491,6 +491,10 @@ int spl_load_simple_fit(struct spl_image_info *spl_image,
 
 		if (!spl_fit_image_get_os(fit, node, &os_type))
 			debug("Loadable is %s\n", genimg_get_os_name(os_type));
+#if CONFIG_IS_ENABLED(FIT_IMAGE_TINY)
+		else
+			os_type = IH_OS_U_BOOT;
+#endif
 
 		if (os_type == IH_OS_U_BOOT) {
 			spl_fit_append_fdt(&image_info, info, sector,

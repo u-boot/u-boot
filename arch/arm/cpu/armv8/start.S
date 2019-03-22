@@ -88,7 +88,7 @@ pie_fixup_done:
 	bl reset_sctrl
 #endif
 
-#if defined(CONFIG_ARMV8__SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
 .macro	set_vbar, regname, reg
 	msr	\regname, \reg
 .endm
@@ -354,7 +354,7 @@ ENDPROC(smp_kick_all_cpus)
 /*-----------------------------------------------------------------------*/
 
 ENTRY(c_runtime_cpu_setup)
-#if defined(CONFIG_ARMV8__SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) || !defined(CONFIG_SPL_BUILD)
 	/* Relocate vBAR */
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f

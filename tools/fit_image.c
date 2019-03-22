@@ -298,6 +298,7 @@ static void fit_write_configs(struct image_tool_params *params, char *fdt)
 		typename = genimg_get_type_short_name(params->fit_image_type);
 		snprintf(str, sizeof(str), "%s-1", typename);
 		fdt_property_string(fdt, typename, str);
+		fdt_property_string(fdt, FIT_LOADABLE_PROP, str);
 
 		if (params->fit_ramdisk)
 			fdt_property_string(fdt, FIT_RAMDISK_PROP,
