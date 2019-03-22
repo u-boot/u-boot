@@ -321,7 +321,6 @@ int board_early_init_f(void)
 {
 	const uintptr_t GRF_SOC_CON0 = 0xff770244;
 	const uintptr_t GRF_SOC_CON2 = 0xff77024c;
-	struct udevice *pinctrl;
 	struct udevice *dev;
 	int ret;
 
@@ -335,18 +334,7 @@ int board_early_init_f(void)
 		debug("CLK init failed: %d\n", ret);
 		return ret;
 	}
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("%s: Cannot find pinctrl device\n", __func__);
-		return ret;
-	}
 
-	/* Enable debug UART */
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART_DBG);
-	if (ret) {
-		debug("%s: Failed to set up console UART\n", __func__);
-		return ret;
-	}
 	rk_setreg(GRF_SOC_CON2, 1 << 0);
 
 	/*
