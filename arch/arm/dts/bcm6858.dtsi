@@ -82,6 +82,13 @@
 			status = "disabled";
 		};
 
+		leds: led-controller@ff800800 {
+			compatible = "brcm,bcm6858-leds";
+			reg = <0x0 0xff800800 0x0 0xe4>;
+
+			status = "disabled";
+		};
+
 		wdt1: watchdog@ff802780 {
 			compatible = "brcm,bcm6345-wdt";
 			reg = <0x0 0xff802780 0x0 0x14>;
