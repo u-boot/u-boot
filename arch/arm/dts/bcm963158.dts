@@ -76,3 +76,52 @@
 		brcm,nand-oob-sector-size = <16>;
 	};
 };
+
+&leds {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	brcm,serial-led-en-pol;
+	brcm,serial-led-data-ppol;
+
+	led@16 {
+		reg = <16>;
+		label = "red:dsl2";
+	};
+
+	led@17 {
+		reg = <17>;
+		label = "green:dsl1";
+	};
+
+	led@18 {
+		reg = <18>;
+		label = "green:fxs2";
+	};
+
+	led@19 {
+		reg = <19>;
+		label = "green:fxs1";
+	};
+
+	led@26 {
+		reg = <26>;
+		label = "green:wan1_act";
+	};
+
+	led@27 {
+		reg = <27>;
+		label = "green:wps";
+	};
+
+	led@28 {
+		reg = <28>;
+		active-low;
+		label = "green:aggregate_act";
+	};
+
+	led@29 {
+		reg = <29>;
+		label = "green:aggregate_link";
+	};
+};
