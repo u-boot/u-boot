@@ -136,6 +136,7 @@ void video_set_default_colors(struct udevice *dev, bool invert)
 		back = temp;
 	}
 	priv->fg_col_idx = fore;
+	priv->bg_col_idx = back;
 	priv->colour_fg = vid_console_color(priv, fore);
 	priv->colour_bg = vid_console_color(priv, back);
 }

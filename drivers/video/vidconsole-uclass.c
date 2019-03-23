@@ -360,6 +360,13 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 				vid_priv->colour_fg = vid_console_color(
 						vid_priv, vid_priv->fg_col_idx);
 				break;
+			case 7:
+				/* reverse video */
+				vid_priv->colour_fg = vid_console_color(
+						vid_priv, vid_priv->bg_col_idx);
+				vid_priv->colour_bg = vid_console_color(
+						vid_priv, vid_priv->fg_col_idx);
+				break;
 			case 30 ... 37:
 				/* foreground color */
 				vid_priv->fg_col_idx &= ~7;
@@ -368,9 +375,11 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 						vid_priv, vid_priv->fg_col_idx);
 				break;
 			case 40 ... 47:
-				/* background color */
+				/* background color, also mask the bold bit */
+				vid_priv->bg_col_idx &= ~0xf;
+				vid_priv->bg_col_idx |= val - 40;
 				vid_priv->colour_bg = vid_console_color(
-							vid_priv, val - 40);
+						vid_priv, vid_priv->bg_col_idx);
 				break;
 			default:
 				/* ignore unsupported SGR parameter */
