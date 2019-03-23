@@ -270,14 +270,20 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			dwmci_wait_reset(host, DWMCI_CTRL_FIFO_RESET);
 		} else {
 			if (data->flags == MMC_DATA_READ) {
-				bounce_buffer_start(&bbstate, (void*)data->dest,
+				ret = bounce_buffer_start(&bbstate,
+						(void*)data->dest,
 						data->blocksize *
 						data->blocks, GEN_BB_WRITE);
 			} else {
-				bounce_buffer_start(&bbstate, (void*)data->src,
+				ret = bounce_buffer_start(&bbstate,
+						(void*)data->src,
 						data->blocksize *
 						data->blocks, GEN_BB_READ);
 			}
+
+			if (ret)
+				return ret;
+
 			dwmci_prepare_data(host, data, cur_idmac,
 					   bbstate.bounce_buffer);
 		}
