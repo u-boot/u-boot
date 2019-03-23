@@ -61,7 +61,7 @@ config SYS_VENDOR
 
 config SYS_BOARD
 	string "Board name"
-	default "odroid-c2" if MESON_GXBB
+	default "p200" if MESON_GXBB
 	default "p212" if MESON_GXL
 	default "q200" if MESON_GXM
 	default "s400" if MESON_AXG

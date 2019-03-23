@@ -2,4 +2,4 @@
 #
 # (C) Copyright 2016 Beniamino Galvani <b.galvani@gmail.com>
 
-obj-y	:= odroid-c2.o
+obj-y	:= p200.o
