@@ -90,7 +90,7 @@ static int console_putc_xy_1(struct udevice *dev, uint x_frac, uint y, char ch)
 	int i, col;
 	int mask = 0x80;
 	void *line;
-	uchar *pfont = video_fontdata + ch * VIDEO_FONT_HEIGHT;
+	uchar *pfont = video_fontdata + (u8)ch * VIDEO_FONT_HEIGHT;
 
 	line = vid_priv->fb + (VID_TO_PIXEL(x_frac) + 1) *
 			vid_priv->line_length - (y + 1) * pbytes;
@@ -222,7 +222,8 @@ static int console_putc_xy_2(struct udevice *dev, uint x_frac, uint y, char ch)
 			VIDEO_FONT_WIDTH - 1) * VNBYTES(vid_priv->bpix);
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; row++) {
-		uchar bits = video_fontdata[ch * VIDEO_FONT_HEIGHT + row];
+		unsigned int idx = (u8)ch * VIDEO_FONT_HEIGHT + row;
+		uchar bits = video_fontdata[idx];
 
 		switch (vid_priv->bpix) {
 #ifdef CONFIG_VIDEO_BPP8
@@ -348,7 +349,7 @@ static int console_putc_xy_3(struct udevice *dev, uint x_frac, uint y, char ch)
 	void *line = vid_priv->fb +
 		(vid_priv->ysize - VID_TO_PIXEL(x_frac) - 1) *
 		vid_priv->line_length + y * pbytes;
-	uchar *pfont = video_fontdata + ch * VIDEO_FONT_HEIGHT;
+	uchar *pfont = video_fontdata + (u8)ch * VIDEO_FONT_HEIGHT;
 
 	if (x_frac + VID_TO_POS(vc_priv->x_charsize) > vc_priv->xsize_frac)
 		return -EAGAIN;

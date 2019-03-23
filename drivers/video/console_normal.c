@@ -84,7 +84,8 @@ static int console_normal_putc_xy(struct udevice *dev, uint x_frac, uint y,
 		return -EAGAIN;
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; row++) {
-		uchar bits = video_fontdata[ch * VIDEO_FONT_HEIGHT + row];
+		unsigned int idx = (u8)ch * VIDEO_FONT_HEIGHT + row;
+		uchar bits = video_fontdata[idx];
 
 		switch (vid_priv->bpix) {
 #ifdef CONFIG_VIDEO_BPP8
