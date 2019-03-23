@@ -171,6 +171,10 @@ static const struct {
 		.id = 0x62,
 		.name = "29dr",
 	},
+	{
+		.id = 0x66,
+		.name = "39dr",
+	},
 };
 #endif
 
