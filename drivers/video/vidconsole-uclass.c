@@ -346,6 +346,25 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 		}
 		break;
 	}
+	case 'K': {
+		struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+		int mode;
+
+		/*
+		 * Clear (parts of) current line
+		 *   [0K       - clear line to end
+		 *   [2K       - clear entire line
+		 */
+		parsenum(priv->escape_buf + 1, &mode);
+
+		if (mode == 2) {
+			int row, col;
+
+			get_cursor_position(priv, &row, &col);
+			vidconsole_set_row(dev, row, vid_priv->colour_bg);
+		}
+		break;
+	}
 	case 'm': {
 		struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
 		char *s = priv->escape_buf;
