@@ -259,6 +259,43 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 	priv->escape = 0;
 
 	switch (ch) {
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F': {
+		int row, col, num;
+		char *s = priv->escape_buf;
+
+		/*
+		 * Cursor up/down: [%dA, [%dB, [%dE, [%dF
+		 * Cursor left/right: [%dD, [%dC
+		 */
+		s++;    /* [ */
+		s = parsenum(s, &num);
+		if (num == 0)			/* No digit in sequence ... */
+			num = 1;		/* ... means "move by 1". */
+
+		get_cursor_position(priv, &row, &col);
+		if (ch == 'A' || ch == 'F')
+			row -= num;
+		if (ch == 'C')
+			col += num;
+		if (ch == 'D')
+			col -= num;
+		if (ch == 'B' || ch == 'E')
+			row += num;
+		if (ch == 'E' || ch == 'F')
+			col = 0;
+		if (col < 0)
+			col = 0;
+		if (row < 0)
+			row = 0;
+		/* Right and bottom overflows are handled in the callee. */
+		set_cursor_position(priv, row, col);
+		break;
+	}
 	case 'H':
 	case 'f': {
 		int row, col;
