@@ -457,6 +457,32 @@ error:
 	priv->escape = 0;
 }
 
+/* Put that actual character on the screen (using the CP437 code page). */
+static int vidconsole_output_glyph(struct udevice *dev, char ch)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+	int ret;
+
+	/*
+	 * Failure of this function normally indicates an unsupported
+	 * colour depth. Check this and return an error to help with
+	 * diagnosis.
+	 */
+	ret = vidconsole_putc_xy(dev, priv->xcur_frac, priv->ycur, ch);
+	if (ret == -EAGAIN) {
+		vidconsole_newline(dev);
+		ret = vidconsole_putc_xy(dev, priv->xcur_frac, priv->ycur, ch);
+	}
+	if (ret < 0)
+		return ret;
+	priv->xcur_frac += ret;
+	priv->last_ch = ch;
+	if (priv->xcur_frac >= priv->xsize_frac)
+		vidconsole_newline(dev);
+
+	return 0;
+}
+
 int vidconsole_put_char(struct udevice *dev, char ch)
 {
 	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
@@ -494,23 +520,9 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 		priv->last_ch = 0;
 		break;
 	default:
-		/*
-		 * Failure of this function normally indicates an unsupported
-		 * colour depth. Check this and return an error to help with
-		 * diagnosis.
-		 */
-		ret = vidconsole_putc_xy(dev, priv->xcur_frac, priv->ycur, ch);
-		if (ret == -EAGAIN) {
-			vidconsole_newline(dev);
-			ret = vidconsole_putc_xy(dev, priv->xcur_frac,
-						 priv->ycur, ch);
-		}
+		ret = vidconsole_output_glyph(dev, ch);
 		if (ret < 0)
 			return ret;
-		priv->xcur_frac += ret;
-		priv->last_ch = ch;
-		if (priv->xcur_frac >= priv->xsize_frac)
-			vidconsole_newline(dev);
 		break;
 	}
 
