@@ -247,6 +247,7 @@ struct msdc_host {
 	struct msdc_compatible *dev_comp;
 
 	struct clk src_clk;	/* for SD/MMC bus clock */
+	struct clk src_clk_cg;	/* optional, MSDC source clock control gate */
 	struct clk h_clk;	/* MSDC core clock */
 
 	u32 src_clk_freq;	/* source clock */
@@ -1269,6 +1270,8 @@ static void msdc_ungate_clock(struct msdc_host *host)
 {
 	clk_enable(&host->src_clk);
 	clk_enable(&host->h_clk);
+	if (host->src_clk_cg.dev)
+		clk_enable(&host->src_clk_cg);
 }
 
 static int msdc_drv_probe(struct udevice *dev)
@@ -1331,6 +1334,8 @@ static int msdc_ofdata_to_platdata(struct udevice *dev)
 	ret = clk_get_by_name(dev, "hclk", &host->h_clk);
 	if (ret < 0)
 		return ret;
+
+	clk_get_by_name(dev, "source_cg", &host->src_clk_cg); /* optional */
 
 #if IS_ENABLED(DM_GPIO)
 	gpio_request_by_name(dev, "wp-gpios", 0, &host->gpio_wp, GPIOD_IS_IN);
