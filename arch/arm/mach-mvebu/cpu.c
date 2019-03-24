@@ -501,7 +501,6 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_SCSI_AHCI_PLAT
 #define AHCI_VENDOR_SPECIFIC_0_ADDR	0xa0
 #define AHCI_VENDOR_SPECIFIC_0_DATA	0xa4
 
@@ -545,11 +544,19 @@ static void ahci_mvebu_regret_option(void __iomem *base)
 	writel(0x80, base + AHCI_VENDOR_SPECIFIC_0_DATA);
 }
 
+int board_ahci_enable(void)
+{
+	ahci_mvebu_mbus_config((void __iomem *)MVEBU_SATA0_BASE);
+	ahci_mvebu_regret_option((void __iomem *)MVEBU_SATA0_BASE);
+
+	return 0;
+}
+
+#ifdef CONFIG_SCSI_AHCI_PLAT
 void scsi_init(void)
 {
 	printf("MVEBU SATA INIT\n");
-	ahci_mvebu_mbus_config((void __iomem *)MVEBU_SATA0_BASE);
-	ahci_mvebu_regret_option((void __iomem *)MVEBU_SATA0_BASE);
+	board_ahci_enable();
 	ahci_init((void __iomem *)MVEBU_SATA0_BASE);
 }
 #endif
