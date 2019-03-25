@@ -145,13 +145,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* Environment organization */
-
-#ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_OFFSET		(12 * 64 * 1024)
-#define CONFIG_ENV_SIZE			(8 * 1024)
-#endif
-
 #ifdef CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE			(64 * 2048)
 #define CONFIG_ENV_RANGE		(4 * 64 * 2048)
@@ -164,7 +157,5 @@
 
 /* USB DFU */
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE (1024 * 1024)
-
-/* USB Storage */
 
 #endif /* __CONFIG_H */
