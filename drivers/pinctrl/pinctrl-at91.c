@@ -50,10 +50,15 @@ struct at91_pinctrl_priv {
  * DRIVE_STRENGTH_DEFAULT is just a placeholder to avoid changing the drive
  * strength when there is no dt config for it.
  */
-#define DRIVE_STRENGTH_DEFAULT	(0 << DRIVE_STRENGTH_SHIFT)
-#define DRIVE_STRENGTH_LOW	(1 << DRIVE_STRENGTH_SHIFT)
-#define DRIVE_STRENGTH_MED	(2 << DRIVE_STRENGTH_SHIFT)
-#define DRIVE_STRENGTH_HI	(3 << DRIVE_STRENGTH_SHIFT)
+enum drive_strength_bit {
+	DRIVE_STRENGTH_BIT_DEF,
+	DRIVE_STRENGTH_BIT_LOW,
+	DRIVE_STRENGTH_BIT_MED,
+	DRIVE_STRENGTH_BIT_HI,
+};
+
+#define DRIVE_STRENGTH_BIT_MSK(name)	(DRIVE_STRENGTH_BIT_##name << \
+					 DRIVE_STRENGTH_SHIFT)
 
 enum at91_mux {
 	AT91_MUX_GPIO = 0,
@@ -238,7 +243,7 @@ static void at91_mux_sam9x5_set_drivestrength(struct at91_port *pio,
 
 	/* strength is inverse on SAM9x5s with our defines
 	 * 0 = hi, 1 = med, 2 = low, 3 = rsvd */
-	setting = DRIVE_STRENGTH_HI - setting;
+	setting = DRIVE_STRENGTH_BIT_MSK(HI) - setting;
 
 	set_drive_strength(reg, pin, setting);
 }
