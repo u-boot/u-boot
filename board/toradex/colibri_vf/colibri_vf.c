@@ -1,42 +1,35 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2015 Toradex, Inc.
+ * Copyright 2015-2019 Toradex, Inc.
  *
  * Based on vf610twr.c:
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
 #include <common.h>
-#include <asm/io.h>
+
+#include <asm/arch/clock.h>
+#include <asm/arch/crm_regs.h>
+#include <asm/arch/ddrmc-vf610.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-vf610.h>
-#include <asm/arch/ddrmc-vf610.h>
-#include <asm/arch/crm_regs.h>
-#include <asm/arch/clock.h>
-#include <mmc.h>
+#include <asm/gpio.h>
+#include <asm/io.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
 #include <fsl_dcu_fb.h>
+#include <g_dnl.h>
+#include <i2c.h>
 #include <jffs2/load_kernel.h>
 #include <miiphy.h>
+#include <mmc.h>
 #include <mtd_node.h>
 #include <netdev.h>
-#include <i2c.h>
-#include <g_dnl.h>
-#include <asm/gpio.h>
 #include <usb.h>
+
 #include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define UART_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
-			PAD_CTL_DSE_25ohm | PAD_CTL_OBE_IBE_ENABLE)
-
-#define ESDHC_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_HIGH | \
-			PAD_CTL_DSE_20ohm | PAD_CTL_OBE_IBE_ENABLE)
-
-#define ENET_PAD_CTRL	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_HIGH | \
-			PAD_CTL_DSE_50ohm | PAD_CTL_OBE_IBE_ENABLE)
 
 #define USB_PEN_GPIO		83
 #define USB_CDET_GPIO		102
@@ -87,11 +80,6 @@ static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
 		   DDRMC_CR161_TODTH_WR(2), 161 },
 	/* end marker */
 	{ 0, -1 }
-};
-
-static const iomux_v3_cfg_t usb_pads[] = {
-	VF610_PAD_PTD4__GPIO_83,
-	VF610_PAD_PTC29__GPIO_102,
 };
 
 int dram_init(void)
@@ -147,91 +135,11 @@ int dram_init(void)
 		.wldqsen           = 25,
 	};
 
-	ddrmc_setup_iomux(NULL, 0);
-
 	ddrmc_ctrl_init_ddr3(&timings, colibri_vf_cr_settings, NULL, 1, 2);
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
 
 	return 0;
 }
-
-static void setup_iomux_uart(void)
-{
-	static const iomux_v3_cfg_t uart_pads[] = {
-		NEW_PAD_CTRL(VF610_PAD_PTB4__UART1_TX, UART_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTB5__UART1_RX, UART_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTB10__UART0_TX, UART_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTB11__UART0_RX, UART_PAD_CTRL),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
-}
-
-static void setup_iomux_enet(void)
-{
-	static const iomux_v3_cfg_t enet0_pads[] = {
-		NEW_PAD_CTRL(VF610_PAD_PTA6__RMII0_CLKOUT, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC10__RMII1_MDIO, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC9__RMII1_MDC, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC11__RMII1_CRS_DV, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC12__RMII1_RD1, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC13__RMII1_RD0, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC14__RMII1_RXER, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC15__RMII1_TD1, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC16__RMII1_TD0, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC17__RMII1_TXEN, ENET_PAD_CTRL),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(enet0_pads, ARRAY_SIZE(enet0_pads));
-}
-
-static void setup_iomux_i2c(void)
-{
-	static const iomux_v3_cfg_t i2c0_pads[] = {
-		VF610_PAD_PTB14__I2C0_SCL,
-		VF610_PAD_PTB15__I2C0_SDA,
-	};
-
-	imx_iomux_v3_setup_multiple_pads(i2c0_pads, ARRAY_SIZE(i2c0_pads));
-}
-
-#ifdef CONFIG_NAND_VF610_NFC
-static void setup_iomux_nfc(void)
-{
-	static const iomux_v3_cfg_t nfc_pads[] = {
-		VF610_PAD_PTD23__NF_IO7,
-		VF610_PAD_PTD22__NF_IO6,
-		VF610_PAD_PTD21__NF_IO5,
-		VF610_PAD_PTD20__NF_IO4,
-		VF610_PAD_PTD19__NF_IO3,
-		VF610_PAD_PTD18__NF_IO2,
-		VF610_PAD_PTD17__NF_IO1,
-		VF610_PAD_PTD16__NF_IO0,
-		VF610_PAD_PTB24__NF_WE_B,
-		VF610_PAD_PTB25__NF_CE0_B,
-		VF610_PAD_PTB27__NF_RE_B,
-		VF610_PAD_PTC26__NF_RB_B,
-		VF610_PAD_PTC27__NF_ALE,
-		VF610_PAD_PTC28__NF_CLE
-	};
-
-	imx_iomux_v3_setup_multiple_pads(nfc_pads, ARRAY_SIZE(nfc_pads));
-}
-#endif
-
-#ifdef CONFIG_FSL_DSPI
-static void setup_iomux_dspi(void)
-{
-	static const iomux_v3_cfg_t dspi1_pads[] = {
-		VF610_PAD_PTD5__DSPI1_CS0,
-		VF610_PAD_PTD6__DSPI1_SIN,
-		VF610_PAD_PTD7__DSPI1_SOUT,
-		VF610_PAD_PTD8__DSPI1_SCK,
-	};
-
-	imx_iomux_v3_setup_multiple_pads(dspi1_pads, ARRAY_SIZE(dspi1_pads));
-}
-#endif
 
 #ifdef CONFIG_VYBRID_GPIO
 static void setup_iomux_gpio(void)
@@ -344,19 +252,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
-	static const iomux_v3_cfg_t esdhc1_pads[] = {
-		NEW_PAD_CTRL(VF610_PAD_PTA24__ESDHC1_CLK, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA25__ESDHC1_CMD, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA26__ESDHC1_DAT0, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA27__ESDHC1_DAT1, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA28__ESDHC1_DAT2, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA29__ESDHC1_DAT3, ESDHC_PAD_CTRL),
-	};
-
 	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-
-	imx_iomux_v3_setup_multiple_pads(
-		esdhc1_pads, ARRAY_SIZE(esdhc1_pads));
 
 	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 }
@@ -496,19 +392,8 @@ int board_early_init_f(void)
 	clock_init();
 	mscm_init();
 
-	setup_iomux_uart();
-	setup_iomux_enet();
-	setup_iomux_i2c();
-#ifdef CONFIG_NAND_VF610_NFC
-	setup_iomux_nfc();
-#endif
-
 #ifdef CONFIG_VYBRID_GPIO
 	setup_iomux_gpio();
-#endif
-
-#ifdef CONFIG_FSL_DSPI
-	setup_iomux_dspi();
 #endif
 
 #ifdef CONFIG_VIDEO_FSL_DCU_FB
@@ -594,8 +479,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_USB_EHCI_VF
 int board_ehci_hcd_init(int port)
 {
-	imx_iomux_v3_setup_multiple_pads(usb_pads, ARRAY_SIZE(usb_pads));
-
 	switch (port) {
 	case 0:
 		/* USBC does not have PEN, also configured as USB client only */
