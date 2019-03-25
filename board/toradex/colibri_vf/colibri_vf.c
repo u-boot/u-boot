@@ -407,9 +407,9 @@ int board_init(void)
 int checkboard(void)
 {
 	if (is_colibri_vf61())
-		puts("Board: Colibri VF61\n");
+		puts("Model: Toradex Colibri VF61\n");
 	else
-		puts("Board: Colibri VF50\n");
+		puts("Model: Toradex Colibri VF50\n");
 
 	return 0;
 }
