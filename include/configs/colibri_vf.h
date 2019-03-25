@@ -12,6 +12,7 @@
 #define __CONFIG_H
 
 #include <asm/arch/imx-regs.h>
+#include <linux/sizes.h>
 
 #define CONFIG_SYS_FSL_CLK
 
@@ -28,7 +29,7 @@
 #endif
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * SZ_1M)
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -118,7 +119,7 @@
 
 /* Physical memory map */
 #define PHYS_SDRAM			(0x80000000)
-#define PHYS_SDRAM_SIZE			(256 * 1024 * 1024)
+#define PHYS_SDRAM_SIZE			(256 * SZ_1M)
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -141,6 +142,6 @@
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
 /* USB DFU */
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE (1024 * 1024)
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE (SZ_1M)
 
 #endif /* __CONFIG_H */
