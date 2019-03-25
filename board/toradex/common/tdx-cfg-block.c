@@ -261,7 +261,7 @@ int read_tdx_cfg_block(void)
 	}
 
 	/* Cap product id to avoid issues with a yet unknown one */
-	if (tdx_hw_tag.prodid > (sizeof(toradex_modules) /
+	if (tdx_hw_tag.prodid >= (sizeof(toradex_modules) /
 				  sizeof(toradex_modules[0])))
 		tdx_hw_tag.prodid = 0;
 
