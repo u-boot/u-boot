@@ -101,15 +101,21 @@ int dram_init(void)
 		.tras_lockout      = 0,
 		.tdal              = 12,
 		.bstlen            = 3,
-		.tdll              = 512,
+		.tdll              = 512, /* not applicable since freq. scaling
+					   * is not used
+					   */
 		.trp_ab            = 6,
 		.tref              = 3120,
 		.trfc              = 64,
 		.tref_int          = 0,
 		.tpdex             = 3,
 		.txpdll            = 10,
-		.txsnr             = 48,
-		.txsr              = 468,
+		.txsnr             = 68,  /* changed to conform to JEDEC
+					   * specifications
+					   */
+		.txsr              = 506, /* changed to conform to JEDEC
+					   * specifications
+					   */
 		.cksrx             = 5,
 		.cksre             = 5,
 		.freq_chg_en       = 0,
