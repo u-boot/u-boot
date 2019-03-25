@@ -37,6 +37,9 @@ struct at91_pinctrl_priv {
 #define OUTPUT			BIT(7)
 #define OUTPUT_VAL_SHIFT	8
 #define OUTPUT_VAL		(0x1 << OUTPUT_VAL_SHIFT)
+#define SLEWRATE_SHIFT	9
+#define SLEWRATE_MASK	0x1
+#define SLEWRATE	(SLEWRATE_MASK << SLEWRATE_SHIFT)
 #define DEBOUNCE		BIT(16)
 #define DEBOUNCE_VAL_SHIFT	17
 #define DEBOUNCE_VAL		(0x3fff << DEBOUNCE_VAL_SHIFT)
@@ -59,6 +62,13 @@ enum drive_strength_bit {
 
 #define DRIVE_STRENGTH_BIT_MSK(name)	(DRIVE_STRENGTH_BIT_##name << \
 					 DRIVE_STRENGTH_SHIFT)
+
+enum slewrate_bit {
+	SLEWRATE_BIT_DIS,
+	SLEWRATE_BIT_ENA,
+};
+
+#define SLEWRATE_BIT_MSK(name)		(SLEWRATE_BIT_##name << SLEWRATE_SHIFT)
 
 enum at91_mux {
 	AT91_MUX_GPIO = 0,
@@ -95,6 +105,7 @@ struct at91_pinctrl_mux_ops {
 	void (*disable_schmitt_trig)(struct at91_port *pio, u32 mask);
 	void (*set_drivestrength)(struct at91_port *pio, u32 pin,
 				  u32 strength);
+	void (*set_slewrate)(struct at91_port *pio, u32 pin, u32 slewrate);
 };
 
 static u32 two_bit_pin_value_shift_amount(u32 pin)
@@ -270,6 +281,25 @@ static void at91_mux_sam9x60_set_drivestrength(struct at91_port *pio, u32 pin,
 	writel(tmp, reg);
 }
 
+static void at91_mux_sam9x60_set_slewrate(struct at91_port *pio, u32 pin,
+					  u32 setting)
+{
+	void *reg = &pio->reserved12[3];
+	u32 tmp;
+
+	if (setting < SLEWRATE_BIT_DIS || setting > SLEWRATE_BIT_ENA)
+		return;
+
+	tmp = readl(reg);
+
+	if (setting == SLEWRATE_BIT_DIS)
+		tmp &= ~BIT(pin);
+	else
+		tmp |= BIT(pin);
+
+	writel(tmp, reg);
+}
+
 static struct at91_pinctrl_mux_ops at91rm9200_ops = {
 	.mux_A_periph	= at91_mux_set_A_periph,
 	.mux_B_periph	= at91_mux_set_B_periph,
@@ -310,6 +340,7 @@ static struct at91_pinctrl_mux_ops sam9x60_ops = {
 	.set_pulldown	= at91_mux_pio3_set_pulldown,
 	.disable_schmitt_trig = at91_mux_pio3_disable_schmitt_trig,
 	.set_drivestrength = at91_mux_sam9x60_set_drivestrength,
+	.set_slewrate   = at91_mux_sam9x60_set_slewrate,
 };
 
 static void at91_mux_gpio_disable(struct at91_port *pio, u32 mask)
@@ -378,6 +409,9 @@ static int at91_pinconf_set(struct at91_pinctrl_mux_ops *ops,
 	if (ops->set_drivestrength)
 		ops->set_drivestrength(pio, pin,
 			(config & DRIVE_STRENGTH) >> DRIVE_STRENGTH_SHIFT);
+	if (ops->set_slewrate)
+		ops->set_slewrate(pio, pin,
+			(config & SLEWRATE) >> SLEWRATE_SHIFT);
 
 	return 0;
 }
