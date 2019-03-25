@@ -112,7 +112,7 @@ void build_info(void)
 	sc_misc_build_info(-1, &sc_build, &sc_commit);
 	if (!sc_build) {
 		printf("SCFW does not support build info\n");
-		sc_commit = 0; /* Display 0 when the build info is not supported*/
+		sc_commit = 0; /* Display 0 when the build info is not supported */
 	}
 	printf("Build: SCFW %x\n", sc_commit);
 }
