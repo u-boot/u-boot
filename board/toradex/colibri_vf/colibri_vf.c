@@ -16,23 +16,16 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <fdt_support.h>
-#include <fsl_esdhc.h>
 #include <fsl_dcu_fb.h>
 #include <g_dnl.h>
-#include <i2c.h>
 #include <jffs2/load_kernel.h>
-#include <miiphy.h>
-#include <mmc.h>
 #include <mtd_node.h>
-#include <netdev.h>
 #include <usb.h>
 
 #include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define USB_PEN_GPIO		83
-#define USB_CDET_GPIO		102
 #define PTC0_GPIO_45		45
 
 static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
@@ -239,25 +232,6 @@ static void setup_tcon(void)
 }
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg esdhc_cfg[1] = {
-	{ESDHC1_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	/* eSDHC1 is always present */
-	return 1;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-
-	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
-}
-#endif
-
 static inline int is_colibri_vf61(void)
 {
 	struct mscm *mscm = (struct mscm *)MSCM_BASE_ADDR;
@@ -290,7 +264,7 @@ static void clock_init(void)
 			CCM_CCGR3_ANADIG_CTRL_MASK | CCM_CCGR3_SCSC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr4, CCM_REG_CTRL_MASK,
 			CCM_CCGR4_WKUP_CTRL_MASK | CCM_CCGR4_CCM_CTRL_MASK |
-			CCM_CCGR4_GPC_CTRL_MASK | CCM_CCGR4_I2C0_CTRL_MASK);
+			CCM_CCGR4_GPC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr6, CCM_REG_CTRL_MASK,
 			CCM_CCGR6_OCOTP_CTRL_MASK | CCM_CCGR6_DDRMC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr7, CCM_REG_CTRL_MASK,
@@ -379,14 +353,6 @@ static void mscm_init(void)
 		writew(MSCM_IRSPRC_CP0_EN, &mscmir->irsprc[i]);
 }
 
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
-
 int board_early_init_f(void)
 {
 	clock_init();
@@ -433,12 +399,7 @@ int board_init(void)
 	 * so we must use the external oscillator in order
 	 * to maintain correct time in the hwclock
 	 */
-
 	setbits_le32(&scsc->sosc_ctr, SCSC_SOSC_CTR_SOSC_EN);
-
-#ifdef CONFIG_USB_EHCI_VF
-	gpio_request(USB_CDET_GPIO, "usb-cdet-gpio");
-#endif
 
 	return 0;
 }
@@ -473,47 +434,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	return ft_common_board_setup(blob, bd);
-}
-#endif
-
-#ifdef CONFIG_USB_EHCI_VF
-int board_ehci_hcd_init(int port)
-{
-	switch (port) {
-	case 0:
-		/* USBC does not have PEN, also configured as USB client only */
-		break;
-	case 1:
-		gpio_request(USB_PEN_GPIO, "usb-pen-gpio");
-		gpio_direction_output(USB_PEN_GPIO, 0);
-		break;
-	}
-	return 0;
-}
-
-int board_usb_phy_mode(int port)
-{
-	switch (port) {
-	case 0:
-		/*
-		 * Port 0 is used only in client mode on Colibri Vybrid modules
-		 * Check for state of USB client gpio pin and accordingly return
-		 * USB_INIT_DEVICE or USB_INIT_HOST.
-		 */
-		if (gpio_get_value(USB_CDET_GPIO))
-			return USB_INIT_DEVICE;
-		else
-			return USB_INIT_HOST;
-	case 1:
-		/* Port 1 is used only in host mode on Colibri Vybrid modules */
-		return USB_INIT_HOST;
-	default:
-		/*
-		 * There are only two USB controllers on Vybrid. Ideally we will
-		 * not reach here. However return USB_INIT_HOST if we do.
-		 */
-		return USB_INIT_HOST;
-	}
 }
 #endif
 

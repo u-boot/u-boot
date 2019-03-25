@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2015-2016 Toradex, Inc.
+ * Copyright 2015-2019 Toradex, Inc.
  *
  * Configuration settings for the Toradex VF50/VF61 modules.
  *
@@ -36,17 +36,6 @@
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
-
-/* Dynamic MTD partition support */
-
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_ESDHC_NUM	1
-
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET1_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RMII
-#define CONFIG_FEC_MXC_PHYADDR          0
 
 #define CONFIG_IPADDR		192.168.10.2
 #define CONFIG_NETMASK		255.255.255.0
