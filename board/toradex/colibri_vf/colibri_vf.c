@@ -29,6 +29,13 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PTC0_GPIO_45		45
 
 static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
+	{ DDRMC_CR79_CTLUPD_AREF(1), 79 },
+	/* sets manual values for read lvl. (gate) delay of data slice 0/1 */
+	{ DDRMC_CR105_RDLVL_DL_0(28), 105 },
+	{ DDRMC_CR106_RDLVL_GTDL_0(24), 106 },
+	{ DDRMC_CR110_RDLVL_DL_1(28) | DDRMC_CR110_RDLVL_GTDL_1(24), 110 },
+	{ DDRMC_CR102_RDLVL_GT_REGEN | DDRMC_CR102_RDLVL_REG_EN, 102 },
+
 	/* AXI */
 	{ DDRMC_CR117_AXI0_W_PRI(0) | DDRMC_CR117_AXI0_R_PRI(0), 117 },
 	{ DDRMC_CR118_AXI1_W_PRI(1) | DDRMC_CR118_AXI1_R_PRI(1), 118 },
