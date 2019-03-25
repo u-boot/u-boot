@@ -248,6 +248,28 @@ static void at91_mux_sam9x5_set_drivestrength(struct at91_port *pio,
 	set_drive_strength(reg, pin, setting);
 }
 
+static void at91_mux_sam9x60_set_drivestrength(struct at91_port *pio, u32 pin,
+					       u32 setting)
+{
+	void *reg = &pio->driver12;
+	u32 tmp;
+
+	if (setting <= DRIVE_STRENGTH_BIT_DEF ||
+	    setting == DRIVE_STRENGTH_BIT_MED ||
+	    setting > DRIVE_STRENGTH_BIT_HI)
+		return;
+
+	tmp = readl(reg);
+
+	/* Strength is 0: low, 1: hi */
+	if (setting == DRIVE_STRENGTH_BIT_LOW)
+		tmp &= ~BIT(pin);
+	else
+		tmp |= BIT(pin);
+
+	writel(tmp, reg);
+}
+
 static struct at91_pinctrl_mux_ops at91rm9200_ops = {
 	.mux_A_periph	= at91_mux_set_A_periph,
 	.mux_B_periph	= at91_mux_set_B_periph,
@@ -276,6 +298,18 @@ static struct at91_pinctrl_mux_ops sama5d3_ops = {
 	.set_pulldown	= at91_mux_pio3_set_pulldown,
 	.disable_schmitt_trig = at91_mux_pio3_disable_schmitt_trig,
 	.set_drivestrength = at91_mux_sama5d3_set_drivestrength,
+};
+
+static struct at91_pinctrl_mux_ops sam9x60_ops = {
+	.mux_A_periph	= at91_mux_pio3_set_A_periph,
+	.mux_B_periph	= at91_mux_pio3_set_B_periph,
+	.mux_C_periph	= at91_mux_pio3_set_C_periph,
+	.mux_D_periph	= at91_mux_pio3_set_D_periph,
+	.set_deglitch	= at91_mux_pio3_set_deglitch,
+	.set_debounce	= at91_mux_pio3_set_debounce,
+	.set_pulldown	= at91_mux_pio3_set_pulldown,
+	.disable_schmitt_trig = at91_mux_pio3_disable_schmitt_trig,
+	.set_drivestrength = at91_mux_sam9x60_set_drivestrength,
 };
 
 static void at91_mux_gpio_disable(struct at91_port *pio, u32 mask)
