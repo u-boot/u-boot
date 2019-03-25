@@ -19,10 +19,6 @@
 /* Enable passing of ATAGs */
 #define CONFIG_CMDLINE_TAG
 
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-#endif
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 

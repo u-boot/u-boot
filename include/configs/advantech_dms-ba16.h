@@ -34,8 +34,6 @@
 
 #define CONFIG_MXC_UART
 
-#define CONFIG_MXC_OCOTP
-
 /* SATA Configs */
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_DWC_AHSATA_PORT_ID	0

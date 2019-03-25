@@ -230,7 +230,6 @@
 
 #define CONFIG_MXC_GPIO
 
-#define CONFIG_MXC_OCOTP
 #define CONFIG_CMD_FUSE
 
 /* I2C Configs */

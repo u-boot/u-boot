@@ -41,11 +41,6 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_MXC_I2C3_SPEED	400000
 
-/* OCOTP Configs */
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-#endif
-
 /* MMC Configs */
 #define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0

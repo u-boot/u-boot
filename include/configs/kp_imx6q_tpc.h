@@ -31,11 +31,6 @@
 #define CONFIG_FEC_MXC_PHYADDR		0
 #define CONFIG_ARP_TIMEOUT		200UL
 
-/* Fuses */
-#ifdef CONFIG_CMD_FUSE
-#define CONFIG_MXC_OCOTP
-#endif
-
 /* I2C Configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
