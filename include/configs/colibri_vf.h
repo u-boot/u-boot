@@ -48,13 +48,15 @@
 /* We boot from the gfxRAM area of the OCRAM. */
 #define CONFIG_BOARD_SIZE_LIMIT		520192
 
-#define SD_BOOTCMD \
-	"sdargs=root=/dev/mmcblk0p2 rw rootwait\0"	\
-	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} ${mtdparts} " \
-	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
-	"load mmc 0:2 ${kernel_addr_r} /boot/${kernel_file} && " \
-	"load mmc 0:2 ${fdt_addr_r} /boot/${soc}-colibri-${fdt_board}.dtb && " \
-	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
+	"fdt_addr_r=0x82000000\0" \
+	"fdt_high=0xffffffff\0" \
+	"initrd_high=0xffffffff\0" \
+	"kernel_addr_r=0x81000000\0" \
+	"pxefile_addr_r=0x87100000\0" \
+	"ramdisk_addr_r=0x82100000\0" \
+	"scriptaddr=0x87000000\0"
 
 #define NFS_BOOTCMD \
 	"nfsargs=ip=:::::eth0: root=/dev/nfs\0"	\
@@ -65,7 +67,15 @@
 	"tftp ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
 	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
-#define UBI_BOOTCMD	\
+#define SD_BOOTCMD \
+	"sdargs=root=/dev/mmcblk0p2 rw rootwait\0"	\
+	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} ${mtdparts} " \
+	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
+	"load mmc 0:2 ${kernel_addr_r} /boot/${kernel_file} && " \
+	"load mmc 0:2 ${fdt_addr_r} /boot/${soc}-colibri-${fdt_board}.dtb && " \
+	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+
+#define UBI_BOOTCMD \
 	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rootfstype=ubifs " \
 	"ubi.fm_autoconvert=1\0" \
 	"ubiboot=run setup; " \
@@ -76,36 +86,43 @@
 	"ubi read ${fdt_addr_r} dtb && " \
 	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
-#define CONFIG_BOOTCOMMAND "run ubiboot; run sdboot; run nfsboot"
+#define CONFIG_BOOTCOMMAND "run ubiboot; run distro_bootcmd;"
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(DHCP, dhcp, na)
+#include <config_distro_bootcmd.h>
+#undef BOOTENV_RUN_NET_USB_START
+#define BOOTENV_RUN_NET_USB_START ""
 
 #define DFU_ALT_NAND_INFO "vf-bcb part 0,1;u-boot part 0,2;ubi part 0,4"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"kernel_addr_r=0x82000000\0" \
-	"fdt_addr_r=0x84000000\0" \
-	"kernel_file=zImage\0" \
-	"fdt_file=${soc}-colibri-${fdt_board}.dtb\0" \
-	"fdt_board=eval-v3\0" \
-	"fdt_fixup=;\0" \
-	"defargs=\0" \
-	"console=ttyLP0\0" \
-	"setup=setenv setupargs " \
-	"console=tty1 console=${console}" \
-	",${baudrate}n8 ${memargs}\0" \
-	"setsdupdate=mmc rescan && set interface mmc && " \
-	"fatload ${interface} 0:1 ${loadaddr} flash_blk.img && " \
-	"source ${loadaddr}\0" \
-	"setusbupdate=usb start && set interface usb && " \
-	"fatload ${interface} 0:1 ${loadaddr} flash_blk.img && " \
-	"source ${loadaddr}\0" \
-	"setupdate=run setsdupdate || run setusbupdate\0" \
-	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
-	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
-	"video-mode=dcufb:640x480-16@60,monitor=lcd\0" \
-	"splashpos=m,m\0" \
-	SD_BOOTCMD \
+	BOOTENV \
+	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
-	UBI_BOOTCMD
+	SD_BOOTCMD \
+	UBI_BOOTCMD \
+	"console=ttyLP0\0" \
+	"defargs=\0" \
+	"dfu_alt_info=" DFU_ALT_NAND_INFO "\0" \
+	"fdt_board=eval-v3\0" \
+	"fdt_file=${soc}-colibri-${fdt_board}.dtb\0" \
+	"fdt_fixup=;\0" \
+	"kernel_file=zImage\0" \
+	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
+	"setsdupdate=mmc rescan && set interface mmc && " \
+		"fatload ${interface} 0:1 ${loadaddr} flash_blk.img && " \
+		"source ${loadaddr}\0" \
+	"setup=setenv setupargs console=tty1 console=${console}" \
+		",${baudrate}n8 ${memargs}\0" \
+	"setupdate=run setsdupdate || run setusbupdate\0" \
+	"setusbupdate=usb start && set interface usb && " \
+		"fatload ${interface} 0:1 ${loadaddr} flash_blk.img && " \
+		"source ${loadaddr}\0" \
+	"splashpos=m,m\0" \
+	"video-mode=dcufb:640x480-16@60,monitor=lcd\0"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
