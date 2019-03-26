@@ -17,6 +17,10 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 {
 	nand_init();
 
+	printf("Loading U-Boot from 0x%08x (size 0x%08x) to 0x%08x\n",
+	       CONFIG_SYS_NAND_U_BOOT_OFFS, CONFIG_SYS_NAND_U_BOOT_SIZE,
+	       CONFIG_SYS_NAND_U_BOOT_DST);
+
 	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
 			    CONFIG_SYS_NAND_U_BOOT_SIZE,
 			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
