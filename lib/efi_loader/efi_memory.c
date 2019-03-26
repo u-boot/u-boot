@@ -15,6 +15,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* Magic number identifying memory allocated from pool */
+#define EFI_ALLOC_POOL_MAGIC 0x1fe67ddf6491caa2
+
 efi_uintn_t efi_memory_map_key;
 
 struct efi_mem_list {
@@ -33,7 +36,12 @@ LIST_HEAD(efi_mem);
 void *efi_bounce_buffer;
 #endif
 
-/*
+/**
+ * efi_pool_allocation - memory block allocated from pool
+ *
+ * @num_pages:	number of pages allocated
+ * @checksum:	checksum
+ *
  * U-Boot services each EFI AllocatePool request as a separate
  * (multiple) page allocation.  We have to track the number of pages
  * to be able to free the correct amount later.
@@ -43,8 +51,25 @@ void *efi_bounce_buffer;
  */
 struct efi_pool_allocation {
 	u64 num_pages;
+	u64 checksum;
 	char data[] __aligned(ARCH_DMA_MINALIGN);
 };
+
+/**
+ * checksum() - calculate checksum for memory allocated from pool
+ *
+ * @alloc:	allocation header
+ * Return:	checksum, always non-zero
+ */
+static u64 checksum(struct efi_pool_allocation *alloc)
+{
+	u64 addr = (uintptr_t)alloc;
+	u64 ret = (addr >> 32) ^ (addr << 32) ^ alloc->num_pages ^
+		  EFI_ALLOC_POOL_MAGIC;
+	if (!ret)
+		++ret;
+	return ret;
+}
 
 /*
  * Sorts the memory list from highest address to lowest address
@@ -409,16 +434,23 @@ void *efi_alloc(uint64_t len, int memory_type)
 	return NULL;
 }
 
-/*
- * Free memory pages.
+/**
+ * efi_free_pages() - free memory pages
  *
- * @memory	start of the memory area to be freed
- * @pages	number of pages to be freed
- * @return	status code
+ * @memory:	start of the memory area to be freed
+ * @pages:	number of pages to be freed
+ * Return:	status code
  */
 efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
 	uint64_t r = 0;
+
+	/* Sanity check */
+	if (!memory || (memory & EFI_PAGE_MASK)) {
+		printf("%s: illegal free 0x%llx, 0x%zx\n", __func__,
+		       memory, pages);
+		return EFI_INVALID_PARAMETER;
+	}
 
 	r = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
 	/* Merging of adjacent free regions is missing */
@@ -429,13 +461,13 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 	return EFI_NOT_FOUND;
 }
 
-/*
- * Allocate memory from pool.
+/**
+ * efi_allocate_pool - allocate memory from pool
  *
- * @pool_type	type of the pool from which memory is to be allocated
- * @size	number of bytes to be allocated
- * @buffer	allocated memory
- * @return	status code
+ * @pool_type:	type of the pool from which memory is to be allocated
+ * @size:	number of bytes to be allocated
+ * @buffer:	allocated memory
+ * Return:	status code
  */
 efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
 {
@@ -458,17 +490,18 @@ efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
 	if (r == EFI_SUCCESS) {
 		alloc = (struct efi_pool_allocation *)(uintptr_t)addr;
 		alloc->num_pages = num_pages;
+		alloc->checksum = checksum(alloc);
 		*buffer = alloc->data;
 	}
 
 	return r;
 }
 
-/*
- * Free memory from pool.
+/**
+ * efi_free_pool() - free memory from pool
  *
- * @buffer	start of memory to be freed
- * @return	status code
+ * @buffer:	start of memory to be freed
+ * Return:	status code
  */
 efi_status_t efi_free_pool(void *buffer)
 {
@@ -479,8 +512,15 @@ efi_status_t efi_free_pool(void *buffer)
 		return EFI_INVALID_PARAMETER;
 
 	alloc = container_of(buffer, struct efi_pool_allocation, data);
-	/* Sanity check, was the supplied address returned by allocate_pool */
-	assert(((uintptr_t)alloc & EFI_PAGE_MASK) == 0);
+
+	/* Check that this memory was allocated by efi_allocate_pool() */
+	if (((uintptr_t)alloc & EFI_PAGE_MASK) ||
+	    alloc->checksum != checksum(alloc)) {
+		printf("%s: illegal free 0x%p\n", __func__, buffer);
+		return EFI_INVALID_PARAMETER;
+	}
+	/* Avoid double free */
+	alloc->checksum = 0;
 
 	r = efi_free_pages((uintptr_t)alloc, alloc->num_pages);
 
