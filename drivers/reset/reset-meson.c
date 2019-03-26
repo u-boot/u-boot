@@ -69,6 +69,7 @@ struct reset_ops meson_reset_ops = {
 
 static const struct udevice_id meson_reset_ids[] = {                          
 	{ .compatible = "amlogic,meson-gxbb-reset" },                                  
+	{ .compatible = "amlogic,meson-axg-reset" },
 	{ }                                                                     
 };  
 
