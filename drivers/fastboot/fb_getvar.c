@@ -62,7 +62,7 @@ static const struct {
 		.variable = "slot-suffixes",
 		.dispatch = getvar_slot_suffixes
 	}, {
-		.variable = "has_slot",
+		.variable = "has-slot",
 		.dispatch = getvar_has_slot
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	}, {
