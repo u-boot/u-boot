@@ -1745,115 +1745,6 @@ error:
 }
 
 /**
- * efi_start_image() - call the entry point of an image
- * @image_handle:   handle of the image
- * @exit_data_size: size of the buffer
- * @exit_data:      buffer to receive the exit data of the called image
- *
- * This function implements the StartImage service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * Return: status code
- */
-efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
-				    efi_uintn_t *exit_data_size,
-				    u16 **exit_data)
-{
-	struct efi_loaded_image_obj *image_obj =
-		(struct efi_loaded_image_obj *)image_handle;
-	efi_status_t ret;
-
-	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
-
-	efi_is_direct_boot = false;
-
-	/* call the image! */
-	if (setjmp(&image_obj->exit_jmp)) {
-		/*
-		 * We called the entry point of the child image with EFI_CALL
-		 * in the lines below. The child image called the Exit() boot
-		 * service efi_exit() which executed the long jump that brought
-		 * us to the current line. This implies that the second half
-		 * of the EFI_CALL macro has not been executed.
-		 */
-#ifdef CONFIG_ARM
-		/*
-		 * efi_exit() called efi_restore_gd(). We have to undo this
-		 * otherwise __efi_entry_check() will put the wrong value into
-		 * app_gd.
-		 */
-		gd = app_gd;
-#endif
-		/*
-		 * To get ready to call EFI_EXIT below we have to execute the
-		 * missed out steps of EFI_CALL.
-		 */
-		assert(__efi_entry_check());
-		debug("%sEFI: %lu returned by started image\n",
-		      __efi_nesting_dec(),
-		      (unsigned long)((uintptr_t)image_obj->exit_status &
-				      ~EFI_ERROR_MASK));
-		return EFI_EXIT(image_obj->exit_status);
-	}
-
-	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
-
-	/*
-	 * Usually UEFI applications call Exit() instead of returning.
-	 * But because the world doesn't consist of ponies and unicorns,
-	 * we're happy to emulate that behavior on behalf of a payload
-	 * that forgot.
-	 */
-	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
-}
-
-/**
- * efi_exit() - leave an EFI application or driver
- * @image_handle:   handle of the application or driver that is exiting
- * @exit_status:    status code
- * @exit_data_size: size of the buffer in bytes
- * @exit_data:      buffer with data describing an error
- *
- * This function implements the Exit service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * Return: status code
- */
-static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
-				    efi_status_t exit_status,
-				    efi_uintn_t exit_data_size,
-				    u16 *exit_data)
-{
-	/*
-	 * TODO: We should call the unload procedure of the loaded
-	 *	 image protocol.
-	 */
-	struct efi_loaded_image_obj *image_obj =
-		(struct efi_loaded_image_obj *)image_handle;
-
-	EFI_ENTRY("%p, %ld, %zu, %p", image_handle, exit_status,
-		  exit_data_size, exit_data);
-
-	/* Make sure entry/exit counts for EFI world cross-overs match */
-	EFI_EXIT(exit_status);
-
-	/*
-	 * But longjmp out with the U-Boot gd, not the application's, as
-	 * the other end is a setjmp call inside EFI context.
-	 */
-	efi_restore_gd();
-
-	image_obj->exit_status = exit_status;
-	longjmp(&image_obj->exit_jmp, 1);
-
-	panic("EFI application exited");
-}
-
-/**
  * efi_unload_image() - unload an EFI image
  * @image_handle: handle of the image to be unloaded
  *
@@ -2718,6 +2609,115 @@ static efi_status_t EFIAPI efi_open_protocol
 			      controller_handle, attributes);
 out:
 	return EFI_EXIT(r);
+}
+
+/**
+ * efi_start_image() - call the entry point of an image
+ * @image_handle:   handle of the image
+ * @exit_data_size: size of the buffer
+ * @exit_data:      buffer to receive the exit data of the called image
+ *
+ * This function implements the StartImage service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * Return: status code
+ */
+efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+				    efi_uintn_t *exit_data_size,
+				    u16 **exit_data)
+{
+	struct efi_loaded_image_obj *image_obj =
+		(struct efi_loaded_image_obj *)image_handle;
+	efi_status_t ret;
+
+	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
+
+	efi_is_direct_boot = false;
+
+	/* call the image! */
+	if (setjmp(&image_obj->exit_jmp)) {
+		/*
+		 * We called the entry point of the child image with EFI_CALL
+		 * in the lines below. The child image called the Exit() boot
+		 * service efi_exit() which executed the long jump that brought
+		 * us to the current line. This implies that the second half
+		 * of the EFI_CALL macro has not been executed.
+		 */
+#ifdef CONFIG_ARM
+		/*
+		 * efi_exit() called efi_restore_gd(). We have to undo this
+		 * otherwise __efi_entry_check() will put the wrong value into
+		 * app_gd.
+		 */
+		gd = app_gd;
+#endif
+		/*
+		 * To get ready to call EFI_EXIT below we have to execute the
+		 * missed out steps of EFI_CALL.
+		 */
+		assert(__efi_entry_check());
+		debug("%sEFI: %lu returned by started image\n",
+		      __efi_nesting_dec(),
+		      (unsigned long)((uintptr_t)image_obj->exit_status &
+				      ~EFI_ERROR_MASK));
+		return EFI_EXIT(image_obj->exit_status);
+	}
+
+	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
+
+	/*
+	 * Usually UEFI applications call Exit() instead of returning.
+	 * But because the world doesn't consist of ponies and unicorns,
+	 * we're happy to emulate that behavior on behalf of a payload
+	 * that forgot.
+	 */
+	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
+}
+
+/**
+ * efi_exit() - leave an EFI application or driver
+ * @image_handle:   handle of the application or driver that is exiting
+ * @exit_status:    status code
+ * @exit_data_size: size of the buffer in bytes
+ * @exit_data:      buffer with data describing an error
+ *
+ * This function implements the Exit service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * Return: status code
+ */
+static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+				    efi_status_t exit_status,
+				    efi_uintn_t exit_data_size,
+				    u16 *exit_data)
+{
+	/*
+	 * TODO: We should call the unload procedure of the loaded
+	 *	 image protocol.
+	 */
+	struct efi_loaded_image_obj *image_obj =
+		(struct efi_loaded_image_obj *)image_handle;
+
+	EFI_ENTRY("%p, %ld, %zu, %p", image_handle, exit_status,
+		  exit_data_size, exit_data);
+
+	/* Make sure entry/exit counts for EFI world cross-overs match */
+	EFI_EXIT(exit_status);
+
+	/*
+	 * But longjmp out with the U-Boot gd, not the application's, as
+	 * the other end is a setjmp call inside EFI context.
+	 */
+	efi_restore_gd();
+
+	image_obj->exit_status = exit_status;
+	longjmp(&image_obj->exit_jmp, 1);
+
+	panic("EFI application exited");
 }
 
 /**
