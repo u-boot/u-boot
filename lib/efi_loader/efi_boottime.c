@@ -26,6 +26,9 @@ LIST_HEAD(efi_obj_list);
 /* List of all events */
 LIST_HEAD(efi_events);
 
+/* Handle of the currently executing image */
+static efi_handle_t current_image;
+
 /*
  * If we're running on nasty systems (32bit ARM booting into non-EFI Linux)
  * we need to do trickery with caches. Since we don't want to break the EFI
@@ -2631,8 +2634,17 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
 	efi_status_t ret;
+	void *info;
+	efi_handle_t parent_image = current_image;
 
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
+
+	/* Check parameters */
+	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
+					 &info, NULL, NULL,
+					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
+	if (ret != EFI_SUCCESS)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
 	efi_is_direct_boot = false;
 
@@ -2662,9 +2674,11 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		      __efi_nesting_dec(),
 		      (unsigned long)((uintptr_t)image_obj->exit_status &
 				      ~EFI_ERROR_MASK));
+		current_image = parent_image;
 		return EFI_EXIT(image_obj->exit_status);
 	}
 
+	current_image = image_handle;
 	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
 
 	/*
@@ -2699,11 +2713,22 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	 * TODO: We should call the unload procedure of the loaded
 	 *	 image protocol.
 	 */
+	efi_status_t ret;
+	void *info;
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
 
 	EFI_ENTRY("%p, %ld, %zu, %p", image_handle, exit_status,
 		  exit_data_size, exit_data);
+
+	/* Check parameters */
+	if (image_handle != current_image)
+		goto out;
+	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
+					 &info, NULL, NULL,
+					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	/* Make sure entry/exit counts for EFI world cross-overs match */
 	EFI_EXIT(exit_status);
@@ -2718,6 +2743,8 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	longjmp(&image_obj->exit_jmp, 1);
 
 	panic("EFI application exited");
+out:
+	return EFI_EXIT(EFI_INVALID_PARAMETER);
 }
 
 /**
