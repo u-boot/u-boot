@@ -23,8 +23,6 @@
  * Commands configuration
  */
 
-/* SPI NOR flash default params, used by sf commands */
-
 /*
  * SDIO/MMC Card Configuration
  */

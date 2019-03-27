@@ -63,10 +63,6 @@
 #define CONFIG_I2C_MV
 #define CONFIG_SYS_I2C_SLAVE		0x0
 
-/*
- * SPI Flash configuration
- */
-
 /* Environment in SPI NOR flash */
 #define CONFIG_ENV_OFFSET		0x180000 /* as Marvell U-Boot version */
 #define CONFIG_ENV_SIZE			(64 << 10) /* 64KiB */

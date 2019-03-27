@@ -16,8 +16,6 @@
  * Commands configuration
  */
 
-/* SPI NOR flash default params, used by sf commands */
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 
