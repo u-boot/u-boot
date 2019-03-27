@@ -878,7 +878,6 @@ extern Void_t*     sbrk();
 #define memalign memalign_simple
 static inline void free(void *ptr) {}
 void *calloc(size_t nmemb, size_t size);
-void *memalign_simple(size_t alignment, size_t bytes);
 void *realloc_simple(void *ptr, size_t size);
 void malloc_simple_info(void);
 #else
@@ -914,6 +913,7 @@ int initf_malloc(void);
 
 /* Simple versions which can be used when space is tight */
 void *malloc_simple(size_t size);
+void *memalign_simple(size_t alignment, size_t bytes);
 
 #pragma GCC visibility push(hidden)
 # if __STD_C
