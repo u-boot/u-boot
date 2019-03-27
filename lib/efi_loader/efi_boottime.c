@@ -1522,6 +1522,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	efi_status_t ret;
 	struct efi_loaded_image *info = NULL;
 	struct efi_loaded_image_obj *obj = NULL;
+	struct efi_device_path *dp;
 
 	/* In case of EFI_OUT_OF_RESOURCES avoid illegal free by caller. */
 	*handle_ptr = NULL;
@@ -1545,15 +1546,19 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 
 	if (device_path) {
 		info->device_handle = efi_dp_find_obj(device_path, NULL);
-		/*
-		 * When asking for the device path interface, return
-		 * bootefi_device_path
-		 */
-		ret = efi_add_protocol(&obj->header,
-				       &efi_guid_device_path, device_path);
-		if (ret != EFI_SUCCESS)
+
+		dp = efi_dp_append(device_path, file_path);
+		if (!dp) {
+			ret = EFI_OUT_OF_RESOURCES;
 			goto failure;
+		}
+	} else {
+		dp = NULL;
 	}
+	ret = efi_add_protocol(&obj->header,
+			       &efi_guid_loaded_image_device_path, dp);
+	if (ret != EFI_SUCCESS)
+		goto failure;
 
 	/*
 	 * When asking for the loaded_image interface, just

@@ -14,6 +14,8 @@
 const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
 const efi_guid_t efi_guid_device_path = DEVICE_PATH_GUID;
 const efi_guid_t efi_guid_loaded_image = LOADED_IMAGE_GUID;
+const efi_guid_t efi_guid_loaded_image_device_path
+		= LOADED_IMAGE_DEVICE_PATH_GUID;
 const efi_guid_t efi_simple_file_system_protocol_guid =
 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
 const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
