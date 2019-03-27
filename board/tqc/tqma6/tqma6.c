@@ -155,11 +155,13 @@ __weak void tqma6_iomuxc_spi(void)
 					 ARRAY_SIZE(tqma6_ecspi1_pads));
 }
 
+#if defined(CONFIG_SF_DEFAULT_BUS) && defined(CONFIG_SF_DEFAULT_CS)
 int board_spi_cs_gpio(unsigned bus, unsigned cs)
 {
 	return ((bus == CONFIG_SF_DEFAULT_BUS) &&
 		(cs == CONFIG_SF_DEFAULT_CS)) ? TQMA6_SF_CS_GPIO : -1;
 }
+#endif
 
 static struct i2c_pads_info tqma6_i2c3_pads = {
 	/* I2C3: on board LM75, M24C64,  */

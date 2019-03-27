@@ -26,12 +26,8 @@
 /*
  * SPI Flash configuration for the environemnt access
  */
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
 
 /* SPI NOR flash default params, used by sf commands */
-#define CONFIG_SF_DEFAULT_SPEED		1000000
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 
 /*
  * SDIO/MMC Card Configuration

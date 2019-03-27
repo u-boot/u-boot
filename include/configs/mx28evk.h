@@ -48,10 +48,6 @@
 #define CONFIG_ENV_OFFSET		0x40000		/* 256K */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_SECT_SIZE		0x1000
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_BUS		2
-#define CONFIG_ENV_SPI_MAX_HZ		24000000
-#define CONFIG_ENV_SPI_MODE		SPI_MODE_0
 #endif
 
 /* UBI and NAND partitioning */
@@ -72,22 +68,6 @@
 #ifdef	CONFIG_CMD_USB
 #define CONFIG_EHCI_MXS_PORT1
 #define CONFIG_USB_MAX_CONTROLLER_COUNT	1
-#endif
-
-/* SPI */
-#ifdef CONFIG_CMD_SPI
-#define CONFIG_DEFAULT_SPI_BUS		2
-#define CONFIG_DEFAULT_SPI_MODE		SPI_MODE_0
-
-/* SPI Flash */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_BUS		2
-#define CONFIG_SF_DEFAULT_CS		0
-/* this may vary and depends on the installed chip */
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#define CONFIG_SF_DEFAULT_SPEED		24000000
-#endif
-
 #endif
 
 /* Framebuffer support */

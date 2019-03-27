@@ -115,7 +115,6 @@
 
 #ifdef CONFIG_QSPI_BOOT
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
 #define CONFIG_ENV_SECT_SIZE           (64 << 10) /* 64 KB sectors */
 #define CONFIG_ENV_OFFSET              0x110000
 #define CONFIG_ENV_OFFSET_REDUND       0x120000
@@ -124,8 +123,6 @@
 /* SPI */
 #define CONFIG_TI_SPI_MMAP
 #define CONFIG_QSPI_SEL_GPIO                   48
-#define CONFIG_SF_DEFAULT_SPEED                48000000
-#define CONFIG_SF_DEFAULT_MODE                 SPI_MODE_3
 #define CONFIG_QSPI_QUAD_SUPPORT
 #define CONFIG_TI_EDMA3
 

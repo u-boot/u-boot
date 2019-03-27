@@ -97,8 +97,6 @@
 
 /* SPI */
 #define CONFIG_TI_SPI_MMAP
-#define CONFIG_SF_DEFAULT_SPEED                76800000
-#define CONFIG_SF_DEFAULT_MODE                 SPI_MODE_0
 #define CONFIG_QSPI_QUAD_SUPPORT
 
 #endif /* __CONFIG_AM57XX_EVM_H */

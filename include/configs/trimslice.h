@@ -21,11 +21,8 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRIMSLICE
 
 /* SPI */
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 
 /* Environment in SPI */
-#define CONFIG_ENV_SPI_MAX_HZ		48000000
-#define CONFIG_ENV_SPI_MODE		SPI_MODE_0
 #define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
 /* 1MiB flash, environment located as high as possible */
 #define CONFIG_ENV_OFFSET		(SZ_1M - CONFIG_ENV_SIZE)

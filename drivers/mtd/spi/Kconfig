@@ -36,6 +36,42 @@ config SPI_FLASH
 
 	  If unsure, say N
 
+config SF_DEFAULT_BUS
+	int "SPI Flash default bus identifier"
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default 0
+	help
+	  The default bus may be provided by the platform
+	  to handle the common case when only a single serial
+	  flash is present on the system.
+
+config SF_DEFAULT_CS
+	int "SPI Flash default Chip-select"
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default 0
+	help
+	  The default chip select may be provided by the platform
+	  to handle the common case when only a single serial
+	  flash is present on the system.
+
+config SF_DEFAULT_MODE
+	hex "SPI Flash default mode (see include/spi.h)"
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default 3
+	help
+	  The default mode may be provided by the platform
+	  to handle the common case when only a single serial
+	  flash is present on the system.
+
+config SF_DEFAULT_SPEED
+	int "SPI Flash default speed in Hz"
+	depends on SPI_FLASH || DM_SPI_FLASH
+	default 1000000
+	help
+	  The default speed may be provided by the platform
+	  to handle the common case when only a single serial
+	  flash is present on the system.
+
 if SPI_FLASH
 
 config SPI_FLASH_SFDP_SUPPORT

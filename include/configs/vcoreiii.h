@@ -34,8 +34,6 @@
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_OFFSET_REDUND      (CONFIG_ENV_OFFSET + CONFIG_ENV_SECT_SIZE)
 
-#define CONFIG_ENV_SPI_MAX_HZ		0 /* This force to read from DT */
-#define CONFIG_ENV_SPI_MODE		0 /* This force to read from DT */
 #endif
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000

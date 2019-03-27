@@ -21,9 +21,6 @@
 
 #define CONFIG_FEC_XCV_TYPE		RMII
 
-#define CONFIG_SF_DEFAULT_BUS		3
-#define CONFIG_SF_DEFAULT_CS		0
-
 #define CONFIG_EXTRA_ENV_BOARD_SETTINGS \
 	"board_type=aristainetos7@1\0" \
 	"mtdids=nand0=gpmi-nand,nor0=spi3.0\0" \
