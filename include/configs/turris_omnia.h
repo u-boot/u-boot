@@ -34,8 +34,6 @@
 # define CONFIG_WATCHDOG
 #endif
 
-#define CONFIG_SPI_FLASH_SPANSION
-
 /*
  * SDIO/MMC Card Configuration
  */
