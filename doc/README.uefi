@@ -329,6 +329,9 @@ This driver is only available if U-Boot is configured with
   * persistence
   * runtime support
 
+* incompletely implemented protocols
+  * support version 0x00020000 of the EFI file protocol
+
 ## Links
 
 * [1](http://uefi.org/specifications)
