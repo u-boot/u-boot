@@ -299,7 +299,7 @@ This driver is only available if U-Boot is configured with
     CONFIG_BLK=y
     CONFIG_PARTITIONS=y
 
-## TODOs as of U-Boot 2018.07
+## TODOs as of U-Boot 2019.04
 
 * unimplemented or incompletely implemented boot services
   * Exit - call unload function, unload applications only
@@ -308,16 +308,13 @@ This driver is only available if U-Boot is configured with
 
 * unimplemented or incompletely implemented runtime services
   * SetVariable() ignores attribute EFI_VARIABLE_APPEND_WRITE
-  * GetNextVariableName is not implemented
   * QueryVariableInfo is not implemented
 
 * unimplemented events
   * EVT_RUNTIME
   * EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
-  * event groups
 
 * data model
-  * manage events in a linked list
   * manage configuration tables in a linked list
 
 * UEFI drivers
