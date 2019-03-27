@@ -87,5 +87,21 @@
 			dr_mode = "host";
 			phy_type = "utmi";
 		};
+
+		sata0: sata@220000 {
+			compatible = "fsl,pq-sata-v2";
+			reg = <0x220000 0x1000>;
+			interrupts = <68 0x2 0 0>;
+			sata-number = <0x0>;
+			sata-fpdma = <0x0>;
+		};
+
+		sata1: sata@221000 {
+			compatible = "fsl,pq-sata-v2";
+			reg = <0x221000 0x1000>;
+			interrupts = <69 0x2 0 0>;
+			sata-number = <0x0>;
+			sata-fpdma = <0x0>;
+		};
 	};
 };
