@@ -450,7 +450,6 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
 	ulong flush_start = ALIGN_DOWN(load, ARCH_DMA_MINALIGN);
-	ulong flush_len;
 	bool no_overlap;
 	void *load_buf, *image_buf;
 	int err;
@@ -465,11 +464,7 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 		return err;
 	}
 
-	flush_len = load_end - load;
-	if (flush_start < load)
-		flush_len += load - flush_start;
-
-	flush_cache(flush_start, ALIGN(flush_len, ARCH_DMA_MINALIGN));
+	flush_cache(flush_start, ALIGN(load_end, ARCH_DMA_MINALIGN) - flush_start);
 
 	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
 	bootstage_mark(BOOTSTAGE_ID_KERNEL_LOADED);
