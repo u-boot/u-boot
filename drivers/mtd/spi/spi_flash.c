@@ -1677,7 +1677,7 @@ int spi_flash_scan(struct spi_flash *flash)
 		if (((JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_SPANSION) &&
 		     (info->id[5] == SPI_FLASH_SPANSION_S25FS_FMLY)) ||
 		    ((JEDEC_MFR(info) == SPI_FLASH_CFI_MFR_ISSI) &&
-		      info->flags & RD_QUADIO))
+		      info->flags & RD_QUADIO && spi->mode & SPI_TX_QUAD))
 			flash->read_cmd = CMD_READ_QUAD_IO_FAST;
 	} else if (spi->mode & SPI_RX_DUAL && info->flags & RD_DUAL) {
 		flash->read_cmd = CMD_READ_DUAL_OUTPUT_FAST;
