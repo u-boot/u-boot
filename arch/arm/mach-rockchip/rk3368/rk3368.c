@@ -7,9 +7,9 @@
 #include <common.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3368.h>
-#include <asm/arch/grf_rk3368.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk3368.h>
+#include <asm/arch-rockchip/grf_rk3368.h>
 #include <syscon.h>
 
 DECLARE_GLOBAL_DATA_PTR;

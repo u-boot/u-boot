@@ -6,7 +6,7 @@
 #ifndef __CONFIG_RK3288_COMMON_H
 #define __CONFIG_RK3288_COMMON_H
 
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY

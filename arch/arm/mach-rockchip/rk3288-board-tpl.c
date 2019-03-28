@@ -10,13 +10,13 @@
 #include <spl.h>
 #include <version.h>
 #include <asm/io.h>
-#include <asm/arch/bootrom.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/grf_rk3288.h>
-#include <asm/arch/periph.h>
-#include <asm/arch/pmu_rk3288.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/timer.h>
+#include <asm/arch-rockchip/bootrom.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/grf_rk3288.h>
+#include <asm/arch-rockchip/periph.h>
+#include <asm/arch-rockchip/pmu_rk3288.h>
+#include <asm/arch-rockchip/sys_proto.h>
+#include <asm/arch-rockchip/timer.h>
 
 #define GRF_BASE		0xff770000
 void board_init_f(ulong dummy)

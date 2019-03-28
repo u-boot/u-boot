@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <dm/uclass-internal.h>
-#include <asm/arch/periph.h>
+#include <asm/arch-rockchip/periph.h>
 #include <power/regulator.h>
 #include <spl.h>
 

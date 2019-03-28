@@ -192,7 +192,7 @@ config ROCKCHIP_BOOT_MODE_REG
 	default 0x10300580 if ROCKCHIP_RV1108
 	default 0
 	help
-	  The Soc will enter to different boot mode(defined in asm/arch/boot_mode.h)
+	  The Soc will enter to different boot mode(defined in asm/arch-rockchip/boot_mode.h)
 	  according to the value from this register.
 
 config ROCKCHIP_SPL_RESERVE_IRAM

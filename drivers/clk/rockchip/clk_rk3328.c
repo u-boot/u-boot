@@ -9,10 +9,10 @@
 #include <dm.h>
 #include <errno.h>
 #include <syscon.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3328.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/grf_rk3328.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk3328.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/grf_rk3328.h>
 #include <asm/io.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3328-cru.h>

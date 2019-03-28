@@ -12,12 +12,12 @@
 #include <spl_gpio.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/bootrom.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/grf_rk3399.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/periph.h>
-#include <asm/arch/sys_proto.h>
+#include <asm/arch-rockchip/bootrom.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/grf_rk3399.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/periph.h>
+#include <asm/arch-rockchip/sys_proto.h>
 #include <dm/pinctrl.h>
 
 void board_return_to_bootrom(void)

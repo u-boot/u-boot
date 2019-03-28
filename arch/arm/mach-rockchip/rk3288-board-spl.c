@@ -14,15 +14,15 @@
 #include <spl.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/bootrom.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/periph.h>
-#include <asm/arch/pmu_rk3288.h>
-#include <asm/arch/sdram.h>
-#include <asm/arch/sdram_common.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/timer.h>
+#include <asm/arch-rockchip/bootrom.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/periph.h>
+#include <asm/arch-rockchip/pmu_rk3288.h>
+#include <asm/arch-rockchip/sdram.h>
+#include <asm/arch-rockchip/sdram_common.h>
+#include <asm/arch-rockchip/sys_proto.h>
+#include <asm/arch-rockchip/timer.h>
 #include <dm/pinctrl.h>
 #include <dm/root.h>
 #include <dm/test.h>
@@ -110,7 +110,7 @@ void board_init_f(ulong dummy)
 	int ret;
 
 	/* Example code showing how to enable the debug UART on RK3288 */
-#include <asm/arch/grf_rk3288.h>
+#include <asm/arch-rockchip/grf_rk3288.h>
 	/* Enable early UART on the RK3288 */
 #define GRF_BASE	0xff770000
 	struct rk3288_grf * const grf = (void *)GRF_BASE;

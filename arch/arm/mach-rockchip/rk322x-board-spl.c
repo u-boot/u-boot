@@ -9,12 +9,12 @@
 #include <ram.h>
 #include <spl.h>
 #include <asm/io.h>
-#include <asm/arch/bootrom.h>
-#include <asm/arch/cru_rk322x.h>
-#include <asm/arch/grf_rk322x.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/timer.h>
-#include <asm/arch/uart.h>
+#include <asm/arch-rockchip/bootrom.h>
+#include <asm/arch-rockchip/cru_rk322x.h>
+#include <asm/arch-rockchip/grf_rk322x.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/timer.h>
+#include <asm/arch-rockchip/uart.h>
 
 u32 spl_boot_device(void)
 {

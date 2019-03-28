@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 

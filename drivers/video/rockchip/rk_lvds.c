@@ -12,9 +12,9 @@
 #include <syscon.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/lvds_rk3288.h>
-#include <asm/arch/grf_rk3288.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/lvds_rk3288.h>
+#include <asm/arch-rockchip/grf_rk3288.h>
 #include <dt-bindings/clock/rk3288-cru.h>
 #include <dt-bindings/video/rk3288.h>
 

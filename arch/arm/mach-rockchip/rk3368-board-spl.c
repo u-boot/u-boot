@@ -9,11 +9,11 @@
 #include <ram.h>
 #include <spl.h>
 #include <asm/io.h>
-#include <asm/arch/cru_rk3368.h>
-#include <asm/arch/grf_rk3368.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/periph.h>
-#include <asm/arch/timer.h>
+#include <asm/arch-rockchip/cru_rk3368.h>
+#include <asm/arch-rockchip/grf_rk3368.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/periph.h>
+#include <asm/arch-rockchip/timer.h>
 #include <dm/pinctrl.h>
 
 void board_debug_uart_init(void)

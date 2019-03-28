@@ -4,9 +4,10 @@
  */
 
 #include <common.h>
+#include <spl_gpio.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

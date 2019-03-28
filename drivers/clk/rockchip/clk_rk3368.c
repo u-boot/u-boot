@@ -13,9 +13,9 @@
 #include <mapmem.h>
 #include <syscon.h>
 #include <bitfield.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3368.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk3368.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <asm/io.h>
 #include <dm/lists.h>
 #include <dt-bindings/clock/rk3368-cru.h>

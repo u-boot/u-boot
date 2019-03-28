@@ -5,12 +5,12 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/types.h>
-#include <asm/arch/cru_rk3036.h>
-#include <asm/arch/grf_rk3036.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/sdram_rk3036.h>
-#include <asm/arch/timer.h>
-#include <asm/arch/uart.h>
+#include <asm/arch-rockchip/cru_rk3036.h>
+#include <asm/arch-rockchip/grf_rk3036.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/sdram_rk3036.h>
+#include <asm/arch-rockchip/timer.h>
+#include <asm/arch-rockchip/uart.h>
 
 /*
  * we can not fit the code to access the device tree in SPL

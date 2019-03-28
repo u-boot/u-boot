@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/timer.h>
+#include <asm/arch-rockchip/timer.h>
 #include <asm/io.h>
 #include <linux/types.h>
 

@@ -12,9 +12,9 @@
 #include <errno.h>
 #include <i2c.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/i2c.h>
-#include <asm/arch/periph.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/i2c.h>
+#include <asm/arch-rockchip/periph.h>
 #include <dm/pinctrl.h>
 #include <linux/sizes.h>
 

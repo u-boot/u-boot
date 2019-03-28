@@ -3,7 +3,7 @@
  * Copyright (c) 2016 Rockchip Electronics Co., Ltd
  */
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/hardware.h>
 
 #define GRF_SOC_CON2 0xff77024c
 

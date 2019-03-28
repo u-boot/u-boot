@@ -14,14 +14,14 @@
 #include "rk_mipi.h"
 #include <syscon.h>
 #include <asm/gpio.h>
-#include <asm/hardware.h>
 #include <asm/io.h>
 #include <dm/uclass-internal.h>
 #include <linux/kernel.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3288.h>
-#include <asm/arch/grf_rk3288.h>
-#include <asm/arch/rockchip_mipi_dsi.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk3288.h>
+#include <asm/arch-rockchip/grf_rk3288.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/rockchip_mipi_dsi.h>
 
 #define MHz 1000000
 

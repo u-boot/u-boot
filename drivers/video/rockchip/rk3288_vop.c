@@ -11,10 +11,10 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <video.h>
-#include <asm/hardware.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/grf_rk3288.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/grf_rk3288.h>
+#include <asm/arch-rockchip/hardware.h>
 #include "rk_vop.h"
 
 DECLARE_GLOBAL_DATA_PTR;

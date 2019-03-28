@@ -13,9 +13,9 @@
 #include <syscon.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/grf_rk3288.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/grf_rk3288.h>
 #include <power/regulator.h>
 #include "rk_hdmi.h"
 

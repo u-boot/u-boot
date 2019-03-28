@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/boot_mode.h>
+#include <asm/arch-rockchip/boot_mode.h>
 
 int board_late_init(void)
 {

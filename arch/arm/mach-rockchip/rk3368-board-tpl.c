@@ -10,12 +10,12 @@
 #include <spl.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/bootrom.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3368.h>
-#include <asm/arch/grf_rk3368.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/timer.h>
+#include <asm/arch-rockchip/bootrom.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk3368.h>
+#include <asm/arch-rockchip/grf_rk3368.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/timer.h>
 
 /*
  * The SPL (and also the full U-Boot stage on the RK3368) will run in

@@ -8,10 +8,10 @@
 #include <ram.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/boot_mode.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/periph.h>
-#include <asm/arch/grf_rk322x.h>
+#include <asm/arch-rockchip/boot_mode.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/periph.h>
+#include <asm/arch-rockchip/grf_rk322x.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,7 +29,7 @@ int board_late_init(void)
 
 int board_init(void)
 {
-#include <asm/arch/grf_rk322x.h>
+#include <asm/arch-rockchip/grf_rk322x.h>
 	/* Enable early UART2 channel 1 on the RK322x */
 #define GRF_BASE	0x11000000
 	struct rk322x_grf * const grf = (void *)GRF_BASE;
