@@ -308,8 +308,8 @@ int fastboot_mmc_get_part_info(char *part_name, struct blk_desc **dev_desc,
 		fastboot_fail("block device not found", response);
 		return -ENOENT;
 	}
-	if (!part_name) {
-		fastboot_fail("partition not found", response);
+	if (!part_name || !strcmp(part_name, "")) {
+		fastboot_fail("partition not given", response);
 		return -ENOENT;
 	}
 
