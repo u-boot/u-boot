@@ -60,11 +60,24 @@
 	status = "okay";
 };
 
+/* Ethernet */
 &fec1 {
 	phy-mode = "rmii";
+	phy-handle = <&ethphy1>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_fec1>;
 	status = "okay";
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethphy1: ethernet-phy@1 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			max-speed = <100>;
+			reg = <1>;
+		};
+	};
 };
 
 &i2c0 {
