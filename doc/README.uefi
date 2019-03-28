@@ -12,6 +12,15 @@ the interaction of drivers and applications with the firmware. The API comprises
 access to block storage, network, and console to name a few. The Linux kernel
 and boot loaders like GRUB or the FreeBSD loader can be executed.
 
+## Development target
+
+The implementation of UEFI in U-Boot strives to reach the minimum requirements
+described in "Server Base Boot Requirements System Software on ARM Platforms -
+Version 1.1" [4].
+
+A full blown UEFI implementation would contradict the U-Boot design principle
+"keep it small".
+
 ## Building for UEFI
 
 The UEFI standard supports only little-endian systems. The UEFI support can be
@@ -335,3 +344,5 @@ This driver is only available if U-Boot is configured with
   http://uefi.org/specifications - UEFI specifications
 * [2](./driver-model/README.txt) doc/driver-model/README.txt - Driver model
 * [3](./README.iscsi) doc/README.iscsi - iSCSI booting with U-Boot and iPXE
+* [4](https://developer.arm.com/docs/den0044/latest/server-base-boot-requirements-system-software-on-arm-platforms-version-11)
+  Server Base Boot Requirements System Software on ARM Platforms - Version 1.1
