@@ -150,32 +150,6 @@
 #endif
 
 /*
- * I2C support
- */
-#ifndef CONFIG_DM_I2C
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_BASE		SOCFPGA_I2C0_ADDRESS
-#define CONFIG_SYS_I2C_BASE1		SOCFPGA_I2C1_ADDRESS
-#define CONFIG_SYS_I2C_BASE2		SOCFPGA_I2C2_ADDRESS
-#define CONFIG_SYS_I2C_BASE3		SOCFPGA_I2C3_ADDRESS
-/* Using standard mode which the speed up to 100Kb/s */
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SPEED1		100000
-#define CONFIG_SYS_I2C_SPEED2		100000
-#define CONFIG_SYS_I2C_SPEED3		100000
-/* Address of device when used as slave */
-#define CONFIG_SYS_I2C_SLAVE		0x02
-#define CONFIG_SYS_I2C_SLAVE1		0x02
-#define CONFIG_SYS_I2C_SLAVE2		0x02
-#define CONFIG_SYS_I2C_SLAVE3		0x02
-#ifndef __ASSEMBLY__
-/* Clock supplied to I2C controller in unit of MHz */
-unsigned int cm_get_l4_sp_clk_hz(void);
-#define IC_CLK				(cm_get_l4_sp_clk_hz() / 1000000)
-#endif
-#endif /* CONFIG_DM_I2C */
-
-/*
  * QSPI support
  */
 /* Enable multiple SPI NOR flash manufacturers */
