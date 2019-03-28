@@ -34,7 +34,7 @@ static struct dw_scl_sda_cfg byt_config = {
 struct dw_i2c {
 	struct i2c_regs *regs;
 	struct dw_scl_sda_cfg *scl_sda_cfg;
-	struct reset_ctl reset_ctl;
+	struct reset_ctl_bulk resets;
 };
 
 #ifdef CONFIG_SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
@@ -562,14 +562,20 @@ static int designware_i2c_probe(struct udevice *bus)
 		priv->regs = (struct i2c_regs *)devfdt_get_addr_ptr(bus);
 	}
 
-	ret = reset_get_by_name(bus, "i2c", &priv->reset_ctl);
+	ret = reset_get_bulk(bus, &priv->resets);
 	if (ret)
-		pr_info("reset_get_by_name() failed: %d\n", ret);
-
-	if (&priv->reset_ctl)
-		reset_deassert(&priv->reset_ctl);
+		dev_warn(bus, "Can't get reset: %d\n", ret);
+	else
+		reset_deassert_bulk(&priv->resets);
 
 	return __dw_i2c_init(priv->regs, 0, 0);
+}
+
+static int designware_i2c_remove(struct udevice *dev)
+{
+	struct dw_i2c *priv = dev_get_priv(dev);
+
+	return reset_release_bulk(&priv->resets);
 }
 
 static int designware_i2c_bind(struct udevice *dev)
@@ -613,6 +619,8 @@ U_BOOT_DRIVER(i2c_designware) = {
 	.bind	= designware_i2c_bind,
 	.probe	= designware_i2c_probe,
 	.priv_auto_alloc_size = sizeof(struct dw_i2c),
+	.remove = designware_i2c_remove,
+	.flags = DM_FLAG_OS_PREPARE,
 	.ops	= &designware_i2c_ops,
 };
 
