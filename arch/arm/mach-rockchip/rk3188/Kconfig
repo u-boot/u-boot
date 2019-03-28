@@ -10,7 +10,7 @@ config TARGET_ROCK
 	  UART and GPIOs.
 
 config SYS_SOC
-	default "rockchip"
+	default "rk3188"
 
 config SYS_MALLOC_F_LEN
 	default 0x0800

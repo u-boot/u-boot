@@ -5,7 +5,7 @@ config TARGET_EVB_RK3229
 	select BOARD_LATE_INIT
 
 config SYS_SOC
-	default "rockchip"
+	default "rk322x"
 
 config SYS_MALLOC_F_LEN
 	default 0x400
