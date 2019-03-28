@@ -26,7 +26,11 @@ _start:
  * order to boot, allow them to set that in their boot0.h file and then
  * use it here.
  */
+#ifdef CONFIG_ARCH_ROCKCHIP
+#include <asm/arch-rockchip/boot0.h>
+#else
 #include <asm/arch/boot0.h>
+#endif
 #else
 	b	reset
 #endif
