@@ -1034,6 +1034,9 @@ static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 						       "g-np-tx-fifo-size", 0);
 	platdata->tx_fifo_sz = dev_read_u32_default(dev, "g-tx-fifo-size", 0);
 
+	platdata->force_b_session_valid =
+		dev_read_bool(dev, "force-b-session-valid");
+
 	return 0;
 }
 
@@ -1088,6 +1091,8 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 {
 	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
 	struct dwc2_priv_data *priv = dev_get_priv(dev);
+	struct dwc2_usbotg_reg *usbotg_reg =
+		(struct dwc2_usbotg_reg *)platdata->regs_otg;
 	int ret;
 
 	ret = dwc2_udc_otg_clk_init(dev, &priv->clks);
@@ -1101,6 +1106,10 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 	ret = dwc2_phy_setup(dev, &priv->phys, &priv->num_phys);
 	if (ret)
 		return ret;
+
+	if (platdata->force_b_session_valid)
+		/* Override B session bits : value and enable */
+		setbits_le32(&usbotg_reg->gotgctl,  B_VALOEN | B_VALOVAL);
 
 	ret = dwc2_udc_probe(platdata);
 	if (ret)

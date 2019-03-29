@@ -83,8 +83,12 @@ struct dwc2_usbotg_reg {
 /*definitions related to CSR setting */
 
 /* DWC2_UDC_OTG_GOTGCTL */
-#define B_SESSION_VALID		(0x1<<19)
-#define A_SESSION_VALID		(0x1<<18)
+#define B_SESSION_VALID			BIT(19)
+#define A_SESSION_VALID			BIT(18)
+#define B_VALOVAL			BIT(7)
+#define B_VALOEN			BIT(6)
+#define A_VALOVAL			BIT(5)
+#define A_VALOEN			BIT(4)
 
 /* DWC2_UDC_OTG_GAHBCFG */
 #define PTXFE_HALF			(0<<8)

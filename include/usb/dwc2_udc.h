@@ -22,6 +22,7 @@ struct dwc2_plat_otg_data {
 	unsigned int	rx_fifo_sz;
 	unsigned int	np_tx_fifo_sz;
 	unsigned int	tx_fifo_sz;
+	bool		force_b_session_valid;
 };
 
 int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata);
