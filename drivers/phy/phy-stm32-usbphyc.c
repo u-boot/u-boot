@@ -37,7 +37,8 @@
 
 #define MAX_PHYS		2
 
-#define PLL_LOCK_TIME_US	100
+/* max 100 us for PLL lock and 100 us for PHY init */
+#define PLL_INIT_TIME_US	200
 #define PLL_PWR_DOWN_TIME_US	5
 #define PLL_FVCO		2880	 /* in MHz */
 #define PLL_INFF_MIN_RATE	19200000 /* in Hz */
@@ -177,11 +178,8 @@ static int stm32_usbphyc_phy_init(struct phy *phy)
 
 	setbits_le32(usbphyc->base + STM32_USBPHYC_PLL, PLLEN);
 
-	/*
-	 * We must wait PLL_LOCK_TIME_US before checking that PLLEN
-	 * bit is still set
-	 */
-	udelay(PLL_LOCK_TIME_US);
+	/* We must wait PLL_INIT_TIME_US before using PHY */
+	udelay(PLL_INIT_TIME_US);
 
 	if (!(readl(usbphyc->base + STM32_USBPHYC_PLL) & PLLEN))
 		return -EIO;
