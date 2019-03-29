@@ -51,10 +51,10 @@ struct pll_params {
 struct stm32_usbphyc {
 	fdt_addr_t base;
 	struct clk clk;
+	struct udevice *vdda1v1;
+	struct udevice *vdda1v8;
 	struct stm32_usbphyc_phy {
 		struct udevice *vdd;
-		struct udevice *vdda1v1;
-		struct udevice *vdda1v8;
 		bool init;
 		bool powered;
 	} phys[MAX_PHYS];
@@ -212,19 +212,20 @@ static int stm32_usbphyc_phy_power_on(struct phy *phy)
 	int ret;
 
 	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
-	if (usbphyc_phy->vdda1v1) {
-		ret = regulator_set_enable(usbphyc_phy->vdda1v1, true);
+	if (usbphyc->vdda1v1) {
+		ret = regulator_set_enable(usbphyc->vdda1v1, true);
 		if (ret)
 			return ret;
 	}
 
-	if (usbphyc_phy->vdda1v8) {
-		ret = regulator_set_enable(usbphyc_phy->vdda1v8, true);
+	if (usbphyc->vdda1v8) {
+		ret = regulator_set_enable(usbphyc->vdda1v8, true);
 		if (ret)
 			return ret;
 	}
-	if (usbphyc_phy->vdd) {
-		ret = regulator_set_enable(usbphyc_phy->vdd, true);
+
+	if (usbphyc->vdd) {
+		ret = regulator_set_enable(usbphyc->vdd, true);
 		if (ret)
 			return ret;
 	}
@@ -246,20 +247,20 @@ static int stm32_usbphyc_phy_power_off(struct phy *phy)
 	if (stm32_usbphyc_is_powered(usbphyc))
 		return 0;
 
-	if (usbphyc_phy->vdda1v1) {
-		ret = regulator_set_enable(usbphyc_phy->vdda1v1, false);
+	if (usbphyc->vdda1v1) {
+		ret = regulator_set_enable(usbphyc->vdda1v1, false);
 		if (ret)
 			return ret;
 	}
 
-	if (usbphyc_phy->vdda1v8) {
-		ret = regulator_set_enable(usbphyc_phy->vdda1v8, false);
+	if (usbphyc->vdda1v8) {
+		ret = regulator_set_enable(usbphyc->vdda1v8, false);
 		if (ret)
 			return ret;
 	}
 
-	if (usbphyc_phy->vdd) {
-		ret = regulator_set_enable(usbphyc_phy->vdd, false);
+	if (usbphyc->vdd) {
+		ret = regulator_set_enable(usbphyc->vdd, false);
 		if (ret)
 			return ret;
 	}
@@ -351,6 +352,21 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 		reset_deassert(&reset);
 	}
 
+	/* get usbphyc regulator */
+	ret = device_get_supply_regulator(dev, "vdda1v1-supply",
+					  &usbphyc->vdda1v1);
+	if (ret) {
+		dev_err(dev, "Can't get vdda1v1-supply regulator\n");
+		return ret;
+	}
+
+	ret = device_get_supply_regulator(dev, "vdda1v8-supply",
+					  &usbphyc->vdda1v8);
+	if (ret) {
+		dev_err(dev, "Can't get vdda1v8-supply regulator\n");
+		return ret;
+	}
+
 	/*
 	 * parse all PHY subnodes in order to populate regulator associated
 	 * to each PHY port
@@ -363,16 +379,6 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 		usbphyc_phy->powered = false;
 		ret = stm32_usbphyc_get_regulator(dev, node, "phy-supply",
 						  &usbphyc_phy->vdd);
-		if (ret)
-			return ret;
-
-		ret = stm32_usbphyc_get_regulator(dev, node, "vdda1v1-supply",
-						  &usbphyc_phy->vdda1v1);
-		if (ret)
-			return ret;
-
-		ret = stm32_usbphyc_get_regulator(dev, node, "vdda1v8-supply",
-						  &usbphyc_phy->vdda1v8);
 		if (ret)
 			return ret;
 
