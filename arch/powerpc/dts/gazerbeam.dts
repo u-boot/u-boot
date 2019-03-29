@@ -598,3 +598,5 @@
 	};
 
 };
+
+#include "gdsys/gazerbeam-uboot.dtsi"
