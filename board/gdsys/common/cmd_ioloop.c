@@ -10,6 +10,11 @@
 
 #include <gdsys_fpga.h>
 
+enum status_print_type {
+	STATUS_LOUD = 0,
+	STATUS_SILENT = 1,
+};
+
 enum {
 	STATE_TX_PACKET_BUILDING = BIT(0),
 	STATE_TX_TRANSMITTING = BIT(1),
@@ -52,7 +57,7 @@ unsigned long long rx_ctr;
 unsigned long long tx_ctr;
 unsigned long long err_ctr;
 
-static void io_check_status(uint fpga, u16 status, bool silent)
+static void io_check_status(uint fpga, u16 status, enum status_print_type type)
 {
 	u16 mask = STATE_RX_DIST_ERR | STATE_RX_LENGTH_ERR |
 		   STATE_RX_FRAME_CTR_ERR | STATE_RX_FCS_ERR |
@@ -66,7 +71,7 @@ static void io_check_status(uint fpga, u16 status, bool silent)
 	err_ctr++;
 	FPGA_SET_REG(fpga, ep.rx_tx_status, status);
 
-	if (silent)
+	if (type == STATUS_SILENT)
 		return;
 
 	if (status & STATE_RX_PACKET_DROPPED)
@@ -193,7 +198,7 @@ int do_ioreflect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		FPGA_GET_REG(fpga, top_interrupt, &top_int);
 		FPGA_GET_REG(fpga, ep.rx_tx_status, &rx_tx_status);
 
-		io_check_status(fpga, rx_tx_status, true);
+		io_check_status(fpga, rx_tx_status, STATUS_SILENT);
 		if ((top_int & IRQ_CPU_RECEIVE_DATA_AVAILABLE_STATUS) &&
 		    (top_int & IRQ_CPU_TRANSMITBUFFER_FREE_STATUS))
 			io_reflect(fpga);
@@ -260,7 +265,7 @@ int do_ioloop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		FPGA_GET_REG(fpga, top_interrupt, &top_int);
 		FPGA_GET_REG(fpga, ep.rx_tx_status, &rx_tx_status);
 
-		io_check_status(fpga, rx_tx_status, false);
+		io_check_status(fpga, rx_tx_status, STATUS_LOUD);
 		if (top_int & IRQ_CPU_TRANSMITBUFFER_FREE_STATUS)
 			io_send(fpga, size);
 		if (top_int & IRQ_CPU_RECEIVE_DATA_AVAILABLE_STATUS)
