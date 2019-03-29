@@ -1053,7 +1053,7 @@ static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 	platdata->tx_fifo_sz = dev_read_u32_default(dev, "g-tx-fifo-size", 0);
 
 	platdata->force_b_session_valid =
-		dev_read_bool(dev, "force-b-session-valid");
+		dev_read_bool(dev, "u-boot,force-b-session-valid");
 
 	/* force platdata according compatible */
 	drvdata = dev_get_driver_data(dev);
@@ -1075,6 +1075,9 @@ static void dwc2_set_stm32mp1_hsotg_params(struct dwc2_plat_otg_data *p)
 		| 0 << 8	/* [0:SRP disable 1:SRP enable]*/
 		| 0 << 6	/* 0: high speed utmi+, 1: full speed serial*/
 		| 0x7 << 0;	/* FS timeout calibration**/
+
+	if (p->force_b_session_valid)
+		p->usb_gusbcfg |= 1 << 30; /* FDMOD: Force device mode */
 }
 
 static int dwc2_udc_otg_reset_init(struct udevice *dev,
@@ -1166,7 +1169,8 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 
 	if (platdata->force_b_session_valid)
 		/* Override B session bits : value and enable */
-		setbits_le32(&usbotg_reg->gotgctl,  B_VALOEN | B_VALOVAL);
+		setbits_le32(&usbotg_reg->gotgctl,
+			     A_VALOEN | A_VALOVAL | B_VALOEN | B_VALOVAL);
 
 	ret = dwc2_udc_probe(platdata);
 	if (ret)

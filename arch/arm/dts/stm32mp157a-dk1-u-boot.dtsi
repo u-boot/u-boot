@@ -191,7 +191,7 @@
 };
 
 &usbotg_hs {
-	force-b-session-valid;
+	u-boot,force-b-session-valid;
 	hnp-srp-disable;
 };
 

@@ -39,6 +39,8 @@ Refer to phy/phy-bindings.txt for generic phy consumer properties
 - g-tx-fifo-size: size of periodic tx fifo per endpoint (except ep0) in gadget mode.
 - usb33d-supply: external VBUS and ID sensing comparators supply, in order to
   perform OTG operation, used on STM32MP1 SoCs.
+- u-boot,force-b-session-valid: force B-peripheral session instead of relying on
+  VBUS sensing (only valid when dr_mode = "peripheral" and for u-boot).
 
 Deprecated properties:
 - g-use-dma: gadget DMA mode is automatically detected
