@@ -24,14 +24,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int get_fpga_state(unsigned dev)
+int get_fpga_state(uint dev)
 {
 	return gd->arch.fpga_state[dev];
 }
 
 int board_early_init_f(void)
 {
-	unsigned k;
+	uint k;
 
 	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k)
 		gd->arch.fpga_state[k] = 0;
@@ -41,8 +41,8 @@ int board_early_init_f(void)
 
 int board_early_init_r(void)
 {
-	unsigned k;
-	unsigned ctr;
+	uint k;
+	uint ctr;
 
 	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k)
 		gd->arch.fpga_state[k] = 0;
@@ -59,7 +59,7 @@ int board_early_init_r(void)
 	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k) {
 		ctr = 0;
 		while (!mpc8308_get_fpga_done(k)) {
-			udelay(100000);
+			mdelay(100);
 			if (ctr++ > 5) {
 				gd->arch.fpga_state[k] |=
 					FPGA_STATE_DONE_FAILED;
@@ -86,7 +86,7 @@ int board_early_init_r(void)
 			if (val == REFLECTION_TESTPATTERN_INV)
 				break;
 
-			udelay(100000);
+			mdelay(100);
 			if (ctr++ > 5) {
 				gd->arch.fpga_state[k] |=
 					FPGA_STATE_REFLECTION_FAILED;
