@@ -1049,7 +1049,12 @@ static int dwc2_udc_otg_reset_init(struct udevice *dev,
 	if (ret)
 		return ret;
 
-	ret = reset_deassert_bulk(resets);
+	ret = reset_assert_bulk(resets);
+
+	if (!ret) {
+		udelay(2);
+		ret = reset_deassert_bulk(resets);
+	}
 	if (ret) {
 		reset_release_bulk(resets);
 		return ret;
