@@ -83,10 +83,11 @@ Useful notes on bulding and using of U-Boot on ARC HS Development Kit (AKA HSDK)
       HSDK board.
 
       Note that Python3 script is used for generation of a header, thus
-      to get that done it's required to have Python3 with elftools installed.
-      On CentOS/RHEL/Fedora this could be installed with:
+      to get that done it's required to have Python3 with "pyelftools" installed.
+
+      "pyelftools" could be installed with help of "pip" even w/o root rights:
       ------------------------->8----------------------
-      sudo dnf install python3-pyelftools
+      python3 -m pip install --user pyelftools
       ------------------------->8----------------------
 
    EXECUTING U-BOOT

@@ -32,12 +32,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x82000000
 
 /*
- * NAND Flash configuration
- */
-#define CONFIG_SYS_NAND_BASE		(ARC_FPGA_PERIPHERAL_BASE + 0x16000)
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
-
-/*
  * UART configuration
  */
 #define CONFIG_SYS_NS16550_SERIAL
