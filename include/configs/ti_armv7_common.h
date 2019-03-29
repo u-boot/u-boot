@@ -52,7 +52,7 @@
 
 #define DEFAULT_FIT_TI_ARGS \
 	"boot_fit=0\0" \
-	"fit_loadaddr=0x87000000\0" \
+	"fit_loadaddr=0x90000000\0" \
 	"fit_bootfile=fitImage\0" \
 	"update_to_fit=setenv loadaddr ${fit_loadaddr}; setenv bootfile ${fit_bootfile}\0" \
 	"loadfit=run args_mmc; bootm ${loadaddr}#${fdtfile};\0" \
