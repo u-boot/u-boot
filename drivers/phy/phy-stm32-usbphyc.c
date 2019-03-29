@@ -297,19 +297,20 @@ static int stm32_usbphyc_get_regulator(struct udevice *dev, ofnode node,
 static int stm32_usbphyc_of_xlate(struct phy *phy,
 				  struct ofnode_phandle_args *args)
 {
-	if (args->args_count > 1) {
-		pr_debug("%s: invalid args_count: %d\n", __func__,
-			 args->args_count);
-		return -EINVAL;
-	}
+	if (args->args_count < 1)
+		return -ENODEV;
 
 	if (args->args[0] >= MAX_PHYS)
 		return -ENODEV;
 
-	if (args->args_count)
-		phy->id = args->args[0];
-	else
-		phy->id = 0;
+	phy->id = args->args[0];
+
+	if ((phy->id == 0 && args->args_count != 1) ||
+	    (phy->id == 1 && args->args_count != 2)) {
+		dev_err(dev, "invalid number of cells for phy port%ld\n",
+			phy->id);
+		return -EINVAL;
+	}
 
 	return 0;
 }
