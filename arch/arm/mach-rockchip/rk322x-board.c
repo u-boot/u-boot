@@ -10,8 +10,8 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/boot_mode.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/grf_rk322x.h>
+#include <asm/arch-rockchip/periph.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -32,34 +32,7 @@ int board_init(void)
 #include <asm/arch-rockchip/grf_rk322x.h>
 	/* Enable early UART2 channel 1 on the RK322x */
 #define GRF_BASE	0x11000000
-	struct rk322x_grf * const grf = (void *)GRF_BASE;
-	enum {
-		GPIO1B2_SHIFT		= 4,
-		GPIO1B2_MASK		= 3 << GPIO1B2_SHIFT,
-		GPIO1B2_GPIO		= 0,
-		GPIO1B2_UART21_SIN,
-
-		GPIO1B1_SHIFT		= 2,
-		GPIO1B1_MASK		= 3 << GPIO1B1_SHIFT,
-		GPIO1B1_GPIO            = 0,
-		GPIO1B1_UART1_SOUT,
-		GPIO1B1_UART21_SOUT,
-	};
-	enum {
-		CON_IOMUX_UART2SEL_SHIFT= 8,
-		CON_IOMUX_UART2SEL_MASK	= 1 << CON_IOMUX_UART2SEL_SHIFT,
-		CON_IOMUX_UART2SEL_2	= 0,
-		CON_IOMUX_UART2SEL_21,
-	};
-
-	rk_clrsetreg(&grf->gpio1b_iomux,
-		     GPIO1B1_MASK | GPIO1B2_MASK,
-		     GPIO1B2_UART21_SIN << GPIO1B2_SHIFT |
-		     GPIO1B1_UART21_SOUT << GPIO1B1_SHIFT);
-	/* Set channel C as UART2 input */
-	rk_clrsetreg(&grf->con_iomux,
-		     CON_IOMUX_UART2SEL_MASK,
-		     CON_IOMUX_UART2SEL_21 << CON_IOMUX_UART2SEL_SHIFT);
+	static struct rk322x_grf * const grf = (void *)GRF_BASE;
 
 	/*
 	* The integrated macphy is enabled by default, disable it
