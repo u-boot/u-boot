@@ -249,9 +249,23 @@
 	status = "okay";
 };
 
-&usbphyc {
-	vdd3v3-supply = <&vdd_usb>;
+&usbotg_hs {
+	dr_mode = "peripheral";
+	phys = <&usbphyc_port1 0>;
+	phy-names = "usb2-phy";
 	status = "okay";
+};
+
+&usbphyc {
+	status = "okay";
+};
+
+&usbphyc_port0 {
+	phy-supply = <&vdd_usb>;
+};
+
+&usbphyc_port1 {
+	phy-supply = <&vdd_usb>;
 };
 
 &vrefbuf {

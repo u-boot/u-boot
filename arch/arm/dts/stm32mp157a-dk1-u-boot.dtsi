@@ -11,6 +11,7 @@
 	aliases {
 		i2c3 = &i2c4;
 		mmc0 = &sdmmc1;
+		usb0 = &usbotg_hs;
 	};
 	config {
 		u-boot,boot-led = "heartbeat";
@@ -190,7 +191,7 @@
 };
 
 &usbotg_hs {
-	usb1600;
+	force-b-session-valid;
 	hnp-srp-disable;
 };
 
