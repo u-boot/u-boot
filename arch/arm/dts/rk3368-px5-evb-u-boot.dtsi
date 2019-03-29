@@ -5,6 +5,7 @@
 / {
 	chosen {
 		u-boot,spl-boot-order = &emmc;
+		tick-timer = "/timer@ff810000";
 	};
 };
 
@@ -59,4 +60,10 @@
 
 &emmc {
 	u-boot,dm-pre-reloc;
+};
+
+&timer0 {
+	u-boot,dm-pre-reloc;
+	clock-frequency = <24000000>;
+	status = "okay";
 };
