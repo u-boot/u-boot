@@ -140,7 +140,6 @@ static struct usb_ep_ops dwc2_ep_ops = {
 
 /***********************************************************/
 
-void __iomem		*regs_otg;
 struct dwc2_usbotg_reg *reg;
 
 bool dfu_usb_get_reset(void)
@@ -817,8 +816,6 @@ int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 	dev->pdata = pdata;
 
 	reg = (struct dwc2_usbotg_reg *)pdata->regs_otg;
-
-	/* regs_otg = (void *)pdata->regs_otg; */
 
 	dev->gadget.is_dualspeed = 1;	/* Hack only*/
 	dev->gadget.is_otg = 0;
