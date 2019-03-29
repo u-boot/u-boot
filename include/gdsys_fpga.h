@@ -86,81 +86,6 @@ struct ihs_fpga {
 };
 #endif
 
-#ifdef CONFIG_IO
-struct ihs_fpga {
-	u16 reflection_low;	/* 0x0000 */
-	u16 versions;		/* 0x0002 */
-	u16 fpga_features;	/* 0x0004 */
-	u16 fpga_version;	/* 0x0006 */
-	u16 reserved_0[5];	/* 0x0008 */
-	u16 quad_serdes_reset;	/* 0x0012 */
-	u16 reserved_1[8181];	/* 0x0014 */
-	u16 reflection_high;	/* 0x3ffe */
-};
-#endif
-
-#ifdef CONFIG_IO64
-struct ihs_fpga_channel {
-	u16 status_int;
-	u16 config_int;
-	u16 switch_connect_config;
-	u16 tx_destination;
-};
-
-struct ihs_fpga_hicb {
-	u16 status_int;
-	u16 config_int;
-};
-
-struct ihs_fpga {
-	u16 reflection_low;	/* 0x0000 */
-	u16 versions;		/* 0x0002 */
-	u16 fpga_features;	/* 0x0004 */
-	u16 fpga_version;	/* 0x0006 */
-	u16 reserved_0[5];	/* 0x0008 */
-	u16 quad_serdes_reset;	/* 0x0012 */
-	u16 reserved_1[502];	/* 0x0014 */
-	struct ihs_fpga_channel ch[32];		/* 0x0400 */
-	struct ihs_fpga_channel hicb_ch[32];	/* 0x0500 */
-	u16 reserved_2[7487];	/* 0x0580 */
-	u16 reflection_high;	/* 0x3ffe */
-};
-#endif
-
-#ifdef CONFIG_IOCON
-struct ihs_fpga {
-	u16 reflection_low;	/* 0x0000 */
-	u16 versions;		/* 0x0002 */
-	u16 fpga_version;	/* 0x0004 */
-	u16 fpga_features;	/* 0x0006 */
-	u16 reserved_0[1];	/* 0x0008 */
-	u16 top_interrupt;	/* 0x000a */
-	u16 reserved_1[4];	/* 0x000c */
-	struct ihs_gpio gpio;	/* 0x0014 */
-	u16 mpc3w_control;	/* 0x001a */
-	u16 reserved_2[2];	/* 0x001c */
-	struct ihs_io_ep ep;	/* 0x0020 */
-	u16 reserved_3[9];	/* 0x002e */
-	struct ihs_i2c i2c0;	/* 0x0040 */
-	u16 reserved_4[10];	/* 0x004c */
-	u16 mc_int;		/* 0x0060 */
-	u16 mc_int_en;		/* 0x0062 */
-	u16 mc_status;		/* 0x0064 */
-	u16 mc_control;		/* 0x0066 */
-	u16 mc_tx_data;		/* 0x0068 */
-	u16 mc_tx_address;	/* 0x006a */
-	u16 mc_tx_cmd;		/* 0x006c */
-	u16 mc_res;		/* 0x006e */
-	u16 mc_rx_cmd_status;	/* 0x0070 */
-	u16 mc_rx_data;		/* 0x0072 */
-	u16 reserved_5[69];	/* 0x0074 */
-	u16 reflection_high;	/* 0x00fe */
-	struct ihs_osd osd0;	/* 0x0100 */
-	u16 reserved_6[889];	/* 0x010e */
-	u16 videomem0[2048];	/* 0x0800 */
-};
-#endif
-
 #if defined(CONFIG_TARGET_HRCON) || defined(CONFIG_STRIDER_CON_DP)
 struct ihs_fpga {
 	u16 reflection_low;	/* 0x0000 */
@@ -266,27 +191,6 @@ struct ihs_fpga {
 	u16 reserved_5[70];	/* 0x0074 */
 	struct ihs_osd osd0;	/* 0x0100 */
 	u16 reserved_6[889];	/* 0x010e */
-	u16 videomem0[2048];	/* 0x0800 */
-};
-#endif
-
-#ifdef CONFIG_DLVISION_10G
-struct ihs_fpga {
-	u16 reflection_low;	/* 0x0000 */
-	u16 versions;		/* 0x0002 */
-	u16 fpga_version;	/* 0x0004 */
-	u16 fpga_features;	/* 0x0006 */
-	u16 reserved_0[10];	/* 0x0008 */
-	u16 extended_interrupt; /* 0x001c */
-	u16 reserved_1[29];	/* 0x001e */
-	u16 mpc3w_control;	/* 0x0058 */
-	u16 reserved_2[3];	/* 0x005a */
-	struct ihs_i2c i2c0;	/* 0x0060 */
-	u16 reserved_3[2];	/* 0x006c */
-	struct ihs_i2c i2c1;	/* 0x0070 */
-	u16 reserved_4[194];	/* 0x007c */
-	struct ihs_osd osd0;	/* 0x0200 */
-	u16 reserved_5[761];	/* 0x020e */
 	u16 videomem0[2048];	/* 0x0800 */
 };
 #endif
