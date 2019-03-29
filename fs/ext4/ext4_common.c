@@ -1587,7 +1587,7 @@ static int ext4fs_blockgroup
 
 int ext4fs_read_inode(struct ext2_data *data, int ino, struct ext2_inode *inode)
 {
-	struct ext2_block_group blkgrp;
+	struct ext2_block_group *blkgrp;
 	struct ext2_sblock *sblock = &data->sblock;
 	struct ext_filesystem *fs = get_fs();
 	int log2blksz = get_fs()->dev_desc->log2blksz;
@@ -1595,17 +1595,28 @@ int ext4fs_read_inode(struct ext2_data *data, int ino, struct ext2_inode *inode)
 	long int blkno;
 	unsigned int blkoff;
 
+	/* Allocate blkgrp based on gdsize (for 64-bit support). */
+	blkgrp = zalloc(get_fs()->gdsize);
+	if (!blkgrp)
+		return 0;
+
 	/* It is easier to calculate if the first inode is 0. */
 	ino--;
 	status = ext4fs_blockgroup(data, ino / le32_to_cpu
-				   (sblock->inodes_per_group), &blkgrp);
-	if (status == 0)
+				   (sblock->inodes_per_group), blkgrp);
+	if (status == 0) {
+		free(blkgrp);
 		return 0;
+	}
 
 	inodes_per_block = EXT2_BLOCK_SIZE(data) / fs->inodesz;
-	blkno = ext4fs_bg_get_inode_table_id(&blkgrp, fs) +
+	blkno = ext4fs_bg_get_inode_table_id(blkgrp, fs) +
 	    (ino % le32_to_cpu(sblock->inodes_per_group)) / inodes_per_block;
 	blkoff = (ino % inodes_per_block) * fs->inodesz;
+
+	/* Free blkgrp as it is no longer required. */
+	free(blkgrp);
+
 	/* Read the inode. */
 	status = ext4fs_devread((lbaint_t)blkno << (LOG2_BLOCK_SIZE(data) -
 				log2blksz), blkoff,
