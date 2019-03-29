@@ -127,14 +127,6 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000 /* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500 /* Flash Write Timeout (ms) */
 
-/*
- * FPGA
- */
-#define CONFIG_SYS_FPGA0_BASE		0xE0600000
-#define CONFIG_SYS_FPGA0_SIZE		1 /* FPGA size is 1M */
-
-
-#define CONFIG_SYS_FPGA_BASE(k)		CONFIG_SYS_FPGA0_BASE
 #define CONFIG_SYS_FPGA_DONE(k)		0x0010
 
 #define CONFIG_SYS_FPGA_COUNT		1
