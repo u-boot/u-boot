@@ -24,6 +24,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 /* as gpio output status cannot be read back, we have to buffer it locally */
 u32 gpio0_out;
 
@@ -116,3 +117,4 @@ int board_early_init_r(void)
 
 	return 0;
 }
+#endif

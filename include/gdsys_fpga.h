@@ -7,6 +7,7 @@
 #ifndef __GDSYS_FPGA_H
 #define __GDSYS_FPGA_H
 
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
 int init_func_fpga(void);
 
 enum {
@@ -33,6 +34,7 @@ extern struct ihs_fpga *fpga_ptr[];
 		     &fpga_ptr[ix]->fld, \
 		     offsetof(struct ihs_fpga, fld), \
 		     val)
+#endif
 
 struct ihs_gpio {
 	u16 read;

@@ -4,6 +4,8 @@
  * Dirk Eibach,  Guntermann & Drunck GmbH, dirk.eibach@gdsys.cc
  */
 
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
+
 #include <common.h>
 
 #include <gdsys_fpga.h>
@@ -234,3 +236,5 @@ void ioep_fpga_print_info(unsigned int fpga)
 
 	printf(", %d video channel(s)\n", feature_video_channels);
 }
+
+#endif /* CONFIG_GDSYS_LEGACY_DRIVERS */
