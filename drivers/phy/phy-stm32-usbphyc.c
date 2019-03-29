@@ -60,7 +60,8 @@ struct stm32_usbphyc {
 	} phys[MAX_PHYS];
 };
 
-void stm32_usbphyc_get_pll_params(u32 clk_rate, struct pll_params *pll_params)
+static void stm32_usbphyc_get_pll_params(u32 clk_rate,
+					 struct pll_params *pll_params)
 {
 	unsigned long long fvco, ndiv, frac;
 
@@ -153,6 +154,18 @@ static int stm32_usbphyc_phy_init(struct phy *phy)
 	if (pllen && stm32_usbphyc_is_init(usbphyc))
 		goto initialized;
 
+	if (usbphyc->vdda1v1) {
+		ret = regulator_set_enable(usbphyc->vdda1v1, true);
+		if (ret)
+			return ret;
+	}
+
+	if (usbphyc->vdda1v8) {
+		ret = regulator_set_enable(usbphyc->vdda1v8, true);
+		if (ret)
+			return ret;
+	}
+
 	if (pllen) {
 		clrbits_le32(usbphyc->base + STM32_USBPHYC_PLL, PLLEN);
 		udelay(PLL_PWR_DOWN_TIME_US);
@@ -183,6 +196,7 @@ static int stm32_usbphyc_phy_exit(struct phy *phy)
 {
 	struct stm32_usbphyc *usbphyc = dev_get_priv(phy->dev);
 	struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + phy->id;
+	int ret;
 
 	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
 	usbphyc_phy->init = false;
@@ -202,6 +216,18 @@ static int stm32_usbphyc_phy_exit(struct phy *phy)
 	if (readl(usbphyc->base + STM32_USBPHYC_PLL) & PLLEN)
 		return -EIO;
 
+	if (usbphyc->vdda1v1) {
+		ret = regulator_set_enable(usbphyc->vdda1v1, false);
+		if (ret)
+			return ret;
+	}
+
+	if (usbphyc->vdda1v8) {
+		ret = regulator_set_enable(usbphyc->vdda1v8, false);
+		if (ret)
+			return ret;
+	}
+
 	return 0;
 }
 
@@ -212,20 +238,8 @@ static int stm32_usbphyc_phy_power_on(struct phy *phy)
 	int ret;
 
 	pr_debug("%s phy ID = %lu\n", __func__, phy->id);
-	if (usbphyc->vdda1v1) {
-		ret = regulator_set_enable(usbphyc->vdda1v1, true);
-		if (ret)
-			return ret;
-	}
-
-	if (usbphyc->vdda1v8) {
-		ret = regulator_set_enable(usbphyc->vdda1v8, true);
-		if (ret)
-			return ret;
-	}
-
-	if (usbphyc->vdd) {
-		ret = regulator_set_enable(usbphyc->vdd, true);
+	if (usbphyc_phy->vdd) {
+		ret = regulator_set_enable(usbphyc_phy->vdd, true);
 		if (ret)
 			return ret;
 	}
@@ -247,20 +261,8 @@ static int stm32_usbphyc_phy_power_off(struct phy *phy)
 	if (stm32_usbphyc_is_powered(usbphyc))
 		return 0;
 
-	if (usbphyc->vdda1v1) {
-		ret = regulator_set_enable(usbphyc->vdda1v1, false);
-		if (ret)
-			return ret;
-	}
-
-	if (usbphyc->vdda1v8) {
-		ret = regulator_set_enable(usbphyc->vdda1v8, false);
-		if (ret)
-			return ret;
-	}
-
-	if (usbphyc->vdd) {
-		ret = regulator_set_enable(usbphyc->vdd, false);
+	if (usbphyc_phy->vdd) {
+		ret = regulator_set_enable(usbphyc_phy->vdd, false);
 		if (ret)
 			return ret;
 	}
