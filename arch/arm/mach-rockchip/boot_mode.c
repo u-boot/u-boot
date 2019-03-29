@@ -61,13 +61,7 @@ int setup_boot_mode(void)
 	void *reg = (void *)CONFIG_ROCKCHIP_BOOT_MODE_REG;
 	int boot_mode = readl(reg);
 
-	/*
-	 * This should be handled using a driver-tree property and a suitable
-	 * driver which can read the appropriate settings. As it is, this
-	 * breaks chromebook_minnie.\
-	 *
-	 * rockchip_dnl_mode_check();
-	 */
+	rockchip_dnl_mode_check();
 
 	boot_mode = readl(reg);
 	debug("%s: boot mode 0x%08x\n", __func__, boot_mode);
