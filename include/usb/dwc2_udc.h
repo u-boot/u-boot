@@ -26,6 +26,7 @@ struct dwc2_plat_otg_data {
 	unsigned int	tx_fifo_sz_array[DWC2_MAX_HW_ENDPOINTS];
 	unsigned char   tx_fifo_sz_nb;
 	bool		force_b_session_valid;
+	bool		activate_stm_id_vb_detection;
 };
 
 int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata);

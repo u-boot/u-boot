@@ -942,6 +942,7 @@ struct dwc2_priv_data {
 	struct reset_ctl_bulk	resets;
 	struct phy *phys;
 	int num_phys;
+	struct udevice *usb33d_supply;
 };
 
 int dm_usb_gadget_handle_interrupts(struct udevice *dev)
@@ -1036,6 +1037,8 @@ static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
 	int node = dev_of_offset(dev);
+	ulong drvdata;
+	void (*set_params)(struct dwc2_plat_otg_data *data);
 
 	if (usb_get_dr_mode(node) != USB_DR_MODE_PERIPHERAL) {
 		dev_dbg(dev, "Invalid mode\n");
@@ -1052,7 +1055,26 @@ static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 	platdata->force_b_session_valid =
 		dev_read_bool(dev, "force-b-session-valid");
 
+	/* force platdata according compatible */
+	drvdata = dev_get_driver_data(dev);
+	if (drvdata) {
+		set_params = (void *)drvdata;
+		set_params(platdata);
+	}
+
 	return 0;
+}
+
+static void dwc2_set_stm32mp1_hsotg_params(struct dwc2_plat_otg_data *p)
+{
+	p->activate_stm_id_vb_detection = true;
+	p->usb_gusbcfg =
+		0 << 15		/* PHY Low Power Clock sel*/
+		| 0x9 << 10	/* USB Turnaround time (0x9 for HS phy) */
+		| 0 << 9	/* [0:HNP disable,1:HNP enable]*/
+		| 0 << 8	/* [0:SRP disable 1:SRP enable]*/
+		| 0 << 6	/* 0: high speed utmi+, 1: full speed serial*/
+		| 0x7 << 0;	/* FS timeout calibration**/
 }
 
 static int dwc2_udc_otg_reset_init(struct udevice *dev,
@@ -1122,6 +1144,26 @@ static int dwc2_udc_otg_probe(struct udevice *dev)
 	if (ret)
 		return ret;
 
+	if (CONFIG_IS_ENABLED(DM_REGULATOR) &&
+	    platdata->activate_stm_id_vb_detection &&
+	    !platdata->force_b_session_valid) {
+		ret = device_get_supply_regulator(dev, "usb33d-supply",
+						  &priv->usb33d_supply);
+		if (ret) {
+			dev_err(dev, "can't get voltage level detector supply\n");
+			return ret;
+		}
+		ret = regulator_set_enable(priv->usb33d_supply, true);
+		if (ret) {
+			dev_err(dev, "can't enable voltage level detector supply\n");
+			return ret;
+		}
+		/* Enable vbus sensing */
+		setbits_le32(&usbotg_reg->ggpio,
+			     GGPIO_STM32_OTG_GCCFG_VBDEN |
+			     GGPIO_STM32_OTG_GCCFG_IDEN);
+	}
+
 	if (platdata->force_b_session_valid)
 		/* Override B session bits : value and enable */
 		setbits_le32(&usbotg_reg->gotgctl,  B_VALOEN | B_VALOVAL);
@@ -1154,6 +1196,9 @@ static int dwc2_udc_otg_remove(struct udevice *dev)
 
 static const struct udevice_id dwc2_udc_otg_ids[] = {
 	{ .compatible = "snps,dwc2" },
+	{ .compatible = "st,stm32mp1-hsotg",
+	  .data = (ulong)dwc2_set_stm32mp1_hsotg_params },
+	{},
 };
 
 U_BOOT_DRIVER(dwc2_udc_otg) = {

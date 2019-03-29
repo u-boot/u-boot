@@ -60,8 +60,9 @@ struct dwc2_usbotg_reg {
 	u32 grxstsp; /* Receive Status Debug Pop/Status Pop */
 	u32 grxfsiz; /* Receive FIFO Size */
 	u32 gnptxfsiz; /* Non-Periodic Transmit FIFO Size */
-
-	u8  res1[36];
+	u8  res0[12];
+	u32 ggpio;     /* 0x038 */
+	u8  res1[20];
 	u32 ghwcfg4; /* User HW Config4 */
 	u8  res2[176];
 	u32 dieptxf[15]; /* Device Periodic Transmit FIFO size register */
@@ -280,4 +281,9 @@ struct dwc2_usbotg_reg {
 /* User HW Config4 */
 #define GHWCFG4_NUM_IN_EPS_MASK		(0xf << 26)
 #define GHWCFG4_NUM_IN_EPS_SHIFT	26
+
+/* OTG general core configuration register (OTG_GCCFG:0x38) for STM32MP1 */
+#define GGPIO_STM32_OTG_GCCFG_VBDEN               BIT(21)
+#define GGPIO_STM32_OTG_GCCFG_IDEN                BIT(22)
+
 #endif
