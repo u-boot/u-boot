@@ -7,11 +7,13 @@
 #include <spl_gpio.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #define GRF_EMMCCORE_CON11 0xff77f02c
+#define GRF_BASE	0xff770000
 
 static struct mm_region rk3399_mem_map[] = {
 	{
@@ -49,9 +51,10 @@ int dram_init_banksize(void)
 int arch_cpu_init(void)
 {
 	/* We do some SoC one time setting here. */
+	struct rk3399_grf_regs * const grf = (void *)GRF_BASE;
 
 	/* Emmc clock generator: disable the clock multipilier */
-	rk_clrreg(GRF_EMMCCORE_CON11, 0x0ff);
+	rk_clrreg(&grf->emmccore_con[11], 0x0ff);
 
 	return 0;
 }
