@@ -2,6 +2,27 @@
 /*
  * (C) Copyright 2017 Theobroma Systems Design und Consulting GmbH
  */
+/ {
+	chosen {
+		u-boot,spl-boot-order = &emmc;
+	};
+};
+
+&dmc {
+	u-boot,dm-pre-reloc;
+
+	/*
+	 * PX5-evb(2GB) need to use CBRD mode, or else the dram is not correct
+	 * See doc/device-tree-bindings/clock/rockchip,rk3368-dmc.txt for
+	 * details on the 'rockchip,memory-schedule' property and how it
+	 * affects the physical-address to device-address mapping.
+	 */
+	rockchip,memory-schedule = <DMC_MSCH_CBRD>;
+	rockchip,ddr-frequency = <800000000>;
+	rockchip,ddr-speed-bin = <DDR3_1600K>;
+
+	status = "okay";
+};
 
 &pinctrl {
 	u-boot,dm-pre-reloc;
@@ -20,6 +41,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&sgrf {
+	u-boot,dm-pre-reloc;
+};
+
 &cru {
 	u-boot,dm-pre-reloc;
 };
@@ -29,5 +54,9 @@
 };
 
 &uart4 {
+	u-boot,dm-pre-reloc;
+};
+
+&emmc {
 	u-boot,dm-pre-reloc;
 };
