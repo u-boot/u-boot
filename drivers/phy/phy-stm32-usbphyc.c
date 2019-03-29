@@ -55,7 +55,6 @@ struct stm32_usbphyc {
 		struct udevice *vdd;
 		struct udevice *vdda1v1;
 		struct udevice *vdda1v8;
-		int index;
 		bool init;
 		bool powered;
 	} phys[MAX_PHYS];
@@ -359,7 +358,6 @@ static int stm32_usbphyc_probe(struct udevice *dev)
 	for (i = 0; i < MAX_PHYS; i++) {
 		struct stm32_usbphyc_phy *usbphyc_phy = usbphyc->phys + i;
 
-		usbphyc_phy->index = i;
 		usbphyc_phy->init = false;
 		usbphyc_phy->powered = false;
 		ret = stm32_usbphyc_get_regulator(dev, node, "phy-supply",
