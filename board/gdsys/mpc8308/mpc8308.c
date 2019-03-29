@@ -24,6 +24,25 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* as gpio output status cannot be read back, we have to buffer it locally */
+u32 gpio0_out;
+
+void setbits_gpio0_out(u32 mask)
+{
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+
+	gpio0_out |= mask;
+	out_be32(&immr->gpio[0].dat, gpio0_out);
+}
+
+void clrbits_gpio0_out(u32 mask)
+{
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+
+	gpio0_out &= ~mask;
+	out_be32(&immr->gpio[0].dat, gpio0_out);
+}
+
 int get_fpga_state(uint dev)
 {
 	return gd->arch.fpga_state[dev];

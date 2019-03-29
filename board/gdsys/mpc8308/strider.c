@@ -343,7 +343,7 @@ void mpc8308_setup_hw(void)
 	 * set "startup-finished"-gpios
 	 */
 	setbits_be32(&immr->gpio[0].dir, BIT(31 - 11) | BIT(31 - 12));
-	setbits_be32(&immr->gpio[0].dat, BIT(31 - 12));
+	setbits_gpio0_out(BIT(31 - 12));
 }
 
 int mpc8308_get_fpga_done(uint fpga)
