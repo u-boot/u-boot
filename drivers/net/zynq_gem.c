@@ -261,45 +261,6 @@ static int phywrite(struct zynq_gem_priv *priv, u32 phy_addr,
 			    ZYNQ_GEM_PHYMNTNC_OP_W_MASK, &data);
 }
 
-static int phy_detection(struct udevice *dev)
-{
-	int i;
-	u16 phyreg = 0;
-	struct zynq_gem_priv *priv = dev->priv;
-
-	if (priv->phyaddr != -1) {
-		phyread(priv, priv->phyaddr, PHY_DETECT_REG, &phyreg);
-		if ((phyreg != 0xFFFF) &&
-		    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
-			/* Found a valid PHY address */
-			debug("Default phy address %d is valid\n",
-			      priv->phyaddr);
-			return 0;
-		} else {
-			debug("PHY address is not setup correctly %d\n",
-			      priv->phyaddr);
-			priv->phyaddr = -1;
-		}
-	}
-
-	debug("detecting phy address\n");
-	if (priv->phyaddr == -1) {
-		/* detect the PHY address */
-		for (i = 31; i >= 0; i--) {
-			phyread(priv, i, PHY_DETECT_REG, &phyreg);
-			if ((phyreg != 0xFFFF) &&
-			    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
-				/* Found a valid PHY address */
-				priv->phyaddr = i;
-				debug("Found valid phy address, %d\n", i);
-				return 0;
-			}
-		}
-	}
-	printf("PHY is not detected\n");
-	return -1;
-}
-
 static int zynq_gem_setup_mac(struct udevice *dev)
 {
 	u32 i, macaddrlow, macaddrhigh;
@@ -344,15 +305,6 @@ static int zynq_phy_init(struct udevice *dev)
 
 	/* Enable only MDIO bus */
 	writel(ZYNQ_GEM_NWCTRL_MDEN_MASK, &regs->nwctrl);
-
-	if ((priv->interface != PHY_INTERFACE_MODE_SGMII) &&
-	    (priv->interface != PHY_INTERFACE_MODE_GMII)) {
-		ret = phy_detection(dev);
-		if (ret) {
-			printf("GEM PHY init failed\n");
-			return ret;
-		}
-	}
 
 	priv->phydev = phy_connect(priv->bus, priv->phyaddr, dev,
 				   priv->interface);
