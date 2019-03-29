@@ -11,6 +11,8 @@
  * board\freescale\mpc8315erdb\sdram.c
  */
 
+#ifndef CONFIG_MPC83XX_SDRAM
+
 #include <common.h>
 #include <mpc83xx.h>
 #include <spd_sdram.h>
@@ -81,3 +83,5 @@ int dram_init(void)
 
 	return 0;
 }
+
+#endif /* !CONFIG_MPC83XX_SDRAM */
