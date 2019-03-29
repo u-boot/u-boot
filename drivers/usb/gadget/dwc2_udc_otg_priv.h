@@ -23,7 +23,6 @@
 #define EP_FIFO_SIZE2		1024
 /* ep0-control, ep1in-bulk, ep2out-bulk, ep3in-int */
 #define DWC2_MAX_ENDPOINTS	4
-#define DWC2_MAX_HW_ENDPOINTS	16
 
 #define WAIT_FOR_SETUP          0
 #define DATA_STATE_XMIT         1

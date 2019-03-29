@@ -60,22 +60,25 @@ struct dwc2_usbotg_reg {
 	u32 grxstsp; /* Receive Status Debug Pop/Status Pop */
 	u32 grxfsiz; /* Receive FIFO Size */
 	u32 gnptxfsiz; /* Non-Periodic Transmit FIFO Size */
-	u8  res1[216];
+
+	u8  res1[36];
+	u32 ghwcfg4; /* User HW Config4 */
+	u8  res2[176];
 	u32 dieptxf[15]; /* Device Periodic Transmit FIFO size register */
-	u8  res2[1728];
+	u8  res3[1728];
 	/* Device Configuration */
 	u32 dcfg; /* Device Configuration Register */
 	u32 dctl; /* Device Control */
 	u32 dsts; /* Device Status */
-	u8  res3[4];
+	u8  res4[4];
 	u32 diepmsk; /* Device IN Endpoint Common Interrupt Mask */
 	u32 doepmsk; /* Device OUT Endpoint Common Interrupt Mask */
 	u32 daint; /* Device All Endpoints Interrupt */
 	u32 daintmsk; /* Device All Endpoints Interrupt Mask */
-	u8  res4[224];
+	u8  res5[224];
 	struct dwc2_dev_in_endp in_endp[16];
 	struct dwc2_dev_out_endp out_endp[16];
-	u8  res5[768];
+	u8  res6[768];
 	struct ep_fifo ep[16];
 };
 
@@ -273,4 +276,8 @@ struct dwc2_usbotg_reg {
 /* Device ALL Endpoints Interrupt Register (DAINT) */
 #define DAINT_IN_EP_INT(x)                        (x << 0)
 #define DAINT_OUT_EP_INT(x)                       (x << 16)
+
+/* User HW Config4 */
+#define GHWCFG4_NUM_IN_EPS_MASK		(0xf << 26)
+#define GHWCFG4_NUM_IN_EPS_SHIFT	26
 #endif

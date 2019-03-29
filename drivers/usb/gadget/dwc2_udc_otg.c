@@ -456,6 +456,7 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	unsigned int uTemp = writel(CORE_SOFT_RESET, &reg->grstctl);
 	uint32_t dflt_gusbcfg;
 	uint32_t rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz;
+	u32 max_hw_ep;
 
 	debug("Reseting OTG controller\n");
 
@@ -538,9 +539,13 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	writel((np_tx_fifo_sz << 16) | rx_fifo_sz,
 	       &reg->gnptxfsiz);
 
-	for (i = 1; i < DWC2_MAX_HW_ENDPOINTS; i++)
-		writel((rx_fifo_sz + np_tx_fifo_sz + tx_fifo_sz*(i-1)) |
-			tx_fifo_sz << 16, &reg->dieptxf[i-1]);
+	/* retrieve the number of IN Endpoints (excluding ep0) */
+	max_hw_ep = (readl(&reg->ghwcfg4) & GHWCFG4_NUM_IN_EPS_MASK) >>
+		    GHWCFG4_NUM_IN_EPS_SHIFT;
+
+	for (i = 0; i < max_hw_ep; i++)
+		writel((rx_fifo_sz + np_tx_fifo_sz + (tx_fifo_sz * i)) |
+			tx_fifo_sz << 16, &reg->dieptxf[i]);
 
 	/* Flush the RX FIFO */
 	writel(RX_FIFO_FLUSH, &reg->grstctl);
