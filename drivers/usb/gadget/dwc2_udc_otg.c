@@ -18,11 +18,17 @@
  */
 #undef DEBUG
 #include <common.h>
+#include <clk.h>
+#include <dm.h>
+#include <generic-phy.h>
+#include <malloc.h>
+#include <reset.h>
+
 #include <linux/errno.h>
 #include <linux/list.h>
-#include <malloc.h>
 
 #include <linux/usb/ch9.h>
+#include <linux/usb/otg.h>
 #include <linux/usb/gadget.h>
 
 #include <asm/byteorder.h>
@@ -30,6 +36,8 @@
 #include <asm/io.h>
 
 #include <asm/mach-types.h>
+
+#include <power/regulator.h>
 
 #include "dwc2_udc_otg_regs.h"
 #include "dwc2_udc_otg_priv.h"
@@ -222,6 +230,7 @@ static int udc_enable(struct dwc2_udc *dev)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(DM_USB_GADGET)
 /*
   Register entry point for the peripheral controller driver.
 */
@@ -296,6 +305,54 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 	udc_disable(dev);
 	return 0;
 }
+#else /* !CONFIG_IS_ENABLED(DM_USB_GADGET) */
+
+static int dwc2_gadget_start(struct usb_gadget *g,
+			     struct usb_gadget_driver *driver)
+{
+	struct dwc2_udc *dev = the_controller;
+
+	debug_cond(DEBUG_SETUP != 0, "%s: %s\n", __func__, "no name");
+
+	if (!driver ||
+	    (driver->speed != USB_SPEED_FULL &&
+	     driver->speed != USB_SPEED_HIGH) ||
+	    !driver->bind || !driver->disconnect || !driver->setup)
+		return -EINVAL;
+
+	if (!dev)
+		return -ENODEV;
+
+	if (dev->driver)
+		return -EBUSY;
+
+	/* first hook up the driver ... */
+	dev->driver = driver;
+
+	debug_cond(DEBUG_SETUP != 0,
+		   "Registered gadget driver %s\n", dev->gadget.name);
+	return udc_enable(dev);
+}
+
+static int dwc2_gadget_stop(struct usb_gadget *g)
+{
+	struct dwc2_udc *dev = the_controller;
+
+	if (!dev)
+		return -ENODEV;
+
+	if (!dev->driver)
+		return -EINVAL;
+
+	dev->driver = 0;
+	stop_activity(dev, dev->driver);
+
+	udc_disable(dev);
+
+	return 0;
+}
+
+#endif /* !CONFIG_IS_ENABLED(DM_USB_GADGET) */
 
 /*
  *	done - retire a request; caller blocked irqs
@@ -730,6 +787,10 @@ static void dwc2_fifo_flush(struct usb_ep *_ep)
 
 static const struct usb_gadget_ops dwc2_udc_ops = {
 	/* current versions must always be self-powered */
+#if CONFIG_IS_ENABLED(DM_USB_GADGET)
+	.udc_start		= dwc2_gadget_start,
+	.udc_stop		= dwc2_gadget_stop,
+#endif
 };
 
 static struct dwc2_udc memory = {
@@ -841,12 +902,239 @@ int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata)
 	return retval;
 }
 
-int usb_gadget_handle_interrupts(int index)
+int dwc2_udc_handle_interrupt(void)
 {
 	u32 intr_status = readl(&reg->gintsts);
 	u32 gintmsk = readl(&reg->gintmsk);
 
 	if (intr_status & gintmsk)
 		return dwc2_udc_irq(1, (void *)the_controller);
+
 	return 0;
 }
+
+#if !CONFIG_IS_ENABLED(DM_USB_GADGET)
+
+int usb_gadget_handle_interrupts(int index)
+{
+	return dwc2_udc_handle_interrupt();
+}
+
+#else /* CONFIG_IS_ENABLED(DM_USB_GADGET) */
+
+struct dwc2_priv_data {
+	struct clk_bulk		clks;
+	struct reset_ctl_bulk	resets;
+	struct phy *phys;
+	int num_phys;
+};
+
+int dm_usb_gadget_handle_interrupts(struct udevice *dev)
+{
+	return dwc2_udc_handle_interrupt();
+}
+
+int dwc2_phy_setup(struct udevice *dev, struct phy **array, int *num_phys)
+{
+	int i, ret, count;
+	struct phy *usb_phys;
+
+	/* Return if no phy declared */
+	if (!dev_read_prop(dev, "phys", NULL))
+		return 0;
+
+	count = dev_count_phandle_with_args(dev, "phys", "#phy-cells");
+	if (count <= 0)
+		return count;
+
+	usb_phys = devm_kcalloc(dev, count, sizeof(struct phy),
+				GFP_KERNEL);
+	if (!usb_phys)
+		return -ENOMEM;
+
+	for (i = 0; i < count; i++) {
+		ret = generic_phy_get_by_index(dev, i, &usb_phys[i]);
+		if (ret && ret != -ENOENT) {
+			dev_err(dev, "Failed to get USB PHY%d for %s\n",
+				i, dev->name);
+			return ret;
+		}
+	}
+
+	for (i = 0; i < count; i++) {
+		ret = generic_phy_init(&usb_phys[i]);
+		if (ret) {
+			dev_err(dev, "Can't init USB PHY%d for %s\n",
+				i, dev->name);
+			goto phys_init_err;
+		}
+	}
+
+	for (i = 0; i < count; i++) {
+		ret = generic_phy_power_on(&usb_phys[i]);
+		if (ret) {
+			dev_err(dev, "Can't power USB PHY%d for %s\n",
+				i, dev->name);
+			goto phys_poweron_err;
+		}
+	}
+
+	*array = usb_phys;
+	*num_phys =  count;
+
+	return 0;
+
+phys_poweron_err:
+	for (i = count - 1; i >= 0; i--)
+		generic_phy_power_off(&usb_phys[i]);
+
+	for (i = 0; i < count; i++)
+		generic_phy_exit(&usb_phys[i]);
+
+	return ret;
+
+phys_init_err:
+	for (; i >= 0; i--)
+		generic_phy_exit(&usb_phys[i]);
+
+	return ret;
+}
+
+void dwc2_phy_shutdown(struct udevice *dev, struct phy *usb_phys, int num_phys)
+{
+	int i, ret;
+
+	for (i = 0; i < num_phys; i++) {
+		if (!generic_phy_valid(&usb_phys[i]))
+			continue;
+
+		ret = generic_phy_power_off(&usb_phys[i]);
+		ret |= generic_phy_exit(&usb_phys[i]);
+		if (ret) {
+			dev_err(dev, "Can't shutdown USB PHY%d for %s\n",
+				i, dev->name);
+		}
+	}
+}
+
+static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
+{
+	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
+	int node = dev_of_offset(dev);
+
+	if (usb_get_dr_mode(node) != USB_DR_MODE_PERIPHERAL) {
+		dev_dbg(dev, "Invalid mode\n");
+		return -ENODEV;
+	}
+
+	platdata->regs_otg = dev_read_addr(dev);
+
+	platdata->rx_fifo_sz = dev_read_u32_default(dev, "g-rx-fifo-size", 0);
+	platdata->np_tx_fifo_sz = dev_read_u32_default(dev,
+						       "g-np-tx-fifo-size", 0);
+	platdata->tx_fifo_sz = dev_read_u32_default(dev, "g-tx-fifo-size", 0);
+
+	return 0;
+}
+
+static int dwc2_udc_otg_reset_init(struct udevice *dev,
+				   struct reset_ctl_bulk *resets)
+{
+	int ret;
+
+	ret = reset_get_bulk(dev, resets);
+	if (ret == -ENOTSUPP)
+		return 0;
+
+	if (ret)
+		return ret;
+
+	ret = reset_deassert_bulk(resets);
+	if (ret) {
+		reset_release_bulk(resets);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int dwc2_udc_otg_clk_init(struct udevice *dev,
+				 struct clk_bulk *clks)
+{
+	int ret;
+
+	ret = clk_get_bulk(dev, clks);
+	if (ret == -ENOSYS)
+		return 0;
+
+	if (ret)
+		return ret;
+
+	ret = clk_enable_bulk(clks);
+	if (ret) {
+		clk_release_bulk(clks);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int dwc2_udc_otg_probe(struct udevice *dev)
+{
+	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
+	struct dwc2_priv_data *priv = dev_get_priv(dev);
+	int ret;
+
+	ret = dwc2_udc_otg_clk_init(dev, &priv->clks);
+	if (ret)
+		return ret;
+
+	ret = dwc2_udc_otg_reset_init(dev, &priv->resets);
+	if (ret)
+		return ret;
+
+	ret = dwc2_phy_setup(dev, &priv->phys, &priv->num_phys);
+	if (ret)
+		return ret;
+
+	ret = dwc2_udc_probe(platdata);
+	if (ret)
+		return ret;
+
+	the_controller->driver = 0;
+
+	ret = usb_add_gadget_udc((struct device *)dev, &the_controller->gadget);
+
+	return ret;
+}
+
+static int dwc2_udc_otg_remove(struct udevice *dev)
+{
+	struct dwc2_priv_data *priv = dev_get_priv(dev);
+
+	usb_del_gadget_udc(&the_controller->gadget);
+
+	reset_release_bulk(&priv->resets);
+
+	clk_release_bulk(&priv->clks);
+
+	dwc2_phy_shutdown(dev, priv->phys, priv->num_phys);
+
+	return dm_scan_fdt_dev(dev);
+}
+
+static const struct udevice_id dwc2_udc_otg_ids[] = {
+	{ .compatible = "snps,dwc2" },
+};
+
+U_BOOT_DRIVER(dwc2_udc_otg) = {
+	.name	= "dwc2-udc-otg",
+	.id	= UCLASS_USB_GADGET_GENERIC,
+	.of_match = dwc2_udc_otg_ids,
+	.ofdata_to_platdata = dwc2_udc_otg_ofdata_to_platdata,
+	.probe = dwc2_udc_otg_probe,
+	.remove = dwc2_udc_otg_remove,
+	.platdata_auto_alloc_size = sizeof(struct dwc2_plat_otg_data),
+	.priv_auto_alloc_size = sizeof(struct dwc2_priv_data),
+};
+#endif /* CONFIG_IS_ENABLED(DM_USB_GADGET) */
