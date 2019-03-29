@@ -13,7 +13,6 @@
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3368.h>
-#include <asm/arch-rockchip/grf_rk3368.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/timer.h>
 
@@ -79,42 +78,12 @@ static void sgrf_init(void)
 	rk_clrreg(&cru->softrst_con[4], DMA2_SRST_REQ);
 }
 
-void board_debug_uart_init(void)
-{
-	/*
-	 * N.B.: This is called before the device-model has been
-	 *       initialised. For this reason, we can not access
-	 *       the GRF address range using the syscon API.
-	 */
-	struct rk3368_grf * const grf =
-		(struct rk3368_grf * const)0xff770000;
-
-	enum {
-		GPIO2D1_MASK            = GENMASK(3, 2),
-		GPIO2D1_GPIO            = 0,
-		GPIO2D1_UART0_SOUT      = (1 << 2),
-
-		GPIO2D0_MASK            = GENMASK(1, 0),
-		GPIO2D0_GPIO            = 0,
-		GPIO2D0_UART0_SIN       = (1 << 0),
-	};
-
-#if defined(CONFIG_DEBUG_UART_BASE) && (CONFIG_DEBUG_UART_BASE == 0xff180000)
-	/* Enable early UART0 on the RK3368 */
-	rk_clrsetreg(&grf->gpio2d_iomux,
-		     GPIO2D0_MASK, GPIO2D0_UART0_SIN);
-	rk_clrsetreg(&grf->gpio2d_iomux,
-		     GPIO2D1_MASK, GPIO2D1_UART0_SOUT);
-#endif
-}
-
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
 	int ret;
 
-#define EARLY_UART
-#ifdef EARLY_UART
+#ifdef CONFIG_DEBUG_UART
 	/*
 	 * Debug UART can be used from here if required:
 	 *
