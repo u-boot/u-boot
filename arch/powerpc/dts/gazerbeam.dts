@@ -10,7 +10,7 @@
  * option) any later version.
  */
 
-/include/ "gdsys/mpc8308.dtsi"
+#include "gdsys/mpc8308.dtsi"
 
 /include/ "gdsys/gazerbeam-base.dtsi"
 

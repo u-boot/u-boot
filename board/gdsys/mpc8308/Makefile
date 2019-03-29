@@ -6,3 +6,4 @@
 obj-y := mpc8308.o sdram.o
 obj-$(CONFIG_TARGET_HRCON) += hrcon.o
 obj-$(CONFIG_TARGET_STRIDER) += strider.o
+obj-$(CONFIG_TARGET_GAZERBEAM) += gazerbeam.o

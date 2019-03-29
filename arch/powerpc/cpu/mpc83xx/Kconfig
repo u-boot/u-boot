@@ -175,6 +175,25 @@ config TARGET_STRIDER
 	select SYS_FSL_ERRATUM_ESDHC111
 	imply CMD_PCA953X
 
+config TARGET_GAZERBEAM
+	bool "Support gazerbeam"
+	select ARCH_MPC8308
+	select SYS_FSL_ERRATUM_ESDHC111
+	imply ENV_IS_IN_FLASH
+	help
+	  The "Gazerbeam" is a modular system by Guntermann & Drunck GmbH
+	  Systementwicklung based on the NXP MPC8308 SoC for usage in KVM
+	  appliances.
+
+	  Features include:
+	  * Two gigabit ethernet ports
+	  * Multiple USB ports (depending on variant)
+	  * Several gigabit ethernet or optical fiber ports (depending on
+	    variant)
+	  * Several display port inputs and outputs, and supporting redrivers
+	    (depending on variant)
+	  * Several FPGAs with custom logic (depending on variant)
+
 endchoice
 
 config MPC83XX_QUICC_ENGINE

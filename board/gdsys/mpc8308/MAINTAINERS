@@ -6,7 +6,9 @@ F:	include/configs/hrcon.h
 F:	configs/hrcon_defconfig
 F:	configs/hrcon_dh_defconfig
 F:	include/configs/strider.h
+F:	configs/strider_defconfig
 F:	configs/strider_cpu_defconfig
 F:	configs/strider_cpu_dp_defconfig
 F:	configs/strider_con_defconfig
 F:	configs/strider_con_dp_defconfig
+F:	configs/gazerbeam_defconfig
