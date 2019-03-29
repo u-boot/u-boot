@@ -457,6 +457,7 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	uint32_t dflt_gusbcfg;
 	uint32_t rx_fifo_sz, tx_fifo_sz, np_tx_fifo_sz;
 	u32 max_hw_ep;
+	int pdata_hw_ep;
 
 	debug("Reseting OTG controller\n");
 
@@ -542,11 +543,20 @@ static void reconfig_usbd(struct dwc2_udc *dev)
 	/* retrieve the number of IN Endpoints (excluding ep0) */
 	max_hw_ep = (readl(&reg->ghwcfg4) & GHWCFG4_NUM_IN_EPS_MASK) >>
 		    GHWCFG4_NUM_IN_EPS_SHIFT;
+	pdata_hw_ep = dev->pdata->tx_fifo_sz_nb;
 
-	for (i = 0; i < max_hw_ep; i++)
+	/* tx_fifo_sz_nb should equal to number of IN Endpoint */
+	if (pdata_hw_ep && max_hw_ep != pdata_hw_ep)
+		pr_warn("Got %d hw endpoint but %d tx-fifo-size in array !!\n",
+			max_hw_ep, pdata_hw_ep);
+
+	for (i = 0; i < max_hw_ep; i++) {
+		if (pdata_hw_ep)
+			tx_fifo_sz = dev->pdata->tx_fifo_sz_array[i];
+
 		writel((rx_fifo_sz + np_tx_fifo_sz + (tx_fifo_sz * i)) |
 			tx_fifo_sz << 16, &reg->dieptxf[i]);
-
+	}
 	/* Flush the RX FIFO */
 	writel(RX_FIFO_FLUSH, &reg->grstctl);
 	while (readl(&reg->grstctl) & RX_FIFO_FLUSH)
