@@ -1151,4 +1151,13 @@ U_BOOT_DRIVER(dwc2_udc_otg) = {
 	.platdata_auto_alloc_size = sizeof(struct dwc2_plat_otg_data),
 	.priv_auto_alloc_size = sizeof(struct dwc2_priv_data),
 };
+
+int dwc2_udc_B_session_valid(struct udevice *dev)
+{
+	struct dwc2_plat_otg_data *platdata = dev_get_platdata(dev);
+	struct dwc2_usbotg_reg *usbotg_reg =
+		(struct dwc2_usbotg_reg *)platdata->regs_otg;
+
+	return readl(&usbotg_reg->gotgctl) & B_SESSION_VALID;
+}
 #endif /* CONFIG_IS_ENABLED(DM_USB_GADGET) */

@@ -27,4 +27,6 @@ struct dwc2_plat_otg_data {
 
 int dwc2_udc_probe(struct dwc2_plat_otg_data *pdata);
 
+int dwc2_udc_B_session_valid(struct udevice *dev);
+
 #endif	/* __DWC2_USB_GADGET */
