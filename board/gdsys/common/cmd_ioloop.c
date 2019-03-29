@@ -11,33 +11,33 @@
 #include <gdsys_fpga.h>
 
 enum {
-	STATE_TX_PACKET_BUILDING = 1<<0,
-	STATE_TX_TRANSMITTING = 1<<1,
-	STATE_TX_BUFFER_FULL = 1<<2,
-	STATE_TX_ERR = 1<<3,
-	STATE_RECEIVE_TIMEOUT = 1<<4,
-	STATE_PROC_RX_STORE_TIMEOUT = 1<<5,
-	STATE_PROC_RX_RECEIVE_TIMEOUT = 1<<6,
-	STATE_RX_DIST_ERR = 1<<7,
-	STATE_RX_LENGTH_ERR = 1<<8,
-	STATE_RX_FRAME_CTR_ERR = 1<<9,
-	STATE_RX_FCS_ERR = 1<<10,
-	STATE_RX_PACKET_DROPPED = 1<<11,
-	STATE_RX_DATA_LAST = 1<<12,
-	STATE_RX_DATA_FIRST = 1<<13,
-	STATE_RX_DATA_AVAILABLE = 1<<15,
+	STATE_TX_PACKET_BUILDING = BIT(0),
+	STATE_TX_TRANSMITTING = BIT(1),
+	STATE_TX_BUFFER_FULL = BIT(2),
+	STATE_TX_ERR = BIT(3),
+	STATE_RECEIVE_TIMEOUT = BIT(4),
+	STATE_PROC_RX_STORE_TIMEOUT = BIT(5),
+	STATE_PROC_RX_RECEIVE_TIMEOUT = BIT(6),
+	STATE_RX_DIST_ERR = BIT(7),
+	STATE_RX_LENGTH_ERR = BIT(8),
+	STATE_RX_FRAME_CTR_ERR = BIT(9),
+	STATE_RX_FCS_ERR = BIT(10),
+	STATE_RX_PACKET_DROPPED = BIT(11),
+	STATE_RX_DATA_LAST = BIT(12),
+	STATE_RX_DATA_FIRST = BIT(13),
+	STATE_RX_DATA_AVAILABLE = BIT(15),
 };
 
 enum {
-	CTRL_PROC_RECEIVE_ENABLE = 1<<12,
-	CTRL_FLUSH_TRANSMIT_BUFFER = 1<<15,
+	CTRL_PROC_RECEIVE_ENABLE = BIT(12),
+	CTRL_FLUSH_TRANSMIT_BUFFER = BIT(15),
 };
 
 enum {
-	IRQ_CPU_TRANSMITBUFFER_FREE_STATUS = 1<<5,
-	IRQ_CPU_PACKET_TRANSMITTED_EVENT = 1<<6,
-	IRQ_NEW_CPU_PACKET_RECEIVED_EVENT = 1<<7,
-	IRQ_CPU_RECEIVE_DATA_AVAILABLE_STATUS = 1<<8,
+	IRQ_CPU_TRANSMITBUFFER_FREE_STATUS = BIT(5),
+	IRQ_CPU_PACKET_TRANSMITTED_EVENT = BIT(6),
+	IRQ_NEW_CPU_PACKET_RECEIVED_EVENT = BIT(7),
+	IRQ_CPU_RECEIVE_DATA_AVAILABLE_STATUS = BIT(8),
 };
 
 struct io_generic_packet {
@@ -52,7 +52,7 @@ unsigned long long rx_ctr;
 unsigned long long tx_ctr;
 unsigned long long err_ctr;
 
-static void io_check_status(unsigned int fpga, u16 status, bool silent)
+static void io_check_status(uint fpga, u16 status, bool silent)
 {
 	u16 mask = STATE_RX_DIST_ERR | STATE_RX_LENGTH_ERR |
 		   STATE_RX_FRAME_CTR_ERR | STATE_RX_FCS_ERR |
@@ -85,9 +85,9 @@ static void io_check_status(unsigned int fpga, u16 status, bool silent)
 		printf("TX_ERR\n");
 }
 
-static void io_send(unsigned int fpga, unsigned int size)
+static void io_send(uint fpga, uint size)
 {
-	unsigned int k;
+	uint k;
 	struct io_generic_packet packet = {
 		.source_address = 1,
 		.packet_type = 1,
@@ -107,9 +107,8 @@ static void io_send(unsigned int fpga, unsigned int size)
 	tx_ctr++;
 }
 
-static void io_receive(unsigned int fpga)
+static void io_receive(uint fpga)
 {
-	unsigned int k = 0;
 	u16 rx_tx_status;
 
 	FPGA_GET_REG(fpga, ep.rx_tx_status, &rx_tx_status);
@@ -123,17 +122,15 @@ static void io_receive(unsigned int fpga)
 		FPGA_GET_REG(fpga, ep.receive_data, &rx);
 
 		FPGA_GET_REG(fpga, ep.rx_tx_status, &rx_tx_status);
-
-		++k;
 	}
 }
 
-static void io_reflect(unsigned int fpga)
+static void io_reflect(uint fpga)
 {
 	u16 buffer[128];
 
-	unsigned int k = 0;
-	unsigned int n;
+	uint k = 0;
+	uint n;
 	u16 rx_tx_status;
 
 	FPGA_GET_REG(fpga, ep.rx_tx_status, &rx_tx_status);
@@ -166,8 +163,8 @@ static void io_reflect(unsigned int fpga)
  */
 int do_ioreflect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned int fpga;
-	unsigned int rate = 0;
+	uint fpga;
+	uint rate = 0;
 	unsigned long long last_seen = 0;
 
 	if (argc < 2)
@@ -181,10 +178,10 @@ int do_ioreflect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc > 2)
 		rate = simple_strtoul(argv[2], NULL, 10);
 
-	/* enable receive path */
+	/* Enable receive path */
 	FPGA_SET_REG(fpga, ep.rx_tx_control, CTRL_PROC_RECEIVE_ENABLE);
 
-	/* set device address to dummy 1*/
+	/* Set device address to dummy 1*/
 	FPGA_SET_REG(fpga, ep.device_address, 1);
 
 	rx_ctr = 0; tx_ctr = 0; err_ctr = 0;
@@ -215,18 +212,19 @@ int do_ioreflect(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#define DISP_LINE_LEN	16
+
 /*
  * FPGA io-endpoint looptest
  *
  * Syntax:
  *	ioloop {fpga} {size} {rate}
  */
-#define DISP_LINE_LEN	16
 int do_ioloop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned int fpga;
-	unsigned int size;
-	unsigned int rate = 0;
+	uint fpga;
+	uint size;
+	uint rate = 0;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -273,7 +271,7 @@ int do_ioloop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				break;
 			udelay(1000000 / rate);
 			if (!(tx_ctr % rate))
-				printf("d %lld, tx %llu, rx %llu, err %llu\n",
+				printf("d %llu, tx %llu, rx %llu, err %llu\n",
 				       tx_ctr - rx_ctr, tx_ctr, rx_ctr,
 				       err_ctr);
 		}
