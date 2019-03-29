@@ -34,7 +34,6 @@ config ROCKCHIP_RK3188
 	select SPL_RAM
 	select SPL_DRIVERS_MISC_SUPPORT
 	select SPL_ROCKCHIP_EARLYRETURN_TO_BROM
-	select DEBUG_UART_BOARD_INIT
 	select BOARD_LATE_INIT
 	select ROCKCHIP_BROM_HELPER
 	help
@@ -50,7 +49,6 @@ config ROCKCHIP_RK322X
 	select SUPPORT_SPL
 	select SPL
 	select ROCKCHIP_BROM_HELPER
-	select DEBUG_UART_BOARD_INIT
 	help
 	  The Rockchip RK3229 is a ARM-based SoC with a dual-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -102,7 +100,6 @@ config ROCKCHIP_RK3368
 	imply SPL_SEPARATE_BSS
 	imply SPL_SERIAL_SUPPORT
 	imply TPL_SERIAL_SUPPORT
-	select DEBUG_UART_BOARD_INIT
 	help
 	  The Rockchip RK3368 is a ARM-based SoC with a octa-core (organised
 	  into a big and little cluster with 4 cores each) Cortex-A53 including
@@ -135,7 +132,6 @@ config ROCKCHIP_RK3399
 	select SPL_SEPARATE_BSS
 	select SPL_SERIAL_SUPPORT
 	select SPL_DRIVERS_MISC_SUPPORT
-	select DEBUG_UART_BOARD_INIT
 	select BOARD_LATE_INIT
 	select ROCKCHIP_BROM_HELPER
 	help
