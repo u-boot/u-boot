@@ -71,7 +71,27 @@ config GDSYS_LEGACY_DRIVERS
 
 endif
 
+if TARGET_HRCON || TARGET_STRIDER
+
+choice
+	prompt "FPGA flavor selection"
+
+config SYS_FPGA_FLAVOR_LEGACY
+	bool "Legacy flavor"
+	help
+	  This enables support for the gdsys pre-Gazerbeam FPGA memory layout.
+
+config SYS_FPGA_FLAVOR_GAZERBEAM
+	bool "Gazerbeam flavor"
+	help
+	  This enables support for the gdsys FPGA memory layout of the
+	  Gazerbeam board.
+
+endchoice
+
 config CMD_IOLOOP
 	bool "Enable 'ioloop' and 'ioreflect' commands"
 	help
 	  These commands provide FPGA tests.
+
+endif
