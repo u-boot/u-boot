@@ -922,13 +922,14 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 #endif
 {
 	struct phy_device *phydev = NULL;
+	uint mask = (addr > 0) ? (1 << addr) : 0xffffffff;
 
 #ifdef CONFIG_PHY_FIXED
 	phydev = phy_connect_fixed(bus, dev, interface);
 #endif
 
 	if (!phydev)
-		phydev = phy_find_by_mask(bus, 1 << addr, interface);
+		phydev = phy_find_by_mask(bus, mask, interface);
 
 	if (phydev)
 		phy_connect_dev(phydev, dev);
