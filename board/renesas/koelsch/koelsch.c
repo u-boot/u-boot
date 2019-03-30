@@ -100,7 +100,7 @@ int dram_init_banksize(void)
 
 /* Koelsch has KSZ8041NL/RNL */
 #define PHY_CONTROL1		0x1E
-#define PHY_LED_MODE		0xC0000
+#define PHY_LED_MODE		0xC000
 #define PHY_LED_MODE_ACK	0x4000
 int board_phy_config(struct phy_device *phydev)
 {
