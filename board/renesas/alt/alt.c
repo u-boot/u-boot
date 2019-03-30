@@ -107,7 +107,7 @@ int board_phy_config(struct phy_device *phydev)
 void reset_cpu(ulong addr)
 {
 	struct udevice *dev;
-	const u8 pmic_bus = 1;
+	const u8 pmic_bus = 7;
 	const u8 pmic_addr = 0x58;
 	u8 data;
 	int ret;
