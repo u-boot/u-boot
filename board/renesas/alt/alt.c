@@ -28,7 +28,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CLK2MHZ(clk)	(clk / 1000 / 1000)
 void s_init(void)
 {
 	struct rcar_rwdt *rwdt = (struct rcar_rwdt *)RWDT_BASE;
