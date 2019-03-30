@@ -769,19 +769,9 @@ static int sh_ether_start(struct udevice *dev)
 	struct sh_eth_dev *eth = &priv->shdev;
 	int ret;
 
-	ret = clk_enable(&priv->clk);
-	if (ret)
-		return ret;
-
 	ret = sh_eth_init_common(eth, pdata->enetaddr);
 	if (ret)
-		goto err_clk;
-
-	ret = sh_eth_phy_config(dev);
-	if (ret) {
-		printf(SHETHER_NAME ": phy config timeout\n");
-		goto err_start;
-	}
+		return ret;
 
 	ret = sh_eth_start_common(eth);
 	if (ret)
@@ -792,17 +782,17 @@ static int sh_ether_start(struct udevice *dev)
 err_start:
 	sh_eth_tx_desc_free(eth);
 	sh_eth_rx_desc_free(eth);
-err_clk:
-	clk_disable(&priv->clk);
 	return ret;
 }
 
 static void sh_ether_stop(struct udevice *dev)
 {
 	struct sh_ether_priv *priv = dev_get_priv(dev);
+	struct sh_eth_dev *eth = &priv->shdev;
+	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
+	phy_shutdown(port_info->phydev);
 	sh_eth_stop(&priv->shdev);
-	clk_disable(&priv->clk);
 }
 
 static int sh_ether_probe(struct udevice *udev)
@@ -853,8 +843,20 @@ static int sh_ether_probe(struct udevice *udev)
 	eth->port_info[eth->port].iobase =
 		(void __iomem *)(BASE_IO_ADDR + 0x800 * eth->port);
 
+	ret = clk_enable(&priv->clk);
+	if (ret)
+		goto err_mdio_register;
+
+	ret = sh_eth_phy_config(udev);
+	if (ret) {
+		printf(SHETHER_NAME ": phy config timeout\n");
+		goto err_phy_config;
+	}
+
 	return 0;
 
+err_phy_config:
+	clk_disable(&priv->clk);
 err_mdio_register:
 	mdio_free(mdiodev);
 	return ret;
@@ -866,6 +868,7 @@ static int sh_ether_remove(struct udevice *udev)
 	struct sh_eth_dev *eth = &priv->shdev;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
+	clk_disable(&priv->clk);
 	free(port_info->phydev);
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
