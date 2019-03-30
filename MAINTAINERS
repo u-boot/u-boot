@@ -439,6 +439,11 @@ DFU
 M:	Lukasz Majewski <lukma@denx.de>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-dfu.git
+F:	cmd/dfu.c
+F:	cmd/usb_*.c
+F:	common/dfu.c
+F:	common/update.c
+F:	common/usb_storage.c
 F:	drivers/dfu/
 F:	drivers/usb/gadget/
 
