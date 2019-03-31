@@ -25,11 +25,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
 
 /* SerialFlash */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		0
-#define CONFIG_SF_DEFAULT_SPEED		30000000
-#endif
 
 #ifdef CONFIG_SD_BOOT
 

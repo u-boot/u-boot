@@ -200,10 +200,6 @@ int board_early_init_f(void)
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong dummy)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)(CONFIG_SYS_IMMR +
-					CONFIG_SYS_CCI400_OFFSET);
-	unsigned int major;
-
 #ifdef CONFIG_NAND_BOOT
 	struct ccsr_gur __iomem *gur = (void *)CONFIG_SYS_FSL_GUTS_ADDR;
 	u32 porsr1, pinctl;
@@ -239,10 +235,6 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_SPL_I2C_SUPPORT
 	i2c_init_all();
 #endif
-
-	major = get_soc_major_rev();
-	if (major == SOC_MAJOR_VER_1_0)
-		out_le32(&cci->ctrl_ord, CCI400_CTRLORD_TERM_BARRIER);
 
 	timer_init();
 	dram_init();
@@ -420,22 +412,12 @@ int misc_init_r(void)
 
 int board_init(void)
 {
-	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)(CONFIG_SYS_IMMR +
-					CONFIG_SYS_CCI400_OFFSET);
-	unsigned int major;
-
 #ifdef CONFIG_SYS_FSL_ERRATUM_A010315
 	erratum_a010315();
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A009942
 	erratum_a009942_check_cpo();
 #endif
-	major = get_soc_major_rev();
-	if (major == SOC_MAJOR_VER_1_0) {
-		/* Set CCI-400 control override register to
-		 * enable barrier transaction */
-		out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
-	}
 
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
 
@@ -456,18 +438,6 @@ int board_init(void)
 #if defined(CONFIG_DEEP_SLEEP)
 void board_sleep_prepare(void)
 {
-	struct ccsr_cci400 __iomem *cci = (void *)(CONFIG_SYS_IMMR +
-						CONFIG_SYS_CCI400_OFFSET);
-	unsigned int major;
-
-	major = get_soc_major_rev();
-	if (major == SOC_MAJOR_VER_1_0) {
-		/* Set CCI-400 control override register to
-		 * enable barrier transaction */
-		out_le32(&cci->ctrl_ord, CCI400_CTRLORD_EN_BARRIER);
-	}
-
-
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 	enable_layerscape_ns_access();
 #endif

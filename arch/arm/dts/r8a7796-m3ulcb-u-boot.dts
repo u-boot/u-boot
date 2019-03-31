@@ -19,6 +19,10 @@
 	};
 };
 
+&vcc_sdhi0 {
+	u-boot,off-on-delay-us = <20000>;
+};
+
 &sdhi2_pins {
 	groups = "sdhi2_data8", "sdhi2_ctrl", "sdhi2_ds";
 	power-source = <1800>;

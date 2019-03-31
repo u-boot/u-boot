@@ -2130,21 +2130,6 @@ The following options need to be configured:
 		this is instead controlled by the value of
 		/config/load-environment.
 
-- Serial Flash support
-		Usage requires an initial 'sf probe' to define the serial
-		flash parameters, followed by read/write/erase/update
-		commands.
-
-		The following defaults may be provided by the platform
-		to handle the common case when only a single serial
-		flash is present on the system.
-
-		CONFIG_SF_DEFAULT_BUS		Bus identifier
-		CONFIG_SF_DEFAULT_CS		Chip-select
-		CONFIG_SF_DEFAULT_MODE 		(see include/spi.h)
-		CONFIG_SF_DEFAULT_SPEED		in Hz
-
-
 - TFTP Fixed UDP Port:
 		CONFIG_TFTP_PORT
 

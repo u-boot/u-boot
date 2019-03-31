@@ -499,9 +499,20 @@ static inline void pci_set_region(struct pci_region *reg,
 typedef int pci_dev_t;
 
 #define PCI_BUS(d)		(((d) >> 16) & 0xff)
+
+/*
+ * Please note the difference in DEVFN usage in U-Boot vs Linux. U-Boot
+ * uses DEVFN in bits 15-8 but Linux instead expects DEVFN in bits 7-0.
+ * Please see the Linux header include/uapi/linux/pci.h for more details.
+ * This is relevant for the following macros:
+ * PCI_DEV, PCI_FUNC, PCI_DEVFN
+ * The U-Boot macro PCI_DEV is equivalent to the Linux PCI_SLOT version with
+ * the remark from above (input d in bits 15-8 instead of 7-0.
+ */
 #define PCI_DEV(d)		(((d) >> 11) & 0x1f)
 #define PCI_FUNC(d)		(((d) >> 8) & 0x7)
 #define PCI_DEVFN(d, f)		((d) << 11 | (f) << 8)
+
 #define PCI_MASK_BUS(bdf)	((bdf) & 0xffff)
 #define PCI_ADD_BUS(bus, devfn)	(((bus) << 16) | (devfn))
 #define PCI_BDF(b, d, f)	((b) << 16 | PCI_DEVFN(d, f))

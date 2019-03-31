@@ -55,8 +55,6 @@
 
 /* SPI Flash support */
 #define CONFIG_TI_SPI_MMAP
-#define CONFIG_SF_DEFAULT_SPEED		48000000
-#define CONFIG_DEFAULT_SPI_MODE		SPI_MODE_3
 
 /* Power */
 #define CONFIG_POWER
@@ -87,7 +85,6 @@
 
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 #define CONFIG_ENV_OFFSET		(768 * 1024)
-#define CONFIG_ENV_SPI_MAX_HZ           48000000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \

@@ -324,18 +324,57 @@ config ENV_IS_IN_SPI_FLASH
 	  during a "saveenv" operation. CONFIG_ENV_OFFSET_REDUND must be
 	  aligned to an erase sector boundary.
 
-	  - CONFIG_ENV_SPI_BUS (optional):
-	  - CONFIG_ENV_SPI_CS (optional):
+config USE_ENV_SPI_BUS
+	bool "SPI flash bus for environment"
+	depends on ENV_IS_IN_SPI_FLASH
+	help
+	  Force the SPI bus for environment.
+	  If not defined, use CONFIG_SF_DEFAULT_BUS.
 
-	  Define the SPI bus and chip select. If not defined they will be 0.
+config ENV_SPI_BUS
+	int "Value of SPI flash bus for environment"
+	depends on USE_ENV_SPI_BUS
+	help
+	  Value the SPI bus and chip select for environment.
 
-	  - CONFIG_ENV_SPI_MAX_HZ (optional):
+config USE_ENV_SPI_CS
+	bool "SPI flash chip select for environment"
+	depends on ENV_IS_IN_SPI_FLASH
+	help
+	  Force the SPI chip select for environment.
+	  If not defined, use CONFIG_SF_DEFAULT_CS.
 
-	  Define the SPI max work clock. If not defined then use 1MHz.
+config ENV_SPI_CS
+	int "Value of SPI flash chip select for environment"
+	depends on USE_ENV_SPI_CS
+	help
+	  Value of the SPI chip select for environment.
 
-	  - CONFIG_ENV_SPI_MODE (optional):
+config USE_ENV_SPI_MAX_HZ
+	bool "SPI flash bus for environment"
+	depends on ENV_IS_IN_SPI_FLASH
+	help
+	  Force the SPI max work clock for environment.
+	  If not defined, use CONFIG_SF_DEFAULT_SPEED.
 
-	  Define the SPI work mode. If not defined then use SPI_MODE_3.
+config ENV_SPI_MAX_HZ
+	int "Value of SPI flash max work for environment"
+	depends on USE_ENV_SPI_MAX_HZ
+	help
+	  Value of the SPI max work clock for environment.
+
+config USE_ENV_SPI_MODE
+	bool "SPI flash mode for environment"
+	depends on ENV_IS_IN_SPI_FLASH
+	help
+	  Force the SPI work mode for environment.
+
+config ENV_SPI_MODE
+	hex "Value of SPI flash work mode for environment"
+	depends on USE_ENV_SPI_MODE
+	help
+	  Value of the SPI work mode for environment.
+	  See include/spi.h for value.
 
 config ENV_IS_IN_UBI
 	bool "Environment in a UBI volume"

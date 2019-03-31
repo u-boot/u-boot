@@ -26,6 +26,12 @@
 #define CONFIG_KIRKWOOD_EGIGA_INIT	/* Enable GbePort0/1 for kernel */
 #define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
 #define CONFIG_KIRKWOOD_PCIE_INIT       /* Enable PCIE Port0 for kernel */
+/*
+ * Disable the dcache. Currently the network driver (mvgbe.c) and USB
+ * EHCI driver (ehci-marvell.c) and possibly others rely on the data
+ * cache being disabled.
+ */
+#define CONFIG_SYS_DCACHE_OFF
 
 /*
  * By default kwbimage.cfg from board specific folder is used
@@ -52,21 +58,6 @@
 #define CONFIG_NAND_KIRKWOOD
 #define CONFIG_SYS_NAND_BASE		0xD8000000	/* MV_DEFADR_NANDF */
 #define NAND_ALLOW_ERASE_ALL		1
-#endif
-
-/*
- * SPI Flash configuration
- */
-#ifdef CONFIG_CMD_SF
-#ifndef CONFIG_ENV_SPI_BUS
-# define CONFIG_ENV_SPI_BUS		0
-#endif
-#ifndef CONFIG_ENV_SPI_CS
-# define CONFIG_ENV_SPI_CS		0
-#endif
-#ifndef CONFIG_ENV_SPI_MAX_HZ
-# define CONFIG_ENV_SPI_MAX_HZ		50000000
-#endif
 #endif
 
 /*

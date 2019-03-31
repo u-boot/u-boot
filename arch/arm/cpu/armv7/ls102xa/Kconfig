@@ -4,6 +4,7 @@ config ARCH_LS1021A
 	select SYS_FSL_DDR_VER_50 if SYS_FSL_DDR
 	select SYS_FSL_ERRATUM_A008378
 	select SYS_FSL_ERRATUM_A008407
+	select SYS_FSL_ERRATUM_A008850
 	select SYS_FSL_ERRATUM_A008997
 	select SYS_FSL_ERRATUM_A009007
 	select SYS_FSL_ERRATUM_A009008
@@ -62,6 +63,11 @@ config SYS_CCI400_OFFSET
 	help
 	  Offset for CCI400 base.
 	  CCI400 base addr = CCSRBAR + CCI400_OFFSET
+
+config SYS_FSL_ERRATUM_A008850
+	bool
+	help
+	  Workaround for DDR erratum A008850
 
 config SYS_FSL_ERRATUM_A008997
 	bool

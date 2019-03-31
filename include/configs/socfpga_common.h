@@ -69,7 +69,6 @@
  * EPCS/EPCQx1 Serial Flash Controller
  */
 #ifdef CONFIG_ALTERA_SPI
-#define CONFIG_SF_DEFAULT_SPEED		30000000
 /*
  * The base address is configurable in QSys, each board must specify the
  * base address based on it's particular FPGA configuration. Please note
@@ -248,8 +247,10 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  * 0xFFEz_zzzz ...... Malloc area (grows up to top)
  * 0xFFE3_FFFF ...... End of SRAM (top)
  */
+#ifndef CONFIG_SPL_TEXT_BASE
 #define CONFIG_SPL_TEXT_BASE		CONFIG_SYS_INIT_RAM_ADDR
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_INIT_RAM_SIZE
+#endif
 
 #if defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
 /* SPL memory allocation configuration, this is for FAT implementation */

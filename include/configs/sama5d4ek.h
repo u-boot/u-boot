@@ -24,10 +24,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000 /* load address */
 
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SF_DEFAULT_SPEED		30000000
-#endif
-
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1

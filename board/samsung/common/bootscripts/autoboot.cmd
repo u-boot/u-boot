@@ -3,7 +3,7 @@
 # ./tools/mkimage -c none -A arm -T script -d autoboot.cmd boot.scr
 #
 # It requires a list of environment variables to be defined before load:
-# platform dependent: boardname, fdtfile, console
+# platform dependent: board_name, fdtfile, console
 # system dependent: mmcbootdev, mmcbootpart, mmcrootdev, mmcrootpart, rootfstype
 #
 setenv fdtaddr     "40800000"
@@ -35,17 +35,17 @@ else
 	setenv initrd_addr -;
 fi;"
 
-#### Routine: boot_fit - check that env $boardname is set and boot proper config of ITB image
+#### Routine: boot_fit - check that env $board_name is set and boot proper config of ITB image
 setenv setboot_fit "
-if test -e '${boardname}'; then
+if test -e '${board_name}'; then
 	setenv fdt_addr ;
 	setenv initrd_addr ;
 	setenv kerneladdr  0x42000000;
 	setenv kernelname  Image.itb;
-	setenv itbcfg      "\"#${boardname}\"";
+	setenv itbcfg      "\"#${board_name}\"";
 	setenv imgbootcmd  bootm;
 else
-	echo Warning! Variable: \$boardname is undefined!;
+	echo Warning! Variable: \$board_name is undefined!;
 fi"
 
 #### Routine: setboot_uimg - prepare env to boot uImage

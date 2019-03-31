@@ -198,7 +198,6 @@
  * crc error warning if there is no correct environment on the flash.
  */
 #if defined(CONFIG_SYS_STMICRO_BOOT)
-#	define CONFIG_ENV_SPI_CS		1
 #	define CONFIG_ENV_OFFSET		0x20000
 #	define CONFIG_ENV_SIZE		0x2000
 #	define CONFIG_ENV_SECT_SIZE	0x10000

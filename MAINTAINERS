@@ -12,13 +12,8 @@ Descriptions of section entries:
 	S: Status, one of the following:
 	   Supported:	Someone is actually paid to look after this.
 	   Maintained:	Someone actually looks after it.
-	   Odd Fixes:	It has a maintainer but they don't have time to do
-			much other than throw the odd patch in. See below..
 	   Orphan:	No current maintainer [but maybe you could take the
 			role as you write your new code].
-	   Obsolete:	Old code. Something tagged obsolete generally means
-			it has been replaced by a better system and you
-			should be using that.
 	F: Files and directories with wildcard patterns.
 	   A trailing slash includes all files and subdirectory files.
 	   F:	drivers/net/	all files in and below drivers/net
@@ -166,16 +161,19 @@ S:	Maintained
 F:	arch/arm/cpu/armv8/hisilicon
 F:	arch/arm/include/asm/arch-hi6220/
 
-ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX
-M:	Prafulla Wadaskar <prafulla@marvell.com>
-M:	Luka Perkov <luka.perkov@sartura.hr>
+ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
 M:	Stefan Roese <sr@denx.de>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-marvell.git
 F:	arch/arm/mach-kirkwood/
 F:	arch/arm/mach-mvebu/
 F:	drivers/ata/ahci_mvebu.c
-F:	drivers/phy/marvell/
+F:	drivers/ddr/marvell/
+F:	drivers/gpio/mvebu_gpio.c
+F:	drivers/spi/kirkwood_spi.c
+F:	drivers/pci/pci_mvebu.c
+F:	drivers/pci/pcie_dw_mvebu.c
+F:	drivers/watchdog/orion_wdt.c
 
 ARM MARVELL PXA
 M:	Marek Vasut <marex@denx.de>
@@ -456,7 +454,7 @@ EFI PAYLOAD
 M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 R:	Alexander Graf <agraf@csgraf.de>
 S:	Maintained
-T:	git git://github.com/agraf/u-boot.git
+T:	git git://git.denx.de/u-boot-efi.git
 F:	doc/README.uefi
 F:	doc/README.iscsi
 F:	Documentation/efi.rst

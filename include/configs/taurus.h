@@ -111,10 +111,6 @@
 #if defined(CONFIG_SPL_BUILD)
 /* SPL related */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
-
-#define CONFIG_SF_DEFAULT_BUS 0
-#define CONFIG_SF_DEFAULT_SPEED 1000000
-#define CONFIG_SF_DEFAULT_MODE SPI_MODE_3
 #endif
 
 /* load address */

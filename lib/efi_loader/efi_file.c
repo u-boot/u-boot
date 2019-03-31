@@ -226,7 +226,7 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 	efi_status_t ret;
 
 	EFI_ENTRY("%p, %p, \"%ls\", %llx, %llu", file, new_handle,
-		  (wchar_t *)file_name, open_mode, attributes);
+		  file_name, open_mode, attributes);
 
 	/* Check parameters */
 	if (!file || !new_handle || !file_name) {
@@ -628,6 +628,10 @@ static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *file)
 }
 
 static const struct efi_file_handle efi_file_handle_protocol = {
+	/*
+	 * TODO: We currently only support EFI file protocol revision 0x00010000
+	 *	 while UEFI specs 2.4 - 2.7 prescribe revision 0x00020000.
+	 */
 	.rev = EFI_FILE_PROTOCOL_REVISION,
 	.open = efi_file_open,
 	.close = efi_file_close,

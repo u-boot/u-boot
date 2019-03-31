@@ -53,8 +53,8 @@ bool android_dt_get_fdt_by_index(ulong hdr_addr, u32 index, ulong *addr,
 	entry_size = fdt32_to_cpu(hdr->dt_entry_size);
 	unmap_sysmem(hdr);
 
-	if (index > entry_count) {
-		printf("Error: index > dt_entry_count (%u > %u)\n", index,
+	if (index >= entry_count) {
+		printf("Error: index >= dt_entry_count (%u >= %u)\n", index,
 		       entry_count);
 		return false;
 	}

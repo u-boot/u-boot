@@ -40,8 +40,6 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 3
 
 /* SPI NOR flash default params, used by sf commands */
-#define CONFIG_SF_DEFAULT_SPEED		27777777 /* for fast SPL booting */
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_3
 
 /* Environment in SPI NOR flash */
 #define CONFIG_ENV_OFFSET		(1 << 20) /* 1MiB in */

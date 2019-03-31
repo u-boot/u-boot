@@ -39,10 +39,6 @@
 #define CONFIG_SYS_DPAA_RMAN		/* RMan */
 
 /* Environment in SPI Flash */
-#define CONFIG_ENV_SPI_BUS              0
-#define CONFIG_ENV_SPI_CS               0
-#define CONFIG_ENV_SPI_MAX_HZ           20000000
-#define CONFIG_ENV_SPI_MODE             0
 #define CONFIG_ENV_OFFSET               0x100000	/* 1MB for u-boot */
 #define CONFIG_ENV_SIZE			0x004000	/* 16K env */
 #define CONFIG_ENV_SECT_SIZE            0x010000
@@ -252,8 +248,6 @@ int get_scl(void);
 /*
  * eSPI - Enhanced SPI
  */
-#define CONFIG_SF_DEFAULT_SPEED         20000000
-#define CONFIG_SF_DEFAULT_MODE          0
 
 /*
  * General PCI

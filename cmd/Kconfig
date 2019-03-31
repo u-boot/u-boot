@@ -1040,9 +1040,19 @@ config CMD_SF_TEST
 	  everything is working properly.
 
 config CMD_SPI
-	bool "sspi"
+	bool "sspi - Command to access spi device"
 	help
 	  SPI utility command.
+
+config DEFAULT_SPI_BUS
+	int "default spi bus used by sspi command"
+	depends on CMD_SPI
+	default 0
+
+config DEFAULT_SPI_MODE
+	hex "default spi mode used by sspi command (see include/spi.h)"
+	depends on CMD_SPI
+	default 0
 
 config CMD_TSI148
 	bool "tsi148 - Command to access tsi148 device"

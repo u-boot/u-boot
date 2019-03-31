@@ -40,8 +40,6 @@
 #define SDRAM_BANK_SIZE			(2UL << 30)
 #define SDRAM_MAX_SIZE			0xfe000000
 
-#define CONFIG_SF_DEFAULT_SPEED 20000000
-
 #ifndef CONFIG_SPL_BUILD
 /* usb otg */
 

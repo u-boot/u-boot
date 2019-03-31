@@ -150,6 +150,7 @@ enum regulator_flag {
  * @always_on* - bool type, true or false
  * @boot_on*   - bool type, true or false
  * TODO(sjg@chromium.org): Consider putting the above two into @flags
+ * @ramp_delay - Time to settle down after voltage change (unit: uV/us)
  * @flags:     - flags value (see REGULATOR_FLAG_...)
  * @name**     - fdt regulator name - should be taken from the device tree
  * ctrl_reg:   - Control register offset used to enable/disable regulator
@@ -169,6 +170,7 @@ struct dm_regulator_uclass_platdata {
 	int max_uV;
 	int min_uA;
 	int max_uA;
+	unsigned int ramp_delay;
 	bool always_on;
 	bool boot_on;
 	const char *name;

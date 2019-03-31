@@ -36,6 +36,7 @@
 
 		gpio = <&gpio5 17 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
+		u-boot,off-on-delay-us = <20000>;
 	};
 
 	vccq_sdhi0: regulator-vccq-sdhi0 {
@@ -60,6 +61,7 @@
 
 		gpio = <&gpio0 4 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
+		u-boot,off-on-delay-us = <20000>;
 	};
 
 	vccq_sdhi1: regulator-vccq-sdhi1 {

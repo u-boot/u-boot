@@ -177,9 +177,6 @@
  * Environment is not embedded in u-boot. First time runing may have env
  * crc error warning if there is no correct environment on the flash.
  */
-#ifdef CONFIG_CF_SBF
-#	define CONFIG_ENV_SPI_CS	2
-#endif
 #define CONFIG_ENV_OVERWRITE		1
 
 /*-----------------------------------------------------------------------

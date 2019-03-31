@@ -295,7 +295,7 @@ static int rsa_verify_key(struct image_sign_info *info,
 #endif
 	struct checksum_algo *checksum = info->checksum;
 	struct padding_algo *padding = info->padding;
-	int hash_len = checksum->checksum_len;
+	int hash_len;
 
 	if (!prop || !sig || !hash || !checksum)
 		return -EIO;
@@ -315,6 +315,7 @@ static int rsa_verify_key(struct image_sign_info *info,
 	}
 
 	uint8_t buf[sig_len];
+	hash_len = checksum->checksum_len;
 
 #if !defined(USE_HOSTCC)
 	ret = uclass_get_device(UCLASS_MOD_EXP, 0, &mod_exp_dev);

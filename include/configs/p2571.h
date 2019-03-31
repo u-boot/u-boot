@@ -24,8 +24,6 @@
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE)
 
 /* SPI */
-#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
-#define CONFIG_SF_DEFAULT_SPEED		24000000
 #define CONFIG_SPI_FLASH_SIZE		(4 << 20)
 
 #include "tegra-common-usb-gadget.h"

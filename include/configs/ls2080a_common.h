@@ -152,7 +152,7 @@ unsigned long long get_qixis_addr(void);
  * 512MB aligned, so the min size to hide is 512MB.
  */
 #ifdef CONFIG_FSL_MC_ENET
-#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(512UL * 1024 * 1024)
+#define CONFIG_SYS_LS_MC_DRAM_BLOCK_MIN_SIZE		(128UL * 1024 * 1024)
 #endif
 
 /* Command line configuration */
