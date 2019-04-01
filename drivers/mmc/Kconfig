@@ -592,6 +592,17 @@ config MMC_SDHCI_TEGRA
 
 	  If unsure, say N.
 
+config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
+	bool "Disable external clock loopback"
+	depends on MMC_SDHCI_TEGRA && TEGRA124
+	help
+	  Disable the external clock loopback and use the internal one on SDMMC3
+	  as per the SDMMC_VENDOR_MISC_CNTRL_0 register's SDMMC_SPARE1 bits
+	  being set to 0xfffd according to the TRM.
+
+	  TODO(marcel.ziswiler@toradex.com): Move to device tree controlled
+	  approach once proper kernel integration made it mainline.
+
 config MMC_SDHCI_ZYNQ
 	bool "Arasan SDHCI controller support"
 	depends on ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL
@@ -670,17 +681,6 @@ config MMC_MTK
 	  If unsure, say N.
 
 endif
-
-config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
-	bool "Disable external clock loopback"
-	depends on MMC_SDHCI_TEGRA && TEGRA124
-	help
-	  Disable the external clock loopback and use the internal one on SDMMC3
-	  as per the SDMMC_VENDOR_MISC_CNTRL_0 register's SDMMC_SPARE1 bits
-	  being set to 0xfffd according to the TRM.
-
-	  TODO(marcel.ziswiler@toradex.com): Move to device tree controlled
-	  approach once proper kernel integration made it mainline.
 
 config FSL_ESDHC
 	bool "Freescale/NXP eSDHC controller support"
