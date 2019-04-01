@@ -94,7 +94,7 @@
 		"run set_con_hdmi; " \
 	"else " \
 		"run set_con_serial; " \
-	"fi;"
+	"fi"
 #endif /* CONFIG_USB_KEYBOARD */
 #endif /* CONFIG_CMD_USB      */
 
@@ -142,12 +142,12 @@
 	"console=ttymxc0\0" \
 	"fan=gpio set 92\0" \
 	"set_con_serial=setenv stdout serial; " \
-			"setenv stderr serial;\0" \
+			"setenv stderr serial\0" \
 	"set_con_hdmi=setenv stdout serial,vga; " \
-			"setenv stderr serial,vga;\0" \
-	"stderr=serial,vga;\0" \
-	"stdin=serial,usbkbd;\0" \
-	"stdout=serial,vga;\0"
+			"setenv stderr serial,vga\0" \
+	"stderr=serial,vga\0" \
+	"stdin=serial,usbkbd\0" \
+	"stdout=serial,vga\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc rescan; " \

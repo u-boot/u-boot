@@ -26,6 +26,10 @@ Connect a USB to serial adapter between the host PC and pico.
 
 Connect a USB cable between the OTG pico port and the host PC.
 
+Note: Some computers may be a bit strict with USB current draw and will
+shut down their ports if the draw is too high. The solution for that is
+to use an externally powered USB hub between the board and the host computer.
+
 Open a terminal program such as minicom.
 
 Copy SPL and u-boot.img to the imx_usb_loader folder.

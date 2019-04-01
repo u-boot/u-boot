@@ -10,6 +10,7 @@
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/boot_mode.h>
+#include <fsl_esdhc.h>
 #include <linux/libfdt.h>
 #include <spl.h>
 
@@ -140,5 +141,38 @@ void board_init_f(ulong dummy)
 
 void reset_cpu(ulong addr)
 {
+}
+
+#define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |		\
+	PAD_CTL_PUS_22K_UP  | PAD_CTL_SPEED_LOW |		\
+	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+
+static iomux_v3_cfg_t const usdhc1_pads[] = {
+	MX6_PAD_SD1_CLK__USDHC1_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_CMD__USDHC1_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DATA0__USDHC1_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DATA1__USDHC1_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DATA2__USDHC1_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DATA3__USDHC1_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_READY_B__USDHC1_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_CE0_B__USDHC1_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_CE1_B__USDHC1_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_NAND_CLE__USDHC1_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+};
+
+static struct fsl_esdhc_cfg usdhc_cfg[1] = {
+	{USDHC1_BASE_ADDR},
+};
+
+int board_mmc_getcd(struct mmc *mmc)
+{
+	return 1;
+}
+
+int board_mmc_init(bd_t *bis)
+{
+	imx_iomux_v3_setup_multiple_pads(usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 #endif
