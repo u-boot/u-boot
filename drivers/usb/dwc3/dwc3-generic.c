@@ -57,7 +57,7 @@ static int dwc3_generic_probe(struct udevice *dev,
 #endif
 
 	rc = dwc3_setup_phy(dev, &priv->phys, &priv->num_phys);
-	if (rc)
+	if (rc && rc != -ENOTSUPP)
 		return rc;
 
 	priv->base = map_physmem(plat->base, DWC3_OTG_REGS_END, MAP_NOCACHE);
