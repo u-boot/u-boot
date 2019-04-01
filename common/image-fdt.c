@@ -489,7 +489,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 no_fdt:
 	ok_no_fdt = 1;
 error:
-	if (!select && ok_no_fdt) {
+	if (ok_no_fdt) {
 		debug("Continuing to boot without FDT\n");
 		return 0;
 	}
