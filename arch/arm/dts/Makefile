@@ -503,6 +503,9 @@ dtb-$(CONFIG_MX6Q) += \
 	imx6q-display5.dtb \
 	imx6q-logicpd.dtb
 
+dtb-$(CONFIG_TARGET_TBS2910) += \
+	imx6q-tbs2910.dtb
+
 dtb-$(CONFIG_MX6QDL) += \
 	imx6dl-icore.dtb \
 	imx6dl-icore-mipi.dtb \
