@@ -461,17 +461,16 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 		struct andr_img_hdr *hdr = buf;
 		ulong fdt_data, fdt_len;
 
-		if (android_image_get_second(hdr, &fdt_data, &fdt_len) != 0)
+		if (!android_image_get_second(hdr, &fdt_data, &fdt_len) &&
+		    !fdt_check_header((char *)fdt_data)) {
+			fdt_blob = (char *)fdt_data;
+			if (fdt_totalsize(fdt_blob) != fdt_len)
+				goto error;
+
+			debug("## Using FDT in Android image second area\n");
+		} else {
 			goto no_fdt;
-
-		fdt_blob = (char *)fdt_data;
-		if (fdt_check_header(fdt_blob) != 0)
-			goto no_fdt;
-
-		if (fdt_totalsize(fdt_blob) != fdt_len)
-			goto error;
-
-		debug("## Using FDT found in Android image second area\n");
+		}
 #endif
 	} else {
 		debug("## No Flattened Device Tree\n");
