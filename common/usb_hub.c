@@ -233,26 +233,18 @@ static struct usb_hub_device *usb_hub_allocate(void)
 
 #define MAX_TRIES 5
 
-static inline char *portspeed(int portstatus)
+static inline const char *portspeed(int portstatus)
 {
-	char *speed_str;
-
 	switch (portstatus & USB_PORT_STAT_SPEED_MASK) {
 	case USB_PORT_STAT_SUPER_SPEED:
-		speed_str = "5 Gb/s";
-		break;
+		return "5 Gb/s";
 	case USB_PORT_STAT_HIGH_SPEED:
-		speed_str = "480 Mb/s";
-		break;
+		return "480 Mb/s";
 	case USB_PORT_STAT_LOW_SPEED:
-		speed_str = "1.5 Mb/s";
-		break;
+		return "1.5 Mb/s";
 	default:
-		speed_str = "12 Mb/s";
-		break;
+		return "12 Mb/s";
 	}
-
-	return speed_str;
 }
 
 /**
