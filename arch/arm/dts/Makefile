@@ -522,6 +522,9 @@ dtb-$(CONFIG_MX6QDL) += \
 	imx6qp-sabreauto.dtb \
 	imx6qp-sabresd.dtb
 
+dtb-$(CONFIG_TARGET_WANDBOARD) += \
+	imx6dl-wandboard-revb1.dtb
+
 dtb-$(CONFIG_MX6SL) += imx6sl-evk.dtb
 
 dtb-$(CONFIG_MX6SLL) += imx6sll-evk.dtb
