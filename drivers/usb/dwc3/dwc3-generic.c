@@ -47,7 +47,7 @@ static int dwc3_generic_peripheral_probe(struct udevice *dev)
 	struct dwc3 *dwc3 = &priv->dwc3;
 
 	rc = dwc3_setup_phy(dev, &priv->phys, &priv->num_phys);
-	if (rc)
+	if (rc && rc != -ENOTSUPP)
 		return rc;
 
 	dwc3->regs = map_physmem(priv->base, DWC3_OTG_REGS_END, MAP_NOCACHE);
