@@ -279,7 +279,6 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	int		fdt_noffset;
 #endif
 	const char *select = NULL;
-	int		ok_no_fdt = 0;
 
 	*of_flat_tree = NULL;
 	*of_size = 0;
@@ -487,12 +486,9 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	return 0;
 
 no_fdt:
-	ok_no_fdt = 1;
+	debug("Continuing to boot without FDT\n");
+	return 0;
 error:
-	if (ok_no_fdt) {
-		debug("Continuing to boot without FDT\n");
-		return 0;
-	}
 	return 1;
 }
 
