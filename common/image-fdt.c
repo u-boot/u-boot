@@ -469,7 +469,15 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 
 			debug("## Using FDT in Android image second area\n");
 		} else {
-			goto no_fdt;
+			fdt_addr = env_get_hex("fdtaddr", 0);
+			if (!fdt_addr)
+				goto no_fdt;
+
+			fdt_blob = map_sysmem(fdt_addr, 0);
+			if (fdt_check_header(fdt_blob))
+				goto no_fdt;
+
+			debug("## Using FDT at ${fdtaddr}=Ox%lx\n", fdt_addr);
 		}
 #endif
 	} else {
