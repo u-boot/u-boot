@@ -37,9 +37,6 @@
 #define CONFIG_ENV_SECT_SIZE		0x10000	/* 64k */
 #endif
 
-#ifdef CONFIG_CMD_SF
-#endif
-
 /*
  * max 4k env size is enough, but in case of nand
  * it has to be rounded to sector size

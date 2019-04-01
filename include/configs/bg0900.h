@@ -19,10 +19,6 @@
 #define CONFIG_FEC_MXC
 #endif
 
-/* SPI FLASH */
-#ifdef CONFIG_CMD_SF
-#endif
-
 /* Boot Linux */
 #define CONFIG_BOOTFILE		"uImage"
 #define CONFIG_BOOTCOMMAND	"bootm"
