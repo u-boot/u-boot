@@ -163,13 +163,16 @@ matrix:
     - name: "buildman arm11 arm7 arm920t arm946es"
       env:
         - BUILDMAN="arm11 arm7 arm920t arm946es"
-    - name: "buildman arm926ejs (non-NXP,siemens,atmel,kirkwood,spear)"
+    - name: "buildman arm926ejs (non-NXP,siemens,at91,kirkwood,spear)"
       env:
         - JOB="arm926ejs"
-          BUILDMAN="arm926ejs -x freescale,siemens,atmel,kirkwood,spear,omap"
-    - name: "buildman atmel"
+          BUILDMAN="arm926ejs -x freescale,siemens,at91,kirkwood,spear,omap"
+    - name: "buildman at91 (non arm v7)"
       env:
-        - BUILDMAN="atmel"
+        - BUILDMAN="at91 -x armv7"
+    - name: "buildman at91 (non arm926ejs)"
+      env:
+        - BUILDMAN="at91 -x arm926ejs"
     - name: "buildman boundary engicam toradex"
       env:
         - BUILDMAN="boundary engicam toradex"
@@ -226,7 +229,7 @@ matrix:
         - BUILDMAN="sun50i"
     - name: "buildman catch-all ARM"
       env:
-        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,atmel,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,xilinx"
+        - BUILDMAN="arm -x arm11,arm7,arm9,aarch64,at91,freescale,kirkwood,mvebu,siemens,tegra,uniphier,mx,samsung,sunxi,am33xx,omap,pxa,rockchip,toradex,socfpga,k2,xilinx"
     - name: "buildman sandbox x86"
       env:
         - BUILDMAN="sandbox x86"
