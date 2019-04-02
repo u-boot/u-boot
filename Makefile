@@ -337,6 +337,19 @@ endif
 #  KBUILD_MODULES := 1
 #endif
 
+define size_check
+	actual=$$( wc -c $1 | awk '{print $$1}'); \
+	limit=$$( printf "%d" $2 ); \
+	if test $$actual -gt $$limit; then \
+		echo "$1 exceeds file size limit:" >&2; \
+		echo "  limit:  $$limit bytes" >&2; \
+		echo "  actual: $$actual bytes" >&2; \
+		echo "  excess: $$((actual - limit)) bytes" >&2; \
+		exit 1; \
+	fi
+endef
+export size_check
+
 export KBUILD_MODULES KBUILD_BUILTIN
 export KBUILD_CHECKSRC KBUILD_SRC KBUILD_EXTMOD
 
@@ -778,16 +791,7 @@ LDPPFLAGS += \
 #########################################################################
 
 ifneq ($(CONFIG_BOARD_SIZE_LIMIT),)
-BOARD_SIZE_CHECK = \
-	@actual=`wc -c $@ | awk '{print $$1}'`; \
-	limit=`printf "%d" $(CONFIG_BOARD_SIZE_LIMIT)`; \
-	if test $$actual -gt $$limit; then \
-		echo "$@ exceeds file size limit:" >&2 ; \
-		echo "  limit:  $$limit bytes" >&2 ; \
-		echo "  actual: $$actual bytes" >&2 ; \
-		echo "  excess: $$((actual - limit)) bytes" >&2; \
-		exit 1; \
-	fi
+BOARD_SIZE_CHECK= @ $(call size_check,$@,$(CONFIG_BOARD_SIZE_LIMIT))
 else
 BOARD_SIZE_CHECK =
 endif
