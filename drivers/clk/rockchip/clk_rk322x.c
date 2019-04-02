@@ -217,6 +217,7 @@ static ulong rockchip_mmc_get_clk(struct rk322x_cru *cru, uint clk_general_rate,
 	switch (periph) {
 	case HCLK_EMMC:
 	case SCLK_EMMC:
+	case SCLK_EMMC_SAMPLE:
 		con = readl(&cru->cru_clksel_con[11]);
 		mux = (con & EMMC_PLL_MASK) >> EMMC_PLL_SHIFT;
 		con = readl(&cru->cru_clksel_con[12]);
@@ -293,6 +294,7 @@ static ulong rockchip_mmc_set_clk(struct rk322x_cru *cru, uint clk_general_rate,
 	switch (periph) {
 	case HCLK_EMMC:
 	case SCLK_EMMC:
+	case SCLK_EMMC_SAMPLE:
 		rk_clrsetreg(&cru->cru_clksel_con[11],
 			     EMMC_PLL_MASK,
 			     mux << EMMC_PLL_SHIFT);
