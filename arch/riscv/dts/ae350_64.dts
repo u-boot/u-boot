@@ -26,15 +26,48 @@
 			status = "okay";
 			compatible = "riscv";
 			riscv,isa = "rv64imafdc";
+			riscv,priv-major = <1>;
+			riscv,priv-minor = <10>;
 			mmu-type = "riscv,sv39";
 			clock-frequency = <60000000>;
+			i-cache-size = <0x8000>;
+			i-cache-line-size = <32>;
 			d-cache-size = <0x8000>;
 			d-cache-line-size = <32>;
+			next-level-cache = <&L2>;
 			CPU0_intc: interrupt-controller {
 				#interrupt-cells = <1>;
 				interrupt-controller;
 				compatible = "riscv,cpu-intc";
 			};
+		};
+		CPU1: cpu@1 {
+			device_type = "cpu";
+			reg = <1>;
+			status = "okay";
+			compatible = "riscv";
+			riscv,isa = "rv64imafdc";
+			riscv,priv-major = <1>;
+			riscv,priv-minor = <10>;
+			mmu-type = "riscv,sv39";
+			clock-frequency = <60000000>;
+			i-cache-size = <0x8000>;
+			i-cache-line-size = <32>;
+			d-cache-size = <0x8000>;
+			d-cache-line-size = <32>;
+			next-level-cache = <&L2>;
+			CPU1_intc: interrupt-controller {
+				#interrupt-cells = <1>;
+				interrupt-controller;
+				compatible = "riscv,cpu-intc";
+			};
+		};
+
+		L2: l2-cache@e0500000 {
+			compatible = "cache";
+			cache-level = <2>;
+			cache-size = <0x40000>;
+			reg = <0x0 0xe0500000 0x0 0x40000>;
 		};
 	};
 
@@ -46,32 +79,32 @@
 	soc {
 		#address-cells = <2>;
 		#size-cells = <2>;
-		compatible = "andestech,riscv-ae350-soc";
+		compatible = "simple-bus";
 		ranges;
 
-	plic0: interrupt-controller@e4000000 {
-		compatible = "riscv,plic0";
-		#address-cells = <2>;
-		#interrupt-cells = <2>;
-		interrupt-controller;
-		reg = <0x0 0xe4000000 0x0 0x2000000>;
-		riscv,ndev=<71>;
-		interrupts-extended = <&CPU0_intc 11 &CPU0_intc 9>;
-	};
+		plic0: interrupt-controller@e4000000 {
+			compatible = "riscv,plic0";
+			#address-cells = <2>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+			reg = <0x0 0xe4000000 0x0 0x2000000>;
+			riscv,ndev=<71>;
+			interrupts-extended = <&CPU0_intc 11 &CPU0_intc 9 &CPU1_intc 11 &CPU1_intc 9>;
+		};
 
-	plic1: interrupt-controller@e6400000 {
-		compatible = "riscv,plic1";
-		#address-cells = <2>;
-		#interrupt-cells = <2>;
-		interrupt-controller;
-		reg = <0x0 0xe6400000 0x0 0x400000>;
-		riscv,ndev=<1>;
-		interrupts-extended = <&CPU0_intc 3>;
-	};
+		plic1: interrupt-controller@e6400000 {
+			compatible = "riscv,plic1";
+			#address-cells = <2>;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+			reg = <0x0 0xe6400000 0x0 0x400000>;
+			riscv,ndev=<2>;
+			interrupts-extended = <&CPU0_intc 3 &CPU1_intc 3>;
+		};
 
-	plmt0@e6000000 {
-		compatible = "riscv,plmt0";
-			interrupts-extended = <&CPU0_intc 7>;
+		plmt0@e6000000 {
+			compatible = "riscv,plmt0";
+			interrupts-extended = <&CPU0_intc 7 &CPU1_intc 7>;
 			reg = <0x0 0xe6000000 0x0 0x100000>;
 		};
 	};
@@ -144,6 +177,10 @@
 		reg = <0x0 0xf0d00000 0x0 0x1000>;
 		interrupts = <17 4>;
 		interrupt-parent = <&plic0>;
+	};
+
+	pmu {
+		compatible = "riscv,base-pmu";
 	};
 
 	virtio_mmio@fe007000 {
