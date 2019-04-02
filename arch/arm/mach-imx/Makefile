@@ -61,21 +61,6 @@ obj-$(CONFIG_CMD_HDMIDETECT) += cmd_hdmidet.o
 obj-$(CONFIG_CMD_DEKBLOB) += cmd_dek.o
 endif
 
-ifneq ($(CONFIG_BOARD_SIZE_LIMIT),)
-BOARD_SIZE_CHECK = \
-        @actual=`wc -c $@ | awk '{print $$1}'`; \
-        limit=`printf "%d" $(CONFIG_BOARD_SIZE_LIMIT)`; \
-        if test $$actual -gt $$limit; then \
-                echo "$@ exceeds file size limit:" >&2 ; \
-                echo "  limit:  $$limit bytes" >&2 ; \
-                echo "  actual: $$actual bytes" >&2 ; \
-                echo "  excess: $$((actual - limit)) bytes" >&2; \
-                exit 1; \
-        fi
-else
-BOARD_SIZE_CHECK =
-endif
-
 PLUGIN = board/$(BOARDDIR)/plugin
 
 ifeq ($(CONFIG_USE_IMXIMG_PLUGIN),y)
@@ -124,7 +109,6 @@ u-boot.imx: MKIMAGEOUTPUT = u-boot.imx.log
 
 u-boot.imx: u-boot.bin u-boot.cfgout $(PLUGIN).bin FORCE
 	$(call if_changed,mkimage)
-	$(BOARD_SIZE_CHECK)
 
 ifeq ($(CONFIG_OF_SEPARATE),y)
 MKIMAGEFLAGS_u-boot-dtb.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
