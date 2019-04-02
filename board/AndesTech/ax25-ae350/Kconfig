@@ -24,5 +24,6 @@ config ENV_OFFSET
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select RISCV_NDS
+	imply SMP
 
 endif
