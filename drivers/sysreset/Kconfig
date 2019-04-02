@@ -13,6 +13,24 @@ config SYSRESET
 	  to effect a reset. The uclass will try all available drivers when
 	  reset_walk() is called.
 
+config SPL_SYSRESET
+	bool "Enable support for system reset drivers in SPL mode"
+	depends on SYSRESET && SPL_DM
+	help
+	  Enable system reset drivers which can be used to reset the CPU or
+	  board. Each driver can provide a reset method which will be called
+	  to effect a reset. The uclass will try all available drivers when
+	  reset_walk() is called.
+
+config TPL_SYSRESET
+	bool "Enable support for system reset drivers in TPL mode"
+	depends on SYSRESET && TPL_DM
+	help
+	  Enable system reset drivers which can be used to reset the CPU or
+	  board. Each driver can provide a reset method which will be called
+	  to effect a reset. The uclass will try all available drivers when
+	  reset_walk() is called.
+
 if SYSRESET
 
 config SYSRESET_GPIO

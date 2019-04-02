@@ -2,7 +2,7 @@
 #
 # (C) Copyright 2016 Cadence Design Systems Inc.
 
-obj-$(CONFIG_SYSRESET) += sysreset-uclass.o
+obj-$(CONFIG_$(SPL_TPL_)SYSRESET) += sysreset-uclass.o
 obj-$(CONFIG_ARCH_ASPEED) += sysreset_ast.o
 obj-$(CONFIG_ARCH_ROCKCHIP) += sysreset_rockchip.o
 obj-$(CONFIG_ARCH_STI) += sysreset_sti.o
