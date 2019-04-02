@@ -109,6 +109,15 @@ config SIFIVE_CLINT
 	  The SiFive CLINT block holds memory-mapped control and status registers
 	  associated with software and timer interrupts.
 
+config ANDES_PLIC
+	bool
+	depends on RISCV_MMODE
+	select REGMAP
+	select SYSCON
+	help
+	  The Andes PLIC block holds memory-mapped claim and pending registers
+	  associated with software interrupt.
+
 config RISCV_RDTIME
 	bool
 	default y if RISCV_SMODE

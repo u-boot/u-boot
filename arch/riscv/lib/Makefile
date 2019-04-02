@@ -11,6 +11,7 @@ obj-$(CONFIG_CMD_GO) += boot.o
 obj-y	+= cache.o
 obj-$(CONFIG_RISCV_RDTIME) += rdtime.o
 obj-$(CONFIG_SIFIVE_CLINT) += sifive_clint.o
+obj-$(CONFIG_ANDES_PLIC) += andes_plic.o
 obj-y	+= interrupts.o
 obj-y	+= reset.o
 obj-$(CONFIG_SBI_IPI) += sbi_ipi.o
