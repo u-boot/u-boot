@@ -796,6 +796,12 @@ else
 BOARD_SIZE_CHECK =
 endif
 
+ifneq ($(CONFIG_SPL_SIZE_LIMIT),0)
+SPL_SIZE_CHECK = @$(call size_check,$@,$(CONFIG_SPL_SIZE_LIMIT))
+else
+SPL_SIZE_CHECK =
+endif
+
 # Statically apply RELA-style relocations (currently arm64 only)
 # This is useful for arm64 where static relocation needs to be performed on
 # the raw binary, but certain simulators only accept an ELF file (but don't
@@ -1712,6 +1718,8 @@ u-boot.lds: $(LDSCRIPT) prepare FORCE
 
 spl/u-boot-spl.bin: spl/u-boot-spl
 	@:
+	$(SPL_SIZE_CHECK)
+
 spl/u-boot-spl: tools prepare \
 		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_SPL_OF_PLATDATA),dts/dt.dtb) \
 		$(if $(CONFIG_OF_SEPARATE)$(CONFIG_OF_EMBED)$(CONFIG_TPL_OF_PLATDATA),dts/dt.dtb)
