@@ -179,10 +179,10 @@ MKIMAGEFLAGS_boot.bin = -T atmelimage
 ifeq ($(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER),y)
 MKIMAGEFLAGS_boot.bin += -n $(shell $(obj)/../tools/atmel_pmecc_params)
 
-boot.bin: $(obj)/../tools/atmel_pmecc_params
+$(obj)/boot.bin: $(obj)/../tools/atmel_pmecc_params
 endif
 
-boot.bin: $(obj)/u-boot-spl.bin FORCE
+$(obj)/boot.bin: $(obj)/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 else
 ifdef CONFIG_ARCH_ZYNQ
@@ -225,7 +225,7 @@ endif
 endif
 
 ifeq ($(CONFIG_SYS_SOC),"at91")
-ALL-y	+= boot.bin
+ALL-y	+= $(obj)/boot.bin
 endif
 
 ALL-$(CONFIG_SPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-16bit-spl.bin
