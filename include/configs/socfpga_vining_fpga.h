@@ -16,18 +16,9 @@
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
-/*
- * Status LEDs:
- *   0 ... Top Green
- *   1 ... Top Red
- *   2 ... Bottom Green
- *   3 ... Bottom Red
- */
-
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_BOOTP_SEND_HOSTNAME
-/* PHY */
 #endif
 
 /* Extra Environment */

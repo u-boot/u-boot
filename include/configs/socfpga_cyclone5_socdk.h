@@ -14,8 +14,6 @@
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
-/* Ethernet on SoC (EMAC) */
-
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 

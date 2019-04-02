@@ -19,12 +19,6 @@
 /* Memory configurations  */
 #define PHYS_SDRAM_1_SIZE		0x40000000
 
-/* Ethernet on SoC (EMAC) */
-
-/*
- * U-Boot environment configurations
- */
-
 /*
  * Serial / UART configurations
  */

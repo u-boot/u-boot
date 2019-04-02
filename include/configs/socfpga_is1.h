@@ -19,8 +19,6 @@
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_ARP_TIMEOUT		500UL
-
-/* PHY */
 #endif
 
 /* The rest of the configuration is shared */
