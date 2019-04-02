@@ -13,7 +13,7 @@ Configuration options
 
 	CONFIG_SYS_USB_OHCI_BOARD_INIT: call the board dependant hooks:
 
-		  - extern int usb_board_init(void);
+		  - extern int board_usb_init(void);
 		  - extern int usb_board_stop(void);
 		  - extern int usb_cpu_init_fail(void);
 
