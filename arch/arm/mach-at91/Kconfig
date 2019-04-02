@@ -147,6 +147,13 @@ config TARGET_AT91SAM9X5EK
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 
+config TARGET_GARDENA_SMART_GATEWAY_AT91SAM
+	bool "GARDENA smart Gateway (AT91SAM)"
+	select AT91SAM9X5
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select SUPPORT_SPL
+
 config TARGET_SAMA5D2_PTC_EK
 	bool "SAMA5D2 PTC EK board"
 	select BOARD_EARLY_INIT_F
@@ -283,6 +290,7 @@ source "board/bluewater/snapper9260/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
 source "board/egnite/ethernut5/Kconfig"
 source "board/esd/meesc/Kconfig"
+source "board/gardena/smart-gateway-at91sam/Kconfig"
 source "board/l+g/vinco/Kconfig"
 source "board/mini-box/picosam9g45/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
