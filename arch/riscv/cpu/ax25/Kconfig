@@ -14,6 +14,7 @@ if RISCV_NDS
 
 config RISCV_NDS_CACHE
 	bool "AndeStar V5 families specific cache support"
+	depends on RISCV_MMODE
 	help
 	  Provide Andes Technology AndeStar V5 families specific cache support.
 
