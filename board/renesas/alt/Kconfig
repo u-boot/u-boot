@@ -9,13 +9,4 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "alt"
 
-config R8A7794_ETHERNET_B
-	bool "Use ethernet B function"
-	depends on TARGET_ALT
-	default n
-	help
-	  ALT board can use default ethernet and etnernet B function.
-	  This config set pin function of ethenet B. You also needt to change
-	  DIP switch of board in order to use this function.
-
 endif

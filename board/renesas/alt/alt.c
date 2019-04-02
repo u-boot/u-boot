@@ -28,7 +28,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CLK2MHZ(clk)	(clk / 1000 / 1000)
 void s_init(void)
 {
 	struct rcar_rwdt *rwdt = (struct rcar_rwdt *)RWDT_BASE;
@@ -93,7 +92,7 @@ int dram_init_banksize(void)
 
 /* KSZ8041RNLI */
 #define PHY_CONTROL1		0x1E
-#define PHY_LED_MODE		0xC0000
+#define PHY_LED_MODE		0xC000
 #define PHY_LED_MODE_ACK	0x4000
 int board_phy_config(struct phy_device *phydev)
 {
@@ -108,7 +107,7 @@ int board_phy_config(struct phy_device *phydev)
 void reset_cpu(ulong addr)
 {
 	struct udevice *dev;
-	const u8 pmic_bus = 1;
+	const u8 pmic_bus = 7;
 	const u8 pmic_addr = 0x58;
 	u8 data;
 	int ret;
