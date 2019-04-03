@@ -70,7 +70,7 @@ int print_cpuinfo(void)
 }
 
 #ifdef CONFIG_WATCHDOG
-static struct udevice *watchdog_dev;
+static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
 
 /* Called by macro WATCHDOG_RESET */
 void watchdog_reset(void)

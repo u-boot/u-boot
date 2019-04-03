@@ -25,7 +25,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
-static struct udevice *watchdog_dev;
+static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
 #endif
 
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
@@ -320,11 +320,6 @@ int board_early_init_f(void)
 
 #if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
 	ret = psu_init();
-#endif
-
-#if defined(CONFIG_WDT) && !defined(CONFIG_SPL_BUILD)
-	/* bss is not cleared at time when watchdog_reset() is called */
-	watchdog_dev = NULL;
 #endif
 
 	return ret;

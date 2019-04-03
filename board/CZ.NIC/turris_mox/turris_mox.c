@@ -120,7 +120,7 @@ int board_fix_fdt(void *blob)
 #endif
 
 #ifdef CONFIG_WDT_ARMADA_37XX
-static struct udevice *watchdog_dev;
+static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
 
 void watchdog_reset(void)
 {

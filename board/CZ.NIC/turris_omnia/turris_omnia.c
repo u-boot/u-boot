@@ -365,7 +365,7 @@ static bool disable_mcu_watchdog(void)
 #endif
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT_ORION)
-static struct udevice *watchdog_dev = NULL;
+static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
 #endif
 
 int board_init(void)

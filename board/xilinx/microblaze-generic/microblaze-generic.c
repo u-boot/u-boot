@@ -25,7 +25,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
-static struct udevice *watchdog_dev;
+static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
 #endif /* !CONFIG_SPL_BUILD && CONFIG_WDT */
 
 ulong ram_base;
