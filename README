@@ -767,9 +767,6 @@ The following options need to be configured:
 		SoC, then define this variable and provide board
 		specific code for the "hw_watchdog_reset" function.
 
-		CONFIG_AT91_HW_WDT_TIMEOUT
-		specify the timeout in seconds. default 2 seconds.
-
 - Real-Time Clock:
 
 		When CONFIG_CMD_DATE is selected, the type of the RTC

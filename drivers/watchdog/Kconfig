@@ -139,10 +139,6 @@ config WDT_AT91
 	   Select this to enable Microchip watchdog timer, which can be found on
 	   some AT91 devices.
 
-config AT91_HW_WDT_TIMEOUT
-	bool "AT91 watchdog timeout specified"
-	depends on WDT_AT91
-
 config WDT_MT7621
 	bool "MediaTek MT7621 watchdog timer support"
 	depends on WDT && ARCH_MT7620

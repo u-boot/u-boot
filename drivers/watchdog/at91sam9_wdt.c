@@ -117,10 +117,12 @@ static int at91_wdt_probe(struct udevice *dev)
 	if (!priv->regs)
 		return -EINVAL;
 
-#ifdef CONFIG_AT91_HW_WDT_TIMEOUT
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	priv->timeout = dev_read_u32_default(dev, "timeout-sec",
 					     WDT_DEFAULT_TIMEOUT);
 	debug("%s: timeout %d", __func__, priv->timeout);
+#else
+	priv->timeout = WDT_DEFAULT_TIMEOUT;
 #endif
 
 	debug("%s: Probing wdt%u\n", __func__, dev->seq);
