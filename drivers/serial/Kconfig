@@ -508,6 +508,15 @@ config ATMEL_USART
 	  configured in the device tree, and input clock frequency can
 	  be got from the clk node.
 
+config SPL_UART_CLOCK
+	int "SPL fixed UART input clock"
+	depends on ATMEL_USART && SPL && !SPL_CLK
+	default 132096000 if ARCH_AT91
+	help
+	  Provide a fixed clock value as input to the UART controller. This
+	  might be needed on platforms which can't enable CONFIG_SPL_CLK
+	  because of SPL image size restrictions.
+
 config BCM283X_MU_SERIAL
 	bool "Support for BCM283x Mini-UART"
 	depends on DM_SERIAL && ARCH_BCM283X
