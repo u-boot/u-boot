@@ -141,7 +141,7 @@ config PHY_STM32_USBPHYC
 
 config MESON_GXL_USB_PHY
 	bool "Amlogic Meson GXL USB PHYs"
-	depends on PHY && ARCH_MESON && MESON_GXL
+	depends on PHY && ARCH_MESON && (MESON_GXL || MESON_GXM)
 	imply REGMAP
 	help
 	  This is the generic phy driver for the Amlogic Meson GXL

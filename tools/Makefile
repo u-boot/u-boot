@@ -254,7 +254,8 @@ HOST_EXTRACFLAGS += -include $(srctree)/include/compiler.h \
 		-I$(srctree)/tools \
 		-DUSE_HOSTCC \
 		-D__KERNEL_STRICT_NAMES \
-		-D_GNU_SOURCE
+		-D_GNU_SOURCE \
+		-std=gnu99
 
 __build:	$(LOGO-y)
 
