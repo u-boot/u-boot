@@ -237,6 +237,19 @@
 			reg = <0xffe00000 0x100000>;
 		};
 
+		qspi: spi@ff8d2000 {
+			compatible = "cdns,qspi-nor";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xff8d2000 0x100>,
+			      <0xff900000 0x100000>;
+			interrupts = <0 3 4>;
+			cdns,fifo-depth = <128>;
+			cdns,fifo-width = <4>;
+			cdns,trigger-address = <0x00000000>;
+			status = "disabled";
+		};
+
 		rst: rstmgr@ffd11000 {
 			#reset-cells = <1>;
 			compatible = "altr,rst-mgr";
