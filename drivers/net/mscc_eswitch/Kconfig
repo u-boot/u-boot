@@ -15,3 +15,10 @@ config MSCC_LUTON_SWITCH
 	select PHYLIB
 	help
 	  This driver supports the Luton network switch device.
+
+config MSCC_JR2_SWITCH
+	bool "Jaguar2 switch driver"
+	depends on DM_ETH && ARCH_MSCC
+	select PHYLIB
+	help
+	  This driver supports the Jaguar2 network switch device.
