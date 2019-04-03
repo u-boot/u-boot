@@ -31,16 +31,6 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #define WDT_SEC2TICKS(s)	(((s) << 8) - 1)
 
-/* Hardware timeout in seconds */
-#define WDT_MAX_TIMEOUT		16
-#define WDT_DEFAULT_TIMEOUT	2
-
-struct at91_wdt_priv {
-	void __iomem *regs;
-	u32 regval;
-	u32 timeout;
-};
-
 /*
  * Set the watchdog time interval in 1/256Hz (write-once)
  * Counter is 12 bit.
