@@ -1079,6 +1079,7 @@ static int sata_mv_scan(struct udevice *dev)
 
 static const struct udevice_id sata_mv_ids[] = {
 	{ .compatible = "marvell,armada-370-sata" },
+	{ .compatible = "marvell,orion-sata" },
 	{ }
 };
 
