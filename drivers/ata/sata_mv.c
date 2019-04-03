@@ -44,11 +44,10 @@
 #include <asm/io.h>
 #include <linux/mbus.h>
 
+#include <asm/arch/soc.h>
 #if defined(CONFIG_KIRKWOOD)
-#include <asm/arch/kirkwood.h>
 #define SATAHC_BASE		KW_SATA_BASE
 #else
-#include <asm/arch/soc.h>
 #define SATAHC_BASE		MVEBU_AXP_SATA_BASE
 #endif
 
@@ -218,8 +217,8 @@ struct crqb {
 #define CRQB_SECTCOUNT_COUNT_EXP_MASK	(0xff << 8)
 #define CRQB_SECTCOUNT_COUNT_EXP_SHIFT	8
 
-#define MVSATA_WIN_CONTROL(w)	(MVEBU_AXP_SATA_BASE + 0x30 + ((w) << 4))
-#define MVSATA_WIN_BASE(w)	(MVEBU_AXP_SATA_BASE + 0x34 + ((w) << 4))
+#define MVSATA_WIN_CONTROL(w)	(SATAHC_BASE + 0x30 + ((w) << 4))
+#define MVSATA_WIN_BASE(w)	(SATAHC_BASE + 0x34 + ((w) << 4))
 
 struct eprd {
 	u32 phyaddr_low;
