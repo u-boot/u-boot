@@ -727,7 +727,7 @@ static u32 ata_low_level_rw(struct udevice *dev, int port, lbaint_t blknr,
 	u8 *addr;
 	int max_blks;
 
-	debug("%s: %ld %ld\n", __func__, blknr, blkcnt);
+	debug("%s: " LBAFU " " LBAFU "\n", __func__, blknr, blkcnt);
 
 	start = blknr;
 	blks = blkcnt;
