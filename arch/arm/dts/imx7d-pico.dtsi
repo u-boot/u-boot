@@ -8,6 +8,10 @@
 
 
 / {
+	aliases {
+		mmc0 = &usdhc3;
+	};
+
 	/* Will be filled by the bootloader */
 	memory@80000000 {
 		device_type = "memory";
