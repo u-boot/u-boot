@@ -132,6 +132,13 @@ config USB_EHCI_MARVELL
 	---help---
 	  Enables support for the on-chip EHCI controller on MVEBU SoCs.
 
+config USB_EHCI_MX5
+	bool "Support for i.MX5 on-chip EHCI USB controller"
+	depends on ARCH_MX5
+	default n
+	help
+	  Enables support for the on-chip EHCI controller on i.MX5 SoCs.
+
 config USB_EHCI_MX6
 	bool "Support for i.MX6 on-chip EHCI USB controller"
 	depends on ARCH_MX6
