@@ -20,8 +20,8 @@
 
 /* PSCI function and ID table definition*/
 #define PSCI_TABLE(__id, __fn) \
-	.word __id; \
-	.word __fn
+	.quad __id; \
+	.quad __fn
 
 .pushsection ._secure.text, "ax"
 
@@ -133,16 +133,15 @@ PSCI_TABLE(0, 0)
 /* Caller must put PSCI function-ID table base in x9 */
 handle_psci:
 	psci_enter
-1:	ldr x10, [x9]			/* Load PSCI function table */
-	ubfx x11, x10, #32, #32
-	ubfx x10, x10, #0, #32
+1:	ldr	x10, [x9]		/* Load PSCI function table */
 	cbz	x10, 3f			/* If reach the end, bail out */
 	cmp	x10, x0
 	b.eq	2f			/* PSCI function found */
-	add x9, x9, #8			/* If not match, try next entry */
+	add x9, x9, #16			/* If not match, try next entry */
 	b	1b
 
-2:	blr	x11			/* Call PSCI function */
+2:	ldr	x11, [x9, #8]		/* Load PSCI function */
+	blr	x11			/* Call PSCI function */
 	psci_return
 
 3:	mov	x0, #ARM_PSCI_RET_NI
