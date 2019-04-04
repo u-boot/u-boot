@@ -52,7 +52,7 @@
 	       "setexpr blkc ${blkc} + 1; " \
 	       "mmc write ${loadaddr} 0x2 ${blkc}" \
 	"; fi\0"	  \
-	"upwic=setenv wic_file kp-image-kp${boardsoc}${boardtype}.wic; "\
+	"upwic=setenv wic_file kp-image-kp${boardsoc}.wic; "\
 	       "if tftp ${loadaddr} ${wic_file}; then " \
 	       "setexpr blkc ${filesize} / 0x200; " \
 	       "setexpr blkc ${blkc} + 1; " \
