@@ -20,7 +20,6 @@
 #include "kp_id_rev.h"
 
 #define VBUS_PWR_EN IMX_GPIO_NR(7, 8)
-#define PHY_nRST IMX_GPIO_NR(7, 6)
 #define BOOSTER_OFF IMX_GPIO_NR(2, 23)
 #define LCD_BACKLIGHT IMX_GPIO_NR(1, 1)
 #define KEY1 IMX_GPIO_NR(2, 26)
@@ -168,17 +167,6 @@ int board_init(void)
 	return 0;
 }
 
-void eth_phy_reset(void)
-{
-	gpio_request(PHY_nRST, "PHY_nRST");
-	gpio_direction_output(PHY_nRST, 1);
-	udelay(50);
-	gpio_set_value(PHY_nRST, 0);
-	udelay(400);
-	gpio_set_value(PHY_nRST, 1);
-	udelay(50);
-}
-
 void board_disable_display(void)
 {
 	gpio_request(LCD_BACKLIGHT, "LCD_BACKLIGHT");
@@ -209,8 +197,6 @@ int board_late_init(void)
 	ret = read_eeprom();
 	if (ret)
 		printf("Error %d reading EEPROM content!\n", ret);
-
-	eth_phy_reset();
 
 	show_eeprom();
 	read_board_id();
