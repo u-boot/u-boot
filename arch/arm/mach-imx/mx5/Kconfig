@@ -27,6 +27,8 @@ config TARGET_KP_IMX53
 	select DM_I2C
 	select DM_PMIC
 	select DM_SERIAL
+	select DM_MMC
+	select BLK
 	select MX53
 	imply CMD_DM
 
