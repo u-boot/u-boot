@@ -35,6 +35,7 @@
 		mmc1 = &esdhc2;
 		mmc2 = &esdhc3;
 		mmc3 = &esdhc4;
+		usb1 = &usbh1;
 	};
 
 	tzic: tz-interrupt-controller@fffc000 {
@@ -133,6 +134,15 @@
 				clock-names = "ipg", "per";
 				dmas = <&sdma 12 4 0>, <&sdma 13 4 0>;
 				dma-names = "rx", "tx";
+				status = "disabled";
+			};
+
+			usbh1: usb@53f80200 {
+				compatible = "fsl,imx53-usb", "fsl,imx27-usb";
+				reg = <0x53f80200 0x0200>;
+				interrupts = <14>;
+				clocks = <&clks IMX5_CLK_USBOH3_GATE>;
+				dr_mode = "host";
 				status = "disabled";
 			};
 
