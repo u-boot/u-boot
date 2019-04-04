@@ -15,10 +15,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
-/* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_ESDHC_NUM	1
-
 /* USB Configs */
 #define CONFIG_USB_EHCI_MX5
 #define CONFIG_MXC_USB_PORT	1
