@@ -229,8 +229,8 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 	bool carve_again;
 	uint64_t carved_pages = 0;
 
-	debug("%s: 0x%llx 0x%llx %d %s\n", __func__,
-	      start, pages, memory_type, overlap_only_ram ? "yes" : "no");
+	EFI_PRINT("%s: 0x%llx 0x%llx %d %s\n", __func__,
+		  start, pages, memory_type, overlap_only_ram ? "yes" : "no");
 
 	if (memory_type >= EFI_MAX_MEMORY_TYPE)
 		return EFI_INVALID_PARAMETER;
