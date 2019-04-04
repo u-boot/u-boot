@@ -165,7 +165,7 @@ static iomux_v3_cfg_t const fec1_pads[] = {
 static void setup_iomux_fec(void)
 {
 	imx_iomux_v3_setup_multiple_pads(fec1_pads, ARRAY_SIZE(fec1_pads));
-
+	gpio_request(FEC1_RST_GPIO, "phy_rst");
 	gpio_direction_output(FEC1_RST_GPIO, 0);
 	udelay(500);
 	gpio_set_value(FEC1_RST_GPIO, 1);
@@ -291,6 +291,8 @@ static iomux_v3_cfg_t const lcd_pads[] = {
 void setup_lcd(void)
 {
 	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
+	gpio_request(IMX_GPIO_NR(1, 11), "lcd_brightness");
+	gpio_request(IMX_GPIO_NR(1, 6), "lcd_enable");
 	/* Set Brightness to high */
 	gpio_direction_output(IMX_GPIO_NR(1, 11) , 1);
 	/* Set LCD enable to high */
