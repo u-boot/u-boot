@@ -354,9 +354,10 @@ int i2c_idle_bus(struct mxc_i2c_bus *i2c_bus)
 int i2c_idle_bus(struct mxc_i2c_bus *i2c_bus)
 {
 	struct udevice *bus = i2c_bus->bus;
+	struct dm_i2c_bus *i2c = dev_get_uclass_priv(bus);
 	struct gpio_desc *scl_gpio = &i2c_bus->scl_gpio;
 	struct gpio_desc *sda_gpio = &i2c_bus->sda_gpio;
-	int sda, scl;
+	int sda, scl, idle_sclks;
 	int i, ret = 0;
 	ulong elapsed, start_time;
 
@@ -380,8 +381,22 @@ int i2c_idle_bus(struct mxc_i2c_bus *i2c_bus)
 	if ((sda & scl) == 1)
 		goto exit;		/* Bus is idle already */
 
+	/*
+	 * In most cases it is just enough to generate 8 + 1 SCLK
+	 * clocks to recover I2C slave device from 'stuck' state
+	 * (when for example SW reset was performed, in the middle of
+	 * I2C transmission).
+	 *
+	 * However, there are devices which send data in packets of
+	 * N bytes (N > 1). In such case we do need N * 8 + 1 SCLK
+	 * clocks.
+	 */
+	idle_sclks = 8 + 1;
+
+	if (i2c->max_transaction_bytes > 0)
+		idle_sclks = i2c->max_transaction_bytes * 8 + 1;
 	/* Send high and low on the SCL line */
-	for (i = 0; i < 9; i++) {
+	for (i = 0; i < idle_sclks; i++) {
 		dm_gpio_set_dir_flags(scl_gpio, GPIOD_IS_OUT);
 		dm_gpio_set_value(scl_gpio, 0);
 		udelay(50);

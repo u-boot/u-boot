@@ -593,6 +593,29 @@ int i2c_chip_ofdata_to_platdata(struct udevice *dev, struct dm_i2c_chip *chip)
 }
 #endif
 
+static int i2c_pre_probe(struct udevice *dev)
+{
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+	struct dm_i2c_bus *i2c = dev_get_uclass_priv(dev);
+	unsigned int max = 0;
+	ofnode node;
+	int ret;
+
+	i2c->max_transaction_bytes = 0;
+	dev_for_each_subnode(node, dev) {
+		ret = ofnode_read_u32(node,
+				      "u-boot,i2c-transaction-bytes",
+				      &max);
+		if (!ret && max > i2c->max_transaction_bytes)
+			i2c->max_transaction_bytes = max;
+	}
+
+	debug("%s: I2C bus: %s max transaction bytes: %d\n", __func__,
+	      dev->name, i2c->max_transaction_bytes);
+#endif
+	return 0;
+}
+
 static int i2c_post_probe(struct udevice *dev)
 {
 #if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -674,6 +697,7 @@ UCLASS_DRIVER(i2c) = {
 	.post_bind	= i2c_post_bind,
 	.init		= i2c_uclass_init,
 	.priv_auto_alloc_size = sizeof(struct i2c_priv),
+	.pre_probe      = i2c_pre_probe,
 	.post_probe	= i2c_post_probe,
 	.per_device_auto_alloc_size = sizeof(struct dm_i2c_bus),
 	.per_child_platdata_auto_alloc_size = sizeof(struct dm_i2c_chip),

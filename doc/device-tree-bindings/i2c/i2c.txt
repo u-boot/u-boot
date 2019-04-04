@@ -12,6 +12,10 @@ property which allows the chip offset length to be selected.
 Optional properties:
 - u-boot,i2c-offset-len - length of chip offset in bytes. If omitted the
     default value of 1 is used.
+- u-boot,i2c-transaction-bytes - the length of single I2C transaction on
+    the bus. Some devices require more than single byte transmission
+    (e.g. mc34708 mfd). This information is necessary to correctly
+     initialize (put into idle state) I2C bus after soft reset.
 - gpios = <sda ...>, <scl ...>;
   pinctrl-names = "default", "gpio";
   pinctrl-0 = <&i2c_xfer>;
@@ -28,6 +32,7 @@ i2c4: i2c@12ca0000 {
 		compatible = "google,cros-ec";
 		i2c-max-frequency = <100000>;
 		u-boot,i2c-offset-len = <0>;
+		u-boot,i2c-transaction-bytes = <3>;
 		ec-interrupt = <&gpx1 6 GPIO_ACTIVE_LOW>;
 	};
 };
