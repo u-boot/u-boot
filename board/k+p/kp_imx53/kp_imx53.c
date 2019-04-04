@@ -17,7 +17,6 @@
 #include <fsl_pmic.h>
 #include "kp_id_rev.h"
 
-#define VBUS_PWR_EN IMX_GPIO_NR(7, 8)
 #define BOOSTER_OFF IMX_GPIO_NR(2, 23)
 #define LCD_BACKLIGHT IMX_GPIO_NR(1, 1)
 #define KEY1 IMX_GPIO_NR(2, 26)
@@ -41,15 +40,6 @@ int dram_init_banksize(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_USB_EHCI_MX5
-int board_ehci_hcd_init(int port)
-{
-	gpio_request(VBUS_PWR_EN, "VBUS_PWR_EN");
-	gpio_direction_output(VBUS_PWR_EN, 1);
-	return 0;
-}
-#endif
 
 static int power_init(void)
 {
