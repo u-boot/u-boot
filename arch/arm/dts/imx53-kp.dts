@@ -21,6 +21,22 @@
 	aliases {
 		mmc0 = &esdhc3;
 	};
+
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reg_usbh1_vbus: regulator-usbh1-vbus {
+			compatible = "regulator-fixed";
+			regulator-name = "usbh1_vbus";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			gpio = <&gpio7 8 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+		};
+	};
+
 };
 
 &esdhc3 {
@@ -109,8 +125,6 @@
 			fsl,pins = <
 				/* PHY RESET */
 				MX53_PAD_PATA_DA_0__GPIO7_6 0x182
-				/* VBUS_PWR_EN */
-				MX53_PAD_PATA_DA_2__GPIO7_8 0x1e4
 				/* BOOSTER_OFF */
 				MX53_PAD_EIM_CS0__GPIO2_23 0x1e4
 				/* LCD BACKLIGHT */
@@ -156,11 +170,25 @@
 				MX53_PAD_PATA_DMARQ__UART2_TXD_MUX 0x1e4
 			>;
 		};
+
+		pinctrl_usbh1: usbh1grp {
+			fsl,pins = <
+				/* VBUS_PWR_EN */
+				MX53_PAD_PATA_DA_2__GPIO7_8 0x1e4
+			>;
+		};
 	};
 };
 
 &uart2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart2>;
+	status = "okay";
+};
+
+&usbh1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usbh1>;
+	vbus-supply = <&reg_usbh1_vbus>;
 	status = "okay";
 };
