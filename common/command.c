@@ -574,6 +574,20 @@ enum command_ret_t cmd_process(int flag, int argc, char * const argv[],
 	enum command_ret_t rc = CMD_RET_SUCCESS;
 	cmd_tbl_t *cmdtp;
 
+#if defined(CONFIG_SYS_XTRACE)
+	char *xtrace;
+
+	xtrace = env_get("xtrace");
+	if (xtrace) {
+		puts("+");
+		for (int i = 0; i < argc; i++) {
+			puts(" ");
+			puts(argv[i]);
+		}
+		puts("\n");
+	}
+#endif
+
 	/* Look up command in command table */
 	cmdtp = find_cmd(argv[0]);
 	if (cmdtp == NULL) {
