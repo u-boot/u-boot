@@ -264,7 +264,7 @@ static unsigned char mmc_board_init(struct mmc *mmc)
 	!CONFIG_IS_ENABLED(DM_REGULATOR)
 	/* PBIAS config needed for MMC1 only */
 	if (mmc_get_blk_desc(mmc)->devnum == 0)
-		vmmc_pbias_config(LDO_VOLT_3V0);
+		vmmc_pbias_config(LDO_VOLT_3V3);
 #endif
 
 	return 0;
@@ -418,7 +418,7 @@ static void omap_hsmmc_conf_bus_power(struct mmc *mmc, uint signal_voltage)
 
 	switch (signal_voltage) {
 	case MMC_SIGNAL_VOLTAGE_330:
-		hctl |= SDVS_3V0;
+		hctl |= SDVS_3V3;
 		break;
 	case MMC_SIGNAL_VOLTAGE_180:
 		hctl |= SDVS_1V8;
@@ -514,10 +514,9 @@ static int omap_hsmmc_set_signal_voltage(struct mmc *mmc)
 		return -EINVAL;
 
 	if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_330) {
-		/* Use 3.0V rather than 3.3V */
-		mv = 3000;
-		capa_mask = VS30_3V0SUP;
-		palmas_ldo_volt = LDO_VOLT_3V0;
+		mv = 3300;
+		capa_mask = VS33_3V3SUP;
+		palmas_ldo_volt = LDO_VOLT_3V3;
 	} else if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180) {
 		capa_mask = VS18_1V8SUP;
 		palmas_ldo_volt = LDO_VOLT_1V8;
@@ -556,13 +555,13 @@ static uint32_t omap_hsmmc_set_capabilities(struct mmc *mmc)
 	val = readl(&mmc_base->capa);
 
 	if (priv->controller_flags & OMAP_HSMMC_SUPPORTS_DUAL_VOLT) {
-		val |= (VS30_3V0SUP | VS18_1V8SUP);
+		val |= (VS33_3V3SUP | VS18_1V8SUP);
 	} else if (priv->controller_flags & OMAP_HSMMC_NO_1_8_V) {
-		val |= VS30_3V0SUP;
+		val |= VS33_3V3SUP;
 		val &= ~VS18_1V8SUP;
 	} else {
 		val |= VS18_1V8SUP;
-		val &= ~VS30_3V0SUP;
+		val &= ~VS33_3V3SUP;
 	}
 
 	writel(val, &mmc_base->capa);
@@ -842,11 +841,11 @@ static int omap_hsmmc_init_setup(struct mmc *mmc)
 
 #if CONFIG_IS_ENABLED(DM_MMC)
 	reg_val = omap_hsmmc_set_capabilities(mmc);
-	omap_hsmmc_conf_bus_power(mmc, (reg_val & VS30_3V0SUP) ?
+	omap_hsmmc_conf_bus_power(mmc, (reg_val & VS33_3V3SUP) ?
 			  MMC_SIGNAL_VOLTAGE_330 : MMC_SIGNAL_VOLTAGE_180);
 #else
 	writel(DTW_1_BITMODE | SDBP_PWROFF | SDVS_3V0, &mmc_base->hctl);
-	writel(readl(&mmc_base->capa) | VS30_3V0SUP | VS18_1V8SUP,
+	writel(readl(&mmc_base->capa) | VS33_3V3SUP | VS18_1V8SUP,
 		&mmc_base->capa);
 #endif
 
