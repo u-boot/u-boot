@@ -34,9 +34,6 @@
 
 /* SPI NOR Flash default params, used by sf commands */
 
-#if defined CONFIG_KM_ENV_IS_IN_SPI_NOR
-#endif
-
 /* Reserve 4 MB for malloc */
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
