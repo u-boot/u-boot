@@ -19,3 +19,4 @@ obj-$(CONFIG_MESON_GXL_USB_PHY) += meson-gxl-usb2.o meson-gxl-usb3.o
 obj-$(CONFIG_MSM8916_USB_PHY) += msm8916-usbh-phy.o
 obj-$(CONFIG_OMAP_USB2_PHY) += omap-usb2-phy.o
 obj-$(CONFIG_KEYSTONE_USB_PHY) += keystone-usb-phy.o
+obj-$(CONFIG_MT76X8_USB_PHY) += mt76x8-usb-phy.o

@@ -174,4 +174,12 @@ config KEYSTONE_USB_PHY
 
 	  This PHY is found on some Keystone (K2) devices supporting USB.
 
+config MT76X8_USB_PHY
+	bool "MediaTek MT76x8 (7628/88) USB PHY support"
+	depends on PHY
+	help
+          Support the USB PHY in MT76x8 SoCs
+
+	  This PHY is found on MT76x8 devices supporting USB.
+
 endmenu
