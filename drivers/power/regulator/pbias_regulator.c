@@ -238,7 +238,7 @@ static int pbias_regulator_set_value(struct udevice *dev, int uV)
 	if (rc)
 		return rc;
 
-	if (uV == 3000000)
+	if (uV == 3300000)
 		reg |= p->vmode;
 	else if (uV == 1800000)
 		reg &= ~p->vmode;
