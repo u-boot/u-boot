@@ -10,6 +10,9 @@
 
 #define OBJ_LIST_NOT_INITIALIZED 1
 
+/* Language code for American English according to RFC 4646 */
+#define EN_US L"en-US"
+
 static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
 
 /* Initialize and populate EFI object list */
@@ -23,6 +26,30 @@ efi_status_t efi_init_obj_list(void)
 	 * and restore it on every callback entered.
 	 */
 	efi_save_gd();
+
+	/*
+	 * Variable PlatformLang defines the language that the machine has been
+	 * configured for.
+	 */
+	ret = EFI_CALL(efi_set_variable(L"PlatformLang",
+					&efi_global_variable_guid,
+					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					EFI_VARIABLE_RUNTIME_ACCESS,
+					sizeof(EN_US), EN_US));
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/*
+	 * Variable PlatformLangCodes defines the language codes that the
+	 * machine can support.
+	 */
+	ret = EFI_CALL(efi_set_variable(L"PlatformLangCodes",
+					&efi_global_variable_guid,
+					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					EFI_VARIABLE_RUNTIME_ACCESS,
+					sizeof(EN_US), EN_US));
+	if (ret != EFI_SUCCESS)
+		goto out;
 
 	/* Initialize once only */
 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
