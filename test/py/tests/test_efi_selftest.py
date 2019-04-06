@@ -141,7 +141,7 @@ def test_efi_selftest_text_input_ex(u_boot_console):
 	u_boot_console.run_command(cmd=chr(4), wait_for_echo=False,
 				   send_nl=False, wait_for_prompt=False)
 	m = u_boot_console.p.expect(
-		['Unicode char 4 \(unknown\), scan code 0 \(CTRL\+Null\)'])
+		['Unicode char 100 \\(\'d\'\\), scan code 0 \\(CTRL\\+Null\\)'])
 	if m != 0:
 		raise Exception('EOT failed in \'text input\' test')
 	u_boot_console.drain_console()
