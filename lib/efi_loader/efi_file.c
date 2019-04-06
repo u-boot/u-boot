@@ -637,9 +637,72 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 					    efi_uintn_t buffer_size,
 					    void *buffer)
 {
-	EFI_ENTRY("%p, %p, %zu, %p", file, info_type, buffer_size, buffer);
+	struct file_handle *fh = to_fh(file);
+	efi_status_t ret = EFI_UNSUPPORTED;
 
-	return EFI_EXIT(EFI_UNSUPPORTED);
+	EFI_ENTRY("%p, %pUl, %zu, %p", file, info_type, buffer_size, buffer);
+
+	if (!guidcmp(info_type, &efi_file_info_guid)) {
+		struct efi_file_info *info = (struct efi_file_info *)buffer;
+		char *filename = basename(fh);
+		char *new_file_name, *pos;
+		loff_t file_size;
+
+		if (buffer_size < sizeof(struct efi_file_info)) {
+			ret = EFI_BAD_BUFFER_SIZE;
+			goto out;
+		}
+		/* We cannot change the directory attribute */
+		if (!fh->isdir != !(info->attribute & EFI_FILE_DIRECTORY)) {
+			ret = EFI_ACCESS_DENIED;
+			goto out;
+		}
+		/* Check for renaming */
+		new_file_name = malloc(utf16_utf8_strlen(info->file_name));
+		if (!new_file_name) {
+			ret = EFI_OUT_OF_RESOURCES;
+			goto out;
+		}
+		pos = new_file_name;
+		utf16_utf8_strcpy(&pos, info->file_name);
+		if (strcmp(new_file_name, filename)) {
+			/* TODO: we do not support renaming */
+			EFI_PRINT("Renaming not supported\n");
+			free(new_file_name);
+			ret = EFI_ACCESS_DENIED;
+			goto out;
+		}
+		free(new_file_name);
+		/* Check for truncation */
+		if (set_blk_dev(fh)) {
+			ret = EFI_DEVICE_ERROR;
+			goto out;
+		}
+		if (fs_size(fh->path, &file_size)) {
+			ret = EFI_DEVICE_ERROR;
+			goto out;
+		}
+		if (file_size != info->file_size) {
+			/* TODO: we do not support truncation */
+			EFI_PRINT("Truncation not supported\n");
+			ret = EFI_ACCESS_DENIED;
+			goto out;
+		}
+		/*
+		 * We do not care for the other attributes
+		 * TODO: Support read only
+		 */
+		ret = EFI_SUCCESS;
+	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
+		if (buffer_size < sizeof(struct efi_file_system_info)) {
+			ret = EFI_BAD_BUFFER_SIZE;
+			goto out;
+		}
+	} else {
+		ret = EFI_UNSUPPORTED;
+	}
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *file)
