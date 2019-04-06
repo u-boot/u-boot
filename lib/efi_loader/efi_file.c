@@ -257,10 +257,12 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 
 	/* Open file */
 	*new_handle = file_open(fh->fs, fh, file_name, open_mode, attributes);
-	if (*new_handle)
+	if (*new_handle) {
+		EFI_PRINT("file handle %p\n", *new_handle);
 		ret = EFI_SUCCESS;
-	else
+	} else {
 		ret = EFI_NOT_FOUND;
+	}
 out:
 	return EFI_EXIT(ret);
 }
