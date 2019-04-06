@@ -135,6 +135,25 @@ static int sanitize_path(char *path)
 }
 
 /**
+ * efi_create_file() - create file or directory
+ *
+ * @fh:			file handle
+ * @attributes:		attributes for newly created file
+ * Returns:		0 for success
+ */
+static int efi_create_file(struct file_handle *fh, u64 attributes)
+{
+	loff_t actwrite;
+	void *buffer = &actwrite;
+
+	if (attributes & EFI_FILE_DIRECTORY)
+		return fs_mkdir(fh->path);
+	else
+		return fs_write(fh->path, map_to_sysmem(buffer), 0, 0,
+				&actwrite);
+}
+
+/**
  * file_open() - open a file handle
  *
  * @fs:			file system
@@ -176,6 +195,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 
 	if (parent) {
 		char *p = fh->path;
+		int exists;
 
 		if (plen > 0) {
 			strcpy(p, parent->path);
@@ -192,17 +212,16 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 		if (set_blk_dev(fh))
 			goto error;
 
-		if ((mode & EFI_FILE_MODE_CREATE) &&
-		    (attributes & EFI_FILE_DIRECTORY)) {
-			if (fs_mkdir(fh->path))
-				goto error;
-		} else if (!((mode & EFI_FILE_MODE_CREATE) ||
-			     fs_exists(fh->path)))
-			goto error;
-
+		exists = fs_exists(fh->path);
 		/* fs_exists() calls fs_close(), so open file system again */
 		if (set_blk_dev(fh))
 			goto error;
+
+		if (!exists) {
+			if (!(mode & EFI_FILE_MODE_CREATE) ||
+			    efi_create_file(fh, attributes))
+				goto error;
+		}
 
 		/* figure out if file is a directory: */
 		fh->isdir = is_dir(fh);
