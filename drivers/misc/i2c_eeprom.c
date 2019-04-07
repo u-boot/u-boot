@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <linux/err.h>
+#include <linux/kernel.h>
 #include <dm.h>
 #include <i2c.h>
 #include <i2c_eeprom.h>
@@ -38,7 +39,24 @@ static int i2c_eeprom_std_read(struct udevice *dev, int offset, uint8_t *buf,
 static int i2c_eeprom_std_write(struct udevice *dev, int offset,
 				const uint8_t *buf, int size)
 {
-	return -ENODEV;
+	struct i2c_eeprom *priv = dev_get_priv(dev);
+	int ret;
+
+	while (size > 0) {
+		int write_size = min_t(int, size, priv->pagesize);
+
+		ret = dm_i2c_write(dev, offset, buf, write_size);
+		if (ret)
+			return ret;
+
+		offset += write_size;
+		buf += write_size;
+		size -= write_size;
+
+		udelay(10000);
+	}
+
+	return 0;
 }
 
 static const struct i2c_eeprom_ops i2c_eeprom_std_ops = {
