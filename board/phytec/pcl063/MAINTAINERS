@@ -3,6 +3,7 @@ M:	Martyn Welch <martyn.welch@collabora.com>
 S:	Maintained
 F:	arch/arm/dts/imx6ul-pcl063.dtsi
 F:	arch/arm/dts/imx6ul-phycore-segin.dts
+F:	arch/arm/dts/imx6ull-u-boot.dtsi
 F:	board/phytec/pcl063/
 F:	configs/phycore_pcl063_defconfig
 F:	include/configs/pcl063.h
