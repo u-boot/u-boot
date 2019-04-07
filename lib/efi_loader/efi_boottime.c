@@ -1569,26 +1569,6 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
-#if CONFIG_IS_ENABLED(EFI_LOADER_HII)
-	ret = efi_add_protocol(&obj->header,
-			       &efi_guid_hii_string_protocol,
-			       (void *)&efi_hii_string);
-	if (ret != EFI_SUCCESS)
-		goto failure;
-
-	ret = efi_add_protocol(&obj->header,
-			       &efi_guid_hii_database_protocol,
-			       (void *)&efi_hii_database);
-	if (ret != EFI_SUCCESS)
-		goto failure;
-
-	ret = efi_add_protocol(&obj->header,
-			       &efi_guid_hii_config_routing_protocol,
-			       (void *)&efi_hii_config_routing);
-	if (ret != EFI_SUCCESS)
-		goto failure;
-#endif
-
 	*info_ptr = info;
 	*handle_ptr = obj;
 

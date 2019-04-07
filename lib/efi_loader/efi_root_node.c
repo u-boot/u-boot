@@ -74,6 +74,26 @@ efi_status_t efi_root_node_register(void)
 	if (ret != EFI_SUCCESS)
 		goto failure;
 
+#if CONFIG_IS_ENABLED(EFI_LOADER_HII)
+	/* Install HII string protocol */
+	ret = efi_add_protocol(root, &efi_guid_hii_string_protocol,
+			       (void *)&efi_hii_string);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
+	/* Install HII database protocol */
+	ret = efi_add_protocol(root, &efi_guid_hii_database_protocol,
+			       (void *)&efi_hii_database);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+
+	/* Install HII configuration routing protocol */
+	ret = efi_add_protocol(root, &efi_guid_hii_config_routing_protocol,
+			       (void *)&efi_hii_config_routing);
+	if (ret != EFI_SUCCESS)
+		goto failure;
+#endif
+
 failure:
 	return ret;
 }
