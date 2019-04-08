@@ -224,9 +224,9 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 			status = "disabled";
-			clock-names = "memclk", "aclk";
+			clock-names = "memclk", "apb_pclk";
 			clocks = <&clkc 11>, <&clkc 44>;
-			compatible = "arm,pl353-smc-r2p1";
+			compatible = "arm,pl353-smc-r2p1", "arm,primecell";
 			interrupt-parent = <&intc>;
 			interrupts = <0 18 4>;
 			ranges ;
