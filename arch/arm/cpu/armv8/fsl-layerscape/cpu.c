@@ -251,7 +251,7 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
+#ifdef CONFIG_SYS_PCIE4_PHYS_ADDR
 	{ CONFIG_SYS_PCIE4_PHYS_ADDR, CONFIG_SYS_PCIE4_PHYS_ADDR,
 	  CONFIG_SYS_PCIE4_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
@@ -453,11 +453,13 @@ static void fix_pcie_mmu_map(void)
 				final_map[i].virt = 0x3000000000ULL;
 				final_map[i].size = 0x800000000ULL;
 				break;
+#ifdef CONFIG_SYS_PCIE4_PHYS_ADDR
 			case CONFIG_SYS_PCIE4_PHYS_ADDR:
 				final_map[i].phys = 0x3800000000ULL;
 				final_map[i].virt = 0x3800000000ULL;
 				final_map[i].size = 0x800000000ULL;
 				break;
+#endif
 			default:
 				break;
 			}
