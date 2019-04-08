@@ -8,12 +8,11 @@
 
 typedef int (*init_fnc_t)(void);
 
-#include <common.h>
-#include <initcall.h>
-#include <efi.h>
-
-DECLARE_GLOBAL_DATA_PTR;
-
+/*
+ * To enable debugging. add #define DEBUG at the top of the including file.
+ *
+ * To find a symbol, use grep on u-boot.map
+ */
 static inline int initcall_run_list(const init_fnc_t init_sequence[])
 {
 	const init_fnc_t *init_fnc_ptr;
