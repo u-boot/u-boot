@@ -17,4 +17,6 @@
 #define GPIO_GPIO_ALT(x)                                  (0x74 + 4 * (x))
 #define GPIO_GPIO_ALT1(x)                                 (0x7c + 4 * (x))
 
+#define GCB_PHY_CFG                                       0x118
+
 #endif
