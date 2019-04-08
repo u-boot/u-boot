@@ -328,6 +328,10 @@ int main(int argc, char *argv[])
 	gd_t data;
 	int ret;
 
+	memset(&data, '\0', sizeof(data));
+	gd = &data;
+	gd->arch.text_base = os_find_text_base();
+
 	ret = state_init();
 	if (ret)
 		goto err;
@@ -340,8 +344,6 @@ int main(int argc, char *argv[])
 	if (ret)
 		goto err;
 
-	memset(&data, '\0', sizeof(data));
-	gd = &data;
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
 #endif
@@ -349,6 +351,12 @@ int main(int argc, char *argv[])
 	gd->default_log_level = state->default_log_level;
 #endif
 	setup_ram_buf(state);
+
+	/*
+	 * Set up the relocation offset here, since sandbox symbols are always
+	 * relocated by the OS before sandbox is entered.
+	 */
+	gd->reloc_off = (ulong)gd->arch.text_base;
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);

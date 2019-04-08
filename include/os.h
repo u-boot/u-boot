@@ -364,4 +364,15 @@ int os_write_file(const char *name, const void *buf, int size);
  */
 int os_read_file(const char *name, void **bufp, int *sizep);
 
+/*
+ * os_find_text_base() - Find the text section in this running process
+ *
+ * This tries to find the address of the text section in this running process.
+ * It can be useful to map the address of functions to the address listed in
+ * the u-boot.map file.
+ *
+ * @return address if found, else NULL
+ */
+void *os_find_text_base(void);
+
 #endif

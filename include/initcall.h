@@ -22,13 +22,17 @@ static inline int initcall_run_list(const init_fnc_t init_sequence[])
 		unsigned long reloc_ofs = 0;
 		int ret;
 
-		if (gd->flags & GD_FLG_RELOC)
+		/*
+		 * Sandbox is relocated by the OS, so symbols always appear at
+		 * the relocated address.
+		 */
+		if (IS_ENABLED(CONFIG_SANDBOX) || (gd->flags & GD_FLG_RELOC))
 			reloc_ofs = gd->reloc_off;
 #ifdef CONFIG_EFI_APP
 		reloc_ofs = (unsigned long)image_base;
 #endif
 		debug("initcall: %p", (char *)*init_fnc_ptr - reloc_ofs);
-		if (gd->flags & GD_FLG_RELOC)
+		if (reloc_ofs)
 			debug(" (relocated to %p)\n", (char *)*init_fnc_ptr);
 		else
 			debug("\n");

@@ -786,3 +786,40 @@ int os_mprotect_allow(void *start, size_t len)
 
 	return mprotect(start, len, PROT_READ | PROT_WRITE);
 }
+
+void *os_find_text_base(void)
+{
+	char line[500];
+	void *base = NULL;
+	int len;
+	int fd;
+
+	/*
+	 * This code assumes that the first line of /proc/self/maps holds
+	 * information about the text, for example:
+	 *
+	 * 5622d9907000-5622d9a55000 r-xp 00000000 08:01 15067168   u-boot
+	 *
+	 * The first hex value is assumed to be the address.
+	 *
+	 * This is tested in Linux 4.15.
+	 */
+	fd = open("/proc/self/maps", O_RDONLY);
+	if (fd == -1)
+		return NULL;
+	len = read(fd, line, sizeof(line));
+	if (len > 0) {
+		char *end = memchr(line, '-', len);
+
+		if (end) {
+			unsigned long long addr;
+
+			*end = '\0';
+			if (sscanf(line, "%llx", &addr) == 1)
+				base = (void *)addr;
+		}
+	}
+	close(fd);
+
+	return base;
+}
