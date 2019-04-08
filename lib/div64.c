@@ -25,7 +25,13 @@
 #if BITS_PER_LONG == 32
 
 #ifndef __div64_32
-u32 __attribute__((weak)) __div64_32(u64 *n, u32 base)
+/*
+ * Don't instrument this function as it may be called from tracing code, since
+ * it needs to read the timer and this often requires calling do_div(), which
+ * calls this function.
+ */
+uint32_t __attribute__((weak, no_instrument_function)) __div64_32(u64 *n,
+								  u32 base)
 {
 	u64 rem = *n;
 	u64 b = base;
