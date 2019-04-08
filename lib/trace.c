@@ -183,7 +183,8 @@ int trace_list_functions(void *buff, int buff_size, unsigned int *needed)
 	/* Work out how must of the buffer we used */
 	*needed = ptr - buff;
 	if (ptr > end)
-		return -1;
+		return -ENOSPC;
+
 	return 0;
 }
 
@@ -227,7 +228,8 @@ int trace_list_calls(void *buff, int buff_size, unsigned *needed)
 	/* Work out how must of the buffer we used */
 	*needed = ptr - buff;
 	if (ptr > end)
-		return -1;
+		return -ENOSPC;
+
 	return 0;
 }
 
@@ -302,7 +304,7 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 		memcpy(buff, hdr, used);
 #else
 		puts("trace: already enabled\n");
-		return -1;
+		return -EALREADY;
 #endif
 	}
 	hdr = (struct trace_hdr *)buff;
@@ -310,7 +312,7 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 	if (needed > buff_size) {
 		printf("trace: buffer size %zd bytes: at least %zd needed\n",
 		       buff_size, needed);
-		return -1;
+		return -ENOSPC;
 	}
 
 	if (was_disabled)
@@ -327,6 +329,7 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 	hdr->depth_limit = 15;
 	trace_enabled = 1;
 	trace_inited = 1;
+
 	return 0;
 }
 
@@ -346,7 +349,7 @@ int __attribute__((no_instrument_function)) trace_early_init(void)
 	if (needed > buff_size) {
 		printf("trace: buffer size is %zd bytes, at least %zd needed\n",
 		       buff_size, needed);
-		return -1;
+		return -ENOSPC;
 	}
 
 	memset(hdr, '\0', needed);
@@ -361,6 +364,7 @@ int __attribute__((no_instrument_function)) trace_early_init(void)
 	printf("trace: early enable at %08x\n", CONFIG_TRACE_EARLY_ADDR);
 
 	trace_enabled = 1;
+
 	return 0;
 }
 #endif
