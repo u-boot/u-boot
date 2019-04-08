@@ -296,7 +296,8 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 		trace_enabled = 0;
 		hdr = map_sysmem(CONFIG_TRACE_EARLY_ADDR,
 				 CONFIG_TRACE_EARLY_SIZE);
-		end = (char *)&hdr->ftrace[hdr->ftrace_count];
+		end = (char *)&hdr->ftrace[min(hdr->ftrace_count,
+					       hdr->ftrace_size)];
 		used = end - (char *)hdr;
 		printf("trace: copying %08lx bytes of early data from %x to %08lx\n",
 		       used, CONFIG_TRACE_EARLY_ADDR,
