@@ -154,6 +154,7 @@ config MACH_SUN4I
 	bool "sun4i (Allwinner A10)"
 	select CPU_V7A
 	select ARM_CORTEX_CPU_IS_UP
+	select DM_MMC if MMC
 	select DM_SCSI if SCSI
 	select PHY_SUN4I_USB
 	select DRAM_SUN4I
@@ -164,6 +165,7 @@ config MACH_SUN5I
 	bool "sun5i (Allwinner A13)"
 	select CPU_V7A
 	select ARM_CORTEX_CPU_IS_UP
+	select DM_MMC if MMC
 	select DRAM_SUN4I
 	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN4I
@@ -176,6 +178,7 @@ config MACH_SUN6I
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DM_MMC if MMC
 	select DRAM_SUN6I
 	select PHY_SUN4I_USB
 	select SUN6I_P2WI
@@ -202,6 +205,7 @@ config MACH_SUN8I_A23
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DM_MMC if MMC
 	select DRAM_SUN8I_A23
 	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
@@ -215,6 +219,7 @@ config MACH_SUN8I_A33
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DM_MMC if MMC
 	select DRAM_SUN8I_A33
 	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
@@ -225,6 +230,7 @@ config MACH_SUN8I_A33
 config MACH_SUN8I_A83T
 	bool "sun8i (Allwinner A83T)"
 	select CPU_V7A
+	select DM_MMC if MMC
 	select DRAM_SUN8I_A83T
 	select PHY_SUN4I_USB
 	select SUNXI_GEN_SUN6I
@@ -240,6 +246,7 @@ config MACH_SUN8I_H3
 	select ARCH_SUPPORT_PSCI
 	select MACH_SUNXI_H3_H5
 	select ARMV7_BOOT_SEC_DEFAULT if OLD_SUNXI_KERNEL_COMPAT
+	select DM_MMC if MMC
 
 config MACH_SUN8I_R40
 	bool "sun8i (Allwinner R40)"
@@ -258,6 +265,7 @@ config MACH_SUN8I_V3S
 	select CPU_V7_HAS_NONSEC
 	select CPU_V7_HAS_VIRT
 	select ARCH_SUPPORT_PSCI
+	select DM_MMC if MMC
 	select SUNXI_GEN_SUN6I
 	select SUNXI_DRAM_DW
 	select SUNXI_DRAM_DW_16BIT
@@ -272,11 +280,13 @@ config MACH_SUN9I
 	select SUNXI_GEN_SUN6I
 	select SUN8I_RSB
 	select SUPPORT_SPL
+	select DM_MMC if MMC
 
 config MACH_SUN50I
 	bool "sun50i (Allwinner A64)"
 	select ARM64
 	select DM_I2C
+	select DM_MMC if MMC
 	select PHY_SUN4I_USB
 	select SUN6I_PRCM
 	select SUNXI_DE2
@@ -293,6 +303,7 @@ config MACH_SUN50I_H5
 	bool "sun50i (Allwinner H5)"
 	select ARM64
 	select MACH_SUNXI_H3_H5
+	select DM_MMC if MMC
 	select FIT
 	select SPL_LOAD_FIT
 
@@ -300,6 +311,7 @@ config MACH_SUN50I_H6
 	bool "sun50i (Allwinner H6)"
 	select ARM64
 	select SUPPORT_SPL
+	select DM_MMC if MMC
 	select FIT
 	select SPL_LOAD_FIT
 	select DRAM_SUN50I_H6
