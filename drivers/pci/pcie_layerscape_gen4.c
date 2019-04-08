@@ -570,8 +570,3 @@ U_BOOT_DRIVER(pcie_layerscape_gen4) = {
 	.probe	= ls_pcie_g4_probe,
 	.priv_auto_alloc_size = sizeof(struct ls_pcie_g4),
 };
-
-/* No any fixup so far */
-void ft_pci_setup(void *blob, bd_t *bd)
-{
-}
