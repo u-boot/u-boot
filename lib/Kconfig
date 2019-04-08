@@ -165,6 +165,15 @@ config RBTREE
 config BITREVERSE
 	bool "Bit reverse library from Linux"
 
+config TRACE
+	bool "Support for tracing of function calls and timing"
+	imply CMD_TRACE
+	help
+	  Enables function tracing within U-Boot. This allows recording of call
+	  traces including timing information. The command can write data to
+	  memory for exporting for analysis (e.g. using bootchart).
+	  See doc/README.trace for full details.
+
 source lib/dhry/Kconfig
 
 menu "Security support"
