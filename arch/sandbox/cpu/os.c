@@ -209,8 +209,8 @@ void os_tty_raw(int fd, bool allow_sigs)
 
 void *os_malloc(size_t length)
 {
-	struct os_mem_hdr *hdr;
 	int page_size = getpagesize();
+	struct os_mem_hdr *hdr;
 
 	/*
 	 * Use an address that is hopefully available to us so that pointers
@@ -229,30 +229,34 @@ void *os_malloc(size_t length)
 
 void os_free(void *ptr)
 {
-	struct os_mem_hdr *hdr = ptr;
+	int page_size = getpagesize();
+	struct os_mem_hdr *hdr;
 
-	hdr--;
-	if (ptr)
-		munmap(hdr, hdr->length + sizeof(*hdr));
+	if (ptr) {
+		hdr = ptr - page_size;
+		munmap(hdr, hdr->length + page_size);
+	}
 }
 
 void *os_realloc(void *ptr, size_t length)
 {
-	struct os_mem_hdr *hdr = ptr;
+	int page_size = getpagesize();
+	struct os_mem_hdr *hdr;
 	void *buf = NULL;
 
-	hdr--;
-	if (length != 0) {
+	if (length) {
 		buf = os_malloc(length);
 		if (!buf)
 			return buf;
 		if (ptr) {
+			hdr = ptr - page_size;
 			if (length > hdr->length)
 				length = hdr->length;
 			memcpy(buf, ptr, length);
 		}
 	}
-	os_free(ptr);
+	if (ptr)
+		os_free(ptr);
 
 	return buf;
 }
