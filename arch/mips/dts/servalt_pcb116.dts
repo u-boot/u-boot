@@ -54,3 +54,28 @@
 	status = "okay";
 	sgpio-ports = <0x0000fe7f>;
 };
+
+&mdio0 {
+	status = "okay";
+
+	phy0: ethernet-phy@0 {
+		reg = <0>;
+	};
+	phy1: ethernet-phy@1 {
+		reg = <1>;
+	};
+};
+
+&switch {
+	ethernet-ports {
+
+		port0: port@0 {
+			reg = <0>;
+			phy-handle = <&phy0>;
+		};
+		port1: port@1 {
+			reg = <1>;
+			phy-handle = <&phy1>;
+		};
+	};
+};
