@@ -242,7 +242,7 @@ config FSL_LAYERSCAPE
 
 config FSL_PCIE_COMPAT
 	string "PCIe compatible of Kernel DT"
-	depends on PCIE_LAYERSCAPE
+	depends on PCIE_LAYERSCAPE || PCIE_LAYERSCAPE_GEN4
 	default "fsl,ls1012a-pcie" if ARCH_LS1012A
 	default "fsl,ls1043a-pcie" if ARCH_LS1043A
 	default "fsl,ls1046a-pcie" if ARCH_LS1046A
