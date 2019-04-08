@@ -197,7 +197,7 @@ void android_print_contents(const struct andr_img_hdr *hdr)
 	printf("%skernel size:      %x\n", p, hdr->kernel_size);
 	printf("%skernel address:   %x\n", p, hdr->kernel_addr);
 	printf("%sramdisk size:     %x\n", p, hdr->ramdisk_size);
-	printf("%sramdisk addrress: %x\n", p, hdr->ramdisk_addr);
+	printf("%sramdisk address:  %x\n", p, hdr->ramdisk_addr);
 	printf("%ssecond size:      %x\n", p, hdr->second_size);
 	printf("%ssecond address:   %x\n", p, hdr->second_addr);
 	printf("%stags address:     %x\n", p, hdr->tags_addr);
