@@ -303,10 +303,8 @@ int board_run_command(const char *cmdline)
 static void setup_ram_buf(struct sandbox_state *state)
 {
 	/* Zero the RAM buffer if we didn't read it, to keep valgrind happy */
-	if (!state->ram_buf_read) {
+	if (!state->ram_buf_read)
 		memset(state->ram_buf, '\0', state->ram_size);
-		printf("clear %p %x\n", state->ram_buf, state->ram_size);
-	}
 
 	gd->arch.ram_buf = state->ram_buf;
 	gd->ram_size = state->ram_size;
