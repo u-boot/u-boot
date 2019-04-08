@@ -25,19 +25,19 @@
 #if BITS_PER_LONG == 32
 
 #ifndef __div64_32
-uint32_t __attribute__((weak)) __div64_32(uint64_t *n, uint32_t base)
+u32 __attribute__((weak)) __div64_32(u64 *n, u32 base)
 {
-	uint64_t rem = *n;
-	uint64_t b = base;
-	uint64_t res, d = 1;
-	uint32_t high = rem >> 32;
+	u64 rem = *n;
+	u64 b = base;
+	u64 res, d = 1;
+	u32 high = rem >> 32;
 
 	/* Reduce the thing a bit first */
 	res = 0;
 	if (high >= base) {
 		high /= base;
-		res = (uint64_t) high << 32;
-		rem -= (uint64_t) (high*base) << 32;
+		res = (u64)high << 32;
+		rem -= (u64)(high * base) << 32;
 	}
 
 	while ((int64_t)b > 0 && b < rem) {
