@@ -29,6 +29,7 @@
 #include <usb.h>
 #include <usb/ehci-ci.h>
 #include "../common/tdx-common.h"
+#include "../common/tdx-cfg-block.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -317,10 +318,15 @@ static const struct boot_mode board_boot_modes[] = {
 
 int board_late_init(void)
 {
-	int minc, maxc;
-
-	if (get_cpu_temp_grade(&minc, &maxc) != TEMP_COMMERCIAL)
+#ifdef CONFIG_TDX_CFG_BLOCK
+	/*
+	 * If we have a valid config block and it says we are a module with
+	 * Wi-Fi/Bluetooth make sure we use the -wifi device tree.
+	 */
+	if (tdx_hw_tag.prodid == COLIBRI_IMX6ULL_WIFI_BT_IT ||
+	    tdx_hw_tag.prodid == COLIBRI_IMX6ULL_WIFI_BT)
 		env_set("variant", "-wifi");
+#endif
 
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
