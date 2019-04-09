@@ -280,6 +280,9 @@ static int get_cfgblock_interactive(void)
 	char it = 'n';
 	int len;
 
+	/* Unknown module by default */
+	tdx_hw_tag.prodid = 0;
+
 	if (cpu_is_pxa27x())
 		sprintf(message, "Is the module the 312 MHz version? [y/N] ");
 	else
@@ -290,54 +293,49 @@ static int get_cfgblock_interactive(void)
 
 	soc = env_get("soc");
 	if (!strcmp("mx6", soc)) {
-#ifdef CONFIG_MACH_TYPE
-		if (it == 'y' || it == 'Y')
+#ifdef CONFIG_TARGET_APALIS_IMX6
+		if (it == 'y' || it == 'Y') {
 			if (is_cpu_type(MXC_CPU_MX6Q))
 				tdx_hw_tag.prodid = APALIS_IMX6Q_IT;
 			else
 				tdx_hw_tag.prodid = APALIS_IMX6D_IT;
-		else
+		} else {
 			if (is_cpu_type(MXC_CPU_MX6Q))
 				tdx_hw_tag.prodid = APALIS_IMX6Q;
 			else
 				tdx_hw_tag.prodid = APALIS_IMX6D;
-#else
+		}
+#elif CONFIG_TARGET_COLIBRI_IMX6
+		if (it == 'y' || it == 'Y') {
+			if (is_cpu_type(MXC_CPU_MX6DL))
+				tdx_hw_tag.prodid = COLIBRI_IMX6DL_IT;
+			else if (is_cpu_type(MXC_CPU_MX6SOLO))
+				tdx_hw_tag.prodid = COLIBRI_IMX6S_IT;
+		} else {
+			if (is_cpu_type(MXC_CPU_MX6DL))
+				tdx_hw_tag.prodid = COLIBRI_IMX6DL;
+			else if (is_cpu_type(MXC_CPU_MX6SOLO))
+				tdx_hw_tag.prodid = COLIBRI_IMX6S;
+		}
+#elif CONFIG_TARGET_COLIBRI_IMX6ULL
 		char wb = 'n';
 
+		sprintf(message, "Does the module have Wi-Fi / Bluetooth? " \
+				 "[y/N] ");
+		len = cli_readline(message);
+		wb = console_buffer[0];
 		if (it == 'y' || it == 'Y') {
-			if (is_cpu_type(MXC_CPU_MX6DL)) {
-				tdx_hw_tag.prodid = COLIBRI_IMX6DL_IT;
-			} else if (is_cpu_type(MXC_CPU_MX6SOLO)) {
-				tdx_hw_tag.prodid = COLIBRI_IMX6S_IT;
-			} else {
-				sprintf(message, "Does the module have WiFi /" \
-						 " Bluetooth? [y/N] ");
-				len = cli_readline(message);
-				wb = console_buffer[0];
-				if (wb == 'y' || wb == 'Y')
-					tdx_hw_tag.prodid =
-						COLIBRI_IMX6ULL_WIFI_BT_IT;
-				else
-					tdx_hw_tag.prodid = COLIBRI_IMX6ULL_IT;
-			}
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_WIFI_BT_IT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_IT;
 		} else {
-			if (is_cpu_type(MXC_CPU_MX6DL)) {
-				tdx_hw_tag.prodid = COLIBRI_IMX6DL;
-			} else if (is_cpu_type(MXC_CPU_MX6SOLO)) {
-				tdx_hw_tag.prodid = COLIBRI_IMX6S;
-			} else {
-				sprintf(message, "Does the module have WiFi /" \
-						 " Bluetooth? [y/N] ");
-				len = cli_readline(message);
-				wb = console_buffer[0];
-				if (wb == 'y' || wb == 'Y')
-					tdx_hw_tag.prodid =
-						COLIBRI_IMX6ULL_WIFI_BT;
-				else
-					tdx_hw_tag.prodid = COLIBRI_IMX6ULL;
-			}
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_WIFI_BT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX6ULL;
 		}
-#endif /* CONFIG_MACH_TYPE */
+#endif
 	} else if (!strcmp("imx7d", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7D;
 	else if (!strcmp("imx7s", soc))
@@ -389,7 +387,9 @@ static int get_cfgblock_interactive(void)
 			tdx_hw_tag.prodid = COLIBRI_VF61_IT;
 		else
 			tdx_hw_tag.prodid = COLIBRI_VF61;
-	} else {
+	}
+
+	if (!tdx_hw_tag.prodid) {
 		printf("Module type not detectable due to unknown SoC\n");
 		return -1;
 	}
