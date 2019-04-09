@@ -263,6 +263,9 @@ static int setup_fec(void)
 			IOMUX_GPR1_FEC2_CLOCK_MUX2_SEL_MASK,
 			IOMUX_GPR1_FEC2_CLOCK_MUX1_SEL_MASK);
 
+	/* give new Ethernet PHY power save mode circuitry time to settle */
+	mdelay(300);
+
 	return 0;
 }
 
