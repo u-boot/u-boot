@@ -12,10 +12,17 @@
 #include <dm/uclass-internal.h>
 
 /*
- * prior_stage_fdt_address must be stored in the data section since it is used
+ * The variables here must be stored in the data section since they are used
  * before the bss section is available.
  */
 phys_addr_t prior_stage_fdt_address __attribute__((section(".data")));
+u32 hart_lottery __attribute__((section(".data"))) = 0;
+
+/*
+ * The main hart running U-Boot has acquired available_harts_lock until it has
+ * finished initialization of global data.
+ */
+u32 available_harts_lock = 1;
 
 static inline bool supports_extension(char ext)
 {

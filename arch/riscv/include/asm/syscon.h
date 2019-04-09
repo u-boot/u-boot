@@ -8,12 +8,12 @@
 
 /*
  * System controllers in a RISC-V system
- *
- * So far only SiFive's Core Local Interruptor (CLINT) is defined.
  */
 enum {
 	RISCV_NONE,
 	RISCV_SYSCON_CLINT,	/* Core Local Interruptor (CLINT) */
+	RISCV_SYSCON_PLIC,	/* Platform Level Interrupt Controller (PLIC) */
+	RISCV_SYSCON_PLMT,	/* Platform Level Machine Timer (PLMT) */
 };
 
 #endif /* _ASM_SYSCON_H */

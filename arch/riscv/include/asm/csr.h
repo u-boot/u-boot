@@ -46,6 +46,7 @@
 #endif
 
 /* Interrupt Enable and Interrupt Pending flags */
+#define MIE_MSIE	_AC(0x00000008, UL) /* Software Interrupt Enable */
 #define SIE_SSIE	_AC(0x00000002, UL) /* Software Interrupt Enable */
 #define SIE_STIE	_AC(0x00000020, UL) /* Timer Interrupt Enable */
 
