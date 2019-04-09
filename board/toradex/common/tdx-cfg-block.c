@@ -6,7 +6,9 @@
 #include <common.h>
 #include "tdx-cfg-block.h"
 
-#if defined(CONFIG_TARGET_APALIS_IMX6) || defined(CONFIG_TARGET_COLIBRI_IMX6)
+#if defined(CONFIG_TARGET_APALIS_IMX6) || \
+	defined(CONFIG_TARGET_COLIBRI_IMX6) || \
+	defined(CONFIG_TARGET_COLIBRI_IMX8QXP)
 #include <asm/arch/sys_proto.h>
 #else
 #define is_cpu_type(cpu) (0)
@@ -92,10 +94,10 @@ const char * const toradex_modules[] = {
 	[34] = "Apalis TK1 2GB",
 	[35] = "Apalis iMX6 Dual 1GB IT",
 	[36] = "Colibri iMX6ULL 256MB",
-	[37] = "Apalis iMX8 QuadMax 4GB Wi-Fi / Bluetooth",
-	[38] = "Colibri iMX8X",
+	[37] = "Apalis iMX8 QuadMax 4GB Wi-Fi / BT IT",
+	[38] = "Colibri iMX8 QuadXPlus 2GB Wi-Fi / BT IT",
 	[39] = "Colibri iMX7 Dual 1GB (eMMC)",
-	[40] = "Colibri iMX6ULL 512MB Wi-Fi / Bluetooth IT",
+	[40] = "Colibri iMX6ULL 512MB Wi-Fi / BT IT",
 	[41] = "Colibri iMX7 Dual 512MB EPDC",
 	[42] = "Apalis TK1 4GB",
 	[43] = "Colibri T20 512MB IT SETEK",
@@ -340,6 +342,8 @@ static int get_cfgblock_interactive(void)
 		tdx_hw_tag.prodid = COLIBRI_IMX7D;
 	else if (!strcmp("imx7s", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7S;
+	else if (is_cpu_type(MXC_CPU_IMX8QXP))
+		tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
 	else if (!strcmp("tegra20", soc)) {
 		if (it == 'y' || it == 'Y')
 			if (gd->ram_size == 0x10000000)
