@@ -22,7 +22,7 @@ enum pca_type {
 };
 
 struct chip_desc {
-	u8 enable;
+	u8 enable; /* Enable mask in ctl register (used for muxes only) */
 	enum muxtype {
 		pca954x_ismux = 0,
 		pca954x_isswi,
@@ -48,12 +48,10 @@ static const struct chip_desc chips[] = {
 		.width = 8,
 	},
 	[PCA9548] = {
-		.enable = 0x8,
 		.muxtype = pca954x_isswi,
 		.width = 8,
 	},
 	[PCA9646] = {
-		.enable = 0x0,
 		.muxtype = pca954x_isswi,
 		.width = 4,
 	},
