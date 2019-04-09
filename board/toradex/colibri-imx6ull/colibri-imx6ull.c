@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2018 Toradex AG
+ * Copyright (C) 2018-2019 Toradex AG
  */
 #include <common.h>
+
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
@@ -14,7 +15,6 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
-#include <common.h>
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <fdt_support.h>
@@ -28,24 +28,15 @@
 #include <netdev.h>
 #include <usb.h>
 #include <usb/ehci-ci.h>
+
 #include "../common/tdx-common.h"
 #include "../common/tdx-cfg-block.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
-	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
 #define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP |			\
 	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_40ohm |			\
 	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
-
-#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
-	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
-#define ENET_PAD_CTRL_MII  (PAD_CTL_DSE_40ohm)
-
-#define ENET_RX_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_DSE_48ohm)
 
 #define LCD_PAD_CTRL    (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | \
 		PAD_CTL_DSE_48ohm)
@@ -65,13 +56,6 @@ int dram_init(void)
 	return 0;
 }
 
-static iomux_v3_cfg_t const uart1_pads[] = {
-	MX6_PAD_UART1_TX_DATA__UART1_DTE_RX	| MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_UART1_RX_DATA__UART1_DTE_TX	| MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_UART1_RTS_B__UART1_DTE_CTS	| MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_UART1_CTS_B__UART1_DTE_RTS	| MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
 #ifdef CONFIG_FSL_ESDHC
 static iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_CLK__USDHC1_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -90,31 +74,12 @@ static iomux_v3_cfg_t const usb_cdet_pads[] = {
 };
 
 #ifdef CONFIG_NAND_MXS
-static iomux_v3_cfg_t const gpmi_pads[] = {
-	MX6_PAD_NAND_DATA00__RAWNAND_DATA00	| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_DATA01__RAWNAND_DATA01	| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_DATA02__RAWNAND_DATA02	| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_DATA03__RAWNAND_DATA03	| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_DATA04__RAWNAND_DATA04	| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_DATA05__RAWNAND_DATA05	| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_DATA06__RAWNAND_DATA06	| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_DATA07__RAWNAND_DATA07	| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_CLE__RAWNAND_CLE		| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_ALE__RAWNAND_ALE		| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_RE_B__RAWNAND_RE_B		| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_WE_B__RAWNAND_WE_B		| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_CE0_B__RAWNAND_CE0_B	| MUX_PAD_CTRL(NAND_PAD_CTRL),
-	MX6_PAD_NAND_READY_B__RAWNAND_READY_B	| MUX_PAD_CTRL(NAND_PAD_READY0_CTRL),
-};
-
 static void setup_gpmi_nand(void)
 {
-	imx_iomux_v3_setup_multiple_pads(gpmi_pads, ARRAY_SIZE(gpmi_pads));
-
 	setup_gpmi_io_clk((3 << MXC_CCM_CSCDR1_BCH_PODF_OFFSET) |
 			  (3 << MXC_CCM_CSCDR1_GPMI_PODF_OFFSET));
 }
-#endif
+#endif /* CONFIG_NAND_MXS */
 
 #ifdef CONFIG_VIDEO_MXS
 static iomux_v3_cfg_t const lcd_pads[] = {
@@ -170,31 +135,6 @@ static int setup_lcd(void)
 }
 #endif
 
-#ifdef CONFIG_FEC_MXC
-static iomux_v3_cfg_t const fec2_pads[] = {
-	MX6_PAD_ENET2_TX_CLK__ENET2_REF_CLK2		| MUX_PAD_CTRL(ENET_PAD_CTRL) | MUX_MODE_SION,
-	MX6_PAD_GPIO1_IO06__ENET2_MDIO			| MUX_PAD_CTRL(ENET_PAD_CTRL_MII),
-	MX6_PAD_GPIO1_IO07__ENET2_MDC			| MUX_PAD_CTRL(ENET_PAD_CTRL_MII),
-	MX6_PAD_ENET2_RX_DATA0__ENET2_RDATA00		| MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_ENET2_RX_DATA1__ENET2_RDATA01		| MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_ENET2_RX_ER__ENET2_RX_ER		| MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_ENET2_RX_EN__ENET2_RX_EN		| MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
-	MX6_PAD_ENET2_TX_DATA0__ENET2_TDATA00		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_TX_DATA1__ENET2_TDATA01		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-	MX6_PAD_ENET2_TX_EN__ENET2_TX_EN		| MUX_PAD_CTRL(ENET_PAD_CTRL),
-};
-
-static void setup_iomux_fec(void)
-{
-	imx_iomux_v3_setup_multiple_pads(fec2_pads, ARRAY_SIZE(fec2_pads));
-}
-#endif
-
-static void setup_iomux_uart(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
-}
-
 #ifdef CONFIG_FSL_ESDHC
 
 #define USDHC1_CD_GPIO	IMX_GPIO_NR(5, 0)
@@ -247,20 +187,17 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #ifdef CONFIG_FEC_MXC
-
 static int setup_fec(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	int ret;
-
-	setup_iomux_fec();
 
 	/* provide the PHY clock from the i.MX 6 */
 	ret = enable_fec_anatop_clock(1, ENET_50MHZ);
 	if (ret)
 		return ret;
 
-	/* Use 50M anatop REF_CLK and output it on the ENET2_TX_CLK */
+	/* Use 50M anatop REF_CLK and output it on ENET2_TX_CLK */
 	clrsetbits_le32(&iomuxc_regs->gpr[1],
 			IOMUX_GPR1_FEC2_CLOCK_MUX2_SEL_MASK,
 			IOMUX_GPR1_FEC2_CLOCK_MUX1_SEL_MASK);
@@ -277,14 +214,7 @@ int board_phy_config(struct phy_device *phydev)
 		phydev->drv->config(phydev);
 	return 0;
 }
-#endif
-
-int board_early_init_f(void)
-{
-	setup_iomux_uart();
-
-	return 0;
-}
+#endif /* CONFIG_FEC_MXC */
 
 int board_init(void)
 {
