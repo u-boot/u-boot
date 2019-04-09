@@ -24,7 +24,9 @@ obj-y	+= timer.o
 endif
 
 ifndef CONFIG_SKIP_LOWLEVEL_INIT
+ifndef CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 obj-y	+= lowlevel_init.o
+endif
 endif
 
 ifdef CONFIG_$(SPL_)SYS_THUMB_BUILD

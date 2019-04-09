@@ -9,7 +9,7 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/sama5d2.h>
 
-int cpu_is_sama5d2(void)
+int _cpu_is_sama5d2(void)
 {
 	unsigned int chip_id = get_chip_id();
 

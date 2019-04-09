@@ -598,6 +598,8 @@ dtb-$(CONFIG_TARGET_AT91SAM9260EK) += \
 
 dtb-$(CONFIG_TARGET_AT91SAM9M10G45EK) += at91sam9m10g45ek.dtb
 
+dtb-$(CONFIG_TARGET_PM9G45) += at91sam9m10g45ek.dtb
+
 dtb-$(CONFIG_TARGET_AT91SAM9X5EK) += \
 	at91sam9g15ek.dtb	\
 	at91sam9g25ek.dtb	\
@@ -606,6 +608,9 @@ dtb-$(CONFIG_TARGET_AT91SAM9X5EK) += \
 	at91sam9x35ek.dtb
 
 dtb-$(CONFIG_TARGET_AT91SAM9N12EK) += at91sam9n12ek.dtb
+
+dtb-$(CONFIG_TARGET_GARDENA_SMART_GATEWAY_AT91SAM) += \
+	at91sam9g25-gardena-smart-gateway.dtb
 
 dtb-$(CONFIG_TARGET_ETHERNUT5) += ethernut5.dtb
 

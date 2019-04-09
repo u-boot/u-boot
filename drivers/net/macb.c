@@ -550,8 +550,14 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 
 		for (i = 0; i < MACB_AUTONEG_TIMEOUT / 100; i++) {
 			status = macb_mdio_read(macb, MII_BMSR);
-			if (status & BMSR_LSTATUS)
+			if (status & BMSR_LSTATUS) {
+				/*
+				 * Delay a bit after the link is established,
+				 * so that the next xfer does not fail
+				 */
+				mdelay(10);
 				break;
+			}
 			udelay(100);
 		}
 	}

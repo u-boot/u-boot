@@ -51,9 +51,15 @@ int init_func_watchdog_reset(void);
 		#if defined(__ASSEMBLY__)
 			#define WATCHDOG_RESET bl watchdog_reset
 		#else
-			extern void watchdog_reset(void);
+			/* Don't require the watchdog to be enabled in SPL */
+			#if defined(CONFIG_SPL_BUILD) &&		\
+				!defined(CONFIG_SPL_WATCHDOG_SUPPORT)
+				#define WATCHDOG_RESET() {}
+			#else
+				extern void watchdog_reset(void);
 
-			#define WATCHDOG_RESET watchdog_reset
+				#define WATCHDOG_RESET watchdog_reset
+			#endif
 		#endif
 	#else
 		/*

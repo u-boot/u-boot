@@ -25,6 +25,12 @@ typedef struct at91_wdt {
 	u32	sr;
 } at91_wdt_t;
 
+struct at91_wdt_priv {
+	void __iomem *regs;
+	u32 regval;
+	u32 timeout;
+};
+
 #endif
 
 /* Watchdog Control Register */
@@ -42,5 +48,9 @@ typedef struct at91_wdt {
 #define AT91_WDT_MR_WDD(x)		((x & 0xfff) << 16)
 #define AT91_WDT_MR_WDDBGHLT		0x10000000
 #define AT91_WDT_MR_WDIDLEHLT		0x20000000
+
+/* Hardware timeout in seconds */
+#define WDT_MAX_TIMEOUT		16
+#define WDT_DEFAULT_TIMEOUT	2
 
 #endif
