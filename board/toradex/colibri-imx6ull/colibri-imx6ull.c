@@ -24,8 +24,6 @@
 #include <miiphy.h>
 #include <mtd_node.h>
 #include <netdev.h>
-#include <usb.h>
-#include <usb/ehci-ci.h>
 
 #include "../common/tdx-common.h"
 #include "../common/tdx-cfg-block.h"
@@ -41,18 +39,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define NAND_PAD_READY0_CTRL (PAD_CTL_DSE_48ohm | PAD_CTL_PUS_22K_UP)
 
-#define USB_CDET_GPIO	IMX_GPIO_NR(7, 14)
-
 int dram_init(void)
 {
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
 
 	return 0;
 }
-
-static iomux_v3_cfg_t const usb_cdet_pads[] = {
-	MX6_PAD_SNVS_TAMPER2__GPIO5_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
 
 #ifdef CONFIG_NAND_MXS
 static void setup_gpmi_nand(void)
@@ -163,11 +155,6 @@ int board_init(void)
 	setup_lcd();
 #endif
 
-#ifdef CONFIG_USB_EHCI_MX6
-	imx_iomux_v3_setup_multiple_pads(usb_cdet_pads, ARRAY_SIZE(usb_cdet_pads));
-	gpio_request(USB_CDET_GPIO, "usb-cdet-gpio");
-#endif
-
 	return 0;
 }
 
@@ -238,41 +225,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	return ft_common_board_setup(blob, bd);
-}
-#endif
-
-#ifdef CONFIG_USB_EHCI_MX6
-static iomux_v3_cfg_t const usb_otg2_pads[] = {
-		MX6_PAD_GPIO1_IO02__GPIO1_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-int board_ehci_hcd_init(int port)
-{
-	switch (port) {
-	case 0:
-		break;
-	case 1:
-		imx_iomux_v3_setup_multiple_pads(usb_otg2_pads,
-						 ARRAY_SIZE(usb_otg2_pads));
-		break;
-	default:
-		return -EINVAL;
-	}
-	return 0;
-}
-
-int board_usb_phy_mode(int port)
-{
-	switch (port) {
-	case 0:
-		if (gpio_get_value(USB_CDET_GPIO))
-			return USB_INIT_DEVICE;
-		else
-			return USB_INIT_HOST;
-	case 1:
-	default:
-		return USB_INIT_HOST;
-	}
 }
 #endif
 

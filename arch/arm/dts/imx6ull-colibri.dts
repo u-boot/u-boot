@@ -13,6 +13,7 @@
 
 	aliases {
 		mmc0 = &usdhc1;
+		usb0 = &usbotg1; /* required for ums */
 	};
 
 	chosen {
@@ -35,6 +36,13 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
+	reg_5v0: regulator-5v0 {
+		compatible = "regulator-fixed";
+		regulator-name = "5V";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+	};
+
 	reg_sd1_vmmc: regulator-sd1-vmmc {
 		compatible = "regulator-gpio";
 		gpio = <&gpio5 9 GPIO_ACTIVE_HIGH>;
@@ -46,6 +54,17 @@
 		regulator-max-microvolt = <3300000>;
 		states = <1800000 0x1 3300000 0x0>;
 		vin-supply = <&reg_module_3v3>;
+	};
+
+	reg_usbh_vbus: regulator-usbh-vbus {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_usbh_reg>;
+		regulator-name = "VCC_USB[1-4]";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio1 2 GPIO_ACTIVE_LOW>; /* USBH_PEN */
+		vin-supply = <&reg_5v0>;
 	};
 };
 
@@ -183,15 +202,20 @@
 	fsl,dte-mode;
 };
 
+/* Colibri USBC */
 &usbotg1 {
 	dr_mode = "otg";
 	srp-disable;
 	hnp-disable;
 	adp-disable;
+	status = "okay";
 };
 
+/* Colibri USBH */
 &usbotg2 {
 	dr_mode = "host";
+	vbus-supply = <&reg_usbh_vbus>;
+	status = "okay";
 };
 
 /* Colibri MMC */
