@@ -141,6 +141,7 @@ static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
 	efi_deserialize_load_option(&lo, load_option);
 
 	if (lo.attributes & LOAD_OPTION_ACTIVE) {
+		u32 attributes;
 		efi_status_t ret;
 
 		debug("%s: trying to load \"%ls\" from %pD\n",
@@ -148,6 +149,16 @@ static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
 
 		ret = efi_load_image_from_path(lo.file_path, &image, &size);
 
+		if (ret != EFI_SUCCESS)
+			goto error;
+
+		attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+			     EFI_VARIABLE_RUNTIME_ACCESS;
+		size = sizeof(n);
+		ret = EFI_CALL(efi_set_variable(
+				L"BootCurrent",
+				(efi_guid_t *)&efi_global_variable_guid,
+				attributes, size, &n));
 		if (ret != EFI_SUCCESS)
 			goto error;
 
@@ -162,21 +173,53 @@ error:
 }
 
 /*
- * Attempt to load, in the order specified by BootOrder EFI variable, the
- * available load-options, finding and returning the first one that can
- * be loaded successfully.
+ * Attempt to load from BootNext or in the order specified by BootOrder
+ * EFI variable, the available load-options, finding and returning
+ * the first one that can be loaded successfully.
  */
 void *efi_bootmgr_load(struct efi_device_path **device_path,
 		       struct efi_device_path **file_path)
 {
-	uint16_t *bootorder;
+	u16 bootnext, *bootorder;
 	efi_uintn_t size;
 	void *image = NULL;
 	int i, num;
+	efi_status_t ret;
 
 	bs = systab.boottime;
 	rs = systab.runtime;
 
+	/* BootNext */
+	bootnext = 0;
+	size = sizeof(bootnext);
+	ret = EFI_CALL(efi_get_variable(L"BootNext",
+					(efi_guid_t *)&efi_global_variable_guid,
+					NULL, &size, &bootnext));
+	if (ret == EFI_SUCCESS || ret == EFI_BUFFER_TOO_SMALL) {
+		/* BootNext does exist here */
+		if (ret == EFI_BUFFER_TOO_SMALL || size != sizeof(u16))
+			printf("BootNext must be 16-bit integer\n");
+
+		/* delete BootNext */
+		ret = EFI_CALL(efi_set_variable(
+					L"BootNext",
+					(efi_guid_t *)&efi_global_variable_guid,
+					0, 0, &bootnext));
+
+		/* load BootNext */
+		if (ret == EFI_SUCCESS) {
+			if (size == sizeof(u16)) {
+				image = try_load_entry(bootnext, device_path,
+						       file_path);
+				if (image)
+					return image;
+			}
+		} else {
+			printf("Deleting BootNext failed\n");
+		}
+	}
+
+	/* BootOrder */
 	bootorder = get_var(L"BootOrder", &efi_global_variable_guid, &size);
 	if (!bootorder) {
 		printf("BootOrder not defined\n");

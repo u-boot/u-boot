@@ -135,6 +135,25 @@ static int sanitize_path(char *path)
 }
 
 /**
+ * efi_create_file() - create file or directory
+ *
+ * @fh:			file handle
+ * @attributes:		attributes for newly created file
+ * Returns:		0 for success
+ */
+static int efi_create_file(struct file_handle *fh, u64 attributes)
+{
+	loff_t actwrite;
+	void *buffer = &actwrite;
+
+	if (attributes & EFI_FILE_DIRECTORY)
+		return fs_mkdir(fh->path);
+	else
+		return fs_write(fh->path, map_to_sysmem(buffer), 0, 0,
+				&actwrite);
+}
+
+/**
  * file_open() - open a file handle
  *
  * @fs:			file system
@@ -176,6 +195,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 
 	if (parent) {
 		char *p = fh->path;
+		int exists;
 
 		if (plen > 0) {
 			strcpy(p, parent->path);
@@ -192,17 +212,16 @@ static struct efi_file_handle *file_open(struct file_system *fs,
 		if (set_blk_dev(fh))
 			goto error;
 
-		if ((mode & EFI_FILE_MODE_CREATE) &&
-		    (attributes & EFI_FILE_DIRECTORY)) {
-			if (fs_mkdir(fh->path))
-				goto error;
-		} else if (!((mode & EFI_FILE_MODE_CREATE) ||
-			     fs_exists(fh->path)))
-			goto error;
-
+		exists = fs_exists(fh->path);
 		/* fs_exists() calls fs_close(), so open file system again */
 		if (set_blk_dev(fh))
 			goto error;
+
+		if (!exists) {
+			if (!(mode & EFI_FILE_MODE_CREATE) ||
+			    efi_create_file(fh, attributes))
+				goto error;
+		}
 
 		/* figure out if file is a directory: */
 		fh->isdir = is_dir(fh);
@@ -257,10 +276,12 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
 
 	/* Open file */
 	*new_handle = file_open(fh->fs, fh, file_name, open_mode, attributes);
-	if (*new_handle)
+	if (*new_handle) {
+		EFI_PRINT("file handle %p\n", *new_handle);
 		ret = EFI_SUCCESS;
-	else
+	} else {
 		ret = EFI_NOT_FOUND;
+	}
 out:
 	return EFI_EXIT(ret);
 }
@@ -616,9 +637,72 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
 					    efi_uintn_t buffer_size,
 					    void *buffer)
 {
-	EFI_ENTRY("%p, %p, %zu, %p", file, info_type, buffer_size, buffer);
+	struct file_handle *fh = to_fh(file);
+	efi_status_t ret = EFI_UNSUPPORTED;
 
-	return EFI_EXIT(EFI_UNSUPPORTED);
+	EFI_ENTRY("%p, %pUl, %zu, %p", file, info_type, buffer_size, buffer);
+
+	if (!guidcmp(info_type, &efi_file_info_guid)) {
+		struct efi_file_info *info = (struct efi_file_info *)buffer;
+		char *filename = basename(fh);
+		char *new_file_name, *pos;
+		loff_t file_size;
+
+		if (buffer_size < sizeof(struct efi_file_info)) {
+			ret = EFI_BAD_BUFFER_SIZE;
+			goto out;
+		}
+		/* We cannot change the directory attribute */
+		if (!fh->isdir != !(info->attribute & EFI_FILE_DIRECTORY)) {
+			ret = EFI_ACCESS_DENIED;
+			goto out;
+		}
+		/* Check for renaming */
+		new_file_name = malloc(utf16_utf8_strlen(info->file_name));
+		if (!new_file_name) {
+			ret = EFI_OUT_OF_RESOURCES;
+			goto out;
+		}
+		pos = new_file_name;
+		utf16_utf8_strcpy(&pos, info->file_name);
+		if (strcmp(new_file_name, filename)) {
+			/* TODO: we do not support renaming */
+			EFI_PRINT("Renaming not supported\n");
+			free(new_file_name);
+			ret = EFI_ACCESS_DENIED;
+			goto out;
+		}
+		free(new_file_name);
+		/* Check for truncation */
+		if (set_blk_dev(fh)) {
+			ret = EFI_DEVICE_ERROR;
+			goto out;
+		}
+		if (fs_size(fh->path, &file_size)) {
+			ret = EFI_DEVICE_ERROR;
+			goto out;
+		}
+		if (file_size != info->file_size) {
+			/* TODO: we do not support truncation */
+			EFI_PRINT("Truncation not supported\n");
+			ret = EFI_ACCESS_DENIED;
+			goto out;
+		}
+		/*
+		 * We do not care for the other attributes
+		 * TODO: Support read only
+		 */
+		ret = EFI_SUCCESS;
+	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
+		if (buffer_size < sizeof(struct efi_file_system_info)) {
+			ret = EFI_BAD_BUFFER_SIZE;
+			goto out;
+		}
+	} else {
+		ret = EFI_UNSUPPORTED;
+	}
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *file)

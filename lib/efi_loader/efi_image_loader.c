@@ -14,6 +14,8 @@
 const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
 const efi_guid_t efi_guid_device_path = DEVICE_PATH_GUID;
 const efi_guid_t efi_guid_loaded_image = LOADED_IMAGE_GUID;
+const efi_guid_t efi_guid_loaded_image_device_path
+		= LOADED_IMAGE_DEVICE_PATH_GUID;
 const efi_guid_t efi_simple_file_system_protocol_guid =
 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
 const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
@@ -59,10 +61,10 @@ static efi_status_t efi_print_image_info(struct efi_loaded_image_obj *obj,
 {
 	printf("UEFI image");
 	printf(" [0x%p:0x%p]",
-	       obj->reloc_base, obj->reloc_base + obj->reloc_size - 1);
-	if (pc && pc >= obj->reloc_base &&
-	    pc < obj->reloc_base + obj->reloc_size)
-		printf(" pc=0x%zx", pc - obj->reloc_base);
+	       image->image_base, image->image_base + image->image_size - 1);
+	if (pc && pc >= image->image_base &&
+	    pc < image->image_base + image->image_size)
+		printf(" pc=0x%zx", pc - image->image_base);
 	if (image->file_path)
 		printf(" '%pD'", image->file_path);
 	printf("\n");
@@ -227,7 +229,6 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 	unsigned long rel_size;
 	int rel_idx = IMAGE_DIRECTORY_ENTRY_BASERELOC;
 	uint64_t image_base;
-	uint64_t image_size;
 	unsigned long virt_size = 0;
 	int supported = 0;
 
@@ -271,7 +272,6 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 		IMAGE_NT_HEADERS64 *nt64 = (void *)nt;
 		IMAGE_OPTIONAL_HEADER64 *opt = &nt64->OptionalHeader;
 		image_base = opt->ImageBase;
-		image_size = opt->SizeOfImage;
 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
@@ -287,7 +287,6 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
 		image_base = opt->ImageBase;
-		image_size = opt->SizeOfImage;
 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
@@ -305,6 +304,11 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 		       nt->OptionalHeader.Magic);
 		return EFI_LOAD_ERROR;
 	}
+
+	/* Copy PE headers */
+	memcpy(efi_reloc, efi, sizeof(*dos) + sizeof(*nt)
+	       + nt->FileHeader.SizeOfOptionalHeader
+	       + num_sections * sizeof(IMAGE_SECTION_HEADER));
 
 	/* Load sections into RAM */
 	for (i = num_sections - 1; i >= 0; i--) {
@@ -330,10 +334,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 	invalidate_icache_all();
 
 	/* Populate the loaded image interface bits */
-	loaded_image_info->image_base = efi;
-	loaded_image_info->image_size = image_size;
-	handle->reloc_base = efi_reloc;
-	handle->reloc_size = virt_size;
+	loaded_image_info->image_base = efi_reloc;
+	loaded_image_info->image_size = virt_size;
 
 	return EFI_SUCCESS;
 }

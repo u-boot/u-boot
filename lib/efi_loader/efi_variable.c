@@ -180,7 +180,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 	if (ret)
 		return EFI_EXIT(ret);
 
-	debug("%s: get '%s'\n", __func__, native_name);
+	EFI_PRINT("get '%s'\n", native_name);
 
 	val = env_get(native_name);
 	free(native_name);
@@ -211,7 +211,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 		if (hex2bin(data, s, len))
 			return EFI_EXIT(EFI_DEVICE_ERROR);
 
-		debug("%s: got value: \"%s\"\n", __func__, s);
+		EFI_PRINT("got value: \"%s\"\n", s);
 	} else if ((s = prefix(val, "(utf8)"))) {
 		unsigned len = strlen(s) + 1;
 
@@ -226,9 +226,9 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 		memcpy(data, s, len);
 		((char *)data)[len] = '\0';
 
-		debug("%s: got value: \"%s\"\n", __func__, (char *)data);
+		EFI_PRINT("got value: \"%s\"\n", (char *)data);
 	} else {
-		debug("%s: invalid value: '%s'\n", __func__, val);
+		EFI_PRINT("invalid value: '%s'\n", val);
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 	}
 
@@ -485,7 +485,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 	s = bin2hex(s, data, data_size);
 	*s = '\0';
 
-	debug("%s: setting: %s=%s\n", __func__, native_name, val);
+	EFI_PRINT("setting: %s=%s\n", native_name, val);
 
 	if (env_set(native_name, val))
 		ret = EFI_DEVICE_ERROR;

@@ -135,6 +135,7 @@ extern const efi_guid_t efi_guid_event_group_reset_system;
 /* GUID of the device tree table */
 extern const efi_guid_t efi_guid_fdt;
 extern const efi_guid_t efi_guid_loaded_image;
+extern const efi_guid_t efi_guid_loaded_image_device_path;
 extern const efi_guid_t efi_guid_device_path_to_text_protocol;
 extern const efi_guid_t efi_simple_file_system_protocol_guid;
 extern const efi_guid_t efi_file_info_guid;
@@ -203,15 +204,11 @@ struct efi_object {
  * struct efi_loaded_image_obj - handle of a loaded image
  *
  * @header:		EFI object header
- * @reloc_base:		base address for the relocated image
- * @reloc_size:		size of the relocated image
  * @exit_jmp:		long jump buffer for returning form started image
  * @entry:		entry address of the relocated image
  */
 struct efi_loaded_image_obj {
 	struct efi_object header;
-	void *reloc_base;
-	aligned_u64 reloc_size;
 	efi_status_t exit_status;
 	struct jmp_buf_data exit_jmp;
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
@@ -320,10 +317,19 @@ efi_status_t efi_create_handle(efi_handle_t *handle);
 void efi_delete_handle(efi_handle_t obj);
 /* Call this to validate a handle and find the EFI object for it */
 struct efi_object *efi_search_obj(const efi_handle_t handle);
+/* Load image */
+efi_status_t EFIAPI efi_load_image(bool boot_policy,
+				   efi_handle_t parent_image,
+				   struct efi_device_path *file_path,
+				   void *source_buffer,
+				   efi_uintn_t source_size,
+				   efi_handle_t *image_handle);
 /* Start image */
 efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 				    efi_uintn_t *exit_data_size,
 				    u16 **exit_data);
+/* Unload image */
+efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle);
 /* Find a protocol on a handle */
 efi_status_t efi_search_protocol(const efi_handle_t handle,
 				 const efi_guid_t *protocol_guid,
