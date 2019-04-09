@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2018 Toradex AG
+ * Copyright 2018-2019 Toradex AG
  */
 
 /dts-v1/;
@@ -10,6 +10,10 @@
 / {
 	model = "Toradex Colibri iMX6ULL";
 	compatible = "toradex,imx6ull-colibri", "fsl,imx6ull";
+
+	aliases {
+		mmc0 = &usdhc1;
+	};
 
 	chosen {
 		stdout-path = &uart1;
@@ -190,10 +194,18 @@
 	dr_mode = "host";
 };
 
+/* Colibri MMC */
 &usdhc1 {
 	assigned-clocks = <&clks IMX6UL_CLK_USDHC1_SEL>, <&clks IMX6UL_CLK_USDHC1>;
 	assigned-clock-parents = <&clks IMX6UL_CLK_PLL2_PFD2>;
 	assigned-clock-rates = <0>, <198000000>;
+	cd-gpios = <&gpio5 0 GPIO_ACTIVE_LOW>; /* MMC_CD */
+	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-0 = <&pinctrl_usdhc1 &pinctrl_snvs_usdhc1_cd>;
+	pinctrl-1 = <&pinctrl_usdhc1_100mhz>;
+	pinctrl-2 = <&pinctrl_usdhc1_200mhz>;
+	vmmc-supply = <&reg_sd1_vmmc>;
+	status = "okay";
 };
 
 &iomuxc {
@@ -547,4 +559,3 @@
 		>;
 	};
 };
-

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2018 Toradex AG
+ * Copyright 2018-2019 Toradex AG
  *
  * Configuration settings for the Colibri iMX6ULL module.
  *
@@ -30,7 +30,7 @@
 /* ENET1 */
 #define IMX_FEC_BASE			ENET2_BASE_ADDR
 
-/* MMC Config*/
+/* MMC Config */
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	1
 
@@ -182,4 +182,4 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #endif
 
-#endif
+#endif /* __COLIBRI_IMX6ULL_CONFIG_H */
