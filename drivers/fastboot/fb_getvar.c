@@ -17,6 +17,7 @@ static void getvar_downloadsize(char *var_parameter, char *response);
 static void getvar_serialno(char *var_parameter, char *response);
 static void getvar_version_baseband(char *var_parameter, char *response);
 static void getvar_product(char *var_parameter, char *response);
+static void getvar_platform(char *var_parameter, char *response);
 static void getvar_current_slot(char *var_parameter, char *response);
 static void getvar_slot_suffixes(char *var_parameter, char *response);
 static void getvar_has_slot(char *var_parameter, char *response);
@@ -55,6 +56,9 @@ static const struct {
 	}, {
 		.variable = "product",
 		.dispatch = getvar_product
+	}, {
+		.variable = "platform",
+		.dispatch = getvar_platform
 	}, {
 		.variable = "current-slot",
 		.dispatch = getvar_current_slot
@@ -115,6 +119,16 @@ static void getvar_product(char *var_parameter, char *response)
 		fastboot_okay(board, response);
 	else
 		fastboot_fail("Board not set", response);
+}
+
+static void getvar_platform(char *var_parameter, char *response)
+{
+	const char *p = env_get("platform");
+
+	if (p)
+		fastboot_okay(p, response);
+	else
+		fastboot_fail("platform not set", response);
 }
 
 static void getvar_current_slot(char *var_parameter, char *response)
