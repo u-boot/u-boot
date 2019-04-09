@@ -21,13 +21,6 @@ efi_status_t efi_init_obj_list(void)
 	efi_status_t ret = EFI_SUCCESS;
 
 	/*
-	 * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
-	 * As this register may be overwritten by an EFI payload we save it here
-	 * and restore it on every callback entered.
-	 */
-	efi_save_gd();
-
-	/*
 	 * Variable PlatformLang defines the language that the machine has been
 	 * configured for.
 	 */
