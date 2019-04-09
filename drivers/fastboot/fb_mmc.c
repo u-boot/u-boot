@@ -31,13 +31,13 @@ static int part_get_info_by_name_or_alias(struct blk_desc *dev_desc,
 
 	ret = part_get_info_by_name(dev_desc, name, info);
 	if (ret < 0) {
-		/* strlen("fastboot_partition_alias_") + 32(part_name) + 1 */
-		char env_alias_name[25 + 32 + 1];
+		/* strlen("fastboot_partition_alias_") + PART_NAME_LEN + 1 */
+		char env_alias_name[25 + PART_NAME_LEN + 1];
 		char *aliased_part_name;
 
 		/* check for alias */
 		strcpy(env_alias_name, "fastboot_partition_alias_");
-		strncat(env_alias_name, name, 32);
+		strncat(env_alias_name, name, PART_NAME_LEN);
 		aliased_part_name = env_get(env_alias_name);
 		if (aliased_part_name != NULL)
 			ret = part_get_info_by_name(dev_desc,
