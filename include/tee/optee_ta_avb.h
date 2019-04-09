@@ -45,4 +45,20 @@
  */
 #define TA_AVB_CMD_WRITE_LOCK_STATE	3
 
+/*
+ * Reads a persistent value corresponding to the given name.
+ *
+ * in	params[0].u.memref:	persistent value name
+ * out	params[1].u.memref:	read persistent value buffer
+ */
+#define TA_AVB_CMD_READ_PERSIST_VALUE	4
+
+/*
+ * Writes a persistent value corresponding to the given name.
+ *
+ * in	params[0].u.memref:	persistent value name
+ * in	params[1].u.memref:	persistent value buffer to write
+ */
+#define TA_AVB_CMD_WRITE_PERSIST_VALUE	5
+
 #endif /* __TA_AVB_H */
