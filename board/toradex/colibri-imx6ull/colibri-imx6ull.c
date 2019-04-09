@@ -50,6 +50,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LCD_PAD_CTRL    (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | \
 		PAD_CTL_DSE_48ohm)
 
+#define MX6_PAD_SNVS_PMIC_STBY_REQ_ADDR 0x2290040
+
 #define NAND_PAD_CTRL (PAD_CTL_DSE_48ohm | PAD_CTL_SRE_SLOW | PAD_CTL_HYS)
 
 #define NAND_PAD_READY0_CTRL (PAD_CTL_DSE_48ohm | PAD_CTL_PUS_22K_UP)
@@ -330,6 +332,14 @@ int board_late_init(void)
 	    tdx_hw_tag.prodid == COLIBRI_IMX6ULL_WIFI_BT)
 		env_set("variant", "-wifi");
 #endif
+
+	/*
+	 * Disable output driver of PAD CCM_PMIC_STBY_REQ. This prevents the
+	 * SOC to request for a lower voltage during sleep. This is necessary
+	 * because the voltage is changing too slow for the SOC to wake up
+	 * properly.
+	 */
+	__raw_writel(0x8080, MX6_PAD_SNVS_PMIC_STBY_REQ_ADDR);
 
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
