@@ -61,6 +61,9 @@ enum {
 	COLIBRI_IMX6ULL_WIFI_BT_IT, /* 40 */
 	COLIBRI_IMX7D_EPDC,
 	APALIS_TK1_4GB,
+	COLIBRI_T20_512MB_IT_SETEK,
+	COLIBRI_IMX6ULL_IT,
+	COLIBRI_IMX6ULL_WIFI_BT, /* 45 */
 };
 
 extern const char * const toradex_modules[];

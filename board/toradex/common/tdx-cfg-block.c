@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2016 Toradex, Inc.
+ * Copyright (c) 2016-2019 Toradex, Inc.
  */
 
 #include <common.h>
@@ -98,6 +98,9 @@ const char * const toradex_modules[] = {
 	[40] = "Colibri iMX6ULL 512MB Wi-Fi / Bluetooth IT",
 	[41] = "Colibri iMX7 Dual 512MB EPDC",
 	[42] = "Apalis TK1 4GB",
+	[43] = "Colibri T20 512MB IT SETEK",
+	[44] = "Colibri iMX6ULL 512MB IT",
+	[45] = "Colibri iMX6ULL 512MB Wi-Fi / Bluetooth",
 };
 
 #ifdef CONFIG_TDX_CFG_BLOCK_IS_IN_MMC
@@ -299,22 +302,47 @@ static int get_cfgblock_interactive(void)
 			else
 				tdx_hw_tag.prodid = APALIS_IMX6D;
 #else
-		if (it == 'y' || it == 'Y')
-			if (is_cpu_type(MXC_CPU_MX6DL))
+		char wb = 'n';
+
+		if (it == 'y' || it == 'Y') {
+			if (is_cpu_type(MXC_CPU_MX6DL)) {
 				tdx_hw_tag.prodid = COLIBRI_IMX6DL_IT;
-			else
+			} else if (is_cpu_type(MXC_CPU_MX6SOLO)) {
 				tdx_hw_tag.prodid = COLIBRI_IMX6S_IT;
-		else
-			if (is_cpu_type(MXC_CPU_MX6DL))
+			} else {
+				sprintf(message, "Does the module have WiFi /" \
+						 " Bluetooth? [y/N] ");
+				len = cli_readline(message);
+				wb = console_buffer[0];
+				if (wb == 'y' || wb == 'Y')
+					tdx_hw_tag.prodid =
+						COLIBRI_IMX6ULL_WIFI_BT_IT;
+				else
+					tdx_hw_tag.prodid = COLIBRI_IMX6ULL_IT;
+			}
+		} else {
+			if (is_cpu_type(MXC_CPU_MX6DL)) {
 				tdx_hw_tag.prodid = COLIBRI_IMX6DL;
-			else
+			} else if (is_cpu_type(MXC_CPU_MX6SOLO)) {
 				tdx_hw_tag.prodid = COLIBRI_IMX6S;
+			} else {
+				sprintf(message, "Does the module have WiFi /" \
+						 " Bluetooth? [y/N] ");
+				len = cli_readline(message);
+				wb = console_buffer[0];
+				if (wb == 'y' || wb == 'Y')
+					tdx_hw_tag.prodid =
+						COLIBRI_IMX6ULL_WIFI_BT;
+				else
+					tdx_hw_tag.prodid = COLIBRI_IMX6ULL;
+			}
+		}
 #endif /* CONFIG_MACH_TYPE */
-	} else if (!strcmp("imx7d", soc)) {
+	} else if (!strcmp("imx7d", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7D;
-	} else if (!strcmp("imx7s", soc)) {
+	else if (!strcmp("imx7s", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7S;
-	} else if (!strcmp("tegra20", soc)) {
+	else if (!strcmp("tegra20", soc)) {
 		if (it == 'y' || it == 'Y')
 			if (gd->ram_size == 0x10000000)
 				tdx_hw_tag.prodid = COLIBRI_T20_256MB_IT;
@@ -330,8 +358,9 @@ static int get_cfgblock_interactive(void)
 			tdx_hw_tag.prodid = COLIBRI_PXA270_312MHZ;
 		else
 			tdx_hw_tag.prodid = COLIBRI_PXA270_520MHZ;
+	}
 #ifdef CONFIG_MACH_TYPE
-	} else if (!strcmp("tegra30", soc)) {
+	else if (!strcmp("tegra30", soc)) {
 		if (CONFIG_MACH_TYPE == MACH_TYPE_APALIS_T30) {
 			if (it == 'y' || it == 'Y')
 				tdx_hw_tag.prodid = APALIS_T30_IT;
@@ -346,8 +375,9 @@ static int get_cfgblock_interactive(void)
 			else
 				tdx_hw_tag.prodid = COLIBRI_T30;
 		}
+	}
 #endif /* CONFIG_MACH_TYPE */
-	} else if (!strcmp("tegra124", soc)) {
+	else if (!strcmp("tegra124", soc)) {
 		tdx_hw_tag.prodid = APALIS_TK1_2GB;
 	} else if (!strcmp("vf500", soc)) {
 		if (it == 'y' || it == 'Y')
@@ -373,7 +403,7 @@ static int get_cfgblock_interactive(void)
 	tdx_hw_tag.ver_minor = console_buffer[2] - '0';
 	tdx_hw_tag.ver_assembly = console_buffer[3] - 'A';
 
-	if (cpu_is_pxa27x() && (tdx_hw_tag.ver_major == 1))
+	if (cpu_is_pxa27x() && tdx_hw_tag.ver_major == 1)
 		tdx_hw_tag.prodid -= (COLIBRI_PXA270_312MHZ -
 				       COLIBRI_PXA270_V1_312MHZ);
 
@@ -441,7 +471,8 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * On NAND devices, recreation is only allowed if the page is
 		 * empty (config block invalid...)
 		 */
-		printf("NAND erase block %d need to be erased before creating a Toradex config block\n",
+		printf("NAND erase block %d need to be erased before creating" \
+		       " a Toradex config block\n",
 		       CONFIG_TDX_CFG_BLOCK_OFFSET /
 		       get_nand_dev_by_index(0)->erasesize);
 		goto out;
@@ -450,7 +481,8 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * On NOR devices, recreation is only allowed if the sector is
 		 * empty and write protection is off (config block invalid...)
 		 */
-		printf("NOR sector at offset 0x%02x need to be erased and unprotected before creating a Toradex config block\n",
+		printf("NOR sector at offset 0x%02x need to be erased and " \
+		       "unprotected before creating a Toradex config block\n",
 		       CONFIG_TDX_CFG_BLOCK_OFFSET);
 		goto out;
 #else
