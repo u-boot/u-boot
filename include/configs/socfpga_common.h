@@ -26,7 +26,13 @@
 #define CONFIG_SYS_INIT_RAM_SIZE	0x10000
 #elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFE00000
-#define CONFIG_SYS_INIT_RAM_SIZE	0x40000 /* 256KB */
+/* SPL memory allocation configuration, this is for FAT implementation */
+#ifndef CONFIG_SYS_SPL_MALLOC_SIZE
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x10000
+#endif
+#define CONFIG_SYS_INIT_RAM_SIZE	(0x40000 - CONFIG_SYS_SPL_MALLOC_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_SIZE)
 #endif
 
 /*
@@ -38,10 +44,21 @@
 #if ((CONFIG_SYS_BOOTCOUNT_ADDR > CONFIG_SYS_INIT_RAM_ADDR) &&	\
      (CONFIG_SYS_BOOTCOUNT_ADDR < (CONFIG_SYS_INIT_RAM_ADDR +	\
 				   CONFIG_SYS_INIT_RAM_SIZE)))
-#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SYS_BOOTCOUNT_ADDR
+#define CONFIG_SPL_STACK		CONFIG_SYS_BOOTCOUNT_ADDR
 #else
-#define CONFIG_SYS_INIT_SP_ADDR			\
+#define CONFIG_SPL_STACK			\
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_SIZE)
+#endif
+
+/*
+ * U-Boot stack setup: if SPL post-reloc uses DDR stack, use it in pre-reloc
+ * phase of U-Boot, too. This prevents overwriting SPL data if stack/heap usage
+ * in U-Boot pre-reloc is higher than in SPL.
+ */
+#if defined(CONFIG_SPL_STACK_R_ADDR) && CONFIG_SPL_STACK_R_ADDR
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SPL_STACK_R_ADDR
+#else
+#define CONFIG_SYS_INIT_SP_ADDR		CONFIG_SPL_STACK
 #endif
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
@@ -252,16 +269,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_INIT_RAM_SIZE
 #endif
 
-#if defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
-/* SPL memory allocation configuration, this is for FAT implementation */
-#ifndef CONFIG_SYS_SPL_MALLOC_START
-#define CONFIG_SYS_SPL_MALLOC_SIZE	0x00010000
-#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SYS_INIT_RAM_SIZE - \
-					 CONFIG_SYS_SPL_MALLOC_SIZE + \
-					 CONFIG_SYS_INIT_RAM_ADDR)
-#endif
-#endif
-
 /* SPL SDMMC boot support */
 #ifdef CONFIG_SPL_MMC_SUPPORT
 #if defined(CONFIG_SPL_FS_FAT) || defined(CONFIG_SPL_FS_EXT4)
@@ -290,15 +297,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x100000
 #endif
-#endif
-
-/*
- * Stack setup
- */
-#if defined(CONFIG_TARGET_SOCFPGA_GEN5)
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
-#elif defined(CONFIG_TARGET_SOCFPGA_ARRIA10)
-#define CONFIG_SPL_STACK		CONFIG_SYS_SPL_MALLOC_START
 #endif
 
 /* Extra Environment */
