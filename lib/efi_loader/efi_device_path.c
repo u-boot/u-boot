@@ -5,8 +5,6 @@
  * (C) Copyright 2017 Rob Clark
  */
 
-#define LOG_CATEGORY LOGL_ERR
-
 #include <common.h>
 #include <blk.h>
 #include <dm.h>
