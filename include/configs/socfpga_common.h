@@ -236,9 +236,9 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
  *
  * 0xFFFF_0000 ...... Start of SRAM
  * 0xFFFF_xxxx ...... Top of stack (grows down)
- * 0xFFFF_yyyy ...... Malloc area
- * 0xFFFF_zzzz ...... Global Data
- * 0xFFFF_FF00 ...... End of SRAM
+ * 0xFFFF_yyyy ...... Global Data
+ * 0xFFFF_zzzz ...... Malloc area
+ * 0xFFFF_FFFF ...... End of SRAM
  *
  * SRAM Memory layout for Arria 10:
  * 0xFFE0_0000 ...... Start of SRAM (bottom)
