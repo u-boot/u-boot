@@ -236,6 +236,21 @@
 				power-domains = <&pd_dma>;
 				wakeup-irq = <225>;
 			};
+			pd_dma_lpuart1: PD_DMA_UART1 {
+				reg = <SC_R_UART_1>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+			};
+			pd_dma_lpuart2: PD_DMA_UART2 {
+				reg = <SC_R_UART_2>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+			};
+			pd_dma_lpuart3: PD_DMA_UART3 {
+				reg = <SC_R_UART_3>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+			};
 		};
 	};
 
@@ -399,6 +414,45 @@
 		assigned-clocks = <&clk IMX8QXP_UART0_CLK>;
 		assigned-clock-rates = <80000000>;
 		power-domains = <&pd_dma_lpuart0>;
+		status = "disabled";
+	};
+
+	lpuart1: serial@5a070000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a070000 0x0 0x1000>;
+		interrupts = <GIC_SPI 226 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QXP_UART1_CLK>,
+			 <&clk IMX8QXP_UART1_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QXP_UART1_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart1>;
+		status = "disabled";
+	};
+
+	lpuart2: serial@5a080000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a080000 0x0 0x1000>;
+		interrupts = <GIC_SPI 227 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QXP_UART2_CLK>,
+			 <&clk IMX8QXP_UART2_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QXP_UART2_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart2>;
+		status = "disabled";
+	};
+
+	lpuart3: serial@5a090000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a090000 0x0 0x1000>;
+		interrupts = <GIC_SPI 228 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QXP_UART3_CLK>,
+			 <&clk IMX8QXP_UART3_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QXP_UART3_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart3>;
 		status = "disabled";
 	};
 
