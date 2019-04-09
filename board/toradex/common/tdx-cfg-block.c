@@ -103,6 +103,13 @@ const char * const toradex_modules[] = {
 	[43] = "Colibri T20 512MB IT SETEK",
 	[44] = "Colibri iMX6ULL 512MB IT",
 	[45] = "Colibri iMX6ULL 512MB Wi-Fi / Bluetooth",
+	[46] = "Apalis iMX8 QuadXPlus 2GB Wi-Fi / BT IT",
+	[47] = "Apalis iMX8 QuadMax 4GB IT",
+	[48] = "Apalis iMX8 QuadPlus 2GB Wi-Fi / BT",
+	[49] = "Apalis iMX8 QuadPlus 2GB",
+	[50] = "Colibri iMX8 QuadXPlus 2GB IT",
+	[51] = "Colibri iMX8 DualX 1GB Wi-Fi / Bluetooth",
+	[52] = "Colibri iMX8 DualX 1GB",
 };
 
 #ifdef CONFIG_TDX_CFG_BLOCK_IS_IN_MMC
