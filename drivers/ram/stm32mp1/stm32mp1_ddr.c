@@ -372,7 +372,7 @@ void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
 }
 
 /* board-specific DDR power initializations. */
-__weak int board_ddr_power_init(void)
+__weak int board_ddr_power_init(enum ddr_type ddr_type)
 {
 	return 0;
 }
@@ -382,9 +382,14 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 		       const struct stm32mp1_ddr_config *config)
 {
 	u32 pir;
-	int ret;
+	int ret = -EINVAL;
 
-	ret = board_ddr_power_init();
+	if (config->c_reg.mstr & DDRCTRL_MSTR_DDR3)
+		ret = board_ddr_power_init(STM32MP_DDR3);
+	else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR2)
+		ret = board_ddr_power_init(STM32MP_LPDDR2);
+	else if (config->c_reg.mstr & DDRCTRL_MSTR_LPDDR3)
+		ret = board_ddr_power_init(STM32MP_LPDDR3);
 
 	if (ret)
 		panic("ddr power init failed\n");
