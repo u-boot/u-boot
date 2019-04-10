@@ -41,6 +41,16 @@ struct reg_desc {
 	 offsetof(struct stm32mp1_ddrphy, x),\
 	 offsetof(struct y, x)}
 
+#define DDR_REG_DYN(x) \
+	{#x,\
+	 offsetof(struct stm32mp1_ddrctl, x),\
+	 INVALID_OFFSET}
+
+#define DDRPHY_REG_DYN(x) \
+	{#x,\
+	 offsetof(struct stm32mp1_ddrphy, x),\
+	 INVALID_OFFSET}
+
 /***********************************************************
  * PARAMETERS: value get from device tree :
  *             size / order need to be aligned with binding
@@ -179,6 +189,42 @@ static const struct reg_desc ddrphy_cal[DDRPHY_REG_CAL_SIZE] = {
 	DDRPHY_REG_CAL(dx3dqstr),
 };
 
+/**************************************************************
+ * DYNAMIC REGISTERS: only used for debug purpose (read/modify)
+ **************************************************************/
+#ifdef CONFIG_STM32MP1_DDR_INTERACTIVE
+static const struct reg_desc ddr_dyn[] = {
+	DDR_REG_DYN(stat),
+	DDR_REG_DYN(init0),
+	DDR_REG_DYN(dfimisc),
+	DDR_REG_DYN(dfistat),
+	DDR_REG_DYN(swctl),
+	DDR_REG_DYN(swstat),
+	DDR_REG_DYN(pctrl_0),
+	DDR_REG_DYN(pctrl_1),
+};
+
+#define DDR_REG_DYN_SIZE	ARRAY_SIZE(ddr_dyn)
+
+static const struct reg_desc ddrphy_dyn[] = {
+	DDRPHY_REG_DYN(pir),
+	DDRPHY_REG_DYN(pgsr),
+	DDRPHY_REG_DYN(zq0sr0),
+	DDRPHY_REG_DYN(zq0sr1),
+	DDRPHY_REG_DYN(dx0gsr0),
+	DDRPHY_REG_DYN(dx0gsr1),
+	DDRPHY_REG_DYN(dx1gsr0),
+	DDRPHY_REG_DYN(dx1gsr1),
+	DDRPHY_REG_DYN(dx2gsr0),
+	DDRPHY_REG_DYN(dx2gsr1),
+	DDRPHY_REG_DYN(dx3gsr0),
+	DDRPHY_REG_DYN(dx3gsr1),
+};
+
+#define DDRPHY_REG_DYN_SIZE	ARRAY_SIZE(ddrphy_dyn)
+
+#endif
+
 /*****************************************************************
  * REGISTERS ARRAY: used to parse device tree and interactive mode
  *****************************************************************/
@@ -190,6 +236,13 @@ enum reg_type {
 	REGPHY_REG,
 	REGPHY_TIMING,
 	REGPHY_CAL,
+#ifdef CONFIG_STM32MP1_DDR_INTERACTIVE
+/* dynamic registers => managed in driver or not changed,
+ * can be dumped in interactive mode
+ */
+	REG_DYN,
+	REGPHY_DYN,
+#endif
 	REG_TYPE_NB
 };
 
@@ -223,6 +276,13 @@ const struct ddr_reg_info ddr_registers[REG_TYPE_NB] = {
 	"timing", ddrphy_timing, DDRPHY_REG_TIMING_SIZE, DDRPHY_BASE},
 [REGPHY_CAL] = {
 	"cal", ddrphy_cal, DDRPHY_REG_CAL_SIZE, DDRPHY_BASE},
+#ifdef CONFIG_STM32MP1_DDR_INTERACTIVE
+[REG_DYN] = {
+	"dyn", ddr_dyn, DDR_REG_DYN_SIZE, DDR_BASE},
+[REGPHY_DYN] = {
+	"dyn", ddrphy_dyn, DDRPHY_REG_DYN_SIZE, DDRPHY_BASE},
+#endif
+
 };
 
 const char *base_name[] = {
@@ -262,6 +322,231 @@ static void set_reg(const struct ddr_info *priv,
 		}
 	}
 }
+
+#ifdef CONFIG_STM32MP1_DDR_INTERACTIVE
+static void stm32mp1_dump_reg_desc(u32 base_addr, const struct reg_desc *desc)
+{
+	unsigned int *ptr;
+
+	ptr = (unsigned int *)(base_addr + desc->offset);
+	printf("%s= 0x%08x\n", desc->name, readl(ptr));
+}
+
+static void stm32mp1_dump_param_desc(u32 par_addr, const struct reg_desc *desc)
+{
+	unsigned int *ptr;
+
+	ptr = (unsigned int *)(par_addr + desc->par_offset);
+	printf("%s= 0x%08x\n", desc->name, readl(ptr));
+}
+
+static const struct reg_desc *found_reg(const char *name, enum reg_type *type)
+{
+	unsigned int i, j;
+	const struct reg_desc *desc;
+
+	for (i = 0; i < ARRAY_SIZE(ddr_registers); i++) {
+		desc = ddr_registers[i].desc;
+		for (j = 0; j < ddr_registers[i].size; j++) {
+			if (strcmp(name, desc[j].name) == 0) {
+				*type = i;
+				return &desc[j];
+			}
+		}
+	}
+	*type = REG_TYPE_NB;
+	return NULL;
+}
+
+int stm32mp1_dump_reg(const struct ddr_info *priv,
+		      const char *name)
+{
+	unsigned int i, j;
+	const struct reg_desc *desc;
+	u32 base_addr;
+	enum base_type p_base;
+	enum reg_type type;
+	const char *p_name;
+	enum base_type filter = NONE_BASE;
+	int result = -1;
+
+	if (name) {
+		if (strcmp(name, base_name[DDR_BASE]) == 0)
+			filter = DDR_BASE;
+		else if (strcmp(name, base_name[DDRPHY_BASE]) == 0)
+			filter = DDRPHY_BASE;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(ddr_registers); i++) {
+		p_base = ddr_registers[i].base;
+		p_name = ddr_registers[i].name;
+		if (!name || (filter == p_base || !strcmp(name, p_name))) {
+			result = 0;
+			desc = ddr_registers[i].desc;
+			base_addr = get_base_addr(priv, p_base);
+			printf("==%s.%s==\n", base_name[p_base], p_name);
+			for (j = 0; j < ddr_registers[i].size; j++)
+				stm32mp1_dump_reg_desc(base_addr, &desc[j]);
+		}
+	}
+	if (result) {
+		desc = found_reg(name, &type);
+		if (desc) {
+			p_base = ddr_registers[type].base;
+			base_addr = get_base_addr(priv, p_base);
+			stm32mp1_dump_reg_desc(base_addr, desc);
+			result = 0;
+		}
+	}
+	return result;
+}
+
+void stm32mp1_edit_reg(const struct ddr_info *priv,
+		       char *name, char *string)
+{
+	unsigned long *ptr, value;
+	enum reg_type type;
+	enum base_type base;
+	const struct reg_desc *desc;
+	u32 base_addr;
+
+	desc = found_reg(name, &type);
+
+	if (!desc) {
+		printf("%s not found\n", name);
+		return;
+	}
+	if (strict_strtoul(string, 16, &value) < 0) {
+		printf("invalid value %s\n", string);
+		return;
+	}
+	base = ddr_registers[type].base;
+	base_addr = get_base_addr(priv, base);
+	ptr = (unsigned long *)(base_addr + desc->offset);
+	writel(value, ptr);
+	printf("%s= 0x%08x\n", desc->name, readl(ptr));
+}
+
+static u32 get_par_addr(const struct stm32mp1_ddr_config *config,
+			enum reg_type type)
+{
+	u32 par_addr = 0x0;
+
+	switch (type) {
+	case REG_REG:
+		par_addr = (u32)&config->c_reg;
+		break;
+	case REG_TIMING:
+		par_addr = (u32)&config->c_timing;
+		break;
+	case REG_PERF:
+		par_addr = (u32)&config->c_perf;
+		break;
+	case REG_MAP:
+		par_addr = (u32)&config->c_map;
+		break;
+	case REGPHY_REG:
+		par_addr = (u32)&config->p_reg;
+		break;
+	case REGPHY_TIMING:
+		par_addr = (u32)&config->p_timing;
+		break;
+	case REGPHY_CAL:
+		par_addr = (u32)&config->p_cal;
+		break;
+	case REG_DYN:
+	case REGPHY_DYN:
+	case REG_TYPE_NB:
+		par_addr = (u32)NULL;
+		break;
+	}
+
+	return par_addr;
+}
+
+int stm32mp1_dump_param(const struct stm32mp1_ddr_config *config,
+			const char *name)
+{
+	unsigned int i, j;
+	const struct reg_desc *desc;
+	u32 par_addr;
+	enum base_type p_base;
+	enum reg_type type;
+	const char *p_name;
+	enum base_type filter = NONE_BASE;
+	int result = -EINVAL;
+
+	if (name) {
+		if (strcmp(name, base_name[DDR_BASE]) == 0)
+			filter = DDR_BASE;
+		else if (strcmp(name, base_name[DDRPHY_BASE]) == 0)
+			filter = DDRPHY_BASE;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(ddr_registers); i++) {
+		par_addr = get_par_addr(config, i);
+		if (!par_addr)
+			continue;
+		p_base = ddr_registers[i].base;
+		p_name = ddr_registers[i].name;
+		if (!name || (filter == p_base || !strcmp(name, p_name))) {
+			result = 0;
+			desc = ddr_registers[i].desc;
+			printf("==%s.%s==\n", base_name[p_base], p_name);
+			for (j = 0; j < ddr_registers[i].size; j++)
+				stm32mp1_dump_param_desc(par_addr, &desc[j]);
+		}
+	}
+	if (result) {
+		desc = found_reg(name, &type);
+		if (desc) {
+			par_addr = get_par_addr(config, type);
+			if (par_addr) {
+				stm32mp1_dump_param_desc(par_addr, desc);
+				result = 0;
+			}
+		}
+	}
+	return result;
+}
+
+void stm32mp1_edit_param(const struct stm32mp1_ddr_config *config,
+			 char *name, char *string)
+{
+	unsigned long *ptr, value;
+	enum reg_type type;
+	const struct reg_desc *desc;
+	u32 par_addr;
+
+	desc = found_reg(name, &type);
+	if (!desc) {
+		printf("%s not found\n", name);
+		return;
+	}
+	if (strict_strtoul(string, 16, &value) < 0) {
+		printf("invalid value %s\n", string);
+		return;
+	}
+	par_addr = get_par_addr(config, type);
+	if (!par_addr) {
+		printf("no parameter %s\n", name);
+		return;
+	}
+	ptr = (unsigned long *)(par_addr + desc->par_offset);
+	writel(value, ptr);
+	printf("%s= 0x%08x\n", desc->name, readl(ptr));
+}
+#endif
+
+__weak bool stm32mp1_ddr_interactive(void *priv,
+				     enum stm32mp1_ddr_interact_step step,
+				     const struct stm32mp1_ddr_config *config)
+{
+	return false;
+}
+
+#define INTERACTIVE(step)\
+	stm32mp1_ddr_interactive(priv, step, config)
 
 static void ddrphy_idone_wait(struct stm32mp1_ddrphy *phy)
 {
@@ -394,6 +679,7 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 	if (ret)
 		panic("ddr power init failed\n");
 
+start:
 	debug("name = %s\n", config->info.name);
 	debug("speed = %d kHz\n", config->info.speed);
 	debug("size  = 0x%x\n", config->info.size);
@@ -427,6 +713,9 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 	udelay(2);
 	/* for PCLK = 133MHz => 1 us is enough, 2 to allow lower frequency */
 
+	if (INTERACTIVE(STEP_DDR_RESET))
+		goto start;
+
 /* 1.5. initialize registers ddr_umctl2 */
 	/* Stop uMCTL2 before PHY is ready */
 	clrbits_le32(&priv->ctl->dfimisc, DDRCTRL_DFIMISC_DFI_INIT_COMPLETE_EN);
@@ -444,6 +733,9 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 
 	set_reg(priv, REG_PERF, &config->c_perf);
 
+	if (INTERACTIVE(STEP_CTL_INIT))
+		goto start;
+
 /*  2. deassert reset signal core_ddrc_rstn, aresetn and presetn */
 	clrbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCORERST);
 	clrbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCAXIRST);
@@ -455,6 +747,9 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 	set_reg(priv, REGPHY_REG, &config->p_reg);
 	set_reg(priv, REGPHY_TIMING, &config->p_timing);
 	set_reg(priv, REGPHY_CAL, &config->p_cal);
+
+	if (INTERACTIVE(STEP_PHY_INIT))
+		goto start;
 
 /*  4. Monitor PHY init status by polling PUBL register PGSR.IDONE
  *     Perform DDR PHY DRAM initialization and Gate Training Evaluation
@@ -512,4 +807,7 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 	/* enable uMCTL2 AXI port 0 and 1 */
 	setbits_le32(&priv->ctl->pctrl_0, DDRCTRL_PCTRL_N_PORT_EN);
 	setbits_le32(&priv->ctl->pctrl_1, DDRCTRL_PCTRL_N_PORT_EN);
+
+	if (INTERACTIVE(STEP_DDR_READY))
+		goto start;
 }
