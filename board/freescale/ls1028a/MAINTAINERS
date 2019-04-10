@@ -1,0 +1,10 @@
+LS1028ARDB BOARD
+M:	Sudhanshu Gupta <sudhanshu.gupta@nxp.com>
+M:	Rai Harninder <harninder.rai@nxp.com>
+M:	Rajesh Bhagat <rajesh.bhagat@nxp.com>
+M:	Tang Yuantian <andy.tang@nxp.com>
+S:	Maintained
+F:	board/freescale/ls1028a/
+F:	include/configs/ls1028a_common.h
+F:	include/configs/ls1028ardb.h
+F:	configs/ls1028ardb_tfa_defconfig

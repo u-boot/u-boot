@@ -1262,6 +1262,17 @@ config TARGET_LS1012AFRDM
 	  development platform that supports the QorIQ LS1012A
 	  Layerscape Architecture processor.
 
+config TARGET_LS1028ARDB
+	bool "Support ls1028ardb"
+	select ARCH_LS1028A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	help
+	  Support for Freescale LS1028ARDB platform
+	  The LS1028A Development System (RDB) is a high-performance
+	  development platform that supports the QorIQ LS1028A
+	  Layerscape Architecture processor.
+
 config TARGET_LS1088ARDB
 	bool "Support ls1088ardb"
 	select ARCH_LS1088A
@@ -1666,6 +1677,7 @@ source "board/freescale/ls2080a/Kconfig"
 source "board/freescale/ls2080aqds/Kconfig"
 source "board/freescale/ls2080ardb/Kconfig"
 source "board/freescale/ls1088a/Kconfig"
+source "board/freescale/ls1028a/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1043aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
