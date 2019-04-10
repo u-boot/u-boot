@@ -1722,6 +1722,14 @@ config CMD_UUID
 	  The two commands are very similar except for the endianness of the
 	  output.
 
+config CMD_FRU
+	bool "FRU information for product"
+	help
+	  This option enables FRU commands to capture and display FRU
+	  information present in the device. The FRU Information is used
+	  to primarily to provide "inventory" information about the boards
+	  that the FRU Information Device is located on.
+
 endmenu
 
 source "cmd/ti/Kconfig"
