@@ -8,6 +8,7 @@ SoC overview
 	6. LS2088A
 	7. LS2081A
 	8. LX2160A
+	9. LS1028A
 
 LS1043A
 ---------
@@ -328,3 +329,53 @@ LX2160A SoC has 2 more similar SoC personalities
 
 2)LX2080A, few difference w.r.t. LX2160A:
        a) Eight 64-bit ARM v8 Cortex-A72 CPUs
+
+
+LS1028A
+--------
+The QorIQ LS1028A processor integrates two 64-bit Arm Cortex-A72 cores with
+a GPU and LCD controller, as well as two TSN-enabled Ethernet controllers and
+a TSNenabled 4-port switch.
+
+The high performance Cortex-A72 cores, performing above 16,000 CoreMarks,
+combined with 2.5 Gbit Ethernet, PCI express Gen 3.0, SATA 3.0, USB 3.0 and
+Octal/Quad SPI interfaces provide capabilities for a number of industrial and
+embedded applications. The device provides excellent integration with the
+new Time-Sensitive Networking standard, and enables a number of
+TSN applications.
+
+The LS1028A SoC includes the following function and features:
+ - Two 64-bit ARM v8 A72 CPUs
+ - Cache Coherent interconnect (CCI-400)
+ - One 32-bit DDR3L/DDR4 SDRAM memory controller with ECC
+ - eDP/Displayport interface
+ - Graphics processing unit
+ - One Configurable x4 SerDes
+ - Ethernet interfaces
+   - Non-switched: One Ethernet MAC supporting 2.5G, 1G, 100M, 10M, one
+   ethernet MAC supporting 1G, 100M, 10M.
+   - Switched: TSN IP to support four 2.5/1G interfaces.
+   - None of the MACs support MACSEC
+   - Support for RGMII, SGMII (and 1000Base-KX), SGMII 2.5x, QSGMII
+   - Support for 10G-SXGMII and 10G-QXGMII.
+   - Energy efficient Ethernet support (802.3az)
+   - IEEE 1588 support
+  - High-speed peripheral interfaces
+    - Two PCIe 3.0 controllers, one supporting x4 operation
+    - One serial ATA (SATA 3.0) controller
+  - Additional peripheral interfaces
+    - Two high-speed USB 2.0/3.0 controllers with integrated PHY each
+      supporting host or device modes
+    - Two Enhanced secure digital host controllers (SD/SDIO/eMMC)
+    - Two Serial peripheral interface (SPI) controllers
+    - Eight I2C controllers
+    - Two UART controllers
+    - Additional six Industrual UARTs (LPUART).
+    - One FlexSPI controller
+    - General Purpose IO (GPIO)
+    - Two CAN-FD interfaces
+    - Eight Flextimers with PWM I/O
+  - Support for hardware virtualization and partitioning enforcement
+  - Layerscape Trust Architecture
+  - Service Processor (SP) provides pre-boot initialization and secure-boot
+    capabilities

@@ -20,6 +20,40 @@ config ARCH_LS1012A
 	select SYS_I2C_MXC_I2C2
 	imply PANIC_HANG
 
+config ARCH_LS1028A
+	bool
+	select ARMV8_SET_SMPEN
+	select FSL_LSCH3
+	select NXP_LSCH3_2
+	select SYS_FSL_HAS_CCI400
+	select SYS_FSL_SRDS_1
+	select SYS_HAS_SERDES
+	select SYS_FSL_DDR
+	select SYS_FSL_DDR_LE
+	select SYS_FSL_DDR_VER_50
+	select SYS_FSL_HAS_DDR3
+	select SYS_FSL_HAS_DDR4
+	select SYS_FSL_HAS_SEC
+	select SYS_FSL_SEC_COMPAT_5
+	select SYS_FSL_SEC_LE
+	select FSL_TZASC_1
+	select ARCH_EARLY_INIT_R
+	select BOARD_EARLY_INIT_F
+	select SYS_I2C_MXC
+	select SYS_I2C_MXC_I2C1
+	select SYS_I2C_MXC_I2C2
+	select SYS_I2C_MXC_I2C3
+	select SYS_I2C_MXC_I2C4
+	select SYS_I2C_MXC_I2C5
+	select SYS_I2C_MXC_I2C6
+	select SYS_I2C_MXC_I2C7
+	select SYS_I2C_MXC_I2C8
+	select SYS_FSL_ERRATUM_A009007
+	select SYS_FSL_ERRATUM_A008514 if !TFABOOT
+	select SYS_FSL_ERRATUM_A009663 if !TFABOOT
+	select SYS_FSL_ERRATUM_A009942 if !TFABOOT
+	imply PANIC_HANG
+
 config ARCH_LS1043A
 	bool
 	select ARMV8_SET_SMPEN
@@ -244,6 +278,7 @@ config FSL_PCIE_COMPAT
 	string "PCIe compatible of Kernel DT"
 	depends on PCIE_LAYERSCAPE || PCIE_LAYERSCAPE_GEN4
 	default "fsl,ls1012a-pcie" if ARCH_LS1012A
+	default "fsl,ls1028a-pcie" if ARCH_LS1028A
 	default "fsl,ls1043a-pcie" if ARCH_LS1043A
 	default "fsl,ls1046a-pcie" if ARCH_LS1046A
 	default "fsl,ls2080a-pcie" if ARCH_LS2080A
@@ -343,6 +378,7 @@ config SYS_FSL_ERRATUM_A010539
 
 config MAX_CPUS
 	int "Maximum number of CPUs permitted for Layerscape"
+	default 2 if ARCH_LS1028A
 	default 4 if ARCH_LS1043A
 	default 4 if ARCH_LS1046A
 	default 16 if ARCH_LS2080A
@@ -377,7 +413,7 @@ config QSPI_AHB_INIT
 config SYS_CCI400_OFFSET
 	hex "Offset for CCI400 base"
 	depends on SYS_FSL_HAS_CCI400
-	default 0x3090000 if ARCH_LS1088A
+	default 0x3090000 if ARCH_LS1088A || ARCH_LS1028A
 	default 0x180000 if FSL_LSCH2
 	help
 	  Offset for CCI400 base
@@ -446,6 +482,7 @@ config CLUSTER_CLK_FREQ
 
 config SYS_FSL_PCLK_DIV
 	int "Platform clock divider"
+	default 1 if ARCH_LS1028A
 	default 1 if ARCH_LS1043A
 	default 1 if ARCH_LS1046A
 	default 1 if ARCH_LS1088A
