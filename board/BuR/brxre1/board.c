@@ -30,11 +30,9 @@
 
 /* -------------------------------------------------------------------------*/
 /* -- defines for used GPIO Hardware -- */
-#define ESC_KEY					(0+19)
-#define LCD_PWR					(0+5)
-#define PUSH_KEY				(0+31)
-/* -------------------------------------------------------------------------*/
 /* -- PSOC Resetcontroller Register defines -- */
+#define ESC_KEY					(0 + 19)
+#define LCD_PWR					(0 + 5)
 
 /* I2C Address of controller */
 #define	RSTCTRL_ADDR				0x75
@@ -69,13 +67,13 @@ static int rstctrl_rw(u8 reg, unsigned char rnw, void *pdat, int size)
 }
 
 #if defined(CONFIG_SPL_BUILD)
-/* TODO: check ram-timing ! */
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41K256M16HA125E_RD_DQS,
 	.datawdsratio0 = MT41K256M16HA125E_WR_DQS,
 	.datafwsratio0 = MT41K256M16HA125E_PHY_FIFO_WE,
 	.datawrsratio0 = MT41K256M16HA125E_PHY_WR_DATA,
 };
+
 static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd0csratio = MT41K256M16HA125E_RATIO,
 	.cmd0iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
@@ -86,6 +84,7 @@ static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd2csratio = MT41K256M16HA125E_RATIO,
 	.cmd2iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
 };
+
 static struct emif_regs ddr3_emif_reg_data = {
 	.sdram_config = MT41K256M16HA125E_EMIF_SDCFG,
 	.ref_ctrl = MT41K256M16HA125E_EMIF_SDREF,
@@ -104,8 +103,8 @@ static const struct ctrl_ioregs ddr3_ioregs = {
 	.dt1ioctl = MT41K256M16HA125E_IOCTRL_VALUE,
 };
 
-#define OSC	(V_OSCK/1000000)
-const struct dpll_params dpll_ddr3 = { 400, OSC-1, 1, -1, -1, -1, -1};
+#define OSC	(V_OSCK / 1000000)
+const struct dpll_params dpll_ddr3 = { 400, OSC - 1, 1, -1, -1, -1, -1};
 
 void am33xx_spl_board_init(void)
 {
@@ -289,8 +288,8 @@ int board_late_init(void)
 	char othbootargs[128];
 	snprintf(othbootargs, sizeof(othbootargs),
 		 "u=vxWorksFTP pw=vxWorks o=0x%08x;0x%08x;0x%08x;0x%08x",
-		 (unsigned int) gd->fb_base-0x20,
-		 (u32)env_get_ulong("vx_memtop", 16, gd->fb_base-0x20),
+		 (u32)gd->fb_base - 0x20,
+		 (u32)env_get_ulong("vx_memtop", 16, gd->fb_base - 0x20),
 		 (u32)env_get_ulong("vx_romfsbase", 16, 0),
 		 (u32)env_get_ulong("vx_romfssize", 16, 0));
 	env_set("othbootargs", othbootargs);
