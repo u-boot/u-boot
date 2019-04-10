@@ -28,4 +28,7 @@ struct test_desc {
 extern const struct test_desc test[];
 extern const int test_nb;
 
+extern const struct test_desc tuning[];
+extern const int tuning_nb;
+
 #endif

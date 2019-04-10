@@ -37,3 +37,13 @@ config STM32MP1_DDR_TESTS
 	help
 		activate test support for interactive support in
 		STM32MP1 DDR controller driver: command test
+
+config STM32MP1_DDR_TUNING
+	bool "STM32MP1 DDR driver : support of tuning"
+	depends on STM32MP1_DDR_INTERACTIVE
+	default y
+	help
+		activate tuning command in STM32MP1 DDR interactive mode
+		used for DDR tuning tools
+		- DQ Deskew algorithm
+		- DQS Trimming
