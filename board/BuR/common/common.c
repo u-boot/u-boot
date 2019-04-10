@@ -266,6 +266,40 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
+int brdefaultip_setup(int bus, int chip)
+{
+	int rc;
+	struct udevice *i2cdev;
+	u8 u8buf = 0;
+	char defip[256] = { 0 };
+
+	rc = i2c_get_chip_for_busnum(bus, chip, 2, &i2cdev);
+	if (rc != 0) {
+		printf("WARN: cannot probe baseboard EEPROM!\n");
+		return -1;
+	}
+
+	rc = dm_i2c_read(i2cdev, 0, &u8buf, 1);
+	if (rc != 0) {
+		printf("WARN: cannot read baseboard EEPROM!\n");
+		return -1;
+	}
+
+	if (u8buf != 0xFF)
+		snprintf(defip, sizeof(defip),
+			 "if test -r ${ipaddr}; then; else setenv ipaddr 192.168.60.%d; setenv serverip 192.168.60.254; setenv gatewayip 192.168.60.254; setenv netmask 255.255.255.0; fi;",
+			 u8buf);
+	else
+		strncpy(defip,
+			"if test -r ${ipaddr}; then; else setenv ipaddr 192.168.60.1; setenv serverip 192.168.60.254; setenv gatewayip 192.168.60.254; setenv netmask 255.255.255.0; fi;",
+			sizeof(defip));
+
+	env_set("brdefaultip", defip);
+	env_set_hex("board_id", u8buf);
+
+	return 0;
+}
+
 int overwrite_console(void)
 {
 	return 1;
