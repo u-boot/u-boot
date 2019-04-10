@@ -7,10 +7,6 @@
  * Author: Christian Hemp <c.hemp@phytec.de>
  */
 
-/dts-v1/;
-
-#include "imx6ul.dtsi"
-
 / {
 	model = "Phytec phyCORE-i.MX6 Ultra Lite SOM";
 	compatible = "phytec,imx6ul-pcl063", "fsl,imx6ul";
@@ -47,7 +43,7 @@
 	pinctrl-0 = <&pinctrl_gpmi_nand>;
 	nand-on-flash-bbt;
 	fsl,no-blockmark-swap;
-	status = "okay";
+	status = "disabled";
 
 	#address-cells = <1>;
 	#size-cells = <1>;
@@ -97,6 +93,18 @@
 	pinctrl-0 = <&pinctrl_usdhc1>;
 	no-1-8-v;
 	status = "okay";
+};
+
+&usdhc2 {
+	u-boot,dm-spl;
+	u-boot,dm-pre-reloc;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc2>;
+	bus-width = <8>;
+	no-1-8-v;
+	non-removable;
+	keep-power-in-suspend;
+	status = "disabled";
 };
 
 &iomuxc {
@@ -168,6 +176,21 @@
 			MX6UL_PAD_SD1_DATA3__USDHC1_DATA3	0x17059
 			MX6UL_PAD_UART1_RTS_B__GPIO1_IO19	0x17059
 
+		>;
+	};
+
+	pinctrl_usdhc2: usdhc2grp {
+		fsl,pins = <
+			MX6UL_PAD_NAND_WE_B__USDHC2_CMD		0x170f9
+			MX6UL_PAD_NAND_RE_B__USDHC2_CLK		0x100f9
+			MX6UL_PAD_NAND_DATA00__USDHC2_DATA0	0x170f9
+			MX6UL_PAD_NAND_DATA01__USDHC2_DATA1	0x170f9
+			MX6UL_PAD_NAND_DATA02__USDHC2_DATA2	0x170f9
+			MX6UL_PAD_NAND_DATA03__USDHC2_DATA3	0x170f9
+			MX6UL_PAD_NAND_DATA04__USDHC2_DATA4	0x170f9
+			MX6UL_PAD_NAND_DATA05__USDHC2_DATA5	0x170f9
+			MX6UL_PAD_NAND_DATA06__USDHC2_DATA6	0x170f9
+			MX6UL_PAD_NAND_DATA07__USDHC2_DATA7	0x170f9
 		>;
 	};
 };

@@ -455,6 +455,18 @@ config TARGET_PCL063
 	select DM_THERMAL
 	select SUPPORT_SPL
 
+config TARGET_PCL063_ULL
+	bool "PHYTEC PCL063 (phyCORE-i.MX6ULL)"
+	select MX6ULL
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_SERIAL
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_SECOMX6
 	bool "secomx6 boards"
 

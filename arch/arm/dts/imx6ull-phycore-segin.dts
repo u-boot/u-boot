@@ -1,32 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2018 Collabora Ltd.
- *
- * Based on dts[i] from Phytec barebox port:
- * Copyright (C) 2016 PHYTEC Messtechnik GmbH
- * Author: Christian Hemp <c.hemp@phytec.de>
- *
- * The code contained herein is licensed under the GNU General Public
- * License. You may obtain a copy of the GNU General Public License
- * Version 2 or later at the following locations:
- *
- * http://www.opensource.org/licenses/gpl-license.html
- * http://www.gnu.org/copyleft/gpl.html
+ * Copyright (C) 2019 Parthiban Nallathambi <parthitce@gmail.com>
  */
 
 /dts-v1/;
 
-#include "imx6ul.dtsi"
+#include "imx6ull.dtsi"
 #include "pcl063-common.dtsi"
 
 / {
-	model = "Phytec phyBOARD-i.MX6UL-Segin SBC";
-	compatible = "phytec,phyboard-imx6ul-segin", "phytec,imx6ul-pcl063",
-		     "fsl,imx6ul";
-};
-
-&gpmi {
-	status = "okay";
+	model = "Phytec phyBOARD-i.MX6ULL-Segin SBC";
+	compatible = "phytec,phyboard-imx6ull-segin", "phytec,imx6ull-pcl063",
+		     "fsl,imx6ull";
 };
 
 &i2c1 {
@@ -41,6 +26,10 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart5>;
 	uart-has-rtscts;
+	status = "okay";
+};
+
+&usdhc2 {
 	status = "okay";
 };
 
