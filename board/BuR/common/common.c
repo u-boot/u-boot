@@ -10,28 +10,22 @@
  */
 #include <version.h>
 #include <common.h>
-#include <environment.h>
-#include <errno.h>
-#include <asm/arch/cpu.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/omap.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/sys_proto.h>
-#include <asm/arch/mmc_host_def.h>
-#include <asm/io.h>
-#include <asm/gpio.h>
+#include <fdtdec.h>
 #include <i2c.h>
-#include <power/tps65217.h>
 #include <lcd.h>
 #include "bur_common.h"
-#include "../../../drivers/video/am335x-fb.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 /* --------------------------------------------------------------------------*/
 #if defined(CONFIG_LCD) && defined(CONFIG_AM335X_LCD) && \
 	!defined(CONFIG_SPL_BUILD)
+#include <asm/arch/hardware.h>
+#include <asm/arch/cpu.h>
+#include <asm/gpio.h>
+#include <power/tps65217.h>
+#include "../../../drivers/video/am335x-fb.h"
+
 void lcdbacklight(int on)
 {
 	unsigned int driver = env_get_ulong("ds1_bright_drv", 16, 0UL);
@@ -272,7 +266,12 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_AM33XX)
+#include <asm/arch/hardware.h>
+#include <asm/arch/omap.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
+#include <power/tps65217.h>
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
@@ -359,8 +358,7 @@ void set_mux_conf_regs(void)
 	enable_board_pin_mux();
 }
 
-#endif /* CONFIG_SPL_BUILD */
-
+#endif /* CONFIG_SPL_BUILD && CONFIG_AM33XX */
 int overwrite_console(void)
 {
 	return 1;
