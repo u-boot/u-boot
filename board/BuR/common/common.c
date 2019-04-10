@@ -266,6 +266,11 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 
+int overwrite_console(void)
+{
+	return 1;
+}
+
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_AM33XX)
 #include <asm/arch/hardware.h>
 #include <asm/arch/omap.h>
@@ -359,7 +364,3 @@ void set_mux_conf_regs(void)
 }
 
 #endif /* CONFIG_SPL_BUILD && CONFIG_AM33XX */
-int overwrite_console(void)
-{
-	return 1;
-}
