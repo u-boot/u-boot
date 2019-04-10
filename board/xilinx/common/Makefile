@@ -5,3 +5,6 @@
 #
 
 obj-y	+= board.o
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_CMD_FRU) += fru.o fru_ops.o
+endif
