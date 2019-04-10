@@ -77,3 +77,88 @@ Serial audio interface(SAI)
  - Audio codec SGTL5000 provides headphone and audio LINEOUT for
    stereo speakers
  - IEEE1588 interface to support audio on SAI4
+
+QDS Default Switch Settings (1: ON; 0: OFF)
+-------------------------------------------
+For SD Boot
+SW1 : 1000_0000
+SW2 : 1110_0110
+SW3 : 0000_0010
+SW4 : 0000_0000
+SW5 : 0000_0000
+SW6 : 0000_0000
+SW7 : 1111_0011
+SW8 : 1110_0000
+SW9 : 1000_0001
+SW10: 1110_0000
+
+For XSPI Boot
+SW1 : 1111_0000
+SW2 : 0000_0110
+SW3 : 0000_0010
+SW4 : 0000_0000
+SW5 : 0110_0000
+SW6 : 0101_0000
+SW7 : 1111_0011
+SW8 : 1110_0000
+SW9 : 1000_0000
+SW10: 1110_0000
+
+LS1028AQDS board Overview
+-------------------------
+Processor
+ Two Arm Cortex- A72 processor cores:
+  - Based on 64-bit ARMv8 architecture
+  - Up to 1.3 GHz operation
+  - Single-threaded cores with 48 KB L1 instruction cache and 32 KB L1
+    data cache
+  - Arranged as a single cluster of two cores sharing a single 1 MB L2
+    cache
+DDR memory
+ - Supports data rates of up to 1.6 GT/s for both, DDR4 and DDR3L
+ - Supports a single- or dual-ranked SODIMM or UDIMM connector
+ - 32-bit data and 4-bit ECC
+ - Supports x8/x16 devices
+ - Supports ECC error detection and correction
+ - 1.35 V or 1.2 V DDR power supply, with automatic tracking of VTT, to
+   all devices in case of DDR3L or DDR4, respectively. Power can
+   switch to 1.35 V or 1.2 V, based on the switch settings for DDR3L or
+   DDR4 devices, respectively
+SerDes (Serializer/Deserializer)
+ - Four-lane (0-3) SerDes:
+ - Lane 0: supports PCIe Gen1/2/3 with x1, x2, and x4 operation, 10
+   Gbit SXGMII, 1 Gbit SGMII
+ - Lane 1: supports PCIe Gen1/2/3 with x1, x2, and x4 operation, 1 Gbit
+   SGMII, 10 Gbit QXGMII, 5 Gbit QSGMII, 1 Gbit SGMII
+ - Lane 2: supports PCIe Gen1/2/3 with x1, x2, and x4 operation, 1 Gbit
+   SGMII
+ - Lane 3: supports PCIe Gen1/2/3 with x1, x2, and x4 operation, 1 Gbit
+   SGMII, SATA 2.0/3.0
+ - Four slots on SerDes lanes support PCIe Gen1/2/3, 1 Gbit SGMII
+   add-in cards
+ - Lane 1 connects to a 2x10 connector with SFP+ through a retimer;
+   lane 2 (TX lines) connects to an SMA connector
+   Lane 3 connects to 1x7 header to support SATA devices
+eSDHC
+ - eSDHC1, eSDHC2
+SPI
+ - SPI1 and SPI2 support three onboard SPI flash memory devices:
+    512 Mbit high-speed flash (with speed of up to 108/54 MHz)
+    memory for storage
+    4 Mbit low-speed flash memory (with speed of up to 40 MHz)
+    64 Mbit high-speed flash memory (with speed of up to 104/80
+    MHz)
+ - SPI3 supports one onboard 64 Mbit SPI flash memory (with speed of
+   up to 104/80 MHz)
+ - All memories operate at 1.8 V
+ - A header is provided on SPI1 to test SPI slave mode
+I2C
+ - LS1028A supports eight I2C controllers
+Serial audio interface(SAI)
+ Two SAI ports with audio codec SGTL5000:
+  - Include stereo LINEIN with support for external analog input
+  - Provide headphone and line output
+Display
+ - DisplayPort connector to connect the DP data to a 4K display device
+   (computer monitor)
+ - eDP connector to connect the DP data to a 4K display panel

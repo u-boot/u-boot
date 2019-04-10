@@ -27,6 +27,35 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int config_board_mux(void)
+{
+#if defined(CONFIG_TARGET_LS1028AQDS) && defined(CONFIG_FSL_QIXIS)
+	u8 reg;
+
+	reg = QIXIS_READ(brdcfg[13]);
+	/* Field| Function
+	 * 7-6  | Controls I2C3 routing (net CFG_MUX_I2C3):
+	 * I2C3 | 10= Routes {SCL, SDA} to CAN1 transceiver as {TX, RX}.
+	 * 5-4  | Controls I2C4 routing (net CFG_MUX_I2C4):
+	 * I2C4 |11= Routes {SCL, SDA} to CAN2 transceiver as {TX, RX}.
+	 */
+	reg &= ~(0xf0);
+	reg |= 0xb0;
+	QIXIS_WRITE(brdcfg[13], reg);
+
+	reg = QIXIS_READ(brdcfg[15]);
+	/* Field| Function
+	 * 7    | Controls the CAN1 transceiver (net CFG_CAN1_STBY):
+	 * CAN1 | 0= CAN #1 transceiver enabled
+	 * 6    | Controls the CAN2 transceiver (net CFG_CAN2_STBY):
+	 * CAN2 | 0= CAN #2 transceiver enabled
+	 */
+	reg &= ~(0xc0);
+	QIXIS_WRITE(brdcfg[15], reg);
+#endif
+	return 0;
+}
+
 int board_init(void)
 {
 #ifdef CONFIG_ENV_IS_NOWHERE
@@ -53,6 +82,15 @@ int board_eth_init(bd_t *bis)
 {
 	return pci_eth_init(bis);
 }
+
+#if defined(CONFIG_ARCH_MISC_INIT)
+int arch_misc_init(void)
+{
+	config_board_mux();
+
+	return 0;
+}
+#endif
 
 int board_early_init_f(void)
 {

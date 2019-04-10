@@ -1262,6 +1262,17 @@ config TARGET_LS1012AFRDM
 	  development platform that supports the QorIQ LS1012A
 	  Layerscape Architecture processor.
 
+config TARGET_LS1028AQDS
+	bool "Support ls1028aqds"
+	select ARCH_LS1028A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	help
+	  Support for Freescale LS1028AQDS platform
+	  The LS1028A Development System (QDS) is a high-performance
+	  development platform that supports the QorIQ LS1028A
+	  Layerscape Architecture processor.
+
 config TARGET_LS1028ARDB
 	bool "Support ls1028ardb"
 	select ARCH_LS1028A
