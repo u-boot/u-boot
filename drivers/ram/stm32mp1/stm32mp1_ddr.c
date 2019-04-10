@@ -401,11 +401,9 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 	 */
 	clrbits_le32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_DDRCAPBRST);
 
-/* 1.4. wait 4 cycles for synchronization */
-	asm(" nop");
-	asm(" nop");
-	asm(" nop");
-	asm(" nop");
+/* 1.4. wait 128 cycles to permit initialization of end logic */
+	udelay(2);
+	/* for PCLK = 133MHz => 1 us is enough, 2 to allow lower frequency */
 
 /* 1.5. initialize registers ddr_umctl2 */
 	/* Stop uMCTL2 before PHY is ready */
