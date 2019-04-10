@@ -312,7 +312,7 @@ static void wait_operating_mode(struct ddr_info *priv, int mode)
 	/* self-refresh due to software => check also STAT.selfref_type */
 	if (mode == DDRCTRL_STAT_OPERATING_MODE_SR) {
 		mask |= DDRCTRL_STAT_SELFREF_TYPE_MASK;
-		stat |= DDRCTRL_STAT_SELFREF_TYPE_SR;
+		val |= DDRCTRL_STAT_SELFREF_TYPE_SR;
 	} else if (mode == DDRCTRL_STAT_OPERATING_MODE_NORMAL) {
 		/* normal mode: handle also automatic self refresh */
 		mask2 = DDRCTRL_STAT_OPERATING_MODE_MASK |
