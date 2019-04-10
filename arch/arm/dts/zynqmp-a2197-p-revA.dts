@@ -401,46 +401,6 @@
 				clock-frequency = <33333333>;
 				clock-output-names = "ref_clk";
 			};
-			/* Connection via Samtec J212D */
-			/* Use for storing information about X-PRC card */
-			x_prc_eeprom: eeprom@52 { /* x-prc-01-revA u120, x-prc-02-revA u16 */
-				compatible = "atmel,24c02";
-				reg = <0x52>;
-			};
-
-			/* Use for setting up certain features on X-PRC card */
-			x_prc_tca9534: gpio@22 { /* x-prc-01-revA u121, x-prc-02-revA u17 */
-				compatible = "nxp,pca9534";
-				reg = <0x22>;
-				gpio-controller; /* IRQ not connected */
-				#gpio-cells = <2>;
-				gpio-line-names = "sw4_1", "sw4_2", "sw4_3", "sw4_4",
-						  "", "", "", "";
-				gtr_sel0 {
-					gpio-hog;
-					gpios = <0 0>;
-					input; /* FIXME add meaning */
-					line-name = "sw4_1";
-				};
-				gtr_sel1 {
-					gpio-hog;
-					gpios = <1 0>;
-					input; /* FIXME add meaning */
-					line-name = "sw4_2";
-				};
-				gtr_sel2 {
-					gpio-hog;
-					gpios = <2 0>;
-					input; /* FIXME add meaning */
-					line-name = "sw4_3";
-				};
-				gtr_sel3 {
-					gpio-hog;
-					gpios = <3 0>;
-					input; /* FIXME add meaning */
-					line-name = "sw4_4";
-				};
-			};
 		};
 		i2c@1 { /* FMCP1_IIC */
 			#address-cells = <1>;
