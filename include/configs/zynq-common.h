@@ -69,7 +69,7 @@
 # define CONFIG_THOR_RESET_OFF
 # define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
-	"set dfu_alt_info " \
+	"setenv dfu_alt_info " \
 	"${kernel_image} ram 0x3000000 0x500000\\\\;" \
 	"${devicetree_image} ram 0x2A00000 0x20000\\\\;" \
 	"${ramdisk_image} ram 0x2000000 0x600000\0" \
@@ -79,7 +79,7 @@
 # if defined(CONFIG_MMC_SDHCI_ZYNQ)
 #  define DFU_ALT_INFO_MMC \
 	"dfu_mmc_info=" \
-	"set dfu_alt_info " \
+	"setenv dfu_alt_info " \
 	"${kernel_image} fat 0 1\\\\;" \
 	"${devicetree_image} fat 0 1\\\\;" \
 	"${ramdisk_image} fat 0 1\0" \
@@ -227,9 +227,9 @@
 				"env run importbootenv; " \
 			"fi; " \
 		"fi; \0" \
-	"sd_loadbootenv=set bootenv_dev mmc && " \
+	"sd_loadbootenv=setenv bootenv_dev mmc && " \
 			"run setbootenv \0" \
-	"usb_loadbootenv=set bootenv_dev usb && usb start && run setbootenv \0" \
+	"usb_loadbootenv=setenv bootenv_dev usb && usb start && run setbootenv \0" \
 	"preboot=if test $modeboot = sdboot; then " \
 			"run sd_loadbootenv; " \
 			"echo Checking if uenvcmd is set ...; " \
