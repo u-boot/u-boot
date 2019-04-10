@@ -41,8 +41,22 @@ struct reg_desc {
 	 offsetof(struct stm32mp1_ddrphy, x),\
 	 offsetof(struct y, x)}
 
+/***********************************************************
+ * PARAMETERS: value get from device tree :
+ *             size / order need to be aligned with binding
+ *             modification NOT ALLOWED !!!
+ ***********************************************************/
+#define DDRCTL_REG_REG_SIZE	25	/* st,ctl-reg */
+#define DDRCTL_REG_TIMING_SIZE	12	/* st,ctl-timing */
+#define DDRCTL_REG_MAP_SIZE	9	/* st,ctl-map */
+#define DDRCTL_REG_PERF_SIZE	17	/* st,ctl-perf */
+
+#define DDRPHY_REG_REG_SIZE	11	/* st,phy-reg */
+#define	DDRPHY_REG_TIMING_SIZE	10	/* st,phy-timing */
+#define	DDRPHY_REG_CAL_SIZE	12	/* st,phy-cal */
+
 #define DDRCTL_REG_REG(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_reg)
-static const struct reg_desc ddr_reg[] = {
+static const struct reg_desc ddr_reg[DDRCTL_REG_REG_SIZE] = {
 	DDRCTL_REG_REG(mstr),
 	DDRCTL_REG_REG(mrctrl0),
 	DDRCTL_REG_REG(mrctrl1),
@@ -71,7 +85,7 @@ static const struct reg_desc ddr_reg[] = {
 };
 
 #define DDRCTL_REG_TIMING(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_timing)
-static const struct reg_desc ddr_timing[] = {
+static const struct reg_desc ddr_timing[DDRCTL_REG_TIMING_SIZE] = {
 	DDRCTL_REG_TIMING(rfshtmg),
 	DDRCTL_REG_TIMING(dramtmg0),
 	DDRCTL_REG_TIMING(dramtmg1),
@@ -87,7 +101,7 @@ static const struct reg_desc ddr_timing[] = {
 };
 
 #define DDRCTL_REG_MAP(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_map)
-static const struct reg_desc ddr_map[] = {
+static const struct reg_desc ddr_map[DDRCTL_REG_MAP_SIZE] = {
 	DDRCTL_REG_MAP(addrmap1),
 	DDRCTL_REG_MAP(addrmap2),
 	DDRCTL_REG_MAP(addrmap3),
@@ -100,7 +114,7 @@ static const struct reg_desc ddr_map[] = {
 };
 
 #define DDRCTL_REG_PERF(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_perf)
-static const struct reg_desc ddr_perf[] = {
+static const struct reg_desc ddr_perf[DDRCTL_REG_PERF_SIZE] = {
 	DDRCTL_REG_PERF(sched),
 	DDRCTL_REG_PERF(sched1),
 	DDRCTL_REG_PERF(perfhpr1),
@@ -121,7 +135,7 @@ static const struct reg_desc ddr_perf[] = {
 };
 
 #define DDRPHY_REG_REG(x)	DDRPHY_REG(x, stm32mp1_ddrphy_reg)
-static const struct reg_desc ddrphy_reg[] = {
+static const struct reg_desc ddrphy_reg[DDRPHY_REG_REG_SIZE] = {
 	DDRPHY_REG_REG(pgcr),
 	DDRPHY_REG_REG(aciocr),
 	DDRPHY_REG_REG(dxccr),
@@ -136,7 +150,7 @@ static const struct reg_desc ddrphy_reg[] = {
 };
 
 #define DDRPHY_REG_TIMING(x)	DDRPHY_REG(x, stm32mp1_ddrphy_timing)
-static const struct reg_desc ddrphy_timing[] = {
+static const struct reg_desc ddrphy_timing[DDRPHY_REG_TIMING_SIZE] = {
 	DDRPHY_REG_TIMING(ptr0),
 	DDRPHY_REG_TIMING(ptr1),
 	DDRPHY_REG_TIMING(ptr2),
@@ -150,7 +164,7 @@ static const struct reg_desc ddrphy_timing[] = {
 };
 
 #define DDRPHY_REG_CAL(x)	DDRPHY_REG(x, stm32mp1_ddrphy_cal)
-static const struct reg_desc ddrphy_cal[] = {
+static const struct reg_desc ddrphy_cal[DDRPHY_REG_CAL_SIZE] = {
 	DDRPHY_REG_CAL(dx0dllcr),
 	DDRPHY_REG_CAL(dx0dqtr),
 	DDRPHY_REG_CAL(dx0dqstr),
@@ -165,6 +179,9 @@ static const struct reg_desc ddrphy_cal[] = {
 	DDRPHY_REG_CAL(dx3dqstr),
 };
 
+/*****************************************************************
+ * REGISTERS ARRAY: used to parse device tree and interactive mode
+ *****************************************************************/
 enum reg_type {
 	REG_REG,
 	REG_TIMING,
@@ -193,19 +210,19 @@ struct ddr_reg_info {
 
 const struct ddr_reg_info ddr_registers[REG_TYPE_NB] = {
 [REG_REG] = {
-	"static", ddr_reg, ARRAY_SIZE(ddr_reg), DDR_BASE},
+	"static", ddr_reg, DDRCTL_REG_REG_SIZE, DDR_BASE},
 [REG_TIMING] = {
-	"timing", ddr_timing, ARRAY_SIZE(ddr_timing), DDR_BASE},
+	"timing", ddr_timing, DDRCTL_REG_TIMING_SIZE, DDR_BASE},
 [REG_PERF] = {
-	"perf", ddr_perf, ARRAY_SIZE(ddr_perf), DDR_BASE},
+	"perf", ddr_perf, DDRCTL_REG_PERF_SIZE, DDR_BASE},
 [REG_MAP] = {
-	"map", ddr_map, ARRAY_SIZE(ddr_map), DDR_BASE},
+	"map", ddr_map, DDRCTL_REG_MAP_SIZE, DDR_BASE},
 [REGPHY_REG] = {
-	"static", ddrphy_reg, ARRAY_SIZE(ddrphy_reg), DDRPHY_BASE},
+	"static", ddrphy_reg, DDRPHY_REG_REG_SIZE, DDRPHY_BASE},
 [REGPHY_TIMING] = {
-	"timing", ddrphy_timing, ARRAY_SIZE(ddrphy_timing), DDRPHY_BASE},
+	"timing", ddrphy_timing, DDRPHY_REG_TIMING_SIZE, DDRPHY_BASE},
 [REGPHY_CAL] = {
-	"cal", ddrphy_cal, ARRAY_SIZE(ddrphy_cal), DDRPHY_BASE},
+	"cal", ddrphy_cal, DDRPHY_REG_CAL_SIZE, DDRPHY_BASE},
 };
 
 const char *base_name[] = {

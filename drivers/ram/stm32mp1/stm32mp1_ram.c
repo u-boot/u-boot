@@ -102,8 +102,8 @@ static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 		debug("%s: %s[0x%x] = %d\n", __func__,
 		      param[idx].name, param[idx].size, ret);
 		if (ret) {
-			pr_err("%s: Cannot read %s\n",
-			       __func__, param[idx].name);
+			pr_err("%s: Cannot read %s, error=%d\n",
+			       __func__, param[idx].name, ret);
 			return -EINVAL;
 		}
 	}

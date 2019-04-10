@@ -102,7 +102,7 @@ controlleur attributes:
 phyc attributes:
 ----------------
 - st,phy-reg	: phy values depending of the DDR type (DDR3/LPDDR2/LPDDR3)
-	for STM32MP15x: 10 values are requested in this order
+	for STM32MP15x: 11 values are requested in this order
 		PGCR
 		ACIOCR
 		DXCCR
