@@ -11,6 +11,7 @@
 #include <ram.h>
 #include <reset.h>
 #include "stm32mp1_ddr.h"
+#include "stm32mp1_tests.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,6 +52,9 @@ enum ddr_command stm32mp1_get_command(char *cmd, int argc)
 		[DDR_CMD_STEP] = "step",
 		[DDR_CMD_NEXT] = "next",
 		[DDR_CMD_GO] = "go",
+#ifdef CONFIG_STM32MP1_DDR_TESTS
+		[DDR_CMD_TEST] = "test",
+#endif
 	};
 	/* min and max number of argument */
 	const char cmd_arg[DDR_CMD_UNKNOWN][2] = {
@@ -64,6 +68,9 @@ enum ddr_command stm32mp1_get_command(char *cmd, int argc)
 		[DDR_CMD_STEP] = { 0, 1 },
 		[DDR_CMD_NEXT] = { 0, 0 },
 		[DDR_CMD_GO] = { 0, 0 },
+#ifdef CONFIG_STM32MP1_DDR_TESTS
+		[DDR_CMD_TEST] = { 0, 255 },
+#endif
 	};
 	int i;
 
@@ -105,6 +112,9 @@ static void stm32mp1_do_usage(void)
 		"next                       goes to the next step\n"
 		"go                         continues the U-Boot SPL execution\n"
 		"reset                      reboots machine\n"
+#ifdef CONFIG_STM32MP1_DDR_TESTS
+		"test [help] | <n> [...]    lists (with help) or executes test <n>\n"
+#endif
 		"\nwith for [type|reg]:\n"
 		"  all registers if absent\n"
 		"  <type> = ctl, phy\n"
@@ -287,6 +297,63 @@ end:
 	return step;
 }
 
+#if defined(CONFIG_STM32MP1_DDR_TESTS)
+static const char * const s_result[] = {
+		[TEST_PASSED] = "Pass",
+		[TEST_FAILED] = "Failed",
+		[TEST_ERROR] = "Error"
+};
+
+static void stm32mp1_ddr_subcmd(struct ddr_info *priv,
+				int argc, char *argv[],
+				const struct test_desc array[],
+				const int array_nb)
+{
+	int i;
+	unsigned long value;
+	int result;
+	char string[50] = "";
+
+	if (argc == 1) {
+		printf("%s:%d\n", argv[0], array_nb);
+		for (i = 0; i < array_nb; i++)
+			printf("%d:%s:%s\n",
+			       i, array[i].name, array[i].usage);
+		return;
+	}
+	if (argc > 1 && !strcmp(argv[1], "help")) {
+		printf("%s:%d\n", argv[0], array_nb);
+		for (i = 0; i < array_nb; i++)
+			printf("%d:%s:%s:%s\n", i,
+			       array[i].name, array[i].usage, array[i].help);
+		return;
+	}
+
+	if ((strict_strtoul(argv[1], 0, &value) <  0) ||
+	    value >= array_nb) {
+		sprintf(string, "invalid argument %s",
+			argv[1]);
+		result = TEST_FAILED;
+		goto end;
+	}
+
+	if (argc > (array[value].max_args + 2)) {
+		sprintf(string, "invalid nb of args %d, max %d",
+			argc - 2, array[value].max_args);
+		result = TEST_FAILED;
+		goto end;
+	}
+
+	printf("execute %d:%s\n", (int)value, array[value].name);
+	clear_ctrlc();
+	result = array[value].fct(priv->ctl, priv->phy,
+				  string, argc - 2, &argv[2]);
+
+end:
+	printf("Result: %s [%s]\n", s_result[result], string);
+}
+#endif
+
 bool stm32mp1_ddr_interactive(void *priv,
 			      enum stm32mp1_ddr_interact_step step,
 			      const struct stm32mp1_ddr_config *config)
@@ -381,6 +448,14 @@ bool stm32mp1_ddr_interactive(void *priv,
 		case DDR_CMD_STEP:
 			next_step = stm32mp1_do_step(step, argc, argv);
 			break;
+
+#ifdef CONFIG_STM32MP1_DDR_TESTS
+		case DDR_CMD_TEST:
+			if (!stm32mp1_check_step(step, STEP_DDR_READY))
+				continue;
+			stm32mp1_ddr_subcmd(priv, argc, argv, test, test_nb);
+			break;
+#endif
 
 		default:
 			break;

@@ -29,3 +29,11 @@ config STM32MP1_DDR_INTERACTIVE_FORCE
 		skip the polling of character 'd' in console
 		useful when SPL is loaded in sysram
 		directly by programmer
+
+config STM32MP1_DDR_TESTS
+	bool "STM32MP1 DDR driver : tests support"
+	depends on STM32MP1_DDR_INTERACTIVE
+	default y
+	help
+		activate test support for interactive support in
+		STM32MP1 DDR controller driver: command test
