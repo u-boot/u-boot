@@ -18,7 +18,7 @@
  */
 
 #define DDR_MEM_NAME "DDR3-1066 bin G 2x4Gb 533MHz v1.36"
-#define DDR_MEM_SPEED 533
+#define DDR_MEM_SPEED 533000
 #define DDR_MEM_SIZE 0x40000000
 
 #define DDR_MSTR 0x00040401

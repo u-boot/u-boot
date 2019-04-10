@@ -20,7 +20,7 @@ static const char *const clkname[] = {
 	"ddrphyc" /* LAST clock => used for get_rate() */
 };
 
-int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint16_t mem_speed)
+int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed)
 {
 	unsigned long ddrphy_clk;
 	unsigned long ddr_clk;
@@ -43,13 +43,13 @@ int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint16_t mem_speed)
 	priv->clk = clk;
 	ddrphy_clk = clk_get_rate(&priv->clk);
 
-	debug("DDR: mem_speed (%d MHz), RCC %d MHz\n",
-	      mem_speed, (u32)(ddrphy_clk / 1000 / 1000));
+	debug("DDR: mem_speed (%d kHz), RCC %d kHz\n",
+	      mem_speed, (u32)(ddrphy_clk / 1000));
 	/* max 10% frequency delta */
-	ddr_clk = abs(ddrphy_clk - mem_speed * 1000 * 1000);
-	if (ddr_clk > (mem_speed * 1000 * 100)) {
-		pr_err("DDR expected freq %d MHz, current is %d MHz\n",
-		       mem_speed, (u32)(ddrphy_clk / 1000 / 1000));
+	ddr_clk = abs(ddrphy_clk - mem_speed * 1000);
+	if (ddr_clk > (mem_speed * 100)) {
+		pr_err("DDR expected freq %d kHz, current is %d kHz\n",
+		       mem_speed, (u32)(ddrphy_clk / 1000));
 		return -EINVAL;
 	}
 

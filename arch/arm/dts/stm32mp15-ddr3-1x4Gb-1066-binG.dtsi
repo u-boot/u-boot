@@ -17,7 +17,7 @@
  * Tc > + 85C : N
  */
 #define DDR_MEM_NAME "DDR3-1066/888 bin G 1x4Gb 533MHz v1.43"
-#define DDR_MEM_SPEED 533
+#define DDR_MEM_SPEED 533000
 #define DDR_MEM_SIZE 0x20000000
 
 #define DDR_MSTR 0x00041401

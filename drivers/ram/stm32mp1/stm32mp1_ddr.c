@@ -373,7 +373,7 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 		panic("ddr power init failed\n");
 
 	debug("name = %s\n", config->info.name);
-	debug("speed = %d MHz\n", config->info.speed);
+	debug("speed = %d kHz\n", config->info.speed);
 	debug("size  = 0x%x\n", config->info.size);
 /*
  * 1. Program the DWC_ddr_umctl2 registers
@@ -389,7 +389,7 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 
 /* 1.2. start CLOCK */
 	if (stm32mp1_ddr_clk_enable(priv, config->info.speed))
-		panic("invalid DRAM clock : %d MHz\n",
+		panic("invalid DRAM clock : %d kHz\n",
 		      config->info.speed);
 
 /* 1.3. deassert reset */
