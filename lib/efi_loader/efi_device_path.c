@@ -968,7 +968,7 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
 	if (!is_net) {
 		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
 					       1);
-		if (part < 0)
+		if (part < 0 || !desc)
 			return EFI_INVALID_PARAMETER;
 
 		if (device)
