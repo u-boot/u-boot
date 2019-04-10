@@ -191,6 +191,8 @@ int do_rm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);
 int do_mkdir(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);
+int do_ln(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+	  int fstype);
 
 /*
  * Determine the UUID of the specified filesystem and print it. Optionally it is

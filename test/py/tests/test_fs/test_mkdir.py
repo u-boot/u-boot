@@ -9,6 +9,7 @@ This test verifies mkdir operation on file system.
 """
 
 import pytest
+from fstest_helpers import assert_fs_integrity
 
 @pytest.mark.boardspec('sandbox')
 @pytest.mark.slow
@@ -29,6 +30,8 @@ class TestMkdir(object):
                 '%sls host 0:0 dir1' % fs_type)
             assert('./'   in output)
             assert('../'  in output)
+            assert_fs_integrity(fs_type, fs_img)
+
 
     def test_mkdir2(self, u_boot_console, fs_obj_mkdir):
         """
@@ -46,6 +49,7 @@ class TestMkdir(object):
                 '%sls host 0:0 dir1/dir2' % fs_type)
             assert('./'   in output)
             assert('../'  in output)
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_mkdir3(self, u_boot_console, fs_obj_mkdir):
         """
@@ -58,6 +62,7 @@ class TestMkdir(object):
                 'host bind 0 %s' % fs_img,
                 '%smkdir host 0:0 none/dir3' % fs_type])
             assert('Unable to create a directory' in ''.join(output))
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_mkdir4(self, u_boot_console, fs_obj_mkdir):
         """
@@ -69,6 +74,7 @@ class TestMkdir(object):
                 'host bind 0 %s' % fs_img,
                 '%smkdir host 0:0 .' % fs_type])
             assert('Unable to create a directory' in ''.join(output))
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_mkdir5(self, u_boot_console, fs_obj_mkdir):
         """
@@ -80,6 +86,7 @@ class TestMkdir(object):
                 'host bind 0 %s' % fs_img,
                 '%smkdir host 0:0 ..' % fs_type])
             assert('Unable to create a directory' in ''.join(output))
+            assert_fs_integrity(fs_type, fs_img)
 
     def test_mkdir6(self, u_boot_console, fs_obj_mkdir):
         """
@@ -111,3 +118,4 @@ class TestMkdir(object):
                 '%sls host 0:0 dir6/0123456789abcdef13/..' % fs_type)
             assert('0123456789abcdef00/'  in output)
             assert('0123456789abcdef13/'  in output)
+            assert_fs_integrity(fs_type, fs_img)

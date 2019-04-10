@@ -62,6 +62,9 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 	lbaint_t delayed_next = 0;
 	char *delayed_buf = NULL;
 	short status;
+	struct ext_block_cache cache;
+
+	ext_cache_init(&cache);
 
 	if (blocksize <= 0)
 		return -1;
@@ -77,9 +80,11 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 		int blockoff = pos - (blocksize * i);
 		int blockend = blocksize;
 		int skipfirst = 0;
-		blknr = read_allocated_block(&(node->inode), i);
-		if (blknr < 0)
+		blknr = read_allocated_block(&node->inode, i, &cache);
+		if (blknr < 0) {
+			ext_cache_fini(&cache);
 			return -1;
+		}
 
 		blknr = blknr << log2_fs_blocksize;
 
@@ -109,8 +114,10 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 							delayed_skipfirst,
 							delayed_extent,
 							delayed_buf);
-					if (status == 0)
+					if (status == 0) {
+						ext_cache_fini(&cache);
 						return -1;
+					}
 					previous_block_number = blknr;
 					delayed_start = blknr;
 					delayed_extent = blockend;
@@ -136,8 +143,10 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 							delayed_skipfirst,
 							delayed_extent,
 							delayed_buf);
-				if (status == 0)
+				if (status == 0) {
+					ext_cache_fini(&cache);
 					return -1;
+				}
 				previous_block_number = -1;
 			}
 			/* Zero no more than `len' bytes. */
@@ -153,12 +162,15 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 		status = ext4fs_devread(delayed_start,
 					delayed_skipfirst, delayed_extent,
 					delayed_buf);
-		if (status == 0)
+		if (status == 0) {
+			ext_cache_fini(&cache);
 			return -1;
+		}
 		previous_block_number = -1;
 	}
 
 	*actread  = len;
+	ext_cache_fini(&cache);
 	return 0;
 }
 
@@ -251,4 +263,33 @@ int ext4fs_uuid(char *uuid_str)
 #else
 	return -ENOSYS;
 #endif
+}
+
+void ext_cache_init(struct ext_block_cache *cache)
+{
+	memset(cache, 0, sizeof(*cache));
+}
+
+void ext_cache_fini(struct ext_block_cache *cache)
+{
+	free(cache->buf);
+	ext_cache_init(cache);
+}
+
+int ext_cache_read(struct ext_block_cache *cache, lbaint_t block, int size)
+{
+	/* This could be more lenient, but this is simple and enough for now */
+	if (cache->buf && cache->block == block && cache->size == size)
+		return 1;
+	ext_cache_fini(cache);
+	cache->buf = malloc(size);
+	if (!cache->buf)
+		return 0;
+	if (!ext4fs_devread(block, 0, size, cache->buf)) {
+		free(cache->buf);
+		return 0;
+	}
+	cache->block = block;
+	cache->size = size;
+	return 1;
 }

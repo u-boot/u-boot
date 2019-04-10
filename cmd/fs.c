@@ -76,6 +76,20 @@ U_BOOT_CMD(
 	"      device type 'interface' instance 'dev'."
 )
 
+static int do_ln_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
+			 char * const argv[])
+{
+	return do_ln(cmdtp, flag, argc, argv, FS_TYPE_ANY);
+}
+
+U_BOOT_CMD(
+	ln,	5,	1,	do_ln_wrapper,
+	"Create a symbolic link",
+	"<interface> <dev[:part]> target linkname\n"
+	"    - create a symbolic link to 'target' with the name 'linkname' on\n"
+	"      device type 'interface' instance 'dev'."
+)
+
 static int do_fstype_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {

@@ -72,7 +72,7 @@ int ext4fs_iget(int inode_no, struct ext2_inode *inode);
 void ext4fs_allocate_blocks(struct ext2_inode *file_inode,
 				unsigned int total_remaining_blocks,
 				unsigned int *total_no_of_block);
-void put_ext4(uint64_t off, void *buf, uint32_t size);
+void put_ext4(uint64_t off, const void *buf, uint32_t size);
 struct ext2_block_group *ext4fs_get_group_descriptor
 	(const struct ext_filesystem *fs, uint32_t bg_idx);
 uint64_t ext4fs_bg_get_block_id(const struct ext2_block_group *bg,
