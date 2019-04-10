@@ -1,0 +1,27 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+#include "versal.dtsi"
+#include "versal-fixed.dtsi"
+
+/ {
+	compatible = "xlnx,versal-vc-p-a2197-00-revA",
+		     "xlnx,versal-vc-p-a2197-00",
+		     "xlnx,versal-vc-p-a2197", "xlnx,versal";
+	model = "Xilinx Versal A2197 Processor board revA";
+
+	memory: memory@0 {
+		device_type = "memory";
+		reg = <0 0 0 0x80000000>;
+	};
+};
+
+&dcc {
+	status = "okay";
+};

@@ -1,0 +1,160 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * dts file for Xilinx Versal fixed clock default configuration
+ *
+ * (C) Copyright 2019, Xilinx, Inc.
+ *
+ * Michal Simek <michal.simek@xilinx.com>
+ */
+
+/ {
+	clk60: clk60 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <60000000>;
+		u-boot,dm-pre-reloc;
+	};
+
+	clk100: clk100 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+		u-boot,dm-pre-reloc;
+	};
+
+	clk125: clk125 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <125000000>;
+	};
+
+	clk150: clk150 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <150000000>;
+	};
+
+	clk160: clk160 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <160000000>;
+	};
+
+	clk200: clk200 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <200000000>;
+	};
+
+	clk250: clk250 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <250000000>;
+	};
+
+	clk300: clk300 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <300000000>;
+	};
+};
+
+&can0 {
+	clocks = <&clk160 &clk100>;
+};
+
+&can1 {
+	clocks = <&clk160 &clk100>;
+};
+
+&lpd_dma_chan0 {
+	clocks = <&clk100 &clk100>;
+};
+
+&lpd_dma_chan1 {
+	clocks = <&clk100 &clk100>;
+};
+
+&lpd_dma_chan2 {
+	clocks = <&clk100 &clk100>;
+};
+
+&lpd_dma_chan3 {
+	clocks = <&clk100 &clk100>;
+};
+
+&lpd_dma_chan4 {
+	clocks = <&clk100 &clk100>;
+};
+
+&lpd_dma_chan5 {
+	clocks = <&clk100 &clk100>;
+};
+
+&lpd_dma_chan6 {
+	clocks = <&clk100 &clk100>;
+};
+
+&lpd_dma_chan7 {
+	clocks = <&clk100 &clk100>;
+};
+
+&gpio {
+	clocks = <&clk100>;
+};
+
+&gem0 {
+	clocks = <&clk100 &clk125 &clk125 &clk125 &clk250>;
+};
+
+&gem1 {
+	clocks = <&clk100 &clk125 &clk125 &clk125 &clk250>;
+};
+
+&qspi {
+	clocks = <&clk300 &clk100>;
+};
+
+&ospi {
+	clocks = <&clk200 &clk100>;
+};
+
+&i2c0 {
+	clocks = <&clk100>;
+};
+
+&i2c1 {
+	clocks = <&clk100>;
+};
+
+&sdhci0 {
+	clocks = <&clk200 &clk200>;
+};
+
+&sdhci1 {
+	clocks = <&clk200 &clk200>;
+};
+
+&serial0 {
+	clocks = <&clk100 &clk100>;
+};
+
+&serial1 {
+	clocks = <&clk100 &clk100>;
+};
+
+&spi0 {
+	clocks = <&clk200 &clk200>;
+};
+
+&spi1 {
+	clocks = <&clk200 &clk200>;
+};
+
+&usb0 {
+	clocks = <&clk60 &clk60>;
+};
+
+&watchdog {
+	clocks = <&clk100>;
+};
