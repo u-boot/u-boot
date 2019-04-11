@@ -520,7 +520,7 @@ int arch_misc_init(void)
 }
 #endif /* CONFIG_ARCH_MISC_INIT */
 
-#ifdef CONFIG_MMC_SDHCI_MV
+#if defined(CONFIG_MMC_SDHCI_MV) && !defined(CONFIG_DM_MMC)
 int board_mmc_init(bd_t *bis)
 {
 	mv_sdh_init(MVEBU_SDIO_BASE, 0, 0,
