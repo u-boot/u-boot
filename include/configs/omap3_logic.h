@@ -67,7 +67,7 @@
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"	\
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
 	"nandroot=ubi0:rootfs rw ubi.mtd=fs noinitrd\0" \
 	"nandrootfstype=ubifs rootwait\0" \
@@ -106,7 +106,8 @@
 	"ramargs=setenv bootargs "\
 		"root=/dev/ram rw ramdisk_size=${ramdisksize}\0" \
 	"mmcargs=setenv bootargs "\
-		"root=${mmcroot} rootfstype=${mmcrootfstype}\0" \
+		"root=PARTUUID=${uuid} " \
+		"rootfstype=${mmcrootfstype} rw\0" \
 	"nandargs=setenv bootargs "\
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
@@ -120,6 +121,7 @@
 	"loadfdt=mmc rescan; " \
 		"load mmc ${mmcdev} ${fdtaddr} ${fdtimage}\0" \
 	"mmcbootcommon=echo Booting with DT from mmc${mmcdev} ...; " \
+		"run finduuid; "\
 		"run mmcargs; " \
 		"run common_bootargs; " \
 		"run dump_bootargs; " \
