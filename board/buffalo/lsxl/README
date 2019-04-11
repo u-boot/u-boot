@@ -8,6 +8,16 @@ the LS-XHL PCB has two SDRAM chips. Both have a Kirkwood CPU (Marvell
 bootloader and its environment. The linux kernel and the initial ramdisk
 are loaded from the hard disk.
 
+Important! Changes since v2019.07
+---------------------------------
+In u-boot v2019.07 the driver for the SATA port was changed to a new
+one. This means that the old "ide" command and block interface is not
+supported anymore. More important, the boot commands have changed. You have
+to overwrite the boot commands in your envionment with the new ones:
+
+  env default -f bootcmd_legacy
+  env default -f bootcmd_hdd
+  saveenv
 
 Rescue Mode
 -----------
