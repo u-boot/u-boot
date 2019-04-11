@@ -24,10 +24,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
-static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
-#endif
-
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
     !defined(CONFIG_SPL_BUILD)
 static xilinx_desc zynqmppl = XILINX_ZYNQMP_DESC;
@@ -344,43 +340,8 @@ int board_init(void)
 	}
 #endif
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT)
-	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
-		debug("Watchdog: Not found by seq!\n");
-		if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
-			puts("Watchdog: Not found!\n");
-			return 0;
-		}
-	}
-
-	wdt_start(watchdog_dev, 0, 0);
-	puts("Watchdog: Started\n");
-#endif
-
 	return 0;
 }
-
-#ifdef CONFIG_WATCHDOG
-/* Called by macro WATCHDOG_RESET */
-void watchdog_reset(void)
-{
-# if !defined(CONFIG_SPL_BUILD)
-	static ulong next_reset;
-	ulong now;
-
-	if (!watchdog_dev)
-		return;
-
-	now = timer_get_us();
-
-	/* Do not reset the watchdog too often */
-	if (now > next_reset) {
-		wdt_reset(watchdog_dev);
-		next_reset = now + 1000;
-	}
-# endif
-}
-#endif
 
 int board_early_init_r(void)
 {

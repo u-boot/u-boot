@@ -119,40 +119,10 @@ int board_fix_fdt(void *blob)
 }
 #endif
 
-#ifdef CONFIG_WDT_ARMADA_37XX
-static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
-
-void watchdog_reset(void)
-{
-	static ulong next_reset;
-	ulong now;
-
-	if (!watchdog_dev)
-		return;
-
-	now = timer_get_us();
-
-	/* Do not reset the watchdog too often */
-	if (now > next_reset) {
-		wdt_reset(watchdog_dev);
-		next_reset = now + 100000;
-	}
-}
-#endif
-
 int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-
-#ifdef CONFIG_WDT_ARMADA_37XX
-	if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
-		printf("Cannot find Armada 3720 watchdog!\n");
-	} else {
-		printf("Enabling Armada 3720 watchdog (3 minutes timeout).\n");
-		wdt_start(watchdog_dev, 180000, 0);
-	}
-#endif
 
 	return 0;
 }

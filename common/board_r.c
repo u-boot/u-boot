@@ -48,6 +48,7 @@
 #include <linux/compiler.h>
 #include <linux/err.h>
 #include <efi_loader.h>
+#include <wdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -676,6 +677,9 @@ static init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_DM
 	initr_dm,
+#endif
+#if defined(CONFIG_WDT)
+	initr_watchdog,
 #endif
 #if defined(CONFIG_ARM) || defined(CONFIG_NDS32) || defined(CONFIG_RISCV) || \
 	defined(CONFIG_SANDBOX)

@@ -29,11 +29,6 @@
 #define CONFIG_SPL_I2C_MUX
 #define CONFIG_SYS_I2C_MVTWSI
 
-/* Watchdog support */
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT_ORION)
-# define CONFIG_WATCHDOG
-#endif
-
 /*
  * SDIO/MMC Card Configuration
  */

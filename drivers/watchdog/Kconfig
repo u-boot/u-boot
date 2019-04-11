@@ -51,6 +51,7 @@ config ULP_WATCHDOG
 config WDT
 	bool "Enable driver model for watchdog timer drivers"
 	depends on DM
+	imply WATCHDOG
 	help
 	  Enable driver model for watchdog timer. At the moment the API
 	  is very simple and only supports four operations:
