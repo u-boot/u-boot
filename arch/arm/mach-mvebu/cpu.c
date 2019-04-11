@@ -499,6 +499,8 @@ u32 mvebu_get_nand_clock(void)
 
 	if (mvebu_soc_family() == MVEBU_SOC_A38X)
 		reg = MVEBU_DFX_DIV_CLK_CTRL(1);
+	else if (mvebu_soc_family() == MVEBU_SOC_MSYS)
+		reg = MVEBU_DFX_DIV_CLK_CTRL(8);
 	else
 		reg = MVEBU_CORE_DIV_CLK_CTRL(1);
 
