@@ -10,6 +10,7 @@
 #include <dm.h>
 #include <wdt.h>
 #include <clk.h>
+#include <div64.h>
 #include <linux/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -23,7 +24,6 @@ struct cdns_regs {
 
 struct cdns_wdt_priv {
 	bool rst;
-	u32 timeout;
 	struct cdns_regs *regs;
 };
 
@@ -142,10 +142,10 @@ static int cdns_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 		return -1;
 	}
 
-	if ((timeout < CDNS_WDT_MIN_TIMEOUT) ||
-	    (timeout > CDNS_WDT_MAX_TIMEOUT)) {
-		timeout = priv->timeout;
-	}
+	/* Calculate timeout in seconds and restrict to min and max value */
+	do_div(timeout, 1000);
+	timeout = max_t(u64, timeout, CDNS_WDT_MIN_TIMEOUT);
+	timeout = min_t(u64, timeout, CDNS_WDT_MAX_TIMEOUT);
 
 	debug("%s: CLK_FREQ %ld, timeout %lld\n", __func__, clk_f, timeout);
 
@@ -235,12 +235,9 @@ static int cdns_wdt_ofdata_to_platdata(struct udevice *dev)
 	if (IS_ERR(priv->regs))
 		return PTR_ERR(priv->regs);
 
-	priv->timeout = dev_read_u32_default(dev, "timeout-sec",
-					     CDNS_WDT_DEFAULT_TIMEOUT);
-
 	priv->rst = dev_read_bool(dev, "reset-on-timeout");
 
-	debug("%s: timeout %d, reset %d\n", __func__, priv->timeout, priv->rst);
+	debug("%s: reset %d\n", __func__, priv->rst);
 
 	return 0;
 }
