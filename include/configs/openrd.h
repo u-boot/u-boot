@@ -41,7 +41,6 @@
  * it has to be rounded to sector size
  */
 #define CONFIG_ENV_SIZE			0x20000	/* 128k */
-#define CONFIG_ENV_ADDR			0x60000
 #define CONFIG_ENV_OFFSET		0x60000	/* env starts here */
 /*
  * Environment is right behind U-Boot in flash. Make sure U-Boot
