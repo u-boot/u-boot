@@ -1020,6 +1020,20 @@ quiet_cmd_copy = COPY    $@
 
 ifeq ($(CONFIG_MULTI_DTB_FIT),y)
 
+ifeq ($(CONFIG_MULTI_DTB_FIT_LZO),y)
+FINAL_DTB_CONTAINER = fit-dtb.blob.lzo
+else ifeq ($(CONFIG_MULTI_DTB_FIT_GZIP),y)
+FINAL_DTB_CONTAINER = fit-dtb.blob.gz
+else
+FINAL_DTB_CONTAINER = fit-dtb.blob
+endif
+
+fit-dtb.blob.gz: fit-dtb.blob
+	@gzip -kf9 $< > $@
+
+fit-dtb.blob.lzo: fit-dtb.blob
+	@lzop -f9 $< > $@
+
 fit-dtb.blob: dts/dt.dtb FORCE
 	$(call if_changed,mkimage)
 
@@ -1027,7 +1041,7 @@ MKIMAGEFLAGS_fit-dtb.blob = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-a 0 -e 0 -E \
 	$(patsubst %,-b arch/$(ARCH)/dts/%.dtb,$(subst ",,$(CONFIG_OF_LIST))) -d /dev/null
 
-u-boot-fit-dtb.bin: u-boot-nodtb.bin fit-dtb.blob
+u-boot-fit-dtb.bin: u-boot-nodtb.bin $(FINAL_DTB_CONTAINER)
 	$(call if_changed,cat)
 
 u-boot.bin: u-boot-fit-dtb.bin FORCE

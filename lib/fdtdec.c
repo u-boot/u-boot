@@ -1088,18 +1088,18 @@ int fdtdec_decode_display_timing(const void *blob, int parent, int index,
 	return ret;
 }
 
-int fdtdec_setup_mem_size_base(void)
+int fdtdec_setup_mem_size_base_fdt(const void *blob)
 {
 	int ret, mem;
 	struct fdt_resource res;
 
-	mem = fdt_path_offset(gd->fdt_blob, "/memory");
+	mem = fdt_path_offset(blob, "/memory");
 	if (mem < 0) {
 		debug("%s: Missing /memory node\n", __func__);
 		return -EINVAL;
 	}
 
-	ret = fdt_get_resource(gd->fdt_blob, mem, "reg", 0, &res);
+	ret = fdt_get_resource(blob, mem, "reg", 0, &res);
 	if (ret != 0) {
 		debug("%s: Unable to decode first memory bank\n", __func__);
 		return -EINVAL;
@@ -1113,38 +1113,43 @@ int fdtdec_setup_mem_size_base(void)
 	return 0;
 }
 
+int fdtdec_setup_mem_size_base(void)
+{
+	return fdtdec_setup_mem_size_base_fdt(gd->fdt_blob);
+}
+
 #if defined(CONFIG_NR_DRAM_BANKS)
 
 static int get_next_memory_node(const void *blob, int mem)
 {
 	do {
-		mem = fdt_node_offset_by_prop_value(gd->fdt_blob, mem,
+		mem = fdt_node_offset_by_prop_value(blob, mem,
 						    "device_type", "memory", 7);
 	} while (!fdtdec_get_is_enabled(blob, mem));
 
 	return mem;
 }
 
-int fdtdec_setup_memory_banksize(void)
+int fdtdec_setup_memory_banksize_fdt(const void *blob)
 {
 	int bank, ret, mem, reg = 0;
 	struct fdt_resource res;
 
-	mem = get_next_memory_node(gd->fdt_blob, -1);
+	mem = get_next_memory_node(blob, -1);
 	if (mem < 0) {
 		debug("%s: Missing /memory node\n", __func__);
 		return -EINVAL;
 	}
 
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
+		ret = fdt_get_resource(blob, mem, "reg", reg++, &res);
 		if (ret == -FDT_ERR_NOTFOUND) {
 			reg = 0;
-			mem = get_next_memory_node(gd->fdt_blob, mem);
+			mem = get_next_memory_node(blob, mem);
 			if (mem == -FDT_ERR_NOTFOUND)
 				break;
 
-			ret = fdt_get_resource(gd->fdt_blob, mem, "reg", reg++, &res);
+			ret = fdt_get_resource(blob, mem, "reg", reg++, &res);
 			if (ret == -FDT_ERR_NOTFOUND)
 				break;
 		}
@@ -1164,6 +1169,12 @@ int fdtdec_setup_memory_banksize(void)
 
 	return 0;
 }
+
+int fdtdec_setup_memory_banksize(void)
+{
+	return fdtdec_setup_memory_banksize_fdt(gd->fdt_blob);
+
+}
 #endif
 
 #if CONFIG_IS_ENABLED(MULTI_DTB_FIT)
@@ -1171,17 +1182,22 @@ int fdtdec_setup_memory_banksize(void)
 	CONFIG_IS_ENABLED(MULTI_DTB_FIT_LZO)
 static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 {
-	size_t sz_out = CONFIG_SPL_MULTI_DTB_FIT_UNCOMPRESS_SZ;
+	size_t sz_out = CONFIG_VAL(MULTI_DTB_FIT_UNCOMPRESS_SZ);
+	bool gzip = 0, lzo = 0;
 	ulong sz_in = sz_src;
 	void *dst;
 	int rc;
 
 	if (CONFIG_IS_ENABLED(GZIP))
-		if (gzip_parse_header(src, sz_in) < 0)
-			return -1;
+		if (gzip_parse_header(src, sz_in) >= 0)
+			gzip = 1;
 	if (CONFIG_IS_ENABLED(LZO))
-		if (!lzop_is_valid_header(src))
-			return -EBADMSG;
+		if (!gzip && lzop_is_valid_header(src))
+			lzo = 1;
+
+	if (!gzip && !lzo)
+		return -EBADMSG;
+
 
 	if (CONFIG_IS_ENABLED(MULTI_DTB_FIT_DYN_ALLOC)) {
 		dst = malloc(sz_out);
@@ -1197,10 +1213,12 @@ static int uncompress_blob(const void *src, ulong sz_src, void **dstp)
 #  endif
 	}
 
-	if (CONFIG_IS_ENABLED(GZIP))
+	if (CONFIG_IS_ENABLED(GZIP) && gzip)
 		rc = gunzip(dst, sz_out, (u8 *)src, &sz_in);
-	else if (CONFIG_IS_ENABLED(LZO))
+	else if (CONFIG_IS_ENABLED(LZO) && lzo)
 		rc = lzop_decompress(src, sz_in, dst, &sz_out);
+	else
+		hang();
 
 	if (rc < 0) {
 		/* not a valid compressed blob */
