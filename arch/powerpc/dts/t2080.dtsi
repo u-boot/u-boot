@@ -68,5 +68,24 @@
 			bus-width = <4>;
 			voltage-ranges = <1800 1800 3300 3300>;
 		};
+
+		usb0: usb@210000 {
+			compatible = "fsl-usb2-mph";
+			reg = <0x210000 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			interrupts = <44 0x2 0 0>;
+			phy_type = "utmi";
+		};
+
+		usb1: usb@211000 {
+			compatible = "fsl-usb2-dr";
+			reg = <0x211000 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			interrupts = <45 0x2 0 0>;
+			dr_mode = "host";
+			phy_type = "utmi";
+		};
 	};
 };
