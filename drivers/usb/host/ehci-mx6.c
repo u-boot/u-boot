@@ -18,6 +18,7 @@
 #include <dm.h>
 #include <asm/mach-types.h>
 #include <power/regulator.h>
+#include <linux/usb/otg.h>
 
 #include "ehci.h"
 
@@ -483,23 +484,23 @@ static int ehci_usb_phy_mode(struct udevice *dev)
 static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 {
 	struct usb_platdata *plat = dev_get_platdata(dev);
-	const char *mode;
+	enum usb_dr_mode dr_mode;
 
-	mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "dr_mode", NULL);
-	if (mode) {
-		if (strcmp(mode, "peripheral") == 0)
-			plat->init_type = USB_INIT_DEVICE;
-		else if (strcmp(mode, "host") == 0)
-			plat->init_type = USB_INIT_HOST;
-		else if (strcmp(mode, "otg") == 0)
-			return ehci_usb_phy_mode(dev);
-		else
-			return -EINVAL;
+	dr_mode = usb_get_dr_mode(dev_of_offset(dev));
 
-		return 0;
-	}
+	switch (dr_mode) {
+	case USB_DR_MODE_HOST:
+		plat->init_type = USB_INIT_HOST;
+		break;
+	case USB_DR_MODE_PERIPHERAL:
+		plat->init_type = USB_INIT_DEVICE;
+		break;
+	case USB_DR_MODE_OTG:
+	case USB_DR_MODE_UNKNOWN:
+		return ehci_usb_phy_mode(dev);
+	};
 
-	return ehci_usb_phy_mode(dev);
+	return 0;
 }
 
 static int ehci_usb_probe(struct udevice *dev)
