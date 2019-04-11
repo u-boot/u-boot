@@ -1462,8 +1462,11 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
-
+#ifdef CONFIG_PPC
+	priv->esdhc_regs = (struct fsl_esdhc *)lower_32_bits(addr);
+#else
 	priv->esdhc_regs = (struct fsl_esdhc *)addr;
+#endif
 	priv->dev = dev;
 	priv->mode = -1;
 	if (data) {
