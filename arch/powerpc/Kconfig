@@ -35,7 +35,7 @@ config MPC8xx
 	bool "MPC8xx"
 	select BOARD_EARLY_INIT_F
 	imply CMD_REGINFO
-	imply MPC8xx_WATCHDOG
+	imply WDT_MPC8xx
 
 endchoice
 

@@ -25,9 +25,9 @@ config MPC885
 
 endchoice
 
-config MPC8xx_WATCHDOG
-	bool "Watchdog"
-	select HW_WATCHDOG
+#config MPC8xx_WATCHDOG
+#	bool "Watchdog"
+#	select HW_WATCHDOG
 
 config 8xx_GCLK_FREQ
 	int "CPU GCLK Frequency"

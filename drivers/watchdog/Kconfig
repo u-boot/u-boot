@@ -151,7 +151,6 @@ config WDT_MT7621
 config WDT_MPC8xx
 	bool "MPC8xx watchdog timer support"
 	depends on WDT && MPC8xx
-	select CONFIG_MPC8xx_WATCHDOG
 	help
 	   Select this to enable mpc8xx watchdog timer
 
