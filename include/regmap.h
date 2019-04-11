@@ -274,7 +274,7 @@ int regmap_raw_read_range(struct regmap *map, uint range_num, uint offset,
 		if (cond) \
 			break; \
 		if (IS_ENABLED(CONFIG_SANDBOX) && test_add_time) \
-			sandbox_timer_add_offset(test_add_time); \
+			timer_test_add_offset(test_add_time); \
 		if ((timeout_ms) && get_timer(__start) > (timeout_ms)) { \
 			__ret = regmap_read((map), (addr), &(val)); \
 			break; \

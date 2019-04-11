@@ -59,14 +59,6 @@ void sandbox_i2c_eeprom_set_test_mode(struct udevice *dev,
 
 void sandbox_i2c_eeprom_set_offset_len(struct udevice *dev, int offset_len);
 
-/*
- * sandbox_timer_add_offset()
- *
- * Allow tests to add to the time reported through lib/time.c functions
- * offset: number of milliseconds to advance the system time
- */
-void sandbox_timer_add_offset(unsigned long offset);
-
 /**
  * sandbox_i2c_rtc_set_offset() - set the time offset from system/base time
  *

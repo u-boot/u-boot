@@ -14,6 +14,14 @@ unsigned long get_timer(unsigned long base);
 unsigned long timer_get_us(void);
 
 /*
+ * timer_test_add_offset()
+ *
+ * Allow tests to add to the time reported through lib/time.c functions
+ * offset: number of milliseconds to advance the system time
+ */
+void timer_test_add_offset(unsigned long offset);
+
+/*
  *	These inlines deal with timer wrapping correctly. You are
  *	strongly encouraged to use them
  *	1. Because people otherwise forget
