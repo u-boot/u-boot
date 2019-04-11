@@ -1435,7 +1435,9 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 #endif
 
 #if CONFIG_IS_ENABLED(DM_MMC)
+#ifndef CONFIG_PPC
 #include <asm/arch/clock.h>
+#endif
 __weak void init_clk_usdhc(u32 index)
 {
 }
@@ -1568,7 +1570,11 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 		priv->sdhc_clk = clk_get_rate(&priv->per_clk);
 	} else {
+#ifndef CONFIG_PPC
 		priv->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK + dev->seq);
+#else
+		priv->sdhc_clk = gd->arch.sdhc_clk;
+#endif
 		if (priv->sdhc_clk <= 0) {
 			dev_err(dev, "Unable to get clk for %s\n", dev->name);
 			return -EINVAL;
