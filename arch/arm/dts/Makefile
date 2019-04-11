@@ -54,6 +54,9 @@ dtb-$(CONFIG_KIRKWOOD) += \
 	kirkwood-ns2lite.dtb \
 	kirkwood-ns2max.dtb \
 	kirkwood-ns2mini.dtb \
+	kirkwood-openrd-base.dtb \
+	kirkwood-openrd-client.dtb \
+	kirkwood-openrd-ultimate.dtb \
 	kirkwood-pogo_e02.dtb \
 	kirkwood-sheevaplug.dtb
 
