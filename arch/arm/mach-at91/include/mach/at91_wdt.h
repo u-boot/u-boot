@@ -28,7 +28,6 @@ typedef struct at91_wdt {
 struct at91_wdt_priv {
 	void __iomem *regs;
 	u32 regval;
-	u32 timeout;
 };
 
 #endif
@@ -51,6 +50,5 @@ struct at91_wdt_priv {
 
 /* Hardware timeout in seconds */
 #define WDT_MAX_TIMEOUT		16
-#define WDT_DEFAULT_TIMEOUT	2
 
 #endif

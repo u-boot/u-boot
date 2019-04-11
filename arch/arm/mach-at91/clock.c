@@ -14,8 +14,6 @@
 
 #define EN_UPLL_TIMEOUT		500
 
-static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
-
 void at91_periph_clk_enable(int id)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
@@ -122,47 +120,4 @@ void at91_pllicpr_init(u32 icpr)
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	writel(icpr, &pmc->pllicpr);
-}
-
-/* Called by macro WATCHDOG_RESET */
-void watchdog_reset(void)
-{
-	static ulong next_reset;
-	ulong now;
-
-	if (!watchdog_dev)
-		return;
-
-	now = get_timer(0);
-
-	/* Do not reset the watchdog too often */
-	if (now > next_reset) {
-		next_reset = now + 1000;	/* reset every 1000ms */
-		wdt_reset(watchdog_dev);
-	}
-}
-
-int arch_early_init_r(void)
-{
-	struct at91_wdt_priv *priv;
-
-	/* Init watchdog */
-	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
-		debug("Watchdog: Not found by seq!\n");
-		if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
-			puts("Watchdog: Not found!\n");
-			return 0;
-		}
-	}
-
-	priv = dev_get_priv(watchdog_dev);
-	if (!priv) {
-		printf("Watchdog: priv not available!\n");
-		return 0;
-	}
-
-	wdt_start(watchdog_dev, priv->timeout * 1000, 0);
-	printf("Watchdog: Started\n");
-
-	return 0;
 }
