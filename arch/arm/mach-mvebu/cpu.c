@@ -23,6 +23,11 @@ static struct mbus_win windows[] = {
 	/* NOR */
 	{ MBUS_BOOTROM_BASE, MBUS_BOOTROM_SIZE,
 	  CPU_TARGET_DEVICEBUS_BOOTROM_SPI, CPU_ATTR_BOOTROM },
+
+#ifdef CONFIG_ARMADA_MSYS
+	/* DFX */
+	{ MBUS_DFX_BASE, MBUS_DFX_SIZE, CPU_TARGET_DFX, 0 },
+#endif
 };
 
 void lowlevel_init(void)
@@ -121,6 +126,14 @@ static const struct sar_freq_modes sar_freq_tab[] = {
 	{ 0x13,  0x0, 2000, 1000, 933 },
 	{ 0xff, 0xff,    0,    0,   0 }	/* 0xff marks end of array */
 };
+#elif defined(CONFIG_ARMADA_MSYS)
+static const struct sar_freq_modes sar_freq_tab[] = {
+	{  0x0,	0x0,  400,  400, 400 },
+	{  0x2, 0x0,  667,  333, 667 },
+	{  0x3, 0x0,  800,  400, 800 },
+	{  0x5, 0x0,  800,  400, 800 },
+	{ 0xff, 0xff,    0,   0,   0 }	/* 0xff marks end of array */
+};
 #else
 /* SAR frequency values for Armada XP */
 static const struct sar_freq_modes sar_freq_tab[] = {
@@ -144,7 +157,7 @@ void get_sar_freq(struct sar_freq_modes *sar_freq)
 	u32 freq;
 	int i;
 
-#if defined(CONFIG_ARMADA_375)
+#if defined(CONFIG_ARMADA_375) || defined(CONFIG_ARMADA_MSYS)
 	val = readl(CONFIG_SAR2_REG);	/* SAR - Sample At Reset */
 #else
 	val = readl(CONFIG_SAR_REG);	/* SAR - Sample At Reset */
@@ -160,7 +173,7 @@ void get_sar_freq(struct sar_freq_modes *sar_freq)
 #endif
 	for (i = 0; sar_freq_tab[i].val != 0xff; i++) {
 		if (sar_freq_tab[i].val == freq) {
-#if defined(CONFIG_ARMADA_375) || defined(CONFIG_ARMADA_38X)
+#if defined(CONFIG_ARMADA_375) || defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_MSYS)
 			*sar_freq = sar_freq_tab[i];
 			return;
 #else
@@ -263,6 +276,20 @@ int print_cpuinfo(void)
 			break;
 		case MV_88F68XX_B0_ID:
 			puts("B0");
+			break;
+		default:
+			printf("?? (%x)", revid);
+			break;
+		}
+	}
+
+	if (mvebu_soc_family() == MVEBU_SOC_MSYS) {
+		switch (revid) {
+		case 3:
+			puts("A0");
+			break;
+		case 4:
+			puts("A1");
 			break;
 		default:
 			printf("?? (%x)", revid);

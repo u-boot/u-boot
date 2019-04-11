@@ -344,6 +344,11 @@ static void mvebu_mbus_default_setup_cpu_target(struct mvebu_mbus_state *mbus)
 		}
 	}
 	mbus_dram_info.num_cs = cs;
+
+#if defined(CONFIG_ARMADA_MSYS)
+	/* Disable MBUS Err Prop - in order to avoid data aborts */
+	clrbits_le32(mbus->mbuswins_base + 0x200, BIT(8));
+#endif
 }
 
 static const struct mvebu_mbus_soc_data

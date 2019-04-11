@@ -46,7 +46,7 @@ config ARMADA_8K
 # Armada PLL frequency (used for NAND clock generation)
 config SYS_MVEBU_PLL_CLOCK
 	int
-	default "2000000000" if ARMADA_XP || ARMADA_3700 || ARMADA_8K
+	default "2000000000" if ARMADA_XP || ARMADA_3700 || ARMADA_8K || ARMADA_MSYS
 	default "1000000000" if ARMADA_38X || ARMADA_375
 
 # Armada XP/38x SoC types...
@@ -62,6 +62,22 @@ config MV78260
 config MV78460
 	bool
 	select ARMADA_XP
+
+config ARMADA_MSYS
+	bool
+	select ARMADA_32BIT
+
+config 98DX4251
+	bool
+	select ARMADA_MSYS
+
+config 98DX3336
+	bool
+	select ARMADA_MSYS
+
+config 98DX3236
+	bool
+	select ARMADA_MSYS
 
 config 88F6820
 	bool
