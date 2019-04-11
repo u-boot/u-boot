@@ -65,6 +65,11 @@ static int find_in_memory_map(efi_uintn_t map_size,
 	for (i = 0; map_size; ++i, map_size -= desc_size) {
 		struct efi_mem_desc *entry = &memory_map[i];
 
+		if (entry->physical_start != entry->virtual_start) {
+			efi_st_error("Physical and virtual addresses do not match\n");
+			return EFI_ST_FAILURE;
+		}
+
 		if (addr >= entry->physical_start &&
 		    addr < entry->physical_start +
 			    (entry->num_pages << EFI_PAGE_SHIFT)) {
