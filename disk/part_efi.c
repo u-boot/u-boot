@@ -908,7 +908,7 @@ static int is_pmbr_valid(legacy_mbr * mbr)
  * gpt is a GPT header ptr, filled on return.
  * ptes is a PTEs ptr, filled on return.
  *
- * Description: returns 1 if valid,  0 on error.
+ * Description: returns 1 if valid,  0 on error, 2 if ignored header
  * If valid, returns pointers to PTEs.
  */
 static int is_gpt_valid(struct blk_desc *dev_desc, u64 lba,
@@ -932,6 +932,12 @@ static int is_gpt_valid(struct blk_desc *dev_desc, u64 lba,
 	if (blk_dread(dev_desc, (lbaint_t)lba, 1, pgpt_head) != 1) {
 		printf("*** ERROR: Can't read GPT header ***\n");
 		return 0;
+	}
+
+	/* Invalid but nothing to yell about. */
+	if (le64_to_cpu(pgpt_head->signature) == GPT_HEADER_CHROMEOS_IGNORE) {
+		debug("ChromeOS 'IGNOREME' GPT header found and ignored\n");
+		return 2;
 	}
 
 	if (validate_gpt_header(pgpt_head, (lbaint_t)lba, dev_desc->lba))
@@ -977,16 +983,24 @@ static int is_gpt_valid(struct blk_desc *dev_desc, u64 lba,
 static int find_valid_gpt(struct blk_desc *dev_desc, gpt_header *gpt_head,
 			  gpt_entry **pgpt_pte)
 {
-	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
-			 gpt_head, pgpt_pte) != 1) {
-		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
-		if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
-				 gpt_head, pgpt_pte) != 1) {
+	int r;
+
+	r = is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA, gpt_head,
+			 pgpt_pte);
+
+	if (r != 1) {
+		if (r != 2)
+			printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
+
+		if (is_gpt_valid(dev_desc, (dev_desc->lba - 1), gpt_head,
+				 pgpt_pte) != 1) {
 			printf("%s: *** ERROR: Invalid Backup GPT ***\n",
 			       __func__);
 			return 0;
 		}
-		printf("%s: ***        Using Backup GPT ***\n",  __func__);
+		if (r != 2)
+			printf("%s: ***        Using Backup GPT ***\n",
+			       __func__);
 	}
 	return 1;
 }
