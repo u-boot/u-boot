@@ -21,6 +21,10 @@ if [ ! -f $TEE ]; then
 	TEE=/dev/null
 fi
 
+if [ ! -z "$IS_HS" ]; then
+	HS_APPEND=_HS
+fi
+
 cat << __HEADER_EOF
 /dts-v1/;
 
@@ -51,7 +55,7 @@ cat << __HEADER_EOF
 		};
 		spl {
 			description = "SPL (64-bit)";
-			data = /incbin/("spl/u-boot-spl-nodtb.bin");
+			data = /incbin/("spl/u-boot-spl-nodtb.bin$HS_APPEND");
 			type = "standalone";
 			os = "U-Boot";
 			arch = "arm64";
@@ -66,7 +70,7 @@ do
 	cat << __FDT_IMAGE_EOF
 		$(basename $dtname) {
 			description = "$(basename $dtname .dtb)";
-			data = /incbin/("$dtname");
+			data = /incbin/("$dtname$HS_APPEND");
 			type = "flat_dt";
 			arch = "arm";
 			compression = "none";
