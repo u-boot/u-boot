@@ -10,6 +10,9 @@
 MEMORY { .sram : ORIGIN = IMAGE_TEXT_BASE,\
 		LENGTH = CONFIG_SPL_MAX_FOOTPRINT }
 
+MEMORY { .sdram : ORIGIN = CONFIG_SPL_BSS_START_ADDR, \
+                LENGTH = CONFIG_SPL_BSS_MAX_SIZE }
+
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_start)
@@ -42,6 +45,15 @@ SECTIONS
 		__rel_dyn_end = .;
 	} >.sram
 
+	__image_copy_end = .;
+
+	.end :
+	{
+		*(.__end)
+	}
+
+	_image_binary_end = .;
+
 	.bss :
 	{
 		. = ALIGN(4);
@@ -49,12 +61,5 @@ SECTIONS
 		*(.bss*)
 		. = ALIGN(4);
 		__bss_end = .;
-	} >.sram
-
-	__image_copy_end = .;
-
-	.end :
-	{
-		*(.__end)
-	}
+	} >.sdram
 }

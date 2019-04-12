@@ -125,21 +125,23 @@ struct pin_cfg k2g_evm_pin_cfg[] = {
 	{ 70,	MODE(0) },	/* SOC_MMC1_SDWP */
 	{ 71,	MODE(0) },	/* MMC1POW TP124 */
 
-	/* RGMII */
-	{ 72,	MODE(1) | PIN_IEN },	/* SOC_RGMII_RXCLK */
-	{ 77,	MODE(1) | PIN_IEN },	/* SOC_RGMII_RXD3 */
-	{ 78,	MODE(1) | PIN_IEN },	/* SOC_RGMII_RXD2 */
-	{ 79,	MODE(1) | PIN_IEN },	/* SOC_RGMII_RXD1 */
-	{ 80,	MODE(1) | PIN_IEN },	/* SOC_RGMII_RXD0 */
-	{ 81,	MODE(1) | PIN_IEN },	/* SOC_RGMII_RXCTL */
-	{ 85,	MODE(1) },	/* SOC_RGMII_TXCLK */
-	{ 91,	MODE(1)	},	/* SOC_RGMII_TXD3 */
-	{ 92,	MODE(1) },	/* SOC_RGMII_TXD2 */
-	{ 93,	MODE(1) },	/* SOC_RGMII_TXD1 */
-	{ 94,	MODE(1) },	/* SOC_RGMII_TXD0 */
-	{ 95,	MODE(1) },	/* SOC_RGMII_TXCTL */
-	{ 98,	MODE(0) },	/* SOC_MDIO_DATA */
-	{ 99,	MODE(0) },	/* SOC_MDIO_CLK */
+		/* EMAC */
+	{ 79,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXD1 */
+	{ 78,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXD2 */
+	{ 77,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXD3 */
+	{ 80,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXD0 */
+	{ 94,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXD0 */
+	{ 93,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXD1 */
+	{ 92,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXD2 */
+	{ 91,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXD3 */
+	{ 85,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXC */
+	{ 95,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXCTL */
+	{ 72,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXC */
+	{ 81,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXCTL */
+
+	/* MDIO */
+	{ 99,	BUFFER_CLASS_B | PIN_PDIS | MODE(0) },	/* MDIO_CLK */
+	{ 98,	BUFFER_CLASS_B | PIN_PDIS | MODE(0) },	/* MDIO_DATA */
 
 	/* PWM */
 	{ 73,	MODE(4) },	/* SOC_EHRPWM3A */
@@ -346,6 +348,25 @@ struct pin_cfg k2g_ice_evm_pin_cfg[] = {
 	{ 133,	MODE(0) },	/* SOC_QSPI_D2 */
 	{ 134,	MODE(0) },	/* SOC_QSPI_D3 */
 	{ 135,	MODE(0) },	/* SOC_QSPI_CSN0 */
+
+	/* EMAC */
+	{ 79,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXD1 */
+	{ 78,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXD2 */
+	{ 77,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXD3 */
+	{ 80,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXD0 */
+	{ 94,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXD0 */
+	{ 93,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXD1 */
+	{ 92,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXD2 */
+	{ 91,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXD3 */
+	{ 85,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXC */
+	{ 95,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_TXCTL */
+	{ 72,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXC */
+	{ 81,	BUFFER_CLASS_D | PIN_PDIS | MODE(1) },	/* RGMII_RXCTL */
+
+	/* MDIO */
+	{ 99,	BUFFER_CLASS_B | PIN_PDIS | MODE(0) },	/* MDIO_CLK */
+	{ 98,	BUFFER_CLASS_B | PIN_PDIS | MODE(0) },	/* MDIO_DATA */
+
 	{ MAX_PIN_N, }
 };
 

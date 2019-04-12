@@ -56,6 +56,7 @@
 
 #include <environment/ti/boot.h>
 #include <environment/ti/mmc.h>
+#include <environment/ti/nand.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
@@ -65,6 +66,7 @@
 	DEFAULT_FDT_TI_ARGS \
 	DFUARGS \
 	NETARGS \
+	NANDARGS \
 
 /*
  * SPL related defines.  The Public RAM memory map the ROM defines the
@@ -100,7 +102,6 @@
 
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
-
 #ifdef CONFIG_SPL_BUILD
 #undef CONFIG_TIMER
 #endif

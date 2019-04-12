@@ -87,6 +87,13 @@ config TARGET_AM335X_SHC
 	imply CMD_DM
 	imply CMD_SPL
 
+config TARGET_AM335X_GUARDIAN
+	bool "Support am335x based guardian board from bosch"
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+	select DM_USB
+
 config TARGET_AM335X_SL50
 	bool "Support am335x_sl50"
 	select BOARD_LATE_INIT
