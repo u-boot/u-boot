@@ -166,6 +166,12 @@ M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/bananapi_m64_defconfig
 
+BEELINK GS1
+M:	Clément Péron <peron.clem@gmail.com>
+S:	Maintained
+F:	configs/beelink_gs1_defconfig
+F:	arch/arm/dts/sun50i-h6-beelink-gs1.dts
+
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@bootlin.com>
 S:	Maintained
