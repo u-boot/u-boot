@@ -14,6 +14,7 @@ config ARMADA_32BIT
 	select SPL_OF_CONTROL if SPL
 	select SPL_SIMPLE_BUS if SPL
 	select SUPPORT_SPL
+	select TRANSLATION_OFFSET
 
 config ARMADA_64BIT
 	bool

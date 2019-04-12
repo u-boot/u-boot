@@ -93,14 +93,20 @@ void board_init_f(ulong dummy)
 	 */
 #endif
 
+	/*
+	 * Use special translation offset for SPL. This needs to be
+	 * configured *before* spl_init() is called as this function
+	 * calls dm_init() which calls the bind functions of the
+	 * device drivers. Here the base address needs to be configured
+	 * (translated) correctly.
+	 */
+	gd->translation_offset = 0xd0000000 - 0xf1000000;
+
 	ret = spl_init();
 	if (ret) {
 		debug("spl_init() failed: %d\n", ret);
 		hang();
 	}
-
-	/* Use special translation offset for SPL */
-	dm_set_translation_offset(0xd0000000 - 0xf1000000);
 
 	preloader_console_init();
 

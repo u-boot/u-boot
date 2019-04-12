@@ -20,6 +20,7 @@
  */
 
 #ifndef __ASSEMBLY__
+#include <fdtdec.h>
 #include <membuff.h>
 #include <linux/list.h>
 
@@ -132,6 +133,9 @@ typedef struct global_data {
 # ifdef CONFIG_SPL
 	struct spl_handoff *spl_handoff;
 # endif
+#endif
+#if defined(CONFIG_TRANSLATION_OFFSET)
+	fdt_addr_t translation_offset;	/* optional translation offset */
 #endif
 } gd_t;
 #endif
