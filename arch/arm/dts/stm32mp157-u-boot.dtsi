@@ -17,6 +17,8 @@
 		gpio9 = &gpioj;
 		gpio10 = &gpiok;
 		gpio25 = &gpioz;
+		pinctrl0 = &pinctrl;
+		pinctrl1 = &pinctrl_z;
 	};
 
 	config {

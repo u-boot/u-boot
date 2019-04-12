@@ -7,8 +7,10 @@
 
 / {
 	aliases {
+		gpio26 = &stmfx_pinctrl;
 		i2c1 = &i2c2;
 		i2c4 = &i2c5;
+		pinctrl2 = &stmfx_pinctrl;
 		spi0 = &qspi;
 	};
 };
