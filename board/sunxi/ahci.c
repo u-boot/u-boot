@@ -121,6 +121,7 @@ static int sunxi_sata_bind(struct udevice *dev)
 
 static const struct udevice_id sunxi_ahci_ids[] = {
 	{ .compatible = "allwinner,sun4i-a10-ahci" },
+	{ .compatible = "allwinner,sun8i-r40-ahci" },
 	{ }
 };
 
