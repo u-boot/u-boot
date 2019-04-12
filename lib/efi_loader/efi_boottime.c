@@ -2267,7 +2267,7 @@ out:
  *
  * Return: status code
  */
-static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
+efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
 				(efi_handle_t *handle, ...)
 {
 	EFI_ENTRY("%p", handle);
