@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
  *
- * This unit test checks the following runtime services:
+ * This unit test checks the following boottime services:
  * AllocatePages, FreePages, GetMemoryMap
  *
  * The memory type used for the device tree is checked.
@@ -176,9 +176,9 @@ static int execute(void)
 	/* Check memory reservation for the device tree */
 	if (fdt_addr &&
 	    find_in_memory_map(map_size, memory_map, desc_size, fdt_addr,
-			       EFI_RUNTIME_SERVICES_DATA) != EFI_ST_SUCCESS) {
+			       EFI_BOOT_SERVICES_DATA) != EFI_ST_SUCCESS) {
 		efi_st_error
-			("Device tree not marked as runtime services data\n");
+			("Device tree not marked as boot services data\n");
 		return EFI_ST_FAILURE;
 	}
 	return EFI_ST_SUCCESS;
