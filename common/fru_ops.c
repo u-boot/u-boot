@@ -12,7 +12,7 @@
 #include <asm/arch/hardware.h>
 #include "linux/crc8.h"
 
-struct fru_table fru_data;
+struct fru_table fru_data  __attribute__((section(".data")));
 
 static u16 fru_cal_area_len(u8 len)
 {
