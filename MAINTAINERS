@@ -308,7 +308,7 @@ F:	arch/arm/cpu/armv7/stv0991/
 F:	arch/arm/include/asm/arch-stv0991/
 
 ARM SUNXI
-M:	Jagan Teki <jagan@openedev.com>
+M:	Jagan Teki <jagan@amarulasolutions.com>
 M:	Maxime Ripard <maxime.ripard@bootlin.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-sunxi.git
@@ -689,14 +689,14 @@ T:	git git://git.denx.de/u-boot-sh.git
 F:	arch/sh/
 
 SPI
-M:	Jagan Teki <jagan@openedev.com>
+M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-spi.git
 F:	drivers/spi/
 F:	include/spi*
 
 SPI-NOR
-M:	Jagan Teki <jagan@openedev.com>
+M:	Jagan Teki <jagan@amarulasolutions.com>
 M:	Vignesh R <vigneshr@ti.com>
 S:	Maintained
 F:	drivers/mtd/spi/
