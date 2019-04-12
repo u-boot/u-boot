@@ -708,7 +708,6 @@ struct ti_sci_msg_req_set_proc_boot_ctrl {
 /**
  * struct ti_sci_msg_req_proc_auth_start_image - Authenticate and start image
  * @hdr:		Generic Header
- * @processor_id:	ID of processor
  * @cert_addr_low:	Lower 32bit (Little Endian) of certificate
  * @cert_addr_high:	Higher 32bit (Little Endian) of certificate
  *
@@ -717,9 +716,15 @@ struct ti_sci_msg_req_set_proc_boot_ctrl {
  */
 struct ti_sci_msg_req_proc_auth_boot_image {
 	struct ti_sci_msg_hdr hdr;
-	u8 processor_id;
 	u32 cert_addr_low;
 	u32 cert_addr_high;
+} __packed;
+
+struct ti_sci_msg_resp_proc_auth_boot_image {
+	struct ti_sci_msg_hdr hdr;
+	u32 image_addr_low;
+	u32 image_addr_high;
+	u32 image_size;
 } __packed;
 
 /**

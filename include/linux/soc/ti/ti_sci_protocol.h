@@ -279,8 +279,8 @@ struct ti_sci_proc_ops {
 				 u64 bv, u32 cfg_set, u32 cfg_clr);
 	int (*set_proc_boot_ctrl)(const struct ti_sci_handle *handle, u8 pid,
 				  u32 ctrl_set, u32 ctrl_clr);
-	int (*proc_auth_boot_image)(const struct ti_sci_handle *handle, u8 pid,
-				    u64 caddr);
+	int (*proc_auth_boot_image)(const struct ti_sci_handle *handle,
+				    u64 *image_addr, u32 *image_size);
 	int (*get_proc_boot_status)(const struct ti_sci_handle *handle, u8 pid,
 				    u64 *bv, u32 *cfg_flags, u32 *ctrl_flags,
 				    u32 *sts_flags);

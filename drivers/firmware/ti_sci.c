@@ -1915,16 +1915,19 @@ static int ti_sci_cmd_set_proc_boot_ctrl(const struct ti_sci_handle *handle,
  * ti_sci_cmd_proc_auth_boot_image() - Command to authenticate and load the
  *			image and then set the processor configuration flags.
  * @handle:	Pointer to TI SCI handle
- * @proc_id:	Processor ID this request is for
- * @cert_addr:	Memory address at which payload image certificate is located.
+ * @image_addr:	Memory address at which payload image and certificate is
+ *		located in memory, this is updated if the image data is
+ *		moved during authentication.
+ * @image_size: This is updated with the final size of the image after
+ *		authentication.
  *
  * Return: 0 if all went well, else returns appropriate error value.
  */
 static int ti_sci_cmd_proc_auth_boot_image(const struct ti_sci_handle *handle,
-					   u8 proc_id, u64 cert_addr)
+					   u64 *image_addr, u32 *image_size)
 {
 	struct ti_sci_msg_req_proc_auth_boot_image req;
-	struct ti_sci_msg_hdr *resp;
+	struct ti_sci_msg_resp_proc_auth_boot_image *resp;
 	struct ti_sci_info *info;
 	struct ti_sci_xfer *xfer;
 	int ret = 0;
@@ -1944,9 +1947,8 @@ static int ti_sci_cmd_proc_auth_boot_image(const struct ti_sci_handle *handle,
 		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
 		return ret;
 	}
-	req.processor_id = proc_id;
-	req.cert_addr_low = cert_addr & TISCI_ADDR_LOW_MASK;
-	req.cert_addr_high = (cert_addr & TISCI_ADDR_HIGH_MASK) >>
+	req.cert_addr_low = *image_addr & TISCI_ADDR_LOW_MASK;
+	req.cert_addr_high = (*image_addr & TISCI_ADDR_HIGH_MASK) >>
 				TISCI_ADDR_HIGH_SHIFT;
 
 	ret = ti_sci_do_xfer(info, xfer);
@@ -1955,10 +1957,15 @@ static int ti_sci_cmd_proc_auth_boot_image(const struct ti_sci_handle *handle,
 		return ret;
 	}
 
-	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
+	resp = (struct ti_sci_msg_resp_proc_auth_boot_image *)xfer->tx_message.buf;
 
 	if (!ti_sci_is_response_ack(resp))
-		ret = -ENODEV;
+		return -ENODEV;
+
+	*image_addr = (resp->image_addr_low & TISCI_ADDR_LOW_MASK) |
+			(((u64)resp->image_addr_high <<
+			  TISCI_ADDR_HIGH_SHIFT) & TISCI_ADDR_HIGH_MASK);
+	*image_size = resp->image_size;
 
 	return ret;
 }
