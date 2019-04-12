@@ -115,6 +115,8 @@ int fru_capture(unsigned long addr)
 		fru_parse_board(addr);
 	}
 
+	env_set_hex("fru_addr", addr);
+
 	return 0;
 }
 
