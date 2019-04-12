@@ -138,7 +138,7 @@ Booting of U-Boot SPL
 	<INPUT_FILE>
 
 	Invoking the script for Keystone2 Secure Devices
-	=============================================
+	================================================
 
 	create-boot-image.sh \
 		<UNUSED> <INPUT_FILE> <OUTPUT_FILE> <UNUSED>
@@ -156,6 +156,18 @@ Booting of U-Boot SPL
 	u-boot_HS_MLO - signed and encrypted boot image that can be used to
 		boot from all media. Secure boot from SPI NOR flash is not
 		currently supported.
+
+	Invoking the script for K3 Secure Devices
+	=========================================
+
+	The signing steps required to produce a bootable SPL image on secure
+	K3 TI devices are the same as those performed on non-secure devices.
+	The only difference is the key is not checked on non-secure devices so
+	a dummy key is used when building U-Boot for those devices. For secure
+	K3 TI devices simply use the real hardware key for your device. This
+	real key can be set with the Kconfig option "K3_KEY". The environment
+	variable TI_SECURE_DEV_PKG is also searched for real keys when the
+	build targets secure devices.
 
 Booting of Primary U-Boot (u-boot.img)
 ======================================
@@ -181,10 +193,8 @@ Booting of Primary U-Boot (u-boot.img)
 	is enabled through the CONFIG_SPL_FIT_IMAGE_POST_PROCESS option which
 	must be enabled for the secure boot scheme to work. In order to allow
 	verifying proper operation of the secure boot chain in case of successful
-	authentication messages like "Authentication passed: CERT_U-BOOT-NOD" are
-	output by the SPL to the console for each blob that got extracted from the
-	FIT image. Note that the last part of this log message is the (truncated)
-	name of the signing certificate embedded into the blob that got processed.
+	authentication messages like "Authentication passed" are output by the
+	SPL to the console for each blob that got extracted from the FIT image.
 
 	The exact details of the how the images are secured is handled by the
 	SECDEV package. Within the SECDEV package exists a script to process
