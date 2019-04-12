@@ -68,9 +68,11 @@ struct dm_i2c_chip {
  * I2C bus udevice.
  *
  * @speed_hz: Bus speed in hertz (typically 100000)
+ * @max_transaction_bytes: Maximal size of single I2C transfer
  */
 struct dm_i2c_bus {
 	int speed_hz;
+	int max_transaction_bytes;
 };
 
 /*
