@@ -240,10 +240,12 @@ uint32_t sunxi_get_boot_device(void)
 	boot_source = readb(SPL_ADDR + 0x28);
 	switch (boot_source) {
 	case SUNXI_BOOTED_FROM_MMC0:
+	case SUNXI_BOOTED_FROM_MMC0_HIGH:
 		return BOOT_DEVICE_MMC1;
 	case SUNXI_BOOTED_FROM_NAND:
 		return BOOT_DEVICE_NAND;
 	case SUNXI_BOOTED_FROM_MMC2:
+	case SUNXI_BOOTED_FROM_MMC2_HIGH:
 		return BOOT_DEVICE_MMC2;
 	case SUNXI_BOOTED_FROM_SPI:
 		return BOOT_DEVICE_SPI;

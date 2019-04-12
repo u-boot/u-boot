@@ -426,10 +426,11 @@ endif
 
 config DRAM_ZQ
 	int "sunxi dram zq value"
-	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || MACH_SUN8I
+	default 123 if MACH_SUN4I || MACH_SUN5I || MACH_SUN6I || \
+		       MACH_SUN8I_A23 || MACH_SUN8I_A33 || MACH_SUN8I_A83T
 	default 127 if MACH_SUN7I
 	default 14779 if MACH_SUN8I_V3S
-	default 3881979 if MACH_SUN8I_R40 || MACH_SUN50I_H6
+	default 3881979 if MACH_SUNXI_H3_H5 || MACH_SUN8I_R40 || MACH_SUN50I_H6
 	default 4145117 if MACH_SUN9I
 	default 3881915 if MACH_SUN50I
 	---help---
@@ -438,6 +439,7 @@ config DRAM_ZQ
 config DRAM_ODT_EN
 	bool "sunxi dram odt enable"
 	default y if MACH_SUN8I_A23
+	default y if MACH_SUNXI_H3_H5
 	default y if MACH_SUN8I_R40
 	default y if MACH_SUN50I
 	default y if MACH_SUN50I_H6
