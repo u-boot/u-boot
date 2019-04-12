@@ -746,6 +746,8 @@ F:	configs/k2hk_hs_evm_defconfig
 F:	configs/k2e_hs_evm_defconfig
 F:	configs/k2g_hs_evm_defconfig
 F:	configs/k2l_hs_evm_defconfig
+F:	configs/am65x_hs_evm_r5_defconfig
+F:	configs/am65x_hs_evm_a53_defconfig
 
 TQ GROUP
 #M:	Martin Krause <martin.krause@tq-systems.de>
