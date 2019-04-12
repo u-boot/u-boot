@@ -2428,6 +2428,178 @@ fail:
 	return ret;
 }
 
+/**
+ * ti_sci_cmd_set_fwl_region() - Request for configuring a firewall region
+ * @handle:    pointer to TI SCI handle
+ * @region:    region configuration parameters
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static int ti_sci_cmd_set_fwl_region(const struct ti_sci_handle *handle,
+				     const struct ti_sci_msg_fwl_region *region)
+{
+	struct ti_sci_msg_fwl_set_firewall_region_req req;
+	struct ti_sci_msg_hdr *resp;
+	struct ti_sci_info *info;
+	struct ti_sci_xfer *xfer;
+	int ret = 0;
+
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+	if (!handle)
+		return -EINVAL;
+
+	info = handle_to_ti_sci_info(handle);
+
+	xfer = ti_sci_setup_one_xfer(info, TISCI_MSG_FWL_SET,
+				     TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				     (u32 *)&req, sizeof(req), sizeof(*resp));
+	if (IS_ERR(xfer)) {
+		ret = PTR_ERR(xfer);
+		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
+		return ret;
+	}
+
+	req.fwl_id = region->fwl_id;
+	req.region = region->region;
+	req.n_permission_regs = region->n_permission_regs;
+	req.control = region->control;
+	req.permissions[0] = region->permissions[0];
+	req.permissions[1] = region->permissions[1];
+	req.permissions[2] = region->permissions[2];
+	req.start_address = region->start_address;
+	req.end_address = region->end_address;
+
+	ret = ti_sci_do_xfer(info, xfer);
+	if (ret) {
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
+		return ret;
+	}
+
+	resp = (struct ti_sci_msg_hdr *)xfer->tx_message.buf;
+
+	if (!ti_sci_is_response_ack(resp))
+		return -ENODEV;
+
+	return 0;
+}
+
+/**
+ * ti_sci_cmd_get_fwl_region() - Request for getting a firewall region
+ * @handle:    pointer to TI SCI handle
+ * @region:    region configuration parameters
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static int ti_sci_cmd_get_fwl_region(const struct ti_sci_handle *handle,
+				     struct ti_sci_msg_fwl_region *region)
+{
+	struct ti_sci_msg_fwl_get_firewall_region_req req;
+	struct ti_sci_msg_fwl_get_firewall_region_resp *resp;
+	struct ti_sci_info *info;
+	struct ti_sci_xfer *xfer;
+	int ret = 0;
+
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+	if (!handle)
+		return -EINVAL;
+
+	info = handle_to_ti_sci_info(handle);
+
+	xfer = ti_sci_setup_one_xfer(info, TISCI_MSG_FWL_GET,
+				     TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				     (u32 *)&req, sizeof(req), sizeof(*resp));
+	if (IS_ERR(xfer)) {
+		ret = PTR_ERR(xfer);
+		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
+		return ret;
+	}
+
+	req.fwl_id = region->fwl_id;
+	req.region = region->region;
+	req.n_permission_regs = region->n_permission_regs;
+
+	ret = ti_sci_do_xfer(info, xfer);
+	if (ret) {
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
+		return ret;
+	}
+
+	resp = (struct ti_sci_msg_fwl_get_firewall_region_resp *)xfer->tx_message.buf;
+
+	if (!ti_sci_is_response_ack(resp))
+		return -ENODEV;
+
+	region->fwl_id = resp->fwl_id;
+	region->region = resp->region;
+	region->n_permission_regs = resp->n_permission_regs;
+	region->control = resp->control;
+	region->permissions[0] = resp->permissions[0];
+	region->permissions[1] = resp->permissions[1];
+	region->permissions[2] = resp->permissions[2];
+	region->start_address = resp->start_address;
+	region->end_address = resp->end_address;
+
+	return 0;
+}
+
+/**
+ * ti_sci_cmd_change_fwl_owner() - Request for changing a firewall owner
+ * @handle:    pointer to TI SCI handle
+ * @region:    region configuration parameters
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static int ti_sci_cmd_change_fwl_owner(const struct ti_sci_handle *handle,
+				       struct ti_sci_msg_fwl_owner *owner)
+{
+	struct ti_sci_msg_fwl_change_owner_info_req req;
+	struct ti_sci_msg_fwl_change_owner_info_resp *resp;
+	struct ti_sci_info *info;
+	struct ti_sci_xfer *xfer;
+	int ret = 0;
+
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+	if (!handle)
+		return -EINVAL;
+
+	info = handle_to_ti_sci_info(handle);
+
+	xfer = ti_sci_setup_one_xfer(info, TISCI_MSG_FWL_GET,
+				     TISCI_MSG_FWL_CHANGE_OWNER,
+				     (u32 *)&req, sizeof(req), sizeof(*resp));
+	if (IS_ERR(xfer)) {
+		ret = PTR_ERR(xfer);
+		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
+		return ret;
+	}
+
+	req.fwl_id = owner->fwl_id;
+	req.region = owner->region;
+	req.owner_index = owner->owner_index;
+
+	ret = ti_sci_do_xfer(info, xfer);
+	if (ret) {
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
+		return ret;
+	}
+
+	resp = (struct ti_sci_msg_fwl_change_owner_info_resp *)xfer->tx_message.buf;
+
+	if (!ti_sci_is_response_ack(resp))
+		return -ENODEV;
+
+	owner->fwl_id = resp->fwl_id;
+	owner->region = resp->region;
+	owner->owner_index = resp->owner_index;
+	owner->owner_privid = resp->owner_privid;
+	owner->owner_permission_bits = resp->owner_permission_bits;
+
+	return ret;
+}
+
 /*
  * ti_sci_setup_ops() - Setup the operations structures
  * @info:	pointer to TISCI pointer
@@ -2444,6 +2616,7 @@ static void ti_sci_setup_ops(struct ti_sci_info *info)
 	struct ti_sci_rm_ringacc_ops *rops = &ops->rm_ring_ops;
 	struct ti_sci_rm_psil_ops *psilops = &ops->rm_psil_ops;
 	struct ti_sci_rm_udmap_ops *udmap_ops = &ops->rm_udmap_ops;
+	struct ti_sci_fwl_ops *fwl_ops = &ops->fwl_ops;
 
 	bops->board_config = ti_sci_cmd_set_board_config;
 	bops->board_config_rm = ti_sci_cmd_set_board_config_rm;
@@ -2501,6 +2674,10 @@ static void ti_sci_setup_ops(struct ti_sci_info *info)
 	udmap_ops->tx_ch_cfg = ti_sci_cmd_rm_udmap_tx_ch_cfg;
 	udmap_ops->rx_ch_cfg = ti_sci_cmd_rm_udmap_rx_ch_cfg;
 	udmap_ops->rx_flow_cfg = ti_sci_cmd_rm_udmap_rx_flow_cfg;
+
+	fwl_ops->set_fwl_region = ti_sci_cmd_set_fwl_region;
+	fwl_ops->get_fwl_region = ti_sci_cmd_get_fwl_region;
+	fwl_ops->change_fwl_owner = ti_sci_cmd_change_fwl_owner;
 }
 
 /**
