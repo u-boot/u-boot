@@ -17,7 +17,7 @@ config SPL
 	select SPL_DM_RESET
 	select SPL_SERIAL_SUPPORT
 	select SPL_SYSCON
-	select SPL_DRIVERS_MISC_SUPPORT
+	imply SPL_DISPLAY_PRINT
 	imply SPL_LIBDISK_SUPPORT
 
 config SYS_SOC
@@ -25,18 +25,31 @@ config SYS_SOC
 
 config TARGET_STM32MP1
 	bool "Support stm32mp1xx"
-	select ARCH_SUPPORT_PSCI
+	select ARCH_SUPPORT_PSCI if !STM32MP1_TRUSTED
 	select CPU_V7A
-	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_NONSEC if !STM32MP1_TRUSTED
 	select CPU_V7_HAS_VIRT
 	select PINCTRL_STM32
 	select STM32_RCC
 	select STM32_RESET
 	select SYS_ARCH_TIMER
-	select SYSRESET_SYSCON
+	imply SYSRESET_PSCI if STM32MP1_TRUSTED
+	imply SYSRESET_SYSCON if !STM32MP1_TRUSTED
 	help
 		target STMicroelectronics SOC STM32MP1 family
+		STM32MP157, STM32MP153 or STM32MP151
 		STMicroelectronics MPU with core ARMv7
+		dual core A7 for STM32MP157/3, monocore for STM32MP151
+
+config STM32MP1_TRUSTED
+	bool "Support trusted boot with TF-A"
+	default y if !SPL
+	select ARM_SMCCC
+	help
+		Say Y here to enable boot with TF-A
+		Trusted boot chain is :
+		BootRom => TF-A.stm32 (clock & DDR) => U-Boot.stm32
+		TF-A monitor provides proprietary smc to manage secure devices
 
 config SYS_TEXT_BASE
 	prompt "U-Boot base address"
@@ -46,6 +59,9 @@ config SYS_TEXT_BASE
 		when DDR driver is used:
 		  DDR + 1MB (0xC0100000)
 
+config NR_DRAM_BANKS
+	default 1
+
 config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 	hex "Partition on MMC2 to use to load U-Boot from"
 	depends on SYS_MMCSD_RAW_MODE_U_BOOT_USE_PARTITION
@@ -54,9 +70,6 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 	  Partition on the second MMC to load U-Boot from when the MMC is being
 	  used in raw mode
 
-source "board/st/stm32mp1/Kconfig"
-
-# currently activated for debug / should be deactivated for real product
 if DEBUG_UART
 
 config DEBUG_UART_BOARD_INIT
@@ -70,5 +83,7 @@ config DEBUG_UART_BASE
 config DEBUG_UART_CLOCK
 	default 64000000
 endif
+
+source "board/st/stm32mp1/Kconfig"
 
 endif

@@ -5,42 +5,50 @@
 
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include "stm32mp157-u-boot.dtsi"
-#include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
+#include "stm32mp15-ddr3-1x4Gb-1066-binG.dtsi"
 
 / {
 	aliases {
 		i2c3 = &i2c4;
 		mmc0 = &sdmmc1;
-		mmc1 = &sdmmc2;
 	};
-
 	config {
-		st,fastboot-gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
-		st,stm32prog-gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
+		u-boot,boot-led = "heartbeat";
+		u-boot,error-led = "error";
+		st,adc_usb_pd = <&adc1 18>, <&adc1 19>;
 	};
-
 	led {
-		compatible = "gpio-leds";
-
 		red {
-			label = "stm32mp:red:status";
+			label = "error";
 			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
 			default-state = "off";
+			status = "okay";
 		};
-		green {
-			label = "stm32mp:green:user";
-			gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
+
+		blue {
 			default-state = "on";
 		};
-		orange {
-			label = "stm32mp:orange:status";
-			gpios = <&gpioh 7 GPIO_ACTIVE_HIGH>;
-			default-state = "off";
-		};
-		blue {
-			label = "stm32mp:blue:user";
-			gpios = <&gpiod 11 GPIO_ACTIVE_HIGH>;
-		};
+	};
+};
+
+&adc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&adc12_usb_pwr_pins_a>;
+	vdd-supply = <&vdd>;
+	vdda-supply = <&vdd>;
+	vref-supply = <&vrefbuf>;
+	status = "okay";
+	adc1: adc@0 {
+		/*
+		 * Type-C USB_PWR_CC1 & USB_PWR_CC2 on in18 & in19.
+		 * Use at least 5 * RC time, e.g. 5 * (Rp + Rd) * C:
+		 * 5 * (56 + 47kOhms) * 5pF => 2.5us.
+		 * Use arbitrary margin here (e.g. 5µs).
+		 */
+		st,min-sample-time-nsecs = <5000>;
+		/* ANA0, ANA1, USB Type-C CC1 & CC2 */
+		st,adc-channels = <0 1 18 19>;
+		status = "okay";
 	};
 };
 
@@ -156,40 +164,15 @@
 	};
 };
 
+&sdmmc1 {
+	u-boot,dm-spl;
+};
+
 &sdmmc1_b4_pins_a {
 	u-boot,dm-spl;
 	pins {
 		u-boot,dm-spl;
 	};
-};
-
-&sdmmc1_dir_pins_a {
-	u-boot,dm-spl;
-	pins {
-		u-boot,dm-spl;
-	};
-};
-
-&sdmmc1 {
-	u-boot,dm-spl;
-};
-
-&sdmmc2_b4_pins_a {
-	u-boot,dm-spl;
-	pins {
-		u-boot,dm-spl;
-	};
-};
-
-&sdmmc2_d47_pins_a {
-	u-boot,dm-spl;
-	pins {
-		u-boot,dm-spl;
-	};
-};
-
-&sdmmc2 {
-	u-boot,dm-spl;
 };
 
 &uart4 {
@@ -204,4 +187,13 @@
 	pins2 {
 		u-boot,dm-pre-reloc;
 	};
+};
+
+&usbotg_hs {
+	usb1600;
+	hnp-srp-disable;
+};
+
+&v3v3 {
+	regulator-always-on;
 };

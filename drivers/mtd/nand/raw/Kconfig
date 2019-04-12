@@ -256,6 +256,17 @@ config NAND_ZYNQ_USE_BOOTLOADER1_TIMINGS
 	  This flag prevent U-boot reconfigure NAND flash controller and reuse
 	  the NAND timing from 1st stage bootloader.
 
+config NAND_STM32_FMC2
+	bool "Support for NAND controller on STM32MP SoCs"
+	depends on ARCH_STM32MP
+	select SYS_NAND_SELF_INIT
+	imply CMD_NAND
+	help
+	  Enables support for NAND Flash chips on SoCs containing the FMC2
+	  NAND controller. This controller is found on STM32MP SoCs.
+	  The controller supports a maximum 8k page size and supports
+	  a maximum 8-bit correction error per sector of 512 bytes.
+
 comment "Generic NAND options"
 
 config SYS_NAND_BLOCK_SIZE

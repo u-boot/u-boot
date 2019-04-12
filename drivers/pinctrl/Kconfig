@@ -209,6 +209,25 @@ config PINCTRL_STM32
 	  the GPIO definitions and pin control functions for each available
 	  multiplex function.
 
+config PINCTRL_STMFX
+	bool "STMicroelectronics STMFX I2C GPIO expander pinctrl driver"
+	depends on DM && PINCTRL_FULL
+	help
+	  I2C driver for STMicroelectronics Multi-Function eXpander (STMFX)
+	  GPIO expander.
+	  Supports pin multiplexing control on stm32 SoCs.
+
+	  The driver is controlled by a device tree node which contains both
+	  the GPIO definitions and pin control functions for each available
+	  multiplex function.
+
+config SPL_PINCTRL_STMFX
+	bool "STMicroelectronics STMFX I2C GPIO expander pinctrl driver in SPL"
+	depends on SPL_PINCTRL_FULL
+	help
+	  This option is an SPL-variant of the SPL_PINCTRL_STMFX option.
+	  See the help of PINCTRL_STMFX for details.
+
 config ASPEED_AST2500_PINCTRL
   bool "Aspeed AST2500 pin control driver"
   depends on DM && PINCTRL_GENERIC && ASPEED_AST2500

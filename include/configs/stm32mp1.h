@@ -10,17 +10,17 @@
 #include <linux/sizes.h>
 #include <asm/arch/stm32.h>
 
-#define CONFIG_PREBOOT
-
 /*
  * Number of clock ticks in 1 sec
  */
 #define CONFIG_SYS_HZ				1000
 
+#ifndef CONFIG_STM32MP1_TRUSTED
 /* PSCI support */
 #define CONFIG_ARMV7_PSCI_1_0
 #define CONFIG_ARMV7_SECURE_BASE		STM32_SYSRAM_BASE
 #define CONFIG_ARMV7_SECURE_MAX_SIZE		STM32_SYSRAM_SIZE
+#endif
 
 /*
  * malloc() pool size
@@ -53,6 +53,9 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
+/* Extend size of kernel image for uncompression */
+#define CONFIG_SYS_BOOTM_LEN			SZ_32M
+
 /* SPL support */
 #ifdef CONFIG_SPL
 /* BOOTROM load address */
@@ -69,36 +72,65 @@
 					 STM32_SYSRAM_SIZE)
 #endif /* #ifdef CONFIG_SPL */
 
+#define CONFIG_SYS_MEMTEST_START	STM32_DDR_BASE
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + SZ_64M)
+#define CONFIG_SYS_MEMTEST_SCRATCH	(CONFIG_SYS_MEMTEST_END + 4)
+
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
 #define CONFIG_SUPPORT_EMMC_BOOT
 
-#if !defined(CONFIG_SPL) || !defined(CONFIG_SPL_BUILD)
+/*****************************************************************************/
+#ifdef CONFIG_DISTRO_DEFAULTS
+/*****************************************************************************/
+
+#if !defined(CONFIG_SPL_BUILD)
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 2)
+/*
+ * bootcmd for stm32mp1:
+ * for serial/usb: execute the stm32prog command
+ * for mmc boot (eMMC, SD card), boot only on the same device
+ * for nand boot, boot with on ubifs partition on nand
+ * for nor boot, use the default order
+ */
+#define CONFIG_PREBOOT
+
+#define STM32MP_BOOTCMD "bootcmd_stm32mp=" \
+	"echo \"Boot over ${boot_device}${boot_instance}!\";" \
+	"if test ${boot_device} = serial || test ${boot_device} = usb;" \
+	"then stm32prog ${boot_device} ${boot_instance}; " \
+	"else " \
+		"if test ${boot_device} = mmc;" \
+		"then env set boot_targets \"mmc${boot_instance}\"; fi;" \
+		"if test ${boot_device} = nand;" \
+		"then env set boot_targets ubifs0; fi;" \
+		"run distro_bootcmd;" \
+	"fi;\0"
 
 #include <config_distro_bootcmd.h>
 
-#define STM32MP_PREBOOT	\
-	"echo \"Boot over ${boot_device}${boot_instance}!\"; " \
-	"if test \"${boot_device}\" = \"mmc\"; then " \
-		"env set boot_targets \"mmc${boot_instance}\"; "\
-	"fi;"
-
+/*
+ * memory layout for 32M uncompressed/compressed kernel,
+ * 1M fdt, 1M script, 1M pxe and 1M for splashimage
+ * and the ramdisk at the end.
+ */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"scriptaddr=0xC0000000\0" \
-	"pxefile_addr_r=0xC0000000\0" \
-	"kernel_addr_r=0xC1000000\0" \
-	"fdt_addr_r=0xC4000000\0" \
-	"ramdisk_addr_r=0xC4100000\0" \
+	"kernel_addr_r=0xc2000000\0" \
+	"fdt_addr_r=0xc4000000\0" \
+	"scriptaddr=0xc4100000\0" \
+	"pxefile_addr_r=0xc4200000\0" \
+	"splashimage=0xc4300000\0"  \
+	"ramdisk_addr_r=0xc4400000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"preboot=" STM32MP_PREBOOT "\0" \
+	STM32MP_BOOTCMD \
 	BOOTENV
 
 #endif /* ifndef CONFIG_SPL_BUILD */
+#endif /* ifdef CONFIG_DISTRO_DEFAULTS*/
 
 #endif /* __CONFIG_H */

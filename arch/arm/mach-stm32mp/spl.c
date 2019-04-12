@@ -7,13 +7,14 @@
 #include <dm.h>
 #include <spl.h>
 #include <asm/io.h>
+#include <asm/arch/sys_proto.h>
+#include <linux/libfdt.h>
 
 u32 spl_boot_device(void)
 {
 	u32 boot_mode;
 
-	boot_mode = (readl(TAMP_BOOT_CONTEXT) & TAMP_BOOT_MODE_MASK) >>
-		    TAMP_BOOT_MODE_SHIFT;
+	boot_mode = get_bootmode();
 
 	switch (boot_mode) {
 	case BOOT_FLASH_SD_1:
@@ -22,6 +23,21 @@ u32 spl_boot_device(void)
 	case BOOT_FLASH_SD_2:
 	case BOOT_FLASH_EMMC_2:
 		return BOOT_DEVICE_MMC2;
+	case BOOT_SERIAL_UART_1:
+	case BOOT_SERIAL_UART_2:
+	case BOOT_SERIAL_UART_3:
+	case BOOT_SERIAL_UART_4:
+	case BOOT_SERIAL_UART_5:
+	case BOOT_SERIAL_UART_6:
+	case BOOT_SERIAL_UART_7:
+	case BOOT_SERIAL_UART_8:
+		return BOOT_DEVICE_UART;
+	case BOOT_SERIAL_USB_OTG:
+		return BOOT_DEVICE_USB;
+	case BOOT_FLASH_NAND_FMC:
+		return BOOT_DEVICE_NAND;
+	case BOOT_FLASH_NOR_QSPI:
+		return BOOT_DEVICE_SPI;
 	}
 
 	return BOOT_DEVICE_MMC1;
@@ -43,6 +59,21 @@ int spl_boot_partition(const u32 boot_device)
 		return -EINVAL;
 	}
 }
+
+#ifdef CONFIG_SPL_DISPLAY_PRINT
+void spl_display_print(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	const char *model;
+
+	/* same code than show_board_info() but not compiled for SPL
+	 * see CONFIG_DISPLAY_BOARDINFO & common/board_info.c
+	 */
+	model = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
+	if (model)
+		printf("Model: %s\n", model);
+}
+#endif
 
 void board_init_f(ulong dummy)
 {
@@ -80,7 +111,7 @@ void board_init_f(ulong dummy)
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
-		debug("DRAM init failed: %d\n", ret);
-		return;
+		printf("DRAM init failed: %d\n", ret);
+		hang();
 	}
 }

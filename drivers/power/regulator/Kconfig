@@ -244,11 +244,17 @@ config DM_REGULATOR_TPS65910
 	regulator types of the TPS65910 (BUCK, BOOST and LDO). It implements
 	the get/set api for value and enable.
 
-config DM_REGULATOR_STPMU1
-	bool "Enable driver for STPMU1 regulators"
-	depends on DM_REGULATOR && PMIC_STPMU1
+config DM_REGULATOR_STPMIC1
+	bool "Enable driver for STPMIC1 regulators"
+	depends on DM_REGULATOR && PMIC_STPMIC1
 	---help---
-	Enable support for the regulator functions of the STPMU1 PMIC. The
+	Enable support for the regulator functions of the STPMIC1 PMIC. The
 	driver implements get/set api for the various BUCKS and LDOs supported
 	by the PMIC device. This driver is controlled by a device tree node
 	which includes voltage limits.
+
+config SPL_DM_REGULATOR_STPMIC1
+	bool "Enable driver for STPMIC1 regulators in SPL"
+	depends on SPL_DM_REGULATOR && PMIC_STPMIC1
+	help
+	  Enable support for the regulator functions of the STPMIC1 PMIC in SPL.
