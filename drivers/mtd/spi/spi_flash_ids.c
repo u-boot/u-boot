@@ -96,6 +96,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"mx25l12805",	   INFO(0xc22018, 0x0, 64 * 1024,   256, RD_FULL | WR_QPP) },
 	{"mx25l25635f",	   INFO(0xc22019, 0x0, 64 * 1024,   512, RD_FULL | WR_QPP) },
 	{"mx25l51235f",	   INFO(0xc2201a, 0x0, 64 * 1024,  1024, RD_FULL | WR_QPP) },
+	{"mx25u51245f",    INFO(0xc2953a, 0x0, 64 * 1024,  1024, RD_FULL | WR_QPP) },
 	{"mx25l1633e",	   INFO(0xc22415, 0x0, 64 * 1024,    32, RD_FULL | WR_QPP | SECT_4K) },
 	{"mx25u6435f",	   INFO(0xc22537, 0x0, 64 * 1024,   128, RD_FULL | WR_QPP) },
 	{"mx25u12835f",	   INFO(0xc22538, 0x0, 64 * 1024,   256, RD_FULL | WR_QPP) },
@@ -106,6 +107,8 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"mx66u51235f",    INFO(0xc2253a, 0x0, 64 * 1024,  1024, RD_FULL | WR_QPP) },
 	{"mx66l1g45g",     INFO(0xc2201b, 0x0, 64 * 1024,  2048, RD_FULL | WR_QPP) },
 	{"mx66u1g45g",     INFO(0xc2253b, 0x0, 64 * 1024,  2048, RD_FULL | WR_QPP) },
+	{"mx66l2g45g",     INFO(0xc2201c, 0x0, 64 * 1024,  4096, RD_FULL | WR_QPP) },
+	{"mx66u2g45g",     INFO(0xc2253c, 0x0, 64 * 1024,  4096, RD_FULL | WR_QPP) },
 #endif
 #ifdef CONFIG_SPI_FLASH_SPANSION	/* SPANSION */
 	{"s25fl008a",	   INFO(0x010213, 0x0, 64 * 1024,    16, 0) },
