@@ -1464,7 +1464,7 @@ endchoice
 
 config TI_SECURE_DEVICE
 	bool "HS Device Type Support"
-	depends on ARCH_KEYSTONE || ARCH_OMAP2PLUS
+	depends on ARCH_KEYSTONE || ARCH_OMAP2PLUS || ARCH_K3
 	help
 	  If a high secure (HS) device type is being used, this config
 	  must be set. This option impacts various aspects of the
