@@ -39,6 +39,7 @@ $(obj)/pm_cfg_obj.o: $(shell cd $(srctree); readlink -f $(CONFIG_ZYNQMP_SPL_PM_C
 endif
 
 obj-$(CONFIG_MMC_SDHCI_ZYNQ) += tap_delays.o
+obj-$(CONFIG_ZYNQMP_BOARD_DETECT_FRU) += board_detect_fru.o
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ZYNQMP) += cmds.o

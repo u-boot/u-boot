@@ -15,4 +15,11 @@ config CMD_ZYNQMP
 	  and authentication feature enabled while generating
 	  BOOT.BIN using Xilinx bootgen tool.
 
+config ZYNQMP_BOARD_DETECT_FRU
+	bool "Enable ZynqMP board detection via FRU"
+	help
+	  Enabling this option u-boot will look at chosen/xlnx,eeprom
+	  property and will try to decode board name written in IPMI
+	  FRU format.
+
 endif
