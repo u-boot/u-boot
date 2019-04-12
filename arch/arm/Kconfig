@@ -857,6 +857,8 @@ config ARCH_SUNXI
 	select DM_ETH
 	select DM_GPIO
 	select DM_KEYBOARD
+	select DM_MMC if MMC
+	select DM_SCSI if SCSI
 	select DM_SERIAL
 	select DM_USB if DISTRO_DEFAULTS
 	select OF_BOARD_SETUP
