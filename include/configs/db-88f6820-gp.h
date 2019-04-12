@@ -24,12 +24,6 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /*
- * SPI Flash configuration for the environemnt access
- */
-
-/* SPI NOR flash default params, used by sf commands */
-
-/*
  * SDIO/MMC Card Configuration
  */
 #define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE

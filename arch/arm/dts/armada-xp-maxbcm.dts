@@ -225,18 +225,6 @@
 				status = "okay";
 			};
 
-			spi0: spi@10600 {
-				status = "okay";
-
-				spi-flash@0 {
-					#address-cells = <1>;
-					#size-cells = <1>;
-					compatible = "n25q128a13", "jedec,spi-nor";
-					reg = <0>; /* Chip select 0 */
-					spi-max-frequency = <108000000>;
-				};
-			};
-
 			nand@d0000 {
 				status = "okay";
 				num-cs = <1>;
@@ -245,5 +233,17 @@
 				nand-on-flash-bbt;
 			};
 		};
+	};
+};
+
+&spi0 {
+	status = "okay";
+
+	spi-flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "n25q128a13", "jedec,spi-nor";
+		reg = <0>; /* Chip select 0 */
+		spi-max-frequency = <108000000>;
 	};
 };

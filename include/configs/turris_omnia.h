@@ -34,9 +34,6 @@
 # define CONFIG_WATCHDOG
 #endif
 
-/* SPI NOR flash default params, used by sf commands */
-#define CONFIG_SPI_FLASH_SPANSION
-
 /*
  * SDIO/MMC Card Configuration
  */

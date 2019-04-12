@@ -17,7 +17,7 @@
 #include <asm/arch/soc.h>
 
 #if defined(CONFIG_ARMADA_XP) || defined(CONFIG_ARMADA_375) \
-	|| defined(CONFIG_ARMADA_38X)
+	|| defined(CONFIG_ARMADA_38X) || defined(CONFIG_ARMADA_MSYS)
 /*
  * Set this for the common xor register definitions needed in dram.c
  * for A38x as well here.

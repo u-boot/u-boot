@@ -26,7 +26,6 @@ alias iwamatsu       Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 alias jaehoon        Jaehoon Chung <jh80.chung@samsung.com>
 alias jagan          Jagan Teki <jagan@openedev.com>
 alias jhersh         Joe Hershberger <joe.hershberger@ni.com>
-alias luka           Luka Perkov <luka.perkov@sartura.hr>
 alias lukma          Lukasz Majewski <lukma@denx.de>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
@@ -35,7 +34,6 @@ alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
 alias maxime         Maxime Ripard <maxime.ripard@free-electrons.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
-alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
 alias ptomsich       Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
 alias sbabic         Stefano Babic <sbabic@denx.de>
@@ -56,7 +54,7 @@ alias arm            uboot, aaribaud, trini
 alias at91           uboot, abiessmann
 alias davinci        ti
 alias imx            uboot, sbabic
-alias kirkwood       uboot, prafulla, luka, stroese
+alias kirkwood       uboot, stroese
 alias omap           ti
 alias pxa            uboot, marex
 alias rmobile        uboot, iwamatsu

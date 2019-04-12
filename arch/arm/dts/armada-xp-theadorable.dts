@@ -126,40 +126,6 @@
 				status = "okay";
 			};
 
-			spi0: spi@10600 {
-				status = "okay";
-				u-boot,dm-pre-reloc;
-
-				spi-flash@0 {
-					u-boot,dm-pre-reloc;
-					#address-cells = <1>;
-					#size-cells = <1>;
-					compatible = "n25q128a13", "jedec,spi-nor", "spi-flash";
-					reg = <0>; /* Chip select 0 */
-					spi-max-frequency = <27777777>;
-				};
-
-				fpga@1 {
-					#address-cells = <1>;
-					#size-cells = <1>;
-					compatible = "spi-generic-device";
-					reg = <1>; /* Chip select 1 */
-					spi-max-frequency = <27777777>;
-				};
-			};
-
-			spi1: spi@10680 {
-				status = "okay";
-
-				fpga@0 {
-					#address-cells = <1>;
-					#size-cells = <1>;
-					compatible = "spi-generic-device";
-					reg = <0>; /* Chip select 0 */
-					spi-max-frequency = <27777777>;
-				};
-			};
-
 			/* The LCD controller is only used on this board */
 			lcd0: lcd-controller@e0000 {
 				compatible = "marvell,armada-xp-lcd";
@@ -187,6 +153,41 @@
 		};
 	};
 };
+
+&spi0 {
+	status = "okay";
+	u-boot,dm-pre-reloc;
+
+	spi-flash@0 {
+		u-boot,dm-pre-reloc;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "n25q128a13", "jedec,spi-nor", "spi-flash";
+		reg = <0>; /* Chip select 0 */
+		spi-max-frequency = <27777777>;
+	};
+
+	fpga@1 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-generic-device";
+		reg = <1>; /* Chip select 1 */
+		spi-max-frequency = <27777777>;
+	};
+};
+
+&spi1 {
+	status = "okay";
+
+	fpga@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-generic-device";
+		reg = <0>; /* Chip select 0 */
+		spi-max-frequency = <27777777>;
+	};
+};
+
 
 &pciec {
 	status = "okay";

@@ -138,7 +138,7 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-388-clearfog.dtb			\
 	armada-388-gp.dtb			\
 	armada-388-helios4.dtb			\
-	armada-385-amc.dtb			\
+	armada-385-db-88f6820-amc.dtb		\
 	armada-385-turris-omnia.dtb		\
 	armada-7040-db.dtb			\
 	armada-7040-db-nand.dtb			\
@@ -151,7 +151,8 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-xp-theadorable.dtb		\
 	armada-38x-controlcenterdc.dtb		\
 	armada-385-atl-x530.dtb			\
-	armada-385-atl-x530DP.dtb
+	armada-385-atl-x530DP.dtb		\
+	armada-xp-db-xc3-24g4xg.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-global.dtb \

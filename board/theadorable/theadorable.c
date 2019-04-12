@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2015-2016 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2015-2019 Stefan Roese <sr@denx.de>
  */
 
 #include <common.h>
+#include <console.h>
 #include <i2c.h>
 #include <pci.h>
+#if !defined(CONFIG_SPL_BUILD)
+#include <bootcount.h>
+#endif
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
@@ -42,6 +46,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define STM_I2C_BUS	1
 #define STM_I2C_ADDR	0x27
 #define REBOOT_DELAY	1000		/* reboot-delay in ms */
+#define ABORT_TIMEOUT	3000		/* 3 seconds reboot abort timeout */
 
 /* DDR3 static configuration */
 static MV_DRAM_MC_INIT ddr3_theadorable[MV_MAX_DDR3_STATIC_SIZE] = {
@@ -127,15 +132,15 @@ MV_DRAM_MODES *ddr3_get_static_ddr_mode(void)
 	return &board_ddr_modes[0];
 }
 
-MV_BIN_SERDES_CFG *board_serdes_cfg_get(u8 pex_mode)
+MV_BIN_SERDES_CFG *board_serdes_cfg_get(void)
 {
 	return &theadorable_serdes_cfg[0];
 }
 
 u8 board_sat_r_get(u8 dev_num, u8 reg)
 {
-	/* Bit 0 enables PCI 2.0 link capabilities instead of PCI 1.x */
-	return 0x01;
+	/* Bit x enables PCI 2.0 link capabilities instead of PCI 1.x */
+	return 0xe;	/* PEX port 0 is PCIe Gen1, PEX port 1..3 PCIe Gen2 */
 }
 
 int board_early_init_f(void)
@@ -218,7 +223,7 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_BOARD_LATE_INIT
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_BOARD_LATE_INIT)
 int board_late_init(void)
 {
 	pci_dev_t bdf;
@@ -232,6 +237,7 @@ int board_late_init(void)
 	 */
 	bdf = pci_find_device(PCI_VENDOR_ID_PLX, 0x8619, 0);
 	if (bdf == -1) {
+		unsigned long start_time = get_timer(0);
 		u8 i2c_buf[8];
 		int ret;
 
@@ -239,6 +245,28 @@ int board_late_init(void)
 		bootcount = bootcount_load();
 		printf("Failed to find PLX PEX-switch (bootcount=%ld)\n",
 		       bootcount);
+
+		/*
+		 * The user can exit this boot-loop in the error case by
+		 * hitting Ctrl-C. So wait some time for this key here.
+		 */
+		printf("Continue booting with Ctrl-C, otherwise rebooting\n");
+		do {
+			/* Handle control-c and timeouts */
+			if (ctrlc()) {
+				printf("PEX error boot-loop aborted!\n");
+				return 0;
+			}
+		} while (get_timer(start_time) < ABORT_TIMEOUT);
+
+
+		/*
+		 * At this stage the bootcounter has not been incremented
+		 * yet. We need to do this manually here to get an actually
+		 * working bootcounter in this error case.
+		 */
+		bootcount_inc();
+
 		if (bootcount > PEX_SWITCH_NOT_FOUNT_LIMIT) {
 			printf("Issuing power-switch via uC!\n");
 

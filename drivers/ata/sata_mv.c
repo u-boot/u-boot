@@ -3,7 +3,7 @@
  * Copyright (C) Excito Elektronik i Skåne AB, 2010.
  * Author: Tor Krill <tor@excito.com>
  *
- * Copyright (C) 2015 Stefan Roese <sr@denx.de>
+ * Copyright (C) 2015, 2019 Stefan Roese <sr@denx.de>
  */
 
 /*
@@ -32,6 +32,10 @@
  */
 
 #include <common.h>
+#include <ahci.h>
+#include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <fis.h>
 #include <libata.h>
 #include <malloc.h>
@@ -40,11 +44,10 @@
 #include <asm/io.h>
 #include <linux/mbus.h>
 
+#include <asm/arch/soc.h>
 #if defined(CONFIG_KIRKWOOD)
-#include <asm/arch/kirkwood.h>
 #define SATAHC_BASE		KW_SATA_BASE
 #else
-#include <asm/arch/soc.h>
 #define SATAHC_BASE		MVEBU_AXP_SATA_BASE
 #endif
 
@@ -214,8 +217,8 @@ struct crqb {
 #define CRQB_SECTCOUNT_COUNT_EXP_MASK	(0xff << 8)
 #define CRQB_SECTCOUNT_COUNT_EXP_SHIFT	8
 
-#define MVSATA_WIN_CONTROL(w)	(MVEBU_AXP_SATA_BASE + 0x30 + ((w) << 4))
-#define MVSATA_WIN_BASE(w)	(MVEBU_AXP_SATA_BASE + 0x34 + ((w) << 4))
+#define MVSATA_WIN_CONTROL(w)	(SATAHC_BASE + 0x30 + ((w) << 4))
+#define MVSATA_WIN_BASE(w)	(SATAHC_BASE + 0x34 + ((w) << 4))
 
 struct eprd {
 	u32 phyaddr_low;
@@ -256,6 +259,7 @@ struct mv_priv {
 	u16 pio;
 	u16 mwdma;
 	u16 udma;
+	int dev_nr;
 
 	void *crqb_alloc;
 	struct crqb *request;
@@ -278,9 +282,9 @@ static int ata_wait_register(u32 *addr, u32 mask, u32 val, u32 timeout_msec)
 }
 
 /* Cut from sata_mv in linux kernel */
-static int mv_stop_edma_engine(int port)
+static int mv_stop_edma_engine(struct udevice *dev, int port)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	int i;
 
 	/* Disable eDMA. The disable bit auto clears. */
@@ -299,9 +303,9 @@ static int mv_stop_edma_engine(int port)
 	return -1;
 }
 
-static int mv_start_edma_engine(int port)
+static int mv_start_edma_engine(struct udevice *dev, int port)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	u32 tmp;
 
 	/* Check preconditions */
@@ -351,12 +355,12 @@ static int mv_start_edma_engine(int port)
 	return 0;
 }
 
-static int mv_reset_channel(int port)
+static int mv_reset_channel(struct udevice *dev, int port)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 
 	/* Make sure edma is stopped  */
-	mv_stop_edma_engine(port);
+	mv_stop_edma_engine(dev, port);
 
 	out_le32(priv->regbase + EDMA_CMD, EDMA_CMD_ATARST);
 	udelay(25);		/* allow reset propagation */
@@ -366,11 +370,11 @@ static int mv_reset_channel(int port)
 	return 0;
 }
 
-static void mv_reset_port(int port)
+static void mv_reset_port(struct udevice *dev, int port)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 
-	mv_reset_channel(port);
+	mv_reset_channel(dev, port);
 
 	out_le32(priv->regbase + EDMA_CMD, 0x0);
 	out_le32(priv->regbase + EDMA_CFG, 0x101f);
@@ -392,9 +396,9 @@ static void mv_reset_one_hc(void)
 	out_le32(SATAHC_BASE + SATAHC_ICR, 0x00);
 }
 
-static int probe_port(int port)
+static int probe_port(struct udevice *dev, int port)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	int tries, tries2, set15 = 0;
 	u32 tmp;
 
@@ -446,7 +450,7 @@ static int probe_port(int port)
 			tmp &= ~SIR_CFG_GEN2EN;
 			out_le32(priv->regbase + SIR_ICFG, tmp);
 
-			mv_reset_channel(port);
+			mv_reset_channel(dev, port);
 		}
 	}
 
@@ -455,9 +459,9 @@ static int probe_port(int port)
 }
 
 /* Get request queue in pointer */
-static int get_reqip(int port)
+static int get_reqip(struct udevice *dev, int port)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	u32 tmp;
 
 	tmp = in_le32(priv->regbase + EDMA_RQIPR) & EDMA_RQIPR_IPMASK;
@@ -466,9 +470,9 @@ static int get_reqip(int port)
 	return tmp;
 }
 
-static void set_reqip(int port, int reqin)
+static void set_reqip(struct udevice *dev, int port, int reqin)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	u32 tmp;
 
 	tmp = in_le32(priv->regbase + EDMA_RQIPR) & ~EDMA_RQIPR_IPMASK;
@@ -477,17 +481,17 @@ static void set_reqip(int port, int reqin)
 }
 
 /* Get next available slot, ignoring possible overwrite */
-static int get_next_reqip(int port)
+static int get_next_reqip(struct udevice *dev, int port)
 {
-	int slot = get_reqip(port);
+	int slot = get_reqip(dev, port);
 	slot = (slot + 1) % REQUEST_QUEUE_SIZE;
 	return slot;
 }
 
 /* Get response queue in pointer */
-static int get_rspip(int port)
+static int get_rspip(struct udevice *dev, int port)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	u32 tmp;
 
 	tmp = in_le32(priv->regbase + EDMA_RSIPR) & EDMA_RSIPR_IPMASK;
@@ -497,9 +501,9 @@ static int get_rspip(int port)
 }
 
 /* Get response queue out pointer */
-static int get_rspop(int port)
+static int get_rspop(struct udevice *dev, int port)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	u32 tmp;
 
 	tmp = in_le32(priv->regbase + EDMA_RSOPR) & EDMA_RSOPR_OPMASK;
@@ -508,15 +512,15 @@ static int get_rspop(int port)
 }
 
 /* Get next response queue pointer  */
-static int get_next_rspop(int port)
+static int get_next_rspop(struct udevice *dev, int port)
 {
-	return (get_rspop(port) + 1) % RESPONSE_QUEUE_SIZE;
+	return (get_rspop(dev, port) + 1) % RESPONSE_QUEUE_SIZE;
 }
 
 /* Set response queue pointer */
-static void set_rspop(int port, int reqin)
+static void set_rspop(struct udevice *dev, int port, int reqin)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	u32 tmp;
 
 	tmp = in_le32(priv->regbase + EDMA_RSOPR) & ~EDMA_RSOPR_OPMASK;
@@ -525,7 +529,8 @@ static void set_rspop(int port, int reqin)
 	out_le32(priv->regbase + EDMA_RSOPR, tmp);
 }
 
-static int wait_dma_completion(int port, int index, u32 timeout_msec)
+static int wait_dma_completion(struct udevice *dev, int port, int index,
+			       u32 timeout_msec)
 {
 	u32 tmp, res;
 
@@ -538,13 +543,13 @@ static int wait_dma_completion(int port, int index, u32 timeout_msec)
 	return res;
 }
 
-static void process_responses(int port)
+static void process_responses(struct udevice *dev, int port)
 {
 #ifdef DEBUG
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 #endif
 	u32 tmp;
-	u32 outind = get_rspop(port);
+	u32 outind = get_rspop(dev, port);
 
 	/* Ack interrupts */
 	tmp = in_le32(SATAHC_BASE + SATAHC_ICR);
@@ -555,20 +560,21 @@ static void process_responses(int port)
 	tmp &= ~(BIT(4));
 	out_le32(SATAHC_BASE + SATAHC_ICR, tmp);
 
-	while (get_rspip(port) != outind) {
+	while (get_rspip(dev, port) != outind) {
 #ifdef DEBUG
 		debug("Response index %d flags %08x on port %d\n", outind,
 		      priv->response[outind].flags, port);
 #endif
-		outind = get_next_rspop(port);
-		set_rspop(port, outind);
+		outind = get_next_rspop(dev, port);
+		set_rspop(dev, port, outind);
 	}
 }
 
-static int mv_ata_exec_ata_cmd(int port, struct sata_fis_h2d *cfis,
+static int mv_ata_exec_ata_cmd(struct udevice *dev, int port,
+			       struct sata_fis_h2d *cfis,
 			       u8 *buffer, u32 len, u32 iswrite)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	struct crqb *req;
 	int slot;
 	u32 start;
@@ -579,7 +585,7 @@ static int mv_ata_exec_ata_cmd(int port, struct sata_fis_h2d *cfis,
 	}
 
 	/* Initialize request */
-	slot = get_reqip(port);
+	slot = get_reqip(dev, port);
 	memset(&priv->request[slot], 0, sizeof(struct crqb));
 	req = &priv->request[slot];
 
@@ -633,16 +639,16 @@ static int mv_ata_exec_ata_cmd(int port, struct sata_fis_h2d *cfis,
 			   start + ALIGN(sizeof(*req), ARCH_DMA_MINALIGN));
 
 	/* Trigger operation */
-	slot = get_next_reqip(port);
-	set_reqip(port, slot);
+	slot = get_next_reqip(dev, port);
+	set_reqip(dev, port, slot);
 
 	/* Wait for completion */
-	if (wait_dma_completion(port, slot, 10000)) {
+	if (wait_dma_completion(dev, port, slot, 10000)) {
 		printf("ATA operation timed out\n");
 		return -1;
 	}
 
-	process_responses(port);
+	process_responses(dev, port);
 
 	/* Invalidate data on read */
 	if (buffer && len) {
@@ -654,7 +660,8 @@ static int mv_ata_exec_ata_cmd(int port, struct sata_fis_h2d *cfis,
 	return len;
 }
 
-static u32 mv_sata_rw_cmd_ext(int port, lbaint_t start, u32 blkcnt,
+static u32 mv_sata_rw_cmd_ext(struct udevice *dev, int port, lbaint_t start,
+			      u32 blkcnt,
 			      u8 *buffer, int is_write)
 {
 	struct sata_fis_h2d cfis;
@@ -678,14 +685,14 @@ static u32 mv_sata_rw_cmd_ext(int port, lbaint_t start, u32 blkcnt,
 	cfis.sector_count_exp = (blkcnt >> 8) & 0xff;
 	cfis.sector_count = blkcnt & 0xff;
 
-	res = mv_ata_exec_ata_cmd(port, &cfis, buffer, ATA_SECT_SIZE * blkcnt,
-				  is_write);
+	res = mv_ata_exec_ata_cmd(dev, port, &cfis, buffer,
+				  ATA_SECT_SIZE * blkcnt, is_write);
 
 	return res >= 0 ? blkcnt : res;
 }
 
-static u32 mv_sata_rw_cmd(int port, lbaint_t start, u32 blkcnt, u8 *buffer,
-			  int is_write)
+static u32 mv_sata_rw_cmd(struct udevice *dev, int port, lbaint_t start,
+			  u32 blkcnt, u8 *buffer, int is_write)
 {
 	struct sata_fis_h2d cfis;
 	lbaint_t block;
@@ -705,20 +712,21 @@ static u32 mv_sata_rw_cmd(int port, lbaint_t start, u32 blkcnt, u8 *buffer,
 	cfis.lba_low = block & 0xff;
 	cfis.sector_count = (u8)(blkcnt & 0xff);
 
-	res = mv_ata_exec_ata_cmd(port, &cfis, buffer, ATA_SECT_SIZE * blkcnt,
-				  is_write);
+	res = mv_ata_exec_ata_cmd(dev, port, &cfis, buffer,
+				  ATA_SECT_SIZE * blkcnt, is_write);
 
 	return res >= 0 ? blkcnt : res;
 }
 
-static u32 ata_low_level_rw(int dev, lbaint_t blknr, lbaint_t blkcnt,
-			    void *buffer, int is_write)
+static u32 ata_low_level_rw(struct udevice *dev, int port, lbaint_t blknr,
+			    lbaint_t blkcnt, void *buffer, int is_write)
 {
+	struct blk_desc *desc = dev_get_uclass_platdata(dev);
 	lbaint_t start, blks;
 	u8 *addr;
 	int max_blks;
 
-	debug("%s: %ld %ld\n", __func__, blknr, blkcnt);
+	debug("%s: " LBAFU " " LBAFU "\n", __func__, blknr, blkcnt);
 
 	start = blknr;
 	blks = blkcnt;
@@ -727,22 +735,22 @@ static u32 ata_low_level_rw(int dev, lbaint_t blknr, lbaint_t blkcnt,
 	max_blks = MV_ATA_MAX_SECTORS;
 	do {
 		if (blks > max_blks) {
-			if (sata_dev_desc[dev].lba48) {
-				mv_sata_rw_cmd_ext(dev, start, max_blks, addr,
-						   is_write);
+			if (desc->lba48) {
+				mv_sata_rw_cmd_ext(dev, port, start, max_blks,
+						   addr, is_write);
 			} else {
-				mv_sata_rw_cmd(dev, start, max_blks, addr,
-					       is_write);
+				mv_sata_rw_cmd(dev, port, start, max_blks,
+					       addr, is_write);
 			}
 			start += max_blks;
 			blks -= max_blks;
 			addr += ATA_SECT_SIZE * max_blks;
 		} else {
-			if (sata_dev_desc[dev].lba48) {
-				mv_sata_rw_cmd_ext(dev, start, blks, addr,
+			if (desc->lba48) {
+				mv_sata_rw_cmd_ext(dev, port, start, blks, addr,
 						   is_write);
 			} else {
-				mv_sata_rw_cmd(dev, start, blks, addr,
+				mv_sata_rw_cmd(dev, port, start, blks, addr,
 					       is_write);
 			}
 			start += blks;
@@ -754,11 +762,11 @@ static u32 ata_low_level_rw(int dev, lbaint_t blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-static int mv_ata_exec_ata_cmd_nondma(int port,
+static int mv_ata_exec_ata_cmd_nondma(struct udevice *dev, int port,
 				      struct sata_fis_h2d *cfis, u8 *buffer,
 				      u32 len, u32 iswrite)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	int i;
 	u16 *tp;
 
@@ -791,7 +799,7 @@ static int mv_ata_exec_ata_cmd_nondma(int port,
 	return len;
 }
 
-static int mv_sata_identify(int port, u16 *id)
+static int mv_sata_identify(struct udevice *dev, int port, u16 *id)
 {
 	struct sata_fis_h2d h2d;
 
@@ -803,13 +811,13 @@ static int mv_sata_identify(int port, u16 *id)
 	/* Give device time to get operational */
 	mdelay(10);
 
-	return mv_ata_exec_ata_cmd_nondma(port, &h2d, (u8 *)id,
+	return mv_ata_exec_ata_cmd_nondma(dev, port, &h2d, (u8 *)id,
 					  ATA_ID_WORDS * 2, READ_CMD);
 }
 
-static void mv_sata_xfer_mode(int port, u16 *id)
+static void mv_sata_xfer_mode(struct udevice *dev, int port, u16 *id)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 
 	priv->pio = id[ATA_ID_PIO_MODES];
 	priv->mwdma = id[ATA_ID_MWDMA_MODES];
@@ -818,9 +826,9 @@ static void mv_sata_xfer_mode(int port, u16 *id)
 	      priv->udma);
 }
 
-static void mv_sata_set_features(int port)
+static void mv_sata_set_features(struct udevice *dev, int port)
 {
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 	struct sata_fis_h2d cfis;
 	u8 udma_cap;
 
@@ -842,53 +850,7 @@ static void mv_sata_set_features(int port)
 	if (udma_cap == ATA_UDMA3)
 		cfis.sector_count = XFER_UDMA_3;
 
-	mv_ata_exec_ata_cmd_nondma(port, &cfis, NULL, 0, READ_CMD);
-}
-
-int mv_sata_spin_down(int dev)
-{
-	struct sata_fis_h2d cfis;
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[dev].priv;
-
-	if (priv->link == 0) {
-		debug("No device on port: %d\n", dev);
-		return 1;
-	}
-
-	memset(&cfis, 0, sizeof(struct sata_fis_h2d));
-
-	cfis.fis_type = SATA_FIS_TYPE_REGISTER_H2D;
-	cfis.command = ATA_CMD_STANDBY;
-
-	return mv_ata_exec_ata_cmd_nondma(dev, &cfis, NULL, 0, READ_CMD);
-}
-
-int mv_sata_spin_up(int dev)
-{
-	struct sata_fis_h2d cfis;
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[dev].priv;
-
-	if (priv->link == 0) {
-		debug("No device on port: %d\n", dev);
-		return 1;
-	}
-
-	memset(&cfis, 0, sizeof(struct sata_fis_h2d));
-
-	cfis.fis_type = SATA_FIS_TYPE_REGISTER_H2D;
-	cfis.command = ATA_CMD_IDLE;
-
-	return mv_ata_exec_ata_cmd_nondma(dev, &cfis, NULL, 0, READ_CMD);
-}
-
-ulong sata_read(int dev, ulong blknr, lbaint_t blkcnt, void *buffer)
-{
-	return ata_low_level_rw(dev, blknr, blkcnt, buffer, READ_CMD);
-}
-
-ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer)
-{
-	return ata_low_level_rw(dev, blknr, blkcnt, (void *)buffer, WRITE_CMD);
+	mv_ata_exec_ata_cmd_nondma(dev, port, &cfis, NULL, 0, READ_CMD);
 }
 
 /*
@@ -916,24 +878,16 @@ static void mvsata_ide_conf_mbus_windows(void)
 	}
 }
 
-int init_sata(int dev)
+static int sata_mv_init_sata(struct udevice *dev, int port)
 {
-	struct mv_priv *priv;
+	struct mv_priv *priv = dev_get_platdata(dev);
 
-	debug("Initialize sata dev: %d\n", dev);
+	debug("Initialize sata dev: %d\n", port);
 
-	if (dev < 0 || dev >= CONFIG_SYS_SATA_MAX_DEVICE) {
-		printf("Invalid sata device %d\n", dev);
+	if (port < 0 || port >= CONFIG_SYS_SATA_MAX_DEVICE) {
+		printf("Invalid sata device %d\n", port);
 		return -1;
 	}
-
-	priv = (struct mv_priv *)malloc(sizeof(struct mv_priv));
-	if (!priv) {
-		printf("Failed to allocate memory for private sata data\n");
-		return -ENOMEM;
-	}
-
-	memset((void *)priv, 0, sizeof(struct mv_priv));
 
 	/* Allocate and align request buffer */
 	priv->crqb_alloc = malloc(sizeof(struct crqb) * REQUEST_QUEUE_SIZE +
@@ -959,11 +913,9 @@ int init_sata(int dev)
 	priv->response = (struct crpb *)(((u32) priv->crpb_alloc + CRPB_ALIGN) &
 					 ~(CRPB_ALIGN - 1));
 
-	sata_dev_desc[dev].priv = (void *)priv;
+	sprintf(priv->name, "SATA%d", port);
 
-	sprintf(priv->name, "SATA%d", dev);
-
-	priv->regbase = dev == 0 ? SATA0_BASE : SATA1_BASE;
+	priv->regbase = port == 0 ? SATA0_BASE : SATA1_BASE;
 
 	if (!hw_init) {
 		debug("Initialize sata hw\n");
@@ -972,9 +924,9 @@ int init_sata(int dev)
 		mvsata_ide_conf_mbus_windows();
 	}
 
-	mv_reset_port(dev);
+	mv_reset_port(dev, port);
 
-	if (probe_port(dev)) {
+	if (probe_port(dev, port)) {
 		priv->link = 0;
 		return -ENODEV;
 	}
@@ -983,19 +935,15 @@ int init_sata(int dev)
 	return 0;
 }
 
-int reset_sata(int dev)
+static int sata_mv_scan_sata(struct udevice *dev, int port)
 {
-	return 0;
-}
-
-int scan_sata(int port)
-{
+	struct blk_desc *desc = dev_get_uclass_platdata(dev);
+	struct mv_priv *priv = dev_get_platdata(dev);
 	unsigned char serial[ATA_ID_SERNO_LEN + 1];
 	unsigned char firmware[ATA_ID_FW_REV_LEN + 1];
 	unsigned char product[ATA_ID_PROD_LEN + 1];
 	u64 n_sectors;
 	u16 *id;
-	struct mv_priv *priv = (struct mv_priv *)sata_dev_desc[port].priv;
 
 	if (!priv->link)
 		return -ENODEV;
@@ -1006,7 +954,7 @@ int scan_sata(int port)
 		return -ENOMEM;
 	}
 
-	mv_sata_identify(port, id);
+	mv_sata_identify(dev, port, id);
 	ata_swap_buf_le16(id, ATA_ID_WORDS);
 #ifdef DEBUG
 	ata_dump_id(id);
@@ -1014,23 +962,23 @@ int scan_sata(int port)
 
 	/* Serial number */
 	ata_id_c_string(id, serial, ATA_ID_SERNO, sizeof(serial));
-	memcpy(sata_dev_desc[port].product, serial, sizeof(serial));
+	memcpy(desc->product, serial, sizeof(serial));
 
 	/* Firmware version */
 	ata_id_c_string(id, firmware, ATA_ID_FW_REV, sizeof(firmware));
-	memcpy(sata_dev_desc[port].revision, firmware, sizeof(firmware));
+	memcpy(desc->revision, firmware, sizeof(firmware));
 
 	/* Product model */
 	ata_id_c_string(id, product, ATA_ID_PROD, sizeof(product));
-	memcpy(sata_dev_desc[port].vendor, product, sizeof(product));
+	memcpy(desc->vendor, product, sizeof(product));
 
 	/* Total sectors */
 	n_sectors = ata_id_n_sectors(id);
-	sata_dev_desc[port].lba = n_sectors;
+	desc->lba = n_sectors;
 
 	/* Check if support LBA48 */
 	if (ata_id_has_lba48(id)) {
-		sata_dev_desc[port].lba48 = 1;
+		desc->lba48 = 1;
 		debug("Device support LBA48\n");
 	}
 
@@ -1038,13 +986,111 @@ int scan_sata(int port)
 	priv->queue_depth = ata_id_queue_depth(id);
 
 	/* Get the xfer mode from device */
-	mv_sata_xfer_mode(port, id);
+	mv_sata_xfer_mode(dev, port, id);
 
 	/* Set the xfer mode to highest speed */
-	mv_sata_set_features(port);
+	mv_sata_set_features(dev, port);
 
 	/* Start up */
-	mv_start_edma_engine(port);
+	mv_start_edma_engine(dev, port);
 
 	return 0;
 }
+
+static ulong sata_mv_read(struct udevice *blk, lbaint_t blknr,
+			  lbaint_t blkcnt, void *buffer)
+{
+	struct mv_priv *priv = dev_get_platdata(blk);
+
+	return ata_low_level_rw(blk, priv->dev_nr, blknr, blkcnt,
+				buffer, READ_CMD);
+}
+
+static ulong sata_mv_write(struct udevice *blk, lbaint_t blknr,
+			   lbaint_t blkcnt, const void *buffer)
+{
+	struct mv_priv *priv = dev_get_platdata(blk);
+
+	return ata_low_level_rw(blk, priv->dev_nr, blknr, blkcnt,
+				(void *)buffer, WRITE_CMD);
+}
+
+static const struct blk_ops sata_mv_blk_ops = {
+	.read	= sata_mv_read,
+	.write	= sata_mv_write,
+};
+
+U_BOOT_DRIVER(sata_mv_driver) = {
+	.name = "sata_mv_blk",
+	.id = UCLASS_BLK,
+	.ops = &sata_mv_blk_ops,
+	.platdata_auto_alloc_size = sizeof(struct mv_priv),
+};
+
+static int sata_mv_probe(struct udevice *dev)
+{
+	const void *blob = gd->fdt_blob;
+	int node = dev_of_offset(dev);
+	struct mv_priv *priv;
+	struct udevice *blk;
+	int nr_ports;
+	int ret;
+	int i;
+
+	/* Get number of ports of this SATA controller */
+	nr_ports = min(fdtdec_get_int(blob, node, "nr-ports", -1),
+		       CONFIG_SYS_SATA_MAX_DEVICE);
+
+	for (i = 0; i < nr_ports; i++) {
+		ret = blk_create_devicef(dev, "sata_mv_blk", "blk",
+					 IF_TYPE_SATA, -1, 512, 0, &blk);
+		if (ret) {
+			debug("Can't create device\n");
+			return ret;
+		}
+
+		priv = dev_get_platdata(blk);
+		priv->dev_nr = i;
+
+		/* Init SATA port */
+		ret = sata_mv_init_sata(blk, i);
+		if (ret) {
+			debug("%s: Failed to init bus\n", __func__);
+			return ret;
+		}
+
+		/* Scan SATA port */
+		ret = sata_mv_scan_sata(blk, i);
+		if (ret) {
+			debug("%s: Failed to scan bus\n", __func__);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+static int sata_mv_scan(struct udevice *dev)
+{
+	/* Nothing to do here */
+
+	return 0;
+}
+
+static const struct udevice_id sata_mv_ids[] = {
+	{ .compatible = "marvell,armada-370-sata" },
+	{ .compatible = "marvell,orion-sata" },
+	{ }
+};
+
+struct ahci_ops sata_mv_ahci_ops = {
+	.scan = sata_mv_scan,
+};
+
+U_BOOT_DRIVER(sata_mv_ahci) = {
+	.name = "sata_mv_ahci",
+	.id = UCLASS_AHCI,
+	.of_match = sata_mv_ids,
+	.ops = &sata_mv_ahci_ops,
+	.probe = sata_mv_probe,
+};
