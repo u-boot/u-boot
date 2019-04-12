@@ -1403,6 +1403,7 @@ config ARCH_STM32MP
 	select SYSRESET
 	select SYS_THUMB_BUILD
 	imply CMD_DM
+	imply CMD_POWEROFF
 	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
 	help
 	  Support for STM32MP SoC family developed by STMicroelectronics,
