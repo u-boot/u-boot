@@ -54,6 +54,15 @@ config USB_MUSB_SUNXI
 	Say y here to enable support for the sunxi OTG / DRC USB controller
 	used on almost all sunxi boards.
 
+config USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
+	bool "Disable MUSB bulk split/combine"
+	default y
+	help
+	  On TI AM335x devices, MUSB has bulk split/combine feature enabled
+	  in the ConfigData register, but the current MUSB driver does not
+	  support it yet. Select this option to disable the feature until the
+	  driver adds the support.
+
 endif
 
 config USB_MUSB_PIO_ONLY

@@ -387,7 +387,6 @@ DEFAULT_LINUX_BOOT_ENV \
  * add mass storage support and for gadget we add both RNDIS ethernet
  * and DFU.
  */
-#define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
 #define CONFIG_AM335X_USB1
