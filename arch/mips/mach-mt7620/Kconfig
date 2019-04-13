@@ -22,12 +22,12 @@ choice
 	prompt "Board select"
 
 config BOARD_GARDENA_SMART_GATEWAY_MT7688
-	bool "Gardena Smart Gateway"
+	bool "GARDENA smart Gateway"
 	depends on SOC_MT7620
 	select BOARD_LATE_INIT
 	select SUPPORTS_BOOT_RAM
 	help
-	  Gardena Smart Gateway boards have a MT7688 SoC with 128 MiB of RAM
+	  GARDENA smart Gateway boards have a MT7688 SoC with 128 MiB of RAM
 	  and 8 MiB of flash (SPI NOR) and additional SPI NAND storage.
 
 config BOARD_LINKIT_SMART_7688

@@ -6,6 +6,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <led.h>
+#include <miiphy.h>
 
 enum {
 	BOARD_TYPE_PCB110 = 0xAABBCE00,
@@ -62,6 +63,28 @@ static void vcoreiii_gpio_set_alternate(int gpio, int mode)
 		writel(val0 & ~mask, reg0);
 		writel(val1 & ~mask, reg1);
 	}
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	if (gd->board_type == BOARD_TYPE_PCB110 ||
+	    gd->board_type == BOARD_TYPE_PCB112) {
+		phy_write(phydev, 0, 31, 0x10);
+		phy_write(phydev, 0, 18, 0x80F0);
+		while (phy_read(phydev, 0, 18) & 0x8000)
+			;
+		phy_write(phydev, 0, 31, 0);
+	}
+	if (gd->board_type == BOARD_TYPE_PCB111) {
+		phy_write(phydev, 0, 31, 0x10);
+		phy_write(phydev, 0, 18, 0x80A0);
+		while (phy_read(phydev, 0, 18) & 0x8000)
+			;
+		phy_write(phydev, 0, 14, 0x800);
+		phy_write(phydev, 0, 31, 0);
+	}
+
+	return 0;
 }
 
 void board_debug_uart_init(void)

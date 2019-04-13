@@ -98,5 +98,85 @@
 			compatible = "wdt-reboot";
 			wdt = <&wdt1>;
 		};
+
+		gpio0: gpio-controller@0xff800500 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x0 0xff800500 0x0 0x4>,
+			      <0x0 0xff800520 0x0 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		gpio1: gpio-controller@0xff800504 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x0 0xff800504 0x0 0x4>,
+			      <0x0 0xff800524 0x0 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		gpio2: gpio-controller@0xff800508 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x0 0xff800508 0x0 0x4>,
+			      <0x0 0xff800528 0x0 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		gpio3: gpio-controller@0xff80050c {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x0 0xff80050c 0x0 0x4>,
+			      <0x0 0xff80052c 0x0 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		gpio4: gpio-controller@0xff800510 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x0 0xff800510 0x0 0x4>,
+			      <0x0 0xff800530 0x0 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		gpio5: gpio-controller@0xff800514 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x0 0xff800514 0x0 0x4>,
+			      <0x0 0xff800534 0x0 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		gpio6: gpio-controller@0xff800518 {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x0 0xff800518 0x0 0x4>,
+			      <0x0 0xff800538 0x0 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
+
+		gpio7: gpio-controller@0xff80051c {
+			compatible = "brcm,bcm6345-gpio";
+			reg = <0x0 0xff80051c 0x0 0x4>,
+			      <0x0 0xff80053c 0x0 0x4>;
+			gpio-controller;
+			#gpio-cells = <2>;
+
+			status = "disabled";
+		};
 	};
 };

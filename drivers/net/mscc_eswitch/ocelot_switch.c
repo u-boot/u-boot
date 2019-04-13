@@ -142,18 +142,16 @@ static const unsigned long ocelot_regs_ana_table[] = {
 
 static struct mscc_miim_dev miim[NUM_PHY];
 
-static int mscc_miim_reset(struct mii_dev *bus)
+static void mscc_phy_reset(void)
 {
-	struct mscc_miim_dev *miim = (struct mscc_miim_dev *)bus->priv;
-
-	if (miim->phy_regs) {
-		writel(0, miim->phy_regs + PHY_CFG);
-		writel(PHY_CFG_RST | PHY_CFG_COMMON_RST
-		       | PHY_CFG_ENA, miim->phy_regs + PHY_CFG);
-		mdelay(500);
+	writel(0, miim[INTERNAL].phy_regs + PHY_CFG);
+	writel(PHY_CFG_RST | PHY_CFG_COMMON_RST
+	       | PHY_CFG_ENA, miim[INTERNAL].phy_regs + PHY_CFG);
+	if (wait_for_bit_le32(miim[INTERNAL].phy_regs + PHY_STAT,
+			      PHY_STAT_SUPERVISOR_COMPLETE,
+			      true, 2000, false)) {
+		pr_err("Timeout in phy reset\n");
 	}
-
-	return 0;
 }
 
 /* For now only setup the internal mdio bus */
@@ -194,7 +192,6 @@ static struct mii_dev *ocelot_mdiobus_init(struct udevice *dev)
 	miim[INTERNAL].phy_regs = ioremap(phy_base[PHY], phy_size[PHY]);
 	miim[INTERNAL].regs = ioremap(phy_base[MIIM], phy_size[MIIM]);
 	bus->priv = &miim[INTERNAL];
-	bus->reset = mscc_miim_reset;
 	bus->read = mscc_miim_read;
 	bus->write = mscc_miim_write;
 
@@ -210,13 +207,8 @@ __weak void mscc_switch_reset(void)
 
 static void ocelot_stop(struct udevice *dev)
 {
-	struct ocelot_private *priv = dev_get_priv(dev);
-	int i;
-
 	mscc_switch_reset();
-	for (i = 0; i < NUM_PHY; i++)
-		if (priv->bus[i])
-			mscc_miim_reset(priv->bus[i]);
+	mscc_phy_reset();
 }
 
 static void ocelot_cpu_capture_setup(struct ocelot_private *priv)
@@ -473,6 +465,7 @@ static int ocelot_probe(struct udevice *dev)
 	}
 
 	priv->bus[INTERNAL] = ocelot_mdiobus_init(dev);
+	mscc_phy_reset();
 
 	for (i = 0; i < 4; i++) {
 		phy_connect(priv->bus[INTERNAL], i, dev,

@@ -183,5 +183,121 @@
 			gpio-bank-name = "sgpio2_";
 			sgpio-clock = <0x14>;
 		};
+
+		switch: switch@1010000 {
+			compatible = "mscc,vsc7454-switch";
+			reg = <0x01040000 0x0100>,   // VTSS_TO_DEV_0
+			      <0x01050000 0x0100>,   // VTSS_TO_DEV_1
+			      <0x01060000 0x0100>,   // VTSS_TO_DEV_2
+			      <0x01070000 0x0100>,   // VTSS_TO_DEV_3
+			      <0x01080000 0x0100>,   // VTSS_TO_DEV_4
+			      <0x01090000 0x0100>,   // VTSS_TO_DEV_5
+			      <0x010a0000 0x0100>,   // VTSS_TO_DEV_6
+			      <0x010b0000 0x0100>,   // VTSS_TO_DEV_7
+			      <0x010c0000 0x0100>,   // VTSS_TO_DEV_8
+			      <0x010d0000 0x0100>,   // VTSS_TO_DEV_9
+			      <0x010e0000 0x0100>,   // VTSS_TO_DEV_10
+			      <0x010f0000 0x0100>,   // VTSS_TO_DEV_11
+			      <0x01100000 0x0100>,   // VTSS_TO_DEV_12
+			      <0x01110000 0x0100>,   // VTSS_TO_DEV_13
+			      <0x01120000 0x0100>,   // VTSS_TO_DEV_14
+			      <0x01130000 0x0100>,   // VTSS_TO_DEV_15
+			      <0x01140000 0x0100>,   // VTSS_TO_DEV_16
+			      <0x01150000 0x0100>,   // VTSS_TO_DEV_17
+			      <0x01160000 0x0100>,   // VTSS_TO_DEV_18
+			      <0x01170000 0x0100>,   // VTSS_TO_DEV_19
+			      <0x01180000 0x0100>,   // VTSS_TO_DEV_20
+			      <0x01190000 0x0100>,   // VTSS_TO_DEV_21
+			      <0x011a0000 0x0100>,   // VTSS_TO_DEV_22
+			      <0x011b0000 0x0100>,   // VTSS_TO_DEV_23
+			      <0x011c0000 0x0100>,   // VTSS_TO_DEV_24
+			      <0x011d0000 0x0100>,   // VTSS_TO_DEV_25
+			      <0x011e0000 0x0100>,   // VTSS_TO_DEV_26
+			      <0x011f0000 0x0100>,   // VTSS_TO_DEV_27
+			      <0x01200000 0x0100>,   // VTSS_TO_DEV_28
+			      <0x01210000 0x0100>,   // VTSS_TO_DEV_29
+			      <0x01220000 0x0100>,   // VTSS_TO_DEV_30
+			      <0x01230000 0x0100>,   // VTSS_TO_DEV_31
+			      <0x01240000 0x0100>,   // VTSS_TO_DEV_32
+			      <0x01250000 0x0100>,   // VTSS_TO_DEV_33
+			      <0x01260000 0x0100>,   // VTSS_TO_DEV_34
+			      <0x01270000 0x0100>,   // VTSS_TO_DEV_35
+			      <0x01280000 0x0100>,   // VTSS_TO_DEV_36
+			      <0x01290000 0x0100>,   // VTSS_TO_DEV_37
+			      <0x012a0000 0x0100>,   // VTSS_TO_DEV_38
+			      <0x012b0000 0x0100>,   // VTSS_TO_DEV_39
+			      <0x012c0000 0x0100>,   // VTSS_TO_DEV_40
+			      <0x012d0000 0x0100>,   // VTSS_TO_DEV_41
+			      <0x012e0000 0x0100>,   // VTSS_TO_DEV_42
+			      <0x012f0000 0x0100>,   // VTSS_TO_DEV_43
+			      <0x01300000 0x0100>,   // VTSS_TO_DEV_44
+			      <0x01310000 0x0100>,   // VTSS_TO_DEV_45
+			      <0x01320000 0x0100>,   // VTSS_TO_DEV_46
+			      <0x01330000 0x0100>,   // VTSS_TO_DEV_47
+			      <0x01f00000 0x100000>, // ANA_AC
+			      <0x01d00000 0x100000>, // ANA_CL
+			      <0x01e00000 0x100000>, // ANA_L2
+			      <0x01410000 0x10000>,  // ASM
+			      <0x01460000 0x10000>,  // HSIO
+			      <0x01420000 0x00000>,  // LRN
+			      <0x017d0000 0x10000>,  // QFWD
+			      <0x01020000 0x20000>,  // QS
+			      <0x017e0000 0x10000>,  // QSYS
+			      <0x01b00000 0x80000>;  // REW
+			reg-names = "port0", "port1", "port2", "port3", "port4",
+				    "port5", "port6", "port7", "port8", "port9",
+				    "port10", "port11", "port12", "port13",
+				    "port14", "port15", "port16", "port17",
+				    "port18", "port19", "port20", "port21",
+				    "port22", "port23", "port24", "port25",
+				    "port26", "port27", "port28", "port29",
+				    "port30", "port31", "port32", "port33",
+				    "port34", "port35", "port36", "port37",
+				    "port38", "port39", "port40", "port41",
+				    "port42", "port43", "port44", "port45",
+				    "port46", "port47", "ana_ac", "ana_cl",
+				    "ana_l2", "asm", "hsio", "lrn", "qfwd",
+				    "qs", "qsys", "rew";
+			status = "okay";
+
+			ethernet-ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+		};
+
+		mdio0: mdio@010100c8 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "mscc,jr2-miim";
+			reg = <0x010100c8 0x24>;
+			status = "disabled";
+		};
+
+		mdio1: mdio@010100ec {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "mscc,jr2-miim";
+			reg = <0x010100ec 0x24>;
+			status = "disabled";
+		};
+
+		mdio2: mdio@01010110 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "mscc,jr2-miim";
+			reg = <0x01010110 0x24>;
+			status = "disabled";
+		};
+
+		hsio: syscon@10d0000 {
+			compatible = "mscc,jr2-hsio", "syscon", "simple-mfd";
+			reg = <0x10d0000 0x10000>;
+
+			serdes_hsio: serdes_hsio {
+				compatible = "mscc,vsc7454-serdes";
+				#phy-cells = <3>;
+			};
+		};
 	};
 };

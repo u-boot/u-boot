@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2015-2016 Wills Wang <wills.wang@live.com>
+ * Copyright (C) 2018 Rosy Song <rosysong@rosinson.com>
  */
 
 /dts-v1/;
-#include "qca953x.dtsi"
+#include "qca956x.dtsi"
 
 / {
-	model = "AP143 Reference Board";
-	compatible = "qca,ap143", "qca,qca953x";
+	model = "AP152 Reference Board";
+	compatible = "qca,ap152", "qca,qca956x";
 
 	aliases {
 		spi0 = &spi0;
@@ -20,11 +20,17 @@
 	};
 };
 
+&gmac0 {
+	phy-mode = "sgmii";
+	status = "okay";
+};
+
 &xtal {
 	clock-frequency = <25000000>;
 };
 
 &uart0 {
+	clock-frequency = <25000000>;
 	status = "okay";
 };
 
@@ -35,13 +41,8 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 		compatible = "spi-flash";
-		memory-map = <0x9f000000 0x00800000>;
+		memory-map = <0x9f000000 0x01000000>;
 		spi-max-frequency = <25000000>;
 		reg = <0>;
 	};
-};
-
-&gmac1 {
-	status = "okay";
-	phy-mode = "rgmii";
 };

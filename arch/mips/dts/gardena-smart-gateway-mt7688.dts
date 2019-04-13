@@ -10,7 +10,7 @@
 
 / {
 	compatible = "gardena,smart-gateway-mt7688", "ralink,mt7628a-soc";
-	model = "Gardena smart-Gateway-MT7688";
+	model = "GARDENA smart Gateway (MT7688)";
 
 	aliases {
 		serial0 = &uart0;
