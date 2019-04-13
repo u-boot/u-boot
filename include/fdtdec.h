@@ -23,15 +23,44 @@
  */
 typedef phys_addr_t fdt_addr_t;
 typedef phys_size_t fdt_size_t;
+
+static inline fdt32_t fdt_addr_unpack(fdt_addr_t addr, fdt32_t *upper)
+{
+	if (upper)
+#ifdef CONFIG_PHYS_64BIT
+		*upper = addr >> 32;
+#else
+		*upper = 0;
+#endif
+
+	return addr;
+}
+
+static inline fdt32_t fdt_size_unpack(fdt_size_t size, fdt32_t *upper)
+{
+	if (upper)
+#ifdef CONFIG_PHYS_64BIT
+		*upper = size >> 32;
+#else
+		*upper = 0;
+#endif
+
+	return size;
+}
+
 #ifdef CONFIG_PHYS_64BIT
 #define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be64_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be64_to_cpu(reg)
+#define cpu_to_fdt_addr(reg) cpu_to_be64(reg)
+#define cpu_to_fdt_size(reg) cpu_to_be64(reg)
 typedef fdt64_t fdt_val_t;
 #else
 #define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be32_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be32_to_cpu(reg)
+#define cpu_to_fdt_addr(reg) cpu_to_be32(reg)
+#define cpu_to_fdt_size(reg) cpu_to_be32(reg)
 typedef fdt32_t fdt_val_t;
 #endif
 
@@ -990,6 +1019,146 @@ int fdtdec_setup_memory_banksize_fdt(const void *blob);
  * invalid
  */
 int fdtdec_setup_memory_banksize(void);
+
+/**
+ * fdtdec_set_phandle() - sets the phandle of a given node
+ *
+ * @param blob		FDT blob
+ * @param node		offset in the FDT blob of the node whose phandle is to
+ *			be set
+ * @param phandle	phandle to set for the given node
+ * @return 0 on success or a negative error code on failure
+ */
+int fdtdec_set_phandle(void *blob, int node, uint32_t phandle);
+
+/**
+ * fdtdec_add_reserved_memory() - add or find a reserved-memory node
+ *
+ * If a reserved-memory node already exists for the given carveout, a phandle
+ * for that node will be returned. Otherwise a new node will be created and a
+ * phandle corresponding to it will be returned.
+ *
+ * See Documentation/devicetree/bindings/reserved-memory/reserved-memory.txt
+ * for details on how to use reserved memory regions.
+ *
+ * As an example, consider the following code snippet:
+ *
+ *     struct fdt_memory fb = {
+ *         .start = 0x92cb3000,
+ *         .end = 0x934b2fff,
+ *     };
+ *     uint32_t phandle;
+ *
+ *     fdtdec_add_reserved_memory(fdt, "framebuffer", &fb, &phandle);
+ *
+ * This results in the following subnode being added to the top-level
+ * /reserved-memory node:
+ *
+ *     reserved-memory {
+ *         #address-cells = <0x00000002>;
+ *         #size-cells = <0x00000002>;
+ *         ranges;
+ *
+ *         framebuffer@92cb3000 {
+ *             reg = <0x00000000 0x92cb3000 0x00000000 0x00800000>;
+ *             phandle = <0x0000004d>;
+ *         };
+ *     };
+ *
+ * If the top-level /reserved-memory node does not exist, it will be created.
+ * The phandle returned from the function call can be used to reference this
+ * reserved memory region from other nodes.
+ *
+ * See fdtdec_set_carveout() for a more elaborate example.
+ *
+ * @param blob		FDT blob
+ * @param basename	base name of the node to create
+ * @param carveout	information about the carveout region
+ * @param phandlep	return location for the phandle of the carveout region
+ * @return 0 on success or a negative error code on failure
+ */
+int fdtdec_add_reserved_memory(void *blob, const char *basename,
+			       const struct fdt_memory *carveout,
+			       uint32_t *phandlep);
+
+/**
+ * fdtdec_get_carveout() - reads a carveout from an FDT
+ *
+ * Reads information about a carveout region from an FDT. The carveout is a
+ * referenced by its phandle that is read from a given property in a given
+ * node.
+ *
+ * @param blob		FDT blob
+ * @param node		name of a node
+ * @param name		name of the property in the given node that contains
+ *			the phandle for the carveout
+ * @param index		index of the phandle for which to read the carveout
+ * @param carveout	return location for the carveout information
+ * @return 0 on success or a negative error code on failure
+ */
+int fdtdec_get_carveout(const void *blob, const char *node, const char *name,
+			unsigned int index, struct fdt_memory *carveout);
+
+/**
+ * fdtdec_set_carveout() - sets a carveout region for a given node
+ *
+ * Sets a carveout region for a given node. If a reserved-memory node already
+ * exists for the carveout, the phandle for that node will be reused. If no
+ * such node exists, a new one will be created and a phandle to it stored in
+ * a specified property of the given node.
+ *
+ * As an example, consider the following code snippet:
+ *
+ *     const char *node = "/host1x@50000000/dc@54240000";
+ *     struct fdt_memory fb = {
+ *         .start = 0x92cb3000,
+ *         .end = 0x934b2fff,
+ *     };
+ *
+ *     fdtdec_set_carveout(fdt, node, "memory-region", 0, "framebuffer", &fb);
+ *
+ * dc@54200000 is a display controller and was set up by the bootloader to
+ * scan out the framebuffer specified by "fb". This would cause the following
+ * reserved memory region to be added:
+ *
+ *     reserved-memory {
+ *         #address-cells = <0x00000002>;
+ *         #size-cells = <0x00000002>;
+ *         ranges;
+ *
+ *         framebuffer@92cb3000 {
+ *             reg = <0x00000000 0x92cb3000 0x00000000 0x00800000>;
+ *             phandle = <0x0000004d>;
+ *         };
+ *     };
+ *
+ * A "memory-region" property will also be added to the node referenced by the
+ * offset parameter.
+ *
+ *     host1x@50000000 {
+ *         ...
+ *
+ *         dc@54240000 {
+ *             ...
+ *             memory-region = <0x0000004d>;
+ *             ...
+ *         };
+ *
+ *         ...
+ *     };
+ *
+ * @param blob		FDT blob
+ * @param node		name of the node to add the carveout to
+ * @param prop_name	name of the property in which to store the phandle of
+ *			the carveout
+ * @param index		index of the phandle to store
+ * @param name		base name of the reserved-memory node to create
+ * @param carveout	information about the carveout to add
+ * @return 0 on success or a negative error code on failure
+ */
+int fdtdec_set_carveout(void *blob, const char *node, const char *prop_name,
+			unsigned int index, const char *name,
+			const struct fdt_memory *carveout);
 
 /**
  * Set up the device tree ready for use

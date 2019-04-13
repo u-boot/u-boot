@@ -27,28 +27,6 @@ int pinctrl_decode_pin_config(const void *blob, int node)
 	return flags;
 }
 
-/*
- * TODO: this function is temporary for v2019.01.
- * It should be renamed to pinctrl_decode_pin_config(),
- * the original pinctrl_decode_pin_config() function should
- * be removed and all callers of the original function should
- * be migrated to use the new one.
- */
-int pinctrl_decode_pin_config_dm(struct udevice *dev)
-{
-	int pinconfig = 0;
-
-	if (dev->uclass->uc_drv->id != UCLASS_PINCONFIG)
-		return -EINVAL;
-
-	if (dev_read_bool(dev, "bias-pull-up"))
-		pinconfig |= 1 << PIN_CONFIG_BIAS_PULL_UP;
-	else if (dev_read_bool(dev, "bias-pull-down"))
-		pinconfig |= 1 << PIN_CONFIG_BIAS_PULL_DOWN;
-
-	return pinconfig;
-}
-
 #if CONFIG_IS_ENABLED(PINCTRL_FULL)
 /**
  * pinctrl_config_one() - apply pinctrl settings for a single node
@@ -149,6 +127,9 @@ static int pinconfig_post_bind(struct udevice *dev)
 		ofnode_get_property(node, "compatible", &ret);
 		if (ret >= 0)
 			continue;
+		/* If this node has "gpio-controller" property, skip */
+		if (ofnode_read_bool(node, "gpio-controller"))
+			continue;
 
 		if (ret != -FDT_ERR_NOTFOUND)
 			return ret;
@@ -201,11 +182,14 @@ static int pinctrl_select_state_simple(struct udevice *dev)
 	int ret;
 
 	/*
-	 * For simplicity, assume the first device of PINCTRL uclass
-	 * is the correct one.  This is most likely OK as there is
-	 * usually only one pinctrl device on the system.
+	 * For most system, there is only one pincontroller device. But in
+	 * case of multiple pincontroller devices, probe the one with sequence
+	 * number 0 (defined by alias) to avoid race condition.
 	 */
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pctldev);
+	ret = uclass_get_device_by_seq(UCLASS_PINCTRL, 0, &pctldev);
+	if (ret)
+		/* if not found, get the first one */
+		ret = uclass_get_device(UCLASS_PINCTRL, 0, &pctldev);
 	if (ret)
 		return ret;
 

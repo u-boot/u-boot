@@ -493,6 +493,7 @@
 			compatible = "denx,u-boot-probe-test";
 			first-syscon = <&syscon0>;
 			second-sys-ctrl = <&another_system_controller>;
+			third-syscon = <&syscon2>;
 		};
 	};
 
@@ -597,7 +598,7 @@
 			0x38 8>;
 	};
 
-	syscon@2 {
+	syscon2: syscon@2 {
 		compatible = "simple-mfd", "syscon";
 		reg = <0x40 5
 			0x48 6

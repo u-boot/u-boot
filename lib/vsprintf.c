@@ -457,7 +457,6 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		return device_path_string(buf, end, ptr, field_width,
 					  precision, flags);
 #endif
-#ifdef CONFIG_CMD_NET
 	case 'a':
 		flags |= SPECIAL | ZEROPAD;
 
@@ -469,6 +468,7 @@ static char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 			break;
 		}
 		break;
+#ifdef CONFIG_CMD_NET
 	case 'm':
 		flags |= SPECIAL;
 		/* Fallthrough */
