@@ -1933,7 +1933,6 @@ endmenu
 
 config CMD_UBI
 	tristate "Enable UBI - Unsorted block images commands"
-	select CRC32
 	select MTD_UBI
 	help
 	  UBI is a software layer above MTD layer which admits use of LVM-like
@@ -1949,7 +1948,6 @@ config CMD_UBIFS
 	tristate "Enable UBIFS - Unsorted block images filesystem commands"
 	depends on CMD_UBI
 	default y if CMD_UBI
-	select CRC32
 	select LZO
 	help
 	  UBIFS is a file system for flash devices which works on top of UBI.
