@@ -68,7 +68,6 @@ struct fdt_region;
 #   define IMAGE_ENABLE_SHA1	1
 #  endif
 # else
-#  define CONFIG_CRC32		/* FIT images need CRC32 support */
 #  define IMAGE_ENABLE_CRC32	1
 #  define IMAGE_ENABLE_MD5	1
 #  define IMAGE_ENABLE_SHA1	1
