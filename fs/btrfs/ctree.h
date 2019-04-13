@@ -292,20 +292,52 @@ btrfs_search_tree_key_type(const struct btrfs_root *root, u64 objectid,
 {
 	struct btrfs_key key, *res;
 
+	/*
+	 * In some cases (e.g. tree roots), we need to look for a given
+	 * objectid and type without knowing the offset value (3rd element of a
+	 * btrfs tree node key). We can rely on the fact that btrfs_search_tree
+	 * returns the first element with key >= search_key, and then perform
+	 * our own comparison between the returned element and the search key.
+	 *
+	 * It is tempting to use a search key with offset 0 to perform this
+	 * "fuzzy search". This would return the first item with the (objectid,
+	 * type) we're looking for. However, using offset 0 has the wrong
+	 * behavior when the wanted item is the first in a leaf: since our
+	 * search key will be lower than the wanted item, the recursive search
+	 * will explore the wrong branch of the tree.
+	 *
+	 * Instead, use the largest possible offset (-1). The result of this
+	 * search will either be:
+	 *   1. An element with the (objectid, type) we're looking for, if it
+	 *      has offset -1 or if it is the last element in its leaf.
+	 *   2. The first element *after* an element with the (objectid, type)
+	 */
 	key.objectid = objectid;
 	key.type = type;
-	key.offset = 0;
+	key.offset = -1;
 
 	if (btrfs_search_tree(root, &key, path))
 		return NULL;
 
-	res = btrfs_path_leaf_key(path);
-	if (btrfs_comp_keys_type(&key, res)) {
-		btrfs_free_path(path);
-		return NULL;
+	/*
+	 * Compare with the previous element first -- this is the likely case
+	 * since the result of the search is only what we want if it had offset
+	 * == -1 or if it was last in its leaf.
+	 */
+	if (path->slots[0] > 0) {
+		path->slots[0]--;
+		res = btrfs_path_leaf_key(path);
+		if (!btrfs_comp_keys_type(&key, res))
+			return res;
+		path->slots[0]++;
 	}
 
-	return res;
+	res = btrfs_path_leaf_key(path);
+	if (!btrfs_comp_keys_type(&key, res))
+		return res;
+
+	btrfs_free_path(path);
+	return NULL;
 }
 
 static inline u32 btrfs_path_item_size(struct btrfs_path *p)
