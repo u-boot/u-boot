@@ -9,10 +9,6 @@ choice
 	prompt "OMAP5 board select"
 	optional
 
-config TARGET_CL_SOM_AM57X
-	bool "CompuLab CL-SOM-AM57x"
-	select DRA7XX
-
 config TARGET_CM_T54
 	bool "CompuLab CM-T54"
 
@@ -160,7 +156,6 @@ endchoice
 endmenu
 endif
 
-source "board/compulab/cl-som-am57x/Kconfig"
 source "board/compulab/cm_t54/Kconfig"
 source "board/ti/omap5_uevm/Kconfig"
 source "board/ti/dra7xx/Kconfig"
