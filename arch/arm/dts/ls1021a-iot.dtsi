@@ -27,7 +27,7 @@
 	qflash0: n25q128a13@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <20000000>;
 		reg = <0>;
 	};
@@ -40,7 +40,7 @@
 	dspiflash: at26df081a@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <16000000>;
 		spi-cpol;
 		spi-cpha;

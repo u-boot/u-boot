@@ -53,7 +53,7 @@
 	status = "okay";
 	num-cs = <1>;
 	flash@0 {
-		compatible = "spansion,s25fl256s", "spi-flash";
+		compatible = "spansion,s25fl256s", "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <30000000>;
 		m25p,fast-read;

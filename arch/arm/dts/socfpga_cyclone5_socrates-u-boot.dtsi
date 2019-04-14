@@ -30,7 +30,7 @@
 };
 
 &flash {
-	compatible = "n25q256a", "spi-flash";
+	compatible = "n25q256a", "jedec,spi-nor";
 	u-boot,dm-pre-reloc;
 };
 

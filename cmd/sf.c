@@ -81,14 +81,13 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 {
 	unsigned int bus = CONFIG_SF_DEFAULT_BUS;
 	unsigned int cs = CONFIG_SF_DEFAULT_CS;
+	/* In DM mode, defaults speed and mode will be taken from DT */
 	unsigned int speed = CONFIG_SF_DEFAULT_SPEED;
 	unsigned int mode = CONFIG_SF_DEFAULT_MODE;
 	char *endp;
 #ifdef CONFIG_DM_SPI_FLASH
 	struct udevice *new, *bus_dev;
 	int ret;
-	/* In DM mode defaults will be taken from DT */
-	speed = 0, mode = 0;
 #else
 	struct spi_flash *new;
 #endif

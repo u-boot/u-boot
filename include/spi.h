@@ -496,14 +496,15 @@ int spi_find_bus_and_cs(int busnum, int cs, struct udevice **busp,
  * device and slave device.
  *
  * If no such slave exists, and drv_name is not NULL, then a new slave device
- * is automatically bound on this chip select.
+ * is automatically bound on this chip select with requested speed and mode.
  *
- * Ths new slave device is probed ready for use with the given speed and mode.
+ * Ths new slave device is probed ready for use with the speed and mode
+ * from platdata when available or the requested values.
  *
  * @busnum:	SPI bus number
  * @cs:		Chip select to look for
- * @speed:	SPI speed to use for this slave
- * @mode:	SPI mode to use for this slave
+ * @speed:	SPI speed to use for this slave when not available in platdata
+ * @mode:	SPI mode to use for this slave when not available in platdata
  * @drv_name:	Name of driver to attach to this chip select
  * @dev_name:	Name of the new device thus created
  * @busp:	Returns bus device

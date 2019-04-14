@@ -568,7 +568,7 @@
 
 	spi-max-frequency = <48000000>;
 	m25p80@0 {
-		compatible = "mx66l51235l","spi-flash";
+		compatible = "mx66l51235l","jedec,spi-nor";
 		spi-max-frequency = <48000000>;
 		reg = <0>;
 		spi-cpol;

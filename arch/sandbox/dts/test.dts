@@ -579,7 +579,7 @@
 		cs-gpios = <0>, <&gpio_a 0>;
 		spi.bin@0 {
 			reg = <0>;
-			compatible = "spansion,m25p16", "spi-flash";
+			compatible = "spansion,m25p16", "jedec,spi-nor";
 			spi-max-frequency = <40000000>;
 			sandbox,filename = "spi.bin";
 		};

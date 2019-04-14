@@ -62,7 +62,7 @@
 	dflash0: n25q128a {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <1000000>; /* input clock */
 	};
@@ -70,7 +70,7 @@
 	dflash1: sst25wf040b {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3500000>;
 		reg = <1>;
 	};
@@ -78,7 +78,7 @@
 	dflash2: en25s64 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <3500000>;
 		reg = <2>;
 	};
@@ -91,7 +91,7 @@
 	qflash0: s25fs512s@0 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <50000000>;
 		reg = <0>;
 	};
@@ -99,7 +99,7 @@
 	qflash1: s25fs512s@1 {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <50000000>;
 		reg = <1>;
 	 };

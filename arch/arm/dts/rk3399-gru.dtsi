@@ -552,7 +552,7 @@ ap_i2c_audio: &i2c8 {
 
 	spi_flash: spiflash@0 {
 		u-boot,dm-pre-reloc;
-		compatible = "jedec,spi-nor", "spi-flash";
+		compatible = "jedec,spi-nor";
 		reg = <0>;
 
 		/* May run faster once verified. */

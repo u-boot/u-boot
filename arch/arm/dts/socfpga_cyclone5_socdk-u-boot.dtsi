@@ -34,7 +34,7 @@
 };
 
 &flash0 {
-	compatible = "n25q00", "spi-flash";
+	compatible = "n25q00", "jedec,spi-nor";
 	u-boot,dm-pre-reloc;
 
 	partition@qspi-boot {

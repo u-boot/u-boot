@@ -44,7 +44,7 @@
 &spi0 {
 	status = "okay";
 	spi-flash@0 {
-		compatible = "spi-flash";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <18000000>; /* input clock */
 		reg = <0>; /* CS0 */
 	};

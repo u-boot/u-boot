@@ -45,7 +45,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_EXYNOS_TMU, "samsung,exynos-tmu"),
 	COMPAT(SAMSUNG_EXYNOS_MIPI_DSI, "samsung,exynos-mipi-dsi"),
 	COMPAT(SAMSUNG_EXYNOS_DWMMC, "samsung,exynos-dwmmc"),
-	COMPAT(GENERIC_SPI_FLASH, "spi-flash"),
+	COMPAT(GENERIC_SPI_FLASH, "jedec,spi-nor"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
 	COMPAT(INTEL_MICROCODE, "intel,microcode"),
 	COMPAT(INTEL_QRK_MRC, "intel,quark-mrc"),

@@ -353,7 +353,7 @@ F:	configs/A20-Olimex-SOM204-EVB_defconfig
 F:	configs/A20-Olimex-SOM204-EVB-eMMC_defconfig
 
 ORANGEPI LITE2 BOARD
-M:	Jagan Teki <jagan@openedev.com>
+M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
 F:	configs/orangepi_lite2_defconfig
 

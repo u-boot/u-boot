@@ -16,12 +16,12 @@
 };
 
 &flash0 {
-	compatible = "spi-flash";
+	compatible = "jedec,spi-nor";
 	u-boot,dm-spl;
 };
 
 &flash1 {
-	compatible = "spi-flash";
+	compatible = "jedec,spi-nor";
 };
 
 &qspi {

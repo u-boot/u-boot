@@ -13,7 +13,7 @@
 };
 
 &flash {
-	compatible = "m25p64", "spi-flash";
+	compatible = "m25p64", "jedec,spi-nor";
 };
 
 &mmc0 {
