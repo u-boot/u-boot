@@ -35,6 +35,10 @@ config TEGRA_PINCTRL
 config TEGRA_PMC
 	bool
 
+config TEGRA_PMC_SECURE
+	bool
+	depends on TEGRA_PMC
+
 config TEGRA_COMMON
 	bool "Tegra common options"
 	select BINMAN
@@ -127,6 +131,7 @@ config TEGRA210
 	select TEGRA_NO_BPMP
 	select TEGRA_PINCTRL
 	select TEGRA_PMC
+	select TEGRA_PMC_SECURE
 
 config TEGRA186
 	bool "Tegra186 family"

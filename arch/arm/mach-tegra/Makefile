@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 #
-# (C) Copyright 2010-2015 Nvidia Corporation.
+# (C) Copyright 2010-2019 Nvidia Corporation.
 #
 # (C) Copyright 2000-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -27,11 +27,11 @@ obj-y += dt-setup.o
 obj-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 obj-$(CONFIG_TEGRA_GPU) += gpu.o
 obj-$(CONFIG_TEGRA_IVC) += ivc.o
-obj-y += lowlevel_init.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_ARMV7_PSCI) += psci.o
 endif
 obj-$(CONFIG_DISPLAY_CPUINFO) += sys_info.o
+obj-y += pmc.o
 
 obj-$(CONFIG_TEGRA20) += tegra20/
 obj-$(CONFIG_TEGRA30) += tegra30/

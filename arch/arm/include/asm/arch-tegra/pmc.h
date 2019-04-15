@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- *  (C) Copyright 2010-2015
+ *  (C) Copyright 2010-2019
  *  NVIDIA Corporation <www.nvidia.com>
  */
 
@@ -387,5 +387,23 @@ struct pmc_ctlr {
 
 /* APBDEV_PMC_CNTRL2_0 0x440 */
 #define HOLD_CKE_LOW_EN				(1 << 12)
+
+/* PMC read/write functions */
+u32 tegra_pmc_readl(unsigned long offset);
+void tegra_pmc_writel(u32 value, unsigned long offset);
+
+#define PMC_CNTRL		0x0
+#define  PMC_CNTRL_MAIN_RST	BIT(4)
+
+#if IS_ENABLED(CONFIG_TEGRA186)
+#  define PMC_SCRATCH0 0x32000
+#else
+#  define PMC_SCRATCH0 0x00050
+#endif
+
+/* for secure PMC */
+#define TEGRA_SMC_PMC		0xc2fffe00
+#define  TEGRA_SMC_PMC_READ	0xaa
+#define  TEGRA_SMC_PMC_WRITE	0xbb
 
 #endif	/* PMC_H */
