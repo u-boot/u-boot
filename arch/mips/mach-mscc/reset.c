@@ -36,7 +36,7 @@ void _machine_restart(void)
 	/* Do global reset */
 	writel(PERF_SOFT_RST_SOFT_CHIP_RST, BASE_DEVCPU_GCB + PERF_SOFT_RST);
 
-	for (i = 0; i < 1000; i++)
+	for (i = 0; i < 2000; i++)
 		;
 
 	/* Power down DDR for clean DDR re-training */
