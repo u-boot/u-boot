@@ -148,6 +148,7 @@ endchoice
 
 config TEGRA_DISCONNECT_UDC_ON_BOOT
 	bool "Disconnect USB device mode controller on boot"
+	depends on CI_UDC
 	default y
 	help
 	  When loading U-Boot into RAM over USB protocols using tools such as
