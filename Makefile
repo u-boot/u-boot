@@ -1830,7 +1830,7 @@ define filechk_defaultenv.h
 	(grep -v '^#' | \
 	 grep -v '^$$' | \
 	 tr '\n' '\0' | \
-	 sed -e 's/\\\x0/\n/g' | \
+	 sed -e 's/\\\x0\s*//g' | \
 	 xxd -i ; echo ", 0x00" ; )
 endef
 
