@@ -8,7 +8,9 @@
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include <linux/ctype.h>
 #include <linux/sizes.h>
 
 #include <asm/arch/tegra.h>
@@ -546,10 +548,49 @@ out:
 	return err;
 }
 
+static char *strip(const char *ptr)
+{
+	const char *end;
+
+	while (*ptr && isblank(*ptr))
+		ptr++;
+
+	/* empty string */
+	if (*ptr == '\0')
+		return strdup(ptr);
+
+	end = ptr;
+
+	while (end[1])
+		end++;
+
+	while (isblank(*end))
+		end--;
+
+	return strndup(ptr, end - ptr + 1);
+}
+
+static char *cboot_get_bootargs(const void *fdt)
+{
+	const char *args;
+	int offset, len;
+
+	offset = fdt_path_offset(fdt, "/chosen");
+	if (offset < 0)
+		return NULL;
+
+	args = fdt_getprop(fdt, offset, "bootargs", &len);
+	if (!args)
+		return NULL;
+
+	return strip(args);
+}
+
 int cboot_late_init(void)
 {
 	const void *fdt = (const void *)cboot_boot_x0;
 	uint8_t mac[ETH_ALEN];
+	char *bootargs;
 	int err;
 
 	set_calculated_env_vars();
@@ -567,6 +608,12 @@ int cboot_late_init(void)
 		err = fdtdec_set_ethernet_mac_address(blob, mac, sizeof(mac));
 		if (err < 0)
 			printf("failed to set MAC address %pM: %d\n", mac, err);
+	}
+
+	bootargs = cboot_get_bootargs(fdt);
+	if (bootargs) {
+		env_set("cbootargs", bootargs);
+		free(bootargs);
 	}
 
 	return 0;
