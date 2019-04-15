@@ -29,6 +29,9 @@ config TEGRA_IVC
 config TEGRA_MC
 	bool
 
+config TEGRA_PINCTRL
+	bool
+
 config TEGRA_COMMON
 	bool "Tegra common options"
 	select BINMAN
@@ -70,6 +73,7 @@ config TEGRA_ARMV7_COMMON
 	select TEGRA_GP_PADCTRL
 	select TEGRA_MC
 	select TEGRA_NO_BPMP
+	select TEGRA_PINCTRL
 
 config TEGRA_ARMV8_COMMON
 	bool "Tegra 64-bit common options"
@@ -117,6 +121,7 @@ config TEGRA210
 	select TEGRA_GP_PADCTRL
 	select TEGRA_MC
 	select TEGRA_NO_BPMP
+	select TEGRA_PINCTRL
 
 config TEGRA186
 	bool "Tegra186 family"

@@ -25,8 +25,10 @@
 #if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 #include <asm/arch/clock.h>
 #endif
+#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
+#endif
 #include <asm/arch/tegra.h>
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 #include <asm/arch/emc.h>

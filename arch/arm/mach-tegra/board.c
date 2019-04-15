@@ -12,7 +12,9 @@
 #if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 #include <asm/arch/clock.h>
 #endif
+#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
 #include <asm/arch/funcmux.h>
+#endif
 #if IS_ENABLED(CONFIG_TEGRA_MC)
 #include <asm/arch/mc.h>
 #endif
@@ -132,6 +134,7 @@ int dram_init(void)
 	return 0;
 }
 
+#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
 static int uart_configs[] = {
 #if defined(CONFIG_TEGRA20)
  #if defined(CONFIG_TEGRA_UARTA_UAA_UAB)
@@ -199,9 +202,11 @@ static void setup_uarts(int uart_ids)
 		}
 	}
 }
+#endif
 
 void board_init_uart_f(void)
 {
+#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
 	int uart_ids = 0;	/* bit mask of which UART ids to enable */
 
 #ifdef CONFIG_TEGRA_ENABLE_UARTA
@@ -220,6 +225,7 @@ void board_init_uart_f(void)
 	uart_ids |= UARTE;
 #endif
 	setup_uarts(uart_ids);
+#endif
 }
 
 #if !CONFIG_IS_ENABLED(OF_CONTROL)
