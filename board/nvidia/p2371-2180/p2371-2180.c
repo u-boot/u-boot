@@ -5,9 +5,12 @@
  */
 
 #include <common.h>
+#include <environment.h>
 #include <i2c.h>
+#include <linux/libfdt.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch-tegra/cboot.h>
 #include "../p2571/max77620_init.h"
 #include "pinmux-config-p2371-2180.h"
 
@@ -94,3 +97,50 @@ int tegra_pcie_board_init(void)
 	return 0;
 }
 #endif /* PCI */
+
+static void ft_mac_address_setup(void *fdt)
+{
+	const void *cboot_fdt = (const void *)cboot_boot_x0;
+	uint8_t mac[ETH_ALEN], local_mac[ETH_ALEN];
+	const char *path;
+	int offset, err;
+
+	err = cboot_get_ethaddr(cboot_fdt, local_mac);
+	if (err < 0)
+		memset(local_mac, 0, ETH_ALEN);
+
+	path = fdt_get_alias(fdt, "ethernet");
+	if (!path)
+		return;
+
+	debug("ethernet alias found: %s\n", path);
+
+	offset = fdt_path_offset(fdt, path);
+	if (offset < 0) {
+		printf("ethernet alias points to absent node %s\n", path);
+		return;
+	}
+
+	if (is_valid_ethaddr(local_mac)) {
+		err = fdt_setprop(fdt, offset, "local-mac-address", local_mac,
+				  ETH_ALEN);
+		if (!err)
+			debug("Local MAC address set: %pM\n", local_mac);
+	}
+
+	if (eth_env_get_enetaddr("ethaddr", mac)) {
+		if (memcmp(local_mac, mac, ETH_ALEN) != 0) {
+			err = fdt_setprop(fdt, offset, "mac-address", mac,
+					  ETH_ALEN);
+			if (!err)
+				debug("MAC address set: %pM\n", mac);
+		}
+	}
+}
+
+int ft_board_setup(void *fdt, bd_t *bd)
+{
+	ft_mac_address_setup(fdt);
+
+	return 0;
+}
