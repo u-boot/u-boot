@@ -20,6 +20,18 @@ struct fru_common_hdr {
 
 #define FRU_BOARD_MAX_LEN	32
 
+struct __packed fru_board_info_header {
+	u8 ver;
+	u8 len;
+	u8 lang_code;
+	u8 time[3];
+};
+
+struct __packed fru_board_info_member {
+	u8 type_len;
+	u8 *name;
+};
+
 struct fru_board_data {
 	u8 ver;
 	u8 len;
@@ -58,6 +70,8 @@ struct fru_table {
 
 int fru_display(void);
 int fru_capture(unsigned long addr);
+int fru_generate(unsigned long addr, char *manufacturer, char *board_name,
+		 char *serial_no, char *part_no);
 
 extern struct fru_table fru_data;
 

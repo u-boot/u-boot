@@ -58,6 +58,101 @@ static int fru_check_type_len(u8 type_len, u8 language, u8 *type)
 	return len;
 }
 
+/* Return len */
+static u8 fru_gen_type_len(u8 *addr, char *name)
+{
+	int len = strlen(name);
+	struct fru_board_info_member *member;
+
+	member = (struct fru_board_info_member *)addr;
+	member->type_len = FRU_TYPELEN_TYPE_ASCII8 << FRU_TYPELEN_TYPE_SHIFT;
+	member->type_len |= len;
+
+	debug("%lx/%lx: Add %s to 0x%lx (len 0x%x)\n", (ulong)addr,
+	      (ulong)&member->type_len,  name, (ulong)&member->name, len);
+	memcpy(&member->name, name, len);
+
+	/* Add +1 for type_len parameter */
+	return 1 + len;
+}
+
+int fru_generate(unsigned long addr, char *manufacturer, char *board_name,
+		 char *serial_no, char *part_no)
+{
+	struct fru_common_hdr *header = (struct fru_common_hdr *)addr;
+	struct fru_board_info_header *board_info;
+	u8 *member;
+	u8 len, pad, modulo;
+
+	header->version = 1; /* Only version 1.0 is supported now */
+	header->off_internal = 0; /* not present */
+	header->off_chassis = 0; /* not present */
+	header->off_board = (sizeof(*header)) / 8; /* Starting offset 8 */
+	header->off_product = 0; /* not present */
+	header->off_multirec = 0; /* not present */
+	header->pad = 0;
+	/*
+	 * This unsigned byte can be used to calculate a zero checksum
+	 * for the data area following the header. I.e. the modulo 256 sum of
+	 * the record data bytes plus the checksum byte equals zero.
+	 */
+	header->crc = 0; /* Clear before calculation */
+	header->crc = 0 - fru_checksum((u8 *)header, sizeof(*header));
+
+	/* board info is just right after header */
+	board_info = (void *)((u8 *)header + sizeof(*header));
+
+	debug("header %lx, board_info %lx\n", (ulong)header, (ulong)board_info);
+
+	board_info->ver = 1; /* 1.0 spec */
+	board_info->lang_code = 0; /* English */
+	board_info->time[0] = 0; /* unspecified */
+	board_info->time[1] = 0; /* unspecified */
+	board_info->time[2] = 0; /* unspecified */
+
+	/* Member fields are just after board_info header */
+	member = (u8 *)board_info + sizeof(*board_info);
+
+	len = fru_gen_type_len(member, manufacturer); /* Board Manufacturer */
+	member += len;
+	len = fru_gen_type_len(member, board_name); /* Board Product name */
+	member += len;
+	len = fru_gen_type_len(member, serial_no); /* Board Serial number */
+	member += len;
+	len = fru_gen_type_len(member, part_no); /* Board part number */
+	member += len;
+	len = fru_gen_type_len(member, "U-Boot generator"); /* File ID */
+	member += len;
+
+	*member++ = 0xc1; /* Indication of no more fields */
+
+	len = member - (u8 *)board_info; /* Find current length */
+	len += 1; /* Add checksum there too for calculation */
+
+	modulo = len % 8;
+
+	if (modulo) {
+		/* Do not fill last item which is checksum */
+		for (pad = 0; pad < 8 - modulo; pad++)
+			*member++ = 0;
+
+		/* Increase structure size */
+		len += 8 - modulo;
+	}
+
+	board_info->len = len / 8; /* Size in multiples of 8 bytes */
+
+	*member = 0; /* Clear before calculation */
+	*member = 0 - fru_checksum((u8 *)board_info, len);
+
+	debug("checksum %x(len %x)\n", *member, len);
+
+	env_set_hex("fru_addr", addr);
+	env_set_hex("filesize", len);
+
+	return 0;
+}
+
 static int fru_parse_board(unsigned long addr)
 {
 	u8 i, type;
