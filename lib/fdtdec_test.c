@@ -155,11 +155,13 @@ static int make_fdt_carveout_device(void *fdt, uint32_t na, uint32_t ns)
 	};
 	fdt32_t cells[4], *ptr = cells;
 	uint32_t upper, lower;
+	fdt_size_t size;
 	char name[32];
 	int offset;
 
 	/* store one or two address cells */
-	lower = fdt_addr_unpack(carveout.start, &upper);
+	upper = upper_32_bits(carveout.start);
+	lower = lower_32_bits(carveout.start);
 
 	if (na > 1 && upper > 0)
 		snprintf(name, sizeof(name), "%s@%x,%x", basename, upper,
@@ -173,7 +175,9 @@ static int make_fdt_carveout_device(void *fdt, uint32_t na, uint32_t ns)
 	*ptr++ = cpu_to_fdt32(lower);
 
 	/* store one or two size cells */
-	lower = fdt_size_unpack(carveout.end - carveout.start + 1, &upper);
+	size = carveout.end - carveout.start + 1;
+	upper = upper_32_bits(size);
+	lower = lower_32_bits(size);
 
 	if (ns > 1)
 		*ptr++ = cpu_to_fdt32(upper);

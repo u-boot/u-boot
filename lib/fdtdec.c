@@ -1300,6 +1300,7 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	fdt32_t cells[4] = {}, *ptr = cells;
 	uint32_t upper, lower, phandle;
 	int parent, node, na, ns, err;
+	fdt_size_t size;
 	char name[64];
 
 	/* create an empty /reserved-memory node if one doesn't exist */
@@ -1340,7 +1341,8 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	 * Unpack the start address and generate the name of the new node
 	 * base on the basename and the unit-address.
 	 */
-	lower = fdt_addr_unpack(carveout->start, &upper);
+	upper = upper_32_bits(carveout->start);
+	lower = lower_32_bits(carveout->start);
 
 	if (na > 1 && upper > 0)
 		snprintf(name, sizeof(name), "%s@%x,%x", basename, upper,
@@ -1374,7 +1376,9 @@ int fdtdec_add_reserved_memory(void *blob, const char *basename,
 	*ptr++ = cpu_to_fdt32(lower);
 
 	/* store one or two size cells */
-	lower = fdt_size_unpack(carveout->end - carveout->start + 1, &upper);
+	size = carveout->end - carveout->start + 1;
+	upper = upper_32_bits(size);
+	lower = lower_32_bits(size);
 
 	if (ns > 1)
 		*ptr++ = cpu_to_fdt32(upper);
