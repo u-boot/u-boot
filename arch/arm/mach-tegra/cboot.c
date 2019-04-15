@@ -52,6 +52,18 @@ static u64 ram_top __attribute__((section(".data")));
 /* The base address of the region of RAM that ends at ram_top */
 static u64 region_base __attribute__((section(".data")));
 
+/*
+ * Explicitly put this in the .data section because it is written before the
+ * .bss section is zeroed out but it needs to persist.
+ */
+unsigned long cboot_boot_x0 __attribute__((section(".data")));
+
+void cboot_save_boot_params(unsigned long x0, unsigned long x1,
+			    unsigned long x2, unsigned long x3)
+{
+	cboot_boot_x0 = x0;
+}
+
 int cboot_dram_init(void)
 {
 	unsigned int na, ns;

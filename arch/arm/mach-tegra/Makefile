@@ -20,7 +20,7 @@ obj-$(CONFIG_TEGRA_PINCTRL) += pinmux-common.o
 obj-$(CONFIG_TEGRA_PMC) += powergate.o
 obj-y += xusb-padctl-dummy.o
 
-obj-$(CONFIG_ARM64) += arm64-mmu.o cboot_ll.o cboot.o
+obj-$(CONFIG_ARM64) += arm64-mmu.o cboot.o
 obj-y += dt-setup.o
 obj-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 obj-$(CONFIG_TEGRA_GPU) += gpu.o
