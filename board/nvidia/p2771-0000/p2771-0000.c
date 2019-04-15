@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <environment.h>
+#include <fdtdec.h>
 #include <i2c.h>
 #include <linux/libfdt.h>
 #include <asm/arch-tegra/cboot.h>
@@ -56,7 +57,7 @@ int tegra_pcie_board_init(void)
 }
 #endif
 
-int ft_board_setup(void *fdt, bd_t *bd)
+static void ft_mac_address_setup(void *fdt)
 {
 	const void *cboot_fdt = (const void *)cboot_boot_x0;
 	uint8_t mac[ETH_ALEN], local_mac[ETH_ALEN];
@@ -69,13 +70,15 @@ int ft_board_setup(void *fdt, bd_t *bd)
 
 	path = fdt_get_alias(fdt, "ethernet");
 	if (!path)
-		return 0;
+		return;
 
 	debug("ethernet alias found: %s\n", path);
 
 	offset = fdt_path_offset(fdt, path);
-	if (offset < 0)
-		return 0;
+	if (offset < 0) {
+		printf("ethernet alias points to absent node %s\n", path);
+		return;
+	}
 
 	if (is_valid_ethaddr(local_mac)) {
 		err = fdt_setprop(fdt, offset, "local-mac-address", local_mac,
@@ -92,6 +95,61 @@ int ft_board_setup(void *fdt, bd_t *bd)
 				debug("MAC address set: %pM\n", mac);
 		}
 	}
+}
+
+static int ft_copy_carveout(void *dst, const void *src, const char *node)
+{
+	struct fdt_memory fb;
+	int err;
+
+	err = fdtdec_get_carveout(src, node, "memory-region", 0, &fb);
+	if (err < 0) {
+		if (err != -FDT_ERR_NOTFOUND)
+			printf("failed to get carveout for %s: %d\n", node,
+			       err);
+
+		return err;
+	}
+
+	err = fdtdec_set_carveout(dst, node, "memory-region", 0, "framebuffer",
+				  &fb);
+	if (err < 0) {
+		printf("failed to set carveout for %s: %d\n", node, err);
+		return err;
+	}
+
+	return 0;
+}
+
+static void ft_carveout_setup(void *fdt)
+{
+	const void *cboot_fdt = (const void *)cboot_boot_x0;
+	static const char * const nodes[] = {
+		"/host1x@13e00000/display-hub@15200000/display@15200000",
+		"/host1x@13e00000/display-hub@15200000/display@15210000",
+		"/host1x@13e00000/display-hub@15200000/display@15220000",
+	};
+	unsigned int i;
+	int err;
+
+	for (i = 0; i < ARRAY_SIZE(nodes); i++) {
+		printf("copying carveout for %s...\n", nodes[i]);
+
+		err = ft_copy_carveout(fdt, cboot_fdt, nodes[i]);
+		if (err < 0) {
+			if (err != -FDT_ERR_NOTFOUND)
+				printf("failed to copy carveout for %s: %d\n",
+				       nodes[i], err);
+
+			continue;
+		}
+	}
+}
+
+int ft_board_setup(void *fdt, bd_t *bd)
+{
+	ft_mac_address_setup(fdt);
+	ft_carveout_setup(fdt);
 
 	return 0;
 }
