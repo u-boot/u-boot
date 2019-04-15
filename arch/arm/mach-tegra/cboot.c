@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <environment.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <stdlib.h>
@@ -465,46 +466,108 @@ static int set_fdt_addr(void)
  * Attempt to use /chosen/nvidia,ether-mac in the cboot DTB to U-Boot's
  * ethaddr environment variable if possible.
  */
-static int set_ethaddr_from_cboot(void)
+static int cboot_get_ethaddr_legacy(const void *fdt, uint8_t mac[ETH_ALEN])
 {
-	const void *cboot_blob = (void *)cboot_boot_x0;
-	int ret, node, len;
-	const u32 *prop;
+	const char *const properties[] = {
+		"nvidia,ethernet-mac",
+		"nvidia,ether-mac",
+	};
+	const char *prop;
+	unsigned int i;
+	int node, len;
 
-	/* Already a valid address in the environment? If so, keep it */
-	if (env_get("ethaddr"))
-		return 0;
-
-	node = fdt_path_offset(cboot_blob, "/chosen");
+	node = fdt_path_offset(fdt, "/chosen");
 	if (node < 0) {
 		printf("Can't find /chosen node in cboot DTB\n");
 		return node;
 	}
-	prop = fdt_getprop(cboot_blob, node, "nvidia,ether-mac", &len);
+
+	for (i = 0; i < ARRAY_SIZE(properties); i++) {
+		prop = fdt_getprop(fdt, node, properties[i], &len);
+		if (prop)
+			break;
+	}
+
 	if (!prop) {
-		printf("Can't find nvidia,ether-mac property in cboot DTB\n");
+		printf("Can't find Ethernet MAC address in cboot DTB\n");
 		return -ENOENT;
 	}
 
-	ret = env_set("ethaddr", (void *)prop);
-	if (ret) {
-		printf("Failed to set ethaddr from cboot DTB: %d\n", ret);
-		return ret;
+	eth_parse_enetaddr(prop, mac);
+
+	if (!is_valid_ethaddr(mac)) {
+		printf("Invalid MAC address: %s\n", prop);
+		return -EINVAL;
 	}
+
+	debug("Legacy MAC address: %pM\n", mac);
 
 	return 0;
 }
 
+int cboot_get_ethaddr(const void *fdt, uint8_t mac[ETH_ALEN])
+{
+	int node, len, err = 0;
+	const uchar *prop;
+	const char *path;
+
+	path = fdt_get_alias(fdt, "ethernet");
+	if (!path) {
+		err = -ENOENT;
+		goto out;
+	}
+
+	debug("ethernet alias found: %s\n", path);
+
+	node = fdt_path_offset(fdt, path);
+	if (node < 0) {
+		err = -ENOENT;
+		goto out;
+	}
+
+	prop = fdt_getprop(fdt, node, "local-mac-address", &len);
+	if (!prop) {
+		err = -ENOENT;
+		goto out;
+	}
+
+	if (len != ETH_ALEN) {
+		err = -EINVAL;
+		goto out;
+	}
+
+	debug("MAC address: %pM\n", prop);
+	memcpy(mac, prop, ETH_ALEN);
+
+out:
+	if (err < 0)
+		err = cboot_get_ethaddr_legacy(fdt, mac);
+
+	return err;
+}
+
 int cboot_late_init(void)
 {
+	const void *fdt = (const void *)cboot_boot_x0;
+	uint8_t mac[ETH_ALEN];
+	int err;
+
 	set_calculated_env_vars();
 	/*
 	 * Ignore errors here; the value may not be used depending on
 	 * extlinux.conf or boot script content.
 	 */
 	set_fdt_addr();
+
 	/* Ignore errors here; not all cases care about Ethernet addresses */
-	set_ethaddr_from_cboot();
+	err = cboot_get_ethaddr(fdt, mac);
+	if (!err) {
+		void *blob = (void *)gd->fdt_blob;
+
+		err = fdtdec_set_ethernet_mac_address(blob, mac, sizeof(mac));
+		if (err < 0)
+			printf("failed to set MAC address %pM: %d\n", mac, err);
+	}
 
 	return 0;
 }

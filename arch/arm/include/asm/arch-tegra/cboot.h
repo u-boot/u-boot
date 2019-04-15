@@ -14,6 +14,7 @@ void cboot_save_boot_params(unsigned long x0, unsigned long x1,
 int cboot_dram_init(void);
 int cboot_dram_init_banksize(void);
 ulong cboot_get_usable_ram_top(ulong total_size);
+int cboot_get_ethaddr(const void *fdt, uint8_t mac[ETH_ALEN]);
 #else
 static inline void cboot_save_boot_params(unsigned long x0, unsigned long x1,
 					  unsigned long x2, unsigned long x3)
@@ -33,6 +34,11 @@ static inline int cboot_dram_init_banksize(void)
 static inline ulong cboot_get_usable_ram_top(ulong total_size)
 {
 	return 0;
+}
+
+static inline int cboot_get_ethaddr(const void *fdt, uint8_t mac[ETH_ALEN])
+{
+	return -ENOSYS;
 }
 #endif
 
