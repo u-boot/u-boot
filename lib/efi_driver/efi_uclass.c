@@ -300,9 +300,6 @@ efi_status_t efi_driver_init(void)
 	struct driver *drv;
 	efi_status_t ret = EFI_SUCCESS;
 
-	/* Save 'gd' pointer */
-	efi_save_gd();
-
 	debug("EFI: Initializing EFI driver framework\n");
 	for (drv = ll_entry_start(struct driver, driver);
 	     drv < ll_entry_end(struct driver, driver); ++drv) {

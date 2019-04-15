@@ -344,6 +344,9 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
 				 void *protocol_interface);
 /* Delete all protocols from a handle */
 efi_status_t efi_remove_all_protocols(const efi_handle_t handle);
+/* Install multiple protocol interfaces */
+efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
+				(efi_handle_t *handle, ...);
 /* Call this to create an event */
 efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      void (EFIAPI *notify_function) (

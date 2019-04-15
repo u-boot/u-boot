@@ -14,9 +14,11 @@ and boot loaders like GRUB or the FreeBSD loader can be executed.
 
 ## Development target
 
-The implementation of UEFI in U-Boot strives to reach the minimum requirements
-described in "Server Base Boot Requirements System Software on ARM Platforms -
-Version 1.1" [4].
+The implementation of UEFI in U-Boot strives to reach the requirements described
+in the "Embedded Base Boot Requirements (EBBR) Specification - Release v1.0"
+[4]. The "Server Base Boot Requirements System Software on ARM Platforms" [5]
+describes a superset of the EBBR specification and may be used as further
+reference.
 
 A full blown UEFI implementation would contradict the U-Boot design principle
 "keep it small".
@@ -344,5 +346,7 @@ This driver is only available if U-Boot is configured with
   http://uefi.org/specifications - UEFI specifications
 * [2](./driver-model/README.txt) doc/driver-model/README.txt - Driver model
 * [3](./README.iscsi) doc/README.iscsi - iSCSI booting with U-Boot and iPXE
-* [4](https://developer.arm.com/docs/den0044/latest/server-base-boot-requirements-system-software-on-arm-platforms-version-11)
+* [4](https://github.com/ARM-software/ebbr/releases/download/v1.0/ebbr-v1.0.pdf)
+  Embedded Base Boot Requirements (EBBR) Specification - Release v1.0
+* [5](https://developer.arm.com/docs/den0044/latest/server-base-boot-requirements-system-software-on-arm-platforms-version-11)
   Server Base Boot Requirements System Software on ARM Platforms - Version 1.1

@@ -26,6 +26,16 @@ config EFI_UNICODE_CAPITALIZATION
 	  set, only the the correct handling of the letters of the codepage
 	  used by the FAT file system is ensured.
 
+config EFI_PLATFORM_LANG_CODES
+	string "Language codes supported by firmware"
+	depends on EFI_LOADER
+	default "en-US"
+	help
+	  This value is used to initialize the PlatformLangCodes variable. Its
+	  value is a semicolon (;) separated list of language codes in native
+	  RFC 4646 format, e.g. "en-US;de-DE". The first language code is used
+	  to initialize the PlatformLang variable.
+
 config EFI_LOADER_BOUNCE_BUFFER
 	bool "EFI Applications use bounce buffers for DMA operations"
 	depends on EFI_LOADER && ARM64
@@ -38,14 +48,11 @@ config EFI_LOADER_BOUNCE_BUFFER
 config EFI_LOADER_HII
 	bool "Expose HII protocols to EFI applications"
 	depends on EFI_LOADER
-	default n
+	default y
 	help
 	  The Human Interface Infrastructure is a complicated framework that
 	  allows UEFI applications to draw fancy menus and hook strings using
 	  a translation framework.
 
 	  U-Boot implements enough of its features to be able to run the UEFI
-	  Shell, but not more than that. The code is experimental still, so
-	  beware that your system might break with HII enabled.
-
-	  If unsure, say n.
+	  Shell, but not more than that.
