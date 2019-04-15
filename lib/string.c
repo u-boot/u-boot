@@ -326,6 +326,29 @@ char * strdup(const char *s)
 }
 #endif
 
+char * strndup(const char *s, size_t n)
+{
+	size_t len;
+	char *new;
+
+	if (s == NULL)
+		return NULL;
+
+	len = strlen(s);
+
+	if (n < len)
+		len = n;
+
+	new = malloc(len + 1);
+	if (new == NULL)
+		return NULL;
+
+	strncpy(new, s, len);
+	new[len] = '\0';
+
+	return new;
+}
+
 #ifndef __HAVE_ARCH_STRSPN
 /**
  * strspn - Calculate the length of the initial substring of @s which only
