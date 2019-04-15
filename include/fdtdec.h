@@ -997,6 +997,30 @@ int fdtdec_setup_memory_banksize_fdt(const void *blob);
 int fdtdec_setup_memory_banksize(void);
 
 /**
+ * fdtdec_set_ethernet_mac_address() - set MAC address for default interface
+ *
+ * Looks up the default interface via the "ethernet" alias (in the /aliases
+ * node) and stores the given MAC in its "local-mac-address" property. This
+ * is useful on platforms that store the MAC address in a custom location.
+ * Board code can call this in the late init stage to make sure that the
+ * interface device tree node has the right MAC address configured for the
+ * Ethernet uclass to pick it up.
+ *
+ * Typically the FDT passed into this function will be U-Boot's control DTB.
+ * Given that a lot of code may be holding offsets to various nodes in that
+ * tree, this code will only set the "local-mac-address" property in-place,
+ * which means that it needs to exist and have space for the 6-byte address.
+ * This ensures that the operation is non-destructive and does not invalidate
+ * offsets that other drivers may be using.
+ *
+ * @param fdt FDT blob
+ * @param mac buffer containing the MAC address to set
+ * @param size size of MAC address
+ * @return 0 on success or a negative error code on failure
+ */
+int fdtdec_set_ethernet_mac_address(void *fdt, const u8 *mac, size_t size);
+
+/**
  * fdtdec_set_phandle() - sets the phandle of a given node
  *
  * @param blob		FDT blob
