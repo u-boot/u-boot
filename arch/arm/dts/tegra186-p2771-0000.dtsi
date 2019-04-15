@@ -9,6 +9,7 @@
 	};
 
 	aliases {
+		ethernet = "/ethernet@2490000";
 		mmc0 = "/sdhci@3460000";
 		mmc1 = "/sdhci@3400000";
 		i2c0 = "/bpmp/i2c";
@@ -28,6 +29,7 @@
 	ethernet@2490000 {
 		status = "okay";
 		phy-reset-gpios = <&gpio_main TEGRA_MAIN_GPIO(M, 4) GPIO_ACTIVE_LOW>;
+		local-mac-address = [ 00 00 00 00 00 00 ];
 	};
 
 	i2c@3160000 {
