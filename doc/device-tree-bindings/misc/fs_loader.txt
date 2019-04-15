@@ -12,6 +12,7 @@ Required properties:
 	   required for ubi and mounting.
 - ubivol: which volume of ubi the image loading from, this property is required
 	  for ubi and mounting.
+- sfconfig: should only contain "bus number" and "chip selection".
 
 Example of storage device and partition search set for mmc, usb, sata and
 ubi in device tree source as shown in below:
@@ -45,4 +46,11 @@ ubi in device tree source as shown in below:
 		compatible = "u-boot,fs-loader";
 		mtdpart = "UBI",
 		ubivol = "ubi0";
+	};
+
+	Example for qspi:
+	fs_loader4: fs-loader@4 {
+		bootph-all;
+		compatible = "u-boot,fs-loader";
+		sfconfig = <0 0>;
 	};
