@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
+#include <asm/arch-tegra/cboot.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/pmu.h>
@@ -51,6 +52,7 @@ __weak void pin_mux_mmc(void) {}
 __weak void gpio_early_init_uart(void) {}
 __weak void pin_mux_display(void) {}
 __weak void start_cpu_fan(void) {}
+__weak void cboot_late_init(void) {}
 
 #if defined(CONFIG_TEGRA_NAND)
 __weak void pin_mux_nand(void)
@@ -243,6 +245,7 @@ int board_late_init(void)
 	}
 #endif
 	start_cpu_fan();
+	cboot_late_init();
 
 	return 0;
 }
@@ -337,6 +340,15 @@ static ulong usable_ram_size_below_4g(void)
  */
 int dram_init_banksize(void)
 {
+	int err;
+
+	/* try to compute DRAM bank size based on cboot DTB first */
+	err = cboot_dram_init_banksize();
+	if (err == 0)
+		return err;
+
+	/* fall back to default DRAM bank size computation */
+
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = usable_ram_size_below_4g();
 
@@ -370,5 +382,14 @@ int dram_init_banksize(void)
  */
 ulong board_get_usable_ram_top(ulong total_size)
 {
+	ulong ram_top;
+
+	/* try to get top of usable RAM based on cboot DTB first */
+	ram_top = cboot_get_usable_ram_top(total_size);
+	if (ram_top > 0)
+		return ram_top;
+
+	/* fall back to default usable RAM computation */
+
 	return CONFIG_SYS_SDRAM_BASE + usable_ram_size_below_4g();
 }

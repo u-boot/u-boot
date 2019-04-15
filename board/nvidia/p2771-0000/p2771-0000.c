@@ -7,7 +7,7 @@
 #include <i2c.h>
 #include "../p2571/max77620_init.h"
 
-int tegra_board_init(void)
+void pin_mux_mmc(void)
 {
 	struct udevice *dev;
 	uchar val;
@@ -18,19 +18,18 @@ int tegra_board_init(void)
 	ret = i2c_get_chip_for_busnum(0, MAX77620_I2C_ADDR_7BIT, 1, &dev);
 	if (ret) {
 		printf("%s: Cannot find MAX77620 I2C chip\n", __func__);
-		return ret;
+		return;
 	}
 	/* 0xF2 for 3.3v, enabled: bit7:6 = 11 = enable, bit5:0 = voltage */
 	val = 0xF2;
 	ret = dm_i2c_write(dev, MAX77620_CNFG1_L3_REG, &val, 1);
 	if (ret) {
 		printf("i2c_write 0 0x3c 0x27 failed: %d\n", ret);
-		return ret;
+		return;
 	}
-
-	return 0;
 }
 
+#ifdef CONFIG_PCI_TEGRA
 int tegra_pcie_board_init(void)
 {
 	struct udevice *dev;
@@ -52,3 +51,4 @@ int tegra_pcie_board_init(void)
 
 	return 0;
 }
+#endif

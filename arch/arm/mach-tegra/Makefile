@@ -5,7 +5,6 @@
 # (C) Copyright 2000-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 
-ifndef CONFIG_TEGRA186
 ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
 obj-y += cpu.o
@@ -20,9 +19,8 @@ obj-$(CONFIG_TEGRA_CLKRST) += clock.o
 obj-$(CONFIG_TEGRA_PINCTRL) += pinmux-common.o
 obj-$(CONFIG_TEGRA_PMC) += powergate.o
 obj-y += xusb-padctl-dummy.o
-endif
 
-obj-$(CONFIG_ARM64) += arm64-mmu.o
+obj-$(CONFIG_ARM64) += arm64-mmu.o cboot_ll.o cboot.o
 obj-y += dt-setup.o
 obj-$(CONFIG_TEGRA_CLOCK_SCALING) += emc.o
 obj-$(CONFIG_TEGRA_GPU) += gpu.o

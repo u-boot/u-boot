@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Save nvtboot-related boot-time CPU state
+ * Save cboot-related boot-time CPU state
  *
  * (C) Copyright 2015-2016 NVIDIA Corporation <www.nvidia.com>
  */
@@ -9,12 +9,12 @@
 #include <linux/linkage.h>
 
 .align 8
-.globl	nvtboot_boot_x0
-nvtboot_boot_x0:
+.globl	cboot_boot_x0
+cboot_boot_x0:
 	.dword 0
 
-ENTRY(save_boot_params)
-	adr	x8, nvtboot_boot_x0
+ENTRY(cboot_save_boot_params)
+	adr	x8, cboot_boot_x0
 	str	x0, [x8]
 	b	save_boot_params_ret
-ENDPROC(save_boot_params)
+ENDPROC(cboot_save_boot_params)
