@@ -259,6 +259,43 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 	priv->escape = 0;
 
 	switch (ch) {
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F': {
+		int row, col, num;
+		char *s = priv->escape_buf;
+
+		/*
+		 * Cursor up/down: [%dA, [%dB, [%dE, [%dF
+		 * Cursor left/right: [%dD, [%dC
+		 */
+		s++;    /* [ */
+		s = parsenum(s, &num);
+		if (num == 0)			/* No digit in sequence ... */
+			num = 1;		/* ... means "move by 1". */
+
+		get_cursor_position(priv, &row, &col);
+		if (ch == 'A' || ch == 'F')
+			row -= num;
+		if (ch == 'C')
+			col += num;
+		if (ch == 'D')
+			col -= num;
+		if (ch == 'B' || ch == 'E')
+			row += num;
+		if (ch == 'E' || ch == 'F')
+			col = 0;
+		if (col < 0)
+			col = 0;
+		if (row < 0)
+			row = 0;
+		/* Right and bottom overflows are handled in the callee. */
+		set_cursor_position(priv, row, col);
+		break;
+	}
 	case 'H':
 	case 'f': {
 		int row, col;
@@ -306,6 +343,25 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 			priv->xcur_frac = priv->xstart_frac;
 		} else {
 			debug("unsupported clear mode: %d\n", mode);
+		}
+		break;
+	}
+	case 'K': {
+		struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+		int mode;
+
+		/*
+		 * Clear (parts of) current line
+		 *   [0K       - clear line to end
+		 *   [2K       - clear entire line
+		 */
+		parsenum(priv->escape_buf + 1, &mode);
+
+		if (mode == 2) {
+			int row, col;
+
+			get_cursor_position(priv, &row, &col);
+			vidconsole_set_row(dev, row, vid_priv->colour_bg);
 		}
 		break;
 	}
@@ -360,6 +416,13 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 				vid_priv->colour_fg = vid_console_color(
 						vid_priv, vid_priv->fg_col_idx);
 				break;
+			case 7:
+				/* reverse video */
+				vid_priv->colour_fg = vid_console_color(
+						vid_priv, vid_priv->bg_col_idx);
+				vid_priv->colour_bg = vid_console_color(
+						vid_priv, vid_priv->fg_col_idx);
+				break;
 			case 30 ... 37:
 				/* foreground color */
 				vid_priv->fg_col_idx &= ~7;
@@ -368,9 +431,11 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 						vid_priv, vid_priv->fg_col_idx);
 				break;
 			case 40 ... 47:
-				/* background color */
+				/* background color, also mask the bold bit */
+				vid_priv->bg_col_idx &= ~0xf;
+				vid_priv->bg_col_idx |= val - 40;
 				vid_priv->colour_bg = vid_console_color(
-							vid_priv, val - 40);
+						vid_priv, vid_priv->bg_col_idx);
 				break;
 			default:
 				/* ignore unsupported SGR parameter */
@@ -390,6 +455,32 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
 error:
 	/* something went wrong, just revert to normal mode: */
 	priv->escape = 0;
+}
+
+/* Put that actual character on the screen (using the CP437 code page). */
+static int vidconsole_output_glyph(struct udevice *dev, char ch)
+{
+	struct vidconsole_priv *priv = dev_get_uclass_priv(dev);
+	int ret;
+
+	/*
+	 * Failure of this function normally indicates an unsupported
+	 * colour depth. Check this and return an error to help with
+	 * diagnosis.
+	 */
+	ret = vidconsole_putc_xy(dev, priv->xcur_frac, priv->ycur, ch);
+	if (ret == -EAGAIN) {
+		vidconsole_newline(dev);
+		ret = vidconsole_putc_xy(dev, priv->xcur_frac, priv->ycur, ch);
+	}
+	if (ret < 0)
+		return ret;
+	priv->xcur_frac += ret;
+	priv->last_ch = ch;
+	if (priv->xcur_frac >= priv->xsize_frac)
+		vidconsole_newline(dev);
+
+	return 0;
 }
 
 int vidconsole_put_char(struct udevice *dev, char ch)
@@ -429,23 +520,9 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 		priv->last_ch = 0;
 		break;
 	default:
-		/*
-		 * Failure of this function normally indicates an unsupported
-		 * colour depth. Check this and return an error to help with
-		 * diagnosis.
-		 */
-		ret = vidconsole_putc_xy(dev, priv->xcur_frac, priv->ycur, ch);
-		if (ret == -EAGAIN) {
-			vidconsole_newline(dev);
-			ret = vidconsole_putc_xy(dev, priv->xcur_frac,
-						 priv->ycur, ch);
-		}
+		ret = vidconsole_output_glyph(dev, ch);
 		if (ret < 0)
 			return ret;
-		priv->xcur_frac += ret;
-		priv->last_ch = ch;
-		if (priv->xcur_frac >= priv->xsize_frac)
-			vidconsole_newline(dev);
 		break;
 	}
 

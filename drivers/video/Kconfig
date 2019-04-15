@@ -120,7 +120,7 @@ config CONSOLE_TRUETYPE_SIZE
 
 config SYS_WHITE_ON_BLACK
 	bool "Display console as white on a black background"
-	default y if ARCH_AT91 || ARCH_EXYNOS || ARCH_ROCKCHIP || TEGRA || X86
+	default y if ARCH_AT91 || ARCH_EXYNOS || ARCH_ROCKCHIP || TEGRA || X86 || ARCH_SUNXI
 	help
 	 Normally the display is black on a white background, Enable this
 	 option to invert this, i.e. white on a black background. This can be

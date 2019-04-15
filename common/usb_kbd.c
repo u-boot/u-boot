@@ -145,6 +145,12 @@ static void usb_kbd_put_queue(struct usb_kbd_pdata *data, char c)
 	data->usb_kbd_buffer[data->usb_in_pointer] = c;
 }
 
+static void usb_kbd_put_sequence(struct usb_kbd_pdata *data, char *s)
+{
+	for (; *s; s++)
+		usb_kbd_put_queue(data, *s);
+}
+
 /*
  * Set the LEDs. Since this is used in the irq routine, the control job is
  * issued with a timeout of 0. This means, that the job is queued without
@@ -235,9 +241,25 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
 	}
 
 	/* Report keycode if any */
-	if (keycode) {
+	if (keycode)
 		debug("%c", keycode);
+
+	switch (keycode) {
+	case 0x0e:					/* Down arrow key */
+		usb_kbd_put_sequence(data, "\e[B");
+		break;
+	case 0x10:					/* Up arrow key */
+		usb_kbd_put_sequence(data, "\e[A");
+		break;
+	case 0x06:					/* Right arrow key */
+		usb_kbd_put_sequence(data, "\e[C");
+		break;
+	case 0x02:					/* Left arrow key */
+		usb_kbd_put_sequence(data, "\e[D");
+		break;
+	default:
 		usb_kbd_put_queue(data, keycode);
+		break;
 	}
 
 	return 0;
