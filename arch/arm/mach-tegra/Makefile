@@ -16,7 +16,7 @@ endif
 obj-y += ap.o
 obj-y += board.o board2.o
 obj-y += cache.o
-obj-y += clock.o
+obj-$(CONFIG_TEGRA_CLKRST) += clock.o
 obj-y += pinmux-common.o
 obj-y += powergate.o
 obj-y += xusb-padctl-dummy.o

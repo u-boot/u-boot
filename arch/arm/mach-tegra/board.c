@@ -9,7 +9,9 @@
 #include <ns16550.h>
 #include <spl.h>
 #include <asm/io.h>
+#if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 #include <asm/arch/clock.h>
+#endif
 #include <asm/arch/funcmux.h>
 #include <asm/arch/mc.h>
 #include <asm/arch/tegra.h>
