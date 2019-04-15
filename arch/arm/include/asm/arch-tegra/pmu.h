@@ -4,10 +4,10 @@
  *  NVIDIA Corporation <www.nvidia.com>
  */
 
-#ifndef _ARCH_PMU_H_
-#define _ARCH_PMU_H_
+#ifndef _TEGRA_PMU_H_
+#define _TEGRA_PMU_H_
 
 /* Set core and CPU voltages to nominal levels */
 int pmu_set_nominal(void);
 
-#endif	/* _ARCH_PMU_H_ */
+#endif	/* _TEGRA_PMU_H_ */

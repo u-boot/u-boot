@@ -15,6 +15,7 @@
 #include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
+#include <asm/arch-tegra/pmu.h>
 #include <asm/arch-tegra/sys_proto.h>
 #include <asm/arch-tegra/uart.h>
 #include <asm/arch-tegra/warmboot.h>
@@ -24,7 +25,6 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch/pmu.h>
 #include <asm/arch/tegra.h>
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 #include <asm/arch/emc.h>
