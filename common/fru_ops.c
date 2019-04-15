@@ -10,7 +10,6 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include "linux/crc8.h"
 
 struct fru_table fru_data  __attribute__((section(".data")));
 
@@ -32,6 +31,18 @@ static int fru_check_language(u8 code)
 	}
 
 	return code;
+}
+
+static u8 fru_checksum(u8 *addr, u8 len)
+{
+	u8 checksum = 0;
+
+	while (len--) {
+		checksum += *addr;
+		addr++;
+	}
+
+	return checksum;
 }
 
 static int fru_check_type_len(u8 type_len, u8 language, u8 *type)
@@ -88,22 +99,15 @@ static int fru_parse_board(unsigned long addr)
 int fru_capture(unsigned long addr)
 {
 	struct fru_common_hdr *hdr;
-	u8 crc = 0;
-	u8 len;
-	u8 *temp = (u8 *)addr;
+	u8 checksum = 0;
 
-	hdr = (struct fru_common_hdr *)addr;
-	len = sizeof(struct fru_common_hdr);
-
-	while(len--) {
-		crc += *temp;
-		temp++;
-	}
-
-	if (crc) {
+	checksum = fru_checksum((u8 *)addr, sizeof(struct fru_common_hdr));
+	if (checksum) {
 		printf("%s Common header CRC error\n", __func__);
 		return -EINVAL;
 	}
+
+	hdr = (struct fru_common_hdr *)addr;
 
 	memcpy((void *)&fru_data.hdr, (void *)hdr,
 	       sizeof(struct fru_common_hdr));
