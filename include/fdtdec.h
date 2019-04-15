@@ -1029,7 +1029,10 @@ int fdtdec_setup_memory_banksize(void);
  * @param phandle	phandle to set for the given node
  * @return 0 on success or a negative error code on failure
  */
-int fdtdec_set_phandle(void *blob, int node, uint32_t phandle);
+static inline int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
+{
+	return fdt_setprop_u32(blob, node, "phandle", phandle);
+}
 
 /**
  * fdtdec_add_reserved_memory() - add or find a reserved-memory node
