@@ -161,18 +161,18 @@ static const struct mx6_mmdc_calibration dhcom_mmdc_calib_2x4g_800 = {
 };
 
 static const struct mx6_mmdc_calibration dhcom_mmdc_calib_4x2g_1066 = {
-	.p0_mpwldectrl0	= 0x0011000E,
-	.p0_mpwldectrl1	= 0x000E001B,
-	.p1_mpwldectrl0	= 0x00190015,
-	.p1_mpwldectrl1	= 0x00070018,
-	.p0_mpdgctrl0	= 0x42720306,
-	.p0_mpdgctrl1	= 0x026F0266,
-	.p1_mpdgctrl0	= 0x4273030A,
-	.p1_mpdgctrl1	= 0x02740240,
-	.p0_mprddlctl	= 0x45393B3E,
-	.p1_mprddlctl	= 0x403A3747,
-	.p0_mpwrdlctl	= 0x40434541,
-	.p1_mpwrdlctl	= 0x473E4A3B,
+	.p0_mpwldectrl0	= 0x001a001a,
+	.p0_mpwldectrl1	= 0x00260015,
+	.p0_mpdgctrl0	= 0x030c0320,
+	.p0_mpdgctrl1	= 0x03100304,
+	.p0_mprddlctl	= 0x432e3538,
+	.p0_mpwrdlctl	= 0x363f423d,
+	.p1_mpwldectrl0	= 0x0006001e,
+	.p1_mpwldectrl1	= 0x00050015,
+	.p1_mpdgctrl0	= 0x031c0324,
+	.p1_mpdgctrl1	= 0x030c0258,
+	.p1_mprddlctl	= 0x3834313f,
+	.p1_mpwrdlctl	= 0x47374a42,
 };
 
 static const struct mx6_mmdc_calibration dhcom_mmdc_calib_4x2g_800 = {
