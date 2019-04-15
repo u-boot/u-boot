@@ -29,7 +29,7 @@ static int mfgr_fuse(void)
 		return CMD_RET_FAILURE;
 	}
 	/* boot cfg */
-	fuse_prog(0, 5, 0x00005072);
+	fuse_prog(0, 5, 0x00005062);
 	/* BT_FUSE_SEL */
 	fuse_prog(0, 6, 0x00000010);
 	return CMD_RET_SUCCESS;

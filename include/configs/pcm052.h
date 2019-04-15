@@ -9,6 +9,7 @@
 #define __CONFIG_H
 
 #include <asm/arch/imx-regs.h>
+#include <linux/sizes.h>
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -16,7 +17,7 @@
 #define CONFIG_CMDLINE_TAG
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * SZ_1M)
 
 /* Allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -24,47 +25,13 @@
 /* NAND support */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
-#ifdef CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define CONFIG_SYS_NAND_BASE		NFC_BASE_ADDR
-
-#define CONFIG_JFFS2_NAND
-
-/* Dynamic MTD partition support */
-
-#endif
-
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_ESDHC_NUM	1
-
-/*#define CONFIG_ESDHC_DETECT_USE_EXTERN_IRQ1*/
-
-#define CONFIG_FEC_MXC
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RMII
-#define CONFIG_FEC_MXC_PHYADDR          0
-
 /* QSPI Configs*/
-
 #ifdef CONFIG_FSL_QSPI
-#define FSL_QSPI_FLASH_SIZE		(1 << 24)
+#define FSL_QSPI_FLASH_SIZE		(SZ_16M)
 #define FSL_QSPI_FLASH_NUM		2
 #define CONFIG_SYS_FSL_QSPI_LE
 #endif
-
-/* I2C Configs */
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC_I2C3
-#define CONFIG_SYS_I2C_MXC
-
-/* RTC (actually an RV-4162 but M41T62-compatible) */
-#define CONFIG_SYS_I2C_RTC_ADDR 0x68
-#define CONFIG_SYS_RTC_BUS_NUM 2
-
-/* EEPROM (24FC256) */
-#define CONFIG_SYS_I2C_EEPROM_ADDR 0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2
-#define CONFIG_SYS_I2C_EEPROM_BUS 2
 
 
 #define CONFIG_LOADADDR			0x82000000
@@ -188,7 +155,7 @@
 
 /* Physical memory map */
 #define PHYS_SDRAM			(0x80000000)
-#define PHYS_SDRAM_SIZE			(CONFIG_PCM052_DDR_SIZE * 1024 * 1024)
+#define PHYS_SDRAM_SIZE			(CONFIG_PCM052_DDR_SIZE * SZ_1M)
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -201,17 +168,17 @@
 
 /* environment organization */
 #ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_SIZE			(8 * 1024)
+#define CONFIG_ENV_SIZE			(SZ_8K)
 
-#define CONFIG_ENV_OFFSET		(12 * 64 * 1024)
+#define CONFIG_ENV_OFFSET		(12 * SZ_64K)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_SECT_SIZE		(128 * 1024)
-#define CONFIG_ENV_SIZE			(8 * 1024)
+#define CONFIG_ENV_SECT_SIZE		(SZ_128K)
+#define CONFIG_ENV_SIZE			(SZ_8K)
 #define CONFIG_ENV_OFFSET		0xA0000
-#define CONFIG_ENV_SIZE_REDUND		(8 * 1024)
+#define CONFIG_ENV_SIZE_REDUND		(SZ_8K)
 #define CONFIG_ENV_OFFSET_REDUND	0xC0000
 #endif
 

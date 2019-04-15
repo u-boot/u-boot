@@ -261,7 +261,7 @@ int read_tdx_cfg_block(void)
 	}
 
 	/* Cap product id to avoid issues with a yet unknown one */
-	if (tdx_hw_tag.prodid > (sizeof(toradex_modules) /
+	if (tdx_hw_tag.prodid >= (sizeof(toradex_modules) /
 				  sizeof(toradex_modules[0])))
 		tdx_hw_tag.prodid = 0;
 
@@ -418,6 +418,7 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 	int offset = 0;
 	int ret = CMD_RET_SUCCESS;
 	int err;
+	int force_overwrite = 0;
 
 	/* Allocate RAM area for config block */
 	config_block = memalign(ARCH_DMA_MINALIGN, size);
@@ -427,6 +428,11 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	memset(config_block, 0xff, size);
+
+	if (argc >= 3) {
+		if (argv[2][0] == '-' && argv[2][1] == 'y')
+			force_overwrite = 1;
+	}
 
 	read_tdx_cfg_block();
 	if (valid_cfgblock) {
@@ -448,24 +454,31 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 		       CONFIG_TDX_CFG_BLOCK_OFFSET);
 		goto out;
 #else
-		char message[CONFIG_SYS_CBSIZE];
-		sprintf(message,
-			"A valid Toradex config block is present, still recreate? [y/N] ");
+		if (!force_overwrite) {
+			char message[CONFIG_SYS_CBSIZE];
 
-		if (!cli_readline(message))
-			goto out;
+			sprintf(message,
+				"A valid Toradex config block is present, still recreate? [y/N] ");
 
-		if (console_buffer[0] != 'y' && console_buffer[0] != 'Y')
-			goto out;
+			if (!cli_readline(message))
+				goto out;
+
+			if (console_buffer[0] != 'y' &&
+			    console_buffer[0] != 'Y')
+				goto out;
+		}
 #endif
 	}
 
 	/* Parse new Toradex config block data... */
-	if (argc < 3)
+	if (argc < 3 || (force_overwrite && argc < 4)) {
 		err = get_cfgblock_interactive();
-	else
-		err = get_cfgblock_barcode(argv[2]);
-
+	} else {
+		if (force_overwrite)
+			err = get_cfgblock_barcode(argv[3]);
+		else
+			err = get_cfgblock_barcode(argv[2]);
+	}
 	if (err) {
 		ret = CMD_RET_FAILURE;
 		goto out;
@@ -549,8 +562,8 @@ static int do_cfgblock(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(
-	cfgblock, 3, 0, do_cfgblock,
+	cfgblock, 4, 0, do_cfgblock,
 	"Toradex config block handling commands",
-	"create [barcode] - (Re-)create Toradex config block\n"
+	"create [-y] [barcode] - (Re-)create Toradex config block\n"
 	"cfgblock reload - Reload Toradex config block from flash"
 );

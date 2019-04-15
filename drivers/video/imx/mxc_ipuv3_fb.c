@@ -17,12 +17,16 @@
 #include <linux/list.h>
 #include <linux/fb.h>
 #include <asm/io.h>
+#include <asm/mach-imx/video.h>
 #include <malloc.h>
 #include <video_fb.h>
-#include "videomodes.h"
+#include "../videomodes.h"
 #include "ipu.h"
 #include "mxcfb.h"
 #include "ipu_regs.h"
+
+#include <dm.h>
+#include <video.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -401,8 +405,14 @@ static int mxcfb_map_video_memory(struct fb_info *fbi)
 				    fbi->fix.line_length;
 	}
 	fbi->fix.smem_len = roundup(fbi->fix.smem_len, ARCH_DMA_MINALIGN);
+
+#if CONFIG_IS_ENABLED(DM_VIDEO)
+	fbi->screen_base = (char *)gd->video_bottom;
+#else
 	fbi->screen_base = (char *)memalign(ARCH_DMA_MINALIGN,
 					    fbi->fix.smem_len);
+#endif
+
 	fbi->fix.smem_start = (unsigned long)fbi->screen_base;
 	if (fbi->screen_base == 0) {
 		puts("Unable to allocate framebuffer memory\n");
@@ -416,7 +426,9 @@ static int mxcfb_map_video_memory(struct fb_info *fbi)
 
 	fbi->screen_size = fbi->fix.smem_len;
 
+#if CONFIG_IS_ENABLED(VIDEO)
 	gd->fb_base = fbi->fix.smem_start;
+#endif
 
 	/* Clear the screen */
 	memset((char *)fbi->screen_base, 0, fbi->fix.smem_len);
@@ -611,3 +623,78 @@ int ipuv3_fb_init(struct fb_videomode const *mode,
 
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(DM_VIDEO)
+enum {
+	/* Maximum display size we support */
+	LCD_MAX_WIDTH		= 1920,
+	LCD_MAX_HEIGHT		= 1080,
+	LCD_MAX_LOG2_BPP	= VIDEO_BPP16,
+};
+
+static int ipuv3_video_probe(struct udevice *dev)
+{
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	u32 fb_start, fb_end;
+	int ret;
+
+	debug("%s() plat: base 0x%lx, size 0x%x\n",
+	      __func__, plat->base, plat->size);
+
+	ret = ipu_probe();
+	if (ret)
+		return ret;
+
+	ret = ipu_displays_init();
+	if (ret < 0)
+		return ret;
+
+	ret = mxcfb_probe(gpixfmt, gdisp, gmode);
+	if (ret < 0)
+		return ret;
+
+	uc_priv->xsize = gmode->xres;
+	uc_priv->ysize = gmode->yres;
+	uc_priv->bpix = LCD_MAX_LOG2_BPP;
+
+	/* Enable dcache for the frame buffer */
+	fb_start = plat->base & ~(MMU_SECTION_SIZE - 1);
+	fb_end = plat->base + plat->size;
+	fb_end = ALIGN(fb_end, 1 << MMU_SECTION_SHIFT);
+	mmu_set_region_dcache_behaviour(fb_start, fb_end - fb_start,
+					DCACHE_WRITEBACK);
+	video_set_flush_dcache(dev, true);
+
+	return 0;
+}
+
+struct ipuv3_video_priv {
+	ulong regs;
+};
+
+static int ipuv3_video_bind(struct udevice *dev)
+{
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+
+	plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
+		     (1 << LCD_MAX_LOG2_BPP) / 8;
+
+	return 0;
+}
+
+static const struct udevice_id ipuv3_video_ids[] = {
+	{ .compatible = "fsl,imx6q-ipu" },
+	{ }
+};
+
+U_BOOT_DRIVER(ipuv3_video) = {
+	.name	= "ipuv3_video",
+	.id	= UCLASS_VIDEO,
+	.of_match = ipuv3_video_ids,
+	.bind	= ipuv3_video_bind,
+	.probe	= ipuv3_video_probe,
+	.priv_auto_alloc_size = sizeof(struct ipuv3_video_priv),
+	.flags	= DM_FLAG_PRE_RELOC,
+};
+#endif /* CONFIG_DM_VIDEO */

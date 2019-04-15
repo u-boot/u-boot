@@ -5,6 +5,7 @@
 
 /dts-v1/;
 #include "vf-colibri.dtsi"
+#include "vf-colibri-u-boot.dtsi"
 
 / {
 	model = "Toradex Colibri VF61";

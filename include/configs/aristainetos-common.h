@@ -187,7 +187,6 @@
 /* UBI support */
 
 /* Framebuffer */
-#define CONFIG_VIDEO_IPUV3
 /* check this console not needed, after test remove it */
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN

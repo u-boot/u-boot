@@ -1,48 +1,41 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright 2015 Toradex, Inc.
+ * Copyright 2015-2019 Toradex, Inc.
  *
  * Based on vf610twr.c:
  * Copyright 2013 Freescale Semiconductor, Inc.
  */
 
 #include <common.h>
-#include <asm/io.h>
+
+#include <asm/arch/clock.h>
+#include <asm/arch/crm_regs.h>
+#include <asm/arch/ddrmc-vf610.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux-vf610.h>
-#include <asm/arch/ddrmc-vf610.h>
-#include <asm/arch/crm_regs.h>
-#include <asm/arch/clock.h>
-#include <mmc.h>
-#include <fdt_support.h>
-#include <fsl_esdhc.h>
-#include <fsl_dcu_fb.h>
-#include <jffs2/load_kernel.h>
-#include <miiphy.h>
-#include <mtd_node.h>
-#include <netdev.h>
-#include <i2c.h>
-#include <g_dnl.h>
 #include <asm/gpio.h>
+#include <asm/io.h>
+#include <fdt_support.h>
+#include <fsl_dcu_fb.h>
+#include <g_dnl.h>
+#include <jffs2/load_kernel.h>
+#include <mtd_node.h>
 #include <usb.h>
+
 #include "../common/tdx-common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
-			PAD_CTL_DSE_25ohm | PAD_CTL_OBE_IBE_ENABLE)
-
-#define ESDHC_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_HIGH | \
-			PAD_CTL_DSE_20ohm | PAD_CTL_OBE_IBE_ENABLE)
-
-#define ENET_PAD_CTRL	(PAD_CTL_PUS_47K_UP | PAD_CTL_SPEED_HIGH | \
-			PAD_CTL_DSE_50ohm | PAD_CTL_OBE_IBE_ENABLE)
-
-#define USB_PEN_GPIO		83
-#define USB_CDET_GPIO		102
 #define PTC0_GPIO_45		45
 
 static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
+	{ DDRMC_CR79_CTLUPD_AREF(1), 79 },
+	/* sets manual values for read lvl. (gate) delay of data slice 0/1 */
+	{ DDRMC_CR105_RDLVL_DL_0(28), 105 },
+	{ DDRMC_CR106_RDLVL_GTDL_0(24), 106 },
+	{ DDRMC_CR110_RDLVL_DL_1(28) | DDRMC_CR110_RDLVL_GTDL_1(24), 110 },
+	{ DDRMC_CR102_RDLVL_GT_REGEN | DDRMC_CR102_RDLVL_REG_EN, 102 },
+
 	/* AXI */
 	{ DDRMC_CR117_AXI0_W_PRI(0) | DDRMC_CR117_AXI0_R_PRI(0), 117 },
 	{ DDRMC_CR118_AXI1_W_PRI(1) | DDRMC_CR118_AXI1_R_PRI(1), 118 },
@@ -89,11 +82,6 @@ static struct ddrmc_cr_setting colibri_vf_cr_settings[] = {
 	{ 0, -1 }
 };
 
-static const iomux_v3_cfg_t usb_pads[] = {
-	VF610_PAD_PTD4__GPIO_83,
-	VF610_PAD_PTC29__GPIO_102,
-};
-
 int dram_init(void)
 {
 	static const struct ddr3_jedec_timings timings = {
@@ -120,15 +108,21 @@ int dram_init(void)
 		.tras_lockout      = 0,
 		.tdal              = 12,
 		.bstlen            = 3,
-		.tdll              = 512,
+		.tdll              = 512, /* not applicable since freq. scaling
+					   * is not used
+					   */
 		.trp_ab            = 6,
 		.tref              = 3120,
 		.trfc              = 64,
 		.tref_int          = 0,
 		.tpdex             = 3,
 		.txpdll            = 10,
-		.txsnr             = 48,
-		.txsr              = 468,
+		.txsnr             = 68,  /* changed to conform to JEDEC
+					   * specifications
+					   */
+		.txsr              = 506, /* changed to conform to JEDEC
+					   * specifications
+					   */
 		.cksrx             = 5,
 		.cksre             = 5,
 		.freq_chg_en       = 0,
@@ -147,91 +141,11 @@ int dram_init(void)
 		.wldqsen           = 25,
 	};
 
-	ddrmc_setup_iomux(NULL, 0);
-
 	ddrmc_ctrl_init_ddr3(&timings, colibri_vf_cr_settings, NULL, 1, 2);
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
 
 	return 0;
 }
-
-static void setup_iomux_uart(void)
-{
-	static const iomux_v3_cfg_t uart_pads[] = {
-		NEW_PAD_CTRL(VF610_PAD_PTB4__UART1_TX, UART_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTB5__UART1_RX, UART_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTB10__UART0_TX, UART_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTB11__UART0_RX, UART_PAD_CTRL),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
-}
-
-static void setup_iomux_enet(void)
-{
-	static const iomux_v3_cfg_t enet0_pads[] = {
-		NEW_PAD_CTRL(VF610_PAD_PTA6__RMII0_CLKOUT, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC10__RMII1_MDIO, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC9__RMII1_MDC, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC11__RMII1_CRS_DV, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC12__RMII1_RD1, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC13__RMII1_RD0, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC14__RMII1_RXER, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC15__RMII1_TD1, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC16__RMII1_TD0, ENET_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTC17__RMII1_TXEN, ENET_PAD_CTRL),
-	};
-
-	imx_iomux_v3_setup_multiple_pads(enet0_pads, ARRAY_SIZE(enet0_pads));
-}
-
-static void setup_iomux_i2c(void)
-{
-	static const iomux_v3_cfg_t i2c0_pads[] = {
-		VF610_PAD_PTB14__I2C0_SCL,
-		VF610_PAD_PTB15__I2C0_SDA,
-	};
-
-	imx_iomux_v3_setup_multiple_pads(i2c0_pads, ARRAY_SIZE(i2c0_pads));
-}
-
-#ifdef CONFIG_NAND_VF610_NFC
-static void setup_iomux_nfc(void)
-{
-	static const iomux_v3_cfg_t nfc_pads[] = {
-		VF610_PAD_PTD23__NF_IO7,
-		VF610_PAD_PTD22__NF_IO6,
-		VF610_PAD_PTD21__NF_IO5,
-		VF610_PAD_PTD20__NF_IO4,
-		VF610_PAD_PTD19__NF_IO3,
-		VF610_PAD_PTD18__NF_IO2,
-		VF610_PAD_PTD17__NF_IO1,
-		VF610_PAD_PTD16__NF_IO0,
-		VF610_PAD_PTB24__NF_WE_B,
-		VF610_PAD_PTB25__NF_CE0_B,
-		VF610_PAD_PTB27__NF_RE_B,
-		VF610_PAD_PTC26__NF_RB_B,
-		VF610_PAD_PTC27__NF_ALE,
-		VF610_PAD_PTC28__NF_CLE
-	};
-
-	imx_iomux_v3_setup_multiple_pads(nfc_pads, ARRAY_SIZE(nfc_pads));
-}
-#endif
-
-#ifdef CONFIG_FSL_DSPI
-static void setup_iomux_dspi(void)
-{
-	static const iomux_v3_cfg_t dspi1_pads[] = {
-		VF610_PAD_PTD5__DSPI1_CS0,
-		VF610_PAD_PTD6__DSPI1_SIN,
-		VF610_PAD_PTD7__DSPI1_SOUT,
-		VF610_PAD_PTD8__DSPI1_SCK,
-	};
-
-	imx_iomux_v3_setup_multiple_pads(dspi1_pads, ARRAY_SIZE(dspi1_pads));
-}
-#endif
 
 #ifdef CONFIG_VYBRID_GPIO
 static void setup_iomux_gpio(void)
@@ -331,37 +245,6 @@ static void setup_tcon(void)
 }
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg esdhc_cfg[1] = {
-	{ESDHC1_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	/* eSDHC1 is always present */
-	return 1;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	static const iomux_v3_cfg_t esdhc1_pads[] = {
-		NEW_PAD_CTRL(VF610_PAD_PTA24__ESDHC1_CLK, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA25__ESDHC1_CMD, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA26__ESDHC1_DAT0, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA27__ESDHC1_DAT1, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA28__ESDHC1_DAT2, ESDHC_PAD_CTRL),
-		NEW_PAD_CTRL(VF610_PAD_PTA29__ESDHC1_DAT3, ESDHC_PAD_CTRL),
-	};
-
-	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-
-	imx_iomux_v3_setup_multiple_pads(
-		esdhc1_pads, ARRAY_SIZE(esdhc1_pads));
-
-	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
-}
-#endif
-
 static inline int is_colibri_vf61(void)
 {
 	struct mscm *mscm = (struct mscm *)MSCM_BASE_ADDR;
@@ -394,7 +277,7 @@ static void clock_init(void)
 			CCM_CCGR3_ANADIG_CTRL_MASK | CCM_CCGR3_SCSC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr4, CCM_REG_CTRL_MASK,
 			CCM_CCGR4_WKUP_CTRL_MASK | CCM_CCGR4_CCM_CTRL_MASK |
-			CCM_CCGR4_GPC_CTRL_MASK | CCM_CCGR4_I2C0_CTRL_MASK);
+			CCM_CCGR4_GPC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr6, CCM_REG_CTRL_MASK,
 			CCM_CCGR6_OCOTP_CTRL_MASK | CCM_CCGR6_DDRMC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr7, CCM_REG_CTRL_MASK,
@@ -483,32 +366,13 @@ static void mscm_init(void)
 		writew(MSCM_IRSPRC_CP0_EN, &mscmir->irsprc[i]);
 }
 
-int board_phy_config(struct phy_device *phydev)
-{
-	if (phydev->drv->config)
-		phydev->drv->config(phydev);
-
-	return 0;
-}
-
 int board_early_init_f(void)
 {
 	clock_init();
 	mscm_init();
 
-	setup_iomux_uart();
-	setup_iomux_enet();
-	setup_iomux_i2c();
-#ifdef CONFIG_NAND_VF610_NFC
-	setup_iomux_nfc();
-#endif
-
 #ifdef CONFIG_VYBRID_GPIO
 	setup_iomux_gpio();
-#endif
-
-#ifdef CONFIG_FSL_DSPI
-	setup_iomux_dspi();
 #endif
 
 #ifdef CONFIG_VIDEO_FSL_DCU_FB
@@ -548,12 +412,7 @@ int board_init(void)
 	 * so we must use the external oscillator in order
 	 * to maintain correct time in the hwclock
 	 */
-
 	setbits_le32(&scsc->sosc_ctr, SCSC_SOSC_CTR_SOSC_EN);
-
-#ifdef CONFIG_USB_EHCI_VF
-	gpio_request(USB_CDET_GPIO, "usb-cdet-gpio");
-#endif
 
 	return 0;
 }
@@ -561,9 +420,9 @@ int board_init(void)
 int checkboard(void)
 {
 	if (is_colibri_vf61())
-		puts("Board: Colibri VF61\n");
+		puts("Model: Toradex Colibri VF61\n");
 	else
-		puts("Board: Colibri VF50\n");
+		puts("Model: Toradex Colibri VF50\n");
 
 	return 0;
 }
@@ -588,49 +447,6 @@ int ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	return ft_common_board_setup(blob, bd);
-}
-#endif
-
-#ifdef CONFIG_USB_EHCI_VF
-int board_ehci_hcd_init(int port)
-{
-	imx_iomux_v3_setup_multiple_pads(usb_pads, ARRAY_SIZE(usb_pads));
-
-	switch (port) {
-	case 0:
-		/* USBC does not have PEN, also configured as USB client only */
-		break;
-	case 1:
-		gpio_request(USB_PEN_GPIO, "usb-pen-gpio");
-		gpio_direction_output(USB_PEN_GPIO, 0);
-		break;
-	}
-	return 0;
-}
-
-int board_usb_phy_mode(int port)
-{
-	switch (port) {
-	case 0:
-		/*
-		 * Port 0 is used only in client mode on Colibri Vybrid modules
-		 * Check for state of USB client gpio pin and accordingly return
-		 * USB_INIT_DEVICE or USB_INIT_HOST.
-		 */
-		if (gpio_get_value(USB_CDET_GPIO))
-			return USB_INIT_DEVICE;
-		else
-			return USB_INIT_HOST;
-	case 1:
-		/* Port 1 is used only in host mode on Colibri Vybrid modules */
-		return USB_INIT_HOST;
-	default:
-		/*
-		 * There are only two USB controllers on Vybrid. Ideally we will
-		 * not reach here. However return USB_INIT_HOST if we do.
-		 */
-		return USB_INIT_HOST;
-	}
 }
 #endif
 

@@ -66,6 +66,14 @@ config DWC_AHSATA
 	  Enable this driver to support the DWC AHSATA SATA controller found
 	  in i.MX5 and i.MX6 SoCs.
 
+config DWC_AHSATA_AHCI
+	bool "Enable DWC AHSATA AHCI driver support"
+	depends on DWC_AHSATA
+	depends on AHCI
+	default y
+	help
+	  Enable this option unless you need your private ahci implementation
+
 config FSL_SATA
 	bool "Enable Freescale SATA controller driver support"
 	select LIBATA

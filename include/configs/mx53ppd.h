@@ -30,10 +30,6 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
-/* MMC Configs */
-#define CONFIG_SYS_FSL_ESDHC_ADDR	0
-#define CONFIG_SYS_FSL_ESDHC_NUM	2
-
 /* Eth Configs */
 
 #define CONFIG_FEC_MXC
@@ -89,10 +85,10 @@
 	"nfsroot=/opt/springdale/rd\0" \
 	"bootargs_nfs=setenv bootargs ${bootargs} root=/dev/nfs " \
 		"${kern_ipconf} nfsroot=${nfsserver}:${nfsroot},v3,tcp rw\0" \
-	"choose_ip=if test $use_dhcp = 1; then set kern_ipconf ip=dhcp; " \
-		"set getcmd dhcp; else set kern_ipconf " \
+	"choose_ip=if test $use_dhcp = 1; then setenv kern_ipconf ip=dhcp; " \
+		"setenv getcmd dhcp; else setenv kern_ipconf " \
 		"ip=${ipaddr}:${nfsserver}:${gatewayip}:${netmask}::eth0:off; " \
-		"set getcmd tftp; fi\0" \
+		"setenv getcmd tftp; fi\0" \
 	"nfs=run choose_ip setargs bootargs_nfs; ${getcmd} ${loadaddr} " \
 		"${nfsserver}:${image}; bootm ${loadaddr}\0" \
 
@@ -101,7 +97,7 @@
 	"image=/boot/fitImage\0" \
 	"fdt_high=0xffffffff\0" \
 	"dev=mmc\0" \
-	"devnum=0\0" \
+	"devnum=2\0" \
 	"rootdev=mmcblk0p\0" \
 	"quiet=quiet loglevel=0\0" \
 	"console=" CONSOLE_DEV "\0" \
@@ -218,10 +214,5 @@
 /* Backlight Control */
 #define CONFIG_PWM_IMX
 #define CONFIG_IMX6_PWM_PER_CLK 66666000
-
-/* Framebuffer and LCD */
-#ifdef CONFIG_VIDEO
-	#define CONFIG_VIDEO_IPUV3
-#endif
 
 #endif				/* __CONFIG_H */

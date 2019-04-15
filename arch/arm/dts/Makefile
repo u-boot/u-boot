@@ -492,15 +492,19 @@ dtb-$(CONFIG_MACH_SUN9I) += \
 dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-colibri.dtb \
 	vf610-twr.dtb \
-	pcm052.dtb \
-	bk4r1.dtb
+	vf610-pcm052.dtb \
+	vf610-bk4r1.dtb
 
 dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 	imx53-kp.dtb
 
 dtb-$(CONFIG_MX6Q) += \
+	imx6-apalis.dtb \
 	imx6q-display5.dtb \
 	imx6q-logicpd.dtb
+
+dtb-$(CONFIG_TARGET_TBS2910) += \
+	imx6q-tbs2910.dtb
 
 dtb-$(CONFIG_MX6QDL) += \
 	imx6dl-icore.dtb \
@@ -517,6 +521,9 @@ dtb-$(CONFIG_MX6QDL) += \
 	imx6dl-sabresd.dtb \
 	imx6qp-sabreauto.dtb \
 	imx6qp-sabresd.dtb
+
+dtb-$(CONFIG_TARGET_WANDBOARD) += \
+	imx6dl-wandboard-revb1.dtb
 
 dtb-$(CONFIG_MX6SL) += imx6sl-evk.dtb
 
@@ -542,6 +549,9 @@ dtb-$(CONFIG_MX6UL) += \
 dtb-$(CONFIG_MX6ULL) += \
 	imx6ull-14x14-evk.dtb \
 	imx6ull-colibri.dtb \
+
+dtb-$(CONFIG_ARCH_MX6) += \
+	imx6-colibri.dtb
 
 dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7d-sdb-qspi.dtb \
@@ -698,6 +708,9 @@ dtb-$(CONFIG_SOC_K3_AM6) += k3-am654-base-board.dtb k3-am654-r5-base-board.dtb
 dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt7623n-bananapi-bpi-r2.dtb \
 	mt7629-rfb.dtb
+
+dtb-$(CONFIG_TARGET_GE_BX50V3) += imx6q-bx50v3.dtb
+dtb-$(CONFIG_TARGET_MX53PPD) += imx53-ppd.dtb
 
 targets += $(dtb-y)
 

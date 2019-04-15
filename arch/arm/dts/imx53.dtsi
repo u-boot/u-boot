@@ -33,6 +33,8 @@
 		i2c2 = &i2c3;
 		mmc0 = &esdhc1;
 		mmc1 = &esdhc2;
+		mmc2 = &esdhc3;
+		mmc3 = &esdhc4;
 	};
 
 	tzic: tz-interrupt-controller@fffc000 {
@@ -82,6 +84,30 @@
 					clocks = <&clks IMX5_CLK_ESDHC2_IPG_GATE>,
 						 <&clks IMX5_CLK_DUMMY>,
 						 <&clks IMX5_CLK_ESDHC2_PER_GATE>;
+					clock-names = "ipg", "ahb", "per";
+					bus-width = <4>;
+					status = "disabled";
+				};
+
+				esdhc3: esdhc@50020000 {
+					compatible = "fsl,imx53-esdhc";
+					reg = <0x50020000 0x4000>;
+					interrupts = <3>;
+					clocks = <&clks IMX5_CLK_ESDHC3_IPG_GATE>,
+						 <&clks IMX5_CLK_DUMMY>,
+						 <&clks IMX5_CLK_ESDHC3_PER_GATE>;
+					clock-names = "ipg", "ahb", "per";
+					bus-width = <4>;
+					status = "disabled";
+				};
+
+				esdhc4: esdhc@50024000 {
+					compatible = "fsl,imx53-esdhc";
+					reg = <0x50024000 0x4000>;
+					interrupts = <4>;
+					clocks = <&clks IMX5_CLK_ESDHC4_IPG_GATE>,
+						 <&clks IMX5_CLK_DUMMY>,
+						 <&clks IMX5_CLK_ESDHC4_PER_GATE>;
 					clock-names = "ipg", "ahb", "per";
 					bus-width = <4>;
 					status = "disabled";

@@ -23,7 +23,7 @@ config IMX_RDC
 
 config IMX_BOOTAUX
 	bool "Support boot auxiliary core"
-	depends on ARCH_MX7 || ARCH_MX6
+	depends on ARCH_MX7 || ARCH_MX6 || ARCH_VF610
 	help
 	  bootaux [addr] to boot auxiliary core.
 

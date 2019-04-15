@@ -4,7 +4,7 @@
  */
 
 /dts-v1/;
-#include "vf.dtsi"
+#include "vf610-pcm052.dtsi"
 
 / {
 	model = "Phytec phyCORE-Vybrid";
@@ -14,8 +14,4 @@
 		stdout-path = &uart1;
 	};
 
-};
-
-&uart1 {
-	status = "okay";
 };

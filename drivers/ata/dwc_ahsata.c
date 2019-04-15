@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/mach-imx/sata.h>
 #include <linux/bitops.h>
 #include <linux/ctype.h>
 #include <linux/errno.h>
@@ -511,15 +512,9 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 static void dwc_ahsata_print_info(struct blk_desc *pdev)
 {
 	printf("SATA Device Info:\n\r");
-#ifdef CONFIG_SYS_64BIT_LBA
 	printf("S/N: %s\n\rProduct model number: %s\n\r"
-		"Firmware version: %s\n\rCapacity: %lld sectors\n\r",
+		"Firmware version: %s\n\rCapacity: " LBAFU " sectors\n\r",
 		pdev->product, pdev->vendor, pdev->revision, pdev->lba);
-#else
-	printf("S/N: %s\n\rProduct model number: %s\n\r"
-		"Firmware version: %s\n\rCapacity: %ld sectors\n\r",
-		pdev->product, pdev->vendor, pdev->revision, pdev->lba);
-#endif
 }
 
 static void dwc_ahsata_identify(struct ahci_uc_priv *uc_priv, u16 *id)
@@ -754,7 +749,6 @@ static int dwc_ahsata_scan_common(struct ahci_uc_priv *uc_priv,
 	u8 serial[ATA_ID_SERNO_LEN + 1] = { 0 };
 	u8 firmware[ATA_ID_FW_REV_LEN + 1] = { 0 };
 	u8 product[ATA_ID_PROD_LEN + 1] = { 0 };
-	u64 n_sectors;
 	u8 port = uc_priv->hard_port_no;
 	ALLOC_CACHE_ALIGN_BUFFER(u16, id, ATA_ID_WORDS);
 
@@ -773,9 +767,8 @@ static int dwc_ahsata_scan_common(struct ahci_uc_priv *uc_priv,
 	ata_id_c_string(id, product, ATA_ID_PROD, sizeof(product));
 	memcpy(pdev->vendor, product, sizeof(product));
 
-	/* Totoal sectors */
-	n_sectors = ata_id_n_sectors(id);
-	pdev->lba = (u32)n_sectors;
+	/* Total sectors */
+	pdev->lba = ata_id_n_sectors(id);
 
 	pdev->type = DEV_TYPE_HARDDISK;
 	pdev->blksz = ATA_SECT_SIZE;
@@ -1028,6 +1021,9 @@ int dwc_ahsata_probe(struct udevice *dev)
 	struct ahci_uc_priv *uc_priv = dev_get_uclass_priv(dev);
 	int ret;
 
+#if defined(CONFIG_MX6)
+	setup_sata();
+#endif
 	uc_priv->host_flags = ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
 			ATA_FLAG_MMIO | ATA_FLAG_PIO_DMA | ATA_FLAG_NO_ATAPI;
 	uc_priv->mmio_base = (void __iomem *)dev_read_addr(dev);
@@ -1075,4 +1071,24 @@ U_BOOT_DRIVER(dwc_ahsata_blk) = {
 	.ops		= &dwc_ahsata_blk_ops,
 };
 
+#if CONFIG_IS_ENABLED(DWC_AHSATA_AHCI)
+struct ahci_ops dwc_ahsata_ahci_ops = {
+	.port_status = dwc_ahsata_port_status,
+	.reset       = dwc_ahsata_bus_reset,
+	.scan        = dwc_ahsata_scan,
+};
+
+static const struct udevice_id dwc_ahsata_ahci_ids[] = {
+	{ .compatible = "fsl,imx6q-ahci" },
+	{ }
+};
+
+U_BOOT_DRIVER(dwc_ahsata_ahci) = {
+	.name     = "dwc_ahsata_ahci",
+	.id       = UCLASS_AHCI,
+	.of_match = dwc_ahsata_ahci_ids,
+	.ops      = &dwc_ahsata_ahci_ops,
+	.probe    = dwc_ahsata_probe,
+};
+#endif
 #endif

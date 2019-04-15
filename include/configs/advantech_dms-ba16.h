@@ -34,8 +34,6 @@
 
 #define CONFIG_MXC_UART
 
-#define CONFIG_MXC_OCOTP
-
 /* SATA Configs */
 #define CONFIG_SYS_SATA_MAX_DEVICE	1
 #define CONFIG_DWC_AHSATA_PORT_ID	0
@@ -217,7 +215,6 @@
 
 /* Framebuffer */
 #ifdef CONFIG_VIDEO
-#define CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_SPLASH_SCREEN_ALIGN
