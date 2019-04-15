@@ -42,7 +42,8 @@ enum {
 static bool from_spl __attribute__ ((section(".data")));
 
 #ifndef CONFIG_SPL_BUILD
-void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
+void save_boot_params(unsigned long r0, unsigned long r1, unsigned long r2,
+		      unsigned long r3)
 {
 	from_spl = r0 != UBOOT_NOT_LOADED_FROM_SPL;
 	save_boot_params_ret();
