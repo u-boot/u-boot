@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <environment.h>
+#include <fdtdec.h>
 #include <i2c.h>
 #include <linux/libfdt.h>
 #include <asm/arch/gpio.h>
@@ -138,9 +139,55 @@ static void ft_mac_address_setup(void *fdt)
 	}
 }
 
+static int ft_copy_carveout(void *dst, const void *src, const char *node)
+{
+	struct fdt_memory fb;
+	int err;
+
+	err = fdtdec_get_carveout(src, node, "memory-region", 0, &fb);
+	if (err < 0) {
+		if (err != -FDT_ERR_NOTFOUND)
+			printf("failed to get carveout for %s: %d\n", node,
+			       err);
+
+		return err;
+	}
+
+	err = fdtdec_set_carveout(dst, node, "memory-region", 0, "framebuffer",
+				  &fb);
+	if (err < 0) {
+		printf("failed to set carveout for %s: %d\n", node, err);
+		return err;
+	}
+
+	return 0;
+}
+
+static void ft_carveout_setup(void *fdt)
+{
+	const void *cboot_fdt = (const void *)cboot_boot_x0;
+	static const char * const nodes[] = {
+		"/host1x@50000000/dc@54200000",
+		"/host1x@50000000/dc@54240000",
+	};
+	unsigned int i;
+	int err;
+
+	for (i = 0; i < ARRAY_SIZE(nodes); i++) {
+		err = ft_copy_carveout(fdt, cboot_fdt, nodes[i]);
+		if (err < 0) {
+			if (err != -FDT_ERR_NOTFOUND)
+				printf("failed to copy carveout for %s: %d\n",
+				       nodes[i], err);
+			continue;
+		}
+	}
+}
+
 int ft_board_setup(void *fdt, bd_t *bd)
 {
 	ft_mac_address_setup(fdt);
+	ft_carveout_setup(fdt);
 
 	return 0;
 }
