@@ -13,7 +13,9 @@
 #include <asm/arch/clock.h>
 #endif
 #include <asm/arch/funcmux.h>
+#if IS_ENABLED(CONFIG_TEGRA_MC)
 #include <asm/arch/mc.h>
+#endif
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
@@ -68,6 +70,7 @@ bool tegra_cpu_is_non_secure(void)
 }
 #endif
 
+#if IS_ENABLED(CONFIG_TEGRA_MC)
 /* Read the RAM size directly from the memory controller */
 static phys_size_t query_sdram_size(void)
 {
@@ -117,11 +120,15 @@ static phys_size_t query_sdram_size(void)
 
 	return size_bytes;
 }
+#endif
 
 int dram_init(void)
 {
+#if IS_ENABLED(CONFIG_TEGRA_MC)
 	/* We do not initialise DRAM here. We just query the size */
 	gd->ram_size = query_sdram_size();
+#endif
+
 	return 0;
 }
 

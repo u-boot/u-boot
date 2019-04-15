@@ -26,6 +26,9 @@ config TEGRA_IVC
 	  U-Boot, it is typically used for communication between the main CPU
 	  and various auxiliary processors.
 
+config TEGRA_MC
+	bool
+
 config TEGRA_COMMON
 	bool "Tegra common options"
 	select BINMAN
@@ -65,6 +68,7 @@ config TEGRA_ARMV7_COMMON
 	select TEGRA_COMMON
 	select TEGRA_GPIO
 	select TEGRA_GP_PADCTRL
+	select TEGRA_MC
 	select TEGRA_NO_BPMP
 
 config TEGRA_ARMV8_COMMON
@@ -111,6 +115,7 @@ config TEGRA210
 	select TEGRA_CLKRST
 	select TEGRA_GPIO
 	select TEGRA_GP_PADCTRL
+	select TEGRA_MC
 	select TEGRA_NO_BPMP
 
 config TEGRA186
