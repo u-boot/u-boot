@@ -42,10 +42,10 @@ static void do_board_detect(void)
 			gd->board_type = BOARD_TYPE_PCB106;
 		else
 			gd->board_type = BOARD_TYPE_PCB105;
-		mscc_phy_wr(1, 16, 15, 0);
 	} else {
 		gd->board_type = BOARD_TYPE_PCB105;
 	}
+	mscc_phy_wr(1, 16, 31, 0x0);
 }
 
 #if defined(CONFIG_MULTI_DTB_FIT)
