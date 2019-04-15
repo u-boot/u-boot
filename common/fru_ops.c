@@ -67,10 +67,9 @@ static int fru_parse_board(unsigned long addr)
 
 	memcpy(&fru_data.brd.ver, (void *)addr, 6);
 	addr += 6;
-	data = (u8 *)&fru_data.brd.manuf_type_len;
+	data = (u8 *)&fru_data.brd.manufacturer_type_len;
 
-	for (i = 0; i < FRU_BOARD_AREA_TOTAL_FIELDS; i++,
-	     data += FRU_BOARD_MAX_LEN) {
+	for (i = 0; ; i++, data += FRU_BOARD_MAX_LEN) {
 		*data++ = *(u8 *)addr;
 		len = fru_check_type_len(*(u8 *)addr, fru_data.brd.lang_code,
 					 &type);
@@ -78,7 +77,7 @@ static int fru_parse_board(unsigned long addr)
 		 * Stop cature if it end of fields
 		 */
 		if (len == -EINVAL)
-			return 0;
+			break;
 
 		/*
 		 * Dont capture data if type is not ASCII8
@@ -91,6 +90,12 @@ static int fru_parse_board(unsigned long addr)
 			continue;
 		memcpy(data, (u8 *)addr, len);
 		addr += len;
+	}
+
+	if (i < FRU_BOARD_AREA_TOTAL_FIELDS) {
+		printf("Board area require minimum %d fields\n",
+		       FRU_BOARD_AREA_TOTAL_FIELDS);
+		return -EINVAL;
 	}
 
 	return 0;
@@ -140,10 +145,9 @@ static int fru_display_board(void)
 	const char *boardinfo[] = {
 		"Manufacturer Name",
 		"Product Name",
-		"Product Model/Part No",
-		"Product Version",
-		"Product Serial No",
-		"Asset Tag"
+		"Serial No",
+		"Part Number",
+		"File ID"
 	};
 
 	printf("*****BOARD INFO*****\n");
@@ -157,11 +161,15 @@ static int fru_display_board(void)
 	       fru_data.brd.time[0];
 	printf("Time in Minutes from 0:00hrs 1/1/96 %d\n", time);
 
-	data = (u8 *)&fru_data.brd.manuf_type_len;
+	data = (u8 *)&fru_data.brd.manufacturer_type_len;
 
-	for (u8 i = 0; i < FRU_BOARD_AREA_TOTAL_FIELDS; i++) {
+	for (u8 i = 0; ; i++) {
 		len = fru_check_type_len(*data++, fru_data.brd.lang_code,
 					 &type);
+		if (len == -EINVAL) {
+			printf("**** EOF for Board Area ****\n");
+			break;
+		}
 
 		if (type <= FRU_TYPELEN_TYPE_ASCII8 &&
 		    (fru_data.brd.lang_code == FRU_LANG_CODE_ENGLISH ||
@@ -169,10 +177,7 @@ static int fru_display_board(void)
 			printf("Type code: %s\n", typecode[type]);
 		else
 			printf("Type code: %s\n", typecode[type + 1]);
-		if (len == -EINVAL) {
-			printf("**** EOF for Board Area ****\n");
-			return 0;
-		}
+
 		if (type != FRU_TYPELEN_TYPE_ASCII8) {
 			printf("FRU_ERROR: Only ASCII8 type is supported\n");
 			return 0;

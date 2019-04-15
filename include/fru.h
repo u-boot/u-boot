@@ -26,18 +26,16 @@ struct fru_board_data {
 	u8 len;
 	u8 lang_code;
 	u8 time[3];
-	u8 manuf_type_len;
-	u8 manuf_name[FRU_BOARD_MAX_LEN];
-	u8 prd_name_type_len;
+	u8 manufacturer_type_len;
+	u8 manufacturer_name[FRU_BOARD_MAX_LEN];
+	u8 product_name_type_len;
 	u8 product_name[FRU_BOARD_MAX_LEN];
-	u8 prd_part_type_len;
-	u8 product_part[FRU_BOARD_MAX_LEN];
-	u8 prd_ver_type_len;
-	u8 product_ver[FRU_BOARD_MAX_LEN];
-	u8 prd_serial_type_len;
-	u8 product_serial[FRU_BOARD_MAX_LEN];
-	u8 asset_tag_type_len;
-	u8 asset_tag[FRU_BOARD_MAX_LEN];
+	u8 serial_number_type_len;
+	u8 serial_number[FRU_BOARD_MAX_LEN];
+	u8 part_number_type_len;
+	u8 part_number[FRU_BOARD_MAX_LEN];
+	u8 file_id_type_len;
+	u8 file_id[FRU_BOARD_MAX_LEN];
 };
 
 struct fru_table {
@@ -54,7 +52,8 @@ struct fru_table {
 #define FRU_LANG_CODE_ENGLISH_1		25
 #define FRU_TYPELEN_EOF			0xC1
 
-#define FRU_BOARD_AREA_TOTAL_FIELDS	6
+/* This should be minimum of fields */
+#define FRU_BOARD_AREA_TOTAL_FIELDS	5
 #define FRU_TYPELEN_TYPE_SHIFT		6
 #define FRU_TYPELEN_TYPE_ASCII8		3
 
