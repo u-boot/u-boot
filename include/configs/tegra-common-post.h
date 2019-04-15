@@ -21,12 +21,14 @@
 #define CONFIG_SYS_NONCACHED_MEMORY	(1 << 20)	/* 1 MiB */
 
 #ifndef CONFIG_SPL_BUILD
+#ifndef BOOT_TARGET_DEVICES
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
 	func(USB, usb, 0) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
+#endif
 #include <config_distro_bootcmd.h>
 #else
 #define BOOTENV
