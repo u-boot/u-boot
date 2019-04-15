@@ -15,6 +15,9 @@ config SPL_SERIAL_SUPPORT
 config TEGRA_CLKRST
 	bool
 
+config TEGRA_GP_PADCTRL
+	bool
+
 config TEGRA_IVC
 	bool "Tegra IVC protocol"
 	help
@@ -61,6 +64,7 @@ config TEGRA_ARMV7_COMMON
 	select TEGRA_CLKRST
 	select TEGRA_COMMON
 	select TEGRA_GPIO
+	select TEGRA_GP_PADCTRL
 	select TEGRA_NO_BPMP
 
 config TEGRA_ARMV8_COMMON
@@ -106,6 +110,7 @@ config TEGRA210
 	select TEGRA_ARMV8_COMMON
 	select TEGRA_CLKRST
 	select TEGRA_GPIO
+	select TEGRA_GP_PADCTRL
 	select TEGRA_NO_BPMP
 
 config TEGRA186

@@ -13,7 +13,7 @@ else
 obj-$(CONFIG_CMD_ENTERRCM) += cmd_enterrcm.o
 endif
 
-obj-y += ap.o
+obj-$(CONFIG_TEGRA_GP_PADCTRL) += ap.o
 obj-y += board.o board2.o
 obj-y += cache.o
 obj-$(CONFIG_TEGRA_CLKRST) += clock.o
