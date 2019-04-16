@@ -317,6 +317,9 @@ S:	Maintained
 T:	git git://git.denx.de/u-boot-microblaze.git
 F:	arch/arm/mach-versal/
 F:	drivers/spi/cadence_ospi_versal.c
+F:	cmd/fru.c
+F:	common/fru_ops.c
+F:	include/fru.h
 
 ARM VERSATILE EXPRESS DRIVERS
 M:	Liviu Dudau <liviu.dudau@foss.arm.com>
