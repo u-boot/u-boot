@@ -277,6 +277,9 @@ struct rockchip_pin_ctrl {
 	struct rockchip_mux_route_data *iomux_routes;
 	u32				niomux_routes;
 
+	int	(*set_mux)(struct rockchip_pin_bank *bank,
+			   int pin, int mux);
+
 	void	(*pull_calc_reg)(struct rockchip_pin_bank *bank,
 				 int pin_num, struct regmap **regmap,
 				 int *reg, u8 *bit);
@@ -298,5 +301,10 @@ struct rockchip_pinctrl_priv {
 
 extern const struct pinctrl_ops rockchip_pinctrl_ops;
 int rockchip_pinctrl_probe(struct udevice *dev);
+void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
+			       int *reg, u8 *bit, int *mask);
+bool rockchip_get_mux_route(struct rockchip_pin_bank *bank, int pin,
+			    int mux, u32 *reg, u32 *value);
+int rockchip_get_mux_data(int mux_type, int pin, u8 *bit, int *mask);
 
 #endif /* __DRIVERS_PINCTRL_ROCKCHIP_H */

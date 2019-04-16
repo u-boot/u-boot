@@ -7,7 +7,6 @@
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <regmap.h>
-#include <syscon.h>
 
 #include "pinctrl-rockchip.h"
 
@@ -28,6 +27,39 @@ static struct rockchip_mux_route_data rk3288_mux_route_data[] = {
 		.route_val = BIT(16 + 12),
 	},
 };
+
+static int rk3288_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
+{
+	struct rockchip_pinctrl_priv *priv = bank->priv;
+	int iomux_num = (pin / 8);
+	struct regmap *regmap;
+	int reg, ret, mask, mux_type;
+	u8 bit;
+	u32 data, route_reg, route_val;
+
+	regmap = (bank->iomux[iomux_num].type & IOMUX_SOURCE_PMU)
+				? priv->regmap_pmu : priv->regmap_base;
+
+	/* get basic quadrupel of mux registers and the correct reg inside */
+	mux_type = bank->iomux[iomux_num].type;
+	reg = bank->iomux[iomux_num].offset;
+	reg += rockchip_get_mux_data(mux_type, pin, &bit, &mask);
+
+	if (bank->route_mask & BIT(pin)) {
+		if (rockchip_get_mux_route(bank, pin, mux, &route_reg,
+					   &route_val)) {
+			ret = regmap_write(regmap, route_reg, route_val);
+			if (ret)
+				return ret;
+		}
+	}
+
+	data = (mask << (bit + 16));
+	data |= (mux & mask) << bit;
+	ret = regmap_write(regmap, reg, data);
+
+	return ret;
+}
 
 #define RK3288_PULL_OFFSET		0x140
 #define RK3288_PULL_PMU_OFFSET          0x64
@@ -132,6 +164,7 @@ static struct rockchip_pin_ctrl rk3288_pin_ctrl = {
 	.pmu_mux_offset		= 0x84,
 	.iomux_routes		= rk3288_mux_route_data,
 	.niomux_routes		= ARRAY_SIZE(rk3288_mux_route_data),
+	.set_mux		= rk3288_set_mux,
 	.pull_calc_reg		= rk3288_calc_pull_reg_and_bit,
 	.drv_calc_reg		= rk3288_calc_drv_reg_and_bit,
 };

@@ -35,8 +35,8 @@ static int rockchip_verify_config(struct udevice *dev, u32 bank, u32 pin)
 	return 0;
 }
 
-static void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
-				      int *reg, u8 *bit, int *mask)
+void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
+			       int *reg, u8 *bit, int *mask)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
@@ -58,8 +58,8 @@ static void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
 	*bit = data->bit;
 }
 
-static bool rockchip_get_mux_route(struct rockchip_pin_bank *bank, int pin,
-				   int mux, u32 *reg, u32 *value)
+bool rockchip_get_mux_route(struct rockchip_pin_bank *bank, int pin,
+			    int mux, u32 *reg, u32 *value)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
@@ -82,7 +82,7 @@ static bool rockchip_get_mux_route(struct rockchip_pin_bank *bank, int pin,
 	return true;
 }
 
-static int rockchip_get_mux_data(int mux_type, int pin, u8 *bit, int *mask)
+int rockchip_get_mux_data(int mux_type, int pin, u8 *bit, int *mask)
 {
 	int offset = 0;
 
@@ -193,11 +193,9 @@ static int rockchip_verify_mux(struct rockchip_pin_bank *bank,
 static int rockchip_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
+	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
 	int iomux_num = (pin / 8);
-	struct regmap *regmap;
-	int reg, ret, mask, mux_type;
-	u8 bit;
-	u32 data, route_reg, route_val;
+	int ret;
 
 	ret = rockchip_verify_mux(bank, pin, mux);
 	if (ret < 0)
@@ -208,29 +206,10 @@ static int rockchip_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
 
 	debug("setting mux of GPIO%d-%d to %d\n", bank->bank_num, pin, mux);
 
-	regmap = (bank->iomux[iomux_num].type & IOMUX_SOURCE_PMU)
-				? priv->regmap_pmu : priv->regmap_base;
+	if (!ctrl->set_mux)
+		return -ENOTSUPP;
 
-	/* get basic quadrupel of mux registers and the correct reg inside */
-	mux_type = bank->iomux[iomux_num].type;
-	reg = bank->iomux[iomux_num].offset;
-	reg += rockchip_get_mux_data(mux_type, pin, &bit, &mask);
-
-	if (bank->recalced_mask & BIT(pin))
-		rockchip_get_recalced_mux(bank, pin, &reg, &bit, &mask);
-
-	if (bank->route_mask & BIT(pin)) {
-		if (rockchip_get_mux_route(bank, pin, mux, &route_reg,
-					   &route_val)) {
-			ret = regmap_write(regmap, route_reg, route_val);
-			if (ret)
-				return ret;
-		}
-	}
-
-	data = (mask << (bit + 16));
-	data |= (mux & mask) << bit;
-	ret = regmap_write(regmap, reg, data);
+	ret = ctrl->set_mux(bank, pin, mux);
 
 	return ret;
 }

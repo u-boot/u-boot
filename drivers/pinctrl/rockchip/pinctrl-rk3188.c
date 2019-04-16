@@ -11,6 +11,30 @@
 
 #include "pinctrl-rockchip.h"
 
+static int rk3188_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
+{
+	struct rockchip_pinctrl_priv *priv = bank->priv;
+	int iomux_num = (pin / 8);
+	struct regmap *regmap;
+	int reg, ret, mask, mux_type;
+	u8 bit;
+	u32 data;
+
+	regmap = (bank->iomux[iomux_num].type & IOMUX_SOURCE_PMU)
+				? priv->regmap_pmu : priv->regmap_base;
+
+	/* get basic quadrupel of mux registers and the correct reg inside */
+	mux_type = bank->iomux[iomux_num].type;
+	reg = bank->iomux[iomux_num].offset;
+	reg += rockchip_get_mux_data(mux_type, pin, &bit, &mask);
+
+	data = (mask << (bit + 16));
+	data |= (mux & mask) << bit;
+	ret = regmap_write(regmap, reg, data);
+
+	return ret;
+}
+
 #define RK3188_PULL_OFFSET		0x164
 #define RK3188_PULL_PMU_OFFSET		0x64
 
@@ -60,6 +84,7 @@ static struct rockchip_pin_ctrl rk3188_pin_ctrl = {
 	.label			= "RK3188-GPIO",
 	.type			= RK3188,
 	.grf_mux_offset		= 0x60,
+	.set_mux		= rk3188_set_mux,
 	.pull_calc_reg		= rk3188_calc_pull_reg_and_bit,
 };
 
