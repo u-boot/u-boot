@@ -25,6 +25,9 @@
 	EFI_GUID(0xe61d73b9, 0xa384, 0x4acc, \
 		 0xae, 0xab, 0x82, 0xe8, 0x28, 0xf3, 0x62, 0x8b)
 
+/* Root node */
+extern efi_handle_t efi_root;
+
 int __efi_entry_check(void);
 int __efi_exit_check(void);
 const char *__efi_nesting(void);
