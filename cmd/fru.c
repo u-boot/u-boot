@@ -60,9 +60,9 @@ static int do_fru(cmd_tbl_t *cmdtp, int flag, int argc,
 /***************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char fru_help_text[] =
-	"capture <addr>- Parse and capture FRU table present at address.\n"
-	"display = Displays content of FRU table that was captured using\n"
-	"          fru capture command\n"
+	"fru capture <addr> - Parse and capture FRU table present at address.\n"
+	"fru display - Displays content of FRU table that was captured using\n"
+	"              fru capture command\n"
 	;
 #endif
 
