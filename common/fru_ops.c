@@ -63,7 +63,7 @@ static int fru_parse_board(unsigned long addr)
 {
 	u8 i, type;
 	int len;
-	u8 *data;
+	u8 *data, *term;
 
 	memcpy(&fru_data.brd.ver, (void *)addr, 6);
 	addr += 6;
@@ -89,6 +89,8 @@ static int fru_parse_board(unsigned long addr)
 		if (!len)
 			continue;
 		memcpy(data, (u8 *)addr, len);
+		term = data + (u8)len;
+		*term = 0;
 		addr += len;
 	}
 
