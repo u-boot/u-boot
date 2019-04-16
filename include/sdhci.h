@@ -186,6 +186,7 @@
 /* 55-57 reserved */
 
 #define SDHCI_ADMA_ADDRESS	0x58
+#define SDHCI_ADMA_ADDRESS_HI	0x5c
 
 /* 60-FB reserved */
 
@@ -252,6 +253,38 @@ struct sdhci_ops {
 	void (*set_delay)(struct sdhci_host *host);
 };
 
+#if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
+#define ADMA_MAX_LEN	65532
+#ifdef CONFIG_DMA_ADDR_T_64BIT
+#define ADMA_DESC_LEN	16
+#else
+#define ADMA_DESC_LEN	8
+#endif
+#define ADMA_TABLE_NO_ENTRIES (CONFIG_SYS_MMC_MAX_BLK_COUNT * \
+			       MMC_MAX_BLOCK_LEN) / ADMA_MAX_LEN
+
+#define ADMA_TABLE_SZ (ADMA_TABLE_NO_ENTRIES * ADMA_DESC_LEN)
+
+/* Decriptor table defines */
+#define ADMA_DESC_ATTR_VALID		BIT(0)
+#define ADMA_DESC_ATTR_END		BIT(1)
+#define ADMA_DESC_ATTR_INT		BIT(2)
+#define ADMA_DESC_ATTR_ACT1		BIT(4)
+#define ADMA_DESC_ATTR_ACT2		BIT(5)
+
+#define ADMA_DESC_TRANSFER_DATA		ADMA_DESC_ATTR_ACT2
+#define ADMA_DESC_LINK_DESC	(ADMA_DESC_ATTR_ACT1 | ADMA_DESC_ATTR_ACT2)
+
+struct sdhci_adma_desc {
+	u8 attr;
+	u8 reserved;
+	u16 len;
+	u32 addr_lo;
+#ifdef CONFIG_DMA_ADDR_T_64BIT
+	u32 addr_hi;
+#endif
+} __packed;
+#endif
 struct sdhci_host {
 	const char *name;
 	void *ioaddr;
@@ -275,6 +308,14 @@ struct sdhci_host {
 	dma_addr_t start_addr;
 	int flags;
 #define USE_SDMA	(0x1 << 0)
+#define USE_ADMA	(0x1 << 1)
+#define USE_ADMA64	(0x1 << 2)
+#define USE_DMA		(USE_SDMA | USE_ADMA | USE_ADMA64)
+	dma_addr_t adma_addr;
+#if CONFIG_IS_ENABLED(MMC_SDHCI_ADMA)
+	struct sdhci_adma_desc *adma_desc_table;
+	uint desc_slot;
+#endif
 };
 
 #ifdef CONFIG_MMC_SDHCI_IO_ACCESSORS
