@@ -36,12 +36,12 @@ static struct rockchip_pin_bank rk3036_pin_banks[] = {
 };
 
 static struct rockchip_pin_ctrl rk3036_pin_ctrl = {
-		.pin_banks		= rk3036_pin_banks,
-		.nr_banks		= ARRAY_SIZE(rk3036_pin_banks),
-		.label			= "RK3036-GPIO",
-		.type			= RK3036,
-		.grf_mux_offset		= 0xa8,
-		.pull_calc_reg		= rk3036_calc_pull_reg_and_bit,
+	.pin_banks		= rk3036_pin_banks,
+	.nr_banks		= ARRAY_SIZE(rk3036_pin_banks),
+	.label			= "RK3036-GPIO",
+	.type			= RK3036,
+	.grf_mux_offset		= 0xa8,
+	.pull_calc_reg		= rk3036_calc_pull_reg_and_bit,
 };
 
 static const struct udevice_id rk3036_pinctrl_ids[] = {

@@ -85,14 +85,14 @@ static struct rockchip_pin_bank rk3368_pin_banks[] = {
 };
 
 static struct rockchip_pin_ctrl rk3368_pin_ctrl = {
-		.pin_banks		= rk3368_pin_banks,
-		.nr_banks		= ARRAY_SIZE(rk3368_pin_banks),
-		.label			= "RK3368-GPIO",
-		.type			= RK3368,
-		.grf_mux_offset		= 0x0,
-		.pmu_mux_offset		= 0x0,
-		.pull_calc_reg		= rk3368_calc_pull_reg_and_bit,
-		.drv_calc_reg		= rk3368_calc_drv_reg_and_bit,
+	.pin_banks		= rk3368_pin_banks,
+	.nr_banks		= ARRAY_SIZE(rk3368_pin_banks),
+	.label			= "RK3368-GPIO",
+	.type			= RK3368,
+	.grf_mux_offset		= 0x0,
+	.pmu_mux_offset		= 0x0,
+	.pull_calc_reg		= rk3368_calc_pull_reg_and_bit,
+	.drv_calc_reg		= rk3368_calc_drv_reg_and_bit,
 };
 
 static const struct udevice_id rk3368_pinctrl_ids[] = {

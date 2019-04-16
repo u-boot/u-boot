@@ -183,15 +183,15 @@ static struct rockchip_pin_bank rk3228_pin_banks[] = {
 };
 
 static struct rockchip_pin_ctrl rk3228_pin_ctrl = {
-		.pin_banks		= rk3228_pin_banks,
-		.nr_banks		= ARRAY_SIZE(rk3228_pin_banks),
-		.label			= "RK3228-GPIO",
-		.type			= RK3288,
-		.grf_mux_offset		= 0x0,
-		.iomux_routes		= rk3228_mux_route_data,
-		.niomux_routes		= ARRAY_SIZE(rk3228_mux_route_data),
-		.pull_calc_reg		= rk3228_calc_pull_reg_and_bit,
-		.drv_calc_reg		= rk3228_calc_drv_reg_and_bit,
+	.pin_banks		= rk3228_pin_banks,
+	.nr_banks		= ARRAY_SIZE(rk3228_pin_banks),
+	.label			= "RK3228-GPIO",
+	.type			= RK3288,
+	.grf_mux_offset		= 0x0,
+	.iomux_routes		= rk3228_mux_route_data,
+	.niomux_routes		= ARRAY_SIZE(rk3228_mux_route_data),
+	.pull_calc_reg		= rk3228_calc_pull_reg_and_bit,
+	.drv_calc_reg		= rk3228_calc_drv_reg_and_bit,
 };
 
 static const struct udevice_id rk3228_pinctrl_ids[] = {

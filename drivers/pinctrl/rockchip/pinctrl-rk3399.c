@@ -158,18 +158,18 @@ static struct rockchip_pin_bank rk3399_pin_banks[] = {
 };
 
 static struct rockchip_pin_ctrl rk3399_pin_ctrl = {
-		.pin_banks		= rk3399_pin_banks,
-		.nr_banks		= ARRAY_SIZE(rk3399_pin_banks),
-		.label			= "RK3399-GPIO",
-		.type			= RK3399,
-		.grf_mux_offset		= 0xe000,
-		.pmu_mux_offset		= 0x0,
-		.grf_drv_offset		= 0xe100,
-		.pmu_drv_offset		= 0x80,
-		.iomux_routes		= rk3399_mux_route_data,
-		.niomux_routes		= ARRAY_SIZE(rk3399_mux_route_data),
-		.pull_calc_reg		= rk3399_calc_pull_reg_and_bit,
-		.drv_calc_reg		= rk3399_calc_drv_reg_and_bit,
+	.pin_banks		= rk3399_pin_banks,
+	.nr_banks		= ARRAY_SIZE(rk3399_pin_banks),
+	.label			= "RK3399-GPIO",
+	.type			= RK3399,
+	.grf_mux_offset		= 0xe000,
+	.pmu_mux_offset		= 0x0,
+	.grf_drv_offset		= 0xe100,
+	.pmu_drv_offset		= 0x80,
+	.iomux_routes		= rk3399_mux_route_data,
+	.niomux_routes		= ARRAY_SIZE(rk3399_mux_route_data),
+	.pull_calc_reg		= rk3399_calc_pull_reg_and_bit,
+	.drv_calc_reg		= rk3399_calc_drv_reg_and_bit,
 };
 
 static const struct udevice_id rk3399_pinctrl_ids[] = {

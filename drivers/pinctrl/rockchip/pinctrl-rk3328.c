@@ -192,18 +192,18 @@ static struct rockchip_pin_bank rk3328_pin_banks[] = {
 };
 
 static struct rockchip_pin_ctrl rk3328_pin_ctrl = {
-		.pin_banks		= rk3328_pin_banks,
-		.nr_banks		= ARRAY_SIZE(rk3328_pin_banks),
-		.label			= "RK3328-GPIO",
-		.type			= RK3288,
-		.grf_mux_offset		= 0x0,
-		.iomux_recalced		= rk3328_mux_recalced_data,
-		.niomux_recalced	= ARRAY_SIZE(rk3328_mux_recalced_data),
-		.iomux_routes		= rk3328_mux_route_data,
-		.niomux_routes		= ARRAY_SIZE(rk3328_mux_route_data),
-		.pull_calc_reg		= rk3328_calc_pull_reg_and_bit,
-		.drv_calc_reg		= rk3328_calc_drv_reg_and_bit,
-		.schmitt_calc_reg	= rk3328_calc_schmitt_reg_and_bit,
+	.pin_banks		= rk3328_pin_banks,
+	.nr_banks		= ARRAY_SIZE(rk3328_pin_banks),
+	.label			= "RK3328-GPIO",
+	.type			= RK3288,
+	.grf_mux_offset		= 0x0,
+	.iomux_recalced		= rk3328_mux_recalced_data,
+	.niomux_recalced	= ARRAY_SIZE(rk3328_mux_recalced_data),
+	.iomux_routes		= rk3328_mux_route_data,
+	.niomux_routes		= ARRAY_SIZE(rk3328_mux_route_data),
+	.pull_calc_reg		= rk3328_calc_pull_reg_and_bit,
+	.drv_calc_reg		= rk3328_calc_drv_reg_and_bit,
+	.schmitt_calc_reg	= rk3328_calc_schmitt_reg_and_bit,
 };
 
 static const struct udevice_id rk3328_pinctrl_ids[] = {
