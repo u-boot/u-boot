@@ -82,10 +82,6 @@ static void rk3288_calc_pull_reg_and_bit(struct rockchip_pin_bank *bank,
 	if (bank->bank_num == 0) {
 		*regmap = priv->regmap_pmu;
 		*reg = RK3288_PULL_PMU_OFFSET;
-
-		*reg += ((pin_num / ROCKCHIP_PULL_PINS_PER_REG) * 4);
-		*bit = pin_num % ROCKCHIP_PULL_PINS_PER_REG;
-		*bit *= ROCKCHIP_PULL_BITS_PER_PIN;
 	} else {
 		*regmap = priv->regmap_base;
 		*reg = RK3288_PULL_OFFSET;
@@ -93,11 +89,39 @@ static void rk3288_calc_pull_reg_and_bit(struct rockchip_pin_bank *bank,
 		/* correct the offset, as we're starting with the 2nd bank */
 		*reg -= 0x10;
 		*reg += bank->bank_num * ROCKCHIP_PULL_BANK_STRIDE;
-		*reg += ((pin_num / ROCKCHIP_PULL_PINS_PER_REG) * 4);
-
-		*bit = (pin_num % ROCKCHIP_PULL_PINS_PER_REG);
-		*bit *= ROCKCHIP_PULL_BITS_PER_PIN;
 	}
+
+	*reg += ((pin_num / ROCKCHIP_PULL_PINS_PER_REG) * 4);
+
+	*bit = (pin_num % ROCKCHIP_PULL_PINS_PER_REG);
+	*bit *= ROCKCHIP_PULL_BITS_PER_PIN;
+}
+
+static int rk3288_set_pull(struct rockchip_pin_bank *bank,
+			   int pin_num, int pull)
+{
+	struct regmap *regmap;
+	int reg, ret;
+	u8 bit, type;
+	u32 data;
+
+	if (pull == PIN_CONFIG_BIAS_PULL_PIN_DEFAULT)
+		return -ENOTSUPP;
+
+	rk3288_calc_pull_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	type = bank->pull_type[pin_num / 8];
+	ret = rockchip_translate_pull_value(type, pull);
+	if (ret < 0) {
+		debug("unsupported pull setting %d\n", pull);
+		return ret;
+	}
+
+	/* enable the write to the equivalent lower bits */
+	data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
+	data |= (ret << bit);
+	ret = regmap_write(regmap, reg, data);
+
+	return ret;
 }
 
 #define RK3288_DRV_PMU_OFFSET		0x70
@@ -199,7 +223,7 @@ static struct rockchip_pin_ctrl rk3288_pin_ctrl = {
 	.iomux_routes		= rk3288_mux_route_data,
 	.niomux_routes		= ARRAY_SIZE(rk3288_mux_route_data),
 	.set_mux		= rk3288_set_mux,
-	.pull_calc_reg		= rk3288_calc_pull_reg_and_bit,
+	.set_pull		= rk3288_set_pull,
 	.set_drive		= rk3288_set_drive,
 };
 

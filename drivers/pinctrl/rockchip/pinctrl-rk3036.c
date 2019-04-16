@@ -53,6 +53,27 @@ static void rk3036_calc_pull_reg_and_bit(struct rockchip_pin_bank *bank,
 	*bit = pin_num % RK3036_PULL_PINS_PER_REG;
 };
 
+static int rk3036_set_pull(struct rockchip_pin_bank *bank,
+			   int pin_num, int pull)
+{
+	struct regmap *regmap;
+	int reg, ret;
+	u8 bit;
+	u32 data;
+
+	if (pull != PIN_CONFIG_BIAS_PULL_PIN_DEFAULT &&
+	    pull != PIN_CONFIG_BIAS_DISABLE)
+		return -ENOTSUPP;
+
+	rk3036_calc_pull_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	data = BIT(bit + 16);
+	if (pull == PIN_CONFIG_BIAS_DISABLE)
+		data |= BIT(bit);
+	ret = regmap_write(regmap, reg, data);
+
+	return ret;
+}
+
 static struct rockchip_pin_bank rk3036_pin_banks[] = {
 	PIN_BANK(0, 32, "gpio0"),
 	PIN_BANK(1, 32, "gpio1"),
@@ -66,7 +87,7 @@ static struct rockchip_pin_ctrl rk3036_pin_ctrl = {
 	.type			= RK3036,
 	.grf_mux_offset		= 0xa8,
 	.set_mux		= rk3036_set_mux,
-	.pull_calc_reg		= rk3036_calc_pull_reg_and_bit,
+	.set_pull		= rk3036_set_pull,
 };
 
 static const struct udevice_id rk3036_pinctrl_ids[] = {

@@ -191,6 +191,33 @@ static void rk3228_calc_pull_reg_and_bit(struct rockchip_pin_bank *bank,
 	*bit *= ROCKCHIP_PULL_BITS_PER_PIN;
 }
 
+static int rk3228_set_pull(struct rockchip_pin_bank *bank,
+			   int pin_num, int pull)
+{
+	struct regmap *regmap;
+	int reg, ret;
+	u8 bit, type;
+	u32 data;
+
+	if (pull == PIN_CONFIG_BIAS_PULL_PIN_DEFAULT)
+		return -ENOTSUPP;
+
+	rk3228_calc_pull_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	type = bank->pull_type[pin_num / 8];
+	ret = rockchip_translate_pull_value(type, pull);
+	if (ret < 0) {
+		debug("unsupported pull setting %d\n", pull);
+		return ret;
+	}
+
+	/* enable the write to the equivalent lower bits */
+	data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
+	data |= (ret << bit);
+	ret = regmap_write(regmap, reg, data);
+
+	return ret;
+}
+
 #define RK3228_DRV_GRF_OFFSET		0x200
 
 static void rk3228_calc_drv_reg_and_bit(struct rockchip_pin_bank *bank,
@@ -247,7 +274,7 @@ static struct rockchip_pin_ctrl rk3228_pin_ctrl = {
 	.iomux_routes		= rk3228_mux_route_data,
 	.niomux_routes		= ARRAY_SIZE(rk3228_mux_route_data),
 	.set_mux		= rk3228_set_mux,
-	.pull_calc_reg		= rk3228_calc_pull_reg_and_bit,
+	.set_pull		= rk3228_set_pull,
 	.set_drive		= rk3228_set_drive,
 };
 

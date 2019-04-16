@@ -128,6 +128,34 @@ static void rv1108_calc_pull_reg_and_bit(struct rockchip_pin_bank *bank,
 	*bit *= ROCKCHIP_PULL_BITS_PER_PIN;
 }
 
+static int rv1108_set_pull(struct rockchip_pin_bank *bank,
+			   int pin_num, int pull)
+{
+	struct regmap *regmap;
+	int reg, ret;
+	u8 bit, type;
+	u32 data;
+
+	if (pull == PIN_CONFIG_BIAS_PULL_PIN_DEFAULT)
+		return -ENOTSUPP;
+
+	rv1108_calc_pull_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	type = bank->pull_type[pin_num / 8];
+	ret = rockchip_translate_pull_value(type, pull);
+	if (ret < 0) {
+		debug("unsupported pull setting %d\n", pull);
+		return ret;
+	}
+
+	/* enable the write to the equivalent lower bits */
+	data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
+
+	data |= (ret << bit);
+	ret = regmap_write(regmap, reg, data);
+
+	return ret;
+}
+
 #define RV1108_DRV_PMU_OFFSET		0x20
 #define RV1108_DRV_GRF_OFFSET		0x210
 
@@ -229,7 +257,7 @@ static struct rockchip_pin_ctrl rv1108_pin_ctrl = {
 	.iomux_recalced		= rv1108_mux_recalced_data,
 	.niomux_recalced	= ARRAY_SIZE(rv1108_mux_recalced_data),
 	.set_mux		= rv1108_set_mux,
-	.pull_calc_reg		= rv1108_calc_pull_reg_and_bit,
+	.set_pull		= rv1108_set_pull,
 	.set_drive		= rv1108_set_drive,
 	.schmitt_calc_reg	= rv1108_calc_schmitt_reg_and_bit,
 };

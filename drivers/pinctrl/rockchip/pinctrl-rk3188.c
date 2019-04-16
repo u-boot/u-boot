@@ -71,6 +71,33 @@ static void rk3188_calc_pull_reg_and_bit(struct rockchip_pin_bank *bank,
 	}
 }
 
+static int rk3188_set_pull(struct rockchip_pin_bank *bank,
+			   int pin_num, int pull)
+{
+	struct regmap *regmap;
+	int reg, ret;
+	u8 bit, type;
+	u32 data;
+
+	if (pull == PIN_CONFIG_BIAS_PULL_PIN_DEFAULT)
+		return -ENOTSUPP;
+
+	rk3188_calc_pull_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	type = bank->pull_type[pin_num / 8];
+	ret = rockchip_translate_pull_value(type, pull);
+	if (ret < 0) {
+		debug("unsupported pull setting %d\n", pull);
+		return ret;
+	}
+
+	/* enable the write to the equivalent lower bits */
+	data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
+	data |= (ret << bit);
+	ret = regmap_write(regmap, reg, data);
+
+	return ret;
+}
+
 static struct rockchip_pin_bank rk3188_pin_banks[] = {
 	PIN_BANK_IOMUX_FLAGS(0, 32, "gpio0", IOMUX_GPIO_ONLY, 0, 0, 0),
 	PIN_BANK(1, 32, "gpio1"),
@@ -85,7 +112,7 @@ static struct rockchip_pin_ctrl rk3188_pin_ctrl = {
 	.type			= RK3188,
 	.grf_mux_offset		= 0x60,
 	.set_mux		= rk3188_set_mux,
-	.pull_calc_reg		= rk3188_calc_pull_reg_and_bit,
+	.set_pull		= rk3188_set_pull,
 };
 
 static const struct udevice_id rk3188_pinctrl_ids[] = {

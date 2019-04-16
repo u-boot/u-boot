@@ -270,61 +270,35 @@ static int rockchip_pull_list[PULL_TYPE_MAX][4] = {
 	},
 };
 
+int rockchip_translate_pull_value(int type, int pull)
+{
+	int i, ret;
+
+	ret = -EINVAL;
+	for (i = 0; i < ARRAY_SIZE(rockchip_pull_list[type]);
+		i++) {
+		if (rockchip_pull_list[type][i] == pull) {
+			ret = i;
+			break;
+		}
+	}
+
+	return ret;
+}
+
 static int rockchip_set_pull(struct rockchip_pin_bank *bank,
 			     int pin_num, int pull)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
-	struct regmap *regmap;
-	int reg, ret, i, pull_type;
-	u8 bit;
-	u32 data;
 
 	debug("setting pull of GPIO%d-%d to %d\n", bank->bank_num,
 	      pin_num, pull);
 
-	ctrl->pull_calc_reg(bank, pin_num, &regmap, &reg, &bit);
+	if (!ctrl->set_pull)
+		return -ENOTSUPP;
 
-	switch (ctrl->type) {
-	case RK3036:
-	case RK3128:
-		data = BIT(bit + 16);
-		if (pull == PIN_CONFIG_BIAS_DISABLE)
-			data |= BIT(bit);
-		ret = regmap_write(regmap, reg, data);
-		break;
-	case RV1108:
-	case RK3188:
-	case RK3288:
-	case RK3368:
-	case RK3399:
-		pull_type = bank->pull_type[pin_num / 8];
-		ret = -EINVAL;
-		for (i = 0; i < ARRAY_SIZE(rockchip_pull_list[pull_type]);
-			i++) {
-			if (rockchip_pull_list[pull_type][i] == pull) {
-				ret = i;
-				break;
-			}
-		}
-
-		if (ret < 0) {
-			debug("unsupported pull setting %d\n", pull);
-			return ret;
-		}
-
-		/* enable the write to the equivalent lower bits */
-		data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
-		data |= (ret << bit);
-
-		ret = regmap_write(regmap, reg, data);
-		break;
-	default:
-		debug("unsupported pinctrl type\n");
-		return -EINVAL;
-	}
-
-	return ret;
+	return ctrl->set_pull(bank, pin_num, pull);
 }
 
 static int rockchip_set_schmitt(struct rockchip_pin_bank *bank,
@@ -350,28 +324,6 @@ static int rockchip_set_schmitt(struct rockchip_pin_bank *bank,
 	return regmap_write(regmap, reg, data);
 }
 
-/*
- * Pinconf_ops handling
- */
-static bool rockchip_pinconf_pull_valid(struct rockchip_pin_ctrl *ctrl,
-					unsigned int pull)
-{
-	switch (ctrl->type) {
-	case RK3036:
-	case RK3128:
-		return (pull == PIN_CONFIG_BIAS_PULL_PIN_DEFAULT ||
-			pull == PIN_CONFIG_BIAS_DISABLE);
-	case RV1108:
-	case RK3188:
-	case RK3288:
-	case RK3368:
-	case RK3399:
-		return (pull != PIN_CONFIG_BIAS_PULL_PIN_DEFAULT);
-	}
-
-	return false;
-}
-
 /* set the pin config settings for a specified pin */
 static int rockchip_pinconf_set(struct rockchip_pin_bank *bank,
 				u32 pin, u32 param, u32 arg)
@@ -382,21 +334,10 @@ static int rockchip_pinconf_set(struct rockchip_pin_bank *bank,
 
 	switch (param) {
 	case PIN_CONFIG_BIAS_DISABLE:
-		rc =  rockchip_set_pull(bank, pin, param);
-		if (rc)
-			return rc;
-		break;
-
 	case PIN_CONFIG_BIAS_PULL_UP:
 	case PIN_CONFIG_BIAS_PULL_DOWN:
 	case PIN_CONFIG_BIAS_PULL_PIN_DEFAULT:
 	case PIN_CONFIG_BIAS_BUS_HOLD:
-		if (!rockchip_pinconf_pull_valid(ctrl, param))
-			return -ENOTSUPP;
-
-		if (!arg)
-			return -EINVAL;
-
 		rc = rockchip_set_pull(bank, pin, param);
 		if (rc)
 			return rc;
