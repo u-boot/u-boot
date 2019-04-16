@@ -92,11 +92,6 @@
 #define CONFIG_SYS_SPI_ARGS_SIZE        0x80000
 
 /* SPI SPL */
-#define CONFIG_TI_EDMA3
 #define CONFIG_SYS_SPI_U_BOOT_OFFS     0x40000
-
-/* SPI */
-#define CONFIG_TI_SPI_MMAP
-#define CONFIG_QSPI_QUAD_SUPPORT
 
 #endif /* __CONFIG_AM57XX_EVM_H */

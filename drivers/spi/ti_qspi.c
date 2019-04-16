@@ -52,9 +52,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define MM_SWITCH                       0x01
 #define MEM_CS(cs)                      ((cs + 1) << 8)
 #define MEM_CS_UNSELECT                 0xfffff8ff
-#define MMAP_START_ADDR_DRA		0x5c000000
-#define MMAP_START_ADDR_AM43x		0x30000000
-#define CORE_CTRL_IO                    0x4a002558
 
 #define QSPI_CMD_READ                   (0x3 << 0)
 #define QSPI_CMD_READ_DUAL		(0x6b << 0)
@@ -98,13 +95,9 @@ struct ti_qspi_regs {
 
 /* ti qspi priv */
 struct ti_qspi_priv {
-#ifndef CONFIG_DM_SPI
-	struct spi_slave slave;
-#else
 	void *memory_map;
 	uint max_hz;
 	u32 num_cs;
-#endif
 	struct ti_qspi_regs *base;
 	void *ctrl_mod_mmap;
 	ulong fclk;
@@ -113,8 +106,9 @@ struct ti_qspi_priv {
 	u32 dc;
 };
 
-static void ti_spi_set_speed(struct ti_qspi_priv *priv, uint hz)
+static int ti_qspi_set_speed(struct udevice *bus, uint hz)
 {
+	struct ti_qspi_priv *priv = dev_get_priv(bus);
 	uint clk_div;
 
 	if (!hz)
@@ -133,6 +127,8 @@ static void ti_spi_set_speed(struct ti_qspi_priv *priv, uint hz)
 	       &priv->base->clk_ctrl);
 	/* enable SCLK and program the clk divider */
 	writel(QSPI_CLK_EN | clk_div, &priv->base->clk_ctrl);
+
+	return 0;
 }
 
 static void ti_qspi_cs_deactivate(struct ti_qspi_priv *priv)
@@ -140,38 +136,6 @@ static void ti_qspi_cs_deactivate(struct ti_qspi_priv *priv)
 	writel(priv->cmd | QSPI_INVAL, &priv->base->cmd);
 	/* dummy readl to ensure bus sync */
 	readl(&priv->base->cmd);
-}
-
-static int __ti_qspi_set_mode(struct ti_qspi_priv *priv, unsigned int mode)
-{
-	priv->dc = 0;
-	if (mode & SPI_CPHA)
-		priv->dc |= QSPI_CKPHA(0);
-	if (mode & SPI_CPOL)
-		priv->dc |= QSPI_CKPOL(0);
-	if (mode & SPI_CS_HIGH)
-		priv->dc |= QSPI_CSPOL(0);
-
-	return 0;
-}
-
-static int __ti_qspi_claim_bus(struct ti_qspi_priv *priv, int cs)
-{
-	writel(priv->dc, &priv->base->dc);
-	writel(0, &priv->base->cmd);
-	writel(0, &priv->base->data);
-
-	priv->dc <<= cs * 8;
-	writel(priv->dc, &priv->base->dc);
-
-	return 0;
-}
-
-static void __ti_qspi_release_bus(struct ti_qspi_priv *priv)
-{
-	writel(0, &priv->base->dc);
-	writel(0, &priv->base->cmd);
-	writel(0, &priv->base->data);
 }
 
 static void ti_qspi_ctrl_mode_mmap(void *ctrl_mod_mmap, int cs, bool enable)
@@ -186,15 +150,26 @@ static void ti_qspi_ctrl_mode_mmap(void *ctrl_mod_mmap, int cs, bool enable)
 	writel(val, ctrl_mod_mmap);
 }
 
-static int __ti_qspi_xfer(struct ti_qspi_priv *priv, unsigned int bitlen,
-			const void *dout, void *din, unsigned long flags,
-			u32 cs)
+static int ti_qspi_xfer(struct udevice *dev, unsigned int bitlen,
+			const void *dout, void *din, unsigned long flags)
 {
+	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
+	struct ti_qspi_priv *priv;
+	struct udevice *bus;
 	uint words = bitlen >> 3; /* fixed 8-bit word length */
 	const uchar *txp = dout;
 	uchar *rxp = din;
 	uint status;
 	int timeout;
+	unsigned int cs = slave->cs;
+
+	bus = dev->parent;
+	priv = dev_get_priv(bus);
+
+	if (cs > priv->num_cs) {
+		debug("invalid qspi chip select\n");
+		return -EINVAL;
+	}
 
 	/* Setup mmap flags */
 	if (flags & SPI_XFER_MMAP) {
@@ -316,126 +291,6 @@ void spi_flash_copy_mmap(void *data, void *offset, size_t len)
 }
 #endif
 
-#ifndef CONFIG_DM_SPI
-
-static inline struct ti_qspi_priv *to_ti_qspi_priv(struct spi_slave *slave)
-{
-	return container_of(slave, struct ti_qspi_priv, slave);
-}
-
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
-{
-	return 1;
-}
-
-void spi_cs_activate(struct spi_slave *slave)
-{
-	/* CS handled in xfer */
-	return;
-}
-
-void spi_cs_deactivate(struct spi_slave *slave)
-{
-	struct ti_qspi_priv *priv = to_ti_qspi_priv(slave);
-	ti_qspi_cs_deactivate(priv);
-}
-
-void spi_init(void)
-{
-	/* nothing to do */
-}
-
-static void ti_spi_setup_spi_register(struct ti_qspi_priv *priv)
-{
-	u32 memval = 0;
-
-#ifdef CONFIG_QSPI_QUAD_SUPPORT
-	struct spi_slave *slave = &priv->slave;
-	memval |= (QSPI_CMD_READ_QUAD | QSPI_SETUP0_NUM_A_BYTES |
-			QSPI_SETUP0_NUM_D_BYTES_8_BITS |
-			QSPI_SETUP0_READ_QUAD | QSPI_CMD_WRITE |
-			QSPI_NUM_DUMMY_BITS);
-	slave->mode |= SPI_RX_QUAD;
-#else
-	memval |= QSPI_CMD_READ | QSPI_SETUP0_NUM_A_BYTES |
-			QSPI_SETUP0_NUM_D_BYTES_NO_BITS |
-			QSPI_SETUP0_READ_NORMAL | QSPI_CMD_WRITE |
-			QSPI_NUM_DUMMY_BITS;
-#endif
-
-	writel(memval, &priv->base->setup0);
-}
-
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-				  unsigned int max_hz, unsigned int mode)
-{
-	struct ti_qspi_priv *priv;
-
-#ifdef CONFIG_AM43XX
-	gpio_request(CONFIG_QSPI_SEL_GPIO, "qspi_gpio");
-	gpio_direction_output(CONFIG_QSPI_SEL_GPIO, 1);
-#endif
-
-	priv = spi_alloc_slave(struct ti_qspi_priv, bus, cs);
-	if (!priv) {
-		printf("SPI_error: Fail to allocate ti_qspi_priv\n");
-		return NULL;
-	}
-
-	priv->base = (struct ti_qspi_regs *)QSPI_BASE;
-	priv->mode = mode;
-#if defined(CONFIG_DRA7XX)
-	priv->ctrl_mod_mmap = (void *)CORE_CTRL_IO;
-	priv->slave.memory_map = (void *)MMAP_START_ADDR_DRA;
-	priv->fclk = QSPI_DRA7XX_FCLK;
-#else
-	priv->slave.memory_map = (void *)MMAP_START_ADDR_AM43x;
-	priv->fclk = QSPI_FCLK;
-#endif
-
-	ti_spi_set_speed(priv, max_hz);
-
-#ifdef CONFIG_TI_SPI_MMAP
-	ti_spi_setup_spi_register(priv);
-#endif
-
-	return &priv->slave;
-}
-
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct ti_qspi_priv *priv = to_ti_qspi_priv(slave);
-	free(priv);
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	struct ti_qspi_priv *priv = to_ti_qspi_priv(slave);
-
-	debug("%s: bus:%i cs:%i\n", __func__, priv->slave.bus, priv->slave.cs);
-	__ti_qspi_set_mode(priv, priv->mode);
-	return __ti_qspi_claim_bus(priv, priv->slave.cs);
-}
-void spi_release_bus(struct spi_slave *slave)
-{
-	struct ti_qspi_priv *priv = to_ti_qspi_priv(slave);
-
-	debug("%s: bus:%i cs:%i\n", __func__, priv->slave.bus, priv->slave.cs);
-	__ti_qspi_release_bus(priv);
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
-	     void *din, unsigned long flags)
-{
-	struct ti_qspi_priv *priv = to_ti_qspi_priv(slave);
-
-	debug("spi_xfer: bus:%i cs:%i bitlen:%i flags:%lx\n",
-	      priv->slave.bus, priv->slave.cs, bitlen, flags);
-	return __ti_qspi_xfer(priv, bitlen, dout, din, flags, priv->slave.cs);
-}
-
-#else /* CONFIG_DM_SPI */
-
 static void __ti_qspi_setup_memorymap(struct ti_qspi_priv *priv,
 				      struct spi_slave *slave,
 				      bool enable)
@@ -472,20 +327,19 @@ static void __ti_qspi_setup_memorymap(struct ti_qspi_priv *priv,
 	writel(memval, &priv->base->setup0);
 }
 
-
-static int ti_qspi_set_speed(struct udevice *bus, uint max_hz)
-{
-	struct ti_qspi_priv *priv = dev_get_priv(bus);
-
-	ti_spi_set_speed(priv, max_hz);
-
-	return 0;
-}
-
 static int ti_qspi_set_mode(struct udevice *bus, uint mode)
 {
 	struct ti_qspi_priv *priv = dev_get_priv(bus);
-	return __ti_qspi_set_mode(priv, mode);
+
+	priv->dc = 0;
+	if (mode & SPI_CPHA)
+		priv->dc |= QSPI_CKPHA(0);
+	if (mode & SPI_CPOL)
+		priv->dc |= QSPI_CKPOL(0);
+	if (mode & SPI_CS_HIGH)
+		priv->dc |= QSPI_CSPOL(0);
+
+	return 0;
 }
 
 static int ti_qspi_claim_bus(struct udevice *dev)
@@ -505,7 +359,14 @@ static int ti_qspi_claim_bus(struct udevice *dev)
 
 	__ti_qspi_setup_memorymap(priv, slave, true);
 
-	return __ti_qspi_claim_bus(priv, slave_plat->cs);
+	writel(priv->dc, &priv->base->dc);
+	writel(0, &priv->base->cmd);
+	writel(0, &priv->base->data);
+
+	priv->dc <<= slave_plat->cs * 8;
+	writel(priv->dc, &priv->base->dc);
+
+	return 0;
 }
 
 static int ti_qspi_release_bus(struct udevice *dev)
@@ -518,27 +379,12 @@ static int ti_qspi_release_bus(struct udevice *dev)
 	priv = dev_get_priv(bus);
 
 	__ti_qspi_setup_memorymap(priv, slave, false);
-	__ti_qspi_release_bus(priv);
+
+	writel(0, &priv->base->dc);
+	writel(0, &priv->base->cmd);
+	writel(0, &priv->base->data);
 
 	return 0;
-}
-
-static int ti_qspi_xfer(struct udevice *dev, unsigned int bitlen,
-			const void *dout, void *din, unsigned long flags)
-{
-	struct dm_spi_slave_platdata *slave = dev_get_parent_platdata(dev);
-	struct ti_qspi_priv *priv;
-	struct udevice *bus;
-
-	bus = dev->parent;
-	priv = dev_get_priv(bus);
-
-	if (slave->cs > priv->num_cs) {
-		debug("invalid qspi chip select\n");
-		return -EINVAL;
-	}
-
-	return __ti_qspi_xfer(priv, bitlen, dout, din, flags, slave->cs);
 }
 
 static int ti_qspi_probe(struct udevice *bus)
@@ -648,4 +494,3 @@ U_BOOT_DRIVER(ti_qspi) = {
 	.probe	= ti_qspi_probe,
 	.child_pre_probe = ti_qspi_child_pre_probe,
 };
-#endif /* CONFIG_DM_SPI */
