@@ -155,6 +155,30 @@ static void rv1108_calc_drv_reg_and_bit(struct rockchip_pin_bank *bank,
 	*bit *= ROCKCHIP_DRV_BITS_PER_PIN;
 }
 
+static int rv1108_set_drive(struct rockchip_pin_bank *bank,
+			    int pin_num, int strength)
+{
+	struct regmap *regmap;
+	int reg, ret;
+	u32 data;
+	u8 bit;
+	int type = bank->drv[pin_num / 8].drv_type;
+
+	rv1108_calc_drv_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	ret = rockchip_translate_drive_value(type, strength);
+	if (ret < 0) {
+		debug("unsupported driver strength %d\n", strength);
+		return ret;
+	}
+
+	/* enable the write to the equivalent lower bits */
+	data = ((1 << ROCKCHIP_DRV_BITS_PER_PIN) - 1) << (bit + 16);
+
+	data |= (ret << bit);
+	ret = regmap_write(regmap, reg, data);
+	return ret;
+}
+
 #define RV1108_SCHMITT_PMU_OFFSET		0x30
 #define RV1108_SCHMITT_GRF_OFFSET		0x388
 #define RV1108_SCHMITT_BANK_STRIDE		8
@@ -206,7 +230,7 @@ static struct rockchip_pin_ctrl rv1108_pin_ctrl = {
 	.niomux_recalced	= ARRAY_SIZE(rv1108_mux_recalced_data),
 	.set_mux		= rv1108_set_mux,
 	.pull_calc_reg		= rv1108_calc_pull_reg_and_bit,
-	.drv_calc_reg		= rv1108_calc_drv_reg_and_bit,
+	.set_drive		= rv1108_set_drive,
 	.schmitt_calc_reg	= rv1108_calc_schmitt_reg_and_bit,
 };
 

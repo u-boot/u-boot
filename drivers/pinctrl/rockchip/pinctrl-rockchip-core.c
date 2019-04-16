@@ -222,93 +222,37 @@ static int rockchip_perpin_drv_list[DRV_TYPE_MAX][8] = {
 	{ 4, 7, 10, 13, 16, 19, 22, 26 }
 };
 
+int rockchip_translate_drive_value(int type, int strength)
+{
+	int i, ret;
+
+	ret = -EINVAL;
+	for (i = 0; i < ARRAY_SIZE(rockchip_perpin_drv_list[type]); i++) {
+		if (rockchip_perpin_drv_list[type][i] == strength) {
+			ret = i;
+			break;
+		} else if (rockchip_perpin_drv_list[type][i] < 0) {
+			ret = rockchip_perpin_drv_list[type][i];
+			break;
+		}
+	}
+
+	return ret;
+}
+
 static int rockchip_set_drive_perpin(struct rockchip_pin_bank *bank,
 				     int pin_num, int strength)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
-	struct regmap *regmap;
-	int reg, ret, i;
-	u32 data, rmask_bits, temp;
-	u8 bit;
-	int drv_type = bank->drv[pin_num / 8].drv_type;
 
 	debug("setting drive of GPIO%d-%d to %d\n", bank->bank_num,
 	      pin_num, strength);
 
-	ctrl->drv_calc_reg(bank, pin_num, &regmap, &reg, &bit);
+	if (!ctrl->set_drive)
+		return -ENOTSUPP;
 
-	ret = -EINVAL;
-	for (i = 0; i < ARRAY_SIZE(rockchip_perpin_drv_list[drv_type]); i++) {
-		if (rockchip_perpin_drv_list[drv_type][i] == strength) {
-			ret = i;
-			break;
-		} else if (rockchip_perpin_drv_list[drv_type][i] < 0) {
-			ret = rockchip_perpin_drv_list[drv_type][i];
-			break;
-		}
-	}
-
-	if (ret < 0) {
-		debug("unsupported driver strength %d\n", strength);
-		return ret;
-	}
-
-	switch (drv_type) {
-	case DRV_TYPE_IO_1V8_3V0_AUTO:
-	case DRV_TYPE_IO_3V3_ONLY:
-		rmask_bits = ROCKCHIP_DRV_3BITS_PER_PIN;
-		switch (bit) {
-		case 0 ... 12:
-			/* regular case, nothing to do */
-			break;
-		case 15:
-			/*
-			 * drive-strength offset is special, as it is spread
-			 * over 2 registers, the bit data[15] contains bit 0
-			 * of the value while temp[1:0] contains bits 2 and 1
-			 */
-			data = (ret & 0x1) << 15;
-			temp = (ret >> 0x1) & 0x3;
-
-			data |= BIT(31);
-			ret = regmap_write(regmap, reg, data);
-			if (ret)
-				return ret;
-
-			temp |= (0x3 << 16);
-			reg += 0x4;
-			ret = regmap_write(regmap, reg, temp);
-
-			return ret;
-		case 18 ... 21:
-			/* setting fully enclosed in the second register */
-			reg += 4;
-			bit -= 16;
-			break;
-		default:
-			debug("unsupported bit: %d for pinctrl drive type: %d\n",
-			      bit, drv_type);
-			return -EINVAL;
-		}
-		break;
-	case DRV_TYPE_IO_DEFAULT:
-	case DRV_TYPE_IO_1V8_OR_3V0:
-	case DRV_TYPE_IO_1V8_ONLY:
-		rmask_bits = ROCKCHIP_DRV_BITS_PER_PIN;
-		break;
-	default:
-		debug("unsupported pinctrl drive type: %d\n",
-		      drv_type);
-		return -EINVAL;
-	}
-
-	/* enable the write to the equivalent lower bits */
-	data = ((1 << rmask_bits) - 1) << (bit + 16);
-	data |= (ret << bit);
-
-	ret = regmap_write(regmap, reg, data);
-	return ret;
+	return ctrl->set_drive(bank, pin_num, strength);
 }
 
 static int rockchip_pull_list[PULL_TYPE_MAX][4] = {
@@ -459,9 +403,6 @@ static int rockchip_pinconf_set(struct rockchip_pin_bank *bank,
 		break;
 
 	case PIN_CONFIG_DRIVE_STRENGTH:
-		if (!ctrl->drv_calc_reg)
-			return -ENOTSUPP;
-
 		rc = rockchip_set_drive_perpin(bank, pin, arg);
 		if (rc < 0)
 			return rc;

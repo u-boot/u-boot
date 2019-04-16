@@ -208,6 +208,29 @@ static void rk3228_calc_drv_reg_and_bit(struct rockchip_pin_bank *bank,
 	*bit *= ROCKCHIP_DRV_BITS_PER_PIN;
 }
 
+static int rk3228_set_drive(struct rockchip_pin_bank *bank,
+			    int pin_num, int strength)
+{
+	struct regmap *regmap;
+	int reg, ret;
+	u32 data;
+	u8 bit;
+	int type = bank->drv[pin_num / 8].drv_type;
+
+	rk3228_calc_drv_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	ret = rockchip_translate_drive_value(type, strength);
+	if (ret < 0) {
+		debug("unsupported driver strength %d\n", strength);
+		return ret;
+	}
+
+	/* enable the write to the equivalent lower bits */
+	data = ((1 << ROCKCHIP_DRV_BITS_PER_PIN) - 1) << (bit + 16);
+	data |= (ret << bit);
+	ret = regmap_write(regmap, reg, data);
+	return ret;
+}
+
 static struct rockchip_pin_bank rk3228_pin_banks[] = {
 	PIN_BANK(0, 32, "gpio0"),
 	PIN_BANK(1, 32, "gpio1"),
@@ -225,7 +248,7 @@ static struct rockchip_pin_ctrl rk3228_pin_ctrl = {
 	.niomux_routes		= ARRAY_SIZE(rk3228_mux_route_data),
 	.set_mux		= rk3228_set_mux,
 	.pull_calc_reg		= rk3228_calc_pull_reg_and_bit,
-	.drv_calc_reg		= rk3228_calc_drv_reg_and_bit,
+	.set_drive		= rk3228_set_drive,
 };
 
 static const struct udevice_id rk3228_pinctrl_ids[] = {

@@ -113,10 +113,6 @@ static void rk3288_calc_drv_reg_and_bit(struct rockchip_pin_bank *bank,
 	if (bank->bank_num == 0) {
 		*regmap = priv->regmap_pmu;
 		*reg = RK3288_DRV_PMU_OFFSET;
-
-		*reg += ((pin_num / ROCKCHIP_DRV_PINS_PER_REG) * 4);
-		*bit = pin_num % ROCKCHIP_DRV_PINS_PER_REG;
-		*bit *= ROCKCHIP_DRV_BITS_PER_PIN;
 	} else {
 		*regmap = priv->regmap_base;
 		*reg = RK3288_DRV_GRF_OFFSET;
@@ -124,11 +120,34 @@ static void rk3288_calc_drv_reg_and_bit(struct rockchip_pin_bank *bank,
 		/* correct the offset, as we're starting with the 2nd bank */
 		*reg -= 0x10;
 		*reg += bank->bank_num * ROCKCHIP_DRV_BANK_STRIDE;
-		*reg += ((pin_num / ROCKCHIP_DRV_PINS_PER_REG) * 4);
-
-		*bit = (pin_num % ROCKCHIP_DRV_PINS_PER_REG);
-		*bit *= ROCKCHIP_DRV_BITS_PER_PIN;
 	}
+
+	*reg += ((pin_num / ROCKCHIP_DRV_PINS_PER_REG) * 4);
+	*bit = (pin_num % ROCKCHIP_DRV_PINS_PER_REG);
+	*bit *= ROCKCHIP_DRV_BITS_PER_PIN;
+}
+
+static int rk3288_set_drive(struct rockchip_pin_bank *bank,
+			    int pin_num, int strength)
+{
+	struct regmap *regmap;
+	int reg, ret;
+	u32 data;
+	u8 bit;
+	int type = bank->drv[pin_num / 8].drv_type;
+
+	rk3288_calc_drv_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	ret = rockchip_translate_drive_value(type, strength);
+	if (ret < 0) {
+		debug("unsupported driver strength %d\n", strength);
+		return ret;
+	}
+
+	/* enable the write to the equivalent lower bits */
+	data = ((1 << ROCKCHIP_DRV_BITS_PER_PIN) - 1) << (bit + 16);
+	data |= (ret << bit);
+	ret = regmap_write(regmap, reg, data);
+	return ret;
 }
 
 static struct rockchip_pin_bank rk3288_pin_banks[] = {
@@ -174,7 +193,7 @@ static struct rockchip_pin_ctrl rk3288_pin_ctrl = {
 	.niomux_routes		= ARRAY_SIZE(rk3288_mux_route_data),
 	.set_mux		= rk3288_set_mux,
 	.pull_calc_reg		= rk3288_calc_pull_reg_and_bit,
-	.drv_calc_reg		= rk3288_calc_drv_reg_and_bit,
+	.set_drive		= rk3288_set_drive,
 };
 
 static const struct udevice_id rk3288_pinctrl_ids[] = {

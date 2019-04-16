@@ -283,9 +283,8 @@ struct rockchip_pin_ctrl {
 	void	(*pull_calc_reg)(struct rockchip_pin_bank *bank,
 				 int pin_num, struct regmap **regmap,
 				 int *reg, u8 *bit);
-	void	(*drv_calc_reg)(struct rockchip_pin_bank *bank,
-				int pin_num, struct regmap **regmap,
-				int *reg, u8 *bit);
+	int	(*set_drive)(struct rockchip_pin_bank *bank,
+			     int pin_num, int strength);
 	int	(*schmitt_calc_reg)(struct rockchip_pin_bank *bank,
 				    int pin_num, struct regmap **regmap,
 				    int *reg, u8 *bit);
@@ -306,5 +305,6 @@ void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
 bool rockchip_get_mux_route(struct rockchip_pin_bank *bank, int pin,
 			    int mux, u32 *reg, u32 *value);
 int rockchip_get_mux_data(int mux_type, int pin, u8 *bit, int *mask);
+int rockchip_translate_drive_value(int type, int strength);
 
 #endif /* __DRIVERS_PINCTRL_ROCKCHIP_H */
