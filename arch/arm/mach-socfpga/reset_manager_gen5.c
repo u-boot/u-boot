@@ -103,7 +103,8 @@ void socfpga_bridges_reset(int enable)
 
 	if (enable) {
 		/* brdmodrst */
-		writel(0xffffffff, &reset_manager_base->brg_mod_reset);
+		writel(0x7, &reset_manager_base->brg_mod_reset);
+		writel(L3REGS_REMAP_OCRAM_MASK, SOCFPGA_L3REGS_ADDRESS);
 	} else {
 		socfpga_bridges_set_handoff_regs(false, false, false);
 
