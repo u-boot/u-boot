@@ -223,4 +223,39 @@ struct socfpga_data_mgr {
 	u32	mem_t_add;
 	u32	t_rl_add;
 };
+
+/* This struct describes the controller @ SOCFPGA_SDR_ADDRESS */
+struct socfpga_sdr {
+	/* SDR_PHYGRP_SCCGRP_ADDRESS */
+	u8 _align1[0xe00];
+	/* SDR_PHYGRP_SCCGRP_ADDRESS | 0xe00 */
+	struct socfpga_sdr_scc_mgr sdr_scc_mgr;
+	u8 _align2[0x1bc];
+	/* SDR_PHYGRP_PHYMGRGRP_ADDRESS */
+	struct socfpga_phy_mgr_cmd phy_mgr_cmd;
+	u8 _align3[0x2c];
+	/* SDR_PHYGRP_PHYMGRGRP_ADDRESS | 0x40 */
+	struct socfpga_phy_mgr_cfg phy_mgr_cfg;
+	u8 _align4[0xfa0];
+	/* SDR_PHYGRP_RWMGRGRP_ADDRESS */
+	u8 rwmgr_grp[0x800];
+	/* SDR_PHYGRP_RWMGRGRP_ADDRESS | 0x800 */
+	struct socfpga_sdr_rw_load_manager sdr_rw_load_mgr_regs;
+	u8 _align5[0x3f0];
+	/* SDR_PHYGRP_RWMGRGRP_ADDRESS | 0xC00 */
+	struct socfpga_sdr_rw_load_jump_manager sdr_rw_load_jump_mgr_regs;
+	u8 _align6[0x13f0];
+	/* SDR_PHYGRP_DATAMGRGRP_ADDRESS */
+	struct socfpga_data_mgr data_mgr;
+	u8 _align7[0x7f0];
+	/* SDR_PHYGRP_REGFILEGRP_ADDRESS */
+	struct socfpga_sdr_reg_file sdr_reg_file;
+	u8 _align8[0x7c8];
+	/* SDR_CTRLGRP_ADDRESS */
+	struct socfpga_sdr_ctrl sdr_ctrl;
+	u8 _align9[0xea4];
+};
+
+int sdram_calibration_full(struct socfpga_sdr *sdr);
+
 #endif /* _SEQUENCER_H_ */

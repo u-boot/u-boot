@@ -791,9 +791,9 @@
 			reg = <0xfffec000 0x100>;
 		};
 
-		sdr: sdr@ffc25000 {
+		sdr: sdr@ffc20000 {
 			compatible = "altr,sdr-ctl", "syscon";
-			reg = <0xffc25000 0x1000>;
+			reg = <0xffc20000 0x6000>;
 			resets = <&rst SDR_RESET>;
 		};
 

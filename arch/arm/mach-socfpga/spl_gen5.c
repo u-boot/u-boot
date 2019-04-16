@@ -21,6 +21,7 @@
 #include <debug_uart.h>
 #include <fdtdec.h>
 #include <watchdog.h>
+#include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -123,9 +124,9 @@ static void socfpga_pl310_clear(void)
 void board_init_f(ulong dummy)
 {
 	const struct cm_config *cm_default_cfg = cm_get_default_config();
-	unsigned long sdram_size;
 	unsigned long reg;
 	int ret;
+	struct udevice *dev;
 
 	/*
 	 * First C code to run. Clear fake OCRAM ECC first as SBE
@@ -156,7 +157,6 @@ void board_init_f(ulong dummy)
 		socfpga_bridges_reset(1);
 	}
 
-	socfpga_per_reset(SOCFPGA_RESET(SDR), 0);
 	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
 	socfpga_per_reset(SOCFPGA_RESET(OSC1TIMER0), 0);
 
@@ -200,27 +200,16 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
+	ret = uclass_get_device(UCLASS_RESET, 0, &dev);
+	if (ret)
+		debug("Reset init failed: %d\n", ret);
+
 	/* enable console uart printing */
 	preloader_console_init();
 
-	if (sdram_mmr_init_full(0xffffffff) != 0) {
-		puts("SDRAM init failed.\n");
-		hang();
-	}
-
-	debug("SDRAM: Calibrating PHY\n");
-	/* SDRAM calibration */
-	if (sdram_calibration_full() == 0) {
-		puts("SDRAM calibration failed.\n");
-		hang();
-	}
-
-	sdram_size = sdram_calculate_size();
-	debug("SDRAM: %ld MiB\n", sdram_size >> 20);
-
-	/* Sanity check ensure correct SDRAM size specified */
-	if (get_ram_size(0, sdram_size) != sdram_size) {
-		puts("SDRAM size check failed!\n");
+	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (ret) {
+		debug("DRAM init failed: %d\n", ret);
 		hang();
 	}
 

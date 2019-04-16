@@ -3705,11 +3705,18 @@ static void initialize_tracking(void)
 	       &sdr_reg_file->trk_rfsh);
 }
 
-int sdram_calibration_full(void)
+int sdram_calibration_full(struct socfpga_sdr *sdr)
 {
 	struct param_type my_param;
 	struct gbl_type my_gbl;
 	u32 pass;
+
+	/*
+	 * For size reasons, this file uses hard coded addresses.
+	 * Check if we are called with the correct address.
+	 */
+	if (sdr != (struct socfpga_sdr *)SOCFPGA_SDR_ADDRESS)
+		return -ENODEV;
 
 	memset(&my_param, 0, sizeof(my_param));
 	memset(&my_gbl, 0, sizeof(my_gbl));
