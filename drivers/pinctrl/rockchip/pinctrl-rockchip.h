@@ -8,16 +8,6 @@
 
 #include <linux/types.h>
 
-enum rockchip_pinctrl_type {
-	RV1108,
-	RK3036,
-	RK3128,
-	RK3188,
-	RK3288,
-	RK3368,
-	RK3399,
-};
-
 /**
  * Encode variants of iomux registers into a type variable
  */
@@ -266,8 +256,6 @@ struct rockchip_pin_ctrl {
 	struct rockchip_pin_bank	*pin_banks;
 	u32				nr_banks;
 	u32				nr_pins;
-	char				*label;
-	enum rockchip_pinctrl_type	type;
 	int				grf_mux_offset;
 	int				pmu_mux_offset;
 	int				grf_drv_offset;
