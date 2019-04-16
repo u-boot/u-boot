@@ -509,9 +509,8 @@ static const struct pinconf_param rockchip_conf_params[] = {
 	{ "bias-bus-hold", PIN_CONFIG_BIAS_BUS_HOLD, 0 },
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 1 },
 	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_DOWN, 1 },
+	{ "bias-pull-pin-default", PIN_CONFIG_BIAS_PULL_PIN_DEFAULT, 1 },
 	{ "drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 0 },
-	{ "input-enable", PIN_CONFIG_INPUT_ENABLE, 1 },
-	{ "input-disable", PIN_CONFIG_INPUT_ENABLE, 0 },
 	{ "input-schmitt-disable", PIN_CONFIG_INPUT_SCHMITT_ENABLE, 0 },
 	{ "input-schmitt-enable", PIN_CONFIG_INPUT_SCHMITT_ENABLE, 1 },
 };
