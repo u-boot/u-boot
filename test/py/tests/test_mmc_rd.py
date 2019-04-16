@@ -13,6 +13,53 @@ import u_boot_utils
 This test relies on boardenv_* to containing configuration values to define
 which MMC devices should be tested. For example:
 
+# Configuration data for test_mmc_dev, test_mmc_rescan, test_mmc_info; defines
+# whole MMC devices that mmc dev/rescan/info commands may operate upon.
+env__mmc_dev_configs = (
+    {
+        'fixture_id': 'emmc-boot0',
+        'is_emmc': True,
+        'devid': 0,
+        'partid': 1,
+        'info_device': ???,
+        'info_speed': ???,
+        'info_mode': ???,
+        'info_buswidth': ???.
+    },
+    {
+        'fixture_id': 'emmc-boot1',
+        'is_emmc': True,
+        'devid': 0,
+        'partid': 2,
+        'info_device': ???,
+        'info_speed': ???,
+        'info_mode': ???,
+        'info_buswidth': ???.
+    },
+    {
+        'fixture_id': 'emmc-data',
+        'is_emmc': True,
+        'devid': 0,
+        'partid': 0,
+        'info_device': ???,
+        'info_speed': ???,
+        'info_mode': ???,
+        'info_buswidth': ???.
+    },
+    {
+        'fixture_id': 'sd',
+        'is_emmc': False,
+        'devid': 1,
+        'partid': None,
+        'info_device': ???,
+        'info_speed': ???,
+        'info_mode': ???,
+        'info_buswidth': ???.
+    },
+}
+
+# Configuration data for test_mmc_rd; defines regions of the MMC (entire
+# devices, or ranges of sectors) which can be read:
 env__mmc_rd_configs = (
     {
         'fixture_id': 'emmc-boot0',
@@ -85,12 +132,12 @@ def mmc_dev(u_boot_console, is_emmc, devid, partid):
     assert good_response in response
 
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_mmc_dev(u_boot_console, env__mmc_rd_config):
+def test_mmc_dev(u_boot_console, env__mmc_dev_config):
     """Test the "mmc dev" command.
 
     Args:
         u_boot_console: A U-Boot console connection.
-        env__mmc_rd_config: The single MMC configuration on which
+        env__mmc_dev_config: The single MMC configuration on which
             to run the test. See the file-level comment above for details
             of the format.
 
@@ -98,20 +145,20 @@ def test_mmc_dev(u_boot_console, env__mmc_rd_config):
         Nothing.
     """
 
-    is_emmc = env__mmc_rd_config['is_emmc']
-    devid = env__mmc_rd_config['devid']
-    partid = env__mmc_rd_config.get('partid', 0)
+    is_emmc = env__mmc_dev_config['is_emmc']
+    devid = env__mmc_dev_config['devid']
+    partid = env__mmc_dev_config.get('partid', 0)
 
     # Select MMC device
     mmc_dev(u_boot_console, is_emmc, devid, partid)
 
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_mmc_rescan(u_boot_console, env__mmc_rd_config):
+def test_mmc_rescan(u_boot_console, env__mmc_dev_config):
     """Test the "mmc rescan" command.
 
     Args:
         u_boot_console: A U-Boot console connection.
-        env__mmc_rd_config: The single MMC configuration on which
+        env__mmc_dev_config: The single MMC configuration on which
             to run the test. See the file-level comment above for details
             of the format.
 
@@ -119,9 +166,9 @@ def test_mmc_rescan(u_boot_console, env__mmc_rd_config):
         Nothing.
     """
 
-    is_emmc = env__mmc_rd_config['is_emmc']
-    devid = env__mmc_rd_config['devid']
-    partid = env__mmc_rd_config.get('partid', 0)
+    is_emmc = env__mmc_dev_config['is_emmc']
+    devid = env__mmc_dev_config['devid']
+    partid = env__mmc_dev_config.get('partid', 0)
 
     # Select MMC device
     mmc_dev(u_boot_console, is_emmc, devid, partid)
@@ -132,12 +179,12 @@ def test_mmc_rescan(u_boot_console, env__mmc_rd_config):
     assert 'no card present' not in response
 
 @pytest.mark.buildconfigspec('cmd_mmc')
-def test_mmc_info(u_boot_console, env__mmc_rd_config):
+def test_mmc_info(u_boot_console, env__mmc_dev_config):
     """Test the "mmc info" command.
 
     Args:
         u_boot_console: A U-Boot console connection.
-        env__mmc_rd_config: The single MMC configuration on which
+        env__mmc_dev_config: The single MMC configuration on which
             to run the test. See the file-level comment above for details
             of the format.
 
@@ -145,13 +192,13 @@ def test_mmc_info(u_boot_console, env__mmc_rd_config):
         Nothing.
     """
 
-    is_emmc = env__mmc_rd_config['is_emmc']
-    devid = env__mmc_rd_config['devid']
-    partid = env__mmc_rd_config.get('partid', 0)
-    info_device = env__mmc_rd_config['info_device']
-    info_speed = env__mmc_rd_config['info_speed']
-    info_mode = env__mmc_rd_config['info_mode']
-    info_buswidth = env__mmc_rd_config['info_buswidth']
+    is_emmc = env__mmc_dev_config['is_emmc']
+    devid = env__mmc_dev_config['devid']
+    partid = env__mmc_dev_config.get('partid', 0)
+    info_device = env__mmc_dev_config['info_device']
+    info_speed = env__mmc_dev_config['info_speed']
+    info_mode = env__mmc_dev_config['info_mode']
+    info_buswidth = env__mmc_dev_config['info_buswidth']
 
     # Select MMC device
     mmc_dev(u_boot_console, is_emmc, devid, partid)
