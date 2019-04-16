@@ -54,7 +54,15 @@ static int rk3288_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
 		}
 	}
 
-	data = (mask << (bit + 16));
+	/* bank0 is special, there are no higher 16 bit writing bits. */
+	if (bank->bank_num == 0) {
+		regmap_read(regmap, reg, &data);
+		data &= ~(mask << bit);
+	} else {
+		/* enable the write to the equivalent lower bits */
+		data = (mask << (bit + 16));
+	}
+
 	data |= (mux & mask) << bit;
 	ret = regmap_write(regmap, reg, data);
 
