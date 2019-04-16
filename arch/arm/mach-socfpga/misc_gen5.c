@@ -239,9 +239,19 @@ static void socfpga_sdram_apply_static_cfg(void)
 	: : "r"(val), "r"(&sdr_ctrl->static_cfg) : "memory", "cc");
 }
 
-void do_bridge_reset(int enable)
+void do_bridge_reset(int enable, unsigned int mask)
 {
+	int i;
+
 	if (enable) {
+		socfpga_bridges_set_handoff_regs(!(mask & BIT(0)),
+						 !(mask & BIT(1)),
+						 !(mask & BIT(2)));
+		for (i = 0; i < 2; i++) {	/* Reload SW setting cache */
+			iswgrp_handoff[i] =
+				readl(&sysmgr_regs->iswgrp_handoff[i]);
+		}
+
 		writel(iswgrp_handoff[2], &sysmgr_regs->fpgaintfgrp_module);
 		socfpga_sdram_apply_static_cfg();
 		writel(iswgrp_handoff[3], &sdr_ctrl->fpgaport_rst);

@@ -39,6 +39,6 @@ void socfpga_init_security_policies(void);
 void socfpga_sdram_remap_zero(void);
 #endif
 
-void do_bridge_reset(int enable);
+void do_bridge_reset(int enable, unsigned int mask);
 
 #endif /* _MISC_H_ */
