@@ -143,8 +143,15 @@ static int rk3288_set_drive(struct rockchip_pin_bank *bank,
 		return ret;
 	}
 
-	/* enable the write to the equivalent lower bits */
-	data = ((1 << ROCKCHIP_DRV_BITS_PER_PIN) - 1) << (bit + 16);
+	/* bank0 is special, there are no higher 16 bit writing bits. */
+	if (bank->bank_num == 0) {
+		regmap_read(regmap, reg, &data);
+		data &= ~(((1 << ROCKCHIP_DRV_BITS_PER_PIN) - 1) << bit);
+	} else {
+		/* enable the write to the equivalent lower bits */
+		data = ((1 << ROCKCHIP_DRV_BITS_PER_PIN) - 1) << (bit + 16);
+	}
+
 	data |= (ret << bit);
 	ret = regmap_write(regmap, reg, data);
 	return ret;
