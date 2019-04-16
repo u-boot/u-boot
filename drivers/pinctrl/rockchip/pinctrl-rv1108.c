@@ -237,6 +237,21 @@ static int rv1108_calc_schmitt_reg_and_bit(struct rockchip_pin_bank *bank,
 	return 0;
 }
 
+static int rv1108_set_schmitt(struct rockchip_pin_bank *bank,
+			      int pin_num, int enable)
+{
+	struct regmap *regmap;
+	int reg;
+	u8 bit;
+	u32 data;
+
+	rv1108_calc_schmitt_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	/* enable the write to the equivalent lower bits */
+	data = BIT(bit + 16) | (enable << bit);
+
+	return regmap_write(regmap, reg, data);
+}
+
 static struct rockchip_pin_bank rv1108_pin_banks[] = {
 	PIN_BANK_IOMUX_FLAGS(0, 32, "gpio0", IOMUX_SOURCE_PMU,
 					     IOMUX_SOURCE_PMU,
@@ -257,7 +272,7 @@ static struct rockchip_pin_ctrl rv1108_pin_ctrl = {
 	.set_mux		= rv1108_set_mux,
 	.set_pull		= rv1108_set_pull,
 	.set_drive		= rv1108_set_drive,
-	.schmitt_calc_reg	= rv1108_calc_schmitt_reg_and_bit,
+	.set_schmitt		= rv1108_set_schmitt,
 };
 
 static const struct udevice_id rv1108_pinctrl_ids[] = {

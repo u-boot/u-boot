@@ -271,9 +271,8 @@ struct rockchip_pin_ctrl {
 			    int pin_num, int pull);
 	int	(*set_drive)(struct rockchip_pin_bank *bank,
 			     int pin_num, int strength);
-	int	(*schmitt_calc_reg)(struct rockchip_pin_bank *bank,
-				    int pin_num, struct regmap **regmap,
-				    int *reg, u8 *bit);
+	int	(*set_schmitt)(struct rockchip_pin_bank *bank,
+			       int pin_num, int enable);
 };
 
 /**

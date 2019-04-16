@@ -306,30 +306,20 @@ static int rockchip_set_schmitt(struct rockchip_pin_bank *bank,
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
-	struct regmap *regmap;
-	int reg, ret;
-	u8 bit;
-	u32 data;
 
 	debug("setting input schmitt of GPIO%d-%d to %d\n", bank->bank_num,
 	      pin_num, enable);
 
-	ret = ctrl->schmitt_calc_reg(bank, pin_num, &regmap, &reg, &bit);
-	if (ret)
-		return ret;
+	if (!ctrl->set_schmitt)
+		return -ENOTSUPP;
 
-	/* enable the write to the equivalent lower bits */
-	data = BIT(bit + 16) | (enable << bit);
-
-	return regmap_write(regmap, reg, data);
+	return ctrl->set_schmitt(bank, pin_num, enable);
 }
 
 /* set the pin config settings for a specified pin */
 static int rockchip_pinconf_set(struct rockchip_pin_bank *bank,
 				u32 pin, u32 param, u32 arg)
 {
-	struct rockchip_pinctrl_priv *priv = bank->priv;
-	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
 	int rc;
 
 	switch (param) {
@@ -350,9 +340,6 @@ static int rockchip_pinconf_set(struct rockchip_pin_bank *bank,
 		break;
 
 	case PIN_CONFIG_INPUT_SCHMITT_ENABLE:
-		if (!ctrl->schmitt_calc_reg)
-			return -ENOTSUPP;
-
 		rc = rockchip_set_schmitt(bank, pin, arg);
 		if (rc < 0)
 			return rc;
