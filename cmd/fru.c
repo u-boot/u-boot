@@ -14,18 +14,15 @@ static int do_fru_capture(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	unsigned long addr;
 	char *endp;
-	int ret;
 
-	if (argc < 3)
+	if (argc < cmdtp->maxargs)
 		return CMD_RET_USAGE;
 
 	addr = simple_strtoul(argv[2], &endp, 16);
-	if (*argv[1] == 0 || *endp != 0)
+	if (*argv[1] == 0 || *endp != 0) /* FIXME */
 		return -1;
 
-	ret = fru_capture(addr);
-
-	return ret;
+	return fru_capture(addr);
 }
 
 static int do_fru_display(cmd_tbl_t *cmdtp, int flag, int argc,
