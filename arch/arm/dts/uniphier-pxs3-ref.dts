@@ -109,6 +109,10 @@
 	status = "okay";
 };
 
+&pcie {
+	status = "okay";
+};
+
 &nand {
 	status = "okay";
 };
