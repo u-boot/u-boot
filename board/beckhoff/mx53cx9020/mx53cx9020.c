@@ -91,6 +91,9 @@ void weim_cs0_settings(u32 mode)
 
 static void setup_gpio_eim(void)
 {
+	gpio_request(GPIO_C3_STATUS, "GPIO_C3_STATUS");
+	gpio_request(GPIO_C3_DONE, "GPIO_C3_DONE");
+	gpio_request(GPIO_C3_CONFIG, "GPIO_C3_CONFIG");
 	gpio_direction_input(GPIO_C3_STATUS);
 	gpio_direction_input(GPIO_C3_DONE);
 	gpio_direction_output(GPIO_C3_CONFIG, 1);
@@ -100,6 +103,7 @@ static void setup_gpio_eim(void)
 
 static void setup_gpio_sups(void)
 {
+	gpio_request(GPIO_SUPS_INT, "GPIO_SUPS_INT");
 	gpio_direction_input(GPIO_SUPS_INT);
 
 	static const int BLINK_INTERVALL = 50000;
@@ -116,6 +120,16 @@ static void setup_gpio_sups(void)
 
 static void setup_gpio_leds(void)
 {
+	gpio_request(GPIO_LED_SD2_R, "GPIO_LED_SD2_R");
+	gpio_request(GPIO_LED_SD2_B, "GPIO_LED_SD2_B");
+	gpio_request(GPIO_LED_SD2_G, "GPIO_LED_SD2_G");
+	gpio_request(GPIO_LED_SD1_R, "GPIO_LED_SD1_R");
+	gpio_request(GPIO_LED_SD1_B, "GPIO_LED_SD1_B");
+	gpio_request(GPIO_LED_SD1_G, "GPIO_LED_SD1_G");
+	gpio_request(GPIO_LED_PWR_R, "GPIO_LED_PWR_R");
+	gpio_request(GPIO_LED_PWR_B, "GPIO_LED_PWR_B");
+	gpio_request(GPIO_LED_PWR_G, "GPIO_LED_PWR_G");
+
 	gpio_direction_output(GPIO_LED_SD2_R, 0);
 	gpio_direction_output(GPIO_LED_SD2_B, 0);
 	gpio_direction_output(GPIO_LED_SD2_G, 0);
@@ -147,6 +161,8 @@ int board_mmc_getcd(struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	int ret;
 
+	gpio_request(GPIO_SD1_CD, "GPIO_SD1_CD");
+	gpio_request(GPIO_SD2_CD, "GPIO_SD2_CD");
 	gpio_direction_input(GPIO_SD1_CD);
 	gpio_direction_input(GPIO_SD2_CD);
 
@@ -212,10 +228,6 @@ static void clock_1GHz(void)
 
 int board_early_init_f(void)
 {
-	setup_gpio_leds();
-	setup_gpio_sups();
-	setup_gpio_eim();
-	setup_iomux_lcd();
 
 	return 0;
 }
@@ -234,6 +246,11 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	mxc_set_sata_internal_clock();
+
+	setup_gpio_leds();
+	setup_gpio_sups();
+	setup_gpio_eim();
+	setup_iomux_lcd();
 
 	return 0;
 }

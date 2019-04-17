@@ -36,6 +36,7 @@ void setup_iomux_lcd(void)
 {
 	/* Turn on DVI_PWD */
 	imx_iomux_v3_setup_pad(MX53_PAD_CSI0_DAT15__GPIO6_1);
+	gpio_request(CX9020_DVI_PWD, "CX9020_DVI_PWD");
 	gpio_direction_output(CX9020_DVI_PWD, 1);
 }
 
