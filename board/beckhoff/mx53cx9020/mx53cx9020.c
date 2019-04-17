@@ -9,7 +9,6 @@
 
 #include <common.h>
 #include <dm.h>
-#include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
@@ -20,11 +19,8 @@
 #include <ACEX1K.h>
 #include <netdev.h>
 #include <i2c.h>
-#include <mmc.h>
-#include <fsl_esdhc.h>
 #include <asm/gpio.h>
 #include <input.h>
-#include <fs.h>
 #include <dm/platform_data/serial_mxc.h>
 
 enum LED_GPIOS {
@@ -148,57 +144,6 @@ int board_ehci_hcd_init(int port)
 }
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg esdhc_cfg[2] = {
-	{MMC_SDHC1_BASE_ADDR},
-	{MMC_SDHC2_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-	int ret;
-
-	gpio_request(GPIO_SD1_CD, "GPIO_SD1_CD");
-	gpio_request(GPIO_SD2_CD, "GPIO_SD2_CD");
-	gpio_direction_input(GPIO_SD1_CD);
-	gpio_direction_input(GPIO_SD2_CD);
-
-	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		ret = !gpio_get_value(GPIO_SD1_CD);
-	else
-		ret = !gpio_get_value(GPIO_SD2_CD);
-
-	return ret;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	u32 index;
-	int ret;
-
-	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-	esdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-
-	for (index = 0; index < CONFIG_SYS_FSL_ESDHC_NUM; index++) {
-		switch (index) {
-		case 0:
-			break;
-		case 1:
-			break;
-		default:
-			printf("Warning: you configured more ESDHC controller(%d) as supported by the board(2)\n",
-			       CONFIG_SYS_FSL_ESDHC_NUM);
-			return -EINVAL;
-		}
-		ret = fsl_esdhc_initialize(bis, &esdhc_cfg[index]);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-#endif
 
 static int power_init(void)
 {
