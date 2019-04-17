@@ -373,7 +373,8 @@ static int lpc32xx_eth_send(struct eth_device *dev, void *dataptr, int datasize)
 	tx_index = readl(&regs->txproduceindex);
 
 	/* set up transmit packet */
-	writel((u32)dataptr, &bufs->tx_desc[tx_index].packet);
+	memcpy((void *)&bufs->tx_buf[tx_index * PKTSIZE_ALIGN],
+	       (void *)dataptr, datasize);
 	writel(TX_CTRL_LAST | ((datasize - 1) & TX_CTRL_TXSIZE),
 	       &bufs->tx_desc[tx_index].control);
 	writel(0, &bufs->tx_stat[tx_index].statusinfo);
@@ -507,6 +508,11 @@ static int lpc32xx_eth_init(struct eth_device *dev)
 	writel((u32)(&bufs->rx_desc), &regs->rxdescriptor);
 	writel((u32)(&bufs->rx_stat), &regs->rxstatus);
 	writel(RX_BUF_COUNT-1, &regs->rxdescriptornumber);
+
+	/* set up transmit buffers */
+	for (index = 0; index < TX_BUF_COUNT; index++)
+		bufs->tx_desc[index].packet =
+			(u32)(bufs->tx_buf + index * PKTSIZE_ALIGN);
 
 	/* Enable broadcast and matching address packets */
 	writel(RXFILTERCTRL_ACCEPTBROADCAST |
