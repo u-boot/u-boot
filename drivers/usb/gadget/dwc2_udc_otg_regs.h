@@ -94,6 +94,9 @@ struct dwc2_usbotg_reg {
 #define A_VALOVAL			BIT(5)
 #define A_VALOEN			BIT(4)
 
+/* DWC2_UDC_OTG_GOTINT */
+#define GOTGINT_SES_END_DET		(1<<2)
+
 /* DWC2_UDC_OTG_GAHBCFG */
 #define PTXFE_HALF			(0<<8)
 #define PTXFE_ZERO			(1<<8)
@@ -126,6 +129,7 @@ struct dwc2_usbotg_reg {
 #define INT_NP_TX_FIFO_EMPTY		(0x1<<5)
 #define INT_RX_FIFO_NOT_EMPTY		(0x1<<4)
 #define INT_SOF			(0x1<<3)
+#define INT_OTG			(0x1<<2)
 #define INT_DEV_MODE			(0x0<<0)
 #define INT_HOST_MODE			(0x1<<1)
 #define INT_GOUTNakEff			(0x01<<7)
@@ -254,7 +258,7 @@ struct dwc2_usbotg_reg {
 
 /* Masks definitions */
 #define GINTMSK_INIT	(INT_OUT_EP | INT_IN_EP | INT_RESUME | INT_ENUMDONE\
-			| INT_RESET | INT_SUSPEND)
+			| INT_RESET | INT_SUSPEND | INT_OTG)
 #define DOEPMSK_INIT	(CTRL_OUT_EP_SETUP_PHASE_DONE | AHB_ERROR|TRANSFER_DONE)
 #define DIEPMSK_INIT	(NON_ISO_IN_EP_TIMEOUT|AHB_ERROR|TRANSFER_DONE)
 #define GAHBCFG_INIT	(PTXFE_HALF | NPTXFE_HALF | MODE_DMA | BURST_INCR4\
