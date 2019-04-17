@@ -29,7 +29,6 @@ config SOC_OCELOT
 config SOC_LUTON
 	bool "Luton SOC Family"
 	select SOC_VCOREIII
-	select MSCC_BITBANG_SPI_GPIO
 	help
 	  This supports MSCC Luton family of SOCs.
 
