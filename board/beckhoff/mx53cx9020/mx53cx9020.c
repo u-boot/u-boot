@@ -23,8 +23,6 @@
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <asm/gpio.h>
-#include <linux/fb.h>
-#include <ipu_pixfmt.h>
 #include <input.h>
 #include <fs.h>
 #include <dm/platform_data/serial_mxc.h>
@@ -230,15 +228,6 @@ int board_early_init_f(void)
 {
 
 	return 0;
-}
-
-/*
- * Do not overwrite the console
- * Use always serial for U-Boot console
- */
-int overwrite_console(void)
-{
-	return 1;
 }
 
 int board_init(void)
