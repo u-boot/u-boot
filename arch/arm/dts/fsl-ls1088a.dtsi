@@ -153,7 +153,9 @@
 
 	sata: sata@3200000 {
 		compatible = "fsl,ls1088a-ahci";
-		reg = <0x0 0x3200000 0x0 0x10000>;
+		reg = <0x0 0x3200000 0x0 0x10000 /* ccsr sata base */
+		       0x7 0x100520  0x0 0x4>;	 /* ecc sata addr*/
+		reg-names = "sata-base", "ecc-addr";
 		interrupts = <0 133 4>;
 		status = "disabled";
 	};
