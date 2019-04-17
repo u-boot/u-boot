@@ -357,6 +357,19 @@ def test_fpga_loadmk_legacy_gz(u_boot_console):
 @pytest.mark.buildconfigspec('cmd_fpga_loadmk')
 @pytest.mark.buildconfigspec('fit')
 @pytest.mark.buildconfigspec('cmd_echo')
+def test_fpga_loadmk_fit_external(u_boot_console):
+    f, dev, addr, bit, bit_size = load_file_from_var(u_boot_console, 'mkimage_fit_external')
+
+    u_boot_console.run_command('imi %x' % (addr))
+
+    expected_text = 'FPGA loaded successfully'
+    output = u_boot_console.run_command('fpga loadmk %x %x:fpga && echo %s' % (dev, addr, expected_text))
+    assert expected_text in output
+
+@pytest.mark.buildconfigspec('cmd_fpga')
+@pytest.mark.buildconfigspec('cmd_fpga_loadmk')
+@pytest.mark.buildconfigspec('fit')
+@pytest.mark.buildconfigspec('cmd_echo')
 def test_fpga_loadmk_fit(u_boot_console):
     f, dev, addr, bit, bit_size = load_file_from_var(u_boot_console, 'mkimage_fit')
 

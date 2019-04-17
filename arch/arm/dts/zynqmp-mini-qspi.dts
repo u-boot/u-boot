@@ -63,8 +63,8 @@
 
 &qspi {
 	status = "okay";
-	flash@0 {
-		compatible = "n25q512a11";
+	flash0: flash@0 {
+		compatible = "n25q512a11", "spi-flash";
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;

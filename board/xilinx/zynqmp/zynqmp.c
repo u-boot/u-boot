@@ -170,6 +170,10 @@ static const struct {
 		.id = 0x62,
 		.name = "29dr",
 	},
+	{
+		.id = 0x66,
+		.name = "39dr",
+	},
 };
 #endif
 
@@ -482,18 +486,20 @@ static const struct {
 	{}
 };
 
-static u32 reset_reason(void)
+static int reset_reason(void)
 {
-	u32 ret;
-	int i;
+	u32 reg;
+	int i, ret;
 	const char *reason = NULL;
 
-	ret = readl(&crlapb_base->reset_reason);
+	ret = zynqmp_mmio_read((ulong)&crlapb_base->reset_reason, &reg);
+	if (ret)
+		return -EINVAL;
 
 	puts("Reset reason:\t");
 
 	for (i = 0; i < ARRAY_SIZE(reset_reasons); i++) {
-		if (ret & reset_reasons[i].bit) {
+		if (reg & reset_reasons[i].bit) {
 			reason = reset_reasons[i].name;
 			printf("%s ", reset_reasons[i].name);
 			break;
@@ -504,7 +510,9 @@ static u32 reset_reason(void)
 
 	env_set("reset_reason", reason);
 
-	writel(~0, &crlapb_base->reset_reason);
+	ret = zynqmp_mmio_write(~0, ~0, (ulong)&crlapb_base->reset_reason);
+	if (ret)
+		return -EINVAL;
 
 	return ret;
 }

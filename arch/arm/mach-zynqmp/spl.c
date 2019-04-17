@@ -27,6 +27,7 @@ void board_init_f(ulong dummy)
 	/* Delay is required for clocks to be propagated */
 	udelay(1000000);
 
+	debug("Clearing BSS 0x%p - 0x%p\n", __bss_start, __bss_end);
 	/* Clear the BSS */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
@@ -85,7 +86,7 @@ u32 spl_boot_device(void)
 	case SD_MODE1:
 	case SD1_LSHFT_MODE: /* not working on silicon v1 */
 /* if both controllers enabled, then these two are the second controller */
-#if defined(SPL_ZYNQMP_TWO_SDHCI)
+#ifdef CONFIG_SPL_ZYNQMP_TWO_SDHCI
 		return BOOT_DEVICE_MMC2;
 /* else, fall through, the one SDHCI controller that is enabled is number 1 */
 #endif
