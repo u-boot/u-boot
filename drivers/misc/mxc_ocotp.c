@@ -321,6 +321,11 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 	struct ocotp_regs *regs;
 	int ret;
 
+	if (is_imx8mq() && is_soc_rev(CHIP_REV_2_1)) {
+		printf("mxc_ocotp %s(): fuse sense is disabled\n", __func__);
+		return -EPERM;
+	}
+
 	ret = prepare_read(&regs, bank, word, val, __func__);
 	if (ret)
 		return ret;
