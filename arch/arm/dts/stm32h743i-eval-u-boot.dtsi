@@ -8,5 +8,5 @@
 		    <&pinctrl_sdmmc1_level_shifter>;
 	pinctrl-names = "default";
 	bus-width = <4>;
-	st,dirpol;
+	st,sig-dir;
 };
