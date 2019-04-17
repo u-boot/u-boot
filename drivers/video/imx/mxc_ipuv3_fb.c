@@ -685,6 +685,7 @@ static int ipuv3_video_bind(struct udevice *dev)
 
 static const struct udevice_id ipuv3_video_ids[] = {
 	{ .compatible = "fsl,imx6q-ipu" },
+	{ .compatible = "fsl,imx53-ipu" },
 	{ }
 };
 
