@@ -72,10 +72,6 @@
 #define CONFIG_NET_RETRY_COUNT		10
 #define CONFIG_PHY_TI
 
-/* SPI */
-#define CONFIG_TI_SPI_MMAP
-#define CONFIG_QSPI_QUAD_SUPPORT
-
 /*
  * Default to using SPI for environment, etc.
  * 0x000000 - 0x040000 : QSPI.SPL (256KiB)
@@ -98,7 +94,6 @@
 #endif
 
 /* SPI SPL */
-#define CONFIG_TI_EDMA3
 #define CONFIG_SYS_SPI_U_BOOT_OFFS     0x40000
 
 #define CONFIG_SUPPORT_EMMC_BOOT

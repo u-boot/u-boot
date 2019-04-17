@@ -259,6 +259,13 @@ config TEGRA210_QSPI
 	  be used to access SPI chips on platforms embedding this
 	  NVIDIA Tegra210 IP core.
 
+config TI_QSPI
+	bool "TI QSPI driver"
+	imply TI_EDMA3
+	help
+	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
+	  This driver support spi flash single, quad and memory reads.
+
 config XILINX_SPI
 	bool "Xilinx SPI driver"
 	help
@@ -345,12 +352,6 @@ config SH_QSPI
 	help
 	  Enable the Renesas Quad SPI controller driver. This driver can be
 	  used on Renesas SoCs.
-
-config TI_QSPI
-	bool "TI QSPI driver"
-	help
-	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
-	  This driver support spi flash single, quad and memory reads.
 
 config KIRKWOOD_SPI
 	bool "Marvell Kirkwood SPI Driver"

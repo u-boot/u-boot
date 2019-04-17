@@ -120,12 +120,6 @@
 #define CONFIG_ENV_OFFSET_REDUND       0x120000
 #endif
 
-/* SPI */
-#define CONFIG_TI_SPI_MMAP
-#define CONFIG_QSPI_SEL_GPIO                   48
-#define CONFIG_QSPI_QUAD_SUPPORT
-#define CONFIG_TI_EDMA3
-
 #ifndef CONFIG_SPL_BUILD
 #include <environment/ti/dfu.h>
 #include <environment/ti/mmc.h>

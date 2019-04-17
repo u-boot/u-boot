@@ -77,7 +77,6 @@ Partially converted:
 	drivers/spi/kirkwood_spi.c
 	drivers/spi/mxc_spi.c
 	drivers/spi/omap3_spi.c
-	drivers/spi/ti_qspi.c
 
 	Status: In progress
 	Deadline: 2019.07
