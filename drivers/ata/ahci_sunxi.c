@@ -70,15 +70,6 @@ static int sunxi_ahci_phy_init(u8 *reg_base)
 	return 0;
 }
 
-#ifndef CONFIG_DM_SCSI
-void scsi_init(void)
-{
-	if (sunxi_ahci_phy_init((u8 *)SUNXI_SATA_BASE) < 0)
-		return;
-
-	ahci_init((void __iomem *)SUNXI_SATA_BASE);
-}
-#else
 static int sunxi_sata_probe(struct udevice *dev)
 {
 	ulong base;
@@ -121,6 +112,7 @@ static int sunxi_sata_bind(struct udevice *dev)
 
 static const struct udevice_id sunxi_ahci_ids[] = {
 	{ .compatible = "allwinner,sun4i-a10-ahci" },
+	{ .compatible = "allwinner,sun8i-r40-ahci" },
 	{ }
 };
 
@@ -131,4 +123,3 @@ U_BOOT_DRIVER(ahci_sunxi_drv) = {
 	.bind		= sunxi_sata_bind,
 	.probe		= sunxi_sata_probe,
 };
-#endif

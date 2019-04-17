@@ -87,6 +87,12 @@
 	};
 };
 
+&ahci {
+	phy-supply = <&reg_eldo3>;	/* VDD12-SATA */
+	ahci-supply = <&reg_dldo4>;	/* VDD25-SATA */
+	status = "okay";
+};
+
 &ehci1 {
 	/* Terminus Tech FE 1.1s 4-port USB 2.0 hub here */
 	status = "okay";
@@ -95,7 +101,7 @@
 &i2c0 {
 	status = "okay";
 
-	axp22x: pmic@68 {
+	axp22x: pmic@34 {
 		compatible = "x-powers,axp221";
 		reg = <0x34>;
 		interrupt-parent = <&nmi_intc>;
@@ -150,6 +156,18 @@
 	regulator-min-microvolt = <3300000>;
 	regulator-max-microvolt = <3300000>;
 	regulator-name = "vcc-wifi";
+};
+
+&reg_dldo4 {
+	regulator-min-microvolt = <2500000>;
+	regulator-max-microvolt = <2500000>;
+	regulator-name = "vdd2v5-sata";
+};
+
+&reg_eldo3 {
+	regulator-min-microvolt = <1200000>;
+	regulator-max-microvolt = <1200000>;
+	regulator-name = "vdd1v2-sata";
 };
 
 &mmc0 {

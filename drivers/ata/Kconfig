@@ -109,6 +109,14 @@ config SATA_SIL3114
 	help
 	  Enable this driver to support the SIL3114 SATA controllers.
 
+config SUNXI_AHCI
+	bool "Enable Allwinner SATA driver support"
+	depends on AHCI
+	default y if ARCH_SUNXI
+	help
+	  Enable this driver to support the SATA controllers found in the
+	  Allwinner A10, A20 and R40 SoCs.
+
 config AHCI_MVEBU
 	bool "Marvell EBU AHCI SATA support"
 	depends on ARCH_MVEBU
