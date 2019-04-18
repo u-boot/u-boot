@@ -1448,6 +1448,71 @@ static void pll_csg(struct stm32mp1_clk_priv *priv, int pll_id, u32 *csg)
 	setbits_le32(priv->base + pll[pll_id].pllxcr, RCC_PLLNCR_SSCG_CTRL);
 }
 
+static  __maybe_unused int pll_set_rate(struct udevice *dev,
+					int pll_id,
+					int div_id,
+					unsigned long clk_rate)
+{
+	struct stm32mp1_clk_priv *priv = dev_get_priv(dev);
+	unsigned int pllcfg[PLLCFG_NB];
+	ofnode plloff;
+	char name[12];
+	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	enum stm32mp1_plltype type = pll[pll_id].plltype;
+	int divm, divn, divy;
+	int ret;
+	ulong fck_ref;
+	u32 fracv;
+	u64 value;
+
+	if (div_id > _DIV_NB)
+		return -EINVAL;
+
+	sprintf(name, "st,pll@%d", pll_id);
+	plloff = dev_read_subnode(dev, name);
+	if (!ofnode_valid(plloff))
+		return -FDT_ERR_NOTFOUND;
+
+	ret = ofnode_read_u32_array(plloff, "cfg",
+				    pllcfg, PLLCFG_NB);
+	if (ret < 0)
+		return -FDT_ERR_NOTFOUND;
+
+	fck_ref = pll_get_fref_ck(priv, pll_id);
+
+	divm = pllcfg[PLLCFG_M];
+	/* select output divider = 0: for _DIV_P, 1:_DIV_Q 2:_DIV_R */
+	divy = pllcfg[PLLCFG_P + div_id];
+
+	/* For: PLL1 & PLL2 => VCO is * 2 but ck_pll_y is also / 2
+	 * So same final result than PLL2 et 4
+	 * with FRACV
+	 * Fck_pll_y = Fck_ref * ((DIVN + 1) + FRACV / 2^13)
+	 *             / (DIVy + 1) * (DIVM + 1)
+	 * value = (DIVN + 1) * 2^13 + FRACV / 2^13
+	 *       = Fck_pll_y (DIVy + 1) * (DIVM + 1) * 2^13 / Fck_ref
+	 */
+	value = ((u64)clk_rate * (divy + 1) * (divm + 1)) << 13;
+	value = lldiv(value, fck_ref);
+
+	divn = (value >> 13) - 1;
+	if (divn < DIVN_MIN ||
+	    divn > stm32mp1_pll[type].divn_max) {
+		pr_err("divn invalid = %d", divn);
+		return -EINVAL;
+	}
+	fracv = value - ((divn + 1) << 13);
+	pllcfg[PLLCFG_N] = divn;
+
+	/* reconfigure PLL */
+	pll_stop(priv, pll_id);
+	pll_config(priv, pll_id, pllcfg, fracv);
+	pll_start(priv, pll_id);
+	pll_output(priv, pll_id, pllcfg[PLLCFG_O]);
+
+	return 0;
+}
+
 static int set_clksrc(struct stm32mp1_clk_priv *priv, unsigned int clksrc)
 {
 	u32 address = priv->base + (clksrc >> 4);
@@ -1820,6 +1885,11 @@ static ulong stm32mp1_clk_set_rate(struct clk *clk, unsigned long clk_rate)
 	int p;
 
 	switch (clk->id) {
+#if defined(STM32MP1_CLOCK_TREE_INIT) && \
+	defined(CONFIG_STM32MP1_DDR_INTERACTIVE)
+	case DDRPHYC:
+		break;
+#endif
 	case LTDC_PX:
 	case DSI_PX:
 		break;
@@ -1833,6 +1903,19 @@ static ulong stm32mp1_clk_set_rate(struct clk *clk, unsigned long clk_rate)
 		return -EINVAL;
 
 	switch (p) {
+#if defined(STM32MP1_CLOCK_TREE_INIT) && \
+	defined(CONFIG_STM32MP1_DDR_INTERACTIVE)
+	case _PLL2_R: /* DDRPHYC */
+	{
+		/* only for change DDR clock in interactive mode */
+		ulong result;
+
+		set_clksrc(priv, CLK_AXI_HSI);
+		result = pll_set_rate(clk->dev,  _PLL2, _DIV_R, clk_rate);
+		set_clksrc(priv, CLK_AXI_PLL2P);
+		return result;
+	}
+#endif
 	case _PLL4_Q:
 		/* for LTDC_PX and DSI_PX case */
 		return pll_set_output_rate(clk->dev, _PLL4, _DIV_Q, clk_rate);
