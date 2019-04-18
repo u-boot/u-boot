@@ -540,8 +540,12 @@ static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
 					p_prev = p;
 
 					list_add_tail(&v->node, solutions);
+					break;
 				}
 			}
+
+			if (p_prev == p)
+				break;
 		}
 	}
 
