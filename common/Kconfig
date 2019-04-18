@@ -247,6 +247,7 @@ config USE_PREBOOT
 config PREBOOT
 	string "preboot default value"
 	depends on USE_PREBOOT
+	default ""
 	help
 	  This is the default of "preboot" environment variable.
 

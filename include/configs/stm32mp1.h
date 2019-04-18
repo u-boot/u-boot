@@ -85,8 +85,6 @@
  * for nand boot, boot with on ubifs partition on nand
  * for nor boot, use the default order
  */
-#define CONFIG_PREBOOT
-
 #define STM32MP_BOOTCMD "bootcmd_stm32mp=" \
 	"echo \"Boot over ${boot_device}${boot_instance}!\";" \
 	"if test ${boot_device} = serial || test ${boot_device} = usb;" \
