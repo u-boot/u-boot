@@ -269,7 +269,6 @@ static inline void _debug_uart_init(void)
 	_stm32_serial_setbrg(base, uart_info,
 			     CONFIG_DEBUG_UART_CLOCK,
 			     CONFIG_BAUDRATE);
-	printf("DEBUG done\n");
 }
 
 static inline void _debug_uart_putc(int c)
