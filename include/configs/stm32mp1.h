@@ -38,11 +38,6 @@
  */
 #define CONFIG_SYS_LOAD_ADDR			STM32_DDR_BASE
 
-/*
- * Env parameters
- */
-#define CONFIG_ENV_SIZE				SZ_4K
-
 /* ATAGs */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
