@@ -500,7 +500,7 @@ static int stm32_i2c_compute_solutions(struct stm32_i2c_setup *setup,
 	af_delay_max = setup->analog_filter ?
 		       STM32_I2C_ANALOG_FILTER_DELAY_MAX : 0;
 
-	sdadel_min = setup->fall_time - i2c_specs[setup->speed].hddat_min -
+	sdadel_min = i2c_specs[setup->speed].hddat_min + setup->fall_time -
 		     af_delay_min - (setup->dnf + 3) * i2cclk;
 
 	sdadel_max = i2c_specs[setup->speed].vddat_max - setup->rise_time -
