@@ -24,6 +24,9 @@ static int syscon_reboot_request(struct udevice *dev, enum sysreset_t type)
 {
 	struct syscon_reboot_priv *priv = dev_get_priv(dev);
 
+	if (type == SYSRESET_POWER)
+		return -EPROTONOSUPPORT;
+
 	regmap_write(priv->regmap, priv->offset, priv->mask);
 
 	return -EINPROGRESS;
