@@ -39,6 +39,8 @@ config TARGET_STM32MP1
 	select STM32_RCC
 	select STM32_RESET
 	select SYS_ARCH_TIMER
+	imply BOOTCOUNT_LIMIT
+	imply CMD_BOOTCOUNT
 	imply SYSRESET_PSCI if STM32MP1_TRUSTED
 	imply SYSRESET_SYSCON if !STM32MP1_TRUSTED
 	help
@@ -75,6 +77,15 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 	help
 	  Partition on the second MMC to load U-Boot from when the MMC is being
 	  used in raw mode
+
+if BOOTCOUNT_LIMIT
+config SYS_BOOTCOUNT_SINGLEWORD
+	default y
+
+# TAMP_BOOTCOUNT = TAMP_BACKUP_REGISTER(21)
+config SYS_BOOTCOUNT_ADDR
+	default 0x5C00A154
+endif
 
 if DEBUG_UART
 
