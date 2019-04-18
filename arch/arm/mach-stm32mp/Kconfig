@@ -17,6 +17,8 @@ config SPL
 	select SPL_DM_RESET
 	select SPL_SERIAL_SUPPORT
 	select SPL_SYSCON
+	imply BOOTSTAGE_STASH if SPL_BOOTSTAGE
+	imply SPL_BOOTSTAGE if BOOTSTAGE
 	imply SPL_DISPLAY_PRINT
 	imply SPL_LIBDISK_SUPPORT
 
@@ -40,7 +42,9 @@ config TARGET_STM32MP1
 	select STM32_RESET
 	select SYS_ARCH_TIMER
 	imply BOOTCOUNT_LIMIT
+	imply BOOTSTAGE
 	imply CMD_BOOTCOUNT
+	imply CMD_BOOTSTAGE
 	imply SYSRESET_PSCI if STM32MP1_TRUSTED
 	imply SYSRESET_SYSCON if !STM32MP1_TRUSTED
 	help
@@ -77,6 +81,9 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 	help
 	  Partition on the second MMC to load U-Boot from when the MMC is being
 	  used in raw mode
+
+config BOOTSTAGE_STASH_ADDR
+	default 0xC3000000
 
 if BOOTCOUNT_LIMIT
 config SYS_BOOTCOUNT_SINGLEWORD
