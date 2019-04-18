@@ -9,6 +9,8 @@
 #include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
+#define CONFIG_SYS_BOOTM_LEN (16 << 20) /* 16MB */
+
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 #define CONFIG_SYS_MALLOC_LEN		(32 << 20)
 #define CONFIG_SYS_CBSIZE		1024
