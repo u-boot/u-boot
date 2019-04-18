@@ -222,6 +222,16 @@ config MMC_DW_SOCFPGA
 	  Synopsys DesignWare Memory Card Interface driver. Select this option
 	  for platforms based on Altera SOCFPGA.
 
+config MMC_DW_SNPS
+	bool "Extensions for DW Memory Card Interface used in Synopsys ARC devboards"
+	depends on MMC_DW
+	depends on DM_MMC
+	depends on OF_CONTROL
+	depends on CLK
+	help
+	  This selects support for Synopsys DesignWare Memory Card Interface driver
+	  extensions used in various Synopsys ARC devboards.
+
 config MMC_MESON_GX
 	bool "Meson GX EMMC controller support"
 	depends on DM_MMC && BLK && ARCH_MESON
