@@ -23,6 +23,9 @@ config SPL
 config SYS_SOC
 	default "stm32mp"
 
+config SYS_MALLOC_LEN
+	default 0x2000000
+
 config TARGET_STM32MP1
 	bool "Support stm32mp1xx"
 	select ARCH_SUPPORT_PSCI if !STM32MP1_TRUSTED

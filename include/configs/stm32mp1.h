@@ -23,11 +23,6 @@
 #endif
 
 /*
- * malloc() pool size
- */
-#define CONFIG_SYS_MALLOC_LEN			SZ_32M
-
-/*
  * Configuration of the external SRAM memory used by U-Boot
  */
 #define CONFIG_SYS_SDRAM_BASE			STM32_DDR_BASE
