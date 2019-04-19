@@ -377,6 +377,72 @@ static int do_efibootmgr(const char *fdt_opt)
 	return 0;
 }
 
+/*
+ * do_bootefi_image() - execute EFI binary from command line
+ *
+ * @image_opt:	string of image start address
+ * @fdt_opt:	string of fdt start address
+ * Return:	status code
+ *
+ * Set up memory image for the binary to be loaded, prepare
+ * device path and then call do_bootefi_exec() to execute it.
+ */
+static int do_bootefi_image(const char *image_opt, const char *fdt_opt)
+{
+	unsigned long addr;
+	efi_status_t ret;
+
+	/* Allow unaligned memory access */
+	allow_unaligned();
+
+	switch_to_non_secure_mode();
+
+	/* Initialize EFI drivers */
+	ret = efi_init_obj_list();
+	if (ret != EFI_SUCCESS) {
+		printf("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+		       ret & ~EFI_ERROR_MASK);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = efi_install_fdt(fdt_opt);
+	if (ret == EFI_INVALID_PARAMETER)
+		return CMD_RET_USAGE;
+	else if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
+#ifdef CONFIG_CMD_BOOTEFI_HELLO
+	if (!strcmp(image_opt, "hello")) {
+		char *saddr;
+		ulong size = __efi_helloworld_end - __efi_helloworld_begin;
+
+		saddr = env_get("loadaddr");
+		if (saddr)
+			addr = simple_strtoul(saddr, NULL, 16);
+		else
+			addr = CONFIG_SYS_LOAD_ADDR;
+		memcpy(map_sysmem(addr, size), __efi_helloworld_begin, size);
+	} else
+#endif
+	{
+		addr = simple_strtoul(image_opt, NULL, 16);
+		/* Check that a numeric value was passed */
+		if (!addr && *image_opt != '0')
+			return CMD_RET_USAGE;
+	}
+
+	printf("## Starting EFI application at %08lx ...\n", addr);
+	ret = do_bootefi_exec(map_sysmem(addr, 0), bootefi_device_path,
+			      bootefi_image_path);
+	printf("## Application terminated, r = %lu\n",
+	       ret & ~EFI_ERROR_MASK);
+
+	if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+	else
+		return CMD_RET_SUCCESS;
+}
+
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 static efi_status_t bootefi_run_prepare(const char *load_options_path,
 		struct efi_device_path *device_path,
@@ -503,10 +569,6 @@ static int do_efi_selftest(const char *fdt_opt)
 /* Interpreter command to boot an arbitrary EFI image from memory */
 static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	unsigned long addr;
-	char *saddr;
-	efi_status_t r;
-
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
@@ -517,57 +579,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return do_efi_selftest(argc > 2 ? argv[2] : NULL);
 #endif
 
-	/* Allow unaligned memory access */
-	allow_unaligned();
-
-	switch_to_non_secure_mode();
-
-	/* Initialize EFI drivers */
-	r = efi_init_obj_list();
-	if (r != EFI_SUCCESS) {
-		printf("Error: Cannot set up EFI drivers, r = %lu\n",
-		       r & ~EFI_ERROR_MASK);
-		return CMD_RET_FAILURE;
-	}
-
-	r = efi_install_fdt(argc > 2 ? argv[2] : NULL);
-	if (r == EFI_INVALID_PARAMETER)
-		return CMD_RET_USAGE;
-	else if (r != EFI_SUCCESS)
-		return CMD_RET_FAILURE;
-
-#ifdef CONFIG_CMD_BOOTEFI_HELLO
-	if (!strcmp(argv[1], "hello")) {
-		ulong size = __efi_helloworld_end - __efi_helloworld_begin;
-
-		saddr = env_get("loadaddr");
-		if (saddr)
-			addr = simple_strtoul(saddr, NULL, 16);
-		else
-			addr = CONFIG_SYS_LOAD_ADDR;
-		memcpy(map_sysmem(addr, size), __efi_helloworld_begin, size);
-	} else
-#endif
-	{
-		saddr = argv[1];
-
-		addr = simple_strtoul(saddr, NULL, 16);
-		/* Check that a numeric value was passed */
-		if (!addr && *saddr != '0')
-			return CMD_RET_USAGE;
-
-	}
-
-	printf("## Starting EFI application at %08lx ...\n", addr);
-	r = do_bootefi_exec(map_sysmem(addr, 0), bootefi_device_path,
-			    bootefi_image_path);
-	printf("## Application terminated, r = %lu\n",
-	       r & ~EFI_ERROR_MASK);
-
-	if (r != EFI_SUCCESS)
-		return 1;
-	else
-		return 0;
+	return do_bootefi_image(argv[1], argc > 2 ? argv[2] : NULL);
 }
 
 #ifdef CONFIG_SYS_LONGHELP
