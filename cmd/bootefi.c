@@ -185,59 +185,48 @@ static void efi_carve_out_dt_rsv(void *fdt)
 	}
 }
 
-static efi_status_t efi_install_fdt(ulong fdt_addr)
-{
-	bootm_headers_t img = { 0 };
-	efi_status_t ret;
-	void *fdt;
-
-	fdt = map_sysmem(fdt_addr, 0);
-	if (fdt_check_header(fdt)) {
-		printf("ERROR: invalid device tree\n");
-		return EFI_INVALID_PARAMETER;
-	}
-
-	/* Create memory reservation as indicated by the device tree */
-	efi_carve_out_dt_rsv(fdt);
-
-	/* Prepare fdt for payload */
-	ret = copy_fdt(&fdt);
-	if (ret)
-		return ret;
-
-	if (image_setup_libfdt(&img, fdt, 0, NULL)) {
-		printf("ERROR: failed to process device tree\n");
-		return EFI_LOAD_ERROR;
-	}
-
-	/* Link to it in the efi tables */
-	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
-	if (ret != EFI_SUCCESS)
-		return EFI_OUT_OF_RESOURCES;
-
-	return ret;
-}
-
 /**
- * efi_process_fdt() - process fdt passed by a command argument
+ * efi_install_fdt() - install fdt passed by a command argument
  * @fdt_opt:	pointer to argument
  * Return:	status code
  *
  * If specified, fdt will be installed as configuration table,
  * otherwise no fdt will be passed.
  */
-static efi_status_t efi_process_fdt(const char *fdt_opt)
+static efi_status_t efi_install_fdt(const char *fdt_opt)
 {
 	unsigned long fdt_addr;
+	void *fdt;
+	bootm_headers_t img = { 0 };
 	efi_status_t ret;
 
 	if (fdt_opt) {
+		/* Install device tree */
 		fdt_addr = simple_strtoul(fdt_opt, NULL, 16);
 		if (!fdt_addr && *fdt_opt != '0')
 			return EFI_INVALID_PARAMETER;
 
-		/* Install device tree */
-		ret = efi_install_fdt(fdt_addr);
+		fdt = map_sysmem(fdt_addr, 0);
+		if (fdt_check_header(fdt)) {
+			printf("ERROR: invalid device tree\n");
+			return EFI_INVALID_PARAMETER;
+		}
+
+		/* Create memory reservation as indicated by the device tree */
+		efi_carve_out_dt_rsv(fdt);
+
+		/* Prepare fdt for payload */
+		ret = copy_fdt(&fdt);
+		if (ret)
+			return ret;
+
+		if (image_setup_libfdt(&img, fdt, 0, NULL)) {
+			printf("ERROR: failed to process device tree\n");
+			return EFI_LOAD_ERROR;
+		}
+
+		/* Link to it in the efi tables */
+		ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
 		if (ret != EFI_SUCCESS) {
 			printf("ERROR: failed to install device tree\n");
 			return ret;
@@ -456,7 +445,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	r = efi_process_fdt(argc > 2 ? argv[2] : NULL);
+	r = efi_install_fdt(argc > 2 ? argv[2] : NULL);
 	if (r == EFI_INVALID_PARAMETER)
 		return CMD_RET_USAGE;
 	else if (r != EFI_SUCCESS)
