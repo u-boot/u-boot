@@ -239,37 +239,6 @@ static efi_status_t efi_install_fdt(const char *fdt_opt)
 	return EFI_SUCCESS;
 }
 
-static efi_status_t bootefi_run_prepare(const char *load_options_path,
-		struct efi_device_path *device_path,
-		struct efi_device_path *image_path,
-		struct efi_loaded_image_obj **image_objp,
-		struct efi_loaded_image **loaded_image_infop)
-{
-	efi_status_t ret;
-
-	ret = efi_setup_loaded_image(device_path, image_path, image_objp,
-				     loaded_image_infop);
-	if (ret != EFI_SUCCESS)
-		return ret;
-
-	/* Transfer environment variable as load options */
-	return set_load_options((efi_handle_t)*image_objp, load_options_path);
-}
-
-/**
- * bootefi_run_finish() - finish up after running an EFI test
- *
- * @loaded_image_info: Pointer to a struct which holds the loaded image info
- * @image_objj: Pointer to a struct which holds the loaded image object
- */
-static void bootefi_run_finish(struct efi_loaded_image_obj *image_obj,
-			       struct efi_loaded_image *loaded_image_info)
-{
-	efi_restore_gd();
-	free(loaded_image_info->load_options);
-	efi_delete_handle(&image_obj->header);
-}
-
 /**
  * do_bootefi_exec() - execute EFI binary
  *
@@ -316,9 +285,14 @@ static efi_status_t do_bootefi_exec(void *efi,
 		assert(device_path && image_path);
 	}
 
-	ret = bootefi_run_prepare("bootargs", device_path, image_path,
-				  &image_obj, &loaded_image_info);
+	ret = efi_setup_loaded_image(device_path, image_path, &image_obj,
+				     &loaded_image_info);
 	if (ret)
+		goto err_prepare;
+
+	/* Transfer environment variable as load options */
+	ret = set_load_options((efi_handle_t)image_obj, "bootargs");
+	if (ret != EFI_SUCCESS)
 		goto err_prepare;
 
 	/* Load the EFI payload */
@@ -344,7 +318,9 @@ static efi_status_t do_bootefi_exec(void *efi,
 
 err_prepare:
 	/* image has returned, loaded-image obj goes *poof*: */
-	bootefi_run_finish(image_obj, loaded_image_info);
+	efi_restore_gd();
+	free(loaded_image_info->load_options);
+	efi_delete_handle(&image_obj->header);
 
 err_add_protocol:
 	if (mem_handle)
@@ -354,6 +330,23 @@ err_add_protocol:
 }
 
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+static efi_status_t bootefi_run_prepare(const char *load_options_path,
+		struct efi_device_path *device_path,
+		struct efi_device_path *image_path,
+		struct efi_loaded_image_obj **image_objp,
+		struct efi_loaded_image **loaded_image_infop)
+{
+	efi_status_t ret;
+
+	ret = efi_setup_loaded_image(device_path, image_path, image_objp,
+				     loaded_image_infop);
+	if (ret != EFI_SUCCESS)
+		return ret;
+
+	/* Transfer environment variable as load options */
+	return set_load_options((efi_handle_t)*image_objp, load_options_path);
+}
+
 /**
  * bootefi_test_prepare() - prepare to run an EFI test
  *
@@ -399,6 +392,64 @@ failure:
 	return ret;
 }
 
+/**
+ * bootefi_run_finish() - finish up after running an EFI test
+ *
+ * @loaded_image_info: Pointer to a struct which holds the loaded image info
+ * @image_obj: Pointer to a struct which holds the loaded image object
+ */
+static void bootefi_run_finish(struct efi_loaded_image_obj *image_obj,
+			       struct efi_loaded_image *loaded_image_info)
+{
+	efi_restore_gd();
+	free(loaded_image_info->load_options);
+	efi_delete_handle(&image_obj->header);
+}
+
+/**
+ * do_efi_selftest() - execute EFI Selftest
+ *
+ * @fdt_opt:	string of fdt start address
+ * Return:	status code
+ *
+ * Execute EFI Selftest
+ */
+static int do_efi_selftest(const char *fdt_opt)
+{
+	struct efi_loaded_image_obj *image_obj;
+	struct efi_loaded_image *loaded_image_info;
+	efi_status_t ret;
+
+	/* Allow unaligned memory access */
+	allow_unaligned();
+
+	switch_to_non_secure_mode();
+
+	/* Initialize EFI drivers */
+	ret = efi_init_obj_list();
+	if (ret != EFI_SUCCESS) {
+		printf("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+		       ret & ~EFI_ERROR_MASK);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = efi_install_fdt(fdt_opt);
+	if (ret == EFI_INVALID_PARAMETER)
+		return CMD_RET_USAGE;
+	else if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
+	ret = bootefi_test_prepare(&image_obj, &loaded_image_info,
+				   "\\selftest", "efi_selftest");
+	if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
+	/* Execute the test */
+	ret = EFI_CALL(efi_selftest(&image_obj->header, &systab));
+	bootefi_run_finish(image_obj, loaded_image_info);
+
+	return ret != EFI_SUCCESS;
+}
 #endif /* CONFIG_CMD_BOOTEFI_SELFTEST */
 
 static int do_bootefi_bootmgr_exec(void)
@@ -429,6 +480,13 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *saddr;
 	efi_status_t r;
 
+	if (argc < 2)
+		return CMD_RET_USAGE;
+#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+	else if (!strcmp(argv[1], "selftest"))
+		return do_efi_selftest(argc > 2 ? argv[2] : NULL);
+#endif
+
 	/* Allow unaligned memory access */
 	allow_unaligned();
 
@@ -441,9 +499,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		       r & ~EFI_ERROR_MASK);
 		return CMD_RET_FAILURE;
 	}
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
 
 	r = efi_install_fdt(argc > 2 ? argv[2] : NULL);
 	if (r == EFI_INVALID_PARAMETER)
@@ -461,22 +516,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		else
 			addr = CONFIG_SYS_LOAD_ADDR;
 		memcpy(map_sysmem(addr, size), __efi_helloworld_begin, size);
-	} else
-#endif
-#ifdef CONFIG_CMD_BOOTEFI_SELFTEST
-	if (!strcmp(argv[1], "selftest")) {
-		struct efi_loaded_image_obj *image_obj;
-		struct efi_loaded_image *loaded_image_info;
-
-		r = bootefi_test_prepare(&image_obj, &loaded_image_info,
-					 "\\selftest", "efi_selftest");
-		if (r != EFI_SUCCESS)
-			return CMD_RET_FAILURE;
-
-		/* Execute the test */
-		r = EFI_CALL(efi_selftest(&image_obj->header, &systab));
-		bootefi_run_finish(image_obj, loaded_image_info);
-		return r != EFI_SUCCESS;
 	} else
 #endif
 	if (!strcmp(argv[1], "bootmgr")) {
