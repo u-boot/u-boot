@@ -21,6 +21,10 @@
 		mmc0 = &usdhc3;
 	};
 
+	chosen {
+		stdout-path = &uart1;
+	};
+
 	gpio-keys {
 		compatible = "gpio-keys";
 		pinctrl-0 = <&pinctrl_gpio>;
