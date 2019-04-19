@@ -329,22 +329,49 @@ err_add_protocol:
 	return ret;
 }
 
-static int do_bootefi_bootmgr_exec(void)
+/**
+ * do_efibootmgr() - execute EFI Boot Manager
+ *
+ * @fdt_opt:	string of fdt start address
+ * Return:	status code
+ *
+ * Execute EFI Boot Manager
+ */
+static int do_efibootmgr(const char *fdt_opt)
 {
 	struct efi_device_path *device_path, *file_path;
 	void *addr;
-	efi_status_t r;
+	efi_status_t ret;
+
+	/* Allow unaligned memory access */
+	allow_unaligned();
+
+	switch_to_non_secure_mode();
+
+	/* Initialize EFI drivers */
+	ret = efi_init_obj_list();
+	if (ret != EFI_SUCCESS) {
+		printf("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+		       ret & ~EFI_ERROR_MASK);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = efi_install_fdt(fdt_opt);
+	if (ret == EFI_INVALID_PARAMETER)
+		return CMD_RET_USAGE;
+	else if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
 
 	addr = efi_bootmgr_load(&device_path, &file_path);
 	if (!addr)
 		return 1;
 
 	printf("## Starting EFI application at %p ...\n", addr);
-	r = do_bootefi_exec(addr, device_path, file_path);
+	ret = do_bootefi_exec(addr, device_path, file_path);
 	printf("## Application terminated, r = %lu\n",
-	       r & ~EFI_ERROR_MASK);
+	       ret & ~EFI_ERROR_MASK);
 
-	if (r != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS)
 		return 1;
 
 	return 0;
@@ -482,6 +509,9 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
+
+	if (!strcmp(argv[1], "bootmgr"))
+		return do_efibootmgr(argc > 2 ? argv[2] : NULL);
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 	else if (!strcmp(argv[1], "selftest"))
 		return do_efi_selftest(argc > 2 ? argv[2] : NULL);
@@ -518,9 +548,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		memcpy(map_sysmem(addr, size), __efi_helloworld_begin, size);
 	} else
 #endif
-	if (!strcmp(argv[1], "bootmgr")) {
-		return do_bootefi_bootmgr_exec();
-	} else {
+	{
 		saddr = argv[1];
 
 		addr = simple_strtoul(saddr, NULL, 16);
