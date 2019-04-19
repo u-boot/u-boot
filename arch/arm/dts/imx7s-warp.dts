@@ -19,6 +19,7 @@
 
 	aliases {
 		mmc0 = &usdhc3;
+		usb0 = &usbotg1;
 	};
 
 	chosen {

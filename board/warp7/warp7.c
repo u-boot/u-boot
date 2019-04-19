@@ -14,7 +14,6 @@
 #include <asm/io.h>
 #include <common.h>
 #include <asm/arch/crm_regs.h>
-#include <usb.h>
 #include <netdev.h>
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
@@ -126,11 +125,6 @@ int checkboard(void)
 #endif
 
 	return 0;
-}
-
-int board_usb_phy_mode(int port)
-{
-	return USB_INIT_DEVICE;
 }
 
 int board_late_init(void)
