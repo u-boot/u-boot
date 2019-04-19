@@ -39,29 +39,49 @@ void __weak allow_unaligned(void)
 /*
  * Set the load options of an image from an environment variable.
  *
- * @loaded_image_info:	the image
- * @env_var:		name of the environment variable
+ * @handle:	the image handle
+ * @env_var:	name of the environment variable
+ * Return:	status code
  */
-static void set_load_options(struct efi_loaded_image *loaded_image_info,
-			     const char *env_var)
+static efi_status_t set_load_options(efi_handle_t handle, const char *env_var)
 {
+	struct efi_loaded_image *loaded_image_info;
 	size_t size;
 	const char *env = env_get(env_var);
 	u16 *pos;
+	efi_status_t ret;
+
+	ret = EFI_CALL(systab.boottime->open_protocol(
+					handle,
+					&efi_guid_loaded_image,
+					(void **)&loaded_image_info,
+					efi_root, NULL,
+					EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL));
+	if (ret != EFI_SUCCESS)
+		return EFI_INVALID_PARAMETER;
 
 	loaded_image_info->load_options = NULL;
 	loaded_image_info->load_options_size = 0;
 	if (!env)
-		return;
+		goto out;
+
 	size = utf8_utf16_strlen(env) + 1;
 	loaded_image_info->load_options = calloc(size, sizeof(u16));
 	if (!loaded_image_info->load_options) {
 		printf("ERROR: Out of memory\n");
-		return;
+		EFI_CALL(systab.boottime->close_protocol(handle,
+							 &efi_guid_loaded_image,
+							 efi_root, NULL));
+		return EFI_OUT_OF_RESOURCES;
 	}
 	pos = loaded_image_info->load_options;
 	utf8_utf16_strcpy(&pos, env);
 	loaded_image_info->load_options_size = size * 2;
+
+out:
+	return EFI_CALL(systab.boottime->close_protocol(handle,
+							&efi_guid_loaded_image,
+							efi_root, NULL));
 }
 
 /**
@@ -212,9 +232,7 @@ static efi_status_t bootefi_run_prepare(const char *load_options_path,
 		return ret;
 
 	/* Transfer environment variable as load options */
-	set_load_options(*loaded_image_infop, load_options_path);
-
-	return 0;
+	return set_load_options((efi_handle_t)*image_objp, load_options_path);
 }
 
 /**
