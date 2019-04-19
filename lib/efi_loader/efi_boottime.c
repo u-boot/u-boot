@@ -1591,6 +1591,7 @@ failure:
  * @size:	size of the loaded image
  * Return:	status code
  */
+static
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 				      void **buffer, efi_uintn_t *size)
 {
@@ -2656,6 +2657,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	}
 
 	current_image = image_handle;
+	EFI_PRINT("Jumping into 0x%p\n", image_obj->entry);
 	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
 
 	/*

@@ -120,14 +120,14 @@ static void *get_var(u16 *name, const efi_guid_t *vendor,
  * if successful.  This checks that the EFI_LOAD_OPTION is active (enabled)
  * and that the specified file to boot exists.
  */
-static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
-			    struct efi_device_path **file_path)
+static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
 {
 	struct efi_load_option lo;
 	u16 varname[] = L"Boot0000";
 	u16 hexmap[] = L"0123456789ABCDEF";
-	void *load_option, *image = NULL;
+	void *load_option;
 	efi_uintn_t size;
+	efi_status_t ret;
 
 	varname[4] = hexmap[(n & 0xf000) >> 12];
 	varname[5] = hexmap[(n & 0x0f00) >> 8];
@@ -136,19 +136,18 @@ static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
 
 	load_option = get_var(varname, &efi_global_variable_guid, &size);
 	if (!load_option)
-		return NULL;
+		return EFI_LOAD_ERROR;
 
 	efi_deserialize_load_option(&lo, load_option);
 
 	if (lo.attributes & LOAD_OPTION_ACTIVE) {
 		u32 attributes;
-		efi_status_t ret;
 
 		debug("%s: trying to load \"%ls\" from %pD\n",
 		      __func__, lo.label, lo.file_path);
 
-		ret = efi_load_image_from_path(lo.file_path, &image, &size);
-
+		ret = EFI_CALL(efi_load_image(true, efi_root, lo.file_path,
+					      NULL, 0, handle));
 		if (ret != EFI_SUCCESS)
 			goto error;
 
@@ -159,17 +158,22 @@ static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
 				L"BootCurrent",
 				(efi_guid_t *)&efi_global_variable_guid,
 				attributes, size, &n));
-		if (ret != EFI_SUCCESS)
+		if (ret != EFI_SUCCESS) {
+			if (EFI_CALL(efi_unload_image(*handle))
+			    != EFI_SUCCESS)
+				printf("Unloading image failed\n");
 			goto error;
+		}
 
 		printf("Booting: %ls\n", lo.label);
-		efi_dp_split_file_path(lo.file_path, device_path, file_path);
+	} else {
+		ret = EFI_LOAD_ERROR;
 	}
 
 error:
 	free(load_option);
 
-	return image;
+	return ret;
 }
 
 /*
@@ -177,12 +181,10 @@ error:
  * EFI variable, the available load-options, finding and returning
  * the first one that can be loaded successfully.
  */
-void *efi_bootmgr_load(struct efi_device_path **device_path,
-		       struct efi_device_path **file_path)
+efi_status_t efi_bootmgr_load(efi_handle_t *handle)
 {
 	u16 bootnext, *bootorder;
 	efi_uintn_t size;
-	void *image = NULL;
 	int i, num;
 	efi_status_t ret;
 
@@ -209,10 +211,9 @@ void *efi_bootmgr_load(struct efi_device_path **device_path,
 		/* load BootNext */
 		if (ret == EFI_SUCCESS) {
 			if (size == sizeof(u16)) {
-				image = try_load_entry(bootnext, device_path,
-						       file_path);
-				if (image)
-					return image;
+				ret = try_load_entry(bootnext, handle);
+				if (ret == EFI_SUCCESS)
+					return ret;
 			}
 		} else {
 			printf("Deleting BootNext failed\n");
@@ -223,19 +224,20 @@ void *efi_bootmgr_load(struct efi_device_path **device_path,
 	bootorder = get_var(L"BootOrder", &efi_global_variable_guid, &size);
 	if (!bootorder) {
 		printf("BootOrder not defined\n");
+		ret = EFI_NOT_FOUND;
 		goto error;
 	}
 
 	num = size / sizeof(uint16_t);
 	for (i = 0; i < num; i++) {
 		debug("%s: trying to load Boot%04X\n", __func__, bootorder[i]);
-		image = try_load_entry(bootorder[i], device_path, file_path);
-		if (image)
+		ret = try_load_entry(bootorder[i], handle);
+		if (ret == EFI_SUCCESS)
 			break;
 	}
 
 	free(bootorder);
 
 error:
-	return image;
+	return ret;
 }

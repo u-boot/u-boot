@@ -242,89 +242,36 @@ static efi_status_t efi_install_fdt(const char *fdt_opt)
 /**
  * do_bootefi_exec() - execute EFI binary
  *
- * @efi:		address of the binary
- * @device_path:	path of the device from which the binary was loaded
- * @image_path:		device path of the binary
+ * @handle:		handle of loaded image
  * Return:		status code
  *
  * Load the EFI binary into a newly assigned memory unwinding the relocation
  * information, install the loaded image protocol, and call the binary.
  */
-static efi_status_t do_bootefi_exec(void *efi,
-				    struct efi_device_path *device_path,
-				    struct efi_device_path *image_path)
+static efi_status_t do_bootefi_exec(efi_handle_t handle)
 {
-	efi_handle_t mem_handle = NULL;
-	struct efi_device_path *memdp = NULL;
 	efi_status_t ret;
-	struct efi_loaded_image_obj *image_obj = NULL;
-	struct efi_loaded_image *loaded_image_info = NULL;
-
-	/*
-	 * Special case for efi payload not loaded from disk, such as
-	 * 'bootefi hello' or for example payload loaded directly into
-	 * memory via JTAG, etc:
-	 */
-	if (!device_path && !image_path) {
-		printf("WARNING: using memory device/image path, this may confuse some payloads!\n");
-		/* actual addresses filled in after efi_load_pe() */
-		memdp = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE, 0, 0);
-		device_path = image_path = memdp;
-		/*
-		 * Grub expects that the device path of the loaded image is
-		 * installed on a handle.
-		 */
-		ret = efi_create_handle(&mem_handle);
-		if (ret != EFI_SUCCESS)
-			return ret; /* TODO: leaks device_path */
-		ret = efi_add_protocol(mem_handle, &efi_guid_device_path,
-				       device_path);
-		if (ret != EFI_SUCCESS)
-			goto err_add_protocol;
-	} else {
-		assert(device_path && image_path);
-	}
-
-	ret = efi_setup_loaded_image(device_path, image_path, &image_obj,
-				     &loaded_image_info);
-	if (ret)
-		goto err_prepare;
 
 	/* Transfer environment variable as load options */
-	ret = set_load_options((efi_handle_t)image_obj, "bootargs");
+	ret = set_load_options(handle, "bootargs");
 	if (ret != EFI_SUCCESS)
-		goto err_prepare;
-
-	/* Load the EFI payload */
-	ret = efi_load_pe(image_obj, efi, loaded_image_info);
-	if (ret != EFI_SUCCESS)
-		goto err_prepare;
-
-	if (memdp) {
-		struct efi_device_path_memory *mdp = (void *)memdp;
-		mdp->memory_type = loaded_image_info->image_code_type;
-		mdp->start_address = (uintptr_t)loaded_image_info->image_base;
-		mdp->end_address = mdp->start_address +
-				loaded_image_info->image_size;
-	}
+		return ret;
 
 	/* we don't support much: */
 	env_set("efi_8be4df61-93ca-11d2-aa0d-00e098032b8c_OsIndicationsSupported",
 		"{ro,boot}(blob)0000000000000000");
 
 	/* Call our payload! */
-	debug("%s: Jumping to 0x%p\n", __func__, image_obj->entry);
-	ret = EFI_CALL(efi_start_image(&image_obj->header, NULL, NULL));
+	ret = EFI_CALL(efi_start_image(handle, NULL, NULL));
 
-err_prepare:
-	/* image has returned, loaded-image obj goes *poof*: */
 	efi_restore_gd();
-	free(loaded_image_info->load_options);
-	efi_delete_handle(&image_obj->header);
 
-err_add_protocol:
-	if (mem_handle)
-		efi_delete_handle(mem_handle);
+	/*
+	 * FIXME: Who is responsible for
+	 *	free(loaded_image_info->load_options);
+	 * Once efi_exit() is implemented correctly,
+	 * handle itself doesn't exist here.
+	 */
 
 	return ret;
 }
@@ -339,8 +286,7 @@ err_add_protocol:
  */
 static int do_efibootmgr(const char *fdt_opt)
 {
-	struct efi_device_path *device_path, *file_path;
-	void *addr;
+	efi_handle_t handle;
 	efi_status_t ret;
 
 	/* Allow unaligned memory access */
@@ -362,19 +308,19 @@ static int do_efibootmgr(const char *fdt_opt)
 	else if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
 
-	addr = efi_bootmgr_load(&device_path, &file_path);
-	if (!addr)
-		return 1;
+	ret = efi_bootmgr_load(&handle);
+	if (ret != EFI_SUCCESS) {
+		printf("EFI boot manager: Cannot load any image\n");
+		return CMD_RET_FAILURE;
+	}
 
-	printf("## Starting EFI application at %p ...\n", addr);
-	ret = do_bootefi_exec(addr, device_path, file_path);
-	printf("## Application terminated, r = %lu\n",
-	       ret & ~EFI_ERROR_MASK);
+	ret = do_bootefi_exec(handle);
+	printf("## Application terminated, r = %lu\n", ret & ~EFI_ERROR_MASK);
 
 	if (ret != EFI_SUCCESS)
-		return 1;
+		return CMD_RET_FAILURE;
 
-	return 0;
+	return CMD_RET_SUCCESS;
 }
 
 /*
@@ -389,7 +335,12 @@ static int do_efibootmgr(const char *fdt_opt)
  */
 static int do_bootefi_image(const char *image_opt, const char *fdt_opt)
 {
-	unsigned long addr;
+	void *image_buf;
+	struct efi_device_path *device_path, *image_path;
+	struct efi_device_path *file_path = NULL;
+	unsigned long addr, size;
+	const char *size_str;
+	efi_handle_t mem_handle = NULL, handle;
 	efi_status_t ret;
 
 	/* Allow unaligned memory access */
@@ -414,33 +365,83 @@ static int do_bootefi_image(const char *image_opt, const char *fdt_opt)
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
 	if (!strcmp(image_opt, "hello")) {
 		char *saddr;
-		ulong size = __efi_helloworld_end - __efi_helloworld_begin;
 
 		saddr = env_get("loadaddr");
+		size = __efi_helloworld_end - __efi_helloworld_begin;
+
 		if (saddr)
 			addr = simple_strtoul(saddr, NULL, 16);
 		else
 			addr = CONFIG_SYS_LOAD_ADDR;
-		memcpy(map_sysmem(addr, size), __efi_helloworld_begin, size);
+
+		image_buf = map_sysmem(addr, size);
+		memcpy(image_buf, __efi_helloworld_begin, size);
+
+		device_path = NULL;
+		image_path = NULL;
 	} else
 #endif
 	{
+		size_str = env_get("filesize");
+		if (size_str)
+			size = simple_strtoul(size_str, NULL, 16);
+		else
+			size = 0;
+
 		addr = simple_strtoul(image_opt, NULL, 16);
 		/* Check that a numeric value was passed */
 		if (!addr && *image_opt != '0')
 			return CMD_RET_USAGE;
+
+		image_buf = map_sysmem(addr, size);
+
+		device_path = bootefi_device_path;
+		image_path = bootefi_image_path;
 	}
 
-	printf("## Starting EFI application at %08lx ...\n", addr);
-	ret = do_bootefi_exec(map_sysmem(addr, 0), bootefi_device_path,
-			      bootefi_image_path);
-	printf("## Application terminated, r = %lu\n",
-	       ret & ~EFI_ERROR_MASK);
+	if (!device_path && !image_path) {
+		/*
+		 * Special case for efi payload not loaded from disk,
+		 * such as 'bootefi hello' or for example payload
+		 * loaded directly into memory via JTAG, etc:
+		 */
+		file_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
+					    (uintptr_t)image_buf, size);
+		/*
+		 * Make sure that device for device_path exist
+		 * in load_image(). Otherwise, shell and grub will fail.
+		 */
+		ret = efi_create_handle(&mem_handle);
+		if (ret != EFI_SUCCESS)
+			goto out;
+
+		ret = efi_add_protocol(mem_handle, &efi_guid_device_path,
+				       file_path);
+		if (ret != EFI_SUCCESS)
+			goto out;
+	} else {
+		assert(device_path && image_path);
+		file_path = efi_dp_append(device_path, image_path);
+	}
+
+	ret = EFI_CALL(efi_load_image(false, efi_root,
+				      file_path, image_buf, size, &handle));
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	ret = do_bootefi_exec(handle);
+	printf("## Application terminated, r = %lu\n", ret & ~EFI_ERROR_MASK);
+
+out:
+	if (mem_handle)
+		efi_delete_handle(mem_handle);
+	if (file_path)
+		efi_free_pool(file_path);
 
 	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
-	else
-		return CMD_RET_SUCCESS;
+
+	return CMD_RET_SUCCESS;
 }
 
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
@@ -598,7 +599,7 @@ static char bootefi_help_text[] =
 	"    Use environment variable efi_selftest to select a single test.\n"
 	"    Use 'setenv efi_selftest list' to enumerate all tests.\n"
 #endif
-	"bootefi bootmgr [fdt addr]\n"
+	"bootefi bootmgr [fdt address]\n"
 	"  - load and boot EFI payload based on BootOrder/BootXXXX variables.\n"
 	"\n"
 	"    If specified, the device tree located at <fdt address> gets\n"
@@ -623,6 +624,13 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
 	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
 	if (ret == EFI_SUCCESS) {
 		bootefi_device_path = device;
+		if (image) {
+			/* FIXME: image should not contain device */
+			struct efi_device_path *image_tmp = image;
+
+			efi_dp_split_file_path(image, &device, &image);
+			efi_free_pool(image_tmp);
+		}
 		bootefi_image_path = image;
 	} else {
 		bootefi_device_path = NULL;
