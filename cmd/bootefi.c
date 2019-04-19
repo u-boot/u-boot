@@ -329,6 +329,27 @@ err_add_protocol:
 	return ret;
 }
 
+static int do_bootefi_bootmgr_exec(void)
+{
+	struct efi_device_path *device_path, *file_path;
+	void *addr;
+	efi_status_t r;
+
+	addr = efi_bootmgr_load(&device_path, &file_path);
+	if (!addr)
+		return 1;
+
+	printf("## Starting EFI application at %p ...\n", addr);
+	r = do_bootefi_exec(addr, device_path, file_path);
+	printf("## Application terminated, r = %lu\n",
+	       r & ~EFI_ERROR_MASK);
+
+	if (r != EFI_SUCCESS)
+		return 1;
+
+	return 0;
+}
+
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 static efi_status_t bootefi_run_prepare(const char *load_options_path,
 		struct efi_device_path *device_path,
@@ -451,27 +472,6 @@ static int do_efi_selftest(const char *fdt_opt)
 	return ret != EFI_SUCCESS;
 }
 #endif /* CONFIG_CMD_BOOTEFI_SELFTEST */
-
-static int do_bootefi_bootmgr_exec(void)
-{
-	struct efi_device_path *device_path, *file_path;
-	void *addr;
-	efi_status_t r;
-
-	addr = efi_bootmgr_load(&device_path, &file_path);
-	if (!addr)
-		return 1;
-
-	printf("## Starting EFI application at %p ...\n", addr);
-	r = do_bootefi_exec(addr, device_path, file_path);
-	printf("## Application terminated, r = %lu\n",
-	       r & ~EFI_ERROR_MASK);
-
-	if (r != EFI_SUCCESS)
-		return 1;
-
-	return 0;
-}
 
 /* Interpreter command to boot an arbitrary EFI image from memory */
 static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
