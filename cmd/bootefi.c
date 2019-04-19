@@ -218,6 +218,38 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
 	return ret;
 }
 
+/**
+ * efi_process_fdt() - process fdt passed by a command argument
+ * @fdt_opt:	pointer to argument
+ * Return:	status code
+ *
+ * If specified, fdt will be installed as configuration table,
+ * otherwise no fdt will be passed.
+ */
+static efi_status_t efi_process_fdt(const char *fdt_opt)
+{
+	unsigned long fdt_addr;
+	efi_status_t ret;
+
+	if (fdt_opt) {
+		fdt_addr = simple_strtoul(fdt_opt, NULL, 16);
+		if (!fdt_addr && *fdt_opt != '0')
+			return EFI_INVALID_PARAMETER;
+
+		/* Install device tree */
+		ret = efi_install_fdt(fdt_addr);
+		if (ret != EFI_SUCCESS) {
+			printf("ERROR: failed to install device tree\n");
+			return ret;
+		}
+	} else {
+		/* Remove device tree. EFI_NOT_FOUND can be ignored here */
+		efi_install_configuration_table(&efi_guid_fdt, NULL);
+	}
+
+	return EFI_SUCCESS;
+}
+
 static efi_status_t bootefi_run_prepare(const char *load_options_path,
 		struct efi_device_path *device_path,
 		struct efi_device_path *image_path,
@@ -407,7 +439,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned long addr;
 	char *saddr;
 	efi_status_t r;
-	unsigned long fdt_addr;
 
 	/* Allow unaligned memory access */
 	allow_unaligned();
@@ -425,21 +456,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	if (argc > 2) {
-		fdt_addr = simple_strtoul(argv[2], NULL, 16);
-		if (!fdt_addr && *argv[2] != '0')
-			return CMD_RET_USAGE;
-		/* Install device tree */
-		r = efi_install_fdt(fdt_addr);
-		if (r != EFI_SUCCESS) {
-			printf("ERROR: failed to install device tree\n");
-			return CMD_RET_FAILURE;
-		}
-	} else {
-		/* Remove device tree. EFI_NOT_FOUND can be ignored here */
-		efi_install_configuration_table(&efi_guid_fdt, NULL);
-		printf("WARNING: booting without device tree\n");
-	}
+	r = efi_process_fdt(argc > 2 ? argv[2] : NULL);
+	if (r == EFI_INVALID_PARAMETER)
+		return CMD_RET_USAGE;
+	else if (r != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
 	if (!strcmp(argv[1], "hello")) {
 		ulong size = __efi_helloworld_end - __efi_helloworld_begin;
