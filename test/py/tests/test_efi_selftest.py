@@ -15,7 +15,7 @@ def test_efi_selftest(u_boot_console):
 	This function executes all selftests that are not marked as on request.
 	"""
 	u_boot_console.run_command(cmd='setenv efi_selftest')
-	u_boot_console.run_command(cmd='bootefi selftest ${fdtcontroladdr}', wait_for_prompt=False)
+	u_boot_console.run_command(cmd='bootefi selftest', wait_for_prompt=False)
 	m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
 	if m != 0:
 		raise Exception('Failures occurred during the EFI selftest')
@@ -27,6 +27,7 @@ def test_efi_selftest(u_boot_console):
 
 @pytest.mark.buildconfigspec('cmd_bootefi_selftest')
 @pytest.mark.buildconfigspec('of_control')
+@pytest.mark.notbuildconfigspec('generate_acpi_table')
 def test_efi_selftest_device_tree(u_boot_console):
 	u_boot_console.run_command(cmd='setenv efi_selftest list')
 	output = u_boot_console.run_command('bootefi selftest')

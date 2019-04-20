@@ -42,6 +42,10 @@ efi_selftest_watchdog.o
 obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
 obj-$(CONFIG_EFI_LOADER_HII) += efi_selftest_hii.o
 
+ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
+obj-y += efi_selftest_fdt.o
+endif
+
 ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
 obj-y += efi_selftest_block_device.o
 endif
