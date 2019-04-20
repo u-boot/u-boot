@@ -231,6 +231,26 @@ static const struct {
 		"Graphics Output",
 		EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID,
 	},
+	{
+		"HII String",
+		EFI_HII_STRING_PROTOCOL_GUID,
+	},
+	{
+		"HII Database",
+		EFI_HII_DATABASE_PROTOCOL_GUID,
+	},
+	{
+		"HII Config Routing",
+		EFI_HII_CONFIG_ROUTING_PROTOCOL_GUID,
+	},
+	{
+		"Simple Network",
+		EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
+	},
+	{
+		"PXE Base Code",
+		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
+	},
 };
 
 /**
