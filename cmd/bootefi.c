@@ -84,6 +84,8 @@ out:
 							efi_root, NULL));
 }
 
+#if !CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
+
 /**
  * copy_fdt() - Copy the device tree to a new location available to EFI
  *
@@ -186,6 +188,25 @@ static void efi_carve_out_dt_rsv(void *fdt)
 }
 
 /**
+ * get_config_table() - get configuration table
+ *
+ * @guid:	GUID of the configuration table
+ * Return:	pointer to configuration table or NULL
+ */
+static void *get_config_table(const efi_guid_t *guid)
+{
+	size_t i;
+
+	for (i = 0; i < systab.nr_tables; i++) {
+		if (!guidcmp(guid, &systab.tables[i].guid))
+			return systab.tables[i].table;
+	}
+	return NULL;
+}
+
+#endif /* !CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE) */
+
+/**
  * efi_install_fdt() - install fdt passed by a command argument
  * @fdt_opt:	pointer to argument
  * Return:	status code
@@ -195,46 +216,71 @@ static void efi_carve_out_dt_rsv(void *fdt)
  */
 static efi_status_t efi_install_fdt(const char *fdt_opt)
 {
+	/*
+	 * The EBBR spec requires that we have either an FDT or an ACPI table
+	 * but not both.
+	 */
+#if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
+	if (fdt_opt) {
+		printf("ERROR: can't have ACPI table and device tree.\n");
+		return EFI_LOAD_ERROR;
+	}
+#else
 	unsigned long fdt_addr;
 	void *fdt;
 	bootm_headers_t img = { 0 };
 	efi_status_t ret;
 
 	if (fdt_opt) {
-		/* Install device tree */
 		fdt_addr = simple_strtoul(fdt_opt, NULL, 16);
-		if (!fdt_addr && *fdt_opt != '0')
+		if (!fdt_addr)
 			return EFI_INVALID_PARAMETER;
-
-		fdt = map_sysmem(fdt_addr, 0);
-		if (fdt_check_header(fdt)) {
-			printf("ERROR: invalid device tree\n");
-			return EFI_INVALID_PARAMETER;
+	} else {
+		/* Look for device tree that is already installed */
+		if (get_config_table(&efi_guid_fdt))
+			return EFI_SUCCESS;
+		/* Use our own device tree as default */
+		fdt_opt = env_get("fdtcontroladdr");
+		if (!fdt_opt) {
+			printf("ERROR: need device tree\n");
+			return EFI_NOT_FOUND;
 		}
-
-		/* Create memory reservation as indicated by the device tree */
-		efi_carve_out_dt_rsv(fdt);
-
-		/* Prepare fdt for payload */
-		ret = copy_fdt(&fdt);
-		if (ret)
-			return ret;
-
-		if (image_setup_libfdt(&img, fdt, 0, NULL)) {
-			printf("ERROR: failed to process device tree\n");
+		fdt_addr = simple_strtoul(fdt_opt, NULL, 16);
+		if (!fdt_addr) {
+			printf("ERROR: invalid $fdtcontroladdr\n");
 			return EFI_LOAD_ERROR;
 		}
-
-		/* Link to it in the efi tables */
-		ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
-		if (ret != EFI_SUCCESS) {
-			printf("ERROR: failed to install device tree\n");
-			return ret;
-		}
-	} else {
-		/* Remove device tree. EFI_NOT_FOUND can be ignored here */
-		efi_install_configuration_table(&efi_guid_fdt, NULL);
 	}
+
+	/* Install device tree */
+	fdt = map_sysmem(fdt_addr, 0);
+	if (fdt_check_header(fdt)) {
+		printf("ERROR: invalid device tree\n");
+		return EFI_LOAD_ERROR;
+	}
+
+	/* Create memory reservations as indicated by the device tree */
+	efi_carve_out_dt_rsv(fdt);
+
+	/* Prepare device tree for payload */
+	ret = copy_fdt(&fdt);
+	if (ret) {
+		printf("ERROR: out of memory\n");
+		return EFI_OUT_OF_RESOURCES;
+	}
+
+	if (image_setup_libfdt(&img, fdt, 0, NULL)) {
+		printf("ERROR: failed to process device tree\n");
+		return EFI_LOAD_ERROR;
+	}
+
+	/* Install device tree as UEFI table */
+	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
+	if (ret != EFI_SUCCESS) {
+		printf("ERROR: failed to install device tree\n");
+		return ret;
+	}
+#endif /* GENERATE_ACPI_TABLE */
 
 	return EFI_SUCCESS;
 }

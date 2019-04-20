@@ -23,7 +23,6 @@ efi_selftest_events.o \
 efi_selftest_event_groups.o \
 efi_selftest_exception.o \
 efi_selftest_exitbootservices.o \
-efi_selftest_fdt.o \
 efi_selftest_gop.o \
 efi_selftest_loaded_image.o \
 efi_selftest_manageprotocols.o \
