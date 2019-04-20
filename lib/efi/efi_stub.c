@@ -278,7 +278,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
 	struct efi_gop *gop;
 	struct efi_entry_gopmode mode;
 	struct efi_entry_systable table;
-	efi_guid_t efi_gop_guid = EFI_GOP_GUID;
+	efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
 	efi_uintn_t key, desc_size, size;
 	efi_status_t ret;
 	u32 version;

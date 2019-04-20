@@ -27,7 +27,7 @@ static struct efi_boot_services *boottime;
 static efi_handle_t handle_image;
 static efi_handle_t handle_volume;
 
-static const efi_guid_t guid_device_path = DEVICE_PATH_GUID;
+static const efi_guid_t guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
 static const efi_guid_t guid_simple_file_system_protocol =
 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
 static const efi_guid_t guid_file_info = EFI_FILE_INFO_GUID;

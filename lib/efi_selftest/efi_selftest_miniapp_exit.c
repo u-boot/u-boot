@@ -11,7 +11,7 @@
 #include <common.h>
 #include <efi_api.h>
 
-static efi_guid_t loaded_image_protocol_guid = LOADED_IMAGE_GUID;
+static efi_guid_t loaded_image_protocol_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
 
 /**
  * check_loaded_image_protocol() - check image_base/image_size

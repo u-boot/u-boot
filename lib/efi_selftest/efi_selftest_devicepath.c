@@ -20,7 +20,7 @@ struct interface {
 	void (EFIAPI * inc)(void);
 } interface;
 
-static efi_guid_t guid_device_path = DEVICE_PATH_GUID;
+static efi_guid_t guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
 
 static efi_guid_t guid_device_path_to_text_protocol =
 	EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID;
