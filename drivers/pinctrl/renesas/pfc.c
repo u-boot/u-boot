@@ -466,7 +466,7 @@ int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector)
 	struct sh_pfc *pfc = &priv->pfc;
 	struct sh_pfc_pin_config *cfg;
 	const struct sh_pfc_pin *pin = NULL;
-	int i, idx;
+	int i, ret, idx;
 
 	for (i = 1; i < pfc->info->nr_pins; i++) {
 		if (priv->pfc.info->pins[i].pin != pin_selector)
@@ -485,7 +485,13 @@ int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector)
 	if (cfg->type != PINMUX_TYPE_NONE)
 		return -EBUSY;
 
-	return sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
+	ret = sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
+	if (ret)
+		return ret;
+
+	cfg->type = PINMUX_TYPE_GPIO;
+
+	return 0;
 }
 
 static int sh_pfc_pinctrl_pin_set(struct udevice *dev, unsigned pin_selector,
