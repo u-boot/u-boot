@@ -524,11 +524,6 @@ static int sh_pfc_gpio_disable_free(struct udevice *dev,
 	return 0;
 }
 
-int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector)
-{
-	return sh_pfc_gpio_request_enable(dev, pin_selector);
-}
-
 static int sh_pfc_pinctrl_pin_set(struct udevice *dev, unsigned pin_selector,
 				  unsigned func_selector)
 {
