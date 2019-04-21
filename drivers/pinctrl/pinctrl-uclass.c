@@ -172,6 +172,102 @@ static int pinconfig_post_bind(struct udevice *dev)
 }
 #endif
 
+static int
+pinctrl_gpio_get_pinctrl_and_offset(struct udevice *dev, unsigned offset,
+				    struct udevice **pctldev,
+				    unsigned int *pin_selector)
+{
+	struct ofnode_phandle_args args;
+	unsigned gpio_offset, pfc_base, pfc_pins;
+	int ret;
+
+	ret = dev_read_phandle_with_args(dev, "gpio-ranges", NULL, 3,
+					 0, &args);
+	if (ret) {
+		dev_dbg(dev, "%s: dev_read_phandle_with_args: err=%d\n",
+			__func__, ret);
+		return ret;
+	}
+
+	ret = uclass_get_device_by_ofnode(UCLASS_PINCTRL,
+					  args.node, pctldev);
+	if (ret) {
+		dev_dbg(dev,
+			"%s: uclass_get_device_by_of_offset failed: err=%d\n",
+			__func__, ret);
+		return ret;
+	}
+
+	gpio_offset = args.args[0];
+	pfc_base = args.args[1];
+	pfc_pins = args.args[2];
+
+	if (offset < gpio_offset || offset > gpio_offset + pfc_pins) {
+		dev_dbg(dev,
+			"%s: GPIO can not be mapped to pincontrol pin\n",
+			__func__);
+		return -EINVAL;
+	}
+
+	offset -= gpio_offset;
+	offset += pfc_base;
+	*pin_selector = offset;
+
+	return 0;
+}
+
+/**
+ * pinctrl_gpio_request() - request a single pin to be used as GPIO
+ *
+ * @dev: GPIO peripheral device
+ * @offset: the GPIO pin offset from the GPIO controller
+ * @return: 0 on success, or negative error code on failure
+ */
+int pinctrl_gpio_request(struct udevice *dev, unsigned offset)
+{
+	const struct pinctrl_ops *ops;
+	struct udevice *pctldev;
+	unsigned int pin_selector;
+	int ret;
+
+	ret = pinctrl_gpio_get_pinctrl_and_offset(dev, offset,
+						  &pctldev, &pin_selector);
+	if (ret)
+		return ret;
+
+	ops = pinctrl_get_ops(pctldev);
+	if (!ops || !ops->gpio_request_enable)
+		return -ENOTSUPP;
+
+	return ops->gpio_request_enable(pctldev, pin_selector);
+}
+
+/**
+ * pinctrl_gpio_free() - free a single pin used as GPIO
+ *
+ * @dev: GPIO peripheral device
+ * @offset: the GPIO pin offset from the GPIO controller
+ * @return: 0 on success, or negative error code on failure
+ */
+int pinctrl_gpio_free(struct udevice *dev, unsigned offset)
+{
+	const struct pinctrl_ops *ops;
+	struct udevice *pctldev;
+	unsigned int pin_selector;
+	int ret;
+
+	ret = pinctrl_gpio_get_pinctrl_and_offset(dev, offset,
+						  &pctldev, &pin_selector);
+	if (ret)
+		return ret;
+
+	ops = pinctrl_get_ops(pctldev);
+	if (!ops || !ops->gpio_disable_free)
+		return -ENOTSUPP;
+
+	return ops->gpio_disable_free(pctldev, pin_selector);
+}
+
 /**
  * pinctrl_select_state_simple() - simple implementation of pinctrl_select_state
  *
