@@ -21,6 +21,7 @@
 #include <debug_uart.h>
 #include <fdtdec.h>
 #include <watchdog.h>
+#include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,16 +39,12 @@ u32 spl_boot_device(void)
 		return BOOT_DEVICE_RAM;
 	case 0x2:	/* NAND Flash (1.8V) */
 	case 0x3:	/* NAND Flash (3.0V) */
-		socfpga_per_reset(SOCFPGA_RESET(NAND), 0);
 		return BOOT_DEVICE_NAND;
 	case 0x4:	/* SD/MMC External Transceiver (1.8V) */
 	case 0x5:	/* SD/MMC Internal Transceiver (3.0V) */
-		socfpga_per_reset(SOCFPGA_RESET(SDMMC), 0);
-		socfpga_per_reset(SOCFPGA_RESET(DMA), 0);
 		return BOOT_DEVICE_MMC1;
 	case 0x6:	/* QSPI Flash (1.8V) */
 	case 0x7:	/* QSPI Flash (3.0V) */
-		socfpga_per_reset(SOCFPGA_RESET(QSPI), 0);
 		return BOOT_DEVICE_SPI;
 	default:
 		printf("Invalid boot device (bsel=%08x)!\n", bsel);
@@ -123,9 +120,9 @@ static void socfpga_pl310_clear(void)
 void board_init_f(ulong dummy)
 {
 	const struct cm_config *cm_default_cfg = cm_get_default_config();
-	unsigned long sdram_size;
 	unsigned long reg;
 	int ret;
+	struct udevice *dev;
 
 	/*
 	 * First C code to run. Clear fake OCRAM ECC first as SBE
@@ -156,10 +153,7 @@ void board_init_f(ulong dummy)
 		socfpga_bridges_reset(1);
 	}
 
-	socfpga_per_reset(SOCFPGA_RESET(SDR), 0);
-	socfpga_per_reset(SOCFPGA_RESET(UART0), 0);
 	socfpga_per_reset(SOCFPGA_RESET(OSC1TIMER0), 0);
-
 	timer_init();
 
 	debug("Reconfigure Clock Manager\n");
@@ -181,8 +175,7 @@ void board_init_f(ulong dummy)
 	sysmgr_pinmux_init();
 	sysmgr_config_warmrstcfgio(0);
 
-	/* De-assert reset for peripherals and bridges based on handoff */
-	reset_deassert_peripherals_handoff();
+	/* De-assert reset for bridges based on handoff */
 	socfpga_bridges_reset(0);
 
 	debug("Unfreezing/Thaw all I/O banks\n");
@@ -200,27 +193,16 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
+	ret = uclass_get_device(UCLASS_RESET, 0, &dev);
+	if (ret)
+		debug("Reset init failed: %d\n", ret);
+
 	/* enable console uart printing */
 	preloader_console_init();
 
-	if (sdram_mmr_init_full(0xffffffff) != 0) {
-		puts("SDRAM init failed.\n");
-		hang();
-	}
-
-	debug("SDRAM: Calibrating PHY\n");
-	/* SDRAM calibration */
-	if (sdram_calibration_full() == 0) {
-		puts("SDRAM calibration failed.\n");
-		hang();
-	}
-
-	sdram_size = sdram_calculate_size();
-	debug("SDRAM: %ld MiB\n", sdram_size >> 20);
-
-	/* Sanity check ensure correct SDRAM size specified */
-	if (get_ram_size(0, sdram_size) != sdram_size) {
-		puts("SDRAM size check failed!\n");
+	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (ret) {
+		debug("DRAM init failed: %d\n", ret);
 		hang();
 	}
 

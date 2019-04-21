@@ -338,6 +338,7 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 	"scriptaddr=0x02100000\0" \
 	"pxefile_addr_r=0x02200000\0" \
 	"ramdisk_addr_r=0x02300000\0" \
+	"socfpga_legacy_reset_compat=1\0" \
 	BOOTENV
 
 #endif

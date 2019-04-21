@@ -201,16 +201,6 @@ int arch_early_init_r(void)
 	/* Add device descriptor to FPGA device table */
 	socfpga_fpga_add(&altera_fpga[0]);
 
-#ifdef CONFIG_DESIGNWARE_SPI
-	/* Get Designware SPI controller out of reset */
-	socfpga_per_reset(SOCFPGA_RESET(SPIM0), 0);
-	socfpga_per_reset(SOCFPGA_RESET(SPIM1), 0);
-#endif
-
-#ifdef CONFIG_NAND_DENALI
-	socfpga_per_reset(SOCFPGA_RESET(NAND), 0);
-#endif
-
 	return 0;
 }
 

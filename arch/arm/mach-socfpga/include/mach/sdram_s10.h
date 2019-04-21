@@ -22,6 +22,7 @@ int sdram_calibration_full(void);
 #define ECCCTRL1			0x100
 #define ECCCTRL2			0x104
 #define ERRINTEN			0x110
+#define ERRINTENS			0x114
 #define INTMODE				0x11c
 #define INTSTAT				0x120
 #define AUTOWB_CORRADDR			0x138
@@ -51,6 +52,10 @@ int sdram_calibration_full(void);
 #define DDR_HMC_CORE2SEQ_INT_REQ		0xF
 #define DDR_HMC_SEQ2CORE_INT_RESP_MASK		BIT(3)
 #define DDR_HMC_HPSINTFCSEL_ENABLE_MASK		0x001f1f1f
+
+#define	DDR_HMC_ERRINTEN_INTMASK				\
+		(DDR_HMC_ERRINTEN_SERRINTEN_EN_SET_MSK |	\
+		 DDR_HMC_ERRINTEN_DERRINTEN_EN_SET_MSK)
 
 /* NOC DDR scheduler */
 #define DDR_SCH_ID_COREID		0
@@ -179,5 +184,9 @@ int sdram_calibration_full(void);
 
 #define CALTIMING9_CFG_4_ACT_TO_ACT(x)			\
 	(((x) >> 0) & 0xFF)
+
+/* Firewall DDR scheduler MPFE */
+#define FW_HMC_ADAPTOR_REG_ADDR			0xf8020004
+#define FW_HMC_ADAPTOR_MPU_MASK			BIT(0)
 
 #endif /* _SDRAM_S10_H_ */

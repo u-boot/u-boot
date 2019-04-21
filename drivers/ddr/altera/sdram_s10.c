@@ -7,12 +7,14 @@
 #include <common.h>
 #include <errno.h>
 #include <div64.h>
+#include <fdtdec.h>
 #include <asm/io.h>
 #include <wait_bit.h>
 #include <asm/arch/firewall_s10.h>
 #include <asm/arch/sdram_s10.h>
 #include <asm/arch/system_manager.h>
 #include <asm/arch/reset_manager.h>
+#include <linux/sizes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -20,6 +22,8 @@ static const struct socfpga_system_manager *sysmgr_regs =
 		(void *)SOCFPGA_SYSMGR_ADDRESS;
 
 #define DDR_CONFIG(A, B, C, R)	(((A) << 24) | ((B) << 16) | ((C) << 8) | (R))
+
+#define PGTABLE_OFF	0x4000
 
 /* The followring are the supported configurations */
 u32 ddr_config[] = {
@@ -134,6 +138,108 @@ static int poll_hmc_clock_status(void)
 				 SYSMGR_HMC_CLK_STATUS_MSK, true, 1000, false);
 }
 
+static void sdram_clear_mem(phys_addr_t addr, phys_size_t size)
+{
+	phys_size_t i;
+
+	if (addr % CONFIG_SYS_CACHELINE_SIZE) {
+		printf("DDR: address 0x%llx is not cacheline size aligned.\n",
+		       addr);
+		hang();
+	}
+
+	if (size % CONFIG_SYS_CACHELINE_SIZE) {
+		printf("DDR: size 0x%llx is not multiple of cacheline size\n",
+		       size);
+		hang();
+	}
+
+	/* Use DC ZVA instruction to clear memory to zeros by a cache line */
+	for (i = 0; i < size; i = i + CONFIG_SYS_CACHELINE_SIZE) {
+		asm volatile("dc zva, %0"
+		     :
+		     : "r"(addr)
+		     : "memory");
+		addr += CONFIG_SYS_CACHELINE_SIZE;
+	}
+}
+
+static void sdram_init_ecc_bits(bd_t *bd)
+{
+	phys_size_t size, size_init;
+	phys_addr_t start_addr;
+	int bank = 0;
+	unsigned int start = get_timer(0);
+
+	icache_enable();
+
+	start_addr = bd->bi_dram[0].start;
+	size = bd->bi_dram[0].size;
+
+	/* Initialize small block for page table */
+	memset((void *)start_addr, 0, PGTABLE_SIZE + PGTABLE_OFF);
+	gd->arch.tlb_addr = start_addr + PGTABLE_OFF;
+	gd->arch.tlb_size = PGTABLE_SIZE;
+	start_addr += PGTABLE_SIZE + PGTABLE_OFF;
+	size -= (PGTABLE_OFF + PGTABLE_SIZE);
+	dcache_enable();
+
+	while (1) {
+		while (size) {
+			size_init = min((phys_addr_t)SZ_1G, (phys_addr_t)size);
+			sdram_clear_mem(start_addr, size_init);
+			size -= size_init;
+			start_addr += size_init;
+			WATCHDOG_RESET();
+		}
+
+		bank++;
+		if (bank >= CONFIG_NR_DRAM_BANKS)
+			break;
+
+		start_addr = bd->bi_dram[bank].start;
+		size = bd->bi_dram[bank].size;
+	}
+
+	dcache_disable();
+	icache_disable();
+
+	printf("SDRAM-ECC: Initialized success with %d ms\n",
+	       (unsigned int)get_timer(start));
+}
+
+static void sdram_size_check(bd_t *bd)
+{
+	phys_size_t total_ram_check = 0;
+	phys_size_t ram_check = 0;
+	phys_addr_t start = 0;
+	int bank;
+
+	/* Sanity check ensure correct SDRAM size specified */
+	debug("DDR: Running SDRAM size sanity check\n");
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		start = bd->bi_dram[bank].start;
+		while (ram_check < bd->bi_dram[bank].size) {
+			ram_check += get_ram_size((void *)(start + ram_check),
+						 (phys_size_t)SZ_1G);
+		}
+		total_ram_check += ram_check;
+		ram_check = 0;
+	}
+
+	/* If the ram_size is 2GB smaller, we can assume the IO space is
+	 * not mapped in.  gd->ram_size is the actual size of the dram
+	 * not the accessible size.
+	 */
+	if (total_ram_check != gd->ram_size) {
+		puts("DDR: SDRAM size check failed!\n");
+		hang();
+	}
+
+	debug("DDR: SDRAM size check passed!\n");
+}
+
 /**
  * sdram_mmr_init_full() - Function to initialize SDRAM MMR
  *
@@ -144,6 +250,8 @@ int sdram_mmr_init_full(unsigned int unused)
 	u32 update_value, io48_value, ddrioctl;
 	u32 i;
 	int ret;
+	phys_size_t hw_size;
+	bd_t bd = {0};
 
 	/* Enable access to DDR from CPU master */
 	clrbits_le32(CCU_REG_ADDR(CCU_CPU0_MPRT_ADBASE_DDRREG),
@@ -335,9 +443,22 @@ int sdram_mmr_init_full(unsigned int unused)
 	unsigned long long size = sdram_calculate_size();
 	/* If the size is invalid, use default Config size */
 	if (size <= 0)
-		gd->ram_size = PHYS_SDRAM_1_SIZE;
+		hw_size = PHYS_SDRAM_1_SIZE;
 	else
-		gd->ram_size = size;
+		hw_size = size;
+
+	/* Get bank configuration from devicetree */
+	ret = fdtdec_decode_ram_size(gd->fdt_blob, NULL, 0, NULL,
+				     (phys_size_t *)&gd->ram_size, &bd);
+	if (ret) {
+		puts("DDR: Failed to decode memory node\n");
+		return -1;
+	}
+
+	if (gd->ram_size != hw_size)
+		printf("DDR: Warning: DRAM size from device tree mismatch with hardware.\n");
+
+	printf("DDR: %lld MiB\n", gd->ram_size >> 20);
 
 	/* Enable or disable the SDRAM ECC */
 	if (CTRLCFG1_CFG_CTRL_EN_ECC(ctrlcfg1)) {
@@ -351,6 +472,15 @@ int sdram_mmr_init_full(unsigned int unused)
 		setbits_le32(SOCFPGA_SDR_ADDRESS + ECCCTRL2,
 			     (DDR_HMC_ECCCTL2_RMW_EN_SET_MSK |
 			      DDR_HMC_ECCCTL2_AWB_EN_SET_MSK));
+		writel(DDR_HMC_ERRINTEN_INTMASK,
+		       SOCFPGA_SDR_ADDRESS + ERRINTENS);
+
+		/* Enable non-secure writes to HMC Adapter for SDRAM ECC */
+		writel(FW_HMC_ADAPTOR_MPU_MASK, FW_HMC_ADAPTOR_REG_ADDR);
+
+		/* Initialize memory content if not from warm reset */
+		if (!cpu_has_been_warmreset())
+			sdram_init_ecc_bits(&bd);
 	} else {
 		clrbits_le32(SOCFPGA_SDR_ADDRESS + ECCCTRL1,
 			     (DDR_HMC_ECCCTL_AWB_CNT_RST_SET_MSK |
@@ -360,6 +490,8 @@ int sdram_mmr_init_full(unsigned int unused)
 			     (DDR_HMC_ECCCTL2_RMW_EN_SET_MSK |
 			      DDR_HMC_ECCCTL2_AWB_EN_SET_MSK));
 	}
+
+	sdram_size_check(&bd);
 
 	debug("DDR: HMC init success\n");
 	return 0;

@@ -7,6 +7,8 @@
 #ifndef __CADENCE_QSPI_H__
 #define __CADENCE_QSPI_H__
 
+#include <reset.h>
+
 #define CQSPI_IS_ADDR(cmd_len)		(cmd_len > 1 ? 1 : 0)
 
 #define CQSPI_NO_DECODER_MAX_CS		4
@@ -42,6 +44,8 @@ struct cadence_spi_priv {
 	unsigned int	qspi_calibrated_hz;
 	unsigned int	qspi_calibrated_cs;
 	unsigned int	previous_hz;
+
+	struct reset_ctl_bulk resets;
 };
 
 /* Functions call declaration */

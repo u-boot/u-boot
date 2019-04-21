@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <fdtdec.h>
 #include <malloc.h>
+#include <reset.h>
 #include <spi.h>
 #include <linux/errno.h>
 #include "cadence_qspi.h"
@@ -154,9 +155,16 @@ static int cadence_spi_probe(struct udevice *bus)
 {
 	struct cadence_spi_platdata *plat = bus->platdata;
 	struct cadence_spi_priv *priv = dev_get_priv(bus);
+	int ret;
 
 	priv->regbase = plat->regbase;
 	priv->ahbbase = plat->ahbbase;
+
+	ret = reset_get_bulk(bus, &priv->resets);
+	if (ret)
+		dev_warn(bus, "Can't get reset: %d\n", ret);
+	else
+		reset_deassert_bulk(&priv->resets);
 
 	if (!priv->qspi_is_init) {
 		cadence_qspi_apb_controller_init(plat);
@@ -164,6 +172,13 @@ static int cadence_spi_probe(struct udevice *bus)
 	}
 
 	return 0;
+}
+
+static int cadence_spi_remove(struct udevice *dev)
+{
+	struct cadence_spi_priv *priv = dev_get_priv(dev);
+
+	return reset_release_bulk(&priv->resets);
 }
 
 static int cadence_spi_set_mode(struct udevice *bus, uint mode)
@@ -342,4 +357,6 @@ U_BOOT_DRIVER(cadence_spi) = {
 	.platdata_auto_alloc_size = sizeof(struct cadence_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct cadence_spi_priv),
 	.probe = cadence_spi_probe,
+	.remove = cadence_spi_remove,
+	.flags = DM_FLAG_OS_PREPARE,
 };

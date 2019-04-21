@@ -181,17 +181,6 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
-	gd->ram_size = sdram_calculate_size();
-	printf("DDR: %d MiB\n", (int)(gd->ram_size >> 20));
-
-	/* Sanity check ensure correct SDRAM size specified */
-	debug("DDR: Running SDRAM size sanity check\n");
-	if (get_ram_size(0, gd->ram_size) != gd->ram_size) {
-		puts("DDR: SDRAM size check failed!\n");
-		hang();
-	}
-	debug("DDR: SDRAM size check passed!\n");
-
 	mbox_init();
 
 #ifdef CONFIG_CADENCE_QSPI
