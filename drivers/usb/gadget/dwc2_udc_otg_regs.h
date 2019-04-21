@@ -60,22 +60,26 @@ struct dwc2_usbotg_reg {
 	u32 grxstsp; /* Receive Status Debug Pop/Status Pop */
 	u32 grxfsiz; /* Receive FIFO Size */
 	u32 gnptxfsiz; /* Non-Periodic Transmit FIFO Size */
-	u8  res1[216];
+	u8  res0[12];
+	u32 ggpio;     /* 0x038 */
+	u8  res1[20];
+	u32 ghwcfg4; /* User HW Config4 */
+	u8  res2[176];
 	u32 dieptxf[15]; /* Device Periodic Transmit FIFO size register */
-	u8  res2[1728];
+	u8  res3[1728];
 	/* Device Configuration */
 	u32 dcfg; /* Device Configuration Register */
 	u32 dctl; /* Device Control */
 	u32 dsts; /* Device Status */
-	u8  res3[4];
+	u8  res4[4];
 	u32 diepmsk; /* Device IN Endpoint Common Interrupt Mask */
 	u32 doepmsk; /* Device OUT Endpoint Common Interrupt Mask */
 	u32 daint; /* Device All Endpoints Interrupt */
 	u32 daintmsk; /* Device All Endpoints Interrupt Mask */
-	u8  res4[224];
+	u8  res5[224];
 	struct dwc2_dev_in_endp in_endp[16];
 	struct dwc2_dev_out_endp out_endp[16];
-	u8  res5[768];
+	u8  res6[768];
 	struct ep_fifo ep[16];
 };
 
@@ -83,8 +87,15 @@ struct dwc2_usbotg_reg {
 /*definitions related to CSR setting */
 
 /* DWC2_UDC_OTG_GOTGCTL */
-#define B_SESSION_VALID		(0x1<<19)
-#define A_SESSION_VALID		(0x1<<18)
+#define B_SESSION_VALID			BIT(19)
+#define A_SESSION_VALID			BIT(18)
+#define B_VALOVAL			BIT(7)
+#define B_VALOEN			BIT(6)
+#define A_VALOVAL			BIT(5)
+#define A_VALOEN			BIT(4)
+
+/* DWC2_UDC_OTG_GOTINT */
+#define GOTGINT_SES_END_DET		(1<<2)
 
 /* DWC2_UDC_OTG_GAHBCFG */
 #define PTXFE_HALF			(0<<8)
@@ -118,6 +129,7 @@ struct dwc2_usbotg_reg {
 #define INT_NP_TX_FIFO_EMPTY		(0x1<<5)
 #define INT_RX_FIFO_NOT_EMPTY		(0x1<<4)
 #define INT_SOF			(0x1<<3)
+#define INT_OTG			(0x1<<2)
 #define INT_DEV_MODE			(0x0<<0)
 #define INT_HOST_MODE			(0x1<<1)
 #define INT_GOUTNakEff			(0x01<<7)
@@ -246,7 +258,7 @@ struct dwc2_usbotg_reg {
 
 /* Masks definitions */
 #define GINTMSK_INIT	(INT_OUT_EP | INT_IN_EP | INT_RESUME | INT_ENUMDONE\
-			| INT_RESET | INT_SUSPEND)
+			| INT_RESET | INT_SUSPEND | INT_OTG)
 #define DOEPMSK_INIT	(CTRL_OUT_EP_SETUP_PHASE_DONE | AHB_ERROR|TRANSFER_DONE)
 #define DIEPMSK_INIT	(NON_ISO_IN_EP_TIMEOUT|AHB_ERROR|TRANSFER_DONE)
 #define GAHBCFG_INIT	(PTXFE_HALF | NPTXFE_HALF | MODE_DMA | BURST_INCR4\
@@ -269,4 +281,13 @@ struct dwc2_usbotg_reg {
 /* Device ALL Endpoints Interrupt Register (DAINT) */
 #define DAINT_IN_EP_INT(x)                        (x << 0)
 #define DAINT_OUT_EP_INT(x)                       (x << 16)
+
+/* User HW Config4 */
+#define GHWCFG4_NUM_IN_EPS_MASK		(0xf << 26)
+#define GHWCFG4_NUM_IN_EPS_SHIFT	26
+
+/* OTG general core configuration register (OTG_GCCFG:0x38) for STM32MP1 */
+#define GGPIO_STM32_OTG_GCCFG_VBDEN               BIT(21)
+#define GGPIO_STM32_OTG_GCCFG_IDEN                BIT(22)
+
 #endif

@@ -68,9 +68,6 @@ BUR_COMMON_ENV \
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
-/* USB configuration */
-#define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-
 /* Environment */
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2

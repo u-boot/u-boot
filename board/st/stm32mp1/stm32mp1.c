@@ -7,7 +7,9 @@
 #include <config.h>
 #include <clk.h>
 #include <dm.h>
+#include <g_dnl.h>
 #include <generic-phy.h>
+#include <i2c.h>
 #include <led.h>
 #include <misc.h>
 #include <phy.h>
@@ -57,11 +59,6 @@
  * Get a global data pointer
  */
 DECLARE_GLOBAL_DATA_PTR;
-
-#define STM32MP_GUSBCFG 0x40002407
-
-#define STM32MP_GGPIO 0x38
-#define STM32MP_GGPIO_VBUS_SENSING BIT(21)
 
 #define USB_WARNING_LOW_THRESHOLD_UV	660000
 #define USB_START_LOW_THRESHOLD_UV	1230000
@@ -155,149 +152,75 @@ static void board_key_check(void)
 #endif
 }
 
-static struct dwc2_plat_otg_data stm32mp_otg_data = {
-	.usb_gusbcfg = STM32MP_GUSBCFG,
-};
+#if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)
 
-static struct reset_ctl usbotg_reset;
+/* STMicroelectronics STUSB1600 Type-C controller */
+#define STUSB1600_CC_CONNECTION_STATUS		0x0E
 
-int board_usb_init(int index, enum usb_init_type init)
+/* STUSB1600_CC_CONNECTION_STATUS bitfields */
+#define STUSB1600_CC_ATTACH			BIT(0)
+
+static int stusb1600_init(struct udevice **dev_stusb1600)
 {
-	struct fdtdec_phandle_args args;
-	struct udevice *dev;
-	const void *blob = gd->fdt_blob;
-	struct clk clk;
-	struct phy phy;
-	int node;
-	int phy_provider;
+	ofnode node;
+	struct udevice *dev, *bus;
 	int ret;
+	u32 chip_addr;
 
-	/* find the usb otg node */
-	node = fdt_node_offset_by_compatible(blob, -1, "snps,dwc2");
-	if (node < 0) {
-		debug("Not found usb_otg device\n");
+	*dev_stusb1600 = NULL;
+
+	/* if node stusb1600 is present, means DK1 or DK2 board */
+	node = ofnode_by_compatible(ofnode_null(), "st,stusb1600");
+	if (!ofnode_valid(node))
 		return -ENODEV;
-	}
 
-	if (!fdtdec_get_is_enabled(blob, node)) {
-		debug("stm32 usbotg is disabled in the device tree\n");
-		return -ENODEV;
-	}
-
-	/* Enable clock */
-	ret = fdtdec_parse_phandle_with_args(blob, node, "clocks",
-					     "#clock-cells", 0, 0, &args);
-	if (ret) {
-		debug("usbotg has no clocks defined in the device tree\n");
-		return ret;
-	}
-
-	ret = uclass_get_device_by_of_offset(UCLASS_CLK, args.node, &dev);
+	ret = ofnode_read_u32(node, "reg", &chip_addr);
 	if (ret)
-		return ret;
+		return -EINVAL;
 
-	if (args.args_count != 1) {
-		debug("Can't find clock ID in the device tree\n");
-		return -ENODATA;
-	}
-
-	clk.dev = dev;
-	clk.id = args.args[0];
-
-	ret = clk_enable(&clk);
+	ret = uclass_get_device_by_ofnode(UCLASS_I2C, ofnode_get_parent(node),
+					  &bus);
 	if (ret) {
-		debug("Failed to enable usbotg clock\n");
-		return ret;
+		printf("bus for stusb1600 not found\n");
+		return -ENODEV;
 	}
 
-	/* Reset */
-	ret = fdtdec_parse_phandle_with_args(blob, node, "resets",
-					     "#reset-cells", 0, 0, &args);
-	if (ret) {
-		debug("usbotg has no resets defined in the device tree\n");
-		goto clk_err;
-	}
-
-	ret = uclass_get_device_by_of_offset(UCLASS_RESET, args.node, &dev);
-	if (ret || args.args_count != 1)
-		goto clk_err;
-
-	usbotg_reset.dev = dev;
-	usbotg_reset.id = args.args[0];
-
-	reset_assert(&usbotg_reset);
-	udelay(2);
-	reset_deassert(&usbotg_reset);
-
-	/* Get USB PHY */
-	ret = fdtdec_parse_phandle_with_args(blob, node, "phys",
-					     "#phy-cells", 0, 0, &args);
-	if (!ret) {
-		phy_provider = fdt_parent_offset(blob, args.node);
-		ret = uclass_get_device_by_of_offset(UCLASS_PHY,
-						     phy_provider, &dev);
-		if (ret)
-			goto clk_err;
-
-		phy.dev = dev;
-		phy.id = fdtdec_get_uint(blob, args.node, "reg", -1);
-
-		ret = generic_phy_power_on(&phy);
-		if (ret) {
-			debug("unable to power on the phy\n");
-			goto clk_err;
-		}
-
-		ret = generic_phy_init(&phy);
-		if (ret) {
-			debug("failed to init usb phy\n");
-			goto phy_power_err;
-		}
-	}
-
-	/* Parse and store data needed for gadget */
-	stm32mp_otg_data.regs_otg = fdtdec_get_addr(blob, node, "reg");
-	if (stm32mp_otg_data.regs_otg == FDT_ADDR_T_NONE) {
-		debug("usbotg: can't get base address\n");
-		ret = -ENODATA;
-		goto phy_init_err;
-	}
-
-	stm32mp_otg_data.rx_fifo_sz = fdtdec_get_int(blob, node,
-						     "g-rx-fifo-size", 0);
-	stm32mp_otg_data.np_tx_fifo_sz = fdtdec_get_int(blob, node,
-							"g-np-tx-fifo-size", 0);
-	stm32mp_otg_data.tx_fifo_sz = fdtdec_get_int(blob, node,
-						     "g-tx-fifo-size", 0);
-	/* Enable voltage level detector */
-	if (!(fdtdec_parse_phandle_with_args(blob, node, "usb33d-supply",
-					     NULL, 0, 0, &args))) {
-		if (!uclass_get_device_by_of_offset(UCLASS_REGULATOR,
-						    args.node, &dev)) {
-			ret = regulator_set_enable(dev, true);
-			if (ret) {
-				debug("Failed to enable usb33d\n");
-				goto phy_init_err;
-			}
-		}
-	}
-		/* Enable vbus sensing */
-	setbits_le32(stm32mp_otg_data.regs_otg + STM32MP_GGPIO,
-		     STM32MP_GGPIO_VBUS_SENSING);
-
-	return dwc2_udc_probe(&stm32mp_otg_data);
-
-phy_init_err:
-	generic_phy_exit(&phy);
-
-phy_power_err:
-	generic_phy_power_off(&phy);
-
-clk_err:
-	clk_disable(&clk);
+	ret = dm_i2c_probe(bus, chip_addr, 0, &dev);
+	if (!ret)
+		*dev_stusb1600 = dev;
 
 	return ret;
 }
+
+static int stusb1600_cable_connected(struct udevice *dev)
+{
+	u8 status;
+
+	if (dm_i2c_read(dev, STUSB1600_CC_CONNECTION_STATUS, &status, 1))
+		return 0;
+
+	return status & STUSB1600_CC_ATTACH;
+}
+
+#include <usb/dwc2_udc.h>
+int g_dnl_board_usb_cable_connected(void)
+{
+	struct udevice *stusb1600;
+	struct udevice *dwc2_udc_otg;
+	int ret;
+
+	if (!stusb1600_init(&stusb1600))
+		return stusb1600_cable_connected(stusb1600);
+
+	ret = uclass_get_device_by_driver(UCLASS_USB_GADGET_GENERIC,
+					  DM_GET_DRIVER(dwc2_udc_otg),
+					  &dwc2_udc_otg);
+	if (!ret)
+		debug("dwc2_udc_otg init failed\n");
+
+	return dwc2_udc_B_session_valid(dwc2_udc_otg);
+}
+#endif /* CONFIG_USB_GADGET */
 
 static int get_led(struct udevice **dev, char *led_string)
 {
@@ -434,16 +357,6 @@ static int board_check_usb_power(void)
 		mdelay(125);
 	}
 	led_set_state(led, LEDST_ON);
-
-	return 0;
-}
-
-int board_usb_cleanup(int index, enum usb_init_type init)
-{
-	/* Reset usbotg */
-	reset_assert(&usbotg_reset);
-	udelay(2);
-	reset_deassert(&usbotg_reset);
 
 	return 0;
 }

@@ -182,9 +182,6 @@ NANDTGTS \
 #define CONFIG_NAND_OMAP_GPMC_WSCFG	1
 #endif /* CONFIG_NAND */
 
-/* USB configuration */
-#define CONFIG_USB_MUSB_DISABLE_BULK_COMBINE_SPLIT
-
 #if defined(CONFIG_SPI)
 /* SPI Flash */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS		0x40000
