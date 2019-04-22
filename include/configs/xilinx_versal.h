@@ -52,6 +52,26 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_MAXARGS		64
 
+#if defined(CONFIG_CMD_DFU)
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x1800000
+#define DFU_DEFAULT_POLL_TIMEOUT	300
+#define CONFIG_THOR_RESET_OFF
+#define DFU_ALT_INFO_RAM \
+	"dfu_ram_info=" \
+	"setenv dfu_alt_info " \
+	"Image ram $kernel_addr_r $kernel_size_r\\\\;" \
+	"system.dtb ram $fdt_addr_r $fdt_size_r\0" \
+	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
+	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
+
+#define DFU_ALT_INFO  \
+		DFU_ALT_INFO_RAM
+#endif
+
+#if !defined(DFU_ALT_INFO)
+# define DFU_ALT_INFO
+#endif
+
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM)
 # define CONFIG_NET_MULTI
@@ -66,8 +86,10 @@
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_high=10000000\0" \
 	"fdt_addr_r=0x40000000\0" \
+	"fdt_size_r=0x400000\0" \
 	"pxefile_addr_r=0x10000000\0" \
 	"kernel_addr_r=0x18000000\0" \
+	"kernel_size_r=0x10000000\0" \
 	"scriptaddr=0x02000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
 	"script_offset_f=0x3f80000\0" \
@@ -105,7 +127,8 @@
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
-	BOOTENV
+	BOOTENV \
+	DFU_ALT_INFO
 #endif
 
 #endif /* __XILINX_VERSAL_H */
