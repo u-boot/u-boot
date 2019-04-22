@@ -180,6 +180,17 @@ config TARGET_SAMA5D27_SOM1_EK
 	  processor-based SAMA5D2 MPU with up to 1 Gbit DDR2-SDRAM
 	  in a single package.
 
+config TARGET_SAMA5D2_ICP
+	bool "SAMA5D2 Industrial Connectivity Platform (ICP)"
+	select CPU_V7A
+	select SUPPORT_SPL
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	help
+	  The SAMA5D2 ICP embeds SAMA5D27 rev. C SoC, together with
+	  a 64Mbit QSPI flash, 3xMikrobus connectors, 4xUSB ,
+	  EtherCat and WILC3000 devices on board.
+
 config TARGET_SAMA5D3_XPLAINED
 	bool "SAMA5D3 Xplained board"
 	select BOARD_EARLY_INIT_F
@@ -281,6 +292,7 @@ source "board/atmel/at91sam9x5ek/Kconfig"
 source "board/atmel/sama5d2_ptc_ek/Kconfig"
 source "board/atmel/sama5d2_xplained/Kconfig"
 source "board/atmel/sama5d27_som1_ek/Kconfig"
+source "board/atmel/sama5d2_icp/Kconfig"
 source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"
 source "board/atmel/sama5d4_xplained/Kconfig"
