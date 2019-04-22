@@ -95,6 +95,9 @@ static int dwc3_generic_peripheral_ofdata_to_platdata(struct udevice *dev)
 		return -ENODEV;
 	}
 
+	dwc3->dis_u2_susphy_quirk = dev_read_bool(dev,
+						  "snps,dis_u2_susphy_quirk");
+
 	return 0;
 }
 
