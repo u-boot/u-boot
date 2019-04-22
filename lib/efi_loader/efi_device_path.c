@@ -335,6 +335,9 @@ struct efi_device_path *efi_dp_create_device_node(const u8 type,
 {
 	struct efi_device_path *ret;
 
+	if (length < sizeof(struct efi_device_path))
+		return NULL;
+
 	ret = dp_alloc(length);
 	if (!ret)
 		return ret;
