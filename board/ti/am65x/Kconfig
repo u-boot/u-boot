@@ -11,6 +11,7 @@ config TARGET_AM654_A53_EVM
 	bool "TI K3 based AM654 EVM running on A53"
 	select ARM64
 	select SOC_K3_AM6
+	select SYS_DISABLE_DCACHE_OPS
 
 config TARGET_AM654_R5_EVM
 	bool "TI K3 based AM654 EVM running on R5"
