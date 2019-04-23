@@ -35,6 +35,7 @@ Currently the following boards are supported:
 | R8A77965 M3-N | Renesas Electronics ULCB               | r8a77965_ulcb
 |---------------+----------------------------------------+-------------------
 | R8A77970 V3M  | Renesas Electronics Eagle              | r8a77970_eagle_defconfig
+| R8A77970 V3M  | Renesas Electronics V3MSK              | r8a77970_v3msk_defconfig
 |---------------+----------------------------------------+-------------------
 | R8A77995 D3   | Renesas Electronics Draak              | r8a77995_draak_defconfig
 '===============+========================================+===================
