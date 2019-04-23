@@ -77,6 +77,7 @@ obj-$(CONFIG_BIOSEMU) += bios_emulator/
 obj-y += block/
 obj-y += board/
 obj-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount/
+obj-y += cache/
 obj-$(CONFIG_CPU) += cpu/
 obj-y += crypto/
 obj-$(CONFIG_FASTBOOT) += fastboot/
