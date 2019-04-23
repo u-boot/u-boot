@@ -210,35 +210,6 @@ static struct socfpga_reset_manager *reset_manager_base =
 static struct socfpga_sdr_ctrl *sdr_ctrl =
 	(struct socfpga_sdr_ctrl *)SDR_CTRLGRP_ADDRESS;
 
-static void socfpga_sdram_apply_static_cfg(void)
-{
-	const u32 applymask = 0x8;
-	u32 val = readl(&sdr_ctrl->static_cfg) | applymask;
-
-	/*
-	 * SDRAM staticcfg register specific:
-	 * When applying the register setting, the CPU must not access
-	 * SDRAM. Luckily for us, we can abuse i-cache here to help us
-	 * circumvent the SDRAM access issue. The idea is to make sure
-	 * that the code is in one full i-cache line by branching past
-	 * it and back. Once it is in the i-cache, we execute the core
-	 * of the code and apply the register settings.
-	 *
-	 * The code below uses 7 instructions, while the Cortex-A9 has
-	 * 32-byte cachelines, thus the limit is 8 instructions total.
-	 */
-	asm volatile(
-		".align	5			\n"
-		"	b	2f		\n"
-		"1:	str	%0,	[%1]	\n"
-		"	dsb			\n"
-		"	isb			\n"
-		"	b	3f		\n"
-		"2:	b	1b		\n"
-		"3:	nop			\n"
-	: : "r"(val), "r"(&sdr_ctrl->static_cfg) : "memory", "cc");
-}
-
 void do_bridge_reset(int enable, unsigned int mask)
 {
 	int i;
@@ -253,14 +224,12 @@ void do_bridge_reset(int enable, unsigned int mask)
 		}
 
 		writel(iswgrp_handoff[2], &sysmgr_regs->fpgaintfgrp_module);
-		socfpga_sdram_apply_static_cfg();
 		writel(iswgrp_handoff[3], &sdr_ctrl->fpgaport_rst);
 		writel(iswgrp_handoff[0], &reset_manager_base->brg_mod_reset);
 		writel(iswgrp_handoff[1], &nic301_regs->remap);
 	} else {
 		writel(0, &sysmgr_regs->fpgaintfgrp_module);
 		writel(0, &sdr_ctrl->fpgaport_rst);
-		socfpga_sdram_apply_static_cfg();
 		writel(0, &reset_manager_base->brg_mod_reset);
 		writel(1, &nic301_regs->remap);
 	}
