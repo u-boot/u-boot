@@ -577,6 +577,7 @@ F:	configs/mscc*
 F:	drivers/gpio/mscc_sgpio.c
 F:	drivers/spi/mscc_bb_spi.c
 F:	include/configs/vcoreiii.h
+F:	include/dt-bindings/mscc/
 F:	drivers/pinctrl/mscc/
 F:	drivers/net/mscc_eswitch/
 

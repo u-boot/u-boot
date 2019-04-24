@@ -112,32 +112,33 @@
 			status = "disabled";
 		};
 
-		switch@1010000 {
+		switch: switch@1010000 {
 			pinctrl-0 = <&miim1_pins>;
 			pinctrl-names = "default";
 
 			compatible = "mscc,vsc7514-switch";
-			reg = <0x1010000 0x10000>, /* VTSS_TO_SYS */
-			      <0x1030000 0x10000>, /* VTSS_TO_REW */
-			      <0x1080000 0x100>, /* VTSS_TO_DEVCPU_QS */
-			      <0x10d0000 0x10000>, /* VTSS_TO_HSIO */
-			      <0x11e0000 0x100>, /* VTSS_TO_DEV_0 */
-			      <0x11f0000 0x100>, /* VTSS_TO_DEV_1 */
-			      <0x1200000 0x100>, /* VTSS_TO_DEV_2 */
-			      <0x1210000 0x100>, /* VTSS_TO_DEV_3 */
-			      <0x1220000 0x100>, /* VTSS_TO_DEV_4 */
-			      <0x1230000 0x100>, /* VTSS_TO_DEV_5 */
-			      <0x1240000 0x100>, /* VTSS_TO_DEV_6 */
-			      <0x1250000 0x100>, /* VTSS_TO_DEV_7 */
-			      <0x1260000 0x100>, /* VTSS_TO_DEV_8 */
-			      <0x1270000 0x100>, /* NA */
-			      <0x1280000 0x100>, /* NA */
-			      <0x1800000 0x80000>, /* VTSS_TO_QSYS */
-			      <0x1880000 0x10000>; /* VTSS_TO_ANA */
-			reg-names = "sys", "rew", "qs", "hsio", "port0",
-				    "port1", "port2", "port3", "port4", "port5",
-				    "port6", "port7", "port8", "port9",
-				    "port10", "qsys", "ana";
+
+			reg = <0x11e0000 0x100>, // VTSS_TO_DEV_0
+			      <0x11f0000 0x100>, // VTSS_TO_DEV_1
+			      <0x1200000 0x100>, // VTSS_TO_DEV_2
+			      <0x1210000 0x100>, // VTSS_TO_DEV_3
+			      <0x1220000 0x100>, // VTSS_TO_DEV_4
+			      <0x1230000 0x100>, // VTSS_TO_DEV_5
+			      <0x1240000 0x100>, // VTSS_TO_DEV_6
+			      <0x1250000 0x100>, // VTSS_TO_DEV_7
+			      <0x1260000 0x100>, // VTSS_TO_DEV_8
+			      <0x1270000 0x100>, // VTSS_TO_DEV_9
+			      <0x1280000 0x100>, // VTSS_TO_DEV_10
+			      <0x1010000 0x10000>, // VTSS_TO_SYS
+			      <0x1030000 0x10000>, // VTSS_TO_REW
+			      <0x1080000 0x100>, // VTSS_TO_DEVCPU_QS
+			      <0x10d0000 0x10000>, // VTSS_TO_HSIO
+			      <0x1800000 0x80000>,// VTSS_TO_QSYS
+			      <0x1880000 0x10000>;// VTSS_TO_ANA
+			reg-names = "port0", "port1", "port2", "port3", "port4",
+				    "port5", "port6", "port7", "port8", "port9",
+				    "port10",
+				    "sys", "rew", "qs", "hsio", "qsys", "ana";
 			interrupts = <21 22>;
 			interrupt-names = "xtr", "inj";
 			status = "okay";
@@ -145,40 +146,6 @@
 			ethernet-ports {
 				#address-cells = <1>;
 				#size-cells = <0>;
-
-				port0: port@0 {
-					reg = <0>;
-				};
-				port1: port@1 {
-					reg = <1>;
-				};
-				port2: port@2 {
-					reg = <2>;
-				};
-				port3: port@3 {
-					reg = <3>;
-				};
-				port4: port@4 {
-					reg = <4>;
-				};
-				port5: port@5 {
-					reg = <5>;
-				};
-				port6: port@6 {
-					reg = <6>;
-				};
-				port7: port@7 {
-					reg = <7>;
-				};
-				port8: port@8 {
-					reg = <8>;
-				};
-				port9: port@9 {
-					reg = <9>;
-				};
-				port10: port@10 {
-					reg = <10>;
-				};
 			};
 		};
 
@@ -186,21 +153,27 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			compatible = "mscc,ocelot-miim";
-			reg = <0x107009c 0x24>, <0x10700f0 0x8>;
+			reg = <0x107009c 0x24>;
 			interrupts = <14>;
 			status = "disabled";
+		};
 
-			phy0: ethernet-phy@0 {
-				reg = <0>;
-			};
-			phy1: ethernet-phy@1 {
-				reg = <1>;
-			};
-			phy2: ethernet-phy@2 {
-				reg = <2>;
-			};
-			phy3: ethernet-phy@3 {
-				reg = <3>;
+		mdio1: mdio@10700f0 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "mscc,ocelot-miim";
+			reg = <0x10700c0 0x24>;
+			interrupts = <14>;
+			status = "disabled";
+		};
+
+		hsio: syscon@10d0000 {
+			compatible = "mscc,ocelot-hsio", "syscon", "simple-mfd";
+			reg = <0x10d0000 0x10000>;
+
+			serdes_hsio: serdes_hsio {
+				compatible = "mscc,vsc7514-serdes";
+				#phy-cells = <3>;
 			};
 		};
 
