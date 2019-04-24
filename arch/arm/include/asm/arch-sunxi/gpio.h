@@ -73,6 +73,9 @@ struct sunxi_gpio_reg {
 	struct sunxi_gpio_int gpio_int;
 };
 
+#define SUN50I_H6_GPIO_POW_MOD_SEL	0x340
+#define SUN50I_H6_GPIO_POW_MOD_VAL	0x348
+
 #define BANK_TO_GPIO(bank)	(((bank) < SUNXI_GPIO_L) ? \
 	&((struct sunxi_gpio_reg *)SUNXI_PIO_BASE)->gpio_bank[bank] : \
 	&((struct sunxi_gpio_reg *)SUNXI_R_PIO_BASE)->gpio_bank[(bank) - SUNXI_GPIO_L])

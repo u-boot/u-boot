@@ -65,6 +65,7 @@ struct mm_region *mem_map = sunxi_mem_map;
 
 static int gpio_init(void)
 {
+	__maybe_unused uint val;
 #if CONFIG_CONS_INDEX == 1 && defined(CONFIG_UART0_PORT_F)
 #if defined(CONFIG_MACH_SUN4I) || \
     defined(CONFIG_MACH_SUN7I) || \
@@ -137,6 +138,14 @@ static int gpio_init(void)
 	sunxi_gpio_set_pull(SUNXI_GPL(3), SUNXI_GPIO_PULL_UP);
 #else
 #error Unsupported console port number. Please fix pin mux settings in board.c
+#endif
+
+#ifdef CONFIG_MACH_SUN50I_H6
+	/* Update PIO power bias configuration by copy hardware detected value */
+	val = readl(SUNXI_PIO_BASE + SUN50I_H6_GPIO_POW_MOD_VAL);
+	writel(val, SUNXI_PIO_BASE + SUN50I_H6_GPIO_POW_MOD_SEL);
+	val = readl(SUNXI_R_PIO_BASE + SUN50I_H6_GPIO_POW_MOD_VAL);
+	writel(val, SUNXI_R_PIO_BASE + SUN50I_H6_GPIO_POW_MOD_SEL);
 #endif
 
 	return 0;
