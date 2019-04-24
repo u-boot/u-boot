@@ -168,6 +168,10 @@ enum efi_mem_type {
 	 * part of the processor.
 	 */
 	EFI_PAL_CODE,
+	/*
+	 * Non-volatile memory.
+	 */
+	EFI_PERSISTENT_MEMORY_TYPE,
 
 	EFI_MAX_MEMORY_TYPE,
 	EFI_TABLE_END,	/* For efi_build_mem_table() */

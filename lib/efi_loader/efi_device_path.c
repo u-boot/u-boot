@@ -335,6 +335,9 @@ struct efi_device_path *efi_dp_create_device_node(const u8 type,
 {
 	struct efi_device_path *ret;
 
+	if (length < sizeof(struct efi_device_path))
+		return NULL;
+
 	ret = dp_alloc(length);
 	if (!ret)
 		return ret;
@@ -917,14 +920,14 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
  *
  * @full_path:		device path including device and file path
  * @device_path:	path of the device
- * @file_path:		relative path of the file
+ * @file_path:		relative path of the file or NULL if there is none
  * Return:		status code
  */
 efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 				    struct efi_device_path **device_path,
 				    struct efi_device_path **file_path)
 {
-	struct efi_device_path *p, *dp, *fp;
+	struct efi_device_path *p, *dp, *fp = NULL;
 
 	*device_path = NULL;
 	*file_path = NULL;
@@ -935,7 +938,7 @@ efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 	while (!EFI_DP_TYPE(p, MEDIA_DEVICE, FILE_PATH)) {
 		p = efi_dp_next(p);
 		if (!p)
-			return EFI_INVALID_PARAMETER;
+			goto out;
 	}
 	fp = efi_dp_dup(p);
 	if (!fp)
@@ -944,6 +947,7 @@ efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
 	p->sub_type = DEVICE_PATH_SUB_TYPE_END;
 	p->length = sizeof(*p);
 
+out:
 	*device_path = dp;
 	*file_path = fp;
 	return EFI_SUCCESS;

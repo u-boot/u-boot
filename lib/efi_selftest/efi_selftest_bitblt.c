@@ -23,7 +23,7 @@ static const struct efi_gop_pixel DARK_BLUE =	{128,   0,   0, 0};
 static const struct efi_gop_pixel LIGHT_BLUE =	{255, 192, 192, 0};
 
 static struct efi_boot_services *boottime;
-static efi_guid_t efi_gop_guid = EFI_GOP_GUID;
+static efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
 static struct efi_gop *gop;
 static struct efi_gop_pixel *bitmap;
 static struct efi_event *event;

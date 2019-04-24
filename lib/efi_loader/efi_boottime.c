@@ -1591,6 +1591,7 @@ failure:
  * @size:	size of the loaded image
  * Return:	status code
  */
+static
 efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 				      void **buffer, efi_uintn_t *size)
 {
@@ -1699,19 +1700,11 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 					       &source_size);
 		if (ret != EFI_SUCCESS)
 			goto error;
-		/*
-		 * split file_path which contains both the device and
-		 * file parts:
-		 */
-		efi_dp_split_file_path(file_path, &dp, &fp);
 	} else {
-		/* In this case, file_path is the "device" path, i.e.
-		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
-		 */
 		dest_buffer = source_buffer;
-		dp = file_path;
-		fp = NULL;
 	}
+	/* split file_path which contains both the device and file parts */
+	efi_dp_split_file_path(file_path, &dp, &fp);
 	ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
 	if (ret == EFI_SUCCESS)
 		ret = efi_load_pe(*image_obj, dest_buffer, info);
@@ -2664,6 +2657,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	}
 
 	current_image = image_handle;
+	EFI_PRINT("Jumping into 0x%p\n", image_obj->entry);
 	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
 
 	/*

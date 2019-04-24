@@ -376,6 +376,10 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	efi_status_t r = EFI_SUCCESS;
 	uint64_t addr;
 
+	/* Check import parameters */
+	if (memory_type >= EFI_PERSISTENT_MEMORY_TYPE &&
+	    memory_type <= 0x6FFFFFFF)
+		return EFI_INVALID_PARAMETER;
 	if (!memory)
 		return EFI_INVALID_PARAMETER;
 

@@ -310,6 +310,7 @@ instances of:
 
 - `buildconfig.get(...`
 - `@pytest.mark.buildconfigspec(...`
+- `@pytest.mark.notbuildconfigspec(...`
 
 ### Complete invocation example
 

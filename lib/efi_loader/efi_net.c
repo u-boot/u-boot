@@ -9,8 +9,8 @@
 #include <efi_loader.h>
 #include <malloc.h>
 
-static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_GUID;
-static const efi_guid_t efi_pxe_guid = EFI_PXE_GUID;
+static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_PROTOCOL_GUID;
+static const efi_guid_t efi_pxe_guid = EFI_PXE_BASE_CODE_PROTOCOL_GUID;
 static struct efi_pxe_packet *dhcp_ack;
 static bool new_rx_packet;
 static void *new_tx_packet;

@@ -14,7 +14,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const efi_guid_t efi_gop_guid = EFI_GOP_GUID;
+static const efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
 
 /**
  * struct efi_gop_obj - graphical output protocol object

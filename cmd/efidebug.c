@@ -185,7 +185,7 @@ static const struct {
 } guid_list[] = {
 	{
 		"Device Path",
-		DEVICE_PATH_GUID,
+		EFI_DEVICE_PATH_PROTOCOL_GUID,
 	},
 	{
 		"Device Path To Text",
@@ -217,7 +217,7 @@ static const struct {
 	},
 	{
 		"Block IO",
-		BLOCK_IO_GUID,
+		EFI_BLOCK_IO_PROTOCOL_GUID,
 	},
 	{
 		"Simple File System",
@@ -225,11 +225,31 @@ static const struct {
 	},
 	{
 		"Loaded Image",
-		LOADED_IMAGE_PROTOCOL_GUID,
+		EFI_LOADED_IMAGE_PROTOCOL_GUID,
 	},
 	{
-		"GOP",
-		EFI_GOP_GUID,
+		"Graphics Output",
+		EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID,
+	},
+	{
+		"HII String",
+		EFI_HII_STRING_PROTOCOL_GUID,
+	},
+	{
+		"HII Database",
+		EFI_HII_DATABASE_PROTOCOL_GUID,
+	},
+	{
+		"HII Config Routing",
+		EFI_HII_CONFIG_ROUTING_PROTOCOL_GUID,
+	},
+	{
+		"Simple Network",
+		EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
+	},
+	{
+		"PXE Base Code",
+		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
 	},
 };
 

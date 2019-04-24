@@ -11,6 +11,8 @@
 
 const efi_guid_t efi_u_boot_guid = U_BOOT_GUID;
 
+efi_handle_t efi_root = NULL;
+
 struct efi_root_dp {
 	struct efi_device_path_vendor vendor;
 	struct efi_device_path end;
@@ -26,7 +28,6 @@ struct efi_root_dp {
  */
 efi_status_t efi_root_node_register(void)
 {
-	efi_handle_t root = NULL;
 	struct efi_root_dp *dp;
 
 	/* Create device path protocol */
@@ -46,7 +47,7 @@ efi_status_t efi_root_node_register(void)
 	dp->end.length = sizeof(struct efi_device_path);
 
 	/* Create root node and install protocols */
-	return EFI_CALL(efi_install_multiple_protocol_interfaces(&root,
+	return EFI_CALL(efi_install_multiple_protocol_interfaces(&efi_root,
 		       /* Device path protocol */
 		       &efi_guid_device_path, dp,
 		       /* Device path to text protocol */
