@@ -158,7 +158,7 @@ static inline int ti_sci_get_response(struct ti_sci_info *info,
 	int ret;
 
 	/* Receive the response */
-	ret = mbox_recv(chan, msg, info->desc->max_rx_timeout_ms);
+	ret = mbox_recv(chan, msg, info->desc->max_rx_timeout_ms * 1000);
 	if (ret) {
 		dev_err(info->dev, "%s: Message receive failed. ret = %d\n",
 			__func__, ret);
