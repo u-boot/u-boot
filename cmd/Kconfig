@@ -53,6 +53,17 @@ config SYS_PROMPT
 	  This string is displayed in the command line to the left of the
 	  cursor.
 
+config SYS_XTRACE
+	string "Command execution tracer"
+	depends on CMDLINE
+	default y if CMDLINE
+	help
+	  This option enables the possiblity to print all commands before
+	  executing them and after all variables are evaluated (similar
+	  to Bash's xtrace/'set -x' feature).
+	  To enable the tracer a variable "xtrace" needs to be defined in
+	  the environment.
+
 menu "Autoboot options"
 
 config AUTOBOOT
@@ -1900,7 +1911,7 @@ config CMD_TRACE
 	  Enables a command to control using of function tracing within
 	  U-Boot. This allows recording of call traces including timing
 	  information. The command can write data to memory for exporting
-	  for analsys (e.g. using bootchart). See doc/README.trace for full
+	  for analysis (e.g. using bootchart). See doc/README.trace for full
 	  details.
 
 config CMD_AVB

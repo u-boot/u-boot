@@ -9,11 +9,11 @@
  *
  * The semantics of do_div() are:
  *
- * uint32_t do_div(uint64_t *n, uint32_t base)
+ * u32 do_div(u64 *n, u32 base)
  * {
- * 	uint32_t remainder = *n % base;
- * 	*n = *n / base;
- * 	return remainder;
+ *	u32 remainder = *n % base;
+ *	*n = *n / base;
+ *	return remainder;
  * }
  *
  * NOTE: macro parameter n is evaluated multiple times,
@@ -26,10 +26,10 @@
 #if BITS_PER_LONG == 64
 
 # define do_div(n,base) ({					\
-	uint32_t __base = (base);				\
-	uint32_t __rem;						\
-	__rem = ((uint64_t)(n)) % __base;			\
-	(n) = ((uint64_t)(n)) / __base;				\
+	u32 __base = (base);				\
+	u32 __rem;						\
+	__rem = ((u64)(n)) % __base;			\
+	(n) = ((u64)(n)) / __base;				\
 	__rem;							\
  })
 
@@ -62,8 +62,8 @@
 	 * Hence this monstrous macro (static inline doesn't always	\
 	 * do the trick here).						\
 	 */								\
-	uint64_t ___res, ___x, ___t, ___m, ___n = (n);			\
-	uint32_t ___p, ___bias;						\
+	u64 ___res, ___x, ___t, ___m, ___n = (n);			\
+	u32 ___p, ___bias;						\
 									\
 	/* determine MSB of b */					\
 	___p = 1 << ilog2(___b);					\
@@ -110,7 +110,7 @@
 		 * possible, otherwise that'll need extra overflow	\
 		 * handling later.					\
 		 */							\
-		uint32_t ___bits = -(___m & -___m);			\
+		u32 ___bits = -(___m & -___m);			\
 		___bits |= ___m >> 32;					\
 		___bits = (~___bits) << 1;				\
 		/*							\
@@ -150,61 +150,61 @@
 /*
  * Default C implementation for __arch_xprod_64()
  *
- * Prototype: uint64_t __arch_xprod_64(const uint64_t m, uint64_t n, bool bias)
+ * Prototype: u64 __arch_xprod_64(const u64 m, u64 n, bool bias)
  * Semantic:  retval = ((bias ? m : 0) + m * n) >> 64
  *
  * The product is a 128-bit value, scaled down to 64 bits.
  * Assuming constant propagation to optimize away unused conditional code.
  * Architectures may provide their own optimized assembly implementation.
  */
-static inline uint64_t __arch_xprod_64(const uint64_t m, uint64_t n, bool bias)
+static inline u64 __arch_xprod_64(const u64 m, u64 n, bool bias)
 {
-	uint32_t m_lo = m;
-	uint32_t m_hi = m >> 32;
-	uint32_t n_lo = n;
-	uint32_t n_hi = n >> 32;
-	uint64_t res, tmp;
+	u32 m_lo = m;
+	u32 m_hi = m >> 32;
+	u32 n_lo = n;
+	u32 n_hi = n >> 32;
+	u64 res, tmp;
 
 	if (!bias) {
-		res = ((uint64_t)m_lo * n_lo) >> 32;
+		res = ((u64)m_lo * n_lo) >> 32;
 	} else if (!(m & ((1ULL << 63) | (1ULL << 31)))) {
 		/* there can't be any overflow here */
-		res = (m + (uint64_t)m_lo * n_lo) >> 32;
+		res = (m + (u64)m_lo * n_lo) >> 32;
 	} else {
-		res = m + (uint64_t)m_lo * n_lo;
+		res = m + (u64)m_lo * n_lo;
 		tmp = (res < m) ? (1ULL << 32) : 0;
 		res = (res >> 32) + tmp;
 	}
 
 	if (!(m & ((1ULL << 63) | (1ULL << 31)))) {
 		/* there can't be any overflow here */
-		res += (uint64_t)m_lo * n_hi;
-		res += (uint64_t)m_hi * n_lo;
+		res += (u64)m_lo * n_hi;
+		res += (u64)m_hi * n_lo;
 		res >>= 32;
 	} else {
-		tmp = res += (uint64_t)m_lo * n_hi;
-		res += (uint64_t)m_hi * n_lo;
+		tmp = res += (u64)m_lo * n_hi;
+		res += (u64)m_hi * n_lo;
 		tmp = (res < tmp) ? (1ULL << 32) : 0;
 		res = (res >> 32) + tmp;
 	}
 
-	res += (uint64_t)m_hi * n_hi;
+	res += (u64)m_hi * n_hi;
 
 	return res;
 }
 #endif
 
 #ifndef __div64_32
-extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor);
+extern u32 __div64_32(u64 *dividend, u32 divisor);
 #endif
 
 /* The unnecessary pointer compare is there
  * to check for type safety (n must be 64bit)
  */
 # define do_div(n,base) ({				\
-	uint32_t __base = (base);			\
-	uint32_t __rem;					\
-	(void)(((typeof((n)) *)0) == ((uint64_t *)0));	\
+	u32 __base = (base);			\
+	u32 __rem;					\
+	(void)(((typeof((n)) *)0) == ((u64 *)0));	\
 	if (__builtin_constant_p(__base) &&		\
 	    is_power_of_2(__base)) {			\
 		__rem = (n) & (__base - 1);		\
@@ -212,14 +212,14 @@ extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor);
 	} else if (__div64_const32_is_OK &&		\
 		   __builtin_constant_p(__base) &&	\
 		   __base != 0) {			\
-		uint32_t __res_lo, __n_lo = (n);	\
+		u32 __res_lo, __n_lo = (n);	\
 		(n) = __div64_const32(n, __base);	\
 		/* the remainder can be computed with 32-bit regs */ \
 		__res_lo = (n);				\
 		__rem = __n_lo - __res_lo * __base;	\
 	} else if (likely(((n) >> 32) == 0)) {		\
-		__rem = (uint32_t)(n) % __base;		\
-		(n) = (uint32_t)(n) / __base;		\
+		__rem = (u32)(n) % __base;		\
+		(n) = (u32)(n) / __base;		\
 	} else 						\
 		__rem = __div64_32(&(n), __base);	\
 	__rem;						\
@@ -234,9 +234,9 @@ extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor);
 /* Wrapper for do_div(). Doesn't modify dividend and returns
  * the result, not remainder.
  */
-static inline uint64_t lldiv(uint64_t dividend, uint32_t divisor)
+static inline u64 lldiv(u64 dividend, u32 divisor)
 {
-	uint64_t __res = dividend;
+	u64 __res = dividend;
 	do_div(__res, divisor);
 	return(__res);
 }

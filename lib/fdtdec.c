@@ -1261,13 +1261,6 @@ __weak void *board_fdt_blob_setup(void)
 }
 #endif
 
-int fdtdec_set_phandle(void *blob, int node, uint32_t phandle)
-{
-	fdt32_t value = cpu_to_fdt32(phandle);
-
-	return fdt_setprop(blob, node, "phandle", &value, sizeof(value));
-}
-
 static int fdtdec_init_reserved_memory(void *blob)
 {
 	int na, ns, node, err;

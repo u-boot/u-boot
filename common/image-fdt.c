@@ -279,7 +279,6 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	int		fdt_noffset;
 #endif
 	const char *select = NULL;
-	int		ok_no_fdt = 0;
 
 	*of_flat_tree = NULL;
 	*of_size = 0;
@@ -462,17 +461,24 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 		struct andr_img_hdr *hdr = buf;
 		ulong fdt_data, fdt_len;
 
-		if (android_image_get_second(hdr, &fdt_data, &fdt_len) != 0)
-			goto no_fdt;
+		if (!android_image_get_second(hdr, &fdt_data, &fdt_len) &&
+		    !fdt_check_header((char *)fdt_data)) {
+			fdt_blob = (char *)fdt_data;
+			if (fdt_totalsize(fdt_blob) != fdt_len)
+				goto error;
 
-		fdt_blob = (char *)fdt_data;
-		if (fdt_check_header(fdt_blob) != 0)
-			goto no_fdt;
+			debug("## Using FDT in Android image second area\n");
+		} else {
+			fdt_addr = env_get_hex("fdtaddr", 0);
+			if (!fdt_addr)
+				goto no_fdt;
 
-		if (fdt_totalsize(fdt_blob) != fdt_len)
-			goto error;
+			fdt_blob = map_sysmem(fdt_addr, 0);
+			if (fdt_check_header(fdt_blob))
+				goto no_fdt;
 
-		debug("## Using FDT found in Android image second area\n");
+			debug("## Using FDT at ${fdtaddr}=Ox%lx\n", fdt_addr);
+		}
 #endif
 	} else {
 		debug("## No Flattened Device Tree\n");
@@ -487,14 +493,9 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	return 0;
 
 no_fdt:
-	ok_no_fdt = 1;
+	debug("Continuing to boot without FDT\n");
+	return 0;
 error:
-	*of_flat_tree = NULL;
-	*of_size = 0;
-	if (!select && ok_no_fdt) {
-		debug("Continuing to boot without FDT\n");
-		return 0;
-	}
 	return 1;
 }
 
