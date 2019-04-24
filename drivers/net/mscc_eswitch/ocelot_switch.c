@@ -15,7 +15,6 @@
 #include <net.h>
 #include <wait_bit.h>
 
-#include "mscc_miim.h"
 #include "mscc_xfer.h"
 #include "mscc_mac_table.h"
 
@@ -26,12 +25,61 @@
 #define PHY_STAT			0x4
 #define PHY_STAT_SUPERVISOR_COMPLETE		BIT(0)
 
+#define GCB_MIIM_MII_STATUS		0x0
+#define		GCB_MIIM_STAT_BUSY		BIT(3)
+#define GCB_MIIM_MII_CMD		0x8
+#define		GCB_MIIM_MII_CMD_SCAN		BIT(0)
+#define		GCB_MIIM_MII_CMD_OPR_WRITE	BIT(1)
+#define		GCB_MIIM_MII_CMD_OPR_READ	BIT(2)
+#define		GCB_MIIM_MII_CMD_SINGLE_SCAN	BIT(3)
+#define		GCB_MIIM_MII_CMD_WRDATA(x)	((x) << 4)
+#define		GCB_MIIM_MII_CMD_REGAD(x)	((x) << 20)
+#define		GCB_MIIM_MII_CMD_PHYAD(x)	((x) << 25)
+#define		GCB_MIIM_MII_CMD_VLD		BIT(31)
+#define GCB_MIIM_DATA			0xC
+#define		GCB_MIIM_DATA_ERROR		(0x3 << 16)
+
 #define ANA_PORT_VLAN_CFG(x)		(0x7000 + 0x100 * (x))
 #define		ANA_PORT_VLAN_CFG_AWARE_ENA	BIT(20)
 #define		ANA_PORT_VLAN_CFG_POP_CNT(x)	((x) << 18)
 #define ANA_PORT_PORT_CFG(x)		(0x7070 + 0x100 * (x))
 #define		ANA_PORT_PORT_CFG_RECV_ENA	BIT(6)
 #define ANA_PGID(x)			(0x8c00 + 4 * (x))
+
+#define HSIO_ANA_SERDES1G_DES_CFG		0x4c
+#define		HSIO_ANA_SERDES1G_DES_CFG_BW_HYST(x)		((x) << 1)
+#define		HSIO_ANA_SERDES1G_DES_CFG_BW_ANA(x)		((x) << 5)
+#define		HSIO_ANA_SERDES1G_DES_CFG_MBTR_CTRL(x)		((x) << 8)
+#define		HSIO_ANA_SERDES1G_DES_CFG_PHS_CTRL(x)		((x) << 13)
+#define HSIO_ANA_SERDES1G_IB_CFG		0x50
+#define		HSIO_ANA_SERDES1G_IB_CFG_RESISTOR_CTRL(x)	(x)
+#define		HSIO_ANA_SERDES1G_IB_CFG_EQ_GAIN(x)		((x) << 6)
+#define		HSIO_ANA_SERDES1G_IB_CFG_ENA_OFFSET_COMP	BIT(9)
+#define		HSIO_ANA_SERDES1G_IB_CFG_ENA_DETLEV		BIT(11)
+#define		HSIO_ANA_SERDES1G_IB_CFG_ENA_CMV_TERM		BIT(13)
+#define		HSIO_ANA_SERDES1G_IB_CFG_ACJTAG_HYST(x)		((x) << 24)
+#define HSIO_ANA_SERDES1G_OB_CFG		0x54
+#define		HSIO_ANA_SERDES1G_OB_CFG_RESISTOR_CTRL(x)	(x)
+#define		HSIO_ANA_SERDES1G_OB_CFG_VCM_CTRL(x)		((x) << 4)
+#define		HSIO_ANA_SERDES1G_OB_CFG_CMM_BIAS_CTRL(x)	((x) << 10)
+#define		HSIO_ANA_SERDES1G_OB_CFG_AMP_CTRL(x)		((x) << 13)
+#define		HSIO_ANA_SERDES1G_OB_CFG_SLP(x)			((x) << 17)
+#define HSIO_ANA_SERDES1G_SER_CFG		0x58
+#define HSIO_ANA_SERDES1G_COMMON_CFG		0x5c
+#define		HSIO_ANA_SERDES1G_COMMON_CFG_IF_MODE		BIT(0)
+#define		HSIO_ANA_SERDES1G_COMMON_CFG_ENA_LANE		BIT(18)
+#define		HSIO_ANA_SERDES1G_COMMON_CFG_SYS_RST		BIT(31)
+#define HSIO_ANA_SERDES1G_PLL_CFG		0x60
+#define		HSIO_ANA_SERDES1G_PLL_CFG_FSM_ENA		BIT(7)
+#define		HSIO_ANA_SERDES1G_PLL_CFG_FSM_CTRL_DATA(x)	((x) << 8)
+#define		HSIO_ANA_SERDES1G_PLL_CFG_ENA_RC_DIV2		BIT(21)
+#define HSIO_DIG_SERDES1G_DFT_CFG0		0x68
+#define HSIO_DIG_SERDES1G_MISC_CFG		0x7c
+#define		HSIO_DIG_SERDES1G_MISC_CFG_LANE_RST		BIT(0)
+#define HSIO_MCB_SERDES1G_CFG			0x88
+#define		HSIO_MCB_SERDES1G_CFG_WR_ONE_SHOT		BIT(31)
+#define		HSIO_MCB_SERDES1G_CFG_ADDR(x)			(x)
+#define HSIO_HW_CFGSTAT_HW_CFG			0x10c
 
 #define SYS_FRM_AGING			0x574
 #define		SYS_FRM_AGING_ENA		BIT(20)
@@ -83,48 +131,57 @@
 #define		QS_INJ_GRP_CFG_BYTE_SWAP	BIT(0)
 
 #define IFH_INJ_BYPASS		BIT(31)
-#define	IFH_TAG_TYPE_C		0
-#define	MAC_VID			1
+#define IFH_TAG_TYPE_C		0
+#define MAC_VID			1
 #define CPU_PORT		11
-#define INTERNAL_PORT_MSK	0xF
+#define INTERNAL_PORT_MSK	0x2FF
 #define IFH_LEN			4
 #define ETH_ALEN		6
-#define	PGID_BROADCAST		13
-#define	PGID_UNICAST		14
-#define	PGID_SRC		80
+#define PGID_BROADCAST		13
+#define PGID_UNICAST		14
+#define PGID_SRC		80
 
-enum ocelot_target {
-	ANA,
-	QS,
-	QSYS,
+static const char * const regs_names[] = {
+	"port0", "port1", "port2", "port3", "port4", "port5", "port6", "port7",
+	"port8", "port9", "port10", "sys", "rew", "qs", "hsio", "qsys", "ana",
+};
+
+#define REGS_NAMES_COUNT ARRAY_SIZE(regs_names) + 1
+#define MAX_PORT 11
+
+enum ocelot_ctrl_regs {
+	SYS = MAX_PORT,
 	REW,
-	SYS,
+	QS,
 	HSIO,
-	PORT0,
-	PORT1,
-	PORT2,
-	PORT3,
-	TARGET_MAX,
+	QSYS,
+	ANA,
 };
 
-#define MAX_PORT (PORT3 - PORT0)
+#define OCELOT_MIIM_BUS_COUNT 2
 
-enum ocelot_mdio_target {
-	MIIM,
-	PHY,
-	TARGET_MDIO_MAX,
-};
-
-enum ocelot_phy_id {
-	INTERNAL,
-	EXTERNAL,
-	NUM_PHY,
+struct ocelot_phy_port_t {
+	size_t phy_addr;
+	struct mii_dev *bus;
+	u8 serdes_index;
+	u8 phy_mode;
 };
 
 struct ocelot_private {
-	void __iomem *regs[TARGET_MAX];
-	struct mii_dev *bus[NUM_PHY];
+	void __iomem *regs[REGS_NAMES_COUNT];
+	struct mii_dev *bus[OCELOT_MIIM_BUS_COUNT];
+	struct ocelot_phy_port_t ports[MAX_PORT];
 };
+
+struct mscc_miim_dev {
+	void __iomem *regs;
+	phys_addr_t miim_base;
+	unsigned long miim_size;
+	struct mii_dev *bus;
+};
+
+static struct mscc_miim_dev miim[OCELOT_MIIM_BUS_COUNT];
+static int miim_count = -1;
 
 static const unsigned long ocelot_regs_qs[] = {
 	[MSCC_QS_XTR_RD] = 0x8,
@@ -140,65 +197,95 @@ static const unsigned long ocelot_regs_ana_table[] = {
 	[MSCC_ANA_TABLES_MACACCESS] = 0x8b3c,
 };
 
-static struct mscc_miim_dev miim[NUM_PHY];
-
 static void mscc_phy_reset(void)
 {
-	writel(0, miim[INTERNAL].phy_regs + PHY_CFG);
+	writel(0, BASE_DEVCPU_GCB + PERF_PHY_CFG + PHY_CFG);
 	writel(PHY_CFG_RST | PHY_CFG_COMMON_RST
-	       | PHY_CFG_ENA, miim[INTERNAL].phy_regs + PHY_CFG);
-	if (wait_for_bit_le32(miim[INTERNAL].phy_regs + PHY_STAT,
-			      PHY_STAT_SUPERVISOR_COMPLETE,
+	       | PHY_CFG_ENA, BASE_DEVCPU_GCB + PERF_PHY_CFG + PHY_CFG);
+	if (wait_for_bit_le32((const void *)(BASE_DEVCPU_GCB + PERF_PHY_CFG) +
+			      PHY_STAT, PHY_STAT_SUPERVISOR_COMPLETE,
 			      true, 2000, false)) {
 		pr_err("Timeout in phy reset\n");
 	}
 }
 
-/* For now only setup the internal mdio bus */
-static struct mii_dev *ocelot_mdiobus_init(struct udevice *dev)
+static int mscc_miim_wait_ready(struct mscc_miim_dev *miim)
 {
-	unsigned long phy_size[TARGET_MAX];
-	phys_addr_t phy_base[TARGET_MAX];
-	struct ofnode_phandle_args phandle;
-	ofnode eth_node, node, mdio_node;
-	struct resource res;
+	return wait_for_bit_le32(miim->regs + GCB_MIIM_MII_STATUS,
+				 GCB_MIIM_STAT_BUSY, false, 250, false);
+}
+
+static int mscc_miim_read(struct mii_dev *bus, int addr, int devad, int reg)
+{
+	struct mscc_miim_dev *miim = (struct mscc_miim_dev *)bus->priv;
+	u32 val;
+	int ret;
+
+	ret = mscc_miim_wait_ready(miim);
+	if (ret)
+		goto out;
+
+	writel(GCB_MIIM_MII_CMD_VLD | GCB_MIIM_MII_CMD_PHYAD(addr) |
+	       GCB_MIIM_MII_CMD_REGAD(reg) | GCB_MIIM_MII_CMD_OPR_READ,
+	       miim->regs + GCB_MIIM_MII_CMD);
+
+	ret = mscc_miim_wait_ready(miim);
+	if (ret)
+		goto out;
+
+	val = readl(miim->regs + GCB_MIIM_DATA);
+	if (val & GCB_MIIM_DATA_ERROR) {
+		ret = -EIO;
+		goto out;
+	}
+
+	ret = val & 0xFFFF;
+ out:
+	return ret;
+}
+
+static int mscc_miim_write(struct mii_dev *bus, int addr, int devad, int reg,
+			   u16 val)
+{
+	struct mscc_miim_dev *miim = (struct mscc_miim_dev *)bus->priv;
+	int ret;
+
+	ret = mscc_miim_wait_ready(miim);
+	if (ret < 0)
+		goto out;
+
+	writel(GCB_MIIM_MII_CMD_VLD | GCB_MIIM_MII_CMD_PHYAD(addr) |
+	       GCB_MIIM_MII_CMD_REGAD(reg) | GCB_MIIM_MII_CMD_WRDATA(val) |
+	       GCB_MIIM_MII_CMD_OPR_WRITE, miim->regs + GCB_MIIM_MII_CMD);
+ out:
+	return ret;
+}
+
+static struct mii_dev *ocelot_mdiobus_init(phys_addr_t miim_base,
+					   unsigned long miim_size)
+{
 	struct mii_dev *bus;
-	fdt32_t faddr;
-	int i;
 
 	bus = mdio_alloc();
 
 	if (!bus)
 		return NULL;
 
-	/* gathered only the first mdio bus */
-	eth_node = dev_read_first_subnode(dev);
-	node = ofnode_first_subnode(eth_node);
-	ofnode_parse_phandle_with_args(node, "phy-handle", NULL, 0, 0,
-				       &phandle);
-	mdio_node = ofnode_get_parent(phandle.node);
+	++miim_count;
+	sprintf(bus->name, "miim-bus%d", miim_count);
 
-	for (i = 0; i < TARGET_MDIO_MAX; i++) {
-		if (ofnode_read_resource(mdio_node, i, &res)) {
-			pr_err("%s: get OF resource failed\n", __func__);
-			return NULL;
-		}
-		faddr = cpu_to_fdt32(res.start);
-		phy_base[i] = ofnode_translate_address(mdio_node, &faddr);
-		phy_size[i] = res.end - res.start;
-	}
-
-	strcpy(bus->name, "miim-internal");
-	miim[INTERNAL].phy_regs = ioremap(phy_base[PHY], phy_size[PHY]);
-	miim[INTERNAL].regs = ioremap(phy_base[MIIM], phy_size[MIIM]);
-	bus->priv = &miim[INTERNAL];
+	miim[miim_count].regs = ioremap(miim_base, miim_size);
+	miim[miim_count].miim_base = miim_base;
+	miim[miim_count].miim_size = miim_size;
+	bus->priv = &miim[miim_count];
 	bus->read = mscc_miim_read;
 	bus->write = mscc_miim_write;
 
 	if (mdio_register(bus))
 		return NULL;
-	else
-		return bus;
+
+	miim[miim_count].bus = bus;
+	return bus;
 }
 
 __weak void mscc_switch_reset(void)
@@ -291,11 +378,85 @@ static void ocelot_port_init(struct ocelot_private *priv, int port)
 
 	/* Make VLAN aware for CPU traffic */
 	writel(ANA_PORT_VLAN_CFG_AWARE_ENA | ANA_PORT_VLAN_CFG_POP_CNT(1) |
-	       MAC_VID, priv->regs[ANA] + ANA_PORT_VLAN_CFG(port - PORT0));
+	       MAC_VID, priv->regs[ANA] + ANA_PORT_VLAN_CFG(port));
 
 	/* Enable the port in the core */
-	setbits_le32(priv->regs[QSYS] + QSYS_SWITCH_PORT_MODE(port - PORT0),
+	setbits_le32(priv->regs[QSYS] + QSYS_SWITCH_PORT_MODE(port),
 		     QSYS_SWITCH_PORT_MODE_PORT_ENA);
+}
+
+static void serdes1g_write(void __iomem *base, u32 addr)
+{
+	u32 data;
+
+	writel(HSIO_MCB_SERDES1G_CFG_WR_ONE_SHOT |
+	       HSIO_MCB_SERDES1G_CFG_ADDR(addr),
+	       base + HSIO_MCB_SERDES1G_CFG);
+
+	do {
+		data = readl(base + HSIO_MCB_SERDES1G_CFG);
+	} while (data & HSIO_MCB_SERDES1G_CFG_WR_ONE_SHOT);
+}
+
+static void serdes1g_setup(void __iomem *base, uint32_t addr,
+			   phy_interface_t interface)
+{
+	writel(0x34, base + HSIO_HW_CFGSTAT_HW_CFG);
+
+	writel(0x0, base + HSIO_ANA_SERDES1G_SER_CFG);
+	writel(0x0, base + HSIO_DIG_SERDES1G_DFT_CFG0);
+	writel(HSIO_ANA_SERDES1G_IB_CFG_RESISTOR_CTRL(11) |
+	       HSIO_ANA_SERDES1G_IB_CFG_EQ_GAIN(0) |
+	       HSIO_ANA_SERDES1G_IB_CFG_ENA_OFFSET_COMP |
+	       HSIO_ANA_SERDES1G_IB_CFG_ENA_CMV_TERM |
+	       HSIO_ANA_SERDES1G_IB_CFG_ACJTAG_HYST(1),
+	       base + HSIO_ANA_SERDES1G_IB_CFG);
+	writel(HSIO_ANA_SERDES1G_DES_CFG_BW_HYST(7) |
+	       HSIO_ANA_SERDES1G_DES_CFG_BW_ANA(6) |
+	       HSIO_ANA_SERDES1G_DES_CFG_MBTR_CTRL(2) |
+	       HSIO_ANA_SERDES1G_DES_CFG_PHS_CTRL(6),
+	       base + HSIO_ANA_SERDES1G_DES_CFG);
+	writel(HSIO_ANA_SERDES1G_OB_CFG_RESISTOR_CTRL(1) |
+	       HSIO_ANA_SERDES1G_OB_CFG_VCM_CTRL(4) |
+	       HSIO_ANA_SERDES1G_OB_CFG_CMM_BIAS_CTRL(2) |
+	       HSIO_ANA_SERDES1G_OB_CFG_AMP_CTRL(12) |
+	       HSIO_ANA_SERDES1G_OB_CFG_SLP(3),
+	       base + HSIO_ANA_SERDES1G_OB_CFG);
+	writel(HSIO_ANA_SERDES1G_COMMON_CFG_IF_MODE |
+	       HSIO_ANA_SERDES1G_COMMON_CFG_ENA_LANE,
+	       base + HSIO_ANA_SERDES1G_COMMON_CFG);
+	writel(HSIO_ANA_SERDES1G_PLL_CFG_FSM_ENA |
+	       HSIO_ANA_SERDES1G_PLL_CFG_FSM_CTRL_DATA(200) |
+	       HSIO_ANA_SERDES1G_PLL_CFG_ENA_RC_DIV2,
+	       base + HSIO_ANA_SERDES1G_PLL_CFG);
+	writel(HSIO_DIG_SERDES1G_MISC_CFG_LANE_RST,
+	       base + HSIO_DIG_SERDES1G_MISC_CFG);
+
+	serdes1g_write(base, addr);
+
+	writel(HSIO_ANA_SERDES1G_COMMON_CFG_IF_MODE |
+	       HSIO_ANA_SERDES1G_COMMON_CFG_ENA_LANE |
+	       HSIO_ANA_SERDES1G_COMMON_CFG_SYS_RST,
+	       base + HSIO_ANA_SERDES1G_COMMON_CFG);
+	serdes1g_write(base, addr);
+
+	writel(0x0, base + HSIO_DIG_SERDES1G_MISC_CFG);
+	serdes1g_write(base, addr);
+}
+
+static void serdes_setup(struct ocelot_private *priv)
+{
+	size_t mask;
+	int i = 0;
+
+	for (i = 0; i < MAX_PORT; ++i) {
+		if (!priv->ports[i].bus || priv->ports[i].serdes_index == 0xff)
+			continue;
+
+		mask = BIT(priv->ports[i].serdes_index);
+		serdes1g_setup(priv->regs[HSIO], mask,
+			       priv->ports[i].phy_mode);
+	}
 }
 
 static int ocelot_switch_init(struct ocelot_private *priv)
@@ -315,6 +476,7 @@ static int ocelot_switch_init(struct ocelot_private *priv)
 	setbits_le32(priv->regs[SYS] + SYS_SYSTEM_RST_CFG,
 		     SYS_SYSTEM_RST_CORE_ENA);
 
+	serdes_setup(priv);
 	return 0;
 }
 
@@ -331,7 +493,7 @@ static int ocelot_initialize(struct ocelot_private *priv)
 	 * Put fron ports in "port isolation modes" - i.e. they cant send
 	 * to other ports - via the PGID sorce masks.
 	 */
-	for (i = 0; i <= MAX_PORT; i++)
+	for (i = 0; i < MAX_PORT; i++)
 		writel(0, priv->regs[ANA] + ANA_PGID(PGID_SRC + i));
 
 	/* Flush queues */
@@ -341,7 +503,7 @@ static int ocelot_initialize(struct ocelot_private *priv)
 	writel(SYS_FRM_AGING_ENA | (20000000 / 65),
 	       priv->regs[SYS] + SYS_FRM_AGING);
 
-	for (i = PORT0; i <= PORT3; i++)
+	for (i = 0; i < MAX_PORT; i++)
 		ocelot_port_init(priv, i);
 
 	ocelot_cpu_capture_setup(priv);
@@ -433,43 +595,119 @@ static int ocelot_recv(struct udevice *dev, int flags, uchar **packetp)
 	return byte_cnt;
 }
 
+static struct mii_dev *get_mdiobus(phys_addr_t base, unsigned long size)
+{
+	int i = 0;
+
+	for (i = 0; i < OCELOT_MIIM_BUS_COUNT; ++i)
+		if (miim[i].miim_base == base && miim[i].miim_size == size)
+			return miim[i].bus;
+
+	return NULL;
+}
+
+static void add_port_entry(struct ocelot_private *priv, size_t index,
+			   size_t phy_addr, struct mii_dev *bus,
+			   u8 serdes_index, u8 phy_mode)
+{
+	priv->ports[index].phy_addr = phy_addr;
+	priv->ports[index].bus = bus;
+	priv->ports[index].serdes_index = serdes_index;
+	priv->ports[index].phy_mode = phy_mode;
+}
+
+static int external_bus(struct ocelot_private *priv, size_t port_index)
+{
+	return priv->ports[port_index].serdes_index != 0xff;
+}
+
 static int ocelot_probe(struct udevice *dev)
 {
 	struct ocelot_private *priv = dev_get_priv(dev);
-	int ret, i;
+	int i, ret;
+	struct resource res;
+	fdt32_t faddr;
+	phys_addr_t addr_base;
+	unsigned long addr_size;
+	ofnode eth_node, node, mdio_node;
+	size_t phy_addr;
+	struct mii_dev *bus;
+	struct ofnode_phandle_args phandle;
+	struct phy_device *phy;
 
-	struct {
-		enum ocelot_target id;
-		char *name;
-	} reg[] = {
-		{ SYS, "sys" },
-		{ REW, "rew" },
-		{ QSYS, "qsys" },
-		{ ANA, "ana" },
-		{ QS, "qs" },
-		{ HSIO, "hsio" },
-		{ PORT0, "port0" },
-		{ PORT1, "port1" },
-		{ PORT2, "port2" },
-		{ PORT3, "port3" },
-	};
+	if (!priv)
+		return -EINVAL;
 
-	for (i = 0; i < ARRAY_SIZE(reg); i++) {
-		priv->regs[reg[i].id] = dev_remap_addr_name(dev, reg[i].name);
-		if (!priv->regs[reg[i].id]) {
-			pr_err
-			    ("Error %d: can't get regs base addresses for %s\n",
-			     ret, reg[i].name);
+	for (i = 0; i < ARRAY_SIZE(regs_names); i++) {
+		priv->regs[i] = dev_remap_addr_name(dev, regs_names[i]);
+		if (!priv->regs[i]) {
+			debug
+			    ("Error can't get regs base addresses for %s\n",
+			     regs_names[i]);
 			return -ENOMEM;
 		}
 	}
 
-	priv->bus[INTERNAL] = ocelot_mdiobus_init(dev);
+	/* Initialize miim buses */
+	memset(&miim, 0x0, sizeof(struct mscc_miim_dev) *
+	       OCELOT_MIIM_BUS_COUNT);
+
+	/* iterate all the ports and find out on which bus they are */
+	i = 0;
+	eth_node = dev_read_first_subnode(dev);
+	for (node = ofnode_first_subnode(eth_node); ofnode_valid(node);
+	     node = ofnode_next_subnode(node)) {
+		if (ofnode_read_resource(node, 0, &res))
+			return -ENOMEM;
+		i = res.start;
+
+		ofnode_parse_phandle_with_args(node, "phy-handle", NULL, 0, 0,
+					       &phandle);
+
+		/* Get phy address on mdio bus */
+		if (ofnode_read_resource(phandle.node, 0, &res))
+			return -ENOMEM;
+		phy_addr = res.start;
+
+		/* Get mdio node */
+		mdio_node = ofnode_get_parent(phandle.node);
+
+		if (ofnode_read_resource(mdio_node, 0, &res))
+			return -ENOMEM;
+		faddr = cpu_to_fdt32(res.start);
+
+		addr_base = ofnode_translate_address(mdio_node, &faddr);
+		addr_size = res.end - res.start;
+
+		/* If the bus is new then create a new bus */
+		if (!get_mdiobus(addr_base, addr_size))
+			priv->bus[miim_count] =
+				ocelot_mdiobus_init(addr_base, addr_size);
+
+		/* Connect mdio bus with the port */
+		bus = get_mdiobus(addr_base, addr_size);
+
+		/* Get serdes info */
+		ret = ofnode_parse_phandle_with_args(node, "phys", NULL,
+						     3, 0, &phandle);
+		if (ret)
+			add_port_entry(priv, i, phy_addr, bus, 0xff, 0xff);
+		else
+			add_port_entry(priv, i, phy_addr, bus, phandle.args[1],
+				       phandle.args[2]);
+	}
+
 	mscc_phy_reset();
 
-	for (i = 0; i < 4; i++) {
-		phy_connect(priv->bus[INTERNAL], i, dev,
-			    PHY_INTERFACE_MODE_NONE);
+	for (i = 0; i < MAX_PORT; i++) {
+		if (!priv->ports[i].bus)
+			continue;
+
+		phy = phy_connect(priv->ports[i].bus,
+				  priv->ports[i].phy_addr, dev,
+				  PHY_INTERFACE_MODE_NONE);
+		if (phy && external_bus(priv, i))
+			board_phy_config(phy);
 	}
 
 	return 0;
@@ -480,7 +718,7 @@ static int ocelot_remove(struct udevice *dev)
 	struct ocelot_private *priv = dev_get_priv(dev);
 	int i;
 
-	for (i = 0; i < NUM_PHY; i++) {
+	for (i = 0; i < OCELOT_MIIM_BUS_COUNT; i++) {
 		mdio_unregister(priv->bus[i]);
 		mdio_free(priv->bus[i]);
 	}
