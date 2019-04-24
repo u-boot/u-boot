@@ -55,11 +55,11 @@ static __always_inline int mbox_fill_cmd_circular_buff(u32 header, u32 len,
 	cout = MBOX_READL(MBOX_COUT) % MBOX_CMD_BUFFER_SIZE;
 
 	/* if command buffer is full or not enough free space
-	 * to fit the data
+	 * to fit the data. Note, len is in u32 unit.
 	 */
 	if (((cin + 1) % MBOX_CMD_BUFFER_SIZE) == cout ||
 	    ((MBOX_CMD_BUFFER_SIZE - cin + cout - 1) %
-	     MBOX_CMD_BUFFER_SIZE) < len)
+	     MBOX_CMD_BUFFER_SIZE) < (len + 1))
 		return -ENOMEM;
 
 	/* write header to circular buffer */
