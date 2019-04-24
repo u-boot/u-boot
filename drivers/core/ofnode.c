@@ -251,7 +251,7 @@ int ofnode_read_size(ofnode node, const char *propname)
 	return -EINVAL;
 }
 
-fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
+fdt_addr_t ofnode_get_addr_size_index(ofnode node, int index, fdt_size_t *size)
 {
 	int na, ns;
 
@@ -260,7 +260,7 @@ fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
 		uint flags;
 
 		prop_val = of_get_address(ofnode_to_np(node), index,
-					  NULL, &flags);
+					  (u64 *)size, &flags);
 		if (!prop_val)
 			return FDT_ADDR_T_NONE;
 
@@ -277,10 +277,17 @@ fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
 		ns = ofnode_read_simple_size_cells(ofnode_get_parent(node));
 		return fdtdec_get_addr_size_fixed(gd->fdt_blob,
 						  ofnode_to_offset(node), "reg",
-						  index, na, ns, NULL, true);
+						  index, na, ns, size, true);
 	}
 
 	return FDT_ADDR_T_NONE;
+}
+
+fdt_addr_t ofnode_get_addr_index(ofnode node, int index)
+{
+	fdt_size_t size;
+
+	return ofnode_get_addr_size_index(node, index, &size);
 }
 
 fdt_addr_t ofnode_get_addr(ofnode node)
