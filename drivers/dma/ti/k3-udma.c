@@ -1492,7 +1492,7 @@ static int udma_send(struct dma *dma, void *src, size_t len, void *metadata)
 	u32 tc_ring_id;
 	int ret;
 
-	if (!metadata)
+	if (metadata)
 		packet_data = *((struct ti_udma_drv_packet_data *)metadata);
 
 	if (dma->id >= (ud->rchan_cnt + ud->tchan_cnt)) {
