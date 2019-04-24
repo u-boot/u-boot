@@ -25,4 +25,8 @@ config PINCTRL_MESON_AXG
 	bool "Amlogic Meson AXG SoC pinctrl driver"
 	select PINCTRL_MESON_AXG_PMX
 
+config PINCTRL_MESON_G12A
+	bool "Amlogic Meson G12a SoC pinctrl driver"
+	select PINCTRL_MESON_AXG_PMX
+
 endif

@@ -41,7 +41,13 @@ config MESON_AXG
 	bool "AXG"
 	select MESON64_COMMON
 	help
-		Select this if your SoC is an A113X/D
+	  Select this if your SoC is an A113X/D
+
+config MESON_G12A
+	bool "G12A"
+	select MESON64_COMMON
+	help
+	  Select this if your SoC is an S905X/D2
 
 endchoice
 
@@ -61,10 +67,11 @@ config SYS_VENDOR
 
 config SYS_BOARD
 	string "Board name"
-	default "odroid-c2" if MESON_GXBB
+	default "p200" if MESON_GXBB
 	default "p212" if MESON_GXL
 	default "q200" if MESON_GXM
 	default "s400" if MESON_AXG
+	default "u200" if MESON_G12A
 	default ""
 	help
 	  This option contains information about board name.

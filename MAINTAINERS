@@ -101,7 +101,7 @@ L:	u-boot-amlogic@groups.io
 T:	git git://git.denx.de/u-boot-amlogic.git
 F:	arch/arm/mach-meson/
 F:	arch/arm/include/asm/arch-meson/
-F:	drivers/clk/clk_meson*
+F:	drivers/clk/meson/
 F:	drivers/serial/serial_meson.c
 F:	drivers/reset/reset-meson.c
 F:	drivers/i2c/meson_i2c.c

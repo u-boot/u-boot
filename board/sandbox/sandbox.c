@@ -31,7 +31,7 @@ void flush_cache(unsigned long start, unsigned long size)
 /* system timer offset in ms */
 static unsigned long sandbox_timer_offset;
 
-void sandbox_timer_add_offset(unsigned long offset)
+void timer_test_add_offset(unsigned long offset)
 {
 	sandbox_timer_offset += offset;
 }
