@@ -19,6 +19,7 @@ Required sub-nodes:
 
 Optional:
 - samsung,model: The name of the sound-card
+- codec-enable-gpio : The GPIO used to enable the audio codec
 
 Example:
 
