@@ -545,7 +545,11 @@ extern void pci_cfgfunc_do_nothing(struct pci_controller* hose, pci_dev_t dev,
 extern void pci_cfgfunc_config_device(struct pci_controller* hose, pci_dev_t dev,
 				      struct pci_config_table *);
 
-#define MAX_PCI_REGIONS		7
+#ifdef CONFIG_NR_DRAM_BANKS
+#define MAX_PCI_REGIONS (CONFIG_NR_DRAM_BANKS + 7)
+#else
+#define MAX_PCI_REGIONS 7
+#endif
 
 #define INDIRECT_TYPE_NO_PCIE_LINK	1
 

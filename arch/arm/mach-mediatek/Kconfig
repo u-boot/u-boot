@@ -31,6 +31,16 @@ config TARGET_MT7629
 	  including DDR3, crypto engine, 3x3 11n/ac Wi-Fi, Gigabit Ethernet,
 	  switch, USB3.0, PCIe, UART, SPI, I2C and PWM.
 
+config TARGET_MT8516
+	bool "MediaTek MT8516 SoC"
+	select ARM64
+	select ARCH_MISC_INIT
+	help
+	  The MediaTek MT8516 is a ARM64-based SoC with a quad-core Cortex-A35.
+	  including UART, SPI, USB2.0 and OTG, SD and MMC cards, NAND, PWM,
+	  Ethernet, IR TX/RX, I2C, I2S, S/PDIF, and built-in Wi-Fi / Bluetooth combo
+	  chip and several DDR3 and DDR4 options.
+
 endchoice
 
 source "board/mediatek/mt7623/Kconfig"

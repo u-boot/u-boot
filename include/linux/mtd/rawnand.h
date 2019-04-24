@@ -15,6 +15,7 @@
 
 #include <config.h>
 
+#include <dm/device.h>
 #include <linux/compat.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/flashchip.h>
@@ -498,6 +499,13 @@ struct nand_hw_control {
 	struct nand_chip *active;
 };
 
+static inline void nand_hw_control_init(struct nand_hw_control *nfc)
+{
+	nfc->active = NULL;
+	spin_lock_init(&nfc->lock);
+	init_waitqueue_head(&nfc->wq);
+}
+
 /**
  * struct nand_ecc_step_info - ECC step information of ECC engine
  * @stepsize: data bytes per ECC step
@@ -961,6 +969,17 @@ struct nand_chip {
 	void *priv;
 };
 
+static inline void nand_set_flash_node(struct nand_chip *chip,
+				       ofnode node)
+{
+	chip->flash_node = ofnode_to_offset(node);
+}
+
+static inline ofnode nand_get_flash_node(struct nand_chip *chip)
+{
+	return offset_to_ofnode(chip->flash_node);
+}
+
 static inline struct nand_chip *mtd_to_nand(struct mtd_info *mtd)
 {
 	return container_of(mtd, struct nand_chip, mtd);
@@ -1280,4 +1299,34 @@ int nand_maximize_ecc(struct nand_chip *chip,
 
 /* Reset and initialize a NAND device */
 int nand_reset(struct nand_chip *chip, int chipnr);
+
+/* NAND operation helpers */
+int nand_reset_op(struct nand_chip *chip);
+int nand_readid_op(struct nand_chip *chip, u8 addr, void *buf,
+		   unsigned int len);
+int nand_status_op(struct nand_chip *chip, u8 *status);
+int nand_exit_status_op(struct nand_chip *chip);
+int nand_erase_op(struct nand_chip *chip, unsigned int eraseblock);
+int nand_read_page_op(struct nand_chip *chip, unsigned int page,
+		      unsigned int offset_in_page, void *buf, unsigned int len);
+int nand_change_read_column_op(struct nand_chip *chip,
+			       unsigned int offset_in_page, void *buf,
+			       unsigned int len, bool force_8bit);
+int nand_read_oob_op(struct nand_chip *chip, unsigned int page,
+		     unsigned int offset_in_page, void *buf, unsigned int len);
+int nand_prog_page_begin_op(struct nand_chip *chip, unsigned int page,
+			    unsigned int offset_in_page, const void *buf,
+			    unsigned int len);
+int nand_prog_page_end_op(struct nand_chip *chip);
+int nand_prog_page_op(struct nand_chip *chip, unsigned int page,
+		      unsigned int offset_in_page, const void *buf,
+		      unsigned int len);
+int nand_change_write_column_op(struct nand_chip *chip,
+				unsigned int offset_in_page, const void *buf,
+				unsigned int len, bool force_8bit);
+int nand_read_data_op(struct nand_chip *chip, void *buf, unsigned int len,
+		      bool force_8bit);
+int nand_write_data_op(struct nand_chip *chip, const void *buf,
+		       unsigned int len, bool force_8bit);
+
 #endif /* __LINUX_MTD_RAWNAND_H */

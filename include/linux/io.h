@@ -65,8 +65,8 @@ static inline void __iomem *ioremap(resource_size_t offset,
 static inline void iounmap(void __iomem *addr)
 {
 }
+#endif
 
 #define devm_ioremap(dev, offset, size)		ioremap(offset, size)
-#endif
 
 #endif /* _LINUX_IO_H */

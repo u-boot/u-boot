@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <compiler.h>
+#include <image.h>
 #include <linux/kernel.h>
 #include <linux/types.h>
 
@@ -22,8 +23,6 @@ typedef uint64_t U64;
 
 /* Unaltered (except removing unrelated code) from github.com/Cyan4973/lz4. */
 #include "lz4.c"	/* #include for inlining, do not link! */
-
-#define LZ4F_MAGIC 0x184D2204
 
 struct lz4_frame_header {
 	u32 magic;

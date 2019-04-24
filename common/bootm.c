@@ -154,7 +154,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		images.os.type = IH_TYPE_KERNEL;
-		images.os.comp = IH_COMP_NONE;
+		images.os.comp = android_image_get_kcomp(os_hdr);
 		images.os.os = IH_OS_LINUX;
 
 		images.os.end = android_image_get_end(os_hdr);
@@ -450,7 +450,6 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
 	ulong flush_start = ALIGN_DOWN(load, ARCH_DMA_MINALIGN);
-	ulong flush_len;
 	bool no_overlap;
 	void *load_buf, *image_buf;
 	int err;
@@ -465,11 +464,7 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 		return err;
 	}
 
-	flush_len = load_end - load;
-	if (flush_start < load)
-		flush_len += load - flush_start;
-
-	flush_cache(flush_start, ALIGN(flush_len, ARCH_DMA_MINALIGN));
+	flush_cache(flush_start, ALIGN(load_end, ARCH_DMA_MINALIGN) - flush_start);
 
 	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, load_end);
 	bootstage_mark(BOOTSTAGE_ID_KERNEL_LOADED);

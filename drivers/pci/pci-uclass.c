@@ -918,6 +918,11 @@ static void decode_regions(struct pci_controller *hose, ofnode parent_node,
 		return;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; ++i) {
+		if (hose->region_count == MAX_PCI_REGIONS) {
+			pr_err("maximum number of regions parsed, aborting\n");
+			break;
+		}
+
 		if (bd->bi_dram[i].size) {
 			pci_set_region(hose->regions + hose->region_count++,
 				       bd->bi_dram[i].start,

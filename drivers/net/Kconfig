@@ -528,4 +528,13 @@ config MEDIATEK_ETH
 	  This Driver support MediaTek Ethernet GMAC
 	  Say Y to enable support for the MediaTek Ethernet GMAC.
 
+config HIGMACV300_ETH
+	bool "HiSilicon Gigabit Ethernet Controller"
+	depends on DM_ETH
+	select DM_RESET
+	select PHYLIB
+	help
+	  This driver supports HIGMACV300 Ethernet controller found on
+	  HiSilicon SoCs.
+
 endif # NETDEVICES

@@ -125,5 +125,18 @@
 
 			status = "disabled";
 		};
+
+		nand: nand-controller@14e02200 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "brcm,nand-bcm6838",
+				     "brcm,brcmnand-v5.0",
+				     "brcm,brcmnand";
+			reg-names = "nand", "nand-int-base", "nand-cache";
+			reg = <0x14e02200 0x180>,
+			      <0x14e000f0 0x10>,
+			      <0x14e02600 0x180>;
+			status = "disabled";
+		};
 	};
 };

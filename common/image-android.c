@@ -8,6 +8,7 @@
 #include <android_image.h>
 #include <malloc.h>
 #include <errno.h>
+#include <asm/unaligned.h>
 
 #define ANDROID_IMAGE_DEFAULT_KERNEL_ADDR	0x10008000
 
@@ -126,6 +127,16 @@ ulong android_image_get_kload(const struct andr_img_hdr *hdr)
 	return android_image_get_kernel_addr(hdr);
 }
 
+ulong android_image_get_kcomp(const struct andr_img_hdr *hdr)
+{
+	const void *p = (void *)((uintptr_t)hdr + hdr->page_size);
+
+	if (get_unaligned_le32(p) == LZ4F_MAGIC)
+		return IH_COMP_LZ4;
+	else
+		return IH_COMP_NONE;
+}
+
 int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
 			      ulong *rd_data, ulong *rd_len)
 {
@@ -186,7 +197,7 @@ void android_print_contents(const struct andr_img_hdr *hdr)
 	printf("%skernel size:      %x\n", p, hdr->kernel_size);
 	printf("%skernel address:   %x\n", p, hdr->kernel_addr);
 	printf("%sramdisk size:     %x\n", p, hdr->ramdisk_size);
-	printf("%sramdisk addrress: %x\n", p, hdr->ramdisk_addr);
+	printf("%sramdisk address:  %x\n", p, hdr->ramdisk_addr);
 	printf("%ssecond size:      %x\n", p, hdr->second_size);
 	printf("%ssecond address:   %x\n", p, hdr->second_addr);
 	printf("%stags address:     %x\n", p, hdr->tags_addr);

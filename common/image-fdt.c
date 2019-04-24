@@ -284,7 +284,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	*of_flat_tree = NULL;
 	*of_size = 0;
 
-	img_addr = simple_strtoul(argv[0], NULL, 16);
+	img_addr = (argc == 0) ? load_addr : simple_strtoul(argv[0], NULL, 16);
 	buf = map_sysmem(img_addr, 0);
 
 	if (argc > 2)

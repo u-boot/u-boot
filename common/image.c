@@ -957,7 +957,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	 */
 	buf = map_sysmem(images->os.start, 0);
 	if (buf && genimg_get_format(buf) == IMAGE_FORMAT_ANDROID)
-		select = argv[0];
+		select = (argc == 0) ? env_get("loadaddr") : argv[0];
 #endif
 
 	if (argc >= 2)

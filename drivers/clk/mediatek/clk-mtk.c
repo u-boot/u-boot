@@ -390,6 +390,12 @@ static int mtk_clk_gate_enable(struct clk *clk)
 	case CLK_GATE_SETCLR:
 		writel(bit, priv->base + gate->regs->clr_ofs);
 		break;
+	case CLK_GATE_SETCLR_INV:
+		writel(bit, priv->base + gate->regs->set_ofs);
+		break;
+	case CLK_GATE_NO_SETCLR:
+		clrsetbits_le32(priv->base + gate->regs->sta_ofs, bit, 0);
+		break;
 	case CLK_GATE_NO_SETCLR_INV:
 		clrsetbits_le32(priv->base + gate->regs->sta_ofs, bit, bit);
 		break;
@@ -410,6 +416,12 @@ static int mtk_clk_gate_disable(struct clk *clk)
 	switch (gate->flags & CLK_GATE_MASK) {
 	case CLK_GATE_SETCLR:
 		writel(bit, priv->base + gate->regs->set_ofs);
+		break;
+	case CLK_GATE_SETCLR_INV:
+		writel(bit, priv->base + gate->regs->clr_ofs);
+		break;
+	case CLK_GATE_NO_SETCLR:
+		clrsetbits_le32(priv->base + gate->regs->sta_ofs, bit, bit);
 		break;
 	case CLK_GATE_NO_SETCLR_INV:
 		clrsetbits_le32(priv->base + gate->regs->sta_ofs, bit, 0);

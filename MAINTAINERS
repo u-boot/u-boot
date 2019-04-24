@@ -86,6 +86,7 @@ M:	Albert Aribaud <albert.u.boot@aribaud.net>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-arm.git
 F:	arch/arm/
+F:	cmd/arm/
 
 ARM ALTERA SOCFPGA
 M:	Marek Vasut <marex@denx.de>
@@ -677,6 +678,7 @@ M:	Rick Chen <rick@andestech.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-riscv.git
 F:	arch/riscv/
+F:	cmd/riscv/
 F:	tools/prelink-riscv.c
 
 ROCKUSB
@@ -788,6 +790,7 @@ M:	Bin Meng <bmeng.cn@gmail.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-x86.git
 F:	arch/x86/
+F:	cmd/x86/
 
 XTENSA
 M:	Max Filippov <jcmvbkbc@gmail.com>

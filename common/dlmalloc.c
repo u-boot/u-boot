@@ -1893,8 +1893,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
 #if CONFIG_VAL(SYS_MALLOC_F_LEN)
 	if (!(gd->flags & GD_FLG_FULL_MALLOC_INIT)) {
-		nb = roundup(bytes, alignment);
-		return malloc_simple(nb);
+		return memalign_simple(alignment, bytes);
 	}
 #endif
 

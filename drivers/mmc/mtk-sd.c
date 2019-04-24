@@ -247,6 +247,7 @@ struct msdc_host {
 	struct msdc_compatible *dev_comp;
 
 	struct clk src_clk;	/* for SD/MMC bus clock */
+	struct clk src_clk_cg;	/* optional, MSDC source clock control gate */
 	struct clk h_clk;	/* MSDC core clock */
 
 	u32 src_clk_freq;	/* source clock */
@@ -269,7 +270,7 @@ struct msdc_host {
 	bool builtin_cd;
 
 	/* card detection / write protection GPIOs */
-#if IS_ENABLED(DM_GPIO)
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc gpio_wp;
 	struct gpio_desc gpio_cd;
 #endif
@@ -849,7 +850,7 @@ static int msdc_ops_get_cd(struct udevice *dev)
 		return !(val & MSDC_PS_CDSTS);
 	}
 
-#if IS_ENABLED(DM_GPIO)
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	if (!host->gpio_cd.dev)
 		return 1;
 
@@ -861,7 +862,7 @@ static int msdc_ops_get_cd(struct udevice *dev)
 
 static int msdc_ops_get_wp(struct udevice *dev)
 {
-#if IS_ENABLED(DM_GPIO)
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	struct msdc_host *host = dev_get_priv(dev);
 
 	if (!host->gpio_wp.dev)
@@ -1269,6 +1270,8 @@ static void msdc_ungate_clock(struct msdc_host *host)
 {
 	clk_enable(&host->src_clk);
 	clk_enable(&host->h_clk);
+	if (host->src_clk_cg.dev)
+		clk_enable(&host->src_clk_cg);
 }
 
 static int msdc_drv_probe(struct udevice *dev)
@@ -1332,7 +1335,9 @@ static int msdc_ofdata_to_platdata(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
-#if IS_ENABLED(DM_GPIO)
+	clk_get_by_name(dev, "source_cg", &host->src_clk_cg); /* optional */
+
+#if CONFIG_IS_ENABLED(DM_GPIO)
 	gpio_request_by_name(dev, "wp-gpios", 0, &host->gpio_wp, GPIOD_IS_IN);
 	gpio_request_by_name(dev, "cd-gpios", 0, &host->gpio_cd, GPIOD_IS_IN);
 #endif
@@ -1376,8 +1381,18 @@ static const struct msdc_compatible mt7623_compat = {
 	.enhance_rx = false
 };
 
+static const struct msdc_compatible mt8516_compat = {
+	.clk_div_bits = 12,
+	.pad_tune0 = true,
+	.async_fifo = true,
+	.data_tune = true,
+	.busy_check = true,
+	.stop_clk_fix = true,
+};
+
 static const struct udevice_id msdc_ids[] = {
 	{ .compatible = "mediatek,mt7623-mmc", .data = (ulong)&mt7623_compat },
+	{ .compatible = "mediatek,mt8516-mmc", .data = (ulong)&mt8516_compat },
 	{}
 };
 

@@ -19,7 +19,9 @@ endif
 obj-y	+= cache.o
 obj-y	+= tlb.o
 obj-y	+= transition.o
+ifndef CONFIG_ARMV8_PSCI
 obj-y	+= fwcall.o
+endif
 obj-y	+= cpu-dt.o
 obj-$(CONFIG_ARM_SMCCC)		+= smccc-call.o
 

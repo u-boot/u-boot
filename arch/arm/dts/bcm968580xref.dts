@@ -61,3 +61,66 @@
 &gpio7 {
 	status = "okay";
 };
+
+&nand {
+	status = "okay";
+	write-protect = <0>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	nandcs@0 {
+		compatible = "brcm,nandcs";
+		reg = <0>;
+		nand-ecc-strength = <4>;
+		nand-ecc-step-size = <512>;
+		brcm,nand-oob-sector-size = <16>;
+	};
+};
+
+&leds {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	brcm,serial-led-en-pol;
+	brcm,serial-led-data-ppol;
+
+	led@2 {
+		reg = <2>;
+		label = "green:inet";
+	};
+
+	led@5 {
+		reg = <5>;
+		label = "red:alarm";
+	};
+
+	led@8 {
+		reg = <8>;
+		label = "green:wlan_link";
+	};
+
+	led@11 {
+		reg = <11>;
+		label = "green:fxs1";
+	};
+
+	led@14 {
+		reg = <14>;
+		label = "green:fxs2";
+	};
+
+	led@15 {
+		reg = <15>;
+		label = "green:usb0";
+	};
+
+	led@16 {
+		reg = <16>;
+		label = "green:usb1";
+	};
+
+	led@17 {
+		reg = <17>;
+		label = "green:wps";
+	};
+};

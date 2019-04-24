@@ -123,6 +123,27 @@ static inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define readq(c)	({ u64 __v = __arch_getq(c); __iormb(); __v; })
 
 /*
+ * Relaxed I/O memory access primitives. These follow the Device memory
+ * ordering rules but do not guarantee any ordering relative to Normal memory
+ * accesses.
+ */
+#define readb_relaxed(c)	({ u8  __r = __raw_readb(c); __r; })
+#define readw_relaxed(c)	({ u16 __r = le16_to_cpu((__force __le16) \
+						__raw_readw(c)); __r; })
+#define readl_relaxed(c)	({ u32 __r = le32_to_cpu((__force __le32) \
+						__raw_readl(c)); __r; })
+#define readq_relaxed(c)	({ u64 __r = le64_to_cpu((__force __le64) \
+						__raw_readq(c)); __r; })
+
+#define writeb_relaxed(v, c)	((void)__raw_writeb((v), (c)))
+#define writew_relaxed(v, c)	((void)__raw_writew((__force u16) \
+						    cpu_to_le16(v), (c)))
+#define writel_relaxed(v, c)	((void)__raw_writel((__force u32) \
+						    cpu_to_le32(v), (c)))
+#define writeq_relaxed(v, c)	((void)__raw_writeq((__force u64) \
+						    cpu_to_le64(v), (c)))
+
+/*
  * The compiler seems to be incapable of optimising constants
  * properly.  Spell it out to the compiler in some cases.
  * These are only valid for small values of "off" (< 1<<12)
