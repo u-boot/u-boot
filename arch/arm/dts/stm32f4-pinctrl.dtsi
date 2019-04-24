@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017, STMicroelectronics - All Rights Reserved
- * Author(s): Alexandre Torgue <alexandre.torgue@st.com> for STMicroelectronics.
+ * Copyright 2017 - Alexandre Torgue <alexandre.torgue@st.com>
  *
  * This file is dual-licensed: you can use it either under the terms
  * of the GPL or the X11 license, at your option. Note that this dual
@@ -342,12 +341,12 @@
 
 			sdio_pins: sdio_pins@0 {
 				pins {
-					pinmux = <STM32_PINMUX('C', 8, AF12)>,
-						 <STM32_PINMUX('C', 9, AF12)>,
-						 <STM32_PINMUX('C', 10, AF12)>,
-						 <STM32_PINMUX('c', 11, AF12)>,
-						 <STM32_PINMUX('C', 12, AF12)>,
-						 <STM32_PINMUX('D', 2, AF12)>;
+					pinmux = <STM32_PINMUX('C', 8, AF12)>, /* SDIO_D0 */
+						 <STM32_PINMUX('C', 9, AF12)>, /* SDIO_D1 */
+						 <STM32_PINMUX('C', 10, AF12)>, /* SDIO_D2 */
+						 <STM32_PINMUX('C', 11, AF12)>, /* SDIO_D3 */
+						 <STM32_PINMUX('C', 12, AF12)>, /* SDIO_CK */
+						 <STM32_PINMUX('D', 2, AF12)>; /* SDIO_CMD */
 					drive-push-pull;
 					slew-rate = <2>;
 				};
@@ -355,17 +354,17 @@
 
 			sdio_pins_od: sdio_pins_od@0 {
 				pins1 {
-					pinmux = <STM32_PINMUX('C', 8, AF12)>,
-						 <STM32_PINMUX('C', 9, AF12)>,
-						 <STM32_PINMUX('C', 10, AF12)>,
-						 <STM32_PINMUX('C', 11, AF12)>,
-						 <STM32_PINMUX('C', 12, AF12)>;
+					pinmux = <STM32_PINMUX('C', 8, AF12)>, /* SDIO_D0 */
+						 <STM32_PINMUX('C', 9, AF12)>, /* SDIO_D1 */
+						 <STM32_PINMUX('C', 10, AF12)>, /* SDIO_D2 */
+						 <STM32_PINMUX('C', 11, AF12)>, /* SDIO_D3 */
+						 <STM32_PINMUX('C', 12, AF12)>; /* SDIO_CK */
 					drive-push-pull;
 					slew-rate = <2>;
 				};
 
 				pins2 {
-					pinmux = <STM32_PINMUX('D', 2, AF12)>;
+					pinmux = <STM32_PINMUX('D', 2, AF12)>; /* SDIO_CMD */
 					drive-open-drain;
 					slew-rate = <2>;
 				};

@@ -71,23 +71,11 @@
 	u-boot,dm-pre-reloc;
 };
 
-&clk_lse {
-	u-boot,dm-pre-reloc;
-};
-
 &clk_i2s_ckin {
 	u-boot,dm-pre-reloc;
 };
 
-&pwrcfg {
-	u-boot,dm-pre-reloc;
-};
-
-&syscfg {
-	u-boot,dm-pre-reloc;
-};
-
-&rcc {
+&clk_lse {
 	u-boot,dm-pre-reloc;
 };
 
@@ -147,16 +135,6 @@
 };
 
 &pinctrl {
-	usart3_pins_a: usart3@0	{
-		u-boot,dm-pre-reloc;
-		pins1 {
-			u-boot,dm-pre-reloc;
-		};
-		pins2 {
-			u-boot,dm-pre-reloc;
-		};
-	};
-
 	fmc_pins_d32: fmc_d32@0 {
 		u-boot,dm-pre-reloc;
 		pins
@@ -226,4 +204,26 @@
 			u-boot,dm-pre-reloc;
 		};
 	};
+
+	usart3_pins_a: usart3@0	{
+		u-boot,dm-pre-reloc;
+		pins1 {
+			u-boot,dm-pre-reloc;
+		};
+		pins2 {
+			u-boot,dm-pre-reloc;
+		};
+	};
+};
+
+&pwrcfg {
+	u-boot,dm-pre-reloc;
+};
+
+&rcc {
+	u-boot,dm-pre-reloc;
+};
+
+&syscfg {
+	u-boot,dm-pre-reloc;
 };

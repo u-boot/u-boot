@@ -43,14 +43,20 @@
 
 #define CONFIG_SYS_MALLOC_LEN		(1 * 1024 * 1024)
 
-#define CONFIG_BOOTCOMMAND						\
-	"run bootcmd_romfs"
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0)
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"bootargs_romfs=uclinux.physaddr=0x08180000 root=/dev/mtdblock0\0" \
-	"bootcmd_romfs=setenv bootargs ${bootargs} ${bootargs_romfs};" \
-	"bootm 0x08044000 - 0x08042000\0"
-
+#include <config_distro_bootcmd.h>
+#define CONFIG_EXTRA_ENV_SETTINGS				\
+			"kernel_addr_r=0xC0008000\0"		\
+			"fdtfile=stm32f746-disco.dtb\0"	\
+			"fdt_addr_r=0xC0500000\0"		\
+			"scriptaddr=0xC0008000\0"		\
+			"pxefile_addr_r=0xC0008000\0" \
+			"fdt_high=0xffffffffffffffff\0"		\
+			"initrd_high=0xffffffffffffffff\0"	\
+			"ramdisk_addr_r=0xD0900000\0"		\
+			BOOTENV
 
 /*
  * Command line configuration.
