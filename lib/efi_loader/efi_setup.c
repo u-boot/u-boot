@@ -79,6 +79,7 @@ out:
  */
 efi_status_t efi_init_obj_list(void)
 {
+	u64 os_indications_supported = 0; /* None */
 	efi_status_t ret = EFI_SUCCESS;
 
 	/* Initialize once only */
@@ -87,6 +88,16 @@ efi_status_t efi_init_obj_list(void)
 
 	/* Define supported languages */
 	ret = efi_init_platform_lang();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
+	/* Indicate supported features */
+	ret = EFI_CALL(efi_set_variable(L"OsIndicationsSupported",
+					&efi_global_variable_guid,
+					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					EFI_VARIABLE_RUNTIME_ACCESS,
+					sizeof(os_indications_supported),
+					&os_indications_supported));
 	if (ret != EFI_SUCCESS)
 		goto out;
 

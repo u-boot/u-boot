@@ -303,10 +303,6 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	/* we don't support much: */
-	env_set("efi_8be4df61-93ca-11d2-aa0d-00e098032b8c_OsIndicationsSupported",
-		"{ro,boot}(blob)0000000000000000");
-
 	/* Call our payload! */
 	ret = EFI_CALL(efi_start_image(handle, NULL, NULL));
 
