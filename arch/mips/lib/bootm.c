@@ -247,6 +247,8 @@ int arch_fixup_fdt(void *blob)
 
 static int boot_setup_fdt(bootm_headers_t *images)
 {
+	images->initrd_start = virt_to_phys((void *)images->initrd_start);
+	images->initrd_end = virt_to_phys((void *)images->initrd_end);
 	return image_setup_libfdt(images, images->ft_addr, images->ft_len,
 		&images->lmb);
 }
