@@ -722,11 +722,6 @@ int fdt_increase_size(void *fdt, int add_len)
 #include <jffs2/load_kernel.h>
 #include <mtd_node.h>
 
-struct reg_cell {
-	unsigned int r0;
-	unsigned int r1;
-};
-
 static int fdt_del_subnodes(const void *blob, int parent_offset)
 {
 	int off, ndepth;
@@ -785,14 +780,21 @@ int fdt_node_set_part_info(void *blob, int parent_offset,
 {
 	struct list_head *pentry;
 	struct part_info *part;
-	struct reg_cell cell;
 	int off, ndepth = 0;
 	int part_num, ret;
+	int sizecell;
 	char buf[64];
 
 	ret = fdt_del_partitions(blob, parent_offset);
 	if (ret < 0)
 		return ret;
+
+	/*
+	 * Check if size/address is 1 or 2 cells.
+	 * We assume #address-cells and #size-cells have same value.
+	 */
+	sizecell = fdt_getprop_u32_default_node(blob, parent_offset,
+						0, "#size-cells", 1);
 
 	/*
 	 * Check if it is nand {}; subnode, adjust
@@ -842,10 +844,21 @@ add_ro:
 				goto err_prop;
 		}
 
-		cell.r0 = cpu_to_fdt32(part->offset);
-		cell.r1 = cpu_to_fdt32(part->size);
 add_reg:
-		ret = fdt_setprop(blob, newoff, "reg", &cell, sizeof(cell));
+		if (sizecell == 2) {
+			ret = fdt_setprop_u64(blob, newoff,
+					      "reg", part->offset);
+			if (!ret)
+				ret = fdt_appendprop_u64(blob, newoff,
+							 "reg", part->size);
+		} else {
+			ret = fdt_setprop_u32(blob, newoff,
+					      "reg", part->offset);
+			if (!ret)
+				ret = fdt_appendprop_u32(blob, newoff,
+							 "reg", part->size);
+		}
+
 		if (ret == -FDT_ERR_NOSPACE) {
 			ret = fdt_increase_size(blob, 512);
 			if (!ret)
