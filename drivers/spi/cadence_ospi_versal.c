@@ -41,7 +41,7 @@ void cadence_qspi_apb_dma_read(struct cadence_spi_platdata *plat,
 	writel(CQSPI_DFLT_DMA_PERIPH_CFG,
 	       plat->regbase + CQSPI_REG_DMA_PERIPH_CFG);
 	writel((unsigned long)rxbuf, plat->regbase + CQSPI_DMA_DST_ADDR_REG);
-	writel(0x0, plat->regbase + CQSPI_DMA_SRC_RD_ADDR_REG);
+	writel(plat->trigger_address, plat->regbase + CQSPI_DMA_SRC_RD_ADDR_REG);
 	writel(roundup(n_rx, 4), plat->regbase + CQSPI_DMA_DST_SIZE_REG);
 	flush_dcache_range((unsigned long)rxbuf, (unsigned long)rxbuf + n_rx);
 	writel(CQSPI_DFLT_DST_CTRL_REG_VAL,

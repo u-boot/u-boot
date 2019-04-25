@@ -393,7 +393,7 @@ static int spi_flash_ready(struct spi_flash *flash)
 	return sr && fsr;
 }
 
-static int spi_flash_wait_till_ready(struct spi_flash *flash,
+int spi_flash_wait_till_ready(struct spi_flash *flash,
 				     unsigned long timeout)
 {
 	unsigned long timebase;
