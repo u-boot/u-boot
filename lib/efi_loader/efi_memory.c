@@ -452,7 +452,7 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 	uint64_t r = 0;
 
 	/* Sanity check */
-	if (!memory || (memory & EFI_PAGE_MASK)) {
+	if (!memory || (memory & EFI_PAGE_MASK) || !pages) {
 		printf("%s: illegal free 0x%llx, 0x%zx\n", __func__,
 		       memory, pages);
 		return EFI_INVALID_PARAMETER;
