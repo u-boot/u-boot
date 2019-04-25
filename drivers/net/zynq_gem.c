@@ -26,8 +26,6 @@
 #include <asm/arch/sys_proto.h>
 #include <linux/errno.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* Bit/mask specification */
 #define ZYNQ_GEM_PHYMNTNC_OP_MASK	0x40020000 /* operation mask bits */
 #define ZYNQ_GEM_PHYMNTNC_OP_R_MASK	0x20000000 /* read operation */
