@@ -18,7 +18,6 @@ DECLARE_GLOBAL_DATA_PTR;
 void spl_board_init(void)
 {
 	struct udevice *dev;
-	int offset;
 
 	uclass_find_first_device(UCLASS_MISC, &dev);
 
