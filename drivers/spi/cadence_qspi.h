@@ -58,7 +58,7 @@ void cadence_qspi_apb_controller_disable(void *reg_base_addr);
 
 int cadence_qspi_apb_command_read(void *reg_base_addr,
 	unsigned int cmdlen, const u8 *cmdbuf, unsigned int rxlen, u8 *rxbuf);
-int cadence_qspi_apb_command_write(struct cadence_spi_platdata *plat,
+int cadence_qspi_apb_command_write(struct udevice *dev,
 				   unsigned int cmdlen, const u8 *cmdbuf,
 				   unsigned int txlen,  const u8 *txbuf);
 

@@ -271,7 +271,7 @@ static int cadence_spi_xfer(struct udevice *dev, unsigned int bitlen,
 
 		break;
 		case CQSPI_STIG_WRITE:
-			err = cadence_qspi_apb_command_write(plat,
+			err = cadence_qspi_apb_command_write(dev,
 							     priv->cmd_len,
 							     cmd_buf,
 							     data_bytes, dout);

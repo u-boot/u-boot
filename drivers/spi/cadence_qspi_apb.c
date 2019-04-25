@@ -30,8 +30,10 @@
 #include <linux/errno.h>
 #include <wait_bit.h>
 #include <spi.h>
+#include <spi_flash.h>
 #include <malloc.h>
 #include "cadence_qspi.h"
+#include <dm.h>
 
 #define CQSPI_REG_POLL_US			1 /* 1us */
 #define CQSPI_REG_RETRY				10000
@@ -518,10 +520,12 @@ int cadence_qspi_apb_command_read(void *reg_base,
 }
 
 /* For commands: WRSR, WREN, WRDI, CHIP_ERASE, BE, etc. */
-int cadence_qspi_apb_command_write(struct cadence_spi_platdata *plat,
-				   unsigned int cmdlen, const u8 *cmdbuf,
+int cadence_qspi_apb_command_write(struct udevice *dev,
+				   unsigned int cmdlen, const u8 *cmd,
 				   unsigned int txlen,  const u8 *txbuf)
 {
+	struct udevice *bus = (struct udevice *) dev->parent;
+	struct cadence_spi_platdata *plat = bus->platdata;
 	void *reg_base = plat->regbase;
 	unsigned int reg = 0;
 	unsigned int addr_value = 0;
@@ -530,7 +534,11 @@ int cadence_qspi_apb_command_write(struct cadence_spi_platdata *plat,
 	bool pageprgm = false;
 	unsigned int pgmlen = 0;
 	int ret;
+	struct spi_flash *flash;
+	u8 cmdbuf[32];
 
+	memcpy(cmdbuf, cmd, cmdlen);
+	flash = dev_get_uclass_priv(dev);
 	if (!cmdlen || cmdlen > 5 || cmdbuf == NULL) {
 		printf("QSPI: Invalid input arguments cmdlen %d txlen %d\n",
 		       cmdlen, txlen);
@@ -594,6 +602,12 @@ int cadence_qspi_apb_command_write(struct cadence_spi_platdata *plat,
 	if (ret)
 		return ret;
 
+	ret = spi_flash_wait_till_ready(flash, 20000);
+	if (ret < 0) {
+		printf("%s: Program timeout\n", __func__);
+		return ret;
+	}
+
 	while (pgmlen) {
 		reg = 0x6 << CQSPI_REG_CMDCTRL_OPCODE_LSB;
 		ret = cadence_qspi_apb_exec_flash_cmd(reg_base, reg);
@@ -630,6 +644,13 @@ int cadence_qspi_apb_command_write(struct cadence_spi_platdata *plat,
 		ret =  cadence_qspi_apb_exec_flash_cmd(reg_base, reg);
 		if (ret)
 			return ret;
+
+		ret = spi_flash_wait_till_ready(flash, 20000);
+		if (ret < 0) {
+			printf("%s: Program timeout\n", __func__);
+			return ret;
+		}
+
 	}
 
 	return 0;
