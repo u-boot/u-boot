@@ -618,7 +618,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	}
 
 	if ((type & (EVT_NOTIFY_WAIT | EVT_NOTIFY_SIGNAL)) &&
-	    (is_valid_tpl(notify_tpl) != EFI_SUCCESS))
+	    (!notify_function || is_valid_tpl(notify_tpl) != EFI_SUCCESS))
 		return EFI_INVALID_PARAMETER;
 
 	evt = calloc(1, sizeof(struct efi_event));
