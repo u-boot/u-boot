@@ -55,7 +55,7 @@ config WDT
 	help
 	  Enable driver model for watchdog timer. At the moment the API
 	  is very simple and only supports four operations:
-	  start, restart, stop and reset (expire immediately).
+	  start, stop, reset and expire_now (expire immediately).
 	  What exactly happens when the timer expires is up to a particular
 	  device/driver.
 
