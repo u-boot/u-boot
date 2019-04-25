@@ -177,6 +177,7 @@
 };
 
 &qspi {
+	reg = <0xA0001000 0x1000>, <0x90000000 0x4000000>;
 	qflash0: n25q512a {
 		#address-cells = <1>;
 		#size-cells = <1>;
