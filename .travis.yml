@@ -235,9 +235,9 @@ matrix:
       env:
         - BUILDMAN="sandbox x86"
           TOOLCHAIN="i386"
-    - name: "buildman kirkwood (excluding openrd)"
+    - name: "buildman kirkwood"
       env:
-        - BUILDMAN="kirkwood -x openrd"
+        - BUILDMAN="kirkwood"
     - name: "buildman mvebu"
       env:
         - BUILDMAN="mvebu"
