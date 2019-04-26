@@ -546,7 +546,7 @@ fdt_addr_t ofnode_get_addr_size(ofnode node, const char *property,
 		ns = of_n_size_cells(np);
 		*sizep = of_read_number(prop + na, ns);
 
-		if (IS_ENABLED(CONFIG_OF_TRANSLATE) && ns > 0)
+		if (CONFIG_IS_ENABLED(OF_TRANSLATE) && ns > 0)
 			return of_translate_address(np, prop);
 		else
 			return of_read_number(prop, na);
