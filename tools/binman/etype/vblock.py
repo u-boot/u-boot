@@ -18,6 +18,7 @@ class Entry_vblock(Entry):
     """An entry which contains a Chromium OS verified boot block
 
     Properties / Entry arguments:
+        - content: List of phandles to entries to sign
         - keydir: Directory containing the public keys to use
         - keyblock: Name of the key file to use (inside keydir)
         - signprivate: Name of provide key file to use (inside keydir)
