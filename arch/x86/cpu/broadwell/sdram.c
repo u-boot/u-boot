@@ -204,16 +204,18 @@ int dram_init(void)
 
 	/* Print ME state before MRC */
 	ret = syscon_get_by_driver_data(X86_SYSCON_ME, &me_dev);
-	if (ret)
+	if (ret) {
+		debug("Cannot get ME (err=%d)\n", ret);
 		return ret;
+	}
 	intel_me_status(me_dev);
 
 	/* Save ME HSIO version */
-	ret = uclass_first_device(UCLASS_PCH, &pch_dev);
-	if (ret)
+	ret = uclass_first_device_err(UCLASS_PCH, &pch_dev);
+	if (ret) {
+		debug("Cannot get PCH (err=%d)\n", ret);
 		return ret;
-	if (!pch_dev)
-		return -ENODEV;
+	}
 	power_state_get(pch_dev, &ps);
 
 	intel_me_hsio_version(me_dev, &ps.hsio_version, &ps.hsio_checksum);
@@ -221,15 +223,17 @@ int dram_init(void)
 	broadwell_fill_pei_data(pei_data);
 	mainboard_fill_pei_data(pei_data);
 
-	ret = uclass_first_device(UCLASS_NORTHBRIDGE, &dev);
-	if (ret)
+	ret = uclass_first_device_err(UCLASS_NORTHBRIDGE, &dev);
+	if (ret) {
+		debug("Cannot get Northbridge (err=%d)\n", ret);
 		return ret;
-	if (!dev)
-		return -ENODEV;
+	}
 	size = 256;
 	ret = mrc_locate_spd(dev, size, &spd_data);
-	if (ret)
+	if (ret) {
+		debug("Cannot locate SPD (err=%d)\n", ret);
 		return ret;
+	}
 	memcpy(pei_data->spd_data[0][0], spd_data, size);
 	memcpy(pei_data->spd_data[1][0], spd_data, size);
 
@@ -239,13 +243,17 @@ int dram_init(void)
 
 	debug("PEI version %#x\n", pei_data->pei_version);
 	ret = mrc_common_init(dev, pei_data, true);
-	if (ret)
+	if (ret) {
+		debug("mrc_common_init() failed(err=%d)\n", ret);
 		return ret;
+	}
 	debug("Memory init done\n");
 
 	ret = sdram_find(dev);
-	if (ret)
+	if (ret) {
+		debug("sdram_find() failed (err=%d)\n", ret);
 		return ret;
+	}
 	gd->ram_size = gd->arch.meminfo.total_32bit_memory;
 	debug("RAM size %llx\n", (unsigned long long)gd->ram_size);
 
