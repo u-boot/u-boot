@@ -176,9 +176,16 @@ config X86_16BIT_INIT
 config SPL_X86_16BIT_INIT
 	bool
 	depends on X86_RESET_VECTOR
-	default y if X86_RESET_VECTOR && SPL
+	default y if X86_RESET_VECTOR && SPL && !TPL
 	help
 	  This is enabled when 16-bit init is in SPL
+
+config TPL_X86_16BIT_INIT
+	bool
+	depends on X86_RESET_VECTOR
+	default y if X86_RESET_VECTOR && TPL
+	help
+	  This is enabled when 16-bit init is in TPL
 
 config X86_32BIT_INIT
 	bool
