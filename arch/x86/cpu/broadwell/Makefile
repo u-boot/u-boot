@@ -4,6 +4,7 @@
 
 obj-y += adsp.o
 obj-y += cpu.o
+obj-y += cpu_full.o
 obj-y += iobp.o
 obj-y += lpc.o
 obj-y += me.o
