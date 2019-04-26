@@ -736,18 +736,18 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 	struct zynqmp_qspi_dma_regs *dma_regs = priv->dma_regs;
 
 	writel((unsigned long)buf, &dma_regs->dmadst);
-	writel(roundup(priv->len, ARCH_DMA_MINALIGN), &dma_regs->dmasize);
+	writel(roundup(priv->len, GQSPI_DMA_ALIGN), &dma_regs->dmasize);
 	writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
 	addr = (unsigned long)buf;
-	size = roundup(priv->len, ARCH_DMA_MINALIGN);
+	size = roundup(priv->len, GQSPI_DMA_ALIGN);
 	flush_dcache_range(addr, addr + size);
 
 	while (priv->len) {
 		len = zynqmp_qspi_calc_exp(priv, &gen_fifo_cmd);
 		if (!(gen_fifo_cmd & GQSPI_GFIFO_EXP_MASK) &&
-		    (len % ARCH_DMA_MINALIGN)) {
+		    (len % GQSPI_DMA_ALIGN)) {
 			gen_fifo_cmd &= ~GENMASK(7, 0);
-			gen_fifo_cmd |= roundup(len, ARCH_DMA_MINALIGN);
+			gen_fifo_cmd |= roundup(len, GQSPI_DMA_ALIGN);
 		}
 		zynqmp_qspi_fill_gen_fifo(priv, gen_fifo_cmd);
 
