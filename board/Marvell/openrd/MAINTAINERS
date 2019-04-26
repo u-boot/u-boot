@@ -1,6 +1,6 @@
 OPENRD / OPENRD_CLIENT BOARD
-#M:	Albert ARIBAUD <albert-u-boot@aribaud.net>
-S:	Orphaned (Since 2018-09)
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
 F:	board/Marvell/openrd/
 F:	include/configs/openrd.h
 F:	configs/openrd_base_defconfig

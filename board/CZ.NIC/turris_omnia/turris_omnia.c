@@ -32,13 +32,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define OMNIA_I2C_EEPROM_DM_NAME	"i2c@0"
+#define OMNIA_I2C_EEPROM_DM_NAME	"i2c@11000->i2cmux@70->i2c@0"
 #define OMNIA_I2C_EEPROM		0x54
 #define OMNIA_I2C_EEPROM_CONFIG_ADDR	0x0
 #define OMNIA_I2C_EEPROM_ADDRLEN	2
 #define OMNIA_I2C_EEPROM_MAGIC		0x0341a034
 
-#define OMNIA_I2C_MCU_DM_NAME		"i2c@0"
+#define OMNIA_I2C_MCU_DM_NAME		"i2c@11000->i2cmux@70->i2c@0"
 #define OMNIA_I2C_MCU_ADDR_STATUS	0x1
 #define OMNIA_I2C_MCU_SATA		0x20
 #define OMNIA_I2C_MCU_CARDDET		0x10
@@ -364,25 +364,12 @@ static bool disable_mcu_watchdog(void)
 }
 #endif
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT_ORION)
-static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
-#endif
-
 int board_init(void)
 {
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 #ifndef CONFIG_SPL_BUILD
-# ifdef CONFIG_WDT_ORION
-	if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
-		puts("Cannot find Armada 385 watchdog!\n");
-	} else {
-		puts("Enabling Armada 385 watchdog.\n");
-		wdt_start(watchdog_dev, 120000, 0);
-	}
-# endif
-
 	if (disable_mcu_watchdog())
 		puts("Disabled MCU startup watchdog.\n");
 
@@ -391,28 +378,6 @@ int board_init(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_WATCHDOG
-/* Called by macro WATCHDOG_RESET */
-void watchdog_reset(void)
-{
-# if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_WDT_ORION)
-	static ulong next_reset = 0;
-	ulong now;
-
-	if (!watchdog_dev)
-		return;
-
-	now = timer_get_us();
-
-	/* Do not reset the watchdog too often */
-	if (now > next_reset) {
-		wdt_reset(watchdog_dev);
-		next_reset = now + 1000;
-	}
-# endif
-}
-#endif
 
 int board_late_init(void)
 {

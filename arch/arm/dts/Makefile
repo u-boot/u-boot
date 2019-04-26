@@ -37,6 +37,8 @@ dtb-$(CONFIG_KIRKWOOD) += \
 	kirkwood-atl-sbx81lifxcat.dtb \
 	kirkwood-blackarmor-nas220.dtb \
 	kirkwood-d2net.dtb \
+	kirkwood-db-88f6281.dtb \
+	kirkwood-db-88f6281-spi.dtb \
 	kirkwood-dns325.dtb \
 	kirkwood-dockstar.dtb \
 	kirkwood-dreamplug.dtb \
@@ -54,6 +56,9 @@ dtb-$(CONFIG_KIRKWOOD) += \
 	kirkwood-ns2lite.dtb \
 	kirkwood-ns2max.dtb \
 	kirkwood-ns2mini.dtb \
+	kirkwood-openrd-base.dtb \
+	kirkwood-openrd-client.dtb \
+	kirkwood-openrd-ultimate.dtb \
 	kirkwood-pogo_e02.dtb \
 	kirkwood-sheevaplug.dtb
 

@@ -69,28 +69,6 @@ int print_cpuinfo(void)
 	return 0;
 }
 
-#ifdef CONFIG_WATCHDOG
-static struct udevice *watchdog_dev __attribute__((section(".data"))) = NULL;
-
-/* Called by macro WATCHDOG_RESET */
-void watchdog_reset(void)
-{
-	static ulong next_reset;
-	ulong now;
-
-	if (!watchdog_dev)
-		return;
-
-	now = get_timer(0);
-
-	/* Do not reset the watchdog too often */
-	if (now > next_reset) {
-		next_reset = now + 1000;	/* reset every 1000ms */
-		wdt_reset(watchdog_dev);
-	}
-}
-#endif
-
 int arch_misc_init(void)
 {
 	/*
@@ -102,20 +80,6 @@ int arch_misc_init(void)
 	 */
 	flush_dcache_range(gd->bd->bi_memstart,
 			   gd->bd->bi_memstart + gd->ram_size - 1);
-
-#ifdef CONFIG_WATCHDOG
-	/* Init watchdog */
-	if (uclass_get_device_by_seq(UCLASS_WDT, 0, &watchdog_dev)) {
-		debug("Watchdog: Not found by seq!\n");
-		if (uclass_get_device(UCLASS_WDT, 0, &watchdog_dev)) {
-			puts("Watchdog: Not found!\n");
-			return 0;
-		}
-	}
-
-	wdt_start(watchdog_dev, 60000, 0);	/* 60 seconds */
-	printf("Watchdog: Started\n");
-#endif
 
 	return 0;
 }

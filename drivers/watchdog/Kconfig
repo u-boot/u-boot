@@ -51,6 +51,7 @@ config ULP_WATCHDOG
 config WDT
 	bool "Enable driver model for watchdog timer drivers"
 	depends on DM
+	imply WATCHDOG
 	help
 	  Enable driver model for watchdog timer. At the moment the API
 	  is very simple and only supports four operations:
@@ -150,7 +151,6 @@ config WDT_MT7621
 config WDT_MPC8xx
 	bool "MPC8xx watchdog timer support"
 	depends on WDT && MPC8xx
-	select CONFIG_MPC8xx_WATCHDOG
 	help
 	   Select this to enable mpc8xx watchdog timer
 

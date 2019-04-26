@@ -10,6 +10,8 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	const struct wdt_ops *ops = device_get_ops(dev);
@@ -62,6 +64,30 @@ int wdt_expire_now(struct udevice *dev, ulong flags)
 
 	return ret;
 }
+
+#if defined(CONFIG_WATCHDOG)
+/*
+ * Called by macro WATCHDOG_RESET. This function be called *very* early,
+ * so we need to make sure, that the watchdog driver is ready before using
+ * it in this function.
+ */
+void watchdog_reset(void)
+{
+	static ulong next_reset;
+	ulong now;
+
+	/* Exit if GD is not ready or watchdog is not initialized yet */
+	if (!gd || !(gd->flags & GD_FLG_WDT_READY))
+		return;
+
+	/* Do not reset the watchdog too often */
+	now = get_timer(0);
+	if (now > next_reset) {
+		next_reset = now + 1000;	/* reset every 1000ms */
+		wdt_reset(gd->watchdog_dev);
+	}
+}
+#endif
 
 static int wdt_post_bind(struct udevice *dev)
 {
