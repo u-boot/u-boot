@@ -306,7 +306,7 @@ int dm_pci_run_vga_bios(struct udevice *dev, int (*int15_handler)(void),
 			goto err;
 #endif
 	} else {
-#if defined(CONFIG_X86) && CONFIG_IS_ENABLED(X86_32BIT_INIT)
+#if defined(CONFIG_X86) && (CONFIG_IS_ENABLED(X86_32BIT_INIT) || CONFIG_TPL)
 		bios_set_interrupt_handler(0x15, int15_handler);
 
 		bios_run_on_x86(dev, (unsigned long)ram, vesa_mode,
