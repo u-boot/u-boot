@@ -532,10 +532,10 @@ static int zynqmp_qspi_start_dma(struct zynqmp_qspi_priv *priv,
 	struct zynqmp_qspi_dma_regs *dma_regs = priv->dma_regs;
 
 	writel((unsigned long)buf, &dma_regs->dmadst);
-	writel(roundup(priv->len, ARCH_DMA_MINALIGN), &dma_regs->dmasize);
+	writel(roundup(priv->len, GQSPI_DMA_ALIGN), &dma_regs->dmasize);
 	writel(GQSPI_DMA_DST_I_STS_MASK, &dma_regs->dmaier);
 	addr = (unsigned long)buf;
-	size = roundup(priv->len, ARCH_DMA_MINALIGN);
+	size = roundup(priv->len, GQSPI_DMA_ALIGN);
 	flush_dcache_range(addr, addr + size);
 
 	while (priv->len) {
