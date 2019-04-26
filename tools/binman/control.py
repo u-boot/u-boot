@@ -133,8 +133,8 @@ def Binman(options, args):
                     if name not in options.image:
                         del images[name]
                         skip.append(name)
-                if skip:
-                    print 'Skipping images: %s\n' % ', '.join(skip)
+                if skip and options.verbosity >= 2:
+                    print 'Skipping images: %s' % ', '.join(skip)
 
             state.Prepare(images, dtb)
 

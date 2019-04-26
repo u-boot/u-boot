@@ -187,7 +187,8 @@ class TestFunctional(unittest.TestCase):
         return control.Binman(options, args)
 
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
-                    entry_args=None, images=None, use_real_dtb=False):
+                    entry_args=None, images=None, use_real_dtb=False,
+                    verbosity=None):
         """Run binman with a given test file
 
         Args:
@@ -210,6 +211,8 @@ class TestFunctional(unittest.TestCase):
             args.append('-up')
         if not use_real_dtb:
             args.append('--fake-dtb')
+        if verbosity is not None:
+            args.append('-v%d' % verbosity)
         if entry_args:
             for arg, value in entry_args.iteritems():
                 args.append('-a%s=%s' % (arg, value))
@@ -1459,13 +1462,22 @@ class TestFunctional(unittest.TestCase):
 
     def testSelectImage(self):
         """Test that we can select which images to build"""
-        with test_util.capture_sys_output() as (stdout, stderr):
-            retcode = self._DoTestFile('006_dual_image.dts', images=['image2'])
-        self.assertEqual(0, retcode)
-        self.assertIn('Skipping images: image1', stdout.getvalue())
+        expected = 'Skipping images: image1'
 
-        self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
-        self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
+        # We should only get the expected message in verbose mode
+        for verbosity in (None, 2):
+            with test_util.capture_sys_output() as (stdout, stderr):
+                retcode = self._DoTestFile('006_dual_image.dts',
+                                           verbosity=verbosity,
+                                           images=['image2'])
+            self.assertEqual(0, retcode)
+            if verbosity:
+                self.assertIn(expected, stdout.getvalue())
+            else:
+                self.assertNotIn(expected, stdout.getvalue())
+
+            self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
+            self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
 
     def testUpdateFdtAll(self):
         """Test that all device trees are updated with offset/size info"""
