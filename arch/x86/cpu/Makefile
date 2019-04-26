@@ -9,9 +9,22 @@
 ifeq ($(CONFIG_$(SPL_)X86_64),y)
 extra-y	= start64.o
 else
+ifeq ($(CONFIG_$(SPL_TPL_)X86_16BIT_INIT),y)
 extra-y	= start.o
+else
+ifndef CONFIG_SPL
+extra-y	= start.o
+else
+ifdef CONFIG_SPL_BUILD
+extra-y	= start_from_tpl.o
+else
+extra-y	= start_from_spl.o
 endif
-extra-$(CONFIG_$(SPL_)X86_16BIT_INIT) += resetvec.o start16.o
+endif
+endif
+endif
+
+extra-$(CONFIG_$(SPL_TPL_)X86_16BIT_INIT) += resetvec.o start16.o
 
 obj-y	+= cpu.o cpu_x86.o
 
