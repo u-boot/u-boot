@@ -13,7 +13,27 @@ extern char gdt_rom[];
 
 /* cpu/.../cpu.c */
 int arch_cpu_init(void);
+
+/**
+ * x86_cpu_init_f() - Set up basic features of the x86 CPU
+ *
+ * 0 on success, -ve on error
+ */
 int x86_cpu_init_f(void);
+
+/**
+ * x86_cpu_reinit_f() - Set up the CPU a second time
+ *
+ * Once cpu_init_f() has been called (e.g. in SPL) we should not call it
+ * again (e.g. in U-Boot proper) since it sets up the state from scratch.
+ * Call this function in later phases of U-Boot instead. It reads the CPU
+ * identify so that CPU functions can be used correctly, but does not change
+ * anything.
+ *
+ * @return 0 (indicating success, to mimic cpu_init_f())
+ */
+int x86_cpu_reinit_f(void);
+
 int cpu_init_f(void);
 void setup_gdt(struct global_data *id, u64 *gdt_addr);
 /*
