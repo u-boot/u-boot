@@ -14,3 +14,9 @@ ifndef CONFIG_TARGET_EFI_APP
 obj-y += microcode.o
 endif
 obj-y += pch.o
+
+ifdef CONFIG_SPL
+ifndef CONFIG_SPL_BUILD
+obj-y += cpu_from_spl.o
+endif
+endif
