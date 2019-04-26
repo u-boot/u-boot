@@ -194,17 +194,6 @@ int misc_init_r(void)
 	return 0;
 }
 
-void board_debug_uart_init(void)
-{
-	struct udevice *bus = NULL;
-
-	/* com1 / com2 decode range */
-	pci_x86_write_config(bus, PCH_DEV_LPC, LPC_IO_DEC, 1 << 4, PCI_SIZE_16);
-
-	pci_x86_write_config(bus, PCH_DEV_LPC, LPC_EN, COMA_LPC_EN,
-			     PCI_SIZE_16);
-}
-
 static const struct udevice_id broadwell_syscon_ids[] = {
 	{ .compatible = "intel,me", .data = X86_SYSCON_ME },
 	{ }

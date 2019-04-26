@@ -12,7 +12,9 @@
 #include <asm/cpu_x86.h>
 #include <asm/cpu_common.h>
 #include <asm/intel_regs.h>
+#include <asm/lpc_common.h>
 #include <asm/msr.h>
+#include <asm/pci.h>
 #include <asm/post.h>
 #include <asm/turbo.h>
 #include <asm/arch/cpu.h>
@@ -154,6 +156,17 @@ int print_cpuinfo(void)
 	printf("CPU:   %s\n", name);
 
 	return 0;
+}
+
+void board_debug_uart_init(void)
+{
+	struct udevice *bus = NULL;
+
+	/* com1 / com2 decode range */
+	pci_x86_write_config(bus, PCH_DEV_LPC, LPC_IO_DEC, 1 << 4, PCI_SIZE_16);
+
+	pci_x86_write_config(bus, PCH_DEV_LPC, LPC_EN, COMA_LPC_EN,
+			     PCI_SIZE_16);
 }
 
 /*
