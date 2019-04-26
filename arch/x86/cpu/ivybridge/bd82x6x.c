@@ -229,6 +229,21 @@ static int bd82x6x_ioctl(struct udevice *dev, enum pch_req_t req, void *data,
 			return -ENOENT;
 
 		return val & RCBA_AUDIO_CONFIG_MASK;
+	case PCH_REQ_PMBASE_INFO: {
+		struct pch_pmbase_info *pm = data;
+		int ret;
+
+		/* Find the base address of the powermanagement registers */
+		ret = dm_pci_read_config16(dev, 0x40, &pm->base);
+		if (ret)
+			return ret;
+		pm->base &= 0xfffe;
+		pm->gpio0_en_ofs = GPE0_EN;
+		pm->pm1_sts_ofs = PM1_STS;
+		pm->pm1_cnt_ofs = PM1_CNT;
+
+		return 0;
+	}
 	default:
 		return -ENOSYS;
 	}
