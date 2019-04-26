@@ -113,8 +113,10 @@ int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 	ulong base_addr;
 	int ret;
 
-	if (!is_mrc_cache(cur))
+	if (!is_mrc_cache(cur)) {
+		debug("%s: Cache data not valid\n", __func__);
 		return -EINVAL;
+	}
 
 	/* Find the last used block */
 	base_addr = entry->base + entry->offset;
@@ -205,17 +207,23 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 		return -ENOENT;
 	}
 
-	if (fdtdec_get_int_array(blob, node, "memory-map", reg, 2))
+	if (fdtdec_get_int_array(blob, node, "memory-map", reg, 2)) {
+		debug("%s: Cannot find memory map\n", __func__);
 		return -EINVAL;
+	}
 	entry->base = reg[0];
 
 	/* Find the place where we put the MRC cache */
 	mrc_node = fdt_subnode_offset(blob, node, "rw-mrc-cache");
-	if (mrc_node < 0)
+	if (mrc_node < 0) {
+		debug("%s: Cannot find node\n", __func__);
 		return -EPERM;
+	}
 
-	if (fdtdec_get_int_array(blob, mrc_node, "reg", reg, 2))
+	if (fdtdec_get_int_array(blob, mrc_node, "reg", reg, 2)) {
+		debug("%s: Cannot find address\n", __func__);
 		return -EINVAL;
+	}
 	entry->offset = reg[0];
 	entry->length = reg[1];
 
