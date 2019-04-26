@@ -5,6 +5,21 @@
 obj-y += adsp.o
 obj-y += cpu.o
 obj-y += cpu_full.o
+
+ifdef CONFIG_SPL
+ifndef CONFIG_SPL_BUILD
+obj-y += cpu_from_spl.o
+obj-y += cpu_full.o
+endif
+ifndef CONFIG_SPL_BUILD
+# obj-y += cpu_from_spl.o
+endif
+endif
+
+ifeq ($(CONFIG_$(SPL_TPL_)X86_32BIT_INIT),)
+#obj-y += cpu_from_spl.o
+endif
+
 obj-y += iobp.o
 obj-y += lpc.o
 obj-y += me.o
