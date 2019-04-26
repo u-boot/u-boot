@@ -220,7 +220,7 @@
 
 /* Colibri USBC */
 &usbotg1 {
-	dr_mode = "otg";
+	dr_mode = "host";
 	srp-disable;
 	hnp-disable;
 	adp-disable;
