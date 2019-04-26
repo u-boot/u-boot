@@ -1783,6 +1783,24 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('100_intel_refcode.dts')
         self.assertEqual(REFCODE_DATA, data[:len(REFCODE_DATA)])
 
+    def testSectionOffset(self):
+        """Tests use of a section with an offset"""
+        data, _, map_data, _ = self._DoReadFileDtb('101_sections_offset.dts',
+                                                   map=True)
+        self.assertEqual('''ImagePos    Offset      Size  Name
+00000000  00000000  00000038  main-section
+00000004   00000004  00000010  section@0
+00000004    00000000  00000004  u-boot
+00000018   00000018  00000010  section@1
+00000018    00000000  00000004  u-boot
+0000002c   0000002c  00000004  section@2
+0000002c    00000000  00000004  u-boot
+''', map_data)
+        self.assertEqual(data,
+                         4 * chr(0x26) + U_BOOT_DATA + 12 * chr(0x21) +
+                         4 * chr(0x26) + U_BOOT_DATA + 12 * chr(0x61) +
+                         4 * chr(0x26) + U_BOOT_DATA + 8 * chr(0x26))
+
 
 if __name__ == "__main__":
     unittest.main()
