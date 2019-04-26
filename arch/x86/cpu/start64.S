@@ -2,7 +2,7 @@
 /*
  * 64-bit x86 Startup Code
  *
- * (C) Copyright 216 Google, Inc
+ * Copyright 2019 Google, Inc
  * Written by Simon Glass <sjg@chromium.org>
  */
 
