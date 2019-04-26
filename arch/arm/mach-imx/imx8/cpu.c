@@ -11,6 +11,7 @@
 #include <dm/lists.h>
 #include <dm/uclass.h>
 #include <errno.h>
+#include <thermal.h>
 #include <asm/arch/sci/sci.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch-imx/cpu.h>
@@ -573,15 +574,50 @@ const char *get_core_name(void)
 		return "?";
 }
 
+#if IS_ENABLED(CONFIG_IMX_SCU_THERMAL)
+static int cpu_imx_get_temp(void)
+{
+	struct udevice *thermal_dev;
+	int cpu_tmp, ret;
+
+	ret = uclass_get_device_by_name(UCLASS_THERMAL, "cpu-thermal0",
+					&thermal_dev);
+
+	if (!ret) {
+		ret = thermal_get_temp(thermal_dev, &cpu_tmp);
+		if (ret)
+			return 0xdeadbeef;
+	} else {
+		return 0xdeadbeef;
+	}
+
+	return cpu_tmp;
+}
+#else
+static int cpu_imx_get_temp(void)
+{
+	return 0;
+}
+#endif
+
 int cpu_imx_get_desc(struct udevice *dev, char *buf, int size)
 {
 	struct cpu_imx_platdata *plat = dev_get_platdata(dev);
+	int ret;
 
 	if (size < 100)
 		return -ENOSPC;
 
-	snprintf(buf, size, "NXP i.MX8%s Rev%s %s at %u MHz\n",
-		 plat->type, plat->rev, plat->name, plat->freq_mhz);
+	ret = snprintf(buf, size, "NXP i.MX8%s Rev%s %s at %u MHz",
+		       plat->type, plat->rev, plat->name, plat->freq_mhz);
+
+	if (IS_ENABLED(CONFIG_IMX_SCU_THERMAL)) {
+		buf = buf + ret;
+		size = size - ret;
+		ret = snprintf(buf, size, " at %dC", cpu_imx_get_temp());
+	}
+
+	snprintf(buf + ret, size - ret, "\n");
 
 	return 0;
 }
