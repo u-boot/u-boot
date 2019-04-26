@@ -228,7 +228,11 @@ ifeq ($(CONFIG_SYS_SOC),"at91")
 ALL-y	+= $(obj)/boot.bin
 endif
 
+ifdef CONFIG_TPL_BUILD
+ALL-$(CONFIG_TPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-16bit-tpl.bin
+else
 ALL-$(CONFIG_SPL_X86_16BIT_INIT) += $(obj)/u-boot-x86-16bit-spl.bin
+endif
 
 ALL-$(CONFIG_ARCH_ZYNQ)		+= $(obj)/boot.bin
 ALL-$(CONFIG_ARCH_ZYNQMP)	+= $(obj)/boot.bin
@@ -328,13 +332,17 @@ quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 
 OBJCOPYFLAGS_$(SPL_BIN)-nodtb.bin = $(SPL_OBJCFLAGS) -O binary \
-		$(if $(CONFIG_SPL_X86_16BIT_INIT),-R .start16 -R .resetvec)
+		$(if $(CONFIG_$(SPL_TPL_)X86_16BIT_INIT),-R .start16 -R .resetvec)
 
 $(obj)/$(SPL_BIN)-nodtb.bin: $(obj)/$(SPL_BIN) FORCE
 	$(call if_changed,objcopy)
 
 OBJCOPYFLAGS_u-boot-x86-16bit-spl.bin := -O binary -j .start16 -j .resetvec
 $(obj)/u-boot-x86-16bit-spl.bin: $(obj)/u-boot-spl FORCE
+	$(call if_changed,objcopy)
+
+OBJCOPYFLAGS_u-boot-x86-16bit-tpl.bin := -O binary -j .start16 -j .resetvec
+$(obj)/u-boot-x86-16bit-tpl.bin: $(obj)/u-boot-tpl FORCE
 	$(call if_changed,objcopy)
 
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)

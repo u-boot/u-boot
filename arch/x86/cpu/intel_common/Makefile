@@ -3,7 +3,7 @@
 # Copyright (c) 2016 Google, Inc
 
 ifdef CONFIG_HAVE_MRC
-obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += car.o
+obj-$(CONFIG_$(SPL_TPL_)X86_16BIT_INIT) += car.o
 obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += me_status.o
 obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += report_platform.o
 obj-$(CONFIG_$(SPL_)X86_32BIT_INIT) += mrc.o
