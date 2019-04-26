@@ -693,6 +693,17 @@ static void show_efi_boot_opt(int id)
 	free(data);
 }
 
+static int u16_tohex(u16 c)
+{
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+
+	/* not hexadecimal */
+	return -1;
+}
+
 /**
  * show_efi_boot_dump() - dump all UEFI load options
  *
@@ -709,38 +720,58 @@ static void show_efi_boot_opt(int id)
 static int do_efi_boot_dump(cmd_tbl_t *cmdtp, int flag,
 			    int argc, char * const argv[])
 {
-	char regex[256];
-	char * const regexlist[] = {regex};
-	char *variables = NULL, *boot, *value;
-	int len;
-	int id;
+	u16 *var_name16, *p;
+	efi_uintn_t buf_size, size;
+	efi_guid_t guid;
+	int id, i, digit;
+	efi_status_t ret;
 
 	if (argc > 1)
 		return CMD_RET_USAGE;
 
-	snprintf(regex, 256, "efi_.*-.*-.*-.*-.*_Boot[0-9A-F]+");
-
-	/* TODO: use GetNextVariableName? */
-	len = hexport_r(&env_htab, '\n', H_MATCH_REGEX | H_MATCH_KEY,
-			&variables, 0, 1, regexlist);
-
-	if (!len)
-		return CMD_RET_SUCCESS;
-
-	if (len < 0)
+	buf_size = 128;
+	var_name16 = malloc(buf_size);
+	if (!var_name16)
 		return CMD_RET_FAILURE;
 
-	boot = variables;
-	while (*boot) {
-		value = strstr(boot, "Boot") + 4;
-		id = (int)simple_strtoul(value, NULL, 16);
-		show_efi_boot_opt(id);
-		boot = strchr(boot, '\n');
-		if (!*boot)
+	var_name16[0] = 0;
+	for (;;) {
+		size = buf_size;
+		ret = EFI_CALL(efi_get_next_variable_name(&size, var_name16,
+							  &guid));
+		if (ret == EFI_NOT_FOUND)
 			break;
-		boot++;
+		if (ret == EFI_BUFFER_TOO_SMALL) {
+			buf_size = size;
+			p = realloc(var_name16, buf_size);
+			if (!p) {
+				free(var_name16);
+				return CMD_RET_FAILURE;
+			}
+			var_name16 = p;
+			ret = EFI_CALL(efi_get_next_variable_name(&size,
+								  var_name16,
+								  &guid));
+		}
+		if (ret != EFI_SUCCESS) {
+			free(var_name16);
+			return CMD_RET_FAILURE;
+		}
+
+		if (memcmp(var_name16, L"Boot", 8))
+			continue;
+
+		for (id = 0, i = 0; i < 4; i++) {
+			digit = u16_tohex(var_name16[4 + i]);
+			if (digit < 0)
+				break;
+			id = (id << 4) + digit;
+		}
+		if (i == 4 && !var_name16[8])
+			show_efi_boot_opt(id);
 	}
-	free(variables);
+
+	free(var_name16);
 
 	return CMD_RET_SUCCESS;
 }
