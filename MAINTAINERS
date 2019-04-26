@@ -90,6 +90,7 @@ F:	cmd/arm/
 
 ARM ALTERA SOCFPGA
 M:	Marek Vasut <marex@denx.de>
+M:	Simon Goldschmidt <simon.k.r.goldschmidt@gmail.com>
 S:	Maintainted
 T:	git git://git.denx.de/u-boot-socfpga.git
 F:	arch/arm/mach-socfpga/

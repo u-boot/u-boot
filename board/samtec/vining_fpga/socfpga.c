@@ -52,14 +52,7 @@ int misc_init_r(void)
 	u32 serial;
 	int ret;
 
-	/* EEPROM is at bus 0. */
-	ret = i2c_set_bus_num(0);
-	if (ret) {
-		puts("Cannot select EEPROM I2C bus.\n");
-		return 0;
-	}
-
-	/* EEPROM is at address 0x50. */
+	/* EEPROM is at address 0x50 (at bus CONFIG_SYS_EEPROM_BUS_NUM). */
 	ret = eeprom_read(0x50, 0, data, sizeof(data));
 	if (ret) {
 		puts("Cannot read I2C EEPROM.\n");

@@ -16,27 +16,9 @@
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
-/* I2C EEPROM */
-#ifdef CONFIG_CMD_EEPROM
-#define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
-#define CONFIG_SYS_I2C_EEPROM_BUS		0
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	70
-#endif
-
-/*
- * Status LEDs:
- *   0 ... Top Green
- *   1 ... Top Red
- *   2 ... Bottom Green
- *   3 ... Bottom Red
- */
-
 /* Ethernet on SoC (EMAC) */
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_BOOTP_SEND_HOSTNAME
-/* PHY */
 #endif
 
 /* Extra Environment */
