@@ -5,5 +5,6 @@ S:	Maintained
 F:	board/technexion/pico-imx6ul/
 F:	include/configs/pico-imx6ul.h
 F:	configs/pico-imx6ul_defconfig
+F:	configs/pico-dwarf-imx6ul_defconfig
 F:	configs/pico-hobbit-imx6ul_defconfig
 F:	configs/pico-pi-imx6ul_defconfig
