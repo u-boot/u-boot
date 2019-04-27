@@ -66,6 +66,8 @@ source "drivers/nvme/Kconfig"
 
 source "drivers/pci/Kconfig"
 
+source "drivers/pci_endpoint/Kconfig"
+
 source "drivers/pch/Kconfig"
 
 source "drivers/pcmcia/Kconfig"

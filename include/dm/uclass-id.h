@@ -69,6 +69,7 @@ enum uclass_id {
 	UCLASS_PANEL_BACKLIGHT,	/* Backlight controller for panel */
 	UCLASS_PCH,		/* x86 platform controller hub */
 	UCLASS_PCI,		/* PCI bus */
+	UCLASS_PCI_EP,		/* PCI endpoint device */
 	UCLASS_PCI_GENERIC,	/* Generic PCI bus device */
 	UCLASS_PHY,		/* Physical Layer (PHY) device */
 	UCLASS_PINCONFIG,	/* Pin configuration node device */
