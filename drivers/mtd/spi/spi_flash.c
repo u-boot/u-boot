@@ -1698,6 +1698,12 @@ int spi_flash_scan(struct spi_flash *flash)
 		flash->write_cmd = CMD_PAGE_PROGRAM;
 	}
 
+	if (spi->mode & SPI_RX_OCTAL && info->flags & RD_OCTAL &&
+	    flash->spi->bytemode) {
+		flash->read_cmd = CMD_READ_OCTAL_OUTPUT_FAST_4B;
+		flash->write_cmd = CMD_PAGE_PROGRAM_4B;
+		flash->erase_cmd = CMD_ERASE_64K_4B;
+	}
 
 	/* Set the quad enable bit - only for quad commands */
 	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||

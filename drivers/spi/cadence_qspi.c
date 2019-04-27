@@ -150,6 +150,15 @@ static int cadence_spi_set_speed(struct udevice *bus, uint hz)
 	return 0;
 }
 
+static int cadence_spi_child_pre_probe(struct udevice *bus)
+{
+	struct spi_slave *slave = dev_get_parent_priv(bus);
+
+	slave->bytemode = SPI_4BYTE_MODE;
+
+	return 0;
+}
+
 static int cadence_spi_probe(struct udevice *bus)
 {
 	struct cadence_spi_platdata *plat = bus->platdata;
@@ -345,4 +354,5 @@ U_BOOT_DRIVER(cadence_spi) = {
 	.platdata_auto_alloc_size = sizeof(struct cadence_spi_platdata),
 	.priv_auto_alloc_size = sizeof(struct cadence_spi_priv),
 	.probe = cadence_spi_probe,
+	.child_pre_probe = cadence_spi_child_pre_probe,
 };

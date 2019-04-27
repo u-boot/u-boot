@@ -45,10 +45,12 @@ enum spi_nor_option_flags {
 #define CMD_ERASE_4K			0x20
 #define CMD_ERASE_CHIP			0xc7
 #define CMD_ERASE_64K			0xd8
+#define CMD_ERASE_64K_4B		0xdc
 
 /* Write commands */
 #define CMD_WRITE_STATUS		0x01
 #define CMD_PAGE_PROGRAM		0x02
+#define CMD_PAGE_PROGRAM_4B		0x12
 #define CMD_WRITE_DISABLE		0x04
 #define CMD_WRITE_ENABLE		0x06
 #define CMD_QUAD_PAGE_PROGRAM		0x32
@@ -64,6 +66,7 @@ enum spi_nor_option_flags {
 #define CMD_READ_QUAD_OUTPUT_FAST	0x6b
 #define CMD_READ_QUAD_IO_FAST		0xeb
 #define CMD_READ_OCTAL_OUTPUT_FAST	0x8B
+#define CMD_READ_OCTAL_OUTPUT_FAST_4B	0x7C
 #define CMD_READ_ID			0x9f
 #define CMD_READ_STATUS			0x05
 #define CMD_READ_STATUS1		0x35
