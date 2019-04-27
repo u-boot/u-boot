@@ -673,7 +673,12 @@ class Builder:
         environment = {}
         if os.path.exists(done_file):
             with open(done_file, 'r') as fd:
-                return_code = int(fd.readline())
+                try:
+                    return_code = int(fd.readline())
+                except ValueError:
+                    # The file may be empty due to running out of disk space.
+                    # Try a rebuild
+                    return_code = 1
                 err_lines = []
                 err_file = self.GetErrFile(commit_upto, target)
                 if os.path.exists(err_file):
