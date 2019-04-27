@@ -22,4 +22,13 @@ config PCIE_CADENCE_EP
 	  endpoint mode. This PCIe controller may be embedded into many
 	  different vendors SoCs.
 
+config PCI_SANDBOX_EP
+	bool "Sandbox PCIe endpoint controller"
+	depends on PCI_ENDPOINT
+	help
+	  Say Y here if you want to support the Sandbox PCIe controller in
+	  endpoint mode.
+	  The sandbox driver act as a dummy driver which stores and
+	  retrieves PCIe endpoint configuration as is.
+
 endmenu
