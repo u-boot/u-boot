@@ -14,4 +14,12 @@ config PCI_ENDPOINT
 	   controllers that can operate in endpoint mode (as a device
 	   connected to PCI host or bridge).
 
+config PCIE_CADENCE_EP
+	bool "Cadence PCIe endpoint controller"
+	depends on PCI_ENDPOINT
+	help
+	  Say Y here if you want to support the Cadence PCIe controller in
+	  endpoint mode. This PCIe controller may be embedded into many
+	  different vendors SoCs.
+
 endmenu
