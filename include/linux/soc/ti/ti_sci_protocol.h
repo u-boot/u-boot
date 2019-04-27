@@ -279,8 +279,8 @@ struct ti_sci_proc_ops {
 				 u64 bv, u32 cfg_set, u32 cfg_clr);
 	int (*set_proc_boot_ctrl)(const struct ti_sci_handle *handle, u8 pid,
 				  u32 ctrl_set, u32 ctrl_clr);
-	int (*proc_auth_boot_image)(const struct ti_sci_handle *handle, u8 pid,
-				    u64 caddr);
+	int (*proc_auth_boot_image)(const struct ti_sci_handle *handle,
+				    u64 *image_addr, u32 *image_size);
 	int (*get_proc_boot_status)(const struct ti_sci_handle *handle, u8 pid,
 				    u64 *bv, u32 *cfg_flags, u32 *ctrl_flags,
 				    u32 *sts_flags);
@@ -511,6 +511,68 @@ struct ti_sci_rm_udmap_ops {
 };
 
 /**
+ * struct ti_sci_msg_fwl_region_cfg - Request and Response for firewalls settings
+ *
+ * @fwl_id:		Firewall ID in question
+ * @region:		Region or channel number to set config info
+ *			This field is unused in case of a simple firewall  and must be initialized
+ *			to zero.  In case of a region based firewall, this field indicates the
+ *			region in question. (index starting from 0) In case of a channel based
+ *			firewall, this field indicates the channel in question (index starting
+ *			from 0)
+ * @n_permission_regs:	Number of permission registers to set
+ * @control:		Contents of the firewall CONTROL register to set
+ * @permissions:	Contents of the firewall PERMISSION register to set
+ * @start_address:	Contents of the firewall START_ADDRESS register to set
+ * @end_address:	Contents of the firewall END_ADDRESS register to set
+ */
+struct ti_sci_msg_fwl_region {
+	u16 fwl_id;
+	u16 region;
+	u32 n_permission_regs;
+	u32 control;
+	u32 permissions[3];
+	u64 start_address;
+	u64 end_address;
+} __packed;
+
+/**
+ * \brief Request and Response for firewall owner change
+ *
+ * @fwl_id:		Firewall ID in question
+ * @region:		Region or channel number to set config info
+ *			This field is unused in case of a simple firewall  and must be initialized
+ *			to zero.  In case of a region based firewall, this field indicates the
+ *			region in question. (index starting from 0) In case of a channel based
+ *			firewall, this field indicates the channel in question (index starting
+ *			from 0)
+ * @n_permission_regs:	Number of permission registers <= 3
+ * @control:		Control register value for this region
+ * @owner_index:	New owner index to change to. Owner indexes are setup in DMSC firmware boot configuration data
+ * @owner_privid:	New owner priv-id, used to lookup owner_index is not known, must be set to zero otherwise
+ * @owner_permission_bits: New owner permission bits
+ */
+struct ti_sci_msg_fwl_owner {
+	u16 fwl_id;
+	u16 region;
+	u8 owner_index;
+	u8 owner_privid;
+	u16 owner_permission_bits;
+} __packed;
+
+/**
+ * struct ti_sci_fwl_ops - Firewall specific operations
+ * @set_fwl_region: Request for configuring the firewall permissions.
+ * @get_fwl_region: Request for retrieving the firewall permissions.
+ * @change_fwl_owner: Request for a change of firewall owner.
+ */
+struct ti_sci_fwl_ops {
+	int (*set_fwl_region)(const struct ti_sci_handle *handle, const struct ti_sci_msg_fwl_region *region);
+	int (*get_fwl_region)(const struct ti_sci_handle *handle, struct ti_sci_msg_fwl_region *region);
+	int (*change_fwl_owner)(const struct ti_sci_handle *handle, struct ti_sci_msg_fwl_owner *owner);
+};
+
+/**
  * struct ti_sci_ops - Function support for TI SCI
  * @board_ops:	Miscellaneous operations
  * @dev_ops:	Device specific operations
@@ -518,6 +580,7 @@ struct ti_sci_rm_udmap_ops {
  * @core_ops:	Core specific operations
  * @proc_ops:	Processor specific operations
  * @ring_ops: Ring Accelerator Management operations
+ * @fw_ops:	Firewall specific operations
  */
 struct ti_sci_ops {
 	struct ti_sci_board_ops board_ops;
@@ -529,6 +592,7 @@ struct ti_sci_ops {
 	struct ti_sci_rm_ringacc_ops rm_ring_ops;
 	struct ti_sci_rm_psil_ops rm_psil_ops;
 	struct ti_sci_rm_udmap_ops rm_udmap_ops;
+	struct ti_sci_fwl_ops fwl_ops;
 };
 
 /**

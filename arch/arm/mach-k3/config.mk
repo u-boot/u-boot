@@ -36,6 +36,14 @@ cmd_gencert = cat $(srctree)/tools/k3_x509template.txt | sed $(SED_OPTS) > u-boo
 # If external key is not provided, generate key using openssl.
 ifeq ($(CONFIG_SYS_K3_KEY), "")
 KEY=u-boot-spl-eckey.pem
+# On HS use real key or warn if not available
+ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
+ifneq ($(wildcard $(TI_SECURE_DEV_PKG)/keys/custMpk.pem),)
+KEY=$(TI_SECURE_DEV_PKG)/keys/custMpk.pem
+else
+$(warning "WARNING: signing key not found. Random key will NOT work on HS hardware!")
+endif
+endif
 else
 KEY=$(patsubst "%",$(srctree)/%,$(CONFIG_SYS_K3_KEY))
 endif
@@ -65,6 +73,15 @@ ALL-y	+= tiboot3.bin
 endif
 
 ifdef CONFIG_ARM64
+ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
+SPL_ITS := u-boot-spl-k3_HS.its
+$(SPL_ITS): FORCE
+	IS_HS=1 \
+	$(srctree)/tools/k3_fit_atf.sh \
+	$(patsubst %,$(obj)/dts/%.dtb,$(subst ",,$(CONFIG_SPL_OF_LIST))) > $@
+
+ALL-y	+= tispl.bin_HS
+else
 SPL_ITS := u-boot-spl-k3.its
 $(SPL_ITS): FORCE
 	$(srctree)/tools/k3_fit_atf.sh \
@@ -72,7 +89,15 @@ $(SPL_ITS): FORCE
 
 ALL-y	+= tispl.bin
 endif
+endif
 
+else
+
+ifeq ($(CONFIG_TI_SECURE_DEVICE),y)
+ALL-y	+= u-boot.img_HS
 else
 ALL-y	+= u-boot.img
 endif
+endif
+
+include $(srctree)/arch/arm/mach-k3/config_secure.mk

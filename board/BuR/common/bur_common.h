@@ -21,4 +21,6 @@ void enable_i2c_pin_mux(void);
 void enable_board_pin_mux(void);
 int board_eth_init(bd_t *bis);
 
+int brdefaultip_setup(int bus, int chip);
+
 #endif

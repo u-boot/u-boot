@@ -468,7 +468,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 
 #ifdef CONFIG_CMD_UBIFS
 	/*
-	 * Special-case ubi, ubi goes through a mtd, rathen then through
+	 * Special-case ubi, ubi goes through a mtd, rather than through
 	 * a regular block device.
 	 */
 	if (0 == strcmp(ifname, "ubi")) {

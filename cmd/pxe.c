@@ -8,11 +8,13 @@
 #include <command.h>
 #include <malloc.h>
 #include <mapmem.h>
+#include <lcd.h>
 #include <linux/string.h>
 #include <linux/ctype.h>
 #include <errno.h>
 #include <linux/list.h>
 #include <fs.h>
+#include <splash.h>
 #include <asm/io.h>
 
 #include "menu.h"
@@ -488,6 +490,7 @@ struct pxe_label {
  *
  * title - the name of the menu as given by a 'menu title' line.
  * default_label - the name of the default label, if any.
+ * bmp - the bmp file name which is displayed in background
  * timeout - time in tenths of a second to wait for a user key-press before
  *           booting the default label.
  * prompt - if 0, don't prompt for a choice unless the timeout period is
@@ -498,6 +501,7 @@ struct pxe_label {
 struct pxe_menu {
 	char *title;
 	char *default_label;
+	char *bmp;
 	int timeout;
 	int prompt;
 	struct list_head labels;
@@ -850,6 +854,7 @@ enum token_type {
 	T_FDTDIR,
 	T_ONTIMEOUT,
 	T_IPAPPEND,
+	T_BACKGROUND,
 	T_INVALID
 };
 
@@ -883,6 +888,7 @@ static const struct token keywords[] = {
 	{"fdtdir", T_FDTDIR},
 	{"ontimeout", T_ONTIMEOUT,},
 	{"ipappend", T_IPAPPEND,},
+	{"background", T_BACKGROUND,},
 	{NULL, T_INVALID}
 };
 
@@ -1158,6 +1164,10 @@ static int parse_menu(cmd_tbl_t *cmdtp, char **c, struct pxe_menu *cfg,
 	case T_INCLUDE:
 		err = handle_include(cmdtp, c, base, cfg,
 						nest_level + 1);
+		break;
+
+	case T_BACKGROUND:
+		err = parse_sliteral(c, &cfg->bmp);
 		break;
 
 	default:
@@ -1573,6 +1583,20 @@ static void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 	void *choice;
 	struct menu *m;
 	int err;
+
+#ifdef CONFIG_CMD_BMP
+	/* display BMP if available */
+	if (cfg->bmp) {
+		if (get_relfile(cmdtp, cfg->bmp, load_addr)) {
+			run_command("cls", 0);
+			bmp_display(load_addr,
+				    BMP_ALIGN_CENTER, BMP_ALIGN_CENTER);
+		} else {
+			printf("Skipping background bmp %s for failure\n",
+			       cfg->bmp);
+		}
+	}
+#endif
 
 	m = pxe_menu_to_menu(cfg);
 	if (!m)

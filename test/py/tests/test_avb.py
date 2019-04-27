@@ -116,3 +116,19 @@ def test_avb_mmc_read(u_boot_console):
     response = u_boot_console.run_command('cmp 0x%x 0x%x 40' %
                                           (temp_addr, temp_addr2))
     assert response.find('64 word')
+
+
+@pytest.mark.buildconfigspec('cmd_avb')
+@pytest.mark.buildconfigspec('optee_ta_avb')
+def test_avb_persistent_values(u_boot_console):
+    """Test reading/writing persistent storage to avb
+    """
+
+    response = u_boot_console.run_command('avb init %s' % str(mmc_dev))
+    assert response == ''
+
+    response = u_boot_console.run_command('avb write_pvalue test value_value')
+    assert response == 'Wrote 12 bytes'
+
+    response = u_boot_console.run_command('avb read_pvalue test 12')
+    assert response == 'Read 12 bytes, value = value_value'

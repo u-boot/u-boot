@@ -647,6 +647,10 @@ static AvbIOResult invoke_func(struct AvbOpsData *ops_data, u32 func,
 		return AVB_IO_RESULT_OK;
 	case TEE_ERROR_OUT_OF_MEMORY:
 		return AVB_IO_RESULT_ERROR_OOM;
+	case TEE_ERROR_STORAGE_NO_SPACE:
+		return AVB_IO_RESULT_ERROR_INSUFFICIENT_SPACE;
+	case TEE_ERROR_ITEM_NOT_FOUND:
+		return AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
 	case TEE_ERROR_TARGET_DEAD:
 		/*
 		 * The TA has paniced, close the session to reload the TA
@@ -847,6 +851,123 @@ static AvbIOResult get_size_of_partition(AvbOps *ops,
 	return AVB_IO_RESULT_OK;
 }
 
+static AvbIOResult read_persistent_value(AvbOps *ops,
+					 const char *name,
+					 size_t buffer_size,
+					 u8 *out_buffer,
+					 size_t *out_num_bytes_read)
+{
+	AvbIOResult rc;
+	struct tee_shm *shm_name;
+	struct tee_shm *shm_buf;
+	struct tee_param param[2];
+	struct udevice *tee;
+	size_t name_size = strlen(name) + 1;
+
+	if (get_open_session(ops->user_data))
+		return AVB_IO_RESULT_ERROR_IO;
+
+	tee = ((struct AvbOpsData *)ops->user_data)->tee;
+
+	rc = tee_shm_alloc(tee, name_size,
+			   TEE_SHM_ALLOC, &shm_name);
+	if (rc)
+		return AVB_IO_RESULT_ERROR_OOM;
+
+	rc = tee_shm_alloc(tee, buffer_size,
+			   TEE_SHM_ALLOC, &shm_buf);
+	if (rc) {
+		rc = AVB_IO_RESULT_ERROR_OOM;
+		goto free_name;
+	}
+
+	memcpy(shm_name->addr, name, name_size);
+
+	memset(param, 0, sizeof(param));
+	param[0].attr = TEE_PARAM_ATTR_TYPE_MEMREF_INPUT;
+	param[0].u.memref.shm = shm_name;
+	param[0].u.memref.size = name_size;
+	param[1].attr = TEE_PARAM_ATTR_TYPE_MEMREF_INOUT;
+	param[1].u.memref.shm = shm_buf;
+	param[1].u.memref.size = buffer_size;
+
+	rc = invoke_func(ops->user_data, TA_AVB_CMD_READ_PERSIST_VALUE,
+			 2, param);
+	if (rc)
+		goto out;
+
+	if (param[1].u.memref.size > buffer_size) {
+		rc = AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+		goto out;
+	}
+
+	*out_num_bytes_read = param[1].u.memref.size;
+
+	memcpy(out_buffer, shm_buf->addr, *out_num_bytes_read);
+
+out:
+	tee_shm_free(shm_buf);
+free_name:
+	tee_shm_free(shm_name);
+
+	return rc;
+}
+
+static AvbIOResult write_persistent_value(AvbOps *ops,
+					  const char *name,
+					  size_t value_size,
+					  const u8 *value)
+{
+	AvbIOResult rc;
+	struct tee_shm *shm_name;
+	struct tee_shm *shm_buf;
+	struct tee_param param[2];
+	struct udevice *tee;
+	size_t name_size = strlen(name) + 1;
+
+	if (get_open_session(ops->user_data))
+		return AVB_IO_RESULT_ERROR_IO;
+
+	tee = ((struct AvbOpsData *)ops->user_data)->tee;
+
+	if (!value_size)
+		return AVB_IO_RESULT_ERROR_NO_SUCH_VALUE;
+
+	rc = tee_shm_alloc(tee, name_size,
+			   TEE_SHM_ALLOC, &shm_name);
+	if (rc)
+		return AVB_IO_RESULT_ERROR_OOM;
+
+	rc = tee_shm_alloc(tee, value_size,
+			   TEE_SHM_ALLOC, &shm_buf);
+	if (rc) {
+		rc = AVB_IO_RESULT_ERROR_OOM;
+		goto free_name;
+	}
+
+	memcpy(shm_name->addr, name, name_size);
+	memcpy(shm_buf->addr, value, value_size);
+
+	memset(param, 0, sizeof(param));
+	param[0].attr = TEE_PARAM_ATTR_TYPE_MEMREF_INPUT;
+	param[0].u.memref.shm = shm_name;
+	param[0].u.memref.size = name_size;
+	param[1].attr = TEE_PARAM_ATTR_TYPE_MEMREF_INPUT;
+	param[1].u.memref.shm = shm_buf;
+	param[1].u.memref.size = value_size;
+
+	rc = invoke_func(ops->user_data, TA_AVB_CMD_WRITE_PERSIST_VALUE,
+			 2, param);
+	if (rc)
+		goto out;
+
+out:
+	tee_shm_free(shm_buf);
+free_name:
+	tee_shm_free(shm_name);
+
+	return rc;
+}
 /**
  * ============================================================================
  * AVB2.0 AvbOps alloc/initialisation/free
@@ -870,6 +991,10 @@ AvbOps *avb_ops_alloc(int boot_device)
 	ops_data->ops.read_is_device_unlocked = read_is_device_unlocked;
 	ops_data->ops.get_unique_guid_for_partition =
 		get_unique_guid_for_partition;
+#ifdef CONFIG_OPTEE_TA_AVB
+	ops_data->ops.write_persistent_value = write_persistent_value;
+	ops_data->ops.read_persistent_value = read_persistent_value;
+#endif
 	ops_data->ops.get_size_of_partition = get_size_of_partition;
 	ops_data->mmc_dev = boot_device;
 
