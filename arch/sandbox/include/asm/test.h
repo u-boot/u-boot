@@ -177,4 +177,12 @@ int sandbox_get_beep_frequency(struct udevice *dev);
  */
 int sandbox_get_pch_spi_protect(struct udevice *dev);
 
+/**
+ * sandbox_get_pci_ep_irq_count() - Get the PCI EP IRQ count
+ *
+ * @dev: Device to check
+ * @return irq count
+ */
+int sandbox_get_pci_ep_irq_count(struct udevice *dev);
+
 #endif
