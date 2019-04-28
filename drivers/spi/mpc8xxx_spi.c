@@ -116,9 +116,6 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		u32 tmpdout = 0;
 		uchar xfer_bitlen = (bitlen >= 32 ? 32 : bitlen);
 
-		/* Shift data so it's msb-justified */
-		tmpdout = *(u32 *)dout >> (32 - xfer_bitlen);
-
 		clrbits_be32(&spi->mode, SPI_MODE_EN);
 
 		/* Set up length for this transfer */
@@ -130,13 +127,16 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		else /* more than 16 bits -> full 32 bit transfer */
 			set_char_len(spi, 0);
 
+		setbits_be32(&spi->mode, SPI_MODE_EN);
+
+		/* Shift data so it's msb-justified */
+		tmpdout = *(u32 *)dout >> (32 - xfer_bitlen);
+
 		if (bitlen > 16) {
 			/* Set up the next iteration if sending > 32 bits */
 			bitlen -= 32;
 			dout += 4;
 		}
-
-		setbits_be32(&spi->mode, SPI_MODE_EN);
 
 		/* Write the data out */
 		out_be32(&spi->tx, tmpdout);
