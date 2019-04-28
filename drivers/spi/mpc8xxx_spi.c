@@ -20,8 +20,7 @@
 
 #define SPI_TIMEOUT	1000
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
+struct spi_slave *spi_setup_slave(uint bus, uint cs, uint max_hz, uint mode)
 {
 	struct spi_slave *slave;
 
@@ -68,17 +67,16 @@ int spi_claim_bus(struct spi_slave *slave)
 
 void spi_release_bus(struct spi_slave *slave)
 {
-
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
-		void *din, unsigned long flags)
+int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
+	     ulong flags)
 {
 	volatile spi8xxx_t *spi = &((immap_t *) (CONFIG_SYS_IMMR))->spi;
-	unsigned int tmpdout, tmpdin, event;
+	uint tmpdout, tmpdin, event;
 	int numBlks = DIV_ROUND_UP(bitlen, 32);
 	int tm, isRead = 0;
-	unsigned char charSize = 32;
+	uchar charSize = 32;
 
 	debug("spi_xfer: slave %u:%u dout %08X din %08X bitlen %u\n",
 	      slave->bus, slave->cs, *(uint *) dout, *(uint *) din, bitlen);
