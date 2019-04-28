@@ -53,11 +53,14 @@ void spi_init(void)
 	 * some registers
 	 */
 	spi->mode = SPI_MODE_REV | SPI_MODE_MS | SPI_MODE_EN;
-	spi->mode = (spi->mode & 0xfff0ffff) | BIT(16); /* Use SYSCLK / 8
-							     (16.67MHz typ.) */
-	spi->event = 0xffffffff;	/* Clear all SPI events */
-	spi->mask = 0x00000000;	/* Mask  all SPI interrupts */
-	spi->com = 0;		/* LST bit doesn't do anything, so disregard */
+	/* Use SYSCLK / 8 (16.67MHz typ.) */
+	spi->mode = (spi->mode & 0xfff0ffff) | BIT(16);
+	/* Clear all SPI events */
+	spi->event = 0xffffffff;
+	/* Mask  all SPI interrupts */
+	spi->mask = 0x00000000;
+	/* LST bit doesn't do anything, so disregard */
+	spi->com = 0;
 }
 
 int spi_claim_bus(struct spi_slave *slave)
@@ -84,9 +87,10 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(slave);
 
-	spi->event = 0xffffffff;	/* Clear all SPI events */
+	/* Clear all SPI events */
+	spi->event = 0xffffffff;
 
-	/* handle data in 32-bit chunks */
+	/* Handle data in 32-bit chunks */
 	while (numBlks--) {
 		tmpdout = 0;
 		charSize = (bitlen >= 32 ? 32 : bitlen);
@@ -120,7 +124,9 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 
 		spi->mode |= SPI_MODE_EN;
 
-		spi->tx = tmpdout;	/* Write the data out */
+		/* Write the data out */
+		spi->tx = tmpdout;
+
 		debug("*** spi_xfer: ... %08x written\n", tmpdout);
 
 		/*
