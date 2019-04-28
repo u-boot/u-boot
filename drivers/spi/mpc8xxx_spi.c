@@ -149,25 +149,28 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 			bool have_ne = event & SPI_EV_NE;
 			bool have_nf = event & SPI_EV_NF;
 
-			if (have_ne) {
-				tmpdin = in_be32(&spi->rx);
-				setbits_be32(&spi->event, SPI_EV_NE);
+			if (!have_ne)
+				continue;
 
-				*(u32 *)din = (tmpdin << (32 - char_size));
-				if (char_size == 32) {
-					/* Advance output buffer by 32 bits */
-					din += 4;
-				}
+			tmpdin = in_be32(&spi->rx);
+			setbits_be32(&spi->event, SPI_EV_NE);
+
+			*(u32 *)din = (tmpdin << (32 - char_size));
+			if (char_size == 32) {
+				/* Advance output buffer by 32 bits */
+				din += 4;
 			}
+
 			/*
 			 * Only bail when we've had both NE and NF events.
 			 * This will cause timeouts on RO devices, so maybe
 			 * in the future put an arbitrary delay after writing
 			 * the device.  Arbitrary delays suck, though...
 			 */
-			if (have_ne && have_nf)
+			if (have_nf)
 				break;
 		}
+
 		if (tm >= SPI_TIMEOUT)
 			debug("*** %s: Time out during SPI transfer\n",
 			      __func__);
