@@ -120,13 +120,11 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 
 		clrbits_be32(&spi->mode, SPI_MODE_EN);
 
-		if (bitlen <= 16) {
-			if (bitlen <= 4)
-				clrsetbits_be32(&spi->mode, 0x00f00000,
-						(3 << 20));
-			else
-				clrsetbits_be32(&spi->mode, 0x00f00000,
-						((bitlen - 1) << 20));
+		if (bitlen <= 4) {
+			clrsetbits_be32(&spi->mode, 0x00f00000, (3 << 20));
+		} else if (bitlen <= 16) {
+			clrsetbits_be32(&spi->mode, 0x00f00000,
+					((bitlen - 1) << 20));
 		} else {
 			clrbits_be32(&spi->mode, 0x00f00000);
 			/* Set up the next iteration if sending > 32 bits */
