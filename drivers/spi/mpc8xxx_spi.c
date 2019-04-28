@@ -119,21 +119,15 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		/* Shift data so it's msb-justified */
 		tmpdout = *(u32 *)dout >> (32 - xfer_bitlen);
 
-		/* The LEN field of the SPMODE register is set as follows:
-		 *
-		 * Bit length             setting
-		 * len <= 4               3
-		 * 4 < len <= 16          len - 1
-		 * len > 16               0
-		 */
-
 		clrbits_be32(&spi->mode, SPI_MODE_EN);
 
-		if (bitlen <= 4)
+		/* Set up length for this transfer */
+
+		if (bitlen <= 4) /* 4 bits or less */
 			set_char_len(spi, 3);
-		else if (bitlen <= 16)
+		else if (bitlen <= 16) /* at most 16 bits */
 			set_char_len(spi, bitlen - 1);
-		else
+		else /* more than 16 bits -> full 32 bit transfer */
 			set_char_len(spi, 0);
 
 		if (bitlen > 16) {
