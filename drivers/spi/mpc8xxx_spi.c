@@ -112,9 +112,9 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 
 	/* Handle data in 32-bit chunks */
 	while (num_blks--) {
-		int tm;
 		u32 tmpdout = 0;
 		uchar xfer_bitlen = (bitlen >= 32 ? 32 : bitlen);
+		ulong start;
 
 		clrbits_be32(&spi->mode, SPI_MODE_EN);
 
@@ -148,7 +148,8 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		 * or time out (1 second = 1000 ms)
 		 * The NE event must be read and cleared first
 		 */
-		for (tm = 0; tm < SPI_TIMEOUT; ++tm) {
+		start = get_timer(0);
+		do {
 			u32 event = in_be32(&spi->event);
 			bool have_ne = event & SPI_EV_NE;
 			bool have_nf = event & SPI_EV_NF;
@@ -173,9 +174,11 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 			 */
 			if (have_nf)
 				break;
-		}
 
-		if (tm >= SPI_TIMEOUT)
+			mdelay(1);
+		} while (get_timer(start) < SPI_TIMEOUT);
+
+		if (get_timer(start) >= SPI_TIMEOUT)
 			debug("*** %s: Time out during SPI transfer\n",
 			      __func__);
 
