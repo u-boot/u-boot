@@ -59,10 +59,7 @@ No dm conversion yet:
 	drivers/spi/cf_spi.c
 	drivers/spi/fsl_espi.c
 	drivers/spi/lpc32xx_ssp.c
-	drivers/spi/mpc8xx_spi.c
-	drivers/spi/mpc8xxx_spi.c
 	drivers/spi/mxs_spi.c
-	drivers/spi/sh_qspi.c
 	drivers/spi/sh_spi.c
 	drivers/spi/soft_spi_legacy.c
 
@@ -70,13 +67,12 @@ No dm conversion yet:
 	Deadline: 2019.04
 
 Partially converted:
-	drivers/spi/atcspi200_spi.c
 	drivers/spi/davinci_spi.c
 	drivers/spi/fsl_dspi.c
-	drivers/spi/fsl_qspi.c
 	drivers/spi/kirkwood_spi.c
 	drivers/spi/mxc_spi.c
 	drivers/spi/omap3_spi.c
+	drivers/spi/sh_qspi.c
 
 	Status: In progress
 	Deadline: 2019.07
