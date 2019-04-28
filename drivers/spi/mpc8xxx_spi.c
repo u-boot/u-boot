@@ -88,10 +88,8 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 	     ulong flags)
 {
 	spi8xxx_t *spi = &((immap_t *)(CONFIG_SYS_IMMR))->spi;
-	uint tmpdout, tmpdin, event;
+	u32 tmpdin;
 	int num_blks = DIV_ROUND_UP(bitlen, 32);
-	int tm;
-	uchar char_size = 32;
 
 	debug("%s: slave %u:%u dout %08X din %08X bitlen %u\n", __func__,
 	      slave->bus, slave->cs, *(uint *)dout, *(uint *)din, bitlen);
@@ -104,8 +102,9 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 
 	/* Handle data in 32-bit chunks */
 	while (num_blks--) {
-		tmpdout = 0;
-		char_size = (bitlen >= 32 ? 32 : bitlen);
+		int tm;
+		u32 tmpdout = 0;
+		uchar char_size = (bitlen >= 32 ? 32 : bitlen);
 
 		/* Shift data so it's msb-justified */
 		tmpdout = *(u32 *)dout >> (32 - char_size);
@@ -145,7 +144,7 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		 * The NE event must be read and cleared first
 		 */
 		for (tm = 0; tm < SPI_TIMEOUT; ++tm) {
-			event = in_be32(&spi->event);
+			u32 event = in_be32(&spi->event);
 			bool have_ne = event & SPI_EV_NE;
 			bool have_nf = event & SPI_EV_NF;
 
