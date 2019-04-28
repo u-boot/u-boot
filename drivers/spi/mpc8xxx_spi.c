@@ -58,21 +58,21 @@ void spi_free_slave(struct spi_slave *slave)
 
 void spi_init(void)
 {
-	volatile spi8xxx_t *spi = &((immap_t *) (CONFIG_SYS_IMMR))->spi;
+	spi8xxx_t *spi = &((immap_t *)(CONFIG_SYS_IMMR))->spi;
 
 	/*
 	 * SPI pins on the MPC83xx are not muxed, so all we do is initialize
 	 * some registers
 	 */
-	spi->mode = SPI_MODE_REV | SPI_MODE_MS | SPI_MODE_EN;
+	out_be32(&spi->mode, SPI_MODE_REV | SPI_MODE_MS | SPI_MODE_EN);
 	/* Use SYSCLK / 8 (16.67MHz typ.) */
-	spi->mode = (spi->mode & 0xfff0ffff) | BIT(16);
+	clrsetbits_be32(&spi->mode, 0x000f0000, BIT(16));
 	/* Clear all SPI events */
-	spi->event = 0xffffffff;
+	setbits_be32(&spi->event, 0xffffffff);
 	/* Mask  all SPI interrupts */
-	spi->mask = 0x00000000;
+	clrbits_be32(&spi->mask, 0xffffffff);
 	/* LST bit doesn't do anything, so disregard */
-	spi->com = 0;
+	out_be32(&spi->com, 0);
 }
 
 int spi_claim_bus(struct spi_slave *slave)
@@ -87,7 +87,7 @@ void spi_release_bus(struct spi_slave *slave)
 int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 	     ulong flags)
 {
-	volatile spi8xxx_t *spi = &((immap_t *) (CONFIG_SYS_IMMR))->spi;
+	spi8xxx_t *spi = &((immap_t *)(CONFIG_SYS_IMMR))->spi;
 	uint tmpdout, tmpdin, event;
 	int num_blks = DIV_ROUND_UP(bitlen, 32);
 	int tm, is_read = 0;
@@ -100,7 +100,7 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		spi_cs_activate(slave);
 
 	/* Clear all SPI events */
-	spi->event = 0xffffffff;
+	setbits_be32(&spi->event, 0xffffffff);
 
 	/* Handle data in 32-bit chunks */
 	while (num_blks--) {
@@ -118,26 +118,26 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		 * len > 16               0
 		 */
 
-		spi->mode &= ~SPI_MODE_EN;
+		clrbits_be32(&spi->mode, SPI_MODE_EN);
 
 		if (bitlen <= 16) {
 			if (bitlen <= 4)
-				spi->mode = (spi->mode & 0xff0fffff) |
-					    (3 << 20);
+				clrsetbits_be32(&spi->mode, 0x00f00000,
+						(3 << 20));
 			else
-				spi->mode = (spi->mode & 0xff0fffff) |
-					    ((bitlen - 1) << 20);
+				clrsetbits_be32(&spi->mode, 0x00f00000,
+						((bitlen - 1) << 20));
 		} else {
-			spi->mode = (spi->mode & 0xff0fffff);
+			clrbits_be32(&spi->mode, 0x00f00000);
 			/* Set up the next iteration if sending > 32 bits */
 			bitlen -= 32;
 			dout += 4;
 		}
 
-		spi->mode |= SPI_MODE_EN;
+		setbits_be32(&spi->mode, SPI_MODE_EN);
 
 		/* Write the data out */
-		spi->tx = tmpdout;
+		out_be32(&spi->tx, tmpdout);
 
 		debug("*** %s: ... %08x written\n", __func__, tmpdout);
 
@@ -147,10 +147,10 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		 * The NE event must be read and cleared first
 		 */
 		for (tm = 0, is_read = 0; tm < SPI_TIMEOUT; ++tm) {
-			event = spi->event;
+			event = in_be32(&spi->event);
 			if (event & SPI_EV_NE) {
-				tmpdin = spi->rx;
-				spi->event |= SPI_EV_NE;
+				tmpdin = in_be32(&spi->rx);
+				setbits_be32(&spi->event, SPI_EV_NE);
 				is_read = 1;
 
 				*(u32 *)din = (tmpdin << (32 - char_size));
