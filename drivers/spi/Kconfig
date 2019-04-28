@@ -131,6 +131,11 @@ config MPC8XX_SPI
 	help
 	  Enable support for SPI on MPC8XX
 
+config MPC8XXX_SPI
+	bool "MPC8XXX SPI Driver"
+	help
+	  Enable support for SPI on the MPC8XXX PowerPC SoCs.
+
 config MT7621_SPI
 	bool "MediaTek MT7621 SPI driver"
 	depends on SOC_MT7628
@@ -363,11 +368,6 @@ config LPC32XX_SSP
 	bool "LPC32XX SPI Driver"
 	help
 	  Enable support for SPI on LPC32xx
-
-config MPC8XXX_SPI
-	bool "MPC8XXX SPI Driver"
-	help
-	  Enable support for SPI on the MPC8XXX PowerPC SoCs.
 
 config MXC_SPI
 	bool "MXC SPI Driver"
