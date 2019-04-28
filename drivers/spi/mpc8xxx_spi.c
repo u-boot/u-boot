@@ -77,9 +77,9 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 {
 	volatile spi8xxx_t *spi = &((immap_t *) (CONFIG_SYS_IMMR))->spi;
 	uint tmpdout, tmpdin, event;
-	int numBlks = DIV_ROUND_UP(bitlen, 32);
-	int tm, isRead = 0;
-	uchar charSize = 32;
+	int num_blks = DIV_ROUND_UP(bitlen, 32);
+	int tm, is_read = 0;
+	uchar char_size = 32;
 
 	debug("spi_xfer: slave %u:%u dout %08X din %08X bitlen %u\n",
 	      slave->bus, slave->cs, *(uint *) dout, *(uint *) din, bitlen);
@@ -91,12 +91,12 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 	spi->event = 0xffffffff;
 
 	/* Handle data in 32-bit chunks */
-	while (numBlks--) {
+	while (num_blks--) {
 		tmpdout = 0;
-		charSize = (bitlen >= 32 ? 32 : bitlen);
+		char_size = (bitlen >= 32 ? 32 : bitlen);
 
 		/* Shift data so it's msb-justified */
-		tmpdout = *(u32 *) dout >> (32 - charSize);
+		tmpdout = *(u32 *) dout >> (32 - char_size);
 
 		/* The LEN field of the SPMODE register is set as follows:
 		 *
@@ -134,15 +134,15 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		 * or time out (1 second = 1000 ms)
 		 * The NE event must be read and cleared first
 		 */
-		for (tm = 0, isRead = 0; tm < SPI_TIMEOUT; ++tm) {
+		for (tm = 0, is_read = 0; tm < SPI_TIMEOUT; ++tm) {
 			event = spi->event;
 			if (event & SPI_EV_NE) {
 				tmpdin = spi->rx;
 				spi->event |= SPI_EV_NE;
-				isRead = 1;
+				is_read = 1;
 
-				*(u32 *) din = (tmpdin << (32 - charSize));
-				if (charSize == 32) {
+				*(u32 *) din = (tmpdin << (32 - char_size));
+				if (char_size == 32) {
 					/* Advance output buffer by 32 bits */
 					din += 4;
 				}
@@ -153,7 +153,7 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 			 * in the future put an arbitrary delay after writing
 			 * the device.  Arbitrary delays suck, though...
 			 */
-			if (isRead && (event & SPI_EV_NF))
+			if (is_read && (event & SPI_EV_NF))
 				break;
 		}
 		if (tm >= SPI_TIMEOUT)
