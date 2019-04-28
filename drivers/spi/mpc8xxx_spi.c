@@ -114,10 +114,10 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 	while (num_blks--) {
 		int tm;
 		u32 tmpdout = 0;
-		uchar char_size = (bitlen >= 32 ? 32 : bitlen);
+		uchar xfer_bitlen = (bitlen >= 32 ? 32 : bitlen);
 
 		/* Shift data so it's msb-justified */
-		tmpdout = *(u32 *)dout >> (32 - char_size);
+		tmpdout = *(u32 *)dout >> (32 - xfer_bitlen);
 
 		/* The LEN field of the SPMODE register is set as follows:
 		 *
@@ -165,8 +165,8 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 			tmpdin = in_be32(&spi->rx);
 			setbits_be32(&spi->event, SPI_EV_NE);
 
-			*(u32 *)din = (tmpdin << (32 - char_size));
-			if (char_size == 32) {
+			*(u32 *)din = (tmpdin << (32 - xfer_bitlen));
+			if (xfer_bitlen == 32) {
 				/* Advance output buffer by 32 bits */
 				din += 4;
 			}
