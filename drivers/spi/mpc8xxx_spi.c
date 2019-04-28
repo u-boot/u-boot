@@ -10,13 +10,25 @@
 #include <spi.h>
 #include <asm/mpc8xxx_spi.h>
 
-#define SPI_EV_NE	(0x80000000 >> 22)	/* Receiver Not Empty */
-#define SPI_EV_NF	(0x80000000 >> 23)	/* Transmitter Not Full */
+enum {
+	SPI_EV_NE = BIT(31 - 22),	/* Receiver Not Empty */
+	SPI_EV_NF = BIT(31 - 23),	/* Transmitter Not Full */
+};
 
-#define SPI_MODE_LOOP	(0x80000000 >> 1)	/* Loopback mode */
-#define SPI_MODE_REV	(0x80000000 >> 5)	/* Reverse mode - MSB first */
-#define SPI_MODE_MS	(0x80000000 >> 6)	/* Always master */
-#define SPI_MODE_EN	(0x80000000 >> 7)	/* Enable interface */
+enum {
+	SPI_MODE_LOOP  = BIT(31 - 1),	/* Loopback mode */
+	SPI_MODE_CI    = BIT(31 - 2),	/* Clock invert */
+	SPI_MODE_CP    = BIT(31 - 3),	/* Clock phase */
+	SPI_MODE_DIV16 = BIT(31 - 4),	/* Divide clock source by 16 */
+	SPI_MODE_REV   = BIT(31 - 5),	/* Reverse mode - MSB first */
+	SPI_MODE_MS    = BIT(31 - 6),	/* Always master */
+	SPI_MODE_EN    = BIT(31 - 7),	/* Enable interface */
+
+	SPI_MODE_LEN_MASK = 0xf00000,
+	SPI_MODE_PM_MASK = 0xf0000,
+
+	SPI_COM_LST = BIT(31 - 9),
+};
 
 #define SPI_TIMEOUT	1000
 
