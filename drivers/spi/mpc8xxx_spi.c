@@ -81,7 +81,7 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 	int tm, is_read = 0;
 	uchar char_size = 32;
 
-	debug("spi_xfer: slave %u:%u dout %08X din %08X bitlen %u\n",
+	debug("%s: slave %u:%u dout %08X din %08X bitlen %u\n", __func__,
 	      slave->bus, slave->cs, *(uint *)dout, *(uint *)din, bitlen);
 
 	if (flags & SPI_XFER_BEGIN)
@@ -127,7 +127,7 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		/* Write the data out */
 		spi->tx = tmpdout;
 
-		debug("*** spi_xfer: ... %08x written\n", tmpdout);
+		debug("*** %s: ... %08x written\n", __func__, tmpdout);
 
 		/*
 		 * Wait for SPI transmit to get out
@@ -157,9 +157,10 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 				break;
 		}
 		if (tm >= SPI_TIMEOUT)
-			puts("*** spi_xfer: Time out during SPI transfer");
+			debug("*** %s: Time out during SPI transfer\n",
+			      __func__);
 
-		debug("*** spi_xfer: transfer ended. Value=%08x\n", tmpdin);
+		debug("*** %s: transfer ended. Value=%08x\n", __func__, tmpdin);
 	}
 
 	if (flags & SPI_XFER_END)
