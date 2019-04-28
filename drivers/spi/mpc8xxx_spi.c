@@ -132,7 +132,7 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 		/* Shift data so it's msb-justified */
 		tmpdout = *(u32 *)dout >> (32 - xfer_bitlen);
 
-		if (bitlen > 16) {
+		if (bitlen > 32) {
 			/* Set up the next iteration if sending > 32 bits */
 			bitlen -= 32;
 			dout += 4;
