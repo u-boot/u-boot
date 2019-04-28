@@ -30,6 +30,16 @@ enum {
 	SPI_COM_LST = BIT(31 - 9),
 };
 
+static inline u32 to_prescale_mod(u32 val)
+{
+	return (min(val, (u32)15) << 16);
+}
+
+static void set_char_len(spi8xxx_t *spi, u32 val)
+{
+	clrsetbits_be32(&spi->mode, SPI_MODE_LEN_MASK, (val << 20));
+}
+
 #define SPI_TIMEOUT	1000
 
 struct spi_slave *spi_setup_slave(uint bus, uint cs, uint max_hz, uint mode)
@@ -66,7 +76,7 @@ void spi_init(void)
 	 */
 	out_be32(&spi->mode, SPI_MODE_REV | SPI_MODE_MS | SPI_MODE_EN);
 	/* Use SYSCLK / 8 (16.67MHz typ.) */
-	clrsetbits_be32(&spi->mode, 0x000f0000, BIT(16));
+	clrsetbits_be32(&spi->mode, SPI_MODE_PM_MASK, to_prescale_mod(1));
 	/* Clear all SPI events */
 	setbits_be32(&spi->event, 0xffffffff);
 	/* Mask  all SPI interrupts */
@@ -119,13 +129,14 @@ int spi_xfer(struct spi_slave *slave, uint bitlen, const void *dout, void *din,
 
 		clrbits_be32(&spi->mode, SPI_MODE_EN);
 
-		if (bitlen <= 4) {
-			clrsetbits_be32(&spi->mode, 0x00f00000, (3 << 20));
-		} else if (bitlen <= 16) {
-			clrsetbits_be32(&spi->mode, 0x00f00000,
-					((bitlen - 1) << 20));
-		} else {
-			clrbits_be32(&spi->mode, 0x00f00000);
+		if (bitlen <= 4)
+			set_char_len(spi, 3);
+		else if (bitlen <= 16)
+			set_char_len(spi, bitlen - 1);
+		else
+			set_char_len(spi, 0);
+
+		if (bitlen > 16) {
 			/* Set up the next iteration if sending > 32 bits */
 			bitlen -= 32;
 			dout += 4;
