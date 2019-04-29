@@ -138,6 +138,9 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 		/* Enable read leveling */
 		writel(0x80000000, &emif_reg[nr]->emif_rd_wr_lvl_ctl);
 
+		/* Wait 1ms because of L3 timeout error */
+		udelay(1000);
+
 		/*
 		 * Enable full read and write leveling.  Wait for read and write
 		 * leveling bit to clear RDWRLVLFULL_START bit 31
