@@ -240,8 +240,8 @@
 		#size-cells = <1>;
 		compatible = "micron,n25q128a13", "jedec,spi-nor";
 		spi-max-frequency = <108000000>;
-		spi-tx-bus-width = <1>;
-		spi-rx-bus-width = <1>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
 		reg = <0>;
 	};
 };
