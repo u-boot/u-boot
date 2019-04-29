@@ -560,7 +560,7 @@ struct efi_load_option {
 	u16 file_path_length;
 	u16 *label;
 	struct efi_device_path *file_path;
-	u8 *optional_data;
+	const u8 *optional_data;
 };
 
 void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data);

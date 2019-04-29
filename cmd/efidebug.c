@@ -11,6 +11,7 @@
 #include <efi_loader.h>
 #include <environment.h>
 #include <exports.h>
+#include <hexdump.h>
 #include <malloc.h>
 #include <search.h>
 #include <linux/ctype.h>
@@ -545,7 +546,10 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 				+ sizeof(struct efi_device_path); /* for END */
 
 	/* optional data */
-	lo.optional_data = (u8 *)(argc == 6 ? "" : argv[6]);
+	if (argc < 6)
+		lo.optional_data = NULL;
+	else
+		lo.optional_data = (const u8 *)argv[6];
 
 	size = efi_serialize_load_option(&lo, (u8 **)&data);
 	if (!size) {
@@ -615,12 +619,13 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
 /**
  * show_efi_boot_opt_data() - dump UEFI load option
  *
- * @id:		Load option number
- * @data:	Value of UEFI load option variable
+ * @id:		load option number
+ * @data:	value of UEFI load option variable
+ * @size:	size of the boot option
  *
  * Decode the value of UEFI load option variable and print information.
  */
-static void show_efi_boot_opt_data(int id, void *data)
+static void show_efi_boot_opt_data(int id, void *data, size_t size)
 {
 	struct efi_load_option lo;
 	char *label, *p;
@@ -638,7 +643,7 @@ static void show_efi_boot_opt_data(int id, void *data)
 	utf16_utf8_strncpy(&p, lo.label, label_len16);
 
 	printf("Boot%04X:\n", id);
-	printf("\tattributes: %c%c%c (0x%08x)\n",
+	printf("  attributes: %c%c%c (0x%08x)\n",
 	       /* ACTIVE */
 	       lo.attributes & LOAD_OPTION_ACTIVE ? 'A' : '-',
 	       /* FORCE RECONNECT */
@@ -646,14 +651,16 @@ static void show_efi_boot_opt_data(int id, void *data)
 	       /* HIDDEN */
 	       lo.attributes & LOAD_OPTION_HIDDEN ? 'H' : '-',
 	       lo.attributes);
-	printf("\tlabel: %s\n", label);
+	printf("  label: %s\n", label);
 
 	dp_str = efi_dp_str(lo.file_path);
-	printf("\tfile_path: %ls\n", dp_str);
+	printf("  file_path: %ls\n", dp_str);
 	efi_free_pool(dp_str);
 
-	printf("\tdata: %s\n", lo.optional_data);
-
+	printf("  data:\n");
+	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
+		       lo.optional_data, size + (u8 *)data -
+		       (u8 *)lo.optional_data, true);
 	free(label);
 }
 
@@ -686,7 +693,7 @@ static void show_efi_boot_opt(int id)
 						data));
 	}
 	if (ret == EFI_SUCCESS)
-		show_efi_boot_opt_data(id, data);
+		show_efi_boot_opt_data(id, data, size);
 	else if (ret == EFI_NOT_FOUND)
 		printf("Boot%04X: not found\n", id);
 

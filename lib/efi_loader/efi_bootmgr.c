@@ -53,19 +53,20 @@ void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data)
  */
 unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
 {
-	unsigned long label_len, option_len;
+	unsigned long label_len;
 	unsigned long size;
 	u8 *p;
 
 	label_len = (u16_strlen(lo->label) + 1) * sizeof(u16);
-	option_len = strlen((char *)lo->optional_data);
 
 	/* total size */
 	size = sizeof(lo->attributes);
 	size += sizeof(lo->file_path_length);
 	size += label_len;
 	size += lo->file_path_length;
-	size += option_len + 1;
+	if (lo->optional_data)
+		size += (utf8_utf16_strlen((const char *)lo->optional_data)
+					   + 1) * sizeof(u16);
 	p = malloc(size);
 	if (!p)
 		return 0;
@@ -84,10 +85,10 @@ unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
 	memcpy(p, lo->file_path, lo->file_path_length);
 	p += lo->file_path_length;
 
-	memcpy(p, lo->optional_data, option_len);
-	p += option_len;
-	*(char *)p = '\0';
-
+	if (lo->optional_data) {
+		utf8_utf16_strcpy((u16 **)&p, (const char *)lo->optional_data);
+		p += sizeof(u16); /* size of trailing \0 */
+	}
 	return size;
 }
 
