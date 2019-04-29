@@ -80,6 +80,11 @@ static void configure_mr(int nr, u32 cs)
  */
 void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 {
+#ifdef CONFIG_AM43XX
+	struct prm_device_inst *prm_device =
+			(struct prm_device_inst *)PRM_DEVICE_INST;
+#endif
+
 	writel(0xA0, &emif_reg[nr]->emif_pwr_mgmt_ctrl);
 	writel(0xA0, &emif_reg[nr]->emif_pwr_mgmt_ctrl_shdw);
 	writel(regs->zq_config, &emif_reg[nr]->emif_zq_config);
@@ -125,6 +130,15 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl_shdw);
+
+#ifdef CONFIG_AM43XX
+	/*
+	 * Disable EMIF_DEVOFF
+	 * -> Cold Boot: This is just rewriting the default register value.
+	 * -> RTC Resume: Must disable DEVOFF before leveling.
+	 */
+	writel(0, &prm_device->emif_ctrl);
+#endif
 
 	/* Perform hardware leveling for DDR3 */
 	if (emif_sdram_type(regs->sdram_config) == EMIF_SDRAM_TYPE_DDR3) {

@@ -481,9 +481,6 @@ static void rtc_only(void)
 	rtc_only_prcm_init();
 	sdram_init();
 
-	/* Disable EMIF_DEVOFF for normal operation and to exit self-refresh */
-	writel(0, &prm_device->emif_ctrl);
-
 	/* Check EMIF4D_SDRAM_CONFIG[31:29] SDRAM_TYPE */
 	/* Only perform leveling if SDRAM_TYPE = 3 (DDR3) */
 	sdrc = readl(AM43XX_EMIF_BASE + AM43XX_SDRAM_CONFIG_OFFSET);
