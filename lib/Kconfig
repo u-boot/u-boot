@@ -327,6 +327,9 @@ config MD5
 config CRC32C
 	bool
 
+config XXHASH
+	bool
+
 endmenu
 
 menu "Compression Support"
