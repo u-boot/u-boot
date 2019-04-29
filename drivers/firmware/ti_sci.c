@@ -257,7 +257,8 @@ static int ti_sci_cmd_get_revision(struct ti_sci_handle *handle)
 
 	info = handle_to_ti_sci_info(handle);
 
-	xfer = ti_sci_setup_one_xfer(info, TI_SCI_MSG_VERSION, 0x0,
+	xfer = ti_sci_setup_one_xfer(info, TI_SCI_MSG_VERSION,
+				     TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
 				     (u32 *)&hdr, sizeof(struct ti_sci_msg_hdr),
 				     sizeof(*rev_info));
 	if (IS_ERR(xfer)) {
@@ -499,8 +500,8 @@ static int ti_sci_get_device_state(const struct ti_sci_handle *handle,
 
 	info = handle_to_ti_sci_info(handle);
 
-	/* Response is expected, so need of any flags */
-	xfer = ti_sci_setup_one_xfer(info, TI_SCI_MSG_GET_DEVICE_STATE, 0,
+	xfer = ti_sci_setup_one_xfer(info, TI_SCI_MSG_GET_DEVICE_STATE,
+				     TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
@@ -2574,8 +2575,8 @@ static int ti_sci_cmd_change_fwl_owner(const struct ti_sci_handle *handle,
 
 	info = handle_to_ti_sci_info(handle);
 
-	xfer = ti_sci_setup_one_xfer(info, TISCI_MSG_FWL_GET,
-				     TISCI_MSG_FWL_CHANGE_OWNER,
+	xfer = ti_sci_setup_one_xfer(info, TISCI_MSG_FWL_CHANGE_OWNER,
+				     TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
 				     (u32 *)&req, sizeof(req), sizeof(*resp));
 	if (IS_ERR(xfer)) {
 		ret = PTR_ERR(xfer);
