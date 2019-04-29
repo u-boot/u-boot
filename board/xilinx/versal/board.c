@@ -9,6 +9,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
 #include <versalpl.h>
@@ -194,7 +195,13 @@ int board_late_init(void)
 
 int dram_init_banksize(void)
 {
-	fdtdec_setup_memory_banksize();
+	int ret;
+
+	ret = fdtdec_setup_memory_banksize();
+	if (ret)
+		return ret;
+
+	mem_map_fill();
 
 	return 0;
 }

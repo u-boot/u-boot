@@ -12,14 +12,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct mm_region versal_mem_map[] = {
+#define VERSAL_MEM_MAP_USED	6
+
+#define DRAM_BANKS CONFIG_NR_DRAM_BANKS
+
+/* +1 is end of list which needs to be empty */
+#define VERSAL_MEM_MAP_MAX (VERSAL_MEM_MAP_USED + DRAM_BANKS + 1)
+
+static struct mm_region versal_mem_map[VERSAL_MEM_MAP_MAX] = {
 	{
-		.virt = 0x0UL,
-		.phys = 0x0UL,
-		.size = 0x80000000UL,
-		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
-			 PTE_BLOCK_INNER_SHARE
-	}, {
 		.virt = 0x80000000UL,
 		.phys = 0x80000000UL,
 		.size = 0x70000000UL,
@@ -59,11 +60,26 @@ static struct mm_region versal_mem_map[] = {
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
-	}, {
-		/* List terminator */
-		0,
 	}
 };
+
+void mem_map_fill(void)
+{
+	int banks = VERSAL_MEM_MAP_USED;
+
+	for (int i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		/* Zero size means no more DDR that's this is end */
+		if (!gd->bd->bi_dram[i].size)
+			break;
+
+		versal_mem_map[banks].virt = gd->bd->bi_dram[i].start;
+		versal_mem_map[banks].phys = gd->bd->bi_dram[i].start;
+		versal_mem_map[banks].size = gd->bd->bi_dram[i].size;
+		versal_mem_map[banks].attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
+					      PTE_BLOCK_INNER_SHARE;
+		banks = banks + 1;
+	}
+}
 
 struct mm_region *mem_map = versal_mem_map;
 

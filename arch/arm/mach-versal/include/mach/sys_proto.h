@@ -9,3 +9,4 @@ enum {
 };
 
 void tcm_init(u8 mode);
+void mem_map_fill(void);
