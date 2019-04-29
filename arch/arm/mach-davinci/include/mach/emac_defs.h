@@ -69,25 +69,4 @@
 #define EMAC_MDIO_CLOCK_FREQ		2000000		/* 2.0 MHz */
 #endif
 
-#define PHY_KSZ8873	(0x00221450)
-int ksz8873_is_phy_connected(int phy_addr);
-int ksz8873_get_link_speed(int phy_addr);
-int ksz8873_init_phy(int phy_addr);
-int ksz8873_auto_negotiate(int phy_addr);
-
-#define PHY_LXT972	(0x001378e2)
-int lxt972_is_phy_connected(int phy_addr);
-int lxt972_get_link_speed(int phy_addr);
-int lxt972_init_phy(int phy_addr);
-int lxt972_auto_negotiate(int phy_addr);
-
-#define PHY_DP83848	(0x20005c90)
-int dp83848_is_phy_connected(int phy_addr);
-int dp83848_get_link_speed(int phy_addr);
-int dp83848_init_phy(int phy_addr);
-int dp83848_auto_negotiate(int phy_addr);
-
-#define PHY_ET1011C	(0x282f013)
-int et1011c_get_link_speed(int phy_addr);
-
 #endif  /* _DM644X_EMAC_H_ */
