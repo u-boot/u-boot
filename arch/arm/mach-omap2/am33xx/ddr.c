@@ -311,8 +311,8 @@ static void ext_phy_settings_hwlvl(const struct emif_regs *regs, int nr)
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_34_shdw);
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_35);
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_35_shdw);
-	writel(0x000000FF, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36);
-	writel(0x000000FF, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36_shdw);
+	writel(0x00000077, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36);
+	writel(0x00000077, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_36_shdw);
 
 	/*
 	 * Sequence to ensure that the PHY is again in a known state after
