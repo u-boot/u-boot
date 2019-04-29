@@ -816,55 +816,12 @@ int davinci_emac_initialize(void)
 
 		phy_id |= tmp & 0x0000ffff;
 
-		switch (phy_id) {
-#ifdef PHY_KSZ8873
-		case PHY_KSZ8873:
-			sprintf(phy[i].name, "KSZ8873 @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = ksz8873_init_phy;
-			phy[i].is_phy_connected = ksz8873_is_phy_connected;
-			phy[i].get_link_speed = ksz8873_get_link_speed;
-			phy[i].auto_negotiate = ksz8873_auto_negotiate;
-			break;
-#endif
-#ifdef PHY_LXT972
-		case PHY_LXT972:
-			sprintf(phy[i].name, "LXT972 @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = lxt972_init_phy;
-			phy[i].is_phy_connected = lxt972_is_phy_connected;
-			phy[i].get_link_speed = lxt972_get_link_speed;
-			phy[i].auto_negotiate = lxt972_auto_negotiate;
-			break;
-#endif
-#ifdef PHY_DP83848
-		case PHY_DP83848:
-			sprintf(phy[i].name, "DP83848 @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = dp83848_init_phy;
-			phy[i].is_phy_connected = dp83848_is_phy_connected;
-			phy[i].get_link_speed = dp83848_get_link_speed;
-			phy[i].auto_negotiate = dp83848_auto_negotiate;
-			break;
-#endif
-#ifdef PHY_ET1011C
-		case PHY_ET1011C:
-			sprintf(phy[i].name, "ET1011C @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = gen_init_phy;
-			phy[i].is_phy_connected = gen_is_phy_connected;
-			phy[i].get_link_speed = et1011c_get_link_speed;
-			phy[i].auto_negotiate = gen_auto_negotiate;
-			break;
-#endif
-		default:
-			sprintf(phy[i].name, "GENERIC @ 0x%02x",
-						active_phy_addr[i]);
-			phy[i].init = gen_init_phy;
-			phy[i].is_phy_connected = gen_is_phy_connected;
-			phy[i].get_link_speed = gen_get_link_speed;
-			phy[i].auto_negotiate = gen_auto_negotiate;
-		}
+		sprintf(phy[i].name, "GENERIC @ 0x%02x",
+			active_phy_addr[i]);
+		phy[i].init = gen_init_phy;
+		phy[i].is_phy_connected = gen_is_phy_connected;
+		phy[i].get_link_speed = gen_get_link_speed;
+		phy[i].auto_negotiate = gen_auto_negotiate;
 
 		debug("Ethernet PHY: %s\n", phy[i].name);
 
