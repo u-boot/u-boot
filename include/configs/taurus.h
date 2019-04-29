@@ -41,6 +41,7 @@
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
+
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY
 
 /* general purpose I/O */
@@ -48,11 +49,8 @@
 #define CONFIG_AT91_GPIO
 #define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
 
-/* serial console */
-#define CONFIG_ATMEL_USART
 #define CONFIG_USART_BASE		ATMEL_BASE_DBGU
 #define CONFIG_USART_ID			ATMEL_ID_SYS
-
 
 /*
  * SDRAM: 1 bank, min 32, max 128 MB
@@ -106,7 +104,6 @@
 
 /* SPI EEPROM */
 #define TAURUS_SPI_MASK (1 << 4)
-#define TAURUS_SPI_CS_PIN	AT91_PIN_PA3
 
 #if defined(CONFIG_SPL_BUILD)
 /* SPL related */
@@ -120,8 +117,57 @@
 #define CONFIG_ENV_OFFSET		0x100000
 #define CONFIG_ENV_OFFSET_REDUND	0x180000
 #define CONFIG_ENV_SIZE		(SZ_128K)	/* 1 sector = 128 kB */
-#define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0x200000 0x300000; bootm"
 
+#ifndef CONFIG_SPL_BUILD
+#if defined(CONFIG_BOARD_AXM)
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:" \
+		"${gatewayip}:${netmask}:${hostname}:${netdev}::off\0" \
+	"addtest=setenv bootargs ${bootargs} loglevel=4 test\0" \
+	"boot_file=setenv bootfile /${project_dir}/kernel/uImage\0" \
+	"boot_retries=0\0" \
+	"ethact=macb0\0" \
+	"flash_nfs=run nand_kernel;run nfsargs;run addip;" \
+		"upgrade_available;bootm ${kernel_ram};reset\0" \
+	"flash_self=run nand_kernel;run setbootargs;upgrade_available;" \
+		"bootm ${kernel_ram};reset\0" \
+	"flash_self_test=run nand_kernel;run setbootargs addtest;" \
+		"upgrade_available;bootm ${kernel_ram};reset\0" \
+	"hostname=systemone\0" \
+	"kernel_Off=0x00200000\0" \
+	"kernel_Off_fallback=0x03800000\0" \
+	"kernel_ram=0x21500000\0" \
+	"kernel_size=0x00400000\0" \
+	"kernel_size_fallback=0x00400000\0" \
+	"loads_echo=1\0" \
+	"nand_kernel=nand read.e ${kernel_ram} ${kernel_Off} " \
+		"${kernel_size}\0" \
+	"net_nfs=run boot_file;tftp ${kernel_ram} ${bootfile};" \
+		"run nfsargs;run addip;upgrade_available;" \
+		"bootm ${kernel_ram};reset\0" \
+	"netdev=eth0\0" \
+	"nfsargs=run root_path;setenv bootargs ${bootargs} root=/dev/nfs " \
+		"rw nfsroot=${serverip}:${rootpath} " \
+		"at91sam9_wdt.wdt_timeout=16\0" \
+	"partitionset_active=A\0" \
+	"preboot=echo;echo Type 'run flash_self' to use kernel and root " \
+		"filesystem on memory;echo Type 'run flash_nfs' to use " \
+		"kernel from memory and root filesystem over NFS;echo Type " \
+		"'run net_nfs' to get Kernel over TFTP and mount root " \
+		"filesystem over NFS;echo\0" \
+	"project_dir=systemone\0" \
+	"root_path=setenv rootpath /home/projects/${project_dir}/rootfs\0" \
+	"rootfs=/dev/mtdblock5\0" \
+	"rootfs_fallback=/dev/mtdblock7\0" \
+	"setbootargs=setenv bootargs ${bootargs} console=ttyMTD,mtdoops " \
+		"root=${rootfs} rootfstype=jffs2 panic=7 " \
+		"at91sam9_wdt.wdt_timeout=16\0" \
+	"stderr=serial\0" \
+	"stdin=serial\0" \
+	"stdout=serial\0" \
+	"upgrade_available=0\0"
+#endif
+#endif /* #ifndef CONFIG_SPL_BUILD */
 /*
  * Size of malloc() pool
  */
