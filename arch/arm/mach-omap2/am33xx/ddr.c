@@ -256,8 +256,16 @@ static void ext_phy_settings_hwlvl(const struct emif_regs *regs, int nr)
 	 * Enable hardware leveling on the EMIF.  For details about these
 	 * magic values please see the EMIF registers section of the TRM.
 	 */
-	writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1);
-	writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1_shdw);
+	if (regs->emif_ddr_phy_ctlr_1 & 0x00040000) {
+		/* PHY_INVERT_CLKOUT = 1 */
+		writel(0x00040100, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1);
+		writel(0x00040100, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1_shdw);
+	} else {
+		/* PHY_INVERT_CLKOUT = 0 */
+		writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1);
+		writel(0x08020080, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_1_shdw);
+	}
+
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_22);
 	writel(0x00000000, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_22_shdw);
 	writel(0x00600020, &emif_reg[nr]->emif_ddr_ext_phy_ctrl_23);
