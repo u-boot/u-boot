@@ -730,43 +730,6 @@ static int nand_davinci_dev_ready(struct mtd_info *mtd)
 	return __raw_readl(&davinci_emif_regs->nandfsr) & 0x1;
 }
 
-static void nand_flash_init(void)
-{
-	/* This is for DM6446 EVM and *very* similar.  DO NOT GROW THIS!
-	 * Instead, have your board_init() set EMIF timings, based on its
-	 * knowledge of the clocks and what devices are hooked up ... and
-	 * don't even do that unless no UBL handled it.
-	 */
-#ifdef CONFIG_SOC_DM644X
-	u_int32_t	acfg1 = 0x3ffffffc;
-
-	/*------------------------------------------------------------------*
-	 *  NAND FLASH CHIP TIMEOUT @ 459 MHz                               *
-	 *                                                                  *
-	 *  AEMIF.CLK freq   = PLL1/6 = 459/6 = 76.5 MHz                    *
-	 *  AEMIF.CLK period = 1/76.5 MHz = 13.1 ns                         *
-	 *                                                                  *
-	 *------------------------------------------------------------------*/
-	 acfg1 = 0
-		| (0 << 31)	/* selectStrobe */
-		| (0 << 30)	/* extWait */
-		| (1 << 26)	/* writeSetup	10 ns */
-		| (3 << 20)	/* writeStrobe	40 ns */
-		| (1 << 17)	/* writeHold	10 ns */
-		| (1 << 13)	/* readSetup	10 ns */
-		| (5 << 7)	/* readStrobe	60 ns */
-		| (1 << 4)	/* readHold	10 ns */
-		| (3 << 2)	/* turnAround	?? ns */
-		| (0 << 0)	/* asyncSize	8-bit bus */
-		;
-
-	__raw_writel(acfg1, &davinci_emif_regs->ab1cr); /* CS2 */
-
-	/* NAND flash on CS2 */
-	__raw_writel(0x00000101, &davinci_emif_regs->nandfcr);
-#endif
-}
-
 void davinci_nand_init(struct nand_chip *nand)
 {
 #if defined CONFIG_KEYSTONE_RBL_NAND
@@ -820,8 +783,6 @@ void davinci_nand_init(struct nand_chip *nand)
 	nand->write_buf = nand_davinci_write_buf;
 
 	nand->dev_ready = nand_davinci_dev_ready;
-
-	nand_flash_init();
 }
 
 int board_nand_init(struct nand_chip *chip) __attribute__((weak));
