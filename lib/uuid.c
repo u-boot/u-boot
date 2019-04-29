@@ -187,9 +187,10 @@ int uuid_str_to_bin(char *uuid_str, unsigned char *uuid_bin, int str_format)
 /*
  * uuid_bin_to_str() - convert big endian binary data to string UUID or GUID.
  *
- * @param uuid_bin - pointer to binary data of UUID (big endian) [16B]
- * @param uuid_str - pointer to allocated array for output string [37B]
- * @str_format     - UUID string format: 0 - UUID; 1 - GUID
+ * @param uuid_bin:	pointer to binary data of UUID (big endian) [16B]
+ * @param uuid_str:	pointer to allocated array for output string [37B]
+ * @str_format:		bit 0: 0 - UUID; 1 - GUID
+ *			bit 1: 0 - lower case; 2 - upper case
  */
 void uuid_bin_to_str(unsigned char *uuid_bin, char *uuid_str, int str_format)
 {
@@ -198,6 +199,7 @@ void uuid_bin_to_str(unsigned char *uuid_bin, char *uuid_str, int str_format)
 	const u8 guid_char_order[UUID_BIN_LEN] = {3, 2, 1, 0, 5, 4, 7, 6, 8,
 						  9, 10, 11, 12, 13, 14, 15};
 	const u8 *char_order;
+	const char *format;
 	int i;
 
 	/*
@@ -205,13 +207,17 @@ void uuid_bin_to_str(unsigned char *uuid_bin, char *uuid_str, int str_format)
 	 * 4B-2B-2B-2B-6B
 	 * be be be be be
 	 */
-	if (str_format == UUID_STR_FORMAT_STD)
-		char_order = uuid_char_order;
-	else
+	if (str_format & UUID_STR_FORMAT_GUID)
 		char_order = guid_char_order;
+	else
+		char_order = uuid_char_order;
+	if (str_format & UUID_STR_UPPER_CASE)
+		format = "%02X";
+	else
+		format = "%02x";
 
 	for (i = 0; i < 16; i++) {
-		sprintf(uuid_str, "%02x", uuid_bin[char_order[i]]);
+		sprintf(uuid_str, format, uuid_bin[char_order[i]]);
 		uuid_str += 2;
 		switch (i) {
 		case 3:
