@@ -209,6 +209,8 @@ int get_disk_guid(struct blk_desc * dev_desc, char *guid)
 	guid_bin = gpt_head->disk_guid.b;
 	uuid_bin_to_str(guid_bin, guid, UUID_STR_FORMAT_GUID);
 
+	/* Remember to free pte */
+	free(gpt_pte);
 	return 0;
 }
 
