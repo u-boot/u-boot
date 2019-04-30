@@ -63,9 +63,11 @@ static int send_ipi_many(struct ipi_data *ipi)
 			continue;
 		}
 
+#ifndef CONFIG_XIP
 		/* skip if hart is not available */
 		if (!(gd->arch.available_harts & (1 << reg)))
 			continue;
+#endif
 
 		gd->arch.ipi[reg].addr = ipi->addr;
 		gd->arch.ipi[reg].arg0 = ipi->arg0;

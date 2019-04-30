@@ -98,6 +98,7 @@ call_board_init_f_0:
 	mv	sp, a0
 #endif
 
+#ifndef CONFIG_XIP
 	/*
 	 * Pick hart to initialize global data and run U-Boot. The other harts
 	 * wait for initialization to complete.
@@ -106,6 +107,9 @@ call_board_init_f_0:
 	li	s2, 1
 	amoswap.w s2, t1, 0(t0)
 	bnez	s2, wait_for_gd_init
+#else
+	bnez	tp, secondary_hart_loop
+#endif
 
 	la	t0, prior_stage_fdt_address
 	SREG	s1, 0(t0)
@@ -115,6 +119,7 @@ call_board_init_f_0:
 	/* save the boot hart id to global_data */
 	SREG	tp, GD_BOOT_HART(gp)
 
+#ifndef CONFIG_XIP
 	la	t0, available_harts_lock
 	fence	rw, w
 	amoswap.w zero, zero, 0(t0)
@@ -141,6 +146,7 @@ wait_for_gd_init:
 	 * secondary_hart_loop.
 	 */
 	bnez	s2, secondary_hart_loop
+#endif
 
 	/* Enable cache */
 	jal	icache_enable

@@ -16,6 +16,7 @@
  * before the bss section is available.
  */
 phys_addr_t prior_stage_fdt_address __attribute__((section(".data")));
+#ifndef CONFIG_XIP
 u32 hart_lottery __attribute__((section(".data"))) = 0;
 
 /*
@@ -23,6 +24,7 @@ u32 hart_lottery __attribute__((section(".data"))) = 0;
  * finished initialization of global data.
  */
 u32 available_harts_lock = 1;
+#endif
 
 static inline bool supports_extension(char ext)
 {
