@@ -62,9 +62,10 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
+#define USB_LOW_THRESHOLD_UV		200000
 #define USB_WARNING_LOW_THRESHOLD_UV	660000
 #define USB_START_LOW_THRESHOLD_UV	1230000
-#define USB_START_HIGH_THRESHOLD_UV	2100000
+#define USB_START_HIGH_THRESHOLD_UV	2150000
 
 int checkboard(void)
 {
@@ -265,9 +266,10 @@ static int board_check_usb_power(void)
 	ofnode node;
 	unsigned int raw;
 	int max_uV = 0;
+	int min_uV = USB_START_HIGH_THRESHOLD_UV;
 	int ret, uV, adc_count;
-	u8 i, nb_blink;
-
+	u32 nb_blink;
+	u8 i;
 	node = ofnode_path("/config");
 	if (!ofnode_valid(node)) {
 		debug("%s: no /config node?\n", __func__);
@@ -319,6 +321,8 @@ static int board_check_usb_power(void)
 		if (!adc_raw_to_uV(adc, raw, &uV)) {
 			if (uV > max_uV)
 				max_uV = uV;
+			if (uV < min_uV)
+				min_uV = uV;
 			pr_debug("%s: %s[%02d] = %u, %d uV\n", __func__,
 				 adc->name, adc_args.args[0], raw, uV);
 		} else {
@@ -333,27 +337,66 @@ static int board_check_usb_power(void)
 	 * continue.
 	 */
 	if (max_uV > USB_START_LOW_THRESHOLD_UV &&
-	    max_uV < USB_START_HIGH_THRESHOLD_UV)
+	    max_uV <= USB_START_HIGH_THRESHOLD_UV &&
+	    min_uV <= USB_LOW_THRESHOLD_UV)
 		return 0;
 
-	/* Display warning message and make u-boot,error-led blinking */
-	pr_err("\n*******************************************\n");
+	pr_err("****************************************************\n");
 
-	if (max_uV < USB_WARNING_LOW_THRESHOLD_UV) {
-		pr_err("*   WARNING 500mA power supply detected   *\n");
+	/*
+	 * If highest and lowest value are either both below
+	 * USB_LOW_THRESHOLD_UV or both above USB_LOW_THRESHOLD_UV, that
+	 * means USB TYPE-C is in unattached mode, this is an issue, make
+	 * u-boot,error-led blinking and stop boot process.
+	 */
+	if ((max_uV > USB_LOW_THRESHOLD_UV &&
+	     min_uV > USB_LOW_THRESHOLD_UV) ||
+	     (max_uV <= USB_LOW_THRESHOLD_UV &&
+	     min_uV <= USB_LOW_THRESHOLD_UV)) {
+		pr_err("* ERROR USB TYPE-C connection in unattached mode   *\n");
+		pr_err("* Check that USB TYPE-C cable is correctly plugged *\n");
+		/* with 125ms interval, led will blink for 17.02 years ....*/
+		nb_blink = U32_MAX;
+	}
+
+	if (max_uV > USB_LOW_THRESHOLD_UV &&
+	    max_uV <= USB_WARNING_LOW_THRESHOLD_UV &&
+	    min_uV <= USB_LOW_THRESHOLD_UV) {
+		pr_err("*        WARNING 500mA power supply detected       *\n");
 		nb_blink = 2;
-	} else {
-		pr_err("* WARNING 1.5A power supply detected      *\n");
+	}
+
+	if (max_uV > USB_WARNING_LOW_THRESHOLD_UV &&
+	    max_uV <= USB_START_LOW_THRESHOLD_UV &&
+	    min_uV <= USB_LOW_THRESHOLD_UV) {
+		pr_err("*       WARNING 1.5mA power supply detected        *\n");
 		nb_blink = 3;
 	}
 
-	pr_err("* Current too low, use a 3A power supply! *\n");
-	pr_err("*******************************************\n\n");
+	/*
+	 * If highest value is above 2.15 Volts that means that the USB TypeC
+	 * supplies more than 3 Amp, this is not compliant with TypeC specification
+	 */
+	if (max_uV > USB_START_HIGH_THRESHOLD_UV) {
+		pr_err("*      USB TYPE-C charger not compliant with       *\n");
+		pr_err("*                   specification                  *\n");
+		pr_err("****************************************************\n\n");
+		/* with 125ms interval, led will blink for 17.02 years ....*/
+		nb_blink = U32_MAX;
+	} else {
+		pr_err("*     Current too low, use a 3A power supply!      *\n");
+		pr_err("****************************************************\n\n");
+	}
 
 	ret = get_led(&led, "u-boot,error-led");
-	if (ret)
+	if (ret) {
+		/* in unattached case, the boot process must be stopped */
+		if (nb_blink == U32_MAX)
+			hang();
 		return ret;
+	}
 
+	/* make u-boot,error-led blinking */
 	for (i = 0; i < nb_blink * 2; i++) {
 		led_set_state(led, LEDST_TOGGLE);
 		mdelay(125);
