@@ -15,7 +15,6 @@
 #include <asm/arch/spl.h>
 #include <asm/arch/spi.h>
 #include <asm/io.h>
-#include <debug_uart.h>
 #ifdef CONFIG_X4412
 #include <asm/arch/smc.h>
 #endif

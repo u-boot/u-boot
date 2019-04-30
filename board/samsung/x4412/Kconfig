@@ -14,7 +14,7 @@ config X4412
     default y
 
 config EXYNOS4x12
-    bool "exynos4x12 SoC"
+    bool "Exynos4x12 SoC"
     default y
 
 endif
