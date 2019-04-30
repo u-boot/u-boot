@@ -30,6 +30,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef DEBUG
+#undef writel
+#define writel(v, r) do { \
+    debug("%s: 0x%08x => 0x%08x\n", __func__, (unsigned int)v, (unsigned int)r); \
+    __raw_writel(v, r); \
+} while(0)
+#endif
+
 enum {
 	FIMD_RGB_INTERFACE = 1,
 	FIMD_CPU_INTERFACE = 2,
