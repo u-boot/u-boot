@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-dtb-$(CONFIG_ARCH_MT7620) += \
+dtb-$(CONFIG_ARCH_MTMIPS) += \
 	gardena-smart-gateway-mt7688.dtb \
 	linkit-smart-7688.dtb
 dtb-$(CONFIG_TARGET_AP121) += ap121.dtb

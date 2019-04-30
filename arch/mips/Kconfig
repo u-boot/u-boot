@@ -74,8 +74,8 @@ config ARCH_BMIPS
 	select SYSRESET
 	imply CMD_DM
 
-config ARCH_MT7620
-	bool "Support MT7620/7688 SoCs"
+config ARCH_MTMIPS
+	bool "Support MediaTek MIPS platforms"
 	imply CMD_DM
 	select DISPLAY_CPUINFO
 	select DM
@@ -153,7 +153,7 @@ source "arch/mips/mach-mscc/Kconfig"
 source "arch/mips/mach-bmips/Kconfig"
 source "arch/mips/mach-jz47xx/Kconfig"
 source "arch/mips/mach-pic32/Kconfig"
-source "arch/mips/mach-mt7620/Kconfig"
+source "arch/mips/mach-mtmips/Kconfig"
 
 if MIPS
 

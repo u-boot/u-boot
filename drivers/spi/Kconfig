@@ -133,7 +133,7 @@ config MPC8XX_SPI
 
 config MT7621_SPI
 	bool "MediaTek MT7621 SPI driver"
-	depends on ARCH_MT7620
+	depends on SOC_MT7628
 	help
 	  Enable the MT7621 SPI driver. This driver can be used to access
 	  the SPI NOR flash on platforms embedding this Ralink / MediaTek
