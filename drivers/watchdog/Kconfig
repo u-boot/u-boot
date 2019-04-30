@@ -154,6 +154,14 @@ config WDT_SP805
 	   Select this to enable SP805 watchdog timer, which can be found on some
 	   nxp layerscape chips.
 
+config WDT_STM32MP
+	bool "IWDG watchdog driver for STM32 MP's family"
+	depends on WDT
+	imply WATCHDOG
+	help
+	  Enable the STM32 watchdog (IWDG) driver. Enable support to
+	  configure STM32's on-SoC watchdog.
+
 config XILINX_TB_WATCHDOG
 	bool "Xilinx Axi watchdog timer support"
 	depends on WDT

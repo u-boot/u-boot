@@ -28,3 +28,4 @@ obj-$(CONFIG_WDT_MPC8xx) += mpc8xx_wdt.o
 obj-$(CONFIG_WDT_MT7621) += mt7621_wdt.o
 obj-$(CONFIG_WDT_MTK) += mtk_wdt.o
 obj-$(CONFIG_WDT_SP805) += sp805_wdt.o
+obj-$(CONFIG_WDT_STM32MP) += stm32mp_wdt.o
