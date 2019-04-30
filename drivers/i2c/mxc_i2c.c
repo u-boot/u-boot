@@ -540,6 +540,25 @@ static int i2c_read_data(struct mxc_i2c_bus *i2c_bus, uchar chip, uchar *buf,
 #ifndef CONFIG_DM_I2C
 /*
  * Read data from I2C device
+ *
+ * The transactions use the syntax defined in the Linux kernel I2C docs.
+ *
+ * If alen is > 0, then this function will send a transaction of the form:
+ *     S Chip Wr [A] Addr [A] S Chip Rd [A] [data] A ... NA P
+ * This is a normal I2C register read: writing the register address, then doing
+ * a repeated start and reading the data.
+ *
+ * If alen == 0, then we get this transaction:
+ *     S Chip Wr [A] S Chip Rd [A] [data] A ... NA P
+ * This is somewhat unusual, though valid, transaction.  It addresses the chip
+ * in write mode, but doesn't actually write any register address or data, then
+ * does a repeated start and reads data.
+ *
+ * If alen < 0, then we get this transaction:
+ *     S Chip Rd [A] [data] A ... NA P
+ * The chip is addressed in read mode and then data is read.  No register
+ * address is written first.  This is perfectly valid on most devices and
+ * required on some (usually those that don't act like an array of registers).
  */
 static int bus_i2c_read(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 			int alen, u8 *buf, int len)
@@ -574,6 +593,20 @@ static int bus_i2c_read(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 
 /*
  * Write data to I2C device
+ *
+ * If alen > 0, we get this transaction:
+ *    S Chip Wr [A] addr [A] data [A] ... [A] P
+ * An ordinary write register command.
+ *
+ * If alen == 0, then we get this:
+ *    S Chip Wr [A] data [A] ... [A] P
+ * This is a simple I2C write.
+ *
+ * If alen < 0, then we get this:
+ *    S data [A] ... [A] P
+ * This is most likely NOT something that should be used.  It doesn't send the
+ * chip address first, so in effect, the first byte of data will be used as the
+ * address.
  */
 static int bus_i2c_write(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 			 int alen, const u8 *buf, int len)
@@ -881,6 +914,7 @@ static int mxc_i2c_probe(struct udevice *bus)
 	return 0;
 }
 
+/* Sends: S Addr Wr [A|NA] P */
 static int mxc_i2c_probe_chip(struct udevice *bus, u32 chip_addr,
 			      u32 chip_flags)
 {
