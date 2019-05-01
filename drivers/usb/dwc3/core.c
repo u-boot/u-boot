@@ -440,6 +440,8 @@ static int dwc3_core_init(struct dwc3 *dwc)
 		goto err0;
 	}
 
+	dwc3_phy_setup(dwc);
+
 	ret = dwc3_core_soft_reset(dwc);
 	if (ret)
 		goto err0;
@@ -513,8 +515,6 @@ static int dwc3_core_init(struct dwc3 *dwc)
 	dwc3_core_num_eps(dwc);
 
 	dwc3_writel(dwc->regs, DWC3_GCTL, reg);
-
-	dwc3_phy_setup(dwc);
 
 	ret = dwc3_alloc_scratch_buffers(dwc);
 	if (ret)
