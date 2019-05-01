@@ -39,7 +39,6 @@
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_HSMMC2_8BIT
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* Required support for the TCA642X GPIO we have on the uEVM */
 #define CONFIG_TCA642X

@@ -153,7 +153,6 @@
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2" /* USDHC1 */
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 #endif
 
 /* USB Configs */

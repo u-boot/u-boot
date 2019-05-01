@@ -31,13 +31,6 @@
  * it has to be done after each HCD reset */
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
-/* Support all possible USB ethernet dongles */
-
-/* Extra Commands */
-/* Enable that for switching of boot partitions */
-/* Disabled by default as some sub-commands can brick eMMC */
-/*#define CONFIG_SUPPORT_EMMC_BOOT */
-
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 

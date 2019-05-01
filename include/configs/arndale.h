@@ -14,9 +14,6 @@
 #include "exynos5250-common.h"
 #include <configs/exynos5-common.h>
 
-/* SD/MMC configuration */
-#define CONFIG_SUPPORT_EMMC_BOOT
-
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 

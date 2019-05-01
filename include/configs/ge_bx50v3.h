@@ -19,9 +19,6 @@
 #define CONFIG_MXC_UART_BASE	UART3_BASE
 #define CONSOLE_DEV	"ttymxc2"
 
-#define CONFIG_SUPPORT_EMMC_BOOT
-
-
 #include "mx6_common.h"
 #include <linux/sizes.h>
 

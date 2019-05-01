@@ -76,7 +76,6 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 #define CONFIG_SYS_MMC_ENV_DEV		2	/* SDHC4 */
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
-#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 /* MarSBoard */
 #define CONFIG_FDTFILE	"imx6q-marsboard.dtb"

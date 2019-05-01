@@ -21,8 +21,6 @@
 #define CONFIG_LOADCMD "fatload"
 #define CONFIG_RFSPART "2"
 
-#define CONFIG_SUPPORT_EMMC_BOOT
-
 #include "mx6_common.h"
 #include <linux/sizes.h>
 

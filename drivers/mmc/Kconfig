@@ -78,6 +78,12 @@ config SUPPORT_EMMC_RPMB
 	  Enable support for reading, writing and programming the
 	  key for the Replay Protection Memory Block partition in eMMC.
 
+config SUPPORT_EMMC_BOOT
+	bool "Support some additional features of the eMMC boot partitions"
+	help
+	  Enable support for eMMC boot partitions. This also enables
+	  extensions within the mmc command.
+
 config MMC_IO_VOLTAGE
 	bool "Support IO voltage configuration"
 	help
