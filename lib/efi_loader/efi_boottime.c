@@ -13,6 +13,7 @@
 #include <linux/libfdt_env.h>
 #include <u-boot/crc.h>
 #include <bootm.h>
+#include <pe.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -2798,7 +2799,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 	 *	 image protocol.
 	 */
 	efi_status_t ret;
-	void *info;
+	struct efi_loaded_image *loaded_image_protocol;
 	struct efi_loaded_image_obj *image_obj =
 		(struct efi_loaded_image_obj *)image_handle;
 
@@ -2806,13 +2807,33 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 		  exit_data_size, exit_data);
 
 	/* Check parameters */
-	if (image_handle != current_image)
-		goto out;
 	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
-					 &info, NULL, NULL,
+					 (void **)&loaded_image_protocol,
+					 NULL, NULL,
 					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
-	if (ret != EFI_SUCCESS)
+	if (ret != EFI_SUCCESS) {
+		ret = EFI_INVALID_PARAMETER;
 		goto out;
+	}
+
+	/* Unloading of unstarted images */
+	switch (image_obj->header.type) {
+	case EFI_OBJECT_TYPE_STARTED_IMAGE:
+		break;
+	case EFI_OBJECT_TYPE_LOADED_IMAGE:
+		efi_delete_image(image_obj, loaded_image_protocol);
+		ret = EFI_SUCCESS;
+		goto out;
+	default:
+		/* Handle does not refer to loaded image */
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	/* A started image can only be unloaded it is the last one started. */
+	if (image_handle != current_image) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
 	/* Exit data is only foreseen in case of failure. */
 	if (exit_status != EFI_SUCCESS) {
@@ -2822,6 +2843,9 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 		if (ret != EFI_SUCCESS)
 			EFI_PRINT("%s: out of memory\n", __func__);
 	}
+	if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION ||
+	    exit_status != EFI_SUCCESS)
+		efi_delete_image(image_obj, loaded_image_protocol);
 
 	/* Make sure entry/exit counts for EFI world cross-overs match */
 	EFI_EXIT(exit_status);
@@ -2837,7 +2861,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 
 	panic("EFI application exited");
 out:
-	return EFI_EXIT(EFI_INVALID_PARAMETER);
+	return EFI_EXIT(ret);
 }
 
 /**

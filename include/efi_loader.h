@@ -234,6 +234,7 @@ struct efi_loaded_image_obj {
 	struct jmp_buf_data exit_jmp;
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
+	u16 image_type;
 };
 
 /**
