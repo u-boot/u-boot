@@ -688,6 +688,57 @@ static void composite_setup_complete(struct usb_ep *ep, struct usb_request *req)
 				req->status, req->actual, req->length);
 }
 
+static int bos_desc(struct usb_composite_dev *cdev)
+{
+	struct usb_ext_cap_descriptor   *usb_ext;
+	struct usb_bos_descriptor       *bos = cdev->req->buf;
+
+	bos->bLength = USB_DT_BOS_SIZE;
+	bos->bDescriptorType = USB_DT_BOS;
+
+	bos->wTotalLength = cpu_to_le16(USB_DT_BOS_SIZE);
+	bos->bNumDeviceCaps = 0;
+
+	/*
+	 * A SuperSpeed device shall include the USB2.0 extension descriptor
+	 * and shall support LPM when operating in USB2.0 HS mode.
+	 */
+	usb_ext = cdev->req->buf + le16_to_cpu(bos->wTotalLength);
+	bos->bNumDeviceCaps++;
+	le16_add_cpu(&bos->wTotalLength, USB_DT_USB_EXT_CAP_SIZE);
+	usb_ext->bLength = USB_DT_USB_EXT_CAP_SIZE;
+	usb_ext->bDescriptorType = USB_DT_DEVICE_CAPABILITY;
+	usb_ext->bDevCapabilityType = USB_CAP_TYPE_EXT;
+	usb_ext->bmAttributes =
+		cpu_to_le32(USB_LPM_SUPPORT | USB_BESL_SUPPORT);
+
+	/*
+	 * The Superspeed USB Capability descriptor shall be implemented
+	 * by all SuperSpeed devices.
+	 */
+	if (gadget_is_superspeed(cdev->gadget)) {
+		struct usb_ss_cap_descriptor *ss_cap;
+
+		ss_cap = cdev->req->buf + le16_to_cpu(bos->wTotalLength);
+		bos->bNumDeviceCaps++;
+		le16_add_cpu(&bos->wTotalLength, USB_DT_USB_SS_CAP_SIZE);
+		ss_cap->bLength = USB_DT_USB_SS_CAP_SIZE;
+		ss_cap->bDescriptorType = USB_DT_DEVICE_CAPABILITY;
+		ss_cap->bDevCapabilityType = USB_SS_CAP_TYPE;
+		ss_cap->bmAttributes = 0; /* LTM is not supported yet */
+		ss_cap->wSpeedSupported =
+			cpu_to_le16(USB_LOW_SPEED_OPERATION |
+				    USB_FULL_SPEED_OPERATION |
+				    USB_HIGH_SPEED_OPERATION |
+				    USB_5GBPS_OPERATION);
+		ss_cap->bFunctionalitySupport = USB_LOW_SPEED_OPERATION;
+		ss_cap->bU1devExitLat = USB_DEFAULT_U1_DEV_EXIT_LAT;
+		ss_cap->bU2DevExitLat =
+			cpu_to_le16(USB_DEFAULT_U2_DEV_EXIT_LAT);
+	}
+	return le16_to_cpu(bos->wTotalLength);
+}
+
 /*
  * The setup() callback implements all the ep0 functionality that's
  * not handled lower down, in hardware or the hardware driver(like
@@ -776,12 +827,10 @@ composite_setup(struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 				value = min(w_length, (u16) value);
 			break;
 		case USB_DT_BOS:
-			/*
-			 * The USB compliance test (USB 2.0 Command Verifier)
-			 * issues this request. We should not run into the
-			 * default path here. But return for now until
-			 * the superspeed support is added.
-			 */
+			if (gadget_is_superspeed(cdev->gadget))
+				value = bos_desc(cdev);
+			if (value >= 0)
+				value = min(w_length, (u16)value);
 			break;
 		default:
 			goto unknown;
