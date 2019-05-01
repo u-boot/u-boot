@@ -12,7 +12,8 @@
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/gpio.h>
 #include <dm/pinctrl.h>
 #include <dt-bindings/clock/rk3288-cru.h>
 

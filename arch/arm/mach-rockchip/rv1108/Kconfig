@@ -23,7 +23,7 @@ config TARGET_ELGIN_RV1108
 	  RV1108 ELGIN is a board based on the Rockchip RV1108.
 
 config SYS_SOC
-	default "rockchip"
+	default "rv1108"
 
 config SYS_MALLOC_F_LEN
 	default 0x400

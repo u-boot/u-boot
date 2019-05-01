@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>
-#include <asm/arch/sdram_common.h>
+#include <asm/arch-rockchip/sdram_common.h>
 #include <dm/uclass-internal.h>
 
 DECLARE_GLOBAL_DATA_PTR;

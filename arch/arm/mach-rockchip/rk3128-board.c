@@ -8,11 +8,11 @@
 #include <ram.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/periph.h>
-#include <asm/arch/grf_rk3128.h>
-#include <asm/arch/boot_mode.h>
-#include <asm/arch/timer.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/periph.h>
+#include <asm/arch-rockchip/grf_rk3128.h>
+#include <asm/arch-rockchip/boot_mode.h>
+#include <asm/arch-rockchip/timer.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;

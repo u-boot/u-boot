@@ -148,7 +148,7 @@ config ROCKCHIP_FAST_SPL
 	  and have the required PMIC code.
 
 config SYS_SOC
-	default "rockchip"
+	default "rk3288"
 
 config SYS_MALLOC_F_LEN
 	default 0x0800

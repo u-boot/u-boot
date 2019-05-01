@@ -9,7 +9,7 @@ config TARGET_KYLIN_RK3036
 	select BOARD_LATE_INIT
 
 config SYS_SOC
-	default "rockchip"
+	default "rk3036"
 
 config SYS_MALLOC_F_LEN
 	default 0x400

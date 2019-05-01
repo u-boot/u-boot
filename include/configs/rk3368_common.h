@@ -10,7 +10,7 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <linux/sizes.h>
 
 #define CONFIG_SYS_SDRAM_BASE		0

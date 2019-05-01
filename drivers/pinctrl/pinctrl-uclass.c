@@ -116,6 +116,9 @@ static int pinconfig_post_bind(struct udevice *dev)
 	ofnode node;
 	int ret;
 
+	if (!dev_of_valid(dev))
+		return 0;
+
 	dev_for_each_subnode(node, dev) {
 		if (pre_reloc_only &&
 		    !ofnode_pre_reloc(node))

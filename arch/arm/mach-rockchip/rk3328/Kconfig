@@ -13,7 +13,7 @@ config TARGET_EVB_RK3328
 endchoice
 
 config SYS_SOC
-	default "rockchip"
+	default "rk3328"
 
 config SYS_MALLOC_F_LEN
 	default 0x0800

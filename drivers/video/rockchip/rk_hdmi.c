@@ -14,10 +14,9 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/gpio.h>
-#include <asm/hardware.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/hardware.h>
 #include "rk_hdmi.h"
 #include "rk_vop.h" /* for rk_vop_probe_regulators */
 

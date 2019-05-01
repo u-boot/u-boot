@@ -11,14 +11,14 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk322x.h>
-#include <asm/arch/grf_rk322x.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/sdram_rk322x.h>
-#include <asm/arch/timer.h>
-#include <asm/arch/uart.h>
-#include <asm/arch/sdram_common.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk322x.h>
+#include <asm/arch-rockchip/grf_rk322x.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/sdram_rk322x.h>
+#include <asm/arch-rockchip/timer.h>
+#include <asm/arch-rockchip/uart.h>
+#include <asm/arch-rockchip/sdram_common.h>
 #include <asm/types.h>
 #include <linux/err.h>
 

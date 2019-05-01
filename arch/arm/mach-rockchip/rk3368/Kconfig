@@ -43,7 +43,7 @@ config TARGET_EVB_PX5
 endchoice
 
 config SYS_SOC
-	default "rockchip"
+	default "rk3368"
 
 source "board/theobroma-systems/lion_rk3368/Kconfig"
 source "board/rockchip/sheep_rk3368/Kconfig"

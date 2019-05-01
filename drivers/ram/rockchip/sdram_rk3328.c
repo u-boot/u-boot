@@ -7,9 +7,9 @@
 #include <dm.h>
 #include <ram.h>
 #include <syscon.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/grf_rk3328.h>
-#include <asm/arch/sdram_common.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/grf_rk3328.h>
+#include <asm/arch-rockchip/sdram_common.h>
 
 struct dram_info {
 	struct ram_info info;

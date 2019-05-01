@@ -9,11 +9,11 @@
 #include <ram.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/periph.h>
-#include <asm/arch/grf_rk3036.h>
-#include <asm/arch/boot_mode.h>
-#include <asm/arch/sdram_rk3036.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/periph.h>
+#include <asm/arch-rockchip/grf_rk3036.h>
+#include <asm/arch-rockchip/boot_mode.h>
+#include <asm/arch-rockchip/sdram_rk3036.h>
 #include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -13,12 +13,12 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/sdram_common.h>
-#include <asm/arch/sdram_rk3399.h>
-#include <asm/arch/cru_rk3399.h>
-#include <asm/arch/grf_rk3399.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/sdram_common.h>
+#include <asm/arch-rockchip/sdram_rk3399.h>
+#include <asm/arch-rockchip/cru_rk3399.h>
+#include <asm/arch-rockchip/grf_rk3399.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <linux/err.h>
 #include <time.h>
 

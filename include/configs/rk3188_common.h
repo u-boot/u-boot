@@ -8,7 +8,7 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	64
 
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/hardware.h>
 #include "rockchip-common.h"
 
 #define CONFIG_SKIP_LOWLEVEL_INIT_ONLY

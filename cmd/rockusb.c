@@ -8,7 +8,7 @@
 #include <console.h>
 #include <g_dnl.h>
 #include <usb.h>
-#include <asm/arch/f_rockusb.h>
+#include <asm/arch-rockchip/f_rockusb.h>
 
 static int do_rockusb(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {

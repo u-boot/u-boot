@@ -2,6 +2,8 @@
 /*
  * spi driver for rockchip
  *
+ * (C) 2019 Theobroma Systems Design und Consulting GmbH
+ *
  * (C) Copyright 2015 Google, Inc
  *
  * (C) Copyright 2008-2013 Rockchip Electronics
@@ -16,13 +18,18 @@
 #include <spi.h>
 #include <linux/errno.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/periph.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/periph.h>
 #include <dm/pinctrl.h>
 #include "rk_spi.h"
 
 /* Change to 1 to output registers at the start of each transaction */
 #define DEBUG_RK_SPI	0
+
+struct rockchip_spi_params {
+	/* RXFIFO overruns and TXFIFO underruns stop the master clock */
+	bool master_manages_fifo;
+};
 
 struct rockchip_spi_platdata {
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -40,11 +47,8 @@ struct rockchip_spi_priv {
 	unsigned int max_freq;
 	unsigned int mode;
 	ulong last_transaction_us;	/* Time of last transaction end */
-	u8 bits_per_word;		/* max 16 bits per word */
-	u8 n_bytes;
 	unsigned int speed_hz;
 	unsigned int last_speed_hz;
-	unsigned int tmode;
 	uint input_rate;
 };
 
@@ -130,8 +134,13 @@ static void spi_cs_activate(struct udevice *dev, uint cs)
 	if (plat->deactivate_delay_us && priv->last_transaction_us) {
 		ulong delay_us;		/* The delay completed so far */
 		delay_us = timer_get_us() - priv->last_transaction_us;
-		if (delay_us < plat->deactivate_delay_us)
-			udelay(plat->deactivate_delay_us - delay_us);
+		if (delay_us < plat->deactivate_delay_us) {
+			ulong additional_delay_us =
+				plat->deactivate_delay_us - delay_us;
+			debug("%s: delaying by %ld us\n",
+			      __func__, additional_delay_us);
+			udelay(additional_delay_us);
+		}
 	}
 
 	debug("activate cs%u\n", cs);
@@ -263,8 +272,6 @@ static int rockchip_spi_probe(struct udevice *bus)
 	}
 	priv->input_rate = ret;
 	debug("%s: rate = %u\n", __func__, priv->input_rate);
-	priv->bits_per_word = 8;
-	priv->tmode = TMOD_TR; /* Tx & Rx */
 
 	return 0;
 }
@@ -274,28 +281,10 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	struct udevice *bus = dev->parent;
 	struct rockchip_spi_priv *priv = dev_get_priv(bus);
 	struct rockchip_spi *regs = priv->regs;
-	u8 spi_dfs, spi_tf;
 	uint ctrlr0;
 
 	/* Disable the SPI hardware */
-	rkspi_enable_chip(regs, 0);
-
-	switch (priv->bits_per_word) {
-	case 8:
-		priv->n_bytes = 1;
-		spi_dfs = DFS_8BIT;
-		spi_tf = HALF_WORD_OFF;
-		break;
-	case 16:
-		priv->n_bytes = 2;
-		spi_dfs = DFS_16BIT;
-		spi_tf = HALF_WORD_ON;
-		break;
-	default:
-		debug("%s: unsupported bits: %dbits\n", __func__,
-		      priv->bits_per_word);
-		return -EPROTONOSUPPORT;
-	}
+	rkspi_enable_chip(regs, false);
 
 	if (priv->speed_hz != priv->last_speed_hz)
 		rkspi_set_clk(priv, priv->speed_hz);
@@ -304,7 +293,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 = OMOD_MASTER << OMOD_SHIFT;
 
 	/* Data Frame Size */
-	ctrlr0 |= spi_dfs << DFS_SHIFT;
+	ctrlr0 |= DFS_8BIT << DFS_SHIFT;
 
 	/* set SPI mode 0..3 */
 	if (priv->mode & SPI_CPOL)
@@ -325,7 +314,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 |= FBM_MSB << FBM_SHIFT;
 
 	/* Byte and Halfword Transform */
-	ctrlr0 |= spi_tf << HALF_WORD_TX_SHIFT;
+	ctrlr0 |= HALF_WORD_OFF << HALF_WORD_TX_SHIFT;
 
 	/* Rxd Sample Delay */
 	ctrlr0 |= 0 << RXDSD_SHIFT;
@@ -334,7 +323,7 @@ static int rockchip_spi_claim_bus(struct udevice *dev)
 	ctrlr0 |= FRF_SPI << FRF_SHIFT;
 
 	/* Tx and Rx mode */
-	ctrlr0 |= (priv->tmode & TMOD_MASK) << TMOD_SHIFT;
+	ctrlr0 |= TMOD_TR << TMOD_SHIFT;
 
 	writel(ctrlr0, &regs->ctrlr0);
 
@@ -351,6 +340,83 @@ static int rockchip_spi_release_bus(struct udevice *dev)
 	return 0;
 }
 
+static inline int rockchip_spi_16bit_reader(struct udevice *dev,
+					    u8 **din, int *len)
+{
+	struct udevice *bus = dev->parent;
+	const struct rockchip_spi_params * const data =
+		(void *)dev_get_driver_data(bus);
+	struct rockchip_spi_priv *priv = dev_get_priv(bus);
+	struct rockchip_spi *regs = priv->regs;
+	const u32 saved_ctrlr0 = readl(&regs->ctrlr0);
+#if defined(DEBUG)
+	u32 statistics_rxlevels[33] = { };
+#endif
+	u32 frames = *len / 2;
+	u8 *in = (u8 *)(*din);
+	u32 max_chunk_size = SPI_FIFO_DEPTH;
+
+	if (!frames)
+		return 0;
+
+	/*
+	 * If we know that the hardware will manage RXFIFO overruns
+	 * (i.e. stop the SPI clock until there's space in the FIFO),
+	 * we the allow largest possible chunk size that can be
+	 * represented in CTRLR1.
+	 */
+	if (data && data->master_manages_fifo)
+		max_chunk_size = 0x10000;
+
+	// rockchip_spi_configure(dev, mode, size)
+	rkspi_enable_chip(regs, false);
+	clrsetbits_le32(&regs->ctrlr0,
+			TMOD_MASK << TMOD_SHIFT,
+			TMOD_RO << TMOD_SHIFT);
+	/* 16bit data frame size */
+	clrsetbits_le32(&regs->ctrlr0, DFS_MASK, DFS_16BIT);
+
+	/* Update caller's context */
+	const u32 bytes_to_process = 2 * frames;
+	*din += bytes_to_process;
+	*len -= bytes_to_process;
+
+	/* Process our frames */
+	while (frames) {
+		u32 chunk_size = min(frames, max_chunk_size);
+
+		frames -= chunk_size;
+
+		writew(chunk_size - 1, &regs->ctrlr1);
+		rkspi_enable_chip(regs, true);
+
+		do {
+			u32 rx_level = readw(&regs->rxflr);
+#if defined(DEBUG)
+			statistics_rxlevels[rx_level]++;
+#endif
+			chunk_size -= rx_level;
+			while (rx_level--) {
+				u16 val = readw(regs->rxdr);
+				*in++ = val & 0xff;
+				*in++ = val >> 8;
+			}
+		} while (chunk_size);
+
+		rkspi_enable_chip(regs, false);
+	}
+
+#if defined(DEBUG)
+	debug("%s: observed rx_level during processing:\n", __func__);
+	for (int i = 0; i <= 32; ++i)
+		if (statistics_rxlevels[i])
+			debug("\t%2d: %d\n", i, statistics_rxlevels[i]);
+#endif
+	/* Restore the original transfer setup and return error-free. */
+	writel(saved_ctrlr0, &regs->ctrlr0);
+	return 0;
+}
+
 static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 			   const void *dout, void *din, unsigned long flags)
 {
@@ -362,7 +428,7 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	const u8 *out = dout;
 	u8 *in = din;
 	int toread, towrite;
-	int ret;
+	int ret = 0;
 
 	debug("%s: dout=%p, din=%p, len=%x, flags=%lx\n", __func__, dout, din,
 	      len, flags);
@@ -373,8 +439,18 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(dev, slave_plat->cs);
 
+	/*
+	 * To ensure fast loading of firmware images (e.g. full U-Boot
+	 * stage, ATF, Linux kernel) from SPI flash, we optimise the
+	 * case of read-only transfers by using the full 16bits of each
+	 * FIFO element.
+	 */
+	if (!out)
+		ret = rockchip_spi_16bit_reader(dev, &in, &len);
+
+	/* This is the original 8bit reader/writer code */
 	while (len > 0) {
-		int todo = min(len, 0xffff);
+		int todo = min(len, 0x10000);
 
 		rkspi_enable_chip(regs, false);
 		writel(todo - 1, &regs->ctrlr1);
@@ -397,9 +473,18 @@ static int rockchip_spi_xfer(struct udevice *dev, unsigned int bitlen,
 				toread--;
 			}
 		}
-		ret = rkspi_wait_till_not_busy(regs);
-		if (ret)
-			break;
+
+		/*
+		 * In case that there's a transmit-component, we need to wait
+		 * until the control goes idle before we can disable the SPI
+		 * control logic (as this will implictly flush the FIFOs).
+		 */
+		if (out) {
+			ret = rkspi_wait_till_not_busy(regs);
+			if (ret)
+				break;
+		}
+
 		len -= todo;
 	}
 
@@ -446,10 +531,16 @@ static const struct dm_spi_ops rockchip_spi_ops = {
 	 */
 };
 
+const  struct rockchip_spi_params rk3399_spi_params = {
+	.master_manages_fifo = true,
+};
+
 static const struct udevice_id rockchip_spi_ids[] = {
 	{ .compatible = "rockchip,rk3288-spi" },
-	{ .compatible = "rockchip,rk3368-spi" },
-	{ .compatible = "rockchip,rk3399-spi" },
+	{ .compatible = "rockchip,rk3368-spi",
+	  .data = (ulong)&rk3399_spi_params },
+	{ .compatible = "rockchip,rk3399-spi",
+	  .data = (ulong)&rk3399_spi_params },
 	{ }
 };
 

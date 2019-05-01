@@ -12,7 +12,7 @@
 #include <regmap.h>
 #include <syscon.h>
 #include <asm/io.h>
-#include <asm/arch/pwm.h>
+#include <asm/arch-rockchip/pwm.h>
 #include <power/regulator.h>
 
 struct rk_pwm_priv {

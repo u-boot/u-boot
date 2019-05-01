@@ -13,7 +13,7 @@
 #include <i2s.h>
 #include <misc.h>
 #include <sound.h>
-#include <asm/arch/periph.h>
+#include <asm/arch-rockchip/periph.h>
 #include <dm/pinctrl.h>
 
 static int rockchip_sound_setup(struct udevice *dev)

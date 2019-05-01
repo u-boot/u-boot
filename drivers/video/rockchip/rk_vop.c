@@ -13,11 +13,10 @@
 #include <syscon.h>
 #include <video.h>
 #include <asm/gpio.h>
-#include <asm/hardware.h>
 #include <asm/io.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/edp_rk3288.h>
-#include <asm/arch/vop_rk3288.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/edp_rk3288.h>
+#include <asm/arch-rockchip/vop_rk3288.h>
 #include <dm/device-internal.h>
 #include <dm/uclass-internal.h>
 #include <power/regulator.h>

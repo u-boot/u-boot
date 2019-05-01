@@ -7,7 +7,7 @@
 #include <dm.h>
 #include <reset-uclass.h>
 #include <linux/io.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch-rockchip/hardware.h>
 #include <dm/lists.h>
 /*
  * Each reg has 16 bits reset signal for devices

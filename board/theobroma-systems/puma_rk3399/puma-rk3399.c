@@ -15,11 +15,11 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/setup.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/cru_rk3399.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/grf_rk3399.h>
-#include <asm/arch/periph.h>
+#include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/cru_rk3399.h>
+#include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/grf_rk3399.h>
+#include <asm/arch-rockchip/periph.h>
 #include <power/regulator.h>
 #include <u-boot/sha256.h>
 
