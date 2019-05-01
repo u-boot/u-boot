@@ -1745,29 +1745,6 @@ error:
 }
 
 /**
- * efi_unload_image() - unload an EFI image
- * @image_handle: handle of the image to be unloaded
- *
- * This function implements the UnloadImage service.
- *
- * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details.
- *
- * Return: status code
- */
-efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
-{
-	struct efi_object *efiobj;
-
-	EFI_ENTRY("%p", image_handle);
-	efiobj = efi_search_obj(image_handle);
-	if (efiobj)
-		list_del(&efiobj->link);
-
-	return EFI_EXIT(EFI_SUCCESS);
-}
-
-/**
  * efi_exit_caches() - fix up caches for EFI payloads if necessary
  */
 static void efi_exit_caches(void)
@@ -2690,6 +2667,29 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	 * that forgot.
 	 */
 	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
+}
+
+/**
+ * efi_unload_image() - unload an EFI image
+ * @image_handle: handle of the image to be unloaded
+ *
+ * This function implements the UnloadImage service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * Return: status code
+ */
+efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
+{
+	struct efi_object *efiobj;
+
+	EFI_ENTRY("%p", image_handle);
+	efiobj = efi_search_obj(image_handle);
+	if (efiobj)
+		list_del(&efiobj->link);
+
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 /**
