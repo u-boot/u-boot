@@ -423,10 +423,12 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
 }
 
 /**
- * efi_add_handle() - add a new object to the object list
- * @obj: object to be added
+ * efi_add_handle() - add a new handle to the object list
  *
- * The protocols list is initialized. The object handle is set.
+ * @handle:	handle to be added
+ *
+ * The protocols list is initialized. The handle is added to the list of known
+ * UEFI objects.
  */
 void efi_add_handle(efi_handle_t handle)
 {
