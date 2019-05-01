@@ -36,7 +36,7 @@
 		ranges;
 
 		ospi: spi@f1010000 {
-			compatible = "cadence,qspi";
+			compatible = "cadence,qspi", "cdns,qspi-nor";
 			status = "okay";
 			reg = <0x0 0xf1010000 0x0 0x1000>;
 			clock-names = "ref_clk", "pclk";
@@ -47,6 +47,7 @@
 			cdns,fifo-width = <4>;
 			cdns,is-dma = <1>;
 			cdns,is-stig-pgm = <1>;
+			cdns,trigger-address = <0xc0000000>;
 			#stream-id-cells = <1>;
 			#address-cells = <1>;
 			#size-cells = <0>;
