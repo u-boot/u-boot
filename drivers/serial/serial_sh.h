@@ -195,7 +195,7 @@ struct uart_port {
 #  define SCSPTR7 0xfffeB820 /* 16 bit SCIF */
 # endif
 # define SCSCR_INIT(port)	0x38 /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
-#elif defined(CONFIG_CPU_SH7269)
+#elif defined(CONFIG_CPU_SH7269) || defined(CONFIG_RZA1)
 # define SCSPTR0 0xe8007020 /* 16 bit SCIF */
 # define SCSPTR1 0xe8007820 /* 16 bit SCIF */
 # define SCSPTR2 0xe8008020 /* 16 bit SCIF */
@@ -205,6 +205,7 @@ struct uart_port {
 # define SCSPTR6 0xe800a020 /* 16 bit SCIF */
 # define SCSPTR7 0xe800a820 /* 16 bit SCIF */
 # define SCSCR_INIT(port)	0x38 /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
+# define SCIF_ORER 0x0001  /* overrun error bit */
 #elif defined(CONFIG_CPU_SH7619)
 # define SCSPTR0 0xf8400020 /* 16 bit SCIF */
 # define SCSPTR1 0xf8410020 /* 16 bit SCIF */
