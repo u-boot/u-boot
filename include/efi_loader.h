@@ -180,6 +180,18 @@ struct efi_handler {
 };
 
 /**
+ * enum efi_object_type - type of EFI object
+ *
+ * In UnloadImage we must be able to identify if the handle relates to a
+ * started image.
+ */
+enum efi_object_type {
+	EFI_OBJECT_TYPE_UNDEFINED = 0,
+	EFI_OBJECT_TYPE_LOADED_IMAGE,
+	EFI_OBJECT_TYPE_STARTED_IMAGE,
+};
+
+/**
  * struct efi_object - dereferenced EFI handle
  *
  * @link:	pointers to put the handle into a linked list
@@ -201,6 +213,7 @@ struct efi_object {
 	struct list_head link;
 	/* The list of protocols */
 	struct list_head protocols;
+	enum efi_object_type type;
 };
 
 /**

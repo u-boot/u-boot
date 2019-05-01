@@ -1554,6 +1554,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
 		free(info);
 		return EFI_OUT_OF_RESOURCES;
 	}
+	obj->header.type = EFI_OBJECT_TYPE_LOADED_IMAGE;
 
 	/* Add internal object to object list */
 	efi_add_handle(&obj->header);
@@ -2678,6 +2679,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	}
 
 	current_image = image_handle;
+	image_obj->header.type = EFI_OBJECT_TYPE_STARTED_IMAGE;
 	EFI_PRINT("Jumping into 0x%p\n", image_obj->entry);
 	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
 
