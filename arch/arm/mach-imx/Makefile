@@ -204,7 +204,7 @@ endif
 
 targets += $(addprefix ../../../,SPL spl/u-boot-spl.cfgout u-boot-dtb.cfgout u-boot.cfgout u-boot.uim spl/u-boot-nand-spl.imx)
 
-obj-$(CONFIG_ARM64) += sip.o
+obj-$(CONFIG_ARM64) += lowlevel.o sip.o
 
 obj-$(CONFIG_MX5) += mx5/
 obj-$(CONFIG_MX6) += mx6/

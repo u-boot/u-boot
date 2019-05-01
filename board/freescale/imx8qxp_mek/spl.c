@@ -18,24 +18,8 @@ DECLARE_GLOBAL_DATA_PTR;
 void spl_board_init(void)
 {
 	struct udevice *dev;
-	int offset;
 
 	uclass_find_first_device(UCLASS_MISC, &dev);
-
-	for (; dev; uclass_find_next_device(&dev)) {
-		if (device_probe(dev))
-			continue;
-	}
-
-	offset = fdt_node_offset_by_compatible(gd->fdt_blob, -1, "nxp,imx8-pd");
-	while (offset != -FDT_ERR_NOTFOUND) {
-		lists_bind_fdt(gd->dm_root, offset_to_ofnode(offset),
-			       NULL, true);
-		offset = fdt_node_offset_by_compatible(gd->fdt_blob, offset,
-						       "nxp,imx8-pd");
-	}
-
-	uclass_find_first_device(UCLASS_POWER_DOMAIN, &dev);
 
 	for (; dev; uclass_find_next_device(&dev)) {
 		if (device_probe(dev))

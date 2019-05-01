@@ -46,11 +46,11 @@
 	"finduuid=part uuid mmc ${mmcdev}:2 uuid\0" \
 	"nandroot=ubi0:rootfs rootfstype=ubifs\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate}" \
-	" root=PARTUUID=${uuid} rootwait rw\0 ${mtdparts}\0" \
+	" root=PARTUUID=${uuid} rootwait rw ${mtdparts} ${optargs}\0" \
 	"nandargs=setenv bootargs console=${console},${baudrate}" \
-	" ubi.mtd=fs root=${nandroot} ${mtdparts}\0" \
+	" ubi.mtd=fs root=${nandroot} ${mtdparts} ${optargs}\0" \
 	"ramargs=setenv bootargs console=${console},${baudrate}" \
-	" root=/dev/ram rw ${mtdparts}\0"                    \
+	" root=/dev/ram rw ${mtdparts} ${optargs}\0"                    \
 	"loadbootscript=" \
 	"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...;" \

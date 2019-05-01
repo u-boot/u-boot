@@ -558,6 +558,7 @@ dtb-$(CONFIG_MX6UL) += \
 dtb-$(CONFIG_MX6ULL) += \
 	imx6ull-14x14-evk.dtb \
 	imx6ull-colibri.dtb \
+	imx6ull-dart-6ul.dtb
 
 dtb-$(CONFIG_ARCH_MX6) += \
 	imx6-colibri.dtb
@@ -566,11 +567,16 @@ dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7d-sdb-qspi.dtb \
 	imx7-colibri-emmc.dtb \
 	imx7-colibri-rawnand.dtb \
-	imx7s-warp.dtb
+	imx7s-warp.dtb \
+	imx7d-pico-pi.dtb \
+	imx7d-pico-hobbit.dtb
+
 
 dtb-$(CONFIG_ARCH_MX7ULP) += imx7ulp-evk.dtb
 
-dtb-$(CONFIG_ARCH_IMX8) += fsl-imx8qxp-mek.dtb
+dtb-$(CONFIG_ARCH_IMX8) += \
+	fsl-imx8qxp-mek.dtb \
+	fsl-imx8qm-mek.dtb \
 
 dtb-$(CONFIG_ARCH_IMX8M) += fsl-imx8mq-evk.dtb
 

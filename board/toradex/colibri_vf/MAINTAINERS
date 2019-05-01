@@ -1,7 +1,7 @@
 Colibri VFxx
 M:	Stefan Agner <stefan.agner@toradex.com>
 W:	http://developer.toradex.com/software/linux/linux-software
-W:      https://www.toradex.com/community
+W:	https://www.toradex.com/community
 S:	Maintained
 F:	board/toradex/colibri_vf/
 F:	include/configs/colibri_vf.h

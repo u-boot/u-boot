@@ -17,6 +17,34 @@
 	chosen {
 		stdout-path = &uart2;
 	};
+
+	aliases {
+		mmc0 = &esdhc3;
+	};
+
+	regulators {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reg_usbh1_vbus: regulator-usbh1-vbus {
+			compatible = "regulator-fixed";
+			regulator-name = "usbh1_vbus";
+			regulator-min-microvolt = <5000000>;
+			regulator-max-microvolt = <5000000>;
+			gpio = <&gpio7 8 GPIO_ACTIVE_HIGH>;
+			enable-active-high;
+		};
+	};
+
+};
+
+&esdhc3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_esdhc3>;
+	bus-width = <8>;
+	non-removable;
+	status = "okay";
 };
 
 &fec {
@@ -61,6 +89,21 @@
 	pinctrl-0 = <&pinctrl_hog>;
 
 	imx53-kp {
+		pinctrl_esdhc3: esdhc3grp {
+			fsl,pins = <
+				MX53_PAD_PATA_DATA8__ESDHC3_DAT0        0x1d4
+				MX53_PAD_PATA_DATA9__ESDHC3_DAT1        0x1d4
+				MX53_PAD_PATA_DATA10__ESDHC3_DAT2       0x1d4
+				MX53_PAD_PATA_DATA11__ESDHC3_DAT3       0x1d4
+				MX53_PAD_PATA_DATA0__ESDHC3_DAT4        0x1d4
+				MX53_PAD_PATA_DATA1__ESDHC3_DAT5        0x1d4
+				MX53_PAD_PATA_DATA2__ESDHC3_DAT6        0x1d4
+				MX53_PAD_PATA_DATA3__ESDHC3_DAT7        0x1d4
+				MX53_PAD_PATA_RESET_B__ESDHC3_CMD       0x1e4
+				MX53_PAD_PATA_IORDY__ESDHC3_CLK         0x1d4
+			>;
+		};
+
 		pinctrl_eth: ethgrp {
 			fsl,pins = <
 				MX53_PAD_FEC_MDIO__FEC_MDIO 0x1fc
@@ -82,8 +125,6 @@
 			fsl,pins = <
 				/* PHY RESET */
 				MX53_PAD_PATA_DA_0__GPIO7_6 0x182
-				/* VBUS_PWR_EN */
-				MX53_PAD_PATA_DA_2__GPIO7_8 0x1e4
 				/* BOOSTER_OFF */
 				MX53_PAD_EIM_CS0__GPIO2_23 0x1e4
 				/* LCD BACKLIGHT */
@@ -129,11 +170,25 @@
 				MX53_PAD_PATA_DMARQ__UART2_TXD_MUX 0x1e4
 			>;
 		};
+
+		pinctrl_usbh1: usbh1grp {
+			fsl,pins = <
+				/* VBUS_PWR_EN */
+				MX53_PAD_PATA_DA_2__GPIO7_8 0x1e4
+			>;
+		};
 	};
 };
 
 &uart2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart2>;
+	status = "okay";
+};
+
+&usbh1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usbh1>;
+	vbus-supply = <&reg_usbh1_vbus>;
 	status = "okay";
 };

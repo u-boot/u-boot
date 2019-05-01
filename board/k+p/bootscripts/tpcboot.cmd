@@ -27,6 +27,12 @@ setenv miscadj "
 if test '${boardsoc}' = 'imx53'; then
        setenv bootargs '${bootargs} di=${dig_in} key1=${key1}';
 fi;"
+setenv nfsadj "
+if test '${boardsoc}' = 'imx53'; then
+   if test '${boardtype}' = 'hsc'; then
+       setenv bootargs '${bootargs} dsa_core.blacklist=yes';
+   fi;
+fi;"
 setenv boot_fitImage "
 	setenv fdt_conf 'conf@${boardsoc}-${boardname}.dtb';
 	setenv itbcfg "\"#\${fdt_conf}\"";
@@ -72,6 +78,7 @@ setenv boot_nfs "
 if run download_kernel; then
 	run nfsargs;
 	run addip;
+	run nfsadj;
 	setenv bootargs '${bootargs}' console=${console};
 
 	run boot_fitImage;

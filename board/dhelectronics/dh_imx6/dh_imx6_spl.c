@@ -161,18 +161,18 @@ static const struct mx6_mmdc_calibration dhcom_mmdc_calib_2x4g_800 = {
 };
 
 static const struct mx6_mmdc_calibration dhcom_mmdc_calib_4x2g_1066 = {
-	.p0_mpwldectrl0	= 0x0011000E,
-	.p0_mpwldectrl1	= 0x000E001B,
-	.p1_mpwldectrl0	= 0x00190015,
-	.p1_mpwldectrl1	= 0x00070018,
-	.p0_mpdgctrl0	= 0x42720306,
-	.p0_mpdgctrl1	= 0x026F0266,
-	.p1_mpdgctrl0	= 0x4273030A,
-	.p1_mpdgctrl1	= 0x02740240,
-	.p0_mprddlctl	= 0x45393B3E,
-	.p1_mprddlctl	= 0x403A3747,
-	.p0_mpwrdlctl	= 0x40434541,
-	.p1_mpwrdlctl	= 0x473E4A3B,
+	.p0_mpwldectrl0	= 0x001a001a,
+	.p0_mpwldectrl1	= 0x00260015,
+	.p0_mpdgctrl0	= 0x030c0320,
+	.p0_mpdgctrl1	= 0x03100304,
+	.p0_mprddlctl	= 0x432e3538,
+	.p0_mpwrdlctl	= 0x363f423d,
+	.p1_mpwldectrl0	= 0x0006001e,
+	.p1_mpwldectrl1	= 0x00050015,
+	.p1_mpdgctrl0	= 0x031c0324,
+	.p1_mpdgctrl1	= 0x030c0258,
+	.p1_mprddlctl	= 0x3834313f,
+	.p1_mpwrdlctl	= 0x47374a42,
 };
 
 static const struct mx6_mmdc_calibration dhcom_mmdc_calib_4x2g_800 = {
@@ -482,6 +482,29 @@ static void setup_iomux_usb(void)
 	SETUP_IOMUX_PADS(usb_pads);
 }
 
+/* Perform DDR DRAM calibration */
+static int spl_dram_perform_cal(struct mx6_ddr_sysinfo const *sysinfo)
+{
+	int ret = 0;
+
+#ifdef CONFIG_MX6_DDRCAL
+	udelay(100);
+	ret = mmdc_do_write_level_calibration(sysinfo);
+	if (ret) {
+		printf("DDR3: Write level calibration error [%d]\n", ret);
+		return ret;
+	}
+
+	ret = mmdc_do_dqs_calibration(sysinfo);
+	if (ret) {
+		printf("DDR3: DQS calibration error [%d]\n", ret);
+		return ret;
+	}
+#endif /* CONFIG_MX6_DDRCAL */
+
+	return ret;
+}
+
 
 /* DRAM */
 static void dhcom_spl_dram_init(void)
@@ -509,8 +532,7 @@ static void dhcom_spl_dram_init(void)
 		}
 
 		/* Perform DDR DRAM calibration */
-		udelay(100);
-		mmdc_do_dqs_calibration(&dhcom_ddr_64bit);
+		spl_dram_perform_cal(&dhcom_ddr_64bit);
 
 	} else if (is_cpu_type(MXC_CPU_MX6DL)) {
 		mx6sdl_dram_iocfg(64, &dhcom6sdl_ddr_ioregs,
@@ -528,8 +550,7 @@ static void dhcom_spl_dram_init(void)
 		}
 
 		/* Perform DDR DRAM calibration */
-		udelay(100);
-		mmdc_do_dqs_calibration(&dhcom_ddr_64bit);
+		spl_dram_perform_cal(&dhcom_ddr_64bit);
 
 	} else if (is_cpu_type(MXC_CPU_MX6SOLO)) {
 		mx6sdl_dram_iocfg(32, &dhcom6sdl_ddr_ioregs,
@@ -552,8 +573,7 @@ static void dhcom_spl_dram_init(void)
 		}
 
 		/* Perform DDR DRAM calibration */
-		udelay(100);
-		mmdc_do_dqs_calibration(&dhcom_ddr_32bit);
+		spl_dram_perform_cal(&dhcom_ddr_32bit);
 	}
 }
 

@@ -13,10 +13,8 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
 #include <common.h>
-#include <fsl_esdhc.h>
 #include <i2c.h>
 #include <miiphy.h>
-#include <mmc.h>
 #include <netdev.h>
 #include <usb.h>
 #include <power/pmic.h>
@@ -27,9 +25,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_DSE_3P3V_49OHM | \
 	PAD_CTL_PUS_PU100KOHM | PAD_CTL_HYS)
-
-#define USDHC_PAD_CTRL (PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS | PAD_CTL_PUE | PAD_CTL_PUS_PU47KOHM)
 
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_PU100KOHM | PAD_CTL_DSE_3P3V_49OHM)
 #define ENET_PAD_CTRL_MII  (PAD_CTL_DSE_3P3V_32OHM)
@@ -126,20 +121,6 @@ static iomux_v3_cfg_t const uart5_pads[] = {
 	MX7D_PAD_I2C4_SDA__UART5_DCE_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-static iomux_v3_cfg_t const usdhc3_emmc_pads[] = {
-	MX7D_PAD_SD3_CLK__SD3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_CMD__SD3_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA0__SD3_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA4__SD3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA5__SD3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA6__SD3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_SD3_DATA7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX7D_PAD_GPIO1_IO14__GPIO1_IO14 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
-
 #ifdef CONFIG_FEC_MXC
 static iomux_v3_cfg_t const fec1_pads[] = {
 	MX7D_PAD_SD2_CD_B__ENET1_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL_MII),
@@ -165,7 +146,7 @@ static iomux_v3_cfg_t const fec1_pads[] = {
 static void setup_iomux_fec(void)
 {
 	imx_iomux_v3_setup_multiple_pads(fec1_pads, ARRAY_SIZE(fec1_pads));
-
+	gpio_request(FEC1_RST_GPIO, "phy_rst");
 	gpio_direction_output(FEC1_RST_GPIO, 0);
 	udelay(500);
 	gpio_set_value(FEC1_RST_GPIO, 1);
@@ -224,25 +205,6 @@ static void setup_iomux_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart5_pads, ARRAY_SIZE(uart5_pads));
 }
 
-static struct fsl_esdhc_cfg usdhc_cfg[1] = {
-	{USDHC3_BASE_ADDR},
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	/* Assume uSDHC3 emmc is always present */
-	return 1;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	imx_iomux_v3_setup_multiple_pads(
-			usdhc3_emmc_pads, ARRAY_SIZE(usdhc3_emmc_pads));
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-}
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -291,6 +253,8 @@ static iomux_v3_cfg_t const lcd_pads[] = {
 void setup_lcd(void)
 {
 	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
+	gpio_request(IMX_GPIO_NR(1, 11), "lcd_brightness");
+	gpio_request(IMX_GPIO_NR(1, 6), "lcd_enable");
 	/* Set Brightness to high */
 	gpio_direction_output(IMX_GPIO_NR(1, 11) , 1);
 	/* Set LCD enable to high */

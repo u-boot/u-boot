@@ -25,6 +25,7 @@ static int imx8_pinctrl_probe(struct udevice *dev)
 
 static const struct udevice_id imx8_pinctrl_match[] = {
 	{ .compatible = "fsl,imx8qxp-iomuxc", .data = (ulong)&imx8_pinctrl_soc_info },
+	{ .compatible = "fsl,imx8qm-iomuxc", .data = (ulong)&imx8_pinctrl_soc_info },
 	{ /* sentinel */ }
 };
 

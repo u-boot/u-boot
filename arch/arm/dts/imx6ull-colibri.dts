@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright 2018 Toradex AG
+ * Copyright 2018-2019 Toradex AG
  */
 
 /dts-v1/;
@@ -9,7 +9,12 @@
 
 / {
 	model = "Toradex Colibri iMX6ULL";
-	compatible = "toradex,imx6ull-colibri", "fsl,imx6ull";
+	compatible = "toradex,colibri-imx6ull", "fsl,imx6ull";
+
+	aliases {
+		mmc0 = &usdhc1;
+		usb0 = &usbotg1; /* required for ums */
+	};
 
 	chosen {
 		stdout-path = &uart1;
@@ -31,6 +36,13 @@
 		regulator-max-microvolt = <3300000>;
 	};
 
+	reg_5v0: regulator-5v0 {
+		compatible = "regulator-fixed";
+		regulator-name = "5V";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+	};
+
 	reg_sd1_vmmc: regulator-sd1-vmmc {
 		compatible = "regulator-gpio";
 		gpio = <&gpio5 9 GPIO_ACTIVE_HIGH>;
@@ -42,6 +54,17 @@
 		regulator-max-microvolt = <3300000>;
 		states = <1800000 0x1 3300000 0x0>;
 		vin-supply = <&reg_module_3v3>;
+	};
+
+	reg_usbh_vbus: regulator-usbh-vbus {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_usbh_reg>;
+		regulator-name = "VCC_USB[1-4]";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio1 2 GPIO_ACTIVE_LOW>; /* USBH_PEN */
+		vin-supply = <&reg_5v0>;
 	};
 };
 
@@ -57,6 +80,7 @@
 	pinctrl-0 = <&pinctrl_ecspi1 &pinctrl_ecspi1_cs>;
 };
 
+/* Ethernet */
 &fec2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_enet2>;
@@ -76,6 +100,7 @@
 	};
 };
 
+/* NAND */
 &gpmi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_gpmi_nand>;
@@ -86,21 +111,28 @@
 	status = "okay";
 };
 
+/*
+ * I2C3_SDA/SCL on SODIMM 194/196 (e.g. RTC on carrier board)
+ */
 &i2c1 {
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c1>;
 	pinctrl-1 = <&pinctrl_i2c1_gpio>;
-	sda-gpios = <&gpio1 29 GPIO_ACTIVE_LOW>;
-	scl-gpios = <&gpio1 28 GPIO_ACTIVE_LOW>;
+	sda-gpios = <&gpio1 29 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	scl-gpios = <&gpio1 28 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	status = "okay";
 };
 
+/*
+ * PWR_I2C: power I2C to audio codec, PMIC, temperature sensor and
+ * touch screen controller
+ */
 &i2c2 {
 	pinctrl-names = "default", "gpio";
 	pinctrl-0 = <&pinctrl_i2c2>;
 	pinctrl-1 = <&pinctrl_i2c2_gpio>;
-	sda-gpios = <&gpio1 31 GPIO_ACTIVE_LOW>;
-	scl-gpios = <&gpio1 30 GPIO_ACTIVE_LOW>;
+	sda-gpios = <&gpio1 31 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+	scl-gpios = <&gpio1 30 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
 	status = "okay";
 
 	ad7879@2c {
@@ -126,24 +158,28 @@
 		     &pinctrl_lcdif_ctrl>;
 };
 
+/* PWM <A> */
 &pwm4 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm4>;
 	#pwm-cells = <3>;
 };
 
+/* PWM <B> */
 &pwm5 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm5>;
 	#pwm-cells = <3>;
 };
 
+/* PWM <C> */
 &pwm6 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm6>;
 	#pwm-cells = <3>;
 };
 
+/* PWM <D> */
 &pwm7 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm7>;
@@ -158,45 +194,110 @@
 	status = "disabled";
 };
 
+/* Colibri UART_A */
 &uart1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart1 &pinctrl_uart1_ctrl1>;
-	fsl,uart-has-rtscts;
+	uart-has-rtscts;
 	fsl,dte-mode;
 	status = "okay";
 };
 
+/* Colibri UART_B */
 &uart2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart2>;
-	fsl,uart-has-rtscts;
+	uart-has-rtscts;
 	fsl,dte-mode;
 };
 
+/* Colibri UART_C */
 &uart5 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart5>;
 	fsl,dte-mode;
 };
 
+/* Colibri USBC */
 &usbotg1 {
 	dr_mode = "otg";
 	srp-disable;
 	hnp-disable;
 	adp-disable;
+	status = "okay";
 };
 
+/* Colibri USBH */
 &usbotg2 {
 	dr_mode = "host";
+	vbus-supply = <&reg_usbh_vbus>;
+	status = "okay";
 };
 
+/* Colibri MMC */
 &usdhc1 {
 	assigned-clocks = <&clks IMX6UL_CLK_USDHC1_SEL>, <&clks IMX6UL_CLK_USDHC1>;
 	assigned-clock-parents = <&clks IMX6UL_CLK_PLL2_PFD2>;
 	assigned-clock-rates = <0>, <198000000>;
+	cd-gpios = <&gpio5 0 GPIO_ACTIVE_LOW>; /* MMC_CD */
+	pinctrl-names = "default", "state_100mhz", "state_200mhz";
+	pinctrl-0 = <&pinctrl_usdhc1 &pinctrl_snvs_usdhc1_cd>;
+	pinctrl-1 = <&pinctrl_usdhc1_100mhz>;
+	pinctrl-2 = <&pinctrl_usdhc1_200mhz>;
+	vmmc-supply = <&reg_sd1_vmmc>;
+	status = "okay";
 };
 
 &iomuxc {
+	pinctrl_can_int: canint-grp {
+		fsl,pins = <
+			/* SODIMM 73 */
+			MX6UL_PAD_ENET1_TX_DATA1__GPIO2_IO04	0X14
+		>;
+	};
+
+	pinctrl_enet2: enet2-grp {
+		fsl,pins = <
+			MX6UL_PAD_GPIO1_IO06__ENET2_MDIO	0x1b0b0
+			MX6UL_PAD_GPIO1_IO07__ENET2_MDC		0x1b0b0
+			MX6UL_PAD_ENET2_RX_DATA0__ENET2_RDATA00	0x1b0b0
+			MX6UL_PAD_ENET2_RX_DATA1__ENET2_RDATA01	0x1b0b0
+			MX6UL_PAD_ENET2_RX_EN__ENET2_RX_EN	0x1b0b0
+			MX6UL_PAD_ENET2_RX_ER__ENET2_RX_ER	0x1b0b0
+			MX6UL_PAD_ENET2_TX_CLK__ENET2_REF_CLK2	0x4001b031
+			MX6UL_PAD_ENET2_TX_DATA0__ENET2_TDATA00	0x1b0b0
+			MX6UL_PAD_ENET2_TX_DATA1__ENET2_TDATA01	0x1b0b0
+			MX6UL_PAD_ENET2_TX_EN__ENET2_TX_EN	0x1b0b0
+		>;
+	};
+
+	pinctrl_ecspi1_cs: ecspi1-cs-grp {
+		fsl,pins = <
+			MX6UL_PAD_LCD_DATA21__GPIO3_IO26	0x000a0
+		>;
+	};
+
+	pinctrl_ecspi1: ecspi1-grp {
+		fsl,pins = <
+			MX6UL_PAD_LCD_DATA20__ECSPI1_SCLK	0x000a0
+			MX6UL_PAD_LCD_DATA22__ECSPI1_MOSI	0x000a0
+			MX6UL_PAD_LCD_DATA23__ECSPI1_MISO	0x100a0
+		>;
+	};
+
+	pinctrl_flexcan2: flexcan2-grp {
+		fsl,pins = <
+			MX6UL_PAD_ENET1_TX_DATA0__FLEXCAN2_RX	0x1b020
+			MX6UL_PAD_ENET1_RX_EN__FLEXCAN2_TX	0x1b020
+		>;
+	};
+
+	pinctrl_gpio_bl_on: gpio-bl-on-grp {
+		fsl,pins = <
+			MX6UL_PAD_JTAG_TMS__GPIO1_IO11		0x000a0
+		>;
+	};
+
 	pinctrl_gpio1: gpio1-grp {
 		fsl,pins = <
 			MX6UL_PAD_ENET1_RX_DATA0__GPIO2_IO00	0x74 /* SODIMM 55 */
@@ -250,54 +351,6 @@
 			MX6UL_PAD_CSI_DATA00__GPIO4_IO21	0x14 /* SODIMM 101 */
 			MX6UL_PAD_CSI_DATA01__GPIO4_IO22	0x14 /* SODIMM 103 */
 			MX6UL_PAD_CSI_HSYNC__GPIO4_IO20		0x14 /* SODIMM 94 */
-		>;
-	};
-
-	pinctrl_can_int: canint-grp {
-		fsl,pins = <
-			MX6UL_PAD_ENET1_TX_DATA1__GPIO2_IO04	0X14 /* SODIMM 73 */
-		>;
-	};
-
-	pinctrl_enet2: enet2-grp {
-		fsl,pins = <
-			MX6UL_PAD_GPIO1_IO06__ENET2_MDIO	0x1b0b0
-			MX6UL_PAD_GPIO1_IO07__ENET2_MDC		0x1b0b0
-			MX6UL_PAD_ENET2_RX_DATA0__ENET2_RDATA00	0x1b0b0
-			MX6UL_PAD_ENET2_RX_DATA1__ENET2_RDATA01	0x1b0b0
-			MX6UL_PAD_ENET2_RX_EN__ENET2_RX_EN	0x1b0b0
-			MX6UL_PAD_ENET2_RX_ER__ENET2_RX_ER	0x1b0b0
-			MX6UL_PAD_ENET2_TX_CLK__ENET2_REF_CLK2	0x4001b031
-			MX6UL_PAD_ENET2_TX_DATA0__ENET2_TDATA00	0x1b0b0
-			MX6UL_PAD_ENET2_TX_DATA1__ENET2_TDATA01	0x1b0b0
-			MX6UL_PAD_ENET2_TX_EN__ENET2_TX_EN	0x1b0b0
-		>;
-	};
-
-	pinctrl_ecspi1_cs: ecspi1-cs-grp {
-		fsl,pins = <
-			MX6UL_PAD_LCD_DATA21__GPIO3_IO26	0x000a0
-		>;
-	};
-
-	pinctrl_ecspi1: ecspi1-grp {
-		fsl,pins = <
-			MX6UL_PAD_LCD_DATA20__ECSPI1_SCLK	0x000a0
-			MX6UL_PAD_LCD_DATA22__ECSPI1_MOSI	0x000a0
-			MX6UL_PAD_LCD_DATA23__ECSPI1_MISO	0x100a0
-		>;
-	};
-
-	pinctrl_flexcan2: flexcan2-grp {
-		fsl,pins = <
-			MX6UL_PAD_ENET1_TX_DATA0__FLEXCAN2_RX	0x1b020
-			MX6UL_PAD_ENET1_RX_EN__FLEXCAN2_TX	0x1b020
-		>;
-	};
-
-	pinctrl_gpio_bl_on: gpio-bl-on-grp {
-		fsl,pins = <
-			MX6UL_PAD_JTAG_TMS__GPIO1_IO11		0x000a0
 		>;
 	};
 
@@ -484,6 +537,8 @@
 			MX6UL_PAD_CSI_DATA03__USDHC2_DATA3	0x17059
 			MX6UL_PAD_CSI_HSYNC__USDHC2_CMD		0x17059
 			MX6UL_PAD_CSI_VSYNC__USDHC2_CLK		0x17059
+
+			MX6UL_PAD_GPIO1_IO03__OSC32K_32K_OUT	0x14
 		>;
 	};
 };
@@ -511,7 +566,7 @@
 		>;
 	};
 
-	pinctrl_snvs_ad7879_int: snvs-ad7879-int { /* TOUCH Interrupt */
+	pinctrl_snvs_ad7879_int: snvs-ad7879-int-grp { /* TOUCH Interrupt */
 		fsl,pins = <
 			MX6ULL_PAD_SNVS_TAMPER7__GPIO5_IO07	0x1b0b0
 		>;
@@ -547,4 +602,3 @@
 		>;
 	};
 };
-

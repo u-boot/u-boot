@@ -1,3 +1,6 @@
+menu "i.MX8M DDR controllers"
+	depends on ARCH_IMX8M
+
 config IMX8M_DRAM
 	bool "imx8m dram"
 
@@ -20,3 +23,4 @@ config SAVED_DRAM_TIMING_BASE
 	  info into memory for low power use. OCRAM_S is used for this
 	  purpose on i.MX8MM.
 	default 0x180000
+endmenu
