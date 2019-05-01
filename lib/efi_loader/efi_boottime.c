@@ -2670,6 +2670,20 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 }
 
 /**
+ * efi_delete_image() - delete loaded image from memory)
+ *
+ * @image_obj:			handle of the loaded image
+ * @loaded_image_protocol:	loaded image protocol
+ */
+static void efi_delete_image(struct efi_loaded_image_obj *image_obj,
+			     struct efi_loaded_image *loaded_image_protocol)
+{
+	efi_free_pages((uintptr_t)loaded_image_protocol->image_base,
+		       efi_size_in_pages(loaded_image_protocol->image_size));
+	efi_delete_handle(&image_obj->header);
+}
+
+/**
  * efi_unload_image() - unload an EFI image
  * @image_handle: handle of the image to be unloaded
  *
@@ -2682,14 +2696,47 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  */
 efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
 {
+	efi_status_t ret = EFI_SUCCESS;
 	struct efi_object *efiobj;
+	struct efi_loaded_image *loaded_image_protocol;
 
 	EFI_ENTRY("%p", image_handle);
-	efiobj = efi_search_obj(image_handle);
-	if (efiobj)
-		list_del(&efiobj->link);
 
-	return EFI_EXIT(EFI_SUCCESS);
+	efiobj = efi_search_obj(image_handle);
+	if (!efiobj) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	/* Find the loaded image protocol */
+	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
+					 (void **)&loaded_image_protocol,
+					 NULL, NULL,
+					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
+	if (ret != EFI_SUCCESS) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	switch (efiobj->type) {
+	case EFI_OBJECT_TYPE_STARTED_IMAGE:
+		/* Call the unload function */
+		if (!loaded_image_protocol->unload) {
+			ret = EFI_UNSUPPORTED;
+			goto out;
+		}
+		ret = EFI_CALL(loaded_image_protocol->unload(image_handle));
+		if (ret != EFI_SUCCESS)
+			goto out;
+		break;
+	case EFI_OBJECT_TYPE_LOADED_IMAGE:
+		break;
+	default:
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	efi_delete_image((struct efi_loaded_image_obj *)efiobj,
+			 loaded_image_protocol);
+out:
+	return EFI_EXIT(ret);
 }
 
 /**

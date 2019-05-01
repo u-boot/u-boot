@@ -348,7 +348,7 @@ struct efi_loaded_image {
 	aligned_u64 image_size;
 	unsigned int image_code_type;
 	unsigned int image_data_type;
-	unsigned long unload;
+	efi_status_t (EFIAPI *unload)(efi_handle_t image_handle);
 };
 
 #define EFI_DEVICE_PATH_PROTOCOL_GUID \
