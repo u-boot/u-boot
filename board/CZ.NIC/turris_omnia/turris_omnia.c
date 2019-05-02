@@ -32,18 +32,25 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define OMNIA_I2C_EEPROM_DM_NAME	"i2c@11000->i2cmux@70->i2c@0"
-#define OMNIA_I2C_EEPROM		0x54
-#define OMNIA_I2C_EEPROM_CONFIG_ADDR	0x0
-#define OMNIA_I2C_EEPROM_ADDRLEN	2
+#define OMNIA_I2C_BUS_NAME		"i2c@11000->i2cmux@70->i2c@0"
+
+#define OMNIA_I2C_MCU_CHIP_ADDR		0x2a
+#define OMNIA_I2C_MCU_CHIP_LEN		1
+
+#define OMNIA_I2C_EEPROM_CHIP_ADDR	0x54
+#define OMNIA_I2C_EEPROM_CHIP_LEN	2
 #define OMNIA_I2C_EEPROM_MAGIC		0x0341a034
 
-#define OMNIA_I2C_MCU_DM_NAME		"i2c@11000->i2cmux@70->i2c@0"
-#define OMNIA_I2C_MCU_ADDR_STATUS	0x1
-#define OMNIA_I2C_MCU_SATA		0x20
-#define OMNIA_I2C_MCU_CARDDET		0x10
-#define OMNIA_I2C_MCU			0x2a
-#define OMNIA_I2C_MCU_WDT_ADDR		0x0b
+enum mcu_commands {
+	CMD_GET_STATUS_WORD	= 0x01,
+	CMD_GET_RESET		= 0x09,
+	CMD_WATCHDOG_STATE	= 0x0b,
+};
+
+enum status_word_bits {
+	CARD_DET_STSBIT		= 0x0010,
+	MSATA_IND_STSBIT	= 0x0020,
+};
 
 #define OMNIA_ATSHA204_OTP_VERSION	0
 #define OMNIA_ATSHA204_OTP_SERIAL	1
@@ -85,48 +92,97 @@ static struct serdes_map board_serdes_map_sata[] = {
 	{SGMII2, SERDES_SPEED_1_25_GBPS, SERDES_DEFAULT_MODE, 0, 0}
 };
 
-static bool omnia_detect_sata(void)
+static struct udevice *omnia_get_i2c_chip(const char *name, uint addr,
+					  uint offset_len)
 {
 	struct udevice *bus, *dev;
-	int ret, retry = 3;
-	u16 mode;
+	int ret;
 
-	puts("SERDES0 card detect: ");
-
-	if (uclass_get_device_by_name(UCLASS_I2C, OMNIA_I2C_MCU_DM_NAME, &bus)) {
-		puts("Cannot find MCU bus!\n");
-		return false;
-	}
-
-	ret = i2c_get_chip(bus, OMNIA_I2C_MCU, 1, &dev);
+	ret = uclass_get_device_by_name(UCLASS_I2C, OMNIA_I2C_BUS_NAME, &bus);
 	if (ret) {
-		puts("Cannot get MCU chip!\n");
+		printf("Cannot get I2C bus %s: uclass_get_device_by_name failed: %i\n",
+		       OMNIA_I2C_BUS_NAME, ret);
+		return NULL;
+	}
+
+	ret = i2c_get_chip(bus, addr, offset_len, &dev);
+	if (ret) {
+		printf("Cannot get %s I2C chip: i2c_get_chip failed: %i\n",
+		       name, ret);
+		return NULL;
+	}
+
+	return dev;
+}
+
+static int omnia_mcu_read(u8 cmd, void *buf, int len)
+{
+	struct udevice *chip;
+
+	chip = omnia_get_i2c_chip("MCU", OMNIA_I2C_MCU_CHIP_ADDR,
+				  OMNIA_I2C_MCU_CHIP_LEN);
+	if (!chip)
+		return -ENODEV;
+
+	return dm_i2c_read(chip, cmd, buf, len);
+}
+
+#ifndef CONFIG_SPL_BUILD
+static int omnia_mcu_write(u8 cmd, const void *buf, int len)
+{
+	struct udevice *chip;
+
+	chip = omnia_get_i2c_chip("MCU", OMNIA_I2C_MCU_CHIP_ADDR,
+				  OMNIA_I2C_MCU_CHIP_LEN);
+	if (!chip)
+		return -ENODEV;
+
+	return dm_i2c_write(chip, cmd, buf, len);
+}
+
+static bool disable_mcu_watchdog(void)
+{
+	int ret;
+
+	puts("Disabling MCU watchdog... ");
+
+	ret = omnia_mcu_write(CMD_WATCHDOG_STATE, "\x00", 1);
+	if (ret) {
+		printf("omnia_mcu_write failed: %i\n", ret);
 		return false;
 	}
 
-	for (; retry > 0; --retry) {
-		ret = dm_i2c_read(dev, OMNIA_I2C_MCU_ADDR_STATUS, (uchar *) &mode, 2);
-		if (!ret)
-			break;
-	}
+	puts("disabled\n");
 
-	if (!retry) {
-		puts("I2C read failed! Default PEX\n");
+	return true;
+}
+#endif
+
+static bool omnia_detect_sata(void)
+{
+	int ret;
+	u16 stsword;
+
+	puts("MiniPCIe/mSATA card detection... ");
+
+	ret = omnia_mcu_read(CMD_GET_STATUS_WORD, &stsword, sizeof(stsword));
+	if (ret) {
+		printf("omnia_mcu_read failed: %i, defaulting to MiniPCIe card\n",
+		       ret);
 		return false;
 	}
 
-	if (!(mode & OMNIA_I2C_MCU_CARDDET)) {
-		puts("NONE\n");
+	if (!(stsword & CARD_DET_STSBIT)) {
+		puts("none\n");
 		return false;
 	}
 
-	if (mode & OMNIA_I2C_MCU_SATA) {
-		puts("SATA\n");
-		return true;
-	} else {
-		puts("PEX\n");
-		return false;
-	}
+	if (stsword & MSATA_IND_STSBIT)
+		puts("mSATA\n");
+	else
+		puts("MiniPCIe\n");
+
+	return stsword & MSATA_IND_STSBIT ? true : false;
 }
 
 int hws_board_topology_load(struct serdes_map **serdes_map_array, u8 *count)
@@ -151,42 +207,32 @@ struct omnia_eeprom {
 
 static bool omnia_read_eeprom(struct omnia_eeprom *oep)
 {
-	struct udevice *bus, *dev;
-	int ret, crc, retry = 3;
+	struct udevice *chip;
+	u32 crc;
+	int ret;
 
-	if (uclass_get_device_by_name(UCLASS_I2C, OMNIA_I2C_EEPROM_DM_NAME, &bus)) {
-		puts("Cannot find EEPROM bus\n");
+	chip = omnia_get_i2c_chip("EEPROM", OMNIA_I2C_EEPROM_CHIP_ADDR,
+				  OMNIA_I2C_EEPROM_CHIP_LEN);
+
+	if (!chip)
 		return false;
-	}
 
-	ret = i2c_get_chip(bus, OMNIA_I2C_EEPROM, OMNIA_I2C_EEPROM_ADDRLEN, &dev);
+	ret = dm_i2c_read(chip, 0, (void *)oep, sizeof(*oep));
 	if (ret) {
-		puts("Cannot get EEPROM chip\n");
+		printf("dm_i2c_read failed: %i, cannot read EEPROM\n", ret);
 		return false;
 	}
 
-	for (; retry > 0; --retry) {
-		ret = dm_i2c_read(dev, OMNIA_I2C_EEPROM_CONFIG_ADDR, (uchar *) oep, sizeof(struct omnia_eeprom));
-		if (ret)
-			continue;
-
-		if (oep->magic != OMNIA_I2C_EEPROM_MAGIC) {
-			puts("I2C EEPROM missing magic number!\n");
-			continue;
-		}
-
-		crc = crc32(0, (unsigned char *) oep,
-			    sizeof(struct omnia_eeprom) - 4);
-		if (crc == oep->crc) {
-			break;
-		} else {
-			printf("CRC of EEPROM memory config failed! "
-			       "calc=0x%04x saved=0x%04x\n", crc, oep->crc);
-		}
+	if (oep->magic != OMNIA_I2C_EEPROM_MAGIC) {
+		printf("bad EEPROM magic number (%08x, should be %08x)\n",
+		       oep->magic, OMNIA_I2C_EEPROM_MAGIC);
+		return false;
 	}
 
-	if (!retry) {
-		puts("I2C EEPROM read failed!\n");
+	crc = crc32(0, (void *)oep, sizeof(*oep) - 4);
+	if (crc != oep->crc) {
+		printf("bad EEPROM CRC (stored %08x, computed %08x)\n",
+		       oep->crc, crc);
 		return false;
 	}
 
@@ -320,46 +366,13 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifndef CONFIG_SPL_BUILD
-static bool disable_mcu_watchdog(void)
-{
-	struct udevice *bus, *dev;
-	int ret, retry = 3;
-	uchar buf[1] = {0x0};
-
-	if (uclass_get_device_by_name(UCLASS_I2C, OMNIA_I2C_MCU_DM_NAME, &bus)) {
-		puts("Cannot find MCU bus! Can not disable MCU WDT.\n");
-		return false;
-	}
-
-	ret = i2c_get_chip(bus, OMNIA_I2C_MCU, 1, &dev);
-	if (ret) {
-		puts("Cannot get MCU chip! Can not disable MCU WDT.\n");
-		return false;
-	}
-
-	for (; retry > 0; --retry)
-		if (!dm_i2c_write(dev, OMNIA_I2C_MCU_WDT_ADDR, (uchar *) buf, 1))
-			break;
-
-	if (retry <= 0) {
-		puts("I2C MCU watchdog failed to disable!\n");
-		return false;
-	}
-
-	return true;
-}
-#endif
-
 int board_init(void)
 {
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 #ifndef CONFIG_SPL_BUILD
-	if (disable_mcu_watchdog())
-		puts("Disabled MCU startup watchdog.\n");
-
+	disable_mcu_watchdog();
 	set_regdomain();
 #endif
 
