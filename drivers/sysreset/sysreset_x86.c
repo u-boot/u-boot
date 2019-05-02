@@ -98,6 +98,11 @@ static int x86_sysreset_request(struct udevice *dev, enum sysreset_t type)
 	return -EINPROGRESS;
 }
 
+static int x86_sysreset_get_last(struct udevice *dev)
+{
+	return SYSRESET_POWER;
+}
+
 #ifdef CONFIG_EFI_LOADER
 void __efi_runtime EFIAPI efi_reset_system(
 			enum efi_reset_type reset_type,
@@ -140,6 +145,7 @@ static const struct udevice_id x86_sysreset_ids[] = {
 
 static struct sysreset_ops x86_sysreset_ops = {
 	.request = x86_sysreset_request,
+	.get_last = x86_sysreset_get_last,
 };
 
 U_BOOT_DRIVER(x86_sysreset) = {
