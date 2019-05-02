@@ -16,10 +16,6 @@
 #include <fdt_support.h>
 #include <environment.h>
 
-#ifdef CONFIG_WDT_ARMADA_37XX
-#include <wdt.h>
-#endif
-
 #include "mox_sp.h"
 
 #define MAX_MOX_MODULES		10

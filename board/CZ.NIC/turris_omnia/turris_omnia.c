@@ -20,10 +20,6 @@
 #include <time.h>
 # include <atsha204a-i2c.h>
 
-#ifdef CONFIG_WDT_ORION
-# include <wdt.h>
-#endif
-
 #include "../drivers/ddr/marvell/a38x/ddr3_init.h"
 #include <../serdes/a38x/high_speed_env_spec.h>
 
