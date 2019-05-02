@@ -236,6 +236,31 @@ static bool omnia_read_eeprom(struct omnia_eeprom *oep)
 	return true;
 }
 
+static int omnia_get_ram_size_gb(void)
+{
+	static int ram_size;
+	struct omnia_eeprom oep;
+
+	if (!ram_size) {
+		/* Get the board config from EEPROM */
+		if (omnia_read_eeprom(&oep)) {
+			debug("Memory config in EEPROM: 0x%02x\n", oep.ramsize);
+
+			if (oep.ramsize == 0x2)
+				ram_size = 2;
+			else
+				ram_size = 1;
+		} else {
+			/* Hardcoded fallback */
+			puts("Memory config from EEPROM read failed!\n");
+			puts("Falling back to default 1 GiB!\n");
+			ram_size = 1;
+		}
+	}
+
+	return ram_size;
+}
+
 /*
  * Define the DDR layout / topology here in the board file. This will
  * be used by the DDR3 init code in the SPL U-Boot version to configure
@@ -287,37 +312,10 @@ static struct mv_ddr_topology_map board_topology_map_2g = {
 
 struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 {
-	static int mem;
-	struct omnia_eeprom oep;
-
-	/* Get the board config from EEPROM */
-	if (!mem) {
-		if (!omnia_read_eeprom(&oep))
-			goto out;
-
-		printf("Memory config in EEPROM: 0x%02x\n", oep.ramsize);
-
-		if (oep.ramsize == 0x2)
-			mem = 2;
-		else
-			mem = 1;
-	}
-
-out:
-	/* Hardcoded fallback */
-	if (mem == 0) {
-		puts("WARNING: Memory config from EEPROM read failed.\n");
-		puts("Falling back to default 1GiB map.\n");
-		mem = 1;
-	}
-
-	/* Return the board topology as defined in the board code */
-	if (mem == 1)
-		return &board_topology_map_1g;
-	if (mem == 2)
+	if (omnia_get_ram_size_gb() == 2)
 		return &board_topology_map_2g;
-
-	return &board_topology_map_1g;
+	else
+		return &board_topology_map_1g;
 }
 
 #ifndef CONFIG_SPL_BUILD
