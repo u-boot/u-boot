@@ -119,17 +119,17 @@ int btrfs_ls(const char *path)
 
 	if (inr == -1ULL) {
 		printf("Cannot lookup path %s\n", path);
-		return 1;
+		return -1;
 	}
 
 	if (type != BTRFS_FT_DIR) {
 		printf("Not a directory: %s\n", path);
-		return 1;
+		return -1;
 	}
 
 	if (btrfs_readdir(&root, inr, readdir_callback)) {
 		printf("An error occured while listing directory %s\n", path);
-		return 1;
+		return -1;
 	}
 
 	return 0;
@@ -158,12 +158,12 @@ int btrfs_size(const char *file, loff_t *size)
 
 	if (inr == -1ULL) {
 		printf("Cannot lookup file %s\n", file);
-		return 1;
+		return -1;
 	}
 
 	if (type != BTRFS_FT_REG_FILE) {
 		printf("Not a regular file: %s\n", file);
-		return 1;
+		return -1;
 	}
 
 	*size = inode.size;
@@ -183,12 +183,12 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
 
 	if (inr == -1ULL) {
 		printf("Cannot lookup file %s\n", file);
-		return 1;
+		return -1;
 	}
 
 	if (type != BTRFS_FT_REG_FILE) {
 		printf("Not a regular file: %s\n", file);
-		return 1;
+		return -1;
 	}
 
 	if (!len)
@@ -200,7 +200,7 @@ int btrfs_read(const char *file, void *buf, loff_t offset, loff_t len,
 	rd = btrfs_file_read(&root, inr, offset, len, buf);
 	if (rd == -1ULL) {
 		printf("An error occured while reading file %s\n", file);
-		return 1;
+		return -1;
 	}
 
 	*actread = rd;
