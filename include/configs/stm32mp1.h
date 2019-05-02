@@ -102,6 +102,14 @@
 
 #include <config_distro_bootcmd.h>
 
+#if defined(CONFIG_STM32_QSPI) || defined(CONFIG_NAND_STM32_FMC)
+#define CONFIG_SYS_MTDPARTS_RUNTIME
+#endif
+
+#define STM32MP_MTDPARTS \
+	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),-(nor_user)\0" \
+	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0"
+
 /*
  * memory layout for 32M uncompressed/compressed kernel,
  * 1M fdt, 1M script, 1M pxe and 1M for splashimage
@@ -117,6 +125,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	STM32MP_BOOTCMD \
+	STM32MP_MTDPARTS \
 	BOOTENV
 
 #endif /* ifndef CONFIG_SPL_BUILD */
