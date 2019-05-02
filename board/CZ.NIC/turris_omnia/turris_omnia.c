@@ -328,6 +328,43 @@ static int set_regdomain(void)
 	printf("Regdomain set to %s\n", rd);
 	return env_set("regdomain", rd);
 }
+
+/*
+ * default factory reset bootcommand on Omnia first sets all the front LEDs
+ * to green and then tries to load the rescue image from SPI flash memory and
+ * boot it
+ */
+#define OMNIA_FACTORY_RESET_BOOTCMD \
+	"i2c dev 2; " \
+	"i2c mw 0x2a.1 0x3 0x1c 1; " \
+	"i2c mw 0x2a.1 0x4 0x1c 1; " \
+	"mw.l 0x01000000 0x00ff000c; " \
+	"i2c write 0x01000000 0x2a.1 0x5 4 -s; " \
+	"setenv bootargs \"$bootargs omniarescue=$omnia_reset\"; " \
+	"sf probe; " \
+	"sf read 0x1000000 0x100000 0x700000; " \
+	"bootm 0x1000000; " \
+	"bootz 0x1000000"
+
+static void handle_reset_button(void)
+{
+	int ret;
+	u8 reset_status;
+
+	ret = omnia_mcu_read(CMD_GET_RESET, &reset_status, 1);
+	if (ret) {
+		printf("omnia_mcu_read failed: %i, reset status unknown!\n",
+		       ret);
+		return;
+	}
+
+	env_set_ulong("omnia_reset", reset_status);
+
+	if (reset_status) {
+		printf("RESET button was pressed, overwriting bootcmd!\n");
+		env_set("bootcmd", OMNIA_FACTORY_RESET_BOOTCMD);
+	}
+}
 #endif
 
 int board_early_init_f(void)
@@ -373,6 +410,7 @@ int board_late_init(void)
 {
 #ifndef CONFIG_SPL_BUILD
 	set_regdomain();
+	handle_reset_button();
 #endif
 
 	return 0;

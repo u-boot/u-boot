@@ -116,6 +116,7 @@ config TARGET_DB_88F6820_AMC
 config TARGET_TURRIS_OMNIA
 	bool "Support Turris Omnia"
 	select 88F6820
+	select BOARD_LATE_INIT
 	select DM_I2C
 	select I2C_MUX
 	select I2C_MUX_PCA954x
