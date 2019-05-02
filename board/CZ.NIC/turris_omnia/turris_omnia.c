@@ -364,7 +364,6 @@ int board_init(void)
 
 #ifndef CONFIG_SPL_BUILD
 	disable_mcu_watchdog();
-	set_regdomain();
 #endif
 
 	return 0;
