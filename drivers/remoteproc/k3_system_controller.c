@@ -301,7 +301,7 @@ static int k3_sysctrler_probe(struct udevice *dev)
 
 static const struct k3_sysctrler_desc k3_sysctrler_am654_desc = {
 	.host_id = 4,				/* HOST_ID_R5_1 */
-	.max_rx_timeout_us = 400000,
+	.max_rx_timeout_us = 800000,
 	.max_msg_size = 60,
 };
 
