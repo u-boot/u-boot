@@ -165,6 +165,7 @@ config X86
 	imply USB_ETHER_SMSC95XX
 	imply USB_HOST_ETHER
 	imply PCH
+	imply RTC_MC146818
 
 	# Thing to enable for when SPL/TPL are enabled: SPL
 	imply SPL_DM
