@@ -18,10 +18,7 @@
 #include <dm/uclass.h>
 #include <fdt_support.h>
 #include <time.h>
-
-#ifdef CONFIG_ATSHA204A
 # include <atsha204a-i2c.h>
-#endif
 
 #ifdef CONFIG_WDT_ORION
 # include <wdt.h>
@@ -388,7 +385,6 @@ int board_late_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_ATSHA204A
 static struct udevice *get_atsha204a_dev(void)
 {
 	static struct udevice *dev;
@@ -403,14 +399,12 @@ static struct udevice *get_atsha204a_dev(void)
 
 	return dev;
 }
-#endif
 
 int checkboard(void)
 {
 	u32 version_num, serial_num;
 	int err = 1;
 
-#ifdef CONFIG_ATSHA204A
 	struct udevice *dev = get_atsha204a_dev();
 
 	if (dev) {
@@ -434,8 +428,6 @@ int checkboard(void)
 	}
 
 out:
-#endif
-
 	if (err)
 		printf("Board: Turris Omnia (ver N/A). SN: N/A\n");
 	else
@@ -458,7 +450,6 @@ static void increment_mac(u8 *mac)
 
 int misc_init_r(void)
 {
-#ifdef CONFIG_ATSHA204A
 	int err;
 	struct udevice *dev = get_atsha204a_dev();
 	u8 mac0[4], mac1[4], mac[6];
@@ -503,8 +494,6 @@ int misc_init_r(void)
 		eth_env_set_enetaddr("eth2addr", mac);
 
 out:
-#endif
-
 	return 0;
 }
 
