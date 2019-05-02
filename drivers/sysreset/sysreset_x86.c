@@ -12,8 +12,7 @@
 #include <asm/processor.h>
 #include <efi_loader.h>
 
-static __efi_runtime int x86_sysreset_request(struct udevice *dev,
-					      enum sysreset_t type)
+static int x86_sysreset_request(struct udevice *dev, enum sysreset_t type)
 {
 	int value;
 
@@ -39,11 +38,18 @@ void __efi_runtime EFIAPI efi_reset_system(
 			efi_status_t reset_status,
 			unsigned long data_size, void *reset_data)
 {
+	int value;
+
+	/*
+	 * inline this code since we are not caused in the context of a
+	 * udevice and passing NULL to x86_sysreset_request() is too horrible.
+	 */
 	if (reset_type == EFI_RESET_COLD ||
 		 reset_type == EFI_RESET_PLATFORM_SPECIFIC)
-		x86_sysreset_request(NULL, SYSRESET_COLD);
-	else if (reset_type == EFI_RESET_WARM)
-		x86_sysreset_request(NULL, SYSRESET_WARM);
+		value = SYS_RST | RST_CPU | FULL_RST;
+	else /* assume EFI_RESET_WARM since we cannot return an error */
+		value = SYS_RST | RST_CPU;
+	outb(value, IO_PORT_RESET);
 
 	/* TODO EFI_RESET_SHUTDOWN */
 
