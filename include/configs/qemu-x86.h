@@ -33,11 +33,6 @@
 #define CONFIG_SYS_ATA_IDE1_OFFSET	0x170
 #define CONFIG_ATAPI
 
-/* SPI is not supported */
-
-#define BOOT_DEVICE_SPI			10
-
 #define CONFIG_SPL_BOARD_LOAD_IMAGE
-#define BOOT_DEVICE_BOARD		11
 
 #endif	/* __CONFIG_H */

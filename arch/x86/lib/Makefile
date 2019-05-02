@@ -43,7 +43,14 @@ ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 endif
 obj-$(CONFIG_HAVE_FSP) += fsp/
-obj-$(CONFIG_SPL_BUILD) += spl.o
+
+ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_TPL_BUILD
+obj-y += tpl.o
+else
+obj-y += spl.o
+endif
+endif
 
 lib-$(CONFIG_USE_PRIVATE_LIBGCC) += div64.o
 
