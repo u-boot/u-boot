@@ -1058,6 +1058,10 @@ fit-dtb.blob.lzo: fit-dtb.blob
 
 fit-dtb.blob: dts/dt.dtb FORCE
 	$(call if_changed,mkimage)
+ifneq ($(SOURCE_DATE_EPOCH),)
+	touch -d @$(SOURCE_DATE_EPOCH) fit-dtb.blob
+	chmod 0600 fit-dtb.blob
+endif
 
 MKIMAGEFLAGS_fit-dtb.blob = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-a 0 -e 0 -E \
