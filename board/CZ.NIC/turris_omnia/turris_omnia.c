@@ -50,8 +50,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OMNIA_ATSHA204_OTP_MAC0		3
 #define OMNIA_ATSHA204_OTP_MAC1		4
 
-#define MVTWSI_ARMADA_DEBUG_REG		0x8c
-
 /*
  * Those values and defines are taken from the Marvell U-Boot version
  * "u-boot-2013.01-2014_T3.0"
@@ -297,8 +295,6 @@ static int set_regdomain(void)
 
 int board_early_init_f(void)
 {
-	u32 i2c_debug_reg;
-
 	/* Configure MPP */
 	writel(0x11111111, MVEBU_MPP_BASE + 0x00);
 	writel(0x11111111, MVEBU_MPP_BASE + 0x04);
@@ -320,15 +316,6 @@ int board_early_init_f(void)
 	/* Set GPP Out Enable */
 	writel(OMNIA_GPP_OUT_ENA_LOW, MVEBU_GPIO0_BASE + 0x04);
 	writel(OMNIA_GPP_OUT_ENA_MID, MVEBU_GPIO1_BASE + 0x04);
-
-	/*
-	 * Disable I2C debug mode blocking 0x64 I2C address.
-	 * Note: that would be redundant once Turris Omnia migrates to DM_I2C,
-	 * because the mvtwsi driver includes equivalent code.
-	 */
-	i2c_debug_reg = readl(MVEBU_TWSI_BASE + MVTWSI_ARMADA_DEBUG_REG);
-	i2c_debug_reg &= ~(1<<18);
-	writel(i2c_debug_reg, MVEBU_TWSI_BASE + MVTWSI_ARMADA_DEBUG_REG);
 
 	return 0;
 }
