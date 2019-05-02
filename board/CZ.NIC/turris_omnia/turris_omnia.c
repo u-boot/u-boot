@@ -426,11 +426,13 @@ int checkboard(void)
 	}
 
 out:
+	printf("Turris Omnia:\n");
+	printf("  RAM size: %i MiB\n", omnia_get_ram_size_gb() * 1024);
 	if (err)
-		printf("Board: Turris Omnia (ver N/A). SN: N/A\n");
+		printf("  Serial Number: unknown\n");
 	else
-		printf("Board: Turris Omnia SNL %08X%08X\n",
-		       be32_to_cpu(version_num), be32_to_cpu(serial_num));
+		printf("  Serial Number: %08X%08X\n", be32_to_cpu(version_num),
+		       be32_to_cpu(serial_num));
 
 	return 0;
 }
