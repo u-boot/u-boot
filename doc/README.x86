@@ -185,6 +185,22 @@ If you are using em100, then this command will flash write -Boot:
 
    em100 -s -d filename.rom -c W25Q64CV -r
 
+Flash map for samus / broadwell:
+
+   fffff800	SYS_X86_START16
+   ffff0000	RESET_SEG_START
+   fffd8000	TPL_TEXT_BASE
+   fffa0000	X86_MRC_ADDR
+   fff90000	VGA_BIOS_ADDR
+   ffed0000	SYS_TEXT_BASE
+   ffea0000	X86_REFCODE_ADDR
+   ffe70000	SPL_TEXT_BASE
+   ffbf8000	CONFIG_ENV_OFFSET (environemnt offset)
+   ffbe0000	rw-mrc-cache (Memory-reference-code cache)
+   ffa00000	<spare>
+   ff801000	intel-me (address set by descriptor.bin)
+   ff800000	intel-descriptor
+
 ---
 
 Intel Crown Bay specific instructions for bare mode:
