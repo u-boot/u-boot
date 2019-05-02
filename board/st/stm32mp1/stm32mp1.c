@@ -7,6 +7,7 @@
 #include <config.h>
 #include <clk.h>
 #include <dm.h>
+#include <environment.h>
 #include <g_dnl.h>
 #include <generic-phy.h>
 #include <i2c.h>
@@ -504,6 +505,28 @@ int board_late_init(void)
 void board_quiesce_devices(void)
 {
 	setup_led(LEDST_OFF);
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bootmode = get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode & TAMP_BOOT_DEVICE_MASK) {
+#ifdef CONFIG_ENV_IS_IN_EXT4
+	case BOOT_FLASH_SD:
+	case BOOT_FLASH_EMMC:
+		return ENVL_EXT4;
+#endif
+#ifdef CONFIG_ENV_IS_IN_UBI
+	case BOOT_FLASH_NAND:
+		return ENVL_UBI;
+#endif
+	default:
+		return ENVL_NOWHERE;
+	}
 }
 
 #if defined(CONFIG_ENV_IS_IN_EXT4)
