@@ -18,17 +18,6 @@
  */
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
-/*
- * Commands configuration
- */
-
-/* I2C support */
-#define CONFIG_DM_I2C
-#define CONFIG_I2C_MUX
-#define CONFIG_I2C_MUX_PCA954x
-#define CONFIG_SPL_I2C_MUX
-#define CONFIG_SYS_I2C_MVTWSI
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 
