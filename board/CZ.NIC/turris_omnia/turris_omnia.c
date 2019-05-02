@@ -290,12 +290,12 @@ static struct mv_ddr_topology_map board_topology_map_2g = {
 
 struct mv_ddr_topology_map *mv_ddr_topology_map_get(void)
 {
-	static int mem = 0;
+	static int mem;
 	struct omnia_eeprom oep;
 
 	/* Get the board config from EEPROM */
-	if (mem == 0) {
-		if(!omnia_read_eeprom(&oep))
+	if (!mem) {
+		if (!omnia_read_eeprom(&oep))
 			goto out;
 
 		printf("Memory config in EEPROM: 0x%02x\n", oep.ramsize);
@@ -368,7 +368,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	/* adress of boot parameters */
+	/* address of boot parameters */
 	gd->bd->bi_boot_params = mvebu_sdram_bar(0) + 0x100;
 
 #ifndef CONFIG_SPL_BUILD
@@ -391,9 +391,9 @@ int board_late_init(void)
 #ifdef CONFIG_ATSHA204A
 static struct udevice *get_atsha204a_dev(void)
 {
-	static struct udevice *dev = NULL;
+	static struct udevice *dev;
 
-	if (dev != NULL)
+	if (dev)
 		return dev;
 
 	if (uclass_get_device_by_name(UCLASS_MISC, "atsha204a@64", &dev)) {
@@ -420,13 +420,13 @@ int checkboard(void)
 
 		err = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
 				     OMNIA_ATSHA204_OTP_VERSION,
-				     (u8 *) &version_num);
+				     (u8 *)&version_num);
 		if (err)
 			goto out;
 
 		err = atsha204a_read(dev, ATSHA204A_ZONE_OTP, false,
 				     OMNIA_ATSHA204_OTP_SERIAL,
-				     (u8 *) &serial_num);
+				     (u8 *)&serial_num);
 		if (err)
 			goto out;
 
