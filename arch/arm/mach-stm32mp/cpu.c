@@ -481,7 +481,7 @@ static int setup_mac_address(void)
 		enetaddr[i] = ((uint8_t *)&otp)[i];
 
 	if (!is_valid_ethaddr(enetaddr)) {
-		pr_err("invalid MAC address in OTP %pM", enetaddr);
+		pr_err("invalid MAC address in OTP %pM\n", enetaddr);
 		return -EINVAL;
 	}
 	pr_debug("OTP MAC address = %pM\n", enetaddr);
