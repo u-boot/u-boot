@@ -79,6 +79,13 @@ static void board_can_stdby_dis(void)
 	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 25, 0);
 }
 
+static void board_leds_init(void)
+{
+	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 0, 0); /* RED */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 1, 1); /* GREEN */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 31, 0); /* BLUE */
+}
+
 /* deassert reset lines for external periph in case of warm reboot */
 static void board_reset_additional_periph(void)
 {
@@ -118,6 +125,7 @@ void spl_board_init(void)
 #endif
 	board_reset_additional_periph();
 	board_can_stdby_dis();
+	board_leds_init();
 }
 
 void spl_display_print(void)
