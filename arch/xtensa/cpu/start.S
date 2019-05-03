@@ -164,8 +164,7 @@ _start:
 	 * enable data/instruction cache for relocated image.
 	 */
 #if XCHAL_HAVE_SPANNING_WAY && \
-	(!defined(CONFIG_SYS_DCACHE_OFF) || \
-	 !defined(CONFIG_SYS_ICACHE_OFF))
+	!(defined(CONFIG_SYS_DCACHE_OFF) && defined(CONFIG_SYS_ICACHE_OFF))
 	srli	a7, a4, 29
 	slli	a7, a7, 29
 	addi	a7, a7, XCHAL_SPANNING_WAY

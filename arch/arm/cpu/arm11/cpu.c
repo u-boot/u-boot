@@ -97,7 +97,7 @@ void flush_dcache_all(void)
 }
 #endif /* #ifndef CONFIG_SYS_DCACHE_OFF */
 
-#if !defined(CONFIG_SYS_ICACHE_OFF) || !defined(CONFIG_SYS_DCACHE_OFF)
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 void enable_caches(void)
 {
 #ifndef CONFIG_SYS_ICACHE_OFF

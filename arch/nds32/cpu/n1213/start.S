@@ -129,7 +129,7 @@ set_ivb:
 	mfsr	$r1, $mr8
 	and	$r1, $r1, $r0
 	mtsr	$r1, $mr8
-#if (!defined(CONFIG_SYS_ICACHE_OFF) || !defined(CONFIG_SYS_DCACHE_OFF))
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 /*
  * MMU_CTL NTC0 Cacheable/Write-Back
  */

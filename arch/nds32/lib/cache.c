@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#if (!defined(CONFIG_SYS_ICACHE_OFF) || !defined(CONFIG_SYS_DCACHE_OFF))
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 static inline unsigned long CACHE_SET(unsigned char cache)
 {
 	if (cache == ICACHE)
