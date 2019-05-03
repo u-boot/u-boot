@@ -18,31 +18,6 @@
  */
 #define CONFIG_SYS_TCLK		250000000	/* 250MHz */
 
-/*
- * Commands configuration
- */
-
-/* I2C support */
-#define CONFIG_DM_I2C
-#define CONFIG_I2C_MUX
-#define CONFIG_I2C_MUX_PCA954x
-#define CONFIG_SPL_I2C_MUX
-#define CONFIG_SYS_I2C_MVTWSI
-
-/*
- * SDIO/MMC Card Configuration
- */
-#define CONFIG_SYS_MMC_BASE		MVEBU_SDIO_BASE
-
-/*
- * SATA/SCSI/AHCI configuration
- */
-#define CONFIG_SCSI_AHCI_PLAT
-#define CONFIG_SYS_SCSI_MAX_SCSI_ID	2
-#define CONFIG_SYS_SCSI_MAX_LUN		1
-#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
-					 CONFIG_SYS_SCSI_MAX_LUN)
-
 /* USB/EHCI configuration */
 #define CONFIG_EHCI_IS_TDI
 
@@ -114,9 +89,16 @@
 #define BOOT_TARGET_DEVICES_USB(func)
 #endif
 
+#ifdef CONFIG_SCSI
+#define BOOT_TARGET_DEVICES_SCSI(func) func(SCSI, scsi, 0)
+#else
+#define BOOT_TARGET_DEVICES_SCSI(func)
+#endif
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_USB(func) \
+	BOOT_TARGET_DEVICES_SCSI(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 

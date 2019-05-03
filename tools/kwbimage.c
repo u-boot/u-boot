@@ -701,7 +701,7 @@ int kwb_verify(RSA *key, void *data, int datasz, struct sig_v1 *sig,
 		goto err_ctx;
 	}
 
-	if (!EVP_VerifyFinal(ctx, sig->sig, sizeof(sig->sig), evp_key)) {
+	if (EVP_VerifyFinal(ctx, sig->sig, sizeof(sig->sig), evp_key) != 1) {
 		ret = openssl_err("Could not verify signature");
 		goto err_ctx;
 	}
