@@ -73,6 +73,12 @@ int misc_init_r(void)
 /* SPL */
 #ifdef CONFIG_SPL_BUILD
 
+/* must set PB25 low to enable the CAN transceivers */
+static void board_can_stdby_dis(void)
+{
+	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 25, 0);
+}
+
 /* deassert reset lines for external periph in case of warm reboot */
 static void board_reset_additional_periph(void)
 {
@@ -111,6 +117,7 @@ void spl_board_init(void)
 	spl_mmc_init();
 #endif
 	board_reset_additional_periph();
+	board_can_stdby_dis();
 }
 
 void spl_display_print(void)
