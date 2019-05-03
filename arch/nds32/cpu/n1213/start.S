@@ -129,7 +129,7 @@ set_ivb:
 	mfsr	$r1, $mr8
 	and	$r1, $r1, $r0
 	mtsr	$r1, $mr8
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 /*
  * MMU_CTL NTC0 Cacheable/Write-Back
  */
@@ -139,7 +139,7 @@ set_ivb:
 	mtsr	$r1, $mr0
 #endif
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #ifdef CONFIG_ARCH_MAP_SYSMEM
 /*
  * MMU_CTL NTC1 Non-cacheable
@@ -158,14 +158,14 @@ set_ivb:
 #endif
 #endif
 
-#if !defined(CONFIG_SYS_ICACHE_OFF)
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	li	$r0, 0x1
 	mfsr	$r1, $mr8
 	or	$r1, $r1, $r0
 	mtsr	$r1, $mr8
 #endif
 
-#if !defined(CONFIG_SYS_DCACHE_OFF)
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 	li	$r0, 0x2
 	mfsr	$r1, $mr8
 	or	$r1, $r1, $r0

@@ -164,18 +164,19 @@ _start:
 	 * enable data/instruction cache for relocated image.
 	 */
 #if XCHAL_HAVE_SPANNING_WAY && \
-	!(defined(CONFIG_SYS_DCACHE_OFF) && defined(CONFIG_SYS_ICACHE_OFF))
+	!(CONFIG_IS_ENABLED(SYS_DCACHE_OFF) && \
+	  CONFIG_IS_ENABLED(SYS_ICACHE_OFF))
 	srli	a7, a4, 29
 	slli	a7, a7, 29
 	addi	a7, a7, XCHAL_SPANNING_WAY
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 	rdtlb1	a8, a7
 	srli	a8, a8, 4
 	slli	a8, a8, 4
 	addi	a8, a8, CA_WRITEBACK
 	wdtlb	a8, a7
 #endif
-#ifndef CONFIG_SYS_ICACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	ritlb1	a8, a7
 	srli	a8, a8, 4
 	slli	a8, a8, 4

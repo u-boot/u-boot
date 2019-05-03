@@ -84,7 +84,7 @@ flush_dcache:
 
 	/*
 	 * disable MMU and D cache
-	 * enable I cache if CONFIG_SYS_ICACHE_OFF is not defined
+	 * enable I cache if SYS_ICACHE_OFF is not defined
 	 */
 	mrc	p15, 0, r0, c1, c0, 0
 	bic	r0, r0, #0x00000300	/* clear bits 9:8 (---- --RS) */
@@ -95,7 +95,7 @@ flush_dcache:
 	bic	r0, r0, #0x00002000	/* clear bit 13 (--V- ----) */
 #endif
 	orr	r0, r0, #0x00000002	/* set bit 1 (A) Align */
-#ifndef CONFIG_SYS_ICACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 	orr	r0, r0, #0x00001000	/* set bit 12 (I) I-Cache */
 #endif
 	mcr	p15, 0, r0, c1, c0, 0

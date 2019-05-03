@@ -241,7 +241,7 @@ struct eqos_tegra186_regs {
  */
 #if EQOS_DESCRIPTOR_SIZE < ARCH_DMA_MINALIGN
 #if !defined(CONFIG_SYS_NONCACHED_MEMORY) && \
-	!defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_X86)
+	!CONFIG_IS_ENABLED(SYS_DCACHE_OFF) && !defined(CONFIG_X86)
 #warning Cache line size is larger than descriptor size
 #endif
 #endif

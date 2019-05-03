@@ -321,7 +321,7 @@ static int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc,
 	print_eths();
 #endif
 	print_baudrate();
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 	print_num("TLB addr", gd->arch.tlb_addr);
 #endif
 	print_num("relocaddr", gd->relocaddr);

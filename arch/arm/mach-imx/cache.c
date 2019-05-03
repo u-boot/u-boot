@@ -37,7 +37,7 @@ static void enable_ca7_smp(void)
 	}
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 void enable_caches(void)
 {
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)

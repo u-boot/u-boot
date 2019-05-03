@@ -30,7 +30,7 @@ void invalidate_dcache_range(unsigned long start, unsigned long end)
 
 void icache_enable(void)
 {
-#ifndef CONFIG_SYS_ICACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
 	asm volatile (
 		"csrr t1, mcache_ctl\n\t"
@@ -43,7 +43,7 @@ void icache_enable(void)
 
 void icache_disable(void)
 {
-#ifndef CONFIG_SYS_ICACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_ICACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
 	asm volatile (
 		"fence.i\n\t"
@@ -57,7 +57,7 @@ void icache_disable(void)
 
 void dcache_enable(void)
 {
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
 	asm volatile (
 		"csrr t1, mcache_ctl\n\t"
@@ -70,7 +70,7 @@ void dcache_enable(void)
 
 void dcache_disable(void)
 {
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #ifdef CONFIG_RISCV_NDS_CACHE
 	asm volatile (
 		"fence\n\t"

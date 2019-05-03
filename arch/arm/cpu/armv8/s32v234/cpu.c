@@ -16,7 +16,7 @@ u32 cpu_mask(void)
 	return readl(MC_ME_CS);
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 
 #define S32V234_IRAM_BASE        0x3e800000UL
 #define S32V234_IRAM_SIZE        0x800000UL

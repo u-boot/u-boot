@@ -50,7 +50,7 @@ struct nand_ecclayout fake_ecc_layout;
 /*
  * Cache management functions
  */
-#ifndef	CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 static void mxs_nand_flush_data_buf(struct mxs_nand_info *info)
 {
 	uint32_t addr = (uint32_t)info->data_buf;

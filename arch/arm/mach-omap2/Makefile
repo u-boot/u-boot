@@ -34,7 +34,7 @@ obj-$(CONFIG_SCSI_AHCI_PLAT) += sata.o
 endif
 endif
 
-ifeq ($(CONFIG_SYS_DCACHE_OFF),)
+ifeq ($(CONFIG_$(SPL_TPL_)SYS_DCACHE_OFF),)
 obj-y	+= omap-cache.o
 endif
 

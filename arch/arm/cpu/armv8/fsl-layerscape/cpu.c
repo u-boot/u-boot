@@ -388,7 +388,7 @@ void cpu_name(char *name)
 		strcpy(name, "unknown");
 }
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 /*
  * To start MMU before DDR is available, we create MMU table in SRAM.
  * The base address of SRAM is CONFIG_SYS_FSL_OCRAM_BASE. We use three
@@ -611,7 +611,7 @@ void enable_caches(void)
 	icache_enable();
 	dcache_enable();
 }
-#endif	/* CONFIG_SYS_DCACHE_OFF */
+#endif	/* !CONFIG_IS_ENABLED(SYS_DCACHE_OFF) */
 
 #ifdef CONFIG_TFABOOT
 enum boot_src __get_boot_src(u32 porsr1)
