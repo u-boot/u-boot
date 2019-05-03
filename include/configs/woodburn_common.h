@@ -17,8 +17,6 @@
 #define CONFIG_MX35_HCLK_FREQ	24000000
 #define CONFIG_SYS_FSL_CLK
 
-#define CONFIG_SYS_DCACHE_OFF
-
 #define CONFIG_MACH_TYPE		MACH_TYPE_FLEA3
 
 /* This is required to setup the ESDC controller */

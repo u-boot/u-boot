@@ -17,7 +17,6 @@
 /* SoC Configuration */
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SPL_TARGET		"u-boot-spi.gph"
-#define CONFIG_SYS_DCACHE_OFF
 
 /* Memory Configuration */
 #define CONFIG_SYS_LPAE_SDRAM_BASE	0x800000000

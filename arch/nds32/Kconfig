@@ -16,6 +16,18 @@ config TARGET_ADP_AE3XX
 
 endchoice
 
+config SYS_ICACHE_OFF
+	bool "Do not enable icache"
+	default n
+	help
+	  Do not enable instruction cache in U-Boot.
+
+config SYS_DCACHE_OFF
+	bool "Do not enable dcache"
+	default n
+	help
+	  Do not enable data cache in U-Boot.
+
 source "board/AndesTech/adp-ag101p/Kconfig"
 source "board/AndesTech/adp-ae3xx/Kconfig"
 

@@ -6,8 +6,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_SYS_DCACHE_OFF
-
 #define CONFIG_SYS_BOOTMAPSZ		(16 << 20)
 
 #define CONFIG_SYS_TIMER_RATE		(150000000/256)

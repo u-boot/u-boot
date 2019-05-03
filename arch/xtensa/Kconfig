@@ -16,6 +16,18 @@ config TARGET_XTFPGA
 
 endchoice
 
+config SYS_ICACHE_OFF
+	bool "Do not enable icache"
+	default n
+	help
+	  Do not enable instruction cache in U-Boot.
+
+config SYS_DCACHE_OFF
+	bool "Do not enable dcache"
+	default n
+	help
+	  Do not enable data cache in U-Boot.
+
 source "board/cadence/xtfpga/Kconfig"
 
 endmenu

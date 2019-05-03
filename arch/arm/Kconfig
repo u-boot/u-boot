@@ -74,6 +74,18 @@ config ARM_ASM_UNIFIED
 config THUMB2_KERNEL
 	bool
 
+config SYS_ICACHE_OFF
+	bool "Do not enable icache"
+	default n
+	help
+	  Do not enable instruction cache in U-Boot.
+
+config SYS_DCACHE_OFF
+	bool "Do not enable dcache"
+	default n
+	help
+	  Do not enable data cache in U-Boot.
+
 config SYS_ARM_CACHE_CP15
 	bool "CP15 based cache enabling support"
 	help

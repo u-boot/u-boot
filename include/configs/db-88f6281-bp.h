@@ -94,6 +94,4 @@
 
 #define CONFIG_SYS_LOAD_ADDR  0x1000000      /* default location for tftp and bootm */
 
-#define CONFIG_SYS_DCACHE_OFF
-
 #endif /* _CONFIG_DB_88F6281_BP_H */
