@@ -175,8 +175,9 @@ void board_init_f(ulong dummy)
 	sysmgr_pinmux_init();
 	sysmgr_config_warmrstcfgio(0);
 
-	/* De-assert reset for bridges based on handoff */
-	socfpga_bridges_reset(0);
+	/* De-assert reset for peripherals and bridges based on handoff */
+	reset_deassert_peripherals_handoff();
+	socfpga_bridges_set_handoff_regs(true, true, true);
 
 	debug("Unfreezing/Thaw all I/O banks\n");
 	/* unfreeze / thaw all IO banks */
@@ -205,7 +206,4 @@ void board_init_f(ulong dummy)
 		debug("DRAM init failed: %d\n", ret);
 		hang();
 	}
-
-	if (!socfpga_is_booting_from_fpga())
-		socfpga_bridges_reset(1);
 }

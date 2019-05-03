@@ -74,15 +74,15 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 		dwmci_set_idma_desc(cur_idmac, flags, cnt,
 				    (ulong)bounce_buffer + (i * PAGE_SIZE));
 
+		cur_idmac++;
 		if (blk_cnt <= 8)
 			break;
 		blk_cnt -= 8;
-		cur_idmac++;
 		i++;
 	} while(1);
 
 	data_end = (ulong)cur_idmac;
-	flush_dcache_range(data_start, data_end + ARCH_DMA_MINALIGN);
+	flush_dcache_range(data_start, roundup(data_end, ARCH_DMA_MINALIGN));
 
 	ctrl = dwmci_readl(host, DWMCI_CTRL);
 	ctrl |= DWMCI_IDMAC_EN | DWMCI_DMA_EN;
@@ -114,21 +114,39 @@ static int dwmci_fifo_ready(struct dwmci_host *host, u32 bit, u32 *len)
 	return 0;
 }
 
+static unsigned int dwmci_get_timeout(struct mmc *mmc, const unsigned int size)
+{
+	unsigned int timeout;
+
+	timeout = size * 8 * 1000;	/* counting in bits and msec */
+	timeout *= 2;			/* wait twice as long */
+	timeout /= mmc->clock;
+	timeout /= mmc->bus_width;
+	timeout /= mmc->ddr_mode ? 2 : 1;
+	timeout = (timeout < 1000) ? 1000 : timeout;
+
+	return timeout;
+}
+
 static int dwmci_data_transfer(struct dwmci_host *host, struct mmc_data *data)
 {
+	struct mmc *mmc = host->mmc;
 	int ret = 0;
-	u32 timeout = 240000;
-	u32 mask, size, i, len = 0;
+	u32 timeout, mask, size, i, len = 0;
 	u32 *buf = NULL;
 	ulong start = get_timer(0);
 	u32 fifo_depth = (((host->fifoth_val & RX_WMARK_MASK) >>
 			    RX_WMARK_SHIFT) + 1) * 2;
 
-	size = data->blocksize * data->blocks / 4;
+	size = data->blocksize * data->blocks;
 	if (data->flags == MMC_DATA_READ)
 		buf = (unsigned int *)data->dest;
 	else
 		buf = (unsigned int *)data->src;
+
+	timeout = dwmci_get_timeout(mmc, size);
+
+	size /= 4;
 
 	for (;;) {
 		mask = dwmci_readl(host, DWMCI_RINTSTS);
@@ -252,14 +270,20 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			dwmci_wait_reset(host, DWMCI_CTRL_FIFO_RESET);
 		} else {
 			if (data->flags == MMC_DATA_READ) {
-				bounce_buffer_start(&bbstate, (void*)data->dest,
+				ret = bounce_buffer_start(&bbstate,
+						(void*)data->dest,
 						data->blocksize *
 						data->blocks, GEN_BB_WRITE);
 			} else {
-				bounce_buffer_start(&bbstate, (void*)data->src,
+				ret = bounce_buffer_start(&bbstate,
+						(void*)data->src,
 						data->blocksize *
 						data->blocks, GEN_BB_READ);
 			}
+
+			if (ret)
+				return ret;
+
 			dwmci_prepare_data(host, data, cur_idmac,
 					   bbstate.bounce_buffer);
 		}

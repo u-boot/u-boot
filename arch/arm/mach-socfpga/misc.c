@@ -126,17 +126,22 @@ int arch_cpu_init(void)
 #ifndef CONFIG_SPL_BUILD
 static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc != 2)
+	unsigned int mask = ~0;
+
+	if (argc < 2 || argc > 3)
 		return CMD_RET_USAGE;
 
 	argv++;
 
+	if (argc == 3)
+		mask = simple_strtoul(argv[1], NULL, 16);
+
 	switch (*argv[0]) {
 	case 'e':	/* Enable */
-		do_bridge_reset(1);
+		do_bridge_reset(1, mask);
 		break;
 	case 'd':	/* Disable */
-		do_bridge_reset(0);
+		do_bridge_reset(0, mask);
 		break;
 	default:
 		return CMD_RET_USAGE;
@@ -145,10 +150,10 @@ static int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-U_BOOT_CMD(bridge, 2, 1, do_bridge,
+U_BOOT_CMD(bridge, 3, 1, do_bridge,
 	   "SoCFPGA HPS FPGA bridge control",
-	   "enable  - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
-	   "bridge disable - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	   "enable [mask] - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	   "bridge disable [mask] - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
 	   ""
 );
 
