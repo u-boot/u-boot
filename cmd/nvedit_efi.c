@@ -291,8 +291,11 @@ static int append_value(char **bufp, size_t *sizep, char *data)
 		if (!tmp_buf)
 			return -1;
 
-		if (hex2bin((u8 *)tmp_buf, data, len) < 0)
+		if (hex2bin((u8 *)tmp_buf, data, len) < 0) {
+			printf("Error: illegal hexadecimal string\n");
+			free(tmp_buf);
 			return -1;
+		}
 
 		value = tmp_buf;
 	} else { /* string */

@@ -207,12 +207,17 @@ struct efi_object {
  * struct efi_loaded_image_obj - handle of a loaded image
  *
  * @header:		EFI object header
+ * @exit_status:	exit status passed to Exit()
+ * @exit_data_size:	exit data size passed to Exit()
+ * @exit_data:		exit data passed to Exit()
  * @exit_jmp:		long jump buffer for returning form started image
  * @entry:		entry address of the relocated image
  */
 struct efi_loaded_image_obj {
 	struct efi_object header;
 	efi_status_t exit_status;
+	efi_uintn_t *exit_data_size;
+	u16 **exit_data;
 	struct jmp_buf_data exit_jmp;
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
@@ -560,7 +565,7 @@ struct efi_load_option {
 	u16 file_path_length;
 	u16 *label;
 	struct efi_device_path *file_path;
-	u8 *optional_data;
+	const u8 *optional_data;
 };
 
 void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data);

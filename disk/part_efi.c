@@ -209,6 +209,8 @@ int get_disk_guid(struct blk_desc * dev_desc, char *guid)
 	guid_bin = gpt_head->disk_guid.b;
 	uuid_bin_to_str(guid_bin, guid, UUID_STR_FORMAT_GUID);
 
+	/* Remember to free pte */
+	free(gpt_pte);
 	return 0;
 }
 
@@ -696,6 +698,10 @@ int gpt_verify_headers(struct blk_desc *dev_desc, gpt_header *gpt_head,
 		       __func__);
 		return -1;
 	}
+
+	/* Free pte before allocating again */
+	free(*gpt_pte);
+
 	if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
 			 gpt_head, gpt_pte) != 1) {
 		printf("%s: *** ERROR: Invalid Backup GPT ***\n",

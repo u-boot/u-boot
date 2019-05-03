@@ -9,7 +9,7 @@
  */
 
 #include <common.h>
-#include <efi_api.h>
+#include <efi_selftest.h>
 
 static efi_guid_t loaded_image_protocol_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
 
@@ -66,15 +66,22 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
 			     struct efi_system_table *systable)
 {
 	struct efi_simple_text_output_protocol *con_out = systable->con_out;
-	efi_status_t ret = EFI_UNSUPPORTED;
+	efi_status_t ret;
+	u16 text[] = EFI_ST_SUCCESS_STR;
 
 	con_out->output_string(con_out, L"EFI application calling Exit\n");
 
-	if (check_loaded_image_protocol(handle, systable) != EFI_SUCCESS)
+	if (check_loaded_image_protocol(handle, systable) != EFI_SUCCESS) {
+		con_out->output_string(con_out,
+				       L"Loaded image protocol missing\n");
 		ret = EFI_NOT_FOUND;
+		goto out;
+	}
 
-	/* The return value is checked by the calling test */
-	systable->boottime->exit(handle, ret, 0, NULL);
+	/* This return value is expected by the calling test */
+	ret = EFI_UNSUPPORTED;
+out:
+	systable->boottime->exit(handle, ret, sizeof(text), text);
 
 	/*
 	 * This statement should not be reached.

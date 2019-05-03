@@ -238,6 +238,8 @@ void gen_rand_uuid(unsigned char *uuid_bin)
 	unsigned int *ptr = (unsigned int *)&uuid;
 	int i;
 
+	srand(get_ticks() + rand());
+
 	/* Set all fields randomly */
 	for (i = 0; i < sizeof(struct uuid) / sizeof(*ptr); i++)
 		*(ptr + i) = cpu_to_be32(rand());

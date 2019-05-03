@@ -11,6 +11,7 @@
 #include <efi_loader.h>
 #include <environment.h>
 #include <exports.h>
+#include <hexdump.h>
 #include <malloc.h>
 #include <search.h>
 #include <linux/ctype.h>
@@ -545,7 +546,10 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 				+ sizeof(struct efi_device_path); /* for END */
 
 	/* optional data */
-	lo.optional_data = (u8 *)(argc == 6 ? "" : argv[6]);
+	if (argc < 6)
+		lo.optional_data = NULL;
+	else
+		lo.optional_data = (const u8 *)argv[6];
 
 	size = efi_serialize_load_option(&lo, (u8 **)&data);
 	if (!size) {
@@ -615,12 +619,13 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
 /**
  * show_efi_boot_opt_data() - dump UEFI load option
  *
- * @id:		Load option number
- * @data:	Value of UEFI load option variable
+ * @id:		load option number
+ * @data:	value of UEFI load option variable
+ * @size:	size of the boot option
  *
  * Decode the value of UEFI load option variable and print information.
  */
-static void show_efi_boot_opt_data(int id, void *data)
+static void show_efi_boot_opt_data(int id, void *data, size_t size)
 {
 	struct efi_load_option lo;
 	char *label, *p;
@@ -638,7 +643,7 @@ static void show_efi_boot_opt_data(int id, void *data)
 	utf16_utf8_strncpy(&p, lo.label, label_len16);
 
 	printf("Boot%04X:\n", id);
-	printf("\tattributes: %c%c%c (0x%08x)\n",
+	printf("  attributes: %c%c%c (0x%08x)\n",
 	       /* ACTIVE */
 	       lo.attributes & LOAD_OPTION_ACTIVE ? 'A' : '-',
 	       /* FORCE RECONNECT */
@@ -646,14 +651,16 @@ static void show_efi_boot_opt_data(int id, void *data)
 	       /* HIDDEN */
 	       lo.attributes & LOAD_OPTION_HIDDEN ? 'H' : '-',
 	       lo.attributes);
-	printf("\tlabel: %s\n", label);
+	printf("  label: %s\n", label);
 
 	dp_str = efi_dp_str(lo.file_path);
-	printf("\tfile_path: %ls\n", dp_str);
+	printf("  file_path: %ls\n", dp_str);
 	efi_free_pool(dp_str);
 
-	printf("\tdata: %s\n", lo.optional_data);
-
+	printf("  data:\n");
+	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
+		       lo.optional_data, size + (u8 *)data -
+		       (u8 *)lo.optional_data, true);
 	free(label);
 }
 
@@ -686,11 +693,22 @@ static void show_efi_boot_opt(int id)
 						data));
 	}
 	if (ret == EFI_SUCCESS)
-		show_efi_boot_opt_data(id, data);
+		show_efi_boot_opt_data(id, data, size);
 	else if (ret == EFI_NOT_FOUND)
 		printf("Boot%04X: not found\n", id);
 
 	free(data);
+}
+
+static int u16_tohex(u16 c)
+{
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+
+	/* not hexadecimal */
+	return -1;
 }
 
 /**
@@ -709,38 +727,58 @@ static void show_efi_boot_opt(int id)
 static int do_efi_boot_dump(cmd_tbl_t *cmdtp, int flag,
 			    int argc, char * const argv[])
 {
-	char regex[256];
-	char * const regexlist[] = {regex};
-	char *variables = NULL, *boot, *value;
-	int len;
-	int id;
+	u16 *var_name16, *p;
+	efi_uintn_t buf_size, size;
+	efi_guid_t guid;
+	int id, i, digit;
+	efi_status_t ret;
 
 	if (argc > 1)
 		return CMD_RET_USAGE;
 
-	snprintf(regex, 256, "efi_.*-.*-.*-.*-.*_Boot[0-9A-F]+");
-
-	/* TODO: use GetNextVariableName? */
-	len = hexport_r(&env_htab, '\n', H_MATCH_REGEX | H_MATCH_KEY,
-			&variables, 0, 1, regexlist);
-
-	if (!len)
-		return CMD_RET_SUCCESS;
-
-	if (len < 0)
+	buf_size = 128;
+	var_name16 = malloc(buf_size);
+	if (!var_name16)
 		return CMD_RET_FAILURE;
 
-	boot = variables;
-	while (*boot) {
-		value = strstr(boot, "Boot") + 4;
-		id = (int)simple_strtoul(value, NULL, 16);
-		show_efi_boot_opt(id);
-		boot = strchr(boot, '\n');
-		if (!*boot)
+	var_name16[0] = 0;
+	for (;;) {
+		size = buf_size;
+		ret = EFI_CALL(efi_get_next_variable_name(&size, var_name16,
+							  &guid));
+		if (ret == EFI_NOT_FOUND)
 			break;
-		boot++;
+		if (ret == EFI_BUFFER_TOO_SMALL) {
+			buf_size = size;
+			p = realloc(var_name16, buf_size);
+			if (!p) {
+				free(var_name16);
+				return CMD_RET_FAILURE;
+			}
+			var_name16 = p;
+			ret = EFI_CALL(efi_get_next_variable_name(&size,
+								  var_name16,
+								  &guid));
+		}
+		if (ret != EFI_SUCCESS) {
+			free(var_name16);
+			return CMD_RET_FAILURE;
+		}
+
+		if (memcmp(var_name16, L"Boot", 8))
+			continue;
+
+		for (id = 0, i = 0; i < 4; i++) {
+			digit = u16_tohex(var_name16[4 + i]);
+			if (digit < 0)
+				break;
+			id = (id << 4) + digit;
+		}
+		if (i == 4 && !var_name16[8])
+			show_efi_boot_opt(id);
 	}
-	free(variables);
+
+	free(var_name16);
 
 	return CMD_RET_SUCCESS;
 }

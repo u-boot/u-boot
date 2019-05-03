@@ -297,18 +297,21 @@ static efi_status_t efi_install_fdt(const char *fdt_opt)
 static efi_status_t do_bootefi_exec(efi_handle_t handle)
 {
 	efi_status_t ret;
+	efi_uintn_t exit_data_size = 0;
+	u16 *exit_data = NULL;
 
 	/* Transfer environment variable as load options */
 	ret = set_load_options(handle, "bootargs");
 	if (ret != EFI_SUCCESS)
 		return ret;
 
-	/* we don't support much: */
-	env_set("efi_8be4df61-93ca-11d2-aa0d-00e098032b8c_OsIndicationsSupported",
-		"{ro,boot}(blob)0000000000000000");
-
 	/* Call our payload! */
-	ret = EFI_CALL(efi_start_image(handle, NULL, NULL));
+	ret = EFI_CALL(efi_start_image(handle, &exit_data_size, &exit_data));
+	printf("## Application terminated, r = %lu\n", ret & ~EFI_ERROR_MASK);
+	if (ret && exit_data) {
+		printf("## %ls\n", exit_data);
+		efi_free_pool(exit_data);
+	}
 
 	efi_restore_gd();
 
@@ -361,7 +364,6 @@ static int do_efibootmgr(const char *fdt_opt)
 	}
 
 	ret = do_bootefi_exec(handle);
-	printf("## Application terminated, r = %lu\n", ret & ~EFI_ERROR_MASK);
 
 	if (ret != EFI_SUCCESS)
 		return CMD_RET_FAILURE;
@@ -476,7 +478,6 @@ static int do_bootefi_image(const char *image_opt, const char *fdt_opt)
 		goto out;
 
 	ret = do_bootefi_exec(handle);
-	printf("## Application terminated, r = %lu\n", ret & ~EFI_ERROR_MASK);
 
 out:
 	if (mem_handle)

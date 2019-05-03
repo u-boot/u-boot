@@ -423,10 +423,12 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
 }
 
 /**
- * efi_add_handle() - add a new object to the object list
- * @obj: object to be added
+ * efi_add_handle() - add a new handle to the object list
  *
- * The protocols list is initialized. The object handle is set.
+ * @handle:	handle to be added
+ *
+ * The protocols list is initialized. The handle is added to the list of known
+ * UEFI objects.
  */
 void efi_add_handle(efi_handle_t handle)
 {
@@ -618,7 +620,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	}
 
 	if ((type & (EVT_NOTIFY_WAIT | EVT_NOTIFY_SIGNAL)) &&
-	    (is_valid_tpl(notify_tpl) != EFI_SUCCESS))
+	    (!notify_function || is_valid_tpl(notify_tpl) != EFI_SUCCESS))
 		return EFI_INVALID_PARAMETER;
 
 	evt = calloc(1, sizeof(struct efi_event));
@@ -2626,6 +2628,9 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 
 	efi_is_direct_boot = false;
 
+	image_obj->exit_data_size = exit_data_size;
+	image_obj->exit_data = exit_data;
+
 	/* call the image! */
 	if (setjmp(&image_obj->exit_jmp)) {
 		/*
@@ -2670,6 +2675,41 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 }
 
 /**
+ * efi_update_exit_data() - fill exit data parameters of StartImage()
+ *
+ * @image_obj		image handle
+ * @exit_data_size	size of the exit data buffer
+ * @exit_data		buffer with data returned by UEFI payload
+ * Return:		status code
+ */
+static efi_status_t efi_update_exit_data(struct efi_loaded_image_obj *image_obj,
+					 efi_uintn_t exit_data_size,
+					 u16 *exit_data)
+{
+	efi_status_t ret;
+
+	/*
+	 * If exit_data is not provided to StartImage(), exit_data_size must be
+	 * ignored.
+	 */
+	if (!image_obj->exit_data)
+		return EFI_SUCCESS;
+	if (image_obj->exit_data_size)
+		*image_obj->exit_data_size = exit_data_size;
+	if (exit_data_size && exit_data) {
+		ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA,
+					exit_data_size,
+					(void **)image_obj->exit_data);
+		if (ret != EFI_SUCCESS)
+			return ret;
+		memcpy(*image_obj->exit_data, exit_data, exit_data_size);
+	} else {
+		image_obj->exit_data = NULL;
+	}
+	return EFI_SUCCESS;
+}
+
+/**
  * efi_exit() - leave an EFI application or driver
  * @image_handle:   handle of the application or driver that is exiting
  * @exit_status:    status code
@@ -2708,6 +2748,15 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
 					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
 	if (ret != EFI_SUCCESS)
 		goto out;
+
+	/* Exit data is only foreseen in case of failure. */
+	if (exit_status != EFI_SUCCESS) {
+		ret = efi_update_exit_data(image_obj, exit_data_size,
+					   exit_data);
+		/* Exiting has priority. Don't return error to caller. */
+		if (ret != EFI_SUCCESS)
+			EFI_PRINT("%s: out of memory\n", __func__);
+	}
 
 	/* Make sure entry/exit counts for EFI world cross-overs match */
 	EFI_EXIT(exit_status);
