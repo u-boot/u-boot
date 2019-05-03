@@ -282,7 +282,7 @@ config SPL_SHA1_SUPPORT
 	  checksum is a 160-bit (20-byte) hash value used to check that the
 	  image contents have not been corrupted or maliciously altered.
 	  While SHA1 is fairly secure it is coming to the end of its life
-	  due to the expanding computing power avaiable to brute-force
+	  due to the expanding computing power available to brute-force
 	  attacks. For more security, consider SHA256.
 
 config SPL_SHA256_SUPPORT

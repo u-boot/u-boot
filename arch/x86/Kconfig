@@ -421,7 +421,7 @@ config ENABLE_MRC_CACHE
 	  For platforms that use Intel FSP for the memory initialization,
 	  please check FSP output HOB via U-Boot command 'fsp hob' to see
 	  if there is FSP_NON_VOLATILE_STORAGE_HOB_GUID (asm/fsp/fsp_hob.h).
-	  If such GUID does not exist, MRC cache is not avaiable on such
+	  If such GUID does not exist, MRC cache is not available on such
 	  platform (eg: Intel Queensbay), which means selecting this option
 	  here does not make any difference.
 

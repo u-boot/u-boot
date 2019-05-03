@@ -138,7 +138,7 @@ int arch_fsp_init(void)
 			}
 
 			/*
-			 * DM is not avaiable yet at this point, hence call
+			 * DM is not available yet at this point, hence call
 			 * CMOS access library which does not depend on DM.
 			 */
 			stack = cmos_read32(CMOS_FSP_STACK_ADDR);
