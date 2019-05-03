@@ -10,6 +10,7 @@
 #include <common.h>
 #include <dm.h>
 #include <wdt.h>
+#include <clk.h>
 #include <asm/io.h>
 
 /* WDT Value register */
@@ -26,6 +27,7 @@
 
 struct bcm6345_wdt_priv {
 	void __iomem *regs;
+	unsigned long clk_rate;
 };
 
 static int bcm6345_wdt_reset(struct udevice *dev)
@@ -41,16 +43,17 @@ static int bcm6345_wdt_reset(struct udevice *dev)
 static int bcm6345_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 {
 	struct bcm6345_wdt_priv *priv = dev_get_priv(dev);
+	u32 val = priv->clk_rate / 1000 * timeout;
 
-	if (timeout < WDT_VAL_MIN) {
+	if (val < WDT_VAL_MIN) {
 		debug("watchdog won't fire with less than 2 ticks\n");
-		timeout = WDT_VAL_MIN;
-	} else if (timeout > WDT_VAL_MAX) {
+		val = WDT_VAL_MIN;
+	} else if (val > WDT_VAL_MAX) {
 		debug("maximum watchdog timeout exceeded\n");
-		timeout = WDT_VAL_MAX;
+		val = WDT_VAL_MAX;
 	}
 
-	writel(timeout, priv->regs + WDT_VAL_REG);
+	writel(val, priv->regs + WDT_VAL_REG);
 
 	return bcm6345_wdt_reset(dev);
 }
@@ -85,9 +88,17 @@ static const struct udevice_id bcm6345_wdt_ids[] = {
 static int bcm6345_wdt_probe(struct udevice *dev)
 {
 	struct bcm6345_wdt_priv *priv = dev_get_priv(dev);
+	struct clk clk;
+	int ret;
 
 	priv->regs = dev_remap_addr(dev);
 	if (!priv->regs)
+		return -EINVAL;
+
+	ret = clk_get_by_index(dev, 0, &clk);
+	if (!ret)
+		priv->clk_rate = clk_get_rate(&clk);
+	else
 		return -EINVAL;
 
 	bcm6345_wdt_stop(dev);
