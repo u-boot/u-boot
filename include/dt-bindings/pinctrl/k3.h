@@ -7,17 +7,6 @@
 #ifndef _DT_BINDINGS_PINCTRL_TI_K3_AM65_H
 #define _DT_BINDINGS_PINCTRL_TI_K3_AM65_H
 
-/* K3 mux mode options for each pin. See TRM for options */
-#define MUX_MODE0	0
-#define MUX_MODE1	1
-#define MUX_MODE2	2
-#define MUX_MODE3	3
-#define MUX_MODE4	4
-#define MUX_MODE5	5
-#define MUX_MODE6	6
-#define MUX_MODE7	7
-#define MUX_MODE15	15
-
 #define PULL_DISABLE		(1 << 16)
 #define PULL_UP			(1 << 17)
 #define INPUT_EN		(1 << 18)
@@ -43,7 +32,7 @@
 #define PIN_INPUT_PULLUP	(INPUT_EN | PULL_UP)
 #define PIN_INPUT_PULLDOWN	(INPUT_EN)
 
-#define AM65X_IOPAD(pa, val)		(((pa) & 0x1fff)) (val)
-#define AM65X_WKUP_IOPAD(pa, val)	(((pa) & 0x1fff)) (val)
+#define AM65X_IOPAD(pa, val, muxmode)		(((pa) & 0x1fff)) ((val) | (muxmode))
+#define AM65X_WKUP_IOPAD(pa, val, muxmode)	(((pa) & 0x1fff)) ((val) | (muxmode))
 
 #endif

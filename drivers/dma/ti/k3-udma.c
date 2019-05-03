@@ -575,14 +575,6 @@ static int udma_get_tchan(struct udma_chan *uc)
 
 	pr_debug("chan%d: got tchan%d\n", uc->id, uc->tchan->id);
 
-	if (udma_is_chan_running(uc)) {
-		dev_warn(ud->dev, "chan%d: tchan%d is running!\n", uc->id,
-			 uc->tchan->id);
-		udma_stop(uc);
-		if (udma_is_chan_running(uc))
-			dev_err(ud->dev, "chan%d: won't stop!\n", uc->id);
-	}
-
 	return 0;
 }
 
@@ -601,14 +593,6 @@ static int udma_get_rchan(struct udma_chan *uc)
 		return PTR_ERR(uc->rchan);
 
 	pr_debug("chan%d: got rchan%d\n", uc->id, uc->rchan->id);
-
-	if (udma_is_chan_running(uc)) {
-		dev_warn(ud->dev, "chan%d: rchan%d is running!\n", uc->id,
-			 uc->rchan->id);
-		udma_stop(uc);
-		if (udma_is_chan_running(uc))
-			dev_err(ud->dev, "chan%d: won't stop!\n", uc->id);
-	}
 
 	return 0;
 }
@@ -651,14 +635,6 @@ static int udma_get_chan_pair(struct udma_chan *uc)
 	uc->rchan = &ud->rchans[chan_id];
 
 	pr_debug("chan%d: got t/rchan%d pair\n", uc->id, chan_id);
-
-	if (udma_is_chan_running(uc)) {
-		dev_warn(ud->dev, "chan%d: t/rchan%d pair is running!\n",
-			 uc->id, chan_id);
-		udma_stop(uc);
-		if (udma_is_chan_running(uc))
-			dev_err(ud->dev, "chan%d: won't stop!\n", uc->id);
-	}
 
 	return 0;
 }
@@ -1068,6 +1044,15 @@ static int udma_alloc_chan_resources(struct udma_chan *uc)
 			ret = udma_alloc_rchan_sci_req(uc);
 			if (ret)
 				goto err_free_res;
+		}
+	}
+
+	if (udma_is_chan_running(uc)) {
+		dev_warn(ud->dev, "chan%d: is running!\n", uc->id);
+		udma_stop(uc);
+		if (udma_is_chan_running(uc)) {
+			dev_err(ud->dev, "chan%d: won't stop!\n", uc->id);
+			goto err_free_res;
 		}
 	}
 
@@ -1492,7 +1477,7 @@ static int udma_send(struct dma *dma, void *src, size_t len, void *metadata)
 	u32 tc_ring_id;
 	int ret;
 
-	if (!metadata)
+	if (metadata)
 		packet_data = *((struct ti_udma_drv_packet_data *)metadata);
 
 	if (dma->id >= (ud->rchan_cnt + ud->tchan_cnt)) {

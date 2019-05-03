@@ -272,6 +272,7 @@ subdir- += env
 
 ifneq ($(CROSS_BUILD_TOOLS),)
 override HOSTCC = $(CC)
+override HOSTCFLAGS = $(CFLAGS)
 
 quiet_cmd_crosstools_strip = STRIP   $^
       cmd_crosstools_strip = $(STRIP) $^; touch $@

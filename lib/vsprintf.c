@@ -16,7 +16,6 @@
 #include <efi_loader.h>
 #include <div64.h>
 #include <hexdump.h>
-#include <uuid.h>
 #include <stdarg.h>
 #include <linux/ctype.h>
 #include <linux/err.h>

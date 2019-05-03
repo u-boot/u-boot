@@ -99,7 +99,7 @@
 };
 
 &dmsc {
-	mboxes= <&mcu_secproxy 7>, <&mcu_secproxy 6>, <&mcu_secproxy 5>;
+	mboxes= <&mcu_secproxy 8>, <&mcu_secproxy 6>, <&mcu_secproxy 5>;
 	mbox-names = "tx", "rx", "notify";
 	ti,host-id = <4>;
 	ti,secure-host;
@@ -116,17 +116,17 @@
 	u-boot,dm-spl;
 	wkup_uart0_pins_default: wkup_uart0_pins_default {
 		pinctrl-single,pins = <
-			AM65X_WKUP_IOPAD(0x00a0, PIN_INPUT | MUX_MODE0) /* (AB1) WKUP_UART0_RXD */
-			AM65X_WKUP_IOPAD(0x00a4, PIN_OUTPUT | MUX_MODE0) /* (AB5) WKUP_UART0_TXD */
-			AM65X_WKUP_IOPAD(0x00c8, PIN_INPUT | MUX_MODE1) /* (AC2) WKUP_GPIO0_6.WKUP_UART0_CTSn */
-			AM65X_WKUP_IOPAD(0x00cc, PIN_OUTPUT | MUX_MODE1) /* (AC1) WKUP_GPIO0_7.WKUP_UART0_RTSn */
+			AM65X_WKUP_IOPAD(0x00a0, PIN_INPUT, 0)	/* (AB1) WKUP_UART0_RXD */
+			AM65X_WKUP_IOPAD(0x00a4, PIN_OUTPUT, 0)	/* (AB5) WKUP_UART0_TXD */
+			AM65X_WKUP_IOPAD(0x00c8, PIN_INPUT, 1)	/* (AC2) WKUP_GPIO0_6.WKUP_UART0_CTSn */
+			AM65X_WKUP_IOPAD(0x00cc, PIN_OUTPUT, 1)	/* (AC1) WKUP_GPIO0_7.WKUP_UART0_RTSn */
 		>;
 		u-boot,dm-spl;
 	};
 
 	wkup_vtt_pins_default: wkup_vtt_pins_default {
 		pinctrl-single,pins = <
-			AM65X_WKUP_IOPAD(0x0040, PIN_OUTPUT_PULLUP | MUX_MODE7) /* WKUP_GPIO0_28 */
+			AM65X_WKUP_IOPAD(0x0040, PIN_OUTPUT_PULLUP, 7)	/* WKUP_GPIO0_28 */
 		>;
 		u-boot,dm-spl;
 	};

@@ -587,7 +587,7 @@ S:	Maintained
 F:	arch/mips/mach-jz47xx/
 
 MMC
-M:	Jaehoon Chung <jh80.chung@samsung.com>
+M:	Peng Fan <peng.fan@nxp.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-mmc.git
 F:	drivers/mmc/
