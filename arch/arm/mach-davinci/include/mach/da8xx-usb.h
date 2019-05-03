@@ -86,7 +86,4 @@ struct da8xx_usb_regs {
 
 #define DA8XX_USB_VBUS_GPIO	(1 << 15)
 
-int usb_phy_on(void);
-void usb_phy_off(void);
-
 #endif	/* __DA8XX_MUSB_H__ */
