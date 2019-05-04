@@ -107,10 +107,6 @@ config TARGET_SH7763RDP
 	bool "SH7763RDP"
 	select CPU_SH4
 
-config TARGET_SH7785LCR
-	bool "SH7785LCR"
-	select CPU_SH4A
-
 endchoice
 
 config SYS_ARCH
@@ -141,7 +137,6 @@ source "board/renesas/sh7752evb/Kconfig"
 source "board/renesas/sh7753evb/Kconfig"
 source "board/renesas/sh7757lcr/Kconfig"
 source "board/renesas/sh7763rdp/Kconfig"
-source "board/renesas/sh7785lcr/Kconfig"
 source "board/shmin/Kconfig"
 
 endmenu
