@@ -239,7 +239,7 @@ void efi_signal_event(struct efi_event *event, bool check_tpl)
 			if (evt->is_queued)
 				efi_queue_event(evt, check_tpl);
 		}
-	} else if (!event->is_signaled) {
+	} else {
 		event->is_signaled = true;
 		if (event->type & EVT_NOTIFY_SIGNAL)
 			efi_queue_event(event, check_tpl);
