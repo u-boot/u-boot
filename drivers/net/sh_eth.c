@@ -425,7 +425,7 @@ static int sh_eth_phy_regs_config(struct sh_eth_dev *eth)
 		sh_eth_write(port_info, GECMR_100B, GECMR);
 #elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
 		sh_eth_write(port_info, 1, RTRATE);
-#elif defined(CONFIG_CPU_SH7724) || defined(CONFIG_RCAR_GEN2)
+#elif defined(CONFIG_RCAR_GEN2)
 		val = ECMR_RTM;
 #endif
 	} else if (phy->speed == 10) {

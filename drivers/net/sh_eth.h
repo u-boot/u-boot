@@ -295,9 +295,6 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 #define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xfef00000
 #endif
-#elif defined(CONFIG_CPU_SH7724)
-#define SH_ETH_TYPE_ETHER
-#define BASE_IO_ADDR	0xA4600000
 #elif defined(CONFIG_R8A7740)
 #define SH_ETH_TYPE_GETHER
 #define BASE_IO_ADDR	0xE9A00000
