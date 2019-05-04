@@ -783,6 +783,11 @@ F:	drivers/tee/
 F:	include/tee.h
 F:	include/tee/
 
+TEE-lib
+M:	Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+S:	Maintained
+F:	lib/optee
+
 UBI
 M:	Kyungmin Park <kmpark@infradead.org>
 M:	Heiko Schocher <hs@denx.de>
