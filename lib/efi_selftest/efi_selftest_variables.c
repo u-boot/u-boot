@@ -78,7 +78,7 @@ static int execute(void)
 		efi_st_error("GetVariable failed\n");
 		return EFI_ST_FAILURE;
 	}
-	if (efi_st_memcmp(data, v + 4, 3)) {
+	if (memcmp(data, v + 4, 3)) {
 		efi_st_error("GetVariable returned wrong value\n");
 		return EFI_ST_FAILURE;
 	}
@@ -106,7 +106,7 @@ static int execute(void)
 			     (unsigned int)len);
 		return EFI_ST_FAILURE;
 	}
-	if (efi_st_memcmp(data, v, 8)) {
+	if (memcmp(data, v, 8)) {
 		efi_st_error("GetVariable returned wrong value\n");
 		return EFI_ST_FAILURE;
 	}
@@ -129,7 +129,7 @@ static int execute(void)
 	if (len != 15)
 		efi_st_todo("GetVariable returned wrong length %u\n",
 			    (unsigned int)len);
-	if (efi_st_memcmp(data, v, len))
+	if (memcmp(data, v, len))
 		efi_st_todo("GetVariable returned wrong value\n");
 	/* Enumerate variables */
 	boottime->set_mem(&guid, 16, 0);
@@ -145,10 +145,10 @@ static int execute(void)
 				     (unsigned int)ret);
 			return EFI_ST_FAILURE;
 		}
-		if (!efi_st_memcmp(&guid, &guid_vendor0, sizeof(efi_guid_t)) &&
+		if (!memcmp(&guid, &guid_vendor0, sizeof(efi_guid_t)) &&
 		    !efi_st_strcmp_16_8(varname, "efi_st_var0"))
 			flag |= 1;
-		if (!efi_st_memcmp(&guid, &guid_vendor1, sizeof(efi_guid_t)) &&
+		if (!memcmp(&guid, &guid_vendor1, sizeof(efi_guid_t)) &&
 		    !efi_st_strcmp_16_8(varname, "efi_st_var1"))
 			flag |= 2;
 	}

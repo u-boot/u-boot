@@ -93,17 +93,6 @@ u16 *efi_st_translate_char(u16 code);
 u16 *efi_st_translate_code(u16 code);
 
 /*
- * Compare memory.
- * We cannot use lib/string.c due to different CFLAGS values.
- *
- * @buf1:	first buffer
- * @buf2:	second buffer
- * @length:	number of bytes to compare
- * @return:	0 if both buffers contain the same bytes
- */
-int efi_st_memcmp(const void *buf1, const void *buf2, size_t length);
-
-/*
  * Compare an u16 string to a char string.
  *
  * @buf1:	u16 string

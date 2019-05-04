@@ -139,7 +139,7 @@ static int execute(void)
 		return EFI_ST_FAILURE;
 	}
 	if (!exit_data || exit_data_size != sizeof(expected_text) ||
-	    efi_st_memcmp(exit_data, expected_text, sizeof(expected_text))) {
+	    memcmp(exit_data, expected_text, sizeof(expected_text))) {
 		efi_st_error("Incorrect exit data\n");
 		return EFI_ST_FAILURE;
 	}
