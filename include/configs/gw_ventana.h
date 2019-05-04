@@ -81,9 +81,6 @@
 /* MMC Configs */
 #define CONFIG_SYS_FSL_ESDHC_ADDR      0
 
-/* eMMC Configs */
-#define CONFIG_SUPPORT_EMMC_BOOT
-
 /*
  * SATA Configs
  */

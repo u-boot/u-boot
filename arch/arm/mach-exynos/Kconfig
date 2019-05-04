@@ -116,7 +116,6 @@ config TARGET_SNOW
 config TARGET_SPRING
 	bool "Spring board"
 	select OF_CONTROL
-	select SPL_DISABLE_OF_CONTROL
 	select SUPPORT_SPL
 
 config TARGET_SMDK5420
@@ -150,7 +149,6 @@ config  TARGET_ESPRESSO7420
 	select OF_CONTROL
 	select PINCTRL
 	select PINCTRL_EXYNOS7420
-	select SPL_DISABLE_OF_CONTROL
 	select SUPPORT_SPL
 
 endchoice

@@ -33,12 +33,7 @@ void putc(char c)
 
 void spl_board_init(void)
 {
-#ifdef CONFIG_SOC_DM365
-	dm36x_lowlevel_init(0);
-#endif
-#ifdef CONFIG_SOC_DA8XX
 	arch_cpu_init();
-#endif
 	preloader_console_init();
 }
 

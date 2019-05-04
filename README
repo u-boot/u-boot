@@ -1120,9 +1120,6 @@ The following options need to be configured:
 			CONFIG_SH_MMCIF_CLK
 			Define the clock frequency for MMCIF
 
-		CONFIG_SUPPORT_EMMC_BOOT
-		Enable some additional features of the eMMC boot partitions.
-
 - USB Device Firmware Update (DFU) class support:
 		CONFIG_DFU_OVER_USB
 		This enables the USB portion of the DFU USB class

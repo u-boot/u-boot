@@ -44,8 +44,6 @@
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 
-#define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
-
 /* Network */
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR

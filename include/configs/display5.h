@@ -83,7 +83,6 @@
 #define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 #define CONFIG_SYS_FSL_USDHC_NUM	2
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

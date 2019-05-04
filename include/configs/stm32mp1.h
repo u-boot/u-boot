@@ -77,7 +77,6 @@
 
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /*****************************************************************************/
 #ifdef CONFIG_DISTRO_DEFAULTS

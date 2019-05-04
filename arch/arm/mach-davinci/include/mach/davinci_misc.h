@@ -40,13 +40,11 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr);
 int davinci_configure_pin_mux(const struct pinmux_config *pins, int n_pins);
 int davinci_configure_pin_mux_items(const struct pinmux_resource *item,
 				    int n_items);
-#if defined(CONFIG_DRIVER_TI_EMAC) && defined(CONFIG_SOC_DA8XX)
+#if defined(CONFIG_DRIVER_TI_EMAC)
 void davinci_emac_mii_mode_sel(int mode_sel);
 #endif
-#if defined(CONFIG_SOC_DA8XX)
 void irq_init(void);
 int da8xx_configure_lpsc_items(const struct lpsc_resource *item,
 				    const int n_items);
-#endif
 
 #endif /* __MISC_H */

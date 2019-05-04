@@ -41,7 +41,6 @@
 
 /* Enhance our eMMC support / experience. */
 #define CONFIG_HSMMC2_8BIT
-#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* SATA Boot related defines */
 #define CONFIG_SPL_SATA_BOOT_DEVICE		0

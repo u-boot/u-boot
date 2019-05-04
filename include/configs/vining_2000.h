@@ -95,7 +95,6 @@
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 
 #ifdef CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SUPPORT_EMMC_BOOT
 #define CONFIG_SYS_MMC_ENV_DEV		0 /* USDHC4 eMMC */
 /* 0=user, 1=boot0, 2=boot1, * 4..7=general0..3. */
 #define CONFIG_SYS_MMC_ENV_PART		1 /* boot0 */
