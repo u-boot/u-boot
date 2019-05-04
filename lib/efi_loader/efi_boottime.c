@@ -664,10 +664,26 @@ efi_status_t EFIAPI efi_create_event_ex(uint32_t type, efi_uintn_t notify_tpl,
 					efi_guid_t *event_group,
 					struct efi_event **event)
 {
+	efi_status_t ret;
+
 	EFI_ENTRY("%d, 0x%zx, %p, %p, %pUl", type, notify_tpl, notify_function,
 		  notify_context, event_group);
-	return EFI_EXIT(efi_create_event(type, notify_tpl, notify_function,
-					 notify_context, event_group, event));
+
+	/*
+	 * The allowable input parameters are the same as in CreateEvent()
+	 * except for the following two disallowed event types.
+	 */
+	switch (type) {
+	case EVT_SIGNAL_EXIT_BOOT_SERVICES:
+	case EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE:
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	ret = efi_create_event(type, notify_tpl, notify_function,
+			       notify_context, event_group, event);
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
