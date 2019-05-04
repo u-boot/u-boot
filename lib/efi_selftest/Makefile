@@ -27,6 +27,7 @@ efi_selftest_gop.o \
 efi_selftest_loaded_image.o \
 efi_selftest_manageprotocols.o \
 efi_selftest_memory.o \
+efi_selftest_register_notify.o \
 efi_selftest_rtc.o \
 efi_selftest_snp.o \
 efi_selftest_textinput.o \
