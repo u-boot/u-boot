@@ -1364,19 +1364,17 @@ static efi_status_t efi_locate_handle(
 		return EFI_INVALID_PARAMETER;
 	}
 
-	/*
-	 * efi_locate_handle_buffer uses this function for
-	 * the calculation of the necessary buffer size.
-	 * So do not require a buffer for buffersize == 0.
-	 */
-	if (!buffer_size || (*buffer_size && !buffer))
-		return EFI_INVALID_PARAMETER;
-
 	/* Count how much space we need */
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		if (!efi_search(search_type, protocol, search_key, efiobj))
 			size += sizeof(void *);
 	}
+
+	if (size == 0)
+		return EFI_NOT_FOUND;
+
+	if (!buffer_size)
+		return EFI_INVALID_PARAMETER;
 
 	if (*buffer_size < size) {
 		*buffer_size = size;
@@ -1384,8 +1382,10 @@ static efi_status_t efi_locate_handle(
 	}
 
 	*buffer_size = size;
-	if (size == 0)
-		return EFI_NOT_FOUND;
+
+	/* The buffer size is sufficient but there is not buffer */
+	if (!buffer)
+		return EFI_INVALID_PARAMETER;
 
 	/* Then fill the array */
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
