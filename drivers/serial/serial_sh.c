@@ -21,7 +21,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_CPU_SH7760) || \
 	defined(CONFIG_CPU_SH7780) || \
-	defined(CONFIG_CPU_SH7785) || \
 	defined(CONFIG_CPU_SH7786)
 static int scif_rxfill(struct uart_port *port)
 {

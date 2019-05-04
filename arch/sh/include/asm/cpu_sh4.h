@@ -42,8 +42,6 @@
 # include <asm/cpu_sh7763.h>
 #elif defined (CONFIG_CPU_SH7780)
 # include <asm/cpu_sh7780.h>
-#elif defined (CONFIG_CPU_SH7785)
-# include <asm/cpu_sh7785.h>
 #else
 # error "Unknown SH4 variant"
 #endif

@@ -170,8 +170,7 @@ struct uart_port {
 # define SCSCR_INIT(port)	0x3a
 #endif
 
-#elif defined(CONFIG_CPU_SH7785) || \
-	defined(CONFIG_CPU_SH7786)
+#elif defined(CONFIG_CPU_SH7786)
 # define SCSPTR0	0xffea0024	/* 16 bit SCIF */
 # define SCSPTR1	0xffeb0024	/* 16 bit SCIF */
 # define SCSPTR2	0xffec0024	/* 16 bit SCIF */
@@ -247,7 +246,6 @@ struct uart_port {
 	defined(CONFIG_CPU_SH7751R) || \
 	defined(CONFIG_CPU_SH7763)  || \
 	defined(CONFIG_CPU_SH7780)  || \
-	defined(CONFIG_CPU_SH7785)  || \
 	defined(CONFIG_CPU_SH7786)  || \
 	defined(CONFIG_CPU_SHX3)
 #define SCI_CTRL_FLAGS_REIE 0x08 /* 7750 SCIF */
@@ -586,7 +584,6 @@ SCIx_FNS(SCxRDR, 0x0a,  8, 0x14,  8, 0x0A,  8, 0x14,  8, 0x05,  8)
 SCIF_FNS(SCFCR,                      0x0c,  8, 0x18, 16)
 #if defined(CONFIG_CPU_SH7760) || \
 	defined(CONFIG_CPU_SH7780) || \
-	defined(CONFIG_CPU_SH7785) || \
 	defined(CONFIG_CPU_SH7786)
 SCIF_FNS(SCFDR,			     0x0e, 16, 0x1C, 16)
 SCIF_FNS(SCTFDR,		     0x0e, 16, 0x1C, 16)
@@ -726,7 +723,6 @@ static inline int sci_rxd_in(struct uart_port *port)
  */
 
 #if (defined(CONFIG_CPU_SH7780)  || \
-	defined(CONFIG_CPU_SH7785)  || \
 	defined(CONFIG_CPU_SH7786)) && \
 	!defined(CONFIG_SH_SH2007)
 #define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(16*bps)-1)
