@@ -271,6 +271,25 @@ extern struct list_head efi_obj_list;
 /* List of all events */
 extern struct list_head efi_events;
 
+/**
+ * efi_register_notify_event - event registered by RegisterProtocolNotify()
+ *
+ * The address of this structure serves as registration value.
+ *
+ * @link:		link to list of all registered events
+ * @event:		registered event. The same event may registered for
+ *			multiple GUIDs.
+ * @protocol:		protocol for which the event is registered
+ */
+struct efi_register_notify_event {
+	struct list_head link;
+	struct efi_event *event;
+	efi_guid_t protocol;
+};
+
+/* List of all events registered by RegisterProtocolNotify() */
+extern struct list_head efi_register_notify_events;
+
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);
 /* Called by bootefi to initialize root node */

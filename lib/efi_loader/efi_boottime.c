@@ -27,6 +27,9 @@ LIST_HEAD(efi_obj_list);
 /* List of all events */
 LIST_HEAD(efi_events);
 
+/* List of all events registered by RegisterProtocolNotify() */
+LIST_HEAD(efi_register_notify_events);
+
 /* Handle of the currently executing image */
 static efi_handle_t current_image;
 
@@ -908,9 +911,21 @@ static efi_status_t EFIAPI efi_signal_event_ext(struct efi_event *event)
  */
 static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 {
+	struct efi_register_notify_event *item, *next;
+
 	EFI_ENTRY("%p", event);
 	if (efi_is_event(event) != EFI_SUCCESS)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
+	/* Remove protocol notify registrations for the event */
+	list_for_each_entry_safe(item, next, &efi_register_notify_events,
+				 link) {
+		if (event == item->event) {
+			list_del(&item->link);
+			free(item);
+		}
+	}
+
 	list_del(&event->link);
 	free(event);
 	return EFI_EXIT(EFI_SUCCESS);
@@ -1014,6 +1029,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
 	struct efi_object *efiobj;
 	struct efi_handler *handler;
 	efi_status_t ret;
+	struct efi_register_notify_event *event;
 
 	efiobj = efi_search_obj(handle);
 	if (!efiobj)
@@ -1028,6 +1044,13 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
 	handler->protocol_interface = protocol_interface;
 	INIT_LIST_HEAD(&handler->open_infos);
 	list_add_tail(&handler->link, &efiobj->protocols);
+
+	/* Notify registered events */
+	list_for_each_entry(event, &efi_register_notify_events, link) {
+		if (!guidcmp(protocol, &event->protocol))
+			efi_signal_event(event->event, true);
+	}
+
 	if (!guidcmp(&efi_guid_device_path, protocol))
 		EFI_PRINT("installed device path '%pD'\n", protocol_interface);
 	return EFI_SUCCESS;
@@ -1291,8 +1314,30 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
 						struct efi_event *event,
 						void **registration)
 {
+	struct efi_register_notify_event *item;
+	efi_status_t ret = EFI_SUCCESS;
+
 	EFI_ENTRY("%pUl, %p, %p", protocol, event, registration);
-	return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+
+	if (!protocol || !event || !registration) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	item = calloc(1, sizeof(struct efi_register_notify_event));
+	if (!item) {
+		ret = EFI_OUT_OF_RESOURCES;
+		goto out;
+	}
+
+	item->event = event;
+	memcpy(&item->protocol, protocol, sizeof(efi_guid_t));
+
+	list_add_tail(&item->link, &efi_register_notify_events);
+
+	*registration = item;
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -1307,8 +1352,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
  * Return: 0 if the handle implements the protocol
  */
 static int efi_search(enum efi_locate_search_type search_type,
-		      const efi_guid_t *protocol, void *search_key,
-		      efi_handle_t handle)
+		      const efi_guid_t *protocol, efi_handle_t handle)
 {
 	efi_status_t ret;
 
@@ -1316,8 +1360,6 @@ static int efi_search(enum efi_locate_search_type search_type,
 	case ALL_HANDLES:
 		return 0;
 	case BY_REGISTER_NOTIFY:
-		/* TODO: RegisterProtocolNotify is not implemented yet */
-		return -1;
 	case BY_PROTOCOL:
 		ret = efi_search_protocol(handle, protocol, NULL);
 		return (ret != EFI_SUCCESS);
@@ -1329,11 +1371,12 @@ static int efi_search(enum efi_locate_search_type search_type,
 
 /**
  * efi_locate_handle() - locate handles implementing a protocol
- * @search_type: selection criterion
- * @protocol:    GUID of the protocol
- * @search_key: registration key
- * @buffer_size: size of the buffer to receive the handles in bytes
- * @buffer:      buffer to receive the relevant handles
+ *
+ * @search_type:	selection criterion
+ * @protocol:		GUID of the protocol
+ * @search_key:		registration key
+ * @buffer_size:	size of the buffer to receive the handles in bytes
+ * @buffer:		buffer to receive the relevant handles
  *
  * This function is meant for U-Boot internal calls. For the API implementation
  * of the LocateHandle service see efi_locate_handle_ext.
@@ -1347,6 +1390,7 @@ static efi_status_t efi_locate_handle(
 {
 	struct efi_object *efiobj;
 	efi_uintn_t size = 0;
+	struct efi_register_notify_event *item, *event = NULL;
 
 	/* Check parameters */
 	switch (search_type) {
@@ -1355,8 +1399,19 @@ static efi_status_t efi_locate_handle(
 	case BY_REGISTER_NOTIFY:
 		if (!search_key)
 			return EFI_INVALID_PARAMETER;
-		/* RegisterProtocolNotify is not implemented yet */
-		return EFI_UNSUPPORTED;
+		/* Check that the registration key is valid */
+		list_for_each_entry(item, &efi_register_notify_events, link) {
+			if (item ==
+			    (struct efi_register_notify_event *)search_key) {
+				event = item;
+				break;
+			}
+		}
+		if (!event)
+			return EFI_INVALID_PARAMETER;
+
+		protocol = &event->protocol;
+		break;
 	case BY_PROTOCOL:
 		if (!protocol)
 			return EFI_INVALID_PARAMETER;
@@ -1367,7 +1422,7 @@ static efi_status_t efi_locate_handle(
 
 	/* Count how much space we need */
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		if (!efi_search(search_type, protocol, search_key, efiobj))
+		if (!efi_search(search_type, protocol, efiobj))
 			size += sizeof(void *);
 	}
 
@@ -1390,7 +1445,7 @@ static efi_status_t efi_locate_handle(
 
 	/* Then fill the array */
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		if (!efi_search(search_type, protocol, search_key, efiobj))
+		if (!efi_search(search_type, protocol, efiobj))
 			*buffer++ = efiobj;
 	}
 
