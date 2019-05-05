@@ -1781,6 +1781,10 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 		if (ret != EFI_SUCCESS)
 			goto error;
 	} else {
+		if (!source_size) {
+			ret = EFI_LOAD_ERROR;
+			goto error;
+		}
 		dest_buffer = source_buffer;
 	}
 	/* split file_path which contains both the device and file parts */
