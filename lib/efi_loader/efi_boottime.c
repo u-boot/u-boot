@@ -1760,13 +1760,18 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
 
-	if (!image_handle || !parent_image) {
+	if (!image_handle || !efi_search_obj(parent_image)) {
 		ret = EFI_INVALID_PARAMETER;
 		goto error;
 	}
 
 	if (!source_buffer && !file_path) {
 		ret = EFI_NOT_FOUND;
+		goto error;
+	}
+	/* The parent image handle must refer to a loaded image */
+	if (!parent_image->type) {
+		ret = EFI_INVALID_PARAMETER;
 		goto error;
 	}
 
