@@ -1841,11 +1841,11 @@ static void efi_exit_caches(void)
  * Return: status code
  */
 static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
-						  unsigned long map_key)
+						  efi_uintn_t map_key)
 {
 	struct efi_event *evt;
 
-	EFI_ENTRY("%p, %ld", image_handle, map_key);
+	EFI_ENTRY("%p, %zx", image_handle, map_key);
 
 	/* Check that the caller has read the current memory map */
 	if (map_key != efi_memory_map_key)
