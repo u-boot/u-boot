@@ -267,7 +267,7 @@ static unsigned long EFIAPI efi_raise_tpl(efi_uintn_t new_tpl)
 	EFI_ENTRY("0x%zx", new_tpl);
 
 	if (new_tpl < efi_tpl)
-		debug("WARNING: new_tpl < current_tpl in %s\n", __func__);
+		EFI_PRINT("WARNING: new_tpl < current_tpl in %s\n", __func__);
 	efi_tpl = new_tpl;
 	if (efi_tpl > TPL_HIGH_LEVEL)
 		efi_tpl = TPL_HIGH_LEVEL;
@@ -290,7 +290,7 @@ static void EFIAPI efi_restore_tpl(efi_uintn_t old_tpl)
 	EFI_ENTRY("0x%zx", old_tpl);
 
 	if (old_tpl > efi_tpl)
-		debug("WARNING: old_tpl > current_tpl in %s\n", __func__);
+		EFI_PRINT("WARNING: old_tpl > current_tpl in %s\n", __func__);
 	efi_tpl = old_tpl;
 	if (efi_tpl > TPL_HIGH_LEVEL)
 		efi_tpl = TPL_HIGH_LEVEL;
@@ -1093,11 +1093,9 @@ static efi_status_t EFIAPI efi_install_protocol_interface(
 		r = efi_create_handle(handle);
 		if (r != EFI_SUCCESS)
 			goto out;
-		debug("%sEFI: new handle %p\n", indent_string(nesting_level),
-		      *handle);
+		EFI_PRINT("new handle %p\n", *handle);
 	} else {
-		debug("%sEFI: handle %p\n", indent_string(nesting_level),
-		      *handle);
+		EFI_PRINT("handle %p\n", *handle);
 	}
 	/* Add new protocol */
 	r = efi_add_protocol(*handle, protocol, protocol_interface);
@@ -2706,10 +2704,9 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 		 * missed out steps of EFI_CALL.
 		 */
 		assert(__efi_entry_check());
-		debug("%sEFI: %lu returned by started image\n",
-		      __efi_nesting_dec(),
-		      (unsigned long)((uintptr_t)image_obj->exit_status &
-				      ~EFI_ERROR_MASK));
+		EFI_PRINT("%lu returned by started image\n",
+			  (unsigned long)((uintptr_t)image_obj->exit_status &
+			  ~EFI_ERROR_MASK));
 		current_image = parent_image;
 		return EFI_EXIT(image_obj->exit_status);
 	}
