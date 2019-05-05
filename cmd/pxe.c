@@ -24,6 +24,9 @@
 
 const char *pxe_default_paths[] = {
 #ifdef CONFIG_SYS_SOC
+#ifdef CONFIG_SYS_BOARD
+	"default-" CONFIG_SYS_ARCH "-" CONFIG_SYS_SOC "-" CONFIG_SYS_BOARD,
+#endif
 	"default-" CONFIG_SYS_ARCH "-" CONFIG_SYS_SOC,
 #endif
 	"default-" CONFIG_SYS_ARCH,

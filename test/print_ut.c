@@ -79,14 +79,18 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
 	assert(s == str);
 	assert(!strcmp("\n\nU-Boo\n\n", s));
 
-	s = display_options_get_banner(true, str, 1);
-	assert(s == str);
-	assert(!strcmp("", s));
+	/* Assert that we do not overwrite memory before the buffer */
+	str[0] = '`';
+	s = display_options_get_banner(true, str + 1, 1);
+	assert(s == str + 1);
+	assert(!strcmp("`", str));
 
-	s = display_options_get_banner(true, str, 2);
-	assert(s == str);
-	assert(!strcmp("\n", s));
+	str[0] = '~';
+	s = display_options_get_banner(true, str + 1, 2);
+	assert(s == str + 1);
+	assert(!strcmp("~\n", str));
 
+	/* The last two characters are set to \n\n for all buffer sizes > 2 */
 	s = display_options_get_banner(false, str, sizeof(str));
 	assert(s == str);
 	assert(!strcmp("U-Boot \n\n", s));

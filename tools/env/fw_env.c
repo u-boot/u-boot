@@ -1742,7 +1742,7 @@ static int parse_config(struct env_opts *opts)
 
 		if (ENVSIZE(0) != ENVSIZE(1)) {
 			fprintf(stderr,
-				"Redundant environments have unequal size");
+				"Redundant environments have unequal size\n");
 			return -1;
 		}
 	}

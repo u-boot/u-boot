@@ -227,6 +227,15 @@ config SYS_CONFIG_NAME
 	  The header file include/configs/<CONFIG_SYS_CONFIG_NAME>.h
 	  should be included from include/config.h.
 
+config SYS_DISABLE_DCACHE_OPS
+	bool
+	help
+	 This option disables dcache flush and dcache invalidation
+	 operations. For example, on coherent systems where cache
+	 operatios are not required, enable this option to avoid them.
+	 Note that, its up to the individual architectures to implement
+	 this functionality.
+
 source "arch/arc/Kconfig"
 source "arch/arm/Kconfig"
 source "arch/m68k/Kconfig"

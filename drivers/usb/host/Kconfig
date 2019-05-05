@@ -246,6 +246,11 @@ config USB_OHCI_GENERIC
 	---help---
 	  Enables support for generic OHCI controller.
 
+config USB_OHCI_DA8XX
+	bool "Support for da850 OHCI USB controller"
+	help
+	  Enable support for the da850 USB controller.
+
 endif # USB_OHCI_HCD
 
 config USB_UHCI_HCD

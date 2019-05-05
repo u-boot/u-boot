@@ -443,6 +443,7 @@ inline void flush_dcache_all(void)
 		debug("flushing dcache successfully.\n");
 }
 
+#ifndef CONFIG_SYS_DISABLE_DCACHE_OPS
 /*
  * Invalidates range in all levels of D-cache/unified cache
  */
@@ -458,6 +459,15 @@ void flush_dcache_range(unsigned long start, unsigned long stop)
 {
 	__asm_flush_dcache_range(start, stop);
 }
+#else
+void invalidate_dcache_range(unsigned long start, unsigned long stop)
+{
+}
+
+void flush_dcache_range(unsigned long start, unsigned long stop)
+{
+}
+#endif /* CONFIG_SYS_DISABLE_DCACHE_OPS */
 
 void dcache_enable(void)
 {

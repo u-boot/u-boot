@@ -18,6 +18,9 @@
 #define L310_SHARED_ATT_OVERRIDE_ENABLE		(1 << 22)
 #define L310_AUX_CTRL_DATA_PREFETCH_MASK	(1 << 28)
 #define L310_AUX_CTRL_INST_PREFETCH_MASK	(1 << 29)
+#define L310_LATENCY_CTRL_SETUP(n)		((n) << 0)
+#define L310_LATENCY_CTRL_RD(n)			((n) << 4)
+#define L310_LATENCY_CTRL_WR(n)			((n) << 8)
 
 #define L2X0_CACHE_ID_PART_MASK     (0xf << 6)
 #define L2X0_CACHE_ID_PART_L310     (3 << 6)
