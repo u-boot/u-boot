@@ -2636,8 +2636,15 @@ static efi_status_t EFIAPI efi_open_protocol
 	}
 
 	r = efi_search_protocol(handle, protocol, &handler);
-	if (r != EFI_SUCCESS)
+	switch (r) {
+	case EFI_SUCCESS:
+		break;
+	case EFI_NOT_FOUND:
+		r = EFI_UNSUPPORTED;
 		goto out;
+	default:
+		goto out;
+	}
 
 	r = efi_protocol_open(handler, protocol_interface, agent_handle,
 			      controller_handle, attributes);
