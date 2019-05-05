@@ -6,8 +6,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <led.h>
-
-DECLARE_GLOBAL_DATA_PTR;
+#include <miiphy.h>
 
 enum {
 	BOARD_TYPE_PCB090 = 0xAABBCD00,
@@ -33,6 +32,16 @@ int board_early_init_r(void)
 	if (IS_ENABLED(CONFIG_LED))
 		led_default_state();
 
+	return 0;
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	phy_write(phydev, 0, 31, 0x10);
+	phy_write(phydev, 0, 18, 0x80A0);
+	while (phy_read(phydev, 0, 18) & 0x8000)
+		;
+	phy_write(phydev, 0, 31, 0);
 	return 0;
 }
 

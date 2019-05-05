@@ -15,9 +15,20 @@
 #include <net.h>
 #include <wait_bit.h>
 
-#include "mscc_miim.h"
 #include "mscc_xfer.h"
 #include "mscc_mac_table.h"
+
+#define GCB_MIIM_MII_STATUS			0x0
+#define		GCB_MIIM_STAT_BUSY			BIT(3)
+#define GCB_MIIM_MII_CMD			0x8
+#define		GCB_MIIM_MII_CMD_OPR_WRITE		BIT(1)
+#define		GCB_MIIM_MII_CMD_OPR_READ		BIT(2)
+#define		GCB_MIIM_MII_CMD_WRDATA(x)		((x) << 4)
+#define		GCB_MIIM_MII_CMD_REGAD(x)		((x) << 20)
+#define		GCB_MIIM_MII_CMD_PHYAD(x)		((x) << 25)
+#define		GCB_MIIM_MII_CMD_VLD			BIT(31)
+#define GCB_MIIM_DATA				0xC
+#define		GCB_MIIM_DATA_ERROR			(0x2 << 16)
 
 #define ANA_PORT_VLAN_CFG(x)		(0x00 + 0x80 * (x))
 #define		ANA_PORT_VLAN_CFG_AWARE_ENA	BIT(20)
@@ -136,61 +147,53 @@
 #define PGID_UNICAST		29
 #define PGID_SRC		80
 
-enum luton_target {
-	PORT0,
-	PORT1,
-	PORT2,
-	PORT3,
-	PORT4,
-	PORT5,
-	PORT6,
-	PORT7,
-	PORT8,
-	PORT9,
-	PORT10,
-	PORT11,
-	PORT12,
-	PORT13,
-	PORT14,
-	PORT15,
-	PORT16,
-	PORT17,
-	PORT18,
-	PORT19,
-	PORT20,
-	PORT21,
-	PORT22,
-	PORT23,
-	SYS,
+static const char * const regs_names[] = {
+	"port0", "port1", "port2", "port3", "port4", "port5", "port6", "port7",
+	"port8", "port9", "port10", "port11", "port12", "port13", "port14",
+	"port15", "port16", "port17", "port18", "port19", "port20", "port21",
+	"port22", "port23",
+	"sys", "ana", "rew", "gcb", "qs", "hsio",
+};
+
+#define REGS_NAMES_COUNT ARRAY_SIZE(regs_names) + 1
+#define MAX_PORT 24
+
+enum luton_ctrl_regs {
+	SYS = MAX_PORT,
 	ANA,
 	REW,
 	GCB,
 	QS,
-	HSIO,
-	TARGET_MAX,
+	HSIO
 };
 
-#define MAX_PORT (PORT23 - PORT0 + 1)
+#define MIN_INT_PORT	0
+#define PORT10		10
+#define PORT11		11
+#define MAX_INT_PORT	12
+#define MIN_EXT_PORT	MAX_INT_PORT
+#define MAX_EXT_PORT	MAX_PORT
 
-#define MIN_INT_PORT PORT0
-#define MAX_INT_PORT (PORT11 - PORT0  + 1)
-#define MIN_EXT_PORT PORT12
-#define MAX_EXT_PORT MAX_PORT
+#define LUTON_MIIM_BUS_COUNT 2
 
-enum luton_mdio_target {
-	MIIM,
-	TARGET_MDIO_MAX,
-};
-
-enum luton_phy_id {
-	INTERNAL,
-	EXTERNAL,
-	NUM_PHY,
+struct luton_phy_port_t {
+	size_t phy_addr;
+	struct mii_dev *bus;
+	u8 serdes_index;
+	u8 phy_mode;
 };
 
 struct luton_private {
-	void __iomem *regs[TARGET_MAX];
-	struct mii_dev *bus[NUM_PHY];
+	void __iomem *regs[REGS_NAMES_COUNT];
+	struct mii_dev *bus[LUTON_MIIM_BUS_COUNT];
+	struct luton_phy_port_t ports[MAX_PORT];
+};
+
+struct mscc_miim_dev {
+	void __iomem *regs;
+	phys_addr_t miim_base;
+	unsigned long miim_size;
+	struct mii_dev *bus;
 };
 
 static const unsigned long luton_regs_qs[] = {
@@ -207,53 +210,85 @@ static const unsigned long luton_regs_ana_table[] = {
 	[MSCC_ANA_TABLES_MACACCESS] = 0x11b8,
 };
 
-static struct mscc_miim_dev miim[NUM_PHY];
+static struct mscc_miim_dev miim[LUTON_MIIM_BUS_COUNT];
+static int miim_count = -1;
 
-static struct mii_dev *luton_mdiobus_init(struct udevice *dev,
-					  int mdiobus_id)
+static int mscc_miim_wait_ready(struct mscc_miim_dev *miim)
 {
-	unsigned long phy_size[NUM_PHY];
-	phys_addr_t phy_base[NUM_PHY];
-	struct ofnode_phandle_args phandle;
-	ofnode eth_node, node, mdio_node;
-	struct resource res;
+	return wait_for_bit_le32(miim->regs + GCB_MIIM_MII_STATUS,
+				 GCB_MIIM_STAT_BUSY, false, 250, false);
+}
+
+static int mscc_miim_read(struct mii_dev *bus, int addr, int devad, int reg)
+{
+	struct mscc_miim_dev *miim = (struct mscc_miim_dev *)bus->priv;
+	u32 val;
+	int ret;
+
+	ret = mscc_miim_wait_ready(miim);
+	if (ret)
+		goto out;
+
+	writel(GCB_MIIM_MII_CMD_VLD | GCB_MIIM_MII_CMD_PHYAD(addr) |
+	       GCB_MIIM_MII_CMD_REGAD(reg) | GCB_MIIM_MII_CMD_OPR_READ,
+	       miim->regs + GCB_MIIM_MII_CMD);
+
+	ret = mscc_miim_wait_ready(miim);
+	if (ret)
+		goto out;
+
+	val = readl(miim->regs + GCB_MIIM_DATA);
+	if (val & GCB_MIIM_DATA_ERROR) {
+		ret = -EIO;
+		goto out;
+	}
+
+	ret = val & 0xFFFF;
+ out:
+	return ret;
+}
+
+static int mscc_miim_write(struct mii_dev *bus, int addr, int devad, int reg,
+			   u16 val)
+{
+	struct mscc_miim_dev *miim = (struct mscc_miim_dev *)bus->priv;
+	int ret;
+
+	ret = mscc_miim_wait_ready(miim);
+	if (ret < 0)
+		goto out;
+
+	writel(GCB_MIIM_MII_CMD_VLD | GCB_MIIM_MII_CMD_PHYAD(addr) |
+	       GCB_MIIM_MII_CMD_REGAD(reg) | GCB_MIIM_MII_CMD_WRDATA(val) |
+	       GCB_MIIM_MII_CMD_OPR_WRITE, miim->regs + GCB_MIIM_MII_CMD);
+ out:
+	return ret;
+}
+
+static struct mii_dev *serval_mdiobus_init(phys_addr_t miim_base,
+					   unsigned long miim_size)
+{
 	struct mii_dev *bus;
-	fdt32_t faddr;
-	int i;
 
 	bus = mdio_alloc();
 	if (!bus)
 		return NULL;
 
-	/* gather only the first mdio bus */
-	eth_node = dev_read_first_subnode(dev);
-	node = ofnode_first_subnode(eth_node);
-	ofnode_parse_phandle_with_args(node, "phy-handle", NULL, 0, 0,
-				       &phandle);
-	mdio_node = ofnode_get_parent(phandle.node);
+	++miim_count;
+	sprintf(bus->name, "miim-bus%d", miim_count);
 
-	for (i = 0; i < TARGET_MDIO_MAX; i++) {
-		if (ofnode_read_resource(mdio_node, i, &res)) {
-			pr_err("%s: get OF resource failed\n", __func__);
-			return NULL;
-		}
-
-		faddr = cpu_to_fdt32(res.start);
-		phy_base[i] = ofnode_translate_address(mdio_node, &faddr);
-		phy_size[i] = res.end - res.start;
-	}
-
-	strcpy(bus->name, "miim-internal");
-	miim[mdiobus_id].regs = ioremap(phy_base[mdiobus_id],
-					phy_size[mdiobus_id]);
-	bus->priv = &miim[mdiobus_id];
+	miim[miim_count].regs = ioremap(miim_base, miim_size);
+	miim[miim_count].miim_base = miim_base;
+	miim[miim_count].miim_size = miim_size;
+	bus->priv = &miim[miim_count];
 	bus->read = mscc_miim_read;
 	bus->write = mscc_miim_write;
 
 	if (mdio_register(bus))
 		return NULL;
-	else
-		return bus;
+
+	miim[miim_count].bus = bus;
+	return bus;
 }
 
 static void luton_stop(struct udevice *dev)
@@ -324,10 +359,10 @@ static void luton_gmii_port_init(struct luton_private *priv, int port)
 	writel(ANA_PORT_VLAN_CFG_AWARE_ENA |
 	       ANA_PORT_VLAN_CFG_POP_CNT(1) |
 	       MAC_VID,
-	       priv->regs[ANA] + ANA_PORT_VLAN_CFG(port - PORT0));
+	       priv->regs[ANA] + ANA_PORT_VLAN_CFG(port));
 
 	/* Enable switching to/from port */
-	setbits_le32(priv->regs[SYS] + SYS_SWITCH_PORT_MODE(port - PORT0),
+	setbits_le32(priv->regs[SYS] + SYS_SWITCH_PORT_MODE(port),
 		     SYS_SWITCH_PORT_MODE_PORT_ENA);
 }
 
@@ -346,10 +381,10 @@ static void luton_port_init(struct luton_private *priv, int port)
 	writel(ANA_PORT_VLAN_CFG_AWARE_ENA |
 	       ANA_PORT_VLAN_CFG_POP_CNT(1) |
 	       MAC_VID,
-	       priv->regs[ANA] + ANA_PORT_VLAN_CFG(port - PORT0));
+	       priv->regs[ANA] + ANA_PORT_VLAN_CFG(port));
 
 	/* Enable switching to/from port */
-	setbits_le32(priv->regs[SYS] + SYS_SWITCH_PORT_MODE(port - PORT0),
+	setbits_le32(priv->regs[SYS] + SYS_SWITCH_PORT_MODE(port),
 		     SYS_SWITCH_PORT_MODE_PORT_ENA);
 }
 
@@ -393,35 +428,34 @@ static void luton_ext_port_init(struct luton_private *priv, int port)
 	writel(ANA_PORT_VLAN_CFG_AWARE_ENA |
 	       ANA_PORT_VLAN_CFG_POP_CNT(1) |
 	       MAC_VID,
-	       priv->regs[ANA] + ANA_PORT_VLAN_CFG(port - PORT0));
+	       priv->regs[ANA] + ANA_PORT_VLAN_CFG(port));
 
 	/* Enable switching to/from port */
-	setbits_le32(priv->regs[SYS] + SYS_SWITCH_PORT_MODE(port - PORT0),
+	setbits_le32(priv->regs[SYS] + SYS_SWITCH_PORT_MODE(port),
 		     SYS_SWITCH_PORT_MODE_PORT_ENA);
 }
 
-static void serdes6g_write(struct luton_private *priv, u32 addr)
+static void serdes6g_write(void __iomem *base, u32 addr)
 {
 	u32 data;
 
 	writel(HSIO_MCB_SERDES6G_CFG_WR_ONE_SHOT |
 	       HSIO_MCB_SERDES6G_CFG_ADDR(addr),
-	       priv->regs[HSIO] + HSIO_MCB_SERDES6G_CFG);
+	       base + HSIO_MCB_SERDES6G_CFG);
 
 	do {
-		data = readl(priv->regs[HSIO] + HSIO_MCB_SERDES6G_CFG);
+		data = readl(base + HSIO_MCB_SERDES6G_CFG);
 	} while (data & HSIO_MCB_SERDES6G_CFG_WR_ONE_SHOT);
-
-	mdelay(100);
 }
 
-static void serdes6g_cfg(struct luton_private *priv)
+static void serdes6g_setup(void __iomem *base, uint32_t addr,
+			   phy_interface_t interface)
 {
 	writel(HSIO_RCOMP_CFG_CFG0_MODE_SEL(0x3) |
 	       HSIO_RCOMP_CFG_CFG0_RUN_CAL,
-	       priv->regs[HSIO] + HSIO_RCOMP_CFG_CFG0);
+	       base + HSIO_RCOMP_CFG_CFG0);
 
-	while (readl(priv->regs[HSIO] + HSIO_RCOMP_STATUS) &
+	while (readl(base + HSIO_RCOMP_STATUS) &
 	       HSIO_RCOMP_STATUS_BUSY)
 		;
 
@@ -430,50 +464,64 @@ static void serdes6g_cfg(struct luton_private *priv)
 	       HSIO_SERDES6G_ANA_CFG_OB_CFG_POST0(0x10) |
 	       HSIO_SERDES6G_ANA_CFG_OB_CFG_POL |
 	       HSIO_SERDES6G_ANA_CFG_OB_CFG_ENA1V_MODE,
-	       priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_OB_CFG);
+	       base + HSIO_SERDES6G_ANA_CFG_OB_CFG);
 	writel(HSIO_SERDES6G_ANA_CFG_OB_CFG1_LEV(0x18) |
 	       HSIO_SERDES6G_ANA_CFG_OB_CFG1_ENA_CAS(0x1),
-	       priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_OB_CFG1);
+	       base + HSIO_SERDES6G_ANA_CFG_OB_CFG1);
 	writel(HSIO_SERDES6G_ANA_CFG_IB_CFG_RESISTOR_CTRL(0xc) |
 	       HSIO_SERDES6G_ANA_CFG_IB_CFG_VBCOM(0x4) |
 	       HSIO_SERDES6G_ANA_CFG_IB_CFG_VBAC(0x5) |
 	       HSIO_SERDES6G_ANA_CFG_IB_CFG_RT(0xf) |
 	       HSIO_SERDES6G_ANA_CFG_IB_CFG_RF(0x4),
-	       priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_IB_CFG);
+	       base + HSIO_SERDES6G_ANA_CFG_IB_CFG);
 	writel(HSIO_SERDES6G_ANA_CFG_IB_CFG1_RST |
 	       HSIO_SERDES6G_ANA_CFG_IB_CFG1_ENA_OFFSDC |
 	       HSIO_SERDES6G_ANA_CFG_IB_CFG1_ENA_OFFSAC |
 	       HSIO_SERDES6G_ANA_CFG_IB_CFG1_ANEG_MODE |
 	       HSIO_SERDES6G_ANA_CFG_IB_CFG1_CHF |
 	       HSIO_SERDES6G_ANA_CFG_IB_CFG1_C(0x4),
-	       priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_IB_CFG1);
+	       base + HSIO_SERDES6G_ANA_CFG_IB_CFG1);
 	writel(HSIO_SERDES6G_ANA_CFG_DES_CFG_BW_ANA(0x5) |
 	       HSIO_SERDES6G_ANA_CFG_DES_CFG_BW_HYST(0x5) |
 	       HSIO_SERDES6G_ANA_CFG_DES_CFG_MBTR_CTRL(0x2) |
 	       HSIO_SERDES6G_ANA_CFG_DES_CFG_PHS_CTRL(0x6),
-	       priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_DES_CFG);
+	       base + HSIO_SERDES6G_ANA_CFG_DES_CFG);
 	writel(HSIO_SERDES6G_ANA_CFG_PLL_CFG_FSM_ENA |
 	       HSIO_SERDES6G_ANA_CFG_PLL_CFG_FSM_CTRL_DATA(0x78),
-	       priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_PLL_CFG);
+	       base + HSIO_SERDES6G_ANA_CFG_PLL_CFG);
 	writel(HSIO_SERDES6G_ANA_CFG_COMMON_CFG_IF_MODE(0x30) |
 	       HSIO_SERDES6G_ANA_CFG_COMMON_CFG_ENA_LANE,
-	       priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_COMMON_CFG);
+	       base + HSIO_SERDES6G_ANA_CFG_COMMON_CFG);
 	/*
 	 * There are 4 serdes6g, configure all except serdes6g0, therefore
 	 * the address is b1110
 	 */
-	serdes6g_write(priv, 0xe);
+	serdes6g_write(base, addr);
 
-	writel(readl(priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_COMMON_CFG) |
+	writel(readl(base + HSIO_SERDES6G_ANA_CFG_COMMON_CFG) |
 	       HSIO_SERDES6G_ANA_CFG_COMMON_CFG_SYS_RST,
-	       priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_COMMON_CFG);
-	serdes6g_write(priv, 0xe);
+	       base + HSIO_SERDES6G_ANA_CFG_COMMON_CFG);
+	serdes6g_write(base, addr);
 
-	clrbits_le32(priv->regs[HSIO] + HSIO_SERDES6G_ANA_CFG_IB_CFG1,
+	clrbits_le32(base + HSIO_SERDES6G_ANA_CFG_IB_CFG1,
 		     HSIO_SERDES6G_ANA_CFG_IB_CFG1_RST);
 	writel(HSIO_SERDES6G_DIG_CFG_MISC_CFG_LANE_RST,
-	       priv->regs[HSIO] + HSIO_SERDES6G_DIG_CFG_MISC_CFG);
-	serdes6g_write(priv, 0xe);
+	       base + HSIO_SERDES6G_DIG_CFG_MISC_CFG);
+	serdes6g_write(base, addr);
+}
+
+static void serdes_setup(struct luton_private *priv)
+{
+	size_t mask;
+	int i = 0;
+
+	for (i = 0; i < MAX_PORT; ++i) {
+		if (!priv->ports[i].bus || priv->ports[i].serdes_index == 0xff)
+			continue;
+
+		mask = BIT(priv->ports[i].serdes_index);
+		serdes6g_setup(priv->regs[HSIO], mask, priv->ports[i].phy_mode);
+	}
 }
 
 static int luton_switch_init(struct luton_private *priv)
@@ -495,8 +543,8 @@ static int luton_switch_init(struct luton_private *priv)
 	setbits_le32(priv->regs[SYS] + SYS_SYSTEM_RST_CFG,
 		     SYS_SYSTEM_RST_CORE_ENA);
 
-	/* Setup the Serdes6g macros */
-	serdes6g_cfg(priv);
+	/* Setup the Serdes macros */
+	serdes_setup(priv);
 
 	return 0;
 }
@@ -525,7 +573,7 @@ static int luton_initialize(struct luton_private *priv)
 	writel(2000000000 / 4,
 	       priv->regs[SYS] + SYS_FRM_AGING);
 
-	for (i = PORT0; i < MAX_PORT; i++) {
+	for (i = 0; i < MAX_PORT; i++) {
 		if (i < PORT10)
 			luton_gmii_port_init(priv, i);
 		else
@@ -608,56 +656,51 @@ static int luton_recv(struct udevice *dev, int flags, uchar **packetp)
 	return byte_cnt;
 }
 
+static struct mii_dev *get_mdiobus(phys_addr_t base, unsigned long size)
+{
+	int i = 0;
+
+	for (i = 0; i < LUTON_MIIM_BUS_COUNT; ++i)
+		if (miim[i].miim_base == base && miim[i].miim_size == size)
+			return miim[i].bus;
+
+	return NULL;
+}
+
+static void add_port_entry(struct luton_private *priv, size_t index,
+			   size_t phy_addr, struct mii_dev *bus,
+			   u8 serdes_index, u8 phy_mode)
+{
+	priv->ports[index].phy_addr = phy_addr;
+	priv->ports[index].bus = bus;
+	priv->ports[index].serdes_index = serdes_index;
+	priv->ports[index].phy_mode = phy_mode;
+}
+
 static int luton_probe(struct udevice *dev)
 {
 	struct luton_private *priv = dev_get_priv(dev);
-	int i;
-
-	struct {
-		enum luton_target id;
-		char *name;
-	} reg[] = {
-		{ PORT0, "port0" },
-		{ PORT1, "port1" },
-		{ PORT2, "port2" },
-		{ PORT3, "port3" },
-		{ PORT4, "port4" },
-		{ PORT5, "port5" },
-		{ PORT6, "port6" },
-		{ PORT7, "port7" },
-		{ PORT8, "port8" },
-		{ PORT9, "port9" },
-		{ PORT10, "port10" },
-		{ PORT11, "port11" },
-		{ PORT12, "port12" },
-		{ PORT13, "port13" },
-		{ PORT14, "port14" },
-		{ PORT15, "port15" },
-		{ PORT16, "port16" },
-		{ PORT17, "port17" },
-		{ PORT18, "port18" },
-		{ PORT19, "port19" },
-		{ PORT20, "port20" },
-		{ PORT21, "port21" },
-		{ PORT22, "port22" },
-		{ PORT23, "port23" },
-		{ SYS, "sys" },
-		{ ANA, "ana" },
-		{ REW, "rew" },
-		{ GCB, "gcb" },
-		{ QS, "qs" },
-		{ HSIO, "hsio" },
-	};
+	int i, ret;
+	struct resource res;
+	fdt32_t faddr;
+	phys_addr_t addr_base;
+	unsigned long addr_size;
+	ofnode eth_node, node, mdio_node;
+	size_t phy_addr;
+	struct mii_dev *bus;
+	struct ofnode_phandle_args phandle;
+	struct phy_device *phy;
 
 	if (!priv)
 		return -EINVAL;
 
-	for (i = 0; i < ARRAY_SIZE(reg); i++) {
-		priv->regs[reg[i].id] = dev_remap_addr_name(dev, reg[i].name);
-		if (!priv->regs[reg[i].id]) {
+	/* Get registers and map them to the private structure */
+	for (i = 0; i < ARRAY_SIZE(regs_names); i++) {
+		priv->regs[i] = dev_remap_addr_name(dev, regs_names[i]);
+		if (!priv->regs[i]) {
 			debug
 			    ("Error can't get regs base addresses for %s\n",
-			     reg[i].name);
+			     regs_names[i]);
 			return -ENOMEM;
 		}
 	}
@@ -666,7 +709,7 @@ static int luton_probe(struct udevice *dev)
 	writel(0, priv->regs[GCB] + GCB_DEVCPU_RST_SOFT_CHIP_RST);
 
 	/* Ports with ext phy don't need to reset clk */
-	for (i = PORT0; i < MAX_INT_PORT; i++) {
+	for (i = 0; i < MAX_INT_PORT; i++) {
 		if (i < PORT10)
 			clrbits_le32(priv->regs[i] + DEV_GMII_PORT_MODE_CLK,
 				     DEV_GMII_PORT_MODE_CLK_PHY_RST);
@@ -680,20 +723,76 @@ static int luton_probe(struct udevice *dev)
 			      GCB_MISC_STAT_PHY_READY, true, 500, false))
 		return -EACCES;
 
-	priv->bus[INTERNAL] = luton_mdiobus_init(dev, INTERNAL);
 
-	for (i = 0; i < MAX_INT_PORT; i++) {
-		phy_connect(priv->bus[INTERNAL], i, dev,
-			    PHY_INTERFACE_MODE_NONE);
+	/* Initialize miim buses */
+	memset(&miim, 0x0, sizeof(miim) * LUTON_MIIM_BUS_COUNT);
+
+	/* iterate all the ports and find out on which bus they are */
+	i = 0;
+	eth_node = dev_read_first_subnode(dev);
+	for (node = ofnode_first_subnode(eth_node);
+	     ofnode_valid(node);
+	     node = ofnode_next_subnode(node)) {
+		if (ofnode_read_resource(node, 0, &res))
+			return -ENOMEM;
+		i = res.start;
+
+		ret = ofnode_parse_phandle_with_args(node, "phy-handle", NULL,
+						     0, 0, &phandle);
+		if (ret)
+			continue;
+
+		/* Get phy address on mdio bus */
+		if (ofnode_read_resource(phandle.node, 0, &res))
+			return -ENOMEM;
+		phy_addr = res.start;
+
+		/* Get mdio node */
+		mdio_node = ofnode_get_parent(phandle.node);
+
+		if (ofnode_read_resource(mdio_node, 0, &res))
+			return -ENOMEM;
+		faddr = cpu_to_fdt32(res.start);
+
+		addr_base = ofnode_translate_address(mdio_node, &faddr);
+		addr_size = res.end - res.start;
+
+		/* If the bus is new then create a new bus */
+		if (!get_mdiobus(addr_base, addr_size))
+			priv->bus[miim_count] =
+				serval_mdiobus_init(addr_base, addr_size);
+
+		/* Connect mdio bus with the port */
+		bus = get_mdiobus(addr_base, addr_size);
+
+		/* Get serdes info */
+		ret = ofnode_parse_phandle_with_args(node, "phys", NULL,
+						     3, 0, &phandle);
+		if (ret)
+			add_port_entry(priv, i, phy_addr, bus, 0xff, 0xff);
+		else
+			add_port_entry(priv, i, phy_addr, bus, phandle.args[1],
+				       phandle.args[2]);
+	}
+
+	for (i = 0; i < MAX_PORT; i++) {
+		if (!priv->ports[i].bus)
+			continue;
+
+		phy = phy_connect(priv->ports[i].bus,
+				  priv->ports[i].phy_addr, dev,
+				  PHY_INTERFACE_MODE_NONE);
+		if (phy && i >= MAX_INT_PORT)
+			board_phy_config(phy);
 	}
 
 	/*
 	 * coma_mode is need on only one phy, because all the other phys
 	 * will be affected.
 	 */
-	mscc_miim_write(priv->bus[INTERNAL], 0, 0, 31, 0x10);
-	mscc_miim_write(priv->bus[INTERNAL], 0, 0, 14, 0x800);
-	mscc_miim_write(priv->bus[INTERNAL], 0, 0, 31, 0);
+	mscc_miim_write(priv->ports[0].bus, 0, 0, 31, 0x10);
+	mscc_miim_write(priv->ports[0].bus, 0, 0, 14, 0x800);
+	mscc_miim_write(priv->ports[0].bus, 0, 0, 31, 0);
 
 	return 0;
 }
@@ -703,7 +802,7 @@ static int luton_remove(struct udevice *dev)
 	struct luton_private *priv = dev_get_priv(dev);
 	int i;
 
-	for (i = 0; i < NUM_PHY; i++) {
+	for (i = 0; i < LUTON_MIIM_BUS_COUNT; i++) {
 		mdio_unregister(priv->bus[i]);
 		mdio_free(priv->bus[i]);
 	}

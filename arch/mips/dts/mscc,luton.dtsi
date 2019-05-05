@@ -124,7 +124,7 @@
 			      <0x030000 0x1000>, // VTSS_TO_REW
 			      <0x070000 0x1000>, // VTSS_TO_DEVCPU_GCB
 			      <0x080000 0x0100>, // VTSS_TO_DEVCPU_QS
-			      <0x0a0000 0x0100>; // VTSS_TO_HSIO
+			      <0x0a0000 0x10000>; // VTSS_TO_HSIO
 			reg-names = "port0", "port1", "port2", "port3",
 				    "port4", "port5", "port6", "port7",
 				    "port8", "port9", "port10", "port11",
@@ -137,79 +137,6 @@
 			ethernet-ports {
 				#address-cells = <1>;
 				#size-cells = <0>;
-
-				port0: port@0 {
-					reg = <0>;
-				};
-				port1: port@1 {
-					reg = <1>;
-				};
-				port2: port@2 {
-					reg = <2>;
-				};
-				port3: port@3 {
-					reg = <3>;
-				};
-				port4: port@4 {
-					reg = <4>;
-				};
-				port5: port@5 {
-					reg = <5>;
-				};
-				port6: port@6 {
-					reg = <6>;
-				};
-				port7: port@7 {
-					reg = <7>;
-				};
-				port8: port@8 {
-					reg = <8>;
-				};
-				port9: port@9 {
-					reg = <9>;
-				};
-				port10: port@10 {
-					reg = <10>;
-				};
-				port11: port@11 {
-					reg = <11>;
-				};
-				port12: port@12 {
-					reg = <12>;
-				};
-				port13: port@13 {
-					reg = <13>;
-				};
-				port14: port@14 {
-					reg = <14>;
-				};
-				port15: port@15 {
-					reg = <15>;
-				};
-				port16: port@16 {
-					reg = <16>;
-				};
-				port17: port@17 {
-					reg = <17>;
-				};
-				port18: port@18 {
-					reg = <18>;
-				};
-				port19: port@19 {
-					reg = <19>;
-				};
-				port20: port@20 {
-					reg = <20>;
-				};
-				port21: port@21 {
-					reg = <21>;
-				};
-				port22: port@22 {
-					reg = <22>;
-				};
-				port23: port@23 {
-					reg = <23>;
-				};
 			};
 		};
 
@@ -219,42 +146,23 @@
 			compatible = "mscc,luton-miim";
 			reg = <0x700a0 0x24>;
 			status = "disabled";
+		};
 
-			phy0: ethernet-phy@0 {
-				reg = <0>;
-			};
-			phy1: ethernet-phy@1 {
-				reg = <1>;
-			};
-			phy2: ethernet-phy@2 {
-				reg = <2>;
-			};
-			phy3: ethernet-phy@3 {
-				reg = <3>;
-			};
-			phy4: ethernet-phy@4 {
-				reg = <4>;
-			};
-			phy5: ethernet-phy@5 {
-				reg = <5>;
-			};
-			phy6: ethernet-phy@6 {
-				reg = <6>;
-			};
-			phy7: ethernet-phy@7 {
-				reg = <7>;
-			};
-			phy8: ethernet-phy@8 {
-				reg = <8>;
-			};
-			phy9: ethernet-phy@9 {
-				reg = <9>;
-			};
-			phy10: ethernet-phy@10 {
-				reg = <10>;
-			};
-			phy11: ethernet-phy@11 {
-				reg = <11>;
+		mdio1: mdio@700c4 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "mscc,luton-miim";
+			reg = <0x700c4 0x24>;
+			status = "disabled";
+		};
+
+		hsio: syscon@10d0000 {
+			compatible = "mscc,luton-hsio", "syscon", "simple-mfd";
+			reg = <0xa0000 0x10000>;
+
+			serdes_hsio: serdes_hsio {
+				compatible = "mscc,vsc7527-serdes";
+				#phy-cells = <3>;
 			};
 		};
 	};

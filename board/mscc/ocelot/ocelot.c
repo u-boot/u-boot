@@ -11,6 +11,7 @@
 #include <spi.h>
 #include <led.h>
 #include <wait_bit.h>
+#include <miiphy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,6 +41,20 @@ void mscc_switch_reset(bool enter)
 	setbits_le32(BASE_DEVCPU_GCB + PERF_GPIO_OE, BIT(19));
 	writel(BIT(19), BASE_DEVCPU_GCB + PERF_GPIO_OUT_SET);
 	mscc_gpio_set_alternate(19, 0);
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	if (gd->board_type == BOARD_TYPE_PCB123)
+		return 0;
+
+	phy_write(phydev, 0, 31, 0x10);
+	phy_write(phydev, 0, 18, 0x80F0);
+	while (phy_read(phydev, 0, 18) & 0x8000)
+		;
+	phy_write(phydev, 0, 31, 0);
+
+	return 0;
 }
 
 void board_debug_uart_init(void)

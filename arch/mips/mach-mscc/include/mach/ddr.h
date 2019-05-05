@@ -401,23 +401,7 @@ static inline void sleep_100ns(u32 val)
 		;
 }
 
-#if defined(CONFIG_SOC_OCELOT)
-static inline void hal_vcoreiii_ddr_reset_assert(void)
-{
-	/* DDR has reset pin on GPIO 19 toggle Low-High to release */
-	setbits_le32(BASE_DEVCPU_GCB + PERF_GPIO_OE, BIT(19));
-	writel(BIT(19), BASE_DEVCPU_GCB + PERF_GPIO_OUT_CLR);
-	sleep_100ns(10000);
-}
-
-static inline void hal_vcoreiii_ddr_reset_release(void)
-{
-	/* DDR has reset pin on GPIO 19 toggle Low-High to release */
-	setbits_le32(BASE_DEVCPU_GCB + PERF_GPIO_OE, BIT(19));
-	writel(BIT(19), BASE_DEVCPU_GCB + PERF_GPIO_OUT_SET);
-	sleep_100ns(10000);
-}
-
+#if defined(CONFIG_SOC_OCELOT) || defined(CONFIG_SOC_SERVAL)
 /*
  * DDR memory sanity checking failed, tally and do hard reset
  *
@@ -427,9 +411,11 @@ static inline void hal_vcoreiii_ddr_failed(void)
 {
 	register u32 reset;
 
+#if defined(CONFIG_SOC_OCELOT)
 	writel(readl(BASE_CFG + ICPU_GPR(6)) + 1, BASE_CFG + ICPU_GPR(6));
 
 	clrbits_le32(BASE_DEVCPU_GCB + PERF_GPIO_OE, BIT(19));
+#endif
 
 	/* We have to execute the reset function from cache. Indeed,
 	 * the reboot workaround in _machine_restart() will change the
@@ -452,6 +438,33 @@ static inline void hal_vcoreiii_ddr_failed(void)
 
 	panic("DDR init failed\n");
 }
+#else				/* JR2 || ServalT */
+static inline void hal_vcoreiii_ddr_failed(void)
+{
+	writel(0, BASE_CFG + ICPU_RESET);
+	writel(PERF_SOFT_RST_SOFT_CHIP_RST, BASE_CFG + PERF_SOFT_RST);
+
+	panic("DDR init failed\n");
+}
+#endif
+
+#if defined(CONFIG_SOC_OCELOT)
+static inline void hal_vcoreiii_ddr_reset_assert(void)
+{
+	/* DDR has reset pin on GPIO 19 toggle Low-High to release */
+	setbits_le32(BASE_DEVCPU_GCB + PERF_GPIO_OE, BIT(19));
+	writel(BIT(19), BASE_DEVCPU_GCB + PERF_GPIO_OUT_CLR);
+	sleep_100ns(10000);
+}
+
+static inline void hal_vcoreiii_ddr_reset_release(void)
+{
+	/* DDR has reset pin on GPIO 19 toggle Low-High to release */
+	setbits_le32(BASE_DEVCPU_GCB + PERF_GPIO_OE, BIT(19));
+	writel(BIT(19), BASE_DEVCPU_GCB + PERF_GPIO_OUT_SET);
+	sleep_100ns(10000);
+}
+
 #else				/* JR2 || ServalT || Serval */
 static inline void hal_vcoreiii_ddr_reset_assert(void)
 {
@@ -462,14 +475,6 @@ static inline void hal_vcoreiii_ddr_reset_assert(void)
 	/* Ensure the memory controller is forced reset */
 	writel(readl(BASE_CFG + ICPU_RESET) |
 	       ICPU_RESET_MEM_RST_FORCE, BASE_CFG + ICPU_RESET);
-}
-
-static inline void hal_vcoreiii_ddr_failed(void)
-{
-	writel(0, BASE_CFG + ICPU_RESET);
-	writel(PERF_SOFT_RST_SOFT_CHIP_RST, BASE_CFG + PERF_SOFT_RST);
-
-	panic("DDR init failed\n");
 }
 #endif				/* JR2 || ServalT || Serval */
 

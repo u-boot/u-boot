@@ -145,5 +145,63 @@
 			#gpio-cells = <2>;
 			gpio-ranges = <&sgpio 0 0 64>;
 		};
+
+		switch: switch@011e0000 {
+			compatible = "mscc,vsc7418-switch";
+			reg = <0x011e0000 0x0100>,   // VTSS_TO_DEV0
+			      <0x011f0000 0x0100>,   // VTSS_TO_DEV1
+			      <0x01200000 0x0100>,   // VTSS_TO_DEV2
+			      <0x01210000 0x0100>,   // VTSS_TO_DEV3
+			      <0x01220000 0x0100>,   // VTSS_TO_DEV4
+			      <0x01230000 0x0100>,   // VTSS_TO_DEV5
+			      <0x01240000 0x0100>,   // VTSS_TO_DEV6
+			      <0x01250000 0x0100>,   // VTSS_TO_DEV7
+			      <0x01260000 0x0100>,   // VTSS_TO_DEV8
+			      <0x01270000 0x0100>,   // VTSS_TO_DEV9
+			      <0x01280000 0x0100>,   // VTSS_TO_DEV10
+			      <0x01900000 0x100000>, // ANA
+			      <0x01080000 0x20000>,  // QS
+			      <0x01800000 0x100000>, // QSYS
+			      <0x01030000 0x10000>,  // REW
+			      <0x01010000 0x20000>,  // SYS
+			      <0x010a0000 0x10000>;  // HSIO
+			reg-names = "port0", "port1", "port2", "port3",
+				    "port4", "port5", "port6", "port7",
+				    "port8", "port9", "port10",
+				    "ana", "qs", "qsys", "rew", "sys",
+				    "hsio";
+			status = "okay";
+
+			ethernet-ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+		};
+
+		mdio0: mdio@0107005c {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "mscc,serval-miim";
+			reg = <0x0107005c 0x24>;
+			status = "disabled";
+		};
+
+		mdio1: mdio@01070080 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "mscc,serval-miim";
+			reg = <0x01070080 0x24>;
+			status = "disabled";
+		};
+
+		hsio: syscon@10d0000 {
+			compatible = "mscc,serval-hsio", "syscon", "simple-mfd";
+			reg = <0x10a0000 0x10000>;
+
+			serdes_hsio: serdes_hsio {
+				compatible = "mscc,vsc7418-serdes";
+				#phy-cells = <3>;
+			};
+		};
 	};
 };
