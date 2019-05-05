@@ -971,11 +971,13 @@ struct efi_object *efi_search_obj(const efi_handle_t handle)
 {
 	struct efi_object *efiobj;
 
+	if (!handle)
+		return NULL;
+
 	list_for_each_entry(efiobj, &efi_obj_list, link) {
 		if (efiobj == handle)
 			return efiobj;
 	}
-
 	return NULL;
 }
 
@@ -1982,7 +1984,8 @@ static efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
 	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, agent_handle,
 		  controller_handle);
 
-	if (!agent_handle) {
+	if (!efi_search_obj(agent_handle) ||
+	    (controller_handle && !efi_search_obj(controller_handle))) {
 		r = EFI_INVALID_PARAMETER;
 		goto out;
 	}
