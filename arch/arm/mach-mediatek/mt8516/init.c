@@ -14,13 +14,9 @@
 #include <asm/armv8/mmu.h>
 #include <asm/sections.h>
 #include <dm/uclass.h>
-#include <linux/io.h>
 #include <dt-bindings/clock/mt8516-clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#define WDOG_SWRST		0x10007014
-#define WDOG_SWRST_KEY		0x1209
 
 int dram_init(void)
 {
@@ -87,10 +83,7 @@ int mtk_soc_early_init(void)
 
 void reset_cpu(ulong addr)
 {
-	while (1) {
-		writel(WDOG_SWRST_KEY, WDOG_SWRST);
-		mdelay(5);
-	}
+	psci_system_reset();
 }
 
 int print_cpuinfo(void)
