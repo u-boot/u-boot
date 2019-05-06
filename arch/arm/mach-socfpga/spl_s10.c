@@ -15,9 +15,9 @@
 #include <asm/arch/firewall_s10.h>
 #include <asm/arch/mailbox_s10.h>
 #include <asm/arch/reset_manager.h>
-#include <asm/arch/sdram_s10.h>
 #include <asm/arch/system_manager.h>
 #include <watchdog.h>
+#include <dm/uclass.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -175,11 +175,15 @@ void board_init_f(ulong dummy)
 	clrbits_le32(CCU_REG_ADDR(CCU_IOM_MPRT_ADMASK_MEM_RAM0),
 		     CCU_ADMASK_P_MASK | CCU_ADMASK_NS_MASK);
 
-	debug("DDR: Initializing Hard Memory Controller\n");
-	if (sdram_mmr_init_full(0)) {
-		puts("DDR: Initialization failed.\n");
-		hang();
-	}
+#if CONFIG_IS_ENABLED(ALTERA_SDRAM)
+		struct udevice *dev;
+
+		ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+		if (ret) {
+			debug("DRAM init failed: %d\n", ret);
+			hang();
+		}
+#endif
 
 	mbox_init();
 
