@@ -1,5 +1,6 @@
-config ALTERA_SDRAM
-	bool "SoCFPGA DDR SDRAM driver"
+config SPL_ALTERA_SDRAM
+	bool "SoCFPGA DDR SDRAM driver in SPL"
+	depends on SPL
 	depends on TARGET_SOCFPGA_GEN5 || TARGET_SOCFPGA_ARRIA10
 	select RAM if TARGET_SOCFPGA_GEN5
 	select SPL_RAM if TARGET_SOCFPGA_GEN5

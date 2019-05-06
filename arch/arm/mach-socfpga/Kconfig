@@ -26,7 +26,7 @@ config TARGET_SOCFPGA_ARRIA5
 
 config TARGET_SOCFPGA_ARRIA10
 	bool
-	select ALTERA_SDRAM
+	select SPL_ALTERA_SDRAM
 	select SPL_BOARD_INIT if SPL
 	select CLK
 	select SPL_CLK if SPL
@@ -47,7 +47,7 @@ config TARGET_SOCFPGA_CYCLONE5
 
 config TARGET_SOCFPGA_GEN5
 	bool
-	select ALTERA_SDRAM
+	select SPL_ALTERA_SDRAM
 	imply FPGA_SOCFPGA
 	imply SPL_STACK_R
 	imply SPL_SYS_MALLOC_SIMPLE
