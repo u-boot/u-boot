@@ -26,7 +26,7 @@ static void print_mmcinfo(struct mmc *mmc)
 
 	printf("Bus Speed: %d\n", mmc->clock);
 #if CONFIG_IS_ENABLED(MMC_VERBOSE)
-	printf("Mode : %s\n", mmc_mode_name(mmc->selected_mode));
+	printf("Mode: %s\n", mmc_mode_name(mmc->selected_mode));
 	mmc_dump_capabilities("card capabilities", mmc->card_caps);
 	mmc_dump_capabilities("host capabilities", mmc->host_caps);
 #endif

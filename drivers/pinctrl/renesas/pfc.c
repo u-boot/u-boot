@@ -459,7 +459,44 @@ static const char *sh_pfc_pinctrl_get_function_name(struct udevice *dev,
 	return priv->pfc.info->functions[selector].name;
 }
 
-int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector)
+static int sh_pfc_gpio_request_enable(struct udevice *dev,
+				      unsigned pin_selector)
+{
+	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
+	struct sh_pfc_pinctrl *pmx = &priv->pmx;
+	struct sh_pfc *pfc = &priv->pfc;
+	struct sh_pfc_pin_config *cfg;
+	const struct sh_pfc_pin *pin = NULL;
+	int i, ret, idx;
+
+	for (i = 1; i < pfc->info->nr_pins; i++) {
+		if (priv->pfc.info->pins[i].pin != pin_selector)
+			continue;
+
+		pin = &priv->pfc.info->pins[i];
+		break;
+	}
+
+	if (!pin)
+		return -EINVAL;
+
+	idx = sh_pfc_get_pin_index(pfc, pin->pin);
+	cfg = &pmx->configs[idx];
+
+	if (cfg->type != PINMUX_TYPE_NONE)
+		return -EBUSY;
+
+	ret = sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
+	if (ret)
+		return ret;
+
+	cfg->type = PINMUX_TYPE_GPIO;
+
+	return 0;
+}
+
+static int sh_pfc_gpio_disable_free(struct udevice *dev,
+				    unsigned pin_selector)
 {
 	struct sh_pfc_pinctrl_priv *priv = dev_get_priv(dev);
 	struct sh_pfc_pinctrl *pmx = &priv->pmx;
@@ -482,10 +519,9 @@ int sh_pfc_config_mux_for_gpio(struct udevice *dev, unsigned pin_selector)
 	idx = sh_pfc_get_pin_index(pfc, pin->pin);
 	cfg = &pmx->configs[idx];
 
-	if (cfg->type != PINMUX_TYPE_NONE)
-		return -EBUSY;
+	cfg->type = PINMUX_TYPE_NONE;
 
-	return sh_pfc_config_mux(pfc, pin->enum_id, PINMUX_TYPE_GPIO);
+	return 0;
 }
 
 static int sh_pfc_pinctrl_pin_set(struct udevice *dev, unsigned pin_selector,
@@ -746,6 +782,9 @@ static struct pinctrl_ops sh_pfc_pinctrl_ops = {
 	.pinmux_set		= sh_pfc_pinctrl_pin_set,
 	.pinmux_group_set	= sh_pfc_pinctrl_group_set,
 	.set_state		= pinctrl_generic_set_state,
+
+	.gpio_request_enable	= sh_pfc_gpio_request_enable,
+	.gpio_disable_free	= sh_pfc_gpio_disable_free,
 };
 
 static int sh_pfc_map_pins(struct sh_pfc *pfc, struct sh_pfc_pinctrl *pmx)
