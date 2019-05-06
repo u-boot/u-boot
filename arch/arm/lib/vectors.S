@@ -67,11 +67,7 @@
  *   (1) defines '_start:' as appropriate
  *   (2) inserts the vector table using ARM_VECTORS as appropriate
  */
-#ifdef CONFIG_ARCH_ROCKCHIP
-#include <asm/arch-rockchip/boot0.h>
-#else
 #include <asm/arch/boot0.h>
-#endif
 #else
 
 /*
