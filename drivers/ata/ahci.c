@@ -571,15 +571,12 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 		return -1;
 	}
 
-	mem = malloc(AHCI_PORT_PRIV_DMA_SZ + 2048);
+	mem = memalign(2048, AHCI_PORT_PRIV_DMA_SZ);
 	if (!mem) {
 		free(pp);
 		printf("%s: No mem for table!\n", __func__);
 		return -ENOMEM;
 	}
-
-	/* Aligned to 2048-bytes */
-	mem = memalign(2048, AHCI_PORT_PRIV_DMA_SZ);
 	memset(mem, 0, AHCI_PORT_PRIV_DMA_SZ);
 
 	/*
