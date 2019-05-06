@@ -258,6 +258,15 @@
 			u-boot,dm-pre-reloc;
 		};
 
+		sdr: sdr@f8000400 {
+			 compatible = "altr,sdr-ctl-s10";
+			 reg = <0xf8000400 0x80>,
+			       <0xf8010000 0x190>,
+			       <0xf8011000 0x500>;
+			 resets = <&rst DDRSCH_RESET>;
+			 u-boot,dm-pre-reloc;
+		 };
+
 		spi0: spi@ffda4000 {
 			compatible = "snps,dw-apb-ssi";
 			#address-cells = <1>;
