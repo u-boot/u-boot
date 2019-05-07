@@ -103,6 +103,13 @@ config WDT_ORION
 	   Select this to enable Orion watchdog timer, which can be found on some
 	   Marvell Armada chips.
 
+config WDT_SP805
+	bool "SP805 watchdog timer support"
+	depends on WDT
+	help
+	   Select this to enable SP805 watchdog timer, which can be found on some
+	   nxp layerscape chips.
+
 config WDT_CDNS
 	bool "Cadence watchdog timer support"
 	depends on WDT

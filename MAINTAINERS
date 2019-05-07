@@ -519,6 +519,7 @@ FREESCALE QORIQ
 M:	Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-fsl-qoriq.git
+F:	drivers/watchdog/sp805_wdt.c
 
 I2C
 M:	Heiko Schocher <hs@denx.de>
