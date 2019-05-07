@@ -277,4 +277,9 @@
 		clocks = <&clockgen 4 1>;
 		status = "disabled";
 	};
+
+	cluster1_core0_watchdog: wdt@c000000 {
+		compatible = "arm,sp805-wdt";
+		reg = <0x0 0xc000000 0x0 0x1000>;
+	};
 };
