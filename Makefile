@@ -1848,7 +1848,7 @@ clean: $(clean-dirs)
 		-o -name 'dsdt.aml' -o -name 'dsdt.asl.tmp' -o -name 'dsdt.c' \
 		-o -name '*.efi' -o -name '*.gcno' -o -name '*.so' \) \
 		-type f -print | xargs rm -f \
-		image.map
+		bl31_*.bin image.map
 
 # mrproper - Delete all generated files, including .config
 #
