@@ -3,6 +3,8 @@
  * Copyright 2018 NXP
  */
 
+#define DEBUG
+
 #include <common.h>
 #include <errno.h>
 #include <dm.h>
@@ -15,15 +17,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static const struct pmic_child_info pmic_children_info[] = {
 	/* buck */
-	{ .prefix = "b", .driver = BD71837_REGULATOR_DRIVER},
+	{ .prefix = "b", .driver = BD718XX_REGULATOR_DRIVER},
 	/* ldo */
-	{ .prefix = "l", .driver = BD71837_REGULATOR_DRIVER},
+	{ .prefix = "l", .driver = BD718XX_REGULATOR_DRIVER},
 	{ },
 };
 
 static int bd71837_reg_count(struct udevice *dev)
 {
-	return BD71837_REG_NUM;
+	return BD718XX_MAX_REGISTER - 1;
 }
 
 static int bd71837_write(struct udevice *dev, uint reg, const uint8_t *buff,
@@ -54,7 +56,7 @@ static int bd71837_bind(struct udevice *dev)
 
 	regulators_node = dev_read_subnode(dev, "regulators");
 	if (!ofnode_valid(regulators_node)) {
-		debug("%s: %s regulators subnode not found!", __func__,
+		debug("%s: %s regulators subnode not found!\n", __func__,
 		      dev->name);
 		return -ENXIO;
 	}
@@ -69,6 +71,24 @@ static int bd71837_bind(struct udevice *dev)
 	return 0;
 }
 
+static int bd718x7_probe(struct udevice *dev)
+{
+	int ret;
+	uint8_t mask = BD718XX_REGLOCK_PWRSEQ | BD718XX_REGLOCK_VREG;
+
+	/* Unlock the PMIC regulator control before probing the children */
+	ret = pmic_clrsetbits(dev, BD718XX_REGLOCK, mask, 0);
+	if (ret) {
+		debug("%s: %s Failed to unlock regulator control\n", __func__,
+		      dev->name);
+		return ret;
+	}
+	debug("%s: '%s' - BD718x7 PMIC registers unlocked\n", __func__,
+	      dev->name);
+
+	return 0;
+}
+
 static struct dm_pmic_ops bd71837_ops = {
 	.reg_count = bd71837_reg_count,
 	.read = bd71837_read,
@@ -76,7 +96,8 @@ static struct dm_pmic_ops bd71837_ops = {
 };
 
 static const struct udevice_id bd71837_ids[] = {
-	{ .compatible = "rohm,bd71837", .data = 0x4b, },
+	{ .compatible = "rohm,bd71837", .data = ROHM_CHIP_TYPE_BD71837, },
+	{ .compatible = "rohm,bd71847", .data = ROHM_CHIP_TYPE_BD71847, },
 	{ }
 };
 
@@ -85,5 +106,6 @@ U_BOOT_DRIVER(pmic_bd71837) = {
 	.id = UCLASS_PMIC,
 	.of_match = bd71837_ids,
 	.bind = bd71837_bind,
+	.probe = bd718x7_probe,
 	.ops = &bd71837_ops,
 };
