@@ -64,4 +64,28 @@
 			u-boot,dm-pre-reloc;
 		};
 	};
+
+	fpgabridge@0 {
+		u-boot,dm-pre-reloc;
+	};
+
+	fpgabridge@1 {
+		u-boot,dm-pre-reloc;
+	};
+
+	fpgabridge@2 {
+		u-boot,dm-pre-reloc;
+	};
+
+	fpgabridge@3 {
+		u-boot,dm-pre-reloc;
+	};
+
+	fpgabridge@4 {
+		u-boot,dm-pre-reloc;
+	};
+
+	fpgabridge@5 {
+		u-boot,dm-pre-reloc;
+	};
 };
