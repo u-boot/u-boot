@@ -12,13 +12,6 @@ struct uart_port {
 	enum sh_clk_mode clk_mode;	/* clock mode */
 };
 
-#if defined(CONFIG_H83007) || defined(CONFIG_H83068)
-#include <asm/regs306x.h>
-#endif
-#if defined(CONFIG_H8S2678)
-#include <asm/regs267x.h>
-#endif
-
 #if defined(CONFIG_CPU_SH7706) || \
 	defined(CONFIG_CPU_SH7707) || \
 	defined(CONFIG_CPU_SH7708) || \
@@ -130,12 +123,6 @@ struct uart_port {
 # define SCLSR2\
 		((port->mapbase)+SCIF_LSR2_OFFS) /* 16 bit SCIF */
 # define SCSCR_INIT(port)  0x38		/* TIE=0,RIE=0, TE=1,RE=1,REIE=1 */
-#elif defined(CONFIG_H83007) || defined(CONFIG_H83068)
-# define SCSCR_INIT(port)          0x30 /* TIE=0,RIE=0,TE=1,RE=1 */
-# define H8300_SCI_DR(ch) (*(volatile char *)(P1DR + h8300_sci_pins[ch].port))
-#elif defined(CONFIG_H8S2678)
-# define SCSCR_INIT(port)          0x30 /* TIE=0,RIE=0,TE=1,RE=1 */
-# define H8300_SCI_DR(ch) (*(volatile char *)(P1DR + h8300_sci_pins[ch].port))
 #elif defined(CONFIG_CPU_SH7757) || \
 	defined(CONFIG_CPU_SH7752) || \
 	defined(CONFIG_CPU_SH7753)
@@ -402,16 +389,6 @@ static inline void sci_##name##_out(struct uart_port *port,\
 	}\
 }
 
-#ifdef CONFIG_H8300
-/* h8300 don't have SCIF */
-#define CPU_SCIF_FNS(name)						\
-	static inline unsigned int sci_##name##_in(struct uart_port *port) {\
-		return 0;\
-	}\
-	static inline void sci_##name##_out(struct uart_port *port,\
-					unsigned int value) {\
-	}
-#else
 #define CPU_SCIF_FNS(name, scif_offset, scif_size)			\
 	static inline unsigned int sci_##name##_in(struct uart_port *port) {\
 		SCI_IN(scif_size, scif_offset);\
@@ -420,7 +397,6 @@ static inline void sci_##name##_out(struct uart_port *port,\
 					unsigned int value) {\
 		SCI_OUT(scif_size, scif_offset, value);\
 	}
-#endif
 
 #define CPU_SCI_FNS(name, sci_offset, sci_size)\
 	static inline unsigned int sci_##name##_in(struct uart_port *port) {\
@@ -476,16 +452,6 @@ static inline void sci_##name##_out(struct uart_port *port,\
 				sh4_scif_offset, sh4_scif_size) \
 	CPU_SCIF_FNS(name, sh3_scif_offset, sh3_scif_size)
 #endif
-#elif defined(__H8300H__) || defined(__H8300S__)
-#define SCIx_FNS(name, sh3_sci_offset, sh3_sci_size,\
-				sh4_sci_offset, sh4_sci_size, \
-				sh3_scif_offset, sh3_scif_size,\
-				sh4_scif_offset, sh4_scif_size, \
-				h8_sci_offset, h8_sci_size) \
-	CPU_SCI_FNS(name, h8_sci_offset, h8_sci_size)
-#define SCIF_FNS(name, sh3_scif_offset, sh3_scif_size,\
-					sh4_scif_offset, sh4_scif_size) \
-	CPU_SCIF_FNS(name)
 #elif defined(CONFIG_CPU_SH7723)
 		#define SCIx_FNS(name, sh4_scifa_offset, sh4_scifa_size,\
 					sh4_scif_offset, sh4_scif_size) \
@@ -614,48 +580,6 @@ SCIF_FNS(DL,				0,  0, 0x0,  0) /* dummy */
 #define sci_in(port, reg) sci_##reg##_in(port)
 #define sci_out(port, reg, value) sci_##reg##_out(port, value)
 
-/* H8/300 series SCI pins assignment */
-#if defined(__H8300H__) || defined(__H8300S__)
-static const struct __attribute__((packed)) {
-	int port;             /* GPIO port no */
-	unsigned short rx, tx; /* GPIO bit no */
-} h8300_sci_pins[] = {
-#if defined(CONFIG_H83007) || defined(CONFIG_H83068)
-	{    /* SCI0 */
-		.port = H8300_GPIO_P9,
-		.rx   = H8300_GPIO_B2,
-		.tx   = H8300_GPIO_B0,
-	},
-	{    /* SCI1 */
-		.port = H8300_GPIO_P9,
-		.rx   = H8300_GPIO_B3,
-		.tx   = H8300_GPIO_B1,
-	},
-	{    /* SCI2 */
-		.port = H8300_GPIO_PB,
-		.rx   = H8300_GPIO_B7,
-		.tx   = H8300_GPIO_B6,
-	}
-#elif defined(CONFIG_H8S2678)
-	{    /* SCI0 */
-		.port = H8300_GPIO_P3,
-		.rx   = H8300_GPIO_B2,
-		.tx   = H8300_GPIO_B0,
-	},
-	{    /* SCI1 */
-		.port = H8300_GPIO_P3,
-		.rx   = H8300_GPIO_B3,
-		.tx   = H8300_GPIO_B1,
-	},
-	{    /* SCI2 */
-		.port = H8300_GPIO_P5,
-		.rx   = H8300_GPIO_B1,
-		.tx   = H8300_GPIO_B0,
-	}
-#endif
-};
-#endif
-
 #if defined(CONFIG_CPU_SH7706) || \
 	defined(CONFIG_CPU_SH7707) || \
 	defined(CONFIG_CPU_SH7708) || \
@@ -677,12 +601,6 @@ static inline int sci_rxd_in(struct uart_port *port)
 	if (port->mapbase == 0xffe00000)
 		return __raw_readb(SCSPTR1)&0x01 ? 1 : 0; /* SCI */
 	return 1;
-}
-#elif defined(__H8300H__) || defined(__H8300S__)
-static inline int sci_rxd_in(struct uart_port *port)
-{
-	int ch = (port->mapbase - SMR0) >> 3;
-	return (H8300_SCI_DR(ch) & h8300_sci_pins[ch].rx) ? 1 : 0;
 }
 #else /* default case for non-SCI processors */
 static inline int sci_rxd_in(struct uart_port *port)
@@ -745,8 +663,6 @@ static inline int scbrr_calc(struct uart_port *port, int bps, int clk)
 		return ((clk*2)+16*bps)/(16*bps)-1;
 }
 #define SCBRR_VALUE(bps, clk) scbrr_calc(port, bps, clk)
-#elif defined(__H8300H__) || defined(__H8300S__)
-#define SCBRR_VALUE(bps, clk) (((clk*1000/32)/bps)-1)
 #elif defined(CONFIG_RCAR_GEN2)
 #define DL_VALUE(bps, clk) (clk / bps / 16) /* External Clock */
  #if defined(CONFIG_SCIF_A)
