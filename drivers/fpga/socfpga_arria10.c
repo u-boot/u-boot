@@ -94,7 +94,7 @@ int fpgamgr_wait_early_user_mode(void)
 		i++;
 	}
 
-	debug("Additional %i sync word needed\n", i);
+	debug("FPGA: Additional %i sync word needed\n", i);
 
 	/* restoring original CDRATIO */
 	fpgamgr_set_cd_ratio(cd_ratio);
@@ -172,9 +172,10 @@ static int fpgamgr_set_cdratio_cdwidth(unsigned int cfg_width, u32 *rbf_data,
 	compress = (rbf_data[COMPRESSION_OFFSET] >> 1) & 1;
 	compress = !compress;
 
-	debug("header word %d = %08x\n", 69, rbf_data[69]);
-	debug("header word %d = %08x\n", 229, rbf_data[229]);
-	debug("read from rbf header: encrypt=%d compress=%d\n", encrypt, compress);
+	debug("FPGA: Header word %d = %08x.\n", 69, rbf_data[69]);
+	debug("FPGA: Header word %d = %08x.\n", 229, rbf_data[229]);
+	debug("FPGA: Read from rbf header: encrypt=%d compress=%d.\n", encrypt,
+	     compress);
 
 	/*
 	 * from the register map description of cdratio in imgcfg_ctrl_02:
@@ -455,10 +456,10 @@ int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 {
 	int status;
 
-	/* disable all signals from hps peripheral controller to fpga */
+	/* Disable all signals from hps peripheral controller to fpga */
 	writel(0, &system_manager_base->fpgaintf_en_global);
 
-	/* disable all axi bridge (hps2fpga, lwhps2fpga & fpga2hps) */
+	/* Disable all axi bridge (hps2fpga, lwhps2fpga & fpga2hps) */
 	socfpga_bridges_reset();
 
 	/* Initialize the FPGA Manager */
