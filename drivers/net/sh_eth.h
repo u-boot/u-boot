@@ -228,6 +228,60 @@ static const u16 sh_eth_offset_gigabit[SH_ETH_MAX_REGISTER_OFFSET] = {
 	[RMII_MII] =  0x0790,
 };
 
+static const u16 sh_eth_offset_rz[SH_ETH_MAX_REGISTER_OFFSET] = {
+	[EDSR]	= 0x0000,
+	[EDMR]	= 0x0400,
+	[EDTRR]	= 0x0408,
+	[EDRRR]	= 0x0410,
+	[EESR]	= 0x0428,
+	[EESIPR]	= 0x0430,
+	[TDLAR]	= 0x0010,
+	[TDFAR]	= 0x0014,
+	[TDFXR]	= 0x0018,
+	[TDFFR]	= 0x001c,
+	[RDLAR]	= 0x0030,
+	[RDFAR]	= 0x0034,
+	[RDFXR]	= 0x0038,
+	[RDFFR]	= 0x003c,
+	[TRSCER]	= 0x0438,
+	[RMFCR]	= 0x0440,
+	[TFTR]	= 0x0448,
+	[FDR]	= 0x0450,
+	[RMCR]	= 0x0458,
+	[RPADIR]	= 0x0460,
+	[FCFTR]	= 0x0468,
+	[CSMR] = 0x04E4,
+
+	[ECMR]	= 0x0500,
+	[ECSR]	= 0x0510,
+	[ECSIPR]	= 0x0518,
+	[PIR]	= 0x0520,
+	[PSR]	= 0x0528,
+	[PIPR]	= 0x052c,
+	[RFLR]	= 0x0508,
+	[APR]	= 0x0554,
+	[MPR]	= 0x0558,
+	[PFTCR]	= 0x055c,
+	[PFRCR]	= 0x0560,
+	[TPAUSER]	= 0x0564,
+	[GECMR]	= 0x05b0,
+	[BCULR]	= 0x05b4,
+	[MAHR]	= 0x05c0,
+	[MALR]	= 0x05c8,
+	[TROCR]	= 0x0700,
+	[CDCR]	= 0x0708,
+	[LCCR]	= 0x0710,
+	[CEFCR]	= 0x0740,
+	[FRECR]	= 0x0748,
+	[TSFRCR]	= 0x0750,
+	[TLFRCR]	= 0x0758,
+	[RFCR]	= 0x0760,
+	[CERCR]	= 0x0768,
+	[CEECR]	= 0x0770,
+	[MAFCR]	= 0x0778,
+	[RMII_MII] =  0x0790,
+};
+
 static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 	[ECMR]	= 0x0100,
 	[RFLR]	= 0x0108,
@@ -295,9 +349,6 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 #define SH_ETH_TYPE_ETHER
 #define BASE_IO_ADDR	0xfef00000
 #endif
-#elif defined(CONFIG_CPU_SH7724)
-#define SH_ETH_TYPE_ETHER
-#define BASE_IO_ADDR	0xA4600000
 #elif defined(CONFIG_R8A7740)
 #define SH_ETH_TYPE_GETHER
 #define BASE_IO_ADDR	0xE9A00000
@@ -606,6 +657,8 @@ static inline unsigned long sh_eth_reg_addr(struct sh_eth_info *port,
 	const u16 *reg_offset = sh_eth_offset_gigabit;
 #elif defined(SH_ETH_TYPE_ETHER)
 	const u16 *reg_offset = sh_eth_offset_fast_sh4;
+#elif defined(SH_ETH_TYPE_RZ)
+	const u16 *reg_offset = sh_eth_offset_rz;
 #else
 #error
 #endif

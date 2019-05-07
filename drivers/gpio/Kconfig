@@ -169,6 +169,12 @@ config RCAR_GPIO
 	help
 	  This driver supports the GPIO banks on Renesas RCar SoCs.
 
+config RZA1_GPIO
+	bool "Renesas RZ/A1 GPIO driver"
+	depends on DM_GPIO && RZA1
+	help
+	  This driver supports the GPIO banks on Renesas RZ/A1 R7S72100 SoCs.
+
 config ROCKCHIP_GPIO
 	bool "Rockchip GPIO driver"
 	depends on DM_GPIO

@@ -75,10 +75,6 @@ config TARGET_AP325RXA
 	bool "Renesas AP-325RXA"
 	select CPU_SH4
 
-config TARGET_ECOVEC
-	bool "EcoVec"
-	select CPU_SH4A
-
 config TARGET_MIGOR
 	bool "Migo-R"
 	select CPU_SH4
@@ -111,10 +107,6 @@ config TARGET_SH7763RDP
 	bool "SH7763RDP"
 	select CPU_SH4
 
-config TARGET_SH7785LCR
-	bool "SH7785LCR"
-	select CPU_SH4A
-
 endchoice
 
 config SYS_ARCH
@@ -135,7 +127,6 @@ source "board/ms7722se/Kconfig"
 source "board/ms7750se/Kconfig"
 source "board/renesas/MigoR/Kconfig"
 source "board/renesas/ap325rxa/Kconfig"
-source "board/renesas/ecovec/Kconfig"
 source "board/renesas/r0p7734/Kconfig"
 source "board/renesas/r2dplus/Kconfig"
 source "board/renesas/r7780mp/Kconfig"
@@ -146,7 +137,6 @@ source "board/renesas/sh7752evb/Kconfig"
 source "board/renesas/sh7753evb/Kconfig"
 source "board/renesas/sh7757lcr/Kconfig"
 source "board/renesas/sh7763rdp/Kconfig"
-source "board/renesas/sh7785lcr/Kconfig"
 source "board/shmin/Kconfig"
 
 endmenu

@@ -425,7 +425,7 @@ static int sh_eth_phy_regs_config(struct sh_eth_dev *eth)
 		sh_eth_write(port_info, GECMR_100B, GECMR);
 #elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
 		sh_eth_write(port_info, 1, RTRATE);
-#elif defined(CONFIG_CPU_SH7724) || defined(CONFIG_RCAR_GEN2)
+#elif defined(CONFIG_RCAR_GEN2)
 		val = ECMR_RTM;
 #endif
 	} else if (phy->speed == 10) {
@@ -806,9 +806,11 @@ static int sh_ether_probe(struct udevice *udev)
 
 	priv->iobase = pdata->iobase;
 
+#if CONFIG_IS_ENABLED(CLK)
 	ret = clk_get_by_index(udev, 0, &priv->clk);
 	if (ret < 0)
 		return ret;
+#endif
 
 	ret = dev_read_phandle_with_args(udev, "phy-handle", NULL, 0, 0, &phandle_args);
 	if (!ret) {
@@ -843,9 +845,11 @@ static int sh_ether_probe(struct udevice *udev)
 	eth->port_info[eth->port].iobase =
 		(void __iomem *)(BASE_IO_ADDR + 0x800 * eth->port);
 
+#if CONFIG_IS_ENABLED(CLK)
 	ret = clk_enable(&priv->clk);
 	if (ret)
 		goto err_mdio_register;
+#endif
 
 	ret = sh_eth_phy_config(udev);
 	if (ret) {
@@ -856,7 +860,9 @@ static int sh_ether_probe(struct udevice *udev)
 	return 0;
 
 err_phy_config:
+#if CONFIG_IS_ENABLED(CLK)
 	clk_disable(&priv->clk);
+#endif
 err_mdio_register:
 	mdio_free(mdiodev);
 	return ret;
@@ -868,7 +874,9 @@ static int sh_ether_remove(struct udevice *udev)
 	struct sh_eth_dev *eth = &priv->shdev;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
 
+#if CONFIG_IS_ENABLED(CLK)
 	clk_disable(&priv->clk);
+#endif
 	free(port_info->phydev);
 	mdio_unregister(priv->bus);
 	mdio_free(priv->bus);
@@ -917,6 +925,7 @@ int sh_ether_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id sh_ether_ids[] = {
+	{ .compatible = "renesas,ether-r7s72100" },
 	{ .compatible = "renesas,ether-r8a7790" },
 	{ .compatible = "renesas,ether-r8a7791" },
 	{ .compatible = "renesas,ether-r8a7793" },

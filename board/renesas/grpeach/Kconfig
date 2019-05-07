@@ -1,12 +1,12 @@
-if TARGET_ECOVEC
+if TARGET_GRPEACH
 
 config SYS_BOARD
-	default "ecovec"
+	default "grpeach"
 
 config SYS_VENDOR
 	default "renesas"
 
 config SYS_CONFIG_NAME
-	default "ecovec"
+	default "grpeach"
 
 endif

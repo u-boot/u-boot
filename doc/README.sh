@@ -94,7 +94,6 @@ U-Boot for Renesas SuperH
 	I plan to support the following CPUs and boards.
 		5.1. CPUs
 			- SH7751R(SH4)
-			- SH7785(SH4)
 
 		5.2. Boards
 			- Many boards ;-)

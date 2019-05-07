@@ -22,9 +22,14 @@ config RCAR_GEN3
 	imply CMD_MMC_SWRITE if MMC
 	imply SUPPORT_EMMC_RPMB if MMC
 
+config RZA1
+	prompt "Renesas ARM SoCs RZ/A1 (32bit)"
+	select CPU_V7A
+
 endchoice
 
 source "arch/arm/mach-rmobile/Kconfig.32"
 source "arch/arm/mach-rmobile/Kconfig.64"
+source "arch/arm/mach-rmobile/Kconfig.rza1"
 
 endif
