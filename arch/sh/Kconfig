@@ -24,10 +24,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_SHMIN
-	bool "SHMIN"
-	select CPU_SH3
-
 config TARGET_ESPT
 	bool "Data Technology ESPT-GIGA board"
 	select CPU_SH4
@@ -104,6 +100,5 @@ source "board/renesas/sh7752evb/Kconfig"
 source "board/renesas/sh7753evb/Kconfig"
 source "board/renesas/sh7757lcr/Kconfig"
 source "board/renesas/sh7763rdp/Kconfig"
-source "board/shmin/Kconfig"
 
 endmenu
