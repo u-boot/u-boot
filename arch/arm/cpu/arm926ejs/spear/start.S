@@ -21,10 +21,9 @@
  *
  * Startup Code (reset vector)
  *
- * Below are the critical initializations already taken place in BootROM.
- * So, these are not taken care in Xloader
- * 1. Relocation to RAM
- * 2. Initializing stacks
+ * The BootROM already initialized its own stack in the [0-0xb00] reserved
+ * range of the SRAM. The SPL (in _main) will update the stack pointer to
+ * its own SRAM area (right before the gd section).
  *
  *************************************************************************
  */
