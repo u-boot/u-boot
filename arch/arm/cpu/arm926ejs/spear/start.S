@@ -35,7 +35,7 @@ reset:
 	* SPL has to return back to BootROM in a few cases (eg. Ethernet boot,
 	* UART boot, USB boot): save registers in BootROM's stack.
 	*/
-	push	{r0-r12,r14}
+	push	{r0-r12,lr}
 	bl	cpu_init_crit
 	pop	{r0-r12,pc}
 
