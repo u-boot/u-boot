@@ -39,11 +39,6 @@ reset:
  */
 	stmdb	sp!, {r0-r12,r14}
 	bl	cpu_init_crit
-/*
- * Clearing bss area is not done in SPL.
- * BSS area lies in the DDR location which is not yet initialized
- * bss is assumed to be uninitialized.
- */
 	ldmia	sp!, {r0-r12,pc}
 
 /*
