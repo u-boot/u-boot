@@ -621,31 +621,18 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 #else
 	int pre_div = 2;
 #endif
+	int ddr_pre_div = mmc->ddr_mode ? 2 : 1;
 	int sdhc_clk = priv->sdhc_clk;
 	uint clk;
-
-	/*
-	 * For ddr mode, usdhc need to enable DDR mode first, after select
-	 * this DDR mode, usdhc will automatically divide the usdhc clock
-	 */
-	if (mmc->ddr_mode) {
-		writel(readl(&regs->mixctrl) | MIX_CTRL_DDREN, &regs->mixctrl);
-		sdhc_clk >>= 1;
-	}
 
 	if (clock < mmc->cfg->f_min)
 		clock = mmc->cfg->f_min;
 
-	if (sdhc_clk / 16 > clock) {
-		for (; pre_div < 256; pre_div *= 2)
-			if ((sdhc_clk / pre_div) <= (clock * 16))
-				break;
-	} else
-		pre_div = 1;
+	while (sdhc_clk / (16 * pre_div * ddr_pre_div) > clock && pre_div < 256)
+		pre_div *= 2;
 
-	for (div = 1; div <= 16; div++)
-		if ((sdhc_clk / (div * pre_div)) <= clock)
-			break;
+	while (sdhc_clk / (div * pre_div * ddr_pre_div) > clock && div < 16)
+		div++;
 
 	pre_div >>= 1;
 	div -= 1;
