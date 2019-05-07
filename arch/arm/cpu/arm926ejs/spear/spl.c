@@ -241,6 +241,18 @@ u32 spl_boot_device(void)
 	return mode;
 }
 
+void board_boot_order(u32 *spl_boot_list)
+{
+	spl_boot_list[0] = spl_boot_device();
+
+	/*
+	 * If the main boot device (eg. NOR) is empty, try to jump back into the
+	 * BootROM for USB boot process.
+	 */
+	if (USB_BOOT_SUPPORTED)
+		spl_boot_list[1] = BOOT_DEVICE_BOOTROM;
+}
+
 void board_init_f(ulong dummy)
 {
 	struct misc_regs *misc_p = (struct misc_regs *)CONFIG_SPEAR_MISCBASE;
