@@ -92,19 +92,10 @@ static void rk3288_calc_drv_reg_and_bit(struct rockchip_pin_bank *bank,
 }
 
 static struct rockchip_pin_bank rk3288_pin_banks[] = {
-	PIN_BANK_IOMUX_DRV_PULL_FLAGS(0, 24, "gpio0",
-				      IOMUX_SOURCE_PMU | IOMUX_WRITABLE_32BIT,
-				      IOMUX_SOURCE_PMU | IOMUX_WRITABLE_32BIT,
-				      IOMUX_SOURCE_PMU | IOMUX_WRITABLE_32BIT,
-				      IOMUX_UNROUTED,
-				      DRV_TYPE_WRITABLE_32BIT,
-				      DRV_TYPE_WRITABLE_32BIT,
-				      DRV_TYPE_WRITABLE_32BIT,
-				      0,
-				      PULL_TYPE_WRITABLE_32BIT,
-				      PULL_TYPE_WRITABLE_32BIT,
-				      PULL_TYPE_WRITABLE_32BIT,
-				      0
+	PIN_BANK_IOMUX_FLAGS(0, 24, "gpio0", IOMUX_SOURCE_PMU,
+					     IOMUX_SOURCE_PMU,
+					     IOMUX_SOURCE_PMU,
+					     IOMUX_UNROUTED
 			    ),
 	PIN_BANK_IOMUX_FLAGS(1, 32, "gpio1", IOMUX_UNROUTED,
 					     IOMUX_UNROUTED,

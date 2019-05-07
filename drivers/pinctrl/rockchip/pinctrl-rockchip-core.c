@@ -228,13 +228,7 @@ static int rockchip_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
 		}
 	}
 
-	if (mux_type & IOMUX_WRITABLE_32BIT) {
-		regmap_read(regmap, reg, &data);
-		data &= ~(mask << bit);
-	} else {
-		data = (mask << (bit + 16));
-	}
-
+	data = (mask << (bit + 16));
 	data |= (mux & mask) << bit;
 	ret = regmap_write(regmap, reg, data);
 
@@ -258,8 +252,7 @@ static int rockchip_set_drive_perpin(struct rockchip_pin_bank *bank,
 	int reg, ret, i;
 	u32 data, rmask_bits, temp;
 	u8 bit;
-	/* Where need to clean the special mask for rockchip_perpin_drv_list */
-	int drv_type = bank->drv[pin_num / 8].drv_type & (~DRV_TYPE_IO_MASK);
+	int drv_type = bank->drv[pin_num / 8].drv_type;
 
 	debug("setting drive of GPIO%d-%d to %d\n", bank->bank_num,
 	      pin_num, strength);
@@ -331,15 +324,10 @@ static int rockchip_set_drive_perpin(struct rockchip_pin_bank *bank,
 		return -EINVAL;
 	}
 
-	if (bank->drv[pin_num / 8].drv_type & DRV_TYPE_WRITABLE_32BIT) {
-		regmap_read(regmap, reg, &data);
-		data &= ~(((1 << rmask_bits) - 1) << bit);
-	} else {
-		/* enable the write to the equivalent lower bits */
-		data = ((1 << rmask_bits) - 1) << (bit + 16);
-	}
-
+	/* enable the write to the equivalent lower bits */
+	data = ((1 << rmask_bits) - 1) << (bit + 16);
 	data |= (ret << bit);
+
 	ret = regmap_write(regmap, reg, data);
 	return ret;
 }
@@ -387,11 +375,7 @@ static int rockchip_set_pull(struct rockchip_pin_bank *bank,
 	case RK3288:
 	case RK3368:
 	case RK3399:
-		/*
-		 * Where need to clean the special mask for
-		 * rockchip_pull_list.
-		 */
-		pull_type = bank->pull_type[pin_num / 8] & (~PULL_TYPE_IO_MASK);
+		pull_type = bank->pull_type[pin_num / 8];
 		ret = -EINVAL;
 		for (i = 0; i < ARRAY_SIZE(rockchip_pull_list[pull_type]);
 			i++) {
@@ -406,15 +390,10 @@ static int rockchip_set_pull(struct rockchip_pin_bank *bank,
 			return ret;
 		}
 
-		if (bank->pull_type[pin_num / 8] & PULL_TYPE_WRITABLE_32BIT) {
-			regmap_read(regmap, reg, &data);
-			data &= ~(((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << bit);
-		} else {
-			/* enable the write to the equivalent lower bits */
-			data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
-		}
-
+		/* enable the write to the equivalent lower bits */
+		data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
 		data |= (ret << bit);
+
 		ret = regmap_write(regmap, reg, data);
 		break;
 	default:
