@@ -80,6 +80,14 @@ void board_debug_uart_init(void)
 	rk_clrsetreg(&grf->gpio2c_iomux,
 		     GRF_GPIO2C1_SEL_MASK,
 		     GRF_UART0BT_SOUT << GRF_GPIO2C1_SEL_SHIFT);
+#elif defined(CONFIG_DEBUG_UART_BASE) && (CONFIG_DEBUG_UART_BASE == 0xff1B0000)
+	/* Enable early UART3 on the RK3399 */
+	rk_clrsetreg(&grf->gpio3b_iomux,
+		     GRF_GPIO3B6_SEL_MASK,
+		     GRF_UART3_SIN << GRF_GPIO3B6_SEL_SHIFT);
+	rk_clrsetreg(&grf->gpio3b_iomux,
+		     GRF_GPIO3B7_SEL_MASK,
+		     GRF_UART3_SOUT << GRF_GPIO3B7_SEL_SHIFT);
 #else
 # ifdef CONFIG_TARGET_CHROMEBOOK_BOB
 	rk_setreg(&grf->io_vsel, 1 << 0);
