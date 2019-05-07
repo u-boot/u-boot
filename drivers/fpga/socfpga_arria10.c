@@ -360,6 +360,7 @@ static int fpgamgr_program_poll_cd(void)
 			printf("nstatus == 0 while waiting for condone\n");
 			return -EPERM;
 		}
+		WATCHDOG_RESET();
 	}
 
 	if (i == FPGA_TIMEOUT_CNT)
@@ -433,7 +434,6 @@ int fpgamgr_program_finish(void)
 		printf("FPGA: Poll CD failed with error code %d\n", status);
 		return -EPERM;
 	}
-	WATCHDOG_RESET();
 
 	/* Ensure the FPGA entering user mode */
 	status = fpgamgr_program_poll_usermode();
