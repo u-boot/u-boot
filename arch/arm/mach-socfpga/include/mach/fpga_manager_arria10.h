@@ -126,6 +126,7 @@ int fpgamgr_program_finish(void);
 int is_fpgamgr_user_mode(void);
 int fpgamgr_wait_early_user_mode(void);
 const char *get_fpga_filename(void);
+int is_fpgamgr_early_user_mode(void);
 int socfpga_loadfs(fpga_fs_info *fpga_fsinfo, const void *buf, size_t bsize,
 		  u32 offset);
 void fpgamgr_program(const void *buf, size_t bsize, u32 offset);

@@ -69,7 +69,7 @@ static int wait_for_user_mode(void)
 		1, FPGA_TIMEOUT_MSEC, false);
 }
 
-static int is_fpgamgr_early_user_mode(void)
+int is_fpgamgr_early_user_mode(void)
 {
 	return (readl(&fpga_manager_base->imgcfg_stat) &
 		ALT_FPGAMGR_IMGCFG_STAT_F2S_EARLY_USERMODE_SET_MSK) != 0;
