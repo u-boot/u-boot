@@ -31,11 +31,10 @@
 	.globl	reset
 
 reset:
-/*
- * SPL has to return back to BootROM in a few cases.
- * eg. Ethernet boot, UART boot, USB boot
- * Saving registers for returning back
- */
+	/*
+	* SPL has to return back to BootROM in a few cases (eg. Ethernet boot,
+	* UART boot, USB boot): save registers in BootROM's stack.
+	*/
 	stmdb	sp!, {r0-r12,r14}
 	bl	cpu_init_crit
 	ldmia	sp!, {r0-r12,pc}
@@ -52,14 +51,14 @@ reset:
  */
 cpu_init_crit:
 	/*
-	 * flush v4 I/D caches
+	 * Flush v4 I/D caches
 	 */
 	mov	r0, #0
-	mcr	p15, 0, r0, c7, c7, 0	/* flush v3/v4 cache */
-	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
+	mcr	p15, 0, r0, c7, c7, 0	/* Flush v3/v4 cache */
+	mcr	p15, 0, r0, c8, c7, 0	/* Flush v4 TLB */
 
 	/*
-	 * enable instruction cache
+	 * Enable instruction cache
 	 */
 	mrc	p15, 0, r0, c1, c0, 0
 	orr	r0, r0, #0x00001000	/* set bit 12 (I) I-Cache */
