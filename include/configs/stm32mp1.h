@@ -38,6 +38,10 @@
  */
 #define CONFIG_SYS_LOAD_ADDR			STM32_DDR_BASE
 
+#if defined(CONFIG_ENV_IS_IN_UBI)
+#define CONFIG_ENV_UBI_VOLUME_REDUND		"uboot_config_r"
+#endif
+
 /* ATAGs */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
