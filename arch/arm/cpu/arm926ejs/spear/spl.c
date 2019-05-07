@@ -251,6 +251,4 @@ void board_init_f(ulong dummy)
 	puts("Configure DDR\n");
 	mpmc_init();
 	spear_late_init();
-
-	board_init_r(NULL, 0);
 }
