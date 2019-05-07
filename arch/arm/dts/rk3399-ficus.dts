@@ -8,7 +8,6 @@
 
 /dts-v1/;
 #include "rk3399-rock960.dtsi"
-#include "rk3399-sdram-ddr3-1600.dtsi"
 
 / {
 	model = "96boards RK3399 Ficus";

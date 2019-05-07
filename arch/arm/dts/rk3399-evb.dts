@@ -7,7 +7,6 @@
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/pinctrl/rockchip.h>
 #include "rk3399.dtsi"
-#include "rk3399-sdram-lpddr3-4GB-1600.dtsi"
 
 / {
 	model = "Rockchip RK3399 Evaluation Board";

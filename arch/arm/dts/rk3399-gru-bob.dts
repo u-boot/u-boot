@@ -7,7 +7,6 @@
 
 /dts-v1/;
 #include "rk3399-gru-chromebook.dtsi"
-#include "rk3399-sdram-lpddr3-samsung-4GB-1866.dtsi"
 
 / {
 	model = "Google Bob";

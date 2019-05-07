@@ -5,7 +5,6 @@
 
 /dts-v1/;
 #include "rk3399-rock960.dtsi"
-#include "rk3399-sdram-lpddr3-2GB-1600.dtsi"
 
 / {
 	model = "96boards Rock960";
