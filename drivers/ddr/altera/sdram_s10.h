@@ -7,10 +7,6 @@
 #ifndef	_SDRAM_S10_H_
 #define	_SDRAM_S10_H_
 
-phys_size_t sdram_calculate_size(void);
-int sdram_mmr_init_full(unsigned int sdr_phy_reg);
-int sdram_calibration_full(void);
-
 #define DDR_TWR				15
 #define DDR_READ_LATENCY_DELAY		40
 #define DDR_ACTIVATE_FAWBANK		0x1

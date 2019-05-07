@@ -130,11 +130,6 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 #define CONFIG_SYS_MEMTEST_END		PHYS_SDRAM_1_SIZE - 0x200000
 
 /*
- * SDRAM controller
- */
-#define CONFIG_ALTERA_SDRAM
-
-/*
  * Serial / UART configurations
  */
 #define CONFIG_SYS_NS16550_CLK		100000000
