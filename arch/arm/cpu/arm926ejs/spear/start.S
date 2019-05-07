@@ -57,8 +57,9 @@ reset:
 
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.
+	 * This call is not supposed to return.
 	 */
-	bl	_main	/* _main will call board_init_f */
+	b	_main	/* _main will call board_init_f */
 
 back_to_bootrom:
 	pop	{r0-r12,pc}
