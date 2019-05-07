@@ -36,20 +36,7 @@ reset:
 	* UART boot, USB boot): save registers in BootROM's stack.
 	*/
 	push	{r0-r12,lr}
-	bl	cpu_init_crit
-	pop	{r0-r12,pc}
 
-/*
- *************************************************************************
- *
- * CPU_init_critical registers
- *
- * setup important registers
- * setup memory timing
- *
- *************************************************************************
- */
-cpu_init_crit:
 	/*
 	 * Flush v4 I/D caches
 	 */
@@ -67,6 +54,6 @@ cpu_init_crit:
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.
 	 */
-	push	{lr}
 	bl	_main	/* _main will call board_init_f */
-	pop	{pc}
+
+	pop	{r0-r12,pc}
