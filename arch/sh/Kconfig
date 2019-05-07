@@ -1,13 +1,6 @@
 menu "SuperH architecture"
 	depends on SH
 
-config CPU_SH2
-	bool
-
-config CPU_SH2A
-	bool
-	select CPU_SH2
-
 config CPU_SH3
 	bool
 
@@ -101,7 +94,6 @@ config SYS_ARCH
 	default "sh"
 
 config SYS_CPU
-	default "sh2" if CPU_SH2
 	default "sh3" if CPU_SH3
 	default "sh4" if CPU_SH4
 

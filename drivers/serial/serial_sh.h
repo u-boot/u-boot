@@ -106,14 +106,7 @@ struct uart_port {
 /* TIE=0,RIE=0,TE=1,RE=1,REIE=1,CKE1=1 */
 # define SCSCR_INIT(port)	0x3a
 
-#elif defined(CONFIG_CPU_SH7203) || \
-	defined(CONFIG_CPU_SH7264)
-# define SCSPTR0 0xfffe8020 /* 16 bit SCIF */
-# define SCSPTR1 0xfffe8820 /* 16 bit SCIF */
-# define SCSPTR2 0xfffe9020 /* 16 bit SCIF */
-# define SCSPTR3 0xfffe9820 /* 16 bit SCIF */
-# define SCSCR_INIT(port)	0x38 /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
-#elif defined(CONFIG_CPU_SH7269) || defined(CONFIG_RZA1)
+#elif defined(CONFIG_RZA1)
 # define SCSPTR0 0xe8007020 /* 16 bit SCIF */
 # define SCSPTR1 0xe8007820 /* 16 bit SCIF */
 # define SCSPTR2 0xe8008020 /* 16 bit SCIF */

@@ -12,12 +12,6 @@
 
 	.global	_start
 _start:
-#ifdef CONFIG_CPU_SH2
-	.long 0x00000010        /* Ppower ON reset PC*/
-	.long 0x00000000
-	.long 0x00000010        /* Manual reset PC */
-	.long 0x00000000
-#endif
 	mov.l	._lowlevel_init, r0
 100:	bsrf	r0
 	nop
