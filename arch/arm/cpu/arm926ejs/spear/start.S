@@ -35,9 +35,9 @@ reset:
 	* SPL has to return back to BootROM in a few cases (eg. Ethernet boot,
 	* UART boot, USB boot): save registers in BootROM's stack.
 	*/
-	stmdb	sp!, {r0-r12,r14}
+	push	{r0-r12,r14}
 	bl	cpu_init_crit
-	ldmia	sp!, {r0-r12,pc}
+	pop	{r0-r12,pc}
 
 /*
  *************************************************************************
@@ -67,6 +67,6 @@ cpu_init_crit:
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.
 	 */
-	stmdb	sp!, {lr}
+	push	{lr}
 	bl	_main	/* _main will call board_init_f */
-	ldmia	sp!, {pc}
+	pop	{pc}
