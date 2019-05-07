@@ -31,10 +31,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_RSK7269
-	bool "RSK2+SH7269"
-	select CPU_SH2A
-
 config TARGET_MPR2
 	bool "Magic Panel Release 2 board"
 	select CPU_SH3
@@ -122,7 +118,6 @@ source "board/renesas/ap325rxa/Kconfig"
 source "board/renesas/r0p7734/Kconfig"
 source "board/renesas/r2dplus/Kconfig"
 source "board/renesas/r7780mp/Kconfig"
-source "board/renesas/rsk7269/Kconfig"
 source "board/renesas/sh7752evb/Kconfig"
 source "board/renesas/sh7753evb/Kconfig"
 source "board/renesas/sh7757lcr/Kconfig"
