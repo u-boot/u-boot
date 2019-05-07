@@ -29,13 +29,17 @@
  */
 
 	.globl	reset
+	.globl	back_to_bootrom
 
 reset:
 	/*
 	* SPL has to return back to BootROM in a few cases (eg. Ethernet boot,
-	* UART boot, USB boot): save registers in BootROM's stack.
+	* UART boot, USB boot): save registers in BootROM's stack and then the
+	* BootROM's stack pointer in the SPL's data section.
 	*/
 	push	{r0-r12,lr}
+	ldr	r0, =bootrom_stash_sp
+	str	sp, [r0]
 
 	/*
 	 * Flush v4 I/D caches
@@ -56,4 +60,5 @@ reset:
 	 */
 	bl	_main	/* _main will call board_init_f */
 
+back_to_bootrom:
 	pop	{r0-r12,pc}
