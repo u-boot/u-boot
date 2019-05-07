@@ -1,7 +1,0 @@
-RSK7203 BOARD
-M:	Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
-M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-S:	Maintained
-F:	board/renesas/rsk7203/
-F:	include/configs/rsk7203.h
-F:	configs/rsk7203_defconfig

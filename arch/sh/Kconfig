@@ -31,10 +31,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_RSK7203
-	bool "RSK+ 7203"
-	select CPU_SH2A
-
 config TARGET_RSK7264
 	bool "RSK2+SH7264"
 	select CPU_SH2A
@@ -130,7 +126,6 @@ source "board/renesas/ap325rxa/Kconfig"
 source "board/renesas/r0p7734/Kconfig"
 source "board/renesas/r2dplus/Kconfig"
 source "board/renesas/r7780mp/Kconfig"
-source "board/renesas/rsk7203/Kconfig"
 source "board/renesas/rsk7264/Kconfig"
 source "board/renesas/rsk7269/Kconfig"
 source "board/renesas/sh7752evb/Kconfig"
