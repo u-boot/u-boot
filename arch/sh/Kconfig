@@ -1,9 +1,6 @@
 menu "SuperH architecture"
 	depends on SH
 
-config CPU_SH3
-	bool
-
 config CPU_SH4
 	bool
 
@@ -82,7 +79,6 @@ config SYS_ARCH
 	default "sh"
 
 config SYS_CPU
-	default "sh3" if CPU_SH3
 	default "sh4" if CPU_SH4
 
 source "arch/sh/lib/Kconfig"
