@@ -647,8 +647,6 @@
 
 
 &spi1 {
-	u-boot,dm-pre-reloc;
-
 	status = "okay";
 
 	#address-cells = <1>;
