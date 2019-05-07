@@ -912,7 +912,9 @@ static ulong rk3399_clk_get_rate(struct clk *clk)
 		rate = rk3399_spi_get_clk(priv->cru, clk->id);
 		break;
 	case SCLK_UART0:
+	case SCLK_UART1:
 	case SCLK_UART2:
+	case SCLK_UART3:
 		return 24000000;
 		break;
 	case PCLK_HDMI_CTRL:
