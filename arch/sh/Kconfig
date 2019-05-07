@@ -24,10 +24,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_MS7720SE
-	bool "Support ms7720se"
-	select CPU_SH3
-
 config TARGET_SHMIN
 	bool "SHMIN"
 	select CPU_SH3
@@ -97,7 +93,6 @@ source "arch/sh/lib/Kconfig"
 
 source "board/alphaproject/ap_sh4a_4a/Kconfig"
 source "board/espt/Kconfig"
-source "board/ms7720se/Kconfig"
 source "board/ms7722se/Kconfig"
 source "board/ms7750se/Kconfig"
 source "board/renesas/MigoR/Kconfig"
