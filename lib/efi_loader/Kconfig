@@ -29,6 +29,15 @@ config EFI_LOADER_HII
 	  U-Boot implements enough of its features to be able to run the UEFI
 	  Shell, but not more than that.
 
+config EFI_UNICODE_COLLATION_PROTOCOL
+	bool "Unicode collation protocol"
+	default y
+	help
+	  The Unicode collation protocol is used for lexical comparisons. It is
+	  required to run the UEFI shell.
+
+if EFI_UNICODE_COLLATION_PROTOCOL
+
 config EFI_UNICODE_CAPITALIZATION
 	bool "Support Unicode capitalization"
 	default y
@@ -37,6 +46,8 @@ config EFI_UNICODE_CAPITALIZATION
 	  Unicode codepoints in the range 0x0000-0xffff. If this option is not
 	  set, only the the correct handling of the letters of the codepage
 	  used by the FAT file system is ensured.
+
+endif
 
 config EFI_LOADER_BOUNCE_BUFFER
 	bool "EFI Applications use bounce buffers for DMA operations"
