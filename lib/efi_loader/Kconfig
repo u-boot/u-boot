@@ -16,38 +16,10 @@ config EFI_LOADER
 	  interfaces to a loaded EFI application, enabling it to reuse U-Boot's
 	  device drivers.
 
-config EFI_UNICODE_CAPITALIZATION
-	bool "Support Unicode capitalization"
-	depends on EFI_LOADER
-	default y
-	help
-	  Select this option to enable correct handling of the capitalization of
-	  Unicode codepoints in the range 0x0000-0xffff. If this option is not
-	  set, only the the correct handling of the letters of the codepage
-	  used by the FAT file system is ensured.
-
-config EFI_PLATFORM_LANG_CODES
-	string "Language codes supported by firmware"
-	depends on EFI_LOADER
-	default "en-US"
-	help
-	  This value is used to initialize the PlatformLangCodes variable. Its
-	  value is a semicolon (;) separated list of language codes in native
-	  RFC 4646 format, e.g. "en-US;de-DE". The first language code is used
-	  to initialize the PlatformLang variable.
-
-config EFI_LOADER_BOUNCE_BUFFER
-	bool "EFI Applications use bounce buffers for DMA operations"
-	depends on EFI_LOADER && ARM64
-	default n
-	help
-	  Some hardware does not support DMA to full 64bit addresses. For this
-	  hardware we can create a bounce buffer so that payloads don't have to
-	  worry about platform details.
+if EFI_LOADER
 
 config EFI_LOADER_HII
-	bool "Expose HII protocols to EFI applications"
-	depends on EFI_LOADER
+	bool "HII protocols"
 	default y
 	help
 	  The Human Interface Infrastructure is a complicated framework that
@@ -56,3 +28,32 @@ config EFI_LOADER_HII
 
 	  U-Boot implements enough of its features to be able to run the UEFI
 	  Shell, but not more than that.
+
+config EFI_UNICODE_CAPITALIZATION
+	bool "Support Unicode capitalization"
+	default y
+	help
+	  Select this option to enable correct handling of the capitalization of
+	  Unicode codepoints in the range 0x0000-0xffff. If this option is not
+	  set, only the the correct handling of the letters of the codepage
+	  used by the FAT file system is ensured.
+
+config EFI_LOADER_BOUNCE_BUFFER
+	bool "EFI Applications use bounce buffers for DMA operations"
+	depends on ARM64
+	default n
+	help
+	  Some hardware does not support DMA to full 64bit addresses. For this
+	  hardware we can create a bounce buffer so that payloads don't have to
+	  worry about platform details.
+
+config EFI_PLATFORM_LANG_CODES
+	string "Language codes supported by firmware"
+	default "en-US"
+	help
+	  This value is used to initialize the PlatformLangCodes variable. Its
+	  value is a semicolon (;) separated list of language codes in native
+	  RFC 4646 format, e.g. "en-US;de-DE". The first language code is used
+	  to initialize the PlatformLang variable.
+
+endif
