@@ -34,6 +34,10 @@
 #define BOOT_SCR_STRING "source ${bootscriptaddr}\0"
 #endif
 
+#ifndef CONFIG_OPTEE_LOAD_ADDR
+#define CONFIG_OPTEE_LOAD_ADDR 0
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_DFU_ENV_SETTINGS \
 	"script=boot.scr\0" \
