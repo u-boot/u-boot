@@ -17,6 +17,7 @@
 		spi0 = &spi;
 		usb0 = &usb_0;
 		usb1 = &usb_1;
+		cros-ec0 = &cros_ec;
 	};
 
 	config {
@@ -73,6 +74,7 @@
 
 		/* Put this first: it is the default */
 		gpio_unused: gpio-unused {
+			u-boot,dm-pre-reloc;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			owner = <OWNER_GPIO>;
@@ -80,6 +82,7 @@
 		};
 
 		gpio_acpi_sci: acpi-sci {
+			u-boot,dm-pre-reloc;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			invert;
@@ -87,6 +90,7 @@
 		};
 
 		gpio_acpi_smi: acpi-smi {
+			u-boot,dm-pre-reloc;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			invert;
@@ -94,12 +98,14 @@
 		};
 
 		gpio_input: gpio-input {
+			u-boot,dm-pre-reloc;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			owner = <OWNER_GPIO>;
 		};
 
 		gpio_input_invert: gpio-input-invert {
+			u-boot,dm-pre-reloc;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			owner = <OWNER_GPIO>;
@@ -107,9 +113,11 @@
 		};
 
 		gpio_native: gpio-native {
+			u-boot,dm-pre-reloc;
 		};
 
 		gpio_out_high: gpio-out-high {
+			u-boot,dm-pre-reloc;
 			mode-gpio;
 			direction = <PIN_OUTPUT>;
 			output-value = <1>;
@@ -118,6 +126,7 @@
 		};
 
 		gpio_out_low: gpio-out-low {
+			u-boot,dm-pre-reloc;
 			mode-gpio;
 			direction = <PIN_OUTPUT>;
 			output-value = <0>;
@@ -126,6 +135,7 @@
 		};
 
 		gpio_pirq: gpio-pirq {
+			u-boot,dm-pre-reloc;
 			mode-gpio;
 			direction = <PIN_INPUT>;
 			owner = <OWNER_GPIO>;
@@ -133,6 +143,7 @@
 		};
 
 		soc_gpio@0 {
+			u-boot,dm-pre-reloc;
 			config =
 				<0 &gpio_unused 0>,	/* unused */
 				<1 &gpio_unused 0>,	/* unused */
@@ -250,8 +261,10 @@
 			spd {
 				#address-cells = <1>;
 				#size-cells = <0>;
+				u-boot,dm-pre-reloc;
 				samsung_4 {
 					reg = <6>;
+					u-boot,dm-pre-reloc;
 					data = [91 20 f1 03 04 11 05 0b
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -291,6 +304,7 @@
 					 * columns 10, density 4096 mb, x32
 					 */
 					reg = <8>;
+					u-boot,dm-pre-reloc;
 					data = [91 20 f1 03 04 11 05 0b
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -326,6 +340,7 @@
 					};
 				samsung_8 {
 					reg = <10>;
+					u-boot,dm-pre-reloc;
 					data = [91 20 f1 03 04 12 05 0a
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -365,6 +380,7 @@
 					 * columns 11, density 4096 mb, x16
 					 */
 					reg = <12>;
+					u-boot,dm-pre-reloc;
 					data = [91 20 f1 03 04 12 05 0a
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -404,6 +420,7 @@
 					 * columns 11, density 8192 mb, x16
 					 */
 					reg = <13>;
+					u-boot,dm-pre-reloc;
 					data = [91 20 f1 03 05 1a 05 0a
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -443,6 +460,7 @@
 					 * columns 11, density 8192 mb, x16
 					 */
 					reg = <15>;
+					u-boot,dm-pre-reloc;
 					data = [91 20 f1 03 05 1a 05 0a
 						03 11 01 08 0a 00 50 01
 						78 78 90 50 90 11 50 e0
@@ -540,7 +558,7 @@
 			compatible = "ehci-pci";
 		};
 
-		pch@1f,0 {
+		pch: pch@1f,0 {
 			reg = <0x0000f800 0 0 0 0>;
 			compatible = "intel,broadwell-pch";
 			u-boot,dm-pre-reloc;
@@ -559,10 +577,12 @@
 			power-enable-gpio = <&gpio_a 23 0>;
 
 			spi: spi {
+				u-boot,dm-pre-reloc;
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich9-spi";
 				spi-flash@0 {
+					u-boot,dm-pre-reloc;
 					#size-cells = <1>;
 					#address-cells = <1>;
 					reg = <0>;
@@ -570,6 +590,7 @@
 							"jedec,spi-nor";
 					memory-map = <0xff800000 0x00800000>;
 					rw-mrc-cache {
+						u-boot,dm-pre-reloc;
 						label = "rw-mrc-cache";
 						reg = <0x003e0000 0x00010000>;
 					};
@@ -609,7 +630,8 @@
 				#size-cells = <0>;
 				u-boot,dm-pre-reloc;
 				intel,gen-dec = <0x800 0xfc 0x900 0xfc>;
-				cros-ec@200 {
+				cros_ec: cros-ec {
+					u-boot,dm-pre-reloc;
 					compatible = "google,cros-ec-lpc";
 					reg = <0x204 1 0x200 1 0x880 0x80>;
 
@@ -630,7 +652,7 @@
 		sata@1f,2 {
 			compatible = "intel,wildcatpoint-ahci";
 			reg = <0x0000fa00 0 0 0 0>;
-			u-boot,dm-pre-reloc;
+			u-boot,dm-pre-proper;
 			intel,sata-mode = "ahci";
 			intel,sata-port-map = <1>;
 			intel,sata-port0-gen3-tx = <0x72>;
@@ -645,12 +667,15 @@
 	};
 
 	tpm {
+		u-boot,dm-pre-reloc;
 		reg = <0xfed40000 0x5000>;
 		compatible = "infineon,slb9635lpc";
 	};
 
 	microcode {
+		u-boot,dm-pre-reloc;
 		update@0 {
+			u-boot,dm-pre-reloc;
 #include "microcode/mc0306d4_00000018.dtsi"
 		};
 	};
