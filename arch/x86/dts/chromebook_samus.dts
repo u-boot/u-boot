@@ -9,6 +9,12 @@
 /include/ "rtc.dtsi"
 /include/ "tsc_timer.dtsi"
 
+#ifdef CONFIG_CHROMEOS
+#include "chromeos-x86.dtsi"
+#include "flashmap-x86-ro.dtsi"
+#include "flashmap-8mb-rw.dtsi"
+#endif
+
 / {
 	model = "Google Samus";
 	compatible = "google,samus", "intel,broadwell";
@@ -581,7 +587,7 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				compatible = "intel,ich9-spi";
-				spi-flash@0 {
+				fwstore_spi: spi-flash@0 {
 					u-boot,dm-pre-reloc;
 					#size-cells = <1>;
 					#address-cells = <1>;
@@ -670,6 +676,10 @@
 		u-boot,dm-pre-reloc;
 		reg = <0xfed40000 0x5000>;
 		compatible = "infineon,slb9635lpc";
+		secdata {
+			u-boot,dm-pre-reloc;
+			compatible = "google,tpm-secdata";
+		};
 	};
 
 	microcode {
@@ -692,4 +702,14 @@
 		};
 	};
 
+};
+
+&rtc {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	nvdata {
+		u-boot,dm-pre-reloc;
+		compatible = "google,cmos-nvdata";
+		reg = <0x26>;
+	};
 };
