@@ -23,4 +23,6 @@
 #define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_ENV_OFFSET		0x003f8000
 
+#define CONFIG_TPL_TEXT_BASE		0xfffd8000
+
 #endif	/* __CONFIG_H */
