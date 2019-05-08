@@ -53,7 +53,7 @@ static u32 get_ipg_clk(void)
 
 u32 imx_get_uartclk(void)
 {
-	return get_root_clk(UART1_CLK_ROOT);
+	return get_root_clk(UART_CLK_ROOT);
 }
 
 u32 imx_get_fecclk(void)
