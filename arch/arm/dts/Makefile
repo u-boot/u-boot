@@ -480,6 +480,7 @@ dtb-$(CONFIG_MACH_SUN50I_H5) += \
 	sun50i-h5-orangepi-prime.dtb \
 	sun50i-h5-orangepi-zero-plus2.dtb
 dtb-$(CONFIG_MACH_SUN50I_H6) += \
+	sun50i-h6-beelink-gs1.dtb \
 	sun50i-h6-orangepi-lite2.dtb \
 	sun50i-h6-orangepi-one-plus.dtb \
 	sun50i-h6-pine-h64.dtb
@@ -494,7 +495,8 @@ dtb-$(CONFIG_MACH_SUN50I) += \
 	sun50i-a64-pine64-plus.dtb \
 	sun50i-a64-pine64.dtb \
 	sun50i-a64-pinebook.dtb \
-	sun50i-a64-sopine-baseboard.dtb
+	sun50i-a64-sopine-baseboard.dtb \
+	sun50i-a64-teres-i.dtb
 dtb-$(CONFIG_MACH_SUN9I) += \
 	sun9i-a80-optimus.dtb \
 	sun9i-a80-cubieboard4.dtb \

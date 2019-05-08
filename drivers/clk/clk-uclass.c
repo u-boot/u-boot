@@ -54,13 +54,51 @@ static int clk_of_xlate_default(struct clk *clk,
 	return 0;
 }
 
+static int clk_get_by_index_tail(int ret, ofnode node,
+				 struct ofnode_phandle_args *args,
+				 const char *list_name, int index,
+				 struct clk *clk)
+{
+	struct udevice *dev_clk;
+	const struct clk_ops *ops;
+
+	assert(clk);
+	clk->dev = NULL;
+	if (ret)
+		goto err;
+
+	ret = uclass_get_device_by_ofnode(UCLASS_CLK, args->node, &dev_clk);
+	if (ret) {
+		debug("%s: uclass_get_device_by_of_offset failed: err=%d\n",
+		      __func__, ret);
+		return ret;
+	}
+
+	clk->dev = dev_clk;
+
+	ops = clk_dev_ops(dev_clk);
+
+	if (ops->of_xlate)
+		ret = ops->of_xlate(clk, args);
+	else
+		ret = clk_of_xlate_default(clk, args);
+	if (ret) {
+		debug("of_xlate() failed: %d\n", ret);
+		return ret;
+	}
+
+	return clk_request(dev_clk, clk);
+err:
+	debug("%s: Node '%s', property '%s', failed to request CLK index %d: %d\n",
+	      __func__, ofnode_get_name(node), list_name, index, ret);
+	return ret;
+}
+
 static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
 				   int index, struct clk *clk)
 {
 	int ret;
 	struct ofnode_phandle_args args;
-	struct udevice *dev_clk;
-	const struct clk_ops *ops;
 
 	debug("%s(dev=%p, index=%d, clk=%p)\n", __func__, dev, index, clk);
 
@@ -75,32 +113,33 @@ static int clk_get_by_indexed_prop(struct udevice *dev, const char *prop_name,
 		return ret;
 	}
 
-	ret = uclass_get_device_by_ofnode(UCLASS_CLK, args.node, &dev_clk);
-	if (ret) {
-		debug("%s: uclass_get_device_by_of_offset failed: err=%d\n",
-		      __func__, ret);
-		return ret;
-	}
 
-	clk->dev = dev_clk;
-
-	ops = clk_dev_ops(dev_clk);
-
-	if (ops->of_xlate)
-		ret = ops->of_xlate(clk, &args);
-	else
-		ret = clk_of_xlate_default(clk, &args);
-	if (ret) {
-		debug("of_xlate() failed: %d\n", ret);
-		return ret;
-	}
-
-	return clk_request(dev_clk, clk);
+	return clk_get_by_index_tail(ret, dev_ofnode(dev), &args, "clocks",
+				     index > 0, clk);
 }
 
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk)
 {
-	return clk_get_by_indexed_prop(dev, "clocks", index, clk);
+	struct ofnode_phandle_args args;
+	int ret;
+
+	ret = dev_read_phandle_with_args(dev, "clocks", "#clock-cells", 0,
+					 index, &args);
+
+	return clk_get_by_index_tail(ret, dev_ofnode(dev), &args, "clocks",
+				     index > 0, clk);
+}
+
+int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk)
+{
+	struct ofnode_phandle_args args;
+	int ret;
+
+	ret = ofnode_parse_phandle_with_args(node, "clocks", "#clock-cells", 0,
+					     index > 0, &args);
+
+	return clk_get_by_index_tail(ret, node, &args, "clocks",
+				     index > 0, clk);
 }
 
 int clk_get_bulk(struct udevice *dev, struct clk_bulk *bulk)

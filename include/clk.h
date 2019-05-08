@@ -8,6 +8,7 @@
 #ifndef _CLK_H_
 #define _CLK_H_
 
+#include <dm/ofnode.h>
 #include <linux/errno.h>
 #include <linux/types.h>
 
@@ -99,6 +100,20 @@ int clk_get_by_index_platdata(struct udevice *dev, int index,
  * @return 0 if OK, or a negative error code.
  */
 int clk_get_by_index(struct udevice *dev, int index, struct clk *clk);
+
+/**
+ * clock_get_by_index_nodev - Get/request a clock by integer index
+ * without a device.
+ *
+ * This is a version of clk_get_by_index() that does not use a device.
+ *
+ * @node:	The client ofnode.
+ * @index:	The index of the clock to request, within the client's list of
+ *		clocks.
+ * @clock	A pointer to a clock struct to initialize.
+ * @return 0 if OK, or a negative error code.
+ */
+int clk_get_by_index_nodev(ofnode node, int index, struct clk *clk);
 
 /**
  * clock_get_bulk - Get/request all clocks of a device.
