@@ -28,10 +28,10 @@
  * - SiFive FU540-C000 manual v1p0, Chapter 7 "Clocking and Reset"
  */
 
+#include <common.h>
 #include <asm/io.h>
 #include <clk-uclass.h>
 #include <clk.h>
-#include <common.h>
 #include <div64.h>
 #include <dm.h>
 #include <errno.h>
