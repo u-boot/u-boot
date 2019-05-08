@@ -273,6 +273,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 		IMAGE_OPTIONAL_HEADER64 *opt = &nt64->OptionalHeader;
 		image_base = opt->ImageBase;
 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
+		handle->image_type = opt->Subsystem;
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {
@@ -288,6 +289,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
 		image_base = opt->ImageBase;
 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
+		handle->image_type = opt->Subsystem;
 		efi_reloc = efi_alloc(virt_size,
 				      loaded_image_info->image_code_type);
 		if (!efi_reloc) {

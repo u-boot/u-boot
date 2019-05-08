@@ -180,6 +180,19 @@ struct efi_handler {
 };
 
 /**
+ * enum efi_object_type - type of EFI object
+ *
+ * In UnloadImage we must be able to identify if the handle relates to a
+ * started image.
+ */
+enum efi_object_type {
+	EFI_OBJECT_TYPE_UNDEFINED = 0,
+	EFI_OBJECT_TYPE_U_BOOT_FIRMWARE,
+	EFI_OBJECT_TYPE_LOADED_IMAGE,
+	EFI_OBJECT_TYPE_STARTED_IMAGE,
+};
+
+/**
  * struct efi_object - dereferenced EFI handle
  *
  * @link:	pointers to put the handle into a linked list
@@ -201,6 +214,7 @@ struct efi_object {
 	struct list_head link;
 	/* The list of protocols */
 	struct list_head protocols;
+	enum efi_object_type type;
 };
 
 /**
@@ -221,6 +235,7 @@ struct efi_loaded_image_obj {
 	struct jmp_buf_data exit_jmp;
 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 				     struct efi_system_table *st);
+	u16 image_type;
 };
 
 /**
@@ -256,6 +271,25 @@ struct efi_event {
 extern struct list_head efi_obj_list;
 /* List of all events */
 extern struct list_head efi_events;
+
+/**
+ * efi_register_notify_event - event registered by RegisterProtocolNotify()
+ *
+ * The address of this structure serves as registration value.
+ *
+ * @link:		link to list of all registered events
+ * @event:		registered event. The same event may registered for
+ *			multiple GUIDs.
+ * @protocol:		protocol for which the event is registered
+ */
+struct efi_register_notify_event {
+	struct list_head link;
+	struct efi_event *event;
+	efi_guid_t protocol;
+};
+
+/* List of all events registered by RegisterProtocolNotify() */
+extern struct list_head efi_register_notify_events;
 
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);

@@ -128,7 +128,8 @@ struct efi_boot_services {
 				    efi_status_t exit_status,
 				    efi_uintn_t exitdata_size, u16 *exitdata);
 	efi_status_t (EFIAPI *unload_image)(efi_handle_t image_handle);
-	efi_status_t (EFIAPI *exit_boot_services)(efi_handle_t, unsigned long);
+	efi_status_t (EFIAPI *exit_boot_services)(efi_handle_t image_handle,
+						  efi_uintn_t map_key);
 
 	efi_status_t (EFIAPI *get_next_monotonic_count)(u64 *count);
 	efi_status_t (EFIAPI *stall)(unsigned long usecs);
@@ -348,7 +349,7 @@ struct efi_loaded_image {
 	aligned_u64 image_size;
 	unsigned int image_code_type;
 	unsigned int image_data_type;
-	unsigned long unload;
+	efi_status_t (EFIAPI *unload)(efi_handle_t image_handle);
 };
 
 #define EFI_DEVICE_PATH_PROTOCOL_GUID \

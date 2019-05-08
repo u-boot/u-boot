@@ -33,8 +33,8 @@ static int setup(const efi_handle_t handle,
 	boottime = systable->boottime;
 
 	for (i = 0; i < systable->nr_tables; ++i) {
-		if (!efi_st_memcmp(&systable->tables[i].guid, &fdt_guid,
-				   sizeof(efi_guid_t))) {
+		if (!memcmp(&systable->tables[i].guid, &fdt_guid,
+			    sizeof(efi_guid_t))) {
 			if (fdt_addr) {
 				efi_st_error("Duplicate device tree\n");
 				return EFI_ST_FAILURE;

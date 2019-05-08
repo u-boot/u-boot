@@ -153,8 +153,8 @@ static int execute(void)
 	}
 	table = NULL;
 	for (i = 0; i < sys_table->nr_tables; ++i) {
-		if (!efi_st_memcmp(&sys_table->tables[i].guid, &table_guid,
-				   sizeof(efi_guid_t)))
+		if (!memcmp(&sys_table->tables[i].guid, &table_guid,
+			    sizeof(efi_guid_t)))
 			table = sys_table->tables[i].table;
 	}
 	if (!table) {
@@ -192,8 +192,8 @@ static int execute(void)
 	table = NULL;
 	tabcnt = 0;
 	for (i = 0; i < sys_table->nr_tables; ++i) {
-		if (!efi_st_memcmp(&sys_table->tables[i].guid, &table_guid,
-				   sizeof(efi_guid_t))) {
+		if (!memcmp(&sys_table->tables[i].guid, &table_guid,
+			    sizeof(efi_guid_t))) {
 			table = sys_table->tables[i].table;
 			++tabcnt;
 		}
@@ -235,8 +235,8 @@ static int execute(void)
 	}
 	table = NULL;
 	for (i = 0; i < sys_table->nr_tables; ++i) {
-		if (!efi_st_memcmp(&sys_table->tables[i].guid, &table_guid,
-				   sizeof(efi_guid_t))) {
+		if (!memcmp(&sys_table->tables[i].guid, &table_guid,
+			    sizeof(efi_guid_t))) {
 			table = sys_table->tables[i].table;
 		}
 	}

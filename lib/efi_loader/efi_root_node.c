@@ -28,6 +28,7 @@ struct efi_root_dp {
  */
 efi_status_t efi_root_node_register(void)
 {
+	efi_status_t ret;
 	struct efi_root_dp *dp;
 
 	/* Create device path protocol */
@@ -47,28 +48,31 @@ efi_status_t efi_root_node_register(void)
 	dp->end.length = sizeof(struct efi_device_path);
 
 	/* Create root node and install protocols */
-	return EFI_CALL(efi_install_multiple_protocol_interfaces(&efi_root,
-		       /* Device path protocol */
-		       &efi_guid_device_path, dp,
-		       /* Device path to text protocol */
-		       &efi_guid_device_path_to_text_protocol,
-		       (void *)&efi_device_path_to_text,
-		       /* Device path utilities protocol */
-		       &efi_guid_device_path_utilities_protocol,
-		       (void *)&efi_device_path_utilities,
-		       /* Unicode collation protocol */
-		       &efi_guid_unicode_collation_protocol,
-		       (void *)&efi_unicode_collation_protocol,
+	ret = EFI_CALL(efi_install_multiple_protocol_interfaces
+			(&efi_root,
+			 /* Device path protocol */
+			 &efi_guid_device_path, dp,
+			 /* Device path to text protocol */
+			 &efi_guid_device_path_to_text_protocol,
+			 (void *)&efi_device_path_to_text,
+			 /* Device path utilities protocol */
+			 &efi_guid_device_path_utilities_protocol,
+			 (void *)&efi_device_path_utilities,
+			 /* Unicode collation protocol */
+			 &efi_guid_unicode_collation_protocol,
+			 (void *)&efi_unicode_collation_protocol,
 #if CONFIG_IS_ENABLED(EFI_LOADER_HII)
-		       /* HII string protocol */
-		       &efi_guid_hii_string_protocol,
-		       (void *)&efi_hii_string,
-		       /* HII database protocol */
-		       &efi_guid_hii_database_protocol,
-		       (void *)&efi_hii_database,
-		       /* HII configuration routing protocol */
-		       &efi_guid_hii_config_routing_protocol,
-		       (void *)&efi_hii_config_routing,
+			 /* HII string protocol */
+			 &efi_guid_hii_string_protocol,
+			 (void *)&efi_hii_string,
+			 /* HII database protocol */
+			 &efi_guid_hii_database_protocol,
+			 (void *)&efi_hii_database,
+			 /* HII configuration routing protocol */
+			 &efi_guid_hii_config_routing_protocol,
+			 (void *)&efi_hii_config_routing,
 #endif
-		       NULL));
+			 NULL));
+	efi_root->type = EFI_OBJECT_TYPE_U_BOOT_FIRMWARE;
+	return ret;
 }

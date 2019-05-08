@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <bootm.h>
 #include <charset.h>
 #include <command.h>
 #include <dm.h>
@@ -17,24 +16,13 @@
 #include <linux/libfdt_env.h>
 #include <mapmem.h>
 #include <memalign.h>
-#include <asm/global_data.h>
 #include <asm-generic/sections.h>
-#include <asm-generic/unaligned.h>
 #include <linux/linkage.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct efi_device_path *bootefi_image_path;
 static struct efi_device_path *bootefi_device_path;
-
-/*
- * Allow unaligned memory access.
- *
- * This routine is overridden by architectures providing this feature.
- */
-void __weak allow_unaligned(void)
-{
-}
 
 /*
  * Set the load options of an image from an environment variable.
@@ -338,11 +326,6 @@ static int do_efibootmgr(const char *fdt_opt)
 	efi_handle_t handle;
 	efi_status_t ret;
 
-	/* Allow unaligned memory access */
-	allow_unaligned();
-
-	switch_to_non_secure_mode();
-
 	/* Initialize EFI drivers */
 	ret = efi_init_obj_list();
 	if (ret != EFI_SUCCESS) {
@@ -390,11 +373,6 @@ static int do_bootefi_image(const char *image_opt, const char *fdt_opt)
 	const char *size_str;
 	efi_handle_t mem_handle = NULL, handle;
 	efi_status_t ret;
-
-	/* Allow unaligned memory access */
-	allow_unaligned();
-
-	switch_to_non_secure_mode();
 
 	/* Initialize EFI drivers */
 	ret = efi_init_obj_list();
@@ -581,11 +559,6 @@ static int do_efi_selftest(const char *fdt_opt)
 	struct efi_loaded_image_obj *image_obj;
 	struct efi_loaded_image *loaded_image_info;
 	efi_status_t ret;
-
-	/* Allow unaligned memory access */
-	allow_unaligned();
-
-	switch_to_non_secure_mode();
 
 	/* Initialize EFI drivers */
 	ret = efi_init_obj_list();

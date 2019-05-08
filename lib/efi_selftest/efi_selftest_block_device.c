@@ -337,7 +337,7 @@ static int execute(void)
 		}
 		if (len >= dp_size(dp_partition))
 			continue;
-		if (efi_st_memcmp(dp, dp_partition, len))
+		if (memcmp(dp, dp_partition, len))
 			continue;
 		handle_partition = handles[i];
 		break;
@@ -409,7 +409,7 @@ static int execute(void)
 			     (unsigned int)buf_size);
 		return EFI_ST_FAILURE;
 	}
-	if (efi_st_memcmp(buf, "ello world!", 11)) {
+	if (memcmp(buf, "ello world!", 11)) {
 		efi_st_error("Unexpected file content\n");
 		return EFI_ST_FAILURE;
 	}
@@ -480,7 +480,7 @@ static int execute(void)
 			     (unsigned int)buf_size);
 		return EFI_ST_FAILURE;
 	}
-	if (efi_st_memcmp(buf, "U-Boot", 7)) {
+	if (memcmp(buf, "U-Boot", 7)) {
 		efi_st_error("Unexpected file content %s\n", buf);
 		return EFI_ST_FAILURE;
 	}

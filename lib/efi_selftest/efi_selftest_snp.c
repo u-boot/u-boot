@@ -334,9 +334,8 @@ static int execute(void)
 		 * Unfortunately QEMU ignores the broadcast flag.
 		 * So we have to check for broadcasts too.
 		 */
-		if (efi_st_memcmp(&destaddr, &net->mode->current_address,
-				  ARP_HLEN) &&
-		    efi_st_memcmp(&destaddr, BROADCAST_MAC, ARP_HLEN))
+		if (memcmp(&destaddr, &net->mode->current_address, ARP_HLEN) &&
+		    memcmp(&destaddr, BROADCAST_MAC, ARP_HLEN))
 			continue;
 		/*
 		 * Check this is a DHCP reply
@@ -360,7 +359,7 @@ static int execute(void)
 	addr = (u8 *)&buffer.p.ip_udp.ip_src;
 	efi_st_printf("DHCP reply received from %u.%u.%u.%u (%pm) ",
 		      addr[0], addr[1], addr[2], addr[3], &srcaddr);
-	if (!efi_st_memcmp(&destaddr, BROADCAST_MAC, ARP_HLEN))
+	if (!memcmp(&destaddr, BROADCAST_MAC, ARP_HLEN))
 		efi_st_printf("as broadcast message.\n");
 	else
 		efi_st_printf("as unicast message.\n");
