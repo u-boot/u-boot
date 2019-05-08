@@ -52,11 +52,29 @@
 		"/boot/imx7d-pico-pi.dtb ext4 0 1;" \
 		"rootfs part 0 1\0" \
 
-#define BOOTMENU_ENV \
+/* When booting with FIT specify the node entry containing boot.scr */
+#if defined(CONFIG_FIT)
+#define PICO_BOOT_ENV \
+	"bootscr_fitimage_name=bootscr\0" \
+	"bootscriptaddr=0x83200000\0" \
+	"fdtovaddr=0x83100000\0" \
+	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
+	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
+	"mmcargs=setenv bootargs console=${console},${baudrate} " \
+		"rootwait rw;\0" \
+	"loadbootscript=" \
+		"load mmc ${mmcdev}:${mmcpart} ${bootscriptaddr} ${script};\0" \
+	"bootscript=echo Running bootscript from mmc ...; " \
+	"source ${bootscriptaddr}:${bootscr_fitimage_name}\0"
+#else
+#define PICO_BOOT_ENV \
 	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
 		"setenv fdtfile imx7d-pico-hobbit.dtb\0" \
 	"bootmenu_1=Boot using PICO-Pi baseboard=" \
 		"setenv fdtfile imx7d-pico-pi.dtb\0" \
+	BOOTENV
+#endif
+
 
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 
@@ -69,7 +87,6 @@
 	"initrd_high=0xffffffff\0" \
 	"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"videomode=video=ctfb:x:800,y:480,depth:24,mode:0,pclk:30000,le:46,ri:210,up:22,lo:23,hs:20,vs:10,sync:0,vmode:0\0" \
-	BOOTMENU_ENV \
 	"fdt_addr=0x83000000\0" \
 	"fdt_addr_r=0x83000000\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
@@ -89,7 +106,22 @@
 		"name=rootfs,size=0,uuid=${uuid_gpt_rootfs}\0" \
 	"fastboot_partition_alias_system=rootfs\0" \
 	"setup_emmc=mmc dev 0; gpt write mmc 0 $partitions; reset;\0" \
-	BOOTENV
+	PICO_BOOT_ENV
+
+#if defined(CONFIG_FIT)
+#define CONFIG_BOOTCOMMAND \
+	"mmc dev ${mmcdev};" \
+	"mmc dev ${mmcdev}; if mmc rescan; then " \
+		"if run loadbootscript; then " \
+			"iminfo ${bootscriptaddr};" \
+			"if test $? -eq 1; then hab_failsafe; fi;" \
+			"run bootscript; " \
+		"else " \
+			"echo Fail to load fitImage with boot script;" \
+			"hab_failsafe;" \
+		"fi; " \
+	"fi"
+#endif
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
