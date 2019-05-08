@@ -190,6 +190,19 @@ board_init_f_r_trampoline:
 	/* Re-enter U-Boot by calling board_init_f_r() */
 	call	board_init_f_r
 
+#ifdef CONFIG_TPL
+.globl jump_to_spl
+.type jump_to_spl, @function
+jump_to_spl:
+	/* Reset stack to the top of CAR space */
+	movl	$(CONFIG_SYS_CAR_ADDR + CONFIG_SYS_CAR_SIZE - 4), %esp
+#ifdef CONFIG_DCACHE_RAM_MRC_VAR_SIZE
+	subl	$CONFIG_DCACHE_RAM_MRC_VAR_SIZE, %esp
+#endif
+
+	jmp	*%eax
+#endif
+
 die:
 	hlt
 	jmp	die

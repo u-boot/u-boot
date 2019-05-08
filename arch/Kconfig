@@ -126,6 +126,8 @@ config SH
 
 config X86
 	bool "x86 architecture"
+	select SUPPORT_SPL
+	select SUPPORT_TPL
 	select CREATE_ARCH_SYMLINK
 	select DM
 	select DM_PCI
@@ -163,6 +165,36 @@ config X86
 	imply USB_ETHER_SMSC95XX
 	imply USB_HOST_ETHER
 	imply PCH
+	imply RTC_MC146818
+
+	# Thing to enable for when SPL/TPL are enabled: SPL
+	imply SPL_DM
+	imply SPL_OF_LIBFDT
+	imply SPL_DRIVERS_MISC_SUPPORT
+	imply SPL_GPIO_SUPPORT
+	imply SPL_LIBCOMMON_SUPPORT
+	imply SPL_LIBGENERIC_SUPPORT
+	imply SPL_SERIAL_SUPPORT
+	imply SPL_SPI_FLASH_SUPPORT
+	imply SPL_SPI_SUPPORT
+	imply SPL_OF_CONTROL
+	imply SPL_TIMER
+	imply SPL_REGMAP
+	imply SPL_SYSCON
+	# TPL
+	imply TPL_DM
+	imply TPL_OF_LIBFDT
+	imply TPL_DRIVERS_MISC_SUPPORT
+	imply TPL_GPIO_SUPPORT
+	imply TPL_LIBCOMMON_SUPPORT
+	imply TPL_LIBGENERIC_SUPPORT
+	imply TPL_SERIAL_SUPPORT
+	imply TPL_SPI_FLASH_SUPPORT
+	imply TPL_SPI_SUPPORT
+	imply TPL_OF_CONTROL
+	imply TPL_TIMER
+	imply TPL_REGMAP
+	imply TPL_SYSCON
 
 config XTENSA
 	bool "Xtensa architecture"

@@ -52,6 +52,14 @@ config TARGET_CHROMEBOOK_SAMUS
 	  Chrome OS EC connected on LPC, and it provides a 2560x1700 high
 	  resolution touch-enabled LCD display.
 
+config TARGET_CHROMEBOOK_SAMUS_TPL
+	bool "Chromebook samus booting from TPL"
+	help
+	  This is a version of Samus which boots into TPL, then to SPL and
+	  U-Boot proper. This is useful where verified boot must select
+	  between different A/B versions of SPL/U-Boot, to allow upgrading of
+	  almost all U-Boot code in the field.
+
 endchoice
 
 source "board/google/chromebook_link/Kconfig"

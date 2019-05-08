@@ -187,7 +187,8 @@ class TestFunctional(unittest.TestCase):
         return control.Binman(options, args)
 
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
-                    entry_args=None, images=None, use_real_dtb=False):
+                    entry_args=None, images=None, use_real_dtb=False,
+                    verbosity=None):
         """Run binman with a given test file
 
         Args:
@@ -210,6 +211,8 @@ class TestFunctional(unittest.TestCase):
             args.append('-up')
         if not use_real_dtb:
             args.append('--fake-dtb')
+        if verbosity is not None:
+            args.append('-v%d' % verbosity)
         if entry_args:
             for arg, value in entry_args.iteritems():
                 args.append('-a%s=%s' % (arg, value))
@@ -1459,13 +1462,22 @@ class TestFunctional(unittest.TestCase):
 
     def testSelectImage(self):
         """Test that we can select which images to build"""
-        with test_util.capture_sys_output() as (stdout, stderr):
-            retcode = self._DoTestFile('006_dual_image.dts', images=['image2'])
-        self.assertEqual(0, retcode)
-        self.assertIn('Skipping images: image1', stdout.getvalue())
+        expected = 'Skipping images: image1'
 
-        self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
-        self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
+        # We should only get the expected message in verbose mode
+        for verbosity in (None, 2):
+            with test_util.capture_sys_output() as (stdout, stderr):
+                retcode = self._DoTestFile('006_dual_image.dts',
+                                           verbosity=verbosity,
+                                           images=['image2'])
+            self.assertEqual(0, retcode)
+            if verbosity:
+                self.assertIn(expected, stdout.getvalue())
+            else:
+                self.assertNotIn(expected, stdout.getvalue())
+
+            self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
+            self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
 
     def testUpdateFdtAll(self):
         """Test that all device trees are updated with offset/size info"""
@@ -1770,6 +1782,24 @@ class TestFunctional(unittest.TestCase):
         """Test that an image with an Intel Reference code binary works"""
         data = self._DoReadFile('100_intel_refcode.dts')
         self.assertEqual(REFCODE_DATA, data[:len(REFCODE_DATA)])
+
+    def testSectionOffset(self):
+        """Tests use of a section with an offset"""
+        data, _, map_data, _ = self._DoReadFileDtb('101_sections_offset.dts',
+                                                   map=True)
+        self.assertEqual('''ImagePos    Offset      Size  Name
+00000000  00000000  00000038  main-section
+00000004   00000004  00000010  section@0
+00000004    00000000  00000004  u-boot
+00000018   00000018  00000010  section@1
+00000018    00000000  00000004  u-boot
+0000002c   0000002c  00000004  section@2
+0000002c    00000000  00000004  u-boot
+''', map_data)
+        self.assertEqual(data,
+                         4 * chr(0x26) + U_BOOT_DATA + 12 * chr(0x21) +
+                         4 * chr(0x26) + U_BOOT_DATA + 12 * chr(0x61) +
+                         4 * chr(0x26) + U_BOOT_DATA + 8 * chr(0x26))
 
 
 if __name__ == "__main__":

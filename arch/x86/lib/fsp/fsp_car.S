@@ -100,7 +100,7 @@ temp_ram_init_romstack:
 	.long	temp_ram_init_params
 temp_ram_init_params:
 _dt_ucode_base_size:
-	/* These next two fields are filled in by ifdtool */
+	/* These next two fields are filled in by binman */
 .globl ucode_base
 ucode_base:	/* Declared in microcode.h */
 	.long	0			/* microcode base */

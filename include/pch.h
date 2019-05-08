@@ -16,11 +16,29 @@ enum pch_req_t {
 	/* Returns HDA config info if Azalia V1CTL enabled, -ENOENT if not */
 	PCH_REQ_HDA_CONFIG,
 
+	/* Fills out a struct pch_pmbase_info if available */
+	PCH_REQ_PMBASE_INFO,
+
 	PCH_REQ_TEST1,		/* Test requests for sandbox driver */
 	PCH_REQ_TEST2,
 	PCH_REQ_TEST3,
 
 	PCH_REQ_COUNT,		/* Number of ioctrls supported */
+};
+
+/**
+ * struct pch_pmbase_info - Information filled in by PCH_REQ_PMBASE_INFO
+ *
+ * @pmbase: IO address of power-management controller
+ * @gpio0_en_ofs: Offset of GPIO0 enable register
+ * @pm1_sts_ofs: Offset of status register
+ * @pm1_cnt_ofs: Offset of control register
+ */
+struct pch_pmbase_info {
+	u16 base;
+	u8 gpio0_en_ofs;
+	u8 pm1_sts_ofs;
+	u8 pm1_cnt_ofs;
 };
 
 /**

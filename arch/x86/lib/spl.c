@@ -5,8 +5,10 @@
 
 #include <common.h>
 #include <debug_uart.h>
+#include <malloc.h>
 #include <spl.h>
 #include <asm/cpu.h>
+#include <asm/mrccache.h>
 #include <asm/mtrr.h>
 #include <asm/processor.h>
 #include <asm-generic/sections.h>
@@ -20,6 +22,7 @@ __weak int arch_cpu_init_dm(void)
 
 static int x86_spl_init(void)
 {
+#ifndef CONFIG_TPL
 	/*
 	 * TODO(sjg@chromium.org): We use this area of RAM for the stack
 	 * and global_data in SPL. Once U-Boot starts up and releocates it
@@ -27,6 +30,7 @@ static int x86_spl_init(void)
 	 * place it immediately below CONFIG_SYS_TEXT_BASE.
 	 */
 	char *ptr = (char *)0x110000;
+#endif
 	int ret;
 
 	debug("%s starting\n", __func__);
@@ -35,27 +39,44 @@ static int x86_spl_init(void)
 		debug("%s: spl_init() failed\n", __func__);
 		return ret;
 	}
+#ifdef CONFIG_TPL
+	/* Do a mini-init if TPL has already done the full init */
+	ret = x86_cpu_reinit_f();
+#else
 	ret = arch_cpu_init();
+#endif
 	if (ret) {
 		debug("%s: arch_cpu_init() failed\n", __func__);
 		return ret;
 	}
+#ifndef CONFIG_TPL
 	ret = arch_cpu_init_dm();
 	if (ret) {
 		debug("%s: arch_cpu_init_dm() failed\n", __func__);
 		return ret;
 	}
+#endif
 	preloader_console_init();
+#ifndef CONFIG_TPL
 	ret = print_cpuinfo();
 	if (ret) {
 		debug("%s: print_cpuinfo() failed\n", __func__);
 		return ret;
 	}
+#endif
 	ret = dram_init();
 	if (ret) {
 		debug("%s: dram_init() failed\n", __func__);
 		return ret;
 	}
+	if (IS_ENABLED(CONFIG_ENABLE_MRC_CACHE)) {
+		ret = mrccache_spl_save();
+		if (ret)
+			debug("%s: Failed to write to mrccache (err=%d)\n",
+			      __func__, ret);
+	}
+
+#ifndef CONFIG_TPL
 	memset(&__bss_start, 0, (ulong)&__bss_end - (ulong)&__bss_start);
 
 	/* TODO(sjg@chromium.org): Consider calling cpu_init_r() here */
@@ -80,9 +101,11 @@ static int x86_spl_init(void)
 			       (1ULL << 32) - CONFIG_XIP_ROM_SIZE,
 			       CONFIG_XIP_ROM_SIZE);
 	if (ret) {
-		debug("%s: SPI cache setup failed\n", __func__);
+		debug("%s: SPI cache setup failed (err=%d)\n", __func__, ret);
 		return ret;
 	}
+	mtrr_commit(true);
+#endif
 
 	return 0;
 }
@@ -96,9 +119,17 @@ void board_init_f(ulong flags)
 		debug("Error %d\n", ret);
 		hang();
 	}
-
+#ifdef CONFIG_TPL
+	gd->bd = malloc(sizeof(*gd->bd));
+	if (!gd->bd) {
+		printf("Out of memory for bd_info size %x\n", sizeof(*gd->bd));
+		hang();
+	}
+	board_init_r(gd, 0);
+#else
 	/* Uninit CAR and jump to board_init_f_r() */
 	board_init_f_r_trampoline(gd->start_addr_sp);
+#endif
 }
 
 void board_init_f_r(void)
@@ -144,6 +175,7 @@ int spl_spi_load_image(void)
 	return -EPERM;
 }
 
+#ifdef CONFIG_X86_RUN_64BIT
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
 	int ret;
@@ -153,4 +185,12 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	debug("ret=%d\n", ret);
 	while (1)
 		;
+}
+#endif
+
+void spl_board_init(void)
+{
+#ifndef CONFIG_TPL
+	preloader_console_init();
+#endif
 }

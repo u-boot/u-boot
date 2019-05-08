@@ -342,6 +342,13 @@ size:
 	Sets the image size in bytes, for example 'size = <0x100000>' for a
 	1MB image.
 
+offset:
+	This is similar to 'offset' in entries, setting the offset of a section
+	within the image or section containing it. The first byte of the section
+	is normally at offset 0. If 'offset' is not provided, binman sets it to
+	the end of the previous region, or the start of the image's entry area
+	(normally 0) if there is no previous region.
+
 align-size:
 	This sets the alignment of the image size. For example, to ensure
 	that the image ends on a 512-byte boundary, use 'align-size = <512>'.

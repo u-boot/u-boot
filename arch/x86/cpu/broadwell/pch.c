@@ -599,10 +599,16 @@ static int broadwell_pch_init(struct udevice *dev)
 
 static int broadwell_pch_probe(struct udevice *dev)
 {
-	if (!(gd->flags & GD_FLG_RELOC))
-		return broadwell_pch_early_init(dev);
-	else
+	if (CONFIG_IS_ENABLED(X86_32BIT_INIT)) {
+		if (!(gd->flags & GD_FLG_RELOC))
+			return broadwell_pch_early_init(dev);
+		else
+			return broadwell_pch_init(dev);
+	} else if (IS_ENABLED(CONFIG_SPL) && !IS_ENABLED(CONFIG_SPL_BUILD)) {
 		return broadwell_pch_init(dev);
+	} else {
+		return 0;
+	}
 }
 
 static int broadwell_pch_get_spi_base(struct udevice *dev, ulong *sbasep)
@@ -630,10 +636,35 @@ static int broadwell_get_gpio_base(struct udevice *dev, u32 *gbasep)
 	return 0;
 }
 
+static int broadwell_ioctl(struct udevice *dev, enum pch_req_t req, void *data,
+			   int size)
+{
+	switch (req) {
+	case PCH_REQ_PMBASE_INFO: {
+		struct pch_pmbase_info *pm = data;
+		int ret;
+
+		/* Find the base address of the powermanagement registers */
+		ret = dm_pci_read_config16(dev, 0x40, &pm->base);
+		if (ret)
+			return ret;
+		pm->base &= 0xfffe;
+		pm->gpio0_en_ofs = GPE0_EN(0);
+		pm->pm1_sts_ofs = PM1_STS;
+		pm->pm1_cnt_ofs = PM1_CNT;
+
+		return 0;
+	}
+	default:
+		return -ENOSYS;
+	}
+}
+
 static const struct pch_ops broadwell_pch_ops = {
 	.get_spi_base	= broadwell_pch_get_spi_base,
 	.set_spi_protect = broadwell_set_spi_protect,
 	.get_gpio_base	= broadwell_get_gpio_base,
+	.ioctl		= broadwell_ioctl,
 };
 
 static const struct udevice_id broadwell_pch_ids[] = {

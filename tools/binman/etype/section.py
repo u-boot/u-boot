@@ -67,7 +67,8 @@ class Entry_section(Entry):
     def Pack(self, offset):
         """Pack all entries into the section"""
         self._section.PackEntries()
-        self._section.SetOffset(offset)
+        if self._section._offset is None:
+            self._section.SetOffset(offset)
         self.size = self._section.GetSize()
         return super(Entry_section, self).Pack(offset)
 

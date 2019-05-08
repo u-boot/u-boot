@@ -57,7 +57,7 @@ class Section(object):
         self._name = name
         self._node = node
         self._image = image
-        self._offset = 0
+        self._offset = None
         self._size = None
         self._align_size = None
         self._pad_before = 0
@@ -75,6 +75,7 @@ class Section(object):
 
     def _ReadNode(self):
         """Read properties from the section node"""
+        self._offset = fdt_util.GetInt(self._node, 'offset')
         self._size = fdt_util.GetInt(self._node, 'size')
         self._align_size = fdt_util.GetInt(self._node, 'align-size')
         if tools.NotPowerOfTwo(self._align_size):
@@ -130,7 +131,7 @@ class Section(object):
             entry.AddMissingProperties()
 
     def SetCalculatedProperties(self):
-        state.SetInt(self._node, 'offset', self._offset)
+        state.SetInt(self._node, 'offset', self._offset or 0)
         state.SetInt(self._node, 'size', self._size)
         image_pos = self._image_pos
         if self._parent_section:
@@ -424,8 +425,8 @@ class Section(object):
         Args:
             fd: File to write the map to
         """
-        Entry.WriteMapLine(fd, indent, self._name, self._offset, self._size,
-                           self._image_pos)
+        Entry.WriteMapLine(fd, indent, self._name, self._offset or 0,
+                           self._size, self._image_pos)
         for entry in self._entries.values():
             entry.WriteMap(fd, indent + 1)
 

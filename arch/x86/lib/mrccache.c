@@ -113,8 +113,10 @@ int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 	ulong base_addr;
 	int ret;
 
-	if (!is_mrc_cache(cur))
+	if (!is_mrc_cache(cur)) {
+		debug("%s: Cache data not valid\n", __func__);
 		return -EINVAL;
+	}
 
 	/* Find the last used block */
 	base_addr = entry->base + entry->offset;
@@ -159,17 +161,10 @@ int mrccache_update(struct udevice *sf, struct mrc_region *entry,
 	return 0;
 }
 
-int mrccache_reserve(void)
+static void mrccache_setup(void *data)
 {
-	struct mrc_data_container *cache;
+	struct mrc_data_container *cache = data;
 	u16 checksum;
-
-	if (!gd->arch.mrc_output_len)
-		return 0;
-
-	/* adjust stack pointer to store pure cache data plus the header */
-	gd->start_addr_sp -= (gd->arch.mrc_output_len + MRC_DATA_HEADER_SIZE);
-	cache = (struct mrc_data_container *)gd->start_addr_sp;
 
 	cache->signature = MRC_DATA_SIGNATURE;
 	cache->data_size = gd->arch.mrc_output_len;
@@ -182,6 +177,16 @@ int mrccache_reserve(void)
 
 	/* gd->arch.mrc_output now points to the container */
 	gd->arch.mrc_output = (char *)cache;
+}
+
+int mrccache_reserve(void)
+{
+	if (!gd->arch.mrc_output_len)
+		return 0;
+
+	/* adjust stack pointer to store pure cache data plus the header */
+	gd->start_addr_sp -= (gd->arch.mrc_output_len + MRC_DATA_HEADER_SIZE);
+	mrccache_setup((void *)gd->start_addr_sp);
 
 	gd->start_addr_sp &= ~0xf;
 
@@ -202,17 +207,23 @@ int mrccache_get_region(struct udevice **devp, struct mrc_region *entry)
 		return -ENOENT;
 	}
 
-	if (fdtdec_get_int_array(blob, node, "memory-map", reg, 2))
+	if (fdtdec_get_int_array(blob, node, "memory-map", reg, 2)) {
+		debug("%s: Cannot find memory map\n", __func__);
 		return -EINVAL;
+	}
 	entry->base = reg[0];
 
 	/* Find the place where we put the MRC cache */
 	mrc_node = fdt_subnode_offset(blob, node, "rw-mrc-cache");
-	if (mrc_node < 0)
+	if (mrc_node < 0) {
+		debug("%s: Cannot find node\n", __func__);
 		return -EPERM;
+	}
 
-	if (fdtdec_get_int_array(blob, mrc_node, "reg", reg, 2))
+	if (fdtdec_get_int_array(blob, mrc_node, "reg", reg, 2)) {
+		debug("%s: Cannot find address\n", __func__);
 		return -EINVAL;
+	}
 	entry->offset = reg[0];
 	entry->length = reg[1];
 
@@ -255,4 +266,19 @@ err_entry:
 	if (ret)
 		debug("%s: Failed: %d\n", __func__, ret);
 	return ret;
+}
+
+int mrccache_spl_save(void)
+{
+	void *data;
+	int size;
+
+	size = gd->arch.mrc_output_len + MRC_DATA_HEADER_SIZE;
+	data = malloc(size);
+	if (!data)
+		return log_msg_ret("Allocate MRC cache block", -ENOMEM);
+	mrccache_setup(data);
+	gd->arch.mrc_output = data;
+
+	return mrccache_save();
 }
