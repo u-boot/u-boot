@@ -41,8 +41,9 @@
 	"addinitrd=setenv bootargs ${bootargs} rdinit=${rdinit} ${debug} \0" \
 	"upd_image=st.4k\0" \
 	"uboot_file=u-boot.imx\0" \
-	"updargs=setenv bootargs console=${console} ${smp}"\
-	       "rdinit=${rdinit} ${debug} ${displayargs}\0" \
+	"updargs=setenv bootargs console=${console} ${smp} ${displayargs}\0" \
+	"initrd_ram_dev=/dev/ram\0" \
+	"addswupdate=setenv bootargs ${bootargs} root=${initrd_ram_dev} rw\0" \
 	"loadusb=usb start; " \
 	       "fatload usb 0 ${loadaddr} ${upd_image}\0" \
 	"up=if tftp ${loadaddr} ${uboot_file}; then " \
@@ -59,6 +60,8 @@
 	"usbupd=echo Booting update from usb ...; " \
 	       "setenv bootargs; " \
 	       "run updargs; " \
+	       "run addinitrd; " \
+	       "run addswupdate; " \
 	       "run loadusb; " \
 	       "bootm ${loadaddr}#${fit_config}\0" \
 	BOOTENV
