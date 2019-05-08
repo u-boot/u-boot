@@ -161,7 +161,10 @@ config SYS_I2C_MXC
 	  channels and operating on standard mode up to 100 kbits/s and fast
 	  mode up to 400 kbits/s.
 
-if SYS_I2C_MXC
+# These settings are not used with DM_I2C, however SPL doesn't use
+# DM_I2C even if DM_I2C is enabled, and so might use these settings even
+# when main u-boot does not!
+if SYS_I2C_MXC && (!DM_I2C || SPL)
 config SYS_I2C_MXC_I2C1
 	bool "NXP MXC I2C1"
 	help
