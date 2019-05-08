@@ -44,6 +44,7 @@
 	"updargs=setenv bootargs console=${console} ${smp} ${displayargs}\0" \
 	"initrd_ram_dev=/dev/ram\0" \
 	"addswupdate=setenv bootargs ${bootargs} root=${initrd_ram_dev} rw\0" \
+	"addkeys=setenv bootargs ${bootargs} di=${dig_in} key1=${key1}\0" \
 	"loadusb=usb start; " \
 	       "fatload usb 0 ${loadaddr} ${upd_image}\0" \
 	"up=if tftp ${loadaddr} ${uboot_file}; then " \
@@ -62,6 +63,7 @@
 	       "run updargs; " \
 	       "run addinitrd; " \
 	       "run addswupdate; " \
+	       "run addkeys; " \
 	       "run loadusb; " \
 	       "bootm ${loadaddr}#${fit_config}\0" \
 	BOOTENV
