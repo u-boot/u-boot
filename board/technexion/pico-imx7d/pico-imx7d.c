@@ -63,6 +63,11 @@ int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
 
+	/* Subtract the defined OPTEE runtime firmware length */
+#ifdef CONFIG_OPTEE_TZDRAM_SIZE
+		gd->ram_size -= CONFIG_OPTEE_TZDRAM_SIZE;
+#endif
+
 	return 0;
 }
 
