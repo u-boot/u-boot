@@ -46,6 +46,15 @@ DECLARE_GLOBAL_DATA_PTR;
 #define ETH_PHY_AR8035_POWER	IMX_GPIO_NR(7, 13)
 #define REV_DETECTION		IMX_GPIO_NR(2, 28)
 
+/* Speed defined in Kconfig is only applicable when not using DM_I2C.  */
+#ifdef CONFIG_DM_I2C
+#define I2C1_SPEED_NON_DM	0
+#define I2C2_SPEED_NON_DM	0
+#else
+#define I2C1_SPEED_NON_DM	CONFIG_SYS_MXC_I2C1_SPEED
+#define I2C2_SPEED_NON_DM	CONFIG_SYS_MXC_I2C2_SPEED
+#endif
+
 static bool with_pmic;
 
 int dram_init(void)
@@ -463,13 +472,13 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 #if defined(CONFIG_VIDEO_IPUV3)
-	setup_i2c(1, CONFIG_SYS_MXC_I2C1_SPEED, 0x7f, &mx6dl_i2c2_pad_info);
+	setup_i2c(1, I2C1_SPEED_NON_DM, 0x7f, &mx6dl_i2c2_pad_info);
 	if (is_mx6dq() || is_mx6dqp()) {
-		setup_i2c(1, CONFIG_SYS_MXC_I2C1_SPEED, 0x7f, &mx6q_i2c2_pad_info);
-		setup_i2c(2, CONFIG_SYS_MXC_I2C2_SPEED, 0x7f, &mx6q_i2c3_pad_info);
+		setup_i2c(1, I2C1_SPEED_NON_DM, 0x7f, &mx6q_i2c2_pad_info);
+		setup_i2c(2, I2C2_SPEED_NON_DM, 0x7f, &mx6q_i2c3_pad_info);
 	} else {
-		setup_i2c(1, CONFIG_SYS_MXC_I2C1_SPEED, 0x7f, &mx6dl_i2c2_pad_info);
-		setup_i2c(2, CONFIG_SYS_MXC_I2C2_SPEED, 0x7f, &mx6dl_i2c3_pad_info);
+		setup_i2c(1, I2C1_SPEED_NON_DM, 0x7f, &mx6dl_i2c2_pad_info);
+		setup_i2c(2, I2C2_SPEED_NON_DM, 0x7f, &mx6dl_i2c3_pad_info);
 	}
 
 	setup_display();
