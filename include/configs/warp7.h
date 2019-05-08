@@ -39,6 +39,7 @@
 	"script=boot.scr\0" \
 	"bootscr_fitimage_name=bootscr\0" \
 	"script_signed=boot.scr.imx-signed\0" \
+	"bootscriptaddr=0x83200000\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
 	"ethact=usb_ether\0" \
@@ -59,16 +60,16 @@
 	"warp7_auth_or_fail=hab_auth_img_or_fail ${hab_ivt_addr} ${filesize} 0;\0" \
 	"do_bootscript_hab=" \
 		"if test ${hab_enabled} -eq 1; then " \
-			"setexpr hab_ivt_addr ${loadaddr} - ${ivt_offset}; " \
+			"setexpr hab_ivt_addr ${bootscriptaddr} - ${ivt_offset}; " \
 			"setenv script ${script_signed}; " \
 			"load mmc ${mmcdev}:${mmcpart} ${hab_ivt_addr} ${script}; " \
 			"run warp7_auth_or_fail; " \
 			"run bootscript; "\
 		"fi;\0" \
 	"loadbootscript=" \
-		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
+		"load mmc ${mmcdev}:${mmcpart} ${bootscriptaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
-		"source\0" \
+		BOOT_SCR_STRING \
 	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
