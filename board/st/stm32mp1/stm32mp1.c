@@ -524,6 +524,10 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	case BOOT_FLASH_NAND:
 		return ENVL_UBI;
 #endif
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+	case BOOT_FLASH_NOR:
+		return ENVL_SPI_FLASH;
+#endif
 	default:
 		return ENVL_NOWHERE;
 	}
