@@ -147,6 +147,14 @@ config MESON_GXL_USB_PHY
 	  This is the generic phy driver for the Amlogic Meson GXL
 	  USB2 and USB3 PHYS.
 
+config MESON_G12A_USB_PHY
+	bool "Amlogic Meson G12A USB PHYs"
+	depends on PHY && ARCH_MESON && MESON_G12A
+	imply REGMAP
+	help
+	  This is the generic phy driver for the Amlogic Meson G12A
+	  USB2 and USB3 PHYS.
+
 config MSM8916_USB_PHY
 	bool "Qualcomm MSM8916 USB PHY support"
 	depends on PHY
