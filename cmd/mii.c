@@ -91,6 +91,28 @@ static const MII_field_desc_t reg_5_desc_tbl[] = {
 	{  4,  0, 0x1f, "partner selector"             },
 };
 
+static const MII_field_desc_t reg_9_desc_tbl[] = {
+	{ 15, 13, 0x07, "test mode"		       },
+	{ 12, 12, 0x01, "manual master/slave enable"   },
+	{ 11, 11, 0x01, "manual master/slave value"    },
+	{ 10, 10, 0x01, "multi/single port"            },
+	{  9,  9, 0x01, "1000BASE-T full duplex able"  },
+	{  8,  8, 0x01, "1000BASE-T half duplex able"  },
+	{  7,  7, 0x01, "automatic TDR on link down"   },
+	{  6,  6, 0x7f, "(reserved)"                   },
+};
+
+static const MII_field_desc_t reg_10_desc_tbl[] = {
+	{ 15, 15, 0x01, "master/slave config fault"    },
+	{ 14, 14, 0x01, "master/slave config result"   },
+	{ 13, 13, 0x01, "local receiver status OK"     },
+	{ 12, 12, 0x01, "remote receiver status OK"    },
+	{ 11, 11, 0x01, "1000BASE-T full duplex able"  },
+	{ 10, 10, 0x01, "1000BASE-T half duplex able"  },
+	{  9,  8, 0x03, "(reserved)"                   },
+	{  7,  0, 0xff, "1000BASE-T idle error counter"},
+};
+
 typedef struct _MII_reg_desc_t {
 	ushort regno;
 	const MII_field_desc_t *pdesc;
@@ -111,6 +133,10 @@ static const MII_reg_desc_t mii_reg_desc_tbl[] = {
 		"Autonegotiation advertisement register" },
 	{ MII_LPA,       reg_5_desc_tbl, ARRAY_SIZE(reg_5_desc_tbl),
 		"Autonegotiation partner abilities register" },
+	{ MII_CTRL1000,	 reg_9_desc_tbl, ARRAY_SIZE(reg_9_desc_tbl),
+		"1000BASE-T control register" },
+	{ MII_STAT1000,	 reg_10_desc_tbl, ARRAY_SIZE(reg_10_desc_tbl),
+		"1000BASE-T status register" },
 };
 
 static void dump_reg(
@@ -390,12 +416,10 @@ static int do_mii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 		}
 	} else if (strncmp(op, "du", 2) == 0) {
-		ushort regs[6];
+		ushort regs[MII_STAT1000 + 1];  /* Last reg is 0x0a */
 		int ok = 1;
-		if ((reglo > 5) || (reghi > 5)) {
-			printf(
-				"The MII dump command only formats the "
-				"standard MII registers, 0-5.\n");
+		if (reglo > MII_STAT1000 || reghi > MII_STAT1000) {
+			printf("The MII dump command only formats the standard MII registers, 0-5, 9-a.\n");
 			return 1;
 		}
 		for (addr = addrlo; addr <= addrhi; addr++) {
