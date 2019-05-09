@@ -164,6 +164,10 @@ config TARGET_DB_XC3_24G4XG
 	bool "Support DB-XC3-24G4XG"
 	select 98DX3336
 
+config TARGET_CRS305_1G_4S
+	bool "Support CRS305-1G-4S"
+	select 98DX3236
+
 endchoice
 
 config SYS_BOARD
@@ -183,6 +187,7 @@ config SYS_BOARD
 	default "a38x" if TARGET_CONTROLCENTERDC
 	default "x530" if TARGET_X530
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
+	default "crs305-1g-4s" if TARGET_CRS305_1G_4S
 
 config SYS_CONFIG_NAME
 	default "clearfog" if TARGET_CLEARFOG
@@ -201,6 +206,7 @@ config SYS_CONFIG_NAME
 	default "controlcenterdc" if TARGET_CONTROLCENTERDC
 	default "x530" if TARGET_X530
 	default "db-xc3-24g4xg" if TARGET_DB_XC3_24G4XG
+	default "crs305-1g-4s" if TARGET_CRS305_1G_4S
 
 config SYS_VENDOR
 	default "Marvell" if TARGET_DB_MV784MP_GP
@@ -218,6 +224,7 @@ config SYS_VENDOR
 	default "CZ.NIC" if TARGET_TURRIS_MOX
 	default "gdsys" if TARGET_CONTROLCENTERDC
 	default "alliedtelesis" if TARGET_X530
+	default "mikrotik" if TARGET_CRS305_1G_4S
 
 config SYS_SOC
 	default "mvebu"

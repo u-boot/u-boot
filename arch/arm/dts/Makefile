@@ -162,7 +162,8 @@ dtb-$(CONFIG_ARCH_MVEBU) +=			\
 	armada-38x-controlcenterdc.dtb		\
 	armada-385-atl-x530.dtb			\
 	armada-385-atl-x530DP.dtb		\
-	armada-xp-db-xc3-24g4xg.dtb
+	armada-xp-db-xc3-24g4xg.dtb		\
+	armada-xp-crs305-1g-4s.dtb
 
 dtb-$(CONFIG_ARCH_UNIPHIER_LD11) += \
 	uniphier-ld11-global.dtb \
