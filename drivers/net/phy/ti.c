@@ -73,16 +73,6 @@
 #define MII_DP83867_CFG2_SPEEDOPT_INTLOW	0x2000
 #define MII_DP83867_CFG2_MASK			0x003F
 
-#define MII_MMD_CTRL	0x0d /* MMD Access Control Register */
-#define MII_MMD_DATA	0x0e /* MMD Access Data Register */
-
-/* MMD Access Control register fields */
-#define MII_MMD_CTRL_DEVAD_MASK	0x1f /* Mask MMD DEVAD*/
-#define MII_MMD_CTRL_ADDR	0x0000 /* Address */
-#define MII_MMD_CTRL_NOINCR	0x4000 /* no post increment */
-#define MII_MMD_CTRL_INCR_RDWT	0x8000 /* post increment on reads & writes */
-#define MII_MMD_CTRL_INCR_ON_WT	0xC000 /* post increment on writes only */
-
 /* User setting - can be taken from DTS */
 #define DEFAULT_RX_ID_DELAY	DP83867_RGMIIDCTL_2_25_NS
 #define DEFAULT_TX_ID_DELAY	DP83867_RGMIIDCTL_2_75_NS
@@ -116,88 +106,20 @@ struct dp83867_private {
 	int clk_output_sel;
 };
 
-/**
- * phy_read_mmd_indirect - reads data from the MMD registers
- * @phydev: The PHY device bus
- * @prtad: MMD Address
- * @devad: MMD DEVAD
- * @addr: PHY address on the MII bus
- *
- * Description: it reads data from the MMD registers (clause 22 to access to
- * clause 45) of the specified phy address.
- * To read these registers we have:
- * 1) Write reg 13 // DEVAD
- * 2) Write reg 14 // MMD Address
- * 3) Write reg 13 // MMD Data Command for MMD DEVAD
- * 3) Read  reg 14 // Read MMD data
- */
-int phy_read_mmd_indirect(struct phy_device *phydev, int prtad,
-			  int devad, int addr)
-{
-	int value = -1;
-
-	/* Write the desired MMD Devad */
-	phy_write(phydev, addr, MII_MMD_CTRL, devad);
-
-	/* Write the desired MMD register address */
-	phy_write(phydev, addr, MII_MMD_DATA, prtad);
-
-	/* Select the Function : DATA with no post increment */
-	phy_write(phydev, addr, MII_MMD_CTRL, (devad | MII_MMD_CTRL_NOINCR));
-
-	/* Read the content of the MMD's selected register */
-	value = phy_read(phydev, addr, MII_MMD_DATA);
-	return value;
-}
-
-/**
- * phy_write_mmd_indirect - writes data to the MMD registers
- * @phydev: The PHY device
- * @prtad: MMD Address
- * @devad: MMD DEVAD
- * @addr: PHY address on the MII bus
- * @data: data to write in the MMD register
- *
- * Description: Write data from the MMD registers of the specified
- * phy address.
- * To write these registers we have:
- * 1) Write reg 13 // DEVAD
- * 2) Write reg 14 // MMD Address
- * 3) Write reg 13 // MMD Data Command for MMD DEVAD
- * 3) Write reg 14 // Write MMD data
- */
-void phy_write_mmd_indirect(struct phy_device *phydev, int prtad,
-			    int devad, int addr, u32 data)
-{
-	/* Write the desired MMD Devad */
-	phy_write(phydev, addr, MII_MMD_CTRL, devad);
-
-	/* Write the desired MMD register address */
-	phy_write(phydev, addr, MII_MMD_DATA, prtad);
-
-	/* Select the Function : DATA with no post increment */
-	phy_write(phydev, addr, MII_MMD_CTRL, (devad | MII_MMD_CTRL_NOINCR));
-
-	/* Write the data into MMD's selected register */
-	phy_write(phydev, addr, MII_MMD_DATA, data);
-}
-
 static int dp83867_config_port_mirroring(struct phy_device *phydev)
 {
 	struct dp83867_private *dp83867 =
 		(struct dp83867_private *)phydev->priv;
 	u16 val;
 
-	val = phy_read_mmd_indirect(phydev, DP83867_CFG4, DP83867_DEVADDR,
-				    phydev->addr);
+	val = phy_read_mmd(phydev, DP83867_DEVADDR, DP83867_CFG4);
 
 	if (dp83867->port_mirroring == DP83867_PORT_MIRRORING_EN)
 		val |= DP83867_CFG4_PORT_MIRROR_EN;
 	else
 		val &= ~DP83867_CFG4_PORT_MIRROR_EN;
 
-	phy_write_mmd_indirect(phydev, DP83867_CFG4, DP83867_DEVADDR,
-			       phydev->addr, val);
+	phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_CFG4, val);
 
 	return 0;
 }
@@ -257,13 +179,13 @@ static int dp83867_of_init(struct phy_device *phydev)
 
 	/* Clock output selection if muxing property is set */
 	if (dp83867->clk_output_sel != DP83867_CLK_O_SEL_REF_CLK) {
-		val = phy_read_mmd_indirect(phydev, DP83867_IO_MUX_CFG,
-					    DP83867_DEVADDR, phydev->addr);
+		val = phy_read_mmd(phydev, DP83867_DEVADDR,
+				   DP83867_IO_MUX_CFG);
 		val &= ~DP83867_IO_MUX_CFG_CLK_O_SEL_MASK;
 		val |= (dp83867->clk_output_sel <<
 			DP83867_IO_MUX_CFG_CLK_O_SEL_SHIFT);
-		phy_write_mmd_indirect(phydev, DP83867_IO_MUX_CFG,
-				       DP83867_DEVADDR, phydev->addr, val);
+		phy_write_mmd(phydev, DP83867_DEVADDR,
+			      DP83867_IO_MUX_CFG, val);
 	}
 
 	return 0;
@@ -308,11 +230,11 @@ static int dp83867_config(struct phy_device *phydev)
 
 	/* Mode 1 or 2 workaround */
 	if (dp83867->rxctrl_strap_quirk) {
-		val = phy_read_mmd_indirect(phydev, DP83867_CFG4,
-					    DP83867_DEVADDR, phydev->addr);
+		val = phy_read_mmd(phydev, DP83867_DEVADDR,
+				   DP83867_CFG4);
 		val &= ~BIT(7);
-		phy_write_mmd_indirect(phydev, DP83867_CFG4,
-				       DP83867_DEVADDR, phydev->addr, val);
+		phy_write_mmd(phydev, DP83867_DEVADDR,
+			      DP83867_CFG4, val);
 	}
 
 	if (phy_interface_is_rgmii(phydev)) {
@@ -332,8 +254,8 @@ static int dp83867_config(struct phy_device *phydev)
 		 * register's bit 11 (marked as RESERVED).
 		 */
 
-		bs = phy_read_mmd_indirect(phydev, DP83867_STRAP_STS1,
-					   DP83867_DEVADDR, phydev->addr);
+		bs = phy_read_mmd(phydev, DP83867_DEVADDR,
+				  DP83867_STRAP_STS1);
 		val = phy_read(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL);
 		if (bs & DP83867_STRAP_STS1_RESERVED) {
 			val &= ~DP83867_PHYCR_RESERVED_MASK;
@@ -354,8 +276,8 @@ static int dp83867_config(struct phy_device *phydev)
 			 MII_DP83867_CFG2_SPEEDOPT_INTLOW);
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_CFG2, cfg2);
 
-		phy_write_mmd_indirect(phydev, DP83867_RGMIICTL,
-				       DP83867_DEVADDR, phydev->addr, 0x0);
+		phy_write_mmd(phydev, DP83867_DEVADDR,
+			      DP83867_RGMIICTL, 0x0);
 
 		phy_write(phydev, MDIO_DEVAD_NONE, MII_DP83867_PHYCTRL,
 			  DP83867_PHYCTRL_SGMIIEN |
@@ -367,8 +289,8 @@ static int dp83867_config(struct phy_device *phydev)
 	}
 
 	if (phy_interface_is_rgmii(phydev)) {
-		val = phy_read_mmd_indirect(phydev, DP83867_RGMIICTL,
-					    DP83867_DEVADDR, phydev->addr);
+		val = phy_read_mmd(phydev, DP83867_DEVADDR,
+				   DP83867_RGMIICTL);
 
 		if (phydev->interface == PHY_INTERFACE_MODE_RGMII_ID)
 			val |= (DP83867_RGMII_TX_CLK_DELAY_EN |
@@ -380,26 +302,24 @@ static int dp83867_config(struct phy_device *phydev)
 		if (phydev->interface == PHY_INTERFACE_MODE_RGMII_RXID)
 			val |= DP83867_RGMII_RX_CLK_DELAY_EN;
 
-		phy_write_mmd_indirect(phydev, DP83867_RGMIICTL,
-				       DP83867_DEVADDR, phydev->addr, val);
+		phy_write_mmd(phydev, DP83867_DEVADDR,
+			      DP83867_RGMIICTL, val);
 
 		delay = (dp83867->rx_id_delay |
 			 (dp83867->tx_id_delay << DP83867_RGMII_TX_CLK_DELAY_SHIFT));
 
-		phy_write_mmd_indirect(phydev, DP83867_RGMIIDCTL,
-				       DP83867_DEVADDR, phydev->addr, delay);
+		phy_write_mmd(phydev, DP83867_DEVADDR,
+			      DP83867_RGMIIDCTL, delay);
 
 		if (dp83867->io_impedance >= 0) {
-			val = phy_read_mmd_indirect(phydev,
-						    DP83867_IO_MUX_CFG,
-						    DP83867_DEVADDR,
-						    phydev->addr);
+			val = phy_read_mmd(phydev,
+					   DP83867_DEVADDR,
+					   DP83867_IO_MUX_CFG);
 			val &= ~DP83867_IO_MUX_CFG_IO_IMPEDANCE_CTRL;
 			val |= dp83867->io_impedance &
 			       DP83867_IO_MUX_CFG_IO_IMPEDANCE_CTRL;
-			phy_write_mmd_indirect(phydev, DP83867_IO_MUX_CFG,
-					       DP83867_DEVADDR, phydev->addr,
-					       val);
+			phy_write_mmd(phydev, DP83867_DEVADDR,
+				      DP83867_IO_MUX_CFG, val);
 		}
 	}
 

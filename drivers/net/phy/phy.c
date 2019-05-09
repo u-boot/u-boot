@@ -462,6 +462,18 @@ static LIST_HEAD(phy_drivers);
 
 int phy_init(void)
 {
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	/*
+	 * The pointers inside phy_drivers also needs to be updated incase of
+	 * manual reloc, without which these points to some invalid
+	 * pre reloc address and leads to invalid accesses, hangs.
+	 */
+	struct list_head *head = &phy_drivers;
+
+	head->next = (void *)head->next + gd->reloc_off;
+	head->prev = (void *)head->prev + gd->reloc_off;
+#endif
+
 #ifdef CONFIG_B53_SWITCH
 	phy_b53_init();
 #endif
@@ -549,6 +561,10 @@ int phy_register(struct phy_driver *drv)
 		drv->readext += gd->reloc_off;
 	if (drv->writeext)
 		drv->writeext += gd->reloc_off;
+	if (drv->read_mmd)
+		drv->read_mmd += gd->reloc_off;
+	if (drv->write_mmd)
+		drv->write_mmd += gd->reloc_off;
 #endif
 	return 0;
 }
@@ -655,7 +671,10 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
 
 	dev->drv = get_phy_driver(dev, interface);
 
-	phy_probe(dev);
+	if (phy_probe(dev)) {
+		printf("%s, PHY probe failed\n", __func__);
+		return NULL;
+	}
 
 	if (addr >= 0 && addr < PHY_MAX_ADDR)
 		bus->phymap[addr] = dev;

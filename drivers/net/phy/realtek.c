@@ -12,6 +12,7 @@
 
 #define PHY_RTL8211x_FORCE_MASTER BIT(1)
 #define PHY_RTL8211E_PINE64_GIGABIT_FIX BIT(2)
+#define PHY_RTL8211F_FORCE_EEE_RXC_ON BIT(3)
 
 #define PHY_AUTONEGOTIATE_TIMEOUT 5000
 
@@ -102,6 +103,15 @@ static int rtl8211e_probe(struct phy_device *phydev)
 	return 0;
 }
 
+static int rtl8211f_probe(struct phy_device *phydev)
+{
+#ifdef CONFIG_RTL8211F_PHY_FORCE_EEE_RXC_ON
+	phydev->flags |= PHY_RTL8211F_FORCE_EEE_RXC_ON;
+#endif
+
+	return 0;
+}
+
 /* RealTek RTL8211x */
 static int rtl8211x_config(struct phy_device *phydev)
 {
@@ -150,6 +160,14 @@ static int rtl8211x_config(struct phy_device *phydev)
 static int rtl8211f_config(struct phy_device *phydev)
 {
 	u16 reg;
+
+	if (phydev->flags & PHY_RTL8211F_FORCE_EEE_RXC_ON) {
+		unsigned int reg;
+
+		reg = phy_read_mmd(phydev, MDIO_MMD_PCS, MDIO_CTRL1);
+		reg &= ~MDIO_PCS_CTRL1_CLKSTOP_EN;
+		phy_write_mmd(phydev, MDIO_MMD_PCS, MDIO_CTRL1, reg);
+	}
 
 	phy_write(phydev, MDIO_DEVAD_NONE, MII_BMCR, BMCR_RESET);
 
@@ -360,6 +378,7 @@ static struct phy_driver RTL8211F_driver = {
 	.uid = 0x1cc916,
 	.mask = 0xffffff,
 	.features = PHY_GBIT_FEATURES,
+	.probe = &rtl8211f_probe,
 	.config = &rtl8211f_config,
 	.startup = &rtl8211f_startup,
 	.shutdown = &genphy_shutdown,

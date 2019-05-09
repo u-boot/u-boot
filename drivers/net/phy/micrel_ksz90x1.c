@@ -33,9 +33,13 @@
 #define CTRL1000_CONFIG_MASTER		(1 << 11)
 #define CTRL1000_MANUAL_CONFIG		(1 << 12)
 
+#define KSZ9021_PS_TO_REG		120
+
 /* KSZ9031 PHY Registers */
 #define MII_KSZ9031_MMD_ACCES_CTRL	0x0d
 #define MII_KSZ9031_MMD_REG_DATA	0x0e
+
+#define KSZ9031_PS_TO_REG		60
 
 static int ksz90xx_startup(struct phy_device *phydev)
 {
@@ -102,20 +106,28 @@ static const struct ksz90x1_reg_field ksz9031_clk_grp[] = {
 };
 
 static int ksz90x1_of_config_group(struct phy_device *phydev,
-				   struct ksz90x1_ofcfg *ofcfg)
+				   struct ksz90x1_ofcfg *ofcfg,
+				   int ps_to_regval)
 {
 	struct udevice *dev = phydev->dev;
 	struct phy_driver *drv = phydev->drv;
-	const int ps_to_regval = 60;
 	int val[4];
 	int i, changed = 0, offset, max;
 	u16 regval = 0;
+	ofnode node;
 
 	if (!drv || !drv->writeext)
 		return -EOPNOTSUPP;
 
+	/* Look for a PHY node under the Ethernet node */
+	node = dev_read_subnode(dev, "ethernet-phy");
+	if (!ofnode_valid(node)) {
+		/* No node found, look in the Ethernet node */
+		node = dev_ofnode(dev);
+	}
+
 	for (i = 0; i < ofcfg->grpsz; i++) {
-		val[i] = dev_read_u32_default(dev, ofcfg->grp[i].name, ~0);
+		val[i] = ofnode_read_u32_default(node, ofcfg->grp[i].name, ~0);
 		offset = ofcfg->grp[i].off;
 		if (val[i] == -1) {
 			/* Default register value for KSZ9021 */
@@ -148,7 +160,8 @@ static int ksz9021_of_config(struct phy_device *phydev)
 	int i, ret = 0;
 
 	for (i = 0; i < ARRAY_SIZE(ofcfg); i++) {
-		ret = ksz90x1_of_config_group(phydev, &(ofcfg[i]));
+		ret = ksz90x1_of_config_group(phydev, &ofcfg[i],
+					      KSZ9021_PS_TO_REG);
 		if (ret)
 			return ret;
 	}
@@ -167,7 +180,8 @@ static int ksz9031_of_config(struct phy_device *phydev)
 	int i, ret = 0;
 
 	for (i = 0; i < ARRAY_SIZE(ofcfg); i++) {
-		ret = ksz90x1_of_config_group(phydev, &(ofcfg[i]));
+		ret = ksz90x1_of_config_group(phydev, &ofcfg[i],
+					      KSZ9031_PS_TO_REG);
 		if (ret)
 			return ret;
 	}
