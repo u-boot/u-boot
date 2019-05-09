@@ -77,7 +77,11 @@ int do_booti(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bootm_disable_interrupts();
 
 	images.os.os = IH_OS_LINUX;
+#ifdef CONFIG_RISCV_SMODE
+	images.os.arch = IH_ARCH_RISCV;
+#elif CONFIG_ARM64
 	images.os.arch = IH_ARCH_ARM64;
+#endif
 	ret = do_bootm_states(cmdtp, flag, argc, argv,
 #ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
 			      BOOTM_STATE_RAMDISK |
@@ -92,7 +96,7 @@ int do_booti(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_LONGHELP
 static char booti_help_text[] =
 	"[addr [initrd[:size]] [fdt]]\n"
-	"    - boot arm64 Linux Image stored in memory\n"
+	"    - boot Linux 'Image' stored at 'addr'\n"
 	"\tThe argument 'initrd' is optional and specifies the address\n"
 	"\tof an initrd in memory. The optional parameter ':size' allows\n"
 	"\tspecifying the size of a RAW initrd.\n"
@@ -107,5 +111,5 @@ static char booti_help_text[] =
 
 U_BOOT_CMD(
 	booti,	CONFIG_SYS_MAXARGS,	1,	do_booti,
-	"boot arm64 Linux Image image from memory", booti_help_text
+	"boot Linux kernel 'Image' format from memory", booti_help_text
 );

@@ -162,6 +162,13 @@ config SBI_IPI
 	default y if RISCV_SMODE
 	depends on SMP
 
+config XIP
+	bool "XIP mode"
+	help
+	  XIP (eXecute In Place) is a method for executing code directly
+	  from a NOR flash memory without copying the code to ram.
+	  Say yes here if U-Boot boots from flash directly.
+
 config STACK_SIZE_SHIFT
 	int
 	default 13

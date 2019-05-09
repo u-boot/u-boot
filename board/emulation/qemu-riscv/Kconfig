@@ -14,7 +14,8 @@ config SYS_CONFIG_NAME
 
 config SYS_TEXT_BASE
 	default 0x80000000 if !RISCV_SMODE
-	default 0x80200000 if RISCV_SMODE
+	default 0x80200000 if RISCV_SMODE && ARCH_RV64I
+	default 0x80400000 if RISCV_SMODE && ARCH_RV32I
 
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y

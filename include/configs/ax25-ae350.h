@@ -40,7 +40,7 @@
 #define CONFIG_SYS_MALLOC_LEN   (512 << 10)
 
 /* DT blob (fdt) address */
-#define CONFIG_SYS_FDT_BASE		0x000f0000
+#define CONFIG_SYS_FDT_BASE		0x800f0000
 
 /*
  * Physical Memory Map
