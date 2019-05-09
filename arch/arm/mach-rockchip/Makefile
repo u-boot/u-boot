@@ -11,10 +11,12 @@ obj-tpl-$(CONFIG_ROCKCHIP_BROM_HELPER) += bootrom.o
 
 obj-tpl-$(CONFIG_ROCKCHIP_RK3288) += rk3288-board-tpl.o
 obj-tpl-$(CONFIG_ROCKCHIP_RK3368) += rk3368-board-tpl.o
+obj-tpl-$(CONFIG_ROCKCHIP_RK322X) += rk322x-board-tpl.o
+obj-tpl-$(CONFIG_ROCKCHIP_RK3399) += rk3399-board-tpl.o
 
 obj-spl-$(CONFIG_ROCKCHIP_RK3036) += rk3036-board-spl.o
 obj-spl-$(CONFIG_ROCKCHIP_RK3188) += rk3188-board-spl.o
-obj-spl-$(CONFIG_ROCKCHIP_RK322X) += rk322x-board-spl.o
+obj-spl-$(CONFIG_ROCKCHIP_RK322X) += rk322x-board-spl.o spl-boot-order.o
 obj-spl-$(CONFIG_ROCKCHIP_RK3288) += rk3288-board-spl.o
 obj-spl-$(CONFIG_ROCKCHIP_RK3368) += rk3368-board-spl.o spl-boot-order.o
 obj-spl-$(CONFIG_ROCKCHIP_RK3399) += rk3399-board-spl.o spl-boot-order.o

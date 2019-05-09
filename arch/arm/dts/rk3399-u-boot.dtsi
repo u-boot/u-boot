@@ -6,3 +6,7 @@
 &sdmmc {
 	u-boot,dm-pre-reloc;
 };
+
+&spi1 {
+	u-boot,dm-pre-reloc;
+};

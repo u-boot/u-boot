@@ -82,6 +82,7 @@
 };
 
 &uart2 {
+	u-boot,dm-pre-reloc;
 	status = "okay";
 };
 

@@ -10,30 +10,15 @@
 #include <spl.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/periph.h>
-#include <dm/pinctrl.h>
 
 void board_init_f(ulong dummy)
 {
-	struct udevice *pinctrl;
 	struct udevice *dev;
 	int ret;
 
 	ret = spl_early_init();
 	if (ret) {
 		debug("spl_early_init() failed: %d\n", ret);
-		hang();
-	}
-
-	/* Set up our preloader console */
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		pr_err("%s: pinctrl init failed: %d\n", __func__, ret);
-		hang();
-	}
-
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_UART0);
-	if (ret) {
-		pr_err("%s: failed to set up console UART\n", __func__);
 		hang();
 	}
 

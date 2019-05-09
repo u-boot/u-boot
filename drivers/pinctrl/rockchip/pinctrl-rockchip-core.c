@@ -35,8 +35,8 @@ static int rockchip_verify_config(struct udevice *dev, u32 bank, u32 pin)
 	return 0;
 }
 
-static void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
-				      int *reg, u8 *bit, int *mask)
+void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
+			       int *reg, u8 *bit, int *mask)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
@@ -58,8 +58,8 @@ static void rockchip_get_recalced_mux(struct rockchip_pin_bank *bank, int pin,
 	*bit = data->bit;
 }
 
-static bool rockchip_get_mux_route(struct rockchip_pin_bank *bank, int pin,
-				   int mux, u32 *reg, u32 *value)
+bool rockchip_get_mux_route(struct rockchip_pin_bank *bank, int pin,
+			    int mux, u32 *reg, u32 *value)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
@@ -82,7 +82,7 @@ static bool rockchip_get_mux_route(struct rockchip_pin_bank *bank, int pin,
 	return true;
 }
 
-static int rockchip_get_mux_data(int mux_type, int pin, u8 *bit, int *mask)
+int rockchip_get_mux_data(int mux_type, int pin, u8 *bit, int *mask)
 {
 	int offset = 0;
 
@@ -193,11 +193,9 @@ static int rockchip_verify_mux(struct rockchip_pin_bank *bank,
 static int rockchip_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
+	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
 	int iomux_num = (pin / 8);
-	struct regmap *regmap;
-	int reg, ret, mask, mux_type;
-	u8 bit;
-	u32 data, route_reg, route_val;
+	int ret;
 
 	ret = rockchip_verify_mux(bank, pin, mux);
 	if (ret < 0)
@@ -208,35 +206,10 @@ static int rockchip_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
 
 	debug("setting mux of GPIO%d-%d to %d\n", bank->bank_num, pin, mux);
 
-	regmap = (bank->iomux[iomux_num].type & IOMUX_SOURCE_PMU)
-				? priv->regmap_pmu : priv->regmap_base;
+	if (!ctrl->set_mux)
+		return -ENOTSUPP;
 
-	/* get basic quadrupel of mux registers and the correct reg inside */
-	mux_type = bank->iomux[iomux_num].type;
-	reg = bank->iomux[iomux_num].offset;
-	reg += rockchip_get_mux_data(mux_type, pin, &bit, &mask);
-
-	if (bank->recalced_mask & BIT(pin))
-		rockchip_get_recalced_mux(bank, pin, &reg, &bit, &mask);
-
-	if (bank->route_mask & BIT(pin)) {
-		if (rockchip_get_mux_route(bank, pin, mux, &route_reg,
-					   &route_val)) {
-			ret = regmap_write(regmap, route_reg, route_val);
-			if (ret)
-				return ret;
-		}
-	}
-
-	if (mux_type & IOMUX_WRITABLE_32BIT) {
-		regmap_read(regmap, reg, &data);
-		data &= ~(mask << bit);
-	} else {
-		data = (mask << (bit + 16));
-	}
-
-	data |= (mux & mask) << bit;
-	ret = regmap_write(regmap, reg, data);
+	ret = ctrl->set_mux(bank, pin, mux);
 
 	return ret;
 }
@@ -249,99 +222,37 @@ static int rockchip_perpin_drv_list[DRV_TYPE_MAX][8] = {
 	{ 4, 7, 10, 13, 16, 19, 22, 26 }
 };
 
+int rockchip_translate_drive_value(int type, int strength)
+{
+	int i, ret;
+
+	ret = -EINVAL;
+	for (i = 0; i < ARRAY_SIZE(rockchip_perpin_drv_list[type]); i++) {
+		if (rockchip_perpin_drv_list[type][i] == strength) {
+			ret = i;
+			break;
+		} else if (rockchip_perpin_drv_list[type][i] < 0) {
+			ret = rockchip_perpin_drv_list[type][i];
+			break;
+		}
+	}
+
+	return ret;
+}
+
 static int rockchip_set_drive_perpin(struct rockchip_pin_bank *bank,
 				     int pin_num, int strength)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
-	struct regmap *regmap;
-	int reg, ret, i;
-	u32 data, rmask_bits, temp;
-	u8 bit;
-	/* Where need to clean the special mask for rockchip_perpin_drv_list */
-	int drv_type = bank->drv[pin_num / 8].drv_type & (~DRV_TYPE_IO_MASK);
 
 	debug("setting drive of GPIO%d-%d to %d\n", bank->bank_num,
 	      pin_num, strength);
 
-	ctrl->drv_calc_reg(bank, pin_num, &regmap, &reg, &bit);
+	if (!ctrl->set_drive)
+		return -ENOTSUPP;
 
-	ret = -EINVAL;
-	for (i = 0; i < ARRAY_SIZE(rockchip_perpin_drv_list[drv_type]); i++) {
-		if (rockchip_perpin_drv_list[drv_type][i] == strength) {
-			ret = i;
-			break;
-		} else if (rockchip_perpin_drv_list[drv_type][i] < 0) {
-			ret = rockchip_perpin_drv_list[drv_type][i];
-			break;
-		}
-	}
-
-	if (ret < 0) {
-		debug("unsupported driver strength %d\n", strength);
-		return ret;
-	}
-
-	switch (drv_type) {
-	case DRV_TYPE_IO_1V8_3V0_AUTO:
-	case DRV_TYPE_IO_3V3_ONLY:
-		rmask_bits = ROCKCHIP_DRV_3BITS_PER_PIN;
-		switch (bit) {
-		case 0 ... 12:
-			/* regular case, nothing to do */
-			break;
-		case 15:
-			/*
-			 * drive-strength offset is special, as it is spread
-			 * over 2 registers, the bit data[15] contains bit 0
-			 * of the value while temp[1:0] contains bits 2 and 1
-			 */
-			data = (ret & 0x1) << 15;
-			temp = (ret >> 0x1) & 0x3;
-
-			data |= BIT(31);
-			ret = regmap_write(regmap, reg, data);
-			if (ret)
-				return ret;
-
-			temp |= (0x3 << 16);
-			reg += 0x4;
-			ret = regmap_write(regmap, reg, temp);
-
-			return ret;
-		case 18 ... 21:
-			/* setting fully enclosed in the second register */
-			reg += 4;
-			bit -= 16;
-			break;
-		default:
-			debug("unsupported bit: %d for pinctrl drive type: %d\n",
-			      bit, drv_type);
-			return -EINVAL;
-		}
-		break;
-	case DRV_TYPE_IO_DEFAULT:
-	case DRV_TYPE_IO_1V8_OR_3V0:
-	case DRV_TYPE_IO_1V8_ONLY:
-		rmask_bits = ROCKCHIP_DRV_BITS_PER_PIN;
-		break;
-	default:
-		debug("unsupported pinctrl drive type: %d\n",
-		      drv_type);
-		return -EINVAL;
-	}
-
-	if (bank->drv[pin_num / 8].drv_type & DRV_TYPE_WRITABLE_32BIT) {
-		regmap_read(regmap, reg, &data);
-		data &= ~(((1 << rmask_bits) - 1) << bit);
-	} else {
-		/* enable the write to the equivalent lower bits */
-		data = ((1 << rmask_bits) - 1) << (bit + 16);
-	}
-
-	data |= (ret << bit);
-	ret = regmap_write(regmap, reg, data);
-	return ret;
+	return ctrl->set_drive(bank, pin_num, strength);
 }
 
 static int rockchip_pull_list[PULL_TYPE_MAX][4] = {
@@ -359,70 +270,35 @@ static int rockchip_pull_list[PULL_TYPE_MAX][4] = {
 	},
 };
 
+int rockchip_translate_pull_value(int type, int pull)
+{
+	int i, ret;
+
+	ret = -EINVAL;
+	for (i = 0; i < ARRAY_SIZE(rockchip_pull_list[type]);
+		i++) {
+		if (rockchip_pull_list[type][i] == pull) {
+			ret = i;
+			break;
+		}
+	}
+
+	return ret;
+}
+
 static int rockchip_set_pull(struct rockchip_pin_bank *bank,
 			     int pin_num, int pull)
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
-	struct regmap *regmap;
-	int reg, ret, i, pull_type;
-	u8 bit;
-	u32 data;
 
 	debug("setting pull of GPIO%d-%d to %d\n", bank->bank_num,
 	      pin_num, pull);
 
-	ctrl->pull_calc_reg(bank, pin_num, &regmap, &reg, &bit);
+	if (!ctrl->set_pull)
+		return -ENOTSUPP;
 
-	switch (ctrl->type) {
-	case RK3036:
-	case RK3128:
-		data = BIT(bit + 16);
-		if (pull == PIN_CONFIG_BIAS_DISABLE)
-			data |= BIT(bit);
-		ret = regmap_write(regmap, reg, data);
-		break;
-	case RV1108:
-	case RK3188:
-	case RK3288:
-	case RK3368:
-	case RK3399:
-		/*
-		 * Where need to clean the special mask for
-		 * rockchip_pull_list.
-		 */
-		pull_type = bank->pull_type[pin_num / 8] & (~PULL_TYPE_IO_MASK);
-		ret = -EINVAL;
-		for (i = 0; i < ARRAY_SIZE(rockchip_pull_list[pull_type]);
-			i++) {
-			if (rockchip_pull_list[pull_type][i] == pull) {
-				ret = i;
-				break;
-			}
-		}
-
-		if (ret < 0) {
-			debug("unsupported pull setting %d\n", pull);
-			return ret;
-		}
-
-		if (bank->pull_type[pin_num / 8] & PULL_TYPE_WRITABLE_32BIT) {
-			regmap_read(regmap, reg, &data);
-			data &= ~(((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << bit);
-		} else {
-			/* enable the write to the equivalent lower bits */
-			data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
-		}
-
-		data |= (ret << bit);
-		ret = regmap_write(regmap, reg, data);
-		break;
-	default:
-		debug("unsupported pinctrl type\n");
-		return -EINVAL;
-	}
-
-	return ret;
+	return ctrl->set_pull(bank, pin_num, pull);
 }
 
 static int rockchip_set_schmitt(struct rockchip_pin_bank *bank,
@@ -430,89 +306,40 @@ static int rockchip_set_schmitt(struct rockchip_pin_bank *bank,
 {
 	struct rockchip_pinctrl_priv *priv = bank->priv;
 	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
-	struct regmap *regmap;
-	int reg, ret;
-	u8 bit;
-	u32 data;
 
 	debug("setting input schmitt of GPIO%d-%d to %d\n", bank->bank_num,
 	      pin_num, enable);
 
-	ret = ctrl->schmitt_calc_reg(bank, pin_num, &regmap, &reg, &bit);
-	if (ret)
-		return ret;
+	if (!ctrl->set_schmitt)
+		return -ENOTSUPP;
 
-	/* enable the write to the equivalent lower bits */
-	data = BIT(bit + 16) | (enable << bit);
-
-	return regmap_write(regmap, reg, data);
-}
-
-/*
- * Pinconf_ops handling
- */
-static bool rockchip_pinconf_pull_valid(struct rockchip_pin_ctrl *ctrl,
-					unsigned int pull)
-{
-	switch (ctrl->type) {
-	case RK3036:
-	case RK3128:
-		return (pull == PIN_CONFIG_BIAS_PULL_PIN_DEFAULT ||
-			pull == PIN_CONFIG_BIAS_DISABLE);
-	case RV1108:
-	case RK3188:
-	case RK3288:
-	case RK3368:
-	case RK3399:
-		return (pull != PIN_CONFIG_BIAS_PULL_PIN_DEFAULT);
-	}
-
-	return false;
+	return ctrl->set_schmitt(bank, pin_num, enable);
 }
 
 /* set the pin config settings for a specified pin */
 static int rockchip_pinconf_set(struct rockchip_pin_bank *bank,
 				u32 pin, u32 param, u32 arg)
 {
-	struct rockchip_pinctrl_priv *priv = bank->priv;
-	struct rockchip_pin_ctrl *ctrl = priv->ctrl;
 	int rc;
 
 	switch (param) {
 	case PIN_CONFIG_BIAS_DISABLE:
-		rc =  rockchip_set_pull(bank, pin, param);
-		if (rc)
-			return rc;
-		break;
-
 	case PIN_CONFIG_BIAS_PULL_UP:
 	case PIN_CONFIG_BIAS_PULL_DOWN:
 	case PIN_CONFIG_BIAS_PULL_PIN_DEFAULT:
 	case PIN_CONFIG_BIAS_BUS_HOLD:
-		if (!rockchip_pinconf_pull_valid(ctrl, param))
-			return -ENOTSUPP;
-
-		if (!arg)
-			return -EINVAL;
-
 		rc = rockchip_set_pull(bank, pin, param);
 		if (rc)
 			return rc;
 		break;
 
 	case PIN_CONFIG_DRIVE_STRENGTH:
-		if (!ctrl->drv_calc_reg)
-			return -ENOTSUPP;
-
 		rc = rockchip_set_drive_perpin(bank, pin, arg);
 		if (rc < 0)
 			return rc;
 		break;
 
 	case PIN_CONFIG_INPUT_SCHMITT_ENABLE:
-		if (!ctrl->schmitt_calc_reg)
-			return -ENOTSUPP;
-
 		rc = rockchip_set_schmitt(bank, pin, arg);
 		if (rc < 0)
 			return rc;
@@ -530,9 +357,8 @@ static const struct pinconf_param rockchip_conf_params[] = {
 	{ "bias-bus-hold", PIN_CONFIG_BIAS_BUS_HOLD, 0 },
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 1 },
 	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_DOWN, 1 },
+	{ "bias-pull-pin-default", PIN_CONFIG_BIAS_PULL_PIN_DEFAULT, 1 },
 	{ "drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 0 },
-	{ "input-enable", PIN_CONFIG_INPUT_ENABLE, 1 },
-	{ "input-disable", PIN_CONFIG_INPUT_ENABLE, 0 },
 	{ "input-schmitt-disable", PIN_CONFIG_INPUT_SCHMITT_ENABLE, 0 },
 	{ "input-schmitt-enable", PIN_CONFIG_INPUT_SCHMITT_ENABLE, 1 },
 };

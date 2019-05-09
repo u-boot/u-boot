@@ -842,7 +842,11 @@ static int setup_sdram(struct udevice *dev)
 	move_to_access_state(pctl);
 
 	/* TODO(prt): could detect rank in training... */
+#ifdef CONFIG_TARGET_EVB_PX5
+	params->chan.rank = 1;
+#else
 	params->chan.rank = 2;
+#endif
 	/* TODO(prt): bus width is not auto-detected (yet)... */
 	params->chan.bw = 2;  /* 32bit wide bus */
 	params->chan.dbw = params->chan.dbw;  /* 32bit wide bus */

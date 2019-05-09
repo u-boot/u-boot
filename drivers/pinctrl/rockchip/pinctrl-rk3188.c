@@ -11,6 +11,30 @@
 
 #include "pinctrl-rockchip.h"
 
+static int rk3188_set_mux(struct rockchip_pin_bank *bank, int pin, int mux)
+{
+	struct rockchip_pinctrl_priv *priv = bank->priv;
+	int iomux_num = (pin / 8);
+	struct regmap *regmap;
+	int reg, ret, mask, mux_type;
+	u8 bit;
+	u32 data;
+
+	regmap = (bank->iomux[iomux_num].type & IOMUX_SOURCE_PMU)
+				? priv->regmap_pmu : priv->regmap_base;
+
+	/* get basic quadrupel of mux registers and the correct reg inside */
+	mux_type = bank->iomux[iomux_num].type;
+	reg = bank->iomux[iomux_num].offset;
+	reg += rockchip_get_mux_data(mux_type, pin, &bit, &mask);
+
+	data = (mask << (bit + 16));
+	data |= (mux & mask) << bit;
+	ret = regmap_write(regmap, reg, data);
+
+	return ret;
+}
+
 #define RK3188_PULL_OFFSET		0x164
 #define RK3188_PULL_PMU_OFFSET		0x64
 
@@ -47,6 +71,33 @@ static void rk3188_calc_pull_reg_and_bit(struct rockchip_pin_bank *bank,
 	}
 }
 
+static int rk3188_set_pull(struct rockchip_pin_bank *bank,
+			   int pin_num, int pull)
+{
+	struct regmap *regmap;
+	int reg, ret;
+	u8 bit, type;
+	u32 data;
+
+	if (pull == PIN_CONFIG_BIAS_PULL_PIN_DEFAULT)
+		return -ENOTSUPP;
+
+	rk3188_calc_pull_reg_and_bit(bank, pin_num, &regmap, &reg, &bit);
+	type = bank->pull_type[pin_num / 8];
+	ret = rockchip_translate_pull_value(type, pull);
+	if (ret < 0) {
+		debug("unsupported pull setting %d\n", pull);
+		return ret;
+	}
+
+	/* enable the write to the equivalent lower bits */
+	data = ((1 << ROCKCHIP_PULL_BITS_PER_PIN) - 1) << (bit + 16);
+	data |= (ret << bit);
+	ret = regmap_write(regmap, reg, data);
+
+	return ret;
+}
+
 static struct rockchip_pin_bank rk3188_pin_banks[] = {
 	PIN_BANK_IOMUX_FLAGS(0, 32, "gpio0", IOMUX_GPIO_ONLY, 0, 0, 0),
 	PIN_BANK(1, 32, "gpio1"),
@@ -55,12 +106,11 @@ static struct rockchip_pin_bank rk3188_pin_banks[] = {
 };
 
 static struct rockchip_pin_ctrl rk3188_pin_ctrl = {
-		.pin_banks		= rk3188_pin_banks,
-		.nr_banks		= ARRAY_SIZE(rk3188_pin_banks),
-		.label			= "RK3188-GPIO",
-		.type			= RK3188,
-		.grf_mux_offset		= 0x60,
-		.pull_calc_reg		= rk3188_calc_pull_reg_and_bit,
+	.pin_banks		= rk3188_pin_banks,
+	.nr_banks		= ARRAY_SIZE(rk3188_pin_banks),
+	.grf_mux_offset		= 0x60,
+	.set_mux		= rk3188_set_mux,
+	.set_pull		= rk3188_set_pull,
 };
 
 static const struct udevice_id rk3188_pinctrl_ids[] = {

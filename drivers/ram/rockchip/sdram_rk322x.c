@@ -49,7 +49,7 @@ struct rk322x_sdram_params {
 		struct regmap *map;
 };
 
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_TPL_BUILD
 /*
  * [7:6]  bank(n:n bit bank)
  * [5:4]  row(13+n)
@@ -750,7 +750,7 @@ static int rk322x_dmc_ofdata_to_platdata(struct udevice *dev)
 
 	return 0;
 }
-#endif /* CONFIG_SPL_BUILD */
+#endif /* CONFIG_TPL_BUILD */
 
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 static int conv_of_platdata(struct udevice *dev)
@@ -778,7 +778,7 @@ static int conv_of_platdata(struct udevice *dev)
 
 static int rk322x_dmc_probe(struct udevice *dev)
 {
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_TPL_BUILD
 	struct rk322x_sdram_params *plat = dev_get_platdata(dev);
 	int ret;
 	struct udevice *dev_clk;
@@ -786,7 +786,7 @@ static int rk322x_dmc_probe(struct udevice *dev)
 	struct dram_info *priv = dev_get_priv(dev);
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_TPL_BUILD
 #if CONFIG_IS_ENABLED(OF_PLATDATA)
 	ret = conv_of_platdata(dev);
 	if (ret)
@@ -842,12 +842,12 @@ U_BOOT_DRIVER(dmc_rk322x) = {
 	.id = UCLASS_RAM,
 	.of_match = rk322x_dmc_ids,
 	.ops = &rk322x_dmc_ops,
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_TPL_BUILD
 	.ofdata_to_platdata = rk322x_dmc_ofdata_to_platdata,
 #endif
 	.probe = rk322x_dmc_probe,
 	.priv_auto_alloc_size = sizeof(struct dram_info),
-#ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_TPL_BUILD
 	.platdata_auto_alloc_size = sizeof(struct rk322x_sdram_params),
 #endif
 };

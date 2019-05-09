@@ -85,6 +85,18 @@
 		regulator-boot-on;
 		vin-supply = <&vcc18_wl>;
 	};
+
+	sound {
+		compatible = "rockchip,audio-max98090-jerry";
+
+		cpu {
+			sound-dai = <&i2s 0>;
+		};
+
+		codec {
+			sound-dai = <&max98090 0>;
+		};
+	};
 };
 
 &backlight {
