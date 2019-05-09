@@ -162,14 +162,14 @@ static int dp83867_of_init(struct phy_device *phydev)
 		dp83867->rxctrl_strap_quirk = true;
 	dp83867->rx_id_delay = ofnode_read_u32_default(node,
 						       "ti,rx-internal-delay",
-						       -1);
+						       DEFAULT_RX_ID_DELAY);
 
 	dp83867->tx_id_delay = ofnode_read_u32_default(node,
 						       "ti,tx-internal-delay",
-						       -1);
+						       DEFAULT_TX_ID_DELAY);
 
 	dp83867->fifo_depth = ofnode_read_u32_default(node, "ti,fifo-depth",
-						      -1);
+						      DEFAULT_FIFO_DEPTH);
 	if (ofnode_read_bool(node, "enet-phy-lane-swap"))
 		dp83867->port_mirroring = DP83867_PORT_MIRRORING_EN;
 
