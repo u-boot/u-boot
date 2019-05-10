@@ -103,7 +103,7 @@ struct dp83867_private {
 	int io_impedance;
 	bool rxctrl_strap_quirk;
 	int port_mirroring;
-	int clk_output_sel;
+	unsigned int clk_output_sel;
 };
 
 static int dp83867_config_port_mirroring(struct phy_device *phydev)
@@ -136,17 +136,11 @@ static int dp83867_of_init(struct phy_device *phydev)
 	ofnode node;
 	u16 val;
 
-	/* Optional configuration */
-
 	node = phy_get_ofnode(phydev);
 	if (!ofnode_valid(node))
 		return -EINVAL;
 
-	/*
-	 * Keep the default value if ti,clk-output-sel is not set
-	 * or to high
-	 */
-
+	/* Keep the default value if ti,clk-output-sel is not set */
 	dp83867->clk_output_sel =
 		ofnode_read_u32_default(node, "ti,clk-output-sel",
 					DP83867_CLK_O_SEL_REF_CLK);
