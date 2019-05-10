@@ -39,7 +39,7 @@ int ofnode_read_u32(ofnode node, const char *propname, u32 *outp)
 	return 0;
 }
 
-int ofnode_read_u32_default(ofnode node, const char *propname, u32 def)
+u32 ofnode_read_u32_default(ofnode node, const char *propname, u32 def)
 {
 	assert(ofnode_valid(node));
 	ofnode_read_u32(node, propname, &def);

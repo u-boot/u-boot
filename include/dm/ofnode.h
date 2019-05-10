@@ -224,7 +224,7 @@ static inline int ofnode_read_s32(ofnode node, const char *propname,
  * @def:	default value to return if the property has no value
  * @return property value, or @def if not found
  */
-int ofnode_read_u32_default(ofnode ref, const char *propname, u32 def);
+u32 ofnode_read_u32_default(ofnode ref, const char *propname, u32 def);
 
 /**
  * ofnode_read_s32_default() - Read a 32-bit integer from a property
