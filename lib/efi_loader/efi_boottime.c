@@ -2261,7 +2261,7 @@ static efi_status_t EFIAPI efi_locate_device_path(
 
 	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
 
-	if (!protocol || !device_path || !*device_path || !device) {
+	if (!protocol || !device_path || !*device_path) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
@@ -2294,6 +2294,10 @@ static efi_status_t EFIAPI efi_locate_device_path(
 		/* Check if dp is a subpath of device_path */
 		if (memcmp(*device_path, dp, len_dp))
 			continue;
+		if (!device) {
+			ret = EFI_INVALID_PARAMETER;
+			goto out;
+		}
 		*device = handles[i];
 		len_best = len_dp;
 	}
