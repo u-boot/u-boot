@@ -13,6 +13,28 @@
 	chosen {
 		stdout-path = &uart1;
 	};
+
+	aliases {
+		usb0 = &usbotg1; /* required for ums */
+	};
+
+	reg_5v0: regulator-5v0 {
+		compatible = "regulator-fixed";
+		regulator-name = "5V";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+	};
+
+	reg_usbh_vbus: regulator-usbh-vbus {
+		compatible = "regulator-fixed";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_usbh_reg>;
+		regulator-name = "VCC_USB[1-4]";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		gpio = <&gpio4 7 GPIO_ACTIVE_LOW>;
+		vin-supply = <&reg_5v0>;
+	};
 };
 
 &gpmi {
@@ -43,4 +65,30 @@
 			MX7D_PAD_SD3_DATA7__NAND_DATA07		0x71
 		>;
 	};
+
+	pinctrl_usbh_reg: gpio-usbh-vbus {
+		fsl,pins = <
+			MX7D_PAD_UART3_CTS_B__GPIO4_IO7	0x14
+		>;
+	};
+};
+
+/* Colibri USBC */
+&usbotg1 {
+	/*
+	 * usbotg1 on Colibri iMX7 can function in both host/otg modes.
+	 * Gadget stack currently does not look at this at all while
+	 * the host stack refuses to bind/load if it is not set to host
+	 * (it obviously won't be enumerated during usb start invocation
+	 * if dr_mode = "otg")
+	 */
+	dr_mode = "host";
+	status = "okay";
+};
+
+/* Colibri USBH */
+&usbotg2 {
+	dr_mode = "host";
+	vbus-supply = <&reg_usbh_vbus>;
+	status = "okay";
 };
