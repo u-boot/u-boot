@@ -178,7 +178,7 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 		if (!ep)
 			return TEE_ERROR_ITEM_NOT_FOUND;
 
-		value_sz = strlen(ep->data);
+		value_sz = strlen(ep->data) + 1;
 		memcpy(value, ep->data, value_sz);
 
 		return TEE_SUCCESS;

@@ -37,7 +37,7 @@ static char *exceptions[] = {
 	"Overflow",
 	"BOUND Range Exceeded",
 	"Invalid Opcode (Undefined Opcode)",
-	"Device Not Avaiable (No Math Coprocessor)",
+	"Device Not Available (No Math Coprocessor)",
 	"Double Fault",
 	"Coprocessor Segment Overrun",
 	"Invalid TSS",

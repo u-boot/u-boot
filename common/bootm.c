@@ -924,6 +924,7 @@ void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
 	memmove(to, from, len);
 }
 
+#if defined(CONFIG_FIT_SIGNATURE)
 static int bootm_host_load_image(const void *fit, int req_image_type)
 {
 	const char *fit_uname_config = NULL;
@@ -988,5 +989,6 @@ int bootm_host_load_images(const void *fit, int cfg_noffset)
 	/* Return the first error we found */
 	return err;
 }
+#endif
 
 #endif /* ndef USE_HOSTCC */

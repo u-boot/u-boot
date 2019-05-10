@@ -58,6 +58,7 @@ hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info fit_check_sign
 
 hostprogs-$(CONFIG_CMD_BOOTEFI_SELFTEST) += file2include
 
+FIT_OBJS-$(CONFIG_FIT) := fit_common.o fit_image.o image-host.o common/image-fit.o
 FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o
 
 # The following files are synced with upstream DTC.
@@ -80,16 +81,13 @@ ROCKCHIP_OBS = lib/rc4.o rkcommon.o rkimage.o rksd.o rkspi.o
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
 			atmelimage.o \
+			$(FIT_OBJS-y) \
 			$(FIT_SIG_OBJS-y) \
 			common/bootm.o \
 			lib/crc32.o \
 			default_image.o \
 			lib/fdtdec_common.o \
 			lib/fdtdec.o \
-			fit_common.o \
-			fit_image.o \
-			common/image-fit.o \
-			image-host.o \
 			common/image.o \
 			imagetool.o \
 			imximage.o \

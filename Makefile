@@ -1015,6 +1015,17 @@ ifneq ($(CONFIG_DM_SPI_FLASH)$(CONFIG_OF_CONTROL),yy)
 	@echo >&2 "===================================================="
 endif
 endif
+ifneq ($(CONFIG_WATCHDOG)$(CONFIG_HW_WATCHDOG),)
+ifneq ($(CONFIG_WDT),y)
+	@echo >&2 "===================== WARNING ======================"
+	@echo >&2 "This board does not use CONFIG_WDT (DM watchdog support)."
+	@echo >&2 "Please update the board to use CONFIG_WDT before the"
+	@echo >&2 "v2019.10 release."
+	@echo >&2 "Failure to update by the deadline may result in board removal."
+	@echo >&2 "See doc/driver-model/MIGRATION.txt for more info."
+	@echo >&2 "===================================================="
+endif
+endif
 	@# Check that this build does not use CONFIG options that we do not
 	@# know about unless they are in Kconfig. All the existing CONFIG
 	@# options are whitelisted, so new ones should not be added.
@@ -1047,6 +1058,10 @@ fit-dtb.blob.lzo: fit-dtb.blob
 
 fit-dtb.blob: dts/dt.dtb FORCE
 	$(call if_changed,mkimage)
+ifneq ($(SOURCE_DATE_EPOCH),)
+	touch -d @$(SOURCE_DATE_EPOCH) fit-dtb.blob
+	chmod 0600 fit-dtb.blob
+endif
 
 MKIMAGEFLAGS_fit-dtb.blob = -f auto -A $(ARCH) -T firmware -C none -O u-boot \
 	-a 0 -e 0 -E \
@@ -1780,7 +1795,7 @@ CLEAN_DIRS  += $(MODVERDIR) \
 			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 
 CLEAN_FILES += include/bmp_logo.h include/bmp_logo_data.h \
-	       boot* u-boot* MLO* SPL System.map fit-dtb.blob
+	       boot* u-boot* MLO* SPL System.map fit-dtb.blob*
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated spl tpl \

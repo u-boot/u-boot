@@ -351,14 +351,14 @@ config ENV_SPI_CS
 	  Value of the SPI chip select for environment.
 
 config USE_ENV_SPI_MAX_HZ
-	bool "SPI flash bus for environment"
+	bool "SPI flash max frequency for environment"
 	depends on ENV_IS_IN_SPI_FLASH
 	help
 	  Force the SPI max work clock for environment.
 	  If not defined, use CONFIG_SF_DEFAULT_SPEED.
 
 config ENV_SPI_MAX_HZ
-	int "Value of SPI flash max work for environment"
+	int "Value of SPI flash max frequency for environment"
 	depends on USE_ENV_SPI_MAX_HZ
 	help
 	  Value of the SPI max work clock for environment.
