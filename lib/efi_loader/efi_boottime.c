@@ -1439,7 +1439,7 @@ static efi_status_t efi_locate_handle(
 
 	*buffer_size = size;
 
-	/* The buffer size is sufficient but there is not buffer */
+	/* The buffer size is sufficient but there is no buffer */
 	if (!buffer)
 		return EFI_INVALID_PARAMETER;
 
