@@ -35,7 +35,7 @@ if SYSRESET
 
 config SYSRESET_GPIO
 	bool "Enable support for GPIO reset driver"
-	select GPIO
+	select DM_GPIO
 	help
 	  Reset support via GPIO pin connected reset logic. This is used for
 	  example on Microblaze where reset logic can be controlled via GPIO
