@@ -318,6 +318,42 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 	return start;
 }
 
+/**
+ * efi_check_allocated() - validate address to be freed
+ *
+ * Check that the address is within allocated memory:
+ *
+ * * The address cannot be NULL.
+ * * The address must be in a range of the memory map.
+ * * The address may not point to EFI_CONVENTIONAL_MEMORY.
+ *
+ * Page alignment is not checked as this is not a requirement of
+ * efi_free_pool().
+ *
+ * @addr:	address of page to be freed
+ * Return:	status code
+ */
+static efi_status_t efi_check_allocated(u64 addr)
+{
+	struct efi_mem_list *item;
+
+	if (!addr)
+		return EFI_INVALID_PARAMETER;
+	list_for_each_entry(item, &efi_mem, link) {
+		u64 start = item->desc.physical_start;
+		u64 end = start + (item->desc.num_pages << EFI_PAGE_SHIFT);
+
+		if (addr >= start && addr < end) {
+			if (item->desc.type != EFI_CONVENTIONAL_MEMORY)
+				return EFI_SUCCESS;
+			else
+				return EFI_NOT_FOUND;
+		}
+	}
+
+	return EFI_NOT_FOUND;
+}
+
 static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
 {
 	struct list_head *lhandle;
@@ -450,6 +486,11 @@ void *efi_alloc(uint64_t len, int memory_type)
 efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
 	uint64_t r = 0;
+	efi_status_t ret;
+
+	ret = efi_check_allocated(memory);
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	/* Sanity check */
 	if (!memory || (memory & EFI_PAGE_MASK) || !pages) {
@@ -511,11 +552,12 @@ efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
  */
 efi_status_t efi_free_pool(void *buffer)
 {
-	efi_status_t r;
+	efi_status_t ret;
 	struct efi_pool_allocation *alloc;
 
-	if (buffer == NULL)
-		return EFI_INVALID_PARAMETER;
+	ret = efi_check_allocated((uintptr_t)buffer);
+	if (ret != EFI_SUCCESS)
+		return ret;
 
 	alloc = container_of(buffer, struct efi_pool_allocation, data);
 
@@ -528,9 +570,9 @@ efi_status_t efi_free_pool(void *buffer)
 	/* Avoid double free */
 	alloc->checksum = 0;
 
-	r = efi_free_pages((uintptr_t)alloc, alloc->num_pages);
+	ret = efi_free_pages((uintptr_t)alloc, alloc->num_pages);
 
-	return r;
+	return ret;
 }
 
 /*
