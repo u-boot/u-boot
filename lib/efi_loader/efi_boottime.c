@@ -514,7 +514,7 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
 	if (ret != EFI_SUCCESS)
 		return ret;
 	if (handler->protocol_interface != protocol_interface)
-		return EFI_INVALID_PARAMETER;
+		return EFI_NOT_FOUND;
 	list_del(&handler->link);
 	free(handler);
 	return EFI_SUCCESS;
