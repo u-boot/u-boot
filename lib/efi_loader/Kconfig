@@ -1,5 +1,5 @@
 config EFI_LOADER
-	bool "Support running EFI Applications in U-Boot"
+	bool "Support running UEFI applications"
 	depends on (ARM || X86 || RISCV || SANDBOX) && OF_LIBFDT
 	# We need EFI_STUB_64BIT to be set on x86_64 with EFI_STUB
 	depends on !EFI_STUB || !X86_64 || EFI_STUB_64BIT
@@ -11,10 +11,10 @@ config EFI_LOADER
 	select REGEX
 	imply CFB_CONSOLE_ANSI
 	help
-	  Select this option if you want to run EFI applications (like grub2)
-	  on top of U-Boot. If this option is enabled, U-Boot will expose EFI
-	  interfaces to a loaded EFI application, enabling it to reuse U-Boot's
-	  device drivers.
+	  Select this option if you want to run UEFI applications (like GNU
+	  GRUB or iPXE) on top of U-Boot. If this option is enabled, U-Boot
+	  will expose the UEFI API to a loaded application, enabling it to
+	  reuse U-Boot's device drivers.
 
 if EFI_LOADER
 
