@@ -411,7 +411,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 				efi_uintn_t pages, uint64_t *memory)
 {
 	u64 len = pages << EFI_PAGE_SHIFT;
-	efi_status_t r = EFI_SUCCESS;
+	efi_status_t ret;
 	uint64_t addr;
 
 	/* Check import parameters */
@@ -425,48 +425,35 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	case EFI_ALLOCATE_ANY_PAGES:
 		/* Any page */
 		addr = efi_find_free_memory(len, -1ULL);
-		if (!addr) {
-			r = EFI_OUT_OF_RESOURCES;
-			break;
-		}
+		if (!addr)
+			return EFI_OUT_OF_RESOURCES;
 		break;
 	case EFI_ALLOCATE_MAX_ADDRESS:
 		/* Max address */
 		addr = efi_find_free_memory(len, *memory);
-		if (!addr) {
-			r = EFI_OUT_OF_RESOURCES;
-			break;
-		}
+		if (!addr)
+			return EFI_OUT_OF_RESOURCES;
 		break;
 	case EFI_ALLOCATE_ADDRESS:
 		/* Exact address, reserve it. The addr is already in *memory. */
-		r = efi_check_allocated(*memory, false);
-		if (r != EFI_SUCCESS) {
-			r = EFI_NOT_FOUND;
-			break;
-		}
+		ret = efi_check_allocated(*memory, false);
+		if (ret != EFI_SUCCESS)
+			return EFI_NOT_FOUND;
 		addr = *memory;
 		break;
 	default:
 		/* UEFI doesn't specify other allocation types */
-		r = EFI_INVALID_PARAMETER;
-		break;
+		return EFI_INVALID_PARAMETER;
 	}
 
-	if (r == EFI_SUCCESS) {
-		uint64_t ret;
+	/* Reserve that map in our memory maps */
+	if (efi_add_memory_map(addr, pages, memory_type, true) != addr)
+		/* Map would overlap, bail out */
+		return  EFI_OUT_OF_RESOURCES;
 
-		/* Reserve that map in our memory maps */
-		ret = efi_add_memory_map(addr, pages, memory_type, true);
-		if (ret == addr) {
-			*memory = addr;
-		} else {
-			/* Map would overlap, bail out */
-			r = EFI_OUT_OF_RESOURCES;
-		}
-	}
+	*memory = addr;
 
-	return r;
+	return EFI_SUCCESS;
 }
 
 void *efi_alloc(uint64_t len, int memory_type)
