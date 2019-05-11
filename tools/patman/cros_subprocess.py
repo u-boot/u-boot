@@ -100,6 +100,19 @@ class Popen(subprocess.Popen):
         if kwargs:
             raise ValueError("Unit tests do not test extra args - please add tests")
 
+    def ConvertData(self, data):
+        """Convert stdout/stderr data to the correct format for output
+
+        Args:
+            data: Data to convert, or None for ''
+
+        Returns:
+            Converted data, as bytes
+        """
+        if data is None:
+            return b''
+        return data
+
     def CommunicateFilter(self, output):
         """Interact with process: Read data from stdout and stderr.
 
@@ -156,11 +169,11 @@ class Popen(subprocess.Popen):
                 self.stdin.close()
         if self.stdout:
             read_set.append(self.stdout)
-            stdout = []
+            stdout = b''
         if self.stderr and self.stderr != self.stdout:
             read_set.append(self.stderr)
-            stderr = []
-        combined = []
+            stderr = b''
+        combined = b''
 
         input_offset = 0
         while read_set or write_set:
@@ -186,46 +199,40 @@ class Popen(subprocess.Popen):
                     write_set.remove(self.stdin)
 
             if self.stdout in rlist:
-                data = ""
+                data = b''
                 # We will get an error on read if the pty is closed
                 try:
                     data = os.read(self.stdout.fileno(), 1024)
                 except OSError:
                     pass
-                if data == "":
+                if not len(data):
                     self.stdout.close()
                     read_set.remove(self.stdout)
                 else:
-                    stdout.append(data)
-                    combined.append(data)
+                    stdout += data
+                    combined += data
                     if output:
                         output(sys.stdout, data)
             if self.stderr in rlist:
-                data = ""
+                data = b''
                 # We will get an error on read if the pty is closed
                 try:
                     data = os.read(self.stderr.fileno(), 1024)
                 except OSError:
                     pass
-                if data == "":
+                if not len(data):
                     self.stderr.close()
                     read_set.remove(self.stderr)
                 else:
-                    stderr.append(data)
-                    combined.append(data)
+                    stderr += data
+                    combined += data
                     if output:
                         output(sys.stderr, data)
 
         # All data exchanged.    Translate lists into strings.
-        if stdout is not None:
-            stdout = ''.join(stdout)
-        else:
-            stdout = ''
-        if stderr is not None:
-            stderr = ''.join(stderr)
-        else:
-            stderr = ''
-        combined = ''.join(combined)
+        stdout = self.ConvertData(stdout)
+        stderr = self.ConvertData(stderr)
+        combined = self.ConvertData(combined)
 
         # Translate newlines, if requested.    We cannot let the file
         # object do the translation: It is based on stdio, which is

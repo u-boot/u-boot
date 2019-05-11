@@ -326,6 +326,8 @@ def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
     result = []
     for item in raw:
         if not item in result:
+            if type(item) == unicode:
+                item = item.encode('utf-8')
             result.append(item)
     if tag:
         return ['%s %s%s%s' % (tag, quote, email, quote) for email in result]
