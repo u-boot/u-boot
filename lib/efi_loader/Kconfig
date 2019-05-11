@@ -18,6 +18,13 @@ config EFI_LOADER
 
 if EFI_LOADER
 
+config EFI_DEVICE_PATH_TO_TEXT
+	bool "Device path to text protocol"
+	default y
+	help
+	  The device path to text protocol converts device nodes and paths to
+	  human readable strings.
+
 config EFI_LOADER_HII
 	bool "HII protocols"
 	default y

@@ -1436,6 +1436,7 @@ config CMD_DISPLAY
 config CMD_EFIDEBUG
 	bool "efidebug - display/configure UEFI environment"
 	depends on EFI_LOADER
+	select EFI_DEVICE_PATH_TO_TEXT
 	default n
 	help
 	  Enable the 'efidebug' command which provides a subset of UEFI
