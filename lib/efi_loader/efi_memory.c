@@ -330,10 +330,11 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
  * Page alignment is not checked as this is not a requirement of
  * efi_free_pool().
  *
- * @addr:	address of page to be freed
- * Return:	status code
+ * @addr:		address of page to be freed
+ * @must_be_allocated:	return success if the page is allocated
+ * Return:		status code
  */
-static efi_status_t efi_check_allocated(u64 addr)
+static efi_status_t efi_check_allocated(u64 addr, bool must_be_allocated)
 {
 	struct efi_mem_list *item;
 
@@ -344,7 +345,8 @@ static efi_status_t efi_check_allocated(u64 addr)
 		u64 end = start + (item->desc.num_pages << EFI_PAGE_SHIFT);
 
 		if (addr >= start && addr < end) {
-			if (item->desc.type != EFI_CONVENTIONAL_MEMORY)
+			if (must_be_allocated ^
+			    (item->desc.type == EFI_CONVENTIONAL_MEMORY))
 				return EFI_SUCCESS;
 			else
 				return EFI_NOT_FOUND;
@@ -438,6 +440,11 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 		break;
 	case EFI_ALLOCATE_ADDRESS:
 		/* Exact address, reserve it. The addr is already in *memory. */
+		r = efi_check_allocated(*memory, false);
+		if (r != EFI_SUCCESS) {
+			r = EFI_NOT_FOUND;
+			break;
+		}
 		addr = *memory;
 		break;
 	default:
@@ -488,7 +495,7 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 	uint64_t r = 0;
 	efi_status_t ret;
 
-	ret = efi_check_allocated(memory);
+	ret = efi_check_allocated(memory, true);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
@@ -555,7 +562,7 @@ efi_status_t efi_free_pool(void *buffer)
 	efi_status_t ret;
 	struct efi_pool_allocation *alloc;
 
-	ret = efi_check_allocated((uintptr_t)buffer);
+	ret = efi_check_allocated((uintptr_t)buffer, true);
 	if (ret != EFI_SUCCESS)
 		return ret;
 
