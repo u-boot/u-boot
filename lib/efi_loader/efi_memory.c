@@ -424,7 +424,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 		/* Any page */
 		addr = efi_find_free_memory(len, -1ULL);
 		if (!addr) {
-			r = EFI_NOT_FOUND;
+			r = EFI_OUT_OF_RESOURCES;
 			break;
 		}
 		break;
@@ -432,7 +432,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 		/* Max address */
 		addr = efi_find_free_memory(len, *memory);
 		if (!addr) {
-			r = EFI_NOT_FOUND;
+			r = EFI_OUT_OF_RESOURCES;
 			break;
 		}
 		break;
