@@ -181,10 +181,12 @@ static void efi_queue_event(struct efi_event *event, bool check_tpl)
 		/* Check TPL */
 		if (check_tpl && efi_tpl >= event->notify_tpl)
 			return;
+		event->is_queued = false;
 		EFI_CALL_VOID(event->notify_function(event,
 						     event->notify_context));
+	} else {
+		event->is_queued = false;
 	}
-	event->is_queued = false;
 }
 
 /**
