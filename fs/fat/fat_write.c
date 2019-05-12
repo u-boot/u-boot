@@ -1009,40 +1009,32 @@ again:
 	return 0;
 }
 
+/**
+ * normalize_longname() - check long file name and convert to lower case
+ *
+ * We assume here that the FAT file system is using an 8bit code page.
+ * Linux typically uses CP437, EDK2 assumes CP1250.
+ *
+ * @l_filename:	preallocated buffer receiving the normalized name
+ * @filename:	filename to normalize
+ * Return:	0 on success, -1 on failure
+ */
 static int normalize_longname(char *l_filename, const char *filename)
 {
-	const char *p, legal[] = "!#$%&\'()-.@^`_{}~";
-	unsigned char c;
-	int name_len;
+	const char *p, illegal[] = "<>:\"/\\|?*";
 
-	/* Check that the filename is valid */
-	for (p = filename; p < filename + strlen(filename); p++) {
-		c = *p;
-
-		if (('0' <= c) && (c <= '9'))
-			continue;
-		if (('A' <= c) && (c <= 'Z'))
-			continue;
-		if (('a' <= c) && (c <= 'z'))
-			continue;
-		if (strchr(legal, c))
-			continue;
-		/* extended code */
-		if ((0x80 <= c) && (c <= 0xff))
-			continue;
-
+	if (strlen(filename) >= VFAT_MAXLEN_BYTES)
 		return -1;
+
+	for (p = filename; *p; ++p) {
+		if ((unsigned char)*p < 0x20)
+			return -1;
+		if (strchr(illegal, *p))
+			return -1;
 	}
 
-	/* Normalize it */
-	name_len = strlen(filename);
-	if (name_len >= VFAT_MAXLEN_BYTES)
-		/* should return an error? */
-		name_len = VFAT_MAXLEN_BYTES - 1;
-
-	memcpy(l_filename, filename, name_len);
-	l_filename[name_len] = 0; /* terminate the string */
-	downcase(l_filename, INT_MAX);
+	strcpy(l_filename, filename);
+	downcase(l_filename, VFAT_MAXLEN_BYTES);
 
 	return 0;
 }
