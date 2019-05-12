@@ -459,7 +459,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 		printf("NAND read of FMAN firmware at offset 0x%x failed %d\n",
 			CONFIG_SYS_FMAN_FW_ADDR, rc);
 	}
-#elif defined(CONFIG_SYS_QE_FW_IN_SPIFLASH)
+#elif defined(CONFIG_SYS_QE_FMAN_FW_IN_SPIFLASH)
 	struct spi_flash *ucode_flash;
 	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 	int ret = 0;

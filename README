@@ -3294,12 +3294,12 @@ within that device.
 
 - CONFIG_SYS_FMAN_FW_ADDR
 	The address in the storage device where the FMAN microcode is located.  The
-	meaning of this address depends on which CONFIG_SYS_QE_FW_IN_xxx macro
+	meaning of this address depends on which CONFIG_SYS_QE_FMAN_FW_IN_xxx macro
 	is also specified.
 
 - CONFIG_SYS_QE_FW_ADDR
 	The address in the storage device where the QE microcode is located.  The
-	meaning of this address depends on which CONFIG_SYS_QE_FW_IN_xxx macro
+	meaning of this address depends on which CONFIG_SYS_QE_FMAN_FW_IN_xxx macro
 	is also specified.
 
 - CONFIG_SYS_QE_FMAN_FW_LENGTH

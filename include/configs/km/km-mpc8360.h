@@ -5,7 +5,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_QE			/* Has QE */
 
 /*
  * QE UEC ethernet configuration

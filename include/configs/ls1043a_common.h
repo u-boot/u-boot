@@ -188,7 +188,6 @@
 #else
 #ifdef CONFIG_NAND_BOOT
 /* Store Fman ucode at offeset 0x900000(72 blocks). */
-#define CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #define CONFIG_SYS_FMAN_FW_ADDR		(72 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SD_BOOT)
 /*
@@ -196,14 +195,11 @@
  * about 1MB (2040 blocks), Env is stored after the image, and the env size is
  * 0x2000 (16 blocks), 8 + 2040 + 16 = 2064, enlarge it to 18432(0x4800).
  */
-#define CONFIG_SYS_QE_FMAN_FW_IN_MMC
 #define CONFIG_SYS_FMAN_FW_ADDR		(512 * 0x4800)
 #define CONFIG_SYS_QE_FW_ADDR		(512 * 0x4A00)
 #elif defined(CONFIG_QSPI_BOOT)
-#define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR		0x40900000
 #else
-#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 /* FMan fireware Pre-load address */
 #define CONFIG_SYS_FMAN_FW_ADDR		0x60900000
 #define CONFIG_SYS_QE_FW_ADDR		0x60940000

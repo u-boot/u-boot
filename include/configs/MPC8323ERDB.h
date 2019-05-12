@@ -13,7 +13,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 family */
-#define CONFIG_QE		1	/* Has QE */
 
 /*
  * System IO Config

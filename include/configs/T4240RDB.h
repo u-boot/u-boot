@@ -543,7 +543,6 @@ unsigned long get_board_ddr_clk(void);
  * env is stored at 0x100000, sector size is 0x10000, ucode is stored after
  * env, so we got 0x110000.
  */
-#define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR	0x110000
 #elif defined(CONFIG_SDCARD)
 /*
@@ -551,13 +550,10 @@ unsigned long get_board_ddr_clk(void);
  * about 1MB (2048 blocks), Env is stored after the image, and the env size is
  * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080.
  */
-#define CONFIG_SYS_QE_FMAN_FW_IN_MMC
 #define CONFIG_SYS_FMAN_FW_ADDR	(512 * 0x820)
 #elif defined(CONFIG_NAND)
-#define CONFIG_SYS_QE_FMAN_FW_IN_NAND
 #define CONFIG_SYS_FMAN_FW_ADDR	(8 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #else
-#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_FMAN_FW_ADDR	0xEFF00000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
@@ -565,7 +561,6 @@ unsigned long get_board_ddr_clk(void);
 #endif /* CONFIG_NOBQFMAN */
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_FMAN_ENET
 #define CONFIG_PHYLIB_10G
 #define CONFIG_PHY_VITESSE
 #define CONFIG_PHY_CORTINA

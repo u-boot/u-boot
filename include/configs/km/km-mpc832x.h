@@ -1,7 +1,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_QE	/* Has QE */
 #define CONFIG_KM8321	/* Keymile PBEC8321 board specific */
 
 /*

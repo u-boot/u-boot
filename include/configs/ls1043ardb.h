@@ -277,8 +277,6 @@
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-#define CONFIG_FMAN_ENET
-
 #define RGMII_PHY1_ADDR			0x1
 #define RGMII_PHY2_ADDR			0x2
 

@@ -306,12 +306,10 @@ int get_scl(void);
  * env is stored at 0x100000, sector size is 0x10000, x2 (redundant)
  * ucode is stored after env, so we got 0x120000.
  */
-#define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_FMAN_FW_ADDR	0x120000
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
-#define CONFIG_FMAN_ENET
 #define CONFIG_PHYLIB_10G
 
 #define CONFIG_PCI_INDIRECT_BRIDGE

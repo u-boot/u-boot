@@ -17,7 +17,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_QE			/* Enable QE */
 #define CONFIG_ENV_OVERWRITE
 
 #ifndef __ASSEMBLY__
@@ -422,7 +421,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /* QE microcode/firmware address */
-#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_QE_FW_ADDR	0xfff00000
 
 /*

@@ -12,7 +12,6 @@
 #if defined(CONFIG_TWR_P1025)
 #define CONFIG_BOARDNAME "TWR-P1025"
 #define CONFIG_PHY_ATHEROS
-#define CONFIG_QE
 #define CONFIG_SYS_LBC_LBCR	0x00080000	/* Conversion of LBC addr */
 #define CONFIG_SYS_LBC_LCRR	0x80000002	/* LB clock ratio reg */
 #endif
@@ -275,7 +274,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #ifdef CONFIG_QE
 /* QE microcode/firmware address */
-#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_QE_FW_ADDR	0xefec0000
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #endif /* CONFIG_QE */

@@ -2,7 +2,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 family */
-#define CONFIG_QE		1	/* Has QE */
 
 #define CONFIG_KM_DEF_ARCH	"arch=ppc_82xx\0"
 
@@ -14,7 +13,6 @@
 #define CONFIG_83XX_PCICLK		66000000
 
 /* QE microcode/firmware address */
-#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 /* between the u-boot partition and env */
 #ifndef CONFIG_SYS_QE_FW_ADDR
 #define CONFIG_SYS_QE_FW_ADDR   0xF00C0000

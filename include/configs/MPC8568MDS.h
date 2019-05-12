@@ -18,7 +18,6 @@
 #define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_QE			/* Enable QE */
 #define CONFIG_ENV_OVERWRITE
 
 #ifndef __ASSEMBLY__

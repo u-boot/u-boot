@@ -74,7 +74,6 @@
 #if defined(CONFIG_TARGET_P1021RDB)
 #define CONFIG_BOARDNAME "P1021RDB-PC"
 #define CONFIG_NAND_FSL_ELBC
-#define CONFIG_QE
 #define CONFIG_VSC7385_ENET
 #define CONFIG_SYS_LBC_LBCR	0x00080000	/* Implement conversion of
 						addresses in the LBC */
@@ -105,7 +104,6 @@
 #if defined(CONFIG_TARGET_P1025RDB)
 #define CONFIG_BOARDNAME "P1025RDB"
 #define CONFIG_NAND_FSL_ELBC
-#define CONFIG_QE
 #define CONFIG_SLIC
 
 #define CONFIG_SYS_LBC_LBCR	0x00080000	/* Implement conversion of
@@ -652,7 +650,6 @@
 
 #ifdef CONFIG_QE
 /* QE microcode/firmware address */
-#define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_QE_FW_ADDR	0xefec0000
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #endif /* CONFIG_QE */
