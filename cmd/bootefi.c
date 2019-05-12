@@ -314,31 +314,14 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
 }
 
 /**
- * do_efibootmgr() - execute EFI Boot Manager
+ * do_efibootmgr() - execute EFI boot manager
  *
- * @fdt_opt:	string of fdt start address
  * Return:	status code
- *
- * Execute EFI Boot Manager
  */
-static int do_efibootmgr(const char *fdt_opt)
+static int do_efibootmgr(void)
 {
 	efi_handle_t handle;
 	efi_status_t ret;
-
-	/* Initialize EFI drivers */
-	ret = efi_init_obj_list();
-	if (ret != EFI_SUCCESS) {
-		printf("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-		       ret & ~EFI_ERROR_MASK);
-		return CMD_RET_FAILURE;
-	}
-
-	ret = efi_install_fdt(fdt_opt);
-	if (ret == EFI_INVALID_PARAMETER)
-		return CMD_RET_USAGE;
-	else if (ret != EFI_SUCCESS)
-		return CMD_RET_FAILURE;
 
 	ret = efi_bootmgr_load(&handle);
 	if (ret != EFI_SUCCESS) {
@@ -355,16 +338,15 @@ static int do_efibootmgr(const char *fdt_opt)
 }
 
 /*
- * do_bootefi_image() - execute EFI binary from command line
+ * do_bootefi_image() - execute EFI binary
+ *
+ * Set up memory image for the binary to be loaded, prepare device path, and
+ * then call do_bootefi_exec() to execute it.
  *
  * @image_opt:	string of image start address
- * @fdt_opt:	string of fdt start address
  * Return:	status code
- *
- * Set up memory image for the binary to be loaded, prepare
- * device path and then call do_bootefi_exec() to execute it.
  */
-static int do_bootefi_image(const char *image_opt, const char *fdt_opt)
+static int do_bootefi_image(const char *image_opt)
 {
 	void *image_buf;
 	struct efi_device_path *device_path, *image_path;
@@ -373,20 +355,6 @@ static int do_bootefi_image(const char *image_opt, const char *fdt_opt)
 	const char *size_str;
 	efi_handle_t mem_handle = NULL, handle;
 	efi_status_t ret;
-
-	/* Initialize EFI drivers */
-	ret = efi_init_obj_list();
-	if (ret != EFI_SUCCESS) {
-		printf("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-		       ret & ~EFI_ERROR_MASK);
-		return CMD_RET_FAILURE;
-	}
-
-	ret = efi_install_fdt(fdt_opt);
-	if (ret == EFI_INVALID_PARAMETER)
-		return CMD_RET_USAGE;
-	else if (ret != EFI_SUCCESS)
-		return CMD_RET_FAILURE;
 
 #ifdef CONFIG_CMD_BOOTEFI_HELLO
 	if (!strcmp(image_opt, "hello")) {
@@ -547,32 +515,15 @@ static void bootefi_run_finish(struct efi_loaded_image_obj *image_obj,
 }
 
 /**
- * do_efi_selftest() - execute EFI Selftest
+ * do_efi_selftest() - execute EFI selftest
  *
- * @fdt_opt:	string of fdt start address
  * Return:	status code
- *
- * Execute EFI Selftest
  */
-static int do_efi_selftest(const char *fdt_opt)
+static int do_efi_selftest(void)
 {
 	struct efi_loaded_image_obj *image_obj;
 	struct efi_loaded_image *loaded_image_info;
 	efi_status_t ret;
-
-	/* Initialize EFI drivers */
-	ret = efi_init_obj_list();
-	if (ret != EFI_SUCCESS) {
-		printf("Error: Cannot initialize UEFI sub-system, r = %lu\n",
-		       ret & ~EFI_ERROR_MASK);
-		return CMD_RET_FAILURE;
-	}
-
-	ret = efi_install_fdt(fdt_opt);
-	if (ret == EFI_INVALID_PARAMETER)
-		return CMD_RET_USAGE;
-	else if (ret != EFI_SUCCESS)
-		return CMD_RET_FAILURE;
 
 	ret = bootefi_test_prepare(&image_obj, &loaded_image_info,
 				   "\\selftest", "efi_selftest");
@@ -587,20 +538,44 @@ static int do_efi_selftest(const char *fdt_opt)
 }
 #endif /* CONFIG_CMD_BOOTEFI_SELFTEST */
 
-/* Interpreter command to boot an arbitrary EFI image from memory */
+/**
+ * do_bootefi() - execute `bootefi` command
+ *
+ * @cmdtp:	table entry describing command
+ * @flag:	bitmap indicating how the command was invoked
+ * @argc:	number of arguments
+ * @argv:	command line arguments
+ * Return:	status code
+ */
 static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	efi_status_t ret;
+
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
+	/* Initialize EFI drivers */
+	ret = efi_init_obj_list();
+	if (ret != EFI_SUCCESS) {
+		printf("Error: Cannot initialize UEFI sub-system, r = %lu\n",
+		       ret & ~EFI_ERROR_MASK);
+		return CMD_RET_FAILURE;
+	}
+
+	ret = efi_install_fdt(argc > 2 ? argv[2] : NULL);
+	if (ret == EFI_INVALID_PARAMETER)
+		return CMD_RET_USAGE;
+	else if (ret != EFI_SUCCESS)
+		return CMD_RET_FAILURE;
+
 	if (!strcmp(argv[1], "bootmgr"))
-		return do_efibootmgr(argc > 2 ? argv[2] : NULL);
+		return do_efibootmgr();
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 	else if (!strcmp(argv[1], "selftest"))
-		return do_efi_selftest(argc > 2 ? argv[2] : NULL);
+		return do_efi_selftest();
 #endif
 
-	return do_bootefi_image(argv[1], argc > 2 ? argv[2] : NULL);
+	return do_bootefi_image(argv[1]);
 }
 
 #ifdef CONFIG_SYS_LONGHELP
