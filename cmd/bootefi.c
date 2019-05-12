@@ -196,11 +196,16 @@ static void *get_config_table(const efi_guid_t *guid)
 
 /**
  * efi_install_fdt() - install fdt passed by a command argument
+ *
+ * If fdt_opt is available, the device tree located at that memory address will
+ * will be installed as configuration table, otherwise the device tree located
+ * at the address indicated by environment variable fdtcontroladdr will be used.
+ *
+ * On architectures (x86) using ACPI tables device trees shall not be installed
+ * as configuration table.
+ *
  * @fdt_opt:	pointer to argument
  * Return:	status code
- *
- * If specified, fdt will be installed as configuration table,
- * otherwise no fdt will be passed.
  */
 static efi_status_t efi_install_fdt(const char *fdt_opt)
 {
