@@ -181,10 +181,12 @@ static void efi_queue_event(struct efi_event *event, bool check_tpl)
 		/* Check TPL */
 		if (check_tpl && efi_tpl >= event->notify_tpl)
 			return;
+		event->is_queued = false;
 		EFI_CALL_VOID(event->notify_function(event,
 						     event->notify_context));
+	} else {
+		event->is_queued = false;
 	}
-	event->is_queued = false;
 }
 
 /**
@@ -513,10 +515,8 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
 	ret = efi_search_protocol(handle, protocol, &handler);
 	if (ret != EFI_SUCCESS)
 		return ret;
-	if (guidcmp(handler->guid, protocol))
-		return EFI_INVALID_PARAMETER;
 	if (handler->protocol_interface != protocol_interface)
-		return EFI_INVALID_PARAMETER;
+		return EFI_NOT_FOUND;
 	list_del(&handler->link);
 	free(handler);
 	return EFI_SUCCESS;
@@ -1439,7 +1439,7 @@ static efi_status_t efi_locate_handle(
 
 	*buffer_size = size;
 
-	/* The buffer size is sufficient but there is not buffer */
+	/* The buffer size is sufficient but there is no buffer */
 	if (!buffer)
 		return EFI_INVALID_PARAMETER;
 
@@ -2261,7 +2261,7 @@ static efi_status_t EFIAPI efi_locate_device_path(
 
 	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
 
-	if (!protocol || !device_path || !*device_path || !device) {
+	if (!protocol || !device_path || !*device_path) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
@@ -2294,6 +2294,10 @@ static efi_status_t EFIAPI efi_locate_device_path(
 		/* Check if dp is a subpath of device_path */
 		if (memcmp(*device_path, dp, len_dp))
 			continue;
+		if (!device) {
+			ret = EFI_INVALID_PARAMETER;
+			goto out;
+		}
 		*device = handles[i];
 		len_best = len_dp;
 	}

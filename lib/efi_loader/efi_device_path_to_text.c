@@ -78,9 +78,9 @@ static char *dp_acpi(char *s, struct efi_device_path *dp)
 	case DEVICE_PATH_SUB_TYPE_ACPI_DEVICE: {
 		struct efi_device_path_acpi_path *adp =
 			(struct efi_device_path_acpi_path *)dp;
-		s += sprintf(s, "Acpi(PNP%04x", EISA_PNP_NUM(adp->hid));
-		if (adp->uid)
-			s += sprintf(s, ",%d", adp->uid);
+
+		s += sprintf(s, "Acpi(PNP%04X", EISA_PNP_NUM(adp->hid));
+		s += sprintf(s, ",%d", adp->uid);
 		s += sprintf(s, ")");
 		break;
 	}

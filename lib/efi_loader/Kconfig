@@ -1,5 +1,5 @@
 config EFI_LOADER
-	bool "Support running EFI Applications in U-Boot"
+	bool "Support running UEFI applications"
 	depends on (ARM || X86 || RISCV || SANDBOX) && OF_LIBFDT
 	# We need EFI_STUB_64BIT to be set on x86_64 with EFI_STUB
 	depends on !EFI_STUB || !X86_64 || EFI_STUB_64BIT
@@ -11,43 +11,22 @@ config EFI_LOADER
 	select REGEX
 	imply CFB_CONSOLE_ANSI
 	help
-	  Select this option if you want to run EFI applications (like grub2)
-	  on top of U-Boot. If this option is enabled, U-Boot will expose EFI
-	  interfaces to a loaded EFI application, enabling it to reuse U-Boot's
-	  device drivers.
+	  Select this option if you want to run UEFI applications (like GNU
+	  GRUB or iPXE) on top of U-Boot. If this option is enabled, U-Boot
+	  will expose the UEFI API to a loaded application, enabling it to
+	  reuse U-Boot's device drivers.
 
-config EFI_UNICODE_CAPITALIZATION
-	bool "Support Unicode capitalization"
-	depends on EFI_LOADER
+if EFI_LOADER
+
+config EFI_DEVICE_PATH_TO_TEXT
+	bool "Device path to text protocol"
 	default y
 	help
-	  Select this option to enable correct handling of the capitalization of
-	  Unicode codepoints in the range 0x0000-0xffff. If this option is not
-	  set, only the the correct handling of the letters of the codepage
-	  used by the FAT file system is ensured.
-
-config EFI_PLATFORM_LANG_CODES
-	string "Language codes supported by firmware"
-	depends on EFI_LOADER
-	default "en-US"
-	help
-	  This value is used to initialize the PlatformLangCodes variable. Its
-	  value is a semicolon (;) separated list of language codes in native
-	  RFC 4646 format, e.g. "en-US;de-DE". The first language code is used
-	  to initialize the PlatformLang variable.
-
-config EFI_LOADER_BOUNCE_BUFFER
-	bool "EFI Applications use bounce buffers for DMA operations"
-	depends on EFI_LOADER && ARM64
-	default n
-	help
-	  Some hardware does not support DMA to full 64bit addresses. For this
-	  hardware we can create a bounce buffer so that payloads don't have to
-	  worry about platform details.
+	  The device path to text protocol converts device nodes and paths to
+	  human readable strings.
 
 config EFI_LOADER_HII
-	bool "Expose HII protocols to EFI applications"
-	depends on EFI_LOADER
+	bool "HII protocols"
 	default y
 	help
 	  The Human Interface Infrastructure is a complicated framework that
@@ -56,3 +35,43 @@ config EFI_LOADER_HII
 
 	  U-Boot implements enough of its features to be able to run the UEFI
 	  Shell, but not more than that.
+
+config EFI_UNICODE_COLLATION_PROTOCOL
+	bool "Unicode collation protocol"
+	default y
+	help
+	  The Unicode collation protocol is used for lexical comparisons. It is
+	  required to run the UEFI shell.
+
+if EFI_UNICODE_COLLATION_PROTOCOL
+
+config EFI_UNICODE_CAPITALIZATION
+	bool "Support Unicode capitalization"
+	default y
+	help
+	  Select this option to enable correct handling of the capitalization of
+	  Unicode codepoints in the range 0x0000-0xffff. If this option is not
+	  set, only the the correct handling of the letters of the codepage
+	  used by the FAT file system is ensured.
+
+endif
+
+config EFI_LOADER_BOUNCE_BUFFER
+	bool "EFI Applications use bounce buffers for DMA operations"
+	depends on ARM64
+	default n
+	help
+	  Some hardware does not support DMA to full 64bit addresses. For this
+	  hardware we can create a bounce buffer so that payloads don't have to
+	  worry about platform details.
+
+config EFI_PLATFORM_LANG_CODES
+	string "Language codes supported by firmware"
+	default "en-US"
+	help
+	  This value is used to initialize the PlatformLangCodes variable. Its
+	  value is a semicolon (;) separated list of language codes in native
+	  RFC 4646 format, e.g. "en-US;de-DE". The first language code is used
+	  to initialize the PlatformLang variable.
+
+endif
