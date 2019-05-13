@@ -8,7 +8,6 @@
 #define	_RESET_MANAGER_S10_
 
 void reset_cpu(ulong addr);
-void reset_deassert_peripherals_handoff(void);
 int cpu_has_been_warmreset(void);
 
 void socfpga_bridges_reset(int enable);

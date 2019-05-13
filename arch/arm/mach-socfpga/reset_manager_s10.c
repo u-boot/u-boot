@@ -95,17 +95,6 @@ void socfpga_bridges_reset(int enable)
 }
 
 /*
- * Release peripherals from reset based on handoff
- */
-void reset_deassert_peripherals_handoff(void)
-{
-	writel(0, &reset_manager_base->per1modrst);
-	/* Enable OCP first */
-	writel(~RSTMGR_PER0MODRST_OCP_MASK, &reset_manager_base->per0modrst);
-	writel(0, &reset_manager_base->per0modrst);
-}
-
-/*
  * Return non-zero if the CPU has been warm reset
  */
 int cpu_has_been_warmreset(void)
