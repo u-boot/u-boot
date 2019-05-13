@@ -28,8 +28,6 @@
 #define SDRAM_BANK_SIZE			(512UL << 20UL)
 #define SDRAM_MAX_SIZE                  (CONFIG_NR_DRAM_BANKS * SDRAM_BANK_SIZE)
 
-#define CONFIG_SPI_FLASH_GIGADEVICE
-
 #ifndef CONFIG_SPL_BUILD
 /* usb otg */
 
