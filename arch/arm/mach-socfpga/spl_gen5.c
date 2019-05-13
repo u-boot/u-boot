@@ -175,8 +175,7 @@ void board_init_f(ulong dummy)
 	sysmgr_pinmux_init();
 	sysmgr_config_warmrstcfgio(0);
 
-	/* De-assert reset for peripherals and bridges based on handoff */
-	reset_deassert_peripherals_handoff();
+	/* Set bridges handoff value */
 	socfpga_bridges_set_handoff_regs(true, true, true);
 
 	debug("Unfreezing/Thaw all I/O banks\n");
