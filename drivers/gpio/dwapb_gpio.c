@@ -17,8 +17,6 @@
 #include <errno.h>
 #include <reset.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 #define GPIO_SWPORT_DR(p)	(0x00 + (p) * 0xc)
 #define GPIO_SWPORT_DDR(p)	(0x04 + (p) * 0xc)
 #define GPIO_INTEN		0x30
@@ -150,10 +148,10 @@ static int gpio_dwapb_probe(struct udevice *dev)
 static int gpio_dwapb_bind(struct udevice *dev)
 {
 	struct gpio_dwapb_platdata *plat = dev_get_platdata(dev);
-	const void *blob = gd->fdt_blob;
 	struct udevice *subdev;
 	fdt_addr_t base;
-	int ret, node, bank = 0;
+	int ret, bank = 0;
+	ofnode node;
 
 	/* If this is a child device, there is nothing to do here */
 	if (plat)
@@ -165,10 +163,9 @@ static int gpio_dwapb_bind(struct udevice *dev)
 		return -ENXIO;
 	}
 
-	for (node = fdt_first_subnode(blob, dev_of_offset(dev));
-	     node > 0;
-	     node = fdt_next_subnode(blob, node)) {
-		if (!fdtdec_get_bool(blob, node, "gpio-controller"))
+	for (node = dev_read_first_subnode(dev); ofnode_valid(node);
+	     node = dev_read_next_subnode(node)) {
+		if (!ofnode_read_bool(node, "gpio-controller"))
 			continue;
 
 		plat = devm_kcalloc(dev, 1, sizeof(*plat), GFP_KERNEL);
@@ -177,15 +174,15 @@ static int gpio_dwapb_bind(struct udevice *dev)
 
 		plat->base = base;
 		plat->bank = bank;
-		plat->pins = fdtdec_get_int(blob, node, "snps,nr-gpios", 0);
-		plat->name = fdt_stringlist_get(blob, node, "bank-name", 0,
-						NULL);
-		if (!plat->name) {
+		plat->pins = ofnode_read_u32_default(node, "snps,nr-gpios", 0);
+
+		if (ofnode_read_string_index(node, "bank-name", 0,
+					     &plat->name)) {
 			/*
 			 * Fall back to node name. This means accessing pins
 			 * via bank name won't work.
 			 */
-			plat->name = fdt_get_name(blob, node, NULL);
+			plat->name = ofnode_get_name(node);
 		}
 
 		ret = device_bind(dev, dev->driver, plat->name,
@@ -193,7 +190,7 @@ static int gpio_dwapb_bind(struct udevice *dev)
 		if (ret)
 			return ret;
 
-		dev_set_of_offset(subdev, node);
+		dev->node = node;
 		bank++;
 	}
 

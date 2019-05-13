@@ -17,8 +17,6 @@
 #define DW_APB_CURR_VAL		0x4
 #define DW_APB_CTRL		0x8
 
-DECLARE_GLOBAL_DATA_PTR;
-
 struct dw_apb_timer_priv {
 	fdt_addr_t	regs;
 };

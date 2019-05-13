@@ -10,8 +10,6 @@
 #include <serial.h>
 #include <asm/io.h>
 
-DECLARE_GLOBAL_DATA_PTR;
-
 /* status register */
 #define ALTERA_UART_TMT		BIT(5)	/* tx empty */
 #define ALTERA_UART_TRDY	BIT(6)	/* tx ready */
@@ -91,8 +89,7 @@ static int altera_uart_ofdata_to_platdata(struct udevice *dev)
 	plat->regs = map_physmem(devfdt_get_addr(dev),
 				 sizeof(struct altera_uart_regs),
 				 MAP_NOCACHE);
-	plat->uartclk = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-		"clock-frequency", 0);
+	plat->uartclk = dev_read_u32_default(dev, "clock-frequency", 0);
 
 	return 0;
 }

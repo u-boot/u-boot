@@ -107,14 +107,12 @@ static const struct reset_ops socfpga_reset_ops = {
 static int socfpga_reset_probe(struct udevice *dev)
 {
 	struct socfpga_reset_data *data = dev_get_priv(dev);
-	const void *blob = gd->fdt_blob;
-	int node = dev_of_offset(dev);
 	u32 modrst_offset;
 	void __iomem *membase;
 
 	membase = devfdt_get_addr_ptr(dev);
 
-	modrst_offset = fdtdec_get_int(blob, node, "altr,modrst-offset", 0x10);
+	modrst_offset = dev_read_u32_default(dev, "altr,modrst-offset", 0x10);
 	data->modrst_base = membase + modrst_offset;
 
 	return 0;
