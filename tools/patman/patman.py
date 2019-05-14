@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # SPDX-License-Identifier: GPL-2.0+
 #
 # Copyright (c) 2011 The Chromium OS Authors.
