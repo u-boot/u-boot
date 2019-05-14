@@ -131,7 +131,7 @@ def Binman(options, args):
 
             if options.image:
                 skip = []
-                for name, image in images.iteritems():
+                for name, image in images.items():
                     if name not in options.image:
                         del images[name]
                         skip.append(name)

@@ -253,7 +253,7 @@ class Section(object):
         """
         for entry in self._entries.values():
             offset_dict = entry.GetOffsets()
-            for name, info in offset_dict.iteritems():
+            for name, info in offset_dict.items():
                 self._SetEntryOffsetSize(name, *info)
 
     def PackEntries(self):
