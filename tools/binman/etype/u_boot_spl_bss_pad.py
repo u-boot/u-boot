@@ -38,5 +38,5 @@ class Entry_u_boot_spl_bss_pad(Entry_blob):
         bss_size = elf.GetSymbolAddress(fname, '__bss_size')
         if not bss_size:
             self.Raise('Expected __bss_size symbol in spl/u-boot-spl')
-        self.SetContents(chr(0) * bss_size)
+        self.SetContents(tools.GetBytes(0, bss_size))
         return True

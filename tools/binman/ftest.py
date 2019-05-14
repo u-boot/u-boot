@@ -551,8 +551,8 @@ class TestFunctional(unittest.TestCase):
         with open(fname, 'rb') as fd:
             data = fd.read()
             self.assertEqual(U_BOOT_DATA, data[3:7])
-            self.assertEqual(chr(0) * 3, data[:3])
-            self.assertEqual(chr(0) * 5, data[7:])
+            self.assertEqual(tools.GetBytes(0, 3), data[:3])
+            self.assertEqual(tools.GetBytes(0, 5), data[7:])
 
     def testBadAlign(self):
         """Test that an invalid alignment value is detected"""
@@ -731,7 +731,8 @@ class TestFunctional(unittest.TestCase):
         """Test that the image pad byte can be specified"""
         self._SetupSplElf()
         data = self._DoReadFile('021_image_pad.dts')
-        self.assertEqual(U_BOOT_SPL_DATA + (chr(0xff) * 1) + U_BOOT_DATA, data)
+        self.assertEqual(U_BOOT_SPL_DATA + tools.GetBytes(0xff, 1) +
+                         U_BOOT_DATA, data)
 
     def testImageName(self):
         """Test that image files can be named"""
@@ -754,8 +755,8 @@ class TestFunctional(unittest.TestCase):
         """Test that entries can be sorted"""
         self._SetupSplElf()
         data = self._DoReadFile('024_sorted.dts')
-        self.assertEqual(chr(0) * 1 + U_BOOT_SPL_DATA + chr(0) * 2 +
-                         U_BOOT_DATA, data)
+        self.assertEqual(tools.GetBytes(0, 1) + U_BOOT_SPL_DATA +
+                         tools.GetBytes(0, 2) + U_BOOT_DATA, data)
 
     def testPackZeroOffset(self):
         """Test that an entry at offset 0 is not given a new offset"""
@@ -797,8 +798,8 @@ class TestFunctional(unittest.TestCase):
         """Test that a basic x86 ROM can be created"""
         self._SetupSplElf()
         data = self._DoReadFile('029_x86-rom.dts')
-        self.assertEqual(U_BOOT_DATA + chr(0) * 7 + U_BOOT_SPL_DATA +
-                         chr(0) * 2, data)
+        self.assertEqual(U_BOOT_DATA + tools.GetBytes(0, 7) + U_BOOT_SPL_DATA +
+                         tools.GetBytes(0, 2), data)
 
     def testPackX86RomMeNoDesc(self):
         """Test that an invalid Intel descriptor entry is detected"""
@@ -1005,7 +1006,7 @@ class TestFunctional(unittest.TestCase):
 
         used_len = len(U_BOOT_NODTB_DATA) + fdt_len
         third = data[used_len:]
-        self.assertEqual(chr(0) * (0x200 - used_len), third)
+        self.assertEqual(tools.GetBytes(0, 0x200 - used_len), third)
 
     def testUnknownPosSize(self):
         """Test that microcode must be placed within the image"""
@@ -1034,7 +1035,8 @@ class TestFunctional(unittest.TestCase):
         # ELF file with a '__bss_size' symbol
         self._SetupSplElf()
         data = self._DoReadFile('047_spl_bss_pad.dts')
-        self.assertEqual(U_BOOT_SPL_DATA + (chr(0) * 10) + U_BOOT_DATA, data)
+        self.assertEqual(U_BOOT_SPL_DATA + tools.GetBytes(0, 10) + U_BOOT_DATA,
+                         data)
 
     def testSplBssPadMissing(self):
         """Test that a missing symbol is detected"""
@@ -1108,9 +1110,9 @@ class TestFunctional(unittest.TestCase):
         self._SetupSplElf('u_boot_binman_syms')
         data = self._DoReadFile('053_symbols.dts')
         sym_values = struct.pack('<LQL', 0x24 + 0, 0x24 + 24, 0x24 + 20)
-        expected = (sym_values + U_BOOT_SPL_DATA[16:] + chr(0xff) +
-                    U_BOOT_DATA +
-                    sym_values + U_BOOT_SPL_DATA[16:])
+        expected = (sym_values + U_BOOT_SPL_DATA[16:] +
+                    tools.GetBytes(0xff, 1) + U_BOOT_DATA + sym_values +
+                    U_BOOT_SPL_DATA[16:])
         self.assertEqual(expected, data)
 
     def testPackUnitAddress(self):
@@ -1280,8 +1282,8 @@ class TestFunctional(unittest.TestCase):
         }
         data, _, _, _ = self._DoReadFileDtb('066_text.dts',
                                             entry_args=entry_args)
-        expected = (TEXT_DATA + chr(0) * (8 - len(TEXT_DATA)) + TEXT_DATA2 +
-                    TEXT_DATA3 + 'some text')
+        expected = (TEXT_DATA + tools.GetBytes(0, 8 - len(TEXT_DATA)) +
+                    TEXT_DATA2 + TEXT_DATA3 + 'some text')
         self.assertEqual(expected, data)
 
     def testEntryDocs(self):
@@ -1340,7 +1342,7 @@ class TestFunctional(unittest.TestCase):
     def testFill(self):
         """Test for an fill entry type"""
         data = self._DoReadFile('069_fill.dts')
-        expected = 8 * chr(0xff) + 8 * chr(0)
+        expected = tools.GetBytes(0xff, 8) + tools.GetBytes(0, 8)
         self.assertEqual(expected, data)
 
     def testFillNoSize(self):
@@ -1370,7 +1372,8 @@ class TestFunctional(unittest.TestCase):
         data, _, _, _ = self._DoReadFileDtb('071_gbb.dts', entry_args=entry_args)
 
         # Since futility
-        expected = GBB_DATA + GBB_DATA + 8 * chr(0) + (0x2180 - 16) * chr(0)
+        expected = (GBB_DATA + GBB_DATA + tools.GetBytes(0, 8) +
+                    tools.GetBytes(0, 0x2180 - 16))
         self.assertEqual(expected, data)
 
     def testGbbTooSmall(self):
@@ -1445,7 +1448,7 @@ class TestFunctional(unittest.TestCase):
     def testFillZero(self):
         """Test for an fill entry type with a size of 0"""
         data = self._DoReadFile('080_fill_empty.dts')
-        self.assertEqual(chr(0) * 16, data)
+        self.assertEqual(tools.GetBytes(0, 16), data)
 
     def testTextMissing(self):
         """Test for a text entry type where there is no text"""
@@ -1796,9 +1799,12 @@ class TestFunctional(unittest.TestCase):
 0000002c    00000000  00000004  u-boot
 ''', map_data)
         self.assertEqual(data,
-                         4 * chr(0x26) + U_BOOT_DATA + 12 * chr(0x21) +
-                         4 * chr(0x26) + U_BOOT_DATA + 12 * chr(0x61) +
-                         4 * chr(0x26) + U_BOOT_DATA + 8 * chr(0x26))
+                         tools.GetBytes(0x26, 4) + U_BOOT_DATA +
+                             tools.GetBytes(0x21, 12) +
+                         tools.GetBytes(0x26, 4) + U_BOOT_DATA +
+                             tools.GetBytes(0x61, 12) +
+                         tools.GetBytes(0x26, 4) + U_BOOT_DATA +
+                             tools.GetBytes(0x26, 8))
 
 
 if __name__ == "__main__":

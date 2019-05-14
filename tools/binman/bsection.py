@@ -332,7 +332,7 @@ class Section(object):
 
     def GetData(self):
         """Get the contents of the section"""
-        section_data = chr(self._pad_byte) * self._size
+        section_data = tools.GetBytes(self._pad_byte, self._size)
 
         for entry in self._entries.values():
             data = entry.GetData()

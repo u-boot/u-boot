@@ -122,7 +122,7 @@ class TestElf(unittest.TestCase):
         section = FakeSection(sym_value=None)
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
         syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
-        self.assertEqual(chr(255) * 16 + 'a' * 4, entry.data)
+        self.assertEqual(tools.GetBytes(255, 16) + 'a' * 4, entry.data)
 
     def testDebug(self):
         """Check that enabling debug in the elf module produced debug output"""

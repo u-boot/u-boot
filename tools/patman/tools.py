@@ -7,6 +7,7 @@ import command
 import glob
 import os
 import shutil
+import sys
 import tempfile
 
 import tout
@@ -239,3 +240,21 @@ def WriteFile(fname, data):
                    #(fname, len(data), len(data)))
     with open(Filename(fname), 'wb') as fd:
         fd.write(data)
+
+def GetBytes(byte, size):
+    """Get a string of bytes of a given size
+
+    This handles the unfortunate different between Python 2 and Python 2.
+
+    Args:
+        byte: Numeric byte value to use
+        size: Size of bytes/string to return
+
+    Returns:
+        A bytes type with 'byte' repeated 'size' times
+    """
+    if sys.version_info[0] >= 3:
+        data = bytes([byte]) * size
+    else:
+        data = chr(byte) * size
+    return data
