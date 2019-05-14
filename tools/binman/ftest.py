@@ -291,7 +291,6 @@ class TestFunctional(unittest.TestCase):
         # Use the compiled test file as the u-boot-dtb input
         if use_real_dtb:
             dtb_data = self._SetupDtb(fname)
-            infile = os.path.join(self._indir, 'u-boot.dtb')
 
             # For testing purposes, make a copy of the DT for SPL and TPL. Add
             # a node indicating which it is, so aid verification.
