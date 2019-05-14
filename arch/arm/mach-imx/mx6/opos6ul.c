@@ -192,6 +192,8 @@ struct mx6_ddr_sysinfo ddr_sysinfo = {
 	.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
 	.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
 	.ddr_type = DDR_TYPE_DDR3,
+	.refsel = 1,		/* Refresh cycles at 32KHz */
+	.refr = 7,		/* 8 refreshes commands per refresh cycle */
 };
 
 static struct mx6_ddr3_cfg mem_ddr = {
