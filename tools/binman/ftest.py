@@ -1557,7 +1557,7 @@ class TestFunctional(unittest.TestCase):
         out = os.path.join(self._indir, 'lz4.tmp')
         with open(out, 'wb') as fd:
             fd.write(data)
-        return tools.Run('lz4', '-dc', out)
+        return tools.Run('lz4', '-dc', out, binary=True)
         '''
         try:
             orig = lz4.frame.decompress(data)
