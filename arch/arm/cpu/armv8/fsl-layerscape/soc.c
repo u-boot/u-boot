@@ -126,6 +126,10 @@ static void erratum_a008997(void)
 	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB2);
 	set_usb_pcstxswingfull(scfg, SCFG_USB3PRM2CR_USB3);
 #endif
+#elif defined(CONFIG_ARCH_LS1028A)
+	clrsetbits_le32(DCSR_BASE +  DCSR_USB_IOCR1,
+			0x7F << 11,
+			DCSR_USB_PCSTXSWINGFULL << 11);
 #endif
 #endif /* CONFIG_SYS_FSL_ERRATUM_A008997 */
 }
