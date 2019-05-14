@@ -58,26 +58,26 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
     # Check to make sure that bogus project gets general alias.
     >>> config = _ProjectConfigParser("zzz")
     >>> config.readfp(StringIO(sample_config))
-    >>> config.get("alias", "enemies")
-    u'Evil <evil@example.com>'
+    >>> str(config.get("alias", "enemies"))
+    'Evil <evil@example.com>'
 
     # Check to make sure that alias gets overridden by project.
     >>> config = _ProjectConfigParser("sm")
     >>> config.readfp(StringIO(sample_config))
-    >>> config.get("alias", "enemies")
-    u'Green G. <ugly@example.com>'
+    >>> str(config.get("alias", "enemies"))
+    'Green G. <ugly@example.com>'
 
     # Check to make sure that settings get merged with project.
     >>> config = _ProjectConfigParser("linux")
     >>> config.readfp(StringIO(sample_config))
-    >>> sorted(config.items("settings"))
-    [(u'am_hero', u'True'), (u'process_tags', u'False')]
+    >>> sorted((str(a), str(b)) for (a, b) in config.items("settings"))
+    [('am_hero', 'True'), ('process_tags', 'False')]
 
     # Check to make sure that settings works with unknown project.
     >>> config = _ProjectConfigParser("unknown")
     >>> config.readfp(StringIO(sample_config))
-    >>> sorted(config.items("settings"))
-    [(u'am_hero', u'True')]
+    >>> sorted((str(a), str(b)) for (a, b) in config.items("settings"))
+    [('am_hero', 'True')]
     """
     def __init__(self, project_name):
         """Construct _ProjectConfigParser.
