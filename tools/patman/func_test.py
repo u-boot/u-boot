@@ -183,10 +183,10 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual('Prefix:\t  RFC', lines[line + 3])
         self.assertEqual('Cover: 4 lines', lines[line + 4])
         line += 5
-        self.assertEqual('      Cc:  %s' % mel.encode('utf-8'), lines[line + 0])
-        self.assertEqual('      Cc:  %s' % rick, lines[line + 1])
-        self.assertEqual('      Cc:  %s' % fred, lines[line + 2])
-        self.assertEqual('      Cc:  %s' % ed.encode('utf-8'), lines[line + 3])
+        self.assertEqual('      Cc:  %s' % fred, lines[line + 0])
+        self.assertEqual('      Cc:  %s' % ed.encode('utf-8'), lines[line + 1])
+        self.assertEqual('      Cc:  %s' % mel.encode('utf-8'), lines[line + 2])
+        self.assertEqual('      Cc:  %s' % rick, lines[line + 3])
         expected = ('Git command: git send-email --annotate '
                     '--in-reply-to="%s" --to "u-boot@lists.denx.de" '
                     '--cc "%s" --cc-cmd "%s --cc-cmd %s" %s %s'
@@ -197,8 +197,8 @@ class TestFunctional(unittest.TestCase):
 
         self.assertEqual(('%s %s, %s' % (args[0], rick, stefan))
                          .encode('utf-8'), cc_lines[0])
-        self.assertEqual(('%s %s, %s, %s, %s' % (args[1], fred, rick, stefan,
-                                            ed)).encode('utf-8'), cc_lines[1])
+        self.assertEqual(('%s %s, %s, %s, %s' % (args[1], fred, ed, rick,
+                                     stefan)).encode('utf-8'), cc_lines[1])
 
         expected = '''
 This is a test of how the cover
