@@ -239,7 +239,7 @@ class Series(dict):
             for x in set(cc) & set(settings.bounces):
                 print(col.Color(col.YELLOW, 'Skipping "%s"' % x))
             cc = set(cc) - set(settings.bounces)
-            cc = [m.encode('utf-8') if type(m) != str else m for m in cc]
+            cc = [tools.FromUnicode(m) for m in cc]
             if limit is not None:
                 cc = cc[:limit]
             all_ccs += cc
@@ -248,8 +248,7 @@ class Series(dict):
 
         if cover_fname:
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
-            cover_cc = [m.encode('utf-8') if type(m) != str else m
-                        for m in cover_cc]
+            cover_cc = [tools.FromUnicode(m) for m in cover_cc]
             cc_list = ', '.join([tools.ToUnicode(x)
                                  for x in sorted(set(cover_cc + all_ccs))])
             print(cover_fname, cc_list.encode('utf-8'), file=fd)
