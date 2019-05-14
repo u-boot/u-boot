@@ -301,6 +301,7 @@ S:	Maintained
 F:	arch/arm/mach-stm32mp/
 F:	drivers/clk/clk_stm32mp1.c
 F:	drivers/i2c/stm32f7_i2c.c
+F:	drivers/mailbox/stm32-ipcc.c
 F:	drivers/misc/stm32mp_fuse.c
 F:	drivers/mmc/stm32_sdmmc2.c
 F:	drivers/phy/phy-stm32-usbphyc.c
