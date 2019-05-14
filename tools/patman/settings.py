@@ -163,7 +163,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
         item_dict = dict(top_items)
         item_dict.update(project_items)
         return {(self._to_unicode(item), self._to_unicode(val))
-                for item, val in item_dict.iteritems()}
+                for item, val in item_dict.items()}
 
 def ReadGitAliases(fname):
     """Read a git alias file. This is in the form used by git:
