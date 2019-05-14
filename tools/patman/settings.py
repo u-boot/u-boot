@@ -14,6 +14,7 @@ import re
 
 import command
 import gitutil
+import tools
 
 """Default settings per-project.
 
@@ -99,17 +100,6 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
         for setting_name, setting_value in project_defaults.items():
             self.set(project_settings, setting_name, setting_value)
 
-    def _to_unicode(self, val):
-        """Make sure a value is of type 'unicode'
-
-        Args:
-            val: string or unicode object
-
-        Returns:
-            unicode version of val
-        """
-        return val if isinstance(val, unicode) else val.decode('utf-8')
-
     def get(self, section, option, *args, **kwargs):
         """Extend SafeConfigParser to try project_section before section.
 
@@ -127,7 +117,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
             val = ConfigParser.SafeConfigParser.get(
                 self, section, option, *args, **kwargs
             )
-        return self._to_unicode(val)
+        return tools.ToUnicode(val)
 
     def items(self, section, *args, **kwargs):
         """Extend SafeConfigParser to add project_section to section.
@@ -162,7 +152,7 @@ class _ProjectConfigParser(ConfigParser.SafeConfigParser):
 
         item_dict = dict(top_items)
         item_dict.update(project_items)
-        return {(self._to_unicode(item), self._to_unicode(val))
+        return {(tools.ToUnicode(item), tools.ToUnicode(val))
                 for item, val in item_dict.items()}
 
 def ReadGitAliases(fname):

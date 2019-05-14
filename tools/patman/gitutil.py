@@ -12,6 +12,7 @@ import terminal
 
 import checkpatch
 import settings
+import tools
 
 # True to use --no-decorate - we check this in Setup()
 use_no_decorate = True
@@ -325,9 +326,8 @@ def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
         raw += LookupEmail(item, alias, raise_on_error=raise_on_error)
     result = []
     for item in raw:
+        item = tools.FromUnicode(item)
         if not item in result:
-            if type(item) == unicode:
-                item = item.encode('utf-8')
             result.append(item)
     if tag:
         return ['%s %s%s%s' % (tag, quote, email, quote) for email in result]

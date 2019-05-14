@@ -11,6 +11,7 @@ import get_maintainer
 import gitutil
 import settings
 import terminal
+import tools
 
 # Series-xxx tags that we understand
 valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
@@ -249,7 +250,7 @@ class Series(dict):
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
             cover_cc = [m.encode('utf-8') if type(m) != str else m
                         for m in cover_cc]
-            cc_list = ', '.join([x.decode('utf-8')
+            cc_list = ', '.join([tools.ToUnicode(x)
                                  for x in set(cover_cc + all_ccs)])
             print(cover_fname, cc_list.encode('utf-8'), file=fd)
 

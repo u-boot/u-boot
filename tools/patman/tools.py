@@ -258,3 +258,35 @@ def GetBytes(byte, size):
     else:
         data = chr(byte) * size
     return data
+
+def ToUnicode(val):
+    """Make sure a value is a unicode string
+
+    This allows some amount of compatibility between Python 2 and Python3. For
+    the former, it returns a unicode object.
+
+    Args:
+        val: string or unicode object
+
+    Returns:
+        unicode version of val
+    """
+    if sys.version_info[0] >= 3:
+        return val
+    return val if isinstance(val, unicode) else val.decode('utf-8')
+
+def FromUnicode(val):
+    """Make sure a value is a non-unicode string
+
+    This allows some amount of compatibility between Python 2 and Python3. For
+    the former, it converts a unicode object to a string.
+
+    Args:
+        val: string or unicode object
+
+    Returns:
+        non-unicode version of val
+    """
+    if sys.version_info[0] >= 3:
+        return val
+    return val if isinstance(val, str) else val.encode('utf-8')
