@@ -8,7 +8,6 @@
 from __future__ import print_function
 
 from collections import OrderedDict
-from sets import Set
 import sys
 
 import fdt_util
@@ -109,7 +108,7 @@ class Section(object):
 
     def GetFdtSet(self):
         """Get the set of device tree files used by this image"""
-        fdt_set = Set()
+        fdt_set = set()
         for entry in self._entries.values():
             fdt_set.update(entry.GetFdtSet())
         return fdt_set
