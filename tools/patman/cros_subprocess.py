@@ -54,7 +54,7 @@ class Popen(subprocess.Popen):
     """
 
     def __init__(self, args, stdin=None, stdout=PIPE_PTY, stderr=PIPE_PTY,
-                 shell=False, cwd=None, env=None, **kwargs):
+                 shell=False, cwd=None, env=None, binary=False, **kwargs):
         """Cut-down constructor
 
         Args:
@@ -72,6 +72,7 @@ class Popen(subprocess.Popen):
         """
         stdout_pty = None
         stderr_pty = None
+        self.binary = binary
 
         if stdout == PIPE_PTY:
             stdout_pty = pty.openpty()

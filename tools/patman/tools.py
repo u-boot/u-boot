@@ -167,9 +167,9 @@ def PathHasFile(fname):
             return True
     return False
 
-def Run(name, *args):
+def Run(name, *args, **kwargs):
     try:
-        return command.Run(name, *args, cwd=outdir, capture=True)
+        return command.Run(name, *args, cwd=outdir, capture=True, **kwargs)
     except:
         if not PathHasFile(name):
             msg = "Plesae install tool '%s'" % name
