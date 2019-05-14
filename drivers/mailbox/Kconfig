@@ -24,6 +24,13 @@ config TEGRA_HSP
 	  This enables support for the NVIDIA Tegra HSP Hw module, which
 	  implements doorbells, mailboxes, semaphores, and shared interrupts.
 
+config STM32_IPCC
+	bool "Enable STM32 IPCC controller support"
+	depends on DM_MAILBOX && ARCH_STM32MP
+	help
+	  This enables support for the STM32MP IPCC Hw module, which
+	  implements doorbells between 2 processors.
+
 config K3_SEC_PROXY
 	bool "Texas Instruments K3 Secure Proxy Driver"
 	depends on DM_MAILBOX && ARCH_K3
