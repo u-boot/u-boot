@@ -3,6 +3,8 @@
 # Copyright (c) 2016 Google, Inc
 #
 
+from __future__ import print_function
+
 from contextlib import contextmanager
 import glob
 import os
@@ -54,18 +56,18 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
         missing_list = required
         missing_list.difference_update(test_set)
         if missing_list:
-            print 'Missing tests for %s' % (', '.join(missing_list))
-            print stdout
+            print('Missing tests for %s' % (', '.join(missing_list)))
+            print(stdout)
             ok = False
 
     coverage = lines[-1].split(' ')[-1]
     ok = True
-    print coverage
+    print(coverage)
     if coverage != '100%':
-        print stdout
-        print ("Type 'python-coverage html' to get a report in "
-               'htmlcov/index.html')
-        print 'Coverage error: %s, but should be 100%%' % coverage
+        print(stdout)
+        print("Type 'python-coverage html' to get a report in "
+              'htmlcov/index.html')
+        print('Coverage error: %s, but should be 100%%' % coverage)
         ok = False
     if not ok:
         raise ValueError('Test coverage failure')

@@ -159,7 +159,6 @@ class TestFunctional(unittest.TestCase):
         os.remove(cc_file)
 
         lines = out[0].splitlines()
-        #print '\n'.join(lines)
         self.assertEqual('Cleaned %s patches' % len(series.commits), lines[0])
         self.assertEqual('Change log missing for v2', lines[1])
         self.assertEqual('Change log missing for v3', lines[2])
@@ -223,7 +222,6 @@ Simon Glass (2):
 
 '''
         lines = open(cover_fname).read().splitlines()
-        #print '\n'.join(lines)
         self.assertEqual(
                 'Subject: [RFC PATCH v3 0/2] test: A test patch series',
                 lines[3])
@@ -231,7 +229,6 @@ Simon Glass (2):
 
         for i, fname in enumerate(args):
             lines = open(fname).read().splitlines()
-            #print '\n'.join(lines)
             subject = [line for line in lines if line.startswith('Subject')]
             self.assertEqual('Subject: [RFC %d/%d]' % (i + 1, count),
                              subject[0][:18])
