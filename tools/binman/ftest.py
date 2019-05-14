@@ -119,11 +119,11 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('refcode.bin', REFCODE_DATA)
 
         # ELF file with a '_dt_ucode_base_size' symbol
-        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
+        with open(self.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
             TestFunctional._MakeInputFile('u-boot', fd.read())
 
         # Intel flash descriptor file
-        with open(self.TestFile('descriptor.bin')) as fd:
+        with open(self.TestFile('descriptor.bin'), 'rb') as fd:
             TestFunctional._MakeInputFile('descriptor.bin', fd.read())
 
         shutil.copytree(self.TestFile('files'),
@@ -236,7 +236,7 @@ class TestFunctional(unittest.TestCase):
         """
         tools.PrepareOutputDir(None)
         dtb = fdt_util.EnsureCompiled(self.TestFile(fname))
-        with open(dtb) as fd:
+        with open(dtb, 'rb') as fd:
             data = fd.read()
             TestFunctional._MakeInputFile(outfile, data)
         tools.FinaliseOutputDir()
@@ -317,7 +317,7 @@ class TestFunctional(unittest.TestCase):
                     map_data = fd.read()
             else:
                 map_data = None
-            with open(image_fname) as fd:
+            with open(image_fname, 'rb') as fd:
                 return fd.read(), dtb_data, map_data, out_dtb_fname
         finally:
             # Put the test file back
@@ -379,7 +379,7 @@ class TestFunctional(unittest.TestCase):
         Args:
             Filename of ELF file to use as SPL
         """
-        with open(self.TestFile(src_fname)) as fd:
+        with open(self.TestFile(src_fname), 'rb') as fd:
             TestFunctional._MakeInputFile('spl/u-boot-spl', fd.read())
 
     @classmethod
@@ -541,7 +541,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(len(U_BOOT_DATA), image._size)
         fname = tools.GetOutputFilename('image1.bin')
         self.assertTrue(os.path.exists(fname))
-        with open(fname) as fd:
+        with open(fname, 'rb') as fd:
             data = fd.read()
             self.assertEqual(U_BOOT_DATA, data)
 
@@ -549,7 +549,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(3 + len(U_BOOT_DATA) + 5, image._size)
         fname = tools.GetOutputFilename('image2.bin')
         self.assertTrue(os.path.exists(fname))
-        with open(fname) as fd:
+        with open(fname, 'rb') as fd:
             data = fd.read()
             self.assertEqual(U_BOOT_DATA, data[3:7])
             self.assertEqual(chr(0) * 3, data[:3])
@@ -970,7 +970,7 @@ class TestFunctional(unittest.TestCase):
         """Test that a U-Boot binary without the microcode symbol is detected"""
         # ELF file without a '_dt_ucode_base_size' symbol
         try:
-            with open(self.TestFile('u_boot_no_ucode_ptr')) as fd:
+            with open(self.TestFile('u_boot_no_ucode_ptr'), 'rb') as fd:
                 TestFunctional._MakeInputFile('u-boot', fd.read())
 
             with self.assertRaises(ValueError) as e:
@@ -980,7 +980,7 @@ class TestFunctional(unittest.TestCase):
 
         finally:
             # Put the original file back
-            with open(self.TestFile('u_boot_ucode_ptr')) as fd:
+            with open(self.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
                 TestFunctional._MakeInputFile('u-boot', fd.read())
 
     def testMicrocodeNotInImage(self):
@@ -993,7 +993,7 @@ class TestFunctional(unittest.TestCase):
 
     def testWithoutMicrocode(self):
         """Test that we can cope with an image without microcode (e.g. qemu)"""
-        with open(self.TestFile('u_boot_no_ucode_ptr')) as fd:
+        with open(self.TestFile('u_boot_no_ucode_ptr'), 'rb') as fd:
             TestFunctional._MakeInputFile('u-boot', fd.read())
         data, dtb, _, _ = self._DoReadFileDtb('044_x86_optional_ucode.dts', True)
 
@@ -1357,7 +1357,7 @@ class TestFunctional(unittest.TestCase):
             fname = pipe_list[0][-1]
             # Append our GBB data to the file, which will happen every time the
             # futility command is called.
-            with open(fname, 'a') as fd:
+            with open(fname, 'ab') as fd:
                 fd.write(GBB_DATA)
             return command.CommandResult()
 
@@ -1431,7 +1431,7 @@ class TestFunctional(unittest.TestCase):
     def testTpl(self):
         """Test that an image with TPL and ots device tree can be created"""
         # ELF file with a '__bss_size' symbol
-        with open(self.TestFile('bss_data')) as fd:
+        with open(self.TestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
         data = self._DoReadFile('078_u_boot_tpl.dts')
         self.assertEqual(U_BOOT_TPL_DATA + U_BOOT_TPL_DTB_DATA, data)
@@ -1693,7 +1693,7 @@ class TestFunctional(unittest.TestCase):
             u-boot-tpl.dtb with the microcode removed
             the microcode
         """
-        with open(self.TestFile('u_boot_ucode_ptr')) as fd:
+        with open(self.TestFile('u_boot_ucode_ptr'), 'rb') as fd:
             TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
         first, pos_and_size = self._RunMicrocodeTest('093_x86_tpl_ucode.dts',
                                                      U_BOOT_TPL_NODTB_DATA)
@@ -1748,14 +1748,14 @@ class TestFunctional(unittest.TestCase):
     def testElf(self):
         """Basic test of ELF entries"""
         self._SetupSplElf()
-        with open(self.TestFile('bss_data')) as fd:
+        with open(self.TestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('096_elf.dts')
 
     def testElfStripg(self):
         """Basic test of ELF entries"""
         self._SetupSplElf()
-        with open(self.TestFile('bss_data')) as fd:
+        with open(self.TestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('097_elf_strip.dts')
 
