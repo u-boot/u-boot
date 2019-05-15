@@ -19,7 +19,6 @@
 
 /* override size of malloc() pool */
 #undef CONFIG_SYS_MALLOC_LEN
-#define CONFIG_ENV_SIZE		(128 << 10)	/* 128 KiB sector */
 /* Shift 128 << 15 provides 4 MiB heap to support UBI commands.
  * Shift 128 << 10 provides 128 KiB heap for limited-memory devices. */
 #define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (128 << 15))

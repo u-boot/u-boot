@@ -22,9 +22,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-/* Always 128 KiB env size */
-#define CONFIG_ENV_SIZE			(128 << 10)
-
 #ifndef CONFIG_SPL_BUILD
 
 #define MEM_LAYOUT_ENV_SETTINGS \

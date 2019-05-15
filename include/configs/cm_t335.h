@@ -23,8 +23,6 @@
 #define V_OSCK				25000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-#define CONFIG_ENV_SIZE			(16 << 10)	/* 16 KiB */
-
 #ifndef CONFIG_SPL_BUILD
 #define MMCARGS \
 	"mmcdev=0\0" \

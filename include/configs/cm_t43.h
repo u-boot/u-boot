@@ -75,13 +75,8 @@
 #include <configs/ti_armv7_omap.h>
 #undef CONFIG_SYS_MONITOR_LEN
 
-#define CONFIG_ENV_SIZE			(16 * 1024)
-
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
-
-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
-#define CONFIG_ENV_OFFSET		(768 * 1024)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \

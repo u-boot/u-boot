@@ -79,9 +79,6 @@
 #define CONFIG_SYS_MEMTEST_END			0x23e00000
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
-#define CONFIG_ENV_OFFSET	0x2000
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #define CONFIG_BOOTCOMMAND	"nboot 21000000 0"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \

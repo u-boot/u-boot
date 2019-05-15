@@ -5,6 +5,7 @@ CONFIG_ARCH_OMAP2PLUS=y
 CONFIG_OMAP44XX=y
 CONFIG_TARGET_OMAP4_SDP4430=y
 CONFIG_CMD_BAT=y
+CONFIG_ENV_OFFSET=0xE0000
 CONFIG_SPL=y
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_BOOTCOMMAND="if test ${boot_fit} -eq 1; then run update_to_fit; fi; run findfdt; run init_console; run envboot; run distro_bootcmd"

@@ -52,8 +52,6 @@
 
 /* bootstrap + u-boot + env + linux in dataflash on CS0 */
 #define CONFIG_ENV_OFFSET	0x3DE000
-#define CONFIG_ENV_SIZE		(132 << 10)
-#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND

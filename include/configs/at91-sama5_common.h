@@ -57,17 +57,12 @@
 
 #ifdef CONFIG_NAND_BOOT
 /* u-boot env in nand flash */
-#define CONFIG_ENV_OFFSET		0x140000
 #define CONFIG_ENV_OFFSET_REDUND	0x100000
-#define CONFIG_ENV_SIZE			0x20000
 #define CONFIG_BOOTCOMMAND		"nand read 0x21000000 0x180000 0x80000;"	\
 					"nand read 0x22000000 0x200000 0x600000;"	\
 					"bootz 0x22000000 - 0x21000000"
 #elif CONFIG_SPI_BOOT
 /* u-boot env in serial flash, by default is bus 0 and cs 0 */
-#define CONFIG_ENV_OFFSET		0x6000
-#define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_SECT_SIZE		0x1000
 #define CONFIG_BOOTCOMMAND		"sf probe 0; "				\
 					"sf read 0x21000000 0x60000 0xc000; "	\
 					"sf read 0x22000000 0x6c000 0x394000; "	\

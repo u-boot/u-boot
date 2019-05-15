@@ -31,9 +31,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-/* Always 128 KiB env size */
-#define CONFIG_ENV_SIZE			(128 << 10)
-
 #ifdef CONFIG_NAND
 #define NANDARGS \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \

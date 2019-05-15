@@ -464,7 +464,7 @@ config ENV_EXT4_FILE
 	  It's a string of the EXT4 file name. This file use to store the
 	  environment (explicit path to the file)
 
-if ARCH_ROCKCHIP || ARCH_SUNXI || ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL || ARC || ARCH_STM32MP
+if ARCH_ROCKCHIP || ARCH_SUNXI || ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL || ARC || ARCH_STM32MP || ARCH_OMAP2PLUS || ARCH_AT91
 
 config ENV_OFFSET
 	hex "Environment Offset"
@@ -475,23 +475,26 @@ config ENV_OFFSET
 	default 0xE0000 if ARCH_ZYNQ
 	default 0x1E00000 if ARCH_ZYNQMP
 	default 0 if ARC
+	default 0x140000 if ARCH_AT91
+	default 0x260000 if ARCH_OMAP2PLUS
 	help
 	  Offset from the start of the device (or partition)
 
 config ENV_SIZE
 	hex "Environment Size"
 	default 0x40000 if ENV_IS_IN_SPI_FLASH && ARCH_ZYNQMP
-	default 0x20000 if ARCH_SUNXI || ARCH_ZYNQ
+	default 0x20000 if ARCH_SUNXI || ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
 	default 0x8000 if ARCH_ROCKCHIP || ARCH_ZYNQMP || ARCH_VERSAL
 	default 0x4000 if ARC
+	default 0x1f000
 	help
 	  Size of the environment storage area
 
 config ENV_SECT_SIZE
 	hex "Environment Sector-Size"
-	depends on !ENV_IS_NOWHERE && (ARCH_ZYNQ || ARCH_ZYNQMP)
+	depends on !ENV_IS_NOWHERE && (ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_OMAP2PLUS || ARCH_AT91)
 	default 0x40000 if ARCH_ZYNQMP
-	default 0x20000 if ARCH_ZYNQ
+	default 0x20000 if ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
 	help
 	  Size of the sector containing the environment.
 

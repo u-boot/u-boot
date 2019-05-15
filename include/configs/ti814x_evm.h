@@ -18,7 +18,6 @@
 
 #include <asm/arch/omap.h>
 
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_MALLOC_LEN		(1024 << 10)
 #define CONFIG_MACH_TYPE		MACH_TYPE_TI8148EVM
 
