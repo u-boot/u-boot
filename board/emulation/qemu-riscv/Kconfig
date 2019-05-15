@@ -40,5 +40,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply DM_PCI
 	imply PCIE_ECAM_GENERIC
 	imply CMD_PCI
+	imply E1000
+	imply NVME
 
 endif
