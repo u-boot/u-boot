@@ -507,6 +507,12 @@ config ENV_UBI_VOLUME
 	help
 	  Name of the volume that you want to store the environment in.
 
+config ENV_UBI_VOLUME_REDUND
+	string "UBI redundant volume name"
+	depends on ENV_IS_IN_UBI
+	help
+	  Name of the redundant volume that you want to store the environment in.
+
 endif
 
 config USE_DEFAULT_ENV_FILE
