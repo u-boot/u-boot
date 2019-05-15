@@ -15,6 +15,15 @@
 #include <ubi_uboot.h>
 #undef crc32
 
+#define _QUOTE(x) #x
+#define QUOTE(x) _QUOTE(x)
+
+#if (CONFIG_ENV_UBI_VID_OFFSET == 0)
+ #define UBI_VID_OFFSET NULL
+#else
+ #define UBI_VID_OFFSET QUOTE(CONFIG_ENV_UBI_VID_OFFSET)
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_CMD_SAVEENV
@@ -28,7 +37,7 @@ static int env_ubi_save(void)
 	if (ret)
 		return ret;
 
-	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
+	if (ubi_part(CONFIG_ENV_UBI_PART, UBI_VID_OFFSET)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
 		return 1;
@@ -70,7 +79,7 @@ static int env_ubi_save(void)
 	if (ret)
 		return ret;
 
-	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
+	if (ubi_part(CONFIG_ENV_UBI_PART, UBI_VID_OFFSET)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
 		return 1;
@@ -111,7 +120,7 @@ static int env_ubi_load(void)
 	tmp_env1 = (env_t *)env1_buf;
 	tmp_env2 = (env_t *)env2_buf;
 
-	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
+	if (ubi_part(CONFIG_ENV_UBI_PART, UBI_VID_OFFSET)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
 		set_default_env(NULL, 0);
@@ -148,7 +157,7 @@ static int env_ubi_load(void)
 	 */
 	memset(buf, 0x0, CONFIG_ENV_SIZE);
 
-	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
+	if (ubi_part(CONFIG_ENV_UBI_PART, UBI_VID_OFFSET)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
 		set_default_env(NULL, 0);

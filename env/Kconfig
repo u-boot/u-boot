@@ -516,6 +516,13 @@ config ENV_UBI_VOLUME_REDUND
 	help
 	  Name of the redundant volume that you want to store the environment in.
 
+config ENV_UBI_VID_OFFSET
+	int "ubi environment VID offset"
+	depends on ENV_IS_IN_UBI
+	default 0
+	help
+	  UBI VID offset for environment. If 0, no custom VID offset is used.
+
 endif
 
 config USE_DEFAULT_ENV_FILE
