@@ -278,7 +278,7 @@ config FIT
 if FIT
 
 config FIT_EXTERNAL_OFFSET
-	hex "Text Base"
+	hex "FIT external data offset"
 	default 0x0
 	help
 	  This specifies a data offset in fit image.
