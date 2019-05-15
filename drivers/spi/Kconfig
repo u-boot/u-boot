@@ -222,7 +222,7 @@ config SPI_SUNXI
 
 config STM32_QSPI
 	bool "STM32F7 QSPI driver"
-	depends on STM32F7 || ARCH_STM32MP
+	depends on STM32F4 || STM32F7 || ARCH_STM32MP
 	help
 	  Enable the STM32F7 Quad-SPI (QSPI) driver. This driver can be
 	  used to access the SPI NOR flash chips on platforms embedding

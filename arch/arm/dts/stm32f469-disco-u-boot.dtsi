@@ -23,6 +23,7 @@
 		gpio8 = &gpioi;
 		gpio9 = &gpioj;
 		gpio10 = &gpiok;
+		spi0 = &qspi;
 	};
 
 	soc {
@@ -63,6 +64,19 @@
 							   TRCD_2>;
 			       st,sdram-refcount = < 1292 >;
 		       };
+		};
+
+		qspi: quadspi@A0001000 {
+			compatible = "st,stm32-qspi";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0xA0001000 0x1000>, <0x90000000 0x10000000>;
+			reg-names = "qspi", "qspi_mm";
+			interrupts = <91>;
+			spi-max-frequency = <108000000>;
+			clocks = <&rcc 0 STM32F4_AHB3_CLOCK(QSPI)>;
+			resets = <&rcc STM32F4_AHB3_RESET(QSPI)>;
+			pinctrl-0 = <&qspi_pins>;
 		};
 	};
 };
@@ -205,6 +219,18 @@
 		};
 	};
 
+	qspi_pins: qspi@0 {
+		pins {
+			pinmux = <STM32_PINMUX('F',10, AF9)>, /* CLK */
+				 <STM32_PINMUX('B', 6, AF10)>, /* BK1_NCS */
+				 <STM32_PINMUX('F', 8, AF10)>, /* BK1_IO0 */
+				 <STM32_PINMUX('F', 9, AF10)>, /* BK1_IO1 */
+				 <STM32_PINMUX('F', 7, AF9)>, /* BK1_IO2 */
+				 <STM32_PINMUX('F', 6, AF9)>; /* BK1_IO3 */
+			slew-rate = <2>;
+		};
+	};
+
 	usart3_pins_a: usart3@0	{
 		u-boot,dm-pre-reloc;
 		pins1 {
@@ -226,4 +252,17 @@
 
 &syscfg {
 	u-boot,dm-pre-reloc;
+};
+
+&qspi {
+	reg = <0xA0001000 0x1000>, <0x90000000 0x1000000>;
+	flash0: n25q128a {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <108000000>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+		reg = <0>;
+	};
 };

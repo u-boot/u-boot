@@ -155,10 +155,13 @@
 };
 
 &qspi {
+	reg = <0xA0001000 0x1000>, <0x90000000 0x4000000>;
 	flash0: mx66l51235l {
 		#address-cells = <1>;
 		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <108000000>;
+		spi-tx-bus-width = <4>;
 		spi-rx-bus-width = <4>;
 		reg = <0>;
 	};

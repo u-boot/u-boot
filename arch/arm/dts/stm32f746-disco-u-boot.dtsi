@@ -234,14 +234,14 @@
 };
 
 &qspi {
+	reg = <0xA0001000 0x1000>, <0x90000000 0x1000000>;
 	qflash0: n25q128a {
 		#address-cells = <1>;
 		#size-cells = <1>;
-		compatible = "micron,n25q128a13", "jedec,spi-nor";
+		compatible = "jedec,spi-nor";
 		spi-max-frequency = <108000000>;
-		spi-tx-bus-width = <1>;
-		spi-rx-bus-width = <1>;
-		memory-map = <0x90000000 0x1000000>;
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
 		reg = <0>;
 	};
 };
