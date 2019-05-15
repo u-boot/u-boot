@@ -620,6 +620,13 @@ config SPL_UBI
 	  README.ubispl for more info.
 
 if SPL_UBI
+config SPL_UBI_LOAD_BY_VOLNAME
+	bool "Support loading volumes by name"
+	help
+	  This enables support for loading UBI volumes by name. When this
+	  is set, CONFIG_SPL_UBI_LOAD_MONITOR_VOLNAME can be used to
+	  configure the volume name from which to load U-Boot.
+
 config SPL_UBI_MAX_VOL_LEBS
 	int "Maximum number of LEBs per volume"
 	depends on SPL_UBI
@@ -676,6 +683,12 @@ config SPL_UBI_LOAD_MONITOR_ID
 	depends on SPL_UBI
 	help
 	  The UBI volume id from which to load U-Boot
+
+config SPL_UBI_LOAD_MONITOR_VOLNAME
+	string "volume name of U-Boot volume"
+	depends on SPL_UBI_LOAD_BY_VOLNAME
+	help
+	  The UBI volume name from which to load U-Boot
 
 config SPL_UBI_LOAD_KERNEL_ID
 	int "id of kernel volume"
