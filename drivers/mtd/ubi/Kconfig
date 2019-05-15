@@ -1,6 +1,6 @@
 menu "UBI support"
 
-config CONFIG_UBI_SILENCE_MSG
+config UBI_SILENCE_MSG
 	bool "UBI silence verbose messages"
 	default ENV_IS_IN_UBI
 	help
