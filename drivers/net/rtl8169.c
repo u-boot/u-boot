@@ -257,6 +257,7 @@ static struct {
 	{"RTL-8168/8111g",	0x4c, 0xff7e1880,},
 	{"RTL-8101e",		0x34, 0xff7e1880,},
 	{"RTL-8100e",		0x32, 0xff7e1880,},
+	{"RTL-8168h/8111h",	0x54, 0xff7e1880,},
 };
 
 enum _DescStatusBit {
@@ -941,6 +942,23 @@ static void rtl_halt(struct eth_device *dev)
 }
 #endif
 
+#ifdef CONFIG_DM_ETH
+static int rtl8169_write_hwaddr(struct udevice *dev)
+{
+	struct eth_pdata *plat = dev_get_platdata(dev);
+	unsigned int i;
+
+	RTL_W8(Cfg9346, Cfg9346_Unlock);
+
+	for (i = 0; i < MAC_ADDR_LEN; i++)
+		RTL_W8(MAC0 + i, plat->enetaddr[i]);
+
+	RTL_W8(Cfg9346, Cfg9346_Lock);
+
+	return 0;
+}
+#endif
+
 /**************************************************************************
 INIT - Look for an adapter, this routine's visible to the outside
 ***************************************************************************/
@@ -1195,6 +1213,7 @@ static const struct eth_ops rtl8169_eth_ops = {
 	.send	= rtl8169_eth_send,
 	.recv	= rtl8169_eth_recv,
 	.stop	= rtl8169_eth_stop,
+	.write_hwaddr = rtl8169_write_hwaddr,
 };
 
 static const struct udevice_id rtl8169_eth_ids[] = {

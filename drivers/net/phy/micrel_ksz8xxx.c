@@ -147,11 +147,13 @@ static struct phy_driver ksz8895_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
-/* Micrel used the exact same part number for the KSZ9021. */
+/* Micrel used the exact same model number for the KSZ9021,
+ * so the revision number is used to distinguish them.
+ */
 static struct phy_driver KS8721_driver = {
 	.name = "Micrel KS8721BL",
-	.uid = 0x221610,
-	.mask = 0xfffff0,
+	.uid = 0x221618,
+	.mask = 0xfffffc,
 	.features = PHY_BASIC_FEATURES,
 	.config = &genphy_config,
 	.startup = &genphy_startup,
