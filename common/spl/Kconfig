@@ -613,6 +613,85 @@ config SPL_NAND_SUPPORT
 	  This enables the drivers in drivers/mtd/nand/raw as part of an SPL
 	  build.
 
+config SPL_UBI
+	bool "Support UBI"
+	help
+	  Enable support for loading payloads from UBI. See
+	  README.ubispl for more info.
+
+if SPL_UBI
+config SPL_UBI_MAX_VOL_LEBS
+	int "Maximum number of LEBs per volume"
+	depends on SPL_UBI
+	help
+	  The maximum number of logical eraseblocks which a static volume
+	  to load can contain. Used for sizing the scan data structure.
+
+config SPL_UBI_MAX_PEB_SIZE
+	int "Maximum PEB size"
+	depends on SPL_UBI
+	help
+	  The maximum physical erase block size.
+
+config SPL_UBI_MAX_PEBS
+	int "Maximum number of PEBs"
+	depends on SPL_UBI
+	help
+	  The maximum physical erase block size. If not overridden by
+	  board code, this value will be used as the actual number of PEBs.
+
+config SPL_UBI_PEB_OFFSET
+	int "Offset to first UBI PEB"
+	depends on SPL_UBI
+	help
+	  The offset in number of PEBs from the start of flash to the first
+	  PEB part of the UBI image.
+
+config SPL_UBI_VID_OFFSET
+	int "Offset to VID header"
+	depends on SPL_UBI
+
+config SPL_UBI_LEB_START
+	int "Offset to LEB in PEB"
+	depends on SPL_UBI
+	help
+	  The offset in bytes to the LEB within a PEB.
+
+config SPL_UBI_INFO_ADDR
+	hex "Address to place UBI scan info"
+	depends on SPL_UBI
+	help
+	  Address for ubispl to place the scan info. Read README.ubispl to
+	  determine the required size
+
+config SPL_UBI_VOL_IDS
+	int "Maximum volume id"
+	depends on SPL_UBI
+	help
+	  The maximum volume id which can be loaded. Used for sizing the
+	  scan data structure.
+
+config SPL_UBI_LOAD_MONITOR_ID
+	int "id of U-Boot volume"
+	depends on SPL_UBI
+	help
+	  The UBI volume id from which to load U-Boot
+
+config SPL_UBI_LOAD_KERNEL_ID
+	int "id of kernel volume"
+	depends on SPL_OS_BOOT && SPL_UBI
+	help
+	  The UBI volume id from which to load the kernel
+
+config SPL_UBI_LOAD_ARGS_ID
+	int "id of kernel args volume"
+	depends on SPL_OS_BOOT && SPL_UBI
+	help
+	  The UBI volume id from which to load the device tree
+
+
+endif   # if SPL_UBI
+
 config SPL_NET_SUPPORT
 	bool "Support networking"
 	help
