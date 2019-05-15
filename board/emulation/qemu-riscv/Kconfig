@@ -36,5 +36,9 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply OF_BOARD_SETUP
 	imply SIFIVE_SERIAL
 	imply SMP
+	imply PCI
+	imply DM_PCI
+	imply PCIE_ECAM_GENERIC
+	imply CMD_PCI
 
 endif
