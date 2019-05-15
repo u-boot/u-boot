@@ -1,5 +1,6 @@
 source "drivers/net/phy/Kconfig"
 source "drivers/net/pfe_eth/Kconfig"
+source "drivers/net/fsl-mc/Kconfig"
 
 config DM_ETH
 	bool "Enable Driver Model for Ethernet drivers"

@@ -245,14 +245,6 @@ config FSL_LSCH3
 config NXP_LSCH3_2
 	bool
 
-config FSL_MC_ENET
-	bool "Management Complex network"
-	depends on ARCH_LS2080A || ARCH_LS1088A || ARCH_LX2160A
-	default y
-	select RESV_RAM
-	help
-	  Enable Management Complex (MC) network
-
 menu "Layerscape architecture"
 	depends on FSL_LSCH2 || FSL_LSCH3
 
@@ -592,15 +584,6 @@ config SYS_FSL_ERRATUM_A009929
 config SYS_FSL_HAS_RGMII
 	bool
 	depends on SYS_FSL_EC1 || SYS_FSL_EC2
-
-
-config SYS_MC_RSV_MEM_ALIGN
-	hex "Management Complex reserved memory alignment"
-	depends on RESV_RAM
-	default 0x20000000 if ARCH_LS2080A || ARCH_LS1088A || ARCH_LX2160A
-	help
-	  Reserved memory needs to be aligned for MC to use. Default value
-	  is 512MB.
 
 config SPL_LDSCRIPT
 	default "arch/arm/cpu/armv8/u-boot-spl.lds" if ARCH_LS1043A || ARCH_LS1046A || ARCH_LS2080A
