@@ -13,26 +13,9 @@
 	ldr r2, =0x403e0000
 	ldr r3, =0x01000020
 	str r3, [r2, #0x40]
-	ldr r3, =0x01000000
-	str r3, [r2, #0x500]
+
 	ldr r3, =0x80808080
 	str r3, [r2, #0x50c]
-	ldr r3, =0x00140000
-	str r3, [r2, #0x508]
-	ldr r3, =0x00000004
-	str r3, [r2, #0x510]
-	ldr r3, =0x00000002
-	str r3, [r2, #0x514]
-	ldr r3, =0x00000001
-	str r3, [r2, #0x500]
-
-	ldr r3, =0x01000000
-wait1:
-	ldr r4, [r2, #0x500]
-	and r4, r3
-	cmp r4, r3
-	bne wait1
-
 	ldr r3, =0x8080801E
 	str r3, [r2, #0x50c]
 
