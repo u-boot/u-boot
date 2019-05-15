@@ -129,7 +129,7 @@ struct ubi_scan_info {
 #define ubi_dbg(fmt, ...)
 #endif
 
-#ifdef CONFIG_UBI_SILENCE_MSG
+#ifdef CONFIG_UBI_SPL_SILENCE_MSG
 #define ubi_msg(fmt, ...)
 #else
 #define ubi_msg(fmt, ...) printf("UBI: " fmt "\n", ##__VA_ARGS__)

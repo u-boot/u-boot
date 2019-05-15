@@ -702,6 +702,12 @@ config SPL_UBI_LOAD_ARGS_ID
 	help
 	  The UBI volume id from which to load the device tree
 
+config UBI_SPL_SILENCE_MSG
+	bool "silence UBI SPL messages"
+	default n
+	help
+	  Disable messages from UBI SPL. This leaves warnings
+	  and errors enabled.
 
 endif   # if SPL_UBI
 
