@@ -241,6 +241,7 @@ config DM_PMIC_TPS65910
 config PMIC_STPMIC1
 	bool "Enable support for STMicroelectronics STPMIC1 PMIC"
 	depends on DM_PMIC && DM_I2C
+	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF && !ARM_PSCI_FW
 	---help---
 	The STPMIC1 PMIC provides 4 BUCKs, 6 LDOs, 1 VREF and 2 power switches.
 	It is accessed via an I2C interface. The device is used with STM32MP1
