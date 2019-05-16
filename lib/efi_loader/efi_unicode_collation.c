@@ -26,8 +26,8 @@ static const u16 codepage[] = CP1250;
 static const u16 codepage[] = CP437;
 #endif
 
-/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL */
-const efi_guid_t efi_guid_unicode_collation_protocol =
+/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL2 */
+const efi_guid_t efi_guid_unicode_collation_protocol2 =
 	EFI_UNICODE_COLLATION_PROTOCOL2_GUID;
 
 /**
@@ -318,7 +318,7 @@ static bool EFIAPI efi_str_to_fat(struct efi_unicode_collation_protocol *this,
 	return ret;
 }
 
-const struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
+const struct efi_unicode_collation_protocol efi_unicode_collation_protocol2 = {
 	.stri_coll = efi_stri_coll,
 	.metai_match = efi_metai_match,
 	.str_lwr = efi_str_lwr,

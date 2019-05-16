@@ -60,10 +60,10 @@ efi_status_t efi_root_node_register(void)
 			 /* Device path utilities protocol */
 			 &efi_guid_device_path_utilities_protocol,
 			 (void *)&efi_device_path_utilities,
-#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
+#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL2)
 			 /* Unicode collation protocol */
-			 &efi_guid_unicode_collation_protocol,
-			 (void *)&efi_unicode_collation_protocol,
+			 &efi_guid_unicode_collation_protocol2,
+			 (void *)&efi_unicode_collation_protocol2,
 #endif
 #if CONFIG_IS_ENABLED(EFI_LOADER_HII)
 			 /* HII string protocol */

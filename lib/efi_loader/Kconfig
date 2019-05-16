@@ -36,14 +36,14 @@ config EFI_LOADER_HII
 	  U-Boot implements enough of its features to be able to run the UEFI
 	  Shell, but not more than that.
 
-config EFI_UNICODE_COLLATION_PROTOCOL
+config EFI_UNICODE_COLLATION_PROTOCOL2
 	bool "Unicode collation protocol"
 	default y
 	help
 	  The Unicode collation protocol is used for lexical comparisons. It is
 	  required to run the UEFI shell.
 
-if EFI_UNICODE_COLLATION_PROTOCOL
+if EFI_UNICODE_COLLATION_PROTOCOL2
 
 config EFI_UNICODE_CAPITALIZATION
 	bool "Support Unicode capitalization"
