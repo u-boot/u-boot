@@ -2334,6 +2334,7 @@ efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
 	efi_va_list argptr;
 	const efi_guid_t *protocol;
 	void *protocol_interface;
+	efi_handle_t old_handle;
 	efi_status_t r = EFI_SUCCESS;
 	int i = 0;
 
@@ -2346,6 +2347,17 @@ efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
 		if (!protocol)
 			break;
 		protocol_interface = efi_va_arg(argptr, void*);
+		/* Check that a device path has not been installed before */
+		if (!guidcmp(protocol, &efi_guid_device_path)) {
+			struct efi_device_path *dp = protocol_interface;
+
+			r = EFI_CALL(efi_locate_device_path(protocol, &dp,
+							    &old_handle));
+			if (r == EFI_SUCCESS) {
+				r = EFI_ALREADY_STARTED;
+				break;
+			}
+		}
 		r = EFI_CALL(efi_install_protocol_interface(
 						handle, protocol,
 						EFI_NATIVE_INTERFACE,
