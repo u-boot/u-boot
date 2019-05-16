@@ -28,10 +28,12 @@
 static int spl_sata_load_image(struct spl_image_info *spl_image,
 			       struct spl_boot_device *bootdev)
 {
-	int err;
+	int err = 0;
 	struct blk_desc *stor_dev;
 
+#if !defined(CONFIG_DM_SCSI) && !defined(CONFIG_AHCI)
 	err = init_sata(CONFIG_SPL_SATA_BOOT_DEVICE);
+#endif
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: sata init failed: err - %d\n", err);
