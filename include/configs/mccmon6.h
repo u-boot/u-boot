@@ -78,6 +78,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"boot_os=yes\0" \
+	"disable_giga=yes\0" \
 	"download_kernel=" \
 		"tftpboot ${kernel_addr} ${kernel_file};" \
 		"tftpboot ${fdt_addr} ${fdtfile};\0" \
