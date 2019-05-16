@@ -17,6 +17,14 @@
 #include <fat.h>
 #include <image.h>
 
+#ifndef CONFIG_SYS_SATA_FAT_BOOT_PARTITION
+#define CONFIG_SYS_SATA_FAT_BOOT_PARTITION	1
+#endif
+
+#ifndef CONFIG_SPL_FS_LOAD_PAYLOAD_NAME
+#define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
+#endif
+
 static int spl_sata_load_image(struct spl_image_info *spl_image,
 			       struct spl_boot_device *bootdev)
 {
