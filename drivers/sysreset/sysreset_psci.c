@@ -18,7 +18,7 @@ static int psci_sysreset_request(struct udevice *dev, enum sysreset_t type)
 	case SYSRESET_COLD:
 		function_id = PSCI_0_2_FN_SYSTEM_RESET;
 		break;
-	case SYSRESET_POWER:
+	case SYSRESET_POWER_OFF:
 		function_id = PSCI_0_2_FN_SYSTEM_OFF;
 		break;
 	default:

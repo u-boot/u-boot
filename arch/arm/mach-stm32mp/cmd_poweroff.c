@@ -14,7 +14,7 @@ int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	puts("poweroff ...\n");
 	mdelay(100);
 
-	ret = sysreset_walk(SYSRESET_POWER);
+	ret = sysreset_walk(SYSRESET_POWER_OFF);
 
 	if (ret == -EINPROGRESS)
 		mdelay(1000);

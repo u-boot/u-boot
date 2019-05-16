@@ -57,13 +57,13 @@ static int sandbox_sysreset_request(struct udevice *dev, enum sysreset_t type)
 	case SYSRESET_COLD:
 		state->last_sysreset = type;
 		break;
-	case SYSRESET_POWER:
+	case SYSRESET_POWER_OFF:
 		state->last_sysreset = type;
 		if (!state->sysreset_allowed[type])
 			return -EACCES;
 		sandbox_exit();
 		break;
-	case SYSRESET_POWER_OFF:
+	case SYSRESET_POWER:
 		if (!state->sysreset_allowed[type])
 			return -EACCES;
 		sandbox_exit();
