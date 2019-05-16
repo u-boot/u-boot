@@ -325,8 +325,7 @@ config CMD_SPL
 	  command.
 
 config CMD_SPL_NAND_OFS
-	hex "Offset of OS command line args for Falcon-mode NAND boot"
-	depends on CMD_SPL
+	hex "Offset of OS args or dtb for Falcon-mode NAND boot"
 	depends on CMD_SPL && (TPL_NAND_SUPPORT || SPL_NAND_SUPPORT)
 	default 0
 	help
