@@ -66,7 +66,8 @@
 #define NANDTGTS \
 "mtdids=" CONFIG_MTDIDS_DEFAULT "\0" \
 "mtdparts=" CONFIG_MTDPARTS_DEFAULT "\0" \
-"cfgscr=nand read ${cfgaddr} cfgscr && source ${cfgaddr}\0" \
+"cfgscr=mw ${dtbaddr} 0; nand read ${cfgaddr} cfgscr && source ${cfgaddr};" \
+" fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0" \
 "nandargs=setenv bootargs console=${console} ${optargs} ${optargs_rot} " \
 	"root=mtd6 rootfstype=jffs2 b_mode=${b_mode}\0" \
 "b_nand=nand read ${loadaddr} kernel; nand read ${dtbaddr} dtb; " \
@@ -104,7 +105,9 @@
 #ifdef CONFIG_ENV_IS_IN_MMC
 #define MMCTGTS \
 MMCSPI_TGTS \
-"cfgscr=mmc dev 1; mmc read ${cfgaddr} 200 80; source ${cfgaddr}\0"
+"cfgscr=mw ${dtbaddr} 0;" \
+" mmc dev 1; mmc read ${cfgaddr} 200 80; source ${cfgaddr};" \
+" fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0"
 #else
 #define MMCTGTS ""
 #endif /* CONFIG_MMC */
@@ -112,7 +115,9 @@ MMCSPI_TGTS \
 #ifdef CONFIG_SPI
 #define SPITGTS \
 MMCSPI_TGTS \
-"cfgscr=sf probe; sf read ${cfgaddr} 0xC0000 10000; source ${cfgaddr}\0"
+"cfgscr=mw ${dtbaddr} 0;" \
+" sf probe; sf read ${cfgaddr} 0xC0000 10000; source ${cfgaddr};" \
+" fdt addr ${dtbaddr} || cp ${fdtcontroladdr} ${dtbaddr} 4000\0"
 #else
 #define SPITGTS ""
 #endif /* CONFIG_SPI */
