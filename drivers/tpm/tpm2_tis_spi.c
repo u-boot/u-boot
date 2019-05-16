@@ -295,6 +295,14 @@ static int tpm_tis_spi_wait_for_stat(struct udevice *dev, u8 mask,
 	return -ETIMEDOUT;
 }
 
+static u8 tpm_tis_spi_valid_status(struct udevice *dev, u8 *status)
+{
+	struct tpm_chip *chip = dev_get_priv(dev);
+
+	return tpm_tis_spi_wait_for_stat(dev, TPM_STS_VALID,
+		chip->timeout_c, status);
+}
+
 static int tpm_tis_spi_get_burstcount(struct udevice *dev)
 {
 	struct tpm_chip *chip = dev_get_priv(dev);
@@ -455,7 +463,7 @@ static int tpm_tis_spi_send(struct udevice *dev, const u8 *buf, size_t len)
 		i += size;
 	}
 
-	ret = tpm_tis_spi_status(dev, &status);
+	ret = tpm_tis_spi_valid_status(dev, &status);
 	if (ret)
 		goto out_err;
 
@@ -469,7 +477,7 @@ static int tpm_tis_spi_send(struct udevice *dev, const u8 *buf, size_t len)
 	if (ret)
 		goto out_err;
 
-	ret = tpm_tis_spi_status(dev, &status);
+	ret = tpm_tis_spi_valid_status(dev, &status);
 	if (ret)
 		goto out_err;
 
