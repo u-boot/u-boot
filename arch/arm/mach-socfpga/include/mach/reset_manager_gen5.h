@@ -8,7 +8,6 @@
 
 #include <dt-bindings/reset/altr,rst-mgr.h>
 
-void reset_deassert_peripherals_handoff(void);
 void socfpga_bridges_set_handoff_regs(bool h2f, bool lwh2f, bool f2h);
 void socfpga_bridges_reset(int enable);
 

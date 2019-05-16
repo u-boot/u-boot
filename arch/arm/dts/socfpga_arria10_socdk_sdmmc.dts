@@ -17,6 +17,8 @@
 
 /dts-v1/;
 #include "socfpga_arria10_socdk.dtsi"
+#include "socfpga_arria10_socdk_sdmmc_handoff.dtsi"
+#include "socfpga_arria10_handoff_u-boot.dtsi"
 
 / {
 	chosen {
