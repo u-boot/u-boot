@@ -678,9 +678,6 @@ static init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_DM
 	initr_dm,
 #endif
-#if defined(CONFIG_WDT)
-	initr_watchdog,
-#endif
 #if defined(CONFIG_ARM) || defined(CONFIG_NDS32) || defined(CONFIG_RISCV) || \
 	defined(CONFIG_SANDBOX)
 	board_init,	/* Setup chipselects */
@@ -700,6 +697,9 @@ static init_fnc_t init_sequence_r[] = {
 	stdio_init_tables,
 	initr_serial,
 	initr_announce,
+#if defined(CONFIG_WDT)
+	initr_watchdog,
+#endif
 	INIT_FUNC_WATCHDOG_RESET
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	initr_manual_reloc_cmdtable,
