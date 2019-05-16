@@ -2465,9 +2465,16 @@ static efi_status_t EFIAPI efi_calculate_crc32(const void *data,
 					       efi_uintn_t data_size,
 					       u32 *crc32_p)
 {
+	efi_status_t ret = EFI_SUCCESS;
+
 	EFI_ENTRY("%p, %zu", data, data_size);
+	if (!data || !data_size || !crc32_p) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 	*crc32_p = crc32(0, data, data_size);
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
