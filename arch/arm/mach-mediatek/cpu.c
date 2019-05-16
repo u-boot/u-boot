@@ -8,18 +8,6 @@
 #include <wdt.h>
 #include <dm/uclass-internal.h>
 
-int arch_misc_init(void)
-{
-	struct udevice *wdt;
-	int ret;
-
-	ret = uclass_first_device_err(UCLASS_WDT, &wdt);
-	if (!ret)
-		wdt_stop(wdt);
-
-	return 0;
-}
-
 int arch_cpu_init(void)
 {
 	icache_enable();
