@@ -701,6 +701,7 @@ S:	Maintained
 F:	arch/sandbox/
 
 SH
+M:	Marek Vasut <marek.vasut+renesas@gmail.com>
 M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-sh.git
