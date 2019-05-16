@@ -327,3 +327,30 @@ const struct efi_unicode_collation_protocol efi_unicode_collation_protocol2 = {
 	.str_to_fat = efi_str_to_fat,
 	.supported_languages = "en",
 };
+
+/*
+ * In EFI 1.10 a version of the Unicode collation protocol using ISO 639-2
+ * language codes existed. This protocol is not part of the UEFI specification
+ * any longer. Unfortunately it is required to run the UEFI Self Certification
+ * Test (SCT) II, version 2.6, 2017. So we implement it here for the sole
+ * purpose of running the SCT. It can be removed when a compliant SCT is
+ * available.
+ */
+#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
+
+/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL */
+const efi_guid_t efi_guid_unicode_collation_protocol =
+	EFI_UNICODE_COLLATION_PROTOCOL_GUID;
+
+const struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
+	.stri_coll = efi_stri_coll,
+	.metai_match = efi_metai_match,
+	.str_lwr = efi_str_lwr,
+	.str_upr = efi_str_upr,
+	.fat_to_str = efi_fat_to_str,
+	.str_to_fat = efi_str_to_fat,
+	/* ISO 639-2 language code */
+	.supported_languages = "eng",
+};
+
+#endif

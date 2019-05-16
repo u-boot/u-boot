@@ -1425,6 +1425,11 @@ struct efi_driver_binding_protocol {
 	efi_handle_t driver_binding_handle;
 };
 
+/* Deprecated version of the Unicode collation protocol */
+#define EFI_UNICODE_COLLATION_PROTOCOL_GUID \
+	EFI_GUID(0x1d85cd7f, 0xf43d, 0x11d2, \
+		 0x9a, 0x0c, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
+/* Current version of the Unicode collation protocol */
 #define EFI_UNICODE_COLLATION_PROTOCOL2_GUID \
 	EFI_GUID(0xa4c751fc, 0x23ae, 0x4c3e, \
 		 0x92, 0xe9, 0x49, 0x64, 0xcf, 0x63, 0xf3, 0x49)

@@ -61,7 +61,12 @@ efi_status_t efi_root_node_register(void)
 			 &efi_guid_device_path_utilities_protocol,
 			 (void *)&efi_device_path_utilities,
 #if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL2)
-			 /* Unicode collation protocol */
+#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
+			 /* Deprecated Unicode collation protocol */
+			 &efi_guid_unicode_collation_protocol,
+			 (void *)&efi_unicode_collation_protocol,
+#endif
+			 /* Current Unicode collation protocol */
 			 &efi_guid_unicode_collation_protocol2,
 			 (void *)&efi_unicode_collation_protocol2,
 #endif

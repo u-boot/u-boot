@@ -54,6 +54,17 @@ config EFI_UNICODE_CAPITALIZATION
 	  set, only the the correct handling of the letters of the codepage
 	  used by the FAT file system is ensured.
 
+config EFI_UNICODE_COLLATION_PROTOCOL
+	bool "Deprecated version of the Unicode collation protocol"
+	default n
+	help
+	  In EFI 1.10 a version of the Unicode collation protocol using ISO
+	  639-2 language codes existed. This protocol is not part of the UEFI
+	  specification any longer. Unfortunately it is required to run the
+	  UEFI Self Certification Test (SCT) II, version 2.6, 2017.
+
+	  Choose this option for testing only. It is bound to be removed.
+
 endif
 
 config EFI_LOADER_BOUNCE_BUFFER
