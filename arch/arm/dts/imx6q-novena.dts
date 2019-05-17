@@ -61,6 +61,11 @@
 		reg = <0x10000000 0>;
 	};
 
+	aliases {
+		mmc0 = &usdhc3;
+		mmc1 = &usdhc2;
+	};
+
 	chosen {
 		stdout-path = &uart2;
 	};
