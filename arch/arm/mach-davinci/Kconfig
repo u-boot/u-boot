@@ -4,12 +4,6 @@ choice
 	prompt "DaVinci board select"
 	optional
 
-config TARGET_IPAM390
-	bool "IPAM390 board"
-	select MACH_DAVINCI_DA850_EVM
-	select SOC_DA850
-	select SUPPORT_SPL
-
 config TARGET_DA850EVM
 	bool "DA850 EVM board"
 	select MACH_DAVINCI_DA850_EVM
@@ -136,7 +130,6 @@ config SYS_DA850_PLL1_PLLDIV3
 
 endif
 
-source "board/Barix/ipam390/Kconfig"
 source "board/davinci/da8xxevm/Kconfig"
 source "board/lego/ev3/Kconfig"
 
