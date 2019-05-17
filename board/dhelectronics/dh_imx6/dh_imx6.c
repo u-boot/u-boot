@@ -20,6 +20,8 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
+#include <ahci.h>
+#include <dwc_ahsata.h>
 #include <environment.h>
 #include <errno.h>
 #include <fsl_esdhc.h>
@@ -300,10 +302,6 @@ int board_init(void)
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6sdl_i2c_pad_info1);
 		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6sdl_i2c_pad_info2);
 	}
-#endif
-
-#ifdef CONFIG_SATA
-	setup_sata();
 #endif
 
 	setup_dhcom_mac_from_fuse();
