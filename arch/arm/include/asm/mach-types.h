@@ -629,7 +629,6 @@
 #define MACH_TYPE_ECIA                 623
 #define MACH_TYPE_CM4008               624
 #define MACH_TYPE_P2001                625
-#define MACH_TYPE_TWISTER              626
 #define MACH_TYPE_MUDSHARK             627
 #define MACH_TYPE_HB2                  628
 #define MACH_TYPE_IQ80332              629
