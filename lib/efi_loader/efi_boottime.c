@@ -1916,10 +1916,17 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 static efi_status_t EFIAPI efi_get_next_monotonic_count(uint64_t *count)
 {
 	static uint64_t mono;
+	efi_status_t ret;
 
 	EFI_ENTRY("%p", count);
+	if (!count) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 	*count = mono++;
-	return EFI_EXIT(EFI_SUCCESS);
+	ret = EFI_SUCCESS;
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
