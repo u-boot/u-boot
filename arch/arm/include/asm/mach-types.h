@@ -3475,7 +3475,6 @@
 #define MACH_TYPE_SGH_I710             3525
 #define MACH_TYPE_INTEGREPROSCB        3526
 #define MACH_TYPE_MONZA                3527
-#define MACH_TYPE_CALIMAIN             3528
 #define MACH_TYPE_MX6Q_SABREAUTO       3529
 #define MACH_TYPE_GMA01X               3530
 #define MACH_TYPE_SBC51                3531
