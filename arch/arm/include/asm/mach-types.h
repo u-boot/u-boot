@@ -2960,7 +2960,6 @@
 #define MACH_TYPE_AX8008               2999
 #define MACH_TYPE_GNET_SGCE            3000
 #define MACH_TYPE_PXWNAS_500_1000      3001
-#define MACH_TYPE_EA20                 3002
 #define MACH_TYPE_AWM2                 3003
 #define MACH_TYPE_TI8148EVM            3004
 #define MACH_TYPE_SEABOARD             3005

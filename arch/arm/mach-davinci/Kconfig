@@ -16,12 +16,6 @@ config TARGET_DA850EVM
 	select SOC_DA850
 	select SUPPORT_SPL
 
-config TARGET_EA20
-	bool "EA20 board"
-	select BOARD_LATE_INIT
-	select MACH_DAVINCI_DA850_EVM
-	select SOC_DA850
-
 config TARGET_OMAPL138_LCDK
 	bool "OMAPL138 LCDK"
 	select SOC_DA8XX
@@ -144,7 +138,6 @@ endif
 
 source "board/Barix/ipam390/Kconfig"
 source "board/davinci/da8xxevm/Kconfig"
-source "board/davinci/ea20/Kconfig"
 source "board/lego/ev3/Kconfig"
 
 config SPL_LDSCRIPT
