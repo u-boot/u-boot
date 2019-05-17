@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 samtec automotive software & electronics gmbh
+ * Copyright (C) 2017-2019 softing automotive electronics gmbH
  *
  * Author: Christoph Fritz <chf.fritz@googlemail.com>
  */

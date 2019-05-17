@@ -1,10 +1,10 @@
-if TARGET_SAMTEC_VINING_2000
+if TARGET_SOFTING_VINING_2000
 
 config SYS_BOARD
 	default "vining_2000"
 
 config SYS_VENDOR
-	default "samtec"
+	default "softing"
 
 config SYS_CONFIG_NAME
 	default "vining_2000"
