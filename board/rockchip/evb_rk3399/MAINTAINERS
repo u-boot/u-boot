@@ -30,3 +30,10 @@ S:	Maintained
 F:	configs/orangepi-rk3399_defconfig
 F:	arch/arm/dts/rk3399-u-boot.dtsi
 F:	arch/arm/dts/rk3399-orangepi-u-boot.dtsi
+
+ROCKPRO64
+M:	Akash Gajjar <akash@openedev.com>
+M:	Jagan Teki <jagan@amarulasolutions.com>
+S:	Maintained
+F:	configs/rockpro64-rk3399_defconfig
+F:	arch/arm/dts/rk3399-rockpro64-u-boot.dtsi
