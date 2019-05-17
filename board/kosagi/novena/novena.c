@@ -39,6 +39,7 @@
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include <stdio_dev.h>
+#include <video_console.h>
 
 #include "novena.h"
 
@@ -125,7 +126,19 @@ int board_init(void)
 int board_late_init(void)
 {
 #if defined(CONFIG_VIDEO_IPUV3)
+	struct udevice *con;
+	char buf[DISPLAY_OPTIONS_BANNER_LENGTH];
+	int ret;
+
 	setup_display_lvds();
+
+	ret = uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con);
+	if (ret)
+		return ret;
+
+	display_options_get_banner(false, buf, sizeof(buf));
+	vidconsole_position_cursor(con, 0, 0);
+	vidconsole_put_string(con, buf);
 #endif
 	return 0;
 }

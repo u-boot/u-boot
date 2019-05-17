@@ -119,14 +119,12 @@
 #endif
 
 /* Video output */
-#ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
-#endif
 
 /* Extra U-Boot environment. */
 #ifndef CONFIG_SPL_BUILD
@@ -144,6 +142,8 @@
 	"ramdisk_addr_r=0x28000000\0"		   			\
 	"fdt_addr_r=0x18000000\0"					\
 	"fdtfile=imx6q-novena.dtb\0"					\
+	"stdout=serial,vidconsole\0"					\
+	"stderr=serial,vidconsole\0"					\
 	"addcons="							\
 		"setenv bootargs ${bootargs} "				\
 		"console=${consdev},${baudrate}\0"			\
