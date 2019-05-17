@@ -83,6 +83,8 @@ int drv_keyboard_init(void)
 		.tstc	= novena_gpio_button_tstc,
 	};
 
+	gpio_request(NOVENA_BUTTON_GPIO, "button");
+
 	error = input_init(&button_input, 0);
 	if (error) {
 		debug("%s: Cannot set up input\n", __func__);
