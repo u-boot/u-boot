@@ -133,6 +133,7 @@ int board_eth_init(bd_t *bis)
 		goto eth_fail;
 
 	/* reset phy */
+	gpio_request(PHY_RESET, "PHY-reset");
 	gpio_direction_output(PHY_RESET, 0);
 	mdelay(16);
 	gpio_set_value(PHY_RESET, 1);
