@@ -592,7 +592,8 @@ dtb-$(CONFIG_MX6ULL) += \
 
 dtb-$(CONFIG_ARCH_MX6) += \
 	imx6-apalis.dtb \
-	imx6-colibri.dtb
+	imx6-colibri.dtb \
+	imx6q-dhcom-pdk2.dtb
 
 dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7d-sdb-qspi.dtb \
