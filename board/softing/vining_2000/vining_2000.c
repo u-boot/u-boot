@@ -71,11 +71,6 @@ int dram_init(void)
 	return 0;
 }
 
-static iomux_v3_cfg_t const uart1_pads[] = {
-	MX6_PAD_GPIO1_IO04__UART1_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_GPIO1_IO05__UART1_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
 static iomux_v3_cfg_t const fec1_pads[] = {
 	MX6_PAD_ENET1_MDC__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_ENET1_MDIO__ENET1_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -96,11 +91,6 @@ static iomux_v3_cfg_t const pwm_led_pads[] = {
 	MX6_PAD_RGMII2_TD2__PWM6_OUT | MUX_PAD_CTRL(NO_PAD_CTRL), /* red */
 	MX6_PAD_RGMII2_RD3__PWM1_OUT | MUX_PAD_CTRL(NO_PAD_CTRL), /* blue */
 };
-
-static void setup_iomux_uart(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
-}
 
 #define PHY_RESET IMX_GPIO_NR(5, 9)
 
@@ -419,8 +409,6 @@ int board_late_init(void)
 
 int board_early_init_f(void)
 {
-	setup_iomux_uart();
-
 	setup_iomux_usb();
 
 	return 0;
