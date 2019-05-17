@@ -272,16 +272,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_MXC_SPI
-int board_spi_cs_gpio(unsigned bus, unsigned cs)
-{
-	if (bus == 0 && cs == 0)
-		return IMX_GPIO_NR(2, 30);
-	else
-		return -1;
-}
-#endif
-
 int board_init(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;

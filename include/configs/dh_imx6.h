@@ -66,6 +66,11 @@
 #define CONFIG_LBA48
 
 /* SPI Flash Configs */
+#if defined(CONFIG_SPL_BUILD)
+#undef CONFIG_DM_SPI
+#undef CONFIG_DM_SPI_FLASH
+#undef CONFIG_SPI_FLASH_MTD
+#endif
 
 /* UART */
 #define CONFIG_MXC_UART
