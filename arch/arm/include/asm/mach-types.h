@@ -3596,7 +3596,6 @@
 #define MACH_TYPE_TAISHAN              3653
 #define MACH_TYPE_TOUCHLINK            3654
 #define MACH_TYPE_STM32F103ZE          3655
-#define MACH_TYPE_MCX                  3656
 #define MACH_TYPE_STM_NMHDK_FLI7610    3657
 #define MACH_TYPE_TOP28X               3658
 #define MACH_TYPE_OKL4VP_MICROVISOR    3659

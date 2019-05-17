@@ -105,12 +105,6 @@ config TARGET_TRICORDER
 	bool "Tricorder"
 	select OMAP3_GPIO_2
 
-config TARGET_MCX
-	bool "MCX"
-	select BOARD_LATE_INIT
-	select OMAP3_GPIO_2 if USB_EHCI_HCD
-	select OMAP3_GPIO_5 if USB_EHCI_HCD
-
 config TARGET_OMAP3_LOGIC
 	bool "OMAP3 Logic"
 	select BOARD_LATE_INIT
@@ -189,7 +183,6 @@ source "board/logicpd/zoom1/Kconfig"
 source "board/ti/am3517crane/Kconfig"
 source "board/pandora/Kconfig"
 source "board/corscience/tricorder/Kconfig"
-source "board/htkw/mcx/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
 source "board/nokia/rx51/Kconfig"
 source "board/technexion/tao3530/Kconfig"
