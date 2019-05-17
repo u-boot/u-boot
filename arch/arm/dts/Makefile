@@ -540,7 +540,8 @@ dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 dtb-$(CONFIG_MX6Q) += \
 	imx6-apalis.dtb \
 	imx6q-display5.dtb \
-	imx6q-logicpd.dtb
+	imx6q-logicpd.dtb \
+	imx6q-novena.dtb
 
 dtb-$(CONFIG_TARGET_TBS2910) += \
 	imx6q-tbs2910.dtb
