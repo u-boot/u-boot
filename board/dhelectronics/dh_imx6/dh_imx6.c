@@ -167,6 +167,9 @@ int board_eth_init(bd_t *bis)
 	struct mii_dev *bus = NULL;
 	struct phy_device *phydev = NULL;
 
+	gpio_request(IMX_GPIO_NR(5, 0), "PHY-reset");
+	gpio_request(IMX_GPIO_NR(1, 7), "VIO");
+
 	setup_fec_clock();
 
 	eth_phy_reset();
@@ -224,6 +227,8 @@ int board_mmc_init(bd_t *bis)
 	 * mmc1                    micro SD
 	 * mmc2                    eMMC
 	 */
+	gpio_request(USDHC2_CD_GPIO, "SD2-CD");
+	gpio_request(USDHC3_CD_GPIO, "SD3-CD");
 	gpio_direction_input(USDHC2_CD_GPIO);
 	gpio_direction_input(USDHC3_CD_GPIO);
 
@@ -244,6 +249,7 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_USB_EHCI_MX6
 static void setup_usb(void)
 {
+	gpio_request(IMX_GPIO_NR(3, 31), "USB-VBUS");
 	/*
 	 * Set daisy chain for otg_pin_id on MX6Q.
 	 * For MX6DL, this bit is reserved.
@@ -378,6 +384,10 @@ static const struct boot_mode board_boot_modes[] = {
 static int board_get_hwcode(void)
 {
 	int hw_code;
+
+	gpio_request(HW_CODE_BIT_0, "HW-code-bit-0");
+	gpio_request(HW_CODE_BIT_1, "HW-code-bit-1");
+	gpio_request(HW_CODE_BIT_2, "HW-code-bit-2");
 
 	gpio_direction_input(HW_CODE_BIT_0);
 	gpio_direction_input(HW_CODE_BIT_1);
