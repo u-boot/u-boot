@@ -215,6 +215,22 @@ int vidconsole_set_row(struct udevice *dev, uint row, int clr);
 int vidconsole_put_char(struct udevice *dev, char ch);
 
 /**
+ * vidconsole_put_string() - Output a string to the current console position
+ *
+ * Outputs a string to the console and advances the cursor. This function
+ * handles wrapping to new lines and scrolling the console. Special
+ * characters are handled also: \n, \r, \b and \t.
+ *
+ * The device always starts with the cursor at position 0,0 (top left). It
+ * can be adjusted manually using vidconsole_position_cursor().
+ *
+ * @dev:	Device to adjust
+ * @str:	String to write
+ * @return 0 if OK, -ve on error
+ */
+int vidconsole_put_string(struct udevice *dev, const char *str);
+
+/**
  * vidconsole_position_cursor() - Move the text cursor
  *
  * @dev:	Device to adjust

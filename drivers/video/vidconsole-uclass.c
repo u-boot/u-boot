@@ -529,6 +529,20 @@ int vidconsole_put_char(struct udevice *dev, char ch)
 	return 0;
 }
 
+int vidconsole_put_string(struct udevice *dev, const char *str)
+{
+	const char *s;
+	int ret;
+
+	for (s = str; *s; s++) {
+		ret = vidconsole_put_char(dev, *s);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+
 static void vidconsole_putc(struct stdio_dev *sdev, const char ch)
 {
 	struct udevice *dev = sdev->priv;
@@ -541,8 +555,7 @@ static void vidconsole_puts(struct stdio_dev *sdev, const char *s)
 {
 	struct udevice *dev = sdev->priv;
 
-	while (*s)
-		vidconsole_put_char(dev, *s++);
+	vidconsole_put_string(dev, s);
 	video_sync(dev->parent, false);
 }
 
