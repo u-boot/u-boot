@@ -54,12 +54,6 @@ config TARGET_CM_T35
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6 if LED_STATUS
 
-config TARGET_CM_T3517
-	bool "CompuLab CM-T3517 boards"
-	select OMAP3_GPIO_2
-	select OMAP3_GPIO_5
-	select OMAP3_GPIO_6 if LED_STATUS
-
 config TARGET_DEVKIT8000
 	bool "TimLL OMAP3 Devkit8000"
 	select DM
@@ -198,7 +192,6 @@ source "board/logicpd/am3517evm/Kconfig"
 source "board/teejet/mt_ventoux/Kconfig"
 source "board/ti/beagle/Kconfig"
 source "board/compulab/cm_t35/Kconfig"
-source "board/compulab/cm_t3517/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/ti/evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"

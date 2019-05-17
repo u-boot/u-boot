@@ -2716,7 +2716,6 @@
 #define MACH_TYPE_VPNEXT_MPU           2747
 #define MACH_TYPE_BCMRING_TABLET_V1    2748
 #define MACH_TYPE_SGARM10              2749
-#define MACH_TYPE_CM_T3517             2750
 #define MACH_TYPE_OMAP3_CPS            2751
 #define MACH_TYPE_AXAR1500_RECEIVER    2752
 #define MACH_TYPE_WBD222               2753
