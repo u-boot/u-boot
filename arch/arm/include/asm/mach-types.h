@@ -3772,7 +3772,6 @@
 #define MACH_TYPE_IMXT_NAV             3829
 #define MACH_TYPE_IMXT_FULL            3830
 #define MACH_TYPE_AG09015              3831
-#define MACH_TYPE_AM3517_MT_VENTOUX    3832
 #define MACH_TYPE_DP1ARM9              3833
 #define MACH_TYPE_PICASSO_M            3834
 #define MACH_TYPE_VIDEO_GADGET         3835

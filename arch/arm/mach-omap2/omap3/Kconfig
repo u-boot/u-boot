@@ -34,11 +34,6 @@ config TARGET_AM3517_EVM
 	select DM_SERIAL
 	imply CMD_DM
 
-config TARGET_MT_VENTOUX
-	bool "TeeJet Mt.Ventoux"
-	select OMAP3_GPIO_4
-	select OMAP3_GPIO_5 if USB_EHCI_HCD
-
 config TARGET_OMAP3_BEAGLE
 	bool "TI OMAP3 BeagleBoard"
 	select DM
@@ -189,7 +184,6 @@ config SYS_SOC
 	default "omap3"
 
 source "board/logicpd/am3517evm/Kconfig"
-source "board/teejet/mt_ventoux/Kconfig"
 source "board/ti/beagle/Kconfig"
 source "board/compulab/cm_t35/Kconfig"
 source "board/timll/devkit8000/Kconfig"
