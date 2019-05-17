@@ -77,6 +77,14 @@
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
 
+/* Ethernet need */
+#ifdef CONFIG_DWC_ETH_QOS
+#define CONFIG_SYS_NONCACHED_MEMORY	(1 * SZ_1M)	/* 1M */
+#define CONFIG_SERVERIP                 192.168.1.1
+#define CONFIG_BOOTP_SERVERIP
+#define CONFIG_SYS_AUTOLOAD		"no"
+#endif
+
 /*****************************************************************************/
 #ifdef CONFIG_DISTRO_DEFAULTS
 /*****************************************************************************/
@@ -89,7 +97,9 @@
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
-	func(MMC, mmc, 2)
+	func(MMC, mmc, 2) \
+	func(PXE, pxe, na)
+
 /*
  * bootcmd for stm32mp1:
  * for serial/usb: execute the stm32prog command
