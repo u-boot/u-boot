@@ -16,6 +16,11 @@
 	model = "Softing VIN|ING 2000";
 	compatible = "samtec,imx6sx-vining-2000", "fsl,imx6sx";
 
+	aliases {
+		mmc0 = &usdhc4;
+		mmc1 = &usdhc2;
+	};
+
 	chosen {
 		stdout-path = &uart1;
 	};
