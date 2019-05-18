@@ -17,6 +17,8 @@ try:
 except ImportError:
   from io import StringIO
 
+PYTHON = 'python%d' % sys.version_info[0]
+
 
 def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
     """Run tests and check that we get 100% coverage
@@ -43,11 +45,12 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
     else:
         glob_list = []
     glob_list += exclude_list
-    glob_list += ['*libfdt.py', '*site-packages*']
-    cmd = ('PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools python-coverage run '
-           '--omit "%s" %s -P1 -t' % (build_dir, ','.join(glob_list), prog))
+    glob_list += ['*libfdt.py', '*site-packages*', '*dist-packages*']
+    cmd = ('PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools %s-coverage run '
+           '--omit "%s" %s -P1 -t' % (build_dir, PYTHON, ','.join(glob_list),
+                                      prog))
     os.system(cmd)
-    stdout = command.Output('python-coverage', 'report')
+    stdout = command.Output('%s-coverage' % PYTHON, 'report')
     lines = stdout.splitlines()
     if required:
         # Convert '/path/to/name.py' just the module name 'name'
@@ -65,8 +68,8 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
     print(coverage)
     if coverage != '100%':
         print(stdout)
-        print("Type 'python-coverage html' to get a report in "
-              'htmlcov/index.html')
+        print("Type '%s-coverage html' to get a report in "
+              'htmlcov/index.html' % PYTHON)
         print('Coverage error: %s, but should be 100%%' % coverage)
         ok = False
     if not ok:
