@@ -11,14 +11,21 @@
 		i2c0 = &i2c_0;
 		pci0 = &pci;
 		rtc0 = &rtc_0;
+		axi0 = &axi;
 	};
 
 	chosen {
 		stdout-path = "/serial";
 	};
 
+	audio: audio-codec {
+		compatible = "sandbox,audio-codec";
+		#sound-dai-cells = <1>;
+	};
+
 	cros_ec: cros-ec {
 		reg = <0 0 0 0>;
+		u-boot,dm-pre-reloc;
 		compatible = "google,cros-ec-sandbox";
 
 		/*
@@ -26,6 +33,7 @@
 		 * that the STM32L flash erases to 0, not 0xff.
 		 */
 		flash {
+			u-boot,dm-pre-reloc;
 			image-pos = <0x08000000>;
 			size = <0x20000>;
 			erase-value = <0>;
@@ -58,6 +66,7 @@
 	};
 
 	gpio_a: gpios@0 {
+		u-boot,dm-pre-reloc;
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <1>;
@@ -66,6 +75,7 @@
 	};
 
 	gpio_b: gpios@1 {
+		u-boot,dm-pre-reloc;
 		gpio-controller;
 		compatible = "sandbox,gpio";
 		#gpio-cells = <2>;
@@ -120,6 +130,11 @@
 		};
 	};
 
+	i2s: i2s {
+		compatible = "sandbox,i2s";
+		#sound-dai-cells = <1>;
+	};
+
 	lcd {
 		u-boot,dm-pre-reloc;
 		compatible = "sandbox,lcd-sdl";
@@ -159,6 +174,7 @@
 
 	pinctrl {
 		compatible = "sandbox,pinctrl";
+		status = "okay";
 
 		pinctrl_i2c0: i2c0 {
 			groups = "i2c";
@@ -170,19 +186,38 @@
 			groups = "serial_a";
 			function = "serial";
 		};
+
+		pinctrl_onewire0: onewire0 {
+			groups = "w1";
+			function = "w1";
+			bias-pull-up;
+		};
 	};
 
 	reset@1 {
 		compatible = "sandbox,reset";
 	};
 
+	sound {
+		compatible = "sandbox,sound";
+		cpu {
+			sound-dai = <&i2s 0>;
+		};
+
+		codec {
+			sound-dai = <&audio 0>;
+		};
+	};
+
 	spi@0 {
+		u-boot,dm-pre-reloc;
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0 0 0 0>;
 		compatible = "sandbox,spi";
 		cs-gpios = <0>, <&gpio_a 0>;
 		firmware_storage_spi: flash@0 {
+			u-boot,dm-pre-reloc;
 			reg = <0>;
 			compatible = "spansion,m25p16", "sandbox,spi-flash";
 			spi-max-frequency = <40000000>;
@@ -238,6 +273,7 @@
 	};
 
 	tpm {
+		u-boot,dm-pre-reloc;
 		compatible = "google,sandbox-tpm";
 	};
 
@@ -255,6 +291,7 @@
 
 	/* Needs to be available prior to relocation */
 	uart0: serial {
+		u-boot,dm-spl;
 		compatible = "sandbox,serial";
 		sandbox,text-colour = "cyan";
 		pinctrl-names = "default";
@@ -319,6 +356,29 @@
 		};
 	};
 
+	axi: axi@0 {
+		compatible = "sandbox,axi";
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		store@0 {
+			compatible = "sandbox,sandbox_store";
+			reg = <0x0 0x400>;
+		};
+	};
+
+	onewire0: onewire {
+		compatible = "w1-gpio";
+		gpios = <&gpio_a 8>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_onewire0>;
+		status = "okay";
+
+		sandbox_eeprom0: sandbox_eeprom@0 {
+			compatible = "sandbox,w1-eeprom";
+			status = "okay";
+		};
+	};
+
 	sandbox_tee {
 		compatible = "sandbox,tee";
 	};
@@ -326,3 +386,10 @@
 
 #include "cros-ec-keyboard.dtsi"
 #include "sandbox_pmic.dtsi"
+
+&cros_ec {
+	u-boot,dm-pre-reloc;
+	keyboard-controller {
+		u-boot,dm-pre-reloc;
+	};
+};
