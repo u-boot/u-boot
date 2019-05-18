@@ -30,50 +30,59 @@ def CheckErr(errnum, msg):
             (errnum, libfdt.fdt_strerror(errnum), msg))
 
 
-def BytesToValue(bytes):
+def BytesToValue(data):
     """Converts a string of bytes into a type and value
 
     Args:
-        A string containing bytes
+        A bytes value (which on Python 2 is an alias for str)
 
     Return:
         A tuple:
             Type of data
             Data, either a single element or a list of elements. Each element
             is one of:
-                TYPE_STRING: string value from the property
-                TYPE_INT: a byte-swapped integer stored as a 4-byte string
-                TYPE_BYTE: a byte stored as a single-byte string
+                TYPE_STRING: str/bytes value from the property
+                TYPE_INT: a byte-swapped integer stored as a 4-byte str/bytes
+                TYPE_BYTE: a byte stored as a single-byte str/bytes
     """
-    bytes = str(bytes)
-    size = len(bytes)
-    strings = bytes.split('\0')
+    data = bytes(data)
+    size = len(data)
+    strings = data.split(b'\0')
     is_string = True
     count = len(strings) - 1
-    if count > 0 and not strings[-1]:
+    if count > 0 and not len(strings[-1]):
         for string in strings[:-1]:
             if not string:
                 is_string = False
                 break
             for ch in string:
-                if ch < ' ' or ch > '~':
+                # Handle Python 2 treating bytes as str
+                if type(ch) == str:
+                    ch = ord(ch)
+                if ch < 32 or ch > 127:
                     is_string = False
                     break
     else:
         is_string = False
     if is_string:
-        if count == 1:
-            return TYPE_STRING, strings[0]
+        if count == 1: 
+            if sys.version_info[0] >= 3:  # pragma: no cover
+                return TYPE_STRING, strings[0].decode()
+            else:
+                return TYPE_STRING, strings[0]
         else:
-            return TYPE_STRING, strings[:-1]
+            if sys.version_info[0] >= 3:  # pragma: no cover
+                return TYPE_STRING, [s.decode() for s in strings[:-1]]
+            else:
+                return TYPE_STRING, strings[:-1]
     if size % 4:
         if size == 1:
-            return TYPE_BYTE, bytes[0]
+            return TYPE_BYTE, tools.ToChar(data[0])
         else:
-            return TYPE_BYTE, list(bytes)
+            return TYPE_BYTE, [tools.ToChar(ch) for ch in list(data)]
     val = []
     for i in range(0, size, 4):
-        val.append(bytes[i:i + 4])
+        val.append(data[i:i + 4])
     if size == 4:
         return TYPE_INT, val[0]
     else:
