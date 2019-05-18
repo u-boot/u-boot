@@ -131,10 +131,13 @@ def Binman(options, args):
 
             if options.image:
                 skip = []
+                new_images = OrderedDict()
                 for name, image in images.items():
-                    if name not in options.image:
-                        del images[name]
+                    if name in options.image:
+                        new_images[name] = image
+                    else:
                         skip.append(name)
+                images = new_images
                 if skip and options.verbosity >= 2:
                     print('Skipping images: %s' % ', '.join(skip))
 
