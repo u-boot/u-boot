@@ -7,6 +7,7 @@
 
 from entry import Entry
 import fmap_util
+import tools
 
 
 class Entry_fmap(Entry):
@@ -46,7 +47,7 @@ class Entry_fmap(Entry):
                 if pos is not None:
                     pos -= entry.section.GetRootSkipAtStart()
                 areas.append(fmap_util.FmapArea(pos or 0, entry.size or 0,
-                                                entry.name, 0))
+                                            tools.FromUnicode(entry.name), 0))
 
         entries = self.section._image.GetEntries()
         areas = []
