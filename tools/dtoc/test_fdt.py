@@ -498,9 +498,16 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(2, fdt_util.fdt_cells_to_cpu(val, 1))
 
         dtb2 = fdt.FdtScan('tools/dtoc/dtoc_test_addr64.dts')
-        node2 = dtb2.GetNode('/test1')
-        val = node2.props['reg'].value
+        node1 = dtb2.GetNode('/test1')
+        val = node1.props['reg'].value
         self.assertEqual(0x1234, fdt_util.fdt_cells_to_cpu(val, 2))
+
+        node2 = dtb2.GetNode('/test2')
+        val = node2.props['reg'].value
+        self.assertEqual(0x1234567890123456, fdt_util.fdt_cells_to_cpu(val, 2))
+        self.assertEqual(0x9876543210987654, fdt_util.fdt_cells_to_cpu(val[2:],
+                                                                       2))
+        self.assertEqual(0x12345678, fdt_util.fdt_cells_to_cpu(val, 1))
 
     def testEnsureCompiled(self):
         """Test a degenerate case of this function"""
