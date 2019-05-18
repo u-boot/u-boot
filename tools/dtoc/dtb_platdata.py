@@ -17,6 +17,7 @@ import sys
 
 import fdt
 import fdt_util
+import tools
 
 # When we see these properties we ignore them - i.e. do not create a structure member
 PROP_IGNORE_LIST = [
@@ -99,7 +100,7 @@ def get_value(ftype, value):
     if ftype == fdt.TYPE_INT:
         return '%#x' % fdt_util.fdt32_to_cpu(value)
     elif ftype == fdt.TYPE_BYTE:
-        return '%#x' % ord(value[0])
+        return '%#x' % tools.ToByte(value[0])
     elif ftype == fdt.TYPE_STRING:
         return '"%s"' % value
     elif ftype == fdt.TYPE_BOOL:
