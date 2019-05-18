@@ -41,7 +41,11 @@ class TestEntry(unittest.TestCase):
         del sys.modules['importlib']
         global entry
         if entry:
-            reload(entry)
+            if sys.version_info[0] >= 3:
+                import importlib
+                importlib.reload(entry)
+            else:
+                reload(entry)
         else:
             import entry
         entry.Entry.Create(None, self.GetNode(), 'u-boot-spl')
