@@ -19,7 +19,7 @@ for dirname in ['../patman', '..']:
 
 import command
 import fdt
-from fdt import TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL
+from fdt import TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL, BytesToValue
 import fdt_util
 from fdt_util import fdt32_to_cpu
 import libfdt
@@ -120,6 +120,10 @@ class TestFdt(unittest.TestCase):
     def testGetFdt(self):
         node = self.dtb.GetNode('/spl-test')
         self.assertEqual(self.dtb, node.GetFdt())
+
+    def testBytesToValue(self):
+        self.assertEqual(BytesToValue(b'this\0is\0'),
+                         (TYPE_STRING, ['this', 'is']))
 
 class TestNode(unittest.TestCase):
     """Test operation of the Node class"""
