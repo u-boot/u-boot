@@ -395,7 +395,7 @@ class TestFunctional(unittest.TestCase):
         for grep in grep_list:
             if grep in target:
                 return
-        self.fail("Error: '%' not found in '%s'" % (grep_list, target))
+        self.fail("Error: '%s' not found in '%s'" % (grep_list, target))
 
     def CheckNoGaps(self, entries):
         """Check that all entries fit together without gaps
