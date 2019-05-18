@@ -85,13 +85,13 @@ class TestFdt(unittest.TestCase):
     def testFlush(self):
         """Check that we can flush the device tree out to its file"""
         fname = self.dtb._fname
-        with open(fname) as fd:
+        with open(fname, 'rb') as fd:
             data = fd.read()
         os.remove(fname)
         with self.assertRaises(IOError):
-            open(fname)
+            open(fname, 'rb')
         self.dtb.Flush()
-        with open(fname) as fd:
+        with open(fname, 'rb') as fd:
             data = fd.read()
 
     def testPack(self):
