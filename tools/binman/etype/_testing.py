@@ -75,7 +75,7 @@ class Entry__testing(Entry):
     def ObtainContents(self):
         if self.return_unknown_contents or not self.return_contents:
             return False
-        self.data = 'a'
+        self.data = b'a'
         self.contents_size = len(self.data)
         if self.return_contents_once:
             self.return_contents = False

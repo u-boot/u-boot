@@ -22,7 +22,7 @@ class FakeEntry:
     """
     def __init__(self, contents_size):
         self.contents_size = contents_size
-        self.data = 'a' * contents_size
+        self.data = tools.GetBytes(ord('a'), contents_size)
 
     def GetPath(self):
         return 'entry_path'
@@ -122,7 +122,8 @@ class TestElf(unittest.TestCase):
         section = FakeSection(sym_value=None)
         elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
         syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
-        self.assertEqual(tools.GetBytes(255, 16) + 'a' * 4, entry.data)
+        self.assertEqual(tools.GetBytes(255, 16) + tools.GetBytes(ord('a'), 4),
+                                                                  entry.data)
 
     def testDebug(self):
         """Check that enabling debug in the elf module produced debug output"""

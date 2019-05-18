@@ -29,38 +29,38 @@ import tools
 import tout
 
 # Contents of test files, corresponding to different entry types
-U_BOOT_DATA           = '1234'
-U_BOOT_IMG_DATA       = 'img'
-U_BOOT_SPL_DATA       = '56780123456789abcde'
-U_BOOT_TPL_DATA       = 'tpl'
-BLOB_DATA             = '89'
-ME_DATA               = '0abcd'
-VGA_DATA              = 'vga'
-U_BOOT_DTB_DATA       = 'udtb'
-U_BOOT_SPL_DTB_DATA   = 'spldtb'
-U_BOOT_TPL_DTB_DATA   = 'tpldtb'
-X86_START16_DATA      = 'start16'
-X86_START16_SPL_DATA  = 'start16spl'
-X86_START16_TPL_DATA  = 'start16tpl'
-PPC_MPC85XX_BR_DATA   = 'ppcmpc85xxbr'
-U_BOOT_NODTB_DATA     = 'nodtb with microcode pointer somewhere in here'
-U_BOOT_SPL_NODTB_DATA = 'splnodtb with microcode pointer somewhere in here'
-U_BOOT_TPL_NODTB_DATA = 'tplnodtb with microcode pointer somewhere in here'
-FSP_DATA              = 'fsp'
-CMC_DATA              = 'cmc'
-VBT_DATA              = 'vbt'
-MRC_DATA              = 'mrc'
+U_BOOT_DATA           = b'1234'
+U_BOOT_IMG_DATA       = b'img'
+U_BOOT_SPL_DATA       = b'56780123456789abcde'
+U_BOOT_TPL_DATA       = b'tpl'
+BLOB_DATA             = b'89'
+ME_DATA               = b'0abcd'
+VGA_DATA              = b'vga'
+U_BOOT_DTB_DATA       = b'udtb'
+U_BOOT_SPL_DTB_DATA   = b'spldtb'
+U_BOOT_TPL_DTB_DATA   = b'tpldtb'
+X86_START16_DATA      = b'start16'
+X86_START16_SPL_DATA  = b'start16spl'
+X86_START16_TPL_DATA  = b'start16tpl'
+PPC_MPC85XX_BR_DATA   = b'ppcmpc85xxbr'
+U_BOOT_NODTB_DATA     = b'nodtb with microcode pointer somewhere in here'
+U_BOOT_SPL_NODTB_DATA = b'splnodtb with microcode pointer somewhere in here'
+U_BOOT_TPL_NODTB_DATA = b'tplnodtb with microcode pointer somewhere in here'
+FSP_DATA              = b'fsp'
+CMC_DATA              = b'cmc'
+VBT_DATA              = b'vbt'
+MRC_DATA              = b'mrc'
 TEXT_DATA             = 'text'
 TEXT_DATA2            = 'text2'
 TEXT_DATA3            = 'text3'
-CROS_EC_RW_DATA       = 'ecrw'
-GBB_DATA              = 'gbbd'
-BMPBLK_DATA           = 'bmp'
-VBLOCK_DATA           = 'vblk'
-FILES_DATA            = ("sorry I'm late\nOh, don't bother apologising, I'm " +
-                         "sorry you're alive\n")
-COMPRESS_DATA         = 'data to compress'
-REFCODE_DATA          = 'refcode'
+CROS_EC_RW_DATA       = b'ecrw'
+GBB_DATA              = b'gbbd'
+BMPBLK_DATA           = b'bmp'
+VBLOCK_DATA           = b'vblk'
+FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
+                         b"sorry you're alive\n")
+COMPRESS_DATA         = b'data to compress'
+REFCODE_DATA          = b'refcode'
 
 
 class TestFunctional(unittest.TestCase):
@@ -803,7 +803,7 @@ class TestFunctional(unittest.TestCase):
 
     def testPackX86RomMeNoDesc(self):
         """Test that an invalid Intel descriptor entry is detected"""
-        TestFunctional._MakeInputFile('descriptor.bin', '')
+        TestFunctional._MakeInputFile('descriptor.bin', b'')
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('031_x86-rom-me.dts')
         self.assertIn("Node '/binman/intel-descriptor': Cannot find FD "
@@ -900,8 +900,8 @@ class TestFunctional(unittest.TestCase):
         """
         first, pos_and_size = self._RunMicrocodeTest('034_x86_ucode.dts',
                                                      U_BOOT_NODTB_DATA)
-        self.assertEqual('nodtb with microcode' + pos_and_size +
-                         ' somewhere in here', first)
+        self.assertEqual(b'nodtb with microcode' + pos_and_size +
+                         b' somewhere in here', first)
 
     def _RunPackUbootSingleMicrocode(self):
         """Test that x86 microcode can be handled correctly
@@ -932,8 +932,8 @@ class TestFunctional(unittest.TestCase):
         pos_and_size = struct.pack('<2L', 0xfffffe00 + ucode_pos,
                                    len(ucode_data))
         first = data[:len(U_BOOT_NODTB_DATA)]
-        self.assertEqual('nodtb with microcode' + pos_and_size +
-                         ' somewhere in here', first)
+        self.assertEqual(b'nodtb with microcode' + pos_and_size +
+                         b' somewhere in here', first)
 
     def testPackUbootSingleMicrocode(self):
         """Test that x86 microcode can be handled correctly with fdt_normal.
@@ -1068,8 +1068,8 @@ class TestFunctional(unittest.TestCase):
         self._SetupSplElf('u_boot_ucode_ptr')
         first, pos_and_size = self._RunMicrocodeTest(dts, U_BOOT_SPL_NODTB_DATA,
                                                      ucode_second=ucode_second)
-        self.assertEqual('splnodtb with microc' + pos_and_size +
-                         'ter somewhere in here', first)
+        self.assertEqual(b'splnodtb with microc' + pos_and_size +
+                         b'ter somewhere in here', first)
 
     def testPackUbootSplMicrocode(self):
         """Test that x86 microcode can be handled correctly in SPL"""
@@ -1123,8 +1123,9 @@ class TestFunctional(unittest.TestCase):
     def testSections(self):
         """Basic test of sections"""
         data = self._DoReadFile('055_sections.dts')
-        expected = (U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12 +
-                    U_BOOT_DATA + '&' * 4)
+        expected = (U_BOOT_DATA + tools.GetBytes(ord('!'), 12) +
+                    U_BOOT_DATA + tools.GetBytes(ord('a'), 12) +
+                    U_BOOT_DATA + tools.GetBytes(ord('&'), 4))
         self.assertEqual(expected, data)
 
     def testMap(self):
@@ -1282,8 +1283,10 @@ class TestFunctional(unittest.TestCase):
         }
         data, _, _, _ = self._DoReadFileDtb('066_text.dts',
                                             entry_args=entry_args)
-        expected = (TEXT_DATA + tools.GetBytes(0, 8 - len(TEXT_DATA)) +
-                    TEXT_DATA2 + TEXT_DATA3 + 'some text')
+        expected = (tools.ToBytes(TEXT_DATA) +
+                    tools.GetBytes(0, 8 - len(TEXT_DATA)) +
+                    tools.ToBytes(TEXT_DATA2) + tools.ToBytes(TEXT_DATA3) +
+                    b'some text')
         self.assertEqual(expected, data)
 
     def testEntryDocs(self):
@@ -1304,32 +1307,33 @@ class TestFunctional(unittest.TestCase):
         """Basic test of generation of a flashrom fmap"""
         data = self._DoReadFile('067_fmap.dts')
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
-        expected = U_BOOT_DATA + '!' * 12 + U_BOOT_DATA + 'a' * 12
+        expected = (U_BOOT_DATA + tools.GetBytes(ord('!'), 12) +
+                    U_BOOT_DATA + tools.GetBytes(ord('a'), 12))
         self.assertEqual(expected, data[:32])
-        self.assertEqual('__FMAP__', fhdr.signature)
+        self.assertEqual(b'__FMAP__', fhdr.signature)
         self.assertEqual(1, fhdr.ver_major)
         self.assertEqual(0, fhdr.ver_minor)
         self.assertEqual(0, fhdr.base)
         self.assertEqual(16 + 16 +
                          fmap_util.FMAP_HEADER_LEN +
                          fmap_util.FMAP_AREA_LEN * 3, fhdr.image_size)
-        self.assertEqual('FMAP', fhdr.name)
+        self.assertEqual(b'FMAP', fhdr.name)
         self.assertEqual(3, fhdr.nareas)
         for fentry in fentries:
             self.assertEqual(0, fentry.flags)
 
         self.assertEqual(0, fentries[0].offset)
         self.assertEqual(4, fentries[0].size)
-        self.assertEqual('RO_U_BOOT', fentries[0].name)
+        self.assertEqual(b'RO_U_BOOT', fentries[0].name)
 
         self.assertEqual(16, fentries[1].offset)
         self.assertEqual(4, fentries[1].size)
-        self.assertEqual('RW_U_BOOT', fentries[1].name)
+        self.assertEqual(b'RW_U_BOOT', fentries[1].name)
 
         self.assertEqual(32, fentries[2].offset)
         self.assertEqual(fmap_util.FMAP_HEADER_LEN +
                          fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
-        self.assertEqual('FMAP', fentries[2].name)
+        self.assertEqual(b'FMAP', fentries[2].name)
 
     def testBlobNamedByArg(self):
         """Test we can add a blob with the filename coming from an entry arg"""
@@ -1597,7 +1601,7 @@ class TestFunctional(unittest.TestCase):
         files = entries['files']
         entries = files._section._entries
 
-        orig = ''
+        orig = b''
         for i in range(1, 3):
             key = '%d.dat' % i
             start = entries[key].image_pos
@@ -1625,10 +1629,10 @@ class TestFunctional(unittest.TestCase):
         """Test an expanding entry"""
         data, _, map_data, _ = self._DoReadFileDtb('088_expand_size.dts',
                                                    map=True)
-        expect = ('a' * 8 + U_BOOT_DATA +
-                  MRC_DATA + 'b' * 1 + U_BOOT_DATA +
-                  'c' * 8 + U_BOOT_DATA +
-                  'd' * 8)
+        expect = (tools.GetBytes(ord('a'), 8) + U_BOOT_DATA +
+                  MRC_DATA + tools.GetBytes(ord('b'), 1) + U_BOOT_DATA +
+                  tools.GetBytes(ord('c'), 8) + U_BOOT_DATA +
+                  tools.GetBytes(ord('d'), 8))
         self.assertEqual(expect, data)
         self.assertEqual('''ImagePos    Offset      Size  Name
 00000000  00000000  00000028  main-section
@@ -1660,7 +1664,7 @@ class TestFunctional(unittest.TestCase):
         hash_node = dtb.GetNode('/binman/u-boot/hash').props['value']
         m = hashlib.sha256()
         m.update(U_BOOT_DATA)
-        self.assertEqual(m.digest(), ''.join(hash_node.value))
+        self.assertEqual(m.digest(), b''.join(hash_node.value))
 
     def testHashNoAlgo(self):
         with self.assertRaises(ValueError) as e:
@@ -1683,8 +1687,8 @@ class TestFunctional(unittest.TestCase):
         hash_node = dtb.GetNode('/binman/section/hash').props['value']
         m = hashlib.sha256()
         m.update(U_BOOT_DATA)
-        m.update(16 * 'a')
-        self.assertEqual(m.digest(), ''.join(hash_node.value))
+        m.update(tools.GetBytes(ord('a'), 16))
+        self.assertEqual(m.digest(), b''.join(hash_node.value))
 
     def testPackUBootTplMicrocode(self):
         """Test that x86 microcode can be handled correctly in TPL
@@ -1699,14 +1703,14 @@ class TestFunctional(unittest.TestCase):
             TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
         first, pos_and_size = self._RunMicrocodeTest('093_x86_tpl_ucode.dts',
                                                      U_BOOT_TPL_NODTB_DATA)
-        self.assertEqual('tplnodtb with microc' + pos_and_size +
-                         'ter somewhere in here', first)
+        self.assertEqual(b'tplnodtb with microc' + pos_and_size +
+                         b'ter somewhere in here', first)
 
     def testFmapX86(self):
         """Basic test of generation of a flashrom fmap"""
         data = self._DoReadFile('094_fmap_x86.dts')
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
-        expected = U_BOOT_DATA + MRC_DATA + 'a' * (32 - 7)
+        expected = U_BOOT_DATA + MRC_DATA + tools.GetBytes(ord('a'), 32 - 7)
         self.assertEqual(expected, data[:32])
         fhdr, fentries = fmap_util.DecodeFmap(data[32:])
 
@@ -1714,21 +1718,21 @@ class TestFunctional(unittest.TestCase):
 
         self.assertEqual(0, fentries[0].offset)
         self.assertEqual(4, fentries[0].size)
-        self.assertEqual('U_BOOT', fentries[0].name)
+        self.assertEqual(b'U_BOOT', fentries[0].name)
 
         self.assertEqual(4, fentries[1].offset)
         self.assertEqual(3, fentries[1].size)
-        self.assertEqual('INTEL_MRC', fentries[1].name)
+        self.assertEqual(b'INTEL_MRC', fentries[1].name)
 
         self.assertEqual(32, fentries[2].offset)
         self.assertEqual(fmap_util.FMAP_HEADER_LEN +
                          fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
-        self.assertEqual('FMAP', fentries[2].name)
+        self.assertEqual(b'FMAP', fentries[2].name)
 
     def testFmapX86Section(self):
         """Basic test of generation of a flashrom fmap"""
         data = self._DoReadFile('095_fmap_x86_section.dts')
-        expected = U_BOOT_DATA + MRC_DATA + 'b' * (32 - 7)
+        expected = U_BOOT_DATA + MRC_DATA + tools.GetBytes(ord('b'), 32 - 7)
         self.assertEqual(expected, data[:32])
         fhdr, fentries = fmap_util.DecodeFmap(data[36:])
 
@@ -1736,16 +1740,16 @@ class TestFunctional(unittest.TestCase):
 
         self.assertEqual(0, fentries[0].offset)
         self.assertEqual(4, fentries[0].size)
-        self.assertEqual('U_BOOT', fentries[0].name)
+        self.assertEqual(b'U_BOOT', fentries[0].name)
 
         self.assertEqual(4, fentries[1].offset)
         self.assertEqual(3, fentries[1].size)
-        self.assertEqual('INTEL_MRC', fentries[1].name)
+        self.assertEqual(b'INTEL_MRC', fentries[1].name)
 
         self.assertEqual(36, fentries[2].offset)
         self.assertEqual(fmap_util.FMAP_HEADER_LEN +
                          fmap_util.FMAP_AREA_LEN * 3, fentries[2].size)
-        self.assertEqual('FMAP', fentries[2].name)
+        self.assertEqual(b'FMAP', fentries[2].name)
 
     def testElf(self):
         """Basic test of ELF entries"""
