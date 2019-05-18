@@ -11,6 +11,7 @@ import sys
 import fdt_util
 import libfdt
 from libfdt import QUIET_NOTFOUND
+import tools
 
 # This deals with a device tree, presenting it as an assortment of Node and
 # Prop objects, representing nodes and properties, respectively. This file
@@ -334,7 +335,8 @@ class Node:
         Args:
             prop_name: Name of property
         """
-        self.props[prop_name] = Prop(self, None, prop_name, '\0' * 4)
+        self.props[prop_name] = Prop(self, None, prop_name,
+                                     tools.GetBytes(0, 4))
 
     def AddEmptyProp(self, prop_name, len):
         """Add a property with a fixed data size, for filling in later
@@ -346,7 +348,7 @@ class Node:
             prop_name: Name of property
             len: Length of data in property
         """
-        value = chr(0) * len
+        value = tools.GetBytes(0, len)
         self.props[prop_name] = Prop(self, None, prop_name, value)
 
     def SetInt(self, prop_name, val):

@@ -279,7 +279,7 @@ class TestProp(unittest.TestCase):
         """Tests the GetEmpty() function for the various supported types"""
         self.assertEqual(True, fdt.Prop.GetEmpty(fdt.TYPE_BOOL))
         self.assertEqual(chr(0), fdt.Prop.GetEmpty(fdt.TYPE_BYTE))
-        self.assertEqual(chr(0) * 4, fdt.Prop.GetEmpty(fdt.TYPE_INT))
+        self.assertEqual(tools.GetBytes(0, 4), fdt.Prop.GetEmpty(fdt.TYPE_INT))
         self.assertEqual('', fdt.Prop.GetEmpty(fdt.TYPE_STRING))
 
     def testGetOffset(self):
