@@ -193,7 +193,7 @@ class Prop:
         Args:
             bytes: New property value to set
         """
-        self.bytes = str(bytes)
+        self.bytes = bytes
         self.type, self.value = BytesToValue(bytes)
         self.dirty = True
 
@@ -398,7 +398,9 @@ class Node:
             prop_name: Name of property to set
             val: String value to set (will be \0-terminated in DT)
         """
-        self.props[prop_name].SetData(val + chr(0))
+        if sys.version_info[0] >= 3:  # pragma: no cover
+            val = bytes(val, 'utf-8')
+        self.props[prop_name].SetData(val + b'\0')
 
     def AddString(self, prop_name, val):
         """Add a new string property to a node
@@ -410,7 +412,9 @@ class Node:
             prop_name: Name of property to add
             val: String value of property
         """
-        self.props[prop_name] = Prop(self, None, prop_name, val + chr(0))
+        if sys.version_info[0] >= 3:  # pragma: no cover
+            val = bytes(val, 'utf-8')
+        self.props[prop_name] = Prop(self, None, prop_name, val + b'\0')
 
     def AddSubnode(self, name):
         """Add a new subnode to the node
@@ -496,7 +500,7 @@ class Fdt:
             Fdt object containing the data
         """
         fdt = Fdt(None)
-        fdt._fdt_obj = libfdt.Fdt(bytearray(data))
+        fdt._fdt_obj = libfdt.Fdt(bytes(data))
         return fdt
 
     def LookupPhandle(self, phandle):
@@ -586,7 +590,7 @@ class Fdt:
         Returns:
             The FDT contents as a string of bytes
         """
-        return self._fdt_obj.as_bytearray()
+        return bytes(self._fdt_obj.as_bytearray())
 
     def GetFdtObj(self):
         """Get the contents of the FDT

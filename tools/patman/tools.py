@@ -317,3 +317,28 @@ def ToChar(byte):
         byte: A byte or str value
     """
     return chr(byte) if type(byte) != str else byte
+
+def ToChars(byte_list):
+    """Convert a list of bytes to a str/bytes type
+
+    Args:
+        byte_list: List of ASCII values representing the string
+
+    Returns:
+        string made by concatenating all the ASCII values
+    """
+    return ''.join([chr(byte) for byte in byte_list])
+
+def ToBytes(string):
+    """Convert a str type into a bytes type
+
+    Args:
+        string: string to convert value
+
+    Returns:
+        Python 3: A bytes type
+        Python 2: A string type
+    """
+    if sys.version_info[0] >= 3:
+        return string.encode('utf-8')
+    return string

@@ -47,7 +47,7 @@ def _GetPropertyValue(dtb, node, prop_name):
     # Add 12, which is sizeof(struct fdt_property), to get to start of data
     offset = prop.GetOffset() + 12
     data = dtb.GetContents()[offset:offset + len(prop.value)]
-    return prop, [chr(x) for x in data]
+    return prop, [tools.ToChar(x) for x in data]
 
 
 class TestFdt(unittest.TestCase):
@@ -383,7 +383,7 @@ class TestProp(unittest.TestCase):
         self.node.AddString('string', val)
         self.dtb.Sync(auto_resize=True)
         data = self.fdt.getprop(self.node.Offset(), 'string')
-        self.assertEqual(val + '\0', data)
+        self.assertEqual(tools.ToBytes(val) + b'\0', data)
 
         self.fdt.pack()
         self.node.SetString('string', val + 'x')
@@ -393,21 +393,21 @@ class TestProp(unittest.TestCase):
         self.node.SetString('string', val[:-1])
 
         prop = self.node.props['string']
-        prop.SetData(val)
+        prop.SetData(tools.ToBytes(val))
         self.dtb.Sync(auto_resize=False)
         data = self.fdt.getprop(self.node.Offset(), 'string')
-        self.assertEqual(val, data)
+        self.assertEqual(tools.ToBytes(val), data)
 
         self.node.AddEmptyProp('empty', 5)
         self.dtb.Sync(auto_resize=True)
         prop = self.node.props['empty']
-        prop.SetData(val)
+        prop.SetData(tools.ToBytes(val))
         self.dtb.Sync(auto_resize=False)
         data = self.fdt.getprop(self.node.Offset(), 'empty')
-        self.assertEqual(val, data)
+        self.assertEqual(tools.ToBytes(val), data)
 
-        self.node.SetData('empty', '123')
-        self.assertEqual('123', prop.bytes)
+        self.node.SetData('empty', b'123')
+        self.assertEqual(b'123', prop.bytes)
 
     def testFromData(self):
         dtb2 = fdt.Fdt.FromData(self.dtb.GetContents())
@@ -508,7 +508,7 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(dtb, fdt_util.EnsureCompiled(dtb))
 
     def testGetPlainBytes(self):
-        self.assertEqual('fred', fdt_util.get_plain_bytes('fred'))
+        self.assertEqual(b'fred', fdt_util.get_plain_bytes('fred'))
 
 
 def RunTestCoverage():
