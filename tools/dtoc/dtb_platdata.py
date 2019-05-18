@@ -464,7 +464,8 @@ class DtbPlatdata(object):
         var_name = conv_name_to_c(node.name)
         self.buf('static const struct %s%s %s%s = {\n' %
                  (STRUCT_PREFIX, struct_name, VAL_PREFIX, var_name))
-        for pname, prop in node.props.items():
+        for pname in sorted(node.props):
+            prop = node.props[pname]
             if pname in PROP_IGNORE_LIST or pname[0] == '#':
                 continue
             member_name = conv_name_to_c(prop.name)
