@@ -465,8 +465,11 @@ class Node:
 
         # Sync properties now, whose offsets should not have been disturbed.
         # We do this after subnodes, since this disturbs the offsets of these
-        # properties.
-        prop_list = sorted(self.props.values(), key=lambda prop: prop._offset,
+        # properties. Note that new properties will have an offset of None here,
+        # which Python 3 cannot sort against int. So use a large value instead
+        # to ensure that the new properties are added first.
+        prop_list = sorted(self.props.values(),
+                           key=lambda prop: prop._offset or 1 << 31,
                            reverse=True)
         for prop in prop_list:
             prop.Sync(auto_resize)
