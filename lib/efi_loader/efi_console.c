@@ -825,7 +825,7 @@ out:
  * efi_cin_set_state() - set toggle key state
  *
  * @this:		instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
- * @key_toggle_state:	key toggle state
+ * @key_toggle_state:	pointer to key toggle state
  * Return:		status code
  *
  * This function implements the SetState service of the
@@ -836,9 +836,9 @@ out:
  */
 static efi_status_t EFIAPI efi_cin_set_state(
 		struct efi_simple_text_input_ex_protocol *this,
-		u8 key_toggle_state)
+		u8 *key_toggle_state)
 {
-	EFI_ENTRY("%p, %u", this, key_toggle_state);
+	EFI_ENTRY("%p, %p", this, key_toggle_state);
 	/*
 	 * U-Boot supports multiple console input sources like serial and
 	 * net console for which a key toggle state cannot be set at all.

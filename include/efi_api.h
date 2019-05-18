@@ -639,7 +639,7 @@ struct efi_simple_text_input_ex_protocol {
 	struct efi_event *wait_for_key_ex;
 	efi_status_t (EFIAPI *set_state) (
 		struct efi_simple_text_input_ex_protocol *this,
-		u8 key_toggle_state);
+		u8 *key_toggle_state);
 	efi_status_t (EFIAPI *register_key_notify) (
 		struct efi_simple_text_input_ex_protocol *this,
 		struct efi_key_data *key_data,
