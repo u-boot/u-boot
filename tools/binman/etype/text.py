@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 from entry import Entry, EntryArg
 import fdt_util
+import tools
 
 
 class Entry_text(Entry):
@@ -48,9 +49,11 @@ class Entry_text(Entry):
     """
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)
-        self.text_label, = self.GetEntryArgsOrProps(
-            [EntryArg('text-label', str)])
-        self.value, = self.GetEntryArgsOrProps([EntryArg(self.text_label, str)])
+        label, = self.GetEntryArgsOrProps([EntryArg('text-label', str)])
+        self.text_label = tools.ToStr(label) if type(label) != str else label
+        value, = self.GetEntryArgsOrProps([EntryArg(self.text_label, str)])
+        value = tools.ToBytes(value) if value is not None else value
+        self.value = value
 
     def ObtainContents(self):
         if not self.value:
