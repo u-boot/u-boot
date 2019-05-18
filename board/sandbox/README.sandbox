@@ -435,6 +435,13 @@ board_init_f() and board_init_r().
 This approach can be used on normal boards as well as sandbox.
 
 
+SDL_CONFIG
+----------
+
+If sdl-config is on a different path from the default, set the SDL_CONFIG
+environment variable to the correct pathname before building U-Boot.
+
+
 Testing
 -------
 
