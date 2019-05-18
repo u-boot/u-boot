@@ -214,7 +214,7 @@ def Filename(fname):
     # If not found, just return the standard, unchanged path
     return fname
 
-def ReadFile(fname):
+def ReadFile(fname, binary=True):
     """Read and return the contents of a file.
 
     Args:
@@ -223,7 +223,7 @@ def ReadFile(fname):
     Returns:
       data read from file, as a string.
     """
-    with open(Filename(fname), 'rb') as fd:
+    with open(Filename(fname), binary and 'rb' or 'r') as fd:
         data = fd.read()
     #self._out.Info("Read file '%s' size %d (%#0x)" %
                    #(fname, len(data), len(data)))
