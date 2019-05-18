@@ -1,5 +1,7 @@
 /dts-v1/;
 
+#include <config.h>
+
 / {
 	#address-cells = <2>;
 	#size-cells = <2>;
@@ -11,6 +13,10 @@
 		rtc0 = &rtc_0;
 		axi0 = &axi;
 		spi0 = &spi;
+	};
+
+	memory {
+		reg = /bits/ 64 <0 CONFIG_SYS_SDRAM_SIZE>;
 	};
 
 	cros_ec: cros-ec {

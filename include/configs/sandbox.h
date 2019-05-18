@@ -63,7 +63,11 @@
 	func(HOST, host, 1) \
 	func(HOST, host, 0)
 
+#ifdef __ASSEMBLY__
+#define BOOTENV
+#else
 #include <config_distro_bootcmd.h>
+#endif
 
 #define CONFIG_KEEP_SERVERADDR
 #define CONFIG_UDP_CHECKSUM
