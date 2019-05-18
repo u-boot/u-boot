@@ -8,6 +8,8 @@ This includes unit tests for some functions and functional tests for the dtoc
 tool.
 """
 
+from __future__ import print_function
+
 import collections
 import os
 import struct
@@ -97,7 +99,7 @@ class TestDtoc(unittest.TestCase):
         if expected != actual:
             self._WritePythonString('/tmp/binman.expected', expected)
             self._WritePythonString('/tmp/binman.actual', actual)
-            print 'Failures written to /tmp/binman.{expected,actual}'
+            print('Failures written to /tmp/binman.{expected,actual}')
         self.assertEquals(expected, actual)
 
     def test_name(self):
