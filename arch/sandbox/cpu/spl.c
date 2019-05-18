@@ -12,6 +12,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* SPL / TPL init function */
 void board_init_f(ulong flag)
 {
 	struct sandbox_state *state = state_get_current();
