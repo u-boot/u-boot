@@ -98,18 +98,18 @@ class Prop:
             bytes
         type: Value type
     """
-    def __init__(self, node, offset, name, bytes):
+    def __init__(self, node, offset, name, data):
         self._node = node
         self._offset = offset
         self.name = name
         self.value = None
-        self.bytes = str(bytes)
+        self.bytes = bytes(data)
         self.dirty = False
-        if not bytes:
+        if not data:
             self.type = TYPE_BOOL
             self.value = True
             return
-        self.type, self.value = BytesToValue(bytes)
+        self.type, self.value = BytesToValue(bytes(data))
 
     def RefreshOffset(self, poffset):
         self._offset = poffset
