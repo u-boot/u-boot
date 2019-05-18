@@ -29,6 +29,57 @@ def CheckErr(errnum, msg):
         raise ValueError('Error %d: %s: %s' %
             (errnum, libfdt.fdt_strerror(errnum), msg))
 
+
+def BytesToValue(bytes):
+    """Converts a string of bytes into a type and value
+
+    Args:
+        A string containing bytes
+
+    Return:
+        A tuple:
+            Type of data
+            Data, either a single element or a list of elements. Each element
+            is one of:
+                TYPE_STRING: string value from the property
+                TYPE_INT: a byte-swapped integer stored as a 4-byte string
+                TYPE_BYTE: a byte stored as a single-byte string
+    """
+    bytes = str(bytes)
+    size = len(bytes)
+    strings = bytes.split('\0')
+    is_string = True
+    count = len(strings) - 1
+    if count > 0 and not strings[-1]:
+        for string in strings[:-1]:
+            if not string:
+                is_string = False
+                break
+            for ch in string:
+                if ch < ' ' or ch > '~':
+                    is_string = False
+                    break
+    else:
+        is_string = False
+    if is_string:
+        if count == 1:
+            return TYPE_STRING, strings[0]
+        else:
+            return TYPE_STRING, strings[:-1]
+    if size % 4:
+        if size == 1:
+            return TYPE_BYTE, bytes[0]
+        else:
+            return TYPE_BYTE, list(bytes)
+    val = []
+    for i in range(0, size, 4):
+        val.append(bytes[i:i + 4])
+    if size == 4:
+        return TYPE_INT, val[0]
+    else:
+        return TYPE_INT, val
+
+
 class Prop:
     """A device tree property
 
@@ -49,7 +100,7 @@ class Prop:
             self.type = TYPE_BOOL
             self.value = True
             return
-        self.type, self.value = self.BytesToValue(bytes)
+        self.type, self.value = BytesToValue(bytes)
 
     def RefreshOffset(self, poffset):
         self._offset = poffset
@@ -87,55 +138,6 @@ class Prop:
             val = self.GetEmpty(self.type)
             while len(self.value) < len(newprop.value):
                 self.value.append(val)
-
-    def BytesToValue(self, bytes):
-        """Converts a string of bytes into a type and value
-
-        Args:
-            A string containing bytes
-
-        Return:
-            A tuple:
-                Type of data
-                Data, either a single element or a list of elements. Each element
-                is one of:
-                    TYPE_STRING: string value from the property
-                    TYPE_INT: a byte-swapped integer stored as a 4-byte string
-                    TYPE_BYTE: a byte stored as a single-byte string
-        """
-        bytes = str(bytes)
-        size = len(bytes)
-        strings = bytes.split('\0')
-        is_string = True
-        count = len(strings) - 1
-        if count > 0 and not strings[-1]:
-            for string in strings[:-1]:
-                if not string:
-                    is_string = False
-                    break
-                for ch in string:
-                    if ch < ' ' or ch > '~':
-                        is_string = False
-                        break
-        else:
-            is_string = False
-        if is_string:
-            if count == 1:
-                return TYPE_STRING, strings[0]
-            else:
-                return TYPE_STRING, strings[:-1]
-        if size % 4:
-            if size == 1:
-                return TYPE_BYTE, bytes[0]
-            else:
-                return TYPE_BYTE, list(bytes)
-        val = []
-        for i in range(0, size, 4):
-            val.append(bytes[i:i + 4])
-        if size == 4:
-            return TYPE_INT, val[0]
-        else:
-            return TYPE_INT, val
 
     @classmethod
     def GetEmpty(self, type):
@@ -183,7 +185,7 @@ class Prop:
             bytes: New property value to set
         """
         self.bytes = str(bytes)
-        self.type, self.value = self.BytesToValue(bytes)
+        self.type, self.value = BytesToValue(bytes)
         self.dirty = True
 
     def Sync(self, auto_resize=False):
