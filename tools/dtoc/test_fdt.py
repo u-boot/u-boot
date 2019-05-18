@@ -518,9 +518,6 @@ class TestFdtUtil(unittest.TestCase):
         dtb = fdt_util.EnsureCompiled('tools/dtoc/dtoc_test_simple.dts')
         self.assertEqual(dtb, fdt_util.EnsureCompiled(dtb))
 
-    def testGetPlainBytes(self):
-        self.assertEqual(b'fred', fdt_util.get_plain_bytes('fred'))
-
 
 def RunTestCoverage():
     """Run the tests and check that we get 100% coverage"""

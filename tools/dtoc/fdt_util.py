@@ -16,14 +16,6 @@ import tempfile
 import command
 import tools
 
-VERSION3 = sys.version_info > (3, 0)
-
-def get_plain_bytes(val):
-    """Handle Python 3 strings"""
-    if isinstance(val, bytes):
-        val = val.decode('utf-8')
-    return val.encode('raw_unicode_escape')
-
 def fdt32_to_cpu(val):
     """Convert a device tree cell to an integer
 
@@ -33,9 +25,6 @@ def fdt32_to_cpu(val):
     Return:
         A native-endian integer value
     """
-    if VERSION3:
-        # This code is not reached in Python 2
-        val = get_plain_bytes(val)  # pragma: no cover
     return struct.unpack('>I', val)[0]
 
 def fdt_cells_to_cpu(val, cells):
@@ -45,11 +34,11 @@ def fdt_cells_to_cpu(val, cells):
         Value to convert (array of one or more 4-character strings)
 
     Return:
-        A native-endian long value
+        A native-endian integer value
     """
     if not cells:
         return 0
-    out = long(fdt32_to_cpu(val[0]))
+    out = int(fdt32_to_cpu(val[0]))
     if cells == 2:
         out = out << 32 | fdt32_to_cpu(val[1])
     return out
