@@ -214,7 +214,57 @@ out:
 #endif
 }
 
+/**
+ * efi_set_time_boottime() - set current time
+ *
+ * This function implements the SetTime() runtime service before
+ * SetVirtualAddressMap() is called.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * @time:		pointer to structure to with current time
+ * Returns:		status code
+ */
+static efi_status_t EFIAPI efi_set_time_boottime(struct efi_time *time)
+{
+#ifdef CONFIG_DM_RTC
+	efi_status_t ret = EFI_SUCCESS;
+	struct rtc_time tm;
+	struct udevice *dev;
 
+	EFI_ENTRY("%p", time);
+
+	if (!time) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+
+	if (uclass_get_device(UCLASS_RTC, 0, &dev)) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+
+	memset(&tm, 0, sizeof(tm));
+	tm.tm_year = time->year;
+	tm.tm_mon = time->month;
+	tm.tm_mday = time->day;
+	tm.tm_hour = time->hour;
+	tm.tm_min = time->minute;
+	tm.tm_sec = time->second;
+	tm.tm_isdst = time->daylight == EFI_TIME_IN_DAYLIGHT;
+	/* Calculate day of week */
+	rtc_calc_weekday(&tm);
+
+	if (dm_rtc_set(dev, &tm))
+		ret = EFI_DEVICE_ERROR;
+out:
+	return EFI_EXIT(ret);
+#else
+	EFI_ENTRY("%p", time);
+	return EFI_EXIT(EFI_UNSUPPORTED);
+#endif
+}
 /**
  * efi_reset_system() - reset system
  *
@@ -271,6 +321,24 @@ efi_status_t __weak __efi_runtime EFIAPI efi_get_time(
 	return EFI_DEVICE_ERROR;
 }
 
+/**
+ * efi_set_time() - set current time
+ *
+ * This function implements the SetTime runtime service after
+ * SetVirtualAddressMap() is called. As the U-Boot driver are not available
+ * anymore only an error code is returned.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification
+ * for details.
+ *
+ * @time:		pointer to structure to with current time
+ * Returns:		status code
+ */
+efi_status_t __weak __efi_runtime EFIAPI efi_set_time(struct efi_time *time)
+{
+	return EFI_UNSUPPORTED;
+}
+
 struct efi_runtime_detach_list_struct {
 	void *ptr;
 	void *patchto;
@@ -289,6 +357,9 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 		/* RTC accessors are gone */
 		.ptr = &efi_runtime_services.get_time,
 		.patchto = &efi_get_time,
+	}, {
+		.ptr = &efi_runtime_services.set_time,
+		.patchto = &efi_set_time,
 	}, {
 		/* Clean up system table */
 		.ptr = &systab.con_in,
@@ -697,7 +768,7 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
 		.headersize = sizeof(struct efi_runtime_services),
 	},
 	.get_time = &efi_get_time_boottime,
-	.set_time = (void *)&efi_device_error,
+	.set_time = &efi_set_time_boottime,
 	.get_wakeup_time = (void *)&efi_unimplemented,
 	.set_wakeup_time = (void *)&efi_unimplemented,
 	.set_virtual_address_map = &efi_set_virtual_address_map,
