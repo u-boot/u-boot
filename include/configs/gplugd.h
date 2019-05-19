@@ -33,9 +33,6 @@
  * Commands configuration
  */
 
-/* Disable DCACHE */
-#define CONFIG_SYS_DCACHE_OFF
-
 /* Network configuration */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_ARMADA100_FEC

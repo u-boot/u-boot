@@ -12,7 +12,6 @@
 
 #include <configs/xilinx_zynqmp_mini.h>
 
-#define CONFIG_SYS_ICACHE_OFF
 #define CONFIG_SYS_SDRAM_SIZE	0x1000000
 #define CONFIG_SYS_SDRAM_BASE	0x0
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x40000)

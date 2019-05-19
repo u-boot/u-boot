@@ -32,9 +32,11 @@ int fit_check_image_types(uint8_t type);
  * @blobp:	Returns pointer to FDT blob
  * @sbuf:	File status information is stored here
  * @delete_on_error:	true to delete the file if we get an error
+ * @read_only:	true to open in read-only mode
  * @return 0 if OK, -1 on error.
  */
 int mmap_fdt(const char *cmdname, const char *fname, size_t size_inc,
-	     void **blobp, struct stat *sbuf, bool delete_on_error);
+	     void **blobp, struct stat *sbuf, bool delete_on_error,
+	     bool read_only);
 
 #endif /* _FIT_COMMON_H_ */

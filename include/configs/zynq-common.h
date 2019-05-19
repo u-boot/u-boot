@@ -284,11 +284,6 @@
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME     "u-boot.img"
 #endif
 
-/* Disable dcache for SPL just for sure */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_DCACHE_OFF
-#endif
-
 /* Address in RAM where the parameters must be copied by SPL. */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x10000000
 

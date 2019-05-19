@@ -381,7 +381,7 @@ static int reserve_round_4k(void)
 #ifdef CONFIG_ARM
 __weak int reserve_mmu(void)
 {
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
+#if !(CONFIG_IS_ENABLED(SYS_ICACHE_OFF) && CONFIG_IS_ENABLED(SYS_DCACHE_OFF))
 	/* reserve TLB table */
 	gd->arch.tlb_size = PGTABLE_SIZE;
 	gd->relocaddr -= gd->arch.tlb_size;

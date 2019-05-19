@@ -55,17 +55,6 @@ __weak void __iomem *ahci_port_base(void __iomem *base, u32 port)
 	return base + 0x100 + (port * 0x80);
 }
 
-
-static void ahci_setup_port(struct ahci_ioports *port, void __iomem *base,
-			    unsigned int port_idx)
-{
-	base = ahci_port_base(base, port_idx);
-
-	port->cmd_addr = base;
-	port->scr_addr = base + PORT_SCR;
-}
-
-
 #define msleep(a) udelay(a * 1000)
 
 static void ahci_dcache_flush_range(unsigned long begin, unsigned long len)
@@ -240,7 +229,6 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 			continue;
 		uc_priv->port[i].port_mmio = ahci_port_base(mmio, i);
 		port_mmio = (u8 *)uc_priv->port[i].port_mmio;
-		ahci_setup_port(&uc_priv->port[i], mmio, i);
 
 		/* make sure port is not active */
 		tmp = readl(port_mmio + PORT_CMD);

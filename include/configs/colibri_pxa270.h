@@ -16,9 +16,6 @@
 /* Avoid overwriting factory configuration block */
 #define CONFIG_BOARD_SIZE_LIMIT		0x40000
 
-/* We will never enable dcache because we have to setup MMU first */
-#define CONFIG_SYS_DCACHE_OFF
-
 /*
  * Environment settings
  */

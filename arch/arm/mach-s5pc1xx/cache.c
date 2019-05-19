@@ -9,7 +9,7 @@
 
 #include <common.h>
 
-#ifndef CONFIG_SYS_DCACHE_OFF
+#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 void enable_caches(void)
 {
 	dcache_enable();

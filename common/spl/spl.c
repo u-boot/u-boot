@@ -195,10 +195,12 @@ static int spl_load_fit_image(struct spl_image_info *spl_image,
 #ifdef CONFIG_SPL_FIT_SIGNATURE
 	images.verify = 1;
 #endif
-	fit_image_load(&images, (ulong)header,
+	ret = fit_image_load(&images, (ulong)header,
 		       &fit_uname_fdt, &fit_uname_config,
 		       IH_ARCH_DEFAULT, IH_TYPE_FLATDT, -1,
 		       FIT_LOAD_OPTIONAL, &dt_data, &dt_len);
+	if (ret >= 0)
+		spl_image->fdt_addr = (void *)dt_data;
 
 	conf_noffset = fit_conf_get_node((const void *)header,
 					 fit_uname_config);

@@ -6,7 +6,6 @@
 
 #ifndef __CONFIG_STV0991_H
 #define __CONFIG_STV0991_H
-#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
 
 /* ram memory-related information */

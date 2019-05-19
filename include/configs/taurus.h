@@ -21,10 +21,6 @@
 #include <asm/hardware.h>
 #include <linux/sizes.h>
 
-#if defined(CONFIG_SPL_BUILD)
-#define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_SYS_DCACHE_OFF
-#endif
 /*
  * Warning: changing CONFIG_SYS_TEXT_BASE requires
  * adapting the initial boot program.
