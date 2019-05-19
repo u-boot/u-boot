@@ -169,7 +169,6 @@ static efi_status_t EFIAPI efi_get_time_boottime(
 {
 #ifdef CONFIG_DM_RTC
 	efi_status_t ret = EFI_SUCCESS;
-	int r;
 	struct rtc_time tm;
 	struct udevice *dev;
 
@@ -179,11 +178,12 @@ static efi_status_t EFIAPI efi_get_time_boottime(
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
-
-	r = uclass_get_device(UCLASS_RTC, 0, &dev);
-	if (!r)
-		r = dm_rtc_get(dev, &tm);
-	if (r) {
+	if (uclass_get_device(UCLASS_RTC, 0, &dev) ||
+	    dm_rtc_get(dev, &tm)) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+	if (dm_rtc_get(dev, &tm)) {
 		ret = EFI_DEVICE_ERROR;
 		goto out;
 	}
@@ -210,7 +210,7 @@ out:
 	return EFI_EXIT(ret);
 #else
 	EFI_ENTRY("%p %p", time, capabilities);
-	return EFI_EXIT(EFI_DEVICE_ERROR);
+	return EFI_EXIT(EFI_UNSUPPORTED);
 #endif
 }
 
