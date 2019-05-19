@@ -1071,7 +1071,7 @@ ifneq ($(EXT_DTB),)
 u-boot-fit-dtb.bin: u-boot-nodtb.bin $(EXT_DTB)
 		$(call if_changed,cat)
 else
-u-boot-fit-dtb.bin: u-boot-nodtb.bin fit-dtb.blob $(FINAL_DTB_CONTAINER)
+u-boot-fit-dtb.bin: u-boot-nodtb.bin $(FINAL_DTB_CONTAINER)
 	$(call if_changed,cat)
 endif
 
