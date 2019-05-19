@@ -139,6 +139,10 @@ struct tmio_sd_priv {
 #if CONFIG_IS_ENABLED(RENESAS_SDHI)
 	u8				tap_set;
 	u8				nrtaps;
+	bool				needs_adjust_hs400;
+	bool				adjust_hs400_enable;
+	u8				adjust_hs400_offset;
+	u8				adjust_hs400_calibrate;
 #endif
 	ulong (*clk_get_rate)(struct tmio_sd_priv *);
 };

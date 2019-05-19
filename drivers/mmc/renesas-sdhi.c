@@ -38,8 +38,110 @@
 #define RENESAS_SDHI_SCC_TMPPORT2		0x81c
 #define RENESAS_SDHI_SCC_TMPPORT2_HS400EN	BIT(31)
 #define RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL	BIT(4)
+#define RENESAS_SDHI_SCC_TMPPORT3		0x828
+#define RENESAS_SDHI_SCC_TMPPORT3_OFFSET_0	3
+#define RENESAS_SDHI_SCC_TMPPORT3_OFFSET_1	2
+#define RENESAS_SDHI_SCC_TMPPORT3_OFFSET_2	1
+#define RENESAS_SDHI_SCC_TMPPORT3_OFFSET_3	0
+#define RENESAS_SDHI_SCC_TMPPORT3_OFFSET_MASK	0x3
+#define RENESAS_SDHI_SCC_TMPPORT4		0x82c
+#define RENESAS_SDHI_SCC_TMPPORT4_DLL_ACC_START	BIT(0)
+#define RENESAS_SDHI_SCC_TMPPORT5		0x830
+#define RENESAS_SDHI_SCC_TMPPORT5_DLL_RW_SEL_R	BIT(8)
+#define RENESAS_SDHI_SCC_TMPPORT5_DLL_RW_SEL_W	(0 << 8)
+#define RENESAS_SDHI_SCC_TMPPORT5_DLL_ADR_MASK	0x3F
+#define RENESAS_SDHI_SCC_TMPPORT6		0x834
+#define RENESAS_SDHI_SCC_TMPPORT7		0x838
+#define RENESAS_SDHI_SCC_TMPPORT_DISABLE_WP_CODE	0xa5000000
+#define RENESAS_SDHI_SCC_TMPPORT_CALIB_CODE_MASK	0x1f
+#define RENESAS_SDHI_SCC_TMPPORT_MANUAL_MODE		BIT(7)
 
 #define RENESAS_SDHI_MAX_TAP 3
+
+static u32 sd_scc_tmpport_read32(struct tmio_sd_priv *priv, u32 addr)
+{
+	/* read mode */
+	tmio_sd_writel(priv, RENESAS_SDHI_SCC_TMPPORT5_DLL_RW_SEL_R |
+		       (RENESAS_SDHI_SCC_TMPPORT5_DLL_ADR_MASK & addr),
+		       RENESAS_SDHI_SCC_TMPPORT5);
+
+	/* access start and stop */
+	tmio_sd_writel(priv, RENESAS_SDHI_SCC_TMPPORT4_DLL_ACC_START,
+		       RENESAS_SDHI_SCC_TMPPORT4);
+	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_TMPPORT4);
+
+	return tmio_sd_readl(priv, RENESAS_SDHI_SCC_TMPPORT7);
+}
+
+static void sd_scc_tmpport_write32(struct tmio_sd_priv *priv, u32 addr, u32 val)
+{
+	/* write mode */
+	tmio_sd_writel(priv, RENESAS_SDHI_SCC_TMPPORT5_DLL_RW_SEL_W |
+		       (RENESAS_SDHI_SCC_TMPPORT5_DLL_ADR_MASK & addr),
+		       RENESAS_SDHI_SCC_TMPPORT5);
+	tmio_sd_writel(priv, val, RENESAS_SDHI_SCC_TMPPORT6);
+
+	/* access start and stop */
+	tmio_sd_writel(priv, RENESAS_SDHI_SCC_TMPPORT4_DLL_ACC_START,
+		       RENESAS_SDHI_SCC_TMPPORT4);
+	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_TMPPORT4);
+}
+
+static void renesas_sdhi_adjust_hs400_mode_enable(struct tmio_sd_priv *priv)
+{
+	u32 calib_code;
+
+	if (!priv->adjust_hs400_enable)
+		return;
+
+	if (!priv->needs_adjust_hs400)
+		return;
+
+	/*
+	 * Enabled Manual adjust HS400 mode
+	 *
+	 * 1) Disabled Write Protect
+	 *    W(addr=0x00, WP_DISABLE_CODE)
+	 * 2) Read Calibration code and adjust
+	 *    R(addr=0x26) - adjust value
+	 * 3) Enabled Manual Calibration
+	 *    W(addr=0x22, manual mode | Calibration code)
+	 * 4) Set Offset value to TMPPORT3 Reg
+	 */
+	sd_scc_tmpport_write32(priv, 0x00,
+			       RENESAS_SDHI_SCC_TMPPORT_DISABLE_WP_CODE);
+	calib_code = sd_scc_tmpport_read32(priv, 0x26);
+	calib_code &= RENESAS_SDHI_SCC_TMPPORT_CALIB_CODE_MASK;
+	if (calib_code > priv->adjust_hs400_calibrate)
+		calib_code -= priv->adjust_hs400_calibrate;
+	else
+		calib_code = 0;
+	sd_scc_tmpport_write32(priv, 0x22,
+			       RENESAS_SDHI_SCC_TMPPORT_MANUAL_MODE |
+			       calib_code);
+	tmio_sd_writel(priv, priv->adjust_hs400_offset,
+		       RENESAS_SDHI_SCC_TMPPORT3);
+
+	/* Clear flag */
+	priv->needs_adjust_hs400 = false;
+}
+
+static void renesas_sdhi_adjust_hs400_mode_disable(struct tmio_sd_priv *priv)
+{
+
+	/* Disabled Manual adjust HS400 mode
+	 *
+	 * 1) Disabled Write Protect
+	 *    W(addr=0x00, WP_DISABLE_CODE)
+	 * 2) Disabled Manual Calibration
+	 *    W(addr=0x22, 0)
+	 * 3) Clear offset value to TMPPORT3 Reg
+	 */
+	sd_scc_tmpport_write32(priv, 0x00,
+			       RENESAS_SDHI_SCC_TMPPORT_DISABLE_WP_CODE);
+	sd_scc_tmpport_write32(priv, 0x22, 0);
+	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_TMPPORT3);
+}
 
 static unsigned int renesas_sdhi_init_tuning(struct tmio_sd_priv *priv)
 {
@@ -96,6 +198,9 @@ static void renesas_sdhi_reset_tuning(struct tmio_sd_priv *priv)
 		 RENESAS_SDHI_SCC_TMPPORT2_HS400OSEL);
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_TMPPORT2);
 
+	/* Disable HS400 mode adjustment */
+	renesas_sdhi_adjust_hs400_mode_disable(priv);
+
 	reg = tmio_sd_readl(priv, TMIO_SD_CLKCTL);
 	reg |= TMIO_SD_CLKCTL_SCLKEN;
 	tmio_sd_writel(priv, reg, TMIO_SD_CLKCTL);
@@ -137,6 +242,10 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_TMPPORT2);
 
+	/* Disable HS400 mode adjustment */
+	if (!hs400)
+		renesas_sdhi_adjust_hs400_mode_disable(priv);
+
 	tmio_sd_writel(priv, (0x8 << RENESAS_SDHI_SCC_DTCNTL_TAPNUM_SHIFT) |
 			     RENESAS_SDHI_SCC_DTCNTL_TAPEN,
 			     RENESAS_SDHI_SCC_DTCNTL);
@@ -158,6 +267,10 @@ static int renesas_sdhi_hs400(struct udevice *dev)
 	reg = tmio_sd_readl(priv, RENESAS_SDHI_SCC_RVSCNTL);
 	reg |= RENESAS_SDHI_SCC_RVSCNTL_RVSEN;
 	tmio_sd_writel(priv, reg, RENESAS_SDHI_SCC_RVSCNTL);
+
+	/* Execute adjust hs400 offset after setting to HS400 mode */
+	if (hs400)
+		priv->needs_adjust_hs400 = true;
 
 	return 0;
 }
@@ -187,6 +300,8 @@ static int renesas_sdhi_select_tuning(struct tmio_sd_priv *priv,
 	unsigned long i;
 	bool select = false;
 	u32 reg;
+
+	priv->needs_adjust_hs400 = false;
 
 	/* Clear SCC_RVSREQ */
 	tmio_sd_writel(priv, 0, RENESAS_SDHI_SCC_RVSREQ);
@@ -405,8 +520,29 @@ static int renesas_sdhi_wait_dat0(struct udevice *dev, int state, int timeout)
 }
 #endif
 
+static int renesas_sdhi_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
+				 struct mmc_data *data)
+{
+	int ret;
+
+	ret = tmio_sd_send_cmd(dev, cmd, data);
+	if (ret)
+		return ret;
+
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || \
+    CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
+	struct tmio_sd_priv *priv = dev_get_priv(dev);
+
+	if (cmd->cmdidx == MMC_CMD_SEND_STATUS)
+		renesas_sdhi_adjust_hs400_mode_enable(priv);
+#endif
+
+	return 0;
+}
+
 static const struct dm_mmc_ops renesas_sdhi_ops = {
-	.send_cmd = tmio_sd_send_cmd,
+	.send_cmd = renesas_sdhi_send_cmd,
 	.set_ios = renesas_sdhi_set_ios,
 	.get_cd = tmio_sd_get_cd,
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT) || \
@@ -451,13 +587,36 @@ static void renesas_sdhi_filter_caps(struct udevice *dev)
 	if (!(priv->caps & TMIO_SD_CAP_RCAR_GEN3))
 		return;
 
-	/* HS400 is not supported on H3 ES1.x and M3W ES1.0,ES1.1 */
+	/* HS400 is not supported on H3 ES1.x and M3W ES1.0,ES1.1,ES1.2 */
 	if (((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
 	    (rmobile_get_cpu_rev_integer() <= 1)) ||
 	    ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
 	    (rmobile_get_cpu_rev_integer() == 1) &&
-	    (rmobile_get_cpu_rev_fraction() <= 1)))
+	    (rmobile_get_cpu_rev_fraction() <= 2)))
 		plat->cfg.host_caps &= ~MMC_MODE_HS400;
+
+	/* M3W ES1.x for x>2 can use HS400 with manual adjustment */
+	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7796) &&
+	    (rmobile_get_cpu_rev_integer() == 1) &&
+	    (rmobile_get_cpu_rev_fraction() > 2)) {
+		priv->adjust_hs400_enable = true;
+		priv->adjust_hs400_offset = 0;
+		priv->adjust_hs400_calibrate = 0x9;
+	}
+
+	/* M3N can use HS400 with manual adjustment */
+	if (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77965) {
+		priv->adjust_hs400_enable = true;
+		priv->adjust_hs400_offset = 0;
+		priv->adjust_hs400_calibrate = 0x0;
+	}
+
+	/* E3 can use HS400 with manual adjustment */
+	if (rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A77990) {
+		priv->adjust_hs400_enable = true;
+		priv->adjust_hs400_offset = 0;
+		priv->adjust_hs400_calibrate = 0x2;
+	}
 
 	/* H3 ES2.0 uses 4 tuning taps */
 	if ((rmobile_get_cpu_type() == RMOBILE_CPU_TYPE_R8A7795) &&
