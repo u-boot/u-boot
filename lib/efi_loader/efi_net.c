@@ -392,7 +392,7 @@ static efi_status_t EFIAPI efi_net_transmit
 	efi_timer_check();
 
 	/* Check parameters */
-	if (!this) {
+	if (!this || !buffer) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
@@ -408,7 +408,7 @@ static efi_status_t EFIAPI efi_net_transmit
 		 * TODO: We would need to create the header
 		 * if header_size != 0
 		 */
-		ret = EFI_INVALID_PARAMETER;
+		ret = EFI_UNSUPPORTED;
 		goto out;
 	}
 
@@ -466,7 +466,7 @@ static efi_status_t EFIAPI efi_net_receive
 	efi_timer_check();
 
 	/* Check parameters */
-	if (!this) {
+	if (!this || !buffer || !buffer_size) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}

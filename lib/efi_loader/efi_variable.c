@@ -202,8 +202,10 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 		len /= 2;
 		*data_size = len;
 
-		if (in_size < len)
-			return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
+		if (in_size < len) {
+			ret = EFI_BUFFER_TOO_SMALL;
+			goto out;
+		}
 
 		if (!data)
 			return EFI_EXIT(EFI_INVALID_PARAMETER);
@@ -217,8 +219,10 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 
 		*data_size = len;
 
-		if (in_size < len)
-			return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
+		if (in_size < len) {
+			ret = EFI_BUFFER_TOO_SMALL;
+			goto out;
+		}
 
 		if (!data)
 			return EFI_EXIT(EFI_INVALID_PARAMETER);
@@ -232,10 +236,11 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
 		return EFI_EXIT(EFI_DEVICE_ERROR);
 	}
 
+out:
 	if (attributes)
 		*attributes = attr & EFI_VARIABLE_MASK;
 
-	return EFI_EXIT(EFI_SUCCESS);
+	return EFI_EXIT(ret);
 }
 
 static char *efi_variables_list;

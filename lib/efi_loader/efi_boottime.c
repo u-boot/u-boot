@@ -1916,10 +1916,17 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 static efi_status_t EFIAPI efi_get_next_monotonic_count(uint64_t *count)
 {
 	static uint64_t mono;
+	efi_status_t ret;
 
 	EFI_ENTRY("%p", count);
+	if (!count) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 	*count = mono++;
-	return EFI_EXIT(EFI_SUCCESS);
+	ret = EFI_SUCCESS;
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -2334,6 +2341,7 @@ efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
 	efi_va_list argptr;
 	const efi_guid_t *protocol;
 	void *protocol_interface;
+	efi_handle_t old_handle;
 	efi_status_t r = EFI_SUCCESS;
 	int i = 0;
 
@@ -2346,6 +2354,17 @@ efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
 		if (!protocol)
 			break;
 		protocol_interface = efi_va_arg(argptr, void*);
+		/* Check that a device path has not been installed before */
+		if (!guidcmp(protocol, &efi_guid_device_path)) {
+			struct efi_device_path *dp = protocol_interface;
+
+			r = EFI_CALL(efi_locate_device_path(protocol, &dp,
+							    &old_handle));
+			if (r == EFI_SUCCESS) {
+				r = EFI_ALREADY_STARTED;
+				break;
+			}
+		}
 		r = EFI_CALL(efi_install_protocol_interface(
 						handle, protocol,
 						EFI_NATIVE_INTERFACE,
@@ -2453,9 +2472,16 @@ static efi_status_t EFIAPI efi_calculate_crc32(const void *data,
 					       efi_uintn_t data_size,
 					       u32 *crc32_p)
 {
+	efi_status_t ret = EFI_SUCCESS;
+
 	EFI_ENTRY("%p, %zu", data, data_size);
+	if (!data || !data_size || !crc32_p) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 	*crc32_p = crc32(0, data, data_size);
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 /**

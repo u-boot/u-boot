@@ -38,7 +38,8 @@ efi_selftest_variables.o \
 efi_selftest_watchdog.o
 
 obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_selftest_devicepath.o
-obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL) += efi_selftest_unicode_collation.o
+obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += \
+efi_selftest_unicode_collation.o
 
 obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
 obj-$(CONFIG_EFI_LOADER_HII) += efi_selftest_hii.o

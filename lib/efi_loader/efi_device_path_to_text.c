@@ -79,9 +79,8 @@ static char *dp_acpi(char *s, struct efi_device_path *dp)
 		struct efi_device_path_acpi_path *adp =
 			(struct efi_device_path_acpi_path *)dp;
 
-		s += sprintf(s, "Acpi(PNP%04X", EISA_PNP_NUM(adp->hid));
-		s += sprintf(s, ",%d", adp->uid);
-		s += sprintf(s, ")");
+		s += sprintf(s, "Acpi(PNP%04X,%d)", EISA_PNP_NUM(adp->hid),
+			     adp->uid);
 		break;
 	}
 	default:
