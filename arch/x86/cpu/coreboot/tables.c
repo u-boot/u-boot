@@ -109,6 +109,10 @@ static void cb_parse_string(unsigned char *ptr, char **info)
 	*info = (char *)((struct cb_string *)ptr)->string;
 }
 
+__weak void cb_parse_unhandled(u32 tag, unsigned char *ptr)
+{
+}
+
 static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 {
 	struct cb_header *header;
@@ -210,6 +214,9 @@ static int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 			break;
 		case CB_TAG_VBNV:
 			cb_parse_vbnv(ptr, info);
+			break;
+		default:
+			cb_parse_unhandled(rec->tag, ptr);
 			break;
 		}
 
