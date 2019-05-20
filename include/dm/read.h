@@ -923,8 +923,12 @@ static inline const void *dev_read_prop_by_prop(struct ofprop *prop,
 
 static inline int dev_read_alias_seq(const struct udevice *dev, int *devnump)
 {
+#if CONFIG_IS_ENABLED(OF_CONTROL)
 	return fdtdec_get_alias_seq(gd->fdt_blob, dev->uclass->uc_drv->name,
 				    dev_of_offset(dev), devnump);
+#else
+	return -ENOTSUPP;
+#endif
 }
 
 static inline int dev_read_u32_array(const struct udevice *dev,
