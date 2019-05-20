@@ -482,8 +482,13 @@ static int i2c_write_data(struct mxc_i2c_bus *i2c_bus, u8 chip, const u8 *buf,
 	return ret;
 }
 
+/* Will generate a STOP after the last byte if "last" is true, i.e. this is the
+ * final message of a transaction.  If not, it switches the bus back to TX mode
+ * and does not send a STOP, leaving the bus in a state where a repeated start
+ * and address can be sent for another message.
+ */
 static int i2c_read_data(struct mxc_i2c_bus *i2c_bus, uchar chip, uchar *buf,
-			 int len)
+			 int len, bool last)
 {
 	int ret;
 	unsigned int temp;
@@ -513,17 +518,31 @@ static int i2c_read_data(struct mxc_i2c_bus *i2c_bus, uchar chip, uchar *buf,
 			return ret;
 		}
 
-		/*
-		 * It must generate STOP before read I2DR to prevent
-		 * controller from generating another clock cycle
-		 */
 		if (i == (len - 1)) {
-			i2c_imx_stop(i2c_bus);
+			/* Final byte has already been received by master!  When
+			 * we read it from I2DR, the master will start another
+			 * cycle.  We must program it first to send a STOP or
+			 * switch to TX to avoid this.
+			 */
+			if (last) {
+				i2c_imx_stop(i2c_bus);
+			} else {
+				/* Final read, no stop, switch back to tx */
+				temp = readb(base + (I2CR << reg_shift));
+				temp |= I2CR_MTX | I2CR_TX_NO_AK;
+				writeb(temp, base + (I2CR << reg_shift));
+			}
 		} else if (i == (len - 2)) {
+			/* Master has already recevied penultimate byte.  When
+			 * we read it from I2DR, master will start RX of final
+			 * byte.  We must set TX_NO_AK now so it does not ACK
+			 * that final byte.
+			 */
 			temp = readb(base + (I2CR << reg_shift));
 			temp |= I2CR_TX_NO_AK;
 			writeb(temp, base + (I2CR << reg_shift));
 		}
+
 		writeb(I2SR_IIF_CLEAR, base + (I2SR << reg_shift));
 		buf[i] = readb(base + (I2DR << reg_shift));
 	}
@@ -533,13 +552,34 @@ static int i2c_read_data(struct mxc_i2c_bus *i2c_bus, uchar chip, uchar *buf,
 		debug(" 0x%02x", buf[ret]);
 	debug("\n");
 
-	i2c_imx_stop(i2c_bus);
+	/* It is not clear to me that this is necessary */
+	if (last)
+		i2c_imx_stop(i2c_bus);
 	return 0;
 }
 
 #ifndef CONFIG_DM_I2C
 /*
  * Read data from I2C device
+ *
+ * The transactions use the syntax defined in the Linux kernel I2C docs.
+ *
+ * If alen is > 0, then this function will send a transaction of the form:
+ *     S Chip Wr [A] Addr [A] S Chip Rd [A] [data] A ... NA P
+ * This is a normal I2C register read: writing the register address, then doing
+ * a repeated start and reading the data.
+ *
+ * If alen == 0, then we get this transaction:
+ *     S Chip Wr [A] S Chip Rd [A] [data] A ... NA P
+ * This is somewhat unusual, though valid, transaction.  It addresses the chip
+ * in write mode, but doesn't actually write any register address or data, then
+ * does a repeated start and reads data.
+ *
+ * If alen < 0, then we get this transaction:
+ *     S Chip Rd [A] [data] A ... NA P
+ * The chip is addressed in read mode and then data is read.  No register
+ * address is written first.  This is perfectly valid on most devices and
+ * required on some (usually those that don't act like an array of registers).
  */
 static int bus_i2c_read(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 			int alen, u8 *buf, int len)
@@ -566,7 +606,7 @@ static int bus_i2c_read(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 		return ret;
 	}
 
-	ret = i2c_read_data(i2c_bus, chip, buf, len);
+	ret = i2c_read_data(i2c_bus, chip, buf, len, true);
 
 	i2c_imx_stop(i2c_bus);
 	return ret;
@@ -574,6 +614,20 @@ static int bus_i2c_read(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 
 /*
  * Write data to I2C device
+ *
+ * If alen > 0, we get this transaction:
+ *    S Chip Wr [A] addr [A] data [A] ... [A] P
+ * An ordinary write register command.
+ *
+ * If alen == 0, then we get this:
+ *    S Chip Wr [A] data [A] ... [A] P
+ * This is a simple I2C write.
+ *
+ * If alen < 0, then we get this:
+ *    S data [A] ... [A] P
+ * This is most likely NOT something that should be used.  It doesn't send the
+ * chip address first, so in effect, the first byte of data will be used as the
+ * address.
  */
 static int bus_i2c_write(struct mxc_i2c_bus *i2c_bus, u8 chip, u32 addr,
 			 int alen, const u8 *buf, int len)
@@ -881,6 +935,7 @@ static int mxc_i2c_probe(struct udevice *bus)
 	return 0;
 }
 
+/* Sends: S Addr Wr [A|NA] P */
 static int mxc_i2c_probe_chip(struct udevice *bus, u32 chip_addr,
 			      u32 chip_flags)
 {
@@ -905,42 +960,54 @@ static int mxc_i2c_xfer(struct udevice *bus, struct i2c_msg *msg, int nmsgs)
 	ulong base = i2c_bus->base;
 	int reg_shift = i2c_bus->driver_data & I2C_QUIRK_FLAG ?
 		VF610_I2C_REGSHIFT : IMX_I2C_REGSHIFT;
+	int read_mode;
 
-	/*
-	 * Here the 3rd parameter addr and the 4th one alen are set to 0,
-	 * because here we only want to send out chip address. The register
-	 * address is wrapped in msg.
+	/* Here address len is set to -1 to not send any address at first.
+	 * Otherwise i2c_init_transfer will send the chip address with write
+	 * mode set.  This is wrong if the 1st message is read.
 	 */
-	ret = i2c_init_transfer(i2c_bus, msg->addr, 0, 0);
+	ret = i2c_init_transfer(i2c_bus, msg->addr, 0, -1);
 	if (ret < 0) {
 		debug("i2c_init_transfer error: %d\n", ret);
 		return ret;
 	}
 
+	read_mode = -1; /* So it's always different on the first message */
 	for (; nmsgs > 0; nmsgs--, msg++) {
-		bool next_is_read = nmsgs > 1 && (msg[1].flags & I2C_M_RD);
-		debug("i2c_xfer: chip=0x%x, len=0x%x\n", msg->addr, msg->len);
-		if (msg->flags & I2C_M_RD)
-			ret = i2c_read_data(i2c_bus, msg->addr, msg->buf,
-					    msg->len);
-		else {
-			ret = i2c_write_data(i2c_bus, msg->addr, msg->buf,
-					     msg->len);
-			if (ret)
-				break;
-			if (next_is_read) {
-				/* Reuse ret */
+		const int msg_is_read = !!(msg->flags & I2C_M_RD);
+
+		debug("i2c_xfer: chip=0x%x, len=0x%x, dir=%c\n", msg->addr,
+		      msg->len, msg_is_read ? 'R' : 'W');
+
+		if (msg_is_read != read_mode) {
+			/* Send repeated start if not 1st message */
+			if (read_mode != -1) {
+				debug("i2c_xfer: [RSTART]\n");
 				ret = readb(base + (I2CR << reg_shift));
 				ret |= I2CR_RSTA;
 				writeb(ret, base + (I2CR << reg_shift));
-
-				ret = tx_byte(i2c_bus, (msg->addr << 1) | 1);
-				if (ret < 0) {
-					i2c_imx_stop(i2c_bus);
-					break;
-				}
 			}
+			debug("i2c_xfer: [ADDR %02x | %c]\n", msg->addr,
+			      msg_is_read ? 'R' : 'W');
+			ret = tx_byte(i2c_bus, (msg->addr << 1) | msg_is_read);
+			if (ret < 0) {
+				debug("i2c_xfer: [STOP]\n");
+				i2c_imx_stop(i2c_bus);
+				break;
+			}
+			read_mode = msg_is_read;
 		}
+
+		if (msg->flags & I2C_M_RD)
+			ret = i2c_read_data(i2c_bus, msg->addr, msg->buf,
+					    msg->len, nmsgs == 1 ||
+						      (msg->flags & I2C_M_STOP));
+		else
+			ret = i2c_write_data(i2c_bus, msg->addr, msg->buf,
+					     msg->len);
+
+		if (ret < 0)
+			break;
 	}
 
 	if (ret)
