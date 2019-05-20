@@ -2360,7 +2360,10 @@ efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
 
 			r = EFI_CALL(efi_locate_device_path(protocol, &dp,
 							    &old_handle));
-			if (r == EFI_SUCCESS) {
+			if (r == EFI_SUCCESS &&
+			    dp->type == DEVICE_PATH_TYPE_END) {
+				EFI_PRINT("Path %pD already installed\n",
+					  protocol_interface);
 				r = EFI_ALREADY_STARTED;
 				break;
 			}
