@@ -138,6 +138,7 @@ static int run_test(const char *aliases, const char *nodes, const char *expect)
 	}
 
 	printf("pass\n");
+	free(blob);
 	return 0;
 }
 
@@ -292,6 +293,7 @@ static int check_carveout(void)
 	CHECKVAL(make_fdt_carveout(fdt, FDT_SIZE, 2, 2), 0);
 	CHECKOK(check_fdt_carveout(fdt, 2, 2));
 
+	free(fdt);
 	return 0;
 }
 
