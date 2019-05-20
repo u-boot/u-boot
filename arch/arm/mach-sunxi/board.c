@@ -289,9 +289,14 @@ void reset_cpu(ulong addr)
 		writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
 	}
 #elif defined(CONFIG_SUNXI_GEN_SUN6I) || defined(CONFIG_MACH_SUN50I_H6)
+#if defined(CONFIG_MACH_SUN50I_H6)
+	/* WDOG is broken for some H6 rev. use the R_WDOG instead */
 	static const struct sunxi_wdog *wdog =
-		 ((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
-
+		(struct sunxi_wdog *)SUNXI_R_WDOG_BASE;
+#else
+	static const struct sunxi_wdog *wdog =
+		((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
+#endif
 	/* Set the watchdog for its shortest interval (.5s) and wait */
 	writel(WDT_CFG_RESET, &wdog->cfg);
 	writel(WDT_MODE_EN, &wdog->mode);
