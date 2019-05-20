@@ -21,10 +21,6 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_MS7750SE
-	bool "SolutionEngine 7750"
-	select CPU_SH4
-
 config TARGET_AP_SH4A_4A
 	bool "ALPHAPROJECT AP-SH4A-4A"
 	select CPU_SH4A
@@ -76,7 +72,6 @@ config SYS_CPU
 source "arch/sh/lib/Kconfig"
 
 source "board/alphaproject/ap_sh4a_4a/Kconfig"
-source "board/ms7750se/Kconfig"
 source "board/renesas/MigoR/Kconfig"
 source "board/renesas/ap325rxa/Kconfig"
 source "board/renesas/r0p7734/Kconfig"
