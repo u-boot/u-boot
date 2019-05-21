@@ -1425,14 +1425,6 @@ config CMD_CLS
 	  Enable the 'cls' command which clears the screen contents
 	  on video frame buffer.
 
-config CMD_DISPLAY
-	bool "Enable the 'display' command, for character displays"
-	help
-	  (this needs porting to driver model)
-	  This enables the 'display' command which allows a string to be
-	  displayed on a simple board-specific display. Implement
-	  display_putc() to use it.
-
 config CMD_EFIDEBUG
 	bool "efidebug - display/configure UEFI environment"
 	depends on EFI_LOADER
