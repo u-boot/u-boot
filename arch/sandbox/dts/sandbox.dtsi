@@ -192,6 +192,24 @@
 		compatible = "sandbox,spl-test.2";
 	};
 
+	spl-test5 {
+		u-boot,dm-tpl;
+		compatible = "sandbox,spl-test";
+		stringarray = "tpl";
+	};
+
+	spl-test6 {
+		u-boot,dm-pre-proper;
+		compatible = "sandbox,spl-test";
+		stringarray = "pre-proper";
+	};
+
+	spl-test7 {
+		u-boot,dm-spl;
+		compatible = "sandbox,spl-test";
+		stringarray = "spl";
+	};
+
 	square {
 		compatible = "demo-shape";
 		colour = "blue";
