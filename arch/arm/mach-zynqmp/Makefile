@@ -8,3 +8,7 @@ obj-y	+= cpu.o
 obj-$(CONFIG_MP)	+= mp.o
 obj-$(CONFIG_SPL_BUILD) += spl.o handoff.o
 obj-$(CONFIG_ZYNQMP_PSU_INIT_ENABLED)	+= psu_spl_init.o
+
+ifneq ($(CONFIG_ZYNQMP_SPL_PM_CFG_OBJ_FILE),"")
+obj-$(CONFIG_SPL_BUILD) += pmu_ipc.o
+endif
