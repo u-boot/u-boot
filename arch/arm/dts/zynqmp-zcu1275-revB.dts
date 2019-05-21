@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: GPL-2.0+
+// SPDX-License-Identifier: GPL-2.0
 /*
- * dts file for Xilinx ZynqMP ZC1275
+ * dts file for Xilinx ZynqMP ZCU1275 RevB
  *
- * (C) Copyright 2017 - 2018, Xilinx, Inc.
+ * (C) Copyright 2018, Xilinx, Inc.
  *
  * Michal Simek <michal.simek@xilinx.com>
  * Siva Durga Prasad Paladugu <sivadur@xilinx.com>
@@ -14,13 +14,16 @@
 #include "zynqmp-clk-ccf.dtsi"
 
 / {
-	model = "ZynqMP ZC1275 RevA";
-	compatible = "xlnx,zynqmp-zc1275-revA", "xlnx,zynqmp-zc1275", "xlnx,zynqmp";
+	model = "ZynqMP ZCU1275 RevB";
+	compatible = "xlnx,zynqmp-zcu1275-revB", "xlnx,zynqmp-zcu1275",
+		     "xlnx,zynqmp";
 
 	aliases {
 		serial0 = &uart0;
 		serial1 = &dcc;
 		spi0 = &qspi;
+		mmc0 = &sdhci1;
+		ethernet0 = &gem1;
 	};
 
 	chosen {
@@ -38,6 +41,20 @@
 	status = "okay";
 };
 
+&gem1 {
+	status = "okay";
+	phy-mode = "gmii";
+	phy-handle = <&gmiitorgmii>;
+	phy: ethernet-phy@0 {
+		reg = <0x0>;
+	};
+	gmiitorgmii: gmiitorgmii@8 {
+		compatible = "xlnx,gmii-to-rgmii-1.0";
+		reg = <8>;
+		phy-handle = <&phy>;
+	};
+};
+
 &qspi {
 	status = "okay";
 	flash@0 {
@@ -46,7 +63,7 @@
 		#size-cells = <1>;
 		reg = <0x0>;
 		spi-tx-bus-width = <1>;
-		spi-rx-bus-width = <4>; /* FIXME also DUAL configuration possible */
+		spi-rx-bus-width = <1>;
 		spi-max-frequency = <108000000>; /* Based on DC1 spec */
 		partition@qspi-fsbl-uboot { /* for testing purpose */
 			label = "qspi-fsbl-uboot";
@@ -69,4 +86,10 @@
 
 &uart0 {
 	status = "okay";
+};
+
+&sdhci1 {
+	status = "okay";
+	no-1-8-v;
+	xlnx,mio_bank = <1>;
 };
