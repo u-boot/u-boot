@@ -1572,9 +1572,9 @@ void pci_init(void)
 	 * Enumerate all known controller devices. Enumeration has the side-
 	 * effect of probing them, so PCIe devices will be enumerated too.
 	 */
-	for (uclass_first_device(UCLASS_PCI, &bus);
+	for (uclass_first_device_check(UCLASS_PCI, &bus);
 	     bus;
-	     uclass_next_device(&bus)) {
+	     uclass_next_device_check(&bus)) {
 		;
 	}
 }
