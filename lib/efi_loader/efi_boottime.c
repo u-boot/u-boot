@@ -921,6 +921,14 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 	list_for_each_entry_safe(item, next, &efi_register_notify_events,
 				 link) {
 		if (event == item->event) {
+			struct efi_protocol_notification *hitem, *hnext;
+
+			/* Remove signaled handles */
+			list_for_each_entry_safe(hitem, hnext, &item->handles,
+						 link) {
+				list_del(&hitem->link);
+				free(hitem);
+			}
 			list_del(&item->link);
 			free(item);
 		}
@@ -1049,8 +1057,19 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
 
 	/* Notify registered events */
 	list_for_each_entry(event, &efi_register_notify_events, link) {
-		if (!guidcmp(protocol, &event->protocol))
+		if (!guidcmp(protocol, &event->protocol)) {
+			struct efi_protocol_notification *notif;
+
+			notif = calloc(1, sizeof(*notif));
+			if (!notif) {
+				list_del(&handler->link);
+				free(handler);
+				return EFI_OUT_OF_RESOURCES;
+			}
+			notif->handle = handle;
+			list_add_tail(&notif->link, &event->handles);
 			efi_signal_event(event->event, true);
+		}
 	}
 
 	if (!guidcmp(&efi_guid_device_path, protocol))
@@ -1332,6 +1351,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
 
 	item->event = event;
 	memcpy(&item->protocol, protocol, sizeof(efi_guid_t));
+	INIT_LIST_HEAD(&item->handles);
 
 	list_add_tail(&item->link, &efi_register_notify_events);
 
@@ -1359,7 +1379,6 @@ static int efi_search(enum efi_locate_search_type search_type,
 	switch (search_type) {
 	case ALL_HANDLES:
 		return 0;
-	case BY_REGISTER_NOTIFY:
 	case BY_PROTOCOL:
 		ret = efi_search_protocol(handle, protocol, NULL);
 		return (ret != EFI_SUCCESS);
@@ -1391,6 +1410,7 @@ static efi_status_t efi_locate_handle(
 	struct efi_object *efiobj;
 	efi_uintn_t size = 0;
 	struct efi_register_notify_event *item, *event = NULL;
+	struct efi_protocol_notification *handle = NULL;
 
 	/* Check parameters */
 	switch (search_type) {
@@ -1409,8 +1429,6 @@ static efi_status_t efi_locate_handle(
 		}
 		if (!event)
 			return EFI_INVALID_PARAMETER;
-
-		protocol = &event->protocol;
 		break;
 	case BY_PROTOCOL:
 		if (!protocol)
@@ -1421,13 +1439,22 @@ static efi_status_t efi_locate_handle(
 	}
 
 	/* Count how much space we need */
-	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		if (!efi_search(search_type, protocol, efiobj))
-			size += sizeof(void *);
+	if (search_type == BY_REGISTER_NOTIFY) {
+		if (list_empty(&event->handles))
+			return EFI_NOT_FOUND;
+		handle = list_first_entry(&event->handles,
+					  struct efi_protocol_notification,
+					  link);
+		efiobj = handle->handle;
+		size += sizeof(void *);
+	} else {
+		list_for_each_entry(efiobj, &efi_obj_list, link) {
+			if (!efi_search(search_type, protocol, efiobj))
+				size += sizeof(void *);
+		}
+		if (size == 0)
+			return EFI_NOT_FOUND;
 	}
-
-	if (size == 0)
-		return EFI_NOT_FOUND;
 
 	if (!buffer_size)
 		return EFI_INVALID_PARAMETER;
@@ -1444,9 +1471,14 @@ static efi_status_t efi_locate_handle(
 		return EFI_INVALID_PARAMETER;
 
 	/* Then fill the array */
-	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		if (!efi_search(search_type, protocol, efiobj))
-			*buffer++ = efiobj;
+	if (search_type == BY_REGISTER_NOTIFY) {
+		*buffer = efiobj;
+		list_del(&handle->link);
+	} else {
+		list_for_each_entry(efiobj, &efi_obj_list, link) {
+			if (!efi_search(search_type, protocol, efiobj))
+				*buffer++ = efiobj;
+		}
 	}
 
 	return EFI_SUCCESS;

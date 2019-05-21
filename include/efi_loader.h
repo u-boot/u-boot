@@ -287,19 +287,37 @@ extern struct list_head efi_obj_list;
 extern struct list_head efi_events;
 
 /**
+ * struct efi_protocol_notification - handle for notified protocol
+ *
+ * When a protocol interface is installed for which an event was registered with
+ * the RegisterProtocolNotify() service this structure is used to hold the
+ * handle on which the protocol interface was installed.
+ *
+ * @link:	link to list of all handles notified for this event
+ * @handle:	handle on which the notified protocol interface was installed
+ */
+struct efi_protocol_notification {
+	struct list_head link;
+	efi_handle_t handle;
+};
+
+/**
  * efi_register_notify_event - event registered by RegisterProtocolNotify()
  *
  * The address of this structure serves as registration value.
  *
- * @link:		link to list of all registered events
- * @event:		registered event. The same event may registered for
- *			multiple GUIDs.
- * @protocol:		protocol for which the event is registered
+ * @link:	link to list of all registered events
+ * @event:	registered event. The same event may registered for multiple
+ *		GUIDs.
+ * @protocol:	protocol for which the event is registered
+ * @handles:	linked list of all handles on which the notified protocol was
+ *		installed
  */
 struct efi_register_notify_event {
 	struct list_head link;
 	struct efi_event *event;
 	efi_guid_t protocol;
+	struct list_head handles;
 };
 
 /* List of all events registered by RegisterProtocolNotify() */
