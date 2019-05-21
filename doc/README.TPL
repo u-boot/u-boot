@@ -34,6 +34,10 @@ determine which SPL options to choose based on whether CONFIG_TPL_BUILD
 is set. Source files can be compiled for TPL with options choosed in the
 board config file.
 
+TPL use a small device tree (u-boot-tpl.dtb), containing only the nodes with
+the pre-relocation properties: 'u-boot,dm-pre-reloc' and 'u-boot,dm-tpl'
+(see README.SPL for details).
+
 For example:
 
 spl/Makefile:
