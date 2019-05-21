@@ -678,13 +678,14 @@ static int ipuv3_video_bind(struct udevice *dev)
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 
 	plat->size = LCD_MAX_WIDTH * LCD_MAX_HEIGHT *
-		     (1 << LCD_MAX_LOG2_BPP) / 8;
+		     (1 << VIDEO_BPP32) / 8;
 
 	return 0;
 }
 
 static const struct udevice_id ipuv3_video_ids[] = {
 	{ .compatible = "fsl,imx6q-ipu" },
+	{ .compatible = "fsl,imx53-ipu" },
 	{ }
 };
 

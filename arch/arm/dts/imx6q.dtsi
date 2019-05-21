@@ -9,6 +9,7 @@
 / {
 	aliases {
 		ipu1 = &ipu2;
+		video1 = &ipu2;
 		spi4 = &ecspi5;
 	};
 
