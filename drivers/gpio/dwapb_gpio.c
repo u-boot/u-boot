@@ -185,12 +185,11 @@ static int gpio_dwapb_bind(struct udevice *dev)
 			plat->name = ofnode_get_name(node);
 		}
 
-		ret = device_bind(dev, dev->driver, plat->name,
-				  plat, -1, &subdev);
+		ret = device_bind_ofnode(dev, dev->driver, plat->name,
+					 plat, node, &subdev);
 		if (ret)
 			return ret;
 
-		dev->node = node;
 		bank++;
 	}
 
