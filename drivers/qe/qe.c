@@ -119,7 +119,7 @@ static void qe_sdma_init(void)
  */
 static u8 thread_snum[] = {
 /* Evthreads 16-29 are not supported in MPC8309 */
-#if !defined(CONFIG_MPC8309)
+#if !defined(CONFIG_ARCH_MPC8309)
 	0x04, 0x05, 0x0c, 0x0d,
 	0x14, 0x15, 0x1c, 0x1d,
 	0x24, 0x25, 0x2c, 0x2d,

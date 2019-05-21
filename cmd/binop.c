@@ -2,6 +2,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <hexdump.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <linux/ctype.h>
@@ -26,43 +27,20 @@ void write_to_env_var(char *varname, u8 *result, ulong len)
 		str_ptr += 2;
 	}
 	*str_ptr = '\0';
-	setenv(varname, str_output);
+	env_set(varname, str_output);
 
 	free(str_output);
-}
-
-void decode_hexstring(char *hexstr, u8 *result)
-{
-	int i;
-	int acc = 0;
-
-	for (i = 0; i < strlen(hexstr); ++i) {
-		char d = hexstr[i];
-		int value;
-
-		if (isdigit(d))
-			value = (d - '0');
-		else
-			value = (islower(d) ? toupper(d) : d) - 'A' + 10;
-
-		if (i % 2 == 0) {
-			acc = value * 16;
-		} else {
-			result[i / 2] = acc + value;
-			acc = 0;
-		}
-	}
 }
 
 void read_from_env_var(char *varname, u8 *result)
 {
 	char *str_value;
 
-	str_value = getenv(varname);
+	str_value = env_get(varname);
 	if (str_value)
-		decode_hexstring(str_value, result);
+		hex2bin(result, str_value, strlen(str_value) / 2);
 	else
-		decode_hexstring(varname, result);
+		hex2bin(result, varname, strlen(varname) / 2);
 }
 
 void read_from_mem(ulong addr, u8 *result, ulong len)

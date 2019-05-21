@@ -1,4 +1,4 @@
-if TARGET_MPC8313ERDB
+if TARGET_MPC8313ERDB_NOR
 
 config SYS_BOARD
 	default "mpc8313erdb"
@@ -7,6 +7,19 @@ config SYS_VENDOR
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	default "MPC8313ERDB"
+	default "MPC8313ERDB_NOR"
+
+endif
+
+if TARGET_MPC8313ERDB_NAND
+
+config SYS_BOARD
+	default "mpc8313erdb"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	default "MPC8313ERDB_NAND"
 
 endif

@@ -11,58 +11,6 @@
  */
 #define CONFIG_E300		1	/* E300 family */
 #define CONFIG_QE		1	/* Has QE */
-#define CONFIG_MPC832x		1	/* MPC832x CPU specific */
-#define CONFIG_MPC832XEMDS	1	/* MPC832XEMDS board specific */
-
-/*
- * System Clock Setup
- */
-#ifdef CONFIG_PCISLAVE
-#define CONFIG_83XX_PCICLK	66000000	/* in HZ */
-#else
-#define CONFIG_83XX_CLKIN	66000000	/* in Hz */
-#endif
-
-#ifndef CONFIG_SYS_CLK_FREQ
-#define CONFIG_SYS_CLK_FREQ	66000000
-#endif
-
-/*
- * Hardware Reset Configuration Word
- */
-#define CONFIG_SYS_HRCW_LOW (\
-	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
-	HRCWL_DDR_TO_SCB_CLK_2X1 |\
-	HRCWL_VCO_1X2 |\
-	HRCWL_CSB_TO_CLKIN_2X1 |\
-	HRCWL_CORE_TO_CSB_2X1 |\
-	HRCWL_CE_PLL_VCO_DIV_2 |\
-	HRCWL_CE_PLL_DIV_1X1 |\
-	HRCWL_CE_TO_PLL_1X3)
-
-#ifdef CONFIG_PCISLAVE
-#define CONFIG_SYS_HRCW_HIGH (\
-	HRCWH_PCI_AGENT |\
-	HRCWH_PCI1_ARBITER_DISABLE |\
-	HRCWH_CORE_ENABLE |\
-	HRCWH_FROM_0XFFF00100 |\
-	HRCWH_BOOTSEQ_DISABLE |\
-	HRCWH_SW_WATCHDOG_DISABLE |\
-	HRCWH_ROM_LOC_LOCAL_16BIT |\
-	HRCWH_BIG_ENDIAN |\
-	HRCWH_LALE_NORMAL)
-#else
-#define CONFIG_SYS_HRCW_HIGH (\
-	HRCWH_PCI_HOST |\
-	HRCWH_PCI1_ARBITER_ENABLE |\
-	HRCWH_CORE_ENABLE |\
-	HRCWH_FROM_0X00000100 |\
-	HRCWH_BOOTSEQ_DISABLE |\
-	HRCWH_SW_WATCHDOG_DISABLE |\
-	HRCWH_ROM_LOC_LOCAL_16BIT |\
-	HRCWH_BIG_ENDIAN |\
-	HRCWH_LALE_NORMAL)
-#endif
 
 /*
  * System IO Config
@@ -70,16 +18,9 @@
 #define CONFIG_SYS_SICRL		0x00000000
 
 /*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * DDR Setup
  */
-#define CONFIG_SYS_DDR_BASE	0x00000000	/* DDR is system memory */
-#define CONFIG_SYS_SDRAM_BASE	CONFIG_SYS_DDR_BASE
-#define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_DDR_BASE
+#define CONFIG_SYS_SDRAM_BASE	0x00000000	/* DDR is system memory */
 #define CONFIG_SYS_DDRCDR	0x73000002	/* DDR II voltage is 1.8V */
 
 #undef CONFIG_SPD_EEPROM
@@ -173,36 +114,11 @@
 			(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LCRR_DBYP		LCRR_DBYP
-#define CONFIG_SYS_LCRR_CLKDIV		LCRR_CLKDIV_2
-#define CONFIG_SYS_LBC_LBCR		0x00000000
-
-/*
  * FLASH on the Local Bus
  */
 #define CONFIG_SYS_FLASH_BASE	0xFE000000	/* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE	16	/* FLASH size is 16M */
 
-					/* Window base at flash base */
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_32MB)
-
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| BR_PS_16	/* 16 bit port */ \
-				| BR_MS_GPCM	/* MSEL = GPCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
-				| OR_GPCM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-				/* 0xfe006ff7 */
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	128	/* sectors per device */
@@ -214,22 +130,7 @@
  */
 #define CONFIG_SYS_BCSR			0xF8000000
 					/* Access window base at BCSR base */
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_BCSR
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
-#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_BCSR \
-					| BR_PS_8 \
-					| BR_MS_GPCM \
-					| BR_V)
-#define CONFIG_SYS_OR1_PRELIM		(OR_AM_32KB \
-					| OR_GPCM_XAM \
-					| OR_GPCM_CSNT \
-					| OR_GPCM_XACS \
-					| OR_GPCM_SCY_15 \
-					| OR_GPCM_TRLX_SET \
-					| OR_GPCM_EHTR_SET \
-					| OR_GPCM_EAD)
-					/* 0xFFFFE9F7 */
 
 /*
  * Windows to access PIB via local bus
@@ -237,45 +138,16 @@
 					/* PIB window base 0xF8008000 */
 #define CONFIG_SYS_PIB_BASE		0xF8008000
 #define CONFIG_SYS_PIB_WINDOW_SIZE	(32 * 1024)
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_PIB_BASE
-#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_64KB)
 
 /*
  * CS2 on Local Bus, to PIB
  */
-#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_PIB_BASE \
-				| BR_PS_8 \
-				| BR_MS_GPCM \
-				| BR_V)
-				/* 0xF8008801 */
-#define CONFIG_SYS_OR2_PRELIM	(P2SZ_TO_AM(CONFIG_SYS_PIB_WINDOW_SIZE) \
-				| OR_GPCM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-				/* 0xffffe9f7 */
+
 
 /*
  * CS3 on Local Bus, to PIB
  */
-#define CONFIG_SYS_BR3_PRELIM	((CONFIG_SYS_PIB_BASE + \
-					CONFIG_SYS_PIB_WINDOW_SIZE) \
-				| BR_PS_8 \
-				| BR_MS_GPCM \
-				| BR_V)
-				/* 0xF8010801 */
-#define CONFIG_SYS_OR3_PRELIM	(P2SZ_TO_AM(CONFIG_SYS_PIB_WINDOW_SIZE) \
-				| OR_GPCM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-				/* 0xffffe9f7 */
+
 
 /*
  * Serial Port
@@ -403,116 +275,6 @@
 					/* Initial Memory map for Linux */
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
-
-/*
- * Core HID Setup
- */
-#define CONFIG_SYS_HID0_INIT	0x000000000
-#define CONFIG_SYS_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK | \
-				 HID0_ENABLE_INSTRUCTION_CACHE)
-#define CONFIG_SYS_HID2		HID2_HBE
-
-/*
- * MMU Setup
- */
-
-#define CONFIG_HIGH_BATS	1	/* High BATs supported */
-
-/* DDR: cache cacheable */
-#define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE \
-				| BATL_PP_RW \
-				| BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-#define CONFIG_SYS_DBAT0L	CONFIG_SYS_IBAT0L
-#define CONFIG_SYS_DBAT0U	CONFIG_SYS_IBAT0U
-
-/* IMMRBAR & PCI IO: cache-inhibit and guarded */
-#define CONFIG_SYS_IBAT1L	(CONFIG_SYS_IMMR \
-				| BATL_PP_RW \
-				| BATL_CACHEINHIBIT \
-				| BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT1U	(CONFIG_SYS_IMMR \
-				| BATU_BL_4M \
-				| BATU_VS \
-				| BATU_VP)
-#define CONFIG_SYS_DBAT1L	CONFIG_SYS_IBAT1L
-#define CONFIG_SYS_DBAT1U	CONFIG_SYS_IBAT1U
-
-/* BCSR: cache-inhibit and guarded */
-#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_BCSR \
-				| BATL_PP_RW \
-				| BATL_CACHEINHIBIT \
-				| BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT2U	(CONFIG_SYS_BCSR \
-				| BATU_BL_128K \
-				| BATU_VS \
-				| BATU_VP)
-#define CONFIG_SYS_DBAT2L	CONFIG_SYS_IBAT2L
-#define CONFIG_SYS_DBAT2U	CONFIG_SYS_IBAT2U
-
-/* FLASH: icache cacheable, but dcache-inhibit and guarded */
-#define CONFIG_SYS_IBAT3L	(CONFIG_SYS_FLASH_BASE \
-				| BATL_PP_RW \
-				| BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT3U	(CONFIG_SYS_FLASH_BASE \
-				| BATU_BL_32M \
-				| BATU_VS \
-				| BATU_VP)
-#define CONFIG_SYS_DBAT3L	(CONFIG_SYS_FLASH_BASE \
-				| BATL_PP_RW \
-				| BATL_CACHEINHIBIT \
-				| BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT3U	CONFIG_SYS_IBAT3U
-
-#define CONFIG_SYS_IBAT4L	(0)
-#define CONFIG_SYS_IBAT4U	(0)
-#define CONFIG_SYS_DBAT4L	CONFIG_SYS_IBAT4L
-#define CONFIG_SYS_DBAT4U	CONFIG_SYS_IBAT4U
-
-/* Stack in dcache: cacheable, no memory coherence */
-#define CONFIG_SYS_IBAT5L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_RW)
-#define CONFIG_SYS_IBAT5U	(CONFIG_SYS_INIT_RAM_ADDR \
-				| BATU_BL_128K \
-				| BATU_VS \
-				| BATU_VP)
-#define CONFIG_SYS_DBAT5L	CONFIG_SYS_IBAT5L
-#define CONFIG_SYS_DBAT5U	CONFIG_SYS_IBAT5U
-
-#ifdef CONFIG_PCI
-/* PCI MEM space: cacheable */
-#define CONFIG_SYS_IBAT6L	(CONFIG_SYS_PCI1_MEM_PHYS \
-				| BATL_PP_RW \
-				| BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT6U	(CONFIG_SYS_PCI1_MEM_PHYS \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-#define CONFIG_SYS_DBAT6L	CONFIG_SYS_IBAT6L
-#define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
-/* PCI MMIO space: cache-inhibit and guarded */
-#define CONFIG_SYS_IBAT7L	(CONFIG_SYS_PCI1_MMIO_PHYS \
-				| BATL_PP_RW \
-				| BATL_CACHEINHIBIT \
-				| BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT7U	(CONFIG_SYS_PCI1_MMIO_PHYS \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-#define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
-#define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
-#else
-#define CONFIG_SYS_IBAT6L	(0)
-#define CONFIG_SYS_IBAT6U	(0)
-#define CONFIG_SYS_IBAT7L	(0)
-#define CONFIG_SYS_IBAT7U	(0)
-#define CONFIG_SYS_DBAT6L	CONFIG_SYS_IBAT6L
-#define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
-#define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
-#define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
-#endif
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */

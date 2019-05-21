@@ -1,6 +1,9 @@
 #ifndef __MPC8308_H_
 #define __MPC8308_H_
 
+void setbits_gpio0_out(u32 mask);
+void clrbits_gpio0_out(u32 mask);
+
 /* functions to be provided by board implementation */
 void mpc8308_init(void);
 void mpc8308_set_fpga_reset(unsigned state);

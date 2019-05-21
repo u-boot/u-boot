@@ -1,65 +1,34 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
-/*
- * Copyright (C) 2006 Freescale Semiconductor, Inc.
- *                    Dave Liu <daveliu@freescale.com>
- *
- * Copyright (C) 2007 Logic Product Development, Inc.
- *                    Peter Barada <peterb@logicpd.com>
- *
- * Copyright (C) 2007 MontaVista Software, Inc.
- *                    Anton Vorontsov <avorontsov@ru.mvista.com>
- *
- * (C) Copyright 2008
- * Heiko Schocher, DENX Software Engineering, hs@denx.de.
- *
- * (C) Copyright 2010
- * Lukas Roggli, KEYMILE Ltd, lukas.roggli@keymile.com
- *
- * (C) Copyright 2010-2011
- * Thomas Reufer, KEYMILE Ltd, thomas.reufer@keymile.com
- */
-
-#ifndef __CONFIG_KM8321_COMMON_H
-#define __CONFIG_KM8321_COMMON_H
-
 /*
  * High Level Configuration Options
  */
 #define CONFIG_QE	/* Has QE */
-#define CONFIG_MPC832x	/* MPC832x CPU specific */
 #define CONFIG_KM8321	/* Keymile PBEC8321 board specific */
 
-#define CONFIG_KM_DEF_ARCH	"arch=ppc_8xx\0"
+/*
+ * System Clock Setup
+ */
+#define CONFIG_83XX_CLKIN		66000000
+#define CONFIG_SYS_CLK_FREQ		66000000
+#define CONFIG_83XX_PCICLK		66000000
 
-/* include common defines/options for all 83xx Keymile boards */
-#include "km83xx-common.h"
+/*
+ * QE UEC ethernet configuration
+ */
+#define CONFIG_UEC_ETH1		/* GETH1 */
+#define UEC_VERBOSE_DEBUG	1
+
+#define CONFIG_SYS_UEC1_UCC_NUM	3	/* UCC4 */
+#define CONFIG_SYS_UEC1_RX_CLK		QE_CLK_NONE /* not used in RMII Mode */
+#define CONFIG_SYS_UEC1_TX_CLK		QE_CLK17
+#define CONFIG_SYS_UEC1_ETH_TYPE	FAST_ETH
+#define CONFIG_SYS_UEC1_PHY_ADDR	0
+#define CONFIG_SYS_UEC1_INTERFACE_TYPE	PHY_INTERFACE_MODE_RMII
+#define CONFIG_SYS_UEC1_INTERFACE_SPEED	100
 
 /*
  * System IO Config
  */
 #define CONFIG_SYS_SICRL	SICRL_IRQ_CKS
-
-/*
- * Hardware Reset Configuration Word
- */
-#define CONFIG_SYS_HRCW_LOW (\
-	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 | \
-	HRCWL_DDR_TO_SCB_CLK_2X1 | \
-	HRCWL_CSB_TO_CLKIN_2X1 | \
-	HRCWL_CORE_TO_CSB_2_5X1 | \
-	HRCWL_CE_PLL_VCO_DIV_2 | \
-	HRCWL_CE_TO_PLL_1X3)
-
-#define CONFIG_SYS_HRCW_HIGH (\
-	HRCWH_PCI_AGENT | \
-	HRCWH_PCI_ARBITER_DISABLE | \
-	HRCWH_CORE_ENABLE | \
-	HRCWH_FROM_0X00000100 | \
-	HRCWH_BOOTSEQ_DISABLE | \
-	HRCWH_SW_WATCHDOG_DISABLE | \
-	HRCWH_ROM_LOC_LOCAL_16BIT | \
-	HRCWH_BIG_ENDIAN | \
-	HRCWH_LALE_NORMAL)
 
 #define CONFIG_SYS_DDRCDR (\
 	DDRCDR_EN | \
@@ -120,21 +89,3 @@
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
-/*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LCRR_DBYP	0x80000000
-#define CONFIG_SYS_LCRR_EADC	0x00010000
-#define CONFIG_SYS_LCRR_CLKDIV	0x00000002
-
-#define CONFIG_SYS_LBC_LBCR	0x00000000
-
-/*
- * MMU Setup
- */
-#define CONFIG_SYS_IBAT7L	(0)
-#define CONFIG_SYS_IBAT7U	(0)
-#define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
-#define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
-
-#endif /* __CONFIG_KM8321_COMMON_H */

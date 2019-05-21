@@ -43,10 +43,10 @@ void lbc_sdram_init(void);
 #define BR_MSEL				0x000000E0
 #define BR_MSEL_SHIFT			5
 #define BR_MS_GPCM			0x00000000	/* GPCM */
-#if !defined(CONFIG_MPC834x) && !defined(CONFIG_MPC8360)
+#if !defined(CONFIG_ARCH_MPC834X) && !defined(CONFIG_ARCH_MPC8360)
 #define BR_MS_FCM			0x00000020	/* FCM */
 #endif
-#if defined(CONFIG_MPC834x) || defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC834X) || defined(CONFIG_ARCH_MPC8360)
 #define BR_MS_SDRAM			0x00000060	/* SDRAM */
 #elif defined(CONFIG_MPC85xx)
 #define BR_MS_SDRAM			0x00000000	/* SDRAM */
@@ -54,7 +54,7 @@ void lbc_sdram_init(void);
 #define BR_MS_UPMA			0x00000080	/* UPMA */
 #define BR_MS_UPMB			0x000000A0	/* UPMB */
 #define BR_MS_UPMC			0x000000C0	/* UPMC */
-#if !defined(CONFIG_MPC834x)
+#if !defined(CONFIG_ARCH_MPC834X)
 #define BR_ATOM				0x0000000C
 #define BR_ATOM_SHIFT			2
 #endif
@@ -67,7 +67,7 @@ void lbc_sdram_init(void);
 #define UPMB			1
 #define UPMC			2
 
-#if defined(CONFIG_MPC834x)
+#if defined(CONFIG_ARCH_MPC834X)
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_V)
 #else
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_ATOM | BR_V)
@@ -133,7 +133,7 @@ void lbc_sdram_init(void);
 #define OR_GPCM_EHTR_SHIFT		1
 #define OR_GPCM_EHTR_CLEAR		0x00000000
 #define OR_GPCM_EHTR_SET		0x00000002
-#if !defined(CONFIG_MPC8308)
+#if !defined(CONFIG_ARCH_MPC8308)
 #define OR_GPCM_EAD			0x00000001
 #define OR_GPCM_EAD_SHIFT		0
 #endif
@@ -428,14 +428,17 @@ void lbc_sdram_init(void);
 #define LSDMR_BSMA1516	(3 << (31 - 10))
 #define LSDMR_BSMA1617	(4 << (31 - 10))
 #define LSDMR_RFCR5	(3 << (31 - 16))
+#define LSDMR_RFCR8     (5 << (31 - 16))
 #define LSDMR_RFCR16	(7 << (31 - 16))
 #define LSDMR_PRETOACT3 (3 << (31 - 19))
+#define LSDMR_PRETOACT6 (5 << (31 - 19))
 #define LSDMR_PRETOACT7	(7 << (31 - 19))
 #define LSDMR_ACTTORW3	(3 << (31 - 22))
 #define LSDMR_ACTTORW7	(7 << (31 - 22))
 #define LSDMR_ACTTORW6	(6 << (31 - 22))
 #define LSDMR_BL8	(1 << (31 - 23))
 #define LSDMR_WRC2	(2 << (31 - 27))
+#define LSDMR_WRC3      (3 << (31 - 27))
 #define LSDMR_WRC4	(0 << (31 - 27))
 #define LSDMR_BUFCMD	(1 << (31 - 29))
 #define LSDMR_CL3	(3 << (31 - 31))

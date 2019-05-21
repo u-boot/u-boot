@@ -174,6 +174,41 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 
 #endif /* CONFIG_83XX_GENERIC_PCIE_REGISTER_HOSES */
 
+int get_pcie_clk(int index)
+{
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	u32 pci_sync_in;
+	u8 spmf;
+	u8 clkin_div;
+	u32 sccr;
+	u32 csb_clk;
+	u32 testval;
+
+	clkin_div = ((im->clk.spmr & SPMR_CKID) >> SPMR_CKID_SHIFT);
+	sccr = im->clk.sccr;
+	pci_sync_in = CONFIG_SYS_CLK_FREQ / (1 + clkin_div);
+	spmf = (im->clk.spmr & SPMR_SPMF) >> SPMR_SPMF_SHIFT;
+	csb_clk = pci_sync_in * (1 + clkin_div) * spmf;
+
+	if (index)
+		testval = (sccr & SCCR_PCIEXP2CM) >> SCCR_PCIEXP2CM_SHIFT;
+	else
+		testval = (sccr & SCCR_PCIEXP1CM) >> SCCR_PCIEXP1CM_SHIFT;
+
+	switch (testval) {
+	case 0:
+		return 0;
+	case 1:
+		return csb_clk;
+	case 2:
+		return csb_clk / 2;
+	case 3:
+		return csb_clk / 3;
+	}
+
+	return 0;
+}
+
 static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
 {
 	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
@@ -269,11 +304,9 @@ static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
 	/* Hose configure header is memory-mapped */
 	hose_cfg_base = (void *)pex;
 
-	get_clocks();
 	/* Configure the PCIE controller core clock ratio */
 	out_le32(hose_cfg_base + PEX_GCLK_RATIO,
-		(((bus ? gd->arch.pciexp2_clk : gd->arch.pciexp1_clk)
-			/ 1000000) * 16) / 333);
+		((get_pcie_clk(bus) / 1000000) * 16) / 333);
 	udelay(1000000);
 
 	/* Do Type 1 bridge configuration */

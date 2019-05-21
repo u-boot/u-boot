@@ -1,26 +1,17 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
-/*
- * Copyright (C) 2012 Keymile AG
- *                    Gerlando Falauto <gerlando.falauto@keymile.com>
- *
- * Based on km8321-common.h, see respective copyright notice for credits
- */
-
-#ifndef __CONFIG_KM8309_COMMON_H
-#define __CONFIG_KM8309_COMMON_H
-
 /*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 family */
 #define CONFIG_QE		1	/* Has QE */
-#define CONFIG_MPC830x		1	/* MPC830x family */
-#define CONFIG_MPC8309		1	/* MPC8309 CPU specific */
 
 #define CONFIG_KM_DEF_ARCH	"arch=ppc_82xx\0"
 
-/* include common defines/options for all 83xx Keymile boards */
-#include "km83xx-common.h"
+/*
+ * System Clock Setup
+ */
+#define CONFIG_83XX_CLKIN		66000000
+#define CONFIG_SYS_CLK_FREQ		66000000
+#define CONFIG_83XX_PCICLK		66000000
 
 /* QE microcode/firmware address */
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
@@ -73,28 +64,6 @@
 #define CONFIG_SYS_GP1ODR 0x00000000
 #define CONFIG_SYS_GP2DIR 0xFF000000
 #define CONFIG_SYS_GP2ODR 0x00000000
-
-/*
- * Hardware Reset Configuration Word
- */
-#define CONFIG_SYS_HRCW_LOW (\
-	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 | \
-	HRCWL_DDR_TO_SCB_CLK_2X1 | \
-	HRCWL_CSB_TO_CLKIN_2X1 | \
-	HRCWL_CORE_TO_CSB_2X1 | \
-	HRCWL_CE_PLL_VCO_DIV_2 | \
-	HRCWL_CE_TO_PLL_1X3)
-
-#define CONFIG_SYS_HRCW_HIGH (\
-	HRCWH_PCI_AGENT | \
-	HRCWH_PCI_ARBITER_DISABLE | \
-	HRCWH_CORE_ENABLE | \
-	HRCWH_FROM_0X00000100 | \
-	HRCWH_BOOTSEQ_DISABLE | \
-	HRCWH_SW_WATCHDOG_DISABLE | \
-	HRCWH_ROM_LOC_LOCAL_16BIT | \
-	HRCWH_BIG_ENDIAN | \
-	HRCWH_LALE_NORMAL)
 
 #define CONFIG_SYS_DDRCDR (\
 	DDRCDR_EN | \
@@ -156,21 +125,13 @@
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
-/*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LCRR_DBYP	0x80000000
-#define CONFIG_SYS_LCRR_EADC	0x00010000
-#define CONFIG_SYS_LCRR_CLKDIV	0x00000002
-
-#define CONFIG_SYS_LBC_LBCR	0x00000000
-
-/*
- * MMU Setup
- */
-#define CONFIG_SYS_IBAT7L	(0)
-#define CONFIG_SYS_IBAT7U	(0)
-#define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
-#define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
-
-#endif /* __CONFIG_KM8309_COMMON_H */
+/* ethernet port connected to piggy (UEC2) */
+#define CONFIG_HAS_ETH1
+#define CONFIG_UEC_ETH2
+#define CONFIG_SYS_UEC2_UCC_NUM		2       /* UCC3 */
+#define CONFIG_SYS_UEC2_RX_CLK		QE_CLK_NONE /* not used in RMII Mode */
+#define CONFIG_SYS_UEC2_TX_CLK		QE_CLK12
+#define CONFIG_SYS_UEC2_ETH_TYPE	FAST_ETH
+#define CONFIG_SYS_UEC2_PHY_ADDR	0
+#define CONFIG_SYS_UEC2_INTERFACE_TYPE	PHY_INTERFACE_MODE_RMII
+#define CONFIG_SYS_UEC2_INTERFACE_SPEED	100

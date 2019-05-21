@@ -39,25 +39,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#if (CONFIG_SYS_TEXT_BASE == 0xFE000000)
-#define CONFIG_SYS_LOWBOOT
-#endif
-
-/*
- * High Level Configuration Options
- */
-#define CONFIG_MPC834x		/* MPC834x family (8343, 8347, 8349) */
-#define CONFIG_MPC8349		/* MPC8349 specific */
-
-#define CONFIG_SYS_IMMR	0xE0000000	/* The IMMR is relocated to here */
-
 #define CONFIG_MISC_INIT_F
 
 /*
  * On-board devices
  */
 
-#ifdef CONFIG_MPC8349ITX
+#ifdef CONFIG_TARGET_MPC8349ITX
 /* The CF card interface on the back of the board */
 #define CONFIG_COMPACT_FLASH
 #define CONFIG_VSC7385_ENET	/* VSC7385 ethernet support */
@@ -154,9 +142,7 @@
 /*
  * DDR Setup
  */
-#define CONFIG_SYS_DDR_BASE		0x00000000 /* DDR is system memory*/
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_BASE
-#define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_DDR_BASE
+#define CONFIG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory*/
 #define CONFIG_SYS_83XX_DDR_USES_CS0
 #define CONFIG_SYS_MEMTEST_START	0x1000	/* memtest region */
 #define CONFIG_SYS_MEMTEST_END		0x2000
@@ -218,23 +204,6 @@ boards, we say we have two, but don't display a message if we find only one. */
  * BRx, ORx, LBLAWBARx, and LBLAWARx
  */
 
-/* Flash */
-
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| BR_PS_16 \
-				| BR_MS_GPCM \
-				| BR_V)
-#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
-				| OR_UPM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_16MB)
 
 /* Vitesse 7385 */
 
@@ -242,39 +211,12 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #ifdef CONFIG_VSC7385_ENET
 
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_VSC7385_BASE \
-				| BR_PS_8 \
-				| BR_MS_GPCM \
-				| BR_V)
-#define CONFIG_SYS_OR1_PRELIM	(OR_AM_128KB \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_SETA \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
-
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_VSC7385_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_128KB)
 
 #endif
 
-/* LED */
 
 #define CONFIG_SYS_LED_BASE	0xF9000000
-#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_LED_BASE \
-				| BR_PS_8 \
-				| BR_MS_GPCM \
-				| BR_V)
-#define CONFIG_SYS_OR2_PRELIM	(OR_AM_2MB \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_9 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET \
-				| OR_GPCM_EAD)
+
 
 /* Compact Flash */
 
@@ -282,14 +224,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_SYS_CF_BASE	0xF0000000
 
-#define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_CF_BASE \
-				| BR_PS_16 \
-				| BR_MS_UPMA \
-				| BR_V)
-#define CONFIG_SYS_OR3_PRELIM	(OR_UPM_AM | OR_UPM_BI)
-
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_CF_BASE
-#define CONFIG_SYS_LBLAWAR3_PRELIM	(LBLAWAR_EN | LBLAWAR_64KB)
 
 #endif
 
@@ -315,21 +249,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
 #define CONFIG_SYS_MONITOR_LEN	(512 * 1024) /* Reserve 512 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN	(256 * 1024) /* Reserved for malloc */
-
-/*
- * Local Bus LCRR and LBCR regs
- *    LCRR:  DLL bypass, Clock divider is 4
- * External Local Bus rate is
- *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
- */
-#define CONFIG_SYS_LCRR_DBYP	LCRR_DBYP
-#define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_4
-#define CONFIG_SYS_LBC_LBCR	0x00000000
-
-				/* LB sdram refresh timer, about 6us */
-#define CONFIG_SYS_LBC_LSRT	0x32000000
-				/* LB refresh timer prescal, 266MHz/32*/
-#define CONFIG_SYS_LBC_MRTPR	0x20000000
 
 /*
  * Serial Port
@@ -392,13 +311,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
-#endif
-
-#define CONFIG_PCI_66M
-#ifdef CONFIG_PCI_66M
-#define CONFIG_83XX_CLKIN	66666666	/* in Hz */
-#else
-#define CONFIG_83XX_CLKIN	33333333	/* in Hz */
 #endif
 
 /* TSEC */
@@ -471,48 +383,9 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_BOOTMAPSZ	(256 << 20)
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
-#define CONFIG_SYS_HRCW_LOW (\
-	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
-	HRCWL_DDR_TO_SCB_CLK_1X1 |\
-	HRCWL_CSB_TO_CLKIN_4X1 |\
-	HRCWL_VCO_1X2 |\
-	HRCWL_CORE_TO_CSB_2X1)
-
-#ifdef CONFIG_SYS_LOWBOOT
-#define CONFIG_SYS_HRCW_HIGH (\
-	HRCWH_PCI_HOST |\
-	HRCWH_32_BIT_PCI |\
-	HRCWH_PCI1_ARBITER_ENABLE |\
-	HRCWH_PCI2_ARBITER_ENABLE |\
-	HRCWH_CORE_ENABLE |\
-	HRCWH_FROM_0X00000100 |\
-	HRCWH_BOOTSEQ_DISABLE |\
-	HRCWH_SW_WATCHDOG_DISABLE |\
-	HRCWH_ROM_LOC_LOCAL_16BIT |\
-	HRCWH_TSEC1M_IN_GMII |\
-	HRCWH_TSEC2M_IN_GMII)
-#else
-#define CONFIG_SYS_HRCW_HIGH (\
-	HRCWH_PCI_HOST |\
-	HRCWH_32_BIT_PCI |\
-	HRCWH_PCI1_ARBITER_ENABLE |\
-	HRCWH_PCI2_ARBITER_ENABLE |\
-	HRCWH_CORE_ENABLE |\
-	HRCWH_FROM_0XFFF00100 |\
-	HRCWH_BOOTSEQ_DISABLE |\
-	HRCWH_SW_WATCHDOG_DISABLE |\
-	HRCWH_ROM_LOC_LOCAL_16BIT |\
-	HRCWH_TSEC1M_IN_GMII |\
-	HRCWH_TSEC2M_IN_GMII)
-#endif
-
 /*
  * System performance
  */
-#define CONFIG_SYS_ACR_PIPE_DEP	3	/* Arbiter pipeline depth (0-3) */
-#define CONFIG_SYS_ACR_RPTCNT	3	/* Arbiter repeat count (0-7) */
-#define CONFIG_SYS_SPCR_TSEC1EP	3	/* TSEC1 emergency priority (0-3) */
-#define CONFIG_SYS_SPCR_TSEC2EP	3	/* TSEC2 emergency priority (0-3) */
 #define CONFIG_SYS_SCCR_TSEC1CM	1	/* TSEC1 clock mode (0-3) */
 #define CONFIG_SYS_SCCR_TSEC2CM	1	/* TSEC2 & I2C0 clock mode (0-3) */
 #define CONFIG_SYS_SCCR_USBMPHCM 3	/* USB MPH controller's clock */
@@ -525,108 +398,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_SICRH SICRH_TSOBI1
 				/* USB DR as device + USB MPH as host */
 #define CONFIG_SYS_SICRL	(SICRL_LDP_A | SICRL_USB1)
-
-#define CONFIG_SYS_HID0_INIT	0x00000000
-#define CONFIG_SYS_HID0_FINAL	HID0_ENABLE_INSTRUCTION_CACHE
-
-#define CONFIG_SYS_HID2	HID2_HBE
-#define CONFIG_HIGH_BATS	1	/* High BATs supported */
-
-/* DDR  */
-#define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE \
-				| BATL_PP_RW \
-				| BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-
-/* PCI  */
-#ifdef CONFIG_PCI
-#define CONFIG_SYS_IBAT1L	(CONFIG_SYS_PCI1_MEM_BASE \
-				| BATL_PP_RW \
-				| BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT1U	(CONFIG_SYS_PCI1_MEM_BASE \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_PCI1_MMIO_BASE \
-				| BATL_PP_RW \
-				| BATL_CACHEINHIBIT \
-				| BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT2U	(CONFIG_SYS_PCI1_MMIO_BASE \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-#else
-#define CONFIG_SYS_IBAT1L	0
-#define CONFIG_SYS_IBAT1U	0
-#define CONFIG_SYS_IBAT2L	0
-#define CONFIG_SYS_IBAT2U	0
-#endif
-
-#ifdef CONFIG_MPC83XX_PCI2
-#define CONFIG_SYS_IBAT3L	(CONFIG_SYS_PCI2_MEM_BASE \
-				| BATL_PP_RW \
-				| BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT3U	(CONFIG_SYS_PCI2_MEM_BASE \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-#define CONFIG_SYS_IBAT4L	(CONFIG_SYS_PCI2_MMIO_BASE \
-				| BATL_PP_RW \
-				| BATL_CACHEINHIBIT \
-				| BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT4U	(CONFIG_SYS_PCI2_MMIO_BASE \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-#else
-#define CONFIG_SYS_IBAT3L	0
-#define CONFIG_SYS_IBAT3U	0
-#define CONFIG_SYS_IBAT4L	0
-#define CONFIG_SYS_IBAT4U	0
-#endif
-
-/* IMMRBAR @ 0xE0000000, PCI IO @ 0xE2000000 & BCSR @ 0xE2400000 */
-#define CONFIG_SYS_IBAT5L	(CONFIG_SYS_IMMR \
-				| BATL_PP_RW \
-				| BATL_CACHEINHIBIT \
-				| BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT5U	(CONFIG_SYS_IMMR \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-
-/* SDRAM @ 0xF0000000, stack in DCACHE 0xFDF00000 & FLASH @ 0xFE000000 */
-#define CONFIG_SYS_IBAT6L	(0xF0000000 \
-				| BATL_PP_RW \
-				| BATL_MEMCOHERENCE \
-				| BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT6U	(0xF0000000 \
-				| BATU_BL_256M \
-				| BATU_VS \
-				| BATU_VP)
-
-#define CONFIG_SYS_IBAT7L	0
-#define CONFIG_SYS_IBAT7U	0
-
-#define CONFIG_SYS_DBAT0L	CONFIG_SYS_IBAT0L
-#define CONFIG_SYS_DBAT0U	CONFIG_SYS_IBAT0U
-#define CONFIG_SYS_DBAT1L	CONFIG_SYS_IBAT1L
-#define CONFIG_SYS_DBAT1U	CONFIG_SYS_IBAT1U
-#define CONFIG_SYS_DBAT2L	CONFIG_SYS_IBAT2L
-#define CONFIG_SYS_DBAT2U	CONFIG_SYS_IBAT2U
-#define CONFIG_SYS_DBAT3L	CONFIG_SYS_IBAT3L
-#define CONFIG_SYS_DBAT3U	CONFIG_SYS_IBAT3U
-#define CONFIG_SYS_DBAT4L	CONFIG_SYS_IBAT4L
-#define CONFIG_SYS_DBAT4U	CONFIG_SYS_IBAT4U
-#define CONFIG_SYS_DBAT5L	CONFIG_SYS_IBAT5L
-#define CONFIG_SYS_DBAT5U	CONFIG_SYS_IBAT5U
-#define CONFIG_SYS_DBAT6L	CONFIG_SYS_IBAT6L
-#define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
-#define CONFIG_SYS_DBAT7L	CONFIG_SYS_IBAT7L
-#define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
@@ -645,7 +416,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 				/* U-Boot image on TFTP server */
 #define CONFIG_UBOOTPATH	"u-boot.bin"
 
-#ifdef CONFIG_MPC8349ITX
+#ifdef CONFIG_TARGET_MPC8349ITX
 #define CONFIG_FDTFILE		"mpc8349emitx.dtb"
 #else
 #define CONFIG_FDTFILE		"mpc8349emitxgp.dtb"

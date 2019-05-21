@@ -6,6 +6,9 @@
 #include <common.h>
 #include <mpc83xx.h>
 
+#include "lblaw/lblaw.h"
+#include "elbc/elbc.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -24,16 +27,16 @@ void cpu_init_f (volatile immap_t * im)
 
 	/* system performance tweaking */
 
-#ifdef CONFIG_SYS_ACR_PIPE_DEP
+#ifndef CONFIG_ACR_PIPE_DEP_UNSET
 	/* Arbiter pipeline depth */
 	im->arbiter.acr = (im->arbiter.acr & ~ACR_PIPE_DEP) |
-			  (CONFIG_SYS_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
+			  CONFIG_ACR_PIPE_DEP;
 #endif
 
-#ifdef CONFIG_SYS_ACR_RPTCNT
+#ifndef CONFIG_ACR_RPTCNT_UNSET
 	/* Arbiter repeat count */
 	im->arbiter.acr = (im->arbiter.acr & ~(ACR_RPTCNT)) |
-			  (CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT);
+			  CONFIG_ACR_RPTCNT;
 #endif
 
 #ifdef CONFIG_SYS_SPCR_OPT
@@ -88,4 +91,12 @@ void puts(const char *str)
 {
 	while (*str)
 		putc(*str++);
+}
+
+ulong get_bus_freq(ulong dummy)
+{
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	u8 spmf = (im->clk.spmr & SPMR_SPMF) >> SPMR_SPMF_SHIFT;
+
+	return CONFIG_SYS_CLK_FREQ * spmf;
 }

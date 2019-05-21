@@ -12,8 +12,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1 /* E300 family */
-#define CONFIG_MPC830x		1 /* MPC830x family */
-#define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
 
 #ifdef CONFIG_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
@@ -30,92 +28,15 @@
 #define CONFIG_VSC7385_ENET
 
 /*
- * System Clock Setup
- */
-#define CONFIG_83XX_CLKIN	33333333 /* in Hz */
-#define CONFIG_SYS_CLK_FREQ	CONFIG_83XX_CLKIN
-
-/*
- * Hardware Reset Configuration Word
- * if CLKIN is 66.66MHz, then
- * CSB = 133MHz, DDRC = 266MHz, LBC = 133MHz
- * We choose the A type silicon as default, so the core is 400Mhz.
- */
-#define CONFIG_SYS_HRCW_LOW (\
-	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\
-	HRCWL_DDR_TO_SCB_CLK_2X1 |\
-	HRCWL_SVCOD_DIV_2 |\
-	HRCWL_CSB_TO_CLKIN_4X1 |\
-	HRCWL_CORE_TO_CSB_3X1)
-/*
- * There are neither HRCWH_PCI_HOST nor HRCWH_PCI1_ARBITER_ENABLE bits
- * in 8308's HRCWH according to the manual, but original Freescale's
- * code has them and I've expirienced some problems using the board
- * with BDI3000 attached when I've tried to set these bits to zero
- * (UART doesn't work after the 'reset run' command).
- */
-#define CONFIG_SYS_HRCW_HIGH (\
-	HRCWH_PCI_HOST |\
-	HRCWH_PCI1_ARBITER_ENABLE |\
-	HRCWH_CORE_ENABLE |\
-	HRCWH_FROM_0X00000100 |\
-	HRCWH_BOOTSEQ_DISABLE |\
-	HRCWH_SW_WATCHDOG_DISABLE |\
-	HRCWH_ROM_LOC_LOCAL_16BIT |\
-	HRCWH_RL_EXT_LEGACY |\
-	HRCWH_TSEC1M_IN_RGMII |\
-	HRCWH_TSEC2M_IN_RGMII |\
-	HRCWH_BIG_ENDIAN)
-
-/*
- * System IO Config
- */
-#define CONFIG_SYS_SICRH (\
-	SICRH_ESDHC_A_SD |\
-	SICRH_ESDHC_B_SD |\
-	SICRH_ESDHC_C_SD |\
-	SICRH_GPIO_A_TSEC2 |\
-	SICRH_GPIO_B_TSEC2_GTX_CLK125 |\
-	SICRH_IEEE1588_A_GPIO |\
-	SICRH_USB |\
-	SICRH_GTM_GPIO |\
-	SICRH_IEEE1588_B_GPIO |\
-	SICRH_ETSEC2_CRS |\
-	SICRH_GPIOSEL_1 |\
-	SICRH_TMROBI_V3P3 |\
-	SICRH_TSOBI1_V2P5 |\
-	SICRH_TSOBI2_V2P5)	/* 0x01b7d103 */
-#define CONFIG_SYS_SICRL (\
-	SICRL_SPI_PF0 |\
-	SICRL_UART_PF0 |\
-	SICRL_IRQ_PF0 |\
-	SICRL_I2C2_PF0 |\
-	SICRL_ETSEC1_GTX_CLK125)	/* 0x00000040 */
-
-/*
- * IMMR new address
- */
-#define CONFIG_SYS_IMMR		0xE0000000
-
-/*
  * SERDES
  */
 #define CONFIG_FSL_SERDES
 #define CONFIG_FSL_SERDES1	0xe3000
 
 /*
- * Arbiter Setup
- */
-#define CONFIG_SYS_ACR_PIPE_DEP	3 /* Arbiter pipeline depth is 4 */
-#define CONFIG_SYS_ACR_RPTCNT	3 /* Arbiter repeat count is 4 */
-#define CONFIG_SYS_SPCR_TSECEP	3 /* eTSEC emergency priority is highest */
-
-/*
  * DDR Setup
  */
-#define CONFIG_SYS_DDR_BASE		0x00000000 /* DDR is system memory */
-#define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_BASE
-#define CONFIG_SYS_DDR_SDRAM_BASE	CONFIG_SYS_DDR_BASE
+#define CONFIG_SYS_SDRAM_BASE		0x00000000 /* DDR is system memory */
 #define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	DDR_SDRAM_CLK_CNTL_CLK_ADJUST_05
 #define CONFIG_SYS_DDRCDR_VALUE	(DDRCDR_EN \
 				| DDRCDR_PZ_LOZ \
@@ -201,13 +122,6 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*
- * Local Bus Configuration & Clock Setup
- */
-#define CONFIG_SYS_LCRR_DBYP		LCRR_DBYP
-#define CONFIG_SYS_LCRR_CLKDIV		LCRR_CLKDIV_2
-#define CONFIG_SYS_LBC_LBCR		0x00040000
-
-/*
  * FLASH on the Local Bus
  */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
@@ -215,22 +129,6 @@
 #define CONFIG_SYS_FLASH_BASE		0xFE000000 /* FLASH base address */
 #define CONFIG_SYS_FLASH_SIZE		8 /* FLASH size is 8M */
 
-/* Window base at flash base */
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_8MB)
-
-#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE \
-				| BR_PS_16	/* 16 bit port */ \
-				| BR_MS_GPCM	/* MSEL = GPCM */ \
-				| BR_V)		/* valid */
-#define CONFIG_SYS_OR0_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE) \
-				| OR_UPM_XAM \
-				| OR_GPCM_CSNT \
-				| OR_GPCM_ACS_DIV2 \
-				| OR_GPCM_XACS \
-				| OR_GPCM_SCY_15 \
-				| OR_GPCM_TRLX_SET \
-				| OR_GPCM_EHTR_SET)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1 /* number of banks */
 /* 127 64KB sectors and 8 8KB top sectors per device */
@@ -244,45 +142,14 @@
  */
 #define CONFIG_SYS_NAND_BASE	0xE0600000		/* 0xE0600000 */
 #define CONFIG_SYS_NAND_WINDOW_SIZE	(32 * 1024)	/* 0x00008000 */
-#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_NAND_BASE \
-				| BR_DECC_CHK_GEN	/* Use HW ECC */ \
-				| BR_PS_8		/* 8 bit Port */ \
-				| BR_MS_FCM		/* MSEL = FCM */ \
-				| BR_V)			/* valid */
-#define CONFIG_SYS_OR1_PRELIM	(P2SZ_TO_AM(CONFIG_SYS_NAND_WINDOW_SIZE) \
-				| OR_FCM_CSCT \
-				| OR_FCM_CST \
-				| OR_FCM_CHT \
-				| OR_FCM_SCY_1 \
-				| OR_FCM_TRLX \
-				| OR_FCM_EHTR)
 				/* 0xFFFF8396 */
-
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(LBLAWAR_EN | LBLAWAR_32KB)
 
 #ifdef CONFIG_VSC7385_ENET
 #define CONFIG_TSEC2
 					/* VSC7385 Base address on CS2 */
 #define CONFIG_SYS_VSC7385_BASE		0xF0000000
 #define CONFIG_SYS_VSC7385_SIZE		(128 * 1024) /* 0x00020000 */
-#define CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_VSC7385_BASE \
-					| BR_PS_8	/* 8-bit port */ \
-					| BR_MS_GPCM	/* MSEL = GPCM */ \
-					| BR_V)		/* valid */
-					/* 0xF0000801 */
-#define CONFIG_SYS_OR2_PRELIM		(P2SZ_TO_AM(CONFIG_SYS_VSC7385_SIZE) \
-					| OR_GPCM_CSNT \
-					| OR_GPCM_XACS \
-					| OR_GPCM_SCY_15 \
-					| OR_GPCM_SETA \
-					| OR_GPCM_TRLX_SET \
-					| OR_GPCM_EHTR_SET)
 					/* 0xFFFE09FF */
-/* Access window base at VSC7385 base */
-#define CONFIG_SYS_LBLAWBAR2_PRELIM	CONFIG_SYS_VSC7385_BASE
-/* Access window size 128K */
-#define CONFIG_SYS_LBLAWAR2_PRELIM	(LBLAWAR_EN | LBLAWAR_128KB)
 /* The flash address and size of the VSC7385 firmware image */
 #define CONFIG_VSC7385_IMAGE		0xFE7FE000
 #define CONFIG_VSC7385_IMAGE_SIZE	8192
@@ -417,52 +284,6 @@
  */
 #define CONFIG_SYS_BOOTMAPSZ	(256 << 20) /* Initial Memory map for Linux */
 #define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
-
-/*
- * Core HID Setup
- */
-#define CONFIG_SYS_HID0_INIT	0x000000000
-#define CONFIG_SYS_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK | \
-				 HID0_ENABLE_INSTRUCTION_CACHE | \
-				 HID0_ENABLE_DYNAMIC_POWER_MANAGMENT)
-#define CONFIG_SYS_HID2		HID2_HBE
-
-/*
- * MMU Setup
- */
-
-/* DDR: cache cacheable */
-#define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE | BATL_PP_RW | \
-					BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE | BATU_BL_128M | \
-					BATU_VS | BATU_VP)
-#define CONFIG_SYS_DBAT0L	CONFIG_SYS_IBAT0L
-#define CONFIG_SYS_DBAT0U	CONFIG_SYS_IBAT0U
-
-/* IMMRBAR, PCI IO and NAND: cache-inhibit and guarded */
-#define CONFIG_SYS_IBAT1L	(CONFIG_SYS_IMMR | BATL_PP_RW | \
-			BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT1U	(CONFIG_SYS_IMMR | BATU_BL_8M | BATU_VS | \
-					BATU_VP)
-#define CONFIG_SYS_DBAT1L	CONFIG_SYS_IBAT1L
-#define CONFIG_SYS_DBAT1U	CONFIG_SYS_IBAT1U
-
-/* FLASH: icache cacheable, but dcache-inhibit and guarded */
-#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_FLASH_BASE | BATL_PP_RW | \
-					BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT2U	(CONFIG_SYS_FLASH_BASE | BATU_BL_8M | \
-					BATU_VS | BATU_VP)
-#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_FLASH_BASE | BATL_PP_RW | \
-					BATL_CACHEINHIBIT | \
-					BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT2U	CONFIG_SYS_IBAT2U
-
-/* Stack in dcache: cacheable, no memory coherence */
-#define CONFIG_SYS_IBAT3L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_RW)
-#define CONFIG_SYS_IBAT3U	(CONFIG_SYS_INIT_RAM_ADDR | BATU_BL_128K | \
-					BATU_VS | BATU_VP)
-#define CONFIG_SYS_DBAT3L	CONFIG_SYS_IBAT3L
-#define CONFIG_SYS_DBAT3U	CONFIG_SYS_IBAT3U
 
 /*
  * Environment Configuration

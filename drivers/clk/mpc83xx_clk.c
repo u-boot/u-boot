@@ -275,6 +275,12 @@ static ulong mpc83xx_clk_get_rate(struct clk *clk)
 	return priv->speed[clk->id];
 }
 
+static int mpc83xx_clk_enable(struct clk *clk)
+{
+	/* MPC83xx clocks are always enabled */
+	return 0;
+}
+
 int get_clocks(void)
 {
 	/* Empty implementation to keep the prototype in common.h happy */
@@ -301,6 +307,7 @@ int get_serial_clock(void)
 const struct clk_ops mpc83xx_clk_ops = {
 	.request = mpc83xx_clk_request,
 	.get_rate = mpc83xx_clk_get_rate,
+	.enable = mpc83xx_clk_enable,
 };
 
 static const struct udevice_id mpc83xx_clk_match[] = {

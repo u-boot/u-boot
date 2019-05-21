@@ -35,35 +35,35 @@ struct arch_global_data {
 #else
 	/* There are other clocks in the MPC83XX */
 	u32 csb_clk;
-# if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
-	defined(CONFIG_MPC834x) || defined(CONFIG_MPC837x)
+# if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_ARCH_MPC831X) || \
+	defined(CONFIG_ARCH_MPC834X) || defined(CONFIG_ARCH_MPC837X)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbdr_clk;
-# elif defined(CONFIG_MPC8309)
+# elif defined(CONFIG_ARCH_MPC8309)
 	u32 usbdr_clk;
 # endif
-# if defined(CONFIG_MPC834x)
+# if defined(CONFIG_ARCH_MPC834X)
 	u32 usbmph_clk;
-# endif /* CONFIG_MPC834x */
-# if defined(CONFIG_MPC8315)
+# endif /* CONFIG_ARCH_MPC834X */
+# if defined(CONFIG_ARCH_MPC8315)
 	u32 tdm_clk;
 # endif
 	u32 core_clk;
 	u32 enc_clk;
 	u32 lbiu_clk;
 	u32 lclk_clk;
-# if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
-	defined(CONFIG_MPC837x)
+# if defined(CONFIG_ARCH_MPC8308) || defined(CONFIG_ARCH_MPC831X) || \
+	defined(CONFIG_ARCH_MPC837X)
 	u32 pciexp1_clk;
 	u32 pciexp2_clk;
 # endif
-# if defined(CONFIG_MPC837x) || defined(CONFIG_MPC8315)
+# if defined(CONFIG_ARCH_MPC837X) || defined(CONFIG_ARCH_MPC8315)
 	u32 sata_clk;
 # endif
-# if defined(CONFIG_MPC8360)
+# if defined(CONFIG_ARCH_MPC8360)
 	u32 mem_sec_clk;
-# endif /* CONFIG_MPC8360 */
+# endif /* CONFIG_ARCH_MPC8360 */
 #endif
 #endif
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)

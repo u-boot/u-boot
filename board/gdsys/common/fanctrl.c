@@ -4,6 +4,8 @@
  * Dirk Eibach,  Guntermann & Drunck GmbH, dirk.eibach@gdsys.cc
  */
 
+#ifdef CONFIG_GDSYS_LEGACY_DRIVERS
+
 #include <common.h>
 #include <i2c.h>
 
@@ -29,3 +31,5 @@ void init_fan_controller(u8 addr)
 	val = i2c_reg_read(addr, FAN_CONFIG) | 0x04;
 	i2c_reg_write(addr, FAN_CONFIG, val);
 }
+
+#endif /* CONFIG_GDSYS_LEGACY_DRIVERS */

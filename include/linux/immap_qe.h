@@ -12,11 +12,11 @@
 #define __IMMAP_QE_H__
 
 #ifdef CONFIG_MPC83xx
-#if defined(CONFIG_MPC8360)
+#if defined(CONFIG_ARCH_MPC8360)
 #define QE_MURAM_SIZE		0xc000UL
 #define MAX_QE_RISC		2
 #define QE_NUM_OF_SNUM		28
-#elif defined(CONFIG_MPC832x) || defined(CONFIG_MPC8309)
+#elif defined(CONFIG_ARCH_MPC832X) || defined(CONFIG_ARCH_MPC8309)
 #define QE_MURAM_SIZE		0x4000UL
 #define MAX_QE_RISC		1
 #define QE_NUM_OF_SNUM		28
