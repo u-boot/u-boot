@@ -160,27 +160,36 @@ extern const efi_guid_t efi_guid_hii_string_protocol;
 extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
 
-/*
+/**
+ * struct efi_open_protocol_info_item - open protocol info item
+ *
  * When a protocol is opened a open protocol info entry is created.
  * These are maintained in a list.
+ *
+ * @link:	link to the list of open protocol info entries of a protocol
+ * @info:	information about the opening of a protocol
  */
 struct efi_open_protocol_info_item {
-	/* Link to the list of open protocol info entries of a protocol */
 	struct list_head link;
 	struct efi_open_protocol_info_entry info;
 };
 
-/*
+/**
+ * struct efi_handler - single protocol interface of a handle
+ *
  * When the UEFI payload wants to open a protocol on an object to get its
  * interface (usually a struct with callback functions), this struct maps the
  * protocol GUID to the respective protocol interface
+ *
+ * @link:		link to the list of protocols of a handle
+ * @guid:		GUID of the protocol
+ * @protocol_interface:	protocol interface
+ * @open_infos		link to the list of open protocol info items
  */
 struct efi_handler {
-	/* Link to the list of protocols of a handle */
 	struct list_head link;
 	const efi_guid_t *guid;
 	void *protocol_interface;
-	/* Link to the list of open protocol info items */
 	struct list_head open_infos;
 };
 
