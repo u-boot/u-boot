@@ -65,6 +65,24 @@ config PMUFW_INIT_FILE
 	  Include external PMUFW (Platform Management Unit FirmWare) to
 	  a Xilinx bootable image (boot.bin).
 
+config ZYNQMP_SPL_PM_CFG_OBJ_FILE
+	string "PMU firmware configuration object to load at runtime by SPL"
+	depends on SPL
+	help
+	  Path to a binary PMU firmware configuration object to be linked
+	  into U-Boot SPL and loaded at runtime into the PMU firmware.
+
+	  The ZynqMP Power Management Unit (PMU) needs a configuration
+	  object for most SoC peripherals to work. To have it loaded by
+	  U-Boot SPL set here the file name (absolute path or relative to
+	  the top source tree) of your configuration, which must be a
+	  binary blob. It will be linked in the SPL binary and loaded
+	  into the PMU firmware by U-Boot SPL during board
+	  initialization.
+
+	  Leave this option empty if your PMU firmware has a hard-coded
+	  configuration object or you are loading it by any other means.
+
 config ZYNQMP_USB
 	bool "Configure ZynqMP USB"
 
