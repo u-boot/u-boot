@@ -15,3 +15,18 @@
 	compatible = "fsl,lx2160aqds", "fsl,lx2160a";
 };
 
+&sata0 {
+	status = "okay";
+};
+
+&sata1 {
+	status = "okay";
+};
+
+&sata2 {
+	status = "okay";
+};
+
+&sata3 {
+	status = "okay";
+};
