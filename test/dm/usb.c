@@ -125,7 +125,7 @@ static int dm_test_usb_keyb(struct unit_test_state *uts)
 	/* Initially there should be no characters */
 	ut_asserteq(0, tstc());
 
-	ut_assertok(uclass_get_device_by_name(UCLASS_USB_EMUL, "keyb",
+	ut_assertok(uclass_get_device_by_name(UCLASS_USB_EMUL, "keyb@3",
 					      &dev));
 
 	/*
