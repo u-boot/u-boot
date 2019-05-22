@@ -87,7 +87,7 @@
 #define FSL_PEX_STREAM_ID_NUM		(0x100)
 #endif
 
-#if defined(CONFIG_ARCH_LS2080A)
+#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LS1028A)
 #define FSL_PEX_STREAM_ID_END		22
 #elif defined(CONFIG_ARCH_LS1088A)
 #define FSL_PEX_STREAM_ID_END		18

@@ -58,6 +58,7 @@ static struct cpu_type cpu_type_list[] = {
 	CPU_TYPE_ENTRY(LS1026A, LS1026A, 2),
 	CPU_TYPE_ENTRY(LS2040A, LS2040A, 4),
 	CPU_TYPE_ENTRY(LS1012A, LS1012A, 1),
+	CPU_TYPE_ENTRY(LS1028A, LS1028A, 2),
 	CPU_TYPE_ENTRY(LS1088A, LS1088A, 8),
 	CPU_TYPE_ENTRY(LS1084A, LS1084A, 8),
 	CPU_TYPE_ENTRY(LS1048A, LS1048A, 4),
@@ -246,14 +247,30 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
+#ifdef CONFIG_SYS_PCIE3_PHYS_ADDR
 	{ CONFIG_SYS_PCIE3_PHYS_ADDR, CONFIG_SYS_PCIE3_PHYS_ADDR,
 	  CONFIG_SYS_PCIE3_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
-#if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
+#endif
+#ifdef CONFIG_SYS_PCIE4_PHYS_ADDR
 	{ CONFIG_SYS_PCIE4_PHYS_ADDR, CONFIG_SYS_PCIE4_PHYS_ADDR,
 	  CONFIG_SYS_PCIE4_PHYS_SIZE,
+	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	},
+#endif
+#ifdef SYS_PCIE5_PHYS_ADDR
+	{ SYS_PCIE5_PHYS_ADDR, SYS_PCIE5_PHYS_ADDR,
+	  SYS_PCIE5_PHYS_SIZE,
+	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
+	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
+	},
+#endif
+#ifdef SYS_PCIE6_PHYS_ADDR
+	{ SYS_PCIE6_PHYS_ADDR, SYS_PCIE6_PHYS_ADDR,
+	  SYS_PCIE6_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
@@ -341,11 +358,13 @@ static struct mm_region final_map[] = {
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
+#ifdef CONFIG_SYS_PCIE3_PHYS_ADDR
 	{ CONFIG_SYS_PCIE3_PHYS_ADDR, CONFIG_SYS_PCIE3_PHYS_ADDR,
 	  CONFIG_SYS_PCIE3_PHYS_SIZE,
 	  PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 	  PTE_BLOCK_NON_SHARE | PTE_BLOCK_PXN | PTE_BLOCK_UXN
 	},
+#endif
 	{ CONFIG_SYS_FSL_DRAM_BASE3, CONFIG_SYS_FSL_DRAM_BASE3,
 	  CONFIG_SYS_FSL_DRAM_SIZE3,
 	  PTE_BLOCK_MEMTYPE(MT_NORMAL) |
@@ -448,16 +467,20 @@ static void fix_pcie_mmu_map(void)
 				final_map[i].virt = 0x2800000000ULL;
 				final_map[i].size = 0x800000000ULL;
 				break;
+#ifdef CONFIG_SYS_PCIE3_PHYS_ADDR
 			case CONFIG_SYS_PCIE3_PHYS_ADDR:
 				final_map[i].phys = 0x3000000000ULL;
 				final_map[i].virt = 0x3000000000ULL;
 				final_map[i].size = 0x800000000ULL;
 				break;
+#endif
+#ifdef CONFIG_SYS_PCIE4_PHYS_ADDR
 			case CONFIG_SYS_PCIE4_PHYS_ADDR:
 				final_map[i].phys = 0x3800000000ULL;
 				final_map[i].virt = 0x3800000000ULL;
 				final_map[i].size = 0x800000000ULL;
 				break;
+#endif
 			default:
 				break;
 			}
@@ -785,12 +808,8 @@ enum env_location env_get_location(enum env_operation op, int prio)
 	if (prio)
 		return ENVL_UNKNOWN;
 
-#ifdef CONFIG_CHAIN_OF_TRUST
-	/* Check Boot Mode
-	 * If Boot Mode is Secure, return ENVL_NOWHERE
-	 */
-	if (fsl_check_boot_mode_secure() == 1)
-		goto done;
+#ifdef	CONFIG_ENV_IS_NOWHERE
+	return env_loc;
 #endif
 
 	switch (src) {
@@ -820,9 +839,6 @@ enum env_location env_get_location(enum env_operation op, int prio)
 		break;
 	}
 
-#ifdef CONFIG_CHAIN_OF_TRUST
-done:
-#endif
 	return env_loc;
 }
 #endif	/* CONFIG_TFABOOT */

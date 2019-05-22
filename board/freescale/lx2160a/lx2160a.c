@@ -449,11 +449,19 @@ unsigned long get_board_ddr_clk(void)
 
 int board_init(void)
 {
+#if defined(CONFIG_FSL_MC_ENET) && defined(CONFIG_TARGET_LX2160ARDB)
+	u32 __iomem *irq_ccsr = (u32 __iomem *)ISC_BASE;
+#endif
 #ifdef CONFIG_ENV_IS_NOWHERE
 	gd->env_addr = (ulong)&default_environment[0];
 #endif
 
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+
+#if defined(CONFIG_FSL_MC_ENET) && defined(CONFIG_TARGET_LX2160ARDB)
+	/* invert AQR107 IRQ pins polarity */
+	out_le32(irq_ccsr + IRQCR_OFFSET / 4, AQR107_IRQ_MASK);
+#endif
 
 #ifdef CONFIG_FSL_CAAM
 	sec_init();

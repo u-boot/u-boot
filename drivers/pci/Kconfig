@@ -105,6 +105,14 @@ config PCIE_LAYERSCAPE
 	  PCIe controllers. The PCIe may works in RC or EP mode according to
 	  RCW[HOST_AGT_PEX] setting.
 
+config PCIE_LAYERSCAPE_GEN4
+	bool "Layerscape Gen4 PCIe support"
+	depends on DM_PCI
+	help
+	  Support PCIe Gen4 on NXP Layerscape SoCs, which may have one or
+	  several PCIe controllers. The PCIe controller can work in RC or
+	  EP mode according to RCW[HOST_AGT_PEX] setting.
+
 config PCIE_INTEL_FPGA
 	bool "Intel FPGA PCIe support"
 	depends on DM_PCI
