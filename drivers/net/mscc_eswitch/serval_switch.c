@@ -356,8 +356,6 @@ static void serdes_write(void __iomem *base, u32 addr)
 	do {
 		data = readl(base + HSIO_MCB_SERDES1G_CFG);
 	} while (data & HSIO_MCB_SERDES1G_CFG_WR_ONE_SHOT);
-
-	mdelay(100);
 }
 
 static void serdes1g_setup(void __iomem *base, uint32_t addr,
