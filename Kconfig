@@ -344,7 +344,7 @@ config FIT_SIGNATURE
 	  check the legacy image format is disabled by default, so that
 	  unsigned images cannot be loaded. If a board needs the legacy image
 	  format support in this case, enable it using
-	  CONFIG_IMAGE_FORMAT_LEGACY.
+	  CONFIG_LEGACY_IMAGE_FORMAT.
 
 config FIT_SIGNATURE_MAX_SIZE
 	hex "Max size of signed FIT structures"
@@ -473,7 +473,7 @@ endif # SPL
 
 endif # FIT
 
-config IMAGE_FORMAT_LEGACY
+config LEGACY_IMAGE_FORMAT
 	bool "Enable support for the legacy image format"
 	default y if !FIT_SIGNATURE
 	help
