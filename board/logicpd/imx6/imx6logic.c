@@ -223,25 +223,15 @@ int board_mmc_init(bd_t *bis)
 	switch (reg) {
 	case 0:
 		SETUP_IOMUX_PADS(usdhc1_pads);
-		usdhc_cfg[0].esdhc_base = USDHC1_BASE_ADDR;
-		usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-		gd->arch.sdhc_clk = usdhc_cfg[0].sdhc_clk;
 		break;
 	case 1:
 		SETUP_IOMUX_PADS(usdhc2_pads);
-		usdhc_cfg[1].esdhc_base = USDHC2_BASE_ADDR;
-		usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-		gd->arch.sdhc_clk = usdhc_cfg[1].sdhc_clk;
 		break;
 	}
 
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[reg]);
+	return 0;
 }
 
-int board_mmc_getcd(struct mmc *mmc)
-{
-	return 1;
-}
 #endif
 
 static void ccgr_init(void)
