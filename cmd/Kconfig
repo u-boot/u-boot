@@ -631,6 +631,23 @@ config CMD_ADC
 	  Shows ADC device info and permit printing one-shot analog converted
 	  data from a named Analog to Digital Converter.
 
+config CMD_BCB
+	bool "bcb"
+	depends on MMC
+	depends on PARTITIONS
+	help
+	  Read/modify/write the fields of Bootloader Control Block, usually
+	  stored on the flash "misc" partition with its structure defined in:
+	  https://android.googlesource.com/platform/bootable/recovery/+/master/
+	  bootloader_message/include/bootloader_message/bootloader_message.h
+
+	  Some real-life use-cases include (but are not limited to):
+	  - Determine the "boot reason" (and act accordingly):
+	    https://source.android.com/devices/bootloader/boot-reason
+	  - Get/pass a list of commands from/to recovery:
+	    https://android.googlesource.com/platform/bootable/recovery
+	  - Inspect/dump the contents of the BCB fields
+
 config CMD_BIND
 	bool "bind/unbind - Bind or unbind a device to/from a driver"
 	depends on DM
