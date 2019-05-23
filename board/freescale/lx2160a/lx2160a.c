@@ -529,10 +529,25 @@ void board_quiesce_devices(void)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	int i;
-	u64 base[CONFIG_NR_DRAM_BANKS];
-	u64 size[CONFIG_NR_DRAM_BANKS];
+	u16 mc_memory_bank = 0;
+
+	u64 *base;
+	u64 *size;
+	u64 mc_memory_base = 0;
+	u64 mc_memory_size = 0;
+	u16 total_memory_banks;
 
 	ft_cpu_setup(blob, bd);
+
+	fdt_fixup_mc_ddr(&mc_memory_base, &mc_memory_size);
+
+	if (mc_memory_base != 0)
+		mc_memory_bank++;
+
+	total_memory_banks = CONFIG_NR_DRAM_BANKS + mc_memory_bank;
+
+	base = calloc(total_memory_banks, sizeof(u64));
+	size = calloc(total_memory_banks, sizeof(u64));
 
 	/* fixup DT for the three GPP DDR banks */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -553,7 +568,17 @@ int ft_board_setup(void *blob, bd_t *bd)
 		size[2] = gd->arch.resv_ram - base[2];
 #endif
 
-	fdt_fixup_memory_banks(blob, base, size, CONFIG_NR_DRAM_BANKS);
+	if (mc_memory_base != 0) {
+		for (i = 0; i <= total_memory_banks; i++) {
+			if (base[i] == 0 && size[i] == 0) {
+				base[i] = mc_memory_base;
+				size[i] = mc_memory_size;
+				break;
+			}
+		}
+	}
+
+	fdt_fixup_memory_banks(blob, base, size, total_memory_banks);
 
 #ifdef CONFIG_USB
 	fsl_fdt_fixup_dr_usb(blob, bd);
