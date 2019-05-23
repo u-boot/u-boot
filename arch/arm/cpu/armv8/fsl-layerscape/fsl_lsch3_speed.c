@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2015, Freescale Semiconductor, Inc.
+ * Copyright 2019 NXP Semiconductors
  *
  * Derived from arch/power/cpu/mpc85xx/speed.c
  */
@@ -214,6 +215,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 		return get_i2c_freq(0);
 #if defined(CONFIG_FSL_ESDHC)
 	case MXC_ESDHC_CLK:
+	case MXC_ESDHC2_CLK:
 		return get_sdhc_freq(0);
 #endif
 	case MXC_DSPI_CLK:
