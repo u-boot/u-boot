@@ -24,6 +24,7 @@ u32 spl_boot_device(void)
 {
 	unsigned int bmode = readl(&src_base->sbmr2);
 	u32 reg = imx6_src_get_boot_mode();
+	u32 mmc_index = ((reg >> 11) & 0x03);
 
 	/*
 	 * Check for BMODE if serial downloader is enabled
@@ -84,11 +85,12 @@ u32 spl_boot_device(void)
 	/* SD/eSD: 8.5.3, Table 8-15  */
 	case IMX6_BMODE_SD:
 	case IMX6_BMODE_ESD:
-		return BOOT_DEVICE_MMC1;
-	/* MMC/eMMC: 8.5.3 */
 	case IMX6_BMODE_MMC:
 	case IMX6_BMODE_EMMC:
-		return BOOT_DEVICE_MMC1;
+		if (mmc_index == 1)
+			return BOOT_DEVICE_MMC2;
+		else
+			return BOOT_DEVICE_MMC1;
 	/* NAND Flash: 8.5.2, Table 8-10 */
 	case IMX6_BMODE_NAND_MIN ... IMX6_BMODE_NAND_MAX:
 		return BOOT_DEVICE_NAND;
