@@ -68,18 +68,3 @@ int print_cpuinfo(void)
 
 	return 0;
 }
-
-int arch_misc_init(void)
-{
-	/*
-	 * It has been noticed, that sometimes the d-cache is not in a
-	 * "clean-state" when U-Boot is running on MT7688. This was
-	 * detected when using the ethernet driver (which uses d-cache)
-	 * and a TFTP command does not complete. Flushing the complete
-	 * d-cache (again?) here seems to fix this issue.
-	 */
-	flush_dcache_range(gd->bd->bi_memstart,
-			   gd->bd->bi_memstart + gd->ram_size - 1);
-
-	return 0;
-}
