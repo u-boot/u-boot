@@ -204,7 +204,6 @@
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
-#define CONFIG_FSL_PCIE_RESET		/* need PCIe reset errata */
 
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xc0000000
 #ifdef CONFIG_PHYS_64BIT
