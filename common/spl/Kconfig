@@ -158,7 +158,7 @@ config SPL_RAW_IMAGE_SUPPORT
 
 config SPL_LEGACY_IMAGE_SUPPORT
 	bool "Support SPL loading and booting of Legacy images"
-	default y if !TI_SECURE_DEVICE
+	default y if !TI_SECURE_DEVICE && !SPL_LOAD_FIT
 	help
 	  SPL will support loading and booting Legacy images when this option
 	  is y. If this is not set, SPL will move on to other available
