@@ -269,7 +269,6 @@ static inline void _debug_uart_init(void)
 	_stm32_serial_setbrg(base, uart_info,
 			     CONFIG_DEBUG_UART_CLOCK,
 			     CONFIG_BAUDRATE);
-	printf("DEBUG done\n");
 }
 
 static inline void _debug_uart_putc(int c)
@@ -278,7 +277,7 @@ static inline void _debug_uart_putc(int c)
 	struct stm32_uart_info *uart_info = _debug_uart_info();
 
 	while (_stm32_serial_putc(base, uart_info, c) == -EAGAIN)
-		WATCHDOG_RESET();
+		;
 }
 
 DEBUG_UART_FUNCS

@@ -7,9 +7,9 @@
 #include <dm.h>
 #include <misc.h>
 #include <asm/io.h>
-#include <linux/iopoll.h>
 #include <asm/arch/stm32mp1_smc.h>
 #include <linux/arm-smccc.h>
+#include <linux/iopoll.h>
 
 #define BSEC_OTP_MAX_VALUE		95
 

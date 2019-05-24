@@ -16,7 +16,7 @@ included in STM32 Cube tool
 info attributes:
 ----------------
 - st,mem-name	: name for DDR configuration, simple string for information
-- st,mem-speed	: DDR expected speed for the setting in MHz
+- st,mem-speed	: DDR expected speed for the setting in kHz
 - st,mem-size	: DDR mem size in byte
 
 
@@ -102,7 +102,7 @@ controlleur attributes:
 phyc attributes:
 ----------------
 - st,phy-reg	: phy values depending of the DDR type (DDR3/LPDDR2/LPDDR3)
-	for STM32MP15x: 10 values are requested in this order
+	for STM32MP15x: 11 values are requested in this order
 		PGCR
 		ACIOCR
 		DXCCR
@@ -173,7 +173,7 @@ Example:
 				      "ddrphycapb";
 
 			st,mem-name = "DDR3 2x4Gb 533MHz";
-			st,mem-speed = <533>;
+			st,mem-speed = <533000>;
 			st,mem-size = <0x40000000>;
 
 			st,ctl-reg = <

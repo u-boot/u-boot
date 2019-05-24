@@ -23,11 +23,6 @@
 #endif
 
 /*
- * malloc() pool size
- */
-#define CONFIG_SYS_MALLOC_LEN			SZ_32M
-
-/*
  * Configuration of the external SRAM memory used by U-Boot
  */
 #define CONFIG_SYS_SDRAM_BASE			STM32_DDR_BASE
@@ -42,11 +37,6 @@
  * Needed by "loadb"
  */
 #define CONFIG_SYS_LOAD_ADDR			STM32_DDR_BASE
-
-/*
- * Env parameters
- */
-#define CONFIG_ENV_SIZE				SZ_4K
 
 /* ATAGs */
 #define CONFIG_CMDLINE_TAG
@@ -95,8 +85,6 @@
  * for nand boot, boot with on ubifs partition on nand
  * for nor boot, use the default order
  */
-#define CONFIG_PREBOOT
-
 #define STM32MP_BOOTCMD "bootcmd_stm32mp=" \
 	"echo \"Boot over ${boot_device}${boot_instance}!\";" \
 	"if test ${boot_device} = serial || test ${boot_device} = usb;" \

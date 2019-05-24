@@ -1488,6 +1488,7 @@ config ARCH_STM32MP
 	imply CMD_DM
 	imply CMD_POWEROFF
 	imply ENV_VARS_UBOOT_RUNTIME_CONFIG
+	imply USE_PREBOOT
 	help
 	  Support for STM32MP SoC family developed by STMicroelectronics,
 	  MPUs based on ARM cortex A core
