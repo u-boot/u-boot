@@ -441,6 +441,19 @@ config CMD_NVEDIT_EFI
 	  If enabled, we are allowed to set/print UEFI variables using
 	  "env" command with "-e" option without knowing details.
 
+config CMD_NVEDIT_INFO
+	bool "env info - print or evaluate environment information"
+	help
+	  Print environment information:
+	  - env_valid : is environment valid
+	  - env_ready : is environment imported into hash table
+	  - env_use_default : is default environment used
+
+	  This command can be optionally used for evaluation in scripts:
+	  [-d] : evaluate whether default environment is used
+	  [-p] : evaluate whether environment can be persisted
+	  The result of multiple evaluations will be combined with AND.
+
 endmenu
 
 menu "Memory commands"
