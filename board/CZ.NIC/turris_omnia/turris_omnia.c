@@ -340,7 +340,8 @@ static int set_regdomain(void)
 	"i2c mw 0x2a.1 0x4 0x1c 1; " \
 	"mw.l 0x01000000 0x00ff000c; " \
 	"i2c write 0x01000000 0x2a.1 0x5 4 -s; " \
-	"setenv bootargs \"$bootargs omniarescue=$omnia_reset\"; " \
+	"setenv bootargs \"earlyprintk console=ttyS0,115200" \
+			" omniarescue=$omnia_reset\"; " \
 	"sf probe; " \
 	"sf read 0x1000000 0x100000 0x700000; " \
 	"bootm 0x1000000; " \
