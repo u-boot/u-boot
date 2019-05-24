@@ -16,10 +16,6 @@
 	#size-cells = <1>;
 	model = "SOCFPGA Arria10 Dev Kit";	/* Bootloader setting: uboot.model */
 
-	chosen {
-		cff-file = "socfpga.rbf";	/* Bootloader setting: uboot.rbf_filename */
-	};
-
 	/* Clock sources */
 	clocks {
 		#address-cells = <1>;
