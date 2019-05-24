@@ -1151,5 +1151,17 @@ config TPL_YMODEM_SUPPORT
 
 endif # TPL
 
+config SPL_AT91_MCK_BYPASS
+	bool "Use external clock signal as a source of main clock for AT91 platforms"
+	depends on ARCH_AT91
+	default n
+	help
+	  Use external 8 to 24 Mhz clock signal as source of main clock instead
+	  of an external crystal oscillator.
+	  This option disables the internal driving on the XOUT pin.
+	  The external source has to provide a stable clock on the XIN pin.
+	  If this option is disabled, the SoC expects a crystal oscillator
+	  that needs driving on both XIN and XOUT lines.
+
 endif # SPL
 endmenu
