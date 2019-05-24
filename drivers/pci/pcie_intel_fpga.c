@@ -56,7 +56,7 @@
 #define TLP_COMP_STATUS(s)		(((s) >> 13) & 7)
 #define TLP_BYTE_COUNT(s)		(((s) >> 0) & 0xfff)
 #define TLP_HDR_SIZE			3
-#define TLP_LOOP			500
+#define TLP_LOOP			20000
 #define DWORD_MASK			3
 
 #define IS_ROOT_PORT(pcie, bdf)				\
