@@ -199,6 +199,10 @@ hostprogs-$(CONFIG_RISCV) += prelink-riscv
 hostprogs-y += fdtgrep
 fdtgrep-objs += $(LIBFDT_OBJS) fdtgrep.o
 
+ifneq ($(TOOLS_ONLY),y)
+hostprogs-y += spl_size_limit
+endif
+
 hostprogs-$(CONFIG_MIPS) += mips-relocs
 
 # We build some files with extra pedantic flags to try to minimize things

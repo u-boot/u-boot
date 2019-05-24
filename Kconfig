@@ -173,14 +173,6 @@ config TPL_SYS_MALLOC_F_LEN
 	  particular needs this to operate, so that it can allocate the
 	  initial serial device and any others that are needed.
 
-config SPL_SIZE_LIMIT
-	int "Maximum size of SPL image"
-	depends on SPL
-	default 0
-	help
-	  Specifies the maximum length of the U-Boot SPL image.
-	  If this value is zero, it is ignored.
-
 menuconfig EXPERT
 	bool "Configure standard U-Boot features (expert users)"
 	default y

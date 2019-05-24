@@ -797,7 +797,7 @@ BOARD_SIZE_CHECK =
 endif
 
 ifneq ($(CONFIG_SPL_SIZE_LIMIT),0)
-SPL_SIZE_CHECK = @$(call size_check,$@,$(CONFIG_SPL_SIZE_LIMIT))
+SPL_SIZE_CHECK = @$(call size_check,$@,$$(tools/spl_size_limit))
 else
 SPL_SIZE_CHECK =
 endif
@@ -1782,6 +1782,7 @@ checkarmreloc: u-boot
 envtools: scripts_basic $(version_h) $(timestamp_h)
 	$(Q)$(MAKE) $(build)=tools/env
 
+tools-only: export TOOLS_ONLY=y
 tools-only: scripts_basic $(version_h) $(timestamp_h)
 	$(Q)$(MAKE) $(build)=tools
 
