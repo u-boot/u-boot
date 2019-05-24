@@ -36,16 +36,18 @@
 
 #define RP_CFG_ADDR(pcie, reg)						\
 		((pcie->hip_base) + (reg) + (1 << 20))
+#define RP_SECONDARY(pcie)						\
+	readb(RP_CFG_ADDR(pcie, PCI_SECONDARY_BUS))
 #define TLP_REQ_ID(bus, devfn)		(((bus) << 8) | (devfn))
 
 #define TLP_CFGRD_DW0(pcie, bus)					\
-	((((bus != pcie->first_busno) ? TLP_FMTTYPE_CFGRD0		\
-				      : TLP_FMTTYPE_CFGRD1) << 24) |	\
+	((((bus > RP_SECONDARY(pcie)) ? TLP_FMTTYPE_CFGRD1		\
+				      : TLP_FMTTYPE_CFGRD0) << 24) |	\
 					TLP_PAYLOAD_SIZE)
 
 #define TLP_CFGWR_DW0(pcie, bus)					\
-	((((bus != pcie->first_busno) ? TLP_FMTTYPE_CFGWR0		\
-				      : TLP_FMTTYPE_CFGWR1) << 24) |	\
+	((((bus > RP_SECONDARY(pcie)) ? TLP_FMTTYPE_CFGWR1		\
+				      : TLP_FMTTYPE_CFGWR0) << 24) |	\
 					TLP_PAYLOAD_SIZE)
 
 #define TLP_CFG_DW1(pcie, tag, be)					\
