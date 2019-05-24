@@ -312,6 +312,7 @@ typedef struct fsl_sata {
 	int		wcache;
 	int		flush;
 	int		flush_ext;
+	u32		dma_flag;
 } fsl_sata_t;
 
 #define READ_CMD	0

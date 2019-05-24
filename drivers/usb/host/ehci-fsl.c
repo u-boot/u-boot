@@ -75,8 +75,12 @@ static int ehci_fsl_init_after_reset(struct ehci_ctrl *ctrl)
 	struct usb_ehci *ehci = NULL;
 	struct ehci_fsl_priv *priv = container_of(ctrl, struct ehci_fsl_priv,
 						   ehci);
-
+#ifdef CONFIG_PPC
+	ehci = (struct usb_ehci *)lower_32_bits(priv->hcd_base);
+#else
 	ehci = (struct usb_ehci *)priv->hcd_base;
+#endif
+
 	if (ehci_fsl_init(priv, ehci, priv->ehci.hccr, priv->ehci.hcor) < 0)
 		return -ENXIO;
 
@@ -103,7 +107,11 @@ static int ehci_fsl_probe(struct udevice *dev)
 		debug("Can't get the EHCI register base address\n");
 		return -ENXIO;
 	}
+#ifdef CONFIG_PPC
+	ehci = (struct usb_ehci *)lower_32_bits(priv->hcd_base);
+#else
 	ehci = (struct usb_ehci *)priv->hcd_base;
+#endif
 	hccr = (struct ehci_hccr *)(&ehci->caplength);
 	hcor = (struct ehci_hcor *)
 		((void *)hccr + HC_LENGTH(ehci_readl(&hccr->cr_capbase)));

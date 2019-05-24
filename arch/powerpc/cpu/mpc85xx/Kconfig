@@ -352,7 +352,6 @@ config TARGET_T2080QDS
 	select PHYS_64BIT
 	select FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
 	select FSL_DDR_INTERACTIVE
-	imply CMD_SATA
 
 config TARGET_T2080RDB
 	bool "Support T2080RDB"
@@ -361,6 +360,7 @@ config TARGET_T2080RDB
 	select SUPPORT_SPL
 	select PHYS_64BIT
 	imply CMD_SATA
+	imply FSL_SATA
 	imply PANIC_HANG
 
 config TARGET_T2081QDS
@@ -1081,10 +1081,8 @@ config ARCH_T2080
 	select SYS_FSL_SEC_COMPAT_4
 	select SYS_PPC64
 	select FSL_IFC
-	imply CMD_SATA
 	imply CMD_NAND
 	imply CMD_REGINFO
-	imply FSL_SATA
 
 config ARCH_T2081
 	bool

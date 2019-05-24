@@ -59,6 +59,16 @@ config DWC_AHCI
 	  Enable this driver to support Sata devices through
 	  Synopsys DWC AHCI module.
 
+config FSL_AHCI
+	bool "Enable Freescale AHCI driver support"
+	select SCSI_AHCI
+	depends on AHCI
+	depends on DM_SCSI
+	help
+	  Enable this driver to support Sata devices found in
+	  some Freescale PowerPC SoCs.
+
+
 config DWC_AHSATA
 	bool "Enable DWC AHSATA driver support"
 	select LIBATA
