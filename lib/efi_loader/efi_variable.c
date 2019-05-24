@@ -427,7 +427,9 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
 		  data_size, data);
 
-	if (!variable_name || !vendor) {
+	/* TODO: implement APPEND_WRITE */
+	if (!variable_name || !vendor ||
+	    (attributes & EFI_VARIABLE_APPEND_WRITE)) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
