@@ -6,36 +6,69 @@ config SYS_ARCH
 
 # processor family
 config MCF520x
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF52x2
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF523x
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF530x
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF5301x
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF532x
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF537x
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF5441x
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF5445x
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF5227x
+	select OF_CONTROL
+	select DM
+        select DM_SERIAL
 	bool
 
 config MCF547x_8x
+	select OF_CONTROL
+        select DM
+        select DM_SERIAL
 	bool
 
 # processor type

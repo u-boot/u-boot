@@ -28,6 +28,7 @@ config M68K
 	select HAVE_PRIVATE_LIBGCC
 	select SYS_BOOT_GET_CMDLINE
 	select SYS_BOOT_GET_KBD
+	select SUPPORT_OF_CONTROL
 
 config MICROBLAZE
 	bool "MicroBlaze architecture"

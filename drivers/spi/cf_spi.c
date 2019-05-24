@@ -6,22 +6,27 @@
  *
  * Copyright (C) 2004-2009 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
+ *
+ * Support for DM and DT, non-DM code removed.
+ * Copyright (C) 2018 Angelo Dureghello <angelo@sysam.it>
+ *
+ * TODO: fsl_dspi.c should work as a driver for the DSPI module.
  */
 
 #include <common.h>
+#include <dm.h>
+#include <dm/platform_data/spi_coldfire.h>
 #include <spi.h>
 #include <malloc.h>
-#include <asm/immap.h>
+#include <asm/coldfire/dspi.h>
+#include <asm/io.h>
 
-struct cf_spi_slave {
-	struct spi_slave slave;
+struct coldfire_spi_priv {
+	struct dspi *regs;
 	uint baudrate;
+	int mode;
 	int charbit;
 };
-
-extern void cfspi_port_conf(void);
-extern int cfspi_claim_bus(uint bus, uint cs);
-extern void cfspi_release_bus(uint bus, uint cs);
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -33,163 +38,193 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 #endif
 
-#if defined(CONFIG_CF_DSPI)
-/* DSPI specific mode */
-#define SPI_MODE_MOD	0x00200000
-#define SPI_DBLRATE	0x00100000
+/*
+ * DSPI specific mode
+ *
+ * bit 31 - 28: Transfer size 3 to 16 bits
+ *     27 - 26: PCS to SCK delay prescaler
+ *     25 - 24: After SCK delay prescaler
+ *     23 - 22: Delay after transfer prescaler
+ *     21     : Allow overwrite for bit 31-22 and bit 20-8
+ *     20     : Double baud rate
+ *     19 - 16: PCS to SCK delay scaler
+ *     15 - 12: After SCK delay scaler
+ *     11 -  8: Delay after transfer scaler
+ *      7 -  0: SPI_CPHA, SPI_CPOL, SPI_LSB_FIRST
+ */
+#define SPI_MODE_MOD			0x00200000
+#define SPI_MODE_DBLRATE		0x00100000
 
-static inline struct cf_spi_slave *to_cf_spi_slave(struct spi_slave *slave)
+#define SPI_MODE_XFER_SZ_MASK		0xf0000000
+#define SPI_MODE_DLY_PRE_MASK		0x0fc00000
+#define SPI_MODE_DLY_SCA_MASK		0x000fff00
+
+#define MCF_FRM_SZ_16BIT		DSPI_CTAR_TRSZ(0xf)
+#define MCF_DSPI_SPEED_BESTMATCH	0x7FFFFFFF
+#define MCF_DSPI_MAX_CTAR_REGS		8
+
+/* Default values */
+#define MCF_DSPI_DEFAULT_SCK_FREQ	10000000
+#define MCF_DSPI_DEFAULT_MAX_CS		4
+#define MCF_DSPI_DEFAULT_MODE		0
+
+#define MCF_DSPI_DEFAULT_CTAR		(DSPI_CTAR_TRSZ(7) | \
+					DSPI_CTAR_PCSSCK_1CLK | \
+					DSPI_CTAR_PASC(0) | \
+					DSPI_CTAR_PDT(0) | \
+					DSPI_CTAR_CSSCK(0) | \
+					DSPI_CTAR_ASC(0) | \
+					DSPI_CTAR_DT(1) | \
+					DSPI_CTAR_BR(6))
+
+#define MCF_CTAR_MODE_MASK		(MCF_FRM_SZ_16BIT | \
+					DSPI_CTAR_PCSSCK(3) | \
+					DSPI_CTAR_PASC_7CLK | \
+					DSPI_CTAR_PDT(3) | \
+					DSPI_CTAR_CSSCK(0x0f) | \
+					DSPI_CTAR_ASC(0x0f) | \
+					DSPI_CTAR_DT(0x0f))
+
+#define setup_ctrl(ctrl, cs)	((ctrl & 0xFF000000) | ((1 << cs) << 16))
+
+static inline void cfspi_tx(struct coldfire_spi_priv *cfspi,
+			    u32 ctrl, u16 data)
 {
-	return container_of(slave, struct cf_spi_slave, slave);
+	/*
+	 * Need to check fifo level here
+	 */
+	while ((readl(&cfspi->regs->sr) & 0x0000F000) >= 0x4000)
+		;
+
+	writel(ctrl | data, &cfspi->regs->tfr);
 }
 
-static void cfspi_init(void)
+static inline u16 cfspi_rx(struct coldfire_spi_priv *cfspi)
 {
-	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
 
-	cfspi_port_conf();	/* port configuration */
+	while ((readl(&cfspi->regs->sr) & 0x000000F0) == 0)
+		;
 
-	dspi->mcr = DSPI_MCR_MSTR | DSPI_MCR_CSIS7 | DSPI_MCR_CSIS6 |
-	    DSPI_MCR_CSIS5 | DSPI_MCR_CSIS4 | DSPI_MCR_CSIS3 |
-	    DSPI_MCR_CSIS2 | DSPI_MCR_CSIS1 | DSPI_MCR_CSIS0 |
-	    DSPI_MCR_CRXF | DSPI_MCR_CTXF;
-
-	/* Default setting in platform configuration */
-#ifdef CONFIG_SYS_DSPI_CTAR0
-	dspi->ctar[0] = CONFIG_SYS_DSPI_CTAR0;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR1
-	dspi->ctar[1] = CONFIG_SYS_DSPI_CTAR1;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR2
-	dspi->ctar[2] = CONFIG_SYS_DSPI_CTAR2;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR3
-	dspi->ctar[3] = CONFIG_SYS_DSPI_CTAR3;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR4
-	dspi->ctar[4] = CONFIG_SYS_DSPI_CTAR4;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR5
-	dspi->ctar[5] = CONFIG_SYS_DSPI_CTAR5;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR6
-	dspi->ctar[6] = CONFIG_SYS_DSPI_CTAR6;
-#endif
-#ifdef CONFIG_SYS_DSPI_CTAR7
-	dspi->ctar[7] = CONFIG_SYS_DSPI_CTAR7;
-#endif
+	return readw(&cfspi->regs->rfr);
 }
 
-static void cfspi_tx(u32 ctrl, u16 data)
+static int coldfire_spi_claim_bus(struct udevice *dev)
 {
-	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
+	struct udevice *bus = dev->parent;
+	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
+	struct dspi *dspi = cfspi->regs;
+	struct dm_spi_slave_platdata *slave_plat =
+		dev_get_parent_platdata(dev);
 
-	while ((dspi->sr & 0x0000F000) >= 4) ;
+	if ((in_be32(&dspi->sr) & DSPI_SR_TXRXS) != DSPI_SR_TXRXS)
+		return -1;
 
-	dspi->tfr = (ctrl | data);
+	/* Clear FIFO and resume transfer */
+	clrbits_be32(&dspi->mcr, DSPI_MCR_CTXF | DSPI_MCR_CRXF);
+
+	dspi_chip_select(slave_plat->cs);
+
+	return 0;
 }
 
-static u16 cfspi_rx(void)
+static int coldfire_spi_release_bus(struct udevice *dev)
 {
-	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
+	struct udevice *bus = dev->parent;
+	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
+	struct dspi *dspi = cfspi->regs;
+	struct dm_spi_slave_platdata *slave_plat =
+		dev_get_parent_platdata(dev);
 
-	while ((dspi->sr & 0x000000F0) == 0) ;
+	/* Clear FIFO */
+	clrbits_be32(&dspi->mcr, DSPI_MCR_CTXF | DSPI_MCR_CRXF);
 
-	return (dspi->rfr & 0xFFFF);
+	dspi_chip_unselect(slave_plat->cs);
+
+	return 0;
 }
 
-static int cfspi_xfer(struct spi_slave *slave, uint bitlen, const void *dout,
-		      void *din, ulong flags)
+static int coldfire_spi_xfer(struct udevice *dev, unsigned int bitlen,
+			     const void *dout, void *din,
+			     unsigned long flags)
 {
-	struct cf_spi_slave *cfslave = to_cf_spi_slave(slave);
+	struct udevice *bus = dev_get_parent(dev);
+	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
+	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
 	u16 *spi_rd16 = NULL, *spi_wr16 = NULL;
 	u8 *spi_rd = NULL, *spi_wr = NULL;
-	static u32 ctrl = 0;
+	static u32 ctrl;
 	uint len = bitlen >> 3;
 
-	if (cfslave->charbit == 16) {
+	if (cfspi->charbit == 16) {
 		bitlen >>= 1;
-		spi_wr16 = (u16 *) dout;
-		spi_rd16 = (u16 *) din;
+		spi_wr16 = (u16 *)dout;
+		spi_rd16 = (u16 *)din;
 	} else {
-		spi_wr = (u8 *) dout;
-		spi_rd = (u8 *) din;
+		spi_wr = (u8 *)dout;
+		spi_rd = (u8 *)din;
 	}
 
 	if ((flags & SPI_XFER_BEGIN) == SPI_XFER_BEGIN)
 		ctrl |= DSPI_TFR_CONT;
 
-	ctrl = (ctrl & 0xFF000000) | ((1 << slave->cs) << 16);
+	ctrl = setup_ctrl(ctrl, slave_plat->cs);
 
 	if (len > 1) {
 		int tmp_len = len - 1;
+
 		while (tmp_len--) {
-			if (dout != NULL) {
-				if (cfslave->charbit == 16)
-					cfspi_tx(ctrl, *spi_wr16++);
+			if (dout) {
+				if (cfspi->charbit == 16)
+					cfspi_tx(cfspi, ctrl, *spi_wr16++);
 				else
-					cfspi_tx(ctrl, *spi_wr++);
-				cfspi_rx();
+					cfspi_tx(cfspi, ctrl, *spi_wr++);
+				cfspi_rx(cfspi);
 			}
 
-			if (din != NULL) {
-				cfspi_tx(ctrl, CONFIG_SPI_IDLE_VAL);
-				if (cfslave->charbit == 16)
-					*spi_rd16++ = cfspi_rx();
+			if (din) {
+				cfspi_tx(cfspi, ctrl, CONFIG_SPI_IDLE_VAL);
+				if (cfspi->charbit == 16)
+					*spi_rd16++ = cfspi_rx(cfspi);
 				else
-					*spi_rd++ = cfspi_rx();
+					*spi_rd++ = cfspi_rx(cfspi);
 			}
 		}
 
 		len = 1;	/* remaining byte */
 	}
 
-	if ((flags & SPI_XFER_END) == SPI_XFER_END)
+	if (flags & SPI_XFER_END)
 		ctrl &= ~DSPI_TFR_CONT;
 
 	if (len) {
-		if (dout != NULL) {
-			if (cfslave->charbit == 16)
-				cfspi_tx(ctrl, *spi_wr16);
+		if (dout) {
+			if (cfspi->charbit == 16)
+				cfspi_tx(cfspi, ctrl, *spi_wr16);
 			else
-				cfspi_tx(ctrl, *spi_wr);
-			cfspi_rx();
+				cfspi_tx(cfspi, ctrl, *spi_wr);
+			cfspi_rx(cfspi);
 		}
 
-		if (din != NULL) {
-			cfspi_tx(ctrl, CONFIG_SPI_IDLE_VAL);
-			if (cfslave->charbit == 16)
-				*spi_rd16 = cfspi_rx();
+		if (din) {
+			cfspi_tx(cfspi, ctrl, CONFIG_SPI_IDLE_VAL);
+			if (cfspi->charbit == 16)
+				*spi_rd16 = cfspi_rx(cfspi);
 			else
-				*spi_rd = cfspi_rx();
+				*spi_rd = cfspi_rx(cfspi);
 		}
 	} else {
 		/* dummy read */
-		cfspi_tx(ctrl, CONFIG_SPI_IDLE_VAL);
-		cfspi_rx();
+		cfspi_tx(cfspi, ctrl, CONFIG_SPI_IDLE_VAL);
+		cfspi_rx(cfspi);
 	}
 
 	return 0;
 }
 
-static struct spi_slave *cfspi_setup_slave(struct cf_spi_slave *cfslave,
-					   uint mode)
+static int coldfire_spi_set_speed(struct udevice *bus, uint max_hz)
 {
-	/*
-	 * bit definition for mode:
-	 * bit 31 - 28: Transfer size 3 to 16 bits
-	 *     27 - 26: PCS to SCK delay prescaler
-	 *     25 - 24: After SCK delay prescaler
-	 *     23 - 22: Delay after transfer prescaler
-	 *     21     : Allow overwrite for bit 31-22 and bit 20-8
-	 *     20     : Double baud rate
-	 *     19 - 16: PCS to SCK delay scaler
-	 *     15 - 12: After SCK delay scaler
-	 *     11 -  8: Delay after transfer scaler
-	 *      7 -  0: SPI_CPHA, SPI_CPOL, SPI_LSB_FIRST
-	 */
-	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
+	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
+	struct dspi *dspi = cfspi->regs;
 	int prescaler[] = { 2, 3, 5, 7 };
 	int scaler[] = {
 		2, 4, 6, 8,
@@ -198,57 +233,41 @@ static struct spi_slave *cfspi_setup_slave(struct cf_spi_slave *cfslave,
 		4096, 8192, 16384, 32768
 	};
 	int i, j, pbrcnt, brcnt, diff, tmp, dbr = 0;
-	int best_i, best_j, bestmatch = 0x7FFFFFFF, baud_speed;
-	u32 bus_setup = 0;
+	int best_i, best_j, bestmatch = MCF_DSPI_SPEED_BESTMATCH, baud_speed;
+	u32 bus_setup;
+
+	cfspi->baudrate = max_hz;
+
+	/* Read current setup */
+	bus_setup = readl(&dspi->ctar[bus->seq]);
 
 	tmp = (prescaler[3] * scaler[15]);
 	/* Maximum and minimum baudrate it can handle */
-	if ((cfslave->baudrate > (gd->bus_clk >> 1)) ||
-	    (cfslave->baudrate < (gd->bus_clk / tmp))) {
+	if ((cfspi->baudrate > (gd->bus_clk >> 1)) ||
+	    (cfspi->baudrate < (gd->bus_clk / tmp))) {
 		printf("Exceed baudrate limitation: Max %d - Min %d\n",
 		       (int)(gd->bus_clk >> 1), (int)(gd->bus_clk / tmp));
-		return NULL;
+		return -1;
 	}
 
 	/* Activate Double Baud when it exceed 1/4 the bus clk */
-	if ((CONFIG_SYS_DSPI_CTAR0 & DSPI_CTAR_DBR) ||
-	    (cfslave->baudrate > (gd->bus_clk / (prescaler[0] * scaler[0])))) {
+	if ((bus_setup & DSPI_CTAR_DBR) ||
+	    (cfspi->baudrate > (gd->bus_clk / (prescaler[0] * scaler[0])))) {
 		bus_setup |= DSPI_CTAR_DBR;
 		dbr = 1;
 	}
 
-	if (mode & SPI_CPOL)
-		bus_setup |= DSPI_CTAR_CPOL;
-	if (mode & SPI_CPHA)
-		bus_setup |= DSPI_CTAR_CPHA;
-	if (mode & SPI_LSB_FIRST)
-		bus_setup |= DSPI_CTAR_LSBFE;
-
 	/* Overwrite default value set in platform configuration file */
-	if (mode & SPI_MODE_MOD) {
-
-		if ((mode & 0xF0000000) == 0)
-			bus_setup |=
-			    dspi->ctar[cfslave->slave.bus] & 0x78000000;
-		else
-			bus_setup |= ((mode & 0xF0000000) >> 1);
-
+	if (cfspi->mode & SPI_MODE_MOD) {
 		/*
 		 * Check to see if it is enabled by default in platform
 		 * config, or manual setting passed by mode parameter
 		 */
-		if (mode & SPI_DBLRATE) {
+		if (cfspi->mode & SPI_MODE_DBLRATE) {
 			bus_setup |= DSPI_CTAR_DBR;
 			dbr = 1;
 		}
-		bus_setup |= (mode & 0x0FC00000) >> 4;	/* PSCSCK, PASC, PDT */
-		bus_setup |= (mode & 0x000FFF00) >> 4;	/* CSSCK, ASC, DT */
-	} else
-		bus_setup |= (dspi->ctar[cfslave->slave.bus] & 0x78FCFFF0);
-
-	cfslave->charbit =
-	    ((dspi->ctar[cfslave->slave.bus] & 0x78000000) ==
-	     0x78000000) ? 16 : 8;
+	}
 
 	pbrcnt = sizeof(prescaler) / sizeof(int);
 	brcnt = sizeof(scaler) / sizeof(int);
@@ -259,10 +278,10 @@ static struct spi_slave *cfspi_setup_slave(struct cf_spi_slave *cfslave,
 		for (j = 0; j < brcnt; j++) {
 			tmp = (baud_speed / scaler[j]) * (1 + dbr);
 
-			if (tmp > cfslave->baudrate)
-				diff = tmp - cfslave->baudrate;
+			if (tmp > cfspi->baudrate)
+				diff = tmp - cfspi->baudrate;
 			else
-				diff = cfslave->baudrate - tmp;
+				diff = cfspi->baudrate - tmp;
 
 			if (diff < bestmatch) {
 				bestmatch = diff;
@@ -271,65 +290,174 @@ static struct spi_slave *cfspi_setup_slave(struct cf_spi_slave *cfslave,
 			}
 		}
 	}
+
+	bus_setup &= ~(DSPI_CTAR_PBR(0x03) | DSPI_CTAR_BR(0x0f));
 	bus_setup |= (DSPI_CTAR_PBR(best_i) | DSPI_CTAR_BR(best_j));
-	dspi->ctar[cfslave->slave.bus] = bus_setup;
+	writel(bus_setup, &dspi->ctar[bus->seq]);
 
-	return &cfslave->slave;
+	return 0;
 }
-#endif				/* CONFIG_CF_DSPI */
 
-#ifdef CONFIG_CMD_SPI
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+static int coldfire_spi_set_mode(struct udevice *bus, uint mode)
 {
-	if (((cs >= 0) && (cs < 8)) && ((bus >= 0) && (bus < 8)))
-		return 1;
-	else
-		return 0;
+	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
+	struct dspi *dspi = cfspi->regs;
+	u32 bus_setup = 0;
+
+	cfspi->mode = mode;
+
+	if (cfspi->mode & SPI_CPOL)
+		bus_setup |= DSPI_CTAR_CPOL;
+	if (cfspi->mode & SPI_CPHA)
+		bus_setup |= DSPI_CTAR_CPHA;
+	if (cfspi->mode & SPI_LSB_FIRST)
+		bus_setup |= DSPI_CTAR_LSBFE;
+
+	/* Overwrite default value set in platform configuration file */
+	if (cfspi->mode & SPI_MODE_MOD) {
+		if ((cfspi->mode & SPI_MODE_XFER_SZ_MASK) == 0)
+			bus_setup |=
+			    readl(&dspi->ctar[bus->seq]) & MCF_FRM_SZ_16BIT;
+		else
+			bus_setup |=
+			    ((cfspi->mode & SPI_MODE_XFER_SZ_MASK) >> 1);
+
+		/* PSCSCK, PASC, PDT */
+		bus_setup |= (cfspi->mode & SPI_MODE_DLY_PRE_MASK) >> 4;
+		/* CSSCK, ASC, DT */
+		bus_setup |= (cfspi->mode & SPI_MODE_DLY_SCA_MASK) >> 4;
+	} else {
+		bus_setup |=
+			(readl(&dspi->ctar[bus->seq]) & MCF_CTAR_MODE_MASK);
+	}
+
+	cfspi->charbit =
+		((readl(&dspi->ctar[bus->seq]) & MCF_FRM_SZ_16BIT) ==
+			MCF_FRM_SZ_16BIT) ? 16 : 8;
+
+	setbits_be32(&dspi->ctar[bus->seq], bus_setup);
+
+	return 0;
+}
+
+static int coldfire_spi_probe(struct udevice *bus)
+{
+	struct coldfire_spi_platdata *plat = dev_get_platdata(bus);
+	struct coldfire_spi_priv *cfspi = dev_get_priv(bus);
+	struct dspi *dspi = cfspi->regs;
+	int i;
+
+	cfspi->regs = (struct dspi *)plat->regs_addr;
+
+	cfspi->baudrate = plat->speed_hz;
+	cfspi->mode = plat->mode;
+
+	for (i = 0; i < MCF_DSPI_MAX_CTAR_REGS; i++) {
+		unsigned int ctar = 0;
+
+		if (plat->ctar[i][0] == 0)
+			break;
+
+		ctar = DSPI_CTAR_TRSZ(plat->ctar[i][0]) |
+			DSPI_CTAR_PCSSCK(plat->ctar[i][1]) |
+			DSPI_CTAR_PASC(plat->ctar[i][2]) |
+			DSPI_CTAR_PDT(plat->ctar[i][3]) |
+			DSPI_CTAR_CSSCK(plat->ctar[i][4]) |
+			DSPI_CTAR_ASC(plat->ctar[i][5]) |
+			DSPI_CTAR_DT(plat->ctar[i][6]) |
+			DSPI_CTAR_BR(plat->ctar[i][7]);
+
+		writel(ctar, &cfspi->regs->ctar[i]);
+	}
+
+	/* Default CTARs */
+	for (i = 0; i < MCF_DSPI_MAX_CTAR_REGS; i++)
+		writel(MCF_DSPI_DEFAULT_CTAR, &dspi->ctar[i]);
+
+	dspi->mcr = DSPI_MCR_MSTR | DSPI_MCR_CSIS7 | DSPI_MCR_CSIS6 |
+	    DSPI_MCR_CSIS5 | DSPI_MCR_CSIS4 | DSPI_MCR_CSIS3 |
+	    DSPI_MCR_CSIS2 | DSPI_MCR_CSIS1 | DSPI_MCR_CSIS0 |
+	    DSPI_MCR_CRXF | DSPI_MCR_CTXF;
+
+	return 0;
 }
 
 void spi_init(void)
 {
-	cfspi_init();
 }
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-				  unsigned int max_hz, unsigned int mode)
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+static int coldfire_dspi_ofdata_to_platdata(struct udevice *bus)
 {
-	struct cf_spi_slave *cfslave;
+	fdt_addr_t addr;
+	struct coldfire_spi_platdata *plat = bus->platdata;
+	const void *blob = gd->fdt_blob;
+	int node = dev_of_offset(bus);
+	int *ctar, len;
 
-	if (!spi_cs_is_valid(bus, cs))
-		return NULL;
+	addr = devfdt_get_addr(bus);
+	if (addr == FDT_ADDR_T_NONE)
+		return -ENOMEM;
 
-	cfslave = spi_alloc_slave(struct cf_spi_slave, bus, cs);
-	if (!cfslave)
-		return NULL;
+	plat->regs_addr = addr;
 
-	cfslave->baudrate = max_hz;
+	plat->num_cs = fdtdec_get_int(blob, node, "num-cs",
+				      MCF_DSPI_DEFAULT_MAX_CS);
 
-	/* specific setup */
-	return cfspi_setup_slave(cfslave, mode);
+	plat->speed_hz = fdtdec_get_int(blob, node, "spi-max-frequency",
+					MCF_DSPI_DEFAULT_SCK_FREQ);
+
+	plat->mode = fdtdec_get_int(blob, node, "spi-mode",
+				    MCF_DSPI_DEFAULT_MODE);
+
+	memset(plat->ctar, 0, sizeof(plat->ctar));
+
+	ctar = (int *)fdt_getprop(blob, node, "ctar-params", &len);
+
+	if (ctar && len) {
+		int i, q, ctar_regs;
+
+		ctar_regs = len / sizeof(unsigned int) / MAX_CTAR_FIELDS;
+
+		if (ctar_regs > MAX_CTAR_REGS)
+			ctar_regs = MAX_CTAR_REGS;
+
+		for (i = 0; i < ctar_regs; i++) {
+			for (q = 0; q < MAX_CTAR_FIELDS; q++)
+				plat->ctar[i][q] = *ctar++;
+		}
+	}
+
+	debug("DSPI: regs=%pa, max-frequency=%d, num-cs=%d, mode=%d\n",
+	      (void *)plat->regs_addr,
+	       plat->speed_hz, plat->num_cs, plat->mode);
+
+	return 0;
 }
 
-void spi_free_slave(struct spi_slave *slave)
-{
-	struct cf_spi_slave *cfslave = to_cf_spi_slave(slave);
+static const struct udevice_id coldfire_spi_ids[] = {
+	{ .compatible = "fsl,mcf-dspi" },
+	{ }
+};
+#endif
 
-	free(cfslave);
-}
+static const struct dm_spi_ops coldfire_spi_ops = {
+	.claim_bus	= coldfire_spi_claim_bus,
+	.release_bus	= coldfire_spi_release_bus,
+	.xfer		= coldfire_spi_xfer,
+	.set_speed	= coldfire_spi_set_speed,
+	.set_mode	= coldfire_spi_set_mode,
+};
 
-int spi_claim_bus(struct spi_slave *slave)
-{
-	return cfspi_claim_bus(slave->bus, slave->cs);
-}
-
-void spi_release_bus(struct spi_slave *slave)
-{
-	cfspi_release_bus(slave->bus, slave->cs);
-}
-
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
-	     void *din, unsigned long flags)
-{
-	return cfspi_xfer(slave, bitlen, dout, din, flags);
-}
-#endif				/* CONFIG_CMD_SPI */
+U_BOOT_DRIVER(coldfire_spi) = {
+	.name = "spi_coldfire",
+	.id = UCLASS_SPI,
+#if CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)
+	.of_match = coldfire_spi_ids,
+	.ofdata_to_platdata = coldfire_dspi_ofdata_to_platdata,
+	.platdata_auto_alloc_size = sizeof(struct coldfire_spi_platdata),
+#endif
+	.probe = coldfire_spi_probe,
+	.ops = &coldfire_spi_ops,
+	.priv_auto_alloc_size = sizeof(struct coldfire_spi_priv),
+};
