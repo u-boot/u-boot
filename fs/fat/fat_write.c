@@ -247,8 +247,11 @@ fill_dir_slot(fat_itr *itr, const char *l_name)
 		if (itr->remaining == 0)
 			flush_dir(itr);
 
+		/* allocate a cluster for more entries */
 		if (!fat_itr_next(itr))
-			if (!itr->dent && !itr->is_root && new_dir_table(itr))
+			if (!itr->dent &&
+			    (!itr->is_root || itr->fsdata->fatsize == 32) &&
+			    new_dir_table(itr))
 				return -1;
 	}
 
@@ -980,7 +983,10 @@ static dir_entry *find_directory_entry(fat_itr *itr, char *filename)
 			return itr->dent;
 	}
 
-	if (!itr->dent && !itr->is_root && new_dir_table(itr))
+	/* allocate a cluster for more entries */
+	if (!itr->dent &&
+	    (!itr->is_root || itr->fsdata->fatsize == 32) &&
+	    new_dir_table(itr))
 		/* indicate that allocating dent failed */
 		itr->dent = NULL;
 
