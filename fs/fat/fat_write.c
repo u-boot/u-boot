@@ -388,29 +388,23 @@ static __u32 determine_fatent(fsdata *mydata, __u32 entry)
 }
 
 /**
- * set_cluster() - write data to cluster
+ * set_sectors() - write data to sectors
  *
- * Write 'size' bytes from 'buffer' into the specified cluster.
+ * Write 'size' bytes from 'buffer' into the specified sector.
  *
  * @mydata:	data to be written
- * @clustnum:	cluster to be written to
+ * @startsect:	sector to be written to
  * @buffer:	data to be written
  * @size:	bytes to be written (but not more than the size of a cluster)
  * Return:	0 on success, -1 otherwise
  */
 static int
-set_cluster(fsdata *mydata, u32 clustnum, u8 *buffer, u32 size)
+set_sectors(fsdata *mydata, u32 startsect, u8 *buffer, u32 size)
 {
-	u32 idx = 0;
-	u32 startsect;
+	u32 nsects = 0;
 	int ret;
 
-	if (clustnum > 0)
-		startsect = clust_to_sect(mydata, clustnum);
-	else
-		startsect = mydata->rootdir_sect;
-
-	debug("clustnum: %d, startsect: %d\n", clustnum, startsect);
+	debug("startsect: %d\n", startsect);
 
 	if ((unsigned long)buffer & (ARCH_DMA_MINALIGN - 1)) {
 		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);
@@ -429,17 +423,16 @@ set_cluster(fsdata *mydata, u32 clustnum, u8 *buffer, u32 size)
 			size -= mydata->sect_size;
 		}
 	} else if (size >= mydata->sect_size) {
-		idx = size / mydata->sect_size;
-		ret = disk_write(startsect, idx, buffer);
-		if (ret != idx) {
+		nsects = size / mydata->sect_size;
+		ret = disk_write(startsect, nsects, buffer);
+		if (ret != nsects) {
 			debug("Error writing data (got %d)\n", ret);
 			return -1;
 		}
 
-		startsect += idx;
-		idx *= mydata->sect_size;
-		buffer += idx;
-		size -= idx;
+		startsect += nsects;
+		buffer += nsects * mydata->sect_size;
+		size -= nsects * mydata->sect_size;
 	}
 
 	if (size) {
@@ -455,6 +448,44 @@ set_cluster(fsdata *mydata, u32 clustnum, u8 *buffer, u32 size)
 	}
 
 	return 0;
+}
+
+/**
+ * set_cluster() - write data to cluster
+ *
+ * Write 'size' bytes from 'buffer' into the specified cluster.
+ *
+ * @mydata:	data to be written
+ * @clustnum:	cluster to be written to
+ * @buffer:	data to be written
+ * @size:	bytes to be written (but not more than the size of a cluster)
+ * Return:	0 on success, -1 otherwise
+ */
+static int
+set_cluster(fsdata *mydata, u32 clustnum, u8 *buffer, u32 size)
+{
+	return set_sectors(mydata, clust_to_sect(mydata, clustnum),
+			   buffer, size);
+}
+
+static int
+flush_dir(fat_itr *itr)
+{
+	fsdata *mydata = itr->fsdata;
+	u32 startsect, sect_offset, nsects;
+
+	if (!itr->is_root || mydata->fatsize == 32)
+		return set_cluster(mydata, itr->clust, itr->block,
+				   mydata->clust_size * mydata->sect_size);
+
+	sect_offset = itr->clust * mydata->clust_size;
+	startsect = mydata->rootdir_sect + sect_offset;
+	/* do not write past the end of rootdir */
+	nsects = min_t(u32, mydata->clust_size,
+		       mydata->rootdir_size - sect_offset);
+
+	return set_sectors(mydata, startsect, itr->block,
+			   nsects * mydata->sect_size);
 }
 
 static __u8 tmpbuf_cluster[MAX_CLUSTSIZE] __aligned(ARCH_DMA_MINALIGN);
@@ -1163,8 +1194,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
 	}
 
 	/* Write directory table to device */
-	ret = set_cluster(mydata, itr->clust, itr->block,
-			  mydata->clust_size * mydata->sect_size);
+	ret = flush_dir(itr);
 	if (ret) {
 		printf("Error: writing directory entry\n");
 		ret = -EIO;
@@ -1241,8 +1271,7 @@ static int delete_dentry(fat_itr *itr)
 	memset(dentptr, 0, sizeof(*dentptr));
 	dentptr->name[0] = 0xe5;
 
-	if (set_cluster(mydata, itr->clust, itr->block,
-			mydata->clust_size * mydata->sect_size) != 0) {
+	if (flush_dir(itr)) {
 		printf("error: writing directory entry\n");
 		return -EIO;
 	}
@@ -1444,8 +1473,7 @@ int fat_mkdir(const char *new_dirname)
 	}
 
 	/* Write directory table to device */
-	ret = set_cluster(mydata, itr->clust, itr->block,
-			  mydata->clust_size * mydata->sect_size);
+	ret = flush_dir(itr);
 	if (ret)
 		printf("Error: writing directory entry\n");
 
