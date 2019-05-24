@@ -12,7 +12,7 @@
 #include <efi_loader.h>
 
 /* Characters that may not be used in file names */
-static const char illegal[] = "<>:\"/\\|?*";
+static const char illegal[] = "<>:\"/\\|?*\x7f";
 
 /*
  * EDK2 assumes codepage 1250 when creating FAT 8.3 file names.
