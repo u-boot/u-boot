@@ -514,17 +514,17 @@ int misc_init_r(void)
 	mac[5] = mac1[3];
 
 	if (is_valid_ethaddr(mac))
-		eth_env_set_enetaddr("ethaddr", mac);
-
-	increment_mac(mac);
-
-	if (is_valid_ethaddr(mac))
 		eth_env_set_enetaddr("eth1addr", mac);
 
 	increment_mac(mac);
 
 	if (is_valid_ethaddr(mac))
 		eth_env_set_enetaddr("eth2addr", mac);
+
+	increment_mac(mac);
+
+	if (is_valid_ethaddr(mac))
+		eth_env_set_enetaddr("ethaddr", mac);
 
 out:
 	return 0;
