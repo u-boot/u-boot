@@ -412,6 +412,7 @@ int board_late_init(void)
 	set_regdomain();
 	handle_reset_button();
 #endif
+	pci_init();
 
 	return 0;
 }
