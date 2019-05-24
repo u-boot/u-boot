@@ -161,8 +161,10 @@ static int tlp_read_packet(struct intel_fpga_pcie *pcie, u32 *value)
 			dw[count++] = cra_readl(pcie, RP_RXCPL_REG);
 			if (ctrl & RP_RXCPL_EOP) {
 				comp_status = TLP_COMP_STATUS(dw[1]);
-				if (comp_status)
-					return -EFAULT;
+				if (comp_status) {
+					*value = pci_get_ff(PCI_SIZE_32);
+					return 0;
+				}
 
 				if (value &&
 				    TLP_BYTE_COUNT(dw[1]) == sizeof(u32) &&
