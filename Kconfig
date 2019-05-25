@@ -389,7 +389,7 @@ config SPL_FIT_SIGNATURE
 	select SPL_RSA
 
 config SPL_LOAD_FIT
-	bool "Enable SPL loading U-Boot as a FIT"
+	bool "Enable SPL loading U-Boot as a FIT (basic fitImage features)"
 	select SPL_FIT
 	help
 	  Normally with the SPL framework a legacy image is generated as part
@@ -400,7 +400,7 @@ config SPL_LOAD_FIT
 	  and passing the correct one to U-Boot.
 
 config SPL_LOAD_FIT_FULL
-	bool "Enable SPL loading U-Boot as a FIT"
+	bool "Enable SPL loading U-Boot as a FIT (full fitImage features)"
 	select SPL_FIT
 	help
 	  Normally with the SPL framework a legacy image is generated as part
