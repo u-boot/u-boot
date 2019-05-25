@@ -41,7 +41,7 @@ int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr)
 	set_default_env(NULL, 0);
 	str_env = env_get(dfu_alt_info);
 	if (!str_env) {
-		pr_err("\"dfu_alt_info\" env variable not defined!\n");
+		pr_err("\"%s\" env variable not defined!\n", dfu_alt_info);
 		return -EINVAL;
 	}
 
