@@ -375,8 +375,8 @@ void update_rtc_magic(void)
  */
 int board_early_init_f(void)
 {
-	prcm_init();
 	set_mux_conf_regs();
+	prcm_init();
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_RTC_DDR_SUPPORT)
 	update_rtc_magic();
 #endif
