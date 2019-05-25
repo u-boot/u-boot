@@ -427,7 +427,9 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
 		  data_size, data);
 
-	if (!variable_name || !vendor) {
+	/* TODO: implement APPEND_WRITE */
+	if (!variable_name || !vendor ||
+	    (attributes & EFI_VARIABLE_APPEND_WRITE)) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
@@ -449,10 +451,19 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 	if (val) {
 		parse_attr(val, &attr);
 
+		/* We should not free val */
+		val = NULL;
 		if (attr & READ_ONLY) {
-			/* We should not free val */
-			val = NULL;
 			ret = EFI_WRITE_PROTECTED;
+			goto out;
+		}
+
+		/*
+		 * attributes won't be changed
+		 * TODO: take care of APPEND_WRITE once supported
+		 */
+		if (attr != attributes) {
+			ret = EFI_INVALID_PARAMETER;
 			goto out;
 		}
 	}

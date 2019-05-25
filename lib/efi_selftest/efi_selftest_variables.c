@@ -116,21 +116,21 @@ static int execute(void)
 				    EFI_VARIABLE_APPEND_WRITE,
 				    7, v + 8);
 	if (ret != EFI_SUCCESS) {
-		efi_st_error("SetVariable failed\n");
-		return EFI_ST_FAILURE;
+		efi_st_todo("SetVariable(APPEND_WRITE) failed\n");
+	} else {
+		len = EFI_ST_MAX_DATA_SIZE;
+		ret = runtime->get_variable(L"efi_st_var1", &guid_vendor1,
+					    &attr, &len, data);
+		if (ret != EFI_SUCCESS) {
+			efi_st_error("GetVariable failed\n");
+			return EFI_ST_FAILURE;
+		}
+		if (len != 15)
+			efi_st_todo("GetVariable returned wrong length %u\n",
+				    (unsigned int)len);
+		if (memcmp(data, v, len))
+			efi_st_todo("GetVariable returned wrong value\n");
 	}
-	len = EFI_ST_MAX_DATA_SIZE;
-	ret = runtime->get_variable(L"efi_st_var1", &guid_vendor1,
-				    &attr, &len, data);
-	if (ret != EFI_SUCCESS) {
-		efi_st_error("GetVariable failed\n");
-		return EFI_ST_FAILURE;
-	}
-	if (len != 15)
-		efi_st_todo("GetVariable returned wrong length %u\n",
-			    (unsigned int)len);
-	if (memcmp(data, v, len))
-		efi_st_todo("GetVariable returned wrong value\n");
 	/* Enumerate variables */
 	boottime->set_mem(&guid, 16, 0);
 	*varname = 0;
