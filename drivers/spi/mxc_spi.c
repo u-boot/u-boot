@@ -488,7 +488,6 @@ void spi_release_bus(struct spi_slave *slave)
 
 static int mxc_spi_probe(struct udevice *bus)
 {
-	struct mxc_spi_slave *plat = bus->platdata;
 	struct mxc_spi_slave *mxcs = dev_get_platdata(bus);
 	int node = dev_of_offset(bus);
 	const void *blob = gd->fdt_blob;
@@ -500,11 +499,11 @@ static int mxc_spi_probe(struct udevice *bus)
 		return -EINVAL;
 	}
 
-	plat->base = devfdt_get_addr(bus);
-	if (plat->base == FDT_ADDR_T_NONE)
+	mxcs->base = devfdt_get_addr(bus);
+	if (mxcs->base == FDT_ADDR_T_NONE)
 		return -ENODEV;
 
-	ret = dm_gpio_set_value(&plat->ss, 0);
+	ret = dm_gpio_set_value(&mxcs->ss, 0);
 	if (ret) {
 		dev_err(bus, "Setting cs error\n");
 		return ret;
