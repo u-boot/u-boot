@@ -7,6 +7,10 @@
 
 #include "zynqmp-mini-qspi.dts"
 
+/ {
+	model = "ZynqMP MINI QSPI X1 SINGLE";
+};
+
 &flash0 {
 	spi-rx-bus-width = <1>;
 };

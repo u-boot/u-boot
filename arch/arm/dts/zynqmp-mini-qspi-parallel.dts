@@ -7,6 +7,10 @@
 
 #include "zynqmp-mini-qspi.dts"
 
+/ {
+	model = "ZynqMP MINI QSPI PARALLEL";
+};
+
 &qspi {
 	is-dual = <1>;
 };
