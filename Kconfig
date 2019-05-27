@@ -155,6 +155,7 @@ config SYS_MALLOC_LEN
 config SPL_SYS_MALLOC_F_LEN
 	hex "Size of malloc() pool in SPL before relocation"
 	depends on SYS_MALLOC_F
+	default 0x2800 if RCAR_GEN3
 	default SYS_MALLOC_F_LEN
 	help
 	  Before relocation, memory is very limited on many platforms. Still,

@@ -43,41 +43,6 @@ int board_init(void)
 	return 0;
 }
 
-/*
- * If the firmware passed a device tree use it for U-Boot DRAM setup.
- */
-extern u64 rcar_atf_boot_args[];
-
-int dram_init(void)
-{
-	const void *atf_fdt_blob = (const void *)(rcar_atf_boot_args[1]);
-	const void *blob;
-
-	/* Check if ATF passed us DTB. If not, fall back to builtin DTB. */
-	if (fdt_magic(atf_fdt_blob) == FDT_MAGIC)
-		blob = atf_fdt_blob;
-	else
-		blob = gd->fdt_blob;
-
-	return fdtdec_setup_mem_size_base_fdt(blob);
-}
-
-int dram_init_banksize(void)
-{
-	const void *atf_fdt_blob = (const void *)(rcar_atf_boot_args[1]);
-	const void *blob;
-
-	/* Check if ATF passed us DTB. If not, fall back to builtin DTB. */
-	if (fdt_magic(atf_fdt_blob) == FDT_MAGIC)
-		blob = atf_fdt_blob;
-	else
-		blob = gd->fdt_blob;
-
-	fdtdec_setup_memory_banksize_fdt(blob);
-
-	return 0;
-}
-
 #define RST_BASE	0xE6160000
 #define RST_CA57RESCNT	(RST_BASE + 0x40)
 #define RST_CA53RESCNT	(RST_BASE + 0x44)

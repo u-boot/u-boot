@@ -13,6 +13,10 @@
 
 #define CONFIG_REMAKE_ELF
 
+#ifdef CONFIG_SPL
+#define CONFIG_SPL_TARGET	"spl/u-boot-spl.scif"
+#endif
+
 /* boot option */
 
 #define CONFIG_CMDLINE_TAG
@@ -63,5 +67,20 @@
 	"tftp 0x48080000 Image; " \
 	"tftp 0x48000000 Image-"CONFIG_DEFAULT_FDT_FILE"; " \
 	"booti 0x48080000 - 0x48000000"
+
+/* SPL support */
+#if defined(CONFIG_R8A7795) || defined(CONFIG_R8A7796) || defined(CONFIG_R8A77965)
+#define CONFIG_SPL_BSS_START_ADDR	0xe633f000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x1000
+#else
+#define CONFIG_SPL_BSS_START_ADDR	0xe631f000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x1000
+#endif
+#define CONFIG_SPL_STACK		0xe6304000
+#define CONFIG_SPL_MAX_SIZE		0x7000
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_CONS_SCIF2
+#define CONFIG_SH_SCIF_CLK_FREQ		65000000
+#endif
 
 #endif	/* __RCAR_GEN3_COMMON_H */
