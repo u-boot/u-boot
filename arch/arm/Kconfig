@@ -890,6 +890,7 @@ config ARCH_VERSAL
 	select DM_MMC if MMC
 	select DM_SERIAL
 	select OF_CONTROL
+	select ZYNQ_HISPD_BROKEN if MMC_SDHCI_ZYNQ
 	imply BOARD_LATE_INIT
 
 config ARCH_VF610
