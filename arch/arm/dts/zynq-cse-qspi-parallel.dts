@@ -7,6 +7,10 @@
 
 #include "zynq-cse-qspi.dtsi"
 
+/ {
+	model = "Zynq CSE QSPI PARALLEL Board";
+};
+
 &qspi {
 	is-dual = <1>;
 };

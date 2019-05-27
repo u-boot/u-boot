@@ -7,6 +7,10 @@
 
 #include "zynq-cse-qspi.dtsi"
 
+/ {
+	model = "Zynq CSE QSPI STACKED Board";
+};
+
 &qspi {
 	is-dual = <0>;
 	is-stacked = <1>;
