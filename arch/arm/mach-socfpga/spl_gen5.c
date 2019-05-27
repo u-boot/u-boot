@@ -5,7 +5,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/pl310.h>
 #include <asm/u-boot.h>
 #include <asm/utils.h>
 #include <image.h>
@@ -25,8 +24,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct pl310_regs *const pl310 =
-	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 static const struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
@@ -62,60 +59,6 @@ u32 spl_boot_mode(const u32 boot_device)
 #endif
 }
 #endif
-
-static void socfpga_pl310_clear(void)
-{
-	u32 mask = 0xff, ena = 0;
-
-	icache_enable();
-
-	/* Disable the L2 cache */
-	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-
-	writel(0x111, &pl310->pl310_tag_latency_ctrl);
-	writel(0x121, &pl310->pl310_data_latency_ctrl);
-
-	/* enable BRESP, instruction and data prefetch, full line of zeroes */
-	setbits_le32(&pl310->pl310_aux_ctrl,
-		     L310_AUX_CTRL_DATA_PREFETCH_MASK |
-		     L310_AUX_CTRL_INST_PREFETCH_MASK |
-		     L310_SHARED_ATT_OVERRIDE_ENABLE);
-
-	/* Enable the L2 cache */
-	ena = readl(&pl310->pl310_ctrl);
-	ena |= L2X0_CTRL_EN;
-
-	/*
-	 * Invalidate the PL310 L2 cache. Keep the invalidation code
-	 * entirely in L1 I-cache to avoid any bus traffic through
-	 * the L2.
-	 */
-	asm volatile(
-		".align	5			\n"
-		"	b	3f		\n"
-		"1:	str	%1,	[%4]	\n"
-		"	dsb			\n"
-		"	isb			\n"
-		"	str	%0,	[%2]	\n"
-		"	dsb			\n"
-		"	isb			\n"
-		"2:	ldr	%0,	[%2]	\n"
-		"	cmp	%0,	#0	\n"
-		"	bne	2b		\n"
-		"	str	%0,	[%3]	\n"
-		"	dsb			\n"
-		"	isb			\n"
-		"	b	4f		\n"
-		"3:	b	1b		\n"
-		"4:	nop			\n"
-	: "+r"(mask), "+r"(ena)
-	: "r"(&pl310->pl310_inv_way),
-	  "r"(&pl310->pl310_cache_sync), "r"(&pl310->pl310_ctrl)
-	: "memory", "cc");
-
-	/* Disable the L2 cache */
-	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
-}
 
 void board_init_f(ulong dummy)
 {

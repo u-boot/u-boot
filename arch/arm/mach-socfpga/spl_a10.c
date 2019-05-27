@@ -110,6 +110,7 @@ void board_init_f(ulong dummy)
 
 	socfpga_init_security_policies();
 	socfpga_sdram_remap_zero();
+	socfpga_pl310_clear();
 
 	/* Assert reset to all except L4WD0 and L4TIMER0 */
 	socfpga_per_reset_all();
