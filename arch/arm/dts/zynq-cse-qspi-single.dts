@@ -7,6 +7,10 @@
 
 #include "zynq-cse-qspi.dtsi"
 
+/ {
+	model = "Zynq CSE QSPI SINGLE Board";
+};
+
 &flash0 {
 	spi-rx-bus-width = <4>;
 };
