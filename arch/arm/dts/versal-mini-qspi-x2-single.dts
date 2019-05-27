@@ -7,6 +7,10 @@
 
 #include "versal-mini-qspi.dtsi"
 
+/ {
+	model = "Xilinx Versal MINI QSPI X2 SINGLE";
+};
+
 &flash0 {
 	spi-rx-bus-width = <2>;
 };

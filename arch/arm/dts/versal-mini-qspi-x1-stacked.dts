@@ -7,6 +7,10 @@
 
 #include "versal-mini-qspi.dtsi"
 
+/ {
+	model = "Xilinx Versal MINI QSPI X1 STACKED";
+};
+
 &qspi {
 	is-dual = <0>;
 	is-stacked = <1>;
