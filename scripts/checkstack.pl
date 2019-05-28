@@ -11,7 +11,6 @@
 #	Arm port by Holger Schurig
 #	sh64 port by Paul Mundt
 #	Random bits by Matt Mackall <mpm@selenic.com>
-#	M68k port by Geert Uytterhoeven and Andreas Schwab
 #	AArch64, PARISC ports by Kyle McMartin
 #	sparc port by Martin Habets <errandir_news@mph.eclipse.co.uk>
 #
@@ -59,10 +58,6 @@ my (@stack, $re, $dre, $x, $xs, $funcre);
 	} elsif ($arch eq 'ia64') {
 		#e0000000044011fc:       01 0f fc 8c     adds r12=-384,r12
 		$re = qr/.*adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12/o;
-	} elsif ($arch eq 'm68k') {
-		#    2b6c:       4e56 fb70       linkw %fp,#-1168
-		#  1df770:       defc ffe4       addaw #-28,%sp
-		$re = qr/.*(?:linkw %fp,|addaw )#-([0-9]{1,4})(?:,%sp)?$/o;
 	} elsif ($arch eq 'metag') {
 		#400026fc:       40 00 00 82     ADD       A0StP,A0StP,#0x8
 		$re = qr/.*ADD.*A0StP,A0StP,\#(0x$x{1,8})/o;

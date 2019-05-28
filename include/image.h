@@ -175,12 +175,10 @@ enum {
 	IH_ARCH_IA64,			/* IA64		*/
 	IH_ARCH_MIPS,			/* MIPS		*/
 	IH_ARCH_MIPS64,			/* MIPS	 64 Bit */
-	IH_ARCH_PPC,			/* PowerPC	*/
 	IH_ARCH_S390,			/* IBM S390	*/
-	IH_ARCH_SH,			/* SuperH	*/
+	IH_ARCH_SH,				/* SuperH	*/
 	IH_ARCH_SPARC,			/* Sparc	*/
 	IH_ARCH_SPARC64,		/* Sparc 64 Bit */
-	IH_ARCH_M68K,			/* M68K		*/
 	IH_ARCH_NIOS,			/* Nios-32	*/
 	IH_ARCH_MICROBLAZE,		/* MicroBlaze   */
 	IH_ARCH_NIOS2,			/* Nios-II	*/

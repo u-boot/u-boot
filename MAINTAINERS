@@ -445,7 +445,6 @@ M:	Huan Wang <alison.wang@nxp.com>
 M:	Angelo Dureghello <angelo@sysam.it>
 S:	Maintained
 T:	git git://git.denx.de/u-boot-coldfire.git
-F:	arch/m68k/
 
 DFU
 M:	Lukasz Majewski <lukma@denx.de>

@@ -90,8 +90,7 @@ config CADENCE_QSPI
 config CF_SPI
         bool "ColdFire SPI driver"
         help
-          Enable the ColdFire SPI driver. This driver can be used on
-          some m68k SoCs.
+          Enable the ColdFire SPI driver.
 
 config DESIGNWARE_SPI
 	bool "Designware SPI driver"
@@ -323,8 +322,7 @@ config MSCC_BB_SPI
 config CF_SPI
 	bool "ColdFire SPI driver"
 	help
-	  Enable the ColdFire SPI driver. This driver can be used on
-	  some m68k SoCs.
+	  Enable the ColdFire SPI driver.
 
 config FSL_ESPI
 	bool "Freescale eSPI driver"

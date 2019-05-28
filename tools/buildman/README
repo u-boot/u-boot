@@ -127,7 +127,6 @@ behaviour is a superset of exact or substring matching. Examples are:
 * 'tegra20'      All boards with a Tegra20 SoC
 * 'tegra'        All boards with any Tegra Soc (Tegra20, Tegra30, Tegra114...)
 * '^tegra[23]0$' All boards with either Tegra20 or Tegra30 SoC
-* 'powerpc'      All PowerPC boards
 
 While the default is to OR the terms together, you can also make use of
 the '&' operator to limit the selection:
@@ -305,18 +304,6 @@ Tool chain test:  OK, arch='mips', priority 4
 Tool chain test:  OK, arch='x86_64', priority 4
 Tool chain test:  OK, arch='x86_64', priority 4
 Toolchain '/toolchains/gcc-4.9.0-nolibc/x86_64-linux/bin/x86_64-linux-x86_64-linux-gcc' at priority 4 will be ignored because another toolchain for arch 'x86_64' has priority 4
-   - scanning path '/toolchains/gcc-4.9.0-nolibc/m68k-linux'
-      - looking in '/toolchains/gcc-4.9.0-nolibc/m68k-linux/.'
-      - looking in '/toolchains/gcc-4.9.0-nolibc/m68k-linux/bin'
-         - found '/toolchains/gcc-4.9.0-nolibc/m68k-linux/bin/m68k-linux-gcc'
-      - looking in '/toolchains/gcc-4.9.0-nolibc/m68k-linux/usr/bin'
-Tool chain test:  OK, arch='m68k', priority 4
-   - scanning path '/toolchains/gcc-4.9.0-nolibc/powerpc-linux'
-      - looking in '/toolchains/gcc-4.9.0-nolibc/powerpc-linux/.'
-      - looking in '/toolchains/gcc-4.9.0-nolibc/powerpc-linux/bin'
-         - found '/toolchains/gcc-4.9.0-nolibc/powerpc-linux/bin/powerpc-linux-gcc'
-      - looking in '/toolchains/gcc-4.9.0-nolibc/powerpc-linux/usr/bin'
-Tool chain test:  OK, arch='powerpc', priority 4
    - scanning path '/toolchains/gcc-4.6.3-nolibc/bfin-uclinux'
       - looking in '/toolchains/gcc-4.6.3-nolibc/bfin-uclinux/.'
       - looking in '/toolchains/gcc-4.6.3-nolibc/bfin-uclinux/bin'
@@ -337,19 +324,6 @@ Toolchain '/toolchains/gcc-4.6.3-nolibc/sparc-linux/bin/sparc-linux-gcc' at prio
       - looking in '/toolchains/gcc-4.6.3-nolibc/mips-linux/usr/bin'
 Tool chain test:  OK, arch='mips', priority 4
 Toolchain '/toolchains/gcc-4.6.3-nolibc/mips-linux/bin/mips-linux-gcc' at priority 4 will be ignored because another toolchain for arch 'mips' has priority 4
-   - scanning path '/toolchains/gcc-4.6.3-nolibc/m68k-linux'
-      - looking in '/toolchains/gcc-4.6.3-nolibc/m68k-linux/.'
-      - looking in '/toolchains/gcc-4.6.3-nolibc/m68k-linux/bin'
-         - found '/toolchains/gcc-4.6.3-nolibc/m68k-linux/bin/m68k-linux-gcc'
-      - looking in '/toolchains/gcc-4.6.3-nolibc/m68k-linux/usr/bin'
-Tool chain test:  OK, arch='m68k', priority 4
-Toolchain '/toolchains/gcc-4.6.3-nolibc/m68k-linux/bin/m68k-linux-gcc' at priority 4 will be ignored because another toolchain for arch 'm68k' has priority 4
-   - scanning path '/toolchains/gcc-4.6.3-nolibc/powerpc-linux'
-      - looking in '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/.'
-      - looking in '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/bin'
-         - found '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/bin/powerpc-linux-gcc'
-      - looking in '/toolchains/gcc-4.6.3-nolibc/powerpc-linux/usr/bin'
-Tool chain test:  OK, arch='powerpc', priority 4
 Tool chain test:  OK, arch='or32', priority 4
    - scanning path '/'
       - looking in '/.'
@@ -394,13 +368,10 @@ i386      : /toolchains/gcc-4.9.0-nolibc/i386-linux/bin/i386-linux-gcc
 i586      : /usr/bin/i586-mingw32msvc-gcc
 ia64      : /toolchains/gcc-4.9.0-nolibc/ia64-linux/bin/ia64-linux-gcc
 m32r      : /toolchains/gcc-4.9.0-nolibc/m32r-linux/bin/m32r-linux-gcc
-m68k      : /toolchains/gcc-4.9.0-nolibc/m68k-linux/bin/m68k-linux-gcc
 microblaze: /toolchains/gcc-4.9.0-nolibc/microblaze-linux/bin/microblaze-linux-gcc
 mips      : /toolchains/gcc-4.9.0-nolibc/mips-linux/bin/mips-linux-gcc
 mips64    : /toolchains/gcc-4.9.0-nolibc/mips64-linux/bin/mips64-linux-gcc
 or32      : /toolchains/gcc-4.5.1-nolibc/or32-linux/bin/or32-linux-gcc
-powerpc   : /toolchains/gcc-4.9.0-nolibc/powerpc-linux/bin/powerpc-linux-gcc
-powerpc64 : /toolchains/gcc-4.9.0-nolibc/powerpc64-linux/bin/powerpc64-linux-gcc
 ppc64le   : /toolchains/gcc-4.9.0-nolibc/ppc64le-linux/bin/ppc64le-linux-gcc
 s390x     : /toolchains/gcc-4.9.0-nolibc/s390x-linux/bin/s390x-linux-gcc
 sandbox   : /usr/bin/gcc
@@ -430,7 +401,7 @@ Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.6.2/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.5.1/
 Checking: https://www.kernel.org/pub/tools/crosstool/files/bin/x86_64/4.2.4/
 Available architectures: alpha am33_2.0 arm bfin cris crisv32 frv h8300
-hppa hppa64 i386 ia64 m32r m68k mips mips64 or32 powerpc powerpc64 s390x sh4
+hppa hppa64 i386 ia64 m32r mips mips64 or32 s390x sh4
 sparc sparc64 tilegx x86_64 xtensa
 
 Then pick one and download it:
@@ -474,8 +445,8 @@ Buildman should now be set up to use your new toolchain.
 
 At the time of writing, U-Boot has these architectures:
 
-   arc, arm, blackfin, m68k, microblaze, mips, nds32, nios2, openrisc
-   powerpc, sandbox, sh, sparc, x86
+   arc, arm, blackfin, microblaze, mips, nds32, nios2, openrisc
+   sandbox, sh, sparc, x86
 
 Of these, only arc and nds32 are not available at kernel.org..
 
@@ -797,33 +768,6 @@ $ ./tools/buildman/buildman -b us-mem4 -sSdB
                  do_fat_read_at                            2904    2872     -32
                  do_mem_crc                                 168      68    -100
                  hash_command                               420     160    -260
-   powerpc: (for 5/5 boards)  all +37.4  data -3.2  rodata -41.8  text +82.4
-            MPC8610HPCD    :  all +55  rodata -29  text +84
-               u-boot: add: 1/0, grow: 0/-1 bytes: 176/-96 (80)
-                 function                                   old     new   delta
-                 hash_command                                 -     176    +176
-                 do_mem_crc                                 184      88     -96
-            MPC8641HPCN    :  all +55  rodata -29  text +84
-               u-boot: add: 1/0, grow: 0/-1 bytes: 176/-96 (80)
-                 function                                   old     new   delta
-                 hash_command                                 -     176    +176
-                 do_mem_crc                                 184      88     -96
-            MPC8641HPCN_36BIT:  all +55  rodata -29  text +84
-               u-boot: add: 1/0, grow: 0/-1 bytes: 176/-96 (80)
-                 function                                   old     new   delta
-                 hash_command                                 -     176    +176
-                 do_mem_crc                                 184      88     -96
-            sbc8641d       :  all +55  rodata -29  text +84
-               u-boot: add: 1/0, grow: 0/-1 bytes: 176/-96 (80)
-                 function                                   old     new   delta
-                 hash_command                                 -     176    +176
-                 do_mem_crc                                 184      88     -96
-            xpedite517x    :  all -33  data -16  rodata -93  text +76
-               u-boot: add: 1/-1, grow: 0/-1 bytes: 176/-112 (64)
-                 function                                   old     new   delta
-                 hash_command                                 -     176    +176
-                 hash_algo                                   16       -     -16
-                 do_mem_crc                                 184      88     -96
 ...
 
 

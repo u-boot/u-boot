@@ -230,7 +230,6 @@
 #define TP_ITYP_AV		0x00000001	/* Initiator available */
 #define TP_ITYP_TYPE(x)	(((x) & 0x6) >> 1)	/* Initiator Type */
 #define TP_ITYP_TYPE_ARM	0x0
-#define TP_ITYP_TYPE_PPC	0x1		/* PowerPC */
 #define TP_ITYP_TYPE_OTHER	0x2		/* StarCore DSP */
 #define TP_ITYP_TYPE_HA		0x3		/* HW Accelerator */
 #define TP_ITYP_THDS(x)	(((x) & 0x18) >> 3)	/* # threads */

@@ -983,7 +983,6 @@ class Builder:
         of bytes that a board in this section increased by.
 
         For example:
-           powerpc: (622 boards)   text -0.0
           arm: (285 boards)   text -0.0
           nds32: (3 boards)   text -8.0
 

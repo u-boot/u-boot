@@ -134,13 +134,11 @@ Directory Hierarchy:
 /arch			Architecture specific files
   /arc			Files generic to ARC architecture
   /arm			Files generic to ARM architecture
-  /m68k			Files generic to m68k architecture
   /microblaze		Files generic to microblaze architecture
   /mips			Files generic to MIPS architecture
   /nds32		Files generic to NDS32 architecture
   /nios2		Files generic to Altera NIOS2 architecture
   /openrisc		Files generic to OpenRISC architecture
-  /powerpc		Files generic to PowerPC architecture
   /riscv		Files generic to RISC-V architecture
   /sandbox		Files generic to HW-independent "sandbox"
   /sh			Files generic to SH architecture
@@ -1607,11 +1605,6 @@ The following options need to be configured:
 		  - This driver adds 4 i2c buses with a fix speed from
 		    100000 and the slave addr 0!
 
-		- drivers/i2c/ppc4xx_i2c.c
-		  - activate this driver with CONFIG_SYS_I2C_PPC4XX
-		  - CONFIG_SYS_I2C_PPC4XX_CH0 activate hardware channel 0
-		  - CONFIG_SYS_I2C_PPC4XX_CH1 activate hardware channel 1
-
 		- drivers/i2c/i2c_mxc.c
 		  - activate this driver with CONFIG_SYS_I2C_MXC
 		  - enable bus 1 with CONFIG_SYS_I2C_MXC_I2C1
@@ -2596,20 +2589,6 @@ FIT uImage format:
 		CONFIG_SPL_MAX_SIZE, or 0 if CONFIG_SPL_MAX_SIZE is undefined.
 		CONFIG_SPL_PAD_TO must be either 0, meaning to append the SPL
 		payload without any padding, or >= CONFIG_SPL_MAX_SIZE.
-
-- Interrupt support (PPC):
-
-		There are common interrupt_init() and timer_interrupt()
-		for all PPC archs. interrupt_init() calls interrupt_init_cpu()
-		for CPU specific initialization. interrupt_init_cpu()
-		should set decrementer_count to appropriate value. If
-		CPU resets decrementer automatically after interrupt
-		(ppc4xx) it should set decrementer_count to zero.
-		timer_interrupt() calls timer_interrupt_cpu() for CPU
-		specific handling. If board has watchdog / status_led
-		/ other_activity_monitor it works automatically from
-		general timer_interrupt().
-
 
 Board initialization settings:
 ------------------------------
@@ -3637,12 +3616,6 @@ List of environment variables (most likely not complete):
   fdtcontroladdr- if set this is the address of the control flattened
 		  device tree used by U-Boot when CONFIG_OF_CONTROL is
 		  defined.
-
-  i2cfast	- (PPC405GP|PPC405EP only)
-		  if set to 'y' configures Linux I2C driver for fast
-		  mode (400kHZ). This environment variable is used in
-		  initialization code. So, for changes to be effective
-		  it must be saved and board must be reset.
 
   initrd_high	- restrict positioning of initrd images:
 		  If this variable is not set, initrd images will be

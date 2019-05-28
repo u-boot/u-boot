@@ -23,13 +23,6 @@ config ARM
 	select HAVE_PRIVATE_LIBGCC if !ARM64
 	select SUPPORT_OF_CONTROL
 
-config M68K
-	bool "M68000 architecture"
-	select HAVE_PRIVATE_LIBGCC
-	select SYS_BOOT_GET_CMDLINE
-	select SYS_BOOT_GET_KBD
-	select SUPPORT_OF_CONTROL
-
 config MICROBLAZE
 	bool "MicroBlaze architecture"
 	select SUPPORT_OF_CONTROL
@@ -52,13 +45,6 @@ config NIOS2
 	select OF_CONTROL
 	select SUPPORT_OF_CONTROL
 	imply CMD_DM
-
-config PPC
-	bool "PowerPC architecture"
-	select HAVE_PRIVATE_LIBGCC
-	select SUPPORT_OF_CONTROL
-	select SYS_BOOT_GET_CMDLINE
-	select SYS_BOOT_GET_KBD
 
 config RISCV
 	bool "RISC-V architecture"
@@ -272,12 +258,10 @@ config SYS_DISABLE_DCACHE_OPS
 
 source "arch/arc/Kconfig"
 source "arch/arm/Kconfig"
-source "arch/m68k/Kconfig"
 source "arch/microblaze/Kconfig"
 source "arch/mips/Kconfig"
 source "arch/nds32/Kconfig"
 source "arch/nios2/Kconfig"
-source "arch/powerpc/Kconfig"
 source "arch/sandbox/Kconfig"
 source "arch/sh/Kconfig"
 source "arch/x86/Kconfig"

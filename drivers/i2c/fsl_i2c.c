@@ -51,60 +51,6 @@ static const struct fsl_i2c_base *i2c_base[4] = {
 };
 #endif
 
-/* I2C speed map for a DFSR value of 1 */
-
-#ifdef __M68K__
-/*
- * Map I2C frequency dividers to FDR and DFSR values
- *
- * This structure is used to define the elements of a table that maps I2C
- * frequency divider (I2C clock rate divided by I2C bus speed) to a value to be
- * programmed into the Frequency Divider Ratio (FDR) and Digital Filter
- * Sampling Rate (DFSR) registers.
- *
- * The actual table should be defined in the board file, and it must be called
- * fsl_i2c_speed_map[].
- *
- * The last entry of the table must have a value of {-1, X}, where X is same
- * FDR/DFSR values as the second-to-last entry.  This guarantees that any
- * search through the array will always find a match.
- *
- * The values of the divider must be in increasing numerical order, i.e.
- * fsl_i2c_speed_map[x+1].divider > fsl_i2c_speed_map[x].divider.
- *
- * For this table, the values are based on a value of 1 for the DFSR
- * register.  See the application note AN2919 "Determining the I2C Frequency
- * Divider Ratio for SCL"
- *
- * ColdFire I2C frequency dividers for FDR values are different from
- * PowerPC. The protocol to use the I2C module is still the same.
- * A different table is defined and are based on MCF5xxx user manual.
- *
- */
-static const struct {
-	unsigned short divider;
-	u8 fdr;
-} fsl_i2c_speed_map[] = {
-	{20, 32}, {22, 33}, {24, 34}, {26, 35},
-	{28, 0}, {28, 36}, {30, 1}, {32, 37},
-	{34, 2}, {36, 38}, {40, 3}, {40, 39},
-	{44, 4}, {48, 5}, {48, 40}, {56, 6},
-	{56, 41}, {64, 42}, {68, 7}, {72, 43},
-	{80, 8}, {80, 44}, {88, 9}, {96, 41},
-	{104, 10}, {112, 42}, {128, 11}, {128, 43},
-	{144, 12}, {160, 13}, {160, 48}, {192, 14},
-	{192, 49}, {224, 50}, {240, 15}, {256, 51},
-	{288, 16}, {320, 17}, {320, 52}, {384, 18},
-	{384, 53}, {448, 54}, {480, 19}, {512, 55},
-	{576, 20}, {640, 21}, {640, 56}, {768, 22},
-	{768, 57}, {960, 23}, {896, 58}, {1024, 59},
-	{1152, 24}, {1280, 25}, {1280, 60}, {1536, 26},
-	{1536, 61}, {1792, 62}, {1920, 27}, {2048, 63},
-	{2304, 28}, {2560, 29}, {3072, 30}, {3840, 31},
-	{-1, 31}
-};
-#endif
-
 /**
  * Set the I2C bus speed for a given I2C device
  *

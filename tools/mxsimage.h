@@ -110,7 +110,7 @@ struct sb_ivt_header {
 /*
  * The "size" field in the IVT header is not naturally aligned,
  * use this macro to fill first 4 bytes of the IVT header without
- * causing issues on some systems (esp. M68k, PPC, MIPS-BE, ARM-BE).
+ * causing issues on some systems (esp. MIPS-BE, ARM-BE).
  */
 static inline uint32_t sb_hab_ivt_header(void)
 {

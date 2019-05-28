@@ -227,9 +227,6 @@ HOSTARCH := $(shell uname -m | \
 	    -e s/sun4u/sparc64/ \
 	    -e s/arm.*/arm/ \
 	    -e s/sa110/arm/ \
-	    -e s/ppc64/powerpc/ \
-	    -e s/ppc/powerpc/ \
-	    -e s/macppc/powerpc/\
 	    -e s/sh.*/sh/)
 
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
@@ -642,13 +639,6 @@ KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
 KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
 KBUILD_CFLAGS += $(call cc-disable-warning, address-of-packed-member)
 KBUILD_CFLAGS += $(call cc-option, -fcatch-undefined-behavior)
-endif
-
-# turn jbsr into jsr for m68k
-ifeq ($(ARCH),m68k)
-ifeq ($(findstring 3.4,$(shell $(CC) --version)),3.4)
-KBUILD_AFLAGS += -Wa,-gstabs,-S
-endif
 endif
 
 # Prohibit date/time macros, which would make the build non-deterministic

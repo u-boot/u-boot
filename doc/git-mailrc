@@ -48,7 +48,7 @@ alias wd             Wolfgang Denk <wd@denx.de>
 alias prabhu_kush    Prabhakar Kushwaha <prabhakar.kushwaha@nxp.com>
 
 # Architecture aliases
-alias arch           arc, arm, m68k, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, x86
+alias arch           arc, arm, microblaze, mips, nds32, nios2, powerpc, sandbox, superh, x86
 alias arches         arch
 
 alias arc            uboot, abrodkin
@@ -74,8 +74,6 @@ alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
 alias rockchip       uboot, sjg, kevery, ptomsich
 
-alias m68k           uboot, alisonwang, angelo_ts
-alias coldfire       m68k
 
 alias microblaze     uboot, monstr
 alias mb             microblaze
@@ -89,10 +87,6 @@ alias nios2          nios
 
 alias powerpc        uboot, afleming, stroese, wd, prabhu_kush, mariosix
 alias ppc            powerpc
-alias mpc8xx         uboot, wd, Christophe Leroy <christophe.leroy@c-s.fr>
-alias mpc83xx        uboot, mariosix
-alias mpc85xx        uboot, afleming, prabhu_kush
-alias mpc86xx        uboot, afleming, prabhu_kush
 
 alias sandbox        sjg
 alias sb             sandbox

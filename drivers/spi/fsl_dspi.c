@@ -17,9 +17,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 #include <fdtdec.h>
-#ifndef CONFIG_M68K
 #include <asm/arch/clock.h>
-#endif
 #include <fsl_dspi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -438,11 +436,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	dspi->priv.regs = (struct dspi *)MMAP_DSPI;
 
-#ifdef CONFIG_M68K
-	dspi->priv.bus_clk = gd->bus_clk;
-#else
 	dspi->priv.bus_clk = mxc_get_clock(MXC_DSPI_CLK);
-#endif
 	dspi->priv.speed_hz = FSL_DSPI_DEFAULT_SCK_FREQ;
 
 	/* default: all CS signals inactive state is high */
@@ -570,11 +564,7 @@ static int fsl_dspi_probe(struct udevice *bus)
 	/* get input clk frequency */
 	priv->regs = (struct dspi *)plat->regs_addr;
 	priv->flags = plat->flags;
-#ifdef CONFIG_M68K
-	priv->bus_clk = gd->bus_clk;
-#else
 	priv->bus_clk = mxc_get_clock(MXC_DSPI_CLK);
-#endif
 	priv->num_chipselect = plat->num_chipselect;
 	priv->speed_hz = plat->speed_hz;
 	/* frame data length in bits, default 8bits */
