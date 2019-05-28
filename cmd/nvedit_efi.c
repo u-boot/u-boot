@@ -373,6 +373,8 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		for ( ; argc > 0; argc--, argv++)
 			if (append_value(&value, &size, argv[0]) < 0) {
+				printf("## Failed to process an argument, %s\n",
+				       argv[0]);
 				ret = CMD_RET_FAILURE;
 				goto out;
 			}
@@ -381,6 +383,7 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	len = utf8_utf16_strnlen(var_name, strlen(var_name));
 	var_name16 = malloc((len + 1) * 2);
 	if (!var_name16) {
+		printf("## Out of memory\n");
 		ret = CMD_RET_FAILURE;
 		goto out;
 	}
@@ -392,7 +395,12 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, value));
-	ret = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
+	if (ret == EFI_SUCCESS) {
+		ret = CMD_RET_SUCCESS;
+	} else {
+		printf("## Failed to set EFI variable\n");
+		ret = CMD_RET_FAILURE;
+	}
 out:
 	free(value);
 	free(var_name16);
