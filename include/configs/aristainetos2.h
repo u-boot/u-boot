@@ -45,9 +45,6 @@
 #define CONFIG_LG4573_BUS 0
 #define CONFIG_LG4573_CS 0
 
-#define CONFIG_PWM_IMX
-#define CONFIG_IMX6_PWM_PER_CLK	66000000
-
 #include "aristainetos-common.h"
 
 #endif                         /* __ARISTAINETOS2_CONFIG_H */

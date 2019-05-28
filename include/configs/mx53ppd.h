@@ -211,7 +211,6 @@
 #define CONFIG_BCH
 
 /* Backlight Control */
-#define CONFIG_PWM_IMX
 #define CONFIG_IMX6_PWM_PER_CLK 66666000
 
 #endif				/* __CONFIG_H */

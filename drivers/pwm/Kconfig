@@ -18,6 +18,11 @@ config PWM_EXYNOS
 	  used. It provides 5 channels which can be independently
 	  programmed. Channel 4 (the last) is normally used as a timer.
 
+config PWM_IMX
+	bool "Enable support for i.MX27 and later PWM"
+	help
+	  This PWM is found i.MX27 and later i.MX SoCs.
+
 config PWM_ROCKCHIP
 	bool "Enable support for the Rockchip PWM"
 	depends on DM_PWM
