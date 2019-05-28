@@ -749,6 +749,27 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 				read_len = SPI_FLASH_16MB_BOUN << flash->shift;
 			else
 				read_len = len;
+
+#ifdef CONFIG_SPI_FLASH_SPLIT_READ
+			/*
+			 * Some flash devices like N25Q512 have multiple dies
+			 * in it and one read transaction across multiple dies
+			 * is not possible. So, split a read transaction that
+			 * spans across multiple banks into one read per bank
+			 * to fix these scenarios.
+			 */
+			u32 bank_size = (SPI_FLASH_16MB_BOUN << flash->shift);
+			u8 cur = offset / bank_size;
+			u8 nxt = (offset + len) / bank_size;
+
+			if (cur != nxt) {
+				remain_len = (bank_size * (cur + 1)) - offset;
+				if (len < remain_len)
+					read_len = len;
+				else
+					read_len = remain_len;
+			}
+#endif
 		}
 
 		if (spi->max_read_size)

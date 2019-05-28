@@ -110,6 +110,15 @@ config SPI_FLASH_XMC
 
 endif
 
+config SPI_FLASH_SPLIT_READ
+	bool "Enable split read transfers"
+	help
+	  Some flash devices have multiple dies stacked together in it and in
+	  such cases a single read that spans across mutiple dies will not work
+	  So, enabling this config option splits a read that was requested across
+	  multiple banks into one read per bank so that it fixes the issue with
+	  a read across multple banks.
+
 config SPI_FLASH_USE_4K_SECTORS
 	bool "Use small 4096 B erase sectors"
 	depends on SPI_FLASH
