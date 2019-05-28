@@ -52,9 +52,6 @@
 #endif /* CONFIG_SPL_OS_BOOT */
 #endif /* CONFIG_NAND */
 
-/* Environment */
-#define CONFIG_PREBOOT                  "usb start"
-
 #define MEM_LAYOUT_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV
 
