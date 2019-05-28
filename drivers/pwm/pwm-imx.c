@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <div64.h>
+#include <dm.h>
 #include <pwm.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
@@ -24,18 +25,12 @@ int pwm_init(int pwm_id, int div, int invert)
 	return 0;
 }
 
-int pwm_config(int pwm_id, int duty_ns, int period_ns)
+int pwm_config_internal(struct pwm_regs *pwm, unsigned long period_cycles,
+			unsigned long duty_cycles, unsigned long prescale)
 {
-	struct pwm_regs *pwm = (struct pwm_regs *)pwm_id_to_reg(pwm_id);
-	unsigned long period_cycles, duty_cycles, prescale;
 	u32 cr;
 
-	if (!pwm)
-		return -1;
-
-	pwm_imx_get_parms(period_ns, duty_ns, &period_cycles, &duty_cycles,
-			  &prescale);
-
+	writel(0, &pwm->ir);
 	cr = PWMCR_PRESCALER(prescale) |
 		PWMCR_DOZEEN | PWMCR_WAITEN |
 		PWMCR_DBGEN | PWMCR_CLKSRC_IPG_HIGH;
@@ -46,6 +41,20 @@ int pwm_config(int pwm_id, int duty_ns, int period_ns)
 	/* set period cycles */
 	writel(period_cycles, &pwm->pr);
 	return 0;
+}
+
+int pwm_config(int pwm_id, int duty_ns, int period_ns)
+{
+	struct pwm_regs *pwm = (struct pwm_regs *)pwm_id_to_reg(pwm_id);
+	unsigned long period_cycles, duty_cycles, prescale;
+
+	if (!pwm)
+		return -1;
+
+	pwm_imx_get_parms(period_ns, duty_ns, &period_cycles, &duty_cycles,
+			  &prescale);
+
+	return pwm_config_internal(pwm, period_cycles, duty_cycles, prescale);
 }
 
 int pwm_enable(int pwm_id)
@@ -68,3 +77,86 @@ void pwm_disable(int pwm_id)
 
 	clrbits_le32(&pwm->cr, PWMCR_EN);
 }
+
+#if defined(CONFIG_DM_PWM)
+struct imx_pwm_priv {
+	struct pwm_regs *regs;
+	bool invert;
+};
+
+static int imx_pwm_set_invert(struct udevice *dev, uint channel,
+			      bool polarity)
+{
+	struct imx_pwm_priv *priv = dev_get_priv(dev);
+
+	debug("%s: polarity=%u\n", __func__, polarity);
+	priv->invert = polarity;
+
+	return 0;
+}
+
+static int imx_pwm_set_config(struct udevice *dev, uint channel,
+			      uint period_ns, uint duty_ns)
+{
+	struct imx_pwm_priv *priv = dev_get_priv(dev);
+	struct pwm_regs *regs = priv->regs;
+	unsigned long period_cycles, duty_cycles, prescale;
+
+	debug("%s: Config '%s' channel: %d\n", __func__, dev->name, channel);
+
+	pwm_imx_get_parms(period_ns, duty_ns, &period_cycles, &duty_cycles,
+			  &prescale);
+
+	return pwm_config_internal(regs, period_cycles, duty_cycles, prescale);
+};
+
+static int imx_pwm_set_enable(struct udevice *dev, uint channel, bool enable)
+{
+	struct imx_pwm_priv *priv = dev_get_priv(dev);
+	struct pwm_regs *regs = priv->regs;
+
+	debug("%s: Enable '%s' state: %d\n", __func__, dev->name, enable);
+
+	if (enable)
+		setbits_le32(&regs->cr, PWMCR_EN);
+	else
+		clrbits_le32(&regs->cr, PWMCR_EN);
+
+	return 0;
+};
+
+static int imx_pwm_ofdata_to_platdata(struct udevice *dev)
+{
+	struct imx_pwm_priv *priv = dev_get_priv(dev);
+
+	priv->regs = (struct pwm_regs *)devfdt_get_addr(dev);
+
+	return 0;
+}
+
+static int imx_pwm_probe(struct udevice *dev)
+{
+	return 0;
+}
+
+static const struct pwm_ops imx_pwm_ops = {
+	.set_invert	= imx_pwm_set_invert,
+	.set_config	= imx_pwm_set_config,
+	.set_enable	= imx_pwm_set_enable,
+};
+
+static const struct udevice_id imx_pwm_ids[] = {
+	{ .compatible = "fsl,imx27-pwm" },
+	{ }
+};
+
+U_BOOT_DRIVER(imx_pwm) = {
+	.name	= "imx_pwm",
+	.id	= UCLASS_PWM,
+	.of_match = imx_pwm_ids,
+	.ops	= &imx_pwm_ops,
+	.ofdata_to_platdata	= imx_pwm_ofdata_to_platdata,
+	.probe		= imx_pwm_probe,
+	.priv_auto_alloc_size	= sizeof(struct imx_pwm_priv),
+};
+#endif
