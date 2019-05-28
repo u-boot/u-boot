@@ -215,11 +215,13 @@ static int omap2430_musb_probe(struct udevice *dev)
 {
 #ifdef CONFIG_USB_MUSB_HOST
 	struct musb_host_data *host = dev_get_priv(dev);
+#else
+	struct musb *musbp;
 #endif
 	struct omap2430_musb_platdata *platdata = dev_get_platdata(dev);
 	struct usb_bus_priv *priv = dev_get_uclass_priv(dev);
 	struct omap_musb_board_data *otg_board_data;
-	int ret;
+	int ret = 0;
 	void *base = dev_read_addr_ptr(dev);
 
 	priv->desc_before_addr = true;
@@ -236,9 +238,11 @@ static int omap2430_musb_probe(struct udevice *dev)
 
 	ret = musb_lowlevel_init(host);
 #else
-	ret = musb_register(&platdata->plat,
+	musbp = musb_register(&platdata->plat,
 			  (struct device *)otg_board_data,
 			  platdata->base);
+	if (IS_ERR_OR_NULL(musbp))
+		return -EINVAL;
 #endif
 	return ret;
 }
