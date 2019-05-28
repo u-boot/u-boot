@@ -1087,6 +1087,10 @@ endif
 
 u-boot.bin: u-boot-fit-dtb.bin FORCE
 	$(call if_changed,copy)
+
+u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
+	$(call if_changed,cat)
+
 else ifeq ($(CONFIG_OF_SEPARATE),y)
 u-boot-dtb.bin: u-boot-nodtb.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)

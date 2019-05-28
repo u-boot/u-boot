@@ -112,7 +112,16 @@ u-boot.imx: MKIMAGEOUTPUT = u-boot.imx.log
 u-boot.imx: u-boot.bin u-boot.cfgout $(PLUGIN).bin FORCE
 	$(call if_changed,mkimage)
 
-ifeq ($(CONFIG_OF_SEPARATE),y)
+ifeq ($(CONFIG_MULTI_DTB_FIT),y)
+MKIMAGEFLAGS_u-boot-dtb.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
+	-T $(IMAGE_TYPE) -e $(CONFIG_SYS_TEXT_BASE)
+u-boot-dtb.imx: MKIMAGEOUTPUT = u-boot-dtb.imx.log
+
+u-boot-dtb.imx: u-boot-fit-dtb.bin u-boot-dtb.cfgout $(PLUGIN).bin FORCE
+ifeq ($(DEPFILE_EXISTS),0)
+	$(call if_changed,mkimage)
+endif
+else ifeq ($(CONFIG_OF_SEPARATE),y)
 MKIMAGEFLAGS_u-boot-dtb.imx = -n $(filter-out $(PLUGIN).bin $< $(PHONY),$^) \
 	-T $(IMAGE_TYPE) -e $(CONFIG_SYS_TEXT_BASE)
 u-boot-dtb.imx: MKIMAGEOUTPUT = u-boot-dtb.imx.log
