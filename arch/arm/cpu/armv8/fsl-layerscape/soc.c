@@ -599,6 +599,9 @@ void fsl_lsch2_early_init_f(void)
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)(CONFIG_SYS_IMMR +
 					CONFIG_SYS_CCI400_OFFSET);
 	struct ccsr_scfg *scfg = (struct ccsr_scfg *)CONFIG_SYS_FSL_SCFG_ADDR;
+#if defined(CONFIG_FSL_QSPI) && defined(CONFIG_TFABOOT)
+	enum boot_src src;
+#endif
 
 #ifdef CONFIG_LAYERSCAPE_NS_ACCESS
 	enable_layerscape_ns_access();
@@ -608,8 +611,14 @@ void fsl_lsch2_early_init_f(void)
 	init_early_memctl_regs();	/* tighten IFC timing */
 #endif
 
+#if defined(CONFIG_FSL_QSPI) && defined(CONFIG_TFABOOT)
+	src = get_boot_src();
+	if (src != BOOT_SOURCE_QSPI_NOR)
+		out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
+#else
 #if defined(CONFIG_FSL_QSPI) && !defined(CONFIG_QSPI_BOOT)
 	out_be32(&scfg->qspi_cfg, SCFG_QSPI_CLKSEL);
+#endif
 #endif
 	/* Make SEC reads and writes snoopable */
 	setbits_be32(&scfg->snpcnfgcr, SCFG_SNPCNFGCR_SECRDSNP |
