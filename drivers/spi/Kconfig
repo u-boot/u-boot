@@ -374,6 +374,7 @@ config KIRKWOOD_SPI
 
 config LPC32XX_SSP
 	bool "LPC32XX SPI Driver"
+	depends on DEPRECATED
 	help
 	  Enable support for SPI on LPC32xx
 
