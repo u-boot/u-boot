@@ -2259,29 +2259,58 @@ static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
 					       void *registration,
 					       void **protocol_interface)
 {
-	struct list_head *lhandle;
+	struct efi_handler *handler;
 	efi_status_t ret;
+	struct efi_object *efiobj;
 
 	EFI_ENTRY("%pUl, %p, %p", protocol, registration, protocol_interface);
 
+	/*
+	 * The UEFI spec explicitly requires a protocol even if a registration
+	 * key is provided. This differs from the logic in LocateHandle().
+	 */
 	if (!protocol || !protocol_interface)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	list_for_each(lhandle, &efi_obj_list) {
-		struct efi_object *efiobj;
-		struct efi_handler *handler;
+	if (registration) {
+		struct efi_register_notify_event *event;
+		struct efi_protocol_notification *handle;
 
-		efiobj = list_entry(lhandle, struct efi_object, link);
-
+		event = efi_check_register_notify_event(registration);
+		if (!event)
+			return EFI_EXIT(EFI_INVALID_PARAMETER);
+		/*
+		 * The UEFI spec requires to return EFI_NOT_FOUND if no
+		 * protocol instance matches protocol and registration.
+		 * So let's do the same for a mismatch between protocol and
+		 * registration.
+		 */
+		if (guidcmp(&event->protocol, protocol))
+			goto not_found;
+		if (list_empty(&event->handles))
+			goto not_found;
+		handle = list_first_entry(&event->handles,
+					  struct efi_protocol_notification,
+					  link);
+		efiobj = handle->handle;
+		list_del(&handle->link);
+		free(handle);
 		ret = efi_search_protocol(efiobj, protocol, &handler);
-		if (ret == EFI_SUCCESS) {
-			*protocol_interface = handler->protocol_interface;
-			return EFI_EXIT(EFI_SUCCESS);
+		if (ret == EFI_SUCCESS)
+			goto found;
+	} else {
+		list_for_each_entry(efiobj, &efi_obj_list, link) {
+			ret = efi_search_protocol(efiobj, protocol, &handler);
+			if (ret == EFI_SUCCESS)
+				goto found;
 		}
 	}
+not_found:
 	*protocol_interface = NULL;
-
 	return EFI_EXIT(EFI_NOT_FOUND);
+found:
+	*protocol_interface = handler->protocol_interface;
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 /**
