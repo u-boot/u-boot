@@ -477,6 +477,7 @@ unsigned clock_start_periph_pll(enum periph_id periph_id,
 
 	reset_set_enable(periph_id, 1);
 	clock_enable(periph_id);
+	udelay(2);
 
 	effective_rate = clock_adjust_periph_pll_div(periph_id, parent, rate,
 						 NULL);

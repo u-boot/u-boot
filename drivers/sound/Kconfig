@@ -71,6 +71,15 @@ config SOUND_IVYBRIDGE
 	  sometimes called Azalia. The audio codec is detected using a
 	  semi-automatic mechanism.
 
+config I2S_TEGRA
+	bool "Enable I2S support for Nvidia Tegra SoCs"
+	depends on I2S
+	select TEGRA124_DMA
+	help
+	  Nvidia Tegra SoCs support several I2S interfaces for sending audio
+	  data to an audio codec. This option enables support for this,
+	  using one of the available audio codec drivers.
+
 config SOUND_MAX98088
 	bool "Support Maxim max98088 audio codec"
 	depends on I2S
