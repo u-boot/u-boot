@@ -62,12 +62,17 @@
 		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
 
 #define SD_BOOTCMD \
-	"sdargs=root=/dev/mmcblk0p2 ro rootwait\0" \
-	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} " \
+	"set_sdargs=setenv sdargs root=PARTUUID=${uuid} ro rootwait\0" \
+	"sdboot=run setup; run sdfinduuid; run set_sdargs; " \
+	"setenv bootargs ${defargs} ${sdargs} " \
 	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
-	"load mmc 0:1 ${kernel_addr_r} ${kernel_file} && " \
-	"load mmc 0:1 ${fdt_addr_r} " FDT_FILE " && " \
+	"load mmc ${sddev}:${sdbootpart} ${kernel_addr_r} ${kernel_file} && " \
+	"load mmc ${sddev}:${sdbootpart} ${fdt_addr_r} " FDT_FILE " && " \
 	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"sdbootpart=1\0" \
+	"sddev=0\0" \
+	"sdfinduuid=part uuid mmc ${sddev}:${sdrootpart} uuid\0" \
+	"sdrootpart=2\0"
 
 #define UBI_BOOTCMD \
 	"ubiargs=ubi.mtd=ubi root=ubi0:rootfs rw rootfstype=ubifs " \
