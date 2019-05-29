@@ -171,8 +171,7 @@ int drv_lcd_init(void)
 void lcd_clear(void)
 {
 	int bg_color;
-	char *s;
-	ulong addr;
+	__maybe_unused ulong addr;
 	static int do_splash = 1;
 #if LCD_BPP == LCD_COLOR8
 	/* Setting the palette */
@@ -222,14 +221,10 @@ void lcd_clear(void)
 	/* Paint the logo and retrieve LCD base address */
 	debug("[LCD] Drawing the logo...\n");
 	if (do_splash) {
-		s = env_get("splashimage");
-		if (s) {
+		if (splash_display() == 0) {
 			do_splash = 0;
-			addr = simple_strtoul(s, NULL, 16);
-			if (lcd_splash(addr) == 0) {
-				lcd_sync();
-				return;
-			}
+			lcd_sync();
+			return;
 		}
 	}
 
