@@ -1,6 +1,0 @@
-IPAM390 BOARD
-M:	Heiko Schocher <hs@denx.de>
-S:	Maintained
-F:	board/Barix/ipam390/
-F:	include/configs/ipam390.h
-F:	configs/ipam390_defconfig

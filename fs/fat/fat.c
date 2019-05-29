@@ -1134,11 +1134,12 @@ int fat_size(const char *filename, loff_t *size)
 		 * expected to fail if passed a directory path:
 		 */
 		free(fsdata.fatbuf);
-		fat_itr_root(itr, &fsdata);
-		if (!fat_itr_resolve(itr, filename, TYPE_DIR)) {
+		ret = fat_itr_root(itr, &fsdata);
+		if (ret)
+			goto out_free_itr;
+		ret = fat_itr_resolve(itr, filename, TYPE_DIR);
+		if (!ret)
 			*size = 0;
-			ret = 0;
-		}
 		goto out_free_both;
 	}
 

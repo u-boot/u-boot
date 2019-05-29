@@ -34,11 +34,6 @@ config TARGET_AM3517_EVM
 	select DM_SERIAL
 	imply CMD_DM
 
-config TARGET_MT_VENTOUX
-	bool "TeeJet Mt.Ventoux"
-	select OMAP3_GPIO_4
-	select OMAP3_GPIO_5 if USB_EHCI_HCD
-
 config TARGET_OMAP3_BEAGLE
 	bool "TI OMAP3 BeagleBoard"
 	select DM
@@ -50,12 +45,6 @@ config TARGET_OMAP3_BEAGLE
 
 config TARGET_CM_T35
 	bool "CompuLab CM-T3530 and CM-T3730 boards"
-	select OMAP3_GPIO_2
-	select OMAP3_GPIO_5
-	select OMAP3_GPIO_6 if LED_STATUS
-
-config TARGET_CM_T3517
-	bool "CompuLab CM-T3517 boards"
 	select OMAP3_GPIO_2
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6 if LED_STATUS
@@ -112,19 +101,9 @@ config TARGET_OMAP3_PANDORA
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_6
 
-config TARGET_ECO5PK
-	bool "ECO5PK"
-	select OMAP3_GPIO_5 if USB_EHCI_HCD
-
 config TARGET_TRICORDER
 	bool "Tricorder"
 	select OMAP3_GPIO_2
-
-config TARGET_MCX
-	bool "MCX"
-	select BOARD_LATE_INIT
-	select OMAP3_GPIO_2 if USB_EHCI_HCD
-	select OMAP3_GPIO_5 if USB_EHCI_HCD
 
 config TARGET_OMAP3_LOGIC
 	bool "OMAP3 Logic"
@@ -147,11 +126,6 @@ config TARGET_TAO3530
 	select OMAP3_GPIO_4
 	select OMAP3_GPIO_5
 	select OMAP3_GPIO_6
-
-config TARGET_TWISTER
-	bool "Twister"
-	select OMAP3_GPIO_2
-	select OMAP3_GPIO_5 if USB_EHCI_HCD
 
 config TARGET_OMAP3_CAIRO
 	bool "QUIPOS CAIRO"
@@ -199,10 +173,8 @@ config SYS_SOC
 	default "omap3"
 
 source "board/logicpd/am3517evm/Kconfig"
-source "board/teejet/mt_ventoux/Kconfig"
 source "board/ti/beagle/Kconfig"
 source "board/compulab/cm_t35/Kconfig"
-source "board/compulab/cm_t3517/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/ti/evm/Kconfig"
 source "board/isee/igep00x0/Kconfig"
@@ -210,13 +182,10 @@ source "board/overo/Kconfig"
 source "board/logicpd/zoom1/Kconfig"
 source "board/ti/am3517crane/Kconfig"
 source "board/pandora/Kconfig"
-source "board/8dtech/eco5pk/Kconfig"
 source "board/corscience/tricorder/Kconfig"
-source "board/htkw/mcx/Kconfig"
 source "board/logicpd/omap3som/Kconfig"
 source "board/nokia/rx51/Kconfig"
 source "board/technexion/tao3530/Kconfig"
-source "board/technexion/twister/Kconfig"
 source "board/quipos/cairo/Kconfig"
 source "board/lg/sniper/Kconfig"
 

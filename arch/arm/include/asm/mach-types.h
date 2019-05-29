@@ -629,7 +629,6 @@
 #define MACH_TYPE_ECIA                 623
 #define MACH_TYPE_CM4008               624
 #define MACH_TYPE_P2001                625
-#define MACH_TYPE_TWISTER              626
 #define MACH_TYPE_MUDSHARK             627
 #define MACH_TYPE_HB2                  628
 #define MACH_TYPE_IQ80332              629
@@ -2716,7 +2715,6 @@
 #define MACH_TYPE_VPNEXT_MPU           2747
 #define MACH_TYPE_BCMRING_TABLET_V1    2748
 #define MACH_TYPE_SGARM10              2749
-#define MACH_TYPE_CM_T3517             2750
 #define MACH_TYPE_OMAP3_CPS            2751
 #define MACH_TYPE_AXAR1500_RECEIVER    2752
 #define MACH_TYPE_WBD222               2753
@@ -2960,7 +2958,6 @@
 #define MACH_TYPE_AX8008               2999
 #define MACH_TYPE_GNET_SGCE            3000
 #define MACH_TYPE_PXWNAS_500_1000      3001
-#define MACH_TYPE_EA20                 3002
 #define MACH_TYPE_AWM2                 3003
 #define MACH_TYPE_TI8148EVM            3004
 #define MACH_TYPE_SEABOARD             3005
@@ -3475,7 +3472,6 @@
 #define MACH_TYPE_SGH_I710             3525
 #define MACH_TYPE_INTEGREPROSCB        3526
 #define MACH_TYPE_MONZA                3527
-#define MACH_TYPE_CALIMAIN             3528
 #define MACH_TYPE_MX6Q_SABREAUTO       3529
 #define MACH_TYPE_GMA01X               3530
 #define MACH_TYPE_SBC51                3531
@@ -3600,7 +3596,6 @@
 #define MACH_TYPE_TAISHAN              3653
 #define MACH_TYPE_TOUCHLINK            3654
 #define MACH_TYPE_STM32F103ZE          3655
-#define MACH_TYPE_MCX                  3656
 #define MACH_TYPE_STM_NMHDK_FLI7610    3657
 #define MACH_TYPE_TOP28X               3658
 #define MACH_TYPE_OKL4VP_MICROVISOR    3659
@@ -3775,7 +3770,6 @@
 #define MACH_TYPE_IMXT_NAV             3829
 #define MACH_TYPE_IMXT_FULL            3830
 #define MACH_TYPE_AG09015              3831
-#define MACH_TYPE_AM3517_MT_VENTOUX    3832
 #define MACH_TYPE_DP1ARM9              3833
 #define MACH_TYPE_PICASSO_M            3834
 #define MACH_TYPE_VIDEO_GADGET         3835

@@ -1,7 +1,0 @@
-CALIMAIN BOARD
-M:	Manfred Rudigier <manfred.rudigier@omicronenergy.com>
-M:	Christoph Rüdisser <christoph.ruedisser@omicronenergy.com>
-S:	Maintained
-F:	board/omicron/calimain/
-F:	include/configs/calimain.h
-F:	configs/calimain_defconfig
