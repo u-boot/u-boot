@@ -1389,6 +1389,27 @@ static int efi_search(enum efi_locate_search_type search_type,
 }
 
 /**
+ * efi_check_register_notify_event() - check if registration key is valid
+ *
+ * Check that a pointer is a valid registration key as returned by
+ * RegisterProtocolNotify().
+ *
+ * @key:	registration key
+ * Return:	valid registration key or NULL
+ */
+static struct efi_register_notify_event *efi_check_register_notify_event
+								(void *key)
+{
+	struct efi_register_notify_event *event;
+
+	list_for_each_entry(event, &efi_register_notify_events, link) {
+		if (event == (struct efi_register_notify_event *)key)
+			return event;
+	}
+	return NULL;
+}
+
+/**
  * efi_locate_handle() - locate handles implementing a protocol
  *
  * @search_type:	selection criterion
@@ -1409,7 +1430,7 @@ static efi_status_t efi_locate_handle(
 {
 	struct efi_object *efiobj;
 	efi_uintn_t size = 0;
-	struct efi_register_notify_event *item, *event = NULL;
+	struct efi_register_notify_event *event;
 	struct efi_protocol_notification *handle = NULL;
 
 	/* Check parameters */
@@ -1420,13 +1441,7 @@ static efi_status_t efi_locate_handle(
 		if (!search_key)
 			return EFI_INVALID_PARAMETER;
 		/* Check that the registration key is valid */
-		list_for_each_entry(item, &efi_register_notify_events, link) {
-			if (item ==
-			    (struct efi_register_notify_event *)search_key) {
-				event = item;
-				break;
-			}
-		}
+		event = efi_check_register_notify_event(search_key);
 		if (!event)
 			return EFI_INVALID_PARAMETER;
 		break;
