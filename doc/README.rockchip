@@ -173,7 +173,10 @@ For example:
      => make u-boot.itb
 
      (Get spl/u-boot-spl-dtb.bin, u-boot.itb images and some boards would get
-      spl/u-boot-spl.bin since it doesn't enable CONFIG_SPL_OF_CONTROL)
+      spl/u-boot-spl.bin since it doesn't enable CONFIG_SPL_OF_CONTROL
+
+      If TPL enabled on the target, get tpl/u-boot-tpl-dtb.bin or tpl/u-boot-tpl.bin
+      if CONFIG_TPL_OF_CONTROL not enabled)
 
 Writing to the board with USB
 =============================
@@ -442,6 +445,52 @@ Trying to boot from MMC1
 
 
 U-Boot 2019.01-00004-g14db5ee998 (Mar 11 2019 - 13:18:41 +0530)
+
+Model: Orange Pi RK3399 Board
+DRAM:  2 GiB
+MMC:   dwmmc@fe310000: 2, dwmmc@fe320000: 1, sdhci@fe330000: 0
+Loading Environment from MMC... OK
+In:    serial@ff1a0000
+Out:   serial@ff1a0000
+Err:   serial@ff1a0000
+Model: Orange Pi RK3399 Board
+Net:   eth0: ethernet@fe300000
+Hit any key to stop autoboot:  0
+=>
+
+Option 3: Package the image with TPL:
+
+  - Prefix rk3399 header to TPL image
+
+    => cd /path/to/u-boot
+    => ./tools/mkimage -n rk3399 -T rksd -d tpl/u-boot-tpl-dtb.bin out
+
+  - Concatinate tpl with spl
+
+    => cd /path/to/u-boot
+    => cat ./spl/u-boot-spl-dtb.bin >> out
+
+  - Write tpl+spl at 64th sector
+
+    => sudo dd if=out of=/dev/sdc seek=64
+
+  - Write U-Boot proper at 16384 sector
+
+    => sudo dd if=u-boot.itb of=/dev/sdc seek=16384
+    => sync
+
+Put this SD (or micro-SD) card into your board and reset it. You should see
+something like:
+
+U-Boot TPL board init
+Trying to boot from BOOTROM
+Returning to boot ROM...
+
+U-Boot SPL board init
+Trying to boot from MMC1
+
+
+U-Boot 2019.07-rc1-00241-g5b3244767a (May 08 2019 - 10:51:06 +0530)
 
 Model: Orange Pi RK3399 Board
 DRAM:  2 GiB
