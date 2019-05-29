@@ -928,6 +928,9 @@ cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 		$(srctree)/scripts/config_whitelist.txt $(srctree)
 
 all:		$(ALL-y)
+ifeq ($(CONFIG_DEPRECATED),y)
+	$(warning "You have deprecated configuration options enabled in your .config! Please check your configuration.")
+endif
 ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
 	@echo >&2 "===================== WARNING ======================"
 	@echo >&2 "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
