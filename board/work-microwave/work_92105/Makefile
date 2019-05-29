@@ -6,5 +6,6 @@
 ifdef CONFIG_SPL_BUILD
 obj-y	+= work_92105_spl.o
 else
-obj-y	+= work_92105.o work_92105_display.o
+obj-y	+= work_92105.o
+obj-$(CONFIG_DEPRECATED) += work_92105_display.o
 endif
