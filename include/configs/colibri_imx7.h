@@ -49,14 +49,22 @@
 #define CONFIG_SERVERIP			192.168.10.1
 
 #define EMMC_BOOTCMD \
-	"emmcargs=ip=off root=/dev/mmcblk0p2 ro rootfstype=ext4 rootwait\0" \
-	"emmcboot=run setup; " \
+	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} ro " \
+		"rootfstype=ext4 rootwait\0" \
+	"emmcboot=run setup; run emmcfinduuid; run set_emmcargs; " \
 		"setenv bootargs ${defargs} ${emmcargs} ${setupargs} " \
 		"${vidargs}; echo Booting from internal eMMC chip...; " \
 		"run m4boot && " \
-		"load mmc 0:1 ${fdt_addr_r} ${soc}-colibri-emmc-${fdt_board}.dtb && " \
-		"load mmc 0:1 ${kernel_addr_r} ${boot_file} && " \
-		"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0"
+		"load mmc ${emmcdev}:${emmcbootpart} ${fdt_addr_r} " \
+		"${soc}-colibri-emmc-${fdt_board}.dtb && " \
+		"load mmc ${emmcdev}:${emmcbootpart} ${kernel_addr_r} " \
+		"${boot_file} && run fdt_fixup && " \
+		"bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"emmcbootpart=1\0" \
+	"emmcdev=0\0" \
+	"emmcfinduuid=part uuid mmc ${emmcdev}:${emmcrootpart} uuid\0" \
+	"emmcrootpart=2\0"
+
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
@@ -67,24 +75,25 @@
 	"ramdisk_addr_r=0x82100000\0"
 
 #if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)
-#define SD_BOOTCMD \
-	"sdargs=root=/dev/mmcblk0p2 ro rootwait\0" \
-	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} " \
-	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
-	"run m4boot && " \
-	"load mmc 0:1 ${kernel_addr_r} ${kernel_file} && " \
-	"load mmc 0:1 ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
-	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0"
+#define SD_BOOTDEV 0
 #elif defined(CONFIG_TARGET_COLIBRI_IMX7_EMMC)
+#define SD_BOOTDEV 1
+#endif
+
 #define SD_BOOTCMD \
-	"sdargs=root=/dev/mmcblk1p2 ro rootwait\0" \
-	"sdboot=run setup; setenv bootargs ${defargs} ${sdargs} " \
+	"set_sdargs=setenv sdargs root=PARTUUID=${uuid} ro rootwait\0" \
+	"sdboot=run setup; run sdfinduuid; run set_sdargs; " \
+	"setenv bootargs ${defargs} ${sdargs} " \
 	"${setupargs} ${vidargs}; echo Booting from MMC/SD card...; " \
 	"run m4boot && " \
-	"load mmc 1:1 ${kernel_addr_r} ${kernel_file} && " \
-	"load mmc 1:1 ${fdt_addr_r} ${soc}-colibri-${fdt_board}.dtb && " \
-	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0"
-#endif
+	"load mmc ${sddev}:${sdbootpart} ${kernel_addr_r} ${kernel_file} && " \
+	"load mmc ${sddev}:${sdbootpart} ${fdt_addr_r} " \
+	"${soc}-colibri-${fdt_board}.dtb && " \
+	"run fdt_fixup && bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"sdbootpart=1\0" \
+	"sddev=" __stringify(SD_BOOTDEV) "\0" \
+	"sdfinduuid=part uuid mmc ${sddev}:${sdrootpart} uuid\0" \
+	"sdrootpart=2\0"
 
 
 #define NFS_BOOTCMD \
