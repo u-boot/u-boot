@@ -383,6 +383,7 @@ config MXC_SPI
 
 config MXS_SPI
 	bool "MXS SPI Driver"
+	depends on DEPRECATED
 	help
 	  Enable the MXS SPI controller driver. This driver can be used
 	  on the i.MX23 and i.MX28 SoCs.
