@@ -354,6 +354,7 @@ config DAVINCI_SPI
 
 config SH_SPI
 	bool "SuperH SPI driver"
+	depends on DEPRECATED
 	help
 	  Enable the SuperH SPI controller driver. This driver can be used
 	  on various SuperH SoCs, such as SH7757.
