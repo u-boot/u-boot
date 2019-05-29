@@ -1035,11 +1035,13 @@ config CMD_SDRAM
 
 config CMD_SF
 	bool "sf"
+	depends on DM_SPI_FLASH || SPI_FLASH
 	help
 	  SPI Flash support
 
 config CMD_SF_TEST
 	bool "sf test - Allow testing of SPI flash"
+	depends on CMD_SF
 	help
 	  Provides a way to test that SPI flash is working correctly. The
 	  test is destructive, in that an area of SPI flash must be provided
@@ -1051,6 +1053,7 @@ config CMD_SF_TEST
 
 config CMD_SPI
 	bool "sspi - Command to access spi device"
+	depends on SPI
 	help
 	  SPI utility command.
 

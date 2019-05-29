@@ -101,6 +101,7 @@ config SANDBOX
 	imply CMD_IOTRACE
 	imply CMD_LZMADEC
 	imply CMD_SATA
+	imply CMD_SF
 	imply CMD_SF_TEST
 	imply CRC32_VERIFY
 	imply FAT_WRITE
@@ -147,6 +148,7 @@ config X86
 	imply CMD_IO
 	imply CMD_IRQ
 	imply CMD_PCI
+	imply CMD_SF
 	imply CMD_SF_TEST
 	imply CMD_ZBOOT
 	imply DM_ETH
