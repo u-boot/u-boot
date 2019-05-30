@@ -2637,15 +2637,23 @@ static efi_status_t efi_protocol_open(
 			if ((attributes & EFI_OPEN_PROTOCOL_BY_DRIVER) &&
 			    (item->info.attributes == attributes))
 				return EFI_ALREADY_STARTED;
+		} else {
+			if (item->info.attributes &
+			    EFI_OPEN_PROTOCOL_BY_DRIVER)
+				opened_by_driver = true;
 		}
 		if (item->info.attributes & EFI_OPEN_PROTOCOL_EXCLUSIVE)
 			opened_exclusive = true;
 	}
 
 	/* Only one controller can open the protocol exclusively */
-	if (opened_exclusive && attributes &
-	    (EFI_OPEN_PROTOCOL_EXCLUSIVE | EFI_OPEN_PROTOCOL_BY_DRIVER))
-		return EFI_ACCESS_DENIED;
+	if (attributes & EFI_OPEN_PROTOCOL_EXCLUSIVE) {
+		if (opened_exclusive)
+			return EFI_ACCESS_DENIED;
+	} else if (attributes & EFI_OPEN_PROTOCOL_BY_DRIVER) {
+		if (opened_exclusive || opened_by_driver)
+			return EFI_ACCESS_DENIED;
+	}
 
 	/* Prepare exclusive opening */
 	if (attributes & EFI_OPEN_PROTOCOL_EXCLUSIVE) {
