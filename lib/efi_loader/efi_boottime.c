@@ -2658,21 +2658,29 @@ static efi_status_t efi_protocol_open(
 	/* Prepare exclusive opening */
 	if (attributes & EFI_OPEN_PROTOCOL_EXCLUSIVE) {
 		/* Try to disconnect controllers */
+disconnect_next:
+		opened_by_driver = false;
 		list_for_each_entry(item, &handler->open_infos, link) {
+			efi_status_t ret;
+
 			if (item->info.attributes ==
-					EFI_OPEN_PROTOCOL_BY_DRIVER)
-				EFI_CALL(efi_disconnect_controller(
+					EFI_OPEN_PROTOCOL_BY_DRIVER) {
+				ret = EFI_CALL(efi_disconnect_controller(
 						item->info.controller_handle,
 						item->info.agent_handle,
 						NULL));
+				if (ret == EFI_SUCCESS)
+					/*
+					 * Child controllers may have been
+					 * removed from the open_infos list. So
+					 * let's restart the loop.
+					 */
+					goto disconnect_next;
+				else
+					opened_by_driver = true;
+			}
 		}
-		opened_by_driver = false;
-		/* Check if all controllers are disconnected */
-		list_for_each_entry(item, &handler->open_infos, link) {
-			if (item->info.attributes & EFI_OPEN_PROTOCOL_BY_DRIVER)
-				opened_by_driver = true;
-		}
-		/* Only one controller can be connected */
+		/* Only one driver can be connected */
 		if (opened_by_driver)
 			return EFI_ACCESS_DENIED;
 	}
