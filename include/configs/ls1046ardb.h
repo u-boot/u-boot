@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Freescale Semiconductor
+ * Copyright 2019 NXP
  */
 
 #ifndef __LS1046ARDB_H__
@@ -162,6 +163,8 @@
 #define CONFIG_ENV_SIZE			0x2000		/* 8KB */
 #define CONFIG_ENV_OFFSET		0x500000	/* 5MB */
 #define CONFIG_ENV_SECT_SIZE		0x40000		/* 256KB */
+#define CONFIG_SYS_FSL_QSPI_BASE        0x40000000
+#define CONFIG_ENV_ADDR CONFIG_SYS_FSL_QSPI_BASE + CONFIG_ENV_OFFSET
 #else
 #if defined(CONFIG_SD_BOOT)
 #define CONFIG_SYS_MMC_ENV_DEV		0
