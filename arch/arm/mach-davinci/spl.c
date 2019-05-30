@@ -31,9 +31,12 @@ void putc(char c)
 }
 #endif /* CONFIG_SPL_LIBCOMMON_SUPPORT */
 
-void spl_board_init(void)
+void board_init_f(ulong dummy)
 {
 	arch_cpu_init();
+
+	spl_early_init();
+
 	preloader_console_init();
 }
 
