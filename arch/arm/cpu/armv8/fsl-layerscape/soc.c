@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2014-2015 Freescale Semiconductor
+ * Copyright 2019 NXP
  */
 
 #include <common.h>
@@ -823,7 +824,11 @@ int board_late_init(void)
 	 * check if gd->env_addr is default_environment; then setenv bootcmd
 	 * and mcinitcmd.
 	 */
+#if !defined(CONFIG_ENV_ADDR) || defined(ENV_IS_EMBEDDED)
+	if (gd->env_addr == (ulong)&default_environment[0]) {
+#else
 	if (gd->env_addr + gd->reloc_off == (ulong)&default_environment[0]) {
+#endif
 		fsl_setenv_bootcmd();
 		fsl_setenv_mcinitcmd();
 	}
