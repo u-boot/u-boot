@@ -1260,10 +1260,6 @@ static efi_status_t efi_uninstall_protocol
 		goto out;
 	/* Disconnect controllers */
 	efi_disconnect_all_drivers(efiobj, protocol, NULL);
-	if (!list_empty(&handler->open_infos)) {
-		r =  EFI_ACCESS_DENIED;
-		goto out;
-	}
 	/* Close protocol */
 	list_for_each_entry_safe(item, pos, &handler->open_infos, link) {
 		if (item->info.attributes ==
