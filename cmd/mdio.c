@@ -54,7 +54,10 @@ static int mdio_write_ranges(struct mii_dev *bus,
 
 		for (devad = devadlo; devad <= devadhi; devad++) {
 			for (reg = reglo; reg <= reghi; reg++) {
-				if (!extended)
+				if (!phydev)
+					err = bus->write(bus, addr, devad,
+							 reg, data);
+				else if (!extended)
 					err = phy_write_mmd(phydev, devad,
 							    reg, data);
 				else
@@ -88,7 +91,9 @@ static int mdio_read_ranges(struct mii_dev *bus,
 			for (reg = reglo; reg <= reghi; reg++) {
 				int val;
 
-				if (!extended)
+				if (!phydev)
+					val = bus->read(bus, addr, devad, reg);
+				else if (!extended)
 					val = phy_read_mmd(phydev, devad, reg);
 				else
 					val = phydev->drv->readext(phydev, addr,
