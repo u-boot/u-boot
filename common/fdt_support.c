@@ -1292,6 +1292,12 @@ u64 fdt_translate_address(const void *blob, int node_offset,
 	return __of_translate_address(blob, node_offset, in_addr, "ranges");
 }
 
+u64 fdt_translate_dma_address(const void *blob, int node_offset,
+			      const fdt32_t *in_addr)
+{
+	return __of_translate_address(blob, node_offset, in_addr, "dma-ranges");
+}
+
 /**
  * fdt_node_offset_by_compat_reg: Find a node that matches compatiable and
  * who's reg property matches a physical cpu address

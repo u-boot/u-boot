@@ -756,6 +756,10 @@
 			  3 0x300 0xB000 0x1000
 			 >;
 
+		dma-ranges = <0 0x000 0x10000000 0x1000
+			      1 0x100 0x20000000 0x1000
+			     >;
+
 		dev@0,0 {
 			compatible = "denx,u-boot-fdt-dummy";
 			reg = <0 0x0 0x1000>;

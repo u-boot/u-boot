@@ -499,7 +499,7 @@ int dev_read_resource_byname(struct udevice *dev, const char *name,
 			     struct resource *res);
 
 /**
- * dev_translate_address() - Tranlate a device-tree address
+ * dev_translate_address() - Translate a device-tree address
  *
  * Translate an address from the device-tree into a CPU physical address.  This
  * function walks up the tree and applies the various bus mappings along the
@@ -510,6 +510,19 @@ int dev_read_resource_byname(struct udevice *dev, const char *name,
  * @return the translated address; OF_BAD_ADDR on error
  */
 u64 dev_translate_address(struct udevice *dev, const fdt32_t *in_addr);
+
+/**
+ * dev_translate_dma_address() - Translate a device-tree DMA address
+ *
+ * Translate a DMA address from the device-tree into a CPU physical address.
+ * This function walks up the tree and applies the various bus mappings along
+ * the way.
+ *
+ * @dev: device giving the context in which to translate the DMA address
+ * @in_addr: pointer to the DMA address to translate
+ * @return the translated DMA address; OF_BAD_ADDR on error
+ */
+u64 dev_translate_dma_address(struct udevice *dev, const fdt32_t *in_addr);
 
 /**
  * dev_read_alias_highest_id - Get highest alias id for the given stem
@@ -749,6 +762,11 @@ static inline int dev_read_resource_byname(struct udevice *dev,
 static inline u64 dev_translate_address(struct udevice *dev, const fdt32_t *in_addr)
 {
 	return ofnode_translate_address(dev_ofnode(dev), in_addr);
+}
+
+static inline u64 dev_translate_dma_address(struct udevice *dev, const fdt32_t *in_addr)
+{
+	return ofnode_translate_dma_address(dev_ofnode(dev), in_addr);
 }
 
 static inline int dev_read_alias_highest_id(const char *stem)
