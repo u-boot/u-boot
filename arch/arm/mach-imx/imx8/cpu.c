@@ -623,8 +623,10 @@ static ulong imx8_get_cpu_rate(void)
 {
 	ulong rate;
 	int ret;
+	int type = is_cortex_a35() ? SC_R_A35 : is_cortex_a53() ?
+		   SC_R_A53 : SC_R_A72;
 
-	ret = sc_pm_get_clock_rate(-1, SC_R_A35, SC_PM_CLK_CPU,
+	ret = sc_pm_get_clock_rate(-1, type, SC_PM_CLK_CPU,
 				   (sc_pm_clock_rate_t *)&rate);
 	if (ret) {
 		printf("Could not read CPU frequency: %d\n", ret);
