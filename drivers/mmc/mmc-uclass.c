@@ -427,10 +427,6 @@ U_BOOT_DRIVER(mmc_blk) = {
 };
 #endif /* CONFIG_BLK */
 
-U_BOOT_DRIVER(mmc) = {
-	.name	= "mmc",
-	.id	= UCLASS_MMC,
-};
 
 UCLASS_DRIVER(mmc) = {
 	.id		= UCLASS_MMC,
