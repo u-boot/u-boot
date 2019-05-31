@@ -45,32 +45,73 @@ struct dm_rproc_uclass_pdata {
 };
 
 /**
- * struct dm_rproc_ops - Operations that are provided by remote proc driver
- * @init:	Initialize the remoteproc device invoked after probe (optional)
- *		Return 0 on success, -ve error on fail
- * @load:	Load the remoteproc device using data provided(mandatory)
- *		This takes the following additional arguments.
- *			addr- Address of the binary image to be loaded
- *			size- Size of the binary image to be loaded
- *		Return 0 on success, -ve error on fail
- * @start:	Start the remoteproc device (mandatory)
- *		Return 0 on success, -ve error on fail
- * @stop:	Stop the remoteproc device (optional)
- *		Return 0 on success, -ve error on fail
- * @reset:	Reset the remote proc device (optional)
- *		Return 0 on success, -ve error on fail
- * @is_running:	Check if the remote processor is running(optional)
- *		Return 0 on success, 1 if not running, -ve on others errors
- * @ping:	Ping the remote device for basic communication check(optional)
- *		Return 0 on success, 1 if not responding, -ve on other errors
+ * struct dm_rproc_ops - Driver model remote proc operations.
+ *
+ * This defines the operations provided by remote proc driver.
  */
 struct dm_rproc_ops {
+	/**
+	 * init() - Initialize the remoteproc device (optional)
+	 *
+	 * This is called after the probe is completed allowing the remote
+	 * processor drivers to split up the initializations between probe and
+	 * init if needed.
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*init)(struct udevice *dev);
+
+	/**
+	 * load() - Load the remoteproc device using data provided (mandatory)
+	 *
+	 * Load the remoteproc device with an image, do not start the device.
+	 *
+	 * @dev:	Remote proc device
+	 * @addr:	Address of the image to be loaded
+	 * @size:	Size of the image to be loaded
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*load)(struct udevice *dev, ulong addr, ulong size);
+
+	/**
+	 * start() - Start the remoteproc device (mandatory)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*start)(struct udevice *dev);
+
+	/**
+	 * stop() - Stop the remoteproc device (optional)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*stop)(struct udevice *dev);
+
+	/**
+	 * reset() - Reset the remoteproc device (optional)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if all ok, else appropriate error value.
+	 */
 	int (*reset)(struct udevice *dev);
+
+	/**
+	 * is_running() - Check if the remote processor is running (optional)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 if running, 1 if not running, -ve on error.
+	 */
 	int (*is_running)(struct udevice *dev);
+
+	/**
+	 * ping() - Ping the remote device for basic communication (optional)
+	 *
+	 * @dev:	Remote proc device
+	 * @return 0 on success, 1 if not responding, -ve on other errors.
+	 */
 	int (*ping)(struct udevice *dev);
 };
 
@@ -80,23 +121,20 @@ struct dm_rproc_ops {
 #ifdef CONFIG_REMOTEPROC
 /**
  * rproc_init() - Initialize all bound remote proc devices
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_init(void);
 
 /**
  * rproc_dev_init() - Initialize a remote proc device based on id
  * @id:		id of the remote processor
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_dev_init(int id);
 
 /**
  * rproc_is_initialized() - check to see if remoteproc devices are initialized
- *
- * Return: 0 if all devices are initialized, else appropriate error value.
+ * @return true if all devices are initialized, false otherwise.
  */
 bool rproc_is_initialized(void);
 
@@ -105,55 +143,49 @@ bool rproc_is_initialized(void);
  * @id:		id of the remote processor
  * @addr:	address in memory where the binary image is located
  * @size:	size of the binary image
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_load(int id, ulong addr, ulong size);
 
 /**
  * rproc_start() - Start a remote processor
  * @id:		id of the remote processor
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_start(int id);
 
 /**
  * rproc_stop() - Stop a remote processor
  * @id:		id of the remote processor
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_stop(int id);
 
 /**
  * rproc_reset() - reset a remote processor
  * @id:		id of the remote processor
- *
- * Return: 0 if all ok, else appropriate error value.
+ * @return 0 if all ok, else appropriate error value.
  */
 int rproc_reset(int id);
 
 /**
  * rproc_ping() - ping a remote processor to check if it can communicate
  * @id:		id of the remote processor
+ * @return 0 if all ok, else appropriate error value.
  *
  * NOTE: this might need communication path available, which is not implemented
  * as part of remoteproc framework - hook on to appropriate bus architecture to
  * do the same
- *
- * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_ping(int id);
 
 /**
  * rproc_is_running() - check to see if remote processor is running
  * @id:		id of the remote processor
+ * @return 0 if running, 1 if not running, -ve on error.
  *
  * NOTE: this may not involve actual communication capability of the remote
  * processor, but just ensures that it is out of reset and executing code.
- *
- * Return: 0 if all ok, else appropriate error value.
  */
 int rproc_is_running(int id);
 #else
