@@ -22,6 +22,10 @@
 		ethernet0 = &fec1;
 		ethernet1 = &fec2;
 		serial0 = &lpuart0;
+		serial1 = &lpuart1;
+		serial2 = &lpuart2;
+		serial3 = &lpuart3;
+		serial4 = &lpuart4;
 		mmc0 = &usdhc1;
 		mmc1 = &usdhc2;
 		mmc2 = &usdhc3;
@@ -193,6 +197,30 @@
 				power-domains = <&pd_dma>;
 				wakeup-irq = <345>;
 			};
+			pd_dma_lpuart1: PD_DMA_UART1 {
+				reg = <SC_R_UART_1>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+				wakeup-irq = <346>;
+			};
+			pd_dma_lpuart2: PD_DMA_UART2 {
+				reg = <SC_R_UART_2>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+				wakeup-irq = <347>;
+			};
+			pd_dma_lpuart3: PD_DMA_UART3 {
+				reg = <SC_R_UART_3>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+				wakeup-irq = <348>;
+			};
+			pd_dma_lpuart4: PD_DMA_UART4 {
+				reg = <SC_R_UART_4>;
+				#power-domain-cells = <0>;
+				power-domains = <&pd_dma>;
+				wakeup-irq = <349>;
+			};
 		};
 	};
 
@@ -294,6 +322,58 @@
 		assigned-clocks = <&clk IMX8QM_UART0_CLK>;
 		assigned-clock-rates = <80000000>;
 		power-domains = <&pd_dma_lpuart0>;
+		status = "disabled";
+	};
+
+	lpuart1: serial@5a070000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a070000 0x0 0x1000>;
+		interrupts = <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QM_UART1_CLK>,
+			 <&clk IMX8QM_UART1_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QM_UART1_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart1>;
+		status = "disabled";
+	};
+
+	lpuart2: serial@5a080000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a080000 0x0 0x1000>;
+		interrupts = <GIC_SPI 347 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QM_UART2_CLK>,
+			 <&clk IMX8QM_UART2_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QM_UART2_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart2>;
+		status = "disabled";
+	};
+
+	lpuart3: serial@5a090000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a090000 0x0 0x1000>;
+		interrupts = <GIC_SPI 348 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QM_UART3_CLK>,
+			 <&clk IMX8QM_UART3_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QM_UART3_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart3>;
+		status = "disabled";
+	};
+
+	lpuart4: serial@5a0a0000 {
+		compatible = "fsl,imx8qm-lpuart";
+		reg = <0x0 0x5a0a0000 0x0 0x1000>;
+		interrupts = <GIC_SPI 349 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk IMX8QM_UART4_CLK>,
+			 <&clk IMX8QM_UART4_IPG_CLK>;
+		clock-names = "per", "ipg";
+		assigned-clocks = <&clk IMX8QM_UART4_CLK>;
+		assigned-clock-rates = <80000000>;
+		power-domains = <&pd_dma_lpuart4>;
 		status = "disabled";
 	};
 
