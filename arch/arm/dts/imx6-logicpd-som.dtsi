@@ -1,16 +1,6 @@
-/*
- * Copyright 2018 Logic PD
- * This file is adapted from imx6qdl-sabresd.dtsi.
- * Copyright 2012 Freescale Semiconductor, Inc.
- * Copyright 2011 Linaro Ltd.
- *
- * The code contained herein is licensed under the GNU General Public
- * License. You may obtain a copy of the GNU General Public License
- * Version 2 or later at the following locations:
- *
- * http://www.opensource.org/licenses/gpl-license.html
- * http://www.gnu.org/copyleft/gpl.html
- */
+// SPDX-License-Identifier: GPL-2.0
+//
+// Copyright (C) 2019 Logic PD, Inc.
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
@@ -20,7 +10,8 @@
 		stdout-path = &uart1;
 	};
 
-	memory {
+	memory@10000000 {
+		device_type = "memory";
 		reg = <0x10000000 0x80000000>;
 	};
 
@@ -35,17 +26,6 @@
 	};
 };
 
-/* Reroute power feeding the CPU to come from the external PMIC */
-&reg_arm
-{
-	vin-supply = <&sw1a_reg>;
-};
-
-&reg_soc
-{
-	vin-supply = <&sw1c_reg>;
-};
-
 &clks {
 	assigned-clocks = <&clks IMX6QDL_CLK_LDB_DI0_SEL>,
 			  <&clks IMX6QDL_CLK_LDB_DI1_SEL>;
@@ -56,8 +36,8 @@
 &gpmi {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_gpmi_nand>;
-	status = "okay";
 	nand-on-flash-bbt;
+	status = "okay";
 };
 
 &i2c3 {
@@ -66,7 +46,7 @@
 	pinctrl-0 = <&pinctrl_i2c3>;
 	status = "okay";
 
-	pmic: pfuze100@08 {
+	pfuze100: pmic@8 {
 		compatible = "fsl,pfuze100";
 		reg = <0x08>;
 
@@ -94,20 +74,19 @@
 				regulator-max-microvolt = <3300000>;
 				regulator-name = "gen_3v3";
 				regulator-boot-on;
-				/* regulator-always-on; */
 			};
 
 			sw3a_reg: sw3a {
-				regulator-min-microvolt = <400000>;
-				regulator-max-microvolt = <1975000>;
+				regulator-min-microvolt = <1350000>;
+				regulator-max-microvolt = <1350000>;
 				regulator-name = "sw3a_vddr";
 				regulator-boot-on;
 				regulator-always-on;
 			};
 
 			sw3b_reg: sw3b {
-				regulator-min-microvolt = <400000>;
-				regulator-max-microvolt = <1975000>;
+				regulator-min-microvolt = <1350000>;
+				regulator-max-microvolt = <1350000>;
 				regulator-name = "sw3b_vddr";
 				regulator-boot-on;
 				regulator-always-on;
@@ -152,8 +131,8 @@
 
 			vgen3_reg: vgen3 {
 				regulator-name = "gen_vadj_0";
-				regulator-min-microvolt = <3000000>;
-				regulator-max-microvolt = <3000000>;
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <3300000>;
 			};
 
 			vgen4_reg: vgen4 {
@@ -164,8 +143,8 @@
 			};
 
 			vgen5_reg: vgen5 {
-				regulator-name = "gen_adj_1";
-				regulator-min-microvolt = <3300000>;
+				regulator-name = "gen_vadj_1";
+				regulator-min-microvolt = <1800000>;
 				regulator-max-microvolt = <3300000>;
 				regulator-always-on;
 			};
@@ -185,7 +164,15 @@
 		};
 	};
 
-	temp_sense0: tmp102@4a {
+	temperature-sensor@49 {
+		compatible = "ti,tmp102";
+		reg = <0x49>;
+		interrupt-parent = <&gpio6>;
+		interrupts = <15 IRQ_TYPE_LEVEL_LOW>;
+		#thermal-sensor-cells = <1>;
+	};
+
+	temperature-sensor@4a {
 		compatible = "ti,tmp102";
 		reg = <0x4a>;
 		pinctrl-names = "default";
@@ -195,34 +182,57 @@
 		#thermal-sensor-cells = <1>;
 	};
 
-	temp_sense1: tmp102@49 {
-		compatible = "ti,tmp102";
-		reg = <0x49>;
-		interrupt-parent = <&gpio6>;
-		interrupts = <15 IRQ_TYPE_LEVEL_LOW>;
-		#thermal-sensor-cells = <1>;
-	};
-
-	mfg_eeprom: at24@51 {
+	eeprom@51 {
 		compatible = "atmel,24c64";
 		pagesize = <32>;
-		read-only;
+		read-only;	/* Manufacturing EEPROM programmed at factory */
 		reg = <0x51>;
 	};
 
-	user_eeprom: at24@52 {
+	eeprom@52 {
 		compatible = "atmel,24c64";
 		pagesize = <32>;
 		reg = <0x52>;
 	};
 };
 
+/* Reroute power feeding the CPU to come from the external PMIC */
+&reg_arm
+{
+	vin-supply = <&sw1a_reg>;
+};
+
+&reg_soc
+{
+	vin-supply = <&sw1c_reg>;
+};
+
 &iomuxc {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_hog>;
 
-	pinctrl_hog: hoggrp {
+	pinctrl_gpmi_nand: gpmi-nandgrp {
 		fsl,pins = <
+			MX6QDL_PAD_NANDF_CLE__NAND_CLE		0x0b0b1
+			MX6QDL_PAD_NANDF_ALE__NAND_ALE		0x0b0b1
+			MX6QDL_PAD_NANDF_WP_B__NAND_WP_B	0x0b0b1
+			MX6QDL_PAD_NANDF_RB0__NAND_READY_B	0x0b000
+			MX6QDL_PAD_NANDF_CS0__NAND_CE0_B	0x0b0b1
+			MX6QDL_PAD_SD4_CMD__NAND_RE_B		0x0b0b1
+			MX6QDL_PAD_SD4_CLK__NAND_WE_B		0x0b0b1
+			MX6QDL_PAD_NANDF_D0__NAND_DATA00	0x0b0b1
+			MX6QDL_PAD_NANDF_D1__NAND_DATA01	0x0b0b1
+			MX6QDL_PAD_NANDF_D2__NAND_DATA02	0x0b0b1
+			MX6QDL_PAD_NANDF_D3__NAND_DATA03	0x0b0b1
+			MX6QDL_PAD_NANDF_D4__NAND_DATA04	0x0b0b1
+			MX6QDL_PAD_NANDF_D5__NAND_DATA05	0x0b0b1
+			MX6QDL_PAD_NANDF_D6__NAND_DATA06	0x0b0b1
+			MX6QDL_PAD_NANDF_D7__NAND_DATA07	0x0b0b1
+		>;
+	};
+
+	pinctrl_hog: hoggrp {
+		fsl,pins = <	/* Enable ARM Debugger */
 			MX6QDL_PAD_CSI0_MCLK__ARM_TRACE_CTL	0x1b0b0
 			MX6QDL_PAD_CSI0_PIXCLK__ARM_EVENTO	0x1b0b0
 			MX6QDL_PAD_CSI0_VSYNC__ARM_TRACE00	0x1b0b0
@@ -246,30 +256,16 @@
 		>;
 	};
 
-	pinctrl_gpmi_nand: gpminandgrp {
-		fsl,pins = <
-			MX6QDL_PAD_NANDF_CLE__NAND_CLE		0x0b0b1
-			MX6QDL_PAD_NANDF_ALE__NAND_ALE		0x0b0b1
-			MX6QDL_PAD_NANDF_WP_B__NAND_WP_B	0x0b0b1
-			MX6QDL_PAD_NANDF_RB0__NAND_READY_B	0x0b000
-			MX6QDL_PAD_NANDF_CS0__NAND_CE0_B	0x0b0b1
-			MX6QDL_PAD_SD4_CMD__NAND_RE_B		0x0b0b1
-			MX6QDL_PAD_SD4_CLK__NAND_WE_B		0x0b0b1
-			MX6QDL_PAD_NANDF_D0__NAND_DATA00	0x0b0b1
-			MX6QDL_PAD_NANDF_D1__NAND_DATA01	0x0b0b1
-			MX6QDL_PAD_NANDF_D2__NAND_DATA02	0x0b0b1
-			MX6QDL_PAD_NANDF_D3__NAND_DATA03	0x0b0b1
-			MX6QDL_PAD_NANDF_D4__NAND_DATA04	0x0b0b1
-			MX6QDL_PAD_NANDF_D5__NAND_DATA05	0x0b0b1
-			MX6QDL_PAD_NANDF_D6__NAND_DATA06	0x0b0b1
-			MX6QDL_PAD_NANDF_D7__NAND_DATA07	0x0b0b1
-		>;
-	};
-
 	pinctrl_i2c3: i2c3grp {
 		fsl,pins = <
 			MX6QDL_PAD_EIM_D17__I2C3_SCL		0x4001b8b1
 			MX6QDL_PAD_EIM_D18__I2C3_SDA		0x4001b8b1
+		>;
+	};
+
+	pinctrl_tempsense: tempsensegrp {
+		fsl,pins = <
+			MX6QDL_PAD_NANDF_CS2__GPIO6_IO15 0x1b0b0
 		>;
 	};
 
@@ -282,7 +278,7 @@
 
 	pinctrl_uart2: uart2grp {
 		fsl,pins = <
-			MX6QDL_PAD_SD3_RST__GPIO7_IO08	0x13059	/* BT_EN */
+			MX6QDL_PAD_SD3_RST__GPIO7_IO08		0x13059	/* BT_EN */
 			MX6QDL_PAD_SD4_DAT4__UART2_RX_DATA	0x1b0b1
 			MX6QDL_PAD_SD4_DAT5__UART2_RTS_B	0x1b0b1
 			MX6QDL_PAD_SD4_DAT6__UART2_CTS_B	0x1b0b1
@@ -313,12 +309,6 @@
 			MX6QDL_PAD_SD3_DAT5__GPIO7_IO00	0x17059 /* WLAN_EN */
 		>;
 	};
-
-	pinctrl_tempsense: tempsensegrp {
-		fsl,pins = <
-			MX6QDL_PAD_NANDF_CS2__GPIO6_IO15 0x1b0b0	/* Temp Sense Alert */
-		>;
-	};
 };
 
 &snvs_poweroff {
@@ -334,8 +324,9 @@
 &uart2 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart2>;
-	status = "okay";
 	uart-has-rtscts;
+	status = "okay";
+
 	bluetooth {
 		compatible = "ti,wl1837-st";
 		enable-gpios = <&gpio7 8 GPIO_ACTIVE_HIGH>;
@@ -347,9 +338,9 @@
 	pinctrl-0 = <&pinctrl_usdhc1>;
 	non-removable;
 	keep-power-in-suspend;
-	enable-sdio-wakeup;
-	status = "okay";
+	wakeup-source;
 	vmmc-supply = <&sw2_reg>;
+	status = "okay";
 };
 
 &usdhc3 {
@@ -360,9 +351,10 @@
 	keep-power-in-suspend;
 	wakeup-source;
 	vmmc-supply = <&reg_wl18xx_vmmc>;
-	status = "okay";
 	#address-cells = <1>;
 	#size-cells = <0>;
+	status = "okay";
+
 	wlcore: wlcore@2 {
 		  compatible = "ti,wl1837";
 		  reg = <2>;
