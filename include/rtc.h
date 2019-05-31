@@ -258,4 +258,12 @@ void rtc_to_tm(u64 time_t, struct rtc_time *time);
  */
 unsigned long rtc_mktime(const struct rtc_time *time);
 
+/**
+ * rtc_month_days() - The number of days in the month
+ *
+ * @month:	month (January = 0)
+ * @year:	year (4 digits)
+ */
+int rtc_month_days(unsigned int month, unsigned int year);
+
 #endif	/* _RTC_H_ */
