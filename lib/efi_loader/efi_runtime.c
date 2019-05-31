@@ -167,7 +167,7 @@ static efi_status_t EFIAPI efi_get_time_boottime(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities)
 {
-#ifdef CONFIG_DM_RTC
+#ifdef CONFIG_EFI_GET_TIME
 	efi_status_t ret = EFI_SUCCESS;
 	struct rtc_time tm;
 	struct udevice *dev;
@@ -214,7 +214,7 @@ out:
 #endif
 }
 
-#ifdef CONFIG_DM_RTC
+#ifdef CONFIG_EFI_SET_TIME
 
 /**
  * efi_validate_time() - checks if timestamp is valid
@@ -252,7 +252,7 @@ static int efi_validate_time(struct efi_time *time)
  */
 static efi_status_t EFIAPI efi_set_time_boottime(struct efi_time *time)
 {
-#ifdef CONFIG_DM_RTC
+#ifdef CONFIG_EFI_SET_TIME
 	efi_status_t ret = EFI_SUCCESS;
 	struct rtc_time tm;
 	struct udevice *dev;

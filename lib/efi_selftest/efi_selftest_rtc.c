@@ -40,7 +40,9 @@ static int setup(const efi_handle_t handle,
 static int execute(void)
 {
 	efi_status_t ret;
-	struct efi_time tm, tm_old, tm_new = {
+	struct efi_time tm_old;
+#ifdef CONFIG_EFI_SET_TIME
+	struct efi_time tm, tm_new = {
 		.year = 2017,
 		.month = 5,
 		.day = 19,
@@ -48,31 +50,23 @@ static int execute(void)
 		.minute = 47,
 		.second = 53,
 	};
+#endif
 
 	/* Display current time */
 	ret = runtime->get_time(&tm_old, NULL);
 	if (ret != EFI_SUCCESS) {
-#ifdef CONFIG_CMD_DATE
 		efi_st_error(EFI_ST_NO_RTC);
 		return EFI_ST_FAILURE;
-#else
-		efi_st_todo(EFI_ST_NO_RTC);
-		return EFI_ST_SUCCESS;
-#endif
 	}
 	efi_st_printf("Time according to real time clock: "
 		      "%.4u-%.2u-%.2u %.2u:%.2u:%.2u\n",
 		      tm_old.year, tm_old.month, tm_old.day,
 		      tm_old.hour, tm_old.minute, tm_old.second);
+#ifdef CONFIG_EFI_SET_TIME
 	ret = runtime->set_time(&tm_new);
 	if (ret != EFI_SUCCESS) {
-#ifdef CONFIG_CMD_DATE
 		efi_st_error(EFI_ST_NO_RTC_SET);
 		return EFI_ST_FAILURE;
-#else
-		efi_st_todo(EFI_ST_NO_RTC_SET);
-		return EFI_ST_SUCCESS;
-#endif
 	}
 	ret = runtime->get_time(&tm, NULL);
 	if (ret != EFI_SUCCESS) {
@@ -95,6 +89,7 @@ static int execute(void)
 		efi_st_error(EFI_ST_NO_RTC_SET);
 		return EFI_ST_FAILURE;
 	}
+#endif
 
 	return EFI_ST_SUCCESS;
 }
