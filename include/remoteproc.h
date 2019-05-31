@@ -113,6 +113,18 @@ struct dm_rproc_ops {
 	 * @return 0 on success, 1 if not responding, -ve on other errors.
 	 */
 	int (*ping)(struct udevice *dev);
+
+	/**
+	 * device_to_virt() - Return translated virtual address (optional)
+	 *
+	 * Translate a device address (remote processor view) to virtual
+	 * address (main processor view).
+	 *
+	 * @dev:	Remote proc device
+	 * @da:		Device address
+	 * @return virtual address.
+	 */
+	void * (*device_to_virt)(struct udevice *dev, ulong da);
 };
 
 /* Accessor */
