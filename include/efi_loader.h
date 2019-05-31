@@ -594,6 +594,8 @@ efi_status_t __efi_runtime EFIAPI efi_get_time(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities);
 
+efi_status_t __efi_runtime EFIAPI efi_set_time(struct efi_time *time);
+
 #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
 /*
  * Entry point for the tests of the EFI API.
