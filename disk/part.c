@@ -103,17 +103,17 @@ typedef lbaint_t lba512_t;
 #endif
 
 /*
- * Overflowless variant of (block_count * mul_by / div_by)
+ * Overflowless variant of (block_count * mul_by / 2**div_by)
  * when div_by > mul_by
  */
-static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by, lba512_t div_by)
+static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by, int div_by)
 {
 	lba512_t bc_quot, bc_rem;
 
 	/* x * m / d == x / d * m + (x % d) * m / d */
-	bc_quot = block_count / div_by;
-	bc_rem  = block_count - div_by * bc_quot;
-	return bc_quot * mul_by + (bc_rem * mul_by) / div_by;
+	bc_quot = block_count >> div_by;
+	bc_rem  = block_count - (bc_quot << div_by);
+	return bc_quot * mul_by + ((bc_rem * mul_by) >> div_by);
 }
 
 void dev_print (struct blk_desc *dev_desc)
@@ -193,7 +193,7 @@ void dev_print (struct blk_desc *dev_desc)
 		lba512 = (lba * (dev_desc->blksz/512));
 		/* round to 1 digit */
 		/* 2048 = (1024 * 1024) / 512 MB */
-		mb = lba512_muldiv(lba512, 10, 2048);
+		mb = lba512_muldiv(lba512, 10, 11);
 
 		mb_quot	= mb / 10;
 		mb_rem	= mb - (10 * mb_quot);
