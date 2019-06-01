@@ -37,7 +37,6 @@
 #endif
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t4rdb/t4_sd_rcw.cfg
-#define CONFIG_SPL_MMC_BOOT
 #endif
 
 #ifdef CONFIG_SPL_BUILD

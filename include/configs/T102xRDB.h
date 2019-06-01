@@ -53,7 +53,6 @@
 #elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_nand_rcw.cfg
 #endif
-#define CONFIG_SPL_NAND_BOOT
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -72,7 +71,6 @@
 #elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_spi_rcw.cfg
 #endif
-#define CONFIG_SPL_SPI_BOOT
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -90,7 +88,6 @@
 #elif defined(CONFIG_TARGET_T1023RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1023_sd_rcw.cfg
 #endif
-#define CONFIG_SPL_MMC_BOOT
 #endif
 
 #endif /* CONFIG_RAMBOOT_PBL */

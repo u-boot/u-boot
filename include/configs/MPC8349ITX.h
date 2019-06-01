@@ -209,12 +209,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #define CONFIG_SYS_VSC7385_BASE	0xF8000000
 
-#ifdef CONFIG_VSC7385_ENET
-
-
-#endif
-
-
 #define CONFIG_SYS_LED_BASE	0xF9000000
 
 

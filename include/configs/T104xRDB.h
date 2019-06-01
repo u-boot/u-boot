@@ -67,7 +67,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1040d4_nand_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042d4_nand_rcw.cfg
 #endif
-#define CONFIG_SPL_NAND_BOOT
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -101,7 +100,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1040d4_spi_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042d4_spi_rcw.cfg
 #endif
-#define CONFIG_SPL_SPI_BOOT
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -134,7 +132,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1040d4_sd_rcw.cfg
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
-#define CONFIG_SPL_MMC_BOOT
 #endif
 
 #endif

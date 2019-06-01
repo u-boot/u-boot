@@ -20,7 +20,6 @@
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_INIT_MINIMAL
-#define CONFIG_SPL_NAND_BOOT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 

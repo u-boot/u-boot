@@ -24,7 +24,6 @@
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(96 << 10)
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
-#define CONFIG_SPL_MMC_BOOT
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_COMMON_INIT_DDR
 #endif
@@ -46,7 +45,6 @@
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS	(96 << 10)
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
-#define CONFIG_SPL_SPI_BOOT
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_COMMON_INIT_DDR
 #endif
@@ -56,7 +54,6 @@
 #ifdef CONFIG_NAND
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_SPL_INIT_MINIMAL
-#define CONFIG_SPL_NAND_BOOT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 
@@ -70,7 +67,6 @@
 #define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #else
 #ifdef CONFIG_TPL_BUILD
-#define CONFIG_SPL_NAND_BOOT
 #define CONFIG_SPL_FLUSH_IMAGE
 #define CONFIG_SPL_NAND_INIT
 #define CONFIG_SPL_COMMON_INIT_DDR

@@ -62,6 +62,26 @@ config SPL_SIZE_LIMIT_PROVIDE_STACK
 	  of SRAM available for SPL when the stack required before reolcation
 	  uses this SRAM, too.
 
+menu "PowerPC SPL Boot options"
+	depends on PPC && (SUPPORT_SPL && !SPL_FRAMEWORK)
+
+config SPL_NAND_BOOT
+	bool "Load SPL from NAND flash"
+
+config SPL_MMC_BOOT
+	bool "Load SPL from SD Card / eMMC"
+
+config SPL_SPI_BOOT
+	bool "Load SPL from SPI flash"
+
+config SPL_FSL_PBL
+	bool "Create SPL in Freescale PBI format"
+	help
+	  Create boot binary having SPL binary in PBI format concatenated with
+	  u-boot binary.
+
+endmenu
+
 config HANDOFF
 	bool "Pass hand-off information from SPL to U-Boot proper"
 	depends on BLOBLIST
