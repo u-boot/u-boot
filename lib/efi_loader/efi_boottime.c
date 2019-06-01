@@ -1134,11 +1134,15 @@ static efi_status_t efi_get_drivers(efi_handle_t handle,
 				++count;
 		}
 	}
+	*number_of_drivers = 0;
+	if (!count) {
+		*driver_handle_buffer = NULL;
+		return EFI_SUCCESS;
+	}
 	/*
 	 * Create buffer. In case of duplicate driver assignments the buffer
 	 * will be too large. But that does not harm.
 	 */
-	*number_of_drivers = 0;
 	*driver_handle_buffer = calloc(count, sizeof(efi_handle_t));
 	if (!*driver_handle_buffer)
 		return EFI_OUT_OF_RESOURCES;
@@ -1194,7 +1198,8 @@ static efi_status_t efi_disconnect_all_drivers
 			      &driver_handle_buffer);
 	if (ret != EFI_SUCCESS)
 		return ret;
-
+	if (!number_of_drivers)
+		return EFI_SUCCESS;
 	ret = EFI_NOT_FOUND;
 	while (number_of_drivers) {
 		r = EFI_CALL(efi_disconnect_controller(
