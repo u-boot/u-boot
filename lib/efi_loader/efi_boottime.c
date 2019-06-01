@@ -2684,7 +2684,8 @@ disconnect_next:
 	/* Find existing entry */
 	list_for_each_entry(item, &handler->open_infos, link) {
 		if (item->info.agent_handle == agent_handle &&
-		    item->info.controller_handle == controller_handle)
+		    item->info.controller_handle == controller_handle &&
+		    item->info.attributes == attributes)
 			match = &item->info;
 	}
 	/* None found, create one */
