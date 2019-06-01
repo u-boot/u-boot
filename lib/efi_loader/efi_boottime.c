@@ -3073,7 +3073,7 @@ static efi_status_t EFIAPI efi_handle_protocol(efi_handle_t handle,
 					       const efi_guid_t *protocol,
 					       void **protocol_interface)
 {
-	return efi_open_protocol(handle, protocol, protocol_interface, NULL,
+	return efi_open_protocol(handle, protocol, protocol_interface, efi_root,
 				 NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
 }
 
