@@ -2056,7 +2056,6 @@ static efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
 		    item->info.controller_handle == controller_handle) {
 			efi_delete_open_info(item);
 			r = EFI_SUCCESS;
-			break;
 		}
 	}
 out:
