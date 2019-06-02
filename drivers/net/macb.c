@@ -488,15 +488,58 @@ static int macb_phy_find(struct macb_device *macb, const char *name)
 
 /**
  * macb_linkspd_cb - Linkspeed change callback function
- * @regs:	Base Register of MACB devices
+ * @dev/@regs:	MACB udevice (DM version) or
+ *		Base Register of MACB devices (non-DM version)
  * @speed:	Linkspeed
  * Returns 0 when operation success and negative errno number
  * when operation failed.
  */
+#ifdef CONFIG_DM_ETH
+int __weak macb_linkspd_cb(struct udevice *dev, unsigned int speed)
+{
+#ifdef CONFIG_CLK
+	struct clk tx_clk;
+	ulong rate;
+	int ret;
+
+	/*
+	 * "tx_clk" is an optional clock source for MACB.
+	 * Ignore if it does not exist in DT.
+	 */
+	ret = clk_get_by_name(dev, "tx_clk", &tx_clk);
+	if (ret)
+		return 0;
+
+	switch (speed) {
+	case _10BASET:
+		rate = 2500000;		/* 2.5 MHz */
+		break;
+	case _100BASET:
+		rate = 25000000;	/* 25 MHz */
+		break;
+	case _1000BASET:
+		rate = 125000000;	/* 125 MHz */
+		break;
+	default:
+		/* does not change anything */
+		return 0;
+	}
+
+	if (tx_clk.dev) {
+		ret = clk_set_rate(&tx_clk, rate);
+		if (ret)
+			return ret;
+	}
+#endif
+
+	return 0;
+}
+#else
 int __weak macb_linkspd_cb(void *regs, unsigned int speed)
 {
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_DM_ETH
 static int macb_phy_init(struct udevice *dev, const char *name)
@@ -589,7 +632,11 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 
 			macb_writel(macb, NCFGR, ncfgr);
 
+#ifdef CONFIG_DM_ETH
+			ret = macb_linkspd_cb(dev, _1000BASET);
+#else
 			ret = macb_linkspd_cb(macb->regs, _1000BASET);
+#endif
 			if (ret)
 				return ret;
 
@@ -614,9 +661,17 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 	ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD) | GEM_BIT(GBE));
 	if (speed) {
 		ncfgr |= MACB_BIT(SPD);
+#ifdef CONFIG_DM_ETH
+		ret = macb_linkspd_cb(dev, _100BASET);
+#else
 		ret = macb_linkspd_cb(macb->regs, _100BASET);
+#endif
 	} else {
+#ifdef CONFIG_DM_ETH
+		ret = macb_linkspd_cb(dev, _10BASET);
+#else
 		ret = macb_linkspd_cb(macb->regs, _10BASET);
+#endif
 	}
 
 	if (ret)
