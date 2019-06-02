@@ -430,6 +430,7 @@ static efi_status_t EFIAPI efi_cout_enable_cursor(
 	EFI_ENTRY("%p, %d", this, enable);
 
 	printf(ESC"[?25%c", enable ? 'h' : 'l');
+	efi_con_mode.cursor_visible = !!enable;
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
