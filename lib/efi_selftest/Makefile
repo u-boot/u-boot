@@ -26,8 +26,8 @@ efi_selftest_gop.o \
 efi_selftest_loaded_image.o \
 efi_selftest_manageprotocols.o \
 efi_selftest_memory.o \
+efi_selftest_open_protocol.o \
 efi_selftest_register_notify.o \
-efi_selftest_rtc.o \
 efi_selftest_snp.o \
 efi_selftest_textinput.o \
 efi_selftest_textinputex.o \
@@ -43,6 +43,7 @@ efi_selftest_unicode_collation.o
 
 obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
 obj-$(CONFIG_EFI_LOADER_HII) += efi_selftest_hii.o
+obj-$(CONFIG_EFI_GET_TIME) += efi_selftest_rtc.o
 
 ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
 obj-y += efi_selftest_fdt.o

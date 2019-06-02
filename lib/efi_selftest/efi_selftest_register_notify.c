@@ -47,15 +47,20 @@ static void EFIAPI notify(struct efi_event *event, void *context)
 {
 	struct context *cp = context;
 	efi_status_t ret;
+	efi_uintn_t handle_count;
+	efi_handle_t *handles;
 
 	cp->notify_count++;
 
-	ret = boottime->locate_handle_buffer(BY_REGISTER_NOTIFY, NULL,
-					     cp->registration_key,
-					     &cp->handle_count,
-					     &cp->handles);
-	if (ret != EFI_SUCCESS)
-		cp->handle_count = 0;
+	for (;;) {
+		ret = boottime->locate_handle_buffer(BY_REGISTER_NOTIFY, NULL,
+						     cp->registration_key,
+						     &handle_count, &handles);
+		if (ret != EFI_SUCCESS)
+			break;
+		cp->handle_count += handle_count;
+		cp->handles = handles;
+	}
 }
 
 /*
@@ -170,7 +175,7 @@ static int execute(void)
 		efi_st_error("reinstall was notified too often\n");
 		return EFI_ST_FAILURE;
 	}
-	if (context.handle_count != 1) {
+	if (context.handle_count != 2) {
 		efi_st_error("LocateHandle failed\n");
 		return EFI_ST_FAILURE;
 	}
@@ -195,7 +200,7 @@ static int execute(void)
 		efi_st_error("install was notified too often\n");
 		return EFI_ST_FAILURE;
 	}
-	if (context.handle_count != 2) {
+	if (context.handle_count != 3) {
 		efi_st_error("LocateHandle failed\n");
 		return EFI_ST_FAILURE;
 	}

@@ -167,7 +167,7 @@ static efi_status_t EFIAPI efi_get_time_boottime(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities)
 {
-#ifdef CONFIG_DM_RTC
+#ifdef CONFIG_EFI_GET_TIME
 	efi_status_t ret = EFI_SUCCESS;
 	struct rtc_time tm;
 	struct udevice *dev;
@@ -195,9 +195,9 @@ static efi_status_t EFIAPI efi_get_time_boottime(
 	time->hour = tm.tm_hour;
 	time->minute = tm.tm_min;
 	time->second = tm.tm_sec;
-	time->daylight = EFI_TIME_ADJUST_DAYLIGHT;
-	if (tm.tm_isdst > 0)
-		time->daylight |= EFI_TIME_IN_DAYLIGHT;
+	if (tm.tm_isdst)
+		time->daylight =
+			EFI_TIME_ADJUST_DAYLIGHT | EFI_TIME_IN_DAYLIGHT;
 	time->timezone = EFI_UNSPECIFIED_TIMEZONE;
 
 	if (capabilities) {
@@ -214,6 +214,30 @@ out:
 #endif
 }
 
+#ifdef CONFIG_EFI_SET_TIME
+
+/**
+ * efi_validate_time() - checks if timestamp is valid
+ *
+ * @time:	timestamp to validate
+ * Returns:	0 if timestamp is valid, 1 otherwise
+ */
+static int efi_validate_time(struct efi_time *time)
+{
+	return (!time ||
+		time->year < 1900 || time->year > 9999 ||
+		!time->month || time->month > 12 || !time->day ||
+		time->day > rtc_month_days(time->month - 1, time->year) ||
+		time->hour > 23 || time->minute > 59 || time->second > 59 ||
+		time->nanosecond > 999999999 ||
+		time->daylight &
+		~(EFI_TIME_IN_DAYLIGHT | EFI_TIME_ADJUST_DAYLIGHT) ||
+		((time->timezone < -1440 || time->timezone > 1440) &&
+		time->timezone != EFI_UNSPECIFIED_TIMEZONE));
+}
+
+#endif
+
 /**
  * efi_set_time_boottime() - set current time
  *
@@ -228,14 +252,14 @@ out:
  */
 static efi_status_t EFIAPI efi_set_time_boottime(struct efi_time *time)
 {
-#ifdef CONFIG_DM_RTC
+#ifdef CONFIG_EFI_SET_TIME
 	efi_status_t ret = EFI_SUCCESS;
 	struct rtc_time tm;
 	struct udevice *dev;
 
 	EFI_ENTRY("%p", time);
 
-	if (!time) {
+	if (efi_validate_time(time)) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
 	}
@@ -252,7 +276,8 @@ static efi_status_t EFIAPI efi_set_time_boottime(struct efi_time *time)
 	tm.tm_hour = time->hour;
 	tm.tm_min = time->minute;
 	tm.tm_sec = time->second;
-	tm.tm_isdst = time->daylight == EFI_TIME_IN_DAYLIGHT;
+	tm.tm_isdst = time->daylight ==
+		      (EFI_TIME_ADJUST_DAYLIGHT | EFI_TIME_IN_DAYLIGHT);
 	/* Calculate day of week */
 	rtc_calc_weekday(&tm);
 

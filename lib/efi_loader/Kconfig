@@ -18,6 +18,22 @@ config EFI_LOADER
 
 if EFI_LOADER
 
+config EFI_GET_TIME
+	bool "GetTime() runtime service"
+	depends on DM_RTC
+	default y
+	help
+	  Provide the GetTime() runtime service at boottime. This service
+	  can be used by an EFI application to read the real time clock.
+
+config EFI_SET_TIME
+	bool "SetTime() runtime service"
+	depends on EFI_GET_TIME
+	default n
+	help
+	  Provide the SetTime() runtime service at boottime. This service
+	  can be used by an EFI application to adjust the real time clock.
+
 config EFI_DEVICE_PATH_TO_TEXT
 	bool "Device path to text protocol"
 	default y

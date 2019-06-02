@@ -23,7 +23,7 @@ static const unsigned char rtc_days_in_month[] = {
 /*
  * The number of days in the month.
  */
-static int rtc_month_days(unsigned int month, unsigned int year)
+int rtc_month_days(unsigned int month, unsigned int year)
 {
 	return rtc_days_in_month[month] + (is_leap_year(year) && month == 1);
 }

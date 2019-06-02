@@ -921,6 +921,14 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 	list_for_each_entry_safe(item, next, &efi_register_notify_events,
 				 link) {
 		if (event == item->event) {
+			struct efi_protocol_notification *hitem, *hnext;
+
+			/* Remove signaled handles */
+			list_for_each_entry_safe(hitem, hnext, &item->handles,
+						 link) {
+				list_del(&hitem->link);
+				free(hitem);
+			}
 			list_del(&item->link);
 			free(item);
 		}
@@ -1049,8 +1057,19 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
 
 	/* Notify registered events */
 	list_for_each_entry(event, &efi_register_notify_events, link) {
-		if (!guidcmp(protocol, &event->protocol))
+		if (!guidcmp(protocol, &event->protocol)) {
+			struct efi_protocol_notification *notif;
+
+			notif = calloc(1, sizeof(*notif));
+			if (!notif) {
+				list_del(&handler->link);
+				free(handler);
+				return EFI_OUT_OF_RESOURCES;
+			}
+			notif->handle = handle;
+			list_add_tail(&notif->link, &event->handles);
 			efi_signal_event(event->event, true);
+		}
 	}
 
 	if (!guidcmp(&efi_guid_device_path, protocol))
@@ -1241,10 +1260,6 @@ static efi_status_t efi_uninstall_protocol
 		goto out;
 	/* Disconnect controllers */
 	efi_disconnect_all_drivers(efiobj, protocol, NULL);
-	if (!list_empty(&handler->open_infos)) {
-		r =  EFI_ACCESS_DENIED;
-		goto out;
-	}
 	/* Close protocol */
 	list_for_each_entry_safe(item, pos, &handler->open_infos, link) {
 		if (item->info.attributes ==
@@ -1332,6 +1347,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
 
 	item->event = event;
 	memcpy(&item->protocol, protocol, sizeof(efi_guid_t));
+	INIT_LIST_HEAD(&item->handles);
 
 	list_add_tail(&item->link, &efi_register_notify_events);
 
@@ -1359,7 +1375,6 @@ static int efi_search(enum efi_locate_search_type search_type,
 	switch (search_type) {
 	case ALL_HANDLES:
 		return 0;
-	case BY_REGISTER_NOTIFY:
 	case BY_PROTOCOL:
 		ret = efi_search_protocol(handle, protocol, NULL);
 		return (ret != EFI_SUCCESS);
@@ -1367,6 +1382,27 @@ static int efi_search(enum efi_locate_search_type search_type,
 		/* Invalid search type */
 		return -1;
 	}
+}
+
+/**
+ * efi_check_register_notify_event() - check if registration key is valid
+ *
+ * Check that a pointer is a valid registration key as returned by
+ * RegisterProtocolNotify().
+ *
+ * @key:	registration key
+ * Return:	valid registration key or NULL
+ */
+static struct efi_register_notify_event *efi_check_register_notify_event
+								(void *key)
+{
+	struct efi_register_notify_event *event;
+
+	list_for_each_entry(event, &efi_register_notify_events, link) {
+		if (event == (struct efi_register_notify_event *)key)
+			return event;
+	}
+	return NULL;
 }
 
 /**
@@ -1390,7 +1426,8 @@ static efi_status_t efi_locate_handle(
 {
 	struct efi_object *efiobj;
 	efi_uintn_t size = 0;
-	struct efi_register_notify_event *item, *event = NULL;
+	struct efi_register_notify_event *event;
+	struct efi_protocol_notification *handle = NULL;
 
 	/* Check parameters */
 	switch (search_type) {
@@ -1400,17 +1437,9 @@ static efi_status_t efi_locate_handle(
 		if (!search_key)
 			return EFI_INVALID_PARAMETER;
 		/* Check that the registration key is valid */
-		list_for_each_entry(item, &efi_register_notify_events, link) {
-			if (item ==
-			    (struct efi_register_notify_event *)search_key) {
-				event = item;
-				break;
-			}
-		}
+		event = efi_check_register_notify_event(search_key);
 		if (!event)
 			return EFI_INVALID_PARAMETER;
-
-		protocol = &event->protocol;
 		break;
 	case BY_PROTOCOL:
 		if (!protocol)
@@ -1421,13 +1450,22 @@ static efi_status_t efi_locate_handle(
 	}
 
 	/* Count how much space we need */
-	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		if (!efi_search(search_type, protocol, efiobj))
-			size += sizeof(void *);
+	if (search_type == BY_REGISTER_NOTIFY) {
+		if (list_empty(&event->handles))
+			return EFI_NOT_FOUND;
+		handle = list_first_entry(&event->handles,
+					  struct efi_protocol_notification,
+					  link);
+		efiobj = handle->handle;
+		size += sizeof(void *);
+	} else {
+		list_for_each_entry(efiobj, &efi_obj_list, link) {
+			if (!efi_search(search_type, protocol, efiobj))
+				size += sizeof(void *);
+		}
+		if (size == 0)
+			return EFI_NOT_FOUND;
 	}
-
-	if (size == 0)
-		return EFI_NOT_FOUND;
 
 	if (!buffer_size)
 		return EFI_INVALID_PARAMETER;
@@ -1444,9 +1482,14 @@ static efi_status_t efi_locate_handle(
 		return EFI_INVALID_PARAMETER;
 
 	/* Then fill the array */
-	list_for_each_entry(efiobj, &efi_obj_list, link) {
-		if (!efi_search(search_type, protocol, efiobj))
-			*buffer++ = efiobj;
+	if (search_type == BY_REGISTER_NOTIFY) {
+		*buffer = efiobj;
+		list_del(&handle->link);
+	} else {
+		list_for_each_entry(efiobj, &efi_obj_list, link) {
+			if (!efi_search(search_type, protocol, efiobj))
+				*buffer++ = efiobj;
+		}
 	}
 
 	return EFI_SUCCESS;
@@ -2013,7 +2056,6 @@ static efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
 		    item->info.controller_handle == controller_handle) {
 			efi_delete_open_info(item);
 			r = EFI_SUCCESS;
-			break;
 		}
 	}
 out:
@@ -2212,29 +2254,58 @@ static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
 					       void *registration,
 					       void **protocol_interface)
 {
-	struct list_head *lhandle;
+	struct efi_handler *handler;
 	efi_status_t ret;
+	struct efi_object *efiobj;
 
 	EFI_ENTRY("%pUl, %p, %p", protocol, registration, protocol_interface);
 
+	/*
+	 * The UEFI spec explicitly requires a protocol even if a registration
+	 * key is provided. This differs from the logic in LocateHandle().
+	 */
 	if (!protocol || !protocol_interface)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
 
-	list_for_each(lhandle, &efi_obj_list) {
-		struct efi_object *efiobj;
-		struct efi_handler *handler;
+	if (registration) {
+		struct efi_register_notify_event *event;
+		struct efi_protocol_notification *handle;
 
-		efiobj = list_entry(lhandle, struct efi_object, link);
-
+		event = efi_check_register_notify_event(registration);
+		if (!event)
+			return EFI_EXIT(EFI_INVALID_PARAMETER);
+		/*
+		 * The UEFI spec requires to return EFI_NOT_FOUND if no
+		 * protocol instance matches protocol and registration.
+		 * So let's do the same for a mismatch between protocol and
+		 * registration.
+		 */
+		if (guidcmp(&event->protocol, protocol))
+			goto not_found;
+		if (list_empty(&event->handles))
+			goto not_found;
+		handle = list_first_entry(&event->handles,
+					  struct efi_protocol_notification,
+					  link);
+		efiobj = handle->handle;
+		list_del(&handle->link);
+		free(handle);
 		ret = efi_search_protocol(efiobj, protocol, &handler);
-		if (ret == EFI_SUCCESS) {
-			*protocol_interface = handler->protocol_interface;
-			return EFI_EXIT(EFI_SUCCESS);
+		if (ret == EFI_SUCCESS)
+			goto found;
+	} else {
+		list_for_each_entry(efiobj, &efi_obj_list, link) {
+			ret = efi_search_protocol(efiobj, protocol, &handler);
+			if (ret == EFI_SUCCESS)
+				goto found;
 		}
 	}
+not_found:
 	*protocol_interface = NULL;
-
 	return EFI_EXIT(EFI_NOT_FOUND);
+found:
+	*protocol_interface = handler->protocol_interface;
+	return EFI_EXIT(EFI_SUCCESS);
 }
 
 /**
@@ -2561,34 +2632,50 @@ static efi_status_t efi_protocol_open(
 			if ((attributes & EFI_OPEN_PROTOCOL_BY_DRIVER) &&
 			    (item->info.attributes == attributes))
 				return EFI_ALREADY_STARTED;
+		} else {
+			if (item->info.attributes &
+			    EFI_OPEN_PROTOCOL_BY_DRIVER)
+				opened_by_driver = true;
 		}
 		if (item->info.attributes & EFI_OPEN_PROTOCOL_EXCLUSIVE)
 			opened_exclusive = true;
 	}
 
 	/* Only one controller can open the protocol exclusively */
-	if (opened_exclusive && attributes &
-	    (EFI_OPEN_PROTOCOL_EXCLUSIVE | EFI_OPEN_PROTOCOL_BY_DRIVER))
-		return EFI_ACCESS_DENIED;
+	if (attributes & EFI_OPEN_PROTOCOL_EXCLUSIVE) {
+		if (opened_exclusive)
+			return EFI_ACCESS_DENIED;
+	} else if (attributes & EFI_OPEN_PROTOCOL_BY_DRIVER) {
+		if (opened_exclusive || opened_by_driver)
+			return EFI_ACCESS_DENIED;
+	}
 
 	/* Prepare exclusive opening */
 	if (attributes & EFI_OPEN_PROTOCOL_EXCLUSIVE) {
 		/* Try to disconnect controllers */
+disconnect_next:
+		opened_by_driver = false;
 		list_for_each_entry(item, &handler->open_infos, link) {
+			efi_status_t ret;
+
 			if (item->info.attributes ==
-					EFI_OPEN_PROTOCOL_BY_DRIVER)
-				EFI_CALL(efi_disconnect_controller(
+					EFI_OPEN_PROTOCOL_BY_DRIVER) {
+				ret = EFI_CALL(efi_disconnect_controller(
 						item->info.controller_handle,
 						item->info.agent_handle,
 						NULL));
+				if (ret == EFI_SUCCESS)
+					/*
+					 * Child controllers may have been
+					 * removed from the open_infos list. So
+					 * let's restart the loop.
+					 */
+					goto disconnect_next;
+				else
+					opened_by_driver = true;
+			}
 		}
-		opened_by_driver = false;
-		/* Check if all controllers are disconnected */
-		list_for_each_entry(item, &handler->open_infos, link) {
-			if (item->info.attributes & EFI_OPEN_PROTOCOL_BY_DRIVER)
-				opened_by_driver = true;
-		}
-		/* Only one controller can be connected */
+		/* Only one driver can be connected */
 		if (opened_by_driver)
 			return EFI_ACCESS_DENIED;
 	}
@@ -2596,7 +2683,8 @@ static efi_status_t efi_protocol_open(
 	/* Find existing entry */
 	list_for_each_entry(item, &handler->open_infos, link) {
 		if (item->info.agent_handle == agent_handle &&
-		    item->info.controller_handle == controller_handle)
+		    item->info.controller_handle == controller_handle &&
+		    item->info.attributes == attributes)
 			match = &item->info;
 	}
 	/* None found, create one */
@@ -2985,7 +3073,7 @@ static efi_status_t EFIAPI efi_handle_protocol(efi_handle_t handle,
 					       const efi_guid_t *protocol,
 					       void **protocol_interface)
 {
-	return efi_open_protocol(handle, protocol, protocol_interface, NULL,
+	return efi_open_protocol(handle, protocol, protocol_interface, efi_root,
 				 NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
 }
 
