@@ -1947,8 +1947,14 @@ out:
  */
 static efi_status_t EFIAPI efi_stall(unsigned long microseconds)
 {
+	u64 end_tick;
+
 	EFI_ENTRY("%ld", microseconds);
-	udelay(microseconds);
+
+	end_tick = get_ticks() + usec_to_tick(microseconds);
+	while (get_ticks() < end_tick)
+		efi_timer_check();
+
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
