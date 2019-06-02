@@ -56,6 +56,49 @@ static inline uintptr_t __attribute__((no_instrument_function))
 	return offset / FUNC_SITE_SIZE;
 }
 
+#ifdef CONFIG_EFI_LOADER
+
+/**
+ * trace_gd - the value of the gd register
+ */
+static volatile void *trace_gd;
+
+/**
+ * trace_save_gd() - save the value of the gd register
+ */
+static void __attribute__((no_instrument_function)) trace_save_gd(void)
+{
+	trace_gd = gd;
+}
+
+/**
+ * trace_swap_gd() - swap between U-Boot and application gd register value
+ *
+ * An UEFI application may change the value of the register that gd lives in.
+ * But some of our functions like get_ticks() access this register. So we
+ * have to set the gd register to the U-Boot value when entering a trace
+ * point and set it back to the application value when exiting the trace point.
+ */
+static void __attribute__((no_instrument_function)) trace_swap_gd(void)
+{
+	volatile void *temp_gd = trace_gd;
+
+	trace_gd = gd;
+	gd = temp_gd;
+}
+
+#else
+
+static void __attribute__((no_instrument_function)) trace_save_gd(void)
+{
+}
+
+static void __attribute__((no_instrument_function)) trace_swap_gd(void)
+{
+}
+
+#endif
+
 static void __attribute__((no_instrument_function)) add_ftrace(void *func_ptr,
 				void *caller, ulong flags)
 {
@@ -100,6 +143,7 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
 	if (trace_enabled) {
 		int func;
 
+		trace_swap_gd();
 		add_ftrace(func_ptr, caller, FUNCF_ENTRY);
 		func = func_ptr_to_num(func_ptr);
 		if (func < hdr->func_count) {
@@ -111,6 +155,7 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
 		hdr->depth++;
 		if (hdr->depth > hdr->depth_limit)
 			hdr->max_depth = hdr->depth;
+		trace_swap_gd();
 	}
 }
 
@@ -126,8 +171,10 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_exit(
 		void *func_ptr, void *caller)
 {
 	if (trace_enabled) {
+		trace_swap_gd();
 		add_ftrace(func_ptr, caller, FUNCF_EXIT);
 		hdr->depth--;
+		trace_swap_gd();
 	}
 }
 
@@ -283,6 +330,8 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 	ulong func_count = gd->mon_len / FUNC_SITE_SIZE;
 	size_t needed;
 	int was_disabled = !trace_enabled;
+
+	trace_save_gd();
 
 	if (!was_disabled) {
 #ifdef CONFIG_TRACE_EARLY
