@@ -376,7 +376,7 @@ int __attribute__((no_instrument_function)) trace_init(void *buff,
 	add_textbase();
 
 	puts("trace: enabled\n");
-	hdr->depth_limit = 15;
+	hdr->depth_limit = CONFIG_TRACE_CALL_DEPTH_LIMIT;
 	trace_enabled = 1;
 	trace_inited = 1;
 
@@ -410,7 +410,7 @@ int __attribute__((no_instrument_function)) trace_early_init(void)
 	hdr->ftrace = (struct trace_call *)((char *)hdr + needed);
 	hdr->ftrace_size = (buff_size - needed) / sizeof(*hdr->ftrace);
 	add_textbase();
-	hdr->depth_limit = 200;
+	hdr->depth_limit = CONFIG_TRACE_EARLY_CALL_DEPTH_LIMIT;
 	printf("trace: early enable at %08x\n", CONFIG_TRACE_EARLY_ADDR);
 
 	trace_enabled = 1;
