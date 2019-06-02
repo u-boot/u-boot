@@ -76,7 +76,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_nand_rcw.cfg
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		(0x30000000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_START	(0x30000000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS	(256 << 10)
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
@@ -108,7 +107,6 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_spi_rcw.cfg
 #define CONFIG_SYS_MMC_U_BOOT_DST	(0x30000000)
 #define CONFIG_SYS_MMC_U_BOOT_START	(0x30000000)
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(260 << 10)
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif

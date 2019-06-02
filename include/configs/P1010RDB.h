@@ -23,7 +23,6 @@
 #define CONFIG_SYS_MMC_U_BOOT_START	(0x11000000)
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(96 << 10)
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_COMMON_INIT_DDR
 #endif
@@ -44,7 +43,6 @@
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_START	(0x11000000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS	(96 << 10)
 #define CONFIG_SYS_MPC85XX_NO_RESETVEC
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_COMMON_INIT_DDR
 #endif

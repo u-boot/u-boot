@@ -31,9 +31,6 @@
 #define V_OSCK				24000000  /* Clock output from T2 */
 #define V_SCLK				(V_OSCK)
 
-/* Custom script for NOR */
-#define CONFIG_SYS_LDSCRIPT		"board/ti/am335x/u-boot.lds"
-
 /* Always 128 KiB env size */
 #define CONFIG_ENV_SIZE			SZ_128K
 

@@ -44,7 +44,6 @@
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t4qds/t4_sd_rcw.cfg
 #endif
 
