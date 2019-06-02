@@ -47,7 +47,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #if defined(CONFIG_TARGET_T1024RDB)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t102xrdb/t1024_nand_rcw.cfg
 #elif defined(CONFIG_TARGET_T1023RDB)

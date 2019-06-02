@@ -69,7 +69,6 @@
 #define CONFIG_SPL_PAD_TO		0x20000
 #define CONFIG_TPL_PAD_TO		0x20000
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #endif
 
 /* High Level Configuration Options */

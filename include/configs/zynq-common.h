@@ -276,8 +276,6 @@
 /* Boot FreeBSD/vxWorks from an ELF image */
 #define CONFIG_SYS_MMC_MAX_DEVICE	1
 
-#define CONFIG_SYS_LDSCRIPT  "arch/arm/mach-zynq/u-boot.lds"
-
 /* MMC support */
 #ifdef CONFIG_MMC_SDHCI_ZYNQ
 #define CONFIG_SYS_MMCSD_FS_BOOT_PARTITION     1

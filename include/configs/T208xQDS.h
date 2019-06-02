@@ -51,7 +51,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #if defined(CONFIG_ARCH_T2080)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_nand_rcw.cfg
 #elif defined(CONFIG_ARCH_T2081)

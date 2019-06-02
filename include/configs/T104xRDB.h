@@ -46,7 +46,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x30000000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #ifdef CONFIG_TARGET_T1040RDB
 #define CONFIG_SYS_FSL_PBL_RCW \
 $(SRCTREE)/board/freescale/t104xrdb/t1040_nand_rcw.cfg

@@ -62,7 +62,6 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	(0x00200000 - CONFIG_SPL_MAX_SIZE)
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #else
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_SPL_FLUSH_IMAGE
@@ -88,7 +87,6 @@
 #define CONFIG_SPL_PAD_TO	0x20000
 #define CONFIG_TPL_PAD_TO	0x20000
 #define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #endif
 #endif
 
