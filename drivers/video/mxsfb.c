@@ -46,8 +46,7 @@ __weak void mxsfb_system_setup(void)
  * 	 le:89,ri:164,up:23,lo:10,hs:10,vs:10,sync:0,vmode:0
  */
 
-static void mxs_lcd_init(GraphicDevice *panel,
-			struct ctfb_res_modes *mode, int bpp)
+static void mxs_lcd_init(u32 fb_addr, struct ctfb_res_modes *mode, int bpp)
 {
 	struct mxs_lcdif_regs *regs = (struct mxs_lcdif_regs *)MXS_LCDIF_BASE;
 	uint32_t word_len = 0, bus_width = 0;
@@ -112,8 +111,8 @@ static void mxs_lcd_init(GraphicDevice *panel,
 	writel((0 << LCDIF_VDCTRL4_DOTCLK_DLY_SEL_OFFSET) | mode->xres,
 		&regs->hw_lcdif_vdctrl4);
 
-	writel(panel->frameAdrs, &regs->hw_lcdif_cur_buf);
-	writel(panel->frameAdrs, &regs->hw_lcdif_next_buf);
+	writel(fb_addr, &regs->hw_lcdif_cur_buf);
+	writel(fb_addr, &regs->hw_lcdif_next_buf);
 
 	/* Flush FIFO first */
 	writel(LCDIF_CTRL1_FIFO_CLEAR, &regs->hw_lcdif_ctrl1_set);
@@ -214,7 +213,7 @@ void *video_hw_init(void)
 	printf("%s\n", panel.modeIdent);
 
 	/* Start framebuffer */
-	mxs_lcd_init(&panel, &mode, bpp);
+	mxs_lcd_init(panel.frameAdrs, &mode, bpp);
 
 #ifdef CONFIG_VIDEO_MXS_MODE_SYSTEM
 	/*
