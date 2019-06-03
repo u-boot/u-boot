@@ -298,7 +298,7 @@ void arch_preboot_os(void)
 	/* disable video before launching O/S */
 	ipuv3_fb_shutdown();
 #endif
-#if defined(CONFIG_VIDEO_MXS)
+#if defined(CONFIG_VIDEO_MXS) && !defined(CONFIG_DM_VIDEO)
 	lcdif_power_down();
 #endif
 }
