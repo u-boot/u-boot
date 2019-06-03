@@ -11,8 +11,10 @@
 	compatible = "toradex,imx7d-colibri-emmc", "fsl,imx7d";
 
 	aliases {
+		u-boot,dm-pre-reloc;
 		mmc0 = &usdhc3;
 		mmc1 = &usdhc1;
+		display1 = &lcdif;
 	};
 
 	chosen {
