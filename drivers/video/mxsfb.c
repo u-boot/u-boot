@@ -128,6 +128,37 @@ static void mxs_lcd_init(u32 fb_addr, struct ctfb_res_modes *mode, int bpp)
 	writel(LCDIF_CTRL_RUN, &regs->hw_lcdif_ctrl_set);
 }
 
+static int mxs_probe_common(struct ctfb_res_modes *mode, int bpp, void *fb)
+{
+	/* Start framebuffer */
+	mxs_lcd_init((u32)fb, mode, bpp);
+
+#ifdef CONFIG_VIDEO_MXS_MODE_SYSTEM
+	/*
+	 * If the LCD runs in system mode, the LCD refresh has to be triggered
+	 * manually by setting the RUN bit in HW_LCDIF_CTRL register. To avoid
+	 * having to set this bit manually after every single change in the
+	 * framebuffer memory, we set up specially crafted circular DMA, which
+	 * sets the RUN bit, then waits until it gets cleared and repeats this
+	 * infinitelly. This way, we get smooth continuous updates of the LCD.
+	 */
+	struct mxs_lcdif_regs *regs = (struct mxs_lcdif_regs *)MXS_LCDIF_BASE;
+
+	memset(&desc, 0, sizeof(struct mxs_dma_desc));
+	desc.address = (dma_addr_t)&desc;
+	desc.cmd.data = MXS_DMA_DESC_COMMAND_NO_DMAXFER | MXS_DMA_DESC_CHAIN |
+			MXS_DMA_DESC_WAIT4END |
+			(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET);
+	desc.cmd.pio_words[0] = readl(&regs->hw_lcdif_ctrl) | LCDIF_CTRL_RUN;
+	desc.cmd.next = (uint32_t)&desc.cmd;
+
+	/* Execute the DMA chain. */
+	mxs_dma_circ_start(MXS_DMA_CHANNEL_AHB_APBH_LCDIF, &desc);
+#endif
+
+	return 0;
+}
+
 void lcdif_power_down(void)
 {
 	struct mxs_lcdif_regs *regs = (struct mxs_lcdif_regs *)MXS_LCDIF_BASE;
@@ -151,8 +182,9 @@ void lcdif_power_down(void)
 void *video_hw_init(void)
 {
 	int bpp = -1;
+	int ret = 0;
 	char *penv;
-	void *fb;
+	void *fb = NULL;
 	struct ctfb_res_modes mode;
 
 	puts("Video: ");
@@ -167,8 +199,7 @@ void *video_hw_init(void)
 	bpp = video_get_params(&mode, penv);
 
 	/* fill in Graphic device struct */
-	sprintf(panel.modeIdent, "%dx%dx%d",
-			mode.xres, mode.yres, bpp);
+	sprintf(panel.modeIdent, "%dx%dx%d", mode.xres, mode.yres, bpp);
 
 	panel.winSizeX = mode.xres;
 	panel.winSizeY = mode.yres;
@@ -211,31 +242,14 @@ void *video_hw_init(void)
 
 	printf("%s\n", panel.modeIdent);
 
-	/* Start framebuffer */
-	mxs_lcd_init(panel.frameAdrs, &mode, bpp);
-
-#ifdef CONFIG_VIDEO_MXS_MODE_SYSTEM
-	/*
-	 * If the LCD runs in system mode, the LCD refresh has to be triggered
-	 * manually by setting the RUN bit in HW_LCDIF_CTRL register. To avoid
-	 * having to set this bit manually after every single change in the
-	 * framebuffer memory, we set up specially crafted circular DMA, which
-	 * sets the RUN bit, then waits until it gets cleared and repeats this
-	 * infinitelly. This way, we get smooth continuous updates of the LCD.
-	 */
-	struct mxs_lcdif_regs *regs = (struct mxs_lcdif_regs *)MXS_LCDIF_BASE;
-
-	memset(&desc, 0, sizeof(struct mxs_dma_desc));
-	desc.address = (dma_addr_t)&desc;
-	desc.cmd.data = MXS_DMA_DESC_COMMAND_NO_DMAXFER | MXS_DMA_DESC_CHAIN |
-			MXS_DMA_DESC_WAIT4END |
-			(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET);
-	desc.cmd.pio_words[0] = readl(&regs->hw_lcdif_ctrl) | LCDIF_CTRL_RUN;
-	desc.cmd.next = (uint32_t)&desc.cmd;
-
-	/* Execute the DMA chain. */
-	mxs_dma_circ_start(MXS_DMA_CHANNEL_AHB_APBH_LCDIF, &desc);
-#endif
+	ret = mxs_probe_common(&mode, bpp, fb);
+	if (ret)
+		goto dealloc_fb;
 
 	return (void *)&panel;
+
+dealloc_fb:
+	free(fb);
+
+	return NULL;
 }
