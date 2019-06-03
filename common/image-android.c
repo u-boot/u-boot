@@ -52,6 +52,8 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 			     ulong *os_data, ulong *os_len)
 {
 	u32 kernel_addr = android_image_get_kernel_addr(hdr);
+	const struct image_header *ihdr = (const struct image_header *)
+		((uintptr_t)hdr + hdr->page_size);
 
 	/*
 	 * Not all Android tools use the id field for signing the image with
@@ -93,11 +95,19 @@ int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
 	env_set("bootargs", newbootargs);
 
 	if (os_data) {
-		*os_data = (ulong)hdr;
-		*os_data += hdr->page_size;
+		if (image_get_magic(ihdr) == IH_MAGIC) {
+			*os_data = image_get_data(ihdr);
+		} else {
+			*os_data = (ulong)hdr;
+			*os_data += hdr->page_size;
+		}
 	}
-	if (os_len)
-		*os_len = hdr->kernel_size;
+	if (os_len) {
+		if (image_get_magic(ihdr) == IH_MAGIC)
+			*os_len = image_get_data_size(ihdr);
+		else
+			*os_len = hdr->kernel_size;
+	}
 	return 0;
 }
 
@@ -131,7 +141,9 @@ ulong android_image_get_kcomp(const struct andr_img_hdr *hdr)
 {
 	const void *p = (void *)((uintptr_t)hdr + hdr->page_size);
 
-	if (get_unaligned_le32(p) == LZ4F_MAGIC)
+	if (image_get_magic((image_header_t *)p) == IH_MAGIC)
+		return image_get_comp((image_header_t *)p);
+	else if (get_unaligned_le32(p) == LZ4F_MAGIC)
 		return IH_COMP_LZ4;
 	else
 		return IH_COMP_NONE;
