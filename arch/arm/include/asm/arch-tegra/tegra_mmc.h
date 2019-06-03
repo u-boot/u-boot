@@ -130,9 +130,9 @@ struct tegra_mmc {
 /* SDMMC1/3 settings from SDMMCx Initialization Sequence of TRM */
 #define MEMCOMP_PADCTRL_VREF	7
 #define AUTO_CAL_ENABLE		(1 << 29)
-#if defined(CONFIG_TEGRA210)
 #define AUTO_CAL_ACTIVE		(1 << 31)
 #define AUTO_CAL_START		(1 << 31)
+#if defined(CONFIG_TEGRA210)
 #define AUTO_CAL_PD_OFFSET	(0x7D << 8)
 #define AUTO_CAL_PU_OFFSET	(0 << 0)
 #define IO_TRIM_BYPASS_MASK	(1 << 2)
