@@ -123,6 +123,8 @@ config SANDBOX
 	imply DM_SOUND
 	imply PCI_SANDBOX_EP
 	imply PCH
+	imply PHYLIB
+	imply DM_MDIO
 
 config SH
 	bool "SuperH architecture"

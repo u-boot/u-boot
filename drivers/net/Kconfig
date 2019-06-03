@@ -24,6 +24,16 @@ config DM_MDIO
 	  This is currently implemented in net/mdio-uclass.c
 	  Look in include/miiphy.h for details.
 
+config MDIO_SANDBOX
+	depends on DM_MDIO && SANDBOX
+	default y
+	bool "Sandbox: Mocked MDIO driver"
+	help
+	  This driver implements dummy read/write/reset MDIO functions mimicking
+	  a bus with a single PHY.
+
+	  This driver is used in for testing in test/dm/mdio.c
+
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET
