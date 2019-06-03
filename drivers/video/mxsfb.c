@@ -5,16 +5,15 @@
  * Copyright (C) 2011-2013 Marek Vasut <marex@denx.de>
  */
 #include <common.h>
+#include <linux/errno.h>
 #include <malloc.h>
 #include <video_fb.h>
 
-#include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
-#include <linux/errno.h>
-#include <asm/io.h>
-
 #include <asm/mach-imx/dma.h>
+#include <asm/io.h>
 
 #include "videomodes.h"
 
