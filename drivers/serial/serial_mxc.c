@@ -360,9 +360,7 @@ U_BOOT_DRIVER(serial_mxc) = {
 #endif
 	.probe = mxc_serial_probe,
 	.ops	= &mxc_serial_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
-#endif
 };
 #endif
 
