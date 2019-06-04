@@ -41,6 +41,9 @@
 					 CONFIG_SPL_BSS_MAX_SIZE)
 /* Set the stack right below the SPL BSS section */
 #define CONFIG_SYS_INIT_SP_ADDR         CONFIG_SPL_BSS_START_ADDR
+/* Configure R5 SPL post-relocation malloc pool in DDR */
+#define CONFIG_SYS_SPL_MALLOC_START	0x84000000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_16M
 #endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
