@@ -215,14 +215,14 @@ static int am654_sdhci_probe(struct udevice *dev)
 	int ret;
 
 	ret = power_domain_get_by_index(dev, &sdhci_pwrdmn, 0);
-	if (ret) {
-		dev_err(dev, "failed to get power domain\n");
-		return ret;
-	}
-
-	ret = power_domain_on(&sdhci_pwrdmn);
-	if (ret) {
-		dev_err(dev, "Power domain on failed\n");
+	if (!ret) {
+		ret = power_domain_on(&sdhci_pwrdmn);
+		if (ret) {
+			dev_err(dev, "Power domain on failed (%d)\n", ret);
+			return ret;
+		}
+	} else if (ret != -ENOENT && ret != -ENODEV && ret != -ENOSYS) {
+		dev_err(dev, "failed to get power domain (%d)\n", ret);
 		return ret;
 	}
 
