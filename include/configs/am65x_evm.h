@@ -65,12 +65,9 @@
 /* U-Boot general configuration */
 #define EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	"findfdt="							\
-		"if test $board_name = am65x; then "			\
-			"setenv name_fdt k3-am654-base-board.dtb; "	\
-		"else if test $name_fdt = undefined; then "		\
-			"echo WARNING: Could not determine device tree to use;"\
-		"fi; fi; "						\
-		"setenv fdtfile ${name_fdt}\0"				\
+		"setenv name_fdt k3-am654-base-board.dtb;"		\
+		"setenv fdtfile ${name_fdt};"				\
+		"setenv overlay_files ${name_overlays}\0"		\
 	"loadaddr=0x80080000\0"						\
 	"fdtaddr=0x82000000\0"						\
 	"name_kern=Image\0"						\
