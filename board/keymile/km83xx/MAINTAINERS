@@ -1,5 +1,5 @@
 KM83XX BOARD
-M:	Holger Brunck <holger.brunck@keymile.com>
+M:	Holger Brunck <holger.brunck@ch.abb.com>
 S:	Maintained
 F:	board/keymile/km83xx/
 F:	include/configs/km8360.h
