@@ -3,8 +3,6 @@
 #ifndef _OMAP_I2C_H
 #define _OMAP_I2C_H
 
-#include <asm/arch/cpu.h>
-
 #ifdef CONFIG_DM_I2C
 
 /* Information about a GPIO bank */
