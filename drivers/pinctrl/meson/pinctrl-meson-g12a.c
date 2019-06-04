@@ -1204,19 +1204,19 @@ static struct meson_pmx_func meson_g12a_aobus_functions[] = {
 };
 
 static struct meson_bank meson_g12a_periphs_banks[] = {
-	/*    name   first                   last                   pullen  pull   dir     out     in   */
-	BANK("Z",    PIN(GPIOZ_0, EE_OFF),   PIN(GPIOZ_15, EE_OFF), 4,  0,  4,  0, 12,  0, 13,  0, 14,  0),
-	BANK("H",    PIN(GPIOH_0, EE_OFF),   PIN(GPIOH_8,  EE_OFF), 3,  0,  3,  0,  9,  0, 10,  0, 11,  0),
-	BANK("BOOT", PIN(BOOT_0,  EE_OFF),   PIN(BOOT_15,  EE_OFF), 0,  0,  0,  0,  0,  0,  1,  0,  2,  0),
-	BANK("C",    PIN(GPIOC_0, EE_OFF),   PIN(GPIOC_7,  EE_OFF), 1,  0,  1,  0,  3,  0,  4,  0,  5,  0),
-	BANK("A",    PIN(GPIOA_0, EE_OFF),   PIN(GPIOA_15, EE_OFF), 5,  0,  5,  0, 16,  0, 17,  0, 18,  0),
-	BANK("X",    PIN(GPIOX_0, EE_OFF),   PIN(GPIOX_19, EE_OFF), 2,  0,  2,  0,  6,  0,  7,  0,  8,  0),
+	/*       name   first                   last                   pullen  pull   dir     out     in      ds*/
+	BANK_DS("Z",    PIN(GPIOZ_0, EE_OFF),   PIN(GPIOZ_15, EE_OFF), 4,  0,  4,  0, 12,  0, 13,  0, 14,  0, 5, 0),
+	BANK_DS("H",    PIN(GPIOH_0, EE_OFF),   PIN(GPIOH_8,  EE_OFF), 3,  0,  3,  0,  9,  0, 10,  0, 11,  0, 4, 0),
+	BANK_DS("BOOT", PIN(BOOT_0,  EE_OFF),   PIN(BOOT_15,  EE_OFF), 0,  0,  0,  0,  0,  0,  1,  0,  2,  0, 0, 0),
+	BANK_DS("C",    PIN(GPIOC_0, EE_OFF),   PIN(GPIOC_7,  EE_OFF), 1,  0,  1,  0,  3,  0,  4,  0,  5,  0, 1, 0),
+	BANK_DS("A",    PIN(GPIOA_0, EE_OFF),   PIN(GPIOA_15, EE_OFF), 5,  0,  5,  0, 16,  0, 17,  0, 18,  0, 6, 0),
+	BANK_DS("X",    PIN(GPIOX_0, EE_OFF),   PIN(GPIOX_19, EE_OFF), 2,  0,  2,  0,  6,  0,  7,  0,  8,  0, 2, 0),
 };
 
 static struct meson_bank meson_g12a_aobus_banks[] = {
-	/*   name    first                   last                   pullen  pull   dir     out     in  */
-	BANK("AO",   PIN(GPIOAO_0, 0),       PIN(GPIOAO_11, 0),     3,  0,  2,  0,  0,  0,  4,  0,  1,  0),
-	BANK("E",    PIN(GPIOE_0, 0),        PIN(GPIOE_2, 0),       3, 16,  2, 16,  0, 16,  4, 16,  1,  16),
+	/*      name    first                   last                   pullen  pull   dir     out     in      ds*/
+	BANK_DS("AO",   PIN(GPIOAO_0, 0),       PIN(GPIOAO_11, 0),     3,  0,  2,  0,  0,  0,  4,  0,  1,  0, 0, 0),
+	BANK_DS("E",    PIN(GPIOE_0, 0),        PIN(GPIOE_2, 0),       3, 16,  2, 16,  0, 16,  4, 16,  1,  16, 1, 0),
 };
 
 static struct meson_pmx_bank meson_g12a_periphs_pmx_banks[] = {
