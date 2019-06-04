@@ -1344,8 +1344,9 @@ U_BOOT_CMD_COMPLETE(
 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,
 	"set environment variables",
 #if defined(CONFIG_CMD_NVEDIT_EFI)
-	"-e name [value ...]\n"
+	"-e [-nv] name [value ...]\n"
 	"    - set UEFI variable 'name' to 'value' ...'\n"
+	"      'nv' option makes the variable non-volatile\n"
 	"    - delete UEFI variable 'name' if 'value' not specified\n"
 #endif
 	"setenv [-f] name value ...\n"
