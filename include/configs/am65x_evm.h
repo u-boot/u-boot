@@ -107,6 +107,8 @@
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #endif
 
+#define CONFIG_SUPPORT_EMMC_BOOT
+
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>
 
