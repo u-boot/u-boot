@@ -21,14 +21,6 @@
 &cbass_main{
 	u-boot,dm-spl;
 
-	main_pmx1: pinmux@11c2e8 {
-		compatible = "pinctrl-single";
-		reg = <0x0 0x11c2e8 0x0 0x24>;
-		#pinctrl-cells = <1>;
-		pinctrl-single,register-width = <32>;
-		pinctrl-single,function-mask = <0xffffffff>;
-	};
-
 	sdhci1: sdhci@04FA0000 {
 		compatible = "ti,am654-sdhci-5.1";
 		reg = <0x0 0x4FA0000 0x0 0x1000>,
@@ -44,13 +36,6 @@
 
 &cbass_mcu {
 	u-boot,dm-spl;
-	wkup_pmx0: pinmux@4301c000 {
-		compatible = "pinctrl-single";
-		reg = <0x0 0x4301c000 0x0 0x118>;
-		#pinctrl-cells = <1>;
-		pinctrl-single,register-width = <32>;
-		pinctrl-single,function-mask = <0xffffffff>;
-	};
 
 	navss_mcu: navss-mcu {
 		compatible = "simple-bus";
