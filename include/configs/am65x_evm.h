@@ -70,6 +70,7 @@
 		"setenv overlay_files ${name_overlays}\0"		\
 	"loadaddr=0x80080000\0"						\
 	"fdtaddr=0x82000000\0"						\
+	"overlayaddr=0x83000000\0"					\
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
 	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000\0" \
@@ -84,6 +85,14 @@
 	"rd_spec=-\0"							\
 	"init_mmc=run args_all args_mmc\0"				\
 	"get_fdt_mmc=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${name_fdt}\0" \
+	"get_overlay_mmc="						\
+		"fdt address ${fdtaddr};"				\
+		"fdt resize 0x100000;"					\
+		"for overlay in $overlay_files;"			\
+		"do;"							\
+		"load mmc ${bootpart} ${overlayaddr} ${bootdir}/${overlay};"	\
+		"fdt apply ${overlayaddr};"				\
+		"done;\0"						\
 	"get_kern_mmc=load mmc ${bootpart} ${loadaddr} "		\
 		"${bootdir}/${name_kern}\0"				\
 	"partitions=" PARTS_DEFAULT
