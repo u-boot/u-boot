@@ -534,6 +534,25 @@ fail:
 	memset(mac_addr, 0, TI_EEPROM_HDR_ETH_ALEN);
 }
 
+void __maybe_unused
+board_ti_am6_get_eth_mac_addr(int index,
+			      u8 mac_addr[TI_EEPROM_HDR_ETH_ALEN])
+{
+	struct ti_am6_eeprom *ep = TI_AM6_EEPROM_DATA;
+
+	if (ep->header == TI_DEAD_EEPROM_MAGIC)
+		goto fail;
+
+	if (index < 0 || index >= ep->mac_addr_cnt)
+		goto fail;
+
+	memcpy(mac_addr, ep->mac_addr[index], TI_EEPROM_HDR_ETH_ALEN);
+	return;
+
+fail:
+	memset(mac_addr, 0, TI_EEPROM_HDR_ETH_ALEN);
+}
+
 u64 __maybe_unused board_ti_get_emif1_size(void)
 {
 	struct ti_common_eeprom *ep = TI_EEPROM_DATA;
@@ -664,6 +683,19 @@ void board_ti_set_ethaddr(int index)
 							      mac_addr);
 			}
 		}
+	}
+}
+
+void board_ti_am6_set_ethaddr(int index, int count)
+{
+	u8 mac_addr[6];
+	int i;
+
+	for (i = 0; i < count; i++) {
+		board_ti_am6_get_eth_mac_addr(i, mac_addr);
+		if (is_valid_ethaddr(mac_addr))
+			eth_env_set_enetaddr_by_index("eth", i + index,
+						      mac_addr);
 	}
 }
 

@@ -399,6 +399,18 @@ void set_board_info_env_am6(char *name);
 void board_ti_set_ethaddr(int index);
 
 /**
+ * board_ti_am6_set_ethaddr- Sets the ethaddr environment from EEPROM
+ * @index: The first eth<index>addr environment variable to set
+ * @count: The number of MAC addresses to process
+ *
+ * EEPROM should be already read before calling this function. The EEPROM
+ * contains n dedicated MAC addresses. This function sets the ethaddr
+ * environment variable for all the available MAC addresses starting
+ * from eth<index>addr.
+ */
+void board_ti_am6_set_ethaddr(int index, int count);
+
+/**
  * board_ti_was_eeprom_read() - Check to see if the eeprom contents have been read
  *
  * This function is useful to determine if the eeprom has already been read and
