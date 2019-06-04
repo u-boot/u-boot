@@ -254,6 +254,7 @@ static struct meson_pmx_group meson_gxl_periphs_groups[] = {
 	GPIO_GROUP(GPIODV_15, EE_OFF),
 	GPIO_GROUP(GPIODV_16, EE_OFF),
 	GPIO_GROUP(GPIODV_17, EE_OFF),
+	GPIO_GROUP(GPIODV_18, EE_OFF),
 	GPIO_GROUP(GPIODV_19, EE_OFF),
 	GPIO_GROUP(GPIODV_20, EE_OFF),
 	GPIO_GROUP(GPIODV_21, EE_OFF),
@@ -288,8 +289,6 @@ static struct meson_pmx_group meson_gxl_periphs_groups[] = {
 
 	GPIO_GROUP(GPIOCLK_0, EE_OFF),
 	GPIO_GROUP(GPIOCLK_1, EE_OFF),
-
-	GPIO_GROUP(GPIO_TEST_N, 0),
 
 	/* Bank X */
 	GROUP(sdio_d0,		5,	31),
@@ -415,6 +414,8 @@ static struct meson_pmx_group meson_gxl_aobus_groups[] = {
 	GPIO_GROUP(GPIOAO_8, 0),
 	GPIO_GROUP(GPIOAO_9, 0),
 
+	GPIO_GROUP(GPIO_TEST_N, 0),
+
 	/* bank AO */
 	GROUP(uart_tx_ao_b_0,	0,	26),
 	GROUP(uart_rx_ao_b_1,	0,	25),
@@ -471,6 +472,7 @@ static const char * const gpio_periphs_groups[] = {
 	"GPIOX_5", "GPIOX_6", "GPIOX_7", "GPIOX_8", "GPIOX_9",
 	"GPIOX_10", "GPIOX_11", "GPIOX_12", "GPIOX_13", "GPIOX_14",
 	"GPIOX_15", "GPIOX_16", "GPIOX_17", "GPIOX_18",
+	"GPIOCLK_0", "GPIOCLK_1",
 };
 
 static const char * const emmc_groups[] = {
