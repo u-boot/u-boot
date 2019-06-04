@@ -125,6 +125,8 @@ static const char *parse_attr(const char *str, u32 *attrp)
 
 		if ((s = prefix(str, "ro"))) {
 			attr |= READ_ONLY;
+		} else if ((s = prefix(str, "nv"))) {
+			attr |= EFI_VARIABLE_NON_VOLATILE;
 		} else if ((s = prefix(str, "boot"))) {
 			attr |= EFI_VARIABLE_BOOTSERVICE_ACCESS;
 		} else if ((s = prefix(str, "run"))) {
@@ -468,7 +470,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 		}
 	}
 
-	val = malloc(2 * data_size + strlen("{ro,run,boot}(blob)") + 1);
+	val = malloc(2 * data_size + strlen("{ro,run,boot,nv}(blob)") + 1);
 	if (!val) {
 		ret = EFI_OUT_OF_RESOURCES;
 		goto out;
@@ -480,12 +482,16 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 	 * store attributes
 	 * TODO: several attributes are not supported
 	 */
-	attributes &= (EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS);
+	attributes &= (EFI_VARIABLE_NON_VOLATILE |
+		       EFI_VARIABLE_BOOTSERVICE_ACCESS |
+		       EFI_VARIABLE_RUNTIME_ACCESS);
 	s += sprintf(s, "{");
 	while (attributes) {
 		u32 attr = 1 << (ffs(attributes) - 1);
 
-		if (attr == EFI_VARIABLE_BOOTSERVICE_ACCESS)
+		if (attr == EFI_VARIABLE_NON_VOLATILE)
+			s += sprintf(s, "nv");
+		else if (attr == EFI_VARIABLE_BOOTSERVICE_ACCESS)
 			s += sprintf(s, "boot");
 		else if (attr == EFI_VARIABLE_RUNTIME_ACCESS)
 			s += sprintf(s, "run");
