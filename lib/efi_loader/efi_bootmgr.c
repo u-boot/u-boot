@@ -210,7 +210,8 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle)
 		ret = EFI_CALL(efi_set_variable(
 					L"BootNext",
 					(efi_guid_t *)&efi_global_variable_guid,
-					0, 0, &bootnext));
+					EFI_VARIABLE_NON_VOLATILE, 0,
+					&bootnext));
 
 		/* load BootNext */
 		if (ret == EFI_SUCCESS) {
