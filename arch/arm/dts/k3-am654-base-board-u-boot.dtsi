@@ -222,6 +222,14 @@
 	u-boot,dm-spl;
 };
 
+&wkup_pmx0 {
+	u-boot,dm-spl;
+
+	wkup_i2c0_pins_default {
+		u-boot,dm-spl;
+	};
+};
+
 &main_pmx0 {
 	u-boot,dm-spl;
 	main_uart0_pins_default: main_uart0_pins_default {
@@ -348,4 +356,8 @@
 		reg= <0x0 0x40f04040 0x0 0x4>;
 		reg-names = "gmii-sel";
 	};
+};
+
+&wkup_i2c0 {
+	u-boot,dm-spl;
 };

@@ -136,6 +136,13 @@
 		>;
 		u-boot,dm-spl;
 	};
+
+	wkup_i2c0_pins_default: wkup-i2c0-pins-default {
+		pinctrl-single,pins = <
+			AM65X_WKUP_IOPAD(0x00e0, PIN_INPUT, 0) /* (AC7) WKUP_I2C0_SCL */
+			AM65X_WKUP_IOPAD(0x00e4, PIN_INPUT, 0) /* (AD6) WKUP_I2C0_SDA */
+		>;
+	};
 };
 
 &main_pmx0 {
@@ -175,4 +182,10 @@
 	clocks = <&clk_200mhz>;
 	/delete-property/ power-domains;
 	ti,driver-strength-ohm = <50>;
+};
+
+&wkup_i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&wkup_i2c0_pins_default>;
+	clock-frequency = <400000>;
 };
