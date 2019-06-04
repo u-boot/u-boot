@@ -17,7 +17,11 @@ static int spl_sdp_load_image(struct spl_image_info *spl_image,
 	const int controller_index = 0;
 
 	g_dnl_clear_detach();
-	g_dnl_register("usb_dnl_sdp");
+	ret = g_dnl_register("usb_dnl_sdp");
+	if (ret) {
+		pr_err("SDP dnl register failed: %d\n", ret);
+		return ret;
+	}
 
 	ret = sdp_init(controller_index);
 	if (ret) {
