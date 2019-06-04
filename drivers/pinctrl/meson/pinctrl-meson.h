@@ -120,6 +120,9 @@ extern const struct pinctrl_ops meson_pinctrl_ops;
 int meson_pinctrl_get_groups_count(struct udevice *dev);
 const char *meson_pinctrl_get_group_name(struct udevice *dev,
 					 unsigned int selector);
+int meson_pinctrl_get_pins_count(struct udevice *dev);
+const char *meson_pinctrl_get_pin_name(struct udevice *dev,
+				       unsigned int selector);
 int meson_pinmux_get_functions_count(struct udevice *dev);
 const char *meson_pinmux_get_function_name(struct udevice *dev,
 					   unsigned int selector);

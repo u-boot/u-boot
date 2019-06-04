@@ -20,6 +20,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static const char *meson_pinctrl_dummy_name = "_dummy";
 
+static char pin_name[PINNAME_SIZE];
+
 int meson_pinctrl_get_groups_count(struct udevice *dev)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev);
@@ -36,6 +38,28 @@ const char *meson_pinctrl_get_group_name(struct udevice *dev,
 		return meson_pinctrl_dummy_name;
 
 	return priv->data->groups[selector].name;
+}
+
+int meson_pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+
+	return priv->data->num_pins;
+}
+
+const char *meson_pinctrl_get_pin_name(struct udevice *dev,
+				       unsigned int selector)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+
+	if (selector > priv->data->num_pins ||
+	    selector > priv->data->funcs[0].num_groups)
+		snprintf(pin_name, PINNAME_SIZE, "Error");
+	else
+		snprintf(pin_name, PINNAME_SIZE, "%s",
+			 priv->data->funcs[0].groups[selector]);
+
+	return pin_name;
 }
 
 int meson_pinmux_get_functions_count(struct udevice *dev)
