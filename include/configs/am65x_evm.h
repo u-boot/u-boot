@@ -19,6 +19,29 @@
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
 
 /* SPL Loader Configuration */
+#ifdef CONFIG_TARGET_AM654_A53_EVM
+#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE +	\
+					 CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE)
+#else
+/*
+ * Maximum size in memory allocated to the SPL BSS. Keep it as tight as
+ * possible (to allow the build to go through), as this directly affects
+ * our memory footprint. The less we use for BSS the more we have available
+ * for everything else.
+ */
+#define CONFIG_SPL_BSS_MAX_SIZE		0x5000
+/*
+ * Link BSS to be within SPL in a dedicated region located near the top of
+ * the MCU SRAM, this way making it available also before relocation. Note
+ * that we are not using the actual top of the MCU SRAM as there is a memory
+ * location filled in by the boot ROM that we want to read out without any
+ * interference from the C context.
+ */
+#define CONFIG_SPL_BSS_START_ADDR	(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX -\
+					 CONFIG_SPL_BSS_MAX_SIZE)
+/* Set the stack right below the SPL BSS section */
+#define CONFIG_SYS_INIT_SP_ADDR         CONFIG_SPL_BSS_START_ADDR
+#endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"tispl.bin"
@@ -29,8 +52,6 @@
 #endif
 
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE +	\
-					CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE - 4)
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
 
