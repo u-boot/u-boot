@@ -509,7 +509,22 @@ static int sdhci_set_ios(struct mmc *mmc)
 static int sdhci_init(struct mmc *mmc)
 {
 	struct sdhci_host *host = mmc->priv;
+#if CONFIG_IS_ENABLED(DM_MMC)
+	struct udevice *dev = mmc->dev;
 
+	if (dev_read_bool(dev, "non-removable")) {
+		host->host_caps |= MMC_CAP_NONREMOVABLE;
+	} else {
+		if (dev_read_bool(dev, "cd-inverted"))
+			host->host_caps |= MMC_CAP_CD_ACTIVE_HIGH;
+		if (dev_read_bool(dev, "broken-cd"))
+			host->host_caps |= MMC_CAP_NEEDS_POLL;
+#if CONFIG_IS_ENABLED(DM_GPIO)
+		gpio_request_by_name(dev, "cd-gpio", 0,
+				     &host->cd_gpio, GPIOD_IS_IN);
+#endif
+	}
+#endif
 	sdhci_reset(host, SDHCI_RESET_ALL);
 
 	if ((host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) && !aligned_buffer) {
