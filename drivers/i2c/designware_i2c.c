@@ -82,6 +82,7 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 {
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
+	unsigned int ena;
 	int i2c_spd;
 
 	if (speed >= I2C_MAX_SPEED)
@@ -90,6 +91,9 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 		i2c_spd = IC_SPEED_MODE_FAST;
 	else
 		i2c_spd = IC_SPEED_MODE_STANDARD;
+
+	/* Get enable setting for restore later */
+	ena = readl(&i2c_base->ic_enable) & IC_ENABLE_0B;
 
 	/* to set speed cltr must be disabled */
 	dw_i2c_enable(i2c_base, false);
@@ -146,8 +150,9 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 	if (scl_sda_cfg)
 		writel(scl_sda_cfg->sda_hold, &i2c_base->ic_sda_hold);
 
-	/* Enable back i2c now speed set */
-	dw_i2c_enable(i2c_base, true);
+	/* Restore back i2c now speed set */
+	if (ena == IC_ENABLE_0B)
+		dw_i2c_enable(i2c_base, true);
 
 	return 0;
 }
