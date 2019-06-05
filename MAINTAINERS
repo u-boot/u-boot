@@ -476,7 +476,7 @@ S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-efi.git
 F:	doc/README.uefi
 F:	doc/README.iscsi
-F:	Documentation/efi.rst
+F:	doc/efi.rst
 F:	include/capitalization.h
 F:	include/charset.h
 F:	include/cp1250.h
