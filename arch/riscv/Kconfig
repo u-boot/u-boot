@@ -11,6 +11,9 @@ choice
 config TARGET_AX25_AE350
 	bool "Support ax25-ae350"
 
+config TARGET_MICROCHIP_ICICLE
+	bool "Support Microchip PolarFire-SoC Icicle Board"
+
 config TARGET_QEMU_VIRT
 	bool "Support QEMU Virt Board"
 
@@ -48,6 +51,7 @@ config SPL_SYS_DCACHE_OFF
 # board-specific options below
 source "board/AndesTech/ax25-ae350/Kconfig"
 source "board/emulation/qemu-riscv/Kconfig"
+source "board/microchip/mpfs_icicle/Kconfig"
 source "board/sifive/fu540/Kconfig"
 
 # platform-specific options below

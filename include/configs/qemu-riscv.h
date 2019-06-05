@@ -20,7 +20,7 @@
 #define CONFIG_STANDALONE_LOAD_ADDR	0x80200000
 
 /* Environment options */
-#define CONFIG_ENV_SIZE			SZ_4K
+#define CONFIG_ENV_SIZE			SZ_128K
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(QEMU, qemu, na) \
