@@ -18,7 +18,3 @@ obj-$(CONFIG_SPL_FRAMEWORK)	+= spl.o
 obj-$(CONFIG_SOC_DM365)	+= dm365_lowlevel.o
 obj-$(CONFIG_SOC_DA8XX)	+= da850_lowlevel.o
 endif
-
-ifndef CONFIG_SKIP_LOWLEVEL_INIT
-obj-y	+= lowlevel_init.o
-endif

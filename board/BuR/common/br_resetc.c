@@ -64,6 +64,7 @@ static int resetc_init(void)
 		return -1;
 	}
 
+	resetc.is_psoc = 1;
 	rc = dm_i2c_probe(i2cbus,
 			  RSTCTRL_ADDR_PSOC, 0, &resetc.i2cdev);
 	if (rc) {
