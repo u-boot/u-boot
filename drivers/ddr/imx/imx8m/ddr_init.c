@@ -74,7 +74,7 @@ int ddr_init(struct dram_timing_info *dram_timing)
 
 	/* if ddr type is LPDDR4, do it */
 	tmp = reg32_read(DDRC_MSTR(0));
-	if (tmp & (0x1 << 5))
+	if (tmp & (0x1 << 5) && !is_imx8mn())
 		reg32_write(DDRC_DDR_SS_GPR0, 0x01); /* LPDDR4 mode */
 
 	/* determine the initial boot frequency */
