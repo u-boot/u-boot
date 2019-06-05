@@ -1153,11 +1153,15 @@ static efi_status_t efi_get_drivers(efi_handle_t handle,
 				++count;
 		}
 	}
+	*number_of_drivers = 0;
+	if (!count) {
+		*driver_handle_buffer = NULL;
+		return EFI_SUCCESS;
+	}
 	/*
 	 * Create buffer. In case of duplicate driver assignments the buffer
 	 * will be too large. But that does not harm.
 	 */
-	*number_of_drivers = 0;
 	*driver_handle_buffer = calloc(count, sizeof(efi_handle_t));
 	if (!*driver_handle_buffer)
 		return EFI_OUT_OF_RESOURCES;
@@ -1213,7 +1217,8 @@ static efi_status_t efi_disconnect_all_drivers
 			      &driver_handle_buffer);
 	if (ret != EFI_SUCCESS)
 		return ret;
-
+	if (!number_of_drivers)
+		return EFI_SUCCESS;
 	ret = EFI_NOT_FOUND;
 	while (number_of_drivers) {
 		r = EFI_CALL(efi_disconnect_controller(
@@ -1985,8 +1990,14 @@ out:
  */
 static efi_status_t EFIAPI efi_stall(unsigned long microseconds)
 {
+	u64 end_tick;
+
 	EFI_ENTRY("%ld", microseconds);
-	udelay(microseconds);
+
+	end_tick = get_ticks() + usec_to_tick(microseconds);
+	while (get_ticks() < end_tick)
+		efi_timer_check();
+
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
@@ -2868,12 +2879,46 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  * @image_obj:			handle of the loaded image
  * @loaded_image_protocol:	loaded image protocol
  */
-static void efi_delete_image(struct efi_loaded_image_obj *image_obj,
-			     struct efi_loaded_image *loaded_image_protocol)
+static efi_status_t efi_delete_image
+			(struct efi_loaded_image_obj *image_obj,
+			 struct efi_loaded_image *loaded_image_protocol)
 {
+	struct efi_object *efiobj;
+	efi_status_t r, ret = EFI_SUCCESS;
+
+close_next:
+	list_for_each_entry(efiobj, &efi_obj_list, link) {
+		struct efi_handler *protocol;
+
+		list_for_each_entry(protocol, &efiobj->protocols, link) {
+			struct efi_open_protocol_info_item *info;
+
+			list_for_each_entry(info, &protocol->open_infos, link) {
+				if (info->info.agent_handle !=
+				    (efi_handle_t)image_obj)
+					continue;
+				r = EFI_CALL(efi_close_protocol
+						(efiobj, protocol->guid,
+						 info->info.agent_handle,
+						 info->info.controller_handle
+						));
+				if (r !=  EFI_SUCCESS)
+					ret = r;
+				/*
+				 * Closing protocols may results in further
+				 * items being deleted. To play it safe loop
+				 * over all elements again.
+				 */
+				goto close_next;
+			}
+		}
+	}
+
 	efi_free_pages((uintptr_t)loaded_image_protocol->image_base,
 		       efi_size_in_pages(loaded_image_protocol->image_size));
 	efi_delete_handle(&image_obj->header);
+
+	return ret;
 }
 
 /**

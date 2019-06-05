@@ -230,6 +230,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 	struct efi_mem_list *newlist;
 	bool carve_again;
 	uint64_t carved_pages = 0;
+	struct efi_event *evt;
 
 	EFI_PRINT("%s: 0x%llx 0x%llx %d %s\n", __func__,
 		  start, pages, memory_type, overlap_only_ram ? "yes" : "no");
@@ -314,6 +315,16 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 
 	/* And make sure memory is listed in descending order */
 	efi_mem_sort();
+
+	/* Notify that the memory map was changed */
+	list_for_each_entry(evt, &efi_events, link) {
+		if (evt->group &&
+		    !guidcmp(evt->group,
+			     &efi_guid_event_group_memory_map_change)) {
+			efi_signal_event(evt, false);
+			break;
+		}
+	}
 
 	return start;
 }

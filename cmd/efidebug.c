@@ -558,6 +558,7 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	ret = EFI_CALL(RT->set_variable(var_name16, &guid,
+					EFI_VARIABLE_NON_VOLATILE |
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, data));
@@ -909,6 +910,7 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
 	guid = efi_global_variable_guid;
 	size = sizeof(u16);
 	ret = EFI_CALL(RT->set_variable(L"BootNext", &guid,
+					EFI_VARIABLE_NON_VOLATILE |
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, &bootnext));
@@ -964,6 +966,7 @@ static int do_efi_boot_order(cmd_tbl_t *cmdtp, int flag,
 
 	guid = efi_global_variable_guid;
 	ret = EFI_CALL(RT->set_variable(L"BootOrder", &guid,
+					EFI_VARIABLE_NON_VOLATILE |
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, bootorder));

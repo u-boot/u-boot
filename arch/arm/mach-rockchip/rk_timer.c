@@ -20,13 +20,6 @@ static uint64_t rockchip_get_ticks(void)
 	return timebase_h << 32 | timebase_l;
 }
 
-static uint64_t usec_to_tick(unsigned int usec)
-{
-	uint64_t tick = usec;
-	tick *= CONFIG_SYS_TIMER_RATE / (1000 * 1000);
-	return tick;
-}
-
 void rockchip_udelay(unsigned int usec)
 {
 	uint64_t tmp;

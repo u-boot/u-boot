@@ -139,7 +139,7 @@ unsigned long __weak notrace timer_get_us(void)
 	return tick_to_time(get_ticks() * 1000);
 }
 
-static uint64_t usec_to_tick(unsigned long usec)
+uint64_t usec_to_tick(unsigned long usec)
 {
 	uint64_t tick = usec;
 	tick *= get_tbclk();
