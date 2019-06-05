@@ -221,6 +221,8 @@ efi_status_t is_valid_tpl(efi_uintn_t tpl)
  */
 void efi_signal_event(struct efi_event *event, bool check_tpl)
 {
+	if (event->is_signaled)
+		return;
 	if (event->group) {
 		struct efi_event *evt;
 
