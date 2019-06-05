@@ -21,9 +21,10 @@ void pciauto_region_init(struct pci_region *res)
 	/*
 	 * Avoid allocating PCI resources from address 0 -- this is illegal
 	 * according to PCI 2.1 and moreover, this is known to cause Linux IDE
-	 * drivers to fail. Use a reasonable starting value of 0x1000 instead.
+	 * drivers to fail. Use a reasonable starting value of 0x1000 instead
+	 * if the bus start address is below 0x1000.
 	 */
-	res->bus_lower = res->bus_start ? res->bus_start : 0x1000;
+	res->bus_lower = res->bus_start < 0x1000 ? 0x1000 : res->bus_start;
 }
 
 void pciauto_region_align(struct pci_region *res, pci_size_t size)
