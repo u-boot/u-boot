@@ -256,6 +256,7 @@ struct efi_loaded_image_obj {
  * struct efi_event
  *
  * @link:		Link to list of all events
+ * @queue_link:		Link to the list of queued events
  * @type:		Type of event, see efi_create_event
  * @notify_tpl:		Task priority level of notifications
  * @nofify_function:	Function to call when the event is triggered
@@ -264,11 +265,11 @@ struct efi_loaded_image_obj {
  * @trigger_time:	Period of the timer
  * @trigger_next:	Next time to trigger the timer
  * @trigger_type:	Type of timer, see efi_set_timer
- * @is_queued:		The notification function is queued
  * @is_signaled:	The event occurred. The event is in the signaled state.
  */
 struct efi_event {
 	struct list_head link;
+	struct list_head queue_link;
 	uint32_t type;
 	efi_uintn_t notify_tpl;
 	void (EFIAPI *notify_function)(struct efi_event *event, void *context);
@@ -277,7 +278,6 @@ struct efi_event {
 	u64 trigger_next;
 	u64 trigger_time;
 	enum efi_timer_delay trigger_type;
-	bool is_queued;
 	bool is_signaled;
 };
 

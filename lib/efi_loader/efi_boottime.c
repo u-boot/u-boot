@@ -27,6 +27,9 @@ LIST_HEAD(efi_obj_list);
 /* List of all events */
 LIST_HEAD(efi_events);
 
+/* List of queued events */
+LIST_HEAD(efi_event_queue);
+
 /* Flag to disable timer activity in ExitBootServices() */
 static bool timers_enabled = true;
 
@@ -164,31 +167,75 @@ const char *__efi_nesting_dec(void)
 }
 
 /**
+ * efi_event_is_queued() - check if an event is queued
+ *
+ * @event:	event
+ * Return:	true if event is queued
+ */
+static bool efi_event_is_queued(struct efi_event *event)
+{
+	return !!event->queue_link.next;
+}
+
+/**
+ * efi_process_event_queue() - process event queue
+ */
+static void efi_process_event_queue(void)
+{
+	while (!list_empty(&efi_event_queue)) {
+		struct efi_event *event;
+		efi_uintn_t old_tpl;
+
+		event = list_first_entry(&efi_event_queue, struct efi_event,
+					 queue_link);
+		if (efi_tpl >= event->notify_tpl)
+			return;
+		list_del(&event->queue_link);
+		event->queue_link.next = NULL;
+		event->queue_link.prev = NULL;
+		/* Events must be executed at the event's TPL */
+		old_tpl = efi_tpl;
+		efi_tpl = event->notify_tpl;
+		EFI_CALL_VOID(event->notify_function(event,
+						     event->notify_context));
+		efi_tpl = old_tpl;
+		if (event->type == EVT_NOTIFY_SIGNAL)
+			event->is_signaled = 0;
+	}
+}
+
+/**
  * efi_queue_event() - queue an EFI event
  * @event:     event to signal
  *
  * This function queues the notification function of the event for future
  * execution.
  *
- * The notification function is called if the task priority level of the event
- * is higher than the current task priority level.
- *
- * For the SignalEvent service see efi_signal_event_ext.
- *
  */
 static void efi_queue_event(struct efi_event *event)
 {
-	if (event->notify_function) {
-		event->is_queued = true;
-		/* Check TPL */
-		if (efi_tpl >= event->notify_tpl)
-			return;
-		event->is_queued = false;
-		EFI_CALL_VOID(event->notify_function(event,
-						     event->notify_context));
-	} else {
-		event->is_queued = false;
+	struct efi_event *item = NULL;
+
+	if (!event->notify_function)
+		return;
+
+	if (!efi_event_is_queued(event)) {
+		/*
+		 * Events must be notified in order of decreasing task priority
+		 * level. Insert the new event accordingly.
+		 */
+		list_for_each_entry(item, &efi_event_queue, queue_link) {
+			if (item->notify_tpl < event->notify_tpl) {
+				list_add_tail(&event->queue_link,
+					      &item->queue_link);
+				event = NULL;
+				break;
+			}
+		}
+		if (event)
+			list_add_tail(&event->queue_link, &efi_event_queue);
 	}
+	efi_process_event_queue();
 }
 
 /**
@@ -237,20 +284,15 @@ void efi_signal_event(struct efi_event *event)
 			if (evt->is_signaled)
 				continue;
 			evt->is_signaled = true;
-			if (evt->type & EVT_NOTIFY_SIGNAL &&
-			    evt->notify_function)
-				evt->is_queued = true;
 		}
 		list_for_each_entry(evt, &efi_events, link) {
 			if (!evt->group || guidcmp(evt->group, event->group))
 				continue;
-			if (evt->is_queued)
-				efi_queue_event(evt);
+			efi_queue_event(evt);
 		}
 	} else {
 		event->is_signaled = true;
-		if (event->type & EVT_NOTIFY_SIGNAL)
-			efi_queue_event(event);
+		efi_queue_event(event);
 	}
 }
 
@@ -640,8 +682,6 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	evt->group = group;
 	/* Disable timers on boot up */
 	evt->trigger_next = -1ULL;
-	evt->is_queued = false;
-	evt->is_signaled = false;
 	list_add_tail(&evt->link, &efi_events);
 	*event = evt;
 	return EFI_SUCCESS;
@@ -736,8 +776,6 @@ void efi_timer_check(void)
 	u64 now = timer_get_us();
 
 	list_for_each_entry(evt, &efi_events, link) {
-		if (evt->is_queued)
-			efi_queue_event(evt);
 		if (!timers_enabled)
 			continue;
 		if (!(evt->type & EVT_TIMER) || now < evt->trigger_next)
@@ -755,6 +793,7 @@ void efi_timer_check(void)
 		evt->is_signaled = false;
 		efi_signal_event(evt);
 	}
+	efi_process_event_queue();
 	WATCHDOG_RESET();
 }
 
@@ -938,6 +977,9 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 			free(item);
 		}
 	}
+	/* Remove event from queue */
+	if (efi_event_is_queued(event))
+		list_del(&event->queue_link);
 
 	list_del(&event->link);
 	free(event);
