@@ -89,6 +89,30 @@ struct elf_rela {
  * handle a good number of runtime callbacks
  */
 
+efi_status_t efi_init_runtime_supported(void)
+{
+	u16 efi_runtime_services_supported = 0;
+
+	/*
+	 * This value must be synced with efi_runtime_detach_list
+	 * as well as efi_runtime_services.
+	 */
+#if CONFIG_IS_ENABLED(ARCH_BCM283X) || \
+    CONFIG_IS_ENABLED(FSL_LAYERSCAPE) || \
+    CONFIG_IS_ENABLED(SYSRESET_X86) || \
+    CONFIG_IS_ENABLED(PSCI_RESET)
+	efi_runtime_services_supported |= EFI_RT_SUPPORTED_RESET_SYSTEM;
+#endif
+	efi_runtime_services_supported |=
+				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP;
+	return EFI_CALL(efi_set_variable(L"RuntimeServicesSupported",
+					 &efi_global_variable_guid,
+					 EFI_VARIABLE_BOOTSERVICE_ACCESS |
+					 EFI_VARIABLE_RUNTIME_ACCESS,
+					 sizeof(efi_runtime_services_supported),
+					 &efi_runtime_services_supported));
+}
+
 /**
  * efi_update_table_header_crc32() - Update crc32 in table header
  *

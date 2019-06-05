@@ -117,6 +117,11 @@ efi_status_t efi_init_obj_list(void)
 	if (ret != EFI_SUCCESS)
 		goto out;
 
+	/* Indicate supported runtime services */
+	ret = efi_init_runtime_supported();
+	if (ret != EFI_SUCCESS)
+		goto out;
+
 	/* Initialize system table */
 	ret = efi_initialize_system_table();
 	if (ret != EFI_SUCCESS)
