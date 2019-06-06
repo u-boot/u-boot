@@ -245,3 +245,24 @@ config PMIC_STPMIC1
 	The STPMIC1 PMIC provides 4 BUCKs, 6 LDOs, 1 VREF and 2 power switches.
 	It is accessed via an I2C interface. The device is used with STM32MP1
 	SoCs. This driver implements register read/write operations.
+
+config SPL_PMIC_PALMAS
+	bool "Enable driver for Texas Instruments PALMAS PMIC"
+	depends on DM_PMIC
+	help
+	The PALMAS is a PMIC containing several LDOs, SMPS.
+	This driver binds the pmic children in SPL.
+
+config SPL_PMIC_LP873X
+	bool "Enable driver for Texas Instruments LP873X PMIC"
+	depends on DM_PMIC
+	help
+	The LP873X is a PMIC containing couple of LDOs and couple of SMPS.
+	This driver binds the pmic children in SPL.
+
+config SPL_PMIC_LP87565
+	bool "Enable driver for Texas Instruments LP87565 PMIC"
+	depends on DM_PMIC
+	help
+	The LP87565 is a PMIC containing a bunch of SMPS.
+	This driver binds the pmic children in SPL.
