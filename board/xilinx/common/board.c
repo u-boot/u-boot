@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm/uclass.h>
+#include <asm/sections.h>
 #include <i2c.h>
 
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
@@ -42,11 +43,18 @@ void *board_fdt_blob_setup(void)
 {
 	static void *fw_dtb = (void *)CONFIG_XILINX_OF_BOARD_DTB_ADDR;
 
-	if (fdt_magic(fw_dtb) != FDT_MAGIC) {
-		printf("DTB is not passed via %p\n", fw_dtb);
-		return NULL;
-	}
+	if (fdt_magic(fw_dtb) == FDT_MAGIC)
+		return fw_dtb;
 
-	return fw_dtb;
+	printf("DTB is not passed via 0x%llx\n", (u64)fw_dtb);
+
+	/* Try to look at FDT is at end of image */
+	fw_dtb = (ulong *)&_end;
+
+	if (fdt_magic(fw_dtb) == FDT_MAGIC)
+		return fw_dtb;
+
+	printf("DTB is also not passed via 0x%llx\n", (u64)fw_dtb);
+	return NULL;
 }
 #endif
