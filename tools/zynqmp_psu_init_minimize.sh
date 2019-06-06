@@ -64,7 +64,6 @@ psu_..._protection
 psu_init_xppu_aper_ram
 mask_delay(u32
 mask_read(u32
-dpll_prog
 mask_poll(u32
 mask_pollonvalue(u32
 psu_ps_pl_reset_config_data
