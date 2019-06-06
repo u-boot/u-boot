@@ -270,7 +270,7 @@ F:	arch/arm/mach-s5pc1xx/
 F:	arch/arm/cpu/armv7/s5p-common/
 
 ARM SNAPDRAGON
-M:	Ramon Fried <ramon.fried@gmail.com>
+M:	Ramon Fried <rfried.dev@gmail.com>
 S:	Maintained
 F:	arch/arm/mach-snapdragon/
 F:	drivers/gpio/msm_gpio.c
