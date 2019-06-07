@@ -1309,12 +1309,14 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  * dm_pci_map_bar() - get a virtual address associated with a BAR region
  *
  * Looks up a base address register and finds the physical memory address
- * that corresponds to it
+ * that corresponds to it.
+ * Can be used for 32b BARs 0-5 on type 0 functions and for 32b BARs 0-1 on
+ * type 1 functions.
  *
  * @dev:	Device to check
- * @bar:	Bar number to read (numbered from 0)
+ * @bar:	Bar register offset (PCI_BASE_ADDRESS_...)
  * @flags:	Flags for the region type (PCI_REGION_...)
- * @return: pointer to the virtual address to use
+ * @return: pointer to the virtual address to use or 0 on error
  */
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
 
