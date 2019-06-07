@@ -30,7 +30,11 @@ struct ti_sci_handle *get_ti_sci_handle(void)
 #ifdef CONFIG_SYS_K3_SPL_ATF
 void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
+	struct ti_sci_handle *ti_sci = get_ti_sci_handle();
 	int ret;
+
+	/* Release all the exclusive devices held by SPL before starting ATF */
+	ti_sci->ops.dev_ops.release_exclusive_devices(ti_sci);
 
 	/*
 	 * It is assumed that remoteproc device 1 is the corresponding
