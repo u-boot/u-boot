@@ -55,23 +55,12 @@ struct udevice;
  *
  * @dev: The device which implements the power domain.
  * @id: The power domain ID within the provider.
- *
- * Currently, the power domain API assumes that a single integer ID is enough
- * to identify and configure any power domain for any power domain provider. If
- * this assumption becomes invalid in the future, the struct could be expanded
- * to either (a) add more fields to allow power domain providers to store
- * additional information, or (b) replace the id field with an opaque pointer,
- * which the provider would dynamically allocate during its .of_xlate op, and
- * process during is .request op. This may require the addition of an extra op
- * to clean up the allocation.
+ * @priv: Private data corresponding to each power domain.
  */
 struct power_domain {
 	struct udevice *dev;
-	/*
-	 * Written by of_xlate. We assume a single id is enough for now. In the
-	 * future, we might add more fields here.
-	 */
 	unsigned long id;
+	void *priv;
 };
 
 /**
