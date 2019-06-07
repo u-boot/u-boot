@@ -108,6 +108,17 @@
 		       0x82000000 0x0 0x40000000 0x88 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
 	};
 
+	pcie@1f0000000 {
+		compatible = "pci-host-ecam-generic";
+		/* ECAM bus 0, HW has more space reserved but not populated */
+		bus-range = <0x0 0x0>;
+		reg = <0x01 0xf0000000 0x0 0x100000>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		device_type = "pci";
+		ranges= <0x82000000 0x0 0x00000000 0x1 0xf8000000 0x0 0x160000>;
+	};
+
 	i2c0: i2c@2000000 {
 		compatible = "fsl,vf610-i2c";
 		#address-cells = <1>;
