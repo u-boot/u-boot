@@ -34,6 +34,10 @@ static int print_remoteproc_list(void)
 
 		uc_pdata = dev_get_uclass_platdata(dev);
 
+		/* Do not print if rproc is not probed */
+		if (!(dev->flags & DM_FLAG_ACTIVATED))
+			continue;
+
 		switch (uc_pdata->mem_type) {
 		case RPROC_INTERNAL_MEMORY_MAPPED:
 			type = "internal memory mapped";
@@ -101,11 +105,6 @@ static int do_rproc_init(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_remoteproc_list(cmd_tbl_t *cmdtp, int flag, int argc,
 			      char *const argv[])
 {
-	if (!rproc_is_initialized()) {
-		printf("\t Remote Processors is not initialized\n");
-		return CMD_RET_USAGE;
-	}
-
 	if (print_remoteproc_list())
 		return CMD_RET_FAILURE;
 
