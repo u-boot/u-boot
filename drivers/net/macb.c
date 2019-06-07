@@ -613,7 +613,7 @@ static int macb_phy_init(struct macb_device *macb, const char *name)
 
 	/* First check for GMAC and that it is GiB capable */
 	if (gem_is_gigabit_capable(macb)) {
-		lpa = macb_mdio_read(macb, MII_STAT1000);
+		lpa = macb_mdio_read(macb, MII_LPA);
 
 		if (lpa & (LPA_1000FULL | LPA_1000HALF)) {
 			duplex = ((lpa & LPA_1000FULL) ? 1 : 0);
