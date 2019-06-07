@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Texas Instruments' K3 Remoteproc driver
+ * Texas Instruments' K3 ARM64 Remoteproc driver
  *
  * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
  *	Lokesh Vutla <lokeshvutla@ti.com>
@@ -24,14 +24,14 @@
 #define GTC_CNTR_EN	0x3
 
 /**
- * struct k3_rproc_privdata - Structure representing Remote processor data.
+ * struct k3_arm64_privdata - Structure representing Remote processor data.
  * @rproc_pwrdmn:	rproc power domain data
  * @rproc_rst:		rproc reset control data
  * @sci:		Pointer to TISCI handle
  * @tsp:		TISCI processor control helper structure
  * @gtc_base:		Timer base address.
  */
-struct k3_rproc_privdata {
+struct k3_arm64_privdata {
 	struct power_domain rproc_pwrdmn;
 	struct power_domain gtc_pwrdmn;
 	struct reset_ctl rproc_rst;
@@ -40,16 +40,16 @@ struct k3_rproc_privdata {
 };
 
 /**
- * k3_rproc_load() - Load up the Remote processor image
+ * k3_arm64_load() - Load up the Remote processor image
  * @dev:	rproc device pointer
  * @addr:	Address at which image is available
  * @size:	size of the image
  *
  * Return: 0 if all goes good, else appropriate error message.
  */
-static int k3_rproc_load(struct udevice *dev, ulong addr, ulong size)
+static int k3_arm64_load(struct udevice *dev, ulong addr, ulong size)
 {
-	struct k3_rproc_privdata *rproc = dev_get_priv(dev);
+	struct k3_arm64_privdata *rproc = dev_get_priv(dev);
 	int ret;
 
 	dev_dbg(dev, "%s addr = 0x%lx, size = 0x%lx\n", __func__, addr, size);
@@ -63,14 +63,14 @@ static int k3_rproc_load(struct udevice *dev, ulong addr, ulong size)
 }
 
 /**
- * k3_rproc_start() - Start the remote processor
+ * k3_arm64_start() - Start the remote processor
  * @dev:	rproc device pointer
  *
  * Return: 0 if all went ok, else return appropriate error
  */
-static int k3_rproc_start(struct udevice *dev)
+static int k3_arm64_start(struct udevice *dev)
 {
-	struct k3_rproc_privdata *rproc = dev_get_priv(dev);
+	struct k3_arm64_privdata *rproc = dev_get_priv(dev);
 	int ret;
 
 	dev_dbg(dev, "%s\n", __func__);
@@ -99,12 +99,12 @@ static int k3_rproc_start(struct udevice *dev)
 }
 
 /**
- * k3_rproc_init() - Initialize the remote processor
+ * k3_arm64_init() - Initialize the remote processor
  * @dev:	rproc device pointer
  *
  * Return: 0 if all went ok, else return appropriate error
  */
-static int k3_rproc_init(struct udevice *dev)
+static int k3_arm64_init(struct udevice *dev)
 {
 	dev_dbg(dev, "%s\n", __func__);
 
@@ -114,10 +114,10 @@ static int k3_rproc_init(struct udevice *dev)
 	return 0;
 }
 
-static const struct dm_rproc_ops k3_rproc_ops = {
-	.init = k3_rproc_init,
-	.load = k3_rproc_load,
-	.start = k3_rproc_start,
+static const struct dm_rproc_ops k3_arm64_ops = {
+	.init = k3_arm64_init,
+	.load = k3_arm64_load,
+	.start = k3_arm64_start,
 };
 
 static int ti_sci_proc_of_to_priv(struct udevice *dev, struct ti_sci_proc *tsp)
@@ -148,8 +148,8 @@ static int ti_sci_proc_of_to_priv(struct udevice *dev, struct ti_sci_proc *tsp)
  *
  * Return: 0 if all goes good, else appropriate error message.
  */
-static int k3_rproc_of_to_priv(struct udevice *dev,
-			       struct k3_rproc_privdata *rproc)
+static int k3_arm64_of_to_priv(struct udevice *dev,
+			       struct k3_arm64_privdata *rproc)
 {
 	int ret;
 
@@ -187,21 +187,21 @@ static int k3_rproc_of_to_priv(struct udevice *dev,
 }
 
 /**
- * k3_rproc_probe() - Basic probe
+ * k3_arm64_probe() - Basic probe
  * @dev:	corresponding k3 remote processor device
  *
  * Return: 0 if all goes good, else appropriate error message.
  */
-static int k3_rproc_probe(struct udevice *dev)
+static int k3_arm64_probe(struct udevice *dev)
 {
-	struct k3_rproc_privdata *priv;
+	struct k3_arm64_privdata *priv;
 	int ret;
 
 	dev_dbg(dev, "%s\n", __func__);
 
 	priv = dev_get_priv(dev);
 
-	ret = k3_rproc_of_to_priv(dev, priv);
+	ret = k3_arm64_of_to_priv(dev, priv);
 	if (ret) {
 		dev_dbg(dev, "%s: Probe failed with error %d\n", __func__, ret);
 		return ret;
@@ -212,16 +212,17 @@ static int k3_rproc_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id k3_rproc_ids[] = {
+static const struct udevice_id k3_arm64_ids[] = {
+	{ .compatible = "ti,am654-arm64"},
 	{ .compatible = "ti,am654-rproc"},
 	{}
 };
 
-U_BOOT_DRIVER(k3_rproc) = {
-	.name = "k3_rproc",
-	.of_match = k3_rproc_ids,
+U_BOOT_DRIVER(k3_arm64) = {
+	.name = "k3_arm64",
+	.of_match = k3_arm64_ids,
 	.id = UCLASS_REMOTEPROC,
-	.ops = &k3_rproc_ops,
-	.probe = k3_rproc_probe,
-	.priv_auto_alloc_size = sizeof(struct k3_rproc_privdata),
+	.ops = &k3_arm64_ops,
+	.probe = k3_arm64_probe,
+	.priv_auto_alloc_size = sizeof(struct k3_arm64_privdata),
 };
