@@ -16,6 +16,7 @@
 #include <asm/io.h>
 #include <power-domain.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
+#include "ti_sci_proc.h"
 
 #define INVALID_ID	0xffff
 
@@ -27,18 +28,15 @@
  * @rproc_pwrdmn:	rproc power domain data
  * @rproc_rst:		rproc reset control data
  * @sci:		Pointer to TISCI handle
+ * @tsp:		TISCI processor control helper structure
  * @gtc_base:		Timer base address.
- * @proc_id:		TISCI processor ID
- * @host_id:		TISCI host id to which the processor gets assigned to.
  */
 struct k3_rproc_privdata {
 	struct power_domain rproc_pwrdmn;
 	struct power_domain gtc_pwrdmn;
 	struct reset_ctl rproc_rst;
-	const struct ti_sci_handle *sci;
+	struct ti_sci_proc tsp;
 	void *gtc_base;
-	u16 proc_id;
-	u16 host_id;
 };
 
 /**
@@ -52,27 +50,16 @@ struct k3_rproc_privdata {
 static int k3_rproc_load(struct udevice *dev, ulong addr, ulong size)
 {
 	struct k3_rproc_privdata *rproc = dev_get_priv(dev);
-	const struct ti_sci_proc_ops *pops = &rproc->sci->ops.proc_ops;
 	int ret;
 
 	dev_dbg(dev, "%s addr = 0x%lx, size = 0x%lx\n", __func__, addr, size);
 
 	/* request for the processor */
-	ret = pops->proc_request(rproc->sci, rproc->proc_id);
-	if (ret) {
-		dev_err(dev, "Requesting processor failed %d\n", ret);
+	ret = ti_sci_proc_request(&rproc->tsp);
+	if (ret)
 		return ret;
-	}
 
-	ret = pops->set_proc_boot_cfg(rproc->sci, rproc->proc_id, addr, 0, 0);
-	if (ret) {
-		dev_err(dev, "set_proc_boot_cfg failed %d\n", ret);
-		return ret;
-	}
-
-	dev_dbg(dev, "%s: rproc successfully loaded\n", __func__);
-
-	return 0;
+	return ti_sci_proc_set_config(&rproc->tsp, addr, 0, 0);
 }
 
 /**
@@ -84,7 +71,6 @@ static int k3_rproc_load(struct udevice *dev, ulong addr, ulong size)
 static int k3_rproc_start(struct udevice *dev)
 {
 	struct k3_rproc_privdata *rproc = dev_get_priv(dev);
-	const struct ti_sci_proc_ops *pops = &rproc->sci->ops.proc_ops;
 	int ret;
 
 	dev_dbg(dev, "%s\n", __func__);
@@ -109,24 +95,7 @@ static int k3_rproc_start(struct udevice *dev)
 		return ret;
 	}
 
-	if (rproc->host_id != INVALID_ID) {
-		ret = pops->proc_handover(rproc->sci, rproc->proc_id,
-					  rproc->host_id);
-		if (ret) {
-			dev_err(dev, "Handover processor failed %d\n", ret);
-			return ret;
-		}
-	} else {
-		ret = pops->proc_release(rproc->sci, rproc->proc_id);
-		if (ret) {
-			dev_err(dev, "Processor release failed %d\n", ret);
-			return ret;
-		}
-	}
-
-	dev_dbg(dev, "%s: rproc successfully started\n", __func__);
-
-	return 0;
+	return ti_sci_proc_release(&rproc->tsp);
 }
 
 /**
@@ -150,6 +119,27 @@ static const struct dm_rproc_ops k3_rproc_ops = {
 	.load = k3_rproc_load,
 	.start = k3_rproc_start,
 };
+
+static int ti_sci_proc_of_to_priv(struct udevice *dev, struct ti_sci_proc *tsp)
+{
+	dev_dbg(dev, "%s\n", __func__);
+
+	tsp->sci = ti_sci_get_by_phandle(dev, "ti,sci");
+	if (IS_ERR(tsp->sci)) {
+		dev_err(dev, "ti_sci get failed: %ld\n", PTR_ERR(tsp->sci));
+		return PTR_ERR(tsp->sci);
+	}
+
+	tsp->proc_id = dev_read_u32_default(dev, "ti,sci-proc-id", INVALID_ID);
+	if (tsp->proc_id == INVALID_ID) {
+		dev_err(dev, "proc id not populated\n");
+		return -ENOENT;
+	}
+	tsp->host_id = dev_read_u32_default(dev, "ti,sci-host-id", INVALID_ID);
+	tsp->ops = &tsp->sci->ops.proc_ops;
+
+	return 0;
+}
 
 /**
  * k3_of_to_priv() - generate private data from device tree
@@ -183,22 +173,15 @@ static int k3_rproc_of_to_priv(struct udevice *dev,
 		return ret;
 	}
 
-	rproc->sci = ti_sci_get_by_phandle(dev, "ti,sci");
-	if (IS_ERR(rproc->sci)) {
-		dev_err(dev, "ti_sci get failed: %d\n", ret);
-		return PTR_ERR(rproc->sci);
-	}
+	ret = ti_sci_proc_of_to_priv(dev, &rproc->tsp);
+	if (ret)
+		return ret;
 
 	rproc->gtc_base = dev_read_addr_ptr(dev);
 	if (!rproc->gtc_base) {
 		dev_err(dev, "Get address failed\n");
 		return -ENODEV;
 	}
-
-	rproc->proc_id = dev_read_u32_default(dev, "ti,sci-proc-id",
-					      INVALID_ID);
-	rproc->host_id = dev_read_u32_default(dev, "ti,sci-host-id",
-					      INVALID_ID);
 
 	return 0;
 }
