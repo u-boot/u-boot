@@ -19,6 +19,7 @@
 #define PCI_CAP_ID_PM_OFFSET		0x50
 #define PCI_CAP_ID_EXP_OFFSET		0x60
 #define PCI_CAP_ID_MSIX_OFFSET		0x70
+#define PCI_CAP_ID_EA_OFFSET		0x80
 
 #define PCI_EXT_CAP_ID_ERR_OFFSET	0x100
 #define PCI_EXT_CAP_ID_VC_OFFSET	0x200
@@ -29,6 +30,18 @@
 #define SWAP_CASE_DRV_DATA		0x55aa
 
 #define SANDBOX_CLK_RATE		32768
+
+/* Macros used to test PCI EA capability structure */
+#define PCI_CAP_EA_BASE_LO0		0x00100000
+#define PCI_CAP_EA_BASE_LO1		0x00110000
+#define PCI_CAP_EA_BASE_LO2		0x00120000
+#define PCI_CAP_EA_BASE_LO4		0x00140000
+#define PCI_CAP_EA_BASE_HI2		0x00020000ULL
+#define PCI_CAP_EA_BASE_HI4		0x00040000ULL
+#define PCI_CAP_EA_SIZE_LO		0x0000ffff
+#define PCI_CAP_EA_SIZE_HI		0x00000010ULL
+#define PCI_EA_BAR2_MAGIC		0x72727272
+#define PCI_EA_BAR4_MAGIC		0x74747474
 
 /* System controller driver data */
 enum {
