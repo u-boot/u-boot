@@ -50,6 +50,7 @@
 #define TISCI_MSG_SET_PROC_BOOT_CTRL	0xc101
 #define TISCI_MSG_PROC_AUTH_BOOT_IMIAGE	0xc120
 #define TISCI_MSG_GET_PROC_BOOT_STATUS	0xc400
+#define TISCI_MSG_WAIT_PROC_BOOT_STATUS	0xc401
 
 /* Resource Management Requests */
 #define TI_SCI_MSG_GET_RESOURCE_RANGE	0x1500
@@ -770,6 +771,55 @@ struct ti_sci_msg_resp_get_proc_boot_status {
 	u32 config_flags;
 	u32 control_flags;
 	u32 status_flags;
+} __packed;
+
+/**
+ * struct ti_sci_msg_req_wait_proc_boot_status - Wait for a processor
+ *						 boot status
+ * @hdr:			Generic Header
+ * @processor_id:		ID of processor
+ * @num_wait_iterations:	Total number of iterations we will check before
+ *				we will timeout and give up
+ * @num_match_iterations:	How many iterations should we have continued
+ *				status to account for status bits glitching.
+ *				This is to make sure that match occurs for
+ *				consecutive checks. This implies that the
+ *				worst case should consider that the stable
+ *				time should at the worst be num_wait_iterations
+ *				num_match_iterations to prevent timeout.
+ * @delay_per_iteration_us:	Specifies how long to wait (in micro seconds)
+ *				between each status checks. This is the minimum
+ *				duration, and overhead of register reads and
+ *				checks are on top of this and can vary based on
+ *				varied conditions.
+ * @delay_before_iterations_us:	Specifies how long to wait (in micro seconds)
+ *				before the very first check in the first
+ *				iteration of status check loop. This is the
+ *				minimum duration, and overhead of register
+ *				reads and checks are.
+ * @status_flags_1_set_all_wait:If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 1.
+ * @status_flags_1_set_any_wait:If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 1.
+ * @status_flags_1_clr_all_wait:If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 0.
+ * @status_flags_1_clr_any_wait:If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 0.
+ *
+ * Request type is TISCI_MSG_WAIT_PROC_BOOT_STATUS, response is appropriate
+ * message, or NACK in case of inability to satisfy request.
+ */
+struct ti_sci_msg_req_wait_proc_boot_status {
+	struct ti_sci_msg_hdr hdr;
+	u8 processor_id;
+	u8 num_wait_iterations;
+	u8 num_match_iterations;
+	u8 delay_per_iteration_us;
+	u8 delay_before_iterations_us;
+	u32 status_flags_1_set_all_wait;
+	u32 status_flags_1_set_any_wait;
+	u32 status_flags_1_clr_all_wait;
+	u32 status_flags_1_clr_any_wait;
 } __packed;
 
 /**

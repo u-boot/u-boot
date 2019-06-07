@@ -266,6 +266,8 @@ struct ti_sci_core_ops {
  * @set_proc_boot_ctrl: Setup limited control flags in specific cases.
  * @proc_auth_boot_image:
  * @get_proc_boot_status: Get the state of physical processor
+ * @proc_shutdown_no_wait: Shutdown a core without requesting or waiting for a
+ *			   response.
  *
  * NOTE: for all these functions, the following parameters are generic in
  * nature:
@@ -287,6 +289,8 @@ struct ti_sci_proc_ops {
 	int (*get_proc_boot_status)(const struct ti_sci_handle *handle, u8 pid,
 				    u64 *bv, u32 *cfg_flags, u32 *ctrl_flags,
 				    u32 *sts_flags);
+	int (*proc_shutdown_no_wait)(const struct ti_sci_handle *handle,
+				     u8 pid);
 };
 
 #define TI_SCI_RING_MODE_RING			(0)
