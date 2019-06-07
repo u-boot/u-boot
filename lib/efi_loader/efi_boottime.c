@@ -1068,6 +1068,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
 			}
 			notif->handle = handle;
 			list_add_tail(&notif->link, &event->handles);
+			event->event->is_signaled = false;
 			efi_signal_event(event->event, true);
 		}
 	}
