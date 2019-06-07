@@ -68,12 +68,22 @@ static int print_remoteproc_list(void)
 static int do_rproc_init(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char *const argv[])
 {
+	int id;
+
 	if (rproc_is_initialized()) {
 		printf("\tRemote Processors are already initialized\n");
-	} else {
+		return CMD_RET_FAILURE;
+	}
+
+	if (argc == 1) {
 		if (!rproc_init())
 			return 0;
-		printf("Few Remote Processors failed to be initalized\n");
+		printf("Few Remote Processors failed to be initialized\n");
+	} else if (argc == 2) {
+		id = (int)simple_strtoul(argv[1], NULL, 10);
+		if (!rproc_dev_init(id))
+			return 0;
+		printf("Remote Processor %d failed to be initialized\n", id);
 	}
 
 	return CMD_RET_FAILURE;
@@ -130,11 +140,6 @@ static int do_remoteproc_load(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 	}
 
-	if (!rproc_is_initialized()) {
-		printf("\tRemote Processors are not initialized\n");
-		return CMD_RET_USAGE;
-	}
-
 	ret = rproc_load(id, addr, size);
 	printf("Load Remote Processor %d with data@addr=0x%08lx %lu bytes:%s\n",
 	       id, addr, size, ret ? " Failed!" : " Success!");
@@ -164,11 +169,6 @@ static int do_remoteproc_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
 		return CMD_RET_USAGE;
 
 	id = (int)simple_strtoul(argv[1], NULL, 10);
-
-	if (!rproc_is_initialized()) {
-		printf("\tRemote Processors are not initialized\n");
-		return CMD_RET_USAGE;
-	}
 
 	if (!strcmp(argv[0], "start")) {
 		ret = rproc_start(id);
@@ -203,8 +203,10 @@ static int do_remoteproc_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 static cmd_tbl_t cmd_remoteproc_sub[] = {
-	U_BOOT_CMD_MKENT(init, 0, 1, do_rproc_init,
-			 "Enumerate and initialize all processors", ""),
+	U_BOOT_CMD_MKENT(init, 1, 1, do_rproc_init,
+			 "Enumerate and initialize the remote processor(s)",
+			 "id - ID of the remote processor\n"
+			 "If id is not passed, initialize all the remote processors"),
 	U_BOOT_CMD_MKENT(list, 0, 1, do_remoteproc_list,
 			 "list remote processors", ""),
 	U_BOOT_CMD_MKENT(load, 5, 1, do_remoteproc_load,
@@ -270,7 +272,8 @@ U_BOOT_CMD(rproc, 5, 1, do_remoteproc,
 	   "\t\tNote: Services are dependent on the driver capability\n"
 	   "\t\t      'list' command shows the capability of each device\n"
 	   "\n\tSubcommands:\n"
-	   "\tinit   - Enumerate and initalize the remote processors\n"
+	   "\tinit <id> - Enumerate and initalize the remote processor.\n"
+	   "\t		  if id is not passed, initialize all the remote prcessors\n"
 	   "\tlist   - list available remote processors\n"
 	   "\tload <id> [addr] [size]- Load the remote processor with binary\n"
 	   "\t		  image stored at address [addr] in memory\n"
