@@ -466,6 +466,12 @@
 #define  PCI_EA_IS_64		0x00000002	/* 64-bit field flag */
 #define  PCI_EA_FIELD_MASK	0xfffffffc	/* For Base & Max Offset */
 
+/* PCI Express capabilities */
+#define PCI_EXP_DEVCAP		4	/* Device capabilities */
+#define  PCI_EXP_DEVCAP_FLR     0x10000000 /* Function Level Reset */
+#define PCI_EXP_DEVCTL		8	/* Device Control */
+#define  PCI_EXP_DEVCTL_BCR_FLR 0x8000  /* Bridge Configuration Retry / FLR */
+
 /* Include the ID list */
 
 #include <pci_ids.h>
@@ -1425,6 +1431,14 @@ int dm_pci_find_next_ext_capability(struct udevice *dev, int start, int cap);
  * @return:	extended capability address or 0 if not supported
  */
 int dm_pci_find_ext_capability(struct udevice *dev, int cap);
+
+/**
+ * dm_pci_flr() - Perform FLR if the device suppoorts it
+ *
+ * @dev:	PCI device to reset
+ * @return:	0 if OK, -ENOENT if FLR is not supported by dev
+ */
+int dm_pci_flr(struct udevice *dev);
 
 #define dm_pci_virt_to_bus(dev, addr, flags) \
 	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), (flags))

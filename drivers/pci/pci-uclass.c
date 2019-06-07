@@ -1494,6 +1494,30 @@ int dm_pci_find_ext_capability(struct udevice *dev, int cap)
 	return dm_pci_find_next_ext_capability(dev, 0, cap);
 }
 
+int dm_pci_flr(struct udevice *dev)
+{
+	int pcie_off;
+	u32 cap;
+
+	/* look for PCI Express Capability */
+	pcie_off = dm_pci_find_capability(dev, PCI_CAP_ID_EXP);
+	if (!pcie_off)
+		return -ENOENT;
+
+	/* check FLR capability */
+	dm_pci_read_config32(dev, pcie_off + PCI_EXP_DEVCAP, &cap);
+	if (!(cap & PCI_EXP_DEVCAP_FLR))
+		return -ENOENT;
+
+	dm_pci_clrset_config16(dev, pcie_off + PCI_EXP_DEVCTL, 0,
+			       PCI_EXP_DEVCTL_BCR_FLR);
+
+	/* wait 100ms, per PCI spec */
+	mdelay(100);
+
+	return 0;
+}
+
 UCLASS_DRIVER(pci) = {
 	.id		= UCLASS_PCI,
 	.name		= "pci",
