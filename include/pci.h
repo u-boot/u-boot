@@ -455,6 +455,17 @@
 #define PCI_EXT_CAP_ID_PTM	0x1F	/* Precision Time Measurement */
 #define PCI_EXT_CAP_ID_MAX	PCI_EXT_CAP_ID_PTM
 
+/* Enhanced Allocation Registers */
+#define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
+#define  PCI_EA_NUM_ENT_MASK	0x3f	/* Num Entries Mask */
+#define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
+#define  PCI_EA_ES		0x00000007 /* Entry Size */
+#define  PCI_EA_BEI		0x000000f0 /* BAR Equivalent Indicator */
+/* Base, MaxOffset registers */
+/* bit 0 is reserved */
+#define  PCI_EA_IS_64		0x00000002	/* 64-bit field flag */
+#define  PCI_EA_FIELD_MASK	0xfffffffc	/* For Base & Max Offset */
+
 /* Include the ID list */
 
 #include <pci_ids.h>
@@ -1312,6 +1323,8 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  * that corresponds to it.
  * Can be used for 32b BARs 0-5 on type 0 functions and for 32b BARs 0-1 on
  * type 1 functions.
+ * Can also be used on type 0 functions that support Enhanced Allocation for
+ * 32b/64b BARs.  Note that duplicate BEI entries are not supported.
  *
  * @dev:	Device to check
  * @bar:	Bar register offset (PCI_BASE_ADDRESS_...)
