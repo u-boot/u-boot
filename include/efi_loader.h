@@ -432,7 +432,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
 			   uint64_t trigger_time);
 /* Call this to signal an event */
-void efi_signal_event(struct efi_event *event, bool check_tpl);
+void efi_signal_event(struct efi_event *event);
 
 /* open file system: */
 struct efi_simple_file_system_protocol *efi_simple_file_system(

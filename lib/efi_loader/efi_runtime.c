@@ -130,7 +130,7 @@ static void EFIAPI efi_reset_system_boottime(
 		if (evt->group &&
 		    !guidcmp(evt->group,
 			     &efi_guid_event_group_reset_system)) {
-			efi_signal_event(evt, false);
+			efi_signal_event(evt);
 			break;
 		}
 	}

@@ -321,7 +321,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 		if (evt->group &&
 		    !guidcmp(evt->group,
 			     &efi_guid_event_group_memory_map_change)) {
-			efi_signal_event(evt, false);
+			efi_signal_event(evt);
 			break;
 		}
 	}
