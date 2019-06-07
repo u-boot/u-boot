@@ -11,8 +11,8 @@
 		      <0x0 0x02988000 0x0 0x2000>;
 		reg-names = "ss", "ctl", "phy";
 		clocks = <&k3_clks 20 0>;
-		power-domains = <&k3_pds 20>,
-				<&k3_pds 244>;
+		power-domains = <&k3_pds 20 TI_SCI_PD_SHARED>,
+				<&k3_pds 244 TI_SCI_PD_SHARED>;
 		assigned-clocks = <&k3_clks 20 1>;
 		assigned-clock-rates = <DDR_PLL_FREQUENCY>;
 		u-boot,dm-spl;

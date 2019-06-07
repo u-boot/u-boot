@@ -32,8 +32,8 @@
 	a53_0: a53@0 {
 		compatible = "ti,am654-rproc";
 		reg = <0x0 0x00a90000 0x0 0x10>;
-		power-domains = <&k3_pds 61>,
-				<&k3_pds 202>;
+		power-domains = <&k3_pds 61 TI_SCI_PD_EXCLUSIVE>,
+				<&k3_pds 202 TI_SCI_PD_EXCLUSIVE>;
 		resets = <&k3_reset 202 0>;
 		assigned-clocks = <&k3_clks 202 0>;
 		assigned-clock-rates = <800000000>;
@@ -116,6 +116,10 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&wkup_uart0_pins_default>;
 	status = "okay";
+};
+
+&main_uart0 {
+	power-domains = <&k3_pds 146 TI_SCI_PD_SHARED>;
 };
 
 &wkup_pmx0 {
