@@ -13,5 +13,5 @@ u32 wait_on_value(u32 read_bit_mask, u32 match_value, void *read_addr,
 struct ti_sci_handle *get_ti_sci_handle(void);
 int fdt_fixup_msmc_ram(void *blob, char *parent_path, char *node_name);
 int do_board_detect(void);
-
+void release_resources_for_core_shutdown(void);
 #endif

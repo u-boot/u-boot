@@ -13,6 +13,7 @@
 #include <remoteproc.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
 #include <fdt_support.h>
+#include <asm/arch/sys_proto.h>
 
 struct ti_sci_handle *get_ti_sci_handle(void)
 {
@@ -51,7 +52,10 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 	if (ret)
 		panic("%s: ATF failed to start on rproc (%d)\n", __func__, ret);
 
-	debug("ATF started. Waiting indefinitely...\n");
+	debug("Releasing resources...\n");
+	release_resources_for_core_shutdown();
+
+	debug("Finalizing core shutdown...\n");
 	while (1)
 		asm volatile("wfe");
 }
