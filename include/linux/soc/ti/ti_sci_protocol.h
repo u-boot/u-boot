@@ -105,6 +105,9 @@ struct ti_sci_board_ops {
  *		-reset_state: pointer to u32 which will retrieve resets
  *		Returns 0 for successful request, else returns
  *		corresponding error message.
+ * @release_exclusive_devices: Command to release all the exclusive devices
+ *		attached to this host. This should be used very carefully
+ *		and only at the end of execution of your software.
  *
  * NOTE: for all these functions, the following parameters are generic in
  * nature:
@@ -137,6 +140,7 @@ struct ti_sci_dev_ops {
 				 u32 reset_state);
 	int (*get_device_resets)(const struct ti_sci_handle *handle, u32 id,
 				 u32 *reset_state);
+	int (*release_exclusive_devices)(const struct ti_sci_handle *handle);
 };
 
 /**

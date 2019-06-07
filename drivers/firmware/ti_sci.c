@@ -87,9 +87,16 @@ struct ti_sci_info {
 	struct mbox_chan chan_notify;
 	struct ti_sci_xfer xfer;
 	struct list_head list;
+	struct list_head dev_list;
 	bool is_secure;
 	u8 host_id;
 	u8 seq;
+};
+
+struct ti_sci_exclusive_dev {
+	u32 id;
+	u32 count;
+	struct list_head list;
 };
 
 #define handle_to_ti_sci_info(h) container_of(h, struct ti_sci_info, handle)
@@ -427,6 +434,47 @@ static int ti_sci_cmd_set_board_config_pm(const struct ti_sci_handle *handle,
 					      addr, size);
 }
 
+static struct ti_sci_exclusive_dev
+*ti_sci_get_exclusive_dev(struct list_head *dev_list, u32 id)
+{
+	struct ti_sci_exclusive_dev *dev;
+
+	list_for_each_entry(dev, dev_list, list)
+		if (dev->id == id)
+			return dev;
+
+	return NULL;
+}
+
+static void ti_sci_add_exclusive_dev(struct ti_sci_info *info, u32 id)
+{
+	struct ti_sci_exclusive_dev *dev;
+
+	dev = ti_sci_get_exclusive_dev(&info->dev_list, id);
+	if (dev) {
+		dev->count++;
+		return;
+	}
+
+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+	dev->id = id;
+	dev->count = 1;
+	INIT_LIST_HEAD(&dev->list);
+	list_add_tail(&dev->list, &info->dev_list);
+}
+
+static void ti_sci_delete_exclusive_dev(struct ti_sci_info *info, u32 id)
+{
+	struct ti_sci_exclusive_dev *dev;
+
+	dev = ti_sci_get_exclusive_dev(&info->dev_list, id);
+	if (!dev)
+		return;
+
+	if (dev->count > 0)
+		dev->count--;
+}
+
 /**
  * ti_sci_set_device_state() - Set device state helper
  * @handle:	pointer to TI SCI handle
@@ -473,6 +521,11 @@ static int ti_sci_set_device_state(const struct ti_sci_handle *handle,
 
 	if (!ti_sci_is_response_ack(resp))
 		return -ENODEV;
+
+	if (state == MSG_DEVICE_SW_STATE_AUTO_OFF)
+		ti_sci_delete_exclusive_dev(info, id);
+	else if (flags & MSG_FLAG_DEVICE_EXCLUSIVE)
+		ti_sci_add_exclusive_dev(info, id);
 
 	return ret;
 }
@@ -649,6 +702,25 @@ static int ti_sci_cmd_put_device(const struct ti_sci_handle *handle, u32 id)
 {
 	return ti_sci_set_device_state(handle, id, 0,
 				       MSG_DEVICE_SW_STATE_AUTO_OFF);
+}
+
+static
+int ti_sci_cmd_release_exclusive_devices(const struct ti_sci_handle *handle)
+{
+	struct ti_sci_exclusive_dev *dev, *tmp;
+	struct ti_sci_info *info;
+	int i, cnt;
+
+	info = handle_to_ti_sci_info(handle);
+
+	list_for_each_entry_safe(dev, tmp, &info->dev_list, list) {
+		cnt = dev->count;
+		debug("%s: id = %d, cnt = %d\n", __func__, dev->id, cnt);
+		for (i = 0; i < cnt; i++)
+			ti_sci_cmd_put_device(handle, dev->id);
+	}
+
+	return 0;
 }
 
 /**
@@ -2839,6 +2911,7 @@ static void ti_sci_setup_ops(struct ti_sci_info *info)
 	dops->is_transitioning = ti_sci_cmd_dev_is_trans;
 	dops->set_device_resets = ti_sci_cmd_set_device_resets;
 	dops->get_device_resets = ti_sci_cmd_get_device_resets;
+	dops->release_exclusive_devices = ti_sci_cmd_release_exclusive_devices;
 
 	cops->get_clock = ti_sci_cmd_get_clock;
 	cops->idle_clock = ti_sci_cmd_idle_clock;
@@ -3032,6 +3105,8 @@ static int ti_sci_probe(struct udevice *dev)
 	ti_sci_setup_ops(info);
 
 	ret = ti_sci_cmd_get_revision(&info->handle);
+
+	INIT_LIST_HEAD(&info->dev_list);
 
 	return ret;
 }
