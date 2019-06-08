@@ -48,9 +48,10 @@ Two RK3036 boards are supported:
    - EVB RK3036 - use evb-rk3036 configuration
    - Kylin - use kylin_rk3036 configuration
 
-One RK3328 board is supported:
+Two RK3328 board are supported:
 
-   - EVB RK3328
+   - EVB RK3328 - use evb-rk3328_defconfig
+   - Pine64 Rock64 board - use rock64-rk3328_defconfig
 
 Size RK3399 boards are supported (aarch64):
 
@@ -309,6 +310,31 @@ tools/mkimage -n rk3188 -T rksd -d spl/u-boot-spl.bin out
 # truncate, encode and append u-boot.bin
 truncate -s %2048 u-boot.bin
 cat u-boot.bin | split -b 512 --filter='openssl rc4 -K 7C4E0304550509072D2C7B38170D1711' >> out
+
+Booting from an SD card on Pine64 Rock64 (RK3328)
+=================================================
+
+For Rock64 rk3328 board the following three parts are required:
+TPL, SPL, and the u-boot image tree blob. While u-boot-spl.bin and
+u-boot.itb are to be compiled as usual, TPL is currently not
+implemented in u-boot, so you need to pick one from rkbin:
+
+  - Get the rkbin
+
+    => git clone https://github.com/rockchip-linux/rkbin.git
+
+  - Create TPL/SPL image
+
+    => tools/mkimage -n rk3328 -T rksd -d rkbin/bin/rk33/rk3328_ddr_333MHz_v1.16.bin idbloader.img
+    => cat spl/u-boot-spl.bin >> idbloader.img
+
+  - Write TPL/SPL image at 64 sector
+
+    => sudo dd if=idbloader.img of=/dev/mmcblk0 seek=64
+
+  - Write u-boot image tree blob at 16384 sector
+
+    => sudo dd if=u-boot.itb of=/dev/mmcblk0 seek=16384
 
 Booting from an SD card on RK3399
 =================================
