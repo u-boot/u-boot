@@ -11,7 +11,7 @@ config OMAP34XX
 	select ARM_ERRATA_454179
 	select ARM_ERRATA_621766
 	select ARM_ERRATA_725233
-	select USE_TINY_PRINTF
+	select USE_TINY_PRINTF if SPL
 	imply NAND_OMAP_GPMC
 	imply SPL_FS_EXT4
 	imply SPL_FS_FAT
