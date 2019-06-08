@@ -26,7 +26,7 @@ config SPL_FRAMEWORK
 	  and the Linux Kernel.  If unsure, say Y.
 
 config SPL_SIZE_LIMIT
-	hex "Maximum size of SPL image"
+	int "Maximum size of SPL image"
 	depends on SPL
 	default 0
 	help
