@@ -13,18 +13,23 @@
 #include <asm/io.h>
 #include <asm/arch-tegra/ap.h>
 #include <asm/arch-tegra/board.h>
+#include <asm/arch-tegra/cboot.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
+#include <asm/arch-tegra/pmu.h>
 #include <asm/arch-tegra/sys_proto.h>
 #include <asm/arch-tegra/uart.h>
 #include <asm/arch-tegra/warmboot.h>
 #include <asm/arch-tegra/gpu.h>
 #include <asm/arch-tegra/usb.h>
 #include <asm/arch-tegra/xusb-padctl.h>
+#if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 #include <asm/arch/clock.h>
+#endif
+#if IS_ENABLED(CONFIG_TEGRA_PINCTRL)
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch/pmu.h>
+#endif
 #include <asm/arch/tegra.h>
 #ifdef CONFIG_TEGRA_CLOCK_SCALING
 #include <asm/arch/emc.h>
@@ -47,6 +52,7 @@ __weak void pin_mux_mmc(void) {}
 __weak void gpio_early_init_uart(void) {}
 __weak void pin_mux_display(void) {}
 __weak void start_cpu_fan(void) {}
+__weak void cboot_late_init(void) {}
 
 #if defined(CONFIG_TEGRA_NAND)
 __weak void pin_mux_nand(void)
@@ -109,8 +115,10 @@ int board_init(void)
 	__maybe_unused int board_id;
 
 	/* Do clocks and UART first so that printf() works */
+#if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 	clock_init();
 	clock_verify();
+#endif
 
 	tegra_gpu_config();
 
@@ -181,8 +189,10 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
+#if IS_ENABLED(CONFIG_TEGRA_CLKRST)
 	if (!clock_early_init_done())
 		clock_early_init();
+#endif
 
 #if defined(CONFIG_TEGRA_DISCONNECT_UDC_ON_BOOT)
 #define USBCMD_FS2 (1 << 15)
@@ -193,10 +203,12 @@ int board_early_init_f(void)
 #endif
 
 	/* Do any special system timer/TSC setup */
-#if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
+#if IS_ENABLED(CONFIG_TEGRA_CLKRST)
+#  if defined(CONFIG_TEGRA_SUPPORT_NON_SECURE)
 	if (!tegra_cpu_is_non_secure())
-#endif
+#  endif
 		arch_timer_init();
+#endif
 
 	pinmux_init();
 	board_init_uart_f();
@@ -233,6 +245,7 @@ int board_late_init(void)
 	}
 #endif
 	start_cpu_fan();
+	cboot_late_init();
 
 	return 0;
 }
@@ -327,6 +340,15 @@ static ulong usable_ram_size_below_4g(void)
  */
 int dram_init_banksize(void)
 {
+	int err;
+
+	/* try to compute DRAM bank size based on cboot DTB first */
+	err = cboot_dram_init_banksize();
+	if (err == 0)
+		return err;
+
+	/* fall back to default DRAM bank size computation */
+
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = usable_ram_size_below_4g();
 
@@ -360,5 +382,14 @@ int dram_init_banksize(void)
  */
 ulong board_get_usable_ram_top(ulong total_size)
 {
+	ulong ram_top;
+
+	/* try to get top of usable RAM based on cboot DTB first */
+	ram_top = cboot_get_usable_ram_top(total_size);
+	if (ram_top > 0)
+		return ram_top;
+
+	/* fall back to default usable RAM computation */
+
 	return CONFIG_SYS_SDRAM_BASE + usable_ram_size_below_4g();
 }

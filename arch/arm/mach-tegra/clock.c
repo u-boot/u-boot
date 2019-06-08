@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2010-2015, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2019, NVIDIA CORPORATION.  All rights reserved.
  */
 
 /* Tegra SoC common clock control functions */
@@ -815,11 +815,16 @@ void tegra30_set_up_pllp(void)
 
 int clock_external_output(int clk_id)
 {
-	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+	u32 val;
 
 	if (clk_id >= 1 && clk_id <= 3) {
-		setbits_le32(&pmc->pmc_clk_out_cntrl,
-			     1 << (2 + (clk_id - 1) * 8));
+		val = tegra_pmc_readl(offsetof(struct pmc_ctlr,
+				      pmc_clk_out_cntrl));
+		val |= 1 << (2 + (clk_id - 1) * 8);
+		tegra_pmc_writel(val,
+				 offsetof(struct pmc_ctlr,
+				 pmc_clk_out_cntrl));
+
 	} else {
 		printf("%s: Unknown output clock id %d\n", __func__, clk_id);
 		return -EINVAL;

@@ -1261,6 +1261,35 @@ __weak void *board_fdt_blob_setup(void)
 }
 #endif
 
+int fdtdec_set_ethernet_mac_address(void *fdt, const u8 *mac, size_t size)
+{
+	const char *path;
+	int offset, err;
+
+	if (!is_valid_ethaddr(mac))
+		return -EINVAL;
+
+	path = fdt_get_alias(fdt, "ethernet");
+	if (!path)
+		return 0;
+
+	debug("ethernet alias found: %s\n", path);
+
+	offset = fdt_path_offset(fdt, path);
+	if (offset < 0) {
+		debug("ethernet alias points to absent node %s\n", path);
+		return -ENOENT;
+	}
+
+	err = fdt_setprop_inplace(fdt, offset, "local-mac-address", mac, size);
+	if (err < 0)
+		return err;
+
+	debug("MAC address: %pM\n", mac);
+
+	return 0;
+}
+
 static int fdtdec_init_reserved_memory(void *blob)
 {
 	int na, ns, node, err;

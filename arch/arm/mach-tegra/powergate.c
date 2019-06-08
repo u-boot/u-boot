@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2014-2019, NVIDIA CORPORATION.  All rights reserved.
  */
 
 #include <common.h>
@@ -11,6 +11,7 @@
 
 #include <asm/arch/powergate.h>
 #include <asm/arch/tegra.h>
+#include <asm/arch-tegra/pmc.h>
 
 #define PWRGATE_TOGGLE 0x30
 #define  PWRGATE_TOGGLE_START (1 << 8)
@@ -24,18 +25,18 @@ static int tegra_powergate_set(enum tegra_powergate id, bool state)
 	u32 value, mask = state ? (1 << id) : 0, old_mask;
 	unsigned long start, timeout = 25;
 
-	value = readl(NV_PA_PMC_BASE + PWRGATE_STATUS);
+	value = tegra_pmc_readl(PWRGATE_STATUS);
 	old_mask = value & (1 << id);
 
 	if (mask == old_mask)
 		return 0;
 
-	writel(PWRGATE_TOGGLE_START | id, NV_PA_PMC_BASE + PWRGATE_TOGGLE);
+	tegra_pmc_writel(PWRGATE_TOGGLE_START | id, PWRGATE_TOGGLE);
 
 	start = get_timer(0);
 
 	while (get_timer(start) < timeout) {
-		value = readl(NV_PA_PMC_BASE + PWRGATE_STATUS);
+		value = tegra_pmc_readl(PWRGATE_STATUS);
 		if ((value & (1 << id)) == mask)
 			return 0;
 	}
@@ -69,7 +70,7 @@ static int tegra_powergate_remove_clamping(enum tegra_powergate id)
 	else
 		value = 1 << id;
 
-	writel(value, NV_PA_PMC_BASE + REMOVE_CLAMPING);
+	tegra_pmc_writel(value, REMOVE_CLAMPING);
 
 	return 0;
 }

@@ -30,7 +30,7 @@
 		spi-max-frequency = <25000000>;
 	};
 
-	pcie-controller@80003000 {
+	pcie@80003000 {
 		status = "okay";
 
 		avdd-pex-supply = <&pci_vdd_reg>;
