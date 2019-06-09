@@ -16,6 +16,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
+#include <dm.h>
 #include <linux/sizes.h>
 #include <errno.h>
 #include <asm/arch/sys_proto.h>
@@ -383,10 +384,9 @@ static void imx_pcie_fix_dabt_handler(bool set)
 	}
 }
 
-static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
-				int where, u32 *val)
+static int imx_pcie_read_cfg(struct imx_pcie_priv *priv, pci_dev_t d,
+			     int where, u32 *val)
 {
-	struct imx_pcie_priv *priv = hose->priv_data;
 	void __iomem *va_address;
 	int ret;
 
@@ -413,10 +413,9 @@ static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
 	return 0;
 }
 
-static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
-			int where, u32 val)
+static int imx_pcie_write_cfg(struct imx_pcie_priv *priv, pci_dev_t d,
+			      int where, u32 val)
 {
-	struct imx_pcie_priv *priv = hose->priv_data;
 	void __iomem *va_address = NULL;
 	int ret;
 
@@ -668,12 +667,29 @@ static int imx_pcie_link_up(struct imx_pcie_priv *priv)
 	return 0;
 }
 
+#if !CONFIG_IS_ENABLED(DM_PCI)
 static struct imx_pcie_priv imx_pcie_priv = {
 	.dbi_base	= (void __iomem *)MX6_DBI_ADDR,
 	.cfg_base	= (void __iomem *)MX6_ROOT_ADDR,
 };
 
 static struct imx_pcie_priv *priv = &imx_pcie_priv;
+
+static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
+				int where, u32 *val)
+{
+	struct imx_pcie_priv *priv = hose->priv_data;
+
+	return imx_pcie_read_cfg(priv, d, where, val);
+}
+
+static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
+				 int where, u32 val)
+{
+	struct imx_pcie_priv *priv = hose->priv_data;
+
+	return imx_pcie_write_cfg(priv, d, where, val);
+}
 
 void imx_pcie_init(void)
 {
@@ -730,3 +746,86 @@ void pci_init_board(void)
 {
 	imx_pcie_init();
 }
+#else
+static int imx_pcie_dm_read_config(struct udevice *dev, pci_dev_t bdf,
+				   uint offset, ulong *value,
+				   enum pci_size_t size)
+{
+	struct imx_pcie_priv *priv = dev_get_priv(dev);
+	u32 tmpval;
+	int ret;
+
+	ret = imx_pcie_read_cfg(priv, bdf, offset, &tmpval);
+	if (ret)
+		return ret;
+
+	*value = pci_conv_32_to_size(tmpval, offset, size);
+	return 0;
+}
+
+static int imx_pcie_dm_write_config(struct udevice *dev, pci_dev_t bdf,
+				    uint offset, ulong value,
+				    enum pci_size_t size)
+{
+	struct imx_pcie_priv *priv = dev_get_priv(dev);
+	u32 tmpval, newval;
+	int ret;
+
+	ret = imx_pcie_read_cfg(priv, bdf, offset, &tmpval);
+	if (ret)
+		return ret;
+
+	newval = pci_conv_size_to_32(tmpval, value, offset, size);
+	return imx_pcie_write_cfg(priv, bdf, offset, newval);
+}
+
+static int imx_pcie_dm_probe(struct udevice *dev)
+{
+	struct imx_pcie_priv *priv = dev_get_priv(dev);
+
+	return imx_pcie_link_up(priv);
+}
+
+static int imx_pcie_dm_remove(struct udevice *dev)
+{
+	struct imx_pcie_priv *priv = dev_get_priv(dev);
+
+	imx6_pcie_assert_core_reset(priv, true);
+
+	return 0;
+}
+
+static int imx_pcie_ofdata_to_platdata(struct udevice *dev)
+{
+	struct imx_pcie_priv *priv = dev_get_priv(dev);
+
+	priv->dbi_base = (void __iomem *)devfdt_get_addr_index(dev, 0);
+	priv->cfg_base = (void __iomem *)devfdt_get_addr_index(dev, 1);
+	if (!priv->dbi_base || !priv->cfg_base)
+		return -EINVAL;
+
+	return 0;
+}
+
+static const struct dm_pci_ops imx_pcie_ops = {
+	.read_config	= imx_pcie_dm_read_config,
+	.write_config	= imx_pcie_dm_write_config,
+};
+
+static const struct udevice_id imx_pcie_ids[] = {
+	{ .compatible = "fsl,imx6q-pcie" },
+	{ }
+};
+
+U_BOOT_DRIVER(imx_pcie) = {
+	.name			= "imx_pcie",
+	.id			= UCLASS_PCI,
+	.of_match		= imx_pcie_ids,
+	.ops			= &imx_pcie_ops,
+	.probe			= imx_pcie_dm_probe,
+	.remove			= imx_pcie_dm_remove,
+	.ofdata_to_platdata	= imx_pcie_ofdata_to_platdata,
+	.priv_auto_alloc_size	= sizeof(struct imx_pcie_priv),
+	.flags			= DM_FLAG_OS_PREPARE,
+};
+#endif
