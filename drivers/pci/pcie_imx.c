@@ -307,9 +307,11 @@ static int imx_pcie_regions_setup(void)
 	/* Region #0 is used for Outbound CFG space access. */
 	writel(0, priv->dbi_base + PCIE_ATU_VIEWPORT);
 
-	writel((u32)priv->cfg_base, priv->dbi_base + PCIE_ATU_LOWER_BASE);
-	writel(0, priv->dbi_base + PCIE_ATU_UPPER_BASE);
-	writel((u32)priv->cfg_base + MX6_ROOT_SIZE,
+	writel(lower_32_bits((uintptr_t)priv->cfg_base),
+	       priv->dbi_base + PCIE_ATU_LOWER_BASE);
+	writel(upper_32_bits((uintptr_t)priv->cfg_base),
+	       priv->dbi_base + PCIE_ATU_UPPER_BASE);
+	writel(lower_32_bits((uintptr_t)priv->cfg_base + MX6_ROOT_SIZE),
 	       priv->dbi_base + PCIE_ATU_LIMIT);
 
 	writel(0, priv->dbi_base + PCIE_ATU_LOWER_TARGET);
@@ -323,9 +325,9 @@ static int imx_pcie_regions_setup(void)
 /*
  * PCI Express accessors
  */
-static uint32_t get_bus_address(pci_dev_t d, int where)
+static void __iomem *get_bus_address(pci_dev_t d, int where)
 {
-	uint32_t va_address;
+	void __iomem *va_address;
 
 	/* Reconfigure Region #0 */
 	writel(0, priv->dbi_base + PCIE_ATU_VIEWPORT);
@@ -336,10 +338,10 @@ static uint32_t get_bus_address(pci_dev_t d, int where)
 		writel(PCIE_ATU_TYPE_CFG1, priv->dbi_base + PCIE_ATU_CR1);
 
 	if (PCI_BUS(d) == 0) {
-		va_address = (u32)priv->dbi_base;
+		va_address = priv->dbi_base;
 	} else {
 		writel(d << 8, priv->dbi_base + PCIE_ATU_LOWER_TARGET);
-		va_address = (u32)priv->cfg_base;
+		va_address = priv->cfg_base;
 	}
 
 	va_address += (where & ~0x3);
@@ -390,7 +392,7 @@ static void imx_pcie_fix_dabt_handler(bool set)
 static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
 				int where, u32 *val)
 {
-	uint32_t va_address;
+	void __iomem *va_address;
 	int ret;
 
 	ret = imx_pcie_addr_valid(d);
@@ -419,7 +421,7 @@ static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
 static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
 			int where, u32 val)
 {
-	uint32_t va_address = 0;
+	void __iomem *va_address = NULL;
 	int ret;
 
 	ret = imx_pcie_addr_valid(d);
