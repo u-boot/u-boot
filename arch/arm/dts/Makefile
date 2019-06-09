@@ -535,7 +535,8 @@ dtb-$(CONFIG_VF610) += vf500-colibri.dtb \
 	vf610-bk4r1.dtb
 
 dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
-	imx53-kp.dtb
+	imx53-kp.dtb \
+	imx53-m53menlo.dtb
 
 dtb-$(CONFIG_MX6Q) += \
 	imx6-apalis.dtb \
