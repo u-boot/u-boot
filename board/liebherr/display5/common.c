@@ -68,7 +68,7 @@ iomux_v3_cfg_t const ecspi2_pads[] = {
 
 int board_spi_cs_gpio(unsigned int bus, unsigned int cs)
 {
-	if (bus != 1 || cs != (IMX_GPIO_NR(5, 29) << 8))
+	if (bus != 1 || cs != 0)
 		return -EINVAL;
 
 	return IMX_GPIO_NR(5, 29);
