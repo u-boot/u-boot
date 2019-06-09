@@ -88,6 +88,7 @@ int board_ehci_hcd_init(int port)
 		imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX53_PAD_GPIO_4__GPIO1_4,
 						    PAD_CTL_PKE |
 						    PAD_CTL_DSE_HIGH));
+		gpio_request(IMX_GPIO_NR(1, 4), "USB_OTG_PWRON");
 		gpio_direction_output(IMX_GPIO_NR(1, 4), 0);
 
 		/* USB OTG Over Current */
@@ -97,6 +98,7 @@ int board_ehci_hcd_init(int port)
 		imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX53_PAD_GPIO_2__GPIO1_2,
 						    PAD_CTL_PKE |
 						    PAD_CTL_DSE_HIGH));
+		gpio_request(IMX_GPIO_NR(1, 2), "USB_HOST_PWRON");
 		gpio_direction_output(IMX_GPIO_NR(1, 2), 0);
 
 		/* USB Host Over Current */
@@ -215,6 +217,8 @@ static void enable_lvds_clock(struct display_info_t const *dev, const u8 hclk)
 
 static void enable_lvds_etm0430g0dh6(struct display_info_t const *dev)
 {
+	gpio_request(IMX_GPIO_NR(6, 0), "LCD");
+
 	/* For ETM0430G0DH6 model, this must be enabled before the clock. */
 	gpio_direction_output(IMX_GPIO_NR(6, 0), 1);
 
@@ -227,6 +231,8 @@ static void enable_lvds_etm0430g0dh6(struct display_info_t const *dev)
 
 static void enable_lvds_etm0700g0dh6(struct display_info_t const *dev)
 {
+	gpio_request(IMX_GPIO_NR(6, 0), "LCD");
+
 	/*
 	 * Set LVDS clock to 33.28 MHz for the display. The PLL4 is set to
 	 * 233 MHz, divided by 7 by setting CCM_CSCMR2 LDB_DI0_IPU_DIV=1 .
@@ -423,6 +429,8 @@ static void m53_set_clock(void)
 	const u32 ref_clk = MXC_HCLK;
 	const u32 dramclk = 400;
 	u32 cpuclk;
+
+	gpio_request(IMX_GPIO_NR(4, 0), "CPUCLK");
 
 	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX53_PAD_GPIO_10__GPIO4_0,
 					    PAD_CTL_DSE_HIGH | PAD_CTL_PKE));
