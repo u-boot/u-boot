@@ -72,3 +72,31 @@ int mscc_miim_write(struct mii_dev *bus, int addr, int devad, int reg,
  out:
 	return ret;
 }
+
+struct mii_dev *mscc_mdiobus_init(struct mscc_miim_dev *miim, int *miim_count,
+				  phys_addr_t miim_base,
+				  unsigned long miim_size)
+{
+	struct mii_dev *bus;
+
+	bus = mdio_alloc();
+
+	if (!bus)
+		return NULL;
+
+	*miim_count += 1;
+	sprintf(bus->name, "miim-bus%d", *miim_count);
+
+	miim[*miim_count].regs = ioremap(miim_base, miim_size);
+	miim[*miim_count].miim_base = miim_base;
+	miim[*miim_count].miim_size = miim_size;
+	bus->priv = &miim[*miim_count];
+	bus->read = mscc_miim_read;
+	bus->write = mscc_miim_write;
+
+	if (mdio_register(bus))
+		return NULL;
+
+	miim[*miim_count].bus = bus;
+	return bus;
+}
