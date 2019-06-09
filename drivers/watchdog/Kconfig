@@ -28,7 +28,7 @@ config BCM2835_WDT
 
 config IMX_WATCHDOG
 	bool "Enable Watchdog Timer support for IMX and LSCH2 of NXP"
-	select HW_WATCHDOG
+	select HW_WATCHDOG if !WDT
 	help
 	   Select this to enable the IMX and LSCH2 of Layerscape watchdog
 	   driver.
