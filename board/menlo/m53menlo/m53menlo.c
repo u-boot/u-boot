@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
@@ -28,6 +29,7 @@
 #include <spl.h>
 #include <splash.h>
 #include <usb/ehci-ci.h>
+#include <video_console.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -123,7 +125,6 @@ static void setup_iomux_fec(void)
 	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
 
-#ifdef CONFIG_VIDEO
 static void enable_lvds_clock(struct display_info_t const *dev, const u8 hclk)
 {
 	static struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
@@ -270,7 +271,6 @@ struct display_info_t const displays[] = {
 };
 
 size_t display_count = ARRAY_SIZE(displays);
-#endif
 
 #ifdef CONFIG_SPLASH_SCREEN
 static struct splash_location default_splash_locations[] = {
@@ -288,6 +288,50 @@ int splash_screen_prepare(void)
 				  ARRAY_SIZE(default_splash_locations));
 }
 #endif
+
+int board_late_init(void)
+{
+#if defined(CONFIG_VIDEO_IPUV3)
+	struct udevice *dev;
+	int xpos, ypos, ret;
+	char *s;
+	void *dst;
+	ulong addr, len;
+
+	splash_get_pos(&xpos, &ypos);
+
+	s = env_get("splashimage");
+	if (!s)
+		return 0;
+
+	addr = simple_strtoul(s, NULL, 16);
+	dst = malloc(CONFIG_SYS_VIDEO_LOGO_MAX_SIZE);
+	if (!dst)
+		return -ENOMEM;
+
+	ret = splash_screen_prepare();
+	if (ret < 0)
+		return ret;
+
+	len = CONFIG_SYS_VIDEO_LOGO_MAX_SIZE;
+	ret = gunzip(dst + 2, CONFIG_SYS_VIDEO_LOGO_MAX_SIZE - 2,
+		     (uchar *)addr, &len);
+	if (ret) {
+		printf("Error: no valid bmp or bmp.gz image at %lx\n", addr);
+		free(dst);
+		return ret;
+	}
+
+	ret = uclass_get_device(UCLASS_VIDEO, 0, &dev);
+	if (ret)
+		return ret;
+
+	ret = video_bmp_display(dev, (ulong)dst + 2, xpos, ypos, true);
+	if (ret)
+		return ret;
+#endif
+	return 0;
+}
 
 #define I2C_PAD_CTRL	(PAD_CTL_SRE_FAST | PAD_CTL_DSE_HIGH | \
 			 PAD_CTL_PUS_100K_UP | PAD_CTL_ODE)

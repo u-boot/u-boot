@@ -136,7 +136,6 @@
 /*
  * LCD
  */
-#ifdef CONFIG_VIDEO
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SPLASH_SCREEN
@@ -145,7 +144,6 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)
-#endif
 
 /* LVDS display */
 #define CONFIG_SYS_LDB_CLOCK			33260000
@@ -205,6 +203,8 @@
 	"splashfile=boot/usplash.bmp.gz\0"				\
 	"splashimage=0x88000000\0"					\
 	"splashpos=m,m\0"						\
+	"stdout=serial,vidconsole\0"					\
+	"stderr=serial,vidconsole\0"					\
 	"addcons="							\
 		"setenv bootargs ${bootargs} "				\
 		"console=${consdev},${baudrate}\0"			\
