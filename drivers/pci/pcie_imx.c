@@ -97,13 +97,6 @@ struct imx_pcie_priv {
 	void __iomem		*cfg_base;
 };
 
-static struct imx_pcie_priv imx_pcie_priv = {
-	.dbi_base	= (void __iomem *)MX6_DBI_ADDR,
-	.cfg_base	= (void __iomem *)MX6_ROOT_ADDR,
-};
-
-static struct imx_pcie_priv *priv = &imx_pcie_priv;
-
 /*
  * PHY access functions
  */
@@ -237,7 +230,7 @@ static int pcie_phy_write(void __iomem *dbi_base, int addr, int data)
 	return 0;
 }
 
-static int imx6_pcie_link_up(void)
+static int imx6_pcie_link_up(struct imx_pcie_priv *priv)
 {
 	u32 rc, ltssm;
 	int rx_valid, temp;
@@ -282,7 +275,7 @@ static int imx6_pcie_link_up(void)
 /*
  * iATU region setup
  */
-static int imx_pcie_regions_setup(void)
+static int imx_pcie_regions_setup(struct imx_pcie_priv *priv)
 {
 	/*
 	 * i.MX6 defines 16MB in the AXI address map for PCIe.
@@ -325,7 +318,8 @@ static int imx_pcie_regions_setup(void)
 /*
  * PCI Express accessors
  */
-static void __iomem *get_bus_address(pci_dev_t d, int where)
+static void __iomem *get_bus_address(struct imx_pcie_priv *priv,
+				     pci_dev_t d, int where)
 {
 	void __iomem *va_address;
 
@@ -392,6 +386,7 @@ static void imx_pcie_fix_dabt_handler(bool set)
 static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
 				int where, u32 *val)
 {
+	struct imx_pcie_priv *priv = hose->priv_data;
 	void __iomem *va_address;
 	int ret;
 
@@ -401,7 +396,7 @@ static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
 		return 0;
 	}
 
-	va_address = get_bus_address(d, where);
+	va_address = get_bus_address(priv, d, where);
 
 	/*
 	 * Read the PCIe config space. We must replace the DABT handler
@@ -421,6 +416,7 @@ static int imx_pcie_read_config(struct pci_controller *hose, pci_dev_t d,
 static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
 			int where, u32 val)
 {
+	struct imx_pcie_priv *priv = hose->priv_data;
 	void __iomem *va_address = NULL;
 	int ret;
 
@@ -428,7 +424,7 @@ static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
 	if (ret)
 		return ret;
 
-	va_address = get_bus_address(d, where);
+	va_address = get_bus_address(priv, d, where);
 
 	/*
 	 * Write the PCIe config space. We must replace the DABT handler
@@ -445,7 +441,8 @@ static int imx_pcie_write_config(struct pci_controller *hose, pci_dev_t d,
 /*
  * Initial bus setup
  */
-static int imx6_pcie_assert_core_reset(bool prepare_for_boot)
+static int imx6_pcie_assert_core_reset(struct imx_pcie_priv *priv,
+				       bool prepare_for_boot)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
@@ -617,17 +614,17 @@ static int imx6_pcie_deassert_core_reset(void)
 	return 0;
 }
 
-static int imx_pcie_link_up(void)
+static int imx_pcie_link_up(struct imx_pcie_priv *priv)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	uint32_t tmp;
 	int count = 0;
 
-	imx6_pcie_assert_core_reset(false);
+	imx6_pcie_assert_core_reset(priv, false);
 	imx6_pcie_init_phy();
 	imx6_pcie_deassert_core_reset();
 
-	imx_pcie_regions_setup();
+	imx_pcie_regions_setup(priv);
 
 	/*
 	 * By default, the subordinate is set equally to the secondary
@@ -654,7 +651,7 @@ static int imx_pcie_link_up(void)
 	/* LTSSM enable, starting link. */
 	setbits_le32(&iomuxc_regs->gpr[12], IOMUXC_GPR12_APPS_LTSSM_ENABLE);
 
-	while (!imx6_pcie_link_up()) {
+	while (!imx6_pcie_link_up(priv)) {
 		udelay(10);
 		count++;
 		if (count >= 4000) {
@@ -671,6 +668,13 @@ static int imx_pcie_link_up(void)
 	return 0;
 }
 
+static struct imx_pcie_priv imx_pcie_priv = {
+	.dbi_base	= (void __iomem *)MX6_DBI_ADDR,
+	.cfg_base	= (void __iomem *)MX6_ROOT_ADDR,
+};
+
+static struct imx_pcie_priv *priv = &imx_pcie_priv;
+
 void imx_pcie_init(void)
 {
 	/* Static instance of the controller. */
@@ -679,6 +683,8 @@ void imx_pcie_init(void)
 	int ret;
 
 	memset(&pcc, 0, sizeof(pcc));
+
+	hose->priv_data = priv;
 
 	/* PCI I/O space */
 	pci_set_region(&hose->regions[0],
@@ -706,7 +712,7 @@ void imx_pcie_init(void)
 		    imx_pcie_write_config);
 
 	/* Start the controller. */
-	ret = imx_pcie_link_up();
+	ret = imx_pcie_link_up(priv);
 
 	if (!ret) {
 		pci_register_hose(hose);
@@ -716,7 +722,7 @@ void imx_pcie_init(void)
 
 void imx_pcie_remove(void)
 {
-	imx6_pcie_assert_core_reset(true);
+	imx6_pcie_assert_core_reset(priv, true);
 }
 
 /* Probe function. */
