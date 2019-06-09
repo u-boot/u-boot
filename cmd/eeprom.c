@@ -108,7 +108,7 @@ static int eeprom_len(unsigned offset, unsigned end)
 
 	/*
 	 * For a FRAM device there is no limit on the number of the
-	 * bytes that can be ccessed with the single read or write
+	 * bytes that can be accessed with the single read or write
 	 * operation.
 	 */
 #if !defined(CONFIG_SYS_I2C_FRAM)
