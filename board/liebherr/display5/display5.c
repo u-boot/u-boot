@@ -413,12 +413,3 @@ int misc_init_r(void)
 
 	return 0;
 }
-
-static struct mxc_serial_platdata mxc_serial_plat = {
-	.reg = (struct mxc_uart *)UART5_BASE,
-};
-
-U_BOOT_DEVICE(mxc_serial) = {
-	.name = "serial_mxc",
-	.platdata = &mxc_serial_plat,
-};
