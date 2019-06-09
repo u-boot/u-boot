@@ -80,35 +80,6 @@ static void setup_iomux_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
 }
 
-#ifdef CONFIG_USB_EHCI_MX5
-int board_ehci_hcd_init(int port)
-{
-	if (port == 0) {
-		/* USB OTG PWRON */
-		imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX53_PAD_GPIO_4__GPIO1_4,
-						    PAD_CTL_PKE |
-						    PAD_CTL_DSE_HIGH));
-		gpio_request(IMX_GPIO_NR(1, 4), "USB_OTG_PWRON");
-		gpio_direction_output(IMX_GPIO_NR(1, 4), 0);
-
-		/* USB OTG Over Current */
-		imx_iomux_v3_setup_pad(MX53_PAD_GPIO_18__GPIO7_13);
-	} else if (port == 1) {
-		/* USB Host PWRON */
-		imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX53_PAD_GPIO_2__GPIO1_2,
-						    PAD_CTL_PKE |
-						    PAD_CTL_DSE_HIGH));
-		gpio_request(IMX_GPIO_NR(1, 2), "USB_HOST_PWRON");
-		gpio_direction_output(IMX_GPIO_NR(1, 2), 0);
-
-		/* USB Host Over Current */
-		imx_iomux_v3_setup_pad(MX53_PAD_GPIO_3__USBOH3_USBH1_OC);
-	}
-
-	return 0;
-}
-#endif
-
 static void setup_iomux_fec(void)
 {
 	static const iomux_v3_cfg_t fec_pads[] = {
@@ -151,43 +122,6 @@ static void setup_iomux_fec(void)
 
 	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
-
-#ifdef CONFIG_FSL_ESDHC
-struct fsl_esdhc_cfg esdhc_cfg = {
-	MMC_SDHC1_BASE_ADDR,
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	imx_iomux_v3_setup_pad(MX53_PAD_GPIO_1__GPIO1_1);
-	gpio_direction_input(IMX_GPIO_NR(1, 1));
-
-	return !gpio_get_value(IMX_GPIO_NR(1, 1));
-}
-
-#define SD_CMD_PAD_CTRL		(PAD_CTL_HYS | PAD_CTL_DSE_HIGH | \
-				 PAD_CTL_PUS_100K_UP)
-#define SD_PAD_CTRL		(PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | \
-				 PAD_CTL_DSE_HIGH)
-
-int board_mmc_init(bd_t *bis)
-{
-	static const iomux_v3_cfg_t sd1_pads[] = {
-		NEW_PAD_CTRL(MX53_PAD_SD1_CMD__ESDHC1_CMD, SD_CMD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_SD1_CLK__ESDHC1_CLK, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_SD1_DATA0__ESDHC1_DAT0, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_SD1_DATA1__ESDHC1_DAT1, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_SD1_DATA2__ESDHC1_DAT2, SD_PAD_CTRL),
-		NEW_PAD_CTRL(MX53_PAD_SD1_DATA3__ESDHC1_DAT3, SD_PAD_CTRL),
-	};
-
-	esdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
-
-	imx_iomux_v3_setup_multiple_pads(sd1_pads, ARRAY_SIZE(sd1_pads));
-
-	return fsl_esdhc_initialize(bis, &esdhc_cfg);
-}
-#endif
 
 #ifdef CONFIG_VIDEO
 static void enable_lvds_clock(struct display_info_t const *dev, const u8 hclk)
