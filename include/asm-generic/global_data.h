@@ -137,7 +137,7 @@ typedef struct global_data {
 #if defined(CONFIG_TRANSLATION_OFFSET)
 	fdt_addr_t translation_offset;	/* optional translation offset */
 #endif
-#if defined(CONFIG_WDT)
+#if CONFIG_IS_ENABLED(WDT)
 	struct udevice *watchdog_dev;
 #endif
 } gd_t;

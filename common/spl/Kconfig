@@ -1061,6 +1061,7 @@ endif
 
 config SPL_WATCHDOG_SUPPORT
 	bool "Support watchdog drivers"
+	imply SPL_WDT if !HW_WATCHDOG
 	help
 	  Enable support for watchdog drivers in SPL. A watchdog is
 	  typically a hardware peripheral which can reset the system when it

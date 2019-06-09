@@ -169,4 +169,11 @@ config WDT_TANGIER
 	  Intel Tangier SoC. If you're using a board with Intel Tangier
 	  SoC, say Y here.
 
+config SPL_WDT
+	bool "Enable driver model for watchdog timer drivers in SPL"
+	depends on SPL_DM
+	help
+	  Enable driver model for watchdog timer in SPL.
+	  This is similar to CONFIG_WDT in U-Boot.
+
 endmenu

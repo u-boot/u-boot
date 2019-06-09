@@ -700,7 +700,7 @@ static init_fnc_t init_sequence_r[] = {
 	stdio_init_tables,
 	initr_serial,
 	initr_announce,
-#if defined(CONFIG_WDT)
+#if CONFIG_IS_ENABLED(WDT)
 	initr_watchdog,
 #endif
 	INIT_FUNC_WATCHDOG_RESET

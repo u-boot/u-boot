@@ -106,7 +106,7 @@ struct wdt_ops {
 	int (*expire_now)(struct udevice *dev, ulong flags);
 };
 
-#if defined(CONFIG_WDT)
+#if CONFIG_IS_ENABLED(WDT)
 #ifndef CONFIG_WATCHDOG_TIMEOUT_MSECS
 #define CONFIG_WATCHDOG_TIMEOUT_MSECS	(60 * 1000)
 #endif
