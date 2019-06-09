@@ -11,6 +11,11 @@
 			u-boot,dm-pre-reloc;
 		};
 	};
+
+	wdt-reboot {
+		compatible = "wdt-reboot";
+		wdt = <&wdog1>;
+	};
 };
 
 &gpio1 {
