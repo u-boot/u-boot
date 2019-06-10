@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <mmc.h>
@@ -681,8 +682,18 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		u32 f_max, u32 f_min)
 {
 	u32 caps, caps_1 = 0;
+#if CONFIG_IS_ENABLED(DM_MMC)
+	u32 mask[2] = {0};
+	int ret;
+	ret = dev_read_u32_array(host->mmc->dev, "sdhci-caps-mask",
+				 mask, 2);
+	if (ret && ret != -1)
+		return ret;
 
+	caps = ~mask[1] & sdhci_readl(host, SDHCI_CAPABILITIES);
+#else
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
+#endif
 
 #ifdef CONFIG_MMC_SDHCI_SDMA
 	if (!(caps & SDHCI_CAN_DO_SDMA)) {
@@ -722,7 +733,11 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 
 	/* Check whether the clock multiplier is supported or not */
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
+#if CONFIG_IS_ENABLED(DM_MMC)
+		caps_1 = ~mask[0] & sdhci_readl(host, SDHCI_CAPABILITIES_1);
+#else
 		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
+#endif
 		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
 				SDHCI_CLOCK_MUL_SHIFT;
 	}
@@ -778,9 +793,6 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		cfg->host_caps &= ~MMC_MODE_HS;
 		cfg->host_caps &= ~MMC_MODE_HS_52MHz;
 	}
-
-	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
-		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
 
 	if (!(cfg->voltages & MMC_VDD_165_195) ||
 	    (host->quirks & SDHCI_QUIRK_NO_1_8_V))
