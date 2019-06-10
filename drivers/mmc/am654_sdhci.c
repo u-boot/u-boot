@@ -54,9 +54,6 @@ static int am654_sdhci_probe(struct udevice *dev)
 		return clock;
 	}
 
-	host->quirks = SDHCI_QUIRK_WAIT_SEND_CMD |
-		       SDHCI_QUIRK_BROKEN_R1B;
-
 	host->max_clk = clock;
 
 	ret = sdhci_setup_cfg(&plat->cfg, host, plat->f_max,
