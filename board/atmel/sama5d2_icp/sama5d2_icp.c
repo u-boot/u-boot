@@ -73,6 +73,36 @@ int misc_init_r(void)
 /* SPL */
 #ifdef CONFIG_SPL_BUILD
 
+/* must set PB25 low to enable the CAN transceivers */
+static void board_can_stdby_dis(void)
+{
+	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 25, 0);
+}
+
+static void board_leds_init(void)
+{
+	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 0, 0); /* RED */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 1, 1); /* GREEN */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTA, 31, 0); /* BLUE */
+}
+
+/* deassert reset lines for external periph in case of warm reboot */
+static void board_reset_additional_periph(void)
+{
+	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 16, 0); /* LAN9252_RST */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTC, 2, 0); /* HSIC_RST */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTC, 17, 0); /* USB2534_RST */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTD, 4, 0); /* KSZ8563_RST */
+}
+
+static void board_start_additional_periph(void)
+{
+	atmel_pio4_set_pio_output(AT91_PIO_PORTB, 16, 1); /* LAN9252_RST */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTC, 2, 1); /* HSIC_RST */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTC, 17, 1); /* USB2534_RST */
+	atmel_pio4_set_pio_output(AT91_PIO_PORTD, 4, 1); /* KSZ8563_RST */
+}
+
 #ifdef CONFIG_SD_BOOT
 void spl_mmc_init(void)
 {
@@ -93,10 +123,18 @@ void spl_board_init(void)
 #ifdef CONFIG_SD_BOOT
 	spl_mmc_init();
 #endif
+	board_reset_additional_periph();
+	board_can_stdby_dis();
+	board_leds_init();
 }
 
 void spl_display_print(void)
 {
+}
+
+void spl_board_prepare_for_boot(void)
+{
+	board_start_additional_periph();
 }
 
 static void ddrc_conf(struct atmel_mpddrc_config *ddrc)
