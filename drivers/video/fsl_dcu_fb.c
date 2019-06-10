@@ -8,10 +8,12 @@
 
 #include <asm/io.h>
 #include <common.h>
+#include <dm.h>
 #include <fdt_support.h>
 #include <fsl_dcu_fb.h>
 #include <linux/fb.h>
 #include <malloc.h>
+#include <video.h>
 #include <video_fb.h>
 #include "videomodes.h"
 
@@ -219,8 +221,6 @@ struct dcu_reg {
 	u32 ctrldescl[DCU_LAYER_MAX_NUM][16];
 };
 
-static struct fb_info info;
-
 static void reset_total_layers(void)
 {
 	struct dcu_reg *regs = (struct dcu_reg *)CONFIG_SYS_DCU_ADDR;
@@ -302,7 +302,11 @@ int fsl_dcu_init(struct fb_info *fbinfo, unsigned int xres,
 {
 	struct dcu_reg *regs = (struct dcu_reg *)CONFIG_SYS_DCU_ADDR;
 	unsigned int div, mode;
-
+/*
+ * When DM_VIDEO is enabled reservation of framebuffer is done
+ * in advance during bind() call.
+ */
+#if !CONFIG_IS_ENABLED(DM_VIDEO)
 	fbinfo->screen_size = fbinfo->var.xres * fbinfo->var.yres *
 			     (fbinfo->var.bits_per_pixel / 8);
 
@@ -310,13 +314,13 @@ int fsl_dcu_init(struct fb_info *fbinfo, unsigned int xres,
 		fbinfo->screen_size = 0;
 		return -ENOMEM;
 	}
-
 	/* Reserve framebuffer at the end of memory */
 	gd->fb_base = gd->bd->bi_dram[0].start +
 			gd->bd->bi_dram[0].size - fbinfo->screen_size;
 	fbinfo->screen_base = (char *)gd->fb_base;
 
 	memset(fbinfo->screen_base, 0, fbinfo->screen_size);
+#endif
 
 	reset_total_layers();
 
@@ -429,24 +433,8 @@ int fsl_probe_common(struct fb_info *fbinfo, unsigned int *win_x,
 				 options + 8, fsl_dcu_mode_db);
 }
 
-void *video_hw_init(void)
-{
-	static GraphicDevice ctfb;
-
-	if (fsl_probe_common(&info, &ctfb.winSizeX, &ctfb.winSizeY) < 0)
-		return NULL;
-
-	ctfb.frameAdrs = (unsigned int)info.screen_base;
-	ctfb.plnSizeX = ctfb.winSizeX;
-	ctfb.plnSizeY = ctfb.winSizeY;
-
-	ctfb.gdfBytesPP = 4;
-	ctfb.gdfIndex = GDF_32BIT_X888RGB;
-
-	ctfb.memSize = info.screen_size;
-
-	return &ctfb;
-}
+#ifndef CONFIG_DM_VIDEO
+static struct fb_info info;
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 int fsl_dcu_fixedfb_setup(void *blob)
@@ -470,3 +458,89 @@ int fsl_dcu_fixedfb_setup(void *blob)
 	return 0;
 }
 #endif
+
+void *video_hw_init(void)
+{
+	static GraphicDevice ctfb;
+
+	if (fsl_probe_common(&info, &ctfb.winSizeX, &ctfb.winSizeY) < 0)
+		return NULL;
+
+	ctfb.frameAdrs = (unsigned int)info.screen_base;
+	ctfb.plnSizeX = ctfb.winSizeX;
+	ctfb.plnSizeY = ctfb.winSizeY;
+
+	ctfb.gdfBytesPP = 4;
+	ctfb.gdfIndex = GDF_32BIT_X888RGB;
+
+	ctfb.memSize = info.screen_size;
+
+	return &ctfb;
+}
+
+#else /* ifndef CONFIG_DM_VIDEO */
+
+static int fsl_dcu_video_probe(struct udevice *dev)
+{
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct fb_info fbinfo = { 0 };
+	unsigned int win_x;
+	unsigned int win_y;
+	u32 fb_start, fb_end;
+	int ret = 0;
+
+	fb_start = plat->base & ~(MMU_SECTION_SIZE - 1);
+	fb_end = plat->base + plat->size;
+	fb_end = ALIGN(fb_end, 1 << MMU_SECTION_SHIFT);
+
+	fbinfo.screen_base = (char *)fb_start;
+	fbinfo.screen_size = plat->size;
+
+	ret = fsl_probe_common(&fbinfo, &win_x, &win_y);
+	if (ret < 0)
+		return ret;
+
+	uc_priv->bpix = VIDEO_BPP32;
+	uc_priv->xsize = win_x;
+	uc_priv->ysize = win_y;
+
+	/* Enable dcache for the frame buffer */
+	mmu_set_region_dcache_behaviour(fb_start, fb_end - fb_start,
+					DCACHE_WRITEBACK);
+	video_set_flush_dcache(dev, true);
+	return ret;
+}
+
+static int fsl_dcu_video_bind(struct udevice *dev)
+{
+	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
+	unsigned int win_x;
+	unsigned int win_y;
+	unsigned int depth = 0, freq = 0;
+	const char *options;
+	int ret = 0;
+
+	ret = video_get_video_mode(&win_x, &win_y, &depth, &freq, &options);
+	if (ret < 0)
+		return ret;
+
+	plat->size = win_x * win_y * 32;
+
+	return 0;
+}
+
+static const struct udevice_id fsl_dcu_video_ids[] = {
+	{ .compatible = "fsl,vf610-dcu" },
+	{ /* sentinel */ }
+};
+
+U_BOOT_DRIVER(fsl_dcu_video) = {
+	.name	= "fsl_dcu_video",
+	.id	= UCLASS_VIDEO,
+	.of_match = fsl_dcu_video_ids,
+	.bind	= fsl_dcu_video_bind,
+	.probe	= fsl_dcu_video_probe,
+	.flags	= DM_FLAG_PRE_RELOC,
+};
+#endif /* ifndef CONFIG_DM_VIDEO */
