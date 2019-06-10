@@ -410,7 +410,7 @@ static int sdhci_execute_tuning(struct udevice *dev, uint opcode)
 	return 0;
 }
 #endif
-static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
+int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 {
 	struct sdhci_host *host = mmc->priv;
 	unsigned int div, clk = 0, timeout;
