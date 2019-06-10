@@ -408,9 +408,17 @@ config SYS_ICACHE_LINE_SIZE
 	help
 	  The size of L1 Icache lines, if known at compile time.
 
+config SYS_SCACHE_LINE_SIZE
+	int
+	default 0
+	help
+	  The size of L2 cache lines, if known at compile time.
+
+
 config SYS_CACHE_SIZE_AUTO
 	def_bool y if SYS_DCACHE_SIZE = 0 && SYS_ICACHE_SIZE = 0 && \
-		SYS_DCACHE_LINE_SIZE = 0 && SYS_ICACHE_LINE_SIZE = 0
+		SYS_DCACHE_LINE_SIZE = 0 && SYS_ICACHE_LINE_SIZE = 0 && \
+		SYS_SCACHE_LINE_SIZE = 0
 	help
 	  Select this (or let it be auto-selected by not defining any cache
 	  sizes) in order to allow U-Boot to automatically detect the sizes
