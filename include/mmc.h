@@ -342,12 +342,6 @@ enum mmc_voltage {
 #define MMC_NUM_BOOT_PARTITION	2
 #define MMC_PART_RPMB           3       /* RPMB partition number */
 
-#define MMC_TIMING_UHS_SDR12	0
-#define MMC_TIMING_UHS_SDR25	1
-#define MMC_TIMING_UHS_SDR50	2
-#define MMC_TIMING_UHS_SDR104	3
-#define MMC_TIMING_UHS_DDR50	4
-#define MMC_TIMING_HS200	5
 #define MMC_TIMING_HS		1
 #define SD_HS_BUS_SPEED		6
 #define MMC_DDR52_BUS_SPEED	7

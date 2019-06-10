@@ -58,6 +58,13 @@ struct arasan_sdhci_priv {
 #if defined(CONFIG_ARCH_ZYNQMP)
 #define MMC_HS200_BUS_SPEED	5
 
+#define MMC_TIMING_UHS_SDR12    0
+#define MMC_TIMING_UHS_SDR25    1
+#define MMC_TIMING_UHS_SDR50    2
+#define MMC_TIMING_UHS_SDR104   3
+#define MMC_TIMING_UHS_DDR50    4
+#define MMC_TIMING_HS200        5
+
 static const u8 mode2timing[] = {
 	[MMC_LEGACY] = UHS_SDR12_BUS_SPEED,
 	[SD_LEGACY] = UHS_SDR12_BUS_SPEED,
