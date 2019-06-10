@@ -108,6 +108,48 @@ static int init_range(ofnode node, struct regmap_range *range, int addr_len,
 	return 0;
 }
 
+int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index)
+{
+	struct regmap *map;
+	int addr_len, size_len;
+	int ret;
+
+	addr_len = ofnode_read_simple_addr_cells(ofnode_get_parent(node));
+	if (addr_len < 0) {
+		debug("%s: Error while reading the addr length (ret = %d)\n",
+		      ofnode_get_name(node), addr_len);
+		return addr_len;
+	}
+
+	size_len = ofnode_read_simple_size_cells(ofnode_get_parent(node));
+	if (size_len < 0) {
+		debug("%s: Error while reading the size length: (ret = %d)\n",
+		      ofnode_get_name(node), size_len);
+		return size_len;
+	}
+
+	map = regmap_alloc(1);
+	if (!map)
+		return -ENOMEM;
+
+	ret = init_range(node, map->ranges, addr_len, size_len, index);
+	if (ret)
+		return ret;
+
+	if (ofnode_read_bool(node, "little-endian"))
+		map->endianness = REGMAP_LITTLE_ENDIAN;
+	else if (ofnode_read_bool(node, "big-endian"))
+		map->endianness = REGMAP_BIG_ENDIAN;
+	else if (ofnode_read_bool(node, "native-endian"))
+		map->endianness = REGMAP_NATIVE_ENDIAN;
+	else /* Default: native endianness */
+		map->endianness = REGMAP_NATIVE_ENDIAN;
+
+	*mapp = map;
+
+	return ret;
+}
+
 int regmap_init_mem(ofnode node, struct regmap **mapp)
 {
 	struct regmap_range *range;
