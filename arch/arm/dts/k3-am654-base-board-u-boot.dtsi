@@ -21,14 +21,6 @@
 &cbass_main{
 	u-boot,dm-spl;
 
-	main_pmx0: pinmux@11c000 {
-		compatible = "pinctrl-single";
-		reg = <0x0 0x11c000 0x0 0x2e4>;
-		#pinctrl-cells = <1>;
-		pinctrl-single,register-width = <32>;
-		pinctrl-single,function-mask = <0xffffffff>;
-	};
-
 	main_pmx1: pinmux@11c2e8 {
 		compatible = "pinctrl-single";
 		reg = <0x0 0x11c2e8 0x0 0x24>;
@@ -37,17 +29,8 @@
 		pinctrl-single,function-mask = <0xffffffff>;
 	};
 
-	sdhci0: sdhci@04F80000 {
-		compatible = "arasan,sdhci-5.1";
-		reg = <0x0 0x4F80000 0x0 0x1000>,
-		      <0x0 0x4F90000 0x0 0x400>;
-		clocks = <&k3_clks 47 1>;
-		power-domains = <&k3_pds 47>;
-		max-frequency = <25000000>;
-	};
-
 	sdhci1: sdhci@04FA0000 {
-		compatible = "arasan,sdhci-5.1";
+		compatible = "ti,am654-sdhci-5.1";
 		reg = <0x0 0x4FA0000 0x0 0x1000>,
 		      <0x0 0x4FB0000 0x0 0x400>;
 		clocks = <&k3_clks 48 1>;
@@ -276,7 +259,8 @@
 			AM65X_IOPAD(0x0190, PIN_INPUT_PULLUP, 0)	/* (A24) MMC0_DAT5 */
 			AM65X_IOPAD(0x018c, PIN_INPUT_PULLUP, 0)	/* (B26) MMC0_DAT6 */
 			AM65X_IOPAD(0x0188, PIN_INPUT_PULLUP, 0)	/* (D25) MMC0_DAT7 */
-			AM65X_IOPAD(0x01b0, PIN_INPUT, 0)			/* (C25) MMC0_DS */
+			AM65X_IOPAD(0x01b4, PIN_INPUT_PULLUP, 0)	/* (A23) MMC0_SDCD */
+			AM65X_IOPAD(0x01b0, PIN_INPUT, 0)		/* (C25) MMC0_DS */
 		>;
 		u-boot,dm-spl;
 	};
@@ -336,11 +320,6 @@
 
 &sdhci0 {
 	u-boot,dm-spl;
-	status = "okay";
-	non-removable;
-	bus-width = <8>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_mmc0_pins_default>;
 };
 
 &sdhci1 {

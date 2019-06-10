@@ -12,17 +12,17 @@
 #include <power-domain.h>
 #include <sdhci.h>
 
-#define K3_ARASAN_SDHCI_MIN_FREQ	0
+#define AM654_SDHCI_MIN_FREQ	400000
 
-struct k3_arasan_sdhci_plat {
+struct am654_sdhci_plat {
 	struct mmc_config cfg;
 	struct mmc mmc;
 	unsigned int f_max;
 };
 
-static int k3_arasan_sdhci_probe(struct udevice *dev)
+static int am654_sdhci_probe(struct udevice *dev)
 {
-	struct k3_arasan_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	struct power_domain sdhci_pwrdmn;
@@ -60,7 +60,7 @@ static int k3_arasan_sdhci_probe(struct udevice *dev)
 	host->max_clk = clock;
 
 	ret = sdhci_setup_cfg(&plat->cfg, host, plat->f_max,
-			      K3_ARASAN_SDHCI_MIN_FREQ);
+			      AM654_SDHCI_MIN_FREQ);
 	host->mmc = &plat->mmc;
 	if (ret)
 		return ret;
@@ -71,9 +71,9 @@ static int k3_arasan_sdhci_probe(struct udevice *dev)
 	return sdhci_probe(dev);
 }
 
-static int k3_arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
+static int am654_sdhci_ofdata_to_platdata(struct udevice *dev)
 {
-	struct k3_arasan_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 
 	host->name = dev->name;
@@ -84,26 +84,26 @@ static int k3_arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static int k3_arasan_sdhci_bind(struct udevice *dev)
+static int am654_sdhci_bind(struct udevice *dev)
 {
-	struct k3_arasan_sdhci_plat *plat = dev_get_platdata(dev);
+	struct am654_sdhci_plat *plat = dev_get_platdata(dev);
 
 	return sdhci_bind(dev, &plat->mmc, &plat->cfg);
 }
 
-static const struct udevice_id k3_arasan_sdhci_ids[] = {
-	{ .compatible = "arasan,sdhci-5.1" },
+static const struct udevice_id am654_sdhci_ids[] = {
+	{ .compatible = "ti,am654-sdhci-5.1" },
 	{ }
 };
 
-U_BOOT_DRIVER(k3_arasan_sdhci_drv) = {
-	.name		= "k3_arasan_sdhci",
+U_BOOT_DRIVER(am654_sdhci_drv) = {
+	.name		= "am654_sdhci",
 	.id		= UCLASS_MMC,
-	.of_match	= k3_arasan_sdhci_ids,
-	.ofdata_to_platdata = k3_arasan_sdhci_ofdata_to_platdata,
+	.of_match	= am654_sdhci_ids,
+	.ofdata_to_platdata = am654_sdhci_ofdata_to_platdata,
 	.ops		= &sdhci_ops,
-	.bind		= k3_arasan_sdhci_bind,
-	.probe		= k3_arasan_sdhci_probe,
+	.bind		= am654_sdhci_bind,
+	.probe		= am654_sdhci_probe,
 	.priv_auto_alloc_size = sizeof(struct sdhci_host),
-	.platdata_auto_alloc_size = sizeof(struct k3_arasan_sdhci_plat),
+	.platdata_auto_alloc_size = sizeof(struct am654_sdhci_plat),
 };
