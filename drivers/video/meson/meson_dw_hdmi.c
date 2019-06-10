@@ -361,13 +361,19 @@ static int meson_dw_hdmi_probe(struct udevice *dev)
 	priv->hdmi.i2c_clk_high = 0x67;
 	priv->hdmi.i2c_clk_low = 0x78;
 
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 	ret = device_get_supply_regulator(dev, "hdmi-supply", &supply);
-	if (ret)
+	if (ret && ret != -ENOENT) {
+		pr_err("Failed to get HDMI regulator\n");
 		return ret;
+	}
 
-	ret = regulator_set_enable(supply, true);
-	if (ret)
-		return ret;
+	if (!ret) {
+		ret = regulator_set_enable(supply, true);
+		if (ret)
+			return ret;
+	}
+#endif
 
 	ret = reset_get_bulk(dev, &resets);
 	if (ret)

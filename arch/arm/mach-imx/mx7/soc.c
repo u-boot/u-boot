@@ -369,7 +369,7 @@ void s_init(void)
 void reset_misc(void)
 {
 #ifndef CONFIG_SPL_BUILD
-#ifdef CONFIG_VIDEO_MXS
+#if defined(CONFIG_VIDEO_MXS) && !defined(CONFIG_DM_VIDEO)
 	lcdif_power_down();
 #endif
 #endif
