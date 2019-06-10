@@ -368,9 +368,9 @@ unsigned long get_board_ddr_clk(void);
 #else
 #ifdef CONFIG_TFABOOT
 #define SD_MC_INIT_CMD				\
-	"mmcinfo;mmc read 0x80000000 0x5000 0x800;"  \
-	"mmc read 0x80100000 0x7000 0x800;" \
-	"fsl_mc start mc 0x80000000 0x80100000\0"
+	"mmcinfo;mmc read 0x80a00000 0x5000 0x1200;"  \
+	"mmc read 0x80e00000 0x7000 0x800;" \
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 #define IFC_MC_INIT_CMD				\
 	"fsl_mc start mc 0x580a00000" \
 	" 0x580e00000 \0"
@@ -446,8 +446,8 @@ unsigned long get_board_ddr_clk(void);
 			"&& mmcinfo && mmc read $load_addr 0x3c00 0x800 " \
 			"&& esbc_validate $load_addr; "			\
 			"env exists mcinitcmd && run mcinitcmd "	\
-			"&& mmc read 0x88000000 0x6800 0x800 "		\
-			"&& fsl_mc lazyapply dpl 0x88000000; "		\
+			"&& mmc read 0x80d00000 0x6800 0x800 "		\
+			"&& fsl_mc lazyapply dpl 0x80d00000; "		\
 			"run sd_bootcmd; "		\
 			"env exists secureboot && esbc_halt;"
 
