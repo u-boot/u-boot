@@ -26,11 +26,13 @@ unsigned int dcu_set_pixel_clock(unsigned int pixclock)
 	return div;
 }
 
-int platform_dcu_init(unsigned int xres, unsigned int yres,
+int platform_dcu_init(struct fb_info *fbinfo,
+		      unsigned int xres,
+		      unsigned int yres,
 		      const char *port,
 		      struct fb_videomode *dcu_fb_videomode)
 {
-	fsl_dcu_init(xres, yres, 32);
+	fsl_dcu_init(fbinfo, xres, yres, 32);
 
 	return 0;
 }
