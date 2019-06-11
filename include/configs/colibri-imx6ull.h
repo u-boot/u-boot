@@ -19,7 +19,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(32 * SZ_1M)
 
 /* Network */
-#define CONFIG_IP_DEFRAG
 #define CONFIG_TFTP_BLOCKSIZE		16352
 #define CONFIG_TFTP_TSIZE
 
