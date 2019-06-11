@@ -2863,6 +2863,9 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
 
 	/* Check parameters */
+	if (image_obj->header.type != EFI_OBJECT_TYPE_LOADED_IMAGE)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
 	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
 					 &info, NULL, NULL,
 					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
