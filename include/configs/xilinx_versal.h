@@ -41,8 +41,6 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 #define CONFIG_BOOTP_MAY_FAIL
 
-#define CONFIG_TFTP_BLOCKSIZE	4096
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 

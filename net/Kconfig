@@ -29,4 +29,10 @@ config IP_DEFRAG
 	  Selecting this will enable IP datagram reassembly according
 	  to the algorithm in RFC815.
 
+config TFTP_BLOCKSIZE
+	int "TFTP block size"
+	default 512
+	help
+	  Default TFTP block size.
+
 endif   # if NET

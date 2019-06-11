@@ -29,7 +29,6 @@
 /* Networking */
 #define FEC_QUIRK_ENET_MAC
 
-#define CONFIG_TFTP_BLOCKSIZE		SZ_4K
 #define CONFIG_TFTP_TSIZE
 
 #define CONFIG_IPADDR			192.168.10.2
