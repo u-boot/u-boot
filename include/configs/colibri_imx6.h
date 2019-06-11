@@ -190,7 +190,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	BOOTENV \
 	"bootcmd=run emmcboot ; echo ; echo emmcboot failed ; " \
-		"run distro_bootcmd ; " \
+		"setenv fdtfile ${fdt_file}; run distro_bootcmd ; " \
 		"usb start ; " \
 		"setenv stdout serial,vga ; setenv stdin serial,usbkbd\0" \
 	"boot_file=zImage\0" \

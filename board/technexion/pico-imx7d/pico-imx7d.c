@@ -63,6 +63,11 @@ int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
 
+	/* Subtract the defined OPTEE runtime firmware length */
+#ifdef CONFIG_OPTEE_TZDRAM_SIZE
+		gd->ram_size -= CONFIG_OPTEE_TZDRAM_SIZE;
+#endif
+
 	return 0;
 }
 
@@ -80,8 +85,11 @@ int power_init_board(void)
 
 	p = pmic_get("PFUZE3000");
 	ret = pmic_probe(p);
-	if (ret)
-		return ret;
+	if (ret) {
+		printf("Warning:  Cannot find PMIC PFUZE3000\n");
+		printf("\tPower consumption is not optimized.\n");
+		return 0;
+	}
 
 	pmic_reg_read(p, PFUZE3000_DEVICEID, &reg);
 	pmic_reg_read(p, PFUZE3000_REVID, &rev_id);

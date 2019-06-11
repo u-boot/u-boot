@@ -20,7 +20,6 @@
 #include <asm/arch/sys_proto.h>
 #include <spl.h>
 
-#if defined(CONFIG_SPL_BUILD)
 #include <asm/arch/mx6-ddr.h>
 /*
  * Driving strength:
@@ -513,5 +512,3 @@ int board_mmc_init(bd_t *bis)
 
 	return 0;
 }
-
-#endif

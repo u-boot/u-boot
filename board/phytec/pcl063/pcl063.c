@@ -200,7 +200,10 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: PHYTEC phyCORE-i.MX6UL\n");
+	u32 cpurev = get_cpu_rev();
+
+	printf("Board: PHYTEC phyCORE-i.MX%s\n",
+	      get_imx_type((cpurev & 0xFF000) >> 12));
 
 	return 0;
 }

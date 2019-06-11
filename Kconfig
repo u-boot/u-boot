@@ -138,6 +138,8 @@ config SYS_MALLOC_F_LEN
 	depends on SYS_MALLOC_F
 	default 0x1000 if AM33XX
 	default 0x2800 if SANDBOX
+	default 0x2000 if (ARCH_IMX8 || ARCH_IMX8M || ARCH_MX7 || \
+			   ARCH_MX7ULP || ARCH_MX6 || ARCH_MX5)
 	default 0x400
 	help
 	  Before relocation, memory is very limited on many platforms. Still,

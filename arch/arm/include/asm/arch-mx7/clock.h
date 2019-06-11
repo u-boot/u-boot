@@ -175,6 +175,24 @@ enum clk_root_index {
 	CLK_ROOT_MAX,
 };
 
+#if (CONFIG_CONS_INDEX == 0)
+#define UART_CLK_ROOT UART1_CLK_ROOT
+#elif (CONFIG_CONS_INDEX == 1)
+#define UART_CLK_ROOT UART2_CLK_ROOT
+#elif (CONFIG_CONS_INDEX == 2)
+#define UART_CLK_ROOT UART3_CLK_ROOT
+#elif (CONFIG_CONS_INDEX == 3)
+#define UART_CLK_ROOT UART4_CLK_ROOT
+#elif (CONFIG_CONS_INDEX == 4)
+#define UART_CLK_ROOT UART5_CLK_ROOT
+#elif (CONFIG_CONS_INDEX == 5)
+#define UART_CLK_ROOT UART6_CLK_ROOT
+#elif (CONFIG_CONS_INDEX == 6)
+#define UART_CLK_ROOT UART7_CLK_ROOT
+#else
+#error "Invalid IMX UART ID for serial console is defined"
+#endif
+
 struct clk_root_setting {
 	enum clk_root_index root;
 	u32 setting;

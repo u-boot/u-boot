@@ -80,6 +80,12 @@ ulong imx8_clk_get_rate(struct clk *clk)
 		resource = SC_R_SDHC_1;
 		pm_clk = SC_PM_CLK_PER;
 		break;
+	case IMX8QM_SDHC2_IPG_CLK:
+	case IMX8QM_SDHC2_CLK:
+	case IMX8QM_SDHC2_DIV:
+		resource = SC_R_SDHC_2;
+		pm_clk = SC_PM_CLK_PER;
+		break;
 	case IMX8QM_UART0_IPG_CLK:
 	case IMX8QM_UART0_CLK:
 		resource = SC_R_UART_0;
@@ -185,6 +191,12 @@ ulong imx8_clk_set_rate(struct clk *clk, unsigned long rate)
 		resource = SC_R_SDHC_1;
 		pm_clk = SC_PM_CLK_PER;
 		break;
+	case IMX8QM_SDHC2_IPG_CLK:
+	case IMX8QM_SDHC2_CLK:
+	case IMX8QM_SDHC2_DIV:
+		resource = SC_R_SDHC_2;
+		pm_clk = SC_PM_CLK_PER;
+		break;
 	case IMX8QM_ENET0_IPG_CLK:
 	case IMX8QM_ENET0_AHB_CLK:
 	case IMX8QM_ENET0_REF_DIV:
@@ -271,6 +283,12 @@ int __imx8_clk_enable(struct clk *clk, bool enable)
 	case IMX8QM_SDHC1_CLK:
 	case IMX8QM_SDHC1_DIV:
 		resource = SC_R_SDHC_1;
+		pm_clk = SC_PM_CLK_PER;
+		break;
+	case IMX8QM_SDHC2_IPG_CLK:
+	case IMX8QM_SDHC2_CLK:
+	case IMX8QM_SDHC2_DIV:
+		resource = SC_R_SDHC_2;
 		pm_clk = SC_PM_CLK_PER;
 		break;
 	case IMX8QM_ENET0_IPG_CLK:

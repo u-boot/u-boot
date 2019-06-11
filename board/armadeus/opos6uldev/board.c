@@ -3,7 +3,6 @@
  * Copyright (C) 2018 Armadeus Systems
  */
 
-#include <asm/arch/clock.h>
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
@@ -48,8 +47,6 @@ int setup_lcd(void)
 {
 	struct gpio_desc backlight;
 	int ret;
-
-	enable_lcdif_clock(LCDIF1_BASE_ADDR, 1);
 
 	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
 

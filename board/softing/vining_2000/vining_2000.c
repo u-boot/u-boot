@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) 2016 samtec automotive software & electronics gmbh
+ * Copyright (C) 2017-2019 softing automotive electronics gmbH
  *
  * Author: Christoph Fritz <chf.fritz@googlemail.com>
  */
@@ -57,6 +58,9 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PKE |  PAD_CTL_SPEED_MED | PAD_CTL_DSE_80ohm |	\
 	PAD_CTL_SRE_FAST)
 
+#define USDHC_RESET_CTRL (PAD_CTL_HYS | PAD_CTL_PUS_47K_UP |	\
+	PAD_CTL_PKE |  PAD_CTL_SPEED_MED | PAD_CTL_DSE_80ohm)
+
 #define GPIO_PAD_CTRL  (PAD_CTL_HYS | PAD_CTL_PUS_100K_UP |	\
 	PAD_CTL_PKE)
 
@@ -66,34 +70,6 @@ int dram_init(void)
 
 	return 0;
 }
-
-static iomux_v3_cfg_t const uart1_pads[] = {
-	MX6_PAD_GPIO1_IO04__UART1_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_GPIO1_IO05__UART1_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const usdhc2_pads[] = {
-	MX6_PAD_SD2_CLK__USDHC2_CLK | MUX_PAD_CTRL(USDHC_CLK_PAD_CTRL),
-	MX6_PAD_SD2_CMD__USDHC2_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA0__USDHC2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA1__USDHC2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA2__USDHC2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DATA3__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_LCD1_VSYNC__GPIO3_IO_28 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-};
-
-static iomux_v3_cfg_t const usdhc4_pads[] = {
-	MX6_PAD_SD4_CLK__USDHC4_CLK | MUX_PAD_CTRL(USDHC_CLK_PAD_CTRL),
-	MX6_PAD_SD4_CMD__USDHC4_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA0__USDHC4_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA1__USDHC4_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA2__USDHC4_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA3__USDHC4_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA4__USDHC4_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA5__USDHC4_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA6__USDHC4_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD4_DATA7__USDHC4_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-};
 
 static iomux_v3_cfg_t const fec1_pads[] = {
 	MX6_PAD_ENET1_MDC__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -115,11 +91,6 @@ static iomux_v3_cfg_t const pwm_led_pads[] = {
 	MX6_PAD_RGMII2_TD2__PWM6_OUT | MUX_PAD_CTRL(NO_PAD_CTRL), /* red */
 	MX6_PAD_RGMII2_RD3__PWM1_OUT | MUX_PAD_CTRL(NO_PAD_CTRL), /* blue */
 };
-
-static void setup_iomux_uart(void)
-{
-	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
-}
 
 #define PHY_RESET IMX_GPIO_NR(5, 9)
 
@@ -152,6 +123,7 @@ int board_eth_init(bd_t *bis)
 		goto eth_fail;
 
 	/* reset phy */
+	gpio_request(PHY_RESET, "PHY-reset");
 	gpio_direction_output(PHY_RESET, 0);
 	mdelay(16);
 	gpio_set_value(PHY_RESET, 1);
@@ -437,62 +409,7 @@ int board_late_init(void)
 
 int board_early_init_f(void)
 {
-	setup_iomux_uart();
-
 	setup_iomux_usb();
-
-	return 0;
-}
-
-static struct fsl_esdhc_cfg usdhc_cfg[2] = {
-	{USDHC4_BASE_ADDR, 0, 8},
-	{USDHC2_BASE_ADDR, 0, 4},
-};
-
-#define USDHC2_CD_GPIO IMX_GPIO_NR(3, 28)
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-
-	if (cfg->esdhc_base == USDHC4_BASE_ADDR)
-		return 1;
-	if (cfg->esdhc_base == USDHC2_BASE_ADDR)
-		return !gpio_get_value(USDHC2_CD_GPIO);
-
-	return -EINVAL;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int ret;
-
-	/*
-	 * According to the board_mmc_init() the following map is done:
-	 * (U-Boot device node)    (Physical Port)
-	 * mmc0                    USDHC4
-	 * mmc1                    USDHC2
-	 */
-	imx_iomux_v3_setup_multiple_pads(
-		usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
-
-	imx_iomux_v3_setup_multiple_pads(
-		usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-	gpio_direction_input(USDHC2_CD_GPIO);
-	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-
-	ret = fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
-	if (ret) {
-		printf("Warning: failed to initialize USDHC4\n");
-		return ret;
-	}
-
-	ret = fsl_esdhc_initialize(bis, &usdhc_cfg[1]);
-	if (ret) {
-		printf("Warning: failed to initialize USDHC2\n");
-		return ret;
-	}
 
 	return 0;
 }

@@ -4,6 +4,10 @@
  */
 
 / {
+	aliases {
+		usb0 = &usbotg;
+	};
+
 	soc {
 		u-boot,dm-spl;
 

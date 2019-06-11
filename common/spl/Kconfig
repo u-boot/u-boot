@@ -28,6 +28,7 @@ config SPL_FRAMEWORK
 config SPL_SIZE_LIMIT
 	int "Maximum size of SPL image"
 	depends on SPL
+	default 69632 if ARCH_MX6
 	default 0
 	help
 	  Specifies the maximum length of the U-Boot SPL image.

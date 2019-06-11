@@ -27,8 +27,13 @@ choice
 	prompt "i.MX8 board select"
 	optional
 
-config TARGET_IMX8QXP_MEK
-	bool "Support i.MX8QXP MEK board"
+config TARGET_APALIS_IMX8
+	bool "Support Apalis iMX8 module"
+	select BOARD_LATE_INIT
+	select IMX8QM
+
+config TARGET_COLIBRI_IMX8X
+	bool "Support Colibri iMX8X module"
 	select BOARD_LATE_INIT
 	select IMX8QXP
 
@@ -37,9 +42,16 @@ config TARGET_IMX8QM_MEK
 	select BOARD_LATE_INIT
 	select IMX8QM
 
+config TARGET_IMX8QXP_MEK
+	bool "Support i.MX8QXP MEK board"
+	select BOARD_LATE_INIT
+	select IMX8QXP
+
 endchoice
 
-source "board/freescale/imx8qxp_mek/Kconfig"
 source "board/freescale/imx8qm_mek/Kconfig"
+source "board/freescale/imx8qxp_mek/Kconfig"
+source "board/toradex/apalis-imx8/Kconfig"
+source "board/toradex/colibri-imx8x/Kconfig"
 
 endif

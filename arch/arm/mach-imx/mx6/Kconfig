@@ -455,6 +455,18 @@ config TARGET_PCL063
 	select DM_THERMAL
 	select SUPPORT_SPL
 
+config TARGET_PCL063_ULL
+	bool "PHYTEC PCL063 (phyCORE-i.MX6ULL)"
+	select MX6ULL
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select DM_SERIAL
+	select DM_THERMAL
+	select SUPPORT_SPL
+
 config TARGET_SECOMX6
 	bool "secomx6 boards"
 
@@ -498,8 +510,8 @@ config TARGET_UDOO_NEO
 	select SUPPORT_SPL
 	imply CMD_DM
 
-config TARGET_SAMTEC_VINING_2000
-	bool "samtec VIN|ING 2000"
+config TARGET_SOFTING_VINING_2000
+	bool "Softing VIN|ING 2000"
 	select BOARD_LATE_INIT
 	select DM
 	select DM_THERMAL
@@ -580,7 +592,7 @@ source "board/phytec/pfla02/Kconfig"
 source "board/phytec/pcl063/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/kosagi/novena/Kconfig"
-source "board/samtec/vining_2000/Kconfig"
+source "board/softing/vining_2000/Kconfig"
 source "board/liebherr/display5/Kconfig"
 source "board/liebherr/mccmon6/Kconfig"
 source "board/logicpd/imx6/Kconfig"

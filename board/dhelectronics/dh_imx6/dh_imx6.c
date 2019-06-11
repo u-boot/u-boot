@@ -6,6 +6,8 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <dm/device-internal.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/imx-regs.h>
@@ -18,6 +20,8 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/mach-imx/sata.h>
+#include <ahci.h>
+#include <dwc_ahsata.h>
 #include <environment.h>
 #include <errno.h>
 #include <fsl_esdhc.h>
@@ -167,6 +171,9 @@ int board_eth_init(bd_t *bis)
 	struct mii_dev *bus = NULL;
 	struct phy_device *phydev = NULL;
 
+	gpio_request(IMX_GPIO_NR(5, 0), "PHY-reset");
+	gpio_request(IMX_GPIO_NR(1, 7), "VIO");
+
 	setup_fec_clock();
 
 	eth_phy_reset();
@@ -186,64 +193,10 @@ int board_eth_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
-
-#define USDHC2_CD_GPIO	IMX_GPIO_NR(6, 16)
-#define USDHC3_CD_GPIO	IMX_GPIO_NR(7, 8)
-
-static struct fsl_esdhc_cfg usdhc_cfg[3] = {
-	{ USDHC2_BASE_ADDR },
-	{ USDHC3_BASE_ADDR },
-	{ USDHC4_BASE_ADDR },
-};
-
-int board_mmc_getcd(struct mmc *mmc)
-{
-	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
-
-	switch (cfg->esdhc_base) {
-	case USDHC2_BASE_ADDR:
-		return gpio_get_value(USDHC2_CD_GPIO);
-	case USDHC3_BASE_ADDR:
-		return !gpio_get_value(USDHC3_CD_GPIO);
-	case USDHC4_BASE_ADDR:
-		return 1; /* eMMC/uSDHC4 is always present */
-	}
-
-	return 0;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int i, ret;
-
-	/*
-	 * According to the board_mmc_init() the following map is done:
-	 * (U-Boot device node)    (Physical Port)
-	 * mmc0                    SD interface
-	 * mmc1                    micro SD
-	 * mmc2                    eMMC
-	 */
-	gpio_direction_input(USDHC2_CD_GPIO);
-	gpio_direction_input(USDHC3_CD_GPIO);
-
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
-	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	usdhc_cfg[2].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
-
-	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
-		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_USB_EHCI_MX6
 static void setup_usb(void)
 {
+	gpio_request(IMX_GPIO_NR(3, 31), "USB-VBUS");
 	/*
 	 * Set daisy chain for otg_pin_id on MX6Q.
 	 * For MX6DL, this bit is reserved.
@@ -319,16 +272,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#ifdef CONFIG_MXC_SPI
-int board_spi_cs_gpio(unsigned bus, unsigned cs)
-{
-	if (bus == 0 && cs == 0)
-		return IMX_GPIO_NR(2, 30);
-	else
-		return -1;
-}
-#endif
-
 int board_init(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -349,10 +292,6 @@ int board_init(void)
 		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6sdl_i2c_pad_info1);
 		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &dh6sdl_i2c_pad_info2);
 	}
-#endif
-
-#ifdef CONFIG_SATA
-	setup_sata();
 #endif
 
 	setup_dhcom_mac_from_fuse();
@@ -378,6 +317,10 @@ static const struct boot_mode board_boot_modes[] = {
 static int board_get_hwcode(void)
 {
 	int hw_code;
+
+	gpio_request(HW_CODE_BIT_0, "HW-code-bit-0");
+	gpio_request(HW_CODE_BIT_1, "HW-code-bit-1");
+	gpio_request(HW_CODE_BIT_2, "HW-code-bit-2");
 
 	gpio_direction_input(HW_CODE_BIT_0);
 	gpio_direction_input(HW_CODE_BIT_1);

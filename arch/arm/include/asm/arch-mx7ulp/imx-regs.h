@@ -8,6 +8,8 @@
 
 #include <linux/sizes.h>
 
+#define ARCH_MXC
+
 #define CAAM_SEC_SRAM_BASE      (0x26000000)
 #define CAAM_SEC_SRAM_SIZE      (SZ_32K)
 #define CAAM_SEC_SRAM_END       (CAAM_SEC_SRAM_BASE + CAAM_SEC_SRAM_SIZE - 1)

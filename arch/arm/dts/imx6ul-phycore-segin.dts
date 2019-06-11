@@ -16,12 +16,17 @@
 
 /dts-v1/;
 
-#include "imx6ul-pcl063.dtsi"
+#include "imx6ul.dtsi"
+#include "pcl063-common.dtsi"
 
 / {
 	model = "Phytec phyBOARD-i.MX6UL-Segin SBC";
 	compatible = "phytec,phyboard-imx6ul-segin", "phytec,imx6ul-pcl063",
 		     "fsl,imx6ul";
+};
+
+&gpmi {
+	status = "okay";
 };
 
 &i2c1 {

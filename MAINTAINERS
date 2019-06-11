@@ -157,6 +157,7 @@ T:	git git://git.denx.de/u-boot-imx.git
 F:	arch/arm/cpu/arm1136/mx*/
 F:	arch/arm/cpu/arm926ejs/mx*/
 F:	arch/arm/cpu/armv7/vf610/
+F:	arch/arm/dts/*imx*
 F:	arch/arm/mach-imx/
 F:	arch/arm/include/asm/arch-imx/
 F:	arch/arm/include/asm/arch-mx*/

@@ -22,6 +22,8 @@
  * Tweak the SPL text base address to avoid this.
  */
 
+#define CONFIG_SYS_FSL_USDHC_NUM	1
+
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 * SZ_1M)
 

@@ -6,6 +6,8 @@
 #ifndef __ASM_ARCH_IMX8M_REGS_H__
 #define __ASM_ARCH_IMX8M_REGS_H__
 
+#define ARCH_MXC
+
 #include <asm/mach-imx/regs-lcdif.h>
 
 #define ROM_VERSION_A0		0x800
