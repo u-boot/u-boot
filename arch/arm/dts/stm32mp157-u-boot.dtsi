@@ -140,3 +140,7 @@
 	compatible = "st,stm32-gpio";
 	u-boot,dm-pre-reloc;
 };
+
+&iwdg2 {
+	u-boot,dm-pre-reloc;
+};

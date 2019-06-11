@@ -38,6 +38,15 @@
  */
 #define CONFIG_SYS_LOAD_ADDR			STM32_DDR_BASE
 
+#if defined(CONFIG_ENV_IS_IN_UBI)
+#define CONFIG_ENV_UBI_VOLUME_REDUND		"uboot_config_r"
+#endif
+
+#if defined(CONFIG_ENV_IS_IN_SPI_FLASH)
+#define	CONFIG_ENV_SECT_SIZE			SZ_256K
+#define	CONFIG_ENV_OFFSET			0x00280000
+#endif
+
 /* ATAGs */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -68,16 +77,29 @@
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
 
+/* Ethernet need */
+#ifdef CONFIG_DWC_ETH_QOS
+#define CONFIG_SYS_NONCACHED_MEMORY	(1 * SZ_1M)	/* 1M */
+#define CONFIG_SERVERIP                 192.168.1.1
+#define CONFIG_BOOTP_SERVERIP
+#define CONFIG_SYS_AUTOLOAD		"no"
+#endif
+
 /*****************************************************************************/
 #ifdef CONFIG_DISTRO_DEFAULTS
 /*****************************************************************************/
 
 #if !defined(CONFIG_SPL_BUILD)
 
+/* NAND support */
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
-	func(MMC, mmc, 2)
+	func(MMC, mmc, 2) \
+	func(PXE, pxe, na)
+
 /*
  * bootcmd for stm32mp1:
  * for serial/usb: execute the stm32prog command
@@ -99,6 +121,14 @@
 
 #include <config_distro_bootcmd.h>
 
+#if defined(CONFIG_STM32_QSPI) || defined(CONFIG_NAND_STM32_FMC)
+#define CONFIG_SYS_MTDPARTS_RUNTIME
+#endif
+
+#define STM32MP_MTDPARTS \
+	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),-(nor_user)\0" \
+	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0"
+
 /*
  * memory layout for 32M uncompressed/compressed kernel,
  * 1M fdt, 1M script, 1M pxe and 1M for splashimage
@@ -114,6 +144,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	STM32MP_BOOTCMD \
+	STM32MP_MTDPARTS \
 	BOOTENV
 
 #endif /* ifndef CONFIG_SPL_BUILD */

@@ -239,6 +239,14 @@ config STM32_QSPI
 	  used to access the SPI NOR flash chips on platforms embedding
 	  this ST IP core.
 
+config STM32_SPI
+	bool "STM32 SPI driver"
+	depends on ARCH_STM32MP
+	help
+	  Enable the STM32 Serial Peripheral Interface (SPI) driver for STM32MP
+	  SoCs. This uses driver model and requires a device tree binding to
+	  operate.
+
 config TEGRA114_SPI
 	bool "nVidia Tegra114 SPI driver"
 	help

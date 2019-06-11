@@ -7,6 +7,7 @@
 #include <config.h>
 #include <clk.h>
 #include <dm.h>
+#include <environment.h>
 #include <g_dnl.h>
 #include <generic-phy.h>
 #include <i2c.h>
@@ -19,6 +20,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/stm32.h>
+#include <asm/arch/sys_proto.h>
 #include <power/regulator.h>
 #include <usb/dwc2_udc.h>
 
@@ -51,18 +53,19 @@
 #define SYSCFG_PMCSETR_ETH_SELMII	BIT(20)
 
 #define SYSCFG_PMCSETR_ETH_SEL_MASK	GENMASK(23, 21)
-#define SYSCFG_PMCSETR_ETH_SEL_GMII_MII	(0 << 21)
-#define SYSCFG_PMCSETR_ETH_SEL_RGMII	(1 << 21)
-#define SYSCFG_PMCSETR_ETH_SEL_RMII	(4 << 21)
+#define SYSCFG_PMCSETR_ETH_SEL_GMII_MII	0
+#define SYSCFG_PMCSETR_ETH_SEL_RGMII	BIT(21)
+#define SYSCFG_PMCSETR_ETH_SEL_RMII	BIT(23)
 
 /*
  * Get a global data pointer
  */
 DECLARE_GLOBAL_DATA_PTR;
 
+#define USB_LOW_THRESHOLD_UV		200000
 #define USB_WARNING_LOW_THRESHOLD_UV	660000
 #define USB_START_LOW_THRESHOLD_UV	1230000
-#define USB_START_HIGH_THRESHOLD_UV	2100000
+#define USB_START_HIGH_THRESHOLD_UV	2150000
 
 int checkboard(void)
 {
@@ -263,9 +266,10 @@ static int board_check_usb_power(void)
 	ofnode node;
 	unsigned int raw;
 	int max_uV = 0;
+	int min_uV = USB_START_HIGH_THRESHOLD_UV;
 	int ret, uV, adc_count;
-	u8 i, nb_blink;
-
+	u32 nb_blink;
+	u8 i;
 	node = ofnode_path("/config");
 	if (!ofnode_valid(node)) {
 		debug("%s: no /config node?\n", __func__);
@@ -317,6 +321,8 @@ static int board_check_usb_power(void)
 		if (!adc_raw_to_uV(adc, raw, &uV)) {
 			if (uV > max_uV)
 				max_uV = uV;
+			if (uV < min_uV)
+				min_uV = uV;
 			pr_debug("%s: %s[%02d] = %u, %d uV\n", __func__,
 				 adc->name, adc_args.args[0], raw, uV);
 		} else {
@@ -331,27 +337,66 @@ static int board_check_usb_power(void)
 	 * continue.
 	 */
 	if (max_uV > USB_START_LOW_THRESHOLD_UV &&
-	    max_uV < USB_START_HIGH_THRESHOLD_UV)
+	    max_uV <= USB_START_HIGH_THRESHOLD_UV &&
+	    min_uV <= USB_LOW_THRESHOLD_UV)
 		return 0;
 
-	/* Display warning message and make u-boot,error-led blinking */
-	pr_err("\n*******************************************\n");
+	pr_err("****************************************************\n");
 
-	if (max_uV < USB_WARNING_LOW_THRESHOLD_UV) {
-		pr_err("*   WARNING 500mA power supply detected   *\n");
+	/*
+	 * If highest and lowest value are either both below
+	 * USB_LOW_THRESHOLD_UV or both above USB_LOW_THRESHOLD_UV, that
+	 * means USB TYPE-C is in unattached mode, this is an issue, make
+	 * u-boot,error-led blinking and stop boot process.
+	 */
+	if ((max_uV > USB_LOW_THRESHOLD_UV &&
+	     min_uV > USB_LOW_THRESHOLD_UV) ||
+	     (max_uV <= USB_LOW_THRESHOLD_UV &&
+	     min_uV <= USB_LOW_THRESHOLD_UV)) {
+		pr_err("* ERROR USB TYPE-C connection in unattached mode   *\n");
+		pr_err("* Check that USB TYPE-C cable is correctly plugged *\n");
+		/* with 125ms interval, led will blink for 17.02 years ....*/
+		nb_blink = U32_MAX;
+	}
+
+	if (max_uV > USB_LOW_THRESHOLD_UV &&
+	    max_uV <= USB_WARNING_LOW_THRESHOLD_UV &&
+	    min_uV <= USB_LOW_THRESHOLD_UV) {
+		pr_err("*        WARNING 500mA power supply detected       *\n");
 		nb_blink = 2;
-	} else {
-		pr_err("* WARNING 1.5A power supply detected      *\n");
+	}
+
+	if (max_uV > USB_WARNING_LOW_THRESHOLD_UV &&
+	    max_uV <= USB_START_LOW_THRESHOLD_UV &&
+	    min_uV <= USB_LOW_THRESHOLD_UV) {
+		pr_err("*       WARNING 1.5mA power supply detected        *\n");
 		nb_blink = 3;
 	}
 
-	pr_err("* Current too low, use a 3A power supply! *\n");
-	pr_err("*******************************************\n\n");
+	/*
+	 * If highest value is above 2.15 Volts that means that the USB TypeC
+	 * supplies more than 3 Amp, this is not compliant with TypeC specification
+	 */
+	if (max_uV > USB_START_HIGH_THRESHOLD_UV) {
+		pr_err("*      USB TYPE-C charger not compliant with       *\n");
+		pr_err("*                   specification                  *\n");
+		pr_err("****************************************************\n\n");
+		/* with 125ms interval, led will blink for 17.02 years ....*/
+		nb_blink = U32_MAX;
+	} else {
+		pr_err("*     Current too low, use a 3A power supply!      *\n");
+		pr_err("****************************************************\n\n");
+	}
 
 	ret = get_led(&led, "u-boot,error-led");
-	if (ret)
+	if (ret) {
+		/* in unattached case, the boot process must be stopped */
+		if (nb_blink == U32_MAX)
+			hang();
 		return ret;
+	}
 
+	/* make u-boot,error-led blinking */
 	for (i = 0; i < nb_blink * 2; i++) {
 		led_set_state(led, LEDST_TOGGLE);
 		mdelay(125);
@@ -504,3 +549,199 @@ void board_quiesce_devices(void)
 {
 	setup_led(LEDST_OFF);
 }
+
+/* board interface eth init */
+/* this is a weak define that we are overriding */
+int board_interface_eth_init(phy_interface_t interface_type,
+			     bool eth_clk_sel_reg, bool eth_ref_clk_sel_reg)
+{
+	u8 *syscfg;
+	u32 value;
+
+	syscfg = (u8 *)syscon_get_first_range(STM32MP_SYSCON_SYSCFG);
+
+	if (!syscfg)
+		return -ENODEV;
+
+	switch (interface_type) {
+	case PHY_INTERFACE_MODE_MII:
+		value = SYSCFG_PMCSETR_ETH_SEL_GMII_MII |
+			SYSCFG_PMCSETR_ETH_REF_CLK_SEL;
+		debug("%s: PHY_INTERFACE_MODE_MII\n", __func__);
+		break;
+	case PHY_INTERFACE_MODE_GMII:
+		if (eth_clk_sel_reg)
+			value = SYSCFG_PMCSETR_ETH_SEL_GMII_MII |
+				SYSCFG_PMCSETR_ETH_CLK_SEL;
+		else
+			value = SYSCFG_PMCSETR_ETH_SEL_GMII_MII;
+		debug("%s: PHY_INTERFACE_MODE_GMII\n", __func__);
+		break;
+	case PHY_INTERFACE_MODE_RMII:
+		if (eth_ref_clk_sel_reg)
+			value = SYSCFG_PMCSETR_ETH_SEL_RMII |
+				SYSCFG_PMCSETR_ETH_REF_CLK_SEL;
+		else
+			value = SYSCFG_PMCSETR_ETH_SEL_RMII;
+		debug("%s: PHY_INTERFACE_MODE_RMII\n", __func__);
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+	case PHY_INTERFACE_MODE_RGMII_ID:
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		if (eth_clk_sel_reg)
+			value = SYSCFG_PMCSETR_ETH_SEL_RGMII |
+				SYSCFG_PMCSETR_ETH_CLK_SEL;
+		else
+			value = SYSCFG_PMCSETR_ETH_SEL_RGMII;
+		debug("%s: PHY_INTERFACE_MODE_RGMII\n", __func__);
+		break;
+	default:
+		debug("%s: Do not manage %d interface\n",
+		      __func__, interface_type);
+		/* Do not manage others interfaces */
+		return -EINVAL;
+	}
+
+	/* clear and set ETH configuration bits */
+	writel(SYSCFG_PMCSETR_ETH_SEL_MASK | SYSCFG_PMCSETR_ETH_SELMII |
+	       SYSCFG_PMCSETR_ETH_REF_CLK_SEL | SYSCFG_PMCSETR_ETH_CLK_SEL,
+	       syscfg + SYSCFG_PMCCLRR);
+	writel(value, syscfg + SYSCFG_PMCSETR);
+
+	return 0;
+}
+
+enum env_location env_get_location(enum env_operation op, int prio)
+{
+	u32 bootmode = get_bootmode();
+
+	if (prio)
+		return ENVL_UNKNOWN;
+
+	switch (bootmode & TAMP_BOOT_DEVICE_MASK) {
+#ifdef CONFIG_ENV_IS_IN_EXT4
+	case BOOT_FLASH_SD:
+	case BOOT_FLASH_EMMC:
+		return ENVL_EXT4;
+#endif
+#ifdef CONFIG_ENV_IS_IN_UBI
+	case BOOT_FLASH_NAND:
+		return ENVL_UBI;
+#endif
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+	case BOOT_FLASH_NOR:
+		return ENVL_SPI_FLASH;
+#endif
+	default:
+		return ENVL_NOWHERE;
+	}
+}
+
+#if defined(CONFIG_ENV_IS_IN_EXT4)
+const char *env_ext4_get_intf(void)
+{
+	u32 bootmode = get_bootmode();
+
+	switch (bootmode & TAMP_BOOT_DEVICE_MASK) {
+	case BOOT_FLASH_SD:
+	case BOOT_FLASH_EMMC:
+		return "mmc";
+	default:
+		return "";
+	}
+}
+
+const char *env_ext4_get_dev_part(void)
+{
+	static char *const dev_part[] = {"0:auto", "1:auto", "2:auto"};
+	u32 bootmode = get_bootmode();
+
+	return dev_part[(bootmode & TAMP_BOOT_INSTANCE_MASK) - 1];
+}
+#endif
+
+#ifdef CONFIG_SYS_MTDPARTS_RUNTIME
+
+#define MTDPARTS_LEN		256
+#define MTDIDS_LEN		128
+
+/**
+ * The mtdparts_nand0 and mtdparts_nor0 variable tends to be long.
+ * If we need to access it before the env is relocated, then we need
+ * to use our own stack buffer. gd->env_buf will be too small.
+ *
+ * @param buf temporary buffer pointer MTDPARTS_LEN long
+ * @return mtdparts variable string, NULL if not found
+ */
+static const char *env_get_mtdparts(const char *str, char *buf)
+{
+	if (gd->flags & GD_FLG_ENV_READY)
+		return env_get(str);
+	if (env_get_f(str, buf, MTDPARTS_LEN) != -1)
+		return buf;
+
+	return NULL;
+}
+
+/**
+ * update the variables "mtdids" and "mtdparts" with content of mtdparts_<dev>
+ */
+static void board_get_mtdparts(const char *dev,
+			       char *mtdids,
+			       char *mtdparts)
+{
+	char env_name[32] = "mtdparts_";
+	char tmp_mtdparts[MTDPARTS_LEN];
+	const char *tmp;
+
+	/* name of env variable to read = mtdparts_<dev> */
+	strcat(env_name, dev);
+	tmp = env_get_mtdparts(env_name, tmp_mtdparts);
+	if (tmp) {
+		/* mtdids: "<dev>=<dev>, ...." */
+		if (mtdids[0] != '\0')
+			strcat(mtdids, ",");
+		strcat(mtdids, dev);
+		strcat(mtdids, "=");
+		strcat(mtdids, dev);
+
+		/* mtdparts: "mtdparts=<dev>:<mtdparts_<dev>>;..." */
+		if (mtdparts[0] != '\0')
+			strncat(mtdparts, ";", MTDPARTS_LEN);
+		else
+			strcat(mtdparts, "mtdparts=");
+		strncat(mtdparts, dev, MTDPARTS_LEN);
+		strncat(mtdparts, ":", MTDPARTS_LEN);
+		strncat(mtdparts, tmp, MTDPARTS_LEN);
+	}
+}
+
+void board_mtdparts_default(const char **mtdids, const char **mtdparts)
+{
+	struct udevice *dev;
+	static char parts[2 * MTDPARTS_LEN + 1];
+	static char ids[MTDIDS_LEN + 1];
+	static bool mtd_initialized;
+
+	if (mtd_initialized) {
+		*mtdids = ids;
+		*mtdparts = parts;
+		return;
+	}
+
+	memset(parts, 0, sizeof(parts));
+	memset(ids, 0, sizeof(ids));
+
+	if (!uclass_get_device(UCLASS_MTD, 0, &dev))
+		board_get_mtdparts("nand0", ids, parts);
+
+	if (!uclass_get_device(UCLASS_SPI_FLASH, 0, &dev))
+		board_get_mtdparts("nor0", ids, parts);
+
+	mtd_initialized = true;
+	*mtdids = ids;
+	*mtdparts = parts;
+	debug("%s:mtdids=%s & mtdparts=%s\n", __func__, ids, parts);
+}
+#endif

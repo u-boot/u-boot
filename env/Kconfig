@@ -2,18 +2,12 @@ menu "Environment"
 
 config ENV_IS_NOWHERE
 	bool "Environment is not stored"
-	depends on !ENV_IS_IN_EEPROM
-	depends on !ENV_IS_IN_EXT4
-	depends on !ENV_IS_IN_FAT
-	depends on !ENV_IS_IN_FLASH
-	depends on !ENV_IS_IN_MMC
-	depends on !ENV_IS_IN_NAND
-	depends on !ENV_IS_IN_NVRAM
-	depends on !ENV_IS_IN_ONENAND
-	depends on !ENV_IS_IN_REMOTE
-	depends on !ENV_IS_IN_SPI_FLASH
-	depends on !ENV_IS_IN_UBI
-	default y
+	default y if !ENV_IS_IN_EEPROM && !ENV_IS_IN_EXT4 && \
+		     !ENV_IS_IN_FAT && !ENV_IS_IN_FLASH && \
+		     !ENV_IS_IN_MMC && !ENV_IS_IN_NAND && \
+		     !ENV_IS_IN_NVRAM && !ENV_IS_IN_ONENAND && \
+		     !ENV_IS_IN_REMOTE && !ENV_IS_IN_SPI_FLASH && \
+		     !ENV_IS_IN_UBI
 	help
 	  Define this if you don't want to or can't have an environment stored
 	  on a storage medium. In this case the environment will still exist

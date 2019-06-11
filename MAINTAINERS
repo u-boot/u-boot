@@ -313,6 +313,8 @@ F:	drivers/ram/stm32mp1/
 F:	drivers/misc/stm32_rcc.c
 F:	drivers/reset/stm32-reset.c
 F:	drivers/spi/stm32_qspi.c
+F:	drivers/spi/stm32_spi.c
+F:	drivers/watchdog/stm32mp_wdt.c
 
 ARM STM STV0991
 M:	Vikas Manocha <vikas.manocha@st.com>

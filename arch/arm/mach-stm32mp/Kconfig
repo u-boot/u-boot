@@ -17,6 +17,7 @@ config SPL
 	select SPL_DM_RESET
 	select SPL_SERIAL_SUPPORT
 	select SPL_SYSCON
+	select SPL_WATCHDOG_SUPPORT
 	imply BOOTSTAGE_STASH if SPL_BOOTSTAGE
 	imply SPL_BOOTSTAGE if BOOTSTAGE
 	imply SPL_DISPLAY_PRINT
@@ -29,7 +30,7 @@ config SYS_MALLOC_LEN
 	default 0x2000000
 
 config ENV_SIZE
-	default 0x1000
+	default 0x2000
 
 config TARGET_STM32MP1
 	bool "Support stm32mp1xx"

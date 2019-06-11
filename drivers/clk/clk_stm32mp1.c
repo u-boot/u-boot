@@ -90,6 +90,7 @@
 #define RCC_PLL4CSGR		0x8A4
 #define RCC_I2C12CKSELR		0x8C0
 #define RCC_I2C35CKSELR		0x8C4
+#define RCC_SPI2S1CKSELR	0x8D8
 #define RCC_UART6CKSELR		0x8E4
 #define RCC_UART24CKSELR	0x8E8
 #define RCC_UART35CKSELR	0x8EC
@@ -298,6 +299,7 @@ enum stm32mp1_parent_sel {
 	_STGEN_SEL,
 	_DSI_SEL,
 	_ADC12_SEL,
+	_SPI1_SEL,
 	_PARENT_SEL_NB,
 	_UNKNOWN_SEL = 0xff,
 };
@@ -519,6 +521,7 @@ static const struct stm32mp1_clk_gate stm32mp1_clk_gate[] = {
 	STM32MP1_CLK_SET_CLR(RCC_MP_APB1ENSETR, 23, I2C3_K, _I2C35_SEL),
 	STM32MP1_CLK_SET_CLR(RCC_MP_APB1ENSETR, 24, I2C5_K, _I2C35_SEL),
 
+	STM32MP1_CLK_SET_CLR(RCC_MP_APB2ENSETR, 8, SPI1_K, _SPI1_SEL),
 	STM32MP1_CLK_SET_CLR(RCC_MP_APB2ENSETR, 13, USART6_K, _UART6_SEL),
 
 	STM32MP1_CLK_SET_CLR_F(RCC_MP_APB3ENSETR, 13, VREF, _PCLK3),
@@ -555,7 +558,7 @@ static const struct stm32mp1_clk_gate stm32mp1_clk_gate[] = {
 
 	STM32MP1_CLK_SET_CLR(RCC_MP_AHB5ENSETR, 0, GPIOZ, _UNKNOWN_SEL),
 
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 7, ETHCK, _ETH_SEL),
+	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 7, ETHCK_K, _ETH_SEL),
 	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 8, ETHTX, _UNKNOWN_SEL),
 	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 9, ETHRX, _UNKNOWN_SEL),
 	STM32MP1_CLK_SET_CLR_F(RCC_MP_AHB6ENSETR, 10, ETHMAC, _ACLK),
@@ -589,6 +592,8 @@ static const u8 usbo_parents[] = {_PLL4_R, _USB_PHY_48};
 static const u8 stgen_parents[] = {_HSI_KER, _HSE_KER};
 static const u8 dsi_parents[] = {_DSI_PHY, _PLL4_P};
 static const u8 adc_parents[] = {_PLL4_R, _CK_PER, _PLL3_Q};
+static const u8 spi_parents[] = {_PLL4_P, _PLL3_Q, _I2S_CKIN, _CK_PER,
+				 _PLL3_R};
 
 static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 	STM32MP1_CLK_PARENT(_I2C12_SEL, RCC_I2C12CKSELR, 0, 0x7, i2c12_parents),
@@ -613,6 +618,7 @@ static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 	STM32MP1_CLK_PARENT(_STGEN_SEL, RCC_STGENCKSELR, 0, 0x3, stgen_parents),
 	STM32MP1_CLK_PARENT(_DSI_SEL, RCC_DSICKSELR, 0, 0x1, dsi_parents),
 	STM32MP1_CLK_PARENT(_ADC12_SEL, RCC_ADCCKSELR, 0, 0x1, adc_parents),
+	STM32MP1_CLK_PARENT(_SPI1_SEL, RCC_SPI2S1CKSELR, 0, 0x7, spi_parents),
 };
 
 #ifdef STM32MP1_CLOCK_TREE_INIT
@@ -727,6 +733,7 @@ char * const stm32mp1_clk_parent_sel_name[_PARENT_SEL_NB] = {
 	[_STGEN_SEL] = "STGEN",
 	[_DSI_SEL] = "DSI",
 	[_ADC12_SEL] = "ADC12",
+	[_SPI1_SEL] = "SPI1",
 };
 
 static const struct stm32mp1_clk_data stm32mp1_data = {
