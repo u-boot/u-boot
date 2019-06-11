@@ -94,6 +94,9 @@ sed -i 's/^unsigned long /static &/g' ${OUT}
 sed -i 's/()$/(void)/g' ${OUT}
 sed -i 's/0X/0x/g' ${OUT}
 
+# return (0) -> return 0
+sed -ri 's/return \(([0-9]+)\)/return \1/g' ${OUT}
+
 # Add header
 cat << EOF >${TMP}
 // SPDX-License-Identifier: GPL-2.0+
