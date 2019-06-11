@@ -1933,16 +1933,19 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 						  efi_uintn_t map_key)
 {
 	struct efi_event *evt;
+	efi_status_t ret = EFI_SUCCESS;
 
 	EFI_ENTRY("%p, %zx", image_handle, map_key);
 
 	/* Check that the caller has read the current memory map */
-	if (map_key != efi_memory_map_key)
-		return EFI_INVALID_PARAMETER;
+	if (map_key != efi_memory_map_key) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
 	/* Check if ExitBootServices has already been called */
 	if (!systab.boottime)
-		return EFI_EXIT(EFI_SUCCESS);
+		goto out;
 
 	/* Stop all timer related activities */
 	timers_enabled = false;
@@ -1990,8 +1993,8 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	/* Give the payload some time to boot */
 	efi_set_watchdog(0);
 	WATCHDOG_RESET();
-
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
