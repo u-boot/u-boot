@@ -1779,7 +1779,7 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 	/* Open file */
 	f = efi_file_from_path(file_path);
 	if (!f)
-		return EFI_DEVICE_ERROR;
+		return EFI_NOT_FOUND;
 
 	/* Get file size */
 	bs = 0;
