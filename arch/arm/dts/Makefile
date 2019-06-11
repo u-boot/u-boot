@@ -560,6 +560,7 @@ dtb-y += \
 	imx6dl-icore-rqs.dtb \
 	imx6dl-mamoj.dtb \
 	imx6dl-nitrogen6x.dtb \
+	imx6dl-pico.dtb \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
 	imx6dl-wandboard-revb1.dtb \
@@ -578,6 +579,7 @@ dtb-y += \
 	imx6q-logicpd.dtb \
 	imx6q-nitrogen6x.dtb \
 	imx6q-novena.dtb \
+	imx6q-pico.dtb \
 	imx6q-sabreauto.dtb \
 	imx6q-sabrelite.dtb \
 	imx6q-sabresd.dtb \
