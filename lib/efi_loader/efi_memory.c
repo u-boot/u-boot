@@ -334,7 +334,6 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
  *
  * Check that the address is within allocated memory:
  *
- * * The address cannot be NULL.
  * * The address must be in a range of the memory map.
  * * The address may not point to EFI_CONVENTIONAL_MEMORY.
  *
@@ -349,8 +348,6 @@ static efi_status_t efi_check_allocated(u64 addr, bool must_be_allocated)
 {
 	struct efi_mem_list *item;
 
-	if (!addr)
-		return EFI_INVALID_PARAMETER;
 	list_for_each_entry(item, &efi_mem, link) {
 		u64 start = item->desc.physical_start;
 		u64 end = start + (item->desc.num_pages << EFI_PAGE_SHIFT);
@@ -559,6 +556,9 @@ efi_status_t efi_free_pool(void *buffer)
 {
 	efi_status_t ret;
 	struct efi_pool_allocation *alloc;
+
+	if (!buffer)
+		return EFI_INVALID_PARAMETER;
 
 	ret = efi_check_allocated((uintptr_t)buffer, true);
 	if (ret != EFI_SUCCESS)
