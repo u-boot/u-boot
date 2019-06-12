@@ -6,6 +6,13 @@
 
 #include "omap3-u-boot.dtsi"
 
+/ {
+	aliases {
+		/delete-property/ serial1;
+		/delete-property/ serial2;
+	};
+};
+
 &i2c1 {
 	clock-frequency = <400000>;
 };
@@ -14,11 +21,7 @@
 	clock-frequency = <400000>;
 };
 
-&mmc2 {
-      status = "disabled";
-};
-
-&mmc3 {
-      status = "disabled";
-};
-
+/delete-node/ &uart2;
+/delete-node/ &uart3;
+/delete-node/ &mmc2;
+/delete-node/ &mmc3;
