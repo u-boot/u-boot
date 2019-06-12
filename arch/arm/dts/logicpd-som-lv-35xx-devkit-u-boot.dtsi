@@ -20,10 +20,6 @@
 	clock-frequency = <400000>;
 };
 
-&mmc1 {
-	cd-gpios = <&gpio4 14 GPIO_ACTIVE_LOW>;		/* gpio_110 */
-};
-
 &mmc2 {
       status = "disabled";
 };
