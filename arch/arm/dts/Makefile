@@ -544,9 +544,7 @@ dtb-$(CONFIG_MX6Q) += \
 	imx6-apalis.dtb \
 	imx6q-display5.dtb \
 	imx6q-logicpd.dtb \
-	imx6q-novena.dtb
-
-dtb-$(CONFIG_TARGET_TBS2910) += \
+	imx6q-novena.dtb \
 	imx6q-tbs2910.dtb
 
 dtb-$(CONFIG_MX6QDL) += \
@@ -556,6 +554,7 @@ dtb-$(CONFIG_MX6QDL) += \
 	imx6dl-mamoj.dtb \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
+	imx6dl-wandboard-revb1.dtb \
 	imx6q-cm-fx6.dtb \
 	imx6q-icore.dtb \
 	imx6q-icore-mipi.dtb \
@@ -564,9 +563,6 @@ dtb-$(CONFIG_MX6QDL) += \
 	imx6q-sabresd.dtb \
 	imx6qp-sabreauto.dtb \
 	imx6qp-sabresd.dtb
-
-dtb-$(CONFIG_TARGET_WANDBOARD) += \
-	imx6dl-wandboard-revb1.dtb
 
 dtb-$(CONFIG_MX6SL) += imx6sl-evk.dtb
 
