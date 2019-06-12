@@ -133,13 +133,13 @@ static void getvar_platform(char *var_parameter, char *response)
 
 static void getvar_current_slot(char *var_parameter, char *response)
 {
-	/* A/B not implemented, for now always return _a */
-	fastboot_okay("_a", response);
+	/* A/B not implemented, for now always return "a" */
+	fastboot_okay("a", response);
 }
 
 static void getvar_slot_suffixes(char *var_parameter, char *response)
 {
-	fastboot_okay("_a,_b", response);
+	fastboot_okay("a,b", response);
 }
 
 static void getvar_has_slot(char *part_name, char *response)
