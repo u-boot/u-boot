@@ -554,14 +554,14 @@ dtb-$(CONFIG_MX6QDL) += \
 	imx6dl-icore-mipi.dtb \
 	imx6dl-icore-rqs.dtb \
 	imx6dl-mamoj.dtb \
+	imx6dl-sabreauto.dtb \
+	imx6dl-sabresd.dtb \
 	imx6q-cm-fx6.dtb \
 	imx6q-icore.dtb \
 	imx6q-icore-mipi.dtb \
 	imx6q-icore-rqs.dtb \
 	imx6q-sabreauto.dtb \
 	imx6q-sabresd.dtb \
-	imx6dl-sabreauto.dtb \
-	imx6dl-sabresd.dtb \
 	imx6qp-sabreauto.dtb \
 	imx6qp-sabresd.dtb
 
