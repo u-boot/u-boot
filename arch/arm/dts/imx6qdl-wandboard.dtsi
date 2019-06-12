@@ -8,6 +8,10 @@
 #include <dt-bindings/gpio/gpio.h>
 
 / {
+	aliases {
+		mmc0 = &usdhc3;
+	};
+
 	chosen {
 		stdout-path = &uart1;
 	};
