@@ -72,6 +72,47 @@ static int meson_gx_pinmux_group_set(struct udevice *dev,
 	return 0;
 }
 
+static int meson_gx_pinmux_get(struct udevice *dev,
+				      unsigned int selector,
+				      char *buf, int size)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+	struct meson_pmx_group *group;
+	struct meson_gx_pmx_data *pmx_data;
+	void __iomem *addr;
+	int i, j, pos = 0;
+	unsigned int pin;
+	u32 reg;
+
+	pin = selector + priv->data->pin_base;
+
+	for (i = 0; i < priv->data->num_groups; i++) {
+		group = &priv->data->groups[i];
+		pmx_data = (struct meson_gx_pmx_data *)group->data;
+		if (pmx_data->is_gpio)
+			continue;
+
+		for (j = 0; j < group->num_pins; j++) {
+			if (group->pins[j] == pin) {
+				/* We have found a group using the pin */
+				addr = priv->reg_mux + pmx_data->reg * 4;
+				reg = readl(addr) & BIT(pmx_data->bit);
+				if (reg) {
+					pos += snprintf(buf + pos, size - pos,
+							"%s ", group->name) - 1;
+					return 0;
+				}
+			}
+		}
+	}
+
+	/* Fallback, must be used as GPIO */
+	snprintf(buf, size, "%s or Unknown",
+		 priv->data->groups[selector].name);
+
+	return 0;
+}
+
 const struct pinconf_param meson_gx_pinconf_params[] = {
 	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, 0 },
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 1 },
@@ -89,6 +130,9 @@ const struct pinctrl_ops meson_gx_pinctrl_ops = {
 	.pinconf_num_params = ARRAY_SIZE(meson_gx_pinconf_params),
 	.pinconf_set = meson_pinconf_set,
 	.pinconf_group_set = meson_pinconf_group_set,
+	.get_pin_name = meson_pinctrl_get_pin_name,
+	.get_pins_count = meson_pinctrl_get_pins_count,
+	.get_pin_muxing	= meson_gx_pinmux_get,
 };
 
 static const struct dm_gpio_ops meson_gx_gpio_ops = {

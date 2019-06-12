@@ -93,10 +93,56 @@ static int meson_axg_pinmux_group_set(struct udevice *dev,
 	return 0;
 }
 
+static int meson_axg_pinmux_get(struct udevice *dev, unsigned int selector,
+				char *buf, int size)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+	struct meson_pmx_axg_data *pmx_data;
+	struct meson_pmx_group *group;
+	struct meson_pmx_bank *bank;
+	unsigned int offset;
+	unsigned int func;
+	unsigned int reg;
+	int ret, i, j;
+
+	selector += priv->data->pin_base;
+
+	ret = meson_axg_pmx_get_bank(dev, selector, &bank);
+	if (ret) {
+		snprintf(buf, size, "Unhandled");
+		return 0;
+	}
+
+	meson_axg_pmx_calc_reg_and_offset(bank, selector, &reg, &offset);
+
+	func = (readl(priv->reg_mux + (reg << 2)) >> offset) & 0xf;
+
+	for (i = 0; i < priv->data->num_groups; i++) {
+		group = &priv->data->groups[i];
+		pmx_data = (struct meson_pmx_axg_data *)group->data;
+
+		if (pmx_data->func != func)
+			continue;
+
+		for (j = 0; j < group->num_pins; j++) {
+			if (group->pins[j] == selector) {
+				snprintf(buf, size, "%s (%x)",
+					 group->name, func);
+				return 0;
+			}
+		}
+	}
+
+	snprintf(buf, size, "Unknown (%x)", func);
+
+	return 0;
+}
+
 const struct pinconf_param meson_axg_pinconf_params[] = {
 	{ "bias-disable", PIN_CONFIG_BIAS_DISABLE, 0 },
 	{ "bias-pull-up", PIN_CONFIG_BIAS_PULL_UP, 1 },
 	{ "bias-pull-down", PIN_CONFIG_BIAS_PULL_DOWN, 1 },
+	{ "drive-strength-microamp", PIN_CONFIG_DRIVE_STRENGTH_UA, 0 },
 };
 
 const struct pinctrl_ops meson_axg_pinctrl_ops = {
@@ -110,6 +156,9 @@ const struct pinctrl_ops meson_axg_pinctrl_ops = {
 	.pinconf_num_params = ARRAY_SIZE(meson_axg_pinconf_params),
 	.pinconf_set = meson_pinconf_set,
 	.pinconf_group_set = meson_pinconf_group_set,
+	.get_pin_name = meson_pinctrl_get_pin_name,
+	.get_pins_count = meson_pinctrl_get_pins_count,
+	.get_pin_muxing	= meson_axg_pinmux_get,
 };
 
 static int meson_axg_gpio_request(struct udevice *dev,

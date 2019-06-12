@@ -20,6 +20,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static const char *meson_pinctrl_dummy_name = "_dummy";
 
+static char pin_name[PINNAME_SIZE];
+
 int meson_pinctrl_get_groups_count(struct udevice *dev)
 {
 	struct meson_pinctrl *priv = dev_get_priv(dev);
@@ -36,6 +38,28 @@ const char *meson_pinctrl_get_group_name(struct udevice *dev,
 		return meson_pinctrl_dummy_name;
 
 	return priv->data->groups[selector].name;
+}
+
+int meson_pinctrl_get_pins_count(struct udevice *dev)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+
+	return priv->data->num_pins;
+}
+
+const char *meson_pinctrl_get_pin_name(struct udevice *dev,
+				       unsigned int selector)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+
+	if (selector > priv->data->num_pins ||
+	    selector > priv->data->funcs[0].num_groups)
+		snprintf(pin_name, PINNAME_SIZE, "Error");
+	else
+		snprintf(pin_name, PINNAME_SIZE, "%s",
+			 priv->data->funcs[0].groups[selector]);
+
+	return pin_name;
 }
 
 int meson_pinmux_get_functions_count(struct udevice *dev)
@@ -198,6 +222,47 @@ static int meson_pinconf_bias_set(struct udevice *dev, unsigned int pin,
 	return 0;
 }
 
+static int meson_pinconf_drive_strength_set(struct udevice *dev,
+					    unsigned int pin,
+					    unsigned int drive_strength_ua)
+{
+	struct meson_pinctrl *priv = dev_get_priv(dev);
+	unsigned int offset = pin - priv->data->pin_base;
+	unsigned int reg, bit;
+	unsigned int ds_val;
+	int ret;
+
+	if (!priv->reg_ds) {
+		dev_err(dev, "drive-strength-microamp not supported\n");
+		return -ENOTSUPP;
+	}
+
+	ret = meson_gpio_calc_reg_and_bit(dev, offset, REG_DS, &reg, &bit);
+	if (ret)
+		return ret;
+
+	bit = bit << 1;
+
+	if (drive_strength_ua <= 500) {
+		ds_val = MESON_PINCONF_DRV_500UA;
+	} else if (drive_strength_ua <= 2500) {
+		ds_val = MESON_PINCONF_DRV_2500UA;
+	} else if (drive_strength_ua <= 3000) {
+		ds_val = MESON_PINCONF_DRV_3000UA;
+	} else if (drive_strength_ua <= 4000) {
+		ds_val = MESON_PINCONF_DRV_4000UA;
+	} else {
+		dev_warn(dev,
+			 "pin %u: invalid drive-strength-microamp : %d , default to 4mA\n",
+			 pin, drive_strength_ua);
+		ds_val = MESON_PINCONF_DRV_4000UA;
+	}
+
+	clrsetbits_le32(priv->reg_ds + reg, 0x3 << bit, ds_val << bit);
+
+	return 0;
+}
+
 int meson_pinconf_set(struct udevice *dev, unsigned int pin,
 		      unsigned int param, unsigned int arg)
 {
@@ -209,7 +274,9 @@ int meson_pinconf_set(struct udevice *dev, unsigned int pin,
 	case PIN_CONFIG_BIAS_PULL_DOWN:
 		ret = meson_pinconf_bias_set(dev, pin, param);
 		break;
-
+	case PIN_CONFIG_DRIVE_STRENGTH_UA:
+		ret = meson_pinconf_drive_strength_set(dev, pin, arg);
+		break;
 	default:
 		dev_err(dev, "unsupported configuration parameter %u\n", param);
 		return -EINVAL;

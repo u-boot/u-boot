@@ -59,6 +59,16 @@ struct meson_reg_desc {
 };
 
 /**
+ * enum meson_pinconf_drv - value of drive-strength supported
+ */
+enum meson_pinconf_drv {
+	MESON_PINCONF_DRV_500UA,
+	MESON_PINCONF_DRV_2500UA,
+	MESON_PINCONF_DRV_3000UA,
+	MESON_PINCONF_DRV_4000UA,
+};
+
+/**
  * enum meson_reg_type - type of registers encoded in @meson_reg_desc
  */
 enum meson_reg_type {
@@ -67,6 +77,7 @@ enum meson_reg_type {
 	REG_DIR,
 	REG_OUT,
 	REG_IN,
+	REG_DS,
 	NUM_REG,
 };
 
@@ -99,19 +110,24 @@ struct meson_bank {
 		.num_groups = ARRAY_SIZE(fn ## _groups),		\
 	}
 
-#define BANK(n, f, l, per, peb, pr, pb, dr, db, or, ob, ir, ib)		\
-	{								\
-		.name	= n,						\
-		.first	= f,						\
-		.last	= l,						\
-		.regs	= {						\
-			[REG_PULLEN]	= { per, peb },			\
-			[REG_PULL]	= { pr, pb },			\
-			[REG_DIR]	= { dr, db },			\
-			[REG_OUT]	= { or, ob },			\
-			[REG_IN]	= { ir, ib },			\
-		},							\
-	 }
+#define BANK_DS(n, f, l, per, peb, pr, pb, dr, db, or, ob, ir, ib, \
+		dsr, dsb)                                                  \
+	{                                                                  \
+		.name = n,                                                 \
+		.first = f,                                                \
+		.last = l,                                                 \
+		.regs = {                                                  \
+		    [REG_PULLEN] = {per, peb},                             \
+		    [REG_PULL] = {pr, pb},                                 \
+		    [REG_DIR] = {dr, db},                                  \
+		    [REG_OUT] = { or, ob},                                 \
+		    [REG_IN] = {ir, ib},                                   \
+		    [REG_DS] = {dsr, dsb},                                 \
+		},                                                         \
+	}
+
+#define BANK(n, f, l, per, peb, pr, pb, dr, db, or, ob, ir, ib) \
+	BANK_DS(n, f, l, per, peb, pr, pb, dr, db, or, ob, ir, ib, 0, 0)
 
 #define MESON_PIN(x, b) PINCTRL_PIN(PIN(x, b), #x)
 
@@ -120,6 +136,9 @@ extern const struct pinctrl_ops meson_pinctrl_ops;
 int meson_pinctrl_get_groups_count(struct udevice *dev);
 const char *meson_pinctrl_get_group_name(struct udevice *dev,
 					 unsigned int selector);
+int meson_pinctrl_get_pins_count(struct udevice *dev);
+const char *meson_pinctrl_get_pin_name(struct udevice *dev,
+				       unsigned int selector);
 int meson_pinmux_get_functions_count(struct udevice *dev);
 const char *meson_pinmux_get_function_name(struct udevice *dev,
 					   unsigned int selector);
