@@ -6,12 +6,14 @@
  */
 
 #include <common.h>
+#include <asm/arch/sm.h>
 #include <linux/kernel.h>
 
 #define FN_GET_SHARE_MEM_INPUT_BASE	0x82000020
 #define FN_GET_SHARE_MEM_OUTPUT_BASE	0x82000021
 #define FN_EFUSE_READ			0x82000030
 #define FN_EFUSE_WRITE			0x82000031
+#define FN_CHIP_ID			0x82000044
 
 static void *shmem_input;
 static void *shmem_output;
@@ -52,4 +54,26 @@ ssize_t meson_sm_read_efuse(uintptr_t offset, void *buffer, size_t size)
 	memcpy(buffer, shmem_output, min(size, regs.regs[0]));
 
 	return regs.regs[0];
+}
+
+#define SM_CHIP_ID_LENGTH	119
+#define SM_CHIP_ID_OFFSET	4
+#define SM_CHIP_ID_SIZE		12
+
+int meson_sm_get_serial(void *buffer, size_t size)
+{
+	struct pt_regs regs;
+
+	meson_init_shmem();
+
+	regs.regs[0] = FN_CHIP_ID;
+	regs.regs[1] = 0;
+	regs.regs[2] = 0;
+
+	smc_call(&regs);
+
+	memcpy(buffer, shmem_output + SM_CHIP_ID_OFFSET,
+	       min_t(size_t, size, SM_CHIP_ID_SIZE));
+
+	return 0;
 }
