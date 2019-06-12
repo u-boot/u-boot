@@ -71,19 +71,6 @@ int board_phy_config(struct phy_device *phydev)
 }
 #endif
 
-void build_info(void)
-{
-	u32 sc_build = 0, sc_commit = 0;
-
-	/* Get SCFW build and commit id */
-	sc_misc_build_info(-1, &sc_build, &sc_commit);
-	if (!sc_build) {
-		printf("SCFW does not support build info\n");
-		sc_commit = 0; /* Display 0 if build info not supported */
-	}
-	printf("Build: SCFW %x\n", sc_commit);
-}
-
 int checkboard(void)
 {
 	puts("Model: Toradex Apalis iMX8\n");
