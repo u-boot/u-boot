@@ -561,8 +561,10 @@ dtb-$(CONFIG_MX6QDL) += \
 	imx6q-icore-rqs.dtb \
 	imx6q-sabreauto.dtb \
 	imx6q-sabresd.dtb \
+	imx6q-wandboard-revb1.dtb \
 	imx6qp-sabreauto.dtb \
-	imx6qp-sabresd.dtb
+	imx6qp-sabresd.dtb \
+	imx6qp-wandboard-revd1.dtb
 
 dtb-$(CONFIG_MX6SL) += imx6sl-evk.dtb
 
