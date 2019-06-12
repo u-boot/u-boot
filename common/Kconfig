@@ -560,7 +560,7 @@ config LOG_DEFAULT_LEVEL
 	help
 	  This is the default logging level set when U-Boot starts. It can
 	  be adjusted later using the 'log level' command. Note that setting
-	  this to a value abnove LOG_MAX_LEVEL will be ineffective, since the
+	  this to a value above LOG_MAX_LEVEL will be ineffective, since the
 	  higher levels are not compiled in to U-Boot.
 
 	    0 - emergency
