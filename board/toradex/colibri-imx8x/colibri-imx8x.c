@@ -51,19 +51,9 @@ int board_early_init_f(void)
 	if (err != SC_ERR_NONE)
 		return 0;
 
-	/* Power up UART3 */
-	err = sc_pm_set_resource_power_mode(-1, SC_R_UART_3, SC_PM_PW_MODE_ON);
-	if (err != SC_ERR_NONE)
-		return 0;
-
-	/* Set UART3 clock root to 80 MHz */
-	rate = 80000000;
-	err = sc_pm_set_clock_rate(-1, SC_R_UART_3, SC_PM_CLK_PER, &rate);
-	if (err != SC_ERR_NONE)
-		return 0;
-
-	/* Enable UART3 clock root */
-	err = sc_pm_clock_enable(-1, SC_R_UART_3, SC_PM_CLK_PER, true, false);
+	/* Set UART3 clock root to 80 MHz and enable it */
+	rate = SC_80MHZ;
+	err = sc_pm_setup_uart(SC_R_UART_3, rate);
 	if (err != SC_ERR_NONE)
 		return 0;
 

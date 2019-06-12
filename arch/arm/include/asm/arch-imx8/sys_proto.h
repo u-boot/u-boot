@@ -3,6 +3,7 @@
  * Copyright 2018 NXP
  */
 
+#include <asm/arch/sci/sci.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <linux/types.h>
 
@@ -17,3 +18,4 @@ struct pass_over_info_t {
 
 enum boot_device get_boot_device(void);
 int print_bootinfo(void);
+int sc_pm_setup_uart(sc_rsrc_t uart_rsrc, sc_pm_clock_rate_t clk_rate);
