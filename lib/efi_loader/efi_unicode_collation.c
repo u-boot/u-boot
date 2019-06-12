@@ -74,10 +74,21 @@ out:
 }
 
 /**
+ * next_lower() - get next codepoint converted to lower case
+ *
+ * @string:	pointer to u16 string, on return advanced by one codepoint
+ * Return:	first codepoint of string converted to lower case
+ */
+static s32 next_lower(const u16 **string)
+{
+	return utf_to_lower(utf16_get(string));
+}
+
+/**
  * metai_match() - compare utf-16 string with a pattern string case-insenitively
  *
- * @s:		string to compare
- * @p:		pattern string
+ * @string:	string to compare
+ * @pattern:	pattern string
  *
  * The pattern string may use these:
  *	- * matches >= 0 characters
@@ -93,61 +104,67 @@ out:
  *
  * Return:	true if the string is matched.
  */
-static bool metai_match(const u16 *s, const u16 *p)
+static bool metai_match(const u16 *string, const u16 *pattern)
 {
-	u16 first;
+	s32 first, s, p;
 
-	for (; *s && *p; ++s, ++p) {
-		switch (*p) {
+	for (; *string && *pattern;) {
+		const u16 *string_old = string;
+
+		s = next_lower(&string);
+		p = next_lower(&pattern);
+
+		switch (p) {
 		case '*':
 			/* Match 0 or more characters */
-			++p;
-			for (;; ++s) {
-				if (metai_match(s, p))
+			for (;; s = next_lower(&string)) {
+				if (metai_match(string_old, pattern))
 					return true;
-				if (!*s)
+				if (!s)
 					return false;
+				string_old = string;
 			}
 		case '?':
 			/* Match any one character */
 			break;
 		case '[':
 			/* Match any character in the set */
-			++p;
-			first = *p;
+			p = next_lower(&pattern);
+			first = p;
 			if (first == ']')
 				/* Empty set */
 				return false;
-			++p;
-			if (*p == '-') {
+			p = next_lower(&pattern);
+			if (p == '-') {
 				/* Range */
-				++p;
-				if (*s < first || *s > *p)
+				p = next_lower(&pattern);
+				if (s < first || s > p)
 					return false;
-				++p;
-				if (*p != ']')
+				p = next_lower(&pattern);
+				if (p != ']')
 					return false;
 			} else {
 				/* Set */
 				bool hit = false;
 
-				if (*s == first)
+				if (s == first)
 					hit = true;
-				for (; *p && *p != ']'; ++p) {
-					if (*p == *s)
+				for (; p && p != ']';
+				     p = next_lower(&pattern)) {
+					if (p == s)
 						hit = true;
 				}
-				if (!hit || *p != ']')
+				if (!hit || p != ']')
 					return false;
 			}
 			break;
 		default:
 			/* Match one character */
-			if (*p != *s)
+			if (p != s)
 				return false;
 		}
 	}
-	if (!*p && !*s)
+	if (!*pattern && !*string)
 		return true;
 	return false;
 }
