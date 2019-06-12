@@ -4,6 +4,7 @@
  * Vipin Kumar, ST Micoelectronics, vipin.kumar@st.com.
  */
 
+#include <clk.h>
 #include <common.h>
 #include <dm.h>
 #include <i2c.h>
@@ -35,6 +36,9 @@ struct dw_i2c {
 	struct i2c_regs *regs;
 	struct dw_scl_sda_cfg *scl_sda_cfg;
 	struct reset_ctl_bulk resets;
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk clk;
+#endif
 };
 
 #ifdef CONFIG_SYS_I2C_DW_ENABLE_STATUS_UNSUPPORTED
@@ -78,7 +82,8 @@ static int dw_i2c_enable(struct i2c_regs *i2c_base, bool enable)
  */
 static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 					   struct dw_scl_sda_cfg *scl_sda_cfg,
-					   unsigned int speed)
+					   unsigned int speed,
+					   unsigned int bus_mhz)
 {
 	unsigned int cntl;
 	unsigned int hcnt, lcnt;
@@ -108,8 +113,8 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 			hcnt = scl_sda_cfg->fs_hcnt;
 			lcnt = scl_sda_cfg->fs_lcnt;
 		} else {
-			hcnt = (IC_CLK * MIN_HS_SCL_HIGHTIME) / NANO_TO_MICRO;
-			lcnt = (IC_CLK * MIN_HS_SCL_LOWTIME) / NANO_TO_MICRO;
+			hcnt = (bus_mhz * MIN_HS_SCL_HIGHTIME) / NANO_TO_MICRO;
+			lcnt = (bus_mhz * MIN_HS_SCL_LOWTIME) / NANO_TO_MICRO;
 		}
 		writel(hcnt, &i2c_base->ic_hs_scl_hcnt);
 		writel(lcnt, &i2c_base->ic_hs_scl_lcnt);
@@ -122,8 +127,8 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 			hcnt = scl_sda_cfg->ss_hcnt;
 			lcnt = scl_sda_cfg->ss_lcnt;
 		} else {
-			hcnt = (IC_CLK * MIN_SS_SCL_HIGHTIME) / NANO_TO_MICRO;
-			lcnt = (IC_CLK * MIN_SS_SCL_LOWTIME) / NANO_TO_MICRO;
+			hcnt = (bus_mhz * MIN_SS_SCL_HIGHTIME) / NANO_TO_MICRO;
+			lcnt = (bus_mhz * MIN_SS_SCL_LOWTIME) / NANO_TO_MICRO;
 		}
 		writel(hcnt, &i2c_base->ic_ss_scl_hcnt);
 		writel(lcnt, &i2c_base->ic_ss_scl_lcnt);
@@ -136,8 +141,8 @@ static unsigned int __dw_i2c_set_bus_speed(struct i2c_regs *i2c_base,
 			hcnt = scl_sda_cfg->fs_hcnt;
 			lcnt = scl_sda_cfg->fs_lcnt;
 		} else {
-			hcnt = (IC_CLK * MIN_FS_SCL_HIGHTIME) / NANO_TO_MICRO;
-			lcnt = (IC_CLK * MIN_FS_SCL_LOWTIME) / NANO_TO_MICRO;
+			hcnt = (bus_mhz * MIN_FS_SCL_HIGHTIME) / NANO_TO_MICRO;
+			lcnt = (bus_mhz * MIN_FS_SCL_LOWTIME) / NANO_TO_MICRO;
 		}
 		writel(hcnt, &i2c_base->ic_fs_scl_hcnt);
 		writel(lcnt, &i2c_base->ic_fs_scl_lcnt);
@@ -393,7 +398,7 @@ static int __dw_i2c_init(struct i2c_regs *i2c_base, int speed, int slaveaddr)
 	writel(IC_TX_TL, &i2c_base->ic_tx_tl);
 	writel(IC_STOP_DET, &i2c_base->ic_intr_mask);
 #ifndef CONFIG_DM_I2C
-	__dw_i2c_set_bus_speed(i2c_base, NULL, speed);
+	__dw_i2c_set_bus_speed(i2c_base, NULL, speed, IC_CLK);
 	writel(slaveaddr, &i2c_base->ic_sar);
 #endif
 
@@ -438,7 +443,7 @@ static unsigned int dw_i2c_set_bus_speed(struct i2c_adapter *adap,
 					 unsigned int speed)
 {
 	adap->speed = speed;
-	return __dw_i2c_set_bus_speed(i2c_get_base(adap), NULL, speed);
+	return __dw_i2c_set_bus_speed(i2c_get_base(adap), NULL, speed, IC_CLK);
 }
 
 static void dw_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
@@ -528,8 +533,20 @@ static int designware_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 static int designware_i2c_set_bus_speed(struct udevice *bus, unsigned int speed)
 {
 	struct dw_i2c *i2c = dev_get_priv(bus);
+	ulong rate;
 
-	return __dw_i2c_set_bus_speed(i2c->regs, i2c->scl_sda_cfg, speed);
+#if CONFIG_IS_ENABLED(CLK)
+	rate = clk_get_rate(&i2c->clk);
+	if (IS_ERR_VALUE(rate))
+		return -EINVAL;
+
+	/* Convert to MHz */
+	rate /= 1000000;
+#else
+	rate = IC_CLK;
+#endif
+	return __dw_i2c_set_bus_speed(i2c->regs, i2c->scl_sda_cfg, speed,
+				      rate);
 }
 
 static int designware_i2c_probe_chip(struct udevice *bus, uint chip_addr,
@@ -573,12 +590,30 @@ static int designware_i2c_probe(struct udevice *bus)
 	else
 		reset_deassert_bulk(&priv->resets);
 
+#if CONFIG_IS_ENABLED(CLK)
+	ret = clk_get_by_index(bus, 0, &priv->clk);
+	if (ret)
+		return ret;
+
+	ret = clk_enable(&priv->clk);
+	if (ret && ret != -ENOSYS && ret != -ENOTSUPP) {
+		clk_free(&priv->clk);
+		dev_err(bus, "failed to enable clock\n");
+		return ret;
+	}
+#endif
+
 	return __dw_i2c_init(priv->regs, 0, 0);
 }
 
 static int designware_i2c_remove(struct udevice *dev)
 {
 	struct dw_i2c *priv = dev_get_priv(dev);
+
+#if CONFIG_IS_ENABLED(CLK)
+	clk_disable(&priv->clk);
+	clk_free(&priv->clk);
+#endif
 
 	return reset_release_bulk(&priv->resets);
 }
