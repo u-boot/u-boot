@@ -704,7 +704,7 @@ static void efi_cin_check(void)
 	efi_status_t ret;
 
 	if (key_available) {
-		efi_signal_event(efi_con_in.wait_for_key, true);
+		efi_signal_event(efi_con_in.wait_for_key);
 		return;
 	}
 
@@ -718,7 +718,7 @@ static void efi_cin_check(void)
 
 			/* Queue the wait for key event */
 			if (key_available)
-				efi_signal_event(efi_con_in.wait_for_key, true);
+				efi_signal_event(efi_con_in.wait_for_key);
 		}
 	}
 }
