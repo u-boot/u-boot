@@ -16,8 +16,8 @@
  * @part_info: Pointer to returned part_info pointer
  * @response: Pointer to fastboot response buffer
  */
-int fastboot_nand_get_part_info(char *part_name, struct part_info **part_info,
-				char *response);
+int fastboot_nand_get_part_info(const char *part_name,
+				struct part_info **part_info, char *response);
 
 /**
  * fastboot_nand_flash_write() - Write image to NAND for fastboot
