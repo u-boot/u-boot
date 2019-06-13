@@ -53,12 +53,25 @@ static void ctrl_mmr_unlock(void)
 	mmr_unlock(CTRL_MMR0_BASE, 7);
 }
 
+/*
+ * This uninitialized global variable would normal end up in the .bss section,
+ * but the .bss is cleared between writing and reading this variable, so move
+ * it to the .data section.
+ */
+u32 bootindex __attribute__((section(".data")));
+
+static void store_boot_index_from_rom(void)
+{
+	bootindex = *(u32 *)(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX);
+}
+
 void board_init_f(ulong dummy)
 {
 	/*
-	 * ToDo:
-	 * - Store boot rom index.
+	 * Cannot delay this further as there is a chance that
+	 * K3_BOOT_PARAM_TABLE_INDEX can be over written by SPL MALLOC section.
 	 */
+	store_boot_index_from_rom();
 
 	/* Make all control module registers accessible */
 	ctrl_mmr_unlock();
