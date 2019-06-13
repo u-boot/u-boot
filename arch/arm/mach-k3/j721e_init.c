@@ -11,9 +11,13 @@
 #include <asm/io.h>
 #include <asm/armv7_mpu.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sysfw-loader.h>
 #include "common.h"
 #include <asm/arch/sys_proto.h>
 #include <linux/soc/ti/ti_sci_protocol.h>
+#include <dm.h>
+#include <dm/uclass-internal.h>
+#include <dm/pinctrl.h>
 
 #ifdef CONFIG_SPL_BUILD
 static void mmr_unlock(u32 base, u32 partition)
@@ -69,6 +73,10 @@ static void store_boot_index_from_rom(void)
 
 void board_init_f(ulong dummy)
 {
+#if defined(CONFIG_K3_LOAD_SYSFW)
+	struct udevice *dev;
+	int ret;
+#endif
 	/*
 	 * Cannot delay this further as there is a chance that
 	 * K3_BOOT_PARAM_TABLE_INDEX can be over written by SPL MALLOC section.
@@ -85,8 +93,30 @@ void board_init_f(ulong dummy)
 	/* Init DM early */
 	spl_early_init();
 
+#ifdef CONFIG_K3_LOAD_SYSFW
+	/*
+	 * Process pinctrl for the serial0 a.k.a. MCU_UART0 module and continue
+	 * regardless of the result of pinctrl. Do this without probing the
+	 * device, but instead by searching the device that would request the
+	 * given sequence number if probed. The UART will be used by the system
+	 * firmware (SYSFW) image for various purposes and SYSFW depends on us
+	 * to initialize its pin settings.
+	 */
+	ret = uclass_find_device_by_seq(UCLASS_SERIAL, 0, true, &dev);
+	if (!ret)
+		pinctrl_select_state(dev, "default");
+
+	/*
+	 * Load, start up, and configure system controller firmware. Provide
+	 * the U-Boot console init function to the SYSFW post-PM configuration
+	 * callback hook, effectively switching on (or over) the console
+	 * output.
+	 */
+	k3_sysfw_loader(preloader_console_init);
+#else
 	/* Prepare console output */
 	preloader_console_init();
+#endif
 }
 
 u32 spl_boot_mode(const u32 boot_device)
