@@ -113,4 +113,5 @@ config SYS_K3_SPL_ATF
 	  after SPL from R5.
 
 source "board/ti/am65x/Kconfig"
+source "board/ti/j721e/Kconfig"
 endif
