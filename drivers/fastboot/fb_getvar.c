@@ -81,6 +81,47 @@ static const struct {
 	}
 };
 
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
+/**
+ * Get partition number and size for any storage type.
+ *
+ * Can be used to check if partition with specified name exists.
+ *
+ * If error occurs, this function guarantees to fill @p response with fail
+ * string. @p response can be rewritten in caller, if needed.
+ *
+ * @param[in] part_name Info for which partition name to look for
+ * @param[in,out] response Pointer to fastboot response buffer
+ * @param[out] size If not NULL, will contain partition size (in blocks)
+ * @return Partition number or negative value on error
+ */
+static int getvar_get_part_info(const char *part_name, char *response,
+				size_t *size)
+{
+	int r;
+# if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
+	struct blk_desc *dev_desc;
+	disk_partition_t part_info;
+
+	r = fastboot_mmc_get_part_info(part_name, &dev_desc, &part_info,
+				       response);
+	if (r >= 0 && size)
+		*size = part_info.size;
+# elif CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
+	struct part_info *part_info;
+
+	r = fastboot_nand_get_part_info(part_name, &part_info, response);
+	if (r >= 0 && size)
+		*size = part_info->size;
+# else
+	fastboot_fail("this storage is not supported in bootloader", response);
+	r = -ENODEV;
+# endif
+
+	return r;
+}
+#endif
+
 static void getvar_version(char *var_parameter, char *response)
 {
 	fastboot_okay(FASTBOOT_VERSION, response);
@@ -176,22 +217,7 @@ static void getvar_partition_size(char *part_name, char *response)
 	int r;
 	size_t size;
 
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
-	struct blk_desc *dev_desc;
-	disk_partition_t part_info;
-
-	r = fastboot_mmc_get_part_info(part_name, &dev_desc, &part_info,
-				       response);
-	if (r >= 0)
-		size = part_info.size;
-#endif
-#if CONFIG_IS_ENABLED(FASTBOOT_FLASH_NAND)
-	struct part_info *part_info;
-
-	r = fastboot_nand_get_part_info(part_name, &part_info, response);
-	if (r >= 0)
-		size = part_info->size;
-#endif
+	r = getvar_get_part_info(part_name, response, &size);
 	if (r >= 0)
 		fastboot_response("OKAY", response, "0x%016zx", size);
 }
