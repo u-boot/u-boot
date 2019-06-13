@@ -12,6 +12,8 @@
 #include <asm/armv7_mpu.h>
 #include <asm/arch/hardware.h>
 #include "common.h"
+#include <asm/arch/sys_proto.h>
+#include <linux/soc/ti/ti_sci_protocol.h>
 
 #ifdef CONFIG_SPL_BUILD
 static void mmr_unlock(u32 base, u32 partition)
@@ -137,5 +139,60 @@ u32 spl_boot_device(void)
 
 	/* ToDo: Add support for backup boot media */
 	return __get_primary_bootmedia(main_devstat, wkup_devstat);
+}
+#endif
+
+#ifdef CONFIG_SYS_K3_SPL_ATF
+
+#define J721E_DEV_MCU_RTI0			262
+#define J721E_DEV_MCU_RTI1			263
+#define J721E_DEV_MCU_ARMSS0_CPU0		250
+#define J721E_DEV_MCU_ARMSS0_CPU1		251
+
+void release_resources_for_core_shutdown(void)
+{
+	struct ti_sci_handle *ti_sci;
+	struct ti_sci_dev_ops *dev_ops;
+	struct ti_sci_proc_ops *proc_ops;
+	int ret;
+	u32 i;
+
+	const u32 put_device_ids[] = {
+		J721E_DEV_MCU_RTI0,
+		J721E_DEV_MCU_RTI1,
+	};
+
+	ti_sci = get_ti_sci_handle();
+	dev_ops = &ti_sci->ops.dev_ops;
+	proc_ops = &ti_sci->ops.proc_ops;
+
+	/* Iterate through list of devices to put (shutdown) */
+	for (i = 0; i < ARRAY_SIZE(put_device_ids); i++) {
+		u32 id = put_device_ids[i];
+
+		ret = dev_ops->put_device(ti_sci, id);
+		if (ret)
+			panic("Failed to put device %u (%d)\n", id, ret);
+	}
+
+	const u32 put_core_ids[] = {
+		J721E_DEV_MCU_ARMSS0_CPU1,
+		J721E_DEV_MCU_ARMSS0_CPU0,	/* Handle CPU0 after CPU1 */
+	};
+
+	/* Iterate through list of cores to put (shutdown) */
+	for (i = 0; i < ARRAY_SIZE(put_core_ids); i++) {
+		u32 id = put_core_ids[i];
+
+		/*
+		 * Queue up the core shutdown request. Note that this call
+		 * needs to be followed up by an actual invocation of an WFE
+		 * or WFI CPU instruction.
+		 */
+		ret = proc_ops->proc_shutdown_no_wait(ti_sci, id);
+		if (ret)
+			panic("Failed sending core %u shutdown message (%d)\n",
+			      id, ret);
+	}
 }
 #endif
