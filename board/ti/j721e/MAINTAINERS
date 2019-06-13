@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/ti/j721e
 F:	include/configs/j721e_evm.h
 F:	configs/j721e_evm_r5_defconfig
+F:	configs/j721e_evm_a72_defconfig
