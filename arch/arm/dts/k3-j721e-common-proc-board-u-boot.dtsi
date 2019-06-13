@@ -1,0 +1,75 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ */
+
+/ {
+	chosen {
+		stdout-path = "serial2:115200n8";
+		tick-timer = &timer1;
+	};
+};
+
+&cbass_main{
+	u-boot,dm-spl;
+};
+
+&cbass_mcu_wakeup {
+	u-boot,dm-spl;
+
+	timer1: timer@40400000 {
+		compatible = "ti,omap5430-timer";
+		reg = <0x0 0x40400000 0x0 0x80>;
+		ti,timer-alwon;
+		clock-frequency = <25000000>;
+		u-boot,dm-spl;
+	};
+};
+
+&secure_proxy_main {
+	u-boot,dm-spl;
+};
+
+&dmsc {
+	u-boot,dm-spl;
+	k3_sysreset: sysreset-controller {
+		compatible = "ti,sci-sysreset";
+		u-boot,dm-spl;
+	};
+};
+
+&k3_pds {
+	u-boot,dm-spl;
+};
+
+&k3_clks {
+	u-boot,dm-spl;
+};
+
+&k3_reset {
+	u-boot,dm-spl;
+};
+
+&wkup_pmx0 {
+	u-boot,dm-spl;
+};
+
+&main_pmx0 {
+	u-boot,dm-spl;
+};
+
+&main_uart0 {
+	u-boot,dm-spl;
+};
+
+&mcu_uart0 {
+	u-boot,dm-spl;
+};
+
+&main_sdhci0 {
+	u-boot,dm-spl;
+};
+
+&main_sdhci1 {
+	u-boot,dm-spl;
+};
