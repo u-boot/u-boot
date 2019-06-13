@@ -366,8 +366,7 @@ efi_status_t __weak __efi_runtime EFIAPI efi_get_time(
 			struct efi_time *time,
 			struct efi_time_cap *capabilities)
 {
-	/* Nothing we can do */
-	return EFI_DEVICE_ERROR;
+	return EFI_UNSUPPORTED;
 }
 
 /**
