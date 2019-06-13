@@ -72,6 +72,8 @@ struct am654_sdhci_plat {
 	u32 otap_del_sel;
 	u32 trm_icp;
 	u32 drv_strength;
+	u32 flags;
+#define DLL_PRESENT	(1 << 0)
 	bool dll_on;
 };
 
@@ -162,6 +164,10 @@ const struct sdhci_ops am654_sdhci_ops = {
 	.set_control_reg	= &am654_sdhci_set_control_reg,
 };
 
+const struct sdhci_ops j721e_4bit_sdhci_ops = {
+	.set_control_reg	= &am654_sdhci_set_control_reg,
+};
+
 int am654_sdhci_init(struct am654_sdhci_plat *plat)
 {
 	u32 ctl_cfg_2 = 0;
@@ -172,24 +178,28 @@ int am654_sdhci_init(struct am654_sdhci_plat *plat)
 	mask = OTAPDLYENA_MASK | OTAPDLYSEL_MASK;
 	regmap_update_bits(plat->base, PHY_CTRL4, mask, 0x0);
 
-	regmap_read(plat->base, PHY_STAT1, &val);
-	if (~val & CALDONE_MASK) {
-		/* Calibrate IO lines */
-		regmap_update_bits(plat->base, PHY_CTRL1, PDB_MASK, PDB_MASK);
-		ret = regmap_read_poll_timeout(plat->base, PHY_STAT1, val,
-					       val & CALDONE_MASK, 1, 20);
-		if (ret)
-			return ret;
+	if (plat->flags & DLL_PRESENT) {
+		regmap_read(plat->base, PHY_STAT1, &val);
+		if (~val & CALDONE_MASK) {
+			/* Calibrate IO lines */
+			regmap_update_bits(plat->base, PHY_CTRL1, PDB_MASK,
+					   PDB_MASK);
+			ret = regmap_read_poll_timeout(plat->base, PHY_STAT1,
+						       val, val & CALDONE_MASK,
+						       1, 20);
+			if (ret)
+				return ret;
+		}
+
+		/* Configure DLL TRIM */
+		mask = DLL_TRIM_ICP_MASK;
+		val = plat->trm_icp << DLL_TRIM_ICP_SHIFT;
+
+		/* Configure DLL driver strength */
+		mask |= DR_TY_MASK;
+		val |= plat->drv_strength << DR_TY_SHIFT;
+		regmap_update_bits(plat->base, PHY_CTRL1, mask, val);
 	}
-
-	/* Configure DLL TRIM */
-	mask = DLL_TRIM_ICP_MASK;
-	val = plat->trm_icp << DLL_TRIM_ICP_SHIFT;
-
-	/* Configure DLL driver strength */
-	mask |= DR_TY_MASK;
-	val |= plat->drv_strength << DR_TY_SHIFT;
-	regmap_update_bits(plat->base, PHY_CTRL1, mask, val);
 
 	/* Enable pins by setting IO mux to 0 */
 	regmap_update_bits(plat->base, PHY_CTRL1, IOMUX_ENABLE_MASK, 0);
@@ -245,7 +255,7 @@ static int am654_sdhci_probe(struct udevice *dev)
 			      AM654_SDHCI_MIN_FREQ);
 	if (ret)
 		return ret;
-	host->ops = &am654_sdhci_ops;
+	host->ops = (struct sdhci_ops *)dev_get_driver_data(dev);
 	host->mmc->priv = host;
 	upriv->mmc = host->mmc;
 
@@ -268,37 +278,44 @@ static int am654_sdhci_ofdata_to_platdata(struct udevice *dev)
 	host->ioaddr = (void *)dev_read_addr(dev);
 	plat->non_removable = dev_read_bool(dev, "non-removable");
 
-	ret = dev_read_u32(dev, "ti,trm-icp", &plat->trm_icp);
-	if (ret)
-		return ret;
+	if (device_is_compatible(dev, "ti,am654-sdhci-5.1") ||
+	    device_is_compatible(dev, "ti,j721e-sdhci-8bit"))
+		plat->flags |= DLL_PRESENT;
 
 	ret = dev_read_u32(dev, "ti,otap-del-sel", &plat->otap_del_sel);
 	if (ret)
 		return ret;
 
-	ret = dev_read_u32(dev, "ti,driver-strength-ohm", &drv_strength);
-	if (ret)
-		return ret;
+	if (plat->flags & DLL_PRESENT) {
+		ret = dev_read_u32(dev, "ti,trm-icp", &plat->trm_icp);
+		if (ret)
+			return ret;
 
-	switch (drv_strength) {
-	case 50:
-		plat->drv_strength = DRIVER_STRENGTH_50_OHM;
-		break;
-	case 33:
-		plat->drv_strength = DRIVER_STRENGTH_33_OHM;
-		break;
-	case 66:
-		plat->drv_strength = DRIVER_STRENGTH_66_OHM;
-		break;
-	case 100:
-		plat->drv_strength = DRIVER_STRENGTH_100_OHM;
-		break;
-	case 40:
-		plat->drv_strength = DRIVER_STRENGTH_40_OHM;
-		break;
-	default:
-		dev_err(dev, "Invalid driver strength\n");
-		return -EINVAL;
+		ret = dev_read_u32(dev, "ti,driver-strength-ohm",
+				   &drv_strength);
+		if (ret)
+			return ret;
+
+		switch (drv_strength) {
+		case 50:
+			plat->drv_strength = DRIVER_STRENGTH_50_OHM;
+			break;
+		case 33:
+			plat->drv_strength = DRIVER_STRENGTH_33_OHM;
+			break;
+		case 66:
+			plat->drv_strength = DRIVER_STRENGTH_66_OHM;
+			break;
+		case 100:
+			plat->drv_strength = DRIVER_STRENGTH_100_OHM;
+			break;
+		case 40:
+			plat->drv_strength = DRIVER_STRENGTH_40_OHM;
+			break;
+		default:
+			dev_err(dev, "Invalid driver strength\n");
+			return -EINVAL;
+		}
 	}
 
 	ret = mmc_of_parse(dev, cfg);
@@ -316,7 +333,18 @@ static int am654_sdhci_bind(struct udevice *dev)
 }
 
 static const struct udevice_id am654_sdhci_ids[] = {
-	{ .compatible = "ti,am654-sdhci-5.1" },
+	{
+		.compatible = "ti,am654-sdhci-5.1",
+		.data = (ulong)&am654_sdhci_ops,
+	},
+	{
+		.compatible = "ti,j721e-sdhci-8bit",
+		.data = (ulong)&am654_sdhci_ops,
+	},
+	{
+		.compatible = "ti,j721e-sdhci-4bit",
+		.data = (ulong)&j721e_4bit_sdhci_ops,
+	},
 	{ }
 };
 
