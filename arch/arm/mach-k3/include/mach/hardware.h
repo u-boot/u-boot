@@ -9,4 +9,8 @@
 #ifdef CONFIG_SOC_K3_AM6
 #include "am6_hardware.h"
 #endif
+
+#ifdef CONFIG_SOC_K3_J721E
+#include "j721e_hardware.h"
+#endif
 #endif /* _ASM_ARCH_HARDWARE_H_ */
