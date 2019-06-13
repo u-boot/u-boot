@@ -20,7 +20,9 @@ static void getvar_product(char *var_parameter, char *response);
 static void getvar_platform(char *var_parameter, char *response);
 static void getvar_current_slot(char *var_parameter, char *response);
 static void getvar_slot_suffixes(char *var_parameter, char *response);
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void getvar_has_slot(char *var_parameter, char *response);
+#endif
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 static void getvar_partition_type(char *part_name, char *response);
 #endif
@@ -65,9 +67,11 @@ static const struct {
 	}, {
 		.variable = "slot-suffixes",
 		.dispatch = getvar_slot_suffixes
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	}, {
 		.variable = "has-slot",
 		.dispatch = getvar_has_slot
+#endif
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 	}, {
 		.variable = "partition-type",
@@ -183,14 +187,39 @@ static void getvar_slot_suffixes(char *var_parameter, char *response)
 	fastboot_okay("a,b", response);
 }
 
+#if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void getvar_has_slot(char *part_name, char *response)
 {
-	if (part_name && (!strcmp(part_name, "boot") ||
-			  !strcmp(part_name, "system")))
-		fastboot_okay("yes", response);
-	else
-		fastboot_okay("no", response);
+	char part_name_wslot[PART_NAME_LEN];
+	size_t len;
+	int r;
+
+	if (!part_name || part_name[0] == '\0')
+		goto fail;
+
+	/* part_name_wslot = part_name + "_a" */
+	len = strlcpy(part_name_wslot, part_name, PART_NAME_LEN - 3);
+	if (len > PART_NAME_LEN - 3)
+		goto fail;
+	strcat(part_name_wslot, "_a");
+
+	r = getvar_get_part_info(part_name_wslot, response, NULL);
+	if (r >= 0) {
+		fastboot_okay("yes", response); /* part exists and slotted */
+		return;
+	}
+
+	r = getvar_get_part_info(part_name, response, NULL);
+	if (r >= 0)
+		fastboot_okay("no", response); /* part exists but not slotted */
+
+	/* At this point response is filled with okay or fail string */
+	return;
+
+fail:
+	fastboot_fail("invalid partition name", response);
 }
+#endif
 
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH_MMC)
 static void getvar_partition_type(char *part_name, char *response)
