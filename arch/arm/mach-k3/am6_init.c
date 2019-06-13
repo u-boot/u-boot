@@ -210,12 +210,6 @@ u32 spl_boot_device(void)
 }
 #endif
 
-#ifndef CONFIG_SYSRESET
-void reset_cpu(ulong ignored)
-{
-}
-#endif
-
 #ifdef CONFIG_SYS_K3_SPL_ATF
 
 #define AM6_DEV_MCU_RTI0			134

@@ -138,3 +138,9 @@ int fdt_fixup_msmc_ram(void *blob, char *parent_path, char *node_name)
 	return 0;
 }
 #endif
+
+#ifndef CONFIG_SYSRESET
+void reset_cpu(ulong ignored)
+{
+}
+#endif
