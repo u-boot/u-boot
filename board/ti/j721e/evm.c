@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <spl.h>
+#include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -64,5 +65,18 @@ int board_fit_config_name_match(const char *name)
 		return 0;
 
 	return -1;
+}
+#endif
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	int ret;
+
+	ret = fdt_fixup_msmc_ram(blob, "/interconnect@100000", "sram@70000000");
+	if (ret)
+		printf("%s: fixing up msmc ram failed %d\n", __func__, ret);
+
+	return ret;
 }
 #endif
