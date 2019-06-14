@@ -190,12 +190,12 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_exit(
  *			greater than buff_size if we ran out of space.
  * @return 0 if ok, -1 if space was exhausted
  */
-int trace_list_functions(void *buff, int buff_size, unsigned int *needed)
+int trace_list_functions(void *buff, size_t buff_size, size_t *needed)
 {
 	struct trace_output_hdr *output_hdr = NULL;
 	void *end, *ptr = buff;
-	int func;
-	int upto;
+	size_t func;
+	size_t upto;
 
 	end = buff ? buff + buff_size : NULL;
 
@@ -206,7 +206,7 @@ int trace_list_functions(void *buff, int buff_size, unsigned int *needed)
 
 	/* Add information about each function */
 	for (func = upto = 0; func < hdr->func_count; func++) {
-		int calls = hdr->call_accum[func];
+		size_t calls = hdr->call_accum[func];
 
 		if (!calls)
 			continue;
@@ -235,12 +235,12 @@ int trace_list_functions(void *buff, int buff_size, unsigned int *needed)
 	return 0;
 }
 
-int trace_list_calls(void *buff, int buff_size, unsigned *needed)
+int trace_list_calls(void *buff, size_t buff_size, size_t *needed)
 {
 	struct trace_output_hdr *output_hdr = NULL;
 	void *end, *ptr = buff;
-	int rec, upto;
-	int count;
+	size_t rec, upto;
+	size_t count;
 
 	end = buff ? buff + buff_size : NULL;
 
