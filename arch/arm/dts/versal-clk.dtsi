@@ -80,6 +80,10 @@
 	};
 };
 
+&cpu0 {
+	clocks = <&versal_clk ACPU>;
+};
+
 &can0 {
 	clocks = <&versal_clk CAN0_REF>, <&versal_clk LPD_LSBUS>;
 	power-domains = <&versal_firmware PD_CAN_FD_0>;
