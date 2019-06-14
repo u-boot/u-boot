@@ -341,6 +341,7 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
 
 	EFI_ENTRY("%p, %lx", this, attribute);
 
+	efi_con_mode.attribute = attribute;
 	if (attribute)
 		printf(ESC"[%u;%u;%um", bold, color[fg].fg, color[bg].bg);
 	else
@@ -384,6 +385,7 @@ static efi_status_t EFIAPI efi_cout_reset(
 	/* Clear screen */
 	EFI_CALL(efi_cout_clear_screen(this));
 	/* Set default colors */
+	efi_con_mode.attribute = 0x07;
 	printf(ESC "[0;37;40m");
 
 	return EFI_EXIT(EFI_SUCCESS);
