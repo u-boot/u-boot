@@ -468,8 +468,7 @@ if ARCH_ROCKCHIP || ARCH_SUNXI || ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_VERSAL || ARC
 
 config ENV_OFFSET
 	hex "Environment Offset"
-	depends on !ENV_IS_IN_UBI
-	depends on !ENV_IS_NOWHERE
+	depends on (!ENV_IS_IN_UBI && !ENV_IS_NOWHERE) || ARCH_STM32MP
 	default 0x3f8000 if ARCH_ROCKCHIP
 	default 0x88000 if ARCH_SUNXI
 	default 0xE0000 if ARCH_ZYNQ
@@ -492,7 +491,7 @@ config ENV_SIZE
 
 config ENV_SECT_SIZE
 	hex "Environment Sector-Size"
-	depends on !ENV_IS_NOWHERE && (ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_OMAP2PLUS || ARCH_AT91)
+	depends on (!ENV_IS_NOWHERE && (ARCH_ZYNQ || ARCH_ZYNQMP || ARCH_OMAP2PLUS || ARCH_AT91) )|| ARCH_STM32MP
 	default 0x40000 if ARCH_ZYNQMP
 	default 0x20000 if ARCH_ZYNQ || ARCH_OMAP2PLUS || ARCH_AT91
 	help
