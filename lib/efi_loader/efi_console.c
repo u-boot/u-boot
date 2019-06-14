@@ -316,23 +316,6 @@ static efi_status_t EFIAPI efi_cout_query_mode(
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static efi_status_t EFIAPI efi_cout_set_mode(
-			struct efi_simple_text_output_protocol *this,
-			unsigned long mode_number)
-{
-	EFI_ENTRY("%p, %ld", this, mode_number);
-
-
-	if (mode_number > efi_con_mode.max_mode)
-		return EFI_EXIT(EFI_UNSUPPORTED);
-
-	efi_con_mode.mode = mode_number;
-	efi_con_mode.cursor_column = 0;
-	efi_con_mode.cursor_row = 0;
-
-	return EFI_EXIT(EFI_SUCCESS);
-}
-
 static const struct {
 	unsigned int fg;
 	unsigned int bg;
@@ -374,6 +357,20 @@ static efi_status_t EFIAPI efi_cout_clear_screen(
 	printf(ESC"[2J");
 	efi_con_mode.cursor_column = 0;
 	efi_con_mode.cursor_row = 0;
+
+	return EFI_EXIT(EFI_SUCCESS);
+}
+
+static efi_status_t EFIAPI efi_cout_set_mode(
+			struct efi_simple_text_output_protocol *this,
+			unsigned long mode_number)
+{
+	EFI_ENTRY("%p, %ld", this, mode_number);
+
+	if (mode_number >= efi_con_mode.max_mode)
+		return EFI_EXIT(EFI_UNSUPPORTED);
+	efi_con_mode.mode = mode_number;
+	EFI_CALL(efi_cout_clear_screen(this));
 
 	return EFI_EXIT(EFI_SUCCESS);
 }
