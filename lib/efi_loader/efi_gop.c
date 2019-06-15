@@ -60,12 +60,14 @@ out:
 
 static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
 {
+	efi_status_t ret = EFI_SUCCESS;
+
 	EFI_ENTRY("%p, %x", this, mode_number);
 
-	if (mode_number != 0)
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	if (mode_number)
+		ret = EFI_UNSUPPORTED;
 
-	return EFI_EXIT(EFI_SUCCESS);
+	return EFI_EXIT(ret);
 }
 
 static __always_inline struct efi_gop_pixel efi_vid16_to_blt_col(u16 vid)
