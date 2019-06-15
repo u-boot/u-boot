@@ -62,18 +62,6 @@ out:
 	return EFI_EXIT(ret);
 }
 
-static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
-{
-	efi_status_t ret = EFI_SUCCESS;
-
-	EFI_ENTRY("%p, %x", this, mode_number);
-
-	if (mode_number)
-		ret = EFI_UNSUPPORTED;
-
-	return EFI_EXIT(ret);
-}
-
 static __always_inline struct efi_gop_pixel efi_vid16_to_blt_col(u16 vid)
 {
 	struct efi_gop_pixel blt = {
@@ -320,6 +308,44 @@ static efi_status_t gop_blt_vid_to_buf(struct efi_gop *this,
 {
 	return gop_blt_int(this, buffer, EFI_BLT_VIDEO_TO_BLT_BUFFER, sx, sy,
 			   dx, dy, width, height, delta, vid_bpp);
+}
+
+/**
+ * gop_set_mode() - set graphical output mode
+ *
+ * This function implements the SetMode() service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @this:		the graphical output protocol
+ * @model_number:	the mode to be set
+ * Return:		status code
+ */
+static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
+{
+	struct efi_gop_obj *gopobj;
+	struct efi_gop_pixel buffer = {0, 0, 0, 0};
+	efi_uintn_t vid_bpp;
+	efi_status_t ret = EFI_SUCCESS;
+
+	EFI_ENTRY("%p, %x", this, mode_number);
+
+	if (!this) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
+	if (mode_number) {
+		ret = EFI_UNSUPPORTED;
+		goto out;
+	}
+	gopobj = container_of(this, struct efi_gop_obj, ops);
+	vid_bpp = gop_get_bpp(this);
+	ret = gop_blt_video_fill(this, &buffer, EFI_BLT_VIDEO_FILL, 0, 0, 0, 0,
+				 gopobj->info.width, gopobj->info.height, 0,
+				 vid_bpp);
+out:
+	return EFI_EXIT(ret);
 }
 
 /*
