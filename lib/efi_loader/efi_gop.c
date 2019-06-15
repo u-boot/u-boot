@@ -503,26 +503,26 @@ efi_status_t efi_gop_register(void)
 	gopobj->mode.info = &gopobj->info;
 	gopobj->mode.info_size = sizeof(gopobj->info);
 
+	gopobj->mode.fb_base = fb_base;
+	gopobj->mode.fb_size = fb_size;
+
+	gopobj->info.version = 0;
+	gopobj->info.width = col;
+	gopobj->info.height = row;
 #ifdef CONFIG_DM_VIDEO
 	if (bpix == VIDEO_BPP32)
 #else
 	if (bpix == LCD_COLOR32)
 #endif
 	{
-		/*
-		 * With 32bit color space we can directly expose the frame
-		 * buffer
-		 */
-		gopobj->mode.fb_base = fb_base;
-		gopobj->mode.fb_size = fb_size;
+		gopobj->info.pixel_format = EFI_GOT_BGRA8;
+	} else {
+		gopobj->info.pixel_format = EFI_GOT_BITMASK;
+		gopobj->info.pixel_bitmask[0] = 0xf800; /* red */
+		gopobj->info.pixel_bitmask[1] = 0x07e0; /* green */
+		gopobj->info.pixel_bitmask[2] = 0x001f; /* blue */
 	}
-
-	gopobj->info.version = 0;
-	gopobj->info.width = col;
-	gopobj->info.height = row;
-	gopobj->info.pixel_format = EFI_GOT_BGRA8;
 	gopobj->info.pixels_per_scanline = col;
-
 	gopobj->bpix = bpix;
 	gopobj->fb = fb;
 
