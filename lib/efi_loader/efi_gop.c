@@ -41,14 +41,21 @@ static efi_status_t EFIAPI gop_query_mode(struct efi_gop *this, u32 mode_number,
 					  struct efi_gop_mode_info **info)
 {
 	struct efi_gop_obj *gopobj;
+	efi_status_t ret = EFI_SUCCESS;
 
 	EFI_ENTRY("%p, %x, %p, %p", this, mode_number, size_of_info, info);
+
+	if (!this || !size_of_info || !info || mode_number) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
 	gopobj = container_of(this, struct efi_gop_obj, ops);
 	*size_of_info = sizeof(gopobj->info);
 	*info = &gopobj->info;
 
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
