@@ -367,7 +367,7 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
 					 dy, width, height, delta, vid_bpp);
 		break;
 	default:
-		ret = EFI_UNSUPPORTED;
+		ret = EFI_INVALID_PARAMETER;
 	}
 
 	if (ret != EFI_SUCCESS)
