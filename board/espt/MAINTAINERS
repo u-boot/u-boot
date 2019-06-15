@@ -1,6 +1,0 @@
-ESPT BOARD
-#M:	-
-S:	Maintained
-F:	board/espt/
-F:	include/configs/espt.h
-F:	configs/espt_defconfig

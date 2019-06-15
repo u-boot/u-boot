@@ -1,7 +1,0 @@
-AP_SH4A_4A BOARD
-M:	Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
-M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-S:	Maintained
-F:	board/alphaproject/ap_sh4a_4a/
-F:	include/configs/ap_sh4a_4a.h
-F:	configs/ap_sh4a_4a_defconfig

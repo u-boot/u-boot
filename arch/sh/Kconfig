@@ -21,33 +21,9 @@ choice
 	prompt "Target select"
 	optional
 
-config TARGET_ESPT
-	bool "Data Technology ESPT-GIGA board"
-	select CPU_SH4
-
-config TARGET_MS7722SE
-	bool "SolutionEngine 7722"
-	select CPU_SH4
-
-config TARGET_MS7750SE
-	bool "SolutionEngine 7750"
-	select CPU_SH4
-
-config TARGET_AP_SH4A_4A
-	bool "ALPHAPROJECT AP-SH4A-4A"
-	select CPU_SH4A
-
-config TARGET_AP325RXA
-	bool "Renesas AP-325RXA"
-	select CPU_SH4
-
 config TARGET_MIGOR
 	bool "Migo-R"
 	select CPU_SH4
-
-config TARGET_R0P7734
-	bool "Support r0p7734"
-	select CPU_SH4A
 
 config TARGET_R2DPLUS
 	bool "Renesas R2D-PLUS"
@@ -83,13 +59,7 @@ config SYS_CPU
 
 source "arch/sh/lib/Kconfig"
 
-source "board/alphaproject/ap_sh4a_4a/Kconfig"
-source "board/espt/Kconfig"
-source "board/ms7722se/Kconfig"
-source "board/ms7750se/Kconfig"
 source "board/renesas/MigoR/Kconfig"
-source "board/renesas/ap325rxa/Kconfig"
-source "board/renesas/r0p7734/Kconfig"
 source "board/renesas/r2dplus/Kconfig"
 source "board/renesas/r7780mp/Kconfig"
 source "board/renesas/sh7752evb/Kconfig"
