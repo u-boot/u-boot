@@ -573,6 +573,9 @@ static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
 #define __efi_runtime_data __attribute__ ((section (".data.efi_runtime")))
 #define __efi_runtime __attribute__ ((section (".text.efi_runtime")))
 
+/* Indicate supported runtime services */
+efi_status_t efi_init_runtime_supported(void);
+
 /* Update CRC32 in table header */
 void __efi_runtime efi_update_table_header_crc32(struct efi_table_hdr *table);
 

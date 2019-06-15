@@ -316,23 +316,6 @@ static efi_status_t EFIAPI efi_cout_query_mode(
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
-static efi_status_t EFIAPI efi_cout_set_mode(
-			struct efi_simple_text_output_protocol *this,
-			unsigned long mode_number)
-{
-	EFI_ENTRY("%p, %ld", this, mode_number);
-
-
-	if (mode_number > efi_con_mode.max_mode)
-		return EFI_EXIT(EFI_UNSUPPORTED);
-
-	efi_con_mode.mode = mode_number;
-	efi_con_mode.cursor_column = 0;
-	efi_con_mode.cursor_row = 0;
-
-	return EFI_EXIT(EFI_SUCCESS);
-}
-
 static const struct {
 	unsigned int fg;
 	unsigned int bg;
@@ -358,6 +341,7 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
 
 	EFI_ENTRY("%p, %lx", this, attribute);
 
+	efi_con_mode.attribute = attribute;
 	if (attribute)
 		printf(ESC"[%u;%u;%um", bold, color[fg].fg, color[bg].bg);
 	else
@@ -378,6 +362,20 @@ static efi_status_t EFIAPI efi_cout_clear_screen(
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
+static efi_status_t EFIAPI efi_cout_set_mode(
+			struct efi_simple_text_output_protocol *this,
+			unsigned long mode_number)
+{
+	EFI_ENTRY("%p, %ld", this, mode_number);
+
+	if (mode_number >= efi_con_mode.max_mode)
+		return EFI_EXIT(EFI_UNSUPPORTED);
+	efi_con_mode.mode = mode_number;
+	EFI_CALL(efi_cout_clear_screen(this));
+
+	return EFI_EXIT(EFI_SUCCESS);
+}
+
 static efi_status_t EFIAPI efi_cout_reset(
 			struct efi_simple_text_output_protocol *this,
 			char extended_verification)
@@ -387,6 +385,7 @@ static efi_status_t EFIAPI efi_cout_reset(
 	/* Clear screen */
 	EFI_CALL(efi_cout_clear_screen(this));
 	/* Set default colors */
+	efi_con_mode.attribute = 0x07;
 	printf(ESC "[0;37;40m");
 
 	return EFI_EXIT(EFI_SUCCESS);

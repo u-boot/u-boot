@@ -1779,7 +1779,7 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
 	/* Open file */
 	f = efi_file_from_path(file_path);
 	if (!f)
-		return EFI_DEVICE_ERROR;
+		return EFI_NOT_FOUND;
 
 	/* Get file size */
 	bs = 0;
@@ -1856,17 +1856,10 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
 	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
 		  file_path, source_buffer, source_size, image_handle);
 
-	if (!image_handle || !efi_search_obj(parent_image)) {
-		ret = EFI_INVALID_PARAMETER;
-		goto error;
-	}
-
-	if (!source_buffer && !file_path) {
-		ret = EFI_NOT_FOUND;
-		goto error;
-	}
-	/* The parent image handle must refer to a loaded image */
-	if (!parent_image->type) {
+	if (!image_handle || (!source_buffer && !file_path) ||
+	    !efi_search_obj(parent_image) ||
+	    /* The parent image handle must refer to a loaded image */
+	    !parent_image->type) {
 		ret = EFI_INVALID_PARAMETER;
 		goto error;
 	}
@@ -1940,16 +1933,19 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 						  efi_uintn_t map_key)
 {
 	struct efi_event *evt;
+	efi_status_t ret = EFI_SUCCESS;
 
 	EFI_ENTRY("%p, %zx", image_handle, map_key);
 
 	/* Check that the caller has read the current memory map */
-	if (map_key != efi_memory_map_key)
-		return EFI_INVALID_PARAMETER;
+	if (map_key != efi_memory_map_key) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
 	/* Check if ExitBootServices has already been called */
 	if (!systab.boottime)
-		return EFI_EXIT(EFI_SUCCESS);
+		goto out;
 
 	/* Stop all timer related activities */
 	timers_enabled = false;
@@ -1997,8 +1993,8 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	/* Give the payload some time to boot */
 	efi_set_watchdog(0);
 	WATCHDOG_RESET();
-
-	return EFI_EXIT(EFI_SUCCESS);
+out:
+	return EFI_EXIT(ret);
 }
 
 /**
@@ -2870,6 +2866,9 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
 
 	/* Check parameters */
+	if (image_obj->header.type != EFI_OBJECT_TYPE_LOADED_IMAGE)
+		return EFI_EXIT(EFI_INVALID_PARAMETER);
+
 	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
 					 &info, NULL, NULL,
 					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));

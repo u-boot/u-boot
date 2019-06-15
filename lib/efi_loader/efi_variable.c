@@ -430,7 +430,9 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 		  data_size, data);
 
 	/* TODO: implement APPEND_WRITE */
-	if (!variable_name || !vendor ||
+	if (!variable_name || !*variable_name || !vendor ||
+	    ((attributes & EFI_VARIABLE_RUNTIME_ACCESS) &&
+	     !(attributes & EFI_VARIABLE_BOOTSERVICE_ACCESS)) ||
 	    (attributes & EFI_VARIABLE_APPEND_WRITE)) {
 		ret = EFI_INVALID_PARAMETER;
 		goto out;
