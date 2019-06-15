@@ -51,8 +51,12 @@ static efi_status_t EFIAPI gop_query_mode(struct efi_gop *this, u32 mode_number,
 	}
 
 	gopobj = container_of(this, struct efi_gop_obj, ops);
+	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, sizeof(gopobj->info),
+				(void **)info);
+	if (ret != EFI_SUCCESS)
+		goto out;
 	*size_of_info = sizeof(gopobj->info);
-	*info = &gopobj->info;
+	memcpy(*info, &gopobj->info, sizeof(gopobj->info));
 
 out:
 	return EFI_EXIT(ret);
