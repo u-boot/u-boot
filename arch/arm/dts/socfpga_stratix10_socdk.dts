@@ -9,6 +9,7 @@
 	model = "SoCFPGA Stratix 10 SoCDK";
 
 	aliases {
+		i2c0 = &i2c1;
 		serial0 = &uart0;
 	};
 
@@ -75,6 +76,10 @@
 			rxc-skew-ps = <1680>; /* 780ps */
 		};
 	};
+};
+
+&i2c1 {
+	status = "okay";
 };
 
 &mmc {
