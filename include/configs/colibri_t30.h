@@ -27,8 +27,6 @@
 #define CONFIG_SYS_MMC_ENV_PART		1
 
 /* General networking support */
-#define CONFIG_IP_DEFRAG
-#define CONFIG_TFTP_BLOCKSIZE		16352
 #define CONFIG_TFTP_TSIZE
 
 /* Increase console I/O buffer size */

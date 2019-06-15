@@ -27,6 +27,7 @@
 /prelink-riscv
 /proftool
 /relocate-rela
+/spl_size_limit
 /sunxi-spl-image-builder
 /ubsha1
 /xway-swap-bytes

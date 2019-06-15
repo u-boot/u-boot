@@ -22,4 +22,17 @@ config NETCONSOLE
 	  Support the 'nc' input/output device for networked console.
 	  See README.NetConsole for details.
 
+config IP_DEFRAG
+	bool "Support IP datagram reassembly"
+	default n
+	help
+	  Selecting this will enable IP datagram reassembly according
+	  to the algorithm in RFC815.
+
+config TFTP_BLOCKSIZE
+	int "TFTP block size"
+	default 512
+	help
+	  Default TFTP block size.
+
 endif   # if NET

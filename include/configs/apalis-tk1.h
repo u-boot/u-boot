@@ -31,8 +31,6 @@
 #define CONFIG_E1000_NO_NVM
 
 /* General networking support */
-#define CONFIG_IP_DEFRAG
-#define CONFIG_TFTP_BLOCKSIZE		16352
 #define CONFIG_TFTP_TSIZE
 
 #undef CONFIG_IPADDR

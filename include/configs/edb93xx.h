@@ -31,8 +31,6 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_BOOTFILE		"edb93xx.img"
 
-#define CONFIG_SYS_LDSCRIPT	"board/cirrus/edb93xx/u-boot.lds"
-
 #ifdef CONFIG_EDB9301
 #define CONFIG_MACH_TYPE		MACH_TYPE_EDB9301
 #define CONFIG_ENV_SECT_SIZE		0x00020000

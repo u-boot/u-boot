@@ -253,6 +253,23 @@ config BUILD_TARGET
 	  special image will be automatically built upon calling
 	  make / buildman.
 
+config SYS_CUSTOM_LDSCRIPT
+	bool "Use a custom location for the U-Boot linker script"
+	help
+	  Normally when linking U-Boot we will look in the board directory,
+	  the CPU directory and finally the "cpu" directory of the architecture
+	  for the ile "u-boot.lds" and use that as our linker.  However, in
+	  some cases we need to provide a different linker script.  To do so,
+	  enable this option and then provide the location under
+	  CONFIG_SYS_LDSCRIPT.
+
+config SYS_LDSCRIPT
+	depends on SYS_CUSTOM_LDSCRIPT
+	string "Custom ldscript location"
+	help
+	  Path within the source tree to the linker script to use for the
+	  main U-Boot binary.
+
 endmenu		# General setup
 
 menu "Boot images"

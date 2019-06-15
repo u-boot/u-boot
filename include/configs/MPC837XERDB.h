@@ -186,11 +186,6 @@
 
 #define CONFIG_SYS_VSC7385_BASE	0xF0000000
 
-#ifdef CONFIG_VSC7385_ENET
-
-
-#endif
-
 /*
  * Serial Port
  */

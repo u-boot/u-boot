@@ -51,13 +51,11 @@
 #define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #if defined(CONFIG_ARCH_T2080)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_nand_rcw.cfg
 #elif defined(CONFIG_ARCH_T2081)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_nand_rcw.cfg
 #endif
-#define CONFIG_SPL_NAND_BOOT
 #endif
 
 #ifdef CONFIG_SPIFLASH
@@ -67,7 +65,6 @@
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		(0x00200000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_START	(0x00200000)
 #define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS	(256 << 10)
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
@@ -76,7 +73,6 @@
 #elif defined(CONFIG_ARCH_T2081)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_spi_rcw.cfg
 #endif
-#define CONFIG_SPL_SPI_BOOT
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -85,7 +81,6 @@
 #define CONFIG_SYS_MMC_U_BOOT_DST	(0x00200000)
 #define CONFIG_SYS_MMC_U_BOOT_START	(0x00200000)
 #define CONFIG_SYS_MMC_U_BOOT_OFFS	(260 << 10)
-#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
 #ifndef CONFIG_SPL_BUILD
 #define	CONFIG_SYS_MPC85XX_NO_RESETVEC
 #endif
@@ -94,7 +89,6 @@
 #elif defined(CONFIG_ARCH_T2081)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_sd_rcw.cfg
 #endif
-#define CONFIG_SPL_MMC_BOOT
 #endif
 
 #endif /* CONFIG_RAMBOOT_PBL */
