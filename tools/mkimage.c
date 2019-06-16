@@ -105,7 +105,7 @@ static void usage(const char *msg)
 		"          -F => re-sign existing FIT image\n"
 		"          -p => place external data at a static position\n"
 		"          -r => mark keys used as 'required' in dtb\n"
-		"          -N => engine to use for signing (pkcs11)\n");
+		"          -N => openssl engine to use for signing\n");
 #else
 	fprintf(stderr,
 		"Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
