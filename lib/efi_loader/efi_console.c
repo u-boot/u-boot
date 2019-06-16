@@ -481,10 +481,8 @@ void set_shift_mask(int mod, struct efi_key_state *key_state)
 			key_state->key_shift_state |= EFI_LEFT_ALT_PRESSED;
 		if (mod & 4)
 			key_state->key_shift_state |= EFI_LEFT_CONTROL_PRESSED;
-		if (mod & 8)
+		if (!mod || (mod & 8))
 			key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
-	} else {
-		key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
 	}
 }
 
