@@ -307,16 +307,10 @@ static efi_status_t EFIAPI efi_file_delete(struct efi_file_handle *file)
 
 	EFI_ENTRY("%p", file);
 
-	if (set_blk_dev(fh)) {
-		ret = EFI_DEVICE_ERROR;
-		goto error;
-	}
+	if (set_blk_dev(fh) || fs_unlink(fh->path))
+		ret = EFI_WARN_DELETE_FAILURE;
 
-	if (fs_unlink(fh->path))
-		ret = EFI_DEVICE_ERROR;
 	file_close(fh);
-
-error:
 	return EFI_EXIT(ret);
 }
 
