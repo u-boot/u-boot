@@ -298,7 +298,8 @@ static int fb_mmc_update_zimage(struct blk_desc *dev_desc,
  * @part_info: Pointer to returned disk_partition_t
  * @response: Pointer to fastboot response buffer
  */
-int fastboot_mmc_get_part_info(char *part_name, struct blk_desc **dev_desc,
+int fastboot_mmc_get_part_info(const char *part_name,
+			       struct blk_desc **dev_desc,
 			       disk_partition_t *part_info, char *response)
 {
 	int r;
