@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2013-2015 Arcturus Networks, Inc.
- *           http://www.arcturusnetworks.com/products/ucp1020/
+ * Copyright 2013-2019 Arcturus Networks, Inc.
+ *           https://www.arcturusnetworks.com/products/ucp1020/
  * based on include/configs/p1_p2_rdb_pc.h
  * original copyright follows:
  * Copyright 2009-2011 Freescale Semiconductor, Inc.
@@ -12,6 +12,62 @@
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H
+
+/*** Arcturus FirmWare Environment */
+
+#define MAX_SERIAL_SIZE 15
+#define MAX_HWADDR_SIZE 17
+
+#define MAX_FWENV_ADDR	4
+
+#define FWENV_MMC	1
+#define FWENV_SPI_FLASH	2
+#define FWENV_NOR_FLASH	3
+/*
+ #define FWENV_TYPE    FWENV_MMC
+ #define FWENV_TYPE    FWENV_SPI_FLASH
+*/
+#define FWENV_TYPE	FWENV_NOR_FLASH
+
+#if (FWENV_TYPE == FWENV_MMC)
+#ifndef CONFIG_SYS_MMC_ENV_DEV
+#define CONFIG_SYS_MMC_ENV_DEV 1
+#endif
+#define FWENV_ADDR1 -1
+#define FWENV_ADDR2 -1
+#define FWENV_ADDR3 -1
+#define FWENV_ADDR4 -1
+#define EMPY_CHAR 0
+#endif
+
+#if (FWENV_TYPE == FWENV_SPI_FLASH)
+#ifndef CONFIG_SF_DEFAULT_SPEED
+#define CONFIG_SF_DEFAULT_SPEED	1000000
+#endif
+#ifndef CONFIG_SF_DEFAULT_MODE
+#define CONFIG_SF_DEFAULT_MODE	SPI_MODE0
+#endif
+#ifndef CONFIG_SF_DEFAULT_CS
+#define CONFIG_SF_DEFAULT_CS	0
+#endif
+#ifndef CONFIG_SF_DEFAULT_BUS
+#define CONFIG_SF_DEFAULT_BUS	0
+#endif
+#define FWENV_ADDR1 (0x200 - sizeof(smac))
+#define FWENV_ADDR2 (0x400 - sizeof(smac))
+#define FWENV_ADDR3 (CONFIG_ENV_SECT_SIZE + 0x200 - sizeof(smac))
+#define FWENV_ADDR4 (CONFIG_ENV_SECT_SIZE + 0x400 - sizeof(smac))
+#define EMPY_CHAR 0xff
+#endif
+
+#if (FWENV_TYPE == FWENV_NOR_FLASH)
+#define FWENV_ADDR1 0xEC080000
+#define FWENV_ADDR2 -1
+#define FWENV_ADDR3 -1
+#define FWENV_ADDR4 -1
+#define EMPY_CHAR 0xff
+#endif
+/***********************************/
 
 #define CONFIG_PCIE1	/* PCIE controller 1 (slot 1) */
 #define CONFIG_PCIE2	/* PCIE controller 2 (slot 2) */
@@ -37,8 +93,6 @@
 #define CONFIG_NETMASK		255.255.252.0
 #define CONFIG_ETHPRIME		"eTSEC3"
 
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 
 #endif
@@ -51,7 +105,6 @@
 #define CONFIG_BOARDNAME_LOCAL "uCP1020-64EEE512-OU1-XR"
 
 #define CONFIG_TSEC1
-#define CONFIG_TSEC2
 #define CONFIG_TSEC3
 #define CONFIG_HAS_ETH0
 #define CONFIG_HAS_ETH1
@@ -67,7 +120,7 @@
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_ETHPRIME		"eTSEC1"
 
-#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#undef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 

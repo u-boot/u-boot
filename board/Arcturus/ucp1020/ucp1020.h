@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2013-2015 Arcturus Networks, Inc.
- *           http://www.arcturusnetworks.com/products/ucp1020/
+ * Copyright 2013-2019 Arcturus Networks, Inc.
+ *           https://www.arcturusnetworks.com/products/ucp1020/
  *           by Oleksandr G Zhadan et al.
  */
 
@@ -35,8 +35,10 @@
 
 #define GPIO_WD		GPIO15
 
+#ifdef CONFIG_MMC
 static char *defkargs = "root=/dev/mtdblock1 rootfstype=cramfs ro";
 static char *mmckargs = "root=/dev/mmcblk0p1 rootwait rw";
+#endif
 
 int get_arc_info(void);
 
