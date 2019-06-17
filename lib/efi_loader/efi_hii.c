@@ -581,18 +581,22 @@ list_package_lists(const struct efi_hii_database_protocol *this,
 	struct efi_hii_packagelist *hii =
 				(struct efi_hii_packagelist *)handle;
 	int package_cnt, package_max;
-	efi_status_t ret = EFI_SUCCESS;
+	efi_status_t ret = EFI_NOT_FOUND;
 
 	EFI_ENTRY("%p, %u, %pUl, %p, %p", this, package_type, package_guid,
 		  handle_buffer_length, handle);
 
 	if (!handle_buffer_length ||
-	    (*handle_buffer_length && !handle))
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	    (*handle_buffer_length && !handle)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
 	if ((package_type != EFI_HII_PACKAGE_TYPE_GUID && package_guid) ||
-	    (package_type == EFI_HII_PACKAGE_TYPE_GUID && !package_guid))
-		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	    (package_type == EFI_HII_PACKAGE_TYPE_GUID && !package_guid)) {
+		ret = EFI_INVALID_PARAMETER;
+		goto out;
+	}
 
 	EFI_PRINT("package type=%x, guid=%pUl, length=%zu\n", (int)package_type,
 		  package_guid, *handle_buffer_length);
@@ -607,53 +611,28 @@ list_package_lists(const struct efi_hii_database_protocol *this,
 			if (!list_empty(&hii->guid_list))
 				break;
 			continue;
-		case EFI_HII_PACKAGE_FORMS:
-			EFI_PRINT("Form package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
-			continue;
 		case EFI_HII_PACKAGE_STRINGS:
 			if (!list_empty(&hii->string_tables))
 				break;
-			continue;
-		case EFI_HII_PACKAGE_FONTS:
-			EFI_PRINT("Font package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
-			continue;
-		case EFI_HII_PACKAGE_IMAGES:
-			EFI_PRINT("Image package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
-			continue;
-		case EFI_HII_PACKAGE_SIMPLE_FONTS:
-			EFI_PRINT("Simple font package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
-			continue;
-		case EFI_HII_PACKAGE_DEVICE_PATH:
-			EFI_PRINT("Device path package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
 			continue;
 		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
 			if (!list_empty(&hii->keyboard_packages))
 				break;
 			continue;
-		case EFI_HII_PACKAGE_ANIMATIONS:
-			EFI_PRINT("Animation package not supported\n");
-			ret = EFI_INVALID_PARAMETER;
-			continue;
-		case EFI_HII_PACKAGE_END:
-		case EFI_HII_PACKAGE_TYPE_SYSTEM_BEGIN:
-		case EFI_HII_PACKAGE_TYPE_SYSTEM_END:
 		default:
 			continue;
 		}
 
 		package_cnt++;
-		if (package_cnt <= package_max)
+		if (package_cnt <= package_max) {
 			*handle++ = hii;
-		else
+			ret = EFI_SUCCESS;
+		} else {
 			ret = EFI_BUFFER_TOO_SMALL;
+		}
 	}
 	*handle_buffer_length = package_cnt * sizeof(*handle);
-
+out:
 	return EFI_EXIT(ret);
 }
 
