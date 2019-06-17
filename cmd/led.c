@@ -137,6 +137,6 @@ U_BOOT_CMD(
 	led, 4, 1, do_led,
 	"manage LEDs",
 	"<led_label> on|off|toggle" BLINK "\tChange LED state\n"
-	"led [<led_label>]\tGet LED state\n"
+	"led <led_label>\tGet LED state\n"
 	"led list\t\tshow a list of LEDs"
 );
