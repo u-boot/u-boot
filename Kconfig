@@ -20,6 +20,13 @@ config BROKEN
 	  This option cannot be enabled. It is used as dependency
 	  for broken and incomplete features.
 
+config DEPRECATED
+	bool
+	help
+	  This option cannot be enabled.  It it used as a dependency for
+	  code that relies on deprecated features that will be removed and
+	  the conversion deadline has passed.
+
 config LOCALVERSION
 	string "Local version - append to U-Boot release"
 	help

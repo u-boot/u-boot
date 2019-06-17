@@ -928,6 +928,14 @@ cmd_cfgcheck = $(srctree)/scripts/check-config.sh $2 \
 		$(srctree)/scripts/config_whitelist.txt $(srctree)
 
 all:		$(ALL-y)
+ifeq ($(CONFIG_DEPRECATED),y)
+	$(warning "You have deprecated configuration options enabled in your .config! Please check your configuration.")
+ifeq ($(CONFIG_SPI),y)
+ifneq ($(CONFIG_DM_SPI)$(CONFIG_OF_CONTROL),yy)
+	$(warning "The relevant config item with associated code will remove in v2019.07 release.")
+endif
+endif
+endif
 ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
 	@echo >&2 "===================== WARNING ======================"
 	@echo >&2 "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
@@ -1003,17 +1011,6 @@ ifeq ($(CONFIG_OF_EMBED),y)
 	@echo >&2 "CONFIG_OF_SEPARATE for boards in mainline."
 	@echo >&2 "See doc/README.fdt-control for more info."
 	@echo >&2 "===================================================="
-endif
-ifeq ($(CONFIG_SPI),y)
-ifneq ($(CONFIG_DM_SPI)$(CONFIG_OF_CONTROL),yy)
-	@echo >&2 "===================== WARNING ======================"
-	@echo >&2 "This board does not use CONFIG_DM_SPI. Please update"
-	@echo >&2 "the board before v2019.04 for no dm conversion"
-	@echo >&2 "and v2019.07 for partially dm converted drivers."
-	@echo >&2 "Failure to update can lead to driver/board removal"
-	@echo >&2 "See doc/driver-model/MIGRATION.txt for more info."
-	@echo >&2 "===================================================="
-endif
 endif
 ifeq ($(CONFIG_SPI_FLASH),y)
 ifneq ($(CONFIG_DM_SPI_FLASH)$(CONFIG_OF_CONTROL),yy)

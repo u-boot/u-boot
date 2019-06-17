@@ -190,6 +190,7 @@ int board_mmc_init(bd_t *bis)
 
 static int get_sh_eth_mac_raw(unsigned char *buf, int size)
 {
+#ifdef CONFIG_DEPRECATED
 	struct spi_flash *spi;
 	int ret;
 
@@ -206,6 +207,7 @@ static int get_sh_eth_mac_raw(unsigned char *buf, int size)
 		return 1;
 	}
 	spi_flash_free(spi);
+#endif
 
 	return 0;
 }
@@ -255,6 +257,7 @@ int board_late_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_DEPRECATED
 int do_write_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, ret;
@@ -318,3 +321,4 @@ U_BOOT_CMD(
 	"write MAC address for GETHERC",
 	"[GETHERC ch0] [GETHERC ch1]\n"
 );
+#endif

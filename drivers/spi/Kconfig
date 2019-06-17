@@ -322,6 +322,7 @@ endif # if DM_SPI
 
 config SOFT_SPI
 	bool "Soft SPI driver"
+	depends on DM_SPI || (DEPRECATED && !DM_SPI)
 	help
 	 Enable Soft SPI driver. This driver is to use GPIO simulate
 	 the SPI protocol.
@@ -362,6 +363,7 @@ config DAVINCI_SPI
 
 config SH_SPI
 	bool "SuperH SPI driver"
+	depends on DEPRECATED
 	help
 	  Enable the SuperH SPI controller driver. This driver can be used
 	  on various SuperH SoCs, such as SH7757.
@@ -380,6 +382,7 @@ config KIRKWOOD_SPI
 
 config LPC32XX_SSP
 	bool "LPC32XX SPI Driver"
+	depends on DEPRECATED
 	help
 	  Enable support for SPI on LPC32xx
 
@@ -391,6 +394,7 @@ config MXC_SPI
 
 config MXS_SPI
 	bool "MXS SPI Driver"
+	depends on DEPRECATED
 	help
 	  Enable the MXS SPI controller driver. This driver can be used
 	  on the i.MX23 and i.MX28 SoCs.

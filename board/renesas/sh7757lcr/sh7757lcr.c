@@ -30,6 +30,7 @@ static void init_gctrl(void)
 
 static int init_pcie_bridge_from_spi(void *buf, size_t size)
 {
+#ifdef CONFIG_DEPRECATED
 	struct spi_flash *spi;
 	int ret;
 	unsigned long pcie_addr;
@@ -54,6 +55,10 @@ static int init_pcie_bridge_from_spi(void *buf, size_t size)
 	spi_flash_free(spi);
 
 	return 0;
+#else
+	printf("No SPI support so no PCIe support\n");
+	return 1;
+#endif
 }
 
 static void init_pcie_bridge(void)
@@ -231,6 +236,7 @@ int board_mmc_init(bd_t *bis)
 
 static int get_sh_eth_mac_raw(unsigned char *buf, int size)
 {
+#ifdef CONFIG_DEPRECATED
 	struct spi_flash *spi;
 	int ret;
 
@@ -247,6 +253,7 @@ static int get_sh_eth_mac_raw(unsigned char *buf, int size)
 		return 1;
 	}
 	spi_flash_free(spi);
+#endif
 
 	return 0;
 }
@@ -352,6 +359,7 @@ U_BOOT_CMD(
 	"enable SH-G200 bus (disable PCIe-G200)"
 );
 
+#ifdef CONFIG_DEPRECATED
 int do_write_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, ret;
@@ -418,3 +426,4 @@ U_BOOT_CMD(
 	"write MAC address for ETHERC/GETHERC",
 	"[ETHERC ch0] [ETHERC ch1] [GETHERC ch0] [GETHERC ch1]\n"
 );
+#endif
