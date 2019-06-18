@@ -49,6 +49,14 @@ config ATH79_SPI
 	  uses driver model and requires a device tree binding to operate.
 	  please refer to doc/device-tree-bindings/spi/spi-ath79.txt.
 
+config ATMEL_QSPI
+	bool "Atmel Quad SPI Controller"
+	depends on ARCH_AT91
+	help
+	  Enable the Atmel Quad SPI controller in master mode. This driver
+	  does not support generic SPI. The implementation supports only the
+	  spi-mem interface.
+
 config ATMEL_SPI
 	bool "Atmel SPI driver"
 	default y if ARCH_AT91

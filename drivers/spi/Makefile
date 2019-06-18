@@ -18,6 +18,7 @@ endif
 
 obj-$(CONFIG_ALTERA_SPI) += altera_spi.o
 obj-$(CONFIG_ATH79_SPI) += ath79_spi.o
+obj-$(CONFIG_ATMEL_QSPI) += atmel-quadspi.o
 obj-$(CONFIG_ATMEL_SPI) += atmel_spi.o
 obj-$(CONFIG_BCM63XX_HSSPI) += bcm63xx_hsspi.o
 obj-$(CONFIG_BCM63XX_SPI) += bcm63xx_spi.o
