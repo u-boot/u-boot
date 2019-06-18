@@ -3,6 +3,8 @@
  * (C) Copyright 2002
  * Rich Ireland, Enterasys Networks, rireland@enterasys.com.
  * Keith Outwater, keith_outwater@mvis.com
+ *
+ * Copyright (c) 2019 SED Systems, a division of Calian Ltd.
  */
 
 /*
@@ -141,8 +143,8 @@ static int virtex2_info(xilinx_desc *desc)
 }
 
 /*
- * Virtex-II Slave SelectMap configuration loader. Configuration via
- * SelectMap is as follows:
+ * Virtex-II Slave SelectMap or Serial configuration loader. Configuration
+ * is as follows:
  * 1. Set the FPGA's PROG_B line low.
  * 2. Set the FPGA's PROG_B line high.  Wait for INIT_B to go high.
  * 3. Write data to the SelectMap port.  If INIT_B goes low at any time
@@ -154,7 +156,7 @@ static int virtex2_info(xilinx_desc *desc)
  *    INIT_B and DONE lines.  If both are high, configuration has
  *    succeeded. Congratulations!
  */
-static int virtex2_slave_pre(xilinx_virtex2_slave_selectmap_fns *fn, int cookie)
+static int virtex2_slave_pre(xilinx_virtex2_slave_fns *fn, int cookie)
 {
 	unsigned long ts;
 
@@ -243,7 +245,7 @@ static int virtex2_slave_pre(xilinx_virtex2_slave_selectmap_fns *fn, int cookie)
 	return FPGA_SUCCESS;
 }
 
-static int virtex2_slave_post(xilinx_virtex2_slave_selectmap_fns *fn,
+static int virtex2_slave_post(xilinx_virtex2_slave_fns *fn,
 			      int cookie)
 {
 	int ret_val = FPGA_SUCCESS;
@@ -284,11 +286,16 @@ static int virtex2_slave_post(xilinx_virtex2_slave_selectmap_fns *fn,
 			ret_val = FPGA_FAIL;
 			break;
 		}
-		(*fn->wdata) (0xff, true, cookie);
-		CONFIG_FPGA_DELAY();
-		(*fn->clk) (false, true, cookie);
-		CONFIG_FPGA_DELAY();
-		(*fn->clk) (true, true, cookie);
+		if (fn->wbulkdata) {
+			unsigned char dummy = 0xff;
+			(*fn->wbulkdata)(&dummy, 1, true, cookie);
+		} else {
+			(*fn->wdata)(0xff, true, cookie);
+			CONFIG_FPGA_DELAY();
+			(*fn->clk)(false, true, cookie);
+			CONFIG_FPGA_DELAY();
+			(*fn->clk)(true, true, cookie);
+		}
 	}
 
 	if (ret_val == FPGA_SUCCESS) {
@@ -312,7 +319,7 @@ static int virtex2_slave_post(xilinx_virtex2_slave_selectmap_fns *fn,
 static int virtex2_ssm_load(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
-	xilinx_virtex2_slave_selectmap_fns *fn = desc->iface_fns;
+	xilinx_virtex2_slave_fns *fn = desc->iface_fns;
 	size_t bytecount = 0;
 	unsigned char *data = (unsigned char *)buf;
 	int cookie = desc->cookie;
@@ -387,7 +394,7 @@ static int virtex2_ssm_load(xilinx_desc *desc, const void *buf, size_t bsize)
 static int virtex2_ssm_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
-	xilinx_virtex2_slave_selectmap_fns *fn = desc->iface_fns;
+	xilinx_virtex2_slave_fns *fn = desc->iface_fns;
 
 	if (fn) {
 		unsigned char *data = (unsigned char *)buf;
@@ -438,8 +445,71 @@ static int virtex2_ssm_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 
 static int virtex2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize)
 {
-	printf("%s: Slave Serial Loading is unsupported\n", __func__);
-	return FPGA_FAIL;
+	int ret_val = FPGA_FAIL;
+	xilinx_virtex2_slave_fns *fn = desc->iface_fns;
+	unsigned char *data = (unsigned char *)buf;
+	int cookie = desc->cookie;
+
+	ret_val = virtex2_slave_pre(fn, cookie);
+	if (ret_val != FPGA_SUCCESS)
+		return ret_val;
+
+	if (fn->wbulkdata) {
+		/* Load the data in a single chunk */
+		(*fn->wbulkdata)(data, bsize, true, cookie);
+	} else {
+		size_t bytecount = 0;
+
+		/*
+		 * Load the data bit by bit
+		 */
+		while (bytecount < bsize) {
+			unsigned char curr_data = data[bytecount++];
+			int bit;
+
+#ifdef CONFIG_SYS_FPGA_CHECK_CTRLC
+			if (ctrlc()) {
+				(*fn->abort) (cookie);
+				return FPGA_FAIL;
+			}
+#endif
+
+			if ((*fn->done)(cookie) == FPGA_SUCCESS) {
+				PRINTF("%s:%d:done went active early, bytecount = %d\n",
+				       __func__, __LINE__, bytecount);
+				break;
+			}
+
+#ifdef CONFIG_SYS_FPGA_CHECK_ERROR
+			if ((*fn->init)(cookie)) {
+				printf("\n%s:%d:  ** Error: INIT asserted during configuration\n",
+				       __func__, __LINE__);
+				printf("%zu = buffer offset, %zu = buffer size\n",
+				       bytecount, bsize);
+				(*fn->abort)(cookie);
+				return FPGA_FAIL;
+			}
+#endif
+
+			for (bit = 7; bit >= 0; --bit) {
+				unsigned char curr_bit = (curr_data >> bit) & 1;
+				(*fn->wdata)(curr_bit, true, cookie);
+				CONFIG_FPGA_DELAY();
+				(*fn->clk)(false, true, cookie);
+				CONFIG_FPGA_DELAY();
+				(*fn->clk)(true, true, cookie);
+			}
+
+			/* Slave serial never uses a busy pin */
+
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
+			if (bytecount % (bsize / 40) == 0)
+				putc('.');
+#endif
+		}
+	}
+
+	return virtex2_slave_post(fn, cookie);
 }
 
 static int virtex2_ss_dump(xilinx_desc *desc, const void *buf, size_t bsize)
