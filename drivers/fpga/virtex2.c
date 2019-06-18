@@ -154,202 +154,219 @@ static int virtex2_info(xilinx_desc *desc)
  *    INIT_B and DONE lines.  If both are high, configuration has
  *    succeeded. Congratulations!
  */
-static int virtex2_ssm_load(xilinx_desc *desc, const void *buf, size_t bsize)
+static int virtex2_slave_pre(xilinx_virtex2_slave_selectmap_fns *fn, int cookie)
 {
-	int ret_val = FPGA_FAIL;
-	xilinx_virtex2_slave_selectmap_fns *fn = desc->iface_fns;
+	unsigned long ts;
 
 	PRINTF("%s:%d: Start with interface functions @ 0x%p\n",
 	       __func__, __LINE__, fn);
 
-	if (fn) {
-		size_t bytecount = 0;
-		unsigned char *data = (unsigned char *)buf;
-		int cookie = desc->cookie;
-		unsigned long ts;
+	if (!fn) {
+		printf("%s:%d: NULL Interface function table!\n",
+		       __func__, __LINE__);
+		return FPGA_FAIL;
+	}
 
-		/* Gotta split this one up (so the stack won't blow??) */
-		PRINTF("%s:%d: Function Table:\n"
-		       "  base   0x%p\n"
-		       "  struct 0x%p\n"
-		       "  pre    0x%p\n"
-		       "  prog   0x%p\n"
-		       "  init   0x%p\n"
-		       "  error  0x%p\n",
-		       __func__, __LINE__,
-		       &fn, fn, fn->pre, fn->pgm, fn->init, fn->err);
-		PRINTF("  clock  0x%p\n"
-		       "  cs     0x%p\n"
-		       "  write  0x%p\n"
-		       "  rdata  0x%p\n"
-		       "  wdata  0x%p\n"
-		       "  busy   0x%p\n"
-		       "  abort  0x%p\n"
-		       "  post   0x%p\n\n",
-		       fn->clk, fn->cs, fn->wr, fn->rdata, fn->wdata,
-		       fn->busy, fn->abort, fn->post);
+	/* Gotta split this one up (so the stack won't blow??) */
+	PRINTF("%s:%d: Function Table:\n"
+	       "  base   0x%p\n"
+	       "  struct 0x%p\n"
+	       "  pre    0x%p\n"
+	       "  prog   0x%p\n"
+	       "  init   0x%p\n"
+	       "  error  0x%p\n",
+	       __func__, __LINE__,
+	       &fn, fn, fn->pre, fn->pgm, fn->init, fn->err);
+	PRINTF("  clock  0x%p\n"
+	       "  cs     0x%p\n"
+	       "  write  0x%p\n"
+	       "  rdata  0x%p\n"
+	       "  wdata  0x%p\n"
+	       "  busy   0x%p\n"
+	       "  abort  0x%p\n"
+	       "  post   0x%p\n\n",
+	       fn->clk, fn->cs, fn->wr, fn->rdata, fn->wdata,
+	       fn->busy, fn->abort, fn->post);
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-		printf("Initializing FPGA Device %d...\n", cookie);
+	printf("Initializing FPGA Device %d...\n", cookie);
 #endif
-		/*
-		 * Run the pre configuration function if there is one.
-		 */
-		if (*fn->pre)
-			(*fn->pre)(cookie);
+	/*
+	 * Run the pre configuration function if there is one.
+	 */
+	if (*fn->pre)
+		(*fn->pre)(cookie);
 
-		/*
-		 * Assert the program line.  The minimum pulse width for
-		 * Virtex II devices is 300 nS (Tprogram parameter in
-		 * datasheet). There is no maximum value for the pulse width.
-		 * Check to make sure that INIT_B goes low after assertion of
-		 * PROG_B
-		 */
-		(*fn->pgm)(true, true, cookie);
-		udelay(10);
-		ts = get_timer(0);
-		do {
-			if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_INIT) {
-				printf("%s:%d: ** Timeout after %d ticks waiting for INIT to assert.\n",
-				       __func__, __LINE__,
-				       CONFIG_SYS_FPGA_WAIT_INIT);
-				(*fn->abort)(cookie);
-				return FPGA_FAIL;
-			}
-		} while (!(*fn->init)(cookie));
+	/*
+	 * Assert the program line.  The minimum pulse width for
+	 * Virtex II devices is 300 nS (Tprogram parameter in datasheet).
+	 * There is no maximum value for the pulse width. Check to make
+	 * sure that INIT_B goes low after assertion of PROG_B
+	 */
+	(*fn->pgm)(true, true, cookie);
+	udelay(10);
+	ts = get_timer(0);
+	do {
+		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_INIT) {
+			printf("%s:%d: ** Timeout after %d ticks waiting for INIT to assert.\n",
+			       __func__, __LINE__, CONFIG_SYS_FPGA_WAIT_INIT);
+			(*fn->abort)(cookie);
+			return FPGA_FAIL;
+		}
+	} while (!(*fn->init)(cookie));
 
-		(*fn->pgm)(false, true, cookie);
-		CONFIG_FPGA_DELAY();
+	(*fn->pgm)(false, true, cookie);
+	CONFIG_FPGA_DELAY();
+	if (fn->clk)
 		(*fn->clk)(true, true, cookie);
 
-		/*
-		 * Start a timer and wait for INIT_B to go high
-		 */
-		ts = get_timer(0);
-		do {
-			CONFIG_FPGA_DELAY();
-			if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_INIT) {
-				printf("%s:%d: ** Timeout after %d ticks waiting for INIT to deassert.\n",
-				       __func__, __LINE__,
-				       CONFIG_SYS_FPGA_WAIT_INIT);
-				(*fn->abort)(cookie);
-				return FPGA_FAIL;
-			}
-		} while ((*fn->init)(cookie) && (*fn->busy)(cookie));
+	/*
+	 * Start a timer and wait for INIT_B to go high
+	 */
+	ts = get_timer(0);
+	do {
+		CONFIG_FPGA_DELAY();
+		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_INIT) {
+			printf("%s:%d: ** Timeout after %d ticks waiting for INIT to deassert.\n",
+			       __func__, __LINE__, CONFIG_SYS_FPGA_WAIT_INIT);
+			(*fn->abort)(cookie);
+			return FPGA_FAIL;
+		}
+	} while ((*fn->init)(cookie) && (*fn->busy)(cookie));
 
+	if (fn->wr)
 		(*fn->wr)(true, true, cookie);
+	if (fn->cs)
 		(*fn->cs)(true, true, cookie);
 
-		mdelay(10);
+	mdelay(10);
+	return FPGA_SUCCESS;
+}
 
-		/*
-		 * Load the data byte by byte
-		 */
-		while (bytecount < bsize) {
-#ifdef CONFIG_SYS_FPGA_CHECK_CTRLC
-			if (ctrlc()) {
-				(*fn->abort)(cookie);
-				return FPGA_FAIL;
-			}
-#endif
+static int virtex2_slave_post(xilinx_virtex2_slave_selectmap_fns *fn,
+			      int cookie)
+{
+	int ret_val = FPGA_SUCCESS;
+	unsigned long ts;
 
-			if ((*fn->done)(cookie) == FPGA_SUCCESS) {
-				PRINTF("%s:%d:done went active early, bytecount = %d\n",
-				       __func__, __LINE__, bytecount);
-				break;
-			}
-
-#ifdef CONFIG_SYS_FPGA_CHECK_ERROR
-			if ((*fn->init)(cookie)) {
-				printf("\n%s:%d:  ** Error: INIT asserted during configuration\n",
-				       __func__, __LINE__);
-				printf("%d = buffer offset, %d = buffer size\n",
-				       bytecount, bsize);
-				(*fn->abort)(cookie);
-				return FPGA_FAIL;
-			}
-#endif
-
-			(*fn->wdata)(data[bytecount++], true, cookie);
-			CONFIG_FPGA_DELAY();
-
-			/*
-			 * Cycle the clock pin
-			 */
-			(*fn->clk)(false, true, cookie);
-			CONFIG_FPGA_DELAY();
-			(*fn->clk)(true, true, cookie);
-
-#ifdef CONFIG_SYS_FPGA_CHECK_BUSY
-			ts = get_timer(0);
-			while ((*fn->busy)(cookie)) {
-				if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_BUSY) {
-					printf("%s:%d: ** Timeout after %d ticks waiting for BUSY to deassert\n",
-					       __func__, __LINE__,
-					       CONFIG_SYS_FPGA_WAIT_BUSY);
-					(*fn->abort)(cookie);
-					return FPGA_FAIL;
-				}
-			}
-#endif
-
-#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-			if (bytecount % (bsize / 40) == 0)
-				putc('.');
-#endif
-		}
-
-		/*
-		 * Finished writing the data; deassert FPGA CS_B and WRITE_B
-		 * signals.
-		 */
-		CONFIG_FPGA_DELAY();
+	/*
+	 * Finished writing the data; deassert FPGA CS_B and WRITE_B signals.
+	 */
+	CONFIG_FPGA_DELAY();
+	if (fn->cs)
 		(*fn->cs)(false, true, cookie);
+	if (fn->wr)
 		(*fn->wr)(false, true, cookie);
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-		putc('\n');
+	putc('\n');
 #endif
 
+	/*
+	 * Check for successful configuration.  FPGA INIT_B and DONE
+	 * should both be high upon successful configuration.
+	 */
+	ts = get_timer(0);
+	ret_val = FPGA_SUCCESS;
+	while (((*fn->done)(cookie) == FPGA_FAIL) ||
+	       (*fn->init)(cookie)) {
+		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_CONFIG) {
+			printf("%s:%d: ** Timeout after %d ticks waiting for DONE to assert and INIT to deassert\n",
+			       __func__, __LINE__, CONFIG_SYS_FPGA_WAIT_CONFIG);
+			(*fn->abort)(cookie);
+			ret_val = FPGA_FAIL;
+			break;
+		}
+	}
+
+	if (ret_val == FPGA_SUCCESS) {
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
+		printf("Initialization of FPGA device %d complete\n", cookie);
+#endif
 		/*
-		 * Check for successful configuration.  FPGA INIT_B and DONE
-		 * should both be high upon successful configuration.
+		 * Run the post configuration function if there is one.
 		 */
-		ts = get_timer(0);
-		ret_val = FPGA_SUCCESS;
-		while (((*fn->done)(cookie) == FPGA_FAIL) ||
-		       (*fn->init)(cookie)) {
-			if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_CONFIG) {
-				printf("%s:%d: ** Timeout after %d ticks waiting for DONE toassert and INIT to deassert\n",
-				       __func__, __LINE__,
-				       CONFIG_SYS_FPGA_WAIT_CONFIG);
-				(*fn->abort)(cookie);
-				ret_val = FPGA_FAIL;
-				break;
-			}
-		}
-
-		if (ret_val == FPGA_SUCCESS) {
-#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-			printf("Initialization of FPGA device %d complete\n",
-			       cookie);
-#endif
-			/*
-			 * Run the post configuration function if there is one.
-			 */
-			if (*fn->post)
-				(*fn->post)(cookie);
-		} else {
-#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-			printf("** Initialization of FPGA device %d FAILED\n",
-			       cookie);
-#endif
-		}
+		if (*fn->post)
+			(*fn->post)(cookie);
 	} else {
-		printf("%s:%d: NULL Interface function table!\n",
-		       __func__, __LINE__);
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
+		printf("** Initialization of FPGA device %d FAILED\n",
+		       cookie);
+#endif
 	}
 	return ret_val;
+}
+
+static int virtex2_ssm_load(xilinx_desc *desc, const void *buf, size_t bsize)
+{
+	int ret_val = FPGA_FAIL;
+	xilinx_virtex2_slave_selectmap_fns *fn = desc->iface_fns;
+	size_t bytecount = 0;
+	unsigned char *data = (unsigned char *)buf;
+	int cookie = desc->cookie;
+
+	ret_val = virtex2_slave_pre(fn, cookie);
+	if (ret_val != FPGA_SUCCESS)
+		return ret_val;
+
+	/*
+	 * Load the data byte by byte
+	 */
+	while (bytecount < bsize) {
+#ifdef CONFIG_SYS_FPGA_CHECK_CTRLC
+		if (ctrlc()) {
+			(*fn->abort)(cookie);
+			return FPGA_FAIL;
+		}
+#endif
+
+		if ((*fn->done)(cookie) == FPGA_SUCCESS) {
+			PRINTF("%s:%d:done went active early, bytecount = %d\n",
+			       __func__, __LINE__, bytecount);
+			break;
+		}
+
+#ifdef CONFIG_SYS_FPGA_CHECK_ERROR
+		if ((*fn->init)(cookie)) {
+			printf("\n%s:%d:  ** Error: INIT asserted during configuration\n",
+			       __func__, __LINE__);
+			printf("%zu = buffer offset, %zu = buffer size\n",
+			       bytecount, bsize);
+			(*fn->abort)(cookie);
+			return FPGA_FAIL;
+		}
+#endif
+
+		(*fn->wdata)(data[bytecount++], true, cookie);
+		CONFIG_FPGA_DELAY();
+
+		/*
+		 * Cycle the clock pin
+		 */
+		(*fn->clk)(false, true, cookie);
+		CONFIG_FPGA_DELAY();
+		(*fn->clk)(true, true, cookie);
+
+#ifdef CONFIG_SYS_FPGA_CHECK_BUSY
+		ts = get_timer(0);
+		while ((*fn->busy)(cookie)) {
+			if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_BUSY) {
+				printf("%s:%d: ** Timeout after %d ticks waiting for BUSY to deassert\n",
+				       __func__, __LINE__,
+				       CONFIG_SYS_FPGA_WAIT_BUSY);
+				(*fn->abort)(cookie);
+				return FPGA_FAIL;
+			}
+		}
+#endif
+
+#ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
+		if (bytecount % (bsize / 40) == 0)
+			putc('.');
+#endif
+	}
+
+	return virtex2_slave_post(fn, cookie);
 }
 
 /*
