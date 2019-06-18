@@ -13,6 +13,10 @@
 		device_type = "memory";
 		reg = <0x00000000 0x08000000>;
 	};
+
+	aliases {
+		spi0 = &spi0;
+	};
 };
 
 &mdio {
@@ -27,5 +31,23 @@
 	status = "okay";
 	ethernet0-port@0 {
 		phy-handle = <&ethphy0>;
+	};
+};
+
+&spi0 {
+	status = "okay";
+
+	flash@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "st,m25p80", "jedec,spi-nor", "spi-flash";
+		reg = <0>;
+		spi-max-frequency = <33000000>;
+		mode = <3>;
+
+		partition@uboot {
+			reg = <0x000000 0x0c0000>;
+			label = "uboot";
+		};
 	};
 };
