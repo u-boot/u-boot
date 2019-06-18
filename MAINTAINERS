@@ -295,7 +295,6 @@ F:	arch/arm/include/asm/arch-spear/
 
 ARM STM STM32MP
 M:	Patrick Delaunay <patrick.delaunay@st.com>
-M:	Christophe Kerello <christophe.kerello@st.com>
 M:	Patrice Chotard <patrice.chotard@st.com>
 L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
 S:	Maintained
