@@ -19,7 +19,6 @@ static void getvar_version_baseband(char *var_parameter, char *response);
 static void getvar_product(char *var_parameter, char *response);
 static void getvar_platform(char *var_parameter, char *response);
 static void getvar_current_slot(char *var_parameter, char *response);
-static void getvar_slot_suffixes(char *var_parameter, char *response);
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void getvar_has_slot(char *var_parameter, char *response);
 #endif
@@ -64,9 +63,6 @@ static const struct {
 	}, {
 		.variable = "current-slot",
 		.dispatch = getvar_current_slot
-	}, {
-		.variable = "slot-suffixes",
-		.dispatch = getvar_slot_suffixes
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 	}, {
 		.variable = "has-slot",
@@ -180,11 +176,6 @@ static void getvar_current_slot(char *var_parameter, char *response)
 {
 	/* A/B not implemented, for now always return "a" */
 	fastboot_okay("a", response);
-}
-
-static void getvar_slot_suffixes(char *var_parameter, char *response)
-{
-	fastboot_okay("a,b", response);
 }
 
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
