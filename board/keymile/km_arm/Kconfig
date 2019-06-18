@@ -9,4 +9,11 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "km_kirkwood"
 
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select BOARD_LATE_INIT
+	imply CMD_CRAMFS
+	imply CMD_DIAG
+	imply FS_CRAMFS
+
 endif

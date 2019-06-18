@@ -100,65 +100,43 @@ config TARGET_IDS8313
 
 config TARGET_KMETER1
 	bool "Support kmeter1"
-	select ARCH_MPC8360
-	imply CMD_CRAMFS
-	imply CMD_DIAG
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_KMCOGE5NE
 	bool "Support kmcoge5ne"
-	select ARCH_MPC8360
-	imply CMD_CRAMFS
-	imply CMD_DIAG
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_SUVD3
 	bool "Support suvd3"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_KMVECT1
 	bool "Support kmvect1"
-	select ARCH_MPC8309
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_KMTEGR1
 	bool "Support kmtegr1"
-	select ARCH_MPC8309
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_TUXX1
 	bool "Support tuxx1"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_KMSUPX5
 	bool "Support kmsupx5"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_TUGE1
 	bool "Support tuge1"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_KMOPTI2
 	bool "Support kmopti2"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_KMTEPR2
 	bool "Support kmtepr2"
-	select ARCH_MPC832X
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
+	select VENDOR_KM
 
 config TARGET_TQM834X
 	bool "Support TQM834x"
@@ -354,7 +332,7 @@ source "board/freescale/mpc8349itx/Kconfig"
 source "board/freescale/mpc837xemds/Kconfig"
 source "board/freescale/mpc837xerdb/Kconfig"
 source "board/ids/ids8313/Kconfig"
-source "board/keymile/km83xx/Kconfig"
+source "board/keymile/Kconfig"
 source "board/mpc8308_p1m/Kconfig"
 source "board/sbc8349/Kconfig"
 source "board/tqc/tqm834x/Kconfig"
