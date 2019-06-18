@@ -24,7 +24,12 @@
 		gpio0 = &gpio;
 		spi0 = &qspi;
 		usb0 = &usb0;
+		rtc0 = &rtc;
 	};
+};
+
+&rtc {
+	status = "okay";
 };
 
 &gpio {
