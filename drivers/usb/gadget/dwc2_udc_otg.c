@@ -1039,6 +1039,7 @@ static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 	int node = dev_of_offset(dev);
 	ulong drvdata;
 	void (*set_params)(struct dwc2_plat_otg_data *data);
+	int ret;
 
 	if (usb_get_dr_mode(node) != USB_DR_MODE_PERIPHERAL) {
 		dev_dbg(dev, "Invalid mode\n");
@@ -1050,7 +1051,18 @@ static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 	platdata->rx_fifo_sz = dev_read_u32_default(dev, "g-rx-fifo-size", 0);
 	platdata->np_tx_fifo_sz = dev_read_u32_default(dev,
 						       "g-np-tx-fifo-size", 0);
-	platdata->tx_fifo_sz = dev_read_u32_default(dev, "g-tx-fifo-size", 0);
+
+	platdata->tx_fifo_sz_nb =
+		dev_read_size(dev, "g-tx-fifo-size") / sizeof(u32);
+	if (platdata->tx_fifo_sz_nb > DWC2_MAX_HW_ENDPOINTS)
+		platdata->tx_fifo_sz_nb = DWC2_MAX_HW_ENDPOINTS;
+	if (platdata->tx_fifo_sz_nb) {
+		ret = dev_read_u32_array(dev, "g-tx-fifo-size",
+					 platdata->tx_fifo_sz_array,
+					 platdata->tx_fifo_sz_nb);
+		if (ret)
+			return ret;
+	}
 
 	platdata->force_b_session_valid =
 		dev_read_bool(dev, "u-boot,force-b-session-valid");
