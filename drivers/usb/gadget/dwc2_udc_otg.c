@@ -1041,7 +1041,8 @@ static int dwc2_udc_otg_ofdata_to_platdata(struct udevice *dev)
 	void (*set_params)(struct dwc2_plat_otg_data *data);
 	int ret;
 
-	if (usb_get_dr_mode(node) != USB_DR_MODE_PERIPHERAL) {
+	if (usb_get_dr_mode(node) != USB_DR_MODE_PERIPHERAL &&
+	    usb_get_dr_mode(node) != USB_DR_MODE_OTG) {
 		dev_dbg(dev, "Invalid mode\n");
 		return -ENODEV;
 	}
