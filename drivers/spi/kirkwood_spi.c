@@ -338,6 +338,11 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return _spi_xfer(plat->spireg, bitlen, dout, din, flags);
 }
 
+__attribute__((weak)) int mvebu_board_spi_claim_bus(struct udevice *dev)
+{
+	return 0;
+}
+
 static int mvebu_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
@@ -348,7 +353,17 @@ static int mvebu_spi_claim_bus(struct udevice *dev)
 			KWSPI_CS_MASK << KWSPI_CS_SHIFT,
 			spi_chip_select(dev) << KWSPI_CS_SHIFT);
 
+	return mvebu_board_spi_claim_bus(dev);
+}
+
+__attribute__((weak)) int mvebu_board_spi_release_bus(struct udevice *dev)
+{
 	return 0;
+}
+
+static int mvebu_spi_release_bus(struct udevice *dev)
+{
+	return mvebu_board_spi_release_bus(dev);
 }
 
 static int mvebu_spi_probe(struct udevice *bus)
@@ -377,6 +392,7 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 
 static const struct dm_spi_ops mvebu_spi_ops = {
 	.claim_bus	= mvebu_spi_claim_bus,
+	.release_bus	= mvebu_spi_release_bus,
 	.xfer		= mvebu_spi_xfer,
 	.set_speed	= mvebu_spi_set_speed,
 	.set_mode	= mvebu_spi_set_mode,
