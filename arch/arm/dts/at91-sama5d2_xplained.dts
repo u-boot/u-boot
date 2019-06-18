@@ -79,26 +79,18 @@
 			};
 
 			qspi0: spi@f0020000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&pinctrl_qspi0_sck_cs_default &pinctrl_qspi0_dat_default>;
 				status = "okay";
+				u-boot,dm-pre-reloc;
 
 				flash@0 {
-					compatible = "atmel,sama5d2-qspi-flash";
+					compatible = "jedec,spi-nor";
 					reg = <0>;
-					#address-cells = <1>;
-					#size-cells = <1>;
-					pinctrl-names = "default";
-					pinctrl-0 = <&pinctrl_qspi0_default>;
 					spi-max-frequency = <83000000>;
-
-					partition@00000000 {
-						label = "boot";
-						reg = <0x00000000 0x00c00000>;
-					};
-
-					partition@00c00000 {
-						label = "rootfs";
-						reg = <0x00c00000 0x00000000>;
-					};
+					spi-rx-bus-width = <4>;
+					spi-tx-bus-width = <4>;
+					u-boot,dm-pre-reloc;
 				};
 			};
 
@@ -208,14 +200,20 @@
 						bias-disable;
 					};
 
-					pinctrl_qspi0_default: qspi0_default {
+					pinctrl_qspi0_sck_cs_default: qspi0_sck_cs_default {
 						pinmux = <PIN_PA22__QSPI0_SCK>,
-							 <PIN_PA23__QSPI0_CS>,
-							 <PIN_PA24__QSPI0_IO0>,
+							 <PIN_PA23__QSPI0_CS>;
+						bias-disable;
+						u-boot,dm-pre-reloc;
+					};
+
+					pinctrl_qspi0_dat_default: qspi0_dat_default {
+						pinmux = <PIN_PA24__QSPI0_IO0>,
 							 <PIN_PA25__QSPI0_IO1>,
 							 <PIN_PA26__QSPI0_IO2>,
 							 <PIN_PA27__QSPI0_IO3>;
-						bias-disable;
+						bias-pull-up;
+						u-boot,dm-pre-reloc;
 					};
 
 					pinctrl_sdmmc0_cmd_dat_default: sdmmc0_cmd_dat_default {
