@@ -12,6 +12,9 @@ config SYS_CONFIG_NAME
 config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select BOARD_LATE_INIT
+	select DM
+	select DM_SPI
+	select DM_SPI_FLASH
 	imply CMD_CRAMFS
 	imply CMD_DIAG
 	imply FS_CRAMFS
