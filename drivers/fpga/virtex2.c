@@ -247,6 +247,7 @@ static int virtex2_slave_post(xilinx_virtex2_slave_selectmap_fns *fn,
 			      int cookie)
 {
 	int ret_val = FPGA_SUCCESS;
+	int num_done = 0;
 	unsigned long ts;
 
 	/*
@@ -264,12 +265,18 @@ static int virtex2_slave_post(xilinx_virtex2_slave_selectmap_fns *fn,
 
 	/*
 	 * Check for successful configuration.  FPGA INIT_B and DONE
-	 * should both be high upon successful configuration.
+	 * should both be high upon successful configuration. Continue pulsing
+	 * clock with data set to all ones until DONE is asserted and for 8
+	 * clock cycles afterwards.
 	 */
 	ts = get_timer(0);
-	ret_val = FPGA_SUCCESS;
-	while (((*fn->done)(cookie) == FPGA_FAIL) ||
-	       (*fn->init)(cookie)) {
+	while (true) {
+		if ((*fn->done)(cookie) == FPGA_SUCCESS &&
+		    !((*fn->init)(cookie))) {
+			if (num_done++ >= 8)
+				break;
+		}
+
 		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT_CONFIG) {
 			printf("%s:%d: ** Timeout after %d ticks waiting for DONE to assert and INIT to deassert\n",
 			       __func__, __LINE__, CONFIG_SYS_FPGA_WAIT_CONFIG);
@@ -277,6 +284,11 @@ static int virtex2_slave_post(xilinx_virtex2_slave_selectmap_fns *fn,
 			ret_val = FPGA_FAIL;
 			break;
 		}
+		(*fn->wdata) (0xff, true, cookie);
+		CONFIG_FPGA_DELAY();
+		(*fn->clk) (false, true, cookie);
+		CONFIG_FPGA_DELAY();
+		(*fn->clk) (true, true, cookie);
 	}
 
 	if (ret_val == FPGA_SUCCESS) {
