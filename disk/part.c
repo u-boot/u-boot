@@ -414,11 +414,10 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
 #ifdef CONFIG_HAVE_BLOCK_DEVICE
 	/*
 	 * Updates the partition table for the specified hw partition.
-	 * Does not need to be done for hwpart 0 since it is default and
-	 * already loaded.
+	 * Always should be done, otherwise hw partition 0 will return stale
+	 * data after displaying a non-zero hw partition.
 	 */
-	if(hwpart != 0)
-		part_init(*dev_desc);
+	part_init(*dev_desc);
 #endif
 
 cleanup:
