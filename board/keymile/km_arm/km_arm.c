@@ -310,18 +310,6 @@ int board_late_init(void)
 	return 0;
 }
 
-int board_spi_claim_bus(struct spi_slave *slave)
-{
-	kw_gpio_set_value(KM_FLASH_GPIO_PIN, 0);
-
-	return 0;
-}
-
-void board_spi_release_bus(struct spi_slave *slave)
-{
-	kw_gpio_set_value(KM_FLASH_GPIO_PIN, 1);
-}
-
 static const u32 spi_mpp_config[] = {
 	MPP1_SPI_MOSI,
 	MPP2_SPI_SCK,

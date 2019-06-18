@@ -201,11 +201,6 @@ int get_scl(void);
 
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
-
-/* SPI bus claim MPP configuration */
-#define CONFIG_SYS_KW_SPI_MPP	0x0
-
-#define FLASH_GPIO_PIN			0x00010000
 #define KM_FLASH_GPIO_PIN	16
 
 #define	CONFIG_KM_UPDATE_UBOOT						\
