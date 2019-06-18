@@ -545,6 +545,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_FIXED
 	phy_fixed_init();
 #endif
+#ifdef CONFIG_PHY_NCSI
+	phy_ncsi_init();
+#endif
 #ifdef CONFIG_PHY_XILINX_GMII2RGMII
 	phy_xilinx_gmii2rgmii_init();
 #endif
@@ -1002,6 +1005,12 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 #ifdef CONFIG_PHY_FIXED
 	phydev = phy_connect_fixed(bus, dev, interface);
 #endif
+
+#ifdef CONFIG_PHY_NCSI
+	if (!phydev)
+		phydev = phy_device_create(bus, 0, PHY_NCSI_ID, false, interface);
+#endif
+
 #ifdef CONFIG_PHY_XILINX_GMII2RGMII
 	if (!phydev)
 		phydev = phy_connect_gmii2rgmii(bus, dev, interface);

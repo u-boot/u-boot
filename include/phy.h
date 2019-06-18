@@ -15,6 +15,7 @@
 #include <linux/mii.h>
 #include <linux/ethtool.h>
 #include <linux/mdio.h>
+#include <log.h>
 #include <phy_interface.h>
 
 #define PHY_FIXED_ID		0xa5a55a5a
@@ -173,6 +174,11 @@ static inline int phy_read(struct phy_device *phydev, int devad, int regnum)
 {
 	struct mii_dev *bus = phydev->bus;
 
+	if (!bus || !bus->read) {
+		debug("%s: No bus configured\n", __func__);
+		return -1;
+	}
+
 	return bus->read(bus, phydev->addr, devad, regnum);
 }
 
@@ -180,6 +186,11 @@ static inline int phy_write(struct phy_device *phydev, int devad, int regnum,
 			u16 val)
 {
 	struct mii_dev *bus = phydev->bus;
+
+	if (!bus || !bus->read) {
+		debug("%s: No bus configured\n", __func__);
+		return -1;
+	}
 
 	return bus->write(bus, phydev->addr, devad, regnum, val);
 }
@@ -402,6 +413,7 @@ int phy_vitesse_init(void);
 int phy_xilinx_init(void);
 int phy_mscc_init(void);
 int phy_fixed_init(void);
+int phy_ncsi_init(void);
 int phy_xilinx_gmii2rgmii_init(void);
 
 int board_phy_config(struct phy_device *phydev);
