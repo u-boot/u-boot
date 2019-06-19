@@ -633,6 +633,7 @@ int board_late_init(void)
 
 		mode = "mmc";
 		bootseq = dev->seq;
+		env_set_ulong("sdbootdev", bootseq);
 		env_set("modeboot", "sdboot");
 		break;
 	case SD1_LSHFT_MODE:
@@ -651,6 +652,7 @@ int board_late_init(void)
 
 		mode = "mmc";
 		bootseq = dev->seq;
+		env_set_ulong("sdbootdev", bootseq);
 		env_set("modeboot", "sdboot");
 		break;
 	case NAND_MODE:
