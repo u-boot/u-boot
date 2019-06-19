@@ -435,7 +435,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	do_fixup_by_path_u32(blob, "/sysclk", "clock-frequency",
 			     CONFIG_SYS_CLK_FREQ, 1);
 
-#ifdef CONFIG_PCI
+#ifdef CONFIG_PCI_LAYERSCAPE
 	ft_pci_setup(blob, bd);
 #endif
 

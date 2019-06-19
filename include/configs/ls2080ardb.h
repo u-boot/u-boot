@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright 2017 NXP
+ * Copyright 2017, 2019 NXP
  * Copyright 2015 Freescale Semiconductor
  */
 
@@ -342,14 +342,14 @@ unsigned long get_board_sys_clk(void);
 	"esbc_validate 0x20740000;"		\
 	"fsl_mc start mc 0x20a00000 0x20e00000 \0"
 #define SD_MC_INIT_CMD				\
-	"mmcinfo;mmc read 0x80000000 0x5000 0x800;" \
-	"mmc read 0x80100000 0x7000 0x800;"	\
+	"mmcinfo;mmc read 0x80a00000 0x5000 0x1200;" \
+	"mmc read 0x80e00000 0x7000 0x800;"	\
 	"env exists secureboot && "		\
 	"mmc read 0x80700000 0x3800 0x10 && "	\
 	"mmc read 0x80740000 0x3A00 0x10 && "	\
 	"esbc_validate 0x80700000 && "		\
 	"esbc_validate 0x80740000 ;"		\
-	"fsl_mc start mc 0x80000000 0x80100000\0"
+	"fsl_mc start mc 0x80a00000 0x80e00000\0"
 #define IFC_MC_INIT_CMD				\
 	"env exists secureboot && "	\
 	"esbc_validate 0x580700000 && "		\
@@ -528,8 +528,8 @@ unsigned long get_board_sys_clk(void);
 			"&& mmcinfo && mmc read $load_addr 0x3c00 0x800 " \
 			"&& esbc_validate $load_addr; "			\
 			"env exists mcinitcmd && run mcinitcmd "	\
-			"&& mmc read 0x88000000 0x6800 0x800 "		\
-			"&& fsl_mc lazyapply dpl 0x88000000; "		\
+			"&& mmc read 0x80d00000 0x6800 0x800 "		\
+			"&& fsl_mc lazyapply dpl 0x80d00000; "		\
 			"run distro_bootcmd;run sd_bootcmd; "		\
 			"env exists secureboot && esbc_halt;"
 

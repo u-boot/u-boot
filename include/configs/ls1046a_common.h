@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
  * Copyright 2016 Freescale Semiconductor
+ * Copyright 2019 NXP
  */
 
 #ifndef __LS1046A_COMMON_H
@@ -202,6 +203,15 @@
 #include <config_distro_bootcmd.h>
 #endif
 
+#if defined(CONFIG_TARGET_LS1046AFRWY)
+#define LS1046A_BOOT_SRC_AND_HDR\
+	"boot_scripts=ls1046afrwy_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls1046afrwy_bs.out\0"
+#else
+#define LS1046A_BOOT_SRC_AND_HDR\
+	"boot_scripts=ls1046ardb_boot.scr\0"	\
+	"boot_script_hdr=hdr_ls1046ardb_bs.out\0"
+#endif
 #ifndef SPL_NO_MISC
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS		\
@@ -232,8 +242,7 @@
 	"console=ttyS0,115200\0"                \
 	 CONFIG_MTDPARTS_DEFAULT "\0"		\
 	BOOTENV					\
-	"boot_scripts=ls1046ardb_boot.scr\0"    \
-	"boot_script_hdr=hdr_ls1046ardb_bs.out\0"	\
+	LS1046A_BOOT_SRC_AND_HDR		\
 	"scan_dev_for_boot_part="               \
 		"part list ${devtype} ${devnum} devplist; "   \
 		"env exists devplist || setenv devplist 1; "  \
