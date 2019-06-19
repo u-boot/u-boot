@@ -183,6 +183,9 @@ matrix:
     - name: "buildman NXP AArch64 LS101x"
       env:
         - BUILDMAN="freescale&aarch64&ls101"
+    - name: "buildman NXP AArch64 LS102x"
+      env:
+        - BUILDMAN="freescale&aarch64&ls102"
     - name: "buildman NXP AArch64 LS104x"
       env:
         - BUILDMAN="freescale&aarch64&ls104"
@@ -192,6 +195,9 @@ matrix:
     - name: "buildman NXP AArch64 LS20xx"
       env:
         - BUILDMAN="freescale&aarch64&&ls20"
+    - name: "buildman NXP AArch64 LX216x"
+      env:
+        - BUILDMAN="freescale&aarch64&lx216"
     - name: "buildman i.MX6 (non-NXP)"
       env:
         - BUILDMAN="mx6 -x freescale,toradex,boundary,engicam"
