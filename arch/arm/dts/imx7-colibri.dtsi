@@ -113,29 +113,34 @@
 };
 
 &lcdif {
-	u-boot,dm-pre-reloc;
 	status = "okay";
+	display = <&display0>;
+	u-boot,dm-pre-reloc;
 
-	display-timings {
-		native-mode = <&timing_vga>;
+	display0: display0 {
+		bits-per-pixel = <18>;
+		bus-width = <24>;
+		status = "okay";
 
-		/* Standard VGA timing */
-		timing_vga: 640x480 {
-			u-boot,dm-pre-reloc;
-			clock-frequency = <25175000>;
-			hactive = <640>;
-			vactive = <480>;
-			hback-porch = <48>;
-			hfront-porch = <16>;
-			vback-porch = <33>;
-			vfront-porch = <10>;
-			hsync-len = <96>;
-			vsync-len = <2>;
+		display-timings {
+			native-mode = <&timing_vga>;
+			timing_vga: 640x480 {
+				u-boot,dm-pre-reloc;
+				clock-frequency = <25175000>;
+				hactive = <640>;
+				vactive = <480>;
+				hback-porch = <48>;
+				hfront-porch = <16>;
+				vback-porch = <33>;
+				vfront-porch = <10>;
+				hsync-len = <96>;
+				vsync-len = <2>;
 
-			de-active = <1>;
-			hsync-active = <0>;
-			vsync-active = <0>;
-			pixelclk-active = <0>;
+				de-active = <1>;
+				hsync-active = <0>;
+				vsync-active = <0>;
+				pixelclk-active = <0>;
+			};
 		};
 	};
 };
