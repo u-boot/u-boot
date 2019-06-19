@@ -42,13 +42,13 @@
 
 #define BOOTMENU_ENV \
 	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
-		"setenv baseboard hobbit\0" \
+		"setenv baseboard hobbit; saveenv; run base_boot\0" \
 	"bootmenu_1=Boot using PICO-Pi baseboard=" \
-		"setenv baseboard pi\0" \
+		"setenv baseboard pi; saveenv; run base_boot\0" \
 	"bootmenu_2=Boot using PICO-Dwarf baseboard=" \
-		"setenv baseboard dwarf\0" \
+		"setenv baseboard dwarf; saveenv; run base_boot\0" \
 	"bootmenu_3=Boot using PICO-Nymph baseboard=" \
-		"setenv baseboard nymph\0" \
+		"setenv baseboard nymph; saveenv; run base_boot\0" \
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"console=ttymxc0\0" \
@@ -61,11 +61,6 @@
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	CONFIG_DFU_ENV_SETTINGS \
 	"finduuid=part uuid mmc 0:1 uuid\0" \
-	"findbaseboard=" \
-		"if test $baseboard = ask ; then " \
-			"bootmenu -1; fi;" \
-		"if test $baseboard != ask ; then " \
-			"saveenv; fi;\0" \
 	"findfdt="\
 		"if test $baseboard = hobbit && test $board_rev = MX6Q ; then " \
 			"setenv fdtfile imx6q-pico-hobbit.dtb; fi; " \
@@ -85,6 +80,13 @@
 			"setenv fdtfile imx6dl-pico-nymph.dtb; fi; " \
 		"if test $fdtfile = ask; then " \
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
+	"default_boot=" \
+		"if test $baseboard = ask ; then " \
+			"bootmenu -1; " \
+		"else " \
+			"run base_boot;" \
+		"fi; \0" \
+	"base_boot=run findfdt; run finduuid; run distro_bootcmd\0" \
 	"kernel_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"pxefile_addr_r=" __stringify(CONFIG_LOADADDR) "\0" \
 	"ramdisk_addr_r=0x13000000\0" \

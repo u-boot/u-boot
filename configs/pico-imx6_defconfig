@@ -15,7 +15,7 @@ CONFIG_FIT=y
 CONFIG_SPL_FIT_PRINT=y
 CONFIG_SPL_LOAD_FIT=y
 CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=arch/arm/mach-imx/spl_sd.cfg"
-CONFIG_BOOTCOMMAND="run findbaseboard; run findfdt; run finduuid; run distro_bootcmd"
+CONFIG_BOOTCOMMAND="run default_boot"
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE=y
 CONFIG_DEFAULT_FDT_FILE="ask"
