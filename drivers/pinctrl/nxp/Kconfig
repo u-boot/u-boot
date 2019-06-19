@@ -89,6 +89,16 @@ config PINCTRL_IMX8M
 	  only parses the 'fsl,pins' property and configure related
 	  registers.
 
+config PINCTRL_MXS
+	bool "NXP MXS pinctrl driver"
+	depends on ARCH_MX28 && PINCTRL_FULL
+	help
+	  Say Y here to enable the i.MX mxs pinctrl driver
+
+	  This option provides a simple pinctrl driver for i.MX mxs SoC
+	  familiy, e.g. i.MX28. This feature depends on device tree
+	  configuration.
+
 config PINCTRL_VYBRID
 	bool "Vybrid (vf610) pinctrl driver"
 	depends on ARCH_VF610 && PINCTRL_FULL
