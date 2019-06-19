@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <zynqmp_tap_delay.h>
 #include <asm/arch/sys_proto.h>
 
 #define SD_DLL_CTRL			0xFF180358

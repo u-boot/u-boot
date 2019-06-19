@@ -7,6 +7,7 @@
 #include <common.h>
 #include <dm/uclass.h>
 #include <i2c.h>
+#include <mach/sys_proto.h>
 
 int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 {
