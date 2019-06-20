@@ -148,7 +148,7 @@ static const char *parse_attr(const char *str, u32 *attrp)
 }
 
 /**
- * efi_efi_get_variable() - retrieve value of a UEFI variable
+ * efi_get_variable() - retrieve value of a UEFI variable
  *
  * This function implements the GetVariable runtime service.
  *
@@ -404,7 +404,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 }
 
 /**
- * efi_efi_set_variable() - set value of a UEFI variable
+ * efi_set_variable() - set value of a UEFI variable
  *
  * This function implements the SetVariable runtime service.
  *
