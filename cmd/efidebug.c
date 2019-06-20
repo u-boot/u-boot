@@ -505,7 +505,8 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 	struct efi_load_option lo;
 	void *data = NULL;
 	efi_uintn_t size;
-	int ret;
+	efi_status_t ret;
+	int r;
 
 	if (argc < 6 || argc > 7)
 		return CMD_RET_USAGE;
@@ -538,7 +539,7 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 	if (ret != EFI_SUCCESS) {
 		printf("Cannot create device path for \"%s %s\"\n",
 		       argv[3], argv[4]);
-		ret = CMD_RET_FAILURE;
+		r = CMD_RET_FAILURE;
 		goto out;
 	}
 	lo.file_path = file_path;
@@ -553,7 +554,7 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 
 	size = efi_serialize_load_option(&lo, (u8 **)&data);
 	if (!size) {
-		ret = CMD_RET_FAILURE;
+		r = CMD_RET_FAILURE;
 		goto out;
 	}
 
@@ -562,14 +563,14 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, data));
-	ret = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
+	r = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
 out:
 	free(data);
 	efi_free_pool(device_path);
 	efi_free_pool(file_path);
 	free(lo.label);
 
-	return ret;
+	return r;
 }
 
 /**
@@ -896,6 +897,7 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
 	char *endp;
 	efi_guid_t guid;
 	efi_status_t ret;
+	int r;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -903,7 +905,7 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
 	bootnext = (u16)simple_strtoul(argv[1], &endp, 16);
 	if (*endp != '\0' || bootnext > 0xffff) {
 		printf("invalid value: %s\n", argv[1]);
-		ret = CMD_RET_FAILURE;
+		r = CMD_RET_FAILURE;
 		goto out;
 	}
 
@@ -914,9 +916,9 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, &bootnext));
-	ret = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
+	r = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
 out:
-	return ret;
+	return r;
 }
 
 /**
@@ -941,6 +943,7 @@ static int do_efi_boot_order(cmd_tbl_t *cmdtp, int flag,
 	char *endp;
 	efi_guid_t guid;
 	efi_status_t ret;
+	int r;
 
 	if (argc == 1)
 		return show_efi_boot_order();
@@ -957,7 +960,7 @@ static int do_efi_boot_order(cmd_tbl_t *cmdtp, int flag,
 		id = (int)simple_strtoul(argv[i], &endp, 16);
 		if (*endp != '\0' || id > 0xffff) {
 			printf("invalid value: %s\n", argv[i]);
-			ret = CMD_RET_FAILURE;
+			r = CMD_RET_FAILURE;
 			goto out;
 		}
 
@@ -970,11 +973,11 @@ static int do_efi_boot_order(cmd_tbl_t *cmdtp, int flag,
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, bootorder));
-	ret = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
+	r = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
 out:
 	free(bootorder);
 
-	return ret;
+	return r;
 }
 
 static cmd_tbl_t cmd_efidebug_boot_sub[] = {
