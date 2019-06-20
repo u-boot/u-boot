@@ -138,8 +138,8 @@ For example:
 	=> cd arm-trusted-firmware
 	=> make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
 
-	(copy bl31.bin into U-Boot root dir)
-	=> cp build/rk3399/release/bl31/bl31.bin /path/to/u-boot/bl31-rk3399.bin
+	(export bl31.bin)
+	=> export BL31=/path/to/arm-trusted-firmware/build/rk3399/release/bl31/bl31.bin
 
      For rest of rk3399 boards.
 
@@ -163,8 +163,8 @@ For example:
      (export cross compiler path for Cortex-M0 PMU)
      => make CROSS_COMPILE=arm-cortex_m0-eabi-
 
-     (copy rk3399m0.bin into U-Boot root dir)
-     => cp rk3399m0.bin /path/to/u-boot
+     (export rk3399m0.bin)
+     => export PMUM0=/path/to/rk3399-cortex-m0/rk3399m0.bin
 
    - Compile U-Boot
 
