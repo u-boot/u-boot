@@ -56,10 +56,6 @@
 	};
 };
 
-&usbotg_hs {
-	g-tx-fifo-size = <576>;
-};
-
 &v3v3 {
 	regulator-always-on;
 };
