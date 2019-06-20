@@ -47,7 +47,7 @@ void board_init_f(ulong dummy)
 	 * printhex8(0x1234);
 	 * printascii("string");
 	 */
-	printascii("U-Boot TPL board init\n");
+	debug("U-Boot TPL board init\n");
 #endif
 	ret = spl_early_init();
 	if (ret) {
