@@ -297,6 +297,7 @@ ARM STM STM32MP
 M:	Patrick Delaunay <patrick.delaunay@st.com>
 M:	Patrice Chotard <patrice.chotard@st.com>
 L:	uboot-stm32@st-md-mailman.stormreply.com (moderated for non-subscribers)
+T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-stm
 S:	Maintained
 F:	arch/arm/mach-stm32mp/
 F:	drivers/clk/clk_stm32mp1.c
