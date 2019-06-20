@@ -629,7 +629,6 @@ ap_i2c_audio: &i2c8 {
 
 &uart2 {
 	status = "okay";
-	u-boot,dm-pre-reloc;
 };
 
 &usb_host0_ohci {
