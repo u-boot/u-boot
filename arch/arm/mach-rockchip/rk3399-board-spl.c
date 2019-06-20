@@ -164,7 +164,7 @@ void board_init_f(ulong dummy)
 	 * printhex8(0x1234);
 	 * printascii("string");
 	 */
-	printascii("U-Boot SPL board init\n");
+	debug("U-Boot SPL board init\n");
 #endif
 
 	ret = spl_early_init();
