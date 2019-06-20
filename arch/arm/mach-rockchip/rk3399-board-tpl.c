@@ -8,6 +8,7 @@
 #include <dm.h>
 #include <ram.h>
 #include <spl.h>
+#include <version.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 
@@ -71,6 +72,12 @@ void board_return_to_bootrom(void)
 u32 spl_boot_device(void)
 {
 	return BOOT_DEVICE_BOOTROM;
+}
+
+void spl_board_init(void)
+{
+	puts("\nU-Boot TPL "  PLAIN_VERSION " (" U_BOOT_DATE " - "
+	     U_BOOT_TIME " " U_BOOT_TZ ")\n");
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
