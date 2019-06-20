@@ -420,29 +420,53 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 	}
 };
 
-static bool efi_runtime_tobedetached(void *p)
+/**
+ * efi_is_runtime_service_pointer() - check if pointer points to runtime table
+ *
+ * @p:		pointer to check
+ * Return:	true if the pointer points to a service function pointer in the
+ *		runtime table
+ */
+static bool efi_is_runtime_service_pointer(void *p)
 {
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(efi_runtime_detach_list); i++)
-		if (efi_runtime_detach_list[i].ptr == p)
-			return true;
-
-	return false;
+	return p >= (void *)&efi_runtime_services.get_time &&
+	       p <= (void *)&efi_runtime_services.query_variable_info;
 }
 
-static void efi_runtime_detach(ulong offset)
+static __efi_runtime void efi_runtime_detach(void)
 {
 	int i;
-	ulong patchoff = offset - (ulong)gd->relocaddr;
 
+	/*
+	 * Replace boottime functions by runtime functions
+	 * TODO: move this step to ExitBootServices()
+	 */
 	for (i = 0; i < ARRAY_SIZE(efi_runtime_detach_list); i++) {
 		ulong patchto = (ulong)efi_runtime_detach_list[i].patchto;
 		ulong *p = efi_runtime_detach_list[i].ptr;
-		ulong newaddr = patchto ? (patchto + patchoff) : 0;
 
-		debug("%s: Setting %p to %lx\n", __func__, p, newaddr);
-		*p = newaddr;
+		debug("%s: Setting %p to %lx\n", __func__, p, patchto);
+		*p = patchto;
+	}
+}
+
+static __efi_runtime void efi_relocate_runtime_table(ulong offset)
+{
+	ulong patchoff;
+	void **pos;
+
+	/* Relocate the runtime services pointers */
+	patchoff = offset - gd->relocaddr;
+	for (pos = (void **)&efi_runtime_services.get_time;
+	     pos <= (void **)&efi_runtime_services.query_variable_info; ++pos) {
+		/*
+		 * The UEFI spec requires not to update VirtualAddressMap()
+		 * and ConvertPointer().
+		 */
+		if (*pos && pos !=
+		    (void **)&efi_runtime_services.set_virtual_address_map &&
+		    pos != (void **)&efi_runtime_services.convert_pointer)
+			*pos += patchoff;
 	}
 
 	/* Update CRC32 */
@@ -467,6 +491,10 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 
 		p = (void*)((ulong)rel->offset - base) + gd->relocaddr;
 
+		/* The runtime services are updated in efi_runtime_detach() */
+		if (map && efi_is_runtime_service_pointer(p))
+			continue;
+
 		debug("%s: rel->info=%#lx *p=%#lx rel->offset=%p\n", __func__,
 		      rel->info, *p, rel->offset);
 
@@ -490,9 +518,8 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 		}
 #endif
 		default:
-			if (!efi_runtime_tobedetached(p))
-				printf("%s: Unknown relocation type %llx\n",
-				       __func__, rel->info & R_MASK);
+			printf("%s: Unknown relocation type %llx\n",
+			       __func__, rel->info & R_MASK);
 			continue;
 		}
 
@@ -500,9 +527,8 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
 		if (map && ((newaddr < map->virtual_start) ||
 		    newaddr > (map->virtual_start +
 			      (map->num_pages << EFI_PAGE_SHIFT)))) {
-			if (!efi_runtime_tobedetached(p))
-				printf("%s: Relocation at %p is out of "
-				       "range (%lx)\n", __func__, p, newaddr);
+			printf("%s: Relocation at %p is out of range (%lx)\n",
+			       __func__, p, newaddr);
 			continue;
 		}
 
@@ -607,7 +633,15 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 		}
 	}
 
-	/* Move the actual runtime code over */
+	/*
+	 * Some runtime services are implemented in a way that we can only offer
+	 * them at boottime. Replace those function pointers.
+	 *
+	 * TODO: move this call to ExitBootServices().
+	 */
+	efi_runtime_detach();
+
+	/* Relocate the runtime. See TODO above */
 	for (i = 0; i < n; i++) {
 		struct efi_mem_desc *map;
 
@@ -616,10 +650,8 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 			ulong new_offset = map->virtual_start -
 					   map->physical_start + gd->relocaddr;
 
+			efi_relocate_runtime_table(new_offset);
 			efi_runtime_relocate(new_offset, map);
-			/* Once we're virtual, we can no longer handle
-			   complex callbacks */
-			efi_runtime_detach(new_offset);
 			return EFI_EXIT(EFI_SUCCESS);
 		}
 	}
