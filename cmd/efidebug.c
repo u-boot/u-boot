@@ -506,7 +506,7 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 	void *data = NULL;
 	efi_uintn_t size;
 	efi_status_t ret;
-	int r;
+	int r = CMD_RET_SUCCESS;
 
 	if (argc < 6 || argc > 7)
 		return CMD_RET_USAGE;
@@ -563,7 +563,10 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, data));
-	r = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
+	if (ret != EFI_SUCCESS) {
+		printf("Cannot set %ls\n", var_name16);
+		r = CMD_RET_FAILURE;
+	}
 out:
 	free(data);
 	efi_free_pool(device_path);
@@ -610,7 +613,7 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
 
 		ret = EFI_CALL(RT->set_variable(var_name16, &guid, 0, 0, NULL));
 		if (ret) {
-			printf("cannot remove Boot%04X", id);
+			printf("Cannot remove Boot%04X", id);
 			return CMD_RET_FAILURE;
 		}
 	}
@@ -897,7 +900,7 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
 	char *endp;
 	efi_guid_t guid;
 	efi_status_t ret;
-	int r;
+	int r = CMD_RET_SUCCESS;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -916,7 +919,10 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, &bootnext));
-	r = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
+	if (ret != EFI_SUCCESS) {
+		printf("Cannot set BootNext\n");
+		r = CMD_RET_FAILURE;
+	}
 out:
 	return r;
 }
@@ -943,7 +949,7 @@ static int do_efi_boot_order(cmd_tbl_t *cmdtp, int flag,
 	char *endp;
 	efi_guid_t guid;
 	efi_status_t ret;
-	int r;
+	int r = CMD_RET_SUCCESS;
 
 	if (argc == 1)
 		return show_efi_boot_order();
@@ -973,7 +979,10 @@ static int do_efi_boot_order(cmd_tbl_t *cmdtp, int flag,
 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
 					EFI_VARIABLE_RUNTIME_ACCESS,
 					size, bootorder));
-	r = (ret == EFI_SUCCESS ? CMD_RET_SUCCESS : CMD_RET_FAILURE);
+	if (ret != EFI_SUCCESS) {
+		printf("Cannot set BootOrder\n");
+		r = CMD_RET_FAILURE;
+	}
 out:
 	free(bootorder);
 
