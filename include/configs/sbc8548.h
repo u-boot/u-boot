@@ -49,7 +49,6 @@
 #define CONFIG_SYS_PCI_64BIT    1	/* enable 64-bit PCI resources */
 #endif
 #ifdef CONFIG_PCIE1
-#define CONFIG_FSL_PCIE_RESET   1	/* need PCIe reset errata */
 #endif
 
 #define CONFIG_ENV_OVERWRITE
