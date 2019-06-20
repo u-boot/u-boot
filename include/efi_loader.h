@@ -325,6 +325,8 @@ extern struct list_head efi_register_notify_events;
 
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);
+/* Initialize variable services */
+efi_status_t efi_init_variables(void);
 /* Called by bootefi to initialize root node */
 efi_status_t efi_root_node_register(void);
 /* Called by bootefi to initialize runtime */

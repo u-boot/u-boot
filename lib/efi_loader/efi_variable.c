@@ -547,3 +547,13 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
 {
 	return EFI_UNSUPPORTED;
 }
+
+/**
+ * efi_init_variables() - initialize variable services
+ *
+ * Return:	status code
+ */
+efi_status_t efi_init_variables(void)
+{
+	return EFI_SUCCESS;
+}
