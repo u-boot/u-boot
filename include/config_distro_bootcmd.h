@@ -229,10 +229,23 @@
 #endif
 
 #ifdef CONFIG_IDE
-#define BOOTENV_SHARED_IDE	BOOTENV_SHARED_BLKDEV(ide)
+#define BOOTENV_RUN_IDE_INIT "run ide_init; "
+#define BOOTENV_SET_IDE_NEED_INIT "setenv ide_need_init; "
+#define BOOTENV_SHARED_IDE \
+	"ide_init=" \
+		"if ${ide_need_init}; then " \
+			"setenv ide_need_init false; " \
+			"ide reset; " \
+		"fi\0" \
+	\
+	"ide_boot=" \
+		BOOTENV_RUN_IDE_INIT \
+		BOOTENV_SHARED_BLKDEV_BODY(ide)
 #define BOOTENV_DEV_IDE		BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_IDE	BOOTENV_DEV_NAME_BLKDEV
 #else
+#define BOOTENV_RUN_IDE_INIT
+#define BOOTENV_SET_IDE_NEED_INIT
 #define BOOTENV_SHARED_IDE
 #define BOOTENV_DEV_IDE \
 	BOOT_TARGET_DEVICES_references_IDE_without_CONFIG_IDE
@@ -451,6 +464,7 @@
 	\
 	"distro_bootcmd=" BOOTENV_SET_SCSI_NEED_INIT                      \
 		BOOTENV_SET_NVME_NEED_INIT                                \
+		BOOTENV_SET_IDE_NEED_INIT                                 \
 		"for target in ${boot_targets}; do "                      \
 			"run bootcmd_${target}; "                         \
 		"done\0"
