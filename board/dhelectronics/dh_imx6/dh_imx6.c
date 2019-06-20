@@ -196,7 +196,6 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_USB_EHCI_MX6
 static void setup_usb(void)
 {
-	gpio_request(IMX_GPIO_NR(3, 31), "USB-VBUS");
 	/*
 	 * Set daisy chain for otg_pin_id on MX6Q.
 	 * For MX6DL, this bit is reserved.
@@ -210,22 +209,6 @@ int board_usb_phy_mode(int port)
 		return USB_INIT_HOST;
 	else
 		return USB_INIT_DEVICE;
-}
-
-int board_ehci_power(int port, int on)
-{
-	switch (port) {
-	case 0:
-		break;
-	case 1:
-		gpio_direction_output(IMX_GPIO_NR(3, 31), !!on);
-		break;
-	default:
-		printf("MXC USB port %d not yet supported\n", port);
-		return -EINVAL;
-	}
-
-	return 0;
 }
 #endif
 
