@@ -408,15 +408,6 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 	}, {
 		.ptr = &efi_runtime_services.set_time,
 		.patchto = &efi_set_time,
-	}, {
-		.ptr = &efi_runtime_services.get_variable,
-		.patchto = &efi_device_error,
-	}, {
-		.ptr = &efi_runtime_services.get_next_variable_name,
-		.patchto = &efi_device_error,
-	}, {
-		.ptr = &efi_runtime_services.set_variable,
-		.patchto = &efi_device_error,
 	}
 };
 

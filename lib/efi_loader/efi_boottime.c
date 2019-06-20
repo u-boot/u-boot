@@ -1968,7 +1968,8 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 	/* Make sure that notification functions are not called anymore */
 	efi_tpl = TPL_HIGH_LEVEL;
 
-	/* TODO: Should persist EFI variables here */
+	/* Notify variable services */
+	efi_variables_boot_exit_notify();
 
 	board_quiesce_devices();
 
