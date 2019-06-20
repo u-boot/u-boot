@@ -618,6 +618,11 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 				     const efi_guid_t *vendor, u32 attributes,
 				     efi_uintn_t data_size, const void *data);
 
+efi_status_t EFIAPI efi_query_variable_info(
+			u32 attributes, u64 *maximum_variable_storage_size,
+			u64 *remaining_variable_storage_size,
+			u64 *maximum_variable_size);
+
 /*
  * See section 3.1.3 in the v2.7 UEFI spec for more details on
  * the layout of EFI_LOAD_OPTION.  In short it is:

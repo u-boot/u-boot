@@ -520,3 +520,30 @@ out:
 
 	return EFI_EXIT(ret);
 }
+
+/**
+ * efi_query_variable_info() - get information about EFI variables
+ *
+ * This function implements the QueryVariableInfo() runtime service.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @attributes:				bitmask to select variables to be
+ *					queried
+ * @maximum_variable_storage_size:	maximum size of storage area for the
+ *					selected variable types
+ * @remaining_variable_storage_size:	remaining size of storage are for the
+ *					selected variable types
+ * @maximum_variable_size:		maximum size of a variable of the
+ *					selected type
+ * Returns:				status code
+ */
+efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
+			u32 attributes,
+			u64 *maximum_variable_storage_size,
+			u64 *remaining_variable_storage_size,
+			u64 *maximum_variable_size)
+{
+	return EFI_UNSUPPORTED;
+}
