@@ -6,7 +6,6 @@
 #include <common.h>
 #include <dm.h>
 #include <power/regulator.h>
-#include <spl.h>
 
 int board_init(void)
 {
@@ -17,11 +16,4 @@ int board_init(void)
 		debug("%s: Cannot enable boot on regulator\n", __func__);
 
 	return 0;
-}
-
-void spl_board_init(void)
-{
-	preloader_console_init();
-
-	return;
 }

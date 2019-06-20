@@ -8,7 +8,6 @@
 #include <dm/pinctrl.h>
 #include <asm/arch-rockchip/periph.h>
 #include <power/regulator.h>
-#include <spl.h>
 
 int board_init(void)
 {
@@ -63,11 +62,4 @@ int board_init(void)
 
 out:
 	return 0;
-}
-
-void spl_board_init(void)
-{
-	preloader_console_init();
-
-	return;
 }
