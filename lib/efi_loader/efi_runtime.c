@@ -26,8 +26,6 @@ struct efi_runtime_mmio_list {
 LIST_HEAD(efi_runtime_mmio);
 
 static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void);
-static efi_status_t __efi_runtime EFIAPI efi_device_error(void);
-static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void);
 
 /*
  * TODO(sjg@chromium.org): These defines and structures should come from the ELF
@@ -718,34 +716,6 @@ static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void)
 }
 
 /**
- * efi_device_error() - replacement function, returns EFI_DEVICE_ERROR
- *
- * This function is used after SetVirtualAddressMap() is called as replacement
- * for services that are not available anymore due to constraints of the U-Boot
- * implementation.
- *
- * Return:	EFI_DEVICE_ERROR
- */
-static efi_status_t __efi_runtime EFIAPI efi_device_error(void)
-{
-	return EFI_DEVICE_ERROR;
-}
-
-/**
- * efi_invalid_parameter() - replacement function, returns EFI_INVALID_PARAMETER
- *
- * This function is used after SetVirtualAddressMap() is called as replacement
- * for services that are not available anymore due to constraints of the U-Boot
- * implementation.
- *
- * Return:	EFI_INVALID_PARAMETER
- */
-static efi_status_t __efi_runtime EFIAPI efi_invalid_parameter(void)
-{
-	return EFI_INVALID_PARAMETER;
-}
-
-/**
  * efi_update_capsule() - process information from operating system
  *
  * This function implements the UpdateCapsule() runtime service.
@@ -800,11 +770,11 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
 	.get_wakeup_time = (void *)&efi_unimplemented,
 	.set_wakeup_time = (void *)&efi_unimplemented,
 	.set_virtual_address_map = &efi_set_virtual_address_map,
-	.convert_pointer = (void *)&efi_invalid_parameter,
+	.convert_pointer = (void *)&efi_unimplemented,
 	.get_variable = efi_get_variable,
 	.get_next_variable_name = efi_get_next_variable_name,
 	.set_variable = efi_set_variable,
-	.get_next_high_mono_count = (void *)&efi_device_error,
+	.get_next_high_mono_count = (void *)&efi_unimplemented,
 	.reset_system = &efi_reset_system_boottime,
 	.update_capsule = efi_update_capsule,
 	.query_capsule_caps = efi_query_capsule_caps,
