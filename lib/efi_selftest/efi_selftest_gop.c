@@ -80,6 +80,11 @@ static int execute(void)
 		}
 		efi_st_printf("Mode %u: %u x %u\n",
 			      i, info->width, info->height);
+		ret = boottime->free_pool(info);
+		if (ret != EFI_SUCCESS) {
+			efi_st_printf("FreePool failed");
+			return EFI_ST_FAILURE;
+		}
 	}
 
 	return EFI_ST_SUCCESS;

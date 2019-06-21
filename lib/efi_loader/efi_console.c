@@ -481,10 +481,8 @@ void set_shift_mask(int mod, struct efi_key_state *key_state)
 			key_state->key_shift_state |= EFI_LEFT_ALT_PRESSED;
 		if (mod & 4)
 			key_state->key_shift_state |= EFI_LEFT_CONTROL_PRESSED;
-		if (mod & 8)
+		if (!mod || (mod & 8))
 			key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
-	} else {
-		key_state->key_shift_state |= EFI_LEFT_LOGO_PRESSED;
 	}
 }
 
@@ -563,10 +561,13 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 		case cESC: /* ESC */
 			pressed_key.scan_code = 23;
 			break;
-		case 'O': /* F1 - F4 */
+		case 'O': /* F1 - F4, End */
 			ch = getc();
 			/* consider modifiers */
-			if (ch < 'P') {
+			if (ch == 'F') { /* End */
+				pressed_key.scan_code = 6;
+				break;
+			} else if (ch < 'P') {
 				set_shift_mask(ch - '0', &key->key_state);
 				ch = getc();
 			}
@@ -590,17 +591,20 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
 				case '1'...'5': /* F1 - F5 */
 					pressed_key.scan_code = ch - '1' + 11;
 					break;
-				case '7'...'9': /* F6 - F8 */
-					pressed_key.scan_code = ch - '7' + 16;
+				case '6'...'9': /* F5 - F8 */
+					pressed_key.scan_code = ch - '6' + 15;
 					break;
 				case 'A'...'D': /* up, down right, left */
 					pressed_key.scan_code = ch - 'A' + 1;
 					break;
-				case 'F':
-					pressed_key.scan_code = 6; /* End */
+				case 'F': /* End */
+					pressed_key.scan_code = 6;
 					break;
-				case 'H':
-					pressed_key.scan_code = 5; /* Home */
+				case 'H': /* Home */
+					pressed_key.scan_code = 5;
+					break;
+				case '~': /* Home */
+					pressed_key.scan_code = 5;
 					break;
 				}
 				break;

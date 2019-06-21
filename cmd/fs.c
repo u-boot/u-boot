@@ -8,7 +8,6 @@
 #include <common.h>
 #include <command.h>
 #include <fs.h>
-#include <efi_loader.h>
 
 static int do_size_wrapper(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -26,10 +25,6 @@ U_BOOT_CMD(
 static int do_load_wrapper(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[])
 {
-#ifdef CONFIG_CMD_BOOTEFI
-	efi_set_bootdev(argv[1], (argc > 2) ? argv[2] : "",
-			(argc > 4) ? argv[4] : "");
-#endif
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_ANY);
 }
 
