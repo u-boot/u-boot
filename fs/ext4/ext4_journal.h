@@ -17,6 +17,8 @@
 #ifndef __EXT4_JRNL__
 #define __EXT4_JRNL__
 
+#define EXT4_FEATURE_COMPAT_HAS_JOURNAL		0x0004
+
 #define EXT2_JOURNAL_INO		8	/* Journal inode */
 #define EXT2_JOURNAL_SUPERBLOCK	0	/* Journal  Superblock number */
 
