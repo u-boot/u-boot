@@ -136,7 +136,7 @@ static struct udevice *stm32_pinctrl_get_gpio_dev(struct udevice *dev,
 			 */
 			*idx = stm32_offset_to_index(gpio_bank->gpio_dev,
 						     selector - pin_count);
-			if (*idx < 0)
+			if (IS_ERR_VALUE(*idx))
 				return NULL;
 
 			return gpio_bank->gpio_dev;
@@ -215,7 +215,7 @@ static int stm32_pinctrl_get_pin_muxing(struct udevice *dev,
 
 #endif
 
-int stm32_pinctrl_probe(struct udevice *dev)
+static int stm32_pinctrl_probe(struct udevice *dev)
 {
 	struct stm32_pinctrl_priv *priv = dev_get_priv(dev);
 	int ret;
