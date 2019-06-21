@@ -26,7 +26,7 @@ int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed)
 	unsigned long ddr_clk;
 	struct clk clk;
 	int ret;
-	int idx;
+	unsigned int idx;
 
 	for (idx = 0; idx < ARRAY_SIZE(clkname); idx++) {
 		ret = clk_get_by_name(priv->dev, clkname[idx], &clk);
@@ -59,7 +59,8 @@ int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed)
 static __maybe_unused int stm32mp1_ddr_setup(struct udevice *dev)
 {
 	struct ddr_info *priv = dev_get_priv(dev);
-	int ret, idx;
+	int ret;
+	unsigned int idx;
 	struct clk axidcg;
 	struct stm32mp1_ddr_config config;
 
