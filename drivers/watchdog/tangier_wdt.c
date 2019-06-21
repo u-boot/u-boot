@@ -3,7 +3,9 @@
  * Copyright (c) 2017 Intel Corporation
  */
 #include <common.h>
-#include <watchdog.h>
+#include <dm.h>
+#include <wdt.h>
+#include <div64.h>
 #include <asm/scu.h>
 
 /* Hardware timeout in seconds */
@@ -17,12 +19,6 @@
  * the reboot will happen.
  */
 
-#ifndef CONFIG_WATCHDOG_TIMEOUT_MSECS
-#define WATCHDOG_HEARTBEAT 60000
-#else
-#define WATCHDOG_HEARTBEAT CONFIG_WATCHDOG_TIMEOUT_MSECS
-#endif
-
 enum {
 	SCU_WATCHDOG_START			= 0,
 	SCU_WATCHDOG_STOP			= 1,
@@ -30,39 +26,33 @@ enum {
 	SCU_WATCHDOG_SET_ACTION_ON_TIMEOUT	= 3,
 };
 
-void hw_watchdog_reset(void)
+static int tangier_wdt_reset(struct udevice *dev)
 {
-	static unsigned long last;
-	unsigned long now;
-
-	if (gd->timer)
-		now = timer_get_us();
-	else
-		now = rdtsc() / 1000;
-
-	/* Do not flood SCU */
-	if (last > now)
-		last = 0;
-
-	if (unlikely((now - last) > (WDT_PRETIMEOUT / 2) * 1000000)) {
-		last = now;
-		scu_ipc_simple_command(IPCMSG_WATCHDOG_TIMER, SCU_WATCHDOG_KEEPALIVE);
-	}
+	scu_ipc_simple_command(IPCMSG_WATCHDOG_TIMER, SCU_WATCHDOG_KEEPALIVE);
+	return 0;
 }
 
-int hw_watchdog_disable(void)
+static int tangier_wdt_stop(struct udevice *dev)
 {
 	return scu_ipc_simple_command(IPCMSG_WATCHDOG_TIMER, SCU_WATCHDOG_STOP);
 }
 
-void hw_watchdog_init(void)
+static int tangier_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
-	u32 timeout = WATCHDOG_HEARTBEAT / 1000;
+	u32 timeout_sec;
 	int in_size;
 	struct ipc_wd_start {
 		u32 pretimeout;
 		u32 timeout;
-	} ipc_wd_start = { timeout - WDT_PRETIMEOUT, timeout };
+	} ipc_wd_start;
+
+	/* Calculate timeout in seconds and restrict to min and max value */
+	do_div(timeout_ms, 1000);
+	timeout_sec = clamp_t(u32, timeout_ms, WDT_TIMEOUT_MIN, WDT_TIMEOUT_MAX);
+
+	/* Update values in the IPC request */
+	ipc_wd_start.pretimeout = timeout_sec - WDT_PRETIMEOUT;
+	ipc_wd_start.timeout = timeout_sec;
 
 	/*
 	 * SCU expects the input size for watchdog IPC
@@ -72,4 +62,31 @@ void hw_watchdog_init(void)
 
 	scu_ipc_command(IPCMSG_WATCHDOG_TIMER, SCU_WATCHDOG_START,
 			(u32 *)&ipc_wd_start, in_size, NULL, 0);
+
+	return 0;
 }
+
+static const struct wdt_ops tangier_wdt_ops = {
+	.reset = tangier_wdt_reset,
+	.start = tangier_wdt_start,
+	.stop = tangier_wdt_stop,
+};
+
+static const struct udevice_id tangier_wdt_ids[] = {
+	{ .compatible = "intel,tangier-wdt" },
+	{ /* sentinel */ }
+};
+
+static int tangier_wdt_probe(struct udevice *dev)
+{
+	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	return 0;
+}
+
+U_BOOT_DRIVER(wdt_tangier) = {
+	.name = "wdt_tangier",
+	.id = UCLASS_WDT,
+	.of_match = tangier_wdt_ids,
+	.ops = &tangier_wdt_ops,
+	.probe = tangier_wdt_probe,
+};

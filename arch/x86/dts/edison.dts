@@ -104,6 +104,10 @@
 		reg = <0xff009000 0x1000>;
 	};
 
+	watchdog: wdt@0 {
+		compatible = "intel,tangier-wdt";
+	};
+
 	reset {
 		compatible = "intel,reset-tangier";
 		u-boot,dm-pre-reloc;
