@@ -18,7 +18,7 @@
 #include <asm/gpio.h>
 #include <asm/spl.h>
 #include <fdt_support.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <ipu_pixfmt.h>
 #include <linux/errno.h>
@@ -150,7 +150,7 @@ static void setup_iomux_fec(void)
 	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 struct fsl_esdhc_cfg esdhc_cfg = {
 	MMC_SDHC1_BASE_ADDR,
 };

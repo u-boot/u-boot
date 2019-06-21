@@ -19,7 +19,7 @@
 #include <asm/gpio.h>
 #include <mmc.h>
 #include <i2c.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <nand.h>
 #include <miiphy.h>
 #include <netdev.h>

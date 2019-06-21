@@ -17,7 +17,7 @@ void cl_som_imx7_##pads_array##_set(void)				       \
 	imx_iomux_v3_setup_multiple_pads(pads_array, ARRAY_SIZE(pads_array));  \
 }
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 
 #define USDHC_PAD_CTRL		(PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
 				PAD_CTL_HYS | PAD_CTL_PUE | \
@@ -36,7 +36,7 @@ static iomux_v3_cfg_t const usdhc1_pads[] = {
 
 PADS_SET(usdhc1_pads)
 
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC_IMX */
 
 #define UART_PAD_CTRL		(PAD_CTL_DSE_3P3V_49OHM | \
 				PAD_CTL_PUS_PU100KOHM | PAD_CTL_HYS)
@@ -69,7 +69,7 @@ PADS_SET(espi1_pads)
 
 #ifndef CONFIG_SPL_BUILD
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 
 static iomux_v3_cfg_t const usdhc3_emmc_pads[] = {
 	MX7D_PAD_SD3_CLK__SD3_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -89,7 +89,7 @@ static iomux_v3_cfg_t const usdhc3_emmc_pads[] = {
 
 PADS_SET(usdhc3_emmc_pads)
 
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC_IMX */
 
 #ifdef CONFIG_FEC_MXC
 

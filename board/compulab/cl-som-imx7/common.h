@@ -9,19 +9,19 @@
 
 #define PADS_SET_PROT(pads_array) void cl_som_imx7_##pads_array##_set(void)
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 #define CL_SOM_IMX7_GPIO_USDHC1_CD	IMX_GPIO_NR(5, 0)
 PADS_SET_PROT(usdhc1_pads);
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC_IMX */
 PADS_SET_PROT(uart1_pads);
 #ifdef CONFIG_SPI
 PADS_SET_PROT(espi1_pads);
 #endif /* CONFIG_SPI */
 
 #ifndef CONFIG_SPL_BUILD
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 PADS_SET_PROT(usdhc3_emmc_pads);
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC_IMX */
 #ifdef CONFIG_FEC_MXC
 PADS_SET_PROT(phy1_rst_pads);
 PADS_SET_PROT(fec1_pads);

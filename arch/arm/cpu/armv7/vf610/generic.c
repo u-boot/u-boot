@@ -10,11 +10,11 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/mach-imx/sys_proto.h>
 #include <netdev.h>
-#ifdef CONFIG_FSL_ESDHC
-#include <fsl_esdhc.h>
+#ifdef CONFIG_FSL_ESDHC_IMX
+#include <fsl_esdhc_imx.h>
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 
@@ -345,7 +345,7 @@ int cpu_eth_init(bd_t *bis)
 	return rc;
 }
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 int cpu_mmc_init(bd_t *bis)
 {
 	return fsl_esdhc_mmc_init(bis);
@@ -354,7 +354,7 @@ int cpu_mmc_init(bd_t *bis)
 
 int get_clocks(void)
 {
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 #endif
 	return 0;

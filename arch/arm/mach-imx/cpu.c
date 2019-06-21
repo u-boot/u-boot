@@ -21,8 +21,8 @@
 #include <thermal.h>
 #include <sata.h>
 
-#ifdef CONFIG_FSL_ESDHC
-#include <fsl_esdhc.h>
+#ifdef CONFIG_FSL_ESDHC_IMX
+#include <fsl_esdhc_imx.h>
 #endif
 
 static u32 reset_cause = -1;
@@ -258,7 +258,7 @@ int cpu_eth_init(bd_t *bis)
 	return rc;
 }
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 /*
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()

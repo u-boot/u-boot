@@ -24,7 +24,7 @@
 #include <netdev.h>
 #include <i2c.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <asm/gpio.h>
 #include <power/pmic.h>
 #include <dialog_pmic.h>

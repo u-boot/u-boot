@@ -18,7 +18,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <errno.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <fuse.h>
 #include <i2c.h>
 #include <miiphy.h>
@@ -166,7 +166,7 @@ int board_phy_config(struct phy_device *phydev)
 }
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 
 #define USDHC2_CD_GPIO	IMX_GPIO_NR(1, 4)
 static struct fsl_esdhc_cfg usdhc_cfg[] = {
