@@ -570,7 +570,7 @@ restart_read:
 				g_parent_inode->size = cpu_to_le32(new_size);
 
 				new_blockcnt = le32_to_cpu(g_parent_inode->blockcnt);
-				new_blockcnt += fs->sect_perblk;
+				new_blockcnt += fs->blksz >> LOG2_SECTOR_SIZE;
 				g_parent_inode->blockcnt = cpu_to_le32(new_blockcnt);
 
 				if (ext4fs_put_metadata
