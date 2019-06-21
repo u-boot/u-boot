@@ -669,6 +669,7 @@ static int stm32_sdmmc2_probe(struct udevice *dev)
 	switch (dev_read_u32_default(dev, "bus-width", 1)) {
 	case 8:
 		cfg->host_caps |= MMC_MODE_8BIT;
+		/* fall through */
 	case 4:
 		cfg->host_caps |= MMC_MODE_4BIT;
 		break;
@@ -692,7 +693,7 @@ clk_free:
 	return ret;
 }
 
-int stm32_sdmmc_bind(struct udevice *dev)
+static int stm32_sdmmc_bind(struct udevice *dev)
 {
 	struct stm32_sdmmc2_plat *plat = dev_get_platdata(dev);
 
