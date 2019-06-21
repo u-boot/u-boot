@@ -47,7 +47,6 @@
 #undef CONFIG_CMD_CRC32
 #undef CONFIG_BOOTM_NETBSD
 
-#define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_USDHC
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
 #define USDHC1_BASE_ADDR                0x5B010000
