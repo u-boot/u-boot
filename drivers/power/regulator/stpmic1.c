@@ -422,6 +422,7 @@ static int stpmic1_ldo_set_mode(struct udevice *dev, int mode)
 	case STPMIC1_LDO_MODE_SINK_SOURCE:
 		ret &= ~STPMIC1_LDO12356_VOUT_MASK;
 		ret |= STPMIC1_LDO3_DDR_SEL << STPMIC1_LDO12356_VOUT_SHIFT;
+		/* fallthrough */
 	case STPMIC1_LDO_MODE_NORMAL:
 		ret &= ~STPMIC1_LDO3_MODE;
 		break;
