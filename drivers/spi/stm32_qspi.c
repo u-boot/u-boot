@@ -361,9 +361,9 @@ static int stm32_qspi_probe(struct udevice *bus)
 	}
 
 	priv->clock_rate = clk_get_rate(&clk);
-	if (priv->clock_rate < 0) {
+	if (!priv->clock_rate) {
 		clk_disable(&clk);
-		return priv->clock_rate;
+		return -EINVAL;
 	}
 
 	ret = reset_get_by_index(bus, 0, &reset_ctl);
@@ -395,14 +395,15 @@ static int stm32_qspi_claim_bus(struct udevice *dev)
 {
 	struct stm32_qspi_priv *priv = dev_get_priv(dev->parent);
 	struct dm_spi_slave_platdata *slave_plat = dev_get_parent_platdata(dev);
+	int slave_cs = slave_plat->cs;
 
-	if (slave_plat->cs >= STM32_QSPI_MAX_CHIP)
+	if (slave_cs >= STM32_QSPI_MAX_CHIP)
 		return -ENODEV;
 
-	if (priv->cs_used != slave_plat->cs) {
-		struct stm32_qspi_flash *flash = &priv->flash[slave_plat->cs];
+	if (priv->cs_used != slave_cs) {
+		struct stm32_qspi_flash *flash = &priv->flash[slave_cs];
 
-		priv->cs_used = slave_plat->cs;
+		priv->cs_used = slave_cs;
 
 		if (flash->initialized) {
 			/* Set the configuration: speed + cs */
@@ -444,11 +445,12 @@ static int stm32_qspi_set_speed(struct udevice *bus, uint speed)
 	int ret;
 
 	if (speed > 0) {
-		prescaler = DIV_ROUND_UP(qspi_clk, speed) - 1;
-		if (prescaler > 255)
-			prescaler = 255;
-		else if (prescaler < 0)
-			prescaler = 0;
+		prescaler = 0;
+		if (qspi_clk) {
+			prescaler = DIV_ROUND_UP(qspi_clk, speed) - 1;
+			if (prescaler > 255)
+				prescaler = 255;
+		}
 	}
 
 	csht = DIV_ROUND_UP((5 * qspi_clk) / (prescaler + 1), 100000000);
