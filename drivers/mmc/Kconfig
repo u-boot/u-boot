@@ -668,8 +668,14 @@ config TEGRA124_MMC_DISABLE_EXT_LOOPBACK
 config FSL_ESDHC
 	bool "Freescale/NXP eSDHC controller support"
 	help
-	  This selects support for the eSDHC (enhanced secure digital host
-	  controller) found on numerous Freescale/NXP SoCs.
+	  This selects support for the eSDHC (Enhanced Secure Digital Host
+	  Controller) found on numerous Freescale/NXP SoCs.
+
+config FSL_ESDHC_IMX
+	bool "Freescale/NXP i.MX eSDHC controller support"
+	help
+	  This selects support for the i.MX eSDHC (Enhanced Secure Digital Host
+	  Controller) found on numerous Freescale/NXP SoCs.
 
 endmenu
 
