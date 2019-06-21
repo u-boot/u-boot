@@ -1,5 +1,6 @@
 #include <common.h>
 #include <dm.h>
+#include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <hwspinlock.h>
 #include <asm/arch/gpio.h>
@@ -364,6 +365,35 @@ static int stm32_pinctrl_config(int offset)
 	return 0;
 }
 
+static int stm32_pinctrl_bind(struct udevice *dev)
+{
+	ofnode node;
+	const char *name;
+	int ret;
+
+	dev_for_each_subnode(node, dev) {
+		debug("%s: bind %s\n", __func__, ofnode_get_name(node));
+
+		ofnode_get_property(node, "gpio-controller", &ret);
+		if (ret < 0)
+			continue;
+		/* Get the name of each gpio node */
+		name = ofnode_get_name(node);
+		if (!name)
+			return -EINVAL;
+
+		/* Bind each gpio node */
+		ret = device_bind_driver_to_node(dev, "gpio_stm32",
+						 name, node, NULL);
+		if (ret)
+			return ret;
+
+		debug("%s: bind %s\n", __func__, name);
+	}
+
+	return 0;
+}
+
 #if CONFIG_IS_ENABLED(PINCTRL_FULL)
 static int stm32_pinctrl_set_state(struct udevice *dev, struct udevice *config)
 {
@@ -433,7 +463,7 @@ U_BOOT_DRIVER(pinctrl_stm32) = {
 	.id			= UCLASS_PINCTRL,
 	.of_match		= stm32_pinctrl_ids,
 	.ops			= &stm32_pinctrl_ops,
-	.bind			= dm_scan_fdt_dev,
+	.bind			= stm32_pinctrl_bind,
 	.probe			= stm32_pinctrl_probe,
 	.priv_auto_alloc_size	= sizeof(struct stm32_pinctrl_priv),
 };
