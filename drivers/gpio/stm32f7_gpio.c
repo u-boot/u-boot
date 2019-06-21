@@ -27,7 +27,7 @@
 int stm32_offset_to_index(struct udevice *dev, unsigned int offset)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
-	int idx = 0;
+	unsigned int idx = 0;
 	int i;
 
 	for (i = 0; i < STM32_GPIOS_PER_BANK; i++) {
