@@ -19,10 +19,6 @@
 /* needed for the mmc_cfg definition */
 #include <mmc.h>
 
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-#include "../board/freescale/common/qixis.h"
-#endif
-
 /* FSL eSDHC-specific constants */
 #define SYSCTL			0x0002e02c
 #define SYSCTL_INITA		0x08000000

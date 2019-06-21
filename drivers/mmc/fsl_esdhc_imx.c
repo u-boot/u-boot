@@ -265,8 +265,7 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 {
 	int timeout;
 	struct fsl_esdhc *regs = priv->esdhc_regs;
-#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234) || \
-	defined(CONFIG_IMX8) || defined(CONFIG_IMX8M)
+#if defined(CONFIG_S32V234) || defined(CONFIG_IMX8) || defined(CONFIG_IMX8M)
 	dma_addr_t addr;
 #endif
 	uint wml_value;
@@ -279,8 +278,7 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234) || \
-	defined(CONFIG_IMX8) || defined(CONFIG_IMX8M)
+#if defined(CONFIG_S32V234) || defined(CONFIG_IMX8) || defined(CONFIG_IMX8M)
 		addr = virt_to_phys((void *)(data->dest));
 		if (upper_32_bits(addr))
 			printf("Error found for upper 32 bits\n");
@@ -316,8 +314,7 @@ static int esdhc_setup_data(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
 					wml_value << 16);
 #ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
-#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234) || \
-	defined(CONFIG_IMX8) || defined(CONFIG_IMX8M)
+#if defined(CONFIG_S32V234) || defined(CONFIG_IMX8) || defined(CONFIG_IMX8M)
 		addr = virt_to_phys((void *)(data->src));
 		if (upper_32_bits(addr))
 			printf("Error found for upper 32 bits\n");
@@ -382,8 +379,7 @@ static void check_and_invalidate_dcache_range
 	unsigned end = 0;
 	unsigned size = roundup(ARCH_DMA_MINALIGN,
 				data->blocks*data->blocksize);
-#if defined(CONFIG_FSL_LAYERSCAPE) || defined(CONFIG_S32V234) || \
-	defined(CONFIG_IMX8) || defined(CONFIG_IMX8M)
+#if defined(CONFIG_S32V234) || defined(CONFIG_IMX8) || defined(CONFIG_IMX8M)
 	dma_addr_t addr;
 
 	addr = virt_to_phys((void *)(data->dest));
@@ -1368,45 +1364,6 @@ int fsl_esdhc_mmc_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-void mmc_adapter_card_type_ident(void)
-{
-	u8 card_id;
-	u8 value;
-
-	card_id = QIXIS_READ(present) & QIXIS_SDID_MASK;
-	gd->arch.sdhc_adapter = card_id;
-
-	switch (card_id) {
-	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC45:
-		value = QIXIS_READ(brdcfg[5]);
-		value |= (QIXIS_DAT4 | QIXIS_DAT5_6_7);
-		QIXIS_WRITE(brdcfg[5], value);
-		break;
-	case QIXIS_ESDHC_ADAPTER_TYPE_SDMMC_LEGACY:
-		value = QIXIS_READ(pwr_ctl[1]);
-		value |= QIXIS_EVDD_BY_SDHC_VS;
-		QIXIS_WRITE(pwr_ctl[1], value);
-		break;
-	case QIXIS_ESDHC_ADAPTER_TYPE_EMMC44:
-		value = QIXIS_READ(brdcfg[5]);
-		value |= (QIXIS_SDCLKIN | QIXIS_SDCLKOUT);
-		QIXIS_WRITE(brdcfg[5], value);
-		break;
-	case QIXIS_ESDHC_ADAPTER_TYPE_RSV:
-		break;
-	case QIXIS_ESDHC_ADAPTER_TYPE_MMC:
-		break;
-	case QIXIS_ESDHC_ADAPTER_TYPE_SD:
-		break;
-	case QIXIS_ESDHC_NO_ADAPTER:
-		break;
-	default:
-		break;
-	}
-}
-#endif
-
 #ifdef CONFIG_OF_LIBFDT
 __weak int esdhc_status_fixup(void *blob, const char *compat)
 {
@@ -1434,17 +1391,11 @@ void fdt_fixup_esdhc(void *blob, bd_t *bd)
 	do_fixup_by_compat_u32(blob, compat, "clock-frequency",
 			       gd->arch.sdhc_clk, 1);
 #endif
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-	do_fixup_by_compat_u32(blob, compat, "adapter-type",
-			       (u32)(gd->arch.sdhc_adapter), 1);
-#endif
 }
 #endif
 
 #if CONFIG_IS_ENABLED(DM_MMC)
-#ifndef CONFIG_PPC
 #include <asm/arch/clock.h>
-#endif
 __weak void init_clk_usdhc(u32 index)
 {
 }
@@ -1472,11 +1423,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	addr = dev_read_addr(dev);
 	if (addr == FDT_ADDR_T_NONE)
 		return -EINVAL;
-#ifdef CONFIG_PPC
-	priv->esdhc_regs = (struct fsl_esdhc *)lower_32_bits(addr);
-#else
 	priv->esdhc_regs = (struct fsl_esdhc *)addr;
-#endif
 	priv->dev = dev;
 	priv->mode = -1;
 	if (data) {
@@ -1583,11 +1530,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 		priv->sdhc_clk = clk_get_rate(&priv->per_clk);
 	} else {
-#ifndef CONFIG_PPC
 		priv->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK + dev->seq);
-#else
-		priv->sdhc_clk = gd->arch.sdhc_clk;
-#endif
 		if (priv->sdhc_clk <= 0) {
 			dev_err(dev, "Unable to get clk for %s\n", dev->name);
 			return -EINVAL;
