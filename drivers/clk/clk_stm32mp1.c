@@ -805,10 +805,11 @@ static int stm32mp1_clk_get_parent(struct stm32mp1_clk_priv *priv,
 	const struct stm32mp1_clk_sel *sel = priv->data->sel;
 	int i;
 	int s, p;
+	unsigned int idx;
 
-	for (i = 0; i < ARRAY_SIZE(stm32mp1_clks); i++)
-		if (stm32mp1_clks[i][0] == id)
-			return stm32mp1_clks[i][1];
+	for (idx = 0; idx < ARRAY_SIZE(stm32mp1_clks); idx++)
+		if (stm32mp1_clks[idx][0] == id)
+			return stm32mp1_clks[idx][1];
 
 	i = stm32mp1_clk_get_id(priv, id);
 	if (i < 0)
