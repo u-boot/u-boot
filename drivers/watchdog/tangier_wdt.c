@@ -10,7 +10,12 @@
 #define WDT_PRETIMEOUT		15
 #define WDT_TIMEOUT_MIN		(1 + WDT_PRETIMEOUT)
 #define WDT_TIMEOUT_MAX		170
-#define WDT_DEFAULT_TIMEOUT	90
+
+/*
+ * Note, firmware chooses 90 seconds as a default timeout for watchdog on
+ * Intel Tangier SoC. It means that without handling it in the running code
+ * the reboot will happen.
+ */
 
 #ifndef CONFIG_WATCHDOG_TIMEOUT_MSECS
 #define WATCHDOG_HEARTBEAT 60000
