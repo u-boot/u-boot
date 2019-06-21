@@ -1,9 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright (C) ARM Ltd 2015
  *
  * Author: Liviu Dudau <Liviu.Dudau@arm.com>
- *
- * SPDX-Licence-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
