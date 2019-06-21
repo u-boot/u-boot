@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <adc.h>
+#include <bootm.h>
 #include <config.h>
 #include <clk.h>
 #include <dm.h>
