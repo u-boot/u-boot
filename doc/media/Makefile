@@ -1,7 +1,7 @@
 # Rules to convert a .h file to inline RST documentation
 
-SRC_DIR=$(srctree)/Documentation/media
-PARSER = $(srctree)/Documentation/sphinx/parse-headers.pl
+SRC_DIR=$(srctree)/doc/media
+PARSER = $(srctree)/doc/sphinx/parse-headers.pl
 API = $(srctree)/include
 
 FILES = linker_lists.h.rst

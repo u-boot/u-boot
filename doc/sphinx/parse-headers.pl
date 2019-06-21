@@ -382,7 +382,7 @@ ioctl.
 The EXCEPTIONS_FILE contain two rules to allow ignoring a symbol or
 to replace the default references by a custom one.
 
-Please read Documentation/doc-guide/parse-headers.rst at the Kernel's
+Please read doc/doc-guide/parse-headers.rst at the Kernel's
 tree for more details.
 
 =head1 BUGS

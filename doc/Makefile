@@ -8,7 +8,7 @@ subdir-y :=
 SPHINXBUILD   = sphinx-build
 SPHINXOPTS    =
 SPHINXDIRS    = .
-_SPHINXDIRS   = $(patsubst $(srctree)/Documentation/%/conf.py,%,$(wildcard $(srctree)/Documentation/*/conf.py))
+_SPHINXDIRS   = $(patsubst $(srctree)/doc/%/conf.py,%,$(wildcard $(srctree)/doc/*/conf.py))
 SPHINX_CONF   = conf.py
 PAPER         =
 BUILDDIR      = $(obj)/output
@@ -49,10 +49,10 @@ loop_cmd = $(echo-cmd) $(cmd_$(1)) || exit;
 #    * cache folder relative to $(BUILDDIR)/.doctrees
 # $4 dest subfolder e.g. "man" for man pages at media/man
 # $5 reST source folder relative to $(srctree)/$(src),
-#    e.g. "media" for the linux-tv book-set at ./Documentation/media
+#    e.g. "media" for the linux-tv book-set at ./doc/media
 
 quiet_cmd_sphinx = SPHINX  $@ --> file://$(abspath $(BUILDDIR)/$3/$4)
-      cmd_sphinx = $(MAKE) BUILDDIR=$(abspath $(BUILDDIR)) $(build)=Documentation/media $2 && \
+      cmd_sphinx = $(MAKE) BUILDDIR=$(abspath $(BUILDDIR)) $(build)=doc/media $2 && \
 	PYTHONDONTWRITEBYTECODE=1 \
 	BUILDDIR=$(abspath $(BUILDDIR)) SPHINX_CONF=$(abspath $(srctree)/$(src)/$5/$(SPHINX_CONF)) \
 	$(SPHINXBUILD) \
@@ -102,7 +102,7 @@ refcheckdocs:
 
 cleandocs:
 	$(Q)rm -rf $(BUILDDIR)
-	$(Q)$(MAKE) BUILDDIR=$(abspath $(BUILDDIR)) $(build)=Documentation/media clean
+	$(Q)$(MAKE) BUILDDIR=$(abspath $(BUILDDIR)) $(build)=doc/media clean
 
 dochelp:
 	@echo  ' Linux kernel internal documentation in different formats from ReST:'
@@ -121,4 +121,4 @@ dochelp:
 	@echo  '  make SPHINX_CONF={conf-file} [target] use *additional* sphinx-build'
 	@echo  '  configuration. This is e.g. useful to build with nit-picking config.'
 	@echo
-	@echo  '  Default location for the generated documents is Documentation/output'
+	@echo  '  Default location for the generated documents is doc/output'

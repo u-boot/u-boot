@@ -54,7 +54,7 @@ from docutils.utils import SystemMessagePropagation
 # ==============================================================================
 
 # The version numbering follows numbering of the specification
-# (Documentation/books/kernel-doc-HOWTO).
+# (doc/books/kernel-doc-HOWTO).
 __version__  = '1.0'
 
 PY3 = sys.version_info[0] == 3

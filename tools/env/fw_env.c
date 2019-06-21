@@ -1317,7 +1317,7 @@ static int flash_io_write(int fd_current)
 			rc = -1;
 		}
 
-		if (target_temp) {
+		if (rc >= 0 && target_temp) {
 			int dir_fd;
 
 			dir_fd = open(dname, O_DIRECTORY | O_RDONLY);
