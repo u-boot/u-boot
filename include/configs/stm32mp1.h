@@ -95,6 +95,7 @@
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
+	func(UBIFS, ubifs, 0) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 2) \
 	func(PXE, pxe, na)
