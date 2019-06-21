@@ -11,38 +11,8 @@
 
 int board_init(void)
 {
-	struct udevice *pinctrl, *regulator;
+	struct udevice *regulator;
 	int ret;
-
-	/*
-	 * The PWM do not have decicated interrupt number in dts and can
-	 * not get periph_id by pinctrl framework, so let's init them here.
-	 * The PWM2 and PWM3 are for pwm regulater.
-	 */
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		debug("%s: Cannot find pinctrl device\n", __func__);
-		goto out;
-	}
-
-	/* Enable pwm0 for panel backlight */
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM0);
-	if (ret) {
-		debug("%s PWM0 pinctrl init fail! (ret=%d)\n", __func__, ret);
-		goto out;
-	}
-
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM2);
-	if (ret) {
-		debug("%s PWM2 pinctrl init fail!\n", __func__);
-		goto out;
-	}
-
-	ret = pinctrl_request_noflags(pinctrl, PERIPH_ID_PWM3);
-	if (ret) {
-		debug("%s PWM3 pinctrl init fail!\n", __func__);
-		goto out;
-	}
 
 	ret = regulators_enable_boot_on(false);
 	if (ret)
