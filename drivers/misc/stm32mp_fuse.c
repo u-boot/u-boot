@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <fuse.h>
 #include <misc.h>
 #include <errno.h>
 #include <dm/device.h>
