@@ -41,15 +41,6 @@ config OMAP_WATCHDOG
 	help
 	  Say Y here to enable the OMAP3+ watchdog driver.
 
-config TANGIER_WATCHDOG
-	bool "Intel Tangier watchdog"
-	depends on INTEL_MID
-	select HW_WATCHDOG
-	help
-	  This enables support for watchdog controller available on
-	  Intel Tangier SoC. If you're using a board with Intel Tangier
-	  SoC, say Y here.
-
 config ULP_WATCHDOG
 	bool "i.MX7ULP watchdog"
 	help
@@ -169,5 +160,13 @@ config XILINX_TB_WATCHDOG
 	help
 	   Select this to enable Xilinx Axi watchdog timer, which can be found on some
 	   Xilinx Microblaze Platforms.
+
+config WDT_TANGIER
+	bool "Intel Tangier watchdog timer support"
+	depends on WDT && INTEL_MID
+	help
+	  This enables support for watchdog controller available on
+	  Intel Tangier SoC. If you're using a board with Intel Tangier
+	  SoC, say Y here.
 
 endmenu
