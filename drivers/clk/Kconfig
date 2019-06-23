@@ -95,6 +95,14 @@ config CLK_HSDK
 	help
 	  Enable this to support the cgu clocks on Synopsys ARC HSDK
 
+config CLK_VERSAL
+	bool "Enable clock driver support for Versal"
+	depends on ARCH_VERSAL
+	select ZYNQMP_FIRMWARE
+	help
+	  This clock driver adds support for clock realted settings for
+	  Versal platform.
+
 config CLK_VEXPRESS_OSC
 	bool "Enable driver for Arm Versatile Express OSC clock generators"
 	depends on CLK && VEXPRESS_CONFIG
