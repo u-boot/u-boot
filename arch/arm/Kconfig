@@ -936,6 +936,7 @@ config ARCH_SUNXI
 	select SPL_STACK_R if SPL
 	select SPL_SYS_MALLOC_SIMPLE if SPL
 	select SPL_SYS_THUMB_BUILD if !ARM64
+	select SUNXI_GPIO
 	select SYS_NS16550
 	select SYS_THUMB_BUILD if !ARM64
 	select USB if DISTRO_DEFAULTS
