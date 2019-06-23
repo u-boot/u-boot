@@ -75,6 +75,7 @@ enum sun4i_usb_phy_type {
 	sun8i_h3_phy,
 	sun8i_v3s_phy,
 	sun50i_a64_phy,
+	sun50i_h6_phy,
 };
 
 struct sun4i_usb_phy_cfg {
@@ -85,6 +86,7 @@ struct sun4i_usb_phy_cfg {
 	bool dedicated_clocks;
 	bool enable_pmu_unk1;
 	bool phy0_dual_route;
+	int missing_phys;
 };
 
 struct sun4i_usb_phy_info {
@@ -349,6 +351,9 @@ static int sun4i_usb_phy_xlate(struct phy *phy,
 	if (args->args_count >= data->cfg->num_phys)
 		return -EINVAL;
 
+	if (data->cfg->missing_phys & BIT(args->args[0]))
+		return -ENODEV;
+
 	if (args->args_count)
 		phy->id = args->args[0];
 	else
@@ -428,6 +433,9 @@ static int sun4i_usb_phy_probe(struct udevice *dev)
 		struct sun4i_usb_phy_plat *phy = &plat[i];
 		struct sun4i_usb_phy_info *info = &phy_info[i];
 		char name[16];
+
+		if (data->cfg->missing_phys & BIT(i))
+			continue;
 
 		phy->gpio_vbus = sunxi_name_to_gpio(info->gpio_vbus);
 		if (phy->gpio_vbus >= 0) {
@@ -583,6 +591,17 @@ static const struct sun4i_usb_phy_cfg sun50i_a64_cfg = {
 	.phy0_dual_route = true,
 };
 
+static const struct sun4i_usb_phy_cfg sun50i_h6_cfg = {
+	.num_phys = 4,
+	.type = sun50i_h6_phy,
+	.disc_thresh = 3,
+	.phyctl_offset = REG_PHYCTL_A33,
+	.dedicated_clocks = true,
+	.enable_pmu_unk1 = true,
+	.phy0_dual_route = true,
+	.missing_phys = BIT(1) | BIT(2),
+};
+
 static const struct udevice_id sun4i_usb_phy_ids[] = {
 	{ .compatible = "allwinner,sun4i-a10-usb-phy", .data = (ulong)&sun4i_a10_cfg },
 	{ .compatible = "allwinner,sun5i-a13-usb-phy", .data = (ulong)&sun5i_a13_cfg },
@@ -594,6 +613,7 @@ static const struct udevice_id sun4i_usb_phy_ids[] = {
 	{ .compatible = "allwinner,sun8i-h3-usb-phy", .data = (ulong)&sun8i_h3_cfg },
 	{ .compatible = "allwinner,sun8i-v3s-usb-phy", .data = (ulong)&sun8i_v3s_cfg },
 	{ .compatible = "allwinner,sun50i-a64-usb-phy", .data = (ulong)&sun50i_a64_cfg},
+	{ .compatible = "allwinner,sun50i-h6-usb-phy", .data = (ulong)&sun50i_h6_cfg},
 	{ }
 };
 
