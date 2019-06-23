@@ -300,6 +300,7 @@ config MACH_SUN50I_H6
 	select ARM64
 	select SUPPORT_SPL
 	select FIT
+	select PHY_SUN4I_USB
 	select SPL_LOAD_FIT
 	select DRAM_SUN50I_H6
 
