@@ -353,10 +353,6 @@ int board_init(void)
 		 DAVINCI_SYSCFG_SUSPSRC_UART2),
 	       &davinci_syscfg_regs->suspsrc);
 
-	/* configure pinmux settings */
-	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
-		return 1;
-
 #ifdef CONFIG_USE_NOR
 	/* Set the GPIO direction as output */
 	clrbits_le32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
