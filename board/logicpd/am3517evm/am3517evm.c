@@ -113,7 +113,6 @@ static void am3517_evm_musb_init(void)
  */
 int misc_init_r(void)
 {
-	volatile unsigned int ctr;
 	u32 reset;
 
 #if !defined(CONFIG_DM_I2C)
@@ -125,35 +124,10 @@ int misc_init_r(void)
 
 	am3517_evm_musb_init();
 
-	if (gpio_request(PHY_GPIO, "gpio_30") == 0) {
-		/* activate PHY reset */
-		gpio_direction_output(PHY_GPIO, 0);
-		gpio_set_value(PHY_GPIO, 0);
-
-		ctr  = 0;
-		do {
-			udelay(1000);
-			ctr++;
-		} while (ctr < 300);
-
-		/* deactivate PHY reset */
-		gpio_set_value(PHY_GPIO, 1);
-
-		/* allow the PHY to stabilize and settle down */
-		ctr = 0;
-		do {
-			udelay(1000);
-			ctr++;
-		} while (ctr < 300);
-
-		/* ensure that the module is out of reset */
-		reset = readl(AM3517_IP_SW_RESET);
-		reset &= (~CPGMACSS_SW_RST);
-		writel(reset, AM3517_IP_SW_RESET);
-
-		/* Free requested GPIO */
-		gpio_free(PHY_GPIO);
-	}
+	/* ensure that the Ethernet module is out of reset */
+	reset = readl(AM3517_IP_SW_RESET);
+	reset &= (~CPGMACSS_SW_RST);
+	writel(reset, AM3517_IP_SW_RESET);
 
 	return 0;
 }
