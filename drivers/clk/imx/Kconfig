@@ -1,3 +1,19 @@
+config SPL_CLK_IMX6Q
+	bool "SPL clock support for i.MX6Q"
+	depends on ARCH_MX6 && SPL
+	select SPL_CLK
+	select SPL_CLK_CCF
+	help
+	  This enables SPL DM/DTS support for clock driver in i.MX6Q platforms.
+
+config CLK_IMX6Q
+	bool "Clock support for i.MX6Q"
+	depends on ARCH_MX6
+	select CLK
+	select CLK_CCF
+	help
+	  This enables DM/DTS support for clock driver in i.MX6Q platforms.
+
 config CLK_IMX8
 	bool "Clock support for i.MX8"
 	depends on ARCH_IMX8
