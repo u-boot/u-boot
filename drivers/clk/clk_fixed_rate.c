@@ -15,9 +15,6 @@ struct clk_fixed_rate {
 
 static ulong clk_fixed_rate_get_rate(struct clk *clk)
 {
-	if (clk->id != 0)
-		return -EINVAL;
-
 	return to_clk_fixed_rate(clk->dev)->fixed_rate;
 }
 
