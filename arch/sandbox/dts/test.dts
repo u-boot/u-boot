@@ -232,6 +232,10 @@
 		clock-names = "fixed", "i2c", "spi";
 	};
 
+	ccf: clk-ccf {
+		compatible = "sandbox,clk-ccf";
+	};
+
 	eth@10002000 {
 		compatible = "sandbox,eth";
 		reg = <0x10002000 0x1000>;
