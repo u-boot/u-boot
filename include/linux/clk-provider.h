@@ -59,6 +59,10 @@ struct clk_mux {
 	 */
 	const char	* const *parent_names;
 	u8		num_parents;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	u32             io_mux_val;
+#endif
+
 };
 
 #define to_clk_mux(_clk) container_of(_clk, struct clk_mux, clk)

@@ -64,7 +64,12 @@ static u8 clk_mux_get_parent(struct clk *clk)
 	struct clk_mux *mux = to_clk_mux(clk);
 	u32 val;
 
-	val = readl(mux->reg) >> mux->shift;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	val = mux->io_mux_val;
+#else
+	val = readl(mux->reg);
+#endif
+	val >>= mux->shift;
 	val &= mux->mask;
 
 	return clk_mux_val_to_index(clk, mux->table, mux->flags, val);
@@ -108,6 +113,9 @@ struct clk *clk_hw_register_mux_table(struct device *dev, const char *name,
 	mux->mask = mask;
 	mux->flags = clk_mux_flags;
 	mux->table = table;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	mux->io_mux_val = *(u32 *)reg;
+#endif
 
 	clk = &mux->clk;
 
