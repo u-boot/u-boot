@@ -40,6 +40,7 @@ struct udevice;
  * other clock APIs to identify which clock signal to operate upon.
  *
  * @dev: The device which implements the clock signal.
+ * @rate: The clock rate (in HZ).
  * @id: The clock signal ID within the provider.
  * @data: An optional data field for scenarios where a single integer ID is not
  *	  sufficient. If used, it can be populated through an .of_xlate op and
@@ -55,6 +56,7 @@ struct udevice;
  */
 struct clk {
 	struct udevice *dev;
+	long long rate;	/* in HZ */
 	/*
 	 * Written by of_xlate. In the future, we might add more fields here.
 	 */
