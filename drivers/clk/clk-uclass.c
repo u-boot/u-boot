@@ -13,6 +13,7 @@
 #include <dm/read.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <linux/clk-provider.h>
 
 static inline const struct clk_ops *clk_dev_ops(struct udevice *dev)
 {
@@ -377,6 +378,21 @@ ulong clk_get_rate(struct clk *clk)
 		return -ENOSYS;
 
 	return ops->get_rate(clk);
+}
+
+struct clk *clk_get_parent(struct clk *clk)
+{
+	struct udevice *pdev;
+	struct clk *pclk;
+
+	debug("%s(clk=%p)\n", __func__, clk);
+
+	pdev = dev_get_parent(clk->dev);
+	pclk = dev_get_clk_ptr(pdev);
+	if (!pclk)
+		return ERR_PTR(-ENODEV);
+
+	return pclk;
 }
 
 ulong clk_set_rate(struct clk *clk, ulong rate)
