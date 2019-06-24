@@ -444,6 +444,13 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-cfi-flash.git
 F:	drivers/mtd/cfi_flash.c
 F:	drivers/mtd/jedec_flash.c
 
+CLOCK
+M:	Lukasz Majewski <lukma@denx.de>
+S:	Maintained
+T:	git git://git.denx.de/u-boot-dfu.git
+F:	drivers/clk/
+F:	drivers/clk/imx/
+
 COLDFIRE
 M:	Huan Wang <alison.wang@nxp.com>
 M:	Angelo Dureghello <angelo@sysam.it>
