@@ -491,6 +491,28 @@ int clk_disable_bulk(struct clk_bulk *bulk)
 	return 0;
 }
 
+int clk_get_by_id(ulong id, struct clk **clkp)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_CLK, &uc);
+	if (ret)
+		return ret;
+
+	uclass_foreach_dev(dev, uc) {
+		struct clk *clk = dev_get_clk_ptr(dev);
+
+		if (clk && clk->id == id) {
+			*clkp = clk;
+			return 0;
+		}
+	}
+
+	return -ENOENT;
+}
+
 UCLASS_DRIVER(clk) = {
 	.id		= UCLASS_CLK,
 	.name		= "clk",
