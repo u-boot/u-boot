@@ -8,6 +8,7 @@
 #include <dm.h>
 
 struct clk_fixed_rate {
+	struct clk clk;
 	unsigned long fixed_rate;
 };
 
@@ -24,10 +25,14 @@ const struct clk_ops clk_fixed_rate_ops = {
 
 static int clk_fixed_rate_ofdata_to_platdata(struct udevice *dev)
 {
+	struct clk *clk = &to_clk_fixed_rate(dev)->clk;
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
 	to_clk_fixed_rate(dev)->fixed_rate =
 		dev_read_u32_default(dev, "clock-frequency", 0);
 #endif
+	/* Make fixed rate clock accessible from higher level struct clk */
+	dev->uclass_priv = clk;
+	clk->dev = dev;
 
 	return 0;
 }
