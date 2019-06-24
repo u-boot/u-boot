@@ -211,6 +211,12 @@
 			clock-mult = <2>;
 			clocks = <&clk_fixed>;
 		};
+
+		osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <20000000>;
+		};
 	};
 
 	clk_sandbox: clk-sbox {
