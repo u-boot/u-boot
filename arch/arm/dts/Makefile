@@ -216,6 +216,8 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA-ospi.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-02-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-03-revA.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-04-revA.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-04-revA-ospi.dtb \
 	versal-vc-d-d1760-01-revA.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb

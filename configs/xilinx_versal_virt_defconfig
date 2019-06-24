@@ -46,7 +46,7 @@ CONFIG_EFI_PARTITION=y
 # CONFIG_PARTITION_UUIDS is not set
 CONFIG_OF_BOARD=y
 CONFIG_DEFAULT_DEVICE_TREE="versal-vc-p-a2197-00-revA-x-prc-01-revA"
-CONFIG_OF_LIST="versal-vc-p-a2197-00-revA-x-prc-01-revA versal-vc-p-a2197-00-revA-x-prc-01-revA-ospi versal-vc-p-a2197-00-revA-x-prc-02-revA versal-vc-p-a2197-00-revA-x-prc-03-revA versal-vc-d-d1760-01-revA "
+CONFIG_OF_LIST="versal-vc-p-a2197-00-revA-x-prc-01-revA versal-vc-p-a2197-00-revA-x-prc-01-revA-ospi versal-vc-p-a2197-00-revA-x-prc-02-revA versal-vc-p-a2197-00-revA-x-prc-03-revA versal-vc-p-a2197-00-revA-x-prc-04-revA versal-vc-p-a2197-00-revA-x-prc-04-revA-ospi versal-vc-d-d1760-01-revA"
 CONFIG_MULTI_DTB_FIT=y
 CONFIG_NET_RANDOM_ETHADDR=y
 CONFIG_SPL_DM_SEQ_ALIAS=y
