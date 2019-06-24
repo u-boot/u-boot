@@ -92,9 +92,18 @@ config DM_REGULATOR_FAN53555
 	  or switching the mode is not supported by this driver (at
 	  this time).
 
+config DM_REGULATOR_COMMON
+	bool
+	depends on DM_REGULATOR
+
+config SPL_DM_REGULATOR_COMMON
+	bool
+	depends on DM_REGULATOR
+
 config DM_REGULATOR_FIXED
 	bool "Enable Driver Model for REGULATOR Fixed value"
 	depends on DM_REGULATOR
+	select DM_REGULATOR_COMMON
 	---help---
 	This config enables implementation of driver-model regulator uclass
 	features for fixed value regulators. The driver implements get/set api
@@ -103,6 +112,7 @@ config DM_REGULATOR_FIXED
 config SPL_DM_REGULATOR_FIXED
 	bool "Enable Driver Model for REGULATOR Fixed value in SPL"
 	depends on DM_REGULATOR_FIXED
+	select SPL_DM_REGULATOR_COMMON
 	---help---
 	This config enables implementation of driver-model regulator uclass
 	features for fixed value regulators in SPL.
