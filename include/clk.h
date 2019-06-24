@@ -20,7 +20,7 @@
  * clock provider. This API provides a standard means for drivers to enable and
  * disable clocks, and to set the rate at which they oscillate.
  *
- * A driver that implements UCLASS_CLOCK is a clock provider. A provider will
+ * A driver that implements UCLASS_CLK is a clock provider. A provider will
  * often implement multiple separate clocks, since the hardware it manages
  * often has this capability. clk-uclass.h describes the interface which
  * clock providers must implement.
