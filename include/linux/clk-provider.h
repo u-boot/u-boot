@@ -75,6 +75,9 @@ struct clk_divider {
 	u8		width;
 	u8		flags;
 	const struct clk_div_table	*table;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	u32             io_divider_val;
+#endif
 };
 
 #define clk_div_mask(width)	((1 << (width)) - 1)

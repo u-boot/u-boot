@@ -74,7 +74,12 @@ static ulong clk_divider_recalc_rate(struct clk *clk)
 	unsigned long parent_rate = clk_get_parent_rate(clk);
 	unsigned int val;
 
-	val = readl(divider->reg) >> divider->shift;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	val = divider->io_divider_val;
+#else
+	val = readl(divider->reg);
+#endif
+	val >>= divider->shift;
 	val &= clk_div_mask(divider->width);
 
 	return divider_recalc_rate(clk, parent_rate, val, divider->table,
@@ -112,6 +117,9 @@ static struct clk *_register_divider(struct device *dev, const char *name,
 	div->width = width;
 	div->flags = clk_divider_flags;
 	div->table = table;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	div->io_divider_val = *(u32 *)reg;
+#endif
 
 	/* register the clock */
 	clk = &div->clk;
