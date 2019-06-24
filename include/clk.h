@@ -41,6 +41,9 @@ struct udevice;
  *
  * @dev: The device which implements the clock signal.
  * @rate: The clock rate (in HZ).
+ * @flags: Flags used across common clock structure (e.g. CLK_)
+ *         Clock IP blocks specific flags (i.e. mux, div, gate, etc) are defined
+ *         in struct's for those devices (e.g. struct clk_mux).
  * @id: The clock signal ID within the provider.
  * @data: An optional data field for scenarios where a single integer ID is not
  *	  sufficient. If used, it can be populated through an .of_xlate op and
@@ -57,6 +60,7 @@ struct udevice;
 struct clk {
 	struct udevice *dev;
 	long long rate;	/* in HZ */
+	u32 flags;
 	/*
 	 * Written by of_xlate. In the future, we might add more fields here.
 	 */
