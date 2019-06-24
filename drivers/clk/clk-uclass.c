@@ -395,6 +395,28 @@ struct clk *clk_get_parent(struct clk *clk)
 	return pclk;
 }
 
+long long clk_get_parent_rate(struct clk *clk)
+{
+	const struct clk_ops *ops;
+	struct clk *pclk;
+
+	debug("%s(clk=%p)\n", __func__, clk);
+
+	pclk = clk_get_parent(clk);
+	if (IS_ERR(pclk))
+		return -ENODEV;
+
+	ops = clk_dev_ops(pclk->dev);
+	if (!ops->get_rate)
+		return -ENOSYS;
+
+	/* Read the 'rate' if not already set */
+	if (!pclk->rate)
+		pclk->rate = clk_get_rate(pclk);
+
+	return pclk->rate;
+}
+
 ulong clk_set_rate(struct clk *clk, ulong rate)
 {
 	const struct clk_ops *ops = clk_dev_ops(clk->dev);

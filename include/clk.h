@@ -268,6 +268,15 @@ ulong clk_get_rate(struct clk *clk);
 struct clk *clk_get_parent(struct clk *clk);
 
 /**
+ * clk_get_parent_rate() - Get parent of current clock rate.
+ *
+ * @clk:	A clock struct that was previously successfully requested by
+ *		clk_request/get_by_*().
+ * @return clock rate in Hz, or -ve error code.
+ */
+long long clk_get_parent_rate(struct clk *clk);
+
+/**
  * clk_set_rate() - Set current clock rate.
  *
  * @clk:	A clock struct that was previously successfully requested by
