@@ -35,8 +35,7 @@
 #include <linux/err.h>
 #include <linux/log2.h>
 #include <linux/math64.h>
-
-#include "analogbits-wrpll-cln28hpc.h"
+#include <linux/clk/analogbits-wrpll-cln28hpc.h>
 
 /* MIN_INPUT_FREQ: minimum input clock frequency, in Hz (Fref_min) */
 #define MIN_INPUT_FREQ			7000000

@@ -8,6 +8,7 @@ obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_rate.o
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_factor.o
 
+obj-y += analogbits/
 obj-y += imx/
 obj-y += tegra/
 obj-$(CONFIG_ARCH_ASPEED) += aspeed/
