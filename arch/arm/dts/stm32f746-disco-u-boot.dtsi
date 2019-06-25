@@ -78,10 +78,6 @@
 	};
 };
 
-&clk_hse {
-	u-boot,dm-pre-reloc;
-};
-
 &fmc {
 	/* Memory configuration from sdram datasheet MT48LC_4M32_B2B5-6A */
 	bank1: bank@0 {
@@ -123,9 +119,7 @@
 	};
 
 	fmc_pins: fmc@0 {
-		u-boot,dm-pre-reloc;
 		pins {
-			u-boot,dm-pre-reloc;
 			pinmux = <STM32_PINMUX('D',10, AF12)>, /* D15 */
 				 <STM32_PINMUX('D', 9, AF12)>, /* D14 */
 				 <STM32_PINMUX('D', 8, AF12)>, /* D13 */
