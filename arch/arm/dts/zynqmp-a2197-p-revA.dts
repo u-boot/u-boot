@@ -11,6 +11,7 @@
 #include "zynqmp.dtsi"
 #include "zynqmp-clk-ccf.dtsi"
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/phy/phy.h>
 
 / {
 	model = "Versal System Controller on a2197 Processor Char board RevA"; /* Tenzing */
@@ -78,6 +79,10 @@ usb - type C - pl
 	no-1-8-v;
 	disable-wp;
 	xlnx,mio_bank = <1>;
+};
+
+&serdes {
+	status = "okay";
 };
 
 /* TODO
@@ -561,6 +566,8 @@ marwell m88e1512 - SGMII */
 	snps,dis_u2_susphy_quirk;
 	snps,dis_u3_susphy_quirk;
 	maximum-speed = "super-speed";
+	phy-names = "usb3-phy";
+	phys = <&lane1 PHY_TYPE_USB3 0 1 26000000>;
 };
 
 &usb1 {
