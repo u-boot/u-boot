@@ -152,6 +152,16 @@
 			slew-rate = <2>;
 		};
 	};
+
+	usart1_pins_a: usart1@0	{
+		u-boot,dm-pre-reloc;
+		pins1 {
+			u-boot,dm-pre-reloc;
+		};
+		pins2 {
+			u-boot,dm-pre-reloc;
+		};
+	};
 };
 
 &qspi {
