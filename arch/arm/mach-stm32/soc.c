@@ -18,7 +18,7 @@ int arch_cpu_init(void)
 		 */
 #if defined(CONFIG_STM32F4)
 		{ 0x00000000, REGION_0, XN_DIS, PRIV_RW_USR_RW,
-		O_I_WB_RD_WR_ALLOC, REGION_16MB },
+		O_I_WB_RD_WR_ALLOC, REGION_512MB },
 #endif
 
 		{ 0x90000000, REGION_1, XN_DIS, PRIV_RW_USR_RW,
