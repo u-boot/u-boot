@@ -84,15 +84,10 @@
 		reg = <0xff3fc000 0x1000>;
 	};
 
-/*
- * FIXME: For now U-Boot DM model doesn't allow to power up this controller.
- * Enabling it will make U-Boot hang.
- *
 	sdcard: mmc@ff3fa000 {
 		compatible = "intel,sdhci-tangier";
 		reg = <0xff3fa000 0x1000>;
 	};
- */
 
 	pmu: power@ff00b000 {
 		compatible = "intel,pmu-mid";
