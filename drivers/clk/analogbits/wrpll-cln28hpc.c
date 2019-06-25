@@ -1,19 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Copyright (c) 2019 Western Digital Corporation or its affiliates.
- *
- * Copyright (C) 2018 SiFive, Inc.
+ * Copyright (C) 2018-2019 SiFive, Inc.
  * Wesley Terpstra
  * Paul Walmsley
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
  *
  * This library supports configuration parsing and reprogramming of
  * the CLN28HPC variant of the Analog Bits Wide Range PLL.  The
@@ -29,6 +18,7 @@
  * References:
  * - Analog Bits "Wide Range PLL Datasheet", version 2015.10.01
  * - SiFive FU540-C000 Manual v1p0, Chapter 7 "Clocking and Reset"
+ *   https://static.dev.sifive.com/FU540-C000-v1.0.pdf
  */
 
 #include <linux/bug.h>
@@ -84,40 +74,38 @@
  * range selection.
  *
  * Return: The RANGE value to be presented to the PLL configuration inputs,
- *         or -1 upon error.
+ *         or a negative return code upon error.
  */
 static int __wrpll_calc_filter_range(unsigned long post_divr_freq)
 {
-	u8 range;
-
 	if (post_divr_freq < MIN_POST_DIVR_FREQ ||
 	    post_divr_freq > MAX_POST_DIVR_FREQ) {
 		WARN(1, "%s: post-divider reference freq out of range: %lu",
 		     __func__, post_divr_freq);
-		return -1;
+		return -ERANGE;
 	}
 
-	if (post_divr_freq < 11000000)
-		range = 1;
-	else if (post_divr_freq < 18000000)
-		range = 2;
-	else if (post_divr_freq < 30000000)
-		range = 3;
-	else if (post_divr_freq < 50000000)
-		range = 4;
-	else if (post_divr_freq < 80000000)
-		range = 5;
-	else if (post_divr_freq < 130000000)
-		range = 6;
-	else
-		range = 7;
+	switch (post_divr_freq) {
+	case 0 ... 10999999:
+		return 1;
+	case 11000000 ... 17999999:
+		return 2;
+	case 18000000 ... 29999999:
+		return 3;
+	case 30000000 ... 49999999:
+		return 4;
+	case 50000000 ... 79999999:
+		return 5;
+	case 80000000 ... 129999999:
+		return 6;
+	}
 
-	return range;
+	return 7;
 }
 
 /**
  * __wrpll_calc_fbdiv() - return feedback fixed divide value
- * @c: ptr to a struct analogbits_wrpll_cfg record to read from
+ * @c: ptr to a struct wrpll_cfg record to read from
  *
  * The internal feedback path includes a fixed by-two divider; the
  * external feedback path does not.  Return the appropriate divider
@@ -132,7 +120,7 @@ static int __wrpll_calc_filter_range(unsigned long post_divr_freq)
  * Return: 2 if internal feedback is enabled or 1 if external feedback
  *         is enabled.
  */
-static u8 __wrpll_calc_fbdiv(struct analogbits_wrpll_cfg *c)
+static u8 __wrpll_calc_fbdiv(const struct wrpll_cfg *c)
 {
 	return (c->flags & WRPLL_FLAGS_INT_FEEDBACK_MASK) ? 2 : 1;
 }
@@ -172,7 +160,7 @@ static u8 __wrpll_calc_divq(u32 target_rate, u64 *vco_rate)
 		*vco_rate = MIN_VCO_FREQ;
 	} else {
 		divq = ilog2(s);
-		*vco_rate = target_rate << divq;
+		*vco_rate = (u64)target_rate << divq;
 	}
 
 wcd_out:
@@ -181,7 +169,7 @@ wcd_out:
 
 /**
  * __wrpll_update_parent_rate() - update PLL data when parent rate changes
- * @c: ptr to a struct analogbits_wrpll_cfg record to write PLL data to
+ * @c: ptr to a struct wrpll_cfg record to write PLL data to
  * @parent_rate: PLL input refclk rate (pre-R-divider)
  *
  * Pre-compute some data used by the PLL configuration algorithm when
@@ -189,46 +177,40 @@ wcd_out:
  * computation when the parent rate remains constant - expected to be
  * the common case.
  *
- * Returns: 0 upon success or -1 if the reference clock rate is out of range.
+ * Returns: 0 upon success or -ERANGE if the reference clock rate is
+ * out of range.
  */
-static int __wrpll_update_parent_rate(struct analogbits_wrpll_cfg *c,
+static int __wrpll_update_parent_rate(struct wrpll_cfg *c,
 				      unsigned long parent_rate)
 {
 	u8 max_r_for_parent;
 
 	if (parent_rate > MAX_INPUT_FREQ || parent_rate < MIN_POST_DIVR_FREQ)
-		return -1;
+		return -ERANGE;
 
-	c->_parent_rate = parent_rate;
+	c->parent_rate = parent_rate;
 	max_r_for_parent = div_u64(parent_rate, MIN_POST_DIVR_FREQ);
-	c->_max_r = min_t(u8, MAX_DIVR_DIVISOR, max_r_for_parent);
+	c->max_r = min_t(u8, MAX_DIVR_DIVISOR, max_r_for_parent);
 
-	/* Round up */
-	c->_init_r = div_u64(parent_rate + MAX_POST_DIVR_FREQ - 1,
-			     MAX_POST_DIVR_FREQ);
+	c->init_r = DIV_ROUND_UP_ULL(parent_rate, MAX_POST_DIVR_FREQ);
 
 	return 0;
 }
 
-/*
- * Public functions
- */
-
 /**
- * analogbits_wrpll_configure() - compute PLL configuration for a target rate
- * @c: ptr to a struct analogbits_wrpll_cfg record to write into
+ * wrpll_configure() - compute PLL configuration for a target rate
+ * @c: ptr to a struct wrpll_cfg record to write into
  * @target_rate: target PLL output clock rate (post-Q-divider)
  * @parent_rate: PLL input refclk rate (pre-R-divider)
  *
- * Given a pointer to a PLL context @c, a desired PLL target output
- * rate @target_rate, and a reference clock input rate @parent_rate,
- * compute the appropriate PLL signal configuration values.  PLL
- * reprogramming is not glitchless, so the caller should switch any
- * downstream logic to a different clock source or clock-gate it
- * before presenting these values to the PLL configuration signals.
+ * Compute the appropriate PLL signal configuration values and store
+ * in PLL context @c.  PLL reprogramming is not glitchless, so the
+ * caller should switch any downstream logic to a different clock
+ * source or clock-gate it before presenting these values to the PLL
+ * configuration signals.
  *
  * The caller must pass this function a pre-initialized struct
- * analogbits_wrpll_cfg record: either initialized to zero (with the
+ * wrpll_cfg record: either initialized to zero (with the
  * exception of the .name and .flags fields) or read from the PLL.
  *
  * Context: Any context.  Caller must protect the memory pointed to by @c
@@ -236,41 +218,26 @@ static int __wrpll_update_parent_rate(struct analogbits_wrpll_cfg *c,
  *
  * Return: 0 upon success; anything else upon failure.
  */
-int analogbits_wrpll_configure_for_rate(struct analogbits_wrpll_cfg *c,
-					u32 target_rate,
-					unsigned long parent_rate)
+int wrpll_configure_for_rate(struct wrpll_cfg *c, u32 target_rate,
+			     unsigned long parent_rate)
 {
 	unsigned long ratio;
 	u64 target_vco_rate, delta, best_delta, f_pre_div, vco, vco_pre;
-	u32 best_f, f, post_divr_freq, fbcfg;
+	u32 best_f, f, post_divr_freq;
 	u8 fbdiv, divq, best_r, r;
-
-	if (!c)
-		return -1;
+	int range;
 
 	if (c->flags == 0) {
 		WARN(1, "%s called with uninitialized PLL config", __func__);
-		return -1;
-	}
-
-	fbcfg = WRPLL_FLAGS_INT_FEEDBACK_MASK | WRPLL_FLAGS_EXT_FEEDBACK_MASK;
-	if ((c->flags & fbcfg) == fbcfg) {
-		WARN(1, "%s called with invalid PLL config", __func__);
-		return -1;
-	}
-
-	if (c->flags == WRPLL_FLAGS_EXT_FEEDBACK_MASK) {
-		WARN(1, "%s: external feedback mode not currently supported",
-		     __func__);
-		return -1;
+		return -EINVAL;
 	}
 
 	/* Initialize rounding data if it hasn't been initialized already */
-	if (parent_rate != c->_parent_rate) {
+	if (parent_rate != c->parent_rate) {
 		if (__wrpll_update_parent_rate(c, parent_rate)) {
 			pr_err("%s: PLL input rate is out of range\n",
 			       __func__);
-			return -1;
+			return -ERANGE;
 		}
 	}
 
@@ -281,11 +248,12 @@ int analogbits_wrpll_configure_for_rate(struct analogbits_wrpll_cfg *c,
 		c->flags |= WRPLL_FLAGS_BYPASS_MASK;
 		return 0;
 	}
+
 	c->flags &= ~WRPLL_FLAGS_BYPASS_MASK;
 
 	/* Calculate the Q shift and target VCO rate */
 	divq = __wrpll_calc_divq(target_rate, &target_vco_rate);
-	if (divq == 0)
+	if (!divq)
 		return -1;
 	c->divq = divq;
 
@@ -301,8 +269,7 @@ int analogbits_wrpll_configure_for_rate(struct analogbits_wrpll_cfg *c,
 	 * Consider all values for R which land within
 	 * [MIN_POST_DIVR_FREQ, MAX_POST_DIVR_FREQ]; prefer smaller R
 	 */
-	for (r = c->_init_r; r <= c->_max_r; ++r) {
-		/* What is the best F we can pick in this case? */
+	for (r = c->init_r; r <= c->max_r; ++r) {
 		f_pre_div = ratio * r;
 		f = (f_pre_div + (1 << ROUND_SHIFT)) >> ROUND_SHIFT;
 		f >>= (fbdiv - 1);
@@ -334,46 +301,54 @@ int analogbits_wrpll_configure_for_rate(struct analogbits_wrpll_cfg *c,
 	post_divr_freq = div_u64(parent_rate, best_r);
 
 	/* Pick the best PLL jitter filter */
-	c->range = __wrpll_calc_filter_range(post_divr_freq);
+	range = __wrpll_calc_filter_range(post_divr_freq);
+	if (range < 0)
+		return range;
+	c->range = range;
 
 	return 0;
 }
 
 /**
- * analogbits_wrpll_calc_output_rate() - calculate the PLL's target output rate
- * @c: ptr to a struct analogbits_wrpll_cfg record to read from
+ * wrpll_calc_output_rate() - calculate the PLL's target output rate
+ * @c: ptr to a struct wrpll_cfg record to read from
  * @parent_rate: PLL refclk rate
  *
  * Given a pointer to the PLL's current input configuration @c and the
  * PLL's input reference clock rate @parent_rate (before the R
  * pre-divider), calculate the PLL's output clock rate (after the Q
- * post-divider)
+ * post-divider).
  *
  * Context: Any context.  Caller must protect the memory pointed to by @c
  *          from simultaneous modification.
  *
- * Return: the PLL's output clock rate, in Hz.
+ * Return: the PLL's output clock rate, in Hz.  The return value from
+ *         this function is intended to be convenient to pass directly
+ *         to the Linux clock framework; thus there is no explicit
+ *         error return value.
  */
-unsigned long analogbits_wrpll_calc_output_rate(struct analogbits_wrpll_cfg *c,
-						unsigned long parent_rate)
+unsigned long wrpll_calc_output_rate(const struct wrpll_cfg *c,
+				     unsigned long parent_rate)
 {
 	u8 fbdiv;
 	u64 n;
 
-	WARN(c->flags & WRPLL_FLAGS_EXT_FEEDBACK_MASK,
-	     "external feedback mode not yet supported");
+	if (c->flags & WRPLL_FLAGS_EXT_FEEDBACK_MASK) {
+		WARN(1, "external feedback mode not yet supported");
+		return ULONG_MAX;
+	}
 
 	fbdiv = __wrpll_calc_fbdiv(c);
 	n = parent_rate * fbdiv * (c->divf + 1);
-	n = div_u64(n, (c->divr + 1));
+	n = div_u64(n, c->divr + 1);
 	n >>= c->divq;
 
 	return n;
 }
 
 /**
- * analogbits_wrpll_calc_max_lock_us() - return the time for the PLL to lock
- * @c: ptr to a struct analogbits_wrpll_cfg record to read from
+ * wrpll_calc_max_lock_us() - return the time for the PLL to lock
+ * @c: ptr to a struct wrpll_cfg record to read from
  *
  * Return the minimum amount of time (in microseconds) that the caller
  * must wait after reprogramming the PLL to ensure that it is locked
@@ -383,7 +358,7 @@ unsigned long analogbits_wrpll_calc_output_rate(struct analogbits_wrpll_cfg *c,
  * Return: the minimum amount of time the caller must wait for the PLL
  *         to lock (in microseconds)
  */
-unsigned int analogbits_wrpll_calc_max_lock_us(struct analogbits_wrpll_cfg *c)
+unsigned int wrpll_calc_max_lock_us(const struct wrpll_cfg *c)
 {
 	return MAX_LOCK_US;
 }
