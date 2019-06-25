@@ -42,19 +42,9 @@
 
 	memory@0 {
 		device_type = "memory";
-		reg = <0x0 0x0 0x0 0x80000000>; /* FIXME don't know how big memory is there */
+		reg = <0x0 0x0 0x0 0x80000000>;
 	};
-
-/* SC Bank 43
-FIXME no idea what they do VCCO_500_RBIAS, VCCO_501_RBIAS, VCCO_502_RBIAS
-SYSCTLR_GPIO0 - 5 - conneced to versal */
-/* cpu thermal for MAX6643 fan control  */
 };
-/*
-usb - type C - pl
- and micro usb 2.0, gt
-*/
-/* Feb 28/2019 version */
 
 &sdhci0 { /* emmc MIO 13-23 - with some settings  16GB */
 	status = "okay";
@@ -85,14 +75,6 @@ usb - type C - pl
 	status = "okay";
 };
 
-/* TODO
-USB0 MIO52-63
-USB1 MIO64-75
-*/
-
-/*eth MDIO 76/77
-eth reset MIO42
-marwell m88e1512 - SGMII */
 &gem0 {
 	status = "okay";
 	phy-handle = <&phy0>;
@@ -144,10 +126,8 @@ marwell m88e1512 - SGMII */
 		  "", "", "", ""; /* 170 - 174 */
 };
 
-
 /* TODO sysctrl via J239 */
 /* TODO samtec J212G/H via J242 */
-/* TODO teensy via U30 PCA9543A bus 0 */
 &i2c0 { /* MIO 34-35 - can't stay here */
 	status = "okay";
 	clock-frequency = <400000>;
@@ -387,7 +367,6 @@ marwell m88e1512 - SGMII */
 
 /* TODO sysctrl via J239 */
 /* TODO samtec J212G/H via J242 */
-/* TODO teensy via U30 PCA9543A bus 1 */
 &i2c1 { /* i2c1 MIO 36-37 */
 	status = "okay";
 	clock-frequency = <400000>;
