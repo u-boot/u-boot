@@ -426,6 +426,7 @@
 			compatible = "xlnx,versal-wwdt-1.0";
 			status = "disabled";
 			reg = <0 0xfd4d0000 0 0x10000>;
+			timeout-sec = <60>;
 		};
 	};
 
