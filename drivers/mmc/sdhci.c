@@ -12,6 +12,7 @@
 #include <malloc.h>
 #include <mmc.h>
 #include <sdhci.h>
+#include <dm.h>
 
 #if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
 void *aligned_buffer = (void *)CONFIG_FIXED_SDHCI_ALIGNED_BUFFER;
@@ -630,9 +631,40 @@ int sdhci_probe(struct udevice *dev)
 	return sdhci_init(mmc);
 }
 
+int sdhci_get_cd(struct udevice *dev)
+{
+	struct mmc *mmc = mmc_get_mmc_dev(dev);
+	struct sdhci_host *host = mmc->priv;
+	int value;
+
+	/* If nonremovable, assume that the card is always present. */
+	if (mmc->cfg->host_caps & MMC_CAP_NONREMOVABLE)
+		return 1;
+	/* If polling, assume that the card is always present. */
+	if (mmc->cfg->host_caps & MMC_CAP_NEEDS_POLL)
+		return 1;
+
+#if CONFIG_IS_ENABLED(DM_GPIO)
+	value = dm_gpio_get_value(&host->cd_gpio);
+	if (value >= 0) {
+		if (mmc->cfg->host_caps & MMC_CAP_CD_ACTIVE_HIGH)
+			return !value;
+		else
+			return value;
+	}
+#endif
+	value = !!(sdhci_readl(host, SDHCI_PRESENT_STATE) &
+		   SDHCI_CARD_PRESENT);
+	if (mmc->cfg->host_caps & MMC_CAP_CD_ACTIVE_HIGH)
+		return !value;
+	else
+		return value;
+}
+
 const struct dm_mmc_ops sdhci_ops = {
 	.send_cmd	= sdhci_send_command,
 	.set_ios	= sdhci_set_ios,
+	.get_cd		= sdhci_get_cd,
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning	= sdhci_execute_tuning,
 #endif
