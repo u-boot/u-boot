@@ -38,7 +38,7 @@
 
 #include <linux/math64.h>
 #include <linux/clk/analogbits-wrpll-cln28hpc.h>
-#include <dt-bindings/clk/sifive-fu540-prci.h>
+#include <dt-bindings/clock/sifive-fu540-prci.h>
 
 /*
  * EXPECTED_CLK_PARENT_COUNT: how many parent clocks this driver expects:
