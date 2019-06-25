@@ -174,6 +174,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-a2197-p-revA-x-prc-02-revA.dtbo	\
 	zynqmp-a2197-p-revA-x-prc-03-revA.dtbo	\
 	zynqmp-a2197-p-revA-x-prc-04-revA.dtbo	\
+	zynqmp-a2197-p-revA-x-prc-05-revA.dtbo	\
 	zynqmp-mini.dtb				\
 	zynqmp-mini-emmc0.dtb			\
 	zynqmp-mini-emmc1.dtb			\
@@ -222,6 +223,7 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-vc-p-a2197-00-revA-x-prc-03-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-04-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-04-revA-ospi.dtb \
+	versal-vc-p-a2197-00-revA-x-prc-05-revA.dtb \
 	versal-vc-d-d1760-01-revA.dtb
 dtb-$(CONFIG_ARCH_ZYNQMP_R5) += \
 	zynqmp-r5.dtb
