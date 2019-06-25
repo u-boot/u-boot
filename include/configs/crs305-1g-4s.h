@@ -10,6 +10,7 @@
  * High Level Configuration Options (easy to change)
  */
 
+#define CONFIG_SYS_BOOTM_LEN	(64 * 1024 * 1024) /* 64 MB */
 #define CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
 #define CONFIG_SYS_TCLK		200000000	/* 200MHz */
 
