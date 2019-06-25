@@ -370,7 +370,8 @@ marwell m88e1512 - SGMII */
 			vcc_bat: ina226@4e { /* u12 */
 				compatible = "ti,ina226";
 				reg = <0x4e>;
-				shunt-resistor = <10000000>; /* 10 ohm */
+				/* 10 ohm real value - setup 1ohm because of driver limitation */
+				shunt-resistor = <1000000>;
 			};
 		};
 		i2c@4 { /* LP_I2C_SM */
