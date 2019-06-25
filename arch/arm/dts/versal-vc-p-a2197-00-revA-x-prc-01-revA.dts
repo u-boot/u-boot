@@ -36,6 +36,10 @@
 	status = "okay";
 };
 
+&watchdog {
+	status = "okay";
+};
+
 &qspi {
 	status = "okay"; /* u93 and u92 */
 	num-cs = <0x1>;
