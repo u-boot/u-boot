@@ -108,7 +108,7 @@ int board_late_init(void)
 	switch (bootmode) {
 	case JTAG_MODE:
 		puts("JTAG_MODE\n");
-		mode = "pxe dhcp";
+		mode = "jtag pxe dhcp";
 		break;
 	case QSPI_MODE_24BIT:
 		puts("QSPI_MODE_24\n");
