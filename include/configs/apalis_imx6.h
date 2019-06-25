@@ -121,8 +121,8 @@
 	"imx6q-apalis-cam-eval.dtb fat 0 1"
 
 #define EMMC_BOOTCMD \
-	"set_emmcargs emmcargs ip=off root=PARTUUID=${uuid} ro,noatime " \
-		"rootfstype=ext4 rootwait\0" \
+	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} " \
+		"ro,noatime rootfstype=ext4 rootwait\0" \
 	"emmcboot=run setup; run emmcfinduuid; run set_emmcargs; " \
 		"setenv bootargs ${defargs} ${emmcargs} ${setupargs} " \
 		"${vidargs}; echo Booting from internal eMMC chip...; "	\
