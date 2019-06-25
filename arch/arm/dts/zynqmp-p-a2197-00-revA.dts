@@ -387,9 +387,9 @@
 				compatible = "silabs,si570";
 				reg = <0x5d>;	/* 570JAC000900DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different */
+				factory-fout = <33333333>;
 				clock-frequency = <33333333>;
-				clock-output-names = "REF_CLK"; /* FIXME */
+				clock-output-names = "ref_clk";
 			};
 			/* Connection via Samtec J212D */
 			/* Use for storing information about X-PRC card */
@@ -455,9 +455,9 @@
 				compatible = "silabs,si570";
 				reg = <0x60>;	/* 570BAB000299DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
-				clock-output-names = "REF_CLK"; /* FIXME */
+				factory-fout = <200000000>;
+				clock-frequency = <200000000>;
+				clock-output-names = "si570_ddrdimm1_clk";
 			};
 			/* 0x50 SPD? */
 		};
@@ -470,9 +470,9 @@
 				compatible = "silabs,si570";
 				reg = <0x60>;	/* 570BAB000299DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
-				clock-output-names = "REF_CLK"; /* FIXME */
+				factory-fout = <200000000>;
+				clock-frequency = <200000000>;
+				clock-output-names = "si570_ddrdimm2_clk";
 			};
 			/* 0x50 SPD? */
 		};
@@ -485,9 +485,9 @@
 				compatible = "silabs,si570";
 				reg = <0x60>;	/* 570BAB000299DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
-				clock-output-names = "LPDDR4_SI570_CLK";
+				factory-fout = <200000000>;
+				clock-frequency = <200000000>;
+				clock-output-names = "si570_lpddr4_clk";
 			};
 		};
 		i2c@6 { /* HSDP_SI570 */
@@ -499,9 +499,9 @@
 				compatible = "silabs,si570";
 				reg = <0x5d>;	/* 570JAC000900DG */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
-				clock-output-names = "HSDP_SI570";
+				factory-fout = <156250000>;
+				clock-frequency = <156250000>;
+				clock-output-names = "si570_hsdp_clk";
 			};
 		};
 		i2c@7 { /* PCIE_CLK */
