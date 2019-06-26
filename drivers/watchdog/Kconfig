@@ -45,6 +45,13 @@ config ULP_WATCHDOG
 	help
 	  Say Y here to enable i.MX7ULP watchdog driver.
 
+config DESIGNWARE_WATCHDOG
+	bool "Designware watchdog timer support"
+	select HW_WATCHDOG
+	help
+	   Enable this to support Designware Watchdog Timer IP, present e.g.
+	   on Altera SoCFPGA SoCs.
+
 config WDT
 	bool "Enable driver model for watchdog timer drivers"
 	depends on DM
