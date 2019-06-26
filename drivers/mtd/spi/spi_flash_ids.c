@@ -165,6 +165,7 @@ const struct spi_flash_info spi_flash_ids[] = {
 	{"mt35xu512g",	   INFO6(0x2c5b1a, 0x104100,  128 * 1024,  512, E_FSR | SECT_4K | RD_OCTAL) },
 	{"mt35xl512g",	   INFO6(0x2c5b1b, 0x0,  128 * 1024,  512, RD_FULL | RD_OCTAL | E_FSR | SECT_4K) },
 	{"mt35xu02g",	   INFO6(0x2c5b1c, 0x104100,  128 * 1024,  2048, RD_FULL | RD_OCTAL | E_FSR | SECT_4K) },
+	{"mt35xu01g",      INFO6(0x2c5b1b, 0x104100,  128 * 1024,  1024, RD_FULL | RD_OCTAL | E_FSR | SECT_4K) },
 #endif
 #ifdef CONFIG_SPI_FLASH_SST		/* SST */
 	{"sst25vf040b",	   INFO(0xbf258d, 0x0,	64 * 1024,     8, SECT_4K | SST_WR) },
