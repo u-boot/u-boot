@@ -31,3 +31,7 @@
 &sysmgr {
 	u-boot,dm-pre-reloc;
 };
+
+&watchdog0 {
+	u-boot,dm-pre-reloc;
+};

@@ -56,3 +56,7 @@
 &portc {
 	bank-name = "portc";
 };
+
+&watchdog0 {
+	u-boot,dm-pre-reloc;
+};
