@@ -1,3 +1,4 @@
+
 # SPDX-License-Identifier: GPL-2.0+
 
 dtb-$(CONFIG_TARGET_SMARTWEB) += at91sam9260-smartweb.dtb
@@ -167,6 +168,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
 dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	avnet-ultra96-rev1.dtb			\
 	zynqmp-a2197-revA.dtb			\
+	zynqmp-a2197-e-revA.dtb			\
 	zynqmp-a2197-g-revA.dtb			\
 	zynqmp-a2197-m-revA.dtb			\
 	zynqmp-a2197-p-revA.dtb			\
