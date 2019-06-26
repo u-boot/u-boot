@@ -87,6 +87,8 @@ int misc_init_r(void)
 	/* Set ethernet address from EEPROM. */
 	if (!env_get("ethaddr") && is_valid_ethaddr(&data[0x62]))
 		eth_env_set_enetaddr("ethaddr", &data[0x62]);
+	if (!env_get("eth1addr") && is_valid_ethaddr(&data[0x6a]))
+		eth_env_set_enetaddr("eth1addr", &data[0x6a]);
 
 	return 0;
 }
