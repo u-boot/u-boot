@@ -218,6 +218,7 @@ dtb-$(CONFIG_ARCH_VERSAL) += \
 	versal-mini-qspi-x1-stacked.dtb \
 	versal-mini-qspi-x2-single.dtb \
 	versal-mini-qspi-x2-stacked.dtb \
+	versal-vc-e-a2197-00-revA.dtb \
 	versal-vc-p-a2197-00-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA.dtb \
 	versal-vc-p-a2197-00-revA-x-prc-01-revA-ospi.dtb \
