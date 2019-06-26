@@ -100,8 +100,8 @@ config TARGET_SOCFPGA_IS1
 	bool "IS1 (Cyclone V)"
 	select TARGET_SOCFPGA_CYCLONE5
 
-config TARGET_SOCFPGA_SAMTEC_VINING_FPGA
-	bool "samtec VIN|ING FPGA (Cyclone V)"
+config TARGET_SOCFPGA_SOFTING_VINING_FPGA
+	bool "Softing VIN|ING FPGA (Cyclone V)"
 	select BOARD_LATE_INIT
 	select TARGET_SOCFPGA_CYCLONE5
 
@@ -145,7 +145,7 @@ config SYS_BOARD
 	default "socrates" if TARGET_SOCFPGA_EBV_SOCRATES
 	default "sr1500" if TARGET_SOCFPGA_SR1500
 	default "stratix10-socdk" if TARGET_SOCFPGA_STRATIX10_SOCDK
-	default "vining_fpga" if TARGET_SOCFPGA_SAMTEC_VINING_FPGA
+	default "vining_fpga" if TARGET_SOCFPGA_SOFTING_VINING_FPGA
 
 config SYS_VENDOR
 	default "altera" if TARGET_SOCFPGA_ARRIA5_SOCDK
@@ -155,7 +155,7 @@ config SYS_VENDOR
 	default "aries" if TARGET_SOCFPGA_ARIES_MCVEVK
 	default "devboards" if TARGET_SOCFPGA_DEVBOARDS_DBM_SOC1
 	default "ebv" if TARGET_SOCFPGA_EBV_SOCRATES
-	default "samtec" if TARGET_SOCFPGA_SAMTEC_VINING_FPGA
+	default "softing" if TARGET_SOCFPGA_SOFTING_VINING_FPGA
 	default "terasic" if TARGET_SOCFPGA_TERASIC_DE0_NANO
 	default "terasic" if TARGET_SOCFPGA_TERASIC_DE1_SOC
 	default "terasic" if TARGET_SOCFPGA_TERASIC_DE10_NANO
@@ -178,6 +178,6 @@ config SYS_CONFIG_NAME
 	default "socfpga_socrates" if TARGET_SOCFPGA_EBV_SOCRATES
 	default "socfpga_sr1500" if TARGET_SOCFPGA_SR1500
 	default "socfpga_stratix10_socdk" if TARGET_SOCFPGA_STRATIX10_SOCDK
-	default "socfpga_vining_fpga" if TARGET_SOCFPGA_SAMTEC_VINING_FPGA
+	default "socfpga_vining_fpga" if TARGET_SOCFPGA_SOFTING_VINING_FPGA
 
 endif

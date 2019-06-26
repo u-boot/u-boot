@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Copyright (C) 2015 Marek Vasut <marex@denx.de>
+ * Copyright (C) 2015-2019 Marek Vasut <marex@denx.de>
  */
-#ifndef __CONFIG_SAMTEC_VINING_FPGA_H__
-#define __CONFIG_SAMTEC_VINING_FPGA_H__
+#ifndef __CONFIG_SOFTING_VINING_FPGA_H__
+#define __CONFIG_SOFTING_VINING_FPGA_H__
 
 #include <asm/arch/base_addr_ac5.h>
 
@@ -50,8 +50,8 @@
 		"1m(u-boot),"						\
 		"64k(env1),"						\
 		"64k(env2),"						\
-		"256k(samtec1),"					\
-		"256k(samtec2),"					\
+		"256k(softing1),"					\
+		"256k(softing2),"					\
 		"-(rcvrfs)\0"	/* Recovery */				\
 	"mtdparts_1=ff705000.spi.1:"					\
 		"32m(rootfs),"						\
@@ -150,4 +150,4 @@
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>
 
-#endif	/* __CONFIG_SAMTEC_VINING_FPGA_H__ */
+#endif	/* __CONFIG_SOFTING_VINING_FPGA_H__ */

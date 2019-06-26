@@ -8,7 +8,7 @@
 #include <dt-bindings/input/input.h>
 
 / {
-	model = "samtec VIN|ING FPGA";
+	model = "Softing VIN|ING FPGA";
 	compatible = "samtec,vining", "altr,socfpga-cyclone5", "altr,socfpga";
 
 	chosen {
