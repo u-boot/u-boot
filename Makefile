@@ -874,7 +874,7 @@ ifneq ($(CONFIG_BUILD_TARGET),)
 ALL-y += $(CONFIG_BUILD_TARGET:"%"=%)
 endif
 
-ifneq ($(CONFIG_SYS_INIT_SP_BSS_OFFSET),)
+ifdef CONFIG_INIT_SP_RELATIVE
 ALL-y += init_sp_bss_offset_check
 endif
 
@@ -1155,7 +1155,7 @@ binary_size_check: u-boot-nodtb.bin FORCE
 		fi \
 	fi
 
-ifneq ($(CONFIG_SYS_INIT_SP_BSS_OFFSET),)
+ifdef CONFIG_INIT_SP_RELATIVE
 ifneq ($(CONFIG_SYS_MALLOC_F_LEN),)
 subtract_sys_malloc_f_len = space=$$(($${space} - $(CONFIG_SYS_MALLOC_F_LEN)))
 else

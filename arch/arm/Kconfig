@@ -20,15 +20,25 @@ config POSITION_INDEPENDENT
 	  information that is embedded into the binary to support U-Boot
 	  relocating itself to the top-of-RAM later during execution.
 
-config SYS_INIT_SP_BSS_OFFSET
-	int
+config INIT_SP_RELATIVE
+	bool "Specify the early stack pointer relative to the .bss section"
 	help
 	  U-Boot typically uses a hard-coded value for the stack pointer
-	  before relocation. Define this option to instead calculate the
+	  before relocation. Enable this option to instead calculate the
 	  initial SP at run-time. This is useful to avoid hard-coding addresses
 	  into U-Boot, so that can be loaded and executed at arbitrary
-	  addresses and thus avoid using arbitrary addresses at runtime. This
-	  option's value is the offset added to &_bss_start in order to
+	  addresses and thus avoid using arbitrary addresses at runtime.
+
+	  If this option is enabled, the early stack pointer is set to
+	  &_bss_start with a offset value added. The offset is specified by
+	  SYS_INIT_SP_BSS_OFFSET.
+
+config SYS_INIT_SP_BSS_OFFSET
+	int "Early stack offset from the .bss base address"
+	depends on INIT_SP_RELATIVE
+	default 524288
+	help
+	  This option's value is the offset added to &_bss_start in order to
 	  calculate the stack pointer. This offset should be large enough so
 	  that the early malloc region, global data (gd), and early stack usage
 	  do not overlap any appended DTB.
