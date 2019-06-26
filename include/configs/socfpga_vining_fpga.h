@@ -11,8 +11,9 @@
 #define PHYS_SDRAM_1_SIZE		0x40000000	/* 1GiB on VINING_FPGA */
 
 /* Booting Linux */
-#define CONFIG_BOOTFILE		"openwrt-socfpga-socfpga_cyclone5_vining_fpga-fit-uImage.itb"
+#define CONFIG_BOOTFILE		"fitImage"
 #define CONFIG_BOOTCOMMAND	"run selboot"
+#define CONFIG_SYS_BOOTM_LEN	0x2000000	/* 32 MiB */
 #define CONFIG_LOADADDR		0x01000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
@@ -30,8 +31,11 @@
  * B: GPIO 78 ... the button between USB A ports
  *
  * The logic:
- *  if button B is not pressed, boot normal Linux system immediatelly
- *  if button B is pressed, wait $bootdelay and boot recovery system
+ *  if button B is pressed, boot recovery system after 10 seconds
+ *  if force_boottype is set, boot system depending on the value in the
+ *                            $force_boottype variable after 1 second
+ *  if button B is not pressed and force_boottype is not set, boot normal
+ *                            Linux system after 5 seconds
  */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -41,21 +45,36 @@
 	"bootscript=boot.scr\0"						\
 	"ubimtdnr=5\0"							\
 	"ubimtd=rootfs\0"						\
-	"ubipart=ubi0:rootfs\0"						\
+	"ubipart=ubi0:vining-fpga-rootfs\0"						\
 	"ubisfcs=1\0"		/* Default is flash at CS#1 */		\
 	"netdev=eth0\0"							\
-	"hostname=vining_fpga\0"						\
+	"hostname=vining_fpga\0"					\
 	"kernel_addr_r=0x10000000\0"					\
-	"mtdparts_0=ff705000.spi.0:"					\
+	"fdt_addr_r=0x20000000\0"					\
+	"fdt_high=0xffffffff\0"						\
+	"initrd_high=0xffffffff\0"					\
+	"dfu_alt_info=qspi0 sf 0:0;qspi1 sf 0:1\0"			\
+	"mtdparts_0_16m=ff705000.spi.0:" /* 16MiB+128MiB SF config */	\
 		"1m(u-boot),"						\
 		"64k(env1),"						\
 		"64k(env2),"						\
 		"256k(softing1),"					\
 		"256k(softing2),"					\
 		"-(rcvrfs)\0"	/* Recovery */				\
-	"mtdparts_1=ff705000.spi.1:"					\
-		"32m(rootfs),"						\
+	"mtdparts_0_256m=ff705000.spi.0:" /* 256MiB(+256MiB) config */	\
+		"1m(u-boot),"						\
+		"64k(env1),"						\
+		"64k(env2),"						\
+		"256k(softing1),"					\
+		"256k(softing2),"					\
+		"14720k(rcvrfs),"	/* Recovery */			\
+		"64m(rootfs),"		/* Root */			\
+		"-(userfs)\0"		/* User */			\
+	"mtdparts_1_128m=ff705000.spi.1:" /* 16MiB+128MiB SF config */	\
+		"64m(rootfs),"						\
 		"-(userfs)\0"						\
+	"mtdparts_1_256m=ff705000.spi.1:" /* 256MiB+256MiB SF config */	\
+		"-(userfs2)\0"						\
 	"update_filename=u-boot-with-spl-dtb.sfp\0"			\
 	"update_qspi_offset=0x0\0"					\
 	"update_qspi="		/* Update the QSPI firmware */		\
@@ -63,6 +82,23 @@
 		"if tftp ${update_filename} ; then "			\
 		"sf update ${loadaddr} ${update_qspi_offset} ${filesize} ; " \
 		"fi ; "							\
+		"fi\0"							\
+	"sf_identify="							\
+		"setenv sf_size_0 ; setenv sf_size_1 ; "		\
+		"sf probe 0:0 && setenv sf_size_0 ${sf_size} ; "	\
+		"sf probe 0:1 && setenv sf_size_1 ${sf_size} ; "	\
+		"if test -z \"${sf_size_1}\" ; then "			\
+			/* 1x256MiB SF */				\
+			"setenv mtdparts_0 ${mtdparts_0_256m} ; "	\
+			"setenv mtdparts_1 ; "				\
+		"elif test \"${sf_size_0}\" = \"1000000\" ; then "	\
+			/* 16MiB+128MiB SF */				\
+			"setenv mtdparts_0 ${mtdparts_0_16m} ; "	\
+			"setenv mtdparts_1 ${mtdparts_1_128m} ; "	\
+		"else "							\
+			/* 256MiB+256MiB SF */				\
+			"setenv mtdparts_0 ${mtdparts_0_256m} ; "	\
+			"setenv mtdparts_1 ${mtdparts_1_256m} ; "	\
 		"fi\0"							\
 	"fpga_filename=output_file.rbf\0"				\
 	"load_fpga="		/* Load FPGA bitstream */		\
@@ -80,7 +116,11 @@
 	"addmisc="							\
 		"setenv bootargs ${bootargs} ${miscargs}\0"		\
 	"addmtd="							\
-		"setenv mtdparts \"${mtdparts_0};${mtdparts_1}\" ; "	\
+		"if test -z \"${sf_size_1}\" ; then "			\
+			"setenv mtdparts \"${mtdparts_0}\" ; "		\
+		"else "							\
+			"setenv mtdparts \"${mtdparts_0};${mtdparts_1}\" ; "	\
+		"fi ; "							\
 		"setenv bootargs ${bootargs} mtdparts=${mtdparts}\0"	\
 	"addargs=run addcons addmtd addmisc\0"				\
 	"ubiload="							\
@@ -102,29 +142,47 @@
 			"setenv ubimtdnr 5 ; "				\
 			"setenv mtdparts mtdparts=${mtdparts_0} ; "	\
 			"setenv mtdids nor0=ff705000.spi.0 ; "		\
-			"setenv ubipart ubi0:rootfs ; "			\
+			"setenv ubipart ubi0:vining-fpga-rootfs ; "	\
 		"else "							\
-			"setenv ubisfcs 1 ; "				\
-			"setenv ubimtd rootfs ; "			\
-			"setenv ubimtdnr 6 ; "				\
-			"setenv mtdparts mtdparts=${mtdparts_1} ; "	\
-			"setenv mtdids nor0=ff705000.spi.1 ; "		\
-			"setenv ubipart ubi0:rootfs ; "			\
+			"if test \"${sf_size_0}\" = \"1000000\" ; then "\
+				/* 16MiB+128MiB SF */			\
+				"setenv ubisfcs 1 ; "			\
+				"setenv ubimtd rootfs ; "		\
+				"setenv ubimtdnr 6 ; "			\
+				"setenv mtdparts mtdparts=${mtdparts_1} ; "	\
+				"setenv mtdids nor0=ff705000.spi.1 ; "	\
+				"setenv ubipart ubi0:vining-fpga-rootfs ; "	\
+			"else "						\
+				/* 256MiB(+256MiB) SF */		\
+				"setenv ubisfcs 0 ; "			\
+				"setenv ubimtd rootfs ; "		\
+				"setenv ubimtdnr 6 ; "			\
+				"setenv mtdparts mtdparts=${mtdparts_0} ; "	\
+				"setenv mtdids nor0=ff705000.spi.0 ; "	\
+				"setenv ubipart ubi0:vining-fpga-rootfs ; "	\
+			"fi ; "						\
 		"fi ; "							\
 		"sf probe 0:${ubisfcs}\0"				\
+	"boot_kernel="							\
+		"if test -z \"${sf_size_1}\" ; then " /* 1x256MiB SF */	\
+			"imxtract ${kernel_addr_r} fdt@1 ${fdt_addr_r} && " \
+			"fdt addr ${fdt_addr_r} && "			\
+			"fdt resize && "				\
+			"fdt set /soc/spi@ff705000/n25q00@1 status disabled && " \
+			"bootm ${kernel_addr_r}:kernel@1 - ${fdt_addr_r} ; "	\
+		"else "							\
+			"bootm ${kernel_addr_r} ; "			\
+		"fi\0"							\
 	"ubi_ubi="							\
-		"run ubi_sfsel ubiload ubiargs addargs ; "		\
-		"bootm ${kernel_addr_r}\0"				\
+		"run ubi_sfsel ubiload ubiargs addargs boot_kernel\0"	\
 	"ubi_nfs="							\
-		"run ubiload nfsargs addip addargs ; "			\
-		"bootm ${kernel_addr_r}\0"				\
+		"run ubiload nfsargs addip addargs boot_kernel\0"	\
 	"net_ubi="							\
-		"run netload ubiargs addargs ; "			\
-		"bootm ${kernel_addr_r}\0"				\
+		"run netload ubiargs addargs boot_kernel\0"		\
 	"net_nfs="							\
-		"run netload nfsargs addip addargs ; "			\
-		"bootm ${kernel_addr_r}\0"				\
+		"run netload nfsargs addip addargs boot_kernel\0"	\
 	"selboot="	/* Select from where to boot. */		\
+		"run sf_identify ; "					\
 		"if test \"${bootmode}\" = \"qspi\" ; then "		\
 			"led all off ; "				\
 			"if test \"${boottype}\" = \"rcvr\" ; then "	\
