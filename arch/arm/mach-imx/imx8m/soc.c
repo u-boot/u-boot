@@ -197,7 +197,9 @@ u32 get_cpu_rev(void)
 	reg &= 0xff;
 
 	/* i.MX8MM */
-	if (major_low == 0x41) {
+	if (major_low == 0x42) {
+		return (MXC_CPU_IMX8MN << 12) | reg;
+	} else if (major_low == 0x41) {
 		type = get_cpu_variant_type(MXC_CPU_IMX8MM);
 	} else {
 		if (reg == CHIP_REV_1_0) {
