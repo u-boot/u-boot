@@ -48,9 +48,10 @@ Two RK3036 boards are supported:
    - EVB RK3036 - use evb-rk3036 configuration
    - Kylin - use kylin_rk3036 configuration
 
-One RK3328 board is supported:
+Two RK3328 board are supported:
 
-   - EVB RK3328
+   - EVB RK3328 - use evb-rk3328_defconfig
+   - Pine64 Rock64 board - use rock64-rk3328_defconfig
 
 Size RK3399 boards are supported (aarch64):
 
@@ -103,7 +104,6 @@ For example:
      => cd /path/to/u-boot
      => make nanopi-neo4-rk3399_defconfig
      => make
-     => make u-boot.itb
 
    - Get the rkbin
 
@@ -137,8 +137,8 @@ For example:
 	=> cd arm-trusted-firmware
 	=> make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399 bl31
 
-	(copy bl31.bin into U-Boot root dir)
-	=> cp build/rk3399/release/bl31/bl31.bin /path/to/u-boot/bl31-rk3399.bin
+	(export bl31.bin)
+	=> export BL31=/path/to/arm-trusted-firmware/build/rk3399/release/bl31/bl31.bin
 
      For rest of rk3399 boards.
 
@@ -149,8 +149,8 @@ For example:
 	=> make realclean
 	=> make CROSS_COMPILE=aarch64-linux-gnu- PLAT=rk3399
 
-	(copy bl31.elf into U-Boot root dir)
-	=> cp build/rk3399/release/bl31/bl31.elf /path/to/u-boot
+	(export bl31.elf)
+	=> export BL31=/path/to/arm-trusted-firmware/build/rk3399/release/bl31/bl31.elf
 
    - Compile PMU M0 firmware
 
@@ -162,15 +162,14 @@ For example:
      (export cross compiler path for Cortex-M0 PMU)
      => make CROSS_COMPILE=arm-cortex_m0-eabi-
 
-     (copy rk3399m0.bin into U-Boot root dir)
-     => cp rk3399m0.bin /path/to/u-boot
+     (export rk3399m0.bin)
+     => export PMUM0=/path/to/rk3399-cortex-m0/rk3399m0.bin
 
    - Compile U-Boot
 
      => cd /path/to/u-boot
      => make orangepi-rk3399_defconfig
      => make
-     => make u-boot.itb
 
      (Get spl/u-boot-spl-dtb.bin, u-boot.itb images and some boards would get
       spl/u-boot-spl.bin since it doesn't enable CONFIG_SPL_OF_CONTROL
@@ -309,6 +308,31 @@ tools/mkimage -n rk3188 -T rksd -d spl/u-boot-spl.bin out
 # truncate, encode and append u-boot.bin
 truncate -s %2048 u-boot.bin
 cat u-boot.bin | split -b 512 --filter='openssl rc4 -K 7C4E0304550509072D2C7B38170D1711' >> out
+
+Booting from an SD card on Pine64 Rock64 (RK3328)
+=================================================
+
+For Rock64 rk3328 board the following three parts are required:
+TPL, SPL, and the u-boot image tree blob. While u-boot-spl.bin and
+u-boot.itb are to be compiled as usual, TPL is currently not
+implemented in u-boot, so you need to pick one from rkbin:
+
+  - Get the rkbin
+
+    => git clone https://github.com/rockchip-linux/rkbin.git
+
+  - Create TPL/SPL image
+
+    => tools/mkimage -n rk3328 -T rksd -d rkbin/bin/rk33/rk3328_ddr_333MHz_v1.16.bin idbloader.img
+    => cat spl/u-boot-spl.bin >> idbloader.img
+
+  - Write TPL/SPL image at 64 sector
+
+    => sudo dd if=idbloader.img of=/dev/mmcblk0 seek=64
+
+  - Write u-boot image tree blob at 16384 sector
+
+    => sudo dd if=u-boot.itb of=/dev/mmcblk0 seek=16384
 
 Booting from an SD card on RK3399
 =================================
