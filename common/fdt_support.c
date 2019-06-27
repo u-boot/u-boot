@@ -1552,7 +1552,7 @@ u64 fdt_get_base_address(const void *fdt, int node)
 
 	prop = fdt_getprop(fdt, node, "reg", &size);
 
-	return prop ? fdt_translate_address(fdt, node, prop) : 0;
+	return prop ? fdt_translate_address(fdt, node, prop) : OF_BAD_ADDR;
 }
 
 /*
