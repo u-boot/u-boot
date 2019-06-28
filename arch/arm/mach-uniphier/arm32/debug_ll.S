@@ -16,6 +16,8 @@
 #include CONFIG_DEBUG_LL_INCLUDE
 #endif
 
+#define SG_REVISION_TYPE_SHIFT		16
+#define SG_REVISION_TYPE_MASK		(0xff << SG_REVISION_TYPE_SHIFT)
 #define BAUDRATE		115200
 #define DIV_ROUND(x, d)		(((x) + ((d) / 2)) / (d))
 
