@@ -127,14 +127,6 @@ static inline void sg_set_iectrl(unsigned pin)
 	writel(tmp, reg);
 }
 
-static inline void sg_set_iectrl_range(unsigned min, unsigned max)
-{
-	int i;
-
-	for (i = min; i <= max; i++)
-		sg_set_iectrl(i);
-}
-
 #endif /* __ASSEMBLY__ */
 
 #endif /* UNIPHIER_SG_REGS_H */
