@@ -8,7 +8,7 @@
  */
 
 #include "versal.dtsi"
-#include "versal-fixed.dtsi"
+#include "versal-clk.dtsi"
 
 / {
 	compatible = "xlnx,versal-vc-d-d1760-01-revA",
