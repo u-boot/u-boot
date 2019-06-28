@@ -526,7 +526,6 @@ static const struct dm_spi_ops stm32_qspi_ops = {
 };
 
 static const struct udevice_id stm32_qspi_ids[] = {
-	{ .compatible = "st,stm32-qspi" },
 	{ .compatible = "st,stm32f469-qspi" },
 	{ }
 };
