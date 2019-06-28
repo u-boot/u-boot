@@ -8,6 +8,7 @@
 #include <linux/io.h>
 #include <linux/serial_reg.h>
 
+#include "../sg-regs.h"
 #include "../soc-info.h"
 #include "debug-uart.h"
 
@@ -25,6 +26,33 @@ static void _debug_uart_putc(int c)
 
 	writel(c, base + UNIPHIER_UART_TX);
 }
+
+#ifdef CONFIG_SPL_BUILD
+void sg_set_pinsel(unsigned int pin, unsigned int muxval,
+		   unsigned int mux_bits, unsigned int reg_stride)
+{
+	unsigned int shift = pin * mux_bits % 32;
+	unsigned long reg = SG_PINCTRL_BASE + pin * mux_bits / 32 * reg_stride;
+	u32 mask = (1U << mux_bits) - 1;
+	u32 tmp;
+
+	tmp = readl(reg);
+	tmp &= ~(mask << shift);
+	tmp |= (mask & muxval) << shift;
+	writel(tmp, reg);
+}
+
+void sg_set_iectrl(unsigned int pin)
+{
+	unsigned int bit = pin % 32;
+	unsigned long reg = SG_IECTRL + pin / 32 * 4;
+	u32 tmp;
+
+	tmp = readl(reg);
+	tmp |= 1 << bit;
+	writel(tmp, reg);
+}
+#endif
 
 void _debug_uart_init(void)
 {

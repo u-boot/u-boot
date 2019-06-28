@@ -21,6 +21,14 @@
 #define BAUDRATE		115200
 #define DIV_ROUND(x, d)		(((x) + ((d) / 2)) / (d))
 
+.macro	sg_set_pinsel, pin, muxval, mux_bits, reg_stride, ra, rd
+	ldr	\ra, =(SG_PINCTRL_BASE + \pin * \mux_bits / 32 * \reg_stride)
+	ldr	\rd, [\ra]
+	and	\rd, \rd, #~(((1 << \mux_bits) - 1) << (\pin * \mux_bits % 32))
+	orr	\rd, \rd, #(\muxval << (\pin * \mux_bits % 32))
+	str	\rd, [\ra]
+.endm
+
 ENTRY(debug_ll_init)
 	ldr		r0, =SG_REVISION
 	ldr		r1, [r0]

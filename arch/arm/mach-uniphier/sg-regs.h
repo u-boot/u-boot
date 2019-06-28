@@ -87,46 +87,4 @@
 #define SG_PINMON0_CLK_MODE_AXOSEL_20480KHZ	(0x2 << 16)
 #define SG_PINMON0_CLK_MODE_AXOSEL_25000KHZ_A	(0x3 << 16)
 
-#ifdef __ASSEMBLY__
-
-	.macro	sg_set_pinsel, pin, muxval, mux_bits, reg_stride, ra, rd
-	ldr	\ra, =(SG_PINCTRL_BASE + \pin * \mux_bits / 32 * \reg_stride)
-	ldr	\rd, [\ra]
-	and	\rd, \rd, #~(((1 << \mux_bits) - 1) << (\pin * \mux_bits % 32))
-	orr	\rd, \rd, #(\muxval << (\pin * \mux_bits % 32))
-	str	\rd, [\ra]
-	.endm
-
-#else
-
-#include <linux/types.h>
-#include <linux/io.h>
-
-static inline void sg_set_pinsel(unsigned pin, unsigned muxval,
-				 unsigned mux_bits, unsigned reg_stride)
-{
-	unsigned shift = pin * mux_bits % 32;
-	unsigned long reg = SG_PINCTRL_BASE + pin * mux_bits / 32 * reg_stride;
-	u32 mask = (1U << mux_bits) - 1;
-	u32 tmp;
-
-	tmp = readl(reg);
-	tmp &= ~(mask << shift);
-	tmp |= (mask & muxval) << shift;
-	writel(tmp, reg);
-}
-
-static inline void sg_set_iectrl(unsigned pin)
-{
-	unsigned bit = pin % 32;
-	unsigned long reg = SG_IECTRL + pin / 32 * 4;
-	u32 tmp;
-
-	tmp = readl(reg);
-	tmp |= 1 << bit;
-	writel(tmp, reg);
-}
-
-#endif /* __ASSEMBLY__ */
-
 #endif /* UNIPHIER_SG_REGS_H */
