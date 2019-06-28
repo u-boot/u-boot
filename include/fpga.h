@@ -15,7 +15,7 @@
 
 /* fpga_xxxx function return value definitions */
 #define FPGA_SUCCESS		0
-#define FPGA_FAIL		-1
+#define FPGA_FAIL		1
 
 /* device numbers must be non-negative */
 #define FPGA_INVALID_DEVICE	-1
