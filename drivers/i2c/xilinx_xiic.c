@@ -266,7 +266,19 @@ static void xiic_reinit(struct xilinx_xiic_priv *priv)
 
 static int xilinx_xiic_xfer(struct udevice *dev, struct i2c_msg *msg, int nmsgs)
 {
+	struct xilinx_xiic_priv *priv = dev_get_priv(dev);
 	int ret = 0;
+
+	ret = wait_for_bit_8(priv->base + XIIC_SR_REG_OFFSET,
+			     XIIC_SR_BUS_BUSY_MASK, false, 1000, true);
+
+	if (ret == -ETIMEDOUT)
+		dev_err(dev, "timeout waiting for bus not busy condition\n");
+
+	if (ret)
+		return ret;
+
+	xiic_reinit(priv);
 
 	for (; nmsgs > 0; nmsgs--, msg++) {
 		if (msg->flags & I2C_M_RD)
