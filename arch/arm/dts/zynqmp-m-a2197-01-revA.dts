@@ -289,7 +289,7 @@
 		reg = <0x51>;
 	};
 
-	i2c-mux@74 { /* u35 */
+	i2c-mux@74 { /* u47 */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -354,19 +354,14 @@
 				};
 			};
 		};
-		i2c@1 { /* UTIL_PMBUS - FIXME incorrect schematics */
-			#address-cells = <1>;
-			#size-cells = <0>;
-			/* reg = <1>; */
-		};
 		i2c@2 { /* C0_LP4 */
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <2>;
-			si570_c0_lp4: clock-generator@5d { /* u10 */
+			si570_c0_lp4: clock-generator@55 { /* u10 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>; /* FIXME addr */
+				reg = <0x55>;
 				temperature-stability = <50>;
 				factory-fout = <30000000>;
 				clock-frequency = <30000000>;
@@ -391,10 +386,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <4>;
-			si570_c2_lp4: clock-generator@5d { /* u10 */
+			si570_c2_lp4: clock-generator@55 { /* u10 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>; /* FIXME addr */
+				reg = <0x55>;
 				temperature-stability = <50>;
 				factory-fout = <30000000>;
 				clock-frequency = <30000000>;
@@ -405,10 +400,10 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <5>;
-			si570_c3_lp4: clock-generator@5d { /* u15 */
+			si570_c3_lp4: clock-generator@55 { /* u15 */
 				#clock-cells = <0>;
 				compatible = "silabs,si570";
-				reg = <0x5d>; /* FIXME addr */
+				reg = <0x55>;
 				temperature-stability = <50>;
 				factory-fout = <30000000>;
 				clock-frequency = <30000000>;
@@ -424,8 +419,8 @@
 				compatible = "silabs,si570";
 				reg = <0x5d>; /* FIXME addr */
 				temperature-stability = <50>;
-				factory-fout = <156250000>; /* FIXME every chip can be different - 10MHZ_TO_810MHZ */
-				clock-frequency = <33333333>;
+				factory-fout = <156250000>;
+				clock-frequency = <156250000>;
 				clock-output-names = "HSDP_SI570";
 			};
 		};
