@@ -170,6 +170,7 @@
 
 &ospi {
 	clocks = <&versal_clk OSPI_REF>, <&versal_clk LPD_LSBUS>;
+	power-domains = <&versal_firmware PD_OSPI>;
 };
 
 &rtc {
@@ -213,4 +214,5 @@
 
 &watchdog {
 	clocks = <&versal_clk LPD_LSBUS>;
+	power-domains = <&versal_firmware PD_SWDT_FPD>;
 };
