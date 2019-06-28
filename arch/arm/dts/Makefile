@@ -253,6 +253,7 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	zynqmp-g-a2197-00-revA.dtb		\
 	zynqmp-m-a2197-01-revA.dtb		\
 	zynqmp-m-a2197-02-revA.dtb		\
+	zynqmp-m-a2197-03-revA.dtb		\
 	zynqmp-p-a2197-00-revA.dtb		\
 	zynqmp-mini.dtb				\
 	zynqmp-mini-emmc0.dtb			\
