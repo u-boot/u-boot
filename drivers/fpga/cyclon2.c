@@ -183,8 +183,12 @@ static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		else
 			puts("Fail.\n");
 #endif
-		(*fn->post) (cookie);
 
+		/*
+		 * Run the post configuration function if there is one.
+		 */
+		if (*fn->post)
+			(*fn->post) (cookie);
 	} else {
 		printf("%s: NULL Interface function table!\n", __func__);
 	}
