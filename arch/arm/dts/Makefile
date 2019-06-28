@@ -250,9 +250,9 @@ dtb-$(CONFIG_ARCH_ZYNQMP) += \
 	avnet-ultra96-rev1.dtb			\
 	avnet-ultrazedev-cc-v1.0-ultrazedev-som-v1.0.dtb	\
 	zynqmp-a2197-revA.dtb			\
-	zynqmp-a2197-g-revA.dtb			\
-	zynqmp-a2197-m-revA.dtb			\
-	zynqmp-a2197-p-revA.dtb			\
+	zynqmp-g-a2197-00-revA.dtb		\
+	zynqmp-m-a2197-01-revA.dtb		\
+	zynqmp-p-a2197-00-revA.dtb		\
 	zynqmp-mini.dtb				\
 	zynqmp-mini-emmc0.dtb			\
 	zynqmp-mini-emmc1.dtb			\

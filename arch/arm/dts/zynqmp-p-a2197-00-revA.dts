@@ -14,7 +14,7 @@
 
 / {
 	model = "Versal System Controller on a2197 Processor Char board RevA"; /* Tenzing */
-	compatible = "xlnx,zynqmp-a2197-p-revA", "xlnx,zynqmp-a2197-revA",
+	compatible = "xlnx,zynqmp-p-a2197-00-revA", "xlnx,zynqmp-a2197-revA",
 		     "xlnx,zynqmp-a2197", "xlnx,zynqmp";
 
 	aliases {

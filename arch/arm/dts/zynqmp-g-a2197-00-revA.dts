@@ -14,7 +14,7 @@
 
 / {
 	model = "Versal System Controller on a2197 MGT Char board RevA";
-	compatible = "xlnx,zynqmp-a2197-g-revA", "xlnx,zynqmp-a2197-revA",
+	compatible = "xlnx,zynqmp-g-a2197-00-revA", "xlnx,zynqmp-a2197-revA",
 		     "xlnx,zynqmp-a2197", "xlnx,zynqmp";
 
 	aliases {
