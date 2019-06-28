@@ -28,6 +28,7 @@ static void _debug_uart_putc(int c)
 
 void _debug_uart_init(void)
 {
+#ifdef CONFIG_SPL_BUILD
 	void __iomem *base = (void __iomem *)CONFIG_DEBUG_UART_BASE;
 	unsigned int divisor;
 
@@ -62,12 +63,6 @@ void _debug_uart_init(void)
 		divisor = uniphier_ld6b_debug_uart_init();
 		break;
 #endif
-#if defined(CONFIG_ARCH_UNIPHIER_LD11) || defined(CONFIG_ARCH_UNIPHIER_LD20)
-	case UNIPHIER_LD11_ID:
-	case UNIPHIER_LD20_ID:
-		divisor = uniphier_ld20_debug_uart_init();
-		break;
-#endif
 	default:
 		return;
 	}
@@ -75,5 +70,6 @@ void _debug_uart_init(void)
 	writel(UART_LCR_WLEN8 << 8, base + UNIPHIER_UART_LCR_MCR);
 
 	writel(divisor, base + UNIPHIER_UART_LDR);
+#endif
 }
 DEBUG_UART_FUNCS
