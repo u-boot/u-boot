@@ -149,7 +149,7 @@ static void xiic_fill_tx_fifo(struct xilinx_xiic_priv *priv,
 	while (len--) {
 		u16 data = msg->buf[pos++];
 
-		if (pos == len && nmsgs == 1) {
+		if ((msg->len - pos == 0) && nmsgs == 1) {
 			/* last message in transfer -> STOP */
 			data |= XIIC_TX_DYN_STOP_MASK;
 		}
