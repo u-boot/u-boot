@@ -60,6 +60,16 @@ typedef struct {
 #define Altera_EP2C35_SIZE	883905
 #define Altera_EP3C5_SIZE	368011		/* .rbf size in bytes */
 
+#define ALTERA_EP4CE6_SIZE	368011		/* 2944088 Bits */
+#define ALTERA_EP4CE10_SIZE	368011		/* 2944088 Bits */
+#define ALTERA_EP4CE15_SIZE	510856		/* 4086848 Bits */
+#define ALTERA_EP4CE22_SIZE	718569		/* 5748552 Bits */
+#define ALTERA_EP4CE30_SIZE	1191788		/* 9534304 Bits */
+#define ALTERA_EP4CE40_SIZE	1191788		/* 9534304 Bits */
+#define ALTERA_EP4CE55_SIZE	1861195		/* 14889560 Bits */
+#define ALTERA_EP4CE75_SIZE	2495719		/* 19965752 Bits */
+#define ALTERA_EP4CE115_SIZE	3571462		/* 28571696 Bits */
+
 /* Descriptor Macros
  *********************************************************************/
 /* ACEX1K devices */
