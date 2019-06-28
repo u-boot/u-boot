@@ -50,7 +50,7 @@ config SYS_K3_MCU_SCRATCHPAD_SIZE
 config SYS_K3_BOOT_PARAM_TABLE_INDEX
 	hex
 	default 0x41c7fbfc if SOC_K3_AM6
-	default 0x41cffc00 if SOC_K3_J721E
+	default 0x41cffbfc if SOC_K3_J721E
 	help
 	  Address at which ROM stores the value which determines if SPL
 	  is booted up by primary boot media or secondary boot media.
