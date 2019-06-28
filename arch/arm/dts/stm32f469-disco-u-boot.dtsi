@@ -67,7 +67,7 @@
 		};
 
 		qspi: quadspi@A0001000 {
-			compatible = "st,stm32-qspi";
+			compatible = "st,stm32f469-qspi";
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0xA0001000 0x1000>, <0x90000000 0x10000000>;
