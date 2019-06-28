@@ -162,28 +162,28 @@ static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		putc(' ');			/* terminate the dotted line */
 #endif
 
-	/*
-	 * Checking FPGA's CONF_DONE signal - correctly booted ?
-	 */
+		/*
+		 * Checking FPGA's CONF_DONE signal - correctly booted ?
+		 */
 
-	if (!(*fn->done) (cookie)) {
-		puts("** Booting failed! CONF_DONE is still deasserted.\n");
-		(*fn->abort) (cookie);
-		return FPGA_FAIL;
-	}
+		if (!(*fn->done) (cookie)) {
+			puts("** Booting failed! CONF_DONE is still deasserted.\n");
+			(*fn->abort) (cookie);
+			return FPGA_FAIL;
+		}
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-	puts(" OK\n");
+		puts(" OK\n");
 #endif
 
-	ret_val = FPGA_SUCCESS;
+		ret_val = FPGA_SUCCESS;
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-	if (ret_val == FPGA_SUCCESS)
-		puts("Done.\n");
-	else
-		puts("Fail.\n");
+		if (ret_val == FPGA_SUCCESS)
+			puts("Done.\n");
+		else
+			puts("Fail.\n");
 #endif
-	(*fn->post) (cookie);
+		(*fn->post) (cookie);
 
 	} else {
 		printf("%s: NULL Interface function table!\n", __func__);
