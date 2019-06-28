@@ -15,7 +15,7 @@
 
 / {
 	model = "Versal System Controller on a2197 Eval board RevA"; /* vck190 */
-	compatible = "xlnx,zynqmp-a2197-e-revA", "xlnx,zynqmp-a2197-revA",
+	compatible = "xlnx,zynqmp-e-a2197-00-revA", "xlnx,zynqmp-a2197-revA",
 		     "xlnx,zynqmp-a2197", "xlnx,zynqmp";
 
 	aliases {
