@@ -767,6 +767,20 @@ U_BOOT_CMD(
 	"save environment variables to persistent storage",
 	""
 );
+
+#if defined(CONFIG_CMD_ERASEENV)
+static int do_env_erase(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	return env_erase() ? 1 : 0;
+}
+
+U_BOOT_CMD(
+	eraseenv, 1, 0,	do_env_erase,
+	"erase environment variables from persistent storage",
+	""
+);
+#endif
 #endif
 #endif /* CONFIG_SPL_BUILD */
 
@@ -1316,6 +1330,9 @@ static cmd_tbl_t cmd_env_sub[] = {
 #endif
 #if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
 	U_BOOT_CMD_MKENT(save, 1, 0, do_env_save, "", ""),
+#if defined(CONFIG_CMD_ERASEENV)
+	U_BOOT_CMD_MKENT(erase, 1, 0, do_env_erase, "", ""),
+#endif
 #endif
 	U_BOOT_CMD_MKENT(set, CONFIG_SYS_MAXARGS, 0, do_env_set, "", ""),
 #if defined(CONFIG_CMD_ENV_EXISTS)
@@ -1396,6 +1413,9 @@ static char env_help_text[] =
 #endif
 #if defined(CONFIG_CMD_SAVEENV) && defined(ENV_IS_IN_DEVICE)
 	"env save - save environment\n"
+#if defined(CONFIG_CMD_ERASEENV)
+	"env erase - erase environment\n"
+#endif
 #endif
 #if defined(CONFIG_CMD_NVEDIT_EFI)
 	"env set -e name [arg ...] - set UEFI variable; unset if 'arg' not specified\n"

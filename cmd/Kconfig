@@ -408,6 +408,14 @@ config CMD_SAVEENV
 	  Save all environment variables into the compiled-in persistent
 	  storage.
 
+config CMD_ERASEENV
+	bool "eraseenv"
+	default n
+	depends on CMD_SAVEENV
+	help
+	  Erase environment variables from the compiled-in persistent
+	  storage.
+
 config CMD_ENV_EXISTS
 	bool "env exists"
 	default y

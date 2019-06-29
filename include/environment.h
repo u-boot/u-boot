@@ -200,6 +200,7 @@ enum env_operation {
 	ENVOP_INIT,	/* we want to call the init function */
 	ENVOP_LOAD,	/* we want to call the load function */
 	ENVOP_SAVE,	/* we want to call the save function */
+	ENVOP_ERASE,	/* we want to call the erase function */
 };
 
 struct env_driver {
@@ -224,6 +225,15 @@ struct env_driver {
 	 * @return 0 if OK, -ve on error
 	 */
 	int (*save)(void);
+
+	/**
+	 * erase() - Erase the environment on storage
+	 *
+	 * This method is optional and required for 'eraseenv' to work.
+	 *
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*erase)(void);
 
 	/**
 	 * init() - Set up the initial pre-relocation environment
@@ -302,6 +312,13 @@ int env_load(void);
  * @return 0 if OK, -ve on error
  */
 int env_save(void);
+
+/**
+ * env_erase() - Erase the environment on storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_erase(void);
 
 /**
  * env_fix_drivers() - Updates envdriver as per relocation
