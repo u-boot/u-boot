@@ -12,10 +12,6 @@
 
 #define SC_BASE_ADDR			0x61840000
 
-#define SC_DPLLOSCCTRL			(SC_BASE_ADDR | 0x1110)
-#define SC_DPLLOSCCTRL_DPLLST		(0x1 << 1)
-#define SC_DPLLOSCCTRL_DPLLEN		(0x1 << 0)
-
 #define SC_DPLLCTRL			(SC_BASE_ADDR | 0x1200)
 #define SC_DPLLCTRL_SSC_EN		(0x1 << 31)
 #define SC_DPLLCTRL_FOUTMODE_MASK        (0xf << 16)

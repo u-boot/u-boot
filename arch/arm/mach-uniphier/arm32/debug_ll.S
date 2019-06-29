@@ -16,8 +16,18 @@
 #include CONFIG_DEBUG_LL_INCLUDE
 #endif
 
+#define SG_REVISION_TYPE_SHIFT		16
+#define SG_REVISION_TYPE_MASK		(0xff << SG_REVISION_TYPE_SHIFT)
 #define BAUDRATE		115200
 #define DIV_ROUND(x, d)		(((x) + ((d) / 2)) / (d))
+
+.macro	sg_set_pinsel, pin, muxval, mux_bits, reg_stride, ra, rd
+	ldr	\ra, =(SG_PINCTRL_BASE + \pin * \mux_bits / 32 * \reg_stride)
+	ldr	\rd, [\ra]
+	and	\rd, \rd, #~(((1 << \mux_bits) - 1) << (\pin * \mux_bits % 32))
+	orr	\rd, \rd, #(\muxval << (\pin * \mux_bits % 32))
+	str	\rd, [\ra]
+.endm
 
 ENTRY(debug_ll_init)
 	ldr		r0, =SG_REVISION
