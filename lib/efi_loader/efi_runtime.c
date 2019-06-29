@@ -409,22 +409,6 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 		.ptr = &efi_runtime_services.set_time,
 		.patchto = &efi_set_time,
 	}, {
-		/* Clean up system table */
-		.ptr = &systab.con_in,
-		.patchto = NULL,
-	}, {
-		/* Clean up system table */
-		.ptr = &systab.con_out,
-		.patchto = NULL,
-	}, {
-		/* Clean up system table */
-		.ptr = &systab.std_err,
-		.patchto = NULL,
-	}, {
-		/* Clean up system table */
-		.ptr = &systab.boottime,
-		.patchto = NULL,
-	}, {
 		.ptr = &efi_runtime_services.get_variable,
 		.patchto = &efi_device_error,
 	}, {

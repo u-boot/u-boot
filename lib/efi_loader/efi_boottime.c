@@ -3620,11 +3620,7 @@ struct efi_system_table __efi_runtime_data systab = {
 	},
 	.fw_vendor = firmware_vendor,
 	.fw_revision = FW_VERSION << 16 | FW_PATCHLEVEL << 8,
-	.con_in = &efi_con_in,
-	.con_out = &efi_con_out,
-	.std_err = &efi_con_out,
 	.runtime = &efi_runtime_services,
-	.boottime = &efi_boot_services,
 	.nr_tables = 0,
 	.tables = NULL,
 };
@@ -3643,6 +3639,15 @@ efi_status_t efi_initialize_system_table(void)
 				EFI_MAX_CONFIGURATION_TABLES *
 				sizeof(struct efi_configuration_table),
 				(void **)&systab.tables);
+
+	/*
+	 * These entries will be set to NULL in ExitBootServices(). To avoid
+	 * relocation in SetVirtualAddressMap(), set them dynamically.
+	 */
+	systab.con_in = &efi_con_in;
+	systab.con_out = &efi_con_out;
+	systab.std_err = &efi_con_out;
+	systab.boottime = &efi_boot_services;
 
 	/* Set CRC32 field in table headers */
 	efi_update_table_header_crc32(&systab.hdr);
