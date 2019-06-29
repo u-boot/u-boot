@@ -396,10 +396,6 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
 		.ptr = &efi_runtime_services.reset_system,
 		.patchto = efi_reset_system,
 	}, {
-		/* invalidate_*cache_all are gone */
-		.ptr = &efi_runtime_services.set_virtual_address_map,
-		.patchto = &efi_unimplemented,
-	}, {
 		/* RTC accessors are gone */
 		.ptr = &efi_runtime_services.get_time,
 		.patchto = &efi_get_time,
@@ -439,6 +435,50 @@ static __efi_runtime void efi_runtime_detach(void)
 	}
 }
 
+/**
+ * efi_set_virtual_address_map_runtime() - change from physical to virtual
+ *					   mapping
+ *
+ * This function implements the SetVirtualAddressMap() runtime service after
+ * it is first called.
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @memory_map_size:	size of the virtual map
+ * @descriptor_size:	size of an entry in the map
+ * @descriptor_version:	version of the map entries
+ * @virtmap:		virtual address mapping information
+ * Return:		status code EFI_UNSUPPORTED
+ */
+static efi_status_t EFIAPI efi_set_virtual_address_map_runtime(
+			unsigned long memory_map_size,
+			unsigned long descriptor_size,
+			uint32_t descriptor_version,
+			struct efi_mem_desc *virtmap)
+{
+	return EFI_UNSUPPORTED;
+}
+
+/**
+ * efi_convert_pointer_runtime() - convert from physical to virtual pointer
+ *
+ * This function implements the ConvertPointer() runtime service after
+ * the first call to SetVirtualAddressMap().
+ *
+ * See the Unified Extensible Firmware Interface (UEFI) specification for
+ * details.
+ *
+ * @debug_disposition:	indicates if pointer may be converted to NULL
+ * @address:		pointer to be converted
+ * Return:		status code EFI_UNSUPPORTED
+ */
+static __efi_runtime efi_status_t EFIAPI efi_convert_pointer_runtime(
+			efi_uintn_t debug_disposition, void **address)
+{
+	return EFI_UNSUPPORTED;
+}
+
 static __efi_runtime void efi_relocate_runtime_table(ulong offset)
 {
 	ulong patchoff;
@@ -448,15 +488,22 @@ static __efi_runtime void efi_relocate_runtime_table(ulong offset)
 	patchoff = offset - gd->relocaddr;
 	for (pos = (void **)&efi_runtime_services.get_time;
 	     pos <= (void **)&efi_runtime_services.query_variable_info; ++pos) {
-		/*
-		 * The UEFI spec requires not to update VirtualAddressMap()
-		 * and ConvertPointer().
-		 */
-		if (*pos && pos !=
-		    (void **)&efi_runtime_services.set_virtual_address_map &&
-		    pos != (void **)&efi_runtime_services.convert_pointer)
+		if (*pos)
 			*pos += patchoff;
 	}
+
+	/*
+	 * The entry for SetVirtualAddress() must point to a physical address.
+	 * After the first execution the service must return EFI_UNSUPPORTED.
+	 */
+	efi_runtime_services.set_virtual_address_map =
+			&efi_set_virtual_address_map_runtime;
+
+	/*
+	 * The entry for ConvertPointer() must point to a physical address.
+	 * The service is not usable after SetVirtualAddress().
+	 */
+	efi_runtime_services.convert_pointer = &efi_convert_pointer_runtime;
 
 	/* Update CRC32 */
 	efi_update_table_header_crc32(&efi_runtime_services.hdr);
