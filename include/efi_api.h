@@ -242,7 +242,8 @@ struct efi_runtime_services {
 			unsigned long descriptor_size,
 			uint32_t descriptor_version,
 			struct efi_mem_desc *virtmap);
-	efi_status_t (*convert_pointer)(unsigned long dbg, void **address);
+	efi_status_t (EFIAPI *convert_pointer)(
+			efi_uintn_t debug_disposition, void **address);
 	efi_status_t (EFIAPI *get_variable)(u16 *variable_name,
 					    const efi_guid_t *vendor,
 					    u32 *attributes,
