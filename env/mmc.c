@@ -242,6 +242,54 @@ fini:
 	fini_mmc_for_env(mmc);
 	return ret;
 }
+
+#if defined(CONFIG_CMD_ERASEENV)
+static inline int erase_env(struct mmc *mmc, unsigned long size,
+			    unsigned long offset)
+{
+	uint blk_start, blk_cnt, n;
+	struct blk_desc *desc = mmc_get_blk_desc(mmc);
+
+	blk_start	= ALIGN(offset, mmc->write_bl_len) / mmc->write_bl_len;
+	blk_cnt		= ALIGN(size, mmc->write_bl_len) / mmc->write_bl_len;
+
+	n = blk_derase(desc, blk_start, blk_cnt);
+	printf("%d blocks erased: %s\n", n, (n == blk_cnt) ? "OK" : "ERROR");
+
+	return (n == blk_cnt) ? 0 : 1;
+}
+
+static int env_mmc_erase(void)
+{
+	int dev = mmc_get_env_dev();
+	struct mmc *mmc = find_mmc_device(dev);
+	int	ret, copy = 0;
+	u32	offset;
+	const char *errmsg;
+
+	errmsg = init_mmc_for_env(mmc);
+	if (errmsg) {
+		printf("%s\n", errmsg);
+		return 1;
+	}
+
+	if (mmc_get_env_addr(mmc, copy, &offset))
+		return CMD_RET_FAILURE;
+
+	ret = erase_env(mmc, CONFIG_ENV_SIZE, offset);
+
+#ifdef CONFIG_ENV_OFFSET_REDUND
+	copy = 1;
+
+	if (mmc_get_env_addr(mmc, copy, &offset))
+		return CMD_RET_FAILURE;
+
+	ret |= erase_env(mmc, CONFIG_ENV_SIZE, offset);
+#endif
+
+	return ret;
+}
+#endif /* CONFIG_CMD_ERASEENV */
 #endif /* CONFIG_CMD_SAVEENV && !CONFIG_SPL_BUILD */
 
 static inline int read_env(struct mmc *mmc, unsigned long size,
@@ -351,5 +399,8 @@ U_BOOT_ENV_LOCATION(mmc) = {
 	.load		= env_mmc_load,
 #ifndef CONFIG_SPL_BUILD
 	.save		= env_save_ptr(env_mmc_save),
+#if defined(CONFIG_CMD_ERASEENV)
+	.erase		= env_mmc_erase,
+#endif
 #endif
 };
