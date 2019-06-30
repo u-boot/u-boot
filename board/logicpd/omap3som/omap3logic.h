@@ -161,12 +161,14 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(ETK_D7_ES2), (IEN  | PTD | DIS | M0)); /*ETK_D7*/
 	MUX_VAL(CP(ETK_D8_ES2), (IEN  | PTD | DIS | M0)); /*ETK_D8*/
 	MUX_VAL(CP(ETK_D9_ES2), (IEN  | PTD | DIS | M0)); /*ETK_D9*/
+#ifndef CONFIG_USB_EHCI_OMAP /* Torpedo does not use EHCI_OMAP */
 	MUX_VAL(CP(ETK_D10_ES2), (IEN  | PTD | DIS | M0)); /*ETK_D10*/
 	MUX_VAL(CP(ETK_D11_ES2), (IEN  | PTD | DIS | M0)); /*ETK_D11*/
 	MUX_VAL(CP(ETK_D12_ES2), (IEN  | PTD | DIS | M0)); /*ETK_D12*/
 	MUX_VAL(CP(ETK_D13_ES2), (IEN  | PTD | DIS | M0)); /*ETK_D13*/
 	MUX_VAL(CP(ETK_D14_ES2), (IEN  | PTD | DIS | M0)); /*ETK_D14*/
 	MUX_VAL(CP(ETK_D15_ES2), (IEN  | PTD | DIS | M0)); /*ETK_D15*/
+#endif
 
 	MUX_VAL(CP(D2D_MCAD1), (IEN  | PTD | EN  | M0)); /*d2d_mcad1*/
 	MUX_VAL(CP(D2D_MCAD2), (IEN  | PTD | EN  | M0)); /*d2d_mcad2*/
@@ -231,6 +233,23 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(D2D_SREAD),   (IEN  | PTD | DIS | M0)); /*d2d_sread*/
 	MUX_VAL(CP(D2D_MBUSFLAG), (IEN  | PTD | DIS | M0)); /*d2d_mbusflag*/
 	MUX_VAL(CP(D2D_SBUSFLAG), (IEN  | PTD | DIS | M0)); /*d2d_sbusflag*/
+
+#ifdef CONFIG_USB_EHCI_OMAP /* SOM-LV Uses EHCI-OMAP */
+	MUX_VAL(CP(ETK_D14_ES2),	(IEN  | PTD | DIS | M3));	/*HSUSB2_DATA0*/
+	MUX_VAL(CP(ETK_D15_ES2),	(IEN  | PTD | DIS | M3));	/*HSUSB2_DATA1*/
+	MUX_VAL(CP(MCSPI1_CS3),		(IEN  | PTD | EN  | M0));	/*HSUSB2_DATA2*/
+	MUX_VAL(CP(MCSPI2_CS1),		(IEN  | PTD | EN  | M0));	/*HSUSB2_DATA3*/
+	MUX_VAL(CP(MCSPI2_SIMO),	(IEN  | PTD | DIS | M0));	/*HSUSB2_DATA4*/
+	MUX_VAL(CP(MCSPI2_SOMI),	(IEN  | PTD | DIS | M0));	/*HSUSB2_DATA5*/
+	MUX_VAL(CP(MCSPI2_CS0),		(IEN  | PTD | EN  | M0));	/*HSUSB2_DATA6*/
+	MUX_VAL(CP(MCSPI2_CLK),		(IEN  | PTD | DIS | M0));	/*HSUSB2_DATA7*/
+	MUX_VAL(CP(SYS_BOOT2),      (IEN  | PTD | DIS | M4)) 	/* GPIO_4 */
+	MUX_VAL(CP(ETK_D10_ES2),	(IDIS | PTU | DIS | M3));	/*HSUSB2_CLK*/
+	MUX_VAL(CP(ETK_D11_ES2),	(IDIS | PTU | DIS | M3));	/*HSUSB2_STP*/
+	MUX_VAL(CP(ETK_D12_ES2),	(IEN  | PTU | DIS | M3));	/*HSUSB2_DIR*/
+	MUX_VAL(CP(ETK_D13_ES2),	(IEN  | PTD | DIS | M3));	/*HSUSB2_NXT*/
+#endif
+
 }
 
 #endif

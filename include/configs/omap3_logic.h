@@ -30,6 +30,10 @@
 /* I2C */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM AT24C64      */
 
+#ifdef CONFIG_USB_EHCI_OMAP
+#define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	4
+#endif
+
 /* Board NAND Info. */
 #ifdef CONFIG_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	  /* Max number of */
