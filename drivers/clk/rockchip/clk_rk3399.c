@@ -1078,6 +1078,18 @@ static int rk3399_clk_enable(struct clk *clk)
 	case PCLK_GMAC:
 		/* Required to successfully probe the Designware GMAC driver */
 		return 0;
+
+	case SCLK_USB3OTG0_REF:
+	case SCLK_USB3OTG1_REF:
+	case SCLK_USB3OTG0_SUSPEND:
+	case SCLK_USB3OTG1_SUSPEND:
+	case ACLK_USB3OTG0:
+	case ACLK_USB3OTG1:
+	case ACLK_USB3_RKSOC_AXI_PERF:
+	case ACLK_USB3:
+	case ACLK_USB3_GRF:
+		/* Required to successfully probe the Designware USB3 driver */
+		return 0;
 	}
 
 	debug("%s: unsupported clk %ld\n", __func__, clk->id);
