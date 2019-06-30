@@ -173,8 +173,7 @@ int main(int argc, char **argv)
 				return EXIT_FAILURE;
 			}
 			filesize += readbytes;
-		} while (readbytes == readlen);
-
+		} while (readbytes > 0);
 	} else {
 		txt_filename = argv[optind];
 		txt_fd = open(txt_filename, O_RDONLY);
