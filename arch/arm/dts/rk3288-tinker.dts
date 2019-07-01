@@ -28,8 +28,6 @@
 
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
-
 	usb {
 		host_vbus_drv: host-vbus-drv {
 			rockchip,pins = <0 14 RK_FUNC_GPIO &pcfg_pull_none>;
@@ -42,29 +40,12 @@
 };
 
 &uart2 {
-	u-boot,dm-pre-reloc;
 	reg-shift = <2>;
 };
 
 &usb_host1 {
 	vbus-supply = <&vcc5v0_host>;
 	status = "okay";
-};
-
-&sdmmc {
-	u-boot,dm-pre-reloc;
-};
-
-&emmc {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio3 {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio8 {
-	u-boot,dm-pre-reloc;
 };
 
 &i2c2 {
