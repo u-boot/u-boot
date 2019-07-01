@@ -50,7 +50,7 @@ the git tree published by the board vendor:
  > git clone https://github.com/khadas/u-boot -b Vim vim-u-boot
  > cd vim-u-boot
  > make kvim_defconfig
- > make
+ > make CROSS_COMPILE=aarch64-none-elf-
  > export FIPDIR=$PWD/fip
 
 Go back to mainline U-Boot source tree then :
