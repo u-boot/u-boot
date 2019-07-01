@@ -23,7 +23,7 @@
 /* Mutually exclusive */
 &ospi {
 	status = "okay"; /* U97 MT35XU02G */
-	compatible = "cadence,qspi", "cdns,qspi-nor";
+	compatible = "xlnx,versal-ospi-1.0", "cadence,qspi", "cdns,qspi-nor";
 	bus-num = <2>;
 	num-cs = <1>;
 	#stream-id-cells = <1>;
@@ -31,11 +31,34 @@
 	#size-cells = <0>;
 
 	flash@0 {
-		compatible = "n25q512a", "micron,m25p80", "spi-flash";
+		compatible = "mt35xu02g", "micron,m25p80", "spi-flash";
 		reg = <0>;
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		cdns,read-delay = <0x0>;
+		cdns,tshsl-ns = <0x0>;
+		cdns,tsd2d-ns = <0x0>;
+		cdns,tchsh-ns = <0x1>;
+		cdns,tslch-ns = <0x1>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <8>;
 		spi-max-frequency = <20000000>;
+		partition@0 { /* for testing purpose */
+			label = "ospi-fsbl-uboot";
+			reg = <0x0 0x100000>;
+		};
+		partition@100000 { /* for testing purpose */
+			label = "ospi-linux";
+			reg = <0x100000 0x500000>;
+		};
+		partition@600000 { /* for testing purpose */
+			label = "ospi-device-tree";
+			reg = <0x600000 0x20000>;
+		};
+		partition@620000 { /* for testing purpose */
+			label = "ospi-rootfs";
+			reg = <0x1000000 0xa00000>;
+		};
 	};
 
 };
