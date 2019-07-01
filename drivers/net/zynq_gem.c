@@ -463,7 +463,6 @@ static int zynq_gem_init(struct udevice *dev)
 		break;
 	}
 
-#if !defined(CONFIG_ARCH_VERSAL)
 	ret = clk_set_rate(&priv->clk, clk_rate);
 	if (IS_ERR_VALUE(ret) && ret != (unsigned long)-ENOSYS) {
 		dev_err(dev, "failed to set tx clock rate\n");
@@ -475,9 +474,6 @@ static int zynq_gem_init(struct udevice *dev)
 		dev_err(dev, "failed to enable tx clock\n");
 		return ret;
 	}
-#else
-	debug("requested clk_rate %ld\n", clk_rate);
-#endif
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
 					ZYNQ_GEM_NWCTRL_TXEN_MASK);
