@@ -425,11 +425,9 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 {
 	struct zynqmp_qspi_platdata *plat = dev_get_platdata(bus);
 	struct zynqmp_qspi_priv *priv = dev_get_priv(bus);
-#if !defined(CONFIG_ARCH_VERSAL)
 	struct clk clk;
 	unsigned long clock;
 	int ret;
-#endif
 
 	debug("%s: bus:%p, priv:%p\n", __func__, bus, priv);
 
@@ -443,7 +441,6 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 		      __func__);
 		return -1;
 	}
-#if !defined(CONFIG_ARCH_VERSAL)
 	ret = clk_get_by_index(bus, 0, &clk);
 	if (ret < 0) {
 		dev_err(dev, "failed to get clock\n");
@@ -464,7 +461,6 @@ static int zynqmp_qspi_probe(struct udevice *bus)
 	}
 	plat->frequency = clock;
 	plat->speed_hz = plat->frequency;
-#endif
 
 	/* init the zynq spi hw */
 	zynqmp_qspi_init_hw(priv);
