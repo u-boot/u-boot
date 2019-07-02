@@ -958,10 +958,14 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 {
 	int ret;
+	int retry = 3;
 
-	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
-			 (mmc->part_config & ~PART_ACCESS_MASK)
-			 | (part_num & PART_ACCESS_MASK));
+	do {
+		ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				 EXT_CSD_PART_CONF,
+				 (mmc->part_config & ~PART_ACCESS_MASK)
+				 | (part_num & PART_ACCESS_MASK));
+	} while (ret && retry--);
 
 	/*
 	 * Set the capacity if the switch succeeded or was intended
