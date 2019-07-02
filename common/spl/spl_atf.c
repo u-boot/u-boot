@@ -45,6 +45,7 @@ static struct bl31_params *bl2_plat_get_bl31_params(uintptr_t bl33_entry)
 	SET_PARAM_HEAD(bl2_to_bl31_params, ATF_PARAM_BL31, ATF_VERSION_1, 0);
 
 	/* Fill BL31 related information */
+	bl2_to_bl31_params->bl31_image_info = &bl31_params_mem.bl31_image_info;
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl31_image_info,
 		       ATF_PARAM_IMAGE_BINARY, ATF_VERSION_1, 0);
 

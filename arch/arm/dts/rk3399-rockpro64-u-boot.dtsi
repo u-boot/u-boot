@@ -4,3 +4,7 @@
  */
 
 #include "rk3399-u-boot.dtsi"
+
+&vdd_log {
+	regulator-init-microvolt = <950000>;
+};
