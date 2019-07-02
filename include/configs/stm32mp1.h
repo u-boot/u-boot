@@ -68,6 +68,10 @@
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
 
+/* NAND support */
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+
 /* Ethernet need */
 #ifdef CONFIG_DWC_ETH_QOS
 #define CONFIG_SYS_NONCACHED_MEMORY	(1 * SZ_1M)	/* 1M */
@@ -76,15 +80,15 @@
 #define CONFIG_SYS_AUTOLOAD		"no"
 #endif
 
+/* Dynamic MTD partition support */
+#define CONFIG_SYS_MTDPARTS_RUNTIME
+
 /*****************************************************************************/
 #ifdef CONFIG_DISTRO_DEFAULTS
 /*****************************************************************************/
 
 #if !defined(CONFIG_SPL_BUILD)
 
-/* NAND support */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
 	func(MMC, mmc, 0) \
@@ -113,13 +117,14 @@
 
 #include <config_distro_bootcmd.h>
 
-#if defined(CONFIG_STM32_QSPI) || defined(CONFIG_NAND_STM32_FMC)
-#define CONFIG_SYS_MTDPARTS_RUNTIME
-#endif
-
 #define STM32MP_MTDPARTS \
 	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),-(nor_user)\0" \
 	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0"
+
+#ifndef CONFIG_SYS_MTDPARTS_RUNTIME
+#undef STM32MP_MTDPARTS
+#define STM32MP_MTDPARTS
+#endif
 
 /*
  * memory layout for 32M uncompressed/compressed kernel,
