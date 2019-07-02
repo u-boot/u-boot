@@ -5,8 +5,8 @@ Android Fastboot
 Overview
 ========
 
-The protocol that is used over USB and UDP is described in the
-``README.android-fastboot-protocol`` file in the same directory.
+The protocol that is used over USB and UDP is described in
+``doc/android/fastboot-protocol.txt``.
 
 The current implementation supports the following standard commands:
 
