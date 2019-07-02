@@ -206,7 +206,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 }
 #endif
 
-int mmc_send_status(struct mmc *mmc, int timeout)
+int mmc_send_status(struct mmc *mmc, unsigned int *status)
 {
 	struct mmc_cmd cmd;
 	int err, retries = 5;
@@ -216,23 +216,39 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 	if (!mmc_host_is_spi(mmc))
 		cmd.cmdarg = mmc->rca << 16;
 
-	while (1) {
+	while (retries--) {
 		err = mmc_send_cmd(mmc, &cmd, NULL);
 		if (!err) {
-			if ((cmd.response[0] & MMC_STATUS_RDY_FOR_DATA) &&
-			    (cmd.response[0] & MMC_STATUS_CURR_STATE) !=
-			     MMC_STATE_PRG)
-				break;
+			mmc_trace_state(mmc, &cmd);
+			*status = cmd.response[0];
+			return 0;
+		}
+	}
+	mmc_trace_state(mmc, &cmd);
+	return -ECOMM;
+}
 
-			if (cmd.response[0] & MMC_STATUS_MASK) {
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
-				pr_err("Status Error: 0x%08x\n",
-				       cmd.response[0]);
-#endif
-				return -ECOMM;
-			}
-		} else if (--retries < 0)
+int mmc_poll_for_busy(struct mmc *mmc, int timeout)
+{
+	unsigned int status;
+	int err;
+
+	while (1) {
+		err = mmc_send_status(mmc, &status);
+		if (err)
 			return err;
+
+		if ((status & MMC_STATUS_RDY_FOR_DATA) &&
+		    (status & MMC_STATUS_CURR_STATE) !=
+		     MMC_STATE_PRG)
+			break;
+
+		if (status & MMC_STATUS_MASK) {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+			pr_err("Status Error: 0x%08x\n", status);
+#endif
+			return -ECOMM;
+		}
 
 		if (timeout-- <= 0)
 			break;
@@ -240,7 +256,6 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 		udelay(1000);
 	}
 
-	mmc_trace_state(mmc, &cmd);
 	if (timeout <= 0) {
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		pr_err("Timeout waiting card ready\n");
@@ -752,7 +767,7 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 		}
 
 		/* Waiting for the ready status */
-		return mmc_send_status(mmc, timeout);
+		return mmc_poll_for_busy(mmc, timeout);
 	}
 
 	return ret;

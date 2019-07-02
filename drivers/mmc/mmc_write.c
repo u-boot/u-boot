@@ -119,7 +119,7 @@ ulong mmc_berase(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
 		blk += blk_r;
 
 		/* Waiting for the ready status */
-		if (mmc_send_status(mmc, timeout))
+		if (mmc_poll_for_busy(mmc, timeout))
 			return 0;
 	}
 
@@ -177,7 +177,7 @@ static ulong mmc_write_blocks(struct mmc *mmc, lbaint_t start,
 	}
 
 	/* Waiting for the ready status */
-	if (mmc_send_status(mmc, timeout))
+	if (mmc_poll_for_busy(mmc, timeout))
 		return 0;
 
 	return blkcnt;
