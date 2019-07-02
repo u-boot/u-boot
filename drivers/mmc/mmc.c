@@ -29,12 +29,10 @@ static int mmc_select_mode_and_width(struct mmc *mmc, uint card_caps);
 
 #if !CONFIG_IS_ENABLED(DM_MMC)
 
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 static int mmc_wait_dat0(struct mmc *mmc, int state, int timeout)
 {
 	return -ENOSYS;
 }
-#endif
 
 __weak int board_mmc_getwp(struct mmc *mmc)
 {
@@ -232,6 +230,10 @@ int mmc_poll_for_busy(struct mmc *mmc, int timeout)
 {
 	unsigned int status;
 	int err;
+
+	err = mmc_wait_dat0(mmc, 1, timeout);
+	if (err != -ENOSYS)
+		return err;
 
 	while (1) {
 		err = mmc_send_status(mmc, &status);
