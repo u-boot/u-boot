@@ -775,14 +775,6 @@ tuning_error:
 	return ret;
 }
 #endif
-
-static void omap_hsmmc_send_init_stream(struct udevice *dev)
-{
-	struct omap_hsmmc_data *priv = dev_get_priv(dev);
-	struct hsmmc *mmc_base = priv->base_addr;
-
-	mmc_init_stream(mmc_base);
-}
 #endif
 
 static void mmc_enable_irq(struct mmc *mmc, struct mmc_cmd *cmd)
@@ -1521,7 +1513,6 @@ static const struct dm_mmc_ops omap_hsmmc_ops = {
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = omap_hsmmc_execute_tuning,
 #endif
-	.send_init_stream	= omap_hsmmc_send_init_stream,
 #if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 	.wait_dat0	= omap_hsmmc_wait_dat0,
 #endif
