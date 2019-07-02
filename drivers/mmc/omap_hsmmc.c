@@ -430,7 +430,6 @@ static void omap_hsmmc_conf_bus_power(struct mmc *mmc, uint signal_voltage)
 	writel(ac12, &mmc_base->ac12);
 }
 
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout)
 {
 	int ret = -ETIMEDOUT;
@@ -456,7 +455,6 @@ static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout)
 
 	return ret;
 }
-#endif
 
 #if CONFIG_IS_ENABLED(MMC_IO_VOLTAGE)
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
@@ -1513,9 +1511,7 @@ static const struct dm_mmc_ops omap_hsmmc_ops = {
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = omap_hsmmc_execute_tuning,
 #endif
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 	.wait_dat0	= omap_hsmmc_wait_dat0,
-#endif
 };
 #else
 static const struct mmc_ops omap_hsmmc_ops = {
