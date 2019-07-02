@@ -955,45 +955,9 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 	return 0;
 }
 
-#if CONFIG_IS_ENABLED(MMC_HS200_SUPPORT) || CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
-static int mmc_boot_part_access_chk(struct mmc *mmc, unsigned int part_num)
-{
-	int forbidden = 0;
-	bool change = false;
-
-	if (part_num & PART_ACCESS_MASK)
-		forbidden = MMC_CAP(MMC_HS_200) | MMC_CAP(MMC_HS_400);
-
-	if (MMC_CAP(mmc->selected_mode) & forbidden) {
-		pr_debug("selected mode (%s) is forbidden for part %d\n",
-			 mmc_mode_name(mmc->selected_mode), part_num);
-		change = true;
-	} else if (mmc->selected_mode != mmc->best_mode) {
-		pr_debug("selected mode is not optimal\n");
-		change = true;
-	}
-
-	if (change)
-		return mmc_select_mode_and_width(mmc,
-						 mmc->card_caps & ~forbidden);
-
-	return 0;
-}
-#else
-static inline int mmc_boot_part_access_chk(struct mmc *mmc,
-					   unsigned int part_num)
-{
-	return 0;
-}
-#endif
-
 int mmc_switch_part(struct mmc *mmc, unsigned int part_num)
 {
 	int ret;
-
-	ret = mmc_boot_part_access_chk(mmc, part_num);
-	if (ret)
-		return ret;
 
 	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
 			 (mmc->part_config & ~PART_ACCESS_MASK)
