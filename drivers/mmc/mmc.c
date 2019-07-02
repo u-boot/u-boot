@@ -748,11 +748,16 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 {
 	struct mmc_cmd cmd;
 	int timeout = DEFAULT_CMD6_TIMEOUT_MS;
+	bool is_part_switch = (set == EXT_CSD_CMD_SET_NORMAL) &&
+			      (index == EXT_CSD_PART_CONF);
 	int retries = 3;
 	int ret;
 
 	if (mmc->gen_cmd6_time)
 		timeout = mmc->gen_cmd6_time * 10;
+
+	if (is_part_switch  && mmc->part_switch_time)
+		timeout = mmc->part_switch_time * 10;
 
 	cmd.cmdidx = MMC_CMD_SWITCH;
 	cmd.resp_type = MMC_RSP_R1b;
@@ -2151,6 +2156,11 @@ static int mmc_startup_v4(struct mmc *mmc)
 	 */
 	part_completed = !!(ext_csd[EXT_CSD_PARTITION_SETTING] &
 			    EXT_CSD_PARTITION_SETTING_COMPLETED);
+
+	mmc->part_switch_time = ext_csd[EXT_CSD_PART_SWITCH_TIME];
+	/* Some eMMC set the value too low so set a minimum */
+	if (mmc->part_switch_time < MMC_MIN_PART_SWITCH_TIME && mmc->part_switch_time)
+		mmc->part_switch_time = MMC_MIN_PART_SWITCH_TIME;
 
 	/* store the partition info of emmc */
 	mmc->part_support = ext_csd[EXT_CSD_PARTITIONING_SUPPORT];
