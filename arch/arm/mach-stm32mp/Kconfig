@@ -62,7 +62,17 @@ config STM32MP1_TRUSTED
 		Say Y here to enable boot with TF-A
 		Trusted boot chain is :
 		BootRom => TF-A.stm32 (clock & DDR) => U-Boot.stm32
-		TF-A monitor provides proprietary smc to manage secure devices
+		TF-A monitor provides proprietary SMC to manage secure devices
+
+config STM32MP1_OPTEE
+	bool "Support trusted boot with TF-A and OP-TEE"
+	depends on STM32MP1_TRUSTED
+	default n
+	help
+		Say Y here to enable boot with TF-A and OP-TEE
+		Trusted boot chain is :
+		BootRom => TF-A.stm32 (clock & DDR) => OP-TEE => U-Boot.stm32
+		OP-TEE monitor provides ST SMC to access to secure resources
 
 config SYS_TEXT_BASE
 	prompt "U-Boot base address"

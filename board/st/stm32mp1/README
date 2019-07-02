@@ -51,7 +51,7 @@ BootRom => FSBL in SYSRAM => SSBL in DDR => OS (Linux Kernel)
 with FSBL = First Stage Bootloader
      SSBL = Second Stage Bootloader
 
-2 boot configurations are supported:
+3 boot configurations are supported:
 
 1) The "Trusted" boot chain (defconfig_file : stm32mp15_trusted_defconfig)
    BootRom => FSBL = Trusted Firmware-A (TF-A) => SSBL = U-Boot
@@ -60,7 +60,15 @@ with FSBL = First Stage Bootloader
    U-Boot is running in normal world and uses TF-A monitor
    to access to secure resources.
 
-2) The "Basic" boot chain (defconfig_file : stm32mp15_basic_defconfig)
+2) The "Trusted" boot chain with OP-TEE
+   (defconfig_file : stm32mp15_optee_defconfig)
+   BootRom => FSBL = Trusted Firmware-A (TF-A) => SSBL = U-Boot
+   TF-A performs a full initialization of Secure peripherals and installs OP-TEE
+   from specific partitions (teeh, teed, teex).
+   U-Boot is running in normal world and uses OP-TEE monitor to access
+   to secure resources.
+
+3) The "Basic" boot chain (defconfig_file : stm32mp15_basic_defconfig)
    BootRom => FSBL = U-Boot SPL => SSBL = U-Boot
    SPL has limited security initialisation
    U-Boot is running in secure mode and provide a secure monitor to the kernel
@@ -113,6 +121,7 @@ the supported device trees for stm32mp157 are:
 
 	for example: use one output directory for each configuration
 	# export KBUILD_OUTPUT=stm32mp15_trusted
+	# export KBUILD_OUTPUT=stm32mp15_optee
 	# export KBUILD_OUTPUT=stm32mp15_basic
 
 	you can build outside of code directory:
@@ -123,6 +132,7 @@ the supported device trees for stm32mp157 are:
 	# make <defconfig_file>
 
 	- For trusted boot mode : "stm32mp15_trusted_defconfig"
+	- For trusted with OP-TEE boot mode : "stm32mp15_optee_defconfig"
 	- For basic boot mode: "stm32mp15_basic_defconfig"
 
 5. Configure the device-tree and build the U-Boot image:
@@ -136,22 +146,27 @@ the supported device trees for stm32mp157 are:
 	# make stm32mp15_trusted_defconfig
 	# make DEVICE_TREE=stm32mp157c-ev1 all
 
-  b) basic boot on ev1
+  b) trusted with OP-TEE boot on dk2
+	# export KBUILD_OUTPUT=stm32mp15_optee
+	# make stm32mp15_optee_defconfig
+	# make DEVICE_TREE=stm32mp157c-dk2 all
+
+  c) basic boot on ev1
 	# export KBUILD_OUTPUT=stm32mp15_basic
 	# make stm32mp15_basic_defconfig
 	# make DEVICE_TREE=stm32mp157c-ev1 all
 
-  c) basic boot on ed1
+  d) basic boot on ed1
 	# export KBUILD_OUTPUT=stm32mp15_basic
 	# make stm32mp15_basic_defconfig
 	# make DEVICE_TREE=stm32mp157c-ed1 all
 
-  d) basic boot on dk2
+  e) basic boot on dk1
 	# export KBUILD_OUTPUT=stm32mp15_basic
 	# make stm32mp15_basic_defconfig
-	# make DEVICE_TREE=stm32mp157c-dk2 all
+	# make DEVICE_TREE=stm32mp157a-dk1 all
 
-  d) basic boot on avenger96
+  f) basic boot on avenger96
 	# export KBUILD_OUTPUT=stm32mp15_basic
 	# make stm32mp15_basic_defconfig
 	# make DEVICE_TREE=stm32mp157a-avenger96 all
@@ -164,7 +179,7 @@ the supported device trees for stm32mp157 are:
   So in the output directory (selected by KBUILD_OUTPUT),
   you can found the needed files:
 
-  a) For Trusted boot
+  a) For Trusted boot (with or without OP-TEE)
    + FSBL = tf-a.stm32 (provided by TF-A compilation)
    + SSBL = u-boot.stm32
 
