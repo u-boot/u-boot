@@ -99,21 +99,7 @@ config TARGET_VYASA_RK3288
 	bool "Vyasa-RK3288"
 	select BOARD_LATE_INIT
 	select ROCKCHIP_BROM_HELPER
-	select SUPPORT_TPL
 	select TPL
-	select TPL_BOOTROM_SUPPORT
-	select TPL_CLK
-	select TPL_DM
-	select TPL_DRIVERS_MISC_SUPPORT
-	select TPL_LIBCOMMON_SUPPORT
-	select TPL_LIBGENERIC_SUPPORT
-	select TPL_NEEDS_SEPARATE_TEXT_BASE if SPL
-	select TPL_OF_CONTROL
-	select TPL_OF_PLATDATA
-	select TPL_RAM
-	select TPL_REGMAP
-	select TPL_SERIAL_SUPPORT
-	select TPL_SYSCON
 	help
 	  Vyasa is a RK3288-based development board with 2 USB ports,
 	  HDMI, VGA, micro-SD card, audio, WiFi  and Gigabit Ethernet, It
