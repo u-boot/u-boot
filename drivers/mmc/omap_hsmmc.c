@@ -1065,18 +1065,17 @@ static int omap_hsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s: timedout waiting on cmd inhibit to clear\n",
 					__func__);
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
 			return -ETIMEDOUT;
 		}
 	}
 	writel(0xFFFFFFFF, &mmc_base->stat);
-	start = get_timer(0);
-	while (readl(&mmc_base->stat)) {
-		if (get_timer(0) - start > MAX_RETRY_MS) {
-			printf("%s: timedout waiting for STAT (%x) to clear\n",
-				__func__, readl(&mmc_base->stat));
-			return -ETIMEDOUT;
-		}
+	if (readl(&mmc_base->stat)) {
+		mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
+		mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
 	}
+
 	/*
 	 * CMDREG
 	 * CMDIDX[13:8]	: Command index
