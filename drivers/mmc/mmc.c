@@ -746,6 +746,7 @@ static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 			bool send_status)
 {
+	unsigned int status, start;
 	struct mmc_cmd cmd;
 	int timeout = DEFAULT_CMD6_TIMEOUT_MS;
 	bool is_part_switch = (set == EXT_CSD_CMD_SET_NORMAL) &&
@@ -765,25 +766,47 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 				 (index << 16) |
 				 (value << 8);
 
-	while (retries > 0) {
+	do {
 		ret = mmc_send_cmd(mmc, &cmd, NULL);
+	} while (ret && retries-- > 0);
 
-		if (ret) {
-			retries--;
-			continue;
+	if (ret)
+		return ret;
+
+	start = get_timer(0);
+
+	/* poll dat0 for rdy/buys status */
+	ret = mmc_wait_dat0(mmc, 1, timeout);
+	if (ret && ret != -ENOSYS)
+		return ret;
+
+	/*
+	 * In cases when not allowed to poll by using CMD13 or because we aren't
+	 * capable of polling by using mmc_wait_dat0, then rely on waiting the
+	 * stated timeout to be sufficient.
+	 */
+	if (ret == -ENOSYS && !send_status)
+		mdelay(timeout);
+
+	/* Finally wait until the card is ready or indicates a failure
+	 * to switch. It doesn't hurt to use CMD13 here even if send_status
+	 * is false, because by now (after 'timeout' ms) the bus should be
+	 * reliable.
+	 */
+	do {
+		ret = mmc_send_status(mmc, &status);
+
+		if (!ret && (status & MMC_STATUS_SWITCH_ERROR)) {
+			pr_debug("switch failed %d/%d/0x%x !\n", set, index,
+				 value);
+			return -EIO;
 		}
-
-		if (!send_status) {
-			mdelay(50);
+		if (!ret && (status & MMC_STATUS_RDY_FOR_DATA))
 			return 0;
-		}
+		udelay(100);
+	} while (get_timer(start) < timeout);
 
-		/* Waiting for the ready status */
-		return mmc_poll_for_busy(mmc, timeout);
-	}
-
-	return ret;
-
+	return -ETIMEDOUT;
 }
 
 int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
