@@ -355,3 +355,18 @@ int checkboard(void)
 	puts("Board: DHCOM i.MX6\n");
 	return 0;
 }
+
+#ifdef CONFIG_MULTI_DTB_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (is_mx6dq()) {
+		if (!strcmp(name, "imx6q-dhcom-pdk2"))
+			return 0;
+	} else if (is_mx6sdl()) {
+		if (!strcmp(name, "imx6dl-dhcom-pdk2"))
+			return 0;
+	}
+
+	return -1;
+}
+#endif
