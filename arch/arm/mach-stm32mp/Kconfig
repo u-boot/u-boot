@@ -38,6 +38,7 @@ config TARGET_STM32MP1
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC if !STM32MP1_TRUSTED
 	select CPU_V7_HAS_VIRT
+	select OF_BOARD_SETUP
 	select PINCTRL_STM32
 	select STM32_RCC
 	select STM32_RESET
