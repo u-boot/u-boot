@@ -21,6 +21,8 @@
 #include <div64.h>
 #include "mmc_private.h"
 
+#define DEFAULT_CMD6_TIMEOUT_MS  500
+
 static int mmc_set_signal_voltage(struct mmc *mmc, uint signal_voltage);
 static int mmc_power_cycle(struct mmc *mmc);
 #if !CONFIG_IS_ENABLED(MMC_TINY)
@@ -745,9 +747,12 @@ static int __mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value,
 			bool send_status)
 {
 	struct mmc_cmd cmd;
-	int timeout = 1000;
+	int timeout = DEFAULT_CMD6_TIMEOUT_MS;
 	int retries = 3;
 	int ret;
+
+	if (mmc->gen_cmd6_time)
+		timeout = mmc->gen_cmd6_time * 10;
 
 	cmd.cmdidx = MMC_CMD_SWITCH;
 	cmd.resp_type = MMC_RSP_R1b;
@@ -2134,6 +2139,9 @@ static int mmc_startup_v4(struct mmc *mmc)
 		if ((capacity >> 20) > 2 * 1024)
 			mmc->capacity_user = capacity;
 	}
+
+	if (mmc->version >= MMC_VERSION_4_5)
+		mmc->gen_cmd6_time = ext_csd[EXT_CSD_GENERIC_CMD6_TIME];
 
 	/* The partition data may be non-zero but it is only
 	 * effective if PARTITION_SETTING_COMPLETED is set in

@@ -230,6 +230,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_HC_WP_GRP_SIZE		221	/* RO */
 #define EXT_CSD_HC_ERASE_GRP_SIZE	224	/* RO */
 #define EXT_CSD_BOOT_MULT		226	/* RO */
+#define EXT_CSD_GENERIC_CMD6_TIME       248     /* RO */
 #define EXT_CSD_BKOPS_SUPPORT		502	/* RO */
 
 /*
@@ -585,6 +586,7 @@ struct mmc {
 	u8 part_attr;
 	u8 wr_rel_set;
 	u8 part_config;
+	u8 gen_cmd6_time;
 	uint tran_speed;
 	uint legacy_speed; /* speed for the legacy mode provided by the card */
 	uint read_bl_len;
