@@ -623,10 +623,3 @@ config HAS_FSL_XHCI_USB
 	help
 	  For some SoC(such as LS1043A and LS1046A), USB and QE-HDLC multiplex use
 	  pins, select it when the pins are assigned to USB.
-
-config TFABOOT
-       bool "Support for booting from TFA"
-       default n
-       help
-         Enabling this will make a U-Boot binary that is capable of being
-         booted via TFA.
