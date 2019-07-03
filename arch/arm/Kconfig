@@ -840,6 +840,7 @@ config ARCH_OWL
 
 config ARCH_QEMU
 	bool "QEMU Virtual Platform"
+	select ARCH_SUPPORT_TFABOOT
 	select DM
 	select DM_SERIAL
 	select OF_CONTROL
