@@ -117,6 +117,30 @@
 		#size-cells = <2>;
 		device_type = "pci";
 		ranges= <0x82000000 0x0 0x00000000 0x1 0xf8000000 0x0 0x160000>;
+		enetc0: pci@0,0 {
+			reg = <0x000000 0 0 0 0>;
+			status = "disabled";
+		};
+		enetc1: pci@0,1 {
+			reg = <0x000100 0 0 0 0>;
+			status = "disabled";
+		};
+		enetc2: pci@0,2 {
+			reg = <0x000200 0 0 0 0>;
+			status = "okay";
+			phy-mode = "internal";
+		};
+		mdio0: pci@0,3 {
+			#address-cells=<0>;
+			#size-cells=<1>;
+			reg = <0x000300 0 0 0 0>;
+			status = "disabled";
+		};
+		enetc6: pci@0,6 {
+			reg = <0x000600 0 0 0 0>;
+			status = "okay";
+			phy-mode = "internal";
+		};
 	};
 
 	i2c0: i2c@2000000 {

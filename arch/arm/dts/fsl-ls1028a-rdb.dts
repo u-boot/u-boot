@@ -86,3 +86,16 @@
 &usb2 {
 	status = "okay";
 };
+
+&enetc0 {
+	status = "okay";
+	phy-mode = "sgmii";
+	phy-handle = <&rdb_phy0>;
+};
+
+&mdio0 {
+	status = "okay";
+	rdb_phy0: phy@2 {
+		reg = <2>;
+	};
+};
