@@ -24,6 +24,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply VIRTIO_MMIO
 	imply VIRTIO_NET
 	imply VIRTIO_BLK
+	imply VIRTIO_PCI
 	imply CMD_PING
 	imply CMD_FS_GENERIC
 	imply DOS_PARTITION
