@@ -12,7 +12,7 @@
 #include <version.h>
 
 static void getvar_version(char *var_parameter, char *response);
-static void getvar_bootloader_version(char *var_parameter, char *response);
+static void getvar_version_bootloader(char *var_parameter, char *response);
 static void getvar_downloadsize(char *var_parameter, char *response);
 static void getvar_serialno(char *var_parameter, char *response);
 static void getvar_version_baseband(char *var_parameter, char *response);
@@ -38,11 +38,8 @@ static const struct {
 		.variable = "version",
 		.dispatch = getvar_version
 	}, {
-		.variable = "bootloader-version",
-		.dispatch = getvar_bootloader_version
-	}, {
 		.variable = "version-bootloader",
-		.dispatch = getvar_bootloader_version
+		.dispatch = getvar_version_bootloader
 	}, {
 		.variable = "downloadsize",
 		.dispatch = getvar_downloadsize
@@ -131,7 +128,7 @@ static void getvar_version(char *var_parameter, char *response)
 	fastboot_okay(FASTBOOT_VERSION, response);
 }
 
-static void getvar_bootloader_version(char *var_parameter, char *response)
+static void getvar_version_bootloader(char *var_parameter, char *response)
 {
 	fastboot_okay(U_BOOT_VERSION, response);
 }
