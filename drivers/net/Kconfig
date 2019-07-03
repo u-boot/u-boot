@@ -588,4 +588,11 @@ config HIGMACV300_ETH
 	  This driver supports HIGMACV300 Ethernet controller found on
 	  HiSilicon SoCs.
 
+config FSL_ENETC
+	bool "NXP ENETC Ethernet controller"
+	depends on DM_PCI && DM_ETH
+	help
+	  This driver supports the NXP ENETC Ethernet controller found on some
+	  of the NXP SoCs.
+
 endif # NETDEVICES
