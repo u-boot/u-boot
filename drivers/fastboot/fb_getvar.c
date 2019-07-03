@@ -28,6 +28,7 @@ static void getvar_partition_type(char *part_name, char *response);
 #if CONFIG_IS_ENABLED(FASTBOOT_FLASH)
 static void getvar_partition_size(char *part_name, char *response);
 #endif
+static void getvar_is_userspace(char *var_parameter, char *response);
 
 static const struct {
 	const char *variable;
@@ -78,6 +79,9 @@ static const struct {
 		.variable = "partition-size",
 		.dispatch = getvar_partition_size
 #endif
+	}, {
+		.variable = "is-userspace",
+		.dispatch = getvar_is_userspace
 	}
 };
 
@@ -242,6 +246,11 @@ static void getvar_partition_size(char *part_name, char *response)
 		fastboot_response("OKAY", response, "0x%016zx", size);
 }
 #endif
+
+static void getvar_is_userspace(char *var_parameter, char *response)
+{
+	fastboot_okay("no", response);
+}
 
 /**
  * fastboot_getvar() - Writes variable indicated by cmd_parameter to response.
