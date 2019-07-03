@@ -10,7 +10,32 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <linux/sizes.h>
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(USB, usb, 0) \
+	func(SCSI, scsi, 0) \
+	func(VIRTIO, virtio, 0) \
+	func(IDE, ide, 0) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
 #include <configs/x86-common.h>
+
+#undef CONFIG_ENV_SIZE
+#define CONFIG_ENV_SIZE			SZ_256K
+
+#define CONFIG_PREBOOT "pci enum"
+
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_STD_DEVICES_SETTINGS \
+	"scriptaddr=0x7000000\0" \
+	"kernel_addr_r=0x1000000\0" \
+	"ramdisk_addr_r=0x4000000\0" \
+	"consoledev=ttyS0\0" \
+	CONFIG_OTHBOOTARGS \
+	BOOTENV
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 
