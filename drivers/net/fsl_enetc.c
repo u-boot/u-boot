@@ -39,6 +39,152 @@ static int enetc_bind(struct udevice *dev)
 	return 0;
 }
 
+/* MDIO wrappers, we're using these to drive internal MDIO to get to serdes */
+static int enetc_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
+{
+	struct enetc_mdio_priv priv;
+
+	priv.regs_base = bus->priv;
+	return enetc_mdio_read_priv(&priv, addr, devad, reg);
+}
+
+static int enetc_mdio_write(struct mii_dev *bus, int addr, int devad, int reg,
+			    u16 val)
+{
+	struct enetc_mdio_priv priv;
+
+	priv.regs_base = bus->priv;
+	return enetc_mdio_write_priv(&priv, addr, devad, reg, val);
+}
+
+/* only interfaces that can pin out through serdes have internal MDIO */
+static bool enetc_has_imdio(struct udevice *dev)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
+
+	return !!(priv->imdio.priv);
+}
+
+/* set up serdes for SGMII */
+static int enetc_init_sgmii(struct udevice *dev)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
+
+	if (!enetc_has_imdio(dev))
+		return 0;
+
+	/* Set to SGMII mode, use AN */
+	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, MDIO_DEVAD_NONE,
+			 ENETC_PCS_IF_MODE, ENETC_PCS_IF_MODE_SGMII_AN);
+
+	/* Dev ability - SGMII */
+	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, MDIO_DEVAD_NONE,
+			 ENETC_PCS_DEV_ABILITY, ENETC_PCS_DEV_ABILITY_SGMII);
+
+	/* Adjust link timer for SGMII */
+	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, MDIO_DEVAD_NONE,
+			 ENETC_PCS_LINK_TIMER1, ENETC_PCS_LINK_TIMER1_VAL);
+	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, MDIO_DEVAD_NONE,
+			 ENETC_PCS_LINK_TIMER2, ENETC_PCS_LINK_TIMER2_VAL);
+
+	/* restart PCS AN */
+	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, MDIO_DEVAD_NONE,
+			 ENETC_PCS_CR,
+			 ENETC_PCS_CR_RESET_AN | ENETC_PCS_CR_DEF_VAL);
+
+	return 0;
+}
+
+/* set up MAC for RGMII */
+static int enetc_init_rgmii(struct udevice *dev)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
+	u32 if_mode;
+
+	/* enable RGMII AN */
+	if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
+	if_mode |= ENETC_PM_IF_MODE_AN_ENA;
+	enetc_write_port(priv, ENETC_PM_IF_MODE, if_mode);
+
+	return 0;
+}
+
+/* set up MAC and serdes for SXGMII */
+static int enetc_init_sxgmii(struct udevice *dev)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
+	u32 if_mode;
+
+	/* set ifmode to (US)XGMII */
+	if_mode = enetc_read_port(priv, ENETC_PM_IF_MODE);
+	if_mode &= ~ENETC_PM_IF_IFMODE_MASK;
+	enetc_write_port(priv, ENETC_PM_IF_MODE, if_mode);
+
+	if (!enetc_has_imdio(dev))
+		return 0;
+
+	/* Dev ability - SXGMII */
+	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, ENETC_PCS_DEVAD_REPL,
+			 ENETC_PCS_DEV_ABILITY, ENETC_PCS_DEV_ABILITY_SXGMII);
+
+	/* Restart PCS AN */
+	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, ENETC_PCS_DEVAD_REPL,
+			 ENETC_PCS_CR,
+			 ENETC_PCS_CR_LANE_RESET | ENETC_PCS_CR_RESET_AN);
+
+	return 0;
+}
+
+/* Apply protocol specific configuration to MAC, serdes as needed */
+static void enetc_start_pcs(struct udevice *dev)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
+	const char *if_str;
+
+	priv->if_type = PHY_INTERFACE_MODE_NONE;
+
+	/* check internal mdio capability, not all ports need it */
+	if (enetc_read_port(priv, ENETC_PCAPR0) & ENETC_PCAPRO_MDIO) {
+		/*
+		 * set up internal MDIO, this is part of ETH PCI function and is
+		 * used to access serdes / internal SoC PHYs.
+		 * We don't currently register it as a MDIO bus as it goes away
+		 * when the interface is removed, so it can't practically be
+		 * used in the console.
+		 */
+		priv->imdio.read = enetc_mdio_read;
+		priv->imdio.write = enetc_mdio_write;
+		priv->imdio.priv = priv->port_regs + ENETC_PM_IMDIO_BASE;
+		strncpy(priv->imdio.name, dev->name, MDIO_NAME_LEN);
+	}
+
+	if (!ofnode_valid(dev->node)) {
+		enetc_dbg(dev, "no enetc ofnode found, skipping PCS set-up\n");
+		return;
+	}
+
+	if_str = ofnode_read_string(dev->node, "phy-mode");
+	if (if_str)
+		priv->if_type = phy_get_interface_by_name(if_str);
+	else
+		enetc_dbg(dev,
+			  "phy-mode property not found, defaulting to SGMII\n");
+	if (priv->if_type < 0)
+		priv->if_type = PHY_INTERFACE_MODE_NONE;
+
+	switch (priv->if_type) {
+	case PHY_INTERFACE_MODE_SGMII:
+		enetc_init_sgmii(dev);
+		break;
+	case PHY_INTERFACE_MODE_RGMII:
+		enetc_init_rgmii(dev);
+		break;
+	case PHY_INTERFACE_MODE_XGMII:
+		enetc_init_sxgmii(dev);
+		break;
+	};
+}
+
 /* Configure the actual/external ethernet PHY, if one is found */
 static void enetc_start_phy(struct udevice *dev)
 {
@@ -303,7 +449,7 @@ static int enetc_start(struct udevice *dev)
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
 
-	priv->if_type = PHY_INTERFACE_MODE_NONE;
+	enetc_start_pcs(dev);
 	enetc_start_phy(dev);
 
 	return 0;

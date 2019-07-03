@@ -61,6 +61,8 @@ enum enetc_bdr_type {TX, RX};
 #define ENETC_PSIPMMR			0x0018
 #define ENETC_PSIPMAR0			0x0100
 #define ENETC_PSIPMAR1			0x0104
+#define ENETC_PCAPR0			0x0900
+#define  ENETC_PCAPRO_MDIO		BIT(11)
 #define ENETC_PSICFGR(n)		(0x0940 + (n) * 0x10)
 #define  ENETC_PSICFGR_SET_TXBDR(val)	((val) & 0xff)
 #define  ENETC_PSICFGR_SET_RXBDR(val)	(((val) & 0xff) << 16)
@@ -70,6 +72,11 @@ enum enetc_bdr_type {TX, RX};
 #define  ENETC_PM_CC_RX_TX_EN		0x8813
 #define ENETC_PM_MAXFRM			0x8014
 #define  ENETC_RX_MAXFRM_SIZE		PKTSIZE_ALIGN
+#define ENETC_PM_IMDIO_BASE		0x8030
+#define ENETC_PM_IF_MODE		0x8300
+#define  ENETC_PM_IF_MODE_RG		BIT(2)
+#define  ENETC_PM_IF_MODE_AN_ENA	BIT(15)
+#define  ENETC_PM_IF_IFMODE_MASK	GENMASK(1, 0)
 
 /* buffer descriptors count must be multiple of 8 and aligned to 128 bytes */
 #define ENETC_BD_CNT		CONFIG_SYS_RX_ETH_BUFFER
@@ -146,6 +153,7 @@ struct enetc_priv {
 	struct bd_ring rx_bdr;
 
 	int if_type;
+	struct mii_dev imdio;
 };
 
 /* register accessors */
@@ -168,6 +176,27 @@ struct enetc_priv {
 #define enetc_bdr_write(priv, t, n, off, val) \
 			enetc_write(priv, ENETC_BDR(t, n, off), val)
 
+/* PCS / internal SoC PHY ID, it defaults to 0 on all interfaces */
+#define ENETC_PCS_PHY_ADDR	0
+
+/* PCS registers */
+#define ENETC_PCS_CR			0x00
+#define  ENETC_PCS_CR_RESET_AN		0x1200
+#define  ENETC_PCS_CR_DEF_VAL		0x0140
+#define  ENETC_PCS_CR_LANE_RESET	0x8000
+#define ENETC_PCS_DEV_ABILITY		0x04
+#define  ENETC_PCS_DEV_ABILITY_SGMII	0x4001
+#define  ENETC_PCS_DEV_ABILITY_SXGMII	0x5001
+#define ENETC_PCS_LINK_TIMER1		0x12
+#define  ENETC_PCS_LINK_TIMER1_VAL	0x06a0
+#define ENETC_PCS_LINK_TIMER2		0x13
+#define  ENETC_PCS_LINK_TIMER2_VAL	0x0003
+#define ENETC_PCS_IF_MODE		0x14
+#define  ENETC_PCS_IF_MODE_SGMII_AN	0x0003
+
+/* PCS replicator block for USXGMII */
+#define ENETC_PCS_DEVAD_REPL		0x1f
+
 /* ENETC external MDIO registers */
 #define ENETC_MDIO_BASE		0x1c00
 #define ENETC_MDIO_CFG		0x00
@@ -185,5 +214,14 @@ struct enetc_priv {
 struct enetc_mdio_priv {
 	void *regs_base;
 };
+
+/*
+ * these functions are implemented by ENETC_MDIO and are re-used by ENETC driver
+ * to drive serdes / internal SoC PHYs
+ */
+int enetc_mdio_read_priv(struct enetc_mdio_priv *priv, int addr, int devad,
+			 int reg);
+int enetc_mdio_write_priv(struct enetc_mdio_priv *priv, int addr, int devad,
+			  int reg, u16 val);
 
 #endif /* _ENETC_H */

@@ -21,8 +21,8 @@ static void enetc_mdio_wait_bsy(struct enetc_mdio_priv *priv)
 		cpu_relax();
 }
 
-static int enetc_mdio_read_priv(struct enetc_mdio_priv *priv, int addr,
-				int devad, int reg)
+int enetc_mdio_read_priv(struct enetc_mdio_priv *priv, int addr, int devad,
+			 int reg)
 {
 	if (devad == MDIO_DEVAD_NONE)
 		enetc_write(priv, ENETC_MDIO_CFG, ENETC_EMDIO_CFG_C22);
@@ -51,8 +51,8 @@ static int enetc_mdio_read_priv(struct enetc_mdio_priv *priv, int addr,
 	return enetc_read(priv, ENETC_MDIO_DATA);
 }
 
-static int enetc_mdio_write_priv(struct enetc_mdio_priv *priv, int addr,
-				 int devad, int reg, u16 val)
+int enetc_mdio_write_priv(struct enetc_mdio_priv *priv, int addr, int devad,
+			  int reg, u16 val)
 {
 	if (devad == MDIO_DEVAD_NONE)
 		enetc_write(priv, ENETC_MDIO_CFG, ENETC_EMDIO_CFG_C22);
