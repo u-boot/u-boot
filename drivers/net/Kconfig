@@ -590,7 +590,7 @@ config HIGMACV300_ETH
 
 config FSL_ENETC
 	bool "NXP ENETC Ethernet controller"
-	depends on DM_PCI && DM_ETH
+	depends on DM_PCI && DM_ETH && DM_MDIO
 	help
 	  This driver supports the NXP ENETC Ethernet controller found on some
 	  of the NXP SoCs.

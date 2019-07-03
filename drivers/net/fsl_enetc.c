@@ -10,6 +10,7 @@
 #include <memalign.h>
 #include <asm/io.h>
 #include <pci.h>
+#include <miiphy.h>
 
 #include "fsl_enetc.h"
 
@@ -36,6 +37,59 @@ static int enetc_bind(struct udevice *dev)
 	device_set_name(dev, name);
 
 	return 0;
+}
+
+/* Configure the actual/external ethernet PHY, if one is found */
+static void enetc_start_phy(struct udevice *dev)
+{
+	struct enetc_priv *priv = dev_get_priv(dev);
+	struct udevice *miidev;
+	struct phy_device *phy;
+	u32 phandle, phy_id;
+	ofnode phy_node;
+	int supported;
+
+	if (!ofnode_valid(dev->node)) {
+		enetc_dbg(dev, "no enetc ofnode found, skipping PHY set-up\n");
+		return;
+	}
+
+	if (ofnode_read_u32(dev->node, "phy-handle", &phandle)) {
+		enetc_dbg(dev, "phy-handle not found, skipping PHY set-up\n");
+		return;
+	}
+
+	phy_node = ofnode_get_by_phandle(phandle);
+	if (!ofnode_valid(phy_node)) {
+		enetc_dbg(dev, "invalid phy node, skipping PHY set-up\n");
+		return;
+	}
+	enetc_dbg(dev, "phy node: %s\n", ofnode_get_name(phy_node));
+
+	if (ofnode_read_u32(phy_node, "reg", &phy_id)) {
+		enetc_dbg(dev,
+			  "missing reg in PHY node, skipping PHY set-up\n");
+		return;
+	}
+
+	if (uclass_get_device_by_ofnode(UCLASS_MDIO,
+					ofnode_get_parent(phy_node),
+					&miidev)) {
+		enetc_dbg(dev, "can't find MDIO bus for node %s\n",
+			  ofnode_get_name(ofnode_get_parent(phy_node)));
+		return;
+	}
+
+	phy = dm_mdio_phy_connect(miidev, phy_id, dev, priv->if_type);
+	if (!phy) {
+		enetc_dbg(dev, "dm_mdio_phy_connect returned null\n");
+		return;
+	}
+
+	supported = GENMASK(6, 0); /* speeds up to 1G & AN */
+	phy->advertising = phy->supported & supported;
+	phy_config(phy);
+	phy_startup(phy);
 }
 
 /*
@@ -248,6 +302,9 @@ static int enetc_start(struct udevice *dev)
 	/* setup Tx/Rx buffer descriptors */
 	enetc_setup_tx_bdr(dev);
 	enetc_setup_rx_bdr(dev);
+
+	priv->if_type = PHY_INTERFACE_MODE_NONE;
+	enetc_start_phy(dev);
 
 	return 0;
 }

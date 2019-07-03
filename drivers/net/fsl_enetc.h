@@ -11,6 +11,7 @@
 
 /* PCI function IDs */
 #define PCI_DEVICE_ID_ENETC_ETH		0xE100
+#define PCI_DEVICE_ID_ENETC_MDIO	0xEE01
 
 /* ENETC Ethernet controller registers */
 /* Station interface register offsets */
@@ -143,6 +144,8 @@ struct enetc_priv {
 	/* Rx/Tx buffer descriptor rings info */
 	struct bd_ring tx_bdr;
 	struct bd_ring rx_bdr;
+
+	int if_type;
 };
 
 /* register accessors */
@@ -164,5 +167,23 @@ struct enetc_priv {
 			enetc_read(priv, ENETC_BDR(t, n, off))
 #define enetc_bdr_write(priv, t, n, off, val) \
 			enetc_write(priv, ENETC_BDR(t, n, off), val)
+
+/* ENETC external MDIO registers */
+#define ENETC_MDIO_BASE		0x1c00
+#define ENETC_MDIO_CFG		0x00
+#define  ENETC_EMDIO_CFG_C22	0x00809508
+#define  ENETC_EMDIO_CFG_C45	0x00809548
+#define  ENETC_EMDIO_CFG_RD_ER	BIT(1)
+#define  ENETC_EMDIO_CFG_BSY	BIT(0)
+#define ENETC_MDIO_CTL		0x04
+#define  ENETC_MDIO_CTL_READ	BIT(15)
+#define ENETC_MDIO_DATA		0x08
+#define ENETC_MDIO_STAT		0x0c
+
+#define ENETC_MDIO_READ_ERR	0xffff
+
+struct enetc_mdio_priv {
+	void *regs_base;
+};
 
 #endif /* _ENETC_H */
