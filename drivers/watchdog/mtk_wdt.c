@@ -70,9 +70,12 @@ static int mtk_wdt_expire_now(struct udevice *dev, ulong flags)
 	return 0;
 }
 
-static void mtk_wdt_set_timeout(struct udevice *dev, unsigned int timeout_ms)
+static void mtk_wdt_set_timeout(struct udevice *dev, u64 timeout_ms)
 {
 	struct mtk_wdt_priv *priv = dev_get_priv(dev);
+	u64 timeout_us;
+	u32 timeout_cc;
+	u32 length;
 
 	/*
 	 * One WDT_LENGTH count is 512 ticks of the wdt clock
@@ -88,21 +91,25 @@ static void mtk_wdt_set_timeout(struct udevice *dev, unsigned int timeout_ms)
 	 *  The MediaTek docs lack details to know if this is the case here.
 	 *  So we enforce a minimum of 1 to guarantee operation.
 	 */
-	if(timeout_ms > 15984) timeout_ms = 15984;
-	u64 timeout_us = timeout_ms * 1000;
-	u32 timeout_cc = (u32) ( (15624 + timeout_us) / 15625 );
-	if(timeout_cc == 0) timeout_cc = 1;
-	u32 length = WDT_LENGTH_TIMEOUT(timeout_cc) | WDT_LENGTH_KEY;
+	if (timeout_ms > 15984)
+		timeout_ms = 15984;
+
+	timeout_us = timeout_ms * 1000;
+	timeout_cc = (15624 + timeout_us) / 15625;
+	if (timeout_cc == 0)
+		timeout_cc = 1;
+
+	length = WDT_LENGTH_TIMEOUT(timeout_cc) | WDT_LENGTH_KEY;
 	writel(length, priv->base + MTK_WDT_LENGTH);
 }
 
-static int mtk_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
+static int mtk_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 {
 	struct mtk_wdt_priv *priv = dev_get_priv(dev);
 
-	mtk_wdt_set_timeout(dev, timeout);
+	mtk_wdt_set_timeout(dev, timeout_ms);
 
-        mtk_wdt_reset(dev);
+	mtk_wdt_reset(dev);
 
 	/* Enable watchdog reset signal */
 	setbits_le32(priv->base + MTK_WDT_MODE,
