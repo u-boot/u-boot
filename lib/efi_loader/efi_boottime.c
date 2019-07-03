@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- *  EFI application boot time services
+ * EFI application boot time services
  *
- *  Copyright (c) 2016 Alexander Graf
+ * Copyright (c) 2016 Alexander Graf
  */
 
 #include <common.h>
@@ -3234,7 +3234,7 @@ static efi_status_t efi_connect_single_controller(
 	if (r != EFI_SUCCESS)
 		return r;
 
-	/*  Context Override */
+	/* Context Override */
 	if (driver_image_handle) {
 		for (; *driver_image_handle; ++driver_image_handle) {
 			for (i = 0; i < count; ++i) {
@@ -3341,7 +3341,7 @@ static efi_status_t EFIAPI efi_connect_controller(
 			}
 		}
 	}
-	/*  Check for child controller specified by end node */
+	/* Check for child controller specified by end node */
 	if (ret != EFI_SUCCESS && remain_device_path &&
 	    remain_device_path->type == DEVICE_PATH_TYPE_END)
 		ret = EFI_SUCCESS;
