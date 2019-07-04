@@ -392,7 +392,7 @@ matrix:
         - TEST_PY_BD="evb-ast2500"
           TEST_PY_ID="--id qemu"
           QEMU_TARGET="arm-softmmu"
-          QEMU_VERSION="v4.0.0"
+          QEMU_VERSION="506179e42112be77bfd071f050b15762d3b2cd43"
           BUILDMAN="^evb-ast2500$"
     - name: "test/py vexpress_ca15_tc2"
       env:
