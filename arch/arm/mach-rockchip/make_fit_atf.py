@@ -94,7 +94,7 @@ def append_conf_section(file, cnt, dtname, segments):
     if segments != 0:
         file.write(',')
     for i in range(1, segments):
-        file.write('"atf_%d"' % (i))
+        file.write('"atf_%d"' % (i + 1))
         if i != (segments - 1):
             file.write(',')
         else:
