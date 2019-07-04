@@ -500,3 +500,21 @@ int checkboard(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SPL_LOAD_FIT
+int board_fit_config_name_match(const char *name)
+{
+	if (is_mx6dq()) {
+		if (!strcmp(name, "imx6q-wandboard-revb1"))
+			return 0;
+	} else if (is_mx6dqp()) {
+		if (!strcmp(name, "imx6qp-wandboard-revd1"))
+			return 0;
+	} else if (is_mx6dl() || is_mx6solo()) {
+		if (!strcmp(name, "imx6dl-wandboard-revb1"))
+			return 0;
+	}
+
+	return -EINVAL;
+}
+#endif
