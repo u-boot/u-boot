@@ -387,6 +387,13 @@ matrix:
           TEST_PY_TEST_SPEC="not pci"
           BUILDMAN="^sandbox_flattree$"
           TOOLCHAIN="i386"
+    - name: "test/py evb-ast2500"
+      env:
+        - TEST_PY_BD="evb-ast2500"
+          TEST_PY_ID="--id qemu"
+          QEMU_TARGET="arm-softmmu"
+          QEMU_VERSION="v4.0.0"
+          BUILDMAN="^evb-ast2500$"
     - name: "test/py vexpress_ca15_tc2"
       env:
         - TEST_PY_BD="vexpress_ca15_tc2"
