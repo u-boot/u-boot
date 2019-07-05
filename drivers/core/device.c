@@ -409,10 +409,16 @@ int device_probe(struct udevice *dev)
 			goto fail;
 	}
 
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev);
-	if (ret)
-		goto fail;
+	/* Only handle devices that have a valid ofnode */
+	if (dev_of_valid(dev)) {
+		/*
+		 * Process 'assigned-{clocks/clock-parents/clock-rates}'
+		 * properties
+		 */
+		ret = clk_set_defaults(dev);
+		if (ret)
+			goto fail;
+	}
 
 	if (drv->probe) {
 		ret = drv->probe(dev);
