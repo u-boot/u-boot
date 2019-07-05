@@ -821,6 +821,16 @@ config UPDATE_TFTP_MSEC_MAX
 	default 100
 	depends on UPDATE_TFTP
 
+config ANDROID_AB
+	bool "Android A/B updates"
+	default n
+	help
+	  If enabled, adds support for the new Android A/B update model. This
+	  allows the bootloader to select which slot to boot from based on the
+	  information provided by userspace via the Android boot_ctrl HAL. This
+	  allows a bootloader to try a new version of the system but roll back
+	  to previous version if the new one didn't boot all the way.
+
 endmenu
 
 menu "Blob list"
