@@ -337,7 +337,7 @@ static int dwc3_glue_remove(struct udevice *dev)
 
 	clk_release_bulk(&glue->clks);
 
-	return dm_scan_fdt_dev(dev);
+	return 0;
 }
 
 static const struct udevice_id dwc3_glue_ids[] = {
