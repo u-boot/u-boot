@@ -95,10 +95,7 @@ efi_status_t efi_init_runtime_supported(void)
 	 * This value must be synced with efi_runtime_detach_list
 	 * as well as efi_runtime_services.
 	 */
-#if CONFIG_IS_ENABLED(ARCH_BCM283X) || \
-    CONFIG_IS_ENABLED(FSL_LAYERSCAPE) || \
-    CONFIG_IS_ENABLED(SYSRESET_X86) || \
-    CONFIG_IS_ENABLED(PSCI_RESET)
+#ifdef CONFIG_EFI_HAVE_RUNTIME_RESET
 	efi_runtime_services_supported |= EFI_RT_SUPPORTED_RESET_SYSTEM;
 #endif
 	efi_runtime_services_supported |=
