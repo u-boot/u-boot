@@ -19,10 +19,6 @@ def test_efi_selftest(u_boot_console):
 	m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
 	if m != 0:
 		raise Exception('Failures occurred during the EFI selftest')
-	u_boot_console.run_command(cmd='', wait_for_echo=False, wait_for_prompt=False);
-	m = u_boot_console.p.expect(['resetting', 'U-Boot'])
-	if m != 0:
-		raise Exception('Reset failed during the EFI selftest')
 	u_boot_console.restart_uboot();
 
 @pytest.mark.buildconfigspec('cmd_bootefi_selftest')
