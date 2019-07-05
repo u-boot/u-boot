@@ -11,6 +11,7 @@ ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
 else
 obj-y += bsec.o
+obj-$(CONFIG_CMD_STM32KEY) += cmd_stm32key.o
 ifndef CONFIG_STM32MP1_TRUSTED
 obj-$(CONFIG_SYSRESET) += cmd_poweroff.o
 endif

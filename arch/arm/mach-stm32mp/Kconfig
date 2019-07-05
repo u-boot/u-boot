@@ -90,6 +90,14 @@ config STM32_ETZPC
 	help
 	  Say y to enable STM32 Extended TrustZone Protection
 
+config CMD_STM32KEY
+	bool "command stm32key to fuse public key hash"
+	default y
+	depends on CMD_FUSE
+	help
+		fuse public key hash in corresponding fuse used to authenticate
+		binary.
+
 config BOOTSTAGE_STASH_ADDR
 	default 0xC3000000
 
