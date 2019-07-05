@@ -227,7 +227,7 @@ fdt_addr_t dev_read_addr_size(struct udevice *dev, const char *propname,
 /**
  * dev_read_name() - get the name of a device's node
  *
- * @node: valid node to look up
+ * @dev: Device to read from
  * @return name of node
  */
 const char *dev_read_name(struct udevice *dev);
