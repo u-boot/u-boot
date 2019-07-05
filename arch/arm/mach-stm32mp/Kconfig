@@ -83,6 +83,13 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 	  Partition on the second MMC to load U-Boot from when the MMC is being
 	  used in raw mode
 
+config STM32_ETZPC
+	bool "STM32 Extended TrustZone Protection"
+	depends on TARGET_STM32MP1
+	default y
+	help
+	  Say y to enable STM32 Extended TrustZone Protection
+
 config BOOTSTAGE_STASH_ADDR
 	default 0xC3000000
 
