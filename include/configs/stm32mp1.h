@@ -140,7 +140,8 @@
 		" then env set env_default 0;env save;fi\0" \
 	STM32MP_BOOTCMD \
 	STM32MP_MTDPARTS \
-	BOOTENV
+	BOOTENV \
+	"boot_net_usb_start=true\0"
 
 #endif /* ifndef CONFIG_SPL_BUILD */
 #endif /* ifdef CONFIG_DISTRO_DEFAULTS*/
