@@ -1488,6 +1488,7 @@ config ARCH_STM32MP
 	select MISC
 	select OF_CONTROL
 	select OF_LIBFDT
+	select OF_SYSTEM_SETUP
 	select PINCTRL
 	select REGMAP
 	select SUPPORT_SPL

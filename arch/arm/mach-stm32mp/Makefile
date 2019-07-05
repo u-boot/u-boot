@@ -17,3 +17,4 @@ endif
 endif
 obj-$(CONFIG_ARMV7_PSCI) += psci.o
 obj-$(CONFIG_$(SPL_)DM_REGULATOR) += pwr_regulator.o
+obj-$(CONFIG_OF_SYSTEM_SETUP) += fdt.o
