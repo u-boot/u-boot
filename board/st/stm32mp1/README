@@ -25,6 +25,10 @@ It features:
 Everything is supported in Linux but U-Boot is limited to:
 1. UART
 2. SDCard/MMC controller (SDMMC)
+3. NAND controller (FMC)
+4. NOR controller (QSPI)
+5. USB controller (OTG DWC2)
+6. Ethernet controller
 
 And the necessary drivers
 1. I2C
@@ -54,13 +58,13 @@ with FSBL = First Stage Bootloader
    TF-A performs a full initialization of Secure peripherals and installs a
    secure monitor.
    U-Boot is running in normal world and uses TF-A monitor
-   to access to secure resources
+   to access to secure resources.
 
 2) The "Basic" boot chain (defconfig_file : stm32mp15_basic_defconfig)
    BootRom => FSBL = U-Boot SPL => SSBL = U-Boot
    SPL has limited security initialisation
    U-Boot is running in secure mode and provide a secure monitor to the kernel
-   with only PSCI support (Power State Coordination Interface defined by ARM)
+   with only PSCI support (Power State Coordination Interface defined by ARM).
 
 All the STM32MP1 boards supported by U-Boot use the same generic board
 stm32mp1 which support all the bootable devices.
@@ -110,6 +114,9 @@ the supported device trees for stm32mp157 are:
 	for example: use one output directory for each configuration
 	# export KBUILD_OUTPUT=stm32mp15_trusted
 	# export KBUILD_OUTPUT=stm32mp15_basic
+
+	you can build outside of code directory:
+	# export KBUILD_OUTPUT=../build/stm32mp15_trusted
 
 4. Configure U-Boot:
 
@@ -169,6 +176,8 @@ the supported device trees for stm32mp157 are:
 ===============================
 
 You can select the boot mode, on the board ed1 with the switch SW1
+
+- on the daugther board ed1 with the switch SW1 : BOOT0, BOOT1, BOOT2
 
  -----------------------------------
   Boot Mode   BOOT2   BOOT1   BOOT0
@@ -267,7 +276,7 @@ for example: with gpt table with 128 entries
 	# dd if=tf-a.stm32 of=/dev/mmcblk0p2
 	# dd if=u-boot.stm32 of=/dev/mmcblk0p3
 
-To boot from SDCard, select BootPinMode = 1 1 1 and reset.
+To boot from SDCard, select BootPinMode = 1 0 1 and reset.
 
 8. Prepare eMMC
 ===============
