@@ -293,6 +293,14 @@ config TI_QSPI
 	  Enable the TI Quad-SPI (QSPI) driver for DRA7xx and AM43xx evms.
 	  This driver support spi flash single, quad and memory reads.
 
+config UNIPHIER_SPI
+	bool "Socionext UniPhier SPI driver"
+	depends on ARCH_UNIPHIER
+	help
+	  Enable the Socionext UniPhier SPI driver. This driver can
+	  be used to access SPI chips on platforms embedding this
+	  UniPhier IP core.
+
 config XILINX_SPI
 	bool "Xilinx SPI driver"
 	help
