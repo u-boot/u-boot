@@ -382,26 +382,6 @@ efi_status_t __weak __efi_runtime EFIAPI efi_set_time(struct efi_time *time)
 	return EFI_UNSUPPORTED;
 }
 
-struct efi_runtime_detach_list_struct {
-	void *ptr;
-	void *patchto;
-};
-
-static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
-	{
-		/* do_reset is gone */
-		.ptr = &efi_runtime_services.reset_system,
-		.patchto = efi_reset_system,
-	}, {
-		/* RTC accessors are gone */
-		.ptr = &efi_runtime_services.get_time,
-		.patchto = &efi_get_time,
-	}, {
-		.ptr = &efi_runtime_services.set_time,
-		.patchto = &efi_set_time,
-	}
-};
-
 /**
  * efi_is_runtime_service_pointer() - check if pointer points to runtime table
  *
@@ -415,21 +395,17 @@ static bool efi_is_runtime_service_pointer(void *p)
 	       p <= (void *)&efi_runtime_services.query_variable_info;
 }
 
+/**
+ * efi_runtime_detach() - detach unimplemented runtime functions
+ */
 static __efi_runtime void efi_runtime_detach(void)
 {
-	int i;
+	efi_runtime_services.reset_system = efi_reset_system;
+	efi_runtime_services.get_time = efi_get_time;
+	efi_runtime_services.set_time = efi_set_time;
 
-	/*
-	 * Replace boottime functions by runtime functions
-	 * TODO: move this step to ExitBootServices()
-	 */
-	for (i = 0; i < ARRAY_SIZE(efi_runtime_detach_list); i++) {
-		ulong patchto = (ulong)efi_runtime_detach_list[i].patchto;
-		ulong *p = efi_runtime_detach_list[i].ptr;
-
-		debug("%s: Setting %p to %lx\n", __func__, p, patchto);
-		*p = patchto;
-	}
+	/* Update CRC32 */
+	efi_update_table_header_crc32(&efi_runtime_services.hdr);
 }
 
 /**
