@@ -400,6 +400,18 @@
 		sandbox,silent;	/* Don't emit sounds while testing */
 	};
 
+	nop-test_0 {
+		compatible = "sandbox,nop_sandbox1";
+		nop-test_1 {
+			compatible = "sandbox,nop_sandbox2";
+			bind = "True";
+		};
+		nop-test_2 {
+			compatible = "sandbox,nop_sandbox2";
+			bind = "False";
+		};
+	};
+
 	misc-test {
 		compatible = "sandbox,misc_sandbox";
 	};
