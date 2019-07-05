@@ -31,13 +31,6 @@
 
 	soc {
 		u-boot,dm-pre-reloc;
-
-		stgen: stgen@5C008000 {
-			compatible = "st,stm32-stgen";
-			reg = <0x5C008000 0x1000>;
-			status = "okay";
-			u-boot,dm-pre-reloc;
-		};
 	};
 };
 

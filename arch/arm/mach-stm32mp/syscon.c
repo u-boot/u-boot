@@ -10,7 +10,6 @@
 
 static const struct udevice_id stm32mp_syscon_ids[] = {
 	{ .compatible = "st,stm32mp1-pwr", .data = STM32MP_SYSCON_PWR },
-	{ .compatible = "st,stm32-stgen", .data = STM32MP_SYSCON_STGEN },
 	{ .compatible = "st,stm32mp157-syscfg",
 	  .data = STM32MP_SYSCON_SYSCFG },
 	{ }

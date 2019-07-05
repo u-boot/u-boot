@@ -1542,8 +1542,7 @@ static void stgen_config(struct stm32mp1_clk_priv *priv)
 	u32 stgenc, cntfid0;
 	ulong rate;
 
-	stgenc = (u32)syscon_get_first_range(STM32MP_SYSCON_STGEN);
-
+	stgenc = STM32_STGEN_BASE;
 	cntfid0 = readl(stgenc + STGENC_CNTFID0);
 	p = stm32mp1_clk_get_parent(priv, STGEN_K);
 	rate = stm32mp1_clk_get(priv, p);
