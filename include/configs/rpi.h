@@ -146,12 +146,38 @@
 	"fdt_addr_r=0x02600000\0" \
 	"ramdisk_addr_r=0x02700000\0"
 
+#if CONFIG_IS_ENABLED(CMD_MMC)
+	#define BOOT_TARGET_MMC(func) \
+		func(MMC, mmc, 0) \
+		func(MMC, mmc, 1)
+#else
+	#define BOOT_TARGET_MMC(func)
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_USB)
+	#define BOOT_TARGET_USB(func) func(USB, usb, 0)
+#else
+	#define BOOT_TARGET_USB(func)
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_PXE)
+	#define BOOT_TARGET_PXE(func) func(PXE, pxe, na)
+#else
+	#define BOOT_TARGET_PXE(func)
+#endif
+
+#if CONFIG_IS_ENABLED(CMD_DHCP)
+	#define BOOT_TARGET_DHCP(func) func(DHCP, dhcp, na)
+#else
+	#define BOOT_TARGET_DHCP(func)
+#endif
+
 #define BOOT_TARGET_DEVICES(func) \
-	func(MMC, mmc, 0) \
-	func(MMC, mmc, 1) \
-	func(USB, usb, 0) \
-	func(PXE, pxe, na) \
-	func(DHCP, dhcp, na)
+	BOOT_TARGET_MMC(func) \
+	BOOT_TARGET_USB(func) \
+	BOOT_TARGET_PXE(func) \
+	BOOT_TARGET_DHCP(func)
+
 #include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
