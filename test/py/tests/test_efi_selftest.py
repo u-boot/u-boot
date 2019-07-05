@@ -37,7 +37,7 @@ def test_efi_selftest_device_tree(u_boot_console):
 	u_boot_console.run_command(cmd='bootefi selftest ${fdtcontroladdr}', wait_for_prompt=False)
 	m = u_boot_console.p.expect(['serial-number: Testing DT', 'U-Boot'])
 	if m != 0:
-		raise Exception('Reset failed in \'device tree\' test')
+		raise Exception('serial-number missing in device tree')
 	u_boot_console.restart_uboot();
 
 @pytest.mark.buildconfigspec('cmd_bootefi_selftest')
