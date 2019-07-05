@@ -515,6 +515,10 @@ int board_init(void)
 
 	board_key_check();
 
+#ifdef CONFIG_DM_REGULATOR
+	regulators_enable_boot_on(_DEBUG);
+#endif
+
 	sysconf_init();
 
 	if (IS_ENABLED(CONFIG_LED))
