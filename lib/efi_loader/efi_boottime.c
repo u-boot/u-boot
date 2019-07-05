@@ -1973,6 +1973,9 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 
 	board_quiesce_devices();
 
+	/* Patch out unsupported runtime function */
+	efi_runtime_detach();
+
 	/* Fix up caches for EFI payloads if necessary */
 	efi_exit_caches();
 

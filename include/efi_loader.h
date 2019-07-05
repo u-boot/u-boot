@@ -333,6 +333,8 @@ void efi_variables_boot_exit_notify(void);
 efi_status_t efi_root_node_register(void);
 /* Called by bootefi to initialize runtime */
 efi_status_t efi_initialize_system_table(void);
+/* efi_runtime_detach() - detach unimplemented runtime functions */
+void efi_runtime_detach(void);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */

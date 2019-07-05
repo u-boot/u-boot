@@ -398,7 +398,7 @@ static bool efi_is_runtime_service_pointer(void *p)
 /**
  * efi_runtime_detach() - detach unimplemented runtime functions
  */
-static __efi_runtime void efi_runtime_detach(void)
+void efi_runtime_detach(void)
 {
 	efi_runtime_services.reset_system = efi_reset_system;
 	efi_runtime_services.get_time = efi_get_time;
