@@ -350,7 +350,7 @@ static const struct udevice_id dwc3_glue_ids[] = {
 
 U_BOOT_DRIVER(dwc3_generic_wrapper) = {
 	.name	= "dwc3-generic-wrapper",
-	.id	= UCLASS_MISC,
+	.id	= UCLASS_NOP,
 	.of_match = dwc3_glue_ids,
 	.bind = dwc3_glue_bind,
 	.probe = dwc3_glue_probe,
