@@ -313,8 +313,8 @@ int part_get_info_efi(struct blk_desc *dev_desc, int part,
 		     - info->start;
 	info->blksz = dev_desc->blksz;
 
-	sprintf((char *)info->name, "%s",
-			print_efiname(&gpt_pte[part - 1]));
+	snprintf((char *)info->name, sizeof(info->name), "%s",
+		 print_efiname(&gpt_pte[part - 1]));
 	strcpy((char *)info->type, "U-Boot");
 	info->bootable = is_bootable(&gpt_pte[part - 1]);
 #if CONFIG_IS_ENABLED(PARTITION_UUIDS)
