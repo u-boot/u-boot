@@ -9,7 +9,6 @@
 #include <dm.h>
 #include <ram.h>
 #include <asm/io.h>
-#include <post.h>
 #include <power/pmic.h>
 #include <power/stpmic1.h>
 #include <asm/arch/ddr.h>
