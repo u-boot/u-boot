@@ -727,12 +727,23 @@ static struct phy_device *create_phy_by_mask(struct mii_dev *bus,
 	while (phy_mask) {
 		int addr = ffs(phy_mask) - 1;
 		int r = get_phy_id(bus, addr, devad, &phy_id);
+
+		/*
+		 * If the PHY ID is flat 0 we ignore it.  There are C45 PHYs
+		 * that return all 0s for C22 reads (like Aquantia AQR112) and
+		 * there are C22 PHYs that return all 0s for C45 reads (like
+		 * Atheros AR8035).
+		 */
+		if (r == 0 && phy_id == 0)
+			goto next;
+
 		/* If the PHY ID is mostly f's, we didn't find anything */
 		if (r == 0 && (phy_id & 0x1fffffff) != 0x1fffffff) {
 			is_c45 = (devad == MDIO_DEVAD_NONE) ? false : true;
 			return phy_device_create(bus, addr, phy_id, is_c45,
 						 interface);
 		}
+next:
 		phy_mask &= ~(1 << addr);
 	}
 	return NULL;
