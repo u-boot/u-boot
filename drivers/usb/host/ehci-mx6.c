@@ -503,6 +503,42 @@ static int ehci_usb_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
+static int ehci_usb_bind(struct udevice *dev)
+{
+	/*
+	 * TODO:
+	 * This driver is only partly converted to DT probing and still uses
+	 * a tremendous amount of hard-coded addresses. To make things worse,
+	 * the driver depends on specific sequential indexing of controllers,
+	 * from which it derives offsets in the PHY and ANATOP register sets.
+	 *
+	 * Here we attempt to calculate these indexes from DT information as
+	 * well as we can. The USB controllers on all existing iMX6/iMX7 SoCs
+	 * are placed next to each other, at addresses incremented by 0x200.
+	 * Thus, the index is derived from the multiple of 0x200 offset from
+	 * the first controller address.
+	 *
+	 * However, to complete conversion of this driver to DT probing, the
+	 * following has to be done:
+	 * - DM clock framework support for iMX must be implemented
+	 * - usb_power_config() has to be converted to clock framework
+	 *   -> Thus, the ad-hoc "index" variable goes away.
+	 * - USB PHY handling has to be factored out into separate driver
+	 *   -> Thus, the ad-hoc "index" variable goes away from the PHY
+	 *      code, the PHY driver must parse it's address from DT. This
+	 *      USB driver must find the PHY driver via DT phandle.
+	 *   -> usb_power_config() shall be moved to PHY driver
+	 * With these changes in place, the ad-hoc indexing goes away and
+	 * the driver is fully converted to DT probing.
+	 */
+	fdt_size_t size;
+	fdt_addr_t addr = devfdt_get_addr_size_index(dev, 0, &size);
+
+	dev->req_seq = (addr - USB_BASE_ADDR) / size;
+
+	return 0;
+}
+
 static int ehci_usb_probe(struct udevice *dev)
 {
 	struct usb_platdata *plat = dev_get_platdata(dev);
@@ -564,6 +600,7 @@ U_BOOT_DRIVER(usb_mx6) = {
 	.id	= UCLASS_USB,
 	.of_match = mx6_usb_ids,
 	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+	.bind	= ehci_usb_bind,
 	.probe	= ehci_usb_probe,
 	.remove = ehci_deregister,
 	.ops	= &ehci_usb_ops,

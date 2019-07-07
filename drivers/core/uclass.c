@@ -757,3 +757,8 @@ int uclass_pre_remove_device(struct udevice *dev)
 	return 0;
 }
 #endif
+
+UCLASS_DRIVER(nop) = {
+	.id		= UCLASS_NOP,
+	.name		= "nop",
+};
