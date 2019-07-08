@@ -88,9 +88,10 @@ class Entry__testing(Entry):
 
     def ProcessContents(self):
         if self.bad_update_contents:
-            # Request to update the conents with something larger, to cause a
+            # Request to update the contents with something larger, to cause a
             # failure.
-            self.ProcessContentsUpdate('aa')
+            return self.ProcessContentsUpdate('aa')
+        return True
 
     def ProcessFdt(self, fdt):
         """Force reprocessing the first time"""

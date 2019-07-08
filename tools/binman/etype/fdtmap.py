@@ -106,4 +106,4 @@ class Entry_fdtmap(Entry):
         This is necessary since new data may have been written back to it during
         processing, e.g. the image-pos properties.
         """
-        self.ProcessContentsUpdate(self._GetFdtmap())
+        return self.ProcessContentsUpdate(self._GetFdtmap())

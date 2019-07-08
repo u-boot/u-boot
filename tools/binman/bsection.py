@@ -317,9 +317,15 @@ class Section(object):
         """Call the ProcessContents() method for each entry
 
         This is intended to adjust the contents as needed by the entry type.
+
+        Returns:
+            True if no entries needed to change their size
         """
+        sizes_ok = True
         for entry in self._entries.values():
-            entry.ProcessContents()
+            if not entry.ProcessContents():
+                sizes_ok = False
+        return sizes_ok
 
     def WriteSymbols(self):
         """Write symbol values into binary files for access at run time"""

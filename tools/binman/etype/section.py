@@ -85,8 +85,9 @@ class Entry_section(Entry):
         self._section.SetCalculatedProperties()
 
     def ProcessContents(self):
-        self._section.ProcessEntryContents()
-        super(Entry_section, self).ProcessContents()
+        sizes_ok = self._section.ProcessEntryContents()
+        sizes_ok_base = super(Entry_section, self).ProcessContents()
+        return sizes_ok and sizes_ok_base
 
     def CheckOffset(self):
         self._section.CheckEntries()

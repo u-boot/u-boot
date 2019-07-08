@@ -245,7 +245,8 @@ class Entry(object):
     def ProcessContentsUpdate(self, data):
         """Update the contents of an entry, after the size is fixed
 
-        This checks that the new data is the same size as the old.
+        This checks that the new data is the same size as the old. If the size
+        has changed, this triggers a re-run of the packing algorithm.
 
         Args:
             data: Data to set to the contents (bytes)
@@ -253,10 +254,12 @@ class Entry(object):
         Raises:
             ValueError if the new data size is not the same as the old
         """
+        size_ok = True
         if len(data) != self.contents_size:
             self.Raise('Cannot update entry size from %d to %d' %
                        (self.contents_size, len(data)))
         self.SetContents(data)
+        return size_ok
 
     def ObtainContents(self):
         """Figure out the contents of an entry.
@@ -401,7 +404,22 @@ class Entry(object):
         self.image_pos = image_pos + self.offset
 
     def ProcessContents(self):
-        pass
+        """Do any post-packing updates of entry contents
+
+        This function should call ProcessContentsUpdate() to update the entry
+        contents, if necessary, returning its return value here.
+
+        Args:
+            data: Data to set to the contents (bytes)
+
+        Returns:
+            True if the new data size is OK, False if expansion is needed
+
+        Raises:
+            ValueError if the new data size is not the same as the old and
+                state.AllowEntryExpansion() is False
+        """
+        return True
 
     def WriteSymbols(self, section):
         """Write symbol values into binary files for access at run time

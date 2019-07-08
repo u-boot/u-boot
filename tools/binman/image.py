@@ -122,8 +122,11 @@ class Image:
         """Call the ProcessContents() method for each entry
 
         This is intended to adjust the contents as needed by the entry type.
+
+        Returns:
+            True if the new data size is OK, False if expansion is needed
         """
-        self._section.ProcessEntryContents()
+        return self._section.ProcessEntryContents()
 
     def WriteSymbols(self):
         """Write symbol values into binary files for access at run time"""
