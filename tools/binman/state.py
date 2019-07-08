@@ -59,7 +59,7 @@ def GetFdtPath(fname):
     """
     return fdt_files[fname]._fname
 
-def GetFdtContents(fname):
+def GetFdtContents(fname='u-boot.dtb'):
     """Looks up the FDT pathname and contents
 
     This is used to obtain the Fdt pathname and contents when needed by an

@@ -638,6 +638,10 @@ the image definition, binman calculates the final values and writes these to
 the device tree. These can be used by U-Boot at run-time to find the location
 of each entry.
 
+Alternatively, an FDT map entry can be used to add a special FDT containing
+just the information about the image. This is preceded by a magic string so can
+be located anywhere in the image.
+
 
 Compression
 -----------
@@ -814,7 +818,6 @@ Some ideas:
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
 - Support putting the FDT in an image with a suitable magic number
-- Support adding a pointer to the FDT map
 - Support listing files in images
 - Support logging of binman's operations, with different levels of verbosity
 - Support updating binaries in an image (with no size change / repacking)

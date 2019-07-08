@@ -487,16 +487,16 @@ class TestFunctional(unittest.TestCase):
         """
         return struct.unpack('>L', dtb[4:8])[0]
 
-    def _GetPropTree(self, dtb, prop_names):
+    def _GetPropTree(self, dtb, prop_names, prefix='/binman/'):
         def AddNode(node, path):
             if node.name != '/':
                 path += '/' + node.name
+            for prop in node.props.values():
+                if prop.name in prop_names:
+                    prop_path = path + ':' + prop.name
+                    tree[prop_path[len(prefix):]] = fdt_util.fdt32_to_cpu(
+                        prop.value)
             for subnode in node.subnodes:
-                for prop in subnode.props.values():
-                    if prop.name in prop_names:
-                        prop_path = path + '/' + subnode.name + ':' + prop.name
-                        tree[prop_path[len('/binman/'):]] = fdt_util.fdt32_to_cpu(
-                            prop.value)
                 AddNode(subnode, path)
 
         tree = {}
@@ -2043,6 +2043,46 @@ class TestFunctional(unittest.TestCase):
         cfile2 = cbfs.files['u-boot-dtb']
         self.assertEqual(U_BOOT_DTB_DATA, cfile2.data)
         self.assertEqual(0x140, cfile2.cbfs_offset)
+
+    def testFdtmap(self):
+        """Test an FDT map can be inserted in the image"""
+        data = self.data = self._DoReadFileRealDtb('115_fdtmap.dts')
+        fdtmap_data = data[len(U_BOOT_DATA):]
+        magic = fdtmap_data[:8]
+        self.assertEqual('_FDTMAP_', magic)
+        self.assertEqual(tools.GetBytes(0, 8), fdtmap_data[8:16])
+
+        fdt_data = fdtmap_data[16:]
+        dtb = fdt.Fdt.FromData(fdt_data)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos'],
+                                  prefix='/')
+        self.assertEqual({
+            'image-pos': 0,
+            'offset': 0,
+            'u-boot:offset': 0,
+            'u-boot:size': len(U_BOOT_DATA),
+            'u-boot:image-pos': 0,
+            'fdtmap:image-pos': 4,
+            'fdtmap:offset': 4,
+            'fdtmap:size': len(fdtmap_data),
+            'size': len(data),
+        }, props)
+
+    def testFdtmapNoMatch(self):
+        """Check handling of an FDT map when the section cannot be found"""
+        self.data = self._DoReadFileRealDtb('115_fdtmap.dts')
+
+        # Mangle the section name, which should cause a mismatch between the
+        # correct FDT path and the one expected by the section
+        image = control.images['image']
+        image._section._node.path += '-suffix'
+        entries = image.GetEntries()
+        fdtmap = entries['fdtmap']
+        with self.assertRaises(ValueError) as e:
+            fdtmap._GetFdtmap()
+        self.assertIn("Cannot locate node for path '/binman-suffix'",
+                      str(e.exception))
 
 
 if __name__ == "__main__":

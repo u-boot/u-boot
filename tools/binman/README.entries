@@ -223,6 +223,44 @@ updating the EC on startup via software sync.
 
 
 
+Entry: fdtmap: An entry which contains an FDT map
+-------------------------------------------------
+
+Properties / Entry arguments:
+    None
+
+An FDT map is just a header followed by an FDT containing a list of all the
+entries in the image.
+
+The header is the string _FDTMAP_ followed by 8 unused bytes.
+
+When used, this entry will be populated with an FDT map which reflects the
+entries in the current image. Hierarchy is preserved, and all offsets and
+sizes are included.
+
+Note that the -u option must be provided to ensure that binman updates the
+FDT with the position of each entry.
+
+Example output for a simple image with U-Boot and an FDT map:
+
+/ {
+    size = <0x00000112>;
+    image-pos = <0x00000000>;
+    offset = <0x00000000>;
+    u-boot {
+        size = <0x00000004>;
+        image-pos = <0x00000000>;
+        offset = <0x00000000>;
+    };
+    fdtmap {
+        size = <0x0000010e>;
+        image-pos = <0x00000004>;
+        offset = <0x00000004>;
+    };
+};
+
+
+
 Entry: files: Entry containing a set of files
 ---------------------------------------------
 
