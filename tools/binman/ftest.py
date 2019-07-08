@@ -595,7 +595,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, retcode)
 
         image = control.images['image1']
-        self.assertEqual(len(U_BOOT_DATA), image._size)
+        self.assertEqual(len(U_BOOT_DATA), image.size)
         fname = tools.GetOutputFilename('image1.bin')
         self.assertTrue(os.path.exists(fname))
         with open(fname, 'rb') as fd:
@@ -603,7 +603,7 @@ class TestFunctional(unittest.TestCase):
             self.assertEqual(U_BOOT_DATA, data)
 
         image = control.images['image2']
-        self.assertEqual(3 + len(U_BOOT_DATA) + 5, image._size)
+        self.assertEqual(3 + len(U_BOOT_DATA) + 5, image.size)
         fname = tools.GetOutputFilename('image2.bin')
         self.assertTrue(os.path.exists(fname))
         with open(fname, 'rb') as fd:
@@ -659,7 +659,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(61, entry.offset)
         self.assertEqual(len(U_BOOT_DATA), entry.size)
 
-        self.assertEqual(65, image._size)
+        self.assertEqual(65, image.size)
 
     def testPackExtra(self):
         """Test that extra packing feature works as expected"""
@@ -703,7 +703,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(64, entry.size)
 
         self.CheckNoGaps(entries)
-        self.assertEqual(128, image._size)
+        self.assertEqual(128, image.size)
 
     def testPackAlignPowerOf2(self):
         """Test that invalid entry alignment is detected"""
@@ -761,7 +761,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
-        self.assertEqual(7, image._size)
+        self.assertEqual(7, image.size)
 
     def testPackImageSizeAlign(self):
         """Test that image size alignemnt works as expected"""
@@ -769,7 +769,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0, retcode)
         self.assertIn('image', control.images)
         image = control.images['image']
-        self.assertEqual(16, image._size)
+        self.assertEqual(16, image.size)
 
     def testPackInvalidImageAlign(self):
         """Test that invalid image alignment is detected"""
@@ -782,7 +782,7 @@ class TestFunctional(unittest.TestCase):
         """Test that invalid image alignment is detected"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('020_pack_inv_image_align_power2.dts')
-        self.assertIn("Section '/binman': Alignment size 131 must be a power of "
+        self.assertIn("Image '/binman': Alignment size 131 must be a power of "
                       "two", str(e.exception))
 
     def testImagePadByte(self):
@@ -833,7 +833,7 @@ class TestFunctional(unittest.TestCase):
         """Test that the end-at-4gb property requires a size property"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('027_pack_4gb_no_size.dts')
-        self.assertIn("Section '/binman': Section size must be provided when "
+        self.assertIn("Image '/binman': Section size must be provided when "
                       "using end-at-4gb", str(e.exception))
 
     def test4gbAndSkipAtStartTogether(self):
@@ -841,7 +841,7 @@ class TestFunctional(unittest.TestCase):
         together"""
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('80_4gb_and_skip_at_start_together.dts')
-        self.assertIn("Section '/binman': Provide either 'end-at-4gb' or "
+        self.assertIn("Image '/binman': Provide either 'end-at-4gb' or "
                       "'skip-at-start'", str(e.exception))
 
     def testPackX86RomOutside(self):
@@ -1217,7 +1217,7 @@ class TestFunctional(unittest.TestCase):
         """Test that obtaining the contents works as expected"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('057_unknown_contents.dts', True)
-        self.assertIn("Section '/binman': Internal error: Could not complete "
+        self.assertIn("Image '/binman': Internal error: Could not complete "
                 "processing of contents: remaining [<_testing.Entry__testing ",
                 str(e.exception))
 
@@ -1657,7 +1657,7 @@ class TestFunctional(unittest.TestCase):
         image = control.images['image']
         entries = image.GetEntries()
         files = entries['files']
-        entries = files._section._entries
+        entries = files._entries
 
         orig = b''
         for i in range(1, 3):
@@ -2209,7 +2209,7 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(len(data), ent.size)
         self.assertEqual(0, ent.image_pos)
         self.assertEqual(None, ent.uncomp_size)
-        self.assertEqual(None, ent.offset)
+        self.assertEqual(0, ent.offset)
 
         ent = entries[1]
         self.assertEqual(1, ent.indent)
@@ -2227,7 +2227,7 @@ class TestFunctional(unittest.TestCase):
         section_size = ent.size
         self.assertEqual(0x100, ent.image_pos)
         self.assertEqual(None, ent.uncomp_size)
-        self.assertEqual(len(U_BOOT_DATA), ent.offset)
+        self.assertEqual(0x100, ent.offset)
 
         ent = entries[3]
         self.assertEqual(2, ent.indent)
@@ -2331,7 +2331,7 @@ class TestFunctional(unittest.TestCase):
         image_fname = tools.GetOutputFilename('image.bin')
         image = Image.FromFile(image_fname)
         self.assertTrue(isinstance(image, Image))
-        self.assertEqual('image', image._name)
+        self.assertEqual('image', image.image_name)
 
     def testReadImageFail(self):
         """Test failing to read an image image's FDT map"""
@@ -2340,6 +2340,7 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             image = Image.FromFile(image_fname)
         self.assertIn("Cannot find FDT map in image", str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

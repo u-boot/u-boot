@@ -12,14 +12,15 @@ from operator import attrgetter
 import re
 import sys
 
+from entry import Entry
 from etype import fdtmap
 from etype import image_header
+from etype import section
 import fdt
 import fdt_util
-import bsection
 import tools
 
-class Image:
+class Image(section.Entry_section):
     """A Image, representing an output from binman
 
     An image is comprised of a collection of entries each containing binary
@@ -27,12 +28,8 @@ class Image:
 
     This class implements the various operations needed for images.
 
-    Atrtributes:
-        _node: Node object that contains the image definition in device tree
-        _name: Image name
-        _size: Image size in bytes, or None if not known yet
-        _filename: Output filename for image
-        _sections: Sections present in this image (may be one or more)
+    Attributes:
+        filename: Output filename for image
 
     Args:
         test: True if this is being called from a test of Images. This this case
@@ -40,15 +37,15 @@ class Image:
             we create a section manually.
     """
     def __init__(self, name, node, test=False):
-        self._node = node
-        self._name = name
-        self._size = None
-        self._filename = '%s.bin' % self._name
-        if test:
-            self._section = bsection.Section('main-section', None, self._node,
-                                             self, True)
-        else:
-            self._ReadNode()
+        self.image = self
+        section.Entry_section.__init__(self, None, 'section', node, test)
+        self.name = 'main-section'
+        self.image_name = name
+        self._filename = '%s.bin' % self.image_name
+        if not test:
+            filename = fdt_util.GetString(self._node, 'filename')
+            if filename:
+                self._filename = filename
 
     @classmethod
     def FromFile(cls, fname):
@@ -85,84 +82,17 @@ class Image:
         # Return an Image with the associated nodes
         return Image('image', dtb.GetRoot())
 
-    def _ReadNode(self):
-        """Read properties from the image node"""
-        self._size = fdt_util.GetInt(self._node, 'size')
-        filename = fdt_util.GetString(self._node, 'filename')
-        if filename:
-            self._filename = filename
-        self._section = bsection.Section('main-section', None, self._node, self)
-
     def Raise(self, msg):
         """Convenience function to raise an error referencing an image"""
         raise ValueError("Image '%s': %s" % (self._node.path, msg))
 
-    def GetFdtSet(self):
-        """Get the set of device tree files used by this image"""
-        return self._section.GetFdtSet()
-
-    def ExpandEntries(self):
-        """Expand out any entries which have calculated sub-entries
-
-        Some entries are expanded out at runtime, e.g. 'files', which produces
-        a section containing a list of files. Process these entries so that
-        this information is added to the device tree.
-        """
-        self._section.ExpandEntries()
-
-    def AddMissingProperties(self):
-        """Add properties that are not present in the device tree
-
-        When binman has completed packing the entries the offset and size of
-        each entry are known. But before this the device tree may not specify
-        these. Add any missing properties, with a dummy value, so that the
-        size of the entry is correct. That way we can insert the correct values
-        later.
-        """
-        self._section.AddMissingProperties()
-
-    def ProcessFdt(self, fdt):
-        """Allow entries to adjust the device tree
-
-        Some entries need to adjust the device tree for their purposes. This
-        may involve adding or deleting properties.
-        """
-        return self._section.ProcessFdt(fdt)
-
-    def GetEntryContents(self):
-        """Call ObtainContents() for the section
-        """
-        self._section.GetEntryContents()
-
-    def GetEntryOffsets(self):
-        """Handle entries that want to set the offset/size of other entries
-
-        This calls each entry's GetOffsets() method. If it returns a list
-        of entries to update, it updates them.
-        """
-        self._section.GetEntryOffsets()
-
-    def ResetForPack(self):
-        """Reset offset/size fields so that packing can be done again"""
-        self._section.ResetForPack()
-
     def PackEntries(self):
         """Pack all entries into the image"""
-        self._section.PackEntries()
-
-    def CheckSize(self):
-        """Check that the image contents does not exceed its size, etc."""
-        self._size = self._section.CheckSize()
-
-    def CheckEntries(self):
-        """Check that entries do not overlap or extend outside the image"""
-        self._section.CheckEntries()
-
-    def SetCalculatedProperties(self):
-        self._section.SetCalculatedProperties()
+        section.Entry_section.Pack(self, 0)
 
     def SetImagePos(self):
-        self._section.SetImagePos(0)
+        # This first section in the image so it starts at 0
+        section.Entry_section.SetImagePos(self, 0)
 
     def ProcessEntryContents(self):
         """Call the ProcessContents() method for each entry
@@ -172,20 +102,27 @@ class Image:
         Returns:
             True if the new data size is OK, False if expansion is needed
         """
-        return self._section.ProcessEntryContents()
+        sizes_ok = True
+        for entry in self._entries.values():
+            if not entry.ProcessContents():
+                sizes_ok = False
+                print("Entry '%s' size change" % self._node.path)
+        return sizes_ok
 
     def WriteSymbols(self):
         """Write symbol values into binary files for access at run time"""
-        self._section.WriteSymbols()
+        section.Entry_section.WriteSymbols(self, self)
+
+    def BuildSection(self, fd, base_offset):
+        """Write the section to a file"""
+        fd.seek(base_offset)
+        fd.write(self.GetData())
 
     def BuildImage(self):
         """Write the image to a file"""
         fname = tools.GetOutputFilename(self._filename)
         with open(fname, 'wb') as fd:
-            self._section.BuildSection(fd, 0)
-
-    def GetEntries(self):
-        return self._section.GetEntries()
+            self.BuildSection(fd, 0)
 
     def WriteMap(self):
         """Write a map of the image to a .map file
@@ -193,12 +130,12 @@ class Image:
         Returns:
             Filename of map file written
         """
-        filename = '%s.map' % self._name
+        filename = '%s.map' % self.image_name
         fname = tools.GetOutputFilename(filename)
         with open(fname, 'w') as fd:
             print('%8s  %8s  %8s  %s' % ('ImagePos', 'Offset', 'Size', 'Name'),
                   file=fd)
-            self._section.WriteMap(fd, 0)
+            section.Entry_section.WriteMap(self, fd, 0)
         return fname
 
     def BuildEntryList(self):
@@ -208,5 +145,5 @@ class Image:
             List of entry.EntryInfo objects describing all entries in the image
         """
         entries = []
-        self._section.ListEntries(entries, 0)
+        self.ListEntries(entries, 0)
         return entries

@@ -521,15 +521,20 @@ Entry: section: Entry that contains other entries
 -------------------------------------------------
 
 Properties / Entry arguments: (see binman README for more information)
-    - size: Size of section in bytes
-    - align-size: Align size to a particular power of two
-    - pad-before: Add padding before the entry
-    - pad-after: Add padding after the entry
-    - pad-byte: Pad byte to use when padding
-    - sort-by-offset: Reorder the entries by offset
-    - end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
-    - name-prefix: Adds a prefix to the name of every entry in the section
+    pad-byte: Pad byte to use when padding
+    sort-by-offset: True if entries should be sorted by offset, False if
+        they must be in-order in the device tree description
+    end-at-4gb: Used to build an x86 ROM which ends at 4GB (2^32)
+    skip-at-start: Number of bytes before the first entry starts. These
+        effectively adjust the starting offset of entries. For example,
+        if this is 16, then the first entry would start at 16. An entry
+        with offset = 20 would in fact be written at offset 4 in the image
+        file, since the first 16 bytes are skipped when writing.
+    name-prefix: Adds a prefix to the name of every entry in the section
         when writing out the map
+
+Since a section is also an entry, it inherits all the properies of entries
+too.
 
 A section is an entry which can contain other entries, thus allowing
 hierarchical images to be created. See 'Sections and hierarchical images'

@@ -175,8 +175,8 @@ class Entry(object):
         self.pad_after = fdt_util.GetInt(self._node, 'pad-after', 0)
         self.align_size = fdt_util.GetInt(self._node, 'align-size')
         if tools.NotPowerOfTwo(self.align_size):
-            raise ValueError("Node '%s': Alignment size %s must be a power "
-                             "of two" % (self._node.path, self.align_size))
+            self.Raise("Alignment size %s must be a power of two" %
+                       self.align_size)
         self.align_end = fdt_util.GetInt(self._node, 'align-end')
         self.offset_unset = fdt_util.GetBool(self._node, 'offset-unset')
         self.expand_size = fdt_util.GetBool(self._node, 'expand-size')
@@ -216,8 +216,8 @@ class Entry(object):
         """Set the value of device-tree properties calculated by binman"""
         state.SetInt(self._node, 'offset', self.offset)
         state.SetInt(self._node, 'size', self.size)
-        state.SetInt(self._node, 'image-pos',
-                       self.image_pos - self.section.GetRootSkipAtStart())
+        base = self.section.GetRootSkipAtStart() if self.section else 0
+        state.SetInt(self._node, 'image-pos', self.image_pos - base)
         if self.uncomp_size is not None:
             state.SetInt(self._node, 'uncomp-size', self.uncomp_size)
         state.CheckSetHashValue(self._node, self.GetData)
