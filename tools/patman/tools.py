@@ -3,6 +3,8 @@
 # Copyright (c) 2016 Google, Inc
 #
 
+from __future__ import print_function
+
 import command
 import glob
 import os
@@ -440,3 +442,34 @@ def Decompress(indata, algo):
     else:
         raise ValueError("Unknown algorithm '%s'" % algo)
     return data
+
+CMD_CREATE, CMD_DELETE, CMD_ADD, CMD_REPLACE, CMD_EXTRACT = range(5)
+
+IFWITOOL_CMDS = {
+    CMD_CREATE: 'create',
+    CMD_DELETE: 'delete',
+    CMD_ADD: 'add',
+    CMD_REPLACE: 'replace',
+    CMD_EXTRACT: 'extract',
+    }
+
+def RunIfwiTool(ifwi_file, cmd, fname=None, subpart=None, entry_name=None):
+    """Run ifwitool with the given arguments:
+
+    Args:
+        ifwi_file: IFWI file to operation on
+        cmd: Command to execute (CMD_...)
+        fname: Filename of file to add/replace/extract/create (None for
+            CMD_DELETE)
+        subpart: Name of sub-partition to operation on (None for CMD_CREATE)
+        entry_name: Name of directory entry to operate on, or None if none
+    """
+    args = ['ifwitool', ifwi_file]
+    args.append(IFWITOOL_CMDS[cmd])
+    if fname:
+        args += ['-f', fname]
+    if subpart:
+        args += ['-n', subpart]
+    if entry_name:
+        args += ['-d', '-e', entry_name]
+    Run(*args)
