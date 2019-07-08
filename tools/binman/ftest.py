@@ -25,6 +25,7 @@ import control
 import elf
 import fdt
 from etype import fdtmap
+from etype import image_header
 import fdt_util
 import fmap_util
 import test_util
@@ -2281,6 +2282,32 @@ class TestFunctional(unittest.TestCase):
         """Test failing to locate an FDP map"""
         data = self._DoReadFile('005_simple.dts')
         self.assertEqual(None, fdtmap.LocateFdtmap(data))
+
+    def testFindImageHeader(self):
+        """Test locating a image header"""
+        self._CheckLz4()
+        data = self._DoReadFileDtb('128_decode_image.dts', use_real_dtb=True,
+                                   update_dtb=True)[0]
+        image = control.images['image']
+        entries = image.GetEntries()
+        entry = entries['fdtmap']
+        # The header should point to the FDT map
+        self.assertEqual(entry.image_pos, image_header.LocateHeaderOffset(data))
+
+    def testFindImageHeaderStart(self):
+        """Test locating a image header located at the start of an image"""
+        data = self._DoReadFileDtb('117_fdtmap_hdr_start.dts',
+                                   use_real_dtb=True, update_dtb=True)[0]
+        image = control.images['image']
+        entries = image.GetEntries()
+        entry = entries['fdtmap']
+        # The header should point to the FDT map
+        self.assertEqual(entry.image_pos, image_header.LocateHeaderOffset(data))
+
+    def testFindImageHeaderMissing(self):
+        """Test failing to locate an image header"""
+        data = self._DoReadFile('005_simple.dts')
+        self.assertEqual(None, image_header.LocateHeaderOffset(data))
 
 
 if __name__ == "__main__":

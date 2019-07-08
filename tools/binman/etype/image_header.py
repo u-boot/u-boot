@@ -15,6 +15,29 @@ from entry import Entry
 import fdt_util
 
 IMAGE_HEADER_MAGIC = b'BinM'
+IMAGE_HEADER_LEN   = 8
+
+def LocateHeaderOffset(data):
+    """Search an image for an image header
+
+    Args:
+        data: Data to search
+
+    Returns:
+        Offset of image header in the image, or None if not found
+    """
+    hdr_pos = data.find(IMAGE_HEADER_MAGIC)
+    if hdr_pos != -1:
+        size = len(data)
+        hdr = data[hdr_pos:hdr_pos + IMAGE_HEADER_LEN]
+        if len(hdr) == IMAGE_HEADER_LEN:
+            offset = struct.unpack('<I', hdr[4:])[0]
+            if hdr_pos == len(data) - IMAGE_HEADER_LEN:
+                pos = size + offset - (1 << 32)
+            else:
+                pos = offset
+            return pos
+    return None
 
 class Entry_image_header(Entry):
     """An entry which contains a pointer to the FDT map
