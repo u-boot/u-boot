@@ -25,7 +25,7 @@
 #include <hwconfig.h>
 #include <i2c.h>
 #include <fdt_support.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <jffs2/load_kernel.h>
 #include <linux/ctype.h>
 #include <miiphy.h>

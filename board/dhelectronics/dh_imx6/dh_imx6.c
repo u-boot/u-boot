@@ -24,7 +24,7 @@
 #include <dwc_ahsata.h>
 #include <environment.h>
 #include <errno.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <fuse.h>
 #include <i2c.h>
 #include <miiphy.h>

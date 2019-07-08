@@ -17,7 +17,7 @@
 #include <linux/errno.h>
 #include <i2c.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;

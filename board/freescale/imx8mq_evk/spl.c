@@ -16,7 +16,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm/mach-imx/mxc_i2c.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <mmc.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>

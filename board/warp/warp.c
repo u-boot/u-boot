@@ -19,7 +19,7 @@
 #include <linux/sizes.h>
 #include <common.h>
 #include <watchdog.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <usb.h>

@@ -16,7 +16,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/io.h>
 #include <common.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <miiphy.h>
 #include <linux/sizes.h>
@@ -189,7 +189,7 @@ static int board_qspi_init(void)
 }
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 static struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC1_BASE_ADDR, 0, 4},
 #if defined(CONFIG_MX6UL_14X14_EVK_EMMC_REWORK)

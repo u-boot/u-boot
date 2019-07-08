@@ -27,7 +27,7 @@
 #include <dm/platform_data/serial_mxc.h>
 #include <dwc_ahsata.h>
 #include <environment.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <imx_thermal.h>
 #include <micrel.h>
 #include <miiphy.h>
@@ -131,7 +131,7 @@ iomux_v3_cfg_t const usdhc3_pads[] = {
 	MX6_PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_EMMC_PAD_CTRL),
 	MX6_PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(WEAK_PULLUP) | MUX_MODE_SION,
 };
-#endif /* CONFIG_FSL_ESDHC & CONFIG_SPL_BUILD */
+#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_SPL_BUILD */
 
 int mx6_rgmii_rework(struct phy_device *phydev)
 {
@@ -355,7 +355,7 @@ int board_mmc_init(bd_t *bis)
 
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
-#endif /* CONFIG_FSL_ESDHC & CONFIG_SPL_BUILD */
+#endif /* CONFIG_FSL_ESDHC_IMX & CONFIG_SPL_BUILD */
 
 int board_phy_config(struct phy_device *phydev)
 {

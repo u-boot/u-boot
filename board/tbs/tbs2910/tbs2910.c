@@ -13,7 +13,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/arch/mxc_hdmi.h>
@@ -98,7 +98,7 @@ static void setup_iomux_uart(void)
 	imx_iomux_v3_setup_multiple_pads(uart2_pads, ARRAY_SIZE(uart2_pads));
 }
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 /* set environment device to boot device when booting from SD */
 int board_mmc_get_env_dev(int devno)
 {
@@ -109,7 +109,7 @@ int board_mmc_get_env_part(int devno)
 {
 	return (devno == 3) ? 1 : 0; /* part 0 for SD2 / SD3, part 1 for eMMC */
 }
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC_IMX */
 
 #ifdef CONFIG_VIDEO_IPUV3
 static void do_enable_hdmi(struct display_info_t const *dev)

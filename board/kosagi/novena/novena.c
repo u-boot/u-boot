@@ -25,7 +25,7 @@
 #include <asm/mach-imx/video.h>
 #include <dwc_ahsata.h>
 #include <environment.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <input.h>
 #include <ipu_pixfmt.h>

@@ -15,7 +15,7 @@
 #include <dm.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <fdt_support.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <jffs2/load_kernel.h>
 #include <linux/sizes.h>
 #include <mmc.h>

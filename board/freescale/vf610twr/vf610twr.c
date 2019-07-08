@@ -11,7 +11,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <i2c.h>
@@ -234,7 +234,7 @@ static void setup_iomux_qspi(void)
 	imx_iomux_v3_setup_multiple_pads(qspi0_pads, ARRAY_SIZE(qspi0_pads));
 }
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 struct fsl_esdhc_cfg esdhc_cfg[1] = {
 	{ESDHC1_BASE_ADDR},
 };

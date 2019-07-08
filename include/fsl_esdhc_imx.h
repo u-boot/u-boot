@@ -3,34 +3,42 @@
  * FSL SD/MMC Defines
  *-------------------------------------------------------------------
  *
+ * Copyright 2019 NXP
+ * Yangbo Lu <yangbo.lu@nxp.com>
+ *
  * Copyright 2007-2008,2010-2011 Freescale Semiconductor, Inc
  */
 
-#ifndef  __FSL_ESDHC_H__
-#define	__FSL_ESDHC_H__
+#ifndef __FSL_ESDHC_IMX_H__
+#define __FSL_ESDHC_IMX_H__
 
+#include <linux/bitops.h>
 #include <linux/errno.h>
 #include <asm/byteorder.h>
 
 /* needed for the mmc_cfg definition */
 #include <mmc.h>
 
-#ifdef CONFIG_FSL_ESDHC_ADAPTER_IDENT
-#include "../board/freescale/common/qixis.h"
-#endif
-
 /* FSL eSDHC-specific constants */
 #define SYSCTL			0x0002e02c
 #define SYSCTL_INITA		0x08000000
 #define SYSCTL_TIMEOUT_MASK	0x000f0000
 #define SYSCTL_CLOCK_MASK	0x0000fff0
+#if !defined(CONFIG_FSL_USDHC)
 #define SYSCTL_CKEN		0x00000008
 #define SYSCTL_PEREN		0x00000004
 #define SYSCTL_HCKEN		0x00000002
 #define SYSCTL_IPGEN		0x00000001
+#endif
 #define SYSCTL_RSTA		0x01000000
 #define SYSCTL_RSTC		0x02000000
 #define SYSCTL_RSTD		0x04000000
+
+#define VENDORSPEC_CKEN		0x00004000
+#define VENDORSPEC_PEREN	0x00002000
+#define VENDORSPEC_HCKEN	0x00001000
+#define VENDORSPEC_IPGEN	0x00000800
+#define VENDORSPEC_INIT		0x20007809
 
 #define IRQSTAT			0x0002e030
 #define IRQSTAT_DMAE		(0x10000000)
@@ -163,6 +171,54 @@
 #define ESDHC_HOSTCAPBLT_DMAS	0x00400000
 #define ESDHC_HOSTCAPBLT_HSS	0x00200000
 
+#define ESDHC_VENDORSPEC_VSELECT 0x00000002 /* Use 1.8V */
+
+/* Imported from Linux Kernel drivers/mmc/host/sdhci-esdhc-imx.c */
+#define	MIX_CTRL_DDREN		BIT(3)
+#define MIX_CTRL_DTDSEL_READ	BIT(4)
+#define	MIX_CTRL_AC23EN		BIT(7)
+#define	MIX_CTRL_EXE_TUNE	BIT(22)
+#define	MIX_CTRL_SMPCLK_SEL	BIT(23)
+#define	MIX_CTRL_AUTO_TUNE_EN	BIT(24)
+#define	MIX_CTRL_FBCLK_SEL	BIT(25)
+#define	MIX_CTRL_HS400_EN	BIT(26)
+#define	MIX_CTRL_HS400_ES	BIT(27)
+/* Bits 3 and 6 are not SDHCI standard definitions */
+#define	MIX_CTRL_SDHCI_MASK	0xb7
+/* Tuning bits */
+#define	MIX_CTRL_TUNING_MASK	0x03c00000
+
+/* strobe dll register */
+#define ESDHC_STROBE_DLL_CTRL		0x70
+#define ESDHC_STROBE_DLL_CTRL_ENABLE	BIT(0)
+#define ESDHC_STROBE_DLL_CTRL_RESET	BIT(1)
+#define ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_DEFAULT	0x7
+#define ESDHC_STROBE_DLL_CTRL_SLV_DLY_TARGET_SHIFT	3
+
+#define ESDHC_STROBE_DLL_STATUS		0x74
+#define ESDHC_STROBE_DLL_STS_REF_LOCK	BIT(1)
+#define ESDHC_STROBE_DLL_STS_SLV_LOCK	0x1
+#define ESDHC_STROBE_DLL_CLK_FREQ	100000000
+
+#define ESDHC_STD_TUNING_EN             BIT(24)
+/* NOTE: the minimum valid tuning start tap for mx6sl is 1 */
+#define ESDHC_TUNING_START_TAP_DEFAULT	0x1
+#define ESDHC_TUNING_START_TAP_MASK	0xff
+#define ESDHC_TUNING_STEP_MASK		0x00070000
+#define ESDHC_TUNING_STEP_SHIFT		16
+
+#define	ESDHC_FLAG_MULTIBLK_NO_INT	BIT(1)
+#define	ESDHC_FLAG_ENGCM07207		BIT(2)
+#define	ESDHC_FLAG_USDHC		BIT(3)
+#define	ESDHC_FLAG_MAN_TUNING		BIT(4)
+#define	ESDHC_FLAG_STD_TUNING		BIT(5)
+#define	ESDHC_FLAG_HAVE_CAP1		BIT(6)
+#define	ESDHC_FLAG_ERR004536		BIT(7)
+#define	ESDHC_FLAG_HS200		BIT(8)
+#define	ESDHC_FLAG_HS400		BIT(9)
+#define	ESDHC_FLAG_ERR010450		BIT(10)
+#define	ESDHC_FLAG_HS400_ES		BIT(11)
+
 struct fsl_esdhc_cfg {
 	phys_addr_t esdhc_base;
 	u32	sdhc_clk;
@@ -201,15 +257,15 @@ struct fsl_esdhc_cfg {
 #error "Endianess is not defined: please fix to continue"
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 int fsl_esdhc_mmc_init(bd_t *bis);
 int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg);
 void fdt_fixup_esdhc(void *blob, bd_t *bd);
 #else
 static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }
 static inline void fdt_fixup_esdhc(void *blob, bd_t *bd) {}
-#endif /* CONFIG_FSL_ESDHC */
+#endif /* CONFIG_FSL_ESDHC_IMX */
 void __noreturn mmc_boot(void);
 void mmc_spl_load_image(uint32_t offs, unsigned int size, void *vdst);
 
-#endif  /* __FSL_ESDHC_H__ */
+#endif  /* __FSL_ESDHC_IMX_H__ */

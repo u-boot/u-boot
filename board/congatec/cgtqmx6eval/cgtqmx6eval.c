@@ -21,7 +21,7 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 #include <mmc.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <input.h>
 #include <power/pmic.h>
@@ -411,7 +411,7 @@ static void setup_spi(void)
 }
 #endif
 
-#ifdef CONFIG_FSL_ESDHC
+#ifdef CONFIG_FSL_ESDHC_IMX
 static struct fsl_esdhc_cfg usdhc_cfg[] = {
 	{USDHC2_BASE_ADDR},
 	{USDHC3_BASE_ADDR},

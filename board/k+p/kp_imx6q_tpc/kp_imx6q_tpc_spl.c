@@ -20,7 +20,7 @@
 #include <asm/io.h>
 #include <errno.h>
 #include <fuse.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <spl.h>

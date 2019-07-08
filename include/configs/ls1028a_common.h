@@ -164,7 +164,6 @@
 
 /*  MMC  */
 #ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
@@ -177,12 +176,6 @@
 #define CONFIG_ENV_SECT_SIZE           0x40000
 
 #define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE
-
-/*  MMC  */
-#ifdef CONFIG_MMC
-#define CONFIG_FSL_ESDHC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-#endif
 
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR_PRI            0x77 /* Primary Mux*/
