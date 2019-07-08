@@ -62,6 +62,7 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
             name to execute (as in 'binman -t testSections', for example)
         toolpath: List of paths to use for tools
     """
+    import cbfs_util_test
     import elf_test
     import entry_test
     import fdt_test
@@ -90,7 +91,8 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
     suite = unittest.TestSuite()
     loader = unittest.TestLoader()
     for module in (entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
-                   elf_test.TestElf, image_test.TestImage):
+                   elf_test.TestElf, image_test.TestImage,
+                   cbfs_util_test.TestCbfs):
         # Test the test module about our arguments, if it is interested
         if hasattr(module, 'setup_test_args'):
             setup_test_args = getattr(module, 'setup_test_args')
