@@ -513,6 +513,8 @@ features to produce new behaviours.
             modules.remove('_testing')
         missing = []
         for name in modules:
+            if name.startswith('__'):
+                continue
             module = Entry.Lookup(name, name)
             docs = getattr(module, '__doc__')
             if test_missing == name:

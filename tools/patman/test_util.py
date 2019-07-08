@@ -58,6 +58,7 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
         test_set = set([os.path.splitext(os.path.basename(line.split()[0]))[0]
                         for line in lines if '/etype/' in line])
         missing_list = required
+        missing_list.discard('__init__')
         missing_list.difference_update(test_set)
         if missing_list:
             print('Missing tests for %s' % (', '.join(missing_list)))
