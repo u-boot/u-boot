@@ -399,10 +399,10 @@ class Section(object):
             raise ValueError("%s: No such property '%s'" % (msg, prop_name))
 
     def GetEntries(self):
-        """Get the number of entries in a section
+        """Get the dict of entries in a section
 
         Returns:
-            Number of entries in a section
+            OrderedDict of entries in a section
         """
         return self._entries
 
