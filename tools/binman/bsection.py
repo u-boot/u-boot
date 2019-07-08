@@ -452,13 +452,36 @@ class Section(object):
         source_entry.Raise("Cannot find entry for node '%s'" % node.name)
 
     def ExpandSize(self, size):
+        """Change the size of an entry
+
+        Args:
+            size: New size for entry
+        """
         if size != self._size:
             self._size = size
 
     def GetRootSkipAtStart(self):
+        """Get the skip-at-start value for the top-level section
+
+        This is used to find out the starting offset for root section that
+        contains this section. If this is a top-level section then it returns
+        the skip-at-start offset for this section.
+
+        This is used to get the absolute position of section within the image.
+
+        Returns:
+            Integer skip-at-start value for the root section containing this
+                section
+        """
         if self._parent_section:
             return self._parent_section.GetRootSkipAtStart()
         return self._skip_at_start
 
     def GetImageSize(self):
+        """Get the size of the image containing this section
+
+        Returns:
+            Image size as an integer number of bytes, which may be None if the
+                image size is dynamic and its sections have not yet been packed
+        """
         return self._image._size
