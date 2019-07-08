@@ -544,3 +544,12 @@ features to produce new behaviours.
             # the data grows. This should not fail, but check it to be sure.
             if not self.ObtainContents():
                 self.Raise('Cannot obtain contents when expanding entry')
+
+    def HasSibling(self, name):
+        """Check if there is a sibling of a given name
+
+        Returns:
+            True if there is an entry with this name in the the same section,
+                else False
+        """
+        return name in self.section.GetEntries()

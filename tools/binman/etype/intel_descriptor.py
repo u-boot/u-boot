@@ -60,6 +60,10 @@ class Entry_intel_descriptor(Entry_blob):
         for i in range(MAX_REGIONS):
             self._regions.append(Region(self.data, frba, i))
 
-        # Set the offset for ME only, for now, since the others are not used
-        return {'intel-me': [self._regions[REGION_ME].base,
-                             self._regions[REGION_ME].size]}
+        # Set the offset for ME (Management Engine) only, for now, since the
+        # others are not used
+        info = {}
+        if self.HasSibling('intel-me'):
+            info['intel-me'] = [self._regions[REGION_ME].base,
+                                self._regions[REGION_ME].size]
+        return info
