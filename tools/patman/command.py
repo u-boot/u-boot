@@ -108,8 +108,8 @@ def RunPipe(pipe_list, infile=None, outfile=None,
     return result
 
 def Output(*cmd, **kwargs):
-    raise_on_error = kwargs.get('raise_on_error', True)
-    return RunPipe([cmd], capture=True, raise_on_error=raise_on_error).stdout
+    kwargs['raise_on_error'] = kwargs.get('raise_on_error', True)
+    return RunPipe([cmd], capture=True, **kwargs).stdout
 
 def OutputOneLine(*cmd, **kwargs):
     raise_on_error = kwargs.pop('raise_on_error', True)
