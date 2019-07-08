@@ -49,18 +49,10 @@ class Entry_blob(Entry):
         # new Entry method which can read in chunks. Then we could copy
         # the data in chunks and avoid reading it all at once. For now
         # this seems like an unnecessary complication.
-        data = tools.ReadFile(self._pathname)
-        if self._compress == 'lz4':
-            self._uncompressed_size = len(data)
-            '''
-            import lz4  # Import this only if needed (python-lz4 dependency)
-
-            try:
-                data = lz4.frame.compress(data)
-            except AttributeError:
-                data = lz4.compress(data)
-            '''
-            data = tools.Run('lz4', '-c', self._pathname, binary=True)
+        indata = tools.ReadFile(self._pathname)
+        if self._compress != 'none':
+            self._uncompressed_size = len(indata)
+        data = tools.Compress(indata, self._compress)
         self.SetContents(data)
         return True
 
