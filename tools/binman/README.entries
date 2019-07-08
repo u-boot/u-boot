@@ -312,6 +312,8 @@ Properties / Entry arguments:
         that contains the string to place in the entry
     <xxx> (actual name is the value of text-label): contains the string to
         place in the entry.
+    <text>: The text to place in the entry (overrides the above mechanism).
+        This is useful when the text is constant.
 
 Example node:
 
@@ -332,6 +334,13 @@ It is also possible to put the string directly in the node:
         size = <8>;
         text-label = "message";
         message = "a message directly in the node"
+    };
+
+or just:
+
+    text {
+        size = <8>;
+        text = "some text directly in the node"
     };
 
 The text is not itself nul-terminated. This can be achieved, if required,

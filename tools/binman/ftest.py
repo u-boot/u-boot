@@ -1286,7 +1286,7 @@ class TestFunctional(unittest.TestCase):
         expected = (tools.ToBytes(TEXT_DATA) +
                     tools.GetBytes(0, 8 - len(TEXT_DATA)) +
                     tools.ToBytes(TEXT_DATA2) + tools.ToBytes(TEXT_DATA3) +
-                    b'some text')
+                    b'some text' + b'more text')
         self.assertEqual(expected, data)
 
     def testEntryDocs(self):
