@@ -325,10 +325,16 @@ extern struct list_head efi_register_notify_events;
 
 /* Initialize efi execution environment */
 efi_status_t efi_init_obj_list(void);
+/* Initialize variable services */
+efi_status_t efi_init_variables(void);
+/* Notify ExitBootServices() is called */
+void efi_variables_boot_exit_notify(void);
 /* Called by bootefi to initialize root node */
 efi_status_t efi_root_node_register(void);
 /* Called by bootefi to initialize runtime */
 efi_status_t efi_initialize_system_table(void);
+/* efi_runtime_detach() - detach unimplemented runtime functions */
+void efi_runtime_detach(void);
 /* Called by bootefi to make console interface available */
 efi_status_t efi_console_register(void);
 /* Called by bootefi to make all disk storage accessible as EFI objects */
@@ -617,6 +623,11 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
 efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
 				     const efi_guid_t *vendor, u32 attributes,
 				     efi_uintn_t data_size, const void *data);
+
+efi_status_t EFIAPI efi_query_variable_info(
+			u32 attributes, u64 *maximum_variable_storage_size,
+			u64 *remaining_variable_storage_size,
+			u64 *maximum_variable_size);
 
 /*
  * See section 3.1.3 in the v2.7 UEFI spec for more details on

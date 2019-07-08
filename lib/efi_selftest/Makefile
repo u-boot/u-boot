@@ -35,6 +35,7 @@ efi_selftest_textoutput.o \
 efi_selftest_tpl.o \
 efi_selftest_util.o \
 efi_selftest_variables.o \
+efi_selftest_variables_runtime.o \
 efi_selftest_watchdog.o
 
 obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_selftest_devicepath.o

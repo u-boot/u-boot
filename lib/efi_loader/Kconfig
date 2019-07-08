@@ -101,4 +101,10 @@ config EFI_PLATFORM_LANG_CODES
 	  RFC 4646 format, e.g. "en-US;de-DE". The first language code is used
 	  to initialize the PlatformLang variable.
 
+config EFI_HAVE_RUNTIME_RESET
+	# bool "Reset runtime service is available"
+	bool
+	default y
+	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || SYSRESET_X86
+
 endif
