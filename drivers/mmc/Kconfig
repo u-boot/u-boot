@@ -46,6 +46,24 @@ config SPL_DM_MMC
 
 if MMC
 
+config MMC_SPI
+	bool "Support for SPI-based MMC controller"
+	depends on DM_MMC && DM_SPI
+	help
+	  This selects SPI-based MMC controllers.
+	  If you have an MMC controller on a SPI bus, say Y here.
+
+	  If unsure, say N.
+
+config MMC_SPI_CRC_ON
+	bool "Support CRC for SPI-based MMC controller"
+	depends on MMC_SPI
+	default y
+	help
+	  This enables CRC for SPI-based MMC controllers.
+
+	  If unsure, say N.
+
 config ARM_PL180_MMCI
 	bool "ARM AMBA Multimedia Card Interface and compatible support"
 	depends on DM_MMC && OF_CONTROL
