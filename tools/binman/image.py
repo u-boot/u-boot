@@ -82,7 +82,9 @@ class Image(section.Entry_section):
         dtb.Scan()
 
         # Return an Image with the associated nodes
-        return Image('image', dtb.GetRoot())
+        image = Image('image', dtb.GetRoot())
+        image._data = data
+        return image
 
     def Raise(self, msg):
         """Convenience function to raise an error referencing an image"""

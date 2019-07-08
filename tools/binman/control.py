@@ -98,6 +98,26 @@ def ListEntries(image_fname, entry_paths):
             out += txt
         print(out.rstrip())
 
+
+def ReadEntry(image_fname, entry_path, decomp=True):
+    """Extract an entry from an image
+
+    This extracts the data from a particular entry in an image
+
+    Args:
+        image_fname: Image filename to process
+        entry_path: Path to entry to extract
+        decomp: True to return uncompressed data, if the data is compress
+            False to return the raw data
+
+    Returns:
+        data extracted from the entry
+    """
+    image = Image.FromFile(image_fname)
+    entry = image.FindEntryPath(entry_path)
+    return entry.ReadData(decomp)
+
+
 def Binman(args):
     """The main control code for binman
 

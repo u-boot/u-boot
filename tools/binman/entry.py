@@ -659,3 +659,24 @@ features to produce new behaviours.
         """
         self.AddEntryInfo(entries, indent, self.name, self.etype, self.size,
                           self.image_pos, self.uncomp_size, self.offset, self)
+
+    def ReadData(self, decomp=True):
+        """Read the data for an entry from the image
+
+        This is used when the image has been read in and we want to extract the
+        data for a particular entry from that image.
+
+        Args:
+            decomp: True to decompress any compressed data before returning it;
+                False to return the raw, uncompressed data
+
+        Returns:
+            Entry data (bytes)
+        """
+        # Use True here so that we get an uncompressed section to work from,
+        # although compressed sections are currently not supported
+        data = self.section.ReadData(True)
+        tout.Info('%s: Reading data from offset %#x-%#x, size %#x (avail %#x)' %
+                  (self.GetPath(), self.offset, self.offset + self.size,
+                   self.size, len(data)))
+        return data[self.offset:self.offset + self.size]

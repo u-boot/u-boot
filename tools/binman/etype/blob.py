@@ -9,6 +9,7 @@ from entry import Entry
 import fdt_util
 import state
 import tools
+import tout
 
 class Entry_blob(Entry):
     """Entry containing an arbitrary binary blob
@@ -66,3 +67,15 @@ class Entry_blob(Entry):
 
     def GetDefaultFilename(self):
         return self._filename
+
+    def ReadData(self, decomp=True):
+        indata = Entry.ReadData(self, decomp)
+        if decomp:
+            data = tools.Decompress(indata, self.compress)
+            if self.uncomp_size:
+                tout.Info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
+                          (self.GetPath(), len(indata), self.compress,
+                           len(data)))
+        else:
+            data = indata
+        return data
