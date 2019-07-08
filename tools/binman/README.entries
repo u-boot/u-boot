@@ -331,6 +331,25 @@ README.chromium for how to obtain the required keys and tools.
 
 
 
+Entry: image-header: An entry which contains a pointer to the FDT map
+---------------------------------------------------------------------
+
+Properties / Entry arguments:
+    location: Location of header ("start" or "end" of image). This is
+        optional. If omitted then the entry must have an offset property.
+
+This adds an 8-byte entry to the start or end of the image, pointing to the
+location of the FDT map. The format is a magic number followed by an offset
+from the start or end of the image, in twos-compliment format.
+
+This entry must be in the top-level part of the image.
+
+NOTE: If the location is at the start/end, you will probably need to specify
+sort-by-offset for the image, unless you actually put the image header
+first/last in the entry list.
+
+
+
 Entry: intel-cmc: Entry containing an Intel Chipset Micro Code (CMC) file
 -------------------------------------------------------------------------
 

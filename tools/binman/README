@@ -640,7 +640,9 @@ of each entry.
 
 Alternatively, an FDT map entry can be used to add a special FDT containing
 just the information about the image. This is preceded by a magic string so can
-be located anywhere in the image.
+be located anywhere in the image. An image header (typically at the start or end
+of the image) can be used to point to the FDT map. See fdtmap and image-header
+entries for more information.
 
 
 Compression
@@ -817,7 +819,6 @@ Some ideas:
 - Add an option to decode an image into the constituent binaries
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Support putting the FDT in an image with a suitable magic number
 - Support listing files in images
 - Support logging of binman's operations, with different levels of verbosity
 - Support updating binaries in an image (with no size change / repacking)

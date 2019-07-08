@@ -561,3 +561,14 @@ features to produce new behaviours.
                 else False
         """
         return name in self.section.GetEntries()
+
+    def GetSiblingImagePos(self, name):
+        """Return the image position of the given sibling
+
+        Returns:
+            Image position of sibling, or None if the sibling has no position,
+                or False if there is no such sibling
+        """
+        if not self.HasSibling(name):
+            return False
+        return self.section.GetEntries()[name].image_pos
