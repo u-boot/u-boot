@@ -2160,6 +2160,31 @@ class TestFunctional(unittest.TestCase):
             }
         self.assertEqual(expected, props)
 
+    def testCbfsUpdateFdt(self):
+        """Test that we can update the device tree with CBFS offset/size info"""
+        self._CheckLz4()
+        data, _, _, out_dtb_fname = self._DoReadFileDtb('125_cbfs_update.dts',
+                                                        update_dtb=True)
+        dtb = fdt.Fdt(out_dtb_fname)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos',
+                                        'uncomp-size'])
+        del props['cbfs/u-boot:size']
+        self.assertEqual({
+            'offset': 0,
+            'size': len(data),
+            'image-pos': 0,
+            'cbfs:offset': 0,
+            'cbfs:size': len(data),
+            'cbfs:image-pos': 0,
+            'cbfs/u-boot:offset': 0x38,
+            'cbfs/u-boot:uncomp-size': len(U_BOOT_DATA),
+            'cbfs/u-boot:image-pos': 0x38,
+            'cbfs/u-boot-dtb:offset': 0xb8,
+            'cbfs/u-boot-dtb:size': len(U_BOOT_DATA),
+            'cbfs/u-boot-dtb:image-pos': 0xb8,
+            }, props)
+
 
 if __name__ == "__main__":
     unittest.main()

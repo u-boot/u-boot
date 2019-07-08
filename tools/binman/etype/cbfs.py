@@ -11,6 +11,7 @@ import cbfs_util
 from cbfs_util import CbfsWriter
 from entry import Entry
 import fdt_util
+import state
 
 class Entry_cbfs(Entry):
     """Entry containing a Coreboot Filesystem (CBFS)
@@ -181,11 +182,17 @@ class Entry_cbfs(Entry):
             if not entry.ObtainContents():
                 return False
             data = entry.GetData()
+            cfile = None
             if entry._type == 'raw':
-                cbfs.add_file_raw(entry._cbfs_name, data, entry._cbfs_offset,
-                                  entry._cbfs_compress)
+                cfile = cbfs.add_file_raw(entry._cbfs_name, data,
+                                          entry._cbfs_offset,
+                                          entry._cbfs_compress)
             elif entry._type == 'stage':
-                cbfs.add_file_stage(entry._cbfs_name, data, entry._cbfs_offset)
+                cfile = cbfs.add_file_stage(entry._cbfs_name, data,
+                                            entry._cbfs_offset)
+            if cfile:
+                entry._cbfs_file = cfile
+                entry.size = cfile.data_len
         data = cbfs.get_data()
         self.SetContents(data)
         return True
@@ -203,3 +210,39 @@ class Entry_cbfs(Entry):
                 self.Raise("Invalid compression in '%s': '%s'" %
                            (node.name, compress))
             self._cbfs_entries[entry._cbfs_name] = entry
+
+    def SetImagePos(self, image_pos):
+        """Override this function to set all the entry properties from CBFS
+
+        We can only do this once image_pos is known
+
+        Args:
+            image_pos: Position of this entry in the image
+        """
+        Entry.SetImagePos(self, image_pos)
+
+        # Now update the entries with info from the CBFS entries
+        for entry in self._cbfs_entries.values():
+            cfile = entry._cbfs_file
+            entry.size = cfile.data_len
+            entry.offset = cfile.calced_cbfs_offset
+            entry.image_pos = self.image_pos + entry.offset
+            if entry._cbfs_compress:
+                entry.uncomp_size = cfile.memlen
+
+    def AddMissingProperties(self):
+        Entry.AddMissingProperties(self)
+        for entry in self._cbfs_entries.values():
+            entry.AddMissingProperties()
+            if entry._cbfs_compress:
+                state.AddZeroProp(entry._node, 'uncomp-size')
+
+    def SetCalculatedProperties(self):
+        """Set the value of device-tree properties calculated by binman"""
+        Entry.SetCalculatedProperties(self)
+        for entry in self._cbfs_entries.values():
+            state.SetInt(entry._node, 'offset', entry.offset)
+            state.SetInt(entry._node, 'size', entry.size)
+            state.SetInt(entry._node, 'image-pos', entry.image_pos)
+            if entry.uncomp_size is not None:
+                state.SetInt(entry._node, 'uncomp-size', entry.uncomp_size)
