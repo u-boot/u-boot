@@ -156,6 +156,27 @@ class TestElf(unittest.TestCase):
         self.assertEqual(expected_text + expected_data, data)
         shutil.rmtree(outdir)
 
+    def testDecodeElf(self):
+        """Test for the MakeElf function"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        outdir = tempfile.mkdtemp(prefix='elf.')
+        expected_text = b'1234'
+        expected_data = b'wxyz'
+        elf_fname = os.path.join(outdir, 'elf')
+        elf.MakeElf(elf_fname, expected_text, expected_data)
+        data = tools.ReadFile(elf_fname)
+
+        load = 0xfef20000
+        entry = load + 2
+        expected = expected_text + expected_data
+        self.assertEqual(elf.ElfInfo(expected, load, entry, len(expected)),
+                         elf.DecodeElf(data, 0))
+        self.assertEqual(elf.ElfInfo(b'\0\0' + expected[2:],
+                                     load, entry, len(expected)),
+                         elf.DecodeElf(data, load + 2))
+        #shutil.rmtree(outdir)
+
 
 if __name__ == '__main__':
     unittest.main()
