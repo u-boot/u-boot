@@ -355,6 +355,21 @@ class Entry(object):
         return self.data
 
     def GetOffsets(self):
+        """Get the offsets for siblings
+
+        Some entry types can contain information about the position or size of
+        other entries. An example of this is the Intel Flash Descriptor, which
+        knows where the Intel Management Engine section should go.
+
+        If this entry knows about the position of other entries, it can specify
+        this by returning values here
+
+        Returns:
+            Dict:
+                key: Entry type
+                value: List containing position and size of the given entry
+                    type.
+        """
         return {}
 
     def SetOffsetSize(self, pos, size):
