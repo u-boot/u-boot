@@ -36,10 +36,9 @@ suitable padding and alignment. It provides a way to process binaries before
 they are included, by adding a Python plug-in. The device tree is available
 to U-Boot at run-time so that the images can be interpreted.
 
-Binman does not yet update the device tree with the final location of
-everything when it is done. A simple C structure could be generated for
-constrained environments like SPL (using dtoc) but this is also not
-implemented.
+Binman can update the device tree with the final location of everything when it
+is done. Entry positions can be provided to U-Boot SPL as run-time symbols,
+avoiding device-tree code overhead.
 
 Binman can also support incorporating filesystems in the image if required.
 For example x86 platforms may use CBFS in some cases.
