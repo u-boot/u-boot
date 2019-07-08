@@ -73,4 +73,4 @@ class Entry_image_header(Entry):
         This is necessary since image_pos is not available when ObtainContents()
         is called, since by then the entries have not been packed in the image.
         """
-        self.SetContents(self._GetHeader())
+        self.ProcessContentsUpdate(self._GetHeader())

@@ -62,4 +62,4 @@ class Entry_fmap(Entry):
         return True
 
     def ProcessContents(self):
-        self.SetContents(self._GetFmap())
+        self.ProcessContentsUpdate(self._GetFmap())

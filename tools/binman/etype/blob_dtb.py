@@ -30,4 +30,4 @@ class Entry_blob_dtb(Entry_blob):
     def ProcessContents(self):
         """Re-read the DTB contents so that we get any calculated properties"""
         _, data = state.GetFdtContents(self._filename)
-        self.SetContents(data)
+        self.ProcessContentsUpdate(data)
