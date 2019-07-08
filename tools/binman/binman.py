@@ -71,8 +71,6 @@ def RunTests(debug, processes, args):
     sys.argv = [sys.argv[0]]
     if debug:
         sys.argv.append('-D')
-    if debug:
-        sys.argv.append('-D')
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
@@ -150,9 +148,6 @@ def RunBinman(options, args):
         args: Non-option arguments
     """
     ret_code = 0
-
-    # For testing: This enables full exception traces.
-    #options.debug = True
 
     if not options.debug:
         sys.tracebacklimit = 0
