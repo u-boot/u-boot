@@ -85,11 +85,10 @@ class Entry(object):
             self.ReadNode()
 
     @staticmethod
-    def Lookup(section, node_path, etype):
+    def Lookup(node_path, etype):
         """Look up the entry class for a node.
 
         Args:
-            section:   Section object containing this node
             node_node: Path name of Node object containing information about
                        the entry to create (used for errors)
             etype:   Entry type to use
@@ -140,7 +139,7 @@ class Entry(object):
         """
         if not etype:
             etype = fdt_util.GetString(node, 'type', node.name)
-        obj = Entry.Lookup(section, node.path, etype)
+        obj = Entry.Lookup(node.path, etype)
 
         # Call its constructor to get the object we want.
         return obj(section, etype, node)
@@ -514,7 +513,7 @@ features to produce new behaviours.
             modules.remove('_testing')
         missing = []
         for name in modules:
-            module = Entry.Lookup(name, name, name)
+            module = Entry.Lookup(name, name)
             docs = getattr(module, '__doc__')
             if test_missing == name:
                 docs = None
