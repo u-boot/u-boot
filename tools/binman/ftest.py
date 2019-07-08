@@ -2446,6 +2446,43 @@ class TestFunctional(unittest.TestCase):
         data = self._RunExtractCmd('u-boot')
         self.assertEqual(U_BOOT_DATA, data)
 
+    def testExtractSection(self):
+        """Test extracting the files in a section"""
+        data = self._RunExtractCmd('section')
+        cbfs_data = data[:0x400]
+        cbfs = cbfs_util.CbfsReader(cbfs_data)
+        self.assertEqual(['u-boot', 'u-boot-dtb', ''], cbfs.files.keys())
+        dtb_data = data[0x400:]
+        dtb = self._decompress(dtb_data)
+        self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
+
+    def testExtractCompressed(self):
+        """Test extracting compressed data"""
+        data = self._RunExtractCmd('section/u-boot-dtb')
+        self.assertEqual(EXTRACT_DTB_SIZE, len(data))
+
+    def testExtractRaw(self):
+        """Test extracting compressed data without decompressing it"""
+        data = self._RunExtractCmd('section/u-boot-dtb', decomp=False)
+        dtb = self._decompress(data)
+        self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
+
+    def testExtractCbfs(self):
+        """Test extracting CBFS data"""
+        data = self._RunExtractCmd('section/cbfs/u-boot')
+        self.assertEqual(U_BOOT_DATA, data)
+
+    def testExtractCbfsCompressed(self):
+        """Test extracting CBFS compressed data"""
+        data = self._RunExtractCmd('section/cbfs/u-boot-dtb')
+        self.assertEqual(EXTRACT_DTB_SIZE, len(data))
+
+    def testExtractCbfsRaw(self):
+        """Test extracting CBFS compressed data without decompressing it"""
+        data = self._RunExtractCmd('section/cbfs/u-boot-dtb', decomp=False)
+        dtb = tools.Decompress(data, 'lzma')
+        self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
+
     def testExtractBadEntry(self):
         """Test extracting a bad section path"""
         with self.assertRaises(ValueError) as e:
@@ -2464,6 +2501,158 @@ class TestFunctional(unittest.TestCase):
         tools.WriteFile(fname, b'')
         with self.assertRaises(ValueError) as e:
             control.ReadEntry(fname, 'name')
+
+    def testExtractCmd(self):
+        """Test extracting a file fron an image on the command line"""
+        self._CheckLz4()
+        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        fname = os.path.join(self._indir, 'output.extact')
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoBinman('extract', '-i', image_fname, 'u-boot', '-f', fname)
+        data = tools.ReadFile(fname)
+        self.assertEqual(U_BOOT_DATA, data)
+
+    def testExtractOneEntry(self):
+        """Test extracting a single entry fron an image """
+        self._CheckLz4()
+        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        fname = os.path.join(self._indir, 'output.extact')
+        control.ExtractEntries(image_fname, fname, None, ['u-boot'])
+        data = tools.ReadFile(fname)
+        self.assertEqual(U_BOOT_DATA, data)
+
+    def _CheckExtractOutput(self, decomp):
+        """Helper to test file output with and without decompression
+
+        Args:
+            decomp: True to decompress entry data, False to output it raw
+        """
+        def _CheckPresent(entry_path, expect_data, expect_size=None):
+            """Check and remove expected file
+
+            This checks the data/size of a file and removes the file both from
+            the outfiles set and from the output directory. Once all files are
+            processed, both the set and directory should be empty.
+
+            Args:
+                entry_path: Entry path
+                expect_data: Data to expect in file, or None to skip check
+                expect_size: Size of data to expect in file, or None to skip
+            """
+            path = os.path.join(outdir, entry_path)
+            data = tools.ReadFile(path)
+            os.remove(path)
+            if expect_data:
+                self.assertEqual(expect_data, data)
+            elif expect_size:
+                self.assertEqual(expect_size, len(data))
+            outfiles.remove(path)
+
+        def _CheckDirPresent(name):
+            """Remove expected directory
+
+            This gives an error if the directory does not exist as expected
+
+            Args:
+                name: Name of directory to remove
+            """
+            path = os.path.join(outdir, name)
+            os.rmdir(path)
+
+        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        outdir = os.path.join(self._indir, 'extract')
+        einfos = control.ExtractEntries(image_fname, None, outdir, [], decomp)
+
+        # Create a set of all file that were output (should be 9)
+        outfiles = set()
+        for root, dirs, files in os.walk(outdir):
+            outfiles |= set([os.path.join(root, fname) for fname in files])
+        self.assertEqual(9, len(outfiles))
+        self.assertEqual(9, len(einfos))
+
+        image = control.images['image']
+        entries = image.GetEntries()
+
+        # Check the 9 files in various ways
+        section = entries['section']
+        section_entries = section.GetEntries()
+        cbfs_entries = section_entries['cbfs'].GetEntries()
+        _CheckPresent('u-boot', U_BOOT_DATA)
+        _CheckPresent('section/cbfs/u-boot', U_BOOT_DATA)
+        dtb_len = EXTRACT_DTB_SIZE
+        if not decomp:
+            dtb_len = cbfs_entries['u-boot-dtb'].size
+        _CheckPresent('section/cbfs/u-boot-dtb', None, dtb_len)
+        if not decomp:
+            dtb_len = section_entries['u-boot-dtb'].size
+        _CheckPresent('section/u-boot-dtb', None, dtb_len)
+
+        fdtmap = entries['fdtmap']
+        _CheckPresent('fdtmap', fdtmap.data)
+        hdr = entries['image-header']
+        _CheckPresent('image-header', hdr.data)
+
+        _CheckPresent('section/root', section.data)
+        cbfs = section_entries['cbfs']
+        _CheckPresent('section/cbfs/root', cbfs.data)
+        data = tools.ReadFile(image_fname)
+        _CheckPresent('root', data)
+
+        # There should be no files left. Remove all the directories to check.
+        # If there are any files/dirs remaining, one of these checks will fail.
+        self.assertEqual(0, len(outfiles))
+        _CheckDirPresent('section/cbfs')
+        _CheckDirPresent('section')
+        _CheckDirPresent('')
+        self.assertFalse(os.path.exists(outdir))
+
+    def testExtractAllEntries(self):
+        """Test extracting all entries"""
+        self._CheckLz4()
+        self._CheckExtractOutput(decomp=True)
+
+    def testExtractAllEntriesRaw(self):
+        """Test extracting all entries without decompressing them"""
+        self._CheckLz4()
+        self._CheckExtractOutput(decomp=False)
+
+    def testExtractSelectedEntries(self):
+        """Test extracting some entries"""
+        self._CheckLz4()
+        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        outdir = os.path.join(self._indir, 'extract')
+        einfos = control.ExtractEntries(image_fname, None, outdir,
+                                        ['*cb*', '*head*'])
+
+        # File output is tested by testExtractAllEntries(), so just check that
+        # the expected entries are selected
+        names = [einfo.name for einfo in einfos]
+        self.assertEqual(names,
+                         ['cbfs', 'u-boot', 'u-boot-dtb', 'image-header'])
+
+    def testExtractNoEntryPaths(self):
+        """Test extracting some entries"""
+        self._CheckLz4()
+        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        with self.assertRaises(ValueError) as e:
+            control.ExtractEntries(image_fname, 'fname', None, [])
+        self.assertIn('Must specify an entry path to write with -o',
+                      str(e.exception))
+
+    def testExtractTooManyEntryPaths(self):
+        """Test extracting some entries"""
+        self._CheckLz4()
+        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        with self.assertRaises(ValueError) as e:
+            control.ExtractEntries(image_fname, 'fname', None, ['a', 'b'])
+        self.assertIn('Must specify exactly one entry path to write with -o',
+                      str(e.exception))
 
 
 if __name__ == "__main__":

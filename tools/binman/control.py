@@ -118,6 +118,57 @@ def ReadEntry(image_fname, entry_path, decomp=True):
     return entry.ReadData(decomp)
 
 
+def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
+                   decomp=True):
+    """Extract the data from one or more entries and write it to files
+
+    Args:
+        image_fname: Image filename to process
+        output_fname: Single output filename to use if extracting one file, None
+            otherwise
+        outdir: Output directory to use (for any number of files), else None
+        entry_paths: List of entry paths to extract
+        decomp: True to compress the entry data
+
+    Returns:
+        List of EntryInfo records that were written
+    """
+    image = Image.FromFile(image_fname)
+
+    # Output an entry to a single file, as a special case
+    if output_fname:
+        if not entry_paths:
+            raise ValueError('Must specify an entry path to write with -o')
+        if len(entry_paths) != 1:
+            raise ValueError('Must specify exactly one entry path to write with -o')
+        entry = image.FindEntryPath(entry_paths[0])
+        data = entry.ReadData(decomp)
+        tools.WriteFile(output_fname, data)
+        tout.Notice("Wrote %#x bytes to file '%s'" % (len(data), output_fname))
+        return
+
+    # Otherwise we will output to a path given by the entry path of each entry.
+    # This means that entries will appear in subdirectories if they are part of
+    # a sub-section.
+    einfos = image.GetListEntries(entry_paths)[0]
+    tout.Notice('%d entries match and will be written' % len(einfos))
+    for einfo in einfos:
+        entry = einfo.entry
+        data = entry.ReadData(decomp)
+        path = entry.GetPath()[1:]
+        fname = os.path.join(outdir, path)
+
+        # If this entry has children, create a directory for it and put its
+        # data in a file called 'root' in that directory
+        if entry.GetEntries():
+            if not os.path.exists(fname):
+                os.makedirs(fname)
+            fname = os.path.join(fname, 'root')
+        tout.Notice("Write entry '%s' to '%s'" % (entry.GetPath(), fname))
+        tools.WriteFile(fname, data)
+    return einfos
+
+
 def Binman(args):
     """The main control code for binman
 
@@ -140,6 +191,15 @@ def Binman(args):
 
     if args.cmd == 'ls':
         ListEntries(args.image, args.paths)
+        return 0
+
+    if args.cmd == 'extract':
+        try:
+            tools.PrepareOutputDir(None)
+            ExtractEntries(args.image, args.filename, args.outdir, args.paths,
+                           not args.uncompressed)
+        finally:
+            tools.FinaliseOutputDir()
         return 0
 
     # Try to figure out which device tree contains our image description

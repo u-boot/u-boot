@@ -533,6 +533,30 @@ or with wildcards:
       image-header          bf8     8  image-header     bf8
 
 
+Extracting files from images
+----------------------------
+
+You can extract files from an existing firmware image created by binman,
+provided that there is an 'fdtmap' entry in the image. For example:
+
+    $ binman extract -i image.bin section/cbfs/u-boot
+
+which will write the uncompressed contents of that entry to the file 'u-boot' in
+the current directory. You can also extract to a particular file, in this case
+u-boot.bin:
+
+    $ binman extract -i image.bin section/cbfs/u-boot -f u-boot.bin
+
+It is possible to extract all files into a destination directory, which will
+put files in subdirectories matching the entry hierarchy:
+
+    $ binman extract -i image.bin -O outdir
+
+or just a selection:
+
+    $ binman extract -i image.bin "*u-boot*" -O outdir
+
+
 Logging
 -------
 
@@ -883,7 +907,6 @@ Some ideas:
 - Use of-platdata to make the information available to code that is unable
   to use device tree (such as a very small SPL image)
 - Allow easy building of images by specifying just the board name
-- Add an option to decode an image into the constituent binaries
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
 - Support updating binaries in an image (with no size change / repacking)

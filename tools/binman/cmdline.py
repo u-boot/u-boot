@@ -71,6 +71,19 @@ controlled by a description in the board device tree.'''
     list_parser.add_argument('paths', type=str, nargs='*',
                              help='Paths within file to list (wildcard)')
 
+    extract_parser = subparsers.add_parser('extract',
+                                           help='Extract files from an image')
+    extract_parser.add_argument('-i', '--image', type=str, required=True,
+                                help='Image filename to extract')
+    extract_parser.add_argument('-f', '--filename', type=str,
+                                help='Output filename to write to')
+    extract_parser.add_argument('-O', '--outdir', type=str, default='',
+        help='Path to directory to use for output files')
+    extract_parser.add_argument('paths', type=str, nargs='*',
+                                help='Paths within file to extract (wildcard)')
+    extract_parser.add_argument('-U', '--uncompressed', action='store_true',
+        help='Output raw uncompressed data for compressed entries')
+
     test_parser = subparsers.add_parser('test', help='Run tests')
     test_parser.add_argument('-P', '--processes', type=int,
         help='set number of processes to use for running tests')
