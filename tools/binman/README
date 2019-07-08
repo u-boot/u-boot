@@ -533,6 +533,24 @@ or with wildcards:
       image-header          bf8     8  image-header     bf8
 
 
+Logging
+-------
+
+Binman normally operates silently unless there is an error, in which case it
+just displays the error. The -D/--debug option can be used to create a full
+backtrace when errors occur.
+
+Internally binman logs some output while it is running. This can be displayed
+by increasing the -v/--verbosity from the default of 1:
+
+   0: silent
+   1: warnings only
+   2: notices (important messages)
+   3: info about major operations
+   4: detailed information about each operation
+   5: debug (all output)
+
+
 Hashing Entries
 ---------------
 
@@ -868,7 +886,6 @@ Some ideas:
 - Add an option to decode an image into the constituent binaries
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Support logging of binman's operations, with different levels of verbosity
 - Support updating binaries in an image (with no size change / repacking)
 - Support updating binaries in an image (with repacking)
 - Support adding FITs to an image

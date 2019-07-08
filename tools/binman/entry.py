@@ -23,6 +23,7 @@ import sys
 import fdt_util
 import state
 import tools
+import tout
 
 modules = {}
 
@@ -272,7 +273,7 @@ class Entry(object):
         new_size = len(data)
         if state.AllowEntryExpansion():
             if new_size > self.contents_size:
-                print("Entry '%s' size change from %#x to %#x" % (
+                tout.Debug("Entry '%s' size change from %#x to %#x" % (
                     self._node.path, self.contents_size, new_size))
                 # self.data will indicate the new size needed
                 size_ok = False

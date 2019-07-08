@@ -131,13 +131,21 @@ def Info(msg):
     """
     _Output(3, msg)
 
+def Detail(msg):
+    """Display a detailed message
+
+    Args:
+        msg; Message to display.
+    """
+    _Output(4, msg)
+
 def Debug(msg):
     """Display a debug message
 
     Args:
         msg; Message to display.
     """
-    _Output(4, msg)
+    _Output(5, msg)
 
 def UserOutput(msg):
     """Display a message regardless of the current output level.

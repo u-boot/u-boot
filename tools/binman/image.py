@@ -20,6 +20,7 @@ from etype import section
 import fdt
 import fdt_util
 import tools
+import tout
 
 class Image(section.Entry_section):
     """A Image, representing an output from binman
@@ -107,7 +108,7 @@ class Image(section.Entry_section):
         for entry in self._entries.values():
             if not entry.ProcessContents():
                 sizes_ok = False
-                print("Entry '%s' size change" % self._node.path)
+                tout.Debug("Entry '%s' size change" % self._node.path)
         return sizes_ok
 
     def WriteSymbols(self):
