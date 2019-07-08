@@ -699,7 +699,7 @@ implementations target 100% test coverage. Run 'binman -T' to check this.
 
 To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
 
-   $ sudo apt-get install python-coverage python-pytest
+   $ sudo apt-get install python-coverage python3-coverage python-pytest
 
 
 Concurrent tests
