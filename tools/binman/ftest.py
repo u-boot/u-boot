@@ -1223,7 +1223,7 @@ class TestFunctional(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('059_change_size.dts', True)
         self.assertIn("Node '/binman/_testing': Cannot update entry size from "
-                      '2 to 1', str(e.exception))
+                      '1 to 2', str(e.exception))
 
     def testUpdateFdt(self):
         """Test that we can update the device tree with offset/size info"""

@@ -237,25 +237,25 @@ class Entry(object):
         This sets both the data and content_size properties
 
         Args:
-            data: Data to set to the contents (string)
+            data: Data to set to the contents (bytes)
         """
         self.data = data
         self.contents_size = len(self.data)
 
     def ProcessContentsUpdate(self, data):
-        """Update the contens of an entry, after the size is fixed
+        """Update the contents of an entry, after the size is fixed
 
         This checks that the new data is the same size as the old.
 
         Args:
-            data: Data to set to the contents (string)
+            data: Data to set to the contents (bytes)
 
         Raises:
             ValueError if the new data size is not the same as the old
         """
         if len(data) != self.contents_size:
             self.Raise('Cannot update entry size from %d to %d' %
-                       (len(data), self.contents_size))
+                       (self.contents_size, len(data)))
         self.SetContents(data)
 
     def ObtainContents(self):
