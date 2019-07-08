@@ -33,12 +33,14 @@ run_test "sandbox_flattree" ./test/py/test.py --bd sandbox_flattree --build \
 	-k test_ut
 
 # Set up a path to dtc (device-tree compiler) and libfdt.py, a library it
-# provides and which is built by the sandbox_spl config.
+# provides and which is built by the sandbox_spl config. Also set up the path
+# to tools build by the build.
 DTC_DIR=build-sandbox_spl/scripts/dtc
 export PYTHONPATH=${DTC_DIR}/pylibfdt
 export DTC=${DTC_DIR}/dtc
+TOOLS_DIR=build-sandbox_spl/tools
 
-run_test "binman" ./tools/binman/binman -t
+run_test "binman" ./tools/binman/binman -t --toolpath ${TOOLS_DIR}
 run_test "patman" ./tools/patman/patman --test
 
 [ "$1" == "quick" ] && skip=--skip-net-tests
@@ -49,7 +51,8 @@ run_test "dtoc" ./tools/dtoc/dtoc -t
 # This needs you to set up Python test coverage tools.
 # To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
 #   $ sudo apt-get install python-pytest python-coverage
-run_test "binman code coverage" ./tools/binman/binman -T
+export PATH=$PATH:${TOOLS_DIR}
+run_test "binman code coverage" ./tools/binman/binman -T --toolpath ${TOOLS_DIR}
 run_test "dtoc code coverage" ./tools/dtoc/dtoc -T
 run_test "fdt code coverage" ./tools/dtoc/test_fdt -T
 

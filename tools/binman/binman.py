@@ -46,7 +46,7 @@ except:
 import control
 import test_util
 
-def RunTests(debug, verbosity, processes, test_preserve_dirs, args):
+def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
     """Run the functional tests and any embedded doctests
 
     Args:
@@ -60,6 +60,7 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args):
         processes: Number of processes to use to run tests (None=same as #CPUs)
         args: List of positional args provided to binman. This can hold a test
             name to execute (as in 'binman -t testSections', for example)
+        toolpath: List of paths to use for tools
     """
     import elf_test
     import entry_test
@@ -79,6 +80,9 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args):
         sys.argv.append('-D')
     if verbosity:
         sys.argv.append('-v%d' % verbosity)
+    if toolpath:
+        for path in toolpath:
+            sys.argv += ['--toolpath', path]
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
@@ -91,7 +95,8 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args):
         if hasattr(module, 'setup_test_args'):
             setup_test_args = getattr(module, 'setup_test_args')
             setup_test_args(preserve_indir=test_preserve_dirs,
-                preserve_outdirs=test_preserve_dirs and test_name is not None)
+                preserve_outdirs=test_preserve_dirs and test_name is not None,
+                toolpath=toolpath)
         if test_name:
             try:
                 suite.addTests(loader.loadTestsFromName(test_name, module))
@@ -167,7 +172,8 @@ def RunBinman(options, args):
 
     if options.test:
         ret_code = RunTests(options.debug, options.verbosity, options.processes,
-                            options.test_preserve_dirs, args[1:])
+                            options.test_preserve_dirs, args[1:],
+                            options.toolpath)
 
     elif options.test_coverage:
         RunTestCoverage()

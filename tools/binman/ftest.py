@@ -144,7 +144,8 @@ class TestFunctional(unittest.TestCase):
         self._indir = None
 
     @classmethod
-    def setup_test_args(cls, preserve_indir=False, preserve_outdirs=False):
+    def setup_test_args(cls, preserve_indir=False, preserve_outdirs=False,
+                        toolpath=None):
         """Accept arguments controlling test execution
 
         Args:
@@ -153,9 +154,11 @@ class TestFunctional(unittest.TestCase):
             preserve_outdir: Preserve the output directories used by tests. Each
                 test has its own, so this is normally only useful when running a
                 single test.
+            toolpath: ist of paths to use for tools
         """
         cls.preserve_indir = preserve_indir
         cls.preserve_outdirs = preserve_outdirs
+        cls.toolpath = toolpath
 
     def setUp(self):
         # Enable this to turn on debugging output
@@ -256,6 +259,9 @@ class TestFunctional(unittest.TestCase):
         if images:
             for image in images:
                 args += ['-i', image]
+        if self.toolpath:
+            for path in self.toolpath:
+                args += ['--toolpath', path]
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):

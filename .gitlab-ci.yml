@@ -176,7 +176,7 @@ Run binman and dtoc testsuite:
       ./tools/buildman/buildman -P sandbox_spl && 
      export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
      export PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}";
-     ./tools/binman/binman -t &&
+     ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools -t &&
      ./tools/dtoc/dtoc -t
 
 # Test sandbox with test.py
