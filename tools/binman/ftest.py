@@ -806,8 +806,8 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('descriptor.bin', b'')
         with self.assertRaises(ValueError) as e:
             self._DoTestFile('031_x86-rom-me.dts')
-        self.assertIn("Node '/binman/intel-descriptor': Cannot find FD "
-                      "signature", str(e.exception))
+        self.assertIn("Node '/binman/intel-descriptor': Cannot find Intel Flash Descriptor (FD) signature",
+                      str(e.exception))
 
     def testPackX86RomBadDesc(self):
         """Test that the Intel requires a descriptor entry"""

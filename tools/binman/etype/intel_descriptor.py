@@ -51,7 +51,7 @@ class Entry_intel_descriptor(Entry_blob):
     def GetOffsets(self):
         offset = self.data.find(FD_SIGNATURE)
         if offset == -1:
-            self.Raise('Cannot find FD signature')
+            self.Raise('Cannot find Intel Flash Descriptor (FD) signature')
         flvalsig, flmap0, flmap1, flmap2 = struct.unpack('<LLLL',
                                                 self.data[offset:offset + 16])
         frba = ((flmap0 >> 16) & 0xff) << 4
