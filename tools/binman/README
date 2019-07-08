@@ -339,6 +339,10 @@ expand-size:
 	limited by the size of the image/section and the position of the next
 	entry.
 
+compress:
+	Sets the compression algortihm to use (for blobs only). See the entry
+	documentation for details.
+
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
 
@@ -649,15 +653,16 @@ Compression
 -----------
 
 Binman support compression for 'blob' entries (those of type 'blob' and
-derivatives). To enable this for an entry, add a 'compression' property:
+derivatives). To enable this for an entry, add a 'compress' property:
 
     blob {
         filename = "datafile";
-        compression = "lz4";
+        compress = "lz4";
     };
 
 The entry will then contain the compressed data, using the 'lz4' compression
-algorithm. Currently this is the only one that is supported.
+algorithm. Currently this is the only one that is supported. The uncompressed
+size is written to the node in an 'uncomp-size' property, if -u is used.
 
 
 

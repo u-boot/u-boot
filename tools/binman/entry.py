@@ -51,6 +51,8 @@ class Entry(object):
         offset: Offset of entry within the section, None if not known yet (in
             which case it will be calculated by Pack())
         size: Entry size in bytes, None if not known
+        uncomp_size: Size of uncompressed data in bytes, if the entry is
+            compressed, else None
         contents_size: Size of contents in bytes, 0 by default
         align: Entry start offset alignment, or None
         align_size: Entry size alignment, or None
@@ -58,6 +60,7 @@ class Entry(object):
         pad_before: Number of pad bytes before the contents, 0 if none
         pad_after: Number of pad bytes after the contents, 0 if none
         data: Contents of entry (string of bytes)
+        compress: Compression algoithm used (e.g. 'lz4'), 'none' if none
     """
     def __init__(self, section, etype, node, read_node=True, name_prefix=''):
         self.section = section
@@ -66,6 +69,7 @@ class Entry(object):
         self.name = node and (name_prefix + node.name) or 'none'
         self.offset = None
         self.size = None
+        self.uncomp_size = None
         self.data = None
         self.contents_size = 0
         self.align = None
@@ -76,6 +80,7 @@ class Entry(object):
         self.offset_unset = False
         self.image_pos = None
         self._expand_size = False
+        self.compress = 'none'
         if read_node:
             self.ReadNode()
 
@@ -188,6 +193,8 @@ class Entry(object):
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
                 state.AddZeroProp(self._node, prop)
+        if self.compress != 'none':
+            state.AddZeroProp(self._node, 'uncomp-size')
         err = state.CheckAddHashProp(self._node)
         if err:
             self.Raise(err)
@@ -198,6 +205,8 @@ class Entry(object):
         state.SetInt(self._node, 'size', self.size)
         state.SetInt(self._node, 'image-pos',
                        self.image_pos - self.section.GetRootSkipAtStart())
+        if self.uncomp_size is not None:
+            state.SetInt(self._node, 'uncomp-size', self.uncomp_size)
         state.CheckSetHashValue(self._node, self.GetData)
 
     def ProcessFdt(self, fdt):

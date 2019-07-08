@@ -33,8 +33,7 @@ class Entry_blob(Entry):
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)
         self._filename = fdt_util.GetString(self._node, 'filename', self.etype)
-        self._compress = fdt_util.GetString(self._node, 'compress', 'none')
-        self._uncompressed_size = None
+        self.compress = fdt_util.GetString(self._node, 'compress', 'none')
 
     def ObtainContents(self):
         self._filename = self.GetDefaultFilename()
@@ -50,21 +49,11 @@ class Entry_blob(Entry):
         # the data in chunks and avoid reading it all at once. For now
         # this seems like an unnecessary complication.
         indata = tools.ReadFile(self._pathname)
-        if self._compress != 'none':
-            self._uncompressed_size = len(indata)
-        data = tools.Compress(indata, self._compress)
+        if self.compress != 'none':
+            self.uncomp_size = len(indata)
+        data = tools.Compress(indata, self.compress)
         self.SetContents(data)
         return True
 
     def GetDefaultFilename(self):
         return self._filename
-
-    def AddMissingProperties(self):
-        Entry.AddMissingProperties(self)
-        if self._compress != 'none':
-            state.AddZeroProp(self._node, 'uncomp-size')
-
-    def SetCalculatedProperties(self):
-        Entry.SetCalculatedProperties(self)
-        if self._uncompressed_size is not None:
-            state.SetInt(self._node, 'uncomp-size', self._uncompressed_size)
