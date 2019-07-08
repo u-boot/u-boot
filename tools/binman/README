@@ -811,13 +811,17 @@ Some ideas:
 - Use of-platdata to make the information available to code that is unable
   to use device tree (such as a very small SPL image)
 - Allow easy building of images by specifying just the board name
-- Produce a full Python binding for libfdt (for upstream). This is nearing
-    completion but some work remains
 - Add an option to decode an image into the constituent binaries
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Consider making binman work with buildman, although if it is used in the
-  Makefile, this will be automatic
+- Support putting the FDT in an image with a suitable magic number
+- Support adding a pointer to the FDT map
+- Support listing files in images
+- Support logging of binman's operations, with different levels of verbosity
+- Support updating binaries in an image (with no size change / repacking)
+- Support updating binaries in an image (with repacking)
+- Support adding FITs to an image
+- Support for ARM Trusted Firmware (ATF)
 
 --
 Simon Glass <sjg@chromium.org>
