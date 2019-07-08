@@ -1746,6 +1746,8 @@ class TestFunctional(unittest.TestCase):
         """Basic test of ELF entries"""
         self._SetupSplElf()
         with open(self.TestFile('bss_data'), 'rb') as fd:
+            TestFunctional._MakeInputFile('tpl/u-boot-tpl', fd.read())
+        with open(self.TestFile('bss_data'), 'rb') as fd:
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('096_elf.dts')
 

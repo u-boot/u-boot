@@ -10,5 +10,7 @@
 		};
 		u-boot-spl-elf {
 		};
+		u-boot-tpl-elf {
+		};
 	};
 };

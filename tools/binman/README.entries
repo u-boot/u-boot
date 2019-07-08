@@ -574,6 +574,17 @@ process.
 
 
 
+Entry: u-boot-tpl-elf: U-Boot TPL ELF image
+-------------------------------------------
+
+Properties / Entry arguments:
+    - filename: Filename of TPL u-boot (default 'tpl/u-boot-tpl')
+
+This is the U-Boot TPL ELF image. It does not include a device tree but can
+be relocated to any address for execution.
+
+
+
 Entry: u-boot-tpl-with-ucode-ptr: U-Boot TPL with embedded microcode pointer
 ----------------------------------------------------------------------------
 
