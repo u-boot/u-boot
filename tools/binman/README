@@ -691,6 +691,16 @@ Not all properties can be provided this way. Only some entries support it,
 typically for filenames.
 
 
+External tools
+--------------
+
+Binman can make use of external command-line tools to handle processing of
+entry contents or to generate entry contents. These tools are executed using
+the 'tools' module's Run() method. The tools generally must exist on the PATH,
+but the --toolpath option can be used to specify additional search paths to
+use. This option can be specified multiple times to add more than one path.
+
+
 Code coverage
 -------------
 

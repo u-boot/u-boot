@@ -112,6 +112,7 @@ def Binman(options, args):
         try:
             tools.SetInputDirs(options.indir)
             tools.PrepareOutputDir(options.outdir, options.preserve)
+            tools.SetToolPaths(options.toolpath)
             state.SetEntryArgs(options.entry_arg)
 
             # Get the device tree ready by compiling it and copying the compiled

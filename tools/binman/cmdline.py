@@ -52,6 +52,8 @@ def ParseArgs(argv):
                     default=False, help='run tests')
     parser.add_option('-T', '--test-coverage', action='store_true',
                     default=False, help='run tests and check for 100% coverage')
+    parser.add_option('--toolpath', type='string', action='append',
+            help='Add a path to the directories containing tools')
     parser.add_option('-u', '--update-fdt', action='store_true',
         default=False, help='Update the binman node with offset/size info')
     parser.add_option('-v', '--verbosity', default=1,
