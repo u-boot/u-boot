@@ -1758,7 +1758,7 @@ class TestFunctional(unittest.TestCase):
             TestFunctional._MakeInputFile('-boot', fd.read())
         data = self._DoReadFile('096_elf.dts')
 
-    def testElfStripg(self):
+    def testElfStrip(self):
         """Basic test of ELF entries"""
         self._SetupSplElf()
         with open(self.TestFile('bss_data'), 'rb') as fd:
@@ -1784,7 +1784,7 @@ class TestFunctional(unittest.TestCase):
 <none>     00000003  00000004  u-boot-align
 ''', map_data)
 
-    def testPacRefCode(self):
+    def testPackRefCode(self):
         """Test that an image with an Intel Reference code binary works"""
         data = self._DoReadFile('100_intel_refcode.dts')
         self.assertEqual(REFCODE_DATA, data[:len(REFCODE_DATA)])
