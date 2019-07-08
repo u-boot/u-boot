@@ -61,6 +61,8 @@ class Entry(object):
         pad_after: Number of pad bytes after the contents, 0 if none
         data: Contents of entry (string of bytes)
         compress: Compression algoithm used (e.g. 'lz4'), 'none' if none
+        orig_offset: Original offset value read from node
+        orig_size: Original size value read from node
     """
     def __init__(self, section, etype, node, read_node=True, name_prefix=''):
         self.section = section
@@ -153,6 +155,9 @@ class Entry(object):
             self.Raise("Please use 'offset' instead of 'pos'")
         self.offset = fdt_util.GetInt(self._node, 'offset')
         self.size = fdt_util.GetInt(self._node, 'size')
+        self.orig_offset = self.offset
+        self.orig_size = self.size
+
         self.align = fdt_util.GetInt(self._node, 'align')
         if tools.NotPowerOfTwo(self.align):
             raise ValueError("Node '%s': Alignment %s must be a power of two" %
@@ -255,9 +260,16 @@ class Entry(object):
             ValueError if the new data size is not the same as the old
         """
         size_ok = True
-        if len(data) != self.contents_size:
+        new_size = len(data)
+        if state.AllowEntryExpansion():
+            if new_size > self.contents_size:
+                print("Entry '%s' size change from %#x to %#x" % (
+                    self._node.path, self.contents_size, new_size))
+                # self.data will indicate the new size needed
+                size_ok = False
+        elif new_size != self.contents_size:
             self.Raise('Cannot update entry size from %d to %d' %
-                       (self.contents_size, len(data)))
+                       (self.contents_size, new_size))
         self.SetContents(data)
         return size_ok
 
@@ -270,6 +282,11 @@ class Entry(object):
         """
         # No contents by default: subclasses can implement this
         return True
+
+    def ResetForPack(self):
+        """Reset offset/size fields so that packing can be done again"""
+        self.offset = self.orig_offset
+        self.size = self.orig_size
 
     def Pack(self, offset):
         """Figure out how to pack the entry into the section

@@ -566,7 +566,8 @@ tree. This sets the correct 'offset' and 'size' vaues, for example.
 The default implementatoin does nothing. This can be overriden to adjust the
 contents of an entry in some way. For example, it would be possible to create
 an entry containing a hash of the contents of some other entries. At this
-stage the offset and size of entries should not be adjusted.
+stage the offset and size of entries should not be adjusted unless absolutely
+necessary, since it requires a repack (going back to PackEntries()).
 
 10. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
 See 'Access to binman entry offsets at run time' below for a description of

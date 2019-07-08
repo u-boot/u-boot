@@ -170,21 +170,42 @@ def Binman(args):
                 # completed and written, but that does not seem important.
                 image.GetEntryContents()
                 image.GetEntryOffsets()
-                try:
-                    image.PackEntries()
-                    image.CheckSize()
-                    image.CheckEntries()
-                except Exception as e:
-                    if args.map:
-                        fname = image.WriteMap()
-                        print("Wrote map file '%s' to show errors"  % fname)
-                    raise
-                image.SetImagePos()
-                if args.update_fdt:
-                    image.SetCalculatedProperties()
-                    for dtb_item in state.GetFdts():
-                        dtb_item.Sync()
-                image.ProcessEntryContents()
+
+                # We need to pack the entries to figure out where everything
+                # should be placed. This sets the offset/size of each entry.
+                # However, after packing we call ProcessEntryContents() which
+                # may result in an entry changing size. In that case we need to
+                # do another pass. Since the device tree often contains the
+                # final offset/size information we try to make space for this in
+                # AddMissingProperties() above. However, if the device is
+                # compressed we cannot know this compressed size in advance,
+                # since changing an offset from 0x100 to 0x104 (for example) can
+                # alter the compressed size of the device tree. So we need a
+                # third pass for this.
+                passes = 3
+                for pack_pass in range(passes):
+                    try:
+                        image.PackEntries()
+                        image.CheckSize()
+                        image.CheckEntries()
+                    except Exception as e:
+                        if args.map:
+                            fname = image.WriteMap()
+                            print("Wrote map file '%s' to show errors"  % fname)
+                        raise
+                    image.SetImagePos()
+                    if args.update_fdt:
+                        image.SetCalculatedProperties()
+                        for dtb_item in state.GetFdts():
+                            dtb_item.Sync()
+                    sizes_ok = image.ProcessEntryContents()
+                    if sizes_ok:
+                        break
+                    image.ResetForPack()
+                if not sizes_ok:
+                    image.Raise('Entries expanded after packing (tried %s passes)' %
+                                passes)
+
                 image.WriteSymbols()
                 image.BuildImage()
                 if args.map:

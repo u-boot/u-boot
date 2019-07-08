@@ -49,7 +49,7 @@ class Entry_u_boot_with_ucode_ptr(Entry_blob):
     def ProcessContents(self):
         # If the image does not need microcode, there is nothing to do
         if not self.target_offset:
-            return
+            return True
 
         # Get the offset of the microcode
         ucode_entry = self.section.FindEntryType('u-boot-ucode')

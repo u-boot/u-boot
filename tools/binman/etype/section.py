@@ -64,6 +64,11 @@ class Entry_section(Entry):
         self._section.GetEntryOffsets()
         return {}
 
+    def ResetForPack(self):
+        """Reset offset/size fields so that packing can be done again"""
+        self._section.ResetForPack()
+        Entry.ResetForPack(self)
+
     def Pack(self, offset):
         """Pack all entries into the section"""
         self._section.PackEntries()

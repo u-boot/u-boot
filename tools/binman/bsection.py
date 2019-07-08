@@ -45,6 +45,8 @@ class Section(object):
         _name_prefix: Prefix to add to the name of all entries within this
             section
         _entries: OrderedDict() of entries
+        _orig_offset: Original offset value read from node
+        _orig_size: Original size value read from node
     """
     def __init__(self, name, parent_section, node, image, test=False):
         global entry
@@ -76,6 +78,8 @@ class Section(object):
         """Read properties from the section node"""
         self._offset = fdt_util.GetInt(self._node, 'offset')
         self._size = fdt_util.GetInt(self._node, 'size')
+        self._orig_offset = self._offset
+        self._orig_size = self._size
         self._align_size = fdt_util.GetInt(self._node, 'align-size')
         if tools.NotPowerOfTwo(self._align_size):
             self._Raise("Alignment size %s must be a power of two" %
@@ -257,6 +261,13 @@ class Section(object):
             for name, info in offset_dict.items():
                 self._SetEntryOffsetSize(name, *info)
 
+    def ResetForPack(self):
+        """Reset offset/size fields so that packing can be done again"""
+        self._offset = self._orig_offset
+        self._size = self._orig_size
+        for entry in self._entries.values():
+            entry.ResetForPack()
+
     def PackEntries(self):
         """Pack all entries into the section"""
         offset = self._skip_at_start
@@ -325,6 +336,7 @@ class Section(object):
         for entry in self._entries.values():
             if not entry.ProcessContents():
                 sizes_ok = False
+                print("Entry '%s' size change" % self._node.path)
         return sizes_ok
 
     def WriteSymbols(self):

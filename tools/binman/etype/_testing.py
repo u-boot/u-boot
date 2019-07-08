@@ -50,6 +50,8 @@ class Entry__testing(Entry):
                                                     'bad-update-contents')
         self.return_contents_once = fdt_util.GetBool(self._node,
                                                      'return-contents-once')
+        self.bad_update_contents_twice = fdt_util.GetBool(self._node,
+                                                    'bad-update-contents-twice')
 
         # Set to True when the entry is ready to process the FDT.
         self.process_fdt_ready = False
@@ -71,11 +73,12 @@ class Entry__testing(Entry):
         if self.force_bad_datatype:
             self.GetEntryArgsOrProps([EntryArg('test-bad-datatype-arg', bool)])
         self.return_contents = True
+        self.contents = b'a'
 
     def ObtainContents(self):
         if self.return_unknown_contents or not self.return_contents:
             return False
-        self.data = b'a'
+        self.data = self.contents
         self.contents_size = len(self.data)
         if self.return_contents_once:
             self.return_contents = False
@@ -90,7 +93,11 @@ class Entry__testing(Entry):
         if self.bad_update_contents:
             # Request to update the contents with something larger, to cause a
             # failure.
-            return self.ProcessContentsUpdate('aa')
+            if self.bad_update_contents_twice:
+                self.contents += b'a'
+            else:
+                self.contents = b'aa'
+            return self.ProcessContentsUpdate(self.contents)
         return True
 
     def ProcessFdt(self, fdt):

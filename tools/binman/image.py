@@ -55,6 +55,10 @@ class Image:
             self._filename = filename
         self._section = bsection.Section('main-section', None, self._node, self)
 
+    def Raise(self, msg):
+        """Convenience function to raise an error referencing an image"""
+        raise ValueError("Image '%s': %s" % (self._node.path, msg))
+
     def GetFdtSet(self):
         """Get the set of device tree files used by this image"""
         return self._section.GetFdtSet()
@@ -99,6 +103,10 @@ class Image:
         of entries to update, it updates them.
         """
         self._section.GetEntryOffsets()
+
+    def ResetForPack(self):
+        """Reset offset/size fields so that packing can be done again"""
+        self._section.ResetForPack()
 
     def PackEntries(self):
         """Pack all entries into the image"""

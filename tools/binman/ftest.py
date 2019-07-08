@@ -1220,10 +1220,14 @@ class TestFunctional(unittest.TestCase):
 
     def testBadChangeSize(self):
         """Test that trying to change the size of an entry fails"""
-        with self.assertRaises(ValueError) as e:
-            self._DoReadFile('059_change_size.dts', True)
-        self.assertIn("Node '/binman/_testing': Cannot update entry size from "
-                      '1 to 2', str(e.exception))
+        try:
+            state.SetAllowEntryExpansion(False)
+            with self.assertRaises(ValueError) as e:
+                self._DoReadFile('059_change_size.dts', True)
+            self.assertIn("Node '/binman/_testing': Cannot update entry size from 1 to 2",
+                          str(e.exception))
+        finally:
+            state.SetAllowEntryExpansion(True)
 
     def testUpdateFdt(self):
         """Test that we can update the device tree with offset/size info"""
@@ -2116,6 +2120,27 @@ class TestFunctional(unittest.TestCase):
             self.data = self._DoReadFileRealDtb('120_hdr_no_location.dts')
         self.assertIn("Invalid location 'None', expected 'start' or 'end'",
                       str(e.exception))
+
+    def testEntryExpand(self):
+        """Test expanding an entry after it is packed"""
+        data = self._DoReadFile('121_entry_expand.dts')
+        self.assertEqual(b'aa', data[:2])
+        self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
+        self.assertEqual(b'aa', data[-2:])
+
+    def testEntryExpandBad(self):
+        """Test expanding an entry after it is packed, twice"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('122_entry_expand_twice.dts')
+        self.assertIn("Image '/binman': Entries expanded after packing",
+                      str(e.exception))
+
+    def testEntryExpandSection(self):
+        """Test expanding an entry within a section after it is packed"""
+        data = self._DoReadFile('123_entry_expand_section.dts')
+        self.assertEqual(b'aa', data[:2])
+        self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
+        self.assertEqual(b'aa', data[-2:])
 
 
 if __name__ == "__main__":
