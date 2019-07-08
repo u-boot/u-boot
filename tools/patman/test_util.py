@@ -46,9 +46,10 @@ def RunTestCoverage(prog, filter_fname, exclude_list, build_dir, required=None):
         glob_list = []
     glob_list += exclude_list
     glob_list += ['*libfdt.py', '*site-packages*', '*dist-packages*']
+    test_cmd = 'test' if 'binman.py' in prog else '-t'
     cmd = ('PYTHONPATH=$PYTHONPATH:%s/sandbox_spl/tools %s-coverage run '
-           '--omit "%s" %s -P1 -t' % (build_dir, PYTHON, ','.join(glob_list),
-                                      prog))
+           '--omit "%s" %s %s -P1' % (build_dir, PYTHON, ','.join(glob_list),
+                                      prog, test_cmd))
     os.system(cmd)
     stdout = command.Output('%s-coverage' % PYTHON, 'report')
     lines = stdout.splitlines()

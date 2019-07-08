@@ -155,7 +155,7 @@ class TestFunctional(unittest.TestCase):
 
     @classmethod
     def setup_test_args(cls, preserve_indir=False, preserve_outdirs=False,
-                        toolpath=None):
+                        toolpath=None, verbosity=None):
         """Accept arguments controlling test execution
 
         Args:
@@ -169,6 +169,7 @@ class TestFunctional(unittest.TestCase):
         cls.preserve_indir = preserve_indir
         cls.preserve_outdirs = preserve_outdirs
         cls.toolpath = toolpath
+        cls.verbosity = verbosity
 
     def _CheckLz4(self):
         if not self.have_lz4:
@@ -192,19 +193,6 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('spl/u-boot-spl.dtb', U_BOOT_SPL_DTB_DATA)
         TestFunctional._MakeInputFile('tpl/u-boot-tpl.dtb', U_BOOT_TPL_DTB_DATA)
 
-    def _GetVerbosity(self):
-        """Check if verbosity should be enabled
-
-        Returns:
-            list containing either:
-                - Verbosity flag (e.g. '-v2') if it is present on the cmd line
-                - nothing if the flag is not present
-        """
-        for arg in sys.argv[1:]:
-            if arg.startswith('-v'):
-                return [arg]
-        return []
-
     def _RunBinman(self, *args, **kwargs):
         """Run binman using the command line
 
@@ -219,7 +207,7 @@ class TestFunctional(unittest.TestCase):
                             result.stdout + result.stderr))
         return result
 
-    def _DoBinman(self, *args):
+    def _DoBinman(self, *argv):
         """Run binman using directly (in the same process)
 
         Args:
@@ -227,16 +215,14 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Return value (0 for success)
         """
-        args = list(args)
-        if '-D' in sys.argv:
-            args = args + ['-D']
-        (options, args) = cmdline.ParseArgs(args)
-        options.pager = 'binman-invalid-pager'
-        options.build_dir = self._indir
+        argv = list(argv)
+        args = cmdline.ParseArgs(argv)
+        args.pager = 'binman-invalid-pager'
+        args.build_dir = self._indir
 
         # For testing, you can force an increase in verbosity here
-        # options.verbosity = tout.DEBUG
-        return control.Binman(options, args)
+        # args.verbosity = tout.DEBUG
+        return control.Binman(args)
 
     def _DoTestFile(self, fname, debug=False, map=False, update_dtb=False,
                     entry_args=None, images=None, use_real_dtb=False,
@@ -254,28 +240,29 @@ class TestFunctional(unittest.TestCase):
                 value: value of that arg
             images: List of image names to build
         """
-        args = ['-p', '-I', self._indir, '-d', self.TestFile(fname)]
+        args = []
         if debug:
             args.append('-D')
+        if verbosity is not None:
+            args.append('-v%d' % verbosity)
+        elif self.verbosity:
+            args.append('-v%d' % self.verbosity)
+        if self.toolpath:
+            for path in self.toolpath:
+                args += ['--toolpath', path]
+        args += ['build', '-p', '-I', self._indir, '-d', self.TestFile(fname)]
         if map:
             args.append('-m')
         if update_dtb:
             args.append('-u')
         if not use_real_dtb:
             args.append('--fake-dtb')
-        if verbosity is not None:
-            args.append('-v%d' % verbosity)
-        else:
-            args += self._GetVerbosity()
         if entry_args:
             for arg, value in entry_args.items():
                 args.append('-a%s=%s' % (arg, value))
         if images:
             for image in images:
                 args += ['-i', image]
-        if self.toolpath:
-            for path in self.toolpath:
-                args += ['--toolpath', path]
         return self._DoBinman(*args)
 
     def _SetupDtb(self, fname, outfile='u-boot.dtb'):
@@ -538,20 +525,20 @@ class TestFunctional(unittest.TestCase):
         """Test that we can run it with a specific board"""
         self._SetupDtb('005_simple.dts', 'sandbox/u-boot.dtb')
         TestFunctional._MakeInputFile('sandbox/u-boot.bin', U_BOOT_DATA)
-        result = self._DoBinman('-b', 'sandbox')
+        result = self._DoBinman('build', '-b', 'sandbox')
         self.assertEqual(0, result)
 
     def testNeedBoard(self):
         """Test that we get an error when no board ius supplied"""
         with self.assertRaises(ValueError) as e:
-            result = self._DoBinman()
+            result = self._DoBinman('build')
         self.assertIn("Must provide a board to process (use -b <board>)",
                 str(e.exception))
 
     def testMissingDt(self):
         """Test that an invalid device-tree file generates an error"""
         with self.assertRaises(Exception) as e:
-            self._RunBinman('-d', 'missing_file')
+            self._RunBinman('build', '-d', 'missing_file')
         # We get one error from libfdt, and a different one from fdtget.
         self.AssertInList(["Couldn't open blob from 'missing_file'",
                            'No such file or directory'], str(e.exception))
@@ -563,26 +550,26 @@ class TestFunctional(unittest.TestCase):
         will come from the device-tree compiler (dtc).
         """
         with self.assertRaises(Exception) as e:
-            self._RunBinman('-d', self.TestFile('001_invalid.dts'))
+            self._RunBinman('build', '-d', self.TestFile('001_invalid.dts'))
         self.assertIn("FATAL ERROR: Unable to parse input tree",
                 str(e.exception))
 
     def testMissingNode(self):
         """Test that a device tree without a 'binman' node generates an error"""
         with self.assertRaises(Exception) as e:
-            self._DoBinman('-d', self.TestFile('002_missing_node.dts'))
+            self._DoBinman('build', '-d', self.TestFile('002_missing_node.dts'))
         self.assertIn("does not have a 'binman' node", str(e.exception))
 
     def testEmpty(self):
         """Test that an empty binman node works OK (i.e. does nothing)"""
-        result = self._RunBinman('-d', self.TestFile('003_empty.dts'))
+        result = self._RunBinman('build', '-d', self.TestFile('003_empty.dts'))
         self.assertEqual(0, len(result.stderr))
         self.assertEqual(0, result.return_code)
 
     def testInvalidEntry(self):
         """Test that an invalid entry is flagged"""
         with self.assertRaises(Exception) as e:
-            result = self._RunBinman('-d',
+            result = self._RunBinman('build', '-d',
                                      self.TestFile('004_invalid_entry.dts'))
         self.assertIn("Unknown entry type 'not-a-valid-type' in node "
                 "'/binman/not-a-valid-type'", str(e.exception))
@@ -1313,7 +1300,8 @@ class TestFunctional(unittest.TestCase):
 
     def testEntryArgsInvalidFormat(self):
         """Test that an invalid entry-argument format is detected"""
-        args = ['-d', self.TestFile('064_entry_args_required.dts'), '-ano-value']
+        args = ['build', '-d', self.TestFile('064_entry_args_required.dts'),
+                '-ano-value']
         with self.assertRaises(ValueError) as e:
             self._DoBinman(*args)
         self.assertIn("Invalid entry arguemnt 'no-value'", str(e.exception))

@@ -40,7 +40,7 @@ export PYTHONPATH=${DTC_DIR}/pylibfdt
 export DTC=${DTC_DIR}/dtc
 TOOLS_DIR=build-sandbox_spl/tools
 
-run_test "binman" ./tools/binman/binman -t --toolpath ${TOOLS_DIR}
+run_test "binman" ./tools/binman/binman --toolpath ${TOOLS_DIR} test
 run_test "patman" ./tools/patman/patman --test
 
 [ "$1" == "quick" ] && skip=--skip-net-tests
@@ -52,7 +52,7 @@ run_test "dtoc" ./tools/dtoc/dtoc -t
 # To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
 #   $ sudo apt-get install python-pytest python-coverage
 export PATH=$PATH:${TOOLS_DIR}
-run_test "binman code coverage" ./tools/binman/binman -T --toolpath ${TOOLS_DIR}
+run_test "binman code coverage" ./tools/binman/binman test -T
 run_test "dtoc code coverage" ./tools/dtoc/dtoc -T
 run_test "fdt code coverage" ./tools/dtoc/test_fdt -T
 

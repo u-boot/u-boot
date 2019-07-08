@@ -20,14 +20,15 @@ import sys
 import traceback
 import unittest
 
-# Bring in the patman and dtoc libraries
+# Bring in the patman and dtoc libraries (but don't override the first path
+# in PYTHONPATH)
 our_path = os.path.dirname(os.path.realpath(__file__))
 for dirname in ['../patman', '../dtoc', '..', '../concurrencytest']:
-    sys.path.insert(0, os.path.join(our_path, dirname))
+    sys.path.insert(2, os.path.join(our_path, dirname))
 
 # Bring in the libfdt module
-sys.path.insert(0, 'scripts/dtc/pylibfdt')
-sys.path.insert(0, os.path.join(our_path,
+sys.path.insert(2, 'scripts/dtc/pylibfdt')
+sys.path.insert(2, os.path.join(our_path,
                 '../../build-sandbox_spl/scripts/dtc/pylibfdt'))
 
 # When running under python-coverage on Ubuntu 16.04, the dist-packages
@@ -59,7 +60,7 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
             on the command line.
         processes: Number of processes to use to run tests (None=same as #CPUs)
         args: List of positional args provided to binman. This can hold a test
-            name to execute (as in 'binman -t testSections', for example)
+            name to execute (as in 'binman test testSections', for example)
         toolpath: List of paths to use for tools
     """
     import cbfs_util_test
@@ -98,7 +99,7 @@ def RunTests(debug, verbosity, processes, test_preserve_dirs, args, toolpath):
             setup_test_args = getattr(module, 'setup_test_args')
             setup_test_args(preserve_indir=test_preserve_dirs,
                 preserve_outdirs=test_preserve_dirs and test_name is not None,
-                toolpath=toolpath)
+                toolpath=toolpath, verbosity=verbosity)
         if test_name:
             try:
                 suite.addTests(loader.loadTestsFromName(test_name, module))
@@ -158,37 +159,36 @@ def RunTestCoverage():
                    for item in glob_list if '_testing' not in item])
     test_util.RunTestCoverage('tools/binman/binman.py', None,
             ['*test*', '*binman.py', 'tools/patman/*', 'tools/dtoc/*'],
-            options.build_dir, all_set)
+            args.build_dir, all_set)
 
-def RunBinman(options, args):
+def RunBinman(args):
     """Main entry point to binman once arguments are parsed
 
     Args:
-        options: Command-line options
-        args: Non-option arguments
+        args: Command line arguments Namespace object
     """
     ret_code = 0
 
-    if not options.debug:
+    if not args.debug:
         sys.tracebacklimit = 0
 
-    if options.test:
-        ret_code = RunTests(options.debug, options.verbosity, options.processes,
-                            options.test_preserve_dirs, args[1:],
-                            options.toolpath)
+    if args.cmd == 'test':
+        if args.test_coverage:
+            RunTestCoverage()
+        else:
+            ret_code = RunTests(args.debug, args.verbosity, args.processes,
+                                args.test_preserve_dirs, args.tests,
+                                args.toolpath)
 
-    elif options.test_coverage:
-        RunTestCoverage()
-
-    elif options.entry_docs:
+    elif args.cmd == 'entry-docs':
         control.WriteEntryDocs(GetEntryModules())
 
     else:
         try:
-            ret_code = control.Binman(options, args)
+            ret_code = control.Binman(args)
         except Exception as e:
             print('binman: %s' % e)
-            if options.debug:
+            if args.debug:
                 print()
                 traceback.print_exc()
             ret_code = 1
@@ -196,6 +196,7 @@ def RunBinman(options, args):
 
 
 if __name__ == "__main__":
-    (options, args) = cmdline.ParseArgs(sys.argv)
-    ret_code = RunBinman(options, args)
+    args = cmdline.ParseArgs(sys.argv[1:])
+
+    ret_code = RunBinman(args)
     sys.exit(ret_code)

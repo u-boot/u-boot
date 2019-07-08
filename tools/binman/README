@@ -187,7 +187,7 @@ First install prerequisites, e.g.
 
 Type:
 
-	binman -b <board_name>
+	binman build -b <board_name>
 
 to build an image for a board. The board name is the same name used when
 configuring U-Boot (e.g. for sandbox_defconfig the board name is 'sandbox').
@@ -195,7 +195,7 @@ Binman assumes that the input files for the build are in ../b/<board_name>.
 
 Or you can specify this explicitly:
 
-	binman -I <build_path>
+	binman build -I <build_path>
 
 where <build_path> is the build directory containing the output of the U-Boot
 build.
@@ -483,7 +483,7 @@ Entry Documentation
 For details on the various entry types supported by binman and how to use them,
 see README.entries. This is generated from the source code using:
 
-	binman -E >tools/binman/README.entries
+	binman entry-docs >tools/binman/README.entries
 
 
 Hashing Entries
@@ -715,7 +715,7 @@ Code coverage
 -------------
 
 Binman is a critical tool and is designed to be very testable. Entry
-implementations target 100% test coverage. Run 'binman -T' to check this.
+implementations target 100% test coverage. Run 'binman test -T' to check this.
 
 To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
 

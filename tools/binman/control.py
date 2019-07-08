@@ -67,19 +67,18 @@ def WriteEntryDocs(modules, test_missing=None):
     from entry import Entry
     Entry.WriteDocs(modules, test_missing)
 
-def Binman(options, args):
+def Binman(args):
     """The main control code for binman
 
     This assumes that help and test options have already been dealt with. It
     deals with the core task of building images.
 
     Args:
-        options: Command line options object
-        args: Command line arguments (list of strings)
+        args: Command line arguments Namespace object
     """
     global images
 
-    if options.full_help:
+    if args.full_help:
         pager = os.getenv('PAGER')
         if not pager:
             pager = 'more'
@@ -89,17 +88,17 @@ def Binman(options, args):
         return 0
 
     # Try to figure out which device tree contains our image description
-    if options.dt:
-        dtb_fname = options.dt
+    if args.dt:
+        dtb_fname = args.dt
     else:
-        board = options.board
+        board = args.board
         if not board:
             raise ValueError('Must provide a board to process (use -b <board>)')
-        board_pathname = os.path.join(options.build_dir, board)
+        board_pathname = os.path.join(args.build_dir, board)
         dtb_fname = os.path.join(board_pathname, 'u-boot.dtb')
-        if not options.indir:
-            options.indir = ['.']
-        options.indir.append(board_pathname)
+        if not args.indir:
+            args.indir = ['.']
+        args.indir.append(board_pathname)
 
     try:
         # Import these here in case libfdt.py is not available, in which case
@@ -107,15 +106,15 @@ def Binman(options, args):
         import fdt
         import fdt_util
 
-        tout.Init(options.verbosity)
-        elf.debug = options.debug
-        cbfs_util.VERBOSE = options.verbosity > 2
-        state.use_fake_dtb = options.fake_dtb
+        tout.Init(args.verbosity)
+        elf.debug = args.debug
+        cbfs_util.VERBOSE = args.verbosity > 2
+        state.use_fake_dtb = args.fake_dtb
         try:
-            tools.SetInputDirs(options.indir)
-            tools.PrepareOutputDir(options.outdir, options.preserve)
-            tools.SetToolPaths(options.toolpath)
-            state.SetEntryArgs(options.entry_arg)
+            tools.SetInputDirs(args.indir)
+            tools.PrepareOutputDir(args.outdir, args.preserve)
+            tools.SetToolPaths(args.toolpath)
+            state.SetEntryArgs(args.entry_arg)
 
             # Get the device tree ready by compiling it and copying the compiled
             # output into a file in our output directly. Then scan it for use
@@ -132,16 +131,16 @@ def Binman(options, args):
 
             images = _ReadImageDesc(node)
 
-            if options.image:
+            if args.image:
                 skip = []
                 new_images = OrderedDict()
                 for name, image in images.items():
-                    if name in options.image:
+                    if name in args.image:
                         new_images[name] = image
                     else:
                         skip.append(name)
                 images = new_images
-                if skip and options.verbosity >= 2:
+                if skip and args.verbosity >= 2:
                     print('Skipping images: %s' % ', '.join(skip))
 
             state.Prepare(images, dtb)
@@ -155,7 +154,7 @@ def Binman(options, args):
             # entry offsets remain the same.
             for image in images.values():
                 image.ExpandEntries()
-                if options.update_fdt:
+                if args.update_fdt:
                     image.AddMissingProperties()
                 image.ProcessFdt(dtb)
 
@@ -176,19 +175,19 @@ def Binman(options, args):
                     image.CheckSize()
                     image.CheckEntries()
                 except Exception as e:
-                    if options.map:
+                    if args.map:
                         fname = image.WriteMap()
                         print("Wrote map file '%s' to show errors"  % fname)
                     raise
                 image.SetImagePos()
-                if options.update_fdt:
+                if args.update_fdt:
                     image.SetCalculatedProperties()
                     for dtb_item in state.GetFdts():
                         dtb_item.Sync()
                 image.ProcessEntryContents()
                 image.WriteSymbols()
                 image.BuildImage()
-                if options.map:
+                if args.map:
                     image.WriteMap()
 
             # Write the updated FDTs to our output files
