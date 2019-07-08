@@ -380,6 +380,17 @@ class TestFunctional(unittest.TestCase):
             if reset_dtbs and use_real_dtb:
                 self._ResetDtbs()
 
+    def _DoReadFileRealDtb(self, fname):
+        """Run binman with a real .dtb file and return the resulting data
+
+        Args:
+            fname: DT source filename to use (e.g. 082_fdt_update_all.dts)
+
+        Returns:
+            Resulting image contents
+        """
+        return self._DoReadFileDtb(fname, use_real_dtb=True, update_dtb=True)[0]
+
     def _DoReadFile(self, fname, use_real_dtb=False):
         """Helper function which discards the device-tree binary
 
@@ -1547,8 +1558,7 @@ class TestFunctional(unittest.TestCase):
 
     def testUpdateFdtAll(self):
         """Test that all device trees are updated with offset/size info"""
-        data, _, _, _ = self._DoReadFileDtb('082_fdt_update_all.dts',
-                                            use_real_dtb=True, update_dtb=True)
+        data = self._DoReadFileRealDtb('082_fdt_update_all.dts')
 
         base_expected = {
             'section:image-pos': 0,
