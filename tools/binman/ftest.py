@@ -208,7 +208,7 @@ class TestFunctional(unittest.TestCase):
         if map:
             args.append('-m')
         if update_dtb:
-            args.append('-up')
+            args.append('-u')
         if not use_real_dtb:
             args.append('--fake-dtb')
         if verbosity is not None:
