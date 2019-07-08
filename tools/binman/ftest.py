@@ -586,7 +586,7 @@ class TestFunctional(unittest.TestCase):
 
     def testSimpleDebug(self):
         """Test a simple binman run with debugging enabled"""
-        data = self._DoTestFile('005_simple.dts', debug=True)
+        self._DoTestFile('005_simple.dts', debug=True)
 
     def testDual(self):
         """Test that we can handle creating two images
@@ -2653,6 +2653,71 @@ class TestFunctional(unittest.TestCase):
             control.ExtractEntries(image_fname, 'fname', None, ['a', 'b'])
         self.assertIn('Must specify exactly one entry path to write with -o',
                       str(e.exception))
+
+    def testPackAlignSection(self):
+        """Test that sections can have alignment"""
+        self._DoReadFile('131_pack_align_section.dts')
+
+        self.assertIn('image', control.images)
+        image = control.images['image']
+        entries = image.GetEntries()
+        self.assertEqual(3, len(entries))
+
+        # First u-boot
+        self.assertIn('u-boot', entries)
+        entry = entries['u-boot']
+        self.assertEqual(0, entry.offset)
+        self.assertEqual(0, entry.image_pos)
+        self.assertEqual(len(U_BOOT_DATA), entry.contents_size)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+
+        # Section0
+        self.assertIn('section0', entries)
+        section0 = entries['section0']
+        self.assertEqual(0x10, section0.offset)
+        self.assertEqual(0x10, section0.image_pos)
+        self.assertEqual(len(U_BOOT_DATA), section0.size)
+
+        # Second u-boot
+        section_entries = section0.GetEntries()
+        self.assertIn('u-boot', section_entries)
+        entry = section_entries['u-boot']
+        self.assertEqual(0, entry.offset)
+        self.assertEqual(0x10, entry.image_pos)
+        self.assertEqual(len(U_BOOT_DATA), entry.contents_size)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+
+        # Section1
+        self.assertIn('section1', entries)
+        section1 = entries['section1']
+        self.assertEqual(0x14, section1.offset)
+        self.assertEqual(0x14, section1.image_pos)
+        self.assertEqual(0x20, section1.size)
+
+        # Second u-boot
+        section_entries = section1.GetEntries()
+        self.assertIn('u-boot', section_entries)
+        entry = section_entries['u-boot']
+        self.assertEqual(0, entry.offset)
+        self.assertEqual(0x14, entry.image_pos)
+        self.assertEqual(len(U_BOOT_DATA), entry.contents_size)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
+
+        # Section2
+        self.assertIn('section2', section_entries)
+        section2 = section_entries['section2']
+        self.assertEqual(0x4, section2.offset)
+        self.assertEqual(0x18, section2.image_pos)
+        self.assertEqual(4, section2.size)
+
+        # Third u-boot
+        section_entries = section2.GetEntries()
+        self.assertIn('u-boot', section_entries)
+        entry = section_entries['u-boot']
+        self.assertEqual(0, entry.offset)
+        self.assertEqual(0x18, entry.image_pos)
+        self.assertEqual(len(U_BOOT_DATA), entry.contents_size)
+        self.assertEqual(len(U_BOOT_DATA), entry.size)
 
 
 if __name__ == "__main__":
