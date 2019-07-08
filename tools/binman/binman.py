@@ -46,15 +46,20 @@ except:
 import control
 import test_util
 
-def RunTests(debug, verbosity, processes, args):
+def RunTests(debug, verbosity, processes, test_preserve_dirs, args):
     """Run the functional tests and any embedded doctests
 
     Args:
         debug: True to enable debugging, which shows a full stack trace on error
         verbosity: Verbosity level to use
+        test_preserve_dirs: True to preserve the input directory used by tests
+            so that it can be examined afterwards (only useful for debugging
+            tests). If a single test is selected (in args[0]) it also preserves
+            the output directory for this test. Both directories are displayed
+            on the command line.
+        processes: Number of processes to use to run tests (None=same as #CPUs)
         args: List of positional args provided to binman. This can hold a test
             name to execute (as in 'binman -t testSections', for example)
-        processes: Number of processes to use to run tests (None=same as #CPUs)
     """
     import elf_test
     import entry_test
@@ -82,6 +87,11 @@ def RunTests(debug, verbosity, processes, args):
     loader = unittest.TestLoader()
     for module in (entry_test.TestEntry, ftest.TestFunctional, fdt_test.TestFdt,
                    elf_test.TestElf, image_test.TestImage):
+        # Test the test module about our arguments, if it is interested
+        if hasattr(module, 'setup_test_args'):
+            setup_test_args = getattr(module, 'setup_test_args')
+            setup_test_args(preserve_indir=test_preserve_dirs,
+                preserve_outdirs=test_preserve_dirs and test_name is not None)
         if test_name:
             try:
                 suite.addTests(loader.loadTestsFromName(test_name, module))
@@ -157,7 +167,7 @@ def RunBinman(options, args):
 
     if options.test:
         ret_code = RunTests(options.debug, options.verbosity, options.processes,
-                            args[1:])
+                            options.test_preserve_dirs, args[1:])
 
     elif options.test_coverage:
         RunTestCoverage()

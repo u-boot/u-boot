@@ -59,6 +59,10 @@ def ParseArgs(argv):
     parser.add_option('-v', '--verbosity', default=1,
         type='int', help='Control verbosity: 0=silent, 1=progress, 3=full, '
         '4=debug')
+    parser.add_option('-X', '--test-preserve-dirs', action='store_true',
+        help='Preserve and display test-created input directories; also '
+             'preserve the output directory if a single test is run (pass test '
+             'name at the end of the command line')
 
     parser.usage += """
 

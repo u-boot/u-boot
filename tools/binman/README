@@ -731,6 +731,14 @@ Use '-P 1' to disable this. It is automatically disabled when code coverage is
 being used (-T) since they are incompatible.
 
 
+Debugging tests
+---------------
+
+Sometimes when debugging tests it is useful to keep the input and output
+directories so they can be examined later. Use -X or --test-preserve-dirs for
+this.
+
+
 Advanced Features / Technical docs
 ----------------------------------
 

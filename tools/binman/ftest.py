@@ -6,6 +6,8 @@
 #
 #    python -m unittest func_test.TestFunctional.testHelp
 
+from __future__ import print_function
+
 import hashlib
 from optparse import OptionParser
 import os
@@ -134,9 +136,26 @@ class TestFunctional(unittest.TestCase):
     @classmethod
     def tearDownClass(self):
         """Remove the temporary input directory and its contents"""
-        if self._indir:
-            shutil.rmtree(self._indir)
+        if self.preserve_indir:
+            print('Preserving input dir: %s' % self._indir)
+        else:
+            if self._indir:
+                shutil.rmtree(self._indir)
         self._indir = None
+
+    @classmethod
+    def setup_test_args(cls, preserve_indir=False, preserve_outdirs=False):
+        """Accept arguments controlling test execution
+
+        Args:
+            preserve_indir: Preserve the shared input directory used by all
+                tests in this class.
+            preserve_outdir: Preserve the output directories used by tests. Each
+                test has its own, so this is normally only useful when running a
+                single test.
+        """
+        cls.preserve_indir = preserve_indir
+        cls.preserve_outdirs = preserve_outdirs
 
     def setUp(self):
         # Enable this to turn on debugging output
@@ -145,7 +164,10 @@ class TestFunctional(unittest.TestCase):
 
     def tearDown(self):
         """Remove the temporary output directory"""
-        tools._FinaliseForTest()
+        if self.preserve_outdirs:
+            print('Preserving output dir: %s' % tools.outdir)
+        else:
+            tools._FinaliseForTest()
 
     @classmethod
     def _ResetDtbs(self):
