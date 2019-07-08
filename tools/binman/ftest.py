@@ -27,6 +27,7 @@ import fdt
 import fdt_util
 import fmap_util
 import test_util
+import gzip
 import state
 import tools
 import tout
@@ -876,6 +877,9 @@ class TestFunctional(unittest.TestCase):
     def testPackX86RomMe(self):
         """Test that an x86 ROM with an ME region can be created"""
         data = self._DoReadFile('031_x86-rom-me.dts')
+        expected_desc = tools.ReadFile(self.TestFile('descriptor.bin'))
+        if data[:0x1000] != expected_desc:
+            self.fail('Expected descriptor binary at start of image')
         self.assertEqual(ME_DATA, data[0x1000:0x1000 + len(ME_DATA)])
 
     def testPackVga(self):
@@ -1956,6 +1960,57 @@ class TestFunctional(unittest.TestCase):
         cfile2 = cbfs.files['hello']
         self.assertEqual(U_BOOT_DTB_DATA, cfile2.data)
 
+    def _SetupIfwi(self, fname):
+        """Set up to run an IFWI test
+
+        Args:
+            fname: Filename of input file to provide (fitimage.bin or ifwi.bin)
+        """
+        self._SetupSplElf()
+
+        # Intel Integrated Firmware Image (IFWI) file
+        with gzip.open(self.TestFile('%s.gz' % fname), 'rb') as fd:
+            data = fd.read()
+        TestFunctional._MakeInputFile(fname,data)
+
+    def _CheckIfwi(self, data):
+        """Check that an image with an IFWI contains the correct output
+
+        Args:
+            data: Conents of output file
+        """
+        expected_desc = tools.ReadFile(self.TestFile('descriptor.bin'))
+        if data[:0x1000] != expected_desc:
+            self.fail('Expected descriptor binary at start of image')
+
+        # We expect to find the TPL wil in subpart IBBP entry IBBL
+        image_fname = tools.GetOutputFilename('image.bin')
+        tpl_fname = tools.GetOutputFilename('tpl.out')
+        tools.RunIfwiTool(image_fname, tools.CMD_EXTRACT, fname=tpl_fname,
+                          subpart='IBBP', entry_name='IBBL')
+
+        tpl_data = tools.ReadFile(tpl_fname)
+        self.assertEqual(tpl_data[:len(U_BOOT_TPL_DATA)], U_BOOT_TPL_DATA)
+
+    def testPackX86RomIfwi(self):
+        """Test that an x86 ROM with Integrated Firmware Image can be created"""
+        self._SetupIfwi('fitimage.bin')
+        data = self._DoReadFile('111_x86-rom-ifwi.dts')
+        self._CheckIfwi(data)
+
+    def testPackX86RomIfwiNoDesc(self):
+        """Test that an x86 ROM with IFWI can be created from an ifwi.bin file"""
+        self._SetupIfwi('ifwi.bin')
+        data = self._DoReadFile('112_x86-rom-ifwi-nodesc.dts')
+        self._CheckIfwi(data)
+
+    def testPackX86RomIfwiNoData(self):
+        """Test that an x86 ROM with IFWI handles missing data"""
+        self._SetupIfwi('ifwi.bin')
+        with self.assertRaises(ValueError) as e:
+            data = self._DoReadFile('113_x86-rom-ifwi-nodata.dts')
+        self.assertIn('Could not complete processing of contents',
+                      str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()
