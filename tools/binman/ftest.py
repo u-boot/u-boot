@@ -2341,6 +2341,88 @@ class TestFunctional(unittest.TestCase):
             image = Image.FromFile(image_fname)
         self.assertIn("Cannot find FDT map in image", str(e.exception))
 
+    def testListCmd(self):
+        """Test listing the files in an image using an Fdtmap"""
+        self._CheckLz4()
+        data = self._DoReadFileRealDtb('130_list_fdtmap.dts')
+
+        # lz4 compression size differs depending on the version
+        image = control.images['image']
+        entries = image.GetEntries()
+        section_size = entries['section'].size
+        fdt_size = entries['section'].GetEntries()['u-boot-dtb'].size
+        fdtmap_offset = entries['fdtmap'].offset
+
+        image_fname = tools.GetOutputFilename('image.bin')
+        with test_util.capture_sys_output() as (stdout, stderr):
+            self._DoBinman('ls', '-i', image_fname)
+        lines = stdout.getvalue().splitlines()
+        expected = [
+'Name              Image-pos  Size  Entry-type    Offset  Uncomp-size',
+'----------------------------------------------------------------------',
+'main-section              0   c00  section            0',
+'  u-boot                  0     4  u-boot             0',
+'  section               100   %x  section          100' % section_size,
+'    cbfs                100   400  cbfs               0',
+'      u-boot            138     4  u-boot            38',
+'      u-boot-dtb        180   10f  u-boot-dtb        80          3c9',
+'    u-boot-dtb          500   %x  u-boot-dtb       400          3c9' % fdt_size,
+'  fdtmap                %x   395  fdtmap           %x' %
+        (fdtmap_offset, fdtmap_offset),
+'  image-header          bf8     8  image-header     bf8',
+            ]
+        self.assertEqual(expected, lines)
+
+    def testListCmdFail(self):
+        """Test failing to list an image"""
+        self._DoReadFile('005_simple.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        with self.assertRaises(ValueError) as e:
+            self._DoBinman('ls', '-i', image_fname)
+        self.assertIn("Cannot find FDT map in image", str(e.exception))
+
+    def _RunListCmd(self, paths, expected):
+        """List out entries and check the result
+
+        Args:
+            paths: List of paths to pass to the list command
+            expected: Expected list of filenames to be returned, in order
+        """
+        self._CheckLz4()
+        self._DoReadFileRealDtb('130_list_fdtmap.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        image = Image.FromFile(image_fname)
+        lines = image.GetListEntries(paths)[1]
+        files = [line[0].strip() for line in lines[1:]]
+        self.assertEqual(expected, files)
+
+    def testListCmdSection(self):
+        """Test listing the files in a section"""
+        self._RunListCmd(['section'],
+            ['section', 'cbfs', 'u-boot', 'u-boot-dtb', 'u-boot-dtb'])
+
+    def testListCmdFile(self):
+        """Test listing a particular file"""
+        self._RunListCmd(['*u-boot-dtb'], ['u-boot-dtb', 'u-boot-dtb'])
+
+    def testListCmdWildcard(self):
+        """Test listing a wildcarded file"""
+        self._RunListCmd(['*boot*'],
+            ['u-boot', 'u-boot', 'u-boot-dtb', 'u-boot-dtb'])
+
+    def testListCmdWildcardMulti(self):
+        """Test listing a wildcarded file"""
+        self._RunListCmd(['*cb*', '*head*'],
+            ['cbfs', 'u-boot', 'u-boot-dtb', 'image-header'])
+
+    def testListCmdEmpty(self):
+        """Test listing a wildcarded file"""
+        self._RunListCmd(['nothing'], [])
+
+    def testListCmdPath(self):
+        """Test listing the files in a sub-entry of a section"""
+        self._RunListCmd(['section/cbfs'], ['cbfs', 'u-boot', 'u-boot-dtb'])
+
 
 if __name__ == "__main__":
     unittest.main()

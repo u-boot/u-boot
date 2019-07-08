@@ -67,6 +67,37 @@ def WriteEntryDocs(modules, test_missing=None):
     from entry import Entry
     Entry.WriteDocs(modules, test_missing)
 
+
+def ListEntries(image_fname, entry_paths):
+    """List the entries in an image
+
+    This decodes the supplied image and displays a table of entries from that
+    image, preceded by a header.
+
+    Args:
+        image_fname: Image filename to process
+        entry_paths: List of wildcarded paths (e.g. ['*dtb*', 'u-boot*',
+                                                     'section/u-boot'])
+    """
+    image = Image.FromFile(image_fname)
+
+    entries, lines, widths = image.GetListEntries(entry_paths)
+
+    num_columns = len(widths)
+    for linenum, line in enumerate(lines):
+        if linenum == 1:
+            # Print header line
+            print('-' * (sum(widths) + num_columns * 2))
+        out = ''
+        for i, item in enumerate(line):
+            width = -widths[i]
+            if item.startswith('>'):
+                width = -width
+                item = item[1:]
+            txt = '%*s  ' % (width, item)
+            out += txt
+        print(out.rstrip())
+
 def Binman(args):
     """The main control code for binman
 
@@ -85,6 +116,10 @@ def Binman(args):
         fname = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
                             'README')
         command.Run(pager, fname)
+        return 0
+
+    if args.cmd == 'ls':
+        ListEntries(args.image, args.paths)
         return 0
 
     # Try to figure out which device tree contains our image description

@@ -65,6 +65,12 @@ controlled by a description in the board device tree.'''
     entry_parser = subparsers.add_parser('entry-docs',
         help='Write out entry documentation (see README.entries)')
 
+    list_parser = subparsers.add_parser('ls', help='List files in an image')
+    list_parser.add_argument('-i', '--image', type=str, required=True,
+                             help='Image filename to list')
+    list_parser.add_argument('paths', type=str, nargs='*',
+                             help='Paths within file to list (wildcard)')
+
     test_parser = subparsers.add_parser('test', help='Run tests')
     test_parser.add_argument('-P', '--processes', type=int,
         help='set number of processes to use for running tests')

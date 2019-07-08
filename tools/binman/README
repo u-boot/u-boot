@@ -490,6 +490,49 @@ see README.entries. This is generated from the source code using:
 	binman entry-docs >tools/binman/README.entries
 
 
+Listing images
+--------------
+
+It is possible to list the entries in an existing firmware image created by
+binman, provided that there is an 'fdtmap' entry in the image. For example:
+
+    $ binman ls -i image.bin
+    Name              Image-pos  Size  Entry-type    Offset  Uncomp-size
+    ----------------------------------------------------------------------
+    main-section                  c00  section            0
+      u-boot                  0     4  u-boot             0
+      section                     5fc  section            4
+        cbfs                100   400  cbfs               0
+          u-boot            138     4  u-boot            38
+          u-boot-dtb        180   108  u-boot-dtb        80          3b5
+        u-boot-dtb          500   1ff  u-boot-dtb       400          3b5
+      fdtmap                6fc   381  fdtmap           6fc
+      image-header          bf8     8  image-header     bf8
+
+This shows the hierarchy of the image, the position, size and type of each
+entry, the offset of each entry within its parent and the uncompressed size if
+the entry is compressed.
+
+It is also possible to list just some files in an image, e.g.
+
+    $ binman ls -i image.bin section/cbfs
+    Name              Image-pos  Size  Entry-type  Offset  Uncomp-size
+    --------------------------------------------------------------------
+        cbfs                100   400  cbfs             0
+          u-boot            138     4  u-boot          38
+          u-boot-dtb        180   108  u-boot-dtb      80          3b5
+
+or with wildcards:
+
+    $ binman ls -i image.bin "*cb*" "*head*"
+    Name              Image-pos  Size  Entry-type    Offset  Uncomp-size
+    ----------------------------------------------------------------------
+        cbfs                100   400  cbfs               0
+          u-boot            138     4  u-boot            38
+          u-boot-dtb        180   108  u-boot-dtb        80          3b5
+      image-header          bf8     8  image-header     bf8
+
+
 Hashing Entries
 ---------------
 
@@ -825,7 +868,6 @@ Some ideas:
 - Add an option to decode an image into the constituent binaries
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Support listing files in images
 - Support logging of binman's operations, with different levels of verbosity
 - Support updating binaries in an image (with no size change / repacking)
 - Support updating binaries in an image (with repacking)

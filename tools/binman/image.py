@@ -8,6 +8,7 @@
 from __future__ import print_function
 
 from collections import OrderedDict
+import fnmatch
 from operator import attrgetter
 import re
 import sys
@@ -147,3 +148,152 @@ class Image(section.Entry_section):
         entries = []
         self.ListEntries(entries, 0)
         return entries
+
+    def FindEntryPath(self, entry_path):
+        """Find an entry at a given path in the image
+
+        Args:
+            entry_path: Path to entry (e.g. /ro-section/u-boot')
+
+        Returns:
+            Entry object corresponding to that past
+
+        Raises:
+            ValueError if no entry found
+        """
+        parts = entry_path.split('/')
+        entries = self.GetEntries()
+        parent = '/'
+        for part in parts:
+            entry = entries.get(part)
+            if not entry:
+                raise ValueError("Entry '%s' not found in '%s'" %
+                                 (part, parent))
+            parent = entry.GetPath()
+            entries = entry.GetEntries()
+        return entry
+
+    def ReadData(self, decomp=True):
+        return self._data
+
+    def GetListEntries(self, entry_paths):
+        """List the entries in an image
+
+        This decodes the supplied image and returns a list of entries from that
+        image, preceded by a header.
+
+        Args:
+            entry_paths: List of paths to match (each can have wildcards). Only
+                entries whose names match one of these paths will be printed
+
+        Returns:
+            String error message if something went wrong, otherwise
+            3-Tuple:
+                List of EntryInfo objects
+                List of lines, each
+                    List of text columns, each a string
+                List of widths of each column
+        """
+        def _EntryToStrings(entry):
+            """Convert an entry to a list of strings, one for each column
+
+            Args:
+                entry: EntryInfo object containing information to output
+
+            Returns:
+                List of strings, one for each field in entry
+            """
+            def _AppendHex(val):
+                """Append a hex value, or an empty string if val is None
+
+                Args:
+                    val: Integer value, or None if none
+                """
+                args.append('' if val is None else '>%x' % val)
+
+            args = ['  ' * entry.indent + entry.name]
+            _AppendHex(entry.image_pos)
+            _AppendHex(entry.size)
+            args.append(entry.etype)
+            _AppendHex(entry.offset)
+            _AppendHex(entry.uncomp_size)
+            return args
+
+        def _DoLine(lines, line):
+            """Add a line to the output list
+
+            This adds a line (a list of columns) to the output list. It also updates
+            the widths[] array with the maximum width of each column
+
+            Args:
+                lines: List of lines to add to
+                line: List of strings, one for each column
+            """
+            for i, item in enumerate(line):
+                widths[i] = max(widths[i], len(item))
+            lines.append(line)
+
+        def _NameInPaths(fname, entry_paths):
+            """Check if a filename is in a list of wildcarded paths
+
+            Args:
+                fname: Filename to check
+                entry_paths: List of wildcarded paths (e.g. ['*dtb*', 'u-boot*',
+                                                             'section/u-boot'])
+
+            Returns:
+                True if any wildcard matches the filename (using Unix filename
+                    pattern matching, not regular expressions)
+                False if not
+            """
+            for path in entry_paths:
+                if fnmatch.fnmatch(fname, path):
+                    return True
+            return False
+
+        entries = self.BuildEntryList()
+
+        # This is our list of lines. Each item in the list is a list of strings, one
+        # for each column
+        lines = []
+        HEADER = ['Name', 'Image-pos', 'Size', 'Entry-type', 'Offset',
+                  'Uncomp-size']
+        num_columns = len(HEADER)
+
+        # This records the width of each column, calculated as the maximum width of
+        # all the strings in that column
+        widths = [0] * num_columns
+        _DoLine(lines, HEADER)
+
+        # We won't print anything unless it has at least this indent. So at the
+        # start we will print nothing, unless a path matches (or there are no
+        # entry paths)
+        MAX_INDENT = 100
+        min_indent = MAX_INDENT
+        path_stack = []
+        path = ''
+        indent = 0
+        selected_entries = []
+        for entry in entries:
+            if entry.indent > indent:
+                path_stack.append(path)
+            elif entry.indent < indent:
+                path_stack.pop()
+            if path_stack:
+                path = path_stack[-1] + '/' + entry.name
+            indent = entry.indent
+
+            # If there are entry paths to match and we are not looking at a
+            # sub-entry of a previously matched entry, we need to check the path
+            if entry_paths and indent <= min_indent:
+                if _NameInPaths(path[1:], entry_paths):
+                    # Print this entry and all sub-entries (=higher indent)
+                    min_indent = indent
+                else:
+                    # Don't print this entry, nor any following entries until we get
+                    # a path match
+                    min_indent = MAX_INDENT
+                    continue
+            _DoLine(lines, _EntryToStrings(entry))
+            selected_entries.append(entry)
+        return selected_entries, lines, widths
