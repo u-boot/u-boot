@@ -236,14 +236,15 @@ class Section(object):
 
         Args:
             name: Entry name to update
-            offset: New offset
-            size: New size
+            offset: New offset, or None to leave alone
+            size: New size, or None to leave alone
         """
         entry = self._entries.get(name)
         if not entry:
             self._Raise("Unable to set offset/size for unknown entry '%s'" %
                         name)
-        entry.SetOffsetSize(self._skip_at_start + offset, size)
+        entry.SetOffsetSize(self._skip_at_start + offset if offset else None,
+                            size)
 
     def GetEntryOffsets(self):
         """Handle entries that want to set the offset/size of other entries

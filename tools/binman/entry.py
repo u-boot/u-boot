@@ -368,13 +368,21 @@ class Entry(object):
             Dict:
                 key: Entry type
                 value: List containing position and size of the given entry
-                    type.
+                    type. Either can be None if not known
         """
         return {}
 
-    def SetOffsetSize(self, pos, size):
-        self.offset = pos
-        self.size = size
+    def SetOffsetSize(self, offset, size):
+        """Set the offset and/or size of an entry
+
+        Args:
+            offset: New offset, or None to leave alone
+            size: New size, or None to leave alone
+        """
+        if offset is not None:
+            self.offset = offset
+        if size is not None:
+            self.size = size
 
     def SetImagePos(self, image_pos):
         """Set the position in the image
