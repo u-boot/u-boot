@@ -10,6 +10,7 @@ from __future__ import print_function
 from collections import OrderedDict
 import sys
 
+from entry import Entry
 import fdt_util
 import re
 import state
@@ -512,3 +513,11 @@ class Section(object):
                 image size is dynamic and its sections have not yet been packed
         """
         return self._image._size
+
+    def ListEntries(self, entries, indent):
+        """Override this method to list all files in the section"""
+        Entry.AddEntryInfo(entries, indent, self._name, 'section', self._size,
+                           self._image_pos, None, self._offset,
+                           self._parent_section)
+        for entry in self._entries.values():
+            entry.ListEntries(entries, indent + 1)

@@ -195,7 +195,6 @@ class Entry_cbfs(Entry):
                             entry._type)
             if cfile:
                 entry._cbfs_file = cfile
-                entry.size = cfile.data_len
         data = cbfs.get_data()
         self.SetContents(data)
         return True
@@ -249,3 +248,9 @@ class Entry_cbfs(Entry):
             state.SetInt(entry._node, 'image-pos', entry.image_pos)
             if entry.uncomp_size is not None:
                 state.SetInt(entry._node, 'uncomp-size', entry.uncomp_size)
+
+    def ListEntries(self, entries, indent):
+        """Override this method to list all files in the section"""
+        Entry.ListEntries(self, entries, indent)
+        for entry in self._cbfs_entries.values():
+            entry.ListEntries(entries, indent + 1)

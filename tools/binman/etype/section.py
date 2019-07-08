@@ -111,3 +111,7 @@ class Entry_section(Entry):
     def ExpandToLimit(self, limit):
         super(Entry_section, self).ExpandToLimit(limit)
         self._section.ExpandSize(self.size)
+
+    def ListEntries(self, entries, indent):
+        """List the files in the section"""
+        self._section.ListEntries(entries, indent)

@@ -33,6 +33,10 @@ our_path = os.path.dirname(os.path.realpath(__file__))
 # device-tree properties.
 EntryArg = namedtuple('EntryArg', ['name', 'datatype'])
 
+# Information about an entry for use when displaying summaries
+EntryInfo = namedtuple('EntryInfo', ['indent', 'name', 'etype', 'size',
+                                     'image_pos', 'uncomp_size', 'offset',
+                                     'entry'])
 
 class Entry(object):
     """An Entry in the section
@@ -617,3 +621,35 @@ features to produce new behaviours.
         if not self.HasSibling(name):
             return False
         return self.section.GetEntries()[name].image_pos
+
+    @staticmethod
+    def AddEntryInfo(entries, indent, name, etype, size, image_pos,
+                     uncomp_size, offset, entry):
+        """Add a new entry to the entries list
+
+        Args:
+            entries: List (of EntryInfo objects) to add to
+            indent: Current indent level to add to list
+            name: Entry name (string)
+            etype: Entry type (string)
+            size: Entry size in bytes (int)
+            image_pos: Position within image in bytes (int)
+            uncomp_size: Uncompressed size if the entry uses compression, else
+                None
+            offset: Entry offset within parent in bytes (int)
+            entry: Entry object
+        """
+        entries.append(EntryInfo(indent, name, etype, size, image_pos,
+                                 uncomp_size, offset, entry))
+
+    def ListEntries(self, entries, indent):
+        """Add files in this entry to the list of entries
+
+        This can be overridden by subclasses which need different behaviour.
+
+        Args:
+            entries: List (of EntryInfo objects) to add to
+            indent: Current indent level to add to list
+        """
+        self.AddEntryInfo(entries, indent, self.name, self.etype, self.size,
+                          self.image_pos, self.uncomp_size, self.offset, self)

@@ -2191,6 +2191,82 @@ class TestFunctional(unittest.TestCase):
             self._DoReadFile('126_cbfs_bad_type.dts')
         self.assertIn("Unknown cbfs-type 'badtype'", str(e.exception))
 
+    def testList(self):
+        """Test listing the files in an image"""
+        self._CheckLz4()
+        data = self._DoReadFile('127_list.dts')
+        image = control.images['image']
+        entries = image.BuildEntryList()
+        self.assertEqual(7, len(entries))
+
+        ent = entries[0]
+        self.assertEqual(0, ent.indent)
+        self.assertEqual('main-section', ent.name)
+        self.assertEqual('section', ent.etype)
+        self.assertEqual(len(data), ent.size)
+        self.assertEqual(0, ent.image_pos)
+        self.assertEqual(None, ent.uncomp_size)
+        self.assertEqual(None, ent.offset)
+
+        ent = entries[1]
+        self.assertEqual(1, ent.indent)
+        self.assertEqual('u-boot', ent.name)
+        self.assertEqual('u-boot', ent.etype)
+        self.assertEqual(len(U_BOOT_DATA), ent.size)
+        self.assertEqual(0, ent.image_pos)
+        self.assertEqual(None, ent.uncomp_size)
+        self.assertEqual(0, ent.offset)
+
+        ent = entries[2]
+        self.assertEqual(1, ent.indent)
+        self.assertEqual('section', ent.name)
+        self.assertEqual('section', ent.etype)
+        section_size = ent.size
+        self.assertEqual(0x100, ent.image_pos)
+        self.assertEqual(None, ent.uncomp_size)
+        self.assertEqual(len(U_BOOT_DATA), ent.offset)
+
+        ent = entries[3]
+        self.assertEqual(2, ent.indent)
+        self.assertEqual('cbfs', ent.name)
+        self.assertEqual('cbfs', ent.etype)
+        self.assertEqual(0x400, ent.size)
+        self.assertEqual(0x100, ent.image_pos)
+        self.assertEqual(None, ent.uncomp_size)
+        self.assertEqual(0, ent.offset)
+
+        ent = entries[4]
+        self.assertEqual(3, ent.indent)
+        self.assertEqual('u-boot', ent.name)
+        self.assertEqual('u-boot', ent.etype)
+        self.assertEqual(len(U_BOOT_DATA), ent.size)
+        self.assertEqual(0x138, ent.image_pos)
+        self.assertEqual(None, ent.uncomp_size)
+        self.assertEqual(0x38, ent.offset)
+
+        ent = entries[5]
+        self.assertEqual(3, ent.indent)
+        self.assertEqual('u-boot-dtb', ent.name)
+        self.assertEqual('text', ent.etype)
+        self.assertGreater(len(COMPRESS_DATA), ent.size)
+        self.assertEqual(0x178, ent.image_pos)
+        self.assertEqual(len(COMPRESS_DATA), ent.uncomp_size)
+        self.assertEqual(0x78, ent.offset)
+
+        ent = entries[6]
+        self.assertEqual(2, ent.indent)
+        self.assertEqual('u-boot-dtb', ent.name)
+        self.assertEqual('u-boot-dtb', ent.etype)
+        self.assertEqual(0x500, ent.image_pos)
+        self.assertEqual(len(U_BOOT_DTB_DATA), ent.uncomp_size)
+        dtb_size = ent.size
+        # Compressing this data expands it since headers are added
+        self.assertGreater(dtb_size, len(U_BOOT_DTB_DATA))
+        self.assertEqual(0x400, ent.offset)
+
+        self.assertEqual(len(data), 0x100 + section_size)
+        self.assertEqual(section_size, 0x400 + dtb_size)
+
 
 if __name__ == "__main__":
     unittest.main()

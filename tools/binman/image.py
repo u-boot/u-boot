@@ -162,3 +162,13 @@ class Image:
                   file=fd)
             self._section.WriteMap(fd, 0)
         return fname
+
+    def BuildEntryList(self):
+        """List the files in an image
+
+        Returns:
+            List of entry.EntryInfo objects describing all entries in the image
+        """
+        entries = []
+        self._section.ListEntries(entries, 0)
+        return entries
