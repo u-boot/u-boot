@@ -142,6 +142,20 @@ def find_compress(find_name):
             return compress
     return None
 
+def compress_name(compress):
+    """Look up the name of a compression algorithm
+
+    Args:
+        compress: Compression algorithm number to find (COMPRESS_...)
+
+    Returns:
+        Compression algorithm name (string)
+
+    Raises:
+        KeyError if the algorithm number is invalid
+    """
+    return COMPRESS_NAMES[compress]
+
 def align_int(val, align):
     """Align a value up to the given alignment
 

@@ -238,6 +238,10 @@ class Entry_cbfs(Entry):
             entry.AddMissingProperties()
             if entry._cbfs_compress:
                 state.AddZeroProp(entry._node, 'uncomp-size')
+                # Store the 'compress' property, since we don't look at
+                # 'cbfs-compress' in Entry.ReadData()
+                state.AddString(entry._node, 'compress',
+                                cbfs_util.compress_name(entry._cbfs_compress))
 
     def SetCalculatedProperties(self):
         """Set the value of device-tree properties calculated by binman"""
@@ -254,3 +258,6 @@ class Entry_cbfs(Entry):
         Entry.ListEntries(self, entries, indent)
         for entry in self._cbfs_entries.values():
             entry.ListEntries(entries, indent + 1)
+
+    def GetEntries(self):
+        return self._cbfs_entries
