@@ -185,7 +185,8 @@ class CbfsFile(object):
     """Class to represent a single CBFS file
 
     This is used to hold the information about a file, including its contents.
-    Use the get_data() method to obtain the raw output for writing to CBFS.
+    Use the get_data_and_offset() method to obtain the raw output for writing to
+    CBFS.
 
     Properties:
         name: Name of file
@@ -319,12 +320,15 @@ class CbfsFile(object):
             raise ValueError('Unknown file type %#x\n' % self.ftype)
         return hdr_len
 
-    def get_data(self, offset=None, pad_byte=None):
-        """Obtain the contents of the file, in CBFS format
+    def get_data_and_offset(self, offset=None, pad_byte=None):
+        """Obtain the contents of the file, in CBFS format and the offset of
+        the data within the file
 
         Returns:
-            bytes representing the contents of this file, packed and aligned
-                for directly inserting into the final CBFS output
+            tuple:
+                bytes representing the contents of this file, packed and aligned
+                    for directly inserting into the final CBFS output
+                offset to the file data from the start of the returned data.
         """
         name = _pack_string(self.name)
         hdr_len = len(name) + FILE_HEADER_LEN
@@ -368,8 +372,10 @@ class CbfsFile(object):
                                  (self.name, self.cbfs_offset, offset))
             pad = tools.GetBytes(pad_byte, pad_len)
             hdr_len += pad_len
-        self.offset = len(content) + len(data)
-        hdr = struct.pack(FILE_HEADER_FORMAT, FILE_MAGIC, self.offset,
+
+        # This is the offset of the start of the file's data,
+        size = len(content) + len(data)
+        hdr = struct.pack(FILE_HEADER_FORMAT, FILE_MAGIC, size,
                           self.ftype, attr_pos, hdr_len)
 
         # Do a sanity check of the get_header_len() function, to ensure that it
@@ -381,7 +387,7 @@ class CbfsFile(object):
             # happen. It probably indicates that get_header_len() is broken.
             raise ValueError("Internal error: CBFS file '%s': Expected headers of %#x bytes, got %#d" %
                              (self.name, expected_len, actual_len))
-        return hdr + name + attr + pad + content + data
+        return hdr + name + attr + pad + content + data, hdr_len
 
 
 class CbfsWriter(object):
@@ -392,7 +398,7 @@ class CbfsWriter(object):
         cbw = CbfsWriter(size)
         cbw.add_file_raw('u-boot', tools.ReadFile('u-boot.bin'))
         ...
-        data = cbw.get_data()
+        data, cbfs_offset = cbw.get_data_and_offset()
 
     Attributes:
         _master_name: Name of the file containing the master header
@@ -475,7 +481,7 @@ class CbfsWriter(object):
         todo = align_int_down(offset - upto, self._align)
         if todo:
             cbf = CbfsFile.empty(todo, self._erase_byte)
-            fd.write(cbf.get_data())
+            fd.write(cbf.get_data_and_offset()[0])
         self._skip_to(fd, offset)
 
     def _align_to(self, fd, align):
@@ -579,8 +585,11 @@ class CbfsWriter(object):
             offset = cbf.calc_start_offset()
             if offset is not None:
                 self._pad_to(fd, align_int_down(offset, self._align))
-            fd.write(cbf.get_data(fd.tell(), self._erase_byte))
+            pos = fd.tell()
+            data, data_offset = cbf.get_data_and_offset(pos, self._erase_byte)
+            fd.write(data)
             self._align_to(fd, self._align)
+            cbf.calced_cbfs_offset = pos + data_offset
         if not self._hdr_at_start:
             self._write_header(fd, add_fileheader=self._add_fileheader)
 
