@@ -18,6 +18,7 @@ import tempfile
 import unittest
 
 import binman
+import cbfs_util
 import cmdline
 import command
 import control
@@ -133,6 +134,14 @@ class TestFunctional(unittest.TestCase):
 
         TestFunctional._MakeInputFile('compress', COMPRESS_DATA)
 
+        # Travis-CI may have an old lz4
+        self.have_lz4 = True
+        try:
+            tools.Run('lz4', '--no-frame-crc', '-c',
+                      os.path.join(self._indir, 'u-boot.bin'))
+        except:
+            self.have_lz4 = False
+
     @classmethod
     def tearDownClass(self):
         """Remove the temporary input directory and its contents"""
@@ -159,6 +168,10 @@ class TestFunctional(unittest.TestCase):
         cls.preserve_indir = preserve_indir
         cls.preserve_outdirs = preserve_outdirs
         cls.toolpath = toolpath
+
+    def _CheckLz4(self):
+        if not self.have_lz4:
+            self.skipTest('lz4 --no-frame-crc not available')
 
     def setUp(self):
         # Enable this to turn on debugging output
@@ -1607,6 +1620,7 @@ class TestFunctional(unittest.TestCase):
 
     def testCompress(self):
         """Test compression of blobs"""
+        self._CheckLz4()
         data, _, _, out_dtb_fname = self._DoReadFileDtb('083_compress.dts',
                                             use_real_dtb=True, update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
@@ -1628,6 +1642,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFilesCompress(self):
         """Test bringing in multiple files and compressing them"""
+        self._CheckLz4()
         data = self._DoReadFile('085_files_compress.dts')
 
         image = control.images['image']
@@ -1845,6 +1860,101 @@ class TestFunctional(unittest.TestCase):
                              tools.GetBytes(0x61, 12) +
                          tools.GetBytes(0x26, 4) + U_BOOT_DATA +
                              tools.GetBytes(0x26, 8))
+
+    def testCbfsRaw(self):
+        """Test base handling of a Coreboot Filesystem (CBFS)
+
+        The exact contents of the CBFS is verified by similar tests in
+        cbfs_util_test.py. The tests here merely check that the files added to
+        the CBFS can be found in the final image.
+        """
+        data = self._DoReadFile('102_cbfs_raw.dts')
+        size = 0xb0
+
+        cbfs = cbfs_util.CbfsReader(data)
+        self.assertEqual(size, cbfs.rom_size)
+
+        self.assertIn('u-boot-dtb', cbfs.files)
+        cfile = cbfs.files['u-boot-dtb']
+        self.assertEqual(U_BOOT_DTB_DATA, cfile.data)
+
+    def testCbfsArch(self):
+        """Test on non-x86 architecture"""
+        data = self._DoReadFile('103_cbfs_raw_ppc.dts')
+        size = 0x100
+
+        cbfs = cbfs_util.CbfsReader(data)
+        self.assertEqual(size, cbfs.rom_size)
+
+        self.assertIn('u-boot-dtb', cbfs.files)
+        cfile = cbfs.files['u-boot-dtb']
+        self.assertEqual(U_BOOT_DTB_DATA, cfile.data)
+
+    def testCbfsStage(self):
+        """Tests handling of a Coreboot Filesystem (CBFS)"""
+        if not elf.ELF_TOOLS:
+            self.skipTest('Python elftools not available')
+        elf_fname = os.path.join(self._indir, 'cbfs-stage.elf')
+        elf.MakeElf(elf_fname, U_BOOT_DATA, U_BOOT_DTB_DATA)
+        size = 0xb0
+
+        data = self._DoReadFile('104_cbfs_stage.dts')
+        cbfs = cbfs_util.CbfsReader(data)
+        self.assertEqual(size, cbfs.rom_size)
+
+        self.assertIn('u-boot', cbfs.files)
+        cfile = cbfs.files['u-boot']
+        self.assertEqual(U_BOOT_DATA + U_BOOT_DTB_DATA, cfile.data)
+
+    def testCbfsRawCompress(self):
+        """Test handling of compressing raw files"""
+        self._CheckLz4()
+        data = self._DoReadFile('105_cbfs_raw_compress.dts')
+        size = 0x140
+
+        cbfs = cbfs_util.CbfsReader(data)
+        self.assertIn('u-boot', cbfs.files)
+        cfile = cbfs.files['u-boot']
+        self.assertEqual(COMPRESS_DATA, cfile.data)
+
+    def testCbfsBadArch(self):
+        """Test handling of a bad architecture"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('106_cbfs_bad_arch.dts')
+        self.assertIn("Invalid architecture 'bad-arch'", str(e.exception))
+
+    def testCbfsNoSize(self):
+        """Test handling of a missing size property"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('107_cbfs_no_size.dts')
+        self.assertIn('entry must have a size property', str(e.exception))
+
+    def testCbfsNoCOntents(self):
+        """Test handling of a CBFS entry which does not provide contentsy"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('108_cbfs_no_contents.dts')
+        self.assertIn('Could not complete processing of contents',
+                      str(e.exception))
+
+    def testCbfsBadCompress(self):
+        """Test handling of a bad architecture"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('109_cbfs_bad_compress.dts')
+        self.assertIn("Invalid compression in 'u-boot': 'invalid-algo'",
+                      str(e.exception))
+
+    def testCbfsNamedEntries(self):
+        """Test handling of named entries"""
+        data = self._DoReadFile('110_cbfs_name.dts')
+
+        cbfs = cbfs_util.CbfsReader(data)
+        self.assertIn('FRED', cbfs.files)
+        cfile1 = cbfs.files['FRED']
+        self.assertEqual(U_BOOT_DATA, cfile1.data)
+
+        self.assertIn('hello', cbfs.files)
+        cfile2 = cbfs.files['hello']
+        self.assertEqual(U_BOOT_DTB_DATA, cfile2.data)
 
 
 if __name__ == "__main__":

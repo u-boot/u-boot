@@ -12,6 +12,7 @@ import os
 import sys
 import tools
 
+import cbfs_util
 import command
 import elf
 from image import Image
@@ -108,6 +109,7 @@ def Binman(options, args):
 
         tout.Init(options.verbosity)
         elf.debug = options.debug
+        cbfs_util.VERBOSE = options.verbosity > 2
         state.use_fake_dtb = options.fake_dtb
         try:
             tools.SetInputDirs(options.indir)
