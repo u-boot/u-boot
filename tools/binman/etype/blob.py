@@ -41,17 +41,26 @@ class Entry_blob(Entry):
         self.ReadBlobContents()
         return True
 
-    def ReadBlobContents(self):
-        # We assume the data is small enough to fit into memory. If this
-        # is used for large filesystem image that might not be true.
-        # In that case, Image.BuildImage() could be adjusted to use a
-        # new Entry method which can read in chunks. Then we could copy
-        # the data in chunks and avoid reading it all at once. For now
-        # this seems like an unnecessary complication.
-        indata = tools.ReadFile(self._pathname)
+    def CompressData(self, indata):
         if self.compress != 'none':
             self.uncomp_size = len(indata)
         data = tools.Compress(indata, self.compress)
+        return data
+
+    def ReadBlobContents(self):
+        """Read blob contents into memory
+
+        This function compresses the data before storing if needed.
+
+        We assume the data is small enough to fit into memory. If this
+        is used for large filesystem image that might not be true.
+        In that case, Image.BuildImage() could be adjusted to use a
+        new Entry method which can read in chunks. Then we could copy
+        the data in chunks and avoid reading it all at once. For now
+        this seems like an unnecessary complication.
+        """
+        indata = tools.ReadFile(self._pathname)
+        data = self.CompressData(indata)
         self.SetContents(data)
         return True
 

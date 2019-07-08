@@ -2142,6 +2142,24 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
         self.assertEqual(b'aa', data[-2:])
 
+    def testCompressDtb(self):
+        """Test that compress of device-tree files is supported"""
+        self._CheckLz4()
+        data = self.data = self._DoReadFileRealDtb('124_compress_dtb.dts')
+        self.assertEqual(U_BOOT_DATA, data[:len(U_BOOT_DATA)])
+        comp_data = data[len(U_BOOT_DATA):]
+        orig = self._decompress(comp_data)
+        dtb = fdt.Fdt.FromData(orig)
+        dtb.Scan()
+        props = self._GetPropTree(dtb, ['size', 'uncomp-size'])
+        expected = {
+            'u-boot:size': len(U_BOOT_DATA),
+            'u-boot-dtb:uncomp-size': len(orig),
+            'u-boot-dtb:size': len(comp_data),
+            'size': len(data),
+            }
+        self.assertEqual(expected, props)
+
 
 if __name__ == "__main__":
     unittest.main()

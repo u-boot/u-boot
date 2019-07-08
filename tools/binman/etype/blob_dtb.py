@@ -23,11 +23,11 @@ class Entry_blob_dtb(Entry_blob):
     def ObtainContents(self):
         """Get the device-tree from the list held by the 'state' module"""
         self._filename = self.GetDefaultFilename()
-        self._pathname, data = state.GetFdtContents(self._filename)
-        self.SetContents(data)
-        return True
+        self._pathname, _ = state.GetFdtContents(self._filename)
+        return Entry_blob.ReadBlobContents(self)
 
     def ProcessContents(self):
         """Re-read the DTB contents so that we get any calculated properties"""
-        _, data = state.GetFdtContents(self._filename)
+        _, indata = state.GetFdtContents(self._filename)
+        data = self.CompressData(indata)
         return self.ProcessContentsUpdate(data)
