@@ -59,7 +59,7 @@ BMPBLK_DATA           = b'bmp'
 VBLOCK_DATA           = b'vblk'
 FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
                          b"sorry you're alive\n")
-COMPRESS_DATA         = b'data to compress'
+COMPRESS_DATA         = b'compress xxxxxxxxxxxxxxxxxxxxxx data'
 REFCODE_DATA          = b'refcode'
 
 
@@ -1560,16 +1560,7 @@ class TestFunctional(unittest.TestCase):
             self._ResetDtbs()
 
     def _decompress(self, data):
-        out = os.path.join(self._indir, 'lz4.tmp')
-        with open(out, 'wb') as fd:
-            fd.write(data)
-        return tools.Run('lz4', '-dc', out, binary=True)
-        '''
-        try:
-            orig = lz4.frame.decompress(data)
-        except AttributeError:
-            orig = lz4.decompress(data)
-        '''
+        return tools.Decompress(data, 'lz4')
 
     def testCompress(self):
         """Test compression of blobs"""
