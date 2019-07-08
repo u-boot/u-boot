@@ -30,6 +30,7 @@ import fdt_util
 import fmap_util
 import test_util
 import gzip
+from image import Image
 import state
 import tools
 import tout
@@ -2286,8 +2287,7 @@ class TestFunctional(unittest.TestCase):
     def testFindImageHeader(self):
         """Test locating a image header"""
         self._CheckLz4()
-        data = self._DoReadFileDtb('128_decode_image.dts', use_real_dtb=True,
-                                   update_dtb=True)[0]
+        data = self.data = self._DoReadFileRealDtb('128_decode_image.dts')
         image = control.images['image']
         entries = image.GetEntries()
         entry = entries['fdtmap']
@@ -2296,8 +2296,7 @@ class TestFunctional(unittest.TestCase):
 
     def testFindImageHeaderStart(self):
         """Test locating a image header located at the start of an image"""
-        data = self._DoReadFileDtb('117_fdtmap_hdr_start.dts',
-                                   use_real_dtb=True, update_dtb=True)[0]
+        data = self.data = self._DoReadFileRealDtb('117_fdtmap_hdr_start.dts')
         image = control.images['image']
         entries = image.GetEntries()
         entry = entries['fdtmap']
@@ -2309,6 +2308,38 @@ class TestFunctional(unittest.TestCase):
         data = self._DoReadFile('005_simple.dts')
         self.assertEqual(None, image_header.LocateHeaderOffset(data))
 
+    def testReadImage(self):
+        """Test reading an image and accessing its FDT map"""
+        self._CheckLz4()
+        data = self.data = self._DoReadFileRealDtb('128_decode_image.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        orig_image = control.images['image']
+        image = Image.FromFile(image_fname)
+        self.assertEqual(orig_image.GetEntries().keys(),
+                         image.GetEntries().keys())
+
+        orig_entry = orig_image.GetEntries()['fdtmap']
+        entry = image.GetEntries()['fdtmap']
+        self.assertEquals(orig_entry.offset, entry.offset)
+        self.assertEquals(orig_entry.size, entry.size)
+        self.assertEquals(orig_entry.image_pos, entry.image_pos)
+
+    def testReadImageNoHeader(self):
+        """Test accessing an image's FDT map without an image header"""
+        self._CheckLz4()
+        data = self._DoReadFileRealDtb('129_decode_image_nohdr.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        image = Image.FromFile(image_fname)
+        self.assertTrue(isinstance(image, Image))
+        self.assertEqual('image', image._name)
+
+    def testReadImageFail(self):
+        """Test failing to read an image image's FDT map"""
+        self._DoReadFile('005_simple.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        with self.assertRaises(ValueError) as e:
+            image = Image.FromFile(image_fname)
+        self.assertIn("Cannot find FDT map in image", str(e.exception))
 
 if __name__ == "__main__":
     unittest.main()

@@ -12,6 +12,9 @@ from operator import attrgetter
 import re
 import sys
 
+from etype import fdtmap
+from etype import image_header
+import fdt
 import fdt_util
 import bsection
 import tools
@@ -46,6 +49,41 @@ class Image:
                                              self, True)
         else:
             self._ReadNode()
+
+    @classmethod
+    def FromFile(cls, fname):
+        """Convert an image file into an Image for use in binman
+
+        Args:
+            fname: Filename of image file to read
+
+        Returns:
+            Image object on success
+
+        Raises:
+            ValueError if something goes wrong
+        """
+        data = tools.ReadFile(fname)
+        size = len(data)
+
+        # First look for an image header
+        pos = image_header.LocateHeaderOffset(data)
+        if pos is None:
+            # Look for the FDT map
+            pos = fdtmap.LocateFdtmap(data)
+        if pos is None:
+            raise ValueError('Cannot find FDT map in image')
+
+        # We don't know the FDT size, so check its header first
+        probe_dtb = fdt.Fdt.FromData(
+            data[pos + fdtmap.FDTMAP_HDR_LEN:pos + 256])
+        dtb_size = probe_dtb.GetFdtObj().totalsize()
+        fdtmap_data = data[pos:pos + dtb_size + fdtmap.FDTMAP_HDR_LEN]
+        dtb = fdt.Fdt.FromData(fdtmap_data[fdtmap.FDTMAP_HDR_LEN:])
+        dtb.Scan()
+
+        # Return an Image with the associated nodes
+        return Image('image', dtb.GetRoot())
 
     def _ReadNode(self):
         """Read properties from the image node"""

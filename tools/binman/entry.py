@@ -162,6 +162,11 @@ class Entry(object):
         self.orig_offset = self.offset
         self.orig_size = self.size
 
+        # These should not be set in input files, but are set in an FDT map,
+        # which is also read by this code.
+        self.image_pos = fdt_util.GetInt(self._node, 'image-pos')
+        self.uncomp_size = fdt_util.GetInt(self._node, 'uncomp-size')
+
         self.align = fdt_util.GetInt(self._node, 'align')
         if tools.NotPowerOfTwo(self.align):
             raise ValueError("Node '%s': Alignment %s must be a power of two" %
