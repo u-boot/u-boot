@@ -35,7 +35,7 @@ def ParseArgs(argv):
     parser.add_option('-i', '--image', type='string', action='append',
             help='Image filename to build (if not specified, build all)')
     parser.add_option('-I', '--indir', action='append',
-            help='Add a path to a directory to use for input files')
+            help='Add a path to the list of directories to use for input files')
     parser.add_option('-H', '--full-help', action='store_true',
         default=False, help='Display the README file')
     parser.add_option('-m', '--map', action='store_true',
