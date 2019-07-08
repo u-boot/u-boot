@@ -7,6 +7,7 @@
 #include <asm/arch/boot.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
+#include <environment.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/sm.h>
 #include <asm/armv8/mmu.h>
@@ -65,6 +66,36 @@ void meson_board_add_reserved_memory(void *fdt, u64 start, u64 size)
 				   ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
 				   EFI_RESERVED_MEMORY_TYPE, false);
 	}
+}
+
+int meson_generate_serial_ethaddr(void)
+{
+	u8 mac_addr[ARP_HLEN];
+	char serial[SM_SERIAL_SIZE];
+	u32 sid;
+	u16 sid16;
+
+	if (!meson_sm_get_serial(serial, SM_SERIAL_SIZE)) {
+		sid = crc32(0, (unsigned char *)serial, SM_SERIAL_SIZE);
+		sid16 = crc16_ccitt(0, (unsigned char *)serial,	SM_SERIAL_SIZE);
+
+		/* Ensure the NIC specific bytes of the mac are not all 0 */
+		if ((sid & 0xffffff) == 0)
+			sid |= 0x800000;
+
+		/* Non OUI / registered MAC address */
+		mac_addr[0] = ((sid16 >> 8) & 0xfc) | 0x02;
+		mac_addr[1] = (sid16 >>  0) & 0xff;
+		mac_addr[2] = (sid >> 24) & 0xff;
+		mac_addr[3] = (sid >> 16) & 0xff;
+		mac_addr[4] = (sid >>  8) & 0xff;
+		mac_addr[5] = (sid >>  0) & 0xff;
+
+		eth_env_set_enetaddr("ethaddr", mac_addr);
+	} else
+		return -EINVAL;
+
+	return 0;
 }
 
 static void meson_set_boot_source(void)

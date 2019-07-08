@@ -8,4 +8,8 @@
 
 ssize_t meson_sm_read_efuse(uintptr_t offset, void *buffer, size_t size);
 
+#define SM_SERIAL_SIZE	12
+
+int meson_sm_get_serial(void *buffer, size_t size);
+
 #endif /* __MESON_SM_H__ */
