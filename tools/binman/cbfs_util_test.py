@@ -290,13 +290,23 @@ class TestCbfs(unittest.TestCase):
 
     def test_cbfs_no_space_skip(self):
         """Check handling of running out of space in CBFS with file header"""
+        size = 0x5c
+        cbw = CbfsWriter(size, arch=cbfs_util.ARCHITECTURE_PPC64)
+        cbw._add_fileheader = True
+        cbw.add_file_raw('u-boot', U_BOOT_DATA)
+        with self.assertRaises(ValueError) as e:
+            cbw.get_data()
+        self.assertIn('No space for data before offset', str(e.exception))
+
+    def test_cbfs_no_space_pad(self):
+        """Check handling of running out of space in CBFS with file header"""
         size = 0x70
         cbw = CbfsWriter(size)
         cbw._add_fileheader = True
         cbw.add_file_raw('u-boot', U_BOOT_DATA)
         with self.assertRaises(ValueError) as e:
             cbw.get_data()
-        self.assertIn('No space for data before offset', str(e.exception))
+        self.assertIn('No space for data before pad offset', str(e.exception))
 
     def test_cbfs_bad_header_ptr(self):
         """Check handling of a bad master-header pointer"""
@@ -533,6 +543,17 @@ class TestCbfs(unittest.TestCase):
         self.assertEqual(cfile.memlen, len(COMPRESS_DATA))
 
         cbfs_fname = self._get_expected_cbfs(size=size, compress=['lz4', 'lzma'])
+        self._compare_expected_cbfs(data, cbfs_fname)
+
+    def test_cbfs_raw_space(self):
+        """Test files with unused space in the CBFS"""
+        size = 0xf0
+        cbw = CbfsWriter(size)
+        cbw.add_file_raw('u-boot', U_BOOT_DATA)
+        cbw.add_file_raw('u-boot-dtb', U_BOOT_DTB_DATA)
+        data = cbw.get_data()
+        self._check_raw(data, size)
+        cbfs_fname = self._get_expected_cbfs(size=size)
         self._compare_expected_cbfs(data, cbfs_fname)
 
 

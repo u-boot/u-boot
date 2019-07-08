@@ -11,7 +11,8 @@ The format is somewhat defined by documentation in the coreboot tree although
 it is necessary to rely on the C structures and source code (mostly cbfstool)
 to fully understand it.
 
-Currently supported: raw and stage types with compression
+Currently supported: raw and stage types with compression, padding empty areas
+    with empty files
 """
 
 from __future__ import print_function
@@ -102,6 +103,7 @@ ARCH_NAMES = {
 TYPE_CBFSHEADER     = 0x02   # Master header, HEADER_FORMAT
 TYPE_STAGE          = 0x10   # Stage, holding an executable, see STAGE_FORMAT
 TYPE_RAW            = 0x50   # Raw file, possibly compressed
+TYPE_EMPTY          = 0xffffffff     # Empty data
 
 # Compression types
 COMPRESS_NONE, COMPRESS_LZMA, COMPRESS_LZ4 = range(3)
@@ -152,6 +154,19 @@ def align_int(val, align):
     """
     return int((val + align - 1) / align) * align
 
+def align_int_down(val, align):
+    """Align a value down to the given alignment
+
+    Args:
+        val: Integer value to align
+        align: Integer alignment value (e.g. 4 to align to 4-byte boundary)
+
+    Returns:
+        integer value aligned to the required boundary, rounding down if
+            necessary
+    """
+    return int(val / align) * align
+
 def _pack_string(instr):
     """Pack a string to the required aligned size by adding padding
 
@@ -184,6 +199,9 @@ class CbfsFile(object):
         entry: Entry address in memory if known, else None. This is where
             execution starts after the file is loaded
         base_address: Base address to use for 'stage' files
+        erase_byte: Erase byte to use for padding between the file header and
+            contents (used for empty files)
+        size: Size of the file in bytes (used for empty files)
     """
     def __init__(self, name, ftype, data, compress=COMPRESS_NONE):
         self.name = name
@@ -196,6 +214,8 @@ class CbfsFile(object):
         self.entry = None
         self.base_address = None
         self.data_len = 0
+        self.erase_byte = None
+        self.size = None
 
     def decompress(self):
         """Handle decompressing data if necessary"""
@@ -242,6 +262,24 @@ class CbfsFile(object):
         """
         return CbfsFile(name, TYPE_RAW, data, compress)
 
+    @classmethod
+    def empty(cls, space_to_use, erase_byte):
+        """Create a new empty file of a given size
+
+        Args:
+            space_to_use:: Size of available space, which must be at least as
+                large as the alignment size for this CBFS
+            erase_byte: Byte to use for contents of file (repeated through the
+                whole file)
+
+        Returns:
+            CbfsFile object containing the file information
+        """
+        cfile = CbfsFile('', TYPE_EMPTY, b'')
+        cfile.size = space_to_use - FILE_HEADER_LEN - FILENAME_ALIGN
+        cfile.erase_byte = erase_byte
+        return cfile
+
     def get_data(self):
         """Obtain the contents of the file, in CBFS format
 
@@ -270,6 +308,8 @@ class CbfsFile(object):
             attr = struct.pack(ATTR_COMPRESSION_FORMAT,
                                FILE_ATTR_TAG_COMPRESSION, ATTR_COMPRESSION_LEN,
                                self.compress, len(orig_data))
+        elif self.ftype == TYPE_EMPTY:
+            data = tools.GetBytes(self.erase_byte, self.size)
         else:
             raise ValueError('Unknown type %#x when writing\n' % self.ftype)
         if attr:
@@ -357,6 +397,24 @@ class CbfsWriter(object):
                              (offset, fd.tell()))
         fd.write(tools.GetBytes(self._erase_byte, offset - fd.tell()))
 
+    def _pad_to(self, fd, offset):
+        """Write out pad bytes and/or an empty file until a given offset
+
+        Args:
+            fd: File objext to write to
+            offset: Offset to write to
+        """
+        self._align_to(fd, self._align)
+        upto = fd.tell()
+        if upto > offset:
+            raise ValueError('No space for data before pad offset %#x (current offset %#x)' %
+                             (offset, upto))
+        todo = align_int_down(offset - upto, self._align)
+        if todo:
+            cbf = CbfsFile.empty(todo, self._erase_byte)
+            fd.write(cbf.get_data())
+        self._skip_to(fd, offset)
+
     def _align_to(self, fd, align):
         """Write out pad bytes until a given alignment is reached
 
@@ -416,7 +474,7 @@ class CbfsWriter(object):
             raise ValueError('No space for header at offset %#x (current offset %#x)' %
                              (self._header_offset, fd.tell()))
         if not add_fileheader:
-            self._skip_to(fd, self._header_offset)
+            self._pad_to(fd, self._header_offset)
         hdr = struct.pack(HEADER_FORMAT, HEADER_MAGIC, HEADER_VERSION2,
                           self._size, self._bootblock_size, self._align,
                           self._contents_offset, self._arch, 0xffffffff)
@@ -455,7 +513,7 @@ class CbfsWriter(object):
             self._write_header(fd, add_fileheader=self._add_fileheader)
 
         # Pad to the end and write a pointer to the CBFS master header
-        self._skip_to(fd, self._base_address or self._size - 4)
+        self._pad_to(fd, self._base_address or self._size - 4)
         rel_offset = self._header_offset - self._size
         fd.write(struct.pack('<I', rel_offset & 0xffffffff))
 
@@ -596,6 +654,10 @@ class CbfsReader(object):
             cfile.decompress()
             if DEBUG:
                 print('data', data)
+        elif ftype == TYPE_EMPTY:
+            # Just read the data and discard it, since it is only padding
+            fd.read(size)
+            cfile = CbfsFile('', TYPE_EMPTY, b'')
         else:
             raise ValueError('Unknown type %#x when reading\n' % ftype)
         if cfile:
