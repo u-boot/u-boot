@@ -374,3 +374,69 @@ def ToBytes(string):
     if sys.version_info[0] >= 3:
         return string.encode('utf-8')
     return string
+
+def Compress(indata, algo):
+    """Compress some data using a given algorithm
+
+    Note that for lzma this uses an old version of the algorithm, not that
+    provided by xz.
+
+    This requires 'lz4' and 'lzma_alone' tools. It also requires an output
+    directory to be previously set up, by calling PrepareOutputDir().
+
+    Args:
+        indata: Input data to compress
+        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
+
+    Returns:
+        Compressed data
+    """
+    if algo == 'none':
+        return indata
+    fname = GetOutputFilename('%s.comp.tmp' % algo)
+    WriteFile(fname, indata)
+    if algo == 'lz4':
+        data = Run('lz4', '--no-frame-crc', '-c', fname, binary=True)
+    # cbfstool uses a very old version of lzma
+    elif algo == 'lzma':
+        outfname = GetOutputFilename('%s.comp.otmp' % algo)
+        Run('lzma_alone', 'e', fname, outfname, '-lc1', '-lp0', '-pb0', '-d8')
+        data = ReadFile(outfname)
+    elif algo == 'gzip':
+        data = Run('gzip', '-c', fname, binary=True)
+    else:
+        raise ValueError("Unknown algorithm '%s'" % algo)
+    return data
+
+def Decompress(indata, algo):
+    """Decompress some data using a given algorithm
+
+    Note that for lzma this uses an old version of the algorithm, not that
+    provided by xz.
+
+    This requires 'lz4' and 'lzma_alone' tools. It also requires an output
+    directory to be previously set up, by calling PrepareOutputDir().
+
+    Args:
+        indata: Input data to decompress
+        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
+
+    Returns:
+        Compressed data
+    """
+    if algo == 'none':
+        return indata
+    fname = GetOutputFilename('%s.decomp.tmp' % algo)
+    with open(fname, 'wb') as fd:
+        fd.write(indata)
+    if algo == 'lz4':
+        data = Run('lz4', '-dc', fname, binary=True)
+    elif algo == 'lzma':
+        outfname = GetOutputFilename('%s.decomp.otmp' % algo)
+        Run('lzma_alone', 'd', fname, outfname)
+        data = ReadFile(outfname)
+    elif algo == 'gzip':
+        data = Run('gzip', '-cd', fname, binary=True)
+    else:
+        raise ValueError("Unknown algorithm '%s'" % algo)
+    return data
