@@ -104,9 +104,14 @@ def RunTests(debug, processes, args):
         print(test.id(), err)
     for test, err in result.failures:
         print(err, result.failures)
+    if result.skipped:
+        print('%d binman test%s SKIPPED:' %
+              (len(result.skipped), 's' if len(result.skipped) > 1 else ''))
+        for skip_info in result.skipped:
+            print('%s: %s' % (skip_info[0], skip_info[1]))
     if result.errors or result.failures:
-      print('binman tests FAILED')
-      return 1
+        print('binman tests FAILED')
+        return 1
     return 0
 
 def GetEntryModules(include_testing=True):
