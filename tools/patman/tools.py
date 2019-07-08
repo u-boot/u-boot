@@ -24,6 +24,8 @@ chroot_path = None
 # Search paths to use for Filename(), used to find files
 search_paths = []
 
+tool_search_paths = []
+
 # Tools and the packages that contain them, on debian
 packages = {
     'lz4': 'liblz4-tool',
@@ -154,26 +156,56 @@ def Align(pos, align):
 def NotPowerOfTwo(num):
     return num and (num & (num - 1))
 
-def PathHasFile(fname):
+def SetToolPaths(toolpaths):
+    """Set the path to search for tools
+
+    Args:
+        toolpaths: List of paths to search for tools executed by Run()
+    """
+    global tool_search_paths
+
+    tool_search_paths = toolpaths
+
+def PathHasFile(path_spec, fname):
     """Check if a given filename is in the PATH
 
     Args:
+        path_spec: Value of PATH variable to check
         fname: Filename to check
 
     Returns:
         True if found, False if not
     """
-    for dir in os.environ['PATH'].split(':'):
+    for dir in path_spec.split(':'):
         if os.path.exists(os.path.join(dir, fname)):
             return True
     return False
 
 def Run(name, *args, **kwargs):
+    """Run a tool with some arguments
+
+    This runs a 'tool', which is a program used by binman to process files and
+    perhaps produce some output. Tools can be located on the PATH or in a
+    search path.
+
+    Args:
+        name: Command name to run
+        args: Arguments to the tool
+        kwargs: Options to pass to command.run()
+
+    Returns:
+        CommandResult object
+    """
     try:
-        return command.Run(name, *args, cwd=outdir, capture=True, **kwargs)
+        env = None
+        if tool_search_paths:
+            env = dict(os.environ)
+            env['PATH'] = ':'.join(tool_search_paths) + ':' + env['PATH']
+        return command.Run(name, *args, capture=True,
+                           capture_stderr=True, env=env, **kwargs)
     except:
-        if not PathHasFile(name):
-            msg = "Plesae install tool '%s'" % name
+        if env and not PathHasFile(env['PATH'], name):
+            msg = "Please install tool '%s'" % name
             package = packages.get(name)
             if package:
                  msg += " (e.g. from package '%s')" % package
