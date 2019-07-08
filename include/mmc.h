@@ -824,7 +824,6 @@ void mmc_set_preinit(struct mmc *mmc, int preinit);
 #else
 #define mmc_host_is_spi(mmc)	0
 #endif
-struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode);
 
 void board_mmc_power_init(void);
 int board_mmc_init(bd_t *bis);
