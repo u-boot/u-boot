@@ -21,6 +21,7 @@ config RCAR_GEN3
 	imply CMD_GPT
 	imply CMD_UUID
 	imply CMD_MMC_SWRITE if MMC
+	imply OF_BOARD_SETUP if PCI
 	imply SUPPORT_EMMC_RPMB if MMC
 	imply SPL
 	imply SPL_BOARD_INIT

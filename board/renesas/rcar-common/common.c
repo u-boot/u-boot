@@ -8,6 +8,8 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <dm/uclass-internal.h>
 #include <asm/arch/rmobile.h>
 
 #ifdef CONFIG_RCAR_GEN3
@@ -46,4 +48,51 @@ int dram_init_banksize(void)
 
 	return 0;
 }
+
+#if CONFIG_IS_ENABLED(OF_BOARD_SETUP) && CONFIG_IS_ENABLED(PCI)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	fdt_addr_t regs_addr;
+	int i, off, ret;
+
+	ret = uclass_get(UCLASS_PCI, &uc);
+	if (ret)
+		return ret;
+
+	uclass_foreach_dev(dev, uc) {
+		struct pci_controller hose = { 0 };
+
+		for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+			if (hose.region_count == MAX_PCI_REGIONS) {
+				printf("maximum number of regions parsed, aborting\n");
+				break;
+			}
+
+			if (bd->bi_dram[i].size) {
+				pci_set_region(&hose.regions[hose.region_count++],
+					       bd->bi_dram[i].start,
+					       bd->bi_dram[i].start,
+					       bd->bi_dram[i].size,
+					       PCI_REGION_MEM |
+					       PCI_REGION_PREFETCH |
+					       PCI_REGION_SYS_MEMORY);
+			}
+		}
+
+		regs_addr = devfdt_get_addr_index(dev, 0);
+		off = fdt_node_offset_by_compat_reg(blob,
+				"renesas,pcie-rcar-gen3", regs_addr);
+		if (off < 0) {
+			printf("Failed to find PCIe node@%llx\n", regs_addr);
+			return off;
+		}
+
+		fdt_pci_dma_ranges(blob, off, &hose);
+	}
+
+	return 0;
+}
+#endif
 #endif
