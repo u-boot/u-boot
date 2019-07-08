@@ -2185,6 +2185,12 @@ class TestFunctional(unittest.TestCase):
             'cbfs/u-boot-dtb:image-pos': 0xb8,
             }, props)
 
+    def testCbfsBadType(self):
+        """Test an image header with a no specified location is detected"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFile('126_cbfs_bad_type.dts')
+        self.assertIn("Unknown cbfs-type 'badtype'", str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

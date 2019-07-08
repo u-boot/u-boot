@@ -190,6 +190,9 @@ class Entry_cbfs(Entry):
             elif entry._type == 'stage':
                 cfile = cbfs.add_file_stage(entry._cbfs_name, data,
                                             entry._cbfs_offset)
+            else:
+                entry.Raise("Unknown cbfs-type '%s' (use 'raw', 'stage')" %
+                            entry._type)
             if cfile:
                 entry._cbfs_file = cfile
                 entry.size = cfile.data_len
