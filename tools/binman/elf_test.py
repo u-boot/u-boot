@@ -5,9 +5,12 @@
 # Test for the elf module
 
 import os
+import shutil
 import sys
+import tempfile
 import unittest
 
+import command
 import elf
 import test_util
 import tools
@@ -135,6 +138,23 @@ class TestElf(unittest.TestCase):
             syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
         elf.debug = False
         self.assertTrue(len(stdout.getvalue()) > 0)
+
+    def testMakeElf(self):
+        """Test for the MakeElf function"""
+        outdir = tempfile.mkdtemp(prefix='elf.')
+        expected_text = b'1234'
+        expected_data = b'wxyz'
+        elf_fname = os.path.join(outdir, 'elf')
+        bin_fname = os.path.join(outdir, 'elf')
+
+        # Make an Elf file and then convert it to a fkat binary file. This
+        # should produce the original data.
+        elf.MakeElf(elf_fname, expected_text, expected_data)
+        stdout = command.Output('objcopy', '-O', 'binary', elf_fname, bin_fname)
+        with open(bin_fname, 'rb') as fd:
+            data = fd.read()
+        self.assertEqual(expected_text + expected_data, data)
+        shutil.rmtree(outdir)
 
 
 if __name__ == '__main__':

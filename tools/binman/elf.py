@@ -5,11 +5,15 @@
 # Handle various things related to ELF images
 #
 
+from __future__ import print_function
+
 from collections import namedtuple, OrderedDict
 import command
 import os
 import re
+import shutil
 import struct
+import tempfile
 
 import tools
 
@@ -128,3 +132,96 @@ def LookupAndWriteSymbols(elf_fname, entry, section):
                       (msg, name, offset, value, len(value_bytes)))
             entry.data = (entry.data[:offset] + value_bytes +
                         entry.data[offset + sym.size:])
+
+def MakeElf(elf_fname, text, data):
+    """Make an elf file with the given data in a single section
+
+    The output file has a several section including '.text' and '.data',
+    containing the info provided in arguments.
+
+    Args:
+        elf_fname: Output filename
+        text: Text (code) to put in the file's .text section
+        data: Data to put in the file's .data section
+    """
+    outdir = tempfile.mkdtemp(prefix='binman.elf.')
+    s_file = os.path.join(outdir, 'elf.S')
+
+    # Spilt the text into two parts so that we can make the entry point two
+    # bytes after the start of the text section
+    text_bytes1 = ['\t.byte\t%#x' % tools.ToByte(byte) for byte in text[:2]]
+    text_bytes2 = ['\t.byte\t%#x' % tools.ToByte(byte) for byte in text[2:]]
+    data_bytes = ['\t.byte\t%#x' % tools.ToByte(byte) for byte in data]
+    with open(s_file, 'w') as fd:
+        print('''/* Auto-generated C program to produce an ELF file for testing */
+
+.section .text
+.code32
+.globl _start
+.type _start, @function
+%s
+_start:
+%s
+.ident "comment"
+
+.comm fred,8,4
+
+.section .empty
+.globl _empty
+_empty:
+.byte 1
+
+.globl ernie
+.data
+.type ernie, @object
+.size ernie, 4
+ernie:
+%s
+''' % ('\n'.join(text_bytes1), '\n'.join(text_bytes2), '\n'.join(data_bytes)),
+        file=fd)
+    lds_file = os.path.join(outdir, 'elf.lds')
+
+    # Use a linker script to set the alignment and text address.
+    with open(lds_file, 'w') as fd:
+        print('''/* Auto-generated linker script to produce an ELF file for testing */
+
+PHDRS
+{
+    text PT_LOAD ;
+    data PT_LOAD ;
+    empty PT_LOAD FLAGS ( 6 ) ;
+    note PT_NOTE ;
+}
+
+SECTIONS
+{
+    . = 0xfef20000;
+    ENTRY(_start)
+    .text . : SUBALIGN(0)
+    {
+        *(.text)
+    } :text
+    .data : {
+        *(.data)
+    } :data
+    _bss_start = .;
+    .empty : {
+        *(.empty)
+    } :empty
+    .note : {
+        *(.comment)
+    } :note
+    .bss _bss_start  (OVERLAY) : {
+        *(.bss)
+    }
+}
+''', file=fd)
+    # -static: Avoid requiring any shared libraries
+    # -nostdlib: Don't link with C library
+    # -Wl,--build-id=none: Don't generate a build ID, so that we just get the
+    #   text section at the start
+    # -m32: Build for 32-bit x86
+    # -T...: Specifies the link script, which sets the start address
+    stdout = command.Output('cc', '-static', '-nostdlib', '-Wl,--build-id=none',
+                            '-m32','-T', lds_file, '-o', elf_fname, s_file)
+    shutil.rmtree(outdir)
