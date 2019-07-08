@@ -55,7 +55,7 @@ static void swap_file_header(struct cbfs_fileheader *dest,
 	memcpy(&dest->magic, &src->magic, sizeof(dest->magic));
 	dest->len = be32_to_cpu(src->len);
 	dest->type = be32_to_cpu(src->type);
-	dest->checksum = be32_to_cpu(src->checksum);
+	dest->attributes_offset = be32_to_cpu(src->attributes_offset);
 	dest->offset = be32_to_cpu(src->offset);
 }
 
@@ -108,7 +108,7 @@ static int file_cbfs_next_file(u8 *start, u32 size, u32 align,
 		newNode->name = (char *)fileHeader +
 				sizeof(struct cbfs_fileheader);
 		newNode->name_length = name_len;
-		newNode->checksum = header.checksum;
+		newNode->attributes_offset = header.attributes_offset;
 
 		step = header.len;
 		if (step % align)
