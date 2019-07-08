@@ -197,7 +197,8 @@ class CbfsFile(object):
         data_len: Length of (possibly compressed) data in bytes
         ftype: File type (TYPE_...)
         compression: Compression type (COMPRESS_...)
-        memlen: Length of data in memory (typically the uncompressed length)
+        memlen: Length of data in memory, i.e. the uncompressed length, None if
+            no compression algortihm is selected
         load: Load address in memory if known, else None
         entry: Entry address in memory if known, else None. This is where
             execution starts after the file is loaded
@@ -213,11 +214,11 @@ class CbfsFile(object):
         self.data = data
         self.ftype = ftype
         self.compress = compress
-        self.memlen = len(data)
+        self.memlen = None
         self.load = None
         self.entry = None
         self.base_address = None
-        self.data_len = 0
+        self.data_len = len(data)
         self.erase_byte = None
         self.size = None
 
@@ -349,9 +350,11 @@ class CbfsFile(object):
                 data = tools.Compress(orig_data, 'lz4')
             elif self.compress == COMPRESS_LZMA:
                 data = tools.Compress(orig_data, 'lzma')
+            self.memlen = len(orig_data)
+            self.data_len = len(data)
             attr = struct.pack(ATTR_COMPRESSION_FORMAT,
                                FILE_ATTR_TAG_COMPRESSION, ATTR_COMPRESSION_LEN,
-                               self.compress, len(orig_data))
+                               self.compress, self.memlen)
         elif self.ftype == TYPE_EMPTY:
             data = tools.GetBytes(self.erase_byte, self.size)
         else:
