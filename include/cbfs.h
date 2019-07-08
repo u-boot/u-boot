@@ -40,6 +40,17 @@ enum cbfs_filetype {
 	CBFS_TYPE_CMOS_LAYOUT = 0x01aa
 };
 
+enum {
+	CBFS_HEADER_MAGIC	= 0x4f524243,
+};
+
+/**
+ * struct cbfs_header - header at the start of a CBFS region
+ *
+ * All fields use big-endian format.
+ *
+ * @magic: Magic number (CBFS_HEADER_MAGIC)
+ */
 struct cbfs_header {
 	u32 magic;
 	u32 version;
