@@ -24,6 +24,7 @@ import command
 import control
 import elf
 import fdt
+from etype import fdtmap
 import fdt_util
 import fmap_util
 import test_util
@@ -2266,6 +2267,20 @@ class TestFunctional(unittest.TestCase):
 
         self.assertEqual(len(data), 0x100 + section_size)
         self.assertEqual(section_size, 0x400 + dtb_size)
+
+    def testFindFdtmap(self):
+        """Test locating an FDT map in an image"""
+        self._CheckLz4()
+        data = self.data = self._DoReadFileRealDtb('128_decode_image.dts')
+        image = control.images['image']
+        entries = image.GetEntries()
+        entry = entries['fdtmap']
+        self.assertEqual(entry.image_pos, fdtmap.LocateFdtmap(data))
+
+    def testFindFdtmapMissing(self):
+        """Test failing to locate an FDP map"""
+        data = self._DoReadFile('005_simple.dts')
+        self.assertEqual(None, fdtmap.LocateFdtmap(data))
 
 
 if __name__ == "__main__":

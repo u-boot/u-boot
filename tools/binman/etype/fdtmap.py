@@ -15,7 +15,26 @@ from fdt import Fdt
 import state
 import tools
 
-FDTMAP_MAGIC = b'_FDTMAP_'
+FDTMAP_MAGIC   = b'_FDTMAP_'
+FDTMAP_HDR_LEN = 16
+
+def LocateFdtmap(data):
+    """Search an image for an fdt map
+
+    Args:
+        data: Data to search
+
+    Returns:
+        Position of fdt map in data, or None if not found. Note that the
+            position returned is of the FDT header, i.e. before the FDT data
+    """
+    hdr_pos = data.find(FDTMAP_MAGIC)
+    size = len(data)
+    if hdr_pos != -1:
+        hdr = data[hdr_pos:hdr_pos + FDTMAP_HDR_LEN]
+        if len(hdr) == FDTMAP_HDR_LEN:
+            return hdr_pos
+    return None
 
 class Entry_fdtmap(Entry):
     """An entry which contains an FDT map
@@ -24,7 +43,9 @@ class Entry_fdtmap(Entry):
         None
 
     An FDT map is just a header followed by an FDT containing a list of all the
-    entries in the image.
+    entries in the image. The root node corresponds to the image node in the
+    original FDT, and an image-name property indicates the image name in that
+    original tree.
 
     The header is the string _FDTMAP_ followed by 8 unused bytes.
 
