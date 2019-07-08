@@ -46,11 +46,12 @@ except:
 import control
 import test_util
 
-def RunTests(debug, processes, args):
+def RunTests(debug, verbosity, processes, args):
     """Run the functional tests and any embedded doctests
 
     Args:
         debug: True to enable debugging, which shows a full stack trace on error
+        verbosity: Verbosity level to use
         args: List of positional args provided to binman. This can hold a test
             name to execute (as in 'binman -t testSections', for example)
         processes: Number of processes to use to run tests (None=same as #CPUs)
@@ -71,6 +72,8 @@ def RunTests(debug, processes, args):
     sys.argv = [sys.argv[0]]
     if debug:
         sys.argv.append('-D')
+    if verbosity:
+        sys.argv.append('-v%d' % verbosity)
 
     # Run the entry tests first ,since these need to be the first to import the
     # 'entry' module.
@@ -153,7 +156,8 @@ def RunBinman(options, args):
         sys.tracebacklimit = 0
 
     if options.test:
-        ret_code = RunTests(options.debug, options.processes, args[1:])
+        ret_code = RunTests(options.debug, options.verbosity, options.processes,
+                            args[1:])
 
     elif options.test_coverage:
         RunTestCoverage()

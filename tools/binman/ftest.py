@@ -153,6 +153,19 @@ class TestFunctional(unittest.TestCase):
         TestFunctional._MakeInputFile('spl/u-boot-spl.dtb', U_BOOT_SPL_DTB_DATA)
         TestFunctional._MakeInputFile('tpl/u-boot-tpl.dtb', U_BOOT_TPL_DTB_DATA)
 
+    def _GetVerbosity(self):
+        """Check if verbosity should be enabled
+
+        Returns:
+            list containing either:
+                - Verbosity flag (e.g. '-v2') if it is present on the cmd line
+                - nothing if the flag is not present
+        """
+        for arg in sys.argv[1:]:
+            if arg.startswith('-v'):
+                return [arg]
+        return []
+
     def _RunBinman(self, *args, **kwargs):
         """Run binman using the command line
 
@@ -213,6 +226,8 @@ class TestFunctional(unittest.TestCase):
             args.append('--fake-dtb')
         if verbosity is not None:
             args.append('-v%d' % verbosity)
+        else:
+            args += self._GetVerbosity()
         if entry_args:
             for arg, value in entry_args.items():
                 args.append('-a%s=%s' % (arg, value))
@@ -1471,7 +1486,7 @@ class TestFunctional(unittest.TestCase):
         expected = 'Skipping images: image1'
 
         # We should only get the expected message in verbose mode
-        for verbosity in (None, 2):
+        for verbosity in (0, 2):
             with test_util.capture_sys_output() as (stdout, stderr):
                 retcode = self._DoTestFile('006_dual_image.dts',
                                            verbosity=verbosity,
