@@ -52,6 +52,7 @@ class Entry_cbfs(Entry):
                 filename = "u-boot.dtb";
                 cbfs-type = "raw";
                 cbfs-compress = "lz4";
+                cbfs-offset = <0x100000>;
             };
         };
 
@@ -110,6 +111,15 @@ class Entry_cbfs(Entry):
             to add a flat binary with a load/start address, similar to the
             'add-flat-binary' option in cbfstool.
 
+    cbfs-offset:
+        This is the offset of the file's data within the CBFS. It is used to
+        specify where the file should be placed in cases where a fixed position
+        is needed. Typical uses are for code which is not relocatable and must
+        execute in-place from a particular address. This works because SPI flash
+        is generally mapped into memory on x86 devices. The file header is
+        placed before this offset so that the data start lines up exactly with
+        the chosen offset. If this property is not provided, then the file is
+        placed in the next available spot.
 
     The current implementation supports only a subset of CBFS features. It does
     not support other file types (e.g. payload), adding multiple files (like the
@@ -172,9 +182,10 @@ class Entry_cbfs(Entry):
                 return False
             data = entry.GetData()
             if entry._type == 'raw':
-                cbfs.add_file_raw(entry._cbfs_name, data, entry._cbfs_compress)
+                cbfs.add_file_raw(entry._cbfs_name, data, entry._cbfs_offset,
+                                  entry._cbfs_compress)
             elif entry._type == 'stage':
-                cbfs.add_file_stage(entry._cbfs_name, data)
+                cbfs.add_file_stage(entry._cbfs_name, data, entry._cbfs_offset)
         data = cbfs.get_data()
         self.SetContents(data)
         return True
@@ -186,6 +197,7 @@ class Entry_cbfs(Entry):
             entry._cbfs_name = fdt_util.GetString(node, 'cbfs-name', entry.name)
             entry._type = fdt_util.GetString(node, 'cbfs-type')
             compress = fdt_util.GetString(node, 'cbfs-compress', 'none')
+            entry._cbfs_offset = fdt_util.GetInt(node, 'cbfs-offset')
             entry._cbfs_compress = cbfs_util.find_compress(compress)
             if entry._cbfs_compress is None:
                 self.Raise("Invalid compression in '%s': '%s'" %

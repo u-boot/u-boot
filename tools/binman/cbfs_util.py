@@ -12,7 +12,7 @@ it is necessary to rely on the C structures and source code (mostly cbfstool)
 to fully understand it.
 
 Currently supported: raw and stage types with compression, padding empty areas
-    with empty files
+    with empty files, fixed-offset files
 """
 
 from __future__ import print_function
@@ -190,6 +190,8 @@ class CbfsFile(object):
     Properties:
         name: Name of file
         offset: Offset of file data from start of file header
+        cbfs_offset: Offset of file data in bytes from start of CBFS, or None to
+            place this file anyway
         data: Contents of file, uncompressed
         data_len: Length of (possibly compressed) data in bytes
         ftype: File type (TYPE_...)
@@ -203,9 +205,10 @@ class CbfsFile(object):
             contents (used for empty files)
         size: Size of the file in bytes (used for empty files)
     """
-    def __init__(self, name, ftype, data, compress=COMPRESS_NONE):
+    def __init__(self, name, ftype, data, cbfs_offset, compress=COMPRESS_NONE):
         self.name = name
         self.offset = None
+        self.cbfs_offset = cbfs_offset
         self.data = data
         self.ftype = ftype
         self.compress = compress
@@ -231,7 +234,7 @@ class CbfsFile(object):
         self.data_len = len(indata)
 
     @classmethod
-    def stage(cls, base_address, name, data):
+    def stage(cls, base_address, name, data, cbfs_offset):
         """Create a new stage file
 
         Args:
@@ -239,28 +242,32 @@ class CbfsFile(object):
             name: String file name to put in CBFS (does not need to correspond
                 to the name that the file originally came from)
             data: Contents of file
+            cbfs_offset: Offset of file data in bytes from start of CBFS, or
+                None to place this file anyway
 
         Returns:
             CbfsFile object containing the file information
         """
-        cfile = CbfsFile(name, TYPE_STAGE, data)
+        cfile = CbfsFile(name, TYPE_STAGE, data, cbfs_offset)
         cfile.base_address = base_address
         return cfile
 
     @classmethod
-    def raw(cls, name, data, compress):
+    def raw(cls, name, data, cbfs_offset, compress):
         """Create a new raw file
 
         Args:
             name: String file name to put in CBFS (does not need to correspond
                 to the name that the file originally came from)
             data: Contents of file
+            cbfs_offset: Offset of file data in bytes from start of CBFS, or
+                None to place this file anyway
             compress: Compression algorithm to use (COMPRESS_...)
 
         Returns:
             CbfsFile object containing the file information
         """
-        return CbfsFile(name, TYPE_RAW, data, compress)
+        return CbfsFile(name, TYPE_RAW, data, cbfs_offset, compress)
 
     @classmethod
     def empty(cls, space_to_use, erase_byte):
@@ -275,12 +282,44 @@ class CbfsFile(object):
         Returns:
             CbfsFile object containing the file information
         """
-        cfile = CbfsFile('', TYPE_EMPTY, b'')
+        cfile = CbfsFile('', TYPE_EMPTY, b'', None)
         cfile.size = space_to_use - FILE_HEADER_LEN - FILENAME_ALIGN
         cfile.erase_byte = erase_byte
         return cfile
 
-    def get_data(self):
+    def calc_start_offset(self):
+        """Check if this file needs to start at a particular offset in CBFS
+
+        Returns:
+            None if the file can be placed anywhere, or
+            the largest offset where the file could start (integer)
+        """
+        if self.cbfs_offset is None:
+            return None
+        return self.cbfs_offset - self.get_header_len()
+
+    def get_header_len(self):
+        """Get the length of headers required for a file
+
+        This is the minimum length required before the actual data for this file
+        could start. It might start later if there is padding.
+
+        Returns:
+            Total length of all non-data fields, in bytes
+        """
+        name = _pack_string(self.name)
+        hdr_len = len(name) + FILE_HEADER_LEN
+        if self.ftype == TYPE_STAGE:
+            pass
+        elif self.ftype == TYPE_RAW:
+            hdr_len += ATTR_COMPRESSION_LEN
+        elif self.ftype == TYPE_EMPTY:
+            pass
+        else:
+            raise ValueError('Unknown file type %#x\n' % self.ftype)
+        return hdr_len
+
+    def get_data(self, offset=None, pad_byte=None):
         """Obtain the contents of the file, in CBFS format
 
         Returns:
@@ -292,6 +331,7 @@ class CbfsFile(object):
         attr_pos = 0
         content = b''
         attr = b''
+        pad = b''
         data = self.data
         if self.ftype == TYPE_STAGE:
             elf_data = elf.DecodeElf(data, self.base_address)
@@ -315,10 +355,33 @@ class CbfsFile(object):
         if attr:
             attr_pos = hdr_len
             hdr_len += len(attr)
-        hdr = struct.pack(FILE_HEADER_FORMAT, FILE_MAGIC,
-                          len(content) + len(data),
+        if self.cbfs_offset is not None:
+            pad_len = self.cbfs_offset - offset - hdr_len
+            if pad_len < 0:  # pragma: no cover
+                # Test coverage of this is not available since this should never
+                # happen. It indicates that get_header_len() provided an
+                # incorrect value (too small) so that we decided that we could
+                # put this file at the requested place, but in fact a previous
+                # file extends far enough into the CBFS that this is not
+                # possible.
+                raise ValueError("Internal error: CBFS file '%s': Requested offset %#x but current output position is %#x" %
+                                 (self.name, self.cbfs_offset, offset))
+            pad = tools.GetBytes(pad_byte, pad_len)
+            hdr_len += pad_len
+        self.offset = len(content) + len(data)
+        hdr = struct.pack(FILE_HEADER_FORMAT, FILE_MAGIC, self.offset,
                           self.ftype, attr_pos, hdr_len)
-        return hdr + name + attr + content + data
+
+        # Do a sanity check of the get_header_len() function, to ensure that it
+        # stays in lockstep with this function
+        expected_len = self.get_header_len()
+        actual_len = len(hdr + name + attr)
+        if expected_len != actual_len:  # pragma: no cover
+            # Test coverage of this is not available since this should never
+            # happen. It probably indicates that get_header_len() is broken.
+            raise ValueError("Internal error: CBFS file '%s': Expected headers of %#x bytes, got %#d" %
+                             (self.name, expected_len, actual_len))
+        return hdr + name + attr + pad + content + data
 
 
 class CbfsWriter(object):
@@ -431,34 +494,39 @@ class CbfsWriter(object):
         if offset < self._size:
             self._skip_to(fd, offset)
 
-    def add_file_stage(self, name, data):
+    def add_file_stage(self, name, data, cbfs_offset=None):
         """Add a new stage file to the CBFS
 
         Args:
             name: String file name to put in CBFS (does not need to correspond
                 to the name that the file originally came from)
             data: Contents of file
+            cbfs_offset: Offset of this file's data within the CBFS, in bytes,
+                or None to place this file anywhere
 
         Returns:
             CbfsFile object created
         """
-        cfile = CbfsFile.stage(self._base_address, name, data)
+        cfile = CbfsFile.stage(self._base_address, name, data, cbfs_offset)
         self._files[name] = cfile
         return cfile
 
-    def add_file_raw(self, name, data, compress=COMPRESS_NONE):
+    def add_file_raw(self, name, data, cbfs_offset=None,
+                     compress=COMPRESS_NONE):
         """Create a new raw file
 
         Args:
             name: String file name to put in CBFS (does not need to correspond
                 to the name that the file originally came from)
             data: Contents of file
+            cbfs_offset: Offset of this file's data within the CBFS, in bytes,
+                or None to place this file anywhere
             compress: Compression algorithm to use (COMPRESS_...)
 
         Returns:
             CbfsFile object created
         """
-        cfile = CbfsFile.raw(name, data, compress)
+        cfile = CbfsFile.raw(name, data, cbfs_offset, compress)
         self._files[name] = cfile
         return cfile
 
@@ -507,7 +575,11 @@ class CbfsWriter(object):
 
         # Write out each file
         for cbf in self._files.values():
-            fd.write(cbf.get_data())
+            # Place the file at its requested place, if any
+            offset = cbf.calc_start_offset()
+            if offset is not None:
+                self._pad_to(fd, align_int_down(offset, self._align))
+            fd.write(cbf.get_data(fd.tell(), self._erase_byte))
             self._align_to(fd, self._align)
         if not self._hdr_at_start:
             self._write_header(fd, add_fileheader=self._add_fileheader)
@@ -639,25 +711,27 @@ class CbfsReader(object):
 
         # Create the correct CbfsFile object depending on the type
         cfile = None
-        fd.seek(file_pos + offset, io.SEEK_SET)
+        cbfs_offset = file_pos + offset
+        fd.seek(cbfs_offset, io.SEEK_SET)
         if ftype == TYPE_CBFSHEADER:
             self._read_header(fd)
         elif ftype == TYPE_STAGE:
             data = fd.read(STAGE_LEN)
-            cfile = CbfsFile.stage(self.stage_base_address, name, b'')
+            cfile = CbfsFile.stage(self.stage_base_address, name, b'',
+                                   cbfs_offset)
             (cfile.compress, cfile.entry, cfile.load, cfile.data_len,
              cfile.memlen) = struct.unpack(STAGE_FORMAT, data)
             cfile.data = fd.read(cfile.data_len)
         elif ftype == TYPE_RAW:
             data = fd.read(size)
-            cfile = CbfsFile.raw(name, data, compress)
+            cfile = CbfsFile.raw(name, data, cbfs_offset, compress)
             cfile.decompress()
             if DEBUG:
                 print('data', data)
         elif ftype == TYPE_EMPTY:
             # Just read the data and discard it, since it is only padding
             fd.read(size)
-            cfile = CbfsFile('', TYPE_EMPTY, b'')
+            cfile = CbfsFile('', TYPE_EMPTY, b'', cbfs_offset)
         else:
             raise ValueError('Unknown type %#x when reading\n' % ftype)
         if cfile:
@@ -674,7 +748,8 @@ class CbfsReader(object):
         """Read attributes from the file
 
         CBFS files can have attributes which are things that cannot fit into the
-        header. The only attribute currently supported is compression.
+        header. The only attributes currently supported are compression and the
+        unused tag.
 
         Args:
             fd: File to read from
@@ -703,6 +778,8 @@ class CbfsReader(object):
                 # We don't currently use this information
                 atag, alen, compress, _decomp_size = struct.unpack(
                     ATTR_COMPRESSION_FORMAT, data)
+            elif atag == FILE_ATTR_TAG_UNUSED2:
+                break
             else:
                 print('Unknown attribute tag %x' % atag)
             attr_size -= len(data)
@@ -760,7 +837,7 @@ class CbfsReader(object):
         return val.decode('utf-8')
 
 
-def cbfstool(fname, *cbfs_args):
+def cbfstool(fname, *cbfs_args, **kwargs):
     """Run cbfstool with provided arguments
 
     If the tool fails then this function raises an exception and prints out the
@@ -773,7 +850,9 @@ def cbfstool(fname, *cbfs_args):
     Returns:
         CommandResult object containing the results
     """
-    args = ('cbfstool', fname) + cbfs_args
+    args = ['cbfstool', fname] + list(cbfs_args)
+    if kwargs.get('base') is not None:
+        args += ['-b', '%#x' % kwargs['base']]
     result = command.RunPipe([args], capture=not VERBOSE,
                              capture_stderr=not VERBOSE, raise_on_error=False)
     if result.return_code:

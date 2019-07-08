@@ -2012,5 +2012,28 @@ class TestFunctional(unittest.TestCase):
         self.assertIn('Could not complete processing of contents',
                       str(e.exception))
 
+    def testCbfsOffset(self):
+        """Test a CBFS with files at particular offsets
+
+        Like all CFBS tests, this is just checking the logic that calls
+        cbfs_util. See cbfs_util_test for fully tests (e.g. test_cbfs_offset()).
+        """
+        data = self._DoReadFile('114_cbfs_offset.dts')
+        size = 0x200
+
+        cbfs = cbfs_util.CbfsReader(data)
+        self.assertEqual(size, cbfs.rom_size)
+
+        self.assertIn('u-boot', cbfs.files)
+        cfile = cbfs.files['u-boot']
+        self.assertEqual(U_BOOT_DATA, cfile.data)
+        self.assertEqual(0x40, cfile.cbfs_offset)
+
+        self.assertIn('u-boot-dtb', cbfs.files)
+        cfile2 = cbfs.files['u-boot-dtb']
+        self.assertEqual(U_BOOT_DTB_DATA, cfile2.data)
+        self.assertEqual(0x140, cfile2.cbfs_offset)
+
+
 if __name__ == "__main__":
     unittest.main()

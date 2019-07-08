@@ -105,7 +105,7 @@ class TestCbfs(unittest.TestCase):
         return cbfs
 
     def _check_uboot(self, cbfs, ftype=cbfs_util.TYPE_RAW, offset=0x38,
-                     data=U_BOOT_DATA):
+                     data=U_BOOT_DATA, cbfs_offset=None):
         """Check that the U-Boot file is as expected
 
         Args:
@@ -113,6 +113,7 @@ class TestCbfs(unittest.TestCase):
             ftype: Expected file type
             offset: Expected offset of file
             data: Expected data in file
+            cbfs_offset: Expected CBFS offset for file's data
 
         Returns:
             CbfsFile object containing the file
@@ -121,24 +122,30 @@ class TestCbfs(unittest.TestCase):
         cfile = cbfs.files['u-boot']
         self.assertEqual('u-boot', cfile.name)
         self.assertEqual(offset, cfile.offset)
+        if cbfs_offset is not None:
+            self.assertEqual(cbfs_offset, cfile.cbfs_offset)
         self.assertEqual(data, cfile.data)
         self.assertEqual(ftype, cfile.ftype)
         self.assertEqual(cbfs_util.COMPRESS_NONE, cfile.compress)
         self.assertEqual(len(data), cfile.memlen)
         return cfile
 
-    def _check_dtb(self, cbfs, offset=0x38, data=U_BOOT_DTB_DATA):
+    def _check_dtb(self, cbfs, offset=0x38, data=U_BOOT_DTB_DATA,
+                   cbfs_offset=None):
         """Check that the U-Boot dtb file is as expected
 
         Args:
             cbfs: CbfsReader object to check
             offset: Expected offset of file
             data: Expected data in file
+            cbfs_offset: Expected CBFS offset for file's data
         """
         self.assertIn('u-boot-dtb', cbfs.files)
         cfile = cbfs.files['u-boot-dtb']
         self.assertEqual('u-boot-dtb', cfile.name)
         self.assertEqual(offset, cfile.offset)
+        if cbfs_offset is not None:
+            self.assertEqual(cbfs_offset, cfile.cbfs_offset)
         self.assertEqual(U_BOOT_DTB_DATA, cfile.data)
         self.assertEqual(cbfs_util.TYPE_RAW, cfile.ftype)
         self.assertEqual(cbfs_util.COMPRESS_NONE, cfile.compress)
@@ -157,13 +164,14 @@ class TestCbfs(unittest.TestCase):
         self._check_uboot(cbfs)
         self._check_dtb(cbfs)
 
-    def _get_expected_cbfs(self, size, arch='x86', compress=None):
+    def _get_expected_cbfs(self, size, arch='x86', compress=None, base=None):
         """Get the file created by cbfstool for a particular scenario
 
         Args:
             size: Size of the CBFS in bytes
             arch: Architecture of the CBFS, as a string
             compress: Compression to use, e.g. cbfs_util.COMPRESS_LZMA
+            base: Base address of file, or None to put it anywhere
 
         Returns:
             Resulting CBFS file, or None if cbfstool is not available
@@ -172,14 +180,18 @@ class TestCbfs(unittest.TestCase):
             return None
         cbfs_fname = os.path.join(self._indir, 'test.cbfs')
         cbfs_util.cbfstool(cbfs_fname, 'create', '-m', arch, '-s', '%#x' % size)
+        if base:
+            base = [(1 << 32) - size + b for b in base]
         cbfs_util.cbfstool(cbfs_fname, 'add', '-n', 'u-boot', '-t', 'raw',
                            '-c', compress and compress[0] or 'none',
                            '-f', tools.GetInputFilename(
-                               compress and 'compress' or 'u-boot.bin'))
+                               compress and 'compress' or 'u-boot.bin'),
+                           base=base[0] if base else None)
         cbfs_util.cbfstool(cbfs_fname, 'add', '-n', 'u-boot-dtb', '-t', 'raw',
                            '-c', compress and compress[1] or 'none',
                            '-f', tools.GetInputFilename(
-                               compress and 'compress' or 'u-boot.dtb'))
+                               compress and 'compress' or 'u-boot.dtb'),
+                           base=base[1] if base else None)
         return cbfs_fname
 
     def _compare_expected_cbfs(self, data, cbfstool_fname):
@@ -407,7 +419,7 @@ class TestCbfs(unittest.TestCase):
             self.skipTest('lz4 --no-frame-crc not available')
         size = 0x140
         cbw = CbfsWriter(size)
-        cbw.add_file_raw('u-boot', COMPRESS_DATA,
+        cbw.add_file_raw('u-boot', COMPRESS_DATA, None,
                          compress=cbfs_util.COMPRESS_LZ4)
         data = cbw.get_data()
 
@@ -431,7 +443,7 @@ class TestCbfs(unittest.TestCase):
             self.skipTest('lz4 --no-frame-crc not available')
         size = 0x140
         cbw = CbfsWriter(size)
-        cbw.add_file_raw('u-boot', COMPRESS_DATA,
+        cbw.add_file_raw('u-boot', COMPRESS_DATA, None,
                          compress=cbfs_util.COMPRESS_LZ4)
         data = cbw.get_data()
 
@@ -517,9 +529,9 @@ class TestCbfs(unittest.TestCase):
             self.skipTest('lz4 --no-frame-crc not available')
         size = 0x140
         cbw = CbfsWriter(size)
-        cbw.add_file_raw('u-boot', COMPRESS_DATA,
+        cbw.add_file_raw('u-boot', COMPRESS_DATA, None,
                          compress=cbfs_util.COMPRESS_LZ4)
-        cbw.add_file_raw('u-boot-dtb', COMPRESS_DATA,
+        cbw.add_file_raw('u-boot-dtb', COMPRESS_DATA, None,
                          compress=cbfs_util.COMPRESS_LZMA)
         data = cbw.get_data()
 
@@ -555,6 +567,58 @@ class TestCbfs(unittest.TestCase):
         self._check_raw(data, size)
         cbfs_fname = self._get_expected_cbfs(size=size)
         self._compare_expected_cbfs(data, cbfs_fname)
+
+    def test_cbfs_offset(self):
+        """Test a CBFS with files at particular offsets"""
+        size = 0x200
+        cbw = CbfsWriter(size)
+        cbw.add_file_raw('u-boot', U_BOOT_DATA, 0x40)
+        cbw.add_file_raw('u-boot-dtb', U_BOOT_DTB_DATA, 0x140)
+
+        data = cbw.get_data()
+        cbfs = self._check_hdr(data, size)
+        self._check_uboot(cbfs, ftype=cbfs_util.TYPE_RAW, offset=0x40,
+                          cbfs_offset=0x40)
+        self._check_dtb(cbfs, offset=0x40, cbfs_offset=0x140)
+
+        cbfs_fname = self._get_expected_cbfs(size=size, base=(0x40, 0x140))
+        self._compare_expected_cbfs(data, cbfs_fname)
+
+    def test_cbfs_invalid_file_type_header(self):
+        """Check handling of an invalid file type when outputting a header"""
+        size = 0xb0
+        cbw = CbfsWriter(size)
+        cfile = cbw.add_file_raw('u-boot', U_BOOT_DATA, 0)
+
+        # Change the type manually before generating the CBFS, and make sure
+        # that the generator complains
+        cfile.ftype = 0xff
+        with self.assertRaises(ValueError) as e:
+            cbw.get_data()
+        self.assertIn('Unknown file type 0xff', str(e.exception))
+
+    def test_cbfs_offset_conflict(self):
+        """Test a CBFS with files that want to overlap"""
+        size = 0x200
+        cbw = CbfsWriter(size)
+        cbw.add_file_raw('u-boot', U_BOOT_DATA, 0x40)
+        cbw.add_file_raw('u-boot-dtb', U_BOOT_DTB_DATA, 0x80)
+
+        with self.assertRaises(ValueError) as e:
+            cbw.get_data()
+        self.assertIn('No space for data before pad offset', str(e.exception))
+
+    def test_cbfs_check_offset(self):
+        """Test that we can discover the offset of a file after writing it"""
+        size = 0xb0
+        cbw = CbfsWriter(size)
+        cbw.add_file_raw('u-boot', U_BOOT_DATA)
+        cbw.add_file_raw('u-boot-dtb', U_BOOT_DTB_DATA)
+        data = cbw.get_data()
+
+        cbfs = cbfs_util.CbfsReader(data)
+        self.assertEqual(0x38, cbfs.files['u-boot'].cbfs_offset)
+        self.assertEqual(0x78, cbfs.files['u-boot-dtb'].cbfs_offset)
 
 
 if __name__ == '__main__':
