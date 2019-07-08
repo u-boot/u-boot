@@ -477,6 +477,14 @@ class Section(object):
             return self._parent_section.GetRootSkipAtStart()
         return self._skip_at_start
 
+    def GetStartOffset(self):
+        """Get the start offset for this section
+
+        Returns:
+            The first available offset in this section (typically 0)
+        """
+        return self._skip_at_start
+
     def GetImageSize(self):
         """Get the size of the image containing this section
 

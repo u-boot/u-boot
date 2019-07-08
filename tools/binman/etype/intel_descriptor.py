@@ -47,6 +47,8 @@ class Entry_intel_descriptor(Entry_blob):
     def __init__(self, section, etype, node):
         Entry_blob.__init__(self, section, etype, node)
         self._regions = []
+        if self.offset is None:
+            self.offset = self.section.GetStartOffset()
 
     def GetOffsets(self):
         offset = self.data.find(FD_SIGNATURE)
