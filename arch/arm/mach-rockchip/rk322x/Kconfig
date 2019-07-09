@@ -12,7 +12,7 @@ config SYS_SOC
 	default "rk322x"
 
 config SYS_MALLOC_F_LEN
-	default 0x400
+	default 0x800
 
 config SPL_SERIAL_SUPPORT
 	default y
