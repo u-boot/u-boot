@@ -32,8 +32,6 @@
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
-/* SPI NOR Flash default params, used by sf commands */
-
 /* Reserve 4 MB for malloc */
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
@@ -72,17 +70,10 @@
 #define CONFIG_SYS_NS16550_COM2		KW_UART1_BASE
 
 /*
- * Serial Port configuration
- * The following definitions let you select what serial you want to use
- * for your console driver.
- */
-
-/*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_BOOTMAPSZ	(8 << 20)	/* Initial Memmap for Linux */
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
 #define CONFIG_INITRD_TAG		/* enable INITRD tag */
 #define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
@@ -92,22 +83,16 @@
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-#define BOOTFLASH_START		0x0
-
 /*
  * Other required minimal configurations
  */
 #define CONFIG_ARCH_CPU_INIT		/* call arch_cpu_init() */
-#define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 
 /*
  * Ethernet Driver configuration
  */
-#define CONFIG_NETCONSOLE	/* include NetConsole support   */
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 
 /*
  * I2C related stuff
@@ -221,13 +206,8 @@ int get_scl(void);
 	"arch=arm\0"							\
 	""
 
-#if !defined(CONFIG_MTD_NOR_FLASH)
-#undef	CONFIG_JFFS2_CMDLINE
-#endif
-
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-/* Do early setups now in board_init_f() */
 
 /* address for the bootcount (taken from end of RAM) */
 #define BOOTCOUNT_ADDR          (CONFIG_KM_RESERVED_PRAM)
@@ -236,7 +216,5 @@ int get_scl(void);
 #define CONFIG_POST	(CONFIG_SYS_POST_MEM_REGIONS)
 #define CONFIG_POST_SKIP_ENV_FLAGS
 #define CONFIG_POST_EXTERNAL_WORD_FUNCS
-
-/* we do the whole PCIe FPGA config stuff here */
 
 #endif /* _CONFIG_KM_ARM_H */
