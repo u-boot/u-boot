@@ -61,15 +61,6 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
- * NS16550 Configuration
- */
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
-#define CONFIG_SYS_NS16550_COM1		KW_UART0_BASE
-#define CONFIG_SYS_NS16550_COM2		KW_UART1_BASE
-
-/*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
