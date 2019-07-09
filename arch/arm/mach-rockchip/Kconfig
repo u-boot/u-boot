@@ -223,6 +223,15 @@ config TPL_ROCKCHIP_BACK_TO_BROM
           SPL will return to the boot rom, which will then load the U-Boot
           binary to keep going on.
 
+config TPL_ROCKCHIP_COMMON_BOARD
+	bool ""
+	depends on TPL
+	help
+	  Rockchip SoCs have similar boot process, prefer to use TPL for DRAM
+	  init and back to bootrom, and SPL as Trust ATF/U-Boot loader. TPL
+	  common board is a basic TPL board init which can be shared for most
+	  of SoCs to avoid copy-pase for different SoCs.
+
 config ROCKCHIP_BOOT_MODE_REG
 	hex "Rockchip boot mode flag register address"
 	help
