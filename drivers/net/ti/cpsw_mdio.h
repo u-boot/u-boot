@@ -10,7 +10,7 @@
 
 struct cpsw_mdio;
 
-struct mii_dev *cpsw_mdio_init(const char *name, u32 mdio_base,
+struct mii_dev *cpsw_mdio_init(const char *name, phys_addr_t mdio_base,
 			       u32 bus_freq, int fck_freq);
 void cpsw_mdio_free(struct mii_dev *bus);
 u32 cpsw_mdio_get_alive(struct mii_dev *bus);
