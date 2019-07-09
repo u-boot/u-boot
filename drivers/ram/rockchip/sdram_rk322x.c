@@ -16,7 +16,6 @@
 #include <asm/arch-rockchip/grf_rk322x.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/sdram_rk322x.h>
-#include <asm/arch-rockchip/timer.h>
 #include <asm/arch-rockchip/uart.h>
 #include <asm/arch-rockchip/sdram_common.h>
 #include <asm/types.h>
@@ -96,26 +95,26 @@ void phy_pctrl_reset(struct rk322x_cru *cru,
 			1 << DDRCTRL_PSRST_SHIFT | 1 << DDRCTRL_SRST_SHIFT |
 			1 << DDRPHY_PSRST_SHIFT | 1 << DDRPHY_SRST_SHIFT);
 
-	rockchip_udelay(10);
+	udelay(10);
 
 	rk_clrreg(&cru->cru_softrst_con[5], 1 << DDRPHY_PSRST_SHIFT |
 						  1 << DDRPHY_SRST_SHIFT);
-	rockchip_udelay(10);
+	udelay(10);
 
 	rk_clrreg(&cru->cru_softrst_con[5], 1 << DDRCTRL_PSRST_SHIFT |
 						  1 << DDRCTRL_SRST_SHIFT);
-	rockchip_udelay(10);
+	udelay(10);
 
 	clrbits_le32(&ddr_phy->ddrphy_reg[0],
 		     SOFT_RESET_MASK << SOFT_RESET_SHIFT);
-	rockchip_udelay(10);
+	udelay(10);
 	setbits_le32(&ddr_phy->ddrphy_reg[0],
 		     SOFT_DERESET_ANALOG);
-	rockchip_udelay(5);
+	udelay(5);
 	setbits_le32(&ddr_phy->ddrphy_reg[0],
 		     SOFT_DERESET_DIGITAL);
 
-	rockchip_udelay(1);
+	udelay(1);
 }
 
 void phy_dll_bypass_set(struct rk322x_ddr_phy *ddr_phy, u32 freq)
@@ -154,7 +153,7 @@ static void send_command(struct rk322x_ddr_pctl *pctl,
 			 u32 rank, u32 cmd, u32 arg)
 {
 	writel((START_CMD | (rank << 20) | arg | cmd), &pctl->mcmd);
-	rockchip_udelay(1);
+	udelay(1);
 	while (readl(&pctl->mcmd) & START_CMD)
 		;
 }
@@ -167,7 +166,7 @@ static void memory_init(struct chan_info *chan,
 
 	if (dramtype == DDR3) {
 		send_command(pctl, 3, DESELECT_CMD, 0);
-		rockchip_udelay(1);
+		udelay(1);
 		send_command(pctl, 3, PREA_CMD, 0);
 		send_command(pctl, 3, MRS_CMD,
 			     (0x02 & BANK_ADDR_MASK) << BANK_ADDR_SHIFT |
@@ -196,17 +195,17 @@ static void memory_init(struct chan_info *chan,
 			     (0x63 & LPDDR23_MA_MASK) << LPDDR23_MA_SHIFT |
 			     (0 & LPDDR23_OP_MASK) <<
 			     LPDDR23_OP_SHIFT);
-		rockchip_udelay(10);
+		udelay(10);
 		send_command(pctl, 3, MRS_CMD,
 			     (0x10 & LPDDR23_MA_MASK) << LPDDR23_MA_SHIFT |
 			     (0xff & LPDDR23_OP_MASK) <<
 			     LPDDR23_OP_SHIFT);
-		rockchip_udelay(1);
+		udelay(1);
 		send_command(pctl, 3, MRS_CMD,
 			     (0x10 & LPDDR23_MA_MASK) << LPDDR23_MA_SHIFT |
 			     (0xff & LPDDR23_OP_MASK) <<
 			     LPDDR23_OP_SHIFT);
-		rockchip_udelay(1);
+		udelay(1);
 		send_command(pctl, 3, MRS_CMD,
 			     (1 & LPDDR23_MA_MASK) << LPDDR23_MA_SHIFT |
 			     (sdram_params->phy_timing.mr[1] &
@@ -243,7 +242,7 @@ static u32 data_training(struct chan_info *chan)
 			DQS_SQU_CAL_SEL_CS0);
 	setbits_le32(&ddr_phy->ddrphy_reg[2], DQS_SQU_CAL_START);
 
-	rockchip_udelay(30);
+	udelay(30);
 	ret = readl(&ddr_phy->ddrphy_reg[0xff]);
 
 	clrbits_le32(&ddr_phy->ddrphy_reg[2],
@@ -367,9 +366,9 @@ static void phy_softreset(struct dram_info *dram)
 
 	writel(GRF_DDRPHY_BUFFEREN_CORE_EN, &grf->soc_con[0]);
 	clrbits_le32(&ddr_phy->ddrphy_reg[0], 0x3 << 2);
-	rockchip_udelay(1);
+	udelay(1);
 	setbits_le32(&ddr_phy->ddrphy_reg[0], 1 << 2);
-	rockchip_udelay(5);
+	udelay(5);
 	setbits_le32(&ddr_phy->ddrphy_reg[0], 1 << 3);
 	writel(GRF_DDRPHY_BUFFEREN_CORE_DIS, &grf->soc_con[0]);
 }
