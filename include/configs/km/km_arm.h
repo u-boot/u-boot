@@ -82,6 +82,7 @@
 /*
  * Ethernet Driver configuration
  */
+#define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer autoneg timeout */
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
 

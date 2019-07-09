@@ -42,6 +42,7 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	def_bool y
 	select BOARD_LATE_INIT
 	select DM
+	select DM_ETH
 	select DM_SERIAL
 	select DM_SPI
 	select DM_SPI_FLASH
