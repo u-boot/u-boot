@@ -1,5 +1,8 @@
 if ROCKCHIP_RV1108
 
+choice
+	prompt "RV1108 board select"
+
 config TARGET_EVB_RV1108
 	bool "EVB_RV1108"
 	help
@@ -21,6 +24,8 @@ config TARGET_ELGIN_RV1108
 	bool "ELGIN_RV1108"
 	help
 	  RV1108 ELGIN is a board based on the Rockchip RV1108.
+
+endchoice
 
 config SYS_SOC
 	default "rv1108"

@@ -1,5 +1,8 @@
 if ROCKCHIP_RK3288
 
+choice
+	prompt "RK3288 board select"
+
 config TARGET_CHROMEBOOK_JERRY
 	bool "Google/Rockchip Veyron-Jerry Chromebook"
 	select BOARD_LATE_INIT
@@ -124,6 +127,8 @@ config TARGET_TINKER_RK3288
 	  micro-SD card, audio, Gigabit Ethernet. It also includes on-board
 	  8GB eMMC and 2GB of SDRAM. Expansion connectors provide access to
 	  I2C, SPI, UART, GPIOs.
+
+endchoice
 
 config ROCKCHIP_FAST_SPL
 	bool "Change the CPU to full speed in SPL"
