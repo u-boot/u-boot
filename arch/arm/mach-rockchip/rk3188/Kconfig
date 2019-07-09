@@ -9,6 +9,9 @@ config TARGET_ROCK
 	  Expansion connectors provide access to display pins, I2C, SPI,
 	  UART and GPIOs.
 
+config ROCKCHIP_BOOT_MODE_REG
+	default 0x20004040
+
 config SYS_SOC
 	default "rk3188"
 

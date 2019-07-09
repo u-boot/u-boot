@@ -139,6 +139,9 @@ config ROCKCHIP_FAST_SPL
 	  voltage. This option is only available on boards which support it
 	  and have the required PMIC code.
 
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xff730094
+
 config SYS_SOC
 	default "rk3288"
 

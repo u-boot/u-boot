@@ -27,6 +27,9 @@ config TARGET_ELGIN_RV1108
 
 endchoice
 
+config ROCKCHIP_BOOT_MODE_REG
+	default 0x10300580
+
 config SYS_SOC
 	default "rv1108"
 

@@ -225,14 +225,6 @@ config TPL_ROCKCHIP_BACK_TO_BROM
 
 config ROCKCHIP_BOOT_MODE_REG
 	hex "Rockchip boot mode flag register address"
-	default 0x200081c8 if ROCKCHIP_RK3036
-	default 0x20004040 if ROCKCHIP_RK3188
-	default 0x110005c8 if ROCKCHIP_RK322X
-	default 0xff730094 if ROCKCHIP_RK3288
-	default 0xff738200 if ROCKCHIP_RK3368
-	default 0xff320300 if ROCKCHIP_RK3399
-	default 0x10300580 if ROCKCHIP_RV1108
-	default 0
 	help
 	  The Soc will enter to different boot mode(defined in asm/arch-rockchip/boot_mode.h)
 	  according to the value from this register.

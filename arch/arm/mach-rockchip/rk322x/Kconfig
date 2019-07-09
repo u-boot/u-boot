@@ -5,6 +5,9 @@ config TARGET_EVB_RK3229
 	bool "EVB_RK3229"
 	select BOARD_LATE_INIT
 
+config ROCKCHIP_BOOT_MODE_REG
+	default 0x110005c8
+
 config SYS_SOC
 	default "rk322x"
 

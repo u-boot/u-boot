@@ -42,6 +42,9 @@ config TARGET_EVB_PX5
          sensor STK3410.
 endchoice
 
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xff738200
+
 config SYS_SOC
 	default "rk3368"
 

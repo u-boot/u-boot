@@ -12,6 +12,9 @@ config TARGET_EVB_RK3328
 
 endchoice
 
+config ROCKCHIP_BOOT_MODE_REG
+	default 0xff1005c8
+
 config SYS_SOC
 	default "rk3328"
 
