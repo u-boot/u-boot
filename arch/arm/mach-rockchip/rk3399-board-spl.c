@@ -21,7 +21,6 @@
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/sys_proto.h>
 #include <power/regulator.h>
-#include <dm/pinctrl.h>
 
 void board_return_to_bootrom(void)
 {
@@ -133,7 +132,6 @@ void secure_timer_init(void)
 
 void board_init_f(ulong dummy)
 {
-	struct udevice *pinctrl;
 	struct udevice *dev;
 	struct rk3399_pmusgrf_regs *sgrf;
 	struct rk3399_grf_regs *grf;
@@ -191,12 +189,6 @@ void board_init_f(ulong dummy)
 	rk_clrreg(&grf->emmccore_con[11], 0x0ff);
 
 	secure_timer_init();
-
-	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);
-	if (ret) {
-		pr_err("Pinctrl init failed: %d\n", ret);
-		return;
-	}
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
