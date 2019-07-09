@@ -42,7 +42,7 @@ endif
 obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram_common.o
 
 ifndef CONFIG_ARM64
-ifeq ($(CONFIG_ROCKCHIP_RK3188)$(CONFIG_ROCKCHIP_RK322X),)
+ifeq ($(CONFIG_ROCKCHIP_RK3188)$(CONFIG_ROCKCHIP_RK322X)$(CONFIG_ROCKCHIP_RK3036),)
 obj-y += rk_timer.o
 endif
 endif
