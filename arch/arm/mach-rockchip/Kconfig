@@ -136,19 +136,6 @@ config ROCKCHIP_RK3368
 	  On-chip peripherals include Gigabit Ethernet, USB2 host and OTG, SDIO,
 	  I2S, UARTs, SPI, I2C and PWMs.
 
-if ROCKCHIP_RK3368
-
-config TPL_TEXT_BASE
-        default 0xff8c1000
-
-config TPL_MAX_SIZE
-        default 28672
-
-config TPL_STACK
-        default 0xff8cffff
-
-endif
-
 config ROCKCHIP_RK3399
 	bool "Support Rockchip RK3399"
 	select ARM64

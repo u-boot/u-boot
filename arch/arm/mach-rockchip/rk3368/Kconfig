@@ -53,4 +53,13 @@ source "board/rockchip/evb_px5/Kconfig"
 config SPL_LDSCRIPT
 	default "arch/arm/cpu/armv8/u-boot-spl.lds"
 
+config TPL_MAX_SIZE
+        default 28672
+
+config TPL_STACK
+        default 0xff8cffff
+
+config TPL_TEXT_BASE
+        default 0xff8c1000
+
 endif
