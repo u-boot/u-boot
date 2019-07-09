@@ -109,26 +109,9 @@ void spl_perform_fixups(struct spl_image_info *spl_image)
 			   "u-boot,spl-boot-device", boot_ofpath);
 }
 
-#define TIMER_CHN10_BASE	0xff8680a0
-#define TIMER_END_COUNT_L	0x00
-#define TIMER_END_COUNT_H	0x04
-#define TIMER_INIT_COUNT_L	0x10
-#define TIMER_INIT_COUNT_H	0x14
-#define TIMER_CONTROL_REG	0x1c
-
-#define TIMER_EN	0x1
-#define	TIMER_FMODE	(0 << 1)
-#define	TIMER_RMODE	(1 << 1)
-
-void secure_timer_init(void)
+__weak void rockchip_stimer_init(void)
 {
-	writel(0xffffffff, TIMER_CHN10_BASE + TIMER_END_COUNT_L);
-	writel(0xffffffff, TIMER_CHN10_BASE + TIMER_END_COUNT_H);
-	writel(0, TIMER_CHN10_BASE + TIMER_INIT_COUNT_L);
-	writel(0, TIMER_CHN10_BASE + TIMER_INIT_COUNT_H);
-	writel(TIMER_EN | TIMER_FMODE, TIMER_CHN10_BASE + TIMER_CONTROL_REG);
 }
-
 
 void board_init_f(ulong dummy)
 {
@@ -188,7 +171,7 @@ void board_init_f(ulong dummy)
 	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	rk_clrreg(&grf->emmccore_con[11], 0x0ff);
 
-	secure_timer_init();
+	rockchip_stimer_init();
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
