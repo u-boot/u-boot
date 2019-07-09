@@ -19,6 +19,31 @@ u32 spl_boot_mode(const u32 boot_device)
 	return MMCSD_MODE_RAW;
 }
 
+#define TIMER_LOAD_COUNT_L	0x00
+#define TIMER_LOAD_COUNT_H	0x04
+#define TIMER_CONTROL_REG	0x10
+#define TIMER_EN	0x1
+#define	TIMER_FMODE	BIT(0)
+#define	TIMER_RMODE	BIT(1)
+
+void rockchip_stimer_init(void)
+{
+	/* If Timer already enabled, don't re-init it */
+	u32 reg = readl(CONFIG_ROCKCHIP_STIMER_BASE + TIMER_CONTROL_REG);
+
+	if (reg & TIMER_EN)
+		return;
+
+	asm volatile("mcr p15, 0, %0, c14, c0, 0"
+		     : : "r"(COUNTER_FREQUENCY));
+
+	writel(0, CONFIG_ROCKCHIP_STIMER_BASE + TIMER_CONTROL_REG);
+	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE);
+	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE + 4);
+	writel(TIMER_EN | TIMER_FMODE, CONFIG_ROCKCHIP_STIMER_BASE +
+	       TIMER_CONTROL_REG);
+}
+
 #define SGRF_DDR_CON0 0x10150000
 void board_init_f(ulong dummy)
 {
@@ -30,6 +55,11 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 	preloader_console_init();
+
+	/* Init secure timer */
+	rockchip_stimer_init();
+	/* Init ARM arch timer in arch/arm/cpu/armv7/arch_timer.c */
+	timer_init();
 
 	/* Disable the ddr secure region setting to make it non-secure */
 	rk_clrreg(SGRF_DDR_CON0, 0x4000);
