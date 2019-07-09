@@ -47,6 +47,7 @@ config TARGET_CHROMEBOOK_SPEEDY
 config TARGET_EVB_RK3288
 	bool "Evb-RK3288"
 	select BOARD_LATE_INIT
+	select TPL
 	help
 	  EVB-RK3288 is a RK3288-based development board with 2 USB ports,
 	  HDMI, VGA, micro-SD card, audio, WiFi  and Gigabit Ethernet, It
