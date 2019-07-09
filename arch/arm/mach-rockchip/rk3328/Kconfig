@@ -19,7 +19,7 @@ config SYS_SOC
 	default "rk3328"
 
 config SYS_MALLOC_F_LEN
-	default 0x0800
+	default 0x2000
 
 source "board/rockchip/evb_rk3328/Kconfig"
 
