@@ -29,11 +29,7 @@
 	u-boot,dm-pre-reloc;
 };
 
-&pcfg_pull_none_drv_8ma {
-	u-boot,dm-spl;
-};
-
-&pcfg_pull_up_drv_8ma {
+&pcfg_pull_up_drv_12ma {
 	u-boot,dm-spl;
 };
 
