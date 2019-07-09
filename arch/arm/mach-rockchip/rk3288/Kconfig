@@ -146,7 +146,7 @@ config SYS_SOC
 	default "rk3288"
 
 config SYS_MALLOC_F_LEN
-	default 0x0800
+	default 0x2000
 
 config SPL_DRIVERS_MISC_SUPPORT
 	default y
