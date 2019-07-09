@@ -46,6 +46,17 @@
 
 #endif
 
+#ifdef CONFIG_QSPI_BOOT
+#undef CONFIG_ENV_SPI_BUS
+#undef CONFIG_BOOTCOMMAND
+#define CONFIG_ENV_SPI_BUS	1
+#define CONFIG_BOOTCOMMAND	"sf probe 1:0; "			\
+				"sf read 0x21000000 0x180000 0x80000; "	\
+				"sf read 0x22000000 0x200000 0x600000; "\
+				"bootz 0x22000000 - 0x21000000"
+
+#endif
+
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x10000
 #define CONFIG_SPL_BSS_START_ADDR	0x20000000
