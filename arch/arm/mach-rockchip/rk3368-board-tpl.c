@@ -14,7 +14,6 @@
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3368.h>
 #include <asm/arch-rockchip/hardware.h>
-#include <asm/arch-rockchip/timer.h>
 
 /*
  * The SPL (and also the full U-Boot stage on the RK3368) will run in
