@@ -13,6 +13,7 @@
 
 	aliases {
 		serial2 = &main_uart0;
+		ethernet0 = &cpsw_port1;
 	};
 };
 
@@ -108,6 +109,116 @@
 						<0x4>; /* RX_CHAN */
 			ti,sci-rm-range-rflow = <0x5>; /* GP RFLOW */
 			dma-coherent;
+		};
+	};
+
+	mcu_conf: scm_conf@40f00000 {
+		compatible = "syscon";
+		reg = <0x0 0x40f00000 0x0 0x20000>;
+	};
+
+	mcu_cpsw: cpsw_nuss@046000000 {
+		compatible = "ti,am654-cpsw-nuss";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		reg = <0x0 0x46000000 0x0 0x200000>;
+		reg-names = "cpsw_nuss";
+		ranges;
+		dma-coherent;
+		clocks = <&k3_clks 5 10>;
+		clock-names = "fck";
+		power-domains = <&k3_pds 5>;
+		ti,psil-base = <0x7000>;
+
+		dmas = <&mcu_udmap &mcu_cpsw 0 UDMA_DIR_TX>,
+		       <&mcu_udmap &mcu_cpsw 1 UDMA_DIR_TX>,
+		       <&mcu_udmap &mcu_cpsw 2 UDMA_DIR_TX>,
+		       <&mcu_udmap &mcu_cpsw 3 UDMA_DIR_TX>,
+		       <&mcu_udmap &mcu_cpsw 4 UDMA_DIR_TX>,
+		       <&mcu_udmap &mcu_cpsw 5 UDMA_DIR_TX>,
+		       <&mcu_udmap &mcu_cpsw 6 UDMA_DIR_TX>,
+		       <&mcu_udmap &mcu_cpsw 7 UDMA_DIR_TX>,
+		       <&mcu_udmap &mcu_cpsw 0 UDMA_DIR_RX>;
+		dma-names = "tx0", "tx1", "tx2", "tx3",
+			    "tx4", "tx5", "tx6", "tx7",
+			    "rx";
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			host: host@0 {
+				reg = <0>;
+				ti,label = "host";
+			};
+
+			cpsw_port1: port@1 {
+				reg = <1>;
+				ti,mac-only;
+				ti,label = "port1";
+				ti,syscon-efuse = <&mcu_conf 0x200>;
+			};
+		};
+
+		davinci_mdio: mdio {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			bus_freq = <1000000>;
+		};
+
+		ti,psil-config0 {
+			linux,udma-mode = <UDMA_PKT_MODE>;
+			statictr-type = <PSIL_STATIC_TR_NONE>;
+			ti,needs-epib;
+			ti,psd-size = <16>;
+		};
+
+		ti,psil-config1 {
+			linux,udma-mode = <UDMA_PKT_MODE>;
+			statictr-type = <PSIL_STATIC_TR_NONE>;
+			ti,needs-epib;
+			ti,psd-size = <16>;
+		};
+
+		ti,psil-config2 {
+			linux,udma-mode = <UDMA_PKT_MODE>;
+			statictr-type = <PSIL_STATIC_TR_NONE>;
+			ti,needs-epib;
+			ti,psd-size = <16>;
+		};
+
+		ti,psil-config3 {
+			linux,udma-mode = <UDMA_PKT_MODE>;
+			statictr-type = <PSIL_STATIC_TR_NONE>;
+			ti,needs-epib;
+			ti,psd-size = <16>;
+		};
+
+		ti,psil-config4 {
+			linux,udma-mode = <UDMA_PKT_MODE>;
+			statictr-type = <PSIL_STATIC_TR_NONE>;
+			ti,needs-epib;
+			ti,psd-size = <16>;
+		};
+
+		ti,psil-config5 {
+			linux,udma-mode = <UDMA_PKT_MODE>;
+			statictr-type = <PSIL_STATIC_TR_NONE>;
+			ti,needs-epib;
+			ti,psd-size = <16>;
+		};
+
+		ti,psil-config6 {
+			linux,udma-mode = <UDMA_PKT_MODE>;
+			statictr-type = <PSIL_STATIC_TR_NONE>;
+			ti,needs-epib;
+			ti,psd-size = <16>;
+		};
+
+		ti,psil-config7 {
+			linux,udma-mode = <UDMA_PKT_MODE>;
+			statictr-type = <PSIL_STATIC_TR_NONE>;
+			ti,needs-epib;
+			ti,psd-size = <16>;
 		};
 	};
 };
