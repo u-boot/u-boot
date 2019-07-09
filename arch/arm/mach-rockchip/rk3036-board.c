@@ -14,7 +14,6 @@
 #include <asm/arch-rockchip/grf_rk3036.h>
 #include <asm/arch-rockchip/boot_mode.h>
 #include <asm/arch-rockchip/sdram_rk3036.h>
-#include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
