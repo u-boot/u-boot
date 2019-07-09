@@ -66,10 +66,6 @@
 #define CONFIG_HOSTNAME			"kmcoge5un"
 #define CONFIG_KM_DISABLE_PCIE
 
-/* KM_PORTL2 */
-#elif defined(CONFIG_KM_PORTL2)
-#define CONFIG_HOSTNAME			"portl2"
-
 /* KM_SUV31 */
 #elif defined(CONFIG_KM_SUV31)
 #define CONFIG_HOSTNAME			"kmsuv31"
