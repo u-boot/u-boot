@@ -160,6 +160,9 @@ config SPL_LIBGENERIC_SUPPORT
 config SPL_SERIAL_SUPPORT
 	default y
 
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/u-boot-tpl.lds"
+
 config TPL_MAX_SIZE
 	default 32768
 
