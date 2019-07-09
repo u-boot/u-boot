@@ -35,6 +35,8 @@
 #define SDRAM_BANK_SIZE			(2UL << 30)
 #define SDRAM_MAX_SIZE			0xfe000000
 
+#define CONFIG_SYS_MONITOR_LEN (600 * 1024)
+
 #ifndef CONFIG_SPL_BUILD
 /* usb otg */
 
