@@ -12,7 +12,25 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/timer.h>
+
+#define TIMER_LOAD_COUNT_L	0x00
+#define TIMER_LOAD_COUNT_H	0x04
+#define TIMER_CONTROL_REG	0x10
+#define TIMER_EN	0x1
+#define	TIMER_FMODE	BIT(0)
+#define	TIMER_RMODE	BIT(1)
+
+void rockchip_stimer_init(void)
+{
+	asm volatile("mcr p15, 0, %0, c14, c0, 0"
+		     : : "r"(COUNTER_FREQUENCY));
+
+	writel(0, CONFIG_ROCKCHIP_STIMER_BASE + TIMER_CONTROL_REG);
+	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE);
+	writel(0xffffffff, CONFIG_ROCKCHIP_STIMER_BASE + 4);
+	writel(TIMER_EN | TIMER_FMODE, CONFIG_ROCKCHIP_STIMER_BASE +
+	       TIMER_CONTROL_REG);
+}
 
 void board_init_f(ulong dummy)
 {
@@ -36,7 +54,10 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
-	rockchip_timer_init();
+	/* Init secure timer */
+	rockchip_stimer_init();
+	/* Init ARM arch timer in arch/arm/cpu/armv7/arch_timer.c */
+	timer_init();
 
 	ret = rockchip_get_clk(&dev);
 	if (ret) {
