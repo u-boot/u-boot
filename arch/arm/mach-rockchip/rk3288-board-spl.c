@@ -103,6 +103,11 @@ static int phycore_init(void)
 }
 #endif
 
+__weak int arch_cpu_init(void)
+{
+	return 0;
+}
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -127,7 +132,7 @@ void board_init_f(ulong dummy)
 	}
 
 	rockchip_timer_init();
-	configure_l2ctlr();
+	arch_cpu_init();
 
 	ret = rockchip_get_clk(&dev);
 	if (ret) {

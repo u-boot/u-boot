@@ -12,7 +12,6 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/sys_proto.h>
 #include <asm/arch-rockchip/timer.h>
 
 void board_init_f(ulong dummy)
@@ -38,7 +37,6 @@ void board_init_f(ulong dummy)
 	}
 
 	rockchip_timer_init();
-	configure_l2ctlr();
 
 	ret = rockchip_get_clk(&dev);
 	if (ret) {

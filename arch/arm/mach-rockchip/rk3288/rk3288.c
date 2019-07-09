@@ -10,11 +10,15 @@
 
 int arch_cpu_init(void)
 {
+#ifdef CONFIG_SPL_BUILD
+	configure_l2ctlr();
+#else
 	/* We do some SoC one time setting here. */
 	struct rk3288_grf * const grf = (void *)GRF_BASE;
 
 	/* Use rkpwm by default */
 	rk_setreg(&grf->soc_con2, 1 << 0);
+#endif
 
 	return 0;
 }
