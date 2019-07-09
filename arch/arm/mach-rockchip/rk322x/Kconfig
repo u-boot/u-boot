@@ -1,5 +1,6 @@
 if ROCKCHIP_RK322X
 
+
 config TARGET_EVB_RK3229
 	bool "EVB_RK3229"
 	select BOARD_LATE_INIT
@@ -12,6 +13,15 @@ config SYS_MALLOC_F_LEN
 
 config SPL_SERIAL_SUPPORT
 	default y
+
+config TPL_MAX_SIZE
+        default 28672
+
+config TPL_STACK
+        default 0x10088000
+
+config TPL_TEXT_BASE
+        default 0x10081000
 
 source "board/rockchip/evb_rk3229/Kconfig"
 
