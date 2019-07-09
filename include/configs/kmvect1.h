@@ -34,11 +34,6 @@
 #define CONFIG_SYS_MAMR	(MxMR_GPL_x4DIS | \
 			 0x0000c000 | \
 			 MxMR_WLFx_2X)
-/*
- * QE UEC ethernet configuration
- */
-#define CONFIG_MV88E6352_SWITCH 1
-#define CONFIG_KM_MVEXTSW_ADDR		0x10
 
 /* ethernet port connected to simple switch 88e6122 (UEC0) */
 #define CONFIG_UEC_ETH1

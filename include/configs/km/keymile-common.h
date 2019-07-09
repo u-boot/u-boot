@@ -27,12 +27,6 @@
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
 
-
-/* Support the IVM EEprom */
-#define	CONFIG_SYS_IVM_EEPROM_ADR	0x50
-#define CONFIG_SYS_IVM_EEPROM_MAX_LEN	0x400
-#define CONFIG_SYS_IVM_EEPROM_PAGE_LEN	0x100
-
 /*
  * BOOTP options
  */

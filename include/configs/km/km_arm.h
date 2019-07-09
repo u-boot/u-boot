@@ -43,15 +43,6 @@
 #define CONFIG_SYS_MEMTEST_END	0x007fffff	/*(_8M -1) */
 #define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
 
-/* pseudo-non volatile RAM [hex] */
-#define CONFIG_KM_PNVRAM	0x80000
-/* physical RAM MTD size [hex] */
-#define CONFIG_KM_PHRAM		0x17F000
-
-#define CONFIG_KM_CRAMFS_ADDR	0x2400000
-#define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 3098KBytes */
-#define CONFIG_KM_FDT_ADDR	0x23E0000	/*  128KBytes */
-
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU					\
 		"bootcountaddr=${bootcountaddr} ${mtdparts}"		\
@@ -103,13 +94,6 @@
 
 #define BOOTFLASH_START		0x0
 
-/* Kirkwood has two serial IF */
-#if (CONFIG_CONS_INDEX == 2)
-#define CONFIG_KM_CONSOLE_TTY	"ttyS1"
-#else
-#define CONFIG_KM_CONSOLE_TTY	"ttyS0"
-#endif
-
 /*
  * Other required minimal configurations
  */
@@ -124,7 +108,6 @@
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
-#define CONFIG_KM_COMMON_ETH_INIT 1 /* standard km ethernet_present for piggy */
 
 /*
  * I2C related stuff
@@ -246,11 +229,6 @@ int get_scl(void);
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 /* Do early setups now in board_init_f() */
 
-/*
- * resereved pram area at the end of memroy [hex]
- * 8Mbytes for switch + 4Kbytes for bootcount
- */
-#define CONFIG_KM_RESERVED_PRAM 0x801000
 /* address for the bootcount (taken from end of RAM) */
 #define BOOTCOUNT_ADDR          (CONFIG_KM_RESERVED_PRAM)
 

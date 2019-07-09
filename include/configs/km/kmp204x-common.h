@@ -113,20 +113,9 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* size of rootfs in RAM */
 #define CONFIG_KM_ROOTFSSIZE	0x0
-/* pseudo-non volatile RAM [hex] */
-#define CONFIG_KM_PNVRAM	0x80000
-/* physical RAM MTD size [hex] */
-#define CONFIG_KM_PHRAM		0x100000
-/* reserved pram area at the end of memory [hex]
- * u-boot reserves some memory for the MP boot page */
-#define CONFIG_KM_RESERVED_PRAM	0x1000
 /* set the default PRAM value to at least PNVRAM + PHRAM when pram env variable
  * is not valid yet, which is the case for when u-boot copies itself to RAM */
 #define CONFIG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM)>>10)
-
-#define CONFIG_KM_CRAMFS_ADDR	0x2000000
-#define CONFIG_KM_KERNEL_ADDR	0x1000000	/* max kernel size 15.5Mbytes */
-#define CONFIG_KM_FDT_ADDR	0x1F80000	/* max dtb    size  0.5Mbytes */
 
 /*
  * Local Bus Definitions
@@ -217,8 +206,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 
-#define CONFIG_KM_CONSOLE_TTY	"ttyS0"
-
 /* I2C */
 
 #define CONFIG_SYS_I2C
@@ -242,8 +229,6 @@ void set_scl(int state);
 int get_sda(void);
 int get_scl(void);
 #endif
-
-#define CONFIG_KM_IVM_BUS		1	/* I2C1 (Mux-Port 1)*/
 
 /*
  * eSPI - Enhanced SPI

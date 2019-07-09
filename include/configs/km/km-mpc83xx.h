@@ -3,8 +3,6 @@
  */
 #define BOOTFLASH_START	0xF0000000
 
-#define CONFIG_KM_CONSOLE_TTY	"ttyS0"
-
 /*
  * DDR Setup
  */
@@ -88,8 +86,6 @@
 		{0, {{I2C_MUX_PCA9547, 0x70, 2} } }, \
 		{0, {{I2C_MUX_PCA9547, 0x70, 1} } }, \
 		{1, {I2C_NULL_HOP} } }
-
-#define CONFIG_KM_IVM_BUS		2	/* I2C2 (Mux-Port 1)*/
 
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_NAND_KMETER1
