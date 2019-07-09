@@ -48,6 +48,9 @@ config ROCKCHIP_BOOT_MODE_REG
 config SYS_SOC
 	default "rk3368"
 
+config SYS_MALLOC_F_LEN
+	default 0x2000
+
 source "board/theobroma-systems/lion_rk3368/Kconfig"
 source "board/rockchip/sheep_rk3368/Kconfig"
 source "board/geekbuying/geekbox/Kconfig"
