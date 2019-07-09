@@ -71,7 +71,7 @@ config SYS_SOC
 	default "rk3399"
 
 config SYS_MALLOC_F_LEN
-	default 0x0800
+	default 0x4000
 
 config TPL_LDSCRIPT
 	default "arch/arm/mach-rockchip/u-boot-tpl-v8.lds"
