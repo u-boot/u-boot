@@ -1,3 +1,32 @@
+menu "KM ARM Options"
+	depends on ARM
+
+config KM_FPGA_CONFIG
+	bool "FPGA Configuration"
+	default n
+	help
+	  Include capability to change FPGA configuration.
+
+config KM_ENV_IS_IN_SPI_NOR
+	bool "Environment in SPI NOR"
+	default n
+	help
+	  Put the U-Boot environment in the SPI NOR flash.
+
+config KM_PIGGY4_88E6061
+	bool "Piggy via Switch 88E6061"
+	default n
+	help
+	  The Piggy4 board is connected via a Marvell 88E6061 switch.
+
+config KM_PIGGY4_88E6352
+	bool "Piggy via Switch 88E6352"
+	default n
+	help
+	  The Piggy4 board is connected via a Marvell 88E6352 switch.
+
+endmenu
+
 if TARGET_KM_KIRKWOOD
 
 config SYS_BOARD

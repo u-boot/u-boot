@@ -124,7 +124,7 @@
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
-#define CONFIG_KM_COMMON_ETH_INIT /* standard km ethernet_present for piggy */
+#define CONFIG_KM_COMMON_ETH_INIT 1 /* standard km ethernet_present for piggy */
 
 /*
  * I2C related stuff
