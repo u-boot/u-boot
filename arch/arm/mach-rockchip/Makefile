@@ -41,12 +41,6 @@ endif
 
 obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram_common.o
 
-ifndef CONFIG_ARM64
-ifeq ($(CONFIG_ROCKCHIP_RK3188)$(CONFIG_ROCKCHIP_RK322X)$(CONFIG_ROCKCHIP_RK3036)$(CONFIG_ROCKCHIP_RK3288),)
-obj-y += rk_timer.o
-endif
-endif
-
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036/
 obj-$(CONFIG_ROCKCHIP_RK3128) += rk3128/
 ifndef CONFIG_TPL_BUILD

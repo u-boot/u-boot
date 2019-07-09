@@ -12,7 +12,6 @@
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/grf_rk3128.h>
 #include <asm/arch-rockchip/boot_mode.h>
-#include <asm/arch-rockchip/timer.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -32,8 +31,6 @@ int board_late_init(void)
 int board_init(void)
 {
 	int ret = 0;
-
-	rockchip_timer_init();
 
 	ret = regulators_enable_boot_on(false);
 	if (ret) {
