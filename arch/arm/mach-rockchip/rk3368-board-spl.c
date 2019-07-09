@@ -11,6 +11,11 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/periph.h>
 
+__weak int arch_cpu_init(void)
+{
+	return 0;
+}
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -22,6 +27,7 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
+	arch_cpu_init();
 	preloader_console_init();
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
