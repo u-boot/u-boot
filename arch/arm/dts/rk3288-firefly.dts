@@ -37,7 +37,6 @@
 };
 
 &pinctrl {
-	u-boot,dm-pre-reloc;
 	act8846 {
 		pmic_vsel: pmic-vsel {
 			rockchip,pins = <7 14 RK_FUNC_GPIO &pcfg_output_low>;
@@ -58,26 +57,4 @@
 
 &pwm1 {
 	status = "okay";
-};
-
-&uart2 {
-	u-boot,dm-pre-reloc;
-	reg-shift = <2>;
-};
-
-&usb_host1 {
-	vbus-supply = <&vcc_host_5v>;
-	status = "okay";
-};
-
-&sdmmc {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio3 {
-	u-boot,dm-pre-reloc;
-};
-
-&gpio8 {
-	u-boot,dm-pre-reloc;
 };
