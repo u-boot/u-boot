@@ -70,6 +70,18 @@ config SYS_SOC
 config SYS_MALLOC_F_LEN
 	default 0x0800
 
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/u-boot-tpl-v8.lds"
+
+config TPL_MAX_SIZE
+        default 188416
+
+config TPL_STACK
+        default 0xff8effff
+
+config TPL_TEXT_BASE
+        default 0xff8c2000
+
 source "board/rockchip/evb_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
 source "board/vamrs/rock960_rk3399/Kconfig"

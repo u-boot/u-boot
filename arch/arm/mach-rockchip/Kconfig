@@ -188,22 +188,6 @@ config ROCKCHIP_RK3399
 	  and video codec support. Peripherals include Gigabit Ethernet,
 	  USB2 host and OTG, SDIO, I2S, UARTs, SPI, I2C and PWMs.
 
-if ROCKCHIP_RK3399
-
-config TPL_LDSCRIPT
-	default "arch/arm/mach-rockchip/u-boot-tpl-v8.lds"
-
-config TPL_TEXT_BASE
-        default 0xff8c2000
-
-config TPL_MAX_SIZE
-        default 188416
-
-config TPL_STACK
-        default 0xff8effff
-
-endif
-
 config ROCKCHIP_RV1108
 	bool "Support Rockchip RV1108"
 	select CPU_V7A
