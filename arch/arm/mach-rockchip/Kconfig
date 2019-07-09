@@ -182,6 +182,7 @@ config ROCKCHIP_RK3399
 	imply TPL_RAM
 	imply TPL_CLK
 	imply TPL_TINY_MEMSET
+	imply TPL_ROCKCHIP_COMMON_BOARD
 	help
 	  The Rockchip RK3399 is a ARM-based SoC with a dual-core Cortex-A72
 	  and quad-core Cortex-A53.
