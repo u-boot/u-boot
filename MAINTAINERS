@@ -606,7 +606,7 @@ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-nand-flash.git
 F:	drivers/mtd/nand/raw/
 
 NDS32
-M:	Macpaul Lin <macpaul@andestech.com>
+M:	Rick Chen <rick@andestech.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-nds32.git
 F:	arch/nds32/
