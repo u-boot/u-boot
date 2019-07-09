@@ -31,7 +31,8 @@ void board_init_f(ulong dummy)
 	 * printhex8(0x1234);
 	 * printascii("string");
 	 */
-	debug("U-Boot TPL board init\n");
+	printascii("\nU-Boot TPL "  PLAIN_VERSION " (" U_BOOT_DATE " - "
+	     U_BOOT_TIME " " U_BOOT_TZ ")\n");
 #endif
 	ret = spl_early_init();
 	if (ret) {
@@ -56,12 +57,6 @@ void board_return_to_bootrom(void)
 u32 spl_boot_device(void)
 {
 	return BOOT_DEVICE_BOOTROM;
-}
-
-void spl_board_init(void)
-{
-	puts("\nU-Boot TPL "  PLAIN_VERSION " (" U_BOOT_DATE " - "
-	     U_BOOT_TIME " " U_BOOT_TZ ")\n");
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
