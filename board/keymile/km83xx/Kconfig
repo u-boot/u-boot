@@ -38,25 +38,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 
 endif
 
-if TARGET_KMVECT1
-
-config SYS_BOARD
-	default "km83xx"
-
-config SYS_VENDOR
-	default "keymile"
-
-config SYS_CONFIG_NAME
-	default "kmvect1"
-
-config BOARD_SPECIFIC_OPTIONS # dummy
-	def_bool y
-	select ARCH_MPC8309
-	imply CMD_CRAMFS
-	imply FS_CRAMFS
-
-endif
-
 if TARGET_KMTEGR1
 
 config SYS_BOARD

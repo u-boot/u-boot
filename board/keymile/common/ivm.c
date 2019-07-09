@@ -310,11 +310,6 @@ static int ivm_populate_env(unsigned char *buf, int len)
 	/* if an offset is defined, add it */
 	process_mac(valbuf, page2, CONFIG_PIGGY_MAC_ADRESS_OFFSET, true);
 	env_set((char *)"ethaddr", (char *)valbuf);
-#ifdef CONFIG_KMVECT1
-/* KMVECT1 has two ethernet interfaces */
-	process_mac(valbuf, page2, 1, true);
-	env_set((char *)"eth1addr", (char *)valbuf);
-#endif
 #else
 /* KMTEGR1 has a special setup. eth0 has no connection to the outside and
  * gets an locally administred MAC address, eth1 is the debug interface and
