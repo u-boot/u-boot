@@ -23,7 +23,6 @@
 #include <asm/arch-rockchip/sdram_common.h>
 #include <asm/arch-rockchip/sys_proto.h>
 #include <asm/arch-rockchip/timer.h>
-#include <dm/pinctrl.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/util.h>
