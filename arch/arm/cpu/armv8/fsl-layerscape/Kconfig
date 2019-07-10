@@ -235,14 +235,6 @@ config ARCH_LX2160A
 	select ARCH_EARLY_INIT_R
 	select BOARD_EARLY_INIT_F
 	select SYS_I2C_MXC
-	select SYS_I2C_MXC_I2C1
-	select SYS_I2C_MXC_I2C2
-	select SYS_I2C_MXC_I2C3
-	select SYS_I2C_MXC_I2C4
-	select SYS_I2C_MXC_I2C5
-	select SYS_I2C_MXC_I2C6
-	select SYS_I2C_MXC_I2C7
-	select SYS_I2C_MXC_I2C8
 	imply DISTRO_DEFAULTS
 	imply PANIC_HANG
 	imply SCSI
