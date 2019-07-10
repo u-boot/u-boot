@@ -91,7 +91,6 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_table = uniphier_ld11_boot_device_table,
 		.boot_device_count = &uniphier_ld11_boot_device_count,
 		.boot_device_is_usb = uniphier_ld11_boot_device_is_usb,
-		.boot_device_fixup = uniphier_ld11_boot_device_fixup,
 		.have_internal_stm = 1,
 	},
 #endif
@@ -102,7 +101,6 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_table = uniphier_ld11_boot_device_table,
 		.boot_device_count = &uniphier_ld11_boot_device_count,
 		.boot_device_is_usb = uniphier_ld20_boot_device_is_usb,
-		.boot_device_fixup = uniphier_ld11_boot_device_fixup,
 		.have_internal_stm = 1,
 	},
 #endif
