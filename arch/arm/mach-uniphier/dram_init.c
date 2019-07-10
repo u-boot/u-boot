@@ -33,7 +33,7 @@ static int uniphier_memconf_decode(struct uniphier_dram_map *dram_map,
 	val = readl(sg_base + SG_MEMCONF);
 
 	/* set up ch0 */
-	dram_map[0].base = CONFIG_SYS_SDRAM_BASE;
+	dram_map[0].base = 0x80000000;
 
 	switch (val & SG_MEMCONF_CH0_SZ_MASK) {
 	case SG_MEMCONF_CH0_SZ_64M:
@@ -254,6 +254,9 @@ int dram_init(void)
 		}
 
 		gd->ram_size += dram_map[i].size;
+
+		if (!valid_bank_found)
+			gd->ram_base = dram_map[i].base;
 
 		prev_top = dram_map[i].base + dram_map[i].size;
 		valid_bank_found = true;
