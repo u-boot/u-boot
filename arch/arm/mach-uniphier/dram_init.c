@@ -13,6 +13,7 @@
 #include <linux/sizes.h>
 #include <asm/global_data.h>
 
+#include "init.h"
 #include "sg-regs.h"
 #include "soc-info.h"
 
@@ -271,6 +272,8 @@ int dram_init(void)
 int dram_init_banksize(void)
 {
 	struct uniphier_dram_map dram_map[3] = {};
+	unsigned long base, top;
+	bool valid_bank_found = false;
 	int ret, i;
 
 	ret = uniphier_dram_map_get(dram_map);
@@ -278,12 +281,25 @@ int dram_init_banksize(void)
 		return ret;
 
 	for (i = 0; i < ARRAY_SIZE(dram_map); i++) {
-		if (i >= ARRAY_SIZE(gd->bd->bi_dram))
-			break;
+		if (i < ARRAY_SIZE(gd->bd->bi_dram)) {
+			gd->bd->bi_dram[i].start = dram_map[i].base;
+			gd->bd->bi_dram[i].size = dram_map[i].size;
+		}
 
-		gd->bd->bi_dram[i].start = dram_map[i].base;
-		gd->bd->bi_dram[i].size = dram_map[i].size;
+		if (!dram_map[i].size)
+			continue;
+
+		if (!valid_bank_found)
+			base = dram_map[i].base;
+		top = dram_map[i].base + dram_map[i].size;
+		valid_bank_found = true;
 	}
+
+	if (!valid_bank_found)
+		return -EINVAL;
+
+	/* map all the DRAM regions */
+	uniphier_mem_map_init(base, top - base);
 
 	return 0;
 }
