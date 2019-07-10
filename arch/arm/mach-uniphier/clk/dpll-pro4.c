@@ -23,7 +23,7 @@ int uniphier_pro4_dpll_init(const struct uniphier_board_data *bd)
 	 * Set 0xc(1600MHz)/0xd(1333MHz)/0xe(1066MHz)
 	 * to FOUT ( DPLLCTRL.bit[29:20] )
 	 */
-	tmp = readl(SC_DPLLCTRL);
+	tmp = readl(sc_base + SC_DPLLCTRL);
 	tmp &= ~(0x000f0000);
 	switch (dram_freq) {
 	case 1333:
@@ -46,11 +46,11 @@ int uniphier_pro4_dpll_init(const struct uniphier_board_data *bd)
 #else
 	tmp |= 0x00008000;
 #endif
-	writel(tmp, SC_DPLLCTRL);
+	writel(tmp, sc_base + SC_DPLLCTRL);
 
-	tmp = readl(SC_DPLLCTRL2);
+	tmp = readl(sc_base + SC_DPLLCTRL2);
 	tmp |= SC_DPLLCTRL2_NRSTDS;
-	writel(tmp, SC_DPLLCTRL2);
+	writel(tmp, sc_base + SC_DPLLCTRL2);
 
 	/* Wait until dpll gets stable */
 	udelay(500);

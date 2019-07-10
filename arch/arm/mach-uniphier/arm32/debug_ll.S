@@ -63,7 +63,7 @@ ld4_end:
 	mov		r1, #1
 	str		r1, [r0]
 
-	ldr		r0, =SC_CLKCTRL
+	ldr		r0, =(SC_BASE + SC_CLKCTRL)
 	ldr		r1, [r0]
 	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 	str		r1, [r0]
@@ -104,7 +104,7 @@ sld8_end:
 	mov		r1, #1
 	str		r1, [r0]
 
-	ldr		r0, =SC_CLKCTRL
+	ldr		r0, =(SC_BASE + SC_CLKCTRL)
 	ldr		r1, [r0]
 	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 	str		r1, [r0]
@@ -129,7 +129,7 @@ pro5_end:
 	sg_set_pinsel	113, 8, 8, 4, r0, r1	@ TXD2 -> TXD2
 	sg_set_pinsel	219, 8, 8, 4, r0, r1	@ TXD3 -> TXD3
 
-	ldr		r0, =SC_CLKCTRL
+	ldr		r0, =(SC_BASE + SC_CLKCTRL)
 	ldr		r1, [r0]
 	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 	str		r1, [r0]
@@ -153,7 +153,7 @@ pxs2_end:
 	sg_set_pinsel	115, 0, 8, 4, r0, r1	@ TXD1 -> TXD1
 	sg_set_pinsel	113, 2, 8, 4, r0, r1	@ SBO0 -> TXD2
 
-	ldr		r0, =SC_CLKCTRL
+	ldr		r0, =(SC_BASE + SC_CLKCTRL)
 	ldr		r1, [r0]
 	orr		r1, r1, #SC_CLKCTRL_CEN_PERI
 	str		r1, [r0]

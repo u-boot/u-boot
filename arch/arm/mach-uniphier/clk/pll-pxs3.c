@@ -10,25 +10,25 @@
 #include "pll.h"
 
 /* PLL type: SSC */
-#define SC_CPLLCTRL	(SC_BASE_ADDR | 0x1400)	/* CPU/ARM */
-#define SC_SPLLCTRL	(SC_BASE_ADDR | 0x1410)	/* misc */
-#define SC_SPLL2CTRL	(SC_BASE_ADDR | 0x1420)	/* DSP */
-#define SC_VPPLLCTRL	(SC_BASE_ADDR | 0x1430)	/* VPE */
-#define SC_VGPLLCTRL	(SC_BASE_ADDR | 0x1440)
-#define SC_DECPLLCTRL	(SC_BASE_ADDR | 0x1450)
-#define SC_ENCPLLCTRL	(SC_BASE_ADDR | 0x1460)
-#define SC_PXFPLLCTRL	(SC_BASE_ADDR | 0x1470)
-#define SC_DPLL0CTRL	(SC_BASE_ADDR | 0x1480)	/* DDR memory 0 */
-#define SC_DPLL1CTRL	(SC_BASE_ADDR | 0x1490)	/* DDR memory 1 */
-#define SC_DPLL2CTRL	(SC_BASE_ADDR | 0x14a0)	/* DDR memory 2 */
-#define SC_VSPLLCTRL	(SC_BASE_ADDR | 0x14c0)
+#define SC_CPLLCTRL	0x1400	/* CPU/ARM */
+#define SC_SPLLCTRL	0x1410	/* misc */
+#define SC_SPLL2CTRL	0x1420	/* DSP */
+#define SC_VPPLLCTRL	0x1430	/* VPE */
+#define SC_VGPLLCTRL	0x1440
+#define SC_DECPLLCTRL	0x1450
+#define SC_ENCPLLCTRL	0x1460
+#define SC_PXFPLLCTRL	0x1470
+#define SC_DPLL0CTRL	0x1480	/* DDR memory 0 */
+#define SC_DPLL1CTRL	0x1490	/* DDR memory 1 */
+#define SC_DPLL2CTRL	0x14a0	/* DDR memory 2 */
+#define SC_VSPLLCTRL	0x14c0
 
 /* PLL type: VPLL27 */
-#define SC_VPLL27FCTRL	(SC_BASE_ADDR | 0x1500)
-#define SC_VPLL27ACTRL	(SC_BASE_ADDR | 0x1520)
+#define SC_VPLL27FCTRL	0x1500
+#define SC_VPLL27ACTRL	0x1520
 
 /* PLL type: DSPLL */
-#define SC_VPLL8KCTRL	(SC_BASE_ADDR | 0x1540)
+#define SC_VPLL8KCTRL	0x1540
 
 void uniphier_pxs3_pll_init(void)
 {

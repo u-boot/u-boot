@@ -25,9 +25,9 @@ unsigned int uniphier_pro5_debug_uart_init(void)
 
 	writel(1, sg_base + SG_LOADPINCTRL);
 
-	tmp = readl(SC_CLKCTRL);
+	tmp = readl(sc_base + SC_CLKCTRL);
 	tmp |= SC_CLKCTRL_CEN_PERI;
-	writel(tmp, SC_CLKCTRL);
+	writel(tmp, sc_base + SC_CLKCTRL);
 
 	return DIV_ROUND_CLOSEST(UNIPHIER_PRO5_UART_CLK, 16 * CONFIG_BAUDRATE);
 }
