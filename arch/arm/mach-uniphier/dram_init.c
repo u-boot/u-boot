@@ -85,7 +85,7 @@ static int uniphier_memconf_decode(struct uniphier_dram_map *dram_map)
 		return -EINVAL;
 	}
 
-	val = readl(SG_MEMCONF);
+	val = readl(sg_base + SG_MEMCONF);
 
 	/* set up ch0 */
 	dram_map[0].base = CONFIG_SYS_SDRAM_BASE;

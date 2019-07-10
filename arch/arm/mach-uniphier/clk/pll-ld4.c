@@ -16,7 +16,7 @@ static void upll_init(void)
 {
 	u32 tmp, clk_mode_upll, clk_mode_axosel;
 
-	tmp = readl(SG_PINMON0);
+	tmp = readl(sg_base + SG_PINMON0);
 	clk_mode_upll   = tmp & SG_PINMON0_CLK_MODE_UPLLSRC_MASK;
 	clk_mode_axosel = tmp & SG_PINMON0_CLK_MODE_AXOSEL_MASK;
 
@@ -56,7 +56,7 @@ static void vpll_init(void)
 {
 	u32 tmp, clk_mode_axosel;
 
-	tmp = readl(SG_PINMON0);
+	tmp = readl(sg_base + SG_PINMON0);
 	clk_mode_axosel = tmp & SG_PINMON0_CLK_MODE_AXOSEL_MASK;
 
 	/* set 1 to VPLA27WP and VPLA27WP */

@@ -139,7 +139,7 @@ static unsigned int __uniphier_boot_device_raw(
 	if (info->boot_is_swapped && info->boot_is_swapped())
 		return BOOT_DEVICE_NOR;
 
-	pinmon = readl(SG_PINMON0);
+	pinmon = readl(sg_base + SG_PINMON0);
 
 	if (info->boot_device_is_sd && info->boot_device_is_sd(pinmon))
 		return BOOT_DEVICE_MMC2;
@@ -200,7 +200,7 @@ int uniphier_have_internal_stm(void)
 
 int uniphier_boot_from_backend(void)
 {
-	return !!(readl(SG_PINMON0) & BIT(27));
+	return !!(readl(sg_base + SG_PINMON0) & BIT(27));
 }
 
 #ifndef CONFIG_SPL_BUILD
@@ -226,7 +226,7 @@ static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("Boot Swap: %s\n",
 		       info->boot_is_swapped() ? "ON" : "OFF");
 
-	pinmon = readl(SG_PINMON0);
+	pinmon = readl(sg_base + SG_PINMON0);
 
 	if (info->boot_device_is_sd)
 		printf("SD Boot:  %s\n",

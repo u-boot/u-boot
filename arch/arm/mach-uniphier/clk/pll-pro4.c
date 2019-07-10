@@ -17,7 +17,7 @@ static void vpll_init(void)
 	u32 tmp, clk_mode_axosel;
 
 	/* Set VPLL27A &  VPLL27B */
-	tmp = readl(SG_PINMON0);
+	tmp = readl(sg_base + SG_PINMON0);
 	clk_mode_axosel = tmp & SG_PINMON0_CLK_MODE_AXOSEL_MASK;
 
 	/* 25MHz or 6.25MHz is default for Pro4R, no need to set VPLLA/B */

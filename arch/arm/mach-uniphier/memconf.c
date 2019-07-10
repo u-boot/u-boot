@@ -140,7 +140,7 @@ static int __uniphier_memconf_init(const struct uniphier_board_data *bd,
 	}
 
 out:
-	writel(val, SG_MEMCONF);
+	writel(val, sg_base + SG_MEMCONF);
 
 	return 0;
 }
