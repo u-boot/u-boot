@@ -121,8 +121,8 @@
 
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"
+#define KERNEL_ADDR_R_OFFSET		"0x05100000"
 #define LINUXBOOT_ENV_SETTINGS \
-	"kernel_addr_r=0x85100000\0" \
 	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
 		"bootm $kernel_addr_r\0" \
 	"__nfsboot=run tftpboot\0"
@@ -130,17 +130,13 @@
 #ifdef CONFIG_ARM64
 #define CONFIG_BOOTFILE			"Image"
 #define LINUXBOOT_CMD			"booti"
-#define KERNEL_ADDR_R			"kernel_addr_r=0x82080000\0"
+#define KERNEL_ADDR_R_OFFSET		"0x02080000"
 #else
 #define CONFIG_BOOTFILE			"zImage"
 #define LINUXBOOT_CMD			"bootz"
-#define KERNEL_ADDR_R			"kernel_addr_r=0x80208000\0"
+#define KERNEL_ADDR_R_OFFSET		"0x00208000"
 #endif
 #define LINUXBOOT_ENV_SETTINGS \
-	"fdt_addr_r=0x85100000\0" \
-	KERNEL_ADDR_R \
-	"ramdisk_addr_r=0x86000000\0" \
-	"ramdisk_file=rootfs.cpio.gz\0" \
 	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 && " \
 		LINUXBOOT_CMD " $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
 	"tftpboot=tftpboot $kernel_addr_r $bootfile && " \
@@ -155,6 +151,10 @@
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
+	"fdt_addr_r_offset=0x05100000\0" \
+	"kernel_addr_r_offset=" KERNEL_ADDR_R_OFFSET "\0" \
+	"ramdisk_addr_r_offset=0x06000000\0" \
+	"ramdisk_file=rootfs.cpio.gz\0" \
 	"netdev=eth0\0"						\
 	"initrd_high=0xffffffffffffffff\0"			\
 	"loadaddr_offset=0x05000000\0" \

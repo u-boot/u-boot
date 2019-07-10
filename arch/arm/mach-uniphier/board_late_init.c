@@ -139,5 +139,9 @@ int board_late_init(void)
 
 	uniphier_set_env_addr("loadaddr", "loadaddr_offset");
 
+	uniphier_set_env_addr("kernel_addr_r", "kernel_addr_r_offset");
+	uniphier_set_env_addr("ramdisk_addr_r", "ramdisk_addr_r_offset");
+	uniphier_set_env_addr("fdt_addr_r", "fdt_addr_r_offset");
+
 	return 0;
 }
