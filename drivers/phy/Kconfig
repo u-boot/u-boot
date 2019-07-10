@@ -84,6 +84,12 @@ config BCM6368_USBH_PHY
 	help
 	  Support for the Broadcom MIPS BCM6368 USBH PHY.
 
+config PHY_DA8XX_USB
+	tristate "TI DA8xx USB PHY Driver"
+	depends on PHY && ARCH_DAVINCI
+	help
+	  Enable this to support the USB PHY on DA8xx SoCs.
+
 config PIPE3_PHY
 	bool "Support omap's PIPE3 PHY"
 	depends on PHY && ARCH_OMAP2PLUS
