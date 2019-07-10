@@ -56,7 +56,7 @@
 			"bootz; " \
 		"fi;\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
-		"setenv devnum ${mmcdev}; " \
+		"devnum ${mmcdev}; " \
 		"setenv devtype mmc; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${mmcdev};" \
