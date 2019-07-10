@@ -92,7 +92,10 @@ static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 	uint8_t dummy = 0;
 #endif
 
+#ifndef CONFIG_DM_I2C
 	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+#endif
+
 
 #ifdef CONFIG_SYS_FSL_DDR4
 	/*
@@ -101,6 +104,7 @@ static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 	 * To access the upper 256 bytes, we need to set EE page address to 1
 	 * See Jedec standar No. 21-C for detail
 	 */
+#ifndef CONFIG_DM_I2C
 	i2c_write(SPD_SPA0_ADDRESS, 0, 1, &dummy, 1);
 	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd, 256);
 	if (!ret) {
@@ -111,8 +115,38 @@ static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 				   (int)sizeof(generic_spd_eeprom_t) - 256));
 	}
 #else
+	struct udevice *dev;
+	int read_len = min(256, (int)sizeof(generic_spd_eeprom_t) - 256);
+
+	ret = i2c_get_chip_for_busnum(0, SPD_SPA0_ADDRESS, 1, &dev);
+	if (!ret)
+		dm_i2c_write(dev, 0, &dummy, 1);
+	ret = i2c_get_chip_for_busnum(0, i2c_address, 1, &dev);
+	if (!ret) {
+		if (!dm_i2c_read(dev, 0, (uchar *)spd, 256)) {
+			if (!i2c_get_chip_for_busnum(0, SPD_SPA1_ADDRESS,
+						     1, &dev))
+				dm_i2c_write(dev, 0, &dummy, 1);
+			if (!i2c_get_chip_for_busnum(0, i2c_address, 1, &dev))
+				ret = dm_i2c_read(dev, 0,
+						  (uchar *)((ulong)spd + 256),
+						  read_len);
+		}
+	}
+#endif
+
+#else
+
+#ifndef CONFIG_DM_I2C
 	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd,
-				sizeof(generic_spd_eeprom_t));
+			sizeof(generic_spd_eeprom_t));
+#else
+	ret = i2c_get_chip_for_busnum(0, i2c_address, 1, &dev);
+	if (!ret)
+		ret = dm_i2c_read(dev, 0, (uchar *)spd,
+				  sizeof(generic_spd_eeprom_t));
+#endif
+
 #endif
 
 	if (ret) {
