@@ -95,6 +95,11 @@ u32 get_cpu_rev(void)
 			type = MXC_CPU_MX6DP;
 	}
 	reg &= 0xff;		/* mx6 silicon revision */
+
+	/* For 6DQ, the value 0x00630005 is Silicon revision 1.3*/
+	if (((type == MXC_CPU_MX6Q) || (type == MXC_CPU_MX6D)) && (reg == 0x5))
+		reg = 0x3;
+
 	return (type << 12) | (reg + (0x10 * (major + 1)));
 }
 
