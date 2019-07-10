@@ -703,6 +703,7 @@ static int esdhc_change_pinstate(struct udevice *dev)
 	case UHS_SDR104:
 	case MMC_HS_200:
 	case MMC_HS_400:
+	case MMC_HS_400_ES:
 		ret = pinctrl_select_state(dev, "state_200mhz");
 		break;
 	default:
@@ -773,6 +774,7 @@ static int esdhc_set_timing(struct mmc *mmc)
 		writel(mixctrl, &regs->mixctrl);
 		break;
 	case MMC_HS_400:
+	case MMC_HS_400_ES:
 		mixctrl |= MIX_CTRL_DDREN | MIX_CTRL_HS400_EN;
 		writel(mixctrl, &regs->mixctrl);
 		esdhc_set_strobe_dll(mmc);
@@ -1594,12 +1596,30 @@ static int fsl_esdhc_set_ios(struct udevice *dev)
 	return esdhc_set_ios_common(priv, &plat->mmc);
 }
 
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+static int fsl_esdhc_set_enhanced_strobe(struct udevice *dev)
+{
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+	u32 m;
+
+	m = readl(&regs->mixctrl);
+	m |= MIX_CTRL_HS400_ES;
+	writel(m, &regs->mixctrl);
+
+	return 0;
+}
+#endif
+
 static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
 	.set_ios	= fsl_esdhc_set_ios,
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning	= fsl_esdhc_execute_tuning,
+#endif
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+	.set_enhanced_strobe = fsl_esdhc_set_enhanced_strobe,
 #endif
 };
 #endif
