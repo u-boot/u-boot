@@ -22,7 +22,7 @@ struct uniphier_boot_device_info {
 	const unsigned int *boot_device_count;
 	int (*boot_device_is_usb)(u32 pinmon);
 	unsigned int (*boot_device_fixup)(unsigned int mode);
-	int have_internal_stm;
+	bool have_internal_stm;
 };
 
 static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
@@ -32,7 +32,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_sel_shift = 1,
 		.boot_device_table = uniphier_ld4_boot_device_table,
 		.boot_device_count = &uniphier_ld4_boot_device_count,
-		.have_internal_stm = 1,
+		.have_internal_stm = true,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO4)
@@ -41,7 +41,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_sel_shift = 1,
 		.boot_device_table = uniphier_ld4_boot_device_table,
 		.boot_device_count = &uniphier_ld4_boot_device_count,
-		.have_internal_stm = 0,
+		.have_internal_stm = false,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_SLD8)
@@ -50,7 +50,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_sel_shift = 1,
 		.boot_device_table = uniphier_ld4_boot_device_table,
 		.boot_device_count = &uniphier_ld4_boot_device_count,
-		.have_internal_stm = 1,
+		.have_internal_stm = true,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PRO5)
@@ -59,7 +59,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_sel_shift = 1,
 		.boot_device_table = uniphier_pro5_boot_device_table,
 		.boot_device_count = &uniphier_pro5_boot_device_count,
-		.have_internal_stm = 0,
+		.have_internal_stm = false,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PXS2)
@@ -70,7 +70,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_count = &uniphier_pxs2_boot_device_count,
 		.boot_device_is_usb = uniphier_pxs2_boot_device_is_usb,
 		.boot_device_fixup = uniphier_pxs2_boot_device_fixup,
-		.have_internal_stm = 0,
+		.have_internal_stm = false,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD6B)
@@ -81,7 +81,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_count = &uniphier_pxs2_boot_device_count,
 		.boot_device_is_usb = uniphier_pxs2_boot_device_is_usb,
 		.boot_device_fixup = uniphier_pxs2_boot_device_fixup,
-		.have_internal_stm = 1,	/* STM on A-chip */
+		.have_internal_stm = true,	/* STM on A-chip */
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD11)
@@ -91,7 +91,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_table = uniphier_ld11_boot_device_table,
 		.boot_device_count = &uniphier_ld11_boot_device_count,
 		.boot_device_is_usb = uniphier_ld11_boot_device_is_usb,
-		.have_internal_stm = 1,
+		.have_internal_stm = true,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_LD20)
@@ -101,7 +101,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_table = uniphier_ld11_boot_device_table,
 		.boot_device_count = &uniphier_ld11_boot_device_count,
 		.boot_device_is_usb = uniphier_ld20_boot_device_is_usb,
-		.have_internal_stm = 1,
+		.have_internal_stm = true,
 	},
 #endif
 #if defined(CONFIG_ARCH_UNIPHIER_PXS3)
@@ -111,7 +111,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_table = uniphier_pxs3_boot_device_table,
 		.boot_device_count = &uniphier_pxs3_boot_device_count,
 		.boot_device_is_usb = uniphier_pxs3_boot_device_is_usb,
-		.have_internal_stm = 0,
+		.have_internal_stm = false,
 	},
 #endif
 };
