@@ -31,24 +31,25 @@ static void nand_denali_wp_disable(void)
 #endif
 }
 
-static int uniphier_set_fdt_file(void)
+static void uniphier_set_env_fdt_file(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	const char *compat;
 	char dtb_name[256];
 	int buf_len = sizeof(dtb_name);
+	int ret;
 
 	if (env_get("fdtfile"))
-		return 0;	/* do nothing if it is already set */
+		return;		/* do nothing if it is already set */
 
 	compat = fdt_stringlist_get(gd->fdt_blob, 0, "compatible", 0, NULL);
 	if (!compat)
-		return -EINVAL;
+		goto fail;
 
 	/* rip off the vendor prefix "socionext,"  */
 	compat = strchr(compat, ',');
 	if (!compat)
-		return -EINVAL;
+		goto fail;
 	compat++;
 
 	strncpy(dtb_name, compat, buf_len);
@@ -56,7 +57,13 @@ static int uniphier_set_fdt_file(void)
 
 	strncat(dtb_name, ".dtb", buf_len);
 
-	return env_set("fdtfile", dtb_name);
+	ret = env_set("fdtfile", dtb_name);
+	if (ret)
+		goto fail;
+
+	return;
+fail:
+	pr_warn("\"fdt_file\" environment variable was not set correctly\n");
 }
 
 int board_late_init(void)
@@ -96,8 +103,7 @@ int board_late_init(void)
 
 	printf("\n");
 
-	if (uniphier_set_fdt_file())
-		pr_warn("fdt_file environment was not set correctly\n");
+	uniphier_set_env_fdt_file();
 
 	return 0;
 }
