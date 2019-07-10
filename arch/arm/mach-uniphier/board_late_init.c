@@ -135,6 +135,8 @@ int board_late_init(void)
 
 	uniphier_set_env_fdt_file();
 
+	uniphier_set_env_addr("dram_base", NULL);
+
 	uniphier_set_env_addr("loadaddr", "loadaddr_offset");
 
 	return 0;
