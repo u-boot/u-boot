@@ -98,8 +98,7 @@
 #define CONFIG_GATEWAYIP		192.168.11.1
 #define CONFIG_NETMASK			255.255.255.0
 
-#define CONFIG_LOADADDR			0x85000000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR		0x85000000
 #define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 
 #if defined(CONFIG_ARM64)
@@ -158,6 +157,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"netdev=eth0\0"						\
 	"initrd_high=0xffffffffffffffff\0"			\
+	"loadaddr_offset=0x05000000\0" \
 	"script=boot.scr\0" \
 	"scriptaddr=0x85000000\0"				\
 	"nor_base=0x42000000\0"					\

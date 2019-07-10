@@ -66,6 +66,36 @@ fail:
 	pr_warn("\"fdt_file\" environment variable was not set correctly\n");
 }
 
+static void uniphier_set_env_addr(const char *env, const char *offset_env)
+{
+	unsigned long offset = 0;
+	const char *str;
+	char *end;
+	int ret;
+
+	if (env_get(env))
+		return;		/* do nothing if it is already set */
+
+	if (offset_env) {
+		str = env_get(offset_env);
+		if (!str)
+			goto fail;
+
+		offset = simple_strtoul(str, &end, 16);
+		if (*end)
+			goto fail;
+	}
+
+	ret = env_set_hex(env, gd->ram_base + offset);
+	if (ret)
+		goto fail;
+
+	return;
+
+fail:
+	pr_warn("\"%s\" environment variable was not set correctly\n", env);
+}
+
 int board_late_init(void)
 {
 	puts("MODE:  ");
@@ -104,6 +134,8 @@ int board_late_init(void)
 	printf("\n");
 
 	uniphier_set_env_fdt_file();
+
+	uniphier_set_env_addr("loadaddr", "loadaddr_offset");
 
 	return 0;
 }
