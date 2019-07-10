@@ -40,7 +40,6 @@
 #define CONFIG_NAND_OMAP_ECCSCHEME      OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
 #define CONFIG_SYS_NAND_U_BOOT_OFFS     0x80000
 #define CONFIG_SYS_ENV_SECT_SIZE        SZ_128K
-#define CONFIG_ENV_OFFSET               0x260000
 #define CONFIG_ENV_ADDR                 0x260000
 #define CONFIG_ENV_OVERWRITE
 /* NAND: SPL falcon mode configs */
@@ -58,9 +57,6 @@
 /* DSS Support */
 
 /* TWL4030 LED Support */
-
-/* Environment */
-#define CONFIG_ENV_SIZE                 SZ_128K
 
 #define CONFIG_PREBOOT                  "usb start"
 

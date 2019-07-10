@@ -28,7 +28,6 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB sector */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10) + \
 					2 * 1024 * 1024)
 /*

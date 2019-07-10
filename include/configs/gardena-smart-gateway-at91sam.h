@@ -43,12 +43,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
 
-/* environment organization */
-#define CONFIG_ENV_UBI_PART		"ubi"
-#define CONFIG_ENV_UBI_VOLUME		"env"
-#define CONFIG_ENV_UBI_VOLUME_REDUND	"env_r"
-#define CONFIG_ENV_SIZE			(64 << 10)
-
 /* SPL */
 #define CONFIG_SPL_MAX_SIZE		0x7000
 #define CONFIG_SPL_STACK		0x308000

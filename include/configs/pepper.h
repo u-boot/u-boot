@@ -17,8 +17,6 @@
 /* Mach type */
 #define CONFIG_MACH_TYPE		MACH_TYPE_PEPPER
 
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"bootdir=/boot\0" \

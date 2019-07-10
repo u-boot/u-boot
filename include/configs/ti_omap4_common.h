@@ -24,11 +24,6 @@
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 
 /*
- * Total Size Environment - 128k
- */
-#define CONFIG_ENV_SIZE			(128 << 10)
-
-/*
  * For the DDR timing information we can either dynamically determine
  * the timings to use or use pre-determined timings (based on using the
  * dynamic method.  Default to the static timing infomation.

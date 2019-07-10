@@ -39,7 +39,6 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
 					/* Sector */
 #define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (128 << 10))
 
@@ -179,7 +178,6 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
-#define CONFIG_ENV_OFFSET		0x260000
 #define CONFIG_ENV_ADDR			0x260000
 
 /* additions for new relocation code, must be added to all boards */

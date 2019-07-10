@@ -15,8 +15,6 @@
 
 #define CONFIG_REVISION_TAG		1
 
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-
 #define CONFIG_SYS_DEVICE_NULLDEV	1
 
 /*
@@ -63,7 +61,6 @@
 
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#define CONFIG_ENV_OFFSET		0x260000
 #define CONFIG_ENV_ADDR			0x260000
 
 #endif				/* __CONFIG_H */

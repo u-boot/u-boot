@@ -32,7 +32,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(4 << 20)
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB sector */
 
 /*
  * Hardware drivers
@@ -170,7 +169,6 @@
 #define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
 
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)
-#define CONFIG_ENV_OFFSET		0x260000
 #define CONFIG_ENV_ADDR			CONFIG_ENV_OFFSET
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1

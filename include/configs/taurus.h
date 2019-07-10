@@ -110,9 +110,7 @@
 #define CONFIG_SYS_LOAD_ADDR			0x22000000
 
 /* bootstrap in spi flash , u-boot + env + linux in nandflash */
-#define CONFIG_ENV_OFFSET		0x100000
 #define CONFIG_ENV_OFFSET_REDUND	0x180000
-#define CONFIG_ENV_SIZE		(SZ_128K)	/* 1 sector = 128 kB */
 
 #ifndef CONFIG_SPL_BUILD
 #if defined(CONFIG_BOARD_AXM)
