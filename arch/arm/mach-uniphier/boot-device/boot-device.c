@@ -7,6 +7,7 @@
 #include <common.h>
 #include <spl.h>
 #include <stdio.h>
+#include <linux/io.h>
 #include <linux/log2.h>
 
 #include "../init.h"
