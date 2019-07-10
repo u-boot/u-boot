@@ -11,7 +11,7 @@
 
 #ifndef __ASSEMBLY__
 #include <linux/compiler.h>
-#define sc_base			((void __iomem *)SC_BASE)
+extern void __iomem *sc_base;
 #endif
 
 #define SC_BASE			0x61840000

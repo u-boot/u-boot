@@ -12,8 +12,12 @@
 
 #ifndef __ASSEMBLY__
 #include <linux/compiler.h>
+#ifdef CONFIG_ARCH_UNIPHIER_V8_MULTI
+extern void __iomem *sg_base;
+#else
 #define sg_base			((void __iomem *)SG_BASE)
 #endif
+#endif /* __ASSEMBLY__ */
 
 /* Base Address */
 #define SG_BASE			0x5f800000

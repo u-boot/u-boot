@@ -13,6 +13,7 @@ else
 obj-$(CONFIG_DISPLAY_CPUINFO) += cpu-info.o
 obj-y += dram_init.o
 obj-y += board_init.o
+obj-$(CONFIG_ARCH_UNIPHIER_V8_MULTI) += base-address.o
 obj-$(CONFIG_BOARD_LATE_INIT) += board_late_init.o
 ifndef CONFIG_SYSRESET
 obj-y += reset.o
