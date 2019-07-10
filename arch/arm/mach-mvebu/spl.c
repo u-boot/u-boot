@@ -126,6 +126,9 @@ void board_init_f(ulong dummy)
 	ddr3_init();
 #endif
 
+	/* Initialize Auto Voltage Scaling */
+	mv_avs_init();
+
 	/*
 	 * Return to the BootROM to continue the Marvell xmodem
 	 * UART boot protocol. As initiated by the kwboot tool.
