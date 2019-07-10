@@ -73,7 +73,15 @@ int board_init(void)
 #if defined(CONFIG_TARGET_LS1028ARDB)
 	u8 val = I2C_MUX_CH_DEFAULT;
 
+#ifndef CONFIG_DM_I2C
 	i2c_write(I2C_MUX_PCA_ADDR_PRI, 0x0b, 1, &val, 1);
+#else
+	struct udevice *dev;
+
+	if (!i2c_get_chip_for_busnum(0, I2C_MUX_PCA_ADDR_PRI, 1, &dev))
+		dm_i2c_write(dev, 0x0b, &val, 1);
+#endif
+
 #endif
 	return 0;
 }
