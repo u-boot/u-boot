@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0+
 
-obj-					+= dummy.o
+obj-y					+= sbc-boot.o
 
 ifndef CONFIG_SPL_BUILD
 obj-y					+= sbc.o

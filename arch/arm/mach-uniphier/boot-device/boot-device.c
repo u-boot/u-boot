@@ -23,6 +23,7 @@ struct uniphier_boot_device_info {
 	const unsigned int *boot_device_count;
 	int (*boot_device_is_usb)(u32 pinmon);
 	unsigned int (*boot_device_fixup)(unsigned int mode);
+	int (*boot_is_swapped)(void);
 	bool have_internal_stm;
 };
 
@@ -33,6 +34,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_sel_shift = 1,
 		.boot_device_table = uniphier_ld4_boot_device_table,
 		.boot_device_count = &uniphier_ld4_boot_device_count,
+		.boot_is_swapped = uniphier_sbc_boot_is_swapped,
 		.have_internal_stm = true,
 	},
 #endif
@@ -42,6 +44,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_sel_shift = 1,
 		.boot_device_table = uniphier_ld4_boot_device_table,
 		.boot_device_count = &uniphier_ld4_boot_device_count,
+		.boot_is_swapped = uniphier_sbc_boot_is_swapped,
 		.have_internal_stm = false,
 	},
 #endif
@@ -51,6 +54,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_sel_shift = 1,
 		.boot_device_table = uniphier_ld4_boot_device_table,
 		.boot_device_count = &uniphier_ld4_boot_device_count,
+		.boot_is_swapped = uniphier_sbc_boot_is_swapped,
 		.have_internal_stm = true,
 	},
 #endif
@@ -60,6 +64,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_sel_shift = 1,
 		.boot_device_table = uniphier_pro5_boot_device_table,
 		.boot_device_count = &uniphier_pro5_boot_device_count,
+		.boot_is_swapped = uniphier_sbc_boot_is_swapped,
 		.have_internal_stm = false,
 	},
 #endif
@@ -71,6 +76,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_count = &uniphier_pxs2_boot_device_count,
 		.boot_device_is_usb = uniphier_pxs2_boot_device_is_usb,
 		.boot_device_fixup = uniphier_pxs2_boot_device_fixup,
+		.boot_is_swapped = uniphier_sbc_boot_is_swapped,
 		.have_internal_stm = false,
 	},
 #endif
@@ -82,6 +88,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_count = &uniphier_pxs2_boot_device_count,
 		.boot_device_is_usb = uniphier_pxs2_boot_device_is_usb,
 		.boot_device_fixup = uniphier_pxs2_boot_device_fixup,
+		.boot_is_swapped = uniphier_sbc_boot_is_swapped,
 		.have_internal_stm = true,	/* STM on A-chip */
 	},
 #endif
@@ -92,6 +99,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_table = uniphier_ld11_boot_device_table,
 		.boot_device_count = &uniphier_ld11_boot_device_count,
 		.boot_device_is_usb = uniphier_ld11_boot_device_is_usb,
+		.boot_is_swapped = uniphier_sbc_boot_is_swapped,
 		.have_internal_stm = true,
 	},
 #endif
@@ -102,6 +110,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_table = uniphier_ld11_boot_device_table,
 		.boot_device_count = &uniphier_ld11_boot_device_count,
 		.boot_device_is_usb = uniphier_ld20_boot_device_is_usb,
+		.boot_is_swapped = uniphier_sbc_boot_is_swapped,
 		.have_internal_stm = true,
 	},
 #endif
@@ -112,6 +121,7 @@ static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 		.boot_device_table = uniphier_pxs3_boot_device_table,
 		.boot_device_count = &uniphier_pxs3_boot_device_count,
 		.boot_device_is_usb = uniphier_pxs3_boot_device_is_usb,
+		.boot_is_swapped = uniphier_sbc_boot_is_swapped,
 		.have_internal_stm = false,
 	},
 #endif
@@ -125,7 +135,7 @@ static unsigned int __uniphier_boot_device_raw(
 	u32 pinmon;
 	unsigned int boot_sel;
 
-	if (boot_is_swapped())
+	if (info->boot_is_swapped && info->boot_is_swapped())
 		return BOOT_DEVICE_NOR;
 
 	pinmon = readl(SG_PINMON0);
@@ -208,7 +218,9 @@ static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("STB Micon: %s\n",
 		       uniphier_boot_from_backend() ? "OFF" : "ON");
 
-	printf("Boot Swap: %s\n", boot_is_swapped() ? "ON" : "OFF");
+	if (info->boot_is_swapped)
+		printf("Boot Swap: %s\n",
+		       info->boot_is_swapped() ? "ON" : "OFF");
 
 	pinmon = readl(SG_PINMON0);
 

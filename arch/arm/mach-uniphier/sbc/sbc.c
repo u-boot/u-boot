@@ -64,7 +64,7 @@ static void __uniphier_sbc_init(int savepin)
 		writel(SBCTRL2_ADMULTIPLX_MEM_VALUE, SBCTRL12);
 	}
 
-	if (boot_is_swapped()) {
+	if (uniphier_sbc_boot_is_swapped()) {
 		/*
 		 * Boot Swap On: boot from external NOR/SRAM
 		 * 0x42000000-0x43ffffff is a mirror of 0x40000000-0x41ffffff.
