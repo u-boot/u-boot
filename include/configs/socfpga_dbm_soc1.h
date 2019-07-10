@@ -87,7 +87,8 @@
 			"echo Running bootscript... ; "			\
 			"source ${kernel_addr_r} ; "			\
 		"fi ; "							\
-		"fi\0"
+		"fi\0"							\
+	"socfpga_legacy_reset_compat=1\0"
 
 /* The rest of the configuration is shared */
 #include <configs/socfpga_common.h>

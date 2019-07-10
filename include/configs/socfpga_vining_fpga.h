@@ -145,6 +145,7 @@
 			"run ubi_ubi ; "				\
 		"else echo \"Unsupported boot mode: \"${bootmode} ; "	\
 		"fi\0"							\
+		"socfpga_legacy_reset_compat=1\0"
 
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE

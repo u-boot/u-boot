@@ -113,7 +113,8 @@ unsigned int cm_get_qspi_controller_clk_hz(void);
 	"scriptaddr=0x02100000\0" \
 	"scriptfile=u-boot.scr\0" \
 	"fatscript=if fatload mmc 0:1 ${scriptaddr} ${scriptfile};" \
-		   "then source ${scriptaddr}; fi\0"
+		   "then source ${scriptaddr}; fi\0" \
+	"socfpga_legacy_reset_compat=1\0"
 
 /*
  * Generic Interrupt Controller Definitions
