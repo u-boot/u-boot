@@ -27,6 +27,15 @@
 	status = "okay";
 };
 
+&i2c4 {
+	status = "okay";
+
+	rtc@51 {
+		compatible = "pcf2127-rtc";
+		reg = <0x51>;
+	};
+};
+
 &sata0 {
 	status = "okay";
 };
