@@ -21,6 +21,7 @@ struct uniphier_boot_device_info {
 	unsigned int boot_device_sel_shift;
 	const struct uniphier_boot_device *boot_device_table;
 	const unsigned int *boot_device_count;
+	int (*boot_device_is_sd)(u32 pinmon);
 	int (*boot_device_is_usb)(u32 pinmon);
 	unsigned int (*boot_device_fixup)(unsigned int mode);
 	int (*boot_is_swapped)(void);
@@ -140,6 +141,9 @@ static unsigned int __uniphier_boot_device_raw(
 
 	pinmon = readl(SG_PINMON0);
 
+	if (info->boot_device_is_sd && info->boot_device_is_sd(pinmon))
+		return BOOT_DEVICE_MMC2;
+
 	if (info->boot_device_is_usb && info->boot_device_is_usb(pinmon))
 		return BOOT_DEVICE_USB;
 
@@ -223,6 +227,10 @@ static int do_pinmon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		       info->boot_is_swapped() ? "ON" : "OFF");
 
 	pinmon = readl(SG_PINMON0);
+
+	if (info->boot_device_is_sd)
+		printf("SD Boot:  %s\n",
+		       info->boot_device_is_sd(pinmon) ? "ON" : "OFF");
 
 	if (info->boot_device_is_usb)
 		printf("USB Boot:  %s\n",

@@ -68,6 +68,10 @@ int board_late_init(void)
 		printf("eMMC Boot");
 		env_set("bootdev", "emmc");
 		break;
+	case BOOT_DEVICE_MMC2:
+		printf("SD Boot");
+		env_set("bootdev", "sd");
+		break;
 	case BOOT_DEVICE_NAND:
 		printf("NAND Boot");
 		env_set("bootdev", "nand");
