@@ -8,6 +8,7 @@
 #if !defined(CONFIG_SPL_BUILD)
 
 #include <common.h>
+#include <dm.h>
 #include <environment.h>
 #include <i2c.h>
 #include <asm/io.h>
@@ -143,16 +144,39 @@ int factoryset_read_eeprom(int i2c_addr)
 	int i, pages = 0, size = 0;
 	unsigned char eeprom_buf[0x3c00], hdr[4], buf[MAX_STRING_LENGTH];
 	unsigned char *cp, *cp1;
+#if CONFIG_IS_ENABLED(DM_I2C)
+	struct udevice *bus, *dev;
+	int ret;
+#endif
 
 #if defined(CONFIG_DFU_OVER_USB)
 	factory_dat.usb_vendor_id = CONFIG_USB_GADGET_VENDOR_NUM;
 	factory_dat.usb_product_id = CONFIG_USB_GADGET_PRODUCT_NUM;
 #endif
+
+#if CONFIG_IS_ENABLED(DM_I2C)
+	ret = uclass_get_device_by_seq(UCLASS_I2C, EEPROM_I2C_BUS, &bus);
+	if (ret)
+		goto err;
+
+	ret = dm_i2c_probe(bus, i2c_addr, 0, &dev);
+	if (ret)
+		goto err;
+
+	ret = i2c_set_chip_offset_len(dev, 2);
+	if (ret)
+		goto err;
+
+	ret = dm_i2c_read(dev, EEPROM_FATORYSET_OFFSET, hdr, sizeof(hdr));
+	if (ret)
+		goto err;
+#else
 	if (i2c_probe(i2c_addr))
 		goto err;
 
 	if (i2c_read(i2c_addr, EEPROM_FATORYSET_OFFSET, 2, hdr, sizeof(hdr)))
 		goto err;
+#endif
 
 	if ((hdr[0] != 0x99) || (hdr[1] != 0x80)) {
 		printf("FactorySet is not right in eeprom.\n");
@@ -173,16 +197,33 @@ int factoryset_read_eeprom(int i2c_addr)
 	 * data after every time we got a record from eeprom
 	 */
 	debug("Read eeprom page :\n");
-	for (i = 0; i < pages; i++)
+	for (i = 0; i < pages; i++) {
+#if CONFIG_IS_ENABLED(DM_I2C)
+		ret = dm_i2c_read(dev, (OFF_PG + i) * EEPR_PG_SZ,
+				  eeprom_buf + (i * EEPR_PG_SZ), EEPR_PG_SZ);
+		if (ret)
+			goto err;
+#else
 		if (i2c_read(i2c_addr, (OFF_PG + i) * EEPR_PG_SZ, 2,
 			     eeprom_buf + (i * EEPR_PG_SZ), EEPR_PG_SZ))
 			goto err;
+#endif
+	}
 
-	if (size % EEPR_PG_SZ)
+	if (size % EEPR_PG_SZ) {
+#if CONFIG_IS_ENABLED(DM_I2C)
+		ret = dm_i2c_read(dev, (OFF_PG + pages) * EEPR_PG_SZ,
+				  eeprom_buf + (pages * EEPR_PG_SZ),
+				  size % EEPR_PG_SZ);
+		if (ret)
+			goto err;
+#else
 		if (i2c_read(i2c_addr, (OFF_PG + pages) * EEPR_PG_SZ, 2,
 			     eeprom_buf + (pages * EEPR_PG_SZ),
 			     (size % EEPR_PG_SZ)))
 			goto err;
+#endif
+	}
 
 	/* we do below just for eeprom align */
 	for (i = 0; i < size; i++)
