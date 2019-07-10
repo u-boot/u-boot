@@ -212,6 +212,8 @@ static int uniphier_dram_map_get(struct uniphier_dram_map *dram_map)
 int dram_init(void)
 {
 	struct uniphier_dram_map dram_map[3] = {};
+	bool valid_bank_found = false;
+	unsigned long prev_top;
 	int ret, i;
 
 	gd->ram_size = 0;
@@ -224,15 +226,14 @@ int dram_init(void)
 		unsigned long max_size;
 
 		if (!dram_map[i].size)
-			break;
+			continue;
 
 		/*
 		 * U-Boot relocates itself to the tail of the memory region,
 		 * but it does not expect sparse memory.  We use the first
 		 * contiguous chunk here.
 		 */
-		if (i > 0 && dram_map[i - 1].base + dram_map[i - 1].size <
-							dram_map[i].base)
+		if (valid_bank_found && prev_top < dram_map[i].base)
 			break;
 
 		/*
@@ -252,6 +253,9 @@ int dram_init(void)
 		}
 
 		gd->ram_size += dram_map[i].size;
+
+		prev_top = dram_map[i].base + dram_map[i].size;
+		valid_bank_found = true;
 	}
 
 	/*
