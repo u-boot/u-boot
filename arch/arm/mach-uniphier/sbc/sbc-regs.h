@@ -84,4 +84,6 @@ static inline int boot_is_swapped(void)
 }
 #endif
 
+int uniphier_sbc_is_enabled(void);
+
 #endif	/* ARCH_SBC_REGS_H */
