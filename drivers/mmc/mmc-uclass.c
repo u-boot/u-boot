@@ -105,6 +105,23 @@ int mmc_execute_tuning(struct mmc *mmc, uint opcode)
 }
 #endif
 
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+int dm_mmc_set_enhanced_strobe(struct udevice *dev)
+{
+	struct dm_mmc_ops *ops = mmc_get_ops(dev);
+
+	if (ops->set_enhanced_strobe)
+		return ops->set_enhanced_strobe(dev);
+
+	return -ENOTSUPP;
+}
+
+int mmc_set_enhanced_strobe(struct mmc *mmc)
+{
+	return dm_mmc_set_enhanced_strobe(mmc->dev);
+}
+#endif
+
 int mmc_of_parse(struct udevice *dev, struct mmc_config *cfg)
 {
 	int val;

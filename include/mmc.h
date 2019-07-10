@@ -65,6 +65,7 @@
 #define MMC_MODE_DDR_52MHz	MMC_CAP(MMC_DDR_52)
 #define MMC_MODE_HS200		MMC_CAP(MMC_HS_200)
 #define MMC_MODE_HS400		MMC_CAP(MMC_HS_400)
+#define MMC_MODE_HS400_ES	MMC_CAP(MMC_HS_400_ES)
 
 #define MMC_CAP_NONREMOVABLE	BIT(14)
 #define MMC_CAP_NEEDS_POLL	BIT(15)
@@ -223,6 +224,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_BOOT_BUS_WIDTH		177
 #define EXT_CSD_PART_CONF		179	/* R/W */
 #define EXT_CSD_BUS_WIDTH		183	/* R/W */
+#define EXT_CSD_STROBE_SUPPORT		184	/* R/W */
 #define EXT_CSD_HS_TIMING		185	/* R/W */
 #define EXT_CSD_REV			192	/* RO */
 #define EXT_CSD_CARD_TYPE		196	/* RO */
@@ -266,11 +268,13 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 #define EXT_CSD_DDR_BUS_WIDTH_4	5	/* Card is in 4 bit DDR mode */
 #define EXT_CSD_DDR_BUS_WIDTH_8	6	/* Card is in 8 bit DDR mode */
 #define EXT_CSD_DDR_FLAG	BIT(2)	/* Flag for DDR mode */
+#define EXT_CSD_BUS_WIDTH_STROBE BIT(7)	/* Enhanced strobe mode */
 
 #define EXT_CSD_TIMING_LEGACY	0	/* no high speed */
 #define EXT_CSD_TIMING_HS	1	/* HS */
 #define EXT_CSD_TIMING_HS200	2	/* HS200 */
 #define EXT_CSD_TIMING_HS400	3	/* HS400 */
+#define EXT_CSD_DRV_STR_SHIFT	4	/* Driver Strength shift */
 
 #define EXT_CSD_BOOT_ACK_ENABLE			(1 << 6)
 #define EXT_CSD_BOOT_PARTITION_ENABLE		(1 << 3)
@@ -457,6 +461,11 @@ struct dm_mmc_ops {
 	 * @return 0 if dat0 is in the target state, -ve on error
 	 */
 	int (*wait_dat0)(struct udevice *dev, int state, int timeout);
+
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+	/* set_enhanced_strobe() - set HS400 enhanced strobe */
+	int (*set_enhanced_strobe)(struct udevice *dev);
+#endif
 };
 
 #define mmc_get_ops(dev)        ((struct dm_mmc_ops *)(dev)->driver->ops)
@@ -475,6 +484,7 @@ int mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
 int mmc_execute_tuning(struct mmc *mmc, uint opcode);
 int mmc_wait_dat0(struct mmc *mmc, int state, int timeout);
+int mmc_set_enhanced_strobe(struct mmc *mmc);
 
 #else
 struct mmc_ops {
@@ -520,6 +530,7 @@ enum bus_mode {
 	UHS_SDR104,
 	MMC_HS_200,
 	MMC_HS_400,
+	MMC_HS_400_ES,
 	MMC_MODES_END
 };
 
@@ -536,6 +547,10 @@ static inline bool mmc_is_mode_ddr(enum bus_mode mode)
 #endif
 #if CONFIG_IS_ENABLED(MMC_HS400_SUPPORT)
 	else if (mode == MMC_HS_400)
+		return true;
+#endif
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+	else if (mode == MMC_HS_400_ES)
 		return true;
 #endif
 	else
