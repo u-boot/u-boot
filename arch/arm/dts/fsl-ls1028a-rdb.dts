@@ -37,6 +37,26 @@
 
 &i2c0 {
 	status = "okay";
+	u-boot,dm-pre-reloc;
+
+	 i2c-mux@77 {
+
+		compatible = "nxp,pca9547";
+		reg = <0x77>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		i2c@3 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x3>;
+
+			rtc@51 {
+				compatible = "pcf2127-rtc";
+				reg = <0x51>;
+			};
+		};
+	};
 };
 
 &i2c1 {
