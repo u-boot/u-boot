@@ -137,7 +137,7 @@ the '&' operator to limit the selection:
 
 You can also use -x to specifically exclude some boards. For example:
 
- buildmand arm -x nvidia,freescale,.*ball$
+  buildman arm -x nvidia,freescale,.*ball$
 
 means to build all arm boards except nvidia, freescale and anything ending
 with 'ball'.
@@ -146,7 +146,7 @@ For building specific boards you can use the --boards option, which takes a
 comma-separated list of board target names and be used multiple times on
 the command line:
 
-   buidman --boards sandbox,snow --boards
+  buildman --boards sandbox,snow --boards
 
 It is convenient to use the -n option to see what will be built based on
 the subset given. Use -v as well to get an actual list of boards.
