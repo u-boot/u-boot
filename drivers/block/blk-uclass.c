@@ -208,7 +208,11 @@ int blk_select_hwpart_devnum(enum if_type if_type, int devnum, int hwpart)
 	if (ret)
 		return ret;
 
-	return blk_select_hwpart(dev, hwpart);
+	ret = blk_select_hwpart(dev, hwpart);
+	if (!ret)
+		blkcache_invalidate(if_type, devnum);
+
+	return ret;
 }
 
 int blk_list_part(enum if_type if_type)
@@ -348,7 +352,13 @@ int blk_select_hwpart(struct udevice *dev, int hwpart)
 
 int blk_dselect_hwpart(struct blk_desc *desc, int hwpart)
 {
-	return blk_select_hwpart(desc->bdev, hwpart);
+	int ret;
+
+	ret = blk_select_hwpart(desc->bdev, hwpart);
+	if (!ret)
+		blkcache_invalidate(desc->if_type, desc->devnum);
+
+	return ret;
 }
 
 int blk_first_device(int if_type, struct udevice **devp)
