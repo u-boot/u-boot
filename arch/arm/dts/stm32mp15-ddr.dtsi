@@ -5,7 +5,7 @@
 
 / {
 	soc {
-		ddr: ddr@0x5A003000{
+		ddr: ddr@5A003000 {
 			u-boot,dm-pre-reloc;
 
 			compatible = "st,stm32mp1-ddr";

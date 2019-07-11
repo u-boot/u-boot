@@ -21,11 +21,11 @@
 		pinctrl1 = &pinctrl_z;
 	};
 
-	config {
+	clocks {
 		u-boot,dm-pre-reloc;
 	};
 
-	clocks {
+	reboot {
 		u-boot,dm-pre-reloc;
 	};
 
@@ -35,6 +35,10 @@
 };
 
 &bsec {
+	u-boot,dm-pre-proper;
+};
+
+&clk_csi {
 	u-boot,dm-pre-reloc;
 };
 
@@ -46,31 +50,11 @@
 	u-boot,dm-pre-reloc;
 };
 
-&clk_lse {
-	u-boot,dm-pre-reloc;
-};
-
 &clk_lsi {
 	u-boot,dm-pre-reloc;
 };
 
-&clk_csi {
-	u-boot,dm-pre-reloc;
-};
-
-&rcc {
-	u-boot,dm-pre-reloc;
-};
-
-&rcc_reboot {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl {
-	u-boot,dm-pre-reloc;
-};
-
-&pinctrl_z {
+&clk_lse {
 	u-boot,dm-pre-reloc;
 };
 
@@ -134,6 +118,34 @@
 	u-boot,dm-pre-reloc;
 };
 
-&iwdg2 {
+&pinctrl {
 	u-boot,dm-pre-reloc;
+};
+
+&pinctrl_z {
+	u-boot,dm-pre-reloc;
+};
+
+&pwr {
+	u-boot,dm-pre-reloc;
+};
+
+&rcc {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc1 {
+	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
+};
+
+&sdmmc2 {
+	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
+};
+
+&sdmmc3 {
+	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
+};
+
+&usbotg_hs {
+	compatible = "st,stm32mp1-hsotg", "snps,dwc2";
 };

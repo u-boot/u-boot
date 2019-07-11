@@ -194,7 +194,3 @@
 	u-boot,force-b-session-valid;
 	hnp-srp-disable;
 };
-
-&v3v3 {
-	regulator-always-on;
-};
