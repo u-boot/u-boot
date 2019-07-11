@@ -5,6 +5,8 @@
 # Creates binary images from input files controlled by a description
 #
 
+from __future__ import print_function
+
 from collections import OrderedDict
 import os
 import sys
@@ -129,12 +131,15 @@ def Binman(options, args):
 
             if options.image:
                 skip = []
-                for name, image in images.iteritems():
-                    if name not in options.image:
-                        del images[name]
+                new_images = OrderedDict()
+                for name, image in images.items():
+                    if name in options.image:
+                        new_images[name] = image
+                    else:
                         skip.append(name)
+                images = new_images
                 if skip and options.verbosity >= 2:
-                    print 'Skipping images: %s' % ', '.join(skip)
+                    print('Skipping images: %s' % ', '.join(skip))
 
             state.Prepare(images, dtb)
 
@@ -170,7 +175,7 @@ def Binman(options, args):
                 except Exception as e:
                     if options.map:
                         fname = image.WriteMap()
-                        print "Wrote map file '%s' to show errors"  % fname
+                        print("Wrote map file '%s' to show errors"  % fname)
                     raise
                 image.SetImagePos()
                 if options.update_fdt:

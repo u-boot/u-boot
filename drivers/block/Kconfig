@@ -56,6 +56,13 @@ config SPL_BLOCK_CACHE
 	help
 	  This option enables the disk-block cache in SPL
 
+config TPL_BLOCK_CACHE
+	bool "Use block device cache in TPL"
+	depends on TPL_BLK
+	default n
+	help
+	  This option enables the disk-block cache in TPL
+
 config IDE
 	bool "Support IDE controllers"
 	select HAVE_BLOCK_DEVICE

@@ -291,7 +291,9 @@ static int video_post_bind(struct udevice *dev)
 		return 0;
 	size = alloc_fb(dev, &addr);
 	if (addr < gd->video_bottom) {
-		/* Device tree node may need the 'u-boot,dm-pre-reloc' tag */
+		/* Device tree node may need the 'u-boot,dm-pre-reloc' or
+		 * 'u-boot,dm-pre-proper' tag
+		 */
 		printf("Video device '%s' cannot allocate frame buffer memory -ensure the device is set up before relocation\n",
 		       dev->name);
 		return -ENOSPC;

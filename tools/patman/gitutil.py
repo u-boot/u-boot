@@ -12,6 +12,7 @@ import terminal
 
 import checkpatch
 import settings
+import tools
 
 # True to use --no-decorate - we check this in Setup()
 use_no_decorate = True
@@ -325,6 +326,7 @@ def BuildEmailList(in_list, tag=None, alias=None, raise_on_error=True):
         raw += LookupEmail(item, alias, raise_on_error=raise_on_error)
     result = []
     for item in raw:
+        item = tools.FromUnicode(item)
         if not item in result:
             result.append(item)
     if tag:
@@ -395,11 +397,11 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
         git_config_to = command.Output('git', 'config', 'sendemail.to',
                                        raise_on_error=False)
         if not git_config_to:
-            print ("No recipient.\n"
-                   "Please add something like this to a commit\n"
-                   "Series-to: Fred Bloggs <f.blogs@napier.co.nz>\n"
-                   "Or do something like this\n"
-                   "git config sendemail.to u-boot@lists.denx.de")
+            print("No recipient.\n"
+                  "Please add something like this to a commit\n"
+                  "Series-to: Fred Bloggs <f.blogs@napier.co.nz>\n"
+                  "Or do something like this\n"
+                  "git config sendemail.to u-boot@lists.denx.de")
             return
     cc = BuildEmailList(list(set(series.get('cc')) - set(series.get('to'))),
                         '--cc', alias, raise_on_error)
@@ -410,9 +412,7 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
     if smtp_server:
         cmd.append('--smtp-server=%s' % smtp_server)
     if in_reply_to:
-        if type(in_reply_to) != str:
-            in_reply_to = in_reply_to.encode('utf-8')
-        cmd.append('--in-reply-to="%s"' % in_reply_to)
+        cmd.append('--in-reply-to="%s"' % tools.FromUnicode(in_reply_to))
     if thread:
         cmd.append('--thread')
 

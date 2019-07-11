@@ -7,6 +7,7 @@ import command
 import glob
 import os
 import shutil
+import sys
 import tempfile
 
 import tout
@@ -167,9 +168,9 @@ def PathHasFile(fname):
             return True
     return False
 
-def Run(name, *args):
+def Run(name, *args, **kwargs):
     try:
-        return command.Run(name, *args, cwd=outdir, capture=True)
+        return command.Run(name, *args, cwd=outdir, capture=True, **kwargs)
     except:
         if not PathHasFile(name):
             msg = "Plesae install tool '%s'" % name
@@ -213,7 +214,7 @@ def Filename(fname):
     # If not found, just return the standard, unchanged path
     return fname
 
-def ReadFile(fname):
+def ReadFile(fname, binary=True):
     """Read and return the contents of a file.
 
     Args:
@@ -222,7 +223,7 @@ def ReadFile(fname):
     Returns:
       data read from file, as a string.
     """
-    with open(Filename(fname), 'rb') as fd:
+    with open(Filename(fname), binary and 'rb' or 'r') as fd:
         data = fd.read()
     #self._out.Info("Read file '%s' size %d (%#0x)" %
                    #(fname, len(data), len(data)))
@@ -239,3 +240,105 @@ def WriteFile(fname, data):
                    #(fname, len(data), len(data)))
     with open(Filename(fname), 'wb') as fd:
         fd.write(data)
+
+def GetBytes(byte, size):
+    """Get a string of bytes of a given size
+
+    This handles the unfortunate different between Python 2 and Python 2.
+
+    Args:
+        byte: Numeric byte value to use
+        size: Size of bytes/string to return
+
+    Returns:
+        A bytes type with 'byte' repeated 'size' times
+    """
+    if sys.version_info[0] >= 3:
+        data = bytes([byte]) * size
+    else:
+        data = chr(byte) * size
+    return data
+
+def ToUnicode(val):
+    """Make sure a value is a unicode string
+
+    This allows some amount of compatibility between Python 2 and Python3. For
+    the former, it returns a unicode object.
+
+    Args:
+        val: string or unicode object
+
+    Returns:
+        unicode version of val
+    """
+    if sys.version_info[0] >= 3:
+        return val
+    return val if isinstance(val, unicode) else val.decode('utf-8')
+
+def FromUnicode(val):
+    """Make sure a value is a non-unicode string
+
+    This allows some amount of compatibility between Python 2 and Python3. For
+    the former, it converts a unicode object to a string.
+
+    Args:
+        val: string or unicode object
+
+    Returns:
+        non-unicode version of val
+    """
+    if sys.version_info[0] >= 3:
+        return val
+    return val if isinstance(val, str) else val.encode('utf-8')
+
+def ToByte(ch):
+    """Convert a character to an ASCII value
+
+    This is useful because in Python 2 bytes is an alias for str, but in
+    Python 3 they are separate types. This function converts the argument to
+    an ASCII value in either case.
+
+    Args:
+        ch: A string (Python 2) or byte (Python 3) value
+
+    Returns:
+        integer ASCII value for ch
+    """
+    return ord(ch) if type(ch) == str else ch
+
+def ToChar(byte):
+    """Convert a byte to a character
+
+    This is useful because in Python 2 bytes is an alias for str, but in
+    Python 3 they are separate types. This function converts an ASCII value to
+    a value with the appropriate type in either case.
+
+    Args:
+        byte: A byte or str value
+    """
+    return chr(byte) if type(byte) != str else byte
+
+def ToChars(byte_list):
+    """Convert a list of bytes to a str/bytes type
+
+    Args:
+        byte_list: List of ASCII values representing the string
+
+    Returns:
+        string made by concatenating all the ASCII values
+    """
+    return ''.join([chr(byte) for byte in byte_list])
+
+def ToBytes(string):
+    """Convert a str type into a bytes type
+
+    Args:
+        string: string to convert value
+
+    Returns:
+        Python 3: A bytes type
+        Python 2: A string type
+    """
+    if sys.version_info[0] >= 3:
+        return string.encode('utf-8')
+    return string

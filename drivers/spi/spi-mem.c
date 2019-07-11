@@ -201,7 +201,6 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	unsigned int pos = 0;
 	const u8 *tx_buf = NULL;
 	u8 *rx_buf = NULL;
-	u8 *op_buf;
 	int op_len;
 	u32 flag;
 	int ret;
@@ -338,7 +337,17 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	}
 
 	op_len = sizeof(op->cmd.opcode) + op->addr.nbytes + op->dummy.nbytes;
-	op_buf = calloc(1, op_len);
+
+	/*
+	 * Avoid using malloc() here so that we can use this code in SPL where
+	 * simple malloc may be used. That implementation does not allow free()
+	 * so repeated calls to this code can exhaust the space.
+	 *
+	 * The value of op_len is small, since it does not include the actual
+	 * data being sent, only the op-code and address. In fact, it should be
+	 * possible to just use a small fixed value here instead of op_len.
+	 */
+	u8 op_buf[op_len];
 
 	op_buf[pos++] = op->cmd.opcode;
 
@@ -381,8 +390,6 @@ int spi_mem_exec_op(struct spi_slave *slave, const struct spi_mem_op *op)
 	for (i = 0; i < op->data.nbytes; i++)
 		debug("%02x ", tx_buf ? tx_buf[i] : rx_buf[i]);
 	debug("[ret %d]\n", ret);
-
-	free(op_buf);
 
 	if (ret < 0)
 		return ret;

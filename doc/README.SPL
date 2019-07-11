@@ -66,6 +66,22 @@ CONFIG_SPL_SPI_LOAD (drivers/mtd/spi/spi_spl_load.o)
 CONFIG_SPL_RAM_DEVICE (common/spl/spl.c)
 CONFIG_SPL_WATCHDOG_SUPPORT (drivers/watchdog/libwatchdog.o)
 
+Device tree
+-----------
+The U-Boot device tree is filtered by the fdtgrep tools during the build
+process to generate a much smaller device tree used in SPL (spl/u-boot-spl.dtb)
+with:
+- the mandatory nodes (/alias, /chosen, /config)
+- the nodes with one pre-relocation property:
+  'u-boot,dm-pre-reloc' or 'u-boot,dm-spl'
+
+ftgrep is also used to remove:
+- the properties defined in CONFIG_OF_SPL_REMOVE_PROPS
+- all the pre-relocation properties
+  ('u-boot,dm-pre-reloc', 'u-boot,dm-spl' and 'u-boot,dm-tpl')
+
+All the nodes remaining in the SPL devicetree are bound
+(see driver-model/README.txt).
 
 Debugging
 ---------

@@ -59,7 +59,7 @@ def GetSymbols(fname, patterns):
                                 flags[1] == 'w')
 
     # Sort dict by address
-    return OrderedDict(sorted(syms.iteritems(), key=lambda x: x[1].address))
+    return OrderedDict(sorted(syms.items(), key=lambda x: x[1].address))
 
 def GetSymbolAddress(fname, sym_name):
     """Get a value of a symbol from an ELF file
@@ -98,7 +98,7 @@ def LookupAndWriteSymbols(elf_fname, entry, section):
     base = syms.get('__image_copy_start')
     if not base:
         return
-    for name, sym in syms.iteritems():
+    for name, sym in syms.items():
         if name.startswith('_binman'):
             msg = ("Section '%s': Symbol '%s'\n   in entry '%s'" %
                    (section.GetPath(), name, entry.GetPath()))

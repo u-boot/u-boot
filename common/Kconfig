@@ -69,6 +69,13 @@ config SPL_BOOTSTAGE_RECORD_COUNT
 	  This is the size of the bootstage record list and is the maximum
 	  number of bootstage records that can be recorded.
 
+config TPL_BOOTSTAGE_RECORD_COUNT
+	int "Number of boot stage records to store for TPL"
+	default 5
+	help
+	  This is the size of the bootstage record list and is the maximum
+	  number of bootstage records that can be recorded.
+
 config BOOTSTAGE_FDT
 	bool "Store boot timing information in the OS device tree"
 	depends on BOOTSTAGE

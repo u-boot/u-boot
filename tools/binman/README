@@ -702,6 +702,20 @@ To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
    $ sudo apt-get install python-coverage python-pytest
 
 
+Concurrent tests
+----------------
+
+Binman tries to run tests concurrently. This means that the tests make use of
+all available CPUs to run.
+
+ To enable this:
+
+   $ sudo apt-get install python-subunit python3-subunit
+
+Use '-P 1' to disable this. It is automatically disabled when code coverage is
+being used (-T) since they are incompatible.
+
+
 Advanced Features / Technical docs
 ----------------------------------
 

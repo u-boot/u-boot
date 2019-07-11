@@ -7,7 +7,6 @@
 
 import hashlib
 import re
-from sets import Set
 
 import os
 import tools
@@ -24,10 +23,10 @@ entry_args = {}
 use_fake_dtb = False
 
 # Set of all device tree files references by images
-fdt_set = Set()
+fdt_set = set()
 
 # Same as above, but excluding the main one
-fdt_subset = Set()
+fdt_subset = set()
 
 # The DTB which contains the full image information
 main_dtb = None
@@ -136,7 +135,7 @@ def Prepare(images, dtb):
     main_dtb = dtb
     fdt_files.clear()
     fdt_files['u-boot.dtb'] = dtb
-    fdt_subset = Set()
+    fdt_subset = set()
     if not use_fake_dtb:
         for image in images.values():
             fdt_subset.update(image.GetFdtSet())

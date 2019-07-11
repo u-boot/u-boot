@@ -1341,10 +1341,56 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t phys_addr,
 	return bus_addr;
 }
 
+static void *dm_pci_map_ea_bar(struct udevice *dev, int bar, int flags,
+			       int ea_off)
+{
+	int ea_cnt, i, entry_size;
+	int bar_id = (bar - PCI_BASE_ADDRESS_0) >> 2;
+	u32 ea_entry;
+	phys_addr_t addr;
+
+	/* EA capability structure header */
+	dm_pci_read_config32(dev, ea_off, &ea_entry);
+	ea_cnt = (ea_entry >> 16) & PCI_EA_NUM_ENT_MASK;
+	ea_off += PCI_EA_FIRST_ENT;
+
+	for (i = 0; i < ea_cnt; i++, ea_off += entry_size) {
+		/* Entry header */
+		dm_pci_read_config32(dev, ea_off, &ea_entry);
+		entry_size = ((ea_entry & PCI_EA_ES) + 1) << 2;
+
+		if (((ea_entry & PCI_EA_BEI) >> 4) != bar_id)
+			continue;
+
+		/* Base address, 1st DW */
+		dm_pci_read_config32(dev, ea_off + 4, &ea_entry);
+		addr = ea_entry & PCI_EA_FIELD_MASK;
+		if (ea_entry & PCI_EA_IS_64) {
+			/* Base address, 2nd DW, skip over 4B MaxOffset */
+			dm_pci_read_config32(dev, ea_off + 12, &ea_entry);
+			addr |= ((u64)ea_entry) << 32;
+		}
+
+		/* size ignored for now */
+		return map_physmem(addr, flags, 0);
+	}
+
+	return 0;
+}
+
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags)
 {
 	pci_addr_t pci_bus_addr;
 	u32 bar_response;
+	int ea_off;
+
+	/*
+	 * if the function supports Enhanced Allocation use that instead of
+	 * BARs
+	 */
+	ea_off = dm_pci_find_capability(dev, PCI_CAP_ID_EA);
+	if (ea_off)
+		return dm_pci_map_ea_bar(dev, bar, flags, ea_off);
 
 	/* read BAR address */
 	dm_pci_read_config32(dev, bar, &bar_response);
@@ -1446,6 +1492,30 @@ int dm_pci_find_next_ext_capability(struct udevice *dev, int start, int cap)
 int dm_pci_find_ext_capability(struct udevice *dev, int cap)
 {
 	return dm_pci_find_next_ext_capability(dev, 0, cap);
+}
+
+int dm_pci_flr(struct udevice *dev)
+{
+	int pcie_off;
+	u32 cap;
+
+	/* look for PCI Express Capability */
+	pcie_off = dm_pci_find_capability(dev, PCI_CAP_ID_EXP);
+	if (!pcie_off)
+		return -ENOENT;
+
+	/* check FLR capability */
+	dm_pci_read_config32(dev, pcie_off + PCI_EXP_DEVCAP, &cap);
+	if (!(cap & PCI_EXP_DEVCAP_FLR))
+		return -ENOENT;
+
+	dm_pci_clrset_config16(dev, pcie_off + PCI_EXP_DEVCTL, 0,
+			       PCI_EXP_DEVCTL_BCR_FLR);
+
+	/* wait 100ms, per PCI spec */
+	mdelay(100);
+
+	return 0;
 }
 
 UCLASS_DRIVER(pci) = {

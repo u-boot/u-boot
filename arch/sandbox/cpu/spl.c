@@ -12,6 +12,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* SPL / TPL init function */
 void board_init_f(ulong flag)
 {
 	struct sandbox_state *state = state_get_current();
@@ -44,7 +45,7 @@ static int spl_board_load_image(struct spl_image_info *spl_image,
 
 	return 0;
 }
-SPL_LOAD_IMAGE_METHOD("sandbox", 0, BOOT_DEVICE_BOARD, spl_board_load_image);
+SPL_LOAD_IMAGE_METHOD("sandbox", 9, BOOT_DEVICE_BOARD, spl_board_load_image);
 
 void spl_board_init(void)
 {

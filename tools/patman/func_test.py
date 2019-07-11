@@ -12,15 +12,20 @@ import sys
 import tempfile
 import unittest
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import gitutil
 import patchstream
 import settings
+import tools
 
 
 @contextlib.contextmanager
 def capture():
     import sys
-    from cStringIO import StringIO
     oldout,olderr = sys.stdout, sys.stderr
     try:
         out=[StringIO(), StringIO()]
@@ -124,10 +129,10 @@ class TestFunctional(unittest.TestCase):
         """
         process_tags = True
         ignore_bad_tags = True
-        stefan = u'Stefan Brüns <stefan.bruens@rwth-aachen.de>'
+        stefan = b'Stefan Br\xc3\xbcns <stefan.bruens@rwth-aachen.de>'.decode('utf-8')
         rick = 'Richard III <richard@palace.gov>'
-        mel = u'Lord Mëlchett <clergy@palace.gov>'
-        ed = u'Lond Edmund Blackaddër <weasel@blackadder.org'
+        mel = b'Lord M\xc3\xablchett <clergy@palace.gov>'.decode('utf-8')
+        ed = b'Lond Edmund Blackadd\xc3\xabr <weasel@blackadder.org'.decode('utf-8')
         fred = 'Fred Bloggs <f.bloggs@napier.net>'
         add_maintainers = [stefan, rick]
         dry_run = True
@@ -159,7 +164,6 @@ class TestFunctional(unittest.TestCase):
         os.remove(cc_file)
 
         lines = out[0].splitlines()
-        #print '\n'.join(lines)
         self.assertEqual('Cleaned %s patches' % len(series.commits), lines[0])
         self.assertEqual('Change log missing for v2', lines[1])
         self.assertEqual('Change log missing for v3', lines[2])
@@ -174,27 +178,30 @@ class TestFunctional(unittest.TestCase):
             while 'Cc:' in lines[line]:
                 line += 1
         self.assertEqual('To:	  u-boot@lists.denx.de', lines[line])
-        self.assertEqual('Cc:	  %s' % stefan.encode('utf-8'), lines[line + 1])
+        self.assertEqual('Cc:	  %s' % tools.FromUnicode(stefan),
+                         lines[line + 1])
         self.assertEqual('Version:  3', lines[line + 2])
         self.assertEqual('Prefix:\t  RFC', lines[line + 3])
         self.assertEqual('Cover: 4 lines', lines[line + 4])
         line += 5
-        self.assertEqual('      Cc:  %s' % mel.encode('utf-8'), lines[line + 0])
-        self.assertEqual('      Cc:  %s' % rick, lines[line + 1])
-        self.assertEqual('      Cc:  %s' % fred, lines[line + 2])
-        self.assertEqual('      Cc:  %s' % ed.encode('utf-8'), lines[line + 3])
+        self.assertEqual('      Cc:  %s' % fred, lines[line + 0])
+        self.assertEqual('      Cc:  %s' % tools.FromUnicode(ed),
+                         lines[line + 1])
+        self.assertEqual('      Cc:  %s' % tools.FromUnicode(mel),
+                         lines[line + 2])
+        self.assertEqual('      Cc:  %s' % rick, lines[line + 3])
         expected = ('Git command: git send-email --annotate '
                     '--in-reply-to="%s" --to "u-boot@lists.denx.de" '
                     '--cc "%s" --cc-cmd "%s --cc-cmd %s" %s %s'
                     % (in_reply_to, stefan, sys.argv[0], cc_file, cover_fname,
-                       ' '.join(args))).encode('utf-8')
+                       ' '.join(args)))
         line += 4
-        self.assertEqual(expected, lines[line])
+        self.assertEqual(expected, tools.ToUnicode(lines[line]))
 
-        self.assertEqual(('%s %s, %s' % (args[0], rick, stefan))
-                         .encode('utf-8'), cc_lines[0])
-        self.assertEqual(('%s %s, %s, %s, %s' % (args[1], fred, rick, stefan,
-                                            ed)).encode('utf-8'), cc_lines[1])
+        self.assertEqual(('%s %s, %s' % (args[0], rick, stefan)),
+                         tools.ToUnicode(cc_lines[0]))
+        self.assertEqual(('%s %s, %s, %s, %s' % (args[1], fred, ed, rick,
+                                     stefan)), tools.ToUnicode(cc_lines[1]))
 
         expected = '''
 This is a test of how the cover
@@ -223,7 +230,6 @@ Simon Glass (2):
 
 '''
         lines = open(cover_fname).read().splitlines()
-        #print '\n'.join(lines)
         self.assertEqual(
                 'Subject: [RFC PATCH v3 0/2] test: A test patch series',
                 lines[3])
@@ -231,7 +237,6 @@ Simon Glass (2):
 
         for i, fname in enumerate(args):
             lines = open(fname).read().splitlines()
-            #print '\n'.join(lines)
             subject = [line for line in lines if line.startswith('Subject')]
             self.assertEqual('Subject: [RFC %d/%d]' % (i + 1, count),
                              subject[0][:18])

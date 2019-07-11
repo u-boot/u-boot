@@ -18,7 +18,6 @@ except:
     have_importlib = False
 
 import os
-from sets import Set
 import sys
 
 import fdt_util
@@ -178,8 +177,8 @@ class Entry(object):
         # It would be better to use isinstance(self, Entry_blob_dtb) here but
         # we cannot access Entry_blob_dtb
         if fname and fname.endswith('.dtb'):
-            return Set([fname])
-        return Set()
+            return set([fname])
+        return set()
 
     def ExpandEntries(self):
         pass

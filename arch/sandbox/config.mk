@@ -5,14 +5,15 @@ PLATFORM_CPPFLAGS += -D__SANDBOX__ -U_FORTIFY_SOURCE
 PLATFORM_CPPFLAGS += -DCONFIG_ARCH_MAP_SYSMEM
 PLATFORM_CPPFLAGS += -fPIC
 PLATFORM_LIBS += -lrt
+SDL_CONFIG ?= sdl-config
 
 # Define this to avoid linking with SDL, which requires SDL libraries
 # This can solve 'sdl-config: Command not found' errors
 ifneq ($(NO_SDL),)
 PLATFORM_CPPFLAGS += -DSANDBOX_NO_SDL
 else
-PLATFORM_LIBS += $(shell sdl-config --libs)
-PLATFORM_CPPFLAGS += $(shell sdl-config --cflags)
+PLATFORM_LIBS += $(shell $(SDL_CONFIG) --libs)
+PLATFORM_CPPFLAGS += $(shell $(SDL_CONFIG) --cflags)
 endif
 
 cmd_u-boot__ = $(CC) -o $@ -Wl,-T u-boot.lds $(u-boot-init) \

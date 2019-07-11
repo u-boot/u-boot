@@ -60,7 +60,7 @@ class Entry_blob(Entry):
             except AttributeError:
                 data = lz4.compress(data)
             '''
-            data = tools.Run('lz4', '-c', self._pathname)
+            data = tools.Run('lz4', '-c', self._pathname, binary=True)
         self.SetContents(data)
         return True
 

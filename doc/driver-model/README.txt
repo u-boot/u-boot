@@ -849,6 +849,10 @@ in the device tree node. For U-Boot proper you can use 'u-boot,dm-pre-proper'
 which means that it will be processed (and a driver bound) in U-Boot proper
 prior to relocation, but will not be available in SPL or TPL.
 
+To reduce the size of SPL and TPL, only the nodes with pre-relocation properties
+('u-boot,dm-pre-reloc', 'u-boot,dm-spl' or 'u-boot,dm-tpl') are keept in their
+device trees (see README.SPL for details); the remaining nodes are always bound.
+
 Then post relocation we throw that away and re-init driver model again.
 For drivers which require some sort of continuity between pre- and
 post-relocation devices, we can provide access to the pre-relocation

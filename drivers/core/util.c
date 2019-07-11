@@ -42,6 +42,8 @@ bool dm_ofnode_pre_reloc(ofnode node)
 #else
 	if (ofnode_read_bool(node, "u-boot,dm-pre-reloc"))
 		return true;
+	if (ofnode_read_bool(node, "u-boot,dm-pre-proper"))
+		return true;
 
 	/*
 	 * In regular builds individual spl and tpl handling both

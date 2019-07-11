@@ -192,6 +192,13 @@ config TRACE_BUFFER_SIZE
 	  the size is too small then 'trace stats' will show a message saying
 	  how many records were dropped due to buffer overflow.
 
+config TRACE_CALL_DEPTH_LIMIT
+	int "Trace call depth limit"
+	depends on TRACE
+	default 15
+	help
+	  Sets the maximum call depth up to which function calls are recorded.
+
 config TRACE_EARLY
 	bool "Enable tracing before relocation"
 	depends on TRACE
@@ -208,6 +215,14 @@ config TRACE_EARLY_SIZE
 	help
 	  Sets the size of the early trace buffer in bytes. This is used to hold
 	  tracing information before relocation.
+
+config TRACE_EARLY_CALL_DEPTH_LIMIT
+	int "Early trace call depth limit"
+	depends on TRACE_EARLY
+	default 200
+	help
+	  Sets the maximum call depth up to which function calls are recorded
+	  during early tracing.
 
 config TRACE_EARLY_ADDR
 	hex "Address of early trace buffer in U-Boot"

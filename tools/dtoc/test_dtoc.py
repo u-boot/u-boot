@@ -8,6 +8,8 @@ This includes unit tests for some functions and functional tests for the dtoc
 tool.
 """
 
+from __future__ import print_function
+
 import collections
 import os
 import struct
@@ -97,7 +99,7 @@ class TestDtoc(unittest.TestCase):
         if expected != actual:
             self._WritePythonString('/tmp/binman.expected', expected)
             self._WritePythonString('/tmp/binman.actual', actual)
-            print 'Failures written to /tmp/binman.{expected,actual}'
+            print('Failures written to /tmp/binman.{expected,actual}')
         self.assertEquals(expected, actual)
 
     def test_name(self):
@@ -197,16 +199,16 @@ struct dtd_sandbox_spl_test_2 {
             data = infile.read()
         self._CheckStrings(C_HEADER + '''
 static const struct dtd_sandbox_spl_test dtv_spl_test = {
+\t.boolval\t\t= true,
 \t.bytearray\t\t= {0x6, 0x0, 0x0},
 \t.byteval\t\t= 0x5,
+\t.intarray\t\t= {0x2, 0x3, 0x4, 0x0},
 \t.intval\t\t\t= 0x1,
-\t.notstring\t\t= {0x20, 0x21, 0x22, 0x10, 0x0},
 \t.longbytearray\t\t= {0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10,
 \t\t0x11},
-\t.stringval\t\t= "message",
-\t.boolval\t\t= true,
-\t.intarray\t\t= {0x2, 0x3, 0x4, 0x0},
+\t.notstring\t\t= {0x20, 0x21, 0x22, 0x10, 0x0},
 \t.stringarray\t\t= {"multi-word", "message", ""},
+\t.stringval\t\t= "message",
 };
 U_BOOT_DEVICE(spl_test) = {
 \t.name\t\t= "sandbox_spl_test",
@@ -217,12 +219,12 @@ U_BOOT_DEVICE(spl_test) = {
 static const struct dtd_sandbox_spl_test dtv_spl_test2 = {
 \t.bytearray\t\t= {0x1, 0x23, 0x34},
 \t.byteval\t\t= 0x8,
+\t.intarray\t\t= {0x5, 0x0, 0x0, 0x0},
 \t.intval\t\t\t= 0x3,
 \t.longbytearray\t\t= {0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 \t\t0x0},
-\t.stringval\t\t= "message2",
-\t.intarray\t\t= {0x5, 0x0, 0x0, 0x0},
 \t.stringarray\t\t= {"another", "multi-word", "message"},
+\t.stringval\t\t= "message2",
 };
 U_BOOT_DEVICE(spl_test2) = {
 \t.name\t\t= "sandbox_spl_test",

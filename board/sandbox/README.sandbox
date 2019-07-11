@@ -435,6 +435,27 @@ board_init_f() and board_init_r().
 This approach can be used on normal boards as well as sandbox.
 
 
+SDL_CONFIG
+----------
+
+If sdl-config is on a different path from the default, set the SDL_CONFIG
+environment variable to the correct pathname before building U-Boot.
+
+
+Using valgrind / memcheck
+-------------------------
+
+It is possible to run U-Boot under valgrind to check memory allocations:
+
+   valgrind u-boot
+
+If you are running sandbox SPL or TPL, then valgrind will not by default
+notice when U-Boot jumps from TPL to SPL, or from SPL to U-Boot proper. To
+fix this, use:
+
+   valgrind --trace-children=yes u-boot
+
+
 Testing
 -------
 

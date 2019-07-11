@@ -11,6 +11,7 @@ import get_maintainer
 import gitutil
 import settings
 import terminal
+import tools
 
 # Series-xxx tags that we understand
 valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
@@ -114,16 +115,16 @@ class Series(dict):
             commit = self.commits[upto]
             print(col.Color(col.GREEN, '   %s' % args[upto]))
             cc_list = list(self._generated_cc[commit.patch])
-            for email in set(cc_list) - to_set - cc_set:
+            for email in sorted(set(cc_list) - to_set - cc_set):
                 if email == None:
                     email = col.Color(col.YELLOW, "<alias '%s' not found>"
                             % tag)
                 if email:
                     print('      Cc: ', email)
         print
-        for item in to_set:
+        for item in sorted(to_set):
             print('To:\t ', item)
-        for item in cc_set - to_set:
+        for item in sorted(cc_set - to_set):
             print('Cc:\t ', item)
         print('Version: ', self.get('version'))
         print('Prefix:\t ', self.get('prefix'))
@@ -131,7 +132,7 @@ class Series(dict):
             print('Cover: %d lines' % len(self.cover))
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
             all_ccs = itertools.chain(cover_cc, *self._generated_cc.values())
-            for email in set(all_ccs) - to_set - cc_set:
+            for email in sorted(set(all_ccs) - to_set - cc_set):
                     print('      Cc: ', email)
         if cmd:
             print('Git command: %s' % cmd)
@@ -238,19 +239,18 @@ class Series(dict):
             for x in set(cc) & set(settings.bounces):
                 print(col.Color(col.YELLOW, 'Skipping "%s"' % x))
             cc = set(cc) - set(settings.bounces)
-            cc = [m.encode('utf-8') if type(m) != str else m for m in cc]
+            cc = [tools.FromUnicode(m) for m in cc]
             if limit is not None:
                 cc = cc[:limit]
             all_ccs += cc
-            print(commit.patch, ', '.join(set(cc)), file=fd)
+            print(commit.patch, ', '.join(sorted(set(cc))), file=fd)
             self._generated_cc[commit.patch] = cc
 
         if cover_fname:
             cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
-            cover_cc = [m.encode('utf-8') if type(m) != str else m
-                        for m in cover_cc]
-            cc_list = ', '.join([x.decode('utf-8')
-                                 for x in set(cover_cc + all_ccs)])
+            cover_cc = [tools.FromUnicode(m) for m in cover_cc]
+            cc_list = ', '.join([tools.ToUnicode(x)
+                                 for x in sorted(set(cover_cc + all_ccs))])
             print(cover_fname, cc_list.encode('utf-8'), file=fd)
 
         fd.close()

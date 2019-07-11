@@ -30,8 +30,7 @@ static int get_args(int argc, char * const argv[], char **buff,
 
 static int create_func_list(int argc, char * const argv[])
 {
-	size_t buff_size, avail, buff_ptr, used;
-	unsigned int needed;
+	size_t buff_size, avail, buff_ptr, needed, used;
 	char *buff;
 	int err;
 
@@ -41,7 +40,7 @@ static int create_func_list(int argc, char * const argv[])
 	avail = buff_size - buff_ptr;
 	err = trace_list_functions(buff + buff_ptr, avail, &needed);
 	if (err)
-		printf("Error: truncated (%#x bytes needed)\n", needed);
+		printf("Error: truncated (%#zx bytes needed)\n", needed);
 	used = min(avail, (size_t)needed);
 	printf("Function trace dumped to %08lx, size %#zx\n",
 	       (ulong)map_to_sysmem(buff + buff_ptr), used);
@@ -54,8 +53,7 @@ static int create_func_list(int argc, char * const argv[])
 
 static int create_call_list(int argc, char * const argv[])
 {
-	size_t buff_size, avail, buff_ptr, used;
-	unsigned int needed;
+	size_t buff_size, avail, buff_ptr, needed, used;
 	char *buff;
 	int err;
 
@@ -65,7 +63,7 @@ static int create_call_list(int argc, char * const argv[])
 	avail = buff_size - buff_ptr;
 	err = trace_list_calls(buff + buff_ptr, avail, &needed);
 	if (err)
-		printf("Error: truncated (%#x bytes needed)\n", needed);
+		printf("Error: truncated (%#zx bytes needed)\n", needed);
 	used = min(avail, (size_t)needed);
 	printf("Call list dumped to %08lx, size %#zx\n",
 	       (ulong)map_to_sysmem(buff + buff_ptr), used);

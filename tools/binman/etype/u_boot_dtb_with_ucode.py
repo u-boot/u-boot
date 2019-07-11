@@ -26,7 +26,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
     """
     def __init__(self, section, etype, node):
         Entry_blob_dtb.__init__(self, section, etype, node)
-        self.ucode_data = ''
+        self.ucode_data = b''
         self.collate = False
         self.ucode_offset = None
         self.ucode_size = None
@@ -65,7 +65,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
         for node in self.ucode.subnodes:
             data_prop = node.props.get('data')
             if data_prop:
-                self.ucode_data += ''.join(data_prop.bytes)
+                self.ucode_data += data_prop.bytes
                 if self.collate:
                     node.DeleteProp('data')
         return True

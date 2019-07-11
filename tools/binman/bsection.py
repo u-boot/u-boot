@@ -8,7 +8,6 @@
 from __future__ import print_function
 
 from collections import OrderedDict
-from sets import Set
 import sys
 
 import fdt_util
@@ -109,7 +108,7 @@ class Section(object):
 
     def GetFdtSet(self):
         """Get the set of device tree files used by this image"""
-        fdt_set = Set()
+        fdt_set = set()
         for entry in self._entries.values():
             fdt_set.update(entry.GetFdtSet())
         return fdt_set
@@ -254,7 +253,7 @@ class Section(object):
         """
         for entry in self._entries.values():
             offset_dict = entry.GetOffsets()
-            for name, info in offset_dict.iteritems():
+            for name, info in offset_dict.items():
                 self._SetEntryOffsetSize(name, *info)
 
     def PackEntries(self):
@@ -333,7 +332,7 @@ class Section(object):
 
     def GetData(self):
         """Get the contents of the section"""
-        section_data = chr(self._pad_byte) * self._size
+        section_data = tools.GetBytes(self._pad_byte, self._size)
 
         for entry in self._entries.values():
             data = entry.GetData()

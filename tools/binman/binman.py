@@ -9,6 +9,8 @@
 
 """See README for more information"""
 
+from __future__ import print_function
+
 import glob
 import multiprocessing
 import os
@@ -85,13 +87,25 @@ def RunTests(debug, processes, args):
     else:
         suite.run(result)
 
-    print result
+    # Remove errors which just indicate a missing test. Since Python v3.5 If an
+    # ImportError or AttributeError occurs while traversing name then a
+    # synthetic test that raises that error when run will be returned. These
+    # errors are included in the errors accumulated by result.errors.
+    if test_name:
+        errors = []
+        for test, err in result.errors:
+            if ("has no attribute '%s'" % test_name) not in err:
+                errors.append((test, err))
+            result.testsRun -= 1
+        result.errors = errors
+
+    print(result)
     for test, err in result.errors:
-        print test.id(), err
+        print(test.id(), err)
     for test, err in result.failures:
-        print err, result.failures
+        print(err, result.failures)
     if result.errors or result.failures:
-      print 'binman tests FAILED'
+      print('binman tests FAILED')
       return 1
     return 0
 
@@ -143,9 +157,9 @@ def RunBinman(options, args):
         try:
             ret_code = control.Binman(options, args)
         except Exception as e:
-            print 'binman: %s' % e
+            print('binman: %s' % e)
             if options.debug:
-                print
+                print()
                 traceback.print_exc()
             ret_code = 1
     return ret_code

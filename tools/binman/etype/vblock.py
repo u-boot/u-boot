@@ -51,7 +51,7 @@ class Entry_vblock(Entry):
 
     def ObtainContents(self):
         # Join up the data files to be signed
-        input_data = ''
+        input_data = b''
         for entry_phandle in self.content:
             data = self.section.GetContentsByPhandle(entry_phandle, self)
             if data is None:

@@ -455,6 +455,23 @@
 #define PCI_EXT_CAP_ID_PTM	0x1F	/* Precision Time Measurement */
 #define PCI_EXT_CAP_ID_MAX	PCI_EXT_CAP_ID_PTM
 
+/* Enhanced Allocation Registers */
+#define PCI_EA_NUM_ENT		2	/* Number of Capability Entries */
+#define  PCI_EA_NUM_ENT_MASK	0x3f	/* Num Entries Mask */
+#define PCI_EA_FIRST_ENT	4	/* First EA Entry in List */
+#define  PCI_EA_ES		0x00000007 /* Entry Size */
+#define  PCI_EA_BEI		0x000000f0 /* BAR Equivalent Indicator */
+/* Base, MaxOffset registers */
+/* bit 0 is reserved */
+#define  PCI_EA_IS_64		0x00000002	/* 64-bit field flag */
+#define  PCI_EA_FIELD_MASK	0xfffffffc	/* For Base & Max Offset */
+
+/* PCI Express capabilities */
+#define PCI_EXP_DEVCAP		4	/* Device capabilities */
+#define  PCI_EXP_DEVCAP_FLR     0x10000000 /* Function Level Reset */
+#define PCI_EXP_DEVCTL		8	/* Device Control */
+#define  PCI_EXP_DEVCTL_BCR_FLR 0x8000  /* Bridge Configuration Retry / FLR */
+
 /* Include the ID list */
 
 #include <pci_ids.h>
@@ -1309,12 +1326,16 @@ pci_addr_t dm_pci_phys_to_bus(struct udevice *dev, phys_addr_t addr,
  * dm_pci_map_bar() - get a virtual address associated with a BAR region
  *
  * Looks up a base address register and finds the physical memory address
- * that corresponds to it
+ * that corresponds to it.
+ * Can be used for 32b BARs 0-5 on type 0 functions and for 32b BARs 0-1 on
+ * type 1 functions.
+ * Can also be used on type 0 functions that support Enhanced Allocation for
+ * 32b/64b BARs.  Note that duplicate BEI entries are not supported.
  *
  * @dev:	Device to check
- * @bar:	Bar number to read (numbered from 0)
+ * @bar:	Bar register offset (PCI_BASE_ADDRESS_...)
  * @flags:	Flags for the region type (PCI_REGION_...)
- * @return: pointer to the virtual address to use
+ * @return: pointer to the virtual address to use or 0 on error
  */
 void *dm_pci_map_bar(struct udevice *dev, int bar, int flags);
 
@@ -1410,6 +1431,14 @@ int dm_pci_find_next_ext_capability(struct udevice *dev, int start, int cap);
  * @return:	extended capability address or 0 if not supported
  */
 int dm_pci_find_ext_capability(struct udevice *dev, int cap);
+
+/**
+ * dm_pci_flr() - Perform FLR if the device suppoorts it
+ *
+ * @dev:	PCI device to reset
+ * @return:	0 if OK, -ENOENT if FLR is not supported by dev
+ */
+int dm_pci_flr(struct udevice *dev);
 
 #define dm_pci_virt_to_bus(dev, addr, flags) \
 	dm_pci_phys_to_bus(dev, (virt_to_phys(addr)), (flags))

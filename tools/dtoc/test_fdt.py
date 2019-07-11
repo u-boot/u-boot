@@ -4,6 +4,8 @@
 # Written by Simon Glass <sjg@chromium.org>
 #
 
+from __future__ import print_function
+
 from optparse import OptionParser
 import glob
 import os
@@ -17,7 +19,7 @@ for dirname in ['../patman', '..']:
 
 import command
 import fdt
-from fdt import TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL
+from fdt import TYPE_BYTE, TYPE_INT, TYPE_STRING, TYPE_BOOL, BytesToValue
 import fdt_util
 from fdt_util import fdt32_to_cpu
 import libfdt
@@ -45,7 +47,7 @@ def _GetPropertyValue(dtb, node, prop_name):
     # Add 12, which is sizeof(struct fdt_property), to get to start of data
     offset = prop.GetOffset() + 12
     data = dtb.GetContents()[offset:offset + len(prop.value)]
-    return prop, [chr(x) for x in data]
+    return prop, [tools.ToChar(x) for x in data]
 
 
 class TestFdt(unittest.TestCase):
@@ -83,13 +85,13 @@ class TestFdt(unittest.TestCase):
     def testFlush(self):
         """Check that we can flush the device tree out to its file"""
         fname = self.dtb._fname
-        with open(fname) as fd:
+        with open(fname, 'rb') as fd:
             data = fd.read()
         os.remove(fname)
         with self.assertRaises(IOError):
-            open(fname)
+            open(fname, 'rb')
         self.dtb.Flush()
-        with open(fname) as fd:
+        with open(fname, 'rb') as fd:
             data = fd.read()
 
     def testPack(self):
@@ -118,6 +120,10 @@ class TestFdt(unittest.TestCase):
     def testGetFdt(self):
         node = self.dtb.GetNode('/spl-test')
         self.assertEqual(self.dtb, node.GetFdt())
+
+    def testBytesToValue(self):
+        self.assertEqual(BytesToValue(b'this\0is\0'),
+                         (TYPE_STRING, ['this', 'is']))
 
 class TestNode(unittest.TestCase):
     """Test operation of the Node class"""
@@ -277,7 +283,7 @@ class TestProp(unittest.TestCase):
         """Tests the GetEmpty() function for the various supported types"""
         self.assertEqual(True, fdt.Prop.GetEmpty(fdt.TYPE_BOOL))
         self.assertEqual(chr(0), fdt.Prop.GetEmpty(fdt.TYPE_BYTE))
-        self.assertEqual(chr(0) * 4, fdt.Prop.GetEmpty(fdt.TYPE_INT))
+        self.assertEqual(tools.GetBytes(0, 4), fdt.Prop.GetEmpty(fdt.TYPE_INT))
         self.assertEqual('', fdt.Prop.GetEmpty(fdt.TYPE_STRING))
 
     def testGetOffset(self):
@@ -381,7 +387,7 @@ class TestProp(unittest.TestCase):
         self.node.AddString('string', val)
         self.dtb.Sync(auto_resize=True)
         data = self.fdt.getprop(self.node.Offset(), 'string')
-        self.assertEqual(val + '\0', data)
+        self.assertEqual(tools.ToBytes(val) + b'\0', data)
 
         self.fdt.pack()
         self.node.SetString('string', val + 'x')
@@ -391,21 +397,21 @@ class TestProp(unittest.TestCase):
         self.node.SetString('string', val[:-1])
 
         prop = self.node.props['string']
-        prop.SetData(val)
+        prop.SetData(tools.ToBytes(val))
         self.dtb.Sync(auto_resize=False)
         data = self.fdt.getprop(self.node.Offset(), 'string')
-        self.assertEqual(val, data)
+        self.assertEqual(tools.ToBytes(val), data)
 
         self.node.AddEmptyProp('empty', 5)
         self.dtb.Sync(auto_resize=True)
         prop = self.node.props['empty']
-        prop.SetData(val)
+        prop.SetData(tools.ToBytes(val))
         self.dtb.Sync(auto_resize=False)
         data = self.fdt.getprop(self.node.Offset(), 'empty')
-        self.assertEqual(val, data)
+        self.assertEqual(tools.ToBytes(val), data)
 
-        self.node.SetData('empty', '123')
-        self.assertEqual('123', prop.bytes)
+        self.node.SetData('empty', b'123')
+        self.assertEqual(b'123', prop.bytes)
 
     def testFromData(self):
         dtb2 = fdt.Fdt.FromData(self.dtb.GetContents())
@@ -496,17 +502,21 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(2, fdt_util.fdt_cells_to_cpu(val, 1))
 
         dtb2 = fdt.FdtScan('tools/dtoc/dtoc_test_addr64.dts')
-        node2 = dtb2.GetNode('/test1')
-        val = node2.props['reg'].value
+        node1 = dtb2.GetNode('/test1')
+        val = node1.props['reg'].value
         self.assertEqual(0x1234, fdt_util.fdt_cells_to_cpu(val, 2))
+
+        node2 = dtb2.GetNode('/test2')
+        val = node2.props['reg'].value
+        self.assertEqual(0x1234567890123456, fdt_util.fdt_cells_to_cpu(val, 2))
+        self.assertEqual(0x9876543210987654, fdt_util.fdt_cells_to_cpu(val[2:],
+                                                                       2))
+        self.assertEqual(0x12345678, fdt_util.fdt_cells_to_cpu(val, 1))
 
     def testEnsureCompiled(self):
         """Test a degenerate case of this function"""
         dtb = fdt_util.EnsureCompiled('tools/dtoc/dtoc_test_simple.dts')
         self.assertEqual(dtb, fdt_util.EnsureCompiled(dtb))
-
-    def testGetPlainBytes(self):
-        self.assertEqual('fred', fdt_util.get_plain_bytes('fred'))
 
 
 def RunTestCoverage():
@@ -535,11 +545,11 @@ def RunTests(args):
             suite = unittest.TestLoader().loadTestsFromTestCase(module)
         suite.run(result)
 
-    print result
+    print(result)
     for _, err in result.errors:
-        print err
+        print(err)
     for _, err in result.failures:
-        print err
+        print(err)
 
 if __name__ != '__main__':
     sys.exit(1)
