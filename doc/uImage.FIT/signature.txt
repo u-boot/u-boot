@@ -335,7 +335,7 @@ CONFIG_RSA - enable RSA algorithm for signing
 
 WARNING: When relying on signed FIT images with required signature check
 the legacy image format is default disabled by not defining
-CONFIG_IMAGE_FORMAT_LEGACY
+CONFIG_LEGACY_IMAGE_FORMAT
 
 Testing
 -------

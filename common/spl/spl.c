@@ -535,7 +535,7 @@ static int spl_load_image(struct spl_image_info *spl_image,
 }
 
 /**
- * boot_from_devices() - Try loading an booting U-Boot from a list of devices
+ * boot_from_devices() - Try loading a booting U-Boot from a list of devices
  *
  * @spl_image: Place to put the image details if successful
  * @spl_boot_list: List of boot devices to try

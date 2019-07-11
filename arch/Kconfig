@@ -90,6 +90,7 @@ config SANDBOX
 	select DM_SPI_FLASH
 	select HAVE_BLOCK_DEVICE
 	select LZO
+	select PCI_ENDPOINT
 	select SPI
 	select SUPPORT_OF_CONTROL
 	imply BITREVERSE
@@ -120,6 +121,7 @@ config SANDBOX
 	imply VIRTIO_BLK
 	imply VIRTIO_NET
 	imply DM_SOUND
+	imply PCI_SANDBOX_EP
 	imply PCH
 
 config SH

@@ -487,6 +487,10 @@
 		};
 	};
 
+	pci_ep: pci_ep {
+		compatible = "sandbox,pci_ep";
+	};
+
 	probing {
 		compatible = "simple-bus";
 		test1 {

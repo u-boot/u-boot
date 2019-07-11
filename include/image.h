@@ -561,7 +561,7 @@ int boot_get_setup(bootm_headers_t *images, uint8_t arch, ulong *setup_start,
 #ifndef USE_HOSTCC
 /* Image format types, returned by _get_format() routine */
 #define IMAGE_FORMAT_INVALID	0x00
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 #define IMAGE_FORMAT_LEGACY	0x01	/* legacy image_header based format */
 #endif
 #define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */

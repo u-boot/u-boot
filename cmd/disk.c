@@ -15,7 +15,7 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 	ulong addr = CONFIG_SYS_LOAD_ADDR;
 	ulong cnt;
 	disk_partition_t info;
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	image_header_t *hdr;
 #endif
 	struct blk_desc *dev_desc;
@@ -62,7 +62,7 @@ int common_diskboot(cmd_tbl_t *cmdtp, const char *intf, int argc,
 	bootstage_mark(BOOTSTAGE_ID_IDE_PART_READ);
 
 	switch (genimg_get_format((void *) addr)) {
-#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
+#if defined(CONFIG_LEGACY_IMAGE_FORMAT)
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *) addr;
 

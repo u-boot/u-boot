@@ -633,6 +633,12 @@ M:	Simon Glass <sjg@chromium.org>
 S:	Maintained
 F:	tools/patman/
 
+PCI Endpoint
+M:	Ramon Fried <rfried.dev@gmail.com>
+S:	Maintained
+F:	drivers/pci_endpoint/
+F:  include/pci_ep.h
+
 POWER
 M:	Jaehoon Chung <jh80.chung@samsung.com>
 S:	Maintained
