@@ -9,4 +9,12 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "kmp204x"
 
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select ARCH_P2041
+	select FSL_DDR_INTERACTIVE
+	select PHYS_64BIT
+	imply CMD_CRAMFS
+	imply FS_CRAMFS
+
 endif

@@ -151,10 +151,6 @@ void spi_free_slave(struct spi_slave *slave)
 	free(slave);
 }
 
-#if defined(CONFIG_SYS_KW_SPI_MPP)
-u32 spi_mpp_backup[4];
-#endif
-
 __attribute__((weak)) int board_spi_claim_bus(struct spi_slave *slave)
 {
 	return 0;
@@ -162,34 +158,6 @@ __attribute__((weak)) int board_spi_claim_bus(struct spi_slave *slave)
 
 int spi_claim_bus(struct spi_slave *slave)
 {
-#if defined(CONFIG_SYS_KW_SPI_MPP)
-	u32 config;
-	u32 spi_mpp_config[4];
-
-	config = CONFIG_SYS_KW_SPI_MPP;
-
-	if (config & MOSI_MPP6)
-		spi_mpp_config[0] = MPP6_SPI_MOSI;
-	else
-		spi_mpp_config[0] = MPP1_SPI_MOSI;
-
-	if (config & SCK_MPP10)
-		spi_mpp_config[1] = MPP10_SPI_SCK;
-	else
-		spi_mpp_config[1] = MPP2_SPI_SCK;
-
-	if (config & MISO_MPP11)
-		spi_mpp_config[2] = MPP11_SPI_MISO;
-	else
-		spi_mpp_config[2] = MPP3_SPI_MISO;
-
-	spi_mpp_config[3] = 0;
-	spi_mpp_backup[3] = 0;
-
-	/* set new spi mpp and save current mpp config */
-	kirkwood_mpp_conf(spi_mpp_config, spi_mpp_backup);
-#endif
-
 	return board_spi_claim_bus(slave);
 }
 
@@ -199,10 +167,6 @@ __attribute__((weak)) void board_spi_release_bus(struct spi_slave *slave)
 
 void spi_release_bus(struct spi_slave *slave)
 {
-#if defined(CONFIG_SYS_KW_SPI_MPP)
-	kirkwood_mpp_conf(spi_mpp_backup, NULL);
-#endif
-
 	board_spi_release_bus(slave);
 }
 
@@ -338,6 +302,11 @@ static int mvebu_spi_xfer(struct udevice *dev, unsigned int bitlen,
 	return _spi_xfer(plat->spireg, bitlen, dout, din, flags);
 }
 
+__attribute__((weak)) int mvebu_board_spi_claim_bus(struct udevice *dev)
+{
+	return 0;
+}
+
 static int mvebu_spi_claim_bus(struct udevice *dev)
 {
 	struct udevice *bus = dev->parent;
@@ -348,7 +317,17 @@ static int mvebu_spi_claim_bus(struct udevice *dev)
 			KWSPI_CS_MASK << KWSPI_CS_SHIFT,
 			spi_chip_select(dev) << KWSPI_CS_SHIFT);
 
+	return mvebu_board_spi_claim_bus(dev);
+}
+
+__attribute__((weak)) int mvebu_board_spi_release_bus(struct udevice *dev)
+{
 	return 0;
+}
+
+static int mvebu_spi_release_bus(struct udevice *dev)
+{
+	return mvebu_board_spi_release_bus(dev);
 }
 
 static int mvebu_spi_probe(struct udevice *bus)
@@ -377,6 +356,7 @@ static int mvebu_spi_ofdata_to_platdata(struct udevice *bus)
 
 static const struct dm_spi_ops mvebu_spi_ops = {
 	.claim_bus	= mvebu_spi_claim_bus,
+	.release_bus	= mvebu_spi_release_bus,
 	.xfer		= mvebu_spi_xfer,
 	.set_speed	= mvebu_spi_set_speed,
 	.set_mode	= mvebu_spi_set_mode,

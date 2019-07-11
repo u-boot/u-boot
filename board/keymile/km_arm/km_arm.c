@@ -310,16 +310,35 @@ int board_late_init(void)
 	return 0;
 }
 
-int board_spi_claim_bus(struct spi_slave *slave)
+static const u32 spi_mpp_config[] = {
+	MPP1_SPI_MOSI,
+	MPP2_SPI_SCK,
+	MPP3_SPI_MISO,
+	0
+};
+
+static u32 spi_mpp_backup[4];
+
+int mvebu_board_spi_claim_bus(struct udevice *dev)
 {
+	spi_mpp_backup[3] = 0;
+
+	/* set new spi mpp config and save current one */
+	kirkwood_mpp_conf(spi_mpp_config, spi_mpp_backup);
+
 	kw_gpio_set_value(KM_FLASH_GPIO_PIN, 0);
 
 	return 0;
 }
 
-void board_spi_release_bus(struct spi_slave *slave)
+int mvebu_board_spi_release_bus(struct udevice *dev)
 {
+	/* restore saved mpp config */
+	kirkwood_mpp_conf(spi_mpp_backup, NULL);
+
 	kw_gpio_set_value(KM_FLASH_GPIO_PIN, 1);
+
+	return 0;
 }
 
 #if (defined(CONFIG_KM_PIGGY4_88E6061))

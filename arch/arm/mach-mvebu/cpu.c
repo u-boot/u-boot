@@ -542,6 +542,10 @@ static void ahci_mvebu_mbus_config(void __iomem *base)
 	const struct mbus_dram_target_info *dram;
 	int i;
 
+	/* mbus is not initialized in SPL; keep the ROM settings */
+	if (IS_ENABLED(CONFIG_SPL_BUILD))
+		return;
+
 	dram = mvebu_mbus_dram_info();
 
 	for (i = 0; i < 4; i++) {

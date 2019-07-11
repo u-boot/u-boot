@@ -59,6 +59,11 @@ static u32 get_boot_device(void)
 	case BOOT_FROM_UART_ALT:
 #endif
 		return BOOT_DEVICE_UART;
+#ifdef BOOT_FROM_SATA
+	case BOOT_FROM_SATA:
+	case BOOT_FROM_SATA_ALT:
+		return BOOT_DEVICE_SATA;
+#endif
 	case BOOT_FROM_SPI:
 	default:
 		return BOOT_DEVICE_SPI;
@@ -120,6 +125,9 @@ void board_init_f(ulong dummy)
 	/* Setup DDR */
 	ddr3_init();
 #endif
+
+	/* Initialize Auto Voltage Scaling */
+	mv_avs_init();
 
 	/*
 	 * Return to the BootROM to continue the Marvell xmodem

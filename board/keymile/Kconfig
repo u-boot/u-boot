@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: GPL-2.0+
+#
+# Copyright (C) 2019, Pascal Linder <pascal.linder@edu.hefr.ch>
+
+config VENDOR_KM
+	bool
+	help
+	  Selected by any KM board to have additional configurations.
+
+if VENDOR_KM
+
+source "board/keymile/km83xx/Kconfig"
+source "board/keymile/kmp204x/Kconfig"
+source "board/keymile/km_arm/Kconfig"
+
+endif

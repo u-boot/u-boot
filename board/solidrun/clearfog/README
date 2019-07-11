@@ -40,6 +40,12 @@ Install U-Boot on eMMC boot partition from Linux running on Clearfog:
 Note that the SD card is not accessible when the Clearfog SOM has eMMC.
 Consider initial boot from UART (see below).
 
+Install U-Boot on SATA:
+-----------------------
+
+When loading the main U-Boot image from raw SATA sector, set
+CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR to 0x141.
+
 Boot selection:
 ---------------
 
