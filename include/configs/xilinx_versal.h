@@ -123,10 +123,21 @@
 #define BOOTENV_DEV_NAME_JTAG(devtypeu, devtypel, instance) \
 	"jtag "
 
+#define BOOT_TARGET_DEVICES_DFU_USB(func)  func(DFU_USB, dfu_usb, 0)
+
+#define BOOTENV_DEV_DFU_USB(devtypeu, devtypel, instance) \
+	"bootcmd_dfu_usb=setenv dfu_alt_info boot.scr ram $scriptaddr " \
+	"$script_size_f; dfu 0 ram 0 && source $scriptaddr; " \
+	"echo SCRIPT FAILED: continuing...;\0"
+
+#define BOOTENV_DEV_NAME_DFU_USB(devtypeu, devtypel, instance) \
+	"dfu_usb "
+
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICES_JTAG(func) \
 	BOOT_TARGET_DEVICES_MMC(func) \
 	BOOT_TARGET_DEVICES_XSPI(func) \
+	BOOT_TARGET_DEVICES_DFU_USB(func) \
 	func(PXE, pxe, na) \
 	func(DHCP, dhcp, na)
 
