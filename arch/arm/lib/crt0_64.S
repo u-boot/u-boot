@@ -72,7 +72,7 @@ ENTRY(_main)
 	ldr	x0, =(CONFIG_TPL_STACK)
 #elif defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
 	ldr	x0, =(CONFIG_SPL_STACK)
-#elif defined(CONFIG_SYS_INIT_SP_BSS_OFFSET)
+#elif defined(CONFIG_INIT_SP_RELATIVE)
 	adr	x0, __bss_start
 	add	x0, x0, #CONFIG_SYS_INIT_SP_BSS_OFFSET
 #else

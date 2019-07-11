@@ -18,6 +18,25 @@
 #define MICRO_SUPPORT_CARD_RESET	((MICRO_SUPPORT_CARD_BASE) + 0xd0034)
 #define MICRO_SUPPORT_CARD_REVISION	((MICRO_SUPPORT_CARD_BASE) + 0xd00E0)
 
+static bool support_card_found;
+
+static void support_card_detect(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
+	const void *fdt = gd->fdt_blob;
+	int offset;
+
+	offset = fdt_node_offset_by_compatible(fdt, 0, "smsc,lan9118");
+	if (offset < 0)
+		return;
+
+	offset = fdt_node_offset_by_compatible(fdt, 0, "ns16550a");
+	if (offset < 0)
+		return;
+
+	support_card_found = true;
+}
+
 /*
  * 0: reset deassert, 1: reset
  *
@@ -51,6 +70,11 @@ static int support_card_show_revision(void)
 
 void support_card_init(void)
 {
+	support_card_detect();
+
+	if (!support_card_found)
+		return;
+
 	support_card_reset();
 	/*
 	 * After power on, we need to keep the LAN controller in reset state
@@ -67,6 +91,9 @@ void support_card_init(void)
 
 int board_eth_init(bd_t *bis)
 {
+	if (!support_card_found)
+		return 0;
+
 	return smc911x_initialize(0, SMC911X_BASE);
 }
 #endif
@@ -161,6 +188,9 @@ static void detect_num_flash_banks(void)
 
 void support_card_late_init(void)
 {
+	if (!support_card_found)
+		return;
+
 	detect_num_flash_banks();
 }
 
@@ -220,6 +250,9 @@ void led_puts(const char *s)
 {
 	int i;
 	u32 val = 0;
+
+	if (!support_card_found)
+		return;
 
 	if (!s)
 		return;

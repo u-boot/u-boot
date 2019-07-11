@@ -90,10 +90,6 @@
 #define CONFIG_SYS_NAND_DATA_BASE			0x68000000
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS			0
 
-/* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x01000000)
-
 /*
  * Network Configuration
  */
@@ -102,8 +98,7 @@
 #define CONFIG_GATEWAYIP		192.168.11.1
 #define CONFIG_NETMASK			255.255.255.0
 
-#define CONFIG_LOADADDR			0x85000000
-#define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
+#define CONFIG_SYS_LOAD_ADDR		0x85000000
 #define CONFIG_SYS_BOOTM_LEN		(32 << 20)
 
 #if defined(CONFIG_ARM64)
@@ -126,8 +121,8 @@
 
 #ifdef CONFIG_FIT
 #define CONFIG_BOOTFILE			"fitImage"
+#define KERNEL_ADDR_R_OFFSET		"0x05100000"
 #define LINUXBOOT_ENV_SETTINGS \
-	"kernel_addr_r=0x85100000\0" \
 	"tftpboot=tftpboot $kernel_addr_r $bootfile &&" \
 		"bootm $kernel_addr_r\0" \
 	"__nfsboot=run tftpboot\0"
@@ -135,17 +130,13 @@
 #ifdef CONFIG_ARM64
 #define CONFIG_BOOTFILE			"Image"
 #define LINUXBOOT_CMD			"booti"
-#define KERNEL_ADDR_R			"kernel_addr_r=0x82080000\0"
+#define KERNEL_ADDR_R_OFFSET		"0x02080000"
 #else
 #define CONFIG_BOOTFILE			"zImage"
 #define LINUXBOOT_CMD			"bootz"
-#define KERNEL_ADDR_R			"kernel_addr_r=0x80208000\0"
+#define KERNEL_ADDR_R_OFFSET		"0x00208000"
 #endif
 #define LINUXBOOT_ENV_SETTINGS \
-	"fdt_addr_r=0x85100000\0" \
-	KERNEL_ADDR_R \
-	"ramdisk_addr_r=0x86000000\0" \
-	"ramdisk_file=rootfs.cpio.gz\0" \
 	"boot_common=setexpr bootm_low $kernel_addr_r '&' fe000000 && " \
 		LINUXBOOT_CMD " $kernel_addr_r $ramdisk_addr_r $fdt_addr_r\0" \
 	"tftpboot=tftpboot $kernel_addr_r $bootfile && " \
@@ -160,8 +151,13 @@
 #endif
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
+	"fdt_addr_r_offset=0x05100000\0" \
+	"kernel_addr_r_offset=" KERNEL_ADDR_R_OFFSET "\0" \
+	"ramdisk_addr_r_offset=0x06000000\0" \
+	"ramdisk_file=rootfs.cpio.gz\0" \
 	"netdev=eth0\0"						\
 	"initrd_high=0xffffffffffffffff\0"			\
+	"loadaddr_offset=0x05000000\0" \
 	"script=boot.scr\0" \
 	"scriptaddr=0x85000000\0"				\
 	"nor_base=0x42000000\0"					\
@@ -215,15 +211,9 @@
 
 #define CONFIG_SYS_BOOTMAPSZ			0x20000000
 
-#define CONFIG_SYS_SDRAM_BASE		0x80000000
-
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE)
 
 /* only for SPL */
-#if defined(CONFIG_ARCH_UNIPHIER_LD4) || \
-	defined(CONFIG_ARCH_UNIPHIER_SLD8)
-#endif
-
 #define CONFIG_SPL_STACK		(0x00200000)
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS		0x20000

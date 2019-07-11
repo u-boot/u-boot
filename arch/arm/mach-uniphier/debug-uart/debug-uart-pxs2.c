@@ -23,9 +23,9 @@ unsigned int uniphier_pxs2_debug_uart_init(void)
 	sg_set_pinsel(113, 8, 8, 4);	/* TXD2 -> TXD2 */
 	sg_set_pinsel(219, 8, 8, 4);	/* TXD3 -> TXD3 */
 
-	tmp = readl(SC_CLKCTRL);
+	tmp = readl(sc_base + SC_CLKCTRL);
 	tmp |= SC_CLKCTRL_CEN_PERI;
-	writel(tmp, SC_CLKCTRL);
+	writel(tmp, sc_base + SC_CLKCTRL);
 
 	return DIV_ROUND_CLOSEST(UNIPHIER_PXS2_UART_CLK, 16 * CONFIG_BAUDRATE);
 }
