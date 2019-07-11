@@ -3,6 +3,7 @@
 # Copyright (c) 2017 Rockchip Electronics Co., Ltd
 
 obj-y += pinctrl-rockchip-core.o
+obj-$(CONFIG_ROCKCHIP_PX30) += pinctrl-px30.o
 obj-$(CONFIG_ROCKCHIP_RK3036) += pinctrl-rk3036.o
 obj-$(CONFIG_ROCKCHIP_RK3128) += pinctrl-rk3128.o
 obj-$(CONFIG_ROCKCHIP_RK3188) += pinctrl-rk3188.o
