@@ -391,8 +391,10 @@ efi_status_t __weak __efi_runtime EFIAPI efi_set_time(struct efi_time *time)
  */
 static bool efi_is_runtime_service_pointer(void *p)
 {
-	return p >= (void *)&efi_runtime_services.get_time &&
-	       p <= (void *)&efi_runtime_services.query_variable_info;
+	return (p >= (void *)&efi_runtime_services.get_time &&
+		p <= (void *)&efi_runtime_services.query_variable_info) ||
+	       p == (void *)&efi_events.prev ||
+	       p == (void *)&efi_events.next;
 }
 
 /**
@@ -577,6 +579,7 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 	int n = memory_map_size / descriptor_size;
 	int i;
 	int rt_code_sections = 0;
+	struct efi_event *event;
 
 	EFI_ENTRY("%lx %lx %x %p", memory_map_size, descriptor_size,
 		  descriptor_version, virtmap);
@@ -608,6 +611,13 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
 		 * something is definitely going wrong.
 		 */
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+	}
+
+	/* Notify EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE */
+	list_for_each_entry(event, &efi_events, link) {
+		if (event->notify_function)
+			EFI_CALL_VOID(event->notify_function(
+					event, event->notify_context));
 	}
 
 	/* Rebind mmio pointers */

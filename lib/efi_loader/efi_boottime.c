@@ -25,7 +25,7 @@ static efi_uintn_t efi_tpl = TPL_APPLICATION;
 LIST_HEAD(efi_obj_list);
 
 /* List of all events */
-LIST_HEAD(efi_events);
+__efi_runtime_data LIST_HEAD(efi_events);
 
 /* List of queued events */
 LIST_HEAD(efi_event_queue);
@@ -650,6 +650,8 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 			      struct efi_event **event)
 {
 	struct efi_event *evt;
+	efi_status_t ret;
+	int pool_type;
 
 	if (event == NULL)
 		return EFI_INVALID_PARAMETER;
@@ -662,7 +664,10 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	case EVT_NOTIFY_WAIT:
 	case EVT_TIMER | EVT_NOTIFY_WAIT:
 	case EVT_SIGNAL_EXIT_BOOT_SERVICES:
+		pool_type = EFI_BOOT_SERVICES_DATA;
+		break;
 	case EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE:
+		pool_type = EFI_RUNTIME_SERVICES_DATA;
 		break;
 	default:
 		return EFI_INVALID_PARAMETER;
@@ -672,9 +677,11 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
 	    (!notify_function || is_valid_tpl(notify_tpl) != EFI_SUCCESS))
 		return EFI_INVALID_PARAMETER;
 
-	evt = calloc(1, sizeof(struct efi_event));
-	if (!evt)
-		return EFI_OUT_OF_RESOURCES;
+	ret = efi_allocate_pool(pool_type, sizeof(struct efi_event),
+				(void **)&evt);
+	if (ret != EFI_SUCCESS)
+		return ret;
+	memset(evt, 0, sizeof(struct efi_event));
 	evt->type = type;
 	evt->notify_tpl = notify_tpl;
 	evt->notify_function = notify_function;
@@ -982,7 +989,7 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
 		list_del(&event->queue_link);
 
 	list_del(&event->link);
-	free(event);
+	efi_free_pool(event);
 	return EFI_EXIT(EFI_SUCCESS);
 }
 
@@ -1932,7 +1939,7 @@ static void efi_exit_caches(void)
 static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 						  efi_uintn_t map_key)
 {
-	struct efi_event *evt;
+	struct efi_event *evt, *next_event;
 	efi_status_t ret = EFI_SUCCESS;
 
 	EFI_ENTRY("%p, %zx", image_handle, map_key);
@@ -1970,6 +1977,12 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
 
 	/* Notify variable services */
 	efi_variables_boot_exit_notify();
+
+	/* Remove all events except EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE */
+	list_for_each_entry_safe(evt, next_event, &efi_events, link) {
+		if (evt->type != EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE)
+			list_del(&evt->link);
+	}
 
 	board_quiesce_devices();
 
