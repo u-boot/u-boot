@@ -6,14 +6,16 @@
 #ifndef _SEQUENCER_H_
 #define _SEQUENCER_H_
 
-#define RW_MGR_NUM_DM_PER_WRITE_GROUP (rwcfg->mem_data_mask_width \
-	/ rwcfg->mem_if_write_dqs_width)
-#define RW_MGR_NUM_TRUE_DM_PER_WRITE_GROUP (rwcfg->true_mem_data_mask_width \
-	/ rwcfg->mem_if_write_dqs_width)
+#define RW_MGR_NUM_DM_PER_WRITE_GROUP (seq->rwcfg->mem_data_mask_width \
+	/ seq->rwcfg->mem_if_write_dqs_width)
+#define RW_MGR_NUM_TRUE_DM_PER_WRITE_GROUP ( \
+	seq->rwcfg->true_mem_data_mask_width \
+	/ seq->rwcfg->mem_if_write_dqs_width)
 
-#define RW_MGR_NUM_DQS_PER_WRITE_GROUP (rwcfg->mem_if_read_dqs_width \
-	/ rwcfg->mem_if_write_dqs_width)
-#define NUM_RANKS_PER_SHADOW_REG (rwcfg->mem_number_of_ranks / NUM_SHADOW_REGS)
+#define RW_MGR_NUM_DQS_PER_WRITE_GROUP (seq->rwcfg->mem_if_read_dqs_width \
+	/ seq->rwcfg->mem_if_write_dqs_width)
+#define NUM_RANKS_PER_SHADOW_REG (seq->rwcfg->mem_number_of_ranks \
+	/ NUM_SHADOW_REGS)
 
 #define RW_MGR_RUN_SINGLE_GROUP_OFFSET		0x0
 #define RW_MGR_RUN_ALL_GROUPS_OFFSET		0x0400
@@ -254,6 +256,26 @@ struct socfpga_sdr {
 	/* SDR_CTRLGRP_ADDRESS */
 	struct socfpga_sdr_ctrl sdr_ctrl;
 	u8 _align9[0xea4];
+};
+
+struct socfpga_sdrseq {
+	const struct socfpga_sdram_rw_mgr_config *rwcfg;
+	const struct socfpga_sdram_io_config *iocfg;
+	const struct socfpga_sdram_misc_config *misccfg;
+	/* calibration steps requested by the rtl */
+	u16 dyn_calib_steps;
+	/*
+	 * To make CALIB_SKIP_DELAY_LOOPS a dynamic conditional option
+	 * instead of static, we use boolean logic to select between
+	 * non-skip and skip values
+	 *
+	 * The mask is set to include all bits when not-skipping, but is
+	 * zero when skipping
+	 */
+
+	u16 skip_delay_mask;	/* mask off bits when skipping/not-skipping */
+	struct gbl_type gbl;
+	struct param_type param;
 };
 
 int sdram_calibration_full(struct socfpga_sdr *sdr);
