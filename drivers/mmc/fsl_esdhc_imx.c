@@ -146,7 +146,7 @@ struct fsl_esdhc_priv {
 	u32 tuning_start_tap;
 	u32 strobe_dll_delay_target;
 	u32 signal_voltage;
-#if IS_ENABLED(CONFIG_DM_REGULATOR)
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 	struct udevice *vqmmc_dev;
 	struct udevice *vmmc_dev;
 #endif
@@ -1515,7 +1515,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 	init_clk_usdhc(dev->seq);
 
-	if (IS_ENABLED(CONFIG_CLK)) {
+	if (CONFIG_IS_ENABLED(CLK)) {
 		/* Assigned clock already set clock */
 		ret = clk_get_by_name(dev, "per", &priv->per_clk);
 		if (ret) {
