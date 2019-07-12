@@ -13,6 +13,9 @@
 
 /* macros copied over from mdio_sandbox.c */
 #define SANDBOX_PHY_ADDR	5
+#define SANDBOX_PHY_REG_CNT	2
+
+/* test using 1st register, 0 */
 #define SANDBOX_PHY_REG		0
 
 #define TEST_REG_VALUE		0xabcd
