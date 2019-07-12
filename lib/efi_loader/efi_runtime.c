@@ -424,7 +424,7 @@ void efi_runtime_detach(void)
  * @virtmap:		virtual address mapping information
  * Return:		status code EFI_UNSUPPORTED
  */
-static efi_status_t EFIAPI efi_set_virtual_address_map_runtime(
+static __efi_runtime efi_status_t EFIAPI efi_set_virtual_address_map_runtime(
 			unsigned long memory_map_size,
 			unsigned long descriptor_size,
 			uint32_t descriptor_version,
