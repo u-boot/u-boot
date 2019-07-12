@@ -8,7 +8,7 @@
 
 #if defined(CONFIG_TARGET_APALIS_IMX6) || \
 	defined(CONFIG_TARGET_COLIBRI_IMX6) || \
-	defined(CONFIG_TARGET_COLIBRI_IMX8QXP)
+	defined(CONFIG_TARGET_COLIBRI_IMX8X)
 #include <asm/arch/sys_proto.h>
 #else
 #define is_cpu_type(cpu) (0)
@@ -355,9 +355,19 @@ static int get_cfgblock_interactive(void)
 		tdx_hw_tag.prodid = COLIBRI_IMX7D;
 	else if (!strcmp("imx7s", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7S;
-	else if (is_cpu_type(MXC_CPU_IMX8QXP))
-		tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
-	else if (!strcmp("tegra20", soc)) {
+	else if (is_cpu_type(MXC_CPU_IMX8QXP)) {
+		if (it == 'y' || it == 'Y') {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_IT;
+		} else {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX8DX_WIFI_BT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX8DX;
+		}
+	} else if (!strcmp("tegra20", soc)) {
 		if (it == 'y' || it == 'Y')
 			if (gd->ram_size == 0x10000000)
 				tdx_hw_tag.prodid = COLIBRI_T20_256MB_IT;
