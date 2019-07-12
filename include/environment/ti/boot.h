@@ -10,7 +10,7 @@
 #define __TI_BOOT_H
 
 #ifndef CONSOLEDEV
-#define CONSOLEDEV "ttyO2"
+#define CONSOLEDEV "ttyS2"
 #endif
 
 #define VBMETA_PART_SIZE		(64 * 1024)
