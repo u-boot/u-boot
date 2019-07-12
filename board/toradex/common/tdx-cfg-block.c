@@ -7,6 +7,7 @@
 #include "tdx-cfg-block.h"
 
 #if defined(CONFIG_TARGET_APALIS_IMX6) || \
+	defined(CONFIG_TARGET_APALIS_IMX8) || \
 	defined(CONFIG_TARGET_COLIBRI_IMX6) || \
 	defined(CONFIG_TARGET_COLIBRI_IMX8X)
 #include <asm/arch/sys_proto.h>
@@ -355,7 +356,19 @@ static int get_cfgblock_interactive(void)
 		tdx_hw_tag.prodid = COLIBRI_IMX7D;
 	else if (!strcmp("imx7s", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7S;
-	else if (is_cpu_type(MXC_CPU_IMX8QXP)) {
+	else if (is_cpu_type(MXC_CPU_IMX8QM)) {
+		if (it == 'y' || it == 'Y') {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = APALIS_IMX8QM_WIFI_BT_IT;
+			else
+				tdx_hw_tag.prodid = APALIS_IMX8QM_IT;
+		} else {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = APALIS_IMX8QP_WIFI_BT;
+			else
+				tdx_hw_tag.prodid = APALIS_IMX8QP;
+		}
+	} else if (is_cpu_type(MXC_CPU_IMX8QXP)) {
 		if (it == 'y' || it == 'Y') {
 			if (wb == 'y' || wb == 'Y')
 				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
