@@ -167,4 +167,24 @@ struct phy_device *dm_mdio_phy_connect(struct udevice *dev, int addr,
 
 #endif
 
+#ifdef CONFIG_DM_MDIO_MUX
+
+/* indicates none of the child buses is selected */
+#define MDIO_MUX_SELECT_NONE	-1
+
+/**
+ * struct mdio_mux_ops - MDIO MUX operations
+ *
+ * @select: Selects a child bus
+ * @deselect: Clean up selection.  Optional, can be NULL
+ */
+struct mdio_mux_ops {
+	int (*select)(struct udevice *mux, int cur, int sel);
+	int (*deselect)(struct udevice *mux, int sel);
+};
+
+#define mdio_mux_get_ops(dev) ((struct mdio_mux_ops *)(dev)->driver->ops)
+
+#endif
+
 #endif
