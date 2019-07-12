@@ -291,6 +291,7 @@ static int get_cfgblock_interactive(void)
 	char message[CONFIG_SYS_CBSIZE];
 	char *soc;
 	char it = 'n';
+	char wb = 'n';
 	int len;
 
 	/* Unknown module by default */
@@ -300,9 +301,16 @@ static int get_cfgblock_interactive(void)
 		sprintf(message, "Is the module the 312 MHz version? [y/N] ");
 	else
 		sprintf(message, "Is the module an IT version? [y/N] ");
-
 	len = cli_readline(message);
 	it = console_buffer[0];
+
+#if defined(CONFIG_TARGET_APALIS_IMX8) || \
+		defined(CONFIG_TARGET_COLIBRI_IMX6ULL) || \
+		defined(CONFIG_TARGET_COLIBRI_IMX8X)
+	sprintf(message, "Does the module have Wi-Fi / Bluetooth? [y/N] ");
+	len = cli_readline(message);
+	wb = console_buffer[0];
+#endif
 
 	soc = env_get("soc");
 	if (!strcmp("mx6", soc)) {
@@ -331,12 +339,6 @@ static int get_cfgblock_interactive(void)
 				tdx_hw_tag.prodid = COLIBRI_IMX6S;
 		}
 #elif CONFIG_TARGET_COLIBRI_IMX6ULL
-		char wb = 'n';
-
-		sprintf(message, "Does the module have Wi-Fi / Bluetooth? " \
-				 "[y/N] ");
-		len = cli_readline(message);
-		wb = console_buffer[0];
 		if (it == 'y' || it == 'Y') {
 			if (wb == 'y' || wb == 'Y')
 				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_WIFI_BT_IT;
