@@ -511,8 +511,7 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * On NAND devices, recreation is only allowed if the page is
 		 * empty (config block invalid...)
 		 */
-		printf("NAND erase block %d need to be erased before creating" \
-		       " a Toradex config block\n",
+		printf("NAND erase block %d need to be erased before creating a Toradex config block\n",
 		       CONFIG_TDX_CFG_BLOCK_OFFSET /
 		       get_nand_dev_by_index(0)->erasesize);
 		goto out;
@@ -521,8 +520,7 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * On NOR devices, recreation is only allowed if the sector is
 		 * empty and write protection is off (config block invalid...)
 		 */
-		printf("NOR sector at offset 0x%02x need to be erased and " \
-		       "unprotected before creating a Toradex config block\n",
+		printf("NOR sector at offset 0x%02x need to be erased and unprotected before creating a Toradex config block\n",
 		       CONFIG_TDX_CFG_BLOCK_OFFSET);
 		goto out;
 #else
@@ -633,9 +631,8 @@ static int do_cfgblock(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_USAGE;
 }
 
-U_BOOT_CMD(
-	cfgblock, 4, 0, do_cfgblock,
-	"Toradex config block handling commands",
-	"create [-y] [barcode] - (Re-)create Toradex config block\n"
-	"cfgblock reload - Reload Toradex config block from flash"
+U_BOOT_CMD(cfgblock, 4, 0, do_cfgblock,
+	   "Toradex config block handling commands",
+	   "create [-y] [barcode] - (Re-)create Toradex config block\n"
+	   "cfgblock reload - Reload Toradex config block from flash"
 );
