@@ -788,6 +788,7 @@ config ARCH_IMX8
 	select ARM64
 	select DM
 	select OF_CONTROL
+	select ENABLE_ARM_SOC_BOOT0_HOOK
 
 config ARCH_IMX8M
 	bool "NXP i.MX8M platform"
