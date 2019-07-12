@@ -46,6 +46,16 @@ config MDIO_SANDBOX
 
 	  This driver is used in for testing in test/dm/mdio.c
 
+config MDIO_MUX_SANDBOX
+	depends on DM_MDIO_MUX && MDIO_SANDBOX
+	default y
+	bool "Sandbox: Mocked MDIO-MUX driver"
+	help
+	  This driver implements dummy select/deselect ops mimicking a MUX on
+	  the MDIO bux.  It uses mdio_sandbox driver as parent MDIO.
+
+	  This driver is used for testing in test/dm/mdio.c
+
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET
