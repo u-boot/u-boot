@@ -986,6 +986,12 @@ static int sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 		offset,
 	};
 
+	ret = spi_claim_bus(spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
+
 	debug("BP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
 	      spi_w8r8(spi, CMD_READ_STATUS), buf, cmd[0], offset);
 
@@ -1034,6 +1040,12 @@ int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 	cmd[3] = offset;
 
 	for (; actual < len - 1; actual += 2) {
+		ret = spi_claim_bus(spi);
+		if (ret) {
+			debug("SF: Unable to claim SPI bus\n");
+			return ret;
+		}
+
 		debug("WP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
 		      spi_w8r8(spi, CMD_READ_STATUS), buf + actual,
 		      cmd[0], offset);
@@ -1053,6 +1065,11 @@ int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
 		offset += 2;
 	}
 
+	ret = spi_claim_bus(spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
 	if (!ret)
 		ret = spi_flash_cmd_write_disable(flash);
 
@@ -1090,6 +1107,11 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 		offset++;
 	}
 
+	ret = spi_claim_bus(spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
 	if (!ret)
 		ret = spi_flash_cmd_write_disable(flash);
 
