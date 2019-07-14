@@ -30,7 +30,7 @@ struct stm32_vrefbuf {
 	struct udevice *vdda_supply;
 };
 
-static const unsigned int stm32_vrefbuf_voltages[] = {
+static const int stm32_vrefbuf_voltages[] = {
 	/* Matches resp. VRS = 000b, 001b, 010b, 011b */
 	2500000, 2048000, 1800000, 1500000,
 };

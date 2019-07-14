@@ -27,6 +27,7 @@ static int do_dev(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("Can't get the pin-controller: %s!\n", name);
 			return CMD_RET_FAILURE;
 		}
+		/* fall through */
 	case 1:
 		if (!currdev) {
 			printf("Pin-controller device is not set!\n");

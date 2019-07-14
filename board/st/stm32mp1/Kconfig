@@ -9,4 +9,17 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "stm32mp1"
 
+config ENV_SECT_SIZE
+	default 0x40000 if ENV_IS_IN_SPI_FLASH
+
+config ENV_OFFSET
+	default 0x280000 if ENV_IS_IN_SPI_FLASH
+
+config CMD_STBOARD
+	bool "stboard - command for OTP board information"
+	default y
+	help
+	  This compile the stboard command to
+	  read and write the board in the OTP.
+
 endif

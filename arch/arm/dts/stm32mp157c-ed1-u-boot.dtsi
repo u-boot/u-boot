@@ -156,6 +156,10 @@
 	};
 };
 
+&sdmmc1 {
+	u-boot,dm-spl;
+};
+
 &sdmmc1_b4_pins_a {
 	u-boot,dm-spl;
 	pins {
@@ -165,12 +169,15 @@
 
 &sdmmc1_dir_pins_a {
 	u-boot,dm-spl;
-	pins {
+	pins1 {
+		u-boot,dm-spl;
+	};
+	pins2 {
 		u-boot,dm-spl;
 	};
 };
 
-&sdmmc1 {
+&sdmmc2 {
 	u-boot,dm-spl;
 };
 
@@ -186,10 +193,6 @@
 	pins {
 		u-boot,dm-spl;
 	};
-};
-
-&sdmmc2 {
-	u-boot,dm-spl;
 };
 
 &uart4 {

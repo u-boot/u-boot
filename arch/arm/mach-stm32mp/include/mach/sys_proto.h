@@ -19,5 +19,14 @@ u32 get_cpu_type(void);
 
 /* return CPU_REV constants */
 u32 get_cpu_rev(void);
+
+/* Get Package options from OTP */
+u32 get_cpu_package(void);
+
+#define PKG_AA_LBGA448	4
+#define PKG_AB_LBGA354	3
+#define PKG_AC_TFBGA361	2
+#define PKG_AD_TFBGA257	1
+
 /* return boot mode */
 u32 get_bootmode(void);

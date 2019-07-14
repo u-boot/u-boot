@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <adc.h>
+#include <bootm.h>
 #include <config.h>
 #include <clk.h>
 #include <dm.h>
@@ -13,6 +14,8 @@
 #include <i2c.h>
 #include <led.h>
 #include <misc.h>
+#include <mtd.h>
+#include <mtd_node.h>
 #include <phy.h>
 #include <reset.h>
 #include <syscon.h>
@@ -21,6 +24,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/stm32.h>
 #include <asm/arch/sys_proto.h>
+#include <jffs2/load_kernel.h>
 #include <power/regulator.h>
 #include <usb/dwc2_udc.h>
 
@@ -76,7 +80,9 @@ int checkboard(void)
 	const char *fdt_compat;
 	int fdt_compat_len;
 
-	if (IS_ENABLED(CONFIG_STM32MP1_TRUSTED))
+	if (IS_ENABLED(CONFIG_STM32MP1_OPTEE))
+		mode = "trusted with OP-TEE";
+	else if (IS_ENABLED(CONFIG_STM32MP1_TRUSTED))
 		mode = "trusted";
 	else
 		mode = "basic";
@@ -515,6 +521,10 @@ int board_init(void)
 
 	board_key_check();
 
+#ifdef CONFIG_DM_REGULATOR
+	regulators_enable_boot_on(_DEBUG);
+#endif
+
 	sysconf_init();
 
 	if (IS_ENABLED(CONFIG_LED))
@@ -743,5 +753,20 @@ void board_mtdparts_default(const char **mtdids, const char **mtdparts)
 	*mtdids = ids;
 	*mtdparts = parts;
 	debug("%s:mtdids=%s & mtdparts=%s\n", __func__, ids, parts);
+}
+#endif
+
+#if defined(CONFIG_OF_BOARD_SETUP)
+int ft_board_setup(void *blob, bd_t *bd)
+{
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+	struct node_info nodes[] = {
+		{ "st,stm32f469-qspi",		MTD_DEV_TYPE_NOR,  },
+		{ "st,stm32mp15-fmc2",		MTD_DEV_TYPE_NAND, },
+	};
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+#endif
+
+	return 0;
 }
 #endif

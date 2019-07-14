@@ -27,7 +27,7 @@
 int stm32_offset_to_index(struct udevice *dev, unsigned int offset)
 {
 	struct stm32_gpio_priv *priv = dev_get_priv(dev);
-	int idx = 0;
+	unsigned int idx = 0;
 	int i;
 
 	for (i = 0; i < STM32_GPIOS_PER_BANK; i++) {
@@ -210,15 +210,9 @@ static int gpio_stm32_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id stm32_gpio_ids[] = {
-	{ .compatible = "st,stm32-gpio" },
-	{ }
-};
-
 U_BOOT_DRIVER(gpio_stm32) = {
 	.name	= "gpio_stm32",
 	.id	= UCLASS_GPIO,
-	.of_match = stm32_gpio_ids,
 	.probe	= gpio_stm32_probe,
 #ifndef CONFIG_SPL_BUILD
 	.ops	= &gpio_stm32_ops,

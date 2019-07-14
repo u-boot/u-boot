@@ -265,13 +265,13 @@ config PIC32_GPIO
 	help
 	  Say yes here to support Microchip PIC32 GPIOs.
 
-config STM32F7_GPIO
+config STM32_GPIO
 	bool "ST STM32 GPIO driver"
 	depends on DM_GPIO && (STM32 || ARCH_STM32MP)
 	default y
 	help
 	  Device model driver support for STM32 GPIO controller. It should be
-	  usable on many stm32 families like stm32f4 & stm32H7.
+	  usable on many stm32 families like stm32f4/f7/h7 and stm32mp1.
 	  Tested on STM32F7.
 
 config MVEBU_GPIO

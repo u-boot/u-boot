@@ -805,10 +805,11 @@ static int stm32mp1_clk_get_parent(struct stm32mp1_clk_priv *priv,
 	const struct stm32mp1_clk_sel *sel = priv->data->sel;
 	int i;
 	int s, p;
+	unsigned int idx;
 
-	for (i = 0; i < ARRAY_SIZE(stm32mp1_clks); i++)
-		if (stm32mp1_clks[i][0] == id)
-			return stm32mp1_clks[i][1];
+	for (idx = 0; idx < ARRAY_SIZE(stm32mp1_clks); idx++)
+		if (stm32mp1_clks[idx][0] == id)
+			return stm32mp1_clks[idx][1];
 
 	i = stm32mp1_clk_get_id(priv, id);
 	if (i < 0)
@@ -1542,8 +1543,7 @@ static void stgen_config(struct stm32mp1_clk_priv *priv)
 	u32 stgenc, cntfid0;
 	ulong rate;
 
-	stgenc = (u32)syscon_get_first_range(STM32MP_SYSCON_STGEN);
-
+	stgenc = STM32_STGEN_BASE;
 	cntfid0 = readl(stgenc + STGENC_CNTFID0);
 	p = stm32mp1_clk_get_parent(priv, STGEN_K);
 	rate = stm32mp1_clk_get(priv, p);

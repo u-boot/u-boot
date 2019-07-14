@@ -21,27 +21,24 @@
 		pinctrl1 = &pinctrl_z;
 	};
 
-	config {
+	clocks {
 		u-boot,dm-pre-reloc;
 	};
 
-	clocks {
+	reboot {
 		u-boot,dm-pre-reloc;
 	};
 
 	soc {
 		u-boot,dm-pre-reloc;
-
-		stgen: stgen@5C008000 {
-			compatible = "st,stm32-stgen";
-			reg = <0x5C008000 0x1000>;
-			status = "okay";
-			u-boot,dm-pre-reloc;
-		};
 	};
 };
 
 &bsec {
+	u-boot,dm-pre-proper;
+};
+
+&clk_csi {
 	u-boot,dm-pre-reloc;
 };
 
@@ -53,23 +50,59 @@
 	u-boot,dm-pre-reloc;
 };
 
-&clk_lse {
-	u-boot,dm-pre-reloc;
-};
-
 &clk_lsi {
 	u-boot,dm-pre-reloc;
 };
 
-&clk_csi {
+&clk_lse {
 	u-boot,dm-pre-reloc;
 };
 
-&rcc {
+&gpioa {
 	u-boot,dm-pre-reloc;
 };
 
-&rcc_reboot {
+&gpiob {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioc {
+	u-boot,dm-pre-reloc;
+};
+
+&gpiod {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioe {
+	u-boot,dm-pre-reloc;
+};
+
+&gpiof {
+	u-boot,dm-pre-reloc;
+};
+
+&gpiog {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioh {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioi {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioj {
+	u-boot,dm-pre-reloc;
+};
+
+&gpiok {
+	u-boot,dm-pre-reloc;
+};
+
+&gpioz {
 	u-boot,dm-pre-reloc;
 };
 
@@ -81,66 +114,26 @@
 	u-boot,dm-pre-reloc;
 };
 
-&gpioa {
-	compatible = "st,stm32-gpio";
+&pwr {
 	u-boot,dm-pre-reloc;
 };
 
-&gpiob {
-	compatible = "st,stm32-gpio";
+&rcc {
 	u-boot,dm-pre-reloc;
 };
 
-&gpioc {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
+&sdmmc1 {
+	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
 };
 
-&gpiod {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
+&sdmmc2 {
+	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
 };
 
-&gpioe {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
+&sdmmc3 {
+	compatible = "st,stm32-sdmmc2", "arm,pl18x", "arm,primecell";
 };
 
-&gpiof {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
-};
-
-&gpiog {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
-};
-
-&gpioh {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
-};
-
-&gpioi {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
-};
-
-&gpioj {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
-};
-
-&gpiok {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
-};
-
-&gpioz {
-	compatible = "st,stm32-gpio";
-	u-boot,dm-pre-reloc;
-};
-
-&iwdg2 {
-	u-boot,dm-pre-reloc;
+&usbotg_hs {
+	compatible = "st,stm32mp1-hsotg", "snps,dwc2";
 };

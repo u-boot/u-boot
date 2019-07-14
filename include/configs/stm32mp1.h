@@ -28,6 +28,10 @@
 #define CONFIG_SYS_SDRAM_BASE			STM32_DDR_BASE
 #define CONFIG_SYS_INIT_SP_ADDR			CONFIG_SYS_TEXT_BASE
 
+#ifdef CONFIG_STM32MP1_OPTEE
+#define CONFIG_SYS_MEM_TOP_HIDE			SZ_32M
+#endif /* CONFIG_STM32MP1_OPTEE */
+
 /*
  * Console I/O buffer size
  */
@@ -37,11 +41,6 @@
  * Needed by "loadb"
  */
 #define CONFIG_SYS_LOAD_ADDR			STM32_DDR_BASE
-
-#if defined(CONFIG_ENV_IS_IN_SPI_FLASH)
-#define	CONFIG_ENV_SECT_SIZE			SZ_256K
-#define	CONFIG_ENV_OFFSET			0x00280000
-#endif
 
 /* ATAGs */
 #define CONFIG_CMDLINE_TAG
@@ -73,6 +72,10 @@
 /*MMC SD*/
 #define CONFIG_SYS_MMC_MAX_DEVICE	3
 
+/* NAND support */
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+
 /* Ethernet need */
 #ifdef CONFIG_DWC_ETH_QOS
 #define CONFIG_SYS_NONCACHED_MEMORY	(1 * SZ_1M)	/* 1M */
@@ -81,17 +84,18 @@
 #define CONFIG_SYS_AUTOLOAD		"no"
 #endif
 
+/* Dynamic MTD partition support */
+#define CONFIG_SYS_MTDPARTS_RUNTIME
+
 /*****************************************************************************/
 #ifdef CONFIG_DISTRO_DEFAULTS
 /*****************************************************************************/
 
 #if !defined(CONFIG_SPL_BUILD)
 
-/* NAND support */
-#define CONFIG_SYS_NAND_ONFI_DETECTION
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 1) \
+	func(UBIFS, ubifs, 0) \
 	func(MMC, mmc, 0) \
 	func(MMC, mmc, 2) \
 	func(PXE, pxe, na)
@@ -108,6 +112,7 @@
 	"if test ${boot_device} = serial || test ${boot_device} = usb;" \
 	"then stm32prog ${boot_device} ${boot_instance}; " \
 	"else " \
+		"run env_check;" \
 		"if test ${boot_device} = mmc;" \
 		"then env set boot_targets \"mmc${boot_instance}\"; fi;" \
 		"if test ${boot_device} = nand;" \
@@ -117,13 +122,23 @@
 
 #include <config_distro_bootcmd.h>
 
-#if defined(CONFIG_STM32_QSPI) || defined(CONFIG_NAND_STM32_FMC)
-#define CONFIG_SYS_MTDPARTS_RUNTIME
-#endif
+#ifdef CONFIG_STM32MP1_OPTEE
+/* with OPTEE: define specific MTD partitions = teeh, teed, teex */
+#define STM32MP_MTDPARTS \
+	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),256k(teeh),256k(teed),256k(teex),-(nor_user)\0" \
+	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),512k(teeh),512k(teed),512k(teex),-(UBI)\0"
 
+#else /* CONFIG_STM32MP1_OPTEE */
 #define STM32MP_MTDPARTS \
 	"mtdparts_nor0=256k(fsbl1),256k(fsbl2),2m(ssbl),256k(u-boot-env),-(nor_user)\0" \
 	"mtdparts_nand0=2m(fsbl),2m(ssbl1),2m(ssbl2),-(UBI)\0"
+
+#endif /* CONFIG_STM32MP1_OPTEE */
+
+#ifndef CONFIG_SYS_MTDPARTS_RUNTIME
+#undef STM32MP_MTDPARTS
+#define STM32MP_MTDPARTS
+#endif
 
 /*
  * memory layout for 32M uncompressed/compressed kernel,
@@ -139,9 +154,13 @@
 	"ramdisk_addr_r=0xc4400000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
+	"env_default=1\0"				\
+	"env_check=if test $env_default -eq 1;"\
+		" then env set env_default 0;env save;fi\0" \
 	STM32MP_BOOTCMD \
 	STM32MP_MTDPARTS \
-	BOOTENV
+	BOOTENV \
+	"boot_net_usb_start=true\0"
 
 #endif /* ifndef CONFIG_SPL_BUILD */
 #endif /* ifdef CONFIG_DISTRO_DEFAULTS*/

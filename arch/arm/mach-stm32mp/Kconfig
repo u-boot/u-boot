@@ -38,6 +38,7 @@ config TARGET_STM32MP1
 	select CPU_V7A
 	select CPU_V7_HAS_NONSEC if !STM32MP1_TRUSTED
 	select CPU_V7_HAS_VIRT
+	select OF_BOARD_SETUP
 	select PINCTRL_STM32
 	select STM32_RCC
 	select STM32_RESET
@@ -62,7 +63,17 @@ config STM32MP1_TRUSTED
 		Say Y here to enable boot with TF-A
 		Trusted boot chain is :
 		BootRom => TF-A.stm32 (clock & DDR) => U-Boot.stm32
-		TF-A monitor provides proprietary smc to manage secure devices
+		TF-A monitor provides proprietary SMC to manage secure devices
+
+config STM32MP1_OPTEE
+	bool "Support trusted boot with TF-A and OP-TEE"
+	depends on STM32MP1_TRUSTED
+	default n
+	help
+		Say Y here to enable boot with TF-A and OP-TEE
+		Trusted boot chain is :
+		BootRom => TF-A.stm32 (clock & DDR) => OP-TEE => U-Boot.stm32
+		OP-TEE monitor provides ST SMC to access to secure resources
 
 config SYS_TEXT_BASE
 	prompt "U-Boot base address"
@@ -82,6 +93,21 @@ config SYS_MMCSD_RAW_MODE_U_BOOT_PARTITION_MMC2
 	help
 	  Partition on the second MMC to load U-Boot from when the MMC is being
 	  used in raw mode
+
+config STM32_ETZPC
+	bool "STM32 Extended TrustZone Protection"
+	depends on TARGET_STM32MP1
+	default y
+	help
+	  Say y to enable STM32 Extended TrustZone Protection
+
+config CMD_STM32KEY
+	bool "command stm32key to fuse public key hash"
+	default y
+	depends on CMD_FUSE
+	help
+		fuse public key hash in corresponding fuse used to authenticate
+		binary.
 
 config BOOTSTAGE_STASH_ADDR
 	default 0xC3000000
