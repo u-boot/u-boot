@@ -596,7 +596,7 @@ efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
 /**
  * efi_delete_handle() - delete handle
  *
- * @obj: handle to delete
+ * @handle: handle to delete
  */
 void efi_delete_handle(efi_handle_t handle)
 {
@@ -628,6 +628,7 @@ static efi_status_t efi_is_event(const struct efi_event *event)
 
 /**
  * efi_create_event() - create an event
+ *
  * @type:            type of the event to create
  * @notify_tpl:      task priority level of the event
  * @notify_function: notification function of the event
@@ -1418,9 +1419,9 @@ out:
 
 /**
  * efi_search() - determine if an EFI handle implements a protocol
+ *
  * @search_type: selection criterion
  * @protocol:    GUID of the protocol
- * @search_key:  registration key
  * @handle:      handle
  *
  * See the documentation of the LocateHandle service in the UEFI specification.
@@ -1682,7 +1683,7 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
  * Initialize a loaded_image_info and loaded_image_info object with correct
  * protocols, boot-device, etc.
  *
- * In case of an error *handle_ptr and *info_ptr are set to NULL and an error
+ * In case of an error \*handle_ptr and \*info_ptr are set to NULL and an error
  * code is returned.
  *
  * @device_path:	device path of the loaded image
