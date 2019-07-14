@@ -45,10 +45,17 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MACB_RX_BUFFER_SIZE		4096
-#define MACB_RX_RING_SIZE		(MACB_RX_BUFFER_SIZE / 128)
+/*
+ * These buffer sizes must be power of 2 and divisible
+ * by RX_BUFFER_MULTIPLE
+ */
+#define MACB_RX_BUFFER_SIZE		128
+#define GEM_RX_BUFFER_SIZE		2048
 #define RX_BUFFER_MULTIPLE		64
+
+#define MACB_RX_RING_SIZE		32
 #define MACB_TX_RING_SIZE		16
+
 #define MACB_TX_TIMEOUT		1000
 #define MACB_AUTONEG_TIMEOUT	5000000
 
@@ -95,6 +102,7 @@ struct macb_device {
 	void			*tx_buffer;
 	struct macb_dma_desc	*rx_ring;
 	struct macb_dma_desc	*tx_ring;
+	size_t			rx_buffer_size;
 
 	unsigned long		rx_buffer_dma;
 	unsigned long		rx_ring_dma;
@@ -395,15 +403,16 @@ static int _macb_recv(struct macb_device *macb, uchar **packetp)
 		}
 
 		if (status & MACB_BIT(RX_EOF)) {
-			buffer = macb->rx_buffer + 128 * macb->rx_tail;
+			buffer = macb->rx_buffer +
+				macb->rx_buffer_size * macb->rx_tail;
 			length = status & RXBUF_FRMLEN_MASK;
 
 			macb_invalidate_rx_buffer(macb);
 			if (macb->wrapped) {
 				unsigned int headlen, taillen;
 
-				headlen = 128 * (MACB_RX_RING_SIZE
-						 - macb->rx_tail);
+				headlen = macb->rx_buffer_size *
+					(MACB_RX_RING_SIZE - macb->rx_tail);
 				taillen = length - headlen;
 				memcpy((void *)net_rx_packets[0],
 				       buffer, headlen);
@@ -703,7 +712,7 @@ static void gmac_configure_dma(struct macb_device *macb)
 	u32 buffer_size;
 	u32 dmacfg;
 
-	buffer_size = 128 / RX_BUFFER_MULTIPLE;
+	buffer_size = macb->rx_buffer_size / RX_BUFFER_MULTIPLE;
 	dmacfg = gem_readl(macb, DMACFG) & ~GEM_BF(RXBS, -1L);
 	dmacfg |= GEM_BF(RXBS, buffer_size);
 
@@ -748,7 +757,7 @@ static int _macb_init(struct macb_device *macb, const char *name)
 			paddr |= MACB_BIT(RX_WRAP);
 		macb->rx_ring[i].addr = paddr;
 		macb->rx_ring[i].ctrl = 0;
-		paddr += 128;
+		paddr += macb->rx_buffer_size;
 	}
 	macb_flush_ring_desc(macb, RX);
 	macb_flush_rx_buffer(macb);
@@ -959,8 +968,14 @@ static void _macb_eth_initialize(struct macb_device *macb)
 	int id = 0;	/* This is not used by functions we call */
 	u32 ncfgr;
 
+	if (macb_is_gem(macb))
+		macb->rx_buffer_size = GEM_RX_BUFFER_SIZE;
+	else
+		macb->rx_buffer_size = MACB_RX_BUFFER_SIZE;
+
 	/* TODO: we need check the rx/tx_ring_dma is dcache line aligned */
-	macb->rx_buffer = dma_alloc_coherent(MACB_RX_BUFFER_SIZE,
+	macb->rx_buffer = dma_alloc_coherent(macb->rx_buffer_size *
+					     MACB_RX_RING_SIZE,
 					     &macb->rx_buffer_dma);
 	macb->rx_ring = dma_alloc_coherent(MACB_RX_DMA_DESC_SIZE,
 					   &macb->rx_ring_dma);
