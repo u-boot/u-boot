@@ -303,6 +303,37 @@ struct acpi_mcfg_mmconfig {
 /* ACPI global NVS structure */
 struct acpi_global_nvs;
 
+/* CSRT (Core System Resource Table) */
+struct acpi_csrt {
+	struct acpi_table_header header;
+};
+
+struct acpi_csrt_group {
+	u32 length;
+	u32 vendor_id;
+	u32 subvendor_id;
+	u16 device_id;
+	u16 subdevice_id;
+	u16 revision;
+	u16 reserved;
+	u32 shared_info_length;
+};
+
+struct acpi_csrt_shared_info {
+	u16 major_version;
+	u16 minor_version;
+	u32 mmio_base_low;
+	u32 mmio_base_high;
+	u32 gsi_interrupt;
+	u8 interrupt_polarity;
+	u8 interrupt_mode;
+	u8 num_channels;
+	u8 dma_address_width;
+	u16 base_request_line;
+	u16 num_handshake_signals;
+	u32 max_block_size;
+};
+
 /* DBG2 definitions are partially used for SPCR interface_type */
 
 /* Types for port_type field */
