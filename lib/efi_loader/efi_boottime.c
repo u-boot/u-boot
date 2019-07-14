@@ -3048,9 +3048,9 @@ out:
 /**
  * efi_update_exit_data() - fill exit data parameters of StartImage()
  *
- * @image_obj		image handle
- * @exit_data_size	size of the exit data buffer
- * @exit_data		buffer with data returned by UEFI payload
+ * @image_obj:		image handle
+ * @exit_data_size:	size of the exit data buffer
+ * @exit_data:		buffer with data returned by UEFI payload
  * Return:		status code
  */
 static efi_status_t efi_update_exit_data(struct efi_loaded_image_obj *image_obj,
