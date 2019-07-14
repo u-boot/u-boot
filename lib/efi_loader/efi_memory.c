@@ -37,17 +37,21 @@ void *efi_bounce_buffer;
 #endif
 
 /**
- * efi_pool_allocation - memory block allocated from pool
+ * struct efi_pool_allocation - memory block allocated from pool
  *
  * @num_pages:	number of pages allocated
  * @checksum:	checksum
+ * @data:	allocated pool memory
  *
- * U-Boot services each EFI AllocatePool request as a separate
- * (multiple) page allocation.  We have to track the number of pages
+ * U-Boot services each UEFI AllocatePool() request as a separate
+ * (multiple) page allocation. We have to track the number of pages
  * to be able to free the correct amount later.
+ *
+ * The checksum calculated in function checksum() is used in FreePool() to avoid
+ * freeing memory not allocated by AllocatePool() and duplicate freeing.
+ *
  * EFI requires 8 byte alignment for pool allocations, so we can
- * prepend each allocation with an 64 bit header tracking the
- * allocation size, and hand out the remainder to the caller.
+ * prepend each allocation with these header fields.
  */
 struct efi_pool_allocation {
 	u64 num_pages;
