@@ -50,6 +50,16 @@ static const char j1[] = {0x6a, 0x31, 0xa1, 0x6c, 0x00};
 static const char j2[] = {0x6a, 0x32, 0xc3, 0xc3, 0x6c, 0x00};
 static const char j3[] = {0x6a, 0x33, 0xf0, 0x90, 0xf0, 0x00};
 
+static int unicode_test_u16_strlen(struct unit_test_state *uts)
+{
+	ut_asserteq(6, u16_strlen(c1));
+	ut_asserteq(8, u16_strlen(c2));
+	ut_asserteq(3, u16_strlen(c3));
+	ut_asserteq(6, u16_strlen(c4));
+	return 0;
+}
+UNICODE_TEST(unicode_test_u16_strlen);
+
 static int unicode_test_u16_strdup(struct unit_test_state *uts)
 {
 	u16 *copy = u16_strdup(c4);
