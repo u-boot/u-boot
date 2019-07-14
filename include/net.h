@@ -728,7 +728,7 @@ static inline struct in_addr net_read_ip(void *from)
 }
 
 /* return ulong *in network byteorder* */
-static inline u32 net_read_u32(u32 *from)
+static inline u32 net_read_u32(void *from)
 {
 	u32 l;
 
@@ -749,7 +749,7 @@ static inline void net_copy_ip(void *to, void *from)
 }
 
 /* copy ulong */
-static inline void net_copy_u32(u32 *to, u32 *from)
+static inline void net_copy_u32(void *to, void *from)
 {
 	memcpy((void *)to, (void *)from, sizeof(u32));
 }
