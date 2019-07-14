@@ -567,7 +567,7 @@ static inline void ascii2unicode(u16 *unicode, const char *ascii)
 	*unicode = 0;
 }
 
-static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
+static inline int guidcmp(const void *g1, const void *g2)
 {
 	return memcmp(g1, g2, sizeof(efi_guid_t));
 }
