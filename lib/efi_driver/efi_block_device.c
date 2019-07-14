@@ -43,14 +43,14 @@ struct efi_blk_platdata {
 	struct efi_block_io	*io;
 };
 
-/*
+/**
  * Read from block device
  *
- * @dev		device
- * @blknr	first block to be read
- * @blkcnt	number of blocks to read
- * @buffer	output buffer
- * @return	number of blocks transferred
+ * @dev:	device
+ * @blknr:	first block to be read
+ * @blkcnt:	number of blocks to read
+ * @buffer:	output buffer
+ * Return:	number of blocks transferred
  */
 static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			 void *buffer)
@@ -72,14 +72,14 @@ static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-/*
+/**
  * Write to block device
  *
- * @dev		device
- * @blknr	first block to be write
- * @blkcnt	number of blocks to write
- * @buffer	input buffer
- * @return	number of blocks transferred
+ * @dev:	device
+ * @blknr:	first block to be write
+ * @blkcnt:	number of blocks to write
+ * @buffer:	input buffer
+ * Return:	number of blocks transferred
  */
 static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 			  const void *buffer)
@@ -102,11 +102,12 @@ static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
 	return blkcnt;
 }
 
-/*
+/**
  * Create partions for the block device.
  *
- * @handle	EFI handle of the block device
- * @dev		udevice of the block device
+ * @handle:	EFI handle of the block device
+ * @dev:	udevice of the block device
+ * Return:	number of partitions created
  */
 static int efi_bl_bind_partitions(efi_handle_t handle, struct udevice *dev)
 {
@@ -120,12 +121,12 @@ static int efi_bl_bind_partitions(efi_handle_t handle, struct udevice *dev)
 					  desc->devnum, dev->name);
 }
 
-/*
+/**
  * Create a block device for a handle
  *
- * @handle	handle
- * @interface	block io protocol
- * @return	0 = success
+ * @handle:	handle
+ * @interface:	block io protocol
+ * Return:	0 = success
  */
 static int efi_bl_bind(efi_handle_t handle, void *interface)
 {
