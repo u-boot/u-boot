@@ -12,6 +12,7 @@
 #include <mmc.h>
 #include <efi_loader.h>
 #include <part.h>
+#include <asm-generic/unaligned.h>
 
 /* template END node: */
 static const struct efi_device_path END = {
@@ -793,16 +794,36 @@ struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part)
 	return buf;
 }
 
-/* convert path to an UEFI style path (i.e. DOS style backslashes and UTF-16) */
-static void path_to_uefi(u16 *uefi, const char *path)
+/**
+ * path_to_uefi() - convert UTF-8 path to an UEFI style path
+ *
+ * Convert UTF-8 path to a UEFI style path (i.e. with backslashes as path
+ * separators and UTF-16).
+ *
+ * @src:	source buffer
+ * @uefi:	target buffer, possibly unaligned
+ */
+static void path_to_uefi(void *uefi, const char *src)
 {
-	while (*path) {
-		char c = *(path++);
-		if (c == '/')
-			c = '\\';
-		*(uefi++) = c;
+	u16 *pos = uefi;
+
+	/*
+	 * efi_set_bootdev() calls this routine indirectly before the UEFI
+	 * subsystem is initialized. So we cannot assume unaligned access to be
+	 * enabled.
+	 */
+	allow_unaligned();
+
+	while (*src) {
+		s32 code = utf8_get(&src);
+
+		if (code < 0)
+			code = '?';
+		else if (code == '/')
+			code = '\\';
+		utf16_put(code, &pos);
 	}
-	*uefi = '\0';
+	*pos = 0;
 }
 
 /*
@@ -819,7 +840,8 @@ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 	if (desc)
 		dpsize = dp_part_size(desc, part);
 
-	fpsize = sizeof(struct efi_device_path) + 2 * (strlen(path) + 1);
+	fpsize = sizeof(struct efi_device_path) +
+		 2 * (utf8_utf16_strlen(path) + 1);
 	dpsize += fpsize;
 
 	start = buf = dp_alloc(dpsize + sizeof(END));
