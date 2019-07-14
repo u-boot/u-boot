@@ -755,6 +755,7 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 		struct efi_device_path_file_path *fdp =
 			container_of(fp, struct efi_device_path_file_path, dp);
 		struct efi_file_handle *f2;
+		u16 *filename;
 
 		if (!EFI_DP_TYPE(fp, MEDIA_DEVICE, FILE_PATH)) {
 			printf("bad file path!\n");
@@ -762,8 +763,12 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
 			return NULL;
 		}
 
-		EFI_CALL(ret = f->open(f, &f2, fdp->str,
+		filename = u16_strdup(fdp->str);
+		if (!filename)
+			return NULL;
+		EFI_CALL(ret = f->open(f, &f2, filename,
 				       EFI_FILE_MODE_READ, 0));
+		free(filename);
 		if (ret != EFI_SUCCESS)
 			return NULL;
 
