@@ -918,6 +918,20 @@ config SPL_SATA_SUPPORT
 	  expense and power consumption. This enables loading from SATA
 	  using a configured device.
 
+config SPL_SATA_RAW_U_BOOT_USE_SECTOR
+	bool "SATA raw mode: by sector"
+	depends on SPL_SATA_SUPPORT
+	help
+	  Use sector number for specifying U-Boot location on SATA disk in
+	  raw mode.
+
+config SPL_SATA_RAW_U_BOOT_SECTOR
+	hex "Sector on the SATA disk to load U-Boot from"
+	depends on SPL_SATA_RAW_U_BOOT_USE_SECTOR
+	help
+	  Sector on the SATA disk to load U-Boot from, when the SATA disk is being
+	  used in raw mode. Units: SATA disk sectors (1 sector = 512 bytes).
+
 config SPL_SERIAL_SUPPORT
 	bool "Support serial"
 	select SPL_PRINTF
