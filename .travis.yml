@@ -365,11 +365,13 @@ matrix:
     - name: "test/py sandbox"
       env:
         - TEST_PY_BD="sandbox"
+          TEST_PY_TEST_SPEC="not pci"
           BUILDMAN="^sandbox$"
           TOOLCHAIN="i386"
     - name: "test/py sandbox with clang"
       env:
         - TEST_PY_BD="sandbox"
+          TEST_PY_TEST_SPEC="not pci"
           BUILDMAN="^sandbox$"
           OVERRIDE="clang-7"
     - name: "test/py sandbox_spl"
@@ -382,6 +384,7 @@ matrix:
     - name: "test/py sandbox_flattree"
       env:
         - TEST_PY_BD="sandbox_flattree"
+          TEST_PY_TEST_SPEC="not pci"
           BUILDMAN="^sandbox_flattree$"
           TOOLCHAIN="i386"
     - name: "test/py vexpress_ca15_tc2"

@@ -258,3 +258,29 @@ config SPL_DM_REGULATOR_STPMIC1
 	depends on SPL_DM_REGULATOR && PMIC_STPMIC1
 	help
 	  Enable support for the regulator functions of the STPMIC1 PMIC in SPL.
+
+config SPL_DM_REGULATOR_PALMAS
+	bool "Enable driver for PALMAS PMIC regulators"
+       depends on SPL_PMIC_PALMAS
+	help
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR PALMAS and the family of PALMAS PMICs.
+	The driver implements get/set api for: value and enable in SPL.
+
+config SPL_DM_REGULATOR_LP87565
+	bool "Enable driver for LP87565 PMIC regulators"
+       depends on SPL_PMIC_LP87565
+	help
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR LP87565 and the family of LP87565 PMICs.
+	LP87565 series of PMICs have 4 single phase BUCKs that can also
+	be configured in multi phase modes. The driver implements
+	get/set api for value and enable in SPL.
+
+config SPL_DM_REGULATOR_LP873X
+	bool "Enable driver for LP873X PMIC regulators"
+	depends on SPL_PMIC_LP873X
+	help
+	This enables implementation of driver-model regulator uclass
+	features for REGULATOR LP873X and the family of LP873X PMICs.
+	The driver implements get/set api for: value and enable in SPL.

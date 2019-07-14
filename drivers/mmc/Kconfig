@@ -158,21 +158,6 @@ config MMC_TRACE
 
 	  If you need to see the MMC core message, say Y.
 
-config SPL_MMC_TINY
-	bool "Tiny MMC framework in SPL"
-	help
-	  Enable MMC framework tinification support. This option is useful if
-	  if your SPL is extremely size constrained. Heed the warning, enable
-	  this option if and only if you know exactly what you are doing, if
-	  you are reading this help text, you most likely have no idea :-)
-
-	  The MMC framework is reduced to bare minimum to be useful. No malloc
-	  support is needed for the MMC framework operation with this option
-	  enabled. The framework supports exactly one MMC device and exactly
-	  one MMC driver. The MMC driver can be adjusted to avoid any malloc
-	  operations too, which can remove the need for malloc support in SPL
-	  and thus further reduce footprint.
-
 config MMC_DAVINCI
 	bool "TI DAVINCI Multimedia Card Interface support"
 	depends on ARCH_DAVINCI

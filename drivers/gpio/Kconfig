@@ -14,6 +14,16 @@ config DM_GPIO
 	  particular GPIOs that they provide. The uclass interface
 	  is defined in include/asm-generic/gpio.h.
 
+config DM_GPIO_HOG
+	bool "Enable GPIO hog support"
+	depends on DM_GPIO
+	default n
+	help
+	  Enable gpio hog support
+	  The GPIO chip may contain GPIO hog definitions. GPIO hogging
+	  is a mechanism providing automatic GPIO request and config-
+	  uration as part of the gpio-controller's driver probe function.
+
 config ALTERA_PIO
 	bool "Altera PIO driver"
 	depends on DM_GPIO

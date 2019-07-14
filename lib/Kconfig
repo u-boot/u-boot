@@ -97,6 +97,8 @@ config SYS_HZ
 
 config USE_TINY_PRINTF
 	bool "Enable tiny printf() version"
+	depends on SPL || TPL
+	default y
 	help
 	  This option enables a tiny, stripped down printf version.
 	  This should only be used in space limited environments,

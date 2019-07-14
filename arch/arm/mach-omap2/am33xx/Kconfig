@@ -177,6 +177,13 @@ config TARGET_PEPPER
 	select DM_SERIAL
 	imply CMD_DM
 
+config TARGET_PHYCORE_AM335X_R2
+	bool "Support phyCORE AM335X R2"
+	select DM
+	select DM_GPIO
+	select DM_SERIAL
+	imply CMD_DM
+
 config TARGET_PXM2
 	bool "Support pxm2"
 	select BOARD_LATE_INIT

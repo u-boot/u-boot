@@ -1163,6 +1163,106 @@ sep_err:
 }
 #endif
 
+#if defined(CONFIG_CMD_NVEDIT_INFO)
+/*
+ * print_env_info - print environment information
+ */
+static int print_env_info(void)
+{
+	const char *value;
+
+	/* print environment validity value */
+	switch (gd->env_valid) {
+	case ENV_INVALID:
+		value = "invalid";
+		break;
+	case ENV_VALID:
+		value = "valid";
+		break;
+	case ENV_REDUND:
+		value = "redundant";
+		break;
+	default:
+		value = "unknown";
+		break;
+	}
+	printf("env_valid = %s\n", value);
+
+	/* print environment ready flag */
+	value = gd->flags & GD_FLG_ENV_READY ? "true" : "false";
+	printf("env_ready = %s\n", value);
+
+	/* print environment using default flag */
+	value = gd->flags & GD_FLG_ENV_DEFAULT ? "true" : "false";
+	printf("env_use_default = %s\n", value);
+
+	return CMD_RET_SUCCESS;
+}
+
+#define ENV_INFO_IS_DEFAULT	BIT(0) /* default environment bit mask */
+#define ENV_INFO_IS_PERSISTED	BIT(1) /* environment persistence bit mask */
+
+/*
+ * env info - display environment information
+ * env info [-d] - evaluate whether default environment is used
+ * env info [-p] - evaluate whether environment can be persisted
+ */
+static int do_env_info(cmd_tbl_t *cmdtp, int flag,
+		       int argc, char * const argv[])
+{
+	int eval_flags = 0;
+	int eval_results = 0;
+
+	/* display environment information */
+	if (argc <= 1)
+		return print_env_info();
+
+	/* process options */
+	while (--argc > 0 && **++argv == '-') {
+		char *arg = *argv;
+
+		while (*++arg) {
+			switch (*arg) {
+			case 'd':
+				eval_flags |= ENV_INFO_IS_DEFAULT;
+				break;
+			case 'p':
+				eval_flags |= ENV_INFO_IS_PERSISTED;
+				break;
+			default:
+				return CMD_RET_USAGE;
+			}
+		}
+	}
+
+	/* evaluate whether default environment is used */
+	if (eval_flags & ENV_INFO_IS_DEFAULT) {
+		if (gd->flags & GD_FLG_ENV_DEFAULT) {
+			printf("Default environment is used\n");
+			eval_results |= ENV_INFO_IS_DEFAULT;
+		} else {
+			printf("Environment was loaded from persistent storage\n");
+		}
+	}
+
+	/* evaluate whether environment can be persisted */
+	if (eval_flags & ENV_INFO_IS_PERSISTED) {
+#if defined(CONFIG_CMD_SAVEENV) && !defined(CONFIG_ENV_IS_NOWHERE)
+		printf("Environment can be persisted\n");
+		eval_results |= ENV_INFO_IS_PERSISTED;
+#else
+		printf("Environment cannot be persisted\n");
+#endif
+	}
+
+	/* The result of evaluations is combined with AND */
+	if (eval_flags != eval_results)
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
+}
+#endif
+
 #if defined(CONFIG_CMD_ENV_EXISTS)
 static int do_env_exists(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
@@ -1206,6 +1306,9 @@ static cmd_tbl_t cmd_env_sub[] = {
 #endif
 #if defined(CONFIG_CMD_IMPORTENV)
 	U_BOOT_CMD_MKENT(import, 5, 0, do_env_import, "", ""),
+#endif
+#if defined(CONFIG_CMD_NVEDIT_INFO)
+	U_BOOT_CMD_MKENT(info, 2, 0, do_env_info, "", ""),
 #endif
 	U_BOOT_CMD_MKENT(print, CONFIG_SYS_MAXARGS, 1, do_env_print, "", ""),
 #if defined(CONFIG_CMD_RUN)
@@ -1278,6 +1381,11 @@ static char env_help_text[] =
 #endif
 #if defined(CONFIG_CMD_IMPORTENV)
 	"env import [-d] [-t [-r] | -b | -c] addr [size] [var ...] - import environment\n"
+#endif
+#if defined(CONFIG_CMD_NVEDIT_INFO)
+	"env info - display environment information\n"
+	"env info [-d] - whether default environment is used\n"
+	"env info [-p] - whether environment can be persisted\n"
 #endif
 	"env print [-a | name ...] - print environment\n"
 #if defined(CONFIG_CMD_NVEDIT_EFI)

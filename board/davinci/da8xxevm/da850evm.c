@@ -216,21 +216,29 @@ static const struct pinmux_config gpio_pins[] = {
 };
 
 const struct pinmux_resource pinmuxes[] = {
+#ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_DRIVER_TI_EMAC
 	PINMUX_ITEM(emac_pins_mdio),
 #ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
 	PINMUX_ITEM(emac_pins_rmii),
 #else
 	PINMUX_ITEM(emac_pins_mii),
-#endif
-#endif
+#endif /* CONFIG_DRIVER_TI_EMAC */
+#endif /* CONFIG_DRIVER_TI_EMAC_USE_RMII */
+#endif /* CONFIG_SPL_BUILD */
 #ifdef CONFIG_SPI_FLASH
+#if !CONFIG_IS_ENABLED(PINCTRL)
 	PINMUX_ITEM(spi1_pins_base),
 	PINMUX_ITEM(spi1_pins_scs0),
 #endif
+#endif
+#if !CONFIG_IS_ENABLED(PINCTRL)
 	PINMUX_ITEM(uart2_pins_txrx),
 	PINMUX_ITEM(uart2_pins_rtscts),
+#endif
+#if !CONFIG_IS_ENABLED(PINCTRL)
 	PINMUX_ITEM(i2c0_pins),
+#endif
 #ifdef CONFIG_NAND_DAVINCI
 	PINMUX_ITEM(emifa_pins_cs3),
 	PINMUX_ITEM(emifa_pins_cs4),
@@ -241,7 +249,9 @@ const struct pinmux_resource pinmuxes[] = {
 #endif
 	PINMUX_ITEM(gpio_pins),
 #ifdef CONFIG_MMC_DAVINCI
+#if !CONFIG_IS_ENABLED(PINCTRL)
 	PINMUX_ITEM(mmc0_pins),
+#endif
 #endif
 };
 

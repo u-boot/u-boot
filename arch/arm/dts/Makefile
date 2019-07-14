@@ -30,7 +30,8 @@ dtb-$(CONFIG_EXYNOS7420) += exynos7420-espresso7420.dtb
 
 dtb-$(CONFIG_ARCH_DAVINCI) += \
 	da850-evm.dtb \
-	da850-lcdk.dtb
+	da850-lcdk.dtb \
+	da850-lego-ev3.dtb
 
 dtb-$(CONFIG_KIRKWOOD) += \
 	kirkwood-atl-sbx81lifkw.dtb \
@@ -288,7 +289,8 @@ dtb-$(CONFIG_AM33XX) += \
 	am335x-chiliboard.dtb \
 	am335x-sl50.dtb \
 	am335x-base0033.dtb \
-	am335x-guardian.dtb
+	am335x-guardian.dtb \
+	am335x-wega-rdk.dtb
 dtb-$(CONFIG_AM43XX) += am437x-gp-evm.dtb am437x-sk-evm.dtb	\
 	am43x-epos-evm.dtb \
 	am437x-idk-evm.dtb \

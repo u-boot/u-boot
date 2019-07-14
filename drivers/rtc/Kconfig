@@ -70,6 +70,16 @@ config RTC_RV3029
 	  This driver supports reading and writing the RTC/calendar and the
 	  battery-baced SRAM section.
 
+config RTC_RV8803
+	bool "Enable RV8803 driver"
+	depends on DM_RTC
+	help
+	  The Micro Crystal RV8803 is a high accuracy, ultra-low power I2C
+	  Real Time Clock (RTC) with temperature compensation.
+
+	  This driver supports reading and writing the RTC/calendar and
+	  detects total power failures.
+
 config RTC_RX8010SJ
 	bool "Enable RX8010SJ driver"
 	depends on DM_RTC
