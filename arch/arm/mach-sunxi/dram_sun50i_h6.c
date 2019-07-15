@@ -182,6 +182,7 @@ static void mctl_set_timing_lpddr3(struct dram_para *para)
 			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
 	struct sunxi_mctl_phy_reg * const mctl_phy =
 			(struct sunxi_mctl_phy_reg *)SUNXI_DRAM_PHY0_BASE;
+	int i;
 
 	u8 tccd		= 2;
 	u8 tfaw		= max(ns_to_t(50), 4);
@@ -237,8 +238,9 @@ static void mctl_set_timing_lpddr3(struct dram_para *para)
 	u8 twr2rd	= tcwl + 4 + 1 + twtr;
 	u8 trd2wr	= tcl + 4 + (tcksrea >> 1) - tcwl + 1;
 
-	/* set mode register */
-	memcpy(mctl_phy->mr, mr_lpddr3, sizeof(mr_lpddr3));
+	/* set mode registers */
+	for (i = 0; i < ARRAY_SIZE(mr_lpddr3); i++)
+		writel(mr_lpddr3[i], &mctl_phy->mr[i]);
 
 	/* set DRAM timing */
 	writel((twtp << 24) | (tfaw << 16) | (trasmax << 8) | tras,
