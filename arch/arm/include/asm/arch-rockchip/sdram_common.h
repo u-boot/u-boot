@@ -7,6 +7,7 @@
 #define _ASM_ARCH_SDRAM_COMMON_H
 
 enum {
+	DDR4 = 0,
 	DDR3 = 0x3,
 	LPDDR2 = 0x5,
 	LPDDR3 = 0x6,
