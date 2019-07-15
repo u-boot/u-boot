@@ -49,6 +49,7 @@ struct chan_info {
 struct dram_info {
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
+	u32 pwrup_srefresh_exit;
 	struct chan_info chan[2];
 	struct clk ddr_clk;
 	struct rk3399_cru *cru;
@@ -487,8 +488,8 @@ static int phy_io_config(const struct chan_info *chan,
 	return 0;
 }
 
-static int pctl_cfg(const struct chan_info *chan, u32 channel,
-		    const struct rk3399_sdram_params *params)
+static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
+		    u32 channel, const struct rk3399_sdram_params *params)
 {
 	u32 *denali_ctl = chan->pctl->denali_ctl;
 	u32 *denali_pi = chan->pi->denali_pi;
@@ -496,7 +497,6 @@ static int pctl_cfg(const struct chan_info *chan, u32 channel,
 	const u32 *params_ctl = params->pctl_regs.denali_ctl;
 	const u32 *params_phy = params->phy_regs.denali_phy;
 	u32 tmp, tmp1, tmp2;
-	u32 pwrup_srefresh_exit;
 	int ret;
 	const ulong timeout_ms = 200;
 
@@ -518,7 +518,8 @@ static int pctl_cfg(const struct chan_info *chan, u32 channel,
 	writel(params->phy_regs.denali_phy[911], &denali_phy[911]);
 	writel(params->phy_regs.denali_phy[912], &denali_phy[912]);
 
-	pwrup_srefresh_exit = readl(&denali_ctl[68]) & PWRUP_SREFRESH_EXIT;
+	dram->pwrup_srefresh_exit = readl(&denali_ctl[68]) &
+				    PWRUP_SREFRESH_EXIT;
 	clrbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT);
 
 	/* PHY_DLL_RST_EN */
@@ -594,7 +595,7 @@ static int pctl_cfg(const struct chan_info *chan, u32 channel,
 	debug("DRAM (%s): phy locked after %ld ms\n", __func__, get_timer(tmp));
 
 	clrsetbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT,
-			pwrup_srefresh_exit);
+			dram->pwrup_srefresh_exit);
 	return 0;
 }
 
@@ -1179,7 +1180,7 @@ static int sdram_init(struct dram_info *dram,
 		if (channel >= params->base.num_channels)
 			continue;
 
-		ret = pctl_cfg(chan, channel, params);
+		ret = pctl_cfg(dram, chan, channel, params);
 		if (ret < 0) {
 			printf("%s: pctl config failed\n", __func__);
 			return ret;
