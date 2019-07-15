@@ -83,14 +83,11 @@ static int sandbox_read_bar(struct udevice *dev, uint fn,
 			    struct pci_bar *ep_bar, enum pci_barno barno)
 {
 	struct sandbox_pci_ep_priv *priv = dev_get_priv(dev);
-	int bar_idx;
 
 	if (fn > 0)
 		return -ENODEV;
 
-	bar_idx = ep_bar->barno;
-
-	memcpy(ep_bar, &priv->bars[bar_idx], sizeof(*ep_bar));
+	memcpy(ep_bar, &priv->bars[barno], sizeof(*ep_bar));
 
 	return 0;
 }
