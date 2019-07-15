@@ -1063,6 +1063,7 @@ static int sdram_init(struct dram_info *dram,
 	unsigned char dramtype = params->base.dramtype;
 	unsigned int ddr_freq = params->base.ddr_freq;
 	int channel;
+	int ret;
 
 	debug("Starting SDRAM initialization...\n");
 
@@ -1082,9 +1083,10 @@ static int sdram_init(struct dram_info *dram,
 		if (channel >= params->base.num_channels)
 			continue;
 
-		if (pctl_cfg(chan, channel, params) != 0) {
-			printf("pctl_cfg fail, reset\n");
-			return -EIO;
+		ret = pctl_cfg(chan, channel, params);
+		if (ret < 0) {
+			printf("%s: pctl config failed\n", __func__);
+			return ret;
 		}
 
 		/* LPDDR2/LPDDR3 need to wait DAI complete, max 10us */
