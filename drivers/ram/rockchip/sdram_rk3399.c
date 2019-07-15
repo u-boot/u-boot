@@ -159,41 +159,48 @@ static void set_ds_odt(const struct chan_info *chan,
 	u32 *denali_phy = chan->publ->denali_phy;
 
 	u32 tsel_idle_en, tsel_wr_en, tsel_rd_en;
-	u32 tsel_idle_select_p, tsel_wr_select_dq_p, tsel_rd_select_p;
-	u32 tsel_wr_select_ca_p, tsel_wr_select_ca_n;
-	u32 tsel_idle_select_n, tsel_wr_select_dq_n, tsel_rd_select_n;
+	u32 tsel_idle_select_p, tsel_rd_select_p;
+	u32 tsel_idle_select_n, tsel_rd_select_n;
+	u32 tsel_wr_select_dq_p, tsel_wr_select_ca_p;
+	u32 tsel_wr_select_dq_n, tsel_wr_select_ca_n;
 	u32 reg_value;
 
 	if (params->base.dramtype == LPDDR4) {
 		tsel_rd_select_p = PHY_DRV_ODT_HI_Z;
-		tsel_wr_select_dq_p = PHY_DRV_ODT_40;
-		tsel_wr_select_ca_p = PHY_DRV_ODT_40;
-		tsel_idle_select_p = PHY_DRV_ODT_HI_Z;
-
 		tsel_rd_select_n = PHY_DRV_ODT_240;
-		tsel_wr_select_dq_n = PHY_DRV_ODT_40;
-		tsel_wr_select_ca_n = PHY_DRV_ODT_40;
+
+		tsel_idle_select_p = PHY_DRV_ODT_HI_Z;
 		tsel_idle_select_n = PHY_DRV_ODT_240;
+
+		tsel_wr_select_dq_p = PHY_DRV_ODT_40;
+		tsel_wr_select_dq_n = PHY_DRV_ODT_40;
+
+		tsel_wr_select_ca_p = PHY_DRV_ODT_40;
+		tsel_wr_select_ca_n = PHY_DRV_ODT_40;
 	} else if (params->base.dramtype == LPDDR3) {
 		tsel_rd_select_p = PHY_DRV_ODT_240;
-		tsel_wr_select_dq_p = PHY_DRV_ODT_34_3;
-		tsel_wr_select_ca_p = PHY_DRV_ODT_48;
-		tsel_idle_select_p = PHY_DRV_ODT_240;
-
 		tsel_rd_select_n = PHY_DRV_ODT_HI_Z;
-		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
-		tsel_wr_select_ca_n = PHY_DRV_ODT_48;
+
+		tsel_idle_select_p = PHY_DRV_ODT_240;
 		tsel_idle_select_n = PHY_DRV_ODT_HI_Z;
+
+		tsel_wr_select_dq_p = PHY_DRV_ODT_34_3;
+		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
+
+		tsel_wr_select_ca_p = PHY_DRV_ODT_48;
+		tsel_wr_select_ca_n = PHY_DRV_ODT_48;
 	} else {
 		tsel_rd_select_p = PHY_DRV_ODT_240;
-		tsel_wr_select_dq_p = PHY_DRV_ODT_34_3;
-		tsel_wr_select_ca_p = PHY_DRV_ODT_34_3;
-		tsel_idle_select_p = PHY_DRV_ODT_240;
-
 		tsel_rd_select_n = PHY_DRV_ODT_240;
-		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
-		tsel_wr_select_ca_n = PHY_DRV_ODT_34_3;
+
+		tsel_idle_select_p = PHY_DRV_ODT_240;
 		tsel_idle_select_n = PHY_DRV_ODT_240;
+
+		tsel_wr_select_dq_p = PHY_DRV_ODT_34_3;
+		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
+
+		tsel_wr_select_ca_p = PHY_DRV_ODT_34_3;
+		tsel_wr_select_ca_n = PHY_DRV_ODT_34_3;
 	}
 
 	if (params->base.odt == 1)
