@@ -33,10 +33,46 @@ void sdram_print_dram_type(unsigned char dramtype)
 	}
 }
 
+/**
+ * cs  = 0, cs0
+ * cs  = 1, cs1
+ * cs => 2, cs0+cs1
+ * note: it didn't consider about row_3_4
+ */
+u64 sdram_get_cs_cap(struct sdram_cap_info *cap_info, u32 cs, u32 dram_type)
+{
+	u32 bg;
+	u64 cap[2];
+
+	if (dram_type == DDR4)
+		/* DDR4 8bit dram BG = 2(4bank groups),
+		 * 16bit dram BG = 1 (2 bank groups)
+		 */
+		bg = (cap_info->dbw == 0) ? 2 : 1;
+	else
+		bg = 0;
+
+	cap[0] = 1llu << (cap_info->bw + cap_info->col +
+		 bg + cap_info->bk + cap_info->cs0_row);
+
+	if (cap_info->rank == 2)
+		cap[1] = 1llu << (cap_info->bw + cap_info->col +
+			 bg + cap_info->bk + cap_info->cs1_row);
+	else
+		cap[1] = 0;
+
+	if (cs == 0)
+		return cap[0];
+	else if (cs == 1)
+		return cap[1];
+	else
+		return (cap[0] + cap[1]);
+}
+
 void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
 			  struct sdram_base_params *base)
 {
-	u32 bg;
+	u32 bg, cap;
 
 	bg = (cap_info->dbw == 0) ? 2 : 1;
 
@@ -71,4 +107,12 @@ void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
 
 	printascii(" Die BW=");
 	printdec(8 << cap_info->dbw);
+
+	cap = sdram_get_cs_cap(cap_info, 3, base->dramtype);
+	if (cap_info->row_3_4)
+		cap = cap * 3 / 4;
+
+	printascii(" Size=");
+	printdec(cap >> 20);
+	printascii("MB\n");
 }
