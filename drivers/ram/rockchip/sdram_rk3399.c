@@ -887,6 +887,7 @@ static int data_training(const struct chan_info *chan, u32 channel,
 			 u32 training_flag)
 {
 	u32 *denali_phy = chan->publ->denali_phy;
+	int ret;
 
 	/* PHY_927 PHY_PAD_DQS_DRIVE  RPULL offset_22 */
 	setbits_le32(&denali_phy[927], (1 << 22));
@@ -907,24 +908,49 @@ static int data_training(const struct chan_info *chan, u32 channel,
 	}
 
 	/* ca training(LPDDR4,LPDDR3 support) */
-	if ((training_flag & PI_CA_TRAINING) == PI_CA_TRAINING)
-		data_training_ca(chan, channel, params);
+	if ((training_flag & PI_CA_TRAINING) == PI_CA_TRAINING) {
+		ret = data_training_ca(chan, channel, params);
+		if (ret < 0) {
+			debug("%s: data training ca failed\n", __func__);
+			return ret;
+		}
+	}
 
 	/* write leveling(LPDDR4,LPDDR3,DDR3 support) */
-	if ((training_flag & PI_WRITE_LEVELING) == PI_WRITE_LEVELING)
-		data_training_wl(chan, channel, params);
+	if ((training_flag & PI_WRITE_LEVELING) == PI_WRITE_LEVELING) {
+		ret = data_training_wl(chan, channel, params);
+		if (ret < 0) {
+			debug("%s: data training wl failed\n", __func__);
+			return ret;
+		}
+	}
 
 	/* read gate training(LPDDR4,LPDDR3,DDR3 support) */
-	if ((training_flag & PI_READ_GATE_TRAINING) == PI_READ_GATE_TRAINING)
-		data_training_rg(chan, channel, params);
+	if ((training_flag & PI_READ_GATE_TRAINING) == PI_READ_GATE_TRAINING) {
+		ret = data_training_rg(chan, channel, params);
+		if (ret < 0) {
+			debug("%s: data training rg failed\n", __func__);
+			return ret;
+		}
+	}
 
 	/* read leveling(LPDDR4,LPDDR3,DDR3 support) */
-	if ((training_flag & PI_READ_LEVELING) == PI_READ_LEVELING)
-		data_training_rl(chan, channel, params);
+	if ((training_flag & PI_READ_LEVELING) == PI_READ_LEVELING) {
+		ret = data_training_rl(chan, channel, params);
+		if (ret < 0) {
+			debug("%s: data training rl failed\n", __func__);
+			return ret;
+		}
+	}
 
 	/* wdq leveling(LPDDR4 support) */
-	if ((training_flag & PI_WDQ_LEVELING) == PI_WDQ_LEVELING)
-		data_training_wdql(chan, channel, params);
+	if ((training_flag & PI_WDQ_LEVELING) == PI_WDQ_LEVELING) {
+		ret = data_training_wdql(chan, channel, params);
+		if (ret < 0) {
+			debug("%s: data training wdql failed\n", __func__);
+			return ret;
+		}
+	}
 
 	/* PHY_927 PHY_PAD_DQS_DRIVE  RPULL offset_22 */
 	clrbits_le32(&denali_phy[927], (1 << 22));
@@ -1062,7 +1088,7 @@ static int switch_to_phy_index1(struct dram_info *dram,
 		clrsetbits_le32(&denali_phy[896], (0x3 << 8) | 1, 1 << 8);
 		ret = data_training(&dram->chan[channel], channel,
 				    params, PI_FULL_TRAINING);
-		if (ret) {
+		if (ret < 0) {
 			debug("index1 training failed\n");
 			return ret;
 		}
@@ -1108,7 +1134,7 @@ static int sdram_init(struct dram_info *dram,
 			udelay(10);
 
 		if (data_training(chan, channel, params, PI_FULL_TRAINING)) {
-			printf("SDRAM initialization failed, reset\n");
+			printf("%s: data training failed\n", __func__);
 			return -EIO;
 		}
 
