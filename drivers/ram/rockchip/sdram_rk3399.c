@@ -861,11 +861,17 @@ static int data_training_wdql(const struct chan_info *chan, u32 channel,
 	u32 *denali_pi = chan->pi->denali_pi;
 	u32 i, tmp;
 	u32 rank = params->ch[channel].cap_info.rank;
+	u32 rank_mask;
 
 	/* clear interrupt,PI_175 PI_INT_ACK:WR:0:17 */
 	writel(0x00003f7c, (&denali_pi[175]));
 
-	for (i = 0; i < rank; i++) {
+	rank_mask = (rank == 1) ? 0x1 : 0x3;
+
+	for (i = 0; i < 4; i++) {
+		if (!(rank_mask & (1 << i)))
+			continue;
+
 		select_per_cs_training_index(chan, i);
 
 		/*
