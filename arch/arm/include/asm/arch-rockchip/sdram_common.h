@@ -97,8 +97,15 @@ int dram_init(void);
 inline void sdram_print_dram_type(unsigned char dramtype)
 {
 }
+
+inline void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
+				 struct sdram_base_params *base)
+{
+}
 #else
 void sdram_print_dram_type(unsigned char dramtype);
+void sdram_print_ddr_info(struct sdram_cap_info *cap_info,
+			  struct sdram_base_params *base);
 #endif /* CONFIG_RAM_ROCKCHIP_DEBUG */
 
 #endif
