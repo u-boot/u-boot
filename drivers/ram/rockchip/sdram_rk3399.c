@@ -49,10 +49,11 @@ struct chan_info {
 struct dram_info {
 #if defined(CONFIG_TPL_BUILD) || \
 	(!defined(CONFIG_TPL) && defined(CONFIG_SPL_BUILD))
-	u32 pwrup_srefresh_exit;
+	u32 pwrup_srefresh_exit[2];
 	struct chan_info chan[2];
 	struct clk ddr_clk;
 	struct rk3399_cru *cru;
+	struct rk3399_grf_regs *grf;
 	struct rk3399_pmucru *pmucru;
 	struct rk3399_pmusgrf_regs *pmusgrf;
 	struct rk3399_ddr_cic_regs *cic;
@@ -72,6 +73,11 @@ struct rockchip_dmc_plat {
 #endif
 	struct regmap *map;
 };
+
+static void *get_ddrc0_con(struct dram_info *dram, u8 channel)
+{
+	return (channel == 0) ? &dram->grf->ddrc0_con0 : &dram->grf->ddrc0_con1;
+}
 
 static void copy_to_reg(u32 *dest, const u32 *src, u32 n)
 {
@@ -328,6 +334,48 @@ static void set_ds_odt(const struct chan_info *chan,
 	clrsetbits_le32(&denali_phy[930], 0x1 << 17, reg_value);
 }
 
+static void pctl_start(struct dram_info *dram, u8 channel)
+{
+	const struct chan_info *chan = &dram->chan[channel];
+	u32 *denali_ctl = chan->pctl->denali_ctl;
+	u32 *denali_phy = chan->publ->denali_phy;
+	u32 *ddrc0_con = get_ddrc0_con(dram, channel);
+	u32 count = 0;
+	u32 byte, tmp;
+
+	writel(0x01000000, &ddrc0_con);
+
+	clrsetbits_le32(&denali_phy[957], 0x3 << 24, 0x2 << 24);
+
+	while (!(readl(&denali_ctl[203]) & (1 << 3))) {
+		if (count > 1000) {
+			printf("%s: Failed to init pctl for channel %d\n",
+			       __func__, channel);
+			while (1)
+				;
+		}
+
+		udelay(1);
+		count++;
+	}
+
+	writel(0x01000100, &ddrc0_con);
+
+	for (byte = 0; byte < 4; byte++) {
+		tmp = 0x820;
+		writel((tmp << 16) | tmp, &denali_phy[53 + (128 * byte)]);
+		writel((tmp << 16) | tmp, &denali_phy[54 + (128 * byte)]);
+		writel((tmp << 16) | tmp, &denali_phy[55 + (128 * byte)]);
+		writel((tmp << 16) | tmp, &denali_phy[56 + (128 * byte)]);
+		writel((tmp << 16) | tmp, &denali_phy[57 + (128 * byte)]);
+
+		clrsetbits_le32(&denali_phy[58 + (128 * byte)], 0xffff, tmp);
+	}
+
+	clrsetbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT,
+			dram->pwrup_srefresh_exit[channel]);
+}
+
 static int phy_io_config(const struct chan_info *chan,
 			 const struct rk3399_sdram_params *params)
 {
@@ -498,7 +546,6 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	const u32 *params_phy = params->phy_regs.denali_phy;
 	u32 tmp, tmp1, tmp2;
 	int ret;
-	const ulong timeout_ms = 200;
 
 	/*
 	 * work around controller bug:
@@ -518,8 +565,8 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	writel(params->phy_regs.denali_phy[911], &denali_phy[911]);
 	writel(params->phy_regs.denali_phy[912], &denali_phy[912]);
 
-	dram->pwrup_srefresh_exit = readl(&denali_ctl[68]) &
-				    PWRUP_SREFRESH_EXIT;
+	dram->pwrup_srefresh_exit[channel] = readl(&denali_ctl[68]) &
+					     PWRUP_SREFRESH_EXIT;
 	clrbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT);
 
 	/* PHY_DLL_RST_EN */
@@ -580,22 +627,6 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	if (ret)
 		return ret;
 
-	/* PHY_DLL_RST_EN */
-	clrsetbits_le32(&denali_phy[957], 0x3 << 24, 0x2 << 24);
-
-	/* Waiting for PHY and DRAM init complete */
-	tmp = get_timer(0);
-	do {
-		if (get_timer(tmp) > timeout_ms) {
-			pr_err("DRAM (%s): phy failed to lock within  %ld ms\n",
-			       __func__, timeout_ms);
-			return -ETIME;
-		}
-	} while (!(readl(&denali_ctl[203]) & (1 << 3)));
-	debug("DRAM (%s): phy locked after %ld ms\n", __func__, get_timer(tmp));
-
-	clrsetbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT,
-			dram->pwrup_srefresh_exit);
 	return 0;
 }
 
@@ -1186,6 +1217,9 @@ static int sdram_init(struct dram_info *dram,
 			return ret;
 		}
 
+		/* start to trigger initialization */
+		pctl_start(dram, channel);
+
 		/* LPDDR2/LPDDR3 need to wait DAI complete, max 10us */
 		if (dramtype == LPDDR3)
 			udelay(10);
@@ -1262,6 +1296,7 @@ static int rk3399_dmc_init(struct udevice *dev)
 #endif
 
 	priv->cic = syscon_get_first_range(ROCKCHIP_SYSCON_CIC);
+	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	priv->pmugrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
 	priv->pmusgrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUSGRF);
 	priv->pmucru = rockchip_get_pmucru();
