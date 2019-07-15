@@ -6,14 +6,6 @@
 #ifndef _ASM_ARCH_SDRAM_RK3399_H
 #define _ASM_ARCH_SDRAM_RK3399_H
 
-enum {
-	DDR3 = 0x3,
-	LPDDR2 = 0x5,
-	LPDDR3 = 0x6,
-	LPDDR4 = 0x7,
-	UNUSED = 0xFF
-};
-
 struct rk3399_ddr_pctl_regs {
 	u32 denali_ctl[332];
 };
