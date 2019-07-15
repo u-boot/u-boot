@@ -430,7 +430,6 @@ static void omap_hsmmc_conf_bus_power(struct mmc *mmc, uint signal_voltage)
 	writel(ac12, &mmc_base->ac12);
 }
 
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout)
 {
 	int ret = -ETIMEDOUT;
@@ -456,7 +455,6 @@ static int omap_hsmmc_wait_dat0(struct udevice *dev, int state, int timeout)
 
 	return ret;
 }
-#endif
 
 #if CONFIG_IS_ENABLED(MMC_IO_VOLTAGE)
 #if CONFIG_IS_ENABLED(DM_REGULATOR)
@@ -775,14 +773,6 @@ tuning_error:
 	return ret;
 }
 #endif
-
-static void omap_hsmmc_send_init_stream(struct udevice *dev)
-{
-	struct omap_hsmmc_data *priv = dev_get_priv(dev);
-	struct hsmmc *mmc_base = priv->base_addr;
-
-	mmc_init_stream(mmc_base);
-}
 #endif
 
 static void mmc_enable_irq(struct mmc *mmc, struct mmc_cmd *cmd)
@@ -1065,18 +1055,17 @@ static int omap_hsmmc_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 		if (get_timer(0) - start > MAX_RETRY_MS) {
 			printf("%s: timedout waiting on cmd inhibit to clear\n",
 					__func__);
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
+			mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
 			return -ETIMEDOUT;
 		}
 	}
 	writel(0xFFFFFFFF, &mmc_base->stat);
-	start = get_timer(0);
-	while (readl(&mmc_base->stat)) {
-		if (get_timer(0) - start > MAX_RETRY_MS) {
-			printf("%s: timedout waiting for STAT (%x) to clear\n",
-				__func__, readl(&mmc_base->stat));
-			return -ETIMEDOUT;
-		}
+	if (readl(&mmc_base->stat)) {
+		mmc_reset_controller_fsm(mmc_base, SYSCTL_SRD);
+		mmc_reset_controller_fsm(mmc_base, SYSCTL_SRC);
 	}
+
 	/*
 	 * CMDREG
 	 * CMDIDX[13:8]	: Command index
@@ -1522,10 +1511,7 @@ static const struct dm_mmc_ops omap_hsmmc_ops = {
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning = omap_hsmmc_execute_tuning,
 #endif
-	.send_init_stream	= omap_hsmmc_send_init_stream,
-#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
 	.wait_dat0	= omap_hsmmc_wait_dat0,
-#endif
 };
 #else
 static const struct mmc_ops omap_hsmmc_ops = {

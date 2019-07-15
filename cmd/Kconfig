@@ -955,15 +955,6 @@ config CMD_NVME
 	help
 	  NVM Express device support
 
-config CMD_MMC_SPI
-	bool "mmc_spi - Set up MMC SPI device"
-	help
-	  Provides a way to set up an MMC (Multimedia Card) SPI (Serial
-	  Peripheral Interface) device. The device provides a means of
-	  accessing an MMC device via SPI using a single data line, limited
-	  to 20MHz. It is useful since it reduces the amount of protocol code
-	  required.
-
 config CMD_ONENAND
 	bool "onenand - access to onenand device"
 	help

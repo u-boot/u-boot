@@ -46,6 +46,24 @@ config SPL_DM_MMC
 
 if MMC
 
+config MMC_SPI
+	bool "Support for SPI-based MMC controller"
+	depends on DM_MMC && DM_SPI
+	help
+	  This selects SPI-based MMC controllers.
+	  If you have an MMC controller on a SPI bus, say Y here.
+
+	  If unsure, say N.
+
+config MMC_SPI_CRC_ON
+	bool "Support CRC for SPI-based MMC controller"
+	depends on MMC_SPI
+	default y
+	help
+	  This enables CRC for SPI-based MMC controllers.
+
+	  If unsure, say N.
+
 config ARM_PL180_MMCI
 	bool "ARM AMBA Multimedia Card Interface and compatible support"
 	depends on DM_MMC && OF_CONTROL
@@ -116,6 +134,18 @@ config SPL_MMC_UHS_SUPPORT
 	  The Ultra High Speed (UHS) bus is available on some SDHC and SDXC
 	  cards. The IO voltage must be switchable from 3.3v to 1.8v. The bus
 	  frequency can go up to 208MHz (SDR104)
+
+config MMC_HS400_ES_SUPPORT
+	bool "enable HS400 Enhanced Strobe support"
+	help
+	  The HS400 Enhanced Strobe mode is support by some eMMC. The bus
+	  frequency is up to 200MHz. This mode does not tune the IO.
+
+config SPL_MMC_HS400_ES_SUPPORT
+	bool "enable HS400 Enhanced Strobe support in SPL"
+	help
+	  The HS400 Enhanced Strobe mode is support by some eMMC. The bus
+	  frequency is up to 200MHz. This mode does not tune the IO.
 
 config MMC_HS400_SUPPORT
 	bool "enable HS400 support"

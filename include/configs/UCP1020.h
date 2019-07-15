@@ -438,7 +438,6 @@
 
 #ifdef CONFIG_MMC
 #define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
-#define CONFIG_MMC_SPI
 #endif
 
 /* Misc Extra Settings */

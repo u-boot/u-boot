@@ -101,7 +101,6 @@ struct fsl_esdhc_plat {
 
 struct esdhc_soc_data {
 	u32 flags;
-	u32 caps;
 };
 
 /**
@@ -146,7 +145,7 @@ struct fsl_esdhc_priv {
 	u32 tuning_start_tap;
 	u32 strobe_dll_delay_target;
 	u32 signal_voltage;
-#if IS_ENABLED(CONFIG_DM_REGULATOR)
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
 	struct udevice *vqmmc_dev;
 	struct udevice *vmmc_dev;
 #endif
@@ -514,9 +513,9 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 
 	/* Workaround for ESDHC errata ENGcm03648 */
 	if (!data && (cmd->resp_type & MMC_RSP_BUSY)) {
-		int timeout = 6000;
+		int timeout = 50000;
 
-		/* Poll on DATA0 line for cmd with busy signal for 600 ms */
+		/* Poll on DATA0 line for cmd with busy signal for 5000 ms */
 		while (timeout > 0 && !(esdhc_read32(&regs->prsstat) &
 					PRSSTAT_DAT0)) {
 			udelay(100);
@@ -704,6 +703,7 @@ static int esdhc_change_pinstate(struct udevice *dev)
 	case UHS_SDR104:
 	case MMC_HS_200:
 	case MMC_HS_400:
+	case MMC_HS_400_ES:
 		ret = pinctrl_select_state(dev, "state_200mhz");
 		break;
 	default:
@@ -774,6 +774,7 @@ static int esdhc_set_timing(struct mmc *mmc)
 		writel(mixctrl, &regs->mixctrl);
 		break;
 	case MMC_HS_400:
+	case MMC_HS_400_ES:
 		mixctrl |= MIX_CTRL_DDREN | MIX_CTRL_HS400_EN;
 		writel(mixctrl, &regs->mixctrl);
 		esdhc_set_strobe_dll(mmc);
@@ -1426,10 +1427,8 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	priv->esdhc_regs = (struct fsl_esdhc *)addr;
 	priv->dev = dev;
 	priv->mode = -1;
-	if (data) {
+	if (data)
 		priv->flags = data->flags;
-		priv->caps = data->caps;
-	}
 
 	val = dev_read_u32_default(dev, "bus-width", -1);
 	if (val == 8)
@@ -1490,9 +1489,6 @@ static int fsl_esdhc_probe(struct udevice *dev)
 	}
 #endif
 
-	if (fdt_get_property(fdt, node, "no-1-8-v", NULL))
-		priv->caps &= ~(UHS_CAPS | MMC_MODE_HS200 | MMC_MODE_HS400);
-
 	/*
 	 * TODO:
 	 * Because lack of clk driver, if SDHC clk is not enabled,
@@ -1515,7 +1511,7 @@ static int fsl_esdhc_probe(struct udevice *dev)
 
 	init_clk_usdhc(dev->seq);
 
-	if (IS_ENABLED(CONFIG_CLK)) {
+	if (CONFIG_IS_ENABLED(CLK)) {
 		/* Assigned clock already set clock */
 		ret = clk_get_by_name(dev, "per", &priv->per_clk);
 		if (ret) {
@@ -1542,6 +1538,10 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		dev_err(dev, "fsl_esdhc_init failure\n");
 		return ret;
 	}
+
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
 
 	mmc = &plat->mmc;
 	mmc->cfg = &plat->cfg;
@@ -1596,12 +1596,30 @@ static int fsl_esdhc_set_ios(struct udevice *dev)
 	return esdhc_set_ios_common(priv, &plat->mmc);
 }
 
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+static int fsl_esdhc_set_enhanced_strobe(struct udevice *dev)
+{
+	struct fsl_esdhc_priv *priv = dev_get_priv(dev);
+	struct fsl_esdhc *regs = priv->esdhc_regs;
+	u32 m;
+
+	m = readl(&regs->mixctrl);
+	m |= MIX_CTRL_HS400_ES;
+	writel(m, &regs->mixctrl);
+
+	return 0;
+}
+#endif
+
 static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
 	.set_ios	= fsl_esdhc_set_ios,
 #ifdef MMC_SUPPORTS_TUNING
 	.execute_tuning	= fsl_esdhc_execute_tuning,
+#endif
+#if CONFIG_IS_ENABLED(MMC_HS400_ES_SUPPORT)
+	.set_enhanced_strobe = fsl_esdhc_set_enhanced_strobe,
 #endif
 };
 #endif
@@ -1610,8 +1628,12 @@ static struct esdhc_soc_data usdhc_imx7d_data = {
 	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING
 			| ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200
 			| ESDHC_FLAG_HS400,
-	.caps = UHS_CAPS | MMC_MODE_HS200 | MMC_MODE_DDR_52MHz |
-		MMC_MODE_HS_52MHz | MMC_MODE_HS,
+};
+
+static struct esdhc_soc_data usdhc_imx8qm_data = {
+	.flags = ESDHC_FLAG_USDHC | ESDHC_FLAG_STD_TUNING |
+		ESDHC_FLAG_HAVE_CAP1 | ESDHC_FLAG_HS200 |
+		ESDHC_FLAG_HS400 | ESDHC_FLAG_HS400_ES,
 };
 
 static const struct udevice_id fsl_esdhc_ids[] = {
@@ -1622,6 +1644,7 @@ static const struct udevice_id fsl_esdhc_ids[] = {
 	{ .compatible = "fsl,imx6q-usdhc", },
 	{ .compatible = "fsl,imx7d-usdhc", .data = (ulong)&usdhc_imx7d_data,},
 	{ .compatible = "fsl,imx7ulp-usdhc", },
+	{ .compatible = "fsl,imx8qm-usdhc", .data = (ulong)&usdhc_imx8qm_data,},
 	{ .compatible = "fsl,esdhc", },
 	{ /* sentinel */ }
 };
