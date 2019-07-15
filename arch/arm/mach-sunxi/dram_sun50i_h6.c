@@ -42,6 +42,7 @@ static void mctl_core_init(struct dram_para *para)
 	mctl_com_init(para);
 	switch (para->type) {
 	case SUNXI_DRAM_TYPE_LPDDR3:
+	case SUNXI_DRAM_TYPE_DDR3:
 		mctl_set_timing_params(para);
 		break;
 	default:
@@ -284,14 +285,11 @@ static void mctl_com_init(struct dram_para *para)
 	mctl_set_addrmap(para);
 
 	setbits_le32(&mctl_com->cr, BIT(31));
-	/*
-	 * This address is magic; it's in SID memory area, but there's no
-	 * known definition of it.
-	 * On my Pine H64 board it has content 7.
-	 */
-	if (readl(0x03006100) == 7)
+
+	/* The bonding ID seems to be always 7. */
+	if (readl(SUNXI_SIDC_BASE + 0x100) == 7)	/* bonding ID */
 		clrbits_le32(&mctl_com->cr, BIT(27));
-	else if (readl(0x03006100) == 3)
+	else if (readl(SUNXI_SIDC_BASE + 0x100) == 3)
 		setbits_le32(&mctl_com->cr, BIT(27));
 
 	if (para->clk > 408)
@@ -302,22 +300,37 @@ static void mctl_com_init(struct dram_para *para)
 		reg_val = 0x3f00;
 	clrsetbits_le32(&mctl_com->unk_0x008, 0x3f00, reg_val);
 
-	/* TODO: half DQ, non-LPDDR3 types */
-	writel(MSTR_DEVICETYPE_LPDDR3 | MSTR_BUSWIDTH_FULL |
-	       MSTR_BURST_LENGTH(8) | MSTR_ACTIVE_RANKS(para->ranks) |
-	       0x80000000, &mctl_ctl->mstr);
-	writel(DCR_LPDDR3 | DCR_DDR8BANK | 0x400, &mctl_phy->dcr);
+	/* TODO: half DQ, DDR4 */
+	reg_val = MSTR_BUSWIDTH_FULL | MSTR_BURST_LENGTH(8) |
+		  MSTR_ACTIVE_RANKS(para->ranks);
+	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
+		reg_val |= MSTR_DEVICETYPE_LPDDR3;
+	if (para->type == SUNXI_DRAM_TYPE_DDR3)
+		reg_val |= MSTR_DEVICETYPE_DDR3 | MSTR_2TMODE;
+	writel(reg_val | BIT(31), &mctl_ctl->mstr);
+
+	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
+		reg_val = DCR_LPDDR3 | DCR_DDR8BANK;
+	if (para->type == SUNXI_DRAM_TYPE_DDR3)
+		reg_val = DCR_DDR3 | DCR_DDR8BANK | DCR_DDR2T;
+	writel(reg_val | 0x400, &mctl_phy->dcr);
 
 	if (para->ranks == 2)
 		writel(0x0303, &mctl_ctl->odtmap);
 	else
 		writel(0x0201, &mctl_ctl->odtmap);
 
-	/* TODO: non-LPDDR3 types */
-	tmp = para->clk * 7 / 2000;
-	reg_val = 0x0400;
-	reg_val |= (tmp + 7) << 24;
-	reg_val |= (((para->clk < 400) ? 3 : 4) - tmp) << 16;
+	/* TODO: DDR4 */
+	if (para->type == SUNXI_DRAM_TYPE_LPDDR3) {
+		tmp = para->clk * 7 / 2000;
+		reg_val = 0x0400;
+		reg_val |= (tmp + 7) << 24;
+		reg_val |= (((para->clk < 400) ? 3 : 4) - tmp) << 16;
+	} else if (para->type == SUNXI_DRAM_TYPE_DDR3) {
+		reg_val = 0x06000400;	/* TODO?: Use CL - CWL value in [7:0] */
+	} else {
+		panic("Only (LP)DDR3 supported (type = %d)\n", para->type);
+	}
 	writel(reg_val, &mctl_ctl->odtcfg);
 
 	/* TODO: half DQ */
@@ -372,6 +385,9 @@ static void mctl_bit_delay_set(struct dram_para *para)
 	setbits_le32(&mctl_phy->pgcr[0], BIT(26));
 	udelay(1);
 
+	if (para->type != SUNXI_DRAM_TYPE_LPDDR3)
+		return;
+
 	for (i = 1; i < 14; i++) {
 		val = readl(&mctl_phy->acbdlr[i]);
 		val += 0x0a0a0a0a;
@@ -419,7 +435,8 @@ static void mctl_channel_init(struct dram_para *para)
 	else
 		clrsetbits_le32(&mctl_phy->dtcr[1], 0x30000, 0x10000);
 
-	clrbits_le32(&mctl_phy->dtcr[1], BIT(1));
+	if (sunxi_dram_is_lpddr(para->type))
+		clrbits_le32(&mctl_phy->dtcr[1], BIT(1));
 	if (para->ranks == 2) {
 		writel(0x00010001, &mctl_phy->rankidr);
 		writel(0x20000, &mctl_phy->odtcr);
@@ -428,8 +445,11 @@ static void mctl_channel_init(struct dram_para *para)
 		writel(0x10000, &mctl_phy->odtcr);
 	}
 
-	/* TODO: non-LPDDR3 types */
-	clrsetbits_le32(&mctl_phy->dtcr[0], 0xF0000000, 0x10000040);
+	/* set bits [3:0] to 1? 0 not valid in ZynqMP d/s */
+	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
+		clrsetbits_le32(&mctl_phy->dtcr[0], 0xF0000000, 0x10000040);
+	else
+		clrsetbits_le32(&mctl_phy->dtcr[0], 0xF0000000, 0x10000000);
 	if (para->clk <= 792) {
 		if (para->clk <= 672) {
 			if (para->clk <= 600)
@@ -459,12 +479,13 @@ static void mctl_channel_init(struct dram_para *para)
 			writel(0x06060606, &mctl_phy->acbdlr[i]);
 	}
 
-	/* TODO: non-LPDDR3 types */
-	mctl_phy_pir_init(PIR_ZCAL | PIR_DCAL | PIR_PHYRST | PIR_DRAMINIT |
-			  PIR_QSGATE | PIR_RDDSKW | PIR_WRDSKW | PIR_RDEYE |
-			  PIR_WREYE);
+	val = PIR_ZCAL | PIR_DCAL | PIR_PHYRST | PIR_DRAMINIT | PIR_QSGATE |
+	      PIR_RDDSKW | PIR_WRDSKW | PIR_RDEYE | PIR_WREYE;
+	if (para->type == SUNXI_DRAM_TYPE_DDR3)
+		val |= PIR_DRAMRST | PIR_WL;
+	mctl_phy_pir_init(val);
 
-	/* TODO: non-LPDDR3 types */
+	/* TODO: DDR4 types ? */
 	for (i = 0; i < 4; i++)
 		writel(0x00000909, &mctl_phy->dx[i].gcr[5]);
 
@@ -520,7 +541,8 @@ static void mctl_channel_init(struct dram_para *para)
 		panic("Error while initializing DRAM PHY!\n");
 	}
 
-	clrsetbits_le32(&mctl_phy->dsgcr, 0xc0, 0x40);
+	if (sunxi_dram_is_lpddr(para->type))
+		clrsetbits_le32(&mctl_phy->dsgcr, 0xc0, 0x40);
 	clrbits_le32(&mctl_phy->pgcr[1], 0x40);
 	clrbits_le32(&mctl_ctl->dfimisc, BIT(0));
 	writel(1, &mctl_ctl->swctl);
@@ -589,11 +611,15 @@ unsigned long sunxi_dram_init(void)
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
 	struct dram_para para = {
 		.clk = CONFIG_DRAM_CLK,
-#ifdef CONFIG_SUNXI_DRAM_H6_LPDDR3
-		.type = SUNXI_DRAM_TYPE_LPDDR3,
 		.ranks = 2,
 		.cols = 11,
 		.rows = 14,
+#ifdef CONFIG_SUNXI_DRAM_H6_LPDDR3
+		.type = SUNXI_DRAM_TYPE_LPDDR3,
+		.dx_read_delays  = SUN50I_H6_DX_READ_DELAYS,
+		.dx_write_delays = SUN50I_H6_DX_WRITE_DELAYS,
+#elif defined(CONFIG_SUNXI_DRAM_H6_DDR3_1333)
+		.type = SUNXI_DRAM_TYPE_DDR3,
 		.dx_read_delays  = SUN50I_H6_DX_READ_DELAYS,
 		.dx_write_delays = SUN50I_H6_DX_WRITE_DELAYS,
 #endif

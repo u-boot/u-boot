@@ -9,12 +9,19 @@
 #ifndef _SUNXI_DRAM_SUN50I_H6_H
 #define _SUNXI_DRAM_SUN50I_H6_H
 
+#include <stdbool.h>
+
 enum sunxi_dram_type {
 	SUNXI_DRAM_TYPE_DDR3 = 3,
 	SUNXI_DRAM_TYPE_DDR4,
 	SUNXI_DRAM_TYPE_LPDDR2 = 6,
 	SUNXI_DRAM_TYPE_LPDDR3,
 };
+
+static inline bool sunxi_dram_is_lpddr(int type)
+{
+	return type >= SUNXI_DRAM_TYPE_LPDDR2;
+}
 
 /*
  * The following information is mainly retrieved by disassembly and some FPGA
@@ -286,6 +293,7 @@ check_member(sunxi_mctl_phy_reg, dx[3].reserved_0xf0, 0xaf0);
 #define DCR_DDR3	(3 << 0)
 #define DCR_DDR4	(4 << 0)
 #define DCR_DDR8BANK	BIT(3)
+#define DCR_DDR2T	BIT(28)
 
 /*
  * The delay parameters allow to allegedly specify delay times of some
