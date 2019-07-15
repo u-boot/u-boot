@@ -415,6 +415,8 @@ void cadence_qspi_apb_controller_init(struct cadence_spi_platdata *plat)
 
 	reg = readl(plat->regbase + CQSPI_REG_CONFIG);
 	reg &= ~CQSPI_REG_CONFIG_DIRECT;
+	reg &= ~(CQSPI_REG_CONFIG_CHIPSELECT_MASK
+			<< CQSPI_REG_CONFIG_CHIPSELECT_LSB);
 	if (plat->is_dma)
 		reg |= CQSPI_REG_CONFIG_ENBL_DMA;
 
