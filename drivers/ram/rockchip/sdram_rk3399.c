@@ -35,6 +35,10 @@
 #define PHY_DRV_ODT_40		0xe
 #define PHY_DRV_ODT_34_3	0xf
 
+#define CRU_SFTRST_DDR_CTRL(ch, n)	((0x1 << (8 + 16 + (ch) * 4)) | \
+					((n) << (8 + (ch) * 4)))
+#define CRU_SFTRST_DDR_PHY(ch, n)	((0x1 << (9 + 16 + (ch) * 4)) | \
+					((n) << (9 + (ch) * 4)))
 struct chan_info {
 	struct rk3399_ddr_pctl_regs *pctl;
 	struct rk3399_ddr_pi_regs *pi;
@@ -77,6 +81,29 @@ static void copy_to_reg(u32 *dest, const u32 *src, u32 n)
 		src++;
 		dest++;
 	}
+}
+
+static void rkclk_ddr_reset(struct rk3399_cru *cru, u32 channel, u32 ctl,
+			    u32 phy)
+{
+	channel &= 0x1;
+	ctl &= 0x1;
+	phy &= 0x1;
+	writel(CRU_SFTRST_DDR_CTRL(channel, ctl) |
+				   CRU_SFTRST_DDR_PHY(channel, phy),
+				   &cru->softrst_con[4]);
+}
+
+static void phy_pctrl_reset(struct rk3399_cru *cru,  u32 channel)
+{
+	rkclk_ddr_reset(cru, channel, 1, 1);
+	udelay(10);
+
+	rkclk_ddr_reset(cru, channel, 1, 0);
+	udelay(10);
+
+	rkclk_ddr_reset(cru, channel, 0, 0);
+	udelay(10);
 }
 
 static void phy_dll_bypass_set(struct rk3399_ddr_publ_regs *ddr_publ_regs,
@@ -1129,6 +1156,7 @@ static int sdram_init(struct dram_info *dram,
 {
 	unsigned char dramtype = params->base.dramtype;
 	unsigned int ddr_freq = params->base.ddr_freq;
+	struct rk3399_cru *cru = dram->cru;
 	int channel;
 	int ret;
 
@@ -1145,6 +1173,7 @@ static int sdram_init(struct dram_info *dram,
 		const struct chan_info *chan = &dram->chan[channel];
 		struct rk3399_ddr_publ_regs *publ = chan->publ;
 
+		phy_pctrl_reset(cru, channel);
 		phy_dll_bypass_set(publ, ddr_freq);
 
 		if (channel >= params->base.num_channels)
