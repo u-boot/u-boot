@@ -94,7 +94,7 @@ M:	Simon Goldschmidt <simon.k.r.goldschmidt@gmail.com>
 S:	Maintainted
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-socfpga.git
 F:	arch/arm/mach-socfpga/
-F:	drivers/sysreset/sysreset_socfpga.c
+F:	drivers/sysreset/sysreset_socfpga*
 
 ARM AMLOGIC SOC SUPPORT
 M:	Neil Armstrong <narmstrong@baylibre.com>

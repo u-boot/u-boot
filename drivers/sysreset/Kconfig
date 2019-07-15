@@ -61,6 +61,13 @@ config SYSRESET_SOCFPGA
 	  This enables the system reset driver support for Intel SOCFPGA SoCs
 	  (Cyclone 5, Arria 5 and Arria 10).
 
+config SYSRESET_SOCFPGA_S10
+	bool "Enable support for Intel SOCFPGA Stratix 10"
+	depends on ARCH_SOCFPGA && TARGET_SOCFPGA_STRATIX10
+	help
+	  This enables the system reset driver support for Intel SOCFPGA
+	  Stratix SoCs.
+
 config SYSRESET_TI_SCI
 	bool "TI System Control Interface (TI SCI) system reset driver"
 	depends on TI_SCI_PROTOCOL
