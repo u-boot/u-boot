@@ -1211,6 +1211,10 @@ static unsigned char calculate_stride(struct rk3399_sdram_params *params)
 		chinfo |= 1 << channel;
 	}
 
+	/* stride calculation for 1 channel */
+	if (params->base.num_channels == 1 && chinfo & 1)
+		return 0x17;	/* channel a */
+
 	/* stride calculation for 2 channels, default gstride type is 256B */
 	if (ch_cap[0] == ch_cap[1]) {
 		cap = ch_cap[0] + ch_cap[1];
