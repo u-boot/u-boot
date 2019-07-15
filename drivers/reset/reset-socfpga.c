@@ -14,6 +14,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/lists.h>
 #include <dm/of_access.h>
 #include <reset-uclass.h>
 #include <linux/bitops.h>
@@ -130,6 +131,23 @@ static int socfpga_reset_remove(struct udevice *dev)
 	return 0;
 }
 
+static int socfpga_reset_bind(struct udevice *dev)
+{
+	int ret;
+	struct udevice *sys_child;
+
+	/*
+	 * The sysreset driver does not have a device node, so bind it here.
+	 * Bind it to the node, too, so that it can get its base address.
+	 */
+	ret = device_bind_driver_to_node(dev, "socfpga_sysreset", "sysreset",
+					 dev->node, &sys_child);
+	if (ret)
+		debug("Warning: No sysreset driver: ret=%d\n", ret);
+
+	return 0;
+}
+
 static const struct udevice_id socfpga_reset_match[] = {
 	{ .compatible = "altr,rst-mgr" },
 	{ /* sentinel */ },
@@ -139,6 +157,7 @@ U_BOOT_DRIVER(socfpga_reset) = {
 	.name = "socfpga-reset",
 	.id = UCLASS_RESET,
 	.of_match = socfpga_reset_match,
+	.bind = socfpga_reset_bind,
 	.probe = socfpga_reset_probe,
 	.priv_auto_alloc_size = sizeof(struct socfpga_reset_data),
 	.ops = &socfpga_reset_ops,
