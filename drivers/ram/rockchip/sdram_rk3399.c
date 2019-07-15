@@ -1254,13 +1254,52 @@ static unsigned char calculate_stride(struct rk3399_sdram_params *params)
 	return stride;
 }
 
+static void clear_channel_params(struct rk3399_sdram_params *params, u8 channel)
+{
+	params->ch[channel].cap_info.rank = 0;
+	params->ch[channel].cap_info.col = 0;
+	params->ch[channel].cap_info.bk = 0;
+	params->ch[channel].cap_info.bw = 32;
+	params->ch[channel].cap_info.dbw = 32;
+	params->ch[channel].cap_info.row_3_4 = 0;
+	params->ch[channel].cap_info.cs0_row = 0;
+	params->ch[channel].cap_info.cs1_row = 0;
+	params->ch[channel].cap_info.ddrconfig = 0;
+}
+
+static int pctl_init(struct dram_info *dram, struct rk3399_sdram_params *params)
+{
+	int channel;
+	int ret;
+
+	for (channel = 0; channel < 2; channel++) {
+		const struct chan_info *chan = &dram->chan[channel];
+		struct rk3399_cru *cru = dram->cru;
+		struct rk3399_ddr_publ_regs *publ = chan->publ;
+
+		phy_pctrl_reset(cru, channel);
+		phy_dll_bypass_set(publ, params->base.ddr_freq);
+
+		ret = pctl_cfg(dram, chan, channel, params);
+		if (ret < 0) {
+			printf("%s: pctl config failed\n", __func__);
+			return ret;
+		}
+
+		/* start to trigger initialization */
+		pctl_start(dram, channel);
+	}
+
+	return 0;
+}
+
 static int sdram_init(struct dram_info *dram,
 		      struct rk3399_sdram_params *params)
 {
 	unsigned char dramtype = params->base.dramtype;
 	unsigned int ddr_freq = params->base.ddr_freq;
-	struct rk3399_cru *cru = dram->cru;
-	int channel;
+	u32 training_flag = PI_READ_GATE_TRAINING;
+	int channel, ch, rank;
 	int ret;
 
 	debug("Starting SDRAM initialization...\n");
@@ -1272,36 +1311,75 @@ static int sdram_init(struct dram_info *dram,
 		return -E2BIG;
 	}
 
+	for (ch = 0; ch < 2; ch++) {
+		params->ch[ch].cap_info.rank = 2;
+		for (rank = 2; rank != 0; rank--) {
+			ret = pctl_init(dram, params);
+			if (ret < 0) {
+				printf("%s: pctl init failed\n", __func__);
+				return ret;
+			}
+
+			/* LPDDR2/LPDDR3 need to wait DAI complete, max 10us */
+			if (dramtype == LPDDR3)
+				udelay(10);
+
+			params->ch[ch].cap_info.rank = rank;
+
+			/*
+			 * LPDDR3 CA training msut be trigger before
+			 * other training.
+			 * DDR3 is not have CA training.
+			 */
+			if (params->base.dramtype == LPDDR3)
+				training_flag |= PI_CA_TRAINING;
+
+			if (!(data_training(&dram->chan[ch], ch,
+					    params, training_flag)))
+				break;
+		}
+		/* Computed rank with associated channel number */
+		params->ch[ch].cap_info.rank = rank;
+	}
+
+	params->base.num_channels = 0;
 	for (channel = 0; channel < 2; channel++) {
 		const struct chan_info *chan = &dram->chan[channel];
-		struct rk3399_ddr_publ_regs *publ = chan->publ;
+		struct sdram_cap_info *cap_info = &params->ch[channel].cap_info;
+		u8 training_flag = PI_FULL_TRAINING;
 
-		phy_pctrl_reset(cru, channel);
-		phy_dll_bypass_set(publ, ddr_freq);
-
-		if (channel >= params->base.num_channels)
+		if (cap_info->rank == 0) {
+			clear_channel_params(params, channel);
 			continue;
-
-		ret = pctl_cfg(dram, chan, channel, params);
-		if (ret < 0) {
-			printf("%s: pctl config failed\n", __func__);
-			return ret;
+		} else {
+			params->base.num_channels++;
 		}
 
-		/* start to trigger initialization */
-		pctl_start(dram, channel);
+		debug("Channel ");
+		debug(channel ? "1: " : "0: ");
 
-		/* LPDDR2/LPDDR3 need to wait DAI complete, max 10us */
-		if (dramtype == LPDDR3)
-			udelay(10);
+		/* LPDDR3 should have write and read gate training */
+		if (params->base.dramtype == LPDDR3)
+			training_flag = PI_WRITE_LEVELING |
+					PI_READ_GATE_TRAINING;
 
-		if (data_training(chan, channel, params, PI_FULL_TRAINING)) {
-			printf("%s: data training failed\n", __func__);
-			return -EIO;
+		if (params->base.dramtype != LPDDR4) {
+			ret = data_training(dram, channel, params,
+					    training_flag);
+			if (!ret) {
+				debug("%s: data train failed for channel %d\n",
+				      __func__, ret);
+				continue;
+			}
 		}
 
-		set_ddrconfig(chan, params, channel,
-			      params->ch[channel].cap_info.ddrconfig);
+		set_ddrconfig(chan, params, channel, cap_info->ddrconfig);
+	}
+
+	if (params->base.num_channels == 0) {
+		printf("%s: ", __func__);
+		printf(" - %dMHz failed!\n", params->base.ddr_freq);
+		return -EINVAL;
 	}
 
 	params->base.stride = calculate_stride(params);
