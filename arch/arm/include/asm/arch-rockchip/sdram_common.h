@@ -92,4 +92,13 @@ size_t rockchip_sdram_size(phys_addr_t reg);
 
 /* Called by U-Boot board_init_r for Rockchip SoCs */
 int dram_init(void);
+
+#if !defined(CONFIG_RAM_ROCKCHIP_DEBUG)
+inline void sdram_print_dram_type(unsigned char dramtype)
+{
+}
+#else
+void sdram_print_dram_type(unsigned char dramtype);
+#endif /* CONFIG_RAM_ROCKCHIP_DEBUG */
+
 #endif

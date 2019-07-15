@@ -7,6 +7,15 @@ config RAM_ROCKCHIP
 
 if RAM_ROCKCHIP
 
+config RAM_ROCKCHIP_DEBUG
+	bool "Rockchip ram drivers debugging"
+	help
+	  This enables debugging ram driver API's for the platforms
+	  based on Rockchip SoCs.
+
+	  This is an option for developers to understand the ram drivers
+	  initialization, configurations and etc.
+
 config RAM_RK3399
 	bool "Ram driver for Rockchip RK3399"
 	default ROCKCHIP_RK3399
