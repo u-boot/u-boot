@@ -75,12 +75,14 @@ static void mctl_core_init(struct dram_para *para)
 	mctl_channel_init(para);
 }
 
+/* PHY initialisation */
 static void mctl_phy_pir_init(u32 val)
 {
 	struct sunxi_mctl_phy_reg * const mctl_phy =
 			(struct sunxi_mctl_phy_reg *)SUNXI_DRAM_PHY0_BASE;
 
-	writel(val | BIT(0), &mctl_phy->pir);
+	writel(val, &mctl_phy->pir);
+	writel(val | BIT(0), &mctl_phy->pir);	/* Start initialisation. */
 	mctl_await_completion(&mctl_phy->pgsr[0], BIT(0), BIT(0));
 }
 
