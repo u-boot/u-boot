@@ -11,60 +11,7 @@
 #include <clk-uclass.h>
 #include <clk.h>
 #include <dm.h>
-
-enum pm_api_id {
-	PM_GET_API_VERSION = 1,
-	PM_SET_CONFIGURATION,
-	PM_GET_NODE_STATUS,
-	PM_GET_OPERATING_CHARACTERISTIC,
-	PM_REGISTER_NOTIFIER,
-	PM_REQUEST_SUSPEND,
-	PM_SELF_SUSPEND,
-	PM_FORCE_POWERDOWN,
-	PM_ABORT_SUSPEND,
-	PM_REQUEST_WAKEUP,
-	PM_SET_WAKEUP_SOURCE,
-	PM_SYSTEM_SHUTDOWN,
-	PM_REQUEST_NODE,
-	PM_RELEASE_NODE,
-	PM_SET_REQUIREMENT,
-	PM_SET_MAX_LATENCY,
-	PM_RESET_ASSERT,
-	PM_RESET_GET_STATUS,
-	PM_MMIO_WRITE,
-	PM_MMIO_READ,
-	PM_PM_INIT_FINALIZE,
-	PM_FPGA_LOAD,
-	PM_FPGA_GET_STATUS,
-	PM_GET_CHIPID,
-	PM_SECURE_SHA = 26,
-	PM_SECURE_RSA,
-	PM_PINCTRL_REQUEST,
-	PM_PINCTRL_RELEASE,
-	PM_PINCTRL_GET_FUNCTION,
-	PM_PINCTRL_SET_FUNCTION,
-	PM_PINCTRL_CONFIG_PARAM_GET,
-	PM_PINCTRL_CONFIG_PARAM_SET,
-	PM_IOCTL,
-	PM_QUERY_DATA,
-	PM_CLOCK_ENABLE,
-	PM_CLOCK_DISABLE,
-	PM_CLOCK_GETSTATE,
-	PM_CLOCK_SETDIVIDER,
-	PM_CLOCK_GETDIVIDER,
-	PM_CLOCK_SETRATE,
-	PM_CLOCK_GETRATE,
-	PM_CLOCK_SETPARENT,
-	PM_CLOCK_GETPARENT,
-	PM_SECURE_IMAGE,
-	PM_FPGA_READ = 46,
-	PM_SECURE_AES,
-	PM_CLOCK_PLL_GETPARAM = 49,
-	PM_REGISTER_ACCESS = 52,
-	PM_EFUSE_ACCESS,
-	PM_FEATURE_CHECK = 63,
-	PM_API_MAX,
-};
+#include <asm/arch/sys_proto.h>
 
 #define MAX_PARENT			100
 #define MAX_NODES			6
@@ -104,7 +51,6 @@ enum pm_api_id {
 #define CLK_GET_PARENTS_RESP_WORDS	3
 #define CLK_GET_ATTR_RESP_WORDS		1
 
-#define PAYLOAD_ARG_CNT	4U
 #define NODE_SUBCLASS_CLOCK_PLL	1
 #define NODE_SUBCLASS_CLOCK_OUT	2
 #define NODE_SUBCLASS_CLOCK_REF	3
@@ -179,7 +125,6 @@ struct versal_pm_query_data {
 static struct versal_clock *clock;
 static unsigned int clock_max_idx;
 
-#define PM_SIP_SVC	0xC2000000
 #define PM_QUERY_DATA	35
 
 static int versal_pm_query(struct versal_pm_query_data qdata, u32 *ret_payload)
@@ -201,28 +146,6 @@ static int versal_pm_query(struct versal_pm_query_data qdata, u32 *ret_payload)
 	}
 
 	return qdata.qid == PM_QID_CLOCK_GET_NAME ? 0 : regs.regs[0];
-}
-
-static int versal_pm_request(u32 api_id, u32 arg0, u32 arg1, u32 arg2,
-			     u32 arg3, u32 *ret_payload)
-{
-	struct pt_regs regs;
-
-	regs.regs[0] = PM_SIP_SVC | api_id;
-	regs.regs[1] = ((u64)arg1 << 32) | arg0;
-	regs.regs[2] = ((u64)arg3 << 32) | arg2;
-
-	smc_call(&regs);
-
-	if (ret_payload) {
-		ret_payload[0] = (u32)regs.regs[0];
-		ret_payload[1] = upper_32_bits(regs.regs[0]);
-		ret_payload[2] = (u32)regs.regs[1];
-		ret_payload[3] = upper_32_bits(regs.regs[1]);
-		ret_payload[4] = (u32)regs.regs[2];
-	}
-
-	return regs.regs[0];
 }
 
 static inline int versal_is_valid_clock(u32 clk_id)
