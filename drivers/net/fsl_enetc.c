@@ -69,13 +69,25 @@ static bool enetc_has_imdio(struct udevice *dev)
 static int enetc_init_sgmii(struct udevice *dev)
 {
 	struct enetc_priv *priv = dev_get_priv(dev);
+	bool is2500 = false;
+	u16 reg;
 
 	if (!enetc_has_imdio(dev))
 		return 0;
 
-	/* Set to SGMII mode, use AN */
+	if (priv->if_type == PHY_INTERFACE_MODE_SGMII_2500)
+		is2500 = true;
+
+	/*
+	 * Set to SGMII mode, for 1Gbps enable AN, for 2.5Gbps set fixed speed.
+	 * Although fixed speed is 1Gbps, we could be running at 2.5Gbps based
+	 * on PLL configuration.  Setting 1G for 2.5G here is counter intuitive
+	 * but intentional.
+	 */
+	reg = ENETC_PCS_IF_MODE_SGMII;
+	reg |= is2500 ? ENETC_PCS_IF_MODE_SPEED_1G : ENETC_PCS_IF_MODE_SGMII_AN;
 	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, MDIO_DEVAD_NONE,
-			 ENETC_PCS_IF_MODE, ENETC_PCS_IF_MODE_SGMII_AN);
+			 ENETC_PCS_IF_MODE, reg);
 
 	/* Dev ability - SGMII */
 	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, MDIO_DEVAD_NONE,
@@ -87,10 +99,11 @@ static int enetc_init_sgmii(struct udevice *dev)
 	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, MDIO_DEVAD_NONE,
 			 ENETC_PCS_LINK_TIMER2, ENETC_PCS_LINK_TIMER2_VAL);
 
+	reg = ENETC_PCS_CR_DEF_VAL;
+	reg |= is2500 ? ENETC_PCS_CR_RST : ENETC_PCS_CR_RESET_AN;
 	/* restart PCS AN */
 	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, MDIO_DEVAD_NONE,
-			 ENETC_PCS_CR,
-			 ENETC_PCS_CR_RESET_AN | ENETC_PCS_CR_DEF_VAL);
+			 ENETC_PCS_CR, reg);
 
 	return 0;
 }
@@ -130,7 +143,7 @@ static int enetc_init_sxgmii(struct udevice *dev)
 	/* Restart PCS AN */
 	enetc_mdio_write(&priv->imdio, ENETC_PCS_PHY_ADDR, ENETC_PCS_DEVAD_REPL,
 			 ENETC_PCS_CR,
-			 ENETC_PCS_CR_LANE_RESET | ENETC_PCS_CR_RESET_AN);
+			 ENETC_PCS_CR_RST | ENETC_PCS_CR_RESET_AN);
 
 	return 0;
 }
@@ -174,6 +187,7 @@ static void enetc_start_pcs(struct udevice *dev)
 
 	switch (priv->if_type) {
 	case PHY_INTERFACE_MODE_SGMII:
+	case PHY_INTERFACE_MODE_SGMII_2500:
 		enetc_init_sgmii(dev);
 		break;
 	case PHY_INTERFACE_MODE_RGMII:
