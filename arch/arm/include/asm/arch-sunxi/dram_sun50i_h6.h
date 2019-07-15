@@ -287,11 +287,38 @@ check_member(sunxi_mctl_phy_reg, dx[3].reserved_0xf0, 0xaf0);
 #define DCR_DDR4	(4 << 0)
 #define DCR_DDR8BANK	BIT(3)
 
+/*
+ * The delay parameters allow to allegedly specify delay times of some
+ * unknown unit for each individual bit trace in each of the four data bytes
+ * the 32-bit wide access consists of. Also three control signals can be
+ * adjusted individually.
+ */
+#define NR_OF_BYTE_LANES	(32 / BITS_PER_BYTE)
+/* The eight data lines (DQn) plus DM, DQS, DQS/DM/DQ Output Enable and DQSN */
+#define WR_LINES_PER_BYTE_LANE	(BITS_PER_BYTE + 4)
+/*
+ * The eight data lines (DQn) plus DM, DQS, DQS/DM/DQ Output Enable, DQSN,
+ * Termination and Power down
+ */
+#define RD_LINES_PER_BYTE_LANE	(BITS_PER_BYTE + 6)
+struct dram_para {
+	u32 clk;
+	enum sunxi_dram_type type;
+	u8 cols;
+	u8 rows;
+	u8 ranks;
+	const u8 dx_read_delays[NR_OF_BYTE_LANES][RD_LINES_PER_BYTE_LANE];
+	const u8 dx_write_delays[NR_OF_BYTE_LANES][WR_LINES_PER_BYTE_LANE];
+};
+
+
 static inline int ns_to_t(int nanoseconds)
 {
 	const unsigned int ctrl_freq = CONFIG_DRAM_CLK / 2;
 
 	return DIV_ROUND_UP(ctrl_freq * nanoseconds, 1000);
 }
+
+void mctl_set_timing_params(struct dram_para *para);
 
 #endif /* _SUNXI_DRAM_SUN50I_H6_H */
