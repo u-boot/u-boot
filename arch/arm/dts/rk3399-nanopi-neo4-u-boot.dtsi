@@ -4,3 +4,4 @@
  */
 
 #include "rk3399-nanopi4-u-boot.dtsi"
+#include "rk3399-sdram-ddr3-1866.dtsi"
