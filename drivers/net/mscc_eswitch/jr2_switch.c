@@ -17,20 +17,7 @@
 
 #include <dt-bindings/mscc/jr2_data.h>
 #include "mscc_xfer.h"
-
-#define GCB_MIIM_MII_STATUS		0x0
-#define		GCB_MIIM_STAT_BUSY		BIT(3)
-#define GCB_MIIM_MII_CMD		0x8
-#define		GCB_MIIM_MII_CMD_SCAN		BIT(0)
-#define		GCB_MIIM_MII_CMD_OPR_WRITE	BIT(1)
-#define		GCB_MIIM_MII_CMD_OPR_READ	BIT(2)
-#define		GCB_MIIM_MII_CMD_SINGLE_SCAN	BIT(3)
-#define		GCB_MIIM_MII_CMD_WRDATA(x)	((x) << 4)
-#define		GCB_MIIM_MII_CMD_REGAD(x)	((x) << 20)
-#define		GCB_MIIM_MII_CMD_PHYAD(x)	((x) << 25)
-#define		GCB_MIIM_MII_CMD_VLD		BIT(31)
-#define GCB_MIIM_DATA			0xC
-#define		GCB_MIIM_DATA_ERROR		(0x3 << 16)
+#include "mscc_miim.h"
 
 #define ANA_AC_RAM_CTRL_RAM_INIT		0x94358
 #define ANA_AC_STAT_GLOBAL_CFG_PORT_RESET	0x94370
@@ -279,13 +266,6 @@ struct jr2_private {
 	struct jr2_phy_port_t ports[MAX_PORT];
 };
 
-struct jr2_miim_dev {
-	void __iomem *regs;
-	phys_addr_t miim_base;
-	unsigned long miim_size;
-	struct mii_dev *bus;
-};
-
 static const unsigned long jr2_regs_qs[] = {
 	[MSCC_QS_XTR_RD] = 0x8,
 	[MSCC_QS_XTR_FLUSH] = 0x18,
@@ -294,98 +274,8 @@ static const unsigned long jr2_regs_qs[] = {
 	[MSCC_QS_INJ_CTRL] = 0x34,
 };
 
-static struct jr2_miim_dev miim[JR2_MIIM_BUS_COUNT];
+static struct mscc_miim_dev miim[JR2_MIIM_BUS_COUNT];
 static int miim_count = -1;
-
-static int mscc_miim_wait_ready(struct jr2_miim_dev *miim)
-{
-	unsigned long deadline;
-	u32 val;
-
-	deadline = timer_get_us() + 250000;
-
-	do {
-		val = readl(miim->regs + GCB_MIIM_MII_STATUS);
-	} while (timer_get_us() <= deadline && (val & GCB_MIIM_STAT_BUSY));
-
-	if (val & GCB_MIIM_STAT_BUSY)
-		return -ETIMEDOUT;
-
-	return 0;
-}
-
-static int mscc_miim_read(struct mii_dev *bus, int addr, int devad, int reg)
-{
-	struct jr2_miim_dev *miim = (struct jr2_miim_dev *)bus->priv;
-	u32 val;
-	int ret;
-
-	ret = mscc_miim_wait_ready(miim);
-	if (ret)
-		goto out;
-
-	writel(GCB_MIIM_MII_CMD_VLD | GCB_MIIM_MII_CMD_PHYAD(addr) |
-	       GCB_MIIM_MII_CMD_REGAD(reg) | GCB_MIIM_MII_CMD_OPR_READ,
-	       miim->regs + GCB_MIIM_MII_CMD);
-
-	ret = mscc_miim_wait_ready(miim);
-	if (ret)
-		goto out;
-
-	val = readl(miim->regs + GCB_MIIM_DATA);
-	if (val & GCB_MIIM_DATA_ERROR) {
-		ret = -EIO;
-		goto out;
-	}
-
-	ret = val & 0xFFFF;
- out:
-	return ret;
-}
-
-static int mscc_miim_write(struct mii_dev *bus, int addr, int devad, int reg,
-			   u16 val)
-{
-	struct jr2_miim_dev *miim = (struct jr2_miim_dev *)bus->priv;
-	int ret;
-
-	ret = mscc_miim_wait_ready(miim);
-	if (ret < 0)
-		goto out;
-
-	writel(GCB_MIIM_MII_CMD_VLD | GCB_MIIM_MII_CMD_PHYAD(addr) |
-	       GCB_MIIM_MII_CMD_REGAD(reg) | GCB_MIIM_MII_CMD_WRDATA(val) |
-	       GCB_MIIM_MII_CMD_OPR_WRITE, miim->regs + GCB_MIIM_MII_CMD);
-
- out:
-	return ret;
-}
-
-static struct mii_dev *jr2_mdiobus_init(phys_addr_t miim_base,
-					unsigned long miim_size)
-{
-	struct mii_dev *bus;
-
-	bus = mdio_alloc();
-	if (!bus)
-		return NULL;
-
-	++miim_count;
-	sprintf(bus->name, "miim-bus%d", miim_count);
-
-	miim[miim_count].regs = ioremap(miim_base, miim_size);
-	miim[miim_count].miim_base = miim_base;
-	miim[miim_count].miim_size = miim_size;
-	bus->priv = &miim[miim_count];
-	bus->read = mscc_miim_read;
-	bus->write = mscc_miim_write;
-
-	if (mdio_register(bus))
-		return NULL;
-
-	miim[miim_count].bus = bus;
-	return bus;
-}
 
 static void jr2_cpu_capture_setup(struct jr2_private *priv)
 {
@@ -973,7 +863,7 @@ static int jr2_probe(struct udevice *dev)
 	}
 
 	/* Initialize miim buses */
-	memset(&miim, 0x0, sizeof(struct jr2_miim_dev) * JR2_MIIM_BUS_COUNT);
+	memset(&miim, 0x0, sizeof(struct mscc_miim_dev) * JR2_MIIM_BUS_COUNT);
 
 	/* iterate all the ports and find out on which bus they are */
 	i = 0;
@@ -1008,7 +898,8 @@ static int jr2_probe(struct udevice *dev)
 		/* If the bus is new then create a new bus */
 		if (!get_mdiobus(addr_base, addr_size))
 			priv->bus[miim_count] =
-				jr2_mdiobus_init(addr_base, addr_size);
+				mscc_mdiobus_init(miim, &miim_count, addr_base,
+						  addr_size);
 
 		/* Connect mdio bus with the port */
 		bus = get_mdiobus(addr_base, addr_size);

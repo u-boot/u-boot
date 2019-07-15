@@ -203,6 +203,11 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
+#ifdef CONFIG_DM_MDIO
+	/* probe DM MII device before any operation so they are all accesible */
+	dm_mdio_probe_devices();
+#endif
+
 	/*
 	 * We use the last specified parameters, unless new ones are
 	 * entered.

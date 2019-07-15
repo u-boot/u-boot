@@ -823,6 +823,10 @@
 		dmas = <&dma 0>, <&dma 1>, <&dma 2>;
 		dma-names = "m2m", "tx0", "rx0";
 	};
+
+	mdio-test {
+		compatible = "sandbox,mdio";
+	};
 };
 
 #include "sandbox_pmic.dtsi"

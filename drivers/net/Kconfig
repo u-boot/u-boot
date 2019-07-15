@@ -11,6 +11,29 @@ config DM_ETH
 	  This is currently implemented in net/eth-uclass.c
 	  Look in include/net.h for details.
 
+config DM_MDIO
+	bool "Enable Driver Model for MDIO devices"
+	depends on DM_ETH && PHYLIB
+	help
+	  Enable driver model for MDIO devices
+
+	  Adds UCLASS_MDIO DM class supporting MDIO buses that are probed as
+	  stand-alone devices.  Useful in particular for systems that support
+	  DM_ETH and have a stand-alone MDIO hardware block shared by multiple
+	  Ethernet interfaces.
+	  This is currently implemented in net/mdio-uclass.c
+	  Look in include/miiphy.h for details.
+
+config MDIO_SANDBOX
+	depends on DM_MDIO && SANDBOX
+	default y
+	bool "Sandbox: Mocked MDIO driver"
+	help
+	  This driver implements dummy read/write/reset MDIO functions mimicking
+	  a bus with a single PHY.
+
+	  This driver is used in for testing in test/dm/mdio.c
+
 menuconfig NETDEVICES
 	bool "Network device support"
 	depends on NET

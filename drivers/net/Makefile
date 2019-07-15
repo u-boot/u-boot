@@ -77,3 +77,4 @@ obj-y += ti/
 obj-$(CONFIG_MEDIATEK_ETH) += mtk_eth.o
 obj-y += mscc_eswitch/
 obj-$(CONFIG_HIGMACV300_ETH) += higmacv300.o
+obj-$(CONFIG_MDIO_SANDBOX) += mdio_sandbox.o
