@@ -694,10 +694,10 @@ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
 	struct efi_runtime_mmio_list *newmmio;
 	u64 pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
 	uint64_t addr = *(uintptr_t *)mmio_ptr;
-	uint64_t retaddr;
+	efi_status_t ret;
 
-	retaddr = efi_add_memory_map(addr, pages, EFI_MMAP_IO, false);
-	if (retaddr != addr)
+	ret = efi_add_memory_map(addr, pages, EFI_MMAP_IO, false);
+	if (ret != EFI_SUCCESS)
 		return EFI_OUT_OF_RESOURCES;
 
 	newmmio = calloc(1, sizeof(*newmmio));

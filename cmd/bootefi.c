@@ -169,8 +169,8 @@ static void efi_carve_out_dt_rsv(void *fdt)
 
 		pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
 		addr &= ~EFI_PAGE_MASK;
-		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
-					false))
+		if (efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
+				       false) != EFI_SUCCESS)
 			printf("FDT memrsv map %d: Failed to add to map\n", i);
 	}
 }
