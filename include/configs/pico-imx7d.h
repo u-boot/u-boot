@@ -55,17 +55,17 @@
 /* When booting with FIT specify the node entry containing boot.scr */
 #if defined(CONFIG_FIT)
 #define PICO_BOOT_ENV \
-	"bootscr_fitimage_name=bootscr\0" \
-	"bootscriptaddr=0x83200000\0" \
-	"fdtovaddr=0x83100000\0" \
-	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"rootwait rw;\0" \
-	"loadbootscript=" \
-		"load mmc ${mmcdev}:${mmcpart} ${bootscriptaddr} ${script};\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
-	"source ${bootscriptaddr}:${bootscr_fitimage_name}\0"
+	BOOTENV								\
+	"fdtovaddr=0x83100000\0"					\
+	"scriptaddr=0x83200000\0"					\
+	"mmcargs=setenv bootargs console=${console},${baudrate} "	\
+		"rootwait rw\0"						\
+	"boot_a_script="						\
+		"load ${devtype} ${devnum}:${distro_bootpart} "		\
+			"${scriptaddr} ${prefix}${script}; "		\
+		"iminfo ${scriptaddr};"					\
+		"if test $? -eq 1; then hab_failsafe; fi;"		\
+		"source ${scriptaddr}:bootscr\0"
 #else
 #define PICO_BOOT_ENV \
 	"bootmenu_0=Boot using PICO-Hobbit baseboard=" \
@@ -111,21 +111,6 @@
 	"fastboot_partition_alias_system=rootfs\0" \
 	"setup_emmc=mmc dev 0; gpt write mmc 0 $partitions; reset;\0" \
 	PICO_BOOT_ENV
-
-#if defined(CONFIG_FIT)
-#define CONFIG_BOOTCOMMAND \
-	"mmc dev ${mmcdev};" \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"iminfo ${bootscriptaddr};" \
-			"if test $? -eq 1; then hab_failsafe; fi;" \
-			"run bootscript; " \
-		"else " \
-			"echo Fail to load fitImage with boot script;" \
-			"hab_failsafe;" \
-		"fi; " \
-	"fi"
-#endif
 
 #define BOOT_TARGET_DEVICES(func) \
 	func(MMC, mmc, 0) \
