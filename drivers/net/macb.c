@@ -82,6 +82,7 @@ struct macb_dma_desc {
 
 struct macb_device {
 	void			*regs;
+	unsigned int		dma_burst_length;
 
 	unsigned int		rx_tail;
 	unsigned int		tx_head;
@@ -118,6 +119,11 @@ struct macb_device {
 	phy_interface_t		phy_interface;
 #endif
 };
+
+struct macb_config {
+	unsigned int		dma_burst_length;
+};
+
 #ifndef CONFIG_DM_ETH
 #define to_macb(_nd) container_of(_nd, struct macb_device, netdev)
 #endif
@@ -1135,8 +1141,13 @@ static int macb_enable_clk(struct udevice *dev)
 }
 #endif
 
+static const struct macb_config default_gem_config = {
+	.dma_burst_length = 16,
+};
+
 static int macb_eth_probe(struct udevice *dev)
 {
+	const struct macb_config *macb_config;
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct macb_device *macb = dev_get_priv(dev);
 	const char *phy_mode;
@@ -1153,6 +1164,11 @@ static int macb_eth_probe(struct udevice *dev)
 
 	macb->regs = (void *)pdata->iobase;
 
+	macb_config = (struct macb_config *)dev_get_driver_data(dev);
+	if (!macb_config)
+		macb_config = &default_gem_config;
+
+	macb->dma_burst_length = macb_config->dma_burst_length;
 #ifdef CONFIG_CLK
 	ret = macb_enable_clk(dev);
 	if (ret)
@@ -1213,12 +1229,16 @@ static int macb_eth_ofdata_to_platdata(struct udevice *dev)
 	return macb_late_eth_ofdata_to_platdata(dev);
 }
 
+static const struct macb_config sama5d4_config = {
+	.dma_burst_length = 4,
+};
+
 static const struct udevice_id macb_eth_ids[] = {
 	{ .compatible = "cdns,macb" },
 	{ .compatible = "cdns,at91sam9260-macb" },
 	{ .compatible = "atmel,sama5d2-gem" },
 	{ .compatible = "atmel,sama5d3-gem" },
-	{ .compatible = "atmel,sama5d4-gem" },
+	{ .compatible = "atmel,sama5d4-gem", .data = (ulong)&sama5d4_config },
 	{ .compatible = "cdns,zynq-gem" },
 	{ }
 };
