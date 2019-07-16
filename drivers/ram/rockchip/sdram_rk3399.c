@@ -39,6 +39,7 @@
 #define PHY_BOOSTN_EN		0x1
 #define PHY_SLEWP_EN		0x1
 #define PHY_SLEWN_EN		0x1
+#define PHY_RX_CM_INPUT		0x1
 
 #define CRU_SFTRST_DDR_CTRL(ch, n)	((0x1 << (8 + 16 + (ch) * 4)) | \
 					((n) << (8 + (ch) * 4)))
@@ -383,6 +384,27 @@ static int phy_io_config(const struct chan_info *chan,
 	clrsetbits_le32(&denali_phy[937], 0x3 << 17, speed << 17);
 	/* PHY_939 PHY_PAD_CS_DRIVE */
 	clrsetbits_le32(&denali_phy[939], 0x3 << 17, speed << 17);
+
+	if (IS_ENABLED(CONFIG_RAM_RK3399_LPDDR4)) {
+		/* RX_CM_INPUT */
+		reg_value = PHY_RX_CM_INPUT;
+		/* PHY_924 PHY_PAD_FDBK_DRIVE */
+		clrsetbits_le32(&denali_phy[924], 0x1 << 14, reg_value << 14);
+		/* PHY_926 PHY_PAD_DATA_DRIVE */
+		clrsetbits_le32(&denali_phy[926], 0x1 << 11, reg_value << 11);
+		/* PHY_927 PHY_PAD_DQS_DRIVE */
+		clrsetbits_le32(&denali_phy[927], 0x1 << 13, reg_value << 13);
+		/* PHY_928 PHY_PAD_ADDR_DRIVE */
+		clrsetbits_le32(&denali_phy[928], 0x1 << 19, reg_value << 19);
+		/* PHY_929 PHY_PAD_CLK_DRIVE */
+		clrsetbits_le32(&denali_phy[929], 0x1 << 21, reg_value << 21);
+		/* PHY_935 PHY_PAD_CKE_DRIVE */
+		clrsetbits_le32(&denali_phy[935], 0x1 << 19, reg_value << 19);
+		/* PHY_937 PHY_PAD_RST_DRIVE */
+		clrsetbits_le32(&denali_phy[937], 0x1 << 19, reg_value << 19);
+		/* PHY_939 PHY_PAD_CS_DRIVE */
+		clrsetbits_le32(&denali_phy[939], 0x1 << 19, reg_value << 19);
+	}
 
 	return 0;
 }
