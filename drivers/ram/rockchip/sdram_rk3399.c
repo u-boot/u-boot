@@ -366,7 +366,8 @@ static int phy_io_config(const struct chan_info *chan,
 			vref_value_dq = (rd_vref - 15300) / 521;
 		}
 		vref_mode_ac = 0x6;
-		vref_value_ac = 0x1f;
+		/* VDDQ/3/2=16.8% */
+		vref_value_ac = 0x3;
 	} else if (params->base.dramtype == LPDDR3) {
 		if (params->base.odt == 1) {
 			vref_mode_dq = 0x5;  /* LPDDR3 ODT */
