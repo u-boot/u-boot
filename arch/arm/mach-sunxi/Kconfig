@@ -300,6 +300,7 @@ config MACH_SUN50I_H6
 	select ARM64
 	select SUPPORT_SPL
 	select FIT
+	select PHY_SUN4I_USB
 	select SPL_LOAD_FIT
 	select DRAM_SUN50I_H6
 
@@ -340,7 +341,7 @@ config ARM_BOOT_HOOK_RMR
 	This allows both the SPL and the U-Boot proper to be entered in
 	either mode and switch to AArch64 if needed.
 
-if SUNXI_DRAM_DW
+if SUNXI_DRAM_DW || DRAM_SUN50I_H6
 config SUNXI_DRAM_DDR3
 	bool
 
@@ -369,6 +370,22 @@ config SUNXI_DRAM_LPDDR3_STOCK
 	---help---
 	This option is the LPDDR3 timing used by the stock boot0 by
 	Allwinner.
+
+config SUNXI_DRAM_H6_LPDDR3
+	bool "LPDDR3 DRAM chips on the H6 DRAM controller"
+	select SUNXI_DRAM_LPDDR3
+	depends on DRAM_SUN50I_H6
+	---help---
+	This option is the LPDDR3 timing used by the stock boot0 by
+	Allwinner.
+
+config SUNXI_DRAM_H6_DDR3_1333
+	bool "DDR3-1333 boot0 timings on the H6 DRAM controller"
+	select SUNXI_DRAM_DDR3
+	depends on DRAM_SUN50I_H6
+	---help---
+	This option is the DDR3 timing used by the boot0 on H6 TV boxes
+	which use a DDR3-1333 timing.
 
 config SUNXI_DRAM_DDR2_V3S
 	bool "DDR2 found in V3s chip"

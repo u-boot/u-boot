@@ -32,33 +32,8 @@
  * similar PHY is ZynqMP.
  */
 
-/*
- * The delay parameters below allow to allegedly specify delay times of some
- * unknown unit for each individual bit trace in each of the four data bytes
- * the 32-bit wide access consists of. Also three control signals can be
- * adjusted individually.
- */
-#define NR_OF_BYTE_LANES	(32 / BITS_PER_BYTE)
-/* The eight data lines (DQn) plus DM, DQS, DQS/DM/DQ Output Enable and DQSN */
-#define WR_LINES_PER_BYTE_LANE	(BITS_PER_BYTE + 4)
-/*
- * The eight data lines (DQn) plus DM, DQS, DQS/DM/DQ Output Enable, DQSN,
- * Termination and Power down
- */
-#define RD_LINES_PER_BYTE_LANE	(BITS_PER_BYTE + 6)
-struct dram_para {
-	u32 clk;
-	enum sunxi_dram_type type;
-	u8 cols;
-	u8 rows;
-	u8 ranks;
-	const u8 dx_read_delays[NR_OF_BYTE_LANES][RD_LINES_PER_BYTE_LANE];
-	const u8 dx_write_delays[NR_OF_BYTE_LANES][WR_LINES_PER_BYTE_LANE];
-};
-
 static void mctl_sys_init(struct dram_para *para);
 static void mctl_com_init(struct dram_para *para);
-static void mctl_set_timing_lpddr3(struct dram_para *para);
 static void mctl_channel_init(struct dram_para *para);
 
 static void mctl_core_init(struct dram_para *para)
@@ -67,7 +42,8 @@ static void mctl_core_init(struct dram_para *para)
 	mctl_com_init(para);
 	switch (para->type) {
 	case SUNXI_DRAM_TYPE_LPDDR3:
-		mctl_set_timing_lpddr3(para);
+	case SUNXI_DRAM_TYPE_DDR3:
+		mctl_set_timing_params(para);
 		break;
 	default:
 		panic("Unsupported DRAM type!");
@@ -75,12 +51,14 @@ static void mctl_core_init(struct dram_para *para)
 	mctl_channel_init(para);
 }
 
+/* PHY initialisation */
 static void mctl_phy_pir_init(u32 val)
 {
 	struct sunxi_mctl_phy_reg * const mctl_phy =
 			(struct sunxi_mctl_phy_reg *)SUNXI_DRAM_PHY0_BASE;
 
-	writel(val | BIT(0), &mctl_phy->pir);
+	writel(val, &mctl_phy->pir);
+	writel(val | BIT(0), &mctl_phy->pir);	/* Start initialisation. */
 	mctl_await_completion(&mctl_phy->pgsr[0], BIT(0), BIT(0));
 }
 
@@ -167,125 +145,6 @@ static void mctl_set_master_priority(void)
 	MBUS_CONF( PCIE,  true,    HIGH, 2,  100,   64,   32);
 	MBUS_CONF(  VP9,  true,    HIGH, 2, 8192, 5500, 5000);
 	MBUS_CONF(HDCP2,  true,    HIGH, 2,  100,   64,   32);
-}
-
-static u32 mr_lpddr3[12] = {
-	0x00000000, 0x00000043, 0x0000001a, 0x00000001,
-	0x00000000, 0x00000000, 0x00000048, 0x00000000,
-	0x00000000, 0x00000000, 0x00000000, 0x00000003,
-};
-
-/* TODO: flexible timing */
-static void mctl_set_timing_lpddr3(struct dram_para *para)
-{
-	struct sunxi_mctl_ctl_reg * const mctl_ctl =
-			(struct sunxi_mctl_ctl_reg *)SUNXI_DRAM_CTL0_BASE;
-	struct sunxi_mctl_phy_reg * const mctl_phy =
-			(struct sunxi_mctl_phy_reg *)SUNXI_DRAM_PHY0_BASE;
-
-	u8 tccd		= 2;
-	u8 tfaw		= max(ns_to_t(50), 4);
-	u8 trrd		= max(ns_to_t(10), 2);
-	u8 trcd		= max(ns_to_t(24), 2);
-	u8 trc		= ns_to_t(70);
-	u8 txp		= max(ns_to_t(8), 2);
-	u8 twtr		= max(ns_to_t(8), 2);
-	u8 trtp		= max(ns_to_t(8), 2);
-	u8 twr		= max(ns_to_t(15), 2);
-	u8 trp		= ns_to_t(18);
-	u8 tras		= ns_to_t(42);
-	u8 twtr_sa	= ns_to_t(5);
-	u8 tcksrea	= ns_to_t(11);
-	u16 trefi	= ns_to_t(3900) / 32;
-	u16 trfc	= ns_to_t(210);
-	u16 txsr	= ns_to_t(220);
-
-	if (CONFIG_DRAM_CLK % 400 == 0) {
-		/* Round up these parameters */
-		twtr_sa++;
-		tcksrea++;
-	}
-
-	u8 tmrw		= 5;
-	u8 tmrd		= 5;
-	u8 tmod		= 12;
-	u8 tcke		= 3;
-	u8 tcksrx	= 5;
-	u8 tcksre	= 5;
-	u8 tckesr	= 5;
-	u8 trasmax	= CONFIG_DRAM_CLK / 60;
-	u8 txs		= 4;
-	u8 txsdll	= 4;
-	u8 txsabort	= 4;
-	u8 txsfast	= 4;
-
-	u8 tcl		= 5; /* CL 10 */
-	u8 tcwl		= 3; /* CWL 6 */
-	u8 t_rdata_en	= twtr_sa + 8;
-
-	u32 tdinit0	= (200 * CONFIG_DRAM_CLK) + 1;		/* 200us */
-	u32 tdinit1	= (100 * CONFIG_DRAM_CLK) / 1000 + 1;	/* 100ns */
-	u32 tdinit2	= (11 * CONFIG_DRAM_CLK) + 1;		/* 11us */
-	u32 tdinit3	= (1 * CONFIG_DRAM_CLK) + 1;		/* 1us */
-
-	u8 twtp		= tcwl + 4 + twr + 1;
-	/*
-	 * The code below for twr2rd and trd2wr follows the IP core's
-	 * document from ZynqMP and i.MX7. The BSP has both number
-	 * substracted by 2.
-	 */
-	u8 twr2rd	= tcwl + 4 + 1 + twtr;
-	u8 trd2wr	= tcl + 4 + (tcksrea >> 1) - tcwl + 1;
-
-	/* set mode register */
-	memcpy(mctl_phy->mr, mr_lpddr3, sizeof(mr_lpddr3));
-
-	/* set DRAM timing */
-	writel((twtp << 24) | (tfaw << 16) | (trasmax << 8) | tras,
-	       &mctl_ctl->dramtmg[0]);
-	writel((txp << 16) | (trtp << 8) | trc, &mctl_ctl->dramtmg[1]);
-	writel((tcwl << 24) | (tcl << 16) | (trd2wr << 8) | twr2rd,
-	       &mctl_ctl->dramtmg[2]);
-	writel((tmrw << 20) | (tmrd << 12) | tmod, &mctl_ctl->dramtmg[3]);
-	writel((trcd << 24) | (tccd << 16) | (trrd << 8) | trp,
-	       &mctl_ctl->dramtmg[4]);
-	writel((tcksrx << 24) | (tcksre << 16) | (tckesr << 8) | tcke,
-	       &mctl_ctl->dramtmg[5]);
-	/* Value suggested by ZynqMP manual and used by libdram */
-	writel((txp + 2) | 0x02020000, &mctl_ctl->dramtmg[6]);
-	writel((txsfast << 24) | (txsabort << 16) | (txsdll << 8) | txs,
-	       &mctl_ctl->dramtmg[8]);
-	writel(txsr, &mctl_ctl->dramtmg[14]);
-
-	clrsetbits_le32(&mctl_ctl->init[0], (3 << 30), (1 << 30));
-	writel(0, &mctl_ctl->dfimisc);
-	clrsetbits_le32(&mctl_ctl->rankctl, 0xff0, 0x660);
-
-	/*
-	 * Set timing registers of the PHY.
-	 * Note: the PHY is clocked 2x from the DRAM frequency.
-	 */
-	writel((trrd << 25) | (tras << 17) | (trp << 9) | (trtp << 1),
-	       &mctl_phy->dtpr[0]);
-	writel((tfaw << 17) | 0x28000400 | (tmrd << 1), &mctl_phy->dtpr[1]);
-	writel(((txs << 6) - 1) | (tcke << 17), &mctl_phy->dtpr[2]);
-	writel(((txsdll << 22) - (0x1 << 16)) | twtr_sa | (tcksrea << 8),
-	       &mctl_phy->dtpr[3]);
-	writel((txp << 1) | (trfc << 17) | 0x800, &mctl_phy->dtpr[4]);
-	writel((trc << 17) | (trcd << 9) | (twtr << 1), &mctl_phy->dtpr[5]);
-	writel(0x0505, &mctl_phy->dtpr[6]);
-
-	/* Configure DFI timing */
-	writel(tcl | 0x2000200 | (t_rdata_en << 16) | 0x808000,
-	       &mctl_ctl->dfitmg0);
-	writel(0x040201, &mctl_ctl->dfitmg1);
-
-	/* Configure PHY timing */
-	writel(tdinit0 | (tdinit1 << 20), &mctl_phy->ptr[3]);
-	writel(tdinit2 | (tdinit3 << 18), &mctl_phy->ptr[4]);
-
-	/* set refresh timing */
-	writel((trefi << 16) | trfc, &mctl_ctl->rfshtmg);
 }
 
 static void mctl_sys_init(struct dram_para *para)
@@ -426,14 +285,11 @@ static void mctl_com_init(struct dram_para *para)
 	mctl_set_addrmap(para);
 
 	setbits_le32(&mctl_com->cr, BIT(31));
-	/*
-	 * This address is magic; it's in SID memory area, but there's no
-	 * known definition of it.
-	 * On my Pine H64 board it has content 7.
-	 */
-	if (readl(0x03006100) == 7)
+
+	/* The bonding ID seems to be always 7. */
+	if (readl(SUNXI_SIDC_BASE + 0x100) == 7)	/* bonding ID */
 		clrbits_le32(&mctl_com->cr, BIT(27));
-	else if (readl(0x03006100) == 3)
+	else if (readl(SUNXI_SIDC_BASE + 0x100) == 3)
 		setbits_le32(&mctl_com->cr, BIT(27));
 
 	if (para->clk > 408)
@@ -444,22 +300,37 @@ static void mctl_com_init(struct dram_para *para)
 		reg_val = 0x3f00;
 	clrsetbits_le32(&mctl_com->unk_0x008, 0x3f00, reg_val);
 
-	/* TODO: half DQ, non-LPDDR3 types */
-	writel(MSTR_DEVICETYPE_LPDDR3 | MSTR_BUSWIDTH_FULL |
-	       MSTR_BURST_LENGTH(8) | MSTR_ACTIVE_RANKS(para->ranks) |
-	       0x80000000, &mctl_ctl->mstr);
-	writel(DCR_LPDDR3 | DCR_DDR8BANK | 0x400, &mctl_phy->dcr);
+	/* TODO: half DQ, DDR4 */
+	reg_val = MSTR_BUSWIDTH_FULL | MSTR_BURST_LENGTH(8) |
+		  MSTR_ACTIVE_RANKS(para->ranks);
+	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
+		reg_val |= MSTR_DEVICETYPE_LPDDR3;
+	if (para->type == SUNXI_DRAM_TYPE_DDR3)
+		reg_val |= MSTR_DEVICETYPE_DDR3 | MSTR_2TMODE;
+	writel(reg_val | BIT(31), &mctl_ctl->mstr);
+
+	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
+		reg_val = DCR_LPDDR3 | DCR_DDR8BANK;
+	if (para->type == SUNXI_DRAM_TYPE_DDR3)
+		reg_val = DCR_DDR3 | DCR_DDR8BANK | DCR_DDR2T;
+	writel(reg_val | 0x400, &mctl_phy->dcr);
 
 	if (para->ranks == 2)
 		writel(0x0303, &mctl_ctl->odtmap);
 	else
 		writel(0x0201, &mctl_ctl->odtmap);
 
-	/* TODO: non-LPDDR3 types */
-	tmp = para->clk * 7 / 2000;
-	reg_val = 0x0400;
-	reg_val |= (tmp + 7) << 24;
-	reg_val |= (((para->clk < 400) ? 3 : 4) - tmp) << 16;
+	/* TODO: DDR4 */
+	if (para->type == SUNXI_DRAM_TYPE_LPDDR3) {
+		tmp = para->clk * 7 / 2000;
+		reg_val = 0x0400;
+		reg_val |= (tmp + 7) << 24;
+		reg_val |= (((para->clk < 400) ? 3 : 4) - tmp) << 16;
+	} else if (para->type == SUNXI_DRAM_TYPE_DDR3) {
+		reg_val = 0x06000400;	/* TODO?: Use CL - CWL value in [7:0] */
+	} else {
+		panic("Only (LP)DDR3 supported (type = %d)\n", para->type);
+	}
 	writel(reg_val, &mctl_ctl->odtcfg);
 
 	/* TODO: half DQ */
@@ -514,6 +385,9 @@ static void mctl_bit_delay_set(struct dram_para *para)
 	setbits_le32(&mctl_phy->pgcr[0], BIT(26));
 	udelay(1);
 
+	if (para->type != SUNXI_DRAM_TYPE_LPDDR3)
+		return;
+
 	for (i = 1; i < 14; i++) {
 		val = readl(&mctl_phy->acbdlr[i]);
 		val += 0x0a0a0a0a;
@@ -561,7 +435,8 @@ static void mctl_channel_init(struct dram_para *para)
 	else
 		clrsetbits_le32(&mctl_phy->dtcr[1], 0x30000, 0x10000);
 
-	clrbits_le32(&mctl_phy->dtcr[1], BIT(1));
+	if (sunxi_dram_is_lpddr(para->type))
+		clrbits_le32(&mctl_phy->dtcr[1], BIT(1));
 	if (para->ranks == 2) {
 		writel(0x00010001, &mctl_phy->rankidr);
 		writel(0x20000, &mctl_phy->odtcr);
@@ -570,8 +445,11 @@ static void mctl_channel_init(struct dram_para *para)
 		writel(0x10000, &mctl_phy->odtcr);
 	}
 
-	/* TODO: non-LPDDR3 types */
-	clrsetbits_le32(&mctl_phy->dtcr[0], 0xF0000000, 0x10000040);
+	/* set bits [3:0] to 1? 0 not valid in ZynqMP d/s */
+	if (para->type == SUNXI_DRAM_TYPE_LPDDR3)
+		clrsetbits_le32(&mctl_phy->dtcr[0], 0xF0000000, 0x10000040);
+	else
+		clrsetbits_le32(&mctl_phy->dtcr[0], 0xF0000000, 0x10000000);
 	if (para->clk <= 792) {
 		if (para->clk <= 672) {
 			if (para->clk <= 600)
@@ -601,12 +479,13 @@ static void mctl_channel_init(struct dram_para *para)
 			writel(0x06060606, &mctl_phy->acbdlr[i]);
 	}
 
-	/* TODO: non-LPDDR3 types */
-	mctl_phy_pir_init(PIR_ZCAL | PIR_DCAL | PIR_PHYRST | PIR_DRAMINIT |
-			  PIR_QSGATE | PIR_RDDSKW | PIR_WRDSKW | PIR_RDEYE |
-			  PIR_WREYE);
+	val = PIR_ZCAL | PIR_DCAL | PIR_PHYRST | PIR_DRAMINIT | PIR_QSGATE |
+	      PIR_RDDSKW | PIR_WRDSKW | PIR_RDEYE | PIR_WREYE;
+	if (para->type == SUNXI_DRAM_TYPE_DDR3)
+		val |= PIR_DRAMRST | PIR_WL;
+	mctl_phy_pir_init(val);
 
-	/* TODO: non-LPDDR3 types */
+	/* TODO: DDR4 types ? */
 	for (i = 0; i < 4; i++)
 		writel(0x00000909, &mctl_phy->dx[i].gcr[5]);
 
@@ -662,7 +541,8 @@ static void mctl_channel_init(struct dram_para *para)
 		panic("Error while initializing DRAM PHY!\n");
 	}
 
-	clrsetbits_le32(&mctl_phy->dsgcr, 0xc0, 0x40);
+	if (sunxi_dram_is_lpddr(para->type))
+		clrsetbits_le32(&mctl_phy->dsgcr, 0xc0, 0x40);
 	clrbits_le32(&mctl_phy->pgcr[1], 0x40);
 	clrbits_le32(&mctl_ctl->dfimisc, BIT(0));
 	writel(1, &mctl_ctl->swctl);
@@ -714,16 +594,27 @@ unsigned long mctl_calc_size(struct dram_para *para)
 	return (1ULL << (para->cols + para->rows + 3)) * 4 * para->ranks;
 }
 
-#define SUN50I_H6_DX_WRITE_DELAYS				\
+#define SUN50I_H6_LPDDR3_DX_WRITE_DELAYS			\
 	{{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	\
 	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	\
 	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  4,  4,  0 },	\
 	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }}
-#define SUN50I_H6_DX_READ_DELAYS					\
+#define SUN50I_H6_LPDDR3_DX_READ_DELAYS					\
 	{{  4,  4,  4,  4,  4,  4,  4,  4,  4,  0,  0,  0,  0,  0 },	\
 	 {  4,  4,  4,  4,  4,  4,  4,  4,  4,  0,  0,  0,  0,  0 },	\
 	 {  4,  4,  4,  4,  4,  4,  4,  4,  4,  0,  0,  0,  0,  0 },	\
 	 {  4,  4,  4,  4,  4,  4,  4,  4,  4,  0,  0,  0,  0,  0 }}
+
+#define SUN50I_H6_DDR3_DX_WRITE_DELAYS				\
+	{{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }}
+#define SUN50I_H6_DDR3_DX_READ_DELAYS					\
+	{{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	\
+	 {  4,  4,  4,  4,  4,  4,  4,  4,  4,  0,  0,  0,  0,  0 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },	\
+	 {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 }}
 
 unsigned long sunxi_dram_init(void)
 {
@@ -731,12 +622,18 @@ unsigned long sunxi_dram_init(void)
 			(struct sunxi_mctl_com_reg *)SUNXI_DRAM_COM_BASE;
 	struct dram_para para = {
 		.clk = CONFIG_DRAM_CLK,
-		.type = SUNXI_DRAM_TYPE_LPDDR3,
 		.ranks = 2,
 		.cols = 11,
 		.rows = 14,
-		.dx_read_delays  = SUN50I_H6_DX_READ_DELAYS,
-		.dx_write_delays = SUN50I_H6_DX_WRITE_DELAYS,
+#ifdef CONFIG_SUNXI_DRAM_H6_LPDDR3
+		.type = SUNXI_DRAM_TYPE_LPDDR3,
+		.dx_read_delays  = SUN50I_H6_LPDDR3_DX_READ_DELAYS,
+		.dx_write_delays = SUN50I_H6_LPDDR3_DX_WRITE_DELAYS,
+#elif defined(CONFIG_SUNXI_DRAM_H6_DDR3_1333)
+		.type = SUNXI_DRAM_TYPE_DDR3,
+		.dx_read_delays  = SUN50I_H6_DDR3_DX_READ_DELAYS,
+		.dx_write_delays = SUN50I_H6_DDR3_DX_WRITE_DELAYS,
+#endif
 	};
 
 	unsigned long size;

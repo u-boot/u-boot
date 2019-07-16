@@ -116,6 +116,9 @@ config SPL_LDSCRIPT
 config SPL_TEXT_BASE
 	hex "SPL Text Base"
 	default ISW_ENTRY_ADDR if AM43XX || AM33XX || OMAP54XX || ARCH_KEYSTONE
+	default 0x10060 if MACH_SUN50I || MACH_SUN50I_H5 || MACH_SUN9I
+	default 0x20060 if MACH_SUN50I_H6
+	default 0x00060 if ARCH_SUNXI
 	default 0x0
 	help
 	  The address in memory that SPL will be running from.

@@ -215,6 +215,12 @@ config SANDBOX_GPIO_COUNT
 	  of 'anonymous' GPIOs that do not belong to any device or bank.
 	  Select a suitable value depending on your needs.
 
+config SUNXI_GPIO
+	bool "Allwinner GPIO driver"
+	depends on ARCH_SUNXI
+	help
+	  Support the GPIO device in Allwinner SoCs.
+
 config XILINX_GPIO
 	bool "Xilinx GPIO driver"
 	depends on DM_GPIO

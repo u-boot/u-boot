@@ -172,6 +172,12 @@ S:	Maintained
 F:	configs/beelink_gs1_defconfig
 F:	arch/arm/dts/sun50i-h6-beelink-gs1.dts
 
+BEELINK X2 BOARD
+M:	Marcus Cooper <codekipper@gmail.com>
+S:	Maintained
+F:	configs/beelink_x2_defconfig
+F:	arch/arm/dts/sun8i-h3-beelink-x2.dts
+
 COLOMBUS BOARD
 M:	Maxime Ripard <maxime.ripard@bootlin.com>
 S:	Maintained

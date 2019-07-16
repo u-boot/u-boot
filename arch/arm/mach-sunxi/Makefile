@@ -39,4 +39,5 @@ obj-$(CONFIG_SPL_SPI_SUNXI)	+= spl_spi_sunxi.o
 obj-$(CONFIG_SUNXI_DRAM_DW)	+= dram_sunxi_dw.o
 obj-$(CONFIG_SUNXI_DRAM_DW)	+= dram_timings/
 obj-$(CONFIG_DRAM_SUN50I_H6)	+= dram_sun50i_h6.o
+obj-$(CONFIG_DRAM_SUN50I_H6)	+= dram_timings/
 endif
