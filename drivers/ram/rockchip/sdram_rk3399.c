@@ -338,7 +338,7 @@ static void set_memory_map(const struct chan_info *chan, u32 channel,
 }
 
 static int phy_io_config(const struct chan_info *chan,
-			 const struct rk3399_sdram_params *params)
+			 const struct rk3399_sdram_params *params, u32 mr5)
 {
 	u32 *denali_phy = chan->publ->denali_phy;
 	u32 vref_mode_dq, vref_value_dq, vref_mode_ac, vref_value_ac;
@@ -349,9 +349,18 @@ static int phy_io_config(const struct chan_info *chan,
 
 	/* vref setting */
 	if (params->base.dramtype == LPDDR4) {
-		/* LPDDR4 */
-		vref_mode_dq = 0x6;
-		vref_value_dq = 0x1f;
+		struct io_setting *io = lpddr4_get_io_settings(params, mr5);
+		u32 rd_vref = io->rd_vref * 1000;
+
+		if (rd_vref < 36700) {
+			/* MODE_LV[2:0] = LPDDR4 (Range 2)*/
+			vref_mode_dq = 0x7;
+			vref_value_dq = (rd_vref - 3300) / 521;
+		} else {
+			/* MODE_LV[2:0] = LPDDR4 (Range 1)*/
+			vref_mode_dq = 0x6;
+			vref_value_dq = (rd_vref - 15300) / 521;
+		}
 		vref_mode_ac = 0x6;
 		vref_value_ac = 0x1f;
 		mode_sel = 0x6;
@@ -770,7 +779,7 @@ static void set_ds_odt(const struct chan_info *chan,
 	/* phy_pad_fdbk_term 1bit DENALI_PHY_930 offset_17 */
 	clrsetbits_le32(&denali_phy[930], 0x1 << 17, reg_value);
 
-	phy_io_config(chan, params);
+	phy_io_config(chan, params, mr5);
 }
 
 static void pctl_start(struct dram_info *dram, u8 channel)
