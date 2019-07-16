@@ -11,6 +11,7 @@ obj-spl-$(CONFIG_ROCKCHIP_BROM_HELPER) += bootrom.o
 obj-spl-$(CONFIG_SPL_ROCKCHIP_COMMON_BOARD) += spl.o spl-boot-order.o
 obj-tpl-$(CONFIG_ROCKCHIP_BROM_HELPER) += bootrom.o
 obj-tpl-$(CONFIG_TPL_ROCKCHIP_COMMON_BOARD) += tpl.o
+obj-tpl-$(CONFIG_ROCKCHIP_PX30) += px30-board-tpl.o
 
 obj-spl-$(CONFIG_ROCKCHIP_RK3036) += rk3036-board-spl.o
 
@@ -27,6 +28,7 @@ endif
 
 obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram.o
 
+obj-$(CONFIG_ROCKCHIP_PX30) += px30/
 obj-$(CONFIG_ROCKCHIP_RK3036) += rk3036/
 obj-$(CONFIG_ROCKCHIP_RK3128) += rk3128/
 obj-$(CONFIG_ROCKCHIP_RK3188) += rk3188/
