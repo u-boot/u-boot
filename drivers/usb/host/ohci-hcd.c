@@ -2047,8 +2047,11 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 		pci_read_config_dword(pdev, PCI_BASE_ADDRESS_0, &base);
 		printf("OHCI regs address 0x%08x\n", base);
 		gohci.regs = (struct ohci_regs *)base;
-	} else
+	} else {
+		printf("%s: OHCI devnr: %d not found\n", __func__,
+		       CONFIG_PCI_OHCI_DEVNO);
 		return -1;
+	}
 #else
 	gohci.regs = (struct ohci_regs *)CONFIG_SYS_USB_OHCI_REGS_BASE;
 #endif
