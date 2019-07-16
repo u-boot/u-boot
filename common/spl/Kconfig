@@ -1241,6 +1241,14 @@ config TPL_SIZE_LIMIT
 	  Specifies the maximum length of the U-Boot TPL image.
 	  If this value is zero, it is ignored.
 
+config TPL_FRAMEWORK
+	bool "Support TPL based upon the common SPL framework"
+	default y if SPL_FRAMEWORK
+	help
+	  Enable the SPL framework under common/spl/ for TPL builds.
+	  This framework supports MMC, NAND and YMODEM and other methods
+	  loading of U-Boot's SPL stage. If unsure, say Y.
+
 config TPL_HANDOFF
 	bool "Pass hand-off information from TPL to SPL and U-Boot proper"
 	depends on HANDOFF && TPL_BLOBLIST

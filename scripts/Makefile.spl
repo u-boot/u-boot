@@ -71,7 +71,11 @@ HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makef
 libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 
+ifeq ($(CONFIG_TPL_BUILD),y)
+libs-$(CONFIG_TPL_FRAMEWORK) += common/spl/
+else
 libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/
+endif
 libs-y += common/init/
 
 # Special handling for a few options which support SPL/TPL
