@@ -67,6 +67,9 @@ dtb-$(CONFIG_KIRKWOOD) += \
 dtb-$(CONFIG_ARCH_OWL) += \
 	bubblegum_96.dtb
 
+dtb-$(CONFIG_ROCKCHIP_PX30) += \
+	px30-evb.dtb
+
 dtb-$(CONFIG_ROCKCHIP_RK3036) += \
 	rk3036-sdk.dtb
 
