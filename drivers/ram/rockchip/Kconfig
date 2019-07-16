@@ -23,4 +23,11 @@ config RAM_RK3399
 	  This enables ram drivers support for the platforms based on
 	  Rockchip RK3399 SoC.
 
+config RAM_RK3399_LPDDR4
+	bool "LPDDR4 support for Rockchip RK3399"
+	depends on RAM_RK3399
+	help
+	  This enables LPDDR4 sdram code support for the platforms based
+	  on Rockchip RK3399 SoC.
+
 endif # RAM_ROCKCHIP
