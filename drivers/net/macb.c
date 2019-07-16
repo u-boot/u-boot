@@ -77,27 +77,8 @@ struct macb_dma_desc {
 #define MACB_RX_DMA_DESC_SIZE	(DMA_DESC_BYTES(MACB_RX_RING_SIZE))
 #define MACB_TX_DUMMY_DMA_DESC_SIZE	(DMA_DESC_BYTES(1))
 
-#define RXADDR_USED		0x00000001
-#define RXADDR_WRAP		0x00000002
-
 #define RXBUF_FRMLEN_MASK	0x00000fff
-#define RXBUF_FRAME_START	0x00004000
-#define RXBUF_FRAME_END		0x00008000
-#define RXBUF_TYPEID_MATCH	0x00400000
-#define RXBUF_ADDR4_MATCH	0x00800000
-#define RXBUF_ADDR3_MATCH	0x01000000
-#define RXBUF_ADDR2_MATCH	0x02000000
-#define RXBUF_ADDR1_MATCH	0x04000000
-#define RXBUF_BROADCAST		0x80000000
-
 #define TXBUF_FRMLEN_MASK	0x000007ff
-#define TXBUF_FRAME_END		0x00008000
-#define TXBUF_NOCRC		0x00010000
-#define TXBUF_EXHAUSTED		0x08000000
-#define TXBUF_UNDERRUN		0x10000000
-#define TXBUF_MAXRETRY		0x20000000
-#define TXBUF_WRAP		0x40000000
-#define TXBUF_USED		0x80000000
 
 struct macb_device {
 	void			*regs;
@@ -316,9 +297,9 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 	paddr = dma_map_single(packet, length, DMA_TO_DEVICE);
 
 	ctrl = length & TXBUF_FRMLEN_MASK;
-	ctrl |= TXBUF_FRAME_END;
+	ctrl |= MACB_BIT(TX_LAST);
 	if (tx_head == (MACB_TX_RING_SIZE - 1)) {
-		ctrl |= TXBUF_WRAP;
+		ctrl |= MACB_BIT(TX_WRAP);
 		macb->tx_head = 0;
 	} else {
 		macb->tx_head++;
@@ -340,7 +321,7 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 		barrier();
 		macb_invalidate_ring_desc(macb, TX);
 		ctrl = macb->tx_ring[tx_head].ctrl;
-		if (ctrl & TXBUF_USED)
+		if (ctrl & MACB_BIT(TX_USED))
 			break;
 		udelay(1);
 	}
@@ -348,9 +329,9 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 	dma_unmap_single(packet, length, paddr);
 
 	if (i <= MACB_TX_TIMEOUT) {
-		if (ctrl & TXBUF_UNDERRUN)
+		if (ctrl & MACB_BIT(TX_UNDERRUN))
 			printf("%s: TX underrun\n", name);
-		if (ctrl & TXBUF_EXHAUSTED)
+		if (ctrl & MACB_BIT(TX_BUF_EXHAUSTED))
 			printf("%s: TX buffers exhausted in mid frame\n", name);
 	} else {
 		printf("%s: TX timeout\n", name);
@@ -369,14 +350,14 @@ static void reclaim_rx_buffers(struct macb_device *macb,
 
 	macb_invalidate_ring_desc(macb, RX);
 	while (i > new_tail) {
-		macb->rx_ring[i].addr &= ~RXADDR_USED;
+		macb->rx_ring[i].addr &= ~MACB_BIT(RX_USED);
 		i++;
 		if (i > MACB_RX_RING_SIZE)
 			i = 0;
 	}
 
 	while (i < new_tail) {
-		macb->rx_ring[i].addr &= ~RXADDR_USED;
+		macb->rx_ring[i].addr &= ~MACB_BIT(RX_USED);
 		i++;
 	}
 
@@ -396,17 +377,17 @@ static int _macb_recv(struct macb_device *macb, uchar **packetp)
 	for (;;) {
 		macb_invalidate_ring_desc(macb, RX);
 
-		if (!(macb->rx_ring[next_rx_tail].addr & RXADDR_USED))
+		if (!(macb->rx_ring[next_rx_tail].addr & MACB_BIT(RX_USED)))
 			return -EAGAIN;
 
 		status = macb->rx_ring[next_rx_tail].ctrl;
-		if (status & RXBUF_FRAME_START) {
+		if (status & MACB_BIT(RX_SOF)) {
 			if (next_rx_tail != macb->rx_tail)
 				reclaim_rx_buffers(macb, next_rx_tail);
 			macb->wrapped = false;
 		}
 
-		if (status & RXBUF_FRAME_END) {
+		if (status & MACB_BIT(RX_EOF)) {
 			buffer = macb->rx_buffer + 128 * macb->rx_tail;
 			length = status & RXBUF_FRMLEN_MASK;
 
@@ -699,7 +680,7 @@ static int gmac_init_multi_queues(struct macb_device *macb)
 		if (queue_mask & (1 << i))
 			num_queues++;
 
-	macb->dummy_desc->ctrl = TXBUF_USED;
+	macb->dummy_desc->ctrl = MACB_BIT(TX_USED);
 	macb->dummy_desc->addr = 0;
 	flush_dcache_range(macb->dummy_desc_dma, macb->dummy_desc_dma +
 			ALIGN(MACB_TX_DUMMY_DMA_DESC_SIZE, PKTALIGN));
@@ -732,7 +713,7 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	paddr = macb->rx_buffer_dma;
 	for (i = 0; i < MACB_RX_RING_SIZE; i++) {
 		if (i == (MACB_RX_RING_SIZE - 1))
-			paddr |= RXADDR_WRAP;
+			paddr |= MACB_BIT(RX_WRAP);
 		macb->rx_ring[i].addr = paddr;
 		macb->rx_ring[i].ctrl = 0;
 		paddr += 128;
@@ -743,9 +724,10 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	for (i = 0; i < MACB_TX_RING_SIZE; i++) {
 		macb->tx_ring[i].addr = 0;
 		if (i == (MACB_TX_RING_SIZE - 1))
-			macb->tx_ring[i].ctrl = TXBUF_USED | TXBUF_WRAP;
+			macb->tx_ring[i].ctrl = MACB_BIT(TX_USED) |
+				MACB_BIT(TX_WRAP);
 		else
-			macb->tx_ring[i].ctrl = TXBUF_USED;
+			macb->tx_ring[i].ctrl = MACB_BIT(TX_USED);
 	}
 	macb_flush_ring_desc(macb, TX);
 
