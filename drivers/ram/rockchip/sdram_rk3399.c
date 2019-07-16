@@ -1076,8 +1076,8 @@ static void dram_all_config(struct dram_info *dram,
 	u32 sys_reg = 0;
 	unsigned int channel, idx;
 
-	sys_reg |= params->base.dramtype << SYS_REG_DDRTYPE_SHIFT;
-	sys_reg |= (params->base.num_channels - 1) << SYS_REG_NUM_CH_SHIFT;
+	sys_reg |= SYS_REG_ENC_DDRTYPE(params->base.dramtype);
+	sys_reg |= SYS_REG_ENC_NUM_CH(params->base.num_channels);
 
 	for (channel = 0, idx = 0;
 	     (idx < params->base.num_channels) && (channel < 2);
@@ -1089,23 +1089,15 @@ static void dram_all_config(struct dram_info *dram,
 		if (params->ch[channel].cap_info.col == 0)
 			continue;
 		idx++;
-		sys_reg |= info->cap_info.row_3_4 <<
-			   SYS_REG_ROW_3_4_SHIFT(channel);
-		sys_reg |= 1 << SYS_REG_CHINFO_SHIFT(channel);
-		sys_reg |= (info->cap_info.rank - 1) <<
-			   SYS_REG_RANK_SHIFT(channel);
-		sys_reg |= (info->cap_info.col - 9) <<
-			   SYS_REG_COL_SHIFT(channel);
-		sys_reg |= info->cap_info.bk == 3 ? 0 : 1 <<
-			   SYS_REG_BK_SHIFT(channel);
-		sys_reg |= (info->cap_info.cs0_row - 13) <<
-			    SYS_REG_CS0_ROW_SHIFT(channel);
-		sys_reg |= (info->cap_info.cs1_row - 13) <<
-			    SYS_REG_CS1_ROW_SHIFT(channel);
-		sys_reg |= (2 >> info->cap_info.bw) <<
-			   SYS_REG_BW_SHIFT(channel);
-		sys_reg |= (2 >> info->cap_info.dbw) <<
-			   SYS_REG_DBW_SHIFT(channel);
+		sys_reg |= SYS_REG_ENC_ROW_3_4(info->cap_info.row_3_4, channel);
+		sys_reg |= SYS_REG_ENC_CHINFO(channel);
+		sys_reg |= SYS_REG_ENC_RANK(info->cap_info.rank, channel);
+		sys_reg |= SYS_REG_ENC_COL(info->cap_info.col, channel);
+		sys_reg |= SYS_REG_ENC_BK(info->cap_info.bk, channel);
+		sys_reg |= SYS_REG_ENC_CS0_ROW(info->cap_info.cs0_row, channel);
+		sys_reg |= SYS_REG_ENC_CS1_ROW(info->cap_info.cs1_row, channel);
+		sys_reg |= SYS_REG_ENC_BW(info->cap_info.bw, channel);
+		sys_reg |= SYS_REG_ENC_DBW(info->cap_info.dbw, channel);
 
 		ddr_msch_regs = dram->chan[channel].msch;
 		noc_timing = &params->ch[channel].noc_timings;
