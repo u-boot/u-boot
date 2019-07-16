@@ -502,9 +502,18 @@ static void set_ds_odt(const struct chan_info *chan,
 
 	/* phy_adr_tsel_select_ 8bits DENALI_PHY_544/672/800 offset_0 */
 	reg_value = tsel_wr_select_ca_n | (tsel_wr_select_ca_p << 0x4);
-	clrsetbits_le32(&denali_phy[544], 0xff, reg_value);
-	clrsetbits_le32(&denali_phy[672], 0xff, reg_value);
-	clrsetbits_le32(&denali_phy[800], 0xff, reg_value);
+	if (IS_ENABLED(CONFIG_RAM_RK3399_LPDDR4)) {
+		/* LPDDR4 these register read always return 0, so
+		 * can not use clrsetbits_le32(), need to write32
+		 */
+		writel((0x300 << 8) | reg_value, &denali_phy[544]);
+		writel((0x300 << 8) | reg_value, &denali_phy[672]);
+		writel((0x300 << 8) | reg_value, &denali_phy[800]);
+	} else {
+		clrsetbits_le32(&denali_phy[544], 0xff, reg_value);
+		clrsetbits_le32(&denali_phy[672], 0xff, reg_value);
+		clrsetbits_le32(&denali_phy[800], 0xff, reg_value);
+	}
 
 	/* phy_pad_addr_drive 8bits DENALI_PHY_928 offset_0 */
 	clrsetbits_le32(&denali_phy[928], 0xff, reg_value);
