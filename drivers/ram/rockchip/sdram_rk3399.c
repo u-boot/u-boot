@@ -65,9 +65,15 @@ struct dram_info {
 	struct rk3399_pmucru *pmucru;
 	struct rk3399_pmusgrf_regs *pmusgrf;
 	struct rk3399_ddr_cic_regs *cic;
+	const struct sdram_rk3399_ops *ops;
 #endif
 	struct ram_info info;
 	struct rk3399_pmugrf_regs *pmugrf;
+};
+
+struct sdram_rk3399_ops {
+	int (*data_training)(struct dram_info *dram, u32 channel, u8 rank,
+			     struct rk3399_sdram_params *sdram);
 };
 
 #if defined(CONFIG_TPL_BUILD) || \
@@ -1464,6 +1470,23 @@ static void dram_all_config(struct dram_info *dram,
 	clrsetbits_le32(&dram->cru->glb_rst_con, 0x3, 0x3);
 }
 
+static int default_data_training(struct dram_info *dram, u32 channel, u8 rank,
+				 struct rk3399_sdram_params *params)
+{
+	u8 training_flag = PI_READ_GATE_TRAINING;
+
+	/*
+	 * LPDDR3 CA training msut be trigger before
+	 * other training.
+	 * DDR3 is not have CA training.
+	 */
+
+	if (params->base.dramtype == LPDDR3)
+		training_flag |= PI_CA_TRAINING;
+
+	return data_training(dram, channel, params, training_flag);
+}
+
 static int switch_to_phy_index1(struct dram_info *dram,
 				const struct rk3399_sdram_params *params)
 {
@@ -1626,7 +1649,6 @@ static int sdram_init(struct dram_info *dram,
 {
 	unsigned char dramtype = params->base.dramtype;
 	unsigned int ddr_freq = params->base.ddr_freq;
-	u32 training_flag = PI_READ_GATE_TRAINING;
 	int channel, ch, rank;
 	int ret;
 
@@ -1654,16 +1676,12 @@ static int sdram_init(struct dram_info *dram,
 
 			params->ch[ch].cap_info.rank = rank;
 
-			/*
-			 * LPDDR3 CA training msut be trigger before
-			 * other training.
-			 * DDR3 is not have CA training.
-			 */
-			if (params->base.dramtype == LPDDR3)
-				training_flag |= PI_CA_TRAINING;
-
-			if (!(data_training(dram, ch, params, training_flag)))
+			ret = dram->ops->data_training(dram, ch, rank, params);
+			if (!ret) {
+				debug("%s: data trained for rank %d, ch %d\n",
+				      __func__, rank, ch);
 				break;
+			}
 		}
 		/* Computed rank with associated channel number */
 		params->ch[ch].cap_info.rank = rank;
@@ -1759,6 +1777,10 @@ static int conv_of_platdata(struct udevice *dev)
 }
 #endif
 
+static const struct sdram_rk3399_ops rk3399_ops = {
+	.data_training = default_data_training,
+};
+
 static int rk3399_dmc_init(struct udevice *dev)
 {
 	struct dram_info *priv = dev_get_priv(dev);
@@ -1776,6 +1798,7 @@ static int rk3399_dmc_init(struct udevice *dev)
 		return ret;
 #endif
 
+	priv->ops = &rk3399_ops;
 	priv->cic = syscon_get_first_range(ROCKCHIP_SYSCON_CIC);
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	priv->pmugrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
