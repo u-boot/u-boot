@@ -550,6 +550,20 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 		    sizeof(struct rk3399_ddr_pctl_regs) - 4);
 	writel(params_ctl[0], &denali_ctl[0]);
 
+	/*
+	 * two channel init at the same time, then ZQ Cal Start
+	 * at the same time, it will use the same RZQ, but cannot
+	 * start at the same time.
+	 *
+	 * So, increase tINIT3 for channel 1, will avoid two
+	 * channel ZQ Cal Start at the same time
+	 */
+	if (params->base.dramtype == LPDDR4 && channel == 1) {
+		tmp = ((params->base.ddr_freq * MHz + 999) / 1000);
+		tmp1 = readl(&denali_ctl[14]);
+		writel(tmp + tmp1, &denali_ctl[14]);
+	}
+
 	copy_to_reg(denali_pi, &params->pi_regs.denali_pi[0],
 		    sizeof(struct rk3399_ddr_pi_regs));
 
