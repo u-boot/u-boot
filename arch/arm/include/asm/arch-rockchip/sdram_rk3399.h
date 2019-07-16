@@ -28,6 +28,21 @@ union noc_ddrtimingc0 {
 	} b;
 };
 
+union noc_ddrmode {
+	u32 d32;
+	struct {
+		unsigned autoprecharge : 1;
+		unsigned bypassfiltering : 1;
+		unsigned fawbank : 1;
+		unsigned burstsize : 2;
+		unsigned mwrsize : 2;
+		unsigned reserved2 : 1;
+		unsigned forceorder : 8;
+		unsigned forceorderstate : 8;
+		unsigned reserved3 : 8;
+	} b;
+};
+
 struct rk3399_msch_regs {
 	u32 coreid;
 	u32 revisionid;
@@ -48,7 +63,7 @@ struct rk3399_msch_timings {
 	u32 ddrtimingb0;
 	union noc_ddrtimingc0 ddrtimingc0;
 	u32 devtodev0;
-	u32 ddrmode;
+	union noc_ddrmode ddrmode;
 	u32 agingx0;
 };
 

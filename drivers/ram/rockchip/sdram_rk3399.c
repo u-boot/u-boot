@@ -1114,7 +1114,7 @@ static void dram_all_config(struct dram_info *dram,
 		       &ddr_msch_regs->ddrtimingc0);
 		writel(noc_timing->devtodev0,
 		       &ddr_msch_regs->devtodev0);
-		writel(noc_timing->ddrmode,
+		writel(noc_timing->ddrmode.d32,
 		       &ddr_msch_regs->ddrmode);
 
 		/* rank 1 memory clock disable (dfi_dram_clk_disable = 1) */
