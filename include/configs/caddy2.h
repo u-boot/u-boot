@@ -225,7 +225,6 @@
  */
 #define CONFIG_SYS_RTC_BUS_NUM  0x01
 #define CONFIG_SYS_I2C_RTC_ADDR	0x32
-#define CONFIG_RTC_RX8025
 
 /* Pass Ethernet MAC to VxWorks */
 #define CONFIG_SYS_VXWORKS_MAC_PTR	0x000043f0
