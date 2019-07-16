@@ -1225,8 +1225,18 @@ static void dram_all_config(struct dram_info *dram,
 		writel(noc_timing->ddrmode.d32,
 		       &ddr_msch_regs->ddrmode);
 
-		/* rank 1 memory clock disable (dfi_dram_clk_disable = 1) */
-		if (params->ch[channel].cap_info.rank == 1)
+		/**
+		 * rank 1 memory clock disable (dfi_dram_clk_disable = 1)
+		 *
+		 * The hardware for LPDDR4 with
+		 * - CLK0P/N connect to lower 16-bits
+		 * - CLK1P/N connect to higher 16-bits
+		 *
+		 * dfi dram clk is configured via CLK1P/N, so disabling
+		 * dfi dram clk will disable the CLK1P/N as well for lpddr4.
+		 */
+		if (params->ch[channel].cap_info.rank == 1 &&
+		    params->base.dramtype != LPDDR4)
 			setbits_le32(&dram->chan[channel].pctl->denali_ctl[276],
 				     1 << 17);
 	}
