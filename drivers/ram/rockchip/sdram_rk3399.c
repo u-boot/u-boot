@@ -74,6 +74,8 @@ struct dram_info {
 struct sdram_rk3399_ops {
 	int (*data_training)(struct dram_info *dram, u32 channel, u8 rank,
 			     struct rk3399_sdram_params *sdram);
+	int (*set_rate)(struct dram_info *dram,
+			const struct rk3399_sdram_params *params);
 };
 
 #if defined(CONFIG_TPL_BUILD) || \
@@ -948,6 +950,7 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	return 0;
 }
 
+#if !defined(CONFIG_RAM_RK3399_LPDDR4)
 static void select_per_cs_training_index(const struct chan_info *chan,
 					 u32 rank)
 {
@@ -1368,6 +1371,7 @@ static int data_training(struct dram_info *dram, u32 channel,
 
 	return 0;
 }
+#endif
 
 static void set_ddrconfig(const struct chan_info *chan,
 			  const struct rk3399_sdram_params *params,
@@ -1487,7 +1491,6 @@ static int default_data_training(struct dram_info *dram, u32 channel, u8 rank,
 
 	return data_training(dram, channel, params, training_flag);
 }
-#endif
 
 static int switch_to_phy_index1(struct dram_info *dram,
 				const struct rk3399_sdram_params *params)
@@ -1534,7 +1537,8 @@ static int switch_to_phy_index1(struct dram_info *dram,
 	return 0;
 }
 
-#if defined(CONFIG_RAM_RK3399_LPDDR4)
+#else
+
 static u32 get_ddr_stride(struct rk3399_pmusgrf_regs *pmusgrf)
 {
 	return ((readl(&pmusgrf->soc_con4) >> 10) & 0x1F);
@@ -1954,7 +1958,7 @@ static int sdram_init(struct dram_info *dram,
 
 	params->base.stride = calculate_stride(params);
 	dram_all_config(dram, params);
-	switch_to_phy_index1(dram, params);
+	dram->ops->set_rate(dram, params);
 
 	debug("Finish SDRAM initialization...\n");
 	return 0;
@@ -2002,6 +2006,7 @@ static int conv_of_platdata(struct udevice *dev)
 static const struct sdram_rk3399_ops rk3399_ops = {
 #if !defined(CONFIG_RAM_RK3399_LPDDR4)
 	.data_training = default_data_training,
+	.set_rate = switch_to_phy_index1,
 #else
 	.data_training = lpddr4_mr_detect,
 #endif
