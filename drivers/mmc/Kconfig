@@ -167,7 +167,6 @@ config MMC_HS200_SUPPORT
 	  The HS200 mode is support by some eMMC. The bus frequency is up to
 	  200MHz. This mode requires tuning the IO.
 
-
 config SPL_MMC_HS200_SUPPORT
 	bool "enable HS200 support in SPL"
 	help
@@ -695,9 +694,18 @@ endif
 
 config FSL_ESDHC
 	bool "Freescale/NXP eSDHC controller support"
+	select FSL_ESDHC_USE_PERIPHERAL_CLK if MMC_HS200_SUPPORT || MMC_UHS_SUPPORT
 	help
 	  This selects support for the eSDHC (Enhanced Secure Digital Host
 	  Controller) found on numerous Freescale/NXP SoCs.
+
+config FSL_ESDHC_USE_PERIPHERAL_CLK
+	bool "enable ESDHC peripheral clock support"
+	depends on FSL_ESDHC
+	help
+	  eSDHC supports two reference clocks (platform clock and peripheral clock).
+	  Peripheral clock which could provide higher clock frequency is required to
+	  be used for tuning of SD UHS mode and eMMC HS200/HS400 modes.
 
 config FSL_ESDHC_IMX
 	bool "Freescale/NXP i.MX eSDHC controller support"
