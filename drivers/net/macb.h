@@ -613,6 +613,8 @@
 #define GEM_CLK_DIV48				3
 #define GEM_CLK_DIV64				4
 #define GEM_CLK_DIV96				5
+#define GEM_CLK_DIV128				6
+#define GEM_CLK_DIV224				7
 
 /* Constants for MAN register */
 #define MACB_MAN_SOF				1

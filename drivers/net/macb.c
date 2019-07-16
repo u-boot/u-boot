@@ -903,8 +903,12 @@ static u32 gem_mdc_clk_div(int id, struct macb_device *macb)
 		config = GEM_BF(CLK, GEM_CLK_DIV48);
 	else if (macb_hz < 160000000)
 		config = GEM_BF(CLK, GEM_CLK_DIV64);
-	else
+	else if (macb_hz < 240000000)
 		config = GEM_BF(CLK, GEM_CLK_DIV96);
+	else if (macb_hz < 320000000)
+		config = GEM_BF(CLK, GEM_CLK_DIV128);
+	else
+		config = GEM_BF(CLK, GEM_CLK_DIV224);
 
 	return config;
 }
