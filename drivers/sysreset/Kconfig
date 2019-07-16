@@ -50,6 +50,7 @@ config SYSRESET_MICROBLAZE
 config SYSRESET_PSCI
 	bool "Enable support for PSCI System Reset"
 	depends on ARM_PSCI_FW
+	select SPL_ARM_PSCI_FW if SPL
 	help
 	  Enable PSCI SYSTEM_RESET function call.  To use this, PSCI firmware
 	  must be running on your system.
