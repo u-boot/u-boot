@@ -774,14 +774,14 @@ static int _macb_init(struct macb_device *macb, const char *name)
 #ifdef CONFIG_DM_ETH
 		if ((macb->phy_interface == PHY_INTERFACE_MODE_RMII) ||
 		    (macb->phy_interface == PHY_INTERFACE_MODE_RGMII))
-			gem_writel(macb, UR, GEM_BIT(RGMII));
+			gem_writel(macb, USRIO, GEM_BIT(RGMII));
 		else
-			gem_writel(macb, UR, 0);
+			gem_writel(macb, USRIO, 0);
 #else
 #if defined(CONFIG_RGMII) || defined(CONFIG_RMII)
-		gem_writel(macb, UR, GEM_BIT(RGMII));
+		gem_writel(macb, USRIO, GEM_BIT(RGMII));
 #else
-		gem_writel(macb, UR, 0);
+		gem_writel(macb, USRIO, 0);
 #endif
 #endif
 	} else {
