@@ -80,6 +80,110 @@ struct rockchip_dmc_plat {
 	struct regmap *map;
 };
 
+struct io_setting {
+	u32 mhz;
+	u32 mr5;
+	/* dram side */
+	u32 dq_odt;
+	u32 ca_odt;
+	u32 pdds;
+	u32 dq_vref;
+	u32 ca_vref;
+	/* phy side */
+	u32 rd_odt;
+	u32 wr_dq_drv;
+	u32 wr_ca_drv;
+	u32 wr_ckcs_drv;
+	u32 rd_odt_en;
+	u32 rd_vref;
+} lpddr4_io_setting[] = {
+	{
+		50 * MHz,
+		0,
+		/* dram side */
+		0,	/* dq_odt; */
+		0,	/* ca_odt; */
+		6,	/* pdds; */
+		0x72,	/* dq_vref; */
+		0x72,	/* ca_vref; */
+		/* phy side */
+		PHY_DRV_ODT_HI_Z,	/* rd_odt; */
+		PHY_DRV_ODT_40,	/* wr_dq_drv; */
+		PHY_DRV_ODT_40,	/* wr_ca_drv; */
+		PHY_DRV_ODT_40,	/* wr_ckcs_drv; */
+		0,	/* rd_odt_en;*/
+		41,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
+	},
+	{
+		600 * MHz,
+		0,
+		/* dram side */
+		1,	/* dq_odt; */
+		0,	/* ca_odt; */
+		6,	/* pdds; */
+		0x72,	/* dq_vref; */
+		0x72,	/* ca_vref; */
+		/* phy side */
+		PHY_DRV_ODT_HI_Z,	/* rd_odt; */
+		PHY_DRV_ODT_48,	/* wr_dq_drv; */
+		PHY_DRV_ODT_40,	/* wr_ca_drv; */
+		PHY_DRV_ODT_40,	/* wr_ckcs_drv; */
+		0,	/* rd_odt_en; */
+		32,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
+	},
+	{
+		800 * MHz,
+		0,
+		/* dram side */
+		1,	/* dq_odt; */
+		0,	/* ca_odt; */
+		1,	/* pdds; */
+		0x72,	/* dq_vref; */
+		0x72,	/* ca_vref; */
+		/* phy side */
+		PHY_DRV_ODT_40,	/* rd_odt; */
+		PHY_DRV_ODT_48,	/* wr_dq_drv; */
+		PHY_DRV_ODT_40,	/* wr_ca_drv; */
+		PHY_DRV_ODT_40,	/* wr_ckcs_drv; */
+		1,	/* rd_odt_en; */
+		17,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
+	},
+	{
+		933 * MHz,
+		0,
+		/* dram side */
+		3,	/* dq_odt; */
+		0,	/* ca_odt; */
+		6,	/* pdds; */
+		0x59,	/* dq_vref; 32% */
+		0x72,	/* ca_vref; */
+		/* phy side */
+		PHY_DRV_ODT_HI_Z,	/* rd_odt; */
+		PHY_DRV_ODT_48,	/* wr_dq_drv; */
+		PHY_DRV_ODT_40,	/* wr_ca_drv; */
+		PHY_DRV_ODT_40,	/* wr_ckcs_drv; */
+		0,	/* rd_odt_en; */
+		32,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
+	},
+	{
+		1066 * MHz,
+		0,
+		/* dram side */
+		6,	/* dq_odt; */
+		0,	/* ca_odt; */
+		1,	/* pdds; */
+		0x10,	/* dq_vref; */
+		0x72,	/* ca_vref; */
+		/* phy side */
+		PHY_DRV_ODT_40,	/* rd_odt; */
+		PHY_DRV_ODT_60,	/* wr_dq_drv; */
+		PHY_DRV_ODT_40,	/* wr_ca_drv; */
+		PHY_DRV_ODT_40,	/* wr_ckcs_drv; */
+		1,	/* rd_odt_en; */
+		17,	/* rd_vref; (unit %, range 3.3% - 48.7%) */
+	},
+};
+
 static void *get_ddrc0_con(struct dram_info *dram, u8 channel)
 {
 	return (channel == 0) ? &dram->grf->ddrc0_con0 : &dram->grf->ddrc0_con1;
