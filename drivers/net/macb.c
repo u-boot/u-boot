@@ -47,6 +47,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define MACB_RX_BUFFER_SIZE		4096
 #define MACB_RX_RING_SIZE		(MACB_RX_BUFFER_SIZE / 128)
+#define RX_BUFFER_MULTIPLE		64
 #define MACB_TX_RING_SIZE		16
 #define MACB_TX_TIMEOUT		1000
 #define MACB_AUTONEG_TIMEOUT	5000000
@@ -697,6 +698,31 @@ static int gmac_init_multi_queues(struct macb_device *macb)
 	return 0;
 }
 
+static void gmac_configure_dma(struct macb_device *macb)
+{
+	u32 buffer_size;
+	u32 dmacfg;
+
+	buffer_size = 128 / RX_BUFFER_MULTIPLE;
+	dmacfg = gem_readl(macb, DMACFG) & ~GEM_BF(RXBS, -1L);
+	dmacfg |= GEM_BF(RXBS, buffer_size);
+
+	if (macb->dma_burst_length)
+		dmacfg = GEM_BFINS(FBLDO, macb->dma_burst_length, dmacfg);
+
+	dmacfg |= GEM_BIT(TXPBMS) | GEM_BF(RXBMS, -1L);
+	dmacfg &= ~GEM_BIT(ENDIA_PKT);
+
+#ifdef CONFIG_SYS_LITTLE_ENDIAN
+		dmacfg &= ~GEM_BIT(ENDIA_DESC);
+#else
+		dmacfg |= GEM_BIT(ENDIA_DESC); /* CPU in big endian */
+#endif
+
+	dmacfg &= ~GEM_BIT(ADDR64);
+	gem_writel(macb, DMACFG, dmacfg);
+}
+
 #ifdef CONFIG_DM_ETH
 static int _macb_init(struct udevice *dev, const char *name)
 #else
@@ -750,6 +776,8 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	macb_writel(macb, TBQP, macb->tx_ring_dma);
 
 	if (macb_is_gem(macb)) {
+		/* Initialize DMA properties */
+		gmac_configure_dma(macb);
 		/* Check the multi queue and initialize the queue for tx */
 		gmac_init_multi_queues(macb);
 
