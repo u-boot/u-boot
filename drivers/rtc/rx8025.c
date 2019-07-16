@@ -70,12 +70,12 @@
 /* static uchar rtc_read (uchar reg); */
 #define rtc_read(reg) buf[((reg) + 1) & 0xf]
 
-static void rtc_write (uchar reg, uchar val);
+static void rtc_write(uchar reg, uchar val);
 
 /*
  * Get the current time from the RTC
  */
-int rtc_get (struct rtc_time *tmp)
+int rtc_get(struct rtc_time *tmp)
 {
 	int rel = 0;
 	uchar sec, min, hour, mday, wday, mon, year, ctl2;
@@ -92,9 +92,9 @@ int rtc_get (struct rtc_time *tmp)
 	mon = rtc_read(RTC_MON_REG_ADDR);
 	year = rtc_read(RTC_YR_REG_ADDR);
 
-	DEBUGR ("Get RTC year: %02x mon: %02x mday: %02x wday: %02x "
-		"hr: %02x min: %02x sec: %02x\n",
-		year, mon, mday, wday, hour, min, sec);
+	DEBUGR("Get RTC year: %02x mon: %02x mday: %02x wday: %02x "
+	       "hr: %02x min: %02x sec: %02x\n",
+	       year, mon, mday, wday, hour, min, sec);
 
 	/* dump status */
 	ctl2 = rtc_read(RTC_CTL2_REG_ADDR);
@@ -113,13 +113,14 @@ int rtc_get (struct rtc_time *tmp)
 		rel = -1;
 	}
 
-	tmp->tm_sec  = bcd2bin (sec & 0x7F);
-	tmp->tm_min  = bcd2bin (min & 0x7F);
+	tmp->tm_sec  = bcd2bin(sec & 0x7F);
+	tmp->tm_min  = bcd2bin(min & 0x7F);
 	if (rtc_read(RTC_CTL1_REG_ADDR) & RTC_CTL1_BIT_2412)
-		tmp->tm_hour = bcd2bin (hour & 0x3F);
+		tmp->tm_hour = bcd2bin(hour & 0x3F);
 	else
-		tmp->tm_hour = bcd2bin (hour & 0x1F) % 12 +
+		tmp->tm_hour = bcd2bin(hour & 0x1F) % 12 +
 			       ((hour & 0x20) ? 12 : 0);
+
 	tmp->tm_mday = bcd2bin (mday & 0x3F);
 	tmp->tm_mon  = bcd2bin (mon & 0x1F);
 	tmp->tm_year = bcd2bin (year) + ( bcd2bin (year) >= 70 ? 1900 : 2000);
@@ -127,9 +128,9 @@ int rtc_get (struct rtc_time *tmp)
 	tmp->tm_yday = 0;
 	tmp->tm_isdst= 0;
 
-	DEBUGR ("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
-		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
-		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	DEBUGR("Get DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
+	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 
 	return rel;
 }
@@ -137,24 +138,24 @@ int rtc_get (struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-int rtc_set (struct rtc_time *tmp)
+int rtc_set(struct rtc_time *tmp)
 {
-	DEBUGR ("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
-		tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
-		tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	DEBUGR("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
+	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 
 	if (tmp->tm_year < 1970 || tmp->tm_year > 2069)
 		printf("WARNING: year should be between 1970 and 2069!\n");
 
-	rtc_write (RTC_YR_REG_ADDR, bin2bcd (tmp->tm_year % 100));
-	rtc_write (RTC_MON_REG_ADDR, bin2bcd (tmp->tm_mon));
-	rtc_write (RTC_DAY_REG_ADDR, bin2bcd (tmp->tm_wday));
-	rtc_write (RTC_DATE_REG_ADDR, bin2bcd (tmp->tm_mday));
-	rtc_write (RTC_HR_REG_ADDR, bin2bcd (tmp->tm_hour));
-	rtc_write (RTC_MIN_REG_ADDR, bin2bcd (tmp->tm_min));
-	rtc_write (RTC_SEC_REG_ADDR, bin2bcd (tmp->tm_sec));
+	rtc_write(RTC_YR_REG_ADDR, bin2bcd(tmp->tm_year % 100));
+	rtc_write(RTC_MON_REG_ADDR, bin2bcd(tmp->tm_mon));
+	rtc_write(RTC_DAY_REG_ADDR, bin2bcd(tmp->tm_wday));
+	rtc_write(RTC_DATE_REG_ADDR, bin2bcd(tmp->tm_mday));
+	rtc_write(RTC_HR_REG_ADDR, bin2bcd(tmp->tm_hour));
+	rtc_write(RTC_MIN_REG_ADDR, bin2bcd(tmp->tm_min));
+	rtc_write(RTC_SEC_REG_ADDR, bin2bcd(tmp->tm_sec));
 
-	rtc_write (RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412);
+	rtc_write(RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412);
 
 	return 0;
 }
@@ -162,29 +163,28 @@ int rtc_set (struct rtc_time *tmp)
 /*
  * Reset the RTC
  */
-void rtc_reset (void)
+void rtc_reset(void)
 {
 	uchar buf[16];
 	uchar ctl2;
 
-	if (i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0,    0,   buf, 16))
+	if (i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 0, buf, 16))
 		printf("Error reading from RTC\n");
 
 	ctl2 = rtc_read(RTC_CTL2_REG_ADDR);
 	ctl2 &= ~(RTC_CTL2_BIT_PON | RTC_CTL2_BIT_VDET);
 	ctl2 |= RTC_CTL2_BIT_XST | RTC_CTL2_BIT_VDSL;
-	rtc_write (RTC_CTL2_REG_ADDR, ctl2);
+	rtc_write(RTC_CTL2_REG_ADDR, ctl2);
 }
 
 /*
  * Helper functions
  */
-static void rtc_write (uchar reg, uchar val)
+static void rtc_write(uchar reg, uchar val)
 {
 	uchar buf[2];
 	buf[0] = reg << 4;
 	buf[1] = val;
 	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 0, buf, 2) != 0)
 		printf("Error writing to RTC\n");
-
 }
