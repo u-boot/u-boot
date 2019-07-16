@@ -347,7 +347,7 @@ static int phy_io_config(const struct chan_info *chan,
 	u32 drv_value, odt_value;
 	u32 speed;
 
-	/* vref setting */
+	/* vref setting & mode setting */
 	if (params->base.dramtype == LPDDR4) {
 		struct io_setting *io = lpddr4_get_io_settings(params, mr5);
 		u32 rd_vref = io->rd_vref * 1000;
@@ -355,15 +355,18 @@ static int phy_io_config(const struct chan_info *chan,
 		if (rd_vref < 36700) {
 			/* MODE_LV[2:0] = LPDDR4 (Range 2)*/
 			vref_mode_dq = 0x7;
+			/* MODE[2:0]= LPDDR4 Range 2(0.4*VDDQ) */
+			mode_sel = 0x5;
 			vref_value_dq = (rd_vref - 3300) / 521;
 		} else {
 			/* MODE_LV[2:0] = LPDDR4 (Range 1)*/
 			vref_mode_dq = 0x6;
+			/* MODE[2:0]= LPDDR4 Range 1(0.33*VDDQ) */
+			mode_sel = 0x4;
 			vref_value_dq = (rd_vref - 15300) / 521;
 		}
 		vref_mode_ac = 0x6;
 		vref_value_ac = 0x1f;
-		mode_sel = 0x6;
 	} else if (params->base.dramtype == LPDDR3) {
 		if (params->base.odt == 1) {
 			vref_mode_dq = 0x5;  /* LPDDR3 ODT */
