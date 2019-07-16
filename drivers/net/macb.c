@@ -759,6 +759,13 @@ static int _macb_init(struct macb_device *macb, const char *name)
 			gem_writel(macb, USRIO, GEM_BIT(RGMII));
 		else
 			gem_writel(macb, USRIO, 0);
+
+		if (macb->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+			unsigned int ncfgr = macb_readl(macb, NCFGR);
+
+			ncfgr |= GEM_BIT(SGMIIEN) | GEM_BIT(PCSSEL);
+			macb_writel(macb, NCFGR, ncfgr);
+		}
 #else
 #if defined(CONFIG_RGMII) || defined(CONFIG_RMII)
 		gem_writel(macb, USRIO, GEM_BIT(RGMII));
