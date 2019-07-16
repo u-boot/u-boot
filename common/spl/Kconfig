@@ -62,6 +62,25 @@ config SPL_SIZE_LIMIT_PROVIDE_STACK
 	  of SRAM available for SPL when the stack required before reolcation
 	  uses this SRAM, too.
 
+config SPL_SYS_STACK_F_CHECK_BYTE
+	hex
+	default 0xaa
+	help
+	  Constant used to check the stack
+
+config SPL_SYS_REPORT_STACK_F_USAGE
+	depends on SPL_SIZE_LIMIT_PROVIDE_STACK != 0
+	bool "Check and report stack usage in SPL before relocation"
+	help
+	  If this option is enabled, the initial SPL stack is filled with 0xaa
+	  very early, up to the size configured with
+	  SPL_SIZE_LIMIT_PROVIDE_STACK.
+	  Later when SPL is done using this initial stack and switches to a
+	  stack in DRAM, the actually used size of this initial stack is
+	  reported by examining the memory and searching for the lowest
+	  occurrence of non 0xaa bytes.
+	  This default implementation works for stacks growing down only.
+
 menu "PowerPC SPL Boot options"
 	depends on PPC && (SUPPORT_SPL && !SPL_FRAMEWORK)
 
