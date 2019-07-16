@@ -37,6 +37,8 @@
 
 #define PHY_BOOSTP_EN		0x1
 #define PHY_BOOSTN_EN		0x1
+#define PHY_SLEWP_EN		0x1
+#define PHY_SLEWN_EN		0x1
 
 #define CRU_SFTRST_DDR_CTRL(ch, n)	((0x1 << (8 + 16 + (ch) * 4)) | \
 					((n) << (8 + (ch) * 4)))
@@ -334,6 +336,25 @@ static int phy_io_config(const struct chan_info *chan,
 		clrsetbits_le32(&denali_phy[937], 0xff << 20, reg_value << 20);
 		/* PHY_939 PHY_PAD_CS_DRIVE */
 		clrsetbits_le32(&denali_phy[939], 0xff << 20, reg_value << 20);
+
+		/* SLEWP_EN & SLEWN_EN */
+		reg_value = ((PHY_SLEWP_EN << 3) | PHY_SLEWN_EN);
+		/* PHY_924 PHY_PAD_FDBK_DRIVE */
+		clrsetbits_le32(&denali_phy[924], 0x3f << 8, reg_value << 8);
+		/* PHY_926 PHY_PAD_DATA_DRIVE */
+		clrsetbits_le32(&denali_phy[926], 0x3f, reg_value);
+		/* PHY_927 PHY_PAD_DQS_DRIVE */
+		clrsetbits_le32(&denali_phy[927], 0x3f, reg_value);
+		/* PHY_928 PHY_PAD_ADDR_DRIVE */
+		clrsetbits_le32(&denali_phy[928], 0x3f << 8, reg_value << 8);
+		/* PHY_929 PHY_PAD_CLK_DRIVE */
+		clrsetbits_le32(&denali_phy[929], 0x3f << 8, reg_value << 8);
+		/* PHY_935 PHY_PAD_CKE_DRIVE */
+		clrsetbits_le32(&denali_phy[935], 0x3f << 8, reg_value << 8);
+		/* PHY_937 PHY_PAD_RST_DRIVE */
+		clrsetbits_le32(&denali_phy[937], 0x3f << 8, reg_value << 8);
+		/* PHY_939 PHY_PAD_CS_DRIVE */
+		clrsetbits_le32(&denali_phy[939], 0x3f << 8, reg_value << 8);
 	}
 
 	/* speed setting */
