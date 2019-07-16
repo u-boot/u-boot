@@ -35,12 +35,6 @@ Get the Source and prebuild binary
   > git clone https://github.com/rockchip-linux/rkbin.git
   > git clone https://github.com/rockchip-linux/rkdeveloptool.git
 
-Get some prerequisites
-======================
-
-You need the Python elftools.elf.elffile library for make_fit_atf.py to work:
-
-  > sudo apt-get install python-pyelftools
 
 Compile ATF
 ===========
