@@ -188,6 +188,16 @@ static void set_memory_map(const struct chan_info *chan, u32 channel,
 	clrsetbits_le32(&denali_pi[155], (0x3 << 16) | (0x7 << 24),
 			((3 - sdram_ch->cap_info.bk) << 16) |
 			((16 - row) << 24));
+
+	if (IS_ENABLED(CONFIG_RAM_RK3399_LPDDR4)) {
+		if (cs_map == 1)
+			cs_map = 0x5;
+		else if (cs_map == 2)
+			cs_map = 0xa;
+		else
+			cs_map = 0xF;
+	}
+
 	/* PI_41 PI_CS_MAP:RW:24:4 */
 	clrsetbits_le32(&denali_pi[41], 0xf << 24, cs_map << 24);
 	if (sdram_ch->cap_info.rank == 1 && params->base.dramtype == DDR3)
