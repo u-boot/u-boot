@@ -645,10 +645,14 @@ static void set_ds_odt(const struct chan_info *chan,
 		tsel_ckcs_select_n = PHY_DRV_ODT_34_3;
 	}
 
-	if (params->base.odt == 1)
+	if (params->base.odt == 1) {
 		tsel_rd_en = 1;
-	else
+
+		if (params->base.dramtype == LPDDR4)
+			tsel_rd_en = io->rd_odt_en;
+	} else {
 		tsel_rd_en = 0;
+	}
 
 	tsel_wr_en = 0;
 	tsel_idle_en = 0;
