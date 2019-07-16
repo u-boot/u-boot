@@ -236,6 +236,13 @@ config USB_OHCI_HCD
 	  based system where you're not sure, the "lspci -v" entry will list the
 	  right "prog-if" for your USB controller(s):  EHCI, OHCI, or UHCI.
 
+config USB_OHCI_PCI
+	bool "Support for PCI-based OHCI USB controller"
+	depends on DM_USB
+	default n
+	help
+	  Enables support for the PCI-based OHCI controller.
+
 if USB_OHCI_HCD
 
 config USB_OHCI_GENERIC
