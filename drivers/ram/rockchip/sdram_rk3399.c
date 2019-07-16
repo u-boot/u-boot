@@ -574,6 +574,11 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	writel(params->phy_regs.denali_phy[911], &denali_phy[911]);
 	writel(params->phy_regs.denali_phy[912], &denali_phy[912]);
 
+	if (IS_ENABLED(CONFIG_RAM_RK3399_LPDDR4)) {
+		writel(params->phy_regs.denali_phy[898], &denali_phy[898]);
+		writel(params->phy_regs.denali_phy[919], &denali_phy[919]);
+	}
+
 	dram->pwrup_srefresh_exit[channel] = readl(&denali_ctl[68]) &
 					     PWRUP_SREFRESH_EXIT;
 	clrbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT);
