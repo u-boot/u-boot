@@ -188,194 +188,6 @@ static void set_memory_map(const struct chan_info *chan, u32 channel,
 		writel(0x2EC7FFFF, &denali_pi[34]);
 }
 
-static void set_ds_odt(const struct chan_info *chan,
-		       const struct rk3399_sdram_params *params)
-{
-	u32 *denali_phy = chan->publ->denali_phy;
-
-	u32 tsel_idle_en, tsel_wr_en, tsel_rd_en;
-	u32 tsel_idle_select_p, tsel_rd_select_p;
-	u32 tsel_idle_select_n, tsel_rd_select_n;
-	u32 tsel_wr_select_dq_p, tsel_wr_select_ca_p;
-	u32 tsel_wr_select_dq_n, tsel_wr_select_ca_n;
-	u32 reg_value;
-
-	if (params->base.dramtype == LPDDR4) {
-		tsel_rd_select_p = PHY_DRV_ODT_HI_Z;
-		tsel_rd_select_n = PHY_DRV_ODT_240;
-
-		tsel_idle_select_p = PHY_DRV_ODT_HI_Z;
-		tsel_idle_select_n = PHY_DRV_ODT_240;
-
-		tsel_wr_select_dq_p = PHY_DRV_ODT_40;
-		tsel_wr_select_dq_n = PHY_DRV_ODT_40;
-
-		tsel_wr_select_ca_p = PHY_DRV_ODT_40;
-		tsel_wr_select_ca_n = PHY_DRV_ODT_40;
-	} else if (params->base.dramtype == LPDDR3) {
-		tsel_rd_select_p = PHY_DRV_ODT_240;
-		tsel_rd_select_n = PHY_DRV_ODT_HI_Z;
-
-		tsel_idle_select_p = PHY_DRV_ODT_240;
-		tsel_idle_select_n = PHY_DRV_ODT_HI_Z;
-
-		tsel_wr_select_dq_p = PHY_DRV_ODT_34_3;
-		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
-
-		tsel_wr_select_ca_p = PHY_DRV_ODT_48;
-		tsel_wr_select_ca_n = PHY_DRV_ODT_48;
-	} else {
-		tsel_rd_select_p = PHY_DRV_ODT_240;
-		tsel_rd_select_n = PHY_DRV_ODT_240;
-
-		tsel_idle_select_p = PHY_DRV_ODT_240;
-		tsel_idle_select_n = PHY_DRV_ODT_240;
-
-		tsel_wr_select_dq_p = PHY_DRV_ODT_34_3;
-		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
-
-		tsel_wr_select_ca_p = PHY_DRV_ODT_34_3;
-		tsel_wr_select_ca_n = PHY_DRV_ODT_34_3;
-	}
-
-	if (params->base.odt == 1)
-		tsel_rd_en = 1;
-	else
-		tsel_rd_en = 0;
-
-	tsel_wr_en = 0;
-	tsel_idle_en = 0;
-
-	/*
-	 * phy_dq_tsel_select_X 24bits DENALI_PHY_6/134/262/390 offset_0
-	 * sets termination values for read/idle cycles and drive strength
-	 * for write cycles for DQ/DM
-	 */
-	reg_value = tsel_rd_select_n | (tsel_rd_select_p << 0x4) |
-		    (tsel_wr_select_dq_n << 8) | (tsel_wr_select_dq_p << 12) |
-		    (tsel_idle_select_n << 16) | (tsel_idle_select_p << 20);
-	clrsetbits_le32(&denali_phy[6], 0xffffff, reg_value);
-	clrsetbits_le32(&denali_phy[134], 0xffffff, reg_value);
-	clrsetbits_le32(&denali_phy[262], 0xffffff, reg_value);
-	clrsetbits_le32(&denali_phy[390], 0xffffff, reg_value);
-
-	/*
-	 * phy_dqs_tsel_select_X 24bits DENALI_PHY_7/135/263/391 offset_0
-	 * sets termination values for read/idle cycles and drive strength
-	 * for write cycles for DQS
-	 */
-	clrsetbits_le32(&denali_phy[7], 0xffffff, reg_value);
-	clrsetbits_le32(&denali_phy[135], 0xffffff, reg_value);
-	clrsetbits_le32(&denali_phy[263], 0xffffff, reg_value);
-	clrsetbits_le32(&denali_phy[391], 0xffffff, reg_value);
-
-	/* phy_adr_tsel_select_ 8bits DENALI_PHY_544/672/800 offset_0 */
-	reg_value = tsel_wr_select_ca_n | (tsel_wr_select_ca_p << 0x4);
-	clrsetbits_le32(&denali_phy[544], 0xff, reg_value);
-	clrsetbits_le32(&denali_phy[672], 0xff, reg_value);
-	clrsetbits_le32(&denali_phy[800], 0xff, reg_value);
-
-	/* phy_pad_addr_drive 8bits DENALI_PHY_928 offset_0 */
-	clrsetbits_le32(&denali_phy[928], 0xff, reg_value);
-
-	/* phy_pad_rst_drive 8bits DENALI_PHY_937 offset_0 */
-	clrsetbits_le32(&denali_phy[937], 0xff, reg_value);
-
-	/* phy_pad_cke_drive 8bits DENALI_PHY_935 offset_0 */
-	clrsetbits_le32(&denali_phy[935], 0xff, reg_value);
-
-	/* phy_pad_cs_drive 8bits DENALI_PHY_939 offset_0 */
-	clrsetbits_le32(&denali_phy[939], 0xff, reg_value);
-
-	/* phy_pad_clk_drive 8bits DENALI_PHY_929 offset_0 */
-	clrsetbits_le32(&denali_phy[929], 0xff, reg_value);
-
-	/* phy_pad_fdbk_drive 23bit DENALI_PHY_924/925 */
-	clrsetbits_le32(&denali_phy[924], 0xff,
-			tsel_wr_select_dq_n | (tsel_wr_select_dq_p << 4));
-	clrsetbits_le32(&denali_phy[925], 0xff,
-			tsel_rd_select_n | (tsel_rd_select_p << 4));
-
-	/* phy_dq_tsel_enable_X 3bits DENALI_PHY_5/133/261/389 offset_16 */
-	reg_value = (tsel_rd_en | (tsel_wr_en << 1) | (tsel_idle_en << 2))
-		<< 16;
-	clrsetbits_le32(&denali_phy[5], 0x7 << 16, reg_value);
-	clrsetbits_le32(&denali_phy[133], 0x7 << 16, reg_value);
-	clrsetbits_le32(&denali_phy[261], 0x7 << 16, reg_value);
-	clrsetbits_le32(&denali_phy[389], 0x7 << 16, reg_value);
-
-	/* phy_dqs_tsel_enable_X 3bits DENALI_PHY_6/134/262/390 offset_24 */
-	reg_value = (tsel_rd_en | (tsel_wr_en << 1) | (tsel_idle_en << 2))
-		<< 24;
-	clrsetbits_le32(&denali_phy[6], 0x7 << 24, reg_value);
-	clrsetbits_le32(&denali_phy[134], 0x7 << 24, reg_value);
-	clrsetbits_le32(&denali_phy[262], 0x7 << 24, reg_value);
-	clrsetbits_le32(&denali_phy[390], 0x7 << 24, reg_value);
-
-	/* phy_adr_tsel_enable_ 1bit DENALI_PHY_518/646/774 offset_8 */
-	reg_value = tsel_wr_en << 8;
-	clrsetbits_le32(&denali_phy[518], 0x1 << 8, reg_value);
-	clrsetbits_le32(&denali_phy[646], 0x1 << 8, reg_value);
-	clrsetbits_le32(&denali_phy[774], 0x1 << 8, reg_value);
-
-	/* phy_pad_addr_term tsel 1bit DENALI_PHY_933 offset_17 */
-	reg_value = tsel_wr_en << 17;
-	clrsetbits_le32(&denali_phy[933], 0x1 << 17, reg_value);
-	/*
-	 * pad_rst/cke/cs/clk_term tsel 1bits
-	 * DENALI_PHY_938/936/940/934 offset_17
-	 */
-	clrsetbits_le32(&denali_phy[938], 0x1 << 17, reg_value);
-	clrsetbits_le32(&denali_phy[936], 0x1 << 17, reg_value);
-	clrsetbits_le32(&denali_phy[940], 0x1 << 17, reg_value);
-	clrsetbits_le32(&denali_phy[934], 0x1 << 17, reg_value);
-
-	/* phy_pad_fdbk_term 1bit DENALI_PHY_930 offset_17 */
-	clrsetbits_le32(&denali_phy[930], 0x1 << 17, reg_value);
-}
-
-static void pctl_start(struct dram_info *dram, u8 channel)
-{
-	const struct chan_info *chan = &dram->chan[channel];
-	u32 *denali_ctl = chan->pctl->denali_ctl;
-	u32 *denali_phy = chan->publ->denali_phy;
-	u32 *ddrc0_con = get_ddrc0_con(dram, channel);
-	u32 count = 0;
-	u32 byte, tmp;
-
-	writel(0x01000000, &ddrc0_con);
-
-	clrsetbits_le32(&denali_phy[957], 0x3 << 24, 0x2 << 24);
-
-	while (!(readl(&denali_ctl[203]) & (1 << 3))) {
-		if (count > 1000) {
-			printf("%s: Failed to init pctl for channel %d\n",
-			       __func__, channel);
-			while (1)
-				;
-		}
-
-		udelay(1);
-		count++;
-	}
-
-	writel(0x01000100, &ddrc0_con);
-
-	for (byte = 0; byte < 4; byte++) {
-		tmp = 0x820;
-		writel((tmp << 16) | tmp, &denali_phy[53 + (128 * byte)]);
-		writel((tmp << 16) | tmp, &denali_phy[54 + (128 * byte)]);
-		writel((tmp << 16) | tmp, &denali_phy[55 + (128 * byte)]);
-		writel((tmp << 16) | tmp, &denali_phy[56 + (128 * byte)]);
-		writel((tmp << 16) | tmp, &denali_phy[57 + (128 * byte)]);
-
-		clrsetbits_le32(&denali_phy[58 + (128 * byte)], 0xffff, tmp);
-	}
-
-	clrsetbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT,
-			dram->pwrup_srefresh_exit[channel]);
-}
-
 static int phy_io_config(const struct chan_info *chan,
 			 const struct rk3399_sdram_params *params)
 {
@@ -536,6 +348,196 @@ static int phy_io_config(const struct chan_info *chan,
 	return 0;
 }
 
+static void set_ds_odt(const struct chan_info *chan,
+		       const struct rk3399_sdram_params *params)
+{
+	u32 *denali_phy = chan->publ->denali_phy;
+
+	u32 tsel_idle_en, tsel_wr_en, tsel_rd_en;
+	u32 tsel_idle_select_p, tsel_rd_select_p;
+	u32 tsel_idle_select_n, tsel_rd_select_n;
+	u32 tsel_wr_select_dq_p, tsel_wr_select_ca_p;
+	u32 tsel_wr_select_dq_n, tsel_wr_select_ca_n;
+	u32 reg_value;
+
+	if (params->base.dramtype == LPDDR4) {
+		tsel_rd_select_p = PHY_DRV_ODT_HI_Z;
+		tsel_rd_select_n = PHY_DRV_ODT_240;
+
+		tsel_idle_select_p = PHY_DRV_ODT_HI_Z;
+		tsel_idle_select_n = PHY_DRV_ODT_240;
+
+		tsel_wr_select_dq_p = PHY_DRV_ODT_40;
+		tsel_wr_select_dq_n = PHY_DRV_ODT_40;
+
+		tsel_wr_select_ca_p = PHY_DRV_ODT_40;
+		tsel_wr_select_ca_n = PHY_DRV_ODT_40;
+	} else if (params->base.dramtype == LPDDR3) {
+		tsel_rd_select_p = PHY_DRV_ODT_240;
+		tsel_rd_select_n = PHY_DRV_ODT_HI_Z;
+
+		tsel_idle_select_p = PHY_DRV_ODT_240;
+		tsel_idle_select_n = PHY_DRV_ODT_HI_Z;
+
+		tsel_wr_select_dq_p = PHY_DRV_ODT_34_3;
+		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
+
+		tsel_wr_select_ca_p = PHY_DRV_ODT_48;
+		tsel_wr_select_ca_n = PHY_DRV_ODT_48;
+	} else {
+		tsel_rd_select_p = PHY_DRV_ODT_240;
+		tsel_rd_select_n = PHY_DRV_ODT_240;
+
+		tsel_idle_select_p = PHY_DRV_ODT_240;
+		tsel_idle_select_n = PHY_DRV_ODT_240;
+
+		tsel_wr_select_dq_p = PHY_DRV_ODT_34_3;
+		tsel_wr_select_dq_n = PHY_DRV_ODT_34_3;
+
+		tsel_wr_select_ca_p = PHY_DRV_ODT_34_3;
+		tsel_wr_select_ca_n = PHY_DRV_ODT_34_3;
+	}
+
+	if (params->base.odt == 1)
+		tsel_rd_en = 1;
+	else
+		tsel_rd_en = 0;
+
+	tsel_wr_en = 0;
+	tsel_idle_en = 0;
+
+	/*
+	 * phy_dq_tsel_select_X 24bits DENALI_PHY_6/134/262/390 offset_0
+	 * sets termination values for read/idle cycles and drive strength
+	 * for write cycles for DQ/DM
+	 */
+	reg_value = tsel_rd_select_n | (tsel_rd_select_p << 0x4) |
+		    (tsel_wr_select_dq_n << 8) | (tsel_wr_select_dq_p << 12) |
+		    (tsel_idle_select_n << 16) | (tsel_idle_select_p << 20);
+	clrsetbits_le32(&denali_phy[6], 0xffffff, reg_value);
+	clrsetbits_le32(&denali_phy[134], 0xffffff, reg_value);
+	clrsetbits_le32(&denali_phy[262], 0xffffff, reg_value);
+	clrsetbits_le32(&denali_phy[390], 0xffffff, reg_value);
+
+	/*
+	 * phy_dqs_tsel_select_X 24bits DENALI_PHY_7/135/263/391 offset_0
+	 * sets termination values for read/idle cycles and drive strength
+	 * for write cycles for DQS
+	 */
+	clrsetbits_le32(&denali_phy[7], 0xffffff, reg_value);
+	clrsetbits_le32(&denali_phy[135], 0xffffff, reg_value);
+	clrsetbits_le32(&denali_phy[263], 0xffffff, reg_value);
+	clrsetbits_le32(&denali_phy[391], 0xffffff, reg_value);
+
+	/* phy_adr_tsel_select_ 8bits DENALI_PHY_544/672/800 offset_0 */
+	reg_value = tsel_wr_select_ca_n | (tsel_wr_select_ca_p << 0x4);
+	clrsetbits_le32(&denali_phy[544], 0xff, reg_value);
+	clrsetbits_le32(&denali_phy[672], 0xff, reg_value);
+	clrsetbits_le32(&denali_phy[800], 0xff, reg_value);
+
+	/* phy_pad_addr_drive 8bits DENALI_PHY_928 offset_0 */
+	clrsetbits_le32(&denali_phy[928], 0xff, reg_value);
+
+	/* phy_pad_rst_drive 8bits DENALI_PHY_937 offset_0 */
+	clrsetbits_le32(&denali_phy[937], 0xff, reg_value);
+
+	/* phy_pad_cke_drive 8bits DENALI_PHY_935 offset_0 */
+	clrsetbits_le32(&denali_phy[935], 0xff, reg_value);
+
+	/* phy_pad_cs_drive 8bits DENALI_PHY_939 offset_0 */
+	clrsetbits_le32(&denali_phy[939], 0xff, reg_value);
+
+	/* phy_pad_clk_drive 8bits DENALI_PHY_929 offset_0 */
+	clrsetbits_le32(&denali_phy[929], 0xff, reg_value);
+
+	/* phy_pad_fdbk_drive 23bit DENALI_PHY_924/925 */
+	clrsetbits_le32(&denali_phy[924], 0xff,
+			tsel_wr_select_dq_n | (tsel_wr_select_dq_p << 4));
+	clrsetbits_le32(&denali_phy[925], 0xff,
+			tsel_rd_select_n | (tsel_rd_select_p << 4));
+
+	/* phy_dq_tsel_enable_X 3bits DENALI_PHY_5/133/261/389 offset_16 */
+	reg_value = (tsel_rd_en | (tsel_wr_en << 1) | (tsel_idle_en << 2))
+		<< 16;
+	clrsetbits_le32(&denali_phy[5], 0x7 << 16, reg_value);
+	clrsetbits_le32(&denali_phy[133], 0x7 << 16, reg_value);
+	clrsetbits_le32(&denali_phy[261], 0x7 << 16, reg_value);
+	clrsetbits_le32(&denali_phy[389], 0x7 << 16, reg_value);
+
+	/* phy_dqs_tsel_enable_X 3bits DENALI_PHY_6/134/262/390 offset_24 */
+	reg_value = (tsel_rd_en | (tsel_wr_en << 1) | (tsel_idle_en << 2))
+		<< 24;
+	clrsetbits_le32(&denali_phy[6], 0x7 << 24, reg_value);
+	clrsetbits_le32(&denali_phy[134], 0x7 << 24, reg_value);
+	clrsetbits_le32(&denali_phy[262], 0x7 << 24, reg_value);
+	clrsetbits_le32(&denali_phy[390], 0x7 << 24, reg_value);
+
+	/* phy_adr_tsel_enable_ 1bit DENALI_PHY_518/646/774 offset_8 */
+	reg_value = tsel_wr_en << 8;
+	clrsetbits_le32(&denali_phy[518], 0x1 << 8, reg_value);
+	clrsetbits_le32(&denali_phy[646], 0x1 << 8, reg_value);
+	clrsetbits_le32(&denali_phy[774], 0x1 << 8, reg_value);
+
+	/* phy_pad_addr_term tsel 1bit DENALI_PHY_933 offset_17 */
+	reg_value = tsel_wr_en << 17;
+	clrsetbits_le32(&denali_phy[933], 0x1 << 17, reg_value);
+	/*
+	 * pad_rst/cke/cs/clk_term tsel 1bits
+	 * DENALI_PHY_938/936/940/934 offset_17
+	 */
+	clrsetbits_le32(&denali_phy[938], 0x1 << 17, reg_value);
+	clrsetbits_le32(&denali_phy[936], 0x1 << 17, reg_value);
+	clrsetbits_le32(&denali_phy[940], 0x1 << 17, reg_value);
+	clrsetbits_le32(&denali_phy[934], 0x1 << 17, reg_value);
+
+	/* phy_pad_fdbk_term 1bit DENALI_PHY_930 offset_17 */
+	clrsetbits_le32(&denali_phy[930], 0x1 << 17, reg_value);
+
+	phy_io_config(chan, params);
+}
+
+static void pctl_start(struct dram_info *dram, u8 channel)
+{
+	const struct chan_info *chan = &dram->chan[channel];
+	u32 *denali_ctl = chan->pctl->denali_ctl;
+	u32 *denali_phy = chan->publ->denali_phy;
+	u32 *ddrc0_con = get_ddrc0_con(dram, channel);
+	u32 count = 0;
+	u32 byte, tmp;
+
+	writel(0x01000000, &ddrc0_con);
+
+	clrsetbits_le32(&denali_phy[957], 0x3 << 24, 0x2 << 24);
+
+	while (!(readl(&denali_ctl[203]) & (1 << 3))) {
+		if (count > 1000) {
+			printf("%s: Failed to init pctl for channel %d\n",
+			       __func__, channel);
+			while (1)
+				;
+		}
+
+		udelay(1);
+		count++;
+	}
+
+	writel(0x01000100, &ddrc0_con);
+
+	for (byte = 0; byte < 4; byte++) {
+		tmp = 0x820;
+		writel((tmp << 16) | tmp, &denali_phy[53 + (128 * byte)]);
+		writel((tmp << 16) | tmp, &denali_phy[54 + (128 * byte)]);
+		writel((tmp << 16) | tmp, &denali_phy[55 + (128 * byte)]);
+		writel((tmp << 16) | tmp, &denali_phy[56 + (128 * byte)]);
+		writel((tmp << 16) | tmp, &denali_phy[57 + (128 * byte)]);
+
+		clrsetbits_le32(&denali_phy[58 + (128 * byte)], 0xffff, tmp);
+	}
+
+	clrsetbits_le32(&denali_ctl[68], PWRUP_SREFRESH_EXIT,
+			dram->pwrup_srefresh_exit[channel]);
+}
+
 static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 		    u32 channel, const struct rk3399_sdram_params *params)
 {
@@ -545,7 +547,6 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	const u32 *params_ctl = params->pctl_regs.denali_ctl;
 	const u32 *params_phy = params->phy_regs.denali_phy;
 	u32 tmp, tmp1, tmp2;
-	int ret;
 
 	/*
 	 * work around controller bug:
@@ -622,10 +623,6 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	clrsetbits_le32(&denali_phy[339], 0xff << 16, (tmp + 0x10) << 16);
 	tmp = (readl(&denali_phy[467]) >> 16) & 0xff;
 	clrsetbits_le32(&denali_phy[467], 0xff << 16, (tmp + 0x10) << 16);
-
-	ret = phy_io_config(chan, params);
-	if (ret)
-		return ret;
 
 	return 0;
 }
