@@ -560,6 +560,7 @@ static void set_ds_odt(const struct chan_info *chan,
 	u32 tsel_idle_select_n, tsel_rd_select_n;
 	u32 tsel_wr_select_dq_p, tsel_wr_select_ca_p;
 	u32 tsel_wr_select_dq_n, tsel_wr_select_ca_n;
+	u32 tsel_ckcs_select_p, tsel_ckcs_select_n;
 	struct io_setting *io = NULL;
 	u32 reg_value;
 
@@ -577,6 +578,9 @@ static void set_ds_odt(const struct chan_info *chan,
 
 		tsel_wr_select_ca_p = io->wr_ca_drv;
 		tsel_wr_select_ca_n = PHY_DRV_ODT_40;
+
+		tsel_ckcs_select_p = io->wr_ckcs_drv;
+		tsel_ckcs_select_n = PHY_DRV_ODT_34_3;
 	} else if (params->base.dramtype == LPDDR3) {
 		tsel_rd_select_p = PHY_DRV_ODT_240;
 		tsel_rd_select_n = PHY_DRV_ODT_HI_Z;
@@ -589,6 +593,9 @@ static void set_ds_odt(const struct chan_info *chan,
 
 		tsel_wr_select_ca_p = PHY_DRV_ODT_48;
 		tsel_wr_select_ca_n = PHY_DRV_ODT_48;
+
+		tsel_ckcs_select_p = PHY_DRV_ODT_34_3;
+		tsel_ckcs_select_n = PHY_DRV_ODT_34_3;
 	} else {
 		tsel_rd_select_p = PHY_DRV_ODT_240;
 		tsel_rd_select_n = PHY_DRV_ODT_240;
@@ -601,6 +608,9 @@ static void set_ds_odt(const struct chan_info *chan,
 
 		tsel_wr_select_ca_p = PHY_DRV_ODT_34_3;
 		tsel_wr_select_ca_n = PHY_DRV_ODT_34_3;
+
+		tsel_ckcs_select_p = PHY_DRV_ODT_34_3;
+		tsel_ckcs_select_n = PHY_DRV_ODT_34_3;
 	}
 
 	if (params->base.odt == 1)
@@ -659,10 +669,12 @@ static void set_ds_odt(const struct chan_info *chan,
 	clrsetbits_le32(&denali_phy[935], 0xff, reg_value);
 
 	/* phy_pad_cs_drive 8bits DENALI_PHY_939 offset_0 */
-	clrsetbits_le32(&denali_phy[939], 0xff, reg_value);
+	clrsetbits_le32(&denali_phy[939], 0xff,
+			tsel_ckcs_select_n | (tsel_ckcs_select_p << 0x4));
 
 	/* phy_pad_clk_drive 8bits DENALI_PHY_929 offset_0 */
-	clrsetbits_le32(&denali_phy[929], 0xff, reg_value);
+	clrsetbits_le32(&denali_phy[929], 0xff,
+			tsel_ckcs_select_n | (tsel_ckcs_select_p << 0x4));
 
 	/* phy_pad_fdbk_drive 23bit DENALI_PHY_924/925 */
 	clrsetbits_le32(&denali_phy[924], 0xff,
