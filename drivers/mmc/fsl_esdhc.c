@@ -395,10 +395,6 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
 	esdhc_write32(&regs->xfertyp, xfertyp);
 
-	if ((cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK) ||
-	    (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200))
-		flags = IRQSTAT_BRR;
-
 	/* Wait for the command to complete */
 	start = get_timer(0);
 	while (!(esdhc_read32(&regs->irqstat) & flags)) {
@@ -458,12 +454,6 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 #ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
 		esdhc_pio_read_write(priv, data);
 #else
-		flags = DATA_COMPLETE;
-		if ((cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK) ||
-		    (cmd->cmdidx == MMC_CMD_SEND_TUNING_BLOCK_HS200)) {
-			flags = IRQSTAT_BRR;
-		}
-
 		do {
 			irqstat = esdhc_read32(&regs->irqstat);
 
@@ -476,7 +466,7 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
 				err = -ECOMM;
 				goto out;
 			}
-		} while ((irqstat & flags) != flags);
+		} while ((irqstat & DATA_COMPLETE) != DATA_COMPLETE);
 
 		/*
 		 * Need invalidate the dcache here again to avoid any
@@ -517,7 +507,9 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 	int div = 1;
 	int pre_div = 2;
 	int ddr_pre_div = mmc->ddr_mode ? 2 : 1;
-	int sdhc_clk = priv->sdhc_clk;
+	unsigned int sdhc_clk = priv->sdhc_clk;
+	u32 time_out;
+	u32 value;
 	uint clk;
 
 	if (clock < mmc->cfg->f_min)
@@ -538,11 +530,18 @@ static void set_sysctl(struct fsl_esdhc_priv *priv, struct mmc *mmc, uint clock)
 
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_CLOCK_MASK, clk);
 
-	udelay(10000);
+	time_out = 20;
+	value = PRSSTAT_SDSTB;
+	while (!(esdhc_read32(&regs->prsstat) & value)) {
+		if (time_out == 0) {
+			printf("fsl_esdhc: Internal clock never stabilised.\n");
+			break;
+		}
+		time_out--;
+		mdelay(1);
+	}
 
 	esdhc_setbits32(&regs->sysctl, SYSCTL_PEREN | SYSCTL_CKEN);
-
-	priv->clock = clock;
 }
 
 #ifdef CONFIG_FSL_ESDHC_USE_PERIPHERAL_CLK
@@ -1024,6 +1023,8 @@ static int fsl_esdhc_probe(struct udevice *dev)
 		return ret;
 	}
 
+	mmc_of_parse(dev, &plat->cfg);
+
 	mmc = &plat->mmc;
 	mmc->cfg = &plat->cfg;
 	mmc->dev = dev;
@@ -1081,6 +1082,9 @@ static const struct dm_mmc_ops fsl_esdhc_ops = {
 	.get_cd		= fsl_esdhc_get_cd,
 	.send_cmd	= fsl_esdhc_send_cmd,
 	.set_ios	= fsl_esdhc_set_ios,
+#ifdef MMC_SUPPORTS_TUNING
+	.execute_tuning = fsl_esdhc_execute_tuning,
+#endif
 };
 #endif
 
