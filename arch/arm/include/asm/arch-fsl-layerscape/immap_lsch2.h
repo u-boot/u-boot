@@ -180,7 +180,7 @@ struct sys_info {
 	unsigned long freq_systembus;
 	unsigned long freq_ddrbus;
 	unsigned long freq_localbus;
-	unsigned long freq_sdhc;
+	unsigned long freq_cga_m2;
 #ifdef CONFIG_SYS_DPAA_FMAN
 	unsigned long freq_fman[CONFIG_SYS_NUM_FMAN];
 #endif
