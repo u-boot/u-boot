@@ -10,8 +10,9 @@
 
 #include <common.h>
 #include <command.h>
-#include <rtc.h>
+#include <dm.h>
 #include <i2c.h>
+#include <rtc.h>
 
 /*---------------------------------------------------------------------*/
 #undef DEBUG_RTC
@@ -25,6 +26,18 @@
 
 #ifndef CONFIG_SYS_I2C_RTC_ADDR
 # define CONFIG_SYS_I2C_RTC_ADDR	0x32
+#endif
+
+#ifdef CONFIG_DM_RTC
+#define DEV_TYPE struct udevice
+#else
+/* Local udevice */
+struct ludevice {
+	u8 chip;
+};
+
+#define DEV_TYPE struct ludevice
+
 #endif
 
 /*
@@ -68,21 +81,35 @@
  */
 
 /* static uchar rtc_read (uchar reg); */
+#ifdef CONFIG_DM_RTC
+/*
+ * on mpc85xx based board with DM and offset len 1
+ * accessing rtc works fine. May we can drop this ?
+ */
+#define rtc_read(reg) buf[(reg) & 0xf]
+#else
 #define rtc_read(reg) buf[((reg) + 1) & 0xf]
+#endif
 
-static void rtc_write(uchar reg, uchar val);
+static int rtc_write(DEV_TYPE *dev, uchar reg, uchar val);
 
 /*
  * Get the current time from the RTC
  */
-int rtc_get(struct rtc_time *tmp)
+static int rx8025_rtc_get(DEV_TYPE *dev, struct rtc_time *tmp)
 {
 	int rel = 0;
 	uchar sec, min, hour, mday, wday, mon, year, ctl2;
 	uchar buf[16];
 
-	if (i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 0, buf, 16))
+#ifdef CONFIG_DM_RTC
+	if (dm_i2c_read(dev, 0, buf, sizeof(buf))) {
+#else
+	if (i2c_read(dev->chip, 0, 0, buf, 16)) {
+#endif
 		printf("Error reading from RTC\n");
+		return -EIO;
+	}
 
 	sec = rtc_read(RTC_SEC_REG_ADDR);
 	min = rtc_read(RTC_MIN_REG_ADDR);
@@ -138,7 +165,7 @@ int rtc_get(struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-int rtc_set(struct rtc_time *tmp)
+static int rx8025_rtc_set(DEV_TYPE *dev, const struct rtc_time *tmp)
 {
 	DEBUGR("Set DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
 	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
@@ -147,44 +174,133 @@ int rtc_set(struct rtc_time *tmp)
 	if (tmp->tm_year < 1970 || tmp->tm_year > 2069)
 		printf("WARNING: year should be between 1970 and 2069!\n");
 
-	rtc_write(RTC_YR_REG_ADDR, bin2bcd(tmp->tm_year % 100));
-	rtc_write(RTC_MON_REG_ADDR, bin2bcd(tmp->tm_mon));
-	rtc_write(RTC_DAY_REG_ADDR, bin2bcd(tmp->tm_wday));
-	rtc_write(RTC_DATE_REG_ADDR, bin2bcd(tmp->tm_mday));
-	rtc_write(RTC_HR_REG_ADDR, bin2bcd(tmp->tm_hour));
-	rtc_write(RTC_MIN_REG_ADDR, bin2bcd(tmp->tm_min));
-	rtc_write(RTC_SEC_REG_ADDR, bin2bcd(tmp->tm_sec));
+	if (rtc_write(dev, RTC_YR_REG_ADDR, bin2bcd(tmp->tm_year % 100)))
+		return -EIO;
 
-	rtc_write(RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412);
+	if (rtc_write(dev, RTC_MON_REG_ADDR, bin2bcd(tmp->tm_mon)))
+		return -EIO;
 
-	return 0;
+	if (rtc_write(dev, RTC_DAY_REG_ADDR, bin2bcd(tmp->tm_wday)))
+		return -EIO;
+
+	if (rtc_write(dev, RTC_DATE_REG_ADDR, bin2bcd(tmp->tm_mday)))
+		return -EIO;
+
+	if (rtc_write(dev, RTC_HR_REG_ADDR, bin2bcd(tmp->tm_hour)))
+		return -EIO;
+
+	if (rtc_write(dev, RTC_MIN_REG_ADDR, bin2bcd(tmp->tm_min)))
+		return -EIO;
+
+	if (rtc_write(dev, RTC_SEC_REG_ADDR, bin2bcd(tmp->tm_sec)))
+		return -EIO;
+
+	return rtc_write(dev, RTC_CTL1_REG_ADDR, RTC_CTL1_BIT_2412);
 }
 
 /*
  * Reset the RTC
  */
-void rtc_reset(void)
+static int rx8025_rtc_reset(DEV_TYPE *dev)
 {
 	uchar buf[16];
 	uchar ctl2;
 
-	if (i2c_read(CONFIG_SYS_I2C_RTC_ADDR, 0, 0, buf, 16))
+#ifdef CONFIG_DM_RTC
+	if (dm_i2c_read(dev, 0, buf, sizeof(buf))) {
+#else
+	if (i2c_read(dev->chip, 0, 0, buf, 16)) {
+#endif
 		printf("Error reading from RTC\n");
+		return -EIO;
+	}
 
 	ctl2 = rtc_read(RTC_CTL2_REG_ADDR);
 	ctl2 &= ~(RTC_CTL2_BIT_PON | RTC_CTL2_BIT_VDET);
 	ctl2 |= RTC_CTL2_BIT_XST | RTC_CTL2_BIT_VDSL;
-	rtc_write(RTC_CTL2_REG_ADDR, ctl2);
+
+	return rtc_write(dev, RTC_CTL2_REG_ADDR, ctl2);
 }
 
 /*
  * Helper functions
  */
-static void rtc_write(uchar reg, uchar val)
+static int rtc_write(DEV_TYPE *dev, uchar reg, uchar val)
 {
 	uchar buf[2];
 	buf[0] = reg << 4;
 	buf[1] = val;
-	if (i2c_write(CONFIG_SYS_I2C_RTC_ADDR, 0, 0, buf, 2) != 0)
+
+#ifdef CONFIG_DM_RTC
+	if (dm_i2c_write(dev, 0, buf, 2)) {
+#else
+	if (i2c_write(dev->chip, 0, 0, buf, 2) != 0) {
+#endif
 		printf("Error writing to RTC\n");
+		return -EIO;
+	}
+
+	return 0;
 }
+
+#ifdef CONFIG_DM_RTC
+static int rx8025_probe(struct udevice *dev)
+{
+	uchar buf[16];
+	int ret = 0;
+
+	if (i2c_get_chip_offset_len(dev) != 1)
+		ret = i2c_set_chip_offset_len(dev, 1);
+
+	if (ret)
+		return ret;
+
+	return dm_i2c_read(dev, 0, buf, sizeof(buf));
+}
+
+static const struct rtc_ops rx8025_rtc_ops = {
+	.get = rx8025_rtc_get,
+	.set = rx8025_rtc_set,
+	.reset = rx8025_rtc_reset,
+};
+
+static const struct udevice_id rx8025_rtc_ids[] = {
+	{ .compatible = "epson,rx8025" },
+	{ }
+};
+
+U_BOOT_DRIVER(rx8010sj_rtc) = {
+	.name	  = "rx8025_rtc",
+	.id	      = UCLASS_RTC,
+	.probe    = rx8025_probe,
+	.of_match = rx8025_rtc_ids,
+	.ops	  = &rx8025_rtc_ops,
+};
+#else
+int rtc_get(struct rtc_time *tm)
+{
+	struct ludevice dev = {
+		.chip = CONFIG_SYS_I2C_RTC_ADDR,
+	};
+
+	return rx8025_rtc_get(&dev, tm);
+}
+
+int rtc_set(struct rtc_time *tm)
+{
+	struct ludevice dev = {
+		.chip = CONFIG_SYS_I2C_RTC_ADDR,
+	};
+
+	return rx8025_rtc_set(&dev, tm);
+}
+
+void rtc_reset(void)
+{
+	struct ludevice dev = {
+		.chip = CONFIG_SYS_I2C_RTC_ADDR,
+	};
+
+	rx8025_rtc_reset(&dev);
+}
+#endif
