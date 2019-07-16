@@ -6,6 +6,6 @@
 #include "rk3399-u-boot.dtsi"
 / {
 	chosen {
-		u-boot,spl-boot-order = &sdhci, &sdmmc;
+		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
 	};
 };
