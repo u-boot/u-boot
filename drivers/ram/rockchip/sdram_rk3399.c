@@ -1286,10 +1286,11 @@ static int data_training_wdql(const struct chan_info *chan, u32 channel,
 	return 0;
 }
 
-static int data_training(const struct chan_info *chan, u32 channel,
+static int data_training(struct dram_info *dram, u32 channel,
 			 const struct rk3399_sdram_params *params,
 			 u32 training_flag)
 {
+	struct chan_info *chan = &dram->chan[channel];
 	u32 *denali_phy = chan->publ->denali_phy;
 	int ret;
 
@@ -1498,8 +1499,7 @@ static int switch_to_phy_index1(struct dram_info *dram,
 	for (channel = 0; channel < ch_count; channel++) {
 		denali_phy = dram->chan[channel].publ->denali_phy;
 		clrsetbits_le32(&denali_phy[896], (0x3 << 8) | 1, 1 << 8);
-		ret = data_training(&dram->chan[channel], channel,
-				    params, PI_FULL_TRAINING);
+		ret = data_training(dram, channel, params, PI_FULL_TRAINING);
 		if (ret < 0) {
 			debug("index1 training failed\n");
 			return ret;
@@ -1662,8 +1662,7 @@ static int sdram_init(struct dram_info *dram,
 			if (params->base.dramtype == LPDDR3)
 				training_flag |= PI_CA_TRAINING;
 
-			if (!(data_training(&dram->chan[ch], ch,
-					    params, training_flag)))
+			if (!(data_training(dram, ch, params, training_flag)))
 				break;
 		}
 		/* Computed rank with associated channel number */
