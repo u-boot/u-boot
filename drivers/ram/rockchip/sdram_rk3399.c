@@ -570,16 +570,22 @@ static int pctl_cfg(struct dram_info *dram, const struct chan_info *chan,
 	setbits_le32(&denali_pi[0], START);
 	setbits_le32(&denali_ctl[0], START);
 
-	/* Waiting for phy DLL lock */
-	while (1) {
-		tmp = readl(&denali_phy[920]);
-		tmp1 = readl(&denali_phy[921]);
-		tmp2 = readl(&denali_phy[922]);
-		if ((((tmp >> 16) & 0x1) == 0x1) &&
-		    (((tmp1 >> 16) & 0x1) == 0x1) &&
-		    (((tmp1 >> 0) & 0x1) == 0x1) &&
-		    (((tmp2 >> 0) & 0x1) == 0x1))
-			break;
+	/**
+	 * LPDDR4 use PLL bypass mode for init
+	 * not need to wait for the PLL to lock
+	 */
+	if (params->base.dramtype != LPDDR4) {
+		/* Waiting for phy DLL lock */
+		while (1) {
+			tmp = readl(&denali_phy[920]);
+			tmp1 = readl(&denali_phy[921]);
+			tmp2 = readl(&denali_phy[922]);
+			if ((((tmp >> 16) & 0x1) == 0x1) &&
+			    (((tmp1 >> 16) & 0x1) == 0x1) &&
+			    (((tmp1 >> 0) & 0x1) == 0x1) &&
+			    (((tmp2 >> 0) & 0x1) == 0x1))
+				break;
+		}
 	}
 
 	copy_to_reg(&denali_phy[896], &params_phy[896], (958 - 895) * 4);
