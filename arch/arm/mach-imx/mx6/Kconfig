@@ -596,6 +596,24 @@ config TARGET_ZC5601
 	select SUPPORT_SPL
 	imply CMD_DM
 
+config TARGET_BRPPT2
+	bool "brppt2"
+	select BOARD_LATE_INIT
+	select MX6QDL
+	select OF_CONTROL
+	select SPL_OF_LIBFDT
+	select DM
+	select DM_ETH
+	select DM_GPIO
+	select DM_I2C
+	select DM_MMC
+	select SUPPORT_SPL
+	select SPL_DM if SPL
+	select SPL_OF_CONTROL if SPL
+        help
+          Support
+          B&R BRPPT2 platform
+          based on Freescale's iMX6 SoC
 endchoice
 
 config SYS_SOC
@@ -653,5 +671,6 @@ source "board/udoo/Kconfig"
 source "board/udoo/neo/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/warp/Kconfig"
+source "board/BuR/brppt2/Kconfig"
 
 endif
