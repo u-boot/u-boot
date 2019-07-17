@@ -232,6 +232,14 @@ config SANDBOX_SPI
 		};
 	  };
 
+config SPI_SIFIVE
+	bool "SiFive SPI driver"
+	help
+	  This driver supports the SiFive SPI IP. If unsure say N.
+	  Enable the SiFive SPI controller driver.
+
+	  The SiFive SPI controller driver is found on various SiFive SoCs.
+
 config SPI_SUNXI
 	bool "Allwinner SoC SPI controllers"
 	help
