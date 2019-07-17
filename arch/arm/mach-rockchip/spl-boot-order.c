@@ -8,7 +8,7 @@
 #include <mmc.h>
 #include <spl.h>
 
-#if CONFIG_IS_ENABLED(OF_CONTROL)
+#if CONFIG_IS_ENABLED(OF_LIBFDT)
 /**
  * spl_node_to_boot_device() - maps from a DT-node to a SPL boot device
  * @node:	of_offset of the node
