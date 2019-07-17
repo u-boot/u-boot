@@ -410,6 +410,26 @@ int config_board_mux(void)
 
 	return 0;
 }
+#elif defined(CONFIG_TARGET_LX2160ARDB)
+int config_board_mux(void)
+{
+	u8 brdcfg;
+
+	brdcfg = QIXIS_READ(brdcfg[4]);
+	/* The BRDCFG4 register controls general board configuration.
+	 *|-------------------------------------------|
+	 *|Field  | Function                          |
+	 *|-------------------------------------------|
+	 *|5      | CAN I/O Enable (net CFG_CAN_EN_B):|
+	 *|CAN_EN | 0= CAN transceivers are disabled. |
+	 *|       | 1= CAN transceivers are enabled.  |
+	 *|-------------------------------------------|
+	 */
+	brdcfg |= BIT_MASK(5);
+	QIXIS_WRITE(brdcfg[4], brdcfg);
+
+	return 0;
+}
 #else
 int config_board_mux(void)
 {
