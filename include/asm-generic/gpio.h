@@ -352,9 +352,10 @@ int dm_gpio_lookup_name(const char *name, struct gpio_desc *desc);
  * gpio_hog_lookup_name() - Look up a named GPIO and return the gpio descr.
  *
  * @name:	Name to look up
- * @return:	Returns gpio_desc for gpio
+ * @desc:	Returns GPIO description, on success, else NULL
+ * @return:	Returns 0 if OK, else -ENODEV
  */
-struct gpio_desc *gpio_hog_lookup_name(const char *name);
+int gpio_hog_lookup_name(const char *name, struct gpio_desc **desc);
 
 /**
  * gpio_hog_probe_all() - probe all gpio devices with
@@ -523,12 +524,13 @@ int gpio_request_list_by_name_nodev(ofnode node, const char *list_name,
  * gpio_dev_request_index() - request single GPIO from gpio device
  *
  * @dev:	GPIO device
- * @nodename:	Name of node
+ * @nodename:	Name of node for which gpio gets requested, used
+ *		for the gpio label name
  * @list_name:	Name of GPIO list (e.g. "board-id-gpios")
  * @index:	Index number of the GPIO in that list use request (0=first)
  * @flags:	GPIOD_* flags
- * @dtflags:	GPIO flags read from DT
- * @desc:	GPIO descriotor filled from this function
+ * @dtflags:	GPIO flags read from DT defined see GPIOD_*
+ * @desc:	returns GPIO descriptor filled from this function
  * @return:	return value from gpio_request_tail()
  */
 int gpio_dev_request_index(struct udevice *dev, const char *nodename,
