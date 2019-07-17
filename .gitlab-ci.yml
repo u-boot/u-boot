@@ -68,12 +68,45 @@ stages:
         fi;
       fi;
 
-build all plaforms:
+build all 32bit ARM plaforms:
   tags: [ 'all' ]
   stage: world build
   script:
     - ret=0;
-     ./tools/buildman/buildman -P -E || ret=$?;
+     ./tools/buildman/buildman -P -E arm -x aarch64 || ret=$?;
+     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+       ./tools/buildman/buildman -sdeP;
+       exit $ret;
+     fi;
+
+build all 64bit ARM plaforms:
+  tags: [ 'all' ]
+  stage: world build
+  script:
+    - ret=0;
+     ./tools/buildman/buildman -P -E aarch64 || ret=$?;
+     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+       ./tools/buildman/buildman -sdeP;
+       exit $ret;
+     fi;
+
+build all PowerPC plaforms:
+  tags: [ 'all' ]
+  stage: world build
+  script:
+    - ret=0;
+     ./tools/buildman/buildman -P -E powerpc || ret=$?;
+     if [[ $ret -ne 0 && $ret -ne 129 ]]; then
+       ./tools/buildman/buildman -sdeP;
+       exit $ret;
+     fi;
+
+build all other plaforms:
+  tags: [ 'all' ]
+  stage: world build
+  script:
+    - ret=0;
+     ./tools/buildman/buildman -P -E -x arm,powerpc || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
        ./tools/buildman/buildman -sdeP;
        exit $ret;
