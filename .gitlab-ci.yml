@@ -159,6 +159,16 @@ sandbox_spl test.py:
     TEST_PY_TEST_SPEC: "test_ofplatdata"
   <<: *buildman_and_testpy_dfn
 
+evb-ast2500 test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "evb-ast2500"
+    TEST_PY_ID: "--id qemu"
+    QEMU_TARGET: "arm-softmmu"
+    QEMU_VERSION: "506179e42112be77bfd071f050b15762d3b2cd43"
+    BUILDMAN: "^evb-ast2500$"
+  <<: *buildman_and_testpy_dfn
+
 sandbox_flattree test.py:
   tags: [ 'all' ]
   variables:
