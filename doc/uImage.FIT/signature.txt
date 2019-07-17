@@ -337,6 +337,7 @@ WARNING: When relying on signed FIT images with required signature check
 the legacy image format is default disabled by not defining
 CONFIG_LEGACY_IMAGE_FORMAT
 
+
 Testing
 -------
 An easy way to test signing and verification is to use the test script
@@ -349,6 +350,8 @@ A sample run is show below:
 $ make O=sandbox sandbox_config
 $ make O=sandbox
 $ O=sandbox ./test/vboot/vboot_test.sh
+
+
 Simple Verified Boot Test
 =========================
 
