@@ -13,9 +13,7 @@ The support for following drivers are already enabled:
 3. Cadence MACB ethernet driver for networking support.
 
 TODO:
-1. SPI host driver is still missing.
-2. SPI MMC driver does not compile and needs a re-write using U-Boot DM.
-2. U-Boot expects the serial console device entry to be present under /chosen
+1. U-Boot expects the serial console device entry to be present under /chosen
    DT node. Example:
    chosen {
         stdout-path = "/soc/serial@10010000:115200";
