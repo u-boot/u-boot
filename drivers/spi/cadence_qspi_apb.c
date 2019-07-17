@@ -512,11 +512,12 @@ int cadence_qspi_apb_command_write(struct udevice *dev,
 	bool pageprgm = false;
 	unsigned int pgmlen = 0;
 	int ret;
-	struct spi_flash *flash;
+#ifdef CONFIG_SPI_FLASH
+	struct spi_flash *flash = dev_get_uclass_priv(dev);
+#endif
 	u8 cmdbuf[32];
 
 	memcpy(cmdbuf, cmd, cmdlen);
-	flash = dev_get_uclass_priv(dev);
 	if (!cmdlen || cmdlen > 5 || cmdbuf == NULL) {
 		printf("QSPI: Invalid input arguments cmdlen %d txlen %d\n",
 		       cmdlen, txlen);
@@ -580,11 +581,13 @@ int cadence_qspi_apb_command_write(struct udevice *dev,
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_SPI_FLASH
 	ret = spi_flash_wait_till_ready(flash, 20000);
 	if (ret < 0) {
 		printf("%s: Program timeout\n", __func__);
 		return ret;
 	}
+#endif
 
 	while (pgmlen) {
 		reg = 0x6 << CQSPI_REG_CMDCTRL_OPCODE_LSB;
@@ -623,11 +626,13 @@ int cadence_qspi_apb_command_write(struct udevice *dev,
 		if (ret)
 			return ret;
 
+#ifdef CONFIG_SPI_FLASH
 		ret = spi_flash_wait_till_ready(flash, 20000);
 		if (ret < 0) {
 			printf("%s: Program timeout\n", __func__);
 			return ret;
 		}
+#endif
 
 	}
 
