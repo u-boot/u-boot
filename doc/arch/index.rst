@@ -12,5 +12,6 @@ Architecture-specific doc
    mips
    nds32
    nios2
+   sandbox
    sh
    x86

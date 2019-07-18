@@ -1,10 +1,12 @@
-/* SPDX-License-Identifier: GPL-2.0+ */
-/*
- * Copyright (c) 2014 The Chromium OS Authors.
- */
+.. SPDX-License-Identifier: GPL-2.0+ */
+.. Copyright (c) 2014 The Chromium OS Authors.
+.. sectionauthor:: Simon Glass <sjg@chromium.org>
+
+Sandbox
+=======
 
 Native Execution of U-Boot
-==========================
+--------------------------
 
 The 'sandbox' architecture is designed to allow U-Boot to run under Linux on
 almost any hardware. To achieve this it builds U-Boot (so far as possible)
@@ -35,33 +37,31 @@ Note that standalone/API support is not available at present.
 Basic Operation
 ---------------
 
-To run sandbox U-Boot use something like:
+To run sandbox U-Boot use something like::
 
    make sandbox_defconfig all
    ./u-boot
 
-Note:
-   If you get errors about 'sdl-config: Command not found' you may need to
-   install libsdl1.2-dev or similar to get SDL support. Alternatively you can
-   build sandbox without SDL (i.e. no display/keyboard support) by removing
-   the CONFIG_SANDBOX_SDL line in include/configs/sandbox.h or using:
+Note: If you get errors about 'sdl-config: Command not found' you may need to
+install libsdl1.2-dev or similar to get SDL support. Alternatively you can
+build sandbox without SDL (i.e. no display/keyboard support) by removing
+the CONFIG_SANDBOX_SDL line in include/configs/sandbox.h or using::
 
-      make sandbox_defconfig all NO_SDL=1
-      ./u-boot
+   make sandbox_defconfig all NO_SDL=1
+   ./u-boot
 
 U-Boot will start on your computer, showing a sandbox emulation of the serial
-console:
+console::
 
+   U-Boot 2014.04 (Mar 20 2014 - 19:06:00)
 
-U-Boot 2014.04 (Mar 20 2014 - 19:06:00)
+   DRAM:  128 MiB
+   Using default environment
 
-DRAM:  128 MiB
-Using default environment
-
-In:    serial
-Out:   lcd
-Err:   lcd
-=>
+   In:    serial
+   Out:   lcd
+   Err:   lcd
+   =>
 
 You can issue commands as your would normally. If the command you want is
 not supported you can add it to include/configs/sandbox.h.
@@ -73,7 +73,7 @@ Console / LCD support
 ---------------------
 
 Assuming that CONFIG_SANDBOX_SDL is defined when building, you can run the
-sandbox with LCD and keyboard emulation, using something like:
+sandbox with LCD and keyboard emulation, using something like::
 
    ./u-boot -d u-boot.dtb -l
 
@@ -198,18 +198,23 @@ Sandbox Variants
 
 There are unfortunately quite a few variants at present:
 
-sandbox - should be used for most tests
-sandbox64 - special build that forces a 64-bit host
-sandbox_flattree - builds with dev_read_...() functions defined as inline.
-    We need this build so that we can test those inline functions, and we
-    cannot build with both the inline functions and the non-inline functions
-    since they are named the same.
-sandbox_noblk - builds without CONFIG_BLK, which means the legacy block
-    drivers are used. We cannot use both the legacy and driver-model block
-    drivers since they implement the same functions
-sandbox_spl - builds sandbox with SPL support, so you can run spl/u-boot-spl
-    and it will start up and then load ./u-boot. It is also possible to
-    run ./u-boot directly.
+sandbox:
+  should be used for most tests
+sandbox64:
+  special build that forces a 64-bit host
+sandbox_flattree:
+  builds with dev_read\_...() functions defined as inline.
+  We need this build so that we can test those inline functions, and we
+  cannot build with both the inline functions and the non-inline functions
+  since they are named the same.
+sandbox_noblk:
+  builds without CONFIG_BLK, which means the legacy block
+  drivers are used. We cannot use both the legacy and driver-model block
+  drivers since they implement the same functions
+sandbox_spl:
+  builds sandbox with SPL support, so you can run spl/u-boot-spl
+  and it will start up and then load ./u-boot. It is also possible to
+  run ./u-boot directly.
 
 Of these sandbox_noblk can be removed once CONFIG_BLK is used everwhere, and
 sandbox_spl can probably be removed since it is a superset of sandbox.
@@ -234,42 +239,44 @@ promiscuous mode so that the network card won't filter out packets not destined
 for its configured (on Linux) MAC address.
 
 The RAW sockets Ethernet API requires elevated privileges in Linux. You can
-either run as root, or you can add the capability needed like so:
+either run as root, or you can add the capability needed like so::
 
-sudo /sbin/setcap "CAP_NET_RAW+ep" /path/to/u-boot
+   sudo /sbin/setcap "CAP_NET_RAW+ep" /path/to/u-boot
 
 The default device tree for sandbox includes an entry for eth0 on the sandbox
 host machine whose alias is "eth1". The following are a few examples of network
 operations being tested on the eth0 interface.
 
-sudo /path/to/u-boot -D
+.. code-block:: none
 
-DHCP
-....
+   sudo /path/to/u-boot -D
 
-setenv autoload no
-setenv ethrotate no
-setenv ethact eth1
-dhcp
+   DHCP
+   ....
 
-PING
-....
+   setenv autoload no
+   setenv ethrotate no
+   setenv ethact eth1
+   dhcp
 
-setenv autoload no
-setenv ethrotate no
-setenv ethact eth1
-dhcp
-ping $gatewayip
+   PING
+   ....
 
-TFTP
-....
+   setenv autoload no
+   setenv ethrotate no
+   setenv ethact eth1
+   dhcp
+   ping $gatewayip
 
-setenv autoload no
-setenv ethrotate no
-setenv ethact eth1
-dhcp
-setenv serverip WWW.XXX.YYY.ZZZ
-tftpboot u-boot.bin
+   TFTP
+   ....
+
+   setenv autoload no
+   setenv ethrotate no
+   setenv ethact eth1
+   dhcp
+   setenv serverip WWW.XXX.YYY.ZZZ
+   tftpboot u-boot.bin
 
 The bridge also supports (to a lesser extent) the localhost interface, 'lo'.
 
@@ -287,12 +294,14 @@ The default device tree for sandbox includes an entry for lo on the sandbox
 host machine whose alias is "eth5". The following is an example of a network
 operation being tested on the lo interface.
 
-TFTP
-....
+.. code-block:: none
 
-setenv ethrotate no
-setenv ethact eth5
-tftpboot u-boot.bin
+   TFTP
+   ....
+
+   setenv ethrotate no
+   setenv ethact eth5
+   tftpboot u-boot.bin
 
 
 SPI Emulation
@@ -300,7 +309,7 @@ SPI Emulation
 
 Sandbox supports SPI and SPI flash emulation.
 
-This is controlled by the spi_sf argument, the format of which is:
+This is controlled by the spi_sf argument, the format of which is::
 
    bus:cs:device:file
 
@@ -309,24 +318,23 @@ This is controlled by the spi_sf argument, the format of which is:
    device - SPI device emulation name
    file   - File on disk containing the data
 
-For example:
+For example::
 
- dd if=/dev/zero of=spi.bin bs=1M count=4
- ./u-boot --spi_sf 0:0:M25P16:spi.bin
+   dd if=/dev/zero of=spi.bin bs=1M count=4
+   ./u-boot --spi_sf 0:0:M25P16:spi.bin
 
-With this setup you can issue SPI flash commands as normal:
+With this setup you can issue SPI flash commands as normal::
 
-=>sf probe
-SF: Detected M25P16 with page size 64 KiB, total 2 MiB
-=>sf read 0 0 10000
-SF: 65536 bytes @ 0x0 Read: OK
-=>
+   =>sf probe
+   SF: Detected M25P16 with page size 64 KiB, total 2 MiB
+   =>sf read 0 0 10000
+   SF: 65536 bytes @ 0x0 Read: OK
 
 Since this is a full SPI emulation (rather than just flash), you can
-also use low-level SPI commands:
+also use low-level SPI commands::
 
-=>sspi 0:0 32 9f
-FF202015
+   =>sspi 0:0 32 9f
+   FF202015
 
 This is issuing a READ_ID command and getting back 20 (ST Micro) part
 0x2015 (the M25P16).
@@ -338,15 +346,14 @@ for each driver.
 
 Configuration settings for the curious are:
 
-CONFIG_SANDBOX_SPI_MAX_BUS
-	The maximum number of SPI buses supported by the driver (default 1).
+CONFIG_SANDBOX_SPI_MAX_BUS:
+  The maximum number of SPI buses supported by the driver (default 1).
 
-CONFIG_SANDBOX_SPI_MAX_CS
-	The maximum number of chip selects supported by the driver
-	(default 10).
+CONFIG_SANDBOX_SPI_MAX_CS:
+  The maximum number of chip selects supported by the driver (default 10).
 
-CONFIG_SPI_IDLE_VAL
-	The idle value on the SPI bus
+CONFIG_SPI_IDLE_VAL:
+  The idle value on the SPI bus
 
 
 Block Device Emulation
@@ -354,20 +361,20 @@ Block Device Emulation
 
 U-Boot can use raw disk images for block device emulation. To e.g. list
 the contents of the root directory on the second partion of the image
-"disk.raw", you can use the following commands:
+"disk.raw", you can use the following commands::
 
-=>host bind 0 ./disk.raw
-=>ls host 0:2
+   =>host bind 0 ./disk.raw
+   =>ls host 0:2
 
-A disk image can be created using the following commands:
+A disk image can be created using the following commands::
 
-$> truncate -s 1200M ./disk.raw
-$> echo -e "label: gpt\n,64M,U\n,,L" | /usr/sbin/sgdisk  ./disk.raw
-$> lodev=`sudo losetup -P -f --show ./disk.raw`
-$> sudo mkfs.vfat -n EFI -v ${lodev}p1
-$> sudo mkfs.ext4 -L ROOT -v ${lodev}p2
+   $> truncate -s 1200M ./disk.raw
+   $> echo -e "label: gpt\n,64M,U\n,,L" | /usr/sbin/sgdisk  ./disk.raw
+   $> lodev=`sudo losetup -P -f --show ./disk.raw`
+   $> sudo mkfs.vfat -n EFI -v ${lodev}p1
+   $> sudo mkfs.ext4 -L ROOT -v ${lodev}p2
 
-or utilize the device described in test/py/make_test_disk.py:
+or utilize the device described in test/py/make_test_disk.py::
 
    #!/usr/bin/python
    import make_test_disk
@@ -395,16 +402,16 @@ space. See existing code for examples.
 Debugging the init sequence
 ---------------------------
 
-If you get a failure in the initcall sequence, like this:
+If you get a failure in the initcall sequence, like this::
 
    initcall sequence 0000560775957c80 failed at call 0000000000048134 (err=-96)
 
-Then you use can use grep to see which init call failed, e.g.:
+Then you use can use grep to see which init call failed, e.g.::
 
    $ grep 0000000000048134 u-boot.map
    stdio_add_devices
 
-Of course another option is to run it with a debugger such as gdb:
+Of course another option is to run it with a debugger such as gdb::
 
    $ gdb u-boot
    ...
@@ -413,6 +420,8 @@ Of course another option is to run it with a debugger such as gdb:
 
 Note that two locations are reported, since this function is used in both
 board_init_f() and board_init_r().
+
+.. code-block:: none
 
    (gdb) r
    Starting program: /tmp/b/sandbox/u-boot
@@ -445,13 +454,13 @@ environment variable to the correct pathname before building U-Boot.
 Using valgrind / memcheck
 -------------------------
 
-It is possible to run U-Boot under valgrind to check memory allocations:
+It is possible to run U-Boot under valgrind to check memory allocations::
 
    valgrind u-boot
 
 If you are running sandbox SPL or TPL, then valgrind will not by default
 notice when U-Boot jumps from TPL to SPL, or from SPL to U-Boot proper. To
-fix this, use:
+fix this, use::
 
    valgrind --trace-children=yes u-boot
 
@@ -462,22 +471,24 @@ Testing
 U-Boot sandbox can be used to run various tests, mostly in the test/
 directory. These include:
 
-  command_ut
-     - Unit tests for command parsing and handling
-  compression
-     - Unit tests for U-Boot's compression algorithms, useful for
-       security checking. It supports gzip, bzip2, lzma and lzo.
-  driver model
-     - Run this pytest
-	  ./test/py/test.py --bd sandbox --build -k ut_dm -v
-  image
-     - Unit tests for images:
-          test/image/test-imagetools.sh - multi-file images
-          test/image/test-fit.py        - FIT images
-  tracing
-     - test/trace/test-trace.sh tests the tracing system (see README.trace)
-  verified boot
-      - See test/vboot/vboot_test.sh for this
+command_ut:
+  Unit tests for command parsing and handling
+compression:
+  Unit tests for U-Boot's compression algorithms, useful for
+  security checking. It supports gzip, bzip2, lzma and lzo.
+driver model:
+  Run this pytest::
+
+   ./test/py/test.py --bd sandbox --build -k ut_dm -v
+
+image:
+  Unit tests for images:
+  test/image/test-imagetools.sh - multi-file images
+  test/image/test-fit.py        - FIT images
+tracing:
+  test/trace/test-trace.sh tests the tracing system (see README.trace)
+verified boot:
+  See test/vboot/vboot_test.sh for this
 
 If you change or enhance any of the above subsystems, you shold write or
 expand a test and include it with your patch series submission. Test
@@ -495,14 +506,12 @@ Memory Map
 Sandbox has its own emulated memory starting at 0. Here are some of the things
 that are mapped into that memory:
 
+=======   ========================   ===============================
+Addr      Config                     Usage
+=======   ========================   ===============================
       0   CONFIG_SYS_FDT_LOAD_ADDR   Device tree
    e000   CONFIG_BLOBLIST_ADDR       Blob list
   10000   CONFIG_MALLOC_F_ADDR       Early memory allocation
   f0000   CONFIG_PRE_CON_BUF_ADDR    Pre-console buffer
  100000   CONFIG_TRACE_EARLY_ADDR    Early trace buffer (if enabled)
-=
-
-
---
-Simon Glass <sjg@chromium.org>
-Updated 22-Mar-14
+=======   ========================   ===============================
