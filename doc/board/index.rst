@@ -7,6 +7,7 @@ Board-specific doc
    :maxdepth: 2
 
    AndesTech/index
+   atmel/index
    coreboot/index
    emulation/index
    google/index
