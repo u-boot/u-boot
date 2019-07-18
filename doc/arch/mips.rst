@@ -1,17 +1,16 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+MIPS
+====
 
 Notes for the MIPS architecture port of U-Boot
 
 Toolchains
 ----------
 
-  http://www.denx.de/wiki/DULG/ELDK
-  ELDK < DULG < DENX
-
-  http://www.emdebian.org/crosstools.html
-  Embedded Debian -- Cross-development toolchains
-
-  http://buildroot.uclibc.org/
-  Buildroot
+  * `ELDK < DULG < DENX <http://www.denx.de/wiki/DULG/ELDK>`_
+  * `Embedded Debian -- Cross-development toolchains <http://www.emdebian.org/crosstools.html>`_
+  * `Buildroot <http://buildroot.uclibc.org/>`_
 
 Known Issues
 ------------
@@ -24,9 +23,9 @@ Known Issues
     re-initializes the cache. The more common uImage 'bootm' command does
     not suffer this problem.
 
-    [workaround] To avoid this cache incoherency,
-    1) insert flush_cache(all) before calling dcache_disable(), or
-    2) fix dcache_disable() to do both flushing and disabling cache.
+    [workaround] To avoid this cache incoherency:
+       - insert flush_cache(all) before calling dcache_disable(), or
+       - fix dcache_disable() to do both flushing and disabling cache.
 
   * Note that Linux users need to kill dcache_disable() in do_bootelf_exec()
     or override do_bootelf_exec() not to disable I-/D-caches, because most
@@ -36,19 +35,12 @@ TODOs
 -----
 
   * Probe CPU types, I-/D-cache and TLB size etc. automatically
-
   * Secondary cache support missing
-
   * Initialize TLB entries redardless of their use
-
   * R2000/R3000 class parts are not supported
-
   * Limited testing across different MIPS variants
-
   * Due to cache initialization issues, the DRAM on board must be
     initialized in board specific assembler language before the cache init
     code is run -- that is, initialize the DRAM in lowlevel_init().
-
   * centralize/share more CPU code of MIPS32, MIPS64 and XBurst
-
   * support Qemu Malta

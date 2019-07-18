@@ -5,3 +5,5 @@ Architecture-specific doc
 
 .. toctree::
    :maxdepth: 2
+
+   mips
