@@ -96,6 +96,9 @@
 #include <net.h>
 #include <net/fastboot.h>
 #include <net/tftp.h>
+#if defined(CONFIG_CMD_PCAP)
+#include <net/pcap.h>
+#endif
 #if defined(CONFIG_LED_STATUS)
 #include <miiphy.h>
 #include <status_led.h>
@@ -672,6 +675,11 @@ done:
 	net_set_icmp_handler(NULL);
 #endif
 	net_set_state(prev_net_state);
+
+#if defined(CONFIG_CMD_PCAP)
+	if (pcap_active())
+		pcap_print_status();
+#endif
 	return ret;
 }
 
@@ -1084,6 +1092,9 @@ void net_process_received_packet(uchar *in_packet, int len)
 
 	debug_cond(DEBUG_NET_PKT, "packet received\n");
 
+#if defined(CONFIG_CMD_PCAP)
+	pcap_post(in_packet, len, false);
+#endif
 	net_rx_packet = in_packet;
 	net_rx_packet_len = len;
 	et = (struct ethernet_hdr *)in_packet;

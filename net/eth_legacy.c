@@ -11,6 +11,7 @@
 #include <net.h>
 #include <phy.h>
 #include <linux/errno.h>
+#include <net/pcap.h>
 #include "eth_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -352,10 +353,17 @@ int eth_is_active(struct eth_device *dev)
 
 int eth_send(void *packet, int length)
 {
+	int ret;
+
 	if (!eth_current)
 		return -ENODEV;
 
-	return eth_current->send(eth_current, packet, length);
+	ret = eth_current->send(eth_current, packet, length);
+#if defined(CONFIG_CMD_PCAP)
+	if (ret >= 0)
+		pcap_post(packet, lengeth, true);
+#endif
+	return ret;
 }
 
 int eth_rx(void)
