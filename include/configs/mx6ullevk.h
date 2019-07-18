@@ -13,12 +13,6 @@
 #include "mx6_common.h"
 #include <asm/mach-imx/gpio.h>
 
-#ifdef CONFIG_SECURE_BOOT
-#ifndef CONFIG_CSF_SIZE
-#define CONFIG_CSF_SIZE 0x4000
-#endif
-#endif
-
 #define PHYS_SDRAM_SIZE	SZ_512M
 
 /* Size of malloc() pool */

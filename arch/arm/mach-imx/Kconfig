@@ -43,6 +43,13 @@ config SECURE_BOOT
 	  This option enables the support for secure boot (HAB).
 	  See doc/README.mxc_hab for more details.
 
+config CSF_SIZE
+	hex "Maximum size for Command Sequence File (CSF) binary"
+	default 0x4000
+	help
+	  Define the maximum size for Command Sequence File (CSF) binary
+	  this information is used to define the image boot data.
+
 config CMD_BMODE
 	bool "Support the 'bmode' command"
 	default y
