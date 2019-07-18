@@ -798,6 +798,7 @@ int tsec_probe(struct udevice *dev)
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct fsl_pq_mdio_info mdio_info;
 	struct ofnode_phandle_args phandle_args;
+	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;
 	ofnode parent;
 	const char *phy_mode;
 	int ret;
@@ -825,14 +826,12 @@ int tsec_probe(struct udevice *dev)
 		return -ENOENT;
 	}
 
-	if (dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
-				       &phandle_args)) {
-		priv->tbiaddr = CONFIG_SYS_TBIPA_VALUE;
-	} else {
-		int reg = ofnode_read_u32_default(phandle_args.node, "reg",
-						  CONFIG_SYS_TBIPA_VALUE);
-		priv->tbiaddr = reg;
-	}
+	ret = dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
+					 &phandle_args);
+	if (ret == 0)
+		ofnode_read_u32(phandle_args.node, "reg", &tbiaddr);
+
+	priv->tbiaddr = tbiaddr;
 
 	phy_mode = dev_read_prop(dev, "phy-connection-type", NULL);
 	if (phy_mode)
