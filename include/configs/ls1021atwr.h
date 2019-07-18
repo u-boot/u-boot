@@ -418,7 +418,7 @@
 
 #undef CONFIG_BOOTCOMMAND
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd"	\
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
 			   "env exists secureboot && esbc_halt"
 #elif defined(CONFIG_SD_BOOT)
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
