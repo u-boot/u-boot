@@ -40,6 +40,17 @@ needed).
 
    api/index
 
+Architecture-specific doc
+-------------------------
+
+These books provide programming details about architecture-specific
+implementation.
+
+.. toctree::
+   :maxdepth: 2
+
+   arch/index
+
 Indices and tables
 ==================
 
