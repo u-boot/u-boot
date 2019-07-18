@@ -801,6 +801,7 @@ int tsec_probe(struct udevice *dev)
 	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;
 	ofnode parent;
 	const char *phy_mode;
+	fdt_addr_t reg;
 	int ret;
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
@@ -817,14 +818,14 @@ int tsec_probe(struct udevice *dev)
 	}
 
 	parent = ofnode_get_parent(phandle_args.node);
-	if (ofnode_valid(parent)) {
-		int reg = ofnode_get_addr_index(parent, 0);
-
-		priv->phyregs_sgmii = (struct tsec_mii_mng *)reg;
-	} else {
-		debug("No parent node for PHY?\n");
+	if (!ofnode_valid(parent)) {
+		printf("No parent node for PHY?\n");
 		return -ENOENT;
 	}
+
+	reg = ofnode_get_addr_index(parent, 0);
+	priv->phyregs_sgmii = (struct tsec_mii_mng *)
+			(reg + TSEC_MDIO_REGS_OFFSET);
 
 	ret = dev_read_phandle_with_args(dev, "tbi-handle", NULL, 0, 0,
 					 &phandle_args);
