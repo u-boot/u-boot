@@ -12,3 +12,4 @@ Driver Model
    i2c-howto
    livetree
    migration
+   of-plat

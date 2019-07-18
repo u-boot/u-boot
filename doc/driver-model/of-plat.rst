@@ -1,5 +1,7 @@
-Driver Model Compiled-in Device Tree / Platform Data
-====================================================
+.. SPDX-License-Identifier: GPL-2.0+
+
+Compiled-in Device Tree / Platform Data
+=======================================
 
 
 Introduction
@@ -40,36 +42,36 @@ There are many problems with this features. It should only be used when
 strictly necessary. Notable problems include:
 
    - Device tree does not describe data types. But the C code must define a
-        type for each property. These are guessed using heuristics which
-        are wrong in several fairly common cases. For example an 8-byte value
-        is considered to be a 2-item integer array, and is byte-swapped. A
-        boolean value that is not present means 'false', but cannot be
-        included in the structures since there is generally no mention of it
-        in the device tree file.
+     type for each property. These are guessed using heuristics which
+     are wrong in several fairly common cases. For example an 8-byte value
+     is considered to be a 2-item integer array, and is byte-swapped. A
+     boolean value that is not present means 'false', but cannot be
+     included in the structures since there is generally no mention of it
+     in the device tree file.
 
    - Naming of nodes and properties is automatic. This means that they follow
-        the naming in the device tree, which may result in C identifiers that
-        look a bit strange.
+     the naming in the device tree, which may result in C identifiers that
+     look a bit strange.
 
    - It is not possible to find a value given a property name. Code must use
-        the associated C member variable directly in the code. This makes
-        the code less robust in the face of device-tree changes. It also
-        makes it very unlikely that your driver code will be useful for more
-        than one SoC. Even if the code is common, each SoC will end up with
-        a different C struct name, and a likely a different format for the
-        platform data.
+     the associated C member variable directly in the code. This makes
+     the code less robust in the face of device-tree changes. It also
+     makes it very unlikely that your driver code will be useful for more
+     than one SoC. Even if the code is common, each SoC will end up with
+     a different C struct name, and a likely a different format for the
+     platform data.
 
    - The platform data is provided to drivers as a C structure. The driver
-        must use the same structure to access the data. Since a driver
-        normally also supports device tree it must use #ifdef to separate
-        out this code, since the structures are only available in SPL.
+     must use the same structure to access the data. Since a driver
+     normally also supports device tree it must use #ifdef to separate
+     out this code, since the structures are only available in SPL.
 
    - Correct relations between nodes are not implemented. This means that
-        parent/child relations (like bus device iteration) do not work yet.
-        Some phandles (those that are recognised as such) are converted into
-        a pointer to platform data. This pointer can potentially be used to
-        access the referenced device (by searching for the pointer value).
-        This feature is not yet implemented, however.
+     parent/child relations (like bus device iteration) do not work yet.
+     Some phandles (those that are recognised as such) are converted into
+     a pointer to platform data. This pointer can potentially be used to
+     access the referenced device (by searching for the pointer value).
+     This feature is not yet implemented, however.
 
 
 How it works
@@ -78,30 +80,34 @@ How it works
 The feature is enabled by CONFIG OF_PLATDATA. This is only available in
 SPL/TPL and should be tested with:
 
-        #if CONFIG_IS_ENABLED(OF_PLATDATA)
+.. code-block:: c
+
+    #if CONFIG_IS_ENABLED(OF_PLATDATA)
 
 A new tool called 'dtoc' converts a device tree file either into a set of
 struct declarations, one for each compatible node, and a set of
 U_BOOT_DEVICE() declarations along with the actual platform data for each
 device. As an example, consider this MMC node:
 
-        sdmmc: dwmmc@ff0c0000 {
-                compatible = "rockchip,rk3288-dw-mshc";
-                clock-freq-min-max = <400000 150000000>;
-                clocks = <&cru HCLK_SDMMC>, <&cru SCLK_SDMMC>,
-                         <&cru SCLK_SDMMC_DRV>, <&cru SCLK_SDMMC_SAMPLE>;
-                clock-names = "biu", "ciu", "ciu_drv", "ciu_sample";
-                fifo-depth = <0x100>;
-                interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
-                reg = <0xff0c0000 0x4000>;
-                bus-width = <4>;
-                cap-mmc-highspeed;
-                cap-sd-highspeed;
-                card-detect-delay = <200>;
-                disable-wp;
-                num-slots = <1>;
-                pinctrl-names = "default";
-                pinctrl-0 = <&sdmmc_clk>, <&sdmmc_cmd>, <&sdmmc_cd>, <&sdmmc_bus4>;
+.. code-block:: none
+
+    sdmmc: dwmmc@ff0c0000 {
+            compatible = "rockchip,rk3288-dw-mshc";
+            clock-freq-min-max = <400000 150000000>;
+            clocks = <&cru HCLK_SDMMC>, <&cru SCLK_SDMMC>,
+                     <&cru SCLK_SDMMC_DRV>, <&cru SCLK_SDMMC_SAMPLE>;
+            clock-names = "biu", "ciu", "ciu_drv", "ciu_sample";
+            fifo-depth = <0x100>;
+            interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
+            reg = <0xff0c0000 0x4000>;
+            bus-width = <4>;
+            cap-mmc-highspeed;
+            cap-sd-highspeed;
+            card-detect-delay = <200>;
+            disable-wp;
+            num-slots = <1>;
+            pinctrl-names = "default";
+            pinctrl-0 = <&sdmmc_clk>, <&sdmmc_cmd>, <&sdmmc_cd>, <&sdmmc_bus4>;
                 vmmc-supply = <&vcc_sd>;
                 status = "okay";
                 u-boot,dm-pre-reloc;
@@ -112,52 +118,59 @@ Some of these properties are dropped by U-Boot under control of the
 CONFIG_OF_SPL_REMOVE_PROPS option. The rest are processed. This will produce
 the following C struct declaration:
 
-struct dtd_rockchip_rk3288_dw_mshc {
-        fdt32_t         bus_width;
-        bool            cap_mmc_highspeed;
-        bool            cap_sd_highspeed;
-        fdt32_t         card_detect_delay;
-        fdt32_t         clock_freq_min_max[2];
-        struct phandle_1_arg clocks[4];
-        bool            disable_wp;
-        fdt32_t         fifo_depth;
-        fdt32_t         interrupts[3];
-        fdt32_t         num_slots;
-        fdt32_t         reg[2];
-        fdt32_t         vmmc_supply;
-};
+.. code-block:: c
+
+    struct dtd_rockchip_rk3288_dw_mshc {
+            fdt32_t         bus_width;
+            bool            cap_mmc_highspeed;
+            bool            cap_sd_highspeed;
+            fdt32_t         card_detect_delay;
+            fdt32_t         clock_freq_min_max[2];
+            struct phandle_1_arg clocks[4];
+            bool            disable_wp;
+            fdt32_t         fifo_depth;
+            fdt32_t         interrupts[3];
+            fdt32_t         num_slots;
+            fdt32_t         reg[2];
+            fdt32_t         vmmc_supply;
+    };
 
 and the following device declaration:
 
-static struct dtd_rockchip_rk3288_dw_mshc dtv_dwmmc_at_ff0c0000 = {
-        .fifo_depth             = 0x100,
-        .cap_sd_highspeed       = true,
-        .interrupts             = {0x0, 0x20, 0x4},
-        .clock_freq_min_max     = {0x61a80, 0x8f0d180},
-        .vmmc_supply            = 0xb,
-        .num_slots              = 0x1,
-        .clocks                 = {{&dtv_clock_controller_at_ff760000, 456},
-                                   {&dtv_clock_controller_at_ff760000, 68},
-                                   {&dtv_clock_controller_at_ff760000, 114},
-                                   {&dtv_clock_controller_at_ff760000, 118}},
-        .cap_mmc_highspeed      = true,
-        .disable_wp             = true,
-        .bus_width              = 0x4,
-        .u_boot_dm_pre_reloc    = true,
-        .reg                    = {0xff0c0000, 0x4000},
-        .card_detect_delay      = 0xc8,
-};
-U_BOOT_DEVICE(dwmmc_at_ff0c0000) = {
-        .name           = "rockchip_rk3288_dw_mshc",
-        .platdata       = &dtv_dwmmc_at_ff0c0000,
-        .platdata_size  = sizeof(dtv_dwmmc_at_ff0c0000),
-};
+.. code-block:: c
+
+    static struct dtd_rockchip_rk3288_dw_mshc dtv_dwmmc_at_ff0c0000 = {
+            .fifo_depth             = 0x100,
+            .cap_sd_highspeed       = true,
+            .interrupts             = {0x0, 0x20, 0x4},
+            .clock_freq_min_max     = {0x61a80, 0x8f0d180},
+            .vmmc_supply            = 0xb,
+            .num_slots              = 0x1,
+            .clocks                 = {{&dtv_clock_controller_at_ff760000, 456},
+                                       {&dtv_clock_controller_at_ff760000, 68},
+                                       {&dtv_clock_controller_at_ff760000, 114},
+                                       {&dtv_clock_controller_at_ff760000, 118}},
+            .cap_mmc_highspeed      = true,
+            .disable_wp             = true,
+            .bus_width              = 0x4,
+            .u_boot_dm_pre_reloc    = true,
+            .reg                    = {0xff0c0000, 0x4000},
+            .card_detect_delay      = 0xc8,
+    };
+
+    U_BOOT_DEVICE(dwmmc_at_ff0c0000) = {
+            .name           = "rockchip_rk3288_dw_mshc",
+            .platdata       = &dtv_dwmmc_at_ff0c0000,
+            .platdata_size  = sizeof(dtv_dwmmc_at_ff0c0000),
+    };
 
 The device is then instantiated at run-time and the platform data can be
 accessed using:
 
-        struct udevice *dev;
-        struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_platdata(dev);
+.. code-block:: c
+
+    struct udevice *dev;
+    struct dtd_rockchip_rk3288_dw_mshc *plat = dev_get_platdata(dev);
 
 This avoids the code overhead of converting the device tree data to
 platform data in the driver. The ofdata_to_platdata() method should
@@ -173,7 +186,9 @@ each 'compatible' string.
 Where a node has multiple compatible strings, a #define is used to make them
 equivalent, e.g.:
 
-#define dtd_rockchip_rk3299_dw_mshc dtd_rockchip_rk3288_dw_mshc
+.. code-block:: c
+
+    #define dtd_rockchip_rk3299_dw_mshc dtd_rockchip_rk3288_dw_mshc
 
 
 Converting of-platdata to a useful form
@@ -203,6 +218,8 @@ existing device tree decoding logic should be kept in the
 ofdata_to_platdata() method and wrapped with #if.
 
 For example:
+
+.. code-block:: c
 
     #include <dt-structs.h>
 
@@ -313,12 +330,12 @@ This is an implementation of an idea by Tom Rini <trini@konsulko.com>.
 Future work
 -----------
 - Consider programmatically reading binding files instead of device tree
-     contents
+  contents
 - Complete the phandle feature
 - Move to using a full Python libfdt module
 
---
-Simon Glass <sjg@chromium.org>
-Google, Inc
-6/6/16
-Updated Independence Day 2016
+
+.. Simon Glass <sjg@chromium.org>
+.. Google, Inc
+.. 6/6/16
+.. Updated Independence Day 2016
