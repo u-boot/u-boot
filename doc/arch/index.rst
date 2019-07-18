@@ -8,4 +8,5 @@ Architecture-specific doc
 
    arm64
    mips
+   nds32
    x86
