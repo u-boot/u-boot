@@ -11,3 +11,4 @@ Board-specific doc
    emulation/index
    google/index
    intel/index
+   sifive/index
