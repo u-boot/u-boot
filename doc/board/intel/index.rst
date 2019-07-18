@@ -8,5 +8,6 @@ Intel
 
    bayleybay
    cherryhill
+   cougarcanyon2
    crownbay
    minnowmax
