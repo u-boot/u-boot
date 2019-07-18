@@ -10,4 +10,5 @@ Driver Model
    fdt-fixup
    fs_firmware_loader
    i2c-howto
+   livetree
    migration
