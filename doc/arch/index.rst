@@ -9,4 +9,5 @@ Architecture-specific doc
    arm64
    mips
    nds32
+   nios2
    x86
