@@ -1,18 +1,17 @@
-# SPDX-License-Identifier: GPL-2.0+
-#
-# Copyright (C) 2014, Simon Glass <sjg@chromium.org>
-# Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (C) 2014, Simon Glass <sjg@chromium.org>
+.. Copyright (C) 2014, Bin Meng <bmeng.cn@gmail.com>
 
-U-Boot on x86
-=============
+x86
+===
 
 This document describes the information about U-Boot running on x86 targets,
 including supported boards, build instructions, todo list, etc.
 
 Status
 ------
-U-Boot supports running as a coreboot [1] payload on x86. So far only Link
-(Chromebook Pixel) and QEMU [2] x86 targets have been tested, but it should
+U-Boot supports running as a `coreboot`_ payload on x86. So far only Link
+(Chromebook Pixel) and `QEMU`_ x86 targets have been tested, but it should
 work with minimal adjustments on other x86 boards since coreboot deals with
 most of the low-level details.
 
@@ -45,21 +44,19 @@ Building a ROM version of U-Boot (hereafter referred to as u-boot.rom) is a
 little bit tricky, as generally it requires several binary blobs which are not
 shipped in the U-Boot source tree. Due to this reason, the u-boot.rom build is
 not turned on by default in the U-Boot source tree. Firstly, you need turn it
-on by enabling the ROM build either via an environment variable
+on by enabling the ROM build either via an environment variable::
 
-    $ export BUILD_ROM=y
+   $ export BUILD_ROM=y
 
-or via configuration
+or via configuration::
 
-    CONFIG_BUILD_ROM=y
+   CONFIG_BUILD_ROM=y
 
 Both tell the Makefile to build u-boot.rom as a target.
 
----
-
 CPU Microcode
 -------------
-Modern CPUs usually require a special bit stream called microcode [8] to be
+Modern CPUs usually require a special bit stream called `microcode`_ to be
 loaded on the processor after power up in order to function properly. U-Boot
 has already integrated these as hex dumps in the source tree.
 
@@ -70,8 +67,8 @@ Additional application processors (AP) can be brought up by U-Boot. In order to
 have an SMP kernel to discover all of the available processors, U-Boot needs to
 prepare configuration tables which contain the multi-CPUs information before
 loading the OS kernel. Currently U-Boot supports generating two types of tables
-for SMP, called Simple Firmware Interface (SFI) [9] and Multi-Processor (MP)
-[10] tables. The writing of these two tables are controlled by two Kconfig
+for SMP, called Simple Firmware Interface (`SFI`_) and Multi-Processor (`MP`_)
+tables. The writing of these two tables are controlled by two Kconfig
 options GENERATE_SFI_TABLE and GENERATE_MP_TABLE.
 
 Driver Model
@@ -92,14 +89,18 @@ In keeping with the U-Boot philosophy of providing functions to check and
 adjust internal settings, there are several x86-specific commands that may be
 useful:
 
-fsp  - Display information about Intel Firmware Support Package (FSP).
-	 This is only available on platforms which use FSP, mostly Atom.
-iod  - Display I/O memory
-iow  - Write I/O memory
-mtrr - List and set the Memory Type Range Registers (MTRR). These are used to
-	 tell the CPU whether memory is cacheable and if so the cache write
-	 mode to use. U-Boot sets up some reasonable values but you can
-	 adjust then with this command.
+fsp
+  Display information about Intel Firmware Support Package (FSP).
+  This is only available on platforms which use FSP, mostly Atom.
+iod
+  Display I/O memory
+iow
+  Write I/O memory
+mtrr
+  List and set the Memory Type Range Registers (MTRR). These are used to
+  tell the CPU whether memory is cacheable and if so the cache write
+  mode to use. U-Boot sets up some reasonable values but you can
+  adjust then with this command.
 
 Booting Ubuntu
 --------------
@@ -119,34 +120,34 @@ possible to make U-Boot start a USB start-up disk but for now let's assume
 that you used another boot loader to install Ubuntu.
 
 Use the U-Boot command line to find the UUID of the partition you want to
-boot. For example our disk is SCSI device 0:
+boot. For example our disk is SCSI device 0::
 
-=> part list scsi 0
+   => part list scsi 0
 
-Partition Map for SCSI device 0  --   Partition Type: EFI
+   Partition Map for SCSI device 0  --   Partition Type: EFI
 
-   Part	Start LBA	End LBA		Name
-	Attributes
-	Type GUID
-	Partition GUID
-   1	0x00000800	0x001007ff	""
-	attrs:	0x0000000000000000
-	type:	c12a7328-f81f-11d2-ba4b-00a0c93ec93b
-	guid:	9d02e8e4-4d59-408f-a9b0-fd497bc9291c
-   2	0x00100800	0x037d8fff	""
-	attrs:	0x0000000000000000
-	type:	0fc63daf-8483-4772-8e79-3d69d8477de4
-	guid:	965c59ee-1822-4326-90d2-b02446050059
-   3	0x037d9000	0x03ba27ff	""
-	attrs:	0x0000000000000000
-	type:	0657fd6d-a4ab-43c4-84e5-0933c84b4f4f
-	guid:	2c4282bd-1e82-4bcf-a5ff-51dedbf39f17
-   =>
+      Part	Start LBA	End LBA		Name
+        Attributes
+        Type GUID
+        Partition GUID
+      1	0x00000800	0x001007ff	""
+        attrs:	0x0000000000000000
+        type:	c12a7328-f81f-11d2-ba4b-00a0c93ec93b
+        guid:	9d02e8e4-4d59-408f-a9b0-fd497bc9291c
+      2	0x00100800	0x037d8fff	""
+        attrs:	0x0000000000000000
+        type:	0fc63daf-8483-4772-8e79-3d69d8477de4
+        guid:	965c59ee-1822-4326-90d2-b02446050059
+      3	0x037d9000	0x03ba27ff	""
+        attrs:	0x0000000000000000
+        type:	0657fd6d-a4ab-43c4-84e5-0933c84b4f4f
+        guid:	2c4282bd-1e82-4bcf-a5ff-51dedbf39f17
+      =>
 
 This shows that your SCSI disk has three partitions. The really long hex
 strings are called Globally Unique Identifiers (GUIDs). You can look up the
-'type' ones here [11]. On this disk the first partition is for EFI and is in
-VFAT format (DOS/Windows):
+'type' ones `here`_. On this disk the first partition is for EFI and is in
+VFAT format (DOS/Windows)::
 
    => fatls scsi 0:1
                efi/
@@ -155,7 +156,7 @@ VFAT format (DOS/Windows):
 
 
 Partition 2 is 'Linux filesystem data' so that will be our root disk. It is
-in ext2 format:
+in ext2 format::
 
    => ext2ls scsi 0:2
    <DIR>       4096 .
@@ -186,7 +187,7 @@ in ext2 format:
    <SYM>         33 initrd.img.old
    =>
 
-and if you look in the /boot directory you will see the kernel:
+and if you look in the /boot directory you will see the kernel::
 
    => ext2ls scsi 0:2 /boot
    <DIR>       4096 .
@@ -228,12 +229,12 @@ include kernel patches to fix reported bugs. Stable kernels can exist for
 some years so this number can get quite high.
 
 The '.efi.signed' kernel is signed for EFI's secure boot. U-Boot has its own
-secure boot mechanism - see [12] [13] and cannot read .efi files at present.
+secure boot mechanism - see `this`_ & `that`_. It cannot read .efi files
+at present.
 
 To boot Ubuntu from U-Boot the steps are as follows:
 
-1. Set up the boot arguments. Use the GUID for the partition you want to
-boot:
+1. Set up the boot arguments. Use the GUID for the partition you want to boot::
 
    => setenv bootargs root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro
 
@@ -243,7 +244,7 @@ containing all the GUIDs Linux has found. When it starts up, there will be a
 file in that directory with this name in it. It is also possible to use a
 device name here, see later.
 
-2. Load the kernel. Since it is an ext2/4 filesystem we can do:
+2. Load the kernel. Since it is an ext2/4 filesystem we can do::
 
    => ext2load scsi 0:2 03000000 /boot/vmlinuz-3.13.0-58-generic
 
@@ -251,19 +252,19 @@ The address 30000000 is arbitrary, but there seem to be problems with using
 small addresses (sometimes Linux cannot find the ramdisk). This is 48MB into
 the start of RAM (which is at 0 on x86).
 
-3. Load the ramdisk (to 64MB):
+3. Load the ramdisk (to 64MB)::
 
    => ext2load scsi 0:2 04000000 /boot/initrd.img-3.13.0-58-generic
 
 4. Start up the kernel. We need to know the size of the ramdisk, but can use
-a variable for that. U-Boot sets 'filesize' to the size of the last file it
-loaded.
+   a variable for that. U-Boot sets 'filesize' to the size of the last file it
+   loaded::
 
    => zboot 03000000 0 04000000 ${filesize}
 
 Type 'help zboot' if you want to see what the arguments are. U-Boot on x86 is
 quite verbose when it boots a kernel. You should see these messages from
-U-Boot:
+U-Boot::
 
    Valid Boot Flag
    Setup Size = 0x00004400
@@ -279,7 +280,7 @@ U-Boot:
    Starting kernel ...
 
 U-Boot prints out some bootstage timing. This is more useful if you put the
-above commands into a script since then it will be faster.
+above commands into a script since then it will be faster::
 
    Timer summary in microseconds:
           Mark    Elapsed  Stage
@@ -294,8 +295,8 @@ above commands into a script since then it will be faster.
                   240,329  ahci
                 1,422,704  vesa display
 
-Now the kernel actually starts: (if you want to examine kernel boot up message
-on the serial console, append "console=ttyS0,115200" to the kernel command line)
+Now the kernel actually starts (if you want to examine kernel boot up message on
+the serial console, append "console=ttyS0,115200" to the kernel command line)::
 
    [    0.000000] Initializing cgroup subsys cpuset
    [    0.000000] Initializing cgroup subsys cpu
@@ -304,19 +305,19 @@ on the serial console, append "console=ttyS0,115200" to the kernel command line)
    [    0.000000] Command line: root=/dev/disk/by-partuuid/965c59ee-1822-4326-90d2-b02446050059 ro console=ttyS0,115200
 
 It continues for a long time. Along the way you will see it pick up your
-ramdisk:
+ramdisk::
 
    [    0.000000] RAMDISK: [mem 0x04000000-0x05253fff]
-...
+   ...
    [    0.788540] Trying to unpack rootfs image as initramfs...
    [    1.540111] Freeing initrd memory: 18768K (ffff880004000000 - ffff880005254000)
-...
+   ...
 
-Later it actually starts using it:
+Later it actually starts using it::
 
    Begin: Running /scripts/local-premount ... done.
 
-You should also see your boot disk turn up:
+You should also see your boot disk turn up::
 
    [    4.357243] scsi 1:0:0:0: Direct-Access     ATA      ADATA SP310      5.2  PQ: 0 ANSI: 5
    [    4.366860] sd 1:0:0:0: [sda] 62533296 512-byte logical blocks: (32.0 GB/29.8 GiB)
@@ -326,7 +327,7 @@ You should also see your boot disk turn up:
    [    4.399535]  sda: sda1 sda2 sda3
 
 Linux has found the three partitions (sda1-3). Mercifully it doesn't print out
-the GUIDs. In step 1 above we could have used:
+the GUIDs. In step 1 above we could have used::
 
    setenv bootargs root=/dev/sda2 ro
 
@@ -336,13 +337,13 @@ becomes sdb2, it will still boot. For embedded systems where you just want to
 boot the first disk, you have that option.
 
 The last thing you will see on the console is mention of plymouth (which
-displays the Ubuntu start-up screen) and a lot of 'Starting' messages:
+displays the Ubuntu start-up screen) and a lot of 'Starting' messages::
 
- * Starting Mount filesystems on boot                                    [ OK ]
+   * Starting Mount filesystems on boot                                   [ OK ]
 
 After a pause you should see a login screen on your display and you are done.
 
-If you want to put this in a script you can use something like this:
+If you want to put this in a script you can use something like this::
 
    setenv bootargs root=UUID=b2aaf743-0418-4d90-94cc-3e6108d7d968 ro
    setenv boot zboot 03000000 0 04000000 \${filesize}
@@ -355,22 +356,24 @@ command.
 You can also bake this behaviour into your build by hard-coding the
 environment variables if you add this to minnowmax.h:
 
-#undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND	\
-	"ext2load scsi 0:2 03000000 /boot/vmlinuz-3.13.0-58-generic; " \
-	"ext2load scsi 0:2 04000000 /boot/initrd.img-3.13.0-58-generic; " \
-	"run boot"
+.. code-block:: c
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS "boot=zboot 03000000 0 04000000 ${filesize}"
+	#undef CONFIG_BOOTCOMMAND
+	#define CONFIG_BOOTCOMMAND	\
+		"ext2load scsi 0:2 03000000 /boot/vmlinuz-3.13.0-58-generic; " \
+		"ext2load scsi 0:2 04000000 /boot/initrd.img-3.13.0-58-generic; " \
+		"run boot"
 
-and change CONFIG_BOOTARGS value in configs/minnowmax_defconfig to:
+	#undef CONFIG_EXTRA_ENV_SETTINGS
+	#define CONFIG_EXTRA_ENV_SETTINGS "boot=zboot 03000000 0 04000000 ${filesize}"
 
-CONFIG_BOOTARGS="root=/dev/sda2 ro"
+and change CONFIG_BOOTARGS value in configs/minnowmax_defconfig to::
+
+   CONFIG_BOOTARGS="root=/dev/sda2 ro"
 
 Test with SeaBIOS
 -----------------
-SeaBIOS [14] is an open source implementation of a 16-bit x86 BIOS. It can run
+`SeaBIOS`_ is an open source implementation of a 16-bit x86 BIOS. It can run
 in an emulator or natively on x86 hardware with the use of U-Boot. With its
 help, we can boot some OSes that require 16-bit BIOS services like Windows/DOS.
 
@@ -379,7 +382,7 @@ information (eg: E820) from. The table unfortunately has to follow the coreboot
 table format as SeaBIOS currently supports booting as a coreboot payload.
 
 To support loading SeaBIOS, U-Boot should be built with CONFIG_SEABIOS on.
-Booting SeaBIOS is done via U-Boot's bootelf command, like below:
+Booting SeaBIOS is done via U-Boot's bootelf command, like below::
 
    => tftp bios.bin.elf;bootelf
    Using e1000#0 device
@@ -391,14 +394,14 @@ Booting SeaBIOS is done via U-Boot's bootelf command, like below:
    ...
 
 bios.bin.elf is the SeaBIOS image built from SeaBIOS source tree.
-Make sure it is built as follows:
+Make sure it is built as follows::
 
    $ make menuconfig
 
 Inside the "General Features" menu, select "Build for coreboot" as the
 "Build Target". Inside the "Debugging" menu, turn on "Serial port debugging"
 so that we can see something as soon as SeaBIOS boots. Leave other options
-as in their default state. Then,
+as in their default state. Then::
 
    $ make
    ...
@@ -407,6 +410,8 @@ as in their default state. Then,
 
 Currently this is tested on QEMU x86 target with U-Boot chain-loading SeaBIOS
 to install/boot a Windows XP OS (below for example command to install Windows).
+
+.. code-block:: none
 
    # Create a 10G disk.img as the virtual hard disk
    $ qemu-img create -f qcow2 disk.img 10G
@@ -427,19 +432,21 @@ register, but IGD device does not have its VGA ROM mapped by this register.
 Its VGA ROM is packaged as part of u-boot.rom at a configurable flash address
 which is unknown to SeaBIOS. An example patch is needed for SeaBIOS below:
 
-diff --git a/src/optionroms.c b/src/optionroms.c
-index 65f7fe0..c7b6f5e 100644
---- a/src/optionroms.c
-+++ b/src/optionroms.c
-@@ -324,6 +324,8 @@ init_pcirom(struct pci_device *pci, int isvga, u64 *sources)
-         rom = deploy_romfile(file);
-     else if (RunPCIroms > 1 || (RunPCIroms == 1 && isvga))
-         rom = map_pcirom(pci);
-+    if (pci->bdf == pci_to_bdf(0, 2, 0))
-+        rom = (struct rom_header *)0xfff90000;
-     if (! rom)
-         // No ROM present.
-         return;
+.. code-block:: none
+
+   diff --git a/src/optionroms.c b/src/optionroms.c
+   index 65f7fe0..c7b6f5e 100644
+   --- a/src/optionroms.c
+   +++ b/src/optionroms.c
+   @@ -324,6 +324,8 @@ init_pcirom(struct pci_device *pci, int isvga, u64 *sources)
+            rom = deploy_romfile(file);
+        else if (RunPCIroms > 1 || (RunPCIroms == 1 && isvga))
+            rom = map_pcirom(pci);
+   +    if (pci->bdf == pci_to_bdf(0, 2, 0))
+   +        rom = (struct rom_header *)0xfff90000;
+        if (! rom)
+            // No ROM present.
+            return;
 
 Note: the patch above expects IGD device is at PCI b.d.f 0.2.0 and its VGA ROM
 is at 0xfff90000 which corresponds to CONFIG_VGA_BIOS_ADDR on Minnowboard MAX.
@@ -450,17 +457,16 @@ Development Flow
 These notes are for those who want to port U-Boot to a new x86 platform.
 
 Since x86 CPUs boot from SPI flash, a SPI flash emulator is a good investment.
-The Dediprog em100 can be used on Linux. The em100 tool is available here:
+The Dediprog em100 can be used on Linux.
 
-   http://review.coreboot.org/p/em100.git
+The em100 tool is available here: http://review.coreboot.org/p/em100.git
 
-On Minnowboard Max the following command line can be used:
+On Minnowboard Max the following command line can be used::
 
    sudo em100 -s -p LOW -d u-boot.rom -c W25Q64DW -r
 
 A suitable clip for connecting over the SPI flash chip is here:
-
-   http://www.dediprog.com/pd/programmer-accessories/EM-TC-8
+http://www.dediprog.com/pd/programmer-accessories/EM-TC-8.
 
 This allows you to override the SPI flash contents for development purposes.
 Typically you can write to the em100 in around 1200ms, considerably faster
@@ -482,20 +488,19 @@ support all important peripherals on your platform including video and storage.
 Use the device tree for configuration where possible.
 
 For the microcode you can create a suitable device tree file using the
-microcode tool:
+microcode tool::
 
-  ./tools/microcode-tool -d microcode.dat -m <model> create
+   ./tools/microcode-tool -d microcode.dat -m <model> create
 
-or if you only have header files and not the full Intel microcode.dat database:
+or if you only have header files and not the full Intel microcode.dat database::
 
-  ./tools/microcode-tool -H BAY_TRAIL_FSP_KIT/Microcode/M0130673322.h \
-	-H BAY_TRAIL_FSP_KIT/Microcode/M0130679901.h \
-	-m all create
+   ./tools/microcode-tool -H BAY_TRAIL_FSP_KIT/Microcode/M0130673322.h \
+    -H BAY_TRAIL_FSP_KIT/Microcode/M0130679901.h -m all create
 
 These are written to arch/x86/dts/microcode/ by default.
 
 Note that it is possible to just add the micrcode for your CPU if you know its
-model. U-Boot prints this information when it starts
+model. U-Boot prints this information when it starts::
 
    CPU: x86_64, vendor Intel, device 30673h
 
@@ -511,8 +516,11 @@ debug serial port may be useful here. See setup_internal_uart() for an example.
 During the U-Boot porting, one of the important steps is to write correct PIRQ
 routing information in the board device tree. Without it, device drivers in the
 Linux kernel won't function correctly due to interrupt is not working. Please
-refer to U-Boot doc [15] for the device tree bindings of Intel interrupt router.
-Here we have more details on the intel,pirq-routing property below.
+refer to U-Boot `doc <doc/device-tree-bindings/misc/intel,irq-router.txt>`_ for
+the device tree bindings of Intel interrupt router. Here we have more details
+on the intel,pirq-routing property below.
+
+.. code-block:: none
 
 	intel,pirq-routing = <
 		PCI_BDF(0, 2, 0) INTA PIRQA
@@ -526,7 +534,7 @@ Bay Trail, this is chapter 4.3 (PCI configuration space). For the second one, we
 can get the interrupt pin either from datasheet or hardware via U-Boot shell.
 The reliable source is the hardware as sometimes chipset datasheet is not 100%
 up-to-date. Type 'pci header' plus the device's pci bus/device/function number
-from U-Boot shell below.
+from U-Boot shell below::
 
   => pci header 0.1e.1
     vendor ID =			0x8086
@@ -550,7 +558,7 @@ CONFIG_GENERATE_MP_TABLE for testing Linux kernel using local APIC and I/O APIC.
 
 This script might be useful. If you feed it the output of 'pci long' from
 U-Boot then it will generate a device tree fragment with the interrupt
-configuration for each device (note it needs gawk 4.0.0):
+configuration for each device (note it needs gawk 4.0.0)::
 
    $ cat console_output |awk '/PCI/ {device=$4} /interrupt line/ {line=$4} \
 	/interrupt pin/ {pin = $4; if (pin != "0x00" && pin != "0xff") \
@@ -558,15 +566,17 @@ configuration for each device (note it needs gawk 4.0.0):
 	printf "PCI_BDF(%d, %d, %d) INT%c PIRQ%c\n", strtonum("0x" bdf[1]), \
 	strtonum("0x" bdf[2]), bdf[3], strtonum(pin) + 64, 64 + strtonum(pin)}}'
 
-Example output:
+Example output::
+
    PCI_BDF(0, 2, 0) INTA PIRQA
    PCI_BDF(0, 3, 0) INTA PIRQA
-...
+   ...
 
 Porting Hints
 -------------
 
-Quark-specific considerations:
+Quark-specific considerations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To port U-Boot to other boards based on the Intel Quark SoC, a few things need
 to be taken care of. The first important part is the Memory Reference Code (MRC)
@@ -587,7 +597,8 @@ PCIe root port's configuration registers will cause system hang while it is
 held in reset. For more details, check how they are implemented by the Intel
 Galileo board support codes in board/intel/galileo/galileo.c.
 
-coreboot:
+coreboot
+^^^^^^^^
 
 See scripts/coreboot.sed which can assist with porting coreboot code into
 U-Boot drivers. It will not resolve all build errors, but will perform common
@@ -595,7 +606,8 @@ transformations. Remember to add attribution to coreboot for new files added
 to U-Boot. This should go at the top of each file and list the coreboot
 filename where the code originated.
 
-Debugging ACPI issues with Windows:
+Debugging ACPI issues with Windows
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Windows might cache system information and only detect ACPI changes if you
 modify the ACPI table versions. So tweak them liberally when debugging ACPI
@@ -603,7 +615,7 @@ issues with Windows.
 
 ACPI Support Status
 -------------------
-Advanced Configuration and Power Interface (ACPI) [16] aims to establish
+Advanced Configuration and Power Interface (`ACPI`_) aims to establish
 industry-standard interfaces enabling OS-directed configuration, power
 management, and thermal management of mobile, desktop, and server platforms.
 
@@ -614,7 +626,7 @@ CONFIG_GENERATE_ACPI_TABLE is the config option to turn on ACPI support in
 U-Boot. This requires Intel ACPI compiler to be installed on your host to
 compile ACPI DSDT table written in ASL format to AML format. You can get
 the compiler via "apt-get install iasl" if you are on Ubuntu or download
-the source from [17] to compile one by yourself.
+the source from https://www.acpica.org/downloads to compile one by yourself.
 
 Current ACPI support in U-Boot is basically complete. More optional features
 can be added in the future. The status as of today is:
@@ -630,6 +642,7 @@ can be added in the future. The status as of today is:
  * Support ACPI interrupts with SCI only.
 
 Features that are optional:
+
  * Dynamic AML bytecodes insertion at run-time. We may need this to support
    SSDT table generation and DSDT fix up.
  * SMI support. Since U-Boot is a modern bootloader, we don't want to bring
@@ -670,6 +683,8 @@ the kernel (i.e. replaces UEFI completely but provides the same EFI run-time
 services) is supported too. For example, we can even use 'bootefi' command
 to load a 'u-boot-payload.efi', see below test logs on QEMU.
 
+.. code-block:: none
+
   => load ide 0 3000000 u-boot-payload.efi
   489787 bytes read in 138 ms (3.4 MiB/s)
   => bootefi 3000000
@@ -701,22 +716,13 @@ TODO List
 - Audio
 - Chrome OS verified boot
 
-References
-----------
-[1] http://www.coreboot.org
-[2] http://www.qemu.org
-[3] http://www.coreboot.org/~stepan/pci8086,0166.rom
-[4] http://www.intel.com/content/www/us/en/embedded/design-tools/evaluation-platforms/atom-e660-eg20t-development-kit.html
-[5] http://www.intel.com/fsp
-[6] http://www.intel.com/content/www/us/en/secure/intelligent-systems/privileged/e6xx-35-b1-cmc22211.html
-[7] http://www.ami.com/products/bios-uefi-tools-and-utilities/bios-uefi-utilities/
-[8] http://en.wikipedia.org/wiki/Microcode
-[9] http://simplefirmware.org
-[10] http://www.intel.com/design/archives/processors/pro/docs/242016.htm
-[11] https://en.wikipedia.org/wiki/GUID_Partition_Table
-[12] http://events.linuxfoundation.org/sites/events/files/slides/chromeos_and_diy_vboot_0.pdf
-[13] http://events.linuxfoundation.org/sites/events/files/slides/elce-2014.pdf
-[14] http://www.seabios.org/SeaBIOS
-[15] doc/device-tree-bindings/misc/intel,irq-router.txt
-[16] http://www.acpi.info
-[17] https://www.acpica.org/downloads
+.. _coreboot: http://www.coreboot.org
+.. _QEMU: http://www.qemu.org
+.. _microcode: http://en.wikipedia.org/wiki/Microcode
+.. _SFI: http://simplefirmware.org
+.. _MP: http://www.intel.com/design/archives/processors/pro/docs/242016.htm
+.. _here: https://en.wikipedia.org/wiki/GUID_Partition_Table
+.. _this: http://events.linuxfoundation.org/sites/events/files/slides/chromeos_and_diy_vboot_0.pdf
+.. _that: http://events.linuxfoundation.org/sites/events/files/slides/elce-2014.pdf
+.. _SeaBIOS: http://www.seabios.org/SeaBIOS
+.. _ACPI: http://www.acpi.info

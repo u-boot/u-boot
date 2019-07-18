@@ -7,3 +7,4 @@ Architecture-specific doc
    :maxdepth: 2
 
    mips
+   x86
