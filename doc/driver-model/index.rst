@@ -8,4 +8,5 @@ Driver Model
 
    design
    fdt-fixup
+   fs_firmware_loader
    migration
