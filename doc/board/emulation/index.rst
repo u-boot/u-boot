@@ -7,4 +7,5 @@ Emulation
    :maxdepth: 2
 
    qemu-arm
+   qemu-riscv
    qemu-x86

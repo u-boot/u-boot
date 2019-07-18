@@ -1,9 +1,8 @@
-# SPDX-License-Identifier: GPL-2.0+
-#
-# Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
 
-U-Boot on QEMU's 'virt' machine on RISC-V
-=========================================
+QEMU RISC-V
+===========
 
 QEMU for RISC-V supports a special 'virt' machine designed for emulation and
 virtualization purposes. This document describes how to run U-Boot under it.
@@ -19,11 +18,13 @@ Building U-Boot
 ---------------
 Set the CROSS_COMPILE environment variable as usual, and run:
 
-- For 32-bit RISC-V:
+- For 32-bit RISC-V::
+
     make qemu-riscv32_defconfig
     make
 
-- For 64-bit RISC-V:
+- For 64-bit RISC-V::
+
     make qemu-riscv64_defconfig
     make
 
@@ -31,10 +32,12 @@ Running U-Boot
 --------------
 The minimal QEMU command line to get U-Boot up and running is:
 
-- For 32-bit RISC-V:
+- For 32-bit RISC-V::
+
     qemu-system-riscv32 -nographic -machine virt -kernel u-boot
 
-- For 64-bit RISC-V:
+- For 64-bit RISC-V::
+
     qemu-system-riscv64 -nographic -machine virt -kernel u-boot
 
 The commands above create targets with 128MiB memory by default.
