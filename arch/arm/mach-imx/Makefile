@@ -21,6 +21,9 @@ endif
 
 ifeq ($(SOC),$(filter $(SOC),mx5 mx6))
 obj-y	+= cpu.o speed.o
+ifneq ($(CONFIG_MX51),y)
+obj-y	+= mmdc_size.o
+endif
 obj-$(CONFIG_GPT_TIMER) += timer.o
 obj-$(CONFIG_SYS_I2C_MXC) += i2c-mxv7.o
 endif
