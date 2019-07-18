@@ -1,3 +1,8 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
+ARC
+===
+
 Synopsys' DesignWare(r) ARC(r) Processors are a family of 32-bit CPUs
 that SoC designers can optimize for a wide range of uses, from deeply embedded
 to high-performance host applications.
