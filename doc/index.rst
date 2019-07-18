@@ -1,8 +1,19 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-#######################
-U-Boot Developer Manual
-#######################
+.. _u-boot_doc:
+
+The U-Boot Documentation
+========================
+
+This is the top level of the U-Boot's documentation tree.  U-Boot
+documentation, like the U-Boot itself, is very much a work in progress;
+that is especially true as we work to integrate our many scattered
+documents into a coherent whole.  Please note that improvements to the
+documentation are welcome; join the U-Boot list at http://lists.denx.de
+if you want to help out.
+
+.. toctree::
+   :maxdepth: 2
 
 U-Boot API documentation
 ------------------------
@@ -17,3 +28,8 @@ needed).
    :maxdepth: 2
 
    api/index
+
+Indices and tables
+==================
+
+* :ref:`genindex`
