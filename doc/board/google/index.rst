@@ -1,10 +1,9 @@
 .. SPDX-License-Identifier: GPL-2.0+
 
-Board-specific doc
-==================
+Google
+======
 
 .. toctree::
    :maxdepth: 2
 
-   google/index
-   intel/index
+   chromebook_link
