@@ -10,6 +10,7 @@ Board-specific doc
    atmel/index
    coreboot/index
    emulation/index
+   freescale/index
    google/index
    intel/index
    renesas/index
