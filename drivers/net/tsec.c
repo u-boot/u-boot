@@ -259,8 +259,8 @@ static int tsec_send(struct udevice *dev, void *packet, int length)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
-	u16 status;
 	int result = 0;
+	u16 status;
 	int i;
 
 	/* Find an empty buffer descriptor */
@@ -708,9 +708,9 @@ static int init_phy(struct tsec_private *priv)
  */
 static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 {
+	struct tsec_private *priv;
 	struct eth_device *dev;
 	int i;
-	struct tsec_private *priv;
 
 	dev = (struct eth_device *)malloc(sizeof(*dev));
 
@@ -794,14 +794,14 @@ int tsec_standard_init(bd_t *bis)
 #else /* CONFIG_DM_ETH */
 int tsec_probe(struct udevice *dev)
 {
-	struct tsec_private *priv = dev_get_priv(dev);
 	struct eth_pdata *pdata = dev_get_platdata(dev);
-	struct fsl_pq_mdio_info mdio_info;
+	struct tsec_private *priv = dev_get_priv(dev);
 	struct ofnode_phandle_args phandle_args;
 	u32 tbiaddr = CONFIG_SYS_TBIPA_VALUE;
-	ofnode parent;
+	struct fsl_pq_mdio_info mdio_info;
 	const char *phy_mode;
 	fdt_addr_t reg;
+	ofnode parent;
 	int ret;
 
 	pdata->iobase = (phys_addr_t)dev_read_addr(dev);
