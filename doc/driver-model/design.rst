@@ -1,40 +1,46 @@
-Driver Model
-============
+.. SPDX-License-Identifier: GPL-2.0+
+.. sectionauthor:: Simon Glass <sjg@chromium.org>
+
+Design Details
+==============
 
 This README contains high-level information about driver model, a unified
 way of declaring and accessing drivers in U-Boot. The original work was done
 by:
 
-   Marek Vasut <marex@denx.de>
-   Pavel Herrmann <morpheus.ibis@gmail.com>
-   Viktor Křivák <viktor.krivak@gmail.com>
-   Tomas Hlavacek <tmshlvck@gmail.com>
+   * Marek Vasut <marex@denx.de>
+   * Pavel Herrmann <morpheus.ibis@gmail.com>
+   * Viktor Křivák <viktor.krivak@gmail.com>
+   * Tomas Hlavacek <tmshlvck@gmail.com>
 
 This has been both simplified and extended into the current implementation
 by:
 
-   Simon Glass <sjg@chromium.org>
+   * Simon Glass <sjg@chromium.org>
 
 
 Terminology
 -----------
 
-Uclass - a group of devices which operate in the same way. A uclass provides
-	a way of accessing individual devices within the group, but always
-	using the same interface. For example a GPIO uclass provides
-	operations for get/set value. An I2C uclass may have 10 I2C ports,
-	4 with one driver, and 6 with another.
+Uclass
+  a group of devices which operate in the same way. A uclass provides
+  a way of accessing individual devices within the group, but always
+  using the same interface. For example a GPIO uclass provides
+  operations for get/set value. An I2C uclass may have 10 I2C ports,
+  4 with one driver, and 6 with another.
 
-Driver - some code which talks to a peripheral and presents a higher-level
-	interface to it.
+Driver
+  some code which talks to a peripheral and presents a higher-level
+  interface to it.
 
-Device - an instance of a driver, tied to a particular port or peripheral.
+Device
+  an instance of a driver, tied to a particular port or peripheral.
 
 
 How to try it
 -------------
 
-Build U-Boot sandbox and run it:
+Build U-Boot sandbox and run it::
 
    make sandbox_defconfig
    make
@@ -56,31 +62,31 @@ provide good code coverage of them. It does have multiple drivers, it
 handles parameter data and platdata (data which tells the driver how
 to operate on a particular platform) and it uses private driver data.
 
-To try it, see the example session below:
+To try it, see the example session below::
 
-=>demo hello 1
-Hello '@' from 07981110: red 4
-=>demo status 2
-Status: 0
-=>demo hello 2
-g
-r@
-e@@
-e@@@
-n@@@@
-g@@@@@
-=>demo status 2
-Status: 21
-=>demo hello 4 ^
-  y^^^
- e^^^^^
-l^^^^^^^
-l^^^^^^^
- o^^^^^
-  w^^^
-=>demo status 4
-Status: 36
-=>
+   =>demo hello 1
+   Hello '@' from 07981110: red 4
+   =>demo status 2
+   Status: 0
+   =>demo hello 2
+   g
+   r@
+   e@@
+   e@@@
+   n@@@@
+   g@@@@@
+   =>demo status 2
+   Status: 21
+   =>demo hello 4 ^
+     y^^^
+    e^^^^^
+   l^^^^^^^
+   l^^^^^^^
+    o^^^^^
+     w^^^
+   =>demo status 4
+   Status: 36
+   =>
 
 
 Running the tests
@@ -88,145 +94,147 @@ Running the tests
 
 The intent with driver model is that the core portion has 100% test coverage
 in sandbox, and every uclass has its own test. As a move towards this, tests
-are provided in test/dm. To run them, try:
+are provided in test/dm. To run them, try::
 
    ./test/py/test.py --bd sandbox --build -k ut_dm -v
 
-You should see something like this:
+You should see something like this::
 
-(venv)$ ./test/py/test.py --bd sandbox --build -k ut_dm -v
-+make O=/root/u-boot/build-sandbox -s sandbox_defconfig
-+make O=/root/u-boot/build-sandbox -s -j8
-============================= test session starts ==============================
-platform linux2 -- Python 2.7.5, pytest-2.9.0, py-1.4.31, pluggy-0.3.1 -- /root/u-boot/venv/bin/python
-cachedir: .cache
-rootdir: /root/u-boot, inifile:
-collected 199 items
+   (venv)$ ./test/py/test.py --bd sandbox --build -k ut_dm -v
+   +make O=/root/u-boot/build-sandbox -s sandbox_defconfig
+   +make O=/root/u-boot/build-sandbox -s -j8
+   ============================= test session starts ==============================
+   platform linux2 -- Python 2.7.5, pytest-2.9.0, py-1.4.31, pluggy-0.3.1 -- /root/u-boot/venv/bin/python
+   cachedir: .cache
+   rootdir: /root/u-boot, inifile:
+   collected 199 items
 
-test/py/tests/test_ut.py::test_ut_dm_init PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_adc_bind] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_adc_multi_channel_conversion] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_adc_multi_channel_shot] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_adc_single_channel_conversion] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_adc_single_channel_shot] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_adc_supply] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_adc_wrong_channel_selection] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_autobind] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_autobind_uclass_pdata_alloc] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_autobind_uclass_pdata_valid] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_autoprobe] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_child_post_bind] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_child_post_bind_uclass] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_child_pre_probe_uclass] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_children] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_children_funcs] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_children_iterators] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_data] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_data_uclass] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_ops] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_platdata] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_platdata_uclass] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_children] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_clk_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_clk_periph] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_device_get_uclass_id] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_eth] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_eth_act] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_eth_alias] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_eth_prime] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_eth_rotate] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_fdt] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_fdt_offset] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_fdt_pre_reloc] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_fdt_uclass_seq] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_gpio] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_gpio_anon] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_gpio_copy] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_gpio_leak] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_gpio_phandles] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_gpio_requestf] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_i2c_bytewise] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_i2c_find] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_i2c_offset] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_i2c_offset_len] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_i2c_probe_empty] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_i2c_read_write] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_i2c_speed] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_leak] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_led_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_led_gpio] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_led_label] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_lifecycle] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_mmc_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_net_retry] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_operations] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_ordering] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_pci_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_pci_busnum] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_pci_swapcase] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_platdata] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_power_pmic_get] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_power_pmic_io] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_autoset] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_autoset_list] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_get] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_current] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_enable] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_mode] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_voltage] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_pre_reloc] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_ram_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_regmap_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_regmap_syscon] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_remoteproc_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_remove] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_reset_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_reset_walk] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_rtc_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_rtc_dual] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_rtc_reset] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_rtc_set_get] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_spi_find] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_spi_flash] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_spi_xfer] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_syscon_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_syscon_by_driver_data] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_timer_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_uclass] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_uclass_before_ready] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_find] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_find_by_name] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_get] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_get_by_name] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_usb_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_usb_flash] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_usb_keyb] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_usb_multi] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_usb_remove] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_usb_tree] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_usb_tree_remove] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_usb_tree_reorder] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_base] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_bmp] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_bmp_comp] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_chars] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_context] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_rotation1] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_rotation2] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_rotation3] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_text] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_truetype] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_truetype_bs] PASSED
-test/py/tests/test_ut.py::test_ut[ut_dm_video_truetype_scroll] PASSED
+   test/py/tests/test_ut.py::test_ut_dm_init PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_adc_bind] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_adc_multi_channel_conversion] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_adc_multi_channel_shot] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_adc_single_channel_conversion] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_adc_single_channel_shot] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_adc_supply] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_adc_wrong_channel_selection] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_autobind] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_autobind_uclass_pdata_alloc] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_autobind_uclass_pdata_valid] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_autoprobe] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_child_post_bind] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_child_post_bind_uclass] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_child_pre_probe_uclass] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_children] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_children_funcs] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_children_iterators] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_data] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_data_uclass] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_ops] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_platdata] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_bus_parent_platdata_uclass] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_children] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_clk_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_clk_periph] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_device_get_uclass_id] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_eth] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_eth_act] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_eth_alias] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_eth_prime] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_eth_rotate] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_fdt] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_fdt_offset] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_fdt_pre_reloc] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_fdt_uclass_seq] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_gpio] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_gpio_anon] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_gpio_copy] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_gpio_leak] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_gpio_phandles] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_gpio_requestf] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_i2c_bytewise] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_i2c_find] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_i2c_offset] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_i2c_offset_len] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_i2c_probe_empty] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_i2c_read_write] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_i2c_speed] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_leak] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_led_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_led_gpio] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_led_label] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_lifecycle] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_mmc_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_net_retry] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_operations] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_ordering] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_pci_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_pci_busnum] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_pci_swapcase] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_platdata] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_power_pmic_get] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_power_pmic_io] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_autoset] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_autoset_list] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_get] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_current] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_enable] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_mode] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_power_regulator_set_get_voltage] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_pre_reloc] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_ram_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_regmap_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_regmap_syscon] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_remoteproc_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_remove] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_reset_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_reset_walk] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_rtc_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_rtc_dual] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_rtc_reset] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_rtc_set_get] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_spi_find] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_spi_flash] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_spi_xfer] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_syscon_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_syscon_by_driver_data] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_timer_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_uclass] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_uclass_before_ready] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_find] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_find_by_name] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_get] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_uclass_devices_get_by_name] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_usb_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_usb_flash] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_usb_keyb] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_usb_multi] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_usb_remove] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_usb_tree] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_usb_tree_remove] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_usb_tree_reorder] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_base] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_bmp] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_bmp_comp] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_chars] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_context] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_rotation1] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_rotation2] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_rotation3] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_text] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_truetype] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_truetype_bs] PASSED
+   test/py/tests/test_ut.py::test_ut[ut_dm_video_truetype_scroll] PASSED
 
-======================= 84 tests deselected by '-kut_dm' =======================
-================== 115 passed, 84 deselected in 3.77 seconds ===================
+   ======================= 84 tests deselected by '-kut_dm' =======================
+   ================== 115 passed, 84 deselected in 3.77 seconds ===================
 
 What is going on?
 -----------------
 
 Let's start at the top. The demo command is in common/cmd_demo.c. It does
 the usual command processing and then:
+
+.. code-block:: c
 
 	struct udevice *demo_dev;
 
@@ -245,6 +253,8 @@ The device is automatically activated ready for use by uclass_get_device().
 
 Now that we have the device we can do things like:
 
+.. code-block:: c
+
 	return demo_hello(demo_dev, ch);
 
 This function is in the demo uclass. It takes care of calling the 'hello'
@@ -253,28 +263,32 @@ this particular device may use one or other of them.
 
 The code for demo_hello() is in drivers/demo/demo-uclass.c:
 
-int demo_hello(struct udevice *dev, int ch)
-{
-	const struct demo_ops *ops = device_get_ops(dev);
+.. code-block:: c
 
-	if (!ops->hello)
-		return -ENOSYS;
+	int demo_hello(struct udevice *dev, int ch)
+	{
+		const struct demo_ops *ops = device_get_ops(dev);
 
-	return ops->hello(dev, ch);
-}
+		if (!ops->hello)
+			return -ENOSYS;
+
+		return ops->hello(dev, ch);
+	}
 
 As you can see it just calls the relevant driver method. One of these is
 in drivers/demo/demo-simple.c:
 
-static int simple_hello(struct udevice *dev, int ch)
-{
-	const struct dm_demo_pdata *pdata = dev_get_platdata(dev);
+.. code-block:: c
 
-	printf("Hello from %08x: %s %d\n", map_to_sysmem(dev),
-	       pdata->colour, pdata->sides);
+	static int simple_hello(struct udevice *dev, int ch)
+	{
+		const struct dm_demo_pdata *pdata = dev_get_platdata(dev);
 
-	return 0;
-}
+		printf("Hello from %08x: %s %d\n", map_to_sysmem(dev),
+		       pdata->colour, pdata->sides);
+
+		return 0;
+	}
 
 
 So that is a trip from top (command execution) to bottom (driver action)
@@ -287,17 +301,19 @@ Declaring Drivers
 A driver declaration looks something like this (see
 drivers/demo/demo-shape.c):
 
-static const struct demo_ops shape_ops = {
-	.hello = shape_hello,
-	.status = shape_status,
-};
+.. code-block:: c
 
-U_BOOT_DRIVER(demo_shape_drv) = {
-	.name	= "demo_shape_drv",
-	.id	= UCLASS_DEMO,
-	.ops	= &shape_ops,
-	.priv_data_size = sizeof(struct shape_data),
-};
+	static const struct demo_ops shape_ops = {
+		.hello = shape_hello,
+		.status = shape_status,
+	};
+
+	U_BOOT_DRIVER(demo_shape_drv) = {
+		.name	= "demo_shape_drv",
+		.id	= UCLASS_DEMO,
+		.ops	= &shape_ops,
+		.priv_data_size = sizeof(struct shape_data),
+	};
 
 
 This driver has two methods (hello and status) and requires a bit of
@@ -315,11 +331,11 @@ so driver model can find the drivers that are available.
 The methods a device can provide are documented in the device.h header.
 Briefly, they are:
 
-    bind - make the driver model aware of a device (bind it to its driver)
-    unbind - make the driver model forget the device
-    ofdata_to_platdata - convert device tree data to platdata - see later
-    probe - make a device ready for use
-    remove - remove a device so it cannot be used until probed again
+   * bind - make the driver model aware of a device (bind it to its driver)
+   * unbind - make the driver model forget the device
+   * ofdata_to_platdata - convert device tree data to platdata - see later
+   * probe - make a device ready for use
+   * remove - remove a device so it cannot be used until probed again
 
 The sequence to get a device to work is bind, ofdata_to_platdata (if using
 device tree) and probe.
@@ -328,14 +344,14 @@ device tree) and probe.
 Platform Data
 -------------
 
-*** Note: platform data is the old way of doing things. It is
-*** basically a C structure which is passed to drivers to tell them about
-*** platform-specific settings like the address of its registers, bus
-*** speed, etc. Device tree is now the preferred way of handling this.
-*** Unless you have a good reason not to use device tree (the main one
-*** being you need serial support in SPL and don't have enough SRAM for
-*** the cut-down device tree and libfdt libraries) you should stay away
-*** from platform data.
+Note: platform data is the old way of doing things. It is
+basically a C structure which is passed to drivers to tell them about
+platform-specific settings like the address of its registers, bus
+speed, etc. Device tree is now the preferred way of handling this.
+Unless you have a good reason not to use device tree (the main one
+being you need serial support in SPL and don't have enough SRAM for
+the cut-down device tree and libfdt libraries) you should stay away
+from platform data.
 
 Platform data is like Linux platform data, if you are familiar with that.
 It provides the board-specific information to start up a device.
@@ -366,9 +382,9 @@ Examples of platform data include:
 
    - The base address of the IP block's register space
    - Configuration options, like:
-         - the SPI polarity and maximum speed for a SPI controller
-         - the I2C speed to use for an I2C device
-         - the number of GPIOs available in a GPIO device
+      - the SPI polarity and maximum speed for a SPI controller
+      - the I2C speed to use for an I2C device
+      - the number of GPIOs available in a GPIO device
 
 Where does the platform data come from? It is either held in a structure
 which is compiled into U-Boot, or it can be parsed from the Device Tree
@@ -384,10 +400,13 @@ Drivers can access their data via dev->info->platdata. Here is
 the declaration for the platform data, which would normally appear
 in the board file.
 
+.. code-block:: c
+
 	static const struct dm_demo_cdata red_square = {
 		.colour = "red",
 		.sides = 4.
 	};
+
 	static const struct driver_info info[] = {
 		{
 			.name = "demo_shape_drv",
@@ -409,6 +428,8 @@ necessary.
 With device tree we replace the above code with the following device tree
 fragment:
 
+.. code-block:: c
+
 	red-square {
 		compatible = "demo-shape";
 		colour = "red";
@@ -424,6 +445,8 @@ the task of board-bring up either for U-Boot or Linux devs (whoever gets to
 the board first!).
 
 The easiest way to make this work it to add a few members to the driver:
+
+.. code-block:: c
 
 	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
 	.ofdata_to_platdata = testfdt_ofdata_to_platdata,
@@ -464,9 +487,11 @@ Declaring Uclasses
 
 The demo uclass is declared like this:
 
-U_BOOT_CLASS(demo) = {
-	.id		= UCLASS_DEMO,
-};
+.. code-block:: c
+
+	U_BOOT_CLASS(demo) = {
+		.id		= UCLASS_DEMO,
+	};
 
 It is also possible to specify special methods for probe, etc. The uclass
 numbering comes from include/dm/uclass.h. To add a new uclass, add to the
@@ -496,9 +521,11 @@ device will be automatically allocated the next available sequence number.
 To specify the sequence number in the device tree an alias is typically
 used. Make sure that the uclass has the DM_UC_FLAG_SEQ_ALIAS flag set.
 
-aliases {
-	serial2 = "/serial@22230000";
-};
+.. code-block:: none
+
+	aliases {
+		serial2 = "/serial@22230000";
+	};
 
 This indicates that in the uclass called "serial", the named node
 ("/serial@22230000") will be given sequence number 2. Any command or driver
@@ -506,13 +533,15 @@ which requests serial device 2 will obtain this device.
 
 More commonly you can use node references, which expand to the full path:
 
-aliases {
-	serial2 = &serial_2;
-};
-...
-serial_2: serial@22230000 {
-...
-};
+.. code-block:: none
+
+	aliases {
+		serial2 = &serial_2;
+	};
+	...
+	serial_2: serial@22230000 {
+	...
+	};
 
 The alias resolves to the same string in this case, but this version is
 easier to read.
@@ -547,7 +576,7 @@ children are bound and probed.
 
 Here an explanation of how a bus fits with a uclass may be useful. Consider
 a USB bus with several devices attached to it, each from a different (made
-up) uclass:
+up) uclass::
 
    xhci_usb (UCLASS_USB)
       eth (UCLASS_ETHERNET)
@@ -579,7 +608,7 @@ Note that the information that controls this behaviour is in the bus's
 driver, not the child's. In fact it is possible that child has no knowledge
 that it is connected to a bus. The same child device may even be used on two
 different bus types. As an example. the 'flash' device shown above may also
-be connected on a SATA bus or standalone with no bus:
+be connected on a SATA bus or standalone with no bus::
 
    xhci_usb (UCLASS_USB)
       flash (UCLASS_FLASH_STORAGE)  - parent data/methods defined by USB bus
@@ -613,20 +642,21 @@ methods mentioned here are optional - e.g. if there is no probe() method for
 a device then it will not be called. A simple device may have very few
 methods actually defined.
 
-1. Bind stage
+Bind stage
+^^^^^^^^^^
 
 U-Boot discovers devices using one of these two methods:
 
-   - Scan the U_BOOT_DEVICE() definitions. U-Boot looks up the name specified
-by each, to find the appropriate U_BOOT_DRIVER() definition. In this case,
-there is no path by which driver_data may be provided, but the U_BOOT_DEVICE()
-may provide platdata.
+- Scan the U_BOOT_DEVICE() definitions. U-Boot looks up the name specified
+  by each, to find the appropriate U_BOOT_DRIVER() definition. In this case,
+  there is no path by which driver_data may be provided, but the U_BOOT_DEVICE()
+  may provide platdata.
 
-   - Scan through the device tree definitions. U-Boot looks at top-level
-nodes in the the device tree. It looks at the compatible string in each node
-and uses the of_match table of the U_BOOT_DRIVER() structure to find the
-right driver for each node. In this case, the of_match table may provide a
-driver_data value, but platdata cannot be provided until later.
+- Scan through the device tree definitions. U-Boot looks at top-level
+  nodes in the the device tree. It looks at the compatible string in each node
+  and uses the of_match table of the U_BOOT_DRIVER() structure to find the
+  right driver for each node. In this case, the of_match table may provide a
+  driver_data value, but platdata cannot be provided until later.
 
 For each device that is discovered, U-Boot then calls device_bind() to create a
 new device, initializes various core fields of the device object such as name,
@@ -653,45 +683,46 @@ probe/remove which is independent of bind/unbind. This is partly because in
 U-Boot it may be expensive to probe devices and we don't want to do it until
 they are needed, or perhaps until after relocation.
 
-2. Activation/probe
+Activation/probe
+^^^^^^^^^^^^^^^^
 
 When a device needs to be used, U-Boot activates it, by following these
 steps (see device_probe()):
 
-   a. If priv_auto_alloc_size is non-zero, then the device-private space
+   1. If priv_auto_alloc_size is non-zero, then the device-private space
    is allocated for the device and zeroed. It will be accessible as
    dev->priv. The driver can put anything it likes in there, but should use
    it for run-time information, not platform data (which should be static
    and known before the device is probed).
 
-   b. If platdata_auto_alloc_size is non-zero, then the platform data space
+   2. If platdata_auto_alloc_size is non-zero, then the platform data space
    is allocated. This is only useful for device tree operation, since
    otherwise you would have to specific the platform data in the
    U_BOOT_DEVICE() declaration. The space is allocated for the device and
    zeroed. It will be accessible as dev->platdata.
 
-   c. If the device's uclass specifies a non-zero per_device_auto_alloc_size,
+   3. If the device's uclass specifies a non-zero per_device_auto_alloc_size,
    then this space is allocated and zeroed also. It is allocated for and
    stored in the device, but it is uclass data. owned by the uclass driver.
    It is possible for the device to access it.
 
-   d. If the device's immediate parent specifies a per_child_auto_alloc_size
+   4. If the device's immediate parent specifies a per_child_auto_alloc_size
    then this space is allocated. This is intended for use by the parent
    device to keep track of things related to the child. For example a USB
    flash stick attached to a USB host controller would likely use this
    space. The controller can hold information about the USB state of each
    of its children.
 
-   e. All parent devices are probed. It is not possible to activate a device
+   5. All parent devices are probed. It is not possible to activate a device
    unless its predecessors (all the way up to the root device) are activated.
    This means (for example) that an I2C driver will require that its bus
    be activated.
 
-   f. The device's sequence number is assigned, either the requested one
+   6. The device's sequence number is assigned, either the requested one
    (assuming no conflicts) or the next available one if there is a conflict
    or nothing particular is requested.
 
-   g. If the driver provides an ofdata_to_platdata() method, then this is
+   7. If the driver provides an ofdata_to_platdata() method, then this is
    called to convert the device tree data into platform data. This should
    do various calls like fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev), ...)
    to access the node and store the resulting information into dev->platdata.
@@ -707,7 +738,7 @@ steps (see device_probe()):
    data, one day it is possible that U-Boot will cache platform data for
    devices which are regularly de/activated).
 
-   h. The device's probe() method is called. This should do anything that
+   8. The device's probe() method is called. This should do anything that
    is required by the device to get it going. This could include checking
    that the hardware is actually present, setting up clocks for the
    hardware and setting up hardware registers to initial values. The code
@@ -722,40 +753,42 @@ steps (see device_probe()):
    allocate the priv space here yourself. The same applies also to
    platdata_auto_alloc_size. Remember to free them in the remove() method.
 
-   i. The device is marked 'activated'
+   9. The device is marked 'activated'
 
-   j. The uclass's post_probe() method is called, if one exists. This may
+   10. The uclass's post_probe() method is called, if one exists. This may
    cause the uclass to do some housekeeping to record the device as
    activated and 'known' by the uclass.
 
-3. Running stage
+Running stage
+^^^^^^^^^^^^^
 
 The device is now activated and can be used. From now until it is removed
 all of the above structures are accessible. The device appears in the
 uclass's list of devices (so if the device is in UCLASS_GPIO it will appear
 as a device in the GPIO uclass). This is the 'running' state of the device.
 
-4. Removal stage
+Removal stage
+^^^^^^^^^^^^^
 
 When the device is no-longer required, you can call device_remove() to
 remove it. This performs the probe steps in reverse:
 
-   a. The uclass's pre_remove() method is called, if one exists. This may
+   1. The uclass's pre_remove() method is called, if one exists. This may
    cause the uclass to do some housekeeping to record the device as
    deactivated and no-longer 'known' by the uclass.
 
-   b. All the device's children are removed. It is not permitted to have
+   2. All the device's children are removed. It is not permitted to have
    an active child device with a non-active parent. This means that
    device_remove() is called for all the children recursively at this point.
 
-   c. The device's remove() method is called. At this stage nothing has been
+   3. The device's remove() method is called. At this stage nothing has been
    deallocated so platform data, private data and the uclass data will all
    still be present. This is where the hardware can be shut down. It is
    intended that the device be completely inactive at this point, For U-Boot
    to be sure that no hardware is running, it should be enough to remove
    all devices.
 
-   d. The device memory is freed (platform data, private data, uclass data,
+   4. The device memory is freed (platform data, private data, uclass data,
    parent data).
 
    Note: Because the platform data for a U_BOOT_DEVICE() is defined with a
@@ -764,25 +797,26 @@ remove it. This performs the probe steps in reverse:
    be dynamically allocated, and thus needs to be deallocated during the
    remove() method, either:
 
-      1. if the platdata_auto_alloc_size is non-zero, the deallocation
-      happens automatically within the driver model core; or
+      - if the platdata_auto_alloc_size is non-zero, the deallocation
+        happens automatically within the driver model core; or
 
-      2. when platdata_auto_alloc_size is 0, both the allocation (in probe()
-      or preferably ofdata_to_platdata()) and the deallocation in remove()
-      are the responsibility of the driver author.
+      - when platdata_auto_alloc_size is 0, both the allocation (in probe()
+        or preferably ofdata_to_platdata()) and the deallocation in remove()
+        are the responsibility of the driver author.
 
-   e. The device sequence number is set to -1, meaning that it no longer
+   5. The device sequence number is set to -1, meaning that it no longer
    has an allocated sequence. If the device is later reactivated and that
    sequence number is still free, it may well receive the name sequence
    number again. But from this point, the sequence number previously used
    by this device will no longer exist (think of SPI bus 2 being removed
    and bus 2 is no longer available for use).
 
-   f. The device is marked inactive. Note that it is still bound, so the
+   6. The device is marked inactive. Note that it is still bound, so the
    device structure itself is not freed at this point. Should the device be
    activated again, then the cycle starts again at step 2 above.
 
-5. Unbind stage
+Unbind stage
+^^^^^^^^^^^^
 
 The device is unbound. This is the step that actually destroys the device.
 If a parent has children these will be destroyed first. After this point
@@ -805,24 +839,24 @@ For the record, this implementation uses a very similar approach to the
 original patches, but makes at least the following changes:
 
 - Tried to aggressively remove boilerplate, so that for most drivers there
-is little or no 'driver model' code to write.
+  is little or no 'driver model' code to write.
 - Moved some data from code into data structure - e.g. store a pointer to
-the driver operations structure in the driver, rather than passing it
-to the driver bind function.
+  the driver operations structure in the driver, rather than passing it
+  to the driver bind function.
 - Rename some structures to make them more similar to Linux (struct udevice
-instead of struct instance, struct platdata, etc.)
+  instead of struct instance, struct platdata, etc.)
 - Change the name 'core' to 'uclass', meaning U-Boot class. It seems that
-this concept relates to a class of drivers (or a subsystem). We shouldn't
-use 'class' since it is a C++ reserved word, so U-Boot class (uclass) seems
-better than 'core'.
+  this concept relates to a class of drivers (or a subsystem). We shouldn't
+  use 'class' since it is a C++ reserved word, so U-Boot class (uclass) seems
+  better than 'core'.
 - Remove 'struct driver_instance' and just use a single 'struct udevice'.
-This removes a level of indirection that doesn't seem necessary.
+  This removes a level of indirection that doesn't seem necessary.
 - Built in device tree support, to avoid the need for platdata
 - Removed the concept of driver relocation, and just make it possible for
-the new driver (created after relocation) to access the old driver data.
-I feel that relocation is a very special case and will only apply to a few
-drivers, many of which can/will just re-init anyway. So the overhead of
-dealing with this might not be worth it.
+  the new driver (created after relocation) to access the old driver data.
+  I feel that relocation is a very special case and will only apply to a few
+  drivers, many of which can/will just re-init anyway. So the overhead of
+  dealing with this might not be worth it.
 - Implemented a GPIO system, trying to keep it simple
 
 
@@ -903,12 +937,3 @@ change this to dynamic numbering, but then we would require some sort of
 lookup service, perhaps searching by name. This is slightly less efficient
 so has been left out for now. One small advantage of dynamic numbering might
 be fewer merge conflicts in uclass-id.h.
-
-
-Simon Glass
-sjg@chromium.org
-April 2013
-Updated 7-May-13
-Updated 14-Jun-13
-Updated 18-Oct-13
-Updated 5-Nov-13
