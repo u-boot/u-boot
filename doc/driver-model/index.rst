@@ -13,3 +13,4 @@ Driver Model
    livetree
    migration
    of-plat
+   pci-info

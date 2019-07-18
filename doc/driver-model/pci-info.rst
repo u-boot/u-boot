@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
 PCI with Driver Model
 =====================
 
@@ -7,8 +9,7 @@ How busses are scanned
 Any config read will end up at pci_read_config(). This uses
 uclass_get_device_by_seq() to get the PCI bus for a particular bus number.
 Bus number 0 will need to be requested first, and the alias in the device
-tree file will point to the correct device:
-
+tree file will point to the correct device::
 
 	aliases {
 		pci0 = &pci;
@@ -45,7 +46,7 @@ present, matching on it takes precedence over PCI IDs and PCI classes.
 Note we must describe PCI devices with the same bus hierarchy as the
 hardware, otherwise driver model cannot detect the correct parent/children
 relationship during PCI bus enumeration thus PCI devices won't be bound to
-their drivers accordingly. A working example like below:
+their drivers accordingly. A working example like below::
 
 	pci {
 		#address-cells = <3>;
@@ -113,7 +114,7 @@ Sandbox
 
 With sandbox we need a device emulator for each device on the bus since there
 is no real PCI bus. This works by looking in the device tree node for a
-driver. For example:
+driver. For example::
 
 
 	pci@1f,0 {
@@ -129,11 +130,11 @@ Note that the first cell in the 'reg' value is the bus/device/function. See
 PCI_BDF() for the encoding (it is also specified in the IEEE Std 1275-1994
 PCI bus binding document, v2.1)
 
-When this bus is scanned we will end up with something like this:
+When this bus is scanned we will end up with something like this::
 
-`- * pci-controller @ 05c660c8, 0
- `-   pci@1f,0 @ 05c661c8, 63488
-  `-   emul@1f,0 @ 05c662c8
+   `- * pci-controller @ 05c660c8, 0
+    `-   pci@1f,0 @ 05c661c8, 63488
+     `-   emul@1f,0 @ 05c662c8
 
 When accesses go to the pci@1f,0 device they are forwarded to its child, the
 emulator.
@@ -143,6 +144,8 @@ driver to declare the driver binding information via U_BOOT_PCI_DEVICE(),
 eliminating the need to provide any device tree node under the host controller
 node. It is required a "sandbox,dev-info" property must be provided in the
 host controller node for this functionality to work.
+
+.. code-block:: none
 
 	pci1: pci-controller1 {
 		compatible = "sandbox,pci";
@@ -156,7 +159,7 @@ Each dynamic PCI device is encoded as 4 cells a group. The first and second
 cells are PCI device number and function number respectively. The third and
 fourth cells are PCI vendor ID and device ID respectively.
 
-When this bus is scanned we will end up with something like this:
+When this bus is scanned we will end up with something like this::
 
  pci        [ + ]   pci_sandbo  |-- pci-controller1
  pci_emul   [   ]   sandbox_sw  |   |-- sandbox_swap_case_emul
