@@ -7,5 +7,6 @@ Intel
    :maxdepth: 2
 
    bayleybay
+   cherryhill
    crownbay
    minnowmax
