@@ -15,6 +15,17 @@ if you want to help out.
 .. toctree::
    :maxdepth: 2
 
+Driver-Model documentation
+--------------------------
+The following holds information on the U-Boot device driver framework:
+driver-model, including the design details of itself and several driver
+subsystems.
+
+.. toctree::
+   :maxdepth: 2
+
+   driver-model/index
+
 U-Boot API documentation
 ------------------------
 
