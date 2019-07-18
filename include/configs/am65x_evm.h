@@ -19,6 +19,32 @@
 #define CONFIG_SYS_SDRAM_BASE1		0x880000000
 
 /* SPL Loader Configuration */
+#ifdef CONFIG_TARGET_AM654_A53_EVM
+#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE +	\
+					 CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE)
+#else
+/*
+ * Maximum size in memory allocated to the SPL BSS. Keep it as tight as
+ * possible (to allow the build to go through), as this directly affects
+ * our memory footprint. The less we use for BSS the more we have available
+ * for everything else.
+ */
+#define CONFIG_SPL_BSS_MAX_SIZE		0x5000
+/*
+ * Link BSS to be within SPL in a dedicated region located near the top of
+ * the MCU SRAM, this way making it available also before relocation. Note
+ * that we are not using the actual top of the MCU SRAM as there is a memory
+ * location filled in by the boot ROM that we want to read out without any
+ * interference from the C context.
+ */
+#define CONFIG_SPL_BSS_START_ADDR	(CONFIG_SYS_K3_BOOT_PARAM_TABLE_INDEX -\
+					 CONFIG_SPL_BSS_MAX_SIZE)
+/* Set the stack right below the SPL BSS section */
+#define CONFIG_SYS_INIT_SP_ADDR         CONFIG_SPL_BSS_START_ADDR
+/* Configure R5 SPL post-relocation malloc pool in DDR */
+#define CONFIG_SYS_SPL_MALLOC_START	0x84000000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	SZ_16M
+#endif
 
 #ifdef CONFIG_SYS_K3_SPL_ATF
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"tispl.bin"
@@ -29,26 +55,26 @@
 #endif
 
 #define CONFIG_SPL_MAX_SIZE		CONFIG_SYS_K3_MAX_DOWNLODABLE_IMAGE_SIZE
-#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SPL_TEXT_BASE +	\
-					CONFIG_SYS_K3_NON_SECURE_MSRAM_SIZE - 4)
 
 #define CONFIG_SYS_BOOTM_LEN		SZ_64M
+
+#define PARTS_DEFAULT \
+	/* Linux partitions */ \
+	"name=rootfs,start=0,size=-,uuid=${uuid_gpt_rootfs}\0"
 
 /* U-Boot general configuration */
 #define EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	"findfdt="							\
-		"if test $board_name = am65x; then "			\
-			"setenv name_fdt k3-am654-base-board.dtb; "	\
-		"else if test $name_fdt = undefined; then "		\
-			"echo WARNING: Could not determine device tree to use;"\
-		"fi; fi; "						\
-		"setenv fdtfile ${name_fdt}\0"				\
+		"setenv name_fdt k3-am654-base-board.dtb;"		\
+		"setenv fdtfile ${name_fdt};"				\
+		"setenv overlay_files ${name_overlays}\0"		\
 	"loadaddr=0x80080000\0"						\
 	"fdtaddr=0x82000000\0"						\
+	"overlayaddr=0x83000000\0"					\
 	"name_kern=Image\0"						\
 	"console=ttyS2,115200n8\0"					\
 	"args_all=setenv optargs earlycon=ns16550a,mmio32,0x02800000\0" \
-	"run_kern=booti ${loadaddr} ${rd_spec} ${fdtaddr}\0"
+	"run_kern=booti ${loadaddr} ${rd_spec} ${fdtaddr}\0"		\
 
 /* U-Boot MMC-specific configuration */
 #define EXTRA_ENV_AM65X_BOARD_SETTINGS_MMC				\
@@ -59,14 +85,35 @@
 	"rd_spec=-\0"							\
 	"init_mmc=run args_all args_mmc\0"				\
 	"get_fdt_mmc=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${name_fdt}\0" \
+	"get_overlay_mmc="						\
+		"fdt address ${fdtaddr};"				\
+		"fdt resize 0x100000;"					\
+		"for overlay in $overlay_files;"			\
+		"do;"							\
+		"load mmc ${bootpart} ${overlayaddr} ${bootdir}/${overlay};"	\
+		"fdt apply ${overlayaddr};"				\
+		"done;\0"						\
 	"get_kern_mmc=load mmc ${bootpart} ${loadaddr} "		\
-		"${bootdir}/${name_kern}\0"
+		"${bootdir}/${name_kern}\0"				\
+	"partitions=" PARTS_DEFAULT
 
 /* Incorporate settings into the U-Boot environment */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	DEFAULT_MMC_TI_ARGS						\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS					\
 	EXTRA_ENV_AM65X_BOARD_SETTINGS_MMC
+
+/* MMC ENV related defines */
+#ifdef CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_PART	1
+#define CONFIG_ENV_SIZE		(128 << 10)
+#define CONFIG_ENV_OFFSET		0x680000
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#endif
+
+#define CONFIG_SUPPORT_EMMC_BOOT
 
 /* Now for the remaining common defines */
 #include <configs/ti_armv7_common.h>

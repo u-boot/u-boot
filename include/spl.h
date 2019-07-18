@@ -109,6 +109,15 @@ struct spl_load_info {
 binman_sym_extern(ulong, u_boot_any, image_pos);
 
 /**
+ * spl_load_simple_fit_skip_processing() - Hook to allow skipping the FIT
+ *	image processing during spl_load_simple_fit().
+ *
+ * Return true to skip FIT processing, false to preserve the full code flow
+ * of spl_load_simple_fit().
+ */
+bool spl_load_simple_fit_skip_processing(void);
+
+/**
  * spl_load_simple_fit() - Loads a fit image from a device.
  * @spl_image:	Image description to set up
  * @info:	Structure containing the information required to load data.
@@ -329,6 +338,23 @@ int spl_dfu_cmd(int usbctrl, char *dfu_alt_info, char *interface, char *devstr);
 
 int spl_mmc_load_image(struct spl_image_info *spl_image,
 		       struct spl_boot_device *bootdev);
+
+/**
+ * spl_mmc_load() - Load an image file from MMC/SD media
+ *
+ * @param spl_image	Image data filled in by loading process
+ * @param bootdev	Describes which device to load from
+ * @param filename	Name of file to load (in FS mode)
+ * @param raw_part	Partition to load from (in RAW mode)
+ * @param raw_sect	Sector to load from (in RAW mode)
+ *
+ * @return 0 on success, otherwise error code
+ */
+int spl_mmc_load(struct spl_image_info *spl_image,
+		 struct spl_boot_device *bootdev,
+		 const char *filename,
+		 int raw_part,
+		 unsigned long raw_sect);
 
 /**
  * spl_invoke_atf - boot using an ARM trusted firmware image

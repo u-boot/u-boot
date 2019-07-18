@@ -326,7 +326,7 @@ static void xenon_mask_cmd_conflict_err(struct sdhci_host *host)
 }
 
 /* Platform specific function for post set_ios configuration */
-static void xenon_sdhci_set_ios_post(struct sdhci_host *host)
+static int xenon_sdhci_set_ios_post(struct sdhci_host *host)
 {
 	struct xenon_sdhci_priv *priv = host->mmc->priv;
 	uint speed = host->mmc->tran_speed;
@@ -364,6 +364,8 @@ static void xenon_sdhci_set_ios_post(struct sdhci_host *host)
 
 	/* Re-init the PHY */
 	xenon_mmc_phy_set(host);
+
+	return 0;
 }
 
 /* Install a driver specific handler for post set_ios configuration */

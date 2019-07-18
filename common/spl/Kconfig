@@ -248,6 +248,16 @@ config TPL_BANNER_PRINT
 	  info. Disabling this option could be useful to reduce SPL boot time
 	  (e.g. approx. 6 ms faster, when output on i.MX6 with 115200 baud).
 
+config SPL_EARLY_BSS
+	depends on ARM && !ARM64
+	bool "Allows initializing BSS early before entering board_init_f"
+	help
+	  On some platform we have sufficient memory available early on to
+	  allow setting up and using a basic BSS prior to entering
+	  board_init_f. Activating this option will also de-activate the
+	  clearing of BSS during the SPL relocation process, thus allowing
+	  to carry state from board_init_f to board_init_r by way of BSS.
+
 config SPL_DISPLAY_PRINT
 	bool "Display a board-specific message in SPL"
 	help

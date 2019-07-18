@@ -330,6 +330,8 @@ int regmap_init_mem(ofnode node, struct regmap **mapp);
 int regmap_init_mem_platdata(struct udevice *dev, fdt_val_t *reg, int count,
 			     struct regmap **mapp);
 
+int regmap_init_mem_index(ofnode node, struct regmap **mapp, int index);
+
 /**
  * regmap_get_range() - Obtain the base memory address of a regmap range
  *

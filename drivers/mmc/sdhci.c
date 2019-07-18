@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <malloc.h>
 #include <mmc.h>
@@ -409,7 +410,7 @@ static int sdhci_execute_tuning(struct udevice *dev, uint opcode)
 	return 0;
 }
 #endif
-static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
+int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 {
 	struct sdhci_host *host = mmc->priv;
 	unsigned int div, clk = 0, timeout;
@@ -533,6 +534,34 @@ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
 	sdhci_writeb(host, pwr, SDHCI_POWER_CONTROL);
 }
 
+void sdhci_set_uhs_timing(struct sdhci_host *host)
+{
+	struct mmc *mmc = (struct mmc *)host->mmc;
+	u32 reg;
+
+	reg = sdhci_readw(host, SDHCI_HOST_CONTROL2);
+	reg &= ~SDHCI_CTRL_UHS_MASK;
+
+	switch (mmc->selected_mode) {
+	case UHS_SDR50:
+	case MMC_HS_52:
+		reg |= SDHCI_CTRL_UHS_SDR50;
+		break;
+	case UHS_DDR50:
+	case MMC_DDR_52:
+		reg |= SDHCI_CTRL_UHS_DDR50;
+		break;
+	case UHS_SDR104:
+	case MMC_HS_200:
+		reg |= SDHCI_CTRL_UHS_SDR104;
+		break;
+	default:
+		reg |= SDHCI_CTRL_UHS_SDR12;
+	}
+
+	sdhci_writew(host, reg, SDHCI_HOST_CONTROL2);
+}
+
 #ifdef CONFIG_DM_MMC
 static int sdhci_set_ios(struct udevice *dev)
 {
@@ -583,7 +612,7 @@ static int sdhci_set_ios(struct mmc *mmc)
 
 	/* If available, call the driver specific "post" set_ios() function */
 	if (host->ops && host->ops->set_ios_post)
-		host->ops->set_ios_post(host);
+		return host->ops->set_ios_post(host);
 
 	return 0;
 }
@@ -681,8 +710,18 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		u32 f_max, u32 f_min)
 {
 	u32 caps, caps_1 = 0;
+#if CONFIG_IS_ENABLED(DM_MMC)
+	u32 mask[2] = {0};
+	int ret;
+	ret = dev_read_u32_array(host->mmc->dev, "sdhci-caps-mask",
+				 mask, 2);
+	if (ret && ret != -1)
+		return ret;
 
+	caps = ~mask[1] & sdhci_readl(host, SDHCI_CAPABILITIES);
+#else
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
+#endif
 
 #ifdef CONFIG_MMC_SDHCI_SDMA
 	if (!(caps & SDHCI_CAN_DO_SDMA)) {
@@ -722,7 +761,11 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 
 	/* Check whether the clock multiplier is supported or not */
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
+#if CONFIG_IS_ENABLED(DM_MMC)
+		caps_1 = ~mask[0] & sdhci_readl(host, SDHCI_CAPABILITIES_1);
+#else
 		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
+#endif
 		host->clk_mul = (caps_1 & SDHCI_CLOCK_MUL_MASK) >>
 				SDHCI_CLOCK_MUL_SHIFT;
 	}
@@ -778,9 +821,6 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		cfg->host_caps &= ~MMC_MODE_HS;
 		cfg->host_caps &= ~MMC_MODE_HS_52MHz;
 	}
-
-	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
-		caps_1 = sdhci_readl(host, SDHCI_CAPABILITIES_1);
 
 	if (!(cfg->voltages & MMC_VDD_165_195) ||
 	    (host->quirks & SDHCI_QUIRK_NO_1_8_V))
