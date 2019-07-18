@@ -8,6 +8,7 @@ Architecture-specific doc
 
    arc
    arm64
+   m68k
    mips
    nds32
    nios2
