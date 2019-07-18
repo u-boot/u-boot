@@ -51,6 +51,17 @@ implementation.
 
    arch/index
 
+Board-specific doc
+------------------
+
+These books provide details about board-specific information. They are
+organized in a vendor subdirectory.
+
+.. toctree::
+   :maxdepth: 2
+
+   board/index
+
 Indices and tables
 ==================
 
