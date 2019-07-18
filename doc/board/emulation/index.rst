@@ -6,4 +6,5 @@ Emulation
 .. toctree::
    :maxdepth: 2
 
+   qemu-arm
    qemu-x86

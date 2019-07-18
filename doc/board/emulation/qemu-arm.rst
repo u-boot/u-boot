@@ -1,9 +1,8 @@
-# SPDX-License-Identifier: GPL-2.0+
-#
-# Copyright (C) 2017, Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (C) 2017, Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
 
-U-Boot on QEMU's 'virt' machine on ARM & AArch64
-================================================
+QEMU ARM
+========
 
 QEMU for ARM supports a special 'virt' machine designed for emulation and
 virtualization purposes. This document describes how to run U-Boot under it.
@@ -26,11 +25,13 @@ Building U-Boot
 ---------------
 Set the CROSS_COMPILE environment variable as usual, and run:
 
-- For ARM:
+- For ARM::
+
     make qemu_arm_defconfig
     make
 
-- For AArch64:
+- For AArch64::
+
     make qemu_arm64_defconfig
     make
 
@@ -38,31 +39,44 @@ Running U-Boot
 --------------
 The minimal QEMU command line to get U-Boot up and running is:
 
-- For ARM:
+- For ARM::
+
     qemu-system-arm -machine virt -bios u-boot.bin
 
-- For AArch64:
+- For AArch64::
+
     qemu-system-aarch64 -machine virt -cpu cortex-a57 -bios u-boot.bin
 
 Note that for some odd reason qemu-system-aarch64 needs to be explicitly
 told to use a 64-bit CPU or it will boot in 32-bit mode.
 
 Additional persistent U-boot environment support can be added as follows:
-- Create envstore.img using qemu-img:
+
+- Create envstore.img using qemu-img::
+
     qemu-img create -f raw envstore.img 64M
-- Add a pflash drive parameter to the command line:
+
+- Add a pflash drive parameter to the command line::
+
     -drive if=pflash,format=raw,index=1,file=envstore.img
 
 Additional peripherals that have been tested to work in both U-Boot and Linux
 can be enabled with the following command line parameters:
 
-- To add a Serial ATA disk via an Intel ICH9 AHCI controller, pass e.g.:
+- To add a Serial ATA disk via an Intel ICH9 AHCI controller, pass e.g.::
+
     -drive if=none,file=disk.img,id=mydisk -device ich9-ahci,id=ahci -device ide-drive,drive=mydisk,bus=ahci.0
-- To add an Intel E1000 network adapter, pass e.g.:
+
+- To add an Intel E1000 network adapter, pass e.g.::
+
     -netdev user,id=net0 -device e1000,netdev=net0
-- To add an EHCI-compliant USB host controller, pass e.g.:
+
+- To add an EHCI-compliant USB host controller, pass e.g.::
+
     -device usb-ehci,id=ehci
-- To add a NVMe disk, pass e.g.:
+
+- To add a NVMe disk, pass e.g.::
+
     -drive if=none,file=disk.img,id=mydisk -device nvme,drive=mydisk,serial=foo
 
 These have been tested in QEMU 2.9.0 but should work in at least 2.5.0 as well.
