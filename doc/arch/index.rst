@@ -12,4 +12,5 @@ Architecture-specific doc
    mips
    nds32
    nios2
+   sh
    x86
