@@ -1,21 +1,23 @@
-How to port a serial driver to driver model
-===========================================
+.. SPDX-License-Identifier: GPL-2.0+
+
+How to port an I2C driver to driver model
+=========================================
 
 Over half of the I2C drivers have been converted as at November 2016. These
 ones remain:
 
-   adi_i2c
-   davinci_i2c
-   fti2c010
-   ihs_i2c
-   kona_i2c
-   lpc32xx_i2c
-   pca9564_i2c
-   ppc4xx_i2c
-   rcar_i2c
-   sh_i2c
-   soft_i2c
-   zynq_i2c
+   * adi_i2c
+   * davinci_i2c
+   * fti2c010
+   * ihs_i2c
+   * kona_i2c
+   * lpc32xx_i2c
+   * pca9564_i2c
+   * ppc4xx_i2c
+   * rcar_i2c
+   * sh_i2c
+   * soft_i2c
+   * zynq_i2c
 
 The deadline for this work is the end of June 2017. If no one steps
 forward to convert these, at some point there may come a patch to remove them!
@@ -27,14 +29,14 @@ model. Please feel free to update this file with your ideas and suggestions.
 - Define CONFIG_DM_I2C for your board, vendor or architecture
 - If the board does not already use driver model, you need CONFIG_DM also
 - Your board should then build, but will not work fully since there will be
-    no I2C driver
+  no I2C driver
 - Add the U_BOOT_DRIVER piece at the end (e.g. copy tegra_i2c.c for example)
 - Add a private struct for the driver data - avoid using static variables
 - Implement each of the driver methods, perhaps by calling your old methods
 - You may need to adjust the function parameters so that the old and new
-    implementations can share most of the existing code
+  implementations can share most of the existing code
 - If you convert all existing users of the driver, remove the pre-driver-model
-    code
+  code
 
 In terms of patches a conversion series typically has these patches:
 - clean up / prepare the driver for conversion
