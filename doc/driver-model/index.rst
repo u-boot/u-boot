@@ -7,3 +7,4 @@ Driver Model
    :maxdepth: 2
 
    design
+   migration

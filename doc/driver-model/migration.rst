@@ -1,5 +1,7 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
 Migration Schedule
-====================
+==================
 
 U-Boot has been migrating to a new driver model since its introduction in
 2014. This file describes the schedule for deprecation of pre-driver-model
@@ -8,8 +10,8 @@ features.
 CONFIG_DM_MMC
 -------------
 
-Status: In progress
-Deadline: 2019.04
+* Status: In progress
+* Deadline: 2019.04
 
 The subsystem itself has been converted and maintainers should submit patches
 switching over to using CONFIG_DM_MMC and other base driver model options in
@@ -18,8 +20,8 @@ time for inclusion in the 2019.04 rerelease.
 CONFIG_DM_USB
 -------------
 
-Status: In progress
-Deadline: 2019.07
+* Status: In progress
+* Deadline: 2019.07
 
 The subsystem itself has been converted along with many of the host controller
 and maintainers should submit patches switching over to using CONFIG_DM_USB and
@@ -28,8 +30,8 @@ other base driver model options in time for inclusion in the 2019.07 rerelease.
 CONFIG_SATA
 -----------
 
-Status: In progress
-Deadline: 2019.07
+* Status: In progress
+* Deadline: 2019.07
 
 The subsystem itself has been converted along with many of the host controller
 and maintainers should submit patches switching over to using CONFIG_AHCI and
@@ -38,8 +40,8 @@ other base driver model options in time for inclusion in the 2019.07 rerelease.
 CONFIG_BLK
 ----------
 
-Status: In progress
-Deadline: 2019.07
+* Status: In progress
+* Deadline: 2019.07
 
 In concert with maintainers migrating their block device usage to the
 appropriate DM driver, CONFIG_BLK needs to be set as well.  The final deadline
@@ -48,14 +50,14 @@ subsystems.  At this point we will be able to audit and correct the logic in
 Kconfig around using CONFIG_PARTITIONS and CONFIG_HAVE_BLOCK_DEVICE and make
 use of CONFIG_BLK / CONFIG_SPL_BLK as needed.
 
-CONFIG_DM_SPI
-CONFIG_DM_SPI_FLASH
--------------------
+CONFIG_DM_SPI / CONFIG_DM_SPI_FLASH
+-----------------------------------
 
 Board Maintainers should submit the patches for enabling DM_SPI and DM_SPI_FLASH
 to move the migration with in the deadline.
 
-No dm conversion yet:
+No dm conversion yet::
+
 	drivers/spi/cf_spi.c
 	drivers/spi/fsl_espi.c
 	drivers/spi/lpc32xx_ssp.c
@@ -63,10 +65,11 @@ No dm conversion yet:
 	drivers/spi/sh_spi.c
 	drivers/spi/soft_spi_legacy.c
 
-	Status: In progress
-	Deadline: 2019.04
+* Status: In progress
+* Deadline: 2019.04
 
-Partially converted:
+Partially converted::
+
 	drivers/spi/davinci_spi.c
 	drivers/spi/fsl_dspi.c
 	drivers/spi/kirkwood_spi.c
@@ -74,13 +77,8 @@ Partially converted:
 	drivers/spi/omap3_spi.c
 	drivers/spi/sh_qspi.c
 
-	Status: In progress
-	Deadline: 2019.07
-
---
-Jagan Teki <jagan@openedev.com>
-12/24/2018
-03/14/2018
+* Status: In progress
+* Deadline: 2019.07
 
 
 CONFIG_DM_PCI
