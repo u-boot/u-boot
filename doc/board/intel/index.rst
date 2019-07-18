@@ -10,4 +10,5 @@ Intel
    cherryhill
    cougarcanyon2
    crownbay
+   edison
    minnowmax
