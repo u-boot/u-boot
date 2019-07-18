@@ -7,5 +7,6 @@ Board-specific doc
    :maxdepth: 2
 
    coreboot/index
+   emulation/index
    google/index
    intel/index
