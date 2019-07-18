@@ -15,3 +15,4 @@ Driver Model
    of-plat
    pci-info
    pmic-framework
+   remoteproc-framework
