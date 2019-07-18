@@ -22,7 +22,6 @@ stages:
     - . /tmp/venv/bin/activate
     - pip install pytest==2.8.7
     - pip install python-subunit
-    - pip install pyelftools
     - grub-mkimage -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - grub-mkimage -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
     - mkdir ~/grub2-arm
@@ -83,6 +82,9 @@ build all 64bit ARM plaforms:
   tags: [ 'all' ]
   stage: world build
   script:
+    - virtualenv /tmp/venv
+    - . /tmp/venv/bin/activate
+    - pip install pyelftools
     - ret=0;
      ./tools/buildman/buildman -P -E aarch64 || ret=$?;
      if [[ $ret -ne 0 && $ret -ne 129 ]]; then
