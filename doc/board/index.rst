@@ -6,6 +6,7 @@ Board-specific doc
 .. toctree::
    :maxdepth: 2
 
+   AndesTech/index
    coreboot/index
    emulation/index
    google/index
