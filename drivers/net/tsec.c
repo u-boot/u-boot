@@ -560,6 +560,8 @@ static int tsec_init(struct udevice *dev)
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 #ifdef CONFIG_DM_ETH
 	struct eth_pdata *pdata = dev_get_platdata(dev);
+#else
+	struct eth_device *pdata = dev;
 #endif
 	struct tsec __iomem *regs = priv->regs;
 	u32 tempval;
@@ -580,21 +582,12 @@ static int tsec_init(struct udevice *dev)
 	 * order (BE), MACnADDR1 is set to 0xCDAB7856 and
 	 * MACnADDR2 is set to 0x34120000.
 	 */
-#ifndef CONFIG_DM_ETH
-	tempval = (dev->enetaddr[5] << 24) | (dev->enetaddr[4] << 16) |
-		  (dev->enetaddr[3] << 8)  |  dev->enetaddr[2];
-#else
 	tempval = (pdata->enetaddr[5] << 24) | (pdata->enetaddr[4] << 16) |
 		  (pdata->enetaddr[3] << 8)  |  pdata->enetaddr[2];
-#endif
 
 	out_be32(&regs->macstnaddr1, tempval);
 
-#ifndef CONFIG_DM_ETH
-	tempval = (dev->enetaddr[1] << 24) | (dev->enetaddr[0] << 16);
-#else
 	tempval = (pdata->enetaddr[1] << 24) | (pdata->enetaddr[0] << 16);
-#endif
 
 	out_be32(&regs->macstnaddr2, tempval);
 
