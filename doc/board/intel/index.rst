@@ -11,4 +11,5 @@ Intel
    cougarcanyon2
    crownbay
    edison
+   galileo
    minnowmax

@@ -193,27 +193,6 @@ Flash map for samus / broadwell:
 
 ---
 
-Intel Galileo instructions for bare mode:
-
-Only one binary blob is needed for Remote Management Unit (RMU) within Intel
-Quark SoC. Not like FSP, U-Boot does not call into the binary. The binary is
-needed by the Quark SoC itself.
-
-You can get the binary blob from Quark Board Support Package from Intel website:
-
-* ./QuarkSocPkg/QuarkNorthCluster/Binary/QuarkMicrocode/RMU.bin
-
-Rename the file and put it to the board directory by:
-
-   $ cp RMU.bin board/intel/galileo/rmu.bin
-
-Now you can build U-Boot and obtain u-boot.rom
-
-$ make galileo_defconfig
-$ make all
-
----
-
 QEMU x86 target instructions for bare mode:
 
 To build u-boot.rom for QEMU x86 targets, just simply run
