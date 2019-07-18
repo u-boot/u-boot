@@ -23,6 +23,10 @@
 
 #define DOS_PART_DEFAULT_SECTOR 512
 
+/* should this be configurable? It looks like it's not very common at all
+ * to use large numbers of partitions */
+#define MAX_EXT_PARTS 256
+
 /* Convert char[4] in little endian format to the host format integer
  */
 static inline unsigned int le32_to_int(unsigned char *le32)
@@ -126,6 +130,13 @@ static void print_partition_extended(struct blk_desc *dev_desc,
 	dos_partition_t *pt;
 	int i;
 
+	/* set a maximum recursion level */
+	if (part_num > MAX_EXT_PARTS)
+	{
+		printf("** Nested DOS partitions detected, stopping **\n");
+		return;
+    }
+
 	if (blk_dread(dev_desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
 		printf ("** Can't read partition table on %d:" LBAFU " **\n",
 			dev_desc->devnum, ext_part_sector);
@@ -190,6 +201,13 @@ static int part_get_info_extended(struct blk_desc *dev_desc,
 	dos_partition_t *pt;
 	int i;
 	int dos_type;
+
+	/* set a maximum recursion level */
+	if (part_num > MAX_EXT_PARTS)
+	{
+		printf("** Nested DOS partitions detected, stopping **\n");
+		return -1;
+    }
 
 	if (blk_dread(dev_desc, ext_part_sector, 1, (ulong *)buffer) != 1) {
 		printf ("** Can't read partition table on %d:" LBAFU " **\n",

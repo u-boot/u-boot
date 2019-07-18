@@ -82,8 +82,8 @@
 		compatible = "mediatek,timer";
 		reg = <0x10004000 0x80>;
 		interrupts = <GIC_SPI 152 IRQ_TYPE_LEVEL_LOW>;
-		clocks = <&topckgen CLK_TOP_10M_SEL>,
-			 <&topckgen CLK_TOP_CLKXTAL_D4>;
+		clocks = <&topckgen CLK_TOP_CLKXTAL_D4>,
+			 <&topckgen CLK_TOP_10M_SEL>;
 		clock-names = "mux", "src";
 		u-boot,dm-pre-reloc;
 	};

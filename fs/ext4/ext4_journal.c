@@ -645,6 +645,10 @@ void ext4fs_update_journal(void)
 	struct ext_filesystem *fs = get_fs();
 	long int blknr;
 	int i;
+
+	if (!(fs->sb->feature_compatibility & EXT4_FEATURE_COMPAT_HAS_JOURNAL))
+		return;
+
 	ext4fs_read_inode(ext4fs_root, EXT2_JOURNAL_INO, &inode_journal);
 	blknr = read_allocated_block(&inode_journal, jrnl_blk_idx++, NULL);
 	update_descriptor_block(blknr);

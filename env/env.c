@@ -24,6 +24,8 @@ void env_fix_drivers(void)
 			entry->load += gd->reloc_off;
 		if (entry->save)
 			entry->save += gd->reloc_off;
+		if (entry->erase)
+			entry->erase += gd->reloc_off;
 		if (entry->init)
 			entry->init += gd->reloc_off;
 	}
@@ -242,6 +244,34 @@ int env_save(void)
 
 		printf("Saving Environment to %s... ", drv->name);
 		ret = drv->save();
+		if (ret)
+			printf("Failed (%d)\n", ret);
+		else
+			printf("OK\n");
+
+		if (!ret)
+			return 0;
+	}
+
+	return -ENODEV;
+}
+
+int env_erase(void)
+{
+	struct env_driver *drv;
+
+	drv = env_driver_lookup(ENVOP_ERASE, gd->env_load_prio);
+	if (drv) {
+		int ret;
+
+		if (!drv->erase)
+			return -ENODEV;
+
+		if (!env_has_inited(drv->location))
+			return -ENODEV;
+
+		printf("Erasing Environment on %s... ", drv->name);
+		ret = drv->erase();
 		if (ret)
 			printf("Failed (%d)\n", ret);
 		else

@@ -18,7 +18,6 @@
 
 	chosen {
 		stdout-path = &uart0;
-		tick-timer = &timer0;
 	};
 };
 

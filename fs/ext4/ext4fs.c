@@ -61,17 +61,20 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 	lbaint_t delayed_skipfirst = 0;
 	lbaint_t delayed_next = 0;
 	char *delayed_buf = NULL;
+	char *start_buf = buf;
 	short status;
 	struct ext_block_cache cache;
 
 	ext_cache_init(&cache);
 
-	if (blocksize <= 0)
-		return -1;
-
 	/* Adjust len so it we can't read past the end of the file. */
 	if (len + pos > filesize)
 		len = (filesize - pos);
+
+	if (blocksize <= 0 || len <= 0) {
+		ext_cache_fini(&cache);
+		return -1;
+	}
 
 	blockcnt = lldiv(((len + pos) + blocksize - 1), blocksize);
 
@@ -137,6 +140,7 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 			}
 		} else {
 			int n;
+			int n_left;
 			if (previous_block_number != -1) {
 				/* spill */
 				status = ext4fs_devread(delayed_start,
@@ -151,8 +155,9 @@ int ext4fs_read_file(struct ext2fs_node *node, loff_t pos,
 			}
 			/* Zero no more than `len' bytes. */
 			n = blocksize - skipfirst;
-			if (n > len)
-				n = len;
+			n_left = len - ( buf - start_buf );
+			if (n > n_left)
+				n = n_left;
 			memset(buf, 0, n);
 		}
 		buf += blocksize - skipfirst;
@@ -286,7 +291,7 @@ int ext_cache_read(struct ext_block_cache *cache, lbaint_t block, int size)
 	if (!cache->buf)
 		return 0;
 	if (!ext4fs_devread(block, 0, size, cache->buf)) {
-		free(cache->buf);
+		ext_cache_fini(cache);
 		return 0;
 	}
 	cache->block = block;

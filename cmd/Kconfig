@@ -408,6 +408,14 @@ config CMD_SAVEENV
 	  Save all environment variables into the compiled-in persistent
 	  storage.
 
+config CMD_ERASEENV
+	bool "eraseenv"
+	default n
+	depends on CMD_SAVEENV
+	help
+	  Erase environment variables from the compiled-in persistent
+	  storage.
+
 config CMD_ENV_EXISTS
 	bool "env exists"
 	default y
@@ -562,6 +570,13 @@ config CMD_MEMORY
 	    cmp - memory compare
 	    base - print or set address offset
 	    loop - initialize loop on address range
+
+config CMD_RANDOM
+	bool "random"
+	default y
+	depends on CMD_MEMORY && (LIB_RAND || LIB_HW_RAND)
+	help
+	  random - fill memory with random data
 
 config CMD_MEMTEST
 	bool "memtest"

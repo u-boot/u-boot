@@ -840,6 +840,7 @@ config ARCH_OWL
 
 config ARCH_QEMU
 	bool "QEMU Virtual Platform"
+	select ARCH_SUPPORT_TFABOOT
 	select DM
 	select DM_SERIAL
 	select OF_CONTROL
@@ -1100,6 +1101,7 @@ config TARGET_LS1088AQDS
 	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select FSL_DDR_INTERACTIVE if !SD_BOOT
@@ -1115,6 +1117,7 @@ config TARGET_LS2080AQDS
 	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	imply SCSI
@@ -1133,6 +1136,7 @@ config TARGET_LS2080ARDB
 	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select FSL_DDR_BIST
@@ -1165,6 +1169,7 @@ config TARGET_LX2160ARDB
 	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	help
 	  Support for NXP LX2160ARDB platform.
@@ -1178,6 +1183,7 @@ config TARGET_LX2160AQDS
 	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	help
 	  Support for NXP LX2160AQDS platform.
@@ -1218,6 +1224,7 @@ config TARGET_LS1012AQDS
 	bool "Support ls1012aqds"
 	select ARCH_LS1012A
 	select ARM64
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	help
 	  Support for Freescale LS1012AQDS platform.
@@ -1229,6 +1236,7 @@ config TARGET_LS1012ARDB
 	bool "Support ls1012ardb"
 	select ARCH_LS1012A
 	select ARM64
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	imply SCSI
 	imply SCSI_AHCI
@@ -1242,6 +1250,7 @@ config TARGET_LS1012A2G5RDB
 	bool "Support ls1012a2g5rdb"
 	select ARCH_LS1012A
 	select ARM64
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	imply SCSI
 	help
@@ -1254,6 +1263,7 @@ config TARGET_LS1012AFRWY
 	bool "Support ls1012afrwy"
 	select ARCH_LS1012A
 	select ARM64
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	imply SCSI
 	imply SCSI_AHCI
@@ -1267,6 +1277,7 @@ config TARGET_LS1012AFRDM
 	bool "Support ls1012afrdm"
 	select ARCH_LS1012A
 	select ARM64
+	select ARCH_SUPPORT_TFABOOT
 	help
 	  Support for Freescale LS1012AFRDM platform.
 	  The LS1012A Freedom  board (FRDM) is a high-performance
@@ -1278,6 +1289,7 @@ config TARGET_LS1028AQDS
 	select ARCH_LS1028A
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	help
 	  Support for Freescale LS1028AQDS platform
 	  The LS1028A Development System (QDS) is a high-performance
@@ -1289,6 +1301,7 @@ config TARGET_LS1028ARDB
 	select ARCH_LS1028A
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	help
 	  Support for Freescale LS1028ARDB platform
 	  The LS1028A Development System (RDB) is a high-performance
@@ -1301,6 +1314,7 @@ config TARGET_LS1088ARDB
 	select ARCH_MISC_INIT
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
 	select FSL_DDR_INTERACTIVE if !SD_BOOT
@@ -1359,6 +1373,7 @@ config TARGET_LS1043AQDS
 	select ARCH_LS1043A
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
@@ -1373,6 +1388,7 @@ config TARGET_LS1043ARDB
 	select ARCH_LS1043A
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select SUPPORT_SPL
@@ -1384,6 +1400,7 @@ config TARGET_LS1046AQDS
 	select ARCH_LS1046A
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select DM_SPI_FLASH if DM_SPI
@@ -1403,6 +1420,7 @@ config TARGET_LS1046ARDB
 	select ARCH_LS1046A
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select DM_SPI_FLASH if DM_SPI
@@ -1422,6 +1440,7 @@ config TARGET_LS1046AFRWY
 	select ARCH_LS1046A
 	select ARM64
 	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select DM_SPI_FLASH if DM_SPI
@@ -1564,6 +1583,17 @@ config ARCH_ASPEED
 	imply CMD_DM
 
 endchoice
+
+config ARCH_SUPPORT_TFABOOT
+	bool
+
+config TFABOOT
+	bool "Support for booting from TF-A"
+	depends on ARCH_SUPPORT_TFABOOT
+	default n
+	help
+	  Enabling this will make a U-Boot binary that is capable of being
+	  booted via TF-A.
 
 config TI_SECURE_DEVICE
 	bool "HS Device Type Support"

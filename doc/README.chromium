@@ -33,12 +33,18 @@ To obtain:
    cd u-boot
    git checkout cros-master
 
+   cd ..
+   git clone https://chromium.googlesource.com/chromiumos/platform/vboot_reference
+   cd vboot_reference
+   git checkout 45964294
+   #  futility: updater: Correct output version for Snow
+
 To build for sandbox:
 
    UB=/tmp/b/chromeos_sandbox    # U-Boot build directory
-   CROS=/home/sglass/cosarm      # Chromium OS directory
-   make O=$UB/chromeos_sandbox_defconfig
-   make O=$UB -j20 -s VBOOT_SOURCE=$CROS/src/platform/vboot_reference \
+   cd u-boot
+   make O=$UB chromeos_sandbox_defconfig
+   make O=$UB -j20 -s VBOOT_SOURCE=/path/to/vboot_reference \
 	MAKEFLAGS_VBOOT=DEBUG=1 QUIET=1
 
 Replace sandbox with another supported target.

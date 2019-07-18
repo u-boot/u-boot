@@ -4,6 +4,7 @@
  */
 
 #include <linux/linkage.h>
+#include <asm/proc-armv/ptrace.h>
 
 #define WAIT_CODE_SRAM_BASE	0x0010ff00
 
@@ -26,6 +27,18 @@ ENTRY(lowlevel_init)
 	movw	r0, #0x2d00
 	movt	r0, #0x131
 	mcr	p15, 0, r0, c14, c0, 0
+
+	cps	#MON_MODE
+	mrc	p15, 0, r1, c1, c1, 0	@ Get Secure Config
+	orr	r0, r1, #1
+	mcr	p15, 0, r0, c1, c1, 0	@ Set Non Secure bit
+	isb
+	mov	r0, #0
+	mcrr	p15, 4, r0, r0, c14	@ CNTVOFF = 0
+	isb
+	mcr	p15, 0, r1, c1, c1, 0	@ Set Secure bit
+	isb
+	cps	#SVC_MODE
 
 	/* enable SMP bit */
 	mrc	p15, 0, r0, c1, c0, 1

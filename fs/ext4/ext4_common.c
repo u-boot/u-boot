@@ -570,7 +570,7 @@ restart_read:
 				g_parent_inode->size = cpu_to_le32(new_size);
 
 				new_blockcnt = le32_to_cpu(g_parent_inode->blockcnt);
-				new_blockcnt += fs->sect_perblk;
+				new_blockcnt += fs->blksz >> LOG2_SECTOR_SIZE;
 				g_parent_inode->blockcnt = cpu_to_le32(new_blockcnt);
 
 				if (ext4fs_put_metadata
@@ -1571,8 +1571,12 @@ static int ext4fs_blockgroup
 	int log2blksz = get_fs()->dev_desc->log2blksz;
 	int desc_size = get_fs()->gdsize;
 
+	if (desc_size == 0)
+		return 0;
 	desc_per_blk = EXT2_BLOCK_SIZE(data) / desc_size;
 
+	if (desc_per_blk == 0)
+		return 0;
 	blkno = le32_to_cpu(data->sblock.first_data_block) + 1 +
 			group / desc_per_blk;
 	blkoff = (group % desc_per_blk) * desc_size;
@@ -1602,6 +1606,10 @@ int ext4fs_read_inode(struct ext2_data *data, int ino, struct ext2_inode *inode)
 
 	/* It is easier to calculate if the first inode is 0. */
 	ino--;
+	if ( le32_to_cpu(sblock->inodes_per_group) == 0 || fs->inodesz == 0) {
+		free(blkgrp);
+		return 0;
+	}
 	status = ext4fs_blockgroup(data, ino / le32_to_cpu
 				   (sblock->inodes_per_group), blkgrp);
 	if (status == 0) {
@@ -1610,6 +1618,10 @@ int ext4fs_read_inode(struct ext2_data *data, int ino, struct ext2_inode *inode)
 	}
 
 	inodes_per_block = EXT2_BLOCK_SIZE(data) / fs->inodesz;
+	if ( inodes_per_block == 0 ) {
+		free(blkgrp);
+		return 0;
+	}
 	blkno = ext4fs_bg_get_inode_table_id(blkgrp, fs) +
 	    (ino % le32_to_cpu(sblock->inodes_per_group)) / inodes_per_block;
 	blkoff = (ino % inodes_per_block) * fs->inodesz;

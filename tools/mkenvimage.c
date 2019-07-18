@@ -65,10 +65,12 @@ long int xstrtol(const char *s)
 	exit(EXIT_FAILURE);
 }
 
+#define CHUNK_SIZE 4096
+
 int main(int argc, char **argv)
 {
 	uint32_t crc, targetendian_crc;
-	const char *txt_filename = NULL, *bin_filename = NULL;
+	const char *bin_filename = NULL;
 	int txt_fd, bin_fd;
 	unsigned char *dataptr, *envptr;
 	unsigned char *filebuf = NULL;
@@ -76,11 +78,10 @@ int main(int argc, char **argv)
 	int bigendian = 0;
 	int redundant = 0;
 	unsigned char padbyte = 0xff;
+	int readbytes = 0;
 
 	int option;
 	int ret = EXIT_SUCCESS;
-
-	struct stat txt_file_stat;
 
 	int fp, ep;
 	const char *prg;
@@ -156,63 +157,33 @@ int main(int argc, char **argv)
 
 	/* Open the input file ... */
 	if (optind >= argc || strcmp(argv[optind], "-") == 0) {
-		int readbytes = 0;
-		int readlen = sizeof(*envptr) * 4096;
 		txt_fd = STDIN_FILENO;
-
-		do {
-			filebuf = realloc(filebuf, filesize + readlen);
-			if (!filebuf) {
-				fprintf(stderr, "Can't realloc memory for the input file buffer\n");
-				return EXIT_FAILURE;
-			}
-			readbytes = read(txt_fd, filebuf + filesize, readlen);
-			if (readbytes < 0) {
-				fprintf(stderr, "Error while reading stdin: %s\n",
-						strerror(errno));
-				return EXIT_FAILURE;
-			}
-			filesize += readbytes;
-		} while (readbytes == readlen);
-
 	} else {
-		txt_filename = argv[optind];
-		txt_fd = open(txt_filename, O_RDONLY);
+		txt_fd = open(argv[optind], O_RDONLY);
 		if (txt_fd == -1) {
 			fprintf(stderr, "Can't open \"%s\": %s\n",
-					txt_filename, strerror(errno));
+					argv[optind], strerror(errno));
 			return EXIT_FAILURE;
 		}
-		/* ... and check it */
-		ret = fstat(txt_fd, &txt_file_stat);
-		if (ret == -1) {
-			fprintf(stderr, "Can't stat() on \"%s\": %s\n",
-					txt_filename, strerror(errno));
-			return EXIT_FAILURE;
-		}
-
-		filesize = txt_file_stat.st_size;
-
-		filebuf = mmap(NULL, sizeof(*envptr) * filesize, PROT_READ,
-			       MAP_PRIVATE, txt_fd, 0);
-		if (filebuf == MAP_FAILED) {
-			fprintf(stderr, "mmap (%zu bytes) failed: %s\n",
-					sizeof(*envptr) * filesize,
-					strerror(errno));
-			fprintf(stderr, "Falling back to read()\n");
-
-			filebuf = malloc(sizeof(*envptr) * filesize);
-			ret = read(txt_fd, filebuf, sizeof(*envptr) * filesize);
-			if (ret != sizeof(*envptr) * filesize) {
-				fprintf(stderr, "Can't read the whole input file (%zu bytes): %s\n",
-					sizeof(*envptr) * filesize,
-					strerror(errno));
-
-				return EXIT_FAILURE;
-			}
-		}
-		ret = close(txt_fd);
 	}
+
+	do {
+		filebuf = realloc(filebuf, filesize + CHUNK_SIZE);
+		if (!filebuf) {
+			fprintf(stderr, "Can't realloc memory for the input file buffer\n");
+			return EXIT_FAILURE;
+		}
+		readbytes = read(txt_fd, filebuf + filesize, CHUNK_SIZE);
+		if (readbytes < 0) {
+			fprintf(stderr, "Error while reading: %s\n",
+				strerror(errno));
+			return EXIT_FAILURE;
+		}
+		filesize += readbytes;
+	} while (readbytes > 0);
+
+	if (txt_fd != STDIN_FILENO)
+		ret = close(txt_fd);
 
 	/* Parse a byte at time until reaching the file OR until the environment fills
 	 * up. Check ep against envsize - 1 to allow for extra trailing '\0'. */
