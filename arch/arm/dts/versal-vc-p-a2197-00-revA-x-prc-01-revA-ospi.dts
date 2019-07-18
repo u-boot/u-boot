@@ -10,11 +10,6 @@
 #include "versal-vc-p-a2197-00-revA-x-prc-01-revA.dts"
 
 / {
-	chosen {
-		bootargs = "rdinit=/bin/sh console=ttyAMA0 earlycon=pl011,mmio32,0xFF000000,115200n8 clk_ignore_unused maxcpus=1";
-		stdout-path = "serial0:115200";
-	};
-
 	aliases {
 		spi0 = &ospi;
 	};
