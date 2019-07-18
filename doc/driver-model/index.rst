@@ -16,3 +16,4 @@ Driver Model
    pci-info
    pmic-framework
    remoteproc-framework
+   serial-howto
