@@ -7,3 +7,4 @@ Google
    :maxdepth: 2
 
    chromebook_link
+   chromebook_samus
