@@ -15,3 +15,4 @@ Board-specific doc
    intel/index
    renesas/index
    sifive/index
+   xilinx/index
