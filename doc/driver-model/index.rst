@@ -7,4 +7,5 @@ Driver Model
    :maxdepth: 2
 
    design
+   fdt-fixup
    migration
