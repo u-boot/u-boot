@@ -14,3 +14,4 @@ Driver Model
    migration
    of-plat
    pci-info
+   pmic-framework
