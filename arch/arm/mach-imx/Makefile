@@ -51,7 +51,7 @@ obj-$(CONFIG_IMX_HAB)    += hab.o
 obj-$(CONFIG_SYSCOUNTER_TIMER) += syscounter.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx7ulp))
-obj-y  += cache.o
+obj-y  += cache.o mmdc_size.o
 obj-$(CONFIG_IMX_HAB) += hab.o
 endif
 ifeq ($(SOC),$(filter $(SOC),vf610))

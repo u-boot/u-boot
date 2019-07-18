@@ -5,8 +5,10 @@
 
 #if defined(CONFIG_MX53)
 #define MEMCTL_BASE	ESDCTL_BASE_ADDR
-#else
+#elif defined(CONFIG_MX6)
 #define MEMCTL_BASE	MMDC_P0_BASE_ADDR
+#elif defined(CONFIG_MX7ULP)
+#define MEMCTL_BASE	MMDC0_RBASE
 #endif
 static const unsigned char col_lookup[] = {9, 10, 11, 8, 12, 9, 9, 9};
 static const unsigned char bank_lookup[] = {3, 2};
