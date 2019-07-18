@@ -11,4 +11,5 @@ Board-specific doc
    emulation/index
    google/index
    intel/index
+   renesas/index
    sifive/index
