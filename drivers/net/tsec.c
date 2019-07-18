@@ -268,7 +268,7 @@ static int tsec_send(struct udevice *dev, void *packet, int length)
 	     in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_READY;
 	     i++) {
 		if (i >= TOUT_LOOP) {
-			debug("%s: tsec: tx buffers full\n", dev->name);
+			printf("%s: tsec: tx buffers full\n", dev->name);
 			return result;
 		}
 	}
@@ -287,7 +287,7 @@ static int tsec_send(struct udevice *dev, void *packet, int length)
 	     in_be16(&priv->txbd[priv->tx_idx].status) & TXBD_READY;
 	     i++) {
 		if (i >= TOUT_LOOP) {
-			debug("%s: tsec: tx error\n", dev->name);
+			printf("%s: tsec: tx error\n", dev->name);
 			return result;
 		}
 	}
@@ -809,7 +809,7 @@ int tsec_probe(struct udevice *dev)
 
 	if (dev_read_phandle_with_args(dev, "phy-handle", NULL, 0, 0,
 				       &phandle_args)) {
-		debug("phy-handle does not exist under tsec %s\n", dev->name);
+		printf("phy-handle does not exist under tsec %s\n", dev->name);
 		return -ENOENT;
 	} else {
 		int reg = ofnode_read_u32_default(phandle_args.node, "reg", 0);
@@ -838,7 +838,7 @@ int tsec_probe(struct udevice *dev)
 	if (phy_mode)
 		pdata->phy_interface = phy_get_interface_by_name(phy_mode);
 	if (pdata->phy_interface == -1) {
-		debug("Invalid PHY interface '%s'\n", phy_mode);
+		printf("Invalid PHY interface '%s'\n", phy_mode);
 		return -EINVAL;
 	}
 	priv->interface = pdata->phy_interface;
