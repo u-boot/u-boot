@@ -15,3 +15,4 @@ Architecture-specific doc
    sandbox
    sh
    x86
+   xtensa

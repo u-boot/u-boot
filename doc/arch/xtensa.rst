@@ -1,5 +1,7 @@
-U-Boot for the Xtensa Architecture
-==================================
+.. SPDX-License-Identifier: GPL-2.0+
+
+Xtensa
+======
 
 Xtensa Architecture and Diamond Cores
 -------------------------------------
@@ -35,15 +37,16 @@ directory. The name of that directory starts with 'arch-' followed by
 the name for the processor configuration, for example, arch-dc233c for
 the Diamond DC233 processor.
 
-    core.h	Definitions for the core itself.
+core.h:
+  Definitions for the core itself.
 
 The following files are part of the overlay but not used by U-Boot.
 
-    tie.h	Co-processors and custom extensions defined
-		in the Tensilica Instruction Extension (TIE)
-		language.
-    tie-asm.h	Assembly macros to access custom-defined registers
-		and states.
+tie.h:
+  Co-processors and custom extensions defined in the Tensilica Instruction
+  Extension (TIE) language.
+tie-asm.h:
+  Assembly macros to access custom-defined registers and states.
 
 
 Global Data Pointer, Exported Function Stubs, and the ABI
@@ -92,6 +95,5 @@ U-Boot for Xtensa provides a special memory exception handler that
 reports such access attempts and resets the board.
 
 
-------------------------------------------------------------------------------
-Chris Zankel
-Ross Morley
+.. Chris Zankel
+.. Ross Morley
