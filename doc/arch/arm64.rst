@@ -1,14 +1,17 @@
-U-Boot for arm64
+.. SPDX-License-Identifier: GPL-2.0+
+
+ARM64
+=====
 
 Summary
-=======
+-------
 The initial arm64 U-Boot port was developed before hardware was available,
 so the first supported platforms were the Foundation and Fast Model for ARMv8.
 These days U-Boot runs on a variety of 64-bit capable ARM hardware, from
 embedded development boards to servers.
 
 Notes
-=====
+-----
 
 1. U-Boot can run at any exception level it is entered in, it is
    recommened to enter it in EL3 if U-Boot takes some responsibilities of a
@@ -46,11 +49,11 @@ Notes
 
 
 Contributors
-============
-   Tom Rini            <trini@ti.com>
-   Scott Wood          <scottwood@freescale.com>
-   York Sun            <yorksun@freescale.com>
-   Simon Glass         <sjg@chromium.org>
-   Sharma Bhupesh      <bhupesh.sharma@freescale.com>
-   Rob Herring         <robherring2@gmail.com>
-   Sergey Temerkhanov  <s.temerkhanov@gmail.com>
+------------
+   * Tom Rini            <trini@ti.com>
+   * Scott Wood          <scottwood@freescale.com>
+   * York Sun            <yorksun@freescale.com>
+   * Simon Glass         <sjg@chromium.org>
+   * Sharma Bhupesh      <bhupesh.sharma@freescale.com>
+   * Rob Herring         <robherring2@gmail.com>
+   * Sergey Temerkhanov  <s.temerkhanov@gmail.com>

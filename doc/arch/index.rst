@@ -6,5 +6,6 @@ Architecture-specific doc
 .. toctree::
    :maxdepth: 2
 
+   arm64
    mips
    x86
