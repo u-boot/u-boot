@@ -17,3 +17,4 @@ Driver Model
    pmic-framework
    remoteproc-framework
    serial-howto
+   spi-howto
