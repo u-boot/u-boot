@@ -6,4 +6,6 @@ Intel
 .. toctree::
    :maxdepth: 2
 
+   bayleybay
    crownbay
+   minnowmax
