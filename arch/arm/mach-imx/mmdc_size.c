@@ -13,13 +13,13 @@ static const unsigned char bank_lookup[] = {3, 2};
 
 /* these MMDC registers are common to the IMX53 and IMX6 */
 struct esd_mmdc_regs {
-	uint32_t	ctl;
-	uint32_t	pdc;
-	uint32_t	otc;
-	uint32_t	cfg0;
-	uint32_t	cfg1;
-	uint32_t	cfg2;
-	uint32_t	misc;
+	u32 ctl;
+	u32 pdc;
+	u32 otc;
+	u32 cfg0;
+	u32 cfg1;
+	u32 cfg2;
+	u32 misc;
 };
 
 #define ESD_MMDC_CTL_GET_ROW(mdctl)	((ctl >> 24) & 7)
@@ -34,11 +34,11 @@ struct esd_mmdc_regs {
  * width and the MMDC MDMISC register holds the number of banks. Combine
  * all these bits to determine the meme size the MMDC has been configured for
  */
-unsigned imx_ddr_size(void)
+unsigned int imx_ddr_size(void)
 {
 	struct esd_mmdc_regs *mem = (struct esd_mmdc_regs *)MEMCTL_BASE;
-	unsigned ctl = readl(&mem->ctl);
-	unsigned misc = readl(&mem->misc);
+	unsigned int ctl = readl(&mem->ctl);
+	unsigned int misc = readl(&mem->misc);
 	int bits = 11 + 0 + 0 + 1;      /* row + col + bank + width */
 
 	bits += ESD_MMDC_CTL_GET_ROW(ctl);
