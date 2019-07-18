@@ -1,3 +1,5 @@
+.. SPDX-License-Identifier: GPL-2.0+
+
 How USB works with driver model
 ===============================
 
@@ -24,25 +26,27 @@ Support for EHCI and XHCI
 So far OHCI is not supported. Both EHCI and XHCI drivers should be declared
 as drivers in the USB uclass. For example:
 
-static const struct udevice_id ehci_usb_ids[] = {
-	{ .compatible = "nvidia,tegra20-ehci", .data = USB_CTLR_T20 },
-	{ .compatible = "nvidia,tegra30-ehci", .data = USB_CTLR_T30 },
-	{ .compatible = "nvidia,tegra114-ehci", .data = USB_CTLR_T114 },
-	{ }
-};
+.. code-block:: c
 
-U_BOOT_DRIVER(usb_ehci) = {
-	.name	= "ehci_tegra",
-	.id	= UCLASS_USB,
-	.of_match = ehci_usb_ids,
-	.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
-	.probe = tegra_ehci_usb_probe,
-	.remove = tegra_ehci_usb_remove,
-	.ops	= &ehci_usb_ops,
-	.platdata_auto_alloc_size = sizeof(struct usb_platdata),
-	.priv_auto_alloc_size = sizeof(struct fdt_usb),
-	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
-};
+	static const struct udevice_id ehci_usb_ids[] = {
+		{ .compatible = "nvidia,tegra20-ehci", .data = USB_CTLR_T20 },
+		{ .compatible = "nvidia,tegra30-ehci", .data = USB_CTLR_T30 },
+		{ .compatible = "nvidia,tegra114-ehci", .data = USB_CTLR_T114 },
+		{ }
+	};
+
+	U_BOOT_DRIVER(usb_ehci) = {
+		.name	= "ehci_tegra",
+		.id	= UCLASS_USB,
+		.of_match = ehci_usb_ids,
+		.ofdata_to_platdata = ehci_usb_ofdata_to_platdata,
+		.probe = tegra_ehci_usb_probe,
+		.remove = tegra_ehci_usb_remove,
+		.ops	= &ehci_usb_ops,
+		.platdata_auto_alloc_size = sizeof(struct usb_platdata),
+		.priv_auto_alloc_size = sizeof(struct fdt_usb),
+		.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+	};
 
 Here ehci_usb_ids is used to list the controllers that the driver supports.
 Each has its own data value. Controllers must be in the UCLASS_USB uclass.
@@ -80,7 +84,7 @@ Data structures
 
 The following primary data structures are in use:
 
-- struct usb_device
+- struct usb_device:
 	This holds information about a device on the bus. All devices have
 	this structure, even the root hub. The controller itself does not
 	have this structure. You can access it for a device 'dev' with
@@ -89,19 +93,19 @@ The following primary data structures are in use:
 	handles that). Once the device is set up, you can find the device
 	descriptor and current configuration descriptor in this structure.
 
-- struct usb_platdata
+- struct usb_platdata:
 	This holds platform data for a controller. So far this is only used
 	as a work-around for controllers which can act as USB devices in OTG
 	mode, since the gadget framework does not use driver model.
 
-- struct usb_dev_platdata
+- struct usb_dev_platdata:
 	This holds platform data for a device. You can access it for a
 	device 'dev' with dev_get_parent_platdata(dev). It holds the device
 	address and speed - anything that can be determined before the device
 	driver is actually set up. When probing the bus this structure is
 	used to provide essential information to the device driver.
 
-- struct usb_bus_priv
+- struct usb_bus_priv:
 	This is private information for each controller, maintained by the
 	controller uclass. It is mostly used to keep track of the next
 	device address to use.
@@ -197,49 +201,49 @@ Device initialisation happens roughly like this:
 - This calls usb_init() which works through each controller in turn
 - The controller is probed(). This does no enumeration.
 - Then usb_scan_bus() is called. This calls usb_scan_device() to scan the
-(only) device that is attached to the controller - a root hub
+  (only) device that is attached to the controller - a root hub
 - usb_scan_device() sets up a fake struct usb_device and calls
-usb_setup_device(), passing the port number to be scanned, in this case port
-0
+  usb_setup_device(), passing the port number to be scanned, in this case
+  port 0
 - usb_setup_device() first calls usb_prepare_device() to set the device
-address, then usb_select_config() to select the first configuration
+  address, then usb_select_config() to select the first configuration
 - at this point the device is enumerated but we do not have a real struct
-udevice for it. But we do have the descriptor in struct usb_device so we can
-use this to figure out what driver to use
+  udevice for it. But we do have the descriptor in struct usb_device so we can
+  use this to figure out what driver to use
 - back in usb_scan_device(), we call usb_find_child() to try to find an
-existing device which matches the one we just found on the bus. This can
-happen if the device is mentioned in the device tree, or if we previously
-scanned the bus and so the device was created before
+  existing device which matches the one we just found on the bus. This can
+  happen if the device is mentioned in the device tree, or if we previously
+  scanned the bus and so the device was created before
 - if usb_find_child() does not find an existing device, we call
-usb_find_and_bind_driver() which tries to bind one
+  usb_find_and_bind_driver() which tries to bind one
 - usb_find_and_bind_driver() searches all available USB drivers (declared
-with USB_DEVICE()). If it finds a match it binds that driver to create a new
-device.
+  with USB_DEVICE()). If it finds a match it binds that driver to create a
+  new device.
 - If it does not, it binds a generic driver. A generic driver is good enough
-to allow access to the device (sending it packets, etc.) but all
-functionality will need to be implemented outside the driver model.
+  to allow access to the device (sending it packets, etc.) but all
+  functionality will need to be implemented outside the driver model.
 - in any case, when usb_find_child() and/or usb_find_and_bind_driver() are
-done, we have a device with the correct uclass. At this point we want to
-probe the device
+  done, we have a device with the correct uclass. At this point we want to
+  probe the device
 - first we store basic information about the new device (address, port,
-speed) in its parent platform data. We cannot store it its private data
-since that will not exist until the device is probed.
+  speed) in its parent platform data. We cannot store it its private data
+  since that will not exist until the device is probed.
 - then we call device_probe() which probes the device
 - the first probe step is actually the USB controller's (or USB hubs's)
-child_pre_probe() method. This gets called before anything else and is
-intended to set up a child device ready to be used with its parent bus. For
-USB this calls usb_child_pre_probe() which grabs the information that was
-stored in the parent platform data and stores it in the parent private data
-(which is struct usb_device, a real one this time). It then calls
-usb_select_config() again to make sure that everything about the device is
-set up
+  child_pre_probe() method. This gets called before anything else and is
+  intended to set up a child device ready to be used with its parent bus. For
+  USB this calls usb_child_pre_probe() which grabs the information that was
+  stored in the parent platform data and stores it in the parent private data
+  (which is struct usb_device, a real one this time). It then calls
+  usb_select_config() again to make sure that everything about the device is
+  set up
 - note that we have called usb_select_config() twice. This is inefficient
-but the alternative is to store additional information in the platform data.
-The time taken is minimal and this way is simpler
+  but the alternative is to store additional information in the platform data.
+  The time taken is minimal and this way is simpler
 - at this point the device is set up and ready for use so far as the USB
-subsystem is concerned
+  subsystem is concerned
 - the device's probe() method is then called. It can send messages and do
-whatever else it wants to make the device work.
+  whatever else it wants to make the device work.
 
 Note that the first device is always a root hub, and this must be scanned to
 find any devices. The above steps will have created a hub (UCLASS_USB_HUB),
@@ -250,25 +254,25 @@ any hub is probed, the uclass gets to do some processing. In this case
 usb_hub_post_probe() is called, and the following steps take place:
 
 - usb_hub_post_probe() calls usb_hub_scan() to scan the hub, which in turn
-calls usb_hub_configure()
+  calls usb_hub_configure()
 - hub power is enabled
 - we loop through each port on the hub, performing the same steps for each
 - first, check if there is a device present. This happens in
-usb_hub_port_connect_change(). If so, then usb_scan_device() is called to
-scan the device, passing the appropriate port number.
+  usb_hub_port_connect_change(). If so, then usb_scan_device() is called to
+  scan the device, passing the appropriate port number.
 - you will recognise usb_scan_device() from the steps above. It sets up the
-device ready for use. If it is a hub, it will scan that hub before it
-continues here (recursively, depth-first)
+  device ready for use. If it is a hub, it will scan that hub before it
+  continues here (recursively, depth-first)
 - once all hub ports are scanned in this way, the hub is ready for use and
-all of its downstream devices also
+  all of its downstream devices also
 - additional controllers are scanned in the same way
 
 The above method has some nice properties:
 
 - the bus enumeration happens by virtue of driver model's natural device flow
 - most logic is in the USB controller and hub uclasses; the actual device
-drivers do not need to know they are on a USB bus, at least so far as
-enumeration goes
+  drivers do not need to know they are on a USB bus, at least so far as
+  enumeration goes
 - hub scanning happens automatically after a hub is probed
 
 
@@ -279,9 +283,9 @@ USB hubs are scanned as in the section above. While hubs have their own
 uclass, they share some common elements with controllers:
 
 - they both attach private data to their children (struct usb_device,
-accessible for a child with dev_get_parent_priv(child))
+  accessible for a child with dev_get_parent_priv(child))
 - they both use usb_child_pre_probe() to set up their children as proper USB
-devices
+  devices
 
 
 Example - Mass Storage
@@ -290,20 +294,22 @@ Example - Mass Storage
 As an example of a USB device driver, see usb_storage.c. It uses its own
 uclass and declares itself as follows:
 
-U_BOOT_DRIVER(usb_mass_storage) = {
-	.name	= "usb_mass_storage",
-	.id	= UCLASS_MASS_STORAGE,
-	.of_match = usb_mass_storage_ids,
-	.probe = usb_mass_storage_probe,
-};
+.. code-block:: c
 
-static const struct usb_device_id mass_storage_id_table[] = {
-    { .match_flags = USB_DEVICE_ID_MATCH_INT_CLASS,
-      .bInterfaceClass = USB_CLASS_MASS_STORAGE},
-    { }						/* Terminating entry */
-};
+	U_BOOT_DRIVER(usb_mass_storage) = {
+		.name	= "usb_mass_storage",
+		.id	= UCLASS_MASS_STORAGE,
+		.of_match = usb_mass_storage_ids,
+		.probe = usb_mass_storage_probe,
+	};
 
-USB_DEVICE(usb_mass_storage, mass_storage_id_table);
+	static const struct usb_device_id mass_storage_id_table[] = {
+		{ .match_flags = USB_DEVICE_ID_MATCH_INT_CLASS,
+		  .bInterfaceClass = USB_CLASS_MASS_STORAGE},
+		{ }	/* Terminating entry */
+	};
+
+	USB_DEVICE(usb_mass_storage, mass_storage_id_table);
 
 The USB_DEVICE() macro attaches the given table of matching information to
 the given driver. Note that the driver is declared in U_BOOT_DRIVER() as
@@ -347,6 +353,8 @@ stack to be tested without real hardware being needed.
 
 Here is an example device tree fragment:
 
+.. code-block:: none
+
 	usb@1 {
 		compatible = "sandbox,usb";
 		hub {
@@ -369,13 +377,13 @@ This defines a single controller, containing a root hub (which is required).
 The hub is emulated by a hub emulator, and the emulated hub has a single
 flash stick to emulate on one of its ports.
 
-When 'usb start' is used, the following 'dm tree' output will be available:
+When 'usb start' is used, the following 'dm tree' output will be available::
 
- usb         [ + ]    `-- usb@1
- usb_hub     [ + ]        `-- hub
- usb_emul    [ + ]            |-- hub-emul
- usb_emul    [ + ]            |   `-- flash-stick
- usb_mass_st [ + ]            `-- usb_mass_storage
+   usb         [ + ]    `-- usb@1
+   usb_hub     [ + ]        `-- hub
+   usb_emul    [ + ]            |-- hub-emul
+   usb_emul    [ + ]            |   `-- flash-stick
+   usb_mass_st [ + ]            `-- usb_mass_storage
 
 
 This may look confusing. Most of it mirrors the device tree, but the
@@ -393,12 +401,12 @@ embedded system. In fact anything other than a root hub is uncommon. Still
 it would be possible to speed up enumeration in two ways:
 
 - breadth-first search would allow devices to be reset and probed in
-parallel to some extent
+  parallel to some extent
 - enumeration could be lazy, in the sense that we could enumerate just the
-root hub at first, then only progress to the next 'level' when a device is
-used that we cannot find. This could be made easier if the devices were
-statically declared in the device tree (which is acceptable for production
-boards where the same, known, things are on each bus).
+  root hub at first, then only progress to the next 'level' when a device is
+  used that we cannot find. This could be made easier if the devices were
+  statically declared in the device tree (which is acceptable for production
+  boards where the same, known, things are on each bus).
 
 But in common cases the current algorithm is sufficient.
 
@@ -410,6 +418,6 @@ Other things that need doing:
 - Implement USB PHYs in driver model
 - Work out a clever way to provide lazy init for USB devices
 
---
-Simon Glass <sjg@chromium.org>
-23-Mar-15
+
+.. Simon Glass <sjg@chromium.org>
+.. 23-Mar-15

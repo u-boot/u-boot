@@ -18,3 +18,4 @@ Driver Model
    remoteproc-framework
    serial-howto
    spi-howto
+   usb-info
