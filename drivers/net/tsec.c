@@ -880,7 +880,7 @@ static const struct eth_ops tsec_ops = {
 };
 
 static const struct udevice_id tsec_ids[] = {
-	{ .compatible = "fsl,tsec" },
+	{ .compatible = "fsl,etsec2" },
 	{ }
 };
 
