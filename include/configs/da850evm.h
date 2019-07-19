@@ -19,14 +19,6 @@
 #endif
 
 /*
-* Disable DM_* for SPL build and can be re-enabled after adding
-* DM support in SPL
-*/
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_I2C
-#undef CONFIG_DM_I2C_COMPAT
-#endif
-/*
  * SoC Configuration
  */
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
