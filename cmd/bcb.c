@@ -83,23 +83,23 @@ err:
 	return -1;
 }
 
-static int bcb_field_get(char *name, char **field, int *size)
+static int bcb_field_get(char *name, char **fieldp, int *sizep)
 {
 	if (!strcmp(name, "command")) {
-		*field = bcb.command;
-		*size = sizeof(bcb.command);
+		*fieldp = bcb.command;
+		*sizep = sizeof(bcb.command);
 	} else if (!strcmp(name, "status")) {
-		*field = bcb.status;
-		*size = sizeof(bcb.status);
+		*fieldp = bcb.status;
+		*sizep = sizeof(bcb.status);
 	} else if (!strcmp(name, "recovery")) {
-		*field = bcb.recovery;
-		*size = sizeof(bcb.recovery);
+		*fieldp = bcb.recovery;
+		*sizep = sizeof(bcb.recovery);
 	} else if (!strcmp(name, "stage")) {
-		*field = bcb.stage;
-		*size = sizeof(bcb.stage);
+		*fieldp = bcb.stage;
+		*sizep = sizeof(bcb.stage);
 	} else if (!strcmp(name, "reserved")) {
-		*field = bcb.reserved;
-		*size = sizeof(bcb.reserved);
+		*fieldp = bcb.reserved;
+		*sizep = sizeof(bcb.reserved);
 	} else {
 		printf("Error: Unknown bcb field '%s'\n", name);
 		return -1;
@@ -108,8 +108,8 @@ static int bcb_field_get(char *name, char **field, int *size)
 	return 0;
 }
 
-static int
-do_bcb_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_bcb_load(cmd_tbl_t *cmdtp, int flag, int argc,
+		       char * const argv[])
 {
 	struct blk_desc *desc;
 	disk_partition_t info;
@@ -119,28 +119,28 @@ do_bcb_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	ret = blk_get_device_by_str("mmc", argv[1], &desc);
 	if (ret < 0)
-		goto err_1;
+		goto err_read_fail;
 
 	part = simple_strtoul(argv[2], &endp, 0);
 	if (*endp == '\0') {
 		ret = part_get_info(desc, part, &info);
 		if (ret)
-			goto err_1;
+			goto err_read_fail;
 	} else {
 		part = part_get_info_by_name(desc, argv[2], &info);
 		if (part < 0) {
 			ret = part;
-			goto err_1;
+			goto err_read_fail;
 		}
 	}
 
 	cnt = DIV_ROUND_UP(sizeof(struct bootloader_message), info.blksz);
 	if (cnt > info.size)
-		goto err_2;
+		goto err_too_small;
 
 	if (blk_dread(desc, info.start, cnt, &bcb) != cnt) {
 		ret = -EIO;
-		goto err_1;
+		goto err_read_fail;
 	}
 
 	bcb_dev = desc->devnum;
@@ -148,10 +148,10 @@ do_bcb_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	debug("%s: Loaded from mmc %d:%d\n", __func__, bcb_dev, bcb_part);
 
 	return CMD_RET_SUCCESS;
-err_1:
+err_read_fail:
 	printf("Error: mmc %s:%s read failed (%d)\n", argv[1], argv[2], ret);
 	goto err;
-err_2:
+err_too_small:
 	printf("Error: mmc %s:%s too small!", argv[1], argv[2]);
 	goto err;
 err:
@@ -304,7 +304,8 @@ static int do_bcb(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		return CMD_RET_USAGE;
 
 	if (bcb_is_misused(argc, argv)) {
-		/* We try to improve the user experience by reporting the
+		/*
+		 * We try to improve the user experience by reporting the
 		 * root-cause of misusage, so don't return CMD_RET_USAGE,
 		 * since the latter prints out the full-blown help text
 		 */
