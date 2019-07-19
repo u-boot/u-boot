@@ -46,9 +46,6 @@ static int bcb_is_misused(int argc, char *const argv[])
 
 	switch (cmd) {
 	case BCB_CMD_LOAD:
-		if (argc != 3)
-			goto err;
-		break;
 	case BCB_CMD_FIELD_SET:
 		if (argc != 3)
 			goto err;
