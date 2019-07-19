@@ -268,6 +268,11 @@ static int do_mdio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		break;
 	}
 
+	if (!bus) {
+		puts("No MDIO bus found\n");
+		return CMD_RET_FAILURE;
+	}
+
 	if (op[0] == 'l') {
 		mdio_list_devices();
 

@@ -824,7 +824,28 @@
 		dma-names = "m2m", "tx0", "rx0";
 	};
 
-	mdio-test {
+	/*
+	 * keep mdio-mux ahead of mdio so that the mux is removed first at the
+	 * end of the test.  If parent mdio is removed first, clean-up of the
+	 * mux will trigger a 2nd probe of parent-mdio, leaving parent-mdio
+	 * active at the end of the test.  That it turn doesn't allow the mdio
+	 * class to be destroyed, triggering an error.
+	 */
+	mdio-mux-test {
+		compatible = "sandbox,mdio-mux";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		mdio-parent-bus = <&mdio>;
+
+		mdio-ch-test@0 {
+			reg = <0>;
+		};
+		mdio-ch-test@1 {
+			reg = <1>;
+		};
+	};
+
+	mdio: mdio-test {
 		compatible = "sandbox,mdio";
 	};
 };

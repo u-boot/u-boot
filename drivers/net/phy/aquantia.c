@@ -461,12 +461,38 @@ struct phy_driver aqr107_driver = {
 	.shutdown = &gen10g_shutdown,
 };
 
+struct phy_driver aqr112_driver = {
+	.name = "Aquantia AQR112",
+	.uid = 0x3a1b660,
+	.mask = 0xfffffff0,
+	.features = PHY_10G_FEATURES,
+	.mmds = (MDIO_MMD_PMAPMD | MDIO_MMD_PCS |
+		 MDIO_MMD_PHYXS | MDIO_MMD_AN |
+		 MDIO_MMD_VEND1),
+	.config = &aquantia_config,
+	.startup = &aquantia_startup,
+	.shutdown = &gen10g_shutdown,
+};
+
 struct phy_driver aqr405_driver = {
 	.name = "Aquantia AQR405",
 	.uid = 0x3a1b4b2,
 	.mask = 0xfffffff0,
 	.features = PHY_10G_FEATURES,
 	.mmds = (MDIO_MMD_PMAPMD | MDIO_MMD_PCS|
+		 MDIO_MMD_PHYXS | MDIO_MMD_AN |
+		 MDIO_MMD_VEND1),
+	.config = &aquantia_config,
+	.startup = &aquantia_startup,
+	.shutdown = &gen10g_shutdown,
+};
+
+struct phy_driver aqr412_driver = {
+	.name = "Aquantia AQR412",
+	.uid = 0x3a1b710,
+	.mask = 0xfffffff0,
+	.features = PHY_10G_FEATURES,
+	.mmds = (MDIO_MMD_PMAPMD | MDIO_MMD_PCS |
 		 MDIO_MMD_PHYXS | MDIO_MMD_AN |
 		 MDIO_MMD_VEND1),
 	.config = &aquantia_config,
@@ -481,7 +507,9 @@ int phy_aquantia_init(void)
 	phy_register(&aqr105_driver);
 	phy_register(&aqr106_driver);
 	phy_register(&aqr107_driver);
+	phy_register(&aqr112_driver);
 	phy_register(&aqr405_driver);
+	phy_register(&aqr412_driver);
 
 	return 0;
 }

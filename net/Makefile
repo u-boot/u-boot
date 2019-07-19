@@ -16,6 +16,7 @@ else
 obj-$(CONFIG_NET)      += eth_legacy.o
 endif
 obj-$(CONFIG_DM_MDIO)  += mdio-uclass.o
+obj-$(CONFIG_DM_MDIO_MUX) += mdio-mux-uclass.o
 obj-$(CONFIG_NET)      += eth_common.o
 obj-$(CONFIG_CMD_LINK_LOCAL) += link_local.o
 obj-$(CONFIG_NET)      += net.o

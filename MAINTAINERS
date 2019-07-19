@@ -616,6 +616,7 @@ M:	Joe Hershberger <joe.hershberger@ni.com>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-net.git
 F:	drivers/net/
+F:	include/net.h
 F:	net/
 
 NIOS

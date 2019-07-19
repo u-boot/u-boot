@@ -24,6 +24,18 @@ config DM_MDIO
 	  This is currently implemented in net/mdio-uclass.c
 	  Look in include/miiphy.h for details.
 
+config DM_MDIO_MUX
+	bool "Enable Driver Model for MDIO MUX devices"
+	depends on DM_MDIO
+	help
+	  Enable driver model for MDIO MUX devices
+
+	  Adds UCLASS_MDIO_MUX DM class supporting MDIO MUXes.  Useful for
+	  systems that support DM_MDIO and integrate one or multiple muxes on
+	  the MDIO bus.
+	  This is currently implemented in net/mdio-mux-uclass.c
+	  Look in include/miiphy.h for details.
+
 config MDIO_SANDBOX
 	depends on DM_MDIO && SANDBOX
 	default y
@@ -33,6 +45,16 @@ config MDIO_SANDBOX
 	  a bus with a single PHY.
 
 	  This driver is used in for testing in test/dm/mdio.c
+
+config MDIO_MUX_SANDBOX
+	depends on DM_MDIO_MUX && MDIO_SANDBOX
+	default y
+	bool "Sandbox: Mocked MDIO-MUX driver"
+	help
+	  This driver implements dummy select/deselect ops mimicking a MUX on
+	  the MDIO bux.  It uses mdio_sandbox driver as parent MDIO.
+
+	  This driver is used for testing in test/dm/mdio.c
 
 menuconfig NETDEVICES
 	bool "Network device support"

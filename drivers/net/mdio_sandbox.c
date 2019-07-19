@@ -9,11 +9,11 @@
 #include <miiphy.h>
 
 #define SANDBOX_PHY_ADDR	5
-#define SANDBOX_PHY_REG		0
+#define SANDBOX_PHY_REG_CNT	2
 
 struct mdio_sandbox_priv {
 	int enabled;
-	u16 reg;
+	u16 reg[SANDBOX_PHY_REG_CNT];
 };
 
 static int mdio_sandbox_read(struct udevice *dev, int addr, int devad, int reg)
@@ -27,10 +27,10 @@ static int mdio_sandbox_read(struct udevice *dev, int addr, int devad, int reg)
 		return -ENODEV;
 	if (devad != MDIO_DEVAD_NONE)
 		return -ENODEV;
-	if (reg != SANDBOX_PHY_REG)
+	if (reg < 0 || reg > SANDBOX_PHY_REG_CNT)
 		return -ENODEV;
 
-	return priv->reg;
+	return priv->reg[reg];
 }
 
 static int mdio_sandbox_write(struct udevice *dev, int addr, int devad, int reg,
@@ -45,10 +45,10 @@ static int mdio_sandbox_write(struct udevice *dev, int addr, int devad, int reg,
 		return -ENODEV;
 	if (devad != MDIO_DEVAD_NONE)
 		return -ENODEV;
-	if (reg != SANDBOX_PHY_REG)
+	if (reg < 0 || reg > SANDBOX_PHY_REG_CNT)
 		return -ENODEV;
 
-	priv->reg = val;
+	priv->reg[reg] = val;
 
 	return 0;
 }
@@ -56,8 +56,10 @@ static int mdio_sandbox_write(struct udevice *dev, int addr, int devad, int reg,
 static int mdio_sandbox_reset(struct udevice *dev)
 {
 	struct mdio_sandbox_priv *priv = dev_get_priv(dev);
+	int i;
 
-	priv->reg = 0;
+	for (i = 0; i < SANDBOX_PHY_REG_CNT; i++)
+		priv->reg[i] = 0;
 
 	return 0;
 }
