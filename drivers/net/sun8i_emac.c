@@ -846,31 +846,44 @@ static const struct eth_ops sun8i_emac_eth_ops = {
 
 static int sun8i_get_ephy_nodes(struct emac_eth_dev *priv)
 {
-	int node, ret;
+	int emac_node, ephy_node, ret, ephy_handle;
+
+	emac_node = fdt_path_offset(gd->fdt_blob,
+				    "/soc/ethernet@1c30000");
+	if (emac_node < 0) {
+		debug("failed to get emac node\n");
+		return emac_node;
+	}
+	ephy_handle = fdtdec_lookup_phandle(gd->fdt_blob,
+					    emac_node, "phy-handle");
 
 	/* look for mdio-mux node for internal PHY node */
-	node = fdt_path_offset(gd->fdt_blob,
-			"/soc/ethernet@1c30000/mdio-mux/mdio@1/ethernet-phy@1");
-	if (node < 0) {
+	ephy_node = fdt_path_offset(gd->fdt_blob,
+				    "/soc/ethernet@1c30000/mdio-mux/mdio@1/ethernet-phy@1");
+	if (ephy_node < 0) {
 		debug("failed to get mdio-mux with internal PHY\n");
-		return node;
+		return ephy_node;
 	}
 
-	ret = fdt_node_check_compatible(gd->fdt_blob, node,
+	/* This is not the phy we are looking for */
+	if (ephy_node != ephy_handle)
+		return 0;
+
+	ret = fdt_node_check_compatible(gd->fdt_blob, ephy_node,
 					"allwinner,sun8i-h3-mdio-internal");
 	if (ret < 0) {
 		debug("failed to find mdio-internal node\n");
 		return ret;
 	}
 
-	ret = clk_get_by_index_nodev(offset_to_ofnode(node), 0,
+	ret = clk_get_by_index_nodev(offset_to_ofnode(ephy_node), 0,
 				     &priv->ephy_clk);
 	if (ret) {
 		dev_err(dev, "failed to get EPHY TX clock\n");
 		return ret;
 	}
 
-	ret = reset_get_by_index_nodev(offset_to_ofnode(node), 0,
+	ret = reset_get_by_index_nodev(offset_to_ofnode(ephy_node), 0,
 				       &priv->ephy_rst);
 	if (ret) {
 		dev_err(dev, "failed to get EPHY TX reset\n");
