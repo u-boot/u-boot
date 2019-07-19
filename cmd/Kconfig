@@ -735,7 +735,7 @@ config CMD_FASTBOOT
 	  Android devices. Fastboot requires either the network stack
 	  enabled or support for acting as a USB device.
 
-	  See doc/README.android-fastboot for more information.
+	  See doc/android/fastboot.txt for more information.
 
 config CMD_FDC
 	bool "fdcboot - Boot from floppy device"
