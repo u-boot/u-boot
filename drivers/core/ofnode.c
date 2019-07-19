@@ -212,7 +212,11 @@ ofnode ofnode_get_parent(ofnode node)
 
 const char *ofnode_get_name(ofnode node)
 {
-	assert(ofnode_valid(node));
+	if (!ofnode_valid(node)) {
+		debug("%s node not valid\n", __func__);
+		return NULL;
+	}
+
 	if (ofnode_is_np(node))
 		return strrchr(node.np->full_name, '/') + 1;
 
