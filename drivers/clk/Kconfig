@@ -98,6 +98,7 @@ config CLK_STM32MP1
 	  Enable the STM32 clock (RCC) driver. Enable support for
 	  manipulating STM32MP1's on-SoC clocks.
 
+source "drivers/clk/analogbits/Kconfig"
 source "drivers/clk/at91/Kconfig"
 source "drivers/clk/exynos/Kconfig"
 source "drivers/clk/imx/Kconfig"

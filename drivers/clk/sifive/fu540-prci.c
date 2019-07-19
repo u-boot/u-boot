@@ -37,9 +37,8 @@
 #include <errno.h>
 
 #include <linux/math64.h>
-#include <dt-bindings/clk/sifive-fu540-prci.h>
-
-#include "analogbits-wrpll-cln28hpc.h"
+#include <linux/clk/analogbits-wrpll-cln28hpc.h>
+#include <dt-bindings/clock/sifive-fu540-prci.h>
 
 /*
  * EXPECTED_CLK_PARENT_COUNT: how many parent clocks this driver expects:
@@ -159,30 +158,32 @@
  * PRCI per-device instance data
  */
 struct __prci_data {
-	void *base;
-	struct clk parent;
+	void *va;
+	struct clk parent_hfclk;
+	struct clk parent_rtcclk;
 };
 
 /**
  * struct __prci_wrpll_data - WRPLL configuration and integration data
  * @c: WRPLL current configuration record
- * @bypass: fn ptr to code to bypass the WRPLL (if applicable; else NULL)
- * @no_bypass: fn ptr to code to not bypass the WRPLL (if applicable; else NULL)
+ * @enable_bypass: fn ptr to code to bypass the WRPLL (if applicable; else NULL)
+ * @disable_bypass: fn ptr to code to not bypass the WRPLL (or NULL)
  * @cfg0_offs: WRPLL CFG0 register offset (in bytes) from the PRCI base address
  *
- * @bypass and @no_bypass are used for WRPLL instances that contain a separate
- * external glitchless clock mux downstream from the PLL.  The WRPLL internal
- * bypass mux is not glitchless.
+ * @enable_bypass and @disable_bypass are used for WRPLL instances
+ * that contain a separate external glitchless clock mux downstream
+ * from the PLL.  The WRPLL internal bypass mux is not glitchless.
  */
 struct __prci_wrpll_data {
-	struct analogbits_wrpll_cfg c;
-	void (*bypass)(struct __prci_data *pd);
-	void (*no_bypass)(struct __prci_data *pd);
+	struct wrpll_cfg c;
+	void (*enable_bypass)(struct __prci_data *pd);
+	void (*disable_bypass)(struct __prci_data *pd);
 	u8 cfg0_offs;
 };
 
 struct __prci_clock;
 
+/* struct __prci_clock_ops - clock operations */
 struct __prci_clock_ops {
 	int (*set_rate)(struct __prci_clock *pc,
 			unsigned long rate,
@@ -198,8 +199,7 @@ struct __prci_clock_ops {
  * struct __prci_clock - describes a clock device managed by PRCI
  * @name: user-readable clock name string - should match the manual
  * @parent_name: parent name for this clock
- * @ops: struct clk_ops for the Linux clock framework to use for control
- * @hw: Linux-private clock data
+ * @ops: struct __prci_clock_ops for control
  * @pwd: WRPLL-specific data, associated with this clock (if not NULL)
  * @pd: PRCI-specific data associated with this clock (if not NULL)
  *
@@ -233,19 +233,19 @@ struct __prci_clock {
  */
 static u32 __prci_readl(struct __prci_data *pd, u32 offs)
 {
-	return readl(pd->base + offs);
+	return readl(pd->va + offs);
 }
 
 static void __prci_writel(u32 v, u32 offs, struct __prci_data *pd)
 {
-	return writel(v, pd->base + offs);
+	writel(v, pd->va + offs);
 }
 
 /* WRPLL-related private functions */
 
 /**
  * __prci_wrpll_unpack() - unpack WRPLL configuration registers into parameters
- * @c: ptr to a struct analogbits_wrpll_cfg record to write config into
+ * @c: ptr to a struct wrpll_cfg record to write config into
  * @r: value read from the PRCI PLL configuration register
  *
  * Given a value @r read from an FU540 PRCI PLL configuration register,
@@ -257,7 +257,7 @@ static void __prci_writel(u32 v, u32 offs, struct __prci_data *pd)
  *
  * Context: Any context.
  */
-static void __prci_wrpll_unpack(struct analogbits_wrpll_cfg *c, u32 r)
+static void __prci_wrpll_unpack(struct wrpll_cfg *c, u32 r)
 {
 	u32 v;
 
@@ -280,15 +280,13 @@ static void __prci_wrpll_unpack(struct analogbits_wrpll_cfg *c, u32 r)
 	c->flags &= (WRPLL_FLAGS_INT_FEEDBACK_MASK |
 		     WRPLL_FLAGS_EXT_FEEDBACK_MASK);
 
-	if (r & PRCI_COREPLLCFG0_FSE_MASK)
-		c->flags |= WRPLL_FLAGS_INT_FEEDBACK_MASK;
-	else
-		c->flags |= WRPLL_FLAGS_EXT_FEEDBACK_MASK;
+	/* external feedback mode not supported */
+	c->flags |= WRPLL_FLAGS_INT_FEEDBACK_MASK;
 }
 
 /**
  * __prci_wrpll_pack() - pack PLL configuration parameters into a register value
- * @c: pointer to a struct analogbits_wrpll_cfg record containing the PLL's cfg
+ * @c: pointer to a struct wrpll_cfg record containing the PLL's cfg
  *
  * Using a set of WRPLL configuration values pointed to by @c,
  * assemble a PRCI PLL configuration register value, and return it to
@@ -301,7 +299,7 @@ static void __prci_wrpll_unpack(struct analogbits_wrpll_cfg *c, u32 r)
  * Returns: a value suitable for writing into a PRCI PLL configuration
  *          register
  */
-static u32 __prci_wrpll_pack(struct analogbits_wrpll_cfg *c)
+static u32 __prci_wrpll_pack(const struct wrpll_cfg *c)
 {
 	u32 r = 0;
 
@@ -309,8 +307,9 @@ static u32 __prci_wrpll_pack(struct analogbits_wrpll_cfg *c)
 	r |= c->divf << PRCI_COREPLLCFG0_DIVF_SHIFT;
 	r |= c->divq << PRCI_COREPLLCFG0_DIVQ_SHIFT;
 	r |= c->range << PRCI_COREPLLCFG0_RANGE_SHIFT;
-	if (c->flags & WRPLL_FLAGS_INT_FEEDBACK_MASK)
-		r |= PRCI_COREPLLCFG0_FSE_MASK;
+
+	/* external feedback mode not supported */
+	r |= PRCI_COREPLLCFG0_FSE_MASK;
 
 	return r;
 }
@@ -349,11 +348,11 @@ static void __prci_wrpll_read_cfg(struct __prci_data *pd,
  */
 static void __prci_wrpll_write_cfg(struct __prci_data *pd,
 				   struct __prci_wrpll_data *pwd,
-				   struct analogbits_wrpll_cfg *c)
+				   struct wrpll_cfg *c)
 {
 	__prci_writel(__prci_wrpll_pack(c), pwd->cfg0_offs, pd);
 
-	memcpy(&pwd->c, c, sizeof(struct analogbits_wrpll_cfg));
+	memcpy(&pwd->c, c, sizeof(*c));
 }
 
 /* Core clock mux control */
@@ -404,7 +403,7 @@ static unsigned long sifive_fu540_prci_wrpll_recalc_rate(
 {
 	struct __prci_wrpll_data *pwd = pc->pwd;
 
-	return analogbits_wrpll_calc_output_rate(&pwd->c, parent_rate);
+	return wrpll_calc_output_rate(&pwd->c, parent_rate);
 }
 
 static unsigned long sifive_fu540_prci_wrpll_round_rate(
@@ -413,13 +412,13 @@ static unsigned long sifive_fu540_prci_wrpll_round_rate(
 						unsigned long *parent_rate)
 {
 	struct __prci_wrpll_data *pwd = pc->pwd;
-	struct analogbits_wrpll_cfg c;
+	struct wrpll_cfg c;
 
 	memcpy(&c, &pwd->c, sizeof(c));
 
-	analogbits_wrpll_configure_for_rate(&c, rate, *parent_rate);
+	wrpll_configure_for_rate(&c, rate, *parent_rate);
 
-	return analogbits_wrpll_calc_output_rate(&c, *parent_rate);
+	return wrpll_calc_output_rate(&c, *parent_rate);
 }
 
 static int sifive_fu540_prci_wrpll_set_rate(struct __prci_clock *pc,
@@ -430,19 +429,19 @@ static int sifive_fu540_prci_wrpll_set_rate(struct __prci_clock *pc,
 	struct __prci_data *pd = pc->pd;
 	int r;
 
-	r = analogbits_wrpll_configure_for_rate(&pwd->c, rate, parent_rate);
+	r = wrpll_configure_for_rate(&pwd->c, rate, parent_rate);
 	if (r)
-		return -ERANGE;
+		return r;
 
-	if (pwd->bypass)
-		pwd->bypass(pd);
+	if (pwd->enable_bypass)
+		pwd->enable_bypass(pd);
 
 	__prci_wrpll_write_cfg(pd, pwd, &pwd->c);
 
-	udelay(analogbits_wrpll_calc_max_lock_us(&pwd->c));
+	udelay(wrpll_calc_max_lock_us(&pwd->c));
 
-	if (pwd->no_bypass)
-		pwd->no_bypass(pd);
+	if (pwd->disable_bypass)
+		pwd->disable_bypass(pd);
 
 	return 0;
 }
@@ -484,8 +483,8 @@ static const struct __prci_clock_ops sifive_fu540_prci_tlclksel_clk_ops = {
 
 static struct __prci_wrpll_data __prci_corepll_data = {
 	.cfg0_offs = PRCI_COREPLLCFG0_OFFSET,
-	.bypass = __prci_coreclksel_use_hfclk,
-	.no_bypass = __prci_coreclksel_use_corepll,
+	.enable_bypass = __prci_coreclksel_use_hfclk,
+	.disable_bypass = __prci_coreclksel_use_corepll,
 };
 
 static struct __prci_wrpll_data __prci_ddrpll_data = {
@@ -526,6 +525,27 @@ static struct __prci_clock __prci_init_clocks[] = {
 	},
 };
 
+static ulong sifive_fu540_prci_parent_rate(struct __prci_clock *pc)
+{
+	ulong parent_rate;
+	struct __prci_clock *p;
+
+	if (strcmp(pc->parent_name, "corepll") == 0) {
+		p = &__prci_init_clocks[PRCI_CLK_COREPLL];
+		if (!p->pd || !p->ops->recalc_rate)
+			return -ENXIO;
+
+		return p->ops->recalc_rate(p, sifive_fu540_prci_parent_rate(p));
+	}
+
+	if (strcmp(pc->parent_name, "rtcclk") == 0)
+		parent_rate = clk_get_rate(&pc->pd->parent_rtcclk);
+	else
+		parent_rate = clk_get_rate(&pc->pd->parent_hfclk);
+
+	return parent_rate;
+}
+
 static ulong sifive_fu540_prci_get_rate(struct clk *clk)
 {
 	struct __prci_clock *pc;
@@ -537,7 +557,7 @@ static ulong sifive_fu540_prci_get_rate(struct clk *clk)
 	if (!pc->pd || !pc->ops->recalc_rate)
 		return -ENXIO;
 
-	return pc->ops->recalc_rate(pc, clk_get_rate(&pc->pd->parent));
+	return pc->ops->recalc_rate(pc, sifive_fu540_prci_parent_rate(pc));
 }
 
 static ulong sifive_fu540_prci_set_rate(struct clk *clk, ulong rate)
@@ -552,7 +572,7 @@ static ulong sifive_fu540_prci_set_rate(struct clk *clk, ulong rate)
 	if (!pc->pd || !pc->ops->set_rate)
 		return -ENXIO;
 
-	err = pc->ops->set_rate(pc, rate, clk_get_rate(&pc->pd->parent));
+	err = pc->ops->set_rate(pc, rate, sifive_fu540_prci_parent_rate(pc));
 	if (err)
 		return err;
 
@@ -565,11 +585,15 @@ static int sifive_fu540_prci_probe(struct udevice *dev)
 	struct __prci_clock *pc;
 	struct __prci_data *pd = dev_get_priv(dev);
 
-	pd->base = (void *)dev_read_addr(dev);
-	if (IS_ERR(pd->base))
-		return PTR_ERR(pd->base);
+	pd->va = (void *)dev_read_addr(dev);
+	if (IS_ERR(pd->va))
+		return PTR_ERR(pd->va);
 
-	err = clk_get_by_index(dev, 0, &pd->parent);
+	err = clk_get_by_index(dev, 0, &pd->parent_hfclk);
+	if (err)
+		return err;
+
+	err = clk_get_by_index(dev, 1, &pd->parent_rtcclk);
 	if (err)
 		return err;
 
@@ -589,8 +613,7 @@ static struct clk_ops sifive_fu540_prci_ops = {
 };
 
 static const struct udevice_id sifive_fu540_prci_ids[] = {
-	{ .compatible = "sifive,fu540-c000-prci0" },
-	{ .compatible = "sifive,aloeprci0" },
+	{ .compatible = "sifive,fu540-c000-prci" },
 	{ }
 };
 

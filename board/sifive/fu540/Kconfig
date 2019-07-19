@@ -28,7 +28,6 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply CMD_PING
 	imply CLK_SIFIVE
 	imply CLK_SIFIVE_FU540_PRCI
-	imply CLK_SIFIVE_GEMGXL_MGMT
 	imply DOS_PARTITION
 	imply EFI_PARTITION
 	imply IP_DYN
@@ -39,6 +38,12 @@ config BOARD_SPECIFIC_OPTIONS # dummy
 	imply PHY_LIB
 	imply PHY_MSCC
 	imply SIFIVE_SERIAL
+	imply SPI
+	imply SPI_SIFIVE
+	imply MMC
+	imply MMC_SPI
+	imply MMC_BROKEN_CD
+	imply CMD_MMC
 	imply SMP
 
 endif
