@@ -24,17 +24,17 @@ static struct bootloader_message bcb = { { 0 } };
 
 static int bcb_cmd_get(char *cmd)
 {
-	if (!strncmp(cmd, "load", sizeof("load")))
+	if (!strcmp(cmd, "load"))
 		return BCB_CMD_LOAD;
-	if (!strncmp(cmd, "set", sizeof("set")))
+	if (!strcmp(cmd, "set"))
 		return BCB_CMD_FIELD_SET;
-	if (!strncmp(cmd, "clear", sizeof("clear")))
+	if (!strcmp(cmd, "clear"))
 		return BCB_CMD_FIELD_CLEAR;
-	if (!strncmp(cmd, "test", sizeof("test")))
+	if (!strcmp(cmd, "test"))
 		return BCB_CMD_FIELD_TEST;
-	if (!strncmp(cmd, "store", sizeof("store")))
+	if (!strcmp(cmd, "store"))
 		return BCB_CMD_STORE;
-	if (!strncmp(cmd, "dump", sizeof("dump")))
+	if (!strcmp(cmd, "dump"))
 		return BCB_CMD_FIELD_DUMP;
 	else
 		return -1;
@@ -85,19 +85,19 @@ err:
 
 static int bcb_field_get(char *name, char **field, int *size)
 {
-	if (!strncmp(name, "command", sizeof("command"))) {
+	if (!strcmp(name, "command")) {
 		*field = bcb.command;
 		*size = sizeof(bcb.command);
-	} else if (!strncmp(name, "status", sizeof("status"))) {
+	} else if (!strcmp(name, "status")) {
 		*field = bcb.status;
 		*size = sizeof(bcb.status);
-	} else if (!strncmp(name, "recovery", sizeof("recovery"))) {
+	} else if (!strcmp(name, "recovery")) {
 		*field = bcb.recovery;
 		*size = sizeof(bcb.recovery);
-	} else if (!strncmp(name, "stage", sizeof("stage"))) {
+	} else if (!strcmp(name, "stage")) {
 		*field = bcb.stage;
 		*size = sizeof(bcb.stage);
-	} else if (!strncmp(name, "reserved", sizeof("reserved"))) {
+	} else if (!strcmp(name, "reserved")) {
 		*field = bcb.reserved;
 		*size = sizeof(bcb.reserved);
 	} else {
