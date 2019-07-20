@@ -2886,6 +2886,31 @@ class TestFunctional(unittest.TestCase):
             else:
                 start += dtb._fdt_obj.totalsize()
 
+    def testFdtmapHeaderMiddle(self):
+        """Test an FDT map in the middle of an image when it should be at end"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileRealDtb('135_fdtmap_hdr_middle.dts')
+        self.assertIn("Invalid sibling order 'middle' for image-header: Must be at 'end' to match location",
+                      str(e.exception))
+
+    def testFdtmapHeaderStartBad(self):
+        """Test an FDT map in middle of an image when it should be at start"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileRealDtb('136_fdtmap_hdr_startbad.dts')
+        self.assertIn("Invalid sibling order 'end' for image-header: Must be at 'start' to match location",
+                      str(e.exception))
+
+    def testFdtmapHeaderEndBad(self):
+        """Test an FDT map at the start of an image when it should be at end"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileRealDtb('137_fdtmap_hdr_endbad.dts')
+        self.assertIn("Invalid sibling order 'start' for image-header: Must be at 'end' to match location",
+                      str(e.exception))
+
+    def testFdtmapHeaderNoSize(self):
+        """Test an image header at the end of an image with undefined size"""
+        self._DoReadFileRealDtb('138_fdtmap_hdr_nosize.dts')
+
 
 if __name__ == "__main__":
     unittest.main()

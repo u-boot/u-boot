@@ -479,3 +479,12 @@ class Entry_section(Entry):
         if not self.section:
             return self
         return self.section.GetImage()
+
+    def GetSort(self):
+        """Check if the entries in this section will be sorted
+
+        Returns:
+            True if to be sorted, False if entries will be left in the order
+                they appear in the device tree
+        """
+        return self._sort

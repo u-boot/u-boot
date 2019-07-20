@@ -745,3 +745,18 @@ features to produce new behaviours.
         ok = self.ProcessContentsUpdate(data)
         self.Detail('WriteData: size=%x, ok=%s' % (len(data), ok))
         return ok
+
+    def GetSiblingOrder(self):
+        """Get the relative order of an entry amoung its siblings
+
+        Returns:
+            'start' if this entry is first among siblings, 'end' if last,
+                otherwise None
+        """
+        entries = list(self.section.GetEntries().values())
+        if entries:
+            if self == entries[0]:
+                return 'start'
+            elif self == entries[-1]:
+                return 'end'
+        return 'middle'
