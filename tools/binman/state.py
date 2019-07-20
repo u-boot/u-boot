@@ -11,9 +11,15 @@ import re
 import os
 import tools
 
-# Records the device-tree files known to binman, keyed by filename (e.g.
-# 'u-boot-spl.dtb')
-fdt_files = {}
+# Records the device-tree files known to binman, keyed by entry type (e.g.
+# 'u-boot-spl-dtb'). These are the output FDT files, which can be updated by
+# binman. They have been copied to <xxx>.out files.
+#
+#   key: entry type
+#   value: tuple:
+#       Fdt object
+#       Filename
+output_fdt_files = {}
 
 # Arguments passed to binman to provide arguments to entries
 entry_args = {}
@@ -36,36 +42,36 @@ main_dtb = None
 # Entry.ProcessContentsUpdate()
 allow_entry_expansion = True
 
-def GetFdtForEtype(fname):
-    """Get the Fdt object for a particular device-tree filename
+def GetFdtForEtype(etype):
+    """Get the Fdt object for a particular device-tree entry
 
     Binman keeps track of at least one device-tree file called u-boot.dtb but
     can also have others (e.g. for SPL). This function looks up the given
-    filename and returns the associated Fdt object.
+    entry and returns the associated Fdt object.
 
     Args:
-        fname: Filename to look up (e.g. 'u-boot.dtb').
+        etype: Entry type of device tree (e.g. 'u-boot-dtb')
 
     Returns:
-        Fdt object associated with the filename
+        Fdt object associated with the entry type
     """
-    return fdt_files[fname]
+    return output_fdt_files[etype][0]
 
-def GetFdtPath(fname):
+def GetFdtPath(etype):
     """Get the full pathname of a particular Fdt object
 
     Similar to GetFdtForEtype() but returns the pathname associated with the
     Fdt.
 
     Args:
-        fname: Filename to look up (e.g. 'u-boot.dtb').
+        etype: Entry type of device tree (e.g. 'u-boot-dtb')
 
     Returns:
         Full path name to the associated Fdt
     """
-    return fdt_files[fname]._fname
+    return output_fdt_files[etype][0]._fname
 
-def GetFdtContents(fname='u-boot.dtb'):
+def GetFdtContents(etype='u-boot-dtb'):
     """Looks up the FDT pathname and contents
 
     This is used to obtain the Fdt pathname and contents when needed by an
@@ -73,17 +79,18 @@ def GetFdtContents(fname='u-boot.dtb'):
     the real dtb.
 
     Args:
-        fname: Filename to look up (e.g. 'u-boot.dtb').
+        etype: Entry type to look up (e.g. 'u-boot.dtb').
 
     Returns:
         tuple:
             pathname to Fdt
             Fdt data (as bytes)
     """
-    if fname in fdt_files and not use_fake_dtb:
-        pathname = GetFdtPath(fname)
-        data = GetFdtForEtype(fname).GetContents()
+    if etype in output_fdt_files and not use_fake_dtb:
+        pathname = GetFdtPath(etype)
+        data = GetFdtForEtype(etype).GetContents()
     else:
+        fname = output_fdt_files[etype][1]
         pathname = tools.GetInputFilename(fname)
         data = tools.ReadFile(pathname)
     return pathname, data
@@ -128,7 +135,7 @@ def Prepare(images, dtb):
         images: List of images being used
         dtb: Main dtb
     """
-    global fdt_set, fdt_subset, fdt_files, main_dtb
+    global fdt_set, fdt_subset, output_fdt_files, main_dtb
     # Import these here in case libfdt.py is not available, in which case
     # the above help option still works.
     import fdt
@@ -139,8 +146,10 @@ def Prepare(images, dtb):
     # since it is assumed to be the one passed in with options.dt, and
     # was handled just above.
     main_dtb = dtb
-    fdt_files.clear()
-    fdt_files['u-boot.dtb'] = dtb
+    output_fdt_files.clear()
+    output_fdt_files['u-boot-dtb'] = [dtb, 'u-boot.dtb']
+    output_fdt_files['u-boot-spl-dtb'] = [dtb, 'spl/u-boot-spl.dtb']
+    output_fdt_files['u-boot-tpl-dtb'] = [dtb, 'tpl/u-boot-tpl.dtb']
     fdt_subset = {}
     if not use_fake_dtb:
         for image in images.values():
@@ -155,7 +164,7 @@ def Prepare(images, dtb):
                     os.path.split(other_fname)[1])
             tools.WriteFile(out_fname, tools.ReadFile(other_fname_dtb))
             other_dtb = fdt.FdtScan(out_fname)
-            fdt_files[other_fname] = other_dtb
+            output_fdt_files[etype] = [other_dtb, other_fname]
 
 def GetAllFdts():
     """Yield all device tree files being used by binman
@@ -164,8 +173,8 @@ def GetAllFdts():
         Device trees being used (U-Boot proper, SPL, TPL)
     """
     yield main_dtb
-    for etype, other_fname in fdt_subset.values():
-        yield fdt_files[other_fname]
+    for etype in fdt_subset:
+        yield output_fdt_files[etype][0]
 
 def GetUpdateNodes(node):
     """Yield all the nodes that need to be updated in all device trees
@@ -182,7 +191,7 @@ def GetUpdateNodes(node):
             is node, SPL and TPL)
     """
     yield node
-    for dtb in fdt_files.values():
+    for dtb, fname in output_fdt_files.values():
         if dtb != node.GetFdt():
             other_node = dtb.GetNode(node.path)
             if other_node:
