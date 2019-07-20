@@ -93,31 +93,36 @@ class Entry_fdtmap(Entry):
                 with fsw.add_node(subnode.name):
                     _AddNode(subnode)
 
-        # Get the FDT data into an Fdt object
-        data = state.GetFdtContents()[1]
-        infdt = Fdt.FromData(data)
-        infdt.Scan()
+        outfdt = self.GetImage().fdtmap_dtb
+        # If we have an fdtmap it means that we are using this as the
+        # read-only fdtmap for this image.
+        if not outfdt:
+            # Get the FDT data into an Fdt object
+            data = state.GetFdtContents()[1]
+            infdt = Fdt.FromData(data)
+            infdt.Scan()
 
-        # Find the node for the image containing the Fdt-map entry
-        path = self.section.GetPath()
-        self.Detail("Fdtmap: Using section '%s' (path '%s')" %
-                    (self.section.name, path))
-        node = infdt.GetNode(path)
-        if not node:
-            self.Raise("Internal error: Cannot locate node for path '%s'" %
-                       path)
+            # Find the node for the image containing the Fdt-map entry
+            path = self.section.GetPath()
+            self.Detail("Fdtmap: Using section '%s' (path '%s')" %
+                        (self.section.name, path))
+            node = infdt.GetNode(path)
+            if not node:
+                self.Raise("Internal error: Cannot locate node for path '%s'" %
+                           path)
 
-        # Build a new tree with all nodes and properties starting from that node
-        fsw = libfdt.FdtSw()
-        fsw.finish_reservemap()
-        with fsw.add_node(''):
-            fsw.property_string('image-node', node.name)
-            _AddNode(node)
-        fdt = fsw.as_fdt()
+            # Build a new tree with all nodes and properties starting from that
+            # node
+            fsw = libfdt.FdtSw()
+            fsw.finish_reservemap()
+            with fsw.add_node(''):
+                fsw.property_string('image-node', node.name)
+                _AddNode(node)
+            fdt = fsw.as_fdt()
 
-        # Pack this new FDT and return its contents
-        fdt.pack()
-        outfdt = Fdt.FromData(fdt.as_bytearray())
+            # Pack this new FDT and return its contents
+            fdt.pack()
+            outfdt = Fdt.FromData(fdt.as_bytearray())
         data = FDTMAP_MAGIC + tools.GetBytes(0, 8) + outfdt.GetContents()
         return data
 
