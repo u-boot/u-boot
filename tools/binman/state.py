@@ -22,11 +22,8 @@ entry_args = {}
 # ftest.py)
 use_fake_dtb = False
 
-# Set of all device tree files references by images
-fdt_set = set()
-
-# Same as above, but excluding the main one
-fdt_subset = set()
+# Dict of device trees, keyed by filename, but excluding the main one
+fdt_subset = {}
 
 # The DTB which contains the full image information
 main_dtb = None
@@ -140,11 +137,12 @@ def Prepare(images, dtb):
     main_dtb = dtb
     fdt_files.clear()
     fdt_files['u-boot.dtb'] = dtb
-    fdt_subset = set()
+    fdt_subset = {}
     if not use_fake_dtb:
         for image in images.values():
-            fdt_subset.update(image.GetFdtSet())
-        fdt_subset.discard('u-boot.dtb')
+            fdt_subset.update(image.GetFdts())
+        if 'u-boot.dtb' in fdt_subset:
+            del fdt_subset['u-boot.dtb']
         for other_fname in fdt_subset:
             infile = tools.GetInputFilename(other_fname)
             other_fname_dtb = fdt_util.EnsureCompiled(infile)

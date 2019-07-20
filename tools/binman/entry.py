@@ -185,14 +185,16 @@ class Entry(object):
     def GetDefaultFilename(self):
         return None
 
-    def GetFdtSet(self):
-        """Get the set of device trees used by this entry
+    def GetFdts(self):
+        """Get the device trees used by this entry
 
         Returns:
-            Set containing the filename from this entry, if it is a .dtb, else
-            an empty set
+            Empty dict, if this entry is not a .dtb, otherwise:
+            Dict:
+                key: Filename from this entry (without the path)
+                value: Fdt object for this dtb, or None if not available
         """
-        return set()
+        return {}
 
     def ExpandEntries(self):
         pass

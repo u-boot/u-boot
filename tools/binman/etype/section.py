@@ -95,11 +95,11 @@ class Entry_section(Entry):
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
 
-    def GetFdtSet(self):
-        fdt_set = set()
+    def GetFdts(self):
+        fdts = {}
         for entry in self._entries.values():
-            fdt_set.update(entry.GetFdtSet())
-        return fdt_set
+            fdts.update(entry.GetFdts())
+        return fdts
 
     def ProcessFdt(self, fdt):
         """Allow entries to adjust the device tree
