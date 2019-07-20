@@ -574,6 +574,8 @@ class Fdt:
         parts = path.split('/')
         if len(parts) < 2:
             return None
+        if len(parts) == 2 and parts[1] == '':
+            return node
         for part in parts[1:]:
             node = node.FindNode(part)
             if not node:

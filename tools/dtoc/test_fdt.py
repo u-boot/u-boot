@@ -77,10 +77,15 @@ class TestFdt(unittest.TestCase):
         """Test the GetNode() method"""
         node = self.dtb.GetNode('/spl-test')
         self.assertTrue(isinstance(node, fdt.Node))
+
         node = self.dtb.GetNode('/i2c@0/pmic@9')
         self.assertTrue(isinstance(node, fdt.Node))
         self.assertEqual('pmic@9', node.name)
         self.assertIsNone(self.dtb.GetNode('/i2c@0/pmic@9/missing'))
+
+        node = self.dtb.GetNode('/')
+        self.assertTrue(isinstance(node, fdt.Node))
+        self.assertEqual(0, node.Offset())
 
     def testFlush(self):
         """Check that we can flush the device tree out to its file"""
