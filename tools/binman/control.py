@@ -333,7 +333,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
             break
         image.ResetForPack()
     if not sizes_ok:
-        image.Raise('Entries expanded after packing (tried %s passes)' %
+        image.Raise('Entries changed size after packing (tried %s passes)' %
                     passes)
 
     image.WriteSymbols()

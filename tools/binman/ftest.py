@@ -2143,7 +2143,7 @@ class TestFunctional(unittest.TestCase):
         """Test expanding an entry after it is packed, twice"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('122_entry_expand_twice.dts')
-        self.assertIn("Image '/binman': Entries expanded after packing",
+        self.assertIn("Image '/binman': Entries changed size after packing",
                       str(e.exception))
 
     def testEntryExpandSection(self):
@@ -2951,6 +2951,29 @@ class TestFunctional(unittest.TestCase):
             self._RunReplaceCmd('u-boot', expected)
         self.assertIn('Entry data size does not match, but allow-repack is not present for this image',
                       str(e.exception))
+
+    def testEntryShrink(self):
+        """Test contracting an entry after it is packed"""
+        try:
+            state.SetAllowEntryContraction(True)
+            data = self._DoReadFileDtb('140_entry_shrink.dts',
+                                       update_dtb=True)[0]
+        finally:
+            state.SetAllowEntryContraction(False)
+        self.assertEqual(b'a', data[:1])
+        self.assertEqual(U_BOOT_DATA, data[1:1 + len(U_BOOT_DATA)])
+        self.assertEqual(b'a', data[-1:])
+
+    def testEntryShrinkFail(self):
+        """Test not being allowed to contract an entry after it is packed"""
+        data = self._DoReadFileDtb('140_entry_shrink.dts', update_dtb=True)[0]
+
+        # In this case there is a spare byte at the end of the data. The size of
+        # the contents is only 1 byte but we still have the size before it
+        # shrunk.
+        self.assertEqual(b'a\0', data[:2])
+        self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
+        self.assertEqual(b'a\0', data[-2:])
 
 
 if __name__ == "__main__":

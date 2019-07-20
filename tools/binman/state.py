@@ -42,6 +42,14 @@ main_dtb = None
 # Entry.ProcessContentsUpdate()
 allow_entry_expansion = True
 
+# Don't allow entries to contract after they have been packed. Instead just
+# leave some wasted space. If allowed, this is detected and forces a re-pack,
+# but may result in entries that oscillate in size, thus causing a pack error.
+# An example is a compressed device tree where the original offset values
+# result in a larger compressed size than the new ones, but then after updating
+# to the new ones, the compressed size increases, etc.
+allow_entry_contraction = False
+
 def GetFdtForEtype(etype):
     """Get the Fdt object for a particular device-tree entry
 
@@ -346,3 +354,22 @@ def AllowEntryExpansion():
             raised
     """
     return allow_entry_expansion
+
+def SetAllowEntryContraction(allow):
+    """Set whether post-pack contraction of entries is allowed
+
+    Args:
+       allow: True to allow contraction, False to raise an exception
+    """
+    global allow_entry_contraction
+
+    allow_entry_contraction = allow
+
+def AllowEntryContraction():
+    """Check whether post-pack contraction of entries is allowed
+
+    Returns:
+        True if contraction should be allowed, False if an exception should be
+            raised
+    """
+    return allow_entry_contraction

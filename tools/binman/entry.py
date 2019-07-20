@@ -285,16 +285,26 @@ class Entry(object):
         """
         size_ok = True
         new_size = len(data)
-        if state.AllowEntryExpansion():
+        if state.AllowEntryExpansion() and new_size > self.contents_size:
+            # self.data will indicate the new size needed
+            size_ok = False
+        elif state.AllowEntryContraction() and new_size < self.contents_size:
+            size_ok = False
+
+        # If not allowed to change, try to deal with it or give up
+        if size_ok:
             if new_size > self.contents_size:
-                tout.Debug("Entry '%s' size change from %s to %s" % (
-                    self._node.path, ToHex(self.contents_size),
-                    ToHex(new_size)))
-                # self.data will indicate the new size needed
-                size_ok = False
-        elif new_size != self.contents_size:
-            self.Raise('Cannot update entry size from %d to %d' %
-                       (self.contents_size, new_size))
+                self.Raise('Cannot update entry size from %d to %d' %
+                        (self.contents_size, new_size))
+
+            # Don't let the data shrink. Pad it if necessary
+            if size_ok and new_size < self.contents_size:
+                data += tools.GetBytes(0, self.contents_size - new_size)
+
+        if not size_ok:
+            tout.Debug("Entry '%s' size change from %s to %s" % (
+                self._node.path, ToHex(self.contents_size),
+                ToHex(new_size)))
         self.SetContents(data)
         return size_ok
 
