@@ -231,7 +231,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
             image.AddMissingProperties()
         image.ProcessFdt(dtb)
 
-    for dtb_item in state.GetFdts():
+    for dtb_item in state.GetAllFdts():
         dtb_item.Sync(auto_resize=True)
         dtb_item.Pack()
         dtb_item.Flush()
@@ -278,7 +278,7 @@ def ProcessImage(image, update_fdt, write_map):
         image.SetImagePos()
         if update_fdt:
             image.SetCalculatedProperties()
-            for dtb_item in state.GetFdts():
+            for dtb_item in state.GetAllFdts():
                 dtb_item.Sync()
         sizes_ok = image.ProcessEntryContents()
         if sizes_ok:
@@ -355,7 +355,7 @@ def Binman(args):
                 ProcessImage(image, args.update_fdt, args.map)
 
             # Write the updated FDTs to our output files
-            for dtb_item in state.GetFdts():
+            for dtb_item in state.GetAllFdts():
                 tools.WriteFile(dtb_item._fname, dtb_item.GetContents())
 
         finally:

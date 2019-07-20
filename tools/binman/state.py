@@ -117,8 +117,8 @@ def GetEntryArg(name):
 def Prepare(images, dtb):
     """Get device tree files ready for use
 
-    This sets up a set of device tree files that can be retrieved by GetFdts().
-    At present there is only one, that for U-Boot proper.
+    This sets up a set of device tree files that can be retrieved by
+    GetAllFdts(). This includes U-Boot proper and any SPL device trees.
 
     Args:
         images: List of images being used
@@ -152,7 +152,7 @@ def Prepare(images, dtb):
             other_dtb = fdt.FdtScan(out_fname)
             fdt_files[other_fname] = other_dtb
 
-def GetFdts():
+def GetAllFdts():
     """Yield all device tree files being used by binman
 
     Yields:
