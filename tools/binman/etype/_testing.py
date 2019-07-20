@@ -42,6 +42,9 @@ class Entry__testing(Entry):
     """
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)
+
+    def ReadNode(self):
+        Entry.ReadNode(self)
         self.return_invalid_entry = fdt_util.GetBool(self._node,
                                                      'return-invalid-entry')
         self.return_unknown_contents = fdt_util.GetBool(self._node,

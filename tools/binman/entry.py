@@ -70,7 +70,7 @@ class Entry(object):
         orig_offset: Original offset value read from node
         orig_size: Original size value read from node
     """
-    def __init__(self, section, etype, node, read_node=True, name_prefix=''):
+    def __init__(self, section, etype, node, name_prefix=''):
         self.section = section
         self.etype = etype
         self._node = node
@@ -89,8 +89,6 @@ class Entry(object):
         self.image_pos = None
         self._expand_size = False
         self.compress = 'none'
-        if read_node:
-            self.ReadNode()
 
     @staticmethod
     def Lookup(node_path, etype):
@@ -154,6 +152,8 @@ class Entry(object):
 
     def ReadNode(self):
         """Read entry information from the node
+
+        This must be called as the first thing after the Entry is created.
 
         This reads all the fields we recognise from the node, ready for use.
         """

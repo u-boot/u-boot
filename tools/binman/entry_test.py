@@ -57,7 +57,7 @@ class TestEntry(unittest.TestCase):
     def testEntryContents(self):
         """Test the Entry bass class"""
         import entry
-        base_entry = entry.Entry(None, None, None, read_node=False)
+        base_entry = entry.Entry(None, None, None)
         self.assertEqual(True, base_entry.ObtainContents())
 
     def testUnknownEntry(self):
@@ -73,15 +73,15 @@ class TestEntry(unittest.TestCase):
         """Test Entry.GetUniqueName"""
         Node = collections.namedtuple('Node', ['name', 'parent'])
         base_node = Node('root', None)
-        base_entry = entry.Entry(None, None, base_node, read_node=False)
+        base_entry = entry.Entry(None, None, base_node)
         self.assertEqual('root', base_entry.GetUniqueName())
         sub_node = Node('subnode', base_node)
-        sub_entry = entry.Entry(None, None, sub_node, read_node=False)
+        sub_entry = entry.Entry(None, None, sub_node)
         self.assertEqual('root.subnode', sub_entry.GetUniqueName())
 
     def testGetDefaultFilename(self):
         """Trivial test for this base class function"""
-        base_entry = entry.Entry(None, None, None, read_node=False)
+        base_entry = entry.Entry(None, None, None)
         self.assertIsNone(base_entry.GetDefaultFilename())
 
     def testBlobFdt(self):

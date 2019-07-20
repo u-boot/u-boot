@@ -50,9 +50,13 @@ class Image(section.Entry_section):
         self.fdtmap_dtb = None
         self.fdtmap_data = None
         if not test:
-            filename = fdt_util.GetString(self._node, 'filename')
-            if filename:
-                self._filename = filename
+            self.ReadNode()
+
+    def ReadNode(self):
+        section.Entry_section.ReadNode(self)
+        filename = fdt_util.GetString(self._node, 'filename')
+        if filename:
+            self._filename = filename
 
     @classmethod
     def FromFile(cls, fname):

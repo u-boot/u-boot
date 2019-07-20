@@ -52,22 +52,10 @@ class Entry_section(Entry):
         self._sort = False
         self._skip_at_start = None
         self._end_4gb = False
-        if not test:
-            self._ReadNode()
-            self._ReadEntries()
 
-    def _Raise(self, msg):
-        """Raises an error for this section
-
-        Args:
-            msg: Error message to use in the raise string
-        Raises:
-            ValueError()
-        """
-        raise ValueError("Section '%s': %s" % (self._node.path, msg))
-
-    def _ReadNode(self):
+    def ReadNode(self):
         """Read properties from the image node"""
+        Entry.ReadNode(self)
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._sort = fdt_util.GetBool(self._node, 'sort-by-offset')
         self._end_4gb = fdt_util.GetBool(self._node, 'end-at-4gb')
@@ -87,13 +75,26 @@ class Entry_section(Entry):
         if filename:
             self._filename = filename
 
+        self._ReadEntries()
+
     def _ReadEntries(self):
         for node in self._node.subnodes:
             if node.name == 'hash':
                 continue
             entry = Entry.Create(self, node)
+            entry.ReadNode()
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
+
+    def _Raise(self, msg):
+        """Raises an error for this section
+
+        Args:
+            msg: Error message to use in the raise string
+        Raises:
+            ValueError()
+        """
+        raise ValueError("Section '%s': %s" % (self._node.path, msg))
 
     def GetFdts(self):
         fdts = {}

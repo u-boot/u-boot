@@ -203,6 +203,7 @@ class Entry_cbfs(Entry):
         """Read the subnodes to find out what should go in this IFWI"""
         for node in self._node.subnodes:
             entry = Entry.Create(self.section, node)
+            entry.ReadNode()
             entry._cbfs_name = fdt_util.GetString(node, 'cbfs-name', entry.name)
             entry._type = fdt_util.GetString(node, 'cbfs-type')
             compress = fdt_util.GetString(node, 'cbfs-compress', 'none')
