@@ -97,12 +97,13 @@ class Image(section.Entry_section):
         fdt_data = fdtmap_data[fdtmap.FDTMAP_HDR_LEN:]
         out_fname = tools.GetOutputFilename('fdtmap.in.dtb')
         tools.WriteFile(out_fname, fdt_data)
-        dtb = fdt.Fdt.FromData(fdt_data, out_fname)
+        dtb = fdt.Fdt(out_fname)
         dtb.Scan()
 
         # Return an Image with the associated nodes
         root = dtb.GetRoot()
         image = Image('image', root, copy_to_orig=False)
+
         image.image_node = fdt_util.GetString(root, 'image-node', 'image')
         image.fdtmap_dtb = dtb
         image.fdtmap_data = fdtmap_data

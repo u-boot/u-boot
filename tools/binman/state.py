@@ -249,6 +249,7 @@ def GetUpdateNodes(node, for_repack=False):
             if for_repack and entry.etype != 'u-boot-dtb':
                 continue
             other_node = dtb.GetNode(fdt_path_prefix + node.path)
+            #print('   try', fdt_path_prefix + node.path, other_node)
             if other_node:
                 yield other_node
 
@@ -300,7 +301,7 @@ def SetInt(node, prop, value, for_repack=False):
     """
     for n in GetUpdateNodes(node, for_repack):
         tout.Detail("File %s: Update node '%s' prop '%s' to %#x" %
-                    (node.GetFdt().name, node.path, prop, value))
+                    (n.GetFdt().name, n.path, prop, value))
         n.SetInt(prop, value)
 
 def CheckAddHashProp(node):

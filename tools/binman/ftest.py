@@ -2724,7 +2724,8 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(len(U_BOOT_DATA), entry.contents_size)
         self.assertEqual(len(U_BOOT_DATA), entry.size)
 
-    def _RunReplaceCmd(self, entry_name, data, decomp=True):
+    def _RunReplaceCmd(self, entry_name, data, decomp=True, allow_resize=True,
+                       dts='132_replace.dts'):
         """Replace an entry in an image
 
         This writes the entry data to update it, then opens the updated file and
@@ -2735,13 +2736,16 @@ class TestFunctional(unittest.TestCase):
             data: Data to replace it with
             decomp: True to compress the data if needed, False if data is
                 already compressed so should be used as is
+            allow_resize: True to allow entries to change size, False to raise
+                an exception
 
         Returns:
             Tuple:
                 data from entry
                 data from fdtmap (excluding header)
+                Image object that was modified
         """
-        dtb_data = self._DoReadFileDtb('132_replace.dts', use_real_dtb=True,
+        dtb_data = self._DoReadFileDtb(dts, use_real_dtb=True,
                                        update_dtb=True)[1]
 
         self.assertIn('image', control.images)
@@ -2753,21 +2757,24 @@ class TestFunctional(unittest.TestCase):
         image_fname = tools.GetOutputFilename('image.bin')
         updated_fname = tools.GetOutputFilename('image-updated.bin')
         tools.WriteFile(updated_fname, tools.ReadFile(image_fname))
-        control.WriteEntry(updated_fname, entry_name, data, decomp)
+        image = control.WriteEntry(updated_fname, entry_name, data, decomp,
+                                   allow_resize)
         data = control.ReadEntry(updated_fname, entry_name, decomp)
 
-        # The DT data should not change
-        new_dtb_data = entries['u-boot-dtb'].data
-        self.assertEqual(new_dtb_data, orig_dtb_data)
-        new_fdtmap_data = entries['fdtmap'].data
-        self.assertEqual(new_fdtmap_data, orig_fdtmap_data)
+        # The DT data should not change unless resized:
+        if not allow_resize:
+            new_dtb_data = entries['u-boot-dtb'].data
+            self.assertEqual(new_dtb_data, orig_dtb_data)
+            new_fdtmap_data = entries['fdtmap'].data
+            self.assertEqual(new_fdtmap_data, orig_fdtmap_data)
 
-        return data, orig_fdtmap_data[fdtmap.FDTMAP_HDR_LEN:]
+        return data, orig_fdtmap_data[fdtmap.FDTMAP_HDR_LEN:], image
 
     def testReplaceSimple(self):
         """Test replacing a single file"""
         expected = b'x' * len(U_BOOT_DATA)
-        data, expected_fdtmap = self._RunReplaceCmd('u-boot', expected)
+        data, expected_fdtmap, _ = self._RunReplaceCmd('u-boot', expected,
+                                                    allow_resize=False)
         self.assertEqual(expected, data)
 
         # Test that the state looks right. There should be an FDT for the fdtmap
@@ -2775,7 +2782,7 @@ class TestFunctional(unittest.TestCase):
         # 'control' tables. Checking for an FDT that does not exist should
         # return None.
         path, fdtmap = state.GetFdtContents('fdtmap')
-        self.assertIsNone(path)
+        self.assertIsNotNone(path)
         self.assertEqual(expected_fdtmap, fdtmap)
 
         dtb = state.GetFdtForEtype('fdtmap')
@@ -2794,7 +2801,8 @@ class TestFunctional(unittest.TestCase):
         """Test replacing a file by something larger"""
         expected = U_BOOT_DATA + b'x'
         with self.assertRaises(ValueError) as e:
-            self._RunReplaceCmd('u-boot', expected)
+            self._RunReplaceCmd('u-boot', expected, allow_resize=False,
+                                dts='139_replace_repack.dts')
         self.assertIn("Node '/u-boot': Entry data size does not match, but resize is disabled",
                       str(e.exception))
 
@@ -2806,7 +2814,8 @@ class TestFunctional(unittest.TestCase):
         updated_fname = tools.GetOutputFilename('image-updated.bin')
         tools.WriteFile(updated_fname, data)
         entry_name = 'u-boot'
-        control.WriteEntry(updated_fname, entry_name, expected)
+        control.WriteEntry(updated_fname, entry_name, expected,
+                           allow_resize=False)
         data = control.ReadEntry(updated_fname, entry_name)
         self.assertEqual(expected, data)
 
@@ -2818,7 +2827,8 @@ class TestFunctional(unittest.TestCase):
         updated_fname = tools.GetOutputFilename('first-updated.bin')
         tools.WriteFile(updated_fname, tools.ReadFile(image_fname))
         entry_name = 'u-boot'
-        control.WriteEntry(updated_fname, entry_name, expected)
+        control.WriteEntry(updated_fname, entry_name, expected,
+                           allow_resize=False)
         data = control.ReadEntry(updated_fname, entry_name)
         self.assertEqual(expected, data)
 
@@ -2910,6 +2920,37 @@ class TestFunctional(unittest.TestCase):
     def testFdtmapHeaderNoSize(self):
         """Test an image header at the end of an image with undefined size"""
         self._DoReadFileRealDtb('138_fdtmap_hdr_nosize.dts')
+
+    def testReplaceResize(self):
+        """Test replacing a single file in an entry with a larger file"""
+        expected = U_BOOT_DATA + b'x'
+        data, _, image = self._RunReplaceCmd('u-boot', expected,
+                                             dts='139_replace_repack.dts')
+        self.assertEqual(expected, data)
+
+        entries = image.GetEntries()
+        dtb_data = entries['u-boot-dtb'].data
+        dtb = fdt.Fdt.FromData(dtb_data)
+        dtb.Scan()
+
+        # The u-boot section should now be larger in the dtb
+        node = dtb.GetNode('/binman/u-boot')
+        self.assertEqual(len(expected), fdt_util.GetInt(node, 'size'))
+
+        # Same for the fdtmap
+        fdata = entries['fdtmap'].data
+        fdtb = fdt.Fdt.FromData(fdata[fdtmap.FDTMAP_HDR_LEN:])
+        fdtb.Scan()
+        fnode = fdtb.GetNode('/u-boot')
+        self.assertEqual(len(expected), fdt_util.GetInt(fnode, 'size'))
+
+    def testReplaceResizeNoRepack(self):
+        """Test replacing an entry with a larger file when not allowed"""
+        expected = U_BOOT_DATA + b'x'
+        with self.assertRaises(ValueError) as e:
+            self._RunReplaceCmd('u-boot', expected)
+        self.assertIn('Entry data size does not match, but allow-repack is not present for this image',
+                      str(e.exception))
 
 
 if __name__ == "__main__":

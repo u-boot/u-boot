@@ -96,10 +96,10 @@ class Entry_fdtmap(Entry):
                 with fsw.add_node(subnode.name):
                     _AddNode(subnode)
 
-        outfdt = self.GetImage().fdtmap_dtb
+        data = state.GetFdtContents('fdtmap')[1]
         # If we have an fdtmap it means that we are using this as the
-        # read-only fdtmap for this image.
-        if not outfdt:
+        # fdtmap for this image.
+        if data is None:
             # Get the FDT data into an Fdt object
             data = state.GetFdtContents()[1]
             infdt = Fdt.FromData(data)
@@ -126,7 +126,8 @@ class Entry_fdtmap(Entry):
             # Pack this new FDT and return its contents
             fdt.pack()
             outfdt = Fdt.FromData(fdt.as_bytearray())
-        data = FDTMAP_MAGIC + tools.GetBytes(0, 8) + outfdt.GetContents()
+            data = outfdt.GetContents()
+        data = FDTMAP_MAGIC + tools.GetBytes(0, 8) + data
         return data
 
     def ObtainContents(self):

@@ -589,7 +589,9 @@ that there is an 'fdtmap' entry in the image. For example:
     $ binman replace -i image.bin section/cbfs/u-boot
 
 which will write the contents of the file 'u-boot' from the current directory
-to the that entry. The file must be the same size as the entry being replaced.
+to the that entry. If the entry size changes, you must add the 'allow-repack'
+property to the original image before generating it (see above), otherwise you
+will get an error.
 
 
 Logging
