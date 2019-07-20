@@ -60,6 +60,7 @@ class Entry_fdtmap(Entry):
     Example output for a simple image with U-Boot and an FDT map:
 
     / {
+        image-name = "binman";
         size = <0x00000112>;
         image-pos = <0x00000000>;
         offset = <0x00000000>;
@@ -110,6 +111,7 @@ class Entry_fdtmap(Entry):
         fsw = libfdt.FdtSw()
         fsw.finish_reservemap()
         with fsw.add_node(''):
+            fsw.property_string('image-node', node.name)
             _AddNode(node)
         fdt = fsw.as_fdt()
 

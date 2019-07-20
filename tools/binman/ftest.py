@@ -2369,7 +2369,7 @@ class TestFunctional(unittest.TestCase):
 '      u-boot            138     4  u-boot            38',
 '      u-boot-dtb        180   10f  u-boot-dtb        80          3c9',
 '    u-boot-dtb          500   %x  u-boot-dtb       400          3c9' % fdt_size,
-'  fdtmap                %x   395  fdtmap           %x' %
+'  fdtmap                %x   3b4  fdtmap           %x' %
         (fdtmap_offset, fdtmap_offset),
 '  image-header          bf8     8  image-header     bf8',
             ]
