@@ -1236,7 +1236,7 @@ class TestFunctional(unittest.TestCase):
             state.SetAllowEntryExpansion(False)
             with self.assertRaises(ValueError) as e:
                 self._DoReadFile('059_change_size.dts', True)
-            self.assertIn("Node '/binman/_testing': Cannot update entry size from 1 to 2",
+            self.assertIn("Node '/binman/_testing': Cannot update entry size from 2 to 3",
                           str(e.exception))
         finally:
             state.SetAllowEntryExpansion(True)
@@ -1252,7 +1252,7 @@ class TestFunctional(unittest.TestCase):
             'image-pos': 0,
             'offset': 0,
             '_testing:offset': 32,
-            '_testing:size': 1,
+            '_testing:size': 2,
             '_testing:image-pos': 32,
             'section@0/u-boot:offset': 0,
             'section@0/u-boot:size': len(U_BOOT_DATA),
@@ -2135,9 +2135,9 @@ class TestFunctional(unittest.TestCase):
     def testEntryExpand(self):
         """Test expanding an entry after it is packed"""
         data = self._DoReadFile('121_entry_expand.dts')
-        self.assertEqual(b'aa', data[:2])
-        self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
-        self.assertEqual(b'aa', data[-2:])
+        self.assertEqual(b'aaa', data[:3])
+        self.assertEqual(U_BOOT_DATA, data[3:3 + len(U_BOOT_DATA)])
+        self.assertEqual(b'aaa', data[-3:])
 
     def testEntryExpandBad(self):
         """Test expanding an entry after it is packed, twice"""
@@ -2149,9 +2149,9 @@ class TestFunctional(unittest.TestCase):
     def testEntryExpandSection(self):
         """Test expanding an entry within a section after it is packed"""
         data = self._DoReadFile('123_entry_expand_section.dts')
-        self.assertEqual(b'aa', data[:2])
-        self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
-        self.assertEqual(b'aa', data[-2:])
+        self.assertEqual(b'aaa', data[:3])
+        self.assertEqual(U_BOOT_DATA, data[3:3 + len(U_BOOT_DATA)])
+        self.assertEqual(b'aaa', data[-3:])
 
     def testCompressDtb(self):
         """Test that compress of device-tree files is supported"""
