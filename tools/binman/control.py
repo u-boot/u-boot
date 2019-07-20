@@ -128,7 +128,7 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
             otherwise
         outdir: Output directory to use (for any number of files), else None
         entry_paths: List of entry paths to extract
-        decomp: True to compress the entry data
+        decomp: True to decompress the entry data
 
     Returns:
         List of EntryInfo records that were written
@@ -169,7 +169,8 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
     return einfos
 
 
-def WriteEntry(image_fname, entry_path, data, decomp=True, allow_resize=True):
+def WriteEntry(image_fname, entry_path, data, do_compress=True,
+               allow_resize=True, write_map=False):
     """Replace an entry in an image
 
     This replaces the data in a particular entry in an image. This size of the
@@ -179,10 +180,11 @@ def WriteEntry(image_fname, entry_path, data, decomp=True, allow_resize=True):
         image_fname: Image filename to process
         entry_path: Path to entry to extract
         data: Data to replace with
-        decomp: True to compress the data if needed, False if data is
+        do_compress: True to compress the data if needed, False if data is
             already compressed so should be used as is
         allow_resize: True to allow entries to change size (this does a re-pack
             of the entries), False to raise an exception
+        write_map: True to write a map file
 
     Returns:
         Image object that was updated
@@ -198,7 +200,7 @@ def WriteEntry(image_fname, entry_path, data, decomp=True, allow_resize=True):
     if allow_resize:
         image.ResetForPack()
     tout.Info('Writing data to %s' % entry.GetPath())
-    if not entry.WriteData(data, decomp):
+    if not entry.WriteData(data, do_compress):
         if not image.allow_repack:
             entry.Raise('Entry data size does not match, but allow-repack is not present for this image')
         if not allow_resize:
