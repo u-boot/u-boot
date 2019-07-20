@@ -421,6 +421,27 @@ class TestProp(unittest.TestCase):
         self.dtb.Sync(auto_resize=True)
         self.assertTrue(dtb2.GetContents() != self.dtb.GetContents())
 
+    def testMissingSetInt(self):
+        """Test handling of a missing property with SetInt"""
+        with self.assertRaises(ValueError) as e:
+            self.node.SetInt('one', 1)
+        self.assertIn("node '/spl-test': Missing property 'one'",
+                      str(e.exception))
+
+    def testMissingSetData(self):
+        """Test handling of a missing property with SetData"""
+        with self.assertRaises(ValueError) as e:
+            self.node.SetData('one', b'data')
+        self.assertIn("node '/spl-test': Missing property 'one'",
+                      str(e.exception))
+
+    def testMissingSetString(self):
+        """Test handling of a missing property with SetString"""
+        with self.assertRaises(ValueError) as e:
+            self.node.SetString('one', 1)
+        self.assertIn("node '/spl-test': Missing property 'one'",
+                      str(e.exception))
+
 
 class TestFdtUtil(unittest.TestCase):
     """Tests for the fdt_util module

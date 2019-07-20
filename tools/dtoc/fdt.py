@@ -362,6 +362,23 @@ class Node:
         value = tools.GetBytes(0, len)
         self.props[prop_name] = Prop(self, None, prop_name, value)
 
+    def _CheckProp(self, prop_name):
+        """Check if a property is present
+
+        Args:
+            prop_name: Name of property
+
+        Returns:
+            self
+
+        Raises:
+            ValueError if the property is missing
+        """
+        if prop_name not in self.props:
+            raise ValueError("Fdt '%s', node '%s': Missing property '%s'" %
+                             (self._fdt._fname, self.path, prop_name))
+        return self
+
     def SetInt(self, prop_name, val):
         """Update an integer property int the device tree.
 
@@ -374,7 +391,7 @@ class Node:
             prop_name: Name of property
             val: Value to set
         """
-        self.props[prop_name].SetInt(val)
+        self._CheckProp(prop_name).props[prop_name].SetInt(val)
 
     def SetData(self, prop_name, val):
         """Set the data value of a property
@@ -386,7 +403,7 @@ class Node:
             prop_name: Name of property to set
             val: Data value to set
         """
-        self.props[prop_name].SetData(val)
+        self._CheckProp(prop_name).props[prop_name].SetData(val)
 
     def SetString(self, prop_name, val):
         """Set the string value of a property
@@ -400,7 +417,7 @@ class Node:
         """
         if sys.version_info[0] >= 3:  # pragma: no cover
             val = bytes(val, 'utf-8')
-        self.props[prop_name].SetData(val + b'\0')
+        self._CheckProp(prop_name).props[prop_name].SetData(val + b'\0')
 
     def AddString(self, prop_name, val):
         """Add a new string property to a node
