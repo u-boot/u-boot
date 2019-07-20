@@ -226,7 +226,7 @@ def GetAllFdts():
         if dtb != main_dtb:
             yield dtb
 
-def GetUpdateNodes(node):
+def GetUpdateNodes(node, for_repack=False):
     """Yield all the nodes that need to be updated in all device trees
 
     The property referenced by this node is added to any device trees which
@@ -235,25 +235,31 @@ def GetUpdateNodes(node):
 
     Args:
         node: Node object in the main device tree to look up
+        for_repack: True if we want only nodes which need 'repack' properties
+            added to them (e.g. 'orig-offset'), False to return all nodes. We
+            don't add repack properties to SPL/TPL device trees.
 
     Yields:
         Node objects in each device tree that is in use (U-Boot proper, which
             is node, SPL and TPL)
     """
     yield node
-    for dtb, fname, _ in output_fdt_info.values():
+    for dtb, fname, entry in output_fdt_info.values():
         if dtb != node.GetFdt():
+            if for_repack and entry.etype != 'u-boot-dtb':
+                continue
             other_node = dtb.GetNode(fdt_path_prefix + node.path)
             if other_node:
                 yield other_node
 
-def AddZeroProp(node, prop):
+def AddZeroProp(node, prop, for_repack=False):
     """Add a new property to affected device trees with an integer value of 0.
 
     Args:
         prop_name: Name of property
+        for_repack: True is this property is only needed for repacking
     """
-    for n in GetUpdateNodes(node):
+    for n in GetUpdateNodes(node, for_repack):
         n.AddZeroProp(prop)
 
 def AddSubnode(node, name):
@@ -283,15 +289,18 @@ def AddString(node, prop, value):
     for n in GetUpdateNodes(node):
         n.AddString(prop, value)
 
-def SetInt(node, prop, value):
+def SetInt(node, prop, value, for_repack=False):
     """Update an integer property in affected device trees with an integer value
 
     This is not allowed to change the size of the FDT.
 
     Args:
         prop_name: Name of property
+        for_repack: True is this property is only needed for repacking
     """
-    for n in GetUpdateNodes(node):
+    for n in GetUpdateNodes(node, for_repack):
+        tout.Detail("File %s: Update node '%s' prop '%s' to %#x" %
+                    (node.GetFdt().name, node.path, prop, value))
         n.SetInt(prop, value)
 
 def CheckAddHashProp(node):

@@ -481,6 +481,29 @@ name-prefix:
 	distinguish binaries with otherwise identical names.
 
 
+Image Properties
+----------------
+
+Image nodes act like sections but also have a few extra properties:
+
+filename:
+	Output filename for the image. This defaults to image.bin (or in the
+	case of multiple images <nodename>.bin where <nodename> is the name of
+	the image node.
+
+allow-repack:
+	Create an image that can be repacked. With this option it is possible
+	to change anything in the image after it is created, including updating
+	the position and size of image components. By default this is not
+	permitted since it is not possibly to know whether this might violate a
+	constraint in the image description. For example, if a section has to
+	increase in size to hold a larger binary, that might cause the section
+	to fall out of its allow region (e.g. read-only portion of flash).
+
+	Adding this property causes the original offset and size values in the
+	image description to be stored in the FDT and fdtmap.
+
+
 Entry Documentation
 -------------------
 

@@ -75,6 +75,9 @@ class Entry_fdtmap(Entry):
             offset = <0x00000004>;
         };
     };
+
+    If allow-repack is used then 'orig-offset' and 'orig-size' properties are
+    added as necessary. See the binman README.
     """
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)

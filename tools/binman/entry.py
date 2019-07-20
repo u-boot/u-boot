@@ -161,8 +161,11 @@ class Entry(object):
             self.Raise("Please use 'offset' instead of 'pos'")
         self.offset = fdt_util.GetInt(self._node, 'offset')
         self.size = fdt_util.GetInt(self._node, 'size')
-        self.orig_offset = self.offset
-        self.orig_size = self.size
+        self.orig_offset = fdt_util.GetInt(self._node, 'orig-offset')
+        self.orig_size = fdt_util.GetInt(self._node, 'orig-size')
+        if self.GetImage().copy_to_orig:
+            self.orig_offset = self.offset
+            self.orig_size = self.size
 
         # These should not be set in input files, but are set in an FDT map,
         # which is also read by this code.
@@ -207,6 +210,12 @@ class Entry(object):
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
                 state.AddZeroProp(self._node, prop)
+        if self.GetImage().allow_repack:
+            if self.orig_offset is not None:
+                state.AddZeroProp(self._node, 'orig-offset', True)
+            if self.orig_size is not None:
+                state.AddZeroProp(self._node, 'orig-size', True)
+
         if self.compress != 'none':
             state.AddZeroProp(self._node, 'uncomp-size')
         err = state.CheckAddHashProp(self._node)
@@ -219,6 +228,11 @@ class Entry(object):
         state.SetInt(self._node, 'size', self.size)
         base = self.section.GetRootSkipAtStart() if self.section else 0
         state.SetInt(self._node, 'image-pos', self.image_pos - base)
+        if self.GetImage().allow_repack:
+            if self.orig_offset is not None:
+                state.SetInt(self._node, 'orig-offset', self.orig_offset, True)
+            if self.orig_size is not None:
+                state.SetInt(self._node, 'orig-size', self.orig_size, True)
         if self.uncomp_size is not None:
             state.SetInt(self._node, 'uncomp-size', self.uncomp_size)
         state.CheckSetHashValue(self._node, self.GetData)

@@ -75,6 +75,9 @@ EXTRACT_DTB_SIZE = 0x3c9
 # Properties expected to be in the device tree when update_dtb is used
 BASE_DTB_PROPS = ['offset', 'size', 'image-pos']
 
+# Extra properties expected to be in the device tree when allow-repack is used
+REPACK_DTB_PROPS = ['orig-offset', 'orig-size']
+
 
 class TestFunctional(unittest.TestCase):
     """Functional tests for binman
@@ -1244,7 +1247,7 @@ class TestFunctional(unittest.TestCase):
                                                      update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
-        props = self._GetPropTree(dtb, BASE_DTB_PROPS)
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS + REPACK_DTB_PROPS)
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
@@ -1587,7 +1590,8 @@ class TestFunctional(unittest.TestCase):
         for item in ['', 'spl', 'tpl']:
             dtb = fdt.Fdt.FromData(data[start:])
             dtb.Scan()
-            props = self._GetPropTree(dtb, BASE_DTB_PROPS + ['spl', 'tpl'])
+            props = self._GetPropTree(dtb, BASE_DTB_PROPS + REPACK_DTB_PROPS +
+                                      ['spl', 'tpl'])
             expected = dict(base_expected)
             if item:
                 expected[item] = 0
@@ -2820,6 +2824,68 @@ class TestFunctional(unittest.TestCase):
 
         # Check the state looks right.
         self.assertEqual('/binman/first-image', state.fdt_path_prefix)
+
+    def testUpdateFdtAllRepack(self):
+        """Test that all device trees are updated with offset/size info"""
+        data = self._DoReadFileRealDtb('134_fdt_update_all_repack.dts')
+        SECTION_SIZE = 0x300
+        DTB_SIZE = 602
+        FDTMAP_SIZE = 608
+        base_expected = {
+            'offset': 0,
+            'size': SECTION_SIZE + DTB_SIZE * 2 + FDTMAP_SIZE,
+            'image-pos': 0,
+            'section:offset': 0,
+            'section:size': SECTION_SIZE,
+            'section:image-pos': 0,
+            'section/u-boot-dtb:offset': 4,
+            'section/u-boot-dtb:size': 636,
+            'section/u-boot-dtb:image-pos': 4,
+            'u-boot-spl-dtb:offset': SECTION_SIZE,
+            'u-boot-spl-dtb:size': DTB_SIZE,
+            'u-boot-spl-dtb:image-pos': SECTION_SIZE,
+            'u-boot-tpl-dtb:offset': SECTION_SIZE + DTB_SIZE,
+            'u-boot-tpl-dtb:image-pos': SECTION_SIZE + DTB_SIZE,
+            'u-boot-tpl-dtb:size': DTB_SIZE,
+            'fdtmap:offset': SECTION_SIZE + DTB_SIZE * 2,
+            'fdtmap:size': FDTMAP_SIZE,
+            'fdtmap:image-pos': SECTION_SIZE + DTB_SIZE * 2,
+        }
+        main_expected = {
+            'section:orig-size': SECTION_SIZE,
+            'section/u-boot-dtb:orig-offset': 4,
+        }
+
+        # We expect three device-tree files in the output, with the first one
+        # within a fixed-size section.
+        # Read them in sequence. We look for an 'spl' property in the SPL tree,
+        # and 'tpl' in the TPL tree, to make sure they are distinct from the
+        # main U-Boot tree. All three should have the same positions and offset
+        # except that the main tree should include the main_expected properties
+        start = 4
+        for item in ['', 'spl', 'tpl', None]:
+            if item is None:
+                start += 16  # Move past fdtmap header
+            dtb = fdt.Fdt.FromData(data[start:])
+            dtb.Scan()
+            props = self._GetPropTree(dtb,
+                BASE_DTB_PROPS + REPACK_DTB_PROPS + ['spl', 'tpl'],
+                prefix='/' if item is None else '/binman/')
+            expected = dict(base_expected)
+            if item:
+                expected[item] = 0
+            else:
+                # Main DTB and fdtdec should include the 'orig-' properties
+                expected.update(main_expected)
+            # Helpful for debugging:
+            #for prop in sorted(props):
+                #print('prop %s %s %s' % (prop, props[prop], expected[prop]))
+            self.assertEqual(expected, props)
+            if item == '':
+                start = SECTION_SIZE
+            else:
+                start += dtb._fdt_obj.totalsize()
+
 
 if __name__ == "__main__":
     unittest.main()

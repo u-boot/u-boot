@@ -230,7 +230,9 @@ Properties / Entry arguments:
     None
 
 An FDT map is just a header followed by an FDT containing a list of all the
-entries in the image.
+entries in the image. The root node corresponds to the image node in the
+original FDT, and an image-name property indicates the image name in that
+original tree.
 
 The header is the string _FDTMAP_ followed by 8 unused bytes.
 
@@ -244,6 +246,7 @@ FDT with the position of each entry.
 Example output for a simple image with U-Boot and an FDT map:
 
 / {
+    image-name = "binman";
     size = <0x00000112>;
     image-pos = <0x00000000>;
     offset = <0x00000000>;
@@ -258,6 +261,9 @@ Example output for a simple image with U-Boot and an FDT map:
         offset = <0x00000004>;
     };
 };
+
+If allow-repack is used then 'orig-offset' and 'orig-size' properties are
+added as necessary. See the binman README.
 
 
 

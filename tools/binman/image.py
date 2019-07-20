@@ -36,19 +36,25 @@ class Image(section.Entry_section):
         image_node: Name of node containing the description for this image
         fdtmap_dtb: Fdt object for the fdtmap when loading from a file
         fdtmap_data: Contents of the fdtmap when loading from a file
+        allow_repack: True to add properties to allow the image to be safely
+            repacked later
 
     Args:
+        copy_to_orig: Copy offset/size to orig_offset/orig_size after reading
+            from the device tree
         test: True if this is being called from a test of Images. This this case
             there is no device tree defining the structure of the section, so
             we create a section manually.
     """
-    def __init__(self, name, node, test=False):
-        section.Entry_section.__init__(self, None, 'section', node, test)
+    def __init__(self, name, node, copy_to_orig=True, test=False):
+        section.Entry_section.__init__(self, None, 'section', node, test=test)
+        self.copy_to_orig = copy_to_orig
         self.name = 'main-section'
         self.image_name = name
         self._filename = '%s.bin' % self.image_name
         self.fdtmap_dtb = None
         self.fdtmap_data = None
+        self.allow_repack = False
         if not test:
             self.ReadNode()
 
@@ -57,6 +63,7 @@ class Image(section.Entry_section):
         filename = fdt_util.GetString(self._node, 'filename')
         if filename:
             self._filename = filename
+        self.allow_repack = fdt_util.GetBool(self._node, 'allow-repack')
 
     @classmethod
     def FromFile(cls, fname):
@@ -92,7 +99,7 @@ class Image(section.Entry_section):
 
         # Return an Image with the associated nodes
         root = dtb.GetRoot()
-        image = Image('image', root)
+        image = Image('image', root, copy_to_orig=False)
         image.image_node = fdt_util.GetString(root, 'image-node', 'image')
         image.fdtmap_dtb = dtb
         image.fdtmap_data = fdtmap_data
