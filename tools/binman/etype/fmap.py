@@ -49,7 +49,7 @@ class Entry_fmap(Entry):
                 areas.append(fmap_util.FmapArea(pos or 0, entry.size or 0,
                                             tools.FromUnicode(entry.name), 0))
 
-        entries = self.section.image.GetEntries()
+        entries = self.GetImage().GetEntries()
         areas = []
         for entry in entries.values():
             _AddEntries(areas, entry)

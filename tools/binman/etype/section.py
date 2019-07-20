@@ -45,8 +45,6 @@ class Entry_section(Entry):
     def __init__(self, section, etype, node, test=False):
         if not test:
             Entry.__init__(self, section, etype, node)
-        if section:
-            self.image = section.image
         self._entries = OrderedDict()
         self._pad_byte = 0
         self._sort = False
@@ -374,7 +372,7 @@ class Entry_section(Entry):
             Image size as an integer number of bytes, which may be None if the
                 image size is dynamic and its sections have not yet been packed
         """
-        return self.image.size
+        return self.GetImage().size
 
     def FindEntryType(self, etype):
         """Find an entry type in the section
@@ -468,3 +466,16 @@ class Entry_section(Entry):
         for entry in self._entries.values():
             entry.LoadData(decomp)
         self.Detail('Loaded data')
+
+    def GetImage(self):
+        """Get the image containing this section
+
+        Note that a top-level section is actually an Image, so this function may
+        return self.
+
+        Returns:
+            Image object containing this section
+        """
+        if not self.section:
+            return self
+        return self.section.GetImage()

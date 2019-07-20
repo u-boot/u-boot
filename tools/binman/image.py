@@ -42,7 +42,6 @@ class Image(section.Entry_section):
             we create a section manually.
     """
     def __init__(self, name, node, test=False):
-        self.image = self
         section.Entry_section.__init__(self, None, 'section', node, test)
         self.name = 'main-section'
         self.image_name = name

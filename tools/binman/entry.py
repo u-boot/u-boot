@@ -700,3 +700,11 @@ features to produce new behaviours.
         data = self.ReadData(decomp)
         self.ProcessContentsUpdate(data)
         self.Detail('Loaded data size %x' % len(data))
+
+    def GetImage(self):
+        """Get the image containing this entry
+
+        Returns:
+            Image object containing this entry
+        """
+        return self.section.GetImage()
