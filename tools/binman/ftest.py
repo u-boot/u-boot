@@ -69,7 +69,11 @@ FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
 COMPRESS_DATA         = b'compress xxxxxxxxxxxxxxxxxxxxxx data'
 REFCODE_DATA          = b'refcode'
 
+# The expected size for the device tree in some tests
 EXTRACT_DTB_SIZE = 0x3c9
+
+# Properties expected to be in the device tree when update_dtb is used
+BASE_DTB_PROPS = ['offset', 'size', 'image-pos']
 
 
 class TestFunctional(unittest.TestCase):
@@ -1240,7 +1244,7 @@ class TestFunctional(unittest.TestCase):
                                                      update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
-        props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos'])
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS)
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
@@ -1583,8 +1587,7 @@ class TestFunctional(unittest.TestCase):
         for item in ['', 'spl', 'tpl']:
             dtb = fdt.Fdt.FromData(data[start:])
             dtb.Scan()
-            props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos',
-                                            'spl', 'tpl'])
+            props = self._GetPropTree(dtb, BASE_DTB_PROPS + ['spl', 'tpl'])
             expected = dict(base_expected)
             if item:
                 expected[item] = 0
@@ -2052,8 +2055,7 @@ class TestFunctional(unittest.TestCase):
         fdt_data = fdtmap_data[16:]
         dtb = fdt.Fdt.FromData(fdt_data)
         dtb.Scan()
-        props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos'],
-                                  prefix='/')
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS, prefix='/')
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
@@ -2172,8 +2174,7 @@ class TestFunctional(unittest.TestCase):
                                                         update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
-        props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos',
-                                        'uncomp-size'])
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS + ['uncomp-size'])
         del props['cbfs/u-boot:size']
         self.assertEqual({
             'offset': 0,
