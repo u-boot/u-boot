@@ -142,16 +142,14 @@ class Image(section.Entry_section):
         """Write symbol values into binary files for access at run time"""
         section.Entry_section.WriteSymbols(self, self)
 
-    def BuildSection(self, fd, base_offset):
-        """Write the section to a file"""
-        fd.seek(base_offset)
-        fd.write(self.GetData())
-
     def BuildImage(self):
         """Write the image to a file"""
         fname = tools.GetOutputFilename(self._filename)
+        tout.Info("Writing image to '%s'" % fname)
         with open(fname, 'wb') as fd:
-            self.BuildSection(fd, 0)
+            data = self.GetData()
+            fd.write(data)
+        tout.Info("Wrote %#x bytes" % len(data))
 
     def WriteMap(self):
         """Write a map of the image to a .map file
