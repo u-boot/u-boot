@@ -83,6 +83,7 @@ def FinaliseOutputDir():
     """Tidy up: delete output directory if temporary and not preserved."""
     if outdir and not preserve_outdir:
         _RemoveOutputDir()
+        outdir = None
 
 def GetOutputFilename(fname):
     """Return a filename within the output directory.
@@ -101,6 +102,7 @@ def _FinaliseForTest():
 
     if outdir:
         _RemoveOutputDir()
+        outdir = None
 
 def SetInputDirs(dirname):
     """Add a list of input directories, where input files are kept.
