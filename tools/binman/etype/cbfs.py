@@ -169,7 +169,7 @@ class Entry_cbfs(Entry):
         self._cbfs_entries = OrderedDict()
         self._ReadSubnodes()
 
-    def ObtainContents(self):
+    def ObtainContents(self, skip=None):
         arch = cbfs_util.find_arch(self._cbfs_arg)
         if arch is None:
             self.Raise("Invalid architecture '%s'" % self._cbfs_arg)
@@ -179,7 +179,7 @@ class Entry_cbfs(Entry):
         for entry in self._cbfs_entries.values():
             # First get the input data and put it in a file. If not available,
             # try later.
-            if not entry.ObtainContents():
+            if entry != skip and not entry.ObtainContents():
                 return False
             data = entry.GetData()
             cfile = None
@@ -274,3 +274,7 @@ class Entry_cbfs(Entry):
         reader = self.reader
         cfile = reader.files.get(child.name)
         return cfile.data if decomp else cfile.orig_data
+
+    def WriteChildData(self, child):
+        self.ObtainContents(skip=child)
+        return True

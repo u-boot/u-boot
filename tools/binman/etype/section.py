@@ -520,3 +520,6 @@ class Entry_section(Entry):
                             (child.GetPath(), len(indata), child.compress,
                             len(data)))
         return data
+
+    def WriteChildData(self, child):
+        return True

@@ -751,7 +751,26 @@ features to produce new behaviours.
         self.contents_size = self.size
         ok = self.ProcessContentsUpdate(data)
         self.Detail('WriteData: size=%x, ok=%s' % (len(data), ok))
-        return ok
+        section_ok = self.section.WriteChildData(self)
+        return ok and section_ok
+
+    def WriteChildData(self, child):
+        """Handle writing the data in a child entry
+
+        This should be called on the child's parent section after the child's
+        data has been updated. It
+
+        This base-class implementation does nothing, since the base Entry object
+        does not have any children.
+
+        Args:
+            child: Child Entry that was written
+
+        Returns:
+            True if the section could be updated successfully, False if the
+                data is such that the section could not updat
+        """
+        return True
 
     def GetSiblingOrder(self):
         """Get the relative order of an entry amoung its siblings
