@@ -287,12 +287,12 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Contents of device-tree binary
         """
-        tools.PrepareOutputDir(None)
-        dtb = fdt_util.EnsureCompiled(self.TestFile(fname))
+        tmpdir = tempfile.mkdtemp(prefix='binmant.')
+        dtb = fdt_util.EnsureCompiled(self.TestFile(fname), tmpdir)
         with open(dtb, 'rb') as fd:
             data = fd.read()
             TestFunctional._MakeInputFile(outfile, data)
-        tools.FinaliseOutputDir()
+        shutil.rmtree(tmpdir)
         return data
 
     def _GetDtbContentsForSplTpl(self, dtb_data, name):
