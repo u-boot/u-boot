@@ -187,6 +187,13 @@ class TestFunctional(unittest.TestCase):
         if not self.have_lz4:
             self.skipTest('lz4 --no-frame-crc not available')
 
+    def _CleanupOutputDir(self):
+        """Remove the temporary output directory"""
+        if self.preserve_outdirs:
+            print('Preserving output dir: %s' % tools.outdir)
+        else:
+            tools._FinaliseForTest()
+
     def setUp(self):
         # Enable this to turn on debugging output
         # tout.Init(tout.DEBUG)
@@ -194,10 +201,7 @@ class TestFunctional(unittest.TestCase):
 
     def tearDown(self):
         """Remove the temporary output directory"""
-        if self.preserve_outdirs:
-            print('Preserving output dir: %s' % tools.outdir)
-        else:
-            tools._FinaliseForTest()
+        self._CleanupOutputDir()
 
     @classmethod
     def _ResetDtbs(self):
