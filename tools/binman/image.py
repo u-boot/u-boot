@@ -10,6 +10,7 @@ from __future__ import print_function
 from collections import OrderedDict
 import fnmatch
 from operator import attrgetter
+import os
 import re
 import sys
 
@@ -96,6 +97,8 @@ class Image(section.Entry_section):
         image.fdtmap_dtb = dtb
         image.fdtmap_data = fdtmap_data
         image._data = data
+        image._filename = fname
+        image.image_name, _ = os.path.splitext(fname)
         return image
 
     def Raise(self, msg):

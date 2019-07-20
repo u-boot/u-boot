@@ -698,6 +698,7 @@ features to produce new behaviours.
 
     def LoadData(self, decomp=True):
         data = self.ReadData(decomp)
+        self.contents_size = len(data)
         self.ProcessContentsUpdate(data)
         self.Detail('Loaded data size %x' % len(data))
 
@@ -708,3 +709,25 @@ features to produce new behaviours.
             Image object containing this entry
         """
         return self.section.GetImage()
+
+    def WriteData(self, data, decomp=True):
+        """Write the data to an entry in the image
+
+        This is used when the image has been read in and we want to replace the
+        data for a particular entry in that image.
+
+        The image must be re-packed and written out afterwards.
+
+        Args:
+            data: Data to replace it with
+            decomp: True to compress the data if needed, False if data is
+                already compressed so should be used as is
+
+        Returns:
+            True if the data did not result in a resize of this entry, False if
+                 the entry must be resized
+        """
+        self.contents_size = self.size
+        ok = self.ProcessContentsUpdate(data)
+        self.Detail('WriteData: size=%x, ok=%s' % (len(data), ok))
+        return ok

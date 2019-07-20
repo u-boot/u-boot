@@ -118,6 +118,32 @@ def ReadEntry(image_fname, entry_path, decomp=True):
     return entry.ReadData(decomp)
 
 
+def WriteEntry(image_fname, entry_path, data, decomp=True):
+    """Replace an entry in an image
+
+    This replaces the data in a particular entry in an image. This size of the
+    new data must match the size of the old data
+
+    Args:
+        image_fname: Image filename to process
+        entry_path: Path to entry to extract
+        data: Data to replace with
+        decomp: True to compress the data if needed, False if data is
+            already compressed so should be used as is
+    """
+    tout.Info("WriteEntry '%s', file '%s'" % (entry_path, image_fname))
+    image = Image.FromFile(image_fname)
+    entry = image.FindEntryPath(entry_path)
+    state.PrepareFromLoadedData(image)
+    image.LoadData()
+    tout.Info('Writing data to %s' % entry.GetPath())
+    if not entry.WriteData(data, decomp):
+        entry.Raise('Entry data size does not match, but resize is disabled')
+    tout.Info('Processing image')
+    ProcessImage(image, update_fdt=True, write_map=False, get_contents=False)
+    tout.Info('WriteEntry done')
+
+
 def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
                    decomp=True):
     """Extract the data from one or more entries and write it to files
@@ -238,7 +264,7 @@ def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
     return images
 
 
-def ProcessImage(image, update_fdt, write_map):
+def ProcessImage(image, update_fdt, write_map, get_contents=True):
     """Perform all steps for this image, including checking and # writing it.
 
     This means that errors found with a later image will be reported after
@@ -249,8 +275,11 @@ def ProcessImage(image, update_fdt, write_map):
         image: Image to process
         update_fdt: True to update the FDT wth entry offsets, etc.
         write_map: True to write a map file
+        get_contents: True to get the image contents from files, etc., False if
+            the contents is already present
     """
-    image.GetEntryContents()
+    if get_contents:
+        image.GetEntryContents()
     image.GetEntryOffsets()
 
     # We need to pack the entries to figure out where everything

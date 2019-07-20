@@ -557,6 +557,18 @@ or just a selection:
     $ binman extract -i image.bin "*u-boot*" -O outdir
 
 
+Replacing files in an image
+---------------------------
+
+You can replace files in an existing firmware image created by binman, provided
+that there is an 'fdtmap' entry in the image. For example:
+
+    $ binman replace -i image.bin section/cbfs/u-boot
+
+which will write the contents of the file 'u-boot' from the current directory
+to the that entry. The file must be the same size as the entry being replaced.
+
+
 Logging
 -------
 
@@ -909,7 +921,6 @@ Some ideas:
 - Allow easy building of images by specifying just the board name
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Support updating binaries in an image (with no size change / repacking)
 - Support updating binaries in an image (with repacking)
 - Support adding FITs to an image
 - Support for ARM Trusted Firmware (ATF)
