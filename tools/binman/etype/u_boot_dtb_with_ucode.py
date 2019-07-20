@@ -54,7 +54,7 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
 
         # Remove the microcode
         fname = self.GetDefaultFilename()
-        fdt = state.GetFdt(fname)
+        fdt = state.GetFdtForEtype(fname)
         self.ucode = fdt.GetNode('/microcode')
         if not self.ucode:
             raise self.Raise("No /microcode node found in '%s'" % fname)

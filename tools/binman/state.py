@@ -33,7 +33,7 @@ main_dtb = None
 # Entry.ProcessContentsUpdate()
 allow_entry_expansion = True
 
-def GetFdt(fname):
+def GetFdtForEtype(fname):
     """Get the Fdt object for a particular device-tree filename
 
     Binman keeps track of at least one device-tree file called u-boot.dtb but
@@ -51,7 +51,8 @@ def GetFdt(fname):
 def GetFdtPath(fname):
     """Get the full pathname of a particular Fdt object
 
-    Similar to GetFdt() but returns the pathname associated with the Fdt.
+    Similar to GetFdtForEtype() but returns the pathname associated with the
+    Fdt.
 
     Args:
         fname: Filename to look up (e.g. 'u-boot.dtb').
@@ -78,7 +79,7 @@ def GetFdtContents(fname='u-boot.dtb'):
     """
     if fname in fdt_files and not use_fake_dtb:
         pathname = GetFdtPath(fname)
-        data = GetFdt(fname).GetContents()
+        data = GetFdtForEtype(fname).GetContents()
     else:
         pathname = tools.GetInputFilename(fname)
         data = tools.ReadFile(pathname)
