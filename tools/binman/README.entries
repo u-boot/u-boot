@@ -314,7 +314,8 @@ see www.flashrom.org/Flashrom for more information.
 
 When used, this entry will be populated with an FMAP which reflects the
 entries in the current image. Note that any hierarchy is squashed, since
-FMAP does not support this.
+FMAP does not support this. Also, CBFS entries appear as a single entry -
+the sub-entries are ignored.
 
 
 
