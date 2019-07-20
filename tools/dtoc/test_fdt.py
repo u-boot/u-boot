@@ -449,6 +449,11 @@ class TestProp(unittest.TestCase):
         self.assertIn("node '/spl-test': Missing property 'one'",
                       str(e.exception))
 
+    def testGetFilename(self):
+        """Test the dtb filename can be provided"""
+        self.assertEqual(tools.GetOutputFilename('source.dtb'),
+                         self.dtb.GetFilename())
+
 
 class TestFdtUtil(unittest.TestCase):
     """Tests for the fdt_util module

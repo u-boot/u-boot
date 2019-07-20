@@ -53,3 +53,12 @@ class Entry_blob_dtb(Entry_blob):
         """
         fname = self.GetDefaultFilename()
         return {self.GetFdtEtype(): [self, fname]}
+
+    def WriteData(self, data, decomp=True):
+        ok = Entry_blob.WriteData(self, data, decomp)
+
+        # Update the state module, since it has the authoritative record of the
+        # device trees used. If we don't do this, then state.GetFdtContents()
+        # will still return the old contents
+        state.UpdateFdtContents(self.GetFdtEtype(), data)
+        return ok

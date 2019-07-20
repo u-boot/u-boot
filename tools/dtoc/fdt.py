@@ -695,6 +695,14 @@ class Fdt:
         node = Node(fdt, parent, offset, name, path)
         return node
 
+    def GetFilename(self):
+        """Get the filename of the device tree
+
+        Returns:
+            String filename
+        """
+        return self._fname
+
 def FdtScan(fname):
     """Returns a new Fdt object"""
     dtb = Fdt(fname)

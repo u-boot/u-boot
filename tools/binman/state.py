@@ -108,6 +108,22 @@ def GetFdtContents(etype='u-boot-dtb'):
         data = tools.ReadFile(pathname)
     return pathname, data
 
+def UpdateFdtContents(etype, data):
+    """Update the contents of a particular device tree
+
+    The device tree is updated and written back to its file. This affects what
+    is returned from future called to GetFdtContents(), etc.
+
+    Args:
+        etype: Entry type (e.g. 'u-boot-dtb')
+        data: Data to replace the DTB with
+    """
+    dtb, fname, entry = output_fdt_info[etype]
+    dtb_fname = dtb.GetFilename()
+    tools.WriteFile(dtb_fname, data)
+    dtb = fdt.FdtScan(dtb_fname)
+    output_fdt_info[etype] = [dtb, fname, entry]
+
 def SetEntryArgs(args):
     """Set the value of the entry args
 
