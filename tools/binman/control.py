@@ -138,9 +138,9 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
     # Output an entry to a single file, as a special case
     if output_fname:
         if not entry_paths:
-            raise ValueError('Must specify an entry path to write with -o')
+            raise ValueError('Must specify an entry path to write with -f')
         if len(entry_paths) != 1:
-            raise ValueError('Must specify exactly one entry path to write with -o')
+            raise ValueError('Must specify exactly one entry path to write with -f')
         entry = image.FindEntryPath(entry_paths[0])
         data = entry.ReadData(decomp)
         tools.WriteFile(output_fname, data)

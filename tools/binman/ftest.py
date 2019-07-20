@@ -2683,7 +2683,7 @@ class TestFunctional(unittest.TestCase):
         image_fname = tools.GetOutputFilename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ExtractEntries(image_fname, 'fname', None, [])
-        self.assertIn('Must specify an entry path to write with -o',
+        self.assertIn('Must specify an entry path to write with -f',
                       str(e.exception))
 
     def testExtractTooManyEntryPaths(self):
@@ -2693,7 +2693,7 @@ class TestFunctional(unittest.TestCase):
         image_fname = tools.GetOutputFilename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ExtractEntries(image_fname, 'fname', None, ['a', 'b'])
-        self.assertIn('Must specify exactly one entry path to write with -o',
+        self.assertIn('Must specify exactly one entry path to write with -f',
                       str(e.exception))
 
     def testPackAlignSection(self):
