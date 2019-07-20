@@ -192,7 +192,9 @@ class Entry(object):
             Empty dict, if this entry is not a .dtb, otherwise:
             Dict:
                 key: Filename from this entry (without the path)
-                value: Fdt object for this dtb, or None if not available
+                value: Tuple:
+                    Fdt object for this dtb, or None if not available
+                    Filename of file containing this dtb
         """
         return {}
 

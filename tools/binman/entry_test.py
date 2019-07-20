@@ -84,5 +84,14 @@ class TestEntry(unittest.TestCase):
         base_entry = entry.Entry(None, None, None, read_node=False)
         self.assertIsNone(base_entry.GetDefaultFilename())
 
+    def testBlobFdt(self):
+        """Test the GetFdtEtype() method of the blob-dtb entries"""
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        self.assertIsNone(base.GetFdtEtype())
+
+        dtb = entry.Entry.Create(None, self.GetNode(), 'u-boot-dtb')
+        self.assertEqual('u-boot-dtb', dtb.GetFdtEtype())
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -22,7 +22,10 @@ entry_args = {}
 # ftest.py)
 use_fake_dtb = False
 
-# Dict of device trees, keyed by filename, but excluding the main one
+# Dict of device trees, keyed by entry type, but excluding the main one
+# The value is as returned by Entry.GetFdts(), i.e. a tuple:
+#     Fdt object for this dtb, or None if not available
+#     Filename of file containing this dtb
 fdt_subset = {}
 
 # The DTB which contains the full image information
@@ -142,9 +145,10 @@ def Prepare(images, dtb):
     if not use_fake_dtb:
         for image in images.values():
             fdt_subset.update(image.GetFdts())
-        if 'u-boot.dtb' in fdt_subset:
-            del fdt_subset['u-boot.dtb']
-        for other_fname in fdt_subset:
+        if 'u-boot-dtb' in fdt_subset:
+            del fdt_subset['u-boot-dtb']
+        for etype, other in fdt_subset.items():
+            _, other_fname = other
             infile = tools.GetInputFilename(other_fname)
             other_fname_dtb = fdt_util.EnsureCompiled(infile)
             out_fname = tools.GetOutputFilename('%s.out' %
@@ -160,7 +164,7 @@ def GetAllFdts():
         Device trees being used (U-Boot proper, SPL, TPL)
     """
     yield main_dtb
-    for other_fname in fdt_subset:
+    for etype, other_fname in fdt_subset.values():
         yield fdt_files[other_fname]
 
 def GetUpdateNodes(node):

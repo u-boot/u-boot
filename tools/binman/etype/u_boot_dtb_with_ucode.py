@@ -36,6 +36,9 @@ class Entry_u_boot_dtb_with_ucode(Entry_blob_dtb):
     def GetDefaultFilename(self):
         return 'u-boot.dtb'
 
+    def GetFdtEtype(self):
+        return 'u-boot-dtb'
+
     def ProcessFdt(self, fdt):
         # So the module can be loaded without it
         import fdt

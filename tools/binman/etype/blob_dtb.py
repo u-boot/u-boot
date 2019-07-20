@@ -32,12 +32,24 @@ class Entry_blob_dtb(Entry_blob):
         data = self.CompressData(indata)
         return self.ProcessContentsUpdate(data)
 
+    def GetFdtEtype(self):
+        """Get the entry type of this device tree
+
+        This can be 'u-boot-dtb', 'u-boot-spl-dtb' or 'u-boot-tpl-dtb'
+        Returns:
+            Entry type if any, e.g. 'u-boot-dtb'
+        """
+        return None
+
     def GetFdts(self):
         """Get the device trees used by this entry
 
         Returns:
             Dict:
                 key: Filename from this entry (without the path)
-                value: Fdt object for this dtb, or None if not available
+                value: Tuple:
+                    Fdt object for this dtb, or None if not available
+                    Filename of file containing this dtb
         """
-        return {self.GetDefaultFilename(): None}
+        fname = self.GetDefaultFilename()
+        return {self.GetFdtEtype(): [self, fname]}
