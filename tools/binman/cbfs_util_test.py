@@ -372,7 +372,7 @@ class TestCbfs(unittest.TestCase):
             with io.BytesIO(newdata) as fd:
                 fd.seek(pos)
                 self.assertEqual(False, cbr._read_next_file(fd))
-        self.assertIn('File header at 0 ran out of data', stdout.getvalue())
+        self.assertIn('File header at 0x0 ran out of data', stdout.getvalue())
 
     def test_cbfs_bad_file_string(self):
         """Check handling of an incomplete filename string"""
@@ -394,7 +394,7 @@ class TestCbfs(unittest.TestCase):
             with io.BytesIO(newdata) as fd:
                 fd.seek(pos)
                 self.assertEqual(False, cbr._read_next_file(fd))
-        self.assertIn('String at %x ran out of data' %
+        self.assertIn('String at %#x ran out of data' %
                       cbfs_util.FILE_HEADER_LEN, stdout.getvalue())
 
     def test_cbfs_debug(self):

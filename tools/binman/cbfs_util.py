@@ -715,7 +715,7 @@ class CbfsReader(object):
         file_pos = fd.tell()
         data = fd.read(FILE_HEADER_LEN)
         if len(data) < FILE_HEADER_LEN:
-            print('File header at %x ran out of data' % file_pos)
+            print('File header at %#x ran out of data' % file_pos)
             return False
         magic, size, ftype, attr, offset = struct.unpack(FILE_HEADER_FORMAT,
                                                          data)
@@ -724,7 +724,7 @@ class CbfsReader(object):
         pos = fd.tell()
         name = self._read_string(fd)
         if name is None:
-            print('String at %x ran out of data' % pos)
+            print('String at %#x ran out of data' % pos)
             return False
 
         if DEBUG:
