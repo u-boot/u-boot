@@ -695,3 +695,8 @@ features to produce new behaviours.
                   (self.GetPath(), self.offset, self.offset + self.size,
                    self.size, len(data)))
         return data[self.offset:self.offset + self.size]
+
+    def LoadData(self, decomp=True):
+        data = self.ReadData(decomp)
+        self.ProcessContentsUpdate(data)
+        self.Detail('Loaded data size %x' % len(data))

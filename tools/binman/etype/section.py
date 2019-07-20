@@ -462,3 +462,8 @@ class Entry_section(Entry):
                            self.image_pos, None, self.offset, self)
         for entry in self._entries.values():
             entry.ListEntries(entries, indent + 1)
+
+    def LoadData(self, decomp=True):
+        for entry in self._entries.values():
+            entry.LoadData(decomp)
+        self.Detail('Loaded data')
