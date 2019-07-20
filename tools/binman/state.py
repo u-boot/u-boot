@@ -28,13 +28,6 @@ entry_args = {}
 # ftest.py)
 use_fake_dtb = False
 
-# Dict of device trees, keyed by entry type. These are the input device trees,
-# before any modification by U-Boot
-# The value is as returned by Entry.GetFdts(), i.e. a tuple:
-#     Fdt object for this dtb, or None if not available
-#     Filename of file containing this dtb
-fdt_set = {}
-
 # The DTB which contains the full image information
 main_dtb = None
 
@@ -136,7 +129,7 @@ def Prepare(images, dtb):
         images: List of images being used
         dtb: Main dtb
     """
-    global fdt_set, output_fdt_files, main_dtb
+    global output_fdt_files, main_dtb
     # Import these here in case libfdt.py is not available, in which case
     # the above help option still works.
     import fdt
@@ -151,8 +144,8 @@ def Prepare(images, dtb):
     output_fdt_files['u-boot-dtb'] = [dtb, 'u-boot.dtb']
     output_fdt_files['u-boot-spl-dtb'] = [dtb, 'spl/u-boot-spl.dtb']
     output_fdt_files['u-boot-tpl-dtb'] = [dtb, 'tpl/u-boot-tpl.dtb']
-    fdt_set = {}
     if not use_fake_dtb:
+        fdt_set = {}
         for image in images.values():
             fdt_set.update(image.GetFdts())
         for etype, other in fdt_set.items():
@@ -172,7 +165,7 @@ def GetAllFdts():
         Device trees being used (U-Boot proper, SPL, TPL)
     """
     yield main_dtb
-    for etype in fdt_set:
+    for etype in output_fdt_files:
         dtb = output_fdt_files[etype][0]
         if dtb != main_dtb:
             yield dtb
