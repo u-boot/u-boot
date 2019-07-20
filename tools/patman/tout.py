@@ -4,6 +4,8 @@
 # Terminal output logging.
 #
 
+from __future__ import print_function
+
 import sys
 
 import terminal
@@ -87,7 +89,7 @@ def _Output(level, msg, color=None):
         ClearProgress()
         if color:
             msg = _color.Color(color, msg)
-        _stdout.write(msg + '\n')
+        print(msg)
 
 def DoOutput(level, msg):
     """Output a message to the terminal.
