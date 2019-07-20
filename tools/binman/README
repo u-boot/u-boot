@@ -589,9 +589,24 @@ that there is an 'fdtmap' entry in the image. For example:
     $ binman replace -i image.bin section/cbfs/u-boot
 
 which will write the contents of the file 'u-boot' from the current directory
-to the that entry. If the entry size changes, you must add the 'allow-repack'
-property to the original image before generating it (see above), otherwise you
-will get an error.
+to the that entry, compressing if necessary. If the entry size changes, you must
+add the 'allow-repack' property to the original image before generating it (see
+above), otherwise you will get an error.
+
+You can also use a particular file, in this case u-boot.bin:
+
+    $ binman replace -i image.bin section/cbfs/u-boot -f u-boot.bin
+
+It is possible to replace all files from a source directory which uses the same
+hierarchy as the entries:
+
+    $ binman replace -i image.bin -I indir
+
+Files that are missing will generate a warning.
+
+You can also replace just a selection of entries:
+
+    $ binman replace -i image.bin "*u-boot*" -I indir
 
 
 Logging
@@ -959,7 +974,6 @@ Some ideas:
 - Allow easy building of images by specifying just the board name
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Support updating binaries in an image (with repacking)
 - Support adding FITs to an image
 - Support for ARM Trusted Firmware (ATF)
 - Detect invalid properties in nodes

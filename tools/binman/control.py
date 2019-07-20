@@ -253,6 +253,71 @@ def WriteEntry(image_fname, entry_path, data, do_compress=True,
 
     return image
 
+
+def ReplaceEntries(image_fname, input_fname, indir, entry_paths,
+                   do_compress=True, allow_resize=True, write_map=False):
+    """Replace the data from one or more entries from input files
+
+    Args:
+        image_fname: Image filename to process
+        input_fname: Single input ilename to use if replacing one file, None
+            otherwise
+        indir: Input directory to use (for any number of files), else None
+        entry_paths: List of entry paths to extract
+        do_compress: True if the input data is uncompressed and may need to be
+            compressed if the entry requires it, False if the data is already
+            compressed.
+        write_map: True to write a map file
+
+    Returns:
+        List of EntryInfo records that were written
+    """
+    image = Image.FromFile(image_fname)
+
+    # Replace an entry from a single file, as a special case
+    if input_fname:
+        if not entry_paths:
+            raise ValueError('Must specify an entry path to read with -f')
+        if len(entry_paths) != 1:
+            raise ValueError('Must specify exactly one entry path to write with -f')
+        entry = image.FindEntryPath(entry_paths[0])
+        data = tools.ReadFile(input_fname)
+        tout.Notice("Read %#x bytes from file '%s'" % (len(data), input_fname))
+        WriteEntryToImage(image, entry, data, do_compress=do_compress,
+                          allow_resize=allow_resize, write_map=write_map)
+        return
+
+    # Otherwise we will input from a path given by the entry path of each entry.
+    # This means that files must appear in subdirectories if they are part of
+    # a sub-section.
+    einfos = image.GetListEntries(entry_paths)[0]
+    tout.Notice("Replacing %d matching entries in image '%s'" %
+                (len(einfos), image_fname))
+
+    BeforeReplace(image, allow_resize)
+
+    for einfo in einfos:
+        entry = einfo.entry
+        if entry.GetEntries():
+            tout.Info("Skipping section entry '%s'" % entry.GetPath())
+            continue
+
+        path = entry.GetPath()[1:]
+        fname = os.path.join(indir, path)
+
+        if os.path.exists(fname):
+            tout.Notice("Write entry '%s' from file '%s'" %
+                        (entry.GetPath(), fname))
+            data = tools.ReadFile(fname)
+            ReplaceOneEntry(image, entry, data, do_compress, allow_resize)
+        else:
+            tout.Warning("Skipping entry '%s' from missing file '%s'" %
+                         (entry.GetPath(), fname))
+
+    AfterReplace(image, allow_resize=allow_resize, write_map=write_map)
+    return image
+
+
 def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
     """Prepare the images to be processed and select the device tree
 
@@ -416,6 +481,16 @@ def Binman(args):
             tools.PrepareOutputDir(None)
             ExtractEntries(args.image, args.filename, args.outdir, args.paths,
                            not args.uncompressed)
+        finally:
+            tools.FinaliseOutputDir()
+        return 0
+
+    if args.cmd == 'replace':
+        try:
+            tools.PrepareOutputDir(None)
+            ReplaceEntries(args.image, args.filename, args.indir, args.paths,
+                           do_compress=not args.compressed,
+                           allow_resize=not args.fix_size, write_map=args.map)
         finally:
             tools.FinaliseOutputDir()
         return 0

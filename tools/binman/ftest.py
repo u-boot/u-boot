@@ -3047,6 +3047,195 @@ class TestFunctional(unittest.TestCase):
         data = control.ReadEntry(updated_fname, entry_name)
         self.assertEqual(expected, data)
 
+    def _SetupForReplace(self):
+        """Set up some files to use to replace entries
+
+        This generates an image, copies it to a new file, extracts all the files
+        in it and updates some of them
+
+        Returns:
+            List
+                Image filename
+                Output directory
+                Expected values for updated entries, each a string
+        """
+        data = self._DoReadFileRealDtb('143_replace_all.dts')
+
+        updated_fname = tools.GetOutputFilename('image-updated.bin')
+        tools.WriteFile(updated_fname, data)
+
+        outdir = os.path.join(self._indir, 'extract')
+        einfos = control.ExtractEntries(updated_fname, None, outdir, [])
+
+        expected1 = b'x' + U_BOOT_DATA + b'y'
+        u_boot_fname1 = os.path.join(outdir, 'u-boot')
+        tools.WriteFile(u_boot_fname1, expected1)
+
+        expected2 = b'a' + U_BOOT_DATA + b'b'
+        u_boot_fname2 = os.path.join(outdir, 'u-boot2')
+        tools.WriteFile(u_boot_fname2, expected2)
+
+        expected_text = b'not the same text'
+        text_fname = os.path.join(outdir, 'text')
+        tools.WriteFile(text_fname, expected_text)
+
+        dtb_fname = os.path.join(outdir, 'u-boot-dtb')
+        dtb = fdt.FdtScan(dtb_fname)
+        node = dtb.GetNode('/binman/text')
+        node.AddString('my-property', 'the value')
+        dtb.Sync(auto_resize=True)
+        dtb.Flush()
+
+        return updated_fname, outdir, expected1, expected2, expected_text
+
+    def _CheckReplaceMultiple(self, entry_paths):
+        """Handle replacing the contents of multiple entries
+
+        Args:
+            entry_paths: List of entry paths to replace
+
+        Returns:
+            List
+                Dict of entries in the image:
+                    key: Entry name
+                    Value: Entry object
+            Expected values for updated entries, each a string
+        """
+        updated_fname, outdir, expected1, expected2, expected_text = (
+            self._SetupForReplace())
+        control.ReplaceEntries(updated_fname, None, outdir, entry_paths)
+
+        image = Image.FromFile(updated_fname)
+        image.LoadData()
+        return image.GetEntries(), expected1, expected2, expected_text
+
+    def testReplaceAll(self):
+        """Test replacing the contents of all entries"""
+        entries, expected1, expected2, expected_text = (
+            self._CheckReplaceMultiple([]))
+        data = entries['u-boot'].data
+        self.assertEqual(expected1, data)
+
+        data = entries['u-boot2'].data
+        self.assertEqual(expected2, data)
+
+        data = entries['text'].data
+        self.assertEqual(expected_text, data)
+
+        # Check that the device tree is updated
+        data = entries['u-boot-dtb'].data
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+        node = dtb.GetNode('/binman/text')
+        self.assertEqual('the value', node.props['my-property'].value)
+
+    def testReplaceSome(self):
+        """Test replacing the contents of a few entries"""
+        entries, expected1, expected2, expected_text = (
+            self._CheckReplaceMultiple(['u-boot2', 'text']))
+
+        # This one should not change
+        data = entries['u-boot'].data
+        self.assertEqual(U_BOOT_DATA, data)
+
+        data = entries['u-boot2'].data
+        self.assertEqual(expected2, data)
+
+        data = entries['text'].data
+        self.assertEqual(expected_text, data)
+
+    def testReplaceCmd(self):
+        """Test replacing a file fron an image on the command line"""
+        self._DoReadFileRealDtb('143_replace_all.dts')
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+
+            fname = os.path.join(tmpdir, 'update-u-boot.bin')
+            expected = b'x' * len(U_BOOT_DATA)
+            tools.WriteFile(fname, expected)
+
+            self._DoBinman('replace', '-i', updated_fname, 'u-boot', '-f', fname)
+            data = tools.ReadFile(updated_fname)
+            self.assertEqual(expected, data[:len(expected)])
+            map_fname = os.path.join(tmpdir, 'image-updated.map')
+            self.assertFalse(os.path.exists(map_fname))
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def testReplaceCmdSome(self):
+        """Test replacing some files fron an image on the command line"""
+        updated_fname, outdir, expected1, expected2, expected_text = (
+            self._SetupForReplace())
+
+        self._DoBinman('replace', '-i', updated_fname, '-I', outdir,
+                       'u-boot2', 'text')
+
+        tools.PrepareOutputDir(None)
+        image = Image.FromFile(updated_fname)
+        image.LoadData()
+        entries = image.GetEntries()
+
+        # This one should not change
+        data = entries['u-boot'].data
+        self.assertEqual(U_BOOT_DATA, data)
+
+        data = entries['u-boot2'].data
+        self.assertEqual(expected2, data)
+
+        data = entries['text'].data
+        self.assertEqual(expected_text, data)
+
+    def testReplaceMissing(self):
+        """Test replacing entries where the file is missing"""
+        updated_fname, outdir, expected1, expected2, expected_text = (
+            self._SetupForReplace())
+
+        # Remove one of the files, to generate a warning
+        u_boot_fname1 = os.path.join(outdir, 'u-boot')
+        os.remove(u_boot_fname1)
+
+        with test_util.capture_sys_output() as (stdout, stderr):
+            control.ReplaceEntries(updated_fname, None, outdir, [])
+        self.assertIn("Skipping entry '/u-boot' from missing file",
+                      stdout.getvalue())
+
+    def testReplaceCmdMap(self):
+        """Test replacing a file fron an image on the command line"""
+        self._DoReadFileRealDtb('143_replace_all.dts')
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+
+            fname = os.path.join(self._indir, 'update-u-boot.bin')
+            expected = b'x' * len(U_BOOT_DATA)
+            tools.WriteFile(fname, expected)
+
+            self._DoBinman('replace', '-i', updated_fname, 'u-boot',
+                           '-f', fname, '-m')
+            map_fname = os.path.join(tmpdir, 'image-updated.map')
+            self.assertTrue(os.path.exists(map_fname))
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def testReplaceNoEntryPaths(self):
+        """Test replacing an entry without an entry path"""
+        self._DoReadFileRealDtb('143_replace_all.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        with self.assertRaises(ValueError) as e:
+            control.ReplaceEntries(image_fname, 'fname', None, [])
+        self.assertIn('Must specify an entry path to read with -f',
+                      str(e.exception))
+
+    def testReplaceTooManyEntryPaths(self):
+        """Test extracting some entries"""
+        self._DoReadFileRealDtb('143_replace_all.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        with self.assertRaises(ValueError) as e:
+            control.ReplaceEntries(image_fname, 'fname', None, ['a', 'b'])
+        self.assertIn('Must specify exactly one entry path to write with -f',
+                      str(e.exception))
+
 
 if __name__ == "__main__":
     unittest.main()
