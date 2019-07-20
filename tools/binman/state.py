@@ -49,7 +49,10 @@ def GetFdtForEtype(etype):
     Returns:
         Fdt object associated with the entry type
     """
-    return output_fdt_files[etype][0]
+    value = output_fdt_files.get(etype);
+    if not value:
+        return None
+    return value[0]
 
 def GetFdtPath(etype):
     """Get the full pathname of a particular Fdt object
@@ -80,7 +83,9 @@ def GetFdtContents(etype='u-boot-dtb'):
             pathname to Fdt
             Fdt data (as bytes)
     """
-    if etype in output_fdt_files and not use_fake_dtb:
+    if etype not in output_fdt_files:
+        return None, None
+    if not use_fake_dtb:
         pathname = GetFdtPath(etype)
         data = GetFdtForEtype(etype).GetContents()
     else:
