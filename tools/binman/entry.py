@@ -714,11 +714,8 @@ features to produce new behaviours.
         """
         # Use True here so that we get an uncompressed section to work from,
         # although compressed sections are currently not supported
-        data = self.section.ReadData(True)
-        tout.Info('%s: Reading data from offset %#x-%#x, size %#x (avail %#x)' %
-                  (self.GetPath(), self.offset, self.offset + self.size,
-                   self.size, len(data)))
-        return data[self.offset:self.offset + self.size]
+        data = self.section.ReadChildData(self, decomp)
+        return data
 
     def LoadData(self, decomp=True):
         data = self.ReadData(decomp)

@@ -17,6 +17,7 @@ import sys
 from entry import Entry
 import fdt_util
 import tools
+import tout
 
 
 class Entry_section(Entry):
@@ -488,3 +489,34 @@ class Entry_section(Entry):
                 they appear in the device tree
         """
         return self._sort
+
+    def ReadData(self, decomp=True):
+        tout.Info("ReadData path='%s'" % self.GetPath())
+        parent_data = self.section.ReadData(True)
+        tout.Info('%s: Reading data from offset %#x-%#x, size %#x' %
+                  (self.GetPath(), self.offset, self.offset + self.size,
+                   self.size))
+        data = parent_data[self.offset:self.offset + self.size]
+        return data
+
+    def ReadChildData(self, child, decomp=True):
+        """Read the data for a particular child entry
+
+        Args:
+            child: Child entry to read data for
+            decomp: True to return uncompressed data, False to leave the data
+                compressed if it is compressed
+
+        Returns:
+            Data contents of entry
+        """
+        parent_data = self.ReadData(True)
+        data = parent_data[child.offset:child.offset + child.size]
+        if decomp:
+            indata = data
+            data = tools.Decompress(indata, child.compress)
+            if child.uncomp_size:
+                tout.Info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
+                            (child.GetPath(), len(indata), child.compress,
+                            len(data)))
+        return data

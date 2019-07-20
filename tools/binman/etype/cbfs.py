@@ -262,3 +262,15 @@ class Entry_cbfs(Entry):
 
     def GetEntries(self):
         return self._cbfs_entries
+
+    def ReadData(self, decomp=True):
+        data = Entry.ReadData(self, True)
+        return data
+
+    def ReadChildData(self, child, decomp=True):
+        if not self.reader:
+            data = Entry.ReadData(self, True)
+            self.reader = cbfs_util.CbfsReader(data)
+        reader = self.reader
+        cfile = reader.files.get(child.name)
+        return cfile.data if decomp else cfile.orig_data
