@@ -114,7 +114,7 @@ int fdt_resize(void *fdt, void *buf, int bufsize)
 
 	FDT_SW_CHECK_HEADER(fdt);
 
-	headsize = fdt_off_dt_struct(fdt);
+	headsize = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
 	tailsize = fdt_size_dt_strings(fdt);
 
 	if ((headsize + tailsize) > bufsize)
