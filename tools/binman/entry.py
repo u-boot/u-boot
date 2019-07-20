@@ -23,6 +23,7 @@ import sys
 import fdt_util
 import state
 import tools
+from tools import ToHex, ToHexSize
 import tout
 
 modules = {}
@@ -272,8 +273,9 @@ class Entry(object):
         new_size = len(data)
         if state.AllowEntryExpansion():
             if new_size > self.contents_size:
-                tout.Debug("Entry '%s' size change from %#x to %#x" % (
-                    self._node.path, self.contents_size, new_size))
+                tout.Debug("Entry '%s' size change from %s to %s" % (
+                    self._node.path, ToHex(self.contents_size),
+                    ToHex(new_size)))
                 # self.data will indicate the new size needed
                 size_ok = False
         elif new_size != self.contents_size:
@@ -294,6 +296,9 @@ class Entry(object):
 
     def ResetForPack(self):
         """Reset offset/size fields so that packing can be done again"""
+        self.Detail('ResetForPack: offset %s->%s, size %s->%s' %
+                    (ToHex(self.offset), ToHex(self.orig_offset),
+                     ToHex(self.size), ToHex(self.orig_size)))
         self.offset = self.orig_offset
         self.size = self.orig_size
 
@@ -315,6 +320,9 @@ class Entry(object):
         Returns:
             New section offset pointer (after this entry)
         """
+        self.Detail('Packing: offset=%s, size=%s, content_size=%x' %
+                    (ToHex(self.offset), ToHex(self.size),
+                     self.contents_size))
         if self.offset is None:
             if self.offset_unset:
                 self.Raise('No offset set with offset-unset: should another '
@@ -346,12 +354,19 @@ class Entry(object):
         if self.offset != tools.Align(self.offset, self.align):
             self.Raise("Offset %#x (%d) does not match align %#x (%d)" %
                   (self.offset, self.offset, self.align, self.align))
+        self.Detail('   - packed: offset=%#x, size=%#x, content_size=%#x, next_offset=%x' %
+                    (self.offset, self.size, self.contents_size, new_offset))
 
         return new_offset
 
     def Raise(self, msg):
         """Convenience function to raise an error referencing a node"""
         raise ValueError("Node '%s': %s" % (self._node.path, msg))
+
+    def Detail(self, msg):
+        """Convenience function to log detail referencing a node"""
+        tag = "Node '%s'" % self._node.path
+        tout.Detail('%30s: %s' % (tag, msg))
 
     def GetEntryArgsOrProps(self, props, required=False):
         """Return the values of a set of properties
@@ -389,6 +404,7 @@ class Entry(object):
         return self._node.path
 
     def GetData(self):
+        self.Detail('GetData: size %s' % ToHexSize(self.data))
         return self.data
 
     def GetOffsets(self):

@@ -473,3 +473,19 @@ def RunIfwiTool(ifwi_file, cmd, fname=None, subpart=None, entry_name=None):
     if entry_name:
         args += ['-d', '-e', entry_name]
     Run(*args)
+
+def ToHex(val):
+    """Convert an integer value (or None) to a string
+
+    Returns:
+        hex value, or 'None' if the value is None
+    """
+    return 'None' if val is None else '%#x' % val
+
+def ToHexSize(val):
+    """Return the size of an object in hex
+
+    Returns:
+        hex value of size, or 'None' if the value is None
+    """
+    return 'None' if val is None else '%#x' % len(val)

@@ -14,6 +14,7 @@ from entry import Entry
 from fdt import Fdt
 import state
 import tools
+import tout
 
 FDTMAP_MAGIC   = b'_FDTMAP_'
 FDTMAP_HDR_LEN = 16
@@ -98,6 +99,8 @@ class Entry_fdtmap(Entry):
 
         # Find the node for the image containing the Fdt-map entry
         path = self.section.GetPath()
+        self.Detail("Fdtmap: Using section '%s' (path '%s')" %
+                    (self.section.name, path))
         node = infdt.GetNode(path)
         if not node:
             self.Raise("Internal error: Cannot locate node for path '%s'" %

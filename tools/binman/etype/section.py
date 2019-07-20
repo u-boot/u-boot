@@ -149,6 +149,8 @@ class Entry_section(Entry):
             base = self.pad_before + entry.offset - self._skip_at_start
             section_data = (section_data[:base] + data +
                             section_data[base + len(data):])
+        self.Detail('GetData: %d entries, total size %#x' %
+                    (len(self._entries), len(section_data)))
         return section_data
 
     def GetOffsets(self):
