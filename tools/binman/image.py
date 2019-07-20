@@ -32,6 +32,9 @@ class Image(section.Entry_section):
 
     Attributes:
         filename: Output filename for image
+        image_node: Name of node containing the description for this image
+        fdtmap_dtb: Fdt object for the fdtmap when loading from a file
+        fdtmap_data: Contents of the fdtmap when loading from a file
 
     Args:
         test: True if this is being called from a test of Images. This this case
@@ -44,6 +47,8 @@ class Image(section.Entry_section):
         self.name = 'main-section'
         self.image_name = name
         self._filename = '%s.bin' % self.image_name
+        self.fdtmap_dtb = None
+        self.fdtmap_data = None
         if not test:
             filename = fdt_util.GetString(self._node, 'filename')
             if filename:
@@ -82,7 +87,11 @@ class Image(section.Entry_section):
         dtb.Scan()
 
         # Return an Image with the associated nodes
-        image = Image('image', dtb.GetRoot())
+        root = dtb.GetRoot()
+        image = Image('image', root)
+        image.image_node = fdt_util.GetString(root, 'image-node', 'image')
+        image.fdtmap_dtb = dtb
+        image.fdtmap_data = fdtmap_data
         image._data = data
         return image
 
