@@ -208,6 +208,7 @@ class CbfsFile(object):
         cbfs_offset: Offset of file data in bytes from start of CBFS, or None to
             place this file anyway
         data: Contents of file, uncompressed
+        orig_data: Original data added to the file, possibly compressed
         data_len: Length of (possibly compressed) data in bytes
         ftype: File type (TYPE_...)
         compression: Compression type (COMPRESS_...)
@@ -226,6 +227,7 @@ class CbfsFile(object):
         self.offset = None
         self.cbfs_offset = cbfs_offset
         self.data = data
+        self.orig_data = data
         self.ftype = ftype
         self.compress = compress
         self.memlen = None
@@ -240,9 +242,9 @@ class CbfsFile(object):
         """Handle decompressing data if necessary"""
         indata = self.data
         if self.compress == COMPRESS_LZ4:
-            data = tools.Decompress(indata, 'lz4')
+            data = tools.Decompress(indata, 'lz4', with_header=False)
         elif self.compress == COMPRESS_LZMA:
-            data = tools.Decompress(indata, 'lzma')
+            data = tools.Decompress(indata, 'lzma', with_header=False)
         else:
             data = indata
         self.memlen = len(data)
@@ -361,9 +363,9 @@ class CbfsFile(object):
         elif self.ftype == TYPE_RAW:
             orig_data = data
             if self.compress == COMPRESS_LZ4:
-                data = tools.Compress(orig_data, 'lz4')
+                data = tools.Compress(orig_data, 'lz4', with_header=False)
             elif self.compress == COMPRESS_LZMA:
-                data = tools.Compress(orig_data, 'lzma')
+                data = tools.Compress(orig_data, 'lzma', with_header=False)
             self.memlen = len(orig_data)
             self.data_len = len(data)
             attr = struct.pack(ATTR_COMPRESSION_FORMAT,

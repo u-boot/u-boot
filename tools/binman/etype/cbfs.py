@@ -168,6 +168,7 @@ class Entry_cbfs(Entry):
         self._cbfs_arg = fdt_util.GetString(node, 'cbfs-arch', 'x86')
         self._cbfs_entries = OrderedDict()
         self._ReadSubnodes()
+        self.reader = None
 
     def ObtainContents(self, skip=None):
         arch = cbfs_util.find_arch(self._cbfs_arg)
@@ -202,7 +203,7 @@ class Entry_cbfs(Entry):
     def _ReadSubnodes(self):
         """Read the subnodes to find out what should go in this IFWI"""
         for node in self._node.subnodes:
-            entry = Entry.Create(self.section, node)
+            entry = Entry.Create(self, node)
             entry.ReadNode()
             entry._cbfs_name = fdt_util.GetString(node, 'cbfs-name', entry.name)
             entry._type = fdt_util.GetString(node, 'cbfs-type')

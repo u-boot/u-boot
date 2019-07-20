@@ -92,6 +92,11 @@ class TestEntry(unittest.TestCase):
         dtb = entry.Entry.Create(None, self.GetNode(), 'u-boot-dtb')
         self.assertEqual('u-boot-dtb', dtb.GetFdtEtype())
 
+    def testWriteChildData(self):
+        """Test the WriteChildData() method of the base class"""
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        self.assertTrue(base.WriteChildData(base))
+
 
 if __name__ == "__main__":
     unittest.main()

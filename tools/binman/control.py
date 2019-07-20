@@ -311,7 +311,7 @@ def ProcessImage(image, update_fdt, write_map, get_contents=True,
     # since changing an offset from 0x100 to 0x104 (for example) can
     # alter the compressed size of the device tree. So we need a
     # third pass for this.
-    passes = 3
+    passes = 5
     for pack_pass in range(passes):
         try:
             image.PackEntries()

@@ -9,6 +9,7 @@ import command
 import glob
 import os
 import shutil
+import struct
 import sys
 import tempfile
 
@@ -377,7 +378,7 @@ def ToBytes(string):
         return string.encode('utf-8')
     return string
 
-def Compress(indata, algo):
+def Compress(indata, algo, with_header=True):
     """Compress some data using a given algorithm
 
     Note that for lzma this uses an old version of the algorithm, not that
@@ -408,9 +409,12 @@ def Compress(indata, algo):
         data = Run('gzip', '-c', fname, binary=True)
     else:
         raise ValueError("Unknown algorithm '%s'" % algo)
+    if with_header:
+        hdr = struct.pack('<I', len(data))
+        data = hdr + data
     return data
 
-def Decompress(indata, algo):
+def Decompress(indata, algo, with_header=True):
     """Decompress some data using a given algorithm
 
     Note that for lzma this uses an old version of the algorithm, not that
@@ -428,6 +432,9 @@ def Decompress(indata, algo):
     """
     if algo == 'none':
         return indata
+    if with_header:
+        data_len = struct.unpack('<I', indata[:4])[0]
+        indata = indata[4:4 + data_len]
     fname = GetOutputFilename('%s.decomp.tmp' % algo)
     with open(fname, 'wb') as fd:
         fd.write(indata)

@@ -2485,7 +2485,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractCbfsRaw(self):
         """Test extracting CBFS compressed data without decompressing it"""
         data = self._RunExtractCmd('section/cbfs/u-boot-dtb', decomp=False)
-        dtb = tools.Decompress(data, 'lzma')
+        dtb = tools.Decompress(data, 'lzma', with_header=False)
         self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
 
     def testExtractBadEntry(self):
@@ -2983,6 +2983,32 @@ class TestFunctional(unittest.TestCase):
         desc = entries['intel-descriptor']
         self.assertEqual(0xff800000, desc.offset);
         self.assertEqual(0xff800000, desc.image_pos);
+
+    def testReplaceCbfs(self):
+        """Test replacing a single file in CBFS without changing the size"""
+        self._CheckLz4()
+        expected = b'x' * len(U_BOOT_DATA)
+        data = self._DoReadFileRealDtb('142_replace_cbfs.dts')
+        updated_fname = tools.GetOutputFilename('image-updated.bin')
+        tools.WriteFile(updated_fname, data)
+        entry_name = 'section/cbfs/u-boot'
+        control.WriteEntry(updated_fname, entry_name, expected,
+                           allow_resize=True)
+        data = control.ReadEntry(updated_fname, entry_name)
+        self.assertEqual(expected, data)
+
+    def testReplaceResizeCbfs(self):
+        """Test replacing a single file in CBFS with one of a different size"""
+        self._CheckLz4()
+        expected = U_BOOT_DATA + b'x'
+        data = self._DoReadFileRealDtb('142_replace_cbfs.dts')
+        updated_fname = tools.GetOutputFilename('image-updated.bin')
+        tools.WriteFile(updated_fname, data)
+        entry_name = 'section/cbfs/u-boot'
+        control.WriteEntry(updated_fname, entry_name, expected,
+                           allow_resize=True)
+        data = control.ReadEntry(updated_fname, entry_name)
+        self.assertEqual(expected, data)
 
 
 if __name__ == "__main__":
