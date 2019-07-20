@@ -342,7 +342,11 @@ def Binman(args):
         return 0
 
     if args.cmd == 'ls':
-        ListEntries(args.image, args.paths)
+        try:
+            tools.PrepareOutputDir(None)
+            ListEntries(args.image, args.paths)
+        finally:
+            tools.FinaliseOutputDir()
         return 0
 
     if args.cmd == 'extract':

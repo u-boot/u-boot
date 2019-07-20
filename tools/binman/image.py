@@ -94,7 +94,10 @@ class Image(section.Entry_section):
             data[pos + fdtmap.FDTMAP_HDR_LEN:pos + 256])
         dtb_size = probe_dtb.GetFdtObj().totalsize()
         fdtmap_data = data[pos:pos + dtb_size + fdtmap.FDTMAP_HDR_LEN]
-        dtb = fdt.Fdt.FromData(fdtmap_data[fdtmap.FDTMAP_HDR_LEN:])
+        fdt_data = fdtmap_data[fdtmap.FDTMAP_HDR_LEN:]
+        out_fname = tools.GetOutputFilename('fdtmap.in.dtb')
+        tools.WriteFile(out_fname, fdt_data)
+        dtb = fdt.Fdt.FromData(fdt_data, out_fname)
         dtb.Scan()
 
         # Return an Image with the associated nodes
