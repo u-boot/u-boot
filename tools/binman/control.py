@@ -169,6 +169,75 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
     return einfos
 
 
+def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
+    """Prepare the images to be processed and select the device tree
+
+    This function:
+    - reads in the device tree
+    - finds and scans the binman node to create all entries
+    - selects which images to build
+    - Updates the device tress with placeholder properties for offset,
+        image-pos, etc.
+
+    Args:
+        dtb_fname: Filename of the device tree file to use (.dts or .dtb)
+        selected_images: List of images to output, or None for all
+        update_fdt: True to update the FDT wth entry offsets, etc.
+    """
+    # Import these here in case libfdt.py is not available, in which case
+    # the above help option still works.
+    import fdt
+    import fdt_util
+    global images
+
+    # Get the device tree ready by compiling it and copying the compiled
+    # output into a file in our output directly. Then scan it for use
+    # in binman.
+    dtb_fname = fdt_util.EnsureCompiled(dtb_fname)
+    fname = tools.GetOutputFilename('u-boot.dtb.out')
+    tools.WriteFile(fname, tools.ReadFile(dtb_fname))
+    dtb = fdt.FdtScan(fname)
+
+    node = _FindBinmanNode(dtb)
+    if not node:
+        raise ValueError("Device tree '%s' does not have a 'binman' "
+                            "node" % dtb_fname)
+
+    images = _ReadImageDesc(node)
+
+    if select_images:
+        skip = []
+        new_images = OrderedDict()
+        for name, image in images.items():
+            if name in select_images:
+                new_images[name] = image
+            else:
+                skip.append(name)
+        images = new_images
+        tout.Notice('Skipping images: %s' % ', '.join(skip))
+
+    state.Prepare(images, dtb)
+
+    # Prepare the device tree by making sure that any missing
+    # properties are added (e.g. 'pos' and 'size'). The values of these
+    # may not be correct yet, but we add placeholders so that the
+    # size of the device tree is correct. Later, in
+    # SetCalculatedProperties() we will insert the correct values
+    # without changing the device-tree size, thus ensuring that our
+    # entry offsets remain the same.
+    for image in images.values():
+        image.ExpandEntries()
+        if update_fdt:
+            image.AddMissingProperties()
+        image.ProcessFdt(dtb)
+
+    for dtb_item in state.GetFdts():
+        dtb_item.Sync(auto_resize=True)
+        dtb_item.Pack()
+        dtb_item.Flush()
+    return images
+
+
 def ProcessImage(image, update_fdt, write_map):
     """Perform all steps for this image, including checking and # writing it.
 
@@ -234,8 +303,6 @@ def Binman(args):
     Args:
         args: Command line arguments Namespace object
     """
-    global images
-
     if args.full_help:
         pager = os.getenv('PAGER')
         if not pager:
@@ -272,11 +339,6 @@ def Binman(args):
         args.indir.append(board_pathname)
 
     try:
-        # Import these here in case libfdt.py is not available, in which case
-        # the above help option still works.
-        import fdt
-        import fdt_util
-
         tout.Init(args.verbosity)
         elf.debug = args.debug
         cbfs_util.VERBOSE = args.verbosity > 2
@@ -287,53 +349,8 @@ def Binman(args):
             tools.SetToolPaths(args.toolpath)
             state.SetEntryArgs(args.entry_arg)
 
-            # Get the device tree ready by compiling it and copying the compiled
-            # output into a file in our output directly. Then scan it for use
-            # in binman.
-            dtb_fname = fdt_util.EnsureCompiled(dtb_fname)
-            fname = tools.GetOutputFilename('u-boot.dtb.out')
-            tools.WriteFile(fname, tools.ReadFile(dtb_fname))
-            dtb = fdt.FdtScan(fname)
-
-            node = _FindBinmanNode(dtb)
-            if not node:
-                raise ValueError("Device tree '%s' does not have a 'binman' "
-                                 "node" % dtb_fname)
-
-            images = _ReadImageDesc(node)
-
-            if args.image:
-                skip = []
-                new_images = OrderedDict()
-                for name, image in images.items():
-                    if name in args.image:
-                        new_images[name] = image
-                    else:
-                        skip.append(name)
-                images = new_images
-                if skip and args.verbosity >= 2:
-                    print('Skipping images: %s' % ', '.join(skip))
-
-            state.Prepare(images, dtb)
-
-            # Prepare the device tree by making sure that any missing
-            # properties are added (e.g. 'pos' and 'size'). The values of these
-            # may not be correct yet, but we add placeholders so that the
-            # size of the device tree is correct. Later, in
-            # SetCalculatedProperties() we will insert the correct values
-            # without changing the device-tree size, thus ensuring that our
-            # entry offsets remain the same.
-            for image in images.values():
-                image.ExpandEntries()
-                if args.update_fdt:
-                    image.AddMissingProperties()
-                image.ProcessFdt(dtb)
-
-            for dtb_item in state.GetFdts():
-                dtb_item.Sync(auto_resize=True)
-                dtb_item.Pack()
-                dtb_item.Flush()
-
+            images = PrepareImagesAndDtbs(dtb_fname, args.image,
+                                          args.update_fdt)
             for image in images.values():
                 ProcessImage(image, args.update_fdt, args.map)
 
