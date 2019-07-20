@@ -169,6 +169,62 @@ def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
     return einfos
 
 
+def BeforeReplace(image, allow_resize):
+    """Handle getting an image ready for replacing entries in it
+
+    Args:
+        image: Image to prepare
+    """
+    state.PrepareFromLoadedData(image)
+    image.LoadData()
+
+    # If repacking, drop the old offset/size values except for the original
+    # ones, so we are only left with the constraints.
+    if allow_resize:
+        image.ResetForPack()
+
+
+def ReplaceOneEntry(image, entry, data, do_compress, allow_resize):
+    """Handle replacing a single entry an an image
+
+    Args:
+        image: Image to update
+        entry: Entry to write
+        data: Data to replace with
+        do_compress: True to compress the data if needed, False if data is
+            already compressed so should be used as is
+        allow_resize: True to allow entries to change size (this does a re-pack
+            of the entries), False to raise an exception
+    """
+    if not entry.WriteData(data, do_compress):
+        if not image.allow_repack:
+            entry.Raise('Entry data size does not match, but allow-repack is not present for this image')
+        if not allow_resize:
+            entry.Raise('Entry data size does not match, but resize is disabled')
+
+
+def AfterReplace(image, allow_resize, write_map):
+    """Handle write out an image after replacing entries in it
+
+    Args:
+        image: Image to write
+        allow_resize: True to allow entries to change size (this does a re-pack
+            of the entries), False to raise an exception
+        write_map: True to write a map file
+    """
+    tout.Info('Processing image')
+    ProcessImage(image, update_fdt=True, write_map=write_map,
+                 get_contents=False, allow_resize=allow_resize)
+
+
+def WriteEntryToImage(image, entry, data, do_compress=True, allow_resize=True,
+                      write_map=False):
+    BeforeReplace(image, allow_resize)
+    tout.Info('Writing data to %s' % entry.GetPath())
+    ReplaceOneEntry(image, entry, data, do_compress, allow_resize)
+    AfterReplace(image, allow_resize=allow_resize, write_map=write_map)
+
+
 def WriteEntry(image_fname, entry_path, data, do_compress=True,
                allow_resize=True, write_map=False):
     """Replace an entry in an image
@@ -189,26 +245,12 @@ def WriteEntry(image_fname, entry_path, data, do_compress=True,
     Returns:
         Image object that was updated
     """
-    tout.Info("WriteEntry '%s', file '%s'" % (entry_path, image_fname))
+    tout.Info("Write entry '%s', file '%s'" % (entry_path, image_fname))
     image = Image.FromFile(image_fname)
     entry = image.FindEntryPath(entry_path)
-    state.PrepareFromLoadedData(image)
-    image.LoadData()
+    WriteEntryToImage(image, entry, data, do_compress=do_compress,
+                      allow_resize=allow_resize, write_map=write_map)
 
-    # If repacking, drop the old offset/size values except for the original
-    # ones, so we are only left with the constraints.
-    if allow_resize:
-        image.ResetForPack()
-    tout.Info('Writing data to %s' % entry.GetPath())
-    if not entry.WriteData(data, do_compress):
-        if not image.allow_repack:
-            entry.Raise('Entry data size does not match, but allow-repack is not present for this image')
-        if not allow_resize:
-            entry.Raise('Entry data size does not match, but resize is disabled')
-    tout.Info('Processing image')
-    ProcessImage(image, update_fdt=True, write_map=False, get_contents=False,
-                 allow_resize=allow_resize)
-    tout.Info('WriteEntry done')
     return image
 
 def PrepareImagesAndDtbs(dtb_fname, select_images, update_fdt):
