@@ -203,6 +203,28 @@ class TestFunctional(unittest.TestCase):
         """Remove the temporary output directory"""
         self._CleanupOutputDir()
 
+    def _SetupImageInTmpdir(self):
+        """Set up the output image in a new temporary directory
+
+        This is used when an image has been generated in the output directory,
+        but we want to run binman again. This will create a new output
+        directory and fail to delete the original one.
+
+        This creates a new temporary directory, copies the image to it (with a
+        new name) and removes the old output directory.
+
+        Returns:
+            Tuple:
+                Temporary directory to use
+                New image filename
+        """
+        image_fname = tools.GetOutputFilename('image.bin')
+        tmpdir = tempfile.mkdtemp(prefix='binman.')
+        updated_fname = os.path.join(tmpdir, 'image-updated.bin')
+        tools.WriteFile(updated_fname, tools.ReadFile(image_fname))
+        self._CleanupOutputDir()
+        return tmpdir, updated_fname
+
     @classmethod
     def _ResetDtbs(self):
         TestFunctional._MakeInputFile('u-boot.dtb', U_BOOT_DTB_DATA)
@@ -1563,6 +1585,7 @@ class TestFunctional(unittest.TestCase):
 
             self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
             self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
+            self._CleanupOutputDir()
 
     def testUpdateFdtAll(self):
         """Test that all device trees are updated with offset/size info"""
@@ -2364,9 +2387,12 @@ class TestFunctional(unittest.TestCase):
         fdt_size = entries['section'].GetEntries()['u-boot-dtb'].size
         fdtmap_offset = entries['fdtmap'].offset
 
-        image_fname = tools.GetOutputFilename('image.bin')
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoBinman('ls', '-i', image_fname)
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with test_util.capture_sys_output() as (stdout, stderr):
+                self._DoBinman('ls', '-i', updated_fname)
+        finally:
+            shutil.rmtree(tmpdir)
         lines = stdout.getvalue().splitlines()
         expected = [
 'Name              Image-pos  Size  Entry-type    Offset  Uncomp-size',
@@ -2387,9 +2413,12 @@ class TestFunctional(unittest.TestCase):
     def testListCmdFail(self):
         """Test failing to list an image"""
         self._DoReadFile('005_simple.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
-        with self.assertRaises(ValueError) as e:
-            self._DoBinman('ls', '-i', image_fname)
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with self.assertRaises(ValueError) as e:
+                self._DoBinman('ls', '-i', updated_fname)
+        finally:
+            shutil.rmtree(tmpdir)
         self.assertIn("Cannot find FDT map in image", str(e.exception))
 
     def _RunListCmd(self, paths, expected):
@@ -2515,10 +2544,14 @@ class TestFunctional(unittest.TestCase):
         """Test extracting a file fron an image on the command line"""
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
         fname = os.path.join(self._indir, 'output.extact')
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoBinman('extract', '-i', image_fname, 'u-boot', '-f', fname)
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with test_util.capture_sys_output() as (stdout, stderr):
+                self._DoBinman('extract', '-i', updated_fname, 'u-boot',
+                               '-f', fname)
+        finally:
+            shutil.rmtree(tmpdir)
         data = tools.ReadFile(fname)
         self.assertEqual(U_BOOT_DATA, data)
 
