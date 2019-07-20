@@ -962,6 +962,8 @@ Some ideas:
 - Support updating binaries in an image (with repacking)
 - Support adding FITs to an image
 - Support for ARM Trusted Firmware (ATF)
+- Detect invalid properties in nodes
+- Sort the fdtmap by offset
 
 --
 Simon Glass <sjg@chromium.org>
