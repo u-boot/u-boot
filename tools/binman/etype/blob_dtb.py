@@ -31,3 +31,12 @@ class Entry_blob_dtb(Entry_blob):
         _, indata = state.GetFdtContents(self._filename)
         data = self.CompressData(indata)
         return self.ProcessContentsUpdate(data)
+
+    def GetFdtSet(self):
+        """Get the set of device trees used by this entry
+
+        Returns:
+            Set containing the filename from this entry
+        """
+        fname = self.GetDefaultFilename()
+        return set([fname])

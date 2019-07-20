@@ -192,11 +192,6 @@ class Entry(object):
             Set containing the filename from this entry, if it is a .dtb, else
             an empty set
         """
-        fname = self.GetDefaultFilename()
-        # It would be better to use isinstance(self, Entry_blob_dtb) here but
-        # we cannot access Entry_blob_dtb
-        if fname and fname.endswith('.dtb'):
-            return set([fname])
         return set()
 
     def ExpandEntries(self):
