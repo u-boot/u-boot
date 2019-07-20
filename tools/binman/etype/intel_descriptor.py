@@ -47,8 +47,12 @@ class Entry_intel_descriptor(Entry_blob):
     def __init__(self, section, etype, node):
         Entry_blob.__init__(self, section, etype, node)
         self._regions = []
+
+    def Pack(self, offset):
+        """Put this entry at the start of the image"""
         if self.offset is None:
-            self.offset = self.section.GetStartOffset()
+            offset = self.section.GetStartOffset()
+        return Entry_blob.Pack(self, offset)
 
     def GetOffsets(self):
         offset = self.data.find(FD_SIGNATURE)

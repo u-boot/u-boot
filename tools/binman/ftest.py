@@ -2975,6 +2975,15 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
         self.assertEqual(b'a\0', data[-2:])
 
+    def testDescriptorOffset(self):
+        """Test that the Intel descriptor is always placed at at the start"""
+        data = self._DoReadFileDtb('141_descriptor_offset.dts')
+        image = control.images['image']
+        entries = image.GetEntries()
+        desc = entries['intel-descriptor']
+        self.assertEqual(0xff800000, desc.offset);
+        self.assertEqual(0xff800000, desc.image_pos);
+
 
 if __name__ == "__main__":
     unittest.main()
