@@ -54,6 +54,14 @@ static int slow_equals(u8 *a, u8 *b, int len)
 	return diff == 0;
 }
 
+/**
+ * passwd_abort_sha256() - check for a hashed key sequence to abort booting
+ *
+ * This checks for the user entering a SHA256 hash within a given time.
+ *
+ * @etime: Timeout value ticks (stop when get_ticks() reachs this)
+ * @return 0 if autoboot should continue, 1 if it should stop
+ */
 static int passwd_abort_sha256(uint64_t etime)
 {
 	const char *sha_env_str = env_get("bootstopkeysha256");
@@ -106,6 +114,14 @@ static int passwd_abort_sha256(uint64_t etime)
 	return abort;
 }
 
+/**
+ * passwd_abort_key() - check for a key sequence to aborted booting
+ *
+ * This checks for the user entering a string within a given time.
+ *
+ * @etime: Timeout value ticks (stop when get_ticks() reachs this)
+ * @return 0 if autoboot should continue, 1 if it should stop
+ */
 static int passwd_abort_key(uint64_t etime)
 {
 	int abort = 0;

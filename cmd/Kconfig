@@ -101,7 +101,14 @@ config AUTOBOOT_PROMPT
 config AUTOBOOT_ENCRYPTION
 	bool "Enable encryption in autoboot stopping"
 	depends on AUTOBOOT_KEYED
-	default n
+	help
+	  This option allows a string to be entered into U-Boot to stop the
+	  autoboot. The string itself is hashed and compared against the hash
+	  in the environment variable 'bootstopkeysha256'. If it matches then
+	  boot stops and a command-line prompt is presented.
+
+	  This provides a way to ship a secure production device which can also
+	  be accessed at the U-Boot command line.
 
 config AUTOBOOT_DELAY_STR
 	string "Delay autobooting via specific input key / string"

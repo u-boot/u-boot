@@ -3421,6 +3421,8 @@ List of environment variables (most likely not complete):
 		  allowed for use by the bootm command. See also "bootm_low"
 		  environment variable.
 
+  bootstopkeysha256, bootdelaykey, bootstopkey	- See README.autoboot
+
   updatefile	- Location of the software update file on a TFTP server, used
 		  by the automatic software update feature. Please refer to
 		  documentation in doc/README.update for more details.

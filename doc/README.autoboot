@@ -132,6 +132,21 @@ What they do
 	provides an escape sequence from the limited "password"
 	strings.
 
+  CONFIG_AUTOBOOT_ENCRYPTION
+
+  "bootstopkeysha256"	environment variable
+
+	- Hash value of the input which unlocks the device and
+	  stops autoboot.
+
+	This option allows a string to be entered into U-Boot to stop the
+	autoboot. The string itself is hashed and compared against the hash
+	in the environment variable 'bootstopkeysha256'. If it matches then
+	boot stops and a command-line prompt is presented.
+
+	This provides a way to ship a secure production device which can also
+	be accessed at the U-Boot command line.
+
   CONFIG_RESET_TO_RETRY
 
 	(Only effective when CONFIG_BOOT_RETRY_TIME is also set)
