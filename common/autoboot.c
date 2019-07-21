@@ -292,7 +292,7 @@ static int abortboot(int bootdelay)
 
 static void process_fdt_options(const void *blob)
 {
-#if defined(CONFIG_OF_CONTROL) && defined(CONFIG_SYS_TEXT_BASE)
+#ifdef CONFIG_SYS_TEXT_BASE
 	ulong addr;
 
 	/* Add an env variable to point to a kernel payload, if available */
@@ -304,7 +304,7 @@ static void process_fdt_options(const void *blob)
 	addr = fdtdec_get_config_int(gd->fdt_blob, "rootdisk-offset", 0);
 	if (addr)
 		env_set_addr("rootaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
-#endif /* CONFIG_OF_CONTROL && CONFIG_SYS_TEXT_BASE */
+#endif /* CONFIG_SYS_TEXT_BASE */
 }
 
 const char *bootdelay_process(void)
@@ -317,16 +317,14 @@ const char *bootdelay_process(void)
 	s = env_get("bootdelay");
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 
-#ifdef CONFIG_OF_CONTROL
-	bootdelay = fdtdec_get_config_int(gd->fdt_blob, "bootdelay",
-			bootdelay);
-#endif
+	if (IS_ENABLED(CONFIG_OF_CONTROL))
+		bootdelay = fdtdec_get_config_int(gd->fdt_blob, "bootdelay",
+						  bootdelay);
 
 	debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
 
-#if defined(CONFIG_AUTOBOOT_MENU_SHOW)
-	bootdelay = menu_show(bootdelay);
-#endif
+	if (IS_ENABLED(CONFIG_AUTOBOOT_MENU_SHOW))
+		bootdelay = menu_show(bootdelay);
 	bootretry_init_cmd_timeout();
 
 #ifdef CONFIG_POST
@@ -339,7 +337,8 @@ const char *bootdelay_process(void)
 	else
 		s = env_get("bootcmd");
 
-	process_fdt_options(gd->fdt_blob);
+	if (IS_ENABLED(CONFIG_OF_CONTROL))
+		process_fdt_options(gd->fdt_blob);
 	stored_bootdelay = bootdelay;
 
 	return s;
