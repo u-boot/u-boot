@@ -19,7 +19,20 @@ int menu_destroy(struct menu *m);
 void menu_display_statusline(struct menu *m);
 int menu_default_choice(struct menu *m, void **choice);
 
-#if defined(CONFIG_AUTOBOOT_MENU_SHOW)
+/**
+ * menu_show() Show a boot menu
+ *
+ * This shows a menu and lets the user select an option. The menu is defined by
+ * environment variables (see README.bootmenu).
+ *
+ * This function doesn't normally return, but if the users requests the command
+ * problem, it will.
+ *
+ * @bootdelay: Delay to wait before running the default menu option (0 to run
+ *		the entry immediately)
+ * @return If it returns, it always returns -1 to indicate that the boot should
+ *	be aborted and the command prompt should be provided
+ */
 int menu_show(int bootdelay);
-#endif
+
 #endif /* __MENU_H__ */
