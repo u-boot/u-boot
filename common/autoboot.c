@@ -324,7 +324,7 @@ const char *bootdelay_process(void)
 
 	debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
 
-#if defined(CONFIG_MENU_SHOW)
+#if defined(CONFIG_AUTOBOOT_MENU_SHOW)
 	bootdelay = menu_show(bootdelay);
 #endif
 	bootretry_init_cmd_timeout();

@@ -19,7 +19,7 @@ int menu_destroy(struct menu *m);
 void menu_display_statusline(struct menu *m);
 int menu_default_choice(struct menu *m, void **choice);
 
-#if defined(CONFIG_MENU_SHOW)
+#if defined(CONFIG_AUTOBOOT_MENU_SHOW)
 int menu_show(int bootdelay);
 #endif
 #endif /* __MENU_H__ */

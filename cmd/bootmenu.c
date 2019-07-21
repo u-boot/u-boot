@@ -472,7 +472,7 @@ void menu_display_statusline(struct menu *m)
 	puts(ANSI_CLEAR_LINE);
 }
 
-#ifdef CONFIG_MENU_SHOW
+#ifdef CONFIG_AUTOBOOT_MENU_SHOW
 int menu_show(int bootdelay)
 {
 	bootmenu_show(bootdelay);

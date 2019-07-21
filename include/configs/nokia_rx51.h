@@ -270,7 +270,7 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"run attachboot;" \
 	"echo"
 
-#define CONFIG_MENU_SHOW
+#define CONFIG_AUTOBOOT_MENU_SHOW
 
 /*
  * Miscellaneous configurable options
