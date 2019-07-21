@@ -28,11 +28,18 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* Stored value of bootdelay, used by autoboot_command() */
 static int stored_bootdelay;
+static int menukey;
 
 #ifdef CONFIG_AUTOBOOT_ENCRYPTION
 #define AUTOBOOT_STOP_STR_SHA256 CONFIG_AUTOBOOT_STOP_STR_SHA256
 #else
 #define AUTOBOOT_STOP_STR_SHA256 ""
+#endif
+
+#ifdef CONFIG_USE_AUTOBOOT_MENUKEY
+#define AUTOBOOT_MENUKEY CONFIG_USE_AUTOBOOT_MENUKEY
+#else
+#define AUTOBOOT_MENUKEY 0
 #endif
 
 /*
@@ -224,10 +231,6 @@ static int abortboot_key_sequence(int bootdelay)
 	return abort;
 }
 
-#ifdef CONFIG_USE_AUTOBOOT_MENUKEY
-static int menukey;
-#endif
-
 static int abortboot_single_key(int bootdelay)
 {
 	int abort = 0;
@@ -250,13 +253,13 @@ static int abortboot_single_key(int bootdelay)
 		ts = get_timer(0);
 		do {
 			if (tstc()) {	/* we got a key press	*/
+				int key;
+
 				abort  = 1;	/* don't auto boot	*/
 				bootdelay = 0;	/* no more delay	*/
-# ifdef CONFIG_USE_AUTOBOOT_MENUKEY
-				menukey = getc();
-# else
-				(void) getc();  /* consume input	*/
-# endif
+				key = getc(); /* consume input	*/
+				if (IS_ENABLED(CONFIG_USE_AUTOBOOT_MENUKEY))
+					menukey = key;
 				break;
 			}
 			udelay(10000);
@@ -358,11 +361,10 @@ void autoboot_command(const char *s)
 #endif
 	}
 
-#ifdef CONFIG_USE_AUTOBOOT_MENUKEY
-	if (menukey == CONFIG_AUTOBOOT_MENUKEY) {
+	if (IS_ENABLED(CONFIG_USE_AUTOBOOT_MENUKEY) &&
+	    menukey == AUTOBOOT_MENUKEY) {
 		s = env_get("menucmd");
 		if (s)
 			run_command_list(s, -1, 0);
 	}
-#endif /* CONFIG_USE_AUTOBOOT_MENUKEY */
 }
