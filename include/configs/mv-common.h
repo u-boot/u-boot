@@ -38,8 +38,6 @@
 #endif
 
 /* auto boot */
-#define CONFIG_USE_PREBOOT
-#define CONFIG_PREBOOT
 
 /*
  * For booting Linux, the board info and command line data

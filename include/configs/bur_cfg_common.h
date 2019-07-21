@@ -23,9 +23,6 @@
 "setcurs 1 10;lcdputs serverip; setcurs 10 10; lcdputs ${serverip};" \
 "setenv stdout nc;setenv stdin nc;setenv stderr nc\0"
 
-#define CONFIG_USE_PREBOOT
-#define CONFIG_PREBOOT			"run cfgscr; run brdefaultip"
-
 /* Network defines */
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT		10

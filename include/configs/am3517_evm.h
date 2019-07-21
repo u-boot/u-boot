@@ -29,19 +29,6 @@
 
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	57
 
-#ifdef CONFIG_USB_MUSB_AM35X
-
-#ifdef CONFIG_USB_MUSB_HOST
-
-#ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_USE_PREBOOT
-#define CONFIG_PREBOOT "usb start"
-#endif /* CONFIG_USB_KEYBOARD */
-
-#endif /* CONFIG_USB_MUSB_HOST */
-
-#endif /* CONFIG_USB_MUSB_AM35X */
-
 /* I2C */
 
 /* Ethernet */

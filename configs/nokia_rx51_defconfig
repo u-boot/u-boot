@@ -5,6 +5,8 @@ CONFIG_SYS_TEXT_BASE=0x80008000
 CONFIG_TARGET_NOKIA_RX51=y
 CONFIG_NR_DRAM_BANKS=2
 CONFIG_BOOTDELAY=30
+CONFIG_USE_PREBOOT=y
+CONFIG_PREBOOT="setenv mmcnum 1; setenv mmcpart 1;setenv mmcscriptfile bootmenu.scr;if run switchmmc; then setenv mmcdone true;setenv mmctype fat;if run scriptload; then true; else setenv mmctype ext2;if run scriptload; then true; else setenv mmctype ext4;if run scriptload; then true; else setenv mmcdone false;fi;fi;fi;if ${mmcdone}; then run scriptboot;fi;fi;if run slide; then true; else setenv bootmenu_delay 0;setenv bootdelay 0;fi"
 # CONFIG_CONSOLE_MUX is not set
 CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 CONFIG_HUSH_PARSER=y

@@ -37,8 +37,6 @@
 			"run manage_userdata; "
 
 /* Enable PREBOOT variable */
-#define CONFIG_USE_PREBOOT
-#define CONFIG_PREBOOT
 
 /* Set ARP_TIMEOUT to 500ms */
 #define CONFIG_ARP_TIMEOUT 500UL

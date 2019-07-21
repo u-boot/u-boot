@@ -73,8 +73,6 @@
 /* Environment */
 #define CONFIG_ENV_SIZE			SZ_16K
 #define CONFIG_SYS_LOAD_ADDR		0x1000000
-#define CONFIG_USE_PREBOOT
-#define CONFIG_PREBOOT			"usb start"
 
 /* Shell */
 

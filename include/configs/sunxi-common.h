@@ -285,11 +285,6 @@ extern int soft_i2c_gpio_scl;
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 1
 #endif
 
-#ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_USE_PREBOOT
-#define CONFIG_PREBOOT
-#endif
-
 #ifndef CONFIG_SPL_BUILD
 
 #ifdef CONFIG_ARM64
