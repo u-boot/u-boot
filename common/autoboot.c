@@ -28,6 +28,12 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Stored value of bootdelay, used by autoboot_command() */
 static int stored_bootdelay;
 
+#ifdef CONFIG_AUTOBOOT_ENCRYPTION
+#define AUTOBOOT_STOP_STR_SHA256 CONFIG_AUTOBOOT_STOP_STR_SHA256
+#else
+#define AUTOBOOT_STOP_STR_SHA256 ""
+#endif
+
 #if defined(CONFIG_AUTOBOOT_KEYED)
 #if defined(CONFIG_AUTOBOOT_STOP_STR_SHA256)
 
@@ -61,7 +67,7 @@ static int passwd_abort(uint64_t etime)
 	int ret;
 
 	if (sha_env_str == NULL)
-		sha_env_str = CONFIG_AUTOBOOT_STOP_STR_SHA256;
+		sha_env_str = AUTOBOOT_STOP_STR_SHA256;
 
 	/*
 	 * Generate the binary value from the environment hash value
