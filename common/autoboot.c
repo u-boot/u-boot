@@ -349,15 +349,18 @@ void autoboot_command(const char *s)
 	debug("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 
 	if (stored_bootdelay != -1 && s && !abortboot(stored_bootdelay)) {
-#if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)
-		int prev = disable_ctrlc(1);	/* disable Control C checking */
-#endif
+		bool lock;
+		int prev;
+
+		lock = IS_ENABLED(CONFIG_AUTOBOOT_KEYED) &&
+			!IS_ENABLED(CONFIG_AUTOBOOT_KEYED_CTRLC);
+		if (lock)
+			prev = disable_ctrlc(1); /* disable Ctrl-C checking */
 
 		run_command_list(s, -1, 0);
 
-#if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)
-		disable_ctrlc(prev);	/* restore Control C checking */
-#endif
+		if (lock)
+			disable_ctrlc(prev);	/* restore Ctrl-C checking */
 	}
 
 	if (IS_ENABLED(CONFIG_USE_AUTOBOOT_MENUKEY) &&
