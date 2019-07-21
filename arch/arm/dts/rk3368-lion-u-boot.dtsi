@@ -12,7 +12,6 @@
 	chosen {
 		stdout-path = "serial0:115200n8";
 		u-boot,spl-boot-order = &emmc, &sdmmc;
-		tick-timer = "/timer@ff810000";
 	};
 
 };

@@ -8,12 +8,6 @@
 #ifndef _ASM_ARCH_RK3288_SDRAM_H__
 #define _ASM_ARCH_RK3288_SDRAM_H__
 
-enum {
-	DDR3 = 3,
-	LPDDR3 = 6,
-	UNUSED = 0xFF,
-};
-
 struct rk3288_sdram_channel {
 	/*
 	 * bit width in address, eg:

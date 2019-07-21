@@ -3,6 +3,13 @@
  * Copyright (C) 2019 Rockchip Electronics Co., Ltd
  */
 
+/ {
+	chosen {
+		u-boot,spl-boot-order = \
+			"same-as-spl", &emmc, &sdmmc;
+	};
+};
+
 &dmc {
 	u-boot,dm-pre-reloc;
 };

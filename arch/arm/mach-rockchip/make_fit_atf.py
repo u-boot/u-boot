@@ -13,16 +13,7 @@ import os
 import sys
 import getopt
 import logging
-
-# pip install pyelftools
-from elftools.elf.elffile import ELFFile
-
-ELF_SEG_P_TYPE = 'p_type'
-ELF_SEG_P_PADDR = 'p_paddr'
-ELF_SEG_P_VADDR = 'p_vaddr'
-ELF_SEG_P_OFFSET = 'p_offset'
-ELF_SEG_P_FILESZ = 'p_filesz'
-ELF_SEG_P_MEMSZ = 'p_memsz'
+import struct
 
 DT_HEADER = """
 /*
@@ -118,33 +109,19 @@ def append_conf_node(file, dtbs, segments):
     file.write('\n')
 
 def generate_atf_fit_dts_uboot(fit_file, uboot_file_name):
-    num_load_seg = 0
-    p_paddr = 0xFFFFFFFF
-    with open(uboot_file_name, 'rb') as uboot_file:
-        uboot = ELFFile(uboot_file)
-        for i in range(uboot.num_segments()):
-            seg = uboot.get_segment(i)
-            if seg.__getitem__(ELF_SEG_P_TYPE) == 'PT_LOAD':
-                p_paddr = seg.__getitem__(ELF_SEG_P_PADDR)
-                num_load_seg = num_load_seg + 1
-
-    assert (p_paddr != 0xFFFFFFFF and num_load_seg == 1)
-
+    segments = unpack_elf(uboot_file_name)
+    if len(segments) != 1:
+        raise ValueError("Invalid u-boot ELF image '%s'" % uboot_file_name)
+    index, entry, p_paddr, data = segments[0]
     fit_file.write(DT_UBOOT % p_paddr)
 
 def generate_atf_fit_dts_bl31(fit_file, bl31_file_name, dtbs_file_name):
-    with open(bl31_file_name, 'rb') as bl31_file:
-        bl31 = ELFFile(bl31_file)
-        elf_entry = bl31.header['e_entry']
-        segments = bl31.num_segments()
-        for i in range(segments):
-            seg = bl31.get_segment(i)
-            if seg.__getitem__(ELF_SEG_P_TYPE) == 'PT_LOAD':
-                paddr = seg.__getitem__(ELF_SEG_P_PADDR)
-                append_bl31_node(fit_file, i + 1, paddr, elf_entry)
+    segments = unpack_elf(bl31_file_name)
+    for index, entry, paddr, data in segments:
+        append_bl31_node(fit_file, index + 1, paddr, entry)
     append_fdt_node(fit_file, dtbs_file_name)
     fit_file.write(DT_IMAGES_NODE_END)
-    append_conf_node(fit_file, dtbs_file_name, segments)
+    append_conf_node(fit_file, dtbs_file_name, len(segments))
 
 def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_file_name):
     # Generate FIT script for ATF image.
@@ -162,17 +139,29 @@ def generate_atf_fit_dts(fit_file_name, bl31_file_name, uboot_file_name, dtbs_fi
         fit_file.close()
 
 def generate_atf_binary(bl31_file_name):
-    with open(bl31_file_name, 'rb') as bl31_file:
-        bl31 = ELFFile(bl31_file)
+    for index, entry, paddr, data in unpack_elf(bl31_file_name):
+        file_name = 'bl31_0x%08x.bin' % paddr
+        with open(file_name, "wb") as atf:
+            atf.write(data)
 
-        num = bl31.num_segments()
-        for i in range(num):
-            seg = bl31.get_segment(i)
-            if seg.__getitem__(ELF_SEG_P_TYPE) == 'PT_LOAD':
-                paddr = seg.__getitem__(ELF_SEG_P_PADDR)
-                file_name = 'bl31_0x%08x.bin' % paddr
-                with open(file_name, "wb") as atf:
-                    atf.write(seg.data())
+def unpack_elf(filename):
+    with open(filename, 'rb') as file:
+        elf = file.read()
+    if elf[0:7] != b'\x7fELF\x02\x01\x01' or elf[18:20] != b'\xb7\x00':
+        raise ValueError("Invalid arm64 ELF file '%s'" % filename)
+
+    e_entry, e_phoff = struct.unpack_from('<2Q', elf, 0x18)
+    e_phentsize, e_phnum = struct.unpack_from('<2H', elf, 0x36)
+    segments = []
+
+    for index in range(e_phnum):
+        offset = e_phoff + e_phentsize * index
+        p_type, p_flags, p_offset = struct.unpack_from('<LLQ', elf, offset)
+        if p_type == 1: # PT_LOAD
+            p_paddr, p_filesz = struct.unpack_from('<2Q', elf, offset + 0x18)
+            p_data = elf[p_offset:p_offset + p_filesz]
+            segments.append((index, e_entry, p_paddr, p_data))
+    return segments
 
 def main():
     uboot_elf = "./u-boot"

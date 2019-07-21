@@ -1,5 +1,8 @@
 if ROCKCHIP_RK3036
 
+choice
+	prompt "RK3036 board select"
+
 config TARGET_EVB_RK3036
 	bool "EVB_RK3036"
 	select BOARD_LATE_INIT
@@ -7,6 +10,11 @@ config TARGET_EVB_RK3036
 config TARGET_KYLIN_RK3036
 	bool "KYLIN_RK3036"
 	select BOARD_LATE_INIT
+
+endchoice
+
+config ROCKCHIP_BOOT_MODE_REG
+	default 0x200081c8
 
 config SYS_SOC
 	default "rk3036"

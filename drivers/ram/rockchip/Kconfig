@@ -1,0 +1,33 @@
+config RAM_ROCKCHIP
+	bool "Ram drivers support for Rockchip SoCs"
+	depends on RAM && ARCH_ROCKCHIP
+	default y
+	help
+	  This enables support for ram drivers Rockchip SoCs.
+
+if RAM_ROCKCHIP
+
+config RAM_ROCKCHIP_DEBUG
+	bool "Rockchip ram drivers debugging"
+	help
+	  This enables debugging ram driver API's for the platforms
+	  based on Rockchip SoCs.
+
+	  This is an option for developers to understand the ram drivers
+	  initialization, configurations and etc.
+
+config RAM_RK3399
+	bool "Ram driver for Rockchip RK3399"
+	default ROCKCHIP_RK3399
+	help
+	  This enables ram drivers support for the platforms based on
+	  Rockchip RK3399 SoC.
+
+config RAM_RK3399_LPDDR4
+	bool "LPDDR4 support for Rockchip RK3399"
+	depends on RAM_RK3399
+	help
+	  This enables LPDDR4 sdram code support for the platforms based
+	  on Rockchip RK3399 SoC.
+
+endif # RAM_ROCKCHIP

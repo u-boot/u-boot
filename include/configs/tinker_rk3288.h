@@ -18,6 +18,5 @@
 	func(DHCP, dchp, na)
 
 #define CONFIG_SYS_MMC_ENV_DEV 1
-#define CONFIG_SYS_MONITOR_LEN (600 * 1024)
 
 #endif

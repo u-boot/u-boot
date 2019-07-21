@@ -123,10 +123,6 @@ For example:
 
    Option 2: Package the image with SPL:
 
-   - We need the Python elftools.elf.elffile library for make_fit_atf.py to work
-
-     => sudo apt-get install python-pyelftools
-
    - Export cross compiler path for aarch64
 
    - Compile ATF

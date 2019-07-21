@@ -24,6 +24,7 @@ config USB_XHCI_DWC3
 config USB_XHCI_DWC3_OF_SIMPLE
 	bool "DesignWare USB3 DRD Generic OF Simple Glue Layer"
 	depends on DM_USB
+	default y if ARCH_ROCKCHIP
 	default y if DRA7XX
 	help
 	  Support USB2/3 functionality in simple SoC integrations with

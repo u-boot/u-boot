@@ -9,7 +9,6 @@
 #include <asm/arch-rockchip/grf_rk3036.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/sdram_rk3036.h>
-#include <asm/arch-rockchip/timer.h>
 #include <asm/arch-rockchip/uart.h>
 
 /*
@@ -345,7 +344,7 @@ static void rkdclk_init(struct rk3036_sdram_priv *priv)
 
 	/* waiting for pll lock */
 	while (readl(&pll->con1) & (1 << PLL_LOCK_STATUS_SHIFT))
-		rockchip_udelay(1);
+		udelay(1);
 
 	/* PLL enter normal-mode */
 	rk_clrsetreg(&priv->cru->cru_mode_con, DPLL_MODE_MASK,
@@ -373,25 +372,25 @@ void phy_pctrl_reset(struct rk3036_sdram_priv *priv)
 			1 << DDRCTRL_PSRST_SHIFT | 1 << DDRCTRL_SRST_SHIFT |
 			1 << DDRPHY_PSRST_SHIFT | 1 << DDRPHY_SRST_SHIFT);
 
-	rockchip_udelay(10);
+	udelay(10);
 
 	rk_clrreg(&priv->cru->cru_softrst_con[5], 1 << DDRPHY_PSRST_SHIFT |
 						  1 << DDRPHY_SRST_SHIFT);
-	rockchip_udelay(10);
+	udelay(10);
 
 	rk_clrreg(&priv->cru->cru_softrst_con[5], 1 << DDRCTRL_PSRST_SHIFT |
 						  1 << DDRCTRL_SRST_SHIFT);
-	rockchip_udelay(10);
+	udelay(10);
 
 	clrsetbits_le32(&ddr_phy->ddrphy_reg1,
 			SOFT_RESET_MASK << SOFT_RESET_SHIFT,
 			0 << SOFT_RESET_SHIFT);
-	rockchip_udelay(10);
+	udelay(10);
 	clrsetbits_le32(&ddr_phy->ddrphy_reg1,
 			SOFT_RESET_MASK << SOFT_RESET_SHIFT,
 			3 << SOFT_RESET_SHIFT);
 
-	rockchip_udelay(1);
+	udelay(1);
 }
 
 void phy_dll_bypass_set(struct rk3036_sdram_priv *priv, unsigned int freq)
@@ -444,7 +443,7 @@ static void send_command(struct rk3036_ddr_pctl *pctl,
 			 u32 rank, u32 cmd, u32 arg)
 {
 	writel((START_CMD | (rank << 20) | arg | cmd), &pctl->mcmd);
-	rockchip_udelay(1);
+	udelay(1);
 	while (readl(&pctl->mcmd) & START_CMD)
 		;
 }
@@ -454,7 +453,7 @@ static void memory_init(struct rk3036_sdram_priv *priv)
 	struct rk3036_ddr_pctl *pctl = priv->pctl;
 
 	send_command(pctl, 3, DESELECT_CMD, 0);
-	rockchip_udelay(1);
+	udelay(1);
 	send_command(pctl, 3, PREA_CMD, 0);
 	send_command(pctl, 3, MRS_CMD,
 		     (0x02 & BANK_ADDR_MASK) << BANK_ADDR_SHIFT |
@@ -492,7 +491,7 @@ static void data_training(struct rk3036_sdram_priv *priv)
 	clrsetbits_le32(&ddr_phy->ddrphy_reg2, 0x03,
 			DQS_SQU_CAL_NORMAL_MODE | DQS_SQU_CAL_START);
 
-	rockchip_udelay(1);
+	udelay(1);
 	while ((readl(&ddr_phy->ddrphy_reg62) & CAL_DONE_MASK) !=
 		(HIGH_8BIT_CAL_DONE | LOW_8BIT_CAL_DONE)) {
 		;

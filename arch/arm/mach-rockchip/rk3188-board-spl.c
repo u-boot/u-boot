@@ -22,8 +22,6 @@
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/pmu_rk3188.h>
 #include <asm/arch-rockchip/sdram.h>
-#include <asm/arch-rockchip/timer.h>
-#include <dm/pinctrl.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/util.h>

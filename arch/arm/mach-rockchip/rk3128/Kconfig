@@ -13,6 +13,9 @@ config TARGET_EVB_RK3128
 
 endchoice
 
+config ROCKCHIP_BOOT_MODE_REG
+	default 0x100a0038
+
 config SYS_SOC
 	default "rk3128"
 

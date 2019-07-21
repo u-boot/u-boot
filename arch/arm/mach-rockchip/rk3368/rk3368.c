@@ -5,12 +5,13 @@
  */
 
 #include <common.h>
+#include <syscon.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3368.h>
 #include <asm/arch-rockchip/grf_rk3368.h>
-#include <syscon.h>
+#include <asm/arch-rockchip/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -94,6 +95,78 @@ static int mcu_init(void)
 int arch_early_init_r(void)
 {
 	return mcu_init();
+}
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+/*
+ * The SPL (and also the full U-Boot stage on the RK3368) will run in
+ * secure mode (i.e. EL3) and an ATF will eventually be booted before
+ * starting up the operating system... so we can initialize the SGRF
+ * here and rely on the ATF installing the final (secure) policy
+ * later.
+ */
+static inline uintptr_t sgrf_soc_con_addr(unsigned int no)
+{
+	const uintptr_t SGRF_BASE =
+		(uintptr_t)syscon_get_first_range(ROCKCHIP_SYSCON_SGRF);
+
+	return SGRF_BASE + sizeof(u32) * no;
+}
+
+static inline uintptr_t sgrf_busdmac_addr(unsigned int no)
+{
+	const uintptr_t SGRF_BASE =
+		(uintptr_t)syscon_get_first_range(ROCKCHIP_SYSCON_SGRF);
+	const uintptr_t SGRF_BUSDMAC_OFFSET = 0x100;
+	const uintptr_t SGRF_BUSDMAC_BASE = SGRF_BASE + SGRF_BUSDMAC_OFFSET;
+
+	return SGRF_BUSDMAC_BASE + sizeof(u32) * no;
+}
+
+static void sgrf_init(void)
+{
+	struct rk3368_cru * const cru =
+		(struct rk3368_cru * const)rockchip_get_cru();
+	const u16 SGRF_SOC_CON_SEC = GENMASK(15, 0);
+	const u16 SGRF_BUSDMAC_CON0_SEC = BIT(2);
+	const u16 SGRF_BUSDMAC_CON1_SEC = GENMASK(15, 12);
+
+	/* Set all configurable IP to 'non secure'-mode */
+	rk_setreg(sgrf_soc_con_addr(5), SGRF_SOC_CON_SEC);
+	rk_setreg(sgrf_soc_con_addr(6), SGRF_SOC_CON_SEC);
+	rk_setreg(sgrf_soc_con_addr(7), SGRF_SOC_CON_SEC);
+
+	/*
+	 * From rockchip-uboot/arch/arm/cpu/armv8/rk33xx/cpu.c
+	 * Original comment: "ddr space set no secure mode"
+	 */
+	rk_clrreg(sgrf_soc_con_addr(8), SGRF_SOC_CON_SEC);
+	rk_clrreg(sgrf_soc_con_addr(9), SGRF_SOC_CON_SEC);
+	rk_clrreg(sgrf_soc_con_addr(10), SGRF_SOC_CON_SEC);
+
+	/* Set 'secure dma' to 'non secure'-mode */
+	rk_setreg(sgrf_busdmac_addr(0), SGRF_BUSDMAC_CON0_SEC);
+	rk_setreg(sgrf_busdmac_addr(1), SGRF_BUSDMAC_CON1_SEC);
+
+	dsb();  /* barrier */
+
+	rk_setreg(&cru->softrst_con[1], DMA1_SRST_REQ);
+	rk_setreg(&cru->softrst_con[4], DMA2_SRST_REQ);
+
+	dsb();  /* barrier */
+	udelay(10);
+
+	rk_clrreg(&cru->softrst_con[1], DMA1_SRST_REQ);
+	rk_clrreg(&cru->softrst_con[4], DMA2_SRST_REQ);
+}
+
+int arch_cpu_init(void)
+{
+	/* Reset security, so we can use DMA in the MMC drivers */
+	sgrf_init();
+
+	return 0;
 }
 #endif
 
