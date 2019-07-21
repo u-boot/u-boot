@@ -38,6 +38,7 @@
 #endif
 
 /* auto boot */
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT
 
 /*

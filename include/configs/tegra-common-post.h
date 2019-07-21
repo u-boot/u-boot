@@ -42,6 +42,7 @@
 
 #ifdef CONFIG_USB_KEYBOARD
 #define STDIN_KBD_USB ",usbkbd"
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT			"usb start"
 #else
 #define STDIN_KBD_USB ""

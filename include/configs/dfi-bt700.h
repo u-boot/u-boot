@@ -42,6 +42,7 @@
 	"upd_uboot=usb reset;tftp 100000 dfi/u-boot.rom;"	\
 		"sf probe;sf update 100000 0 800000;saveenv\0"
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT
 
 #endif	/* __CONFIG_H */

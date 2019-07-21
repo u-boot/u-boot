@@ -67,6 +67,7 @@
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT                 ""
 
 #ifdef CONFIG_CMD_MMC

@@ -31,6 +31,7 @@
 
 #ifdef CONFIG_USB_KEYBOARD
 #define STDIN_CFG "usbkbd,serial"
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT "usb start"
 #else
 #define STDIN_CFG "serial"

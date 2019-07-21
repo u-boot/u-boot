@@ -185,6 +185,7 @@
 /*
  * Extra Environments
  */
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT		"run try_bootscript"
 #define CONFIG_HOSTNAME		"m53menlo"
 

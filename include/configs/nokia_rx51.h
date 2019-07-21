@@ -253,6 +253,7 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"bootmenu_delay=30\0" \
 	""
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT \
 	"setenv mmcnum 1; setenv mmcpart 1;" \
 	"setenv mmcscriptfile bootmenu.scr;" \

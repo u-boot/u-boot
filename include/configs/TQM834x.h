@@ -236,6 +236,7 @@
 				/* default location for tftp and bootm */
 #define CONFIG_LOADADDR		400000
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"

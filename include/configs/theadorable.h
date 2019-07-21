@@ -47,6 +47,7 @@
 
 #define PHY_ANEG_TIMEOUT	8000	/* PHY needs a longer aneg time */
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT
 
 /* Keep device tree and initrd in lower memory so the kernel can access them */

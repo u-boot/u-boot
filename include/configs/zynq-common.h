@@ -102,6 +102,7 @@
 #define CONFIG_ENV_OVERWRITE
 
 /* enable preboot to be loaded before CONFIG_BOOTDELAY */
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT
 
 /* Boot configuration */

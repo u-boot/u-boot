@@ -140,7 +140,8 @@
 /* architecture dependent code */
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
 
-#define	CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot;echo"
+#define CONFIG_USE_PREBOOT
+#define CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot;echo"
 
 #ifndef CONFIG_EXTRA_ENV_SETTINGS
 #define	CONFIG_EXTRA_ENV_SETTINGS	"unlock=yes\0" \

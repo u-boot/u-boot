@@ -253,6 +253,7 @@
 #define CONFIG_SYS_LOAD_ADDR		0x100000
 #define CONFIG_LOADS_ECHO
 #define CONFIG_TIMESTAMP
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT			"echo;" \
 					"echo Type \\\"run nfsboot\\\" " \
 					"to mount root filesystem over NFS;echo"

@@ -13,6 +13,7 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT
 
 #define CONFIG_STD_DEVICES_SETTINGS     "stdin=serial\0" \

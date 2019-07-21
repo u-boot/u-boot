@@ -144,6 +144,7 @@
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
 	BOOTENV
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT		"usb start;sf probe"
 
 #define BOOT_TARGET_DEVICES(func) \

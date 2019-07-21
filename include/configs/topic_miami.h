@@ -79,6 +79,7 @@
 # define EXTRA_ENV_USB
 #endif
 
+#define CONFIG_USE_PREBOOT
 #undef CONFIG_PREBOOT
 
 #undef CONFIG_EXTRA_ENV_SETTINGS

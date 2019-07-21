@@ -40,6 +40,7 @@
 #define CONFIG_REVISION_TAG
 #define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT				/* enable preboot variable */
 
 /*

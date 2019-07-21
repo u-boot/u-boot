@@ -61,6 +61,7 @@
 
 #endif /* CONFIG_SPL_BUILD */
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT
 
 #endif

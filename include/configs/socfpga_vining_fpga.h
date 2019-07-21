@@ -33,6 +33,7 @@
  *  if button B is not pressed, boot normal Linux system immediatelly
  *  if button B is pressed, wait $bootdelay and boot recovery system
  */
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT						\
 	"setenv hostname vining-${unit_serial} ; "		\
 	"setenv PS1 \"${unit_ident} (${unit_serial}) => \" ; "	\

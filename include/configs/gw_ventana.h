@@ -138,6 +138,7 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_HWCONFIG
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT
 
 /* Memory configuration */

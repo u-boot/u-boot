@@ -60,6 +60,7 @@
 
 /* Environment information */
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT \
 	"setenv preboot;"						\
 	"saveenv;"

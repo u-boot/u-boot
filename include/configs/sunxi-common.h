@@ -286,6 +286,7 @@ extern int soft_i2c_gpio_scl;
 #endif
 
 #ifdef CONFIG_USB_KEYBOARD
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT
 #endif
 

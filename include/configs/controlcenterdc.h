@@ -124,6 +124,7 @@
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"ccdc.img"
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT		/* enable preboot variable */
 
 #define CONFIG_EXTRA_ENV_SETTINGS						\

@@ -58,6 +58,7 @@
 
 /* TWL4030 LED Support */
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT                  "usb start"
 
 #define MEM_LAYOUT_ENV_SETTINGS \

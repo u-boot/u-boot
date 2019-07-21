@@ -80,6 +80,7 @@
 #define CONFIG_USBD_HS
 #endif /* CONFIG_CMD_USB_MASS_STORAGE */
 #ifdef CONFIG_USB_KEYBOARD
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT \
 	"usb start; " \
 	"if hdmidet; then " \

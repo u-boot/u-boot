@@ -403,6 +403,7 @@ void fpga_control_clear(unsigned int bus, int pin);
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT		/* enable preboot variable */
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\

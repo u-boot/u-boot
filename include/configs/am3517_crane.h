@@ -72,6 +72,7 @@
 #ifdef CONFIG_USB_MUSB_HCD
 
 #ifdef CONFIG_USB_KEYBOARD
+#define CONFIG_USE_PREBOOT
 #define CONFIG_PREBOOT "usb start"
 #endif /* CONFIG_USB_KEYBOARD */
 
