@@ -10,6 +10,7 @@
 #include <cli.h>
 #include <console.h>
 #include <fdtdec.h>
+#include <hash.h>
 #include <menu.h>
 #include <post.h>
 #include <u-boot/sha256.h>
@@ -35,7 +36,6 @@ static int stored_bootdelay;
 #endif
 
 #if defined(CONFIG_AUTOBOOT_KEYED)
-#if defined(CONFIG_AUTOBOOT_STOP_STR_SHA256)
 
 /*
  * Use a "constant-length" time compare function for this
@@ -54,7 +54,7 @@ static int slow_equals(u8 *a, u8 *b, int len)
 	return diff == 0;
 }
 
-static int passwd_abort(uint64_t etime)
+static int passwd_abort_sha256(uint64_t etime)
 {
 	const char *sha_env_str = env_get("bootstopkeysha256");
 	u8 sha_env[SHA256_SUM_LEN];
@@ -105,8 +105,8 @@ static int passwd_abort(uint64_t etime)
 
 	return abort;
 }
-#else
-static int passwd_abort(uint64_t etime)
+
+static int passwd_abort_key(uint64_t etime)
 {
 	int abort = 0;
 	struct {
@@ -182,7 +182,6 @@ static int passwd_abort(uint64_t etime)
 
 	return abort;
 }
-#endif
 
 /***************************************************************************
  * Watch for 'delay' seconds for autoboot stop or autoboot delay string.
@@ -201,7 +200,10 @@ static int __abortboot(int bootdelay)
 	printf(CONFIG_AUTOBOOT_PROMPT, bootdelay);
 #  endif
 
-	abort = passwd_abort(etime);
+	if (IS_ENABLED(CONFIG_AUTOBOOT_ENCRYPTION))
+		abort = passwd_abort_sha256(etime);
+	else
+		abort = passwd_abort_key(etime);
 	if (!abort)
 		debug_bootkeys("key timeout\n");
 
