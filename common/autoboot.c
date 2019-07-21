@@ -35,8 +35,6 @@ static int stored_bootdelay;
 #define AUTOBOOT_STOP_STR_SHA256 ""
 #endif
 
-#if defined(CONFIG_AUTOBOOT_KEYED)
-
 /*
  * Use a "constant-length" time compare function for this
  * hash compare:
@@ -203,7 +201,7 @@ static int passwd_abort_key(uint64_t etime)
  * Watch for 'delay' seconds for autoboot stop or autoboot delay string.
  * returns: 0 -  no key string, allow autoboot 1 - got key string, abort
  */
-static int __abortboot(int bootdelay)
+static int abortboot_key_sequence(int bootdelay)
 {
 	int abort;
 	uint64_t etime = endtick(bootdelay);
@@ -226,13 +224,11 @@ static int __abortboot(int bootdelay)
 	return abort;
 }
 
-# else	/* !defined(CONFIG_AUTOBOOT_KEYED) */
-
 #ifdef CONFIG_MENUKEY
 static int menukey;
 #endif
 
-static int __abortboot(int bootdelay)
+static int abortboot_single_key(int bootdelay)
 {
 	int abort = 0;
 	unsigned long ts;
@@ -277,14 +273,17 @@ static int __abortboot(int bootdelay)
 
 	return abort;
 }
-# endif	/* CONFIG_AUTOBOOT_KEYED */
 
 static int abortboot(int bootdelay)
 {
 	int abort = 0;
 
-	if (bootdelay >= 0)
-		abort = __abortboot(bootdelay);
+	if (bootdelay >= 0) {
+		if (IS_ENABLED(CONFIG_AUTOBOOT_KEYED))
+			abort = abortboot_key_sequence(bootdelay);
+		else
+			abort = abortboot_single_key(bootdelay);
+	}
 
 	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && abort)
 		gd->flags &= ~GD_FLG_SILENT;
