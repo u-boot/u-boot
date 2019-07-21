@@ -224,7 +224,7 @@ static int abortboot_key_sequence(int bootdelay)
 	return abort;
 }
 
-#ifdef CONFIG_MENUKEY
+#ifdef CONFIG_USE_AUTOBOOT_MENUKEY
 static int menukey;
 #endif
 
@@ -252,7 +252,7 @@ static int abortboot_single_key(int bootdelay)
 			if (tstc()) {	/* we got a key press	*/
 				abort  = 1;	/* don't auto boot	*/
 				bootdelay = 0;	/* no more delay	*/
-# ifdef CONFIG_MENUKEY
+# ifdef CONFIG_USE_AUTOBOOT_MENUKEY
 				menukey = getc();
 # else
 				(void) getc();  /* consume input	*/
@@ -358,11 +358,11 @@ void autoboot_command(const char *s)
 #endif
 	}
 
-#ifdef CONFIG_MENUKEY
-	if (menukey == CONFIG_MENUKEY) {
+#ifdef CONFIG_USE_AUTOBOOT_MENUKEY
+	if (menukey == CONFIG_AUTOBOOT_MENUKEY) {
 		s = env_get("menucmd");
 		if (s)
 			run_command_list(s, -1, 0);
 	}
-#endif /* CONFIG_MENUKEY */
+#endif /* CONFIG_USE_AUTOBOOT_MENUKEY */
 }

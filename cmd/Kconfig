@@ -153,6 +153,23 @@ config AUTOBOOT_STOP_STR_SHA256
 	  string / password matches a values that is encypted via
 	  a SHA256 hash and saved in the environment.
 
+config AUTOBOOT_USE_MENUKEY
+	bool "Allow a specify key to run a menu from the environment"
+	depends on !AUTOBOOT_KEYED
+	help
+	  If a specific key is pressed to stop autoboot, then the commands in
+	  the environment variable 'menucmd' are executed before boot starts.
+
+config AUTOBOOT_MENUKEY
+	int "ASCII value of boot key to show a menu"
+	default 0
+	depends on AUTOBOOT_USE_MENUKEY
+	help
+	  If this key is pressed to stop autoboot, then the commands in the
+	  environment variable 'menucmd' will be executed before boot starts.
+	  For example, 33 means "!" in ASCII, so pressing ! at boot would take
+	  this action.
+
 endmenu
 
 config BUILD_BIN2C

@@ -152,3 +152,11 @@ What they do
 	(Only effective when CONFIG_BOOT_RETRY_TIME is also set)
 	After the countdown timed out, the board will be reset to restart
 	again.
+
+  CONFIG_AUTOBOOT_USE_MENUKEY
+  CONFIG_AUTOBOOT_MENUKEY
+
+	If this key is pressed to stop autoboot, then the commands in the
+	environment variable 'menucmd' will be executed before boot starts.
+	For example, 33 means "!" in ASCII, so pressing ! at boot would take
+	this action.
