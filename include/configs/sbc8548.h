@@ -48,8 +48,6 @@
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT    1	/* enable 64-bit PCI resources */
 #endif
-#ifdef CONFIG_PCIE1
-#endif
 
 #define CONFIG_ENV_OVERWRITE
 

@@ -120,7 +120,6 @@
 /*==============================*/
 
 #define CONFIG_MX_CYCLIC
-#define CONFIG_SHOW_BOOT_PROGRESS
 
 
 /*=========================================*/

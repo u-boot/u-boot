@@ -14,7 +14,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_PHYSMEM
 
 #define CONFIG_LMB
