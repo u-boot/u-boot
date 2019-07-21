@@ -286,10 +286,8 @@ static int abortboot(int bootdelay)
 	if (bootdelay >= 0)
 		abort = __abortboot(bootdelay);
 
-#ifdef CONFIG_SILENT_CONSOLE
-	if (abort)
+	if (IS_ENABLED(CONFIG_SILENT_CONSOLE) && abort)
 		gd->flags &= ~GD_FLG_SILENT;
-#endif
 
 	return abort;
 }
