@@ -170,6 +170,14 @@ config AUTOBOOT_MENUKEY
 	  For example, 33 means "!" in ASCII, so pressing ! at boot would take
 	  this action.
 
+config AUTOBOOT_MENU_SHOW
+	bool "Show a menu on boot"
+	help
+	  This enables the boot menu, controlled by environment variables
+	  defined by the board. The menu starts after running the 'preboot'
+	  environmnent variable (if enabled) and before handling the boot delay.
+	  See README.bootmenu for more details.
+
 endmenu
 
 config BUILD_BIN2C
