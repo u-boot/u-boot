@@ -30,7 +30,7 @@ static int valid_rk3288_som(struct rk3288_som *som)
 	return hw == som->bs;
 }
 
-int rk_board_late_init(void)
+int rk3288_board_late_init(void)
 {
 	int ret;
 	struct udevice *dev;

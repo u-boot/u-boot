@@ -100,6 +100,55 @@ void board_debug_uart_init(void)
 }
 #endif
 
+static void rk3288_detect_reset_reason(void)
+{
+	struct rk3288_cru *cru = rockchip_get_cru();
+	const char *reason;
+
+	if (IS_ERR(cru))
+		return;
+
+	switch (cru->cru_glb_rst_st) {
+	case GLB_POR_RST:
+		reason = "POR";
+		break;
+	case FST_GLB_RST_ST:
+	case SND_GLB_RST_ST:
+		reason = "RST";
+		break;
+	case FST_GLB_TSADC_RST_ST:
+	case SND_GLB_TSADC_RST_ST:
+		reason = "THERMAL";
+		break;
+	case FST_GLB_WDT_RST_ST:
+	case SND_GLB_WDT_RST_ST:
+		reason = "WDOG";
+		break;
+	default:
+		reason = "unknown reset";
+	}
+
+	env_set("reset_reason", reason);
+
+	/*
+	 * Clear cru_glb_rst_st, so we can determine the last reset cause
+	 * for following resets.
+	 */
+	rk_clrreg(&cru->cru_glb_rst_st, GLB_RST_ST_MASK);
+}
+
+__weak int rk3288_board_late_init(void)
+{
+	return 0;
+}
+
+int rk_board_late_init(void)
+{
+	rk3288_detect_reset_reason();
+
+	return rk3288_board_late_init();
+}
+
 static int do_clock(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
