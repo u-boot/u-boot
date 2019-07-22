@@ -623,7 +623,7 @@ static int sdhci_init(struct mmc *mmc)
 #if CONFIG_IS_ENABLED(DM_MMC) && CONFIG_IS_ENABLED(DM_GPIO)
 	struct udevice *dev = mmc->dev;
 
-	gpio_request_by_name(dev, "cd-gpio", 0,
+	gpio_request_by_name(dev, "cd-gpios", 0,
 			     &host->cd_gpio, GPIOD_IS_IN);
 #endif
 
