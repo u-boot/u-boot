@@ -55,6 +55,6 @@ enum {
 /**
  * Locations of the boot-device identifier in SRAM
  */
-#define RK3399_BROM_BOOTSOURCE_ID_ADDR   0xff8c0010
+#define BROM_BOOTSOURCE_ID_ADDR   (CONFIG_IRAM_BASE + 0x10)
 
 #endif

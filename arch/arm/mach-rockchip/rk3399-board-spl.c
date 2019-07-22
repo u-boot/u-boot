@@ -35,7 +35,7 @@ static const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 
 const char *board_spl_was_booted_from(void)
 {
-	u32  bootdevice_brom_id = readl(RK3399_BROM_BOOTSOURCE_ID_ADDR);
+	u32  bootdevice_brom_id = readl(BROM_BOOTSOURCE_ID_ADDR);
 	const char *bootdevice_ofpath = NULL;
 
 	if (bootdevice_brom_id < ARRAY_SIZE(boot_devices))
