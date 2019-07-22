@@ -45,19 +45,6 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = 0x8400000;
-	/* Reserve 0x200000 for OPTEE */
-	gd->bd->bi_dram[1].start = CONFIG_SYS_SDRAM_BASE
-				+ gd->bd->bi_dram[0].size + 0x200000;
-	gd->bd->bi_dram[1].size = gd->bd->bi_dram[0].start
-				+ gd->ram_size - gd->bd->bi_dram[1].start;
-
-	return 0;
-}
-
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 void enable_caches(void)
 {

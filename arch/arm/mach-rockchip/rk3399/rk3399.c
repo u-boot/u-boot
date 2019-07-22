@@ -78,17 +78,6 @@ void rockchip_stimer_init(void)
 }
 #endif
 
-int dram_init_banksize(void)
-{
-	size_t max_size = min((unsigned long)gd->ram_size, gd->ram_top);
-
-	/* Reserve 0x200000 for ATF bl31 */
-	gd->bd->bi_dram[0].start = 0x200000;
-	gd->bd->bi_dram[0].size = max_size - gd->bd->bi_dram[0].start;
-
-	return 0;
-}
-
 int arch_cpu_init(void)
 {
 

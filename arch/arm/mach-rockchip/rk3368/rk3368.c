@@ -58,17 +58,6 @@ const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 	[BROM_BOOTSOURCE_SD] = "dwmmc@ff0c0000",
 };
 
-int dram_init_banksize(void)
-{
-	size_t max_size = min((unsigned long)gd->ram_size, gd->ram_top);
-
-	/* Reserve 0x200000 for ATF bl31 */
-	gd->bd->bi_dram[0].start = 0x200000;
-	gd->bd->bi_dram[0].size = max_size - gd->bd->bi_dram[0].start;
-
-	return 0;
-}
-
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 static int mcu_init(void)
 {
