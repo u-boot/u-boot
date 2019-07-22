@@ -156,18 +156,3 @@ void board_init_f(ulong dummy)
 	}
 #endif
 }
-
-#ifdef CONFIG_SPL_OS_BOOT
-
-#define PMU_BASE		0xff730000
-int dram_init_banksize(void)
-{
-	struct rk3288_pmu *const pmu = (void *)PMU_BASE;
-	size_t size = rockchip_sdram_size((phys_addr_t)&pmu->sys_reg[2]);
-
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = size;
-
-	return 0;
-}
-#endif
