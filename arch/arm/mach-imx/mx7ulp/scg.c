@@ -352,7 +352,7 @@ static u32 scg_ddr_get_rate(void)
 
 static u32 scg_nic_get_rate(enum scg_clk clk)
 {
-	u32 reg, val, rate;
+	u32 reg, val, rate, nic0_rate;
 	u32 shift, mask;
 
 	reg = readl(&scg1_regs->niccsr);
@@ -370,6 +370,7 @@ static u32 scg_nic_get_rate(enum scg_clk clk)
 	val = (reg & SCG_NICCSR_NIC0DIV_MASK) >> SCG_NICCSR_NIC0DIV_SHIFT;
 
 	rate = rate / (val + 1);
+	nic0_rate = rate;
 
 	clk_debug("scg_nic_get_rate NIC0 rate %u\n", rate);
 
@@ -410,6 +411,13 @@ static u32 scg_nic_get_rate(enum scg_clk clk)
 	default:
 		return 0;
 	}
+
+	/*
+	 * On RevB, the nic_bus and nic_ext dividers are parallel
+	 * not chained with nic div
+	 */
+	if (soc_rev() >= CHIP_REV_2_0)
+		rate = nic0_rate;
 
 	val = (reg & mask) >> shift;
 	rate = rate / (val + 1);
