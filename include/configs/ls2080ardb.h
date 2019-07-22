@@ -13,7 +13,9 @@
 #ifdef CONFIG_TARGET_LS2081ARDB
 #define CONFIG_QIXIS_I2C_ACCESS
 #endif
+#ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C_EARLY_INIT
+#endif
 #endif
 
 #define I2C_MUX_CH_VOL_MONITOR		0xa
