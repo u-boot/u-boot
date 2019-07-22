@@ -58,11 +58,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-int board_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	gd->ram_size = 0x8000000;

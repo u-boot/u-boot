@@ -21,8 +21,6 @@ ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)
 # meaning "turn it off".
 obj-y += boot_mode.o
 obj-$(CONFIG_ROCKCHIP_COMMON_BOARD) += board.o
-
-obj-$(CONFIG_ROCKCHIP_RV1108) += rv1108-board.o
 endif
 
 obj-$(CONFIG_$(SPL_TPL_)RAM) += sdram_common.o
