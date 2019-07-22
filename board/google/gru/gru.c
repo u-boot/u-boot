@@ -5,11 +5,6 @@
 
 #include <common.h>
 
-int board_init(void)
-{
-	return 0;
-}
-
 #ifdef CONFIG_SPL_BUILD
 /* provided to defeat compiler optimisation in board_init_f() */
 void gru_dummy_function(int i)
