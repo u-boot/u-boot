@@ -8,6 +8,7 @@
 #include <syscon.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3368.h>
 #include <asm/arch-rockchip/grf_rk3368.h>
@@ -51,6 +52,11 @@ static struct mm_region rk3368_mem_map[] = {
 };
 
 struct mm_region *mem_map = rk3368_mem_map;
+
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "dwmmc@ff0f0000",
+	[BROM_BOOTSOURCE_SD] = "dwmmc@ff0c0000",
+};
 
 int dram_init_banksize(void)
 {
