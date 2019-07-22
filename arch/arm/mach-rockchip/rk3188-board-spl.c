@@ -17,10 +17,7 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/grf_rk3188.h>
-#include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/periph.h>
-#include <asm/arch-rockchip/pmu_rk3188.h>
 #include <asm/arch-rockchip/sdram.h>
 #include <dm/root.h>
 #include <dm/test.h>
@@ -70,6 +67,11 @@ fallback:
 	return BOOT_DEVICE_MMC1;
 }
 
+__weak int arch_cpu_init(void)
+{
+	return 0;
+}
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -88,24 +90,7 @@ void board_init_f(ulong dummy)
 	printascii("U-Boot SPL board init");
 #endif
 
-#ifdef CONFIG_ROCKCHIP_USB_UART
-	rk_clrsetreg(&grf->uoc0_con[0],
-		     SIDDQ_MASK | UOC_DISABLE_MASK | COMMON_ON_N_MASK,
-		     1 << SIDDQ_SHIFT | 1 << UOC_DISABLE_SHIFT |
-		     1 << COMMON_ON_N_SHIFT);
-	rk_clrsetreg(&grf->uoc0_con[2],
-		     SOFT_CON_SEL_MASK, 1 << SOFT_CON_SEL_SHIFT);
-	rk_clrsetreg(&grf->uoc0_con[3],
-		     OPMODE_MASK | XCVRSELECT_MASK |
-		     TERMSEL_FULLSPEED_MASK | SUSPENDN_MASK,
-		     OPMODE_NODRIVING << OPMODE_SHIFT |
-		     XCVRSELECT_FSTRANSC << XCVRSELECT_SHIFT |
-		     1 << TERMSEL_FULLSPEED_SHIFT |
-		     1 << SUSPENDN_SHIFT);
-	rk_clrsetreg(&grf->uoc0_con[0],
-		     BYPASSSEL_MASK | BYPASSDMEN_MASK,
-		     1 << BYPASSSEL_SHIFT | 1 << BYPASSDMEN_SHIFT);
-#endif
+	arch_cpu_init();
 
 	ret = spl_early_init();
 	if (ret) {
