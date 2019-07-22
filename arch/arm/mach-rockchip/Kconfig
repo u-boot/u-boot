@@ -7,6 +7,7 @@ config ROCKCHIP_RK3036
 	select SPL
 	imply USB_FUNCTION_ROCKUSB
 	imply CMD_ROCKUSB
+	imply ROCKCHIP_COMMON_BOARD
 	help
 	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
