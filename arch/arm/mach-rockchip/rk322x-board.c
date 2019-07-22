@@ -115,12 +115,9 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 #if CONFIG_IS_ENABLED(FASTBOOT)
 int fastboot_set_reboot_flag(void)
 {
-	struct rk322x_grf *grf;
-
 	printf("Setting reboot to fastboot flag ...\n");
-	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	/* Set boot mode to fastboot */
-	writel(BOOT_FASTBOOT, &grf->os_reg[0]);
+	writel(BOOT_FASTBOOT, CONFIG_ROCKCHIP_BOOT_MODE_REG);
 
 	return 0;
 }
