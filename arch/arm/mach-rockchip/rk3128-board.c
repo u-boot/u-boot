@@ -66,7 +66,7 @@ void enable_caches(void)
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 
-static struct dwc2_plat_otg_data rk3128_otg_data = {
+static struct dwc2_plat_otg_data otg_data = {
 	.rx_fifo_sz	= 512,
 	.np_tx_fifo_sz	= 16,
 	.tx_fifo_sz	= 128,
@@ -81,7 +81,7 @@ int board_usb_init(int index, enum usb_init_type init)
 
 	/* find the usb_otg node */
 	node = fdt_node_offset_by_compatible(blob, -1,
-					     "rockchip,rk3128-usb");
+					"snps,dwc2");
 
 	while (node > 0) {
 		mode = fdt_getprop(blob, node, "dr_mode", NULL);
@@ -91,15 +91,15 @@ int board_usb_init(int index, enum usb_init_type init)
 		}
 
 		node = fdt_node_offset_by_compatible(blob, node,
-						     "rockchip,rk3128-usb");
+					"snps,dwc2");
 	}
 	if (!matched) {
 		debug("Not found usb_otg device\n");
 		return -ENODEV;
 	}
-	rk3128_otg_data.regs_otg = fdtdec_get_addr(blob, node, "reg");
+	otg_data.regs_otg = fdtdec_get_addr(blob, node, "reg");
 
-	return dwc2_udc_probe(&rk3128_otg_data);
+	return dwc2_udc_probe(&otg_data);
 }
 
 int board_usb_cleanup(int index, enum usb_init_type init)
