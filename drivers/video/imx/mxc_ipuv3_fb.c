@@ -24,6 +24,7 @@
 #include "ipu.h"
 #include "mxcfb.h"
 #include "ipu_regs.h"
+#include "display.h"
 
 #include <dm.h>
 #include <video.h>
@@ -637,6 +638,9 @@ static int ipuv3_video_probe(struct udevice *dev)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+#if defined(CONFIG_DISPLAY)
+	struct udevice *disp_dev;
+#endif
 	u32 fb_start, fb_end;
 	int ret;
 
@@ -654,6 +658,15 @@ static int ipuv3_video_probe(struct udevice *dev)
 	ret = mxcfb_probe(gpixfmt, gdisp, gmode);
 	if (ret < 0)
 		return ret;
+
+#if defined(CONFIG_DISPLAY)
+	ret = uclass_first_device(UCLASS_DISPLAY, &disp_dev);
+	if (disp_dev) {
+		ret = display_enable(disp_dev, 16, NULL);
+		if (ret < 0)
+			return ret;
+	}
+#endif
 
 	uc_priv->xsize = gmode->xres;
 	uc_priv->ysize = gmode->yres;
