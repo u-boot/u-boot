@@ -70,27 +70,6 @@ fallback:
 	return BOOT_DEVICE_MMC1;
 }
 
-static int setup_arm_clock(void)
-{
-	struct udevice *dev;
-	struct clk clk;
-	int ret;
-
-	ret = rockchip_get_clk(&dev);
-	if (ret)
-		return ret;
-
-	clk.id = CLK_ARM;
-	ret = clk_request(dev, &clk);
-	if (ret < 0)
-		return ret;
-
-	ret = clk_set_rate(&clk, 600000000);
-
-	clk_free(&clk);
-	return ret;
-}
-
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
@@ -146,7 +125,6 @@ void board_init_f(ulong dummy)
 		return;
 	}
 
-	setup_arm_clock();
 #if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
 	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 #endif
