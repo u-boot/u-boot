@@ -106,6 +106,10 @@ void s_init(void)
 	/* clock configuration. */
 	clock_init();
 
+	if (soc_rev() < CHIP_REV_2_0) {
+		/* enable dumb pmic */
+		writel((readl(SNVS_LP_LPCR) | SNVS_LPCR_DPEN), SNVS_LP_LPCR);
+	}
 	return;
 }
 
