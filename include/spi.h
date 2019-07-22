@@ -248,6 +248,26 @@ int spi_set_wordlen(struct spi_slave *slave, unsigned int wordlen);
 int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags);
 
+/**
+ * spi_write_then_read - SPI synchronous write followed by read
+ *
+ * This performs a half duplex transaction in which the first transaction
+ * is to send the opcode and if the length of buf is non-zero then it start
+ * the second transaction as tx or rx based on the need from respective slave.
+ *
+ * @slave:	The SPI slave device with which opcode/data will be exchanged
+ * @opcode:	opcode used for specific transfer
+ * @n_opcode:	size of opcode, in bytes
+ * @txbuf:	buffer into which data to be written
+ * @rxbuf:	buffer into which data will be read
+ * @n_buf:	size of buf (whether it's [tx|rx]buf), in bytes
+ *
+ * Returns: 0 on success, not 0 on failure
+ */
+int spi_write_then_read(struct spi_slave *slave, const u8 *opcode,
+			size_t n_opcode, const u8 *txbuf, u8 *rxbuf,
+			size_t n_buf);
+
 /* Copy memory mapped data */
 void spi_flash_copy_mmap(void *data, void *offset, size_t len);
 
