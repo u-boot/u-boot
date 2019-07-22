@@ -254,11 +254,11 @@
 #endif
 
 #if defined(CONFIG_DM_PCI)
-#define BOOTENV_RUN_NET_PCI_ENUM "run boot_net_pci_enum; "
+#define BOOTENV_RUN_PCI_ENUM "run boot_pci_enum; "
 #define BOOTENV_SHARED_PCI \
-	"boot_net_pci_enum=pci enum\0"
+	"boot_pci_enum=pci enum\0"
 #else
-#define BOOTENV_RUN_NET_PCI_ENUM
+#define BOOTENV_RUN_PCI_ENUM
 #define BOOTENV_SHARED_PCI
 #endif
 
@@ -281,10 +281,24 @@
 #endif
 
 #ifdef CONFIG_CMD_VIRTIO
-#define BOOTENV_SHARED_VIRTIO	BOOTENV_SHARED_BLKDEV(virtio)
+#define BOOTENV_RUN_VIRTIO_INIT "run virtio_init; "
+#define BOOTENV_SET_VIRTIO_NEED_INIT "virtio_need_init=; "
+#define BOOTENV_SHARED_VIRTIO \
+	"virtio_init=" \
+		"if ${virtio_need_init}; then " \
+			"virtio_need_init=false; " \
+			"virtio scan; " \
+		"fi\0" \
+	\
+	"virtio_boot=" \
+		BOOTENV_RUN_PCI_ENUM \
+		BOOTENV_RUN_VIRTIO_INIT \
+		BOOTENV_SHARED_BLKDEV_BODY(virtio)
 #define BOOTENV_DEV_VIRTIO	BOOTENV_DEV_BLKDEV
 #define BOOTENV_DEV_NAME_VIRTIO	BOOTENV_DEV_NAME_BLKDEV
 #else
+#define BOOTENV_RUN_VIRTIO_INIT
+#define BOOTENV_SET_VIRTIO_NEED_INIT
 #define BOOTENV_SHARED_VIRTIO
 #define BOOTENV_DEV_VIRTIO \
 	BOOT_TARGET_DEVICES_references_VIRTIO_without_CONFIG_CMD_VIRTIO
@@ -350,7 +364,7 @@
 #define BOOTENV_DEV_DHCP(devtypeu, devtypel, instance) \
 	"bootcmd_dhcp=" \
 		BOOTENV_RUN_NET_USB_START \
-		BOOTENV_RUN_NET_PCI_ENUM \
+		BOOTENV_RUN_PCI_ENUM \
 		"if dhcp ${scriptaddr} ${boot_script_dhcp}; then " \
 			"source ${scriptaddr}; " \
 		"fi;" \
@@ -369,7 +383,7 @@
 #define BOOTENV_DEV_PXE(devtypeu, devtypel, instance) \
 	"bootcmd_pxe=" \
 		BOOTENV_RUN_NET_USB_START \
-		BOOTENV_RUN_NET_PCI_ENUM \
+		BOOTENV_RUN_PCI_ENUM \
 		"dhcp; " \
 		"if pxe get; then " \
 			"pxe boot; " \
@@ -465,6 +479,7 @@
 	"distro_bootcmd=" BOOTENV_SET_SCSI_NEED_INIT                      \
 		BOOTENV_SET_NVME_NEED_INIT                                \
 		BOOTENV_SET_IDE_NEED_INIT                                 \
+		BOOTENV_SET_VIRTIO_NEED_INIT                              \
 		"for target in ${boot_targets}; do "                      \
 			"run bootcmd_${target}; "                         \
 		"done\0"
