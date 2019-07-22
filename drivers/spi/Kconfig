@@ -166,6 +166,15 @@ config MTK_QSPI
 	  used to access the SPI NOR flash on platforms embedding this
 	  Mediatek QSPI IP core.
 
+config MTK_SNFI_SPI
+	bool "Mediatek SPI memory controller driver"
+	depends on SPI_MEM
+	help
+	  Enable the Mediatek SPI memory controller driver. This driver is
+	  originally based on the MediaTek SNFI IP core. It can only be
+	  used to access SPI memory devices like SPI-NOR or SPI-NAND on
+	  platforms embedding this IP core, like MT7622/M7629.
+
 config MVEBU_A3700_SPI
 	bool "Marvell Armada 3700 SPI driver"
 	select CLK_ARMADA_3720

@@ -206,6 +206,7 @@ F:	drivers/pinctrl/mediatek/
 F:	drivers/power/domain/mtk-power-domain.c
 F:	drivers/ram/mediatek/
 F:	drivers/spi/mtk_qspi.c
+F:	drivers/spi/mtk_snfi_spi.c
 F:	drivers/timer/mtk_timer.c
 F:	drivers/watchdog/mtk_wdt.c
 F:	drivers/net/mtk_eth.c

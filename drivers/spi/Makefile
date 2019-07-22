@@ -38,6 +38,7 @@ obj-$(CONFIG_MESON_SPIFC) += meson_spifc.o
 obj-$(CONFIG_MPC8XX_SPI) += mpc8xx_spi.o
 obj-$(CONFIG_MPC8XXX_SPI) += mpc8xxx_spi.o
 obj-$(CONFIG_MTK_QSPI) += mtk_qspi.o
+obj-$(CONFIG_MTK_SNFI_SPI) += mtk_snfi_spi.o
 obj-$(CONFIG_MT7621_SPI) += mt7621_spi.o
 obj-$(CONFIG_MSCC_BB_SPI) += mscc_bb_spi.o
 obj-$(CONFIG_MVEBU_A3700_SPI) += mvebu_a3700_spi.o
