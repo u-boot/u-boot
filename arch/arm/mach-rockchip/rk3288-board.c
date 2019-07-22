@@ -243,22 +243,3 @@ U_BOOT_CMD(
 	"display information about clocks",
 	""
 );
-
-int board_early_init_f(void)
-{
-	struct udevice *dev;
-	int ret;
-
-	/*
-	 * This init is done in SPL, but when chain-loading U-Boot SPL will
-	 * have been skipped. Allow the clock driver to check if it needs
-	 * setting up.
-	 */
-	ret = rockchip_get_clk(&dev);
-	if (ret) {
-		debug("CLK init failed: %d\n", ret);
-		return ret;
-	}
-
-	return 0;
-}
