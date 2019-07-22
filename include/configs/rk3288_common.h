@@ -27,6 +27,8 @@
 #define CONFIG_SYS_LOAD_ADDR		0x00800800
 #define CONFIG_SPL_STACK		0xff718000
 
+#define CONFIG_IRAM_BASE		0xff700000
+
 /* RAW SD card / eMMC locations. */
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(128 << 10)
 
