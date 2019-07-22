@@ -23,11 +23,7 @@ void board_return_to_bootrom(void)
 	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
 }
 
-static const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
-	[BROM_BOOTSOURCE_EMMC] = "/sdhci@fe330000",
-	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff1d0000",
-	[BROM_BOOTSOURCE_SD] = "/dwmmc@fe320000",
-};
+__weak const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {};
 
 const char *board_spl_was_booted_from(void)
 {

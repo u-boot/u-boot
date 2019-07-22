@@ -9,6 +9,7 @@
 #include <syscon.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/gpio.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
@@ -19,6 +20,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define GRF_EMMCCORE_CON11 0xff77f02c
 #define GRF_BASE	0xff770000
+
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "/sdhci@fe330000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff1d0000",
+	[BROM_BOOTSOURCE_SD] = "/dwmmc@fe320000",
+};
 
 static struct mm_region rk3399_mem_map[] = {
 	{
