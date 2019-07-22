@@ -72,7 +72,8 @@ static int stm32_rtc_get(struct udevice *dev, struct rtc_time *tm)
 
 	tm->tm_mday = bcd2bin((dr & STM32_RTC_DATE) >> STM32_RTC_DATE_SHIFT);
 	tm->tm_mon = bcd2bin((dr & STM32_RTC_MONTH) >> STM32_RTC_MONTH_SHIFT);
-	tm->tm_year = bcd2bin((dr & STM32_RTC_YEAR) >> STM32_RTC_YEAR_SHIFT);
+	tm->tm_year = 2000 +
+		      bcd2bin((dr & STM32_RTC_YEAR) >> STM32_RTC_YEAR_SHIFT);
 	tm->tm_wday = bcd2bin((dr & STM32_RTC_WDAY) >> STM32_RTC_WDAY_SHIFT);
 	tm->tm_yday = 0;
 	tm->tm_isdst = 0;
@@ -174,6 +175,9 @@ static int stm32_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 		tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_wday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
 
+	if (tm->tm_year < 2000 || tm->tm_year > 2099)
+		return -EINVAL;
+
 	/* Time in BCD format */
 	t = (bin2bcd(tm->tm_sec) << STM32_RTC_SEC_SHIFT) & STM32_RTC_SEC;
 	t |= (bin2bcd(tm->tm_min) << STM32_RTC_MIN_SHIFT) & STM32_RTC_MIN;
@@ -182,7 +186,8 @@ static int stm32_rtc_set(struct udevice *dev, const struct rtc_time *tm)
 	/* Date in BCD format */
 	d = (bin2bcd(tm->tm_mday) << STM32_RTC_DATE_SHIFT) & STM32_RTC_DATE;
 	d |= (bin2bcd(tm->tm_mon) << STM32_RTC_MONTH_SHIFT) & STM32_RTC_MONTH;
-	d |= (bin2bcd(tm->tm_year) << STM32_RTC_YEAR_SHIFT) & STM32_RTC_YEAR;
+	d |= (bin2bcd(tm->tm_year - 2000) << STM32_RTC_YEAR_SHIFT) &
+	      STM32_RTC_YEAR;
 	d |= (bin2bcd(tm->tm_wday) << STM32_RTC_WDAY_SHIFT) & STM32_RTC_WDAY;
 
 	return stm32_rtc_set_time(dev, t, d);
