@@ -190,7 +190,7 @@ struct stm32_sdmmc2_ctx {
 #define SDMMC_IDMACTRL_IDMAEN		BIT(0)
 
 #define SDMMC_CMD_TIMEOUT		0xFFFFFFFF
-#define SDMMC_BUSYD0END_TIMEOUT_US	1000000
+#define SDMMC_BUSYD0END_TIMEOUT_US	2000000
 
 static void stm32_sdmmc2_start_data(struct stm32_sdmmc2_priv *priv,
 				    struct mmc_data *data,
