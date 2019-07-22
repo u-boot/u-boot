@@ -15,7 +15,6 @@
 #include <asm/arch-rockchip/pmu_rk3288.h>
 #include <asm/arch-rockchip/boot_mode.h>
 #include <asm/gpio.h>
-#include <dt-bindings/clock/rk3288-cru.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -70,73 +69,9 @@ int board_late_init(void)
 	return rk_board_late_init();
 }
 
-#if !CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
-static int veyron_init(void)
-{
-	struct udevice *dev;
-	struct clk clk;
-	int ret;
-
-	ret = regulator_get_by_platname("vdd_arm", &dev);
-	if (ret) {
-		debug("Cannot set regulator name\n");
-		return ret;
-	}
-
-	/* Slowly raise to max CPU voltage to prevent overshoot */
-	ret = regulator_set_value(dev, 1200000);
-	if (ret)
-		return ret;
-	udelay(175); /* Must wait for voltage to stabilize, 2mV/us */
-	ret = regulator_set_value(dev, 1400000);
-	if (ret)
-		return ret;
-	udelay(100); /* Must wait for voltage to stabilize, 2mV/us */
-
-	ret = rockchip_get_clk(&clk.dev);
-	if (ret)
-		return ret;
-	clk.id = PLL_APLL;
-	ret = clk_set_rate(&clk, 1800000000);
-	if (IS_ERR_VALUE(ret))
-		return ret;
-
-	ret = regulator_get_by_platname("vcc33_sd", &dev);
-	if (ret) {
-		debug("Cannot get regulator name\n");
-		return ret;
-	}
-
-	ret = regulator_set_value(dev, 3300000);
-	if (ret)
-		return ret;
-
-	ret = regulators_enable_boot_on(false);
-	if (ret) {
-		debug("%s: Cannot enable boot on regulators\n", __func__);
-		return ret;
-	}
-
-	return 0;
-}
-#endif
-
 int board_init(void)
 {
-#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
 	return 0;
-#else
-	int ret;
-
-	/* We do some SoC one time setting here */
-	if (!fdt_node_check_compatible(gd->fdt_blob, 0, "google,veyron")) {
-		ret = veyron_init();
-		if (ret)
-			return ret;
-	}
-
-	return 0;
-#endif
 }
 
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
