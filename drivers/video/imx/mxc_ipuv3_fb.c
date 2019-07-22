@@ -609,6 +609,7 @@ void *video_hw_init(void)
 
 	ret = mxcfb_probe(gpixfmt, gdisp, gmode);
 	debug("Framebuffer at 0x%x\n", (unsigned int)panel.frameAdrs);
+	gd->fb_base = panel.frameAdrs;
 
 	return (void *)&panel;
 }
@@ -665,6 +666,7 @@ static int ipuv3_video_probe(struct udevice *dev)
 	mmu_set_region_dcache_behaviour(fb_start, fb_end - fb_start,
 					DCACHE_WRITEBACK);
 	video_set_flush_dcache(dev, true);
+	gd->fb_base = fb_start;
 
 	return 0;
 }
