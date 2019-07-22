@@ -72,24 +72,6 @@ extern const struct flash_info spi_nor_ids[];
 #define JEDEC_MFR(info)	((info)->id[0])
 #define JEDEC_ID(info)		(((info)->id[1]) << 8 | ((info)->id[2]))
 
-/* Send a single-byte command to the device and read the response */
-int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len);
-
-/*
- * Send a multi-byte command to the device and read the response. Used
- * for flash array reads, etc.
- */
-int spi_flash_cmd_read(struct spi_slave *spi, const u8 *cmd,
-		size_t cmd_len, void *data, size_t data_len);
-
-/*
- * Send a multi-byte command to the device followed by (optional)
- * data. Used for programming the flash array, etc.
- */
-int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
-		const void *data, size_t data_len);
-
-
 /* Get software write-protect value (BP bits) */
 int spi_flash_cmd_get_sw_write_prot(struct spi_flash *flash);
 
