@@ -42,3 +42,15 @@ void board_debug_uart_init(void)
 		     CON_IOMUX_UART2SEL_21 << CON_IOMUX_UART2SEL_SHIFT);
 }
 #endif
+
+int arch_cpu_init(void)
+{
+#ifdef CONFIG_SPL_BUILD
+#define SGRF_BASE	0x10150000
+	static struct rk322x_sgrf * const sgrf = (void *)SGRF_BASE;
+
+	/* Disable the ddr secure region setting to make it non-secure */
+	rk_clrreg(&sgrf->soc_con[0], 0x4000);
+#endif
+	return 0;
+}

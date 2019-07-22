@@ -44,7 +44,11 @@ void rockchip_stimer_init(void)
 	       TIMER_CONTROL_REG);
 }
 
-#define SGRF_DDR_CON0 0x10150000
+__weak int arch_cpu_init(void)
+{
+	return 0;
+}
+
 void board_init_f(ulong dummy)
 {
 	int ret;
@@ -60,9 +64,7 @@ void board_init_f(ulong dummy)
 	rockchip_stimer_init();
 	/* Init ARM arch timer in arch/arm/cpu/armv7/arch_timer.c */
 	timer_init();
-
-	/* Disable the ddr secure region setting to make it non-secure */
-	rk_clrreg(SGRF_DDR_CON0, 0x4000);
+	arch_cpu_init();
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
