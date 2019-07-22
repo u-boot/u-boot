@@ -57,6 +57,17 @@ int arch_cpu_init(void)
 
 	/* Disable the ddr secure region setting to make it non-secure */
 	rk_clrreg(&sgrf->soc_con[0], 0x4000);
+#else
+#define GRF_BASE	0x11000000
+	static struct rk322x_grf * const grf = (void *)GRF_BASE;
+	/*
+	 * The integrated macphy is enabled by default, disable it
+	 * for saving power consuming.
+	 */
+	rk_clrsetreg(&grf->macphy_con[0],
+		     MACPHY_CFG_ENABLE_MASK,
+		     0 << MACPHY_CFG_ENABLE_SHIFT);
+
 #endif
 	return 0;
 }

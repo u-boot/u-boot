@@ -10,7 +10,6 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/boot_mode.h>
 #include <asm/arch-rockchip/clock.h>
-#include <asm/arch-rockchip/grf_rk322x.h>
 #include <asm/arch-rockchip/periph.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -29,19 +28,6 @@ int board_late_init(void)
 
 int board_init(void)
 {
-#include <asm/arch-rockchip/grf_rk322x.h>
-	/* Enable early UART2 channel 1 on the RK322x */
-#define GRF_BASE	0x11000000
-	static struct rk322x_grf * const grf = (void *)GRF_BASE;
-
-	/*
-	* The integrated macphy is enabled by default, disable it
-	* for saving power consuming.
-	*/
-	rk_clrsetreg(&grf->macphy_con[0],
-		     MACPHY_CFG_ENABLE_MASK,
-		     0 << MACPHY_CFG_ENABLE_SHIFT);
-
 	return 0;
 }
 
