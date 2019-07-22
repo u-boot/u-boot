@@ -18,10 +18,13 @@ struct imx_sec_config_fuse_t const imx_sec_config_fuse = {
 };
 #endif
 
+#define ROM_VERSION_ADDR 0x80
 u32 get_cpu_rev(void)
 {
-	/* Temporally hard code the CPU rev to 0x73, rev 1.0. Fix it later */
-	return (MXC_CPU_MX7ULP << 12) | (1 << 4);
+	/* Check the ROM version for cpu revision */
+	u32 rom_version = readl((void __iomem *)ROM_VERSION_ADDR);
+
+	return (MXC_CPU_MX7ULP << 12) | (rom_version & 0xFF);
 }
 
 #ifdef CONFIG_REVISION_TAG
