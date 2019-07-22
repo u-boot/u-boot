@@ -300,6 +300,8 @@ void clock_init(void)
 
 	scg_a7_soscdiv_init();
 
+	scg_a7_init_core_clk();
+
 	/* APLL PFD1 = 270Mhz, PFD2=345.6Mhz, PFD3=800Mhz */
 	scg_enable_pll_pfd(SCG_APLL_PFD1_CLK, 35);
 	scg_enable_pll_pfd(SCG_APLL_PFD2_CLK, 28);

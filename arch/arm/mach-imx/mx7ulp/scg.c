@@ -1091,3 +1091,44 @@ void scg_a7_info(void)
 	debug("SCG RCCR Value: 0x%x\n", readl(&scg1_regs->rccr));
 	debug("SCG Clock Status: 0x%x\n", readl(&scg1_regs->csr));
 }
+
+void scg_a7_init_core_clk(void)
+{
+	u32 val = 0;
+
+	/*
+	 * The normal target frequency for ULP B0 is 500Mhz,
+	 * but ROM set it to 413Mhz, need to change SPLL PFD0 FRAC
+	 */
+	if (soc_rev() >= CHIP_REV_2_0) {
+		/* Switch RCCR SCG to SOSC, firstly check the SOSC is valid */
+		if ((readl(&scg1_regs->sosccsr) & SCG_SOSC_CSR_SOSCVLD_MASK)) {
+			val = readl(&scg1_regs->rccr);
+			val &= (~SCG_CCR_SCS_MASK);
+			val |= ((SCG_SCS_SYS_OSC) << SCG_CCR_SCS_SHIFT);
+			writel(val, &scg1_regs->rccr);
+
+			/* Switch the PLLS to SPLL clk */
+			val = readl(&scg1_regs->spllcfg);
+			val &= ~SCG_PLL_CFG_PLLSEL_MASK;
+			writel(val, &scg1_regs->spllcfg);
+
+			/*
+			 * Re-configure PFD0 to 19,
+			 * A7 SPLL(528MHz) * 18 / 19 = 500MHz
+			 */
+			scg_enable_pll_pfd(SCG_SPLL_PFD0_CLK, 19);
+
+			/* Switch the PLLS to SPLL PFD0 */
+			val = readl(&scg1_regs->spllcfg);
+			val |= SCG_PLL_CFG_PLLSEL_MASK;
+			writel(val, &scg1_regs->spllcfg);
+
+			/* Set RCCR SCG to SPLL clk out */
+			val = readl(&scg1_regs->rccr);
+			val &= (~SCG_CCR_SCS_MASK);
+			val |= ((SCG_SCS_SYS_PLL) << SCG_CCR_SCS_SHIFT);
+			writel(val, &scg1_regs->rccr);
+		}
+	}
+}
