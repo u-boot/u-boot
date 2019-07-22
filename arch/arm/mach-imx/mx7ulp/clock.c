@@ -72,7 +72,7 @@ u32 get_lpuart_clk(void)
 	return pcc_clock_get_rate(lpuart_pcc_clks[index - 4]);
 }
 
-#ifdef CONFIG_SYS_LPI2C_IMX
+#ifdef CONFIG_SYS_I2C_IMX_LPI2C
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 {
 	/* Set parent to FIRC DIV2 clock */
