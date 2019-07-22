@@ -25,6 +25,7 @@
 #include "mxcfb.h"
 #include "ipu_regs.h"
 #include "display.h"
+#include <panel.h>
 
 #include <dm.h>
 #include <video.h>
@@ -641,6 +642,7 @@ static int ipuv3_video_probe(struct udevice *dev)
 #if defined(CONFIG_DISPLAY)
 	struct udevice *disp_dev;
 #endif
+	struct udevice *panel_dev;
 	u32 fb_start, fb_end;
 	int ret;
 
@@ -667,6 +669,9 @@ static int ipuv3_video_probe(struct udevice *dev)
 			return ret;
 	}
 #endif
+	ret = uclass_get_device(UCLASS_PANEL, 0, &panel_dev);
+	if (panel_dev)
+		panel_enable_backlight(panel_dev);
 
 	uc_priv->xsize = gmode->xres;
 	uc_priv->ysize = gmode->yres;
