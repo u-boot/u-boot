@@ -30,6 +30,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void board_return_to_bootrom(void)
+{
+	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
+}
+
 u32 spl_boot_device(void)
 {
 #if !CONFIG_IS_ENABLED(OF_PLATDATA)
@@ -187,10 +192,6 @@ void board_init_f(ulong dummy)
 		return;
 	}
 #endif
-
-#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM) && !defined(CONFIG_SPL_BOARD_INIT)
-	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
-#endif
 }
 
 static int setup_led(void)
@@ -227,9 +228,7 @@ void spl_board_init(void)
 	}
 
 	preloader_console_init();
-#if CONFIG_IS_ENABLED(ROCKCHIP_BACK_TO_BROM)
-	back_to_bootrom(BROM_BOOT_NEXTSTAGE);
-#endif
+
 	return;
 }
 
