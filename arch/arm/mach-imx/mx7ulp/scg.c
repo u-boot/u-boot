@@ -440,7 +440,7 @@ static u32 scg_sys_get_rate(enum scg_clk clk)
 	case SCG_SCS_SLOW_IRC:
 	case SCG_SCS_FAST_IRC:
 	case SCG_SCS_RTC_OSC:
-		rate = scg_src_get_rate(scg_scs_array[val]);
+		rate = scg_src_get_rate(scg_scs_array[val - 1]);
 		break;
 	case 5:
 		rate = scg_apll_get_rate();
