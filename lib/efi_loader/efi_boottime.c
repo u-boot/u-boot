@@ -39,14 +39,6 @@ LIST_HEAD(efi_register_notify_events);
 /* Handle of the currently executing image */
 static efi_handle_t current_image;
 
-/*
- * If we're running on nasty systems (32bit ARM booting into non-EFI Linux)
- * we need to do trickery with caches. Since we don't want to break the EFI
- * aware boot path, only apply hacks when loading exiting directly (breaking
- * direct Linux EFI booting along the way - oh well).
- */
-static bool efi_is_direct_boot = true;
-
 #ifdef CONFIG_ARM
 /*
  * The "gd" pointer lives in a register on ARM and AArch64 that we declare
@@ -1911,13 +1903,21 @@ error:
  */
 static void efi_exit_caches(void)
 {
-#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
+#if defined(CONFIG_EFI_GRUB_ARM32_WORKAROUND)
 	/*
-	 * Grub on 32bit ARM needs to have caches disabled before jumping into
-	 * a zImage, but does not know of all cache layers. Give it a hand.
+	 * Boooting Linux via GRUB prior to version 2.04 fails on 32bit ARM if
+	 * caches are enabled.
+	 *
+	 * TODO:
+	 * According to the UEFI spec caches that can be managed via CP15
+	 * operations should be enabled. Caches requiring platform information
+	 * to manage should be disabled. This should not happen in
+	 * ExitBootServices() but before invoking any UEFI binary is invoked.
+	 *
+	 * We want to keep the current workaround while GRUB prior to version
+	 * 2.04 is still in use.
 	 */
-	if (efi_is_direct_boot)
-		cleanup_before_linux();
+	cleanup_before_linux();
 #endif
 }
 
@@ -2892,8 +2892,6 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
 					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
 	if (ret != EFI_SUCCESS)
 		return EFI_EXIT(EFI_INVALID_PARAMETER);
-
-	efi_is_direct_boot = false;
 
 	image_obj->exit_data_size = exit_data_size;
 	image_obj->exit_data = exit_data;
