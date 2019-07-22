@@ -4,11 +4,17 @@
  */
 
 #include <common.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "rksdmmc@ff520000",
+	[BROM_BOOTSOURCE_SD] = "rksdmmc@ff500000",
+};
 
 static struct mm_region rk3328_mem_map[] = {
 	{
