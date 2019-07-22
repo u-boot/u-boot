@@ -13,7 +13,7 @@
 	compatible = "mediatek,mt7629-rfb", "mediatek,mt7629";
 
 	aliases {
-		spi0 = &qspi;
+		spi0 = &snfi;
 	};
 
 	chosen {
@@ -33,7 +33,14 @@
 };
 
 &pinctrl {
-	qspi_pins: qspi-pins {
+	snfi_pins: snfi-pins {
+		mux {
+			function = "flash";
+			groups = "snfi";
+		};
+	};
+
+	snor_pins: snor-pins {
 		mux {
 			function = "flash";
 			groups = "spi_nor";
@@ -55,9 +62,10 @@
 	};
 };
 
-&qspi {
-	pinctrl-names = "default";
-	pinctrl-0 = <&qspi_pins>;
+&snfi {
+	pinctrl-names = "default", "snfi";
+	pinctrl-0 = <&snor_pins>;
+	pinctrl-1 = <&snfi_pins>;
 	status = "okay";
 
 	spi-flash@0{
