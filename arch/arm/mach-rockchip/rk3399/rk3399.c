@@ -80,11 +80,28 @@ int dram_init_banksize(void)
 
 int arch_cpu_init(void)
 {
-	/* We do some SoC one time setting here. */
-	struct rk3399_grf_regs * const grf = (void *)GRF_BASE;
 
-	/* Emmc clock generator: disable the clock multipilier */
+#ifdef CONFIG_SPL_BUILD
+	struct rk3399_pmusgrf_regs *sgrf;
+	struct rk3399_grf_regs *grf;
+
+	/*
+	 * Disable DDR and SRAM security regions.
+	 *
+	 * As we are entered from the BootROM, the region from
+	 * 0x0 through 0xfffff (i.e. the first MB of memory) will
+	 * be protected. This will cause issues with the DW_MMC
+	 * driver, which tries to DMA from/to the stack (likely)
+	 * located in this range.
+	 */
+	sgrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUSGRF);
+	rk_clrsetreg(&sgrf->ddr_rgn_con[16], 0x1ff, 0);
+	rk_clrreg(&sgrf->slv_secure_con4, 0x2000);
+
+	/*  eMMC clock generator: disable the clock multipilier */
+	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	rk_clrreg(&grf->emmccore_con[11], 0x0ff);
+#endif
 
 	return 0;
 }

@@ -16,7 +16,6 @@
 #include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3399.h>
-#include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/sys_proto.h>
@@ -65,11 +64,14 @@ __weak void rockchip_stimer_init(void)
 {
 }
 
+__weak int arch_cpu_init(void)
+{
+	return 0;
+}
+
 void board_init_f(ulong dummy)
 {
 	struct udevice *dev;
-	struct rk3399_pmusgrf_regs *sgrf;
-	struct rk3399_grf_regs *grf;
 	int ret;
 
 #ifdef CONFIG_DEBUG_UART
@@ -100,28 +102,13 @@ void board_init_f(ulong dummy)
 	debug("U-Boot SPL board init\n");
 #endif
 
+	arch_cpu_init();
+
 	ret = spl_early_init();
 	if (ret) {
 		debug("spl_early_init() failed: %d\n", ret);
 		hang();
 	}
-
-	/*
-	 * Disable DDR and SRAM security regions.
-	 *
-	 * As we are entered from the BootROM, the region from
-	 * 0x0 through 0xfffff (i.e. the first MB of memory) will
-	 * be protected. This will cause issues with the DW_MMC
-	 * driver, which tries to DMA from/to the stack (likely)
-	 * located in this range.
-	 */
-	sgrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUSGRF);
-	rk_clrsetreg(&sgrf->ddr_rgn_con[16], 0x1ff, 0);
-	rk_clrreg(&sgrf->slv_secure_con4, 0x2000);
-
-	/*  eMMC clock generator: disable the clock multipilier */
-	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
-	rk_clrreg(&grf->emmccore_con[11], 0x0ff);
 
 	rockchip_stimer_init();
 
