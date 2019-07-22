@@ -33,7 +33,7 @@ typedef struct global_data {
 	/* We cannot bracket this with CONFIG_PCI due to mpc5xxx */
 	unsigned long pci_clk;
 	unsigned long mem_clk;
-#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO)
+#if defined(CONFIG_LCD) || defined(CONFIG_VIDEO) || defined(CONFIG_DM_VIDEO)
 	unsigned long fb_base;		/* Base address of framebuffer mem */
 #endif
 #if defined(CONFIG_POST)
