@@ -57,6 +57,11 @@ __weak void rockchip_stimer_init(void)
 {
 }
 
+__weak int board_early_init_f(void)
+{
+	return 0;
+}
+
 __weak int arch_cpu_init(void)
 {
 	return 0;
@@ -70,20 +75,6 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_DEBUG_UART
 	debug_uart_init();
 
-# ifdef CONFIG_TARGET_CHROMEBOOK_BOB
-	int sum, i;
-
-	/*
-	 * Add a delay and ensure that the compiler does not optimise this out.
-	 * This is needed since the power rails tail a while to turn on, and
-	 * we get garbage serial output otherwise.
-	 */
-	sum = 0;
-	for (i = 0; i < 150000; i++)
-		sum += i;
-	gru_dummy_function(sum);
-#endif /* CONFIG_TARGET_CHROMEBOOK_BOB */
-
 	/*
 	 * Debug UART can be used from here if required:
 	 *
@@ -95,6 +86,7 @@ void board_init_f(ulong dummy)
 	debug("U-Boot SPL board init\n");
 #endif
 
+	board_early_init_f();
 	arch_cpu_init();
 
 	ret = spl_early_init();
