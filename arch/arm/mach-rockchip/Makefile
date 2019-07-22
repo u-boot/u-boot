@@ -22,7 +22,6 @@ ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_TPL_BUILD),)
 obj-y += boot_mode.o
 obj-$(CONFIG_ROCKCHIP_COMMON_BOARD) += board.o
 
-obj-$(CONFIG_ROCKCHIP_RK3288) += rk3288-board.o
 obj-$(CONFIG_ROCKCHIP_RK3399) += rk3399-board.o
 obj-$(CONFIG_ROCKCHIP_RV1108) += rv1108-board.o
 endif

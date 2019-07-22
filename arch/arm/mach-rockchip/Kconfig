@@ -80,6 +80,7 @@ config ROCKCHIP_RK3288
 	select SUPPORT_SPL
 	select SPL
 	select SUPPORT_TPL
+	imply ROCKCHIP_COMMON_BOARD
 	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply TPL_CLK
 	imply TPL_DM
