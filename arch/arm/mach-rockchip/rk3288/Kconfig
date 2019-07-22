@@ -85,6 +85,7 @@ config TARGET_MIQI_RK3288
 config TARGET_PHYCORE_RK3288
 	bool "phyCORE-RK3288"
         select BOARD_LATE_INIT
+	select SPL_BOARD_INIT if SPL
 	help
 	  Add basic support for the PCM-947 carrier board, a RK3288 based
 	  development board made by PHYTEC. This board works in a combination

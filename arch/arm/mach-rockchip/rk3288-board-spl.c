@@ -25,8 +25,6 @@
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/util.h>
-#include <power/regulator.h>
-#include <power/rk8xx_pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -80,32 +78,6 @@ fallback:
 #endif
 	return BOOT_DEVICE_MMC1;
 }
-
-#if !defined(CONFIG_SPL_OF_PLATDATA)
-static int phycore_init(void)
-{
-	struct udevice *pmic;
-	int ret;
-
-	ret = uclass_first_device_err(UCLASS_PMIC, &pmic);
-	if (ret)
-		return ret;
-
-#if defined(CONFIG_SPL_POWER_SUPPORT)
-	/* Increase USB input current to 2A */
-	ret = rk818_spl_configure_usb_input_current(pmic, 2000);
-	if (ret)
-		return ret;
-
-	/* Close charger when USB lower then 3.26V */
-	ret = rk818_spl_configure_usb_chrg_shutdown(pmic, 3260000);
-	if (ret)
-		return ret;
-#endif
-
-	return 0;
-}
-#endif
 
 __weak int arch_cpu_init(void)
 {
@@ -174,17 +146,6 @@ void board_init_f(ulong dummy)
 		debug("CLK init failed: %d\n", ret);
 		return;
 	}
-
-#if !defined(CONFIG_SPL_OF_PLATDATA)
-	if (of_machine_is_compatible("phytec,rk3288-phycore-som")) {
-		ret = phycore_init();
-		if (ret) {
-			debug("Failed to set up phycore power settings: %d\n",
-			      ret);
-			return;
-		}
-	}
-#endif
 
 #if !defined(CONFIG_SUPPORT_TPL)
 	debug("\nspl:init dram\n");
