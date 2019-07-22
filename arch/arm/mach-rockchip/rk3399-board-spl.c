@@ -130,6 +130,8 @@ void board_init_f(ulong dummy)
 		pr_err("DRAM init failed: %d\n", ret);
 		return;
 	}
+
+	preloader_console_init();
 }
 
 #if defined(SPL_GPIO_SUPPORT)
@@ -188,8 +190,6 @@ void spl_board_init(void)
 	if (regulators_enable_boot_on(false))
 		debug("%s: Cannot enable boot on regulator\n", __func__);
 #endif
-
-	preloader_console_init();
 }
 
 #ifdef CONFIG_SPL_LOAD_FIT
