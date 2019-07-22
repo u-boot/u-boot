@@ -36,6 +36,7 @@ config ROCKCHIP_RK3188
 	select SPL_ROCKCHIP_EARLYRETURN_TO_BROM
 	select SPL_ROCKCHIP_BACK_TO_BROM
 	select BOARD_LATE_INIT
+	imply SPL_ROCKCHIP_COMMON_BOARD
 	help
 	  The Rockchip RK3188 is a ARM-based SoC with a quad-core Cortex-A9
 	  including NEON and GPU, 512KB L2 cache, Mali-400 graphics, two
