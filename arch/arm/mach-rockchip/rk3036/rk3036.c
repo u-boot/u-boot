@@ -5,6 +5,9 @@
 #include <asm/io.h>
 #include <asm/arch-rockchip/grf_rk3036.h>
 #include <asm/arch-rockchip/hardware.h>
+#include <asm/arch-rockchip/sdram_rk3036.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 void board_debug_uart_init(void)
@@ -34,5 +37,18 @@ void board_debug_uart_init(void)
 		     GPIO1C2_MASK << GPIO1C2_SHIFT,
 		     GPIO1C3_UART2_SOUT << GPIO1C3_SHIFT |
 		     GPIO1C2_UART2_SIN << GPIO1C2_SHIFT);
+}
+#endif
+
+#if !CONFIG_IS_ENABLED(RAM)
+/*
+ * When CONFIG_RAM is enabled, the dram_init() function is implemented
+ * in sdram_common.c.
+ */
+int dram_init(void)
+{
+	gd->ram_size = sdram_size();
+
+	return 0;
 }
 #endif

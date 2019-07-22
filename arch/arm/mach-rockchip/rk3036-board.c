@@ -13,7 +13,6 @@
 #include <asm/arch-rockchip/periph.h>
 #include <asm/arch-rockchip/grf_rk3036.h>
 #include <asm/arch-rockchip/boot_mode.h>
-#include <asm/arch-rockchip/sdram_rk3036.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -33,19 +32,6 @@ int board_init(void)
 {
 	return 0;
 }
-
-#if !CONFIG_IS_ENABLED(RAM)
-/*
- * When CONFIG_RAM is enabled, the dram_init() function is implemented
- * in sdram_common.c.
- */
-int dram_init(void)
-{
-	gd->ram_size = sdram_size();
-
-	return 0;
-}
-#endif
 
 #if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 void enable_caches(void)
