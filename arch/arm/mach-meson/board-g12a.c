@@ -62,21 +62,21 @@ void meson_init_reserved_memory(void *fdt)
 phys_size_t get_effective_memsize(void)
 {
 	/* Size is reported in MiB, convert it in bytes */
-	return ((readl(G12A_AO_SEC_GP_CFG0) & G12A_AO_MEM_SIZE_MASK)
-			>> G12A_AO_MEM_SIZE_SHIFT) * SZ_1M;
+	return min(((readl(G12A_AO_SEC_GP_CFG0) & G12A_AO_MEM_SIZE_MASK)
+			>> G12A_AO_MEM_SIZE_SHIFT) * SZ_1M, 0xf5000000);
 }
 
 static struct mm_region g12a_mem_map[] = {
 	{
 		.virt = 0x0UL,
 		.phys = 0x0UL,
-		.size = 0x80000000UL,
+		.size = 0xf5000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_NORMAL) |
 			 PTE_BLOCK_INNER_SHARE
 	}, {
-		.virt = 0xf0000000UL,
-		.phys = 0xf0000000UL,
-		.size = 0x10000000UL,
+		.virt = 0xf5000000UL,
+		.phys = 0xf5000000UL,
+		.size = 0x0b000000UL,
 		.attrs = PTE_BLOCK_MEMTYPE(MT_DEVICE_NGNRNE) |
 			 PTE_BLOCK_NON_SHARE |
 			 PTE_BLOCK_PXN | PTE_BLOCK_UXN
@@ -129,6 +129,7 @@ void meson_eth_init(phy_interface_t mode, unsigned int flags)
 			     G12A_ETH_REG_0_TX_RATIO(4) |
 			     G12A_ETH_REG_0_PHY_CLK_EN |
 			     G12A_ETH_REG_0_CLK_EN);
+		g12a_enable_external_mdio();
 		break;
 
 	case PHY_INTERFACE_MODE_RMII:
