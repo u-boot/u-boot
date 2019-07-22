@@ -167,6 +167,8 @@ void board_init_f(ulong dummy)
 
 	arch_cpu_init();
 
+	preloader_console_init();
+
 	ret = rockchip_get_clk(&dev);
 	if (ret) {
 		debug("CLK init failed: %d\n", ret);
@@ -226,8 +228,6 @@ void spl_board_init(void)
 		debug("LED ret=%d\n", ret);
 		hang();
 	}
-
-	preloader_console_init();
 
 	return;
 }
