@@ -52,6 +52,8 @@ enum {
 	BROM_LAST_BOOTSOURCE = BROM_BOOTSOURCE_USB
 };
 
+extern const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1];
+
 /**
  * Locations of the boot-device identifier in SRAM
  */
