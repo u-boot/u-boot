@@ -265,6 +265,11 @@ u64 dev_translate_address(struct udevice *dev, const fdt32_t *in_addr)
 	return ofnode_translate_address(dev_ofnode(dev), in_addr);
 }
 
+u64 dev_translate_dma_address(struct udevice *dev, const fdt32_t *in_addr)
+{
+	return ofnode_translate_dma_address(dev_ofnode(dev), in_addr);
+}
+
 int dev_read_alias_highest_id(const char *stem)
 {
 	if (of_live_active())

@@ -218,8 +218,32 @@ static inline void fdt_fixup_mtdparts(void *fdt,
 #endif
 
 void fdt_del_node_and_alias(void *blob, const char *alias);
+
+/**
+ * Translate an address from the DT into a CPU physical address
+ *
+ * The translation relies on the "ranges" property.
+ *
+ * @param blob		Pointer to device tree blob
+ * @param node_offset	Node DT offset
+ * @param in_addr	Pointer to the address to translate
+ * @return translated address or OF_BAD_ADDR on error
+ */
 u64 fdt_translate_address(const void *blob, int node_offset,
 			  const __be32 *in_addr);
+/**
+ * Translate a DMA address from the DT into a CPU physical address
+ *
+ * The translation relies on the "dma-ranges" property.
+ *
+ * @param blob		Pointer to device tree blob
+ * @param node_offset	Node DT offset
+ * @param in_addr	Pointer to the DMA address to translate
+ * @return translated DMA address or OF_BAD_ADDR on error
+ */
+u64 fdt_translate_dma_address(const void *blob, int node_offset,
+			      const __be32 *in_addr);
+
 int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 					phys_addr_t compat_off);
 int fdt_alloc_phandle(void *blob);

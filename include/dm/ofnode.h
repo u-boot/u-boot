@@ -767,7 +767,7 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
 	     node = ofnode_next_subnode(node))
 
 /**
- * ofnode_translate_address() - Tranlate a device-tree address
+ * ofnode_translate_address() - Translate a device-tree address
  *
  * Translate an address from the device-tree into a CPU physical address. This
  * function walks up the tree and applies the various bus mappings along the
@@ -779,6 +779,20 @@ ofnode ofnode_by_prop_value(ofnode from, const char *propname,
  * @return the translated address; OF_BAD_ADDR on error
  */
 u64 ofnode_translate_address(ofnode node, const fdt32_t *in_addr);
+
+/**
+ * ofnode_translate_dma_address() - Translate a device-tree DMA address
+ *
+ * Translate a DMA address from the device-tree into a CPU physical address.
+ * This function walks up the tree and applies the various bus mappings along
+ * the way.
+ *
+ * @ofnode: Device tree node giving the context in which to translate the
+ *          DMA address
+ * @in_addr: pointer to the DMA address to translate
+ * @return the translated DMA address; OF_BAD_ADDR on error
+ */
+u64 ofnode_translate_dma_address(ofnode node, const fdt32_t *in_addr);
 
 /**
  * ofnode_device_is_compatible() - check if the node is compatible with compat

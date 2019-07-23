@@ -40,6 +40,16 @@ config REMOTEPROC_SANDBOX
 	  Say 'y' here to add support for test processor which does dummy
 	  operations for sandbox platform.
 
+config REMOTEPROC_STM32_COPRO
+	bool "Support for STM32 coprocessor"
+	select REMOTEPROC
+	depends on DM
+	depends on ARCH_STM32MP
+	depends on OF_CONTROL
+	help
+	  Say 'y' here to add support for STM32 Cortex-M4 coprocessors via the
+	  remoteproc framework.
+
 config REMOTEPROC_TI_POWER
 	bool "Support for TI Power processor"
 	select REMOTEPROC
