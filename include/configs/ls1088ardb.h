@@ -269,9 +269,7 @@
 * RTC configuration
 */
 #define RTC
-#define CONFIG_RTC_PCF8563 1
 #define CONFIG_SYS_I2C_RTC_ADDR         0x51  /* Channel 3*/
-#define CONFIG_CMD_DATE
 #endif
 
 /* EEPROM */
