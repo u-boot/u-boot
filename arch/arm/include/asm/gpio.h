@@ -2,7 +2,7 @@
 	!defined(CONFIG_ARCH_K3) && !defined(CONFIG_ARCH_BCM6858) && \
 	!defined(CONFIG_ARCH_BCM63158) && !defined(CONFIG_ARCH_ROCKCHIP) && \
 	!defined(CONFIG_ARCH_LX2160A) && !defined(CONFIG_ARCH_LS1028A) && \
-	!defined(CONFIG_ARCH_LS2080A)
+	!defined(CONFIG_ARCH_LS2080A) && !defined(CONFIG_ARCH_LS1088A)
 #include <asm/arch/gpio.h>
 #endif
 #include <asm-generic/gpio.h>
