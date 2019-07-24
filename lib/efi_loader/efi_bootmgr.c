@@ -27,7 +27,15 @@ static const struct efi_runtime_services *rs;
  */
 
 
-/* Parse serialized data and transform it into efi_load_option structure */
+/**
+ * efi_deserialize_load_option() - parse serialized data
+ *
+ * Parse serialized data describing a load option and transform it to the
+ * efi_load_option structure.
+ *
+ * @lo:		pointer to target
+ * @data:	serialized data
+ */
 void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data)
 {
 	lo->attributes = get_unaligned_le32(data);
@@ -47,9 +55,14 @@ void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data)
 	lo->optional_data = data;
 }
 
-/*
+/**
+ * efi_serialize_load_option() - serialize load option
+ *
  * Serialize efi_load_option structure into byte stream for BootXXXX.
- * Return a size of allocated data.
+ *
+ * @data:	buffer for serialized data
+ * @lo:		load option
+ * Return:	size of allocated buffer
  */
 unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
 {
@@ -92,7 +105,16 @@ unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
 	return size;
 }
 
-/* free() the result */
+/**
+ * get_var() - get UEFI variable
+ *
+ * It is the caller's duty to free the returned buffer.
+ *
+ * @name:	name of variable
+ * @vendor:	vendor GUID of variable
+ * @size:	size of allocated buffer
+ * Return:	buffer with variable data or NULL
+ */
 static void *get_var(u16 *name, const efi_guid_t *vendor,
 		     efi_uintn_t *size)
 {
@@ -116,10 +138,16 @@ static void *get_var(u16 *name, const efi_guid_t *vendor,
 	return buf;
 }
 
-/*
+/**
+ * try_load_entry() - try to load image for boot option
+ *
  * Attempt to load load-option number 'n', returning device_path and file_path
- * if successful.  This checks that the EFI_LOAD_OPTION is active (enabled)
+ * if successful. This checks that the EFI_LOAD_OPTION is active (enabled)
  * and that the specified file to boot exists.
+ *
+ * @n:		number of the boot option, e.g. 0x0a13 for Boot0A13
+ * @handle:	on return handle for the newly installed image
+ * Return:	status code
  */
 static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
 {
@@ -180,10 +208,15 @@ error:
 	return ret;
 }
 
-/*
+/**
+ * efi_bootmgr_load() - try to load from BootNext or BootOrder
+ *
  * Attempt to load from BootNext or in the order specified by BootOrder
  * EFI variable, the available load-options, finding and returning
  * the first one that can be loaded successfully.
+ *
+ * @handle:	on return handle for the newly installed image
+ * Return:	status code
  */
 efi_status_t efi_bootmgr_load(efi_handle_t *handle)
 {

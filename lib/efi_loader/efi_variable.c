@@ -263,8 +263,8 @@ static char *efi_cur_variable;
  * is the size of variable name including NULL.
  *
  * Return:		EFI_SUCCESS if parsing is OK, EFI_NOT_FOUND when
-			the entire variable list has been returned,
-			otherwise non-zero status code
+ *			the entire variable list has been returned,
+ *			otherwise non-zero status code
  */
 static efi_status_t parse_uboot_variable(char *variable,
 					 efi_uintn_t *variable_name_size,
@@ -315,6 +315,7 @@ static efi_status_t parse_uboot_variable(char *variable,
 
 /**
  * efi_get_next_variable_name() - enumerate the current variable names
+ *
  * @variable_name_size:	size of variable_name buffer in byte
  * @variable_name:	name of uefi variable's name in u16
  * @vendor:		vendor's guid
@@ -322,8 +323,7 @@ static efi_status_t parse_uboot_variable(char *variable,
  * This function implements the GetNextVariableName service.
  *
  * See the Unified Extensible Firmware Interface (UEFI) specification for
- * details: http://wiki.phoenix.com/wiki/index.php/
- *		EFI_RUNTIME_SERVICES#GetNextVariableName.28.29
+ * details.
  *
  * Return: status code
  */
@@ -550,6 +550,13 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
 
 /**
  * efi_get_variable_runtime() - runtime implementation of GetVariable()
+ *
+ * @variable_name:	name of the variable
+ * @vendor:		vendor GUID
+ * @attributes:		attributes of the variable
+ * @data_size:		size of the buffer to which the variable value is copied
+ * @data:		buffer to which the variable value is copied
+ * Return:		status code
  */
 static efi_status_t __efi_runtime EFIAPI
 efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
@@ -561,6 +568,11 @@ efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
 /**
  * efi_get_next_variable_name_runtime() - runtime implementation of
  *					  GetNextVariable()
+ *
+ * @variable_name_size:	size of variable_name buffer in byte
+ * @variable_name:	name of uefi variable's name in u16
+ * @vendor:		vendor's guid
+ * Return: status code
  */
 static efi_status_t __efi_runtime EFIAPI
 efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
@@ -571,6 +583,13 @@ efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
 
 /**
  * efi_set_variable_runtime() - runtime implementation of SetVariable()
+ *
+ * @variable_name:	name of the variable
+ * @vendor:		vendor GUID
+ * @attributes:		attributes of the variable
+ * @data_size:		size of the buffer with the variable value
+ * @data:		buffer with the variable value
+ * Return:		status code
  */
 static efi_status_t __efi_runtime EFIAPI
 efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,

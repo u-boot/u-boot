@@ -394,6 +394,7 @@ static const struct efi_mem_attrs {
 
 /**
  * print_memory_attributes() - print memory map attributes
+ *
  * @attributes:	Attribute value
  *
  * Print memory map attributes
@@ -487,9 +488,9 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
  * Return:	CMD_RET_SUCCESS on success,
  *		CMD_RET_USAGE or CMD_RET_RET_FAILURE on failure
  *
- * Implement efidebug "boot add" sub-command.
- * Create or change UEFI load option.
- *   - boot add <id> <label> <interface> <devnum>[:<part>] <file> <options>
+ * Implement efidebug "boot add" sub-command. Create or change UEFI load option.
+ *
+ *     efidebug boot add <id> <label> <interface> <devnum>[:<part>] <file> <options>
  */
 static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
 			   int argc, char * const argv[])
@@ -587,7 +588,8 @@ out:
  *
  * Implement efidebug "boot rm" sub-command.
  * Delete UEFI load options.
- *   - boot rm <id> ...
+ *
+ *     efidebug boot rm <id> ...
  */
 static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
 			  int argc, char * const argv[])
@@ -890,7 +892,8 @@ out:
  *
  * Implement efidebug "boot next" sub-command.
  * Set BootNext variable.
- *   - boot next <id>
+ *
+ *     efidebug boot next <id>
  */
 static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
 			    int argc, char * const argv[])
@@ -938,7 +941,8 @@ out:
  *
  * Implement efidebug "boot order" sub-command.
  * Show order of UEFI load options, or change it in BootOrder variable.
- *   - boot order [<id> ...]
+ *
+ *     efidebug boot order [<id> ...]
  */
 static int do_efi_boot_order(cmd_tbl_t *cmdtp, int flag,
 			     int argc, char * const argv[])

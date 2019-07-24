@@ -178,7 +178,7 @@ s32 utf_to_upper(const s32 code);
  * ReturnValue:		number of non-zero words.
  *			This is not the number of utf-16 letters!
  */
-size_t u16_strlen(const u16 *in);
+size_t u16_strlen(const void *in);
 
 /**
  * u16_strlen - count non-zero words
@@ -214,7 +214,7 @@ u16 *u16_strcpy(u16 *dest, const u16 *src);
  * @src:		source buffer (null terminated)
  * Return:		allocated new buffer on success, NULL on failure
  */
-u16 *u16_strdup(const u16 *src);
+u16 *u16_strdup(const void *src);
 
 /**
  * utf16_to_utf8() - Convert an utf16 string to utf8

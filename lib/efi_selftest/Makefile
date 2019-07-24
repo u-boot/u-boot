@@ -28,6 +28,7 @@ efi_selftest_manageprotocols.o \
 efi_selftest_memory.o \
 efi_selftest_open_protocol.o \
 efi_selftest_register_notify.o \
+efi_selftest_set_virtual_address_map.o \
 efi_selftest_snp.o \
 efi_selftest_textinput.o \
 efi_selftest_textinputex.o \

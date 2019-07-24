@@ -476,8 +476,8 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
 				efi_uintn_t *descriptor_size,
 				uint32_t *descriptor_version);
 /* Adds a range into the EFI memory map */
-uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
-			    bool overlap_only_ram);
+efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+				bool overlap_only_ram);
 /* Called by board init to initialize the EFI drivers */
 efi_status_t efi_driver_init(void);
 /* Called by board init to initialize the EFI memory map */
@@ -567,7 +567,7 @@ static inline void ascii2unicode(u16 *unicode, const char *ascii)
 	*unicode = 0;
 }
 
-static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
+static inline int guidcmp(const void *g1, const void *g2)
 {
 	return memcmp(g1, g2, sizeof(efi_guid_t));
 }

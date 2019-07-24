@@ -670,9 +670,18 @@ err:
 	return ret;
 }
 
-static void gpt_convert_efi_name_to_char(char *s, efi_char16_t *es, int n)
+/**
+ * gpt_convert_efi_name_to_char() - convert u16 string to char string
+ *
+ * TODO: this conversion only supports ANSI characters
+ *
+ * @s:	target buffer
+ * @es:	u16 string to be converted
+ * @n:	size of target buffer
+ */
+static void gpt_convert_efi_name_to_char(char *s, void *es, int n)
 {
-	char *ess = (char *)es;
+	char *ess = es;
 	int i, j;
 
 	memset(s, '\0', n);

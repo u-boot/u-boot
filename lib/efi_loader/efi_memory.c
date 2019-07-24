@@ -37,17 +37,21 @@ void *efi_bounce_buffer;
 #endif
 
 /**
- * efi_pool_allocation - memory block allocated from pool
+ * struct efi_pool_allocation - memory block allocated from pool
  *
  * @num_pages:	number of pages allocated
  * @checksum:	checksum
+ * @data:	allocated pool memory
  *
- * U-Boot services each EFI AllocatePool request as a separate
- * (multiple) page allocation.  We have to track the number of pages
+ * U-Boot services each UEFI AllocatePool() request as a separate
+ * (multiple) page allocation. We have to track the number of pages
  * to be able to free the correct amount later.
+ *
+ * The checksum calculated in function checksum() is used in FreePool() to avoid
+ * freeing memory not allocated by AllocatePool() and duplicate freeing.
+ *
  * EFI requires 8 byte alignment for pool allocations, so we can
- * prepend each allocation with an 64 bit header tracking the
- * allocation size, and hand out the remainder to the caller.
+ * prepend each allocation with these header fields.
  */
 struct efi_pool_allocation {
 	u64 num_pages;
@@ -223,8 +227,17 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
 	return EFI_CARVE_LOOP_AGAIN;
 }
 
-uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
-			    bool overlap_only_ram)
+/**
+ * efi_add_memory_map() - add memory area to the memory map
+ *
+ * @start:		start address, must be a multiple of EFI_PAGE_SIZE
+ * @pages:		number of pages to add
+ * @memory_type:	type of memory added
+ * @overlap_only_ram:	the memory area must overlap existing
+ * Return:		status code
+ */
+efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+				bool overlap_only_ram)
 {
 	struct list_head *lhandle;
 	struct efi_mem_list *newlist;
@@ -239,7 +252,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 		return EFI_INVALID_PARAMETER;
 
 	if (!pages)
-		return start;
+		return EFI_SUCCESS;
 
 	++efi_memory_map_key;
 	newlist = calloc(1, sizeof(*newlist));
@@ -277,7 +290,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 				 * The user requested to only have RAM overlaps,
 				 * but we hit a non-RAM region. Error out.
 				 */
-				return 0;
+				return EFI_NO_MAPPING;
 			case EFI_CARVE_NO_OVERLAP:
 				/* Just ignore this list entry */
 				break;
@@ -307,7 +320,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 		 * The payload wanted to have RAM overlaps, but we overlapped
 		 * with an unallocated region. Error out.
 		 */
-		return 0;
+		return EFI_NO_MAPPING;
 	}
 
 	/* Add our new map */
@@ -326,7 +339,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
 		}
 	}
 
-	return start;
+	return EFI_SUCCESS;
 }
 
 /**
@@ -455,7 +468,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
 	}
 
 	/* Reserve that map in our memory maps */
-	if (efi_add_memory_map(addr, pages, memory_type, true) != addr)
+	if (efi_add_memory_map(addr, pages, memory_type, true) != EFI_SUCCESS)
 		/* Map would overlap, bail out */
 		return  EFI_OUT_OF_RESOURCES;
 
@@ -487,7 +500,6 @@ void *efi_alloc(uint64_t len, int memory_type)
  */
 efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 {
-	uint64_t r = 0;
 	efi_status_t ret;
 
 	ret = efi_check_allocated(memory, true);
@@ -501,13 +513,13 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
 		return EFI_INVALID_PARAMETER;
 	}
 
-	r = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
+	ret = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
 	/* Merging of adjacent free regions is missing */
 
-	if (r == memory)
-		return EFI_SUCCESS;
+	if (ret != EFI_SUCCESS)
+		return EFI_NOT_FOUND;
 
-	return EFI_NOT_FOUND;
+	return ret;
 }
 
 /**
