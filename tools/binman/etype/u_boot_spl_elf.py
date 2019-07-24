@@ -12,7 +12,7 @@ class Entry_u_boot_spl_elf(Entry_blob):
     """U-Boot SPL ELF image
 
     Properties / Entry arguments:
-        - filename: Filename of SPL u-boot (default 'spl/u-boot')
+        - filename: Filename of SPL u-boot (default 'spl/u-boot-spl')
 
     This is the U-Boot SPL ELF image. It does not include a device tree but can
     be relocated to any address for execution.

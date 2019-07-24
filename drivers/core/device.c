@@ -388,7 +388,8 @@ int device_probe(struct udevice *dev)
 	if (dev->parent && device_get_uclass_id(dev) != UCLASS_PINCTRL)
 		pinctrl_select_state(dev, "default");
 
-	if (dev->parent && device_get_uclass_id(dev) != UCLASS_POWER_DOMAIN) {
+	if (CONFIG_IS_ENABLED(POWER_DOMAIN) && dev->parent &&
+	    device_get_uclass_id(dev) != UCLASS_POWER_DOMAIN) {
 		if (!power_domain_get(dev, &pd))
 			power_domain_on(&pd);
 	}
@@ -409,10 +410,16 @@ int device_probe(struct udevice *dev)
 			goto fail;
 	}
 
-	/* Process 'assigned-{clocks/clock-parents/clock-rates}' properties */
-	ret = clk_set_defaults(dev);
-	if (ret)
-		goto fail;
+	/* Only handle devices that have a valid ofnode */
+	if (dev_of_valid(dev)) {
+		/*
+		 * Process 'assigned-{clocks/clock-parents/clock-rates}'
+		 * properties
+		 */
+		ret = clk_set_defaults(dev);
+		if (ret)
+			goto fail;
+	}
 
 	if (drv->probe) {
 		ret = drv->probe(dev);

@@ -49,7 +49,7 @@ class Entry_fmap(Entry):
                 areas.append(fmap_util.FmapArea(pos or 0, entry.size or 0,
                                             tools.FromUnicode(entry.name), 0))
 
-        entries = self.section._image.GetEntries()
+        entries = self.section.image.GetEntries()
         areas = []
         for entry in entries.values():
             _AddEntries(areas, entry)
@@ -62,4 +62,4 @@ class Entry_fmap(Entry):
         return True
 
     def ProcessContents(self):
-        self.SetContents(self._GetFmap())
+        return self.ProcessContentsUpdate(self._GetFmap())

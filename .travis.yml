@@ -32,6 +32,7 @@ addons:
     - device-tree-compiler
     - lzop
     - liblz4-tool
+    - lzma-alone
     - libisl15
     - clang-7
     - srecord
@@ -146,7 +147,7 @@ script:
    if [[ -n "${TEST_PY_TOOLS}" ]]; then
      PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"
      PATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc:${PATH}"
-     ./tools/binman/binman -t &&
+     ./tools/binman/binman --toolpath ${UBOOT_TRAVIS_BUILD_DIR}/tools test &&
      ./tools/patman/patman --test &&
      ./tools/buildman/buildman -t &&
      PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt"

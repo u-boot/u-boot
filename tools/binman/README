@@ -36,10 +36,9 @@ suitable padding and alignment. It provides a way to process binaries before
 they are included, by adding a Python plug-in. The device tree is available
 to U-Boot at run-time so that the images can be interpreted.
 
-Binman does not yet update the device tree with the final location of
-everything when it is done. A simple C structure could be generated for
-constrained environments like SPL (using dtoc) but this is also not
-implemented.
+Binman can update the device tree with the final location of everything when it
+is done. Entry positions can be provided to U-Boot SPL as run-time symbols,
+avoiding device-tree code overhead.
 
 Binman can also support incorporating filesystems in the image if required.
 For example x86 platforms may use CBFS in some cases.
@@ -181,9 +180,14 @@ the configuration of the Intel-format descriptor.
 Running binman
 --------------
 
+First install prerequisites, e.g.
+
+	sudo apt-get install python-pyelftools python3-pyelftools lzma-alone \
+		liblz4-tool
+
 Type:
 
-	binman -b <board_name>
+	binman build -b <board_name>
 
 to build an image for a board. The board name is the same name used when
 configuring U-Boot (e.g. for sandbox_defconfig the board name is 'sandbox').
@@ -191,7 +195,7 @@ Binman assumes that the input files for the build are in ../b/<board_name>.
 
 Or you can specify this explicitly:
 
-	binman -I <build_path>
+	binman build -I <build_path>
 
 where <build_path> is the build directory containing the output of the U-Boot
 build.
@@ -334,6 +338,10 @@ expand-size:
 	Expand the size of this entry to fit available space. This space is only
 	limited by the size of the image/section and the position of the next
 	entry.
+
+compress:
+	Sets the compression algortihm to use (for blobs only). See the entry
+	documentation for details.
 
 The attributes supported for images and sections are described below. Several
 are similar to those for entries.
@@ -479,7 +487,92 @@ Entry Documentation
 For details on the various entry types supported by binman and how to use them,
 see README.entries. This is generated from the source code using:
 
-	binman -E >tools/binman/README.entries
+	binman entry-docs >tools/binman/README.entries
+
+
+Listing images
+--------------
+
+It is possible to list the entries in an existing firmware image created by
+binman, provided that there is an 'fdtmap' entry in the image. For example:
+
+    $ binman ls -i image.bin
+    Name              Image-pos  Size  Entry-type    Offset  Uncomp-size
+    ----------------------------------------------------------------------
+    main-section                  c00  section            0
+      u-boot                  0     4  u-boot             0
+      section                     5fc  section            4
+        cbfs                100   400  cbfs               0
+          u-boot            138     4  u-boot            38
+          u-boot-dtb        180   108  u-boot-dtb        80          3b5
+        u-boot-dtb          500   1ff  u-boot-dtb       400          3b5
+      fdtmap                6fc   381  fdtmap           6fc
+      image-header          bf8     8  image-header     bf8
+
+This shows the hierarchy of the image, the position, size and type of each
+entry, the offset of each entry within its parent and the uncompressed size if
+the entry is compressed.
+
+It is also possible to list just some files in an image, e.g.
+
+    $ binman ls -i image.bin section/cbfs
+    Name              Image-pos  Size  Entry-type  Offset  Uncomp-size
+    --------------------------------------------------------------------
+        cbfs                100   400  cbfs             0
+          u-boot            138     4  u-boot          38
+          u-boot-dtb        180   108  u-boot-dtb      80          3b5
+
+or with wildcards:
+
+    $ binman ls -i image.bin "*cb*" "*head*"
+    Name              Image-pos  Size  Entry-type    Offset  Uncomp-size
+    ----------------------------------------------------------------------
+        cbfs                100   400  cbfs               0
+          u-boot            138     4  u-boot            38
+          u-boot-dtb        180   108  u-boot-dtb        80          3b5
+      image-header          bf8     8  image-header     bf8
+
+
+Extracting files from images
+----------------------------
+
+You can extract files from an existing firmware image created by binman,
+provided that there is an 'fdtmap' entry in the image. For example:
+
+    $ binman extract -i image.bin section/cbfs/u-boot
+
+which will write the uncompressed contents of that entry to the file 'u-boot' in
+the current directory. You can also extract to a particular file, in this case
+u-boot.bin:
+
+    $ binman extract -i image.bin section/cbfs/u-boot -f u-boot.bin
+
+It is possible to extract all files into a destination directory, which will
+put files in subdirectories matching the entry hierarchy:
+
+    $ binman extract -i image.bin -O outdir
+
+or just a selection:
+
+    $ binman extract -i image.bin "*u-boot*" -O outdir
+
+
+Logging
+-------
+
+Binman normally operates silently unless there is an error, in which case it
+just displays the error. The -D/--debug option can be used to create a full
+backtrace when errors occur.
+
+Internally binman logs some output while it is running. This can be displayed
+by increasing the -v/--verbosity from the default of 1:
+
+   0: silent
+   1: warnings only
+   2: notices (important messages)
+   3: info about major operations
+   4: detailed information about each operation
+   5: debug (all output)
 
 
 Hashing Entries
@@ -558,7 +651,8 @@ tree. This sets the correct 'offset' and 'size' vaues, for example.
 The default implementatoin does nothing. This can be overriden to adjust the
 contents of an entry in some way. For example, it would be possible to create
 an entry containing a hash of the contents of some other entries. At this
-stage the offset and size of entries should not be adjusted.
+stage the offset and size of entries should not be adjusted unless absolutely
+necessary, since it requires a repack (going back to PackEntries()).
 
 10. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
 See 'Access to binman entry offsets at run time' below for a description of
@@ -634,20 +728,27 @@ the image definition, binman calculates the final values and writes these to
 the device tree. These can be used by U-Boot at run-time to find the location
 of each entry.
 
+Alternatively, an FDT map entry can be used to add a special FDT containing
+just the information about the image. This is preceded by a magic string so can
+be located anywhere in the image. An image header (typically at the start or end
+of the image) can be used to point to the FDT map. See fdtmap and image-header
+entries for more information.
+
 
 Compression
 -----------
 
 Binman support compression for 'blob' entries (those of type 'blob' and
-derivatives). To enable this for an entry, add a 'compression' property:
+derivatives). To enable this for an entry, add a 'compress' property:
 
     blob {
         filename = "datafile";
-        compression = "lz4";
+        compress = "lz4";
     };
 
 The entry will then contain the compressed data, using the 'lz4' compression
-algorithm. Currently this is the only one that is supported.
+algorithm. Currently this is the only one that is supported. The uncompressed
+size is written to the node in an 'uncomp-size' property, if -u is used.
 
 
 
@@ -691,15 +792,25 @@ Not all properties can be provided this way. Only some entries support it,
 typically for filenames.
 
 
+External tools
+--------------
+
+Binman can make use of external command-line tools to handle processing of
+entry contents or to generate entry contents. These tools are executed using
+the 'tools' module's Run() method. The tools generally must exist on the PATH,
+but the --toolpath option can be used to specify additional search paths to
+use. This option can be specified multiple times to add more than one path.
+
+
 Code coverage
 -------------
 
 Binman is a critical tool and is designed to be very testable. Entry
-implementations target 100% test coverage. Run 'binman -T' to check this.
+implementations target 100% test coverage. Run 'binman test -T' to check this.
 
 To enable Python test coverage on Debian-type distributions (e.g. Ubuntu):
 
-   $ sudo apt-get install python-coverage python-pytest
+   $ sudo apt-get install python-coverage python3-coverage python-pytest
 
 
 Concurrent tests
@@ -714,6 +825,14 @@ all available CPUs to run.
 
 Use '-P 1' to disable this. It is automatically disabled when code coverage is
 being used (-T) since they are incompatible.
+
+
+Debugging tests
+---------------
+
+Sometimes when debugging tests it is useful to keep the input and output
+directories so they can be examined later. Use -X or --test-preserve-dirs for
+this.
 
 
 Advanced Features / Technical docs
@@ -788,13 +907,12 @@ Some ideas:
 - Use of-platdata to make the information available to code that is unable
   to use device tree (such as a very small SPL image)
 - Allow easy building of images by specifying just the board name
-- Produce a full Python binding for libfdt (for upstream). This is nearing
-    completion but some work remains
-- Add an option to decode an image into the constituent binaries
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Consider making binman work with buildman, although if it is used in the
-  Makefile, this will be automatic
+- Support updating binaries in an image (with no size change / repacking)
+- Support updating binaries in an image (with repacking)
+- Support adding FITs to an image
+- Support for ARM Trusted Firmware (ATF)
 
 --
 Simon Glass <sjg@chromium.org>

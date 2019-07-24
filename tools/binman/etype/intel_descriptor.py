@@ -47,17 +47,25 @@ class Entry_intel_descriptor(Entry_blob):
     def __init__(self, section, etype, node):
         Entry_blob.__init__(self, section, etype, node)
         self._regions = []
+        if self.offset is None:
+            self.offset = self.section.GetStartOffset()
 
     def GetOffsets(self):
         offset = self.data.find(FD_SIGNATURE)
         if offset == -1:
-            self.Raise('Cannot find FD signature')
+            self.Raise('Cannot find Intel Flash Descriptor (FD) signature')
         flvalsig, flmap0, flmap1, flmap2 = struct.unpack('<LLLL',
                                                 self.data[offset:offset + 16])
         frba = ((flmap0 >> 16) & 0xff) << 4
         for i in range(MAX_REGIONS):
             self._regions.append(Region(self.data, frba, i))
 
-        # Set the offset for ME only, for now, since the others are not used
-        return {'intel-me': [self._regions[REGION_ME].base,
-                             self._regions[REGION_ME].size]}
+        # Set the offset for ME (Management Engine) and IFWI (Integrated
+        # Firmware Image), for now, since the others are not used.
+        info = {}
+        if self.HasSibling('intel-me'):
+            info['intel-me'] = [self._regions[REGION_ME].base,
+                                self._regions[REGION_ME].size]
+        if self.HasSibling('intel-ifwi'):
+            info['intel-ifwi'] = [self._regions[REGION_BIOS].base, None]
+        return info

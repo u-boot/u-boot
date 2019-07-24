@@ -175,6 +175,9 @@ HOSTCFLAGS_mkexynosspl.o := -pedantic
 ifdtool-objs := $(LIBFDT_OBJS) ifdtool.o
 hostprogs-$(CONFIG_X86) += ifdtool
 
+ifwitool-objs := ifwitool.o
+hostprogs-$(CONFIG_X86)$(CONFIG_SANDBOX) += ifwitool
+
 hostprogs-$(CONFIG_MX23) += mxsboot
 hostprogs-$(CONFIG_MX28) += mxsboot
 HOSTCFLAGS_mxsboot.o := -pedantic

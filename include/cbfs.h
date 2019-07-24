@@ -40,6 +40,17 @@ enum cbfs_filetype {
 	CBFS_TYPE_CMOS_LAYOUT = 0x01aa
 };
 
+enum {
+	CBFS_HEADER_MAGIC	= 0x4f524243,
+};
+
+/**
+ * struct cbfs_header - header at the start of a CBFS region
+ *
+ * All fields use big-endian format.
+ *
+ * @magic: Magic number (CBFS_HEADER_MAGIC)
+ */
 struct cbfs_header {
 	u32 magic;
 	u32 version;
@@ -54,7 +65,8 @@ struct cbfs_fileheader {
 	u8 magic[8];
 	u32 len;
 	u32 type;
-	u32 checksum;
+	/* offset to struct cbfs_file_attribute or 0 */
+	u32 attributes_offset;
 	u32 offset;
 } __packed;
 
@@ -65,7 +77,7 @@ struct cbfs_cachenode {
 	u32 data_length;
 	char *name;
 	u32 name_length;
-	u32 checksum;
+	u32 attributes_offset;
 } __packed;
 
 extern enum cbfs_result file_cbfs_result;

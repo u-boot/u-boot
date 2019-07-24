@@ -3,6 +3,8 @@
 # Copyright (c) 2016 Google, Inc
 #
 
+from __future__ import print_function
+
 import command
 import glob
 import os
@@ -23,6 +25,8 @@ chroot_path = None
 
 # Search paths to use for Filename(), used to find files
 search_paths = []
+
+tool_search_paths = []
 
 # Tools and the packages that contain them, on debian
 packages = {
@@ -154,26 +158,56 @@ def Align(pos, align):
 def NotPowerOfTwo(num):
     return num and (num & (num - 1))
 
-def PathHasFile(fname):
+def SetToolPaths(toolpaths):
+    """Set the path to search for tools
+
+    Args:
+        toolpaths: List of paths to search for tools executed by Run()
+    """
+    global tool_search_paths
+
+    tool_search_paths = toolpaths
+
+def PathHasFile(path_spec, fname):
     """Check if a given filename is in the PATH
 
     Args:
+        path_spec: Value of PATH variable to check
         fname: Filename to check
 
     Returns:
         True if found, False if not
     """
-    for dir in os.environ['PATH'].split(':'):
+    for dir in path_spec.split(':'):
         if os.path.exists(os.path.join(dir, fname)):
             return True
     return False
 
 def Run(name, *args, **kwargs):
+    """Run a tool with some arguments
+
+    This runs a 'tool', which is a program used by binman to process files and
+    perhaps produce some output. Tools can be located on the PATH or in a
+    search path.
+
+    Args:
+        name: Command name to run
+        args: Arguments to the tool
+        kwargs: Options to pass to command.run()
+
+    Returns:
+        CommandResult object
+    """
     try:
-        return command.Run(name, *args, cwd=outdir, capture=True, **kwargs)
+        env = None
+        if tool_search_paths:
+            env = dict(os.environ)
+            env['PATH'] = ':'.join(tool_search_paths) + ':' + env['PATH']
+        return command.Run(name, *args, capture=True,
+                           capture_stderr=True, env=env, **kwargs)
     except:
-        if not PathHasFile(name):
-            msg = "Plesae install tool '%s'" % name
+        if env and not PathHasFile(env['PATH'], name):
+            msg = "Please install tool '%s'" % name
             package = packages.get(name)
             if package:
                  msg += " (e.g. from package '%s')" % package
@@ -342,3 +376,100 @@ def ToBytes(string):
     if sys.version_info[0] >= 3:
         return string.encode('utf-8')
     return string
+
+def Compress(indata, algo):
+    """Compress some data using a given algorithm
+
+    Note that for lzma this uses an old version of the algorithm, not that
+    provided by xz.
+
+    This requires 'lz4' and 'lzma_alone' tools. It also requires an output
+    directory to be previously set up, by calling PrepareOutputDir().
+
+    Args:
+        indata: Input data to compress
+        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
+
+    Returns:
+        Compressed data
+    """
+    if algo == 'none':
+        return indata
+    fname = GetOutputFilename('%s.comp.tmp' % algo)
+    WriteFile(fname, indata)
+    if algo == 'lz4':
+        data = Run('lz4', '--no-frame-crc', '-c', fname, binary=True)
+    # cbfstool uses a very old version of lzma
+    elif algo == 'lzma':
+        outfname = GetOutputFilename('%s.comp.otmp' % algo)
+        Run('lzma_alone', 'e', fname, outfname, '-lc1', '-lp0', '-pb0', '-d8')
+        data = ReadFile(outfname)
+    elif algo == 'gzip':
+        data = Run('gzip', '-c', fname, binary=True)
+    else:
+        raise ValueError("Unknown algorithm '%s'" % algo)
+    return data
+
+def Decompress(indata, algo):
+    """Decompress some data using a given algorithm
+
+    Note that for lzma this uses an old version of the algorithm, not that
+    provided by xz.
+
+    This requires 'lz4' and 'lzma_alone' tools. It also requires an output
+    directory to be previously set up, by calling PrepareOutputDir().
+
+    Args:
+        indata: Input data to decompress
+        algo: Algorithm to use ('none', 'gzip', 'lz4' or 'lzma')
+
+    Returns:
+        Compressed data
+    """
+    if algo == 'none':
+        return indata
+    fname = GetOutputFilename('%s.decomp.tmp' % algo)
+    with open(fname, 'wb') as fd:
+        fd.write(indata)
+    if algo == 'lz4':
+        data = Run('lz4', '-dc', fname, binary=True)
+    elif algo == 'lzma':
+        outfname = GetOutputFilename('%s.decomp.otmp' % algo)
+        Run('lzma_alone', 'd', fname, outfname)
+        data = ReadFile(outfname)
+    elif algo == 'gzip':
+        data = Run('gzip', '-cd', fname, binary=True)
+    else:
+        raise ValueError("Unknown algorithm '%s'" % algo)
+    return data
+
+CMD_CREATE, CMD_DELETE, CMD_ADD, CMD_REPLACE, CMD_EXTRACT = range(5)
+
+IFWITOOL_CMDS = {
+    CMD_CREATE: 'create',
+    CMD_DELETE: 'delete',
+    CMD_ADD: 'add',
+    CMD_REPLACE: 'replace',
+    CMD_EXTRACT: 'extract',
+    }
+
+def RunIfwiTool(ifwi_file, cmd, fname=None, subpart=None, entry_name=None):
+    """Run ifwitool with the given arguments:
+
+    Args:
+        ifwi_file: IFWI file to operation on
+        cmd: Command to execute (CMD_...)
+        fname: Filename of file to add/replace/extract/create (None for
+            CMD_DELETE)
+        subpart: Name of sub-partition to operation on (None for CMD_CREATE)
+        entry_name: Name of directory entry to operate on, or None if none
+    """
+    args = ['ifwitool', ifwi_file]
+    args.append(IFWITOOL_CMDS[cmd])
+    if fname:
+        args += ['-f', fname]
+    if subpart:
+        args += ['-n', subpart]
+    if entry_name:
+        args += ['-d', '-e', entry_name]
+    Run(*args)

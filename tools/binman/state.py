@@ -31,6 +31,11 @@ fdt_subset = set()
 # The DTB which contains the full image information
 main_dtb = None
 
+# Allow entries to expand after they have been packed. This is detected and
+# forces a re-pack. If not allowed, any attempted expansion causes an error in
+# Entry.ProcessContentsUpdate()
+allow_entry_expansion = True
+
 def GetFdt(fname):
     """Get the Fdt object for a particular device-tree filename
 
@@ -59,7 +64,7 @@ def GetFdtPath(fname):
     """
     return fdt_files[fname]._fname
 
-def GetFdtContents(fname):
+def GetFdtContents(fname='u-boot.dtb'):
     """Looks up the FDT pathname and contents
 
     This is used to obtain the Fdt pathname and contents when needed by an
@@ -250,3 +255,22 @@ def CheckSetHashValue(node, get_data_func):
             data = m.digest()
         for n in GetUpdateNodes(hash_node):
             n.SetData('value', data)
+
+def SetAllowEntryExpansion(allow):
+    """Set whether post-pack expansion of entries is allowed
+
+    Args:
+       allow: True to allow expansion, False to raise an exception
+    """
+    global allow_entry_expansion
+
+    allow_entry_expansion = allow
+
+def AllowEntryExpansion():
+    """Check whether post-pack expansion of entries is allowed
+
+    Returns:
+        True if expansion should be allowed, False if an exception should be
+            raised
+    """
+    return allow_entry_expansion

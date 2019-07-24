@@ -51,6 +51,8 @@ static int clk_of_xlate_default(struct clk *clk,
 	else
 		clk->id = 0;
 
+	clk->data = 0;
+
 	return 0;
 }
 

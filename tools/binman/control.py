@@ -12,6 +12,7 @@ import os
 import sys
 import tools
 
+import cbfs_util
 import command
 import elf
 from image import Image
@@ -66,19 +67,120 @@ def WriteEntryDocs(modules, test_missing=None):
     from entry import Entry
     Entry.WriteDocs(modules, test_missing)
 
-def Binman(options, args):
+
+def ListEntries(image_fname, entry_paths):
+    """List the entries in an image
+
+    This decodes the supplied image and displays a table of entries from that
+    image, preceded by a header.
+
+    Args:
+        image_fname: Image filename to process
+        entry_paths: List of wildcarded paths (e.g. ['*dtb*', 'u-boot*',
+                                                     'section/u-boot'])
+    """
+    image = Image.FromFile(image_fname)
+
+    entries, lines, widths = image.GetListEntries(entry_paths)
+
+    num_columns = len(widths)
+    for linenum, line in enumerate(lines):
+        if linenum == 1:
+            # Print header line
+            print('-' * (sum(widths) + num_columns * 2))
+        out = ''
+        for i, item in enumerate(line):
+            width = -widths[i]
+            if item.startswith('>'):
+                width = -width
+                item = item[1:]
+            txt = '%*s  ' % (width, item)
+            out += txt
+        print(out.rstrip())
+
+
+def ReadEntry(image_fname, entry_path, decomp=True):
+    """Extract an entry from an image
+
+    This extracts the data from a particular entry in an image
+
+    Args:
+        image_fname: Image filename to process
+        entry_path: Path to entry to extract
+        decomp: True to return uncompressed data, if the data is compress
+            False to return the raw data
+
+    Returns:
+        data extracted from the entry
+    """
+    image = Image.FromFile(image_fname)
+    entry = image.FindEntryPath(entry_path)
+    return entry.ReadData(decomp)
+
+
+def ExtractEntries(image_fname, output_fname, outdir, entry_paths,
+                   decomp=True):
+    """Extract the data from one or more entries and write it to files
+
+    Args:
+        image_fname: Image filename to process
+        output_fname: Single output filename to use if extracting one file, None
+            otherwise
+        outdir: Output directory to use (for any number of files), else None
+        entry_paths: List of entry paths to extract
+        decomp: True to compress the entry data
+
+    Returns:
+        List of EntryInfo records that were written
+    """
+    image = Image.FromFile(image_fname)
+
+    # Output an entry to a single file, as a special case
+    if output_fname:
+        if not entry_paths:
+            raise ValueError('Must specify an entry path to write with -o')
+        if len(entry_paths) != 1:
+            raise ValueError('Must specify exactly one entry path to write with -o')
+        entry = image.FindEntryPath(entry_paths[0])
+        data = entry.ReadData(decomp)
+        tools.WriteFile(output_fname, data)
+        tout.Notice("Wrote %#x bytes to file '%s'" % (len(data), output_fname))
+        return
+
+    # Otherwise we will output to a path given by the entry path of each entry.
+    # This means that entries will appear in subdirectories if they are part of
+    # a sub-section.
+    einfos = image.GetListEntries(entry_paths)[0]
+    tout.Notice('%d entries match and will be written' % len(einfos))
+    for einfo in einfos:
+        entry = einfo.entry
+        data = entry.ReadData(decomp)
+        path = entry.GetPath()[1:]
+        fname = os.path.join(outdir, path)
+
+        # If this entry has children, create a directory for it and put its
+        # data in a file called 'root' in that directory
+        if entry.GetEntries():
+            if not os.path.exists(fname):
+                os.makedirs(fname)
+            fname = os.path.join(fname, 'root')
+        tout.Notice("Write entry '%s' to '%s'" % (entry.GetPath(), fname))
+        tools.WriteFile(fname, data)
+    return einfos
+
+
+def Binman(args):
     """The main control code for binman
 
     This assumes that help and test options have already been dealt with. It
     deals with the core task of building images.
 
     Args:
-        options: Command line options object
-        args: Command line arguments (list of strings)
+        args: Command line arguments Namespace object
     """
     global images
 
-    if options.full_help:
+    if args.full_help:
         pager = os.getenv('PAGER')
         if not pager:
             pager = 'more'
@@ -87,18 +189,31 @@ def Binman(options, args):
         command.Run(pager, fname)
         return 0
 
+    if args.cmd == 'ls':
+        ListEntries(args.image, args.paths)
+        return 0
+
+    if args.cmd == 'extract':
+        try:
+            tools.PrepareOutputDir(None)
+            ExtractEntries(args.image, args.filename, args.outdir, args.paths,
+                           not args.uncompressed)
+        finally:
+            tools.FinaliseOutputDir()
+        return 0
+
     # Try to figure out which device tree contains our image description
-    if options.dt:
-        dtb_fname = options.dt
+    if args.dt:
+        dtb_fname = args.dt
     else:
-        board = options.board
+        board = args.board
         if not board:
             raise ValueError('Must provide a board to process (use -b <board>)')
-        board_pathname = os.path.join(options.build_dir, board)
+        board_pathname = os.path.join(args.build_dir, board)
         dtb_fname = os.path.join(board_pathname, 'u-boot.dtb')
-        if not options.indir:
-            options.indir = ['.']
-        options.indir.append(board_pathname)
+        if not args.indir:
+            args.indir = ['.']
+        args.indir.append(board_pathname)
 
     try:
         # Import these here in case libfdt.py is not available, in which case
@@ -106,13 +221,15 @@ def Binman(options, args):
         import fdt
         import fdt_util
 
-        tout.Init(options.verbosity)
-        elf.debug = options.debug
-        state.use_fake_dtb = options.fake_dtb
+        tout.Init(args.verbosity)
+        elf.debug = args.debug
+        cbfs_util.VERBOSE = args.verbosity > 2
+        state.use_fake_dtb = args.fake_dtb
         try:
-            tools.SetInputDirs(options.indir)
-            tools.PrepareOutputDir(options.outdir, options.preserve)
-            state.SetEntryArgs(options.entry_arg)
+            tools.SetInputDirs(args.indir)
+            tools.PrepareOutputDir(args.outdir, args.preserve)
+            tools.SetToolPaths(args.toolpath)
+            state.SetEntryArgs(args.entry_arg)
 
             # Get the device tree ready by compiling it and copying the compiled
             # output into a file in our output directly. Then scan it for use
@@ -129,16 +246,16 @@ def Binman(options, args):
 
             images = _ReadImageDesc(node)
 
-            if options.image:
+            if args.image:
                 skip = []
                 new_images = OrderedDict()
                 for name, image in images.items():
-                    if name in options.image:
+                    if name in args.image:
                         new_images[name] = image
                     else:
                         skip.append(name)
                 images = new_images
-                if skip and options.verbosity >= 2:
+                if skip and args.verbosity >= 2:
                     print('Skipping images: %s' % ', '.join(skip))
 
             state.Prepare(images, dtb)
@@ -152,7 +269,7 @@ def Binman(options, args):
             # entry offsets remain the same.
             for image in images.values():
                 image.ExpandEntries()
-                if options.update_fdt:
+                if args.update_fdt:
                     image.AddMissingProperties()
                 image.ProcessFdt(dtb)
 
@@ -168,24 +285,45 @@ def Binman(options, args):
                 # completed and written, but that does not seem important.
                 image.GetEntryContents()
                 image.GetEntryOffsets()
-                try:
-                    image.PackEntries()
-                    image.CheckSize()
-                    image.CheckEntries()
-                except Exception as e:
-                    if options.map:
-                        fname = image.WriteMap()
-                        print("Wrote map file '%s' to show errors"  % fname)
-                    raise
-                image.SetImagePos()
-                if options.update_fdt:
-                    image.SetCalculatedProperties()
-                    for dtb_item in state.GetFdts():
-                        dtb_item.Sync()
-                image.ProcessEntryContents()
+
+                # We need to pack the entries to figure out where everything
+                # should be placed. This sets the offset/size of each entry.
+                # However, after packing we call ProcessEntryContents() which
+                # may result in an entry changing size. In that case we need to
+                # do another pass. Since the device tree often contains the
+                # final offset/size information we try to make space for this in
+                # AddMissingProperties() above. However, if the device is
+                # compressed we cannot know this compressed size in advance,
+                # since changing an offset from 0x100 to 0x104 (for example) can
+                # alter the compressed size of the device tree. So we need a
+                # third pass for this.
+                passes = 3
+                for pack_pass in range(passes):
+                    try:
+                        image.PackEntries()
+                        image.CheckSize()
+                        image.CheckEntries()
+                    except Exception as e:
+                        if args.map:
+                            fname = image.WriteMap()
+                            print("Wrote map file '%s' to show errors"  % fname)
+                        raise
+                    image.SetImagePos()
+                    if args.update_fdt:
+                        image.SetCalculatedProperties()
+                        for dtb_item in state.GetFdts():
+                            dtb_item.Sync()
+                    sizes_ok = image.ProcessEntryContents()
+                    if sizes_ok:
+                        break
+                    image.ResetForPack()
+                if not sizes_ok:
+                    image.Raise('Entries expanded after packing (tried %s passes)' %
+                                passes)
+
                 image.WriteSymbols()
                 image.BuildImage()
-                if options.map:
+                if args.map:
                     image.WriteMap()
 
             # Write the updated FDTs to our output files
