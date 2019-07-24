@@ -11,7 +11,6 @@
 #include <common.h>
 #include <i2c.h>
 #include <net.h>
-#include <netdev.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/hardware.h>
@@ -228,19 +227,6 @@ int board_init(void)
 }
 
 #ifdef CONFIG_DRIVER_TI_EMAC
-
-/*
- * Initializes on-board ethernet controllers.
- */
-int board_eth_init(bd_t *bis)
-{
-	if (!davinci_emac_initialize()) {
-		printf("Error: Ethernet init failed!\n");
-		return -1;
-	}
-
-	return 0;
-}
 
 #endif /* CONFIG_DRIVER_TI_EMAC */
 

@@ -9,7 +9,6 @@
 #include <common.h>
 #include <environment.h>
 #include <spl.h>
-#include <netdev.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -56,7 +55,7 @@ int board_eth_init(bd_t *bis)
 			printf("Unable to read MAC address. Set <ethaddr>\n");
 	}
 
-	return davinci_emac_initialize();
+	return 0;
 }
 
 #ifdef CONFIG_SPL_BUILD
