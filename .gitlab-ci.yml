@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://gitlab.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:xenial-20190222-24April2019
+image: trini/u-boot-gitlab-ci-runner:xenial-20190720-24Jul2019
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
