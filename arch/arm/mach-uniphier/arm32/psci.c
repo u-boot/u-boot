@@ -130,7 +130,7 @@ void psci_arch_init(void)
 
 u32 uniphier_psci_holding_pen_release __secure_data = 0xffffffff;
 
-int __secure psci_cpu_on(u32 function_id, u32 cpuid, u32 entry_point,
+s32 __secure psci_cpu_on(u32 function_id, u32 cpuid, u32 entry_point,
 			 u32 context_id)
 {
 	u32 cpu = cpuid & 0xff;
@@ -155,7 +155,7 @@ int __secure psci_cpu_on(u32 function_id, u32 cpuid, u32 entry_point,
 	return PSCI_RET_SUCCESS;
 }
 
-void __secure psci_system_reset(u32 function_id)
+void __secure psci_system_reset(void)
 {
 	reset_cpu(0);
 }

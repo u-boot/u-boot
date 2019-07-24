@@ -202,6 +202,27 @@ int part_get_info_by_name(struct blk_desc *dev_desc,
 			      const char *name, disk_partition_t *info);
 
 /**
+ * Get partition info from dev number + part name, or dev number + part number.
+ *
+ * Parse a device number and partition description (either name or number)
+ * in the form of device number plus partition name separated by a "#"
+ * (like "device_num#partition_name") or a device number plus a partition number
+ * separated by a ":". For example both "0#misc" and "0:1" can be valid
+ * partition descriptions for a given interface. If the partition is found, sets
+ * dev_desc and part_info accordingly with the information of the partition.
+ *
+ * @param[in] dev_iface	Device interface
+ * @param[in] dev_part_str Input partition description, like "0#misc" or "0:1"
+ * @param[out] dev_desc	Place to store the device description pointer
+ * @param[out] part_info Place to store the partition information
+ * @return 0 on success, or a negative on error
+ */
+int part_get_info_by_dev_and_name_or_num(const char *dev_iface,
+					 const char *dev_part_str,
+					 struct blk_desc **dev_desc,
+					 disk_partition_t *part_info);
+
+/**
  * part_set_generic_name() - create generic partition like hda1 or sdb2
  *
  * Helper function for partition tables, which don't hold partition names

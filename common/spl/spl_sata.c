@@ -25,6 +25,37 @@
 #define CONFIG_SPL_FS_LOAD_PAYLOAD_NAME	"u-boot.img"
 #endif
 
+#ifndef CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR
+/* Dummy value to make the compiler happy */
+#define CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR 0x100
+#endif
+
+static int spl_sata_load_image_raw(struct spl_image_info *spl_image,
+		struct blk_desc *stor_dev, unsigned long sector)
+{
+	struct image_header *header;
+	unsigned long count;
+	u32 image_size_sectors;
+	int ret;
+
+	header = spl_get_load_buffer(-sizeof(*header), stor_dev->blksz);
+	count = blk_dread(stor_dev, sector, 1, header);
+	if (count == 0)
+		return -EIO;
+
+	ret = spl_parse_image_header(spl_image, header);
+	if (ret)
+		return ret;
+
+	image_size_sectors = DIV_ROUND_UP(spl_image->size, stor_dev->blksz);
+	count = blk_dread(stor_dev, sector, image_size_sectors,
+			(void *)spl_image->load_addr);
+	if (count != image_size_sectors)
+		return -EIO;
+
+	return 0;
+}
+
 static int spl_sata_load_image(struct spl_image_info *spl_image,
 			       struct spl_boot_device *bootdev)
 {
@@ -59,6 +90,9 @@ static int spl_sata_load_image(struct spl_image_info *spl_image,
 			err = spl_load_image_fat(spl_image, stor_dev,
 					CONFIG_SYS_SATA_FAT_BOOT_PARTITION,
 					CONFIG_SPL_FS_LOAD_PAYLOAD_NAME);
+		} else if (IS_ENABLED(CONFIG_SPL_SATA_RAW_U_BOOT_USE_SECTOR)) {
+			err = spl_sata_load_image_raw(spl_image, stor_dev,
+				CONFIG_SPL_SATA_RAW_U_BOOT_SECTOR);
 		}
 	}
 	if (err) {

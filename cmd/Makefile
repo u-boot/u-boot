@@ -12,6 +12,7 @@ obj-y += version.o
 
 # command
 obj-$(CONFIG_CMD_AES) += aes.o
+obj-$(CONFIG_CMD_AB_SELECT) += ab_select.o
 obj-$(CONFIG_CMD_ADC) += adc.o
 obj-$(CONFIG_CMD_ARMFLASH) += armflash.o
 obj-y += blk_common.o

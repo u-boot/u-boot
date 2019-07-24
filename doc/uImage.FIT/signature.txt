@@ -216,7 +216,7 @@ As an example, consider this FIT:
 			kernel = "kernel-1";
 			fdt = "fdt-1";
 		};
-		conf-1 {
+		conf-2 {
 			kernel = "kernel-2";
 			fdt = "fdt-2";
 		};
@@ -232,7 +232,7 @@ configuration 3 with kernel 1 and fdt 2:
 			kernel = "kernel-1";
 			fdt = "fdt-1";
 		};
-		conf-1 {
+		conf-2 {
 			kernel = "kernel-2";
 			fdt = "fdt-2";
 		};
@@ -337,6 +337,7 @@ WARNING: When relying on signed FIT images with required signature check
 the legacy image format is default disabled by not defining
 CONFIG_LEGACY_IMAGE_FORMAT
 
+
 Testing
 -------
 An easy way to test signing and verification is to use the test script
@@ -349,6 +350,8 @@ A sample run is show below:
 $ make O=sandbox sandbox_config
 $ make O=sandbox
 $ O=sandbox ./test/vboot/vboot_test.sh
+
+
 Simple Verified Boot Test
 =========================
 

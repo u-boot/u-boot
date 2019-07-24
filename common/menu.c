@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Copyright 2010-2011 Calxeda, Inc.
+ * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
  */
 
 #include <common.h>
@@ -39,6 +40,7 @@ struct menu {
 	char *(*item_choice)(void *);
 	void *item_choice_data;
 	struct list_head items;
+	int item_cnt;
 };
 
 /*
@@ -271,7 +273,7 @@ int menu_get_choice(struct menu *m, void **choice)
 	if (!m || !choice)
 		return -EINVAL;
 
-	if (!m->prompt)
+	if (!m->prompt || m->item_cnt == 1)
 		return menu_default_choice(m, choice);
 
 	return menu_interactive_choice(m, choice);
@@ -323,6 +325,7 @@ int menu_item_add(struct menu *m, char *item_key, void *item_data)
 	item->data = item_data;
 
 	list_add_tail(&item->list, &m->items);
+	m->item_cnt++;
 
 	return 1;
 }
@@ -374,6 +377,7 @@ struct menu *menu_create(char *title, int timeout, int prompt,
 	m->item_data_print = item_data_print;
 	m->item_choice = item_choice;
 	m->item_choice_data = item_choice_data;
+	m->item_cnt = 0;
 
 	if (title) {
 		m->title = strdup(title);
