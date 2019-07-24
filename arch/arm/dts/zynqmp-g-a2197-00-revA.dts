@@ -266,7 +266,7 @@
 				shunt-resistor = <5000>;
 			};
 			tps53681@c0 { /* u53 - FIXME name - don't know what it does - also vcc_io_soc */
-				compatible = "ti,tps53681"; /* FIXME no linux driver */
+				compatible = "ti,tps53681", "ti,tps53679";
 				reg = <0xc0>;
 			};
 		};

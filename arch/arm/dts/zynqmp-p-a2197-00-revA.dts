@@ -156,7 +156,7 @@
 				reg = <0xa>;
 			};
 			reg_vccint: tps53681@60 { /* u70 - FIXME name - don't know what it does - also vcc_io_soc */
-				compatible = "ti,tps53681"; /* FIXME no linux driver */
+				compatible = "ti,tps53681", "ti,tps53679";
 				reg = <0x60>;
 				/* vccint, vcc_io_soc */
 			};
