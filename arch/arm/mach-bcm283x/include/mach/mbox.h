@@ -37,11 +37,7 @@
 
 /* Raw mailbox HW */
 
-#ifndef CONFIG_BCM2835
-#define BCM2835_MBOX_PHYSADDR	0x3f00b880
-#else
-#define BCM2835_MBOX_PHYSADDR	0x2000b880
-#endif
+#define BCM2835_MBOX_PHYSADDR	(CONFIG_BCM283x_BASE + 0x0000b880)
 
 struct bcm2835_mbox_regs {
 	u32 read;

@@ -141,4 +141,9 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "rpi"
 
+config BCM283x_BASE
+	hex
+	default "0x20000000" if BCM2835
+	default "0x3f000000" if BCM2836 || BCM2837
+
 endmenu
