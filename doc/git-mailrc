@@ -35,6 +35,7 @@ alias mariosix       Mario Six <mario.six@gdsys.cc>
 alias masahiro       Masahiro Yamada <yamada.masahiro@socionext.com>
 alias mateusz        Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
 alias maxime         Maxime Ripard <maxime.ripard@free-electrons.com>
+alias mbrugger       Matthias Brugger <mbrugger@suse.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias prom           Minkyu Kang <mk7.kang@samsung.com>
 alias ptomsich       Philipp Tomsich <philipp.tomsich@theobroma-systems.com>
@@ -73,6 +74,9 @@ alias ti             uboot, trini
 alias uniphier       uboot, masahiro
 alias zynq           uboot, monstr
 alias rockchip       uboot, sjg, kevery, ptomsich
+
+alias bcm283x        uboot, mbrugger
+alias rpi            uboot, mbrugger
 
 alias m68k           uboot, alisonwang, angelo_ts
 alias coldfire       m68k
