@@ -155,9 +155,9 @@
 				compatible = "ti,tps544b25"; /* Documentation/hwmon/pmbus - wiring is missing */
 				reg = <0xa>;
 			};
-			reg_vccint: tps53681@c0 { /* u70 - FIXME name - don't know what it does - also vcc_io_soc */
+			reg_vccint: tps53681@60 { /* u70 - FIXME name - don't know what it does - also vcc_io_soc */
 				compatible = "ti,tps53681"; /* FIXME no linux driver */
-				reg = <0xc0>;
+				reg = <0x60>;
 				/* vccint, vcc_io_soc */
 			};
 		};
