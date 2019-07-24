@@ -172,6 +172,9 @@ Run binman and dtoc testsuite:
   tags: [ 'all' ]
   stage: testsuites
   script:
+    - virtualenv /tmp/venv
+    - . /tmp/venv/bin/activate
+    - pip install pyelftools
     - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/sandbox_spl;
       ./tools/buildman/buildman -P sandbox_spl && 
      export PYTHONPATH="${UBOOT_TRAVIS_BUILD_DIR}/scripts/dtc/pylibfdt";
