@@ -2,12 +2,12 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://gitlab.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:xenial-20190720-24Jul2019
+image: trini/u-boot-gitlab-ci-runner:xenial-20190720-29Jul2019
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
-  - test.py
   - testsuites
+  - test.py
   - world build
 
 .buildman_and_testpy_template: &buildman_and_testpy_dfn
@@ -28,17 +28,9 @@ stages:
     - ( cd ~/grub2-arm; wget -O - http://download.opensuse.org/ports/armv7hl/distribution/leap/42.2/repo/oss/suse/armv7hl/grub2-arm-efi-2.02~beta2-87.1.armv7hl.rpm | rpm2cpio | cpio -di )
     - mkdir ~/grub2-arm64
     - ( cd ~/grub2-arm64; wget -O - http://download.opensuse.org/ports/aarch64/distribution/leap/42.2/repo/oss/suse/aarch64/grub2-arm64-efi-2.02~beta2-87.1.aarch64.rpm | rpm2cpio | cpio -di )
-    - if [[ "${QEMU_TARGET}" != "" ]]; then
-        git clone git://git.qemu.org/qemu.git /tmp/qemu;
-        pushd /tmp/qemu;
-        git submodule update --init dtc &&
-        git checkout ${QEMU_VERSION} &&
-        ./configure --prefix=/tmp/qemu-install --target-list=${QEMU_TARGET} &&
-        make -j$(nproc) all install;
-        popd;
-      fi
+
   after_script:
-    - rm -rf ~/grub2* /tmp/uboot-test-hooks /tmp/qemu /tmp/venv
+    - rm -rf ~/grub2* /tmp/uboot-test-hooks /tmp/venv
   script:
     # From buildman, exit code 129 means warnings only.  If we've been asked to
     # use clang only do one configuration.
@@ -55,7 +47,7 @@ stages:
     # "-k something" even when $TEST_PY_TEST_SPEC doesnt need a custom
     # value.
     - export UBOOT_TRAVIS_BUILD_DIR=`cd .. && pwd`/.bm-work/${TEST_PY_BD};
-      export PATH=/tmp/qemu-install/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin;
+      export PATH=/opt/qemu/bin:/tmp/uboot-test-hooks/bin:/usr/bin:/bin;
       export PYTHONPATH=/tmp/uboot-test-hooks/py/travis-ci;
       if [[ "${TEST_PY_BD}" != "" ]]; then
         ./test/py/test.py --bd ${TEST_PY_BD} ${TEST_PY_ID}
@@ -203,8 +195,6 @@ evb-ast2500 test.py:
   variables:
     TEST_PY_BD: "evb-ast2500"
     TEST_PY_ID: "--id qemu"
-    QEMU_TARGET: "arm-softmmu"
-    QEMU_VERSION: "506179e42112be77bfd071f050b15762d3b2cd43"
     BUILDMAN: "^evb-ast2500$"
   <<: *buildman_and_testpy_dfn
 
@@ -220,8 +210,6 @@ vexpress_ca15_tc2 test.py:
   variables:
     TEST_PY_BD: "vexpress_ca15_tc2"
     TEST_PY_ID: "--id qemu"
-    QEMU_TARGET: "arm-softmmu"
-    QEMU_VERSION: "v3.0.0"
     BUILDMAN: "^vexpress_ca15_tc2$"
   <<: *buildman_and_testpy_dfn
 
@@ -230,7 +218,6 @@ vexpress_ca9x4 test.py:
   variables:
     TEST_PY_BD: "vexpress_ca9x4"
     TEST_PY_ID: "--id qemu"
-    QEMU_TARGET: "arm-softmmu"
     BUILDMAN: "^vexpress_ca9x4$"
   <<: *buildman_and_testpy_dfn
 
@@ -240,7 +227,6 @@ integratorcp_cm926ejs test.py:
     TEST_PY_BD: "integratorcp_cm926ejs"
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
-    QEMU_TARGET: "arm-softmmu"
     BUILDMAN: "^integratorcp_cm926ejs$"
   <<: *buildman_and_testpy_dfn
 
@@ -249,7 +235,6 @@ qemu_arm test.py:
   variables:
     TEST_PY_BD: "qemu_arm"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "arm-softmmu"
     BUILDMAN: "^qemu_arm$"
   <<: *buildman_and_testpy_dfn
 
@@ -258,7 +243,6 @@ qemu_arm64 test.py:
   variables:
     TEST_PY_BD: "qemu_arm64"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "aarch64-softmmu"
     BUILDMAN: "^qemu_arm64$"
   <<: *buildman_and_testpy_dfn
 
@@ -267,7 +251,6 @@ qemu_mips test.py:
   variables:
     TEST_PY_BD: "qemu_mips"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "mips-softmmu"
     BUILDMAN: "^qemu_mips$"
     TOOLCHAIN: "mips"
   <<: *buildman_and_testpy_dfn
@@ -277,7 +260,6 @@ qemu_mipsel test.py:
   variables:
     TEST_PY_BD: "qemu_mipsel"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "mipsel-softmmu"
     BUILDMAN: "^qemu_mipsel$"
     TOOLCHAIN: "mips"
   <<: *buildman_and_testpy_dfn
@@ -287,7 +269,6 @@ qemu_mips64 test.py:
   variables:
     TEST_PY_BD: "qemu_mips64"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "mips64-softmmu"
     BUILDMAN: "^qemu_mips64$"
     TOOLCHAIN: "mips"
   <<: *buildman_and_testpy_dfn
@@ -297,7 +278,6 @@ qemu_mips64el test.py:
   variables:
     TEST_PY_BD: "qemu_mips64el"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "mips64el-softmmu"
     BUILDMAN: "^qemu_mips64el$"
     TOOLCHAIN: "mips"
   <<: *buildman_and_testpy_dfn
@@ -307,7 +287,6 @@ qemu-ppce500 test.py:
   variables:
     TEST_PY_BD: "qemu-ppce500"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "ppc-softmmu"
     BUILDMAN: "^qemu-ppce500$"
     TOOLCHAIN: "powerpc"
   <<: *buildman_and_testpy_dfn
@@ -317,7 +296,6 @@ qemu-x86 test.py:
   variables:
     TEST_PY_BD: "qemu-x86"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "i386-softmmu"
     BUILDMAN: "^qemu-x86$"
     TOOLCHAIN: "i386"
   <<: *buildman_and_testpy_dfn
@@ -327,7 +305,6 @@ qemu-x86_64 test.py:
   variables:
     TEST_PY_BD: "qemu-x86_64"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "x86_64-softmmu"
     BUILDMAN: "^qemu-x86_64$"
     TOOLCHAIN: "i386"
   <<: *buildman_and_testpy_dfn
@@ -337,7 +314,6 @@ zynq_zc702 test.py:
   variables:
     TEST_PY_BD: "zynq_zc702"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "arm-softmmu"
     TEST_PY_ID: "--id qemu"
     BUILDMAN: "^zynq_zc702$"
   <<: *buildman_and_testpy_dfn
@@ -347,7 +323,6 @@ xilinx_versal_virt test.py:
   variables:
     TEST_PY_BD: "xilinx_versal_virt"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "aarch64-softmmu"
     TEST_PY_ID: "--id qemu"
     BUILDMAN: "^xilinx_versal_virt$"
   <<: *buildman_and_testpy_dfn
@@ -357,7 +332,6 @@ xtfpga test.py:
   variables:
     TEST_PY_BD: "xtfpga"
     TEST_PY_TEST_SPEC: "not sleep"
-    QEMU_TARGET: "xtensa-softmmu"
     TEST_PY_ID: "--id qemu"
     BUILDMAN: "^xtfpga$"
     TOOLCHAIN: "xtensa-dc233c-elf"
