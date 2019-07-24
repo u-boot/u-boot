@@ -217,7 +217,7 @@
 			#size-cells = <0>;
 			reg = <2>;
 			reg_vccint: tps53681@c0 { /* u69 */
-				compatible = "ti,tps53681"; /* FIXME no linux driver */
+				compatible = "ti,tps53681", "ti,tps53679";
 				reg = <0xc0>;
 			};
 			reg_vcc_pmc: tps544@7 { /* u80 */
