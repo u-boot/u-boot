@@ -604,4 +604,14 @@ config MDIO_MUX_I2CREG
 	  an I2C chip.  The board it was developed for uses a mux controlled by
 	  on-board FPGA which in turn is accessed as a chip over I2C.
 
+config MVMDIO
+	bool "Marvell MDIO interface support"
+	depends on DM_MDIO
+	help
+	  This driver supports the MDIO interface found in the network
+	  interface units of the Marvell EBU SoCs (Kirkwood, Orion5x,
+	  Dove, Armada 370, Armada XP, Armada 37xx and Armada7K/8K/8KP).
+
+	  This driver is used by the MVPP2 and MVNETA drivers.
+
 endif # NETDEVICES
