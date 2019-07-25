@@ -850,6 +850,23 @@ static inline int image_check_target_arch(const image_header_t *hdr)
 #endif /* USE_HOSTCC */
 
 /**
+ * image_decomp() - decompress an image
+ *
+ * @comp:	Compression algorithm that is used (IH_COMP_...)
+ * @load:	Destination load address in U-Boot memory
+ * @image_start Image start address (where we are decompressing from)
+ * @type:	OS type (IH_OS_...)
+ * @load_bug:	Place to decompress to
+ * @image_buf:	Address to decompress from
+ * @image_len:	Number of bytes in @image_buf to decompress
+ * @unc_len:	Available space for decompression
+ * @return 0 if OK, -ve on error (BOOTM_ERR_...)
+ */
+int image_decomp(int comp, ulong load, ulong image_start, int type,
+		 void *load_buf, void *image_buf, ulong image_len,
+		 uint unc_len, ulong *load_end);
+
+/**
  * Set up properties in the FDT
  *
  * This sets up properties in the FDT that is to be passed to linux.
