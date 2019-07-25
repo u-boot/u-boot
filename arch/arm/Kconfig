@@ -1352,6 +1352,19 @@ config TARGET_LS1021ATWR
 	select SUPPORT_SPL
 	imply SCSI
 
+config TARGET_LS1021ATSN
+	bool "Support ls1021atsn"
+	select ARCH_LS1021A
+	select ARCH_SUPPORT_PSCI
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select CPU_V7A
+	select CPU_V7_HAS_NONSEC
+	select CPU_V7_HAS_VIRT
+	select LS1_DEEP_SLEEP
+	select SUPPORT_SPL
+	imply SCSI
+
 config TARGET_LS1021AIOT
 	bool "Support ls1021aiot"
 	select ARCH_LS1021A
@@ -1745,6 +1758,7 @@ source "board/freescale/ls1028a/Kconfig"
 source "board/freescale/ls1021aqds/Kconfig"
 source "board/freescale/ls1043aqds/Kconfig"
 source "board/freescale/ls1021atwr/Kconfig"
+source "board/freescale/ls1021atsn/Kconfig"
 source "board/freescale/ls1021aiot/Kconfig"
 source "board/freescale/ls1046aqds/Kconfig"
 source "board/freescale/ls1043ardb/Kconfig"

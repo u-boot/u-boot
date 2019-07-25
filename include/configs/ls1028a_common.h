@@ -194,4 +194,8 @@
 #include <asm/fsl_secure_boot.h>
 #endif
 
+/* Ethernet */
+/* smallest ENETC BD ring has 8 entries */
+#define CONFIG_SYS_RX_ETH_BUFFER		8
+
 #endif /* __L1028A_COMMON_H */

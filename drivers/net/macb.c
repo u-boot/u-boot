@@ -45,9 +45,17 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define MACB_RX_BUFFER_SIZE		4096
-#define MACB_RX_RING_SIZE		(MACB_RX_BUFFER_SIZE / 128)
+/*
+ * These buffer sizes must be power of 2 and divisible
+ * by RX_BUFFER_MULTIPLE
+ */
+#define MACB_RX_BUFFER_SIZE		128
+#define GEM_RX_BUFFER_SIZE		2048
+#define RX_BUFFER_MULTIPLE		64
+
+#define MACB_RX_RING_SIZE		32
 #define MACB_TX_RING_SIZE		16
+
 #define MACB_TX_TIMEOUT		1000
 #define MACB_AUTONEG_TIMEOUT	5000000
 
@@ -77,30 +85,15 @@ struct macb_dma_desc {
 #define MACB_RX_DMA_DESC_SIZE	(DMA_DESC_BYTES(MACB_RX_RING_SIZE))
 #define MACB_TX_DUMMY_DMA_DESC_SIZE	(DMA_DESC_BYTES(1))
 
-#define RXADDR_USED		0x00000001
-#define RXADDR_WRAP		0x00000002
-
 #define RXBUF_FRMLEN_MASK	0x00000fff
-#define RXBUF_FRAME_START	0x00004000
-#define RXBUF_FRAME_END		0x00008000
-#define RXBUF_TYPEID_MATCH	0x00400000
-#define RXBUF_ADDR4_MATCH	0x00800000
-#define RXBUF_ADDR3_MATCH	0x01000000
-#define RXBUF_ADDR2_MATCH	0x02000000
-#define RXBUF_ADDR1_MATCH	0x04000000
-#define RXBUF_BROADCAST		0x80000000
-
 #define TXBUF_FRMLEN_MASK	0x000007ff
-#define TXBUF_FRAME_END		0x00008000
-#define TXBUF_NOCRC		0x00010000
-#define TXBUF_EXHAUSTED		0x08000000
-#define TXBUF_UNDERRUN		0x10000000
-#define TXBUF_MAXRETRY		0x20000000
-#define TXBUF_WRAP		0x40000000
-#define TXBUF_USED		0x80000000
 
 struct macb_device {
 	void			*regs;
+
+	bool			is_big_endian;
+
+	const struct macb_config *config;
 
 	unsigned int		rx_tail;
 	unsigned int		tx_head;
@@ -112,6 +105,7 @@ struct macb_device {
 	void			*tx_buffer;
 	struct macb_dma_desc	*rx_ring;
 	struct macb_dma_desc	*tx_ring;
+	size_t			rx_buffer_size;
 
 	unsigned long		rx_buffer_dma;
 	unsigned long		rx_ring_dma;
@@ -137,6 +131,13 @@ struct macb_device {
 	phy_interface_t		phy_interface;
 #endif
 };
+
+struct macb_config {
+	unsigned int		dma_burst_length;
+
+	int			(*clk_init)(struct udevice *dev, ulong rate);
+};
+
 #ifndef CONFIG_DM_ETH
 #define to_macb(_nd) container_of(_nd, struct macb_device, netdev)
 #endif
@@ -316,9 +317,9 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 	paddr = dma_map_single(packet, length, DMA_TO_DEVICE);
 
 	ctrl = length & TXBUF_FRMLEN_MASK;
-	ctrl |= TXBUF_FRAME_END;
+	ctrl |= MACB_BIT(TX_LAST);
 	if (tx_head == (MACB_TX_RING_SIZE - 1)) {
-		ctrl |= TXBUF_WRAP;
+		ctrl |= MACB_BIT(TX_WRAP);
 		macb->tx_head = 0;
 	} else {
 		macb->tx_head++;
@@ -340,7 +341,7 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 		barrier();
 		macb_invalidate_ring_desc(macb, TX);
 		ctrl = macb->tx_ring[tx_head].ctrl;
-		if (ctrl & TXBUF_USED)
+		if (ctrl & MACB_BIT(TX_USED))
 			break;
 		udelay(1);
 	}
@@ -348,9 +349,9 @@ static int _macb_send(struct macb_device *macb, const char *name, void *packet,
 	dma_unmap_single(packet, length, paddr);
 
 	if (i <= MACB_TX_TIMEOUT) {
-		if (ctrl & TXBUF_UNDERRUN)
+		if (ctrl & MACB_BIT(TX_UNDERRUN))
 			printf("%s: TX underrun\n", name);
-		if (ctrl & TXBUF_EXHAUSTED)
+		if (ctrl & MACB_BIT(TX_BUF_EXHAUSTED))
 			printf("%s: TX buffers exhausted in mid frame\n", name);
 	} else {
 		printf("%s: TX timeout\n", name);
@@ -369,14 +370,14 @@ static void reclaim_rx_buffers(struct macb_device *macb,
 
 	macb_invalidate_ring_desc(macb, RX);
 	while (i > new_tail) {
-		macb->rx_ring[i].addr &= ~RXADDR_USED;
+		macb->rx_ring[i].addr &= ~MACB_BIT(RX_USED);
 		i++;
 		if (i > MACB_RX_RING_SIZE)
 			i = 0;
 	}
 
 	while (i < new_tail) {
-		macb->rx_ring[i].addr &= ~RXADDR_USED;
+		macb->rx_ring[i].addr &= ~MACB_BIT(RX_USED);
 		i++;
 	}
 
@@ -396,26 +397,27 @@ static int _macb_recv(struct macb_device *macb, uchar **packetp)
 	for (;;) {
 		macb_invalidate_ring_desc(macb, RX);
 
-		if (!(macb->rx_ring[next_rx_tail].addr & RXADDR_USED))
+		if (!(macb->rx_ring[next_rx_tail].addr & MACB_BIT(RX_USED)))
 			return -EAGAIN;
 
 		status = macb->rx_ring[next_rx_tail].ctrl;
-		if (status & RXBUF_FRAME_START) {
+		if (status & MACB_BIT(RX_SOF)) {
 			if (next_rx_tail != macb->rx_tail)
 				reclaim_rx_buffers(macb, next_rx_tail);
 			macb->wrapped = false;
 		}
 
-		if (status & RXBUF_FRAME_END) {
-			buffer = macb->rx_buffer + 128 * macb->rx_tail;
+		if (status & MACB_BIT(RX_EOF)) {
+			buffer = macb->rx_buffer +
+				macb->rx_buffer_size * macb->rx_tail;
 			length = status & RXBUF_FRMLEN_MASK;
 
 			macb_invalidate_rx_buffer(macb);
 			if (macb->wrapped) {
 				unsigned int headlen, taillen;
 
-				headlen = 128 * (MACB_RX_RING_SIZE
-						 - macb->rx_tail);
+				headlen = macb->rx_buffer_size *
+					(MACB_RX_RING_SIZE - macb->rx_tail);
 				taillen = length - headlen;
 				memcpy((void *)net_rx_packets[0],
 				       buffer, headlen);
@@ -495,20 +497,37 @@ static int macb_phy_find(struct macb_device *macb, const char *name)
  * when operation failed.
  */
 #ifdef CONFIG_DM_ETH
+static int macb_sifive_clk_init(struct udevice *dev, ulong rate)
+{
+	fdt_addr_t addr;
+	void *gemgxl_regs;
+
+	addr = dev_read_addr_index(dev, 1);
+	if (addr == FDT_ADDR_T_NONE)
+		return -ENODEV;
+
+	gemgxl_regs = (void __iomem *)addr;
+	if (!gemgxl_regs)
+		return -ENODEV;
+
+	/*
+	 * SiFive GEMGXL TX clock operation mode:
+	 *
+	 * 0 = GMII mode. Use 125 MHz gemgxlclk from PRCI in TX logic
+	 *     and output clock on GMII output signal GTX_CLK
+	 * 1 = MII mode. Use MII input signal TX_CLK in TX logic
+	 */
+	writel(rate != 125000000, gemgxl_regs);
+	return 0;
+}
+
 int __weak macb_linkspd_cb(struct udevice *dev, unsigned int speed)
 {
 #ifdef CONFIG_CLK
+	struct macb_device *macb = dev_get_priv(dev);
 	struct clk tx_clk;
 	ulong rate;
 	int ret;
-
-	/*
-	 * "tx_clk" is an optional clock source for MACB.
-	 * Ignore if it does not exist in DT.
-	 */
-	ret = clk_get_by_name(dev, "tx_clk", &tx_clk);
-	if (ret)
-		return 0;
 
 	switch (speed) {
 	case _10BASET:
@@ -524,6 +543,17 @@ int __weak macb_linkspd_cb(struct udevice *dev, unsigned int speed)
 		/* does not change anything */
 		return 0;
 	}
+
+	if (macb->config->clk_init)
+		return macb->config->clk_init(dev, rate);
+
+	/*
+	 * "tx_clk" is an optional clock source for MACB.
+	 * Ignore if it does not exist in DT.
+	 */
+	ret = clk_get_by_name(dev, "tx_clk", &tx_clk);
+	if (ret)
+		return 0;
 
 	if (tx_clk.dev) {
 		ret = clk_set_rate(&tx_clk, rate);
@@ -699,7 +729,7 @@ static int gmac_init_multi_queues(struct macb_device *macb)
 		if (queue_mask & (1 << i))
 			num_queues++;
 
-	macb->dummy_desc->ctrl = TXBUF_USED;
+	macb->dummy_desc->ctrl = MACB_BIT(TX_USED);
 	macb->dummy_desc->addr = 0;
 	flush_dcache_range(macb->dummy_desc_dma, macb->dummy_desc_dma +
 			ALIGN(MACB_TX_DUMMY_DMA_DESC_SIZE, PKTALIGN));
@@ -708,6 +738,31 @@ static int gmac_init_multi_queues(struct macb_device *macb)
 		gem_writel_queue_TBQP(macb, macb->dummy_desc_dma, i - 1);
 
 	return 0;
+}
+
+static void gmac_configure_dma(struct macb_device *macb)
+{
+	u32 buffer_size;
+	u32 dmacfg;
+
+	buffer_size = macb->rx_buffer_size / RX_BUFFER_MULTIPLE;
+	dmacfg = gem_readl(macb, DMACFG) & ~GEM_BF(RXBS, -1L);
+	dmacfg |= GEM_BF(RXBS, buffer_size);
+
+	if (macb->config->dma_burst_length)
+		dmacfg = GEM_BFINS(FBLDO,
+				   macb->config->dma_burst_length, dmacfg);
+
+	dmacfg |= GEM_BIT(TXPBMS) | GEM_BF(RXBMS, -1L);
+	dmacfg &= ~GEM_BIT(ENDIA_PKT);
+
+	if (macb->is_big_endian)
+		dmacfg |= GEM_BIT(ENDIA_DESC); /* CPU in big endian */
+	else
+		dmacfg &= ~GEM_BIT(ENDIA_DESC);
+
+	dmacfg &= ~GEM_BIT(ADDR64);
+	gem_writel(macb, DMACFG, dmacfg);
 }
 
 #ifdef CONFIG_DM_ETH
@@ -732,10 +787,10 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	paddr = macb->rx_buffer_dma;
 	for (i = 0; i < MACB_RX_RING_SIZE; i++) {
 		if (i == (MACB_RX_RING_SIZE - 1))
-			paddr |= RXADDR_WRAP;
+			paddr |= MACB_BIT(RX_WRAP);
 		macb->rx_ring[i].addr = paddr;
 		macb->rx_ring[i].ctrl = 0;
-		paddr += 128;
+		paddr += macb->rx_buffer_size;
 	}
 	macb_flush_ring_desc(macb, RX);
 	macb_flush_rx_buffer(macb);
@@ -743,9 +798,10 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	for (i = 0; i < MACB_TX_RING_SIZE; i++) {
 		macb->tx_ring[i].addr = 0;
 		if (i == (MACB_TX_RING_SIZE - 1))
-			macb->tx_ring[i].ctrl = TXBUF_USED | TXBUF_WRAP;
+			macb->tx_ring[i].ctrl = MACB_BIT(TX_USED) |
+				MACB_BIT(TX_WRAP);
 		else
-			macb->tx_ring[i].ctrl = TXBUF_USED;
+			macb->tx_ring[i].ctrl = MACB_BIT(TX_USED);
 	}
 	macb_flush_ring_desc(macb, TX);
 
@@ -762,6 +818,8 @@ static int _macb_init(struct macb_device *macb, const char *name)
 	macb_writel(macb, TBQP, macb->tx_ring_dma);
 
 	if (macb_is_gem(macb)) {
+		/* Initialize DMA properties */
+		gmac_configure_dma(macb);
 		/* Check the multi queue and initialize the queue for tx */
 		gmac_init_multi_queues(macb);
 
@@ -774,14 +832,21 @@ static int _macb_init(struct macb_device *macb, const char *name)
 #ifdef CONFIG_DM_ETH
 		if ((macb->phy_interface == PHY_INTERFACE_MODE_RMII) ||
 		    (macb->phy_interface == PHY_INTERFACE_MODE_RGMII))
-			gem_writel(macb, UR, GEM_BIT(RGMII));
+			gem_writel(macb, USRIO, GEM_BIT(RGMII));
 		else
-			gem_writel(macb, UR, 0);
+			gem_writel(macb, USRIO, 0);
+
+		if (macb->phy_interface == PHY_INTERFACE_MODE_SGMII) {
+			unsigned int ncfgr = macb_readl(macb, NCFGR);
+
+			ncfgr |= GEM_BIT(SGMIIEN) | GEM_BIT(PCSSEL);
+			macb_writel(macb, NCFGR, ncfgr);
+		}
 #else
 #if defined(CONFIG_RGMII) || defined(CONFIG_RMII)
-		gem_writel(macb, UR, GEM_BIT(RGMII));
+		gem_writel(macb, USRIO, GEM_BIT(RGMII));
 #else
-		gem_writel(macb, UR, 0);
+		gem_writel(macb, USRIO, 0);
 #endif
 #endif
 	} else {
@@ -903,8 +968,12 @@ static u32 gem_mdc_clk_div(int id, struct macb_device *macb)
 		config = GEM_BF(CLK, GEM_CLK_DIV48);
 	else if (macb_hz < 160000000)
 		config = GEM_BF(CLK, GEM_CLK_DIV64);
-	else
+	else if (macb_hz < 240000000)
 		config = GEM_BF(CLK, GEM_CLK_DIV96);
+	else if (macb_hz < 320000000)
+		config = GEM_BF(CLK, GEM_CLK_DIV128);
+	else
+		config = GEM_BF(CLK, GEM_CLK_DIV224);
 
 	return config;
 }
@@ -932,8 +1001,14 @@ static void _macb_eth_initialize(struct macb_device *macb)
 	int id = 0;	/* This is not used by functions we call */
 	u32 ncfgr;
 
+	if (macb_is_gem(macb))
+		macb->rx_buffer_size = GEM_RX_BUFFER_SIZE;
+	else
+		macb->rx_buffer_size = MACB_RX_BUFFER_SIZE;
+
 	/* TODO: we need check the rx/tx_ring_dma is dcache line aligned */
-	macb->rx_buffer = dma_alloc_coherent(MACB_RX_BUFFER_SIZE,
+	macb->rx_buffer = dma_alloc_coherent(macb->rx_buffer_size *
+					     MACB_RX_RING_SIZE,
 					     &macb->rx_buffer_dma);
 	macb->rx_ring = dma_alloc_coherent(MACB_RX_DMA_DESC_SIZE,
 					   &macb->rx_ring_dma);
@@ -1142,12 +1217,17 @@ static int macb_enable_clk(struct udevice *dev)
 }
 #endif
 
+static const struct macb_config default_gem_config = {
+	.dma_burst_length = 16,
+	.clk_init = NULL,
+};
+
 static int macb_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_platdata(dev);
 	struct macb_device *macb = dev_get_priv(dev);
 	const char *phy_mode;
-	__maybe_unused int ret;
+	int ret;
 
 	phy_mode = fdt_getprop(gd->fdt_blob, dev_of_offset(dev), "phy-mode",
 			       NULL);
@@ -1159,6 +1239,12 @@ static int macb_eth_probe(struct udevice *dev)
 	}
 
 	macb->regs = (void *)pdata->iobase;
+
+	macb->is_big_endian = (cpu_to_be32(0x12345678) == 0x12345678);
+
+	macb->config = (struct macb_config *)dev_get_driver_data(dev);
+	if (!macb->config)
+		macb->config = &default_gem_config;
 
 #ifdef CONFIG_CLK
 	ret = macb_enable_clk(dev);
@@ -1220,13 +1306,25 @@ static int macb_eth_ofdata_to_platdata(struct udevice *dev)
 	return macb_late_eth_ofdata_to_platdata(dev);
 }
 
+static const struct macb_config sama5d4_config = {
+	.dma_burst_length = 4,
+	.clk_init = NULL,
+};
+
+static const struct macb_config sifive_config = {
+	.dma_burst_length = 16,
+	.clk_init = macb_sifive_clk_init,
+};
+
 static const struct udevice_id macb_eth_ids[] = {
 	{ .compatible = "cdns,macb" },
 	{ .compatible = "cdns,at91sam9260-macb" },
 	{ .compatible = "atmel,sama5d2-gem" },
 	{ .compatible = "atmel,sama5d3-gem" },
-	{ .compatible = "atmel,sama5d4-gem" },
+	{ .compatible = "atmel,sama5d4-gem", .data = (ulong)&sama5d4_config },
 	{ .compatible = "cdns,zynq-gem" },
+	{ .compatible = "sifive,fu540-c000-gem",
+	  .data = (ulong)&sifive_config },
 	{ }
 };
 

@@ -28,7 +28,6 @@
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>
 #include <i2c.h>
-#include <netdev.h>
 #include "am3517evm.h"
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -5,7 +5,6 @@
  */
 
 #include <common.h>
-#include <netdev.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 
@@ -88,17 +87,5 @@ int set_cpu_clk_info(void)
 	gd->bd->bi_ddr_freq = cpu_is_da830() ? 0 :
 				(clk_get(DAVINCI_DDR_CLKID) / 1000000);
 	gd->bd->bi_dsp_freq = 0;
-	return 0;
-}
-
-/*
- * Initializes on-chip ethernet controllers.
- * to override, implement board_eth_init()
- */
-int cpu_eth_init(bd_t *bis)
-{
-#if defined(CONFIG_DRIVER_TI_EMAC)
-	davinci_emac_initialize();
-#endif
 	return 0;
 }

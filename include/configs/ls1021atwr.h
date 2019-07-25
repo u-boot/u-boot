@@ -260,33 +260,7 @@
  */
 
 #ifdef CONFIG_TSEC_ENET
-#define CONFIG_MII_DEFAULT_TSEC		1
-#define CONFIG_TSEC1			1
-#define CONFIG_TSEC1_NAME		"eTSEC1"
-#define CONFIG_TSEC2			1
-#define CONFIG_TSEC2_NAME		"eTSEC2"
-#define CONFIG_TSEC3			1
-#define CONFIG_TSEC3_NAME		"eTSEC3"
-
-#define TSEC1_PHY_ADDR			2
-#define TSEC2_PHY_ADDR			0
-#define TSEC3_PHY_ADDR			1
-
-#define TSEC1_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC2_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
-#define TSEC3_FLAGS			(TSEC_GIGABIT | TSEC_REDUCED)
-
-#define TSEC1_PHYIDX			0
-#define TSEC2_PHYIDX			0
-#define TSEC3_PHYIDX			0
-
-#define CONFIG_ETHPRIME			"eTSEC1"
-
-#define CONFIG_PHY_ATHEROS
-
-#define CONFIG_HAS_ETH0
-#define CONFIG_HAS_ETH1
-#define CONFIG_HAS_ETH2
+#define CONFIG_ETHPRIME			"ethernet@2d10000"
 #endif
 
 /* PCIe */
@@ -444,7 +418,7 @@
 
 #undef CONFIG_BOOTCOMMAND
 #if defined(CONFIG_QSPI_BOOT) || defined(CONFIG_SD_BOOT_QSPI)
-#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd"	\
+#define CONFIG_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
 			   "env exists secureboot && esbc_halt"
 #elif defined(CONFIG_SD_BOOT)
 #define CONFIG_BOOTCOMMAND "run distro_bootcmd; run sd_bootcmd; "	\
