@@ -1522,6 +1522,10 @@ int fit_check_format(const void *fit)
  * compatible list, "foo,bar", matches a compatible string in the root of fdt1.
  * "bim,bam" in fdt2 matches the second string which isn't as good as fdt1.
  *
+ * As an optimization, the compatible property from the FDT's root node can be
+ * copied into the configuration node in the FIT image. This is required to
+ * match configurations with compressed FDTs.
+ *
  * returns:
  *     offset to the configuration to use if one was found
  *     -1 otherwise
@@ -1554,55 +1558,62 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 	for (noffset = fdt_next_node(fit, confs_noffset, &ndepth);
 			(noffset >= 0) && (ndepth > 0);
 			noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		const void *kfdt;
+		const void *fdt;
 		const char *kfdt_name;
-		int kfdt_noffset;
+		int kfdt_noffset, compat_noffset;
 		const char *cur_fdt_compat;
 		int len;
-		size_t size;
+		size_t sz;
 		int i;
 
 		if (ndepth > 1)
 			continue;
 
-		kfdt_name = fdt_getprop(fit, noffset, "fdt", &len);
-		if (!kfdt_name) {
-			debug("No fdt property found.\n");
-			continue;
-		}
-		kfdt_noffset = fdt_subnode_offset(fit, images_noffset,
-						  kfdt_name);
-		if (kfdt_noffset < 0) {
-			debug("No image node named \"%s\" found.\n",
-			      kfdt_name);
-			continue;
-		}
+		/* If there's a compat property in the config node, use that. */
+		if (fdt_getprop(fit, noffset, "compatible", NULL)) {
+			fdt = fit;		  /* search in FIT image */
+			compat_noffset = noffset; /* search under config node */
+		} else {	/* Otherwise extract it from the kernel FDT. */
+			kfdt_name = fdt_getprop(fit, noffset, "fdt", &len);
+			if (!kfdt_name) {
+				debug("No fdt property found.\n");
+				continue;
+			}
+			kfdt_noffset = fdt_subnode_offset(fit, images_noffset,
+							  kfdt_name);
+			if (kfdt_noffset < 0) {
+				debug("No image node named \"%s\" found.\n",
+				      kfdt_name);
+				continue;
+			}
 
-		if (!fit_image_check_comp(fit, kfdt_noffset, IH_COMP_NONE)) {
-			debug("Can't extract compat from \"%s\" (compressed)\n",
-			      kfdt_name);
-			continue;
-		}
+			if (!fit_image_check_comp(fit, kfdt_noffset,
+						  IH_COMP_NONE)) {
+				debug("Can't extract compat from \"%s\" "
+				      "(compressed)\n", kfdt_name);
+				continue;
+			}
 
-		/*
-		 * Get a pointer to this configuration's fdt.
-		 */
-		if (fit_image_get_data(fit, kfdt_noffset, &kfdt, &size)) {
-			debug("Failed to get fdt \"%s\".\n", kfdt_name);
-			continue;
+			/* search in this config's kernel FDT */
+			if (fit_image_get_data(fit, kfdt_noffset, &fdt, &sz)) {
+				debug("Failed to get fdt \"%s\".\n", kfdt_name);
+				continue;
+			}
+
+			compat_noffset = 0;  /* search kFDT under root node */
 		}
 
 		len = fdt_compat_len;
 		cur_fdt_compat = fdt_compat;
 		/*
 		 * Look for a match for each U-Boot compatibility string in
-		 * turn in this configuration's fdt.
+		 * turn in the compat string property.
 		 */
 		for (i = 0; len > 0 &&
 		     (!best_match_offset || best_match_pos > i); i++) {
 			int cur_len = strlen(cur_fdt_compat) + 1;
 
-			if (!fdt_node_check_compatible(kfdt, 0,
+			if (!fdt_node_check_compatible(fdt, compat_noffset,
 						       cur_fdt_compat)) {
 				best_match_offset = noffset;
 				best_match_pos = i;
