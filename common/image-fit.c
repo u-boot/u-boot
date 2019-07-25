@@ -22,6 +22,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
+#include <bootm.h>
 #include <image.h>
 #include <bootstage.h>
 #include <u-boot/crc.h>
@@ -1576,6 +1577,13 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 			      kfdt_name);
 			continue;
 		}
+
+		if (!fit_image_check_comp(fit, kfdt_noffset, IH_COMP_NONE)) {
+			debug("Can't extract compat from \"%s\" (compressed)\n",
+			      kfdt_name);
+			continue;
+		}
+
 		/*
 		 * Get a pointer to this configuration's fdt.
 		 */
@@ -1795,11 +1803,12 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	const char *fit_uname_config;
 	const char *fit_base_uname_config;
 	const void *fit;
-	const void *buf;
+	void *buf;
+	void *loadbuf;
 	size_t size;
 	int type_ok, os_ok;
-	ulong load, data, len;
-	uint8_t os;
+	ulong load, load_end, data, len;
+	uint8_t os, comp;
 #ifndef USE_HOSTCC
 	uint8_t os_arch;
 #endif
@@ -1895,12 +1904,6 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	images->os.arch = os_arch;
 #endif
 
-	if (image_type == IH_TYPE_FLATDT &&
-	    !fit_image_check_comp(fit, noffset, IH_COMP_NONE)) {
-		puts("FDT image is compressed");
-		return -EPROTONOSUPPORT;
-	}
-
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL);
 	type_ok = fit_image_check_type(fit, noffset, image_type) ||
 		  fit_image_check_type(fit, noffset, IH_TYPE_FIRMWARE) ||
@@ -1931,7 +1934,8 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL_OK);
 
 	/* get image data address and length */
-	if (fit_image_get_data_and_size(fit, noffset, &buf, &size)) {
+	if (fit_image_get_data_and_size(fit, noffset,
+					(const void **)&buf, &size)) {
 		printf("Could not find %s subimage data!\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_GET_DATA);
 		return -ENOENT;
@@ -1939,30 +1943,15 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 
 #if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
 	/* perform any post-processing on the image data */
-	board_fit_image_post_process((void **)&buf, &size);
+	board_fit_image_post_process(&buf, &size);
 #endif
 
 	len = (ulong)size;
 
-	/* verify that image data is a proper FDT blob */
-	if (image_type == IH_TYPE_FLATDT && fdt_check_header(buf)) {
-		puts("Subimage data is not a FDT");
-		return -ENOEXEC;
-	}
-
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_GET_DATA_OK);
 
-	/*
-	 * Work-around for eldk-4.2 which gives this warning if we try to
-	 * cast in the unmap_sysmem() call:
-	 * warning: initialization discards qualifiers from pointer target type
-	 */
-	{
-		void *vbuf = (void *)buf;
-
-		data = map_to_sysmem(vbuf);
-	}
-
+	data = map_to_sysmem(buf);
+	load = data;
 	if (load_op == FIT_LOAD_IGNORED) {
 		/* Don't load */
 	} else if (fit_image_get_load(fit, noffset, &load)) {
@@ -1974,8 +1963,6 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		}
 	} else if (load_op != FIT_LOAD_OPTIONAL_NON_ZERO || load) {
 		ulong image_start, image_end;
-		ulong load_end;
-		void *dst;
 
 		/*
 		 * move image data to the load address,
@@ -1993,14 +1980,45 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 
 		printf("   Loading %s from 0x%08lx to 0x%08lx\n",
 		       prop_name, data, load);
-
-		dst = map_sysmem(load, len);
-		memmove(dst, buf, len);
-		data = load;
+	} else {
+		load = data;	/* No load address specified */
 	}
+
+	comp = IH_COMP_NONE;
+	loadbuf = buf;
+	/* Kernel images get decompressed later in bootm_load_os(). */
+	if (!(image_type == IH_TYPE_KERNEL ||
+	      image_type == IH_TYPE_KERNEL_NOLOAD) &&
+	    !fit_image_get_comp(fit, noffset, &comp) &&
+	    comp != IH_COMP_NONE) {
+		ulong max_decomp_len = len * 20;
+		if (load == data) {
+			loadbuf = malloc(max_decomp_len);
+			load = map_to_sysmem(loadbuf);
+		} else {
+			loadbuf = map_sysmem(load, max_decomp_len);
+		}
+		if (image_decomp(comp, load, data, image_type,
+				loadbuf, buf, len, max_decomp_len, &load_end)) {
+			printf("Error decompressing %s\n", prop_name);
+
+			return -ENOEXEC;
+		}
+		len = load_end - load;
+	} else if (load != data) {
+		loadbuf = map_sysmem(load, len);
+		memcpy(loadbuf, buf, len);
+	}
+
+	/* verify that image data is a proper FDT blob */
+	if (image_type == IH_TYPE_FLATDT && fdt_check_header(loadbuf)) {
+		puts("Subimage data is not a FDT");
+		return -ENOEXEC;
+	}
+
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_LOAD);
 
-	*datap = data;
+	*datap = load;
 	*lenp = len;
 	if (fit_unamep)
 		*fit_unamep = (char *)fit_uname;
