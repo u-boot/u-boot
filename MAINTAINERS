@@ -485,9 +485,7 @@ M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
 R:	Alexander Graf <agraf@csgraf.de>
 S:	Maintained
 T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-efi.git
-F:	doc/README.uefi
-F:	doc/README.iscsi
-F:	doc/efi.rst
+F:	doc/uefi/*
 F:	include/capitalization.h
 F:	include/charset.h
 F:	include/cp1250.h
