@@ -49,6 +49,12 @@ F:	configs/orangepi-rk3399_defconfig
 F:	arch/arm/dts/rk3399-u-boot.dtsi
 F:	arch/arm/dts/rk3399-orangepi-u-boot.dtsi
 
+ROC-RK3399-PC
+M:	Levin Du <djw@t-chip.com.cn>
+S:	Maintained
+F:	configs/roc-rk3399-pc_defconfig
+F:	arch/arm/dts/rk3399-roc-pc-u-boot.dtsi
+
 ROCK-PI-4
 M:	Akash Gajjar <akash@openedev.com>
 M:	Jagan Teki <jagan@amarulasolutions.com>
