@@ -6,4 +6,5 @@ Xilinx
 .. toctree::
    :maxdepth: 2
 
+   xilinx
    zynq
