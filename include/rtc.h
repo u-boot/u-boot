@@ -166,11 +166,17 @@ int rtc_read32(struct udevice *dev, unsigned int reg, u32 *valuep);
  */
 int rtc_write32(struct udevice *dev, unsigned int reg, u32 value);
 
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
+int rtc_enable_32khz_output(int busnum, int chip_addr);
+#endif
+
 #else
 int rtc_get (struct rtc_time *);
 int rtc_set (struct rtc_time *);
 void rtc_reset (void);
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 void rtc_enable_32khz_output(void);
+#endif
 
 /**
  * rtc_read8() - Read an 8-bit register

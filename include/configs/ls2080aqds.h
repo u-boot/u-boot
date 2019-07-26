@@ -325,6 +325,7 @@ unsigned long get_board_ddr_clk(void);
 #define RTC
 #define CONFIG_RTC_DS3231               1
 #define CONFIG_SYS_I2C_RTC_ADDR         0x68
+#define CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 
 /* EEPROM */
 #define CONFIG_ID_EEPROM

@@ -225,7 +225,9 @@ int board_init(void)
 	gd->env_addr = (ulong)&default_environment[0];
 #endif
 	select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+#ifdef CONFIG_RTC_ENABLE_32KHZ_OUTPUT
 	rtc_enable_32khz_output();
+#endif
 #ifdef CONFIG_FSL_CAAM
 	sec_init();
 #endif
