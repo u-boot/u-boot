@@ -751,6 +751,7 @@ static int zynq_gem_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id zynq_gem_ids[] = {
+	{ .compatible = "cdns,versal-gem" },
 	{ .compatible = "cdns,zynqmp-gem" },
 	{ .compatible = "cdns,zynq-gem" },
 	{ .compatible = "cdns,gem" },
