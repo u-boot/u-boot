@@ -30,6 +30,8 @@ CONFIG_CRC32_VERIFY=y
 CONFIG_CMD_DM=y
 # CONFIG_CMD_FLASH is not set
 # CONFIG_CMD_GPT is not set
+CONFIG_CMD_MTD=y
+# CONFIG_CMD_SF is not set
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_TIME is not set
 # CONFIG_CMD_EXT4 is not set
