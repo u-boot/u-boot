@@ -183,6 +183,18 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
  */
 void __assert_fail(const char *assertion, const char *file, unsigned int line,
 		   const char *function);
+
+/**
+ * assert() - assert expression is true
+ *
+ * If the expression x evaluates to false and _DEBUG evaluates to true, a panic
+ * message is written and the system stalls. The value of _DEBUG is set to true
+ * if DEBUG is defined before including common.h.
+ *
+ * The expression x is always executed irrespective of the value of _DEBUG.
+ *
+ * @x:		expression to test
+ */
 #define assert(x) \
 	({ if (!(x) && _DEBUG) \
 		__assert_fail(#x, __FILE__, __LINE__, __func__); })
