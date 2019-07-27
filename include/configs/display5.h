@@ -55,10 +55,7 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(16 * 1024 * 1024)
 
-/*#define CONFIG_MXC_UART*/
 #define CONFIG_MXC_UART_BASE		UART5_BASE
-
-/* SPI NOR Flash */
 
 /* I2C Configs */
 #define CONFIG_SYS_I2C
@@ -357,8 +354,6 @@
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
-
-/* Commands */
 
 /* Watchdog */
 #define CONFIG_WATCHDOG_TIMEOUT_MSECS   15000

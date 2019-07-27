@@ -7,6 +7,8 @@
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk-uclass.o
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_rate.o
 obj-$(CONFIG_$(SPL_TPL_)CLK) += clk_fixed_factor.o
+obj-$(CONFIG_$(SPL_TPL_)CLK_CCF) += clk.o clk-divider.o clk-mux.o
+obj-$(CONFIG_$(SPL_TPL_)CLK_CCF) += clk-fixed-factor.o
 
 obj-y += analogbits/
 obj-y += imx/
@@ -37,5 +39,6 @@ obj-$(CONFIG_ICS8N3QV01) += ics8n3qv01.o
 obj-$(CONFIG_MACH_PIC32) += clk_pic32.o
 obj-$(CONFIG_SANDBOX) += clk_sandbox.o
 obj-$(CONFIG_SANDBOX) += clk_sandbox_test.o
+obj-$(CONFIG_SANDBOX_CLK_CCF) += clk_sandbox_ccf.o
 obj-$(CONFIG_STM32H7) += clk_stm32h7.o
 obj-$(CONFIG_CLK_TI_SCI) += clk-ti-sci.o

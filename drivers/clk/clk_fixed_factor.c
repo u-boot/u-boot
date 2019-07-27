@@ -24,9 +24,6 @@ static ulong clk_fixed_factor_get_rate(struct clk *clk)
 	uint64_t rate;
 	struct clk_fixed_factor *ff = to_clk_fixed_factor(clk->dev);
 
-	if (clk->id != 0)
-		return -EINVAL;
-
 	rate = clk_get_rate(&ff->parent);
 	if (IS_ERR_VALUE(rate))
 		return rate;

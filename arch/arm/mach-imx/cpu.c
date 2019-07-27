@@ -289,10 +289,12 @@ void arch_preboot_os(void)
 	imx_pcie_remove();
 #endif
 #if defined(CONFIG_SATA)
-	sata_remove(0);
+	if (!is_mx6sdl()) {
+		sata_remove(0);
 #if defined(CONFIG_MX6)
-	disable_sata_clock();
+		disable_sata_clock();
 #endif
+	}
 #endif
 #if defined(CONFIG_VIDEO_IPUV3)
 	/* disable video before launching O/S */

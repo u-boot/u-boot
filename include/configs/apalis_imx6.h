@@ -176,27 +176,6 @@
 	"sdfinduuid=part uuid mmc ${sddev}:${sdrootpart} uuid\0" \
 	"sdrootpart=2\0"
 
-
-#define USB_BOOTCMD \
-	"set_usbargs=setenv usbargs ip=off root=PARTUUID=${uuid} ro,noatime " \
-		"rootfstype=ext4 rootwait\0" \
-	"usbboot=run setup; usb start; run usbfinduuid; run set_usbargs; " \
-		"setenv bootargs ${defargs} ${setupargs} " \
-		"${usbargs} ${vidargs}; echo Booting from USB stick...; " \
-		"run usbdtbload; load usb " \
-		"${usbdev}:${usbbootpart} ${kernel_addr_r} " \
-		"${boot_file} && run fdt_fixup && " \
-		"bootz ${kernel_addr_r} ${dtbparam}\0" \
-	"usbbootpart=1\0" \
-	"usbdev=0\0" \
-	"usbdtbload=setenv dtbparam; load usb ${usbdev}:${usbbootpart} "\
-		"${fdt_addr_r} " \
-		"${fdt_file} && setenv dtbparam \" - " \
-		"${fdt_addr_r}\" && true\0" \
-	"usbfinduuid=part uuid usb ${usbdev}:${usbrootpart} uuid\0" \
-	"usbrootpart=2\0"
-
-
 #ifndef CONFIG_TDX_APALIS_IMX6_V1_0
 #define FDT_FILE "imx6q-apalis-eval.dtb"
 #define FDT_FILE_V1_0 "imx6q-apalis_v1_0-eval.dtb"
@@ -219,7 +198,6 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	NFS_BOOTCMD \
 	SD_BOOTCMD \
-	USB_BOOTCMD \
 	"setethupdate=if env exists ethaddr; then; else setenv ethaddr " \
 		"00:14:2d:00:00:00; fi; tftpboot ${loadaddr} " \
 		"flash_eth.img && source ${loadaddr}\0" \

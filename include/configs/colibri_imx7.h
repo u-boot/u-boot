@@ -46,6 +46,46 @@
 #define CONFIG_NETMASK			255.255.255.0
 #define CONFIG_SERVERIP			192.168.10.1
 
+#ifndef PARTS_DEFAULT
+/* Define the default GPT table for eMMC */
+#define PARTS_DEFAULT \
+	/* Android partitions */ \
+	"partitions_android=" \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name=boot,start=1M,size=32M,uuid=${uuid_gpt_boot};" \
+	"name=environment,size=4M,uuid=${uuid_gpt_environment};" \
+	"name=recovery,size=16M,uuid=${uuid_gpt_recovery};" \
+	"name=system,size=1536M,uuid=${uuid_gpt_system};" \
+	"name=cache,size=512M,uuid=${uuid_gpt_cache};" \
+	"name=device,size=8M,uuid=${uuid_gpt_device};" \
+	"name=misc,size=4M,uuid=${uuid_gpt_misc};" \
+	"name=datafooter,size=2M,uuid=${uuid_gpt_datafooter};" \
+	"name=metadata,size=2M,uuid=${uuid_gpt_metadata};" \
+	"name=persistdata,size=2M,uuid=${uuid_gpt_persistdata};" \
+	"name=userdata,size=128M,uuid=${uuid_gpt_userdata};" \
+	"name=fbmisc,size=-,uuid=${uuid_gpt_fbmisc}\0"
+#endif /* PARTS_DEFAULT */
+
+#define EMMC_ANDROID_BOOTCMD \
+	"android_args=androidboot.storage_type=emmc\0" \
+	PARTS_DEFAULT \
+	"android_fdt_addr=0x83700000\0" \
+	"android_mmc_dev=0\0" \
+	"m4binary=rpmsg_imu_freertos.elf\0" \
+	"androidboot=ext4load mmc 0:a ${loadaddr} media/0/${m4binary}; "\
+		"bootaux ${loadaddr}; " \
+		"setenv loadaddr 0x88000000; " \
+		"setenv bootm_boot_mode sec;" \
+		"setenv bootargs androidboot.serialno=${serial#} " \
+			"$android_args; " \
+		"part start mmc ${android_mmc_dev} boot boot_start; " \
+		"part size mmc ${android_mmc_dev} boot boot_size; " \
+		"mmc read ${loadaddr} ${boot_start} ${boot_size}; " \
+		"part start mmc ${android_mmc_dev} environment env_start; " \
+		"part size mmc ${android_mmc_dev} environment env_size; " \
+		"mmc read ${android_fdt_addr} ${env_start} ${env_size}; " \
+		"bootm ${loadaddr} ${loadaddr} ${android_fdt_addr}\0 "
+
 #define EMMC_BOOTCMD \
 	"set_emmcargs=setenv emmcargs ip=off root=PARTUUID=${uuid} ro " \
 		"rootfstype=ext4 rootwait\0" \
@@ -62,7 +102,6 @@
 	"emmcdev=0\0" \
 	"emmcfinduuid=part uuid mmc ${emmcdev}:${emmcrootpart} uuid\0" \
 	"emmcrootpart=2\0"
-
 
 #define MEM_LAYOUT_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
@@ -125,7 +164,8 @@
 	"setenv fdtfile ${soc}-colibri-emmc-${fdt_board}.dtb && run distro_bootcmd;"
 #define MODULE_EXTRA_ENV_SETTINGS \
 	"variant=-emmc\0" \
-	EMMC_BOOTCMD
+	EMMC_BOOTCMD \
+	EMMC_ANDROID_BOOTCMD
 #endif
 
 #if defined(CONFIG_TARGET_COLIBRI_IMX7_NAND)

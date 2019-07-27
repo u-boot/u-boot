@@ -51,6 +51,7 @@ void mxs_gpio_init(void)
 	}
 }
 
+#if !CONFIG_IS_ENABLED(DM_GPIO)
 int gpio_get_value(unsigned gpio)
 {
 	uint32_t bank = PAD_BANK(gpio);
@@ -127,3 +128,150 @@ int name_to_gpio(const char *name)
 
 	return (bank << MXS_PAD_BANK_SHIFT) | (pin << MXS_PAD_PIN_SHIFT);
 }
+#else /* CONFIG_DM_GPIO */
+#include <dm.h>
+#include <asm/gpio.h>
+#include <asm/arch/gpio.h>
+#define MXS_MAX_GPIO_PER_BANK		32
+
+DECLARE_GLOBAL_DATA_PTR;
+/*
+ * According to i.MX28 Reference Manual:
+ * 'i.MX28 Applications Processor Reference Manual, Rev. 1, 2010'
+ * The i.MX28 has following number of GPIOs available:
+ * Bank 0: 0-28 -> 29 PINS
+ * Bank 1: 0-31 -> 32 PINS
+ * Bank 2: 0-27 -> 28 PINS
+ * Bank 3: 0-30 -> 31 PINS
+ * Bank 4: 0-20 -> 21 PINS
+ */
+
+struct mxs_gpio_priv {
+	unsigned int bank;
+};
+
+static int mxs_gpio_get_value(struct udevice *dev, unsigned offset)
+{
+	struct mxs_gpio_priv *priv = dev_get_priv(dev);
+	struct mxs_register_32 *reg =
+		(struct mxs_register_32 *)(MXS_PINCTRL_BASE +
+					   PINCTRL_DIN(priv->bank));
+
+	return (readl(&reg->reg) >> offset) & 1;
+}
+
+static int mxs_gpio_set_value(struct udevice *dev, unsigned offset,
+			      int value)
+{
+	struct mxs_gpio_priv *priv = dev_get_priv(dev);
+	struct mxs_register_32 *reg =
+		(struct mxs_register_32 *)(MXS_PINCTRL_BASE +
+					   PINCTRL_DOUT(priv->bank));
+	if (value)
+		writel(BIT(offset), &reg->reg_set);
+	else
+		writel(BIT(offset), &reg->reg_clr);
+
+	return 0;
+}
+
+static int mxs_gpio_direction_input(struct udevice *dev, unsigned offset)
+{
+	struct mxs_gpio_priv *priv = dev_get_priv(dev);
+	struct mxs_register_32 *reg =
+		(struct mxs_register_32 *)(MXS_PINCTRL_BASE +
+					   PINCTRL_DOE(priv->bank));
+
+	writel(BIT(offset), &reg->reg_clr);
+
+	return 0;
+}
+
+static int mxs_gpio_direction_output(struct udevice *dev, unsigned offset,
+				     int value)
+{
+	struct mxs_gpio_priv *priv = dev_get_priv(dev);
+	struct mxs_register_32 *reg =
+		(struct mxs_register_32 *)(MXS_PINCTRL_BASE +
+					   PINCTRL_DOE(priv->bank));
+
+	mxs_gpio_set_value(dev, offset, value);
+
+	writel(BIT(offset), &reg->reg_set);
+
+	return 0;
+}
+
+static int mxs_gpio_get_function(struct udevice *dev, unsigned offset)
+{
+	struct mxs_gpio_priv *priv = dev_get_priv(dev);
+	struct mxs_register_32 *reg =
+		(struct mxs_register_32 *)(MXS_PINCTRL_BASE +
+					   PINCTRL_DOE(priv->bank));
+	bool is_output = !!(readl(&reg->reg) >> offset);
+
+	return is_output ? GPIOF_OUTPUT : GPIOF_INPUT;
+}
+
+static const struct dm_gpio_ops gpio_mxs_ops = {
+	.direction_input	= mxs_gpio_direction_input,
+	.direction_output	= mxs_gpio_direction_output,
+	.get_value		= mxs_gpio_get_value,
+	.set_value		= mxs_gpio_set_value,
+	.get_function		= mxs_gpio_get_function,
+};
+
+static int mxs_gpio_probe(struct udevice *dev)
+{
+	struct mxs_gpio_priv *priv = dev_get_priv(dev);
+	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
+	struct fdtdec_phandle_args args;
+	int node = dev_of_offset(dev);
+	char name[16], *str;
+	fdt_addr_t addr;
+	int ret;
+
+	addr = devfdt_get_addr(dev);
+	if (addr == FDT_ADDR_T_NONE) {
+		printf("%s: No 'reg' property defined!\n", __func__);
+		return -EINVAL;
+	}
+
+	priv->bank = (unsigned int)addr;
+
+	snprintf(name, sizeof(name), "GPIO%d_", priv->bank);
+	str = strdup(name);
+	if (!str)
+		return -ENOMEM;
+
+	uc_priv->bank_name = str;
+
+	ret = fdtdec_parse_phandle_with_args(gd->fdt_blob, node, "gpio-ranges",
+					     NULL, 3, 0, &args);
+	if (ret)
+		printf("%s: 'gpio-ranges' not defined - using default!\n",
+		       __func__);
+
+	uc_priv->gpio_count = ret == 0 ? args.args[2] : MXS_MAX_GPIO_PER_BANK;
+
+	debug("%s: %s: %d pins\n", __func__, uc_priv->bank_name,
+	      uc_priv->gpio_count);
+
+	return 0;
+}
+
+static const struct udevice_id mxs_gpio_ids[] = {
+	{ .compatible = "fsl,imx23-gpio" },
+	{ .compatible = "fsl,imx28-gpio" },
+	{ }
+};
+
+U_BOOT_DRIVER(gpio_mxs) = {
+	.name	= "gpio_mxs",
+	.id	= UCLASS_GPIO,
+	.ops	= &gpio_mxs_ops,
+	.probe	= mxs_gpio_probe,
+	.priv_auto_alloc_size = sizeof(struct mxs_gpio_priv),
+	.of_match = mxs_gpio_ids,
+};
+#endif /* CONFIG_DM_GPIO */

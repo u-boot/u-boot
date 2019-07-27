@@ -72,6 +72,8 @@ void sc_misc_get_boot_dev(sc_ipc_t ipc, sc_rsrc_t *boot_dev);
 void sc_misc_boot_status(sc_ipc_t ipc, sc_misc_boot_status_t status);
 void sc_misc_build_info(sc_ipc_t ipc, u32 *build, u32 *commit);
 int sc_misc_otp_fuse_read(sc_ipc_t ipc, u32 word, u32 *val);
+int sc_misc_get_temp(sc_ipc_t ipc, sc_rsrc_t resource, sc_misc_temp_t temp,
+		     s16 *celsius, s8 *tenths);
 
 /* RM API */
 sc_bool_t sc_rm_is_memreg_owned(sc_ipc_t ipc, sc_rm_mr_t mr);

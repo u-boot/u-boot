@@ -40,21 +40,11 @@ static void setup_iomux_uart(void)
 
 int board_early_init_f(void)
 {
+	sc_pm_clock_rate_t rate = SC_80MHZ;
 	int ret;
+
 	/* Set UART0 clock root to 80 MHz */
-	sc_pm_clock_rate_t rate = 80000000;
-
-	/* Power up UART0 */
-	ret = sc_pm_set_resource_power_mode(-1, SC_R_UART_0, SC_PM_PW_MODE_ON);
-	if (ret)
-		return ret;
-
-	ret = sc_pm_set_clock_rate(-1, SC_R_UART_0, 2, &rate);
-	if (ret)
-		return ret;
-
-	/* Enable UART0 clock root */
-	ret = sc_pm_clock_enable(-1, SC_R_UART_0, 2, true, false);
+	ret = sc_pm_setup_uart(SC_R_UART_0, rate);
 	if (ret)
 		return ret;
 
@@ -103,19 +93,6 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 #endif
-
-void build_info(void)
-{
-	u32 sc_build = 0, sc_commit = 0;
-
-	/* Get SCFW build and commit id */
-	sc_misc_build_info(-1, &sc_build, &sc_commit);
-	if (!sc_build) {
-		printf("SCFW does not support build info\n");
-		sc_commit = 0; /* Display 0 when the build info is not supported */
-	}
-	printf("Build: SCFW %x\n", sc_commit);
-}
 
 int checkboard(void)
 {

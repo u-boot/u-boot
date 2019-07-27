@@ -7,8 +7,9 @@
 #include "tdx-cfg-block.h"
 
 #if defined(CONFIG_TARGET_APALIS_IMX6) || \
+	defined(CONFIG_TARGET_APALIS_IMX8) || \
 	defined(CONFIG_TARGET_COLIBRI_IMX6) || \
-	defined(CONFIG_TARGET_COLIBRI_IMX8QXP)
+	defined(CONFIG_TARGET_COLIBRI_IMX8X)
 #include <asm/arch/sys_proto.h>
 #else
 #define is_cpu_type(cpu) (0)
@@ -128,6 +129,10 @@ static int tdx_cfg_block_mmc_storage(u8 *config_block, int write)
 		puts("No MMC card found\n");
 		ret = -ENODEV;
 		goto out;
+	}
+	if (mmc_init(mmc)) {
+		puts("MMC init failed\n");
+		return -EINVAL;
 	}
 	if (part != mmc_get_blk_desc(mmc)->hwpart) {
 		if (blk_select_hwpart_devnum(IF_TYPE_MMC, dev, part)) {
@@ -287,6 +292,7 @@ static int get_cfgblock_interactive(void)
 	char message[CONFIG_SYS_CBSIZE];
 	char *soc;
 	char it = 'n';
+	char wb = 'n';
 	int len;
 
 	/* Unknown module by default */
@@ -296,9 +302,16 @@ static int get_cfgblock_interactive(void)
 		sprintf(message, "Is the module the 312 MHz version? [y/N] ");
 	else
 		sprintf(message, "Is the module an IT version? [y/N] ");
-
 	len = cli_readline(message);
 	it = console_buffer[0];
+
+#if defined(CONFIG_TARGET_APALIS_IMX8) || \
+		defined(CONFIG_TARGET_COLIBRI_IMX6ULL) || \
+		defined(CONFIG_TARGET_COLIBRI_IMX8X)
+	sprintf(message, "Does the module have Wi-Fi / Bluetooth? [y/N] ");
+	len = cli_readline(message);
+	wb = console_buffer[0];
+#endif
 
 	soc = env_get("soc");
 	if (!strcmp("mx6", soc)) {
@@ -327,12 +340,6 @@ static int get_cfgblock_interactive(void)
 				tdx_hw_tag.prodid = COLIBRI_IMX6S;
 		}
 #elif CONFIG_TARGET_COLIBRI_IMX6ULL
-		char wb = 'n';
-
-		sprintf(message, "Does the module have Wi-Fi / Bluetooth? " \
-				 "[y/N] ");
-		len = cli_readline(message);
-		wb = console_buffer[0];
 		if (it == 'y' || it == 'Y') {
 			if (wb == 'y' || wb == 'Y')
 				tdx_hw_tag.prodid = COLIBRI_IMX6ULL_WIFI_BT_IT;
@@ -349,9 +356,31 @@ static int get_cfgblock_interactive(void)
 		tdx_hw_tag.prodid = COLIBRI_IMX7D;
 	else if (!strcmp("imx7s", soc))
 		tdx_hw_tag.prodid = COLIBRI_IMX7S;
-	else if (is_cpu_type(MXC_CPU_IMX8QXP))
-		tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
-	else if (!strcmp("tegra20", soc)) {
+	else if (is_cpu_type(MXC_CPU_IMX8QM)) {
+		if (it == 'y' || it == 'Y') {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = APALIS_IMX8QM_WIFI_BT_IT;
+			else
+				tdx_hw_tag.prodid = APALIS_IMX8QM_IT;
+		} else {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = APALIS_IMX8QP_WIFI_BT;
+			else
+				tdx_hw_tag.prodid = APALIS_IMX8QP;
+		}
+	} else if (is_cpu_type(MXC_CPU_IMX8QXP)) {
+		if (it == 'y' || it == 'Y') {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_WIFI_BT_IT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX8QXP_IT;
+		} else {
+			if (wb == 'y' || wb == 'Y')
+				tdx_hw_tag.prodid = COLIBRI_IMX8DX_WIFI_BT;
+			else
+				tdx_hw_tag.prodid = COLIBRI_IMX8DX;
+		}
+	} else if (!strcmp("tegra20", soc)) {
 		if (it == 'y' || it == 'Y')
 			if (gd->ram_size == 0x10000000)
 				tdx_hw_tag.prodid = COLIBRI_T20_256MB_IT;
@@ -482,8 +511,7 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * On NAND devices, recreation is only allowed if the page is
 		 * empty (config block invalid...)
 		 */
-		printf("NAND erase block %d need to be erased before creating" \
-		       " a Toradex config block\n",
+		printf("NAND erase block %d need to be erased before creating a Toradex config block\n",
 		       CONFIG_TDX_CFG_BLOCK_OFFSET /
 		       get_nand_dev_by_index(0)->erasesize);
 		goto out;
@@ -492,8 +520,7 @@ static int do_cfgblock_create(cmd_tbl_t *cmdtp, int flag, int argc,
 		 * On NOR devices, recreation is only allowed if the sector is
 		 * empty and write protection is off (config block invalid...)
 		 */
-		printf("NOR sector at offset 0x%02x need to be erased and " \
-		       "unprotected before creating a Toradex config block\n",
+		printf("NOR sector at offset 0x%02x need to be erased and unprotected before creating a Toradex config block\n",
 		       CONFIG_TDX_CFG_BLOCK_OFFSET);
 		goto out;
 #else
@@ -604,9 +631,8 @@ static int do_cfgblock(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_USAGE;
 }
 
-U_BOOT_CMD(
-	cfgblock, 4, 0, do_cfgblock,
-	"Toradex config block handling commands",
-	"create [-y] [barcode] - (Re-)create Toradex config block\n"
-	"cfgblock reload - Reload Toradex config block from flash"
+U_BOOT_CMD(cfgblock, 4, 0, do_cfgblock,
+	   "Toradex config block handling commands",
+	   "create [-y] [barcode] - (Re-)create Toradex config block\n"
+	   "cfgblock reload - Reload Toradex config block from flash"
 );

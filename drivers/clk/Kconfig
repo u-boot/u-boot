@@ -46,6 +46,20 @@ config CLK_BOSTON
 	help
 	  Enable this to support the clocks
 
+config SPL_CLK_CCF
+	bool "SPL Common Clock Framework [CCF] support "
+	depends on SPL_CLK_IMX6Q
+	help
+	  Enable this option if you want to (re-)use the Linux kernel's Common
+	  Clock Framework [CCF] code in U-Boot's SPL.
+
+config CLK_CCF
+	bool "Common Clock Framework [CCF] support "
+	depends on CLK_IMX6Q || SANDBOX_CLK_CCF
+	help
+	  Enable this option if you want to (re-)use the Linux kernel's Common
+	  Clock Framework [CCF] code in U-Boot's clock driver.
+
 config CLK_STM32F
 	bool "Enable clock driver support for STM32F family"
 	depends on CLK && (STM32F7 || STM32F4)
@@ -124,5 +138,13 @@ config CLK_MPC83XX
 	depends on CLK
 	help
 	  Support for the clock driver of the MPC83xx series of SoCs.
+
+config SANDBOX_CLK_CCF
+	bool "Sandbox Common Clock Framework [CCF] support "
+	depends on SANDBOX
+	select CLK_CCF
+	help
+	  Enable this option if you want to test the Linux kernel's Common
+	  Clock Framework [CCF] code in U-Boot's Sandbox clock driver.
 
 endmenu

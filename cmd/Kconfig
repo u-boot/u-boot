@@ -325,14 +325,22 @@ config CMD_SPL
 	  command.
 
 config CMD_SPL_NAND_OFS
-	hex "Offset of OS command line args for Falcon-mode NAND boot"
-	depends on CMD_SPL
+	hex "Offset of OS args or dtb for Falcon-mode NAND boot"
+	depends on CMD_SPL && (TPL_NAND_SUPPORT || SPL_NAND_SUPPORT)
 	default 0
 	help
 	  This provides the offset of the command line arguments for Linux
 	  when booting from NAND in Falcon mode.  See doc/README.falcon
 	  for full information about how to use this option (and also see
 	  board/gateworks/gw_ventana/README for an example).
+
+config CMD_SPL_NOR_OFS
+	hex "Offset of OS args or dtb for Falcon-mode NOR boot"
+	depends on CMD_SPL && SPL_NOR_SUPPORT
+	default 0
+	help
+	  This provides the offset of the command line arguments or dtb for
+	  Linux when booting from NOR in Falcon mode.
 
 config CMD_SPL_WRITE_SIZE
 	hex "Size of argument area"

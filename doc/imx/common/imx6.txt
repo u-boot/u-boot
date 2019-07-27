@@ -88,3 +88,77 @@ Reading bank 4:
 
 Word 0x00000002: 9f027772 00000004
 
+NAND Boot on i.MX6 with SPL support
+--------------------------------------
+
+Writing/updating boot image in nand device is not straight forward in
+i.MX6 platform and it requires boot control block(BCB) to be configured.
+
+BCB contains two data structures, Firmware Configuration Block(FCB) and
+Discovered Bad Block Table(DBBT). FCB has nand timings, DBBT search area,
+and firmware. See IMX6DQRM Section 8.5.2.2
+for more information.
+
+We can't use 'nand write' command to write SPL/firmware image directly
+like other platforms does. So we need special setup to write BCB block
+as per IMX6QDL reference manual 'nandbcb update' command do that job.
+
+for nand boot, up on reset bootrom look for FCB structure in
+first block's if FCB found the nand timings are loaded for
+further reads. once FCB read done, DTTB will be loaded and
+finally firmware will be loaded which is boot image.
+
+cmd_nandbcb will create FCB these structures
+by taking mtd partition as an example.
+- initial code will erase entire partition
+- followed by FCB setup, like first 2 blocks for FCB/DBBT write,
+  and next block for FW1/SPL
+- write firmware at FW1 block and
+- finally write fcb/dttb in first 2 block.
+
+Typical NAND BCB layout:
+=======================
+
+   no.of blocks = partition size / erasesize
+   no.of fcb/dbbt blocks = 2
+   FW1 offset = no.of fcb/dbbt
+
+block  0          1          2
+        -------------------------------
+       |FCB/DBBT 0|FCB/DBBT 1|  FW 1  |
+       --------------------------------
+
+On summary, nandbcb update will
+- erase the entire partition
+- create BCB by creating 2 FCB/BDDT block followed by
+  1 FW blocks based on partition size and erasesize.
+- fill FCB/DBBT structures
+- write FW/SPL in FW1
+- write FCB/DBBT in first 2 blocks
+
+step-1: write SPL
+
+icorem6qdl> ext4load mmc 0:1 $loadaddr SPL
+39936 bytes read in 10 ms (3.8 MiB/s)
+
+icorem6qdl> nandbcb update $loadaddr spl $filesize
+device 0 offset 0x0, size 0x9c00
+Erasing at 0x1c0000 -- 100% complete.
+NAND fw write: 0x80000 offset, 0xb000 bytes written: OK
+
+step-2: write u-boot-dtb.img
+
+icorem6qdl> nand erase.part uboot
+
+NAND erase.part: device 0 offset 0x200000, size 0x200000
+Erasing at 0x3c0000 -- 100% complete.
+OK
+
+icorem6qdl> ext4load mmc 0:1 $loadaddr u-boot-dtb.img
+589094 bytes read in 37 ms (15.2 MiB/s)
+
+icorem6qdl> nand write ${loadaddr} uboot ${filesize}
+
+NAND write: device 0 offset 0x200000, size 0x8fd26
+ 589094 bytes written: OK
+icorem6qdl>

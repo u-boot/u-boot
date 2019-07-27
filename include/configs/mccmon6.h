@@ -65,13 +65,6 @@
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ (CONFIG_SYS_FLASH_BASE) }
 #define CONFIG_SYS_FLASH_BANKS_SIZES	{ (32 * SZ_1M) }
 
-/* MTD support */
-
-/* USB Configs */
-#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
-#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
-#define CONFIG_MXC_USB_FLAGS		0
-
 /* Ethernet Configuration */
 #define CONFIG_FEC_MXC
 #define IMX_FEC_BASE			ENET_BASE_ADDR
@@ -85,6 +78,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"boot_os=yes\0" \
+	"disable_giga=yes\0" \
 	"download_kernel=" \
 		"tftpboot ${kernel_addr} ${kernel_file};" \
 		"tftpboot ${fdt_addr} ${fdtfile};\0" \

@@ -13,6 +13,7 @@
 #include <dm/read.h>
 #include <dt-structs.h>
 #include <errno.h>
+#include <linux/clk-provider.h>
 
 static inline const struct clk_ops *clk_dev_ops(struct udevice *dev)
 {
@@ -381,6 +382,43 @@ ulong clk_get_rate(struct clk *clk)
 	return ops->get_rate(clk);
 }
 
+struct clk *clk_get_parent(struct clk *clk)
+{
+	struct udevice *pdev;
+	struct clk *pclk;
+
+	debug("%s(clk=%p)\n", __func__, clk);
+
+	pdev = dev_get_parent(clk->dev);
+	pclk = dev_get_clk_ptr(pdev);
+	if (!pclk)
+		return ERR_PTR(-ENODEV);
+
+	return pclk;
+}
+
+long long clk_get_parent_rate(struct clk *clk)
+{
+	const struct clk_ops *ops;
+	struct clk *pclk;
+
+	debug("%s(clk=%p)\n", __func__, clk);
+
+	pclk = clk_get_parent(clk);
+	if (IS_ERR(pclk))
+		return -ENODEV;
+
+	ops = clk_dev_ops(pclk->dev);
+	if (!ops->get_rate)
+		return -ENOSYS;
+
+	/* Read the 'rate' if not already set or if proper flag set*/
+	if (!pclk->rate || pclk->flags & CLK_GET_RATE_NOCACHE)
+		pclk->rate = clk_get_rate(pclk);
+
+	return pclk->rate;
+}
+
 ulong clk_set_rate(struct clk *clk, ulong rate)
 {
 	const struct clk_ops *ops = clk_dev_ops(clk->dev);
@@ -453,6 +491,28 @@ int clk_disable_bulk(struct clk_bulk *bulk)
 	}
 
 	return 0;
+}
+
+int clk_get_by_id(ulong id, struct clk **clkp)
+{
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+
+	ret = uclass_get(UCLASS_CLK, &uc);
+	if (ret)
+		return ret;
+
+	uclass_foreach_dev(dev, uc) {
+		struct clk *clk = dev_get_clk_ptr(dev);
+
+		if (clk && clk->id == id) {
+			*clkp = clk;
+			return 0;
+		}
+	}
+
+	return -ENOENT;
 }
 
 UCLASS_DRIVER(clk) = {

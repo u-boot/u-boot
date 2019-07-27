@@ -211,6 +211,12 @@
 			clock-mult = <2>;
 			clocks = <&clk_fixed>;
 		};
+
+		osc {
+			compatible = "fixed-clock";
+			#clock-cells = <0>;
+			clock-frequency = <20000000>;
+		};
 	};
 
 	clk_sandbox: clk-sbox {
@@ -224,6 +230,10 @@
 			 <&clk_sandbox 1>,
 			 <&clk_sandbox 0>;
 		clock-names = "fixed", "i2c", "spi";
+	};
+
+	ccf: clk-ccf {
+		compatible = "sandbox,clk-ccf";
 	};
 
 	eth@10002000 {

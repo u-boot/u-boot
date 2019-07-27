@@ -273,6 +273,34 @@ int sc_misc_otp_fuse_read(sc_ipc_t ipc, u32 word, u32 *val)
 	return 0;
 }
 
+int sc_misc_get_temp(sc_ipc_t ipc, sc_rsrc_t resource, sc_misc_temp_t temp,
+		     s16 *celsius, s8 *tenths)
+{
+	struct udevice *dev = gd->arch.scu_dev;
+	int size = sizeof(struct sc_rpc_msg_s);
+	struct sc_rpc_msg_s msg;
+	int ret;
+
+	RPC_VER(&msg) = SC_RPC_VERSION;
+	RPC_SVC(&msg) = (u8)SC_RPC_SVC_MISC;
+	RPC_FUNC(&msg) = (u8)MISC_FUNC_GET_TEMP;
+	RPC_U16(&msg, 0U) = (u16)resource;
+	RPC_U8(&msg, 2U) = (u8)temp;
+	RPC_SIZE(&msg) = 2U;
+
+	ret = misc_call(dev, SC_FALSE, &msg, size, &msg, size);
+	if (ret < 0)
+		return ret;
+
+	if (celsius)
+		*celsius = RPC_I16(&msg, 0U);
+
+	if (tenths)
+		*tenths = RPC_I8(&msg, 2U);
+
+	return 0;
+}
+
 /* RM */
 sc_bool_t sc_rm_is_memreg_owned(sc_ipc_t ipc, sc_rm_mr_t mr)
 {

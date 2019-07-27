@@ -960,10 +960,6 @@ The following options need to be configured:
 			CONFIG_SH_ETHER_CACHE_WRITEBACK
 			If this option is set, the driver enables cache flush.
 
-- PWM Support:
-		CONFIG_PWM_IMX
-		Support for PWM module on the imx6.
-
 - TPM Support:
 		CONFIG_TPM
 		Support TPM devices.

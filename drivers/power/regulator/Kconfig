@@ -43,6 +43,23 @@ config REGULATOR_AS3722
 	  but does not yet support change voltages. Currently this must be
 	  done using direct register writes to the PMIC.
 
+config DM_REGULATOR_BD71837
+	bool "Enable Driver Model for ROHM BD71837/BD71847 regulators"
+	depends on DM_REGULATOR && DM_PMIC_BD71837
+	help
+	This config enables implementation of driver-model regulator uclass
+	features for regulators on ROHM BD71837 and BD71847 PMICs.
+	BD71837 contains 8 bucks and 7 LDOS. BD71847 is reduced version
+	containing 6 bucks and 6 LDOs. The driver implements get/set api for
+	value and enable.
+
+config SPL_DM_REGULATOR_BD71837
+	bool "Enable Driver Model for ROHM BD71837/BD71847 regulators in SPL"
+	depends on DM_REGULATOR_BD71837
+	help
+	This config enables implementation of driver-model regulator uclass
+	features for regulators on ROHM BD71837 and BD71847 in SPL.
+
 config DM_REGULATOR_PFUZE100
 	bool "Enable Driver Model for REGULATOR PFUZE100"
 	depends on DM_REGULATOR && DM_PMIC_PFUZE100

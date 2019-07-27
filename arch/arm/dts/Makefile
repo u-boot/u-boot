@@ -551,6 +551,7 @@ dtb-$(CONFIG_MX6Q) += \
 	imx6q-tbs2910.dtb
 
 dtb-$(CONFIG_MX6QDL) += \
+	imx6dl-dhcom-pdk2.dtb \
 	imx6dl-icore.dtb \
 	imx6dl-icore-mipi.dtb \
 	imx6dl-icore-rqs.dtb \
@@ -559,6 +560,7 @@ dtb-$(CONFIG_MX6QDL) += \
 	imx6dl-sabresd.dtb \
 	imx6dl-wandboard-revb1.dtb \
 	imx6q-cm-fx6.dtb \
+	imx6q-dhcom-pdk2.dtb \
 	imx6q-icore.dtb \
 	imx6q-icore-mipi.dtb \
 	imx6q-icore-rqs.dtb \
@@ -599,8 +601,7 @@ dtb-$(CONFIG_MX6ULL) += \
 
 dtb-$(CONFIG_ARCH_MX6) += \
 	imx6-apalis.dtb \
-	imx6-colibri.dtb \
-	imx6q-dhcom-pdk2.dtb
+	imx6-colibri.dtb
 
 dtb-$(CONFIG_MX7) += imx7d-sdb.dtb \
 	imx7d-sdb-qspi.dtb \

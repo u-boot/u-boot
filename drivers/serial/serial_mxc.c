@@ -342,6 +342,8 @@ static int mxc_serial_ofdata_to_platdata(struct udevice *dev)
 }
 
 static const struct udevice_id mxc_serial_ids[] = {
+	{ .compatible = "fsl,imx21-uart" },
+	{ .compatible = "fsl,imx53-uart" },
 	{ .compatible = "fsl,imx6sx-uart" },
 	{ .compatible = "fsl,imx6ul-uart" },
 	{ .compatible = "fsl,imx7d-uart" },
@@ -360,9 +362,7 @@ U_BOOT_DRIVER(serial_mxc) = {
 #endif
 	.probe = mxc_serial_probe,
 	.ops	= &mxc_serial_ops,
-#if !CONFIG_IS_ENABLED(OF_CONTROL)
 	.flags = DM_FLAG_PRE_RELOC,
-#endif
 };
 #endif
 
