@@ -84,7 +84,7 @@ static int mmc_spi_sendcmd(struct udevice *dev,
 	cmdo[4] = cmdarg >> 8;
 	cmdo[5] = cmdarg;
 	cmdo[6] = (crc7(0, &cmdo[1], 5) << 1) | 0x01;
-	ret = dm_spi_xfer(dev, sizeof(cmdo) * 8, cmdo, NULL, 0);
+	ret = dm_spi_xfer(dev, sizeof(cmdo) * 8, cmdo, NULL, SPI_XFER_BEGIN);
 	if (ret)
 		return ret;
 
@@ -360,6 +360,8 @@ static int dm_mmc_spi_request(struct udevice *dev, struct mmc_cmd *cmd,
 	}
 
 done:
+	dm_spi_xfer(dev, 0, NULL, NULL, SPI_XFER_END);
+
 	dm_spi_release_bus(dev);
 
 	return ret;

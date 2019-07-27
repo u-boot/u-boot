@@ -158,13 +158,14 @@ config MT7621_SPI
 	  the SPI NOR flash on platforms embedding this Ralink / MediaTek
 	  SPI core, like MT7621/7628/7688.
 
-config MTK_QSPI
-	bool "Mediatek QSPI driver"
-	imply SPI_FLASH_BAR
+config MTK_SNFI_SPI
+	bool "Mediatek SPI memory controller driver"
+	depends on SPI_MEM
 	help
-	  Enable the Mediatek QSPI driver. This driver can be
-	  used to access the SPI NOR flash on platforms embedding this
-	  Mediatek QSPI IP core.
+	  Enable the Mediatek SPI memory controller driver. This driver is
+	  originally based on the MediaTek SNFI IP core. It can only be
+	  used to access SPI memory devices like SPI-NOR or SPI-NAND on
+	  platforms embedding this IP core, like MT7622/M7629.
 
 config MVEBU_A3700_SPI
 	bool "Marvell Armada 3700 SPI driver"
@@ -231,6 +232,14 @@ config SANDBOX_SPI
 			sandbox,filename = "spi.bin";
 		};
 	  };
+
+config SPI_SIFIVE
+	bool "SiFive SPI driver"
+	help
+	  This driver supports the SiFive SPI IP. If unsure say N.
+	  Enable the SiFive SPI controller driver.
+
+	  The SiFive SPI controller driver is found on various SiFive SoCs.
 
 config SPI_SUNXI
 	bool "Allwinner SoC SPI controllers"
