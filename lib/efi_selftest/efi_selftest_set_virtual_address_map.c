@@ -123,6 +123,7 @@ static int setup(const efi_handle_t handle,
 		case EFI_LOADER_DATA:
 		case EFI_BOOT_SERVICES_CODE:
 		case EFI_BOOT_SERVICES_DATA:
+		case EFI_CONVENTIONAL_MEMORY:
 			continue;
 		}
 		memcpy(pos1, pos2, desc_size);
