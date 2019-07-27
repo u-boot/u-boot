@@ -403,7 +403,20 @@ int board_phy_config(struct phy_device *phydev)
 int checkboard(void)
 {
 #ifdef CONFIG_TARGET_BK4R1
-	puts("Board: BK4r1 (L333)\n");
+	u32 *gpio3_pdir = (u32 *)(GPIO3_BASE_ADDR + 0x10);
+
+	/*
+	 * USB_RESET_N (PTC30 - GPIO103 - PORT3[7]):
+	 * L333 -> pull up added -> read 1
+	 * L320 -> no pull up -> read 0
+	 *
+	 * Default iomuxc_ptc30 value after reset: 0x300061 -> RCON28
+	 * - input enabled, pull (up/down) disabled
+	 */
+	if (*gpio3_pdir & BIT(7))
+		puts("Board: BK4r1 (L333)\n");
+	else
+		puts("Board: BK4r1 (L320)\n");
 #else
 	puts("Board: PCM-052\n");
 #endif
