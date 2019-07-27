@@ -427,8 +427,8 @@ void efi_runtime_detach(void)
  * Return:		status code EFI_UNSUPPORTED
  */
 static __efi_runtime efi_status_t EFIAPI efi_set_virtual_address_map_runtime(
-			unsigned long memory_map_size,
-			unsigned long descriptor_size,
+			efi_uintn_t memory_map_size,
+			efi_uintn_t descriptor_size,
 			uint32_t descriptor_version,
 			struct efi_mem_desc *virtmap)
 {
@@ -571,17 +571,17 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
  * Return:		status code
  */
 static efi_status_t EFIAPI efi_set_virtual_address_map(
-			unsigned long memory_map_size,
-			unsigned long descriptor_size,
+			efi_uintn_t memory_map_size,
+			efi_uintn_t descriptor_size,
 			uint32_t descriptor_version,
 			struct efi_mem_desc *virtmap)
 {
-	int n = memory_map_size / descriptor_size;
-	int i;
+	efi_uintn_t n = memory_map_size / descriptor_size;
+	efi_uintn_t i;
 	int rt_code_sections = 0;
 	struct efi_event *event;
 
-	EFI_ENTRY("%lx %lx %x %p", memory_map_size, descriptor_size,
+	EFI_ENTRY("%zx %zx %x %p", memory_map_size, descriptor_size,
 		  descriptor_version, virtmap);
 
 	/*
