@@ -16,6 +16,7 @@
 #include <dm.h>
 #include <dm/uclass-internal.h>
 #include <dm/pinctrl.h>
+#include <linux/soc/ti/ti_sci_protocol.h>
 
 #ifdef CONFIG_SPL_BUILD
 static void mmr_unlock(u32 base, u32 partition)
@@ -209,8 +210,63 @@ u32 spl_boot_device(void)
 }
 #endif
 
-#ifndef CONFIG_SYSRESET
-void reset_cpu(ulong ignored)
+#ifdef CONFIG_SYS_K3_SPL_ATF
+
+#define AM6_DEV_MCU_RTI0			134
+#define AM6_DEV_MCU_RTI1			135
+#define AM6_DEV_MCU_ARMSS0_CPU0			159
+#define AM6_DEV_MCU_ARMSS0_CPU1			245
+
+void release_resources_for_core_shutdown(void)
 {
+	struct udevice *dev;
+	struct ti_sci_handle *ti_sci;
+	struct ti_sci_dev_ops *dev_ops;
+	struct ti_sci_proc_ops *proc_ops;
+	int ret;
+	u32 i;
+
+	const u32 put_device_ids[] = {
+		AM6_DEV_MCU_RTI0,
+		AM6_DEV_MCU_RTI1,
+	};
+
+	/* Get handle to Device Management and Security Controller (SYSFW) */
+	ret = uclass_get_device_by_name(UCLASS_FIRMWARE, "dmsc", &dev);
+	if (ret)
+		panic("Failed to get handle to SYSFW (%d)\n", ret);
+
+	ti_sci = (struct ti_sci_handle *)(ti_sci_get_handle_from_sysfw(dev));
+	dev_ops = &ti_sci->ops.dev_ops;
+	proc_ops = &ti_sci->ops.proc_ops;
+
+	/* Iterate through list of devices to put (shutdown) */
+	for (i = 0; i < ARRAY_SIZE(put_device_ids); i++) {
+		u32 id = put_device_ids[i];
+
+		ret = dev_ops->put_device(ti_sci, id);
+		if (ret)
+			panic("Failed to put device %u (%d)\n", id, ret);
+	}
+
+	const u32 put_core_ids[] = {
+		AM6_DEV_MCU_ARMSS0_CPU1,
+		AM6_DEV_MCU_ARMSS0_CPU0,	/* Handle CPU0 after CPU1 */
+	};
+
+	/* Iterate through list of cores to put (shutdown) */
+	for (i = 0; i < ARRAY_SIZE(put_core_ids); i++) {
+		u32 id = put_core_ids[i];
+
+		/*
+		 * Queue up the core shutdown request. Note that this call
+		 * needs to be followed up by an actual invocation of an WFE
+		 * or WFI CPU instruction.
+		 */
+		ret = proc_ops->proc_shutdown_no_wait(ti_sci, id);
+		if (ret)
+			panic("Failed sending core %u shutdown message (%d)\n",
+			      id, ret);
+	}
 }
 #endif

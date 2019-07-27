@@ -353,10 +353,6 @@ int board_init(void)
 		 DAVINCI_SYSCFG_SUSPSRC_UART2),
 	       &davinci_syscfg_regs->suspsrc);
 
-	/* configure pinmux settings */
-	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
-		return 1;
-
 #ifdef CONFIG_USE_NOR
 	/* Set the GPIO direction as output */
 	clrbits_le32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
@@ -376,11 +372,6 @@ int board_init(void)
 #ifdef CONFIG_DRIVER_TI_EMAC
 	davinci_emac_mii_mode_sel(HAS_RMII);
 #endif /* CONFIG_DRIVER_TI_EMAC */
-
-	/* enable the console UART */
-	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
-		DAVINCI_UART_PWREMU_MGMT_UTRST),
-	       &davinci_uart2_ctrl_regs->pwremu_mgmt);
 
 	return 0;
 }

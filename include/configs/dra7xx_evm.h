@@ -26,9 +26,9 @@
 #endif
 
 #if (CONFIG_CONS_INDEX == 1)
-#define CONSOLEDEV			"ttyO0"
+#define CONSOLEDEV			"ttyS0"
 #elif (CONFIG_CONS_INDEX == 3)
-#define CONSOLEDEV			"ttyO2"
+#define CONSOLEDEV			"ttyS2"
 #endif
 #define CONFIG_SYS_NS16550_COM1		UART1_BASE	/* Base EVM has UART0 */
 #define CONFIG_SYS_NS16550_COM2		UART2_BASE	/* UART2 */

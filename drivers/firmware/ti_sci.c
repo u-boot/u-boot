@@ -87,9 +87,16 @@ struct ti_sci_info {
 	struct mbox_chan chan_notify;
 	struct ti_sci_xfer xfer;
 	struct list_head list;
+	struct list_head dev_list;
 	bool is_secure;
 	u8 host_id;
 	u8 seq;
+};
+
+struct ti_sci_exclusive_dev {
+	u32 id;
+	u32 count;
+	struct list_head list;
 };
 
 #define handle_to_ti_sci_info(h) container_of(h, struct ti_sci_info, handle)
@@ -101,7 +108,8 @@ struct ti_sci_info {
  * @msg_flags:	Flag to set for the message
  * @buf:	Buffer to be send to mailbox channel
  * @tx_message_size: transmit message size
- * @rx_message_size: receive message size
+ * @rx_message_size: receive message size. may be set to zero for send-only
+ *		     transactions.
  *
  * Helper function which is used by various command functions that are
  * exposed to clients of this driver for allocating a message traffic event.
@@ -121,7 +129,8 @@ static struct ti_sci_xfer *ti_sci_setup_one_xfer(struct ti_sci_info *info,
 	/* Ensure we have sane transfer sizes */
 	if (rx_message_size > info->desc->max_msg_size ||
 	    tx_message_size > info->desc->max_msg_size ||
-	    rx_message_size < sizeof(*hdr) || tx_message_size < sizeof(*hdr))
+	    (rx_message_size > 0 && rx_message_size < sizeof(*hdr)) ||
+	    tx_message_size < sizeof(*hdr))
 		return ERR_PTR(-ERANGE);
 
 	info->seq = ~info->seq;
@@ -219,7 +228,9 @@ static inline int ti_sci_do_xfer(struct ti_sci_info *info,
 
 		xfer->tx_message.buf = (u32 *)secure_buf;
 		xfer->tx_message.len += sizeof(secure_hdr);
-		xfer->rx_len += sizeof(secure_hdr);
+
+		if (xfer->rx_len)
+			xfer->rx_len += sizeof(secure_hdr);
 	}
 
 	/* Send the message */
@@ -230,7 +241,11 @@ static inline int ti_sci_do_xfer(struct ti_sci_info *info,
 		return ret;
 	}
 
-	return ti_sci_get_response(info, xfer, &info->chan_rx);
+	/* Get response if requested */
+	if (xfer->rx_len)
+		ret = ti_sci_get_response(info, xfer, &info->chan_rx);
+
+	return ret;
 }
 
 /**
@@ -419,6 +434,47 @@ static int ti_sci_cmd_set_board_config_pm(const struct ti_sci_handle *handle,
 					      addr, size);
 }
 
+static struct ti_sci_exclusive_dev
+*ti_sci_get_exclusive_dev(struct list_head *dev_list, u32 id)
+{
+	struct ti_sci_exclusive_dev *dev;
+
+	list_for_each_entry(dev, dev_list, list)
+		if (dev->id == id)
+			return dev;
+
+	return NULL;
+}
+
+static void ti_sci_add_exclusive_dev(struct ti_sci_info *info, u32 id)
+{
+	struct ti_sci_exclusive_dev *dev;
+
+	dev = ti_sci_get_exclusive_dev(&info->dev_list, id);
+	if (dev) {
+		dev->count++;
+		return;
+	}
+
+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+	dev->id = id;
+	dev->count = 1;
+	INIT_LIST_HEAD(&dev->list);
+	list_add_tail(&dev->list, &info->dev_list);
+}
+
+static void ti_sci_delete_exclusive_dev(struct ti_sci_info *info, u32 id)
+{
+	struct ti_sci_exclusive_dev *dev;
+
+	dev = ti_sci_get_exclusive_dev(&info->dev_list, id);
+	if (!dev)
+		return;
+
+	if (dev->count > 0)
+		dev->count--;
+}
+
 /**
  * ti_sci_set_device_state() - Set device state helper
  * @handle:	pointer to TI SCI handle
@@ -465,6 +521,54 @@ static int ti_sci_set_device_state(const struct ti_sci_handle *handle,
 
 	if (!ti_sci_is_response_ack(resp))
 		return -ENODEV;
+
+	if (state == MSG_DEVICE_SW_STATE_AUTO_OFF)
+		ti_sci_delete_exclusive_dev(info, id);
+	else if (flags & MSG_FLAG_DEVICE_EXCLUSIVE)
+		ti_sci_add_exclusive_dev(info, id);
+
+	return ret;
+}
+
+/**
+ * ti_sci_set_device_state_no_wait() - Set device state helper without
+ *				       requesting or waiting for a response.
+ * @handle:	pointer to TI SCI handle
+ * @id:		Device identifier
+ * @flags:	flags to setup for the device
+ * @state:	State to move the device to
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static int ti_sci_set_device_state_no_wait(const struct ti_sci_handle *handle,
+					   u32 id, u32 flags, u8 state)
+{
+	struct ti_sci_msg_req_set_device_state req;
+	struct ti_sci_info *info;
+	struct ti_sci_xfer *xfer;
+	int ret = 0;
+
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+	if (!handle)
+		return -EINVAL;
+
+	info = handle_to_ti_sci_info(handle);
+
+	xfer = ti_sci_setup_one_xfer(info, TI_SCI_MSG_SET_DEVICE_STATE,
+				     flags | TI_SCI_FLAG_REQ_GENERIC_NORESPONSE,
+				     (u32 *)&req, sizeof(req), 0);
+	if (IS_ERR(xfer)) {
+		ret = PTR_ERR(xfer);
+		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
+		return ret;
+	}
+	req.id = id;
+	req.state = state;
+
+	ret = ti_sci_do_xfer(info, xfer);
+	if (ret)
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
 
 	return ret;
 }
@@ -547,8 +651,14 @@ static int ti_sci_get_device_state(const struct ti_sci_handle *handle,
  */
 static int ti_sci_cmd_get_device(const struct ti_sci_handle *handle, u32 id)
 {
-	return ti_sci_set_device_state(handle, id,
-				       MSG_FLAG_DEVICE_EXCLUSIVE,
+	return ti_sci_set_device_state(handle, id, 0,
+				       MSG_DEVICE_SW_STATE_ON);
+}
+
+static int ti_sci_cmd_get_device_exclusive(const struct ti_sci_handle *handle,
+					   u32 id)
+{
+	return ti_sci_set_device_state(handle, id, MSG_FLAG_DEVICE_EXCLUSIVE,
 				       MSG_DEVICE_SW_STATE_ON);
 }
 
@@ -566,7 +676,14 @@ static int ti_sci_cmd_get_device(const struct ti_sci_handle *handle, u32 id)
 static int ti_sci_cmd_idle_device(const struct ti_sci_handle *handle, u32 id)
 {
 	return ti_sci_set_device_state(handle, id,
-				       MSG_FLAG_DEVICE_EXCLUSIVE,
+				       0,
+				       MSG_DEVICE_SW_STATE_RETENTION);
+}
+
+static int ti_sci_cmd_idle_device_exclusive(const struct ti_sci_handle *handle,
+					    u32 id)
+{
+	return ti_sci_set_device_state(handle, id, MSG_FLAG_DEVICE_EXCLUSIVE,
 				       MSG_DEVICE_SW_STATE_RETENTION);
 }
 
@@ -583,8 +700,27 @@ static int ti_sci_cmd_idle_device(const struct ti_sci_handle *handle, u32 id)
  */
 static int ti_sci_cmd_put_device(const struct ti_sci_handle *handle, u32 id)
 {
-	return ti_sci_set_device_state(handle, id,
-				       0, MSG_DEVICE_SW_STATE_AUTO_OFF);
+	return ti_sci_set_device_state(handle, id, 0,
+				       MSG_DEVICE_SW_STATE_AUTO_OFF);
+}
+
+static
+int ti_sci_cmd_release_exclusive_devices(const struct ti_sci_handle *handle)
+{
+	struct ti_sci_exclusive_dev *dev, *tmp;
+	struct ti_sci_info *info;
+	int i, cnt;
+
+	info = handle_to_ti_sci_info(handle);
+
+	list_for_each_entry_safe(dev, tmp, &info->dev_list, list) {
+		cnt = dev->count;
+		debug("%s: id = %d, cnt = %d\n", __func__, dev->id, cnt);
+		for (i = 0; i < cnt; i++)
+			ti_sci_cmd_put_device(handle, dev->id);
+	}
+
+	return 0;
 }
 
 /**
@@ -2027,6 +2163,137 @@ static int ti_sci_cmd_get_proc_boot_status(const struct ti_sci_handle *handle,
 }
 
 /**
+ * ti_sci_proc_wait_boot_status_no_wait() - Helper function to wait for a
+ *				processor boot status without requesting or
+ *				waiting for a response.
+ * @proc_id:			Processor ID this request is for
+ * @num_wait_iterations:	Total number of iterations we will check before
+ *				we will timeout and give up
+ * @num_match_iterations:	How many iterations should we have continued
+ *				status to account for status bits glitching.
+ *				This is to make sure that match occurs for
+ *				consecutive checks. This implies that the
+ *				worst case should consider that the stable
+ *				time should at the worst be num_wait_iterations
+ *				num_match_iterations to prevent timeout.
+ * @delay_per_iteration_us:	Specifies how long to wait (in micro seconds)
+ *				between each status checks. This is the minimum
+ *				duration, and overhead of register reads and
+ *				checks are on top of this and can vary based on
+ *				varied conditions.
+ * @delay_before_iterations_us:	Specifies how long to wait (in micro seconds)
+ *				before the very first check in the first
+ *				iteration of status check loop. This is the
+ *				minimum duration, and overhead of register
+ *				reads and checks are.
+ * @status_flags_1_set_all_wait:If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 1.
+ * @status_flags_1_set_any_wait:If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 1.
+ * @status_flags_1_clr_all_wait:If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 0.
+ * @status_flags_1_clr_any_wait:If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 0.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+static int
+ti_sci_proc_wait_boot_status_no_wait(const struct ti_sci_handle *handle,
+				     u8 proc_id,
+				     u8 num_wait_iterations,
+				     u8 num_match_iterations,
+				     u8 delay_per_iteration_us,
+				     u8 delay_before_iterations_us,
+				     u32 status_flags_1_set_all_wait,
+				     u32 status_flags_1_set_any_wait,
+				     u32 status_flags_1_clr_all_wait,
+				     u32 status_flags_1_clr_any_wait)
+{
+	struct ti_sci_msg_req_wait_proc_boot_status req;
+	struct ti_sci_info *info;
+	struct ti_sci_xfer *xfer;
+	int ret = 0;
+
+	if (IS_ERR(handle))
+		return PTR_ERR(handle);
+	if (!handle)
+		return -EINVAL;
+
+	info = handle_to_ti_sci_info(handle);
+
+	xfer = ti_sci_setup_one_xfer(info, TISCI_MSG_WAIT_PROC_BOOT_STATUS,
+				     TI_SCI_FLAG_REQ_GENERIC_NORESPONSE,
+				     (u32 *)&req, sizeof(req), 0);
+	if (IS_ERR(xfer)) {
+		ret = PTR_ERR(xfer);
+		dev_err(info->dev, "Message alloc failed(%d)\n", ret);
+		return ret;
+	}
+	req.processor_id = proc_id;
+	req.num_wait_iterations = num_wait_iterations;
+	req.num_match_iterations = num_match_iterations;
+	req.delay_per_iteration_us = delay_per_iteration_us;
+	req.delay_before_iterations_us = delay_before_iterations_us;
+	req.status_flags_1_set_all_wait = status_flags_1_set_all_wait;
+	req.status_flags_1_set_any_wait = status_flags_1_set_any_wait;
+	req.status_flags_1_clr_all_wait = status_flags_1_clr_all_wait;
+	req.status_flags_1_clr_any_wait = status_flags_1_clr_any_wait;
+
+	ret = ti_sci_do_xfer(info, xfer);
+	if (ret)
+		dev_err(info->dev, "Mbox send fail %d\n", ret);
+
+	return ret;
+}
+
+/**
+ * ti_sci_cmd_proc_shutdown_no_wait() - Command to shutdown a core without
+ *		requesting or waiting for a response. Note that this API call
+ *		should be followed by placing the respective processor into
+ *		either WFE or WFI mode.
+ * @handle:	Pointer to TI SCI handle
+ * @proc_id:	Processor ID this request is for
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+static int ti_sci_cmd_proc_shutdown_no_wait(const struct ti_sci_handle *handle,
+					    u8 proc_id)
+{
+	int ret;
+
+	/*
+	 * Send the core boot status wait message waiting for either WFE or
+	 * WFI without requesting or waiting for a TISCI response with the
+	 * maximum wait time to give us the best chance to get to the WFE/WFI
+	 * command that should follow the invocation of this API before the
+	 * DMSC-internal processing of this command times out. Note that
+	 * waiting for the R5 WFE/WFI flags will also work on an ARMV8 type
+	 * core as the related flag bit positions are the same.
+	 */
+	ret = ti_sci_proc_wait_boot_status_no_wait(handle, proc_id,
+		U8_MAX, 100, U8_MAX, U8_MAX,
+		0, PROC_BOOT_STATUS_FLAG_R5_WFE | PROC_BOOT_STATUS_FLAG_R5_WFI,
+		0, 0);
+	if (ret) {
+		dev_err(info->dev, "Sending core %u wait message fail %d\n",
+			proc_id, ret);
+		return ret;
+	}
+
+	/*
+	 * Release a processor managed by TISCI without requesting or waiting
+	 * for a response.
+	 */
+	ret = ti_sci_set_device_state_no_wait(handle, proc_id, 0,
+					      MSG_DEVICE_SW_STATE_AUTO_OFF);
+	if (ret)
+		dev_err(info->dev, "Sending core %u shutdown message fail %d\n",
+			proc_id, ret);
+
+	return ret;
+}
+
+/**
  * ti_sci_cmd_ring_config() - configure RA ring
  * @handle:	pointer to TI SCI handle
  * @valid_params: Bitfield defining validity of ring configuration parameters.
@@ -2632,7 +2899,9 @@ static void ti_sci_setup_ops(struct ti_sci_info *info)
 	bops->board_config_pm = ti_sci_cmd_set_board_config_pm;
 
 	dops->get_device = ti_sci_cmd_get_device;
+	dops->get_device_exclusive = ti_sci_cmd_get_device_exclusive;
 	dops->idle_device = ti_sci_cmd_idle_device;
+	dops->idle_device_exclusive = ti_sci_cmd_idle_device_exclusive;
 	dops->put_device = ti_sci_cmd_put_device;
 	dops->is_valid = ti_sci_cmd_dev_is_valid;
 	dops->get_context_loss_count = ti_sci_cmd_dev_get_clcnt;
@@ -2642,6 +2911,7 @@ static void ti_sci_setup_ops(struct ti_sci_info *info)
 	dops->is_transitioning = ti_sci_cmd_dev_is_trans;
 	dops->set_device_resets = ti_sci_cmd_set_device_resets;
 	dops->get_device_resets = ti_sci_cmd_get_device_resets;
+	dops->release_exclusive_devices = ti_sci_cmd_release_exclusive_devices;
 
 	cops->get_clock = ti_sci_cmd_get_clock;
 	cops->idle_clock = ti_sci_cmd_idle_clock;
@@ -2672,6 +2942,7 @@ static void ti_sci_setup_ops(struct ti_sci_info *info)
 	pops->set_proc_boot_ctrl = ti_sci_cmd_set_proc_boot_ctrl;
 	pops->proc_auth_boot_image = ti_sci_cmd_proc_auth_boot_image;
 	pops->get_proc_boot_status = ti_sci_cmd_get_proc_boot_status;
+	pops->proc_shutdown_no_wait = ti_sci_cmd_proc_shutdown_no_wait;
 
 	rops->config = ti_sci_cmd_ring_config;
 	rops->get_config = ti_sci_cmd_ring_get_config;
@@ -2834,6 +3105,8 @@ static int ti_sci_probe(struct udevice *dev)
 	ti_sci_setup_ops(info);
 
 	ret = ti_sci_cmd_get_revision(&info->handle);
+
+	INIT_LIST_HEAD(&info->dev_list);
 
 	return ret;
 }

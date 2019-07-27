@@ -19,14 +19,6 @@
 #endif
 
 /*
-* Disable DM_* for SPL build and can be re-enabled after adding
-* DM support in SPL
-*/
-#ifdef CONFIG_SPL_BUILD
-#undef CONFIG_DM_I2C
-#undef CONFIG_DM_I2C_COMPAT
-#endif
-/*
  * SoC Configuration
  */
 #define CONFIG_SYS_EXCEPTION_VECTORS_HIGH
@@ -268,12 +260,8 @@
 #endif
 
 /* USB Configs */
-#define CONFIG_SYS_USB_OHCI_CPU_INIT
 #define CONFIG_USB_OHCI_NEW
-#define CONFIG_USB_STORAGE
-#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x01E25000
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	15
-#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"da850evm"
 
 #ifndef CONFIG_DIRECT_NOR_BOOT
 /* defines for SPL */

@@ -105,6 +105,9 @@ struct ti_sci_board_ops {
  *		-reset_state: pointer to u32 which will retrieve resets
  *		Returns 0 for successful request, else returns
  *		corresponding error message.
+ * @release_exclusive_devices: Command to release all the exclusive devices
+ *		attached to this host. This should be used very carefully
+ *		and only at the end of execution of your software.
  *
  * NOTE: for all these functions, the following parameters are generic in
  * nature:
@@ -117,7 +120,10 @@ struct ti_sci_board_ops {
  */
 struct ti_sci_dev_ops {
 	int (*get_device)(const struct ti_sci_handle *handle, u32 id);
+	int (*get_device_exclusive)(const struct ti_sci_handle *handle, u32 id);
 	int (*idle_device)(const struct ti_sci_handle *handle, u32 id);
+	int (*idle_device_exclusive)(const struct ti_sci_handle *handle,
+				     u32 id);
 	int (*put_device)(const struct ti_sci_handle *handle, u32 id);
 	int (*is_valid)(const struct ti_sci_handle *handle, u32 id);
 	int (*get_context_loss_count)(const struct ti_sci_handle *handle,
@@ -134,6 +140,7 @@ struct ti_sci_dev_ops {
 				 u32 reset_state);
 	int (*get_device_resets)(const struct ti_sci_handle *handle, u32 id,
 				 u32 *reset_state);
+	int (*release_exclusive_devices)(const struct ti_sci_handle *handle);
 };
 
 /**
@@ -263,6 +270,8 @@ struct ti_sci_core_ops {
  * @set_proc_boot_ctrl: Setup limited control flags in specific cases.
  * @proc_auth_boot_image:
  * @get_proc_boot_status: Get the state of physical processor
+ * @proc_shutdown_no_wait: Shutdown a core without requesting or waiting for a
+ *			   response.
  *
  * NOTE: for all these functions, the following parameters are generic in
  * nature:
@@ -284,6 +293,8 @@ struct ti_sci_proc_ops {
 	int (*get_proc_boot_status)(const struct ti_sci_handle *handle, u8 pid,
 				    u64 *bv, u32 *cfg_flags, u32 *ctrl_flags,
 				    u32 *sts_flags);
+	int (*proc_shutdown_no_wait)(const struct ti_sci_handle *handle,
+				     u8 pid);
 };
 
 #define TI_SCI_RING_MODE_RING			(0)

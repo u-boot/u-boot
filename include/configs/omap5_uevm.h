@@ -53,7 +53,7 @@
 
 /* USB Networking options */
 
-#define CONSOLEDEV		"ttyO2"
+#define CONSOLEDEV		"ttyS2"
 
 #define CONFIG_SCSI_AHCI_PLAT
 #define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
