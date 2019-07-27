@@ -373,6 +373,9 @@ static int sunxi_dw_hdmi_probe(struct udevice *dev)
 	priv->hdmi.phy_set = sunxi_dw_hdmi_phy_cfg;
 	priv->mux = uc_plat->source_id;
 
+	uclass_get_device_by_phandle(UCLASS_I2C, dev, "ddc-i2c-bus",
+				     &priv->hdmi.ddc_bus);
+
 	dw_hdmi_init(&priv->hdmi);
 
 	return 0;

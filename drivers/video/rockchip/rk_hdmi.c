@@ -93,6 +93,9 @@ int rk_hdmi_ofdata_to_platdata(struct udevice *dev)
 
 	priv->grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 
+	uclass_get_device_by_phandle(UCLASS_I2C, dev, "ddc-i2c-bus",
+				     &hdmi->ddc_bus);
+
 	return 0;
 }
 

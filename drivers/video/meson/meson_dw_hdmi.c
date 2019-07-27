@@ -375,6 +375,9 @@ static int meson_dw_hdmi_probe(struct udevice *dev)
 	}
 #endif
 
+	uclass_get_device_by_phandle(UCLASS_I2C, dev, "ddc-i2c-bus",
+				     &priv->hdmi.ddc_bus);
+
 	ret = reset_get_bulk(dev, &resets);
 	if (ret)
 		return ret;
