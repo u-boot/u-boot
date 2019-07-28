@@ -27,16 +27,6 @@
 
 #define CONFIG_PREBOOT "pci enum"
 
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	CONFIG_STD_DEVICES_SETTINGS \
-	"scriptaddr=0x7000000\0" \
-	"kernel_addr_r=0x1000000\0" \
-	"ramdisk_addr_r=0x4000000\0" \
-	"consoledev=ttyS0\0" \
-	CONFIG_OTHBOOTARGS \
-	BOOTENV
-
 #define CONFIG_SYS_MONITOR_LEN		(1 << 20)
 
 #define CONFIG_STD_DEVICES_SETTINGS	"stdin=serial,i8042-kbd\0" \
