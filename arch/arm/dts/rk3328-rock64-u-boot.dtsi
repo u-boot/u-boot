@@ -25,10 +25,8 @@
 
 &emmc {
 	u-boot,dm-pre-reloc;
-	fifo-mode;
 };
 
 &sdmmc {
 	u-boot,dm-pre-reloc;
-	fifo-mode;
 };
