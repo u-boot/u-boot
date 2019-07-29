@@ -936,10 +936,11 @@ int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size)
 	fpgamgr_program_write(rbf_data, rbf_size);
 
 	status = fpgamgr_program_finish();
-	if (status) {
-		config_pins(gd->fdt_blob, "fpga");
-		puts("FPGA: Enter user mode.\n");
-	}
+	if (status)
+		return status;
+
+	config_pins(gd->fdt_blob, "fpga");
+	puts("FPGA: Enter user mode.\n");
 
 	return status;
 }

@@ -8,7 +8,6 @@
 obj-y	+= board.o
 obj-y	+= clock_manager.o
 obj-y	+= misc.o
-obj-y	+= reset_manager.o
 
 ifdef CONFIG_TARGET_SOCFPGA_GEN5
 obj-y	+= clock_manager_gen5.o

@@ -11,6 +11,7 @@ void reset_cpu(ulong addr);
 void socfpga_per_reset(u32 reset, int set);
 void socfpga_per_reset_all(void);
 
+#define RSTMGR_CTRL_SWCOLDRSTREQ_LSB 0
 #define RSTMGR_CTRL_SWWARMRSTREQ_LSB 1
 
 /*
