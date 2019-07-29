@@ -22,6 +22,11 @@ config R8A77970
 	imply CLK_R8A77970
 	imply PINCTRL_PFC_R8A77970
 
+config R8A77980
+	bool "Renesas SoC R8A77980"
+	imply CLK_R8A77980
+	imply PINCTRL_PFC_R8A77980
+
 config R8A77990
 	bool "Renesas SoC R8A77990"
 	imply CLK_R8A77990
