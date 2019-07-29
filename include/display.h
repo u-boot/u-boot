@@ -80,6 +80,16 @@ struct dm_display_ops {
 	 */
 	int (*enable)(struct udevice *dev, int panel_bpp,
 		      const struct display_timing *timing);
+
+	/**
+	 * mode_valid() - Check if mode is supported
+	 *
+	 * @dev:	Device to enable
+	 * @timing:	Display timings
+	 * @return true if supported, false if not
+	 */
+	bool (*mode_valid)(struct udevice *dev,
+			   const struct display_timing *timing);
 };
 
 #define display_get_ops(dev)	((struct dm_display_ops *)(dev)->driver->ops)

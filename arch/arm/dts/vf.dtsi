@@ -145,6 +145,12 @@
 				#gpio-cells = <2>;
 			};
 
+			dcu0: dcu@40058000 {
+				compatible = "fsl,vf610-dcu";
+				reg = <0x40058000 0x1200>;
+				status = "disabled";
+			};
+
 			ehci0: ehci@40034000 {
 				compatible = "fsl,vf610-usb";
 				reg = <0x40034000 0x800>;

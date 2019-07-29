@@ -542,6 +542,7 @@ struct dw_hdmi {
 	u8 i2c_clk_low;
 	u8 reg_io_width;
 	struct hdmi_data_info hdmi_data;
+	struct udevice *ddc_bus;
 
 	int (*phy_set)(struct dw_hdmi *hdmi, uint mpixelclock);
 	void (*write_reg)(struct dw_hdmi *hdmi, u8 val, int offset);

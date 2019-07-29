@@ -8,6 +8,7 @@
 #include <common.h>
 #include <fdtdec.h>
 #include <asm/io.h>
+#include <i2c.h>
 #include <media_bus_format.h>
 #include "dw_hdmi.h"
 
@@ -811,6 +812,18 @@ static int hdmi_read_edid(struct dw_hdmi *hdmi, int block, u8 *buff)
 	int edid_read_err = 0;
 	u32 trytime = 5;
 	u32 n;
+
+	if (CONFIG_IS_ENABLED(DM_I2C) && hdmi->ddc_bus) {
+		struct udevice *chip;
+
+		edid_read_err = i2c_get_chip(hdmi->ddc_bus,
+					     HDMI_I2CM_SLAVE_DDC_ADDR,
+					     1, &chip);
+		if (edid_read_err)
+			return edid_read_err;
+
+		return dm_i2c_read(chip, shift, buff, HDMI_EDID_BLOCK_SIZE);
+	}
 
 	/* set ddc i2c clk which devided from ddc_clk to 100khz */
 	hdmi_write(hdmi, hdmi->i2c_clk_high, HDMI_I2CM_SS_SCL_HCNT_0_ADDR);

@@ -375,6 +375,9 @@ static int meson_dw_hdmi_probe(struct udevice *dev)
 	}
 #endif
 
+	uclass_get_device_by_phandle(UCLASS_I2C, dev, "ddc-i2c-bus",
+				     &priv->hdmi.ddc_bus);
+
 	ret = reset_get_bulk(dev, &resets);
 	if (ret)
 		return ret;
@@ -426,9 +429,16 @@ static int meson_dw_hdmi_probe(struct udevice *dev)
 	return ret;
 }
 
+static bool meson_dw_hdmi_mode_valid(struct udevice *dev,
+				     const struct display_timing *timing)
+{
+	return meson_venc_hdmi_supported_mode(timing);
+}
+
 static const struct dm_display_ops meson_dw_hdmi_ops = {
 	.read_edid = meson_dw_hdmi_read_edid,
 	.enable = meson_dw_hdmi_enable,
+	.mode_valid = meson_dw_hdmi_mode_valid,
 };
 
 static const struct udevice_id meson_dw_hdmi_ids[] = {

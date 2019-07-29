@@ -484,7 +484,7 @@ config VIDEO_IVYBRIDGE_IGD
 
 config VIDEO_FSL_DCU_FB
 	bool "Enable Freescale Display Control Unit"
-	depends on VIDEO
+	depends on VIDEO || DM_VIDEO
 	help
 	 This enables support for Freescale Display Control Unit (DCU4)
 	 module found on Freescale Vybrid and QorIQ family of SoCs.

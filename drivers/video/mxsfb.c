@@ -271,6 +271,42 @@ dealloc_fb:
 }
 #else /* ifndef CONFIG_DM_VIDEO */
 
+static int mxs_of_get_timings(struct udevice *dev,
+			      struct display_timing *timings,
+			      u32 *bpp)
+{
+	int ret = 0;
+	u32 display_phandle;
+	ofnode display_node;
+
+	ret = ofnode_read_u32(dev_ofnode(dev), "display", &display_phandle);
+	if (ret) {
+		dev_err(dev, "required display property isn't provided\n");
+		return -EINVAL;
+	}
+
+	display_node = ofnode_get_by_phandle(display_phandle);
+	if (!ofnode_valid(display_node)) {
+		dev_err(dev, "failed to find display subnode\n");
+		return -EINVAL;
+	}
+
+	ret = ofnode_read_u32(display_node, "bits-per-pixel", bpp);
+	if (ret) {
+		dev_err(dev,
+			"required bits-per-pixel property isn't provided\n");
+		return -EINVAL;
+	}
+
+	ret = ofnode_decode_display_timing(display_node, 0, timings);
+	if (ret) {
+		dev_err(dev, "failed to get any display timings\n");
+		return -EINVAL;
+	}
+
+	return ret;
+}
+
 static int mxs_video_probe(struct udevice *dev)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
@@ -278,18 +314,16 @@ static int mxs_video_probe(struct udevice *dev)
 
 	struct ctfb_res_modes mode;
 	struct display_timing timings;
-	int bpp = -1;
+	u32 bpp = 0;
 	u32 fb_start, fb_end;
 	int ret;
 
 	debug("%s() plat: base 0x%lx, size 0x%x\n",
 	       __func__, plat->base, plat->size);
 
-	ret = ofnode_decode_display_timing(dev_ofnode(dev), 0, &timings);
-	if (ret) {
-		dev_err(dev, "failed to get any display timings\n");
-		return -EINVAL;
-	}
+	ret = mxs_of_get_timings(dev, &timings, &bpp);
+	if (ret)
+		return ret;
 
 	mode.xres = timings.hactive.typ;
 	mode.yres = timings.vactive.typ;
@@ -301,13 +335,12 @@ static int mxs_video_probe(struct udevice *dev)
 	mode.vsync_len = timings.vsync_len.typ;
 	mode.pixclock = HZ2PS(timings.pixelclock.typ);
 
-	bpp = BITS_PP;
-
 	ret = mxs_probe_common(&mode, bpp, plat->base);
 	if (ret)
 		return ret;
 
 	switch (bpp) {
+	case 32:
 	case 24:
 	case 18:
 		uc_priv->bpix = VIDEO_BPP32;
@@ -341,15 +374,32 @@ static int mxs_video_bind(struct udevice *dev)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 	struct display_timing timings;
+	u32 bpp = 0;
+	u32 bytes_pp = 0;
 	int ret;
 
-	ret = ofnode_decode_display_timing(dev_ofnode(dev), 0, &timings);
-	if (ret) {
-		dev_err(dev, "failed to get any display timings\n");
+	ret = mxs_of_get_timings(dev, &timings, &bpp);
+	if (ret)
+		return ret;
+
+	switch (bpp) {
+	case 32:
+	case 24:
+	case 18:
+		bytes_pp = 4;
+		break;
+	case 16:
+		bytes_pp = 2;
+		break;
+	case 8:
+		bytes_pp = 1;
+		break;
+	default:
+		dev_err(dev, "invalid bpp specified (bpp = %i)\n", bpp);
 		return -EINVAL;
 	}
 
-	plat->size = timings.hactive.typ * timings.vactive.typ * BYTES_PP;
+	plat->size = timings.hactive.typ * timings.vactive.typ * bytes_pp;
 
 	return 0;
 }
