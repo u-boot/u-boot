@@ -43,6 +43,12 @@ choice
 	prompt "Renesas ARM64 SoCs board select"
 	optional
 
+config TARGET_CONDOR
+	bool "Condor board"
+	imply R8A77980
+	help
+          Support for Renesas R-Car Gen3 Condor platform
+
 config TARGET_DRAAK
 	bool "Draak board"
 	imply R8A77995
@@ -88,6 +94,7 @@ endchoice
 config SYS_SOC
 	default "rmobile"
 
+source "board/renesas/condor/Kconfig"
 source "board/renesas/draak/Kconfig"
 source "board/renesas/eagle/Kconfig"
 source "board/renesas/ebisu/Kconfig"
