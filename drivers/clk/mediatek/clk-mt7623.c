@@ -691,34 +691,42 @@ static const struct mtk_gate peri_cgs[] = {
 	GATE_PERI1(CLK_PERI_FCI, CLK_TOP_MS_CARD_SEL, 11),
 };
 
-/* ethsys */
-static const struct mtk_gate_regs eth_cg_regs = {
+/* ethsys and hifsys */
+static const struct mtk_gate_regs eth_hif_cg_regs = {
 	.sta_ofs = 0x30,
 };
 
-#define GATE_ETH(_id, _parent, _shift, _flag) {			\
+#define GATE_ETH_HIF(_id, _parent, _shift, _flag) {		\
 		.id = _id,					\
 		.parent = _parent,				\
-		.regs = &eth_cg_regs,				\
+		.regs = &eth_hif_cg_regs,			\
 		.shift = _shift,				\
 		.flags = CLK_GATE_NO_SETCLR_INV | (_flag),	\
 	}
 
-#define GATE_ETH0(_id, _parent, _shift)				\
-	GATE_ETH(_id, _parent, _shift, CLK_PARENT_APMIXED)
+#define GATE_ETH_HIF0(_id, _parent, _shift)				\
+	GATE_ETH_HIF(_id, _parent, _shift, CLK_PARENT_APMIXED)
 
-#define GATE_ETH1(_id, _parent, _shift)				\
-	GATE_ETH(_id, _parent, _shift, CLK_PARENT_TOPCKGEN)
+#define GATE_ETH_HIF1(_id, _parent, _shift)				\
+	GATE_ETH_HIF(_id, _parent, _shift, CLK_PARENT_TOPCKGEN)
 
 static const struct mtk_gate eth_cgs[] = {
-	GATE_ETH1(CLK_ETHSYS_HSDMA, CLK_TOP_ETHIF_SEL, 5),
-	GATE_ETH1(CLK_ETHSYS_ESW, CLK_TOP_ETHPLL_500M, 6),
-	GATE_ETH0(CLK_ETHSYS_GP2, CLK_APMIXED_TRGPLL, 7),
-	GATE_ETH1(CLK_ETHSYS_GP1, CLK_TOP_ETHPLL_500M, 8),
-	GATE_ETH1(CLK_ETHSYS_PCM, CLK_TOP_ETHIF_SEL, 11),
-	GATE_ETH1(CLK_ETHSYS_GDMA, CLK_TOP_ETHIF_SEL, 14),
-	GATE_ETH1(CLK_ETHSYS_I2S, CLK_TOP_ETHIF_SEL, 17),
-	GATE_ETH1(CLK_ETHSYS_CRYPTO, CLK_TOP_ETHIF_SEL, 29),
+	GATE_ETH_HIF1(CLK_ETHSYS_HSDMA, CLK_TOP_ETHIF_SEL, 5),
+	GATE_ETH_HIF1(CLK_ETHSYS_ESW, CLK_TOP_ETHPLL_500M, 6),
+	GATE_ETH_HIF0(CLK_ETHSYS_GP2, CLK_APMIXED_TRGPLL, 7),
+	GATE_ETH_HIF1(CLK_ETHSYS_GP1, CLK_TOP_ETHPLL_500M, 8),
+	GATE_ETH_HIF1(CLK_ETHSYS_PCM, CLK_TOP_ETHIF_SEL, 11),
+	GATE_ETH_HIF1(CLK_ETHSYS_GDMA, CLK_TOP_ETHIF_SEL, 14),
+	GATE_ETH_HIF1(CLK_ETHSYS_I2S, CLK_TOP_ETHIF_SEL, 17),
+	GATE_ETH_HIF1(CLK_ETHSYS_CRYPTO, CLK_TOP_ETHIF_SEL, 29),
+};
+
+static const struct mtk_gate hif_cgs[] = {
+	GATE_ETH_HIF1(CLK_HIFSYS_USB0PHY, CLK_TOP_ETHPLL_500M, 21),
+	GATE_ETH_HIF1(CLK_HIFSYS_USB1PHY, CLK_TOP_ETHPLL_500M, 22),
+	GATE_ETH_HIF1(CLK_HIFSYS_PCIE0, CLK_TOP_ETHPLL_500M, 24),
+	GATE_ETH_HIF1(CLK_HIFSYS_PCIE1, CLK_TOP_ETHPLL_500M, 25),
+	GATE_ETH_HIF1(CLK_HIFSYS_PCIE2, CLK_TOP_ETHPLL_500M, 26),
 };
 
 static const struct mtk_clk_tree mt7623_clk_tree = {
@@ -778,19 +786,24 @@ static int mt7623_pericfg_probe(struct udevice *dev)
 	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, peri_cgs);
 }
 
+static int mt7623_hifsys_probe(struct udevice *dev)
+{
+	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, hif_cgs);
+}
+
 static int mt7623_ethsys_probe(struct udevice *dev)
 {
 	return mtk_common_clk_gate_init(dev, &mt7623_clk_tree, eth_cgs);
 }
 
-static int mt7623_ethsys_bind(struct udevice *dev)
+static int mt7623_ethsys_hifsys_bind(struct udevice *dev)
 {
 	int ret = 0;
 
 #if CONFIG_IS_ENABLED(RESET_MEDIATEK)
-	ret = mediatek_reset_bind(dev, ETHSYS_RST_CTRL_OFS, 1);
+	ret = mediatek_reset_bind(dev, ETHSYS_HIFSYS_RST_CTRL_OFS, 1);
 	if (ret)
-		debug("Warning: failed to bind ethsys reset controller\n");
+		debug("Warning: failed to bind reset controller\n");
 #endif
 
 	return ret;
@@ -818,6 +831,11 @@ static const struct udevice_id mt7623_pericfg_compat[] = {
 
 static const struct udevice_id mt7623_ethsys_compat[] = {
 	{ .compatible = "mediatek,mt7623-ethsys" },
+	{ }
+};
+
+static const struct udevice_id mt7623_hifsys_compat[] = {
+	{ .compatible = "mediatek,mt7623-hifsys" },
 	{ }
 };
 
@@ -874,12 +892,22 @@ U_BOOT_DRIVER(mtk_clk_pericfg) = {
 	.flags = DM_FLAG_PRE_RELOC,
 };
 
+U_BOOT_DRIVER(mtk_clk_hifsys) = {
+	.name = "mt7623-clock-hifsys",
+	.id = UCLASS_CLK,
+	.of_match = mt7623_hifsys_compat,
+	.probe = mt7623_hifsys_probe,
+	.bind = mt7623_ethsys_hifsys_bind,
+	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
+	.ops = &mtk_clk_gate_ops,
+};
+
 U_BOOT_DRIVER(mtk_clk_ethsys) = {
 	.name = "mt7623-clock-ethsys",
 	.id = UCLASS_CLK,
 	.of_match = mt7623_ethsys_compat,
 	.probe = mt7623_ethsys_probe,
-	.bind = mt7623_ethsys_bind,
+	.bind = mt7623_ethsys_hifsys_bind,
 	.priv_auto_alloc_size = sizeof(struct mtk_cg_priv),
 	.ops = &mtk_clk_gate_ops,
 };

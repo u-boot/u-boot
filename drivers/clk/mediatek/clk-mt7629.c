@@ -608,9 +608,9 @@ static int mt7629_ethsys_bind(struct udevice *dev)
 	int ret = 0;
 
 #if CONFIG_IS_ENABLED(RESET_MEDIATEK)
-	ret = mediatek_reset_bind(dev, ETHSYS_RST_CTRL_OFS, 1);
+	ret = mediatek_reset_bind(dev, ETHSYS_HIFSYS_RST_CTRL_OFS, 1);
 	if (ret)
-		debug("Warning: failed to bind ethsys reset controller\n");
+		debug("Warning: failed to bind reset controller\n");
 #endif
 
 	return ret;
