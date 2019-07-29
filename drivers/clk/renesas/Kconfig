@@ -72,6 +72,12 @@ config CLK_R8A77970
 	help
 	  Enable this to support the clocks on Renesas R8A77970 SoC.
 
+config CLK_R8A77980
+	bool "Renesas R8A77980 clock driver"
+	depends on CLK_RCAR_GEN3
+	help
+	  Enable this to support the clocks on Renesas R8A77980 SoC.
+
 config CLK_R8A77990
 	bool "Renesas R8A77990 clock driver"
 	depends on CLK_RCAR_GEN3
