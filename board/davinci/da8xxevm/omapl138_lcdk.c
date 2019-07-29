@@ -14,6 +14,8 @@
 #include <asm/arch/hardware.h>
 #include <asm/ti-common/davinci_nand.h>
 #include <asm/io.h>
+#include <ns16550.h>
+#include <dm/platdata.h>
 #include <linux/errno.h>
 #include <asm/mach-types.h>
 #include <asm/arch/davinci_misc.h>
@@ -354,4 +356,18 @@ int board_mmc_init(bd_t *bis)
 	return davinci_mmc_init(bis, &mmc_sd0);
 }
 #endif
+#endif
+
+#ifdef CONFIG_SPL_BUILD
+static const struct ns16550_platdata serial_pdata = {
+	.base = DAVINCI_UART2_BASE,
+	.reg_shift = 2,
+	.clock = 228000000,
+	.fcr = UART_FCR_DEFVAL,
+};
+
+U_BOOT_DEVICE(omapl138_uart) = {
+	.name = "ns16550_serial",
+	.platdata = &serial_pdata,
+};
 #endif
