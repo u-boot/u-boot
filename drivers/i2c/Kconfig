@@ -12,18 +12,7 @@ config DM_I2C
 	  write and speed, is implemented with the bus drivers operations,
 	  which provide methods for bus setting and data transfer. Each chip
 	  device (bus child) info is kept as parent platdata. The interface
-	  is defined in include/i2c.h. When i2c bus driver supports the i2c
-	  uclass, but the device drivers not, then DM_I2C_COMPAT config can
-	  be used as compatibility layer.
-
-config DM_I2C_COMPAT
-	bool "Enable I2C compatibility layer"
-	depends on DM
-	help
-	  Enable old-style I2C functions for compatibility with existing code.
-	  This option can be enabled as a temporary measure to avoid needing
-	  to convert all code for a board in a single commit. It should not
-	  be enabled for any board in an official release.
+	  is defined in include/i2c.h.
 
 config I2C_CROS_EC_TUNNEL
 	tristate "Chrome OS EC tunnel I2C bus"

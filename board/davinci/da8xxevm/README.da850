@@ -29,9 +29,7 @@ Compilation
 ===========
 The exact build target you need will depend on the board you have.  For
 Logic PD boards, or other boards which store the ethernet MAC address at
-the end of SPI flash, run 'make da850evm'.  For boards which store the
-ethernet MAC address in the i2c EEPROM located at 0x50, run
-'make da850_am18xxevm'.  Once this build completes you will have a
+the end of SPI flash, run 'make da850evm'.  Once this build completes you will have a
 u-boot.ais file that needs to be written to the correct persistent
 storage.
 

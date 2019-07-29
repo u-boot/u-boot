@@ -7,10 +7,6 @@ F:	configs/da850evm_defconfig
 F:	configs/da850evm_nand_defconfig
 F:	configs/da850evm_direct_nor_defconfig
 
-AM18XXEVM BOARD
-S:	Orphan
-F:	configs/da850_am18xxevm_defconfig
-
 OMAPL138_LCDK BOARD
 M:	Peter Howard <phoward@gme.net.au>
 S:	Maintained

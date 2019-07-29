@@ -95,6 +95,4 @@ struct davinci_emif_regs {
 #define DAVINCI_ABCR_ASIZE_16BIT			1
 #define DAVINCI_ABCR_ASIZE_8BIT				0
 
-void davinci_nand_init(struct nand_chip *nand);
-
 #endif

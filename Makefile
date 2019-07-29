@@ -936,13 +936,6 @@ ifneq ($(CONFIG_DM_SPI)$(CONFIG_OF_CONTROL),yy)
 endif
 endif
 endif
-ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
-	@echo >&2 "===================== WARNING ======================"
-	@echo >&2 "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
-	@echo >&2 "(possibly in a subsequent patch in your series)"
-	@echo >&2 "before sending patches to the mailing list."
-	@echo >&2 "===================================================="
-endif
 ifeq ($(CONFIG_MMC),y)
 ifneq ($(CONFIG_DM_MMC)$(CONFIG_OF_CONTROL)$(CONFIG_BLK),yyy)
 	@echo >&2 "===================== WARNING ======================"
