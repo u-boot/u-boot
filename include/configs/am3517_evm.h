@@ -14,7 +14,6 @@
 
 #include <configs/ti_omap3_common.h>
 
-#undef CONFIG_DM_I2C_COMPAT
 #define CONFIG_REVISION_TAG
 
 /* Hardware drivers */
