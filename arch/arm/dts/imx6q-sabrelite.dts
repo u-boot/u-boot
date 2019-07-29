@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0+
+//
+// Copyright 2013-2019 Boundary Devices, Inc.
+// Copyright 2012 Freescale Semiconductor, Inc.
+// Copyright 2011 Linaro Ltd.
+
+/dts-v1/;
+
+#include "imx6q.dtsi"
+#include "imx6qdl-sabrelite.dtsi"
+
+/ {
+	model = "Freescale i.MX6 Quad SABRE Lite Board";
+	compatible = "fsl,imx6q-sabrelite", "fsl,imx6q";
+};
+
+&sata {
+	status = "okay";
+};

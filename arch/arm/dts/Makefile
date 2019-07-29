@@ -552,33 +552,42 @@ dtb-$(CONFIG_MX53) += imx53-cx9020.dtb \
 	imx53-kp.dtb \
 	imx53-m53menlo.dtb
 
-dtb-$(CONFIG_MX6Q) += \
-	imx6-apalis.dtb \
-	imx6q-display5.dtb \
-	imx6q-logicpd.dtb \
-	imx6q-novena.dtb \
-	imx6q-tbs2910.dtb
-
-dtb-$(CONFIG_MX6QDL) += \
+ifneq ($(CONFIG_MX6DL)$(CONFIG_MX6QDL)$(CONFIG_MX6S),)
+dtb-y += \
 	imx6dl-dhcom-pdk2.dtb \
 	imx6dl-icore.dtb \
 	imx6dl-icore-mipi.dtb \
 	imx6dl-icore-rqs.dtb \
 	imx6dl-mamoj.dtb \
+	imx6dl-nitrogen6x.dtb \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
 	imx6dl-wandboard-revb1.dtb \
+
+endif
+
+ifneq ($(CONFIG_MX6Q)$(CONFIG_MX6QDL),)
+dtb-y += \
+	imx6-apalis.dtb \
 	imx6q-cm-fx6.dtb \
 	imx6q-dhcom-pdk2.dtb \
+	imx6q-display5.dtb \
 	imx6q-icore.dtb \
 	imx6q-icore-mipi.dtb \
 	imx6q-icore-rqs.dtb \
+	imx6q-logicpd.dtb \
+	imx6q-nitrogen6x.dtb \
+	imx6q-novena.dtb \
 	imx6q-sabreauto.dtb \
+	imx6q-sabrelite.dtb \
 	imx6q-sabresd.dtb \
+	imx6q-tbs2910.dtb \
 	imx6q-wandboard-revb1.dtb \
 	imx6qp-sabreauto.dtb \
 	imx6qp-sabresd.dtb \
-	imx6qp-wandboard-revd1.dtb
+	imx6qp-wandboard-revd1.dtb \
+
+endif
 
 dtb-$(CONFIG_MX6SL) += imx6sl-evk.dtb
 
