@@ -10,6 +10,10 @@
 	soc@1c00000 {
 		u-boot,dm-spl;
 	};
+
+	nand {
+		compatible = "ti,davinci-nand";
+	};
 };
 
 &flash {

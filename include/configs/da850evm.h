@@ -174,6 +174,10 @@
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
 #define CONFIG_SPL_NAND_LOAD
+
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_SYS_NAND_SELF_INIT
+#endif
 #endif
 
 /*
