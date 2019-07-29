@@ -14,7 +14,7 @@ config DM_GPIO
 	  particular GPIOs that they provide. The uclass interface
 	  is defined in include/asm-generic/gpio.h.
 
-config DM_GPIO_HOG
+config GPIO_HOG
 	bool "Enable GPIO hog support"
 	depends on DM_GPIO
 	default n

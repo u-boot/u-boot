@@ -7,17 +7,12 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <bootstage.h>
-#include <bzlib.h>
 #include <errno.h>
 #include <fdt_support.h>
 #include <lmb.h>
 #include <malloc.h>
 #include <mapmem.h>
 #include <asm/io.h>
-#include <linux/lzo.h>
-#include <lzma/LzmaTypes.h>
-#include <lzma/LzmaDec.h>
-#include <lzma/LzmaTools.h>
 #if defined(CONFIG_CMD_USB)
 #include <usb.h>
 #endif
@@ -299,23 +294,7 @@ static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 #endif /* USE_HOSTC */
 
-/**
- * print_decomp_msg() - Print a suitable decompression/loading message
- *
- * @type:	OS type (IH_OS_...)
- * @comp_type:	Compression type being used (IH_COMP_...)
- * @is_xip:	true if the load address matches the image start
- */
-static void print_decomp_msg(int comp_type, int type, bool is_xip)
-{
-	const char *name = genimg_get_type_name(type);
-
-	if (comp_type == IH_COMP_NONE)
-		printf("   %s %s ... ", is_xip ? "XIP" : "Loading", name);
-	else
-		printf("   Uncompressing %s ... ", name);
-}
-
+#if !defined(USE_HOSTCC) || defined(CONFIG_FIT_SIGNATURE)
 /**
  * handle_decomp_error() - display a decompression error
  *
@@ -325,16 +304,18 @@ static void print_decomp_msg(int comp_type, int type, bool is_xip)
  *
  * @comp_type:		Compression type being used (IH_COMP_...)
  * @uncomp_size:	Number of bytes uncompressed
- * @unc_len:		Amount of space available for decompression
- * @ret:		Error code to report
- * @return BOOTM_ERR_RESET, indicating that the board must be reset
+ * @ret:		errno error code received from compression library
+ * @return Appropriate BOOTM_ERR_ error code
  */
-static int handle_decomp_error(int comp_type, size_t uncomp_size,
-			       size_t unc_len, int ret)
+static int handle_decomp_error(int comp_type, size_t uncomp_size, int ret)
 {
 	const char *name = genimg_get_comp_name(comp_type);
 
-	if (uncomp_size >= unc_len)
+	/* ENOSYS means unimplemented compression type, don't reset. */
+	if (ret == -ENOSYS)
+		return BOOTM_ERR_UNIMPLEMENTED;
+
+	if (uncomp_size >= CONFIG_SYS_BOOTM_LEN)
 		printf("Image too large: increase CONFIG_SYS_BOOTM_LEN\n");
 	else
 		printf("%s: uncompress error %d\n", name, ret);
@@ -351,93 +332,7 @@ static int handle_decomp_error(int comp_type, size_t uncomp_size,
 
 	return BOOTM_ERR_RESET;
 }
-
-int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
-		       void *load_buf, void *image_buf, ulong image_len,
-		       uint unc_len, ulong *load_end)
-{
-	int ret = 0;
-
-	*load_end = load;
-	print_decomp_msg(comp, type, load == image_start);
-
-	/*
-	 * Load the image to the right place, decompressing if needed. After
-	 * this, image_len will be set to the number of uncompressed bytes
-	 * loaded, ret will be non-zero on error.
-	 */
-	switch (comp) {
-	case IH_COMP_NONE:
-		if (load == image_start)
-			break;
-		if (image_len <= unc_len)
-			memmove_wd(load_buf, image_buf, image_len, CHUNKSZ);
-		else
-			ret = 1;
-		break;
-#ifdef CONFIG_GZIP
-	case IH_COMP_GZIP: {
-		ret = gunzip(load_buf, unc_len, image_buf, &image_len);
-		break;
-	}
-#endif /* CONFIG_GZIP */
-#ifdef CONFIG_BZIP2
-	case IH_COMP_BZIP2: {
-		uint size = unc_len;
-
-		/*
-		 * If we've got less than 4 MB of malloc() space,
-		 * use slower decompression algorithm which requires
-		 * at most 2300 KB of memory.
-		 */
-		ret = BZ2_bzBuffToBuffDecompress(load_buf, &size,
-			image_buf, image_len,
-			CONFIG_SYS_MALLOC_LEN < (4096 * 1024), 0);
-		image_len = size;
-		break;
-	}
-#endif /* CONFIG_BZIP2 */
-#ifdef CONFIG_LZMA
-	case IH_COMP_LZMA: {
-		SizeT lzma_len = unc_len;
-
-		ret = lzmaBuffToBuffDecompress(load_buf, &lzma_len,
-					       image_buf, image_len);
-		image_len = lzma_len;
-		break;
-	}
-#endif /* CONFIG_LZMA */
-#ifdef CONFIG_LZO
-	case IH_COMP_LZO: {
-		size_t size = unc_len;
-
-		ret = lzop_decompress(image_buf, image_len, load_buf, &size);
-		image_len = size;
-		break;
-	}
-#endif /* CONFIG_LZO */
-#ifdef CONFIG_LZ4
-	case IH_COMP_LZ4: {
-		size_t size = unc_len;
-
-		ret = ulz4fn(image_buf, image_len, load_buf, &size);
-		image_len = size;
-		break;
-	}
-#endif /* CONFIG_LZ4 */
-	default:
-		printf("Unimplemented compression type %d\n", comp);
-		return BOOTM_ERR_UNIMPLEMENTED;
-	}
-
-	if (ret)
-		return handle_decomp_error(comp, image_len, unc_len, ret);
-	*load_end = load + image_len;
-
-	puts("OK\n");
-
-	return 0;
-}
+#endif
 
 #ifndef USE_HOSTCC
 static int bootm_load_os(bootm_headers_t *images, int boot_progress)
@@ -456,10 +351,11 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
 
 	load_buf = map_sysmem(load, 0);
 	image_buf = map_sysmem(os.image_start, image_len);
-	err = bootm_decomp_image(os.comp, load, os.image_start, os.type,
-				 load_buf, image_buf, image_len,
-				 CONFIG_SYS_BOOTM_LEN, &load_end);
+	err = image_decomp(os.comp, load, os.image_start, os.type,
+			   load_buf, image_buf, image_len,
+			   CONFIG_SYS_BOOTM_LEN, &load_end);
 	if (err) {
+		err = handle_decomp_error(os.comp, load_end - load, err);
 		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 		return err;
 	}
@@ -919,11 +815,6 @@ void __weak switch_to_non_secure_mode(void)
 
 #else /* USE_HOSTCC */
 
-void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
-{
-	memmove(to, from, len);
-}
-
 #if defined(CONFIG_FIT_SIGNATURE)
 static int bootm_host_load_image(const void *fit, int req_image_type)
 {
@@ -957,13 +848,16 @@ static int bootm_host_load_image(const void *fit, int req_image_type)
 
 	/* Allow the image to expand by a factor of 4, should be safe */
 	load_buf = malloc((1 << 20) + len * 4);
-	ret = bootm_decomp_image(imape_comp, 0, data, image_type, load_buf,
-				 (void *)data, len, CONFIG_SYS_BOOTM_LEN,
-				 &load_end);
+	ret = image_decomp(imape_comp, 0, data, image_type, load_buf,
+			   (void *)data, len, CONFIG_SYS_BOOTM_LEN,
+			   &load_end);
 	free(load_buf);
 
-	if (ret && ret != BOOTM_ERR_UNIMPLEMENTED)
-		return ret;
+	if (ret) {
+		ret = handle_decomp_error(imape_comp, load_end - 0, ret);
+		if (ret != BOOTM_ERR_UNIMPLEMENTED)
+			return ret;
+	}
 
 	return 0;
 }

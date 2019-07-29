@@ -196,7 +196,7 @@ config ETH_SANDBOX_RAW
 	  This driver is a bridge from the bottom of the network stack
 	  in U-Boot to the RAW AF_PACKET API in Linux. This allows real
 	  network traffic to be tested from within sandbox. See
-	  board/sandbox/README.sandbox for more details.
+	  doc/arch/index.rst for more details.
 
 config ETH_DESIGNWARE
 	bool "Synopsys Designware Ethernet MAC"

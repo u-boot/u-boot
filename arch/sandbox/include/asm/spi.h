@@ -1,5 +1,5 @@
 /*
- * Simulate a SPI port and clients (see README.sandbox for details)
+ * Simulate a SPI port and clients (see doc/arch/sandbox.rst for details)
  *
  * Copyright (c) 2011-2013 The Chromium OS Authors.
  * See file CREDITS for list of people who contributed to this

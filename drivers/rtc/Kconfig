@@ -86,6 +86,11 @@ config RTC_RX8010SJ
 	help
 	  Support for Epson RX8010SJ Real Time Clock devices.
 
+config RTC_RX8025
+	bool "Enable RX8025 driver"
+	help
+	  Support for Epson RX8025 Real Time Clock devices.
+
 config RTC_PL031
 	bool "Enable ARM AMBA PL031 RTC driver"
 	help

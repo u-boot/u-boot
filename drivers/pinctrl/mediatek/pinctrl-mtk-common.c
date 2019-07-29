@@ -14,6 +14,7 @@
 
 #include "pinctrl-mtk-common.h"
 
+#if CONFIG_IS_ENABLED(PINCONF)
 /**
  * struct mtk_drive_desc - the structure that holds the information
  *			    of the driving current
@@ -39,6 +40,7 @@ static const struct mtk_drive_desc mtk_drive[] = {
 	[DRV_GRP3] = { 2, 8, 2, 2 },
 	[DRV_GRP4] = { 2, 16, 2, 1 },
 };
+#endif
 
 static const char *mtk_pinctrl_dummy_name = "_dummy";
 

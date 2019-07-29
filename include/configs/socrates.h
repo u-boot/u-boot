@@ -187,7 +187,6 @@
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 
 /* I2C RTC */
-#define CONFIG_RTC_RX8025		/* Use Epson rx8025 rtc via i2c	*/
 #define CONFIG_SYS_I2C_RTC_ADDR	0x32	/* at address 0x32		*/
 
 /* I2C W83782G HW-Monitoring IC */

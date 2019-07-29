@@ -22,6 +22,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
+#include <bootm.h>
 #include <image.h>
 #include <bootstage.h>
 #include <u-boot/crc.h>
@@ -1521,6 +1522,10 @@ int fit_check_format(const void *fit)
  * compatible list, "foo,bar", matches a compatible string in the root of fdt1.
  * "bim,bam" in fdt2 matches the second string which isn't as good as fdt1.
  *
+ * As an optimization, the compatible property from the FDT's root node can be
+ * copied into the configuration node in the FIT image. This is required to
+ * match configurations with compressed FDTs.
+ *
  * returns:
  *     offset to the configuration to use if one was found
  *     -1 otherwise
@@ -1553,48 +1558,62 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
 	for (noffset = fdt_next_node(fit, confs_noffset, &ndepth);
 			(noffset >= 0) && (ndepth > 0);
 			noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		const void *kfdt;
+		const void *fdt;
 		const char *kfdt_name;
-		int kfdt_noffset;
+		int kfdt_noffset, compat_noffset;
 		const char *cur_fdt_compat;
 		int len;
-		size_t size;
+		size_t sz;
 		int i;
 
 		if (ndepth > 1)
 			continue;
 
-		kfdt_name = fdt_getprop(fit, noffset, "fdt", &len);
-		if (!kfdt_name) {
-			debug("No fdt property found.\n");
-			continue;
-		}
-		kfdt_noffset = fdt_subnode_offset(fit, images_noffset,
-						  kfdt_name);
-		if (kfdt_noffset < 0) {
-			debug("No image node named \"%s\" found.\n",
-			      kfdt_name);
-			continue;
-		}
-		/*
-		 * Get a pointer to this configuration's fdt.
-		 */
-		if (fit_image_get_data(fit, kfdt_noffset, &kfdt, &size)) {
-			debug("Failed to get fdt \"%s\".\n", kfdt_name);
-			continue;
+		/* If there's a compat property in the config node, use that. */
+		if (fdt_getprop(fit, noffset, "compatible", NULL)) {
+			fdt = fit;		  /* search in FIT image */
+			compat_noffset = noffset; /* search under config node */
+		} else {	/* Otherwise extract it from the kernel FDT. */
+			kfdt_name = fdt_getprop(fit, noffset, "fdt", &len);
+			if (!kfdt_name) {
+				debug("No fdt property found.\n");
+				continue;
+			}
+			kfdt_noffset = fdt_subnode_offset(fit, images_noffset,
+							  kfdt_name);
+			if (kfdt_noffset < 0) {
+				debug("No image node named \"%s\" found.\n",
+				      kfdt_name);
+				continue;
+			}
+
+			if (!fit_image_check_comp(fit, kfdt_noffset,
+						  IH_COMP_NONE)) {
+				debug("Can't extract compat from \"%s\" "
+				      "(compressed)\n", kfdt_name);
+				continue;
+			}
+
+			/* search in this config's kernel FDT */
+			if (fit_image_get_data(fit, kfdt_noffset, &fdt, &sz)) {
+				debug("Failed to get fdt \"%s\".\n", kfdt_name);
+				continue;
+			}
+
+			compat_noffset = 0;  /* search kFDT under root node */
 		}
 
 		len = fdt_compat_len;
 		cur_fdt_compat = fdt_compat;
 		/*
 		 * Look for a match for each U-Boot compatibility string in
-		 * turn in this configuration's fdt.
+		 * turn in the compat string property.
 		 */
 		for (i = 0; len > 0 &&
 		     (!best_match_offset || best_match_pos > i); i++) {
 			int cur_len = strlen(cur_fdt_compat) + 1;
 
-			if (!fdt_node_check_compatible(kfdt, 0,
+			if (!fdt_node_check_compatible(fdt, compat_noffset,
 						       cur_fdt_compat)) {
 				best_match_offset = noffset;
 				best_match_pos = i;
@@ -1795,11 +1814,12 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	const char *fit_uname_config;
 	const char *fit_base_uname_config;
 	const void *fit;
-	const void *buf;
+	void *buf;
+	void *loadbuf;
 	size_t size;
 	int type_ok, os_ok;
-	ulong load, data, len;
-	uint8_t os;
+	ulong load, load_end, data, len;
+	uint8_t os, comp;
 #ifndef USE_HOSTCC
 	uint8_t os_arch;
 #endif
@@ -1895,12 +1915,6 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	images->os.arch = os_arch;
 #endif
 
-	if (image_type == IH_TYPE_FLATDT &&
-	    !fit_image_check_comp(fit, noffset, IH_COMP_NONE)) {
-		puts("FDT image is compressed");
-		return -EPROTONOSUPPORT;
-	}
-
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL);
 	type_ok = fit_image_check_type(fit, noffset, image_type) ||
 		  fit_image_check_type(fit, noffset, IH_TYPE_FIRMWARE) ||
@@ -1931,7 +1945,8 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ALL_OK);
 
 	/* get image data address and length */
-	if (fit_image_get_data_and_size(fit, noffset, &buf, &size)) {
+	if (fit_image_get_data_and_size(fit, noffset,
+					(const void **)&buf, &size)) {
 		printf("Could not find %s subimage data!\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_GET_DATA);
 		return -ENOENT;
@@ -1939,30 +1954,15 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 
 #if !defined(USE_HOSTCC) && defined(CONFIG_FIT_IMAGE_POST_PROCESS)
 	/* perform any post-processing on the image data */
-	board_fit_image_post_process((void **)&buf, &size);
+	board_fit_image_post_process(&buf, &size);
 #endif
 
 	len = (ulong)size;
 
-	/* verify that image data is a proper FDT blob */
-	if (image_type == IH_TYPE_FLATDT && fdt_check_header(buf)) {
-		puts("Subimage data is not a FDT");
-		return -ENOEXEC;
-	}
-
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_GET_DATA_OK);
 
-	/*
-	 * Work-around for eldk-4.2 which gives this warning if we try to
-	 * cast in the unmap_sysmem() call:
-	 * warning: initialization discards qualifiers from pointer target type
-	 */
-	{
-		void *vbuf = (void *)buf;
-
-		data = map_to_sysmem(vbuf);
-	}
-
+	data = map_to_sysmem(buf);
+	load = data;
 	if (load_op == FIT_LOAD_IGNORED) {
 		/* Don't load */
 	} else if (fit_image_get_load(fit, noffset, &load)) {
@@ -1974,8 +1974,6 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		}
 	} else if (load_op != FIT_LOAD_OPTIONAL_NON_ZERO || load) {
 		ulong image_start, image_end;
-		ulong load_end;
-		void *dst;
 
 		/*
 		 * move image data to the load address,
@@ -1993,14 +1991,45 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 
 		printf("   Loading %s from 0x%08lx to 0x%08lx\n",
 		       prop_name, data, load);
-
-		dst = map_sysmem(load, len);
-		memmove(dst, buf, len);
-		data = load;
+	} else {
+		load = data;	/* No load address specified */
 	}
+
+	comp = IH_COMP_NONE;
+	loadbuf = buf;
+	/* Kernel images get decompressed later in bootm_load_os(). */
+	if (!(image_type == IH_TYPE_KERNEL ||
+	      image_type == IH_TYPE_KERNEL_NOLOAD) &&
+	    !fit_image_get_comp(fit, noffset, &comp) &&
+	    comp != IH_COMP_NONE) {
+		ulong max_decomp_len = len * 20;
+		if (load == data) {
+			loadbuf = malloc(max_decomp_len);
+			load = map_to_sysmem(loadbuf);
+		} else {
+			loadbuf = map_sysmem(load, max_decomp_len);
+		}
+		if (image_decomp(comp, load, data, image_type,
+				loadbuf, buf, len, max_decomp_len, &load_end)) {
+			printf("Error decompressing %s\n", prop_name);
+
+			return -ENOEXEC;
+		}
+		len = load_end - load;
+	} else if (load != data) {
+		loadbuf = map_sysmem(load, len);
+		memcpy(loadbuf, buf, len);
+	}
+
+	/* verify that image data is a proper FDT blob */
+	if (image_type == IH_TYPE_FLATDT && fdt_check_header(loadbuf)) {
+		puts("Subimage data is not a FDT");
+		return -ENOEXEC;
+	}
+
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_LOAD);
 
-	*datap = data;
+	*datap = load;
 	*lenp = len;
 	if (fit_unamep)
 		*fit_unamep = (char *)fit_uname;
