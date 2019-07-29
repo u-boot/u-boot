@@ -10,6 +10,7 @@ from __future__ import print_function
 from collections import OrderedDict
 import fnmatch
 from operator import attrgetter
+import os
 import re
 import sys
 
@@ -32,22 +33,37 @@ class Image(section.Entry_section):
 
     Attributes:
         filename: Output filename for image
+        image_node: Name of node containing the description for this image
+        fdtmap_dtb: Fdt object for the fdtmap when loading from a file
+        fdtmap_data: Contents of the fdtmap when loading from a file
+        allow_repack: True to add properties to allow the image to be safely
+            repacked later
 
     Args:
+        copy_to_orig: Copy offset/size to orig_offset/orig_size after reading
+            from the device tree
         test: True if this is being called from a test of Images. This this case
             there is no device tree defining the structure of the section, so
             we create a section manually.
     """
-    def __init__(self, name, node, test=False):
-        self.image = self
-        section.Entry_section.__init__(self, None, 'section', node, test)
+    def __init__(self, name, node, copy_to_orig=True, test=False):
+        section.Entry_section.__init__(self, None, 'section', node, test=test)
+        self.copy_to_orig = copy_to_orig
         self.name = 'main-section'
         self.image_name = name
         self._filename = '%s.bin' % self.image_name
+        self.fdtmap_dtb = None
+        self.fdtmap_data = None
+        self.allow_repack = False
         if not test:
-            filename = fdt_util.GetString(self._node, 'filename')
-            if filename:
-                self._filename = filename
+            self.ReadNode()
+
+    def ReadNode(self):
+        section.Entry_section.ReadNode(self)
+        filename = fdt_util.GetString(self._node, 'filename')
+        if filename:
+            self._filename = filename
+        self.allow_repack = fdt_util.GetBool(self._node, 'allow-repack')
 
     @classmethod
     def FromFile(cls, fname):
@@ -78,12 +94,22 @@ class Image(section.Entry_section):
             data[pos + fdtmap.FDTMAP_HDR_LEN:pos + 256])
         dtb_size = probe_dtb.GetFdtObj().totalsize()
         fdtmap_data = data[pos:pos + dtb_size + fdtmap.FDTMAP_HDR_LEN]
-        dtb = fdt.Fdt.FromData(fdtmap_data[fdtmap.FDTMAP_HDR_LEN:])
+        fdt_data = fdtmap_data[fdtmap.FDTMAP_HDR_LEN:]
+        out_fname = tools.GetOutputFilename('fdtmap.in.dtb')
+        tools.WriteFile(out_fname, fdt_data)
+        dtb = fdt.Fdt(out_fname)
         dtb.Scan()
 
         # Return an Image with the associated nodes
-        image = Image('image', dtb.GetRoot())
+        root = dtb.GetRoot()
+        image = Image('image', root, copy_to_orig=False)
+
+        image.image_node = fdt_util.GetString(root, 'image-node', 'image')
+        image.fdtmap_dtb = dtb
+        image.fdtmap_data = fdtmap_data
         image._data = data
+        image._filename = fname
+        image.image_name, _ = os.path.splitext(fname)
         return image
 
     def Raise(self, msg):
@@ -117,16 +143,14 @@ class Image(section.Entry_section):
         """Write symbol values into binary files for access at run time"""
         section.Entry_section.WriteSymbols(self, self)
 
-    def BuildSection(self, fd, base_offset):
-        """Write the section to a file"""
-        fd.seek(base_offset)
-        fd.write(self.GetData())
-
     def BuildImage(self):
         """Write the image to a file"""
         fname = tools.GetOutputFilename(self._filename)
+        tout.Info("Writing image to '%s'" % fname)
         with open(fname, 'wb') as fd:
-            self.BuildSection(fd, 0)
+            data = self.GetData()
+            fd.write(data)
+        tout.Info("Wrote %#x bytes" % len(data))
 
     def WriteMap(self):
         """Write a map of the image to a .map file

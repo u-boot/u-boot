@@ -84,6 +84,23 @@ controlled by a description in the board device tree.'''
     extract_parser.add_argument('-U', '--uncompressed', action='store_true',
         help='Output raw uncompressed data for compressed entries')
 
+    replace_parser = subparsers.add_parser('replace',
+                                           help='Replace entries in an image')
+    replace_parser.add_argument('-C', '--compressed', action='store_true',
+        help='Input data is already compressed if needed for the entry')
+    replace_parser.add_argument('-i', '--image', type=str, required=True,
+                                help='Image filename to extract')
+    replace_parser.add_argument('-f', '--filename', type=str,
+                                help='Input filename to read from')
+    replace_parser.add_argument('-F', '--fix-size', action='store_true',
+        help="Don't allow entries to be resized")
+    replace_parser.add_argument('-I', '--indir', type=str, default='',
+        help='Path to directory to use for input files')
+    replace_parser.add_argument('-m', '--map', action='store_true',
+        default=False, help='Output a map file for the updated image')
+    replace_parser.add_argument('paths', type=str, nargs='*',
+                                help='Paths within file to extract (wildcard)')
+
     test_parser = subparsers.add_parser('test', help='Run tests')
     test_parser.add_argument('-P', '--processes', type=int,
         help='set number of processes to use for running tests')

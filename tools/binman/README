@@ -481,6 +481,29 @@ name-prefix:
 	distinguish binaries with otherwise identical names.
 
 
+Image Properties
+----------------
+
+Image nodes act like sections but also have a few extra properties:
+
+filename:
+	Output filename for the image. This defaults to image.bin (or in the
+	case of multiple images <nodename>.bin where <nodename> is the name of
+	the image node.
+
+allow-repack:
+	Create an image that can be repacked. With this option it is possible
+	to change anything in the image after it is created, including updating
+	the position and size of image components. By default this is not
+	permitted since it is not possibly to know whether this might violate a
+	constraint in the image description. For example, if a section has to
+	increase in size to hold a larger binary, that might cause the section
+	to fall out of its allow region (e.g. read-only portion of flash).
+
+	Adding this property causes the original offset and size values in the
+	image description to be stored in the FDT and fdtmap.
+
+
 Entry Documentation
 -------------------
 
@@ -555,6 +578,35 @@ put files in subdirectories matching the entry hierarchy:
 or just a selection:
 
     $ binman extract -i image.bin "*u-boot*" -O outdir
+
+
+Replacing files in an image
+---------------------------
+
+You can replace files in an existing firmware image created by binman, provided
+that there is an 'fdtmap' entry in the image. For example:
+
+    $ binman replace -i image.bin section/cbfs/u-boot
+
+which will write the contents of the file 'u-boot' from the current directory
+to the that entry, compressing if necessary. If the entry size changes, you must
+add the 'allow-repack' property to the original image before generating it (see
+above), otherwise you will get an error.
+
+You can also use a particular file, in this case u-boot.bin:
+
+    $ binman replace -i image.bin section/cbfs/u-boot -f u-boot.bin
+
+It is possible to replace all files from a source directory which uses the same
+hierarchy as the entries:
+
+    $ binman replace -i image.bin -I indir
+
+Files that are missing will generate a warning.
+
+You can also replace just a selection of entries:
+
+    $ binman replace -i image.bin "*u-boot*" -I indir
 
 
 Logging
@@ -644,22 +696,35 @@ large enough to hold all the entries.
 7. CheckEntries() - checks that the entries do not overlap, nor extend
 outside the image.
 
-8. SetCalculatedProperties() - update any calculated properties in the device
+8. SetImagePos() - sets the image position of every entry. This is the absolute
+position 'image-pos', as opposed to 'offset' which is relative to the containing
+section. This must be done after all offsets are known, which is why it is quite
+late in the ordering.
+
+9. SetCalculatedProperties() - update any calculated properties in the device
 tree. This sets the correct 'offset' and 'size' vaues, for example.
 
-9. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
+10. ProcessEntryContents() - this calls Entry.ProcessContents() on each entry.
 The default implementatoin does nothing. This can be overriden to adjust the
 contents of an entry in some way. For example, it would be possible to create
 an entry containing a hash of the contents of some other entries. At this
 stage the offset and size of entries should not be adjusted unless absolutely
 necessary, since it requires a repack (going back to PackEntries()).
 
-10. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
+11. ResetForPack() - if the ProcessEntryContents() step failed, in that an entry
+has changed its size, then there is no alternative but to go back to step 5 and
+try again, repacking the entries with the updated size. ResetForPack() removes
+the fixed offset/size values added by binman, so that the packing can start from
+scratch.
+
+12. WriteSymbols() - write the value of symbols into the U-Boot SPL binary.
 See 'Access to binman entry offsets at run time' below for a description of
 what happens in this stage.
 
-11. BuildImage() - builds the image and writes it to a file. This is the final
-step.
+13. BuildImage() - builds the image and writes it to a file
+
+14. WriteMap() - writes a text file containing a map of the image. This is the
+final step.
 
 
 Automatic .dtsi inclusion
@@ -909,10 +974,10 @@ Some ideas:
 - Allow easy building of images by specifying just the board name
 - Support building an image for a board (-b) more completely, with a
   configurable build directory
-- Support updating binaries in an image (with no size change / repacking)
-- Support updating binaries in an image (with repacking)
 - Support adding FITs to an image
 - Support for ARM Trusted Firmware (ATF)
+- Detect invalid properties in nodes
+- Sort the fdtmap by offset
 
 --
 Simon Glass <sjg@chromium.org>

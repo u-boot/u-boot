@@ -9,6 +9,7 @@ import command
 import glob
 import os
 import shutil
+import struct
 import sys
 import tempfile
 
@@ -82,6 +83,7 @@ def FinaliseOutputDir():
     """Tidy up: delete output directory if temporary and not preserved."""
     if outdir and not preserve_outdir:
         _RemoveOutputDir()
+        outdir = None
 
 def GetOutputFilename(fname):
     """Return a filename within the output directory.
@@ -100,6 +102,7 @@ def _FinaliseForTest():
 
     if outdir:
         _RemoveOutputDir()
+        outdir = None
 
 def SetInputDirs(dirname):
     """Add a list of input directories, where input files are kept.
@@ -377,7 +380,7 @@ def ToBytes(string):
         return string.encode('utf-8')
     return string
 
-def Compress(indata, algo):
+def Compress(indata, algo, with_header=True):
     """Compress some data using a given algorithm
 
     Note that for lzma this uses an old version of the algorithm, not that
@@ -408,9 +411,12 @@ def Compress(indata, algo):
         data = Run('gzip', '-c', fname, binary=True)
     else:
         raise ValueError("Unknown algorithm '%s'" % algo)
+    if with_header:
+        hdr = struct.pack('<I', len(data))
+        data = hdr + data
     return data
 
-def Decompress(indata, algo):
+def Decompress(indata, algo, with_header=True):
     """Decompress some data using a given algorithm
 
     Note that for lzma this uses an old version of the algorithm, not that
@@ -428,6 +434,9 @@ def Decompress(indata, algo):
     """
     if algo == 'none':
         return indata
+    if with_header:
+        data_len = struct.unpack('<I', indata[:4])[0]
+        indata = indata[4:4 + data_len]
     fname = GetOutputFilename('%s.decomp.tmp' % algo)
     with open(fname, 'wb') as fd:
         fd.write(indata)
@@ -473,3 +482,19 @@ def RunIfwiTool(ifwi_file, cmd, fname=None, subpart=None, entry_name=None):
     if entry_name:
         args += ['-d', '-e', entry_name]
     Run(*args)
+
+def ToHex(val):
+    """Convert an integer value (or None) to a string
+
+    Returns:
+        hex value, or 'None' if the value is None
+    """
+    return 'None' if val is None else '%#x' % val
+
+def ToHexSize(val):
+    """Return the size of an object in hex
+
+    Returns:
+        hex value of size, or 'None' if the value is None
+    """
+    return 'None' if val is None else '%#x' % len(val)

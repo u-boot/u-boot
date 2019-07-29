@@ -9,7 +9,9 @@ from __future__ import print_function
 from optparse import OptionParser
 import glob
 import os
+import shutil
 import sys
+import tempfile
 import unittest
 
 # Bring in the patman libraries
@@ -77,10 +79,15 @@ class TestFdt(unittest.TestCase):
         """Test the GetNode() method"""
         node = self.dtb.GetNode('/spl-test')
         self.assertTrue(isinstance(node, fdt.Node))
+
         node = self.dtb.GetNode('/i2c@0/pmic@9')
         self.assertTrue(isinstance(node, fdt.Node))
         self.assertEqual('pmic@9', node.name)
         self.assertIsNone(self.dtb.GetNode('/i2c@0/pmic@9/missing'))
+
+        node = self.dtb.GetNode('/')
+        self.assertTrue(isinstance(node, fdt.Node))
+        self.assertEqual(0, node.Offset())
 
     def testFlush(self):
         """Check that we can flush the device tree out to its file"""
@@ -421,6 +428,32 @@ class TestProp(unittest.TestCase):
         self.dtb.Sync(auto_resize=True)
         self.assertTrue(dtb2.GetContents() != self.dtb.GetContents())
 
+    def testMissingSetInt(self):
+        """Test handling of a missing property with SetInt"""
+        with self.assertRaises(ValueError) as e:
+            self.node.SetInt('one', 1)
+        self.assertIn("node '/spl-test': Missing property 'one'",
+                      str(e.exception))
+
+    def testMissingSetData(self):
+        """Test handling of a missing property with SetData"""
+        with self.assertRaises(ValueError) as e:
+            self.node.SetData('one', b'data')
+        self.assertIn("node '/spl-test': Missing property 'one'",
+                      str(e.exception))
+
+    def testMissingSetString(self):
+        """Test handling of a missing property with SetString"""
+        with self.assertRaises(ValueError) as e:
+            self.node.SetString('one', 1)
+        self.assertIn("node '/spl-test': Missing property 'one'",
+                      str(e.exception))
+
+    def testGetFilename(self):
+        """Test the dtb filename can be provided"""
+        self.assertEqual(tools.GetOutputFilename('source.dtb'),
+                         self.dtb.GetFilename())
+
 
 class TestFdtUtil(unittest.TestCase):
     """Tests for the fdt_util module
@@ -514,9 +547,22 @@ class TestFdtUtil(unittest.TestCase):
         self.assertEqual(0x12345678, fdt_util.fdt_cells_to_cpu(val, 1))
 
     def testEnsureCompiled(self):
-        """Test a degenerate case of this function"""
+        """Test a degenerate case of this function (file already compiled)"""
         dtb = fdt_util.EnsureCompiled('tools/dtoc/dtoc_test_simple.dts')
         self.assertEqual(dtb, fdt_util.EnsureCompiled(dtb))
+
+    def testEnsureCompiledTmpdir(self):
+        """Test providing a temporary directory"""
+        try:
+            old_outdir = tools.outdir
+            tools.outdir= None
+            tmpdir = tempfile.mkdtemp(prefix='test_fdt.')
+            dtb = fdt_util.EnsureCompiled('tools/dtoc/dtoc_test_simple.dts',
+                                          tmpdir)
+            self.assertEqual(tmpdir, os.path.dirname(dtb))
+            shutil.rmtree(tmpdir)
+        finally:
+            tools.outdir= old_outdir
 
 
 def RunTestCoverage():

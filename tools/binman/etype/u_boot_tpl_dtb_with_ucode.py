@@ -23,3 +23,6 @@ class Entry_u_boot_tpl_dtb_with_ucode(Entry_u_boot_dtb_with_ucode):
 
     def GetDefaultFilename(self):
         return 'tpl/u-boot-tpl.dtb'
+
+    def GetFdtEtype(self):
+        return 'u-boot-tpl-dtb'

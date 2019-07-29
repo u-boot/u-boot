@@ -57,7 +57,7 @@ class TestEntry(unittest.TestCase):
     def testEntryContents(self):
         """Test the Entry bass class"""
         import entry
-        base_entry = entry.Entry(None, None, None, read_node=False)
+        base_entry = entry.Entry(None, None, None)
         self.assertEqual(True, base_entry.ObtainContents())
 
     def testUnknownEntry(self):
@@ -73,16 +73,30 @@ class TestEntry(unittest.TestCase):
         """Test Entry.GetUniqueName"""
         Node = collections.namedtuple('Node', ['name', 'parent'])
         base_node = Node('root', None)
-        base_entry = entry.Entry(None, None, base_node, read_node=False)
+        base_entry = entry.Entry(None, None, base_node)
         self.assertEqual('root', base_entry.GetUniqueName())
         sub_node = Node('subnode', base_node)
-        sub_entry = entry.Entry(None, None, sub_node, read_node=False)
+        sub_entry = entry.Entry(None, None, sub_node)
         self.assertEqual('root.subnode', sub_entry.GetUniqueName())
 
     def testGetDefaultFilename(self):
         """Trivial test for this base class function"""
-        base_entry = entry.Entry(None, None, None, read_node=False)
+        base_entry = entry.Entry(None, None, None)
         self.assertIsNone(base_entry.GetDefaultFilename())
+
+    def testBlobFdt(self):
+        """Test the GetFdtEtype() method of the blob-dtb entries"""
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        self.assertIsNone(base.GetFdtEtype())
+
+        dtb = entry.Entry.Create(None, self.GetNode(), 'u-boot-dtb')
+        self.assertEqual('u-boot-dtb', dtb.GetFdtEtype())
+
+    def testWriteChildData(self):
+        """Test the WriteChildData() method of the base class"""
+        base = entry.Entry.Create(None, self.GetNode(), 'blob-dtb')
+        self.assertTrue(base.WriteChildData(base))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -69,7 +69,14 @@ FILES_DATA            = (b"sorry I'm late\nOh, don't bother apologising, I'm " +
 COMPRESS_DATA         = b'compress xxxxxxxxxxxxxxxxxxxxxx data'
 REFCODE_DATA          = b'refcode'
 
+# The expected size for the device tree in some tests
 EXTRACT_DTB_SIZE = 0x3c9
+
+# Properties expected to be in the device tree when update_dtb is used
+BASE_DTB_PROPS = ['offset', 'size', 'image-pos']
+
+# Extra properties expected to be in the device tree when allow-repack is used
+REPACK_DTB_PROPS = ['orig-offset', 'orig-size']
 
 
 class TestFunctional(unittest.TestCase):
@@ -180,6 +187,13 @@ class TestFunctional(unittest.TestCase):
         if not self.have_lz4:
             self.skipTest('lz4 --no-frame-crc not available')
 
+    def _CleanupOutputDir(self):
+        """Remove the temporary output directory"""
+        if self.preserve_outdirs:
+            print('Preserving output dir: %s' % tools.outdir)
+        else:
+            tools._FinaliseForTest()
+
     def setUp(self):
         # Enable this to turn on debugging output
         # tout.Init(tout.DEBUG)
@@ -187,10 +201,29 @@ class TestFunctional(unittest.TestCase):
 
     def tearDown(self):
         """Remove the temporary output directory"""
-        if self.preserve_outdirs:
-            print('Preserving output dir: %s' % tools.outdir)
-        else:
-            tools._FinaliseForTest()
+        self._CleanupOutputDir()
+
+    def _SetupImageInTmpdir(self):
+        """Set up the output image in a new temporary directory
+
+        This is used when an image has been generated in the output directory,
+        but we want to run binman again. This will create a new output
+        directory and fail to delete the original one.
+
+        This creates a new temporary directory, copies the image to it (with a
+        new name) and removes the old output directory.
+
+        Returns:
+            Tuple:
+                Temporary directory to use
+                New image filename
+        """
+        image_fname = tools.GetOutputFilename('image.bin')
+        tmpdir = tempfile.mkdtemp(prefix='binman.')
+        updated_fname = os.path.join(tmpdir, 'image-updated.bin')
+        tools.WriteFile(updated_fname, tools.ReadFile(image_fname))
+        self._CleanupOutputDir()
+        return tmpdir, updated_fname
 
     @classmethod
     def _ResetDtbs(self):
@@ -283,12 +316,12 @@ class TestFunctional(unittest.TestCase):
         Returns:
             Contents of device-tree binary
         """
-        tools.PrepareOutputDir(None)
-        dtb = fdt_util.EnsureCompiled(self.TestFile(fname))
+        tmpdir = tempfile.mkdtemp(prefix='binmant.')
+        dtb = fdt_util.EnsureCompiled(self.TestFile(fname), tmpdir)
         with open(dtb, 'rb') as fd:
             data = fd.read()
             TestFunctional._MakeInputFile(outfile, data)
-        tools.FinaliseOutputDir()
+        shutil.rmtree(tmpdir)
         return data
 
     def _GetDtbContentsForSplTpl(self, dtb_data, name):
@@ -1229,7 +1262,7 @@ class TestFunctional(unittest.TestCase):
             state.SetAllowEntryExpansion(False)
             with self.assertRaises(ValueError) as e:
                 self._DoReadFile('059_change_size.dts', True)
-            self.assertIn("Node '/binman/_testing': Cannot update entry size from 1 to 2",
+            self.assertIn("Node '/binman/_testing': Cannot update entry size from 2 to 3",
                           str(e.exception))
         finally:
             state.SetAllowEntryExpansion(True)
@@ -1240,12 +1273,12 @@ class TestFunctional(unittest.TestCase):
                                                      update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
-        props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos'])
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS + REPACK_DTB_PROPS)
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
             '_testing:offset': 32,
-            '_testing:size': 1,
+            '_testing:size': 2,
             '_testing:image-pos': 32,
             'section@0/u-boot:offset': 0,
             'section@0/u-boot:size': len(U_BOOT_DATA),
@@ -1552,6 +1585,7 @@ class TestFunctional(unittest.TestCase):
 
             self.assertFalse(os.path.exists(tools.GetOutputFilename('image1.bin')))
             self.assertTrue(os.path.exists(tools.GetOutputFilename('image2.bin')))
+            self._CleanupOutputDir()
 
     def testUpdateFdtAll(self):
         """Test that all device trees are updated with offset/size info"""
@@ -1583,8 +1617,8 @@ class TestFunctional(unittest.TestCase):
         for item in ['', 'spl', 'tpl']:
             dtb = fdt.Fdt.FromData(data[start:])
             dtb.Scan()
-            props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos',
-                                            'spl', 'tpl'])
+            props = self._GetPropTree(dtb, BASE_DTB_PROPS + REPACK_DTB_PROPS +
+                                      ['spl', 'tpl'])
             expected = dict(base_expected)
             if item:
                 expected[item] = 0
@@ -2052,8 +2086,7 @@ class TestFunctional(unittest.TestCase):
         fdt_data = fdtmap_data[16:]
         dtb = fdt.Fdt.FromData(fdt_data)
         dtb.Scan()
-        props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos'],
-                                  prefix='/')
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS, prefix='/')
         self.assertEqual({
             'image-pos': 0,
             'offset': 0,
@@ -2129,23 +2162,23 @@ class TestFunctional(unittest.TestCase):
     def testEntryExpand(self):
         """Test expanding an entry after it is packed"""
         data = self._DoReadFile('121_entry_expand.dts')
-        self.assertEqual(b'aa', data[:2])
-        self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
-        self.assertEqual(b'aa', data[-2:])
+        self.assertEqual(b'aaa', data[:3])
+        self.assertEqual(U_BOOT_DATA, data[3:3 + len(U_BOOT_DATA)])
+        self.assertEqual(b'aaa', data[-3:])
 
     def testEntryExpandBad(self):
         """Test expanding an entry after it is packed, twice"""
         with self.assertRaises(ValueError) as e:
             self._DoReadFile('122_entry_expand_twice.dts')
-        self.assertIn("Image '/binman': Entries expanded after packing",
+        self.assertIn("Image '/binman': Entries changed size after packing",
                       str(e.exception))
 
     def testEntryExpandSection(self):
         """Test expanding an entry within a section after it is packed"""
         data = self._DoReadFile('123_entry_expand_section.dts')
-        self.assertEqual(b'aa', data[:2])
-        self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
-        self.assertEqual(b'aa', data[-2:])
+        self.assertEqual(b'aaa', data[:3])
+        self.assertEqual(U_BOOT_DATA, data[3:3 + len(U_BOOT_DATA)])
+        self.assertEqual(b'aaa', data[-3:])
 
     def testCompressDtb(self):
         """Test that compress of device-tree files is supported"""
@@ -2172,8 +2205,7 @@ class TestFunctional(unittest.TestCase):
                                                         update_dtb=True)
         dtb = fdt.Fdt(out_dtb_fname)
         dtb.Scan()
-        props = self._GetPropTree(dtb, ['offset', 'size', 'image-pos',
-                                        'uncomp-size'])
+        props = self._GetPropTree(dtb, BASE_DTB_PROPS + ['uncomp-size'])
         del props['cbfs/u-boot:size']
         self.assertEqual({
             'offset': 0,
@@ -2333,7 +2365,7 @@ class TestFunctional(unittest.TestCase):
         image_fname = tools.GetOutputFilename('image.bin')
         image = Image.FromFile(image_fname)
         self.assertTrue(isinstance(image, Image))
-        self.assertEqual('image', image.image_name)
+        self.assertEqual('image', image.image_name[-5:])
 
     def testReadImageFail(self):
         """Test failing to read an image image's FDT map"""
@@ -2355,9 +2387,12 @@ class TestFunctional(unittest.TestCase):
         fdt_size = entries['section'].GetEntries()['u-boot-dtb'].size
         fdtmap_offset = entries['fdtmap'].offset
 
-        image_fname = tools.GetOutputFilename('image.bin')
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoBinman('ls', '-i', image_fname)
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with test_util.capture_sys_output() as (stdout, stderr):
+                self._DoBinman('ls', '-i', updated_fname)
+        finally:
+            shutil.rmtree(tmpdir)
         lines = stdout.getvalue().splitlines()
         expected = [
 'Name              Image-pos  Size  Entry-type    Offset  Uncomp-size',
@@ -2369,7 +2404,7 @@ class TestFunctional(unittest.TestCase):
 '      u-boot            138     4  u-boot            38',
 '      u-boot-dtb        180   10f  u-boot-dtb        80          3c9',
 '    u-boot-dtb          500   %x  u-boot-dtb       400          3c9' % fdt_size,
-'  fdtmap                %x   395  fdtmap           %x' %
+'  fdtmap                %x   3b4  fdtmap           %x' %
         (fdtmap_offset, fdtmap_offset),
 '  image-header          bf8     8  image-header     bf8',
             ]
@@ -2378,9 +2413,12 @@ class TestFunctional(unittest.TestCase):
     def testListCmdFail(self):
         """Test failing to list an image"""
         self._DoReadFile('005_simple.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
-        with self.assertRaises(ValueError) as e:
-            self._DoBinman('ls', '-i', image_fname)
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with self.assertRaises(ValueError) as e:
+                self._DoBinman('ls', '-i', updated_fname)
+        finally:
+            shutil.rmtree(tmpdir)
         self.assertIn("Cannot find FDT map in image", str(e.exception))
 
     def _RunListCmd(self, paths, expected):
@@ -2480,7 +2518,7 @@ class TestFunctional(unittest.TestCase):
     def testExtractCbfsRaw(self):
         """Test extracting CBFS compressed data without decompressing it"""
         data = self._RunExtractCmd('section/cbfs/u-boot-dtb', decomp=False)
-        dtb = tools.Decompress(data, 'lzma')
+        dtb = tools.Decompress(data, 'lzma', with_header=False)
         self.assertEqual(EXTRACT_DTB_SIZE, len(dtb))
 
     def testExtractBadEntry(self):
@@ -2506,10 +2544,14 @@ class TestFunctional(unittest.TestCase):
         """Test extracting a file fron an image on the command line"""
         self._CheckLz4()
         self._DoReadFileRealDtb('130_list_fdtmap.dts')
-        image_fname = tools.GetOutputFilename('image.bin')
         fname = os.path.join(self._indir, 'output.extact')
-        with test_util.capture_sys_output() as (stdout, stderr):
-            self._DoBinman('extract', '-i', image_fname, 'u-boot', '-f', fname)
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+            with test_util.capture_sys_output() as (stdout, stderr):
+                self._DoBinman('extract', '-i', updated_fname, 'u-boot',
+                               '-f', fname)
+        finally:
+            shutil.rmtree(tmpdir)
         data = tools.ReadFile(fname)
         self.assertEqual(U_BOOT_DATA, data)
 
@@ -2641,7 +2683,7 @@ class TestFunctional(unittest.TestCase):
         image_fname = tools.GetOutputFilename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ExtractEntries(image_fname, 'fname', None, [])
-        self.assertIn('Must specify an entry path to write with -o',
+        self.assertIn('Must specify an entry path to write with -f',
                       str(e.exception))
 
     def testExtractTooManyEntryPaths(self):
@@ -2651,7 +2693,7 @@ class TestFunctional(unittest.TestCase):
         image_fname = tools.GetOutputFilename('image.bin')
         with self.assertRaises(ValueError) as e:
             control.ExtractEntries(image_fname, 'fname', None, ['a', 'b'])
-        self.assertIn('Must specify exactly one entry path to write with -o',
+        self.assertIn('Must specify exactly one entry path to write with -f',
                       str(e.exception))
 
     def testPackAlignSection(self):
@@ -2718,6 +2760,481 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(0x18, entry.image_pos)
         self.assertEqual(len(U_BOOT_DATA), entry.contents_size)
         self.assertEqual(len(U_BOOT_DATA), entry.size)
+
+    def _RunReplaceCmd(self, entry_name, data, decomp=True, allow_resize=True,
+                       dts='132_replace.dts'):
+        """Replace an entry in an image
+
+        This writes the entry data to update it, then opens the updated file and
+        returns the value that it now finds there.
+
+        Args:
+            entry_name: Entry name to replace
+            data: Data to replace it with
+            decomp: True to compress the data if needed, False if data is
+                already compressed so should be used as is
+            allow_resize: True to allow entries to change size, False to raise
+                an exception
+
+        Returns:
+            Tuple:
+                data from entry
+                data from fdtmap (excluding header)
+                Image object that was modified
+        """
+        dtb_data = self._DoReadFileDtb(dts, use_real_dtb=True,
+                                       update_dtb=True)[1]
+
+        self.assertIn('image', control.images)
+        image = control.images['image']
+        entries = image.GetEntries()
+        orig_dtb_data = entries['u-boot-dtb'].data
+        orig_fdtmap_data = entries['fdtmap'].data
+
+        image_fname = tools.GetOutputFilename('image.bin')
+        updated_fname = tools.GetOutputFilename('image-updated.bin')
+        tools.WriteFile(updated_fname, tools.ReadFile(image_fname))
+        image = control.WriteEntry(updated_fname, entry_name, data, decomp,
+                                   allow_resize)
+        data = control.ReadEntry(updated_fname, entry_name, decomp)
+
+        # The DT data should not change unless resized:
+        if not allow_resize:
+            new_dtb_data = entries['u-boot-dtb'].data
+            self.assertEqual(new_dtb_data, orig_dtb_data)
+            new_fdtmap_data = entries['fdtmap'].data
+            self.assertEqual(new_fdtmap_data, orig_fdtmap_data)
+
+        return data, orig_fdtmap_data[fdtmap.FDTMAP_HDR_LEN:], image
+
+    def testReplaceSimple(self):
+        """Test replacing a single file"""
+        expected = b'x' * len(U_BOOT_DATA)
+        data, expected_fdtmap, _ = self._RunReplaceCmd('u-boot', expected,
+                                                    allow_resize=False)
+        self.assertEqual(expected, data)
+
+        # Test that the state looks right. There should be an FDT for the fdtmap
+        # that we jsut read back in, and it should match what we find in the
+        # 'control' tables. Checking for an FDT that does not exist should
+        # return None.
+        path, fdtmap = state.GetFdtContents('fdtmap')
+        self.assertIsNotNone(path)
+        self.assertEqual(expected_fdtmap, fdtmap)
+
+        dtb = state.GetFdtForEtype('fdtmap')
+        self.assertEqual(dtb.GetContents(), fdtmap)
+
+        missing_path, missing_fdtmap = state.GetFdtContents('missing')
+        self.assertIsNone(missing_path)
+        self.assertIsNone(missing_fdtmap)
+
+        missing_dtb = state.GetFdtForEtype('missing')
+        self.assertIsNone(missing_dtb)
+
+        self.assertEqual('/binman', state.fdt_path_prefix)
+
+    def testReplaceResizeFail(self):
+        """Test replacing a file by something larger"""
+        expected = U_BOOT_DATA + b'x'
+        with self.assertRaises(ValueError) as e:
+            self._RunReplaceCmd('u-boot', expected, allow_resize=False,
+                                dts='139_replace_repack.dts')
+        self.assertIn("Node '/u-boot': Entry data size does not match, but resize is disabled",
+                      str(e.exception))
+
+    def testReplaceMulti(self):
+        """Test replacing entry data where multiple images are generated"""
+        data = self._DoReadFileDtb('133_replace_multi.dts', use_real_dtb=True,
+                                   update_dtb=True)[0]
+        expected = b'x' * len(U_BOOT_DATA)
+        updated_fname = tools.GetOutputFilename('image-updated.bin')
+        tools.WriteFile(updated_fname, data)
+        entry_name = 'u-boot'
+        control.WriteEntry(updated_fname, entry_name, expected,
+                           allow_resize=False)
+        data = control.ReadEntry(updated_fname, entry_name)
+        self.assertEqual(expected, data)
+
+        # Check the state looks right.
+        self.assertEqual('/binman/image', state.fdt_path_prefix)
+
+        # Now check we can write the first image
+        image_fname = tools.GetOutputFilename('first-image.bin')
+        updated_fname = tools.GetOutputFilename('first-updated.bin')
+        tools.WriteFile(updated_fname, tools.ReadFile(image_fname))
+        entry_name = 'u-boot'
+        control.WriteEntry(updated_fname, entry_name, expected,
+                           allow_resize=False)
+        data = control.ReadEntry(updated_fname, entry_name)
+        self.assertEqual(expected, data)
+
+        # Check the state looks right.
+        self.assertEqual('/binman/first-image', state.fdt_path_prefix)
+
+    def testUpdateFdtAllRepack(self):
+        """Test that all device trees are updated with offset/size info"""
+        data = self._DoReadFileRealDtb('134_fdt_update_all_repack.dts')
+        SECTION_SIZE = 0x300
+        DTB_SIZE = 602
+        FDTMAP_SIZE = 608
+        base_expected = {
+            'offset': 0,
+            'size': SECTION_SIZE + DTB_SIZE * 2 + FDTMAP_SIZE,
+            'image-pos': 0,
+            'section:offset': 0,
+            'section:size': SECTION_SIZE,
+            'section:image-pos': 0,
+            'section/u-boot-dtb:offset': 4,
+            'section/u-boot-dtb:size': 636,
+            'section/u-boot-dtb:image-pos': 4,
+            'u-boot-spl-dtb:offset': SECTION_SIZE,
+            'u-boot-spl-dtb:size': DTB_SIZE,
+            'u-boot-spl-dtb:image-pos': SECTION_SIZE,
+            'u-boot-tpl-dtb:offset': SECTION_SIZE + DTB_SIZE,
+            'u-boot-tpl-dtb:image-pos': SECTION_SIZE + DTB_SIZE,
+            'u-boot-tpl-dtb:size': DTB_SIZE,
+            'fdtmap:offset': SECTION_SIZE + DTB_SIZE * 2,
+            'fdtmap:size': FDTMAP_SIZE,
+            'fdtmap:image-pos': SECTION_SIZE + DTB_SIZE * 2,
+        }
+        main_expected = {
+            'section:orig-size': SECTION_SIZE,
+            'section/u-boot-dtb:orig-offset': 4,
+        }
+
+        # We expect three device-tree files in the output, with the first one
+        # within a fixed-size section.
+        # Read them in sequence. We look for an 'spl' property in the SPL tree,
+        # and 'tpl' in the TPL tree, to make sure they are distinct from the
+        # main U-Boot tree. All three should have the same positions and offset
+        # except that the main tree should include the main_expected properties
+        start = 4
+        for item in ['', 'spl', 'tpl', None]:
+            if item is None:
+                start += 16  # Move past fdtmap header
+            dtb = fdt.Fdt.FromData(data[start:])
+            dtb.Scan()
+            props = self._GetPropTree(dtb,
+                BASE_DTB_PROPS + REPACK_DTB_PROPS + ['spl', 'tpl'],
+                prefix='/' if item is None else '/binman/')
+            expected = dict(base_expected)
+            if item:
+                expected[item] = 0
+            else:
+                # Main DTB and fdtdec should include the 'orig-' properties
+                expected.update(main_expected)
+            # Helpful for debugging:
+            #for prop in sorted(props):
+                #print('prop %s %s %s' % (prop, props[prop], expected[prop]))
+            self.assertEqual(expected, props)
+            if item == '':
+                start = SECTION_SIZE
+            else:
+                start += dtb._fdt_obj.totalsize()
+
+    def testFdtmapHeaderMiddle(self):
+        """Test an FDT map in the middle of an image when it should be at end"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileRealDtb('135_fdtmap_hdr_middle.dts')
+        self.assertIn("Invalid sibling order 'middle' for image-header: Must be at 'end' to match location",
+                      str(e.exception))
+
+    def testFdtmapHeaderStartBad(self):
+        """Test an FDT map in middle of an image when it should be at start"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileRealDtb('136_fdtmap_hdr_startbad.dts')
+        self.assertIn("Invalid sibling order 'end' for image-header: Must be at 'start' to match location",
+                      str(e.exception))
+
+    def testFdtmapHeaderEndBad(self):
+        """Test an FDT map at the start of an image when it should be at end"""
+        with self.assertRaises(ValueError) as e:
+            self._DoReadFileRealDtb('137_fdtmap_hdr_endbad.dts')
+        self.assertIn("Invalid sibling order 'start' for image-header: Must be at 'end' to match location",
+                      str(e.exception))
+
+    def testFdtmapHeaderNoSize(self):
+        """Test an image header at the end of an image with undefined size"""
+        self._DoReadFileRealDtb('138_fdtmap_hdr_nosize.dts')
+
+    def testReplaceResize(self):
+        """Test replacing a single file in an entry with a larger file"""
+        expected = U_BOOT_DATA + b'x'
+        data, _, image = self._RunReplaceCmd('u-boot', expected,
+                                             dts='139_replace_repack.dts')
+        self.assertEqual(expected, data)
+
+        entries = image.GetEntries()
+        dtb_data = entries['u-boot-dtb'].data
+        dtb = fdt.Fdt.FromData(dtb_data)
+        dtb.Scan()
+
+        # The u-boot section should now be larger in the dtb
+        node = dtb.GetNode('/binman/u-boot')
+        self.assertEqual(len(expected), fdt_util.GetInt(node, 'size'))
+
+        # Same for the fdtmap
+        fdata = entries['fdtmap'].data
+        fdtb = fdt.Fdt.FromData(fdata[fdtmap.FDTMAP_HDR_LEN:])
+        fdtb.Scan()
+        fnode = fdtb.GetNode('/u-boot')
+        self.assertEqual(len(expected), fdt_util.GetInt(fnode, 'size'))
+
+    def testReplaceResizeNoRepack(self):
+        """Test replacing an entry with a larger file when not allowed"""
+        expected = U_BOOT_DATA + b'x'
+        with self.assertRaises(ValueError) as e:
+            self._RunReplaceCmd('u-boot', expected)
+        self.assertIn('Entry data size does not match, but allow-repack is not present for this image',
+                      str(e.exception))
+
+    def testEntryShrink(self):
+        """Test contracting an entry after it is packed"""
+        try:
+            state.SetAllowEntryContraction(True)
+            data = self._DoReadFileDtb('140_entry_shrink.dts',
+                                       update_dtb=True)[0]
+        finally:
+            state.SetAllowEntryContraction(False)
+        self.assertEqual(b'a', data[:1])
+        self.assertEqual(U_BOOT_DATA, data[1:1 + len(U_BOOT_DATA)])
+        self.assertEqual(b'a', data[-1:])
+
+    def testEntryShrinkFail(self):
+        """Test not being allowed to contract an entry after it is packed"""
+        data = self._DoReadFileDtb('140_entry_shrink.dts', update_dtb=True)[0]
+
+        # In this case there is a spare byte at the end of the data. The size of
+        # the contents is only 1 byte but we still have the size before it
+        # shrunk.
+        self.assertEqual(b'a\0', data[:2])
+        self.assertEqual(U_BOOT_DATA, data[2:2 + len(U_BOOT_DATA)])
+        self.assertEqual(b'a\0', data[-2:])
+
+    def testDescriptorOffset(self):
+        """Test that the Intel descriptor is always placed at at the start"""
+        data = self._DoReadFileDtb('141_descriptor_offset.dts')
+        image = control.images['image']
+        entries = image.GetEntries()
+        desc = entries['intel-descriptor']
+        self.assertEqual(0xff800000, desc.offset);
+        self.assertEqual(0xff800000, desc.image_pos);
+
+    def testReplaceCbfs(self):
+        """Test replacing a single file in CBFS without changing the size"""
+        self._CheckLz4()
+        expected = b'x' * len(U_BOOT_DATA)
+        data = self._DoReadFileRealDtb('142_replace_cbfs.dts')
+        updated_fname = tools.GetOutputFilename('image-updated.bin')
+        tools.WriteFile(updated_fname, data)
+        entry_name = 'section/cbfs/u-boot'
+        control.WriteEntry(updated_fname, entry_name, expected,
+                           allow_resize=True)
+        data = control.ReadEntry(updated_fname, entry_name)
+        self.assertEqual(expected, data)
+
+    def testReplaceResizeCbfs(self):
+        """Test replacing a single file in CBFS with one of a different size"""
+        self._CheckLz4()
+        expected = U_BOOT_DATA + b'x'
+        data = self._DoReadFileRealDtb('142_replace_cbfs.dts')
+        updated_fname = tools.GetOutputFilename('image-updated.bin')
+        tools.WriteFile(updated_fname, data)
+        entry_name = 'section/cbfs/u-boot'
+        control.WriteEntry(updated_fname, entry_name, expected,
+                           allow_resize=True)
+        data = control.ReadEntry(updated_fname, entry_name)
+        self.assertEqual(expected, data)
+
+    def _SetupForReplace(self):
+        """Set up some files to use to replace entries
+
+        This generates an image, copies it to a new file, extracts all the files
+        in it and updates some of them
+
+        Returns:
+            List
+                Image filename
+                Output directory
+                Expected values for updated entries, each a string
+        """
+        data = self._DoReadFileRealDtb('143_replace_all.dts')
+
+        updated_fname = tools.GetOutputFilename('image-updated.bin')
+        tools.WriteFile(updated_fname, data)
+
+        outdir = os.path.join(self._indir, 'extract')
+        einfos = control.ExtractEntries(updated_fname, None, outdir, [])
+
+        expected1 = b'x' + U_BOOT_DATA + b'y'
+        u_boot_fname1 = os.path.join(outdir, 'u-boot')
+        tools.WriteFile(u_boot_fname1, expected1)
+
+        expected2 = b'a' + U_BOOT_DATA + b'b'
+        u_boot_fname2 = os.path.join(outdir, 'u-boot2')
+        tools.WriteFile(u_boot_fname2, expected2)
+
+        expected_text = b'not the same text'
+        text_fname = os.path.join(outdir, 'text')
+        tools.WriteFile(text_fname, expected_text)
+
+        dtb_fname = os.path.join(outdir, 'u-boot-dtb')
+        dtb = fdt.FdtScan(dtb_fname)
+        node = dtb.GetNode('/binman/text')
+        node.AddString('my-property', 'the value')
+        dtb.Sync(auto_resize=True)
+        dtb.Flush()
+
+        return updated_fname, outdir, expected1, expected2, expected_text
+
+    def _CheckReplaceMultiple(self, entry_paths):
+        """Handle replacing the contents of multiple entries
+
+        Args:
+            entry_paths: List of entry paths to replace
+
+        Returns:
+            List
+                Dict of entries in the image:
+                    key: Entry name
+                    Value: Entry object
+            Expected values for updated entries, each a string
+        """
+        updated_fname, outdir, expected1, expected2, expected_text = (
+            self._SetupForReplace())
+        control.ReplaceEntries(updated_fname, None, outdir, entry_paths)
+
+        image = Image.FromFile(updated_fname)
+        image.LoadData()
+        return image.GetEntries(), expected1, expected2, expected_text
+
+    def testReplaceAll(self):
+        """Test replacing the contents of all entries"""
+        entries, expected1, expected2, expected_text = (
+            self._CheckReplaceMultiple([]))
+        data = entries['u-boot'].data
+        self.assertEqual(expected1, data)
+
+        data = entries['u-boot2'].data
+        self.assertEqual(expected2, data)
+
+        data = entries['text'].data
+        self.assertEqual(expected_text, data)
+
+        # Check that the device tree is updated
+        data = entries['u-boot-dtb'].data
+        dtb = fdt.Fdt.FromData(data)
+        dtb.Scan()
+        node = dtb.GetNode('/binman/text')
+        self.assertEqual('the value', node.props['my-property'].value)
+
+    def testReplaceSome(self):
+        """Test replacing the contents of a few entries"""
+        entries, expected1, expected2, expected_text = (
+            self._CheckReplaceMultiple(['u-boot2', 'text']))
+
+        # This one should not change
+        data = entries['u-boot'].data
+        self.assertEqual(U_BOOT_DATA, data)
+
+        data = entries['u-boot2'].data
+        self.assertEqual(expected2, data)
+
+        data = entries['text'].data
+        self.assertEqual(expected_text, data)
+
+    def testReplaceCmd(self):
+        """Test replacing a file fron an image on the command line"""
+        self._DoReadFileRealDtb('143_replace_all.dts')
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+
+            fname = os.path.join(tmpdir, 'update-u-boot.bin')
+            expected = b'x' * len(U_BOOT_DATA)
+            tools.WriteFile(fname, expected)
+
+            self._DoBinman('replace', '-i', updated_fname, 'u-boot', '-f', fname)
+            data = tools.ReadFile(updated_fname)
+            self.assertEqual(expected, data[:len(expected)])
+            map_fname = os.path.join(tmpdir, 'image-updated.map')
+            self.assertFalse(os.path.exists(map_fname))
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def testReplaceCmdSome(self):
+        """Test replacing some files fron an image on the command line"""
+        updated_fname, outdir, expected1, expected2, expected_text = (
+            self._SetupForReplace())
+
+        self._DoBinman('replace', '-i', updated_fname, '-I', outdir,
+                       'u-boot2', 'text')
+
+        tools.PrepareOutputDir(None)
+        image = Image.FromFile(updated_fname)
+        image.LoadData()
+        entries = image.GetEntries()
+
+        # This one should not change
+        data = entries['u-boot'].data
+        self.assertEqual(U_BOOT_DATA, data)
+
+        data = entries['u-boot2'].data
+        self.assertEqual(expected2, data)
+
+        data = entries['text'].data
+        self.assertEqual(expected_text, data)
+
+    def testReplaceMissing(self):
+        """Test replacing entries where the file is missing"""
+        updated_fname, outdir, expected1, expected2, expected_text = (
+            self._SetupForReplace())
+
+        # Remove one of the files, to generate a warning
+        u_boot_fname1 = os.path.join(outdir, 'u-boot')
+        os.remove(u_boot_fname1)
+
+        with test_util.capture_sys_output() as (stdout, stderr):
+            control.ReplaceEntries(updated_fname, None, outdir, [])
+        self.assertIn("Skipping entry '/u-boot' from missing file",
+                      stdout.getvalue())
+
+    def testReplaceCmdMap(self):
+        """Test replacing a file fron an image on the command line"""
+        self._DoReadFileRealDtb('143_replace_all.dts')
+
+        try:
+            tmpdir, updated_fname = self._SetupImageInTmpdir()
+
+            fname = os.path.join(self._indir, 'update-u-boot.bin')
+            expected = b'x' * len(U_BOOT_DATA)
+            tools.WriteFile(fname, expected)
+
+            self._DoBinman('replace', '-i', updated_fname, 'u-boot',
+                           '-f', fname, '-m')
+            map_fname = os.path.join(tmpdir, 'image-updated.map')
+            self.assertTrue(os.path.exists(map_fname))
+        finally:
+            shutil.rmtree(tmpdir)
+
+    def testReplaceNoEntryPaths(self):
+        """Test replacing an entry without an entry path"""
+        self._DoReadFileRealDtb('143_replace_all.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        with self.assertRaises(ValueError) as e:
+            control.ReplaceEntries(image_fname, 'fname', None, [])
+        self.assertIn('Must specify an entry path to read with -f',
+                      str(e.exception))
+
+    def testReplaceTooManyEntryPaths(self):
+        """Test extracting some entries"""
+        self._DoReadFileRealDtb('143_replace_all.dts')
+        image_fname = tools.GetOutputFilename('image.bin')
+        with self.assertRaises(ValueError) as e:
+            control.ReplaceEntries(image_fname, 'fname', None, ['a', 'b'])
+        self.assertIn('Must specify exactly one entry path to write with -f',
+                      str(e.exception))
 
 
 if __name__ == "__main__":

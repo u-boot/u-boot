@@ -86,8 +86,20 @@ class Entry_image_header(Entry):
             if self.location not in ['start', 'end']:
                 self.Raise("Invalid location '%s', expected 'start' or 'end'" %
                            self.location)
-            image_size = self.section.GetImageSize() or 0
-            self.offset = (0 if self.location != 'end' else image_size - 8)
+            order = self.GetSiblingOrder()
+            if self.location != order and not self.section.GetSort():
+                self.Raise("Invalid sibling order '%s' for image-header: Must be at '%s' to match location" %
+                           (order, self.location))
+            if self.location != 'end':
+                offset = 0
+            else:
+                image_size = self.section.GetImageSize()
+                if image_size is None:
+                    # We don't know the image, but this must be the last entry,
+                    # so we can assume it goes
+                    offset = offset
+                else:
+                    offset = image_size - IMAGE_HEADER_LEN
         return Entry.Pack(self, offset)
 
     def ProcessContents(self):

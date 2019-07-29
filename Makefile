@@ -1189,9 +1189,10 @@ u-boot.ldr:	u-boot
 # ---------------------------------------------------------------------------
 # Use 'make BINMAN_DEBUG=1' to enable debugging
 quiet_cmd_binman = BINMAN  $@
-cmd_binman = $(srctree)/tools/binman/binman build -u -d u-boot.dtb -O . -m \
+cmd_binman = $(srctree)/tools/binman/binman $(if $(BINMAN_DEBUG),-D) \
+                build -u -d u-boot.dtb -O . -m \
 		-I . -I $(srctree) -I $(srctree)/board/$(BOARDDIR) \
-		$(if $(BINMAN_DEBUG),-D) $(BINMAN_$(@F))
+		$(BINMAN_$(@F))
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
 

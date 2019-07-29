@@ -362,6 +362,23 @@ class Node:
         value = tools.GetBytes(0, len)
         self.props[prop_name] = Prop(self, None, prop_name, value)
 
+    def _CheckProp(self, prop_name):
+        """Check if a property is present
+
+        Args:
+            prop_name: Name of property
+
+        Returns:
+            self
+
+        Raises:
+            ValueError if the property is missing
+        """
+        if prop_name not in self.props:
+            raise ValueError("Fdt '%s', node '%s': Missing property '%s'" %
+                             (self._fdt._fname, self.path, prop_name))
+        return self
+
     def SetInt(self, prop_name, val):
         """Update an integer property int the device tree.
 
@@ -374,7 +391,7 @@ class Node:
             prop_name: Name of property
             val: Value to set
         """
-        self.props[prop_name].SetInt(val)
+        self._CheckProp(prop_name).props[prop_name].SetInt(val)
 
     def SetData(self, prop_name, val):
         """Set the data value of a property
@@ -386,7 +403,7 @@ class Node:
             prop_name: Name of property to set
             val: Data value to set
         """
-        self.props[prop_name].SetData(val)
+        self._CheckProp(prop_name).props[prop_name].SetData(val)
 
     def SetString(self, prop_name, val):
         """Set the string value of a property
@@ -400,7 +417,7 @@ class Node:
         """
         if sys.version_info[0] >= 3:  # pragma: no cover
             val = bytes(val, 'utf-8')
-        self.props[prop_name].SetData(val + b'\0')
+        self._CheckProp(prop_name).props[prop_name].SetData(val + b'\0')
 
     def AddString(self, prop_name, val):
         """Add a new string property to a node
@@ -481,29 +498,35 @@ class Fdt:
     Properties:
       fname: Filename of fdt
       _root: Root of device tree (a Node object)
+      name: Helpful name for this Fdt for the user (useful when creating the
+        DT from data rather than a file)
     """
     def __init__(self, fname):
         self._fname = fname
         self._cached_offsets = False
         self.phandle_to_node = {}
+        self.name = ''
         if self._fname:
+            self.name = self._fname
             self._fname = fdt_util.EnsureCompiled(self._fname)
 
             with open(self._fname, 'rb') as fd:
                 self._fdt_obj = libfdt.Fdt(fd.read())
 
     @staticmethod
-    def FromData(data):
+    def FromData(data, name=''):
         """Create a new Fdt object from the given data
 
         Args:
             data: Device-tree data blob
+            name: Helpful name for this Fdt for the user
 
         Returns:
             Fdt object containing the data
         """
         fdt = Fdt(None)
         fdt._fdt_obj = libfdt.Fdt(bytes(data))
+        fdt.name = name
         return fdt
 
     def LookupPhandle(self, phandle):
@@ -551,6 +574,8 @@ class Fdt:
         parts = path.split('/')
         if len(parts) < 2:
             return None
+        if len(parts) == 2 and parts[1] == '':
+            return node
         for part in parts[1:]:
             node = node.FindNode(part)
             if not node:
@@ -669,6 +694,14 @@ class Fdt:
         """
         node = Node(fdt, parent, offset, name, path)
         return node
+
+    def GetFilename(self):
+        """Get the filename of the device tree
+
+        Returns:
+            String filename
+        """
+        return self._fname
 
 def FdtScan(fname):
     """Returns a new Fdt object"""

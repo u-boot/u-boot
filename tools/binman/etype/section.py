@@ -17,6 +17,7 @@ import sys
 from entry import Entry
 import fdt_util
 import tools
+import tout
 
 
 class Entry_section(Entry):
@@ -45,29 +46,15 @@ class Entry_section(Entry):
     def __init__(self, section, etype, node, test=False):
         if not test:
             Entry.__init__(self, section, etype, node)
-        if section:
-            self.image = section.image
         self._entries = OrderedDict()
         self._pad_byte = 0
         self._sort = False
         self._skip_at_start = None
         self._end_4gb = False
-        if not test:
-            self._ReadNode()
-            self._ReadEntries()
 
-    def _Raise(self, msg):
-        """Raises an error for this section
-
-        Args:
-            msg: Error message to use in the raise string
-        Raises:
-            ValueError()
-        """
-        raise ValueError("Section '%s': %s" % (self._node.path, msg))
-
-    def _ReadNode(self):
+    def ReadNode(self):
         """Read properties from the image node"""
+        Entry.ReadNode(self)
         self._pad_byte = fdt_util.GetInt(self._node, 'pad-byte', 0)
         self._sort = fdt_util.GetBool(self._node, 'sort-by-offset')
         self._end_4gb = fdt_util.GetBool(self._node, 'end-at-4gb')
@@ -87,19 +74,32 @@ class Entry_section(Entry):
         if filename:
             self._filename = filename
 
+        self._ReadEntries()
+
     def _ReadEntries(self):
         for node in self._node.subnodes:
             if node.name == 'hash':
                 continue
             entry = Entry.Create(self, node)
+            entry.ReadNode()
             entry.SetPrefix(self._name_prefix)
             self._entries[node.name] = entry
 
-    def GetFdtSet(self):
-        fdt_set = set()
+    def _Raise(self, msg):
+        """Raises an error for this section
+
+        Args:
+            msg: Error message to use in the raise string
+        Raises:
+            ValueError()
+        """
+        raise ValueError("Section '%s': %s" % (self._node.path, msg))
+
+    def GetFdts(self):
+        fdts = {}
         for entry in self._entries.values():
-            fdt_set.update(entry.GetFdtSet())
-        return fdt_set
+            fdts.update(entry.GetFdts())
+        return fdts
 
     def ProcessFdt(self, fdt):
         """Allow entries to adjust the device tree
@@ -149,6 +149,8 @@ class Entry_section(Entry):
             base = self.pad_before + entry.offset - self._skip_at_start
             section_data = (section_data[:base] + data +
                             section_data[base + len(data):])
+        self.Detail('GetData: %d entries, total size %#x' %
+                    (len(self._entries), len(section_data)))
         return section_data
 
     def GetOffsets(self):
@@ -371,7 +373,7 @@ class Entry_section(Entry):
             Image size as an integer number of bytes, which may be None if the
                 image size is dynamic and its sections have not yet been packed
         """
-        return self.image.size
+        return self.GetImage().size
 
     def FindEntryType(self, etype):
         """Find an entry type in the section
@@ -460,3 +462,64 @@ class Entry_section(Entry):
                            self.image_pos, None, self.offset, self)
         for entry in self._entries.values():
             entry.ListEntries(entries, indent + 1)
+
+    def LoadData(self, decomp=True):
+        for entry in self._entries.values():
+            entry.LoadData(decomp)
+        self.Detail('Loaded data')
+
+    def GetImage(self):
+        """Get the image containing this section
+
+        Note that a top-level section is actually an Image, so this function may
+        return self.
+
+        Returns:
+            Image object containing this section
+        """
+        if not self.section:
+            return self
+        return self.section.GetImage()
+
+    def GetSort(self):
+        """Check if the entries in this section will be sorted
+
+        Returns:
+            True if to be sorted, False if entries will be left in the order
+                they appear in the device tree
+        """
+        return self._sort
+
+    def ReadData(self, decomp=True):
+        tout.Info("ReadData path='%s'" % self.GetPath())
+        parent_data = self.section.ReadData(True)
+        tout.Info('%s: Reading data from offset %#x-%#x, size %#x' %
+                  (self.GetPath(), self.offset, self.offset + self.size,
+                   self.size))
+        data = parent_data[self.offset:self.offset + self.size]
+        return data
+
+    def ReadChildData(self, child, decomp=True):
+        """Read the data for a particular child entry
+
+        Args:
+            child: Child entry to read data for
+            decomp: True to return uncompressed data, False to leave the data
+                compressed if it is compressed
+
+        Returns:
+            Data contents of entry
+        """
+        parent_data = self.ReadData(True)
+        data = parent_data[child.offset:child.offset + child.size]
+        if decomp:
+            indata = data
+            data = tools.Decompress(indata, child.compress)
+            if child.uncomp_size:
+                tout.Info("%s: Decompressing data size %#x with algo '%s' to data size %#x" %
+                            (child.GetPath(), len(indata), child.compress,
+                            len(data)))
+        return data
+
+    def WriteChildData(self, child):
+        return True

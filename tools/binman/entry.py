@@ -23,6 +23,7 @@ import sys
 import fdt_util
 import state
 import tools
+from tools import ToHex, ToHexSize
 import tout
 
 modules = {}
@@ -69,7 +70,7 @@ class Entry(object):
         orig_offset: Original offset value read from node
         orig_size: Original size value read from node
     """
-    def __init__(self, section, etype, node, read_node=True, name_prefix=''):
+    def __init__(self, section, etype, node, name_prefix=''):
         self.section = section
         self.etype = etype
         self._node = node
@@ -88,8 +89,6 @@ class Entry(object):
         self.image_pos = None
         self._expand_size = False
         self.compress = 'none'
-        if read_node:
-            self.ReadNode()
 
     @staticmethod
     def Lookup(node_path, etype):
@@ -154,14 +153,19 @@ class Entry(object):
     def ReadNode(self):
         """Read entry information from the node
 
+        This must be called as the first thing after the Entry is created.
+
         This reads all the fields we recognise from the node, ready for use.
         """
         if 'pos' in self._node.props:
             self.Raise("Please use 'offset' instead of 'pos'")
         self.offset = fdt_util.GetInt(self._node, 'offset')
         self.size = fdt_util.GetInt(self._node, 'size')
-        self.orig_offset = self.offset
-        self.orig_size = self.size
+        self.orig_offset = fdt_util.GetInt(self._node, 'orig-offset')
+        self.orig_size = fdt_util.GetInt(self._node, 'orig-size')
+        if self.GetImage().copy_to_orig:
+            self.orig_offset = self.offset
+            self.orig_size = self.size
 
         # These should not be set in input files, but are set in an FDT map,
         # which is also read by this code.
@@ -185,19 +189,18 @@ class Entry(object):
     def GetDefaultFilename(self):
         return None
 
-    def GetFdtSet(self):
-        """Get the set of device trees used by this entry
+    def GetFdts(self):
+        """Get the device trees used by this entry
 
         Returns:
-            Set containing the filename from this entry, if it is a .dtb, else
-            an empty set
+            Empty dict, if this entry is not a .dtb, otherwise:
+            Dict:
+                key: Filename from this entry (without the path)
+                value: Tuple:
+                    Fdt object for this dtb, or None if not available
+                    Filename of file containing this dtb
         """
-        fname = self.GetDefaultFilename()
-        # It would be better to use isinstance(self, Entry_blob_dtb) here but
-        # we cannot access Entry_blob_dtb
-        if fname and fname.endswith('.dtb'):
-            return set([fname])
-        return set()
+        return {}
 
     def ExpandEntries(self):
         pass
@@ -207,6 +210,12 @@ class Entry(object):
         for prop in ['offset', 'size', 'image-pos']:
             if not prop in self._node.props:
                 state.AddZeroProp(self._node, prop)
+        if self.GetImage().allow_repack:
+            if self.orig_offset is not None:
+                state.AddZeroProp(self._node, 'orig-offset', True)
+            if self.orig_size is not None:
+                state.AddZeroProp(self._node, 'orig-size', True)
+
         if self.compress != 'none':
             state.AddZeroProp(self._node, 'uncomp-size')
         err = state.CheckAddHashProp(self._node)
@@ -219,6 +228,11 @@ class Entry(object):
         state.SetInt(self._node, 'size', self.size)
         base = self.section.GetRootSkipAtStart() if self.section else 0
         state.SetInt(self._node, 'image-pos', self.image_pos - base)
+        if self.GetImage().allow_repack:
+            if self.orig_offset is not None:
+                state.SetInt(self._node, 'orig-offset', self.orig_offset, True)
+            if self.orig_size is not None:
+                state.SetInt(self._node, 'orig-size', self.orig_size, True)
         if self.uncomp_size is not None:
             state.SetInt(self._node, 'uncomp-size', self.uncomp_size)
         state.CheckSetHashValue(self._node, self.GetData)
@@ -271,15 +285,26 @@ class Entry(object):
         """
         size_ok = True
         new_size = len(data)
-        if state.AllowEntryExpansion():
+        if state.AllowEntryExpansion() and new_size > self.contents_size:
+            # self.data will indicate the new size needed
+            size_ok = False
+        elif state.AllowEntryContraction() and new_size < self.contents_size:
+            size_ok = False
+
+        # If not allowed to change, try to deal with it or give up
+        if size_ok:
             if new_size > self.contents_size:
-                tout.Debug("Entry '%s' size change from %#x to %#x" % (
-                    self._node.path, self.contents_size, new_size))
-                # self.data will indicate the new size needed
-                size_ok = False
-        elif new_size != self.contents_size:
-            self.Raise('Cannot update entry size from %d to %d' %
-                       (self.contents_size, new_size))
+                self.Raise('Cannot update entry size from %d to %d' %
+                        (self.contents_size, new_size))
+
+            # Don't let the data shrink. Pad it if necessary
+            if size_ok and new_size < self.contents_size:
+                data += tools.GetBytes(0, self.contents_size - new_size)
+
+        if not size_ok:
+            tout.Debug("Entry '%s' size change from %s to %s" % (
+                self._node.path, ToHex(self.contents_size),
+                ToHex(new_size)))
         self.SetContents(data)
         return size_ok
 
@@ -295,6 +320,9 @@ class Entry(object):
 
     def ResetForPack(self):
         """Reset offset/size fields so that packing can be done again"""
+        self.Detail('ResetForPack: offset %s->%s, size %s->%s' %
+                    (ToHex(self.offset), ToHex(self.orig_offset),
+                     ToHex(self.size), ToHex(self.orig_size)))
         self.offset = self.orig_offset
         self.size = self.orig_size
 
@@ -316,6 +344,9 @@ class Entry(object):
         Returns:
             New section offset pointer (after this entry)
         """
+        self.Detail('Packing: offset=%s, size=%s, content_size=%x' %
+                    (ToHex(self.offset), ToHex(self.size),
+                     self.contents_size))
         if self.offset is None:
             if self.offset_unset:
                 self.Raise('No offset set with offset-unset: should another '
@@ -347,12 +378,19 @@ class Entry(object):
         if self.offset != tools.Align(self.offset, self.align):
             self.Raise("Offset %#x (%d) does not match align %#x (%d)" %
                   (self.offset, self.offset, self.align, self.align))
+        self.Detail('   - packed: offset=%#x, size=%#x, content_size=%#x, next_offset=%x' %
+                    (self.offset, self.size, self.contents_size, new_offset))
 
         return new_offset
 
     def Raise(self, msg):
         """Convenience function to raise an error referencing a node"""
         raise ValueError("Node '%s': %s" % (self._node.path, msg))
+
+    def Detail(self, msg):
+        """Convenience function to log detail referencing a node"""
+        tag = "Node '%s'" % self._node.path
+        tout.Detail('%30s: %s' % (tag, msg))
 
     def GetEntryArgsOrProps(self, props, required=False):
         """Return the values of a set of properties
@@ -390,6 +428,7 @@ class Entry(object):
         return self._node.path
 
     def GetData(self):
+        self.Detail('GetData: size %s' % ToHexSize(self.data))
         return self.data
 
     def GetOffsets(self):
@@ -675,8 +714,75 @@ features to produce new behaviours.
         """
         # Use True here so that we get an uncompressed section to work from,
         # although compressed sections are currently not supported
-        data = self.section.ReadData(True)
-        tout.Info('%s: Reading data from offset %#x-%#x, size %#x (avail %#x)' %
-                  (self.GetPath(), self.offset, self.offset + self.size,
-                   self.size, len(data)))
-        return data[self.offset:self.offset + self.size]
+        data = self.section.ReadChildData(self, decomp)
+        return data
+
+    def LoadData(self, decomp=True):
+        data = self.ReadData(decomp)
+        self.contents_size = len(data)
+        self.ProcessContentsUpdate(data)
+        self.Detail('Loaded data size %x' % len(data))
+
+    def GetImage(self):
+        """Get the image containing this entry
+
+        Returns:
+            Image object containing this entry
+        """
+        return self.section.GetImage()
+
+    def WriteData(self, data, decomp=True):
+        """Write the data to an entry in the image
+
+        This is used when the image has been read in and we want to replace the
+        data for a particular entry in that image.
+
+        The image must be re-packed and written out afterwards.
+
+        Args:
+            data: Data to replace it with
+            decomp: True to compress the data if needed, False if data is
+                already compressed so should be used as is
+
+        Returns:
+            True if the data did not result in a resize of this entry, False if
+                 the entry must be resized
+        """
+        self.contents_size = self.size
+        ok = self.ProcessContentsUpdate(data)
+        self.Detail('WriteData: size=%x, ok=%s' % (len(data), ok))
+        section_ok = self.section.WriteChildData(self)
+        return ok and section_ok
+
+    def WriteChildData(self, child):
+        """Handle writing the data in a child entry
+
+        This should be called on the child's parent section after the child's
+        data has been updated. It
+
+        This base-class implementation does nothing, since the base Entry object
+        does not have any children.
+
+        Args:
+            child: Child Entry that was written
+
+        Returns:
+            True if the section could be updated successfully, False if the
+                data is such that the section could not updat
+        """
+        return True
+
+    def GetSiblingOrder(self):
+        """Get the relative order of an entry amoung its siblings
+
+        Returns:
+            'start' if this entry is first among siblings, 'end' if last,
+                otherwise None
+        """
+        entries = list(self.section.GetEntries().values())
+        if entries:
+            if self == entries[0]:
+                return 'start'
+            elif self == entries[-1]:
+                return 'end'
+        return 'middle'

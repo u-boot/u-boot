@@ -14,6 +14,7 @@ import command
 import elf
 import test_util
 import tools
+import tout
 
 binman_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
@@ -130,14 +131,16 @@ class TestElf(unittest.TestCase):
 
     def testDebug(self):
         """Check that enabling debug in the elf module produced debug output"""
-        elf.debug = True
-        entry = FakeEntry(20)
-        section = FakeSection()
-        elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
-        with test_util.capture_sys_output() as (stdout, stderr):
-            syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
-        elf.debug = False
-        self.assertTrue(len(stdout.getvalue()) > 0)
+        try:
+            tout.Init(tout.DEBUG)
+            entry = FakeEntry(20)
+            section = FakeSection()
+            elf_fname = os.path.join(binman_dir, 'test', 'u_boot_binman_syms')
+            with test_util.capture_sys_output() as (stdout, stderr):
+                syms = elf.LookupAndWriteSymbols(elf_fname, entry, section)
+            self.assertTrue(len(stdout.getvalue()) > 0)
+        finally:
+            tout.Init(tout.WARNING)
 
     def testMakeElf(self):
         """Test for the MakeElf function"""

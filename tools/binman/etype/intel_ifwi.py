@@ -94,6 +94,7 @@ class Entry_intel_ifwi(Entry_blob):
         """Read the subnodes to find out what should go in this IFWI"""
         for node in self._node.subnodes:
             entry = Entry.Create(self.section, node)
+            entry.ReadNode()
             entry._ifwi_replace = fdt_util.GetBool(node, 'replace')
             entry._ifwi_subpart = fdt_util.GetString(node, 'ifwi-subpart')
             entry._ifwi_entry_name = fdt_util.GetString(node, 'ifwi-entry')

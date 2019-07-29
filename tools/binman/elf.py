@@ -17,6 +17,7 @@ import struct
 import tempfile
 
 import tools
+import tout
 
 ELF_TOOLS = True
 try:
@@ -24,9 +25,6 @@ try:
     from elftools.elf.sections import SymbolTableSection
 except:  # pragma: no cover
     ELF_TOOLS = False
-
-# This is enabled from control.py
-debug = False
 
 Symbol = namedtuple('Symbol', ['section', 'address', 'size', 'weak'])
 
@@ -143,9 +141,8 @@ def LookupAndWriteSymbols(elf_fname, entry, section):
                 value = -1
                 pack_string = pack_string.lower()
             value_bytes = struct.pack(pack_string, value)
-            if debug:
-                print('%s:\n   insert %s, offset %x, value %x, length %d' %
-                      (msg, name, offset, value, len(value_bytes)))
+            tout.Debug('%s:\n   insert %s, offset %x, value %x, length %d' %
+                       (msg, name, offset, value, len(value_bytes)))
             entry.data = (entry.data[:offset] + value_bytes +
                         entry.data[offset + sym.size:])
 

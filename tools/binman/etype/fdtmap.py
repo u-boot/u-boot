@@ -14,6 +14,7 @@ from entry import Entry
 from fdt import Fdt
 import state
 import tools
+import tout
 
 FDTMAP_MAGIC   = b'_FDTMAP_'
 FDTMAP_HDR_LEN = 16
@@ -59,6 +60,7 @@ class Entry_fdtmap(Entry):
     Example output for a simple image with U-Boot and an FDT map:
 
     / {
+        image-name = "binman";
         size = <0x00000112>;
         image-pos = <0x00000000>;
         offset = <0x00000000>;
@@ -73,6 +75,9 @@ class Entry_fdtmap(Entry):
             offset = <0x00000004>;
         };
     };
+
+    If allow-repack is used then 'orig-offset' and 'orig-size' properties are
+    added as necessary. See the binman README.
     """
     def __init__(self, section, etype, node):
         Entry.__init__(self, section, etype, node)
@@ -91,29 +96,38 @@ class Entry_fdtmap(Entry):
                 with fsw.add_node(subnode.name):
                     _AddNode(subnode)
 
-        # Get the FDT data into an Fdt object
-        data = state.GetFdtContents()[1]
-        infdt = Fdt.FromData(data)
-        infdt.Scan()
+        data = state.GetFdtContents('fdtmap')[1]
+        # If we have an fdtmap it means that we are using this as the
+        # fdtmap for this image.
+        if data is None:
+            # Get the FDT data into an Fdt object
+            data = state.GetFdtContents()[1]
+            infdt = Fdt.FromData(data)
+            infdt.Scan()
 
-        # Find the node for the image containing the Fdt-map entry
-        path = self.section.GetPath()
-        node = infdt.GetNode(path)
-        if not node:
-            self.Raise("Internal error: Cannot locate node for path '%s'" %
-                       path)
+            # Find the node for the image containing the Fdt-map entry
+            path = self.section.GetPath()
+            self.Detail("Fdtmap: Using section '%s' (path '%s')" %
+                        (self.section.name, path))
+            node = infdt.GetNode(path)
+            if not node:
+                self.Raise("Internal error: Cannot locate node for path '%s'" %
+                           path)
 
-        # Build a new tree with all nodes and properties starting from that node
-        fsw = libfdt.FdtSw()
-        fsw.finish_reservemap()
-        with fsw.add_node(''):
-            _AddNode(node)
-        fdt = fsw.as_fdt()
+            # Build a new tree with all nodes and properties starting from that
+            # node
+            fsw = libfdt.FdtSw()
+            fsw.finish_reservemap()
+            with fsw.add_node(''):
+                fsw.property_string('image-node', node.name)
+                _AddNode(node)
+            fdt = fsw.as_fdt()
 
-        # Pack this new FDT and return its contents
-        fdt.pack()
-        outfdt = Fdt.FromData(fdt.as_bytearray())
-        data = FDTMAP_MAGIC + tools.GetBytes(0, 8) + outfdt.GetContents()
+            # Pack this new FDT and return its contents
+            fdt.pack()
+            outfdt = Fdt.FromData(fdt.as_bytearray())
+            data = outfdt.GetContents()
+        data = FDTMAP_MAGIC + tools.GetBytes(0, 8) + data
         return data
 
     def ObtainContents(self):
