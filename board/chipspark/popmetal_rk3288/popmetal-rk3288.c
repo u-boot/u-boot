@@ -8,7 +8,7 @@
 
 #define GPIO7A3_HUB_RST	227
 
-int rk_board_late_init(void)
+int rk3288_board_late_init(void)
 {
 	int ret;
 

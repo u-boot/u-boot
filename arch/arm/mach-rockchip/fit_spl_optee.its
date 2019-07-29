@@ -11,7 +11,7 @@
 	#address-cells = <1>;
 
 	images {
-		uboot@1 {
+		uboot {
 			description = "U-Boot";
 			data = /incbin/("../../../u-boot-nodtb.bin");
 			type = "standalone";
@@ -20,7 +20,7 @@
 			compression = "none";
 			load = <0x61000000>;
 		};
-		optee@1 {
+		optee {
 			description = "OP-TEE";
 			data = /incbin/("../../../tee.bin");
 			type = "firmware";
@@ -30,7 +30,7 @@
 			load = <0x68400000>;
 			entry = <0x68400000>;
 		};
-		fdt@1 {
+		fdt {
 			description = "dtb";
 			data = /incbin/("../../../u-boot.dtb");
 			type = "flat_dt";
@@ -39,12 +39,12 @@
 	};
 
 	configurations {
-		default = "conf@1";
-		conf@1 {
+		default = "conf";
+		conf {
 			description = "Rockchip armv7 with OP-TEE";
-			firmware = "optee@1";
-			loadables = "uboot@1";
-			fdt = "fdt@1";
+			firmware = "optee";
+			loadables = "uboot";
+			fdt = "fdt";
 		};
 	};
 };

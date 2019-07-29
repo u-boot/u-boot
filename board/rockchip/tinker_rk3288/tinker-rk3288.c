@@ -21,7 +21,7 @@ static int get_ethaddr_from_eeprom(u8 *addr)
 	return i2c_eeprom_read(dev, 0, addr, 6);
 }
 
-int rk_board_late_init(void)
+int rk3288_board_late_init(void)
 {
 	u8 ethaddr[6];
 

@@ -8,6 +8,7 @@
 #include <syscon.h>
 #include <asm/armv8/mmu.h>
 #include <asm/io.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/cru_rk3368.h>
 #include <asm/arch-rockchip/grf_rk3368.h>
@@ -52,16 +53,10 @@ static struct mm_region rk3368_mem_map[] = {
 
 struct mm_region *mem_map = rk3368_mem_map;
 
-int dram_init_banksize(void)
-{
-	size_t max_size = min((unsigned long)gd->ram_size, gd->ram_top);
-
-	/* Reserve 0x200000 for ATF bl31 */
-	gd->bd->bi_dram[0].start = 0x200000;
-	gd->bd->bi_dram[0].size = max_size - gd->bd->bi_dram[0].start;
-
-	return 0;
-}
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "dwmmc@ff0f0000",
+	[BROM_BOOTSOURCE_SD] = "dwmmc@ff0c0000",
+};
 
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 static int mcu_init(void)

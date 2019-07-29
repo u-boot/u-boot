@@ -21,21 +21,6 @@
 #include <power/regulator.h>
 #include <u-boot/sha256.h>
 
-int board_init(void)
-{
-	int ret;
-
-	/*
-	 * We need to call into regulators_enable_boot_on() again, as the call
-	 * during SPL may have not included all regulators.
-	 */
-	ret = regulators_enable_boot_on(false);
-	if (ret)
-		debug("%s: Cannot enable boot on regulator\n", __func__);
-
-	return 0;
-}
-
 static void setup_macaddr(void)
 {
 #if CONFIG_IS_ENABLED(CMD_NET)

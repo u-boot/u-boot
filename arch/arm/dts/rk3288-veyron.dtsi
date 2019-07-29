@@ -16,11 +16,7 @@
 
 	chosen {
 		stdout-path = &uart2;
-	};
-
-	config {
-		u-boot,dm-pre-reloc;
-		u-boot,boot0 = &spi_flash;
+		u-boot,spl-boot-order = &spi_flash;
 	};
 
 	firmware {

@@ -7,6 +7,7 @@ config ROCKCHIP_RK3036
 	select SPL
 	imply USB_FUNCTION_ROCKUSB
 	imply CMD_ROCKUSB
+	imply ROCKCHIP_COMMON_BOARD
 	help
 	  The Rockchip RK3036 is a ARM-based SoC with a dual-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -16,6 +17,7 @@ config ROCKCHIP_RK3036
 config ROCKCHIP_RK3128
 	bool "Support Rockchip RK3128"
 	select CPU_V7A
+	imply ROCKCHIP_COMMON_BOARD
 	help
 	  The Rockchip RK3128 is a ARM-based SoC with a quad-core Cortex-A7
 	  including NEON and GPU, Mali-400 graphics, several DDR3 options
@@ -34,8 +36,10 @@ config ROCKCHIP_RK3188
 	select SPL_RAM
 	select SPL_DRIVERS_MISC_SUPPORT
 	select SPL_ROCKCHIP_EARLYRETURN_TO_BROM
+	select SPL_ROCKCHIP_BACK_TO_BROM
 	select BOARD_LATE_INIT
-	select ROCKCHIP_BROM_HELPER
+	imply ROCKCHIP_COMMON_BOARD
+	imply SPL_ROCKCHIP_COMMON_BOARD
 	help
 	  The Rockchip RK3188 is a ARM-based SoC with a quad-core Cortex-A9
 	  including NEON and GPU, 512KB L2 cache, Mali-400 graphics, two
@@ -57,11 +61,11 @@ config ROCKCHIP_RK322X
 	select TPL_NEEDS_SEPARATE_TEXT_BASE if SPL
 	select TPL_NEEDS_SEPARATE_STACK if TPL
 	select SPL_DRIVERS_MISC_SUPPORT
+	imply ROCKCHIP_COMMON_BOARD
 	imply SPL_SERIAL_SUPPORT
+	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply TPL_SERIAL_SUPPORT
-	imply TPL_BOOTROM_SUPPORT
 	imply TPL_ROCKCHIP_COMMON_BOARD
-	select ROCKCHIP_BROM_HELPER
 	select TPL_LIBCOMMON_SUPPORT
 	select TPL_LIBGENERIC_SUPPORT
 	help
@@ -73,11 +77,11 @@ config ROCKCHIP_RK322X
 config ROCKCHIP_RK3288
 	bool "Support Rockchip RK3288"
 	select CPU_V7A
-	select SPL_BOARD_INIT if SPL
 	select SUPPORT_SPL
 	select SPL
 	select SUPPORT_TPL
-	imply TPL_BOOTROM_SUPPORT
+	imply ROCKCHIP_COMMON_BOARD
+	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply TPL_CLK
 	imply TPL_DM
 	imply TPL_DRIVERS_MISC_SUPPORT
@@ -106,6 +110,8 @@ config ROCKCHIP_RK3328
 	select ARM64
 	select SUPPORT_SPL
 	select SPL
+	imply ROCKCHIP_COMMON_BOARD
+	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply SPL_SERIAL_SUPPORT
 	imply SPL_SEPARATE_BSS
 	select ENABLE_ARM_SOC_BOOT0_HOOK
@@ -125,6 +131,8 @@ config ROCKCHIP_RK3368
 	select SUPPORT_TPL
 	select TPL_NEEDS_SEPARATE_TEXT_BASE if SPL
 	select TPL_NEEDS_SEPARATE_STACK if TPL
+	imply ROCKCHIP_COMMON_BOARD
+	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply SPL_SEPARATE_BSS
 	imply SPL_SERIAL_SUPPORT
 	imply TPL_SERIAL_SUPPORT
@@ -169,12 +177,12 @@ config ROCKCHIP_RK3399
 	select DM_PMIC
 	select DM_REGULATOR_FIXED
 	select BOARD_LATE_INIT
-	select ROCKCHIP_BROM_HELPER
+	imply ROCKCHIP_COMMON_BOARD
+	imply SPL_ROCKCHIP_COMMON_BOARD
 	imply TPL_SERIAL_SUPPORT
 	imply TPL_LIBCOMMON_SUPPORT
 	imply TPL_LIBGENERIC_SUPPORT
 	imply TPL_SYS_MALLOC_SIMPLE
-	imply TPL_BOOTROM_SUPPORT
 	imply TPL_DRIVERS_MISC_SUPPORT
 	imply TPL_OF_CONTROL
 	imply TPL_DM
@@ -195,6 +203,7 @@ config ROCKCHIP_RK3399
 config ROCKCHIP_RV1108
 	bool "Support Rockchip RV1108"
 	select CPU_V7A
+	imply ROCKCHIP_COMMON_BOARD
 	help
 	  The Rockchip RV1108 is a ARM-based SoC with a single-core Cortex-A7
 	  and a DSP.
@@ -211,6 +220,7 @@ config SPL_ROCKCHIP_BACK_TO_BROM
 	bool "SPL returns to bootrom"
 	default y if ROCKCHIP_RK3036
 	select ROCKCHIP_BROM_HELPER
+	select SPL_BOOTROM_SUPPORT
 	depends on SPL
 	help
 	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
@@ -221,11 +231,27 @@ config TPL_ROCKCHIP_BACK_TO_BROM
 	bool "TPL returns to bootrom"
 	default y
 	select ROCKCHIP_BROM_HELPER
+	select TPL_BOOTROM_SUPPORT
 	depends on TPL
 	help
 	  Rockchip SoCs have ability to load SPL & U-Boot binary. If enabled,
           SPL will return to the boot rom, which will then load the U-Boot
           binary to keep going on.
+
+config ROCKCHIP_COMMON_BOARD
+	bool "Rockchip common board file"
+	help
+	  Rockchip SoCs have similar boot process, Common board file is mainly
+	  in charge of common process of board_init() and board_late_init() for
+	  U-Boot proper.
+
+config SPL_ROCKCHIP_COMMON_BOARD
+	bool "Rockchip SPL common board file"
+	depends on SPL
+	help
+	  Rockchip SoCs have similar boot process, SPL is mainly in charge of
+	  load and boot Trust ATF/U-Boot firmware, and DRAM init if there is
+	  no TPL for the board.
 
 config TPL_ROCKCHIP_COMMON_BOARD
 	bool ""

@@ -3,8 +3,14 @@
  * (C) Copyright 2019 Rockchip Electronics Co., Ltd
  */
 #include <asm/io.h>
+#include <asm/arch-rockchip/bootrom.h>
 #include <asm/arch-rockchip/grf_rk322x.h>
 #include <asm/arch-rockchip/hardware.h>
+
+const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
+	[BROM_BOOTSOURCE_EMMC] = "dwmmc@30020000",
+	[BROM_BOOTSOURCE_SD] = "dwmmc@30000000",
+};
 
 #ifdef CONFIG_DEBUG_UART_BOARD_INIT
 void board_debug_uart_init(void)
@@ -42,3 +48,26 @@ void board_debug_uart_init(void)
 		     CON_IOMUX_UART2SEL_21 << CON_IOMUX_UART2SEL_SHIFT);
 }
 #endif
+
+int arch_cpu_init(void)
+{
+#ifdef CONFIG_SPL_BUILD
+#define SGRF_BASE	0x10150000
+	static struct rk322x_sgrf * const sgrf = (void *)SGRF_BASE;
+
+	/* Disable the ddr secure region setting to make it non-secure */
+	rk_clrreg(&sgrf->soc_con[0], 0x4000);
+#else
+#define GRF_BASE	0x11000000
+	static struct rk322x_grf * const grf = (void *)GRF_BASE;
+	/*
+	 * The integrated macphy is enabled by default, disable it
+	 * for saving power consuming.
+	 */
+	rk_clrsetreg(&grf->macphy_con[0],
+		     MACPHY_CFG_ENABLE_MASK,
+		     0 << MACPHY_CFG_ENABLE_SHIFT);
+
+#endif
+	return 0;
+}

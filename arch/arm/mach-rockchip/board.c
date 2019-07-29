@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * (C) Copyright 2017 Rockchip Electronics Co., Ltd.
+ * (C) Copyright 2019 Rockchip Electronics Co., Ltd.
  */
 #include <common.h>
 #include <clk.h>
@@ -8,10 +8,9 @@
 #include <ram.h>
 #include <syscon.h>
 #include <asm/io.h>
+#include <asm/arch-rockchip/boot_mode.h>
 #include <asm/arch-rockchip/clock.h>
 #include <asm/arch-rockchip/periph.h>
-#include <asm/arch-rockchip/grf_rk3128.h>
-#include <asm/arch-rockchip/boot_mode.h>
 #include <power/regulator.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -30,31 +29,18 @@ int board_late_init(void)
 
 int board_init(void)
 {
-	int ret = 0;
+	int ret;
 
+#ifdef CONFIG_DM_REGULATOR
 	ret = regulators_enable_boot_on(false);
-	if (ret) {
+	if (ret)
 		debug("%s: Cannot enable boot on regulator\n", __func__);
-		return ret;
-	}
+#endif
 
 	return 0;
 }
 
-int dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = 0x8400000;
-	/* Reserve 0xe00000(14MB) for OPTEE with TA enabled, otherwise 2MB */
-	gd->bd->bi_dram[1].start = CONFIG_SYS_SDRAM_BASE
-				+ gd->bd->bi_dram[0].size + 0xe00000;
-	gd->bd->bi_dram[1].size = gd->bd->bi_dram[0].start
-				+ gd->ram_size - gd->bd->bi_dram[1].start;
-
-	return 0;
-}
-
-#if !CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
+#if !defined(CONFIG_SYS_DCACHE_OFF) && !defined(CONFIG_ARM64)
 void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */
@@ -66,7 +52,7 @@ void enable_caches(void)
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 
-static struct dwc2_plat_otg_data rk3128_otg_data = {
+static struct dwc2_plat_otg_data otg_data = {
 	.rx_fifo_sz	= 512,
 	.np_tx_fifo_sz	= 16,
 	.tx_fifo_sz	= 128,
@@ -80,8 +66,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	const void *blob = gd->fdt_blob;
 
 	/* find the usb_otg node */
-	node = fdt_node_offset_by_compatible(blob, -1,
-					     "rockchip,rk3128-usb");
+	node = fdt_node_offset_by_compatible(blob, -1, "snps,dwc2");
 
 	while (node > 0) {
 		mode = fdt_getprop(blob, node, "dr_mode", NULL);
@@ -90,16 +75,15 @@ int board_usb_init(int index, enum usb_init_type init)
 			break;
 		}
 
-		node = fdt_node_offset_by_compatible(blob, node,
-						     "rockchip,rk3128-usb");
+		node = fdt_node_offset_by_compatible(blob, node, "snps,dwc2");
 	}
 	if (!matched) {
 		debug("Not found usb_otg device\n");
 		return -ENODEV;
 	}
-	rk3128_otg_data.regs_otg = fdtdec_get_addr(blob, node, "reg");
+	otg_data.regs_otg = fdtdec_get_addr(blob, node, "reg");
 
-	return dwc2_udc_probe(&rk3128_otg_data);
+	return dwc2_udc_probe(&otg_data);
 }
 
 int board_usb_cleanup(int index, enum usb_init_type init)
@@ -111,12 +95,9 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 #if CONFIG_IS_ENABLED(FASTBOOT)
 int fastboot_set_reboot_flag(void)
 {
-	struct rk3128_grf *grf;
-
 	printf("Setting reboot to fastboot flag ...\n");
-	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	/* Set boot mode to fastboot */
-	writel(BOOT_FASTBOOT, &grf->os_reg[0]);
+	writel(BOOT_FASTBOOT, CONFIG_ROCKCHIP_BOOT_MODE_REG);
 
 	return 0;
 }
