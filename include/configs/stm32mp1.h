@@ -79,7 +79,9 @@
 #endif
 
 /* Dynamic MTD partition support */
+#if defined(CONFIG_STM32_QSPI) || defined(CONFIG_NAND_STM32_FMC2)
 #define CONFIG_SYS_MTDPARTS_RUNTIME
+#endif
 
 /*****************************************************************************/
 #ifdef CONFIG_DISTRO_DEFAULTS
