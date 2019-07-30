@@ -27,7 +27,7 @@ static int mdio_sandbox_read(struct udevice *dev, int addr, int devad, int reg)
 		return -ENODEV;
 	if (devad != MDIO_DEVAD_NONE)
 		return -ENODEV;
-	if (reg < 0 || reg > SANDBOX_PHY_REG_CNT)
+	if (reg < 0 || reg >= SANDBOX_PHY_REG_CNT)
 		return -ENODEV;
 
 	return priv->reg[reg];
@@ -45,7 +45,7 @@ static int mdio_sandbox_write(struct udevice *dev, int addr, int devad, int reg,
 		return -ENODEV;
 	if (devad != MDIO_DEVAD_NONE)
 		return -ENODEV;
-	if (reg < 0 || reg > SANDBOX_PHY_REG_CNT)
+	if (reg < 0 || reg >= SANDBOX_PHY_REG_CNT)
 		return -ENODEV;
 
 	priv->reg[reg] = val;
