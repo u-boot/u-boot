@@ -21,6 +21,7 @@
 #include <reset.h>
 #include <syscon.h>
 #include <usb.h>
+#include <watchdog.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/stm32.h>
@@ -232,6 +233,7 @@ int g_dnl_board_usb_cable_connected(void)
 }
 #endif /* CONFIG_USB_GADGET */
 
+#ifdef CONFIG_LED
 static int get_led(struct udevice **dev, char *led_string)
 {
 	char *led_name;
@@ -264,12 +266,41 @@ static int setup_led(enum led_state_t cmd)
 	ret = led_set_state(dev, cmd);
 	return ret;
 }
+#endif
+
+static void __maybe_unused led_error_blink(u32 nb_blink)
+{
+#ifdef CONFIG_LED
+	int ret;
+	struct udevice *led;
+	u32 i;
+#endif
+
+	if (!nb_blink)
+		return;
+
+#ifdef CONFIG_LED
+	ret = get_led(&led, "u-boot,error-led");
+	if (!ret) {
+		/* make u-boot,error-led blinking */
+		/* if U32_MAX and 125ms interval, for 17.02 years */
+		for (i = 0; i < 2 * nb_blink; i++) {
+			led_set_state(led, LEDST_TOGGLE);
+			mdelay(125);
+			WATCHDOG_RESET();
+		}
+	}
+#endif
+
+	/* infinite: the boot process must be stopped */
+	if (nb_blink == U32_MAX)
+		hang();
+}
 
 static int board_check_usb_power(void)
 {
 	struct ofnode_phandle_args adc_args;
 	struct udevice *adc;
-	struct udevice *led;
 	ofnode node;
 	unsigned int raw;
 	int max_uV = 0;
@@ -395,20 +426,7 @@ static int board_check_usb_power(void)
 		pr_err("****************************************************\n\n");
 	}
 
-	ret = get_led(&led, "u-boot,error-led");
-	if (ret) {
-		/* in unattached case, the boot process must be stopped */
-		if (nb_blink == U32_MAX)
-			hang();
-		return ret;
-	}
-
-	/* make u-boot,error-led blinking */
-	for (i = 0; i < nb_blink * 2; i++) {
-		led_set_state(led, LEDST_TOGGLE);
-		mdelay(125);
-	}
-	led_set_state(led, LEDST_ON);
+	led_error_blink(nb_blink);
 
 	return 0;
 }

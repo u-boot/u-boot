@@ -15,31 +15,22 @@
 	};
 
 	config {
+		u-boot,boot-led = "heartbeat";
+		u-boot,error-led = "error";
 		st,fastboot-gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
 		st,stm32prog-gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
 	};
 
 	led {
-		compatible = "gpio-leds";
-
 		red {
-			label = "stm32mp:red:status";
+			label = "error";
 			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
 			default-state = "off";
+			status = "okay";
 		};
-		green {
-			label = "stm32mp:green:user";
-			gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
-			default-state = "on";
-		};
-		orange {
-			label = "stm32mp:orange:status";
-			gpios = <&gpioh 7 GPIO_ACTIVE_HIGH>;
-			default-state = "off";
-		};
+
 		blue {
-			label = "stm32mp:blue:user";
-			gpios = <&gpiod 11 GPIO_ACTIVE_HIGH>;
+			default-state = "on";
 		};
 	};
 };
