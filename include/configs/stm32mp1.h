@@ -150,7 +150,8 @@
 	"ramdisk_addr_r=0xc4400000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"env_default=1\0"				\
+	"altbootcmd=run bootcmd\0" \
+	"env_default=1\0" \
 	"env_check=if test $env_default -eq 1;"\
 		" then env set env_default 0;env save;fi\0" \
 	STM32MP_BOOTCMD \
