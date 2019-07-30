@@ -42,6 +42,7 @@ config TARGET_STM32MP1
 	select PINCTRL_STM32
 	select STM32_RCC
 	select STM32_RESET
+	select STM32_SERIAL
 	select SYS_ARCH_TIMER
 	imply BOOTCOUNT_LIMIT
 	imply BOOTSTAGE
