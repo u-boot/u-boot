@@ -10,11 +10,6 @@
 #include <linux/sizes.h>
 #include <asm/arch/stm32.h>
 
-/*
- * Number of clock ticks in 1 sec
- */
-#define CONFIG_SYS_HZ				1000
-
 #ifndef CONFIG_STM32MP1_TRUSTED
 /* PSCI support */
 #define CONFIG_ARMV7_PSCI_1_0
