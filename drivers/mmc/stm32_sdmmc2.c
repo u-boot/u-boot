@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/iopoll.h>
+#include <watchdog.h>
 
 struct stm32_sdmmc2_plat {
 	struct mmc_config cfg;
@@ -431,6 +432,8 @@ static int stm32_sdmmc2_send_cmd(struct udevice *dev, struct mmc_cmd *cmd,
 	struct stm32_sdmmc2_ctx ctx;
 	u32 cmdat = data ? SDMMC_CMD_CMDTRANS : 0;
 	int ret, retry = 3;
+
+	WATCHDOG_RESET();
 
 retry_cmd:
 	ctx.data_length = 0;
