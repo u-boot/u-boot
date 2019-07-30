@@ -505,6 +505,73 @@ static void sysconf_init(void)
 #endif
 }
 
+#ifdef CONFIG_DM_REGULATOR
+/* Fix to make I2C1 usable on DK2 for touchscreen usage in kernel */
+static int dk2_i2c1_fix(void)
+{
+	ofnode node;
+	struct gpio_desc hdmi, audio;
+	int ret = 0;
+
+	node = ofnode_path("/soc/i2c@40012000/hdmi-transmitter@39");
+	if (!ofnode_valid(node)) {
+		pr_debug("%s: no hdmi-transmitter@39 ?\n", __func__);
+		return -ENOENT;
+	}
+
+	if (gpio_request_by_name_nodev(node, "reset-gpios", 0,
+				       &hdmi, GPIOD_IS_OUT)) {
+		pr_debug("%s: could not find reset-gpios\n",
+			 __func__);
+		return -ENOENT;
+	}
+
+	node = ofnode_path("/soc/i2c@40012000/cs42l51@4a");
+	if (!ofnode_valid(node)) {
+		pr_debug("%s: no cs42l51@4a ?\n", __func__);
+		return -ENOENT;
+	}
+
+	if (gpio_request_by_name_nodev(node, "reset-gpios", 0,
+				       &audio, GPIOD_IS_OUT)) {
+		pr_debug("%s: could not find reset-gpios\n",
+			 __func__);
+		return -ENOENT;
+	}
+
+	/* before power up, insure that HDMI and AUDIO IC is under reset */
+	ret = dm_gpio_set_value(&hdmi, 1);
+	if (ret) {
+		pr_err("%s: can't set_value for hdmi_nrst gpio", __func__);
+		goto error;
+	}
+	ret = dm_gpio_set_value(&audio, 1);
+	if (ret) {
+		pr_err("%s: can't set_value for audio_nrst gpio", __func__);
+		goto error;
+	}
+
+	/* power-up audio IC */
+	regulator_autoset_by_name("v1v8_audio", NULL);
+
+	/* power-up HDMI IC */
+	regulator_autoset_by_name("v1v2_hdmi", NULL);
+	regulator_autoset_by_name("v3v3_hdmi", NULL);
+
+error:
+	return ret;
+}
+
+static bool board_is_dk2(void)
+{
+	if (CONFIG_IS_ENABLED(TARGET_STM32MP157C_DK2) &&
+	    of_machine_is_compatible("st,stm32mp157c-dk2"))
+		return true;
+
+	return false;
+}
+#endif
+
 /* board dependent setup after realloc */
 int board_init(void)
 {
@@ -523,6 +590,9 @@ int board_init(void)
 	board_key_check();
 
 #ifdef CONFIG_DM_REGULATOR
+	if (board_is_dk2())
+		dk2_i2c1_fix();
+
 	regulators_enable_boot_on(_DEBUG);
 #endif
 

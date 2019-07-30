@@ -4,3 +4,9 @@
  */
 
 #include "stm32mp157a-dk1-u-boot.dtsi"
+
+&i2c1 {
+	hdmi-transmitter@39 {
+		reset-gpios = <&gpioa 10 GPIO_ACTIVE_LOW>;
+	};
+};
