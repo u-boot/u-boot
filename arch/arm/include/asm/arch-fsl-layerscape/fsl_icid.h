@@ -54,6 +54,8 @@ void fdt_fixup_icid(void *blob);
 #define SCFG_IS_LE false
 #endif
 
+#define QDMA_IS_LE false
+
 #define SET_SCFG_ICID(compat, streamid, name, compataddr) \
 	SET_ICID_ENTRY(compat, streamid, (((streamid) << 24) | (1 << 23)), \
 		offsetof(struct ccsr_scfg, name) + CONFIG_SYS_FSL_SCFG_ADDR, \
@@ -70,14 +72,6 @@ void fdt_fixup_icid(void *blob);
 #define SET_SDHC_ICID(streamid) \
 	SET_SCFG_ICID("fsl,esdhc", streamid, sdhc_icid,\
 		CONFIG_SYS_FSL_ESDHC_ADDR)
-
-#define SET_QDMA_ICID(compat, streamid) \
-	SET_ICID_ENTRY(compat, streamid, (1 << 31) | (streamid), \
-		QDMA_BASE_ADDR + QMAN_CQSIDR_REG, \
-		QDMA_BASE_ADDR, false), \
-	SET_ICID_ENTRY(NULL, streamid, (1 << 31) | (streamid), \
-		QDMA_BASE_ADDR + QMAN_CQSIDR_REG + 4, \
-		QDMA_BASE_ADDR, false)
 
 #define SET_EDMA_ICID(streamid) \
 	SET_SCFG_ICID("fsl,vf610-edma", streamid, edma_icid,\
@@ -127,6 +121,8 @@ extern int fman_icid_tbl_sz;
 #define GUR_IS_LE false
 #endif
 
+#define QDMA_IS_LE true
+
 #define SET_GUR_ICID(compat, streamid, name, compataddr) \
 	SET_ICID_ENTRY(compat, streamid, streamid, \
 		offsetof(struct ccsr_gur, name) + CONFIG_SYS_FSL_GUTS_ADDR, \
@@ -140,13 +136,33 @@ extern int fman_icid_tbl_sz;
 	SET_GUR_ICID(compat, streamid, sata##sata_num##_amqr, \
 		AHCI_BASE_ADDR##sata_num)
 
-#define SET_SDHC_ICID(streamid) \
-	SET_GUR_ICID("fsl,esdhc", streamid, sdmm1_amqr,\
-		CONFIG_SYS_FSL_ESDHC_ADDR)
+#define SET_SDHC_ICID(sdhc_num, streamid) \
+	SET_GUR_ICID("fsl,esdhc", streamid, sdmm##sdhc_num##_amqr,\
+		FSL_ESDHC##sdhc_num##_BASE_ADDR)
+
+#define SET_EDMA_ICID(streamid) \
+	SET_GUR_ICID("fsl,vf610-edma", streamid, spare3_amqr,\
+		EDMA_BASE_ADDR)
+
+#define SET_GPU_ICID(compat, streamid) \
+	SET_GUR_ICID(compat, streamid, misc1_amqr,\
+		GPU_BASE_ADDR)
+
+#define SET_DISPLAY_ICID(streamid) \
+	SET_GUR_ICID("arm,mali-dp500", streamid, spare2_amqr,\
+		DISPLAY_BASE_ADDR)
 
 #define SEC_ICID_REG_VAL(streamid) (streamid)
 
 #endif /* CONFIG_FSL_LSCH2 */
+
+#define SET_QDMA_ICID(compat, streamid) \
+	SET_ICID_ENTRY(compat, streamid, (1 << 31) | (streamid), \
+		QDMA_BASE_ADDR + QMAN_CQSIDR_REG, \
+		QDMA_BASE_ADDR, QDMA_IS_LE), \
+	SET_ICID_ENTRY(NULL, streamid, (1 << 31) | (streamid), \
+		QDMA_BASE_ADDR + QMAN_CQSIDR_REG + 4, \
+		QDMA_BASE_ADDR, QDMA_IS_LE)
 
 #define SET_SEC_JR_ICID_ENTRY(jr_num, streamid) \
 	SET_ICID_ENTRY( \

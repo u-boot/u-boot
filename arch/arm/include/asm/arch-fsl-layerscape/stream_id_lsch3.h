@@ -76,7 +76,7 @@
 
 #if defined(CONFIG_ARCH_LS2080A) || defined(CONFIG_ARCH_LX2160A)
 #define FSL_DMA_STREAM_ID		6
-#elif defined(CONFIG_ARCH_LS1088A)
+#elif defined(CONFIG_ARCH_LS1088A) || defined(CONFIG_ARCH_LS1028A)
 #define FSL_DMA_STREAM_ID		5
 #endif
 
@@ -103,5 +103,10 @@
 #define FSL_SEC_JR2_STREAM_ID		66
 #define FSL_SEC_JR3_STREAM_ID		67
 #define FSL_SEC_JR4_STREAM_ID		68
+
+#define FSL_SDMMC2_STREAM_ID		69
+#define FSL_EDMA_STREAM_ID		70
+#define FSL_GPU_STREAM_ID		71
+#define FSL_DISPLAY_STREAM_ID		72
 
 #endif

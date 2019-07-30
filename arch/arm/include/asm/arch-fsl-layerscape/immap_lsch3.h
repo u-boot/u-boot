@@ -440,7 +440,8 @@ struct ccsr_gur {
 	u32	usb2_amqr;
 	u8	res_528[0x530-0x528];	/* add more registers when needed */
 	u32	sdmm1_amqr;
-	u8	res_534[0x550-0x534];	/* add more registers when needed */
+	u32	sdmm2_amqr;
+	u8	res_538[0x550 - 0x538];	/* add more registers when needed */
 	u32	sata1_amqr;
 	u32	sata2_amqr;
 	u8	res_558[0x570-0x558];	/* add more registers when needed */
@@ -448,7 +449,8 @@ struct ccsr_gur {
 	u8	res_574[0x590-0x574];	/* add more registers when needed */
 	u32	spare1_amqr;
 	u32	spare2_amqr;
-	u8	res_598[0x620-0x598];	/* add more registers when needed */
+	u32	spare3_amqr;
+	u8	res_59c[0x620 - 0x59c];	/* add more registers when needed */
 	u32	gencr[7];	/* General Control Registers */
 	u8	res_63c[0x640-0x63c];	/* add more registers when needed */
 	u32	cgensr1;	/* Core General Status Register */
