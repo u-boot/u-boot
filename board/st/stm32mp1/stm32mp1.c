@@ -5,8 +5,8 @@
 #include <common.h>
 #include <adc.h>
 #include <bootm.h>
-#include <config.h>
 #include <clk.h>
+#include <config.h>
 #include <dm.h>
 #include <env.h>
 #include <env_internal.h>
@@ -683,7 +683,6 @@ void board_quiesce_devices(void)
 }
 
 /* board interface eth init */
-/* this is a weak define that we are overriding */
 int board_interface_eth_init(phy_interface_t interface_type,
 			     bool eth_clk_sel_reg, bool eth_ref_clk_sel_reg)
 {
