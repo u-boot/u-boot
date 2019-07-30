@@ -16,7 +16,7 @@
  * address mapping : RBC
  * Tc > + 85C : N
  */
-#define DDR_MEM_NAME "DDR3-1066/888 bin G 1x4Gb 533MHz v1.44"
+#define DDR_MEM_NAME "DDR3-1066/888 bin G 1x4Gb 533MHz v1.45"
 #define DDR_MEM_SPEED 533000
 #define DDR_MEM_SIZE 0x20000000
 
@@ -89,7 +89,7 @@
 #define DDR_PTR2 0x042DA068
 #define DDR_ACIOCR 0x10400812
 #define DDR_DXCCR 0x00000C40
-#define DDR_DSGCR 0xF200001F
+#define DDR_DSGCR 0xF200011F
 #define DDR_DCR 0x0000000B
 #define DDR_DTPR0 0x38D488D0
 #define DDR_DTPR1 0x098B00D8
