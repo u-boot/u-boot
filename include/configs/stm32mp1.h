@@ -52,7 +52,6 @@
 
 /* SPL support */
 #ifdef CONFIG_SPL
-/* BOOTROM load address */
 /* SPL use DDR */
 #define CONFIG_SPL_BSS_START_ADDR	0xC0200000
 #define CONFIG_SPL_BSS_MAX_SIZE		0x00100000
