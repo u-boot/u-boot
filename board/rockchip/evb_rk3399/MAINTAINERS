@@ -6,6 +6,12 @@ F:      include/configs/evb_rk3399.h
 F:      configs/evb-rk3399_defconfig
 F:      configs/firefly-rk3399_defconfig
 
+KHADAS-EDGE
+M:	Nick Xie <nick@khadas.com>
+S:	Maintained
+F:	configs/khadas-edge-rk3399_defconfig
+F:	arch/arm/dts/rk3399-khadas-edge-u-boot.dtsi
+
 NANOPC-T4
 M:	Jagan Teki <jagan@amarulasolutions.com>
 S:	Maintained
