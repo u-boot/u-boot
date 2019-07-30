@@ -106,6 +106,10 @@
 	u-boot,dm-pre-reloc;
 };
 
+&iwdg2 {
+	u-boot,dm-pre-reloc;
+};
+
 &pinctrl {
 	u-boot,dm-pre-reloc;
 };
