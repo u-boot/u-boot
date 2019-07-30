@@ -47,6 +47,7 @@ config TARGET_STM32MP1
 	imply BOOTSTAGE
 	imply CMD_BOOTCOUNT
 	imply CMD_BOOTSTAGE
+	imply PRE_CONSOLE_BUFFER
 	imply SILENT_CONSOLE
 	imply SYSRESET_PSCI if STM32MP1_TRUSTED
 	imply SYSRESET_SYSCON if !STM32MP1_TRUSTED
@@ -109,6 +110,13 @@ config CMD_STM32KEY
 	help
 		fuse public key hash in corresponding fuse used to authenticate
 		binary.
+
+
+config PRE_CON_BUF_ADDR
+	default 0xC02FF000
+
+config PRE_CON_BUF_SZ
+	default 4096
 
 config BOOTSTAGE_STASH_ADDR
 	default 0xC3000000
