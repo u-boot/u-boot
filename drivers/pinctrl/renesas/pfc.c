@@ -469,7 +469,7 @@ static int sh_pfc_gpio_request_enable(struct udevice *dev,
 	const struct sh_pfc_pin *pin = NULL;
 	int i, ret, idx;
 
-	for (i = 1; i < pfc->info->nr_pins; i++) {
+	for (i = 0; i < pfc->info->nr_pins; i++) {
 		if (priv->pfc.info->pins[i].pin != pin_selector)
 			continue;
 
@@ -505,7 +505,7 @@ static int sh_pfc_gpio_disable_free(struct udevice *dev,
 	const struct sh_pfc_pin *pin = NULL;
 	int i, idx;
 
-	for (i = 1; i < pfc->info->nr_pins; i++) {
+	for (i = 0; i < pfc->info->nr_pins; i++) {
 		if (priv->pfc.info->pins[i].pin != pin_selector)
 			continue;
 
