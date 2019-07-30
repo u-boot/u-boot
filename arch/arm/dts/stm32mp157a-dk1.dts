@@ -308,7 +308,10 @@
 };
 
 &pwr {
-	pwr-supply = <&vdd>;
+	pwr-regulators {
+		vdd-supply = <&vdd>;
+		vdd_3v3_usbfs-supply = <&vdd_usb>;
+	};
 };
 
 &rng1 {

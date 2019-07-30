@@ -472,7 +472,9 @@ static void sysconf_init(void)
 	 *   => U-Boot set the register only if VDD < 2.7V (in DT)
 	 *      but this value need to be consistent with board design
 	 */
-	ret = syscon_get_by_driver_data(STM32MP_SYSCON_PWR, &pwr_dev);
+	ret = uclass_get_device_by_driver(UCLASS_PMIC,
+					  DM_GET_DRIVER(stm32mp_pwr_pmic),
+					  &pwr_dev);
 	if (!ret) {
 		ret = uclass_get_device_by_driver(UCLASS_MISC,
 						  DM_GET_DRIVER(stm32mp_bsec),
@@ -486,8 +488,8 @@ static void sysconf_init(void)
 		if (!ret)
 			otp = otp & BIT(13);
 
-		/* get VDD = pwr-supply */
-		ret = device_get_supply_regulator(pwr_dev, "pwr-supply",
+		/* get VDD = vdd-supply */
+		ret = device_get_supply_regulator(pwr_dev, "vdd-supply",
 						  &pwr_reg);
 
 		/* check if VDD is Low Voltage */
