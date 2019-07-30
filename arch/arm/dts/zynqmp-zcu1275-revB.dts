@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * dts file for Xilinx ZynqMP ZC1275 RevB
+ * dts file for Xilinx ZynqMP ZCU1275 RevB
  *
  * (C) Copyright 2018, Xilinx, Inc.
  *
@@ -14,8 +14,9 @@
 #include "zynqmp-clk-ccf.dtsi"
 
 / {
-	model = "ZynqMP ZC1275 RevB";
-	compatible = "xlnx,zynqmp-zc1275-revB", "xlnx,zynqmp-zc1275", "xlnx,zynqmp";
+	model = "ZynqMP ZCU1275 RevB";
+	compatible = "xlnx,zynqmp-zcu1275-revB", "xlnx,zynqmp-zcu1275",
+		     "xlnx,zynqmp";
 
 	aliases {
 		serial0 = &uart0;

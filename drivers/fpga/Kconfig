@@ -58,8 +58,16 @@ config FPGA_ZYNQMPPL
 
 config FPGA_SPARTAN3
 	bool "Enable Spartan3 FPGA driver"
+	depends on FPGA_XILINX
 	help
 	  Enable Spartan3 FPGA driver for loading in BIT format.
+
+config FPGA_VIRTEX2
+	bool "Enable Xilinx Virtex-II and later FPGA driver"
+	depends on FPGA_XILINX
+	help
+	  Enable Virtex-II FPGA driver for loading in BIT format. This driver
+	  also supports many newer Xilinx FPGA families.
 
 config FPGA_ZYNQPL
 	bool "Enable Xilinx FPGA for Zynq"

@@ -72,4 +72,6 @@ int chip_id(unsigned char id);
 void tcm_init(u8 mode);
 #endif
 
+void zynqmp_pmufw_load_config_object(const void *cfg_obj, size_t size);
+
 #endif /* _ASM_ARCH_SYS_PROTO_H */
