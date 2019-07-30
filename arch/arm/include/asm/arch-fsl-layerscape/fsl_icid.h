@@ -17,6 +17,7 @@ struct icid_id_table {
 	u32 reg;
 	phys_addr_t compat_addr;
 	phys_addr_t reg_addr;
+	bool le;
 };
 
 struct fman_icid_id_table {
@@ -30,18 +31,25 @@ int fdt_set_iommu_prop(void *blob, int off, int smmu_ph, u32 *ids, int num_ids);
 void set_icids(void);
 void fdt_fixup_icid(void *blob);
 
-#define SET_ICID_ENTRY(name, idA, regA, addr, compataddr) \
+#define SET_ICID_ENTRY(name, idA, regA, addr, compataddr, _le) \
 	{ .compat = name, \
 	  .id = idA, \
 	  .reg = regA, \
 	  .compat_addr = compataddr, \
 	  .reg_addr = addr, \
+	  .le = _le \
 	}
+
+#ifdef CONFIG_SYS_FSL_CCSR_SCFG_LE
+#define SCFG_IS_LE true
+#elif defined(CONFIG_SYS_FSL_CCSR_SCFG_BE)
+#define SCFG_IS_LE false
+#endif
 
 #define SET_SCFG_ICID(compat, streamid, name, compataddr) \
 	SET_ICID_ENTRY(compat, streamid, (((streamid) << 24) | (1 << 23)), \
 		offsetof(struct ccsr_scfg, name) + CONFIG_SYS_FSL_SCFG_ADDR, \
-		compataddr)
+		compataddr, SCFG_IS_LE)
 
 #define SET_USB_ICID(usb_num, compat, streamid) \
 	SET_SCFG_ICID(compat, streamid, usb##usb_num##_icid,\
@@ -58,10 +66,10 @@ void fdt_fixup_icid(void *blob);
 #define SET_QDMA_ICID(compat, streamid) \
 	SET_ICID_ENTRY(compat, streamid, (1 << 31) | (streamid), \
 		QDMA_BASE_ADDR + QMAN_CQSIDR_REG, \
-		QDMA_BASE_ADDR), \
+		QDMA_BASE_ADDR, false), \
 	SET_ICID_ENTRY(NULL, streamid, (1 << 31) | (streamid), \
 		QDMA_BASE_ADDR + QMAN_CQSIDR_REG + 4, \
-		QDMA_BASE_ADDR)
+		QDMA_BASE_ADDR, false)
 
 #define SET_EDMA_ICID(streamid) \
 	SET_SCFG_ICID("fsl,vf610-edma", streamid, edma_icid,\
@@ -81,22 +89,28 @@ void fdt_fixup_icid(void *blob);
 	SET_ICID_ENTRY("fsl,qman", streamid, streamid, \
 		offsetof(struct ccsr_qman, liodnr) + \
 		CONFIG_SYS_FSL_QMAN_ADDR, \
-		CONFIG_SYS_FSL_QMAN_ADDR)
+		CONFIG_SYS_FSL_QMAN_ADDR, false)
 
 #define SET_BMAN_ICID(streamid) \
 	SET_ICID_ENTRY("fsl,bman", streamid, streamid, \
 		offsetof(struct ccsr_bman, liodnr) + \
 		CONFIG_SYS_FSL_BMAN_ADDR, \
-		CONFIG_SYS_FSL_BMAN_ADDR)
+		CONFIG_SYS_FSL_BMAN_ADDR, false)
 
 #define SET_FMAN_ICID_ENTRY(_port_id, streamid) \
 	{ .port_id = (_port_id), .icid = (streamid) }
+
+#ifdef CONFIG_SYS_FSL_SEC_LE
+#define SEC_IS_LE true
+#elif defined(CONFIG_SYS_FSL_SEC_BE)
+#define SEC_IS_LE false
+#endif
 
 #define SET_SEC_QI_ICID(streamid) \
 	SET_ICID_ENTRY("fsl,sec-v4.0", streamid, \
 		0, offsetof(ccsr_sec_t, qilcr_ls) + \
 		CONFIG_SYS_FSL_SEC_ADDR, \
-		CONFIG_SYS_FSL_SEC_ADDR)
+		CONFIG_SYS_FSL_SEC_ADDR, SEC_IS_LE)
 
 #define SET_SEC_JR_ICID_ENTRY(jr_num, streamid) \
 	SET_ICID_ENTRY( \
@@ -109,17 +123,17 @@ void fdt_fixup_icid(void *blob);
 		(((streamid) << 16) | (streamid)), \
 		offsetof(ccsr_sec_t, jrliodnr[jr_num].ls) + \
 		CONFIG_SYS_FSL_SEC_ADDR, \
-		FSL_SEC_JR##jr_num##_BASE_ADDR)
+		FSL_SEC_JR##jr_num##_BASE_ADDR, SEC_IS_LE)
 
 #define SET_SEC_DECO_ICID_ENTRY(deco_num, streamid) \
 	SET_ICID_ENTRY(NULL, streamid, (((streamid) << 16) | (streamid)), \
 		offsetof(ccsr_sec_t, decoliodnr[deco_num].ls) + \
-		CONFIG_SYS_FSL_SEC_ADDR, 0)
+		CONFIG_SYS_FSL_SEC_ADDR, 0, SEC_IS_LE)
 
 #define SET_SEC_RTIC_ICID_ENTRY(rtic_num, streamid) \
 	SET_ICID_ENTRY(NULL, streamid, (((streamid) << 16) | (streamid)), \
 		offsetof(ccsr_sec_t, rticliodnr[rtic_num].ls) + \
-		CONFIG_SYS_FSL_SEC_ADDR, 0)
+		CONFIG_SYS_FSL_SEC_ADDR, 0, SEC_IS_LE)
 
 extern struct icid_id_table icid_tbl[];
 extern struct fman_icid_id_table fman_icid_tbl[];
