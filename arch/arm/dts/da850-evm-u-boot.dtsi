@@ -16,6 +16,10 @@
 	};
 };
 
+&eth0 {
+	pinctrl-0 = <&mii_pins>, <&mdio_pins>;
+};
+
 &flash {
 	compatible = "m25p64", "jedec,spi-nor";
 };
