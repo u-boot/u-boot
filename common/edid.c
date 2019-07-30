@@ -202,7 +202,9 @@ int edid_get_timing_validate(u8 *buf, int buf_size,
 							 timing);
 			else
 				timing_done = true;
-			break;
+
+			if (timing_done)
+				break;
 		}
 	}
 	if (!timing_done)

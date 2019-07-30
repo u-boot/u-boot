@@ -24,6 +24,8 @@
 #include "ipu.h"
 #include "mxcfb.h"
 #include "ipu_regs.h"
+#include "display.h"
+#include <panel.h>
 
 #include <dm.h>
 #include <video.h>
@@ -609,6 +611,7 @@ void *video_hw_init(void)
 
 	ret = mxcfb_probe(gpixfmt, gdisp, gmode);
 	debug("Framebuffer at 0x%x\n", (unsigned int)panel.frameAdrs);
+	gd->fb_base = panel.frameAdrs;
 
 	return (void *)&panel;
 }
@@ -636,6 +639,10 @@ static int ipuv3_video_probe(struct udevice *dev)
 {
 	struct video_uc_platdata *plat = dev_get_uclass_platdata(dev);
 	struct video_priv *uc_priv = dev_get_uclass_priv(dev);
+#if defined(CONFIG_DISPLAY)
+	struct udevice *disp_dev;
+#endif
+	struct udevice *panel_dev;
 	u32 fb_start, fb_end;
 	int ret;
 
@@ -654,6 +661,18 @@ static int ipuv3_video_probe(struct udevice *dev)
 	if (ret < 0)
 		return ret;
 
+#if defined(CONFIG_DISPLAY)
+	ret = uclass_first_device(UCLASS_DISPLAY, &disp_dev);
+	if (disp_dev) {
+		ret = display_enable(disp_dev, 16, NULL);
+		if (ret < 0)
+			return ret;
+	}
+#endif
+	ret = uclass_get_device(UCLASS_PANEL, 0, &panel_dev);
+	if (panel_dev)
+		panel_enable_backlight(panel_dev);
+
 	uc_priv->xsize = gmode->xres;
 	uc_priv->ysize = gmode->yres;
 	uc_priv->bpix = LCD_MAX_LOG2_BPP;
@@ -665,6 +684,7 @@ static int ipuv3_video_probe(struct udevice *dev)
 	mmu_set_region_dcache_behaviour(fb_start, fb_end - fb_start,
 					DCACHE_WRITEBACK);
 	video_set_flush_dcache(dev, true);
+	gd->fb_base = fb_start;
 
 	return 0;
 }
