@@ -25,6 +25,11 @@
 		u-boot,dm-pre-reloc;
 	};
 
+	/* need PSCI for sysreset during board_f */
+	psci {
+		u-boot,dm-pre-proper;
+	};
+
 	reboot {
 		u-boot,dm-pre-reloc;
 	};
