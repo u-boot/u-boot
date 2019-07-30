@@ -231,23 +231,23 @@ static int stmfx_pinctrl_conf_set(struct udevice *dev, unsigned int pin,
 	switch (param) {
 	case PIN_CONFIG_BIAS_PULL_PIN_DEFAULT:
 	case PIN_CONFIG_BIAS_DISABLE:
+	case PIN_CONFIG_DRIVE_PUSH_PULL:
+		ret = stmfx_pinctrl_set_type(dev, pin, 0);
+		break;
 	case PIN_CONFIG_BIAS_PULL_DOWN:
+		ret = stmfx_pinctrl_set_type(dev, pin, 1);
+		if (ret)
+			return ret;
 		ret = stmfx_pinctrl_set_pupd(dev, pin, 0);
 		break;
 	case PIN_CONFIG_BIAS_PULL_UP:
+		ret = stmfx_pinctrl_set_type(dev, pin, 1);
+		if (ret)
+			return ret;
 		ret = stmfx_pinctrl_set_pupd(dev, pin, 1);
 		break;
 	case PIN_CONFIG_DRIVE_OPEN_DRAIN:
-		if (dir == GPIOF_OUTPUT)
-			ret = stmfx_pinctrl_set_type(dev, pin, 1);
-		else
-			ret = stmfx_pinctrl_set_type(dev, pin, 0);
-		break;
-	case PIN_CONFIG_DRIVE_PUSH_PULL:
-		if (dir == GPIOF_OUTPUT)
-			ret = stmfx_pinctrl_set_type(dev, pin, 0);
-		else
-			ret = stmfx_pinctrl_set_type(dev, pin, 1);
+		ret = stmfx_pinctrl_set_type(dev, pin, 1);
 		break;
 	case PIN_CONFIG_OUTPUT:
 		ret = stmfx_gpio_direction_output(plat->gpio, pin, arg);
