@@ -109,6 +109,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
 	rk3399-firefly.dtb \
 	rk3399-gru-bob.dtb \
 	rk3399-khadas-edge.dtb \
+	rk3399-khadas-edge-captain.dtb \
 	rk3399-khadas-edge-v.dtb \
 	rk3399-nanopc-t4.dtb \
 	rk3399-nanopi-m4.dtb \

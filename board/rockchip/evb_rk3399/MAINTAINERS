@@ -12,6 +12,12 @@ S:	Maintained
 F:	configs/khadas-edge-rk3399_defconfig
 F:	arch/arm/dts/rk3399-khadas-edge-u-boot.dtsi
 
+KHADAS-EDGE-CAPTAIN
+M:	Nick Xie <nick@khadas.com>
+S:	Maintained
+F:	configs/khadas-edge-captain-rk3399_defconfig
+F:	arch/arm/dts/rk3399-khadas-edge-captain-u-boot.dtsi
+
 KHADAS-EDGE-V
 M:	Nick Xie <nick@khadas.com>
 S:	Maintained
