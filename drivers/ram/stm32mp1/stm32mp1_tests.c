@@ -4,6 +4,7 @@
  */
 #include <common.h>
 #include <console.h>
+#include <watchdog.h>
 #include <asm/io.h>
 #include <linux/log2.h>
 #include "stm32mp1_tests.h"
@@ -154,6 +155,8 @@ static int test_loop_end(u32 *loop, u32 nb_loop, u32 progress)
 		return 1;
 	}
 	printf("loop #%d\n", *loop);
+	WATCHDOG_RESET();
+
 	return 0;
 }
 
