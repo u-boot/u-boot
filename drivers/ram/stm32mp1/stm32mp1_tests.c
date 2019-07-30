@@ -1250,12 +1250,17 @@ static enum test_result test_read(struct stm32mp1_ddrctl *ctl,
 	if (get_addr(string, argc, argv, 0, (u32 *)&addr))
 		return TEST_ERROR;
 
-	if ((u32)addr == ADDR_INVALID) {
-		printf("random ");
-		random = true;
-	}
+	if (get_pattern(string, argc, argv, 1, &data, 0xA5A5AA55))
+		return TEST_ERROR;
 
-	printf("running at 0x%08x\n", (u32)addr);
+	if ((u32)addr == ADDR_INVALID) {
+		printf("running random\n");
+		random = true;
+	} else {
+		printf("running at 0x%08x with pattern=0x%08x\n",
+		       (u32)addr, data);
+		writel(data, addr);
+	}
 
 	while (1) {
 		for (i = 0; i < size; i++) {
@@ -1287,7 +1292,7 @@ static enum test_result test_write(struct stm32mp1_ddrctl *ctl,
 				   char *string, int argc, char *argv[])
 {
 	u32 *addr;
-	u32 data = 0xA5A5AA55;
+	u32 data;
 	u32 loop = 0;
 	int i, size = 1024 * 1024;
 	bool random = false;
@@ -1295,12 +1300,16 @@ static enum test_result test_write(struct stm32mp1_ddrctl *ctl,
 	if (get_addr(string, argc, argv, 0, (u32 *)&addr))
 		return TEST_ERROR;
 
-	if ((u32)addr == ADDR_INVALID) {
-		printf("random ");
-		random = true;
-	}
+	if (get_pattern(string, argc, argv, 1, &data, 0xA5A5AA55))
+		return TEST_ERROR;
 
-	printf("running at 0x%08x\n", (u32)addr);
+	if ((u32)addr == ADDR_INVALID) {
+		printf("running random\n");
+		random = true;
+	} else {
+		printf("running at 0x%08x with pattern 0x%08x\n",
+		       (u32)addr, data);
+	}
 
 	while (1) {
 		for (i = 0; i < size; i++) {
@@ -1435,10 +1444,10 @@ const struct test_desc test[] = {
 	 3
 	},
 	/* need to the the 2 last one (infinite) : skipped for test all */
-	{test_read, "infinite read", "[addr]",
-	 "basic test : infinite read access", 1},
-	{test_write, "infinite write", "[addr]",
-	 "basic test : infinite write access", 1},
+	{test_read, "infinite read", "[addr] [pattern]",
+	 "basic test : infinite read access (random: addr=0xFFFFFFFF)", 2},
+	{test_write, "infinite write", "[addr] [pattern]",
+	 "basic test : infinite write access (random: addr=0xFFFFFFFF)", 2},
 };
 
 const int test_nb = ARRAY_SIZE(test);
