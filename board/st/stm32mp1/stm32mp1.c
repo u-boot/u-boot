@@ -616,7 +616,7 @@ int board_init(void)
 
 	sysconf_init();
 
-	if (IS_ENABLED(CONFIG_LED))
+	if (CONFIG_IS_ENABLED(CONFIG_LED))
 		led_default_state();
 
 	return 0;
@@ -665,7 +665,9 @@ int board_late_init(void)
 
 void board_quiesce_devices(void)
 {
+#ifdef CONFIG_LED
 	setup_led(LEDST_OFF);
+#endif
 }
 
 /* board interface eth init */
