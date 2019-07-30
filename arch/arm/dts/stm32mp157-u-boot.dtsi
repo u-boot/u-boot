@@ -115,6 +115,11 @@
 	u-boot,dm-pre-reloc;
 };
 
+/* pre-reloc probe = reserve video frame buffer in video_reserve() */
+&ltdc {
+	u-boot,dm-pre-proper;
+};
+
 &pinctrl {
 	u-boot,dm-pre-reloc;
 };
