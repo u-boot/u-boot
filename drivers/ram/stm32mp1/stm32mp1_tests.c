@@ -578,27 +578,29 @@ static enum test_result test_random(struct stm32mp1_ddrctl *ctl,
 	u32 error = 0;
 	unsigned int seed;
 
-	if (get_bufsize(string, argc, argv, 0, &bufsize, 4 * 1024))
+	if (get_bufsize(string, argc, argv, 0, &bufsize, 8 * 1024))
 		return TEST_ERROR;
 	if (get_nb_loop(string, argc, argv, 1, &nb_loop, 1))
 		return TEST_ERROR;
 	if (get_addr(string, argc, argv, 2, &addr))
 		return TEST_ERROR;
 
-	printf("running %d loops at 0x%x\n", nb_loop, addr);
+	bufsize /= 2;
+	printf("running %d loops copy from 0x%x to 0x%x (buffer size=0x%x)\n",
+	       nb_loop, addr, addr + bufsize, bufsize);
 	while (!error) {
 		seed = rand();
-		for (offset = addr; offset < addr + bufsize; offset += 4)
-			writel(rand(), offset);
+		for (offset = 0; offset < bufsize; offset += 4)
+			writel(rand(), addr + offset);
 
 		memcpy((void *)addr + bufsize, (void *)addr, bufsize);
 
 		srand(seed);
-		for (offset = addr; offset < addr + 2 * bufsize; offset += 4) {
-			if (offset == (addr + bufsize))
+		for (offset = 0; offset < 2 * bufsize; offset += 4) {
+			if (offset == bufsize)
 				srand(seed);
 			value = rand();
-			error = check_addr(offset, value);
+			error = check_addr(addr + offset, value);
 			if (error)
 				break;
 			if (progress(offset))
@@ -607,6 +609,7 @@ static enum test_result test_random(struct stm32mp1_ddrctl *ctl,
 		if (test_loop_end(&loop, nb_loop, 100))
 			break;
 	}
+	putc('\n');
 
 	if (error) {
 		sprintf(string,
@@ -791,9 +794,9 @@ static enum test_result test_loop(const u32 *pattern, u32 *address,
 	int i;
 	int j;
 	enum test_result res = TEST_PASSED;
-	u32 *offset, testsize, remaining;
+	u32 offset, testsize, remaining;
 
-	offset = address;
+	offset = (u32)address;
 	remaining = bufsize;
 	while (remaining) {
 		testsize = bufsize > 0x1000000 ? 0x1000000 : bufsize;
@@ -809,7 +812,7 @@ static enum test_result test_loop(const u32 *pattern, u32 *address,
 		__asm__("stmia r1!, {R3-R10}");
 		__asm__("stmia r1!, {R3-R10}");
 		__asm__("stmia r1!, {R3-R10}");
-		__asm__("subs r2, r2, #8");
+		__asm__("subs r2, r2, #128");
 		__asm__("bge loop2");
 		__asm__("pop {R0-R10}");
 
@@ -1388,7 +1391,7 @@ const struct test_desc test[] = {
 	 "Verifies r/w and memcopy(burst for pseudo random value.",
 	 3
 	},
-	{test_freq_pattern, "FrequencySelectivePattern ", "[size]",
+	{test_freq_pattern, "FrequencySelectivePattern", "[size]",
 	 "write & test patterns: Mostly Zero, Mostly One and F/n",
 	 1
 	},
