@@ -197,10 +197,6 @@ void stm32mp1_edit_param(const struct stm32mp1_ddr_config *config,
 			 char *name,
 			 char *string);
 
-void stm32mp1_dump_info(
-	const struct ddr_info *priv,
-	const struct stm32mp1_ddr_config *config);
-
 bool stm32mp1_ddr_interactive(
 	void *priv,
 	enum stm32mp1_ddr_interact_step step,
