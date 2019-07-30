@@ -206,5 +206,7 @@
 	};
 	pins2 {
 		u-boot,dm-pre-reloc;
+		/* pull-up on rx to avoid floating level */
+		bias-pull-up;
 	};
 };
