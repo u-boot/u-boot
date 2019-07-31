@@ -8,6 +8,7 @@
  */
 #ifndef __LINUX_CLK_PROVIDER_H
 #define __LINUX_CLK_PROVIDER_H
+#include <clk-uclass.h>
 
 static inline void clk_dm(ulong id, struct clk *clk)
 {
