@@ -75,6 +75,9 @@ struct clk_gate {
 	void __iomem	*reg;
 	u8		bit_idx;
 	u8		flags;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	u32		io_gate_val;
+#endif
 };
 
 #define to_clk_gate(_clk) container_of(_clk, struct clk_gate, clk)
