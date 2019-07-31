@@ -374,10 +374,16 @@ static void sh_eth_write_hwaddr(struct sh_eth_info *port_info,
 static void sh_eth_mac_regs_config(struct sh_eth_dev *eth, unsigned char *mac)
 {
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
+	unsigned long edmr;
 
 	/* Configure e-dmac registers */
-	sh_eth_write(port_info, (sh_eth_read(port_info, EDMR) & ~EMDR_DESC_R) |
-			(EMDR_DESC | EDMR_EL), EDMR);
+	edmr = sh_eth_read(port_info, EDMR);
+	edmr &= ~EMDR_DESC_R;
+	edmr |= EMDR_DESC | EDMR_EL;
+#if defined(CONFIG_R8A77980)
+	edmr |= EDMR_NBST;
+#endif
+	sh_eth_write(port_info, edmr, EDMR);
 
 	sh_eth_write(port_info, 0, EESIPR);
 	sh_eth_write(port_info, 0, TRSCER);
@@ -407,7 +413,7 @@ static void sh_eth_mac_regs_config(struct sh_eth_dev *eth, unsigned char *mac)
 
 #if defined(CONFIG_CPU_SH7734) || defined(CONFIG_R8A7740)
 	sh_eth_write(port_info, CONFIG_SH_ETHER_SH7734_MII, RMII_MII);
-#elif defined(CONFIG_RCAR_GEN2)
+#elif defined(CONFIG_RCAR_GEN2) || defined(CONFIG_R8A77980)
 	sh_eth_write(port_info, sh_eth_read(port_info, RMIIMR) | 0x1, RMIIMR);
 #endif
 }
@@ -426,7 +432,7 @@ static int sh_eth_phy_regs_config(struct sh_eth_dev *eth)
 		sh_eth_write(port_info, GECMR_100B, GECMR);
 #elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
 		sh_eth_write(port_info, 1, RTRATE);
-#elif defined(CONFIG_RCAR_GEN2)
+#elif defined(CONFIG_RCAR_GEN2) || defined(CONFIG_R8A77980)
 		val = ECMR_RTM;
 #endif
 	} else if (phy->speed == 10) {
@@ -931,6 +937,7 @@ static const struct udevice_id sh_ether_ids[] = {
 	{ .compatible = "renesas,ether-r8a7791" },
 	{ .compatible = "renesas,ether-r8a7793" },
 	{ .compatible = "renesas,ether-r8a7794" },
+	{ .compatible = "renesas,gether-r8a77980" },
 	{ }
 };
 
