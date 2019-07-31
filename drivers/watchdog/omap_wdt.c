@@ -138,7 +138,14 @@ void hw_watchdog_init(void)
 	while ((readl(&wdt->wdtwwps)) & WDT_WWPS_PEND_WSPR)
 		;
 }
+
+void watchdog_reset(void)
+{
+	hw_watchdog_reset();
+}
+
 #else
+
 static int omap3_wdt_reset(struct udevice *dev)
 {
 	struct omap3_wdt_priv *priv = dev_get_priv(dev);
