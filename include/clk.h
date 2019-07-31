@@ -356,4 +356,13 @@ static inline bool clk_valid(struct clk *clk)
  * @return zero on success, or -ENOENT on error
  */
 int clk_get_by_id(ulong id, struct clk **clkp);
+
+/**
+ * clk_dev_binded() - Check whether the clk has a device binded
+ *
+ * @clk		A pointer to the clk
+ *
+ * @return true on binded, or false on no
+ */
+bool clk_dev_binded(struct clk *clk);
 #endif
