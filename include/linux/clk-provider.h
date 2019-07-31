@@ -129,6 +129,13 @@ struct clk_fixed_factor {
 #define to_clk_fixed_factor(_clk) container_of(_clk, struct clk_fixed_factor,\
 					       clk)
 
+struct clk_fixed_rate {
+	struct clk clk;
+	unsigned long fixed_rate;
+};
+
+#define to_clk_fixed_rate(dev)	((struct clk_fixed_rate *)dev_get_platdata(dev))
+
 int clk_register(struct clk *clk, const char *drv_name, const char *name,
 		 const char *parent_name);
 
