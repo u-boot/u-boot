@@ -42,10 +42,14 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/arch/cpu.h>
+#include <wdt.h>
+#include <dm.h>
+#include <errno.h>
 
 /* Hardware timeout in seconds */
 #define WDT_HW_TIMEOUT 60
 
+#if !CONFIG_IS_ENABLED(WDT)
 static unsigned int wdt_trgr_pattern = 0x1234;
 
 void hw_watchdog_reset(void)
@@ -134,3 +138,113 @@ void hw_watchdog_init(void)
 	while ((readl(&wdt->wdtwwps)) & WDT_WWPS_PEND_WSPR)
 		;
 }
+#else
+static int omap3_wdt_reset(struct udevice *dev)
+{
+	struct omap3_wdt_priv *priv = dev_get_priv(dev);
+
+	priv->wdt_trgr_pattern = 0x1234;
+/*
+ * Somebody just triggered watchdog reset and write to WTGR register
+ * is in progress. It is resetting right now, no need to trigger it
+ * again
+ */
+	if ((readl(&priv->regs->wdtwwps)) & WDT_WWPS_PEND_WTGR)
+		return 0;
+
+	priv->wdt_trgr_pattern = ~(priv->wdt_trgr_pattern);
+	writel(priv->wdt_trgr_pattern, &priv->regs->wdtwtgr);
+/*
+ * Don't wait for posted write to complete, i.e. don't check
+ * WDT_WWPS_PEND_WTGR bit in WWPS register. There is no writes to
+ * WTGR register outside of this func, and if entering it
+ * we see WDT_WWPS_PEND_WTGR bit set, it means watchdog reset
+ * was just triggered. This prevents us from wasting time in busy
+ * polling of WDT_WWPS_PEND_WTGR bit.
+ */
+	return 0;
+}
+
+static int omap3_wdt_stop(struct udevice *dev)
+{
+	struct omap3_wdt_priv *priv = dev_get_priv(dev);
+
+/* disable watchdog */
+	writel(0xAAAA, &priv->regs->wdtwspr);
+	while (readl(&priv->regs->wdtwwps) != 0x0)
+		;
+	writel(0x5555, &priv->regs->wdtwspr);
+	while (readl(&priv->regs->wdtwwps) != 0x0)
+		;
+	return 0;
+}
+
+static int omap3_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
+{
+	struct omap3_wdt_priv *priv = dev_get_priv(dev);
+	u32 pre_margin = GET_WLDR_VAL(timeout_ms);
+/*
+ * Make sure the watchdog is disabled. This is unfortunately required
+ * because writing to various registers with the watchdog running has no
+ * effect.
+ */
+	omap3_wdt_stop(dev);
+
+/* initialize prescaler */
+	while (readl(&priv->regs->wdtwwps) & WDT_WWPS_PEND_WCLR)
+		;
+
+	writel(WDT_WCLR_PRE | (PTV << WDT_WCLR_PTV_OFF), &priv->regs->wdtwclr);
+	while (readl(&priv->regs->wdtwwps) & WDT_WWPS_PEND_WCLR)
+		;
+/* just count up at 32 KHz */
+	while (readl(&priv->regs->wdtwwps) & WDT_WWPS_PEND_WLDR)
+		;
+
+	writel(pre_margin, &priv->regs->wdtwldr);
+	while (readl(&priv->regs->wdtwwps) & WDT_WWPS_PEND_WLDR)
+		;
+/* Sequence to enable the watchdog */
+	writel(0xBBBB, &priv->regs->wdtwspr);
+	while ((readl(&priv->regs->wdtwwps)) & WDT_WWPS_PEND_WSPR)
+		;
+
+	writel(0x4444, &priv->regs->wdtwspr);
+	while ((readl(&priv->regs->wdtwwps)) & WDT_WWPS_PEND_WSPR)
+		;
+
+	return 0;
+}
+
+static int omap3_wdt_probe(struct udevice *dev)
+{
+	struct omap3_wdt_priv *priv = dev_get_priv(dev);
+
+	priv->regs = (struct wd_timer *)devfdt_get_addr(dev);
+	if (!priv->regs)
+		return -EINVAL;
+
+	debug("%s: Probing wdt%u\n", __func__, dev->seq);
+	return 0;
+}
+
+static const struct wdt_ops omap3_wdt_ops = {
+	.start = omap3_wdt_start,
+	.stop = omap3_wdt_stop,
+	.reset = omap3_wdt_reset,
+};
+
+static const struct udevice_id omap3_wdt_ids[] = {
+	{ .compatible = "ti,omap3-wdt" },
+	{ }
+};
+
+U_BOOT_DRIVER(omap3_wdt) = {
+	.name = "omap3_wdt",
+	.id = UCLASS_WDT,
+	.of_match = omap3_wdt_ids,
+	.ops = &omap3_wdt_ops,
+	.probe = omap3_wdt_probe,
+	.priv_auto_alloc_size = sizeof(struct omap3_wdt_priv),
+};
+#endif /* !CONFIG_IS_ENABLED(WDT) */
