@@ -66,6 +66,8 @@ struct clk_mux {
 };
 
 #define to_clk_mux(_clk) container_of(_clk, struct clk_mux, clk)
+extern const struct clk_ops clk_mux_ops;
+u8 clk_mux_get_parent(struct clk *clk);
 
 struct clk_div_table {
 	unsigned int	val;
