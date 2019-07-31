@@ -96,6 +96,11 @@ struct clk_divider {
 #define CLK_DIVIDER_ROUND_CLOSEST	BIT(4)
 #define CLK_DIVIDER_READ_ONLY		BIT(5)
 #define CLK_DIVIDER_MAX_AT_ZERO		BIT(6)
+extern const struct clk_ops clk_divider_ops;
+unsigned long divider_recalc_rate(struct clk *hw, unsigned long parent_rate,
+				  unsigned int val,
+				  const struct clk_div_table *table,
+				  unsigned long flags, unsigned long width);
 
 struct clk_fixed_factor {
 	struct clk	clk;
