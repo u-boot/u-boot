@@ -137,6 +137,28 @@ struct clk_fixed_rate {
 
 #define to_clk_fixed_rate(dev)	((struct clk_fixed_rate *)dev_get_platdata(dev))
 
+struct clk_composite {
+	struct clk	clk;
+	struct clk_ops	ops;
+
+	struct clk	*mux;
+	struct clk	*rate;
+	struct clk	*gate;
+
+	const struct clk_ops	*mux_ops;
+	const struct clk_ops	*rate_ops;
+	const struct clk_ops	*gate_ops;
+};
+
+#define to_clk_composite(_clk) container_of(_clk, struct clk_composite, clk)
+
+struct clk *clk_register_composite(struct device *dev, const char *name,
+		const char * const *parent_names, int num_parents,
+		struct clk *mux_clk, const struct clk_ops *mux_ops,
+		struct clk *rate_clk, const struct clk_ops *rate_ops,
+		struct clk *gate_clk, const struct clk_ops *gate_ops,
+		unsigned long flags);
+
 int clk_register(struct clk *clk, const char *drv_name, const char *name,
 		 const char *parent_name);
 
