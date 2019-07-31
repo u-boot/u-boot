@@ -2819,12 +2819,12 @@ int mmc_start_init(struct mmc *mmc)
 			 MMC_CAP(MMC_LEGACY) | MMC_MODE_1BIT;
 
 #if !defined(CONFIG_MMC_BROKEN_CD)
-	/* we pretend there's no card when init is NULL */
 	no_card = mmc_getcd(mmc) == 0;
 #else
 	no_card = 0;
 #endif
 #if !CONFIG_IS_ENABLED(DM_MMC)
+	/* we pretend there's no card when init is NULL */
 	no_card = no_card || (mmc->cfg->ops->init == NULL);
 #endif
 	if (no_card) {

@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <stdbool.h>
+#include <watchdog.h>
 #include <asm/gpio.h>
 #include <dm/pinctrl.h>
 #include <linux/bitops.h>
@@ -622,6 +623,8 @@ static int msdc_start_data(struct msdc_host *host, struct mmc_data *data)
 {
 	u32 size;
 	int ret;
+
+	WATCHDOG_RESET();
 
 	if (data->flags == MMC_DATA_WRITE)
 		host->last_data_write = 1;

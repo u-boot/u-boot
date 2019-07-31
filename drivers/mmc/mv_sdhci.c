@@ -114,6 +114,9 @@ static int mv_sdhci_probe(struct udevice *dev)
 	host->name = MVSDH_NAME;
 	host->ioaddr = (void *)devfdt_get_addr(dev);
 	host->quirks = SDHCI_QUIRK_32BIT_DMA_ADDR | SDHCI_QUIRK_WAIT_SEND_CMD;
+	host->mmc = &plat->mmc;
+	host->mmc->dev = dev;
+	host->mmc->priv = host;
 
 	ret = sdhci_setup_cfg(&plat->cfg, host, 0, 0);
 	if (ret)
@@ -124,9 +127,6 @@ static int mv_sdhci_probe(struct udevice *dev)
 		sdhci_mvebu_mbus_config(host->ioaddr);
 	}
 
-	host->mmc = &plat->mmc;
-	host->mmc->dev = dev;
-	host->mmc->priv = host;
 	upriv->mmc = host->mmc;
 
 	return sdhci_probe(dev);
