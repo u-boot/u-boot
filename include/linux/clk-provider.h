@@ -69,6 +69,24 @@ struct clk_mux {
 extern const struct clk_ops clk_mux_ops;
 u8 clk_mux_get_parent(struct clk *clk);
 
+struct clk_gate {
+	struct clk	clk;
+	void __iomem	*reg;
+	u8		bit_idx;
+	u8		flags;
+};
+
+#define to_clk_gate(_clk) container_of(_clk, struct clk_gate, clk)
+
+#define CLK_GATE_SET_TO_DISABLE		BIT(0)
+#define CLK_GATE_HIWORD_MASK		BIT(1)
+
+extern const struct clk_ops clk_gate_ops;
+struct clk *clk_register_gate(struct device *dev, const char *name,
+			      const char *parent_name, unsigned long flags,
+			      void __iomem *reg, u8 bit_idx,
+			      u8 clk_gate_flags, spinlock_t *lock);
+
 struct clk_div_table {
 	unsigned int	val;
 	unsigned int	div;
