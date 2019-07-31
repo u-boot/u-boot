@@ -37,8 +37,8 @@
 #if defined(CONFIG_SH_ETHER_CACHE_WRITEBACK) && \
 	!CONFIG_IS_ENABLED(SYS_DCACHE_OFF)
 #define flush_cache_wback(addr, len)    \
-		flush_dcache_range((u32)addr, \
-		(u32)(addr + ALIGN(len, CONFIG_SH_ETHER_ALIGNE_SIZE)))
+		flush_dcache_range((unsigned long)addr, \
+		(unsigned long)(addr + ALIGN(len, CONFIG_SH_ETHER_ALIGNE_SIZE)))
 #else
 #define flush_cache_wback(...)
 #endif
@@ -46,11 +46,11 @@
 #if defined(CONFIG_SH_ETHER_CACHE_INVALIDATE) && defined(CONFIG_ARM)
 #define invalidate_cache(addr, len)		\
 	{	\
-		u32 line_size = CONFIG_SH_ETHER_ALIGNE_SIZE;	\
-		u32 start, end;	\
+		unsigned long line_size = CONFIG_SH_ETHER_ALIGNE_SIZE;	\
+		unsigned long start, end;	\
 		\
-		start = (u32)addr;	\
-		end = start + len;	\
+		start = (unsigned long)addr;	\
+		end = start + len;		\
 		start &= ~(line_size - 1);	\
 		end = ((end + line_size - 1) & ~(line_size - 1));	\
 		\
@@ -74,7 +74,7 @@ static int sh_eth_send_common(struct sh_eth_dev *eth, void *packet, int len)
 	}
 
 	/* packet must be a 4 byte boundary */
-	if ((int)packet & 3) {
+	if ((uintptr_t)packet & 3) {
 		printf(SHETHER_NAME ": %s: packet not 4 byte aligned\n"
 				, __func__);
 		ret = -EFAULT;
@@ -211,7 +211,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->tx_desc_base =
-		(struct tx_desc_s *)ADDR_TO_P2((u32)port_info->tx_desc_alloc);
+		(struct tx_desc_s *)ADDR_TO_P2((uintptr_t)port_info->tx_desc_alloc);
 	port_info->tx_desc_cur = port_info->tx_desc_base;
 
 	/* Initialize all descriptors */
@@ -265,7 +265,7 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->rx_desc_base =
-		(struct rx_desc_s *)ADDR_TO_P2((u32)port_info->rx_desc_alloc);
+		(struct rx_desc_s *)ADDR_TO_P2((uintptr_t)port_info->rx_desc_alloc);
 
 	port_info->rx_desc_cur = port_info->rx_desc_base;
 
@@ -281,7 +281,7 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 		goto err_buf_alloc;
 	}
 
-	port_info->rx_buf_base = (u8 *)ADDR_TO_P2((u32)port_info->rx_buf_alloc);
+	port_info->rx_buf_base = (u8 *)ADDR_TO_P2((uintptr_t)port_info->rx_buf_alloc);
 
 	/* Initialize all descriptors */
 	for (cur_rx_desc = port_info->rx_desc_base,
@@ -700,7 +700,7 @@ static int sh_ether_recv(struct udevice *dev, int flags, uchar **packetp)
 	struct sh_ether_priv *priv = dev_get_priv(dev);
 	struct sh_eth_dev *eth = &priv->shdev;
 	struct sh_eth_info *port_info = &eth->port_info[eth->port];
-	uchar *packet = (uchar *)ADDR_TO_P2(port_info->rx_desc_cur->rd2);
+	uchar *packet = (uchar *)ADDR_TO_P2((uintptr_t)port_info->rx_desc_cur->rd2);
 	int len;
 
 	len = sh_eth_recv_start(eth);
@@ -850,7 +850,7 @@ static int sh_ether_probe(struct udevice *udev)
 	eth->port = CONFIG_SH_ETHER_USE_PORT;
 	eth->port_info[eth->port].phy_addr = CONFIG_SH_ETHER_PHY_ADDR;
 	eth->port_info[eth->port].iobase =
-		(void __iomem *)(BASE_IO_ADDR + 0x800 * eth->port);
+		(void __iomem *)(uintptr_t)(BASE_IO_ADDR + 0x800 * eth->port);
 
 #if CONFIG_IS_ENABLED(CLK)
 	ret = clk_enable(&priv->clk);

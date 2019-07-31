@@ -15,20 +15,20 @@
 #if defined(CONFIG_SH)
 /* Malloc returns addresses in the P1 area (cacheable). However we need to
    use area P2 (non-cacheable) */
-#define ADDR_TO_P2(addr)	((((int)(addr) & ~0xe0000000) | 0xa0000000))
+#define ADDR_TO_P2(addr)	((((uintptr_t)(addr) & ~0xe0000000) | 0xa0000000))
 
 /* The ethernet controller needs to use physical addresses */
 #if defined(CONFIG_SH_32BIT)
-#define ADDR_TO_PHY(addr)	((((int)(addr) & ~0xe0000000) | 0x40000000))
+#define ADDR_TO_PHY(addr)	((((uintptr_t)(addr) & ~0xe0000000) | 0x40000000))
 #else
-#define ADDR_TO_PHY(addr)	((int)(addr) & ~0xe0000000)
+#define ADDR_TO_PHY(addr)	((uintptr_t)(addr) & ~0xe0000000)
 #endif
 #elif defined(CONFIG_ARM)
 #ifndef inl
 #define inl	readl
 #define outl	writel
 #endif
-#define ADDR_TO_PHY(addr)	((int)(addr))
+#define ADDR_TO_PHY(addr)	((uintptr_t)(addr))
 #define ADDR_TO_P2(addr)	(addr)
 #endif /* defined(CONFIG_SH) */
 
