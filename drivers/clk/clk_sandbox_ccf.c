@@ -130,6 +130,80 @@ U_BOOT_DRIVER(sandbox_clk_gate2) = {
 	.ops	= &clk_gate2_ops,
 };
 
+static unsigned long sandbox_clk_composite_divider_recalc_rate(struct clk *clk)
+{
+	struct clk_divider *divider = (struct clk_divider *)to_clk_divider(clk);
+	struct clk_composite *composite = (struct clk_composite *)clk->data;
+	ulong parent_rate = clk_get_parent_rate(&composite->clk);
+	unsigned int val;
+
+	val = divider->io_divider_val;
+	val >>= divider->shift;
+	val &= clk_div_mask(divider->width);
+
+	return divider_recalc_rate(clk, parent_rate, val, divider->table,
+				   divider->flags, divider->width);
+}
+
+static const struct clk_ops sandbox_clk_composite_divider_ops = {
+	.get_rate = sandbox_clk_composite_divider_recalc_rate,
+};
+
+struct clk *sandbox_clk_composite(const char *name,
+				  const char * const *parent_names,
+				  int num_parents, void __iomem *reg,
+				  unsigned long flags)
+{
+	struct clk *clk = ERR_PTR(-ENOMEM);
+	struct clk_divider *div = NULL;
+	struct clk_gate *gate = NULL;
+	struct clk_mux *mux = NULL;
+
+	mux = kzalloc(sizeof(*mux), GFP_KERNEL);
+	if (!mux)
+		goto fail;
+
+	mux->reg = reg;
+	mux->shift = 24;
+	mux->mask = 0x7;
+	mux->num_parents = num_parents;
+	mux->flags = flags;
+	mux->parent_names = parent_names;
+
+	div = kzalloc(sizeof(*div), GFP_KERNEL);
+	if (!div)
+		goto fail;
+
+	div->reg = reg;
+	div->shift = 16;
+	div->width = 3;
+	div->flags = CLK_DIVIDER_ROUND_CLOSEST | flags;
+
+	gate = kzalloc(sizeof(*gate), GFP_KERNEL);
+	if (!gate)
+		goto fail;
+
+	gate->reg = reg;
+	gate->bit_idx = 28;
+	gate->flags = flags;
+
+	clk = clk_register_composite(NULL, name,
+				     parent_names, num_parents,
+				     &mux->clk, &clk_mux_ops, &div->clk,
+				     &sandbox_clk_composite_divider_ops,
+				     &gate->clk, &clk_gate_ops, flags);
+	if (IS_ERR(clk))
+		goto fail;
+
+	return clk;
+
+fail:
+	kfree(gate);
+	kfree(div);
+	kfree(mux);
+	return ERR_CAST(clk);
+}
+
 /* --- Sandbox Gate --- */
 /* The CCF core driver itself */
 static const struct udevice_id sandbox_clk_ccf_test_ids[] = {
@@ -138,6 +212,7 @@ static const struct udevice_id sandbox_clk_ccf_test_ids[] = {
 };
 
 static const char *const usdhc_sels[] = { "pll3_60m", "pll3_80m", };
+static const char *const i2c_sels[] = { "pll3_60m", "pll3_80m", };
 
 static int sandbox_clk_ccf_probe(struct udevice *dev)
 {
@@ -173,6 +248,11 @@ static int sandbox_clk_ccf_probe(struct udevice *dev)
 	clk_dm(SANDBOX_CLK_USDHC2_SEL,
 	       sandbox_clk_mux("usdhc2_sel", &reg, 17, 1, usdhc_sels,
 			       ARRAY_SIZE(usdhc_sels)));
+
+	reg = BIT(28) | BIT(24) | BIT(16);
+	clk_dm(SANDBOX_CLK_I2C,
+	       sandbox_clk_composite("i2c", i2c_sels, ARRAY_SIZE(i2c_sels),
+				     &reg, 0));
 
 	return 0;
 }
