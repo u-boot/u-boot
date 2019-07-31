@@ -739,8 +739,8 @@ static void davinci_nand_init(struct nand_chip *nand)
 
 	layout = &nand_keystone_rbl_4bit_layout_oobfirst;
 	layout->oobavail = 0;
-	for (i = 0; layout->oobfree[i].length &&
-	     i < ARRAY_SIZE(layout->oobfree); i++)
+	for (i = 0; i < ARRAY_SIZE(layout->oobfree) &&
+	     layout->oobfree[i].length; i++)
 		layout->oobavail += layout->oobfree[i].length;
 
 	nand->write_page = nand_davinci_write_page;

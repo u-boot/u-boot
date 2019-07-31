@@ -98,6 +98,10 @@
 #define AB_SELECT ""
 #endif
 
+#define FASTBOOT_CMD \
+	"echo Booting into fastboot ...; " \
+	"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; "
+
 #define DEFAULT_COMMON_BOOT_TI_ARGS \
 	"console=" CONSOLEDEV ",115200n8\0" \
 	"fdtfile=undefined\0" \
@@ -117,6 +121,28 @@
 		"setenv mmcroot /dev/mmcblk0p2 rw; " \
 		"run mmcboot;\0" \
 	"emmc_android_boot=" \
+		"if bcb load " __stringify(CONFIG_FASTBOOT_FLASH_MMC_DEV) " " \
+		CONTROL_PARTITION "; then " \
+			"if bcb test command = bootonce-bootloader; then " \
+				"echo BCB: Bootloader boot...; " \
+				"bcb clear command; bcb store; " \
+				FASTBOOT_CMD \
+			"elif bcb test command = boot-recovery; then " \
+				"echo BCB: Recovery boot...; " \
+				"echo Warning: recovery is not implemented; " \
+				"echo Performing normal boot for now...; " \
+				"bcb clear command; bcb store; " \
+				"run emmc_android_normal_boot; " \
+			"else " \
+				"echo BCB: Normal boot requested...; " \
+				"run emmc_android_normal_boot; " \
+			"fi; " \
+		"else " \
+			"echo Warning: BCB is corrupted or does not exist; " \
+			"echo Performing normal boot...; " \
+			"run emmc_android_normal_boot; " \
+		"fi;\0" \
+	"emmc_android_normal_boot=" \
 		"echo Trying to boot Android from eMMC ...; " \
 		"run update_to_fit; " \
 		"setenv eval_bootargs setenv bootargs $bootargs; " \
@@ -176,8 +202,7 @@
 	"if test ${dofastboot} -eq 1; then " \
 		"echo Boot fastboot requested, resetting dofastboot ...;" \
 		"setenv dofastboot 0; saveenv;" \
-		"echo Booting into fastboot ...; " \
-		"fastboot " __stringify(CONFIG_FASTBOOT_USB_DEV) "; " \
+		FASTBOOT_CMD \
 	"fi;" \
 	"if test ${boot_fit} -eq 1; then "	\
 		"run update_to_fit;"	\

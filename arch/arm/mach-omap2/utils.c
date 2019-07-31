@@ -129,12 +129,25 @@ static inline void omap_set_fastboot_userdata_size(void)
 {
 }
 #endif /* CONFIG_FASTBOOT_FLASH_MMC */
+
+static void omap_set_fastboot_product(void)
+{
+	const char *board_name;
+
+	board_name = env_get("board_name");
+	if (board_name == NULL)
+		printf("Warning: fastboot.product: unknown board\n");
+
+	env_set("fastboot.product", board_name);
+}
+
 void omap_set_fastboot_vars(void)
 {
 	omap_set_fastboot_cpu();
 	omap_set_fastboot_secure();
 	omap_set_fastboot_board_rev();
 	omap_set_fastboot_userdata_size();
+	omap_set_fastboot_product();
 }
 #endif /* CONFIG_FASTBOOT_FLASH */
 
