@@ -35,7 +35,8 @@
 int clk_mux_val_to_index(struct clk *clk, u32 *table, unsigned int flags,
 			 unsigned int val)
 {
-	struct clk_mux *mux = to_clk_mux(clk);
+	struct clk_mux *mux = to_clk_mux(clk_dev_binded(clk) ?
+			dev_get_clk_ptr(clk->dev) : clk);
 	int num_parents = mux->num_parents;
 
 	if (table) {
@@ -61,7 +62,8 @@ int clk_mux_val_to_index(struct clk *clk, u32 *table, unsigned int flags,
 
 static u8 clk_mux_get_parent(struct clk *clk)
 {
-	struct clk_mux *mux = to_clk_mux(clk);
+	struct clk_mux *mux = to_clk_mux(clk_dev_binded(clk) ?
+			dev_get_clk_ptr(clk->dev) : clk);
 	u32 val;
 
 #if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)

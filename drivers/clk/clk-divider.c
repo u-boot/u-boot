@@ -69,8 +69,8 @@ unsigned long divider_recalc_rate(struct clk *hw, unsigned long parent_rate,
 
 static ulong clk_divider_recalc_rate(struct clk *clk)
 {
-	struct clk_divider *divider =
-		to_clk_divider(dev_get_clk_ptr(clk->dev));
+	struct clk_divider *divider = to_clk_divider(clk_dev_binded(clk) ?
+			dev_get_clk_ptr(clk->dev) : clk);
 	unsigned long parent_rate = clk_get_parent_rate(clk);
 	unsigned int val;
 
