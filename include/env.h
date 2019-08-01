@@ -12,6 +12,8 @@
 #include <stdbool.h>
 #include <linux/types.h>
 
+struct environment_s;
+
 /**
  * env_get_id() - Gets a sequence number for the environment
  *
@@ -218,5 +220,41 @@ int env_save(void);
  * @return 0 if OK, -ve on error
  */
 int env_erase(void);
+
+/**
+ * env_import() - Import from a binary representation into hash table
+ *
+ * This imports the environment from a buffer. The format for each variable is
+ * var=value\0 with a double \0 at the end of the buffer.
+ *
+ * @buf: Buffer containing the environment (struct environemnt_s *)
+ * @check: non-zero to check the CRC at the start of the environment, 0 to
+ *	ignore it
+ * @return 0 if imported successfully, -ENOMSG if the CRC was bad, -EIO if
+ *	something else went wrong
+ */
+int env_import(const char *buf, int check);
+
+/**
+ * env_export() - Export the environment to a buffer
+ *
+ * Export from hash table into binary representation
+ *
+ * @env_out: Buffer to contain the environment (must be large enough!)
+ * @return 0 if OK, 1 on error
+ */
+int env_export(struct environment_s *env_out);
+
+/**
+ * env_import_redund() - Select and import one of two redundant environments
+ *
+ * @buf1: First environment (struct environemnt_s *)
+ * @buf1_read_fail: 0 if buf1 is valid, non-zero if invalid
+ * @buf2: Second environment (struct environemnt_s *)
+ * @buf2_read_fail: 0 if buf2 is valid, non-zero if invalid
+ * @return 0 if OK, -EIO if no environment is valid, -ENOMSG if the CRC was bad
+ */
+int env_import_redund(const char *buf1, int buf1_read_fail,
+		      const char *buf2, int buf2_read_fail);
 
 #endif

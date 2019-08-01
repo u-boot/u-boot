@@ -274,18 +274,6 @@ char *env_get_default(const char *name);
 /* [re]set to the default environment */
 void set_default_env(const char *s, int flags);
 
-/* Import from binary representation into hash table */
-int env_import(const char *buf, int check);
-
-/* Export from hash table into binary representation */
-int env_export(env_t *env_out);
-
-#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-/* Select and import one of two redundant environments */
-int env_import_redund(const char *buf1, int buf1_status,
-		      const char *buf2, int buf2_status);
-#endif
-
 /**
  * env_get_char() - Get a character from the early environment
  *
