@@ -875,4 +875,15 @@ int update_tftp(ulong addr, char *interface, char *devstring);
 
 /**********************************************************************/
 
+/**
+ * eth_parse_enetaddr() - Parse a MAC address
+ *
+ * Convert a string MAC address
+ *
+ * @addr: MAC address in aa:bb:cc:dd:ee:ff format, where each part is a 2-digit
+ *	hex value
+ * @enetaddr: Place to put MAC address (6 bytes)
+ */
+void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr);
+
 #endif /* __NET_H__ */

@@ -358,18 +358,6 @@ ulong env_get_hex(const char *varname, ulong default_val)
 	return value;
 }
 
-void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr)
-{
-	char *end;
-	int i;
-
-	for (i = 0; i < 6; ++i) {
-		enetaddr[i] = addr ? simple_strtoul(addr, &end, 16) : 0;
-		if (addr)
-			addr = (*end) ? end + 1 : end;
-	}
-}
-
 int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr)
 {
 	eth_parse_enetaddr(env_get(name), enetaddr);

@@ -325,8 +325,6 @@ int env_erase(void);
  */
 void env_fix_drivers(void);
 
-void eth_parse_enetaddr(const char *addr, uint8_t *enetaddr);
-
 #endif /* DO_DEPS_ONLY */
 
 #endif /* _ENVIRONMENT_H_ */
