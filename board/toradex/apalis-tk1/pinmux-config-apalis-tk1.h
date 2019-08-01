@@ -39,7 +39,7 @@ static const struct tegra_gpio_config apalis_tk1_gpio_inits[] = {
 	GPIO_INIT(R,    1,   OUT0), /* Shift_CTRL_Dir_In[1] */
 	GPIO_INIT(R,    2,   OUT0), /* Shift_CTRL_OE[3] */
 	GPIO_INIT(S,    3,   OUT0), /* Shift_CTRL_Dir_In[2] */
-	GPIO_INIT(U,    4,   OUT1),
+	GPIO_INIT(U,    4,   OUT0), /* RESET_MOCI_CTRL */
 	GPIO_INIT(W,    3,   IN),
 	GPIO_INIT(W,    5,   IN),
 	GPIO_INIT(BB,   0,  IN),
