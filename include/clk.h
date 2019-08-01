@@ -333,6 +333,18 @@ int clk_disable(struct clk *clk);
  */
 int clk_disable_bulk(struct clk_bulk *bulk);
 
+/**
+ * clk_is_match - check if two clk's point to the same hardware clock
+ * @p: clk compared against q
+ * @q: clk compared against p
+ *
+ * Returns true if the two struct clk pointers both point to the same hardware
+ * clock node.
+ *
+ * Returns false otherwise. Note that two NULL clks are treated as matching.
+ */
+bool clk_is_match(const struct clk *p, const struct clk *q);
+
 int soc_clk_dump(void);
 
 /**
