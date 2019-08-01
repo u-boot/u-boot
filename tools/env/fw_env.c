@@ -119,9 +119,12 @@ static struct environment environment = {
 
 static int have_redund_env;
 
-static unsigned char active_flag = 1;
-/* obsolete_flag must be 0 to efficiently set it on NOR flash without erasing */
-static unsigned char obsolete_flag = 0;
+static unsigned char ENV_REDUND_ACTIVE = 1;
+/*
+ * ENV_REDUND_OBSOLETE must be 0 to efficiently set it on NOR flash without
+ * erasing
+ */
+static unsigned char ENV_REDUND_OBSOLETE;
 
 #define DEFAULT_ENV_INSTANCE_STATIC
 #include <env_default.h>
@@ -1142,7 +1145,7 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 
 	erase.start = DEVOFFSET(dev);
 	erase.length = DEVESIZE(dev);
-	/* This relies on the fact, that obsolete_flag == 0 */
+	/* This relies on the fact, that ENV_REDUND_OBSOLETE == 0 */
 	rc = lseek(fd, offset, SEEK_SET);
 	if (rc < 0) {
 		fprintf(stderr, "Cannot seek to set the flag on %s\n",
@@ -1150,7 +1153,7 @@ static int flash_flag_obsolete(int dev, int fd, off_t offset)
 		return rc;
 	}
 	ioctl(fd, MEMUNLOCK, &erase);
-	rc = write(fd, &obsolete_flag, sizeof(obsolete_flag));
+	rc = write(fd, &ENV_REDUND_OBSOLETE, sizeof(ENV_REDUND_OBSOLETE));
 	ioctl(fd, MEMLOCK, &erase);
 	if (rc < 0)
 		perror("Could not set obsolete flag");
@@ -1169,7 +1172,7 @@ static int flash_write(int fd_current, int fd_target, int dev_target)
 		(*environment.flags)++;
 		break;
 	case FLAG_BOOLEAN:
-		*environment.flags = active_flag;
+		*environment.flags = ENV_REDUND_ACTIVE;
 		break;
 	default:
 		fprintf(stderr, "Unimplemented flash scheme %u\n",
@@ -1508,11 +1511,11 @@ int fw_env_open(struct env_opts *opts)
 		} else {
 			switch (environment.flag_scheme) {
 			case FLAG_BOOLEAN:
-				if (flag0 == active_flag &&
-				    flag1 == obsolete_flag) {
+				if (flag0 == ENV_REDUND_ACTIVE &&
+				    flag1 == ENV_REDUND_OBSOLETE) {
 					dev_current = 0;
-				} else if (flag0 == obsolete_flag &&
-					   flag1 == active_flag) {
+				} else if (flag0 == ENV_REDUND_OBSOLETE &&
+					   flag1 == ENV_REDUND_ACTIVE) {
 					dev_current = 1;
 				} else if (flag0 == flag1) {
 					dev_current = 0;

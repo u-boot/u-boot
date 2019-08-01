@@ -135,9 +135,6 @@ extern unsigned long nand_env_oob_offset;
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)
-
-# define ACTIVE_FLAG   1
-# define OBSOLETE_FLAG 0
 #else
 # define ENV_HEADER_SIZE	(sizeof(uint32_t))
 #endif
@@ -147,7 +144,7 @@ extern unsigned long nand_env_oob_offset;
 typedef struct environment_s {
 	uint32_t	crc;		/* CRC32 over data bytes	*/
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-	unsigned char	flags;		/* active/obsolete flags	*/
+	unsigned char	flags;		/* active/obsolete flags ENVF_REDUND_ */
 #endif
 	unsigned char	data[ENV_SIZE]; /* Environment data		*/
 } env_t;

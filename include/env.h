@@ -55,6 +55,12 @@ struct env_clbk_tbl {
 	{#name, callback}
 #endif
 
+/** enum env_redund_flags - Flags for the redundand_environment */
+enum env_redund_flags {
+	ENV_REDUND_OBSOLETE = 0,
+	ENV_REDUND_ACTIVE = 1,
+};
+
 /**
  * env_get_id() - Gets a sequence number for the environment
  *

@@ -1002,7 +1002,7 @@ NXTARG:		;
 		envp->crc = crc32(0, envp->data,
 				size ? size - offsetof(env_t, data) : ENV_SIZE);
 #ifdef CONFIG_ENV_ADDR_REDUND
-		envp->flags = ACTIVE_FLAG;
+		envp->flags = ENV_REDUND_ACTIVE;
 #endif
 	}
 	env_set_hex("filesize", len + offsetof(env_t, data));
