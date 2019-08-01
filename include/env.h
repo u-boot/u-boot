@@ -164,4 +164,22 @@ static inline int env_set_addr(const char *varname, const void *addr)
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf,
 		 bool dollar_comp);
 
+/**
+ * eth_env_get_enetaddr() - Get an ethernet address from the environmnet
+ *
+ * @name: Environment variable to get (e.g. "ethaddr")
+ * @enetaddr: Place to put MAC address (6 bytes)
+ * @return 0 if OK, 1 on error
+ */
+int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr);
+
+/**
+ * eth_env_set_enetaddr() - Set an ethernet address in the environmnet
+ *
+ * @name: Environment variable to set (e.g. "ethaddr")
+ * @enetaddr: Pointer to MAC address to put into the variable (6 bytes)
+ * @return 0 if OK, 1 on error
+ */
+int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr);
+
 #endif
