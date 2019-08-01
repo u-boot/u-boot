@@ -339,8 +339,6 @@ static inline struct in_addr env_get_ip(char *var)
 	return string_to_ip(env_get(var));
 }
 
-int	pcmcia_init (void);
-
 #ifdef CONFIG_LED_STATUS
 # include <status_led.h>
 #endif
