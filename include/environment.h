@@ -265,9 +265,6 @@ struct env_driver {
 
 extern struct hsearch_data env_htab;
 
-/* Function that updates CRC of the enironment */
-void env_crc_update(void);
-
 /* Look up the variable from the default environment */
 char *env_get_default(const char *name);
 
