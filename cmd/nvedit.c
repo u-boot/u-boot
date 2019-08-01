@@ -98,7 +98,7 @@ static int env_print(char *name, int flag)
 
 		e.key = name;
 		e.data = NULL;
-		hsearch_r(e, FIND, &ep, &env_htab, flag);
+		hsearch_r(e, ENV_FIND, &ep, &env_htab, flag);
 		if (ep == NULL)
 			return 0;
 		len = printf("%s=%s\n", ep->key, ep->data);
@@ -288,7 +288,7 @@ static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
 
 	e.key	= name;
 	e.data	= value;
-	hsearch_r(e, ENTER, &ep, &env_htab, env_flag);
+	hsearch_r(e, ENV_ENTER, &ep, &env_htab, env_flag);
 	free(value);
 	if (!ep) {
 		printf("## Error inserting \"%s\" variable, errno=%d\n",
@@ -668,7 +668,7 @@ char *env_get(const char *name)
 
 		e.key	= name;
 		e.data	= NULL;
-		hsearch_r(e, FIND, &ep, &env_htab, 0);
+		hsearch_r(e, ENV_FIND, &ep, &env_htab, 0);
 
 		return ep ? ep->data : NULL;
 	}
@@ -1269,7 +1269,7 @@ static int do_env_exists(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	e.key = argv[1];
 	e.data = NULL;
-	hsearch_r(e, FIND, &ep, &env_htab, 0);
+	hsearch_r(e, ENV_FIND, &ep, &env_htab, 0);
 
 	return (ep == NULL) ? 1 : 0;
 }

@@ -28,7 +28,7 @@ static int htab_fill(struct unit_test_state *uts,
 		item.data = key;
 		item.flags = 0;
 		item.key = key;
-		ut_asserteq(1, hsearch_r(item, ENTER, &ritem, htab, 0));
+		ut_asserteq(1, hsearch_r(item, ENV_ENTER, &ritem, htab, 0));
 	}
 
 	return 0;
@@ -48,7 +48,7 @@ static int htab_check_fill(struct unit_test_state *uts,
 		item.flags = 0;
 		item.data = key;
 		item.key = key;
-		hsearch_r(item, FIND, &ritem, htab, 0);
+		hsearch_r(item, ENV_FIND, &ritem, htab, 0);
 		ut_assert(ritem);
 		ut_asserteq_str(key, ritem->key);
 		ut_asserteq_str(key, ritem->data);
@@ -71,10 +71,10 @@ static int htab_create_delete(struct unit_test_state *uts,
 		item.flags = 0;
 		item.data = key;
 		item.key = key;
-		hsearch_r(item, ENTER, &ritem, htab, 0);
+		hsearch_r(item, ENV_ENTER, &ritem, htab, 0);
 		ritem = NULL;
 
-		hsearch_r(item, FIND, &ritem, htab, 0);
+		hsearch_r(item, ENV_FIND, &ritem, htab, 0);
 		ut_assert(ritem);
 		ut_asserteq_str(key, ritem->key);
 		ut_asserteq_str(key, ritem->data);

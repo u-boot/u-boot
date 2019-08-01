@@ -194,7 +194,7 @@ void hdestroy_r(struct hsearch_data *htab)
  *   data any more.
  * - The standard implementation does not provide a way to update an
  *   existing entry.  This version will create a new entry or update an
- *   existing one when both "action == ENTER" and "item.data != NULL".
+ *   existing one when both "action == ENV_ENTER" and "item.data != NULL".
  * - Instead of returning 1 on success, we return the index into the
  *   internal hash table, which is also guaranteed to be positive.
  *   This allows us direct access to the found hash table slot for
@@ -223,17 +223,17 @@ int hmatch_r(const char *match, int last_idx, struct env_entry **retval,
 
 /*
  * Compare an existing entry with the desired key, and overwrite if the action
- * is ENTER.  This is simply a helper function for hsearch_r().
+ * is ENV_ENTER.  This is simply a helper function for hsearch_r().
  */
 static inline int _compare_and_overwrite_entry(struct env_entry item,
-		ACTION action, struct env_entry **retval,
+		enum env_action action, struct env_entry **retval,
 		struct hsearch_data *htab, int flag, unsigned int hval,
 		unsigned int idx)
 {
 	if (htab->table[idx].used == hval
 	    && strcmp(item.key, htab->table[idx].entry.key) == 0) {
 		/* Overwrite existing value? */
-		if ((action == ENTER) && (item.data != NULL)) {
+		if (action == ENV_ENTER && item.data) {
 			/* check for permission */
 			if (htab->change_ok != NULL && htab->change_ok(
 			    &htab->table[idx].entry, item.data,
@@ -272,8 +272,8 @@ static inline int _compare_and_overwrite_entry(struct env_entry item,
 	return -1;
 }
 
-int hsearch_r(struct env_entry item, ACTION action, struct env_entry **retval,
-	      struct hsearch_data *htab, int flag)
+int hsearch_r(struct env_entry item, enum env_action action,
+	      struct env_entry **retval, struct hsearch_data *htab, int flag)
 {
 	unsigned int hval;
 	unsigned int count;
@@ -354,7 +354,7 @@ int hsearch_r(struct env_entry item, ACTION action, struct env_entry **retval,
 	}
 
 	/* An empty bucket has been found. */
-	if (action == ENTER) {
+	if (action == ENV_ENTER) {
 		/*
 		 * If table is full and another entry should be
 		 * entered return with error.
@@ -456,7 +456,7 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 
 	e.key = (char *)key;
 
-	idx = hsearch_r(e, FIND, &ep, htab, 0);
+	idx = hsearch_r(e, ENV_FIND, &ep, htab, 0);
 	if (idx == 0) {
 		__set_errno(ESRCH);
 		return 0;	/* not found */
@@ -931,7 +931,7 @@ int himport_r(struct hsearch_data *htab,
 		e.key = name;
 		e.data = value;
 
-		hsearch_r(e, ENTER, &rv, htab, flag);
+		hsearch_r(e, ENV_ENTER, &rv, htab, flag);
 		if (rv == NULL)
 			printf("himport_r: can't insert \"%s=%s\" into hash table\n",
 				name, value);

@@ -19,11 +19,11 @@
 
 #define __set_errno(val) do { errno = val; } while (0)
 
-/* Action which shall be performed in the call to hsearch.  */
-typedef enum {
-	FIND,
-	ENTER
-} ACTION;
+/* enum env_action: action which shall be performed in the call to hsearch */
+enum env_action {
+	ENV_FIND,
+	ENV_ENTER,
+};
 
 /** struct env_entry - An entry in the environment hashtable */
 struct env_entry {
@@ -64,11 +64,11 @@ extern void hdestroy_r(struct hsearch_data *__htab);
 
 /*
  * Search for entry matching __item.key in internal hash table.  If
- * ACTION is `FIND' return found entry or signal error by returning
- * NULL.  If ACTION is `ENTER' replace existing data (if any) with
+ * __action is `ENV_FIND' return found entry or signal error by returning
+ * NULL.  If __action is `ENV_ENTER' replace existing data (if any) with
  * __item.data.
  * */
-extern int hsearch_r(struct env_entry __item, ACTION __action,
+extern int hsearch_r(struct env_entry __item, enum env_action __action,
 		     struct env_entry **__retval, struct hsearch_data *__htab,
 		     int __flag);
 

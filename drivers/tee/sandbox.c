@@ -174,7 +174,7 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 
 		e.key = name;
 		e.data = NULL;
-		hsearch_r(e, FIND, &ep, &state->pstorage_htab, 0);
+		hsearch_r(e, ENV_FIND, &ep, &state->pstorage_htab, 0);
 		if (!ep)
 			return TEE_ERROR_ITEM_NOT_FOUND;
 
@@ -198,13 +198,13 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 
 		e.key = name;
 		e.data = NULL;
-		hsearch_r(e, FIND, &ep, &state->pstorage_htab, 0);
+		hsearch_r(e, ENV_FIND, &ep, &state->pstorage_htab, 0);
 		if (ep)
 			hdelete_r(e.key, &state->pstorage_htab, 0);
 
 		e.key = name;
 		e.data = value;
-		hsearch_r(e, ENTER, &ep, &state->pstorage_htab, 0);
+		hsearch_r(e, ENV_ENTER, &ep, &state->pstorage_htab, 0);
 		if (!ep)
 			return TEE_ERROR_OUT_OF_MEMORY;
 

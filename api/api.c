@@ -514,7 +514,7 @@ static int API_env_enum(va_list ap)
 		if (s != NULL)
 			*s = 0;
 		search.key = var;
-		i = hsearch_r(search, FIND, &match, &env_htab, 0);
+		i = hsearch_r(search, ENV_FIND, &match, &env_htab, 0);
 		if (i == 0) {
 			i = API_EINVAL;
 			goto done;
