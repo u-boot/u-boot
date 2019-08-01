@@ -426,13 +426,6 @@ static int reserve_video(void)
 	gd->relocaddr = lcd_setmem(gd->relocaddr);
 	gd->fb_base = gd->relocaddr;
 #  endif /* CONFIG_FB_ADDR */
-#elif defined(CONFIG_VIDEO) && \
-		(!defined(CONFIG_PPC)) && \
-		!defined(CONFIG_ARM) && !defined(CONFIG_X86) && \
-		!defined(CONFIG_M68K)
-	/* reserve memory for video display (always full pages) */
-	gd->relocaddr = video_setmem(gd->relocaddr);
-	gd->fb_base = gd->relocaddr;
 #endif
 
 	return 0;

@@ -385,9 +385,6 @@ ulong	bootcount_load (void);
 /* $(CPU)/.../<eth> */
 void mii_init (void);
 
-/* $(CPU)/.../video.c */
-ulong	video_setmem (ulong);
-
 /* arch/$(ARCH)/lib/cache.c */
 void	enable_caches(void);
 void	flush_cache   (unsigned long, unsigned long);
