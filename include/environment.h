@@ -296,27 +296,6 @@ int env_import_redund(const char *buf1, int buf1_status,
  */
 int env_get_char(int index);
 
-/**
- * env_load() - Load the environment from storage
- *
- * @return 0 if OK, -ve on error
- */
-int env_load(void);
-
-/**
- * env_save() - Save the environment to storage
- *
- * @return 0 if OK, -ve on error
- */
-int env_save(void);
-
-/**
- * env_erase() - Erase the environment on storage
- *
- * @return 0 if OK, -ve on error
- */
-int env_erase(void);
-
 #endif /* DO_DEPS_ONLY */
 
 #endif /* _ENVIRONMENT_H_ */

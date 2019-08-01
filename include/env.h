@@ -198,4 +198,25 @@ void env_fix_drivers(void);
  */
 int env_set_default_vars(int nvars, char *const vars[], int flags);
 
+/**
+ * env_load() - Load the environment from storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_load(void);
+
+/**
+ * env_save() - Save the environment to storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_save(void);
+
+/**
+ * env_erase() - Erase the environment on storage
+ *
+ * @return 0 if OK, -ve on error
+ */
+int env_erase(void);
+
 #endif
