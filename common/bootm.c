@@ -7,6 +7,7 @@
 #ifndef USE_HOSTCC
 #include <common.h>
 #include <bootstage.h>
+#include <env.h>
 #include <errno.h>
 #include <fdt_support.h>
 #include <lmb.h>

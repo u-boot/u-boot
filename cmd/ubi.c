@@ -13,6 +13,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <exports.h>
 #include <memalign.h>
 #include <mtd.h>

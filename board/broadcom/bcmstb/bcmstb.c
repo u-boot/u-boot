@@ -8,6 +8,7 @@
 
 #include <linux/types.h>
 #include <common.h>
+#include <env.h>
 #include <asm/io.h>
 #include <asm/bootm.h>
 #include <mach/timer.h>

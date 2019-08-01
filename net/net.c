@@ -90,6 +90,7 @@
 #include <common.h>
 #include <command.h>
 #include <console.h>
+#include <env.h>
 #include <environment.h>
 #include <errno.h>
 #include <net.h>

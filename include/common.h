@@ -209,27 +209,6 @@ int env_set(const char *varname, const char *value);
  */
 int env_set_ulong(const char *varname, ulong value);
 
-/**
- * env_set_hex() - set an environment variable to a hex value
- *
- * @varname: Variable to adjust
- * @value: Value to set for the variable (will be converted to a hex string)
- * @return 0 if OK, 1 on error
- */
-int env_set_hex(const char *varname, ulong value);
-
-/**
- * env_set_addr - Set an environment variable to an address in hex
- *
- * @varname:	Environment variable to set
- * @addr:	Value to set it to
- * @return 0 if ok, 1 on error
- */
-static inline int env_set_addr(const char *varname, const void *addr)
-{
-	return env_set_hex(varname, (ulong)addr);
-}
-
 void	pci_init_board(void);
 
 /* common/exports.c */

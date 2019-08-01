@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <gzip.h>
 
 static int do_unzip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

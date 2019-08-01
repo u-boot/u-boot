@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <gzip.h>
 #include <memalign.h>
 #include "ubifs.h"

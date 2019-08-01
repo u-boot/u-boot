@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <common.h>
 #include <console.h>
+#include <env.h>
 #include <malloc.h>
 
 #include <linux/usb/ch9.h>
