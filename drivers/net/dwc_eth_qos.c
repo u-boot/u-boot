@@ -621,7 +621,7 @@ err:
 	return ret;
 }
 
-void eqos_stop_clks_tegra186(struct udevice *dev)
+static void eqos_stop_clks_tegra186(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 
@@ -636,7 +636,7 @@ void eqos_stop_clks_tegra186(struct udevice *dev)
 	debug("%s: OK\n", __func__);
 }
 
-void eqos_stop_clks_stm32(struct udevice *dev)
+static void eqos_stop_clks_stm32(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 
@@ -1290,7 +1290,7 @@ err:
 	return ret;
 }
 
-void eqos_stop(struct udevice *dev)
+static void eqos_stop(struct udevice *dev)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	int i;
@@ -1344,7 +1344,7 @@ void eqos_stop(struct udevice *dev)
 	debug("%s: OK\n", __func__);
 }
 
-int eqos_send(struct udevice *dev, void *packet, int length)
+static int eqos_send(struct udevice *dev, void *packet, int length)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	struct eqos_desc *tx_desc;
@@ -1385,7 +1385,7 @@ int eqos_send(struct udevice *dev, void *packet, int length)
 	return -ETIMEDOUT;
 }
 
-int eqos_recv(struct udevice *dev, int flags, uchar **packetp)
+static int eqos_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	struct eqos_desc *rx_desc;
@@ -1409,7 +1409,7 @@ int eqos_recv(struct udevice *dev, int flags, uchar **packetp)
 	return length;
 }
 
-int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
+static int eqos_free_pkt(struct udevice *dev, uchar *packet, int length)
 {
 	struct eqos_priv *eqos = dev_get_priv(dev);
 	uchar *packet_expected;
