@@ -265,12 +265,6 @@ struct env_driver {
 
 extern struct hsearch_data env_htab;
 
-/* Look up the variable from the default environment */
-char *env_get_default(const char *name);
-
-/* [re]set to the default environment */
-void set_default_env(const char *s, int flags);
-
 /**
  * env_get_char() - Get a character from the early environment
  *

@@ -128,7 +128,7 @@ int board_late_init(void)
 
 	/* In bootstrap don't use the env vars */
 	if (((reg & 0x3000000) >> 24) == 0x1) {
-		set_default_env(NULL, 0);
+		env_set_default(NULL, 0);
 		env_set("preboot", "");
 	}
 

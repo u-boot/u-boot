@@ -257,4 +257,15 @@ int env_export(struct environment_s *env_out);
 int env_import_redund(const char *buf1, int buf1_read_fail,
 		      const char *buf2, int buf2_read_fail);
 
+/**
+ * env_get_default() - Look up a variable from the default environment
+ *
+ * @name: Variable to look up
+ * @return value if found, NULL if not found in default environment
+ */
+char *env_get_default(const char *name);
+
+/* [re]set to the default environment */
+void env_set_default(const char *s, int flags);
+
 #endif

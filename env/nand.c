@@ -15,6 +15,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <environment.h>
 #include <linux/stddef.h>
 #include <malloc.h>
@@ -325,7 +326,7 @@ static int env_nand_load(void)
 	tmp_env2 = (env_t *)malloc(CONFIG_ENV_SIZE);
 	if (tmp_env1 == NULL || tmp_env2 == NULL) {
 		puts("Can't allocate buffers for environment\n");
-		set_default_env("malloc() failed", 0);
+		env_set_default("malloc() failed", 0);
 		ret = -EIO;
 		goto done;
 	}
@@ -364,14 +365,14 @@ static int env_nand_load(void)
 	if (mtd && !get_nand_env_oob(mtd, &nand_env_oob_offset)) {
 		printf("Found Environment offset in OOB..\n");
 	} else {
-		set_default_env("no env offset in OOB", 0);
+		env_set_default("no env offset in OOB", 0);
 		return;
 	}
 #endif
 
 	ret = readenv(CONFIG_ENV_OFFSET, (u_char *)buf);
 	if (ret) {
-		set_default_env("readenv() failed", 0);
+		env_set_default("readenv() failed", 0);
 		return -EIO;
 	}
 

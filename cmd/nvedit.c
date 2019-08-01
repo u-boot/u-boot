@@ -814,7 +814,7 @@ static int do_env_default(cmd_tbl_t *cmdtp, int flag,
 	debug("Final value for argc=%d\n", argc);
 	if (all && (argc == 0)) {
 		/* Reset the whole environment */
-		set_default_env("## Resetting to default environment\n",
+		env_set_default("## Resetting to default environment\n",
 				env_flag);
 		return 0;
 	}

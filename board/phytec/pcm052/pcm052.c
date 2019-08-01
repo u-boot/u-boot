@@ -377,7 +377,7 @@ int board_late_init(void)
 	if ((reg & SRC_SBMR1_BOOTCFG1_SDMMC) &&
 	    !(reg & SRC_SBMR1_BOOTCFG1_MMC)) {
 		printf("------ SD card boot -------\n");
-		set_default_env("!LVFBootloader", 0);
+		env_set_default("!LVFBootloader", 0);
 		env_set("bootcmd",
 			"run prepare_install_bk4r1_envs; run install_bk4r1rs");
 	}

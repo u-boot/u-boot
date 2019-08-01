@@ -21,6 +21,7 @@
 #include <common.h>
 
 #include <command.h>
+#include <env.h>
 #include <environment.h>
 #include <linux/stddef.h>
 #include <malloc.h>
@@ -127,7 +128,7 @@ static int env_ext4_load(void)
 	return env_import(buf, 1);
 
 err_env_relocate:
-	set_default_env(NULL, 0);
+	env_set_default(NULL, 0);
 
 	return -EIO;
 }
