@@ -145,9 +145,6 @@ int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 /* common/cmd_ext2.c */
 int do_ext2load(cmd_tbl_t *, int, int, char * const []);
 
-/* common/cmd_nvedit.c */
-int	envmatch     (uchar *, int);
-
 /**
  * env_get() - Look up the value of an environment variable
  *

@@ -709,7 +709,7 @@ int env_get_f(const char *name, char *buf, unsigned len)
 				return -1;
 		}
 
-		val = envmatch((uchar *)name, i);
+		val = env_match((uchar *)name, i);
 		if (val < 0)
 			continue;
 
@@ -785,15 +785,7 @@ U_BOOT_CMD(
 #endif
 #endif /* CONFIG_SPL_BUILD */
 
-
-/*
- * Match a name / name=value pair
- *
- * s1 is either a simple 'name', or a 'name=value' pair.
- * i2 is the environment index for a 'name2=value2' pair.
- * If the names match, return the index for the value2, else -1.
- */
-int envmatch(uchar *s1, int i2)
+int env_match(uchar *s1, int i2)
 {
 	if (s1 == NULL)
 		return -1;
