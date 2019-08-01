@@ -42,7 +42,7 @@
 #define DFU_ALT_EMMC_INFO	"apalis-tk1.img raw 0x0 0x500 mmcpart 1; " \
 				"boot part 0 1 mmcpart 0; " \
 				"rootfs part 0 2 mmcpart 0; " \
-				"uImage fat 0 1 mmcpart 0; " \
+				"zImage fat 0 1 mmcpart 0; " \
 				"tegra124-apalis-eval.dtb fat 0 1 mmcpart 0"
 
 #define EMMC_BOOTCMD \
@@ -54,7 +54,7 @@
 		"run emmcdtbload; " \
 		"load mmc ${emmcdev}:${emmcbootpart} ${kernel_addr_r} " \
 		"${boot_file} && run fdt_fixup && " \
-		"bootm ${kernel_addr_r} - ${dtbparam}\0" \
+		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"emmcbootpart=1\0" \
 	"emmcdev=0\0" \
 	"emmcdtbload=setenv dtbparam; load mmc ${emmcdev}:${emmcbootpart} " \
@@ -68,7 +68,7 @@
 	"nfsboot=pci enum; run setup; setenv bootargs ${defargs} ${nfsargs} " \
 		"${setupargs} ${vidargs}; echo Booting via DHCP/TFTP/NFS...; " \
 		"run nfsdtbload; dhcp ${kernel_addr_r} " \
-		"&& run fdt_fixup && bootm ${kernel_addr_r} - ${dtbparam}\0" \
+		"&& run fdt_fixup && bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"nfsdtbload=setenv dtbparam; tftp ${fdt_addr_r} " \
 		"${soc}-apalis-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0"
@@ -81,7 +81,7 @@
 		"${vidargs}; echo Booting from SD card in 8bit slot...; " \
 		"run sddtbload; load mmc ${sddev}:${sdbootpart} " \
 		"${kernel_addr_r} ${boot_file} && run fdt_fixup && " \
-		"bootm ${kernel_addr_r} - ${dtbparam}\0" \
+		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"sdbootpart=1\0" \
 	"sddev=1\0" \
 	"sddtbload=setenv dtbparam; load mmc ${sddev}:${sdbootpart} " \
@@ -98,7 +98,7 @@
 		"${usbargs} ${vidargs}; echo Booting from USB stick...; " \
 		"run usbdtbload; load usb ${usbdev}:${usbbootpart} " \
 		"${kernel_addr_r} ${boot_file} && run fdt_fixup && " \
-		"bootm ${kernel_addr_r} - ${dtbparam}\0" \
+		"bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"usbbootpart=1\0" \
 	"usbdev=0\0" \
 	"usbdtbload=setenv dtbparam; load usb ${usbdev}:${usbbootpart} " \
@@ -108,7 +108,7 @@
 	"usbrootpart=2\0"
 
 #define BOARD_EXTRA_ENV_SETTINGS \
-	"boot_file=uImage\0" \
+	"boot_file=zImage\0" \
 	"console=ttyS0\0" \
 	"defargs=lp0_vec=2064@0xf46ff000 core_edp_mv=1150 core_edp_ma=4000 " \
 		"usb_port_owner_info=2 lane_owner_info=6 emc_max_dvfs=0 " \
