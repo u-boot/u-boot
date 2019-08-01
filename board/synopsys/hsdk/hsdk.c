@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <config.h>
+#include <env.h>
 #include <linux/printk.h>
 #include <linux/kernel.h>
 #include <linux/io.h>

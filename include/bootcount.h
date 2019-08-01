@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/byteorder.h>
+#include <env.h>
 
 #ifdef CONFIG_DM_BOOTCOUNT
 

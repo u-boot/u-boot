@@ -200,15 +200,6 @@ int env_get_yesno(const char *var);
  */
 int env_set(const char *varname, const char *value);
 
-/**
- * env_set_ulong() - set an environment variable to an integer
- *
- * @varname: Variable to adjust
- * @value: Value to set for the variable (will be converted to a string)
- * @return 0 if OK, 1 on error
- */
-int env_set_ulong(const char *varname, ulong value);
-
 void	pci_init_board(void);
 
 /* common/exports.c */

@@ -13,6 +13,7 @@
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/io.h>
 #include <common.h>
+#include <env.h>
 #include <asm/arch/crm_regs.h>
 #include <netdev.h>
 #include <power/pmic.h>

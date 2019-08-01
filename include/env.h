@@ -64,6 +64,15 @@ int env_match(unsigned char *name, int index);
 int env_get_f(const char *name, char *buf, unsigned int len);
 
 /**
+ * env_set_ulong() - set an environment variable to an integer
+ *
+ * @varname: Variable to adjust
+ * @value: Value to set for the variable (will be converted to a string)
+ * @return 0 if OK, 1 on error
+ */
+int env_set_ulong(const char *varname, ulong value);
+
+/**
  * env_set_hex() - set an environment variable to a hex value
  *
  * @varname: Variable to adjust
