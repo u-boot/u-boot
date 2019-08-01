@@ -19,12 +19,6 @@
 
 #define __set_errno(val) do { errno = val; } while (0)
 
-enum env_op {
-	env_op_create,
-	env_op_delete,
-	env_op_overwrite,
-};
-
 /* Action which shall be performed in the call to hsearch.  */
 typedef enum {
 	FIND,

@@ -21,6 +21,40 @@ enum env_valid {
 	ENV_REDUND,	/* Redundant environment is valid */
 };
 
+/** enum env_op - environment callback operation */
+enum env_op {
+	env_op_create,
+	env_op_delete,
+	env_op_overwrite,
+};
+
+/** struct env_clbk_tbl - declares a new callback */
+struct env_clbk_tbl {
+	const char *name;		/* Callback name */
+	int (*callback)(const char *name, const char *value, enum env_op op,
+			int flags);
+};
+
+/*
+ * Define a callback that can be associated with variables.
+ * when associated through the ".callbacks" environment variable, the callback
+ * will be executed any time the variable is inserted, overwritten, or deleted.
+ *
+ * For SPL these are silently dropped to reduce code size, since environment
+ * callbacks are not supported with SPL.
+ */
+#ifdef CONFIG_SPL_BUILD
+#define U_BOOT_ENV_CALLBACK(name, callback) \
+	static inline __maybe_unused void _u_boot_env_noop_##name(void) \
+	{ \
+		(void)callback; \
+	}
+#else
+#define U_BOOT_ENV_CALLBACK(name, callback) \
+	ll_entry_declare(struct env_clbk_tbl, name, env_clbk) = \
+	{#name, callback}
+#endif
+
 /**
  * env_get_id() - Gets a sequence number for the environment
  *
