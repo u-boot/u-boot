@@ -385,9 +385,6 @@ ulong	bootcount_load (void);
 /* $(CPU)/.../<eth> */
 void mii_init (void);
 
-/* $(CPU)/.../lcd.c */
-ulong	lcd_setmem (ulong);
-
 /* $(CPU)/.../video.c */
 ulong	video_setmem (ulong);
 
