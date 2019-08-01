@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <asm/processor.h>
 #include <ioports.h>
 #include <lmb.h>

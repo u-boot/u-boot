@@ -64,6 +64,14 @@ int env_match(unsigned char *name, int index);
 int env_get_f(const char *name, char *buf, unsigned int len);
 
 /**
+ * env_get_yesno() - Read an environment variable as a boolean
+ *
+ * @return 1 if yes/true (Y/y/T/t), -1 if variable does not exist (i.e. default
+ *	to true), 0 if otherwise
+ */
+int env_get_yesno(const char *var);
+
+/**
  * env_get_ulong() - Return an environment variable as an integer value
  *
  * Most U-Boot environment variables store hex values. For those which store

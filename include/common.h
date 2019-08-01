@@ -169,12 +169,6 @@ char *env_get(const char *varname);
  */
 ulong env_get_hex(const char *varname, ulong default_val);
 
-/*
- * Read an environment variable as a boolean
- * Return -1 if variable does not exist (default to true)
- */
-int env_get_yesno(const char *var);
-
 /**
  * env_set() - set an environment variable
  *
