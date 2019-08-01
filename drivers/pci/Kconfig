@@ -145,4 +145,10 @@ config PCI_MVEBU
 	  Say Y here if you want to enable PCIe controller support on
 	  Armada XP/38x SoCs.
 
+config PCI_KEYSTONE
+	bool "TI Keystone PCIe controller"
+	depends on DM_PCI
+	help
+	  Say Y here if you want to enable PCI controller support on AM654 SoC.
+
 endif
