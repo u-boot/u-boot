@@ -17,7 +17,7 @@
 #include <env.h>
 #include <stddef.h>
 
-#define __set_errno(val) do { errno = val; } while (0)
+#define set_errno(val) do { errno = val; } while (0)
 
 /* enum env_action: action which shall be performed in the call to hsearch */
 enum env_action {
@@ -47,58 +47,54 @@ struct hsearch_data {
 	unsigned int filled;
 /*
  * Callback function which will check whether the given change for variable
- * "__item" to "newval" may be applied or not, and possibly apply such change.
+ * "item" to "newval" may be applied or not, and possibly apply such change.
  * When (flag & H_FORCE) is set, it shall not print out any error message and
  * shall force overwriting of write-once variables.
  * Must return 0 for approval, 1 for denial.
  */
-	int (*change_ok)(const struct env_entry *__item, const char *newval,
+	int (*change_ok)(const struct env_entry *item, const char *newval,
 			 enum env_op, int flag);
 };
 
-/* Create a new hash table which will contain at most "__nel" elements.  */
-extern int hcreate_r(size_t __nel, struct hsearch_data *__htab);
+/* Create a new hash table which will contain at most "nel" elements.  */
+int hcreate_r(size_t nel, struct hsearch_data *htab);
 
 /* Destroy current internal hash table.  */
-extern void hdestroy_r(struct hsearch_data *__htab);
+void hdestroy_r(struct hsearch_data *htab);
 
 /*
- * Search for entry matching __item.key in internal hash table.  If
- * __action is `ENV_FIND' return found entry or signal error by returning
- * NULL.  If __action is `ENV_ENTER' replace existing data (if any) with
- * __item.data.
+ * Search for entry matching item.key in internal hash table.  If
+ * action is `ENV_FIND' return found entry or signal error by returning
+ * NULL.  If action is `ENV_ENTER' replace existing data (if any) with
+ * item.data.
  * */
-extern int hsearch_r(struct env_entry __item, enum env_action __action,
-		     struct env_entry **__retval, struct hsearch_data *__htab,
-		     int __flag);
+int hsearch_r(struct env_entry item, enum env_action action,
+	      struct env_entry **retval, struct hsearch_data *htab, int flag);
 
 /*
- * Search for an entry matching "__match".  Otherwise, Same semantics
+ * Search for an entry matching "match".  Otherwise, Same semantics
  * as hsearch_r().
  */
-extern int hmatch_r(const char *__match, int __last_idx,
-		    struct env_entry **__retval, struct hsearch_data *__htab);
+int hmatch_r(const char *match, int last_idx, struct env_entry **retval,
+	     struct hsearch_data *htab);
 
-/* Search and delete entry matching "__key" in internal hash table. */
-extern int hdelete_r(const char *__key, struct hsearch_data *__htab,
-		     int __flag);
+/* Search and delete entry matching "key" in internal hash table. */
+int hdelete_r(const char *key, struct hsearch_data *htab, int flag);
 
-extern ssize_t hexport_r(struct hsearch_data *__htab,
-		     const char __sep, int __flag, char **__resp, size_t __size,
-		     int argc, char * const argv[]);
+ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
+		  char **resp, size_t size, int argc, char * const argv[]);
 
 /*
  * nvars: length of vars array
  * vars: array of strings (variable names) to import (nvars == 0 means all)
  */
-extern int himport_r(struct hsearch_data *__htab,
-		     const char *__env, size_t __size, const char __sep,
-		     int __flag, int __crlf_is_lf, int nvars,
-		     char * const vars[]);
+int himport_r(struct hsearch_data *htab, const char *env, size_t size,
+	      const char sep, int flag, int crlf_is_lf, int nvars,
+	      char * const vars[]);
 
 /* Walk the whole table calling the callback on each element */
-extern int hwalk_r(struct hsearch_data *__htab,
-		   int (*callback)(struct env_entry *entry));
+int hwalk_r(struct hsearch_data *htab,
+	    int (*callback)(struct env_entry *entry));
 
 /* Flags for himport_r(), hexport_r(), hdelete_r(), and hsearch_r() */
 #define H_NOCLEAR	(1 << 0) /* do not clear hash table before importing */
