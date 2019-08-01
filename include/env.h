@@ -278,4 +278,11 @@ void env_set_default(const char *s, int flags);
  */
 int env_get_char(int index);
 
+/**
+ * env_reloc() - Relocate the 'env' sub-commands
+ *
+ * This is used for those unfortunate archs with crappy toolchains
+ */
+void env_reloc(void);
+
 #endif

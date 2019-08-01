@@ -158,10 +158,6 @@ extern env_t environment;
 
 extern const unsigned char default_environment[];
 
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-extern void env_reloc(void);
-#endif
-
 #ifndef DO_DEPS_ONLY
 
 #include <env_attr.h>
