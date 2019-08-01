@@ -428,51 +428,6 @@ void	wait_ticks    (unsigned long);
 ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);
 
-/* lib/gunzip.c */
-int gzip_parse_header(const unsigned char *src, unsigned long len);
-int gunzip(void *, int, unsigned char *, unsigned long *);
-int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
-						int stoponerr, int offset);
-
-/**
- * gzwrite progress indicators: defined weak to allow board-specific
- * overrides:
- *
- *	gzwrite_progress_init called on startup
- *	gzwrite_progress called during decompress/write loop
- *	gzwrite_progress_finish called at end of loop to
- *		indicate success (retcode=0) or failure
- */
-void gzwrite_progress_init(u64 expected_size);
-
-void gzwrite_progress(int iteration,
-		     u64 bytes_written,
-		     u64 total_bytes);
-
-void gzwrite_progress_finish(int retcode,
-			     u64 totalwritten,
-			     u64 totalsize,
-			     u32 expected_crc,
-			     u32 calculated_crc);
-
-/**
- * decompress and write gzipped image from memory to block device
- *
- * @param	src		compressed image address
- * @param	len		compressed image length in bytes
- * @param	dev		block device descriptor
- * @param	szwritebuf	bytes per write (pad to erase size)
- * @param	startoffs	offset in bytes of first write
- * @param	szexpected	expected uncompressed length
- *				may be zero to use gzip trailer
- *				for files under 4GiB
- */
-int gzwrite(unsigned char *src, int len,
-	    struct blk_desc *dev,
-	    unsigned long szwritebuf,
-	    u64 startoffs,
-	    u64 szexpected);
-
 /* lib/lz4_wrapper.c */
 int ulz4fn(const void *src, size_t srcn, void *dst, size_t *dstn);
 
@@ -505,13 +460,6 @@ unsigned int rand_r(unsigned int *seedp);
 /* serial stuff */
 int	serial_printf (const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));
-
-/* lib/gzip.c */
-int gzip(void *dst, unsigned long *lenp,
-		unsigned char *src, unsigned long srclen);
-int zzip(void *dst, unsigned long *lenp, unsigned char *src,
-		unsigned long srclen, int stoponerr,
-		int (*func)(unsigned long, unsigned long));
 
 /* lib/net_utils.c */
 #include <net.h>

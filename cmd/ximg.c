@@ -13,6 +13,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <gzip.h>
 #include <image.h>
 #include <mapmem.h>
 #include <watchdog.h>

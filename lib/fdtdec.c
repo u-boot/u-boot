@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
+#include <gzip.h>
 #include <mapmem.h>
 #include <linux/libfdt.h>
 #include <serial.h>

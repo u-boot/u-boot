@@ -20,6 +20,7 @@
 #include <asm/spl.h>
 #include <fdt_support.h>
 #include <fsl_esdhc_imx.h>
+#include <gzip.h>
 #include <i2c.h>
 #include <ipu_pixfmt.h>
 #include <linux/errno.h>

@@ -17,6 +17,7 @@
 #include <rtc.h>
 
 #include <environment.h>
+#include <gzip.h>
 #include <image.h>
 #include <mapmem.h>
 

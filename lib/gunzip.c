@@ -5,14 +5,15 @@
  */
 
 #include <common.h>
-#include <watchdog.h>
 #include <command.h>
 #include <console.h>
+#include <div64.h>
+#include <gzip.h>
 #include <image.h>
 #include <malloc.h>
 #include <memalign.h>
+#include <watchdog.h>
 #include <u-boot/zlib.h>
-#include <div64.h>
 
 #define HEADER0			'\x1f'
 #define HEADER1			'\x8b'
