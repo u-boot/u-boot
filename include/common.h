@@ -45,16 +45,6 @@ typedef void (interrupt_handler_t)(void *);
 #include <asm/u-boot.h> /* boot information for Linux kernel */
 #include <asm/global_data.h>	/* global data used for startup functions */
 
-#if defined(CONFIG_ENV_IS_EMBEDDED)
-#define TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
-#elif ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
-	(CONFIG_ENV_ADDR >= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)) ) || \
-      defined(CONFIG_ENV_IS_IN_NVRAM)
-#define	TOTAL_MALLOC_LEN	(CONFIG_SYS_MALLOC_LEN + CONFIG_ENV_SIZE)
-#else
-#define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
-#endif
-
 /* startup functions, used in:
  * common/board_f.c
  * common/init/board_init.c

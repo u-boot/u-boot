@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <environment.h>
 #include <asm/e820.h>
 
 DECLARE_GLOBAL_DATA_PTR;
