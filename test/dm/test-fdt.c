@@ -549,12 +549,14 @@ static int dm_test_fdt_remap_addr_index_flat(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	fdt_addr_t addr;
+	fdt_size_t size;
 	void *paddr;
 
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
 
-	addr = devfdt_get_addr_index(dev, 0);
+	addr = devfdt_get_addr_size_index(dev, 0, &size);
 	ut_asserteq(0x8000, addr);
+	ut_asserteq(0x1000, size);
 
 	paddr = map_physmem(addr, 0, MAP_NOCACHE);
 	ut_assertnonnull(paddr);
@@ -569,12 +571,14 @@ static int dm_test_fdt_remap_addr_name_flat(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	fdt_addr_t addr;
+	fdt_size_t size;
 	void *paddr;
 
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
 
-	addr = devfdt_get_addr_name(dev, "sandbox-dummy-0");
+	addr = devfdt_get_addr_size_name(dev, "sandbox-dummy-0", &size);
 	ut_asserteq(0x8000, addr);
+	ut_asserteq(0x1000, size);
 
 	paddr = map_physmem(addr, 0, MAP_NOCACHE);
 	ut_assertnonnull(paddr);
@@ -609,12 +613,14 @@ static int dm_test_fdt_remap_addr_index_live(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	fdt_addr_t addr;
+	fdt_size_t size;
 	void *paddr;
 
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
 
-	addr = dev_read_addr_index(dev, 0);
+	addr = dev_read_addr_size_index(dev, 0, &size);
 	ut_asserteq(0x8000, addr);
+	ut_asserteq(0x1000, size);
 
 	paddr = map_physmem(addr, 0, MAP_NOCACHE);
 	ut_assertnonnull(paddr);
@@ -629,12 +635,14 @@ static int dm_test_fdt_remap_addr_name_live(struct unit_test_state *uts)
 {
 	struct udevice *dev;
 	fdt_addr_t addr;
+	fdt_size_t size;
 	void *paddr;
 
 	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_DUMMY, 0, true, &dev));
 
-	addr = dev_read_addr_name(dev, "sandbox-dummy-0");
+	addr = dev_read_addr_size_name(dev, "sandbox-dummy-0", &size);
 	ut_asserteq(0x8000, addr);
+	ut_asserteq(0x1000, size);
 
 	paddr = map_physmem(addr, 0, MAP_NOCACHE);
 	ut_assertnonnull(paddr);

@@ -82,6 +82,15 @@ fdt_addr_t dev_read_addr_index(struct udevice *dev, int index)
 		return devfdt_get_addr_index(dev, index);
 }
 
+fdt_addr_t dev_read_addr_size_index(struct udevice *dev, int index,
+				    fdt_size_t *size)
+{
+	if (ofnode_is_np(dev_ofnode(dev)))
+		return ofnode_get_addr_size_index(dev_ofnode(dev), index, size);
+	else
+		return devfdt_get_addr_size_index(dev, index, size);
+}
+
 void *dev_remap_addr_index(struct udevice *dev, int index)
 {
 	fdt_addr_t addr = dev_read_addr_index(dev, index);
@@ -100,6 +109,17 @@ fdt_addr_t dev_read_addr_name(struct udevice *dev, const char *name)
 		return FDT_ADDR_T_NONE;
 	else
 		return dev_read_addr_index(dev, index);
+}
+
+fdt_addr_t dev_read_addr_size_name(struct udevice *dev, const char *name,
+				   fdt_size_t *size)
+{
+	int index = dev_read_stringlist_search(dev, "reg-names", name);
+
+	if (index < 0)
+		return FDT_ADDR_T_NONE;
+	else
+		return dev_read_addr_size_index(dev, index, size);
 }
 
 void *dev_remap_addr_name(struct udevice *dev, const char *name)
