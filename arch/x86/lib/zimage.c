@@ -13,6 +13,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <asm/acpi_table.h>
 #include <asm/io.h>

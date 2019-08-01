@@ -94,6 +94,18 @@ ulong env_get_ulong(const char *name, int base, ulong default_val);
 int env_set_ulong(const char *varname, ulong value);
 
 /**
+ * env_get_hex() - Return an environment variable as a hex value
+ *
+ * Decode an environment as a hex number (it may or may not have a 0x
+ * prefix). If the environment variable cannot be found, or does not start
+ * with hex digits, the default value is returned.
+ *
+ * @varname:		Variable to decode
+ * @default_val:	Value to return on error
+ */
+ulong env_get_hex(const char *varname, ulong default_val);
+
+/**
  * env_set_hex() - set an environment variable to a hex value
  *
  * @varname: Variable to adjust

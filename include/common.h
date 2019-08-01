@@ -158,18 +158,6 @@ int do_ext2load(cmd_tbl_t *, int, int, char * const []);
 char *env_get(const char *varname);
 
 /**
- * env_get_hex() - Return an environment variable as a hex value
- *
- * Decode an environment as a hex number (it may or may not have a 0x
- * prefix). If the environment variable cannot be found, or does not start
- * with hex digits, the default value is returned.
- *
- * @varname:		Variable to decode
- * @default_val:	Value to return on error
- */
-ulong env_get_hex(const char *varname, ulong default_val);
-
-/**
  * env_set() - set an environment variable
  *
  * This sets or deletes the value of an environment variable. For setting the
