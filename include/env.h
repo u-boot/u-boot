@@ -268,4 +268,14 @@ char *env_get_default(const char *name);
 /* [re]set to the default environment */
 void env_set_default(const char *s, int flags);
 
+/**
+ * env_get_char() - Get a character from the early environment
+ *
+ * This reads from the pre-relocation environment
+ *
+ * @index: Index of character to read (0 = first)
+ * @return character read, or -ve on error
+ */
+int env_get_char(int index);
+
 #endif
