@@ -32,6 +32,14 @@ int env_get_id(void);
 int env_init(void);
 
 /**
+ * env_relocate() - Set up the post-relocation environment
+ *
+ * This loads the environment into RAM so that it can be modified. This is
+ * called after relocation, before the environment is used
+ */
+void env_relocate(void);
+
+/**
  * env_get_f() - Look up the value of an environment variable (early)
  *
  * This function is called from env_get() if the environment has not been

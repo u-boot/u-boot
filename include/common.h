@@ -146,7 +146,6 @@ int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 int do_ext2load(cmd_tbl_t *, int, int, char * const []);
 
 /* common/cmd_nvedit.c */
-void	env_relocate (void);
 int	envmatch     (uchar *, int);
 
 /**

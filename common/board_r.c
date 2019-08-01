@@ -18,6 +18,7 @@
 #include <command.h>
 #include <console.h>
 #include <dm.h>
+#include <env.h>
 #include <environment.h>
 #include <fdtdec.h>
 #include <ide.h>
