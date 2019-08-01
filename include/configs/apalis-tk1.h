@@ -137,7 +137,7 @@
 		"load ${interface} ${drive}:1 ${loadaddr} flash_blk.img && " \
 		"source ${loadaddr}\0" \
 	USB_BOOTCMD \
-	"vidargs=video=tegrafb0:640x480-16@60 fbcon=map:1\0"
+	"vidargs=fbcon=map:1\0"
 
 /* Increase console I/O buffer size */
 #undef CONFIG_SYS_CBSIZE
