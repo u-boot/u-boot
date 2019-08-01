@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <environment.h>
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)

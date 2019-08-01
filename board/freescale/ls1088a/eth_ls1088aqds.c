@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/fsl_serdes.h>

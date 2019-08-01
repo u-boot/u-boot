@@ -9,6 +9,7 @@
 #include <charset.h>
 #include <dm/device.h>
 #include <efi_loader.h>
+#include <env.h>
 #include <stdio_dev.h>
 #include <video_console.h>
 

@@ -3,6 +3,7 @@
  * Copyright 2015 Freescale Semiconductor
  */
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>

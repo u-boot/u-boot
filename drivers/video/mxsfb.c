@@ -6,6 +6,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <linux/errno.h>
 #include <malloc.h>
 #include <video.h>

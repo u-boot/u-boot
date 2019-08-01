@@ -11,6 +11,7 @@
 #include <dm.h>
 #include <efi_loader.h>
 #include <efi_selftest.h>
+#include <env.h>
 #include <errno.h>
 #include <linux/libfdt.h>
 #include <linux/libfdt_env.h>

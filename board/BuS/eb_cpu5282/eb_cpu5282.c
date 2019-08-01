@@ -11,6 +11,7 @@
 #include <command.h>
 #include "asm/m5282.h"
 #include <bmp_layout.h>
+#include <env.h>
 #include <status_led.h>
 #include <bus_vcxk.h>
 

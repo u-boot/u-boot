@@ -7,6 +7,7 @@
 #include <common.h>
 #include <bootretry.h>
 #include <cli.h>
+#include <env.h>
 #include <errno.h>
 #include <watchdog.h>
 

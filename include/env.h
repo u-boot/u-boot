@@ -52,6 +52,18 @@ void env_relocate(void);
 int env_match(unsigned char *name, int index);
 
 /**
+ * env_get() - Look up the value of an environment variable
+ *
+ * In U-Boot proper this can be called before relocation (which is when the
+ * environment is loaded from storage, i.e. GD_FLG_ENV_READY is 0). In that
+ * case this function calls env_get_f().
+ *
+ * @varname:	Variable to look up
+ * @return value of variable, or NULL if not found
+ */
+char *env_get(const char *varname);
+
+/**
  * env_get_f() - Look up the value of an environment variable (early)
  *
  * This function is called from env_get() if the environment has not been

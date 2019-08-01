@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <mapmem.h>
 #include <smbios.h>
 #include <tables_csum.h>

@@ -155,6 +155,7 @@ static void usb2_phy_init(void)
 }
 
 #if defined(CONFIG_USB_GADGET) && defined(CONFIG_USB_GADGET_DWC2_OTG)
+#include <env.h>
 #include <usb.h>
 #include <usb/dwc2_udc.h>
 #include <g_dnl.h>

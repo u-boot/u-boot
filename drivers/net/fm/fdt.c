@@ -3,6 +3,7 @@
  * Copyright 2016 Freescale Semiconductor, Inc.
  */
 #include <asm/io.h>
+#include <env.h>
 #include <fsl_qe.h>	/* For struct qe_firmware */
 
 #ifdef CONFIG_SYS_DPAA_FMAN

@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <dm.h>
 #include <dm/platform_data/serial_sh.h>

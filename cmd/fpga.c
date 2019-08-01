@@ -9,6 +9,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <fpga.h>
 #include <fs.h>
 #include <gzip.h>

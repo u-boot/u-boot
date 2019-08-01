@@ -12,6 +12,7 @@
 #include <common.h>
 
 #include <asm/io.h>
+#include <env.h>
 #include <pci.h>
 #include <video_fb.h>
 #include "videomodes.h"

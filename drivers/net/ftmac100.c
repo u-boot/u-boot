@@ -8,6 +8,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <net.h>
 #include <linux/io.h>

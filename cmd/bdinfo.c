@@ -9,6 +9,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;

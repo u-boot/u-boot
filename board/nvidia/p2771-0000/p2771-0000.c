@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <environment.h>
 #include <fdtdec.h>
 #include <i2c.h>

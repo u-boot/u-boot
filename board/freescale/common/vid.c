@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <i2c.h>
 #include <asm/io.h>
 #ifdef CONFIG_FSL_LSCH2

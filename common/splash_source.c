@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <bmp_layout.h>
+#include <env.h>
 #include <errno.h>
 #include <fs.h>
 #include <fdt_support.h>

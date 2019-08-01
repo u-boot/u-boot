@@ -12,6 +12,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/cpu.h>
 #include <dm.h>
+#include <env.h>
 #include <power/pmic.h>
 #include <power/regulator.h>
 #include <power/max77686_pmic.h>

@@ -3,6 +3,7 @@
  * Copyright 2017-2018 NXP
  */
 #include <common.h>
+#include <env.h>
 #include <i2c.h>
 #include <malloc.h>
 #include <errno.h>

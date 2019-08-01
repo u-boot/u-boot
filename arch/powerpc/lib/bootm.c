@@ -8,6 +8,7 @@
 
 
 #include <common.h>
+#include <env.h>
 #include <watchdog.h>
 #include <command.h>
 #include <image.h>

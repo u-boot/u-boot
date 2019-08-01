@@ -145,18 +145,6 @@ int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 /* common/cmd_ext2.c */
 int do_ext2load(cmd_tbl_t *, int, int, char * const []);
 
-/**
- * env_get() - Look up the value of an environment variable
- *
- * In U-Boot proper this can be called before relocation (which is when the
- * environment is loaded from storage, i.e. GD_FLG_ENV_READY is 0). In that
- * case this function calls env_get_f().
- *
- * @varname:	Variable to look up
- * @return value of variable, or NULL if not found
- */
-char *env_get(const char *varname);
-
 void	pci_init_board(void);
 
 /* common/exports.c */

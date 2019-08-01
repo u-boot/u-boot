@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include "board.h"
+#include <env.h>
 #include <spl.h>
 #include <exports.h>
 #include <fdt_support.h>

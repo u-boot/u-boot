@@ -9,6 +9,7 @@
 #include <common.h>
 #include <command.h>
 #include <efi_loader.h>
+#include <env.h>
 #include <mapmem.h>
 #include <net.h>
 #include <net/tftp.h>

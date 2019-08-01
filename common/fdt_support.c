@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <mapmem.h>
 #include <stdio_dev.h>
 #include <linux/ctype.h>
