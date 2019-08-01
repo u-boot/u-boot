@@ -13,6 +13,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/sys_proto.h>
+#include <env.h>
 #include <errno.h>
 #include <asm/gpio.h>
 #include <malloc.h>

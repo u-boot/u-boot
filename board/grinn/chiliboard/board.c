@@ -16,6 +16,7 @@
 #include <asm/emif.h>
 #include <asm/io.h>
 #include <cpsw.h>
+#include <env.h>
 #include <environment.h>
 #include <errno.h>
 #include <miiphy.h>

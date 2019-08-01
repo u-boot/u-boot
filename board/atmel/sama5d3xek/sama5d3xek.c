@@ -12,6 +12,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
 #include <debug_uart.h>
+#include <env.h>
 #include <linux/ctype.h>
 #include <phy.h>
 #include <micrel.h>

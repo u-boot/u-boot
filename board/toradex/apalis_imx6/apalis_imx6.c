@@ -26,6 +26,7 @@
 #include <dm/device-internal.h>
 #include <dm/platform_data/serial_mxc.h>
 #include <dwc_ahsata.h>
+#include <env.h>
 #include <environment.h>
 #include <fsl_esdhc_imx.h>
 #include <imx_thermal.h>

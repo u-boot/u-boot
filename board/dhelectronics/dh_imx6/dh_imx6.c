@@ -21,6 +21,7 @@
 #include <asm/mach-imx/sata.h>
 #include <ahci.h>
 #include <dwc_ahsata.h>
+#include <env.h>
 #include <environment.h>
 #include <errno.h>
 #include <fsl_esdhc_imx.h>

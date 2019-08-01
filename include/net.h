@@ -14,6 +14,7 @@
 
 #include <asm/cache.h>
 #include <asm/byteorder.h>	/* for nton* / ntoh* stuff */
+#include <env.h>
 #include <linux/if_ether.h>
 
 #define DEBUG_LL_STATE 0	/* Link local state machine changes */

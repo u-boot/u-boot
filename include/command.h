@@ -10,6 +10,7 @@
 #ifndef __COMMAND_H
 #define __COMMAND_H
 
+#include <env.h>
 #include <linker_lists.h>
 
 #ifndef NULL

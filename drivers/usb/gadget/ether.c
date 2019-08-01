@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <console.h>
+#include <env.h>
 #include <environment.h>
 #include <linux/errno.h>
 #include <linux/netdevice.h>

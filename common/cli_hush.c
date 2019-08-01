@@ -75,6 +75,7 @@
 
 #define __U_BOOT__
 #ifdef __U_BOOT__
+#include <env.h>
 #include <malloc.h>         /* malloc, free, realloc*/
 #include <linux/ctype.h>    /* isalpha, isdigit */
 #include <common.h>        /* readline */

@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <usb.h>
 #include <asm/gpio.h>
 #include <fdt_support.h>

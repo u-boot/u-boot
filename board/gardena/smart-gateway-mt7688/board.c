@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <environment.h>
 #include <led.h>
 #include <net.h>

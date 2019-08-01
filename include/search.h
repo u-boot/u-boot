@@ -14,6 +14,7 @@
 #ifndef _SEARCH_H_
 #define _SEARCH_H_
 
+#include <env.h>
 #include <stddef.h>
 
 #define __set_errno(val) do { errno = val; } while (0)

@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <dm.h>
 #include <clk.h>
+#include <env.h>
 #include <spi.h>
 #include <mvebu/comphy.h>
 #include <miiphy.h>

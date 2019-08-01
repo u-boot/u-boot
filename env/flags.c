@@ -4,6 +4,7 @@
  * Joe Hershberger, National Instruments, joe.hershberger@ni.com
  */
 
+#include <env.h>
 #include <linux/string.h>
 #include <linux/ctype.h>
 

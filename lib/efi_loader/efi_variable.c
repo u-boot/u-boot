@@ -5,6 +5,7 @@
  *  Copyright (c) 2017 Rob Clark
  */
 
+#include <env.h>
 #include <malloc.h>
 #include <charset.h>
 #include <efi_loader.h>

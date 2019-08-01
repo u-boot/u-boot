@@ -15,6 +15,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
+#include <env.h>
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <asm/arch/crm_regs.h>

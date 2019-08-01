@@ -4,6 +4,7 @@
  * Aneesh V <aneesh@ti.com>
  */
 #include <common.h>
+#include <env.h>
 #include <environment.h>
 #include <asm/setup.h>
 #include <asm/arch/sys_proto.h>

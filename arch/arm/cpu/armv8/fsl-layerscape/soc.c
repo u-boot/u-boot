@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <fsl_immap.h>
 #include <fsl_ifc.h>
 #include <asm/arch/fsl_serdes.h>

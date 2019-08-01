@@ -10,6 +10,7 @@
 #define _GNU_SOURCE
 
 #include <compiler.h>
+#include <env.h>
 #include <errno.h>
 #include <env_flags.h>
 #include <fcntl.h>

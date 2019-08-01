@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <environment.h>
 #include <errno.h>
 #include <miiphy.h>

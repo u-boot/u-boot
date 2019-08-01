@@ -146,6 +146,7 @@ int env_flags_validate_env_set_params(char *name, char *const val[], int count);
 
 #else /* !USE_HOSTCC */
 
+#include <env.h>
 #include <search.h>
 
 /*

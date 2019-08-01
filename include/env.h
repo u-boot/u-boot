@@ -72,6 +72,18 @@ int env_get_f(const char *name, char *buf, unsigned int len);
 int env_get_yesno(const char *var);
 
 /**
+ * env_set() - set an environment variable
+ *
+ * This sets or deletes the value of an environment variable. For setting the
+ * value the variable is created if it does not already exist.
+ *
+ * @varname: Variable to adjust
+ * @value: Value to set for the variable, or NULL or "" to delete the variable
+ * @return 0 if OK, 1 on error
+ */
+int env_set(const char *varname, const char *value);
+
+/**
  * env_get_ulong() - Return an environment variable as an integer value
  *
  * Most U-Boot environment variables store hex values. For those which store

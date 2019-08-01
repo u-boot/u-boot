@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <environment.h>
 #include <status_led.h>
 #include <netdev.h>

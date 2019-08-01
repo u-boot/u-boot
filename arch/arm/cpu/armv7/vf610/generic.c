@@ -9,6 +9,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/mach-imx/sys_proto.h>
+#include <env.h>
 #include <netdev.h>
 #ifdef CONFIG_FSL_ESDHC_IMX
 #include <fsl_esdhc_imx.h>

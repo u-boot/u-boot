@@ -9,6 +9,7 @@
 #include <dm.h>
 #include <dm/device-internal.h>
 #include <ahci.h>
+#include <env.h>
 #include <linux/errno.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

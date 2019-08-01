@@ -13,6 +13,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <errno.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>

@@ -13,6 +13,7 @@
 #include <asm/arch/ddrmc-vf610.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
+#include <env.h>
 #include <led.h>
 #include <environment.h>
 #include <miiphy.h>

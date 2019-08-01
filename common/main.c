@@ -10,6 +10,7 @@
 #include <autoboot.h>
 #include <cli.h>
 #include <console.h>
+#include <env.h>
 #include <version.h>
 
 /*

@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <environment.h>
 #include <net.h>
 #include <dm/device-internal.h>

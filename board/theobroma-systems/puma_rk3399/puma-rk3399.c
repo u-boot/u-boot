@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <environment.h>
 #include <misc.h>
 #include <spl.h>

@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <watchdog.h>
 #include <malloc.h>
 #include <twl4030.h>

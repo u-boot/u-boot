@@ -3,6 +3,7 @@
 
 #ifndef __ASSEMBLY__
 #ifdef CONFIG_PHY_AQUANTIA
+#include <env.h>
 #include <phy_interface.h>
 #endif
 

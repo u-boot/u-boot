@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <image.h>
 #include <android_image.h>
 #include <malloc.h>

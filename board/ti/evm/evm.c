@@ -12,6 +12,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <ns16550.h>
 #include <netdev.h>
 #include <asm/io.h>

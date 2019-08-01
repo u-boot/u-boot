@@ -8,6 +8,7 @@
 #include <console.h>
 #include <debug_uart.h>
 #include <dm.h>
+#include <env.h>
 #include <stdarg.h>
 #include <iomux.h>
 #include <malloc.h>

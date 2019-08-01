@@ -157,18 +157,6 @@ int do_ext2load(cmd_tbl_t *, int, int, char * const []);
  */
 char *env_get(const char *varname);
 
-/**
- * env_set() - set an environment variable
- *
- * This sets or deletes the value of an environment variable. For setting the
- * value the variable is created if it does not already exist.
- *
- * @varname: Variable to adjust
- * @value: Value to set for the variable, or NULL or "" to delete the variable
- * @return 0 if OK, 1 on error
- */
-int env_set(const char *varname, const char *value);
-
 void	pci_init_board(void);
 
 /* common/exports.c */

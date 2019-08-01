@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <environment.h>
 #include <i2c_eeprom.h>
 #include <netdev.h>

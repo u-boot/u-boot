@@ -4,6 +4,7 @@
  * Copyright 2017 NXP
  */
 #include <common.h>
+#include <env.h>
 #include <malloc.h>
 #include <errno.h>
 #include <netdev.h>

@@ -14,6 +14,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <ioports.h>
 #include <mpc83xx.h>
 #include <i2c.h>

@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <environment.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/io.h>

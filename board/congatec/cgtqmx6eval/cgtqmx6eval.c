@@ -20,6 +20,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
+#include <env.h>
 #include <mmc.h>
 #include <fsl_esdhc_imx.h>
 #include <i2c.h>

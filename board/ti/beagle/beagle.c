@@ -14,6 +14,7 @@
  */
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <ns16550.h>
 #ifdef CONFIG_LED_STATUS
 #include <status_led.h>

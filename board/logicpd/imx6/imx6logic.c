@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <miiphy.h>
 #include <input.h>
 #include <mmc.h>

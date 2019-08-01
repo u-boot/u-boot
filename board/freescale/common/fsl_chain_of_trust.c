@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <fsl_validate.h>
 #include <fsl_secboot_err.h>
 #include <fsl_sfp.h>

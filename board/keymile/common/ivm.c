@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <cli_hush.h>
+#include <env.h>
 #include <i2c.h>
 #include "common.h"
 

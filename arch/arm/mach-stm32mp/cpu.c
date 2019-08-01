@@ -5,6 +5,7 @@
 #include <common.h>
 #include <clk.h>
 #include <debug_uart.h>
+#include <env.h>
 #include <environment.h>
 #include <misc.h>
 #include <asm/io.h>

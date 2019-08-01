@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <environment.h>
 #include <net.h>
 #include <phy.h>

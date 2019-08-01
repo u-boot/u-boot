@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <asm/arch/boot.h>
+#include <env.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
 #include <environment.h>

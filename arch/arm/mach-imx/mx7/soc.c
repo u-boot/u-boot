@@ -14,6 +14,7 @@
 #include <asm/arch/imx-rdc.h>
 #include <asm/arch/crm_regs.h>
 #include <dm.h>
+#include <env.h>
 #include <imx_thermal.h>
 #include <fsl_sec.h>
 #include <asm/setup.h>

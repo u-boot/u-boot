@@ -5,6 +5,7 @@
 
 #include <common.h>
 #include <ahci.h>
+#include <env.h>
 #include <netdev.h>
 #include <scsi.h>
 

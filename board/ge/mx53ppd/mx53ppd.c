@@ -16,6 +16,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux-mx53.h>
 #include <asm/arch/clock.h>
+#include <env.h>
 #include <linux/errno.h>
 #include <linux/libfdt.h>
 #include <asm/mach-imx/mxc_i2c.h>
