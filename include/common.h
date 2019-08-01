@@ -247,10 +247,6 @@ static inline int env_set_addr(const char *varname, const void *addr)
 	return env_set_hex(varname, (ulong)addr);
 }
 
-#ifdef CONFIG_AUTO_COMPLETE
-int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf,
-		 bool dollar_comp);
-#endif
 int get_env_id (void);
 
 void	pci_init_board(void);
