@@ -92,7 +92,7 @@ void set_default_env(const char *s, int flags)
 
 
 /* [re]set individual variables to their value in the default environment */
-int set_default_vars(int nvars, char * const vars[], int flags)
+int env_set_default_vars(int nvars, char * const vars[], int flags)
 {
 	/*
 	 * Special use-case: import from default environment

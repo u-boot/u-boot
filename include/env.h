@@ -187,4 +187,15 @@ int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr);
  */
 void env_fix_drivers(void);
 
+/**
+ * env_set_default_vars() - reset variables to their default value
+ *
+ * This resets individual variables to their value in the default environment
+ *
+ * @nvars: Number of variables to set/reset
+ * @vars: List of variables to set/reset
+ * @flags: Flags controlling matching (H_... - see search.h)
+ */
+int env_set_default_vars(int nvars, char *const vars[], int flags);
+
 #endif

@@ -274,9 +274,6 @@ char *env_get_default(const char *name);
 /* [re]set to the default environment */
 void set_default_env(const char *s, int flags);
 
-/* [re]set individual variables to their value in the default environment */
-int set_default_vars(int nvars, char * const vars[], int flags);
-
 /* Import from binary representation into hash table */
 int env_import(const char *buf, int check);
 
