@@ -19,6 +19,7 @@
 
 #define LAN_DEV_OFF_N	TEGRA_GPIO(O, 6)
 #define LAN_RESET_N	TEGRA_GPIO(S, 2)
+#define FAN_EN		TEGRA_GPIO(DD, 2)
 #define LAN_WAKE_N	TEGRA_GPIO(O, 5)
 #ifdef CONFIG_APALIS_TK1_PCIE_EVALBOARD_INIT
 #define PEX_PERST_N	TEGRA_GPIO(DD, 1) /* Apalis GPIO7 */
@@ -240,6 +241,15 @@ void tegra_pcie_board_port_reset(struct tegra_pcie_port *port)
 	}
 }
 #endif /* CONFIG_PCI_TEGRA */
+
+/*
+ * Enable/start PWM CPU fan
+ */
+void start_cpu_fan(void)
+{
+	gpio_request(FAN_EN, "FAN_EN");
+	gpio_direction_output(FAN_EN, 1);
+}
 
 /*
  * Backlight off before OS handover
