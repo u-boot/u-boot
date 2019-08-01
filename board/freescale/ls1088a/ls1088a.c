@@ -591,6 +591,32 @@ int misc_init_r(void)
 		QIXIS_WRITE(brdcfg[5], brdcfg5);
 	}
 #endif
+
+#ifdef CONFIG_TARGET_LS1088AQDS
+	 u8 brdcfg4, brdcfg5;
+
+	if (hwconfig("dspi-on-board")) {
+		brdcfg4 = QIXIS_READ(brdcfg[4]);
+		brdcfg4 &= ~BRDCFG4_USBOSC_MASK;
+		brdcfg4 |= BRDCFG4_SPI;
+		QIXIS_WRITE(brdcfg[4], brdcfg4);
+
+		brdcfg5 = QIXIS_READ(brdcfg[5]);
+		brdcfg5 &= ~BRDCFG5_SPR_MASK;
+		brdcfg5 |= BRDCFG5_SPI_ON_BOARD;
+		QIXIS_WRITE(brdcfg[5], brdcfg5);
+	} else if (hwconfig("dspi-off-board")) {
+		brdcfg4 = QIXIS_READ(brdcfg[4]);
+		brdcfg4 &= ~BRDCFG4_USBOSC_MASK;
+		brdcfg4 |= BRDCFG4_SPI;
+		QIXIS_WRITE(brdcfg[4], brdcfg4);
+
+		brdcfg5 = QIXIS_READ(brdcfg[5]);
+		brdcfg5 &= ~BRDCFG5_SPR_MASK;
+		brdcfg5 |= BRDCFG5_SPI_OFF_BOARD;
+		QIXIS_WRITE(brdcfg[5], brdcfg5);
+	}
+#endif
 	return 0;
 }
 #endif

@@ -17,6 +17,8 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_TFABOOT
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
+#define CONFIG_MISC_INIT_R
+
 #define CONFIG_ENV_SIZE			0x20000
 #define CONFIG_ENV_OFFSET		0x500000
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + \
