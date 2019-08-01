@@ -64,6 +64,19 @@ int env_match(unsigned char *name, int index);
 int env_get_f(const char *name, char *buf, unsigned int len);
 
 /**
+ * env_get_ulong() - Return an environment variable as an integer value
+ *
+ * Most U-Boot environment variables store hex values. For those which store
+ * (e.g.) base-10 integers, this function can be used to read the value.
+ *
+ * @name:	Variable to look up
+ * @base:	Base to use (e.g. 10 for base 10, 2 for binary)
+ * @default_val: Default value to return if no value is found
+ * @return the value found, or @default_val if none
+ */
+ulong env_get_ulong(const char *name, int base, ulong default_val);
+
+/**
  * env_set_ulong() - set an environment variable to an integer
  *
  * @varname: Variable to adjust

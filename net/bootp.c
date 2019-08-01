@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <efi_loader.h>
 #include <net.h>
 #include <net/tftp.h>

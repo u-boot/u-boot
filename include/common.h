@@ -158,19 +158,6 @@ int do_ext2load(cmd_tbl_t *, int, int, char * const []);
 char *env_get(const char *varname);
 
 /**
- * env_get_ulong() - Return an environment variable as an integer value
- *
- * Most U-Boot environment variables store hex values. For those which store
- * (e.g.) base-10 integers, this function can be used to read the value.
- *
- * @name:	Variable to look up
- * @base:	Base to use (e.g. 10 for base 10, 2 for binary)
- * @default_val: Default value to return if no value is found
- * @return the value found, or @default_val if none
- */
-ulong env_get_ulong(const char *name, int base, ulong default_val);
-
-/**
  * env_get_hex() - Return an environment variable as a hex value
  *
  * Decode an environment as a hex number (it may or may not have a 0x

@@ -8,6 +8,7 @@
 #include <boot_fit.h>
 #include <dm.h>
 #include <dm/of_extra.h>
+#include <env.h>
 #include <errno.h>
 #include <fdtdec.h>
 #include <fdt_support.h>
