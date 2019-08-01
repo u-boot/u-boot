@@ -10,6 +10,7 @@
 
 #ifndef _NETDEV_H_
 #define _NETDEV_H_
+#include <phy_interface.h>
 
 /*
  * Board and CPU-specific initialization functions
@@ -21,6 +22,8 @@
  */
 
 int board_eth_init(bd_t *bis);
+int board_interface_eth_init(struct udevice *dev,
+			     phy_interface_t interface_type);
 int cpu_eth_init(bd_t *bis);
 
 /* Driver initialization prototypes */
