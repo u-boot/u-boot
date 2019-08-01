@@ -182,4 +182,9 @@ int eth_env_get_enetaddr(const char *name, uint8_t *enetaddr);
  */
 int eth_env_set_enetaddr(const char *name, const uint8_t *enetaddr);
 
+/**
+ * env_fix_drivers() - Updates envdriver as per relocation
+ */
+void env_fix_drivers(void);
+
 #endif

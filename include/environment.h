@@ -320,11 +320,6 @@ int env_save(void);
  */
 int env_erase(void);
 
-/**
- * env_fix_drivers() - Updates envdriver as per relocation
- */
-void env_fix_drivers(void);
-
 #endif /* DO_DEPS_ONLY */
 
 #endif /* _ENVIRONMENT_H_ */
