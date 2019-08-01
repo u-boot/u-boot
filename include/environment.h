@@ -153,7 +153,7 @@ typedef struct environment_s {
 } env_t;
 
 #ifdef ENV_IS_EMBEDDED
-extern env_t environment;
+extern env_t embedded_environment;
 #endif /* ENV_IS_EMBEDDED */
 
 extern const unsigned char default_environment[];

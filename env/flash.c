@@ -47,7 +47,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #if defined(CONFIG_ENV_ADDR_REDUND) && defined(CMD_SAVEENV) || \
 	!defined(CONFIG_ENV_ADDR_REDUND) && defined(INITENV)
 #ifdef ENV_IS_EMBEDDED
-static env_t *env_ptr = &environment;
+static env_t *env_ptr = &embedded_environment;
 #else /* ! ENV_IS_EMBEDDED */
 
 static env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
