@@ -379,11 +379,6 @@ void	enable_interrupts  (void);
 int	disable_interrupts (void);
 
 /* $(CPU)/.../commproc.c */
-int	dpram_init (void);
-uint	dpram_base(void);
-uint	dpram_base_align(uint align);
-uint	dpram_alloc(uint size);
-uint	dpram_alloc_align(uint size,uint align);
 void	bootcount_store (ulong);
 ulong	bootcount_load (void);
 
