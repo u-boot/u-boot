@@ -165,13 +165,6 @@ extern const unsigned char default_environment[];
 #include <env_flags.h>
 #include <search.h>
 
-/* Value for environment validity */
-enum env_valid {
-	ENV_INVALID,	/* No valid environment */
-	ENV_VALID,	/* First or only environment is valid */
-	ENV_REDUND,	/* Redundant environment is valid */
-};
-
 enum env_location {
 	ENVL_UNKNOWN,
 	ENVL_EEPROM,

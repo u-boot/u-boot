@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
- * Common environment functions
+ * Common environment functions and definitions
  *
  * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -13,6 +13,13 @@
 #include <linux/types.h>
 
 struct environment_s;
+
+/* Value for environment validity */
+enum env_valid {
+	ENV_INVALID,	/* No valid environment */
+	ENV_VALID,	/* First or only environment is valid */
+	ENV_REDUND,	/* Redundant environment is valid */
+};
 
 /**
  * env_get_id() - Gets a sequence number for the environment

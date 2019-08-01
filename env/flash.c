@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <env.h>
 #include <environment.h>
 #include <linux/stddef.h>
 #include <malloc.h>
