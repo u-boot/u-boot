@@ -10,6 +10,7 @@
  * Steve Sakoman  <steve@sakoman.com>
  */
 #include <common.h>
+#include <env.h>
 #include <palmas.h>
 #include <sata.h>
 #include <linux/string.h>

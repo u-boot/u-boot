@@ -22,6 +22,16 @@
 int env_get_id(void);
 
 /**
+ * env_init() - Set up the pre-relocation environment
+ *
+ * This locates the environment or uses the default if nothing is available.
+ * This must be called before env_get() will work.
+ *
+ * @return 0 if OK, -ENODEV if no environment drivers are enabled
+ */
+int env_init(void);
+
+/**
  * env_get_f() - Look up the value of an environment variable (early)
  *
  * This function is called from env_get() if the environment has not been

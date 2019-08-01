@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <errno.h>
 #include <spl.h>
 #include <serial.h>

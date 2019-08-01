@@ -13,6 +13,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/mach-imx/mxc_i2c.h>
+#include <env.h>
 #include <environment.h>
 #include <i2c.h>
 #include <spl.h>

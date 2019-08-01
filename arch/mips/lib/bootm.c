@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <image.h>
 #include <fdt_support.h>
 #include <asm/addrspace.h>

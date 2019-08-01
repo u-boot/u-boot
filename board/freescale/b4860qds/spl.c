@@ -4,6 +4,7 @@
 
 #include <common.h>
 #include <console.h>
+#include <env.h>
 #include <environment.h>
 #include <asm/spl.h>
 #include <malloc.h>

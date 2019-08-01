@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <palmas.h>
 #include <sata.h>
 #include <usb.h>

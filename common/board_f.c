@@ -14,6 +14,7 @@
 #include <console.h>
 #include <cpu.h>
 #include <dm.h>
+#include <env.h>
 #include <environment.h>
 #include <fdtdec.h>
 #include <fs.h>
