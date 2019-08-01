@@ -19,6 +19,7 @@
 #include <common.h>
 #include <console.h>
 #include <dm.h>
+#include <env.h>
 #include <errno.h>
 #include <fdt_support.h>
 #include <asm/processor.h>

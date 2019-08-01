@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <fsl_ddr_sdram.h>
 #include <asm/io.h>
 #include <linux/errno.h>

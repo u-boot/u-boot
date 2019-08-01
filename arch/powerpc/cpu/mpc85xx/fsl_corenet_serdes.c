@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 #include <hwconfig.h>
 #endif

@@ -22,6 +22,18 @@
 int env_get_id(void);
 
 /**
+ * env_get_f() - Look up the value of an environment variable (early)
+ *
+ * This function is called from env_get() if the environment has not been
+ * loaded yet (GD_FLG_ENV_READY flag is 0). Some environment locations will
+ * support reading the value (slowly) and some will not.
+ *
+ * @varname:	Variable to look up
+ * @return value of variable, or NULL if not found
+ */
+int env_get_f(const char *name, char *buf, unsigned int len);
+
+/**
  * env_complete() - return an auto-complete for environment variables
  *
  * @var: partial name to auto-complete

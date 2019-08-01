@@ -163,18 +163,6 @@ int	envmatch     (uchar *, int);
 char *env_get(const char *varname);
 
 /**
- * env_get_f() - Look up the value of an environment variable (early)
- *
- * This function is called from env_get() if the environment has not been
- * loaded yet (GD_FLG_ENV_READY flag is 0). Some environment locations will
- * support reading the value (slowly) and some will not.
- *
- * @varname:	Variable to look up
- * @return value of variable, or NULL if not found
- */
-int env_get_f(const char *name, char *buf, unsigned len);
-
-/**
  * env_get_ulong() - Return an environment variable as an integer value
  *
  * Most U-Boot environment variables store hex values. For those which store

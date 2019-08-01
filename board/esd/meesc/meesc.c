@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <env.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
