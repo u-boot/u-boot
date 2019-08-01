@@ -8,7 +8,6 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
-#include <environment.h>
 #include <miiphy.h>
 #include <net.h>
 #include "eth_internal.h"

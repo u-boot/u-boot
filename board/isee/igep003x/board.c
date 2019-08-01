@@ -26,7 +26,6 @@
 #include <fdt_support.h>
 #include <mtd_node.h>
 #include <jffs2/load_kernel.h>
-#include <environment.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -33,7 +33,6 @@
 #include <power/tps65217.h>
 #include <environment.h>
 #include <watchdog.h>
-#include <environment.h>
 #include "mmc.h"
 #include "board.h"
 

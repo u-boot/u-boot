@@ -11,7 +11,6 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
-#include <environment.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
 #include <asm/arch/cpu.h>

@@ -9,7 +9,6 @@
 
 #include <common.h>
 #include <env.h>
-#include <environment.h>
 #include <i2c.h>
 #include <linux/errno.h>
 #include <spl.h>

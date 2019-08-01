@@ -5,7 +5,6 @@
  */
 #include <common.h>
 #include <env.h>
-#include <environment.h>
 #include <asm/setup.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>

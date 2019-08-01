@@ -30,7 +30,6 @@
 #include <power/tps65910.h>
 #include <environment.h>
 #include <watchdog.h>
-#include <environment.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;

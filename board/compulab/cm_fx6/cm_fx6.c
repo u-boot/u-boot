@@ -12,7 +12,6 @@
 #include <dm.h>
 #include <dwc_ahsata.h>
 #include <env.h>
-#include <environment.h>
 #include <fsl_esdhc_imx.h>
 #include <miiphy.h>
 #include <mtd_node.h>

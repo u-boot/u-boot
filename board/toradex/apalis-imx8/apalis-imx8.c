@@ -13,7 +13,6 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <env.h>
-#include <environment.h>
 #include <errno.h>
 #include <linux/libfdt.h>
 

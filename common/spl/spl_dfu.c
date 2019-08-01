@@ -15,7 +15,6 @@
 #include <g_dnl.h>
 #include <usb.h>
 #include <dfu.h>
-#include <environment.h>
 
 static int run_dfu(int usb_index, char *interface, char *devstring)
 {

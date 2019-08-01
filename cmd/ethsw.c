@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <environment.h>
+#include <env.h>
 #include <errno.h>
 #include <env_flags.h>
 #include <ethsw.h>

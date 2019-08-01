@@ -11,7 +11,6 @@
 #include <bootm.h>
 #include <command.h>
 #include <env.h>
-#include <environment.h>
 #include <errno.h>
 #include <image.h>
 #include <malloc.h>

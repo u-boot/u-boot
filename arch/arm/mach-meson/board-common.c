@@ -8,7 +8,6 @@
 #include <env.h>
 #include <linux/libfdt.h>
 #include <linux/err.h>
-#include <environment.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/sm.h>
 #include <asm/armv8/mmu.h>

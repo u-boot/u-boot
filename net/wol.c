@@ -7,7 +7,6 @@
 #include <command.h>
 #include <env.h>
 #include <net.h>
-#include <environment.h>
 #include "wol.h"
 
 static ulong wol_timeout = WOL_DEFAULT_TIMEOUT;

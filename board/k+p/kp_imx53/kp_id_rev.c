@@ -11,7 +11,6 @@
 
 #include <common.h>
 #include <env.h>
-#include <environment.h>
 #include <i2c.h>
 #include "kp_id_rev.h"
 

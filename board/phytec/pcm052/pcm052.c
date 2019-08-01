@@ -15,7 +15,6 @@
 #include <asm/arch/clock.h>
 #include <env.h>
 #include <led.h>
-#include <environment.h>
 #include <miiphy.h>
 
 DECLARE_GLOBAL_DATA_PTR;

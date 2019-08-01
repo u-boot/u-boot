@@ -11,7 +11,6 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
-#include <environment.h>
 #include <i2c.h>
 #include <net.h>
 #include <spi.h>

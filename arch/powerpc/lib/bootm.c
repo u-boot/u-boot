@@ -15,7 +15,6 @@
 #include <malloc.h>
 #include <u-boot/zlib.h>
 #include <bzlib.h>
-#include <environment.h>
 #include <asm/byteorder.h>
 #include <asm/mp.h>
 #include <bootm.h>

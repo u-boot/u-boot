@@ -15,7 +15,6 @@
 #include <linux/string.h>
 #include <linux/libfdt.h>
 #include <fdt_support.h>
-#include <environment.h>
 
 #include "mox_sp.h"
 

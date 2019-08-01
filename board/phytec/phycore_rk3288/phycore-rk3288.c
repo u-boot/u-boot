@@ -9,7 +9,6 @@
 #include <dm.h>
 #include <env.h>
 #include <environment.h>
-#include <fdtdec.h>
 #include <i2c.h>
 #include <i2c_eeprom.h>
 #include <netdev.h>

@@ -26,7 +26,6 @@
 #include <miiphy.h>
 #include <cpsw.h>
 #include <power/tps65217.h>
-#include <environment.h>
 #include <watchdog.h>
 #include "board.h"
 

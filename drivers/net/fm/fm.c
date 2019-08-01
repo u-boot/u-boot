@@ -15,7 +15,6 @@
 #include <nand.h>
 #include <spi_flash.h>
 #include <mmc.h>
-#include <environment.h>
 
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>

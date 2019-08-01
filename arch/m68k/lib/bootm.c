@@ -11,7 +11,6 @@
 #include <u-boot/zlib.h>
 #include <bzlib.h>
 #include <watchdog.h>
-#include <environment.h>
 #include <asm/byteorder.h>
 #ifdef CONFIG_SHOW_BOOT_PROGRESS
 # include <status_led.h>

@@ -25,7 +25,6 @@
 #include <asm/mach-imx/sata.h>
 #include <asm/mach-imx/video.h>
 #include <dwc_ahsata.h>
-#include <environment.h>
 #include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <input.h>

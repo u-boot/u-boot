@@ -5,7 +5,6 @@
 
 #include <common.h>
 #include <env.h>
-#include <environment.h>
 #include <fdt_support.h>
 #include <fdtdec.h>
 #include <stdlib.h>

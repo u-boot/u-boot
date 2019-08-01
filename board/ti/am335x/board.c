@@ -36,7 +36,6 @@
 #include <power/tps65910.h>
 #include <environment.h>
 #include <watchdog.h>
-#include <environment.h>
 #include "../common/board_detect.h"
 #include "board.h"
 

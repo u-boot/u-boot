@@ -5,7 +5,6 @@
 #include <common.h>
 #include <dwc3-uboot.h>
 #include <env.h>
-#include <environment.h>
 #include <mmc.h>
 #include <u-boot/md5.h>
 #include <usb.h>

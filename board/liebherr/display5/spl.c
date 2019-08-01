@@ -18,7 +18,6 @@
 #include "asm/arch/iomux.h"
 #include <asm/mach-imx/iomux-v3.h>
 #include <asm/gpio.h>
-#include <environment.h>
 #include <fsl_esdhc_imx.h>
 #include <netdev.h>
 #include <bootcount.h>

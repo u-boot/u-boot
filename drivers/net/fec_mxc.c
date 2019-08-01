@@ -10,7 +10,6 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
-#include <environment.h>
 #include <malloc.h>
 #include <memalign.h>
 #include <miiphy.h>

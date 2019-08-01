@@ -18,7 +18,6 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
-#include <environment.h>
 #include <ns16550.h>
 #include <twl4030.h>
 #include <asm/io.h>

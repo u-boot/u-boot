@@ -17,7 +17,6 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/mx5_video.h>
-#include <environment.h>
 #include <mmc.h>
 #include <input.h>
 #include <fsl_esdhc_imx.h>

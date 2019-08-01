@@ -9,7 +9,6 @@
 
 #include <common.h>
 #include <env.h>
-#include <environment.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/arch/cpu.h>

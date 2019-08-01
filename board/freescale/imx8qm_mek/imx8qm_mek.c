@@ -7,7 +7,6 @@
 #include <env.h>
 #include <errno.h>
 #include <linux/libfdt.h>
-#include <environment.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
