@@ -27,6 +27,7 @@
 #include <cli.h>
 #include <command.h>
 #include <console.h>
+#include <env.h>
 #include <environment.h>
 #include <search.h>
 #include <errno.h>
@@ -69,14 +70,14 @@ NAND|NVRAM|ONENAND|SATA|SPI_FLASH|REMOTE|UBI} or CONFIG_ENV_IS_NOWHERE
 
 /*
  * This variable is incremented on each do_env_set(), so it can
- * be used via get_env_id() as an indication, if the environment
+ * be used via env_get_id() as an indication, if the environment
  * has changed or not. So it is possible to reread an environment
  * variable only if the environment was changed ... done so for
  * example in NetInitLoop()
  */
 static int env_id = 1;
 
-int get_env_id(void)
+int env_get_id(void)
 {
 	return env_id;
 }

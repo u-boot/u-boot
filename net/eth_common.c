@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <env.h>
 #include <environment.h>
 #include <miiphy.h>
 #include <net.h>
@@ -110,7 +111,7 @@ void eth_set_current(void)
 	static int  env_changed_id;
 	int	env_id;
 
-	env_id = get_env_id();
+	env_id = env_get_id();
 	if ((act == NULL) || (env_changed_id != env_id)) {
 		act = env_get("ethact");
 		env_changed_id = env_id;

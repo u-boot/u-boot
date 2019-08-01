@@ -247,8 +247,6 @@ static inline int env_set_addr(const char *varname, const void *addr)
 	return env_set_hex(varname, (ulong)addr);
 }
 
-int get_env_id (void);
-
 void	pci_init_board(void);
 
 /* common/exports.c */
