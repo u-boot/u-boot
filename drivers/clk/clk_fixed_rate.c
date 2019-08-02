@@ -6,13 +6,7 @@
 #include <common.h>
 #include <clk-uclass.h>
 #include <dm.h>
-
-struct clk_fixed_rate {
-	struct clk clk;
-	unsigned long fixed_rate;
-};
-
-#define to_clk_fixed_rate(dev)	((struct clk_fixed_rate *)dev_get_platdata(dev))
+#include <linux/clk-provider.h>
 
 static ulong clk_fixed_rate_get_rate(struct clk *clk)
 {

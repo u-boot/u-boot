@@ -19,6 +19,7 @@ enum {
 	SANDBOX_CLK_ECSPI1,
 	SANDBOX_CLK_USDHC1_SEL,
 	SANDBOX_CLK_USDHC2_SEL,
+	SANDBOX_CLK_I2C,
 };
 
 enum sandbox_pllv3_type {

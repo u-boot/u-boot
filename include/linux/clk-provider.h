@@ -8,6 +8,7 @@
  */
 #ifndef __LINUX_CLK_PROVIDER_H
 #define __LINUX_CLK_PROVIDER_H
+#include <clk-uclass.h>
 
 static inline void clk_dm(ulong id, struct clk *clk)
 {
@@ -66,6 +67,29 @@ struct clk_mux {
 };
 
 #define to_clk_mux(_clk) container_of(_clk, struct clk_mux, clk)
+extern const struct clk_ops clk_mux_ops;
+u8 clk_mux_get_parent(struct clk *clk);
+
+struct clk_gate {
+	struct clk	clk;
+	void __iomem	*reg;
+	u8		bit_idx;
+	u8		flags;
+#if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
+	u32		io_gate_val;
+#endif
+};
+
+#define to_clk_gate(_clk) container_of(_clk, struct clk_gate, clk)
+
+#define CLK_GATE_SET_TO_DISABLE		BIT(0)
+#define CLK_GATE_HIWORD_MASK		BIT(1)
+
+extern const struct clk_ops clk_gate_ops;
+struct clk *clk_register_gate(struct device *dev, const char *name,
+			      const char *parent_name, unsigned long flags,
+			      void __iomem *reg, u8 bit_idx,
+			      u8 clk_gate_flags, spinlock_t *lock);
 
 struct clk_div_table {
 	unsigned int	val;
@@ -94,6 +118,11 @@ struct clk_divider {
 #define CLK_DIVIDER_ROUND_CLOSEST	BIT(4)
 #define CLK_DIVIDER_READ_ONLY		BIT(5)
 #define CLK_DIVIDER_MAX_AT_ZERO		BIT(6)
+extern const struct clk_ops clk_divider_ops;
+unsigned long divider_recalc_rate(struct clk *hw, unsigned long parent_rate,
+				  unsigned int val,
+				  const struct clk_div_table *table,
+				  unsigned long flags, unsigned long width);
 
 struct clk_fixed_factor {
 	struct clk	clk;
@@ -103,6 +132,35 @@ struct clk_fixed_factor {
 
 #define to_clk_fixed_factor(_clk) container_of(_clk, struct clk_fixed_factor,\
 					       clk)
+
+struct clk_fixed_rate {
+	struct clk clk;
+	unsigned long fixed_rate;
+};
+
+#define to_clk_fixed_rate(dev)	((struct clk_fixed_rate *)dev_get_platdata(dev))
+
+struct clk_composite {
+	struct clk	clk;
+	struct clk_ops	ops;
+
+	struct clk	*mux;
+	struct clk	*rate;
+	struct clk	*gate;
+
+	const struct clk_ops	*mux_ops;
+	const struct clk_ops	*rate_ops;
+	const struct clk_ops	*gate_ops;
+};
+
+#define to_clk_composite(_clk) container_of(_clk, struct clk_composite, clk)
+
+struct clk *clk_register_composite(struct device *dev, const char *name,
+		const char * const *parent_names, int num_parents,
+		struct clk *mux_clk, const struct clk_ops *mux_ops,
+		struct clk *rate_clk, const struct clk_ops *rate_ops,
+		struct clk *gate_clk, const struct clk_ops *gate_ops,
+		unsigned long flags);
 
 int clk_register(struct clk *clk, const char *drv_name, const char *name,
 		 const char *parent_name);

@@ -56,6 +56,14 @@ static int dm_test_clk_ccf(struct unit_test_state *uts)
 	pclk = clk_get_parent(clk);
 	ut_asserteq_str("pll3_80m", pclk->dev->name);
 
+	/* Test the composite of CCF */
+	ret = clk_get_by_id(SANDBOX_CLK_I2C, &clk);
+	ut_assertok(ret);
+	ut_asserteq_str("i2c", clk->dev->name);
+
+	rate = clk_get_rate(clk);
+	ut_asserteq(rate, 60000000);
+
 	return 1;
 }
 

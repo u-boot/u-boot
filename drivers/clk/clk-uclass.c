@@ -285,6 +285,9 @@ int clk_set_defaults(struct udevice *dev)
 {
 	int ret;
 
+	if (!dev_of_valid(dev))
+		return 0;
+
 	/* If this not in SPL and pre-reloc state, don't take any action. */
 	if (!(IS_ENABLED(CONFIG_SPL_BUILD) || (gd->flags & GD_FLG_RELOC)))
 		return 0;

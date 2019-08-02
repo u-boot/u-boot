@@ -35,7 +35,8 @@
 int clk_mux_val_to_index(struct clk *clk, u32 *table, unsigned int flags,
 			 unsigned int val)
 {
-	struct clk_mux *mux = to_clk_mux(clk);
+	struct clk_mux *mux = to_clk_mux(clk_dev_binded(clk) ?
+			dev_get_clk_ptr(clk->dev) : clk);
 	int num_parents = mux->num_parents;
 
 	if (table) {
@@ -59,9 +60,27 @@ int clk_mux_val_to_index(struct clk *clk, u32 *table, unsigned int flags,
 	return val;
 }
 
-static u8 clk_mux_get_parent(struct clk *clk)
+unsigned int clk_mux_index_to_val(u32 *table, unsigned int flags, u8 index)
 {
-	struct clk_mux *mux = to_clk_mux(clk);
+	unsigned int val = index;
+
+	if (table) {
+		val = table[index];
+	} else {
+		if (flags & CLK_MUX_INDEX_BIT)
+			val = 1 << index;
+
+		if (flags & CLK_MUX_INDEX_ONE)
+			val++;
+	}
+
+	return val;
+}
+
+u8 clk_mux_get_parent(struct clk *clk)
+{
+	struct clk_mux *mux = to_clk_mux(clk_dev_binded(clk) ?
+			dev_get_clk_ptr(clk->dev) : clk);
 	u32 val;
 
 #if CONFIG_IS_ENABLED(SANDBOX_CLK_CCF)
@@ -75,8 +94,57 @@ static u8 clk_mux_get_parent(struct clk *clk)
 	return clk_mux_val_to_index(clk, mux->table, mux->flags, val);
 }
 
+static int clk_fetch_parent_index(struct clk *clk,
+				  struct clk *parent)
+{
+	struct clk_mux *mux = to_clk_mux(clk_dev_binded(clk) ?
+			dev_get_clk_ptr(clk->dev) : clk);
+
+	int i;
+
+	if (!parent)
+		return -EINVAL;
+
+	for (i = 0; i < mux->num_parents; i++) {
+		if (!strcmp(parent->dev->name, mux->parent_names[i]))
+			return i;
+	}
+
+	return -EINVAL;
+}
+
+static int clk_mux_set_parent(struct clk *clk, struct clk *parent)
+{
+	struct clk_mux *mux = to_clk_mux(clk_dev_binded(clk) ?
+			dev_get_clk_ptr(clk->dev) : clk);
+	int index;
+	u32 val;
+	u32 reg;
+
+	index = clk_fetch_parent_index(clk, parent);
+	if (index < 0) {
+		printf("Could not fetch index\n");
+		return index;
+	}
+
+	val = clk_mux_index_to_val(mux->table, mux->flags, index);
+
+	if (mux->flags & CLK_MUX_HIWORD_MASK) {
+		reg = mux->mask << (mux->shift + 16);
+	} else {
+		reg = readl(mux->reg);
+		reg &= ~(mux->mask << mux->shift);
+	}
+	val = val << mux->shift;
+	reg |= val;
+	writel(reg, mux->reg);
+
+	return 0;
+}
+
 const struct clk_ops clk_mux_ops = {
-		.get_rate = clk_generic_get_rate,
+	.get_rate = clk_generic_get_rate,
+	.set_parent = clk_mux_set_parent,
 };
 
 struct clk *clk_hw_register_mux_table(struct device *dev, const char *name,

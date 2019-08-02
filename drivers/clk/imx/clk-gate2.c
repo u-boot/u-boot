@@ -60,7 +60,18 @@ static int clk_gate2_disable(struct clk *clk)
 	return 0;
 }
 
+static ulong clk_gate2_set_rate(struct clk *clk, ulong rate)
+{
+	struct clk *parent = clk_get_parent(clk);
+
+	if (parent)
+		return clk_set_rate(parent, rate);
+
+	return -ENODEV;
+}
+
 static const struct clk_ops clk_gate2_ops = {
+	.set_rate = clk_gate2_set_rate,
 	.enable = clk_gate2_enable,
 	.disable = clk_gate2_disable,
 	.get_rate = clk_generic_get_rate,
