@@ -151,7 +151,9 @@ static int pinconfig_post_bind(struct udevice *dev)
 
 UCLASS_DRIVER(pinconfig) = {
 	.id = UCLASS_PINCONFIG,
+#if CONFIG_IS_ENABLED(PINCONFIG_RECURSIVE)
 	.post_bind = pinconfig_post_bind,
+#endif
 	.name = "pinconfig",
 };
 
