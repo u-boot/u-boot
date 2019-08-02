@@ -20,7 +20,7 @@
  */
 int fuse_read(u32 bank, u32 word, u32 *val)
 {
-	int ret = 0;
+	int ret;
 	struct udevice *dev;
 
 	switch (bank) {
@@ -32,9 +32,10 @@ int fuse_read(u32 bank, u32 word, u32 *val)
 			return ret;
 		ret = misc_read(dev, word * 4 + STM32_BSEC_SHADOW_OFFSET,
 				val, 4);
-		if (ret < 0)
-			return ret;
-		ret = 0;
+		if (ret != 4)
+			ret = -EINVAL;
+		else
+			ret = 0;
 		break;
 
 #ifdef CONFIG_PMIC_STPMIC1
@@ -67,9 +68,10 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 			return ret;
 		ret = misc_write(dev, word * 4 + STM32_BSEC_OTP_OFFSET,
 				 &val, 4);
-		if (ret < 0)
-			return ret;
-		ret = 0;
+		if (ret != 4)
+			ret = -EINVAL;
+		else
+			ret = 0;
 		break;
 
 #ifdef CONFIG_PMIC_STPMIC1
@@ -100,9 +102,10 @@ int fuse_sense(u32 bank, u32 word, u32 *val)
 		if (ret)
 			return ret;
 		ret = misc_read(dev, word * 4 + STM32_BSEC_OTP_OFFSET, val, 4);
-		if (ret < 0)
-			return ret;
-		ret = 0;
+		if (ret != 4)
+			ret = -EINVAL;
+		else
+			ret = 0;
 		break;
 
 #ifdef CONFIG_PMIC_STPMIC1
@@ -135,9 +138,10 @@ int fuse_override(u32 bank, u32 word, u32 val)
 			return ret;
 		ret = misc_write(dev, word * 4 + STM32_BSEC_SHADOW_OFFSET,
 				 &val, 4);
-		if (ret < 0)
-			return ret;
-		ret = 0;
+		if (ret != 4)
+			ret = -EINVAL;
+		else
+			ret = 0;
 		break;
 
 #ifdef CONFIG_PMIC_STPMIC1
