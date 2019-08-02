@@ -47,12 +47,28 @@ const char *argv0;
 		exit(EXIT_FAILURE); \
 	} while (0)
 
+#define PRELINK_BYTEORDER le
 #define PRELINK_INC_BITS 32
 #include "prelink-riscv.inc"
+#undef PRELINK_BYTEORDER
 #undef PRELINK_INC_BITS
 
+#define PRELINK_BYTEORDER le
 #define PRELINK_INC_BITS 64
 #include "prelink-riscv.inc"
+#undef PRELINK_BYTEORDER
+#undef PRELINK_INC_BITS
+
+#define PRELINK_BYTEORDER be
+#define PRELINK_INC_BITS 32
+#include "prelink-riscv.inc"
+#undef PRELINK_BYTEORDER
+#undef PRELINK_INC_BITS
+
+#define PRELINK_BYTEORDER be
+#define PRELINK_INC_BITS 64
+#include "prelink-riscv.inc"
+#undef PRELINK_BYTEORDER
 #undef PRELINK_INC_BITS
 
 int main(int argc, const char *const *argv)
@@ -88,11 +104,19 @@ int main(int argc, const char *const *argv)
 		die("Invalid ELF file %s", argv[1]);
 
 	bool is64 = e_ident[EI_CLASS] == ELFCLASS64;
+	bool isbe = e_ident[EI_DATA] == ELFDATA2MSB;
 
-	if (is64)
-		prelink64(data);
-	else
-		prelink32(data);
+	if (is64) {
+		if (isbe)
+			prelink_be64(data);
+		else
+			prelink_le64(data);
+	} else {
+		if (isbe)
+			prelink_be32(data);
+		else
+			prelink_le32(data);
+	}
 
 	return 0;
 }
