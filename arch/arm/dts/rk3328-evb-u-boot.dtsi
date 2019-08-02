@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * (C) Copyright 2016 Rockchip Electronics Co., Ltd
+ */
+
+/ {
+	aliases {
+		mmc0 = &emmc;
+		mmc1 = &sdmmc;
+	};
+
+	chosen {
+		u-boot,spl-boot-order = &emmc, &sdmmc;
+	};
+};
+
+&cru {
+	u-boot,dm-pre-reloc;
+};
+
+&uart2 {
+	u-boot,dm-pre-reloc;
+};
+
+&emmc {
+	u-boot,dm-pre-reloc;
+};
+
+&sdmmc {
+	u-boot,dm-pre-reloc;
+};
