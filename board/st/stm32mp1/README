@@ -139,7 +139,6 @@ the supported device trees for stm32mp157 are:
 
 	# make DEVICE_TREE=<name> all
 
-
   example:
   a) trusted boot on ev1
 	# export KBUILD_OUTPUT=stm32mp15_trusted
@@ -190,7 +189,7 @@ the supported device trees for stm32mp157 are:
 6. Switch Setting for Boot Mode
 ===============================
 
-You can select the boot mode, on the board ed1 with the switch SW1
+You can select the boot mode, on the board with one switch :
 
 - on the daugther board ed1 with the switch SW1 : BOOT0, BOOT1, BOOT2
 
@@ -358,3 +357,36 @@ on bank 0 to access to internal OTP:
     4 check env update
        STM32MP> print ethaddr
        ethaddr=12:34:56:78:9a:bc
+
+10. Coprocessor firmware
+========================
+
+U-Boot can boot the coprocessor before the kernel (coprocessor early boot).
+
+A/ Manuallly by using rproc commands (update the bootcmd)
+     Configurations
+	# env set name_copro "rproc-m4-fw.elf"
+	# env set dev_copro 0
+	# env set loadaddr_copro 0xC1000000
+
+     Load binary from bootfs partition (number 4) on SDCard (mmc 0)
+	# ext4load mmc 0:4 ${loadaddr_copro} ${name_copro}
+	=> ${filesize} updated with the size of the loaded file
+
+     Start M4 firmware with remote proc command
+	# rproc init
+	# rproc load ${dev_copro} ${loadaddr_copro} ${filesize}
+	# rproc start ${dev_copro}
+
+B/ Automatically by using FIT feature and generic DISTRO bootcmd
+
+   see examples in this directory :
+
+   Generate FIT including kernel + device tree + M4 firmware
+   with cfg with M4 boot
+        $> mkimage -f fit_copro_kernel_dtb.its fit_copro_kernel_dtb.itb
+
+    Then using DISTRO configuration file: see extlinux.conf to select
+    the correct configuration
+	=> stm32mp157c-ev1-m4
+	=> stm32mp157c-dk2-m4
