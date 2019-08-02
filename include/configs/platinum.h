@@ -102,7 +102,6 @@
 #define CONFIG_BOOTCOMMAND			"run bootubi_scr"
 
 /* Miscellaneous configurable options */
-#define CONFIG_PREBOOT
 
 /* MTD/UBI/UBIFS config */
 

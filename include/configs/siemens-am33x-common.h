@@ -189,7 +189,6 @@
 /* UBI Support */
 
 /* Commen environment */
-#define CONFIG_PREBOOT
 #define COMMON_ENV_DFU_ARGS	"dfu_args=run bootargs_defaults;" \
 				"setenv bootargs ${bootargs};" \
 				"mtdparts default;" \

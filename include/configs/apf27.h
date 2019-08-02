@@ -83,7 +83,6 @@
 #define CONFIG_SYS_CBSIZE		2048		/* console I/O buffer */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 						/* Boot argument buffer size */
-#define CONFIG_PREBOOT			"run check_flash check_env;"
 
 /*
  * Boot Linux

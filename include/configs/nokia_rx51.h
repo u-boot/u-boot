@@ -253,30 +253,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"bootmenu_delay=30\0" \
 	""
 
-#define CONFIG_PREBOOT \
-	"setenv mmcnum 1; setenv mmcpart 1;" \
-	"setenv mmcscriptfile bootmenu.scr;" \
-	"if run switchmmc; then " \
-		"setenv mmcdone true;" \
-		"setenv mmctype fat;" \
-		"if run scriptload; then true; else " \
-			"setenv mmctype ext2;" \
-			"if run scriptload; then true; else " \
-				"setenv mmctype ext4;" \
-				"if run scriptload; then true; else " \
-					"setenv mmcdone false;" \
-				"fi;" \
-			"fi;" \
-		"fi;" \
-		"if ${mmcdone}; then " \
-			"run scriptboot;" \
-		"fi;" \
-	"fi;" \
-	"if run slide; then true; else " \
-		"setenv bootmenu_delay 0;" \
-		"setenv bootdelay 0;" \
-	"fi"
-
 #define CONFIG_POSTBOOTMENU \
 	"echo;" \
 	"echo Extra commands:;" \
@@ -293,8 +269,6 @@ int rx51_kp_getc(struct stdio_dev *sdev);
 	"run emmcboot;" \
 	"run attachboot;" \
 	"echo"
-
-#define CONFIG_MENU_SHOW
 
 /*
  * Miscellaneous configurable options

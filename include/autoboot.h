@@ -27,7 +27,7 @@ const char *bootdelay_process(void);
  * autoboot_command() - run the autoboot command
  *
  * If enabled, run the autoboot command returned from bootdelay_process().
- * Also do the CONFIG_MENUKEY processing if enabled.
+ * Also do the CONFIG_AUTOBOOT_MENUKEY processing if enabled.
  *
  * @cmd: Command to run
  */

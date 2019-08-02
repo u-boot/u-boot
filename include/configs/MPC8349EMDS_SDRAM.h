@@ -404,10 +404,6 @@
 
 #define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
-#define CONFIG_PREBOOT	"echo;"	\
-	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
-	"echo"
-
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"hostname=mpc8349emds\0"					\

@@ -68,15 +68,6 @@
  */
 
 #ifdef CONFIG_USB_AM35X
-
-#ifdef CONFIG_USB_MUSB_HCD
-
-#ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_PREBOOT "usb start"
-#endif /* CONFIG_USB_KEYBOARD */
-
-#endif /* CONFIG_USB_MUSB_HCD */
-
 #ifdef CONFIG_USB_MUSB_UDC
 /* USB device configuration */
 #define CONFIG_USB_DEVICE		1

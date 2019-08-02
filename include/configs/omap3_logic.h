@@ -60,10 +60,6 @@
 
 /* Environment information */
 
-#define CONFIG_PREBOOT \
-	"setenv preboot;"						\
-	"saveenv;"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
 	"mtdids=" CONFIG_MTDIDS_DEFAULT "\0"	\

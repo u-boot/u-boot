@@ -138,7 +138,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_HWCONFIG
-#define CONFIG_PREBOOT
 
 /* Memory configuration */
 #define CONFIG_SYS_MEMTEST_START       0x10000000

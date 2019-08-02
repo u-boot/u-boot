@@ -79,15 +79,6 @@
 #ifdef CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USBD_HS
 #endif /* CONFIG_CMD_USB_MASS_STORAGE */
-#ifdef CONFIG_USB_KEYBOARD
-#define CONFIG_PREBOOT \
-	"usb start; " \
-	"if hdmidet; then " \
-		"run set_con_hdmi; " \
-	"else " \
-		"run set_con_serial; " \
-	"fi"
-#endif /* CONFIG_USB_KEYBOARD */
 #endif /* CONFIG_CMD_USB      */
 
 /* Environment organization */

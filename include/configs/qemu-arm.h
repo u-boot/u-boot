@@ -32,7 +32,6 @@
 
 #include <config_distro_bootcmd.h>
 
-#define CONFIG_PREBOOT "pci enum"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \

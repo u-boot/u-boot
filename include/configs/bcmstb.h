@@ -157,10 +157,6 @@ extern phys_addr_t prior_stage_fdt_address;
 /*
  * Save the prior stage provided DTB.
  */
-#define CONFIG_PREBOOT					\
-	"fdt addr ${fdtcontroladdr};"			\
-	"fdt move ${fdtcontroladdr} ${fdtsaveaddr};"	\
-	"fdt addr ${fdtsaveaddr};"
 /*
  * Enable in-place RFS with this initrd_high setting.
  */

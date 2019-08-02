@@ -98,8 +98,6 @@
 #define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM + (512*1024))
 #define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM + PHYS_SDRAM_SIZE)
 
-#define CONFIG_PREBOOT  ""
-
 
 /*
  * Size of malloc() pool

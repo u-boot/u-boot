@@ -99,7 +99,5 @@
 /* Default Environment */
 #define CONFIG_BOOTCOMMAND	"sf read ${loadaddr} 0xd0000 0x700000; bootm"
 #define CONFIG_LOADADDR		0x80000
-#undef CONFIG_PREBOOT		/* override preboot for USB and SPI flash init */
-#define CONFIG_PREBOOT		"usb start; sf probe"
 
 #endif /* _CONFIG_SYNOLOGY_DS414_H */

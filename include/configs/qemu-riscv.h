@@ -48,8 +48,4 @@
 	"ramdisk_addr_r=0x88300000\0" \
 	BOOTENV
 
-#define CONFIG_PREBOOT \
-	"setenv fdt_addr ${fdtcontroladdr};" \
-	"fdt addr ${fdtcontroladdr};"
-
 #endif /* __CONFIG_H */

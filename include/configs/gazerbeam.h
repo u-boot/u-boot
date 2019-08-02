@@ -100,8 +100,6 @@
 #define CONFIG_ROOTPATH		"/opt/nfsroot"
 #define CONFIG_BOOTFILE		"uImage"
 
-#define CONFIG_PREBOOT		/* enable preboot variable */
-
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
 	"consoledev=ttyS1\0"						\

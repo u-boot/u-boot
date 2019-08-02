@@ -110,8 +110,6 @@
 #define CONFIG_PL011_CLOCK		24000000
 #endif
 
-/*#define CONFIG_MENU_SHOW*/
-
 /* BOOTP options */
 #define CONFIG_BOOTP_BOOTFILESIZE
 

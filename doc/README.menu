@@ -14,7 +14,7 @@ Menus are composed of items. Each item has a key used to identify it in
 the menu, and an opaque pointer to data controlled by the consumer.
 
 If you want to show a menu, instead starting the shell, define
-CONFIG_MENU_SHOW. You have to code the int menu_show(int bootdelay)
+CONFIG_AUTOBOOT_MENU_SHOW. You have to code the int menu_show(int bootdelay)
 function, which handle your menu. This function returns the remaining
 bootdelay.
 

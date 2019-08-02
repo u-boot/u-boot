@@ -15,6 +15,8 @@ CONFIG_CMD_HDMIDETECT=y
 CONFIG_DISTRO_DEFAULTS=y
 CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=arch/arm/mach-imx/spl_sd.cfg"
 CONFIG_BOOTCOMMAND="run findfdt; run finduuid; run distro_bootcmd"
+CONFIG_USE_PREBOOT=y
+CONFIG_PREBOOT="if hdmidet; then usb start; setenv stdin  serial,usbkbd; setenv stdout serial,vga; setenv stderr serial,vga; else setenv stdin  serial; setenv stdout serial; setenv stderr serial; fi;"
 CONFIG_BOUNCE_BUFFER=y
 CONFIG_BOARD_EARLY_INIT_F=y
 CONFIG_SPL_TEXT_BASE=0x00908000

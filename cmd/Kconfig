@@ -101,7 +101,14 @@ config AUTOBOOT_PROMPT
 config AUTOBOOT_ENCRYPTION
 	bool "Enable encryption in autoboot stopping"
 	depends on AUTOBOOT_KEYED
-	default n
+	help
+	  This option allows a string to be entered into U-Boot to stop the
+	  autoboot. The string itself is hashed and compared against the hash
+	  in the environment variable 'bootstopkeysha256'. If it matches then
+	  boot stops and a command-line prompt is presented.
+
+	  This provides a way to ship a secure production device which can also
+	  be accessed at the U-Boot command line.
 
 config AUTOBOOT_DELAY_STR
 	string "Delay autobooting via specific input key / string"
@@ -145,6 +152,31 @@ config AUTOBOOT_STOP_STR_SHA256
 	  and therefore boot into the U-Boot prompt, when the input
 	  string / password matches a values that is encypted via
 	  a SHA256 hash and saved in the environment.
+
+config AUTOBOOT_USE_MENUKEY
+	bool "Allow a specify key to run a menu from the environment"
+	depends on !AUTOBOOT_KEYED
+	help
+	  If a specific key is pressed to stop autoboot, then the commands in
+	  the environment variable 'menucmd' are executed before boot starts.
+
+config AUTOBOOT_MENUKEY
+	int "ASCII value of boot key to show a menu"
+	default 0
+	depends on AUTOBOOT_USE_MENUKEY
+	help
+	  If this key is pressed to stop autoboot, then the commands in the
+	  environment variable 'menucmd' will be executed before boot starts.
+	  For example, 33 means "!" in ASCII, so pressing ! at boot would take
+	  this action.
+
+config AUTOBOOT_MENU_SHOW
+	bool "Show a menu on boot"
+	help
+	  This enables the boot menu, controlled by environment variables
+	  defined by the board. The menu starts after running the 'preboot'
+	  environmnent variable (if enabled) and before handling the boot delay.
+	  See README.bootmenu for more details.
 
 endmenu
 

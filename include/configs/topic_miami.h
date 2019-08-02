@@ -79,8 +79,6 @@
 # define EXTRA_ENV_USB
 #endif
 
-#undef CONFIG_PREBOOT
-
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"kernel_image=uImage\0"	\

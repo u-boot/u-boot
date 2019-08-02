@@ -77,8 +77,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 5
 #endif
 
-#define CONFIG_PREBOOT                 ""
-
 /* Thermal support */
 #define CONFIG_IMX_THERMAL
 

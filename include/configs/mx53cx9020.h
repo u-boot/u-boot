@@ -160,6 +160,5 @@
 
 /* Framebuffer and LCD */
 #define CONFIG_IMX_VIDEO_SKIP
-#define CONFIG_PREBOOT
 
 #endif /* __CONFIG_H */
