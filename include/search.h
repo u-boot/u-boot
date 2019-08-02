@@ -34,9 +34,6 @@ struct env_entry {
 	int flags;
 };
 
-/* Opaque type for internal use.  */
-struct _ENTRY;
-
 /*
  * Family of hash table handling functions.  The functions also
  * have reentrant counterparts ending with _r.  The non-reentrant
@@ -45,7 +42,7 @@ struct _ENTRY;
 
 /* Data type for reentrant functions.  */
 struct hsearch_data {
-	struct _ENTRY *table;
+	struct env_entry_node *table;
 	unsigned int size;
 	unsigned int filled;
 /*

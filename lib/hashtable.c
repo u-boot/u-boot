@@ -59,10 +59,10 @@
  * which describes the current status.
  */
 
-typedef struct _ENTRY {
+struct env_entry_node {
 	int used;
 	struct env_entry entry;
-} _ENTRY;
+};
 
 
 static void _hdelete(const char *key, struct hsearch_data *htab,
@@ -120,7 +120,8 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
 	htab->filled = 0;
 
 	/* allocate memory and zero out */
-	htab->table = (_ENTRY *) calloc(htab->size + 1, sizeof(_ENTRY));
+	htab->table = (struct env_entry_node *)calloc(htab->size + 1,
+						sizeof(struct env_entry_node));
 	if (htab->table == NULL)
 		return 0;
 
