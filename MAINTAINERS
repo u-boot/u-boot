@@ -168,9 +168,11 @@ F:	board/freescale/*mx*/
 
 ARM HISILICON
 M:	Peter Griffin <peter.griffin@linaro.org>
+M:	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 S:	Maintained
 F:	arch/arm/cpu/armv8/hisilicon
 F:	arch/arm/include/asm/arch-hi6220/
+F:	arch/arm/include/asm/arch-hi3660/
 
 ARM MARVELL KIRKWOOD ARMADA-XP ARMADA-38X ARMADA-37XX ARMADA-7K/8K
 M:	Stefan Roese <sr@denx.de>
