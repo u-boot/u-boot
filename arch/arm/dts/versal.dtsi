@@ -107,7 +107,7 @@
 		u-boot,dm-pre-reloc;
 
 		can0: can@ff060000 {
-			compatible = "xlnx,versal-canfd-2.0";
+			compatible = "xlnx,canfd-2.0";
 			status = "disabled";
 			reg = <0 0xff060000 0 0x6000>;
 			interrupts = <0 20 1>;
@@ -117,7 +117,7 @@
 		};
 
 		can1: can@ff070000 {
-			compatible = "xlnx,versal-canfd-2.0";
+			compatible = "xlnx,canfd-2.0";
 			status = "disabled";
 			reg = <0 0xff070000 0 0x6000>;
 			interrupts = <0 21 1>;
