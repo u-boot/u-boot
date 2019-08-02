@@ -32,6 +32,22 @@
 		clock-frequency = <33333333>;
 	};
 
+	can0_clk: can0_clk {
+		#clock-cells = <0>;
+		compatible = "fixed-factor-clock";
+		clocks = <&versal_clk CAN0_REF>;
+		clock-div = <2>;
+		clock-mult = <1>;
+	};
+
+	can1_clk: can1_clk {
+		#clock-cells = <0>;
+		compatible = "fixed-factor-clock";
+		clocks = <&versal_clk CAN1_REF>;
+		clock-div = <2>;
+		clock-mult = <1>;
+	};
+
 	firmware {
 		versal_firmware: versal-firmware {
 			compatible = "xlnx,versal-firmware-wip";
@@ -85,12 +101,12 @@
 };
 
 &can0 {
-	clocks = <&versal_clk CAN0_REF>, <&versal_clk LPD_LSBUS>;
+	clocks = <&can0_clk>, <&versal_clk LPD_LSBUS>;
 	power-domains = <&versal_firmware PD_CAN_FD_0>;
 };
 
 &can1 {
-	clocks = <&versal_clk CAN1_REF>, <&versal_clk LPD_LSBUS>;
+	clocks = <&can1_clk>, <&versal_clk LPD_LSBUS>;
 	power-domains = <&versal_firmware PD_CAN_FD_1>;
 };
 
