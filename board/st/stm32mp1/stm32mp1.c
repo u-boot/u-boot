@@ -103,7 +103,7 @@ int checkboard(void)
 	if (!ret)
 		ret = misc_read(dev, STM32_BSEC_SHADOW(BSEC_OTP_BOARD),
 				&otp, sizeof(otp));
-	if (!ret && otp) {
+	if (ret > 0 && otp) {
 		printf("Board: MB%04x Var%d Rev.%c-%02d\n",
 		       otp >> 16,
 		       (otp >> 12) & 0xF,
