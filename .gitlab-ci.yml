@@ -2,7 +2,7 @@
 
 # Grab our configured image.  The source for this is found at:
 # https://gitlab.denx.de/u-boot/gitlab-ci-runner
-image: trini/u-boot-gitlab-ci-runner:xenial-20190720-29Jul2019
+image: trini/u-boot-gitlab-ci-runner:xenial-20190720-02Aug2019
 
 # We run some tests in different order, to catch some failures quicker.
 stages:
@@ -284,6 +284,14 @@ qemu-ppce500 test.py:
     TEST_PY_BD: "qemu-ppce500"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu-ppce500$"
+  <<: *buildman_and_testpy_dfn
+
+qemu-riscv64 test.py:
+  tags: [ 'all' ]
+  variables:
+    TEST_PY_BD: "qemu-riscv64"
+    TEST_PY_TEST_SPEC: "not sleep"
+    BUILDMAN: "^qemu-riscv64$"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86 test.py:
