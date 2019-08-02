@@ -793,6 +793,9 @@ int console_init_r(void)
 	int iomux_err = 0;
 #endif
 
+	/* update silent for env loaded from flash (initr_env) */
+	console_update_silent();
+
 	/* set default handlers at first */
 	gd->jt->getc  = serial_getc;
 	gd->jt->tstc  = serial_tstc;
@@ -884,6 +887,7 @@ int console_init_r(void)
 	struct list_head *pos;
 	struct stdio_dev *dev;
 
+	/* update silent for env loaded from flash (initr_env) */
 	console_update_silent();
 
 #ifdef CONFIG_SPLASH_SCREEN
