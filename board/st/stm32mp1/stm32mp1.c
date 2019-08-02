@@ -487,7 +487,7 @@ static void sysconf_init(void)
 		}
 
 		ret = misc_read(dev, STM32_BSEC_SHADOW(18), &otp, 4);
-		if (!ret)
+		if (ret > 0)
 			otp = otp & BIT(13);
 
 		/* get VDD = vdd-supply */
