@@ -27,6 +27,18 @@ config SPL_LIBCOMMON_SUPPORT
 config SPL_LIBGENERIC_SUPPORT
 	default y
 
+config TPL_LDSCRIPT
+	default "arch/arm/mach-rockchip/u-boot-tpl-v8.lds"
+
+config TPL_TEXT_BASE
+	default 0xff091000
+
+config TPL_MAX_SIZE
+	default 28672
+
+config TPL_STACK
+	default 0xff098000
+
 source "board/rockchip/evb_rk3328/Kconfig"
 
 endif
