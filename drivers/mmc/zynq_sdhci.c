@@ -505,6 +505,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 #if defined(CONFIG_ARCH_ZYNQMP)
 	priv->host->ops = &arasan_ops;
+	arasan_zynqmp_dt_parse_tap_delays(dev);
 #endif
 
 	priv->host->ioaddr = (void *)dev_read_addr(dev);
@@ -514,11 +515,6 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 	priv->deviceid = dev_read_u32_default(dev, "xlnx,device_id", -1);
 	priv->bank = dev_read_u32_default(dev, "xlnx,mio_bank", -1);
 	priv->no_1p8 = dev_read_bool(dev, "no-1-8-v");
-
-#if defined(CONFIG_ARCH_ZYNQMP)
-	arasan_zynqmp_dt_parse_tap_delays(dev);
-#endif
-
 	plat->f_max = dev_read_u32_default(dev, "max-frequency",
 					   CONFIG_ZYNQ_SDHCI_MAX_FREQ);
 	return 0;
