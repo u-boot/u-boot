@@ -94,7 +94,7 @@ static int env_print(char *name, int flag)
 	ssize_t len;
 
 	if (name) {		/* print a single name */
-		ENTRY e, *ep;
+		struct env_entry e, *ep;
 
 		e.key = name;
 		e.data = NULL;
@@ -225,7 +225,7 @@ static int _do_env_set(int flag, int argc, char * const argv[], int env_flag)
 {
 	int   i, len;
 	char  *name, *value, *s;
-	ENTRY e, *ep;
+	struct env_entry e, *ep;
 
 	debug("Initial value for argc=%d\n", argc);
 
@@ -473,7 +473,7 @@ static int print_static_binding(const char *var_name, const char *callback_name,
 	return 0;
 }
 
-static int print_active_callback(ENTRY *entry)
+static int print_active_callback(struct env_entry *entry)
 {
 	struct env_clbk_tbl *clbkp;
 	int i;
@@ -554,7 +554,7 @@ static int print_static_flags(const char *var_name, const char *flags,
 	return 0;
 }
 
-static int print_active_flags(ENTRY *entry)
+static int print_active_flags(struct env_entry *entry)
 {
 	enum env_flags_vartype type;
 	enum env_flags_varaccess access;
@@ -662,7 +662,7 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 char *env_get(const char *name)
 {
 	if (gd->flags & GD_FLG_ENV_READY) { /* after import into hashtable */
-		ENTRY e, *ep;
+		struct env_entry e, *ep;
 
 		WATCHDOG_RESET();
 
@@ -1262,7 +1262,7 @@ static int do_env_info(cmd_tbl_t *cmdtp, int flag,
 static int do_env_exists(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	ENTRY e, *ep;
+	struct env_entry e, *ep;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;

@@ -250,7 +250,7 @@ void env_relocate(void)
 int env_complete(char *var, int maxv, char *cmdv[], int bufsz, char *buf,
 		 bool dollar_comp)
 {
-	ENTRY *match;
+	struct env_entry *match;
 	int found, idx;
 
 	if (dollar_comp) {

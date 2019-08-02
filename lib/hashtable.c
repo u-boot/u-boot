@@ -61,12 +61,12 @@
 
 typedef struct _ENTRY {
 	int used;
-	ENTRY entry;
+	struct env_entry entry;
 } _ENTRY;
 
 
-static void _hdelete(const char *key, struct hsearch_data *htab, ENTRY *ep,
-	int idx);
+static void _hdelete(const char *key, struct hsearch_data *htab,
+		     struct env_entry *ep, int idx);
 
 /*
  * hcreate()
@@ -151,7 +151,7 @@ void hdestroy_r(struct hsearch_data *htab)
 	/* free used memory */
 	for (i = 1; i <= htab->size; ++i) {
 		if (htab->table[i].used > 0) {
-			ENTRY *ep = &htab->table[i].entry;
+			struct env_entry *ep = &htab->table[i].entry;
 
 			free((void *)ep->key);
 			free(ep->data);
@@ -200,7 +200,7 @@ void hdestroy_r(struct hsearch_data *htab)
  *   example for functions like hdelete().
  */
 
-int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
+int hmatch_r(const char *match, int last_idx, struct env_entry **retval,
 	     struct hsearch_data *htab)
 {
 	unsigned int idx;
@@ -224,9 +224,10 @@ int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
  * Compare an existing entry with the desired key, and overwrite if the action
  * is ENTER.  This is simply a helper function for hsearch_r().
  */
-static inline int _compare_and_overwrite_entry(ENTRY item, ACTION action,
-	ENTRY **retval, struct hsearch_data *htab, int flag,
-	unsigned int hval, unsigned int idx)
+static inline int _compare_and_overwrite_entry(struct env_entry item,
+		ACTION action, struct env_entry **retval,
+		struct hsearch_data *htab, int flag, unsigned int hval,
+		unsigned int idx)
 {
 	if (htab->table[idx].used == hval
 	    && strcmp(item.key, htab->table[idx].entry.key) == 0) {
@@ -270,7 +271,7 @@ static inline int _compare_and_overwrite_entry(ENTRY item, ACTION action,
 	return -1;
 }
 
-int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
+int hsearch_r(struct env_entry item, ACTION action, struct env_entry **retval,
 	      struct hsearch_data *htab, int flag)
 {
 	unsigned int hval;
@@ -431,10 +432,10 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
  * do that.
  */
 
-static void _hdelete(const char *key, struct hsearch_data *htab, ENTRY *ep,
-	int idx)
+static void _hdelete(const char *key, struct hsearch_data *htab,
+		     struct env_entry *ep, int idx)
 {
-	/* free used ENTRY */
+	/* free used entry */
 	debug("hdelete: DELETING key \"%s\"\n", key);
 	free((void *)ep->key);
 	free(ep->data);
@@ -447,7 +448,7 @@ static void _hdelete(const char *key, struct hsearch_data *htab, ENTRY *ep,
 
 int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 {
-	ENTRY e, *ep;
+	struct env_entry e, *ep;
 	int idx;
 
 	debug("hdelete: DELETE key \"%s\"\n", key);
@@ -528,8 +529,8 @@ int hdelete_r(const char *key, struct hsearch_data *htab, int flag)
 
 static int cmpkey(const void *p1, const void *p2)
 {
-	ENTRY *e1 = *(ENTRY **) p1;
-	ENTRY *e2 = *(ENTRY **) p2;
+	struct env_entry *e1 = *(struct env_entry **)p1;
+	struct env_entry *e2 = *(struct env_entry **)p2;
 
 	return (strcmp(e1->key, e2->key));
 }
@@ -563,8 +564,8 @@ static int match_string(int flag, const char *str, const char *pat, void *priv)
 	return 0;
 }
 
-static int match_entry(ENTRY *ep, int flag,
-		 int argc, char * const argv[])
+static int match_entry(struct env_entry *ep, int flag, int argc,
+		       char *const argv[])
 {
 	int arg;
 	void *priv = NULL;
@@ -596,7 +597,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 		 char **resp, size_t size,
 		 int argc, char * const argv[])
 {
-	ENTRY *list[htab->size];
+	struct env_entry *list[htab->size];
 	char *res, *p;
 	size_t totlen;
 	int i, n;
@@ -617,7 +618,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 	for (i = 1, n = 0, totlen = 0; i <= htab->size; ++i) {
 
 		if (htab->table[i].used > 0) {
-			ENTRY *ep = &htab->table[i].entry;
+			struct env_entry *ep = &htab->table[i].entry;
 			int found = match_entry(ep, flag, argc, argv);
 
 			if ((argc > 0) && (found == 0))
@@ -657,7 +658,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 #endif
 
 	/* Sort list by keys */
-	qsort(list, n, sizeof(ENTRY *), cmpkey);
+	qsort(list, n, sizeof(struct env_entry *), cmpkey);
 
 	/* Check if the user supplied buffer size is sufficient */
 	if (size) {
@@ -869,7 +870,7 @@ int himport_r(struct hsearch_data *htab,
 	}
 	/* Parse environment; allow for '\0' and 'sep' as separators */
 	do {
-		ENTRY e, *rv;
+		struct env_entry e, *rv;
 
 		/* skip leading white space */
 		while (isblank(*dp))
@@ -976,7 +977,7 @@ end:
  * Walk all of the entries in the hash, calling the callback for each one.
  * this allows some generic operation to be performed on each element.
  */
-int hwalk_r(struct hsearch_data *htab, int (*callback)(ENTRY *))
+int hwalk_r(struct hsearch_data *htab, int (*callback)(struct env_entry *entry))
 {
 	int i;
 	int retval;

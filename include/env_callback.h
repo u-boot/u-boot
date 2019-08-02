@@ -72,6 +72,6 @@
 	"serial#:serialno," \
 	CONFIG_ENV_CALLBACK_LIST_STATIC
 
-void env_callback_init(ENTRY *var_entry);
+void env_callback_init(struct env_entry *var_entry);
 
 #endif /* __ENV_CALLBACK_H__ */

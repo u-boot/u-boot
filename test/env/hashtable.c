@@ -18,8 +18,8 @@ static int htab_fill(struct unit_test_state *uts,
 		     struct hsearch_data *htab, size_t size)
 {
 	size_t i;
-	ENTRY item;
-	ENTRY *ritem;
+	struct env_entry item;
+	struct env_entry *ritem;
 	char key[20];
 
 	for (i = 0; i < size; i++) {
@@ -38,8 +38,8 @@ static int htab_check_fill(struct unit_test_state *uts,
 			   struct hsearch_data *htab, size_t size)
 {
 	size_t i;
-	ENTRY item;
-	ENTRY *ritem;
+	struct env_entry item;
+	struct env_entry *ritem;
 	char key[20];
 
 	for (i = 0; i < size; i++) {
@@ -61,8 +61,8 @@ static int htab_create_delete(struct unit_test_state *uts,
 			      struct hsearch_data *htab, size_t iterations)
 {
 	size_t i;
-	ENTRY item;
-	ENTRY *ritem;
+	struct env_entry item;
+	struct env_entry *ritem;
 	char key[20];
 
 	for (i = 0; i < iterations; i++) {

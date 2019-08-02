@@ -79,7 +79,7 @@ static u32 ta_avb_invoke_func(struct udevice *dev, u32 func, uint num_params,
 			      struct tee_param *params)
 {
 	struct sandbox_tee_state *state = dev_get_priv(dev);
-	ENTRY e, *ep;
+	struct env_entry e, *ep;
 	char *name;
 	u32 res;
 	uint slot;

@@ -497,7 +497,7 @@ static int API_env_enum(va_list ap)
 {
 	int i, buflen;
 	char *last, **next, *s;
-	ENTRY *match, search;
+	struct env_entry *match, search;
 	static char *var;
 
 	last = (char *)va_arg(ap, unsigned long);

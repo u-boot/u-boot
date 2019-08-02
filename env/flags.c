@@ -419,7 +419,7 @@ static const char *flags_list;
  * This is called specifically when the variable did not exist in the hash
  * previously, so the blanket update did not find this variable.
  */
-void env_flags_init(ENTRY *var_entry)
+void env_flags_init(struct env_entry *var_entry)
 {
 	const char *var_name = var_entry->key;
 	char flags[ENV_FLAGS_ATTR_MAX_LEN + 1] = "";
@@ -441,7 +441,7 @@ void env_flags_init(ENTRY *var_entry)
  * Called on each existing env var prior to the blanket update since removing
  * a flag in the flag list should remove its flags.
  */
-static int clear_flags(ENTRY *entry)
+static int clear_flags(struct env_entry *entry)
 {
 	entry->flags = 0;
 
@@ -453,7 +453,7 @@ static int clear_flags(ENTRY *entry)
  */
 static int set_flags(const char *name, const char *value, void *priv)
 {
-	ENTRY e, *ep;
+	struct env_entry e, *ep;
 
 	e.key	= name;
 	e.data	= NULL;
@@ -496,8 +496,8 @@ U_BOOT_ENV_CALLBACK(flags, on_flags);
  * overwriting of write-once variables.
  */
 
-int env_flags_validate(const ENTRY *item, const char *newval, enum env_op op,
-	int flag)
+int env_flags_validate(const struct env_entry *item, const char *newval,
+		       enum env_op op, int flag)
 {
 	const char *name;
 	const char *oldval = NULL;

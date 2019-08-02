@@ -43,7 +43,7 @@ static const char *callback_list;
  * This is called specifically when the variable did not exist in the hash
  * previously, so the blanket update did not find this variable.
  */
-void env_callback_init(ENTRY *var_entry)
+void env_callback_init(struct env_entry *var_entry)
 {
 	const char *var_name = var_entry->key;
 	char callback_name[256] = "";
@@ -80,7 +80,7 @@ void env_callback_init(ENTRY *var_entry)
  * Called on each existing env var prior to the blanket update since removing
  * a callback association should remove its callback.
  */
-static int clear_callback(ENTRY *entry)
+static int clear_callback(struct env_entry *entry)
 {
 	entry->callback = NULL;
 
@@ -92,7 +92,7 @@ static int clear_callback(ENTRY *entry)
  */
 static int set_callback(const char *name, const char *value, void *priv)
 {
-	ENTRY e, *ep;
+	struct env_entry e, *ep;
 	struct env_clbk_tbl *clbkp;
 
 	e.key	= name;

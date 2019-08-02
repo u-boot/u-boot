@@ -25,13 +25,14 @@ typedef enum {
 	ENTER
 } ACTION;
 
-typedef struct entry {
+/** struct env_entry - An entry in the environment hashtable */
+struct env_entry {
 	const char *key;
 	char *data;
 	int (*callback)(const char *name, const char *value, enum env_op op,
 		int flags);
 	int flags;
-} ENTRY;
+};
 
 /* Opaque type for internal use.  */
 struct _ENTRY;
@@ -54,8 +55,8 @@ struct hsearch_data {
  * shall force overwriting of write-once variables.
  * Must return 0 for approval, 1 for denial.
  */
-	int (*change_ok)(const ENTRY *__item, const char *newval, enum env_op,
-		int flag);
+	int (*change_ok)(const struct env_entry *__item, const char *newval,
+			 enum env_op, int flag);
 };
 
 /* Create a new hash table which will contain at most "__nel" elements.  */
@@ -70,15 +71,16 @@ extern void hdestroy_r(struct hsearch_data *__htab);
  * NULL.  If ACTION is `ENTER' replace existing data (if any) with
  * __item.data.
  * */
-extern int hsearch_r(ENTRY __item, ACTION __action, ENTRY ** __retval,
-		     struct hsearch_data *__htab, int __flag);
+extern int hsearch_r(struct env_entry __item, ACTION __action,
+		     struct env_entry **__retval, struct hsearch_data *__htab,
+		     int __flag);
 
 /*
  * Search for an entry matching "__match".  Otherwise, Same semantics
  * as hsearch_r().
  */
-extern int hmatch_r(const char *__match, int __last_idx, ENTRY ** __retval,
-		    struct hsearch_data *__htab);
+extern int hmatch_r(const char *__match, int __last_idx,
+		    struct env_entry **__retval, struct hsearch_data *__htab);
 
 /* Search and delete entry matching "__key" in internal hash table. */
 extern int hdelete_r(const char *__key, struct hsearch_data *__htab,
@@ -98,7 +100,8 @@ extern int himport_r(struct hsearch_data *__htab,
 		     char * const vars[]);
 
 /* Walk the whole table calling the callback on each element */
-extern int hwalk_r(struct hsearch_data *__htab, int (*callback)(ENTRY *));
+extern int hwalk_r(struct hsearch_data *__htab,
+		   int (*callback)(struct env_entry *entry));
 
 /* Flags for himport_r(), hexport_r(), hdelete_r(), and hsearch_r() */
 #define H_NOCLEAR	(1 << 0) /* do not clear hash table before importing */
