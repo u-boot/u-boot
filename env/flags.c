@@ -19,7 +19,7 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #else
 #include <common.h>
-#include <environment.h>
+#include <env_internal.h>
 #endif
 
 #ifdef CONFIG_CMD_NET

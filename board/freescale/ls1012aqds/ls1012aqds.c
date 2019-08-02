@@ -18,7 +18,7 @@
 #include <ahci.h>
 #include <hwconfig.h>
 #include <mmc.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <scsi.h>
 #include <fm_eth.h>
 #include <fsl_esdhc.h>

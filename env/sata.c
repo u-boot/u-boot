@@ -9,7 +9,7 @@
 
 #include <command.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <linux/stddef.h>
 #include <errno.h>
 #include <memalign.h>

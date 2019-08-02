@@ -22,7 +22,7 @@
 
 #include <command.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <linux/stddef.h>
 #include <malloc.h>
 #include <memalign.h>

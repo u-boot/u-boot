@@ -12,7 +12,7 @@
 #define	__ASM_STUB_PROCESSOR_H__	/* don't include asm/processor. */
 #include <config.h>
 #undef	__ASSEMBLY__
-#include <environment.h>
+#include <env_internal.h>
 #include <linux/stringify.h>
 
 /* Handle HOSTS that have prepended crap on symbol names, not TARGETS. */

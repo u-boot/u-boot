@@ -28,7 +28,7 @@
 #include <command.h>
 #include <console.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <search.h>
 #include <errno.h>
 #include <malloc.h>

@@ -10,7 +10,7 @@
 #include <charset.h>
 #include <efi_loader.h>
 #include <hexdump.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <search.h>
 #include <uuid.h>
 

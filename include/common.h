@@ -394,7 +394,7 @@ int cpu_release(u32 nr, int argc, char * const argv[]);
 
 /* Pull in stuff for the build system */
 #ifdef DO_DEPS_ONLY
-# include <environment.h>
+# include <env_internal.h>
 #endif
 
 #endif	/* __COMMON_H_ */

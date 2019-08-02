@@ -11,7 +11,7 @@
 #include <common.h>
 #include <dm.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>

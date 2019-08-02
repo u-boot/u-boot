@@ -11,7 +11,7 @@
 #include <hwconfig.h>
 #include <fdt_support.h>
 #include <linux/libfdt.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <asm/arch-fsl-layerscape/soc.h>
 #include <i2c.h>
 #include <asm/arch/soc.h>

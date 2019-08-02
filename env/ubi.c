@@ -8,7 +8,7 @@
 
 #include <command.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <errno.h>
 #include <malloc.h>
 #include <memalign.h>

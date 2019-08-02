@@ -13,7 +13,7 @@
 #include <fdt_support.h>
 #include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <i2c.h>
 #include <rtc.h>
 #include <asm/arch/soc.h>

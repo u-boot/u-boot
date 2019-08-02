@@ -5,7 +5,7 @@
 
 #include <common.h>
 #include <dm.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <errno.h>
 #include <os.h>
 #include <serial.h>

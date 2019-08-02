@@ -9,7 +9,7 @@
 
 #include <common.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <net.h>
 #include <malloc.h>
 #include <netdev.h>

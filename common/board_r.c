@@ -19,7 +19,7 @@
 #include <console.h>
 #include <dm.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <fdtdec.h>
 #include <ide.h>
 #include <initcall.h>

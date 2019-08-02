@@ -18,7 +18,7 @@
 #include <mmc.h>
 #include <scsi.h>
 #include <fsl_esdhc.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <fsl_mmdc.h>
 #include <netdev.h>
 #include <fsl_sec.h>

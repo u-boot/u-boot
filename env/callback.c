@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
 DECLARE_GLOBAL_DATA_PTR;

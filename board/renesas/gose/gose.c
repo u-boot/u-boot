@@ -10,7 +10,7 @@
 #include <malloc.h>
 #include <dm.h>
 #include <dm/platform_data/serial_sh.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <asm/processor.h>
 #include <asm/mach-types.h>
 #include <asm/io.h>

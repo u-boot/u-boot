@@ -59,7 +59,7 @@
 
 
 #ifdef CONFIG_BUILD_ENVCRC
-# include <environment.h>
+# include <env_internal.h>
 extern unsigned int env_size;
 extern env_t embedded_environment;
 #endif	/* CONFIG_BUILD_ENVCRC */

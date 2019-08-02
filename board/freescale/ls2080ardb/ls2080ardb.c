@@ -15,7 +15,7 @@
 #include <fdt_support.h>
 #include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <efi_loader.h>
 #include <i2c.h>
 #include <asm/arch/mmu.h>

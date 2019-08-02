@@ -1,11 +1,19 @@
 /* SPDX-License-Identifier: GPL-2.0+ */
 /*
+ * Internal environment header file. This includes direct access to environment
+ * information such as its size and offset, direct access to the default
+ * environment and embedded environment (if used). It also provides environment
+ * drivers with various declarations.
+ *
+ * It should not be included by board files, drivers and code other than that
+ * related to the environment implementation.
+ *
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  */
 
-#ifndef _ENVIRONMENT_H_
-#define _ENVIRONMENT_H_
+#ifndef _ENV_INTERNAL_H_
+#define _ENV_INTERNAL_H_
 
 #include <linux/kconfig.h>
 
@@ -267,4 +275,4 @@ extern struct hsearch_data env_htab;
 
 #endif /* DO_DEPS_ONLY */
 
-#endif /* _ENVIRONMENT_H_ */
+#endif /* _ENV_INTERNAL_H_ */

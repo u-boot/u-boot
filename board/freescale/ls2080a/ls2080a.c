@@ -12,7 +12,7 @@
 #include <fdt_support.h>
 #include <linux/libfdt.h>
 #include <fsl-mc/fsl_mc.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <asm/arch/soc.h>
 
 DECLARE_GLOBAL_DATA_PTR;

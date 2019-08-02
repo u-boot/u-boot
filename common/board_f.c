@@ -15,7 +15,7 @@
 #include <cpu.h>
 #include <dm.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <fdtdec.h>
 #include <fs.h>
 #include <i2c.h>

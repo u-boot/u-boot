@@ -26,7 +26,7 @@
 #include <asm/io.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <mtd/cfi_flash.h>
 #include <watchdog.h>
 

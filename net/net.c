@@ -91,7 +91,7 @@
 #include <command.h>
 #include <console.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <errno.h>
 #include <net.h>
 #include <net/fastboot.h>

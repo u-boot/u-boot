@@ -31,7 +31,7 @@
 #include <miiphy.h>
 #include <cpsw.h>
 #include <power/tps65217.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <watchdog.h>
 #include "mmc.h"
 #include "board.h"

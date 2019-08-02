@@ -27,7 +27,7 @@
 #endif
 #include <fsl_immap.h>
 #ifdef CONFIG_TFABOOT
-#include <environment.h>
+#include <env_internal.h>
 DECLARE_GLOBAL_DATA_PTR;
 #endif
 

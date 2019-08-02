@@ -9,7 +9,7 @@
 #include <clk.h>
 #include <dm.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <g_dnl.h>
 #include <generic-phy.h>
 #include <i2c.h>

@@ -10,7 +10,7 @@
 #include <common.h>
 #include <command.h>
 #include <env.h>
-#include <environment.h>
+#include <env_internal.h>
 #include <linux/stddef.h>
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 #include <i2c.h>

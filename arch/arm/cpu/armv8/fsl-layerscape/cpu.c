@@ -33,7 +33,7 @@
 #include <fsl_qbman.h>
 
 #ifdef CONFIG_TFABOOT
-#include <environment.h>
+#include <env_internal.h>
 #ifdef CONFIG_CHAIN_OF_TRUST
 #include <fsl_validate.h>
 #endif
