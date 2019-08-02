@@ -252,7 +252,6 @@ qemu_mips test.py:
     TEST_PY_BD: "qemu_mips"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu_mips$"
-    TOOLCHAIN: "mips"
   <<: *buildman_and_testpy_dfn
 
 qemu_mipsel test.py:
@@ -261,7 +260,6 @@ qemu_mipsel test.py:
     TEST_PY_BD: "qemu_mipsel"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu_mipsel$"
-    TOOLCHAIN: "mips"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips64 test.py:
@@ -270,7 +268,6 @@ qemu_mips64 test.py:
     TEST_PY_BD: "qemu_mips64"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu_mips64$"
-    TOOLCHAIN: "mips"
   <<: *buildman_and_testpy_dfn
 
 qemu_mips64el test.py:
@@ -279,7 +276,6 @@ qemu_mips64el test.py:
     TEST_PY_BD: "qemu_mips64el"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu_mips64el$"
-    TOOLCHAIN: "mips"
   <<: *buildman_and_testpy_dfn
 
 qemu-ppce500 test.py:
@@ -288,7 +284,6 @@ qemu-ppce500 test.py:
     TEST_PY_BD: "qemu-ppce500"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu-ppce500$"
-    TOOLCHAIN: "powerpc"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86 test.py:
@@ -297,7 +292,6 @@ qemu-x86 test.py:
     TEST_PY_BD: "qemu-x86"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu-x86$"
-    TOOLCHAIN: "i386"
   <<: *buildman_and_testpy_dfn
 
 qemu-x86_64 test.py:
@@ -306,7 +300,6 @@ qemu-x86_64 test.py:
     TEST_PY_BD: "qemu-x86_64"
     TEST_PY_TEST_SPEC: "not sleep"
     BUILDMAN: "^qemu-x86_64$"
-    TOOLCHAIN: "i386"
   <<: *buildman_and_testpy_dfn
 
 zynq_zc702 test.py:
@@ -334,5 +327,4 @@ xtfpga test.py:
     TEST_PY_TEST_SPEC: "not sleep"
     TEST_PY_ID: "--id qemu"
     BUILDMAN: "^xtfpga$"
-    TOOLCHAIN: "xtensa-dc233c-elf"
   <<: *buildman_and_testpy_dfn
