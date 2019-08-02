@@ -18,6 +18,7 @@
 #include <mtd.h>
 #include <mtd_node.h>
 #include <phy.h>
+#include <remoteproc.h>
 #include <reset.h>
 #include <syscon.h>
 #include <usb.h>
@@ -891,3 +892,26 @@ int ft_board_setup(void *blob, bd_t *bd)
 	return 0;
 }
 #endif
+
+static void board_copro_image_process(ulong fw_image, size_t fw_size)
+{
+	int ret, id = 0; /* Copro id fixed to 0 as only one coproc on mp1 */
+
+	if (!rproc_is_initialized())
+		if (rproc_init()) {
+			printf("Remote Processor %d initialization failed\n",
+			       id);
+			return;
+		}
+
+	ret = rproc_load(id, fw_image, fw_size);
+	printf("Load Remote Processor %d with data@addr=0x%08lx %u bytes:%s\n",
+	       id, fw_image, fw_size, ret ? " Failed!" : " Success!");
+
+	if (!ret) {
+		rproc_start(id);
+		env_set("copro_state", "booted");
+	}
+}
+
+U_BOOT_FIT_LOADABLE_HANDLER(IH_TYPE_COPRO, board_copro_image_process);
