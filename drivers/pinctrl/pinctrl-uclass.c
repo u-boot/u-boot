@@ -403,7 +403,7 @@ int pinctrl_get_pin_muxing(struct udevice *dev, int selector, char *buf,
  * @dev: pinctrl device
  * @return: 0 on success, or negative error code on failure
  */
-static int pinctrl_post_bind(struct udevice *dev)
+static int __maybe_unused pinctrl_post_bind(struct udevice *dev)
 {
 	const struct pinctrl_ops *ops = pinctrl_get_ops(dev);
 
@@ -426,7 +426,9 @@ static int pinctrl_post_bind(struct udevice *dev)
 
 UCLASS_DRIVER(pinctrl) = {
 	.id = UCLASS_PINCTRL,
+#if CONFIG_IS_ENABLED(PINCONF_RECURSIVE)
 	.post_bind = pinctrl_post_bind,
+#endif
 	.flags = DM_UC_FLAG_SEQ_ALIAS,
 	.name = "pinctrl",
 };
