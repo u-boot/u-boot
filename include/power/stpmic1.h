@@ -108,11 +108,4 @@ enum {
 	STPMIC1_PWR_SW2,
 	STPMIC1_MAX_PWR_SW,
 };
-
-int stpmic1_shadow_read_byte(u8 addr, u8 *buf);
-int stpmic1_shadow_write_byte(u8 addr, u8 *buf);
-int stpmic1_nvm_read_byte(u8 addr, u8 *buf);
-int stpmic1_nvm_write_byte(u8 addr, u8 *buf);
-int stpmic1_nvm_read_all(u8 *buf, int buf_len);
-int stpmic1_nvm_write_all(u8 *buf, int buf_len);
 #endif
