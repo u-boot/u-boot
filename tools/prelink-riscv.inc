@@ -23,14 +23,15 @@
 #define Elf_Addr        CONCAT3(Elf, PRELINK_INC_BITS, _Addr)
 #define ELF_R_TYPE      CONCAT3(ELF, PRELINK_INC_BITS, _R_TYPE)
 #define ELF_R_SYM       CONCAT3(ELF, PRELINK_INC_BITS, _R_SYM)
+#define lenn_to_cpu     CONCAT3(le, PRELINK_INC_BITS, _to_cpu)
 
 static void* get_offset_nn (void* data, Elf_Phdr* phdrs, size_t phnum, Elf_Addr addr)
 {
 	Elf_Phdr *p;
 
 	for (p = phdrs; p < phdrs + phnum; ++p)
-		if (p->p_vaddr <= addr && p->p_vaddr + p->p_memsz > addr)
-			return data + p->p_offset + (addr - p->p_vaddr);
+		if (lenn_to_cpu(p->p_vaddr) <= addr && lenn_to_cpu(p->p_vaddr) + lenn_to_cpu(p->p_memsz) > addr)
+			return data + lenn_to_cpu(p->p_offset) + (addr - lenn_to_cpu(p->p_vaddr));
 
 	return NULL;
 }
@@ -42,15 +43,15 @@ static void prelink_nn(void *data)
 	Elf_Dyn *dyn;
 	Elf_Rela *r;
 
-	if (ehdr->e_machine != EM_RISCV)
+	if (le16_to_cpu(ehdr->e_machine) != EM_RISCV)
 		die("Machine type is not RISC-V");
 
-	Elf_Phdr *phdrs = data + ehdr->e_phoff;
+	Elf_Phdr *phdrs = data + lenn_to_cpu(ehdr->e_phoff);
 
 	Elf_Dyn *dyns = NULL;
-	for (p = phdrs; p < phdrs + ehdr->e_phnum; ++p) {
-		if (p->p_type == PT_DYNAMIC) {
-			dyns = data + p->p_offset;
+	for (p = phdrs; p < phdrs + le16_to_cpu(ehdr->e_phnum); ++p) {
+		if (le32_to_cpu(p->p_type) == PT_DYNAMIC) {
+			dyns = data + lenn_to_cpu(p->p_offset);
 			break;
 		}
 	}
@@ -62,14 +63,14 @@ static void prelink_nn(void *data)
 	size_t rela_count = 0;
 	Elf_Sym *dynsym = NULL;
 	for (dyn = dyns;; ++dyn) {
-		if (dyn->d_tag == DT_NULL)
+		if (lenn_to_cpu(dyn->d_tag) == DT_NULL)
 			break;
-		else if (dyn->d_tag == DT_RELA)
-			rela_dyn = get_offset_nn(data, phdrs, ehdr->e_phnum, + dyn->d_un.d_ptr);
-		else if (dyn->d_tag == DT_RELASZ)
-			rela_count = dyn->d_un.d_val / sizeof(Elf_Rela);
-		else if (dyn->d_tag == DT_SYMTAB)
-			dynsym = get_offset_nn(data, phdrs, ehdr->e_phnum, + dyn->d_un.d_ptr);
+		else if (lenn_to_cpu(dyn->d_tag) == DT_RELA)
+			rela_dyn = get_offset_nn(data, phdrs, le16_to_cpu(ehdr->e_phnum), + lenn_to_cpu(dyn->d_un.d_ptr));
+		else if (lenn_to_cpu(dyn->d_tag) == DT_RELASZ)
+		  rela_count = lenn_to_cpu(dyn->d_un.d_val) / sizeof(Elf_Rela);
+		else if (lenn_to_cpu(dyn->d_tag) == DT_SYMTAB)
+			dynsym = get_offset_nn(data, phdrs, le16_to_cpu(ehdr->e_phnum), + lenn_to_cpu(dyn->d_un.d_ptr));
 
 	}
 
@@ -80,17 +81,17 @@ static void prelink_nn(void *data)
 		die("No .dynsym found");
 
 	for (r = rela_dyn; r < rela_dyn + rela_count; ++r) {
-		void* buf = get_offset_nn(data, phdrs, ehdr->e_phnum, r->r_offset);
+		void* buf = get_offset_nn(data, phdrs, le16_to_cpu(ehdr->e_phnum), lenn_to_cpu(r->r_offset));
 
 		if (buf == NULL)
 			continue;
 
-		if (ELF_R_TYPE(r->r_info) == R_RISCV_RELATIVE)
+		if (ELF_R_TYPE(lenn_to_cpu(r->r_info)) == R_RISCV_RELATIVE)
 			*((uintnn_t*) buf) = r->r_addend;
-		else if (ELF_R_TYPE(r->r_info) == R_RISCV_32)
-			*((uint32_t*) buf) = dynsym[ELF_R_SYM(r->r_info)].st_value;
-		else if (ELF_R_TYPE(r->r_info) == R_RISCV_64)
-			*((uint64_t*) buf) = dynsym[ELF_R_SYM(r->r_info)].st_value;
+		else if (ELF_R_TYPE(lenn_to_cpu(r->r_info)) == R_RISCV_32)
+			*((uint32_t*) buf) = dynsym[ELF_R_SYM(lenn_to_cpu(r->r_info))].st_value;
+		else if (ELF_R_TYPE(lenn_to_cpu(r->r_info)) == R_RISCV_64)
+			*((uint64_t*) buf) = dynsym[ELF_R_SYM(lenn_to_cpu(r->r_info))].st_value;
 	}
 }
 
@@ -105,6 +106,7 @@ static void prelink_nn(void *data)
 #undef Elf_Addr
 #undef ELF_R_TYPE
 #undef ELF_R_SYM
+#undef lenn_to_cpu
 
 #undef CONCAT_IMPL
 #undef CONCAT

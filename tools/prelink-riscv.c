@@ -8,10 +8,6 @@
  * without fixup. Both RV32 and RV64 are supported.
  */
 
-#if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
-#error "Only little-endian host is supported"
-#endif
-
 #include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -25,6 +21,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <compiler.h>
 
 #ifndef EM_RISCV
 #define EM_RISCV 243
