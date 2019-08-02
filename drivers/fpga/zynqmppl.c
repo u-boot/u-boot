@@ -153,7 +153,7 @@ static ulong zynqmp_align_dma_buffer(u32 *buf, u32 len, u32 swap)
 	} else if ((swap != SWAP_DONE) &&
 		   (zynqmp_pmufw_version() <= PMUFW_V1_0)) {
 		/* For bitstream which are aligned */
-		u32 *new_buf = (u32 *)buf;
+		new_buf = buf;
 
 		printf("%s: Bitstream is not swapped(%d) - swap it\n", __func__,
 		       swap);
