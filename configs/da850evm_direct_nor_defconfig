@@ -29,10 +29,6 @@ CONFIG_CMD_MTD=y
 # CONFIG_CMD_SPI is not set
 # CONFIG_CMD_SETEXPR is not set
 # CONFIG_CMD_TIME is not set
-# CONFIG_CMD_EXT2 is not set
-# CONFIG_CMD_EXT4 is not set
-# CONFIG_CMD_FAT is not set
-# CONFIG_CMD_FS_GENERIC is not set
 CONFIG_CMD_MTDPARTS=y
 CONFIG_MTDIDS_DEFAULT="nor0=physmap-flash.2"
 CONFIG_MTDPARTS_DEFAULT="mtdparts=physmap-flash.2:1m(u-boot),128k(u-boot-env),-(spare)"
