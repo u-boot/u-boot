@@ -232,18 +232,11 @@ U_BOOT_DRIVER(stpmic1_nvm) = {
 #ifdef CONFIG_SYSRESET
 static int stpmic1_sysreset_request(struct udevice *dev, enum sysreset_t type)
 {
-	struct udevice *pmic_dev;
+	struct udevice *pmic_dev = dev->parent;
 	int ret;
 
 	if (type != SYSRESET_POWER && type != SYSRESET_POWER_OFF)
 		return -EPROTONOSUPPORT;
-
-	ret = uclass_get_device_by_driver(UCLASS_PMIC,
-					  DM_GET_DRIVER(pmic_stpmic1),
-					  &pmic_dev);
-
-	if (ret)
-		return -EOPNOTSUPP;
 
 	ret = pmic_reg_read(pmic_dev, STPMIC1_MAIN_CR);
 	if (ret < 0)
