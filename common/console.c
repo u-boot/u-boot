@@ -463,6 +463,11 @@ static void print_pre_console_buffer(int flushpoint)
 	char buf_out[CONFIG_PRE_CON_BUF_SZ + 1];
 	char *buf_in;
 
+#ifdef CONFIG_SILENT_CONSOLE
+	if (gd->flags & GD_FLG_SILENT)
+		return;
+#endif
+
 	buf_in = map_sysmem(CONFIG_PRE_CON_BUF_ADDR, CONFIG_PRE_CON_BUF_SZ);
 	if (gd->precon_buf_idx > CONFIG_PRE_CON_BUF_SZ)
 		in = gd->precon_buf_idx - CONFIG_PRE_CON_BUF_SZ;
@@ -511,8 +516,11 @@ void putc(const char c)
 		membuff_putbyte(&gd->console_out, c);
 #endif
 #ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT)
+	if (gd->flags & GD_FLG_SILENT) {
+		if (!(gd->flags & GD_FLG_DEVINIT))
+			pre_console_putc(c);
 		return;
+	}
 #endif
 
 #ifdef CONFIG_DISABLE_CONSOLE
@@ -559,8 +567,11 @@ void puts(const char *s)
 		membuff_put(&gd->console_out, s, strlen(s));
 #endif
 #ifdef CONFIG_SILENT_CONSOLE
-	if (gd->flags & GD_FLG_SILENT)
+	if (gd->flags & GD_FLG_SILENT) {
+		if (!(gd->flags & GD_FLG_DEVINIT))
+			pre_console_puts(s);
 		return;
+	}
 #endif
 
 #ifdef CONFIG_DISABLE_CONSOLE
@@ -720,14 +731,22 @@ int console_assign(int file, const char *devname)
 	return -1;
 }
 
-static void console_update_silent(void)
+/* return true if the 'silent' flag is removed */
+static bool console_update_silent(void)
 {
 #ifdef CONFIG_SILENT_CONSOLE
-	if (env_get("silent") != NULL)
+	if (env_get("silent")) {
 		gd->flags |= GD_FLG_SILENT;
-	else
+	} else {
+		unsigned long flags = gd->flags;
+
 		gd->flags &= ~GD_FLG_SILENT;
+
+		return !!(flags & GD_FLG_SILENT);
+	}
 #endif
+
+	return false;
 }
 
 int console_announce_r(void)
@@ -792,9 +811,13 @@ int console_init_r(void)
 #if CONFIG_IS_ENABLED(CONSOLE_MUX)
 	int iomux_err = 0;
 #endif
+	int flushpoint;
 
 	/* update silent for env loaded from flash (initr_env) */
-	console_update_silent();
+	if (console_update_silent())
+		flushpoint = PRE_CONSOLE_FLUSHPOINT1_SERIAL;
+	else
+		flushpoint = PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL;
 
 	/* set default handlers at first */
 	gd->jt->getc  = serial_getc;
@@ -872,7 +895,7 @@ done:
 	if ((stdio_devices[stdin] == NULL) && (stdio_devices[stdout] == NULL))
 		return 0;
 #endif
-	print_pre_console_buffer(PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL);
+	print_pre_console_buffer(flushpoint);
 	return 0;
 }
 
@@ -886,9 +909,13 @@ int console_init_r(void)
 	struct list_head *list = stdio_get_list();
 	struct list_head *pos;
 	struct stdio_dev *dev;
+	int flushpoint;
 
 	/* update silent for env loaded from flash (initr_env) */
-	console_update_silent();
+	if (console_update_silent())
+		flushpoint = PRE_CONSOLE_FLUSHPOINT1_SERIAL;
+	else
+		flushpoint = PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL;
 
 #ifdef CONFIG_SPLASH_SCREEN
 	/*
@@ -951,7 +978,7 @@ int console_init_r(void)
 	if ((stdio_devices[stdin] == NULL) && (stdio_devices[stdout] == NULL))
 		return 0;
 #endif
-	print_pre_console_buffer(PRE_CONSOLE_FLUSHPOINT2_EVERYTHING_BUT_SERIAL);
+	print_pre_console_buffer(flushpoint);
 	return 0;
 }
 
