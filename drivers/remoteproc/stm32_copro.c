@@ -243,7 +243,7 @@ static const struct dm_rproc_ops stm32_copro_ops = {
 };
 
 static const struct udevice_id stm32_copro_ids[] = {
-	{.compatible = "st,stm32mp1-rproc"},
+	{.compatible = "st,stm32mp1-m4"},
 	{}
 };
 

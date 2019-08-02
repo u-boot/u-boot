@@ -217,6 +217,12 @@
 	status = "okay";
 };
 
+&m4_rproc {
+	mboxes = <&ipcc 0>, <&ipcc 1>, <&ipcc 2>;
+	mbox-names = "vq0", "vq1", "shutdown";
+	status = "okay";
+};
+
 &pwr {
 	pwr-regulators {
 		vdd-supply = <&vdd>;
