@@ -8,27 +8,6 @@
 #include <asm/fsp/fsp_support.h>
 #include <asm/post.h>
 
-/**
- * Compares two GUIDs
- *
- * If the GUIDs are identical then true is returned.
- * If there are any bit differences in the two GUIDs, then false is returned.
- *
- * @guid1:        A pointer to a 128 bit GUID.
- * @guid2:        A pointer to a 128 bit GUID.
- *
- * @retval true:  guid1 and guid2 are identical.
- * @retval false: guid1 and guid2 are not identical.
- */
-static bool compare_guid(const struct efi_guid *guid1,
-			 const struct efi_guid *guid2)
-{
-	if (memcmp(guid1, guid2, sizeof(struct efi_guid)) == 0)
-		return true;
-	else
-		return false;
-}
-
 struct fsp_header *__attribute__((optimize("O0"))) find_fsp_header(void)
 {
 	/*
@@ -58,17 +37,22 @@ struct fsp_header *__attribute__((optimize("O0"))) find_fsp_header(void)
 
 	/* Check the FFS GUID */
 	if (fsp &&
-	    ((struct ffs_file_header *)fsp)->name.data1 == FSP_GUID_DATA1 &&
-	    ((struct ffs_file_header *)fsp)->name.data2 == FSP_GUID_DATA2 &&
-	    ((struct ffs_file_header *)fsp)->name.data3 == FSP_GUID_DATA3 &&
-	    ((struct ffs_file_header *)fsp)->name.data4[0] == FSP_GUID_DATA4_0 &&
-	    ((struct ffs_file_header *)fsp)->name.data4[1] == FSP_GUID_DATA4_1 &&
-	    ((struct ffs_file_header *)fsp)->name.data4[2] == FSP_GUID_DATA4_2 &&
-	    ((struct ffs_file_header *)fsp)->name.data4[3] == FSP_GUID_DATA4_3 &&
-	    ((struct ffs_file_header *)fsp)->name.data4[4] == FSP_GUID_DATA4_4 &&
-	    ((struct ffs_file_header *)fsp)->name.data4[5] == FSP_GUID_DATA4_5 &&
-	    ((struct ffs_file_header *)fsp)->name.data4[6] == FSP_GUID_DATA4_6 &&
-	    ((struct ffs_file_header *)fsp)->name.data4[7] == FSP_GUID_DATA4_7) {
+	    ((struct ffs_file_header *)fsp)->name.b[0] == FSP_GUID_BYTE0 &&
+	    ((struct ffs_file_header *)fsp)->name.b[1] == FSP_GUID_BYTE1 &&
+	    ((struct ffs_file_header *)fsp)->name.b[2] == FSP_GUID_BYTE2 &&
+	    ((struct ffs_file_header *)fsp)->name.b[3] == FSP_GUID_BYTE3 &&
+	    ((struct ffs_file_header *)fsp)->name.b[4] == FSP_GUID_BYTE4 &&
+	    ((struct ffs_file_header *)fsp)->name.b[5] == FSP_GUID_BYTE5 &&
+	    ((struct ffs_file_header *)fsp)->name.b[6] == FSP_GUID_BYTE6 &&
+	    ((struct ffs_file_header *)fsp)->name.b[7] == FSP_GUID_BYTE7 &&
+	    ((struct ffs_file_header *)fsp)->name.b[8] == FSP_GUID_BYTE8 &&
+	    ((struct ffs_file_header *)fsp)->name.b[9] == FSP_GUID_BYTE9 &&
+	    ((struct ffs_file_header *)fsp)->name.b[10] == FSP_GUID_BYTE10 &&
+	    ((struct ffs_file_header *)fsp)->name.b[11] == FSP_GUID_BYTE11 &&
+	    ((struct ffs_file_header *)fsp)->name.b[12] == FSP_GUID_BYTE12 &&
+	    ((struct ffs_file_header *)fsp)->name.b[13] == FSP_GUID_BYTE13 &&
+	    ((struct ffs_file_header *)fsp)->name.b[14] == FSP_GUID_BYTE14 &&
+	    ((struct ffs_file_header *)fsp)->name.b[15] == FSP_GUID_BYTE15) {
 		/* Add the FFS header size to find the raw section header */
 		fsp += sizeof(struct ffs_file_header);
 	} else {
@@ -305,7 +289,7 @@ u64 fsp_get_usable_highmem_top(const void *hob_list)
 }
 
 u64 fsp_get_reserved_mem_from_guid(const void *hob_list, u64 *len,
-				   struct efi_guid *guid)
+				   const efi_guid_t *guid)
 {
 	const struct hob_header *hdr;
 	struct hob_res_desc *res_desc;
@@ -318,7 +302,7 @@ u64 fsp_get_reserved_mem_from_guid(const void *hob_list, u64 *len,
 		if (hdr->type == HOB_TYPE_RES_DESC) {
 			res_desc = (struct hob_res_desc *)hdr;
 			if (res_desc->type == RES_MEM_RESERVED) {
-				if (compare_guid(&res_desc->owner, guid)) {
+				if (!guidcmp(&res_desc->owner, guid)) {
 					if (len)
 						*len = (u32)(res_desc->len);
 
@@ -334,12 +318,12 @@ u64 fsp_get_reserved_mem_from_guid(const void *hob_list, u64 *len,
 
 u32 fsp_get_fsp_reserved_mem(const void *hob_list, u32 *len)
 {
-	const struct efi_guid guid = FSP_HOB_RESOURCE_OWNER_FSP_GUID;
+	const efi_guid_t guid = FSP_HOB_RESOURCE_OWNER_FSP_GUID;
 	u64 length;
 	u32 base;
 
 	base = (u32)fsp_get_reserved_mem_from_guid(hob_list,
-			&length, (struct efi_guid *)&guid);
+			&length, &guid);
 	if ((len != 0) && (base != 0))
 		*len = (u32)length;
 
@@ -348,12 +332,12 @@ u32 fsp_get_fsp_reserved_mem(const void *hob_list, u32 *len)
 
 u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len)
 {
-	const struct efi_guid guid = FSP_HOB_RESOURCE_OWNER_TSEG_GUID;
+	const efi_guid_t guid = FSP_HOB_RESOURCE_OWNER_TSEG_GUID;
 	u64 length;
 	u32 base;
 
 	base = (u32)fsp_get_reserved_mem_from_guid(hob_list,
-			&length, (struct efi_guid *)&guid);
+			&length, &guid);
 	if ((len != 0) && (base != 0))
 		*len = (u32)length;
 
@@ -377,7 +361,7 @@ const struct hob_header *fsp_get_next_hob(uint type, const void *hob_list)
 	return NULL;
 }
 
-const struct hob_header *fsp_get_next_guid_hob(const struct efi_guid *guid,
+const struct hob_header *fsp_get_next_guid_hob(const efi_guid_t *guid,
 					       const void *hob_list)
 {
 	const struct hob_header *hdr;
@@ -387,7 +371,7 @@ const struct hob_header *fsp_get_next_guid_hob(const struct efi_guid *guid,
 	while ((hdr = fsp_get_next_hob(HOB_TYPE_GUID_EXT,
 			hdr)) != NULL) {
 		guid_hob = (struct hob_guid *)hdr;
-		if (compare_guid(guid, &(guid_hob->name)))
+		if (!guidcmp(guid, &guid_hob->name))
 			break;
 		hdr = get_next_hob(hdr);
 	}
@@ -396,7 +380,7 @@ const struct hob_header *fsp_get_next_guid_hob(const struct efi_guid *guid,
 }
 
 void *fsp_get_guid_hob_data(const void *hob_list, u32 *len,
-			    struct efi_guid *guid)
+			    const efi_guid_t *guid)
 {
 	const struct hob_header *guid_hob;
 
@@ -413,21 +397,21 @@ void *fsp_get_guid_hob_data(const void *hob_list, u32 *len,
 
 void *fsp_get_nvs_data(const void *hob_list, u32 *len)
 {
-	const struct efi_guid guid = FSP_NON_VOLATILE_STORAGE_HOB_GUID;
+	const efi_guid_t guid = FSP_NON_VOLATILE_STORAGE_HOB_GUID;
 
-	return fsp_get_guid_hob_data(hob_list, len, (struct efi_guid *)&guid);
+	return fsp_get_guid_hob_data(hob_list, len, &guid);
 }
 
 void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len)
 {
-	const struct efi_guid guid = FSP_BOOTLOADER_TEMP_MEM_HOB_GUID;
+	const efi_guid_t guid = FSP_BOOTLOADER_TEMP_MEM_HOB_GUID;
 
-	return fsp_get_guid_hob_data(hob_list, len, (struct efi_guid *)&guid);
+	return fsp_get_guid_hob_data(hob_list, len, &guid);
 }
 
 void *fsp_get_graphics_info(const void *hob_list, u32 *len)
 {
-	const struct efi_guid guid = FSP_GRAPHICS_INFO_HOB_GUID;
+	const efi_guid_t guid = FSP_GRAPHICS_INFO_HOB_GUID;
 
-	return fsp_get_guid_hob_data(hob_list, len, (struct efi_guid *)&guid);
+	return fsp_get_guid_hob_data(hob_list, len, &guid);
 }

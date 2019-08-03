@@ -106,7 +106,7 @@ u64 fsp_get_usable_highmem_top(const void *hob_list);
  *            0 if this region does not exist.
  */
 u64 fsp_get_reserved_mem_from_guid(const void *hob_list,
-				   u64 *len, struct efi_guid *guid);
+				   u64 *len, const efi_guid_t *guid);
 
 /**
  * This function retrieves the FSP reserved normal memory.
@@ -149,7 +149,7 @@ const struct hob_header *fsp_get_next_hob(uint type, const void *hob_list);
  *
  * @retval:   A HOB object with matching GUID; Otherwise NULL.
  */
-const struct hob_header *fsp_get_next_guid_hob(const struct efi_guid *guid,
+const struct hob_header *fsp_get_next_guid_hob(const efi_guid_t *guid,
 					       const void *hob_list);
 
 /**
@@ -164,7 +164,7 @@ const struct hob_header *fsp_get_next_guid_hob(const struct efi_guid *guid,
  * @retval others: GUID HOB data buffer pointer.
  */
 void *fsp_get_guid_hob_data(const void *hob_list, u32 *len,
-			    struct efi_guid *guid);
+			    const efi_guid_t *guid);
 
 /**
  * This function retrieves FSP Non-volatile Storage HOB buffer and size.

@@ -78,6 +78,7 @@ static int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	uint type;
 	char *desc;
 	int i = 0;
+	char uuid[UUID_STR_LEN + 1];
 
 	hdr = gd->arch.hob_list;
 
@@ -102,13 +103,10 @@ static int do_hob(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		if (type == HOB_TYPE_MEM_ALLOC || type == HOB_TYPE_RES_DESC ||
 		    type == HOB_TYPE_GUID_EXT) {
-			struct efi_guid *guid = (struct efi_guid *)(hdr + 1);
-			int j;
+			efi_guid_t *guid = (efi_guid_t *)(hdr + 1);
 
-			printf("%08x-%04x-%04x", guid->data1,
-			       guid->data2, guid->data3);
-			for (j = 0; j < ARRAY_SIZE(guid->data4); j++)
-				printf("-%02x", guid->data4[j]);
+			uuid_bin_to_str(guid->b, uuid, UUID_STR_FORMAT_GUID);
+			printf("%s", uuid);
 		} else {
 			printf("%42s", "Not Available");
 		}

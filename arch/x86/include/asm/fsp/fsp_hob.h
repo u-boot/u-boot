@@ -8,6 +8,7 @@
 #define __FSP_HOB_H__
 
 #include <efi.h>
+#include <efi_loader.h>
 
 /* Type of HOB Header */
 #define HOB_TYPE_MEM_ALLOC	0x0002
@@ -40,7 +41,7 @@ struct hob_mem_alloc {
 	 * present for the memory allocation HOB. Type efi_guid is defined in
 	 * InstallProtocolInterface() in the UEFI 2.0 specification.
 	 */
-	struct efi_guid		name;
+	efi_guid_t		name;
 	/*
 	 * The base address of memory allocated by this HOB.
 	 * Type phys_addr_t is defined in AllocatePages() in the UEFI 2.0
@@ -106,7 +107,7 @@ struct hob_res_desc {
 	 * used by HOB consumer phase components to correlate device
 	 * ownership of a resource.
 	 */
-	struct efi_guid		owner;
+	efi_guid_t		owner;
 	u32			type;
 	u32			attr;
 	/* The physical start address of the resource region */
@@ -122,7 +123,7 @@ struct hob_res_desc {
 struct hob_guid {
 	struct hob_header	hdr;
 	/* A GUID that defines the contents of this HOB */
-	struct efi_guid		name;
+	efi_guid_t		name;
 	/* GUID specific data goes here */
 };
 
@@ -223,56 +224,57 @@ static inline u16 get_guid_hob_data_size(const struct hob_header *hdr)
 #define FSP_GUID_DATA4_6	0x3f
 #define FSP_GUID_DATA4_7	0x0c
 
+#define FSP_GUID_BYTE0		0xbe
+#define FSP_GUID_BYTE1		0x40
+#define FSP_GUID_BYTE2		0x27
+#define FSP_GUID_BYTE3		0x91
+#define FSP_GUID_BYTE4		0x84
+#define FSP_GUID_BYTE5		0x22
+#define FSP_GUID_BYTE6		0x34
+#define FSP_GUID_BYTE7		0x47
+#define FSP_GUID_BYTE8		FSP_GUID_DATA4_0
+#define FSP_GUID_BYTE9		FSP_GUID_DATA4_1
+#define FSP_GUID_BYTE10		FSP_GUID_DATA4_2
+#define FSP_GUID_BYTE11		FSP_GUID_DATA4_3
+#define FSP_GUID_BYTE12		FSP_GUID_DATA4_4
+#define FSP_GUID_BYTE13		FSP_GUID_DATA4_5
+#define FSP_GUID_BYTE14		FSP_GUID_DATA4_6
+#define FSP_GUID_BYTE15		FSP_GUID_DATA4_7
+
 #define FSP_HEADER_GUID \
-	{ \
-	FSP_GUID_DATA1, FSP_GUID_DATA2, FSP_GUID_DATA3, \
-	{ FSP_GUID_DATA4_0, FSP_GUID_DATA4_1, FSP_GUID_DATA4_2, \
-	  FSP_GUID_DATA4_3, FSP_GUID_DATA4_4, FSP_GUID_DATA4_5, \
-	  FSP_GUID_DATA4_6, FSP_GUID_DATA4_7 } \
-	}
+	EFI_GUID(FSP_GUID_DATA1, FSP_GUID_DATA2, FSP_GUID_DATA3, \
+		FSP_GUID_DATA4_0, FSP_GUID_DATA4_1, FSP_GUID_DATA4_2, \
+		FSP_GUID_DATA4_3, FSP_GUID_DATA4_4, FSP_GUID_DATA4_5, \
+		FSP_GUID_DATA4_6, FSP_GUID_DATA4_7)
 
 #define FSP_NON_VOLATILE_STORAGE_HOB_GUID \
-	{ \
-	0x721acf02, 0x4d77, 0x4c2a, \
-	{ 0xb3, 0xdc, 0x27, 0xb, 0x7b, 0xa9, 0xe4, 0xb0 } \
-	}
+	EFI_GUID(0x721acf02, 0x4d77, 0x4c2a, \
+		0xb3, 0xdc, 0x27, 0x0b, 0x7b, 0xa9, 0xe4, 0xb0)
 
 #define FSP_BOOTLOADER_TEMP_MEM_HOB_GUID \
-	{ \
-	0xbbcff46c, 0xc8d3, 0x4113, \
-	{ 0x89, 0x85, 0xb9, 0xd4, 0xf3, 0xb3, 0xf6, 0x4e } \
-	}
+	EFI_GUID(0xbbcff46c, 0xc8d3, 0x4113, \
+		0x89, 0x85, 0xb9, 0xd4, 0xf3, 0xb3, 0xf6, 0x4e)
 
 #define FSP_HOB_RESOURCE_OWNER_FSP_GUID \
-	{ \
-	0x69a79759, 0x1373, 0x4367, \
-	{ 0xa6, 0xc4, 0xc7, 0xf5, 0x9e, 0xfd, 0x98, 0x6e } \
-	}
+	EFI_GUID(0x69a79759, 0x1373, 0x4367, \
+		0xa6, 0xc4, 0xc7, 0xf5, 0x9e, 0xfd, 0x98, 0x6e)
 
 #define FSP_HOB_RESOURCE_OWNER_TSEG_GUID \
-	{ \
-	0xd038747c, 0xd00c, 0x4980, \
-	{ 0xb3, 0x19, 0x49, 0x01, 0x99, 0xa4, 0x7d, 0x55 } \
-	}
+	EFI_GUID(0xd038747c, 0xd00c, 0x4980, \
+		0xb3, 0x19, 0x49, 0x01, 0x99, 0xa4, 0x7d, 0x55)
 
 #define FSP_HOB_RESOURCE_OWNER_GRAPHICS_GUID \
-	{ \
-	0x9c7c3aa7, 0x5332, 0x4917, \
-	{ 0x82, 0xb9, 0x56, 0xa5, 0xf3, 0xe6, 0x2a, 0x07 } \
-	}
+	EFI_GUID(0x9c7c3aa7, 0x5332, 0x4917, \
+		0x82, 0xb9, 0x56, 0xa5, 0xf3, 0xe6, 0x2a, 0x07)
 
 /* The following GUIDs are newly introduced in FSP spec 1.1 */
 
 #define FSP_HOB_RESOURCE_OWNER_BOOTLOADER_TOLUM_GUID \
-	{ \
-	0x73ff4f56, 0xaa8e, 0x4451, \
-	{ 0xb3, 0x16, 0x36, 0x35, 0x36, 0x67, 0xad, 0x44 } \
-	}
+	EFI_GUID(0x73ff4f56, 0xaa8e, 0x4451, \
+		0xb3, 0x16, 0x36, 0x35, 0x36, 0x67, 0xad, 0x44)
 
 #define FSP_GRAPHICS_INFO_HOB_GUID \
-	{ \
-	0x39f62cce, 0x6825, 0x4669, \
-	{ 0xbb, 0x56, 0x54, 0x1a, 0xba, 0x75, 0x3a, 0x07 } \
-	}
+	EFI_GUID(0x39f62cce, 0x6825, 0x4669, \
+		0xbb, 0x56, 0x54, 0x1a, 0xba, 0x75, 0x3a, 0x07)
 
 #endif
