@@ -344,74 +344,23 @@ u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len)
 	return base;
 }
 
-const struct hob_header *fsp_get_next_hob(uint type, const void *hob_list)
-{
-	const struct hob_header *hdr;
-
-	hdr = hob_list;
-
-	/* Parse the HOB list until end of list or matching type is found */
-	while (!end_of_hob(hdr)) {
-		if (hdr->type == type)
-			return hdr;
-
-		hdr = get_next_hob(hdr);
-	}
-
-	return NULL;
-}
-
-const struct hob_header *fsp_get_next_guid_hob(const efi_guid_t *guid,
-					       const void *hob_list)
-{
-	const struct hob_header *hdr;
-	struct hob_guid *guid_hob;
-
-	hdr = hob_list;
-	while ((hdr = fsp_get_next_hob(HOB_TYPE_GUID_EXT,
-			hdr)) != NULL) {
-		guid_hob = (struct hob_guid *)hdr;
-		if (!guidcmp(guid, &guid_hob->name))
-			break;
-		hdr = get_next_hob(hdr);
-	}
-
-	return hdr;
-}
-
-void *fsp_get_guid_hob_data(const void *hob_list, u32 *len,
-			    const efi_guid_t *guid)
-{
-	const struct hob_header *guid_hob;
-
-	guid_hob = fsp_get_next_guid_hob(guid, hob_list);
-	if (guid_hob == NULL) {
-		return NULL;
-	} else {
-		if (len)
-			*len = get_guid_hob_data_size(guid_hob);
-
-		return get_guid_hob_data(guid_hob);
-	}
-}
-
 void *fsp_get_nvs_data(const void *hob_list, u32 *len)
 {
 	const efi_guid_t guid = FSP_NON_VOLATILE_STORAGE_HOB_GUID;
 
-	return fsp_get_guid_hob_data(hob_list, len, &guid);
+	return hob_get_guid_hob_data(hob_list, len, &guid);
 }
 
 void *fsp_get_bootloader_tmp_mem(const void *hob_list, u32 *len)
 {
 	const efi_guid_t guid = FSP_BOOTLOADER_TEMP_MEM_HOB_GUID;
 
-	return fsp_get_guid_hob_data(hob_list, len, &guid);
+	return hob_get_guid_hob_data(hob_list, len, &guid);
 }
 
 void *fsp_get_graphics_info(const void *hob_list, u32 *len)
 {
 	const efi_guid_t guid = FSP_GRAPHICS_INFO_HOB_GUID;
 
-	return fsp_get_guid_hob_data(hob_list, len, &guid);
+	return hob_get_guid_hob_data(hob_list, len, &guid);
 }

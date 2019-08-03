@@ -42,6 +42,7 @@ obj-y	+= tables.o
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 endif
+obj-$(CONFIG_USE_HOB) += hob.o
 obj-$(CONFIG_HAVE_FSP) += fsp/
 
 ifdef CONFIG_SPL_BUILD
