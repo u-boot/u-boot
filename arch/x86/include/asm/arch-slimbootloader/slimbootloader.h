@@ -17,6 +17,13 @@
 		0xa9, 0xe4, 0x92, 0xf3, 0x57, 0xd1, 0x28, 0x32)
 
 /**
+ * A GUID to get SerialPort info hob which is provided by Slim Bootloader
+ */
+#define SBL_SERIAL_PORT_INFO_GUID \
+	EFI_GUID(0x6c6872fe, 0x56a9, 0x4403, \
+		0xbb, 0x98, 0x95, 0x8d, 0x62, 0xde, 0x87, 0xf1)
+
+/**
  * A single entry of memory map information
  *
  * @addr: start address of a memory map entry
@@ -48,6 +55,33 @@ struct sbl_memory_map_info {
 	u8	rsvd[3];
 	u32	count;
 	struct sbl_memory_map_entry	entry[0];
+};
+
+/**
+ * This includes serial port info which has already been initialized in previous
+ * Slim Bootloader stage.
+ * The Slim Bootloader initializes serial port regardless of debug/release build
+ * modes, and it passes the information to a payload thru hob. So, a payload can
+ * re-use the serial information without re-initializing serial port.
+ *
+ * @rev   : revision of serial_port_info structure. currently 1.
+ * @rsvd  : padding for alignment
+ * @type  : port io: 1, mmio: 2
+ * @base  : io base address. ex) 0x3f8, 0x80001000
+ * @baud  : uart baud rate
+ * @stride: register stride in Bytes
+ * @clk   : uart frequency in Hz
+ * @rsvd1 : reserved
+ */
+struct sbl_serial_port_info {
+	u8      rev;
+	u8      rsvd[3];
+	u32     type;
+	u32     base;
+	u32     baud;
+	u32     stride;
+	u32     clk;
+	u32     rsvd1;
 };
 
 #endif /* __SLIMBOOTLOADER_ARCH_H__ */
