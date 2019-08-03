@@ -24,6 +24,13 @@
 		0xbb, 0x98, 0x95, 0x8d, 0x62, 0xde, 0x87, 0xf1)
 
 /**
+ * A GUID to get boot performance info hob which is provided by Slim Bootloader
+ */
+#define SBL_PERFORMANCE_INFO_GUID \
+	EFI_GUID(0x868204be, 0x23d0, 0x4ff9, \
+		0xac, 0x34, 0xb9, 0x95, 0xac, 0x04, 0xb1, 0xb9)
+
+/**
  * A single entry of memory map information
  *
  * @addr: start address of a memory map entry
@@ -82,6 +89,27 @@ struct sbl_serial_port_info {
 	u32     stride;
 	u32     clk;
 	u32     rsvd1;
+};
+
+/**
+ * This includes timestamp data which has been collected in Slim Bootloader
+ * stages from the reset vector. In addition, this has TSC frequency in KHz to
+ * calculate each timestamp.
+ *
+ * @rev   : revision of performance_info structure. currently 1.
+ * @rsvd  : padding for alignment
+ * @count : the number of collected timestamp data
+ * @flags : only used in Slim Bootloader
+ * @frequency: tsc frequency in KHz
+ * @timestamp: the array of timestamp data which has 64-bit tsc value
+ */
+struct sbl_performance_info {
+	u8      rev;
+	u8      rsvd[3];
+	u16     count;
+	u16     flags;
+	u32     frequency;
+	u64     timestamp[0];
 };
 
 #endif /* __SLIMBOOTLOADER_ARCH_H__ */
