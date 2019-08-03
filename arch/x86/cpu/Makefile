@@ -42,6 +42,7 @@ obj-$(CONFIG_INTEL_BAYTRAIL) += baytrail/
 obj-$(CONFIG_INTEL_BRASWELL) += braswell/
 obj-$(CONFIG_INTEL_BROADWELL) += broadwell/
 obj-$(CONFIG_SYS_COREBOOT) += coreboot/
+obj-$(CONFIG_SYS_SLIMBOOTLOADER) += slimbootloader/
 obj-$(CONFIG_EFI) += efi/
 obj-$(CONFIG_QEMU) += qemu/
 obj-$(CONFIG_NORTHBRIDGE_INTEL_IVYBRIDGE) += ivybridge/
