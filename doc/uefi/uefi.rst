@@ -1,10 +1,8 @@
-<!--
-SPDX-License-Identifier: GPL-2.0+
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (c) 2018 Heinrich Schuchardt
 
-Copyright (c) 2018 Heinrich Schuchardt
--->
-
-# UEFI on U-Boot
+UEFI on U-Boot
+==============
 
 The Unified Extensible Firmware Interface Specification (UEFI) [1] has become
 the default for booting on AArch64 and x86 systems. It provides a stable API for
@@ -12,21 +10,23 @@ the interaction of drivers and applications with the firmware. The API comprises
 access to block storage, network, and console to name a few. The Linux kernel
 and boot loaders like GRUB or the FreeBSD loader can be executed.
 
-## Development target
+Development target
+------------------
 
 The implementation of UEFI in U-Boot strives to reach the requirements described
 in the "Embedded Base Boot Requirements (EBBR) Specification - Release v1.0"
-[4]. The "Server Base Boot Requirements System Software on ARM Platforms" [5]
+[2]. The "Server Base Boot Requirements System Software on ARM Platforms" [3]
 describes a superset of the EBBR specification and may be used as further
 reference.
 
 A full blown UEFI implementation would contradict the U-Boot design principle
 "keep it small".
 
-## Building for UEFI
+Building U-Boot for UEFI
+------------------------
 
 The UEFI standard supports only little-endian systems. The UEFI support can be
-activated for ARM and x86 by specifying
+activated for ARM and x86 by specifying::
 
     CONFIG_CMD_BOOTEFI=y
     CONFIG_EFI_LOADER=y
@@ -34,22 +34,23 @@ activated for ARM and x86 by specifying
 in the .config file.
 
 Support for attaching virtual block devices, e.g. iSCSI drives connected by the
-loaded UEFI application [3], requires
+loaded UEFI application [4], requires::
 
     CONFIG_BLK=y
     CONFIG_PARTITIONS=y
 
-### Executing a UEFI binary
+Executing a UEFI binary
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The bootefi command is used to start UEFI applications or to install UEFI
-drivers. It takes two parameters
+drivers. It takes two parameters::
 
     bootefi <image address> [fdt address]
 
 * image address - the memory address of the UEFI binary
 * fdt address - the memory address of the flattened device tree
 
-Below you find the output of an example session starting GRUB.
+Below you find the output of an example session starting GRUB::
 
     => load mmc 0:2 ${fdt_addr_r} boot/dtb
     29830 bytes read in 14 ms (2 MiB/s)
@@ -62,31 +63,33 @@ The environment variable 'bootargs' is passed as load options in the UEFI system
 table. The Linux kernel EFI stub uses the load options as command line
 arguments.
 
-### Executing the boot manager
+Executing the boot manager
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The UEFI specification foresees to define boot entries and boot sequence via UEFI
-variables. Booting according to these variables is possible via
+variables. Booting according to these variables is possible via::
 
     bootefi bootmgr [fdt address]
 
 As of U-Boot v2018.03 UEFI variables are not persisted and cannot be set at
 runtime.
 
-### Executing the built in hello world application
+Executing the built in hello world application
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A hello world UEFI application can be built with
+A hello world UEFI application can be built with::
 
     CONFIG_CMD_BOOTEFI_HELLO_COMPILE=y
 
-It can be embedded into the U-Boot binary with
+It can be embedded into the U-Boot binary with::
 
     CONFIG_CMD_BOOTEFI_HELLO=y
 
-The bootefi command is used to start the embedded hello world application.
+The bootefi command is used to start the embedded hello world application::
 
     bootefi hello [fdt address]
 
-Below you find the output of an example session.
+Below you find the output of an example session::
 
     => bootefi hello ${fdtcontroladdr}
     ## Starting EFI application at 01000000 ...
@@ -101,14 +104,15 @@ Below you find the output of an example session.
 The environment variable fdtcontroladdr points to U-Boot's internal device tree
 (if available).
 
-### Executing the built-in self-test
+Executing the built-in self-test
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-An UEFI self-test suite can be embedded in U-Boot by building with
+An UEFI self-test suite can be embedded in U-Boot by building with::
 
     CONFIG_CMD_BOOTEFI_SELFTEST=y
 
 For testing the UEFI implementation the bootefi command can be used to start the
-self-test.
+self-test::
 
     bootefi selftest [fdt address]
 
@@ -116,7 +120,7 @@ The environment variable 'efi_selftest' can be used to select a single test. If
 it is not provided all tests are executed except those marked as 'on request'.
 If the environment variable is set to 'list' a list of all tests is shown.
 
-Below you can find the output of an example session.
+Below you can find the output of an example session::
 
     => setenv efi_selftest simple network protocol
     => bootefi selftest
@@ -135,18 +139,19 @@ Below you can find the output of an example session.
     Summary: 0 failures
     Preparing for reset. Press any key.
 
-## The UEFI life cycle
+The UEFI life cycle
+-------------------
 
 After the U-Boot platform has been initialized the UEFI API provides two kinds
-of services
+of services:
 
-* boot services and
-* runtime services.
+* boot services
+* runtime services
 
-The API can be extended by loading UEFI drivers which come in two variants
+The API can be extended by loading UEFI drivers which come in two variants:
 
-* boot drivers and
-* runtime drivers.
+* boot drivers
+* runtime drivers
 
 UEFI drivers are installed with U-Boot's bootefi command. With the same command
 UEFI applications can be executed.
@@ -166,7 +171,8 @@ ExitBootServices
 So this is a point of no return. Afterwards the UEFI application can only return
 to U-Boot by rebooting.
 
-## The UEFI object model
+The UEFI object model
+---------------------
 
 UEFI offers a flexible and expandable object model. The objects in the UEFI API
 are devices, drivers, and loaded images. These objects are referenced by
@@ -192,7 +198,8 @@ a driver to devices (which are referenced as controllers in this context).
 Loaded images offer the EFI_LOADED_IMAGE_PROTOCOL. This protocol provides meta
 information about the image and a pointer to the unload callback function.
 
-## The UEFI events
+The UEFI events
+---------------
 
 In the UEFI terminology an event is a data object referencing a notification
 function which is queued for calling when the event is signaled. The following
@@ -213,7 +220,8 @@ service.
 Events can be assigned to an event group. If any of the events in a group is
 signaled, all other events in the group are also set to the signaled state.
 
-## The UEFI driver model
+The UEFI driver model
+---------------------
 
 A driver is specific for a single protocol installed on a device. To install a
 driver on a device the ConnectController service is called. In this context
@@ -234,7 +242,8 @@ EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER.
 
 A driver can be detached from a device using the DisconnectController service.
 
-## U-Boot devices mapped as UEFI devices
+U-Boot devices mapped as UEFI devices
+-------------------------------------
 
 Some of the U-Boot devices are mapped as UEFI devices
 
@@ -246,12 +255,13 @@ Some of the U-Boot devices are mapped as UEFI devices
 As of U-Boot 2018.03 the logic for doing this is hard coded.
 
 The development target is to integrate the setup of these UEFI devices with the
-U-Boot driver model. So when a U-Boot device is discovered a handle should be
-created and the device path protocol and the relevant IO protocol should be
+U-Boot driver model [5]. So when a U-Boot device is discovered a handle should
+be created and the device path protocol and the relevant IO protocol should be
 installed. The UEFI driver then would be attached by calling ConnectController.
 When a U-Boot device is removed DisconnectController should be called.
 
-## UEFI devices mapped as U-Boot devices
+UEFI devices mapped as U-Boot devices
+-------------------------------------
 
 UEFI drivers binaries and applications may create new (virtual) devices, install
 a protocol and call the ConnectController service. Now the matching UEFI driver
@@ -263,7 +273,8 @@ proxy calls for this U-Boot device to the controller.
 
 In U-Boot 2018.03 this has only been implemented for block IO devices.
 
-### UEFI uclass
+UEFI uclass
+~~~~~~~~~~~
 
 An UEFI uclass driver (lib/efi_driver/efi_uclass.c) has been created that
 takes care of initializing the UEFI drivers and providing the
@@ -271,16 +282,16 @@ EFI_DRIVER_BINDING_PROTOCOL implementation for the UEFI drivers.
 
 A linker created list is used to keep track of the UEFI drivers. To create an
 entry in the list the UEFI driver uses the U_BOOT_DRIVER macro specifying
-UCLASS_EFI as the ID of its uclass, e.g.
+UCLASS_EFI as the ID of its uclass, e.g::
 
     /* Identify as UEFI driver */
     U_BOOT_DRIVER(efi_block) = {
-    	.name  = "EFI block driver",
-    	.id    = UCLASS_EFI,
-    	.ops   = &driver_ops,
+        .name  = "EFI block driver",
+        .id    = UCLASS_EFI,
+        .ops   = &driver_ops,
     };
 
-The available operations are defined via the structure struct efi_driver_ops.
+The available operations are defined via the structure struct efi_driver_ops::
 
     struct efi_driver_ops {
         const efi_guid_t *protocol;
@@ -296,57 +307,28 @@ The stop() function of the EFI_DRIVER_BINDING_PROTOCOL disconnects the child
 controllers created by the UEFI driver and the UEFI driver. (In U-Boot v2013.03
 this is not yet completely implemented.)
 
-### UEFI block IO driver
+UEFI block IO driver
+~~~~~~~~~~~~~~~~~~~~
 
 The UEFI block IO driver supports devices exposing the EFI_BLOCK_IO_PROTOCOL.
 
 When connected it creates a new U-Boot block IO device with interface type
 IF_TYPE_EFI, adds child controllers mapping the partitions, and installs the
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL on these. This can be used together with the
-software iPXE to boot from iSCSI network drives [3].
+software iPXE to boot from iSCSI network drives [4].
 
-This driver is only available if U-Boot is configured with
+This driver is only available if U-Boot is configured with::
 
     CONFIG_BLK=y
     CONFIG_PARTITIONS=y
 
-## TODOs as of U-Boot 2019.04
+Links
+-----
 
-* unimplemented or incompletely implemented boot services
-  * Exit - call unload function, unload applications only
-  * ProtocolRegisterNotify
-  * UnloadImage
-
-* unimplemented or incompletely implemented runtime services
-  * SetVariable() ignores attribute EFI_VARIABLE_APPEND_WRITE
-  * QueryVariableInfo is not implemented
-
-* unimplemented events
-  * EVT_RUNTIME
-  * EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
-
-* data model
-  * manage configuration tables in a linked list
-
-* UEFI drivers
-  * support DisconnectController for UEFI block devices.
-
-* support for CONFIG_EFI_LOADER in the sandbox (CONFIG_SANDBOX=y)
-
-* UEFI variables
-  * persistence
-  * runtime support
-
-* incompletely implemented protocols
-  * support version 0x00020000 of the EFI file protocol
-
-## Links
-
-* [1](http://uefi.org/specifications)
-  http://uefi.org/specifications - UEFI specifications
-* [2](./driver-model/README.txt) doc/driver-model/README.txt - Driver model
-* [3](./README.iscsi) doc/README.iscsi - iSCSI booting with U-Boot and iPXE
-* [4](https://github.com/ARM-software/ebbr/releases/download/v1.0/ebbr-v1.0.pdf)
+* [1] http://uefi.org/specifications - UEFI specifications
+* [2] https://github.com/ARM-software/ebbr/releases/download/v1.0/ebbr-v1.0.pdf -
   Embedded Base Boot Requirements (EBBR) Specification - Release v1.0
-* [5](https://developer.arm.com/docs/den0044/latest/server-base-boot-requirements-system-software-on-arm-platforms-version-11)
+* [3] https://developer.arm.com/docs/den0044/latest/server-base-boot-requirements-system-software-on-arm-platforms-version-11 -
   Server Base Boot Requirements System Software on ARM Platforms - Version 1.1
+* [4] :doc:`iscsi`
+* [5] :doc:`../driver-model/index`

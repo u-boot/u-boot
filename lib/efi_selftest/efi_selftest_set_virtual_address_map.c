@@ -20,6 +20,7 @@ static u32 desc_version;
 static u64 page1;
 static u64 page2;
 static u32 notify_call_count;
+static bool convert_pointer_failed;
 
 /**
  * notify () - notification function
@@ -39,17 +40,28 @@ static void EFIAPI notify(struct efi_event *event, void *context)
 
 	addr = (void *)(uintptr_t)page1;
 	ret = runtime->convert_pointer(0, &addr);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("ConvertPointer failed\n");
-	if ((uintptr_t)addr != page1 + EFI_PAGE_SIZE)
-		efi_st_todo("ConvertPointer wrong address\n");
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("ConvertPointer failed\n");
+		convert_pointer_failed = true;
+		return;
+	}
+	if ((uintptr_t)addr != page1 + EFI_PAGE_SIZE) {
+		efi_st_error("ConvertPointer wrong address\n");
+		convert_pointer_failed = true;
+		return;
+	}
 
 	addr = (void *)(uintptr_t)page2;
 	ret = runtime->convert_pointer(0, &addr);
-	if (ret != EFI_SUCCESS)
-		efi_st_todo("ConvertPointer failed\n");
-	if ((uintptr_t)addr != page2 + 2 * EFI_PAGE_SIZE)
-		efi_st_todo("ConvertPointer wrong address\n");
+	if (ret != EFI_SUCCESS) {
+		efi_st_error("ConvertPointer failed\n");
+		convert_pointer_failed = true;
+		return;
+	}
+	if ((uintptr_t)addr != page2 + 2 * EFI_PAGE_SIZE) {
+		efi_st_error("ConvertPointer wrong address\n");
+		convert_pointer_failed = true;
+	}
 }
 
 /**
@@ -123,6 +135,7 @@ static int setup(const efi_handle_t handle,
 		case EFI_LOADER_DATA:
 		case EFI_BOOT_SERVICES_CODE:
 		case EFI_BOOT_SERVICES_DATA:
+		case EFI_CONVENTIONAL_MEMORY:
 			continue;
 		}
 		memcpy(pos1, pos2, desc_size);
@@ -180,6 +193,8 @@ static int execute(void)
 			     notify_call_count);
 		return EFI_ST_FAILURE;
 	}
+	if (convert_pointer_failed)
+		return EFI_ST_FAILURE;
 
 	return EFI_ST_SUCCESS;
 }

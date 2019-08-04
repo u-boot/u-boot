@@ -107,4 +107,12 @@ config EFI_HAVE_RUNTIME_RESET
 	default y
 	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || SYSRESET_X86
 
+config EFI_GRUB_ARM32_WORKAROUND
+	bool "Workaround for GRUB on 32bit ARM"
+	default y
+	depends on ARM && !ARM64
+	help
+	  GRUB prior to version 2.04 requires U-Boot to disable caches. This
+	  workaround currently is also needed on systems with caches that
+	  cannot be managed via CP15.
 endif

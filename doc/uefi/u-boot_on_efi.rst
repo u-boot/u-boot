@@ -1,6 +1,5 @@
-# SPDX-License-Identifier: GPL-2.0+
-#
-# Copyright (C) 2015 Google, Inc
+.. SPDX-License-Identifier: GPL-2.0+
+.. Copyright (C) 2015 Google, Inc
 
 U-Boot on EFI
 =============
@@ -8,36 +7,20 @@ This document provides information about U-Boot running on top of EFI, either
 as an application or just as a means of getting U-Boot onto a new platform.
 
 
-=========== Table of Contents ===========
-
-Motivation
-Status
-Build Instructions
-Trying it out
-Inner workings
-EFI Application
-EFI Payload
-Tables
-Interrupts
-32/64-bit
-Future work
-Where is the code?
-
-
 Motivation
 ----------
 Running U-Boot on EFI is useful in several situations:
 
 - You have EFI running on a board but U-Boot does not natively support it
-fully yet. You can boot into U-Boot from EFI and use that until U-Boot is
-fully ported
+  fully yet. You can boot into U-Boot from EFI and use that until U-Boot is
+  fully ported
 
 - You need to use an EFI implementation (e.g. UEFI) because your vendor
-requires it in order to provide support
+  requires it in order to provide support
 
 - You plan to use coreboot to boot into U-Boot but coreboot support does
-not currently exist for your platform. In the meantime you can use U-Boot
-on EFI and then move to U-Boot on coreboot when ready
+  not currently exist for your platform. In the meantime you can use U-Boot
+  on EFI and then move to U-Boot on coreboot when ready
 
 - You use EFI but want to experiment with a simpler alternative like U-Boot
 
@@ -66,7 +49,7 @@ opt for using QEMU [1] and the OVMF [2], as detailed below.
 
 To build U-Boot as an EFI application (32-bit EFI required), enable CONFIG_EFI
 and CONFIG_EFI_APP. The efi-x86_app config (efi-x86_app_defconfig) is set up
-for this. Just build U-Boot as normal, e.g.
+for this. Just build U-Boot as normal, e.g.::
 
    make efi-x86_app_defconfig
    make
@@ -75,22 +58,22 @@ To build U-Boot as an EFI payload (32-bit or 64-bit EFI can be used), enable
 CONFIG_EFI, CONFIG_EFI_STUB, and select either CONFIG_EFI_STUB_32BIT or
 CONFIG_EFI_STUB_64BIT. The efi-x86_payload configs (efi-x86_payload32_defconfig
 and efi-x86_payload32_defconfig) are set up for this. Then build U-Boot as
-normal, e.g.
+normal, e.g.::
 
    make efi-x86_payload32_defconfig (or efi-x86_payload64_defconfig)
    make
 
 You will end up with one of these files depending on what you build for:
 
-   u-boot-app.efi      - U-Boot EFI application
-   u-boot-payload.efi  - U-Boot EFI payload application
+* u-boot-app.efi - U-Boot EFI application
+* u-boot-payload.efi  - U-Boot EFI payload application
 
 
 Trying it out
 -------------
 QEMU is an emulator and it can emulate an x86 machine. Please make sure your
 QEMU version is 2.3.0 or above to test this. You can run the payload with
-something like this:
+something like this::
 
    mkdir /tmp/efi
    cp /path/to/u-boot*.efi /tmp/efi
@@ -102,7 +85,7 @@ run the application. 'bios.bin' is the EFI 'BIOS'. Check [2] to obtain a
 prebuilt EFI BIOS for QEMU or you can build one from source as well.
 
 To try it on real hardware, put u-boot-app.efi on a suitable boot medium,
-such as a USB stick. Then you can type something like this to start it:
+such as a USB stick. Then you can type something like this to start it::
 
    fs0:u-boot-payload.efi
 
@@ -115,7 +98,7 @@ you get this wrong.
 
 
 Inner workings
-==============
+--------------
 Here follow a few implementation notes for those who want to fiddle with
 this and perhaps contribute patches.
 
@@ -123,7 +106,7 @@ The application and payload approaches sound similar but are in fact
 implemented completely differently.
 
 EFI Application
----------------
+~~~~~~~~~~~~~~~
 For the application the whole of U-Boot is built as a shared library. The
 efi_main() function is in lib/efi/efi_app.c. It sets up some basic EFI
 functions with efi_init(), sets up U-Boot global_data, allocates memory for
@@ -154,7 +137,7 @@ enough) should be straightforward.
 Use the 'reset' command to get back to EFI.
 
 EFI Payload
------------
+~~~~~~~~~~~
 The payload approach is a different kettle of fish. It works by building
 U-Boot exactly as normal for your target board, then adding the entire
 image (including device tree) into a small EFI stub application responsible
@@ -175,7 +158,7 @@ memory available to it and can operate as it pleases (but see the next
 section).
 
 Tables
-------
+~~~~~~
 The payload can pass information to U-Boot in the form of EFI tables. At
 present this feature is used to pass the EFI memory map, an inordinately
 large list of memory regions. You can use the 'efi mem all' command to
@@ -191,14 +174,14 @@ will relocate itself to the top of the largest block of memory it can find
 below 4GB.
 
 Interrupts
-----------
+~~~~~~~~~~
 U-Boot drivers typically don't use interrupts. Since EFI enables interrupts
 it is possible that an interrupt will fire that U-Boot cannot handle. This
 seems to cause problems. For this reason the U-Boot payload runs with
 interrupts disabled at present.
 
 32/64-bit
----------
+~~~~~~~~~
 While the EFI application can in principle be built as either 32- or 64-bit,
 only 32-bit is currently supported. This means that the application can only
 be used with 32-bit EFI.
@@ -219,12 +202,12 @@ This work could be extended in a number of ways:
 - Figure out how to solve the interrupt problem
 
 - Add more drivers to the application side (e.g. video, block devices, USB,
-environment access). This would mostly be an academic exercise as a strong
-use case is not readily apparent, but it might be fun.
+  environment access). This would mostly be an academic exercise as a strong
+  use case is not readily apparent, but it might be fun.
 
 - Avoid turning off boot services in the stub. Instead allow U-Boot to make
-use of boot services in case it wants to. It is unclear what it might want
-though.
+  use of boot services in case it wants to. It is unclear what it might want
+  though.
 
 Where is the code?
 ------------------
@@ -248,5 +231,5 @@ Ben Stoltz, Simon Glass
 Google, Inc
 July 2015
 
-[1] http://www.qemu.org
-[2] http://www.tianocore.org/ovmf/
+* [1] http://www.qemu.org
+* [2] http://www.tianocore.org/ovmf/

@@ -238,8 +238,8 @@ struct efi_runtime_services {
 	efi_status_t (EFIAPI *set_wakeup_time)(char enabled,
 			struct efi_time *time);
 	efi_status_t (EFIAPI *set_virtual_address_map)(
-			unsigned long memory_map_size,
-			unsigned long descriptor_size,
+			efi_uintn_t memory_map_size,
+			efi_uintn_t descriptor_size,
 			uint32_t descriptor_version,
 			struct efi_mem_desc *virtmap);
 	efi_status_t (EFIAPI *convert_pointer)(
