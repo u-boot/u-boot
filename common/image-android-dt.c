@@ -78,16 +78,17 @@ static void android_dt_print_fdt_info(const struct fdt_header *fdt)
 {
 	u32 fdt_size;
 	int root_node_off;
-	const char *compatible = NULL;
+	const char *compatible;
 
-	fdt_size = fdt_totalsize(fdt);
 	root_node_off = fdt_path_offset(fdt, "/");
 	if (root_node_off < 0) {
 		printf("Error: Root node not found\n");
-	} else {
-		compatible = fdt_getprop(fdt, root_node_off, "compatible",
-					 NULL);
+		return;
 	}
+
+	fdt_size = fdt_totalsize(fdt);
+	compatible = fdt_getprop(fdt, root_node_off, "compatible",
+				 NULL);
 
 	printf("           (FDT)size = %d\n", fdt_size);
 	printf("     (FDT)compatible = %s\n",
