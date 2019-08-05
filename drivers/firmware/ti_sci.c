@@ -3170,6 +3170,7 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 	u32 resource_subtype;
 	u16 resource_type;
 	struct ti_sci_resource *res;
+	bool valid_set = false;
 	int sets, i, ret;
 	u32 *temp;
 
@@ -3209,12 +3210,15 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 							&res->desc[i].start,
 							&res->desc[i].num);
 		if (ret) {
-			dev_err(dev, "type %d subtype %d not allocated for host %d\n",
+			dev_dbg(dev, "type %d subtype %d not allocated for host %d\n",
 				resource_type, resource_subtype,
 				handle_to_ti_sci_info(handle)->host_id);
-			return ERR_PTR(ret);
+			res->desc[i].start = 0;
+			res->desc[i].num = 0;
+			continue;
 		}
 
+		valid_set = true;
 		dev_dbg(dev, "res type = %d, subtype = %d, start = %d, num = %d\n",
 			resource_type, resource_subtype, res->desc[i].start,
 			res->desc[i].num);
@@ -3226,7 +3230,10 @@ devm_ti_sci_get_of_resource(const struct ti_sci_handle *handle,
 			return ERR_PTR(-ENOMEM);
 	}
 
-	return res;
+	if (valid_set)
+		return res;
+
+	return ERR_PTR(-EINVAL);
 }
 
 /* Description for K2G */
