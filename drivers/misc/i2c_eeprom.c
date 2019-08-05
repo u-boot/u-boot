@@ -84,6 +84,14 @@ static int i2c_eeprom_std_ofdata_to_platdata(struct udevice *dev)
 
 static int i2c_eeprom_std_probe(struct udevice *dev)
 {
+	u8 test_byte;
+	int ret;
+
+	/* Verify that the chip is functional */
+	ret = i2c_eeprom_read(dev, 0, &test_byte, 1);
+	if (ret)
+		return -ENODEV;
+
 	return 0;
 }
 
