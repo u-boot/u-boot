@@ -65,7 +65,6 @@
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_high=10000000\0" \
-	"initrd_high=10000000\0" \
 	"fdt_addr_r=0x40000000\0" \
 	"pxefile_addr_r=0x10000000\0" \
 	"kernel_addr_r=0x18000000\0" \

@@ -462,6 +462,22 @@ config TPL_USE_ARCH_MEMSET
 	  Such implementation may be faster under some conditions
 	  but may increase the binary size.
 
+config SET_STACK_SIZE
+	bool "Enable an option to set max stack size that can be used"
+	default y if ARCH_VERSAL
+	help
+	  This will enable an option to set max stack size that can be
+	  used by u-boot.
+
+config STACK_SIZE
+	hex "Define max stack size that can be used by u-boot"
+	depends on SET_STACK_SIZE
+	default 0x4000000 if ARCH_VERSAL
+	help
+	  Defines Max stack size that can be used by u-boot so that the
+	  initrd_high will be calculated as base stack pointer minus this
+	  stack size.
+
 config ARM64_SUPPORT_AARCH32
 	bool "ARM64 system support AArch32 execution state"
 	depends on ARM64
