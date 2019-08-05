@@ -92,7 +92,7 @@
 	"kernel_size_r=0x10000000\0" \
 	"scriptaddr=0x20000000\0" \
 	"ramdisk_addr_r=0x02100000\0" \
-	"script_offset_f=0x3f80000\0" \
+	"script_offset_f=0x7F80000\0" \
 	"script_size_f=0x80000\0"
 
 #if defined(CONFIG_MMC_SDHCI_ZYNQ)
