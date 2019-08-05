@@ -11,12 +11,22 @@
 #include <asm/arch/hardware.h>
 #include <dm/device.h>
 #include <dm/uclass.h>
+#include <versalpl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if defined(CONFIG_FPGA_VERSALPL)
+static xilinx_desc versalpl = XILINX_VERSAL_DESC;
+#endif
 
 int board_init(void)
 {
 	printf("EL Level:\tEL%d\n", current_el());
+
+#if defined(CONFIG_FPGA_VERSALPL)
+	fpga_init();
+	fpga_add(fpga_xilinx, &versalpl);
+#endif
 
 	return 0;
 }
