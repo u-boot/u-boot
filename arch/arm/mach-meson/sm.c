@@ -77,3 +77,51 @@ int meson_sm_get_serial(void *buffer, size_t size)
 
 	return 0;
 }
+
+static int do_sm_serial(cmd_tbl_t *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	ulong address;
+	int ret;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	address = simple_strtoul(argv[1], NULL, 0);
+
+	ret = meson_sm_get_serial((void *)address, SM_CHIP_ID_SIZE);
+	if (ret)
+		return CMD_RET_FAILURE;
+
+	return CMD_RET_SUCCESS;
+}
+
+static cmd_tbl_t cmd_sm_sub[] = {
+	U_BOOT_CMD_MKENT(serial, 2, 1, do_sm_serial, "", ""),
+};
+
+static int do_sm(cmd_tbl_t *cmdtp, int flag, int argc,
+		 char *const argv[])
+{
+	cmd_tbl_t *c;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	/* Strip off leading 'sm' command argument */
+	argc--;
+	argv++;
+
+	c = find_cmd_tbl(argv[0], &cmd_sm_sub[0], ARRAY_SIZE(cmd_sm_sub));
+
+	if (c)
+		return c->cmd(cmdtp, flag, argc, argv);
+	else
+		return CMD_RET_USAGE;
+}
+
+U_BOOT_CMD(
+	sm, 5, 0, do_sm,
+	"Secure Monitor Control",
+	"serial <address> - read chip unique id to memory address"
+);
