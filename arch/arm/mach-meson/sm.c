@@ -8,6 +8,10 @@
 #include <common.h>
 #include <asm/arch/sm.h>
 #include <linux/kernel.h>
+#include <dm.h>
+#include <linux/bitfield.h>
+#include <regmap.h>
+#include <syscon.h>
 
 #define FN_GET_SHARE_MEM_INPUT_BASE	0x82000020
 #define FN_GET_SHARE_MEM_OUTPUT_BASE	0x82000021
@@ -78,6 +82,39 @@ int meson_sm_get_serial(void *buffer, size_t size)
 	return 0;
 }
 
+#define AO_SEC_SD_CFG15		0xfc
+#define REBOOT_REASON_MASK	GENMASK(15, 12)
+
+int meson_sm_get_reboot_reason(void)
+{
+	struct regmap *regmap;
+	int nodeoffset;
+	ofnode node;
+	unsigned int reason;
+
+	/* find the offset of compatible node */
+	nodeoffset = fdt_node_offset_by_compatible(gd->fdt_blob, -1,
+						   "amlogic,meson-gx-ao-secure");
+	if (nodeoffset < 0) {
+		printf("%s: failed to get amlogic,meson-gx-ao-secure\n",
+		       __func__);
+		return -ENODEV;
+	}
+
+	/* get regmap from the syscon node */
+	node = offset_to_ofnode(nodeoffset);
+	regmap = syscon_node_to_regmap(node);
+	if (IS_ERR(regmap)) {
+		printf("%s: failed to get regmap\n", __func__);
+		return -EINVAL;
+	}
+
+	regmap_read(regmap, AO_SEC_SD_CFG15, &reason);
+
+	/* The SMC call is not used, we directly use AO_SEC_SD_CFG15 */
+	return FIELD_GET(REBOOT_REASON_MASK, reason);
+}
+
 static int do_sm_serial(cmd_tbl_t *cmdtp, int flag, int argc,
 			char *const argv[])
 {
@@ -96,8 +133,55 @@ static int do_sm_serial(cmd_tbl_t *cmdtp, int flag, int argc,
 	return CMD_RET_SUCCESS;
 }
 
+#define MAX_REBOOT_REASONS 14
+
+static const char *reboot_reasons[MAX_REBOOT_REASONS] = {
+	[REBOOT_REASON_COLD] = "cold_boot",
+	[REBOOT_REASON_NORMAL] = "normal",
+	[REBOOT_REASON_RECOVERY] = "recovery",
+	[REBOOT_REASON_UPDATE] = "update",
+	[REBOOT_REASON_FASTBOOT] = "fastboot",
+	[REBOOT_REASON_SUSPEND_OFF] = "suspend_off",
+	[REBOOT_REASON_HIBERNATE] = "hibernate",
+	[REBOOT_REASON_BOOTLOADER] = "bootloader",
+	[REBOOT_REASON_SHUTDOWN_REBOOT] = "shutdown_reboot",
+	[REBOOT_REASON_RPMBP] = "rpmbp",
+	[REBOOT_REASON_CRASH_DUMP] = "crash_dump",
+	[REBOOT_REASON_KERNEL_PANIC] = "kernel_panic",
+	[REBOOT_REASON_WATCHDOG_REBOOT] = "watchdog_reboot",
+};
+
+static int do_sm_reboot_reason(cmd_tbl_t *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	const char *reason_str;
+	char *destarg = NULL;
+	int reason;
+
+	if (argc > 1)
+		destarg = argv[1];
+
+	reason = meson_sm_get_reboot_reason();
+	if (reason < 0)
+		return CMD_RET_FAILURE;
+
+	if (reason >= MAX_REBOOT_REASONS ||
+	    !reboot_reasons[reason])
+		reason_str = "unknown";
+	else
+		reason_str = reboot_reasons[reason];
+
+	if (destarg)
+		env_set(destarg, reason_str);
+	else
+		printf("reboot reason: %s (%x)\n", reason_str, reason);
+
+	return CMD_RET_SUCCESS;
+}
+
 static cmd_tbl_t cmd_sm_sub[] = {
 	U_BOOT_CMD_MKENT(serial, 2, 1, do_sm_serial, "", ""),
+	U_BOOT_CMD_MKENT(reboot_reason, 1, 1, do_sm_reboot_reason, "", ""),
 };
 
 static int do_sm(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -123,5 +207,6 @@ static int do_sm(cmd_tbl_t *cmdtp, int flag, int argc,
 U_BOOT_CMD(
 	sm, 5, 0, do_sm,
 	"Secure Monitor Control",
-	"serial <address> - read chip unique id to memory address"
+	"serial <address> - read chip unique id to memory address\n"
+	"sm reboot_reason [name] - get reboot reason and store to to environment"
 );
