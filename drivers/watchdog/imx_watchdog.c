@@ -15,15 +15,23 @@
 #endif
 #include <fsl_wdog.h>
 
-static void imx_watchdog_expire_now(struct watchdog_regs *wdog)
+static void imx_watchdog_expire_now(struct watchdog_regs *wdog, bool ext_reset)
 {
-	clrsetbits_le16(&wdog->wcr, WCR_WT_MSK, WCR_WDE);
+	u16 wcr = WCR_WDE;
 
-	writew(0x5555, &wdog->wsr);
-	writew(0xaaaa, &wdog->wsr);	/* load minimum 1/2 second timeout */
+	if (ext_reset)
+		wcr |= WCR_SRS; /* do not assert internal reset */
+	else
+		wcr |= WCR_WDA; /* do not assert external reset */
+
+	/* Write 3 times to ensure it works, due to IMX6Q errata ERR004346 */
+	writew(wcr, &wdog->wcr);
+	writew(wcr, &wdog->wcr);
+	writew(wcr, &wdog->wcr);
+
 	while (1) {
 		/*
-		 * spin for .5 seconds before reset
+		 * spin before reset
 		 */
 	}
 }
@@ -34,7 +42,7 @@ void __attribute__((weak)) reset_cpu(ulong addr)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 
-	imx_watchdog_expire_now(wdog);
+	imx_watchdog_expire_now(wdog, true);
 }
 #endif
 
@@ -106,7 +114,7 @@ static int imx_wdt_expire_now(struct udevice *dev, ulong flags)
 {
 	struct imx_wdt_priv *priv = dev_get_priv(dev);
 
-	imx_watchdog_expire_now(priv->base);
+	imx_watchdog_expire_now(priv->base, priv->ext_reset);
 	hang();
 
 	return 0;
