@@ -47,9 +47,10 @@ static void imx_watchdog_reset(struct watchdog_regs *wdog)
 #endif /* CONFIG_WATCHDOG_RESET_DISABLE*/
 }
 
-static void imx_watchdog_init(struct watchdog_regs *wdog)
+static void imx_watchdog_init(struct watchdog_regs *wdog, bool ext_reset)
 {
 	u16 timeout;
+	u16 wcr;
 
 	/*
 	 * The timer watchdog can be set between
@@ -61,11 +62,14 @@ static void imx_watchdog_init(struct watchdog_regs *wdog)
 #endif
 	timeout = (CONFIG_WATCHDOG_TIMEOUT_MSECS / 500) - 1;
 #ifdef CONFIG_FSL_LSCH2
-	writew((WCR_WDA | WCR_SRS | WCR_WDE) << 8 | timeout, &wdog->wcr);
+	wcr = (WCR_WDA | WCR_SRS | WCR_WDE) << 8 | timeout;
 #else
-	writew(WCR_WDZST | WCR_WDBG | WCR_WDE | WCR_WDT | WCR_SRS |
-		WCR_WDA | SET_WCR_WT(timeout), &wdog->wcr);
+	wcr = WCR_WDZST | WCR_WDBG | WCR_WDE | WCR_SRS |
+		WCR_WDA | SET_WCR_WT(timeout);
+	if (ext_reset)
+		wcr |= WCR_WDT;
 #endif /* CONFIG_FSL_LSCH2*/
+	writew(wcr, &wdog->wcr);
 	imx_watchdog_reset(wdog);
 }
 
@@ -81,11 +85,12 @@ void hw_watchdog_init(void)
 {
 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
 
-	imx_watchdog_init(wdog);
+	imx_watchdog_init(wdog, true);
 }
 #else
 struct imx_wdt_priv {
 	void __iomem *base;
+	bool ext_reset;
 };
 
 static int imx_wdt_reset(struct udevice *dev)
@@ -111,7 +116,7 @@ static int imx_wdt_start(struct udevice *dev, u64 timeout, ulong flags)
 {
 	struct imx_wdt_priv *priv = dev_get_priv(dev);
 
-	imx_watchdog_init(priv->base);
+	imx_watchdog_init(priv->base, priv->ext_reset);
 
 	return 0;
 }
@@ -123,6 +128,8 @@ static int imx_wdt_probe(struct udevice *dev)
 	priv->base = dev_read_addr_ptr(dev);
 	if (!priv->base)
 		return -ENOENT;
+
+	priv->ext_reset = dev_read_bool(dev, "fsl,ext-reset-output");
 
 	return 0;
 }
