@@ -51,13 +51,14 @@ static int sdhci_tangier_probe(struct udevice *dev)
 	/* MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195 */
 	host->voltages = MMC_VDD_165_195;
 
+	host->mmc = &plat->mmc;
+	host->mmc->dev = dev;
 	ret = sdhci_setup_cfg(&plat->cfg, host, SDHCI_TANGIER_FMAX,
 			SDHCI_TANGIER_FMIN);
 	if (ret)
 		return ret;
 
 	upriv->mmc = &plat->mmc;
-	host->mmc = &plat->mmc;
 	host->mmc->priv = host;
 
 	return sdhci_probe(dev);
