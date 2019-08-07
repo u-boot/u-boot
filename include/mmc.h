@@ -140,6 +140,7 @@ static inline bool mmc_is_tuning_cmd(uint cmdidx)
 /* SCR definitions in different words */
 #define SD_HIGHSPEED_BUSY	0x00020000
 #define SD_HIGHSPEED_SUPPORTED	0x00020000
+#define SD_SCR0_SPEC3		BIT(15)
 
 #define UHS_SDR12_BUS_SPEED	0
 #define HIGH_SPEED_BUS_SPEED	1

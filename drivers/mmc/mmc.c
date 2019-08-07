@@ -1721,6 +1721,26 @@ static int sd_select_mode_and_width(struct mmc *mmc, uint card_caps)
 	/* Restrict card's capabilities by what the host can do */
 	caps = card_caps & mmc->host_caps;
 
+	/*
+	 * If the card is already in 1.8V and the system doesn't have
+	 * mechanism to power cycle the SD card, it will respond with no 1.8V
+	 * supported in OCR response. Below check will confirm if the above
+	 * condition has occurred.
+	 *
+	 * If the host is supporting UHS modes and the card is supporting SD
+	 * specification 3.0 and above, it can operate at UHS modes.
+	 */
+#if CONFIG_IS_ENABLED(MMC_UHS_SUPPORT)
+	if (!uhs_en && !(mmc_host_is_spi(mmc)) &&
+	    mmc->scr[0] & SD_SCR0_SPEC3 &&
+	    mmc->card_caps >= UHS_SDR50 &&
+	    mmc->host_caps >= UHS_SDR50) {
+		uhs_en = true;
+		err = mmc_set_signal_voltage(mmc, MMC_SIGNAL_VOLTAGE_180);
+		if (err)
+			return err;
+	}
+#endif
 	if (!uhs_en)
 		caps &= ~UHS_CAPS;
 
