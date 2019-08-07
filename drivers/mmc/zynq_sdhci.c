@@ -21,6 +21,10 @@ DECLARE_GLOBAL_DATA_PTR;
 					 0x15, 0x12, 0x15}
 #define ZYNQMP_OTAP_DELAYS		{0x0, 0x5, 0x3, 0x3, 0x4, 0x3,\
 					 0x5, 0x6, 0x6}
+#define VERSAL_ITAP_DELAYS		{0x0, 0x2C, 0x0, 0x0, 0x36, 0x0,\
+					 0x2C, 0x1E, 0x2C}
+#define VERSAL_OTAP_DELAYS		{0x0, 0x4, 0x3, 0x2, 0x3, 0x2,\
+					 0x4, 0x5, 0x5}
 
 #define MMC_BANK2			0x2
 
@@ -39,7 +43,7 @@ struct arasan_sdhci_priv {
 	u8 no_1p8;
 };
 
-#if defined(CONFIG_ARCH_ZYNQMP)
+#if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL)
 #define MMC_HS200_BUS_SPEED	5
 
 #define MMC_TIMING_UHS_SDR12    0
@@ -173,6 +177,45 @@ static int arasan_sdhci_execute_tuning(struct mmc *mmc, u8 opcode)
 	return 0;
 }
 
+#if defined(CONFIG_ARCH_VERSAL)
+#define SDHCI_ARASAN_ITAPDLY_REGISTER   0xF0F8
+#define SDHCI_ARASAN_OTAPDLY_REGISTER   0xF0FC
+
+#define SDHCI_ITAPDLY_CHGWIN            0x200
+#define SDHCI_ITAPDLY_ENABLE            0x100
+#define SDHCI_OTAPDLY_ENABLE            0x40
+
+static void arasan_set_tapdelay(struct sdhci_host *host, u32 itap_delay,
+				u32 otap_delay)
+{
+	u32 regval;
+
+	if (itap_delay) {
+		regval = sdhci_readl(host, SDHCI_ARASAN_ITAPDLY_REGISTER);
+		regval |= SDHCI_ITAPDLY_CHGWIN;
+		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
+		regval |= SDHCI_ITAPDLY_ENABLE;
+		regval = sdhci_readl(host, SDHCI_ARASAN_ITAPDLY_REGISTER);
+		regval |= SDHCI_ITAPDLY_CHGWIN;
+		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
+		regval |= SDHCI_ITAPDLY_ENABLE;
+		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
+		regval |= itap_delay;
+		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
+		regval &= ~SDHCI_ITAPDLY_CHGWIN;
+		sdhci_writel(host, regval, SDHCI_ARASAN_ITAPDLY_REGISTER);
+	}
+
+	if (otap_delay) {
+		regval = sdhci_readl(host, SDHCI_ARASAN_OTAPDLY_REGISTER);
+		regval |= SDHCI_OTAPDLY_ENABLE;
+		sdhci_writel(host, regval, SDHCI_ARASAN_OTAPDLY_REGISTER);
+		regval |= otap_delay;
+		sdhci_writel(host, regval, SDHCI_ARASAN_OTAPDLY_REGISTER);
+	}
+}
+#endif
+
 static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 {
 	struct arasan_sdhci_priv *priv = dev_get_priv(host->mmc->dev);
@@ -189,8 +232,12 @@ static void arasan_sdhci_set_tapdelay(struct sdhci_host *host)
 	    (uhsmode <= MMC_TIMING_HS200)) {
 		itap_delay = priv->itapdly[uhsmode];
 		otap_delay = priv->otapdly[uhsmode];
+#if defined(CONFIG_ARCH_ZYNQMP)
 		arasan_zynqmp_set_tapdelay(priv->deviceid, itap_delay,
 					   otap_delay);
+#elif defined(CONFIG_ARCH_VERSAL)
+		arasan_set_tapdelay(host, itap_delay, otap_delay);
+#endif
 	}
 }
 
@@ -224,8 +271,12 @@ static void arasan_zynqmp_dt_parse_tap_delays(struct udevice *dev)
 	if (ofnode_device_is_compatible(dev_ofnode(dev), "xlnx,zynqmp-8.9a")) {
 		itapdly = (u32 [MMC_MAX_BUS_SPEED]) ZYNQMP_ITAP_DELAYS;
 		otapdly = (u32 [MMC_MAX_BUS_SPEED]) ZYNQMP_OTAP_DELAYS;
+	} else {
+		itapdly = (u32 [MMC_MAX_BUS_SPEED]) VERSAL_ITAP_DELAYS;
+		otapdly = (u32 [MMC_MAX_BUS_SPEED]) VERSAL_OTAP_DELAYS;
 	}
 
+	/* as of now bank2 tap delays are same for zynqmp and versal */
 	if (priv->bank == MMC_BANK2) {
 		itapdly[MMC_TIMING_UHS_SDR104] = 0x0;
 		otapdly[MMC_TIMING_UHS_SDR104] = 0x2;
@@ -290,9 +341,7 @@ static void arasan_sdhci_set_control_reg(struct sdhci_host *host)
 	    mmc->selected_mode <= UHS_DDR50)
 		sdhci_set_uhs_timing(host);
 }
-#endif
 
-#if defined(CONFIG_ARCH_ZYNQMP)
 const struct sdhci_ops arasan_ops = {
 	.platform_execute_tuning	= &arasan_sdhci_execute_tuning,
 	.set_delay = &arasan_sdhci_set_tapdelay,
@@ -368,7 +417,7 @@ static int arasan_sdhci_ofdata_to_platdata(struct udevice *dev)
 
 	priv->host->name = dev->name;
 
-#if defined(CONFIG_ARCH_ZYNQMP)
+#if defined(CONFIG_ARCH_ZYNQMP) || defined(CONFIG_ARCH_VERSAL)
 	priv->host->ops = &arasan_ops;
 	arasan_zynqmp_dt_parse_tap_delays(dev);
 #endif
