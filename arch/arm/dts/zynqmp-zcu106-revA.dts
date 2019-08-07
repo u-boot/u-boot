@@ -826,7 +826,6 @@
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_sdhci1_default>;
-	no-1-8-v;
 	xlnx,mio_bank = <1>;
 };
 
