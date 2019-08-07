@@ -8,6 +8,7 @@
  */
 
 #include "versal-vc-p-a2197-00-revA-x-prc-01-revA.dts"
+#include <dt-bindings/gpio/gpio.h>
 
 / {
 	aliases {
@@ -24,6 +25,7 @@
 	#stream-id-cells = <1>;
 	#address-cells = <1>;
 	#size-cells = <0>;
+	reset-gpios = <&gpio1 0xc GPIO_ACTIVE_HIGH>;
 
 	flash@0 {
 		compatible = "mt35xu02g", "micron,m25p80", "spi-flash";
