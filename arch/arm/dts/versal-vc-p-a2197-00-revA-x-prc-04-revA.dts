@@ -22,7 +22,6 @@
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
 		mmc0 = &sdhci1;
-		gpio0 = &gpio;
 		spi0 = &qspi;
 		spi1 = &spi0;
 		usb0 = &usb0;

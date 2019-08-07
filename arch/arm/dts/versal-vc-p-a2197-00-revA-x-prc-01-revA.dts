@@ -21,7 +21,6 @@
 		ethernet1 = &gem1;
 		i2c0 = &i2c1;
 		mmc0 = &sdhci1;
-		gpio0 = &gpio;
 		spi0 = &qspi;
 		usb0 = &usb0;
 		rtc0 = &rtc;
