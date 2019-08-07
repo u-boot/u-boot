@@ -124,8 +124,13 @@
 	power-domains = <&versal_firmware PD_GEM_1>;
 };
 
-&gpio {
+&gpio0 {
 	clocks = <&versal_clk LPD_LSBUS>;
+	power-domains = <&versal_firmware PD_GPIO>;
+};
+
+&gpio1 {
+	clocks = <&versal_clk PMC_LSBUS_REF>;
 	power-domains = <&versal_firmware PD_GPIO>;
 };
 

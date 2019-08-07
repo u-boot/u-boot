@@ -272,11 +272,22 @@
 		};
 
 
-		gpio: gpio@ff0b0000 {
+		gpio0: gpio@ff0b0000 {
 			compatible = "xlnx,versal-gpio-1.0";
 			status = "disabled";
 			reg = <0 0xff0b0000 0 0x1000>;
 			interrupts = <0 13 4>;
+			#gpio-cells = <2>;
+			gpio-controller;
+			#interrupt-cells = <2>;
+			interrupt-controller;
+		};
+
+		gpio1: gpio@f1020000 {
+			compatible = "xlnx,versal-gpio-1.0";
+			status = "disabled";
+			reg = <0 0xf1020000 0 0x1000>;
+			interrupts = <0 122 4>;
 			#gpio-cells = <2>;
 			gpio-controller;
 			#interrupt-cells = <2>;
