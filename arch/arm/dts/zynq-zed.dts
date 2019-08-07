@@ -57,7 +57,7 @@
 	is-dual = <0>;
 	num-cs = <1>;
 	flash@0 {
-		compatible = "spansion,s25fl256s", "jedec,spi-nor";
+		compatible = "spansion,s25fl256s1", "jedec,spi-nor";
 		reg = <0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>;
