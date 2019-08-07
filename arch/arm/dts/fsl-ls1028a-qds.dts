@@ -33,11 +33,64 @@
 
 &esdhc1 {
 	status = "okay";
+
 };
 
 &i2c0 {
 	status = "okay";
 	u-boot,dm-pre-reloc;
+
+	fpga@66 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "simple-mfd";
+		reg = <0x66>;
+
+		mux-mdio@54 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "mdio-mux-i2creg";
+			reg = <0x54>;
+			#mux-control-cells = <1>;
+			mux-reg-masks = <0x54 0xf0>;
+			mdio-parent-bus = <&mdio0>;
+
+			/* on-board MDIO with a single RGMII PHY */
+			mdio@00 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x00>;
+
+				qds_phy0: phy@5 {
+					reg = <5>;
+				};
+			};
+			/* slot 1 */
+			slot1: mdio@40 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x40>;
+			};
+			/* slot 2 */
+			slot2: mdio@50 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x50>;
+			};
+			/* slot 3 */
+			slot3: mdio@60 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x60>;
+			};
+			/* slot 4 */
+			slot4: mdio@70 {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x70>;
+			};
+		};
+	};
 
 	i2c-mux@77 {
 		compatible = "nxp,pca9547";
@@ -108,7 +161,4 @@
 
 &mdio0 {
 	status = "okay";
-	qds_phy0: phy@5 {
-		reg = <5>;
-	};
 };
