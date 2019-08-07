@@ -517,7 +517,7 @@
 	status = "okay";
 	is-dual = <1>;
 	flash@0 {
-		compatible = "m25p80", "spi-flash"; /* U11 and U12 MT25QU02GCBBE12 1Gb */
+		compatible = "m25p80", "jedec,spi-nor"; /* U11 and U12 MT25QU02GCBBE12 1Gb */
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;

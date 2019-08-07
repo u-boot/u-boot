@@ -27,16 +27,6 @@ spi:	Documentation/devicetree/bindings/spi/spi-cadence.txt
 	Documentation/devicetree/bindings/spi/spi-zynqmp-qspi.txt
 	Documentation/devicetree/bindings/spi/spi-zynq-qspi.txt
 
-Note: "flash" node compatible property must be assigned with "spi-flash"
-      to use flash.
-	&qspi {
-		flash@0 {
-			compatible = "m25p80", "spi-flash";
-			...
-			...
-		}
-	}
-
 usb:	Documentation/devicetree/bindings/usb/dwc3-xilinx.txt
 	Documentation/devicetree/bindings/usb/dwc3.txt
 	Documentation/devicetree/bindings/usb/ci-hdrc-usb2.txt
