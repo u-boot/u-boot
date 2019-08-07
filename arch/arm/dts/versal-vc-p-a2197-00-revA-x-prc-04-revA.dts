@@ -81,7 +81,6 @@
 	status = "okay";
 	disable-wp;
 	xlnx,mio_bank = <1>; /* FIXME */
-	no-1-8-v;
 };
 
 &serial0 { /* MIO35 - MIO37 */

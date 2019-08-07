@@ -85,7 +85,6 @@
 &sdhci1 { /* connector */
 	status = "okay";
 	xlnx,mio_bank = <1>; /* FIXME */
-	no-1-8-v;
 };
 
 &serial0 {

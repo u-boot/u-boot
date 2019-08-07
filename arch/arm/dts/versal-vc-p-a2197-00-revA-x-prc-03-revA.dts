@@ -70,7 +70,6 @@
 &sdhci0 { /* J99 MIO28 - MIO33 */
 	status = "okay";
 	xlnx,mio_bank = <1>; /* FIXME */
-	no-1-8-v;
 };
 
 &sdhci1 { /* EMMC IS21ES08G 200MHz MIO40 - MIO49 */
