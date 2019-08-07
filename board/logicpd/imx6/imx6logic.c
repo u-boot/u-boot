@@ -348,6 +348,9 @@ void board_init_f(ulong dummy)
 	/* setup GP timer */
 	timer_init();
 
+	/* Enable device tree and early DM support*/
+	spl_early_init();
+
 	/* UART clocks enabled and gd valid - init serial console */
 	preloader_console_init();
 }
