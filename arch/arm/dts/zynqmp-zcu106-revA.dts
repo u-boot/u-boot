@@ -653,7 +653,6 @@
 /* SD1 with level shifter */
 &sdhci1 {
 	status = "okay";
-	no-1-8-v;
 	xlnx,mio_bank = <1>;
 };
 

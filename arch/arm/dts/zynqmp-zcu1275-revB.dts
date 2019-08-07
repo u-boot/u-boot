@@ -75,6 +75,10 @@
 
 &sdhci1 {
 	status = "okay";
+	/*
+	 * 1.0 revision has level shifter and this property should be
+	 * removed for supporting UHS mode
+	 */
 	no-1-8-v;
 	xlnx,mio_bank = <1>;
 };
