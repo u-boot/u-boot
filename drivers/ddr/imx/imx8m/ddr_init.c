@@ -41,13 +41,13 @@ void ddr_init(struct dram_timing_info *dram_timing)
 	clock_set_target_val(DRAM_APB_CLK_ROOT, CLK_ROOT_ON | CLK_ROOT_SOURCE_SEL(4) |
 			     CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV4));
 
-	initial_drate = dram_timing->fsp_msg[0].drate;
-	/* default to the frequency point 0 clock */
-	ddrphy_init_set_dfi_clk(initial_drate);
-
 	/* disable iso */
 	reg32_write(0x303A00EC, 0x0000ffff); /* PGC_CPU_MAPPING */
 	reg32setbit(0x303A00F8, 5); /* PU_PGC_SW_PUP_REQ */
+
+	initial_drate = dram_timing->fsp_msg[0].drate;
+	/* default to the frequency point 0 clock */
+	ddrphy_init_set_dfi_clk(initial_drate);
 
 	/* D-aasert the presetn */
 	reg32_write(SRC_DDRC_RCR_ADDR, 0x8F000006);
