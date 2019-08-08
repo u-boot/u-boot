@@ -189,6 +189,7 @@ config TARGET_SAMA5D27_WLSOM1_EK
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
 	select CPU_V7A
+	select SUPPORT_SPL
 	help
 	  The SAMA5D27 WLSOM1 embeds SAMA5D2 SiP (System in Package),
 	  a 64Mbit QSPI flash with Mac-address, KSZ8081 Phy. A wireless
