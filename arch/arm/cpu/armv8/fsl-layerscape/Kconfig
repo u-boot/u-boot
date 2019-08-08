@@ -501,6 +501,10 @@ config SYS_FSL_I2C_CLK_DIV
 config SYS_FSL_IFC_CLK_DIV
 	int "IFC clock divider"
 	default 1 if ARCH_LS1043A
+	default 4 if ARCH_LS1012A
+	default 4 if ARCH_LS1028A
+	default 8 if ARCH_LX2160A
+	default 8 if ARCH_LS1088A
 	default 2
 	help
 	  This is the divider that is used to derive IFC clock from Platform
