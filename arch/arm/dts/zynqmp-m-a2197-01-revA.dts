@@ -89,7 +89,7 @@
 	phy-handle = <&phy0>;
 	phy-mode = "sgmii"; /* DTG generates this properly  1512 */
 	phy-reset-gpios = <&gpio 142 GPIO_ACTIVE_LOW>;
-	phy0: phy@0 { /* marwell m88e1512 - SGMII */
+	phy0: ethernet-phy@0 { /* marwell m88e1512 - SGMII */
 		reg = <0>;
 /*		xlnx,phy-type = <PHY_TYPE_SGMII>; */
 	};
