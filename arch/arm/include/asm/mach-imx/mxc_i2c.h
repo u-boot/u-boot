@@ -6,6 +6,9 @@
 #define __ASM_ARCH_MXC_MXC_I2C_H__
 #include <asm-generic/gpio.h>
 #include <asm/mach-imx/iomux-v3.h>
+#if CONFIG_IS_ENABLED(CLK)
+#include <clk.h>
+#endif
 
 struct i2c_pin_ctrl {
 	iomux_v3_cfg_t i2c_mode;
@@ -47,6 +50,9 @@ struct mxc_i2c_bus {
 	ulong driver_data;
 	int speed;
 	struct i2c_pads_info *pads_info;
+#if CONFIG_IS_ENABLED(CLK)
+	struct clk per_clk;
+#endif
 #ifndef CONFIG_DM_I2C
 	int (*idle_bus_fn)(void *p);
 	void *idle_bus_data;
