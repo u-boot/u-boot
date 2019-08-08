@@ -8,7 +8,6 @@
 #include <asm/io.h>
 #include <asm/arch/ddr.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/imx8m_ddr.h>
 #include <asm/arch/sys_proto.h>
 
 void ddr4_cfg_umctl2(struct dram_cfg_param *ddrc_cfg, int num)
@@ -41,7 +40,7 @@ void ddr_init(struct dram_timing_info *dram_timing)
 			     CLK_ROOT_SOURCE_SEL(4) |
 			     CLK_ROOT_PRE_DIV(CLK_ROOT_PRE_DIV4));
 
-	dram_pll_init(DRAM_PLL_OUT_600M);
+	dram_pll_init(MHZ(600));
 
 	reg32_write(0x303A00EC, 0x0000ffff); /* PGC_CPU_MAPPING */
 	reg32setbit(0x303A00F8, 5); /* PU_PGC_SW_PUP_REQ */
