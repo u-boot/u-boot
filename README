@@ -267,6 +267,13 @@ board_init_f():
 	- preloader_console_init() can be called here in extremis
 	- should set up SDRAM, and anything needed to make the UART work
 	- these is no need to clear BSS, it will be done by crt0.S
+	- for specific scenarios on certain architectures an early BSS *can*
+	  be made available (via CONFIG_SPL_EARLY_BSS by moving the clearing
+	  of BSS prior to entering board_init_f()) but doing so is discouraged.
+	  Instead it is strongly recommended to architect any code changes
+	  or additions such to not depend on the availability of BSS during
+	  board_init_f() as indicated in other sections of this README to
+	  maintain compatibility and consistency across the entire code base.
 	- must return normally from this function (don't call board_init_r()
 		directly)
 
