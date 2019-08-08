@@ -50,6 +50,26 @@ so much easier [Ed]
 Maintainers List (try to look for most precise areas first)
 
 		-----------------------------------
+ANDROID AB
+M:	Igor Opaniuk <igor.opaniuk@gmail.com>
+R:	Sam Protsenko <semen.protsenko@linaro.org>
+S:	Maintained
+F:	cmd/ab_select.c
+F:	common/android_ab.c
+F:	doc/android/ab.txt
+F:	include/android_ab.h
+F:	test/py/tests/test_android/test_ab.py
+
+ANDROID AVB
+M:	Igor Opaniuk <igor.opaniuk@gmail.com>
+S:	Maintained
+F:	cmd/avb.c
+F:	common/avb_verify.c
+F:	doc/android/avb2.txt
+F:	include/avb_verify.h
+F:	lib/libavb/
+F:	test/py/tests/test_android/test_avb.py
+
 ARC
 M:	Alexey Brodkin <alexey.brodkin@synopsys.com>
 M:	Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
