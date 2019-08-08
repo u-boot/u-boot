@@ -87,6 +87,15 @@ config MX6ULL
 	select SYSCOUNTER_TIMER
 	select SYS_L2CACHE_OFF
 
+config MX6_OCRAM_256KB
+	bool "Support 256KB OCRAM"
+	depends on MX6D || MX6Q
+	help
+	 Allows using the full 256KB size of the OCRAM on the MX6Q/MX6D series
+	 of chips, such as for SPL. The OCRAM of the Lite series of chips is
+	 only 128KB, so using this option will prevent the resulting code from
+	 working on those chips.
+
 config MX6_DDRCAL
 	bool "Include dynamic DDR calibration routines"
 	depends on SPL
