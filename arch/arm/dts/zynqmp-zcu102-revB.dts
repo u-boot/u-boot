@@ -16,7 +16,7 @@
 
 &gem3 {
 	phy-handle = <&phyc>;
-	phyc: phy@c {
+	phyc: ethernet-phy@c {
 		reg = <0xc>;
 		ti,rx-internal-delay = <0x8>;
 		ti,tx-internal-delay = <0xa>;
