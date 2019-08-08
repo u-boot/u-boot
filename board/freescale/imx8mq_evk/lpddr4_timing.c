@@ -72,8 +72,10 @@ struct dram_cfg_param lpddr4_ddrc_cfg[] = {
 	{ DDRC_SCHED(0), 0x29511505 },
 	{ DDRC_SCHED1(0), 0x0000002c },
 	{ DDRC_PERFHPR1(0), 0x5900575b },
-	{ DDRC_PERFLPR1(0), 0x00000009 },
-	{ DDRC_PERFWR1(0), 0x02005574 },
+	/* 150T starve and 0x90 max tran len */
+	{ DDRC_PERFLPR1(0), 0x90000096 },
+	/* 300T starve and 0x10 max tran len */
+	{ DDRC_PERFWR1(0), 0x1000012c },
 	{ DDRC_DBG0(0), 0x00000016 },
 	{ DDRC_DBG1(0), 0x00000000 },
 	{ DDRC_DBGCMD(0), 0x00000000 },
@@ -83,10 +85,12 @@ struct dram_cfg_param lpddr4_ddrc_cfg[] = {
 	{ DDRC_PCFGR_0(0), 0x000010f3 },
 	{ DDRC_PCFGW_0(0), 0x000072ff },
 	{ DDRC_PCTRL_0(0), 0x00000001 },
-	{ DDRC_PCFGQOS0_0(0), 0x01110d00 },
-	{ DDRC_PCFGQOS1_0(0), 0x00620790 },
-	{ DDRC_PCFGWQOS0_0(0), 0x00100001 },
-	{ DDRC_PCFGWQOS1_0(0), 0x0000041f },
+	/* disable Read Qos*/
+	{ DDRC_PCFGQOS0_0(0), 0x00000e00 },
+	{ DDRC_PCFGQOS1_0(0), 0x0062ffff },
+	/* disable Write Qos*/
+	{ DDRC_PCFGWQOS0_0(0), 0x00000e00 },
+	{ DDRC_PCFGWQOS1_0(0), 0x0000ffff },
 
 	/* Frequency 1: 400mbps */
 	{ DDRC_FREQ1_DRAMTMG0(0), 0x0d0b010c },

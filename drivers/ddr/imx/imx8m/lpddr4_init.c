@@ -54,7 +54,10 @@ void ddr_init(struct dram_timing_info *dram_timing)
 	reg32setbit(0x303A00F8, 5); /* PU_PGC_SW_PUP_REQ */
 
 	debug("DDRINFO: cfg clk\n");
-	dram_pll_init(MHZ(750));
+	if (is_imx8mq())
+		dram_pll_init(MHZ(800));
+	else
+		dram_pll_init(MHZ(750));
 
 	/*
 	 * release [0]ddr1_preset_n, [1]ddr1_core_reset_n,
