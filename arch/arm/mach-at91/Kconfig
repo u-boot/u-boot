@@ -292,6 +292,7 @@ config TARGET_WB50N
 	select BOARD_LATE_INIT
 	select CPU_V7A
 	select SUPPORT_SPL
+	select ATMEL_SFR
 
 endchoice
 
