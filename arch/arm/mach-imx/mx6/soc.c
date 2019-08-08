@@ -85,6 +85,10 @@ u32 get_cpu_rev(void)
 				type = MXC_CPU_MX6D;
 		}
 
+		if (type == MXC_CPU_MX6ULL) {
+			if (readl(SRC_BASE_ADDR + 0x1c) & (1 << 6))
+				type = MXC_CPU_MX6ULZ;
+		}
 	}
 	major = ((reg >> 8) & 0xff);
 	if ((major >= 1) &&
