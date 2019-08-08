@@ -17,15 +17,6 @@ config WATCHDOG_RESET_DISABLE
 	   Disable reset watchdog, which can let WATCHDOG_RESET invalid, so
 	   that the watchdog will not be fed in u-boot.
 
-config BCM2835_WDT
-	bool "Enable BCM2835/2836 watchdog driver"
-	select HW_WATCHDOG
-	help
-	  Say Y here to enable the BCM2835/2836 watchdog
-
-	  This provides basic infrastructure to support BCM2835/2836 watchdog
-	  hardware, with a max timeout of ~15secs.
-
 config IMX_WATCHDOG
 	bool "Enable Watchdog Timer support for IMX and LSCH2 of NXP"
 	select HW_WATCHDOG if !WDT
