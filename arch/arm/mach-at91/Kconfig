@@ -46,6 +46,7 @@ config AT91SAM9X5
 config SAMA5D2
 	bool
 	select CPU_V7A
+	select ATMEL_SFR
 
 config SAMA5D3
 	bool
@@ -54,6 +55,7 @@ config SAMA5D3
 config SAMA5D4
 	bool
 	select CPU_V7A
+	select ATMEL_SFR
 
 choice
 	prompt "Atmel AT91 board select"
@@ -173,6 +175,7 @@ config TARGET_SAMA5D27_SOM1_EK
 	select BOARD_LATE_INIT
 	select CPU_V7A
 	select SUPPORT_SPL
+	select ATMEL_SFR
 	help
 	  The SAMA5D27 SOM1 embeds SAMA5D2 SiP(System in Package),
 	  a 64Mbit QSPI flash, KSZ8081 Phy and a Mac-address EEPROM
@@ -196,7 +199,7 @@ config TARGET_SAMA5D27_WLSOM1_EK
 
 config TARGET_SAMA5D2_ICP
 	bool "SAMA5D2 Industrial Connectivity Platform (ICP)"
-	select CPU_V7A
+	select SAMA5D2
 	select SUPPORT_SPL
 	select BOARD_EARLY_INIT_F
 	select BOARD_LATE_INIT
@@ -291,6 +294,10 @@ config TARGET_WB50N
 	select SUPPORT_SPL
 
 endchoice
+
+config ATMEL_SFR
+	bool
+	default n
 
 config SYS_SOC
 	default "at91"
