@@ -1998,10 +1998,11 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 	comp = IH_COMP_NONE;
 	loadbuf = buf;
 	/* Kernel images get decompressed later in bootm_load_os(). */
-	if (!(image_type == IH_TYPE_KERNEL ||
-	      image_type == IH_TYPE_KERNEL_NOLOAD) &&
-	    !fit_image_get_comp(fit, noffset, &comp) &&
-	    comp != IH_COMP_NONE) {
+	if (!fit_image_get_comp(fit, noffset, &comp) &&
+	    comp != IH_COMP_NONE &&
+	    !(image_type == IH_TYPE_KERNEL ||
+	      image_type == IH_TYPE_KERNEL_NOLOAD ||
+	      image_type == IH_TYPE_RAMDISK)) {
 		ulong max_decomp_len = len * 20;
 		if (load == data) {
 			loadbuf = malloc(max_decomp_len);
@@ -2020,6 +2021,10 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 		loadbuf = map_sysmem(load, len);
 		memcpy(loadbuf, buf, len);
 	}
+
+	if (image_type == IH_TYPE_RAMDISK && comp != IH_COMP_NONE)
+		puts("WARNING: 'compression' nodes for ramdisks are deprecated,"
+		     " please fix your .its file!\n");
 
 	/* verify that image data is a proper FDT blob */
 	if (image_type == IH_TYPE_FLATDT && fdt_check_header(loadbuf)) {

@@ -11,6 +11,7 @@
 #include <console.h>
 #include <fdtdec.h>
 #include <hash.h>
+#include <memalign.h>
 #include <menu.h>
 #include <post.h>
 #include <u-boot/sha256.h>
@@ -71,8 +72,8 @@ static int passwd_abort_sha256(uint64_t etime)
 {
 	const char *sha_env_str = env_get("bootstopkeysha256");
 	u8 sha_env[SHA256_SUM_LEN];
-	u8 sha[SHA256_SUM_LEN];
-	char presskey[MAX_DELAY_STOP_STR];
+	u8 *sha;
+	char *presskey;
 	const char *algo_name = "sha256";
 	u_int presskey_len = 0;
 	int abort = 0;
@@ -93,6 +94,9 @@ static int passwd_abort_sha256(uint64_t etime)
 		return 0;
 	}
 
+	presskey = malloc_cache_aligned(MAX_DELAY_STOP_STR);
+	sha = malloc_cache_aligned(SHA256_SUM_LEN);
+	size = SHA256_SUM_LEN;
 	/*
 	 * We don't know how long the stop-string is, so we need to
 	 * generate the sha256 hash upon each input character and
@@ -101,8 +105,11 @@ static int passwd_abort_sha256(uint64_t etime)
 	do {
 		if (tstc()) {
 			/* Check for input string overflow */
-			if (presskey_len >= MAX_DELAY_STOP_STR)
+			if (presskey_len >= MAX_DELAY_STOP_STR) {
+				free(presskey);
+				free(sha);
 				return 0;
+			}
 
 			presskey[presskey_len++] = getc();
 
@@ -116,6 +123,8 @@ static int passwd_abort_sha256(uint64_t etime)
 		}
 	} while (!abort && get_ticks() <= etime);
 
+	free(presskey);
+	free(sha);
 	return abort;
 }
 

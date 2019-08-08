@@ -23,7 +23,7 @@
 #define CLK_PARENT_TOPCKGEN		BIT(5)
 #define CLK_PARENT_MASK			GENMASK(5, 4)
 
-#define ETHSYS_RST_CTRL_OFS		0x34
+#define ETHSYS_HIFSYS_RST_CTRL_OFS	0x34
 
 /* struct mtk_pll_data - hardware-specific PLLs data */
 struct mtk_pll_data {

@@ -368,7 +368,7 @@ int do_avb_read_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	if (avb_ops->read_persistent_value(avb_ops, name, bytes, buffer,
 					   &bytes_read) == AVB_IO_RESULT_OK) {
-		printf("Read %ld bytes, value = %s\n", bytes_read,
+		printf("Read %zu bytes, value = %s\n", bytes_read,
 		       (char *)buffer);
 		free(buffer);
 		return CMD_RET_SUCCESS;
@@ -401,7 +401,7 @@ int do_avb_write_pvalue(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (avb_ops->write_persistent_value(avb_ops, name, strlen(value) + 1,
 					    (const uint8_t *)value) ==
 	    AVB_IO_RESULT_OK) {
-		printf("Wrote %ld bytes\n", strlen(value) + 1);
+		printf("Wrote %zu bytes\n", strlen(value) + 1);
 		return CMD_RET_SUCCESS;
 	}
 

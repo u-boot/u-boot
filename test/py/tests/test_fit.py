@@ -269,6 +269,11 @@ def test_fit(u_boot_console):
     def check_equal(expected_fname, actual_fname, failure_msg):
         """Check that a file matches its expected contents
 
+        This is always used on out-buffers whose size is decided by the test
+        script anyway, which in some cases may be larger than what we're
+        actually looking for. So it's safe to truncate it to the size of the
+        expected data.
+
         Args:
             expected_fname: Filename containing expected contents
             actual_fname: Filename containing actual contents
@@ -276,6 +281,8 @@ def test_fit(u_boot_console):
         """
         expected_data = read_file(expected_fname)
         actual_data = read_file(actual_fname)
+        if len(expected_data) < len(actual_data):
+            actual_data = actual_data[:len(expected_data)]
         assert expected_data == actual_data, failure_msg
 
     def check_not_equal(expected_fname, actual_fname, failure_msg):
@@ -435,7 +442,8 @@ def test_fit(u_boot_console):
             output = cons.run_command_list(cmd.splitlines())
             check_equal(kernel, kernel_out, 'Kernel not loaded')
             check_equal(control_dtb, fdt_out, 'FDT not loaded')
-            check_equal(ramdisk, ramdisk_out, 'Ramdisk not loaded')
+            check_not_equal(ramdisk, ramdisk_out, 'Ramdisk got decompressed?')
+            check_equal(ramdisk + '.gz', ramdisk_out, 'Ramdist not loaded')
 
 
     cons = u_boot_console

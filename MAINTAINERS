@@ -196,6 +196,7 @@ F:	arch/arm/include/asm/arch-pxa/
 ARM MEDIATEK
 M:	Ryder Lee <ryder.lee@mediatek.com>
 M:	Weijie Gao <weijie.gao@mediatek.com>
+R:	GSS_MTK_Uboot_upstream <GSS_MTK_Uboot_upstream@mediatek.com>
 S:	Maintained
 F:	arch/arm/mach-mediatek/
 F:	arch/arm/include/asm/arch-mediatek/
