@@ -22,6 +22,7 @@ config SPL_TEXT_BASE
 	default 0x80000000
 
 config SPL_OPENSBI_LOAD_ADDR
+	hex
 	default 0x81000000
 
 config BOARD_SPECIFIC_OPTIONS # dummy
