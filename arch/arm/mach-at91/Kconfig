@@ -180,6 +180,20 @@ config TARGET_SAMA5D27_SOM1_EK
 	  processor-based SAMA5D2 MPU with up to 1 Gbit DDR2-SDRAM
 	  in a single package.
 
+config TARGET_SAMA5D27_WLSOM1_EK
+	bool "SAMA5D27 WLSOM1 EK board"
+	select SAMA5D2
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select CPU_V7A
+	help
+	  The SAMA5D27 WLSOM1 embeds SAMA5D2 SiP (System in Package),
+	  a 64Mbit QSPI flash with Mac-address, KSZ8081 Phy. A wireless
+	  module providing bluetooth and wifi is also embedded.
+	  The SAMA5D2 SiP integrates the ARM Cortex-A5
+	  processor-based SAMA5D2 MPU with 2 Gbit LPDDR2-SDRAM
+	  in a single package.
+
 config TARGET_SAMA5D2_ICP
 	bool "SAMA5D2 Industrial Connectivity Platform (ICP)"
 	select CPU_V7A
@@ -292,6 +306,7 @@ source "board/atmel/at91sam9x5ek/Kconfig"
 source "board/atmel/sama5d2_ptc_ek/Kconfig"
 source "board/atmel/sama5d2_xplained/Kconfig"
 source "board/atmel/sama5d27_som1_ek/Kconfig"
+source "board/atmel/sama5d27_wlsom1_ek/Kconfig"
 source "board/atmel/sama5d2_icp/Kconfig"
 source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"
