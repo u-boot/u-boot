@@ -11,17 +11,14 @@
 #ifndef _ANDROID_IMAGE_H_
 #define _ANDROID_IMAGE_H_
 
+#include <linux/compiler.h>
+#include <linux/types.h>
+
 #define ANDR_BOOT_MAGIC "ANDROID!"
 #define ANDR_BOOT_MAGIC_SIZE 8
 #define ANDR_BOOT_NAME_SIZE 16
 #define ANDR_BOOT_ARGS_SIZE 512
 #define ANDR_BOOT_EXTRA_ARGS_SIZE 1024
-
-/*
- * It is expected that callers would explicitly specify which version of the
- * boot image header they need to use.
- */
-typedef struct andr_img_hdr andr_img_hdr;
 
 /* The bootloader expects the structure of andr_img_hdr with header
  * version 0 to be as follows: */
@@ -115,7 +112,7 @@ struct andr_img_hdr {
  * +---------------------+
  * | dtb                 | q pages
  * +---------------------+
-
+ *
  * n = (kernel_size + page_size - 1) / page_size
  * m = (ramdisk_size + page_size - 1) / page_size
  * o = (second_size + page_size - 1) / page_size
