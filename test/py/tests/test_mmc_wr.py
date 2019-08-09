@@ -35,7 +35,7 @@ env__mmc_wr_configs = (
 
 """
 
-@pytest.mark.buildconfigspec('cmd_mmc','cmd_memory')
+@pytest.mark.buildconfigspec('cmd_mmc','cmd_random')
 def test_mmc_wr(u_boot_console, env__mmc_wr_config):
     """Test the "mmc write" command.
 
