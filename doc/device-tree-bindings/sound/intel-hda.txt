@@ -12,6 +12,7 @@ Required properties:
 
 Optional properties
 - intel,beep-nid: Node ID to use for beep (will be detected if not provided)
+- codec-enable-gpio : The GPIO used to enable the audio codec
 
 Required subnodes:
 - codecs: Contains a list of codec nodes

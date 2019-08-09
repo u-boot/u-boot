@@ -238,6 +238,45 @@ static bool is_partition_powered(u32 partid)
 	return !!(reg & (1 << partid));
 }
 
+static void unpower_partition(u32 partid)
+{
+	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
+
+	debug("%s: part ID = %08X\n", __func__, partid);
+	/* Is the partition on? */
+	if (is_partition_powered(partid)) {
+		/* Yes, toggle the partition power state (ON -> OFF) */
+		debug("power_partition, toggling state\n");
+		writel(START_CP | partid, &pmc->pmc_pwrgate_toggle);
+
+		/* Wait for the power to come down */
+		while (is_partition_powered(partid))
+			;
+
+		/* Give I/O signals time to stabilize */
+		udelay(IO_STABILIZATION_DELAY);
+	}
+}
+
+void unpower_cpus(void)
+{
+	debug("%s entry: G cluster\n", __func__);
+
+	/* Power down the fast cluster rail partition */
+	debug("%s: CRAIL\n", __func__);
+	unpower_partition(CRAIL);
+
+	/* Power down the fast cluster non-CPU partition */
+	debug("%s: C0NC\n", __func__);
+	unpower_partition(C0NC);
+
+	/* Power down the fast cluster CPU0 partition */
+	debug("%s: CE0\n", __func__);
+	unpower_partition(CE0);
+
+	debug("%s: done\n", __func__);
+}
+
 static void power_partition(u32 partid)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
@@ -284,6 +323,12 @@ void start_cpu(u32 reset_vector)
 
 	debug("%s entry, reset_vector = %x\n", __func__, reset_vector);
 
+	/*
+	 * High power clusters are on after software reset,
+	 * it may interfere with tegra124_ram_repair.
+	 * unpower them.
+	 */
+	unpower_cpus();
 	tegra124_init_clocks();
 
 	/* Set power-gating timer multiplier */
