@@ -18,6 +18,9 @@
 #define CONFIG_TEGRA_ENABLE_UARTA
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTA_BASE
 
+#define FDT_MODULE			"apalis-v1.2"
+#define FDT_MODULE_V1_0			"apalis"
+
 /* Environment in eMMC, before config block at the end of 1st "boot sector" */
 #define CONFIG_ENV_OFFSET		(-CONFIG_ENV_SIZE + \
 					 CONFIG_TDX_CFG_BLOCK_OFFSET)
@@ -58,7 +61,7 @@
 	"emmcbootpart=1\0" \
 	"emmcdev=0\0" \
 	"emmcdtbload=setenv dtbparam; load mmc ${emmcdev}:${emmcbootpart} " \
-		"${fdt_addr_r} ${soc}-apalis-${fdt_board}.dtb && " \
+		"${fdt_addr_r} ${soc}-${fdt_module}-${fdt_board}.dtb && " \
 		"setenv dtbparam ${fdt_addr_r}\0" \
 	"emmcfinduuid=part uuid mmc ${mmcdev}:${emmcrootpart} uuid\0" \
 	"emmcrootpart=2\0"
@@ -70,7 +73,7 @@
 		"run nfsdtbload; dhcp ${kernel_addr_r} " \
 		"&& run fdt_fixup && bootz ${kernel_addr_r} - ${dtbparam}\0" \
 	"nfsdtbload=setenv dtbparam; tftp ${fdt_addr_r} " \
-		"${soc}-apalis-${fdt_board}.dtb " \
+		"${soc}-${fdt_module}-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0"
 
 #define SD_BOOTCMD \
@@ -85,7 +88,7 @@
 	"sdbootpart=1\0" \
 	"sddev=1\0" \
 	"sddtbload=setenv dtbparam; load mmc ${sddev}:${sdbootpart} " \
-		"${fdt_addr_r} ${soc}-apalis-${fdt_board}.dtb " \
+		"${fdt_addr_r} ${soc}-${fdt_module}-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0" \
 	"sdfinduuid=part uuid mmc ${sddev}:${sdrootpart} uuid\0" \
 	"sdrootpart=2\0"
@@ -102,7 +105,7 @@
 	"usbbootpart=1\0" \
 	"usbdev=0\0" \
 	"usbdtbload=setenv dtbparam; load usb ${usbdev}:${usbbootpart} " \
-		"${fdt_addr_r} ${soc}-apalis-${fdt_board}.dtb " \
+		"${fdt_addr_r} ${soc}-${fdt_module}-${fdt_board}.dtb " \
 		"&& setenv dtbparam ${fdt_addr_r}\0" \
 	"usbfinduuid=part uuid usb ${usbdev}:${usbrootpart} uuid\0" \
 	"usbrootpart=2\0"
@@ -117,6 +120,7 @@
 	EMMC_BOOTCMD \
 	"fdt_board=eval\0" \
 	"fdt_fixup=;\0" \
+	"fdt_module=" FDT_MODULE "\0" \
 	NFS_BOOTCMD \
 	SD_BOOTCMD \
 	USB_BOOTCMD \

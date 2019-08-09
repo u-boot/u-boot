@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
+#include <environment.h>
 #include <pci_tegra.h>
 #include <power/as3722.h>
 #include <power/pmic.h>
@@ -25,12 +26,48 @@
 #define PEX_PERST_N	TEGRA_GPIO(DD, 1) /* Apalis GPIO7 */
 #define RESET_MOCI_CTRL	TEGRA_GPIO(U, 4)
 #endif /* CONFIG_APALIS_TK1_PCIE_EVALBOARD_INIT */
+#define VCC_USBH	TEGRA_GPIO(T, 6)
+#define VCC_USBH_V1_0	TEGRA_GPIO(N, 5)
+#define VCC_USBO1	TEGRA_GPIO(T, 5)
+#define VCC_USBO1_V1_0	TEGRA_GPIO(N, 4)
 
 int arch_misc_init(void)
 {
 	if (readl(NV_PA_BASE_SRAM + NVBOOTINFOTABLE_BOOTTYPE) ==
 	    NVBOOTTYPE_RECOVERY)
 		printf("USB recovery mode\n");
+
+	/* PCB Version Indication: V1.2 and later have GPIO_PV0 wired to GND */
+	gpio_request(TEGRA_GPIO(V, 0), "PCB Version Indication");
+	gpio_direction_input(TEGRA_GPIO(V, 0));
+	if (gpio_get_value(TEGRA_GPIO(V, 0))) {
+		/*
+		 * if using the default device tree for new V1.2 and later HW,
+		 * use version for older V1.0 and V1.1 HW
+		 */
+		char *fdt_env = env_get("fdt_module");
+
+		if (fdt_env && !strcmp(FDT_MODULE, fdt_env)) {
+			env_set("fdt_module", FDT_MODULE_V1_0);
+			printf("patching fdt_module to " FDT_MODULE_V1_0
+			       " for older V1.0 and V1.1 HW\n");
+#ifndef CONFIG_ENV_IS_NOWHERE
+			env_save();
+#endif
+		}
+
+		/* activate USB power enable GPIOs */
+		gpio_request(VCC_USBH_V1_0, "VCC_USBH");
+		gpio_direction_output(VCC_USBH_V1_0, 1);
+		gpio_request(VCC_USBO1_V1_0, "VCC_USBO1");
+		gpio_direction_output(VCC_USBO1_V1_0, 1);
+	} else {
+		/* activate USB power enable GPIOs */
+		gpio_request(VCC_USBH, "VCC_USBH");
+		gpio_direction_output(VCC_USBH, 1);
+		gpio_request(VCC_USBO1, "VCC_USBO1");
+		gpio_direction_output(VCC_USBO1, 1);
+	}
 
 	return 0;
 }
