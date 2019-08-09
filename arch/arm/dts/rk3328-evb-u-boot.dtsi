@@ -1,10 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0+
 /*
- * (C) Copyright 2018 Rockchip Electronics Co., Ltd
- *
- * SPDX-License-Identifier:     GPL-2.0+
+ * (C) Copyright 2016 Rockchip Electronics Co., Ltd
  */
 
-#include "rk3328-sdram-lpddr3-1600.dtsi"
+#include "rk3328-sdram-ddr3-666.dtsi"
 
 / {
 	aliases {

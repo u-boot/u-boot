@@ -13,6 +13,7 @@
 #include <mmc.h>
 #include <dwmmc.h>
 #include <wait_bit.h>
+#include <power/regulator.h>
 
 #define PAGE_SIZE 4096
 
@@ -492,6 +493,21 @@ static int dwmci_set_ios(struct mmc *mmc)
 
 	if (host->clksel)
 		host->clksel(host);
+
+#if CONFIG_IS_ENABLED(DM_REGULATOR)
+	if (mmc->vqmmc_supply) {
+		int ret;
+
+		if (mmc->signal_voltage == MMC_SIGNAL_VOLTAGE_180)
+			regulator_set_value(mmc->vqmmc_supply, 1800000);
+		else
+			regulator_set_value(mmc->vqmmc_supply, 3300000);
+
+		ret = regulator_set_enable_if_allowed(mmc->vqmmc_supply, true);
+		if (ret)
+			return ret;
+	}
+#endif
 
 	return 0;
 }

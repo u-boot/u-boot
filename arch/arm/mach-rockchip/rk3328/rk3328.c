@@ -16,6 +16,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CRU_BASE		0xFF440000
 #define GRF_BASE		0xFF100000
 #define UART2_BASE		0xFF130000
+#define FW_DDR_CON_REG		0xFF7C0040
 
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 	[BROM_BOOTSOURCE_EMMC] = "rksdmmc@ff520000",
@@ -46,8 +47,12 @@ struct mm_region *mem_map = rk3328_mem_map;
 
 int arch_cpu_init(void)
 {
+#ifdef CONFIG_SPL_BUILD
 	/* We do some SoC one time setting here. */
 
+	/* Disable the ddr secure region setting to make it non-secure */
+	rk_setreg(FW_DDR_CON_REG, 0x200);
+#endif
 	return 0;
 }
 
