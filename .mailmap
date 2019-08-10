@@ -4,10 +4,18 @@
 # and/or not always written the same way, making contributions from the
 # same person appearing not to be so or badly displayed.
 #
+# This file is also used by scripts/get_maintainer.pl.
+#
 # This file can be modified by hand or updated by the following command:
 #  scripts/mailmapper > tmp; mv tmp .mailmap
 #
+# Entries in this file take one of the following forms:
+# Proper Name <commit@email.xx>
+# <proper@email.xx> <commit@email.xx>
+# Proper Name <proper@email.xx> <commit@email.xx>
+# Proper Name <proper@email.xx> Commit Name <commit@email.xx>
 
+Alexander Graf <agraf@csgraf.de> <agraf@suse.de>
 Allen Martin <amartin@nvidia.com>
 Andreas Bießmann <andreas.devel@googlemail.com>
 Andreas Bießmann <andreas@biessmann.org>
