@@ -115,6 +115,7 @@ source "arch/x86/cpu/efi/Kconfig"
 source "arch/x86/cpu/qemu/Kconfig"
 source "arch/x86/cpu/quark/Kconfig"
 source "arch/x86/cpu/queensbay/Kconfig"
+source "arch/x86/cpu/slimbootloader/Kconfig"
 source "arch/x86/cpu/tangier/Kconfig"
 
 # architecture-specific options below
@@ -344,9 +345,17 @@ config INTEL_ME_FILE
 	  The filename of the file to use as Intel Management Engine in the
 	  board directory.
 
+config USE_HOB
+	bool "Use HOB (Hand-Off Block)"
+	help
+	  Select this option to access HOB (Hand-Off Block) data structures
+	  and parse HOBs. This HOB infra structure can be reused with
+	  different solutions across different platforms.
+
 config HAVE_FSP
 	bool "Add an Firmware Support Package binary"
 	depends on !EFI
+	select USE_HOB
 	help
 	  Select this option to add an Firmware Support Package binary to
 	  the resulting U-Boot image. It is a binary blob which U-Boot uses

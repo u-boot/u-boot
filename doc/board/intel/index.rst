@@ -13,3 +13,4 @@ Intel
    edison
    galileo
    minnowmax
+   slimbootloader

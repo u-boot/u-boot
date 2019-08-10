@@ -83,7 +83,7 @@ struct arch_global_data {
 	const struct pch_gpio_map *gpio_map;	/* board GPIO map */
 	struct memory_info meminfo;	/* Memory information */
 	struct pei_memory_info pei_meminfo;	/* PEI memory information */
-#ifdef CONFIG_HAVE_FSP
+#ifdef CONFIG_USE_HOB
 	void *hob_list;			/* FSP HOB list */
 #endif
 	struct mtrr_request mtrr_req[MAX_MTRR_REQUESTS];

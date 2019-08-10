@@ -421,6 +421,28 @@ Device (PCI0)
             }
         }
     }
+
+    Device (GDMA)
+    {
+        Name (_ADR, 0x00150000)
+        Name (_HID, "808611A2")
+        Name (_UID, Zero)
+
+        Method (_STA, 0, NotSerialized)
+        {
+            Return (STA_VISIBLE)
+        }
+
+        Method (_CRS, 0, Serialized)
+        {
+            Name (RBUF, ResourceTemplate ()
+            {
+                    Memory32Fixed(ReadWrite, 0xFF192000, 0x00001000)
+                    Interrupt(ResourceConsumer, Level, ActiveHigh, Shared, ,, ) { 32 }
+            })
+            Return (RBUF)
+        }
+    }
 }
 
 Device (FLIS)

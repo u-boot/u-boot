@@ -105,30 +105,37 @@
 #define CONFIG_OTHBOOTARGS	"othbootargs=acpi=off\0"
 #endif
 
+#ifndef CONFIG_DISTRO_DEFAULTS
+#define BOOTENV
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS			\
 	CONFIG_STD_DEVICES_SETTINGS			\
 	"pciconfighost=1\0"				\
 	"netdev=eth0\0"					\
 	"consoledev=ttyS0\0"				\
 	CONFIG_OTHBOOTARGS				\
-	"ramdiskaddr=0x4000000\0"			\
-	"ramdiskfile=initramfs.gz\0"
+	"scriptaddr=0x7000000\0"			\
+	"kernel_addr_r=0x1000000\0"			\
+	"ramdisk_addr_r=0x4000000\0"			\
+	"ramdiskfile=initramfs.gz\0"			\
+	BOOTENV
 
 #define CONFIG_RAMBOOTCOMMAND				\
 	"setenv bootargs root=/dev/ram rw "		\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
 	"console=$consoledev,$baudrate $othbootargs;"	\
-	"tftpboot $loadaddr $bootfile;"			\
-	"tftpboot $ramdiskaddr $ramdiskfile;"		\
-	"zboot $loadaddr 0 $ramdiskaddr $filesize"
+	"tftpboot $kernel_addr_r $bootfile;"		\
+	"tftpboot $ramdisk_addr_r $ramdiskfile;"	\
+	"zboot $kernel_addr_r 0 $ramdisk_addr_r $filesize"
 
 #define CONFIG_NFSBOOTCOMMAND				\
 	"setenv bootargs root=/dev/nfs rw "		\
 	"nfsroot=$serverip:$rootpath "			\
 	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
 	"console=$consoledev,$baudrate $othbootargs;"	\
-	"tftpboot $loadaddr $bootfile;"			\
-	"zboot $loadaddr"
+	"tftpboot $kernel_addr_r $bootfile;"		\
+	"zboot $kernel_addr_r"
 
 
 #endif	/* __CONFIG_H */

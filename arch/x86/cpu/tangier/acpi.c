@@ -68,6 +68,44 @@ u32 acpi_fill_mcfg(u32 current)
 	return current;
 }
 
+static u32 acpi_fill_csrt_dma(struct acpi_csrt_group *grp)
+{
+	struct acpi_csrt_shared_info *si = (struct acpi_csrt_shared_info *)&grp[1];
+
+	/* Fill the Resource Group with Shared Information attached */
+	memset(grp, 0, sizeof(*grp));
+	grp->shared_info_length = sizeof(struct acpi_csrt_shared_info);
+	grp->length = sizeof(struct acpi_csrt_group) + grp->shared_info_length;
+	/* TODO: All values below should come from U-Boot DT somehow */
+	sprintf((char *)&grp->vendor_id, "%04X", 0x8086);
+	grp->device_id = 0x11a2;
+
+	/* Fill the Resource Group Shared Information */
+	memset(si, 0, sizeof(*si));
+	si->major_version = 1;
+	si->minor_version = 0;
+	/* TODO: All values below should come from U-Boot DT somehow */
+	si->mmio_base_low = 0xff192000;
+	si->mmio_base_high = 0;
+	si->gsi_interrupt = 32;
+	si->interrupt_polarity = 1;
+	si->interrupt_mode = 0;
+	si->num_channels = 8;
+	si->dma_address_width = 32;
+	si->base_request_line = 0;
+	si->num_handshake_signals = 16;
+	si->max_block_size = 0x20000;
+
+	return grp->length;
+}
+
+u32 acpi_fill_csrt(u32 current)
+{
+	current += acpi_fill_csrt_dma((struct acpi_csrt_group *)current);
+
+	return current;
+}
+
 void acpi_create_gnvs(struct acpi_global_nvs *gnvs)
 {
 	struct udevice *dev;

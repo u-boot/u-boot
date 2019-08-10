@@ -395,11 +395,22 @@ $(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_reloc.o $(obj)/efi_free
 
 # ACPI
 # ---------------------------------------------------------------------------
+#
+# This first sends the file (typically dsdt.asl) through the preprocessor
+# resolve includes and any CONFIG options used. This produces dsdt.asl.tmp
+# which is pure ASL code. The Intel ASL (ACPI (Advanced Configuration and Power
+# Interface) Source Language compiler (iasl) then converts this ASL code into a
+# C file containing the hex data to build into U-Boot. This file is called
+# dsdt.hex (despite us setting the prefix to .../dsdt.asl.tmp) so must be
+# renamed to dsdt.c for consumption by the build system.
+ASL_TMP = $(patsubst %.c,%.asl.tmp,$@)
+
 quiet_cmd_acpi_c_asl= ASL     $<
 cmd_acpi_c_asl=         \
-	$(CPP) -x assembler-with-cpp -D__ASSEMBLY__ -P $(UBOOTINCLUDE) -o $<.tmp $<; \
-	iasl -p $< -tc $<.tmp $(if $(KBUILD_VERBOSE:1=), >/dev/null) && \
-	mv $(patsubst %.asl,%.hex,$<) $@
+	$(CPP) -x assembler-with-cpp -D__ASSEMBLY__ -P $(UBOOTINCLUDE) \
+		-o $(ASL_TMP) $< && \
+	iasl -p $@ -tc $(ASL_TMP) $(if $(KBUILD_VERBOSE:1=), >/dev/null) && \
+	mv $(patsubst %.c,%.hex,$@) $@
 
 $(obj)/dsdt.c:    $(src)/dsdt.asl
 	$(call cmd,acpi_c_asl)

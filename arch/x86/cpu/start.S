@@ -97,7 +97,7 @@ early_board_init_ret:
 	jmp	car_init
 .globl car_init_ret
 car_init_ret:
-#ifndef CONFIG_HAVE_FSP
+#ifndef CONFIG_USE_HOB
 	/*
 	 * We now have CONFIG_SYS_CAR_SIZE bytes of Cache-As-RAM (or SRAM,
 	 * or fully initialised SDRAM - we really don't care which)
@@ -137,12 +137,13 @@ car_init_ret:
 
 	/* Get address of global_data */
 	mov	%fs:0, %edx
-#ifdef CONFIG_HAVE_FSP
+#ifdef CONFIG_USE_HOB
 	/* Store the HOB list if we have one */
 	test	%esi, %esi
 	jz	skip_hob
 	movl	%esi, GD_HOB_LIST(%edx)
 
+#ifdef CONFIG_HAVE_FSP
 	/*
 	 * After fsp_init() returns, the stack has already been switched to a
 	 * place within system memory as defined by CONFIG_FSP_TEMP_RAM_ADDR.
@@ -151,6 +152,7 @@ car_init_ret:
 	 */
 	subl	$CONFIG_FSP_SYS_MALLOC_F_LEN, %esp
 	movl	%esp, GD_MALLOC_BASE(%edx)
+#endif
 skip_hob:
 #else
 	/* Store table pointer */

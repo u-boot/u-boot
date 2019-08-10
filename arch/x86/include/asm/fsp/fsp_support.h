@@ -8,10 +8,10 @@
 #define __FSP_SUPPORT_H__
 
 #include "fsp_types.h"
+#include "fsp_hob.h"
 #include "fsp_fv.h"
 #include "fsp_ffs.h"
 #include "fsp_api.h"
-#include "fsp_hob.h"
 #include "fsp_infoheader.h"
 #include "fsp_bootmode.h"
 #include "fsp_azalia.h"
@@ -106,7 +106,7 @@ u64 fsp_get_usable_highmem_top(const void *hob_list);
  *            0 if this region does not exist.
  */
 u64 fsp_get_reserved_mem_from_guid(const void *hob_list,
-				   u64 *len, struct efi_guid *guid);
+				   u64 *len, const efi_guid_t *guid);
 
 /**
  * This function retrieves the FSP reserved normal memory.
@@ -130,41 +130,6 @@ u32 fsp_get_fsp_reserved_mem(const void *hob_list, u32 *len);
  * @retval others: TSEG reserved memory base.
  */
 u32 fsp_get_tseg_reserved_mem(const void *hob_list, u32 *len);
-
-/**
- * Returns the next instance of a HOB type from the starting HOB.
- *
- * @type:     HOB type to search
- * @hob_list: A pointer to the HOB list
- *
- * @retval:   A HOB object with matching type; Otherwise NULL.
- */
-const struct hob_header *fsp_get_next_hob(uint type, const void *hob_list);
-
-/**
- * Returns the next instance of the matched GUID HOB from the starting HOB.
- *
- * @guid:     GUID to search
- * @hob_list: A pointer to the HOB list
- *
- * @retval:   A HOB object with matching GUID; Otherwise NULL.
- */
-const struct hob_header *fsp_get_next_guid_hob(const struct efi_guid *guid,
-					       const void *hob_list);
-
-/**
- * This function retrieves a GUID HOB data buffer and size.
- *
- * @hob_list:      A HOB list pointer.
- * @len:           A pointer to the GUID HOB data buffer length.
- *                 If the GUID HOB is located, the length will be updated.
- * @guid           A pointer to HOB GUID.
- *
- * @retval NULL:   Failed to find the GUID HOB.
- * @retval others: GUID HOB data buffer pointer.
- */
-void *fsp_get_guid_hob_data(const void *hob_list, u32 *len,
-			    struct efi_guid *guid);
 
 /**
  * This function retrieves FSP Non-volatile Storage HOB buffer and size.

@@ -54,6 +54,23 @@ If you want to check both consoles, use '-serial stdio'.
 Multicore is also supported by QEMU via '-smp n' where n is the number of cores
 to instantiate. Note, the maximum supported CPU number in QEMU is 255.
 
+U-Boot uses 'distro_bootcmd' by default when booting on x86 QEMU. This tries to
+load a boot script, kernel, and ramdisk from several different interfaces. For
+the default boot order, see 'qemu-x86.h'. For more information, see
+'README.distro'. Most Linux distros can be booted by writing a uboot script.
+For example, Debian (stretch) can be booted by creating a script file named
+'boot.txt' with the contents::
+
+   setenv bootargs root=/dev/sda1 ro
+   load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} /vmlinuz
+   load ${devtype} ${devnum}:${distro_bootpart} ${ramdisk_addr_r} /initrd.img
+   zboot ${kernel_addr_r} - ${ramdisk_addr_r} ${filesize}
+
+Then compile and install it with::
+
+   $ apt install u-boot-tools && \
+     mkimage -T script -C none -n "Boot script" -d boot.txt /boot/boot.scr
+
 The fw_cfg interface in QEMU also provides information about kernel data,
 initrd, command-line arguments and more. U-Boot supports directly accessing
 these informtion from fw_cfg interface, which saves the time of loading them
