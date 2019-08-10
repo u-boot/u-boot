@@ -15,20 +15,20 @@
 #if defined(CONFIG_SH)
 /* Malloc returns addresses in the P1 area (cacheable). However we need to
    use area P2 (non-cacheable) */
-#define ADDR_TO_P2(addr)	((((int)(addr) & ~0xe0000000) | 0xa0000000))
+#define ADDR_TO_P2(addr)	((((uintptr_t)(addr) & ~0xe0000000) | 0xa0000000))
 
 /* The ethernet controller needs to use physical addresses */
 #if defined(CONFIG_SH_32BIT)
-#define ADDR_TO_PHY(addr)	((((int)(addr) & ~0xe0000000) | 0x40000000))
+#define ADDR_TO_PHY(addr)	((((uintptr_t)(addr) & ~0xe0000000) | 0x40000000))
 #else
-#define ADDR_TO_PHY(addr)	((int)(addr) & ~0xe0000000)
+#define ADDR_TO_PHY(addr)	((uintptr_t)(addr) & ~0xe0000000)
 #endif
 #elif defined(CONFIG_ARM)
 #ifndef inl
 #define inl	readl
 #define outl	writel
 #endif
-#define ADDR_TO_PHY(addr)	((int)(addr))
+#define ADDR_TO_PHY(addr)	((uintptr_t)(addr))
 #define ADDR_TO_P2(addr)	(addr)
 #endif /* defined(CONFIG_SH) */
 
@@ -358,6 +358,9 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 #elif defined(CONFIG_R7S72100)
 #define SH_ETH_TYPE_RZ
 #define BASE_IO_ADDR	0xE8203000
+#elif defined(CONFIG_R8A77980)
+#define SH_ETH_TYPE_GETHER
+#define BASE_IO_ADDR	0xE7400000
 #endif
 
 /*
@@ -374,6 +377,7 @@ enum EDSR_BIT {
 
 /* EDMR */
 enum DMAC_M_BIT {
+	EDMR_NBST	= 0x80, /* DMA transfer burst mode */
 	EDMR_DL1 = 0x20, EDMR_DL0 = 0x10,
 #if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	EDMR_SRST	= 0x03, /* Receive/Send reset */
@@ -563,7 +567,7 @@ enum FELIC_MODE_BIT {
 	ECMR_PRM = 0x00000001,
 #ifdef CONFIG_CPU_SH7724
 	ECMR_RTM = 0x00000010,
-#elif defined(CONFIG_RCAR_GEN2)
+#elif defined(CONFIG_RCAR_GEN2) || defined (CONFIG_R8A77980)
 	ECMR_RTM = 0x00000004,
 #endif
 
