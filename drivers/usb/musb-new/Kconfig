@@ -18,6 +18,14 @@ config USB_MUSB_GADGET
 	help
 	  Enables the MUSB USB dual-role controller in gadget mode.
 
+config USB_MUSB_DA8XX
+	bool "Enable DA8xx MUSB Controller"
+	depends on DM_USB
+	help
+	  Say y here to enable support for the dual role high
+	  speed USB controller based on the Mentor Graphics
+	  silicon IP.
+
 config USB_MUSB_TI
 	bool "Enable TI OTG USB controller"
 	depends on DM_USB

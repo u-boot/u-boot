@@ -50,8 +50,9 @@
 #endif
 
 #if defined(CONFIG_CPU_ARM920T) || \
-    defined(CONFIG_PCI_OHCI) || \
-    defined(CONFIG_SYS_OHCI_USE_NPS)
+	defined(CONFIG_PCI_OHCI) || \
+	defined(CONFIG_DM_PCI) || \
+	defined(CONFIG_SYS_OHCI_USE_NPS)
 # define OHCI_USE_NPS		/* force NoPowerSwitching mode */
 #endif
 
@@ -64,6 +65,7 @@
 #define OHCI_CONTROL_INIT \
 	(OHCI_CTRL_CBSR & 0x3) | OHCI_CTRL_IE | OHCI_CTRL_PLE
 
+#if !CONFIG_IS_ENABLED(DM_USB)
 #ifdef CONFIG_PCI_OHCI
 static struct pci_device_id ohci_pci_ids[] = {
 	{0x10b9, 0x5237},	/* ULI1575 PCI OHCI module ids */
@@ -72,6 +74,7 @@ static struct pci_device_id ohci_pci_ids[] = {
 	/* Please add supported PCI OHCI controller ids here */
 	{0, 0}
 };
+#endif
 #endif
 
 #ifdef CONFIG_PCI_EHCI_DEVNO
@@ -2044,8 +2047,11 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 		pci_read_config_dword(pdev, PCI_BASE_ADDRESS_0, &base);
 		printf("OHCI regs address 0x%08x\n", base);
 		gohci.regs = (struct ohci_regs *)base;
-	} else
+	} else {
+		printf("%s: OHCI devnr: %d not found\n", __func__,
+		       CONFIG_PCI_OHCI_DEVNO);
 		return -1;
+	}
 #else
 	gohci.regs = (struct ohci_regs *)CONFIG_SYS_USB_OHCI_REGS_BASE;
 #endif

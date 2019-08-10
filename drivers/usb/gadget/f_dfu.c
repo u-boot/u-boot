@@ -748,6 +748,7 @@ static void dfu_unbind(struct usb_configuration *c, struct usb_function *f)
 
 	if (f_dfu->function) {
 		i = alt_num;
+		i++; /* free DFU Functional Descriptor */
 		while (i) {
 			free(f_dfu->function[--i]);
 			f_dfu->function[i] = NULL;
