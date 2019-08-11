@@ -70,20 +70,6 @@ static int r8a66597_clock_enable(struct r8a66597 *r8a66597)
 		}
 	} while ((tmp & USBE) != USBE);
 	r8a66597_bclr(r8a66597, USBE, SYSCFG0);
-#if !defined(CONFIG_RZA_USB)
-	r8a66597_mdfy(r8a66597, CONFIG_R8A66597_XTAL, XTAL, SYSCFG0);
-
-	i = 0;
-	r8a66597_bset(r8a66597, XCKE, SYSCFG0);
-	do {
-		udelay(1000);
-		tmp = r8a66597_read(r8a66597, SYSCFG0);
-		if (i++ > 500) {
-			printf("register access fail.\n");
-			return -1;
-		}
-	} while ((tmp & SCKE) != SCKE);
-#else
 	/*
 	 * RZ/A Only:
 	 * Bits XTAL(UCKSEL) and UPLLE in SYSCFG0 for USB0 controls both USB0
@@ -96,28 +82,18 @@ static int r8a66597_clock_enable(struct r8a66597 *r8a66597)
 	setbits(le16, R8A66597_BASE0, UPLLE);
 	mdelay(1);
 	r8a66597_bset(r8a66597, SUSPM, SUSPMODE0);
-#endif /* CONFIG_RZA_USB */
 
 	return 0;
 }
 
 static void r8a66597_clock_disable(struct r8a66597 *r8a66597)
 {
-#if !defined(CONFIG_RZA_USB)
-	r8a66597_bclr(r8a66597, SCKE, SYSCFG0);
-	udelay(1);
-	r8a66597_bclr(r8a66597, PLLC, SYSCFG0);
-	r8a66597_bclr(r8a66597, XCKE, SYSCFG0);
-	r8a66597_bclr(r8a66597, USBE, SYSCFG0);
-#else
 	r8a66597_bclr(r8a66597, SUSPM, SUSPMODE0);
 
 	clrbits(le16, R8A66597_BASE0, UPLLE);
 	mdelay(1);
 	r8a66597_bclr(r8a66597, USBE, SYSCFG0);
 	mdelay(1);
-
-#endif
 }
 
 static void r8a66597_enable_port(struct r8a66597 *r8a66597, int port)
@@ -127,10 +103,6 @@ static void r8a66597_enable_port(struct r8a66597 *r8a66597, int port)
 	val = port ? DRPD : DCFM | DRPD;
 	r8a66597_bset(r8a66597, val, get_syscfg_reg(port));
 	r8a66597_bset(r8a66597, HSE, get_syscfg_reg(port));
-
-#if !defined(CONFIG_RZA_USB)
-	r8a66597_write(r8a66597, BURST | CPU_ADR_RD_WR, get_dmacfg_reg(port));
-#endif
 }
 
 static void r8a66597_disable_port(struct r8a66597 *r8a66597, int port)
@@ -160,9 +132,6 @@ static int enable_controller(struct r8a66597 *r8a66597)
 	if (ret < 0)
 		return ret;
 
-#if !defined(CONFIG_RZA_USB)
-	r8a66597_bset(r8a66597, CONFIG_R8A66597_LDRV & LDRV, PINCFG);
-#endif
 	r8a66597_bset(r8a66597, USBE, SYSCFG0);
 
 	r8a66597_bset(r8a66597, INTL, SOFCFG);
@@ -280,16 +249,13 @@ static int send_setup_packet(struct r8a66597 *r8a66597, struct usb_device *dev,
 	unsigned long setup_addr = USBREQ;
 	u16 intsts1;
 	int timeout = 3000;
-#if defined(CONFIG_RZA_USB)
 	u16 dcpctr;
-#endif
 	u16 devsel = setup->request == USB_REQ_SET_ADDRESS ? 0 : dev->devnum;
 
 	r8a66597_write(r8a66597, make_devsel(devsel) |
 				 (8 << dev->maxpacketsize), DCPMAXP);
 	r8a66597_write(r8a66597, ~(SIGN | SACK), INTSTS1);
 
-#if defined(CONFIG_RZA_USB)
 	dcpctr = r8a66597_read(r8a66597, DCPCTR);
 	if ((dcpctr & PID) == PID_BUF) {
 		if (readw_poll_timeout(r8a66597->reg + DCPCTR, dcpctr,
@@ -298,7 +264,6 @@ static int send_setup_packet(struct r8a66597 *r8a66597, struct usb_device *dev,
 			return -ETIMEDOUT;
 		}
 	}
-#endif
 
 	for (i = 0; i < 4; i++) {
 		r8a66597_write(r8a66597, le16_to_cpu(p[i]), setup_addr);
