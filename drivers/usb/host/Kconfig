@@ -300,3 +300,12 @@ config USB_DWC2_BUFFER_SIZE
 	  because larger transactions could be split in smaller ones.
 
 endif # USB_DWC2
+
+config USB_R8A66597_HCD
+	bool "Renesas R8A66597 USB Core support"
+	depends on OF_CONTROL
+	depends on DM_USB
+	select USB_HOST
+	---help---
+	  This enables support for the on-chip Renesas R8A66597 USB 2.0
+	  controller, present in various RZ and SH SoCs.
