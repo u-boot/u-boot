@@ -178,14 +178,10 @@
 #define	REW		0x4000	/* b14: Buffer rewind */
 #define	DCLRM		0x2000	/* b13: DMA buffer clear mode */
 #define	DREQE		0x1000	/* b12: DREQ output enable */
-#if defined(CONFIG_SUPERH_ON_CHIP_R8A66597)
-#define	MBW		0x0800
-#else
 #if !defined(CONFIG_RZA_USB)
 #define	MBW		0x0400	/* b10: Maximum bit width for FIFO access */
 #else
 #define	MBW		0x0800	/* b10: Maximum bit width for FIFO access */
-#endif
 #endif
 #define	  MBW_8		 0x0000	  /*  8bit */
 #define	  MBW_16	 0x0400	  /* 16bit */
@@ -398,11 +394,7 @@
 #define R8A66597_MAX_NUM_PIPE		10
 #define R8A66597_BUF_BSIZE		8
 #define R8A66597_MAX_DEVICE		10
-#if defined(CONFIG_SUPERH_ON_CHIP_R8A66597)
-#define R8A66597_MAX_ROOT_HUB		1
-#else
 #define R8A66597_MAX_ROOT_HUB		2
-#endif
 #define R8A66597_MAX_SAMPLING		5
 #define R8A66597_RH_POLL_TIME		10
 
@@ -435,7 +427,7 @@ static inline void r8a66597_read_fifo(struct r8a66597 *r8a66597,
 				      int len)
 {
 	int i;
-#if defined(CONFIG_SUPERH_ON_CHIP_R8A66597) || defined(CONFIG_RZA_USB)
+#if defined(CONFIG_RZA_USB)
 	unsigned long fifoaddr = r8a66597->reg + offset;
 	unsigned long count;
 	unsigned long *p = buf;
@@ -469,7 +461,7 @@ static inline void r8a66597_write_fifo(struct r8a66597 *r8a66597,
 {
 	int i;
 	unsigned long fifoaddr = r8a66597->reg + offset;
-#if defined(CONFIG_SUPERH_ON_CHIP_R8A66597) || defined(CONFIG_RZA_USB)
+#if defined(CONFIG_RZA_USB)
 	unsigned long count;
 	unsigned char *pb;
 	unsigned long *p = buf;

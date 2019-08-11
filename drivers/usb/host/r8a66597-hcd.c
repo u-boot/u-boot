@@ -61,17 +61,6 @@ static int r8a66597_clock_enable(struct r8a66597 *r8a66597)
 	u16 tmp;
 	int i = 0;
 
-#if defined(CONFIG_SUPERH_ON_CHIP_R8A66597)
-	do {
-		r8a66597_write(r8a66597, SCKE, SYSCFG0);
-		tmp = r8a66597_read(r8a66597, SYSCFG0);
-		if (i++ > 1000) {
-			printf("register access fail.\n");
-			return -1;
-		}
-	} while ((tmp & SCKE) != SCKE);
-	r8a66597_write(r8a66597, 0x04, 0x02);
-#else
 	do {
 		r8a66597_write(r8a66597, USBE, SYSCFG0);
 		tmp = r8a66597_read(r8a66597, SYSCFG0);
@@ -108,7 +97,6 @@ static int r8a66597_clock_enable(struct r8a66597 *r8a66597)
 	mdelay(1);
 	r8a66597_bset(r8a66597, SUSPM, SUSPMODE0);
 #endif /* CONFIG_RZA_USB */
-#endif	/* #if defined(CONFIG_SUPERH_ON_CHIP_R8A66597) */
 
 	return 0;
 }
@@ -118,11 +106,9 @@ static void r8a66597_clock_disable(struct r8a66597 *r8a66597)
 #if !defined(CONFIG_RZA_USB)
 	r8a66597_bclr(r8a66597, SCKE, SYSCFG0);
 	udelay(1);
-#if !defined(CONFIG_SUPERH_ON_CHIP_R8A66597)
 	r8a66597_bclr(r8a66597, PLLC, SYSCFG0);
 	r8a66597_bclr(r8a66597, XCKE, SYSCFG0);
 	r8a66597_bclr(r8a66597, USBE, SYSCFG0);
-#endif
 #else
 	r8a66597_bclr(r8a66597, SUSPM, SUSPMODE0);
 
