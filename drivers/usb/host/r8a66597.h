@@ -402,7 +402,7 @@ struct r8a66597 {
 
 static inline u16 r8a66597_read(struct r8a66597 *r8a66597, unsigned long offset)
 {
-	return inw(r8a66597->reg + offset);
+	return readw(r8a66597->reg + offset);
 }
 
 static inline void r8a66597_read_fifo(struct r8a66597 *r8a66597,
@@ -416,10 +416,10 @@ static inline void r8a66597_read_fifo(struct r8a66597 *r8a66597,
 
 	count = len / 4;
 	for (i = 0; i < count; i++)
-		p[i] = inl(r8a66597->reg + offset);
+		p[i] = readl(r8a66597->reg + offset);
 
 	if (len & 0x00000003) {
-		unsigned long tmp = inl(fifoaddr);
+		unsigned long tmp = readl(fifoaddr);
 		memcpy((unsigned char *)buf + count * 4, &tmp, len & 0x03);
 	}
 }
@@ -427,7 +427,7 @@ static inline void r8a66597_read_fifo(struct r8a66597 *r8a66597,
 static inline void r8a66597_write(struct r8a66597 *r8a66597, u16 val,
 				  unsigned long offset)
 {
-	outw(val, r8a66597->reg + offset);
+	writew(val, r8a66597->reg + offset);
 }
 
 static inline void r8a66597_write_fifo(struct r8a66597 *r8a66597,
@@ -442,15 +442,15 @@ static inline void r8a66597_write_fifo(struct r8a66597 *r8a66597,
 
 	count = len / 4;
 	for (i = 0; i < count; i++)
-		outl(p[i], fifoaddr);
+		writel(p[i], fifoaddr);
 
 	if (len & 0x00000003) {
 		pb = (unsigned char *)buf + count * 4;
 		for (i = 0; i < (len & 0x00000003); i++) {
 			if (r8a66597_read(r8a66597, CFIFOSEL) & BIGEND)
-				outb(pb[i], fifoaddr + i);
+				writeb(pb[i], fifoaddr + i);
 			else
-				outb(pb[i], fifoaddr + 3 - i);
+				writeb(pb[i], fifoaddr + 3 - i);
 		}
 	}
 }
