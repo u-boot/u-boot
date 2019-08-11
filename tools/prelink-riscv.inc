@@ -27,6 +27,8 @@
 #define target32_to_cpu CONCAT(PRELINK_BYTEORDER, 32_to_cpu)
 #define target64_to_cpu CONCAT(PRELINK_BYTEORDER, 64_to_cpu)
 #define targetnn_to_cpu CONCAT3(PRELINK_BYTEORDER, PRELINK_INC_BITS, _to_cpu)
+#define cpu_to_target32 CONCAT3(cpu_to_, PRELINK_BYTEORDER, 32)
+#define cpu_to_target64 CONCAT3(cpu_to_, PRELINK_BYTEORDER, 64)
 
 static void* get_offset_bonn (void* data, Elf_Phdr* phdrs, size_t phnum, Elf_Addr addr)
 {
@@ -92,9 +94,9 @@ static void prelink_bonn(void *data)
 		if (ELF_R_TYPE(targetnn_to_cpu(r->r_info)) == R_RISCV_RELATIVE)
 			*((uintnn_t*) buf) = r->r_addend;
 		else if (ELF_R_TYPE(targetnn_to_cpu(r->r_info)) == R_RISCV_32)
-			*((uint32_t*) buf) = dynsym[ELF_R_SYM(targetnn_to_cpu(r->r_info))].st_value;
+			*((uint32_t*) buf) = cpu_to_target32(targetnn_to_cpu(dynsym[ELF_R_SYM(targetnn_to_cpu(r->r_info))].st_value) + targetnn_to_cpu(r->r_addend));
 		else if (ELF_R_TYPE(targetnn_to_cpu(r->r_info)) == R_RISCV_64)
-			*((uint64_t*) buf) = dynsym[ELF_R_SYM(targetnn_to_cpu(r->r_info))].st_value;
+			*((uint64_t*) buf) = cpu_to_target64(targetnn_to_cpu(dynsym[ELF_R_SYM(targetnn_to_cpu(r->r_info))].st_value) + targetnn_to_cpu(r->r_addend));
 	}
 }
 
@@ -113,6 +115,8 @@ static void prelink_bonn(void *data)
 #undef target32_to_cpu
 #undef target64_to_cpu
 #undef targetnn_to_cpu
+#undef cpu_to_target32
+#undef cpu_to_target64
 
 #undef CONCAT_IMPL
 #undef CONCAT
