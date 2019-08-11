@@ -76,10 +76,10 @@ static int r8a66597_clock_enable(struct r8a66597 *r8a66597)
 	 * and USB1, so we must always set the USB0 register
 	 */
 #if (CONFIG_R8A66597_XTAL == 1)
-	setbits(le16, R8A66597_BASE0, XTAL);
+	r8a66597_bset(r8a66597, XTAL, SYSCFG0);
 #endif
 	mdelay(1);
-	setbits(le16, R8A66597_BASE0, UPLLE);
+	r8a66597_bset(r8a66597, UPLLE, SYSCFG0);
 	mdelay(1);
 	r8a66597_bset(r8a66597, SUSPM, SUSPMODE0);
 
@@ -90,7 +90,7 @@ static void r8a66597_clock_disable(struct r8a66597 *r8a66597)
 {
 	r8a66597_bclr(r8a66597, SUSPM, SUSPMODE0);
 
-	clrbits(le16, R8A66597_BASE0, UPLLE);
+	r8a66597_bclr(r8a66597, UPLLE, SYSCFG0);
 	mdelay(1);
 	r8a66597_bclr(r8a66597, USBE, SYSCFG0);
 	mdelay(1);
