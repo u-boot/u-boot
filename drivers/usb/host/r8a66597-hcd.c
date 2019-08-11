@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <console.h>
+#include <dm.h>
 #include <usb.h>
 #include <asm/io.h>
 #include <linux/iopoll.h>
@@ -19,29 +20,49 @@
 #define R8A66597_DPRINT(...)
 #endif
 
-static struct r8a66597 gr8a66597;
+static inline struct usb_device *usb_dev_get_parent(struct usb_device *udev)
+{
+	struct udevice *parent = udev->dev->parent;
+
+	/*
+	 * When called from usb-uclass.c: usb_scan_device() udev->dev points
+	 * to the parent udevice, not the actual udevice belonging to the
+	 * udev as the device is not instantiated yet.
+	 *
+	 * If dev is an usb-bus, then we are called from usb_scan_device() for
+	 * an usb-device plugged directly into the root port, return NULL.
+	 */
+	if (device_get_uclass_id(udev->dev) == UCLASS_USB)
+		return NULL;
+
+	/*
+	 * If these 2 are not the same we are being called from
+	 * usb_scan_device() and udev itself is the parent.
+	 */
+	if (dev_get_parent_priv(udev->dev) != udev)
+		return udev;
+
+	/* We are being called normally, use the parent pointer */
+	if (device_get_uclass_id(parent) == UCLASS_USB_HUB)
+		return dev_get_parent_priv(parent);
+
+	return NULL;
+}
 
 static void get_hub_data(struct usb_device *dev, u16 *hub_devnum, u16 *hubport)
 {
-	int i;
+	struct usb_device *parent = usb_dev_get_parent(dev);
 
 	*hub_devnum = 0;
 	*hubport = 0;
 
 	/* check a device connected to root_hub */
-	if ((dev->parent && dev->parent->devnum == 1) ||
+	if ((parent && parent->devnum == 1) ||
 	    (dev->devnum == 1))
 		return;
 
-	for (i = 0; i < USB_MAXCHILDREN; i++) {
-		if (dev->parent->children[i] == dev) {
-			*hub_devnum = (u8)dev->parent->devnum;
-			*hubport = i;
-			return;
-		}
-	}
-
-	printf("get_hub_data error.\n");
+	*hub_devnum = (u8)parent->devnum;
+	*hubport = parent->portnr - 1;
 }
 
 static void set_devadd(struct r8a66597 *r8a66597, u8 r8a66597_address,
@@ -538,10 +559,11 @@ static int check_usb_device_connecting(struct r8a66597 *r8a66597)
 
 #include <usbroothubdes.h>
 
-static int r8a66597_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
-			void *buffer, int transfer_len, struct devrequest *cmd)
+static int r8a66597_submit_rh_msg(struct udevice *udev, struct usb_device *dev,
+				  unsigned long pipe, void *buffer,
+				  int transfer_len, struct devrequest *cmd)
 {
-	struct r8a66597 *r8a66597 = &gr8a66597;
+	struct r8a66597 *r8a66597 = dev_get_priv(udev);
 	int leni = transfer_len;
 	int len = 0;
 	int stat = 0;
@@ -609,7 +631,7 @@ static int r8a66597_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 		}
 		break;
 	case RH_SET_ADDRESS:
-		gr8a66597.rh_devnum = wValue;
+		r8a66597->rh_devnum = wValue;
 		break;
 	case RH_GET_DESCRIPTOR:
 		switch ((wValue & 0xff00) >> 8) {
@@ -705,50 +727,21 @@ static int r8a66597_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	return stat;
 }
 
-int submit_bulk_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
-		    int transfer_len)
+static int r8a66597_submit_control_msg(struct udevice *udev, struct usb_device *dev,
+				   unsigned long pipe, void *buffer, int length,
+				   struct devrequest *setup)
 {
-	struct r8a66597 *r8a66597 = &gr8a66597;
-	int ret = 0;
-
-	R8A66597_DPRINT("%s\n", __func__);
-	R8A66597_DPRINT("pipe = %08x, buffer = %p, len = %d, devnum = %d\n",
-			pipe, buffer, transfer_len, dev->devnum);
-
-	set_devadd(r8a66597, dev->devnum, dev, 0);
-
-	pipe_buffer_setting(r8a66597, dev, pipe);
-
-	dev->act_len = 0;
-	while (dev->act_len < transfer_len && ret == 0) {
-		if (ctrlc())
-			return -1;
-
-		if (usb_pipein(pipe))
-			ret = receive_bulk_packet(r8a66597, dev, pipe, buffer,
-							transfer_len);
-		else
-			ret = send_bulk_packet(r8a66597, dev, pipe, buffer,
-							transfer_len);
-	}
-
-	if (ret == 0)
-		dev->status = 0;
-
-	return ret;
-}
-
-int submit_control_msg(struct usb_device *dev, unsigned long pipe,
-		       void *buffer, int transfer_len, struct devrequest *setup)
-{
-	struct r8a66597 *r8a66597 = &gr8a66597;
+	struct r8a66597 *r8a66597 = dev_get_priv(udev);
 	u16 r8a66597_address = setup->request == USB_REQ_SET_ADDRESS ?
 					0 : dev->devnum;
 
+	debug("%s: dev='%s', udev=%p, udev->dev='%s', portnr=%d\n", __func__,
+	      udev->name, dev, dev->dev->name, dev->portnr);
+
 	R8A66597_DPRINT("%s\n", __func__);
 	if (usb_pipedevice(pipe) == r8a66597->rh_devnum)
-		return r8a66597_submit_rh_msg(dev, pipe, buffer, transfer_len,
-						setup);
+		return r8a66597_submit_rh_msg(udev, dev, pipe, buffer,
+					      length, setup);
 
 	R8A66597_DPRINT("%s: setup\n", __func__);
 	set_devadd(r8a66597, r8a66597_address, dev, 0);
@@ -761,7 +754,7 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe,
 	dev->act_len = 0;
 	if (usb_pipein(pipe))
 		if (receive_control_packet(r8a66597, dev, buffer,
-						transfer_len) < 0)
+						length) < 0)
 			return -1;
 
 	if (send_status_packet(r8a66597, pipe) < 0)
@@ -772,40 +765,102 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe,
 	return 0;
 }
 
-int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
-			int transfer_len, int interval)
+static int r8a66597_submit_bulk_msg(struct udevice *udev, struct usb_device *dev,
+				unsigned long pipe, void *buffer, int length)
 {
-	/* no implement */
+	struct r8a66597 *r8a66597 = dev_get_priv(udev);
+	int ret = 0;
+
+	debug("%s: dev='%s', udev=%p\n", __func__, udev->name, dev);
+
 	R8A66597_DPRINT("%s\n", __func__);
+	R8A66597_DPRINT("pipe = %08x, buffer = %p, len = %d, devnum = %d\n",
+			pipe, buffer, length, dev->devnum);
+
+	set_devadd(r8a66597, dev->devnum, dev, 0);
+
+	pipe_buffer_setting(r8a66597, dev, pipe);
+
+	dev->act_len = 0;
+	while (dev->act_len < length && ret == 0) {
+		if (ctrlc())
+			return -1;
+
+		if (usb_pipein(pipe))
+			ret = receive_bulk_packet(r8a66597, dev, pipe, buffer,
+							length);
+		else
+			ret = send_bulk_packet(r8a66597, dev, pipe, buffer,
+							length);
+	}
+
+	if (ret == 0)
+		dev->status = 0;
+
+	return ret;
+}
+
+static int r8a66597_usb_ofdata_to_platdata(struct udevice *dev)
+{
+	struct r8a66597 *priv = dev_get_priv(dev);
+	fdt_addr_t addr;
+
+	addr = dev_read_addr(dev);
+	if (addr == FDT_ADDR_T_NONE)
+		return -EINVAL;
+	priv->reg = addr;
+
 	return 0;
 }
 
-int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
+static int r8a66597_usb_probe(struct udevice *dev)
 {
-	struct r8a66597 *r8a66597 = &gr8a66597;
+	struct r8a66597 *priv = dev_get_priv(dev);
+	struct usb_bus_priv *bus_priv = dev_get_uclass_priv(dev);
 
-	R8A66597_DPRINT("%s\n", __func__);
+	bus_priv->desc_before_addr = true;
 
-	memset(r8a66597, 0, sizeof(*r8a66597));
-	r8a66597->reg = CONFIG_R8A66597_BASE_ADDR;
-
-	disable_controller(r8a66597);
+	disable_controller(priv);
 	mdelay(100);
 
-	enable_controller(r8a66597);
-	r8a66597_port_power(r8a66597, 0 , 1);
+	enable_controller(priv);
+	r8a66597_port_power(priv, 0 , 1);
 
 	/* check usb device */
-	check_usb_device_connecting(r8a66597);
+	check_usb_device_connecting(priv);
 
 	mdelay(50);
 
 	return 0;
 }
 
-int usb_lowlevel_stop(int index)
+static int r8a66597_usb_remove(struct udevice *dev)
 {
-	disable_controller(&gr8a66597);
+	struct r8a66597 *priv = dev_get_priv(dev);
+
+	disable_controller(priv);
 
 	return 0;
 }
+
+struct dm_usb_ops r8a66597_usb_ops = {
+	.control = r8a66597_submit_control_msg,
+	.bulk = r8a66597_submit_bulk_msg,
+};
+
+static const struct udevice_id r8a66597_usb_ids[] = {
+	{ .compatible = "renesas,rza1-usbhs" },
+	{ }
+};
+
+U_BOOT_DRIVER(usb_r8a66597) = {
+	.name	= "r8a66597_usb",
+	.id	= UCLASS_USB,
+	.of_match = r8a66597_usb_ids,
+	.ofdata_to_platdata = r8a66597_usb_ofdata_to_platdata,
+	.probe	= r8a66597_usb_probe,
+	.remove = r8a66597_usb_remove,
+	.ops	= &r8a66597_usb_ops,
+	.priv_auto_alloc_size = sizeof(struct r8a66597),
+	.flags	= DM_FLAG_ALLOC_PRIV_DMA,
+};
