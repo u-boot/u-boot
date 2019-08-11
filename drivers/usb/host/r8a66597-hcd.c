@@ -139,9 +139,9 @@ static int enable_controller(struct r8a66597 *r8a66597)
 	for (port = 0; port < R8A66597_MAX_ROOT_HUB; port++)
 		r8a66597_write(r8a66597, 0, get_intenb_reg(port));
 
-	r8a66597_bset(r8a66597, CONFIG_R8A66597_ENDIAN & BIGEND, CFIFOSEL);
-	r8a66597_bset(r8a66597, CONFIG_R8A66597_ENDIAN & BIGEND, D0FIFOSEL);
-	r8a66597_bset(r8a66597, CONFIG_R8A66597_ENDIAN & BIGEND, D1FIFOSEL);
+	r8a66597_bclr(r8a66597, BIGEND, CFIFOSEL);
+	r8a66597_bclr(r8a66597, BIGEND, D0FIFOSEL);
+	r8a66597_bclr(r8a66597, BIGEND, D1FIFOSEL);
 	r8a66597_bset(r8a66597, TRNENSEL, SOFCFG);
 
 	for (port = 0; port < R8A66597_MAX_ROOT_HUB; port++)
